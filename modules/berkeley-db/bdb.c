@@ -1300,7 +1300,6 @@ Btree/Recno Configuration
  DB->set_bt_compare	Set a Btree comparison function
  DB->set_bt_minkey	Set the minimum number of keys per Btree page
  DB->set_bt_prefix	Set a Btree prefix comparison function
- DB->set_re_source	Set the backing Recno text file
 Hash Configuration
  DB->set_h_ffactor	Set the Hash table density
  DB->set_h_hash	Set a hashing function
@@ -1347,11 +1346,12 @@ static object db_get_flags_list (DB *db) {
 }
 
 DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :PASSWORD :ENCRYPTION      \
-      :NCACHE :CACHESIZE :CACHE :LORDER :PAGESIZE :RE_DELIM :RE_LEN :RE_PAD \
+      :NCACHE :CACHESIZE :CACHE :LORDER :PAGESIZE :RE_DELIM :RE_LEN   \
+      :RE_PAD :RE_SOURCE                                              \
       :CHKSUM :ENCRYPT :TXN_NOT_DURABLE :DUP :DUPSORT :RECNUM         \
       :REVSPLITOFF :RENUMBER :SNAPSHOT)
 { /* set database options */
-  DB *db = object_handle(STACK_(20),`BDB::DB`,OH_VALID);
+  DB *db = object_handle(STACK_(21),`BDB::DB`,OH_VALID);
   { /* flags */
     u_int32_t flags_on = 0, flags_off = 0;
     set_flags(popSTACK(),&flags_on,&flags_off,DB_SNAPSHOT);
@@ -1371,6 +1371,15 @@ DEFUN(BDB:DB-SET-OPTIONS, db &key :ERRFILE :PASSWORD :ENCRYPTION      \
       SYSCALL(db->set_flags,(db,flags));
     }
   }
+  if (boundp(STACK_0)) {        /* RE_SOURCE */
+    if (nullp(STACK_0))
+      SYSCALL(db->set_re_source,(db,NULL));
+    else
+      with_string_0(check_string(STACK_0),GLO(pathname_encoding), re_source, {
+          SYSCALL(db->set_re_source,(db,re_source));
+        });
+  }
+  skipSTACK(1);
   if (!missingp(STACK_0)) {     /* RE_PAD */
     int re_pad = I_to_uint8(check_uint8(STACK_0));
     SYSCALL(db->set_re_pad,(db,re_pad));
@@ -1441,15 +1450,15 @@ static void db_get_cache (DB* db, int errorp) {
     value2 = fixnum(ncache);
   }
 }
-#define DEFINE_DB_GETTER1(getter,type)            \
+#define DEFINE_DB_GETTER1(getter,type,finish)    \
   static object db_##getter (DB* db) {           \
     type value;                                  \
     SYSCALL(db->getter,(db,&value));             \
-    return UL_to_I(value);                       \
+    return finish;                               \
   }
-DEFINE_DB_GETTER1(get_lorder,int)
-DEFINE_DB_GETTER1(get_pagesize,u_int32_t)
-#define DEFINE_DB_GETTER2(getter,type)                  \
+DEFINE_DB_GETTER1(get_lorder,int,L_to_I(value))
+DEFINE_DB_GETTER1(get_pagesize,u_int32_t,UL_to_I(value))
+#define DEFINE_DB_GETTER2(getter,type,finish)           \
   static object db_##getter (DB* db,int errorp) {       \
     type value;                                         \
     int status;                                         \
@@ -1461,11 +1470,13 @@ DEFINE_DB_GETTER1(get_pagesize,u_int32_t)
       error_message_reset();                            \
       return NIL;                                       \
     } else                                              \
-      return UL_to_I(value);                            \
+      return finish;                                    \
   }
-DEFINE_DB_GETTER2(get_re_delim,int)
-DEFINE_DB_GETTER2(get_re_len,u_int32_t)
-DEFINE_DB_GETTER2(get_re_pad,int)
+DEFINE_DB_GETTER2(get_re_delim,int,L_to_I(value))
+DEFINE_DB_GETTER2(get_re_len,u_int32_t,UL_to_I(value))
+DEFINE_DB_GETTER2(get_re_pad,int,L_to_I(value))
+DEFINE_DB_GETTER2(get_re_source,const char*,
+                  value ? asciz_to_string(value,GLO(pathname_encoding)) : NIL)
 ERRFILE_FD_EXTRACTOR(db_get_errfile,DB*)
 FLAG_EXTRACTOR(db_get_flags_num,DB*)
 DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
@@ -1486,6 +1497,7 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     pushSTACK(`:RE_DELIM`); pushSTACK(db_get_re_delim(db,false)); count++;
     pushSTACK(`:RE_LEN`); pushSTACK(db_get_re_len(db,false)); count++;
     pushSTACK(`:RE_PAD`); pushSTACK(db_get_re_pad(db,false)); count++;
+    pushSTACK(`:RE_SOURCE`); pushSTACK(db_get_re_source(db,false)); count++;
     VALUES1(listof(2*count));
   } else if (eq(what,`:CACHE`)) {
     db_get_cache(db,true); mv_count = 2;
@@ -1507,6 +1519,8 @@ DEFUNR(BDB:DB-GET-OPTIONS, db &optional what)
     VALUES1(db_get_re_len(db,true));
   } else if (eq(what,`:RE_PAD`)) {
     VALUES1(db_get_re_pad(db,true));
+  } else if (eq(what,`:RE_SOURCE`)) {
+    VALUES1(db_get_re_source(db,true));
   } else if (eq(what,`:LORDER`)) {
     VALUES1(db_get_lorder(db));
   } else if (eq(what,`:FLAGS`)) {

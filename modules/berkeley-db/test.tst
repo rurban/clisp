@@ -14,6 +14,7 @@ NIL
         (ext:delete-dir f))))
 kill-down
 (defun rmrf (name)
+  (ext:dir (ext:string-concat name "**"))
   (kill-down name)
   (format t "~&removing ~S~%" name)
   (ext:delete-dir name))
@@ -30,7 +31,14 @@ prepare-dir
                  (bdb:db-get-options db))))
   nil)
 show-db
-
+(defun finish-file (file)
+  (when (probe-file file)
+    (with-open-file (st file :direction :input)
+      (format t "~&~S: ~:D byte~:P:~%" file (file-length st))
+      (loop :for l = (read-line st nil nil) :while l
+        :do (format t "--> ~S~%" l))))
+  (null (delete-file file)))
+finish-file
 (prepare-dir "bdb-home/") NIL
 (prepare-dir "bdb-data/") NIL
 (progn (delete-file "bdb-errors") NIL) NIL
@@ -65,6 +73,50 @@ NIL
 (show-db *db*) NIL
 (bdb:db-close *db*)   T
 
+;;; recno with underlying text file
+(with-open-file (s "bdb-data/recno-source.txt" :direction :output
+                   :external-format :unix)
+  (write-line "foo" s)
+  (write-line "bar" s)
+  (write-line "foobar" s))
+"foobar"
+
+(let ((db (bdb:db-create *dbe*)))
+  (bdb:db-set-options db :RE_SOURCE "recno-source.txt")
+  (bdb:db-open db "recno-source.db" :type :RECNO :create t)
+  (unwind-protect
+       (list (bdb:db-get db 1 :type :string)
+             (bdb:db-get db 2 :type :string)
+             (bdb:db-get db 3 :type :string)
+             (bdb:db-get db 4 :error nil))
+    (bdb:db-close db)))
+("foo" "bar" "foobar" :NOTFOUND)
+
+(let ((db (bdb:db-create *dbe*)))
+  (bdb:db-set-options db :RE_SOURCE "recno-source.txt")
+  (bdb:db-open db "recno-source.db")
+  (unwind-protect
+       (bdb:db-put db 5 "bazonk")
+    (bdb:db-close db)))
+NIL
+
+(bdb:with-open-db (db *dbe* "recno-source.db" :rdonly t)
+  (show-db db)
+  (bdb:with-cursor (cu db)
+    (list
+     (loop :with key :and val
+       :do (setf (values key val)
+                 (bdb:cursor-get cu :INTEGER :STRING :DB_NEXT :error nil))
+       :until (eq key :notfound)
+       :collect (list key val))
+     (bdb:db-get db 4 :error nil))))
+(((1 "foo") (2 "bar") (3 "foobar") (5 "bazonk")) :KEYEMPTY)
+
+(with-open-file (s "bdb-data/recno-source.txt" :direction :input)
+  (loop :for l = (read-line s nil nil) :while l :collect l))
+("foo" "bar" "foobar" "" "bazonk")
+
+;;; write factorials into (:BTREE :HASH)
 (dolist (type '(:btree :hash))
   (print type)
   (bdb:with-open-db (db *dbe* (format nil "test-~A.db" type)
@@ -74,6 +126,7 @@ NIL
              :collect (list x x! (bdb:db-put db x x!))))))
 NIL
 
+;;; write factorials into (:QUEUE :RECNO)
 (dolist (type '(:queue :recno))
   (print type)
   (let ((db (bdb:db-create *dbe*)) (max 30))
@@ -92,13 +145,9 @@ NIL
 
 (bdb:env-close *dbe*) T
 
-(ext:dir "bdb-home/*") NIL
-(ext:dir "bdb-data/*") NIL
-
-(with-open-file (e "bdb-errors" :direction :input)
-  (format t "~&errors: ~:D byte~:P:~%" (file-length e))
-  (loop :for s = (read-line e nil nil) :while s :do (format t "--> ~S~%" s)))
-NIL
+(ext:dir "bdb-home/**") NIL
+(ext:dir "bdb-data/**") NIL
+(finish-file "bdb-errors") NIL
 
 ;;; access
 
@@ -143,6 +192,7 @@ NIL
 (bdb:db-truncate *db*)      2   ; the number of records discarded
 (bdb:db-close *db*)         T
 
+;;; read factorials from (:BTREE :HASH)
 (dolist (type '(:btree :hash))
   (print type)
   (bdb:with-open-db (db *dbe* (format nil "test-~A.db" type) :rdonly t)
@@ -156,6 +206,7 @@ NIL
               (assert (= (! key) val)))))))
 NIL
 
+;;; read factorials from (:QUEUE :RECNO)
 (dolist (type '(:queue :recno))
   (print type)
   (bdb:with-open-db (db *dbe* (format nil "test-~A.db" type) :rdonly t)
@@ -175,11 +226,6 @@ NIL
 
 (bdb:env-close *dbe*)       T
 
-(with-open-file (e "bdb-errors" :direction :input)
-  (format t "~&errors: ~:D byte~:P:~%" (file-length e))
-  (loop :for s = (read-line e nil nil) :while s :do (format t "--> ~S~%" s)))
-NIL
-
+(finish-file "bdb-errors") T    ; no errors, bdb-errors does not exist
 (rmrf "bdb-home/") T
 (rmrf "bdb-data/") T
-(null (delete-file "bdb-errors")) NIL
