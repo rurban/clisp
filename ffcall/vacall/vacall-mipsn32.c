@@ -1,7 +1,7 @@
 /* vacall function for mips CPU */
 
 /*
- * Copyright 1995-1999 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-2004 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -18,7 +18,7 @@
 #ifndef REENTRANT
 typedef void (*func_pointer)(va_alist);
 #else /* REENTRANT */
-#define vacall __vacall_r
+#define __vacall __vacall_r
 typedef void (*func_pointer)(void*,va_alist);
 register struct { func_pointer vacall_function; void* arg; }
          *		env	__asm__("$2");
@@ -57,9 +57,9 @@ register double		dret	__asm__("$f0");
 register double		dret2	__asm__("$f2");
 
 void /* the return type is variable, not void! */
-vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
-        __vaword word5, __vaword word6, __vaword word7, __vaword word8,
-        __vaword firstword)
+__vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
+          __vaword word5, __vaword word6, __vaword word7, __vaword word8,
+          __vaword firstword)
 {
   /* gcc-2.95 does not allocate stack space for word1,...,word8. */
   /* The following account for the stack frame increase from 192 to 256 bytes

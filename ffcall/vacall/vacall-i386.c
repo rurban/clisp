@@ -1,7 +1,7 @@
 /* vacall function for i386 CPU */
 
 /*
- * Copyright 1995-1999 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-2004 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -34,7 +34,7 @@ void /* the return type is variable, not void! */
 #ifdef REENTRANT
 __vacall_r (env_t * env, __vaword firstword)
 #else
-vacall (__vaword firstword)
+__vacall (__vaword firstword)
 #endif
 {
   __va_alist list;
