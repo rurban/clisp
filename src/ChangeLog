@@ -1,3 +1,8 @@
+2002-08-09  Arseny Slobodjuck <ampy@ich.dvo.ru>
+
+	* _README.en: fixed mentioning of install.bat, 
+	merged unix and win32 file list, updated file list.
+
 2002-08-07  Sam Steingold  <sds@gnu.org>
 
 	* m4/ln.m4 (CL_PROG_HLN): this time, fixed the link test for real

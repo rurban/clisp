@@ -43,39 +43,53 @@ Contents:
 
 It consists of the following files:
 
-#ifdef UNIX
-#ifndef UNIX_BINARY_DISTRIB
+#if defined(UNIX) || defined(WIN32_NATIVE)
+#if !defined(UNIX_BINARY_DISTRIB) && !defined(WIN32_NATIVE)
    base/lisp.a            main program, to be linked
 #endif
 #ifdef UNIX_BINARY_DISTRIB
    base/lisp.run          main program
 #endif
+#ifdef UNIX
    base/lispinit.mem      memory image needed for startup
+#else
+   lisp.exe               main program
+   lispinit.mem           memory image needed for startup
+#endif
    doc/clisp.1            manual page in Unix man format
    doc/clisp.man          manual page
    doc/clisp.html         manual page in HTML format
-   doc/impnotes.html      implementation notes
+   doc/impnotes.html,
+   doc/impnotes.css,
+   doc/clisp.png          implementation notes
 #ifdef GNU_READLINE
    doc/clreadline.3       line editing manual page in Unix man format
    doc/clreadline.man     line editing manual page
 #endif
    doc/LISP-tutorial.txt  LISP tutorial for beginners
    doc/CLOS-guide.txt     brief guide to CLOS
+#ifdef GNU_READLINE
+   doc/readline.dvi       GNU readline library documentation
+#endif
+   doc/editors.txt        survey of editors with Lisp support
    README                 this text
    SUMMARY                short description of CLISP
    ANNOUNCE               announcement
    NEWS                   list of modifications since the last version
    COPYRIGHT              copyright notice
    GNU-GPL                free software license
-#ifdef GNU_READLINE
-   doc/readline.dvi       GNU readline library documentation
-#endif
-   doc/editors.txt        survey of editors with Lisp support
    emacs/*.el             Emacs customization, see doc/editors.txt
 #ifndef UNIX_BINARY_DISTRIB
    src/clisp.c            source of driver program
 #endif
    src/config.lisp        site-dependent configuration
+   data/clhs.txt          keyword-to-HyperSpec mapper
+   data/UnicodeData.txt   unicode mapper
+#ifdef WIN32_NATIVE
+   install.bat,           
+   src/install.lisp       user-friendly installer
+#endif
+
 
 and - to your convenience, if you like reading source -
 
@@ -95,7 +109,7 @@ or
 #ifdef AMIGAOS
       lisp.run           main program
 #endif
-#ifdef OS2
+#if defined(OS2) || defined(WIN32_NATIVE)
       lisp.exe           main program
 #endif
 #ifdef RISCOS
@@ -337,7 +351,8 @@ Instead, you may do this yourself, step by step:
 
 #endif
 #ifndef RISCOS
-Then create a directory, and put the executable and the memory image there.
+If you want a minimal install, then create a directory, and put the
+executable and the memory image there.
 #endif
 #ifdef UNIX
 I would suggest /usr/local/lib/lisp :
@@ -369,6 +384,12 @@ And create a batch file that starts lisp:
    d:\lib\lisp\lisp.exe -M d:\lib\lisp\lispinit.mem -B d:\lib\lisp\ %1 %2 %3 %4 %5 %6 %7 %8 %9
    [Ctrl-Z]
 #endif
+
+#ifdef WIN32_NATIVE
+You can also use file install.bat which creates the driver file
+on your desktop and sets up the registry.
+#endif
+
 #ifdef UNIX
 And create the driver program that starts lisp:
 
@@ -380,10 +401,6 @@ And create the driver program that starts lisp:
    ./hardcode -DLISPLIBDIR='/usr/local/lib/lisp' \
               -DLOCALEDIR='/usr/local/share/locale' \
               clisp /usr/local/bin/clisp
-#endif
-#ifdef WIN32_NATIVE
-You can also use file install.bat which creates the driver file
-on your desktop and sets up the registry.
 #endif
 
 #ifdef GNU_READLINE
