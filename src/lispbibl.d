@@ -10169,7 +10169,7 @@ re-enters the corresponding top-level loop.
        } while (consp(l));                                              \
      }                                                                  \
      mv_fertig:                                                         \
-     if (!nullp(l)) fehler_proper_list(S(values_list),l);               \
+     if (!nullp(l)) fehler_proper_list_dotted(S(values_list),l);        \
      mv_count = count;                                                  \
     } while(0)
 #else
@@ -10186,7 +10186,7 @@ re-enters the corresponding top-level loop.
         } while (consp(l));                                             \
      }}                                                                 \
      mv_fertig:                                                         \
-     if (!nullp(l)) fehler_proper_list(S(values_list),l);               \
+     if (!nullp(l)) fehler_proper_list_dotted(S(values_list),l);        \
      mv_count = count;                                                  \
     } while(0)
 #endif
@@ -12521,6 +12521,15 @@ extern object deleteq (object list, object obj);
 extern bool endp (object obj);
 /* used by CONTROL */
 
+/* Finds the length of a possibly circular or dotted list.
+ list_length(list,&dotted)
+ > list: an object
+ < result: the length (integer >= 0, or NIL for circular lists)
+ < dotted: if non-circular, the last atom, i.e., the indicator whether the list
+           is dotted */
+extern object list_length (object list, object *dottedp);
+/* used by SEQUENCE */
+
 /* proper_list_p(obj)
    returns true if obj is a proper list, i.e. a list which is neither dotted
    nor circular, i.e. a list which ends in NIL. */
@@ -12713,11 +12722,18 @@ static inline object check_list (object obj) {
 #endif
 /* used by PATHNAME */
 
-# Error message, if an object isn't a proper list.
-# fehler_proper_list(caller,obj);
+# Error message, if an object isn't a proper list because it is dotted.
+# fehler_proper_list_dotted(caller,obj);
 # > caller: caller (a symbol)
 # > obj: End of list, non-list
-nonreturning_function(extern, fehler_proper_list, (object caller, object obj));
+nonreturning_function(extern, fehler_proper_list_dotted, (object caller, object obj));
+# is used by LIST
+
+# Error message, if an object isn't a proper list because it is circular.
+# fehler_proper_list_circular(caller,obj);
+# > caller: caller (a symbol)
+# > obj: circular list
+nonreturning_function(extern, fehler_proper_list_circular, (object caller, object obj));
 # is used by LIST
 
 /* check_symbol(obj)
