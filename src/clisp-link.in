@@ -443,7 +443,7 @@ case "$1" in
     installbasedir=`dirname "$sourcedir"`
     shift
     shift
-    if test -n "@with_dynamic_modules@"; then
+    if test "@with_dynamic_modules@" != no; then
       moduledirs="$@"
       if [ ! -d "$sourcedir" ] ; then
         echo "$0: $sourcedir is not a directory" 1>&2

@@ -1,3 +1,10 @@
+2004-08-22  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in: Change the handling of --with and --without options to
+	be like in GNU autoconf. Put the default of each with_* flag in one
+	place, not at each use of the variable.
+	* clisp-link.in: Update.
+
 2004-08-21  Bruno Haible  <bruno@clisp.org>
 
 	Add a slot to the SOURCE-PROGRAM-ERROR condition.
