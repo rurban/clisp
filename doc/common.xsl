@@ -111,7 +111,7 @@ set       toc,title
       <img src="http://www.gnu.org/graphics/gnubanner.jpg" width="468"
            height="60" alt="[Come and see what GNU creates for YOU]"/></a></td>
     <td align="right"><a href="http://sourceforge.net">
-      <img src="http://sourceforge.net/sflogo.php?group_id=1355&#38;amp;type=2"
+      <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&#38;amp;type=2"
            width="125" height="37" alt="[SourceForge]"/></a></td></tr>
  </table></div>
 </xsl:template>

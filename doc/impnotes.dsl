@@ -128,7 +128,7 @@
                           (make element gi: "a" attributes:
                                 '(("href" "http://sourceforge.net"))
                                 (make empty-element gi: "img" attributes:
-                                      '(("src" "http://sourceforge.net/sflogo.php?group_id=1355&#38;amp;type=2")
+                                      '(("src" "http://sflogo.sourceforge.net/sflogo.php?group_id=1355&#38;amp;type=2")
                                         ("width" "125") ("height" "37")
                                         ("alt" "[SourceForge]")))))))))
 
