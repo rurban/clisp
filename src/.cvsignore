@@ -21,7 +21,6 @@ ANNOUNCE
 CLOS-guide.txt
 config.lisp
 COPYRIGHT
-dirkey.c
 editors.txt
 GNU-GPL
 impnotes.html
