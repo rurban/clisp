@@ -8873,7 +8873,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         write_sstring_case(stream_,O(printstring_ffunction)); # FOREIGN-FUNCTION
         {
           var uintL length = 0; # previous length := 0
-          # check for attaining of *PRINT-LENGHT*:
+          # check for attaining of *PRINT-LENGTH*:
           if (length >= length_limit) goto ffunction_end;
           JUSTIFY_SPACE; # print Space
           # print Name:
@@ -8909,10 +8909,10 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
           UNREADABLE_START;
           var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
           JUSTIFY_LAST(length_limit==0);
-          write_sstring_case(stream_,O(printstring_weakpointer)); # WEAK-POINTER
+          write_sstring_case(stream_,O(printstring_weakpointer)); # "WEAK-POINTER"
           {
             var uintL length = 0; # previous length := 0
-            # check for attaining of *PRINT-LENGHT*:
+            # check for attaining of *PRINT-LENGTH*:
             if (length >= length_limit) goto weakpointer_end;
             JUSTIFY_SPACE; # print Space
             JUSTIFY_LAST(true);
@@ -8948,7 +8948,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         write_sstring_case(stream_,O(printstring_socket_server)); # SOCKET-SERVER
         {
           var uintL length = 0; # previous length := 0
-          # check for attaining of *PRINT-LENGHT*:
+          # check for attaining of *PRINT-LENGTH*:
           if (length >= length_limit) goto socket_server_end;
           JUSTIFY_SPACE; # print Space
           JUSTIFY_LAST(true);
@@ -8979,7 +8979,7 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
         write_sstring_case(stream_,O(printstring_yetanother)); # YET-ANOTHER
         {
           var uintL length = 0; # previous length := 0
-          # check for attaining of *PRINT-LENGHT*:
+          # check for attaining of *PRINT-LENGTH*:
           if (length >= length_limit) goto yetanother_end;
           JUSTIFY_SPACE; # print Space
           JUSTIFY_LAST(true);
@@ -9234,7 +9234,7 @@ local void pr_cclosure_codevector (const gcv_object_t* stream_, object codevec) 
         # print Space (except before the first element):
         if (!(length==0))
           JUSTIFY_SPACE;
-        # check for attaining of *PRINT-LENGHT*:
+        # check for attaining of *PRINT-LENGTH*:
         CHECK_LENGTH_LIMIT(length >= length_limit,break);
         # test for attaining of *PRINT-LINES* :
         CHECK_LINES_LIMIT(break);
