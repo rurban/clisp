@@ -460,6 +460,9 @@
   <listitem><simpara><literal>CP936</literal>,
       a Microsoft variant of <literal>GBK</literal>.
     </simpara></listitem>
+  <listitem><simpara><literal>GB18030</literal>,
+      a multibyte character set for Chinese,
+    </simpara></listitem>
   <listitem><simpara><literal>EUC-TW</literal>,
       a multibyte character set for traditional Chinese.
     </simpara></listitem>
@@ -468,6 +471,9 @@
     </simpara></listitem>
   <listitem><simpara><literal>CP950</literal>,
       a Microsoft variant of <literal>BIG5</literal>.
+    </simpara></listitem>
+  <listitem><simpara><literal>BIG5HKSCS</literal>,
+      a multibyte character set for traditional Chinese.
     </simpara></listitem>
   <listitem><simpara><literal>ISO-2022-CN</literal>,
       a stateful 7-bit multibyte character set for Chinese.
