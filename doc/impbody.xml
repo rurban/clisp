@@ -1223,8 +1223,8 @@ performance considerations.
 <section id="float-subst"><title>Rule of Float Substitutability
    <ulink url="&clhs;/Body/sec_12-1-3-3.html">[CLHS-12.1.3.3]</ulink></title>
 
-<para>When a mathematical function may return an exact (rational) or
- inexact (floating-point) result, it always returns the exact result.</para>
+<para>When a mathematical function may return an exact (&rational-t;) or
+ inexact (&float-t;) result, it always returns the exact result.</para>
 
 </section>
 
@@ -1252,7 +1252,19 @@ performance considerations.
  except that &clisp; does not support features like
  <literal>&plusmn;0</literal>, <literal>&plusmn;inf</literal>,
  <literal>NaN</literal>, gradual underflow, etc.
- (&cl; does not make use of these features.)
+ &cl; does not make use of these features, so, to reduce portability
+ problems, &clisp; by design returns the same floating point results on
+ all platforms (&clisp; has a floating-point emulation built in for
+ platforms that do not support &ieee-bfp;).  Note that
+ <itemizedlist><listitem><simpara>When you got a <literal>NaN</literal>
+    in your program, your program is broken, so you will spend time
+    determining where the <literal>NaN</literal> came from.
+    It is better to &signal; an &error-t; in this case.</simpara></listitem>
+  <listitem><simpara>When you got unnormalized floats in your program,
+    your results will have a greatly reduced accuracy anyway.
+    Since &clisp; has the means to cope with this - &long-float-t;s of
+    <link linkend="lfd">variable precision</link> - it does not
+    need unnormalized floats.</simpara></listitem></itemizedlist>
  This is why &features-var; does not contain the
  <constant>:IEEE-FLOATING-POINT</constant> keyword.</para>
 
