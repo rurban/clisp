@@ -1,3 +1,23 @@
+2002-06-07  Sam Steingold  <sds@gnu.org>
+
+	do not distribute autoconf with CLISP
+	* Makefile.devel (EXCLUDE): exclude the po/tmp and autoconf cache
+	(AUTOCONF_VERSION): new exported variable
+	(AUTOCONF, AUTOCONF_CACHE): new variables
+	(AUTOCONF_FILES): removed autoconf.m4f
+	(*/configure): use $(AUTOCONF)
+	(check-configures): remove $(AUTOCONF_CACHE)
+	(potfiles): cleanup
+	* ffcall/Makefile.devel (AUTOCONF_VERSION, AUTOCONF): new variables
+	(AUTOCONF_FILES): removed autoconf.m4f
+	(*/configure): use $(AUTOCONF)
+	* libcharset/Makefile.devel, sigsegv/Makefile.devel:
+	(AUTOCONF_VERSION, AUTOCONF): new variables
+	(*/configure): use $(AUTOCONF)
+	* ffcall/autoconf/autoconf, ffcall/autoconf/autoconf.m4f,
+	* sigsegv/autoconf/autoconf, sigsegv/autoconf/autoconf.m4f,
+	* src/autoconf/autoconf, src/autoconf/autoconf.m4f: removed
+
 2002-06-06  Peter Burwood  <clisp@peterb.org.uk>
 
 	* stdint.h.in (NEED_SIGNED_INT_TYPES): New define.

@@ -1,5 +1,5 @@
-# This is the developer's makefile, not the user's makefile.
-# Don't use it unless you know exactly what you do!
+# This is the developer's -*- Makefile -*-, not the user's makefile.
+# Do not use it unless you know exactly what you are doing!
 
 SHELL = /bin/sh
 MAKE = make
@@ -38,10 +38,12 @@ autoconf/aclocal.m4 : m4/general.m4 m4/proto.m4 m4/cc-gcc.m4 m4/ranlib.m4 m4/ins
 
 configures : $(CONFIGURES)
 
-AUTOCONF_FILES = autoconf/aclocal.m4 autoconf/autoconf.m4f
+AUTOCONF_FILES = autoconf/aclocal.m4
+AUTOCONF_VERSION ?= 2.53
+AUTOCONF = autoconf-$(AUTOCONF_VERSION)
 
 configure : configure.in $(AUTOCONF_FILES)
-	autoconf/autoconf -A autoconf -l autoconf
+	$(AUTOCONF) --include autoconf
 
 force :
 
