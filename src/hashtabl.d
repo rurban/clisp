@@ -749,7 +749,7 @@ local uint32 hashcode4_atom (object obj) {
        default: ;
      }
     {                           /* look at flags, type, components: */
-      var uintC len = Record_length(obj);
+      var uintC len = Record_nonweak_length(obj);
       var uint32 bish_code = 0x03168B8D + (Record_flags(obj) << 24)
         + (Record_type(obj) << 16) + len;
       if (len > 0) {

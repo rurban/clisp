@@ -24,11 +24,9 @@
 #   #define update_fp_invalid ...
 #   #define update_fsubr_function ...
 #   #define update_fs_function ...
-#   #define update_weak_pointers ...
 #   #define update_page ...
 #   update_varobjects();
 #   #undef update_page
-#   #undef update_weak_pointers
 #   #undef update_fs_function
 #   #undef update_fsubr_function
 #   #undef update_fp_invalid
@@ -39,23 +37,6 @@
 #   #undef update_ht_invalid
 # Some possible implementation of update_page.
 #   update_page_normal
-
-# Update the list of pending weak pointers.
-#   update_weakpointers();
-# Same, but here update(objptr) may modify *objptr. and the
-# value before update should be taken while following the list.
-#   update_weakpointers_mod();
-# update_weakpointers() is to be used _after_ the objects have moved, and it
-# must come after update_tables() because it uses O(all_weakpointers) and
-# expects that O(all_weakpointers) has already been updated.
-# update_weakpointers_mod() is to be used _before_ the big sweep operation,
-# and it must come before update_tables() because it uses O(all_weakpointers)
-# and expects that O(all_weakpointers) is still pointing to the old location.
-
-# Update the list of weak key/value tables.
-#   update_weakkvtables();
-# or
-#   update_weakkvtables_mod();
 
 # Update the stacks.
 #   #define update_stackobj ...
@@ -163,12 +144,7 @@
     }                                                                     \
    {var uintC count = (record_type((Record)ptr) < rectype_limit           \
                        ? srecord_length((Srecord)ptr)                     \
-                       : xrecord_length((Xrecord)ptr)                     \
-                         + (update_weak_pointers                          \
-                            && (record_type((Record)ptr) == Rectype_Weakpointer \
-                                || record_type((Record)ptr) == Rectype_WeakKVT) \
-                            ? xrecord_xlength((Xrecord)ptr)/sizeof(gcv_object_t) \
-                            : 0));                                        \
+                       : xrecord_length((Xrecord)ptr));                   \
     if (count != 0) {                                                     \
       var gcv_object_t* p = &((Record)ptr)->recdata[0];                   \
       dotimespC(count,count, { update(p); p++; } );                       \
@@ -339,57 +315,6 @@
      }                                                                 \
    })
 #endif # SPVW_PURE
-
-# update weak-pointer-list:
-#define update_weakpointer(ww)                                         \
-  do {                                                                 \
-    var gcv_object_t* p = &TheRecord(ww)->recdata[weakpointer_length]; \
-    var uintC count = weakpointer_xlength/sizeof(gcv_object_t);        \
-    dotimespC(count,count,{ update(p); p++; });                        \
-  } while(0)
-#define update_weakpointers()                  \
-  do {                                         \
-    var object L = O(all_weakpointers);        \
-    while (!eq(L,Fixnum_0)) {                  \
-      update_weakpointer(L);                   \
-      L = TheWeakpointer(L)->wp_cdr;           \
-    }                                          \
-  } while(0)
-#define update_weakpointers_mod()                      \
-  do {                                                 \
-    var object L = O(all_weakpointers);                \
-    while (!eq(L,Fixnum_0)) {                          \
-      var object next = TheWeakpointer(L)->wp_cdr;     \
-      update_weakpointer(L);                           \
-      L = next;                                        \
-    }                                                  \
-  } while(0)
-
-    # update weak key-value tables
-#define update_weakkvtable(wkvt)                                       \
-  do {                                                                 \
-    # weak key-value table is just another fancy svector               \
-    var gcv_object_t* p = TheSvector(wkvt)->data; # nothing GC-visible \
-    var uintL count = Svector_length(wkvt);                            \
-    dotimespL(count,count,{ update(p); p++; });                        \
-  } while(0)
-#define update_weakkvtables()                  \
-  do {                                         \
-    var object L = O(all_weakkvtables);        \
-    while (!eq(L,Fixnum_0)) {                  \
-      update_weakkvtable(L);                   \
-      L = TheWeakKVT(L)->wkvt_cdr;             \
-    }                                          \
-  } while(0)
-#define update_weakkvtables_mod()                      \
-  do {                                                 \
-    var object L = O(all_weakkvtables);                \
-    while (!eq(L,Fixnum_0)) {                          \
-      var object next = TheWeakKVT(L)->wkvt_cdr;       \
-      update_weakkvtable(L);                           \
-      L = next;                                        \
-    }                                                  \
-  } while(0)
 
 
 # update STACKs :

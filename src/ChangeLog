@@ -1,5 +1,31 @@
 2004-04-28  Bruno Haible  <bruno@clisp.org>
 
+	Simplify handling of weak pointers.
+	* lispbibl.d (weakpointer_length): Set to the total length.
+	(weakpointer_xlength): Remove macro.
+	(weakkvt_non_data): Remove macro.
+	(weakkvt_length): New macro.
+	(Weakkvt_length): Use it.
+	(Record_nonweak_length): New macro.
+	* spvw_update.d (do_update_record): Don't use update_weak_pointers
+	any more.
+	(update_weakpointer, update_weakpointers, update_weakpointers_mod):
+	Remove macros.
+	(update_weakkvtable, update_weakkvtables, update_weakkvtables_mod):
+	Remove macros.
+	* spvw_garcol.d (down_record): Use Record_nonweak_length.
+	(gar_col_normal): Remove calls to update_weakpointers_mod,
+	update_weakkvtables_mod.
+	(move_conses): Likewise.
+	* spvw_memfile.d: Update.
+	* spvw_typealloc.d (allocate_weakkvt_low): Update.
+	* spvw_circ.d (subst_circ_mark, subst, subst_circ_unmark): Likewise.
+	* record.d (mk_weakpointer): Declare inline. Use 0 instead of
+	weakpointer_xlength.
+	* hashtabl.d (hashcode4_atom): Use Record_nonweak_length.
+
+2004-04-28  Bruno Haible  <bruno@clisp.org>
+
 	Make weak-pointers work also on SPVW_PAGES platforms.
 	* spvw_update.d (do_update_record): Depending on update_weak_pointers,
 	update also the hidden pointers of Weakpointer and WeakKVT objects.
