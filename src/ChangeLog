@@ -1,5 +1,23 @@
 1998-07-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Remove support for immutable objects. It was limited to a small range
+        of systems (those with good shared memory support), introduced a 16 MB
+        limit on 32-bit machines, required specially compiled binaries, and
+        added a lot of complexity to spvw.d, which is in the way now. Not
+        worth it.
+        * lispbibl.d: Remove IMMUTABLE support.
+          (coerce_imm_ss): Remove declaration.
+        * genclisph.d (main): Remove IMMUTABLE support.
+        * spvw.d: Remove IMMUTABLE support.
+        * hashtabl.d: Likewise.
+        * io.d: Likewise.
+        * list.d: Likewise.
+        * stream.d: Remove strmflags_immut_bit_B.
+        * package.d: Use coerce_ss instead of coerce_imm_ss.
+        * constpack.d: Likewise.
+
+1998-07-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * Makefile.devel, configure: Incorporate the sigsegv package.
         * lispbibl.d: Include sigsegv.h.
           Rename CAN_HANDLE_WP_FAULT to HAVE_SIGSEGV_RECOVERY.

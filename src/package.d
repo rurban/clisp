@@ -784,7 +784,7 @@
         if (!(ergebnis==0)) { return ergebnis & 3; } # gefunden -> fertig
       }
       pushSTACK(pack); # Package retten
-      string = coerce_imm_ss(string); # String in immutablen Simple-String umwandeln
+      string = coerce_ss(string); # String in immutablen Simple-String umwandeln
      {var object sym = make_symbol(string); # (make-symbol string) ausführen
       pack = popSTACK();
       # dieses neue Symbol in die Package eintragen:
@@ -879,7 +879,7 @@
      {# Suche ein internes oder ein externes Symbol gleichen Namens:
       var object string = # Nur der Name des Symbols interessiert.
         #ifdef X3J13_161
-        (symbolp(*sym_) ? Symbol_name(*sym_) : coerce_imm_ss(*sym_));
+        (symbolp(*sym_) ? Symbol_name(*sym_) : coerce_ss(*sym_));
         #else
         Symbol_name(*sym_);
         #endif
@@ -1877,7 +1877,7 @@ LISPFUNN(make_symbol,1) # (MAKE-SYMBOL printname), CLTL S. 168
               );
       }
     # Simple-String draus machen und Symbol bauen:
-    value1 = make_symbol(coerce_imm_ss(arg)); mv_count=1;
+    value1 = make_symbol(coerce_ss(arg)); mv_count=1;
   }
 
 # UP: Überprüft ein String/Symbol-Argument
@@ -1942,7 +1942,7 @@ LISPFUNN(package_nicknames,1) # (PACKAGE-NICKNAMES package), CLTL S. 184
   local void test_names_args (void);
   local void test_names_args()
     { # name auf String prüfen und zu einem Simple-String machen:
-      STACK_3 = coerce_imm_ss(test_stringsym_arg(STACK_3));
+      STACK_3 = coerce_ss(test_stringsym_arg(STACK_3));
       # Nickname-Argument in eine Liste umwandeln:
       { var object nicknames = STACK_2;
         if (eq(nicknames,unbound))
@@ -1960,7 +1960,7 @@ LISPFUNN(package_nicknames,1) # (PACKAGE-NICKNAMES package), CLTL S. 184
         while (mconsp(STACK_3))
           {{var object nickname = Car(STACK_3); # nächster Nickname
             STACK_3 = Cdr(STACK_3);
-            nickname = coerce_imm_ss(test_stringsym_arg(nickname)); # als Simple-String
+            nickname = coerce_ss(test_stringsym_arg(nickname)); # als Simple-String
             # vor die neue Nicknameliste consen:
             pushSTACK(nickname);
            }
@@ -2744,11 +2744,11 @@ LISPFUNN(package_iterate,1)
 # init_packages();
   global void init_packages (void);
   global void init_packages()
-    { pushSTACK(make_imm_array(asciz_to_string("LISP")));
-      pushSTACK(make_imm_array(asciz_to_string("SYSTEM")));
-      pushSTACK(make_imm_array(asciz_to_string("SYS")));
-      pushSTACK(make_imm_array(asciz_to_string("KEYWORD")));
-      pushSTACK(make_imm_array(asciz_to_string("")));
+    { pushSTACK(asciz_to_string("LISP"));
+      pushSTACK(asciz_to_string("SYSTEM"));
+      pushSTACK(asciz_to_string("SYS"));
+      pushSTACK(asciz_to_string("KEYWORD"));
+      pushSTACK(asciz_to_string(""));
       # Stackaufbau: "LISP", "SYSTEM", "SYS", "KEYWORD", "".
       O(all_packages) = NIL; # ALL_PACKAGES := NIL
       # #<PACKAGE KEYWORD> einrichten:

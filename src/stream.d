@@ -21,7 +21,6 @@
   # Bits in den Flags:
   #                             0,1 # gesetzt, falls Integer-Stream
   # define strmflags_reval_bit_B 2  # gesetzt, falls Read-Eval erlaubt ist
-  #define strmflags_immut_bit_B  3  # gesetzt, falls gelesene Objekte immutabel sind
   #define strmflags_rd_by_bit_B  4  # gesetzt, falls READ-BYTE möglich ist
   #define strmflags_wr_by_bit_B  5  # gesetzt, falls WRITE-BYTE möglich ist
   # define strmflags_rd_ch_bit_B 6  # gesetzt, falls READ-CHAR möglich ist
@@ -32,7 +31,6 @@
   #define strmflags_ib_B     (bit(1)       )  # Integer-Stream der Art b
   #define strmflags_ic_B     (bit(1)|bit(0))  # Integer-Stream der Art c
   #define strmflags_reval_B  bit(strmflags_reval_bit_B)
-  # define strmflags_immut_B bit(strmflags_immut_bit_B)
   #define strmflags_rd_by_B  bit(strmflags_rd_by_bit_B)
   #define strmflags_wr_by_B  bit(strmflags_wr_by_bit_B)
   # define strmflags_rd_ch_B bit(strmflags_rd_ch_bit_B)
@@ -1643,9 +1641,6 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       var uintB flags =
           ((direction & bit(0)) ? strmflags_rd_B : 0) # evtl. READ-CHAR, READ-BYTE erlaubt
         | ((direction & bit(2)) ? strmflags_wr_B : 0) # evtl. WRITE-CHAR, WRITE-BYTE erlaubt
-        #ifdef IMMUTABLE
-        | ((direction & bit(1)) ? strmflags_immut_B : 0) # evtl. immutable Objekte
-        #endif
         ;
       #if defined(FOREIGN_HANDLE) || !NIL_IS_CONSTANT
       pushSTACK(handle); # Handle retten
@@ -8823,9 +8818,6 @@ LISPFUNN(window_cursor_off,1)
            )
            &
            (type>=strmtype_iu_file ? strmflags_by_B : strmflags_ch_B) # auf Integers oder Characters
-           #ifdef IMMUTABLE
-           | (direction==3 ? strmflags_immut_B : 0) # Modus :INPUT-IMMUTABLE ?
-           #endif
          );
        # Art von Integer-Streams:
        var uintB art;
@@ -10080,11 +10072,7 @@ LISPFUNN(two_way_stream_output_stream,1)
     var object input_stream;
     var object output_stream;
     { pushSTACK(input_stream); pushSTACK(output_stream); # Streams retten
-     {var uintB flags = strmflags_open_B
-        #ifdef IMMUTABLE
-        | (TheStream(input_stream)->strmflags & strmflags_immut_B)
-        #endif
-        ;
+     {var uintB flags = strmflags_open_B;
       var object stream = # neuer Stream, alle Operationen erlaubt
         allocate_stream(flags,strmtype_echo,strm_len+2);
       TheStream(stream)->strm_rd_by = P(rd_by_echo);

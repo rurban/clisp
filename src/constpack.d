@@ -12,7 +12,7 @@
 
 # Expander für die Konstruktion der Liste O(all_packages):
   #define LISPPACK_B(abbrev,packname)  \
-    make_package(make_imm_array(asciz_to_string(packname)),NIL,FALSE);
+    make_package(asciz_to_string(packname),NIL,FALSE);
 
 # Welcher Expander benutzt wird, muß vom Hauptfile aus eingestellt werden.
 
