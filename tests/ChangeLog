@@ -1,3 +1,7 @@
+2005-02-14  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst: check that declaration processing does not modify code
+
 2005-02-14  Bruno Haible  <bruno@clisp.org>
 
 	* streams.tst: Test FINISH-OUTPUT and FORCE-OUTPUT as well.
