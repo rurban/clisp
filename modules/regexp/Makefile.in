@@ -3,6 +3,8 @@
 CC = @CC@
 CFLAGS = @CFLAGS@
 INCLUDES=
+REGEX_O = @REGEX_O@
+REGEX_H = @REGEX_H@
 
 CLISP =
 
@@ -12,10 +14,10 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = regexp.o regexi.o regex.o link.sh Makefile README regexp.lisp regexp.texinfo regexp.dvi
+DISTRIBFILES = regexp.o regexi.o $(REGEX_O) link.sh Makefile README regexp.lisp regexp.texinfo regexp.dvi
 distribdir =
 
-all : regexp.o regexi.o regex.o
+all : regexp.o regexi.o $(REGEX_O)
 
 regexp.c : regexp.lisp
 	$(CLISP) -c regexp.lisp
@@ -23,7 +25,7 @@ regexp.c : regexp.lisp
 regexp.o : regexp.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -c regexp.c
 
-regexi.o : regexi.c regex.h
+regexi.o : regexi.c $(REGEX_H)
 	$(CC) $(CFLAGS) -c regexi.c
 
 regex.o : regex.c regex.h

@@ -3,7 +3,7 @@
 
 #include <sys/types.h> /* regex.h needs this */
 #include <stdlib.h> /* declare malloc(), free() */
-#include "regex.h"
+#include <regex.h>
 
 int mregcomp (regex_t* * ppreg, const char * pattern, int cflags) {
   regex_t* preg;
