@@ -2268,7 +2268,7 @@ containing:</para>
 <varlistentry id="validp">
   <term><literal role="sexp">(&validp; &f-ent;)</literal></term>
   <term><literal role="sexp">(&setf; (&validp; &f-ent;)
-    &value-r)</literal></term>
+    &value-r;)</literal></term>
 <listitem><simpara>This predicate returns &nil; if the &f-ent;
   (e.g. the Lisp equivalent of a &c-pointer;) refers to a pointer
   which is invalid because it comes from a previous Lisp session.
