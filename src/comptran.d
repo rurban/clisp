@@ -472,9 +472,9 @@ local object N_tan_N (object x)
     pushSTACK(x);
     R_cos_sin_R_R(x,true,NULL);
     { /* stack layout: x, cos(x), sin(x). */
-      var object erg = (floatp(STACK_0) || floatp(STACK_1)
-                        ? F_R_float_F(R_R_durch_R(STACK_0,STACK_1),STACK_2)
-                        : R_R_durch_R(STACK_0,STACK_1));
+      var object erg = R_R_durch_R(STACK_0,STACK_1);
+      if (floatp(STACK_0) || floatp(STACK_1))
+        erg = F_R_float_F(erg,STACK_2);
       skipSTACK(3); return erg;
     }
   } else { /* x=a+bi */
@@ -546,11 +546,12 @@ local object N_sinh_N (object x)
     /* b != Fixnum_0 ==> sin(b) != Fixnum_0. */
     R_cosh_sinh_R_R(STACK_3,true,NULL); /* cosh(a), sinh(a); cosh(a) != Fixnum 0 */
     /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a). */
+    STACK_5 = R_R_contagion_R(STACK_4,STACK_5);
     STACK_0 = R_R_mal_R(STACK_0,STACK_3); /* sinh(a)*cos(b) */
-    { var object erg = R_R_mal_R(STACK_1,STACK_2); /* cosh(a)*sin(b), != Fixnum_0 */
-      STACK_5 = R_R_contagion_R(STACK_4,STACK_5);
-      erg = R_R_complex_C(R_R_float_F(STACK_0,STACK_5),
-                          F_R_float_F(erg,STACK_5));
+    STACK_0 = R_R_float_F(STACK_0,STACK_5);
+    STACK_1 = R_R_mal_R(STACK_1,STACK_2); /* cosh(a)*sin(b), != Fixnum_0 */
+    STACK_1 = F_R_float_F(STACK_1,STACK_5);
+    { var object erg = R_R_complex_C(STACK_0,STACK_1);
       skipSTACK(6); return erg;
     }
   }
@@ -571,13 +572,17 @@ local object N_cosh_N (object x)
     R_cos_sin_R_R(TheComplex(x)->c_imag,true,NULL); /* cos(b), sin(b) */
     /* stack layout: a, b, cos(b), sin(b). */
     R_cosh_sinh_R_R(STACK_3,true,NULL); /* cosh(a), sinh(a) */
-    /* stack layout: a, b,cos(b), sin(b), cosh(a), sinh(a). */
+    /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a). */
+    STACK_5 = R_R_contagion_R(STACK_4,STACK_5);
     STACK_0 = R_R_mal_R(STACK_0,STACK_2); /* sinh(a)*sin(b) */
     { var object erg = R_R_mal_R(STACK_1,STACK_3); /* cosh(a)*cos(b) */
-      STACK_5 = R_R_contagion_R(STACK_4,STACK_5);
-      erg = eq(STACK_0,Fixnum_0) ? F_R_float_F(erg,STACK_4)
-        : R_R_complex_C(F_R_float_F(erg,STACK_4),
-                        F_R_float_F(STACK_0,STACK_4));
+      if (eq(STACK_0,Fixnum_0)) {
+        erg = F_R_float_F(erg,STACK_5);
+      } else {
+        STACK_0 = F_R_float_F(STACK_0,STACK_5);
+        erg = F_R_float_F(erg,STACK_5);
+        erg = R_R_complex_C(erg,STACK_0);
+      }
       skipSTACK(6); return erg;
     }
   }
@@ -595,9 +600,9 @@ local object N_tanh_N (object x)
     pushSTACK(x);
     R_cosh_sinh_R_R(x,true,NULL);
     /* stack layout: x, cosh(x), sinh(x). */
-    { var object erg = (floatp(STACK_0) || floatp(STACK_1)
-                        ? F_R_float_F(R_R_durch_R(STACK_0,STACK_1),STACK_2)
-                        : R_R_durch_R(STACK_0,STACK_1));
+    { var object erg = R_R_durch_R(STACK_0,STACK_1);
+      if (floatp(STACK_0) || floatp(STACK_1))
+        erg = F_R_float_F(erg,STACK_2);
       skipSTACK(3); return erg;
     }
   } else { /* x=a+bi */
@@ -720,8 +725,9 @@ local void R_R_atanh_R_R (object x, object y)
   pushSTACK(R_R_minus_R(Fixnum_1,STACK_3)); /* 1-x */
   /* stack layout: x, y, contagion, 1+x, 1-x. */
   pushSTACK(R_square_R(STACK_3)); /* y^2 */
-  pushSTACK(R_R_plus_R(Fixnum_1,R_R_plus_R(R_square_R(STACK_4),
-                                           STACK_0))); /* 1+x^2+y^2 */
+  pushSTACK(R_square_R(STACK_(4+1))); /* x^2 */
+  STACK_0 = R_R_plus_R(STACK_0,STACK_1); /* x^2+y^2 */
+  STACK_0 = R_R_plus_R(Fixnum_1,STACK_0); /* 1+x^2+y^2 */
   /* stack layout: x, y, contagion, 1+x, 1-x, y^2, 1+x^2+y^2. */
   { var object temp = F_abs_F(F_I_scale_float_F(STACK_6,fixnum(2))); /* |4x| */
     if (F_F_comp(temp,STACK_0) < 0) { /* |4x| < 1+x^2+y^2 ? */

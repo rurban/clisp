@@ -1,5 +1,13 @@
 2002-12-20  Sam Steingold  <sds@gnu.org>
 
+	* realtran.d (R_sin_R, R_cos_R, R_sinh_R, R_cosh_R):
+	fixed GC-safety bugs triggered by the regression test
+	* comptran.d (N_tan_N, N_sinh_N, N_cosh_N, N_tanh_N)
+	(R_R_atanh_R_R): ditto
+	* pathname.d (parse_logical_host_prefix): ditto
+
+2002-12-20  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (XCFLAGS) [CC=g++]: add DEBUG_GCSAFETY
 	* pathname.d, socket.d, spvw.d, stream.d:
 	compilable with DEBUG_GCSAFETY
