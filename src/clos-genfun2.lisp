@@ -384,8 +384,11 @@
 
 ;; Remove a method from a generic function.
 (defun std-remove-method (gf method)
-  (let ((old-method (find (std-method-initfunction method) (std-gf-methods gf)
-                          :key #'std-method-initfunction)))
+  (let ((old-method
+          (if (typep method <standard-method>)
+            (find (std-method-initfunction method) (std-gf-methods gf)
+                  :key #'std-method-initfunction)
+            (find method (std-gf-methods gf)))))
     (when old-method
       (warn-if-gf-already-called gf)
       (when (need-gf-already-called-warning-p gf)

@@ -1,6 +1,11 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
 	Prepare for non-standard methods.
+	* clos-methcomb2.lisp (method-list-to-continuation): Use
+	method-function instead of std-method-function.
+	* disassem.lisp (disassemble@method): New method.
+
+	Prepare for non-standard methods.
 	* clos-genfun2.lisp (std-remove-method): Protect call to
 	std-method-initfunction with a type check for <standard-method>.
 
