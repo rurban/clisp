@@ -191,9 +191,8 @@ Our Common Lisp CLISP provides
   * 594 library functions, 542 of them written in C
 
 CLISP compares well with other ANSI CL implementations wrt performance
-in most areas, such as CLOS, i/o, lists, integer arithmetics (CLISP's
-bignum performance is exceptional, orders of magnitude better than that
-of CMUCL, Allegro CL &c).
+in most areas, such as CLOS, I/O, lists, integer arithmetics (CLISP's
+bignum performance is better than that of some other CL implementations).
 The worst performance CLISP exhibits in the area of floating point
 arithmetics.  While showing nothing spectacularly bad and easily
 outperforming Java, Perl, TCL and any Scheme interpreter, CLISP is slower
