@@ -104,6 +104,17 @@
       :fixed-slot-locations t
       :generic-accessors nil)))
 
+(defun print-object-<funcallable-standard-object> (object stream)
+  (print-unreadable-object (object stream :type t)
+    (write (funcallable-name object) :stream stream)))
+
+;; Preliminary.
+;; Now we can at least print classes and generic-functions.
+(defun print-object (object stream)
+  (cond ((class-p object) (format stream "#<CLASS ~S>" (class-classname object)))
+        ((funcallable-instance-p object) (print-object-<funcallable-standard-object> object stream))
+        (t (write-string "#<UNKNOWN>" stream))))
+
 ;; ============================================================================
 
 ;; low-level-representation:

@@ -1,3 +1,11 @@
+2004-06-16  Bruno Haible  <bruno@clisp.org>
+
+	* clos-genfun1.lisp (print-object-<funcallable-standard-object>): New
+	function.
+	(print-object): New preliminary function.
+	* clos-print.lisp (print-object@funcallable-standard-object): New
+	method.
+
 2004-06-19  Bruno Haible  <bruno@clisp.org>
 
 	* record.d (SYS::CLOSURE-CODEVEC): Return the code vector itself,
