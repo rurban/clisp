@@ -4385,9 +4385,9 @@ Compiled, it will have inlined the library function calls.
     are used: &standard-input-var; is bound to &stdin;,
     &standard-output-var; to &stdout;, and
     &error-output-var; to &stderr;.</simpara></listitem>
-  <listitem><simpara>Continuable errors will be turned to warnings
+  <listitem><simpara>The &cont-err;s will be turned into &warning-t;s
    (using &appease-cerrors;).</simpara></listitem>
-  <listitem><simpara>Non-continuable errors and
+  <listitem><simpara>Non-&cont-err;s and
    <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupts will
    terminate the execution of the Lisp script with an error status
    (using &exit-on-error;).</simpara></listitem>
