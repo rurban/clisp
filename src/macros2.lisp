@@ -7,6 +7,7 @@
         ((atom typeclauselistr))
       (cond ((atom (car typeclauselistr))
              (error-of-type 'source-program-error
+               :form (car typeclauselistr)
                (TEXT "Invalid clause in ~S: ~S")
                'typecase (car typeclauselistr)))
             ((eq (setq spec (caar typeclauselistr)) T)
@@ -167,10 +168,12 @@
 (defmacro deftype (name lambdalist &body body)
   (unless (symbolp name)
     (error-of-type 'source-program-error
+      :form name
       (TEXT "type name should be a symbol, not ~S")
       name))
   (if (or (get name 'TYPE-SYMBOL) (get name 'TYPE-LIST))
     (error-of-type 'source-program-error
+      :form name
       (TEXT "~S is a built-in type and may not be redefined.")
       name))
   (multiple-value-bind (body-rest declarations docstring)
@@ -206,6 +209,7 @@
 (defmacro define-symbol-macro (symbol expansion)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
+      :form symbol
       (TEXT "~S: the name of a symbol macro must be a symbol, not ~S")
       'define-symbol-macro symbol))
   `(LET ()

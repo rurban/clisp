@@ -323,10 +323,11 @@
                           keyflag keywords keyvars keyinits keysvars
                           allow-other-keys auxvars auxinits)
         (analyze-lambdalist arglist
-          #'(lambda (errorstring &rest arguments)
-              (error (TEXT "~S ~S: In ~S argument list: ~A")
-                     'defstruct name ':constructor
-                     (apply #'format nil errorstring arguments))))
+          #'(lambda (form errorstring &rest arguments)
+              (error-of-type source-program-error
+                :form form (TEXT "~S ~S: In ~S argument list: ~A")
+                'defstruct name ':constructor
+                (apply #'format nil errorstring arguments))))
       (let* ((argnames
                ; The list of all arguments that are already supplied with
                ; values through the parameter list.
@@ -525,6 +526,7 @@
     ;; otherwise, name and options are already correct.
     (unless (symbolp name)
       (error-of-type 'source-program-error
+        :form name
         (TEXT "~S: invalid syntax for name and options: ~S")
         'defstruct name-and-options))
     ;; name is a symbol, options is the list of options.
@@ -547,6 +549,7 @@
                        arg ; keyword-constructor
                        (if (not (listp (third option)))
                          (error-of-type 'source-program-error
+                           :form (third option)
                            (TEXT "~S ~S: argument list should be a list: ~S")
                            'defstruct name (third option))
                          (rest option))) ; BOA-constructor
@@ -565,6 +568,7 @@
                (if (null include-option)
                  (setq include-option option)
                  (error-of-type 'source-program-error
+                   :form include-option
                    (TEXT "~S ~S: At most one :INCLUDE argument may be specified: ~S")
                    'defstruct name options)))
             ((:PRINT-FUNCTION :PRINT-OBJECT)
@@ -584,12 +588,15 @@
             (:NAMED (setq named-option t))
             (:INITIAL-OFFSET (setq initial-offset-option (or (second option) 0)))
             (T (error-of-type 'source-program-error
+                 :form (first option)
                  (TEXT "~S ~S: unknown option ~S")
                  'defstruct name (first option))))
           (error-of-type 'source-program-error
+            :form option
             (TEXT "~S ~S: invalid syntax in ~S option: ~S")
             'defstruct name 'defstruct option))
         (error-of-type 'source-program-error
+          :form option
           (TEXT "~S ~S: not a ~S option: ~S")
           'defstruct name 'defstruct option)))
     ;;; conc-name-option is either T or NIL or the :CONC-NAME argument.
@@ -612,6 +619,7 @@
         (setq predicate-option (concat-pnames name "-P"))) ; defaultname
       (unless (or (eql predicate-option 0) (eq predicate-option 'NIL))
         (error-of-type 'source-program-error
+          :form predicate-option
           (TEXT "~S ~S: There is no :PREDICATE on unnamed structures.")
           'defstruct name)))
     ;; predicate-option is
@@ -633,16 +641,19 @@
                 (eq type-option 'LIST)
                 (and (consp type-option) (eq (first type-option) 'VECTOR)))
       (error-of-type 'source-program-error
+        :form type-option
         (TEXT "~S ~S: invalid :TYPE option ~S")
         'defstruct name type-option))
     ;; type-option is either T or LIST or VECTOR or (VECTOR ...)
     (unless (and (integerp initial-offset-option) (>= initial-offset-option 0))
       (error-of-type 'source-program-error
+        :form initial-offset-option
         (TEXT "~S ~S: The :INITIAL-OFFSET must be a nonnegative integer, not ~S")
         'defstruct name initial-offset-option))
     ;; initial-offset-option is an Integer >=0.
     (when (and (plusp initial-offset-option) (eq type-option 'T))
       (error-of-type 'source-program-error
+        :form options
         (TEXT "~S ~S: :INITIAL-OFFSET must not be specified without :TYPE : ~S")
         'defstruct name options))
     ;; if type-option=T, then initial-offset-option=0.
@@ -660,6 +671,7 @@
              (incl-desc (get subname 'DEFSTRUCT-DESCRIPTION)))
         (when (null incl-desc)
           (error-of-type 'source-program-error
+            :form subname
             (TEXT "~S ~S: included structure ~S has not been defined.")
             'defstruct name subname))
         (setq names (cons name (svref incl-desc 0)))
@@ -671,6 +683,7 @@
                                      0)))))
         (unless (equalp (svref incl-desc 1) type-option)
           (error-of-type 'source-program-error
+            :form subname
             (TEXT "~S ~S: included structure ~S must be of the same type ~S.")
             'defstruct name subname type-option))
         (setq slotlist
@@ -689,6 +702,7 @@
                              :test #'eq)))
             (when (null slot)
               (error-of-type 'source-program-error
+                :form slotname
                 (TEXT "~S ~S: included structure ~S has no component with name ~S.")
                 'defstruct name subname slotname))
             (if (atom slotarg)
@@ -728,6 +742,7 @@
                              (setf (clos::structure-effective-slot-definition-readonly slot) t)
                              (if (clos::structure-effective-slot-definition-readonly slot)
                                (error-of-type 'source-program-error
+                                 :form subname
                                  (TEXT "~S ~S: The READ-ONLY slot ~S of the included structure ~S must remain READ-ONLY in ~S.")
                                  'defstruct name slotname subname name)
                                (setf (clos::structure-effective-slot-definition-readonly slot) nil))))
@@ -737,11 +752,13 @@
                                  (type-for-discrimination slot-key-value)
                                  (type-for-discrimination (clos::slot-definition-type slot)))
                              (error-of-type 'source-program-error
+                               :form subname
                                (TEXT "~S ~S: The type ~S of slot ~S should be a subtype of the type defined for the included strucure ~S, namely ~S.")
                                'defstruct name slot-key-value slotname subname
                                (clos::slot-definition-type slot)))
                            (setf (clos::slot-definition-type slot) slot-key-value))
                           (t (error-of-type 'source-program-error
+                               :form slot-keyword
                                (TEXT "~S ~S: ~S is not a slot option.")
                                'defstruct name slot-keyword)))))))))
         (when (eq (first include-option) ':INHERIT)
@@ -767,6 +784,7 @@
                (not (typep names (type-for-discrimination
                                   (second type-option)))))
       (error-of-type 'source-program-error
+        :form name
         (TEXT "~S ~S: structure of type ~S cannot hold the name.")
         'defstruct name type-option))
     ;; layout of the structure:
@@ -808,6 +826,7 @@
                                 (and (ds-real-slot-p slot)
                                      (string= (clos::slot-definition-name slot) name))))
             (error-of-type 'source-program-error
+              :form slotname
               (TEXT "~S ~S: There may be only one slot with the name ~S.")
               'defstruct name slotname))
           (when (string= "P" slotname)
@@ -824,6 +843,7 @@
                          (setq read-only (if slot-key-value t nil)))
                         ((eq slot-keyword ':TYPE) (setq type slot-key-value))
                         (t (error-of-type 'source-program-error
+                             :form slot-keyword
                              (TEXT "~S ~S: ~S is not a slot option.")
                              'defstruct name slot-keyword))))))
             (if (constantp initform)

@@ -98,7 +98,8 @@
         (funforms '()))
     (dolist (fundef fundefs)
       (unless (and (consp fundef) (consp (cdr fundef)))
-        (error-of-type 'sys::source-program-error
+        (error-of-type 'ext:source-program-error
+          :form fundef
           (TEXT "~S: ~S is not a generic function specification")
           caller fundef))
       (push (first fundef) names)

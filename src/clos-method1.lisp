@@ -112,7 +112,8 @@
                         keyp keywords keyvars keyinits keysvars
                         allowp auxvars auxinits)
       (analyze-lambdalist lambda-list
-        #'(lambda (errorstring &rest arguments)
+        #'(lambda (form errorstring &rest arguments)
+            (declare (ignore form))
             (error (TEXT "(~S ~S): Invalid ~S argument: ~A")
                    'initialize-instance 'standard-method ':lambda-list
                    (apply #'format nil errorstring arguments))))

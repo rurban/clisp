@@ -73,7 +73,8 @@ LISPSPECFORM(function, 1,1,nobody)
     STACK_1 = check_funname(source_program_error,S(function),STACK_1);
     while (!(consp(STACK_0) && eq(Car(STACK_0),S(lambda)))) {
       pushSTACK(NIL); /* no PLACE */
-      pushSTACK(STACK_1); pushSTACK(S(function));
+      pushSTACK(STACK_1); /* SOURCE-PROGRAM-ERROR slot FORM */
+      pushSTACK(STACK_0); pushSTACK(S(function));
       check_value(source_program_error,
                   GETTEXT("~S: ~S should be a lambda expression"));
       STACK_0 = value1;
@@ -194,6 +195,7 @@ local bool check_setq_body (object caller) {
     if (atomp(STACK_0)) {
       if (!nullp(STACK_0))
         goto fehler_dotted;
+      /* STACK_0 == SOURCE-PROGRAM-ERROR slot FORM */
       pushSTACK(STACK_1); pushSTACK(TheFsubr(subr_self)->name);
       fehler(source_program_error,
              GETTEXT("~S: odd number of arguments: ~S"));
@@ -203,6 +205,7 @@ local bool check_setq_body (object caller) {
   /* body is finished. */
   if (!nullp(STACK_0)) {
    fehler_dotted: /* The whole body is still in STACK_0. */
+    /* STACK_0 == SOURCE-PROGRAM-ERROR slot FORM */
     pushSTACK(STACK_1); pushSTACK(TheFsubr(subr_self)->name);
     fehler(source_program_error,GETTEXT("dotted list given to ~S : ~S"));
   }
@@ -418,6 +421,7 @@ local Values compile_eval_form (void)
  can trigger GC */
 local object check_varspec (object varspec, object caller) {
   pushSTACK(NIL);     /* no PLACE */
+  pushSTACK(varspec); /* SOURCE-PROGRAM-ERROR slot FORM */
   pushSTACK(varspec); pushSTACK(caller);
   check_value(source_program_error,
               GETTEXT("~S: illegal variable specification ~S"));
@@ -550,8 +554,8 @@ local void make_variable_frame (object caller, object varspecs,
                      GETTEXT("~S: symbol ~S is declared special and must not be declared a macro"));
             }
             if (specdecled) {
-              pushSTACK(symbol);
-              pushSTACK(caller);
+              pushSTACK(symbol); /* SOURCE-PROGRAM-ERROR slot FORM */
+              pushSTACK(symbol); pushSTACK(caller);
               fehler(source_program_error,
                      GETTEXT("~S: symbol ~S must not be declared SPECIAL and a macro at the same time"));
             }
@@ -586,6 +590,7 @@ local void make_variable_frame (object caller, object varspecs,
       var_anz += spec_anz; /* total number of symbol/value pairs */
      #ifndef UNIX_DEC_ULTRIX_GCCBUG
       if (var_anz > (uintC)(~(uintC)0)) { /* does it fit into a uintC ? */
+        pushSTACK(unbound);     /* SOURCE-PROGRAM-ERROR slot FORM */
         pushSTACK(caller);
         fehler(source_program_error,
                GETTEXT("~S: too many variables and/or declarations"));
@@ -833,8 +838,8 @@ LISPSPECFORM(progv, 2,0,body)
  > caller: Caller, a symbol
  > obj: erroneous function specification */
 nonreturning_function(local, fehler_funspec, (object caller, object obj)) {
-  pushSTACK(obj);
-  pushSTACK(caller);
+  pushSTACK(obj);               /* SOURCE-PROGRAM-ERROR slot FORM */
+  pushSTACK(obj); pushSTACK(caller);
   fehler(source_program_error,GETTEXT("~S: ~S is not a function specification"));
 }
 
@@ -1007,15 +1012,15 @@ LISPSPECFORM(macrolet, 1,0,body)
     /* should be a cons, whose CAR is a symbol and whose CDR is a cons: */
     if (!consp(macrodefs)) {
      fehler_spec:
-      pushSTACK(macrodefs);
-      pushSTACK(S(macrolet));
+      pushSTACK(macrodefs);     /* SOURCE-PROGRAM-ERROR slot FORM */
+      pushSTACK(macrodefs); pushSTACK(S(macrolet));
       fehler(source_program_error,
              GETTEXT("~S: ~S is not a macro specification"));
     }
     var object name = Car(macrodefs);
     if (!symbolp(name)) {
-      pushSTACK(name);
-      pushSTACK(S(macrolet));
+      pushSTACK(name);          /* SOURCE-PROGRAM-ERROR slot FORM */
+      pushSTACK(name); pushSTACK(S(macrolet));
       fehler(source_program_error,
              GETTEXT("~S: macro name ~S should be a symbol"));
     }
@@ -1054,15 +1059,15 @@ LISPSPECFORM(function_macro_let, 1,0,body)
        and whose further list elements are conses: */
     if (!consp(funmacspecs)) {
      fehler_spec:
-      pushSTACK(funmacspecs);
-      pushSTACK(S(function_macro_let));
+      pushSTACK(funmacspecs);   /* SOURCE-PROGRAM-ERROR slot FORM */
+      pushSTACK(funmacspecs); pushSTACK(S(function_macro_let));
       fehler(source_program_error,
              GETTEXT("~S: ~S is not a function and macro specification"));
     }
     var object name = Car(funmacspecs);
     if (!symbolp(name)) {
-      pushSTACK(name);
-      pushSTACK(S(function_macro_let));
+      pushSTACK(name);          /* SOURCE-PROGRAM-ERROR slot FORM */
+      pushSTACK(name); pushSTACK(S(function_macro_let));
       fehler(source_program_error,
              GETTEXT("~S: function and macro name ~S should be a symbol"));
     }
@@ -1177,8 +1182,8 @@ LISPSPECFORM(cond, 0,0,body)
     STACK_0 = Cdr(clause); /* save remaining clauses */
     clause = Car(clause); /* next clause */
     if (!consp(clause)) { /* should be a cons */
-      pushSTACK(clause);
-      pushSTACK(S(cond));
+      pushSTACK(clause);  /* SOURCE-PROGRAM-ERROR slot FORM */
+      pushSTACK(clause); pushSTACK(S(cond));
       fehler(source_program_error,GETTEXT("~S: clause ~S should be a list"));
     }
     pushSTACK(Cdr(clause)); /* save clause rest */
@@ -1207,16 +1212,16 @@ LISPSPECFORM(case, 1,0,body)
     clause = Car(clauses); /* next clause */
     clauses = Cdr(clauses);
     if (!consp(clause)) { /* should be a cons */
-      pushSTACK(clause);
-      pushSTACK(S(case));
+      pushSTACK(clause);  /* SOURCE-PROGRAM-ERROR slot FORM */
+      pushSTACK(clause); pushSTACK(S(case));
       fehler(source_program_error,GETTEXT("~S: missing key list: ~S"));
     }
     var object keys = Car(clause);
     if (eq(keys,T) || eq(keys,S(otherwise))) {
       if (nullp(clauses))
         goto eval_clause;
-      pushSTACK(keys);
-      pushSTACK(S(case));
+      pushSTACK(clauses);  /* SOURCE-PROGRAM-ERROR slot FORM */
+      pushSTACK(keys); pushSTACK(S(case));
       fehler(source_program_error,
              GETTEXT("~S: the ~S clause must be the last one"));
     } else {
@@ -1305,8 +1310,8 @@ LISPSPECFORM(return_from, 1,1,nobody)
     env = Cdr(env);
   }
   /* env is done. */
-  pushSTACK(name);
-  pushSTACK(S(return_from));
+  pushSTACK(name);  /* SOURCE-PROGRAM-ERROR slot FORM */
+  pushSTACK(name); pushSTACK(S(return_from));
   fehler(source_program_error,
          GETTEXT("~S: no block named ~S is currently visible"));
   /* found block-frame: env */
@@ -1563,8 +1568,8 @@ LISPSPECFORM(tagbody, 0,0,body)
           pushSTACK(item);
           tagcount++;
         } else {
-          pushSTACK(item);
-          pushSTACK(S(tagbody));
+          pushSTACK(item);  /* SOURCE-PROGRAM-ERROR slot FORM */
+          pushSTACK(item); pushSTACK(S(tagbody));
           fehler(source_program_error,
                  GETTEXT("~S: ~S is neither tag nor form"));
         }
@@ -1606,8 +1611,8 @@ LISPSPECFORM(go, 1,0,nobody)
 { /* (GO tag), CLTL p. 133 */
   var object tag = popSTACK();
   if (!(numberp(tag) || symbolp(tag))) {
-    pushSTACK(tag);
-    pushSTACK(S(go));
+    pushSTACK(tag);  /* SOURCE-PROGRAM-ERROR slot FORM */
+    pushSTACK(tag); pushSTACK(S(go));
     fehler(source_program_error,GETTEXT("~S: illegal tag ~S"));
   }
   /* peruse GO_ENV: */
@@ -1657,8 +1662,8 @@ LISPSPECFORM(go, 1,0,nobody)
     env = Cdr(env);
   }
   /* env is finished. */
-  pushSTACK(tag);
-  pushSTACK(S(go));
+  pushSTACK(tag);  /* SOURCE-PROGRAM-ERROR slot FORM */
+  pushSTACK(tag); pushSTACK(S(go));
   fehler(source_program_error,
          GETTEXT("~S: no tag named ~S is currently visible"));
   /* tagbody-frame found. FRAME is pointing to it (without typeinfo),
@@ -2010,6 +2015,7 @@ LISPFUN(macroexpand_1,seclass_default,1,1,norest,nokey,0,NIL)
 LISPSPECFORM(declare, 0,0,body)
 { /* (DECLARE {decl-spec}), CLTL p. 153 */
   /* ({decl-spec}) already in STACK_0 */
+  pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot FORM */
   fehler(source_program_error,
          GETTEXT("declarations ~S are not allowed here"));
 }
@@ -2278,6 +2284,7 @@ LISPFUNN(check_symbol,2)
   var gcv_object_t *caller_ = &STACK_1;
   while (!symbolp(*sym_)) {
     pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(*sym_);           /* SOURCE-PROGRAM-ERROR slot FORM */
     pushSTACK(*sym_); pushSTACK(*caller_);
     check_value(source_program_error,GETTEXT("~S: ~S is not a symbol"));
     *sym_ = value1;

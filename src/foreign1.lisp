@@ -729,9 +729,10 @@
                                whole))
          (c-name (foreign-name name (assoc ':name alist)))
          (type (second (or (assoc ':type alist)
-                           (sys::error-of-type 'sys::source-program-error
-                                  (TEXT "~S: ~S option missing in ~S")
-                                  'def-c-var ':type whole))))
+                           (sys::error-of-type 'ext:source-program-error
+                             :form whole
+                             (TEXT "~S: ~S option missing in ~S")
+                             'def-c-var ':type whole))))
          (read-only (second (assoc ':read-only alist)))
          (flags (+ (if read-only fv-flag-readonly 0)
                    (let ((alloc (assoc ':alloc alist)))
@@ -1074,7 +1075,8 @@
 ;; (cast (foreign-value x) ...)    --> (foreign-value (%cast x ...))
 ;; (offset (foreign-value x) ...)  --> (foreign-value (%offset x ...))
 (flet ((err (whole)
-         (sys::error-of-type 'sys::source-program-error
+         (sys::error-of-type 'ext:source-program-error
+           :form whole
            (TEXT "~S is only allowed after ~S: ~S")
            (first whole) 'FOREIGN-VALUE whole))
        (foreign-place-p (place type)

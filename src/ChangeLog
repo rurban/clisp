@@ -1,3 +1,84 @@
+2004-08-19  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (source-program-error, source-program-error-form): export
+	(%uncompilable, %expand-form, %expand-list, %expand-lambda)
+	(%expand-lambdalist, %expand-varspez, %expand-varspez*)
+	(%expand-fundefs-1, %expand-funmacdefs-1, defun, do):
+	pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR
+	* affi.lisp (mlibcall): ditto
+	* clos-class3.lisp (defclass, finalize-class): ditto
+	* clos-genfun2.lisp (check-gf-lambdalist+argorder)
+	(shared-initialize-<standard-generic-function>):
+	errfunc accepts FORM as the first argument
+	* clos-genfun3.lisp (invalid-method-qualifiers-error)
+	(analyze-defgeneric, analyze-defgeneric-lambdalist):
+	pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR;
+	errfunc accepts FORM as the first argument
+	* clos-genfun4.lisp (analyze-generic-fundefs):
+	pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR
+	* clos-methcomb2.lisp (invalid-sort-order-error)
+	(any-method-combination-check-options, check-em-arguments-option)
+	(check-em-generic-function-option, call-method, make-method)
+	(make-method-error, call-method-arg1-error, call-method-arg2-error)
+	(call-method-arg2elements-error, parse-method-groups)
+	(standard-method-combination-check-options)
+	(standard-method-combination-check-method-qualifiers)
+	(short-form-method-combination-check-method-qualifiers)
+	(define-method-combination):
+	pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR;
+	errfunc accepts FORM as the first argument
+	* clos-method1.lisp (initialize-instance-<standard-method>):
+	errfunc accepts FORM as the first argument
+	* clos-method2.lisp (decompose-specialized-lambda-list)
+	(program-error-reporter, analyze-method-description):
+	pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR;
+	errfunc accepts FORM as the first argument
+	* clos-slots1.lisp (with-slots, with-accessors):
+	pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR
+	* compiler.lisp (c-analyze-lambdalist):
+	errfunc accepts FORM as the first argument
+	(compile-lambda-helper): pass :FORM to ERROR-OF-TYPE
+	SOURCE-PROGRAM-ERROR
+	* condition.lisp (define-condition, handler-case, restart-bind)
+	(expand-restart-case): pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR
+	(source-program-error): added $FORM slot
+	* constsym.d (:FORM): MAKE-CONDITION argument for SOURCE-PROGRAM-ERROR
+	* control.d (FUNCTION, check_setq_body, check_varspec)
+	(make_variable_frame, fehler_funspec, MACROLET, FUNCTION-MACRO-LET)
+	(CASE, RETURN-FROM, TAGBODY, GO, DECLARE, %CHECK-SYMBOL):
+	pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR
+	* defmacro.lisp (macro-call-error, analyze-aux, get-supplied-p)
+	(analyze-rest, empty-pattern, analyze1, remove-env-arg)
+	(make-macro-expansion): ditto
+	* defpackage.lisp (defpackage): ditto
+	* defs1.lisp (with-package-iterator): ditto
+	* defstruct.lisp (ds-make-boa-constructor, defstruct):
+	pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR;
+	errfunc accepts FORM as the first argument
+	* error.d (end_error, check_symbol_non_constant_replacement)
+	(check_symbol_special, check_funname_replacement):
+	pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR
+	* eval.d (parse_dd, get_closure, eval1, fehler_eval_zuwenig)
+	(fehler_eval_dotted): ditto
+	* foreign1.lisp (DEF-C-VAR, flet/err): ditto
+	* lambdalist.lisp (err-misplaced, err-invalid, analyze-lambdalist)
+	(analyze-generic-function-lambdalist, analyze-defsetf-lambdalist)
+	(analyze-modify-macro-lambdalist)
+	(analyze-method-combination-lambdalist):
+	errfunc accepts FORM as the first argument;
+	pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR
+	* loop.lisp (loop-syntax-error, expand-loop):
+	pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR
+	* macros1.lisp (defvar, defparameter, defconstant, do/do*-expand)
+	(psetq, case-expand, ifify, cond): ditto
+	* macros2.lisp (typecase, deftype, define-symbol-macro): ditto
+	* macros3.lisp (expand-LETF*, expand-LETF): ditto
+	* places.lisp (get-setf-expansion, get-setf-method, defsetf)
+	(check-accessor-name, psetf, define-modify-macro, setf, shiftf)
+	(apply, funcall, if):
+	pass :FORM to ERROR-OF-TYPE SOURCE-PROGRAM-ERROR;
+	errfunc accepts FORM as the first argument
+
 2004-08-20  Bruno Haible  <bruno@clisp.org>
 
 	* error.d (check_funname_replacement): Improve error message.

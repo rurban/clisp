@@ -83,7 +83,8 @@
   (funcall (method-combination-check-method-qualifiers method-combo)
            gf method-combo method))
 (defun invalid-method-qualifiers-error (gf method)
-  (error-of-type 'sys::source-program-error
+  (error-of-type 'ext:source-program-error
+    :form (std-method-qualifiers method)
     (TEXT "~S method combination, used by ~S, does not allow the method qualifiers ~:S: ~S")
     (method-combination-name (std-gf-method-combination gf)) gf
     (std-method-qualifiers method) method))
@@ -279,7 +280,8 @@
         (docstrings nil))
     (dolist (option options)
       (unless (listp option)
-        (error-of-type 'sys::source-program-error
+        (error-of-type 'ext:source-program-error
+          :form option
           (TEXT "~S ~S: not a ~S option: ~S")
           caller funname 'defgeneric option))
       (case (first option)
@@ -293,17 +295,20 @@
                  caller funname 'optimize option)))
         (:ARGUMENT-PRECEDENCE-ORDER
          (when argorders
-           (error-of-type 'sys::source-program-error
+           (error-of-type 'ext:source-program-error
+             :form option
              (TEXT "~S ~S: ~S may only be specified once.")
              caller funname ':argument-precedence-order))
          (setq argorders option))
         (:DOCUMENTATION
          (unless (and (eql (length option) 2) (stringp (second option)))
-           (error-of-type 'sys::source-program-error
+           (error-of-type 'ext:source-program-error
+             :form option
              (TEXT "~S ~S: A string must be specified after ~S : ~S")
              caller funname ':documentation option))
          (when docstrings
-           (error-of-type 'sys::source-program-error
+           (error-of-type 'ext:source-program-error
+             :form (second option)
              (TEXT "~S ~S: Only one ~S string is allowed")
              caller funname ':documentation))
          (setq docstrings (rest option)))
@@ -316,19 +321,22 @@
            (if (or (typep designator <method-combination>)
                    (and designator (symbolp designator)))
              (setf method-combination (rest option))
-             (error-of-type 'sys::source-program-error
+             (error-of-type 'ext:source-program-error
+               :form option
                (TEXT "~S ~S: Invalid method combination: ~S")
                caller funname option))))
         (:GENERIC-FUNCTION-CLASS
          ;; the class of the generic function is being ignored.
          (unless (equal (rest option) '(STANDARD-GENERIC-FUNCTION))
-           (error-of-type 'sys::source-program-error
+           (error-of-type 'ext:source-program-error
+             :form option
              (TEXT "~S ~S: The only valid generic function class name is ~S : ~S")
              caller funname 'standard-generic-function option)))
         (:METHOD-CLASS
          ;; the class of the methods is being ignored.
          (unless (equal (rest option) '(STANDARD-METHOD))
-           (error-of-type 'sys::source-program-error
+           (error-of-type 'ext:source-program-error
+             :form option
              (TEXT "~S ~S: The only valid method class name is ~S : ~S")
              caller funname 'standard-method option)))
         (:METHOD
@@ -336,15 +344,16 @@
                  (analyze-method-description caller funname (rest option))))
            (push `(MAKE-INSTANCE-<STANDARD-METHOD> <STANDARD-METHOD> ,@method-initargs-forms)
                  method-forms)))
-        (t (error-of-type 'sys::source-program-error
+        (t (error-of-type 'ext:source-program-error
+             :form option
              (TEXT "~S ~S: invalid syntax in ~S option: ~S")
              caller funname 'defgeneric option))))
     ;; Check :argument-precedence-order :
     (multiple-value-bind (signature argument-precedence-order argorder)
         (check-gf-lambdalist+argorder lambdalist (rest argorders) argorders
-          #'(lambda (errorstring &rest arguments)
-              (error-of-type 'sys::source-program-error
-                (TEXT "~S ~S: ~A")
+          #'(lambda (form errorstring &rest arguments)
+              (error-of-type 'ext:source-program-error
+                :form form (TEXT "~S ~S: ~A")
                 caller funname (apply #'format nil errorstring arguments))))
       (declare (ignore argorder))
       (values signature
@@ -360,8 +369,9 @@
 (defun analyze-defgeneric-lambdalist (caller funname lambdalist)
   (multiple-value-bind (reqvars optvars rest keyp keywords keyvars allowp)
       (sys::analyze-generic-function-lambdalist lambdalist
-        #'(lambda (errorstring &rest arguments)
-            (error-of-type 'sys::source-program-error
+        #'(lambda (form errorstring &rest arguments)
+            (error-of-type 'ext:source-program-error
+              :form form
               (TEXT "~S ~S: invalid generic function lambda-list: ~A")
               caller funname (apply #'format nil errorstring arguments))))
     (declare (ignore keyvars))

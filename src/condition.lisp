@@ -35,6 +35,7 @@
 (in-package "EXT")
 (export
  '(muffle-cerrors appease-cerrors exit-on-error with-restarts os-error
+   source-program-error source-program-error-form
    simple-condition-format-string simple-charset-type-error retry)
  "EXT")
 (in-package "CUSTOM")
@@ -82,14 +83,17 @@
 (defmacro define-condition (name parent-types slot-specs &rest options)
   (unless (symbolp name)
     (error-of-type 'source-program-error
+      :form name
       (TEXT "~S: the name of a condition must be a symbol, not ~S")
       'define-condition name))
   (unless (and (listp parent-types) (every #'symbolp parent-types))
     (error-of-type 'source-program-error
+      :form parent-types
       (TEXT "~S: the parent-type list must be a list of symbols, not ~S")
       'define-condition parent-types))
   (unless (listp slot-specs)
     (error-of-type 'source-program-error
+      :form slot-specs
       (TEXT "~S: the slot description list must be a list, not ~S")
       'define-condition slot-specs))
   (let ((default-initargs-option nil)
@@ -104,13 +108,16 @@
                  (:DOCUMENTATION (setq docstring-option option))
                  (:REPORT (setq report-function (rest option)))
                  (T (error-of-type 'source-program-error
+                      :form (first option)
                       (TEXT "~S ~S: unknown option ~S")
                       'define-condition name (first option)))))
               (t
                (error-of-type 'source-program-error
+                 :form option
                  (TEXT "~S ~S: invalid syntax in ~S option: ~S")
                  'define-condition name 'define-condition option)))
         (error-of-type 'source-program-error
+          :form option
           (TEXT "~S ~S: not a ~S option: ~S")
           'define-condition name 'define-condition option)))
     (let ((defclass-form
@@ -271,7 +278,10 @@
     ; all the other errors must be detected by the runtime system
 
       ; statically detectable errors of a program, source available
-      (define-condition source-program-error (program-error) ())
+      (define-condition source-program-error (program-error)
+        ;; this is the "inner-most" bad form, e.g., when a string is given
+        ;; as a variable name, this is the string, not the whole SETQ form
+        (($form :initarg :form :reader source-program-error-form)))
       ; CLISP specific
 
     ; not statically detectable errors in program control
@@ -570,8 +580,9 @@
           (unless (and (consp clause) (consp (cdr clause))
                        (listp (second clause)))
             (error-of-type 'source-program-error
-                           (TEXT "~S: illegal syntax of clause ~S")
-                           'handler-case clause))
+              :form clause
+              (TEXT "~S: illegal syntax of clause ~S")
+              'handler-case clause))
           (when (eq (first clause) ':no-error)
             (if (null no-error-clause)
               (setq no-error-clause clause)
@@ -581,6 +592,7 @@
           (let ((varlist (second clause))) ; known to be a list
             (unless (null (cdr varlist))
               (error-of-type 'source-program-error
+                :form varlist
                 (TEXT "~S: too many variables ~S in clause ~S")
                 'handler-case varlist clause)))
           (push (cons (gensym) clause) extended-clauses))))
@@ -813,6 +825,7 @@
   (setq body `(PROGN ,@body))
   (unless (listp restart-specs)
     (error-of-type 'source-program-error
+      :form restart-specs
       (TEXT "~S: not a list: ~S")
       'restart-bind restart-specs))
   (if restart-specs
@@ -822,6 +835,7 @@
                            (unless (and (listp spec) (consp (cdr spec))
                                         (symbolp (first spec)))
                              (error-of-type 'source-program-error
+                               :form spec
                                (TEXT "~S: invalid restart specification ~S")
                                'restart-bind spec))
                            (apply #'(lambda (name function
@@ -832,6 +846,7 @@
                                         ;; CLtL2 p. 906: "It is an error if an unnamed restart is used
                                         ;; and no report information is provided."
                                         (error-of-type 'source-program-error
+                                          :form spec
                                           (TEXT "~S: unnamed restarts require ~S to be specified: ~S")
                                           'restart-bind ':REPORT-FUNCTION spec))
                                       (make-restart-form
@@ -862,6 +877,7 @@
   (defun expand-restart-case (caller restart-clauses form)
     (unless (listp restart-clauses)
       (error-of-type 'source-program-error
+        :form restart-clauses
         (TEXT "~S: not a list: ~S")
         caller restart-clauses))
     (let ((xclauses ;; list of expanded clauses
@@ -871,6 +887,7 @@
                 (unless (and (consp clause) (consp (cdr clause))
                              (symbolp (first clause)))
                   (error-of-type 'source-program-error
+                    :form clause
                     (TEXT "~S: invalid restart specification ~S")
                     caller clause))
                 (let ((name (pop clause))
@@ -891,6 +908,7 @@
                           (t (return))))
                   (unless passed-arglist
                     (error-of-type 'source-program-error
+                      :form clause
                       (TEXT "~S: missing lambda list in restart specification ~S")
                       caller clause))
                   (multiple-value-bind (test interactive report)
@@ -903,6 +921,7 @@
                       ;; CLtL2 p. 906: "It is an error if an unnamed restart
                       ;; is used and no report information is provided."
                       (error-of-type 'source-program-error
+                        :form restart-clause
                         (TEXT "~S: unnamed restarts require ~S to be specified: ~S")
                         caller ':REPORT restart-clause))
                     (when (and (consp arglist) (not (member (first arglist) lambda-list-keywords))

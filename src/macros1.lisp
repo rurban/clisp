@@ -16,10 +16,12 @@
 (defmacro defvar (symbol &optional (initial-value nil svar) docstring)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
+      :form symbol
       (TEXT "~S: non-symbol ~S cannot be a variable")
       'defvar symbol))
   (if (constantp symbol)
     (error-of-type 'source-program-error
+      :form symbol
       (TEXT "~S: the constant ~S must not be redefined to be a variable")
       'defvar symbol))
   `(LET ()
@@ -34,10 +36,12 @@
 (defmacro defparameter (symbol initial-value &optional docstring)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
+      :form symbol
       (TEXT "~S: non-symbol ~S cannot be a variable")
       'defparameter symbol))
   (if (constantp symbol)
     (error-of-type 'source-program-error
+      :form symbol
       (TEXT "~S: the constant ~S must not be redefined to be a variable")
       'defparameter symbol))
   `(LET ()
@@ -49,6 +53,7 @@
 (defmacro defconstant (&whole form symbol initial-value &optional docstring)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
+      :form symbol
       (TEXT "~S: non-symbol ~S cannot be defined constant")
       'defconstant symbol))
   (let ((initial-var (gensym)))
@@ -123,13 +128,13 @@
 (defun do/do*-expand (varclauselist exitclause body do let psetq)
   (when (atom exitclause)
     (error-of-type 'source-program-error
+      :form exitclause
       (TEXT "exit clause in ~S must be a list")
       do))
   (flet ((bad-syntax (formpiece)
            (error-of-type 'source-program-error
-             (TEXT "Invalid syntax in ~S form: ~S.")
-             do
-             formpiece)))
+             :form formpiece
+             (TEXT "Invalid syntax in ~S form: ~S.") do formpiece)))
     (let ((bindlist nil)
           (reinitlist nil)
           (testtag (gensym))
@@ -224,6 +229,7 @@
         (cons 'LET (cons (nreverse bindlist) (nreverse setlist))))
     (if (null (cdr arglist))
       (error-of-type 'source-program-error
+        :form form
         (TEXT "~S called with an odd number of arguments: ~S")
         'psetq form))
     (let ((g (gensym)))
@@ -260,14 +266,16 @@
                      (remaining-clauses (rest remaining-clauses)))
                  (unless (consp clause)
                    (error-of-type 'source-program-error
-                                  (TEXT "~S: missing key list")
-                                  form-name))
+                     :form clause
+                     (TEXT "~S: missing key list")
+                     form-name))
                  (let ((keys (first clause)))
                    `(,(cond ((or (eq keys 'T) (eq keys 'OTHERWISE))
                              (if remaining-clauses
                                  (error-of-type 'source-program-error
-                                                (TEXT "~S: the ~S clause must be the last one")
-                                                form-name keys)
+                                   :form remaining-clauses
+                                   (TEXT "~S: the ~S clause must be the last one")
+                                   form-name keys)
                                  't))
                             ((listp keys)
                              `(or ,@(mapcar #'(lambda (key)
@@ -313,10 +321,12 @@
   (cond ((null clauselist) NIL)
         ((atom clauselist)
          (error-of-type 'source-program-error
+           :form clauselist
            (TEXT "Not a list of COND clauses: ~S")
            clauselist))
         ((atom (car clauselist))
          (error-of-type 'source-program-error
+           :form (car clauselist)
            (TEXT "The atom ~S must not be used as a COND clause.")
            (car clauselist)))
         (t (let ((ifif (ifify (cdr clauselist))))
@@ -346,11 +356,13 @@
   (cond ((null clauses) 'NIL)
         ((atom clauses)
          (error-of-type 'source-program-error
+           :form clauses
            (TEXT "COND code contains a dotted list, ending with ~S")
            clauses))
         (t (let ((clause (car clauses)))
              (if (atom clause)
                (error-of-type 'source-program-error
+                 :form clause
                  (TEXT "COND clause without test: ~S")
                  clause)
                (let ((test (car clause)))
@@ -372,10 +384,12 @@
   (cond ((null clauselist) (values NIL nil))
         ((atom clauselist)
          (error-of-type 'source-program-error
+           :form clauselist
            (TEXT "Not a list of COND clauses: ~S")
            clauselist))
         ((atom (car clauselist))
          (error-of-type 'source-program-error
+           :form (car clauselist)
            (TEXT "The atom ~S must not be used as a COND clause.")
            (car clauselist)))
         (t (multiple-value-bind (ifif needed-g) (ifify (cdr clauselist) g)
