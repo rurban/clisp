@@ -1,5 +1,8 @@
 1999-08-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * configure.in: Remove AC_C_CONST call.
+        * unixconf.h.in (const): Don't define.
+
         * aclocal.m4 (CL_RAISE): Fix harmless typo.
 
         * aclocal.m4 (CL_RLIMIT): Prefer RLIMIT_RESOURCE_T="int" to

@@ -37,10 +37,6 @@
 
 /* compiler characteristics */
 
-/* AC_C_CONST */
-/* Define this as empty if your compiler doesn't support the `const' keyword. */
-#undef const
-
 /* AC_C_INLINE */
 /* Define as __inline if that's what the C compiler calls it. */
 #undef inline
