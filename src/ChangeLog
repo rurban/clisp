@@ -1,3 +1,8 @@
+2003-02-13  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 685855 ]: ext:string-width ignores :start
+	* charstrg.d (STRING-WIDTH): start with :START, not 0
+
 2003-02-10  Sam Steingold  <sds@gnu.org>
 
 	Do not treat #\/ in logical pathnames as #\;
