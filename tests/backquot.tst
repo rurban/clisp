@@ -119,7 +119,7 @@ X
 (let ((o 1))
   (declare (special o))
   (eval (let ((a 2) (b 3))
-          (declare (special o a b))
+          (declare (special a b))
           ``(,o ,@',(mapcar #'symbol-value '(a b))))))
 #+:enable-risky-tests
 (1 2 3)
