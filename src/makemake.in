@@ -925,7 +925,7 @@ else
   else
     if [ $TSYS = sun4 -a -n "$XCC_SUNPRO" ] ; then
       # SUNWspro cc flags:
-      XCFLAGS='-O -xstrconst'
+      XCFLAGS='-xO3 -xstrconst'
     else
       if [ "$HSYSOS" = hp-ux -o $TSYS = sun4 -o $TSYS = acorn ] ; then
         # HP's HPPA compilers crash when optimizing.
