@@ -55,8 +55,8 @@ DIST=podval:~/public_html/clisp
 # otherwise you have to stick with the local DTDs
 # we allow the use of a local DTD to avoid fetching it from the net each time
 ifeq (,$(wildcard $(DTD)))
-#DTD=http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
-DTD=http://www.docbook.org/xml/$(DTDVER)/docbookx.dtd
+DTD=http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
+#DTD=http://www.docbook.org/xml/$(DTDVER)/docbookx.dtd
 endif
 
 # to generate HTML, you will need:
