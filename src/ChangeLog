@@ -1,5 +1,10 @@
 2004-09-29  Bruno Haible  <bruno@clisp.org>
 
+	* defmacro.lisp (macro-nonnull-element-error): New function.
+	(empty-pattern): Use it in the macroexpansion.
+
+2004-09-29  Bruno Haible  <bruno@clisp.org>
+
 	* fill-out.lisp (stream-start-s-expression, stream-end-s-expression):
 	No need for EVAL-WHEN (COMPILE).
 	* format.lisp (formatter-main-1): Don't call STREAM-START-S-EXPRESSION
