@@ -612,7 +612,7 @@ fi
 
 # RM = command for deleting files
 if [ $H_DOS = "true" ] ; then
-  RM='del'
+  RM='del /q'
 else
   if [ $HOS = acorn ] ; then
     RM='remove'
@@ -2893,7 +2893,7 @@ if [ $CROSS = false ] ; then
   else
     if [ $HOS = os2 -o $HOS = win32 ] ; then
       echotab "comp *.fas ${TESTDIR}"
-      echotab "REM The test passed if only GENSYM differences were found."
+      echotab "echo The test passed if only GENSYM differences were found."
       echol
     else
       echotab 'echo "Compare the .fas files by hand."'
@@ -2956,7 +2956,10 @@ if [ $CROSS = false ] ; then
   echol
   echol "${TESTSDIR} :"
   echotab "-mkdir ${TESTSDIR}"
-  echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_}${SRCTOPDIR_}tests${NEXT_}Makefile ${PARENT_}${SRCTOPDIR_}tests${NEXT_}*.lisp ${PARENT_}${SRCTOPDIR_}tests${NEXT_}*.tst ."
+  # on win32, LN_S=copy and it accepts exactly 2 arguments
+  for f in Makefile '*.lisp' '*.tst'; do
+    echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_}${SRCTOPDIR_}tests${NEXT_}${f} ."
+  done
   echol
   echol
 
