@@ -481,9 +481,9 @@ of this approach, compared to native code compilation, are:
   <listitem><simpara>Maximum execution speed (throughput in tight loops)
    is limited.</simpara></listitem>
   <listitem><simpara>Since no bytecode instructions are provided for
-   "unsafe" operations (like unchecked array accesses, or "fast"
-   &car;/&cdr;), programs run with all safety checks enabled even when
-   compiled.</simpara></listitem>
+   <quote>unsafe</quote> operations (like unchecked array accesses,
+   or <quote>fast</quote> &car;/&cdr;), programs run with all safety
+   checks enabled even when compiled.</simpara></listitem>
   <listitem><simpara>Execution speed of a program can easily be
    understood by looking at the output of the &disassemble; function.
    A rule of thumb is that every elementary instruction costs 1 time
@@ -505,9 +505,9 @@ of this approach, compared to native code compilation, are:
 <section id="vm"><title>The virtual machine</title>
 
 <para>The bytecode can be thought of as being interpreted by a virtual
-processor.  The engine which actually interprets the bytecode (the
-"implementation of the virtual machine") is actually a &c-lang;
-function, but it could as well be a just-in-time compiler which
+processor.  The engine which interprets the bytecode (the
+ <quote>implementation of the virtual machine</quote>) is actually a
+&c-lang; function, but it could as well be a just-in-time compiler which
 translates a function's bytecode into hardware CPU instructions the
 first time said function is called.</para>
 
@@ -540,8 +540,8 @@ callee's &STACK;), but a virtual machine implementation may also copy
 outgoing arguments to incoming arguments instead of sharing them.</para>
 
 <para>The virtual machine has a special data structure,
-<varname>values</varname>, containing the "top of stack", specially
-adapted to &cl; &mul-val;:
+<varname>values</varname>, containing the <quote>top of stack</quote>,
+specially adapted to &cl; &mul-val;:
 <variablelist>
  <varlistentry><term>&mv-count;</term>
   <listitem><simpara>an unsigned integer.
