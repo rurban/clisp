@@ -4622,13 +4622,13 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
   {
     # Use select() with readfds = singleton set {handle}
     # and timeout = zero interval.
-    var fd_set handle_menge; # set of handles := {handle}
+    var fd_set handle_set; # set of handles := {handle}
     var struct timeval zero_time; # time interval := 0
     begin_system_call();
-    FD_ZERO(&handle_menge); FD_SET(handle,&handle_menge);
+    FD_ZERO(&handle_set); FD_SET(handle,&handle_set);
   restart_select:
     zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-    var int result = select(FD_SETSIZE,&handle_menge,NULL,NULL,&zero_time);
+    var int result = select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time);
     if (result<0) {
       if (errno==EINTR)
         goto restart_select;
@@ -4636,7 +4636,7 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
       end_system_call();
     } else {
       end_system_call();
-      # result = number of handles in handle_menge for which read() would
+      # result = number of handles in handle_set for which read() would
       # return without blocking.
       if (result==0)
         return ls_wait;
@@ -8274,15 +8274,15 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
     {
       # Use select with readfds = one-element set {stdin_handle}
       # and timeout = small time-interval.
-      var fd_set handle_menge; # set of handles := {stdin_handle}
+      var fd_set handle_set; # set of handles := {stdin_handle}
       var struct timeval small_time; # time-interval := 0
-      FD_ZERO(&handle_menge); FD_SET(stdin_handle,&handle_menge);
+      FD_ZERO(&handle_set); FD_SET(stdin_handle,&handle_set);
     restart_select:
       small_time.tv_sec = 0; small_time.tv_usec = 1000000/10; # 1/10 sec
       run_time_stop(); # hold run time clock
       begin_system_call();
       var int result;
-      result = select(FD_SETSIZE,&handle_menge,NULL,NULL,&small_time);
+      result = select(FD_SETSIZE,&handle_set,NULL,NULL,&small_time);
       end_system_call();
       run_time_restart(); # resume run time clock
       if (result<0) {
@@ -8295,7 +8295,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
         }
         end_system_call();
       } else {
-        # result = number of Handles in handle_menge, for which read
+        # result = number of Handles in handle_set, for which read
         # would return a result immediately.
         if (result==0)
           goto empty_buffer; # no character available
@@ -13093,14 +13093,14 @@ local signean low_listen_unbuffered_socket (object stream) {
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
   # Use select() with readfds = singleton set {handle}
   # and timeout = zero interval.
-  var fd_set handle_menge; # set of handles := {handle}
+  var fd_set handle_set; # set of handles := {handle}
   var struct timeval zero_time; # time interval := 0
   begin_system_call();
-  FD_ZERO(&handle_menge); FD_SET(handle,&handle_menge);
+  FD_ZERO(&handle_set); FD_SET(handle,&handle_set);
  restart_select:
   zero_time.tv_sec = 0; zero_time.tv_usec = 0;
   var int result;
-  result = select(FD_SETSIZE,&handle_menge,NULL,NULL,&zero_time);
+  result = select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time);
   if (result<0) {
     CHECK_INTERRUPT;
    #ifdef UNIX_BEOS
@@ -13109,7 +13109,7 @@ local signean low_listen_unbuffered_socket (object stream) {
    #endif
     SOCK_error();
   } else {
-    # result = number of handles in handle_menge for which read() would
+    # result = number of handles in handle_set for which read() would
     # return without blocking.
     if (result==0) {
       end_system_call(); return ls_wait;
