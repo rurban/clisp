@@ -31,6 +31,9 @@ clisp \- Common Lisp language interpreter and compiler
 .I memfile
 ]
 [
+.B -norc
+]
+[
 .B -L
 .I language
 ]
@@ -174,7 +177,22 @@ function.
 #ifdef UNIX
 It may have been compressed using GNU gzip.
 #endif
-
+.TP
+.BI "-norc"
+Normally
+.B clisp
+loads a user run control (RC) file on startup (this happens after the
+.BI -C
+option is processed).  The file loaded is
+.BI ${HOME}/.clisprc
+or
+.BI ${HOME}/.clisprc.fas
+or
+.BI ${HOME}/.clisprc.lsp,
+tried in that order.  The first existing file from the above list is
+loaded.  This option,
+.BI -norc,
+prevents loading of the RC file.
 .TP
 .BI "-L " language
 Specifies the language

@@ -2538,9 +2538,9 @@ for f in $LPARTS ; do
 done
 
 if [ -n "$USE_GETTEXT" ] ; then
-  localeflags=' -N locale'
+  localeflags=' -norc -N locale'
 else
-  localeflags=''
+  localeflags=' -norc'
 fi
 
 if [ $CROSS = false ] ; then

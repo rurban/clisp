@@ -1764,6 +1764,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       var local char** argv_init_files;
       var local boolean argv_compile = FALSE;
       var local boolean argv_compile_listing = FALSE;
+      var local boolean argv_norc = FALSE;
       var local uintL argv_compile_filecount = 0;
       typedef struct { char* input_file; char* output_file; } argv_compile_file;
       var local argv_compile_file* argv_compile_files;
@@ -1791,6 +1792,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       #   -L language     sets the user language
       #   -N directory    NLS catalog directory
       #   -q              quiet: keine Copyright-Meldung
+      #   -norc           do not load the user ~/.clisprc file
       #   -I              ILISP-freundlich
       #   -C              *LOAD-COMPILING* setzen
       #   -i file ...     LISP-File zur Initialisierung laden
@@ -1821,9 +1823,10 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           #ifdef MULTIMAP_MEMORY_VIA_FILE
           asciz_out(" [-t tmpdir]");
           #endif
-          asciz_out(" [-W] [-M memfile] [-L language] [-N nlsdir] [-q] [-I] [-C]"
-                    " [-i initfile ...] [-c [-l] lispfile [-o outputfile] ...]"
-                    " [-p packagename] [-a] [-x expression] [lispfile [argument ...]]"
+          asciz_out(" [-W] [-M memfile] [-L language] [-N nlsdir] [-q] [-I]"
+                    " [-C] [-norc] [-i initfile ...] [-c [-l] lispfile"
+                    " [-o outputfile] ...] [-p packagename] [-a]"
+                    " [-x expression] [lispfile [argument ...]]"
                     NLstring);
           quit_sofort(1); # anormales Programmende
         }
@@ -1917,6 +1920,10 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                   case 'W': # WIDE-Version wählen, for backward compatibility
                     argv_wide = TRUE;
                     if (!(arg[2] == '\0')) goto usage;
+                    break;
+                  case 'n':
+                    if (!strcmp (arg, "-norc")) argv_norc = TRUE;
+                    else goto usage;
                     break;
                   case 'M': # MEM-File
                     OPTION_ARG
@@ -2767,6 +2774,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       if (argv_load_compiling)
         # (SETQ *LOAD-COMPILING* T) ausführen:
         { Symbol_value(S(load_compiling)) = T; }
+      # load RC file ~/.clisprc.(lsp|fas)
+      if (!argv_norc) { funcall(S(load_rc_file),0); }
       # für jedes initfile (LOAD initfile) ausführen:
       { var char** fileptr = &argv_init_files[0];
         var uintL count;
