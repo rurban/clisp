@@ -1,3 +1,8 @@
+2004-05-13  Sam Steingold  <sds@gnu.org>
+
+	* utils/clispload.lsp (regression-test::*expected-failures*):
+	Paul fixed ENSURE-DIRECTORIES-EXIST.8
+
 2004-05-02  Bruno Haible  <bruno@clisp.org>
 
 	New type of records, LRECORD: no flags but max. 2^24 elements.
