@@ -131,3 +131,25 @@ z               #C(1d-1 0d0)
 (acosh 3)  1.762747
 (atanh 3)    #C(0.3465736 -1.5707964)
 (atanh 0.9)  1.4722193
+
+;; bits
+
+(loop :for z :from 1 :to 1000
+  :for z*z = (* z z) :for 2^z = (ash 1 z) :for z*2^z = (ash z z)
+  :for z^z = (expt z z)
+  :unless (logtest z z) :collect (list 'logtest z)
+  :unless (logtest z*z z*z) :collect (list 'logtest z 'z*z z*z)
+  :unless (logtest 2^z 2^z) :collect (list 'logtest z '2^z 2^z)
+  :unless (logtest z*2^z z*2^z) :collect (list 'logtest z 'z*2^z z*2^z)
+  :unless (logtest z*z z*z) :collect (list 'logtest z 'z*z z*z))
+nil
+
+(loop :for z :from 0 :to 1000
+  :for z*z = (* z z) :for 2^z = (ash 1 z) :for z*2^z = (ash z z)
+  :for z^z = (expt z z)
+  :unless (= z (logand z z)) :collect (list 'logand z)
+  :unless (= z*z (logand z*z z*z)) :collect (list 'logand z 'z*z z*z)
+  :unless (= 2^z (logand 2^z 2^z)) :collect (list 'logand z '2^z 2^z)
+  :unless (= z*2^z (logand z*2^z z*2^z)) :collect (list 'logand z 'z*2^z z*2^z)
+  :unless (= z*z (logand z*z z*z)) :collect (list 'logand z 'z*z z*z))
+nil
