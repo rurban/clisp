@@ -3780,14 +3780,14 @@ LISPFUN(merge_pathnames,seclass_read,1,2,norest,key,1, (kw(wild))) {
     goto notmatch_directories;
   }
  #endif /* HAS_DEVICE */
- match_directories:
-  { /* match directories: */
+ match_directories: { /* match directories: */
+    var object tmp;
     pushSTACK(p); pushSTACK(d); pushSTACK(newp);
-    ThePathname(STACK_0)->pathname_directory =
-      merge_dirs(ThePathname(p)->pathname_directory,
-                 ThePathname(d)->pathname_directory,
-                 false,wildp,called_from_make_pathname);
+    tmp = merge_dirs(ThePathname(p)->pathname_directory,
+                     ThePathname(d)->pathname_directory,
+                     false,wildp,called_from_make_pathname);
     newp = popSTACK(); d = popSTACK(); p = popSTACK();
+    ThePathname(newp)->pathname_directory = tmp;
   }
   goto directories_OK;
   # do not match devices:
