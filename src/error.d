@@ -944,9 +944,6 @@ global object check_char (object obj) {
  > obj: the erroneous argument */
 global object check_string (object obj) {
   while (!stringp(obj)) {
-    /* (VECTOR NIL) is a string, so #A(NIL (0)) is acceptable instead of "" */
-    if (nil_vector_p(obj) && vector_length(obj) == 0)
-      return O(empty_string);
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
     pushSTACK(S(string)); /* TYPE-ERROR slot EXPECTED-TYPE */
