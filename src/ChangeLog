@@ -1,3 +1,9 @@
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
+	* format.lisp (formatter-main-1): Implement handling of ~^ inside
+	~<...~>.
+	Found by Paul Dietz's ansi-tests test suite.
+
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
 	Make the handling of references from local macro definitions to

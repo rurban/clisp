@@ -2440,34 +2440,36 @@
                                     (formatter-arg (first (csd-parm-list firstseparator))))
                                  ,(when check-on-line-overflow
                                     (formatter-arg (second (csd-parm-list firstseparator))))))
-                              (*format-uwps* (cons 'NIL *format-uwps*))
-                              (pieces-forms '()))
-                        (loop
-                          (when (null (csd-clause-chain (car *format-csdl*))) (return))
-                          (setq *format-csdl* (cdr *format-csdl*))
-                          (push (formatter-main 'FORMAT-JUSTIFICATION-END) pieces-forms))
-                        (setq pieces-forms (nreverse pieces-forms))
-                        (push
-                          (if (car *format-uwps*)
-                            `(LET* (,@bindings
-                                    (JARGS (LIST ,@justify-args))
-                                    (PIECES '()))
-                               (UNWIND-PROTECT
-                                   (PROGN
-                                     ,@(mapcap #'(lambda (piece-forms)
-                                                   `(,@piece-forms
-                                                     (PUSH (GET-OUTPUT-STREAM-STRING STREAM) PIECES)))
-                                               pieces-forms))
-                                 (APPLY #'DO-FORMAT-JUSTIFICATION
-                                        (NCONC JARGS (LIST (SYS::LIST-NREVERSE PIECES))))))
-                            `(LET* (,@bindings)
-                               (DO-FORMAT-JUSTIFICATION
-                                 ,@justify-args
-                                 (LIST
-                                   ,@(mapcar #'(lambda (piece-forms)
-                                                 `(PROGN ,@piece-forms (GET-OUTPUT-STREAM-STRING STREAM)))
-                                             pieces-forms)))))
-                          forms)))
+                             (new-forms
+                               (formatter-bind-terminator
+                                 (let* ((*format-uwps* (cons 'NIL *format-uwps*))
+                                        (pieces-forms '()))
+                                   (loop
+                                     (when (null (csd-clause-chain (car *format-csdl*))) (return))
+                                     (setq *format-csdl* (cdr *format-csdl*))
+                                     (push (formatter-main 'FORMAT-JUSTIFICATION-END) pieces-forms))
+                                   (setq pieces-forms (nreverse pieces-forms))
+                                   (list
+                                     (if (car *format-uwps*)
+                                       `(LET* (,@bindings
+                                               (JARGS (LIST ,@justify-args))
+                                               (PIECES '()))
+                                          (UNWIND-PROTECT
+                                              (PROGN
+                                                ,@(mapcap #'(lambda (piece-forms)
+                                                              `(,@piece-forms
+                                                                (PUSH (GET-OUTPUT-STREAM-STRING STREAM) PIECES)))
+                                                          pieces-forms))
+                                            (APPLY #'DO-FORMAT-JUSTIFICATION
+                                                   (NCONC JARGS (LIST (SYS::LIST-NREVERSE PIECES))))))
+                                       `(LET* (,@bindings)
+                                          (DO-FORMAT-JUSTIFICATION
+                                            ,@justify-args
+                                            (LIST
+                                              ,@(mapcar #'(lambda (piece-forms)
+                                                            `(PROGN ,@piece-forms (GET-OUTPUT-STREAM-STRING STREAM)))
+                                                        pieces-forms))))))))))
+                        (setq forms (revappend new-forms forms))))
                      (FORMAT-LOGICAL-BLOCK          ; #\< ending with ~:>
                       (simple-arglist 0)
                       (multiple-value-bind (prefix suffix per-line-p
