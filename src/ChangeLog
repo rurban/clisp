@@ -13,7 +13,8 @@
 
 2004-03-23  Sam Steingold  <sds@gnu.org>
 
-	* genclisph.d (Array_type_simple_bit_vector) [TYPECODES]: enabled
+	* genclisph.d (Array_type_simple_bit_vector) [TYPECODES]: enabled,
+	removed a trailing semicolon
 	Reported by Will Newton <will@misconception.org.uk>
 
 2004-03-23  Bruno Haible  <bruno@clisp.org>
