@@ -70,19 +70,14 @@ all: check impnotes.html regexp.html wildcard.html _clisp.html _clisp.1
 MAKE_TDB=xsltproc --stringparam collect.xref.targets "only" \
 	--stringparam targets.filename
 
-# the tail+2 hack removes DOCTYPE from the database
-# it should be removed as soon as the XHTML stylesheets are fixed
 tdb-man.xml: clisp.xml
 	$(MAKE_TDB) "$@" pile.xsl $<
-	tail +2 $@ > tmp; mv -f tmp $@
 
 tdb-pile.xml: impnotes.xml $(IMPNOTES)
 	$(MAKE_TDB) "$@" pile.xsl $<
-	tail +2 $@ > tmp; mv -f tmp $@
 
 tdb-chunk.xml: impnotes.xml $(IMPNOTES)
 	$(MAKE_TDB) "$@" chunk.xsl $<
-	tail +2 $@ > tmp; mv -f tmp $@
 
 clisp.xml: clisp.xml.in ../src/VERSION Makefile
 	$(RM) $@
