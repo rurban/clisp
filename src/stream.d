@@ -3261,6 +3261,9 @@ local object canon_eltype (const decoded_el_t* decoded) {
     #ifdef UNIX_TERM_TERMIOS
       if (!( TCDRAIN(handle) ==0)) {
         if (!((errno==ENOTTY)||(errno==EINVAL)))
+        #ifdef UNIX_DARWIN
+        if (!(errno==EOPNOTSUPP))
+        #endif
           { OS_error(); } # no TTY: OK, report other Error
       }
     #endif
@@ -3329,6 +3332,9 @@ local object canon_eltype (const decoded_el_t* decoded) {
         if (!(errno==ENOSYS))
         #endif
         if (!((errno==ENOTTY)||(errno==EINVAL)))
+        #ifdef UNIX_DARWIN
+        if (!(errno==EOPNOTSUPP))
+        #endif
           { OS_error(); } # no TTY: OK, report other Error
       }
     #endif

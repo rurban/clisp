@@ -1,3 +1,8 @@
+2004-08-24  Bruno Haible  <bruno@clisp.org>
+
+	* stream.d (finish_tty_output, clear_tty_output) [UNIX_DARWIN]: Treat
+	EOPNOTSUPP like EINVAL. Needed on Darwin 7.5.0 (MacOS X 10.3.5).
+
 2004-08-27  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (main): Change the SIZE_ARG macro such that too high values
