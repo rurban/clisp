@@ -18,12 +18,25 @@
 #include "config.h"
 
 #ifndef REENTRANT
+
+/* This is the function pointer vacall(). A function pointer indirection is
+   needed because gcc-3.4 generates invalid code when the address of a symbol
+   is casted to a function pointer with different return type.
+   (http://gcc.gnu.org/ml/gcc-patches/2003-12/msg01767.html) */
+#ifdef __cplusplus
+extern "C" void __vacall (); /* the return type is variable, not void! */
+#else
+extern void __vacall (); /* the return type is variable, not void! */
+#endif
+void (*vacall) () = __vacall;
+
 /* This is the function called by vacall(). */
 #if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 void (* vacall_function) (va_alist);
 #else
 void (* vacall_function) ();
 #endif
+
 #endif
 
 /* Room for returning structs according to the pcc non-reentrant struct return convention. */

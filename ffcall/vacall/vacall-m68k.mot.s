@@ -3,9 +3,9 @@
 gcc2_compiled.:
 .text
 	.align 	2
-.globl vacall
-	.type	 vacall,@function
-vacall:
+.globl __vacall
+	.type	 __vacall,@function
+__vacall:
 	link.w %a6,#-32
 	movm.l #0x3020,-(%sp)
 	clr.l -32(%a6)
@@ -180,5 +180,5 @@ vacall:
 	unlk %a6
 	rts
 .Lfe1:
-	.size	 vacall,.Lfe1-vacall
+	.size	 __vacall,.Lfe1-__vacall
 	.ident	"GCC: (GNU) 2.95.2 19991024 (release)"

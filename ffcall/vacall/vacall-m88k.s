@@ -4,9 +4,9 @@ data
 gcc2_compiled.:
 text
 	align	 8
-	global	 vacall
-	type	 vacall,#function
-vacall:
+	global	 __vacall
+	type	 __vacall,#function
+__vacall:
 	or.u	 #r13,#r0,#hi16(vacall_function)
 	ld	 #r11,#r13,#lo16(vacall_function)
 	subu	 #r31,#r31,80
@@ -131,4 +131,4 @@ section	 .tdesc,"a"
 	word	 66,1,.Ltb0,.Lte0,0x100003f,0x50,0xffffffd4,0xffffffd4
 text
 .Lfe1:
-	size	 vacall,.Lfe1-vacall
+	size	 __vacall,.Lfe1-__vacall
