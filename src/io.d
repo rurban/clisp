@@ -36,16 +36,18 @@
  # A simple-vector of small_char_code_limit+1 elements, the last entry being
  # a hash table for the non-base characters.
 local object allocate_perchar_table (void) {
-   # Allocate the hash table.
-   # (MAKE-HASH-TABLE :KEY-TYPE 'CHARACTER
-   #                  :VALUE-TYPE '(OR FUNCTION SIMPLE-VECTOR)
-   #                  :TEST 'EQ)
-   pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
-   pushSTACK(value1);
-   # Allocate the simple-vector.
-   var object table = allocate_vector(small_char_code_limit+1);
-   TheSvector(table)->data[small_char_code_limit] = popSTACK();
-   return table;
+  # Allocate the hash table.
+  # (MAKE-HASH-TABLE :KEY-TYPE 'CHARACTER
+  #                  :VALUE-TYPE '(OR FUNCTION SIMPLE-VECTOR)
+  #                  :TEST 'FASTHASH-EQ :WARN-IF-NEEDS-REHASH-AFTER-GC T)
+  pushSTACK(S(Ktest)); pushSTACK(S(fasthash_eq));
+  pushSTACK(S(Kwarn_if_needs_rehash_after_gc)); pushSTACK(T);
+  funcall(L(make_hash_table),4);
+  pushSTACK(value1);
+  # Allocate the simple-vector.
+  var object table = allocate_vector(small_char_code_limit+1);
+  TheSvector(table)->data[small_char_code_limit] = popSTACK();
+  return table;
 }
 local object perchar_table_get (object table, chart c) {
   if (as_cint(c) < small_char_code_limit) {
@@ -69,8 +71,10 @@ local object copy_perchar_table (object table) {
   # Allocate a new hash table.
   # (MAKE-HASH-TABLE :KEY-TYPE 'CHARACTER
   #                  :VALUE-TYPE '(OR FUNCTION SIMPLE-VECTOR)
-  #                  :TEST 'EQ)
-  pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
+  #                  :TEST 'FASTHASH-EQ :WARN-IF-NEEDS-REHASH-AFTER-GC T)
+  pushSTACK(S(Ktest)); pushSTACK(S(fasthash_eq));
+  pushSTACK(S(Kwarn_if_needs_rehash_after_gc)); pushSTACK(T);
+  funcall(L(make_hash_table),4);
   pushSTACK(value1);
   # stack layout: table, newht.
   map_hashtable(TheSvector(STACK_1)->data[small_char_code_limit],
@@ -137,8 +141,10 @@ local object allocate_syntax_table (void) {
   # Allocate the hash table.
   # (MAKE-HASH-TABLE :KEY-TYPE 'CHARACTER
   #                  :VALUE-TYPE 'FIXNUM
-  #                  :TEST 'EQ)
-  pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
+  #                  :TEST 'FASTHASH-EQ :WARN-IF-NEEDS-REHASH-AFTER-GC T)
+  pushSTACK(S(Ktest)); pushSTACK(S(fasthash_eq));
+  pushSTACK(S(Kwarn_if_needs_rehash_after_gc)); pushSTACK(T);
+  funcall(L(make_hash_table),4);
   pushSTACK(value1);
   # Allocate the simple-bit-vector.
   pushSTACK(allocate_bit_vector(Atype_8Bit,small_char_code_limit));
@@ -370,8 +376,10 @@ local object copy_readtable_contents (object from_readtable,
     # Allocate a new hash table.
     # (MAKE-HASH-TABLE :KEY-TYPE 'CHARACTER
     #                  :VALUE-TYPE 'FIXNUM
-    #                  :TEST 'EQ)
-    pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
+    #                  :TEST 'FASTHASH-EQ :WARN-IF-NEEDS-REHASH-AFTER-GC T)
+    pushSTACK(S(Ktest)); pushSTACK(S(fasthash_eq));
+    pushSTACK(S(Kwarn_if_needs_rehash_after_gc)); pushSTACK(T);
+    funcall(L(make_hash_table),4);
     pushSTACK(value1);
     # stack layout: to-readtable, from-readtable, newht.
     map_hashtable(Cdr(TheReadtable(STACK_1)->readtable_syntax_table),ch,entry,
@@ -417,8 +425,10 @@ local object copy_readtable_contents (object from_readtable,
     # Allocate a new hash table.
     # (MAKE-HASH-TABLE :KEY-TYPE 'CHARACTER
     #                  :VALUE-TYPE '(OR FUNCTION SIMPLE-VECTOR)
-    #                  :TEST 'EQ)
-    pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
+    #                  :TEST 'FASTHASH-EQ :WARN-IF-NEEDS-REHASH-AFTER-GC T)
+    pushSTACK(S(Ktest)); pushSTACK(S(fasthash_eq));
+    pushSTACK(S(Kwarn_if_needs_rehash_after_gc)); pushSTACK(T);
+    funcall(L(make_hash_table),4);
     mtable1 = STACK_0;
     STACK_0 = value1;
     # stack layout: mtable2, newht.
