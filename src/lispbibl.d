@@ -12003,7 +12003,22 @@ nonreturning_function(extern, fehler, (condition_t errortype, const char * error
  can trigger GC */
 extern void check_value (condition_t errortype, const char * errorstring);
 /* used by all modules */
-global void correctable_error (condition_t errortype, const char* errorstring);
+
+/* Report an error and try to recover by asking the user to choose among some
+ alternatives.
+ correctable_error(errortype,errorstring);
+ > errortype: condition-type
+ > errorstring: constant ASCIZ-String, in UTF-8 Encoding.
+   At every tilde-S, a LISP-object is taken from the STACK and printed
+   instead of the tilde-S.
+ > on the STACK: list of alternatives
+   ((restart-name restart-help-string . value-returned-by-the-restart)*), then
+   the initial values for the Condition, depending on error-type
+ < value1: return value from CORRECTABLE-ERROR, one of the CDDRs of the
+   alternatives
+ < STACK: cleaned up
+ can trigger GC */
+extern void correctable_error (condition_t errortype, const char* errorstring);
 /* use by PACKAGE */
 
 # Just like OS_error, but signal a FILE-ERROR.

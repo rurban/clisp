@@ -362,11 +362,20 @@ global void check_value (condition_t errortype, const char* errorstring)
   funcall(S(check_value),2);
 }
 
-/* just like check_value(), but allow recovery via a set of restarts
- created dynamically from options (an extra object on the STACK,
- like PLACE for check_value()): a list of 3 element lists
-  (restart-name restart-help-string value-returned-by-the-restart)
- may trigger GC */
+/* Report an error and try to recover by asking the user to choose among some
+ alternatives.
+ correctable_error(errortype,errorstring);
+ > errortype: condition-type
+ > errorstring: constant ASCIZ-String, in UTF-8 Encoding.
+   At every tilde-S, a LISP-object is taken from the STACK and printed
+   instead of the tilde-S.
+ > on the STACK: list of alternatives
+   ((restart-name restart-help-string . value-returned-by-the-restart)*), then
+   the initial values for the Condition, depending on error-type
+ < value1: return value from CORRECTABLE-ERROR, one of the CDDRs of the
+   alternatives
+ < STACK: cleaned up
+ can trigger GC */
 global void correctable_error (condition_t errortype, const char* errorstring)
 {
   prepare_error(errortype,errorstring,nullpSv(use_clcs));
