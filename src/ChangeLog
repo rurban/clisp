@@ -2,6 +2,7 @@
 
 	* socket.d (socket_getlocalname): when not resolving, init
 	truename to a zero-length string
+	Reported by Ian Wild <ian_wild@yahoo.com>
 
 2001-11-29  Sam Steingold  <sds@gnu.org>
 
