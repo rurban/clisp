@@ -238,12 +238,15 @@ Beware - this will modify the original C-mode too!"
 
 ;; enable CLISP "# foo" comments
 (modify-syntax-entry ?# ". 1b" d-mode-syntax-table)
-(modify-syntax-entry 32 "- 2b" d-mode-syntax-table) ; space
+(modify-syntax-entry 32 ; space
+                     (if (boundp 'running-xemacs) " 2b" "- 2b")
+                     d-mode-syntax-table)
 (modify-syntax-entry ?\n "> b" d-mode-syntax-table)
 (modify-syntax-entry ?\f "> b" d-mode-syntax-table)
 
 ;; put D buffers along with the C buffers in the menus
-(push '("\\<D\\>" . "C") mouse-buffer-menu-mode-groups)
+(when (boundp 'mouse-buffer-menu-mode-groups)
+  (push '("\\<D\\>" . "C") mouse-buffer-menu-mode-groups))
 
 ;; treat D files like C files for add-log
 (eval-after-load "add-log"
