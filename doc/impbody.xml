@@ -4351,7 +4351,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <!-- #endif -->
 <!-- #ifdef GENERIC_STREAMS -->
 <varlistentry><term><constant>:GENERIC-STREAMS</constant></term>
- <listitem><simpara>see <xref linkend="clos-stream"/>
+ <listitem><simpara>see <xref linkend="gstream"/>
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef LOGICAL_PATHNAMES -->
