@@ -3063,14 +3063,14 @@ with <CODE>princ</CODE>.  The default value of
 &quot;<VAR>package[nn]</VAR>&gt;&nbsp;&quot; where <VAR>package</VAR> is
 the shortest (nick)name of the current package <CODE>*package*</CODE> if
 it is the same as it was in the beginning or if it doesn't contain
-symbol <VAR>T</VAR> (it is assumed that in the latter case you would
+symbol <CODE>t</CODE> (it is assumed that in the latter case you would
 want to keep in mind that your current package is something weird); and
 <VAR>nn</VAR> is the ordinal number of the current prompt (hopefully, it
 will remain finite).  To help you in constructing your own fancy
 prompts, 3 functions are provided: <CODE>sys::prompt-index</CODE>,
 returning (and incrementing!)  the current prompt number;
 <CODE>sys::prompt-new-package</CODE>, returning <CODE>*package*</CODE>
-or NIL if the current package is the same as it was initially; and
+or <CODE>nil</CODE> if the current package is the same as it was initially; and
 <CODE>sys::package-short-name</CODE> taking one argument, a package, and
 returning its shortest name or nickname.
 
