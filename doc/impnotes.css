@@ -4,6 +4,8 @@
  * Covered by the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
  */
 
+body { background-color: white; color: black; }
+
 /* reduce the whitespace (see also clisp.css) */
 li p { margin: 0pt; }
 td p { margin: 0pt; }
