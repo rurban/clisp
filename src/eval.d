@@ -684,9 +684,9 @@ global void invoke_handlers (object cond) {
               /* call Handler: */
               var object closure = FRAME_(frame_closure);
               var object codevec = TheCclosure(closure)->clos_codevec;
-              var uintL index = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
+              var uintL idx = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
                 + posfixnum_to_L(TheSvector(Car(FRAME_(frame_handlers)))->data[i+1]);
-              interpret_bytecode(closure,codevec,index);
+              interpret_bytecode(closure,codevec,idx);
             } else {
               /* call C-Handler: */
               void* handler_fn = TheMachineCode(FRAME_(frame_closure));
@@ -1395,25 +1395,21 @@ global gcv_environment_t* nest_env (gcv_environment_t* env5)
   }
 
 /* UP: Parse-Declarations-Docstring. Detaches those from a list of forms,
- that have to be viewed as declarations resp.
- documentation string.
- parse_dd(formlist,venv,fenv)
+ that have to be viewed as declarations resp. documentation string.
+ parse_dd(formlist)
  > formlist: ( {decl|doc-string} . body )
- > venv: a variable- and Symbolmacro-Environment (for the macro expansions)
- > fenv: function- and macrobinding-environment (for the macro expansions)
  < value1: body
  < value2: List of decl-specs
  < value3: Doc-String or NIL
  < result: true if one (COMPILE)-declaration occurred, else false
  can trigger GC */
-global bool parse_dd (object formlist, object venv, object fenv)
+global bool parse_dd (object formlist)
 {
   pushSTACK(formlist); /* store formlist for error message */
-  pushSTACK(venv); /* variable-environment */
-  pushSTACK(fenv); /* Macrobinding-Environment */
+  var gcv_object_t *formlist_ = &STACK_0;
   pushSTACK(NIL); /* preliminary Doc-String */
   pushSTACK(NIL); /* start of decl-spec-Liste */
-  /* stack layout: formlist, venv, fenv, docstring, declspecs. */
+  /* stack layout: formlist, docstring, declspecs. */
   var bool compile_decl = false; /* flag: (COMPILE)-declaration occurred */
   var object body = formlist; /* rest of the form-list */
   while (consp(body)) {
@@ -1424,7 +1420,7 @@ global bool parse_dd (object formlist, object venv, object fenv)
         goto fertig; /* yes -> last form can't be a Doc-String! */
       if (!nullp(STACK_1)) { /* preceding Doc-String? */
         /* yes -> more than one Doc-String is too much: */
-        pushSTACK(STACK_4); /* formlist */
+        pushSTACK(*formlist_);
         fehler(source_program_error,
                GETTEXT("Too many documentation strings in ~"));
       }
@@ -1463,7 +1459,7 @@ global bool parse_dd (object formlist, object venv, object fenv)
   value1 = body;
   value2 = nreverse(popSTACK()); /* decl-spec-Liste */
   value3 = popSTACK(); /* Doc-String */
-  skipSTACK(3);
+  skipSTACK(1);
   return compile_decl;
 }
 
@@ -1622,7 +1618,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
   pushSTACK(lambdabody);
   /* stack layout: name, lambdabody.
      decompose ({decl|doc} {form}) */
-  if (parse_dd(Cdr(lambdabody),env->var_env,env->fun_env)) {
+  if (parse_dd(Cdr(lambdabody))) {
     /* A (COMPILE)-Declaration occurred.
        replace Lambdabody by its source (because some Macros
        can be compiled more efficiently than their Macro-Expansion): */
@@ -1676,7 +1672,7 @@ global object get_closure (object lambdabody, object name, bool blockp,
           lambdabody   is the Lambdabody to be used. */
   pushSTACK(Car(lambdabody)); /* Lambdalist */
   /* decompose ({decl|doc} {form}) : */
-  parse_dd(Cdr(lambdabody),env->var_env,env->fun_env);
+  parse_dd(Cdr(lambdabody));
   pushSTACK(value1); /* Body */
   pushSTACK(value2); /* Declarations */
   pushSTACK(value3); /* Doc-String or NIL */
@@ -6208,11 +6204,11 @@ global Values funcall (object fun, uintC args_on_stack)
       # If sth. is called, that can trigger a GC, this must be built into a
       # with_saved_context( ... ) .
         #define with_saved_context(statement)  \
-          { var uintL index = byteptr - CODEPTR;                       \
+          { var uintL idx = byteptr - CODEPTR;                         \
             statement;                                                 \
             closure = *closureptr; # fetch Closure from Stack          \
             codeptr = TheSbvector(TheCclosure(closure)->clos_codevec); \
-            byteptr = CODEPTR + index;                                 \
+            byteptr = CODEPTR + idx;                                   \
           }
       #
       # ------------------- (1) Constants -----------------------
@@ -7087,7 +7083,7 @@ global Values funcall (object fun, uintC args_on_stack)
           var object block_cons;
           with_saved_context(
             block_cons = allocate_cons();
-            label_dist += index; # CODEPTR+label_dist is the jump destination
+            label_dist += idx; # CODEPTR+label_dist is the jump destination
           );
           # fill Block-Cons: (CONST n) as CAR
           Car(block_cons) = TheCclosure(closure)->clos_consts[n];
@@ -7110,12 +7106,12 @@ global Values funcall (object fun, uintC args_on_stack)
           FREE_JMPBUF_on_SP();
           skipSTACK(2); # unwind CBLOCK-Frame and mark
           Cdr(popSTACK()) = disabled; # Block-Cons as Disabled
-          var uintL index;
+          var uintL idx;
           # get closure back, byteptr:=label_byteptr :
-          popSP(closureptr = (gcv_object_t*) ); popSP(index = );
+          popSP(closureptr = (gcv_object_t*) ); popSP(idx = );
           closure = *closureptr; # fetch Closure from Stack
           codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          byteptr = CODEPTR + index;
+          byteptr = CODEPTR + idx;
         }
         goto next_byte; # continue interpretation at Label
       CASE cod_block_close:            # (BLOCK-CLOSE)
@@ -7206,12 +7202,12 @@ global Values funcall (object fun, uintC args_on_stack)
           var uintL m = Svector_length(Car(STACK_2)); # Number of Labels
           # (I could also declare the m above as 'auto' and use it here.)
           var uintL i = posfixnum_to_L(value1); # Number of Labels
-          var uintL index = posfixnum_to_L(STACK_((m-i)+3)); # labeli
+          var uintL idx = posfixnum_to_L(STACK_((m-i)+3)); # labeli
           # get closure back, byteptr:=labeli_byteptr :
           closureptr = (gcv_object_t*) SP_(jmpbufsize+0);
           closure = *closureptr; # fetch Closure from Stack
           codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          byteptr = CODEPTR + index;
+          byteptr = CODEPTR + idx;
         }
         goto next_byte; # continue interpretation at Label i
       CASE cod_tagbody_close_nil:      # (TAGBODY-CLOSE-NIL)
@@ -7313,12 +7309,12 @@ global Values funcall (object fun, uintC args_on_stack)
         {
           FREE_JMPBUF_on_SP();
           skipSTACK(3); # unwind CATCH-Frame
-          var uintL index;
+          var uintL idx;
           # get closure back, byteptr:=label_byteptr :
-          popSP(closureptr = (gcv_object_t*) ); popSP(index = );
+          popSP(closureptr = (gcv_object_t*) ); popSP(idx = );
           closure = *closureptr; # fetch Closure from Stack
           codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          byteptr = CODEPTR + index;
+          byteptr = CODEPTR + idx;
         }
         goto next_byte; # continue interpretation at Label
       CASE cod_catch_close:            # (CATCH-CLOSE)
@@ -7371,10 +7367,10 @@ global Values funcall (object fun, uintC args_on_stack)
         FREE_JMPBUF_on_SP();
         skipSTACK(2);
         {
-          var uintL index;
+          var uintL idx;
           # get closure back, byteptr:=label_byteptr :
           popSP(closureptr = (gcv_object_t*) );
-          popSP(index = );
+          popSP(idx = );
           # save unwind_protect_to_save:
           pushSP((aint)unwind_protect_to_save.fun);
           pushSP((aint)unwind_protect_to_save.upto_frame);
@@ -7384,7 +7380,7 @@ global Values funcall (object fun, uintC args_on_stack)
           # execute Cleanup-Forms:
           closure = *closureptr; # fetch Closure from Stack
           codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          byteptr = CODEPTR + index;
+          byteptr = CODEPTR + idx;
         }
         goto next_byte;
       CASE cod_uwp_normal_exit:        # (UNWIND-PROTECT-NORMAL-EXIT)
@@ -7449,7 +7445,7 @@ global Values funcall (object fun, uintC args_on_stack)
         #endif
         # closure remains, byteptr:=label_byteptr :
         {
-          var uintL index = SP_(jmpbufsize+1);
+          var uintL idx = SP_(jmpbufsize+1);
           # unwind Frame:
           FREE_JMPBUF_on_SP(); skipSP(2);
           skipSTACK(2);
@@ -7460,7 +7456,7 @@ global Values funcall (object fun, uintC args_on_stack)
           # move all values to the Stack:
           mv_to_STACK();
           # execute Cleanup-Forms:
-          byteptr = CODEPTR + index;
+          byteptr = CODEPTR + idx;
         }
         goto next_byte;
       # ------------------- (14) HANDLER-BIND -----------------------
@@ -7687,17 +7683,17 @@ global Values funcall (object fun, uintC args_on_stack)
         }
         goto next_byte;
       }
-      {var object vec; var object index;
+      {var object vec; var object idx;
       CASE cod_svref:                  # (SVREF)
         # STACK_0 must be a Simple-Vector:
         if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
         vec = popSTACK(); # Simple-Vector
-        index = value1;
+        idx = value1;
         # and the Index must be Fixnum >= 0, < length(vec) :
         {
           var uintL i;
-          if (!(posfixnump(index)
-                && ((i = posfixnum_to_L(index)) < Svector_length(vec))))
+          if (!(posfixnump(idx)
+                && ((i = posfixnum_to_L(idx)) < Svector_length(vec))))
             goto svref_kein_index;
           VALUES1(TheSvector(vec)->data[i]); # indexed Element as value
         }
@@ -7706,12 +7702,12 @@ global Values funcall (object fun, uintC args_on_stack)
         # STACK_0 must be a Simple-Vector:
         if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
         vec = popSTACK(); # Simple-Vector
-        index = value1;
+        idx = value1;
         # and the Index must be a Fixnum >=0, <Length(vec) :
         {
           var uintL i;
-          if (!(posfixnump(index)
-                && ((i = posfixnum_to_L(index)) < Svector_length(vec))))
+          if (!(posfixnump(idx)
+                && ((i = posfixnum_to_L(idx)) < Svector_length(vec))))
             goto svref_kein_index;
           value1 = TheSvector(vec)->data[i] = popSTACK(); # put in new element
           mv_count = 1;
@@ -7719,10 +7715,10 @@ global Values funcall (object fun, uintC args_on_stack)
         goto next_byte;
       svref_kein_svector: # Non-Simple-Vector in STACK_0
         fehler_kein_svector(S(svref),STACK_0);
-      svref_kein_index: # unsuitable Index in index, for Vector vec
+      svref_kein_index: # unsuitable Index in idx, for Vector vec
         pushSTACK(vec);
-        pushSTACK(index);
-        pushSTACK(index); # TYPE-ERROR slot DATUM
+        pushSTACK(idx);
+        pushSTACK(idx); # TYPE-ERROR slot DATUM
         {
           var object tmp;
           pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(Svector_length(vec)));
