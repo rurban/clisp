@@ -1496,16 +1496,18 @@ if eval "test \"`echo '$''{'gb_cv_have_xpm'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
    gb_LIBS_save=$LIBS
+    gb_CFLAGS_save=$CFLAGS
     LIBS="$X_LIBS -lXpm $X_PRE_LIBS -lX11 $LIBS"
+    CFLAGS="$CFLAGS $X_CFLAGS"
     cat > conftest.$ac_ext <<EOF
-#line 1502 "configure"
+#line 1504 "configure"
 #include "confdefs.h"
 #include <X11/xpm.h>
 int main() {
 XpmReadFileToPixmap(0,0,0,0,0,0);
 ; return 0; }
 EOF
-if { (eval echo configure:1509: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:1511: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   have_xpm=yes
 else
@@ -1515,20 +1517,23 @@ else
   have_xpm=no
 fi
 rm -f conftest*
-    LIBS=$gb_LIBS_save gb_cv_have_xpm=$have_xpm
+    LIBS=$gb_LIBS_save
+    CFLAGS=$gb_CFLAGS_save gb_cv_have_xpm=$have_xpm
 fi
 echo "$ac_t""$gb_cv_have_xpm" 1>&6
  have_xpm=$gb_cv_have_xpm
 
 echo $ac_n "checking for X shape extension""... $ac_c" 1>&6
-echo "configure:1525: checking for X shape extension" >&5
+echo "configure:1528: checking for X shape extension" >&5
 if eval "test \"`echo '$''{'gb_cv_have_xshape'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
    gb_LIBS_save=$LIBS
+    gb_CFLAGS_save=$CFLAGS
     LIBS="$X_LIBS -lXext $X_PRE_LIBS -lX11 $LIBS"
+    CFLAGS="$CFLAGS $X_CFLAGS"
     cat > conftest.$ac_ext <<EOF
-#line 1532 "configure"
+#line 1537 "configure"
 #include "confdefs.h"
 #include <X11/Xlib.h>
 	         #include <X11/Xutil.h>
@@ -1537,7 +1542,7 @@ int main() {
 XShapeQueryExtension(0,0,0);
 ; return 0; }
 EOF
-if { (eval echo configure:1541: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:1546: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   have_xshape=yes
 else
@@ -1547,7 +1552,8 @@ else
   have_xshape=no
 fi
 rm -f conftest*
-    LIBS=$gb_LIBS_save gb_cv_have_xshape=$have_xshape
+    LIBS=$gb_LIBS_save
+    CFLAGS=$gb_CFLAGS_save gb_cv_have_xshape=$have_xshape
 fi
 echo "$ac_t""$gb_cv_have_xshape" 1>&6
  have_xshape=$gb_cv_have_xshape
@@ -1621,7 +1627,7 @@ trap 'rm -fr conftest* confdefs* core $ac_clean_files; exit 1' 1 2 15
 
 test "x$prefix" = xNONE && prefix=$ac_default_prefix
 # Let make expand exec_prefix.
-test "x$exec_prefix" = xNONE && exec_prefix='$(prefix)'
+test "x$exec_prefix" = xNONE && exec_prefix='${prefix}'
 
 # Any assignment to VPATH causes Sun make to only execute
 # the first set of double-colon rules, so remove it if not needed.
