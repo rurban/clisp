@@ -3912,16 +3912,17 @@ warning, you need to fix the source code of the incriminated method.</para>
 
 <para>Pathnames are printed as follows: If &print-escape-var; is &nil;,
  only the namestring is printed; otherwise it is printed with the
- <filename>#P""</filename> syntax, as per &ansi-cl; Issue <ulink
+ &sharp-P; syntax, as per the &ansi-cl; Issue <ulink
  url="&clhs;/Issues/iss276.html">PRINT-READABLY-BEHAVIOR:CLARIFY</ulink>.
- But, if &print-readably-var; is true, we are in trouble as
- <filename>#P""</filename> is ambiguous (which is verboten when
- &print-readably-var; is true), while being mandated by the &ansi-cl;.
+ But, if &print-readably-var; is true, we are in trouble as &sharp-P; is
+ ambiguous (which is verboten when &print-readably-var; is true), while
+ being mandated by the &ansi-cl;.
  Therefore, in this case, &clisp;'s behavior is determined by the value
  of &pathprint;: when it is &nil;, we print pathnames like this:
-<computeroutput>#-CLISP #P"" #+CLISP #S(PATHNAME ...)</computeroutput>.
+<computeroutput>#-CLISP &sharp-P;"..."
+#+CLISP &sharp-S;(&pathname-t; ...)</computeroutput>.
  Otherwise, when the variable &pathprint; is non-&nil;, the
- <filename>#P""</filename> notation is used as per <ulink
+ &sharp-P; notation is used as per <ulink
  url="&clhs;/Body/sec_1-5-1-4-1.html">1.5.1.4.1 Resolution of Apparent
  Conflicts in Exceptional Situations</ulink>.</para>
 
