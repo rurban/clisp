@@ -137,10 +137,10 @@ CONFIG_H_IN = modules/wildcard/config.h.in modules/regexp/config.h.in    \
 configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN)
 
 src/autoconf/aclocal.m4 : $(wildcard src/m4/*.m4) $(addsuffix .in,$(CONFIGURES))
-	grep AC_INIT src/configure.in > configure.ac
-	cat $(addsuffix .in,$(CONFIGURES)) | grep -v AC_INIT | grep -v AC_CONFIG_HEADER | grep -v AC_CONFIG_FILES | grep -v AC_OUTPUT >> configure.ac
+	egrep '(AC_INIT|AC_PREREQ)' src/configure.in > configure.ac
+	cat $(addsuffix .in,$(CONFIGURES)) | egrep -v '(AC_INIT|AC_CONFIG_HEADER|AC_OUTPUT|AC_CONFIG_FILE.*(Makefile|link\.sh)|_CANONICAL_|AC_PREREQ)' >> configure.ac
 	echo AC_OUTPUT >> configure.ac
-	aclocal -I src/m4 --output=src/autoconf/aclocal.m4
+	aclocal -I `pwd`/src/m4 --output=src/autoconf/aclocal.m4
 	$(RM) configure.ac
 
 AUTOCONF_FILES = src/autoconf/aclocal.m4
@@ -346,7 +346,7 @@ distrib : linux-distrib src-distrib
 VER=$(shell cat src/VERSION)
 SRC_DIST=/tmp/clisp-$(VER)$(PACKEXT)
 SRC_DIST1=/tmp/clisp-$(VER).tar.gz
-SSHUP=gnudist:~/ftp-clisp/ cons:~/ftp-clisp/
+SSHUP=podval:~/public_html/clisp/
 FTPUP=upload.sf.net:/incoming sunsite.unc.edu:/incoming/linux
 
 $(SRC_DIST1) : $(SRC_DIST)
