@@ -1,3 +1,8 @@
+2002-03-24  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (SUBR_SET_ARGTYPE): new macro
+	(init_subr_tab_1, dynload_modules): use it
+
 2002-03-24  Stefan Kain  <stefan.kain@freenet.de>
 
 	* spvw.d: translated all comments
