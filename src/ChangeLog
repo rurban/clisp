@@ -1,5 +1,10 @@
 2005-02-07  Bruno Haible  <bruno@clisp.org>
 
+	* foreign.d (FFI:CLOSE-FOREIGN-LIBRARY): Assign value1 only after
+	calling close_library().
+
+2005-02-07  Bruno Haible  <bruno@clisp.org>
+
 	* foreign.d (object_handle(): Fix the GCTRIGGER statement.
 
 2005-02-07  Bruno Haible  <bruno@clisp.org>

@@ -4172,9 +4172,13 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
 /* (FFI:CLOSE-FOREIGN-LIBRARY name [required-version]) */
 LISPFUNN(close_foreign_library,1) {
   var object lib_cons = find_library(popSTACK());
-  if (consp(lib_cons) && fp_validp(TheFpointer(value1 = Car(Cdr(lib_cons)))))
-    close_library(value1);
-  else value1 = NIL;
+  if (consp(lib_cons)) {
+    var object library = Car(Cdr(lib_cons));
+    if (fp_validp(library))
+      close_library(library);
+    value1 = library;
+  } else
+    value1 = NIL;
   mv_count = 1;
 }
 
