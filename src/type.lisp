@@ -883,6 +883,8 @@
              (unknown () '(return-from subtypep (values nil nil))))
     (setq type1 (canonicalize-type type1))
     (setq type2 (canonicalize-type type2))
+    (when (or (null type1) (eq t type2)) (yes))
+    (when (null type2) (no))
     (when (equal type1 type2) (yes)) ; (subtypep type type) stimmt immer
                                      ; equal auf MEMBER und EQL verboten!!??
     (when (consp type1)
