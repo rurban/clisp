@@ -130,7 +130,7 @@
 (defmacro return (&optional return-value)
   `(RETURN-FROM NIL ,return-value))
 
-(defmacro loop (&body body)
+(predefmacro loop (&body body)
   (let ((tag (gensym)))
     `(BLOCK NIL (TAGBODY ,tag ,@body (GO ,tag)))))
 

@@ -745,6 +745,7 @@ LISPSYM(make_structure,"%MAKE-STRUCTURE",system) /* ABI */
 LISPSYM(copy_structure,"COPY-STRUCTURE",lisp)
 LISPSYM(structure_type_p,"%STRUCTURE-TYPE-P",system) /* ABI */
 LISPSYM(closure_name,"CLOSURE-NAME",system)
+LISPSYM(set_closure_name,"(SETF CLOSURE-NAME)",system)
 LISPSYM(closure_codevec,"CLOSURE-CODEVEC",system)
 LISPSYM(closure_consts,"CLOSURE-CONSTS",system)
 LISPSYM(make_code_vector,"MAKE-CODE-VECTOR",system)

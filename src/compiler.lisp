@@ -195,8 +195,6 @@ and <http://clisp.cons.org/impnotes.html#bytecode>.
     further constants)
 |#
 
-(defsetf closure-name (closure) (new-name)
-  `(sys::%record-store ,closure 0 ,new-name))
 (defun make-closure (&key name codevec consts seclass)
   (sys::%make-closure name (sys::make-code-vector codevec) consts seclass))
 
@@ -10613,7 +10611,7 @@ The function make-closure is required.
       (format *coutput-stream* "#include \"clisp.h\"~%~%"))
     t))
 ;; Hook for FFI:
-(defun finalize-coutput-file ())
+(predefun finalize-coutput-file ())
 
 (defun c-reset-globals ()
   ;; The global variables have to be assigned, not bound!

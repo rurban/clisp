@@ -544,7 +544,7 @@
     `(FIND-STRUCTURE-SLOT-INITFUNCTION ',name ',slotname)))
 
 ;; A hook for CLOS
-(defun clos::defstruct-remove-print-object-method (name) ; preliminary
+(predefun clos::defstruct-remove-print-object-method (name) ; preliminary
   (declare (ignore name))
   nil)
 
