@@ -105,9 +105,7 @@
                    'defpackage packname name
                  )
                  (push name symname-list)
-               )
-               name
-            ))
+            )) )
         (dolist (option options)
           (if (listp option)
             (if (keywordp (car option))
@@ -134,14 +132,20 @@
                 ) )
                 (:SHADOW
                   (dolist (name (rest option))
-                    (push (record-symname (check-symname name)) shadow-list)
-                ) )
+                    (setq name (check-symname name))
+                    (unless (member name shadow-list :test #'string=)
+                      (push name shadow-list)
+                      (record-symname name)
+                ) ) )
                 (:SHADOWING-IMPORT-FROM
                   (let ((pack (check-packname (second option))))
                     (dolist (name (cddr option))
-                      (push (cons (record-symname (check-symname name)) pack)
-                            shadowing-list
-                ) ) ) )
+                      (setq name (check-symname name))
+                      (let ((name+pack (cons name pack)))
+                        (unless (member name+pack shadowing-list :test #'equal) ; #'string= on car and cdr
+                          (push name+pack shadowing-list)
+                          (record-symname name)
+                ) ) ) ) )
                 (:USE
                   (dolist (name (rest option))
                     (push (check-packname name) use-list)
@@ -151,17 +155,25 @@
                 (:IMPORT-FROM
                   (let ((pack (check-packname (second option))))
                     (dolist (name (cddr option))
-                      (push (cons (record-symname (check-symname name)) pack)
-                            import-list
-                ) ) ) )
+                      (setq name (check-symname name))
+                      (let ((name+pack (cons name pack)))
+                        (unless (member name+pack import-list :test #'equal) ; #'string= on car and cdr
+                          (push name+pack import-list)
+                          (record-symname name)
+                ) ) ) ) )
                 (:INTERN
                   (dolist (name (rest option))
-                    (push (record-symname (check-symname name)) intern-list)
-                ) )
+                    (setq name (check-symname name))
+                    (unless (member name intern-list :test #'string=)
+                      (push name intern-list)
+                      (record-symname name)
+                ) ) )
                 (:EXPORT
                   (dolist (name (rest option))
-                    (push (check-symname name) export-list)
-                ) )
+                    (setq name (check-symname name))
+                    (unless (member name export-list :test #'string=)
+                      (push name export-list)
+                ) ) )
                 (:CASE-SENSITIVE ; CLISP extension
                   (when (not (null (second option)))
                     (setq case-sensitive t)
