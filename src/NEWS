@@ -71,7 +71,8 @@ User visible changes
   + COERCE accepts CLOS class object as a type-spec (second argument) and
     coerces FLOAT to COMPLEX by returning a COMPLEX number;
   + DEFSTRUCT uses the slot name as is for the accessor when :CONC-NAME
-    is NIL (i.e., does not intern the name in *PACKAGE*);
+    is NIL (i.e., does not intern the name in *PACKAGE*), and does not
+    bind slot names in the arglist of keyword constructors;
   + a character is now accepted as a package designator.
 
 * FUNCTION-LAMBDA-EXPRESSION now always returns the correct function name.
