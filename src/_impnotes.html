@@ -7915,10 +7915,10 @@ Continuable errors will be turned to warnings.  Non-continuable errors
 and Ctrl-C interrupts will terminate the execution of the Lisp script
 with error status.
 
-<p>Another, quite inferior, option is to put the following into a file:
+<p>Another, quite inferior, alternative is to put the following into a file:
 
 <pre><code>#!/bin/sh
-exec /usr/local/clisp/lisp.run -M /usr/local/clisp/lispinit.mem &lt;&lt;EOF
+exec clisp &lt;&lt;EOF
 (lisp-form)
 (another-lisp-form)
 (yet-another-lisp-form)
