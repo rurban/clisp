@@ -497,13 +497,13 @@
               new-space1 new-space2 new-gccount
               old-real1 old-real2 old-run1 old-run2 old-gc1 old-gc2
               old-space1 old-space2 old-gccount)
-  (macrolet ((diff4 (val1-n val2-n val1-o val2-o)
+  (macrolet ((diff4 (newval1 newval2 oldval1 oldval2)
                (if (< internal-time-units-per-second 1000000)
                  ;; TIME_1: UNIX_TIMES
-                 `(delta4 ,val1-n ,val2-n ,val1-o ,val2-o 16)
+                 `(delta4 ,newval1 ,newval2 ,oldval1 ,oldval2 16)
                  ;; TIME_2: other UNIX, WIN32
-                 `(+ (* (- ,val1-n ,val1-o) internal-time-units-per-second)
-                     (- ,val2-n ,val2-o)))))
+                 `(+ (* (- ,newval1 ,oldval1) internal-time-units-per-second)
+                     (- ,newval2 ,oldval2)))))
     (let ((Real-Time (diff4 new-real1 new-real2 old-real1 old-real2))
           (Run-Time (diff4 new-run1 new-run2 old-run1 old-run2))
           (GC-Time (diff4 new-gc1 new-gc2 old-gc1 old-gc2))
