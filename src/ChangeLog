@@ -1,3 +1,8 @@
+2004-06-02  Sam Steingold  <sds@gnu.org>
+
+	* list.d (up2_test, up2_test_not, up_test, up_test_not, up_if)
+	(up_if_not): simplify return statement
+
 2004-06-02  Bruno Haible  <bruno@clisp.org>
 
 	* list.d (check_cons): Remove macro.
