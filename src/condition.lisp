@@ -1287,6 +1287,19 @@
         (list (find-restart 'RETRY) (find-restart 'RETURN))
       (error condition))))
 
+;; redefine the function in init.lisp, used by LOAD
+(eval-when (compile) (fmakunbound 'eval-loaded-form)) ; avoid a warning
+(defun eval-loaded-form (obj)
+  (restart-case (eval-loaded-form-low obj)
+    (skip
+        :report (lambda (out) (format out (TEXT "skip this form and proceed")))
+        :interactive default-restart-interactive
+        () (return-from eval-loaded-form 'skip))
+    (stop
+        :report (lambda (out) (format out (TEXT "stop loading file")))
+        :interactive default-restart-interactive
+        () (return-from eval-loaded-form 'stop))))
+
 ;;; 29.4.3. Exhaustive Case Analysis
 
 ;; These macros supersede the corresponding ones from macros2.lisp.
