@@ -59,20 +59,23 @@ local maygc object N_exp_N (object x, bool start_p, gcv_object_t* end_p)
       STACK_1 = RA_R_float_F(STACK_1,STACK_0);
     if (R_rationalp(STACK_2)) /* a */
       STACK_2 = RA_R_float_F(STACK_2,STACK_0);
-    if (start_p) {
-      STACK_1 = F_extend2_F(STACK_1); /* b */
-      STACK_2 = F_extend2_F(STACK_2); /* a */
-    }
-    R_cos_sin_R_R(STACK_1,false,NULL); /* (cos b), (sin b) */
+    var bool same_precision = (F_float_digits(STACK_2) == F_float_digits(STACK_1));
+    R_cos_sin_R_R(STACK_1,start_p,NULL); /* (cos b), (sin b) */
     /* stack layout: a, b, contagion, cos(b), sin(b).
-     b != Fixnum_0 ==> sin(b) ~= Fixnum_0. */
-    STACK_2 = R_exp_R(STACK_4,false,NULL); /* (exp a) */
+       b != Fixnum_0 ==> sin(b) != Fixnum_0. */
+    STACK_2 = R_exp_R(STACK_4,true,NULL); /* (exp a) */
     /* stack layout: a, exp(a), cos(b), sin(b). */
     var object temp;
-    temp = R_R_mal_R(STACK_2,STACK_0); /* (* (exp a) (sin b)) != Fixnum_0 */
-    STACK_0 = F_R_float_F(temp,*end_p);
-    temp = R_R_mal_R(STACK_2,STACK_1); /* (* (exp a) (cos b)) */
+    /* Bind variables, to avoid unjustified contagion warnings. */
+    dynamic_bind(S(warn_on_floating_point_contagion),
+                 same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+    dynamic_bind(S(floating_point_contagion_ansi),NIL);
+    temp = R_R_mal_R(STACK_(2+6),STACK_(0+6)); /* (* (exp a) (sin b)) != Fixnum_0 */
+    STACK_(0+6) = F_R_float_F(temp,*end_p);
+    temp = R_R_mal_R(STACK_(2+6),STACK_(1+6)); /* (* (exp a) (cos b)) */
     temp = F_R_float_F(temp,*end_p);
+    dynamic_unbind(S(floating_point_contagion_ansi));
+    dynamic_unbind(S(warn_on_floating_point_contagion));
     temp = R_R_complex_C(temp,STACK_0); /* (complex ... ...) */
     skipSTACK(5); return temp;
   }
@@ -91,20 +94,19 @@ local maygc object N_log_N (object x, bool start_p, gcv_object_t *end_p)
   STACK_0 = R_ln_R(STACK_0,start_p,end_p); /* (log (abs x)) */
   if (start_p) { /* increase precision */
     if (floatp(STACK_1))
-      STACK_1 = F_extend2_F(STACK_1);
+      STACK_1 = F_extend_F(STACK_1);
     else if (complexp(STACK_1)
              && (floatp(TheComplex(STACK_1)->c_real)
                  || floatp(TheComplex(STACK_1)->c_imag))) {
-      STACK_1 = R_R_complex_C(TheComplex(STACK_1)->c_real,
-                              TheComplex(STACK_1)->c_imag);
-      if (floatp(TheComplex(STACK_1)->c_real)) {
-        var object longer_realpart = F_extend2_F(TheComplex(STACK_1)->c_real);
-        TheComplex(STACK_1)->c_real = longer_realpart;
-      }
-      if (floatp(TheComplex(STACK_1)->c_imag)) {
-        var object longer_imagpart = F_extend2_F(TheComplex(STACK_1)->c_imag);
-        TheComplex(STACK_1)->c_imag = longer_imagpart;
-      }
+      var object realpart = TheComplex(STACK_1)->c_real;
+      if (floatp(realpart))
+        realpart = F_extend_F(realpart);
+      pushSTACK(realpart);
+      var object imagpart = TheComplex(STACK_(1+1))->c_imag;
+      if (floatp(imagpart))
+        imagpart = F_extend_F(imagpart);
+      realpart = popSTACK();
+      STACK_1 = R_R_complex_C(realpart,imagpart);
     }
   }
   STACK_1 = N_phase_R(STACK_1,true); /* (phase x) */
@@ -428,11 +430,47 @@ local maygc object N_log_N (object x, bool start_p, gcv_object_t *end_p)
     pushSTACK(y);
     pushSTACK(x);
     pushSTACK(N_N_contagion_R(x,y));
-    STACK_1 = N_log_N(STACK_1,true,NULL); /* (log x) */
-    STACK_2 = N_N_float_N(STACK_2,STACK_1);
-    x = N_N_mal_N(STACK_2,STACK_1); /* (* (log x) y) */
-    x = N_exp_N(x,false,&STACK_0); /* exp */
-    skipSTACK(3); return x;
+    /* The number of precision bits needed is:
+       the number d of mantissa bits  of this result
+       + (sqrt(d)+2) as in F_extend_F
+       + the exponent length of y. */
+    var uintL prec = R_float_digits(STACK_0);
+    {
+      var uintL d = prec;
+      var uintL s;
+      integerlength32(d,s=);
+      s = floor(32-s,2);
+      d = d << (2*s);
+      var uintL sqrtd;
+      isqrt_32_16(d, sqrtd =, );
+      sqrtd = sqrtd >> s;
+      prec += sqrtd;
+    }
+    prec += 2;
+    defaultfloatcase(S(default_float_format),STACK_2,
+                     { prec += SF_exp_len-1; },
+                     { prec += FF_exp_len-1; },
+                     { prec += DF_exp_len-1; },
+                     { prec += 31; },
+                     ,);
+    var object tempfloat;
+    if (prec < 53)
+      tempfloat = DF_0;
+    else
+      encode_LF0(ceiling(prec,intDsize),tempfloat=);
+    pushSTACK(tempfloat);
+    /* stack layout: y, x, resfloat, tempfloat. */
+    var uintL x_prec = R_float_digits(x);
+    if (x_prec < F_float_digits(STACK_0))
+      STACK_2 = N_N_float_N(STACK_2,STACK_0); /* extend precision of x */
+    STACK_2 = N_log_N(STACK_2,true,NULL); /* (log x) */
+    STACK_2 = N_N_float_N(STACK_2,STACK_0); /* rounded (log x) */
+    STACK_4 = N_N_float_N(STACK_4,STACK_0); /* rounded y */
+    var object temp = N_N_mal_N(STACK_2,STACK_4); /* (* (log x) y) */
+    /* No need to re-extend the precision inside N_exp_N, because we have
+       already chosen the needed precision. */
+    var object result = N_exp_N(temp,false,&STACK_1); /* exp */
+    skipSTACK(4); return result;
   }
 
 /* N_sin_N(x) liefert (sin x), wo x eine Zahl ist.
@@ -447,18 +485,36 @@ local maygc object N_sin_N (object x)
   } else { /* x=a+bi */
     pushSTACK(TheComplex(x)->c_real); /* save a */
     pushSTACK(TheComplex(x)->c_imag); /* save b */
-    R_cosh_sinh_R_R(STACK_0,true,NULL); /* cosh(b) sinh(b) */
-    /* stack layout: a, b, cosh(b), sinh(b).
-     b != Fixnum_0 ==> sinh(b) != Fixnum_0. */
-    R_cos_sin_R_R(STACK_3,true,NULL); /* cos(a)!=0, sin(a); */
-    /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a). */
-    STACK_0 = R_R_mal_R(STACK_0,STACK_3); /* sin(a)*cosh(b) */
-    STACK_3 = R_R_contagion_R(STACK_4,STACK_5);
-    STACK_4 = R_R_mal_R(STACK_1,STACK_2); /* cos(a)*sinh(b), != Fixnum_0 */
-    STACK_4 = F_R_float_F(STACK_4,STACK_3);
-    STACK_5 = R_R_float_F(STACK_0,STACK_3);
-    { var object erg = R_R_complex_C(STACK_5,STACK_4);
-      skipSTACK(6); return erg;
+    if (eq(STACK_1,Fixnum_0)) {
+      var object temp = R_sinh_R(STACK_0); /* sinh(b), != Fixnum_0 */
+      temp = R_R_complex_C(Fixnum_0,temp);
+      skipSTACK(2); return temp;
+    } else {
+      /* a and b must be converted to floats. */
+      if (R_rationalp(STACK_1)) /* a */
+        STACK_1 = RA_float_F(STACK_1);
+      if (R_rationalp(STACK_0)) /* b */
+        STACK_0 = RA_float_F(STACK_0);
+      var bool same_precision = (F_float_digits(STACK_1) == F_float_digits(STACK_0));
+      R_cosh_sinh_R_R(STACK_0,true,NULL); /* cosh(b) sinh(b) */
+      /* stack layout: a, b, cosh(b), sinh(b).
+         b != Fixnum_0 ==> sinh(b) != Fixnum_0. */
+      R_cos_sin_R_R(STACK_3,true,NULL); /* cos(a)!=0, sin(a) */
+      /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a). */
+      pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
+      /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a), resfloat. */
+      /* Bind variables, to avoid unjustified contagion warnings. */
+      dynamic_bind(S(warn_on_floating_point_contagion),
+                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      dynamic_bind(S(floating_point_contagion_ansi),NIL);
+      STACK_(1+6) = R_R_mal_R(STACK_(1+6),STACK_(4+6)); /* sin(a)*cosh(b), != Fixnum_0 */
+      STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(3+6)); /* cos(a)*sinh(b), != Fixnum_0 */
+      STACK_(1+6) = F_F_float_F(STACK_(1+6),STACK_(0+6));
+      STACK_(2+6) = F_F_float_F(STACK_(2+6),STACK_(0+6));
+      dynamic_unbind(S(floating_point_contagion_ansi));
+      dynamic_unbind(S(warn_on_floating_point_contagion));
+      var object result = R_R_complex_C(STACK_1,STACK_2);
+      skipSTACK(7); return result;
     }
   }
 }
@@ -475,22 +531,34 @@ local maygc object N_cos_N (object x)
   } else { /* x=a+bi */
     pushSTACK(TheComplex(x)->c_real); /* save a */
     pushSTACK(TheComplex(x)->c_imag); /* save b */
-    R_cosh_sinh_R_R(STACK_0,true,NULL); /* cosh(b), sinh(b) */
-    /* stack layout: a, b, cosh(b), sinh(b). */
-    R_cos_sin_R_R(STACK_3,true,NULL); /* cos(a), sin(a) */
-    /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a). */
-    STACK_0 = R_minus_R(R_R_mal_R(STACK_0,STACK_2)); /* -sin(a)*sinh(b) */
-    STACK_1 = R_R_mal_R(STACK_1,STACK_3); /* cos(a)*cosh(b) */
-    STACK_2 = R_R_contagion_R(STACK_4,STACK_5);
-    { var object erg;
-      if (eq(STACK_0,Fixnum_0)) {
-        erg = R_R_float_F(STACK_1,STACK_2);
-      } else {
-        STACK_1 = R_R_float_F(STACK_1,STACK_2);
-        STACK_0 = F_R_float_F(STACK_0,STACK_2);
-        erg = R_R_complex_C(STACK_1,STACK_0);
-      }
-      skipSTACK(6); return erg;
+    if (eq(STACK_1,Fixnum_0)) {
+      var object result = R_cosh_R(STACK_0); /* cosh(b) */
+      skipSTACK(2); return result;
+    } else {
+      /* a and b must be converted to floats. */
+      if (R_rationalp(STACK_1)) /* a */
+        STACK_1 = RA_float_F(STACK_1);
+      if (R_rationalp(STACK_0)) /* b */
+        STACK_0 = RA_float_F(STACK_0);
+      var bool same_precision = (F_float_digits(STACK_1) == F_float_digits(STACK_0));
+      R_cosh_sinh_R_R(STACK_0,true,NULL); /* cosh(b), sinh(b) */
+      /* stack layout: a, b, cosh(b), sinh(b). */
+      R_cos_sin_R_R(STACK_3,true,NULL); /* cos(a), sin(a) */
+      /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a). */
+      pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
+      /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a), resfloat. */
+      /* Bind variables, to avoid unjustified contagion warnings. */
+      dynamic_bind(S(warn_on_floating_point_contagion),
+                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      dynamic_bind(S(floating_point_contagion_ansi),NIL);
+      STACK_(1+6) = R_minus_R(R_R_mal_R(STACK_(1+6),STACK_(3+6))); /* -sin(a)*sinh(b), != Fixnum_0 */
+      STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(4+6)); /* cos(a)*cosh(b), != Fixnum_0 */
+      STACK_(1+6) = F_F_float_F(STACK_(1+6),STACK_(0+6));
+      STACK_(2+6) = F_F_float_F(STACK_(2+6),STACK_(0+6));
+      dynamic_unbind(S(floating_point_contagion_ansi));
+      dynamic_unbind(S(warn_on_floating_point_contagion));
+      var object result = R_R_complex_C(STACK_2,STACK_1);
+      skipSTACK(7); return result;
     }
   }
 }
@@ -504,32 +572,43 @@ local maygc object N_cos_N (object x)
 local maygc object N_tan_N (object x)
 {
   if (N_realp(x)) {
-    pushSTACK(x);
-    R_cos_sin_R_R(x,true,NULL);
-    { /* stack layout: x, cos(x), sin(x). */
-      var object erg = R_R_durch_R(STACK_0,STACK_1);
-      if (floatp(STACK_0) || floatp(STACK_1))
-        erg = F_R_float_F(erg,STACK_2);
-      skipSTACK(3); return erg;
-    }
+    return R_tan_R(x);
   } else { /* x=a+bi */
     pushSTACK(TheComplex(x)->c_real); /* save a */
     pushSTACK(TheComplex(x)->c_imag); /* save b */
-    R_cosh_sinh_R_R(STACK_0,true,NULL); /* cosh(b), sinh(b) */
-    /* stack layout: a, b, cosh(b), sinh(b). */
-    R_cos_sin_R_R(STACK_3,true,NULL); /* cos(a), sin(a) */
-    /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a). */
-    STACK_5 = R_R_contagion_R(STACK_5,STACK_4);
-    STACK_4 = R_R_mal_R(STACK_0,STACK_3); /* sin(a)*cosh(b) */
-    { var object temp = R_R_mal_R(STACK_1,STACK_2); /* cos(a)*sinh(b) /= 0 */
-      STACK_4 = R_R_complex_C(STACK_4,temp); /* numerator */
-      /* stack layout: contag, numerator, cosh(b), sinh(b), cos(a), sin(a). */
-      STACK_3 = R_R_mal_R(STACK_1,STACK_3); /* cos(a)*cosh(b) */
-      temp = R_minus_R(R_R_mal_R(STACK_0,STACK_2)); /* -sin(a)*sinh(b) */
-      temp = R_R_complex_N(STACK_3,temp); /* denominator */
-      STACK_4 = N_N_durch_N(STACK_4,temp); /* numerator/denominator */
-      temp = C_R_float_C(STACK_4,STACK_5);
-      skipSTACK(6); return temp;
+    if (eq(STACK_1,Fixnum_0)) {
+      var object temp = R_tanh_R(STACK_0); /* tanh(b), != Fixnum_0 */
+      temp = R_R_complex_C(Fixnum_0,temp);
+      skipSTACK(2); return temp;
+    } else {
+      /* a and b must be converted to floats. */
+      if (R_rationalp(STACK_1)) /* a */
+        STACK_1 = RA_float_F(STACK_1);
+      if (R_rationalp(STACK_0)) /* b */
+        STACK_0 = RA_float_F(STACK_0);
+      var bool same_precision = (F_float_digits(STACK_1) == F_float_digits(STACK_0));
+      R_cosh_sinh_R_R(STACK_0,true,NULL); /* cosh(b), sinh(b) */
+      /* stack layout: a, b, cosh(b), sinh(b). */
+      R_cos_sin_R_R(STACK_3,true,NULL); /* cos(a), sin(a) */
+      /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a). */
+      pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
+      /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a), resfloat. */
+      /* Bind variables, to avoid unjustified contagion warnings. */
+      dynamic_bind(S(warn_on_floating_point_contagion),
+                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      dynamic_bind(S(floating_point_contagion_ansi),NIL);
+      STACK_(6+6) = R_R_mal_R(STACK_(1+6),STACK_(4+6)); /* sin(a)*cosh(b) */
+      var object temp = R_R_mal_R(STACK_(2+6),STACK_(3+6)); /* cos(a)*sinh(b) /= 0 */
+      STACK_(6+6) = R_R_complex_C(STACK_(6+6),temp); /* numerator */
+      /* stack layout: numerator, b, cosh(b), sinh(b), cos(a), sin(a), resfloat, [2 bindings]. */
+      STACK_(5+6) = R_R_mal_R(STACK_(2+6),STACK_(4+6)); /* cos(a)*cosh(b) */
+      temp = R_minus_R(R_R_mal_R(STACK_(1+6),STACK_(3+6))); /* -sin(a)*sinh(b) */
+      temp = R_R_complex_N(STACK_(5+6),temp); /* denominator */
+      temp = N_N_durch_N(STACK_(6+6),temp); /* numerator/denominator */
+      dynamic_unbind(S(floating_point_contagion_ansi));
+      dynamic_unbind(S(warn_on_floating_point_contagion));
+      var object result = C_R_float_C(temp,STACK_0);
+      skipSTACK(7); return result;
     }
   }
 }
@@ -550,17 +629,35 @@ local maygc object N_cis_N (object x)
   } else { /* x=a+bi */
     pushSTACK(TheComplex(x)->c_real); /* save a */
     pushSTACK(TheComplex(x)->c_imag); /* save b */
-    R_cos_sin_R_R(TheComplex(x)->c_real,true,NULL); /* (cos a), (sin a) */
-    /* stack layout: a, b, cos(a), sin(a). */
-    STACK_3 = R_R_contagion_R(STACK_3,STACK_2);
-    STACK_2 = x = R_exp_R(R_minus_R(STACK_2),false,NULL); /* (exp (- b)) */
-    /* stack layout: exp(-b), cos(a), sin(a). */
-    STACK_0 = R_R_mal_R(x,STACK_0); /* (* (exp (- b)) (sin a)), maybe 0 */
-    x = R_R_mal_R(STACK_2,STACK_1); /* (* (exp (- b)) (cos a)) */
-    x = R_R_complex_N(F_R_float_F(x,STACK_3), /* (complex ... ...) */
-                      eq(Fixnum_0,STACK_0) ? Fixnum_0
-                      : F_R_float_F(STACK_0,STACK_3));
-    skipSTACK(4); return x;
+    if (eq(STACK_1,Fixnum_0)) {
+      var object result = R_exp_R(R_minus_R(STACK_0),true,NULL); /* (exp (- b)) */
+      skipSTACK(2); return result;
+    } else {
+      /* a and b must be converted to floats. */
+      if (R_rationalp(STACK_1)) /* a */
+        STACK_1 = RA_float_F(STACK_1);
+      if (R_rationalp(STACK_0)) /* b */
+        STACK_0 = RA_float_F(STACK_0);
+      var bool same_precision = (F_float_digits(STACK_1) == F_float_digits(STACK_0));
+      R_cos_sin_R_R(STACK_1,true,NULL); /* (cos a), (sin a) */
+      /* stack layout: a, b, cos(a), sin(a). */
+      pushSTACK(R_exp_R(R_minus_R(STACK_2),true,NULL)); /* (exp (- b)) */
+      /* stack layout: a, b, cos(a), sin(a), exp(-b). */
+      pushSTACK(R_R_contagion_R(STACK_3,STACK_4));
+      /* stack layout: a, b, cos(a), sin(a), exp(-b), resfloat. */
+      /* Bind variables, to avoid unjustified contagion warnings. */
+      dynamic_bind(S(warn_on_floating_point_contagion),
+                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      dynamic_bind(S(floating_point_contagion_ansi),NIL);
+      STACK_(3+6) = R_R_mal_R(STACK_(3+6),STACK_(1+6)); /* (* (exp (- b)) (cos a)) */
+      STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(1+6)); /* (* (exp (- b)) (sin a)) */
+      STACK_(3+6) = F_F_float_F(STACK_(3+6),STACK_(0+6));
+      STACK_(2+6) = F_F_float_F(STACK_(2+6),STACK_(0+6));
+      dynamic_unbind(S(floating_point_contagion_ansi));
+      dynamic_unbind(S(warn_on_floating_point_contagion));
+      var object result = R_R_complex_C(STACK_3,STACK_2); /* (complex ... ...) */
+      skipSTACK(6); return result;
+    }
   }
 }
 
@@ -576,18 +673,36 @@ local maygc object N_sinh_N (object x)
   } else { /* x=a+bi */
     pushSTACK(TheComplex(x)->c_real); /* save a */
     pushSTACK(TheComplex(x)->c_imag); /* save b */
-    R_cos_sin_R_R(TheComplex(x)->c_imag,true,NULL); /* cos(b), sin(b) */
-    /* stack layout: a, b, cos(b), sin(b).
-     b != Fixnum_0 ==> sin(b) != Fixnum_0. */
-    R_cosh_sinh_R_R(STACK_3,true,NULL); /* cosh(a), sinh(a); cosh(a) != Fixnum 0 */
-    /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a). */
-    STACK_5 = R_R_contagion_R(STACK_4,STACK_5);
-    STACK_0 = R_R_mal_R(STACK_0,STACK_3); /* sinh(a)*cos(b) */
-    STACK_0 = R_R_float_F(STACK_0,STACK_5);
-    STACK_1 = R_R_mal_R(STACK_1,STACK_2); /* cosh(a)*sin(b), != Fixnum_0 */
-    STACK_1 = F_R_float_F(STACK_1,STACK_5);
-    { var object erg = R_R_complex_C(STACK_0,STACK_1);
-      skipSTACK(6); return erg;
+    if (eq(STACK_1,Fixnum_0)) {
+      var object temp = R_sin_R(STACK_0); /* sin(b), != Fixnum_0 */
+      temp = R_R_complex_C(Fixnum_0,temp);
+      skipSTACK(2); return temp;
+    } else {
+      /* a and b must be converted to floats. */
+      if (R_rationalp(STACK_1)) /* a */
+        STACK_1 = RA_float_F(STACK_1);
+      if (R_rationalp(STACK_0)) /* b */
+        STACK_0 = RA_float_F(STACK_0);
+      var bool same_precision = (F_float_digits(STACK_1) == F_float_digits(STACK_0));
+      R_cos_sin_R_R(STACK_0,true,NULL); /* cos(b), sin(b) */
+      /* stack layout: a, b, cos(b), sin(b).
+         b != Fixnum_0 ==> sin(b) != Fixnum_0. */
+      R_cosh_sinh_R_R(STACK_3,true,NULL); /* cosh(a), sinh(a); cosh(a) != Fixnum 0 */
+      /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a). */
+      pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
+      /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a), resfloat. */
+      /* Bind variables, to avoid unjustified contagion warnings. */
+      dynamic_bind(S(warn_on_floating_point_contagion),
+                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      dynamic_bind(S(floating_point_contagion_ansi),NIL);
+      STACK_(1+6) = R_R_mal_R(STACK_(1+6),STACK_(4+6)); /* sinh(a)*cos(b) */
+      STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(3+6)); /* cosh(a)*sin(b), != Fixnum_0 */
+      STACK_(1+6) = F_F_float_F(STACK_(1+6),STACK_(0+6));
+      STACK_(2+6) = F_F_float_F(STACK_(2+6),STACK_(0+6));
+      dynamic_unbind(S(floating_point_contagion_ansi));
+      dynamic_unbind(S(warn_on_floating_point_contagion));
+      var object result = R_R_complex_C(STACK_1,STACK_2);
+      skipSTACK(7); return result;
     }
   }
 }
@@ -604,22 +719,35 @@ local maygc object N_cosh_N (object x)
   } else { /* x=a+bi */
     pushSTACK(TheComplex(x)->c_real); /* save a */
     pushSTACK(TheComplex(x)->c_imag); /* save b */
-    R_cos_sin_R_R(TheComplex(x)->c_imag,true,NULL); /* cos(b), sin(b) */
-    /* stack layout: a, b, cos(b), sin(b). */
-    R_cosh_sinh_R_R(STACK_3,true,NULL); /* cosh(a), sinh(a) */
-    /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a). */
-    STACK_5 = R_R_contagion_R(STACK_4,STACK_5);
-    STACK_0 = R_R_mal_R(STACK_0,STACK_2); /* sinh(a)*sin(b) */
-    STACK_1 = R_R_mal_R(STACK_1,STACK_3); /* cosh(a)*cos(b) */
-    var object result;
-    if (eq(STACK_0,Fixnum_0)) {
-      result = F_R_float_F(STACK_1,STACK_5);
+    if (eq(STACK_1,Fixnum_0)) {
+      var object result = R_cos_R(STACK_0); /* cos(b) */
+      skipSTACK(2); return result;
     } else {
-      STACK_0 = F_R_float_F(STACK_0,STACK_5);
-      STACK_1 = F_R_float_F(STACK_1,STACK_5);
-      result = R_R_complex_C(STACK_1,STACK_0);
+      /* a and b must be converted to floats. */
+      if (R_rationalp(STACK_1)) /* a */
+        STACK_1 = RA_float_F(STACK_1);
+      if (R_rationalp(STACK_0)) /* b */
+        STACK_0 = RA_float_F(STACK_0);
+      var bool same_precision = (F_float_digits(STACK_1) == F_float_digits(STACK_0));
+      R_cos_sin_R_R(STACK_0,true,NULL); /* cos(b), sin(b) */
+      /* stack layout: a, b, cos(b), sin(b). */
+      R_cosh_sinh_R_R(STACK_3,true,NULL); /* cosh(a), sinh(a) */
+      /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a). */
+      pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
+      /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a), resfloat. */
+      /* Bind variables, to avoid unjustified contagion warnings. */
+      dynamic_bind(S(warn_on_floating_point_contagion),
+                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      dynamic_bind(S(floating_point_contagion_ansi),NIL);
+      STACK_(1+6) = R_R_mal_R(STACK_(1+6),STACK_(3+6)); /* sinh(a)*sin(b) */
+      STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(4+6)); /* cosh(a)*cos(b) */
+      STACK_(1+6) = F_F_float_F(STACK_(1+6),STACK_(0+6));
+      STACK_(2+6) = F_F_float_F(STACK_(2+6),STACK_(0+6));
+      dynamic_unbind(S(floating_point_contagion_ansi));
+      dynamic_unbind(S(warn_on_floating_point_contagion));
+      var object result = R_R_complex_C(STACK_2,STACK_1);
+      skipSTACK(7); return result;
     }
-    skipSTACK(6); return result;
   }
 }
 
@@ -632,32 +760,43 @@ local maygc object N_cosh_N (object x)
 local maygc object N_tanh_N (object x)
 {
   if (N_realp(x)) {
-    pushSTACK(x);
-    R_cosh_sinh_R_R(x,true,NULL);
-    /* stack layout: x, cosh(x), sinh(x). */
-    { var object erg = R_R_durch_R(STACK_0,STACK_1);
-      if (floatp(STACK_0) || floatp(STACK_1))
-        erg = F_R_float_F(erg,STACK_2);
-      skipSTACK(3); return erg;
-    }
+    return R_tanh_R(x);
   } else { /* x=a+bi */
     pushSTACK(TheComplex(x)->c_real); /* a */
     pushSTACK(TheComplex(x)->c_imag); /* b */
-    R_cos_sin_R_R(TheComplex(x)->c_imag,true,NULL); /* cos(b), sin(b) */
-    /* stack layout: a, b, cos(b), sin(b). */
-    R_cosh_sinh_R_R(STACK_3,true,NULL); /* cosh(a), sinh(a) */
-    /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a). */
-    STACK_5 = R_R_contagion_R(STACK_4,STACK_5);
-    STACK_4 = R_R_mal_R(STACK_0,STACK_3); /* sinh(a)*cos(b) */
-    { var object temp = R_R_mal_R(STACK_1,STACK_2); /* cosh(a)*sin(b) /= Fixnum 0 */
-      STACK_4 = R_R_complex_C(STACK_4,temp); /* numerator */
-      /* stack layout: contag, numerator, cos(b), sin(b), cosh(a), sinh(a). */
-      STACK_3 = R_R_mal_R(STACK_1,STACK_3); /* cosh(a)*cos(b) */
-      temp = R_R_mal_R(STACK_0,STACK_2); /* sinh(a)*sin(b) */
-      temp = R_R_complex_N(STACK_3,temp); /* denominator */
-      STACK_4 = N_N_durch_N(STACK_4,temp); /* numerator/denominator */
-      temp = C_R_float_C(STACK_4,STACK_5);
-      skipSTACK(6); return temp;
+    if (eq(STACK_1,Fixnum_0)) {
+      var object temp = R_tan_R(STACK_0); /* tan(b), != Fixnum_0 */
+      temp = R_R_complex_C(Fixnum_0,temp);
+      skipSTACK(2); return temp;
+    } else {
+      /* a and b must be converted to floats. */
+      if (R_rationalp(STACK_1)) /* a */
+        STACK_1 = RA_float_F(STACK_1);
+      if (R_rationalp(STACK_0)) /* b */
+        STACK_0 = RA_float_F(STACK_0);
+      var bool same_precision = (F_float_digits(STACK_1) == F_float_digits(STACK_0));
+      R_cos_sin_R_R(STACK_0,true,NULL); /* cos(b), sin(b) */
+      /* stack layout: a, b, cos(b), sin(b). */
+      R_cosh_sinh_R_R(STACK_3,true,NULL); /* cosh(a), sinh(a) */
+      /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a). */
+      pushSTACK(R_R_contagion_R(STACK_4,STACK_5));
+      /* stack layout: a, b, cos(b), sin(b), cosh(a), sinh(a), resfloat. */
+      /* Bind variables, to avoid unjustified contagion warnings. */
+      dynamic_bind(S(warn_on_floating_point_contagion),
+                   same_precision ? NIL : Symbol_value(S(warn_on_floating_point_contagion)));
+      dynamic_bind(S(floating_point_contagion_ansi),NIL);
+      STACK_(6+6) = R_R_mal_R(STACK_(1+6),STACK_(4+6)); /* sinh(a)*cos(b) */
+      var object temp = R_R_mal_R(STACK_(2+6),STACK_(3+6)); /* cosh(a)*sin(b) /= Fixnum 0 */
+      STACK_(6+6) = R_R_complex_C(STACK_(6+6),temp); /* numerator */
+      /* stack layout: numerator, b, cos(b), sin(b), cosh(a), sinh(a), resfloat, [2 bindings]. */
+      STACK_(5+6) = R_R_mal_R(STACK_(2+6),STACK_(4+6)); /* cosh(a)*cos(b) */
+      temp = R_R_mal_R(STACK_(1+6),STACK_(3+6)); /* sinh(a)*sin(b) */
+      temp = R_R_complex_N(STACK_(5+6),temp); /* denominator */
+      temp = N_N_durch_N(STACK_(6+6),temp); /* numerator/denominator */
+      dynamic_unbind(S(floating_point_contagion_ansi));
+      dynamic_unbind(S(warn_on_floating_point_contagion));
+      var object result = C_R_float_C(temp,STACK_0);
+      skipSTACK(7); return result;
     }
   }
 }
@@ -754,8 +893,8 @@ local maygc void R_R_atanh_R_R (object x, object y)
       STACK_0 = RA_F_float_F(STACK_0,STACK_1,true);
   }
   pushSTACK(R_R_contagion_R(STACK_0,STACK_1));
-  STACK_1 = F_extend2_F(STACK_1); /* increase precision y */
-  STACK_2 = F_extend2_F(STACK_2); /* increase precision x */
+  STACK_1 = F_extend_F(STACK_1); /* increase precision y */
+  STACK_2 = F_extend_F(STACK_2); /* increase precision x */
   pushSTACK(R_R_plus_R(Fixnum_1,STACK_2)); /* 1+x */
   pushSTACK(R_R_minus_R(Fixnum_1,STACK_3)); /* 1-x */
   /* stack layout: x, y, contagion, 1+x, 1-x. */

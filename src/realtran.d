@@ -548,7 +548,7 @@ local maygc object R_cos_R (object x)
  can trigger GC
  Method:
  x rational -> if x=0 ==> (1,0), otherwise x ==> float.
- x float -> increase its accuracy,
+ x float -> increase its precision,
    (q,r) := (round x (float pi/2 x)), so that |r|<=pi/4.
    e := the exponent from (decode-float r), d := (float-digits r)
   if r=0.0 or e<=-d/2 then return (1.0 0.0)
@@ -560,7 +560,7 @@ local maygc object R_cos_R (object x)
    y:=(sin(r/2)/(r/2))^2.
    (cos r) = 1-r^2*y/2.
    (sin r) = r*sqrt(y*(1-y*(r/2)^2)).
-   reduce the accuracy
+   reduce the precision
    if q = 0 mod 4: ((cos r), (sin r))
    if q = 1 mod 4: ((- (sin r)), (cos r))
    if q = 2 mod 4: ((- (cos r)), (- (sin r)))
@@ -595,9 +595,7 @@ local maygc void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
     x = F_F_mal_F(STACK_0,STACK_1); /* y*s */
     x = F_F_mal_F(STACK_2,x); /* y*s*r */
     x = R_R_minus_R(Fixnum_1,x); /* 1-y*s*r */
-    if (end_p != NULL) /* scale and save cos(r) */
-      pushSTACK(F_R_float_F(x,*end_p));
-    else pushSTACK(x);
+    pushSTACK(end_p != NULL ? F_R_float_F(x,*end_p) : x); /* round and save cos(r) */
     x = F_F_mal_F(STACK_1,STACK_2); /* y*s */
     x = F_F_mal_F(x,STACK_2); /* y*s*s */
     x = R_R_minus_R(Fixnum_1,x); /* 1-y*s*s = cos(s)^2 */
@@ -605,7 +603,7 @@ local maygc void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
     x = F_sqrt_F(x); /* cos(s)*sin(s)/s */
     x = F_F_mal_F(x,STACK_2); /* cos(s)*sin(s) */
     x = F_I_scale_float_F(x,Fixnum_1); /* 2*cos(s)*sin(s) = sin(r) */
-    if (end_p != NULL) /* scale sin(r) */
+    if (end_p != NULL) /* round sin(r) */
       x = F_R_float_F(x,*end_p);
     STACK_2 = STACK_0;
     STACK_1 = x;
@@ -627,6 +625,21 @@ local maygc void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
   }
   skipSTACK(2+1);
   return;
+}
+
+/* R_tan_R(x) compute the tangens (tan x) of a real number x.
+ can trigger GC
+ Method:
+ (/ (sin x) (cos x)) */
+local maygc object R_tan_R (object x)
+{
+  pushSTACK(x);
+  R_cos_sin_R_R(x,true,NULL);
+  /* stack layout: x, cos(x), sin(x). */
+  var object result = R_R_durch_R(STACK_0,STACK_1);
+  if (floatp(STACK_0) || floatp(STACK_1))
+    result = F_R_float_F(result,STACK_2); /* reduce precision */
+  skipSTACK(3); return result;
 }
 
 # F_lnx_F(x) liefert zu einem Float x (>=1/2, <=2) ln(x) als Float.
@@ -783,7 +796,7 @@ local maygc object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
   }
   /* x -- float */
   pushSTACK(x); /* save x */
-  if (start_p) /* increase accuracy */
+  if (start_p) /* increase computational precision */
     x = F_extend2_F(x);
   F_decode_float_F_I_F(x); /* compute m,e,s */
   /* Stack layout: x, m, e, s. */
@@ -795,9 +808,15 @@ local maygc object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
   }
   STACK_2 = F_lnx_F(STACK_2); /* ln(m) in the more accurate float format */
   { var object temp;
-    temp = ln2_F_float_F(STACK_0); /* ln(2) in that float format */
-    temp = R_R_mal_R(STACK_1,temp); /* e*ln(2) */
-    temp = R_R_plus_R(STACK_2,temp); /* ln(m)+e*ln(2) */
+    if (!eq(STACK_1,Fixnum_0)) {
+      temp = ln2_F_float_F(STACK_0); /* ln(2) in that float format */
+      temp = R_R_mal_R(STACK_1,temp); /* e*ln(2) */
+      temp = R_R_plus_R(STACK_2,temp); /* ln(m)+e*ln(2) */
+    } else {
+      /* Avoid computing 0*ln(2) since it triggers a
+         warn_floating_point_rational_contagion() call. */
+      temp = STACK_2;
+    }
     if (end_p != NULL) /* (float ... x) */
       temp = F_R_float_F(temp,*end_p);
     skipSTACK(4);
@@ -1074,7 +1093,7 @@ local maygc object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
   }
   /* x -- float */
   pushSTACK(x); /* save x */
-  if (start_p) /* increase accuracy */
+  if (start_p) /* increase computational precision */
     x = F_extend2_F(x);
   /* divide by ln(2) (if 0<=x<1/2 can immediately set q:=0) */
   if ((!R_minusp(x)) && (F_exponent_L(x)<0)) {
@@ -1228,19 +1247,17 @@ local maygc void R_cosh_sinh_R_R (object x, bool start_p, gcv_object_t* end_p)
       /* stack layout: x, exp(x), exp(-x). */
       temp = F_F_plus_F(STACK_1,temp); /* + y */
       temp = F_I_scale_float_F(temp,Fixnum_minus1); /* /2 */
-      if (end_p != NULL)        /* cosh */
-        STACK_2 = F_F_float_F(temp,*end_p);
-      else STACK_2 = temp;
+      STACK_2 = (end_p != NULL ? F_F_float_F(temp,*end_p) : temp); /* cosh */
       temp = F_F_minus_F(STACK_1,STACK_0); /* - y */
-      STACK_1 = F_I_scale_float_F(temp,Fixnum_minus1); /* /2 */
-      if (end_p != NULL)        /* sinh */
-        STACK_1 = F_F_float_F(STACK_1,*end_p);
+      temp = F_I_scale_float_F(temp,Fixnum_minus1); /* /2 */
+      STACK_1 = (end_p != NULL ? F_F_float_F(temp,*end_p) : temp); /* sinh */
       skipSTACK(1);
       return;
     } else { /* e<=0 */
       if (R_zerop(x) /* e <= (1-d)/2 <==> e <= -ceiling((d-1)/2) ? */
           || (e <= (sintL)(1-F_float_digits(x))>>1)) {
-        if (start_p) x = F_extend_F(x);
+        if (start_p) /* increase computational precision */
+          x = F_extend_F(x);
         pushSTACK(x); pushSTACK(x);
         if (end_p != NULL) {
           STACK_1 = RA_R_float_F(Fixnum_1,*end_p); /* cosh=1 */
@@ -1257,16 +1274,27 @@ local maygc void R_cosh_sinh_R_R (object x, bool start_p, gcv_object_t* end_p)
         /* stack layout: original x, x, x^2, y. */
         temp = F_sqrt_F(temp); /* sqrt(y) = sinh(x)/x */
         temp = F_F_mal_F(STACK_2,temp); /* x*sqrt(y) = sinh(x) */
-        if (end_p != NULL) /* restore the accuracy */
-          STACK_2 = F_F_float_F(temp,STACK_3);
-        else STACK_2 = temp;
+        STACK_2 = (end_p != NULL ? F_F_float_F(temp,STACK_3) : temp); /* restore the precision */
         temp = F_F_mal_F(STACK_1,STACK_0); /* x^2*y */
         temp = F_sqrt_F(R_R_plus_R(Fixnum_1,temp)); /* sqrt(1+x^2*y) */
-        if (end_p != NULL) /* restore the accuracy */
-          STACK_3 = F_F_float_F(temp,STACK_3);
-        else STACK_3 = temp;
+        STACK_3 = (end_p != NULL ? F_F_float_F(temp,STACK_3) : temp); /* restore the precision */
         skipSTACK(2); return;
       }
     }
   }
+}
+
+/* R_tanh_R(x) compute the hyperbolic tangens (tanh x) of a real number x.
+ can trigger GC
+ Method:
+ (/ (sinh x) (cosh x)) */
+local maygc object R_tanh_R (object x)
+{
+  pushSTACK(x);
+  R_cosh_sinh_R_R(x,true,NULL);
+  /* stack layout: x, cosh(x), sinh(x). */
+  var object result = R_R_durch_R(STACK_0,STACK_1);
+  if (floatp(STACK_0) || floatp(STACK_1))
+    result = F_R_float_F(result,STACK_2); /* reduce precision */
+  skipSTACK(3); return result;
 }
