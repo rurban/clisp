@@ -59,7 +59,7 @@ extern char *xrealloc RL((char *pointer, int bytes));
 #include <sys/ptem.h>
 #endif
 
-#ifndef __GO32__
+#ifndef MINIMAL
 /* From a termcap library: */
 extern int tgetent RL((char* bp, char* name));
 extern int tgetnum RL((char* id));
@@ -89,8 +89,10 @@ extern int errno;
 
 #define digit_value(c) ((c) - '0')
 
+#ifdef MINIMAL
 #ifdef __GO32__
 #include <pc.h>
+#endif
 #undef HANDLE_SIGNALS
 #endif
 
@@ -485,7 +487,7 @@ rl_unget_char (key)
 void
 rl_gather_tyi ()
 {
-#ifdef __GO32__
+#ifdef MINIMAL
   if (isatty(0))
     if (kbhit() && ibuffer_space())
       rl_stuff_char (rl_getc (in_stream));
@@ -540,7 +542,7 @@ rl_gather_tyi ()
       if (chars_avail)
 	rl_stuff_char (input);
     }
-#endif /* !__GO32__ */
+#endif /* !MINIMAL */
 }
 
 /* Read a key, including pending input. */
@@ -1138,7 +1140,7 @@ void
 _rl_set_screen_size (tty, ignore_env)
      int tty, ignore_env;
 {
-#ifndef __GO32__
+#ifndef MINIMAL
 #if defined (TIOCGWINSZ) && !defined (TIOCGWINSZ_BROKEN)
   struct winsize window_size;
 
@@ -1209,7 +1211,7 @@ void
 init_terminal_io (terminal_name)
      char *terminal_name;
 {
-#if defined (__GO32__)
+#if defined (MINIMAL)
   screenwidth = ScreenCols ();
   screenheight = ScreenRows ();
   screenchars = screenwidth * screenheight;
@@ -1361,7 +1363,7 @@ init_terminal_io (terminal_name)
       if (!func || func == rl_do_lowercase_version)
 	rl_set_key (term_kl, rl_backward, _rl_keymap);
     }
-#endif /* !__GO32__ */
+#endif /* !MINIMAL */
 }
 
 /* A function for the use of tputs () */
@@ -1388,12 +1390,12 @@ backspace (count)
 {
   register int i;
 
-#if !defined (__GO32__)
+#if !defined (MINIMAL)
   if (term_backspace)
     for (i = 0; i < count; i++)
       tputs (term_backspace, 1, _rl_output_character_function);
   else
-#endif /* !__GO32__ */
+#endif /* !MINIMAL */
     for (i = 0; i < count; i++)
       putc ('\b', out_stream);
 }
@@ -1457,11 +1459,11 @@ ding ()
 {
   if (readline_echoing_p)
     {
-#if !defined (__GO32__)
+#if !defined (MINIMAL)
       if (_rl_prefer_visible_bell && visible_bell)
 	tputs (visible_bell, 1, _rl_output_character_function);
       else
-#endif /* !__GO32__ */
+#endif /* !MINIMAL */
 	{
 	  fprintf (stderr, "\007");
 	  fflush (stderr);
@@ -1794,8 +1796,10 @@ rl_refresh_line ()
     memset (row_start + col, 0, (width - col) * 2);
   }
 #else /* !__GO32__ */
+#if !defined(MINIMAL)
   if (term_clreol)
     tputs (term_clreol, 1, _rl_output_character_function);
+#endif /* !MINIMAL */
 #endif /* !__GO32__ */
 
   rl_forced_update_display ();
@@ -1814,11 +1818,11 @@ rl_clear_screen ()
       return;
     }
 
-#if !defined (__GO32__)
+#if !defined (MINIMAL)
   if (term_clrpag)
     tputs (term_clrpag, 1, _rl_output_character_function);
   else
-#endif /* !__GO32__ */
+#endif /* !MINIMAL */
     crlf ();
 
   rl_forced_update_display ();
@@ -3138,7 +3142,7 @@ rl_getc (stream)
   int result;
   unsigned char c;
 
-#if (defined(__EMX__) && defined(unix)) || defined(__GO32__) /* emx <= 0.8d or go32 */
+#if (defined(__EMX__) && defined(unix)) || defined(MINIMAL) /* emx <= 0.8d or GO32 or WIN32 */
   if (isatty(0))
     { static unsigned char pending = 0;
       register unsigned short ch;
@@ -3169,7 +3173,7 @@ rl_getc (stream)
       if (result == 0)
 	return (EOF);
 
-#if defined (EWOULDBLOCK) && !defined (__GO32__)
+#if defined (EWOULDBLOCK) && !defined (MINIMAL)
       if (errno == EWOULDBLOCK)
 	{
 	  int flags;
@@ -3184,7 +3188,7 @@ rl_getc (stream)
 	    }
 	  continue;
 	}
-#endif /* EWOULDBLOCK && !__GO32__ */
+#endif /* EWOULDBLOCK && !MINIMAL */
 
 #if defined (EAGAIN) && defined (O_NONBLOCK)
       if (errno == EAGAIN)
@@ -3202,13 +3206,13 @@ rl_getc (stream)
 	}
 #endif /* EAGAIN && O_NONBLOCK */
 
-#if !defined (__GO32__)
+#if !defined (MINIMAL)
       /* If the error that we received was SIGINT, then try again,
 	 this is simply an interrupted system call to read ().
 	 Otherwise, some error ocurred, also signifying EOF. */
       if (errno != EINTR)
 	return (EOF);
-#endif /* !__GO32__ */
+#endif /* !MINIMAL */
     }
 }
 

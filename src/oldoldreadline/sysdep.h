@@ -5,7 +5,7 @@
 #ifndef _RL_SYSDEP_H
 #define _RL_SYSDEP_H
 
-#if !(defined(__MSDOS__) || defined(__EMX__))
+#if !(defined(__MSDOS__) || defined(__EMX__) || defined(WIN32))
 
 #include "config.h"
 
@@ -37,6 +37,7 @@
 #endif
 
 #if defined(__GO32__) /* djgpp 1.10 */
+#define MINIMAL
 #define STDC_HEADERS
 #define HAVE_UNISTD_H
 #define DIRENT
@@ -44,6 +45,10 @@
 #define HAVE_STRRCHR
 #define HAVE_STRPBRK
 #define RETSIGTYPE_VOID
+#endif
+
+#if defined(WIN32) /* mingw32 */
+#define MINIMAL
 #endif
 
 #endif

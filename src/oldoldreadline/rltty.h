@@ -37,10 +37,10 @@ extern int tcsetattr RL((/* int fd, int optional_actions, [const] struct termios
 extern int tcflow RL((int fd, int action));
 
 #else
-#if defined(HAVE_TERMIO_H) || defined(HAVE_SYS_TERMIO_H) || defined(__MSDOS__)
+#if defined(HAVE_TERMIO_H) || defined(HAVE_SYS_TERMIO_H) || defined(MINIMAL)
 
 #define TERMIO_TTY_DRIVER /* System V terminal I/O */
-#ifndef __GO32__
+#ifndef MINIMAL
 #ifdef HAVE_SYS_TERMIO_H
 #include <sys/termio.h>
 #else
