@@ -1,5 +1,10 @@
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
+	* spvw.d (main): Use GETTEXT, not GETTEXTL, in combination with
+	O(internal_encoding).
+
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
 	* lispbibl.d (nonreturning_function): Define in a way that works also
 	for function definitions.
 	* genclisph.d (main): Update accordingly.
