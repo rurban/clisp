@@ -1508,11 +1508,19 @@
     t))
 
 (sys::%putd 'check-symbol
-  (function check-symbol (lambda (caller object)
-    (unless (symbolp object)
-      (error-of-type 'source-program-error
-        (TEXT "~S: ~S is not a symbol.")
-        caller object)))))
+ (sys::make-macro
+  (function check-symbol (lambda (form env)
+    (declare (ignore env))
+    (let ((caller (second form)) (name (third form)))
+      (list 'unless (list 'symbolp name)
+            (list 'setq name (list '%check-symbol caller name))))))))
+(sys::%putd 'check-function-name
+ (sys::make-macro
+  (function check-function-name (lambda (form env)
+    (declare (ignore env))
+    (let ((caller (second form)) (name (third form)))
+      (list 'unless (list 'function-name-p name)
+            (list 'setq name (list '%check-function-name caller name))))))))
 
 (sys::%putd 'defun              ; preliminary:
   (sys::make-macro
