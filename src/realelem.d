@@ -1065,7 +1065,7 @@ local object R_I_expt_R (object x, object y)
     while (!eq(y=STACK_1,Fixnum_1)) { /* as long as b/=1 */
       STACK_1 = I_I_ash_I(y,Fixnum_minus1); /* b := (ash b -1) */
      {var object a = STACK_2 = R_square_R(STACK_2); /* a:=a*a */
-      if (I_oddp(STACK_1)) STACK_0 = R_R_mal_R(a,STACK_0); /* evtl. c:=a*c */
+      if (I_oddp(STACK_1)) STACK_0 = R_R_mal_R(a,STACK_0); /* poss. c:=a*c */
     }}
     x = STACK_0; skipSTACK(3);
   }
