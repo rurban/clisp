@@ -1,3 +1,9 @@
+1999-02-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * compiler.lsp (compile-file): Output the SYSTEM::VERSION form in
+          upper case.
+        * unix/MAGIC.add: Revert last change.
+
 1999-02-21  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Convert dotimesL with loop variables into dotimespL.
