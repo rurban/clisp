@@ -421,10 +421,14 @@ TYPEOF-TYPEP-SUBTYPE
 (typeof-typep-subtype #\Return 'standard-char)
 (BASE-CHAR NIL NIL)
 
+#+CLISP
 (typeof-typep-subtype (symbol-function 'let) 'compiled-function)
+#+CLISP
 (SPECIAL-OPERATOR NIL NIL)
 
+#+CLISP
 (typeof-typep-subtype (symbol-function 'let) 'function)
+#+CLISP
 (SPECIAL-OPERATOR NIL NIL)
 
 (typeof-typep-subtype #'car 'compiled-function)
@@ -471,14 +475,14 @@ TYPEOF-TYPEP-SUBTYPE
 (subtypep '(and (integer 0 2000) (not (eql 1000))) '(or (integer 0 999) (integer 1001 2000))) t
 (subtypep '(or (integer 0 1000) (integer 1001 3000)) '(or (integer 0 2000) (integer 2001 3000))) t
 
-(subtypep 'complex '(complex * *)) t
-(subtypep '(complex * *) 'complex) t
-(subtypep 'complex '(complex real real)) t
-(subtypep '(complex real real) 'complex) t
-(subtypep '(complex * *) '(complex real real)) t
-(subtypep '(complex real real) '(complex * *)) t
+(subtypep 'complex '(complex * #+CLISP *)) t
+(subtypep '(complex * #+CLISP *) 'complex) t
+(subtypep 'complex '(complex real #+CLISP real)) t
+(subtypep '(complex real #+CLISP real) 'complex) t
+(subtypep '(complex * #+CLISP *) '(complex real #+CLISP real)) t
+(subtypep '(complex real #+CLISP real) '(complex * #+CLISP *)) t
 
-(subtypep '(complex nil nil) 'nil) t
+(subtypep '(complex nil #+CLISP nil) 'nil) t
 
 (multiple-value-list (subtypep '(not integer) '(or number (satisfies anything))))
 (nil nil)
@@ -502,10 +506,10 @@ TYPEOF-TYPEP-SUBTYPE
 (t t)
 
 (let ((l '(ARRAY BASE-CHAR BASE-STRING BIT-VECTOR BOOLEAN CHARACTER COMPLEX
-           CONS FLOAT FUNCTION CLOS:GENERIC-FUNCTION HASH-TABLE INTEGER LIST
+           CONS FLOAT FUNCTION GENERIC-FUNCTION HASH-TABLE INTEGER LIST
            NULL NUMBER PACKAGE PATHNAME #+LOGICAL-PATHNAMES LOGICAL-PATHNAME
            RANDOM-STATE RATIONAL READTABLE REAL SEQUENCE
-           CLOS:STANDARD-GENERIC-FUNCTION STREAM STRING SYMBOL VECTOR))
+           STANDARD-GENERIC-FUNCTION STREAM STRING SYMBOL VECTOR))
       (failures '()))
   (dolist (a l)
     (dolist (b l)
@@ -602,10 +606,10 @@ otherwise
 foo
 (make-foo :a 123)
 (123 NIL)
-(multiple-value-list (subtypep 'foo 'list))
-(T T)
-(multiple-value-list (subtypep 'list 'foo))
-(NIL T)
+#+CLISP (multiple-value-list (subtypep 'foo 'list))
+#+CLISP (T T)
+#+CLISP (multiple-value-list (subtypep 'list 'foo))
+#+CLISP (NIL T)
 
 (defstruct (foo (:type list) :named) a nil b)
 foo
@@ -615,14 +619,16 @@ foo
   (list y z))
 ((FOO 123 NIL NIL) (FOO 123 321 NIL))
 
+(progn (mapc #'unintern '(foo70 foo71 foo72 foo73 foo74)) t) t
+
 (defstruct (foo70 (:type (vector (unsigned-byte 8)))) x y)
 foo70
 (type-of (make-foo70 :x 12 :y 5))
 (SIMPLE-ARRAY (UNSIGNED-BYTE 8) (2))
 (type-of (make-foo70 :x -1 :y 1))
 ERROR
-(typep (make-foo70 :x 12 :y 5) 'foo70)
-t
+#+CLISP (typep (make-foo70 :x 12 :y 5) 'foo70)
+#+CLISP t
 
 (defstruct (foo71 (:type list) (:initial-offset 5)))
 foo71
@@ -630,34 +636,34 @@ foo71
 foo72
 (list (length (make-foo71)) (length (make-foo72)))
 (5 7)
-(typep (make-list 6) 'foo71)
-t
-(typep (make-list 6) 'foo72)
-nil
-(multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons t null)))))) 'foo71))
-(t t)
-(multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons t null)))))) 'foo72))
-(nil t)
+#+CLISP (typep (make-list 6) 'foo71)
+#+CLISP t
+#+CLISP (typep (make-list 6) 'foo72)
+#+CLISP nil
+#+CLISP (multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons t null)))))) 'foo71))
+#+CLISP (t t)
+#+CLISP (multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons t null)))))) 'foo72))
+#+CLISP (nil t)
 
-(defstruct (foo73 (:type list) (:initial-offset 5) (:named t)))
+(defstruct (foo73 (:type list) (:initial-offset 5) :named))
 foo73
-(defstruct (foo74 (:type list) (:initial-offset 2) (:named t) (:include foo73)))
+(defstruct (foo74 (:type list) (:initial-offset 2) :named (:include foo73)))
 foo74
 (list (length (make-foo73)) (length (make-foo74)))
 (6 9)
-(typep (list nil nil nil nil nil 'foo73 nil) 'foo73)
-t
+#+CLISP (typep (list nil nil nil nil nil 'foo73 nil) 'foo73)
+#+CLISP t
 (foo73-p (list nil nil nil nil nil 'foo73 nil))
 t
-(typep (list nil nil nil nil nil 'foo73 nil nil 'foo74) 'foo73)
-t
+#+CLISP (typep (list nil nil nil nil nil 'foo73 nil nil 'foo74) 'foo73)
+#+CLISP t
 (foo74-p (list nil nil nil nil nil 'foo73 nil nil 'foo74))
 t
-(typep (list* nil nil nil nil nil 'foo73 nil 'tail) 'foo74)
-nil
+#+CLISP (typep (list* nil nil nil nil nil 'foo73 nil 'tail) 'foo74)
+#+CLISP nil
 (foo74-p (list* nil nil nil nil nil 'foo73 nil 'tail))
 nil
-(multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons (eql foo73) null)))))) 'foo73))
-(t t)
-(multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons (eql foo73) null)))))) 'foo74))
-(nil t)
+#+CLISP (multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons (eql foo73) null)))))) 'foo73))
+#+CLISP (t t)
+#+CLISP (multiple-value-list (subtypep '(cons t (cons t (cons t (cons t (cons t (cons (eql foo73) null)))))) 'foo74))
+#+CLISP (nil t)

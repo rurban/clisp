@@ -211,10 +211,14 @@ ERROR
 (mapcon (constantly 1) (list 2))
 1
 
+#+CLISP
 (maplap #'list '(a b) '(1 2 3) '(u i v))
+#+CLISP
 ((A B) (1 2 3) (U I V) (B) (2 3) (I V))
 
+#+CLISP
 (maplap #'list '(a b c) '(1 2 3) '(u i v))
+#+CLISP
 ((A B C) (1 2 3) (U I V) (B C) (2 3) (I V) (C) (3) (V))
 
 ;; mapcan
@@ -249,8 +253,12 @@ ERROR
 (mapcan #'identity '(1 2 3))
 3
 
+#+CLISP
 (mapcap #'list '(a b) '(1 2 3) '(u i v))
+#+CLISP
 (A 1 U B 2 I)
 
+#+CLISP
 (mapcap #'list '(a b c) '(1 2 3) '(u i v))
+#+CLISP
 (A 1 U B 2 I C 3 V)

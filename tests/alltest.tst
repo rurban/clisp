@@ -601,7 +601,9 @@ NIL
 ;TAGBODY, GO, MULTIPLE-VALUE-LIST, MULTIPLE-VALUE-CALL, MULTIPLE-VALUE-PROG1,
 ;MULTIPLE-VALUE-BIND, MULTIPLE-VALUE-SETQ, VALUES, VALUES-LIST, CATCH,
 
-(let ((ls (loop for i from 1 to (1- multiple-values-limit) collect i)))
+(let ((ls (loop
+             for i from 1 to (min (1- multiple-values-limit) 100000)
+             collect i)))
   (equal ls (multiple-value-list (values-list ls))))
 t
 
@@ -2183,10 +2185,12 @@ test-hash-table-iterator
 )
 T
 
+#+CLISP
 (gethash "foo" (read-from-string
                 (prin1-to-string
                  (make-hash-table :test 'equalp :initial-contents
                                   '(("FOO" . "bar"))))))
+#+CLISP
 "bar"
 
 ;Kap 17 Felder
