@@ -10,7 +10,7 @@
 
 ;; Runtime support for CALL-NEXT-METHOD.
 (defun %call-next-method (method next-methods original-args new-args)
-  (let* ((gf (std-method-generic-function method))
+  (let* ((gf (method-generic-function method))
          (emf (sys::generic-function-effective-method-function gf))
          (original-em (apply emf original-args))
          (new-em (apply emf new-args)))

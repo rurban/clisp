@@ -86,10 +86,10 @@
 (initialize-extended-method-check #'method-specializers)
 
 ;; MOP p. 82
-(fmakunbound 'method-generic-function)
-(defgeneric method-generic-function (method)
-  (:method ((method standard-method))
-    (std-method-generic-function method)))
+(let ((*allow-making-generic* t))
+  (defgeneric method-generic-function (method)
+    (:method ((method standard-method))
+      (std-method-generic-function method))))
 (initialize-extended-method-check #'method-generic-function)
 
 (defgeneric function-keywords (method)
