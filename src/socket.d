@@ -253,7 +253,8 @@ LISPFUNN(machine_instance,0)
 #endif
 
 # A wrapper around the closesocket() function/macro.
-#define CLOSESOCKET(fd)  while ((closesocket(fd) < 0) && sock_errno_is(EINTR))
+#define CLOSESOCKET(fd)  \
+  do { while ((closesocket(fd) < 0) && sock_errno_is(EINTR)) ; } while (0)
 
 # A wrapper around the connect() function.
   global int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen);
