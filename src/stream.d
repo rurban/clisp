@@ -15215,6 +15215,7 @@ LISPFUN(socket_status,seclass_default,1,2,norest,nokey,0,NIL) {
 /* the next three functions handle getsockopt()/setsockopt() calls
    for boolean, integer and timeval options respectively.
    each pushes one result on STACK */
+#if defined(SO_KEEPALIVE) || defined(SO_ERROR) || defined(SO_OOBINLINE) || defined(SO_TYPE)
 local void sock_opt_bool (SOCKET handle, int option, object value)
 {
   var int val;
@@ -15228,7 +15229,8 @@ local void sock_opt_bool (SOCKET handle, int option, object value)
       OS_error();
   }
 }
-
+#endif
+#if defined(SO_RCVBUF) || defined(SO_SNDBUF) || defined(SO_RCVLOWAT) || defined(SO_SNDLOWAT)
 local void sock_opt_int (SOCKET handle, int option, object value)
 {
   var uintL val;
@@ -15243,7 +15245,8 @@ local void sock_opt_int (SOCKET handle, int option, object value)
       OS_error();
   }
 }
-
+#endif
+#if defined(SO_RCVTIMEO) || defined(SO_SNDTIMEO)
 local void sock_opt_time (SOCKET handle, int option, object value)
 { /* may trigger GC */
   var struct timeval val;
@@ -15260,6 +15263,7 @@ local void sock_opt_time (SOCKET handle, int option, object value)
       OS_error();
   }
 }
+#endif
 
 
 /* (SOCKET-OPTIONS socket-stream &rest options)
@@ -15282,11 +15286,20 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
       count--; retval_count--;
     } else arg = nullobj;
     begin_system_call();
-    if (eq(kwd,S(Kso_keepalive))) {
+    if (false)
+      ;
+   #ifdef SO_KEEPALIVE
+    else if (eq(kwd,S(Kso_keepalive))) {
       sock_opt_bool(handle,SO_KEEPALIVE,arg);
-    } else if (eq(kwd,S(Kso_error))) {
+    }
+   #endif
+   #ifdef SO_ERROR
+    else if (eq(kwd,S(Kso_error))) {
       sock_opt_bool(handle,SO_ERROR,arg);
-    } else if (eq(kwd,S(Kso_linger))) {
+    }
+   #endif
+   #ifdef SO_LINGER
+    else if (eq(kwd,S(Kso_linger))) {
       struct linger val;
       var SOCKLEN_T len = sizeof(val);
       if (-1 == getsockopt(handle,SOL_SOCKET,SO_LINGER,(char*)&val,&len))
@@ -15305,15 +15318,27 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
         if (-1 == setsockopt(handle,SOL_SOCKET,SO_LINGER,(char*)&val,len))
           OS_error();
       }
-    } else if (eq(kwd,S(Kso_oobinline))) {
+    }
+   #endif
+   #ifdef SO_OOBINLINE
+    else if (eq(kwd,S(Kso_oobinline))) {
       sock_opt_bool(handle,SO_OOBINLINE,arg);
-    } else if (eq(kwd,S(Kso_type))) {
+    }
+   #endif
+   #ifdef SO_TYPE
+    else if (eq(kwd,S(Kso_type))) {
       sock_opt_bool(handle,SO_TYPE,arg);
-    } else if (eq(kwd,S(Kso_rcvbuf))) {
+    }
+   #endif
+   #ifdef SO_RCVBUF
+    else if (eq(kwd,S(Kso_rcvbuf))) {
       sock_opt_int(handle,SO_RCVBUF,arg);
-    } else if (eq(kwd,S(Kso_sndbuf))) {
+    }
+   #ifdef SO_SNDBUF
+    else if (eq(kwd,S(Kso_sndbuf))) {
       sock_opt_int(handle,SO_SNDBUF,arg);
     }
+   #endif
    #ifdef SO_RCVLOWAT
     else if (eq(kwd,S(Kso_rcvlowat))) {
       sock_opt_int(handle,SO_RCVLOWAT,arg);

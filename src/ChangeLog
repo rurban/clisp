@@ -1,3 +1,12 @@
+2003-10-23  Bruno Haible  <bruno@clisp.org>
+
+	BeOS portability.
+	* configure: Gracefully recover if "ulimit -s" does not work. (On BeOS
+	this command returns an empty string and exits with return code 2.)
+	* stream.d (sock_opt_bool, sock_opt_int, sock_opt_time): Enclose in
+	#ifdef. Avoids link error due to missing getsockopt() on BeOS.
+	(SOCKET-OPTIONS): Enclose each comparison in #ifdef.
+
 2003-10-22  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 826792 ]: unbound WITH-DIR-KEY-OPEN params

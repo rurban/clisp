@@ -470,8 +470,8 @@ if test -z "$do_build"; then
   echo "    ./makemake $makemake_args > Makefile"
   echo "    make config.lisp"
   echo "    ${EDITOR:-vi} config.lisp"
-  stacksizelimit=`ulimit -s 2>/dev/null` # cygwin /bin/sh ulimit is broken
-  if test "$stacksizelimit" != unlimited && test "$stacksizelimit" -lt 8192; then
+  stacksizelimit=`ulimit -s 2>/dev/null || :` # cygwin /bin/sh ulimit is broken
+  if test -z "$stacksizelimit" || { test "$stacksizelimit" != unlimited && test "$stacksizelimit" -lt 8192; }; then
     cat <<EOF
 # The default stack size on your platform is insufficient
 # and must be increased to at least 8192.  You must do either
