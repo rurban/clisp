@@ -387,7 +387,7 @@
           #ifdef EADDRNOTAVAIL
           if (errcode == EADDRNOTAVAIL) {
             errormsg->name = "EADDRNOTAVAIL";
-            errormsg->msg = GETTEXTL("Cannot assign requested address");
+            errormsg->msg = GETTEXTL("Can't assign requested address");
           }
           #endif
           #ifdef ENETDOWN
@@ -441,13 +441,13 @@
           #ifdef ESHUTDOWN
           if (errcode == ESHUTDOWN) {
             errormsg->name = "ESHUTDOWN";
-            errormsg->msg = GETTEXTL("Cannot send after socket shutdown");
+            errormsg->msg = GETTEXTL("Can't send after socket shutdown");
           }
           #endif
           #ifdef ETOOMANYREFS
           if (errcode == ETOOMANYREFS) {
             errormsg->name = "ETOOMANYREFS";
-            errormsg->msg = GETTEXTL("Too many references: cannot splice");
+            errormsg->msg = GETTEXTL("Too many references: can't splice");
           }
           #endif
           #ifdef ETIMEDOUT
@@ -681,7 +681,7 @@
           write_errorasciz(errormsg.msg);
         }
       }
-    nonreturning_function(global, OS_error, (void))
+    global void OS_error()
       {
         var uintC errcode; # positive Fehlernummer
         end_system_call(); # just in case
@@ -696,7 +696,8 @@
         OS_error_internal(errcode);
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
-    nonreturning_function(global, OS_file_error, (object pathname))
+    global void OS_file_error(pathname)
+      var object pathname;
       {
         var uintC errcode; # positive Fehlernummer
         begin_system_call();

@@ -22,8 +22,9 @@
   (unless (socket-server-p object)
     (error-of-type 'type-error
       :datum object :expected-type 'socket-server
-      (TEXT "~S: ~S is not a SOCKET-SERVER")
-      caller object)))
+      (ENGLISH "~S: ~S is not a SOCKET-SERVER")
+      caller object
+) ) )
 
 (defun socket-server-close (socket-server)
   (test-socket-server socket-server 'socket-server-close)

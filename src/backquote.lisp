@@ -36,12 +36,14 @@
   (declare (ignore char))
   (cond ((null *backquote-level*)
          (error-of-type 'error
-           (TEXT "~S: comma is illegal outside of backquote")
-           'read))
+           (ENGLISH "~S: comma is illegal outside of backquote")
+           'read
+        ))
         ((zerop *backquote-level*)
          (error-of-type 'error
-           (TEXT "~S: more commas out than backquotes in, is illegal")
-           'read))
+           (ENGLISH "~S: more commas out than backquotes in, is illegal")
+           'read
+        ))
         (t (let ((*backquote-level* (1- *backquote-level*)))
              (cond ((eql c #\@)
                     (read-char stream)
@@ -200,11 +202,13 @@
           ((and (eq (first skel) 'splice) (consp (rest skel)))
            ; ,@form ist verboten
            (error-of-type 'error
-             (TEXT "The syntax ,@form is valid only in lists")))
+             (ENGLISH "The syntax ,@form is valid only in lists")
+          ))
           ((and (eq (first skel) 'nsplice) (consp (rest skel)))
            ; ,.form ist verboten
            (error-of-type 'error
-             (TEXT "The syntax ,.form is valid only in lists")))
+             (ENGLISH "The syntax ,.form is valid only in lists")
+          ))
           ((and (eq (first skel) 'backquote) (consp (rest skel)))
            ; verschachtelte Backquotes
            (list* 'LIST

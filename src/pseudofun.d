@@ -11,8 +11,8 @@
 #   #define PSEUDO PSEUDO_A   for the declaration of the code table
 #   #define PSEUDO PSEUDO_B   for the declaration of the data table
 #   #define PSEUDO PSEUDO_C   for the declaration of both tables' elements
-#   #define PSEUDO PSEUDO_D   for the initialization of the code table
-#   #define PSEUDO PSEUDO_E   for the initialization of the data table
+#   #define PSEUDO PSEUDO_D   for the initialisation of the code table
+#   #define PSEUDO PSEUDO_E   for the initialisation of the data table
 
 #define LPSEUDOCODE CONCAT(LCODE_,PSEUDO)
 #define XPSEUDOCODE CONCAT(XCODE_,PSEUDO)
@@ -200,4 +200,6 @@ XPSEUDOCODE(uintL, iconv_wcslen, (object encoding, const chart* src, const chart
 XPSEUDOCODE(void, iconv_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
 XPSEUDOCODE(object, iconv_range, (object encoding, uintL start, uintL end))
 #endif
+#else  /* no UNICODE */
+XPSEUDODATA(struct nls_table, nls_ascii_table)
 #endif

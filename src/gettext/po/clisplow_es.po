@@ -25,7 +25,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 2002-02-25 09:53:14 EST\n"
+"POT-Creation-Date: 2001-03-16 01:24:00 CET\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -96,13 +96,13 @@ msgstr ""
 msgid "Informative output:\n"
 msgstr ""
 
-msgid " -h, --help    - print this help and exit\n"
+msgid " -h, --help  - print this help and exit\n"
 msgstr ""
 
-msgid " --version     - print the version information\n"
+msgid " --version   - print the version information\n"
 msgstr ""
 
-msgid " --license     - print the licensing information\n"
+msgid " --license   - print the licensing information\n"
 msgstr ""
 
 msgid "Memory image selection:\n"
@@ -114,25 +114,25 @@ msgstr ""
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr ""
 
-msgid " -M memfile    - use this memory image\n"
+msgid " -M memfile  - use this memory image\n"
 msgstr ""
 
-msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgid " -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
-msgid " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgid " -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
-msgid " -t tmpdir     - temporary directory for memmap\n"
+msgid " -t tmpdir   - temporary directory for memmap\n"
 msgstr ""
 
 msgid "Internationalization:\n"
 msgstr ""
 
-msgid " -L language   - set user language\n"
+msgid " -L language - set user language\n"
 msgstr ""
 
-msgid " -N nlsdir     - NLS catalog directory\n"
+msgid " -N nlsdir   - NLS catalog directory\n"
 msgstr ""
 
 msgid " -Edomain encoding - set encoding\n"
@@ -144,31 +144,28 @@ msgstr ""
 msgid " -q, --quiet, --silent - do not print the banner\n"
 msgstr ""
 
-msgid " -w            - wait for keypress after program termination\n"
+msgid " -w          - wait for keypress after program termination\n"
 msgstr ""
 
-msgid " -I            - be ILISP-friendly\n"
+msgid " -I          - be ILISP-friendly\n"
 msgstr ""
 
 msgid "Startup actions:\n"
 msgstr ""
 
-msgid " -ansi         - more ANSI CL compliance\n"
+msgid " -a          - more ANSI CL compliance\n"
 msgstr ""
 
-msgid " -traditional  - traditional (undoes -ansi)\n"
+msgid " -p package  - start in the package\n"
 msgstr ""
 
-msgid " -p package    - start in the package\n"
+msgid " -C          - set *LOAD-COMPILING* to T\n"
 msgstr ""
 
-msgid " -C            - set *LOAD-COMPILING* to T\n"
+msgid " -norc       - do not load the user ~/.clisprc file\n"
 msgstr ""
 
-msgid " -norc         - do not load the user ~/.clisprc file\n"
-msgstr ""
-
-msgid " -i file       - load initfile (can be repeated)\n"
+msgid " -i file     - load initfile (can be repeated)\n"
 msgstr ""
 
 msgid "Actions:\n"
@@ -203,9 +200,6 @@ msgstr "tamaño de memoria"
 msgid "stack size"
 msgstr "tamaño de la pila"
 
-msgid "CLISP: -a is deprecated, use -ansi\n"
-msgstr ""
-
 msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
 msgstr "El valor devuelto por malloc() = %x no es compatible con la distribución del código de tipo.\n"
 
@@ -215,8 +209,23 @@ msgid "Only %d bytes available.\n"
 msgstr "Sólo quedan %d bytes disponibles.\n"
 
 #
-msgid "Could not determine the end of the SP stack!\n"
+msgid "Couldn't determine the end of the SP stack!\n"
 msgstr "No fue posible determinar el final de la pila SP!\n"
+
+#
+#
+#
+#
+#
+msgid ""
+"\n"
+"WARNING: No initialisation file specified.\n"
+msgstr ""
+"\n"
+"ATENCIÓN: No se ha especificado ningún fichero de inicialización.\n"
+
+msgid "Please try: "
+msgstr "Por favor, intente:"
 
 msgid "Not enough memory for Lisp.\n"
 msgstr "No hay memoria suficiente para Lisp.\n"
@@ -350,7 +359,7 @@ msgstr ""
 "No se puede subsanar SIGSEGV. Dirección de fallo = 0x%x.\n"
 
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
-msgstr "Escenario Apollo 13: Falló la manipulación del desbordamiento de pila. a¡ Nos estrellaremos en el siguiente desbordamiento de pila !!!\n"
+msgstr "Escenario Apollo 13: Falló la manipulación del desbordamiento de pila. ¡¡¡ Nos estrellaremos en el siguiente desbordamiento de pila !!!\n"
 
 msgid "munmap() fails."
 msgstr "munmap() falló."
@@ -373,19 +382,19 @@ msgstr "Intentando obtener más espacio a través de un GC ...\n"
 #
 #
 #
-msgid "operating system error during load of initialization file `%s'\n"
+msgid "operating system error during load of initialisation file `%s'\n"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización `%s'\n"
 
-msgid "Cannot map the initialization file into memory."
+msgid "Cannot map the initialisation file into memory."
 msgstr "No puedo escribir el fichero de inicialización en memoria."
 
-msgid "operating system error during load of initialization file\n"
+msgid "operating system error during load of initialisation file\n"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización\n"
 
-msgid "initialization file was not created by this version of LISP\n"
+msgid "initialisation file was not created by this version of LISP\n"
 msgstr "el fichero de inicialización no fue creado con esta versión de LISP\n"
 
-msgid "not enough memory for initialization\n"
+msgid "not enough memory for initialisation\n"
 msgstr "no hay memoria suficiente para la inicialización\n"
 
 msgid "Operation not permitted"
@@ -573,7 +582,7 @@ msgid "Address already in use"
 msgstr "Dirección en uso"
 
 #
-msgid "Cannot assign requested address"
+msgid "Can't assign requested address"
 msgstr "No se puede asignar la dirección requerida"
 
 #
@@ -614,10 +623,10 @@ msgstr "El `socket' ya está conectado"
 msgid "Socket is not connected"
 msgstr "El `socket' no está conectado"
 
-msgid "Cannot send after socket shutdown"
+msgid "Can't send after socket shutdown"
 msgstr "No se puede enviar después de la ruptura del `socket'"
 
-msgid "Too many references: cannot splice"
+msgid "Too many references: can't splice"
 msgstr ""
 
 msgid "Connection timed out"
@@ -724,29 +733,156 @@ msgstr "No soportado en MS-DOS"
 msgid "This version of CLISP runs only in low address memory.\n"
 msgstr ""
 
+
+
+
+
+
+
+
+
+#
 #
 #
 
 #
 #
-#, fuzzy
 
-#, fuzzy
+#
+#
+
+
+#
+#
+
+
+#
+#
+
+
+
+
+
+#
+#
+
+
+
+
+
+#
+#
+#
+
+
+#
+#
+#
+#
+#
+
+#
+#
+
+
+#
+#
+#
+#
+#
+
+
 
+
+
+
+#
+#
+
+
+#
+
+
+
+
+#
+#
+
+
+
+
+
+#
+#
+#
+#
+#
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+#
+#
+#
+#
+
+
+
+#
+#
+
+#
+#
+#
+#
 #
 #
 #
+
+#
+#
 #
 #
 
+#
+#
+#
+#
 
+#
+#
 #
 #
 #
+
+#
+#
+
 #
 #
 #, fuzzy
 
+#, fuzzy
+
+#
+#
+#
+#
+#
+#, fuzzy
 
 
 
@@ -815,14 +951,11 @@ msgstr ""
 
 #
 #
-#, fuzzy
 
 #
 #
 #
-#, fuzzy
 
-#, fuzzy
 
 #
 #
@@ -884,7 +1017,6 @@ msgstr ""
 
 
 
-#, fuzzy
 
 
 
@@ -900,6 +1032,8 @@ msgstr ""
 #, fuzzy
 
 #, fuzzy
+
+
 
 
 
@@ -918,8 +1052,13 @@ msgstr ""
 
 
 
+#, fuzzy
+
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 #, fuzzy
 
@@ -963,7 +1102,6 @@ msgstr ""
 
 
 
-#, fuzzy
 
 
 
@@ -979,6 +1117,7 @@ msgstr ""
 
 #
 #
+
 
 
 
@@ -988,7 +1127,13 @@ msgstr ""
 
 
 
+
+
+
+
+#
 #
+#
 
 #
 #
@@ -1038,7 +1183,12 @@ msgstr ""
 
 #
 #
+
 
+#, fuzzy
+
+
+#, fuzzy
 
 
 #, fuzzy
@@ -1085,9 +1235,7 @@ msgstr ""
 #, fuzzy
 
 #, fuzzy
-
 
-#, fuzzy
 
 #, fuzzy
 
@@ -1168,6 +1316,10 @@ msgstr ""
 
 
 #, fuzzy
+
+#
+#
+#
 
 
 
@@ -1220,6 +1372,7 @@ msgstr ""
 #
 #
 
+
 #
 
 #
@@ -1233,15 +1386,9 @@ msgstr ""
 
 #
 #
-
-
-
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 #
 #
@@ -1309,10 +1456,6 @@ msgstr ""
 #
 #
 #
-
-
-
-
 
 
 
@@ -1327,9 +1470,6 @@ msgstr ""
 
 
 
-#, fuzzy
-
-
 
 
 
@@ -1338,76 +1478,55 @@ msgstr ""
 #
 #
 
-#
-#
 
-#
-#
 
 
-#
-#
-#
 
 
-#
-#
 
 
+
 #
 #
-
+#
 
 
 
 
-#
-#
 
 
+#, fuzzy
 
 
 
 
 
 
-#
-#
-#
 
+#, fuzzy
 
+#, fuzzy
 
-#
-#
-#
+#, fuzzy
 
+#, fuzzy
 
 
+#, fuzzy
 
-#
-#
 #
 #
 #
-
 #
 #
 
 
-#
-#
-#
-#
-#
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
 
@@ -1415,16 +1534,11 @@ msgstr ""
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
-#, fuzzy
 
 #
 #
@@ -1444,18 +1558,18 @@ msgstr ""
 
 
 
+#, fuzzy
 
 
+#, fuzzy
 
 
 
 
+#, fuzzy
 
-#
 #
 #
-#
-#
 
 
 
@@ -1469,18 +1583,15 @@ msgstr ""
 
 
 
-#, fuzzy
 
 
+
 #, fuzzy
 
 
 
 
-#, fuzzy
 
-#
-#
 
 
 
@@ -1488,13 +1599,7 @@ msgstr ""
 
 
 
-#
-#
-#
-#
-#
-#
-#
+
 #
 #
 
@@ -1502,58 +1607,27 @@ msgstr ""
 
 
 
-#
-#
 
 
 
+#
+#
 
 
 
 
-#
-#
-#
-#
-#
-#
-#
 
 
 
-#
-#
 
-#
-#
-#
-#
-#
-#
-#
 
-#
-#
-#
-#
 
-#
-#
-#
-#
 
-#
-#
-#
-#
-#
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1564,7 +1638,6 @@ msgstr ""
 
 
 
-#, fuzzy
 
 
 
@@ -1578,8 +1651,6 @@ msgstr ""
 
 
 
-#
-#
 
 #
 #
@@ -1587,8 +1658,6 @@ msgstr ""
 
 #
 #
-
-
 
 
 
@@ -1600,9 +1669,6 @@ msgstr ""
 
 
 
-#, fuzzy
-
-
 
 
 
@@ -1639,8 +1705,6 @@ msgstr ""
 #
 
 
-
-
 #
 
 #
@@ -1661,21 +1725,15 @@ msgstr ""
 
 #
 #
-
-
 
 
 
 
 
-#, fuzzy
-
-
 
 
 
 
-#, fuzzy
 
 
 
@@ -1693,15 +1751,11 @@ msgstr ""
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 #
 #
@@ -1739,7 +1793,6 @@ msgstr ""
 
 
 
-#, fuzzy
 
 
 
@@ -1791,7 +1844,6 @@ msgstr ""
 
 
 
-#, fuzzy
 
 
 
@@ -1818,12 +1870,9 @@ msgstr ""
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
-#, fuzzy
 
 #, fuzzy
 
@@ -1834,8 +1883,11 @@ msgstr ""
 
 
 
-#, fuzzy
 
+
+
+
+
 #
 #
 #
@@ -1916,7 +1968,6 @@ msgstr ""
 #
 #
 #
-
 
 
 
@@ -1931,13 +1982,10 @@ msgstr ""
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -1958,8 +2006,6 @@ msgstr ""
 
 #, fuzzy
 
-
-#, fuzzy
 
 
 
@@ -1982,24 +2028,16 @@ msgstr ""
 #
 #
 
-#, fuzzy
-
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 #
 #
-#, fuzzy
-
-#, fuzzy
 
 #, fuzzy
 
-#, fuzzy
 
 
 
@@ -2027,9 +2065,8 @@ msgstr ""
 
 
 
-#, fuzzy
 
-#, fuzzy
+#
 
 
 
@@ -2053,17 +2090,16 @@ msgstr ""
 
 
 
-#, fuzzy
+
+
 
+
 #
 #
 #
 #
 #
 #
-
-
-
 
 
 
@@ -2096,6 +2132,7 @@ msgstr ""
 
 
 
+
 #, fuzzy
 
 #
@@ -2164,24 +2201,18 @@ msgstr ""
 
 
 
-#, fuzzy
 
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
 
 
@@ -2217,7 +2248,6 @@ msgstr ""
 
 
 
-#, fuzzy
 
 
 #
@@ -2246,6 +2276,8 @@ msgstr ""
 #
 #, fuzzy
 
+
+#, fuzzy
 
 #, fuzzy
 
@@ -2262,8 +2294,6 @@ msgstr ""
 
 #, fuzzy
 
-#, fuzzy
-
 #
 #
 #
@@ -2348,11 +2378,9 @@ msgstr ""
 #, fuzzy
 
 #, fuzzy
-
 
 
 
-#, fuzzy
 
 #, fuzzy
 
@@ -2366,7 +2394,6 @@ msgstr ""
 
 #, fuzzy
 
-#, fuzzy
 
 
 
@@ -2414,7 +2441,6 @@ msgstr ""
 
 #
 #
-
 
 
 
@@ -2426,42 +2452,13 @@ msgstr ""
 
 
 
-#, fuzzy
 
 #, fuzzy
 
 #, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-#
-
-
-
-
-#
-#
-#
-
-
-
-
 
 
-
-
-
-
-
+#, fuzzy
 
 
 
@@ -2473,27 +2470,12 @@ msgstr ""
 
 
 
-#, fuzzy
 
 #
-#
-#, fuzzy
 
 
 
-#
 #
-#
-
-
-
-
-
-
-
-
-
-
 #
 #
 
@@ -2519,55 +2501,6 @@ msgstr ""
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
-
-
-
-#
-#
-#
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-#, fuzzy
-
-
 #, fuzzy
 
 
@@ -2584,11 +2517,6 @@ msgstr ""
 
 
 
-
-
-
-
-
 #, fuzzy
 
 #, fuzzy
@@ -2675,6 +2603,7 @@ msgstr ""
 
 
 
+
 #
 #
 #
@@ -2682,6 +2611,7 @@ msgstr ""
 #
 #
 #
+
 
 
 

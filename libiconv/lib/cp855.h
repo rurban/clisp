@@ -124,5 +124,5 @@ cp855_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
     *r = c;
     return 1;
   }
-  return RET_ILUNI;
+  return RET_ILSEQ;
 }

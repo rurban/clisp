@@ -1,5 +1,3 @@
-;; -*- lisp -*-
-
 (setf string "test-pathname.abc" symbol 'test-pathname.abc)
 test-pathname.abc
 
@@ -165,7 +163,7 @@ TYPE NIL SYSTEM::VERSION NIL)
 SYSTEM::HOST NIL SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME
 "BABYLON" TYPE NIL SYSTEM::VERSION NIL)
 
-(make-pathname :device nil :defaults *DEFAULT-PATHNAME-DEFAULTS*)
+*DEFAULT-PATHNAME-DEFAULTS*
 #+XCL
 #S(PATHNAME SYSTEM::HOST NIL SYSTEM::DEVICE NIL
 DIRECTORY NIL SYSTEM::NAME NIL TYPE "lsp" SYSTEM::VERSION :NEWEST)
@@ -473,9 +471,6 @@ error
 (progn (close file) t)
 error
 
-(truename "~/no/ such / path /  nicht-vorhandenes-file.new")
-error
-
 (null (setf file (open "nicht-vorhandenes-file.new"
                         :direction :io
                         :element-type 'string-char
@@ -521,20 +516,7 @@ t
  (setf (logical-pathname-translations "clocc")
        '(("**;*" "/usr/local/src/clocc/**/*"))
        (logical-pathname-translations "CL-LIBRARY")
-       '((";**;*.*.*" "/tmp/clisp/"))
-       (logical-pathname-translations "cl-systems")
-       '((";**;*.*.*"  "/usr/share/common-lisp/systems/**/*.*")
-         ("**;*.*.*"  "/usr/share/common-lisp/systems/**/*.*")
-         (";*.*.*"  "/usr/share/common-lisp/systems/*.*")
-         ("*.*.*"  "/usr/share/common-lisp/systems/*.*"))
-       (logical-pathname-translations "TEST-SIMPLE")
-       '(("*.*.*" "/usr/local/tmp/*.*.*")
-         ("*.*" "/usr/local/tmp/*.*"))
-       (logical-pathname-translations "TEST-SUBDIR")
-       '(("**;*.*" "/usr/local/share/**/*.*")
-         ("**;*.*.*" "/usr/local/share/**/*.*.*")
-         (";**;*.*" "/usr/local/share/r/**/*.*")
-         (";**;*.*.*" "/usr/local/share/r/**/*.*.*")))
+       (list (quote (";**;*.*.*" "/tmp/clisp/"))))
  nil)
 nil
 
@@ -553,141 +535,26 @@ nil
 (translate-pathname "uufoobarbazquuxfff" "u?foo*baz*f?" "**baq*zot*")
 #P"ubarbaqquuxfzotf"
 
-(make-pathname :defaults "**/*.FASL" :host "CL-LIBRARY")
-#+CLISP
-#S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
-   :DIRECTORY (:RELATIVE :WILD-INFERIORS)
-   :NAME :WILD :TYPE "FASL" :VERSION NIL)
-#-CLISP
-FIXME
-
-(make-pathname :defaults "/**/*.FASL" :host "CL-LIBRARY")
-#+CLISP
+#+clisp
+(make-pathname :defaults "**;*.FASL" :host "CL-LIBRARY")
+#+clisp
 #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
    :DIRECTORY (:ABSOLUTE :WILD-INFERIORS)
    :NAME :WILD :TYPE "FASL" :VERSION NIL)
-#-CLISP
-FIXME
 
-(merge-pathnames (logical-pathname "cl-systems:") "metering.system")
-#+CLISP
-#S(LOGICAL-PATHNAME :HOST "CL-SYSTEMS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
-                    :NAME "METERING" :TYPE "SYSTEM" :VERSION :NEWEST)
-#-CLISP
-FIXME
+#+clisp
+(make-pathname :defaults "**/*.FASL" :host "CL-LIBRARY")
+#+clisp
+#S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
+   :DIRECTORY (:ABSOLUTE :WILD-INFERIORS)
+   :NAME :WILD :TYPE "FASL" :VERSION NIL)
 
-(merge-pathnames (logical-pathname "cl-systems:") #P"metering.system")
-#+CLISP
-#S(LOGICAL-PATHNAME :HOST "CL-SYSTEMS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
-                    :NAME "METERING" :TYPE "SYSTEM" :VERSION :NEWEST)
-#-CLISP
-FIXME
-
-(merge-pathnames (logical-pathname "clocc:clocc.lisp"))
-#+CLISP
-#S(logical-pathname :host "CLOCC" :device nil :directory (:absolute)
-                    :name "CLOCC" :type "LISP" :version :newest)
-#-CLISP
-FIXME
-
-(merge-pathnames ".fas" (logical-pathname "clocc:src;cllib;xml.lisp"))
-#+CLISP
-#S(LOGICAL-PATHNAME :HOST "CLOCC" :DEVICE NIL :DIRECTORY
-   (:ABSOLUTE "SRC" "CLLIB") :NAME "XML" :TYPE "FAS" :VERSION :NEWEST)
-#-CLISP
-FIXME
-
-(merge-pathnames (logical-pathname "clocc:;foo;bar;")
-                 (logical-pathname "clocc:baz;quux.lisp.3"))
-#+CLISP
-#S(LOGICAL-PATHNAME :HOST "CLOCC" :DEVICE NIL :DIRECTORY
-   (:ABSOLUTE "BAZ" "FOO" "BAR") :NAME "QUUX" :TYPE "LISP" :VERSION 3)
-#-CLISP
-FIXME
-
-(compile-file-pathname (logical-pathname "clocc:clocc.lisp"))
-#+CLISP
-#S(logical-pathname :host "CLOCC" :device nil :directory (:absolute)
-                    :name "CLOCC" :type "FAS" :version :newest)
-#-CLISP
-FIXME
-
-(compile-file-pathname (logical-pathname "clocc:src;cllib;xml.lisp"))
-#+CLISP
-#S(LOGICAL-PATHNAME :HOST "CLOCC" :DEVICE NIL :DIRECTORY
-   (:ABSOLUTE "SRC" "CLLIB") :NAME "XML" :TYPE "FAS" :VERSION :NEWEST)
-#-CLISP
-FIXME
-
-(parse-namestring "foo;bar;baz.fas.3" "clocc")
-#+CLISP
-#S(LOGICAL-PATHNAME :HOST "CLOCC" :DEVICE NIL
-   :DIRECTORY (:ABSOLUTE "FOO" "BAR") :NAME "BAZ" :TYPE "FAS" :VERSION 3)
-#-CLISP
-FIXME
-
-(parse-namestring "foo;bar;baz.fas.3" nil (logical-pathname "clocc:"))
-#+CLISP
-#S(LOGICAL-PATHNAME :HOST "CLOCC" :DEVICE NIL
-   :DIRECTORY (:ABSOLUTE "FOO" "BAR") :NAME "BAZ" :TYPE "FAS" :VERSION 3)
-#-CLISP
-FIXME
-
-;; Relative
-(translate-logical-pathname
- (merge-pathnames (logical-pathname "TEST-SUBDIR:;FOO;BAR;")
-                  (logical-pathname "TEST-SIMPLE:ZOT.LISP")))
-#p"/usr/local/share/r/foo/bar/zot.lisp"
-
-;; Absolute
-(translate-logical-pathname
- (merge-pathnames (logical-pathname "TEST-SUBDIR:FOO;BAR;")
-                  (logical-pathname "TEST-SIMPLE:ZOT.LISP")))
-#p"/usr/local/share/foo/bar/zot.lisp"
+#+clisp
+(make-pathname :defaults ";**;*.FASL.*" :host "CL-LIBRARY")
+#+clisp
+#S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
+   :DIRECTORY (:RELATIVE :WILD-INFERIORS)
+   :NAME :WILD :TYPE "FASL" :VERSION :WILD)
 
 (make-pathname :defaults "a.b" :name "c" :type nil)
 #p"c"
-
-#+CLISP
-(make-pathname :defaults #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
-                            :DIRECTORY (:ABSOLUTE "FOO")
-                            :NAME "BAR" :TYPE "BAZ" :VERSION 3))
-#+CLISP
-#S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL :DIRECTORY (:ABSOLUTE "FOO")
-   :NAME "BAR" :TYPE "BAZ" :VERSION 3)
-
-(defun foo (x host)
-  (let ((dflt (make-pathname :directory '(:relative :wild-inferiors)
-                             :type x :case :common)))
-    (if host
-        (make-pathname :defaults dflt :host host :case :common)
-        (make-pathname :defaults dflt :case :common))))
-foo
-
-;; :defaults arg is not subject to :case conversion
-(string= "c" (pathname-type (foo "c" nil) :case :common))
-t
-(string= "C" (pathname-type (foo "C" nil) :case :common))
-t
-
-;; :case is ignored for logical pathnames
-(string= "C" (pathname-type (foo "c" "CLOCC") :case :common))
-t
-(string= "c" (pathname-type (foo "C" "CLOCC") :case :common))
-t
-
-(namestring (logical-pathname "foo:bar;baz"))
-"FOO:BAR;BAZ"
-
-(let* ((foo (copy-seq "abcdefghijkl"))
-       (bar (make-array 5 :displaced-to foo :displaced-index-offset 2
-                        :element-type 'character))
-       (path (make-pathname :directory bar)))
-  (setf (aref foo 3) #\/)
-  (equalp path (make-pathname :directory (pathname-directory path))))
-t
-
-(string= (namestring (make-pathname :name "FOO" :case :common
-                                    :defaults #P"/home/kent/"))
-         (namestring #P"/home/kent/foo"))
-t

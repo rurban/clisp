@@ -218,12 +218,13 @@ global int main()
   printf("#define global\n");
 # printf("#define local  static\n");
   #ifdef GNU
-    #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7))
+    #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 90))
       printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
-      printf("  storclass void __attribute__((__noreturn__)) funname arguments\n");
+      printf("  storclass void funname arguments __attribute__((__noreturn__))\n");
     #else
       printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
-      printf("  storclass void funname arguments\n");
+      printf("  typedef void CONCAT3(funname,_function_,__LINE__) arguments; \\\n");
+      printf("  storclass __volatile__ CONCAT3(funname,_function_,__LINE__) funname\n");
     #endif
   #else
     printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
@@ -233,8 +234,8 @@ global int main()
 # printf("#define elif  else if\n");
 # printf("#define loop  while (1)\n");
 # printf("#define until(expression)  while(!(expression))\n");
-# printf("#define NOTREACHED  fehler_notreached(__FILE__,__LINE__)\n");
-# printf("#define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)\n");
+# printf("#define NOTREACHED  fehler_notreached(__FILE__,__LINE__);\n");
+# printf("#define ASSERT(expr)  { if (!(expr)) { NOTREACHED } }\n");
 # #if defined(GNU) && !defined(RISCOS) && !defined(CONVEX)
 #   printf("#define alloca  __builtin_alloca\n");
 # #elif defined(MICROSOFT)
@@ -1096,7 +1097,7 @@ global int main()
 #   printf("#define ulong_p  uint64_p\n");
 #   printf("#define slong_p  sint64_p\n");
 # #endif
-  #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
+  #if defined(GNU) && defined(I80386) && !defined(NO_ASM)
     printf("%s\n","#define SP()  ({var aint __SP; __asm__ __volatile__ (\"movl %%esp,%0\" : \"=g\" (__SP) : ); __SP; })");
   #endif
   #if !defined(STACK_register)
@@ -1436,8 +1437,8 @@ global int main()
 # printf("extern chart* unpack_string (object string, uintL* len);\n");
 # printf("extern object make_list (uintL len);\n");
 # printf("extern object listof (uintC len);\n");
-# printf("typedef enum { condition, serious_condition, error, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, storage_condition, interrupt_condition, warning, } condition_t;\n");
-# printf("nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));\n");
+# printf("typedef enum { condition, serious_condition, error, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, storage_condition, interrupt_condition, warning, } conditiontype;\n");
+# printf("nonreturning_function(extern, fehler, (conditiontype errortype, const char * errorstring));\n");
 # printf("nonreturning_function(extern, fehler_list, (object obj));\n");
 # printf("nonreturning_function(extern, fehler_symbol, (object obj));\n");
 # printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");

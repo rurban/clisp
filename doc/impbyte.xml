@@ -1,281 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<part id="internals"><title>Internals of the &clisp; Implementation</title>
-
-<chapter id="gc"><title>Overview of &clisp;'s Garbage Collection</title>
- <subtitle>These are internals, which are of interest only to the
-  &clisp; developers.
-  If you are not subscribed to
-  <email>clisp-devel@lists.sourceforge.net</email>,
-  this chapter is not for you.</subtitle>
-
-<section id="internals-intro"><title>Introduction</title>
-
-<para>Knowing that most &malloc; implementations are buggy and/or slow,
-and because &clisp; needs to perform garbage collection, &clisp; has its
-own memory management subsystem in files <filename>spvw*.d</filename>.</para>
-
-</section>
-
-<section id="lisp-obj-in-c"><title>Lisp objects in &clisp;</title>
-
-<itemizedlist><title>Three kinds of storage are distinguished:</title>
- <listitem><simpara>&clisp; data (the "heap"), i.e. storage which contains
-  Lisp objects and is managed by the garbage collector.</simpara></listitem>
- <listitem><simpara>&clisp; stack (called &STACK;), contains &clisp;
-  objects</simpara></listitem>
- <listitem><simpara>&c-lang; data (including program text, data,
-  &malloc;ed memory)</simpara></listitem>
-</itemizedlist>
-
-<para>A &clisp; object is one word, containing a tag (partial type
-information) and either immediate data (e.g. fixnums or short floats) or
-a pointer to storage.  Pointers to &c-lang; data have tag = machine_type
-= 0, pointers to &clisp; stack have tag = system_type, most other pointers
-point to &clisp; data.</para>
-
-<para>Let us turn to these &clisp; objects that consume regular &clisp;
-memory.  Every &clisp; object has a size which is determined when the
-object is allocated (using one of the <function>allocate_*()</function>
-routines). The size can be computed from the type tag and - if necessary
-- the length field of the object's header. The length field always
-contains the number of elements of the object. The number of bytes is
-given by the function <function>objsize()</function>.</para>
-
-<para>&clisp; objects which contain exactly 2 &clisp; objects
-(i.e. &cons-class;es, &complex-class; numbers, &ratio-class;s) are
-stored in a separate area and occupy 2 words each.
-All other &clisp; objects have "varying length" (more precisely,
-not a fixed length) and include a word for garbage collection purposes
-at their beginning.</para>
-
-<para>The garbage collector is invoked when an
-<function>allocate_*()</function> request cannot be fulfilled.
-It marks all objects which are "live" (may be reached from the "roots"),
-compacts these objects and unmarks them.  Non-live objects are lost;
-their storage is reclaimed.</para>
-
-<para>2-pointer objects are compacted by a simple hole-filling
-algorithm: fill the most-left object into the most-right hole, and so
-on, until the objects are contiguous at the right and the hole is
-contiguous at the left.</para>
-
-<para>Variable-length objects are compacted by sliding them down (their
-address decreases).</para>
-
-</section>
-
-<section id="memory-models"><title>Memory Models</title>
-
-<para>There are 6 memory models. Which one is used, depends on the
-operating system and is determined at build time.</para>
-
-<variablelist><title>Memory Models</title>
-<varlistentry><term>SPVW_MIXED_BLOCKS_OPPOSITE</term>
- <listitem><para>The heap consists of one block of fixed length
-  (allocated at startup).
-  The variable-length objects are allocated from the left, the 2-pointer
-  objects are allocated from the right.
-  There is a hole between them.
-  When the hole shrinks to 0, &gc; is invoked.
-  &gc; slides the variable-length objects to the left and concentrates
-  the 2-pointer objects at the right end of the block again.
-  When no more room is available, some reserve area beyond the right end
-  of the block is halved, and the 2-pointer objects are moved to the
-  right accordingly.
-  <variablelist><title>overview</title>
-   <varlistentry><term>(+)</term>
-    <listitem><simpara>Simple management.
-    </simpara></listitem></varlistentry>
-   <varlistentry><term>(+)</term>
-    <listitem><simpara>No fragmentation at all.
-    </simpara></listitem></varlistentry>
-   <varlistentry><term>(-)</term>
-    <listitem><simpara>The total heap size is limited.
-    </simpara></listitem></varlistentry></variablelist>
- </para></listitem></varlistentry>
-
-<varlistentry><term>SPVW_MIXED_BLOCKS_OPPOSITE &amp; TRIVIALMAP_MEMORY</term>
- <listitem><para>The heap consists of two big blocks, one for
-  variable-length objects and one for 2-pointer objects.
-  The former one has a hole to the right and is extensible to the right,
-  the latter one has a hole to the left and is extensible to the left.
-  Similar to the previous model, except that the hole is unmapped.
-  <variablelist><title>overview</title>
-   <varlistentry><term>(+)</term>
-    <listitem><simpara>Total heap size grows depending on the
-     application's needs.</simpara></listitem></varlistentry>
-   <varlistentry><term>(+)</term>
-    <listitem><simpara>No fragmentation at all.
-    </simpara></listitem></varlistentry>
-   <varlistentry><term>(*)</term>
-    <listitem><simpara>Works only when SINGLEMAP_MEMORY is
-     possible as well.</simpara></listitem></varlistentry></variablelist>
- </para></listitem></varlistentry>
-
-<varlistentry><term>SPVW_MIXED_BLOCKS_STAGGERED &amp; TRIVIALMAP_MEMORY</term>
- <listitem><para>The heap consists of two big blocks, one for
-  variable-length objects and one for 2-pointer objects.
-  Both have a hole to the right, but are extensible to the right.
-  <variablelist><title>overview</title>
-   <varlistentry><term>(+)</term>
-    <listitem><simpara>Total heap size grows depending on the
-     application's needs.</simpara></listitem></varlistentry>
-   <varlistentry><term>(+)</term>
-    <listitem><simpara>No fragmentation at all.
-    </simpara></listitem></varlistentry>
-   <varlistentry><term>(*)</term>
-    <listitem><simpara>Works only when SINGLEMAP_MEMORY is
-     possible as well.</simpara></listitem></varlistentry></variablelist>
- </para></listitem></varlistentry>
-
-<varlistentry><term>SPVW_MIXED_PAGES</term>
- <listitem><para>The heap consists of many small pages (usually around 8 KB).
-  There are two kinds of pages: one for 2-pointer objects, one for
-  variable-length objects.
-  The set of all pages of a fixed kind is called a "Heap".
-  Each page has its hole (free space) at its end.
-  For every heap, the pages are kept sorted according to the size of
-  their hole, using AVL trees.
-  Garbage collection is invoked when the used space has grown by 25%
-  since the last GC; until that point new pages are allocated from the
-  operating system.
-  The GC compacts the data in each page separately:
-  data is moved to the left. Emptied pages are given back to the OS.
-  If the holes then make up more than 25% of the occupied storage, a
-  second GC turn moves objects across pages, from nearly empty ones to
-  nearly full ones, with the aim to free as many pages as possible.
-  <variablelist><title>overview</title>
-   <varlistentry><term>(-)</term>
-    <listitem><simpara>every allocation requires AVL tree operations,
-     thus slower</simpara></listitem></varlistentry>
-   <varlistentry><term>(+)</term>
-    <listitem><simpara>Total heap size grows depending on the
-     application's needs.</simpara></listitem></varlistentry>
-   <varlistentry><term>(+)</term>
-    <listitem><simpara>Works on operating systems which do not provide
-     large contiguous areas.</simpara></listitem></varlistentry></variablelist>
- </para></listitem></varlistentry>
-
-<varlistentry><term>SPVW_PURE_PAGES</term>
- <listitem><para>Just like SPVW_MIXED_PAGES, except that every page
-  contains data of only a single type tag, i.e. there is a Heap for
-  every type tag.
-  <variablelist><title>overview</title>
-   <varlistentry><term>(-)</term>
-    <listitem><simpara>every allocation requires AVL tree operations,
-     thus slower</simpara></listitem></varlistentry>
-   <varlistentry><term>(+)</term>
-    <listitem><simpara>Total heap size grows depending on the
-     application's needs.</simpara></listitem></varlistentry>
-   <varlistentry><term>(+)</term>
-    <listitem><simpara>Works on operating systems which do not provide
-     large contiguous areas.</simpara></listitem></varlistentry>
-   <varlistentry><term>(-)</term>
-    <listitem><simpara>More fragmentation because objects of different
-    type never fit into the same page.</simpara></listitem></varlistentry>
- </variablelist></para></listitem></varlistentry>
-
-<varlistentry><term>SPVW_PURE_BLOCKS</term>
- <listitem><para>There is a big block of storage for each type tag.
-  Each of these blocks has its data to the left and the hole to the
-  right, but these blocks are extensible to the right (because there is
-  enough room between them).
-  A garbage collection is triggered when the allocation amount since the
-  last GC reaches 50% of the amount of used space at the last GC, but at
-  least 512 KB.
-  The garbage collection cleans up each block separately: data is moved left.
-  <variablelist><title>overview</title>
-   <varlistentry><term>(+)</term>
-    <listitem><simpara>Total heap size grows depending on the
-     application's needs.</simpara></listitem></varlistentry>
-   <varlistentry><term>(+)</term>
-    <listitem><simpara>No 16 MB total size limit.
-    </simpara></listitem></varlistentry>
-   <varlistentry><term>(*)</term>
-    <listitem><simpara>Works only in combination with SINGLEMAP_MEMORY.
-    </simpara></listitem></varlistentry></variablelist>
- </para></listitem></varlistentry></variablelist>
-
-<para>In page based memory models, an object larger than a page is the
-only object carried by its pages.
-There are no small objects in pages belonging to a big object.</para>
-
-<para>The following combinations of memory model and mmap tricks are
-possible:</para>
-
-<table frame="all"><title>With TYPECODES (the number indicates the order
-  in which the respective models have been developed:</title>
-<tgroup cols="6" colsep="1" rowsep="1" align="center">
-<thead><row><entry/><entry>no MAP_MEMORY</entry>
- <entry>TRIVIALMAP_MEMORY</entry><entry>SINGLEMAP_MEMORY</entry>
- <entry>MULTIMAP_MEMORY</entry><entry>GENERATIONAL_GC</entry></row></thead>
-<tbody><row><entry>SPVW_MIXED_BLOCKS_OPPOSITE</entry><entry>1</entry>
-      <entry>10</entry><entry/><entry>2</entry><entry>9</entry></row>
-<row><entry>SPVW_MIXED_BLOCKS_STAGGERED</entry>
-     <entry/><entry>7</entry><entry/><entry/><entry>8</entry></row>
-<row><entry>SPVW_PURE_BLOCKS</entry>
-     <entry/><entry/><entry>5</entry><entry/><entry>6</entry></row>
-<row><entry>SPVW_MIXED_PAGES</entry>
-     <entry>3</entry><entry/><entry/><entry/><entry/></row>
-<row><entry>SPVW_PURE_PAGES</entry>
-     <entry>4</entry><entry/><entry/><entry/><entry/></row>
-</tbody></tgroup></table>
-
-<table frame="all"><title>With no TYPECODES</title>
-<tgroup cols="4" colsep="1" rowsep="1" align="center">
-<thead><row><entry/><entry>no MAP_MEMORY</entry>
- <entry>TRIVIALMAP_MEMORY</entry><entry>GENERATIONAL_GC</entry></row></thead>
-<tbody><row><entry>SPVW_MIXED_BLOCKS_OPPOSITE</entry>
-      <entry>*</entry><entry>*</entry><entry>*</entry></row>
-<row><entry>SPVW_MIXED_BLOCKS_STAGGERED</entry>
-     <entry/><entry>*</entry><entry>*</entry></row>
-<row><entry>SPVW_MIXED_PAGES</entry><entry>*</entry><entry/><entry/></row>
-</tbody></tgroup></table>
-
-</section>
-
-<section id="gc-safety">
-   <title>The burden of &gc;ion upon the rest of &clisp;</title>
-
-<para>Every subroutine marked with <emphasis>can trigger GC</emphasis>
-may invoke &gc;.
-&gc; moves all the &clisp; objects and updates the pointers.
-But the &gc; looks only on the &STACK; and not in the &c-lang;
-variables. (Anything else would not be portable.)
-Therefore at every "unsafe" point, i.e. every call to such a subroutine,
-all the &c-lang; variables of type <type>object</type>
-<emphasis>MUST BE ASSUMED TO BECOME GARBAGE</emphasis>.
-(Except for <type>object</type>s that are known to be unmovable,
- e.g. immediate data or <type>Subr</type>s.)
-Pointers inside &clisp; data (e.g. to the characters of a &string-class;
-or to the elements of a &simple-vector-type;) become
-<emphasis>INVALID</emphasis> as well.</para>
-
-<para>The workaround is usually to allocate all the needed &clisp; data
-first and do the rest of the computation with &c-lang; variables,
-without calling unsafe routines, and without worrying about &gc;.</para>
-</section>
-
-<section id="foreign-pointers"><title>Foreign Pointers</title>
-
-<para>Pointers to &c-lang; functions and to &malloc;ed data can be
-hidden in &clisp; objects of type machine_type; &gc; will not modify its
-value.  But one should not dare to assume that a &c-lang; stack pointer
-or the address of a &c-lang; function in a shared library satisfies the
-same requirements.</para>
-
-<para>If another pointer is to be viewed as a &clisp; object, it is best
-to box it, e.g. in a &simple-bit-vector-type; or in an
-<type>Fpointer</type> (using <function>allocate_fpointer()</function>.)</para>
-
-</section>
-</chapter>
-
-<chapter id="bytecode"><title>The &clisp; bytecode specification</title>
+<part id="bytecode"><title>The &clisp; bytecode specification</title>
 <subtitle>Last modified: 19 September 1998.</subtitle>
 
-<section id="byte-intro"><title>Introduction</title>
+<chapter id="byte-intro"><title>Introduction</title>
 
 <para>The &clisp; compiler compiles &cl; programs into instruction codes
 for a virtual processor.  This bytecode is optimized for saving space in
@@ -285,7 +13,8 @@ of this approach, compared to native code compilation, are:
  <listitem><simpara>Bytecode compiled programs are a lot smaller than
   when compiled to native code.  This results in better use of CPU
   caches, and in less virtual memory paging. Users perceive this as good
-  responsiveness.</simpara></listitem>
+  responsiveness.
+  </simpara></listitem>
   <listitem><simpara>Maximum execution speed (throughput in tight loops)
    is limited.</simpara></listitem>
   <listitem><simpara>Since no bytecode instructions are provided for
@@ -304,13 +33,13 @@ of this approach, compared to native code compilation, are:
   <listitem><simpara>The compiler is independent from the hardware CPU.
    Different backends, one for each hardware CPU, are not needed.  As a
    consequence, the compiler is fairly small (and would have been easily
-   maintainable if it were written in a less kludgey way...), and it is
+   maintainable if it were written in a less kludgy way...), and it is
    impossible for the compiler writer to introduce CPU dependent bugs.
  </simpara></listitem></itemizedlist>
 </para>
-</section>
+</chapter>
 
-<section id="vm"><title>The virtual machine</title>
+<chapter id="vm"><title>The virtual machine</title>
 
 <para>The bytecode can be thought of as being interpreted by a virtual
 processor.  The engine which actually interprets the bytecode (the
@@ -322,16 +51,16 @@ first time said function is called.</para>
 <para>The virtual machine is a stack machine with two stacks:
 <variablelist>
  <varlistentry><term>&STACK;</term>
-  <listitem><simpara>a stack for &clisp; objects and frames.
+  <listitem><simpara>a stack for Lisp objects and frames.
   </simpara></listitem></varlistentry>
  <varlistentry><term>&SP;</term>
   <listitem><simpara>a stack for other data and pointers.
 </simpara></listitem></varlistentry></variablelist></para>
 
 <para>This two-stack architecture permits to save an unlimited number of
-&clisp; objects on the &STACK; (needed for handling of &cl; multiple
+Lisp objects on the &STACK; (needed for handling of Common Lisp multiple
 values), without consing.  Also, in a world with a compacting
-no-ambiguous-roots garbage collector, &STACK; must only hold &clisp;
+no-ambiguous-roots garbage collector, &STACK; must only hold Lisp
 objects, and &SP; can hold all the other data belonging to a frame,
 which would not fit into &STACK; without tagging/untagging
 overhead.</para>
@@ -355,11 +84,11 @@ adapted to &cl; multiple values:
   <listitem><simpara>an unsigned integer.
   </simpara></listitem></varlistentry>
  <varlistentry><term>&value1;</term>
-  <listitem><simpara>the first value, a &clisp; object.
+  <listitem><simpara>the first value, a Lisp object.
   If <literal>&mv-count;</literal> = 0, this is &nil;.
   </simpara></listitem></varlistentry>
  <varlistentry><term>&mv-space;</term>
-  <listitem><simpara>all values except the first one, an array of &clisp;
+  <listitem><simpara>all values except the first one, an array of Lisp
   objects.</simpara></listitem></varlistentry>
 </variablelist></para>
 
@@ -371,12 +100,12 @@ constant, &jbs;.  This is a CPU-dependent number, the value of
 <varname>system::*jmpbuf-size*</varname>.  In &c-lang;, it is defined as
 <literal>ceiling(sizeof(jmp_buf),sizeof(void*))</literal>.</para>
 
-</section>
+</chapter>
 
-<section id="comp-fun"><title>The structure of compiled functions</title>
+<chapter id="comp-fun"><title>The structure of compiled functions</title>
 
 <para>A compiled function consists of two objects: The function itself,
-containing the references to all &clisp; objects needed for the bytecode,
+containing the references to all Lisp objects needed for the bytecode,
 and a byte vector containing only immediate data, including the bytecode
 proper.</para>
 
@@ -396,13 +125,13 @@ vector does not need to be scanned for pointers).</para>
   <listitem><simpara>This is the byte vector. It is a
    &simple-bit-vector-type; (because that's the simplest type in &clisp;
    which contains immediate data -- note that <literal
-   role="type">(&simple-vector-type; (&unsigned-byte-type; 8))</literal>
+   role="sexp">(&simple-vector-type; (&unsigned-byte-type; 8))</literal>
    is more complex than this).
    This field is immutable.</simpara></listitem></varlistentry>
  <varlistentry><term>&consts;[]</term>
   <listitem><simpara>The remaining fields in the function object are
-   references to other &clisp; objects.  These references are immutable,
-   which is why they are called "constants".  (The referenced &clisp;
+   references to other Lisp objects.  These references are immutable,
+   which is why they are called "constants".  (The referenced Lisp
    objects can be mutable objects, such as conses or vectors, however.)
   </simpara></listitem></varlistentry>
 </variablelist></para>
@@ -422,11 +151,12 @@ generic function's dispatch code is installed, the &codevec; and
   <listitem><simpara>At most one object, representing the closed-up
    variables, representing the variables of the lexical environment in
    which this function was defined.  It is a &simple-vector-type;, which
-   looks like this: <literal role="sexp">#(<replaceable>next</replaceable>
-   <replaceable>value&sub-1;</replaceable> ...
-   <replaceable>value&sub-n;</replaceable>)</literal>
-   where <replaceable>value&sub-1;</replaceable>, ...,
-   <replaceable>value&sub-n;</replaceable>
+   looks like this: <literal
+   role="sexp">#(<replaceable>next</replaceable>
+   <replaceable>value<subscript>1</subscript></replaceable> ...
+   <replaceable>value<subscript>n</subscript></replaceable>)</literal>
+   where <replaceable>value<subscript>1</subscript></replaceable>, ...,
+   <replaceable>value<subscript>n</subscript></replaceable>
    are the values of the closed-up variables, and
    <replaceable>next</replaceable> is either &nil; or a
    &simple-vector-type; having the same structure.
@@ -531,9 +261,9 @@ nevertheless, through the use of &load-time-value;.)</para>
    </simpara></listitem></varlistentry>
 </variablelist></para>
 
-</section>
+</chapter>
 
-<section id="intr-struct">
+<chapter id="intr-struct">
    <title>The general structure of the instructions</title>
 
 <para>All instructions consist of one byte, denoting the opcode, and
@@ -571,13 +301,16 @@ letters:
    the signed numeric operand.
   </simpara></listitem></varlistentry>
 </variablelist></para>
-</section>
+</chapter>
 
-<section id="intr-set"><title>The instruction set</title>
+<chapter id="intr-set"><title>The instruction set</title>
 
 <section id="instr-const"><title>Instructions for constants</title>
+
 <table frame="all"><title>Instructions for constants</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(&nil;)</literal></entry>
       <entry>Load &nil; into values.</entry>
@@ -597,8 +330,11 @@ letters:
 </section>
 
 <section id="instr-lex-var"><title>Instructions for lexical variables</title>
+
 <table frame="all"><title>Instructions for lexical variables</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(LOAD &n-r;)</literal></entry>
       <entry>Load a directly accessible local variable into values.</entry>
@@ -658,11 +394,15 @@ letters:
              &svref;(*(*(&SP;+&k-r;)+&n-r;),1+&m-r;) := &value1;,
              &mv-count; := 1</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-dyn-var"><title>Instructions for dynamic variables</title>
+
 <table frame="all"><title>Instructions for dynamic variables</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(GETVALUE
              &n-r;)</literal></entry>
@@ -700,11 +440,15 @@ letters:
              <replaceable>symbols</replaceable> to the values in &value1;,
              values undefined</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-stack"><title>Instructions for stack operations</title>
+
 <table frame="all"><title>Instructions for stack operations</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(PUSH)</literal></entry>
       <entry>Push one object onto the &STACK;.</entry>
@@ -728,11 +472,15 @@ letters:
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &SP; := &SP;+&k-r;</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-jump"><title>Instructions for control flow, jumps</title>
+
 <table frame="all"><title>Instructions for control flow, jumps</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(SKIP&amp;RET &n-r;)</literal></entry>
       <entry>Clean up the &STACK;, and return from the function.</entry>
@@ -833,13 +581,17 @@ letters:
              *--&STACK; := function.
              Then jump to &lab-r;, with values undefined.</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-env"><title>Instructions for lexical environment,
    creation of closures</title>
+
 <table frame="all"><title>Instructions for lexical environment,
    creation of closures</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(VENV)</literal></entry>
       <entry>Load the &venv-const; into values.</entry>
@@ -861,11 +613,15 @@ letters:
              &STACK; += &n-r;.
              &value1; := &f-r;, &mv-count; := 1</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-funcall"><title>Instructions for function calls</title>
+
 <table frame="all"><title>Instructions for function calls</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(CALL &k-r; &n-r;)</literal></entry>
       <entry>Calls a constant function with &k-r; arguments.</entry>
@@ -940,13 +696,17 @@ letters:
              &STACK; += &n-r;+1.
              The returned values go into values.</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-optkey"><title>Instructions for optional
   and keyword parameters</title>
+
 <table frame="all"><title>Instructions for optional
   and keyword parameters</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(PUSH-UNBOUND &n-r;)</literal></entry>
       <entry>Push &n-r; &unbound;s into the &STACK;.</entry>
@@ -989,11 +749,15 @@ letters:
       <entry>If *(&STACK;+&n-r;) is &unbound;,
              *(&STACK;+&n-r;) := &nil;.</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-mulval"><title>Instructions for multiple values</title>
+
 <table frame="all"><title>Instructions for multiple values</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(VALUES0)</literal></entry>
       <entry>Load no values into values.</entry>
@@ -1037,12 +801,16 @@ letters:
              &STACK; := newSTACK.
              The returned values go into values.</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-block"><title>Instructions for
    &block; and &return-from;</title>
+
 <table frame="all"><title>Instructions for &block; and &return-from;</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(BLOCK-OPEN &n-r; &lab-r;)</literal></entry>
       <entry>Create a &block; frame.</entry>
@@ -1070,15 +838,19 @@ letters:
              Else &cdr;(&bc-r;) is a frame-pointer.
              Unwind the stack up to this frame, pass it values.</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-tagbody"><title>Instructions for &tagbody; and &go;</title>
+
 <table frame="all"><title>Instructions for &tagbody; and &go;</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(TAGBODY-OPEN &n-r;
-             <replaceable>label&sub-1;</replaceable> ...
-             <replaceable>label&sub-n;</replaceable>)</literal></entry>
+             <replaceable>label<subscript>1</subscript></replaceable> ...
+             <replaceable>label<subscript>m</subscript></replaceable>)</literal></entry>
       <entry>Create a tagbody frame.</entry>
       <entry>Fetch &consts;[&n-r;], this is a &simple-vector-type; with
              &m-r; elements, then decode &m-r; label operands.
@@ -1116,11 +888,15 @@ letters:
              Else &cdr;(&tbc-r;) is a frame-pointer. Unwind the stack up
              to this frame, pass it the number &lab-r;.</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-catch"><title>Instructions for &catch; and &throw;</title>
+
 <table frame="all"><title>Instructions for &catch; and &throw;</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(CATCH-OPEN &lab-r;)</literal></entry>
       <entry>Create a &catch; frame.</entry>
@@ -1134,16 +910,20 @@ letters:
              &STACK; += 3, &SP; += 2+&jbs;.</entry></row>
  <row><entry><literal role="sexp">(THROW)</literal></entry>
       <entry>Non-local exit to a &catch; frame.</entry>
-      <entry>&tag-r; := *&STACK;++.
+      <entry><replaceable>tag</replaceable> := *&STACK;++.
              Search the innermost &catch; frame with tag
-             &tag-r; on the &STACK;, unwind the
+             <replaceable>tag</replaceable> on the &STACK;, unwind the
              stack up to it, pass it values.</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-unwind"><title>Instructions for &unwind-protect;</title>
+
 <table frame="all"><title>Instructions for &unwind-protect;</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(UNWIND-PROTECT-OPEN
              &lab-r;)</literal></entry>
@@ -1181,11 +961,15 @@ letters:
              Save the values on the &STACK;, &STACK; -= &mv-count;.
              PC := &lab-r;.</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-handler"><title>Instructions for &handler-bind;</title>
+
 <table frame="all"><title>Instructions for &handler-bind;</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(HANDLER-OPEN &n-r;)</literal></entry>
       <entry>Create a handler frame.</entry>
@@ -1200,12 +984,17 @@ letters:
              &mv-count; := 1.
              *--&STACK; := &value1;.</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-inline"><title>Instructions for some inlined
   functions</title>
-<table frame="all"><title>Instructions for some inlined functions</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
+
+<table frame="all"><title>Instructions for some inlined
+  functions</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
 <tbody>
  <row><entry><literal role="sexp">(NOT)</literal></entry>
       <entry>Inlined call to NOT.</entry>
@@ -1233,7 +1022,7 @@ letters:
       <entry>&value1; := &svref;(*&STACK;++,&value1;),
              &mv-count; := 1.</entry></row>
  <row><entry><literal role="sexp">(SVSET)</literal></entry>
-      <entry>Inlined call to <function>SYSTEM::SVSTORE</function>.</entry>
+      <entry>Inlined call to SYSTEM::SVSTORE.</entry>
       <entry><replaceable>arg1</replaceable> := *(&STACK;+1),
              <replaceable>arg2</replaceable> := *(&STACK;+0), &STACK; += 2.
              &svref;(<replaceable>arg2</replaceable>,&value1;) :=
@@ -1250,6 +1039,7 @@ letters:
                                      *(&STACK;+0),&value1;),
              &mv-count; := 1, &STACK; += &n-r;.</entry></row>
 </tbody></tgroup></table>
+
 </section>
 
 <section id="instr-combo"><title>Combined instructions</title>
@@ -1463,7 +1253,6 @@ operands) for the following frequent instructions:</para>
       <entry>0 &le; &n-r; &lt; 8</entry></row>
 </tbody></tgroup></table>
 
-</section>
 </section>
 </chapter>
 </part>

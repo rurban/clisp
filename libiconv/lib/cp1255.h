@@ -22,15 +22,17 @@
  * CP1255
  */
 
-#include "flushwc.h"
-
 /* Combining characters used in Hebrew encoding CP1255. */
 
-/* Relevant combining characters:
-   0x05b4, 0x05b7, 0x05b8, 0x05b9, 0x05bc, 0x05bf, 0x05c1, 0x05c2. */
+#ifdef notusedyet
+
+/* Relevant combining characters. */
+static const unsigned short cp1255_comb_table_uni[] = {
+  0x05b4, 0x05b7, 0x05b8, 0x05b9, 0x05bc, 0x05bf, 0x05c1, 0x05c2,
+};
 
 /* Composition tables for each of the relevant combining characters. */
-static const struct { unsigned short base; unsigned short composed; } cp1255_comp_table_data[] = {
+static const unsigned short cp1255_comp_table_data[][2] = {
 #define cp1255_comp_table05b4_idx 0
 #define cp1255_comp_table05b4_len 1
   { 0x05D9, 0xFB1D },
@@ -84,7 +86,7 @@ static const struct { unsigned short base; unsigned short composed; } cp1255_com
   { 0x05E9, 0xFB2B },
   { 0xFB49, 0xFB2D },
 };
-static const struct { unsigned int len; unsigned int idx; } cp1255_comp_table[] = {
+static const struct { unsigned int len; unsigned int offset; } cp1255_comp_table[] = {
   { cp1255_comp_table05b4_len, cp1255_comp_table05b4_idx },
   { cp1255_comp_table05b7_len, cp1255_comp_table05b7_idx },
   { cp1255_comp_table05b8_len, cp1255_comp_table05b8_idx },
@@ -95,8 +97,10 @@ static const struct { unsigned int len; unsigned int idx; } cp1255_comp_table[] 
   { cp1255_comp_table05c2_len, cp1255_comp_table05c2_idx },
 };
 
+#endif
+
 /* Decomposition table for the relevant Unicode characters. */
-struct cp1255_decomp { unsigned short composed; unsigned short base; int comb1 : 8; signed int comb2 : 8; };
+struct cp1255_decomp { unsigned short composed; unsigned short base; int comb1 : 8; int comb2 : 8; };
 static const struct cp1255_decomp cp1255_decomp_table[] = {
   { 0xFB1D, 0x05D9, 0, -1 },
   { 0xFB1F, 0x05F2, 1, -1 },
@@ -165,94 +169,28 @@ static const unsigned short cp1255_2uni[128] = {
   0x05e8, 0x05e9, 0x05ea, 0xfffd, 0xfffd, 0x200e, 0x200f, 0xfffd,
 };
 
-/* In the CP1255 to Unicode direction, the state contains a buffered
-   character, or 0 if none. */
+/* CP1255 as a stateless encoding. Suitable for locales, but it has
+   the drawback that it can produce Unicode strings which are not
+   in Normalization Form C and therefore not suitable for interchange.
+   FIXME: It should produce Normalization Form C instead. */
 
 static int
 cp1255_mbtowc (conv_t conv, ucs4_t *pwc, const unsigned char *s, int n)
 {
   unsigned char c = *s;
-  unsigned short wc;
-  unsigned short last_wc;
   if (c < 0x80) {
-    wc = c;
-  } else {
-    wc = cp1255_2uni[c-0x80];
-    if (wc == 0xfffd)
-      return RET_ILSEQ;
-  }
-  last_wc = conv->istate;
-  if (last_wc) {
-    if (wc >= 0x05b0 && wc < 0x05c5) {
-      /* See whether last_wc and wc can be combined. */
-      unsigned int k;
-      unsigned int i1, i2;
-      switch (wc) {
-        case 0x05b4: k = 0; break;
-        case 0x05b7: k = 1; break;
-        case 0x05b8: k = 2; break;
-        case 0x05b9: k = 3; break;
-        case 0x05bc: k = 4; break;
-        case 0x05bf: k = 5; break;
-        case 0x05c1: k = 6; break;
-        case 0x05c2: k = 7; break;
-        default: goto not_combining;
-      }
-      i1 = cp1255_comp_table[k].idx;
-      i2 = i1 + cp1255_comp_table[k].len-1;
-      if (last_wc >= cp1255_comp_table_data[i1].base
-          && last_wc <= cp1255_comp_table_data[i2].base) {
-        unsigned int i;
-        for (;;) {
-          i = (i1+i2)>>1;
-          if (last_wc == cp1255_comp_table_data[i].base)
-            break;
-          if (last_wc < cp1255_comp_table_data[i].base) {
-            if (i1 == i)
-              goto not_combining;
-            i2 = i;
-          } else {
-            if (i1 != i)
-              i1 = i;
-            else {
-              i = i2;
-              if (last_wc == cp1255_comp_table_data[i].base)
-                break;
-              goto not_combining;
-            }
-          }
-        }
-        last_wc = cp1255_comp_table_data[i].composed;
-        if (last_wc == 0xfb2a || last_wc == 0xfb2b || last_wc == 0xfb49) {
-          /* Buffer the combined character. */
-          conv->istate = last_wc;
-          return RET_TOOFEW(1);
-        } else {
-          /* Output the combined character. */
-          conv->istate = 0;
-          *pwc = (ucs4_t) last_wc;
-          return 1;
-        }
-      }
-    }
-  not_combining:
-    /* Output the buffered character. */
-    conv->istate = 0;
-    *pwc = (ucs4_t) last_wc;
-    return 0; /* Don't advance the input pointer. */
-  }
-  if (wc >= 0x05d0 && wc <= 0x05f2) {
-    /* wc is a possible match in cp1255_comp_table_data. Buffer it. */
-    conv->istate = wc;
-    return RET_TOOFEW(1);
-  } else {
-    /* Output wc immediately. */
-    *pwc = (ucs4_t) wc;
+    *pwc = (ucs4_t) c;
     return 1;
   }
+  else {
+    unsigned short wc = cp1255_2uni[c-0x80];
+    if (wc != 0xfffd) {
+      *pwc = (ucs4_t) wc;
+      return 1;
+    }
+  }
+  return RET_ILSEQ;
 }
-
-#define cp1255_flushwc normal_flushwc
 
 static const unsigned char cp1255_page00[88] = {
   0xa0, 0xa1, 0xa2, 0xa3, 0x00, 0xa5, 0xa6, 0xa7, /* 0xa0-0xa7 */
@@ -337,7 +275,7 @@ cp1255_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
           break;
         if (wc < cp1255_decomp_table[i].composed) {
           if (i1 == i)
-            return RET_ILUNI;
+            return RET_ILSEQ;
           /* Here i1 < i < i2. */
           i2 = i;
         } else {
@@ -350,7 +288,7 @@ cp1255_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
             if (wc == cp1255_decomp_table[i].composed)
               break;
             else
-              return RET_ILUNI;
+              return RET_ILSEQ;
           }
         }
       }
@@ -375,5 +313,5 @@ cp1255_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
       }
     }
   }
-  return RET_ILUNI;
+  return RET_ILSEQ;
 }

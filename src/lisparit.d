@@ -1,6 +1,5 @@
-# Arithmetics for CLISP
-# Bruno Haible 1990-2002
-# Sam Steingold 1998-2002
+# Arithmetik für CLISP
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 
@@ -247,9 +246,10 @@
             return (sign==0 ? x : LF_minus_LF(x)); # evtl. noch Vorzeichenwechsel
           }
         default: # case 'E':
-          defaultfloatcase(S(read_default_float_format),Fixnum_0,
-                           goto SF, goto FF, goto DF, goto LF,
-                           pushSTACK(mantisse), mantisse = popSTACK());
+          defaultfloatcase(S(read_default_float_format),
+                           goto SF; , goto FF; , goto DF; , goto LF; ,
+                           pushSTACK(mantisse); , mantisse = popSTACK();
+                          );
       }
     }
 
@@ -347,79 +347,98 @@
 # Fehlermeldung, wenn keine Zahl kommt.
 # > obj: Objekt, keine Zahl
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_not_N, (object obj)) {
-    pushSTACK(obj); # TYPE-ERROR slot DATUM
-    pushSTACK(S(number)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("argument to ~ should be a number: ~")
-          );
-  }
+  nonreturning_function(local, fehler_not_N, (object obj));
+  local void fehler_not_N(obj)
+    var object obj;
+    {
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(number)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("argument to ~ should be a number: ~")
+            );
+    }
 
 # Fehlermeldung, wenn keine reelle Zahl kommt.
 # > obj: Objekt, keine reelle Zahl
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_not_R, (object obj)) {
-    pushSTACK(obj);     # TYPE-ERROR slot DATUM
-    pushSTACK(S(real)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("argument to ~ should be a real number: ~"));
-  }
+  nonreturning_function(local, fehler_not_R, (object obj));
+  local void fehler_not_R(obj)
+    var object obj;
+    {
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(real)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("argument to ~ should be a real number: ~")
+            );
+    }
 
 # Fehlermeldung, wenn keine Floating-Point-Zahl kommt.
 # > obj: Objekt, keine Floating-Point-Zahl
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_not_F, (object obj)) {
-    pushSTACK(obj); # TYPE-ERROR slot DATUM
-    pushSTACK(S(float)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("argument to ~ should be a floating point number: ~")
-          );
-  }
+  nonreturning_function(local, fehler_not_F, (object obj));
+  local void fehler_not_F(obj)
+    var object obj;
+    {
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(float)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("argument to ~ should be a floating point number: ~")
+            );
+    }
 
 # Fehlermeldung, wenn keine rationale Zahl kommt.
 # > obj: Objekt, keine rationale Zahl
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_not_RA, (object obj)) {
-    pushSTACK(obj); # TYPE-ERROR slot DATUM
-    pushSTACK(S(rational)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("argument to ~ should be a rational number: ~")
-          );
-  }
+  nonreturning_function(local, fehler_not_RA, (object obj));
+  local void fehler_not_RA(obj)
+    var object obj;
+    {
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(rational)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("argument to ~ should be a rational number: ~")
+            );
+    }
 
 # Fehlermeldung, wenn keine ganze Zahl kommt.
 # > obj: Objekt, keine ganze Zahl
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_not_I, (object obj)) {
-    pushSTACK(obj); # TYPE-ERROR slot DATUM
-    pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("argument to ~ should be an integer: ~")
-          );
-  }
+  nonreturning_function(local, fehler_not_I, (object obj));
+  local void fehler_not_I(obj)
+    var object obj;
+    {
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("argument to ~ should be an integer: ~")
+            );
+    }
 
 # Fehlermeldung wegen illegalem Digits-Argument obj.
 # > obj: Objekt
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_digits, (object obj)) {
-    pushSTACK(obj); # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_posfixnum1)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
-           GETTEXT("~: argument should be a positive fixnum, not ~")
-          );
-  }
+  nonreturning_function(local, fehler_digits, (object obj));
+  local void fehler_digits(obj)
+    var object obj;
+    {
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_posfixnum1)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~: argument should be a positive fixnum, not ~")
+            );
+    }
 
 # check_number(obj) überprüft, ob obj eine Zahl ist.
 # > subr_self: Aufrufer (ein SUBR)
@@ -1819,8 +1838,8 @@ LISPFUNN(deposit_field,3)
         if (random_state_p(obj)) {
           return obj;
         } else {
-          pushSTACK(obj); # TYPE-ERROR slot DATUM
-          pushSTACK(S(random_state)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(S(random_state)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(obj);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
@@ -1833,8 +1852,8 @@ LISPFUNN(deposit_field,3)
         if (random_state_p(obj)) {
           return obj;
         } else {
-          pushSTACK(obj); # TYPE-ERROR slot DATUM
-          pushSTACK(S(random_state)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(S(random_state)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(obj);
           pushSTACK(S(random_state_stern));
           pushSTACK(TheSubr(subr_self)->name);
@@ -1859,8 +1878,8 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
         value1 = I_random_I(r,x); mv_count=1; return;
       }
     }
-    pushSTACK(x); # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_random_arg)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
+    pushSTACK(O(type_random_arg)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(x); pushSTACK(S(random));
     fehler(type_error,
            GETTEXT("~: argument should be positive and an integer or float, not ~")
@@ -1943,14 +1962,20 @@ LISPFUNN(fakultaet,1)
   {
     var object x = popSTACK();
     check_integer(x);
-    if (!posfixnump(x)) fehler_posfixnum(x);
+    if (!posfixnump(x)) {
+      pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(x); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             GETTEXT("~ : argument should be a fixnum >=0, not ~")
+            );
+    }
     # x ist ein Fixnum >=0.
     value1 = FN_fak_I(x); mv_count=1;
   }
 
 LISPFUNN(exquo,2)
-# (EXT:EXQUO x y) returns the quotient of x and y. The caller
-# asserts that x is a multiple of y.
+# (EXT:EXQUO x y) == (THE INTEGER (/ (THE INTEGER x) (THE INTEGER y)))
 # (EXQUO x y) == (THE INTEGER (/ (THE INTEGER x) (THE INTEGER y)))
   {
     var object x = STACK_1;
@@ -1960,7 +1985,7 @@ LISPFUNN(exquo,2)
   }
 
 LISPFUNN(long_float_digits,0)
-# (EXT:LONG-FLOAT-DIGITS) returns the default bitsize of long-floats
+# (EXT:LONG-FLOAT-DIGITS) resurn the default bitsize of long-floats
   {
     value1 = UL_to_I(intDsize * I_to_UL(O(LF_digits))); mv_count=1;
   }
@@ -2247,8 +2272,6 @@ LISPFUNN(log10,1)
         var object obj;
         #ifdef intQsize
         encode_DF(0,-DF_mant_len,bit(DF_mant_len)+1, obj=);
-        #elif (defined(unix) && defined(linux) && defined(i386))
-        encode2_DF(0,-DF_mant_len,bit(DF_mant_len-32)|bit(DF_mant_len-32-DF_exp_len),1, obj=);
         #else
         encode2_DF(0,-DF_mant_len,bit(DF_mant_len-32),1, obj=);
         #endif
@@ -2258,8 +2281,6 @@ LISPFUNN(log10,1)
         var object obj;
         #ifdef intQsize
         encode_DF(0,-DF_mant_len-1,bit(DF_mant_len)+1, obj=);
-        #elif (defined(unix) && defined(linux) && defined(i386))
-        encode2_DF(0,-DF_mant_len-1,bit(DF_mant_len-32)|bit(DF_mant_len-32-DF_exp_len),1, obj=);
         #else
         encode2_DF(0,-DF_mant_len-1,bit(DF_mant_len-32),1, obj=);
         #endif

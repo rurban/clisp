@@ -156,58 +156,62 @@
 # symbol sollte ein S(..)-Symbol sein. Dessen Wert sollte SHORT-FLOAT oder
 # SINGLE-FLOAT oder DOUBLE-FLOAT oder LONG-FLOAT sein. Sollte es das nicht
 # sein, wird der Wert auf SINGLE-FLOAT gesetzt und eine Warnung ausgegeben.
-# can trigger GC, but only between save_statement and restore_statement.
-#define defaultfloatcase(symbol,num,SF_statement,FF_statement,DF_statement,LF_statement,save_statement,restore_statement) do {\
-  if (floatp(num))                                                      \
-    floatcase(num,goto _DFC_SF,goto _DFC_FF,goto _DFC_DF,goto _DFC_LF); \
-  { var object def = Symbol_value(symbol); # Wert holen                 \
-  if (eq(def,S(short_float))) { _DFC_SF: SF_statement; }                \
-  else if (eq(def,S(single_float))) { _DFC_FF: FF_statement; }          \
-  else if (eq(def,S(double_float))) { _DFC_DF: DF_statement; }          \
-  else if (eq(def,S(long_float))) { _DFC_LF: LF_statement; }            \
-  else {                                                                \
-    Symbol_value(symbol) = S(single_float); # Wert korrigieren          \
-    save_statement;                                                     \
-    # Warnung ausgeben:                                                 \
-    # (WARN "In ~S wurde ein illegaler Wert vorgefunden,                \
-    #        ~S wird auf ~S zurückgesetzt."                             \
-    #       symbol symbol (symbol-value symbol)                         \
-    # )                                                                 \
-    pushSTACK(NIL);                                                     \
-    pushSTACK(symbol);                                                  \
-    pushSTACK(symbol);                                                  \
-    pushSTACK(Symbol_value(symbol));                                    \
-    STACK_3 = CLSTEXT("The variable ~S had an illegal value." NLstring "~S has been reset to ~S.");                 \
-    funcall(S(warn),4);                                                 \
-    restore_statement;                                                  \
-    { FF_statement; }                                                   \
-  }}} while(0)
+# kann GC auslösen, aber nur zwischen save_statement und restore_statement.
+  #define defaultfloatcase(symbol, SF_statement,FF_statement,DF_statement,LF_statement, save_statement,restore_statement) \
+    {var object def = Symbol_value(symbol); # Wert holen            \
+     if (eq(def,S(short_float))) { SF_statement }                   \
+     elif (eq(def,S(single_float))) { FF_statement }                \
+     elif (eq(def,S(double_float))) { DF_statement }                \
+     elif (eq(def,S(long_float))) { LF_statement }                  \
+     else                                                           \
+       { Symbol_value(symbol) = S(single_float); # Wert korrigieren \
+         save_statement                                             \
+         # Warnung ausgeben:                                        \
+         # (WARN "In ~S wurde ein illegaler Wert vorgefunden,       \
+         #        ~S wird auf ~S zurückgesetzt."                    \
+         #       symbol symbol (symbol-value symbol)                \
+         # )                                                        \
+         pushSTACK(NIL);                                            \
+         pushSTACK(symbol);                                         \
+         pushSTACK(symbol);                                         \
+         pushSTACK(Symbol_value(symbol));                           \
+         STACK_3 = OLS(default_float_format_warnung_string);        \
+         funcall(S(warn),4);                                        \
+         restore_statement                                          \
+         { FF_statement }                                           \
+    }  }
 
 # I_float_F(x) wandelt ein Integer x in ein Float um und rundet dabei.
 # > x: ein Integer
 # < ergebnis: (float x)
 # can trigger GC
-local object I_float_F (object x) {
-  defaultfloatcase(S(default_float_format),Fixnum_0,
-                   return I_to_SF(x),
-                   return I_to_FF(x),
-                   return I_to_DF(x),
-                   return I_to_LF(x,I_to_UL(O(LF_digits))); ,
-                   pushSTACK(x), x = popSTACK());
-}
+  local object I_float_F (object x);
+  local object I_float_F(x)
+    var object x;
+    { defaultfloatcase(S(default_float_format),
+                       return I_to_SF(x); ,
+                       return I_to_FF(x); ,
+                       return I_to_DF(x); ,
+                       return I_to_LF(x,I_to_UL(O(LF_digits))); ,
+                       pushSTACK(x); , x = popSTACK();
+                      );
+    }
 
 # RA_float_F(x) wandelt eine rationale Zahl x in ein Float um und rundet dabei.
 # > x: eine rationale Zahl
 # < ergebnis: (float x)
 # can trigger GC
-local object RA_float_F (object x) {
-  defaultfloatcase(S(default_float_format),Fixnum_0,
-                   return RA_to_SF(x),
-                   return RA_to_FF(x),
-                   return RA_to_DF(x),
-                   return RA_to_LF(x,I_to_UL(O(LF_digits))); ,
-                   pushSTACK(x), x = popSTACK());
-}
+  local object RA_float_F (object x);
+  local object RA_float_F(x)
+    var object x;
+    { defaultfloatcase(S(default_float_format),
+                       return RA_to_SF(x); ,
+                       return RA_to_FF(x); ,
+                       return RA_to_DF(x); ,
+                       return RA_to_LF(x,I_to_UL(O(LF_digits))); ,
+                       pushSTACK(x); , x = popSTACK();
+                      );
+    }
 
 # R_float_F(x) wandelt eine reelle Zahl x in ein Float um
 # und rundet dabei nötigenfalls.
@@ -228,7 +232,7 @@ local object RA_float_F (object x) {
     # < STACK_1: Quotient q, ein Integer                              \
     # < STACK_0: Rest r, eine reelle Zahl                             \
     # Erniedrigt STACK um 2                                           \
-    # can trigger GC                                                  \
+    # kann GC auslösen                                                \
     # Methode:                                          \
     # x rational -> RA_rounding_I_RA(x)                 \
     # x Float -> F_rounding_I_F(x)                      \
@@ -240,25 +244,25 @@ local object RA_float_F (object x) {
       }
 
 # R_floor_I_R(x) liefert (floor x), wo x eine reelle Zahl ist.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_floor_I_R (object x);
   GEN_R_round(floor)
 
 # R_ceiling_I_R(x) liefert (ceiling x), wo x eine reelle Zahl ist.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_ceiling_I_R (object x);
   GEN_R_round(ceiling)
 
 # R_truncate_I_R(x) liefert (truncate x), wo x eine reelle Zahl ist.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_truncate_I_R (object x);
   GEN_R_round(truncate)
 
 # R_round_I_R(x) liefert (round x), wo x eine reelle Zahl ist.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_round_I_R (object x);
   GEN_R_round(round)
@@ -272,7 +276,7 @@ local object RA_float_F (object x) {
     # < STACK_1: Quotient q, ein integer-wertiges Float               \
     # < STACK_0: Rest r, eine reelle Zahl                             \
     # Erniedrigt STACK um 2                                           \
-    # can trigger GC                                                  \
+    # kann GC auslösen                                                \
     # Methode:                                                          \
     # x rational -> RA_rounding_I_RA(x), Quotienten in Float umwandeln. \
     # x Float -> F_frounding_F_F(x).                                    \
@@ -286,25 +290,25 @@ local object RA_float_F (object x) {
       }
 
 # R_ffloor_F_R(x) liefert (ffloor x), wo x eine reelle Zahl ist.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_ffloor_F_R (object x);
   GEN_R_fround(floor)
 
 # R_fceiling_F_R(x) liefert (fceiling x), wo x eine reelle Zahl ist.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_fceiling_F_R (object x);
   GEN_R_fround(ceiling)
 
 # R_ftruncate_F_R(x) liefert (ftruncate x), wo x eine reelle Zahl ist.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_ftruncate_F_R (object x);
   GEN_R_fround(truncate)
 
 # R_fround_F_R(x) liefert (fround x), wo x eine reelle Zahl ist.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_fround_F_R (object x);
   GEN_R_fround(round)
@@ -420,7 +424,7 @@ local object RA_float_F (object x) {
     # < STACK_1: Quotient q, ein Integer       \
     # < STACK_0: Rest r, eine reelle Zahl      \
     # Erniedrigt STACK um 2                    \
-    # can trigger GC                           \
+    # kann GC auslösen                         \
     # Methode:                                                      \
     # Beides Integers -> I_I_rounding_I_I(x,y).                     \
     # Sonst: R_rounding_I_R(x/y) -> (q,r). Liefere q und x-y*q=y*r. \
@@ -436,25 +440,25 @@ local object RA_float_F (object x) {
       }   }
 
 # R_R_floor_I_R(x,y) liefert (floor x y), wo x und y reelle Zahlen sind.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_R_floor_I_R (object x, object y);
   GEN_R_R_round(floor)
 
 # R_R_ceiling_I_R(x,y) liefert (ceiling x y), wo x und y reelle Zahlen sind.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_R_ceiling_I_R (object x, object y);
   GEN_R_R_round(ceiling)
 
 # R_R_truncate_I_R(x,y) liefert (truncate x y), wo x und y reelle Zahlen sind.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_R_truncate_I_R (object x, object y);
   GEN_R_R_round(truncate)
 
 # R_R_round_I_R(x,y) liefert (round x y), wo x und y reelle Zahlen sind.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_R_round_I_R (object x, object y);
   GEN_R_R_round(round)
@@ -467,7 +471,7 @@ local object RA_float_F (object x) {
     # R_R_remainder_R(x,y)                                 \
     # > x,y: reelle Zahlen                                 \
     # < ergebnis: Rest r, eine reelle Zahl                 \
-    # can trigger GC                                       \
+    # kann GC auslösen                                     \
     # Methode:                                                \
     # Beides Integers -> I_I_remainder_I(x,y).                \
     # Sonst: R_rounding_I_R(x/y) -> (q,r). Liefere x-y*q=y*r. \
@@ -501,7 +505,7 @@ local object RA_float_F (object x) {
     # < STACK_1: Quotient q, ein integer-wertiges Float    \
     # < STACK_0: Rest r, eine reelle Zahl                  \
     # Erniedrigt STACK um 2                                \
-    # can trigger GC                                       \
+    # kann GC auslösen                                     \
     # Methode:                                                            \
     # x,y beide rational:                                                 \
     #   R_R_rounding_I_R(x,y), Quotienten in Float umwandeln.             \
@@ -521,25 +525,25 @@ local object RA_float_F (object x) {
       }   }
 
 # R_R_ffloor_F_R(x,y) liefert (ffloor x y), wo x und y reelle Zahlen sind.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_R_ffloor_F_R (object x, object y);
   GEN_R_R_fround(floor)
 
 # R_R_fceiling_F_R(x,y) liefert (fceiling x y), wo x und y reelle Zahlen sind.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_R_fceiling_F_R (object x, object y);
   GEN_R_R_fround(ceiling)
 
 # R_R_ftruncate_F_R(x,y) liefert (ftruncate x y), wo x und y reelle Zahlen sind.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_R_ftruncate_F_R (object x, object y);
   GEN_R_R_fround(truncate)
 
 # R_R_fround_F_R(x,y) liefert (fround x y), wo x und y reelle Zahlen sind.
-# Both values into the stack.
+# Beide Werte in den Stack.
 # can trigger GC
   local void R_R_fround_F_R (object x, object y);
   GEN_R_R_fround(round)

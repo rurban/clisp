@@ -1,23 +1,3 @@
-2001-12-04  Bruno Haible  <bruno@clisp.org>
-
-	* INTEGRATE: Change the install rule to not create $(libdir) if
-	there is no file to install in it.
-
-2001-07-17  Bruno Haible  <haible@clisp.cons.org>
-
-	* configure.in (VERSION): Bump to 1.1.
-
-2001-06-08  Bruno Haible  <haible@clisp.cons.org>
-
-	* m4/libtool.m4: Upgrade to libtool-1.4.
-	* autoconf/ltmain.sh: Likewise.
-	* autoconf/ltconfig: Remove file.
-
-2001-06-08  Bruno Haible  <haible@clisp.cons.org>
-
-	* autoconf/config.guess: Update to GNU version 2001-05-11.
-	* autoconf/config.sub: Likewise.
-
 2001-05-21  Bruno Haible  <haible@clisp.cons.org>
 
 	* Makefile.in (include/libcharset.h): New target.

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1999-2001 Free Software Foundation, Inc.
+ * Copyright (C) 1999-2000 Free Software Foundation, Inc.
  * This file is part of the GNU LIBICONV Library.
  *
  * The GNU LIBICONV Library is free software; you can redistribute it
@@ -181,12 +181,9 @@ iso2022_cn_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
   unsigned char buf[3];
   int ret;
 
-  /* There is no need to handle Unicode 3.1 tag characters and to look for
-     "zh-CN" or "zh-TW" tags, because GB2312 and CNS11643 are disjoint. */
-
   /* Try ASCII. */
   ret = ascii_wctomb(conv,buf,wc,1);
-  if (ret != RET_ILUNI) {
+  if (ret != RET_ILSEQ) {
     if (ret != 1) abort();
     if (buf[0] < 0x80) {
       int count = (state1 == STATE_ASCII ? 1 : 2);
@@ -209,7 +206,7 @@ iso2022_cn_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
 
   /* Try GB 2312-1980. */
   ret = gb2312_wctomb(conv,buf,wc,2);
-  if (ret != RET_ILUNI) {
+  if (ret != RET_ILSEQ) {
     if (ret != 2) abort();
     if (buf[0] < 0x80 && buf[1] < 0x80) {
       int count = (state2 == STATE2_DESIGNATED_GB2312 ? 0 : 4) + (state1 == STATE_TWOBYTE ? 0 : 1) + 2;
@@ -237,11 +234,11 @@ iso2022_cn_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
   }
 
   ret = cns11643_wctomb(conv,buf,wc,3);
-  if (ret != RET_ILUNI) {
+  if (ret != RET_ILSEQ) {
     if (ret != 3) abort();
 
     /* Try CNS 11643-1992 Plane 1. */
-    if (buf[0] == 1 && buf[1] < 0x80 && buf[2] < 0x80) {
+    if (buf[0] == 0 && buf[1] < 0x80 && buf[2] < 0x80) {
       int count = (state2 == STATE2_DESIGNATED_CNS11643_1 ? 0 : 4) + (state1 == STATE_TWOBYTE ? 0 : 1) + 2;
       if (n < count)
         return RET_TOOSMALL;
@@ -266,7 +263,7 @@ iso2022_cn_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
     }
 
     /* Try CNS 11643-1992 Plane 2. */
-    if (buf[0] == 2 && buf[1] < 0x80 && buf[2] < 0x80) {
+    if (buf[0] == 1 && buf[1] < 0x80 && buf[2] < 0x80) {
       int count = (state3 == STATE3_DESIGNATED_CNS11643_2 ? 0 : 4) + 4;
       if (n < count)
         return RET_TOOSMALL;
@@ -288,7 +285,7 @@ iso2022_cn_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
     }
   }
 
-  return RET_ILUNI;
+  return RET_ILSEQ;
 }
 
 static int

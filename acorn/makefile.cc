@@ -1,6 +1,6 @@
-# -*- Makefile -*- for the CLISP binaries
+# Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host brighton.podval.org as the output of the command:
+# This file was created on host SSTEINGOLD as the output of the command:
 # ./makemake acorn ansi
 
 # -------------- Start of configurable section --------------------
@@ -8,11 +8,11 @@
 # Directories used by "make install":
 prefix = 
 exec_prefix = $(prefix)
-bindir  = $(exec_prefix).bin
-mandir  = $(exec_prefix).man.share
+bindir = $(exec_prefix).bin
+mandir = $(exec_prefix).man
 htmldir = $(exec_prefix).html.share
-dvidir  = $(exec_prefix).dvi.share
-docdir  = $(exec_prefix).share.doc
+dvidir = $(exec_prefix).dvi.share
+docdir = $(exec_prefix).doc
 lispdocdir = $(docdir).clisp
 libdir = $(exec_prefix).lib
 lisplibdir = $(libdir).clisp
@@ -34,11 +34,11 @@ LIBS =
 X_LIBS = 
 
 MAKE = make
+RM = remove
 CP = cp ~A~CNF
 LN_S = cp ~A~CNF
 MV = cp ~A~CDF
 CAT = cat
-RM = remove
 TOUCH = touch
 GREP = egrep
 SED = sed
@@ -73,7 +73,7 @@ ROFF_DVI = groff -Tdvi -mandoc # try "groff -Tdvi -mandoc"
 #   1. The module must be located in a subdirectory of clisp's source
 #      directory.
 #      Examples: clisp/src/ wildcard/
-#                clisp/src/ bindings/linuxlibc6/
+#                clisp/src/ bindings/linuxlibc5/
 #
 #   2. If the module contains a file called "configure", it is assumed
 #      to be a GNU autoconf generated configuration file, and is called
@@ -152,7 +152,6 @@ d.time \
 d.predtype \
 d.symbol \
 d.lisparit \
-d.i18n \
 d.unixaux \
 d.acornaux \
 d.acornsig \
@@ -260,7 +259,6 @@ c.time \
 c.predtype \
 c.symbol \
 c.lisparit \
-c.i18n \
 c.unixaux \
 c.acornaux \
 c.acornsig \
@@ -368,7 +366,6 @@ o.time \
 o.predtype \
 o.symbol \
 o.lisparit \
-o.i18n \
 o.unixaux \
 o.acornaux \
 o.acornsig \
@@ -388,18 +385,15 @@ lisp.floatprint \
 lisp.type \
 lisp.defstruct \
 lisp.format \
-lisp.international \
 lisp.savemem \
 lisp.trace \
 lisp.cmacros \
 lisp.compiler \
+lisp.disassem \
 lisp.defs2 \
 lisp.loop \
 lisp.clos \
-lisp.disassem \
 lisp.condition \
-lisp.loadform \
-lisp.threads \
 lisp.gstream \
 lisp.xcharin \
 lisp.keyboard \
@@ -410,11 +404,11 @@ lisp.query \
 lisp.reploop \
 lisp.dribble \
 lisp.complete \
-lisp.pprint \
 lisp.describe \
 lisp.room \
 lisp.edit \
 lisp.macros3 \
+lisp.foreign1 \
 lisp.clhs \
 lisp.inspect \
 lisp.gray \
@@ -422,7 +416,6 @@ lisp.german \
 lisp.french \
 lisp.spanish \
 lisp.dutch \
-lisp.deprecated \
 lisp.config
 
 FASFILES = \
@@ -439,18 +432,15 @@ fas.floatprint \
 fas.type \
 fas.defstruct \
 fas.format \
-fas.international \
 fas.savemem \
 fas.trace \
 fas.cmacros \
 fas.compiler \
+fas.disassem \
 fas.defs2 \
 fas.loop \
 fas.clos \
-fas.disassem \
 fas.condition \
-fas.loadform \
-fas.threads \
 fas.gstream \
 fas.xcharin \
 fas.keyboard \
@@ -461,11 +451,11 @@ fas.query \
 fas.reploop \
 fas.dribble \
 fas.complete \
-fas.pprint \
 fas.describe \
 fas.room \
 fas.edit \
 fas.macros3 \
+fas.foreign1 \
 fas.clhs \
 fas.inspect \
 fas.gray \
@@ -473,7 +463,6 @@ fas.german \
 fas.french \
 fas.spanish \
 fas.dutch \
-fas.deprecated \
 fas.config
 
 TXTFILES = \
@@ -495,18 +484,15 @@ stage.lisp.floatprint \
 stage.lisp.type \
 stage.lisp.defstruct \
 stage.lisp.format \
-stage.lisp.international \
 stage.lisp.savemem \
 stage.lisp.trace \
 stage.lisp.cmacros \
 stage.lisp.compiler \
+stage.lisp.disassem \
 stage.lisp.defs2 \
 stage.lisp.loop \
 stage.lisp.clos \
-stage.lisp.disassem \
 stage.lisp.condition \
-stage.lisp.loadform \
-stage.lisp.threads \
 stage.lisp.gstream \
 stage.lisp.xcharin \
 stage.lisp.keyboard \
@@ -517,11 +503,11 @@ stage.lisp.query \
 stage.lisp.reploop \
 stage.lisp.dribble \
 stage.lisp.complete \
-stage.lisp.pprint \
 stage.lisp.describe \
 stage.lisp.room \
 stage.lisp.edit \
 stage.lisp.macros3 \
+stage.lisp.foreign1 \
 stage.lisp.clhs \
 stage.lisp.inspect \
 stage.lisp.gray \
@@ -529,7 +515,6 @@ stage.lisp.german \
 stage.lisp.french \
 stage.lisp.spanish \
 stage.lisp.dutch \
-stage.lisp.deprecated \
 stage.lisp.config
 
 TESTFASFILES = \
@@ -546,18 +531,15 @@ stage.fas.floatprint \
 stage.fas.type \
 stage.fas.defstruct \
 stage.fas.format \
-stage.fas.international \
 stage.fas.savemem \
 stage.fas.trace \
 stage.fas.cmacros \
 stage.fas.compiler \
+stage.fas.disassem \
 stage.fas.defs2 \
 stage.fas.loop \
 stage.fas.clos \
-stage.fas.disassem \
 stage.fas.condition \
-stage.fas.loadform \
-stage.fas.threads \
 stage.fas.gstream \
 stage.fas.xcharin \
 stage.fas.keyboard \
@@ -568,11 +550,11 @@ stage.fas.query \
 stage.fas.reploop \
 stage.fas.dribble \
 stage.fas.complete \
-stage.fas.pprint \
 stage.fas.describe \
 stage.fas.room \
 stage.fas.edit \
 stage.fas.macros3 \
+stage.fas.foreign1 \
 stage.fas.clhs \
 stage.fas.inspect \
 stage.fas.gray \
@@ -580,7 +562,6 @@ stage.fas.german \
 stage.fas.french \
 stage.fas.spanish \
 stage.fas.dutch \
-stage.fas.deprecated \
 stage.fas.config
 
 
@@ -589,17 +570,6 @@ stage.fas.config
 all : init allc allo lisp mem.interpre mem.halfcomp mem.lispinit manual
 	$(TOUCH) all
 
-makemake : in.makemake
-	./config.status --file=makemake
-	chmod +x makemake
-
-h.unixconf : unixconf.in.h
-	./config.status --header=h.unixconf
-
-Makefile : makemake
-	./makemake acorn ansi > Makefile.tmp
-	$(MV) Makefile Makefile~
-	$(MV) Makefile.tmp Makefile
 
 init : comment5 ansidecl varbrace txt2c ccmp2c modprep $(DFILES) h.modules
 	$(TOUCH) init
@@ -813,13 +783,6 @@ c.lisparit : d.lisparit comment5 ansidecl varbrace
 	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
 	$(RM) TMPPIPE1
 	$(VARBRACE) < TMPPIPE2 > lisparit.c
-	$(RM) TMPPIPE2
-
-c.i18n : d.i18n comment5 ansidecl varbrace
-	$(COMMENT5) i18n.d TMPPIPE1
-	$(ANSIDECL) < TMPPIPE1 > TMPPIPE2
-	$(RM) TMPPIPE1
-	$(VARBRACE) < TMPPIPE2 > i18n.c
 	$(RM) TMPPIPE2
 
 c.unixaux : d.unixaux comment5 ansidecl varbrace
@@ -1390,14 +1353,14 @@ s.ariarm : c.ariarm
 	$(SED) -f ^.acorn.sed.asmfilter < TMPPIPE1 > s.ariarm
 	$(RM) TMPPIPE1
 
-allo : allc o.spvw o.spvwtabf o.spvwtabs o.spvwtabo o.eval o.control o.encoding o.pathname o.stream o.io o.array o.hashtabl o.list o.package o.record o.sequence o.charstrg o.debug o.error o.misc o.time o.predtype o.symbol o.lisparit o.i18n o.unixaux o.acornaux o.acornsig
+allo : allc o.spvw o.spvwtabf o.spvwtabs o.spvwtabo o.eval o.control o.encoding o.pathname o.stream o.io o.array o.hashtabl o.list o.package o.record o.sequence o.charstrg o.debug o.error o.misc o.time o.predtype o.symbol o.lisparit o.unixaux o.acornaux o.acornsig
 	$(TOUCH) allo
 
-alls : allc s.spvw s.spvwtabf s.spvwtabs s.spvwtabo s.eval s.control s.encoding s.pathname s.stream s.io s.array s.hashtabl s.list s.package s.record s.sequence s.charstrg s.debug s.error s.misc s.time s.predtype s.symbol s.lisparit s.i18n s.unixaux s.acornaux s.acornsig
+alls : allc s.spvw s.spvwtabf s.spvwtabs s.spvwtabo s.eval s.control s.encoding s.pathname s.stream s.io s.array s.hashtabl s.list s.package s.record s.sequence s.charstrg s.debug s.error s.misc s.time s.predtype s.symbol s.lisparit s.unixaux s.acornaux s.acornsig
 	$(TOUCH) alls
 
 # Normally not used (just for debugging).
-alli : allc i.spvw i.spvwtabf i.spvwtabs i.spvwtabo i.eval i.control i.encoding i.pathname i.stream i.io i.array i.hashtabl i.list i.package i.record i.sequence i.charstrg i.debug i.error i.misc i.time i.predtype i.symbol i.lisparit i.i18n i.unixaux i.acornaux i.acornsig
+alli : allc i.spvw i.spvwtabf i.spvwtabs i.spvwtabo i.eval i.control i.encoding i.pathname i.stream i.io i.array i.hashtabl i.list i.package i.record i.sequence i.charstrg i.debug i.error i.misc i.time i.predtype i.symbol i.lisparit i.unixaux i.acornaux i.acornsig
 	$(TOUCH) alli
 
 i.spvw : c.spvw c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.constpack c.avl c.spvw_module c.spvw_debug c.spvw_alloca c.spvw_mmap c.spvw_multimap c.spvw_singlemap c.spvw_page c.spvw_heap c.spvw_global c.spvw_gcstat c.spvw_space c.spvw_mark c.spvw_objsize c.spvw_update c.spvw_fault c.spvw_sigsegv c.spvw_sigcld c.spvw_sigpipe c.spvw_sigint c.spvw_sigwinch c.spvw_garcol c.spvw_genera1 c.spvw_genera2 c.spvw_genera3 c.spvw_allocate c.spvw_typealloc c.spvw_circ c.spvw_walk c.spvw_ctype c.spvw_language c.spvw_memfile c.sort c.subrkw c.arilev0 c.aridecl h.stdbool h.version
@@ -1616,15 +1579,6 @@ s.lisparit : c.lisparit c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.const
 o.lisparit : c.lisparit c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn c.aridecl c.arilev0 c.arilev1 c.intelem c.intlog c.intplus c.intcomp c.intbyte c.intmal c.intdiv c.intgcd c.int2adic c.intsqrt c.intprint c.intread c.rational c.sfloat c.ffloat c.dfloat c.lfloat c.flo_konv c.flo_rest c.realelem c.realrand c.realtran c.compelem c.comptran c.arilev1c c.arilev1e c.arilev1i c.ariarm h.stdbool
 	$(CC) $(CFLAGS) -c c.lisparit
 
-i.i18n : c.i18n c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
-	$(CPP) $(CFLAGS) c.i18n > i.i18n
-
-s.i18n : c.i18n c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
-	$(CC) $(CFLAGS) -S c.i18n
-
-o.i18n : c.i18n c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
-	$(CC) $(CFLAGS) -c c.i18n
-
 i.unixaux : c.unixaux c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.constobj c.acorn h.stdbool
 	$(CPP) $(CFLAGS) c.unixaux > i.unixaux
 
@@ -1682,22 +1636,10 @@ o.noreadline : c.noreadline c.lispbibl c.fsubr c.subr c.pseudofun c.constsym c.c
 o.ariarm : s.ariarm
 	objasm -Stamp -Quit -CloseExec -from s.ariarm -o o.ariarm
 
-h.iconv libiconv.a :
-	builddir="`pwd`"; cd libiconv && $(MAKE) && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
+txt.UnicodeData :
+	$(LN_S) ^.utils.unicode.ftp.unicode.org.txt.UnicodeData txt.UnicodeData
 
-h.libcharset :
-	builddir="`pwd`"; cd libiconv/libcharset && $(MAKE) && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
-
-h.sigsegv libsigsegv.a :
-	builddir="`pwd`"; cd sigsegv && $(MAKE) && $(MAKE) check && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
-
-data : ^.utils.unicode.ftp.unicode.org.txt.UnicodeData ^.src.txt.clhs
-	-$(RM) data.*
-	-mkdir data
-	cd data && $(LN_S) ^.^.utils.unicode.ftp.unicode.org.txt.UnicodeData .
-	cd data && $(LN_S) ^.^.src.txt.clhs .
-
-lisp : $(OBJECTS) o.modules       data
+lisp : $(OBJECTS) o.modules       txt.UnicodeData
 	$(CC) $(CFLAGS) $(CLFLAGS) $(OBJECTS) o.modules $(LIBS) -o lisp
 
 
@@ -1707,172 +1649,162 @@ alllisp : $(LISPFILES)
 lisp.config : lisp.cfgacorn
 	$(CP) lisp.cfgacorn lisp.config
 
-RUN= /@.lisp -B . -Efile UTF-8 -norc
-
 mem.interpre : lisp $(LISPFILES)
 	-$(RM) mem.interpre
-	$(RUN) -m 750KW -x "(load \"init.lisp\") (sys::%saveinitmem) (exit)"
+	/@.lisp -m 750KW -B . -Efile UTF-8 -norc -x "(load \"init.lisp\") (sys::%saveinitmem) (exit)"
 	$(MV) mem.lispimag mem.interpre
 
-fas.init : lisp.init lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c init.lisp
+fas.init : lisp.init lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c init.lisp
 
-fas.defseq : lisp.defseq lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c defseq.lisp
+fas.defseq : lisp.defseq lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c defseq.lisp
 
-fas.backquote : lisp.backquote lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c backquote.lisp
+fas.backquote : lisp.backquote lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c backquote.lisp
 
-fas.defmacro : lisp.defmacro lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c defmacro.lisp
+fas.defmacro : lisp.defmacro lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c defmacro.lisp
 
-fas.macros1 : lisp.macros1 lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c macros1.lisp
+fas.macros1 : lisp.macros1 lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c macros1.lisp
 
-fas.macros2 : lisp.macros2 lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c macros2.lisp
+fas.macros2 : lisp.macros2 lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c macros2.lisp
 
-fas.defs1 : lisp.defs1 lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c defs1.lisp
+fas.defs1 : lisp.defs1 lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c defs1.lisp
 
-fas.timezone : lisp.timezone lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c timezone.lisp
+fas.timezone : lisp.timezone lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c timezone.lisp
 
-fas.places : lisp.places lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c places.lisp
+fas.places : lisp.places lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c places.lisp
 
-fas.floatprint : lisp.floatprint lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c floatprint.lisp
+fas.floatprint : lisp.floatprint lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c floatprint.lisp
 
-fas.type : lisp.type lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c type.lisp
+fas.type : lisp.type lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c type.lisp
 
-fas.defstruct : lisp.defstruct lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c defstruct.lisp
+fas.defstruct : lisp.defstruct lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c defstruct.lisp
 
-fas.format : lisp.format lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c format.lisp
+fas.format : lisp.format lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c format.lisp
 
-fas.international : lisp.international lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c international.lisp
+fas.savemem : lisp.savemem lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c savemem.lisp
 
-fas.savemem : lisp.savemem lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c savemem.lisp
+fas.trace : lisp.trace lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c trace.lisp
 
-fas.trace : lisp.trace lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c trace.lisp
-
-fas.cmacros : lisp.cmacros lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c cmacros.lisp
+fas.cmacros : lisp.cmacros lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c cmacros.lisp
 
 fas.compiler : lisp.compiler lisp mem.interpre
-	$(RUN) -m 1000KW -M mem.interpre -q -c compiler.lisp
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c compiler.lisp
 
-fas.defs2 : lisp.defs2 lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c defs2.lisp
+fas.disassem : lisp.disassem lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c disassem.lisp
 
-fas.loop : lisp.loop lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c loop.lisp
+fas.defs2 : lisp.defs2 lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c defs2.lisp
 
-fas.clos : lisp.clos lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c clos.lisp
+fas.loop : lisp.loop lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c loop.lisp
 
-fas.disassem : lisp.disassem lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c disassem.lisp
+fas.clos : lisp.clos lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c clos.lisp
 
-fas.condition : lisp.condition lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c condition.lisp
+fas.condition : lisp.condition lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c condition.lisp
 
-fas.loadform : lisp.loadform lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c loadform.lisp
+fas.gstream : lisp.gstream lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c gstream.lisp
 
-fas.threads : lisp.threads lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c threads.lisp
+fas.xcharin : lisp.xcharin lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c xcharin.lisp
 
-fas.gstream : lisp.gstream lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c gstream.lisp
+fas.keyboard : lisp.keyboard lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c keyboard.lisp
 
-fas.xcharin : lisp.xcharin lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c xcharin.lisp
+fas.screen : lisp.screen lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c screen.lisp
 
-fas.keyboard : lisp.keyboard lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c keyboard.lisp
+fas.beossock : lisp.beossock lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c beossock.lisp
 
-fas.screen : lisp.screen lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c screen.lisp
+fas.runprog : lisp.runprog lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c runprog.lisp
 
-fas.beossock : lisp.beossock lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c beossock.lisp
+fas.query : lisp.query lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c query.lisp
 
-fas.runprog : lisp.runprog lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c runprog.lisp
+fas.reploop : lisp.reploop lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c reploop.lisp
 
-fas.query : lisp.query lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c query.lisp
+fas.dribble : lisp.dribble lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c dribble.lisp
 
-fas.reploop : lisp.reploop lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c reploop.lisp
+fas.complete : lisp.complete lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c complete.lisp
 
-fas.dribble : lisp.dribble lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c dribble.lisp
+fas.describe : lisp.describe lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c describe.lisp
 
-fas.complete : lisp.complete lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c complete.lisp
+fas.room : lisp.room lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c room.lisp
 
-fas.pprint : lisp.pprint lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c pprint.lisp
+fas.edit : lisp.edit lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c edit.lisp
 
-fas.describe : lisp.describe lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c describe.lisp
+fas.macros3 : lisp.macros3 lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c macros3.lisp
 
-fas.room : lisp.room lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c room.lisp
+fas.foreign1 : lisp.foreign1 lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c foreign1.lisp
 
-fas.edit : lisp.edit lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c edit.lisp
+fas.clhs : lisp.clhs lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c clhs.lisp
 
-fas.macros3 : lisp.macros3 lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c macros3.lisp
+fas.inspect : lisp.inspect lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c inspect.lisp
 
-fas.clhs : lisp.clhs lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c clhs.lisp
+fas.gray : lisp.gray lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c gray.lisp
 
-fas.inspect : lisp.inspect lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c inspect.lisp
+fas.german : lisp.german lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c german.lisp
 
-fas.gray : lisp.gray lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c gray.lisp
+fas.french : lisp.french lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c french.lisp
 
-fas.german : lisp.german lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c german.lisp
+fas.spanish : lisp.spanish lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c spanish.lisp
 
-fas.french : lisp.french lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c french.lisp
+fas.dutch : lisp.dutch lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c dutch.lisp
 
-fas.spanish : lisp.spanish lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c spanish.lisp
-
-fas.dutch : lisp.dutch lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c dutch.lisp
-
-fas.deprecated : lisp.deprecated lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c deprecated.lisp
-
-fas.config : lisp.config lisp mem.halfcomp
-	$(RUN) -m 1000KW -M mem.halfcomp -q -c config.lisp
+fas.config : lisp.config lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c config.lisp
 
 mem.halfcomp : lisp $(LISPFILES) fas.compiler
-	-$(RM) mem.halfcomp
-	$(RUN) -m 750KW -x "(load \"init.lisp\") (sys::%saveinitmem) (exit)"
-	$(MV) mem.lispimag mem.halfcomp
+	-$(RM) mem.interpre
+	/@.lisp -m 750KW -B . -Efile UTF-8 -norc -x "(load \"init.lisp\") (sys::%saveinitmem) (exit)"
+	$(MV) mem.lispimag mem.interpre
+	$(TOUCH) mem.interpre
+	$(TOUCH) fas.compiler
+	$(TOUCH) mem.halfcomp
 
 mem.lispinit : lisp $(FASFILES)
 	-$(RM) mem.lispinit
-	$(RUN) -x "(load \"init.fas\") (saveinitmem) (exit)"
+	/@.lisp -B . -Efile UTF-8 -norc -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"
+	$(MV) mem.lispimag mem.lispinit
 
 
 # Perform self-tests.
-check : test testsuite
+check : test
 	$(TOUCH) check
 
 # Test: recompile $(LISPFILES) and compare their contents.
@@ -1921,9 +1853,6 @@ stage.lisp.defstruct : lisp.defstruct
 stage.lisp.format : lisp.format
 	$(LN_S) lisp.format stage
 
-stage.lisp.international : lisp.international
-	$(LN_S) lisp.international stage
-
 stage.lisp.savemem : lisp.savemem
 	$(LN_S) lisp.savemem stage
 
@@ -1936,6 +1865,9 @@ stage.lisp.cmacros : lisp.cmacros
 stage.lisp.compiler : lisp.compiler
 	$(LN_S) lisp.compiler stage
 
+stage.lisp.disassem : lisp.disassem
+	$(LN_S) lisp.disassem stage
+
 stage.lisp.defs2 : lisp.defs2
 	$(LN_S) lisp.defs2 stage
 
@@ -1945,17 +1877,8 @@ stage.lisp.loop : lisp.loop
 stage.lisp.clos : lisp.clos
 	$(LN_S) lisp.clos stage
 
-stage.lisp.disassem : lisp.disassem
-	$(LN_S) lisp.disassem stage
-
 stage.lisp.condition : lisp.condition
 	$(LN_S) lisp.condition stage
-
-stage.lisp.loadform : lisp.loadform
-	$(LN_S) lisp.loadform stage
-
-stage.lisp.threads : lisp.threads
-	$(LN_S) lisp.threads stage
 
 stage.lisp.gstream : lisp.gstream
 	$(LN_S) lisp.gstream stage
@@ -1987,9 +1910,6 @@ stage.lisp.dribble : lisp.dribble
 stage.lisp.complete : lisp.complete
 	$(LN_S) lisp.complete stage
 
-stage.lisp.pprint : lisp.pprint
-	$(LN_S) lisp.pprint stage
-
 stage.lisp.describe : lisp.describe
 	$(LN_S) lisp.describe stage
 
@@ -2001,6 +1921,9 @@ stage.lisp.edit : lisp.edit
 
 stage.lisp.macros3 : lisp.macros3
 	$(LN_S) lisp.macros3 stage
+
+stage.lisp.foreign1 : lisp.foreign1
+	$(LN_S) lisp.foreign1 stage
 
 stage.lisp.clhs : lisp.clhs
 	$(LN_S) lisp.clhs stage
@@ -2023,190 +1946,155 @@ stage.lisp.spanish : lisp.spanish
 stage.lisp.dutch : lisp.dutch
 	$(LN_S) lisp.dutch stage
 
-stage.lisp.deprecated : lisp.deprecated
-	$(LN_S) lisp.deprecated stage
-
 stage.lisp.config : lisp.config
 	$(LN_S) lisp.config stage
 
-stage.testinit.mem: mem.lispinit
-	$(CP) mem.lispinit stage.mem.testinit
+stage.fas.init : stage.lisp.init lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.init.lisp
 
-stage.fas.init : stage.lisp.init lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.init.lisp
+stage.fas.defseq : stage.lisp.defseq lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.defseq.lisp
 
-stage.fas.defseq : stage.lisp.defseq lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.defseq.lisp
+stage.fas.backquote : stage.lisp.backquote lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.backquote.lisp
 
-stage.fas.backquote : stage.lisp.backquote lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.backquote.lisp
+stage.fas.defmacro : stage.lisp.defmacro lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.defmacro.lisp
 
-stage.fas.defmacro : stage.lisp.defmacro lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.defmacro.lisp
+stage.fas.macros1 : stage.lisp.macros1 lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.macros1.lisp
 
-stage.fas.macros1 : stage.lisp.macros1 lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.macros1.lisp
+stage.fas.macros2 : stage.lisp.macros2 lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.macros2.lisp
 
-stage.fas.macros2 : stage.lisp.macros2 lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.macros2.lisp
+stage.fas.defs1 : stage.lisp.defs1 lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.defs1.lisp
 
-stage.fas.defs1 : stage.lisp.defs1 lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.defs1.lisp
+stage.fas.timezone : stage.lisp.timezone lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.timezone.lisp
 
-stage.fas.timezone : stage.lisp.timezone lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.timezone.lisp
+stage.fas.places : stage.lisp.places lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.places.lisp
 
-stage.fas.places : stage.lisp.places lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.places.lisp
+stage.fas.floatprint : stage.lisp.floatprint lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.floatprint.lisp
 
-stage.fas.floatprint : stage.lisp.floatprint lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.floatprint.lisp
+stage.fas.type : stage.lisp.type lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.type.lisp
 
-stage.fas.type : stage.lisp.type lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.type.lisp
+stage.fas.defstruct : stage.lisp.defstruct lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.defstruct.lisp
 
-stage.fas.defstruct : stage.lisp.defstruct lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.defstruct.lisp
+stage.fas.format : stage.lisp.format lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.format.lisp
 
-stage.fas.format : stage.lisp.format lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.format.lisp
+stage.fas.savemem : stage.lisp.savemem lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.savemem.lisp
 
-stage.fas.international : stage.lisp.international lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.international.lisp
+stage.fas.trace : stage.lisp.trace lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.trace.lisp
 
-stage.fas.savemem : stage.lisp.savemem lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.savemem.lisp
+stage.fas.cmacros : stage.lisp.cmacros lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.cmacros.lisp
 
-stage.fas.trace : stage.lisp.trace lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.trace.lisp
+stage.fas.compiler : stage.lisp.compiler lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.compiler.lisp
 
-stage.fas.cmacros : stage.lisp.cmacros lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.cmacros.lisp
+stage.fas.disassem : stage.lisp.disassem lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.disassem.lisp
 
-stage.fas.compiler : stage.lisp.compiler lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.compiler.lisp
+stage.fas.defs2 : stage.lisp.defs2 lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.defs2.lisp
 
-stage.fas.defs2 : stage.lisp.defs2 lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.defs2.lisp
+stage.fas.loop : stage.lisp.loop lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.loop.lisp
 
-stage.fas.loop : stage.lisp.loop lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.loop.lisp
+stage.fas.clos : stage.lisp.clos lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.clos.lisp
 
-stage.fas.clos : stage.lisp.clos lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.clos.lisp
+stage.fas.condition : stage.lisp.condition lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.condition.lisp
 
-stage.fas.disassem : stage.lisp.disassem lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.disassem.lisp
+stage.fas.gstream : stage.lisp.gstream lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.gstream.lisp
 
-stage.fas.condition : stage.lisp.condition lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.condition.lisp
+stage.fas.xcharin : stage.lisp.xcharin lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.xcharin.lisp
 
-stage.fas.loadform : stage.lisp.loadform lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.loadform.lisp
+stage.fas.keyboard : stage.lisp.keyboard lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.keyboard.lisp
 
-stage.fas.threads : stage.lisp.threads lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.threads.lisp
+stage.fas.screen : stage.lisp.screen lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.screen.lisp
 
-stage.fas.gstream : stage.lisp.gstream lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.gstream.lisp
+stage.fas.beossock : stage.lisp.beossock lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.beossock.lisp
 
-stage.fas.xcharin : stage.lisp.xcharin lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.xcharin.lisp
+stage.fas.runprog : stage.lisp.runprog lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.runprog.lisp
 
-stage.fas.keyboard : stage.lisp.keyboard lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.keyboard.lisp
+stage.fas.query : stage.lisp.query lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.query.lisp
 
-stage.fas.screen : stage.lisp.screen lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.screen.lisp
+stage.fas.reploop : stage.lisp.reploop lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.reploop.lisp
 
-stage.fas.beossock : stage.lisp.beossock lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.beossock.lisp
+stage.fas.dribble : stage.lisp.dribble lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.dribble.lisp
 
-stage.fas.runprog : stage.lisp.runprog lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.runprog.lisp
+stage.fas.complete : stage.lisp.complete lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.complete.lisp
 
-stage.fas.query : stage.lisp.query lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.query.lisp
+stage.fas.describe : stage.lisp.describe lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.describe.lisp
 
-stage.fas.reploop : stage.lisp.reploop lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.reploop.lisp
+stage.fas.room : stage.lisp.room lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.room.lisp
 
-stage.fas.dribble : stage.lisp.dribble lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.dribble.lisp
+stage.fas.edit : stage.lisp.edit lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.edit.lisp
 
-stage.fas.complete : stage.lisp.complete lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.complete.lisp
+stage.fas.macros3 : stage.lisp.macros3 lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.macros3.lisp
 
-stage.fas.pprint : stage.lisp.pprint lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.pprint.lisp
+stage.fas.foreign1 : stage.lisp.foreign1 lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.foreign1.lisp
 
-stage.fas.describe : stage.lisp.describe lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.describe.lisp
+stage.fas.clhs : stage.lisp.clhs lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.clhs.lisp
 
-stage.fas.room : stage.lisp.room lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.room.lisp
+stage.fas.inspect : stage.lisp.inspect lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.inspect.lisp
 
-stage.fas.edit : stage.lisp.edit lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.edit.lisp
+stage.fas.gray : stage.lisp.gray lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.gray.lisp
 
-stage.fas.macros3 : stage.lisp.macros3 lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.macros3.lisp
+stage.fas.german : stage.lisp.german lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.german.lisp
 
-stage.fas.clhs : stage.lisp.clhs lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.clhs.lisp
+stage.fas.french : stage.lisp.french lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.french.lisp
 
-stage.fas.inspect : stage.lisp.inspect lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.inspect.lisp
+stage.fas.spanish : stage.lisp.spanish lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.spanish.lisp
 
-stage.fas.gray : stage.lisp.gray lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.gray.lisp
+stage.fas.dutch : stage.lisp.dutch lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.dutch.lisp
 
-stage.fas.german : stage.lisp.german lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.german.lisp
-
-stage.fas.french : stage.lisp.french lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.french.lisp
-
-stage.fas.spanish : stage.lisp.spanish lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.spanish.lisp
-
-stage.fas.dutch : stage.lisp.dutch lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.dutch.lisp
-
-stage.fas.deprecated : stage.lisp.deprecated lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.deprecated.lisp
-
-stage.fas.config : stage.lisp.config lisp stage.mem.testinit
-	$(RUN) -M stage.mem.testinit -q -c stage.config.lisp
+stage.fas.config : stage.lisp.config lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.config.lisp
 
 mem.lispinit2 : lisp $(TESTFASFILES)
-	$(RUN) -x "(cd \"stage.\") (load \"init.fas\") (cd \"^.\") (sys::%saveinitmem) (exit)"
+	/@.lisp -B . -Efile UTF-8 -norc -x "(cd \"stage.\") (load \"init.fas\") (cd \"^.\") (sys::%saveinitmem) (exit)"
 	-$(RM) mem.lispinit2
 	$(MV) mem.lispimag mem.lispinit2
 
 
-testsuite : suite lisp mem.lispinit
-	LISP="`pwd`/lisp -M `pwd`/mem.lispinit -B `pwd` -Efile UTF-8 -norc"; export LISP; cd suite; $(MAKE) LISP="$$LISP"
-
-suite :
-	-mkdir suite
-	cd suite && $(LN_S) ^.^.tests.Makefile .
-	cd suite && $(LN_S) ^.^.tests.*.lisp .
-	cd suite && $(LN_S) ^.^.tests.*.tst .
-
-
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README_de README_es
-IMPNOTES = html.impnotes impnotes.css clisp.png
-MANUALS = 1.clisp html.clisp $(TXTFILES) $(IMPNOTES)
+MANUALS = 1.clisp html.clisp $(TXTFILES) html.impnotes clisp.gif
 
 html.impnotes : ^.doc.html.impnotes
-	$(LN_S) ^.doc.html.impnotes html.impnotes
-
-impnotes.css : ^.doc.impnotes.css
-	$(LN_S) ^.doc.impnotes.css impnotes.css
-
-clisp.png : ^.doc.clisp.png
-	$(LN_S) ^.doc.clisp.png clisp.png
+	$(CP) ^.doc.html.impnotes html.impnotes
 
 manual : $(READMES) $(MANUALS)
 	$(TOUCH) manual
@@ -2302,13 +2190,6 @@ distrib : force all manualx
 	-cdir ^.!Clisp.html
 	$(CP) html.clisp ^.!Clisp.html.clisp
 	$(CP) html.impnotes ^.!Clisp.html.impnotes
-	$(CP) css.impnotes ^.!Clisp.css.impnotes
-	$(CP) png.clisp ^.!Clisp.png.clisp
-	$(CP) el.clisp-coding ^.!Clisp.el.clisp-coding
-	$(CP) el.clisp-indent ^.!Clisp.el.clisp-indent
-	$(CP) lisp.clisp-indent ^.!Clisp.lisp.clisp-indent
-	$(CP) txt.clhs ^.!Clisp.txt.clhs
-	$(CP) txt.UnicodeData ^.!Clisp.txt.UnicodeData
 	settype ^.!Clisp.html.clisp FAF
 	-cdir ^.!Clisp.txt
 	$(CP) txt.LISP-tutor ^.!Clisp.txt.LISP-tutor
@@ -2334,15 +2215,15 @@ clean1 : clean0
 	-$(RM) libsigsegv.* libiconv.* libavcall.* libcallback.*
 	-rmdir stage
 	-rmdir suite
-	-$(RM) README README_de README_es 1.clisp man.clisp dvi.clisp html.clisp $(IMPNOTES) c.clisp distmakefile $(TXTFILES)
+	-$(RM) README README_de README_es 1.clisp man.clisp dvi.clisp html.clisp html.impnotes c.clisp distmakefile $(TXTFILES) clreadline.3 man.clreadline html.clreadline dvi.clreadline dvi.readline
 
-# clean2 removes everything that becomes obsolete once lisp
-# is recompiled without changing the bytecode format.
+# clean2 removes everything that becomes obsolete once lisp is recompiled
+# without changing the bytecode format.
 clean2 : clean1
 	-$(RM) mem.interpre mem.halfcomp mem.lispinit mem.lispinit2
 
-# clean3 removes everything that becomes obsolete once lisp
-# is recompiled. It leaves everything generated by "make allc".
+# clean3 removes everything that becomes obsolete once lisp is recompiled.
+# It leaves everything generated by "make allc".
 clean3 : clean2
 	-$(RM) $(FASFILES) *.lib
 
@@ -2357,7 +2238,7 @@ clean4 : clean3
 clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
 	-$(RM) lisp.config
-	-$(RM) comment5 ansidecl varbrace ccpaux deema txt2c ccmp2c modprep
+	-$(RM) comment5 ansidecl ccpaux deema txt2c ccmp2c modprep
 
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5

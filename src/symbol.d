@@ -1,5 +1,5 @@
 # Funktionen betr. Symbole für CLISP
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
@@ -15,8 +15,14 @@
     var object symbol;
     {
       var object fun = Symbol_function(symbol);
-      if (eq(fun,unbound))
-        fehler_undef_function(S(symbol_function),symbol);
+      if (eq(fun,unbound)) {
+        pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
+        pushSTACK(symbol);
+        pushSTACK(S(symbol_function));
+        fehler(undefined_function,
+               GETTEXT("~: ~ has no global function definition")
+              );
+      }
       if (consp(fun)) {
         pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
         pushSTACK(symbol);
@@ -32,13 +38,16 @@
 # Fehlermeldung, wenn ein Symbol eine Property-Liste ungerader Länge hat.
 # fehler_plist_odd(symbol);
 # > symbol: Symbol
-  nonreturning_function(local, fehler_plist_odd, (object symbol)) {
-    pushSTACK(symbol);
-    pushSTACK(S(get));
-    fehler(error,
-           GETTEXT("~: the property list of ~ has an odd length")
-          );
-  }
+  nonreturning_function(local, fehler_plist_odd, (object symbol));
+  local void fehler_plist_odd(symbol)
+    var object symbol;
+    {
+      pushSTACK(symbol);
+      pushSTACK(S(get));
+      fehler(error,
+             GETTEXT("~: the property list of ~ has an odd length")
+            );
+    }
 
 # UP: Holt eine Property aus der Property-Liste eines Symbols.
 # get(symbol,key)
@@ -81,15 +90,15 @@ LISPFUNN(putd,2)
     var object fun = STACK_0;
     # fun muss SUBR, FSUBR, Closure oder #<MACRO expander> sein,
     # Lambda-Ausdruck ist nicht mehr gültig.
-    if (functionp(fun) || fsubrp(fun))
+    if (subrp(fun) || closurep(fun) || ffunctionp(fun) || fsubrp(fun))
       goto ok;
     elif (macrop(fun)) # #<MACRO expander> ist ok
       goto ok;
     elif (consp(fun) && eq(Car(fun),S(lambda))) { # eine Lambda-Expression?
       fehler_lambda_expression(fun);
     }
-    pushSTACK(fun); # TYPE-ERROR slot DATUM
-    pushSTACK(S(function)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
+    pushSTACK(S(function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(fun);
     fehler(type_error,
            GETTEXT("SETF SYMBOL-FUNCTION: ~ is not a function")
@@ -402,8 +411,8 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
         prefix = x; # prefix setzen
       } elif (integerp(x)) {
         if (R_minusp(x)) {
-          pushSTACK(x); # TYPE-ERROR slot DATUM
-          pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(x);
           pushSTACK(S(gensym));
           fehler(type_error,
@@ -413,8 +422,8 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
         # x ist ein Integer >=0
         counter = x; # counter setzen
       } else {
-        pushSTACK(x); # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_string_integer)); # TYPE-ERROR slot EXPECTED-TYPE
+        pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_string_integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(x);
         pushSTACK(S(gensym));
         fehler(type_error,
@@ -428,8 +437,8 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
     if (!integerp(x)) {
       if (!(integerp(counter) && !R_minusp(counter))) { # sollte Integer >= 0 sein
         var object new_value = Symbol_value(S(gensym_counter)) = Fixnum_0; # *GENSYM-COUNTER* zurücksetzen
-        pushSTACK(counter);            # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
+        pushSTACK(counter); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(new_value); pushSTACK(counter);
         fehler(type_error,
                GETTEXT("The value of *GENSYM-COUNTER* was not a nonnegative integer. Old value ~. New value ~.")

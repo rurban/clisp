@@ -1,6 +1,5 @@
 # Speicherverwaltung für CLISP
-# Bruno Haible 1990-2002
-# Sam Steingold 1998-2002
+# Bruno Haible 1990-2001
 
 # Inhalt:
 # Modulverwaltung
@@ -55,11 +54,7 @@
 # Tabellen aller relozierbarer Pointer: ausgelagert nach STREAM
 # Größe dieser Tabellen:
   #define pseudocode_anz  (sizeof(pseudocode_tab)/sizeof(Pseudofun))
-#if defined(MICROSOFT) && !defined(UNICODE)
-  #define pseudodata_anz 0
-#else
   #define pseudodata_anz  (sizeof(pseudodata_tab)/sizeof(Pseudofun))
-#endif
 # Gesamt-Tabelle:
   #define pseudofun_anz  (pseudocode_anz+pseudodata_anz)
   local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
@@ -177,6 +172,188 @@
 # -----------------------------------------------------------------------------
 #                         Speicherverwaltung allgemein
 
+/*
+
+Overview over CLISP's garbage collection
+----------------------------------------
+
+Knowing that most malloc() implementations are buggy and/or slow, and
+because CLISP needs to perform garbage collection, CLISP has its own memory
+management subsystem in spvw.d.
+
+Three kinds of storage are distinguished:
+  * Lisp data (the "heap"), i.e. storage which contains Lisp objects and
+    is managed by the garbage collector.
+  * Lisp stack (called STACK), contains Lisp objects,
+  * C data (including program text, data, malloc()ed memory).
+
+A Lisp object is one word, containing a tag (partial type information)
+and either immediate data (e.g. fixnums or short floats) or a pointer
+to storage. Pointers to C data have tag = machine_type = 0, pointers to
+Lisp stack have tag = system_type, most other pointers point to Lisp data.
+
+Let's turn to these Lisp objects that consume regular Lisp memory.
+Every Lisp object has a size which is determined when the object is
+allocated (using one of the allocate_... routines). The size can be
+computed from the type tag and - if necessary - the length field of
+the object's header. The length field always contains the number of
+elements of the object. The number of bytes is given by the function
+objsize().
+
+Lisp objects which contain exactly 2 Lisp objects (i.e. conses, complex
+numbers, ratios) are stored in a separate area and occupy 2 words each.
+All other Lisp objects have "varying length" (well, more precisely,
+not a fixed length) and include a word for garbage collection purposes
+at their beginning.
+
+The garbage collector is invoked when an allocate_...() request
+cannot be fulfilled. It marks all objects which are "live" (may be
+reached from the "roots"), compacts these objects and unmarks them.
+Non-live objects are lost; their storage is reclaimed.
+
+2-pointer objects are compacted by a simple hole-filling algorithm:
+fill the most-left object into the most-right hole, and so on, until
+the objects are contiguous at the right and the hole is contiguous at the
+left.
+
+Variable-length objects are compacted by sliding them down (their address
+decreases).
+
+There are 6 memory models. Which one is used, depends on the operating system.
+
+SPVW_MIXED_BLOCKS_OPPOSITE: The heap consists of one block of fixed length
+(allocated at startup). The variable-length objects are allocated from
+the left, the 2-pointer objects are allocated from the right. There is a
+hole between them. When the hole shrinks to 0, GC is invoked. GC slides
+the variable-length objects to the left and concentrates the 2-pointer
+objects at the right end of the block again.
+When no more room is available, some reserve area beyond the right end
+of the block is halved, and the 2-pointer objects are moved to the right
+accordingly.
+(+) Simple management.
+(+) No fragmentation at all.
+(-) The total heap size is limited.
+
+SPVW_MIXED_BLOCKS_OPPOSITE && TRIVIALMAP_MEMORY: The heap consists of two
+big blocks, one for variable-length objects and one for 2-pointer objects.
+The first one has a hole to the right and is extensible to the right, the
+latter one has a hole to the left and is extensible to the left. Similar
+to the previous model, except that the hole is unmapped.
+(+) Total heap size grows depending on the application's needs.
+(+) No fragmentation at all.
+(*) Works only when SINGLEMAP_MEMORY were possible as well.
+
+SPVW_MIXED_BLOCKS_STAGGERED && TRIVIALMAP_MEMORY: The heap consists of two
+big blocks, one for variable-length objects and one for 2-pointer objects.
+Both have a hole to the right, but are extensible to the right.
+(+) Total heap size grows depending on the application's needs.
+(+) No fragmentation at all.
+(*) Works only when SINGLEMAP_MEMORY were possible as well.
+
+SPVW_MIXED_PAGES: The heap consists of many small pages (usually around
+8 KB). There are two kinds of pages: one for 2-pointer objects, one for
+variable-length objects. The set of all pages of a fixed kind is called
+a "Heap". Each page has its hole (free space) at its end. For every heap,
+the pages are kept sorted according to the size of their hole, using AVL
+trees. Garbage collection is invoked when the used space has grown by
+25% since the last GC; until that point new pages are allocated from
+the operating system. The GC compacts the data in each page separately:
+data is moved to the left. Emptied pages are given back to the OS.
+If the holes then make up more than 25% of the occupied storage, a second
+GC turn moves objects across pages, from nearly empty ones to nearly full
+ones, with the aim to free as most pages as possible.
+
+(-) every allocation requires AVL tree operations -> slower
+(+) Total heap size grows depending on the application's needs.
+(+) Works on operating systems which don't provide large contiguous areas.
+
+SPVW_PURE_PAGES: Just like SPVW_MIXED_PAGES, except that every page contains
+data of only a single type tag, i.e. there is a Heap for every type tag.
+
+(-) every allocation requires AVL tree operations -> slower
+(+) Total heap size grows depending on the application's needs.
+(+) Works on operating systems which don't provide large contiguous areas.
+(-) More fragmentation because objects of different type never fit into
+    the same page.
+
+SPVW_PURE_BLOCKS: There is a big block of storage for each type tag.
+Each of these blocks has its data to the left and the hole to the right,
+but these blocks are extensible to the right (because there's enough room
+between them). A garbage collection is triggered when the allocation amount
+since the last GC reaches 50% of the amount of used space at the last GC,
+but at least 512 KB. The garbage collection cleans up each block separately:
+data is moved left.
+
+(+) Total heap size grows depending on the application's needs.
+(+) No 16 MB total size limit.
+(*) Works only in combination with SINGLEMAP_MEMORY.
+
+
+The following combinations of memory model and mmap tricks are possible:
+
+With TYPECODES:
+                       GENERATIONAL_GC -------------+
+                                                     \
+                    MULTIMAP_MEMORY -------------+    \
+                  SINGLEMAP_MEMORY -----------+   \    \
+                TRIVIALMAP_MEMORY ---------+   \   \    \
+               no MAP_MEMORY -----------+   \   \   \    \
+                                         \   \   \   \    \
+SPVW_MIXED_BLOCKS_OPPOSITE              | X | X |   | X | X |
+SPVW_MIXED_BLOCKS_STAGGERED             |   | X |   |   | X |
+SPVW_PURE_BLOCKS                        |   |   | X |   | X |
+SPVW_MIXED_PAGES                        | X |   |   |   |   |
+SPVW_PURE_PAGES                         | X |   |   |   |   |
+
+Historically, the different memory models were developed in the following
+order (1 = first, ...):
+SPVW_MIXED_BLOCKS_OPPOSITE              | 1 |10 |   | 2 | 9 |
+SPVW_MIXED_BLOCKS_STAGGERED             |   | 7 |   |   | 8 |
+SPVW_PURE_BLOCKS                        |   |   | 5 |   | 6 |
+SPVW_MIXED_PAGES                        | 3 |   |   |   |   |
+SPVW_PURE_PAGES                         | 4 |   |   |   |   |
+
+With no TYPECODES:
+                   GENERATIONAL_GC ----------+
+                                              \
+                TRIVIALMAP_MEMORY ---------+   \
+               no MAP_MEMORY -----------+   \   \
+                                         \   \   \
+SPVW_MIXED_BLOCKS_OPPOSITE              | X | X | X |
+SPVW_MIXED_BLOCKS_STAGGERED             |   | X | X |
+SPVW_MIXED_PAGES                        | X |   |   |
+
+
+The burden of GC upon the rest of CLISP:
+
+Every subroutine marked with "kann GC auslösen" may invoke GC. GC moves
+all the Lisp objects and updates the pointers. But the GC looks only
+on the STACK and not in the C variables. (Anything else wouldn't be portable.)
+Therefore at every "unsafe" point - i.e. every call to such a subroutine -
+all the C variables of type `object' MUST BE ASSUMED TO BECOME GARBAGE.
+(Except for `object's that are known to be unmovable, e.g. immediate data
+or Subrs.) Pointers inside Lisp data (e.g. to the characters of a string or
+to the elements of a simple-vector) become INVALID as well.
+
+The workaround is usually to allocate all the needed Lisp data first and
+do the rest of the computation with C variables, without calling unsafe
+routines, and without worrying about GC.
+
+
+Foreign Pointers
+----------------
+
+Pointers to C functions and to malloc()ed data can be hidden in Lisp
+objects of type machine_type; GC will not modify its value. But one should
+not dare to assume that a C stack pointer or the address of a C function
+in a shared library fulfills the same requirements.
+
+If another pointer is to be viewed as a Lisp object, it is best to box it,
+e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
+
+*/
+
+
 # Methode der Speicherverwaltung:
 #if defined(SPVW_BLOCKS) && defined(SPVW_MIXED) # z.B. ATARI
   #define SPVW_MIXED_BLOCKS
@@ -231,8 +408,8 @@
 #include "spvw_multimap.c"
 
 #if defined(MAP_MEMORY_TABLES)
-  # symbol_tab is multimapped, always at the same address.
-  # This speeds up loadmem() a little.
+  # symbol_tab is multimapped, always at the same address. This speeds up
+  # loadmem() a little.
   #define MULTIMAP_MEMORY_SYMBOL_TAB
 #endif
 
@@ -243,8 +420,7 @@
 #include "spvw_singlemap.c"
 
 #if defined(SINGLEMAP_MEMORY) && defined(HAVE_WIN32_VM)
-  # Despite of SINGLEMAP_MEMORY, a relocation may be necessary
-  # at loadmem() time.
+  # Despite of SINGLEMAP_MEMORY, a relocation may be necessary at loadmem() time.
   #define SINGLEMAP_MEMORY_RELOCATE
 #endif
 
@@ -478,14 +654,16 @@
 #endif
 
 # Bei Überlauf eines der Stacks:
-  nonreturning_function(global, SP_ueber, (void)) {
-    asciz_out(GETTEXTL(NLstring "*** - " "Program stack overflow. RESET"));
-    reset();
-  }
-  nonreturning_function(global, STACK_ueber, (void)) {
-    asciz_out(GETTEXTL(NLstring "*** - " "Lisp stack overflow. RESET"));
-    reset();
-  }
+  nonreturning_function(global, SP_ueber, (void));
+  global void SP_ueber()
+    { asciz_out(GETTEXTL(NLstring "*** - " "Program stack overflow. RESET"));
+      reset();
+    }
+  nonreturning_function(global, STACK_ueber, (void));
+  global void STACK_ueber()
+    { asciz_out(GETTEXTL(NLstring "*** - " "Lisp stack overflow. RESET"));
+      reset();
+    }
 
 # ----------------------------------------------------------------------------
 #                       GC-Statistik
@@ -612,15 +790,18 @@
 # fehler_notreached(file,line);
 # > file: Filename (mit Anführungszeichen) als konstanter ASCIZ-String
 # > line: Zeilennummer
-  nonreturning_function(global, fehler_notreached, (const char* file, uintL line)) {
-    end_system_call(); # just in case
-    pushSTACK(fixnum(line));
-    pushSTACK(ascii_to_string(file));
-    fehler(serious_condition,
-           GETTEXT("internal error: statement in file ~, line ~ has been reached!!" NLstring
-                   "Please send the authors of the program a description how you produced this error!")
-          );
-  }
+  nonreturning_function(global, fehler_notreached, (const char * file, uintL line));
+  global void fehler_notreached(file,line)
+    var const char * file;
+    var uintL line;
+    { end_system_call(); # just in case
+      pushSTACK(fixnum(line));
+      pushSTACK(ascii_to_string(file));
+      fehler(serious_condition,
+             GETTEXT("internal error: statement in file ~, line ~ has been reached!!" NLstring
+                     "Please send the authors of the program a description how you produced this error!")
+            );
+    }
 
 #include "spvw_ctype.c"
 
@@ -720,7 +901,6 @@
                           { case 0: return(subr_argtype_0_2);
                             case 1: return(subr_argtype_1_2);
                             case 2: return(subr_argtype_2_2);
-                            case 3: return(subr_argtype_3_2);
                             default: goto illegal;
                           }
                       case 3:
@@ -802,12 +982,15 @@
   #define verify_code_alignment(ptr,symbol)  \
     if ((uintP)(void*)(ptr) & (C_CODE_ALIGNMENT-1))     \
       fehler_code_alignment((uintP)(void*)(ptr),symbol)
-  nonreturning_function(local, fehler_code_alignment, (uintP address, object symbol)) {
-    asciz_out("C_CODE_ALIGNMENT is wrong. ");
-    asciz_out_s("&%s",TheAsciz(string_to_asciz(Symbol_name(symbol),O(terminal_encoding))));
-    asciz_out_1(" = 0x%x." NLstring,address);
-    abort();
-  }
+  nonreturning_function(local, fehler_code_alignment, (uintP address, object symbol));
+  local void fehler_code_alignment(address,symbol)
+    var uintP address;
+    var object symbol;
+    { asciz_out("C_CODE_ALIGNMENT is wrong. ");
+      asciz_out_s("&%s",TheAsciz(string_to_asciz(Symbol_name(symbol),O(terminal_encoding))));
+      asciz_out_1(" = 0x%x." NLstring,address);
+      abort();
+    }
 #endif
 
 # Initialisierungs-Routinen für die Tabellen
@@ -942,7 +1125,6 @@
             });
         #endif
         O(all_weakpointers) = Fixnum_0;
-        O(all_weakkvtables) = Fixnum_0;
         O(all_finalizers) = Fixnum_0; O(pending_finalizers) = Fixnum_0;
       }
   # andere Module grob initialisieren:
@@ -1037,12 +1219,7 @@
         var const char * const * pname_ptr = &pname_table[0]; # pname_table durchgehen
         var const uintB* index_ptr = &package_index_table[0]; # package_index_table durchgehen
         var uintC count = symbol_anz;
-        do { ptr->pname =
-               coerce_imm_ss(' ' == **pname_ptr # non-ASCII
-                             ? asciz_to_string(*pname_ptr+1, # skip ' '
-                                               Symbol_value(S(utf_8)))
-                             : ascii_to_string(*pname_ptr));
-             pname_ptr++;
+        do { ptr->pname = coerce_imm_ss(ascii_to_string(*pname_ptr++)); # Printnamen eintragen
             {var uintB index = *index_ptr++;
              var object* package_ = &STACK_(package_anz-1) STACKop -(uintP)index; # Pointer auf Package
              pushSTACK(symbol_tab_ptr_as_object(ptr)); # Symbol
@@ -1230,20 +1407,11 @@
         define_variable(S(print_pretty),NIL);           # *PRINT-PRETTY* := NIL
         define_variable(S(print_closure),NIL);          # *PRINT-CLOSURE* := NIL
         define_variable(S(print_readably),NIL);         # *PRINT-READABLY* := NIL
-        define_variable(S(print_lines),NIL);            # *PRINT-LINES* := NIL
-        define_variable(S(print_miser_width),NIL);      # *PRINT-MISER-WIDTH* := NIL
-        define_variable(S(prin_line_prefix),unbound);   # *PRIN-LINE-PREFIX*
-        define_variable(S(prin_miserp),unbound);        # *PRIN-MISERP*
-        define_variable(S(prin_pprinter),unbound);      # *PRIN-PPRINTER*
-        define_variable(S(prin_indentation),unbound);   # *PRIN-INDENTATION*
-        define_variable(S(print_pprint_dispatch),NIL);  # *PRINT-PPRINT-DISPATCH* := NIL
         define_variable(S(print_right_margin),NIL);     # *PRINT-RIGHT-MARGIN* := NIL
         define_variable(S(print_rpars),NIL);            # *PRINT-RPARS* := NIL
         define_variable(S(print_indent_lists),fixnum(1)); # *PRINT-INDENT-LISTS* := 1
-        define_variable(S(print_pretty_fill),NIL);      # *PRINT-PRETTY-FILL* := NIL
         define_variable(S(print_circle_table),unbound); # SYS::*PRINT-CIRCLE-TABLE*
         define_variable(S(prin_level),unbound);         # SYS::*PRIN-LEVEL*
-        define_variable(S(prin_lines),unbound);         # SYS::*PRIN-LINES*
         define_variable(S(prin_stream),unbound);        # SYS::*PRIN-STREAM*
         define_variable(S(prin_linelength),fixnum(79)); # SYS::*PRIN-LINELENGTH* := 79 (vorläufig)
         define_variable(S(prin_l1),unbound);            # SYS::*PRIN-L1*
@@ -1255,16 +1423,10 @@
         define_variable(S(prin_jbstrings),unbound);     # SYS::*PRIN-JBSTRINGS*
         define_variable(S(prin_jbmodus),unbound);       # SYS::*PRIN-JBMODUS*
         define_variable(S(prin_jblpos),unbound);        # SYS::*PRIN-JBLPOS*
-        define_variable(S(terminal_read_open_object),unbound); # SYS::*TERMINAL-READ-OPEN-OBJECT*
-        define_variable(S(terminal_read_stream),unbound); # SYS::*TERMINAL-READ-STREAM*
         define_variable(S(pprint_first_newline),T);     # CUSTOM:*PPRINT-FIRST-NEWLINE*
         define_variable(S(print_symbols_long),NIL);     # CUSTOM:*PRINT-SYMBOLS-LONG*
         define_variable(S(print_pathnames_ansi),NIL);   # CUSTOM:*PRINT-PATHNAMES-ANSI*
         define_variable(S(parse_namestring_ansi),NIL);  # CUSTOM:*PARSE-NAMESTRING-ANSI*
-        define_variable(S(deftype_depth_limit),NIL);    # CUSTOM:*DEFTYPE-DEPTH-LIMIT*
-        #ifdef WIN32_NATIVE
-        define_variable(S(device_prefix),NIL); # CUSTOM:*DEVICE-PREFIX*
-        #endif
         # zu EVAL:
         define_variable(S(evalhookstern),NIL);          # *EVALHOOK* := NIL
         define_variable(S(applyhookstern),NIL);         # *APPLYHOOK* := NIL
@@ -1280,7 +1442,6 @@
         # zu SPVW:
         define_variable(S(init_hooks),NIL);             # SYS::*INIT-HOOKS* := NIL
         define_variable(S(quiet),NIL);                  # SYS::*QUIET* := NIL
-        define_variable(S(args),NIL);                   # EXT:*ARGS* := NIL
         # zu FOREIGN:
         #ifdef DYNAMIC_FFI
         define_constant(S(fv_flag_readonly),fixnum(fv_readonly));  # FFI::FV-FLAG-READONLY
@@ -1319,9 +1480,6 @@
         # *FEATURES* initialisieren:
         { var const char * features_initstring =
             "(:CLISP :ANSI-CL :COMMON-LISP :LISP=CL :INTERPRETER"
-            #ifdef MULTITHREAD
-              " :MT"
-            #endif
             #ifdef SOCKET_STREAMS
               " :SOCKETS"
             #endif
@@ -1330,9 +1488,6 @@
             #endif
             #ifdef LOGICAL_PATHNAMES
               " :LOGICAL-PATHNAMES"
-            #endif
-            #ifdef SCREEN
-              " :SCREEN"
             #endif
             #ifdef DYNAMIC_FFI
               " :FFI"
@@ -1420,10 +1575,10 @@
         init_subr_tab_2();
         # Packages initialisieren:
         init_packages();
-        init_encodings_1(); # init some encodings (utf_8 for init_symbol_tab_2)
         # symbol_tab fertig initialisieren:
         init_symbol_tab_2();
-        init_encodings_2(); # init the rest of encodings
+        # Encodings initialisieren:
+        init_encodings();
         # SUBRs/FSUBRs in ihre Symbole eintragen:
         init_symbol_functions();
         # Konstanten/Variablen: Wert in die Symbole eintragen:
@@ -1503,7 +1658,9 @@
       }
 
 # print usage and exit
-nonreturning_function (local, usage, (int exit_code)) {
+nonreturning_function (local, usage, (int exit_code));
+local void usage (int exit_code)
+{
   asciz_out(GETTEXTL("GNU CLISP (http://clisp.cons.org/) is an ANSI Common Lisp." NLstring
                      "Usage:  "));
   asciz_out(program_name);
@@ -1552,8 +1709,9 @@ nonreturning_function (local, usage, (int exit_code)) {
 }
 
 # print license and exit
-nonreturning_function (local, print_license, (void)) {
-  local const char * const license [] = {
+nonreturning_function (local, print_license, (void));
+local void print_license (void)
+{ local const char * const license [] = {
     "This program is free software; you can redistribute it and/or modify" NLstring,
     "it under the terms of the GNU General Public License as published by" NLstring,
     "the Free Software Foundation; either version 2, or (at your option)"  NLstring,
@@ -1600,7 +1758,7 @@ local void print_banner ()
    "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993" NLstring,
    "Copyright (c) Bruno Haible, Marcus Daniels 1994-1997" NLstring,
    "Copyright (c) Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998" NLstring,
-   "Copyright (c) Bruno Haible, Sam Steingold 1999-2002" NLstring,
+   "Copyright (c) Bruno Haible, Sam Steingold 1999-2001" NLstring,
   };
   #ifdef AMIGA
   var const char * banner2 =
@@ -1682,8 +1840,8 @@ local void print_banner ()
       # Disable save/restore of floating-point registers in setjmp(), longjmp().
       # This gives a substantial performance increase, especially in the
       # interpreter. However, it is extremely hairy: It relies on the fact
-      # that we do not use floating-point operations (except possibly in ffloat.d
-      # or dfloat.d - where we do not use longjmp() and do not call any C code
+      # that we don't use floating-point operations (except possibly in ffloat.d
+      # or dfloat.d - where we don't use longjmp() and don't call any C code
       # which could perform a longjmp()). This optimization is not possible
       # if we intend to call foreign functions (and maybe longjmp out of a
       # Lisp callback, thus unwinding the stack of a C function which uses
@@ -1719,7 +1877,7 @@ local void print_banner ()
       #ifdef MULTIMAP_MEMORY_VIA_FILE
       var local char* argv_tmpdir = NULL;
       #endif
-      var local char* argv_lisplibdir;
+      extern char* argv_lisplibdir;
       var local bool argv_wide = false; # for backward compatibility
       var local char* argv_memfile = NULL;
       var local bool argv_load_compiling = false;
@@ -1732,7 +1890,7 @@ local void print_banner ()
       typedef struct { char* input_file; char* output_file; } argv_compile_file;
       var local argv_compile_file* argv_compile_files;
       var local char* argv_package = NULL;
-      var local int argv_ansi = 0; # 0: default; 1: ANSI; 2: traditional
+      var local bool argv_ansi = false;
       var local char* argv_expr = NULL;
       var local char* argv_execute_file = NULL;
       var local char** argv_execute_args = NULL;
@@ -1787,257 +1945,239 @@ local void print_banner ()
       var enum { for_exec, for_init, for_compile } argv_for = for_exec;
       # Durchlaufen und Optionen abarbeiten, alles Abgearbeitete durch NULL
       # ersetzen:
-      while (argptr < argptr_limit) {
-        var char* arg = *argptr++; # nächstes Argument
-        if ((arg[0] == '-') && !(arg[1] == '\0')) {
-          switch (arg[1]) {
-            case 'h': # Help
-              usage ((arg[2] != 0));
-              # Liefert nach einem einbuchstabigen Kürzel den Rest der
-              # Option in arg. Evtl. Space wird übergangen.
-              #define OPTION_ARG                                             \
-                if (arg[2] == '\0') {                                        \
-                 if (argptr < argptr_limit) arg = *argptr++; else usage (1); \
-                } else { arg = &arg[2]; }
-              # Parst den Rest einer Option, die eine Byte-Größe angibt.
-              # Überprüft auch, ob gewisse Grenzen eingehalten werden.
-              #define SIZE_ARG(docstring,sizevar,limit_low,limit_high)       \
-                 # arg sollte aus einigen Dezimalstellen, dann               \
-                 # evtl. K oder M, dann evtl. B oder W bestehen.             \
-                 {var uintL val = 0;                                         \
-                  while ((*arg >= '0') && (*arg <= '9'))                     \
-                    val = 10*val + (uintL)(*arg++ - '0');                    \
-                  switch (*arg) {                                            \
-                    case 'k': case 'K': # Angabe in Kilobytes                \
-                      val = val * 1024; arg++; break;                        \
-                    case 'm': case 'M': # Angabe in Megabytes                \
-                      val = val * 1024*1024; arg++; break;                   \
-                  }                                                          \
-                  switch (*arg) {                                            \
-                    case 'w': case 'W': # Angabe in Worten                   \
-                      val = val * sizeof(object);                            \
-                    case 'b': case 'B': # Angabe in Bytes                    \
-                      arg++; break;                                          \
-                  }                                                          \
-                  if (!(*arg == '\0')) { # Argument zu Ende?                 \
-                    asciz_out_s(GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB" NLstring), docstring); \
-                    usage (1);                                               \
-                  }                                                          \
-                  if (!((val >= limit_low) && (val <= limit_high))) {        \
-                    asciz_out_s(GETTEXTL("%s out of range" NLstring),        \
-                                docstring);                                  \
-                    usage (1);                                               \
-                  }                                                          \
-                  # Bei mehreren -m bzw. -s Argumenten zählt nur das letzte. \
-                  sizevar = val;                                             \
-                 }
-            case 'm': # Memory size
-             #ifdef WIN32_NATIVE
-              if (arg[2]=='m' && arg[3]=='\0') # "-mm" -> print a memory map
-                { DumpProcessMemoryMap(); quit_sofort(1); }
-             #endif
-              OPTION_ARG;
-              SIZE_ARG(GETTEXTL("memory size"),
-                       argv_memneed,100000,
-                       (oint_addr_len+addr_shift < intLsize-1 # memory size begrenzt durch
-                        ? bitm(oint_addr_len+addr_shift)      # Adressraum in oint_addr_len+addr_shift Bits
-                        : (uintL)bit(intLsize-1)-1            # (bzw. große Dummy-Grenze)
-                        ))
-                break;
-           #ifndef NO_SP_MALLOC
-            case 's': # Stack size
-              OPTION_ARG;
-              SIZE_ARG(GETTEXTL("stack size"),
-                       argv_stackneed,40000,8*1024*1024)
-                break;
-           #endif
-           #ifdef MULTIMAP_MEMORY_VIA_FILE
-            case 't': # temporäres Directory
-              OPTION_ARG;
-              if (!(argv_tmpdir == NULL)) usage (1);
-              argv_tmpdir = arg;
-              break;
-           #endif
-            case 'B': # lisplibdir
-              OPTION_ARG;
-              if (!(argv_lisplibdir == NULL)) usage (1);
-              argv_lisplibdir = arg;
-              break;
-            case 'W': # WIDE-Version wählen, for backward compatibility
-              argv_wide = true;
-              if (!(arg[2] == '\0')) usage (1);
-              break;
-            case 'n':
-              if (asciz_equal(arg,"-norc"))
-                argv_norc = true;
-              else
-                usage (1);
-              break;
-           #ifdef UNIX
-            case 'K': # linKing set
-              OPTION_ARG;
-              # This option has already been digested by clisp.c.
-              # We can ignore it.
-              break;
-           #endif
-            case 'M': # MEM-File
-              OPTION_ARG;
-              # Bei mehreren -M Argumenten zählt nur das letzte.
-              argv_memfile = arg;
-              break;
-            case 'L': # Language
-              OPTION_ARG;
-              # Bei mehreren -L Argumenten zählt nur das letzte.
-              argv_language = arg;
-              break;
-            case 'N': # NLS-Directory
-              OPTION_ARG;
-              # Bei mehreren -N Argumenten zählt nur das letzte.
-              argv_localedir = arg;
-              break;
-            case 'E': # encoding
-              if (!(argptr < argptr_limit)) usage(1);
-              if (asciz_equal(&arg[2],"file"))
-                argv_encoding_file = *argptr++;
-              else if (asciz_equal(&arg[2],"pathname"))
-                argv_encoding_pathname = *argptr++;
-              else if (asciz_equal(&arg[2],"terminal"))
-                argv_encoding_terminal = *argptr++;
-              else if (asciz_equal(&arg[2],"foreign"))
-                argv_encoding_foreign = *argptr++;
-              else if (asciz_equal(&arg[2],"misc"))
-                argv_encoding_misc = *argptr++;
-              else
-                usage(1);
-              break;
-            case 'q': # keine Copyright-Meldung
-              argv_quiet = true;
-              if (!(arg[2] == '\0')) usage (1);
-              break;
-            case 'I': # ILISP-fiendly
-              ilisp_mode = true;
-              if (!(arg[2] == '\0')) usage (1);
-              break;
-            case 'C': # set *LOAD-COMPILING*
-              argv_load_compiling = true;
-              if (!(arg[2] == '\0')) usage (1);
-              break;
-            case 'i': # initialization files
-              argv_for = for_init;
-              if (!(arg[2] == '\0')) usage (1);
-              break;
-            case 'c': # Zu compilierende Files
-              argv_compile = true;
-              argv_for = for_compile;
-              if (arg[2] == 'l') {
-                argv_compile_listing = true;
-                if (!(arg[3] == '\0')) usage (1);
-              } else {
-                if (!(arg[2] == '\0')) usage (1);
-              }
-              break;
-            case 'l': # Compilate und Listings
-              argv_compile_listing = true;
-              if (!(arg[2] == '\0')) usage (1);
-              break;
-            case 'o': # Ziel für zu compilierendes File
-              if (!(arg[2] == '\0')) usage (1);
-              OPTION_ARG;
-              if (!((argv_compile_filecount > 0) &&
-                    (argv_compile_files[argv_compile_filecount-1].output_file==NULL)))
-                usage (1);
-              argv_compile_files[argv_compile_filecount-1].output_file = arg;
-              break;
-            case 'p': # Package
-              OPTION_ARG;
-              # Bei mehreren -p Argumenten zählt nur das letzte.
-              argv_package = arg;
-              break;
-            case 'a': # ANSI CL Compliance
-              if (asciz_equal(arg,"-ansi"))
-                argv_ansi = 1; # ANSI
-              else if (!(arg[2] == '\0')) usage (1);
-              else {
-                asciz_out(GETTEXTL("CLISP: -a is deprecated, use -ansi"
-                                   NLstring));
-                argv_ansi = 1; # ANSI
-              }
-              break;
-            case 't': # traditional
-              if (asciz_equal(arg,"-traditional"))
-                argv_ansi = 2; # traditional
-              else usage(1);
-              break;
-            case 'x': # LISP-Expression ausführen
-              OPTION_ARG
-                if (!(argv_expr == NULL)) usage (1);
-              argv_expr = arg;
-              break;
-            case 'w': # wait for keypress after termination
-              argv_wait_keypress = true;
-              if (!(arg[2] == '\0')) usage (1);
-              break;
-            case '-': # -- GNU-style long options
-              if (asciz_equal(&arg[2],"help"))
-                usage (0);
-              else if (asciz_equal(&arg[2],"version")) {
-                if (!(argv_expr == NULL)) usage (1);
-                argv_quiet = true;
-                argv_norc = true;
-                argv_expr = "(PROGN (PRINC \"GNU CLISP \") (PRINC (LISP-IMPLEMENTATION-VERSION)) (TERPRI) (PRINC \"Features"
-                #ifdef DEBUG_SPVW
-                  " [SAFETY=" STRINGIFY(SAFETY)
-                 #ifdef TYPECODES
-                  " TYPECODES"
-                 #endif
-                 #ifdef WIDE
-                  " WIDE"
-                 #endif
-                 #ifdef GENERATIONAL_GC
-                  " GENERATIONAL_GC"
-                 #endif
-                  "]"
-                #endif
-                  ": \") (PRINC *FEATURES*) (SYS::%EXIT))";
-                break;
-              } else if (asciz_equal(&arg[2],"quiet")
-                         || asciz_equal(&arg[2],"silent")) {
-                argv_quiet = true; break;
-              } else if (asciz_equal(&arg[2],"license")) {
-                argv_license = true; break;
-              } else
-                usage (1); # unknown option
-              break;
-            default: # unknown option
-              usage (1);
-          }
-        } else {
-          # keine Option,
-          # wird als zu ladendes / zu compilierendes / auszuführendes File
-          # interpretiert.
-          switch (argv_for) {
-            case for_init:
-              argv_init_files[argv_init_filecount++] = arg; break;
-            case for_compile:
-              argv_compile_files[argv_compile_filecount].input_file = arg;
-              argv_compile_files[argv_compile_filecount].output_file = NULL;
-              argv_compile_filecount++;
-              break;
-            case for_exec:
-              argv_execute_file = arg;
-              # Alle weiteren Argumente sind Argumente zu argv_execute_file.
-              argv_execute_args = argptr;
-              argv_execute_arg_count = argptr_limit - argptr;
-              # Simulate -norc. Batch scripts should be executed in an
-              # environment which does not depend on files in $HOME, for
-              # maximum portability.
-              argv_norc = true;
-              argptr = argptr_limit; # Schleife abbrechen
-              break;
-            default: NOTREACHED;
-          }
+      while (argptr < argptr_limit)
+        { var char* arg = *argptr++; # nächstes Argument
+          if ((arg[0] == '-') && !(arg[1] == '\0'))
+            { switch (arg[1])
+                { case 'h': # Help
+                    usage ((arg[2] != 0));
+                  # Liefert nach einem einbuchstabigen Kürzel den Rest der
+                  # Option in arg. Evtl. Space wird übergangen.
+                  #define OPTION_ARG  \
+                    if (arg[2] == '\0') \
+                      { if (argptr < argptr_limit) arg = *argptr++; else usage (1); } \
+                      else { arg = &arg[2]; }
+                  # Parst den Rest einer Option, die eine Byte-Größe angibt.
+                  # Überprüft auch, ob gewisse Grenzen eingehalten werden.
+                  #define SIZE_ARG(docstring,sizevar,limit_low,limit_high)  \
+                    # arg sollte aus einigen Dezimalstellen, dann   \
+                    # evtl. K oder M, dann evtl. B oder W bestehen. \
+                    {var uintL val = 0;                             \
+                     while ((*arg >= '0') && (*arg <= '9'))         \
+                       { val = 10*val + (uintL)(*arg++ - '0'); }    \
+                     switch (*arg)                                  \
+                       { case 'k': case 'K': # Angabe in Kilobytes  \
+                           val = val * 1024; arg++; break;          \
+                         case 'm': case 'M': # Angabe in Megabytes  \
+                           val = val * 1024*1024; arg++; break;     \
+                       }                                            \
+                     switch (*arg)                                  \
+                       { case 'w': case 'W': # Angabe in Worten     \
+                           val = val * sizeof(object);              \
+                         case 'b': case 'B': # Angabe in Bytes      \
+                           arg++; break;                            \
+                       }                                            \
+                     if (!(*arg == '\0')) # Argument zu Ende?       \
+                       { asciz_out_s(GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB" NLstring), docstring); \
+                         usage (1);                                 \
+                       }                                            \
+                     if (!((val >= limit_low) && (val <= limit_high))) \
+                       { asciz_out_s(GETTEXTL("%s out of range" NLstring), docstring); \
+                         usage (1);                                 \
+                       }                                            \
+                     # Bei mehreren -m bzw. -s Argumenten zählt nur das letzte. \
+                     sizevar = val;                                 \
+                    }
+                  case 'm': # Memory size
+                    #ifdef WIN32_NATIVE
+                    if (arg[2]=='m' && arg[3]=='\0') # "-mm" -> print a memory map
+                      { DumpProcessMemoryMap(); quit_sofort(1); }
+                    #endif
+                    OPTION_ARG
+                    SIZE_ARG(GETTEXTL("memory size"),
+                             argv_memneed,100000,
+                             (oint_addr_len+addr_shift < intLsize-1 # memory size begrenzt durch
+                              ? bitm(oint_addr_len+addr_shift)      # Adressraum in oint_addr_len+addr_shift Bits
+                              : (uintL)bit(intLsize-1)-1            # (bzw. große Dummy-Grenze)
+                            ))
+                    break;
+                  #ifndef NO_SP_MALLOC
+                  case 's': # Stack size
+                    OPTION_ARG
+                    SIZE_ARG(GETTEXTL("stack size"),
+                             argv_stackneed,40000,8*1024*1024)
+                    break;
+                  #endif
+                  #ifdef MULTIMAP_MEMORY_VIA_FILE
+                  case 't': # temporäres Directory
+                    OPTION_ARG
+                    if (!(argv_tmpdir == NULL)) usage (1);
+                    argv_tmpdir = arg;
+                    break;
+                  #endif
+                  case 'B': # lisplibdir
+                    OPTION_ARG
+                    if (!(argv_lisplibdir == NULL)) usage (1);
+                    argv_lisplibdir = arg;
+                    break;
+                  case 'W': # WIDE-Version wählen, for backward compatibility
+                    argv_wide = true;
+                    if (!(arg[2] == '\0')) usage (1);
+                    break;
+                  case 'n':
+                    if (asciz_equal(arg,"-norc"))
+                      argv_norc = true;
+                    else
+                      usage (1);
+                    break;
+                  #ifdef UNIX
+                  case 'K': # linKing set
+                    OPTION_ARG
+                    # This option has already been digested by clisp.c.
+                    # We can ignore it.
+                    break;
+                  #endif
+                  case 'M': # MEM-File
+                    OPTION_ARG
+                    # Bei mehreren -M Argumenten zählt nur das letzte.
+                    argv_memfile = arg;
+                    break;
+                  case 'L': # Language
+                    OPTION_ARG
+                    # Bei mehreren -L Argumenten zählt nur das letzte.
+                    argv_language = arg;
+                    break;
+                  case 'N': # NLS-Directory
+                    OPTION_ARG
+                    # Bei mehreren -N Argumenten zählt nur das letzte.
+                    argv_localedir = arg;
+                    break;
+                  case 'E': # encoding
+                    if (!(argptr < argptr_limit)) usage(1);
+                    if (asciz_equal(&arg[2],"file"))
+                      argv_encoding_file = *argptr++;
+                    elif (asciz_equal(&arg[2],"pathname"))
+                      argv_encoding_pathname = *argptr++;
+                    elif (asciz_equal(&arg[2],"terminal"))
+                      argv_encoding_terminal = *argptr++;
+                    elif (asciz_equal(&arg[2],"foreign"))
+                      argv_encoding_foreign = *argptr++;
+                    elif (asciz_equal(&arg[2],"misc"))
+                      argv_encoding_misc = *argptr++;
+                    else
+                      usage(1);
+                    break;
+                  case 'q': # keine Copyright-Meldung
+                    argv_quiet = true;
+                    if (!(arg[2] == '\0')) usage (1);
+                    break;
+                  case 'I': # ILISP-freundlich
+                    ilisp_mode = true;
+                    if (!(arg[2] == '\0')) usage (1);
+                    break;
+                  case 'C': # *LOAD-COMPILING* setzen
+                    argv_load_compiling = true;
+                    if (!(arg[2] == '\0')) usage (1);
+                    break;
+                  case 'i': # Initialisierungs-Files
+                    argv_for = for_init;
+                    if (!(arg[2] == '\0')) usage (1);
+                    break;
+                  case 'c': # Zu compilierende Files
+                    argv_compile = true;
+                    argv_for = for_compile;
+                    if (arg[2] == 'l')
+                      { argv_compile_listing = true;
+                        if (!(arg[3] == '\0')) usage (1);
+                      }
+                      else
+                      { if (!(arg[2] == '\0')) usage (1); }
+                    break;
+                  case 'l': # Compilate und Listings
+                    argv_compile_listing = true;
+                    if (!(arg[2] == '\0')) usage (1);
+                    break;
+                  case 'o': # Ziel für zu compilierendes File
+                    if (!(arg[2] == '\0')) usage (1);
+                    OPTION_ARG
+                    if (!((argv_compile_filecount > 0) && (argv_compile_files[argv_compile_filecount-1].output_file==NULL))) usage (1);
+                    argv_compile_files[argv_compile_filecount-1].output_file = arg;
+                    break;
+                  case 'p': # Package
+                    OPTION_ARG
+                    # Bei mehreren -p Argumenten zählt nur das letzte.
+                    argv_package = arg;
+                    break;
+                  case 'a': # ANSI CL Compliance
+                    if (asciz_equal(arg,"-ansi")) argv_ansi = true;
+                    else if (!(arg[2] == '\0')) usage (1);
+                    else {
+                      asciz_out(GETTEXTL("CLISP: -a is deprecated, use -ansi"
+                                         NLstring));
+                      argv_ansi = true;
+                    }
+                    break;
+                  case 't': # traditional
+                    if (asciz_equal(arg,"-traditional")) argv_ansi = false;
+                    else usage(1);
+                    break;
+                  case 'x': # LISP-Expression ausführen
+                    OPTION_ARG
+                    if (!(argv_expr == NULL)) usage (1);
+                    argv_expr = arg;
+                    break;
+                  case 'w': # wait for keypress after termination
+                    argv_wait_keypress = true;
+                    if (!(arg[2] == '\0')) usage (1);
+                    break;
+                  case '-': # -- GNU-style long options
+                    if (asciz_equal(&arg[2],"help"))
+                      usage (0);
+                    elif (asciz_equal(&arg[2],"version"))
+                      { if (!(argv_expr == NULL)) usage (1);
+                        argv_quiet = true;
+                        argv_norc = true;
+                        argv_expr = "(PROGN (PRINC \"GNU CLISP \") (PRINC (LISP-IMPLEMENTATION-VERSION)) (SYS::%EXIT))";
+                        break;
+                      }
+                    elif (asciz_equal(&arg[2],"quiet")
+                          || asciz_equal(&arg[2],"silent"))
+                      { argv_quiet = true; break; }
+                    elif (asciz_equal(&arg[2],"license"))
+                      { argv_license = true; break; }
+                    else
+                      usage (1); # unknown option
+                    break;
+                  default: # unknown option
+                    usage (1);
+            }   }
+            else
+            # keine Option,
+            # wird als zu ladendes / zu compilierendes / auszuführendes File
+            # interpretiert.
+            { switch (argv_for)
+                { case for_init:
+                    argv_init_files[argv_init_filecount++] = arg; break;
+                  case for_compile:
+                    argv_compile_files[argv_compile_filecount].input_file = arg;
+                    argv_compile_files[argv_compile_filecount].output_file = NULL;
+                    argv_compile_filecount++;
+                    break;
+                  case for_exec:
+                    argv_execute_file = arg;
+                    # Alle weiteren Argumente sind Argumente zu argv_execute_file.
+                    argv_execute_args = argptr;
+                    argv_execute_arg_count = argptr_limit - argptr;
+                    # Simulate -norc. Batch scripts should be executed in an
+                    # environment which doesn't depend on files in $HOME, for
+                    # maximum portability.
+                    argv_norc = true;
+                    argptr = argptr_limit; # Schleife abbrechen
+                    break;
+                  default:
+                    NOTREACHED;
+            }   }
         }
-      }
       # Optionen semantisch überprüfen und Defaults eintragen:
       if (argv_memneed == 0)
         #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && defined(GENERATIONAL_GC)
@@ -2168,7 +2308,7 @@ local void print_banner ()
       #endif
       #if defined(TRIVIALMAP_MEMORY) && defined(WIN32_NATIVE)
       # Somehow the RESERVE_FOR_MALLOC limit for mallocs after prepare_zeromap() seems
-      # also to encompass the mallocs before prepare_zeromap(). Do not know why.
+      # also to encompass the mallocs before prepare_zeromap(). Don't know why.
       if (memneed > RESERVE_FOR_MALLOC*3/4) { memneed = RESERVE_FOR_MALLOC*3/4; }
       #endif
       #if defined(MULTIMAP_MEMORY_VIA_SHM) && (defined(UNIX_SUNOS4) || defined(UNIX_SUNOS5))
@@ -2435,7 +2575,7 @@ local void print_banner ()
             # page is 0x32000-0x32FFF, hence we can set SP_bound = 0x34000.
             { var MEMORY_BASIC_INFORMATION info;
               if (!(VirtualQuery((void*)SP(),&info,sizeof(info)) == sizeof(info)))
-                { asciz_out(GETTEXTL("Could not determine the end of the SP stack!" NLstring));
+                { asciz_out(GETTEXTL("Couldn't determine the end of the SP stack!" NLstring));
                   SP_bound = 0;
                 }
                 else
@@ -2545,8 +2685,7 @@ local void print_banner ()
         else
         # Speicherfile laden:
         { loadmem(argv_memfile); }
-      # init O(current_language)
-      O(current_language) = current_language_o(language);
+      init_other_modules_2(); # die noch uninitialisierten Module initialisieren
       # aktuelle Evaluator-Environments auf den Toplevel-Wert setzen:
       aktenv.var_env   = NIL;
       aktenv.fun_env   = NIL;
@@ -2631,7 +2770,6 @@ local void print_banner ()
       init_ffi();
       #endif
       # Modul-Initialisierungen:
-      init_other_modules_2();
       { var module_* module; # modules durchgehen
         for_modules(all_other_modules,
           { if (module->initfunction2)
@@ -2654,32 +2792,33 @@ local void print_banner ()
         { argv_quiet = true; } # verhindert die Begrüßung
       if (!argv_quiet || argv_license) print_banner();
       if (argv_license) print_license();
-      if ((argv_memfile == NULL) && (argv_expr == NULL)) {
+      if ((argv_memfile == NULL) && (argv_expr == NULL))
         # Warning for beginners
-        pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
-        write_sstring(&STACK_0,CLSTEXT(NLstring "WARNING: No initialization file specified." NLstring));
-        write_sstring(&STACK_0,CLSTEXT("Please try: "));
-        write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
-       #ifdef RISCOS
-        write_string(&STACK_0,ascii_to_string(" -M mem.lispinit" NLstring));
-       #else
-        write_string(&STACK_0,ascii_to_string(" -M lispinit.mem" NLstring));
-       #endif
-        skipSTACK(1);
-      }
-      if (argv_lisplibdir == NULL) {
-        if (nullp(O(lib_dir))) {
-          # Warning for beginners and careless developers
-          pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # on *STANDARD-OUTPUT*
-          write_sstring(&STACK_0,CLSTEXT(NLstring "WARNING: No installation directory specified." NLstring));
-          write_sstring(&STACK_0,CLSTEXT("Please try: "));
+        { pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # auf *STANDARD-OUTPUT*
+          write_sstring(&STACK_0,
+            asciz_to_string(GETTEXTL(NLstring "WARNING: No initialisation file specified." NLstring),
+                            O(internal_encoding)
+                           ));
+          write_sstring(&STACK_0,
+            asciz_to_string(GETTEXTL("Please try: "),
+                            O(internal_encoding)
+                           ));
           write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
-          write_string(&STACK_0,ascii_to_string(" -B /usr/local/lib/clisp" NLstring));
+          #ifdef RISCOS
+          write_string(&STACK_0,ascii_to_string(" -M mem.lispinit" NLstring));
+          #else
+          write_string(&STACK_0,ascii_to_string(" -M lispinit.mem" NLstring));
+          #endif
           skipSTACK(1);
         }
-      } else { # set it
-        pushSTACK(asciz_to_string(argv_lisplibdir,O(pathname_encoding)));
-        funcall(L(set_lib_directory),1);
+      if (argv_lisplibdir == NULL) {
+        # Warning for beginners and careless developers
+        pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # on *STANDARD-OUTPUT*
+        write_sstring(&STACK_0,asciz_to_string(GETTEXT(NLstring "WARNING: No installation directory specified." NLstring),O(internal_encoding)));
+        write_sstring(&STACK_0,asciz_to_string(GETTEXT("Please try: "),O(internal_encoding)));
+        write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
+        write_string(&STACK_0,ascii_to_string(" -B /usr/local/lib/clisp" NLstring));
+        skipSTACK(1);
       }
       if (argv_compile || !(argv_expr == NULL) || !(argv_execute_file == NULL))
         # '-c' oder '-x' oder file angegeben -> LISP läuft im Batch-Modus:
@@ -2691,13 +2830,12 @@ local void print_banner ()
          {var object stream = var_stream(S(query_io),strmflags_wr_ch_B);
           Symbol_value(S(debug_io)) = make_twoway_stream(popSTACK(),stream);
         }}
-      switch (argv_ansi) {
-        case 1: # Maximum ANSI CL compliance, even where it hurts.
-          pushSTACK(T); funcall(L(set_ansi),1); break;
-        case 2: # traditional CLISP behavior
-          pushSTACK(NIL); funcall(L(set_ansi),1); break;
-        default: # use the settings from the memory image
-          break;
+      if (argv_ansi) {
+        # Maximum ANSI CL compliance, even where it hurts.
+        pushSTACK(T); funcall(L(set_ansi),1);
+      } else {
+        # traditional CLISP behavior
+        pushSTACK(NIL); funcall(L(set_ansi),1);
       }
       if (argv_package != NULL) {
         # (IN-PACKAGE packagename)
@@ -2707,9 +2845,9 @@ local void print_banner ()
           Symbol_value(S(packagestern)) = package;
         } else {
           pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
-          write_sstring(&STACK_0,CLSTEXT(NLstring "WARNING: no such package: "));
+          write_sstring(&STACK_0,asciz_to_string(GETTEXT(NLstring "WARNING: no such package: "),O(internal_encoding)));
           write_sstring(&STACK_0,packname);
-          terpri(&STACK_0);
+          write_sstring(&STACK_0,asciz_to_string(NLstring,O(internal_encoding)));
           skipSTACK(1);
         }
       }
@@ -2827,22 +2965,22 @@ local void print_banner ()
         # )
         # durchführen:
         {
-          #if defined(UNIX) || defined(WIN32_NATIVE)
+          #ifdef UNIX
           # Make clisp ignore the leading #! line.
           pushSTACK(ascii_char('#')); pushSTACK(ascii_char('!'));
           pushSTACK(L(unix_executable_reader));
           funcall(L(set_dispatch_macro_character),3);
           #endif
           Symbol_value(S(load_verbose)) = NIL;
-          if (argv_execute_arg_count > 0) {
-            var char** argsptr = argv_execute_args;
-            var uintL count;
-            dotimespL(count,argv_execute_arg_count,
-              { pushSTACK(asciz_to_string(*argsptr++,O(misc_encoding))); });
+          { if (argv_execute_arg_count > 0)
+              { var char** argsptr = argv_execute_args;
+                var uintL count;
+                dotimespL(count,argv_execute_arg_count,
+                  { pushSTACK(asciz_to_string(*argsptr++,O(misc_encoding))); });
+              }
+            define_variable(S(args),listof(argv_execute_arg_count));
           }
-          Symbol_value(S(args)) = listof(argv_execute_arg_count);
-          if (!asciz_equal(argv_execute_file,"")) {
-            var object form;
+          { var object form;
             pushSTACK(S(load));
             if (asciz_equal(argv_execute_file,"-")) {
               pushSTACK(S(standard_input)); # *STANDARD-INPUT*
@@ -2862,8 +3000,8 @@ local void print_banner ()
             pushSTACK(S(batchmode_errors)); pushSTACK(form);
             form = listof(2); # `(SYS::BATCHMODE-ERRORS (LOAD "..."))
             eval_noenv(form); # ausführen
-            quit();
           }
+          quit();
         }
       if (!(argv_expr == NULL))
         {
@@ -2872,7 +3010,7 @@ local void print_banner ()
           funcall(L(make_string_input_stream),1);
           Symbol_value(S(standard_input)) = value1;
           # During bootstrapping, *DRIVER* has no value and SYS::BATCHMODE-ERRORS
-          # is undefined. Do not set an error handler in that case.
+          # is undefined. Don't set an error handler in that case.
           if (!nullp(Symbol_value(S(driverstern))))
             {
               # (PROGN
@@ -2922,53 +3060,54 @@ local void print_banner ()
     }}
 
 # LISP-Interpreter verlassen
-# quit();
 # > final_exitcode: 0 bei normalem Ende, 1 bei Abbruch
+  nonreturning_function(global, quit, (void));
   global bool final_exitcode = 0;
   local int quit_retry = 0;
-  nonreturning_function(global, quit, (void)) {
-    # Erst den STACK bis STACK-Ende "unwinden":
-    value1 = NIL; mv_count=0; # Bei UNWIND-PROTECT-Frames keine Werte retten
-    unwind_protect_to_save.fun = (restart)&quit;
-    loop
-      { # Hört der STACK hier auf?
-        if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) break;
-        if (framecode(STACK_0) & bit(frame_bit_t))
-          # Bei STACK_0 beginnt ein Frame
-          { unwind(); } # Frame auflösen
-          else
-          # STACK_0 enthält ein normales LISP-Objekt
-          { skipSTACK(1); }
-      }
-    # Dann eine Abschiedsmeldung:
-    if (quit_retry==0)
-      { quit_retry++; # If this fails, do not retry it. For robustness.
-        funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
-        if (!argv_quiet) {
-          pushSTACK(CLSTEXT("Bye.")); funcall(L(write_line),1);
+  global void quit()
+    { # Erst den STACK bis STACK-Ende "unwinden":
+      value1 = NIL; mv_count=0; # Bei UNWIND-PROTECT-Frames keine Werte retten
+      unwind_protect_to_save.fun = (restart)&quit;
+      loop
+        { # Hört der STACK hier auf?
+          if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) break;
+          if (framecode(STACK_0) & bit(frame_bit_t))
+            # Bei STACK_0 beginnt ein Frame
+            { unwind(); } # Frame auflösen
+            else
+            # STACK_0 enthält ein normales LISP-Objekt
+            { skipSTACK(1); }
         }
-        pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B)); # Stream *ERROR-OUTPUT*
-        funcall(L(fresh_line),1); # (FRESH-LINE *error-output*)
-      }
-    # Then wait for a keypress:
-    if (argv_wait_keypress) {
-      argv_wait_keypress = false; # If this fails, do not retry it (robustness)
-      pushSTACK(CLSTEXT("Press a key to terminate..."));
-      funcall(L(write_line),1);
-      funcall(S(wait_keypress),0); # (SYS::WAIT-KEYPRESS)
+      # Dann eine Abschiedsmeldung:
+      if (quit_retry==0)
+        { quit_retry++; # If this fails, don't retry it. For robustness.
+          funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
+          if (!argv_quiet)
+            { # (WRITE-LINE "Bye." [*standard-output*]) :
+              pushSTACK(OLS(bye_string)); funcall(L(write_line),1);
+            }
+          pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B)); # Stream *ERROR-OUTPUT*
+          funcall(L(fresh_line),1); # (FRESH-LINE *error-output*)
+        }
+      # Then wait for a keypress:
+      if (argv_wait_keypress)
+        { argv_wait_keypress = false; # If this fails, don't retry it. For robustness.
+          # (WRITE-LINE "Press a key." [*standard-output*]) :
+          pushSTACK(OLS(keypress_string)); funcall(L(write_line),1);
+          funcall(S(wait_keypress),0); # (SYS::WAIT-KEYPRESS)
+        }
+      close_all_files(); # alle Files schließen
+      #ifdef DYNAMIC_FFI
+      exit_ffi(); # FFI herunterfahren
+      #endif
+      #ifdef REXX
+      close_rexx(); # Rexx-Kommunikation herunterfahren
+      #endif
+      #ifdef NEXTAPP
+      nxterminal_exit(); # Terminal-Stream-Kommunikation herunterfahren
+      #endif
+      quit_sofort(final_exitcode); # Programm verlassen
     }
-    close_all_files(); # alle Files schließen
-    #ifdef DYNAMIC_FFI
-    exit_ffi(); # FFI herunterfahren
-    #endif
-    #ifdef REXX
-    close_rexx(); # Rexx-Kommunikation herunterfahren
-    #endif
-    #ifdef NEXTAPP
-    nxterminal_exit(); # Terminal-Stream-Kommunikation herunterfahren
-    #endif
-    quit_sofort(final_exitcode); # Programm verlassen
-  }
 
 # -----------------------------------------------------------------------------
 #                  Speichern und Laden von MEM-Files
@@ -2983,15 +3122,19 @@ local void print_banner ()
 # Attaches a shared library to this process' memory, and attempts to load
 # a number of clisp modules from it.
   global void dynload_modules (const char * library, uintC modcount, const char * const * modnames);
-  nonreturning_function(local, fehler_dlerror, (const char* func, const char* symbol, const char* errstring)) {
-    end_system_call();
-    if (errstring == NULL) { errstring = "Unknown error"; }
-    pushSTACK(asciz_to_string(errstring,O(misc_encoding)));
-    if (!(symbol == NULL)) { pushSTACK(asciz_to_string(symbol,O(internal_encoding))); }
-    pushSTACK(asciz_to_string(func,O(internal_encoding)));
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(error, (symbol == NULL ? "~: ~ -> ~" : "~: ~(~) -> ~"));
-  }
+  nonreturning_function(local, fehler_dlerror, (const char * func, const char * symbol, const char * errstring));
+  local void fehler_dlerror(func,symbol,errstring)
+    var const char * func;
+    var const char * symbol;
+    var const char * errstring;
+    { end_system_call();
+      if (errstring == NULL) { errstring = "Unknown error"; }
+      pushSTACK(asciz_to_string(errstring,O(misc_encoding)));
+      if (!(symbol == NULL)) { pushSTACK(asciz_to_string(symbol,O(internal_encoding))); }
+      pushSTACK(asciz_to_string(func,O(internal_encoding)));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error, (symbol == NULL ? "~: ~ -> ~" : "~: ~(~) -> ~"));
+    }
   global void dynload_modules(library,modcount,modnames)
     var const char * library;
     var uintC modcount;

@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2002-02-25 09:53:14 EST\n"
+"POT-Creation-Date: 2001-03-16 01:24:00 CET\n"
 "PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: German <de@li.org>\n"
@@ -48,13 +48,13 @@ msgstr ""
 msgid "Informative output:\n"
 msgstr ""
 
-msgid " -h, --help    - print this help and exit\n"
+msgid " -h, --help  - print this help and exit\n"
 msgstr ""
 
-msgid " --version     - print the version information\n"
+msgid " --version   - print the version information\n"
 msgstr ""
 
-msgid " --license     - print the licensing information\n"
+msgid " --license   - print the licensing information\n"
 msgstr ""
 
 msgid "Memory image selection:\n"
@@ -66,25 +66,25 @@ msgstr ""
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr ""
 
-msgid " -M memfile    - use this memory image\n"
+msgid " -M memfile  - use this memory image\n"
 msgstr ""
 
-msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgid " -m size     - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
-msgid " -s size       - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
+msgid " -s size     - stack size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr ""
 
-msgid " -t tmpdir     - temporary directory for memmap\n"
+msgid " -t tmpdir   - temporary directory for memmap\n"
 msgstr ""
 
 msgid "Internationalization:\n"
 msgstr ""
 
-msgid " -L language   - set user language\n"
+msgid " -L language - set user language\n"
 msgstr ""
 
-msgid " -N nlsdir     - NLS catalog directory\n"
+msgid " -N nlsdir   - NLS catalog directory\n"
 msgstr ""
 
 msgid " -Edomain encoding - set encoding\n"
@@ -96,31 +96,28 @@ msgstr ""
 msgid " -q, --quiet, --silent - do not print the banner\n"
 msgstr ""
 
-msgid " -w            - wait for keypress after program termination\n"
+msgid " -w          - wait for keypress after program termination\n"
 msgstr ""
 
-msgid " -I            - be ILISP-friendly\n"
+msgid " -I          - be ILISP-friendly\n"
 msgstr ""
 
 msgid "Startup actions:\n"
 msgstr ""
 
-msgid " -ansi         - more ANSI CL compliance\n"
+msgid " -a          - more ANSI CL compliance\n"
 msgstr ""
 
-msgid " -traditional  - traditional (undoes -ansi)\n"
+msgid " -p package  - start in the package\n"
 msgstr ""
 
-msgid " -p package    - start in the package\n"
+msgid " -C          - set *LOAD-COMPILING* to T\n"
 msgstr ""
 
-msgid " -C            - set *LOAD-COMPILING* to T\n"
+msgid " -norc       - do not load the user ~/.clisprc file\n"
 msgstr ""
 
-msgid " -norc         - do not load the user ~/.clisprc file\n"
-msgstr ""
-
-msgid " -i file       - load initfile (can be repeated)\n"
+msgid " -i file     - load initfile (can be repeated)\n"
 msgstr ""
 
 msgid "Actions:\n"
@@ -150,17 +147,24 @@ msgstr "Speichervorrat"
 msgid "stack size"
 msgstr "Stackspeichervorrat"
 
-msgid "CLISP: -a is deprecated, use -ansi\n"
-msgstr ""
-
 msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
 msgstr "Ergebnis von malloc() = %x ist nicht mit der Typcodeverteilung kompatibel.\n"
 
 msgid "Only %d bytes available.\n"
 msgstr "Nur %d Bytes verfügbar.\n"
 
-msgid "Could not determine the end of the SP stack!\n"
+msgid "Couldn't determine the end of the SP stack!\n"
 msgstr "Konnte das Ende des SP-Stacks nicht herausfinden!\n"
+
+msgid ""
+"\n"
+"WARNING: No initialisation file specified.\n"
+msgstr ""
+"\n"
+"WARNUNG: Kein Initialisierungsfile angegeben.\n"
+
+msgid "Please try: "
+msgstr "Versuchen Sie: "
 
 msgid "Not enough memory for Lisp.\n"
 msgstr "Nicht genug Speicher für LISP\n"
@@ -277,19 +281,19 @@ msgstr ""
 msgid "Trying to make room through a GC...\n"
 msgstr "Versuche, durch eine GC Platz zu schaffen...\n"
 
-msgid "operating system error during load of initialization file `%s'\n"
+msgid "operating system error during load of initialisation file `%s'\n"
 msgstr "Betriebssystem-Fehler beim Versuch, das Initialisierungsfile `%s' zu laden.\n"
 
-msgid "Cannot map the initialization file into memory."
+msgid "Cannot map the initialisation file into memory."
 msgstr "Kann das Initialisierungsfile nicht in den Speicher legen."
 
-msgid "operating system error during load of initialization file\n"
+msgid "operating system error during load of initialisation file\n"
 msgstr "Betriebssystem-Fehler beim Versuch, das Initialisierungsfile zu laden.\n"
 
-msgid "initialization file was not created by this version of LISP\n"
+msgid "initialisation file was not created by this version of LISP\n"
 msgstr "Initialisierungsfile wurde nicht von dieser LISP-Version erzeugt.\n"
 
-msgid "not enough memory for initialization\n"
+msgid "not enough memory for initialisation\n"
 msgstr "Speicherplatz reicht für Initialisierung nicht aus.\n"
 
 msgid "Operation not permitted"
@@ -454,7 +458,7 @@ msgstr "Adressen-Familie passt nicht zu diesem Protokoll"
 msgid "Address already in use"
 msgstr "Adresse schon belegt"
 
-msgid "Cannot assign requested address"
+msgid "Can't assign requested address"
 msgstr "Adresse nicht (auf diesem Rechner) verfügbar"
 
 msgid "Network is down"
@@ -481,10 +485,10 @@ msgstr "Socket ist bereits verbunden"
 msgid "Socket is not connected"
 msgstr "Socket hat keine Verbindung"
 
-msgid "Cannot send after socket shutdown"
+msgid "Can't send after socket shutdown"
 msgstr "Shutdown hat den Socket schon deaktiviert"
 
-msgid "Too many references: cannot splice"
+msgid "Too many references: can't splice"
 msgstr ""
 
 msgid "Connection timed out"
@@ -580,18 +584,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -605,7 +597,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -617,11 +608,8 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -647,7 +635,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -659,15 +646,8 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 #, fuzzy
-
-
-
-
-
-
 
 
 
@@ -713,12 +693,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
-
-
-
-
-
 
 
 
@@ -745,7 +719,9 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -759,9 +735,7 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -784,9 +758,7 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -857,7 +829,9 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -878,9 +852,7 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 #, fuzzy
 
@@ -945,7 +917,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -984,11 +955,9 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -999,9 +968,7 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1065,7 +1032,9 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1078,7 +1047,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1120,7 +1088,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1178,14 +1145,12 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
 
 
 
-#, fuzzy
 
 
 
@@ -1203,14 +1168,11 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -1233,9 +1195,7 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1244,7 +1204,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1285,7 +1244,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1325,9 +1283,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-
-
-#, fuzzy
 
 
 
@@ -1403,13 +1358,10 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
 
@@ -1422,7 +1374,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1432,21 +1383,15 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1473,9 +1418,7 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
-#, fuzzy
 
 
 
@@ -1492,7 +1435,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1582,24 +1524,18 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
 
 
-#, fuzzy
 
 
 
@@ -1634,7 +1570,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1654,7 +1589,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1662,19 +1596,13 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
-#, fuzzy
 
 
-#, fuzzy
 
 
 
@@ -1700,7 +1628,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
@@ -1727,13 +1654,11 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 
 
 
-#, fuzzy
 
 
 
@@ -1747,6 +1672,7 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
+#, fuzzy
 
 
 
@@ -1755,9 +1681,13 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 #, fuzzy
@@ -1786,6 +1716,7 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
+#, fuzzy
 
 
 
@@ -1822,7 +1753,6 @@ msgstr "Diese CLISP-Version muss in Speicher mit niedrigen Adressen ablaufen.\n"
 
 
 
-#, fuzzy
 
 
 

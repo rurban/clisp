@@ -8,7 +8,7 @@
 #if HAVE_DD
   #define D_D_mal2adic_D(a,b)  lowD(muluD((uintD)(a),(uintD)(b)))
 #else
-  #if defined(GNU) || defined(INTEL)
+  #ifdef GNU
     #define D_D_mal2adic_D(a,b)  \
       ({ var uintD __erg;              \
          muluD((a),(b), _EMA_,__erg=); \
@@ -83,7 +83,7 @@
     var uintD a;
     var uintD b;
     {
-      ASSERT(!((b % 2) ==0));
+      ASSERT(!((b % 2) ==0))
       var uintD c = 0;
       var uintD bit_j = 1; # 2^j
       loop { # Verwende a als Variable d
@@ -102,7 +102,7 @@
     var uintD a;
     var uintD b;
     {
-      ASSERT(!((b % 2) ==0));
+      ASSERT(!((b % 2) ==0))
       var uintD bit_j = 1; # 2^j
       var uintD b_j = b-1; # (b-1)*2^j
       loop { # Verwende a als Variable d*2^j+c

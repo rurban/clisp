@@ -76,7 +76,9 @@
 
 
 # stattdessen fehler_funspec verwenden?
-nonreturning_function(local, fehler_ffi_nocall, (object ffinfo))
+nonreturning_function(local, fehler_ffi_nocall, (object ffinfo));
+local void fehler_ffi_nocall(ffinfo)
+  var object ffinfo;
   {
     pushSTACK(ffinfo); pushSTACK(TheSubr(subr_self)->name);
     fehler(error,
@@ -84,7 +86,9 @@ nonreturning_function(local, fehler_ffi_nocall, (object ffinfo))
           );
   }
 
-nonreturning_function(local, fehler_ffi_proto, (object ffinfo))
+nonreturning_function(local, fehler_ffi_proto, (object ffinfo));
+local void fehler_ffi_proto(ffinfo)
+  var object ffinfo;
   {
     pushSTACK(ffinfo);
     pushSTACK(TheSubr(subr_self)->name);
@@ -93,7 +97,9 @@ nonreturning_function(local, fehler_ffi_proto, (object ffinfo))
           );
   }
 
-nonreturning_function(local, fehler_ffi_argcount, (object ffinfo))
+nonreturning_function(local, fehler_ffi_argcount, (object ffinfo));
+local void fehler_ffi_argcount(ffinfo)
+  var object ffinfo;
   {
     pushSTACK(ffinfo);
     pushSTACK(TheSubr(subr_self)->name);
@@ -102,10 +108,14 @@ nonreturning_function(local, fehler_ffi_argcount, (object ffinfo))
           );
   }
 
-nonreturning_function(local, fehler_ffi_argtype, (object obj, object type, object ffinfo))
+nonreturning_function(local, fehler_ffi_argtype, (object obj, object type, object ffinfo));
+local void fehler_ffi_argtype(obj,type,ffinfo)
+  var object obj;
+  var object type; # wird nur unpräzise verwendet
+  var object ffinfo;
   {
-    pushSTACK(obj); # TYPE-ERROR slot DATUM
-    pushSTACK(fixnump(type) ? S(integer) : T); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+    pushSTACK(fixnump(type) ? S(integer) : T); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(obj); pushSTACK(ffinfo); pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,
            GETTEXT("~: Bad argument for prototype ~: ~")
@@ -113,7 +123,9 @@ nonreturning_function(local, fehler_ffi_argtype, (object obj, object type, objec
   }
 
 #define fehler_ffi_type  fehler_ffi_arg
-nonreturning_function(local, fehler_ffi_arg, (object obj))
+nonreturning_function(local, fehler_ffi_arg, (object obj));
+local void fehler_ffi_arg(obj)
+  var object obj;
   {
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     fehler(control_error,
@@ -134,8 +146,8 @@ local aint convert_address(obj, offset)
       address = (aint)(TheFpointer(obj)->fp_pointer);
     }
     if (address == 0) {
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(S(unsigned_byte)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(unsigned_byte)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: ~ is not a valid address")
@@ -469,7 +481,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
   }
 
 # (SYSTEM::%LIBCALL base ff-description &rest args)
-# can trigger GC (after the call)
+# kann GC auslösen (nach erfolgtem Aufruf)
 LISPFUN(affi_libcall,2,0,rest,nokey,0,NIL)
   {
     var object ffinfo = Before(rest_args_pointer); # #((offset . mask) return-type . arg-types*))

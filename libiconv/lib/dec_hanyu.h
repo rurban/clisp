@@ -72,15 +72,15 @@ dec_hanyu_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
 
   /* Code set 0 (ASCII) */
   ret = ascii_wctomb(conv,r,wc,n);
-  if (ret != RET_ILUNI)
+  if (ret != RET_ILSEQ)
     return ret;
 
   ret = cns11643_wctomb(conv,buf,wc,3);
-  if (ret != RET_ILUNI) {
+  if (ret != RET_ILSEQ) {
     if (ret != 3) abort();
 
     /* Code set 1 (CNS 11643-1992 Plane 1) */
-    if (buf[0] == 1) {
+    if (buf[0] == 0) {
       if (n < 2)
         return RET_TOOSMALL;
       r[0] = buf[1]+0x80;
@@ -89,7 +89,7 @@ dec_hanyu_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
     }
 
     /* Code set 2 (CNS 11643-1992 Plane 2) */
-    if (buf[0] == 2) {
+    if (buf[0] == 1) {
       if (n < 2)
         return RET_TOOSMALL;
       r[0] = buf[1]+0x80;
@@ -98,7 +98,7 @@ dec_hanyu_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
     }
 
     /* Code set 3 (CNS 11643-1992 Plane 3) */
-    if (buf[0] == 3) {
+    if (buf[0] == 2) {
       if (n < 4)
         return RET_TOOSMALL;
       r[0] = 0xc2;
@@ -109,5 +109,5 @@ dec_hanyu_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
     }
   }
 
-  return RET_ILUNI;
+  return RET_ILSEQ;
 }

@@ -73,12 +73,6 @@ ALL = \
  cns11643_1.h \
  cns11643_2.h \
  cns11643_3.h \
- cns11643_4a.h \
- cns11643_4b.h \
- cns11643_5.h \
- cns11643_6.h \
- cns11643_7.h \
- cns11643_15.h \
  cns11643_inv.h \
  big5.h \
  cp950ext.h \
@@ -101,7 +95,6 @@ ALL = \
  cp864.h \
  cp865.h \
  cp869.h \
- cp1125.h \
  cjk_variants.h
 
 all : $(ALL)
@@ -148,7 +141,7 @@ iso8859_14.h : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-14.TXT 8bit_tab_to
 iso8859_15.h : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-15.TXT 8bit_tab_to_h
 	./8bit_tab_to_h ISO-8859-15 iso8859_15 < $<
 
-iso8859_16.h : $(TABLESDIR)/unicode.org-mappings/ISO8859/8859-16.TXT 8bit_tab_to_h
+iso8859_16.h : $(TABLESDIR)/csets-new/ISO-8859-16.TXT 8bit_tab_to_h
 	./8bit_tab_to_h ISO-8859-16 iso8859_16 < $<
 
 koi8_r.h : $(TABLESDIR)/unicode.org-mappings/VENDORS/MISC/KOI8-R.TXT 8bit_tab_to_h
@@ -268,27 +261,11 @@ tcvn.h : $(TABLESDIR)/csets-1.6/VN5712-1.TXT 8bit_tab_to_h
 jisx0201.h : $(TABLESDIR)/clisp/JIS_X0201.TXT 8bit_tab_to_h
 	./8bit_tab_to_h JISX0201.1976-0 jisx0201 < $<
 
-# We use modified JISX0208 and JISX0212 tables. Why?
-# Hironori Sakamoto and Tomohiro Kubota explain that
-# - EUC-JP and SHIFT_JIS contain JISX0208 exactly,
-# - Their round-trip conversion to Unicode and back must be the identity,
-# - Conversions between EUC-JP, SHIFT_JIS, CP932, ISO-2022-JP must behave
-#   as if no Unicode conversion was involved,
-# - When JISX0208 is used as a CES (i.e. combined with ASCII) its mapping of
-#   REVERSE SOLIDUS becomes a FULLWIDTH REVERSE SOLIDUS, apparently because
-#   round-trip conversion stability is more important than a particular glyph.
-#   Only with CCS the character is a REVERSE SOLIDUS.
-# As a consequence, we use FULLWIDTH REVERSE SOLIDUS in EUC-JP's JISX0208 part,
-# and for consistency also in SHIFT_JIS and ISO-2022-JP, i.e. everywhere.
-# JISX0208 never occurs as a CCS in practice. Similarly with JISX0212.
-
-# Unicode.org maps 0x2140 to U+005C. We map it to U+FF3C.
 jisx0208.h : $(TABLESDIR)/unicode.org-mappings/EASTASIA/JIS/JIS0208.TXT cjk_tab_to_h
-	sed -e 's,^0x....[ 	]*\(0x....[ 	]*0x.....*\)$$,\1,' < $< | sed -e 's,\([ 	]\)0x005C,\10xFF3C,' | ./cjk_tab_to_h JISX0208.1990-0 jisx0208 > $@
+	sed -e 's,^0x....[ 	]*\(0x....[ 	]*0x.....*\)$$,\1,' < $< | ./cjk_tab_to_h JISX0208.1990-0 jisx0208 > $@
 
-# Unicode.org maps 0x2237 to U+007E. We map it to U+FF5E.
 jisx0212.h : $(TABLESDIR)/unicode.org-mappings/EASTASIA/JIS/JIS0212.TXT cjk_tab_to_h
-	sed -e 's,\([ 	]\)0x007E,\10xFF5E,' < $< | ./cjk_tab_to_h JISX0212.1990-0 jisx0212 > $@
+	./cjk_tab_to_h JISX0212.1990-0 jisx0212 < $< > $@
 
 cp932ext.h : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/WINDOWS/CP932.TXT cjk_tab_to_h
 	(echo '#' ; grep '^0x\(87\|E[D-F]\|F[0-9A-F]\)[0-9A-F][0-9A-F]' < $< ) | ./cjk_tab_to_h 'CP932 extensions' cp932ext > $@
@@ -329,35 +306,17 @@ gb18030uni.h : GB18030uni.TXT cjk_tab_to_h
 GB18030uni.TXT : $(TABLESDIR)/gb18030/filled-GB18030.TXT
 	grep '^0x........	0x....$$' < $(TABLESDIR)/gb18030/filled-GB18030.TXT > $@
 
-cns11643_1.h : $(TABLESDIR)/csets-new/CNS11643-Unicode31.TXT cjk_tab_to_h
-	grep '^\(#\|0x1\)' < $< | sed -e 's,^0x1,0x,' | ./cjk_tab_to_h 'CNS 11643-1992 plane 1' cns11643_1 > $@
+cns11643_1.h : $(TABLESDIR)/csets-new/CNS11643.TXT cjk_tab_to_h
+	grep '^\(#\|0x1\)' < $< | sed -e 's,^0x1,0x,' | ./cjk_tab_to_h 'CNS 11643-1986 plane 1' cns11643_1 > $@
 
-cns11643_2.h : $(TABLESDIR)/csets-new/CNS11643-Unicode31.TXT cjk_tab_to_h
-	grep '^\(#\|0x2\)' < $< | sed -e 's,^0x2,0x,' | ./cjk_tab_to_h 'CNS 11643-1992 plane 2' cns11643_2 > $@
+cns11643_2.h : $(TABLESDIR)/csets-new/CNS11643.TXT cjk_tab_to_h
+	grep '^\(#\|0x2\)' < $< | sed -e 's,^0x2,0x,' | ./cjk_tab_to_h 'CNS 11643-1986 plane 2' cns11643_2 > $@
 
-cns11643_3.h : $(TABLESDIR)/csets-new/CNS11643-Unicode31.TXT cjk_tab_to_h
-	grep '^\(#\|0x3\)' < $< | sed -e 's,^0x3,0x,' | ./cjk_tab_to_h 'CNS 11643-1992 plane 3' cns11643_3 > $@
+cns11643_3.h : $(TABLESDIR)/csets-new/CNS11643.TXT cjk_tab_to_h
+	grep '^\(#\|0x3\)' < $< | sed -e 's,^0x3,0x,' | ./cjk_tab_to_h 'CNS 11643-1986 plane 14 part 1' cns11643_3 > $@
 
-cns11643_4a.h : $(TABLESDIR)/csets-new/CNS11643-Unicode31.TXT cjk_tab_to_h
-	grep '^\(#\|0x4[0-3]\)' < $< | sed -e 's,^0x4,0x,' | ./cjk_tab_to_h 'CNS 11643-1992 plane 4 part a' cns11643_4a > $@
-
-cns11643_4b.h : $(TABLESDIR)/csets-new/CNS11643-Unicode31.TXT cjk_tab_to_h
-	grep '^\(#\|0x4[4-7]\)' < $< | sed -e 's,^0x4,0x,' | ./cjk_tab_to_h 'CNS 11643-1992 plane 4 part b' cns11643_4b > $@
-
-cns11643_5.h : $(TABLESDIR)/csets-new/CNS11643-Unicode31.TXT cjk_tab_to_h
-	grep '^\(#\|0x5\)' < $< | sed -e 's,^0x5,0x,' | ./cjk_tab_to_h 'CNS 11643-1992 plane 5' cns11643_5 > $@
-
-cns11643_6.h : $(TABLESDIR)/csets-new/CNS11643-Unicode31.TXT cjk_tab_to_h
-	grep '^\(#\|0x6\)' < $< | sed -e 's,^0x6,0x,' | ./cjk_tab_to_h 'CNS 11643-1992 plane 6' cns11643_6 > $@
-
-cns11643_7.h : $(TABLESDIR)/csets-new/CNS11643-Unicode31.TXT cjk_tab_to_h
-	grep '^\(#\|0x7\)' < $< | sed -e 's,^0x7,0x,' | ./cjk_tab_to_h 'CNS 11643-1992 plane 7' cns11643_7 > $@
-
-cns11643_15.h : $(TABLESDIR)/csets-new/CNS11643-Unicode31.TXT cjk_tab_to_h
-	grep '^\(#\|0xF\)' < $< | sed -e 's,^0xF,0x,' | ./cjk_tab_to_h 'CNS 11643-1992 plane 15' cns11643_15 > $@
-
-cns11643_inv.h : $(TABLESDIR)/csets-new/CNS11643-Unicode31.TXT cjk_tab_to_h
-	./cjk_tab_to_h 'CNS 11643-1992 planes 1-7, CNS 11643-1986 plane 15' cns11643_inv < $< > $@
+cns11643_inv.h : $(TABLESDIR)/csets-new/CNS11643.TXT cjk_tab_to_h
+	./cjk_tab_to_h 'CNS 11643-1992 planes 1-3' cns11643_inv < $< > $@
 
 big5.h : $(TABLESDIR)/unicode.org-mappings/EASTASIA/OTHER/BIG5.TXT cjk_tab_to_h
 	./cjk_tab_to_h BIG5 big5 < $< > $@
@@ -423,9 +382,6 @@ cp865.h : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP865.TXT 8bit_tab
 
 cp869.h : $(TABLESDIR)/unicode.org-mappings/VENDORS/MICSFT/PC/CP869.TXT 8bit_tab_to_h
 	./8bit_tab_to_h CP869 cp869 < $<
-
-cp1125.h : $(TABLESDIR)/csets-new/CP1125.TXT 8bit_tab_to_h
-	./8bit_tab_to_h CP1125 cp1125 < $<
 
 
 cjk_variants.h : $(TABLESDIR)/yasuoka/UniVariants cjk_variants

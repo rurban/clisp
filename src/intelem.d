@@ -204,8 +204,8 @@
           }
         default:
         bad: # unpassendes Objekt
-          pushSTACK(obj); # TYPE-ERROR slot DATUM
-          pushSTACK(O(type_uint32)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_uint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(obj);
           fehler(type_error,
                  GETTEXT("not a 32-bit integer: ~")
@@ -302,8 +302,8 @@
           }
         default:
         bad: # unpassendes Objekt
-          pushSTACK(obj); # TYPE-ERROR slot DATUM
-          pushSTACK(O(type_sint32)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_sint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(obj);
           fehler(type_error,
                  GETTEXT("not a 32-bit integer: ~")
@@ -392,8 +392,8 @@
           }
         default:
         bad: # unpassendes Objekt
-          pushSTACK(obj); # TYPE-ERROR slot DATUM
-          pushSTACK(O(type_uint64)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_uint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(obj);
           fehler(type_error,
                  GETTEXT("not a 64-bit integer: ~")
@@ -538,8 +538,8 @@
           }
         default:
         bad: # unpassendes Objekt
-          pushSTACK(obj); # TYPE-ERROR slot DATUM
-          pushSTACK(O(type_sint64)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_sint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(obj);
           fehler(type_error,
                  GETTEXT("not a 64-bit integer: ~")
@@ -1429,16 +1429,20 @@
           #endif
       }
       # mindestens bn_minlength Digits, mache ein Bignum
-      var object newnum = allocate_bignum(len,(sintB)sign_of_sintD(MSDptr[0]));
+      var object newnum = allocate_bignum(len,sign_of_sintD(MSDptr[0]));
       # neues Bignum mit dem Inhalt der NDS füllen:
       copy_loop_up(MSDptr,&TheBignum(newnum)->data[0],len);
       return newnum;
     }
 
 # Bignum-Überlauf melden:
-nonreturning_function(local, BN_ueberlauf, (void)) {
-  fehler(arithmetic_error,GETTEXT("bignum overflow"));
-}
+  nonreturning_function(local, BN_ueberlauf, (void));
+  local void BN_ueberlauf()
+    {
+      fehler(arithmetic_error,
+             GETTEXT("bignum overflow")
+            );
+    }
 
 # Normalized Unsigned Digit Sequence to Integer
 # NUDS_to_I(MSDptr,len)

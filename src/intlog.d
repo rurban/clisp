@@ -75,7 +75,7 @@
 
 # (LOGIOR x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# can trigger GC
+# kann GC auslösen.
   local object I_I_logior_I (object x, object y);
   local object I_I_logior_I(x,y)
     var object x;
@@ -104,7 +104,7 @@
 
 # (LOGXOR x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# can trigger GC
+# kann GC auslösen.
   local object I_I_logxor_I (object x, object y);
   local object I_I_logxor_I(x,y)
     var object x;
@@ -133,7 +133,7 @@
 
 # (LOGAND x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# can trigger GC
+# kann GC auslösen.
   local object I_I_logand_I (object x, object y);
   local object I_I_logand_I(x,y)
     var object x;
@@ -174,7 +174,7 @@
 
 # (LOGEQV x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# can trigger GC
+# kann GC auslösen.
   local object I_I_logeqv_I (object x, object y);
   local object I_I_logeqv_I(x,y)
     var object x;
@@ -205,7 +205,7 @@
 
 # (LOGNAND x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# can trigger GC
+# kann GC auslösen.
   local object I_I_lognand_I (object x, object y);
   local object I_I_lognand_I(x,y)
     var object x;
@@ -246,7 +246,7 @@
 
 # (LOGNOR x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# can trigger GC
+# kann GC auslösen.
   local object I_I_lognor_I (object x, object y);
   local object I_I_lognor_I(x,y)
     var object x;
@@ -275,7 +275,7 @@
 
 # (LOGANDC2 x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# can trigger GC
+# kann GC auslösen.
   local object I_I_logandc2_I (object x, object y);
   local object I_I_logandc2_I(x,y)
     var object x;
@@ -310,7 +310,7 @@
 
 # (LOGANDC1 x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# can trigger GC
+# kann GC auslösen.
 #if 1 # Macro spart Code
   #define I_I_logandc1_I(x,y)  I_I_logandc2_I(y,x)
 #else
@@ -325,7 +325,7 @@
 
 # (LOGORC2 x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# can trigger GC
+# kann GC auslösen.
   local object I_I_logorc2_I (object x, object y);
   local object I_I_logorc2_I(x,y)
     var object x;
@@ -356,7 +356,7 @@
 
 # (LOGORC1 x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# can trigger GC
+# kann GC auslösen.
 #if 1 # Macro spart Code
   #define I_I_logorc1_I(x,y)  I_I_logorc2_I(y,x)
 #else
@@ -371,7 +371,7 @@
 
 # (LOGNOT x), wenn x ein Integer sind.
 # Ergebnis Integer.
-# can trigger GC
+# kann GC auslösen.
   local object I_lognot_I (object x);
   local object I_lognot_I(x)
     var object x;
@@ -462,8 +462,8 @@
         case (oint)( boole_orc2 )<<oint_data_shift:
           return I_I_logorc2_I(x,y);
         default: # falscher Operator
-          pushSTACK(op); # TYPE-ERROR slot DATUM
-          pushSTACK(O(type_boole)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(op); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_boole)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(op); pushSTACK(S(boole));
           fehler(type_error,
                  GETTEXT("~: ~ is not a valid boolean operation")
@@ -585,8 +585,8 @@
           return false;
       } else {
         # x<0
-        pushSTACK(x); # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
+        pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(x); pushSTACK(S(logbitp));
         fehler(type_error,
                GETTEXT("~: index ~ is negative")
@@ -870,7 +870,7 @@
 #elif defined(SPARC) && !defined(SPARC64)
   #define integerlength16(digit,size_zuweisung)  \
     integerlength32((uint32)(digit),size_zuweisung) # siehe unten
-#elif (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
+#elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
   #define integerlength16(digit,size_zuweisung)  \
     {                                                                       \
       var uintW one_position; # Position der führenden 1                    \
@@ -921,7 +921,7 @@
       # Hole davon den Exponenten:                                   \
       size_zuweisung ((__fi.i[0] >> (DF_mant_len-32)) - DF_exp_mid); \
     }
-#elif (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
+#elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
   #define integerlength32(digit,size_zuweisung)  \
     {                                                                        \
       var uintL one_position; # Position der führenden 1                     \
@@ -1111,7 +1111,7 @@
 # setzt size auf die kleinste in digit vorkommende Bitnummer.
 # > digit: ein uint32 >0
 # < count: >=0, <32, mit 2^count | digit, digit/2^count ungerade
-  #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
+  #if defined(GNU) && defined(I80386) && !defined(NO_ASM)
     #define ord2_32(digit,count_zuweisung)  \
       {                                                                        \
         var uintL one_position; # Position der letzten 1                       \

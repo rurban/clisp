@@ -152,21 +152,14 @@ install-exec: all
 	fi
 	if test '@USE_INCLUDED_LIBINTL@' = yes; then \
 	  $(mkinstalldirs) $(DESTDIR)$(libdir); \
+	  test -f $(DESTDIR)$(libdir)/charset.alias \
+	    && orig=$(DESTDIR)$(libdir)/charset.alias \
+	    || orig=charset.alias; \
 	  temp=$(DESTDIR)$(libdir)/t-charset.alias; \
 	  dest=$(DESTDIR)$(libdir)/charset.alias; \
-	  if test -f $(DESTDIR)$(libdir)/charset.alias; then \
-	    orig=$(DESTDIR)$(libdir)/charset.alias; \
-	    sed -f ref-add.sed $$orig > $$temp; \
-	    $(INSTALL_DATA) $$temp $$dest; \
-	    rm -f $$temp; \
-	  else \
-	    if test @GLIBC21@ = no; then \
-	      orig=charset.alias; \
-	      sed -f ref-add.sed $$orig > $$temp; \
-	      $(INSTALL_DATA) $$temp $$dest; \
-	      rm -f $$temp; \
-	    fi; \
-	  fi; \
+	  sed -f ref-add.sed $$orig > $$temp; \
+	  $(INSTALL_DATA) $$temp $$dest; \
+	  rm -f $$temp; \
 	  $(mkinstalldirs) $(DESTDIR)$(localedir); \
 	  test -f $(DESTDIR)$(localedir)/locale.alias \
 	    && orig=$(DESTDIR)$(localedir)/locale.alias \
@@ -190,12 +183,6 @@ install-data: all
 			    $(DESTDIR)$(gettextsrcdir)/$$file; \
 	  done; \
 	  chmod a+x $(DESTDIR)$(gettextsrcdir)/config.charset; \
-	  dists="$(DISTFILES.generated)"; \
-	  for file in $$dists; do \
-	    if test -f $$file; then dir=.; else dir=$(srcdir); fi; \
-	    $(INSTALL_DATA) $$dir/$$file \
-			    $(DESTDIR)$(gettextsrcdir)/$$file; \
-	  done; \
 	  dists="$(DISTFILES.obsolete)"; \
 	  for file in $$dists; do \
 	    rm -f $(DESTDIR)$(gettextsrcdir)/$$file; \
@@ -243,7 +230,7 @@ uninstall:
 	  : ; \
 	fi
 	if test "$(PACKAGE)" = "gettext"; then \
-	  for file in VERSION ChangeLog $(DISTFILES.common) $(DISTFILES.generated); do \
+	  for file in VERSION ChangeLog $(DISTFILES.common); do \
 	    rm -f $(DESTDIR)$(gettextsrcdir)/$$file; \
 	  done; \
 	else \
@@ -298,9 +285,8 @@ dist distdir: Makefile
 	fi; \
 	$(MAKE) $(DISTFILES.common) $(DISTFILES.generated) $$additional; \
 	for file in ChangeLog $(DISTFILES.common) $(DISTFILES.generated) $$additional; do \
-	  if test -f $$file; then dir=.; else dir=$(srcdir); fi; \
-	  ln $$dir/$$file $(distdir) 2> /dev/null \
-	    || cp -p $$dir/$$file $(distdir); \
+	  ln $(srcdir)/$$file $(distdir) 2> /dev/null \
+	    || cp -p $(srcdir)/$$file $(distdir); \
 	done
 
 Makefile: Makefile.in ../config.status

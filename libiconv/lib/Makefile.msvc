@@ -1,4 +1,4 @@
-# -*- Makefile -*- for libiconv/lib
+# Makefile for libiconv/lib
 
 #### Start of system configuration section. ####
 
@@ -65,7 +65,7 @@ AR = lib
 AR_FLAGS = /out:
 
 LN = copy
-RM = -del
+RM = del
 
 # Programs used by "make install":
 INSTALL = @INSTALL@
@@ -93,7 +93,7 @@ config.h : config.h.msvc
 	$(LN) config.h.msvc config.h
 
 iconv.obj : $(srcdir)/iconv.c $(srcdir)/encodings.def $(srcdir)/encodings_local.def $(srcdir)/aliases.h config.h
-	$(CC) $(INCLUDES) $(CFLAGS) -c $(srcdir)/iconv.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/iconv.c
 
 !if !$(DLL)
 

@@ -1,5 +1,5 @@
 # Liste aller SUBRs
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2000
 
 # Eine C-compilierte LISP-Funktion wird definiert durch eine Deklaration
 #   LISPFUN(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)
@@ -320,8 +320,8 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
 LISPFUNN(invoke_debugger,1)
 LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
 # ---------- HASHTABL ----------
-LISPFUN(make_hash_table,0,0,norest,key,6,
-        (kw(weak),kw(initial_contents),
+LISPFUN(make_hash_table,0,0,norest,key,5,
+        (kw(initial_contents),
          kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
 LISPFUN(gethash,2,1,norest,nokey,0,NIL)
 LISPFUNN(puthash,3)
@@ -335,8 +335,6 @@ LISPFUNN(hash_table_size,1)
 LISPFUNN(hash_table_test,1)
 LISPFUNN(hash_table_iterator,1)
 LISPFUNN(hash_table_iterate,1)
-LISPFUNN(hash_table_weak_p,1)
-LISPFUNN(set_hash_table_weak_p,2)
 LISPFUNN(class_gethash,2)
 LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
 LISPFUNN(sxhash,1)
@@ -380,7 +378,7 @@ LISPFUNN(structure_reader,3)
 LISPFUNN(closure_reader,3)
 LISPFUNN(clisp_pathname_reader,3)
 LISPFUNN(ansi_pathname_reader,3)
-#if defined(UNIX) || defined(WIN32_NATIVE)
+#ifdef UNIX
 LISPFUNN(unix_executable_reader,3)
 #endif
 LISPFUN(read,0,4,norest,nokey,0,NIL)
@@ -399,24 +397,18 @@ LISPFUN(read_from_string,1,2,norest,key,3,
 LISPFUN(parse_integer,1,0,norest,key,4,
         (kw(start),kw(end),kw(radix),kw(junk_allowed)) )
 LISPFUNN(print_structure,2)
-LISPFUN(write,1,0,norest,key,17,
+LISPFUN(write,1,0,norest,key,14,
         (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
          kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),
-         kw(lines),kw(miser_width),kw(pprint_dispatch),
          kw(right_margin),kw(stream)))
 LISPFUN(prin1,1,1,norest,nokey,0,NIL)
 LISPFUN(print,1,1,norest,nokey,0,NIL)
 LISPFUN(pprint,1,1,norest,nokey,0,NIL)
-LISPFUN(pprint_indent,2,1,norest,nokey,0,NIL)
-LISPFUN(pprint_newline,1,1,norest,nokey,0,NIL)
-LISPFUN(format_tabulate,3,2,norest,nokey,0,NIL)
-LISPFUNN(ppprint_logical_block,3)
-LISPFUNN(pcirclep,2)
 LISPFUN(princ,1,1,norest,nokey,0,NIL)
-LISPFUN(write_to_string,1,0,norest,key,16,
+LISPFUN(write_to_string,1,0,norest,key,13,
         (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
          kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),
-         kw(lines),kw(miser_width),kw(pprint_dispatch),kw(right_margin)))
+         kw(right_margin)))
 LISPFUNN(prin1_to_string,1)
 LISPFUNN(princ_to_string,1)
 LISPFUN(write_char,1,1,norest,nokey,0,NIL)
@@ -429,8 +421,6 @@ LISPFUN(force_output,0,1,norest,nokey,0,NIL)
 LISPFUN(clear_output,0,1,norest,nokey,0,NIL)
 LISPFUN(write_unreadable,3,0,norest,key,2, (kw(type),kw(identity)) )
 LISPFUN(line_position,0,1,norest,nokey,0,NIL)
-LISPFUNN(whitespacep,1)
-LISPFUN(write_spaces,1,1,norest,nokey,0,NIL)
 # ---------- LIST ----------
 LISPFUNN(car,1)
 LISPFUNN(cdr,1)
@@ -539,13 +529,14 @@ LISPFUNN(machine_version,0)
 #endif
 #ifdef HAVE_ENVIRONMENT
 LISPFUNN(get_env,1)
-LISPFUNN(set_env,2)
 #endif
 #ifdef WIN32_NATIVE
 LISPFUNN(registry,2)
 #endif
 LISPFUNN(software_type,0)
 LISPFUNN(software_version,0)
+LISPFUNN(current_language,0)
+LISPFUNN(language,3)
 LISPFUNN(identity,1)
 LISPFUNN(address_of,1)
 #ifdef HAVE_DISASSEMBLER
@@ -554,16 +545,6 @@ LISPFUNN(program_id,0)
 #endif
 LISPFUNN(ansi,0)
 LISPFUNN(set_ansi,1)
-# ---------- I18N ----------
-LISPFUNN(current_language,0)
-LISPFUNN(set_current_language,1)
-LISPFUNN(text,1)
-LISPFUN(gettext,1,2,norest,nokey,0,NIL)
-LISPFUN(ngettext,3,2,norest,nokey,0,NIL)
-LISPFUNN(textdomain,0)
-LISPFUNN(set_textdomain,1)
-LISPFUNN(textdomaindir,1)
-LISPFUNN(set_textdomaindir,2)
 # ---------- SOCKET ----------
 #ifdef MACHINE_KNOWN
 LISPFUNN(machine_instance,0)
@@ -600,16 +581,13 @@ LISPFUN(rename_package,2,1,norest,nokey,0,NIL)
 LISPFUNN(package_use_list,1)
 LISPFUNN(package_used_by_list,1)
 LISPFUNN(package_shadowing_symbols,1)
-LISPFUNN(package_lock,1)
-LISPFUNN(set_package_lock,2)
-LISPFUNN(check_package_lock,3)
 LISPFUNN(list_all_packages,0)
 LISPFUN(intern,1,1,norest,nokey,0,NIL)
 LISPFUN(find_symbol,1,1,norest,nokey,0,NIL)
 LISPFUN(unintern,1,1,norest,nokey,0,NIL)
 LISPFUN(export,1,1,norest,nokey,0,NIL)
 LISPFUN(unexport,1,1,norest,nokey,0,NIL)
-LISPFUNN(re_export,2)
+LISPFUNN(reexport,2)
 LISPFUN(import,1,1,norest,nokey,0,NIL)
 LISPFUN(shadowing_import,1,1,norest,nokey,0,NIL)
 LISPFUN(shadow,1,1,norest,nokey,0,NIL)
@@ -690,7 +668,6 @@ LISPFUNN(dynload_modules,2)
 LISPFUNN(program_name,0)
 #endif
 LISPFUNN(lib_directory,0)
-LISPFUNN(set_lib_directory,1)
 #if defined(EXPORT_SYSCALLS) && defined(UNIX)
 LISPFUNN(user_data_,1)
 LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
@@ -749,7 +726,6 @@ LISPFUNN(class_p,1)
 LISPFUNN(class_of,1)
 LISPFUN(find_class,1,2,norest,nokey,0,NIL)
 LISPFUNN(coerce,2)
-LISPFUN(expand_deftype,1,1,norest,nokey,0,NIL)
 LISPFUNN(note_new_structure_class,0)
 LISPFUNN(note_new_standard_class,0)
 LISPFUNN(heap_statistics,0)
@@ -970,8 +946,8 @@ LISPFUN(socket_connect,1,1,norest,key,3,\
         (kw(element_type),kw(external_format),kw(buffered)) )
 LISPFUNN(socket_stream_port,1)
 LISPFUNN(socket_stream_host,1)
-LISPFUN(socket_stream_peer,1,1,norest,nokey,0,NIL)
-LISPFUN(socket_stream_local,1,1,norest,nokey,0,NIL)
+LISPFUNN(socket_stream_peer,1)
+LISPFUNN(socket_stream_local,1)
 #ifndef WIN32_NATIVE
 LISPFUNN(socket_stream_handle,1)
 #endif
@@ -1152,7 +1128,6 @@ LISPFUNN(validp,1)
 LISPFUNN(sizeof,1)
 LISPFUNN(bitsizeof,1)
 LISPFUNN(lookup_foreign_variable,2)
-LISPFUNN(foreign_address_value,1)
 LISPFUNN(foreign_value,1)
 LISPFUNN(set_foreign_value,2)
 LISPFUNN(foreign_type,1)

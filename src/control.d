@@ -1,5 +1,5 @@
 # Special-Forms, Kontrollstrukturen, Evaluator-Nahes für CLISP
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
@@ -52,13 +52,17 @@ LISPSPECFORM(quote, 1,0,nobody)
 # Fehlermeldung bei FUNCTION/FLET/LABELS, wenn kein Funktionssymbol vorliegt.
 # > caller: Aufrufer, ein Symbol
 # > obj: fehlerhaftes Funktionssymbol
-  nonreturning_function(local, fehler_funsymbol, (object caller, object obj)) {
-    pushSTACK(obj);
-    pushSTACK(caller);
-    fehler(source_program_error,
-           GETTEXT("~: function name ~ should be a symbol")
-          );
-  }
+  nonreturning_function(local, fehler_funsymbol, (object caller, object obj));
+  local void fehler_funsymbol(caller,obj)
+    var object caller;
+    var object obj;
+    {
+      pushSTACK(obj);
+      pushSTACK(caller);
+      fehler(source_program_error,
+             GETTEXT("~: function name ~ should be a symbol")
+            );
+    }
 
 LISPSPECFORM(function, 1,1,nobody)
 # (FUNCTION funname), CLTL. S. 87
@@ -76,7 +80,7 @@ LISPSPECFORM(function, 1,1,nobody)
         # Symbol im aktuellen Funktions-Environment suchen:
         var object fun = sym_function(funname,aktenv.fun_env);
         # SUBR oder Closure oder Foreign-Function zurückgeben, sonst Fehler:
-        if (!functionp(fun)) {
+        if (!(subrp(fun) || closurep(fun) || ffunctionp(fun))) {
           if (functionmacrop(fun))
             fun = TheFunctionMacro(fun)->functionmacro_function;
           else {
@@ -98,8 +102,13 @@ LISPSPECFORM(function, 1,1,nobody)
         fehler_funsymbol(S(function),name);
       funname = STACK_0; # 2. Argument, hoffentlich Lambdaausdruck
     }
-    if (!(consp(funname) && eq(Car(funname),S(lambda)))) # (LAMBDA . ...)
-      fehler_funname_source(S(function),funname);
+    if (!(consp(funname) && eq(Car(funname),S(lambda)))) { # Cons (LAMBDA . ...) ?
+      pushSTACK(funname);
+      pushSTACK(S(function));
+      fehler(source_program_error,
+             GETTEXT("~: ~ is not a function name")
+            );
+    }
     # Lambdaausdruck
     # im aktuellen Environment in eine Closure umwandeln:
     value1 = get_closure(Cdr(funname),name,false,&aktenv); mv_count=1;
@@ -109,14 +118,17 @@ LISPSPECFORM(function, 1,1,nobody)
 # Fehler, wenn ein Symbol keinen Wert hat.
 # > symbol: Symbol
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_no_value, (object symbol)) {
-    pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
-    pushSTACK(symbol);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(unbound_variable,
-           GETTEXT("~: ~ has no dynamic value")
-          );
-  }
+  nonreturning_function(local, fehler_no_value, (object symbol));
+  local void fehler_no_value(symbol)
+    var object symbol;
+    {
+      pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
+      pushSTACK(symbol);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(unbound_variable,
+             GETTEXT("~: ~ has no dynamic value")
+            );
+    }
 
 LISPFUNN(psymbol_value,1)
 # (SYS::%SYMBOL-VALUE symbol), CLTL S. 90
@@ -151,14 +163,18 @@ LISPFUNN(symbol_value,1)
 # fehler_undef_function(caller,symbol);
 # > caller: Aufrufer (ein Symbol)
 # > symbol: Symbol oder (SETF symbol)
-  nonreturning_function(global, fehler_undef_function, (object caller, object symbol)) {
-    pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
-    pushSTACK(symbol);
-    pushSTACK(caller);
-    fehler(undefined_function,
-           GETTEXT("~: ~ has no global function definition")
-          );
-  }
+  nonreturning_function(global, fehler_undef_function, (object caller, object symbol));
+  global void fehler_undef_function(caller,symbol)
+    var object caller;
+    var object symbol;
+    {
+      pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
+      pushSTACK(symbol);
+      pushSTACK(caller);
+      fehler(undefined_function,
+             GETTEXT("~: ~ has no global function definition")
+            );
+    }
 
 LISPFUNN(symbol_function,1)
 # (SYMBOL-FUNCTION symbol), CLTL S. 90
@@ -168,14 +184,14 @@ LISPFUNN(symbol_function,1)
       fehler_symbol(symbol);
     var object val = Symbol_function(symbol);
     if (eq(val,unbound))
-      fehler_undef_function(S(symbol_function),symbol);
+      fehler_undef_function(S(symbol_value),symbol);
     value1 = val; mv_count=1;
   }
 
 LISPFUNN(fdefinition,1)
 # (FDEFINITION funname), CLTL2 S. 120
   {
-  var object funname = popSTACK();
+    var object funname = popSTACK();
     var object symbol = funname;
     if (!funnamep(symbol))
       fehler_symbol(symbol);
@@ -183,12 +199,12 @@ LISPFUNN(fdefinition,1)
       symbol = get(Car(Cdr(symbol)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
       if (!symbolp(symbol)) # sollte (uninterniertes) Symbol sein
         fehler_undef_function(S(fdefinition),funname); # sonst undefiniert
-  }
+    }
     var object val = Symbol_function(symbol);
     if (eq(val,unbound))
-    fehler_undef_function(S(fdefinition),funname);
+      fehler_undef_function(S(fdefinition),funname);
     value1 = val; mv_count=1;
-}
+  }
 
 LISPFUNN(boundp,1)
 # (BOUNDP symbol), CLTL S. 90
@@ -234,13 +250,17 @@ LISPFUNN(special_operator_p,1)
 # fehler_symbol_constant(caller,symbol);
 # > caller: Aufrufer (ein Symbol)
 # > symbol: konstantes Symbol
-  nonreturning_function(local, fehler_symbol_constant, (object caller, object symbol)) {
-    pushSTACK(symbol);
-    pushSTACK(caller);
-    fehler(error,
-           GETTEXT("~: the value of the constant ~ may not be altered")
-          );
-  }
+  nonreturning_function(local, fehler_symbol_constant, (object caller, object symbol));
+  local void fehler_symbol_constant(caller,symbol)
+    var object caller;
+    var object symbol;
+    {
+      pushSTACK(symbol);
+      pushSTACK(caller);
+      fehler(error,
+             GETTEXT("~: the value of the constant ~ may not be altered")
+            );
+    }
 
 # UP: überprüft den Body einer SETQ- oder PSETQ-Form.
 # > caller: Aufrufer (ein Symbol)
@@ -475,13 +495,17 @@ LISPSPECFORM(prog2, 2,0,body)
 # fehler_docstring(caller,body);
 # > caller: Aufrufer, ein Symbol
 # > body: gesamter Body
-  nonreturning_function(local, fehler_docstring, (object caller, object body)) {
-    pushSTACK(body);
-    pushSTACK(caller);
-    fehler(source_program_error,
-           GETTEXT("~: doc-strings are not allowed here: ~")
-          );
-  }
+  nonreturning_function(local, fehler_docstring, (object caller, object body));
+  local void fehler_docstring(caller,body)
+    var object caller;
+    var object body;
+    {
+      pushSTACK(body);
+      pushSTACK(caller);
+      fehler(source_program_error,
+             GETTEXT("~: doc-strings are not allowed here: ~")
+            );
+    }
 
 # UP für LET, LET*, LOCALLY, MULTIPLE-VALUE-BIND, SYMBOL-MACROLET:
 # Kompiliert die aktuelle Form und führt sie in kompiliertem Zustand aus.
@@ -946,13 +970,17 @@ LISPSPECFORM(progv, 2,0,body)
 # Fehlermeldung bei FLET/LABELS, wenn keine Funktionsspezifikation vorliegt.
 # > caller: Aufrufer, ein Symbol
 # > obj: fehlerhafte Funktionsspezifikation
-  nonreturning_function(local, fehler_funspec, (object caller, object obj)) {
-    pushSTACK(obj);
-    pushSTACK(caller);
-    fehler(source_program_error,
-           GETTEXT("~: ~ is not a function specification")
-          );
-  }
+  nonreturning_function(local, fehler_funspec, (object caller, object obj));
+  local void fehler_funspec(caller,obj)
+    var object caller;
+    var object obj;
+    {
+      pushSTACK(obj);
+      pushSTACK(caller);
+      fehler(source_program_error,
+             GETTEXT("~: ~ is not a function specification")
+            );
+    }
 
 # skip all declarations from the body:
 # descructively modifies BODY to remove (DECLARE ...)
@@ -1408,13 +1436,16 @@ LISPSPECFORM(block, 1,0,body)
 # Fehler, wenn ein Block bereits verlassen wurde.
 # fehler_block_left(name);
 # > name: Block-Name
-  nonreturning_function(global, fehler_block_left, (object name)) {
-    pushSTACK(name);
-    pushSTACK(S(return_from));
-    fehler(control_error,
-           GETTEXT("~: the block named ~ has already been left")
-          );
-  }
+  nonreturning_function(global, fehler_block_left, (object name));
+  global void fehler_block_left(name)
+    var object name;
+    {
+      pushSTACK(name);
+      pushSTACK(S(return_from));
+      fehler(control_error,
+             GETTEXT("~: the block named ~ has already been left")
+            );
+    }
 
 LISPSPECFORM(return_from, 1,1,nobody)
 # (RETURN-FROM name [result]), CLTL S. 120
@@ -1813,12 +1844,15 @@ LISPSPECFORM(go, 1,0,nobody)
 # Fehlermeldung bei zu vielen Werten
 # fehler_mv_zuviel(caller);
 # > caller: Aufrufer, ein Symbol
-  nonreturning_function(global, fehler_mv_zuviel, (object caller)) {
-    pushSTACK(caller);
-    fehler(error,
-           GETTEXT("~: too many values")
-          );
-  }
+  nonreturning_function(global, fehler_mv_zuviel, (object caller));
+  global void fehler_mv_zuviel(caller)
+    var object caller;
+    {
+      pushSTACK(caller);
+      fehler(error,
+             GETTEXT("~: too many values")
+            );
+    }
 
 LISPFUN(values,0,0,rest,nokey,0,NIL)
 # (VALUES {arg}), CLTL S. 134
@@ -2120,8 +2154,8 @@ LISPFUNN(unwind_to_driver,0)
          ) {
         STACK_0 = allocate_vector(2); # Vektor #(nil nil) als Default
       } elif (!(simple_vector_p(arg) && (Svector_length(arg) == 2))) {
-        pushSTACK(arg); # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_svector2)); # TYPE-ERROR slot EXPECTED-TYPE
+        pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_svector2)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg);
         fehler(type_error,
                GETTEXT("Argument ~ is not a macroexpansion environment")
@@ -2332,8 +2366,8 @@ LISPSPECFORM(load_time_value, 1,1,nobody)
         env5->go_env    = TheSvector(env)->data[3];
         env5->decl_env  = TheSvector(env)->data[4];
       } else {
-        pushSTACK(env); # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_svector5)); # TYPE-ERROR slot EXPECTED-TYPE
+        pushSTACK(env); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_svector5)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(env);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -2404,7 +2438,7 @@ LISPFUN(applyhook,4,1,norest,nokey,0,NIL)
 LISPFUN(constantp,1,1,norest,nokey,0,NIL)
 # (CONSTANTP expr [env]), CLTL S. 324
   {
-    skipSTACK(1); # environment is not used
+    popSTACK(); # environment is not used
     var object arg = popSTACK();
     #ifdef TYPECODES
     switch (typecode(arg))

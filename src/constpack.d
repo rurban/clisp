@@ -20,9 +20,6 @@
 LISPPACK(clos,"CLOS")
 LISPPACK(ext,"EXT")
 LISPPACK(custom,"CUSTOM")
-#ifdef MULTITHREAD
-LISPPACK(mt,"THREADS")
-#endif
 #ifdef SCREEN
 LISPPACK(screen,"SCREEN")
 #endif

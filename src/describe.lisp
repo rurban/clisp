@@ -41,23 +41,23 @@ to print the corresponding values, or T for all of them.")
         (format t " [~s]" (fdefinition sym))))
     (when (boundp sym)
       (write-string "   ")
-      (cond ((constantp sym) (write-string (TEXT "constant")))
+      (cond ((constantp sym) (write-string (ENGLISH "constant")))
             ((sys::symbol-macro-p (sys::%symbol-value sym))
-             (write-string (TEXT "symbol-macro")))
-            (t (write-string (TEXT "variable"))))
+             (write-string (ENGLISH "symbol-macro")))
+            (t (write-string (ENGLISH "variable"))))
       (when (apropos-do-more :variable)
         (format t " [~s]" (sys::%symbol-value sym))))
     (let ((type (or (get sym 'system::type-symbol)
                     (get sym 'system::defstruct-description))))
       (when type
         (write-string "   ")
-        (write-string (TEXT "type"))
+        (write-string (ENGLISH "type"))
         (when (apropos-do-more :type)
           (format t " [~s]" type))))
     (let ((class (get sym 'clos::closclass)))
       (when class
         (write-string "   ")
-        (write-string (TEXT "class"))
+        (write-string (ENGLISH "class"))
         (when (apropos-do-more :class)
           (format t " [~s]" class)))))
   (values))
@@ -65,66 +65,63 @@ to print the corresponding values, or T for all of them.")
 ;;-----------------------------------------------------------------------------
 ;; DESCRIBE
 
-;; Number of recursive calls since the top-level call.
+; Number of recursive calls since the top-level call.
 (defvar *describe-nesting*)
 
-;; A stream whose purpose is
-;; 1. to provide automatic indentation,
-;; 2. to distinguish top-level calls from recursive calls.
+; A stream whose purpose is
+; 1. to provide automatic indentation,
+; 2. to distinguish top-level calls from recursive calls.
 (clos:defclass describe-stream (fundamental-character-output-stream)
   ((target-stream :initarg :stream :type stream)
-   (buffer :type string :initform
-           (make-array (or *print-right-margin* sys::*prin-linelength*)
-                       :element-type 'character :fill-pointer 0
-                       :adjustable t))
    (indent :initform 0 :type integer) ; current line's indentation
-   (pending-indent :initform nil :type (or null integer))))
-;; flush the buffer and print a newline (when NEWLINE-P is non-NIL)
-(defun describe-stream-flush-buffer (stream newline-p)
-  (clos:with-slots (target-stream buffer pending-indent indent) stream
-    (flet ((newline ()          ; terpri
-             (setq indent (* *describe-nesting* *print-indent-lists*)
-                   pending-indent indent)
-             (terpri target-stream)))
-      ;; fill: if the buffer does not fit on the line, TERPRI
-      (let ((pos (sys::line-position target-stream)))
-        (when (and pos
-                   (<= (or *print-right-margin* sys::*prin-linelength*)
-                       (+ (length buffer) pos)))
-          (newline)))
-      (when pending-indent      ; do the indent
-        (sys::write-spaces pending-indent target-stream)
-        (setq pending-indent nil))
-      (write-sequence buffer target-stream)
-      (setf (fill-pointer buffer) 0)
-      (when newline-p (newline)))))
+   (pending-indent :initform nil :type (or null integer))
+) )
 (clos:defmethod stream-write-char ((stream describe-stream) ch)
-  (clos:with-slots (target-stream buffer indent pending-indent) stream
-    (case ch
-      (#\Newline (describe-stream-flush-buffer stream t))
-      ((#\Space #\Tab)
-       (describe-stream-flush-buffer stream nil)
-       (write-char #\Space target-stream))
-      (t (vector-push-extend ch buffer)))))
+  (clos:with-slots (target-stream indent pending-indent) stream
+    (if (eql ch #\Newline)
+      (progn
+        (write-char ch target-stream)
+        (setq indent (* *describe-nesting* *print-indent-lists*))
+        (setq pending-indent indent)
+      )
+      (progn
+        (when pending-indent
+          (dotimes (i pending-indent) (write-char #\Space target-stream))
+          (setq pending-indent nil)
+        )
+        (write-char ch target-stream)
+) ) ) )
 (clos:defmethod stream-line-column ((stream describe-stream))
-  (clos:with-slots (target-stream buffer indent) stream
+  (clos:with-slots (target-stream indent) stream
     (let ((pos (sys::line-position target-stream)))
-      (if pos (max (- (+ (length buffer) pos) indent) 0) nil))))
+      (if pos (max (- pos indent) 0) nil)
+) ) )
 (clos:defmethod stream-start-line-p ((stream describe-stream))
-  (clos:with-slots (target-stream buffer indent) stream
+  (clos:with-slots (target-stream indent) stream
     (let ((pos (sys::line-position target-stream)))
-      (if pos (<= (+ (length buffer) pos) indent) nil))))
+      (if pos (<= pos indent) nil)
+) ) )
 (clos:defmethod stream-finish-output ((stream describe-stream))
-  (describe-stream-flush-buffer stream nil)
-  (finish-output (clos:slot-value stream 'target-stream)))
+  (clos:with-slots (target-stream pending-indent) stream
+    (when pending-indent
+      (dotimes (i pending-indent) (write-char #\Space target-stream))
+      (setq pending-indent nil)
+    )
+    (finish-output target-stream)
+) )
 (clos:defmethod stream-force-output ((stream describe-stream))
-  (describe-stream-flush-buffer stream nil)
-  (force-output (clos:slot-value stream 'target-stream)))
+  (clos:with-slots (target-stream pending-indent) stream
+    (when pending-indent
+      (dotimes (i pending-indent) (write-char #\Space target-stream))
+      (setq pending-indent nil)
+    )
+    (force-output target-stream)
+) )
 (clos:defmethod stream-clear-output ((stream describe-stream))
-  (clos:with-slots (target-stream buffer pending-indent) stream
+  (clos:with-slots (target-stream pending-indent) stream
     (setq pending-indent nil)
-    (setf (fill-pointer buffer) 0)
-    (clear-output target-stream)))
+    (clear-output target-stream)
+) )
 
 ;; Returns the length of the list, or nil if circular.
 ;; The second value is the last atom (i.e., `dotted-p').
@@ -146,78 +143,80 @@ to print the corresponding values, or T for all of them.")
     (if slotnames
       (let* ((slotstrings (mapcar #'write-to-string slotnames)) more
              (tabpos (+ *print-indent-lists* 4 (reduce #'max (mapcar #'length slotstrings)))))
-        (format stream (TEXT "~%Slots:"))
+        (format stream (ENGLISH "~%Slots:"))
         (mapc #'(lambda (slotname slotstring)
                   (format stream "~%~V,0T  ~A~VT"
                           *print-indent-lists* slotstring tabpos)
                   (cond ((clos:slot-boundp object slotname)
                          (format stream "=  ~S" (clos:slot-value object slotname))
                          (pushnew (clos:slot-value object slotname) more))
-                        ((format stream (TEXT "unbound")))))
+                        ((format stream (ENGLISH "unbound")))))
               slotnames slotstrings)
         (dolist (vv (nreverse more)) (describe vv stream)))
-      (format stream (TEXT "~%No slots.")))))
+      (format stream (ENGLISH "~%No slots.")))))
 
 (clos:defgeneric describe-object (obj stream)
   (:method ((obj t) (stream stream))
     (ecase (type-of obj)
-      #+DIR-KEY
-      (LDAP::DIR-KEY
-       (format stream (TEXT "a directory access key")))
-      #+(or UNIX AMIGA FFI DIR-KEY)
-      (EXT::FOREIGN-POINTER
-       (format stream (TEXT "a foreign pointer")))
+      #+(or AMIGA FFI)
+      (FOREIGN-POINTER
+       (format stream (ENGLISH "a foreign pointer")))
       #+FFI
-      (FFI::FOREIGN-ADDRESS
-       (format stream (TEXT "a foreign address")))
+      (FOREIGN-ADDRESS
+       (format stream (ENGLISH "a foreign address")))
       #+FFI
-      (FFI::FOREIGN-VARIABLE
-       (format stream (TEXT "a foreign variable of foreign type ~S.")
+      (FOREIGN-VARIABLE
+       (format stream (ENGLISH "a foreign variable of foreign type ~S.")
                (deparse-c-type (sys::%record-ref obj 3))))
+      #+FFI
+      (FOREIGN-FUNCTION
+       (format stream (ENGLISH "a foreign function taking foreign types ~:S and returning foreign type ~S.")
+               (map 'list #'deparse-c-type (sys::%record-ref obj 3))
+               (deparse-c-type (sys::%record-ref obj 2))))
       (BYTE
-       (format stream (TEXT "a byte specifier, denoting the ~S bits starting at bit position ~S of an integer.")
+       (format stream (ENGLISH "a byte specifier, denoting the ~S bits starting at bit position ~S of an integer.")
                (byte-size obj) (byte-position obj)))
-      (EXT:SPECIAL-OPERATOR
-       (format stream (TEXT "a special form handler.")))
-      (EXT:LOAD-TIME-EVAL
-       (format stream (TEXT "a load-time evaluation promise.")))
-      (EXT:SYMBOL-MACRO
-       (format stream (TEXT "a symbol macro handler.")))
-      (EXT:MACRO
-       (format stream (TEXT "a macro expander.")))
-      (EXT:FUNCTION-MACRO
-       (format stream (TEXT "a function with alternative macro expander.")))
-      (EXT:ENCODING
-       (format stream (TEXT "an encoding.")))
-      (EXT:WEAK-POINTER
+      (SPECIAL-OPERATOR
+       (format stream (ENGLISH "a special form handler.")))
+      (LOAD-TIME-EVAL
+       (format stream (ENGLISH "a load-time evaluation promise.")))
+      (SYMBOL-MACRO
+       (format stream (ENGLISH "a symbol macro handler.")))
+      (MACRO
+       (format stream (ENGLISH "a macro expander.")))
+      (FUNCTION-MACRO
+       (format stream (ENGLISH "a function with alternative macro expander.")))
+      (ENCODING
+       (format stream (ENGLISH "an encoding.")))
+      (WEAK-POINTER
        (multiple-value-bind (value validp) (weak-pointer-value obj)
          (if validp
            (progn
-             (format stream (TEXT "a GC-invisible pointer to ~S.")
+             (format stream (ENGLISH "a GC-invisible pointer to ~S.")
                      value)
              (describe value stream))
-           (format stream (TEXT "a GC-invisible pointer to a now defunct object.")))))
-      (SYS::READ-LABEL
-       (format stream (TEXT "a label used for resolving #~D# references during READ.")
+           (format stream (ENGLISH "a GC-invisible pointer to a now defunct object.")))))
+      (READ-LABEL
+       (format stream (ENGLISH "a label used for resolving #~D# references during READ.")
                (logand (sys::address-of obj)
                        (load-time-value (ash most-positive-fixnum -1)))))
       (FRAME-POINTER
-       (format stream (TEXT "a pointer into the stack. It points to:"))
+       (format stream (ENGLISH "a pointer into the stack. It points to:"))
        (sys::describe-frame stream obj))
       (SYSTEM-INTERNAL
-       (format stream (TEXT "a special-purpose object.")))
+       (format stream (ENGLISH "a special-purpose object.")))
       (ADDRESS
-       (format stream (TEXT "a machine address.")))))
+       (format stream (ENGLISH "a machine address.")))))
   (:method ((obj clos:standard-object) (stream stream))
-      (format stream (TEXT "an instance of the CLOS class ~S.")
+      (format stream (ENGLISH "an instance of the CLOS class ~S.")
               (clos:class-of obj))
    (describe-slotted-object obj stream))
   (:method ((obj structure-object) (stream stream)) ; CLISP specific
-    (format stream (TEXT "a structure of type ~S.")
+    (format stream (ENGLISH "a structure of type ~S.")
             (type-of obj))
     (let ((types (butlast (cdr (sys::%record-ref obj 0)))))
       (when types
-        (format stream (TEXT "~%As such, it is also a structure of type ~{~S~^, ~}.")
+        (format stream (ENGLISH "~%As such, it is also a structure of type ~{~S~^, ~}.")
                 types)))
     (describe-slotted-object obj stream))
   (:method ((obj cons) (stream stream))
@@ -225,26 +224,26 @@ to print the corresponding values, or T for all of them.")
       (if len
         (if dotted-p
           (if (> len 1)
-            (format stream (TEXT "a dotted list of length ~S.")
+            (format stream (ENGLISH "a dotted list of length ~S.")
                     len)
-            (progn (format stream (TEXT "a cons."))
+            (progn (format stream (ENGLISH "a cons."))
                    (describe (car obj) stream)
                    (describe (cdr obj) stream)))
-          (format stream (TEXT "a list of length ~S.")
+          (format stream (ENGLISH "a list of length ~S.")
                   len))
-        (format stream (TEXT "a cyclic list.")))))
+        (format stream (ENGLISH "a cyclic list.")))))
   (:method ((obj null) (stream stream))
-    (format stream (TEXT "the empty list, "))
+    (format stream (ENGLISH "the empty list, "))
     (clos:call-next-method))
   (:method ((obj symbol) (stream stream))
-    (format stream (TEXT "the symbol ~S, ")
+    (format stream (ENGLISH "the symbol ~S, ")
             obj)
     (let ((home (symbol-package obj)) mored moree)
       (cond (home
-             (format stream (TEXT "lies in ~S")
+             (format stream (ENGLISH "lies in ~S")
                      home)
              (pushnew home mored))
-            (t (format stream (TEXT "is uninterned"))))
+            (t (format stream (ENGLISH "is uninterned"))))
       (let ((accessible-packs nil))
         (let ((*print-escape* t) (*print-readably* nil))
           (let ((normal-printout
@@ -258,145 +257,138 @@ to print the corresponding values, or T for all of them.")
                    normal-printout)
                 (push pack accessible-packs)))))
         (when accessible-packs
-          (format stream (TEXT ", is accessible in the package~:[~;s~] ~{~A~^, ~}")
+          (format stream (ENGLISH ", is accessible in the package~:[~;s~] ~{~A~^, ~}")
                   (cdr accessible-packs)
                   (sort (mapcar #'package-name accessible-packs)
                         #'string<))))
       (when (keywordp obj)
-        (format stream (TEXT ", is a keyword")))
-      (cond ((boundp obj)
-             (if (constantp obj)
-               (format stream (TEXT ", a constant"))
-               (if (sys::special-variable-p obj)
-                 (format stream (TEXT ", a variable declared SPECIAL"))
-                 (format stream (TEXT ", a variable"))))
-             (when (symbol-macro-expand obj)
-               (format stream (TEXT " (macro: ~s)")
-                       (macroexpand-1 obj))
-               (push `(macroexpand-1 ',obj) moree))
-             (format stream (TEXT ", value: ~s") (sys::%symbol-value obj))
-             (pushnew (sys::%symbol-value obj) mored))
-            ((sys::special-variable-p obj)
-             (format stream
-                     (TEXT ", an unbound variable declared SPECIAL"))))
+        (format stream (ENGLISH ", is a keyword")))
+      (when (boundp obj)
+        (if (constantp obj)
+          (format stream (ENGLISH ", a constant"))
+          (if (sys::special-variable-p obj)
+            (format stream (ENGLISH ", a variable declared SPECIAL"))
+            (format stream (ENGLISH ", a variable"))))
+        (when (symbol-macro-expand obj)
+          (format stream (ENGLISH " (macro: ~s)")
+                  (macroexpand-1 obj))
+          (push `(macroexpand-1 ',obj) moree))
+        (format stream (ENGLISH ", value: ~s") (sys::%symbol-value obj))
+        (pushnew (sys::%symbol-value obj) mored))
       (when (fboundp obj)
-        (format stream (TEXT ", names "))
+        (format stream (ENGLISH ", names "))
         (cond ((special-operator-p obj)
-               (format stream (TEXT "a special operator"))
+               (format stream (ENGLISH "a special operator"))
                (when (macro-function obj)
-                 (format stream (TEXT " with macro definition"))))
+                 (format stream (ENGLISH " with macro definition"))))
               ((functionp (symbol-function obj))
-               (format stream (TEXT "a~:[~; deprecated~] function")
+               (format stream (ENGLISH "a~:[~; deprecated~] function")
                        (member obj *deprecated-functions-list* :test #'eq)))
               (t ; (macro-function obj)
-               (format stream (TEXT "a~:[~; deprecated~] macro")
-                       (member obj *deprecated-functions-list* :test #'eq))))
-        (let ((dep (get obj 'deprecated)))
-          (when dep
-            (format stream (TEXT " (use ~s instead)") dep)))
+               (format stream (ENGLISH "a macro"))))
         (pushnew (symbol-function obj) mored))
       (when (or (get obj 'system::type-symbol)
                 (get obj 'system::defstruct-description)
                 (get obj 'system::deftype-expander))
-        (format stream (TEXT ", names a type"))
+        (format stream (ENGLISH ", names a type"))
         (when (get obj 'system::deftype-expander)
-          (push `(type-expand ',obj t) moree)))
+          (push `(type-expand-1 ',obj) moree)))
       (when (get obj 'clos::closclass)
-        (format stream (TEXT ", names a class")))
+        (format stream (ENGLISH ", names a class")))
       (when (symbol-plist obj)
         (let ((properties
                (do ((l nil) (pl (symbol-plist obj) (cddr pl)))
                    ((null pl) (nreverse l))
                  (push (car pl) l))))
-          (format stream (TEXT ", has the propert~@P ~{~S~^, ~}")
+          (format stream (ENGLISH ", has the propert~@P ~{~S~^, ~}")
                   (length properties) properties))
         (push `(symbol-plist ',obj) moree))
-      (format stream (TEXT "."))
+      (format stream (ENGLISH "."))
       (dolist (ty '(compiler-macro setf structure type variable function))
         (let ((doc (documentation obj ty)))
           (when doc
-            (format stream (TEXT "~%Documentation as a ~a:~%~a") ty doc))))
+            (format stream (ENGLISH "~%Documentation as a ~a:~%~a") ty doc))))
       (when moree
-        (format stream (TEXT "~%For more information, evaluate ~{~S~^ or ~}.")
+        (format stream (ENGLISH "~%For more information, evaluate ~{~S~^ or ~}.")
                 moree))
       (dolist (zz (nreverse mored)) (describe zz stream))))
   (:method ((obj integer) (stream stream))
-    (format stream (TEXT "an integer, uses ~S bit~:p, is represented as a ~(~A~).")
+    (format stream (ENGLISH "an integer, uses ~S bit~:p, is represented as a ~(~A~).")
             (integer-length obj) (type-of obj)))
   (:method ((obj ratio) (stream stream))
-    (format stream (TEXT "a rational, not integral number.")))
+    (format stream (ENGLISH "a rational, not integral number.")))
   (:method ((obj float) (stream stream))
-    (format stream (TEXT "a float with ~S bits of mantissa (~(~A~)).")
+    (format stream (ENGLISH "a float with ~S bits of mantissa (~(~A~)).")
             (float-digits obj) (type-of obj)))
   (:method ((obj complex) (stream stream))
-    (format stream (TEXT "a complex number "))
+    (format stream (ENGLISH "a complex number "))
     (let ((x (realpart obj))
           (y (imagpart obj)))
       (if (zerop y)
         (if (zerop x)
-          (format stream (TEXT "at the origin"))
-          (format stream (TEXT "on the ~:[posi~;nega~]tive real axis")
+          (format stream (ENGLISH "at the origin"))
+          (format stream (ENGLISH "on the ~:[posi~;nega~]tive real axis")
                   (minusp x)))
         (if (zerop x)
-          (format stream (TEXT "on the ~:[posi~;nega~]tive imaginary axis")
+          (format stream (ENGLISH "on the ~:[posi~;nega~]tive imaginary axis")
                   (minusp y))
-          (format stream (TEXT "in the ~:[~:[first~;fourth~]~;~:[second~;third~]~] quadrant")
+          (format stream (ENGLISH "in the ~:[~:[first~;fourth~]~;~:[second~;third~]~] quadrant")
                   (minusp x) (minusp y)))))
-    (format stream (TEXT " of the Gaussian number plane.")))
+    (format stream (ENGLISH " of the Gaussian number plane.")))
   (:method ((obj character) (stream stream))
-    (format stream (TEXT "a character"))
-    (format stream (TEXT "."))
+    (format stream (ENGLISH "a character"))
+    (format stream (ENGLISH "."))
     #+UNICODE
     (let ((unicode-name (unicode-attributes obj)))
       (if unicode-name
-        (format stream (TEXT "~%Unicode name: ~A") unicode-name)
-        (format stream (TEXT "~%It is not defined by the Unicode standard."))))
-    (format stream (TEXT "~%It is a ~:[non-~;~]printable character.")
+        (format stream (ENGLISH "~%Unicode name: ~A") unicode-name)
+        (format stream (ENGLISH "~%It is not defined by the Unicode standard."))))
+    (format stream (ENGLISH "~%It is a ~:[non-~;~]printable character.")
             (graphic-char-p obj))
     (unless (standard-char-p obj)
-      (format stream (TEXT "~%Its use is non-portable."))))
+      (format stream (ENGLISH "~%Its use is non-portable."))))
   (:method ((obj stream) (stream stream))
-    (format stream (TEXT "a~:[~:[ closed ~;n output-~]~;~:[n input-~;n input/output-~]~]stream.")
+    (format stream (ENGLISH "a~:[~:[ closed ~;n output-~]~;~:[n input-~;n input/output-~]~]stream.")
             (and (input-stream-p obj) (open-stream-p obj))
             (and (output-stream-p obj) (open-stream-p obj))))
   (:method ((obj package) (stream stream))
     (if (package-name obj)
       (progn
-        (format stream (TEXT "the package named ~A")
+        (format stream (ENGLISH "the package named ~A")
                 (package-name obj))
         (let ((nicknames (package-nicknames obj)))
           (when nicknames
-            (format stream (TEXT ". It has the nicknames ~{~A~^, ~}")
+            (format stream (ENGLISH ". It has the nicknames ~{~A~^, ~}")
                     nicknames)))
-        (format stream (TEXT "."))
+        (format stream (ENGLISH "."))
         (let ((use-list (package-use-list obj))
               (used-by-list (package-used-by-list obj)))
-          (format stream (TEXT "~%It "))
+          (format stream (ENGLISH "~%It "))
           (when use-list
-            (format stream (TEXT "imports the external symbols of the package~:[~;s~] ~{~A~^, ~} and ")
+            (format stream (ENGLISH "imports the external symbols of the package~:[~;s~] ~{~A~^, ~} and ")
                     (cdr use-list) (mapcar #'package-name use-list)))
           (let ((L nil)) ; maybe list all exported symbols
             (do-external-symbols (s obj) (push s L))
             (if (zerop *describe-nesting*)
-              (format stream (TEXT "exports ~:[no symbols~;the symbols~:*~{ ~S~}~]")
+              (format stream (ENGLISH "exports ~:[no symbols~;the symbols~:*~{~<~%~:; ~S~>~^~}~%~]")
                       (sort L #'string< :key #'symbol-name))
-              (format stream (TEXT "exports ~[no symbols~:;~:*~:d symbols~]")
+              (format stream (ENGLISH "exports ~[no symbols~:;~:*~:d symbols~]")
                       (length L))))
           (if used-by-list
-            (format stream (TEXT " to the package~:[~;s~] ~{~A~^, ~}")
+            (format stream (ENGLISH " to the package~:[~;s~] ~{~A~^, ~}")
                     (cdr used-by-list)
                     (mapcar #'package-name used-by-list))
-            (format stream (TEXT ", but no package uses these exports")))
-          (format stream (TEXT "."))))
-      (format stream (TEXT "a deleted package."))))
+            (format stream (ENGLISH ", but no package uses these exports")))
+          (format stream (ENGLISH "."))))
+      (format stream (ENGLISH "a deleted package."))))
   (:method ((obj hash-table) (stream stream))
-    (format stream (TEXT "a hash table with ~S entr~:@P.")
+    (format stream (ENGLISH "a hash table with ~S entr~:@P.")
             (hash-table-count obj)))
   (:method ((obj readtable) (stream stream))
-    (format stream (TEXT "~:[a~;the Common Lisp~] readtable.")
+    (format stream (ENGLISH "~:[a~;the Common Lisp~] readtable.")
             (equalp obj (copy-readtable))))
   (:method ((obj pathname) (stream stream))
-    (format stream (TEXT "a ~:[~;portable ~]pathname~:[.~;~:*, with the following components:~{~A~}~]")
+    (format stream (ENGLISH "a ~:[~;portable ~]pathname~:[.~;~:*, with the following components:~{~A~}~]")
             (sys::logical-pathname-p obj)
             (mapcan #'(lambda (kw component)
                         (when component
@@ -411,37 +403,38 @@ to print the corresponding values, or T for all of them.")
                           (pathname-type obj)
                           (pathname-version obj)))))
   (:method ((obj random-state) (stream stream))
-    (format stream (TEXT "a random-state.")))
+    (format stream (ENGLISH "a random-state.")))
   (:method ((obj array) (stream stream))
     (let ((rank (array-rank obj))
           (eltype (array-element-type obj)))
-      (format stream (TEXT "a~:[~; simple~] ~A dimensional array")
+      (format stream (ENGLISH "a~:[~; simple~] ~A dimensional array")
               (simple-array-p obj) rank)
       (when (eql rank 1)
-        (format stream (TEXT " (vector)")))
+        (format stream (ENGLISH " (vector)")))
       (unless (eq eltype 'T)
-        (format stream (TEXT " of ~(~A~)s")
+        (format stream (ENGLISH " of ~(~A~)s")
                 eltype))
       (when (adjustable-array-p obj)
-        (format stream (TEXT ", adjustable")))
+        (format stream (ENGLISH ", adjustable")))
       (when (plusp rank)
-        (format stream (TEXT ", of size ~{~S~^ x ~}")
+        (format stream (ENGLISH ", of size ~{~S~^ x ~}")
                 (array-dimensions obj))
         (when (array-has-fill-pointer-p obj)
-          (format stream (TEXT " and current length (fill-pointer) ~S")
+          (format stream (ENGLISH " and current length (fill-pointer) ~S")
                   (fill-pointer obj))))
-      (format stream (TEXT "."))))
+      (format stream (ENGLISH "."))))
   (:method ((obj function) (stream stream))
     (ecase (type-of obj)
       #+FFI
-      (FFI::FOREIGN-FUNCTION
-       (format stream (TEXT "a foreign function of foreign type ~S.")
-               (deparse-c-type (vector 'ffi::c-function
-                                       (sys::%record-ref obj 2)
-                                       (sys::%record-ref obj 3)
-                                       (sys::%record-ref obj 4)))))
+      (FOREIGN-FUNCTION
+       (format stream (ENGLISH "a foreign function."))
+       (multiple-value-bind (name req opt rest-p key-p keywords other-keys-p)
+           (sys::function-signature obj)
+         (declare (ignore name))
+         (sys::describe-signature stream req opt rest-p key-p keywords
+                                  other-keys-p)))
       (COMPILED-FUNCTION ; SUBR
-       (format stream (TEXT "a built-in system function."))
+       (format stream (ENGLISH "a built-in system function."))
        (multiple-value-bind (name req opt rest-p keywords other-keys)
            (sys::subr-info obj)
          (when name
@@ -449,14 +442,14 @@ to print the corresponding values, or T for all of them.")
                                     keywords keywords other-keys))))
       (FUNCTION
        (format stream
-               (TEXT "a~:[n interpret~; compil~]ed function.")
+               (ENGLISH "a~:[n interpret~; compil~]ed function.")
                (compiled-function-p obj))
        (if (compiled-function-p obj)
          (multiple-value-bind (req opt rest-p key-p keywords other-keys-p)
              (sys::signature obj)
            (sys::describe-signature stream req opt rest-p key-p keywords
                                     other-keys-p)
-           (format stream (TEXT "~%For more information, evaluate ~{~S~^ or ~}.")
+           (format stream (ENGLISH "~%For more information, evaluate ~{~S~^ or ~}.")
                    (let* ((name (sys::closure-name obj))
                           (funform
                             (if (and (symbolp name) (macro-function name))
@@ -465,41 +458,43 @@ to print the corresponding values, or T for all of them.")
                          )) )
                      `((DISASSEMBLE ,funform)))))
          (let ((doc (sys::%record-ref obj 2)))
-           (format stream (TEXT "~%argument list: ~:S")
+           (format stream (ENGLISH "~%argument list: ~:S")
                    (car (sys::%record-ref obj 1)))
            (when doc
-             (format stream (TEXT "~%documentation: ~A") doc))))))))
+             (format stream (ENGLISH "~%documentation: ~A") doc))))))))
 
 (defun describe1 (obj stream)
-  (let ((objstring (sys::write-to-short-string
-                    obj (or *print-right-margin* sys::*prin-linelength*))))
+  (let ((objstring (sys::write-to-short-string obj (or *print-right-margin* sys::*prin-linelength*))))
     (if (member obj *describe-done* :test #'eq)
-      (format stream (TEXT "~&~%~A [see above]") objstring)
+      (format stream (ENGLISH "~&~%~A [see above]") objstring)
       (progn
         (push obj *describe-done*)
-        (format stream (TEXT "~&~%~A is ") objstring)
-        (describe-object obj stream))))
-  (finish-output stream))
+        (format stream (ENGLISH "~&~%~A is ") objstring)
+        (describe-object obj stream)
+) ) ) )
 
 (defun describe (obj &optional stream)
-  (cond ((typep stream 'describe-stream) ; Recursive call
-         ;; flush the pending output _before_ increasing indentation
-         (force-output stream)
-         (let ((*describe-nesting* (1+ *describe-nesting*))
-               (*print-right-margin*
-                (max (- (or *print-right-margin* sys::*prin-linelength*)
-                        *print-indent-lists*)
-                     1)))
-           (describe1 obj stream)))
-        (t                      ; Top-level call
-         (cond ((eq stream 'nil) (setq stream *standard-output*))
-               ((eq stream 't) (setq stream *terminal-io*)))
-         (let ((*print-circle* t)
-               (*describe-nesting* 0)
-               (*describe-done* nil))
-           (describe1 obj (clos:make-instance 'describe-stream
-                                              :stream stream)))))
-  (values))
+  (if (typep stream 'describe-stream)
+    ; Recursive call
+    (let ((*describe-nesting* (1+ *describe-nesting*))
+          (*print-right-margin*
+             (max (- (or *print-right-margin* sys::*prin-linelength*)
+                     *print-indent-lists*)
+                  1)))
+      (describe1 obj stream)
+    )
+    ; Top-level call
+    (progn
+      (cond ((eq stream 'nil) (setq stream *standard-output*))
+            ((eq stream 't) (setq stream *terminal-io*)))
+      (let ((*print-circle* t)
+            (*describe-nesting* 0)
+            (*describe-done* nil))
+        (describe1 obj (clos:make-instance 'describe-stream :stream stream))
+    ) )
+  )
+  (values)
+)
 
 ;;-----------------------------------------------------------------------------
 ;; auxiliary functions for DESCRIBE of FUNCTION
@@ -509,39 +504,34 @@ to print the corresponding values, or T for all of them.")
 (defun describe-signature (s req-anz opt-anz rest-p keyword-p keywords
                            allow-other-keys)
   (when s
-    (format s (TEXT "~%Argument list: ")))
-  (prog1
-      (format s "(~{~A~^ ~})"
-              (signature-to-list req-anz opt-anz rest-p keyword-p keywords
-                                 allow-other-keys))
-    (when s (format s "."))))
-
-;;-----------------------------------------------------------------------------
-;; auxiliary functions for CLISP metadata
-
-(defun clisp-data-file (name)
-  ;; [ $(lisplibdir) == *lib-directory* ]/data/name
-  (let ((*merge-pathnames-ansi* t) path
-        (data (make-pathname :directory (list :relative "data"))))
-    (assert (probe-file
-             (setq path (merge-pathnames
-                         name (merge-pathnames data *lib-directory*))))
-            (*lib-directory*) "~s: file ~s does not exist - adjust ~s"
-            'clisp-data-file path '*lib-directory*)
-    path))
+    (format s (ENGLISH "~%Argument list: ")))
+  (format s "(~{~A~^ ~})"
+          (signature-to-list req-anz opt-anz rest-p keyword-p keywords
+                             allow-other-keys)))
 
 ;;-----------------------------------------------------------------------------
 ;; auxiliary functions for DESCRIBE of CHARACTER
 
 #+UNICODE (progn
 
-;; Return the line associated with a Unicode code in the Unicode data file.
-;; Returns a simple-string or nil. Also used by the CHAR-NANE function.
+(defun unicode-data-file ()
+  ; $(lisplibdir)/data/UnicodeData.txt
+  (merge-pathnames
+    "UnicodeData.txt"
+    (let ((libdir (sys::lib-directory)))
+      (make-pathname
+        :host (pathname-host libdir)
+        :device (pathname-device libdir)
+        :directory #+UNIX (append (pathname-directory libdir) (list "data"))
+                   #-UNIX (pathname-directory libdir)
+) ) ) )
+
+; Return the line associated with a Unicode code in the Unicode data file.
+; Returns a simple-string or nil. Also used by the CHAR-NANE function.
 (defun unicode-attributes-line (code)
-  (with-open-file (f (clisp-data-file "UnicodeData.txt")
-                     :direction :input
-                     :element-type 'character
-                     :external-format 'charset:ascii)
+  (with-open-file (f (unicode-data-file) :direction :input
+                                         :element-type 'character
+                                         :external-format 'charset:ascii)
     ;; We know that the file's lines are sorted according to the code, and
     ;; we use this fact to perform a fast binary search.
     (flet ((code-at-pos ()

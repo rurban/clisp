@@ -14,13 +14,15 @@
 ;;; The CLtL way
 
 (defpackage :xlib (:use :lisp #+(and kcl clos-conditions) :conditions))
-(in-package :xlib)
 
 #+(and (or kcl ibcl) (not clx-ansi-common-lisp))
 (shadow
   '(
     rational
     ))
+
+#+clisp
+(shadow :boolean)
 
 #+(and lispm (not clx-ansi-common-lisp))
 (import

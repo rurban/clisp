@@ -160,7 +160,7 @@
                (setq output (pathname output))
                (error-of-type 'file-error
                  :pathname output
-                 (TEXT "~S: File ~S already exists")
+                 (ENGLISH "~S: File ~S already exists")
                  'run-shell-command output
          ) ) ) )
          (setq command
