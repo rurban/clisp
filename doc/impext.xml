@@ -2233,9 +2233,8 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
     diagrams using
     <ulink url="http://norsys.com/netica_c_api.htm">Netica</ulink>.
  </simpara></listitem></varlistentry>
- <varlistentry><term>postgresql</term>
-  <listitem><simpara>Access
-    <ulink url="http://www.PostgreSQL.org/">PostgreSQL</ulink> from &clisp;.
+ <varlistentry><term><link linkend="postgresql">postgresql</link></term>
+  <listitem><simpara>Access &postgresql-link; from &clisp;.
   </simpara></listitem></varlistentry>
  <varlistentry><term>queens</term>
   <listitem><simpara>Compute the number of solutions to the &n-r;-queens
