@@ -4044,7 +4044,7 @@ typedef struct strm_unbuffered_extrafields_struct {
   local void fehler_interrupt()
     {
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(serious_condition,
+      fehler(interrupt_condition,
              GETTEXT("~: Ctrl-C: User break")
             );
     }
