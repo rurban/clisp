@@ -6141,7 +6141,6 @@ local bool check_lines_limit (void) {
     return true;
   var uintL max_lines = posfixnum_to_L(limit);
   var uintL cur_lines = posfixnum_to_L(now);
-  printf("check_lines_limit: [max: %d] [cur: %d]\n",max_lines,cur_lines);
   return max_lines <= cur_lines;
 }
 
