@@ -5055,7 +5055,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <entry>if &hw; = PC (clone) and
   &os; = Win32 (Windows 95/98/NT/Me/2000/XP)</entry></row>
 <row><entry><constant>:PC386</constant></entry>
- <entry>if &hw; = PC (clone) with a 386/486/586/686 CPU</entry></row>
+ <entry>if &hw; = PC (clone) with a 386/486/586/686/786 CPU</entry></row>
 <row><entry>&unix-k;</entry>
  <entry>if &os; = Unix (in this case the &hw; is irrelevant!)</entry></row>
 <row><entry><constant>:CYGWIN</constant></entry>
