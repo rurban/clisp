@@ -10,7 +10,7 @@
            "get-beliefs" "enter-finding"))
 
 (in-package "SYS")
-(setf (package-lock "SYS") nil)
+(eval-when (compile eval load) (setf (package-lock "SYS") nil))
 (pushnew :netica *features*)
 
 (defvar netica:*verbose* *standard-output* "the netica log stream")
@@ -55,7 +55,7 @@
                             ((:verbose netica:*verbose*) netica:*verbose*))
   "Start netica, initialize it, and return the new environment.
 Sets netica:*env* to this environment on success."
-  (let ((env (netica::NewNeticaEnviron_ns license nil nil))
+  (let ((env (netica::NewNeticaEnviron_ns netica:*license* nil nil))
         status message)
     (when netica:*verbose*
       (format netica:*verbose* "~&;; new environment: ~s~%" env))
@@ -246,4 +246,4 @@ and node-state-probability-vector is a vector of corresponding node state
               (netica::GetNetFileName_bn net) out))))
 
 (push "NETICA" *system-package-list*)
-(setf (package-lock *system-package-list*) t)
+(eval-when (compile eval load) (setf (package-lock *system-package-list*) t))
