@@ -1498,7 +1498,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             };
         # *FEATURES* initialisieren:
         { var const char * features_initstring =
-            "(CLISP CLTL1 COMMON-LISP INTERPRETER"
+            "(CLISP CLTL2 COMMON-LISP INTERPRETER"
             #ifdef LOGICAL_PATHNAMES
               " LOGICAL-PATHNAMES"
             #endif
