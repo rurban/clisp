@@ -7289,6 +7289,44 @@ local void pr_list_unquote (const gcv_object_t* stream_, object list) {
   dynamic_unbind(S(prin_bqlevel));
 }
 
+# UP: Print a pair in cons-like (car . cdr) notation.
+# pr_pair(&stream,car,cdr);
+# > car: an object
+# > cdr: an object
+# > stream: stream
+# < stream: stream
+# can trigger GC
+local void pr_pair (const gcv_object_t* stream_, object car, object cdr) {
+  LEVEL_CHECK;
+  {
+    var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
+    pushSTACK(car); pushSTACK(cdr); # save car and cdr
+    var gcv_object_t* pair_ = &STACK_0; # and memorize, where they are
+    KLAMMER_AUF; # '('
+    INDENT_START(get_indent_lists()); # indent by 1 character, because of '('
+    JUSTIFY_START(1);
+    # test for attaining of *PRINT-LENGTH* :
+    CHECK_LENGTH_LIMIT(length_limit==0,goto end_of_list);
+    # test for attaining of *PRINT-LINES* :
+    CHECK_LINES_LIMIT(goto end_of_list);
+    # print the CAR from here
+    JUSTIFY_LAST(false);
+    prin_object(stream_,*(pair_ STACKop 1)); # print the CAR
+    JUSTIFY_SPACE; # print one Space
+    JUSTIFY_LAST(false);
+    write_ascii_char(stream_,'.');
+    JUSTIFY_SPACE;
+    JUSTIFY_LAST(true);
+    prin_object(stream_,*(pair_ STACKop 0));
+  end_of_list:
+    JUSTIFY_END_FILL;
+    INDENT_END;
+    KLAMMER_ZU;
+    skipSTACK(2);
+  }
+  LEVEL_END;
+}
+
 #                      -------- Numbers --------
 
 # UP: prints real number to stream.
@@ -7534,7 +7572,6 @@ local void pr_kvtable (const gcv_object_t* stream_, gcv_object_t* kvt,
                        uintL index, uintL count) {
   var uintL length = 0;
   var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
-  pushSTACK(allocate_cons()); # save the cons (key . value)
   loop {
     length++; # increase previous length
     # search for next to be printed Key-Value-Pair:
@@ -7552,13 +7589,11 @@ local void pr_kvtable (const gcv_object_t* stream_, gcv_object_t* kvt,
     CHECK_LINES_LIMIT(break);
     count--;
     JUSTIFY_LAST(count==0);
-    # create Cons (Key . Value) and print:
+    # Print fake cons (Key . Value):
     var gcv_object_t* ptr = kvtable_data(*kvt)+index;
-    Car(STACK_0) = ptr[0]; # Key
-    Cdr(STACK_0) = ptr[1]; # Value
-    prin_object(stream_,STACK_0);
+    pr_pair(stream_,ptr[0],ptr[1]);
   }
- kvt_finish: skipSTACK(1); # drop the cons
+ kvt_finish: ;
 }
 
 # UP: prints weak key-value table to stream.

@@ -1,3 +1,8 @@
+2004-05-05  Bruno Haible  <bruno@clisp.org>
+
+	* io.d (pr_pair): New function.
+	(pr_kvtable): Use it.
+
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 
 	Change the default-initargs representation to match the MOP.
