@@ -768,7 +768,9 @@ DEFUN(POSIX::STAT-VFS, file)
   pushSTACK(UL_to_I(buf.f_fsid));   /* file system ID */
 #else
   /* On Linux, f_fsid of 'struct statfs' is a struct consisting of two ints.
-     With glibc <= 2.1, f_fsid of 'struct statvfs' is the same. */
+     With glibc <= 2.1, f_fsid of 'struct statvfs' is the same. We are
+     prepared to return one number only, so we just return the first int.
+     This matches the behaviour of glibc >= 2.2 on 32-bit platforms. */
   pushSTACK(UL_to_I(*(uintL*)&buf.f_fsid));   /* file system ID */
 #endif
   { /* bit mask of f_flag values */
