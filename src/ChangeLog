@@ -1,5 +1,25 @@
 2004-03-21  Bruno Haible  <bruno@clisp.org>
 
+	* clos-slots2.lisp (slot-unbound): Quote the slot-name in the place.
+
+	* clos-class2.lisp (DEFCLASS): Don't emit code to FIND-CLASS the
+	direct superclasses.
+	(ensure-class): Call FIND-CLASS on the direct superclasses here.
+	Call FIND-CLASS also on the old direct superclasses. Don't create a
+	new class object if the class exists but has not yet been finalized.
+
+	* clos-class2.lisp (*finalizing-now*): Remove variable.
+	(class-finalize): Pass the finalizing-now stack as optional argument.
+
+	* clos-class5.lisp (make-instances-obsolete): Don't do anything if the
+	class is not yet finalized. Return the argument unmodified, even if
+	it's a symbol.
+
+	* documentation.lisp (documentation, setf documentation): Add a method
+	for (SYMBOL (EQL METHOD-COMBINATION)).
+
+2004-03-21  Bruno Haible  <bruno@clisp.org>
+
 	Remove redundant information from the DEFSTRUCT-DESCRIPTION.
 	* defstruct.lisp (make-ds-slot): Remove 8th argument.
 	(ds-slot-var): Remove function.

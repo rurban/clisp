@@ -630,6 +630,26 @@ FOO
     (< nslots-before (sys::%record-length i))))
 T
   
+;; Redefining a finalized class must not change its identity.
+(let (c1 c2)
+  (defclass foo60-b () ())
+  (defclass foo60-a (foo60-b) ())
+  (make-instance 'foo60-b)
+  (setq c1 (find-class 'foo60-a))
+  (defclass foo60-a () ())
+  (setq c2 (find-class 'foo60-a))
+  (eq c1 c2))
+T
+
+;; Redefining a non-finalized class must not change its identity.
+(let (c1 c2)
+  (defclass foo61-a (foo61-b) ())
+  (setq c1 (find-class 'foo61-a))
+  (defclass foo61-a () ())
+  (setq c2 (find-class 'foo61-a))
+  (eq c1 c2))
+T
+
 ;; update-instance-for-redefined-class
 ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_upd_efined-class.html>
 (progn
