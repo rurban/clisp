@@ -271,7 +271,7 @@
 
 # GCC2 can jump directly to labels. This results in faster code than switch().
   #ifdef GNU
-    #if (__GNUC__ >= 2) && !defined(UNIX_HPUX) && !defined(NO_FAST_DISPATCH) # work around HP-UX Linker Bug 
+    #if (__GNUC__ >= 2) && !defined(UNIX_HPUX) && !defined(NO_FAST_DISPATCH) # work around HP-UX Linker Bug
       #define FAST_DISPATCH
       #if (__GNUC_MINOR__ >= 7) # work around gcc-2.6.3 Bug (-fno-defer-pop ginge auch)
         #define FAST_DISPATCH_THREADED
@@ -300,7 +300,7 @@ LISPFUNN(funtabref,1)
     var uintL i;
     if (posfixnump(arg) # should be Fixnum >=0
         && (i = posfixnum_to_L(arg),
-            i < FUNTAB_length+FUNTABR_length)) { # and < table-length 
+            i < FUNTAB_length+FUNTABR_length)) { # and < table-length
       # Name of the indexed element of the table:
       value1 = (i < FUNTAB_length
                 ? FUNTAB[i]                # from FUNTAB1/2
@@ -388,7 +388,7 @@ LISPFUNN(subr_info,1)
               } else {
                 # UNWIND_PROTECT_FRAME, DRIVER_FRAME or trapped APPLY/EVAL_FRAME
                 if (frame_info & bit(dynjump_bit_t)) {
-                  # UNWIND_PROTECT_FRAME or DRIVER_FRAME 
+                  # UNWIND_PROTECT_FRAME or DRIVER_FRAME
                   if (frame_info & bit(driver_bit_t)) {
                     # DRIVER_FRAME
                   } else {
@@ -2378,7 +2378,7 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
 # > uintC argcount: Number of Keyword/Value-pairs
 # > object* rest_args_pointer: Pointer to the 2*argcount remaining arguments
 # > bool allow_flag: Flag, if &ALLOW-OTHER-KEYS was specified
-# > for_every_keyword: Macro, which loops over all Keywords and assigns 
+# > for_every_keyword: Macro, which loops over all Keywords and assigns
 #                      them to 'keyword'.
 # > fehler_statement: Statement, that reports, that bad_keyword is illegal.
   #define check_for_illegal_keywords(allow_flag_expr,fehler_statement)  \
@@ -3060,7 +3060,7 @@ global Values eval_no_hooks (object form) {
             # yes -> expand and evaluate again:
             skipSTACK(1); # forget value of *APPLYHOOK*
             check_SP(); check_STACK();
-            eval(TheSymbolmacro(value1)->symbolmacro_expansion); # evaluate Expansion 
+            eval(TheSymbolmacro(value1)->symbolmacro_expansion); # evaluate Expansion
             unwind(); # unwind EVAL-Frame
           } else {
             mv_count=1; # value1 as value
@@ -3221,7 +3221,7 @@ global Values eval_no_hooks (object form) {
           pushSTACK(args); # remaining body into STACK
           break;
         default: NOTREACHED
-        fehler_zuwenig: # argument-list args is an atom, prematurely 
+        fehler_zuwenig: # argument-list args is an atom, prematurely
           if (!nullp(args)) goto fehler_dotted;
           # clean up STACK up to the calling EVAL-Frame:
           until (framecode(STACK_0) & bit(frame_bit_t)) {
@@ -3938,7 +3938,7 @@ local void fehler_eval_dotted(object fun) {
        apply_cclosure_key_noargs:
         {
           var uintC count = TheCodevec(codevec)->ccv_numkey; # number of Keyword-parameters
-          dotimesC(count,count, { pushSTACK(unbound); } ); # initialize with #<UNBOUND> 
+          dotimesC(count,count, { pushSTACK(unbound); } ); # initialize with #<UNBOUND>
           interpret_bytecode(closure,codevec,CCV_START_KEY); # interprete bytecode starting at Byte 12
         }
         goto done;
@@ -4892,7 +4892,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
             if (key_anz > 0) {
               get_space_on_STACK(sizeof(object) * (uintL)key_anz);
               var uintC count;
-              dotimespC(count,key_anz, { pushSTACK(unbound); } ); # initialize with #<UNBOUND> 
+              dotimespC(count,key_anz, { pushSTACK(unbound); } ); # initialize with #<UNBOUND>
             }
             goto apply_cclosure_key;
           }
@@ -4903,7 +4903,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
           {
             var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keyword-parameters
             # shift down remaining arguments in STACK and thus
-            # create room for the Keyword-parameters 
+            # create room for the Keyword-parameters
             # (and poss. Rest-parameters):
             var uintL shift = key_anz;
             if (flags & bit(0))
@@ -5817,7 +5817,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             if (key_anz > 0) {
               get_space_on_STACK(sizeof(object) * (uintL)key_anz);
               var uintC count;
-              dotimespC(count,key_anz, { pushSTACK(unbound); } ); # initialize with #<UNBOUND> 
+              dotimespC(count,key_anz, { pushSTACK(unbound); } ); # initialize with #<UNBOUND>
             }
             goto apply_cclosure_key;
           }
@@ -5993,7 +5993,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       # situate closure in STACK, below the arguments:
       var object* closureptr = (pushSTACK(closure), &STACK_0);
       #ifndef FAST_SP
-        # If there is no fast SP-Access, one has to introduce 
+        # If there is no fast SP-Access, one has to introduce
         # an extra pointer:
         var uintL private_SP_length =
           (uintL)(((Codevec)codeptr)->ccv_spdepth_1)
@@ -7651,7 +7651,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           # nothing to do, because closure and byteptr stay unmodified.
           FREE_JMPBUF_on_SP(); skipSP(2);
           skipSTACK(2);
-          # Dummy-Werte für 'unwind_protect_to_save':
+          # dummy value for 'unwind_protect_to_save':
           pushSP((aint)NULL); pushSP((aint)NULL); # NULL,NULL -> uwp_continue
           pushSP((aint)STACK); # push Pointer above Frame additionally on the SP
           # move all values to the Stack:
