@@ -1479,6 +1479,7 @@ global int main()
       printf("#define value%d  mv_space[%d]\n",i,i-1);
   }
   printf("#define VALUES1(A) do{ value1 = (A); mv_count = 1; }while(0)\n");
+  printf("#define VALUES_IF(C) do{ value1 = (C) ? T : NIL; mv_count = 1; }while(0)\n");
   printf("#define args_end_pointer  STACK\n");
 # printf("#define set_args_end_pointer(new_args_end_pointer)  STACK = (new_args_end_pointer)\n");
 # #ifdef STACK_DOWN
