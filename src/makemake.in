@@ -440,6 +440,9 @@ case $# in
      X_INCLUDES=''
      X_LIBS=''
      shift 2
+     if [ ${TSYS} = "win32gcc" ]; then
+       CC="gcc -mno-cygwin";
+     fi
      ;;
 esac
 
@@ -879,7 +882,7 @@ if [ $XCC_GCC = true ] ; then
     XCFLAGS=$XCFLAGS'-O2'
   fi
   if [ $TSYS = win32gcc ] ; then
-    XCFLAGS=$XCFLAGS' -mno-cygwin -D_WIN32';
+    XCFLAGS=$XCFLAGS' -D_WIN32';
   fi
   if [ $TSYS = sun4 -o $TSYS = acorn ] ; then
     XCLFLAGS='-static'
