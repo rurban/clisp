@@ -2092,10 +2092,13 @@ if [ "$CHSCONVERT" = "./cv_lt_pc" ] ; then
   UTILS=$UTILS' cv_lt_pc'
 fi
 
+PARAMS="intparam floatparam";
+PARAMS_H="";
 line="init :"
-if [ $TOS = unix ] ; then
-  line=$line" intparam.h"
-fi
+for parf in ${PARAMS}; do
+  line=$line" "${parf}.h;
+  PARAMS_H=${PARAMS_H}" "${parf}.h;
+done
 if [ $XCC_UNUSABLE_CPP = true ] ; then
   line=$line" ${SRCTOPDIR}utils/gcc-cccp/cccp${HEXE}"
 fi
@@ -2119,13 +2122,13 @@ else
   echodummyrule init
 fi
 echol
-if [ $TOS = unix ] ; then
-  echol "intparam.h : ${SRCDIR}intparam.c"
-  echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${SRCDIR}intparam.c" "intparam"
-  echotab "${HERE}intparam${HEXE} > intparam.h"
-  echotab "\$(RM) intparam${HEXE}"
+for parf in ${PARAMS}; do
+  echol "${parf}.h : ${SRCDIR}${parf}.c"
+  echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${SRCDIR}${parf}.c" "${parf}"
+  echotab "${HERE}${parf}${HEXE} > ${parf}.h"
+  echotab "\$(RM) ${parf}${HEXE}"
   echol
-fi
+done
 if [ $XCC_UNUSABLE_CPP = true ] ; then
   echol "${SRCTOPDIR}utils/gcc-cccp/cccp${HEXE} :"
   if [ $HOS = unix ] ; then
@@ -2924,9 +2927,14 @@ if [ $XCC_GCC = true ] ; then
   echol
 fi
 
-echol "clisp.h : genclisph.o unixconf.h intparam.h"
+
+echol "clisp.h : genclisph.o unixconf.h ${PARAMS_H}"
 echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
-echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo ; grep '^#' unixconf.h ; echo ; grep '^#' intparam.h ; echo ; ${HERE}genclisph ; echo ; echo '#endif /* _CLISP_H */') > clisp.h"
+echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* unixconf */' ; grep '^#' unixconf.h ) > clisp.h"
+for parf in ${PARAMS_H}; do
+  echotab "(echo; echo '/* '${parf}' */' ; grep '^#' ${parf} ) >> clisp.h"
+done
+echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph ; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
 echotab "\$(RM) genclisph${HEXE}"
 echol
 echol "linkkit : modules.d modules.c clisp.h"
@@ -3590,7 +3598,7 @@ clean6 : clean5
 
 # clean7 lets us go back to the main "configure".
 clean7 : clean6
-	-\$(RM) config.status config.log config.cache intparam.h unixconf.h makemake
+	-\$(RM) config.status config.log config.cache ${PARAMS_H} unixconf.h makemake
 !!
 if [ -n "$USE_GETTEXT" ] ; then
 cat <<!!
