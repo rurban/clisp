@@ -123,12 +123,13 @@ Optional arguments:
     bytes        you can reduce this to 10,000 or so.  Alternatively, if you have a
                  fast connection to Oracle and regularly do large queries, you can
                  increase throughput by increasing this value.
-    long-len     Number of bytes to fetch for LONG data type.  LONG columns having
-                 data that exceeds this size will raise an error, or be truncated
-                 depending on the value of truncate-ok (below).  Setting this parameter
-                 to zero and disallowing truncation will disable LONG fetching entirely.
-                 If NIL or negative, defaults to 500k bytes.
-    truncate-ok  If set, allow truncation of LONG columns (default: NIL).
+    long-len     Number of bytes to fetch for \"long\" (LONG, [BC]LOB) types.
+                 Long data that exceeds this size will raise an error,
+                 or be truncated depending on the value of truncate-ok
+                 (below).  Setting this parameter to zero and disallowing truncation
+                 will disable long fetching entirely.  If NIL or negative, defaults to
+                 500k bytes.
+    truncate-ok  If set, allow truncation of LONG columns to long-len (default: NIL).
 
 Returns: T if a cached connection was re-used (NIL if a new connection
          was created and cached).
@@ -329,6 +330,7 @@ Oracle data types are converted to Lisp datatypes as follows:
     - Strings (char, varchar, varchar2) are left as Lisp strings
     - Dates are converted to strings of the form \"YYYY-MM-DD HH:MM:SS\"
       where HH is 24-hour form.
+    - RAW and LONG RAW are converted to hexadecimal strings
 
 Returns NIL if no rows are left (the EOF predicate can be before
 a fetch to test this condition).
