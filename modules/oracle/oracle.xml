@@ -11,16 +11,15 @@ of &oracle-link; errors, and more.  </para>
 <para>The module can be used to build sophisticated &oracle-link; database
 applications in &cl;.</para>
 
-<section>
-
-<title>Functions and Macros in package <quote role="package">ORACLE</quote></title><para>Access to
-&oracle-link; is via these functions and macros in package <quote role="package">ORACLE</quote>.
+<section id="ora-functionality"><title>Functions and Macros in
+  package <quote role="package">ORACLE</quote></title>
+<para>Access to &oracle-link; is via these functions and macros in
+package <quote role="package">ORACLE</quote>.
 When any &oracle-link; function fails, the general Lisp function
-<literal>ERROR</literal> is called, with the condition string set to
-include the &oracle-link; error number, the &oracle-link; message text, and other
-context of the error (e.g., the text and parse location of a SQL
-query).
-</para>
+&error; is called, with the condition string set to
+include the &oracle-link; error number, the &oracle-link; message text,
+and other context of the error (e.g., the text and parse location of a
+SQL query).</para>
 
 <!-- List of functions an macros -->
 <variablelist>
@@ -531,7 +530,7 @@ inside the <function>WITH-TRANSACTION</function> macro.
 </variablelist>
 </section>
 
-<section><title>&oracle-link; Example</title>
+<section id="ora-example"><title>&oracle-link; Example</title>
 
 <para>
 Below is a simple example script which uses &oracle-link;'s demo database
@@ -562,24 +561,25 @@ schema, <literal>SCOTT</literal>.
 
 
 
-<section><title>&oracle-link; Configuration</title>
+<section id="ora-config"><title>&oracle-link; Configuration</title>
 
 <para>
 Obviously, a working &oracle-link; environment is required.  It is
 recommended that you first be able to log on and use the &oracle-link;
-SQL*Plus application to test your environment <emphasis>before
-</emphasis> attempting &oracle-link; access via the &clisp; module.  At a
-minimum you will need to set environment variables
-<literal>$ORACLE_HOME</literal> to the &oracle-link; base directory and
-<literal>$LD_LIBRARY_PATH</literal> to include
-<literal>$ORACLE_HOME/lib</literal> and possibly other directories.
-</para>
+SQL*Plus application to test your environment
+<emphasis>before</emphasis> attempting &oracle-link; access via the
+&clisp; module.
+At a minimum you will need to set environment variables
+<envar>ORACLE_HOME</envar> to the &oracle-link; base directory and
+<envar>LD_LIBRARY_PATH</envar> to include
+<literal>$<envar>ORACLE_HOME<envar>/lib</literal> and possibly other
+directories.</para>
 
 </section>
 
-<section><title>Building the &oracle-link; Interface</title>
-<para>
+<section id="ora-build"><title>Building the &oracle-link; Interface</title>
 
+<para>
 The module uses the &oracle-link; Call Interface (&oracle-oci;) &c-lang; library.  To
 build the module you will need the &oracle-link; &oracle-oci; headers and link
 libraries; as a quick check, make sure you have the file <filename>oci.h</filename>
