@@ -1,3 +1,8 @@
+2004-01-02  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 869187 ]: change-class problems
+	* record.d (%CHANGE-CLASS): un-realloc instance & new-class
+
 2004-01-01  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c: include windows.h only on windows
