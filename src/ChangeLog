@@ -1,5 +1,12 @@
 2002-12-04  Sam Steingold  <sds@gnu.org>
 
+	* loop.lisp (expand-loop): removed the `initializations2'
+	optimization which bound some iteration variables right around
+	the main-code: this allows accessing iteration variables in the
+	finally clauses (this also shortens the bytecode)
+
+2002-12-04  Sam Steingold  <sds@gnu.org>
+
 	* defmacro.lisp (make-length-test): use EXT:LIST-LENGTH-DOTTED
 	instead if LENGTH because the argument may be dotted when it comes
 	from a destructuring lambda list
