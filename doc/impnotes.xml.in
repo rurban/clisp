@@ -33,7 +33,7 @@
 <bookinfo>
  <graphic srccredit="[CLISP icon]" align="center"
           fileref="clisp.png" width="48" depth="48"/>
- <date>Last modified: 2002-04-11</date>
+ <date>Last modified: 2002-05-31</date>
  <author><honorific>Dr</honorific> <firstname>Bruno</firstname>
    <surname>Haible</surname></author>
  <author><honorific>Dr</honorific> <firstname>Sam</firstname>
@@ -77,13 +77,13 @@
  <street>Westerwaldweg 22</street>
  <city>Remagen-Oberwinter</city>
  <postcode>D-53424</postcode> <country>Germany</country>
- <otheraddr><ulink url="http://www.math.uni-duesseldorf.de/home/stoll">http://www.math.uni-duesseldorf.de/home/stoll</ulink></otheraddr>
+ <otheraddr><ulink url="http://www.math.uni-duesseldorf.de/~stoll/">http://www.math.uni-duesseldorf.de/~stoll/</ulink></otheraddr>
 </address></blockquote>
  The current maintainers are
  <blockquote><address><honorific>Dr</honorific> <firstname>Bruno</firstname> <surname>Haible</surname></address></blockquote>
  and
  <blockquote><address><honorific>Dr</honorific> <firstname>Sam</firstname> <surname>Steingold</surname>
- <otheraddr><ulink url="http://www.podval.org/~sds">http://www.podval.org/~sds</ulink></otheraddr></address></blockquote>
+ <otheraddr><ulink url="http://www.podval.org/~sds/">http://www.podval.org/~sds/</ulink></otheraddr></address></blockquote>
 </para>
 
 <para>This implementation is mostly conforming to the &ansi-cl;
