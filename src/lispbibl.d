@@ -2161,13 +2161,13 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         union {                                         \
           struct { uintP auxi_ob; uintP one_ob; } both; \
           oint align_o _attribute_aligned_object_;      \
-        } u;
+        } u _attribute_aligned_object_;
     #else
       #define INNARDS_OF_GCV_OBJECT  \
         union {                                         \
           struct { uintP one_ob; uintP auxi_ob; } both; \
           oint align_o _attribute_aligned_object_;      \
-        } u;
+        } u _attribute_aligned_object_;
     #endif
     #define one_o  u.both.one_ob
     #define auxi_o  u.both.auxi_ob
@@ -2200,13 +2200,13 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
         union {                                                          \
           struct { /* tint */ uintL type; /* aint */ uintL addr; } both; \
           oint one_u _attribute_aligned_object_;                         \
-        } u;
+        } u _attribute_aligned_object_;
     #else
       #define INNARDS_OF_GCV_OBJECT                                      \
         union {                                                          \
           struct { /* aint */ uintL addr; /* tint */ uintL type; } both; \
           oint one_u _attribute_aligned_object_;                         \
-        } u;
+        } u _attribute_aligned_object_;
     #endif
     #define one_o  u.one_u
   #else
@@ -2636,6 +2636,9 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #else
     typedef struct { INNARDS_OF_GCV_OBJECT } gcv_object_t;
   #endif
+#endif
+#ifndef _attribute_aligned_object_
+  #define _attribute_aligned_object_
 #endif
 
 
@@ -3705,7 +3708,7 @@ typedef struct {
     sintB rectype;   # for OtherRecord: sub-type
     uintW recfiller; # length and others
   #endif
-  gcv_object_t recdata[unspecified]; # elements
+  gcv_object_t recdata[unspecified] _attribute_aligned_object_; # elements
 } record_;
 typedef record_ *  Record;
 # access to type, flags:
@@ -3762,7 +3765,7 @@ typedef lrecord_ *  Lrecord;
 #endif
 typedef struct {
   SRECORD_HEADER
-  gcv_object_t recdata[unspecified]; # reclength elements
+  gcv_object_t recdata[unspecified] _attribute_aligned_object_; # reclength elements
 } srecord_;
 typedef srecord_ *  Srecord;
 #ifdef TYPECODES
@@ -3785,7 +3788,7 @@ typedef srecord_ *  Srecord;
 #endif
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t recdata[unspecified];  #  reclength elements
+  gcv_object_t recdata[unspecified] _attribute_aligned_object_; # reclength elements
   # uintB      recxdata[unspecified]; # recxlength extra elements
 } xrecord_;
 typedef xrecord_ *  Xrecord;
@@ -3892,8 +3895,8 @@ typedef xrecord_ *  Xrecord;
 
 # Cons
 typedef struct {
-  gcv_object_t cdr; # CDR
-  gcv_object_t car; # CAR
+  gcv_object_t cdr _attribute_aligned_object_; # CDR
+  gcv_object_t car _attribute_aligned_object_; # CAR
 } cons_;
 typedef cons_ *  Cons;
 
@@ -3902,8 +3905,8 @@ typedef struct {
   #ifdef SPVW_MIXED
   XRECORD_HEADER
   #endif
-  gcv_object_t rt_num; # numerator, Integer
-  gcv_object_t rt_den; # denominator, Integer >0
+  gcv_object_t rt_num _attribute_aligned_object_; # numerator, Integer
+  gcv_object_t rt_den _attribute_aligned_object_; # denominator, Integer >0
 } ratio_;
 typedef ratio_ *  Ratio;
 
@@ -3912,19 +3915,19 @@ typedef struct {
   #ifdef SPVW_MIXED
   XRECORD_HEADER
   #endif
-  gcv_object_t c_real; # real part, real number
-  gcv_object_t c_imag; # imaginary part, real number
+  gcv_object_t c_real _attribute_aligned_object_; # real part, real number
+  gcv_object_t c_imag _attribute_aligned_object_; # imaginary part, real number
 } complex_;
 typedef complex_ *  Complex;
 
 # Symbol
 typedef struct {
   VAROBJECT_HEADER
-  gcv_object_t symvalue;    # value cell
-  gcv_object_t symfunction; # function definition cell
-  gcv_object_t proplist;    # property list
-  gcv_object_t pname;       # Printname
-  gcv_object_t homepackage; # Home-Package or NIL
+  gcv_object_t symvalue    _attribute_aligned_object_; # value cell
+  gcv_object_t symfunction _attribute_aligned_object_; # function definition cell
+  gcv_object_t proplist    _attribute_aligned_object_; # property list
+  gcv_object_t pname       _attribute_aligned_object_; # Printname
+  gcv_object_t homepackage _attribute_aligned_object_; # Home-Package or NIL
 } symbol_;
 typedef symbol_ *  Symbol;
 #define symbol_objects_offset  offsetof(symbol_,symvalue)
@@ -4354,7 +4357,7 @@ typedef sstring_ *  Sstring;
 # simple vector
 typedef struct {
   LRECORD_HEADER # self-pointer for GC, length in objects
-  gcv_object_t data[unspecified]; # elements
+  gcv_object_t data[unspecified] _attribute_aligned_object_; # elements
 } svector_;
 typedef svector_ *  Svector;
 #define svector_length(ptr)  sarray_length(ptr)
@@ -4364,7 +4367,7 @@ typedef svector_ *  Svector;
 #ifndef TYPECODES
 typedef struct {
   VAROBJECT_HEADER   # self-pointer for GC, tfl
-  gcv_object_t data; # data vector
+  gcv_object_t data _attribute_aligned_object_; # data vector
 } siarray_;
 typedef siarray_ *  Siarray;
 #endif
@@ -4376,7 +4379,7 @@ typedef struct {
   uintB flags;       # flags
   uintC rank;        # rank n
   #endif
-  gcv_object_t data; # data vector
+  gcv_object_t data _attribute_aligned_object_; # data vector
   uintL totalsize;   # totalsize = product of the n dimensions
   uintL dims[unspecified]; # poss. displaced-offset,
                            # n dimensions,
@@ -4504,13 +4507,13 @@ typedef iarray_ *  Iarray;
 # Packages
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t pack_external_symbols;
-  gcv_object_t pack_internal_symbols;
-  gcv_object_t pack_shadowing_symbols;
-  gcv_object_t pack_use_list;
-  gcv_object_t pack_used_by_list;
-  gcv_object_t pack_name;
-  gcv_object_t pack_nicknames;
+  gcv_object_t pack_external_symbols  _attribute_aligned_object_;
+  gcv_object_t pack_internal_symbols  _attribute_aligned_object_;
+  gcv_object_t pack_shadowing_symbols _attribute_aligned_object_;
+  gcv_object_t pack_use_list          _attribute_aligned_object_;
+  gcv_object_t pack_used_by_list      _attribute_aligned_object_;
+  gcv_object_t pack_name              _attribute_aligned_object_;
+  gcv_object_t pack_nicknames         _attribute_aligned_object_;
 } *  Package;
 #define package_length  ((sizeof(*(Package)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 # Some packages are case-sensitive.
@@ -4528,20 +4531,20 @@ typedef struct {
 typedef struct {
   XRECORD_HEADER
   #ifdef GENERATIONAL_GC
-  gcv_object_t ht_lastrehash;
+  gcv_object_t ht_lastrehash         _attribute_aligned_object_;
   #endif
-  gcv_object_t ht_size;
-  gcv_object_t ht_maxcount;
-  gcv_object_t ht_itable;
-  gcv_object_t ht_ntable;
-  gcv_object_t ht_kvtable;
-  gcv_object_t ht_freelist;
-  gcv_object_t ht_count;
-  gcv_object_t ht_rehash_size;
-  gcv_object_t ht_mincount_threshold;
-  gcv_object_t ht_mincount;
-  gcv_object_t ht_test; /* hash-table-test - for define-hash-table-test */
-  gcv_object_t ht_hash; /* hash function */
+  gcv_object_t ht_size               _attribute_aligned_object_;
+  gcv_object_t ht_maxcount           _attribute_aligned_object_;
+  gcv_object_t ht_itable             _attribute_aligned_object_;
+  gcv_object_t ht_ntable             _attribute_aligned_object_;
+  gcv_object_t ht_kvtable            _attribute_aligned_object_;
+  gcv_object_t ht_freelist           _attribute_aligned_object_;
+  gcv_object_t ht_count              _attribute_aligned_object_;
+  gcv_object_t ht_rehash_size        _attribute_aligned_object_;
+  gcv_object_t ht_mincount_threshold _attribute_aligned_object_;
+  gcv_object_t ht_mincount           _attribute_aligned_object_;
+  gcv_object_t ht_test               _attribute_aligned_object_; /* hash-table-test - for define-hash-table-test */
+  gcv_object_t ht_hash               _attribute_aligned_object_; /* hash function */
 } *  Hashtable;
 #define hashtable_length  ((sizeof(*(Hashtable)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 # Mark a Hash Table as new to reorganize
@@ -4574,9 +4577,9 @@ typedef struct {
 # Readtables
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t readtable_syntax_table;
-  gcv_object_t readtable_macro_table;
-  gcv_object_t readtable_case;
+  gcv_object_t readtable_syntax_table _attribute_aligned_object_;
+  gcv_object_t readtable_macro_table  _attribute_aligned_object_;
+  gcv_object_t readtable_case         _attribute_aligned_object_;
 } *  Readtable;
 #define readtable_length  ((sizeof(*(Readtable)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
@@ -4584,18 +4587,18 @@ typedef struct {
 typedef struct {
   XRECORD_HEADER
   #if HAS_HOST
-    gcv_object_t pathname_host;
+    gcv_object_t pathname_host      _attribute_aligned_object_;
   #endif
   #if HAS_DEVICE
-    gcv_object_t pathname_device;
+    gcv_object_t pathname_device    _attribute_aligned_object_;
   #endif
   #if 1
-    gcv_object_t pathname_directory;
-    gcv_object_t pathname_name;
-    gcv_object_t pathname_type;
+    gcv_object_t pathname_directory _attribute_aligned_object_;
+    gcv_object_t pathname_name      _attribute_aligned_object_;
+    gcv_object_t pathname_type      _attribute_aligned_object_;
   #endif
   #if HAS_VERSION
-    gcv_object_t pathname_version;
+    gcv_object_t pathname_version   _attribute_aligned_object_;
   #endif
 } *  Pathname;
 #define pathname_length  ((sizeof(*(Pathname)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
@@ -4604,11 +4607,11 @@ typedef struct {
 # Logical Pathnames
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t pathname_host;
-  gcv_object_t pathname_directory;
-  gcv_object_t pathname_name;
-  gcv_object_t pathname_type;
-  gcv_object_t pathname_version;
+  gcv_object_t pathname_host      _attribute_aligned_object_;
+  gcv_object_t pathname_directory _attribute_aligned_object_;
+  gcv_object_t pathname_name      _attribute_aligned_object_;
+  gcv_object_t pathname_type      _attribute_aligned_object_;
+  gcv_object_t pathname_version   _attribute_aligned_object_;
 } *  Logpathname;
 #define logpathname_length  ((sizeof(*(Logpathname)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 #endif
@@ -4616,23 +4619,23 @@ typedef struct {
 # Random-States
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t random_state_seed;
+  gcv_object_t random_state_seed _attribute_aligned_object_;
 } *  Random_state;
 #define random_state_length  ((sizeof(*(Random_state)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # Bytes
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t byte_size;
-  gcv_object_t byte_position;
+  gcv_object_t byte_size     _attribute_aligned_object_;
+  gcv_object_t byte_position _attribute_aligned_object_;
 } *  Byte;
 #define byte_length  ((sizeof(*(Byte)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # Fsubrs
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t name;
-  gcv_object_t argtype;
+  gcv_object_t name    _attribute_aligned_object_;
+  gcv_object_t argtype _attribute_aligned_object_;
   void* function; # actually a fsubr_function_t*
 } *  Fsubr;
 #define fsubr_length  2
@@ -4641,52 +4644,52 @@ typedef struct {
 # Load-time-evals
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t loadtimeeval_form;
+  gcv_object_t loadtimeeval_form _attribute_aligned_object_;
 } *  Loadtimeeval;
 #define loadtimeeval_length  ((sizeof(*(Loadtimeeval)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # Symbol-macros
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t symbolmacro_expansion;
+  gcv_object_t symbolmacro_expansion _attribute_aligned_object_;
 } *  Symbolmacro;
 #define symbolmacro_length  ((sizeof(*(Symbolmacro)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # Macros
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t macro_expander;
+  gcv_object_t macro_expander _attribute_aligned_object_;
 } *  Macro;
 #define macro_length  ((sizeof(*(Macro)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # FunctionMacros
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t functionmacro_macro_expander;
-  gcv_object_t functionmacro_function;
+  gcv_object_t functionmacro_macro_expander _attribute_aligned_object_;
+  gcv_object_t functionmacro_function       _attribute_aligned_object_;
 } *  FunctionMacro;
 #define functionmacro_length  ((sizeof(*(FunctionMacro)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # Encoding
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t enc_eol; # line termination, a keyword (:UNIX, :MAC, :DOS)
-  gcv_object_t enc_towcs_error; # input error action, :ERROR or :IGNORE or a character
-  gcv_object_t enc_tombs_error; # output error action, :ERROR or :IGNORE or a character or an uint8
+  gcv_object_t enc_eol         _attribute_aligned_object_; # line termination, a keyword (:UNIX, :MAC, :DOS)
+  gcv_object_t enc_towcs_error _attribute_aligned_object_; # input error action, :ERROR or :IGNORE or a character
+  gcv_object_t enc_tombs_error _attribute_aligned_object_; # output error action, :ERROR or :IGNORE or a character or an uint8
   #ifdef UNICODE
-  gcv_object_t enc_charset; # character set, a symbol in the CHARSET package
-                          # or a simple-string
+  gcv_object_t enc_charset     _attribute_aligned_object_; # character set, a symbol in the CHARSET package
+                                                           # or a simple-string
   # Functions to convert bytes to characters.
-    gcv_object_t enc_mblen; # uintL (*) (object encoding, const uintB* src, const uintB* srcend);
-    gcv_object_t enc_mbstowcs; # void (*) (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+    gcv_object_t enc_mblen     _attribute_aligned_object_; # uintL (*) (object encoding, const uintB* src, const uintB* srcend);
+    gcv_object_t enc_mbstowcs  _attribute_aligned_object_; # void (*) (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
   # Functions to convert characters to bytes.
-    gcv_object_t enc_wcslen; # uintL (*) (object encoding, const chart* src, const chart* srcend);
-    gcv_object_t enc_wcstombs; # void (*) (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+    gcv_object_t enc_wcslen    _attribute_aligned_object_; # uintL (*) (object encoding, const chart* src, const chart* srcend);
+    gcv_object_t enc_wcstombs  _attribute_aligned_object_; # void (*) (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
   # Function to return the set of defined characters in the range [start,end],
   # as a simple-string of intervals #(start1 end1 ... startm endm).
-    gcv_object_t enc_range; # object (*) (object encoding, uintL start, uintL end, uintL maxintervals);
+    gcv_object_t enc_range     _attribute_aligned_object_; # object (*) (object encoding, uintL start, uintL end, uintL maxintervals);
   # An auxiliary pointer.
-  gcv_object_t enc_table;
+  gcv_object_t enc_table       _attribute_aligned_object_;
   # Minimum number of bytes needed to represent a character
   # caveat: correct only for some encodings, defaults to 1
   uintL min_bytes_per_char;
@@ -4747,7 +4750,7 @@ typedef struct {
 # foreign adresses
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t fa_base;
+  gcv_object_t fa_base _attribute_aligned_object_;
   sintP fa_offset;
 } * Faddress;
 #define faddress_length  1
@@ -4756,21 +4759,21 @@ typedef struct {
 # foreign variables
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t fv_name;
-  gcv_object_t fv_address;
-  gcv_object_t fv_size;
-  gcv_object_t fv_type;
+  gcv_object_t fv_name    _attribute_aligned_object_;
+  gcv_object_t fv_address _attribute_aligned_object_;
+  gcv_object_t fv_size    _attribute_aligned_object_;
+  gcv_object_t fv_type    _attribute_aligned_object_;
 } * Fvariable;
 #define fvariable_length  ((sizeof(*(Fvariable)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
 # foreign functions
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t ff_name;
-  gcv_object_t ff_address;
-  gcv_object_t ff_resulttype;
-  gcv_object_t ff_argtypes;
-  gcv_object_t ff_flags;
+  gcv_object_t ff_name       _attribute_aligned_object_;
+  gcv_object_t ff_address    _attribute_aligned_object_;
+  gcv_object_t ff_resulttype _attribute_aligned_object_;
+  gcv_object_t ff_argtypes   _attribute_aligned_object_;
+  gcv_object_t ff_flags      _attribute_aligned_object_;
 } * Ffunction;
 #define ffunction_length  ((sizeof(*(Ffunction)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
@@ -4779,8 +4782,8 @@ typedef struct {
 # weak pointer
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t wp_cdr;   # active weak-pointers form a chained list
-  gcv_object_t wp_value; # the referenced object
+  gcv_object_t wp_cdr   _attribute_aligned_object_; # active weak-pointers form a chained list
+  gcv_object_t wp_value _attribute_aligned_object_; # the referenced object
 } * Weakpointer;
 /* Both wp_cdr and wp_value are invisible to gc_mark routines.
  When the weak-pointer becomes inactive, both fields are turned to unbound.
@@ -4793,9 +4796,9 @@ typedef struct {
 # weak key-value table for weak hashtables
 typedef struct {
   LRECORD_HEADER
-  gcv_object_t wkvt_cdr;          # active weak-kvts form a chained list
-  gcv_object_t wkvt_type;       /* :KEY :VALUE :EITHER or :BOTH */
-  gcv_object_t data[unspecified]; # elements
+  gcv_object_t wkvt_cdr  _attribute_aligned_object_; # active weak-kvts form a chained list
+  gcv_object_t wkvt_type _attribute_aligned_object_; /* :KEY :VALUE :EITHER or :BOTH */
+  gcv_object_t data[unspecified] _attribute_aligned_object_; # elements
 } weakkvt_t;
 typedef weakkvt_t* WeakKVT;
 # both wkvt_cdr, wkvt_type and data are invisible to gc_mark routines.
@@ -4805,10 +4808,10 @@ typedef weakkvt_t* WeakKVT;
 # Finalizer
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t fin_alive;    # only if this object is alive
-  gcv_object_t fin_trigger;  # wait for the death of this object
-  gcv_object_t fin_function; # then this function is called
-  gcv_object_t fin_cdr;
+  gcv_object_t fin_alive    _attribute_aligned_object_; # only if this object is alive
+  gcv_object_t fin_trigger  _attribute_aligned_object_; # wait for the death of this object
+  gcv_object_t fin_function _attribute_aligned_object_; # then this function is called
+  gcv_object_t fin_cdr      _attribute_aligned_object_;
 } * Finalizer;
 #define finalizer_length  ((sizeof(*(Finalizer)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
@@ -4816,9 +4819,9 @@ typedef struct {
 # Socket-Server
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t socket_handle; # socket handle
-  gcv_object_t host; # host string
-  gcv_object_t port; # port number
+  gcv_object_t socket_handle _attribute_aligned_object_; # socket handle
+  gcv_object_t host          _attribute_aligned_object_; # host string
+  gcv_object_t port          _attribute_aligned_object_; # port number
 } * Socket_server;
 #define socket_server_length  ((sizeof(*(Socket_server)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
@@ -4839,9 +4842,9 @@ typedef struct host_data_t {
 # Yet another record
 typedef struct {
   XRECORD_HEADER
-  gcv_object_t yetanother_x;
-  gcv_object_t yetanother_y;
-  gcv_object_t yetanother_z;
+  gcv_object_t yetanother_x _attribute_aligned_object_;
+  gcv_object_t yetanother_y _attribute_aligned_object_;
+  gcv_object_t yetanother_z _attribute_aligned_object_;
 } * Yetanother;
 #define yetanother_length  ((sizeof(*(Yetanother)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 
@@ -4873,18 +4876,18 @@ typedef struct {
       uintL strmfiller0;
     #endif
   #endif
-  gcv_object_t strm_rd_by;
-  gcv_object_t strm_rd_by_array;
-  gcv_object_t strm_wr_by;
-  gcv_object_t strm_wr_by_array;
-  gcv_object_t strm_rd_ch;
-  gcv_object_t strm_pk_ch;
-  gcv_object_t strm_rd_ch_array;
-  gcv_object_t strm_rd_ch_last;
-  gcv_object_t strm_wr_ch;
-  gcv_object_t strm_wr_ch_array;
-  gcv_object_t strm_wr_ch_lpos;
-  gcv_object_t strm_other[unspecified]; # type-specific components
+  gcv_object_t strm_rd_by       _attribute_aligned_object_;
+  gcv_object_t strm_rd_by_array _attribute_aligned_object_;
+  gcv_object_t strm_wr_by       _attribute_aligned_object_;
+  gcv_object_t strm_wr_by_array _attribute_aligned_object_;
+  gcv_object_t strm_rd_ch       _attribute_aligned_object_;
+  gcv_object_t strm_pk_ch       _attribute_aligned_object_;
+  gcv_object_t strm_rd_ch_array _attribute_aligned_object_;
+  gcv_object_t strm_rd_ch_last  _attribute_aligned_object_;
+  gcv_object_t strm_wr_ch       _attribute_aligned_object_;
+  gcv_object_t strm_wr_ch_array _attribute_aligned_object_;
+  gcv_object_t strm_wr_ch_lpos  _attribute_aligned_object_;
+  gcv_object_t strm_other[unspecified] _attribute_aligned_object_; # type-specific components
 } *  Stream;
 # The macro TheStream actually means TheBuiltinStream.
 #define strm_len  ((sizeof(*(Stream)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t)-unspecified)
@@ -5028,36 +5031,36 @@ extern object check_structure (object obj);
 # CLOS-Classes (= instances of <class>), see clos.lisp
 typedef struct {
   SRECORD_HEADER
-  gcv_object_t structure_types_2;   # list (metaclass <class>)
-  gcv_object_t class_id;  /* keep instances in sync with redefined classes */
-  gcv_object_t metaclass;           # a subclass of <class>
-  gcv_object_t classname;           # a symbol
-  gcv_object_t direct_superclasses; # direct superclasses
-  gcv_object_t all_superclasses;    # all superclasses, including itself
-  gcv_object_t precedence_list;     # ordered list of all superclasses
-  gcv_object_t slot_location_table; # hashtable slotname -> where the slot is located
-  gcv_object_t direct_subclasses; /* direct subclasses - list */
+  gcv_object_t structure_types_2       _attribute_aligned_object_; # list (metaclass <class>)
+  gcv_object_t class_id                _attribute_aligned_object_; /* keep instances in sync with redefined classes */
+  gcv_object_t metaclass               _attribute_aligned_object_; # a subclass of <class>
+  gcv_object_t classname               _attribute_aligned_object_; # a symbol
+  gcv_object_t direct_superclasses     _attribute_aligned_object_; # direct superclasses
+  gcv_object_t all_superclasses        _attribute_aligned_object_; # all superclasses, including itself
+  gcv_object_t precedence_list         _attribute_aligned_object_; # ordered list of all superclasses
+  gcv_object_t slot_location_table     _attribute_aligned_object_; # hashtable slotname -> where the slot is located
+  gcv_object_t direct_subclasses       _attribute_aligned_object_; /* direct subclasses - list */
   # from here on only for metaclass = <standard-class> or metaclass = <structure-class>
-  gcv_object_t slots;
-  gcv_object_t default_initargs;
-  gcv_object_t valid_initargs;
-  gcv_object_t instance_size;
+  gcv_object_t slots                   _attribute_aligned_object_;
+  gcv_object_t default_initargs        _attribute_aligned_object_;
+  gcv_object_t valid_initargs          _attribute_aligned_object_;
+  gcv_object_t instance_size           _attribute_aligned_object_;
   # from here on only for metaclass = <standard-class>
-  gcv_object_t shared_slots;
-  gcv_object_t direct_slots;
-  gcv_object_t direct_default_initargs;
-  gcv_object_t previous_definition; /* previous definitions as a list */
-  gcv_object_t prototype; /* class prototype - an instance or NIL
+  gcv_object_t shared_slots            _attribute_aligned_object_;
+  gcv_object_t direct_slots            _attribute_aligned_object_;
+  gcv_object_t direct_default_initargs _attribute_aligned_object_;
+  gcv_object_t previous_definition     _attribute_aligned_object_; /* previous definitions as a list */
+  gcv_object_t prototype               _attribute_aligned_object_; /* class prototype - an instance or NIL
       or (added . discarded) slots for old definitions */
-  gcv_object_t other[unspecified];
+  gcv_object_t other[unspecified]      _attribute_aligned_object_;
 } *  Class;
 
 # CLOS-instances
 typedef struct {
   SRECORD_HEADER
-  gcv_object_t inst_class; # a CLOS-class
-  gcv_object_t inst_cl_id; /* the class_id of inst_class */
-  gcv_object_t other[unspecified];
+  gcv_object_t inst_class _attribute_aligned_object_; # a CLOS-class
+  gcv_object_t inst_cl_id _attribute_aligned_object_; /* the class_id of inst_class */
+  gcv_object_t other[unspecified] _attribute_aligned_object_;
 } *  Instance;
 # Bit masks in the flags:
   #define instflags_forwarded_B    bit(0)
@@ -5065,43 +5068,43 @@ typedef struct {
 # Closures
 typedef struct {
   SRECORD_HEADER
-  gcv_object_t clos_name;
-  gcv_object_t clos_codevec;
-  gcv_object_t other[unspecified];
+  gcv_object_t clos_name    _attribute_aligned_object_;
+  gcv_object_t clos_codevec _attribute_aligned_object_;
+  gcv_object_t other[unspecified] _attribute_aligned_object_;
 } *  Closure;
 # interpreted Closure:
 typedef struct {
   SRECORD_HEADER
-  gcv_object_t clos_name;
-  gcv_object_t clos_form;
-  gcv_object_t clos_docstring;
-  gcv_object_t clos_body;
-  gcv_object_t clos_var_env;
-  gcv_object_t clos_fun_env;
-  gcv_object_t clos_block_env;
-  gcv_object_t clos_go_env;
-  gcv_object_t clos_decl_env;
-  gcv_object_t clos_vars;
-  gcv_object_t clos_varflags;
-  gcv_object_t clos_spec_anz;
-  gcv_object_t clos_req_anz;
-  gcv_object_t clos_opt_anz;
-  gcv_object_t clos_opt_inits;
-  gcv_object_t clos_key_anz;
-  gcv_object_t clos_keywords;
-  gcv_object_t clos_key_inits;
-  gcv_object_t clos_allow_flag;
-  gcv_object_t clos_rest_flag;
-  gcv_object_t clos_aux_anz;
-  gcv_object_t clos_aux_inits;
+  gcv_object_t clos_name       _attribute_aligned_object_;
+  gcv_object_t clos_form       _attribute_aligned_object_;
+  gcv_object_t clos_docstring  _attribute_aligned_object_;
+  gcv_object_t clos_body       _attribute_aligned_object_;
+  gcv_object_t clos_var_env    _attribute_aligned_object_;
+  gcv_object_t clos_fun_env    _attribute_aligned_object_;
+  gcv_object_t clos_block_env  _attribute_aligned_object_;
+  gcv_object_t clos_go_env     _attribute_aligned_object_;
+  gcv_object_t clos_decl_env   _attribute_aligned_object_;
+  gcv_object_t clos_vars       _attribute_aligned_object_;
+  gcv_object_t clos_varflags   _attribute_aligned_object_;
+  gcv_object_t clos_spec_anz   _attribute_aligned_object_;
+  gcv_object_t clos_req_anz    _attribute_aligned_object_;
+  gcv_object_t clos_opt_anz    _attribute_aligned_object_;
+  gcv_object_t clos_opt_inits  _attribute_aligned_object_;
+  gcv_object_t clos_key_anz    _attribute_aligned_object_;
+  gcv_object_t clos_keywords   _attribute_aligned_object_;
+  gcv_object_t clos_key_inits  _attribute_aligned_object_;
+  gcv_object_t clos_allow_flag _attribute_aligned_object_;
+  gcv_object_t clos_rest_flag  _attribute_aligned_object_;
+  gcv_object_t clos_aux_anz    _attribute_aligned_object_;
+  gcv_object_t clos_aux_inits  _attribute_aligned_object_;
 } *  Iclosure;
 #define iclos_length  ((sizeof(*(Iclosure)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 # compiled Closure:
 typedef struct {
   SRECORD_HEADER
-  gcv_object_t clos_name;
-  gcv_object_t clos_codevec;
-  gcv_object_t clos_consts[unspecified]; # Closure-constants
+  gcv_object_t clos_name    _attribute_aligned_object_;
+  gcv_object_t clos_codevec _attribute_aligned_object_;
+  gcv_object_t clos_consts[unspecified] _attribute_aligned_object_; # Closure-constants
 } *  Cclosure;
 #define cclosure_length(ptr)  srecord_length(ptr)
 #define Cclosure_length(obj)  cclosure_length(TheCclosure(obj))
@@ -5192,8 +5195,8 @@ typedef struct {
 # SUBR table entry:
   typedef struct {
     lisp_function_t function; # function
-    gcv_object_t name;      # name
-    gcv_object_t keywords;  # NIL or vector with the keywords
+    gcv_object_t name     _attribute_aligned_object_; # name
+    gcv_object_t keywords _attribute_aligned_object_; # NIL or vector with the keywords
     uintW argtype;          # short for the argument-type
     uintW req_anz;          # number of required parameters
     uintW opt_anz;          # number of optional parameters
