@@ -36,6 +36,14 @@ PSEUDOFUN(rd_ch_generic) PSEUDOFUN(pk_ch_generic) PSEUDOFUN(wr_ch_generic) PSEUD
 #endif
 
 PSEUDOFUN(rd_by_handle) PSEUDOFUN(rd_by_array_handle) PSEUDOFUN(wr_by_handle) PSEUDOFUN(wr_by_array_handle) PSEUDOFUN(rd_ch_handle) PSEUDOFUN(rd_ch_array_handle) PSEUDOFUN(wr_ch_handle_x) PSEUDOFUN(wr_ch_array_handle_x) PSEUDOFUN(wr_ss_handle_x)
+PSEUDOFUN(rd_ch_ch_file) PSEUDOFUN(rd_ch_array_ch_file) PSEUDOFUN(wr_ch_ch_file) PSEUDOFUN(wr_ch_array_ch_file) PSEUDOFUN(wr_ss_ch_file)
+PSEUDOFUN(rd_by_iau_file) PSEUDOFUN(wr_by_iau_file)
+PSEUDOFUN(rd_by_ias_file) PSEUDOFUN(wr_by_ias_file)
+PSEUDOFUN(rd_by_ibu_file) PSEUDOFUN(wr_by_ibu_file)
+PSEUDOFUN(rd_by_ibs_file) PSEUDOFUN(wr_by_ibs_file)
+PSEUDOFUN(rd_by_icu_file) PSEUDOFUN(wr_by_icu_file)
+PSEUDOFUN(rd_by_ics_file) PSEUDOFUN(wr_by_ics_file)
+PSEUDOFUN(read_byte_array_iau8_file) PSEUDOFUN(write_byte_array_iau8_file)
 #if defined(KEYBOARD) || defined(MAYBE_NEXTAPP)
 PSEUDOFUN(rd_ch_keyboard)
 #endif
@@ -54,14 +62,6 @@ PSEUDOFUN(wr_ch_terminal3) PSEUDOFUN(rd_ch_terminal3) PSEUDOFUN(wr_ss_terminal3)
 #ifdef SCREEN
 PSEUDOFUN(wr_ch_window)
 #endif
-PSEUDOFUN(rd_ch_ch_file) PSEUDOFUN(rd_ch_array_ch_file) PSEUDOFUN(wr_ch_ch_file) PSEUDOFUN(wr_ch_array_ch_file) PSEUDOFUN(wr_ss_ch_file)
-PSEUDOFUN(rd_by_iau_file) PSEUDOFUN(wr_by_iau_file)
-PSEUDOFUN(rd_by_ias_file) PSEUDOFUN(wr_by_ias_file)
-PSEUDOFUN(rd_by_ibu_file) PSEUDOFUN(wr_by_ibu_file)
-PSEUDOFUN(rd_by_ibs_file) PSEUDOFUN(wr_by_ibs_file)
-PSEUDOFUN(rd_by_icu_file) PSEUDOFUN(wr_by_icu_file)
-PSEUDOFUN(rd_by_ics_file) PSEUDOFUN(wr_by_ics_file)
-PSEUDOFUN(read_byte_array_iau8_file) PSEUDOFUN(write_byte_array_iau8_file)
 #ifdef PRINTER
 PSEUDOFUN(wr_ch_printer)
 #endif
