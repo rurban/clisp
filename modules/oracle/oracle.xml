@@ -177,12 +177,12 @@ comment, that you need to specify it explicitly.
 <varlistentry><term><literal role="sexp">(ORACLE:DO-ROWS
 <replaceable>vars</replaceable>
 &body-amp;
-<replaceable>body</replaceable>)</literal></term>
+&body-r;)</literal></term>
 <listitem>
 <simpara>
 Macro which loops over a SQL SELECT
 result, evaluating, for each row in the result, the forms in
-<replaceable>body</replaceable>,
+&body-r;,
 binding symbols given in <replaceable>vars</replaceable>
 to corresponding database columns in the SELECT result.
 The argument <replaceable>vars</replaceable> must be a non-empty list
@@ -193,14 +193,13 @@ recommended to use a column alias, e.g., <literal>SELECT SUBSTR(mycol, 1, 10) AS
 myvar</literal>, in which case the column alias will be used as the symbol
 bound to the column value.
 </simpara>
-<simpara>As <function>DO-ROWS</function> expands into a <function>DO*</function> loop,
-the loop may be terminated prematurely, before all rows are fetched, by
-using <literal role="sexp">(RETURN)</literal>
-anywhere in <replaceable>body</replaceable>.
+<simpara>As <function>DO-ROWS</function> expands into a &do-star; loop,
+it may be terminated prematurely, before all rows are fetched, by
+using &return; anywhere in &body-r;.
 </simpara>
 <simpara>
 It is allowed to call <function>CONNECT</function> in the
-<replaceable>body</replaceable> of the loop, but only to switch the
+&body-r; of the loop, but only to switch the
 connection to a database other than the one that was used to
 do the SELECT.  This is useful for reading from one database while
 writing to another.
@@ -320,13 +319,13 @@ The &cl; value &nil;
 <simpara>
 
 Fetch some or all the rows from a query and return result as a
-sequence of sequences.  Arguments are all optional: 
+sequence of sequences.  Arguments are all optional:
 <replaceable>max-rows</replaceable> limits the result to
 that numbers of rows;
 <replaceable>result-type</replaceable> is the type of
 sequence of the rows, either
 '<classname>ARRAY</classname> (the default) or
-'<classname>LIST</classname>; 
+'<classname>LIST</classname>;
 <replaceable>item-type</replaceable> is the type of
 sequence of the column values for each row, either
 '<classname>ARRAY</classname> (the default) or
@@ -449,7 +448,7 @@ e.g., when the condition is a match on a primary key, e.g.: <literal>"pk_column
 <listitem>
 <simpara>
 For SELECT statements, returns the number of rows
-<function>FETCH</function>ed (<emphasis>not</emphasis>
+<function>FETCH</function>ed (&not-e;
 <function>PEEK</function>ed) so far.  For other statements (e.g.,
 INSERT, UPDATE, DELETE), returns the number of rows affected by the
 last operation (e.g., inserted, updated, deleted).  Must be connected
@@ -460,23 +459,23 @@ to a database and have an active SQL statement.
 
 <varlistentry><term><literal role="sexp">(ORACLE:WITH-TRANSACTION
 &body-amp;
-<replaceable>body</replaceable>)</literal></term>
+&body-r;)</literal></term>
 <listitem>
 <simpara>
 
-Evaluates the forms in <replaceable>body</replaceable> atomically as a
+Evaluates the forms in &body-r; atomically as a
 database transaction, ensuring that either all the database operations
-done in <replaceable>body</replaceable> complete successfully, or none
+done in &body-r; complete successfully, or none
 of them do.  If pending (un-committed) changes exist when this macro
 is entered, they are <emphasis>rolled back</emphasis> (undone), so
 that the database is affected only by the subsequent updates inside
-<replaceable>body</replaceable>.  Nesting of
+&body-r;.  Nesting of
 <function>WITH-TRANSACTION</function> blocks is not allowed and will
 raise an error.  There is no effect on the status of
 <replaceable>auto-commit</replaceable> given in
 <function>CONNECT</function>; it resumes its previous state when the
 macro exits.  The value of the <function>WITH-TRANSACTION</function>
-expression is that of the last form in <replaceable>body</replaceable>.
+expression is that of the last form in &body-r;.
 </simpara></listitem></varlistentry>
 
 		<!-- COMMIT -->
