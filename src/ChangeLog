@@ -1,3 +1,7 @@
+1999-03-16  Sam Steingold  <sds@gnu.org>
+
+	* describe.lsp (describe-object): replaced `standard-object' with T.
+
 1999-03-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * defs1.lsp (package-iterator-function): New function, taken out of
