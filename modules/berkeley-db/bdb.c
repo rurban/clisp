@@ -518,7 +518,7 @@ DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :CREATE :DIRTY-READ \
   DBTYPE db_type = check_dbtype(popSTACK());
   DB *db = object_handle(STACK_2,`BDB::DB`,false);
   with_string_0(check_string(STACK_1),GLO(misc_encoding),file, {
-      if (missingp(STACK_0)) {   /* no :DATABASE */
+      if (missingp(STACK_0)) {  /* no :DATABASE */
         SYSCALL(db->open,(db,txn,file,NULL,db_type,flags,mode));
       } else {                  /* multiple databases in one file */
         with_string_0(check_string(STACK_0),GLO(misc_encoding),databse, {
