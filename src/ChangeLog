@@ -1,3 +1,8 @@
+2004-04-11  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d: Disable the use of global register variables for
+	gcc >= 3.0.
+
 2004-04-10  Bruno Haible  <bruno@clisp.org>
 
 	Fix the return value of NSTRING-UPCASE/DOWNCASE/CAPITALIZE,
