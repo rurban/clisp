@@ -30,7 +30,7 @@
 
 #ifndef _PROTO
 
-#if defined(__GNUC__) || defined(__STDC__) || defined(__cplusplus)
+#if defined (__GNUC__) || defined (__STDC__) || defined (__cplusplus)
 #define _PROTO(args) args
 #else
 #define _PROTO(args) ()

@@ -441,9 +441,8 @@ readline_internal_charloop ()
 static int
 readline_internal_charloop ()
 {
-  int eof;
+  int eof = 1;
 
-  eof = 0;
   while (rl_done == 0)
     eof = readline_internal_char ();
   return (eof);
@@ -456,7 +455,7 @@ readline_internal_charloop ()
 static char *
 readline_internal ()
 {
-  int eof = 1;
+  int eof;
 
   readline_internal_setup ();
   eof = readline_internal_charloop ();
