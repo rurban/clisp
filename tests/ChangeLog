@@ -1,3 +1,7 @@
+2005-03-08  Sam Steingold  <sds@gnu.org>
+
+	* excepsit.tst: check that RANDOM does not accept RATIOs
+
 2005-03-06  Sam Steingold  <sds@gnu.org>
 
 	* conditions.tst: added (DEBUG 1) to OPTIMIZE

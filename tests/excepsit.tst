@@ -914,6 +914,9 @@ type-error
 (random -2.3)
 type-error
 
+(random 1/2)
+type-error
+
 (rational #c(2.4 -0.3))
 type-error
 
