@@ -6,19 +6,21 @@
 (in-package "CLOS")
 
 
-;;; predefined classes:
-;; metaclasses:
+;;; Predefined classes (see ANSI CL 4.3.7.):
+
+;; Metaclasses:
 (defvar <class>)                       ; here <structure-class>
 (defvar <standard-class>)              ; here <structure-class>
 (defvar <structure-class>)             ; here <structure-class>
 (defvar <built-in-class>)              ; here <structure-class>
-;; classes:
+;; Classes:
 (defvar <standard-object>)             ; <standard-class>
 (defvar <structure-object>)            ; <structure-class>
 (defvar <generic-function>)            ; <built-in-class>
 (defvar <standard-generic-function>)   ; <built-in-class>
-;;(defvar <method>)                     ; here <structure-class>
-;;(defvar <standard-method>)            ; here <structure-class>
+;(defvar <method>)                     ; here <structure-class>
+;(defvar <standard-method>)            ; here <structure-class>
+;(defvar <method-combination>)         ; here <structure-class>
 (defvar <array>)                       ; <built-in-class>
 (defvar <bit-vector>)                  ; <built-in-class>
 (defvar <character>)                   ; <built-in-class>
@@ -53,46 +55,52 @@
 (defvar <symbol>)                      ; <built-in-class>
 (defvar <t>)                           ; <built-in-class>
 (defvar <vector>)                      ; <built-in-class>
+;; Condition classes and RESTART are defined later, in condition.lisp.
 
-;;; low-level-representation:
 
-;; in the runtime-system, the type "CLOS-instance" exists.
-;; first component is the class.
+;;; Low-level representation:
 
-;; classes are structures of type CLASS,
-;;   first component is the metaclass, second component is the name.
+;; In the runtime-system, the type "CLOS-instance" exists.
+;; The first component is the class, the rest are the instance slot values.
 
-;; the "value" of a slot that is unbound, is #<UNBOUND> - what else?
+;; Classes are structures of type CLASS,
+;; The first component is the metaclass, second component is the name.
+
+;; The "value" of a slot that is unbound, is #<UNBOUND> - what else?
 
 ;;; see RECORD.D :
 ;; (STD-INSTANCE-P obj) tests, if an object is a CLOS-instance.
 ;; (ALLOCATE-STD-INSTANCE class n) returns a CLOS-instance with Class class
 ;; and n-1 additional slots.
+
 ;;; see IO.D :
 ;; CLOS-instances are printed via (PRINT-OBJECT object stream) .
 
-;;; global management of classes and their names:
+
+;;; Global management of classes and their names:
 
 #|| ; see PREDTYPE.D
  (defun find-class (symbol &optional (errorp t) environment)
-  (declare (ignore environment)) ; what should be the meaning of the environment?
-  (unless (symbolp symbol)
-    (error-of-type 'type-error
-      :datum symbol :expected-type 'symbol
-      (TEXT "~S: argument ~S is not a symbol")
-      'find-class symbol))
-  (let ((class (get symbol 'CLOSCLASS)))
-    (if (not (class-p class))
-      (if errorp
-        (error-of-type 'error
-          (TEXT "~S: ~S does not name a class")
-          'find-class symbol)
-        nil)
-      class)))
+   (declare (ignore environment)) ; ignore distinction between
+                                  ; compile-time and run-time environment
+   (unless (symbolp symbol)
+     (error-of-type 'type-error
+       :datum symbol :expected-type 'symbol
+       (TEXT "~S: argument ~S is not a symbol")
+       'find-class symbol))
+   (let ((class (get symbol 'CLOSCLASS)))
+     (if (not (class-p class))
+       (if errorp
+         (error-of-type 'error
+           (TEXT "~S: ~S does not name a class")
+           'find-class symbol)
+         nil)
+       class)))
 ||#
 
 (defun (setf find-class) (new-value symbol &optional errorp environment)
-  (declare (ignore errorp environment)) ; what should be the meaning of environment?
+  (declare (ignore errorp environment)) ; ignore distinction between
+                                        ; compile-time and run-time environment
   (unless (symbolp symbol)
     (error-of-type 'type-error
       :datum symbol :expected-type 'symbol
@@ -109,11 +117,12 @@
         (error-of-type 'error
           (TEXT "~S: cannot redefine built-in class ~S")
           '(setf find-class) h)))
-    ;; should we do (setf (class-name h) nil) ??
+    ;; Should we do (setf (class-name h) nil) ? No, because CLHS of FIND-CLASS
+    ;; says that "the class object itself is not affected".
     (sys::check-redefinition symbol '(setf find-class)
                              (and (class-p h) "class")))
   (if new-value
-      (setf (get symbol 'CLOSCLASS) new-value)
-      (progn (remprop symbol 'CLOSCLASS) nil)))
+    (setf (get symbol 'CLOSCLASS) new-value)
+    (progn (remprop symbol 'CLOSCLASS) nil)))
 
-;; (CLASS-OF object) see PREDTYPE.D, uses property CLASS.
+;; (CLASS-OF object) see PREDTYPE.D, uses property CLOSCLASS.

@@ -75,7 +75,7 @@
                      (subseq h 0 (position-if #'lambda-list-keyword-p h)))))
                (allowp (and keyp (not (null (memq '&ALLOW-OTHER-KEYS
                                                   lambda-list))))))
-          ;; methods have an implicit &allow-other-keys (28.1.6.4.):
+          ;; Methods have an implicit &allow-other-keys (CLtL2 28.1.6.4., ANSI CL 7.6.4.):
           (when (and keyp (not allowp))
             (let ((index (+ (position '&KEY lambda-list :test #'eq) 1 (length keywords))))
               (setq lambda-list
