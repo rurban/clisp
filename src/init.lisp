@@ -444,19 +444,19 @@
       (declare (ignore form))
       (sys::svstore env 0 (svref (svref env 0) 2)) ; nuke *evalhook* binding
       env)))
-(sys::%putd '%the-environment-error
-  (function %the-environment-error
-    (lambda ()
+(sys::%putd '%uncompilable
+  (function %uncompilable
+    (lambda (form)
       (error-of-type 'source-program-error
         (TEXT "~S is impossible in compiled code")
-        'the-environment))))
+        form))))
 (sys::%putd 'the-environment
   (sys::make-macro
     (function the-environment
       (lambda (form env)
         (declare (ignore form env))
         '(progn
-           (eval-when ((not eval)) (%the-environment-error))
+           (eval-when ((not eval)) (%uncompilable 'the-environment))
            (let ((*evalhook* #'%the-environment)) 0))))))
 ;; The toplevel environment
 (proclaim '(special *toplevel-environment*))

@@ -1,5 +1,10 @@
 2002-09-25  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (special-variable-p): added a COMPILER-MACRO
+	* init.lisp (%the-environment-error): renamed to %UNCOMPILABLE
+
+2002-09-25  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-form): fixed the same bug again:
 	EXPAND-COMPILER-MACRO may return an atom.
 	This bug has already been fixed on 2002-02-28,

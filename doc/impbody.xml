@@ -267,6 +267,21 @@ executes a compiled version of form.</para>
 
 <para>Constants may not be bound dynamically or lexically.</para>
 
+<formalpara id="spe-var-p"><title>Function &spe-var-p;</title>
+<para>You can use the function <literal role="sexp">(&spe-var-p;
+  &symbol-r; &optional-amp; &env-r;)</literal> to check whether the
+ symbol is a special variable.  &env-r; of &nil; or omitted means use
+ the global environment, &t; means use current lexical environment.
+ You can also obtain the current lexical environment using the macro
+ &the-env; (interpreted code only).
+ This function will always return &t; for global special
+ variables and constants.
+ Note that this function will not work in compiled code as you expect:
+ when call with &nil; &env-r;, it will be called at run time and check
+ for globally special variables, but when &env-r; is &t;, it will be
+ called at <emphasis>compile time</emphasis> and the value will be used
+ as a constant in the code.</para></formalpara>
+
 </section>
 
 <section id="eval-when"><title>Macro &eval-when;</title>
