@@ -4279,15 +4279,11 @@ functions are provided:
  either &nil; (stands for &eos;) or up to three values
  &string-r;, &start-r;, &end-r;.
  &read-char; returns the &character-t;s of the current &string-r; one
- after another; when the &string-r; is consumed, &func-r; is called
- again, and if the first value is a &string-t;, the new &string-r;
- buffer is given by
-<programlisting>
-  (multiple-value-bind (str start end) (funcall fun)
-     (subseq str (or start 0) (or end 'NIL)))
-</programlisting>
- The &string-r; returned by &func-r; should not be changed.
- (Otherwise &func-r; should copy the &string-r; with &copy-seq; beforehand.)
+ after another, as delimited by &start-r; and &end-r;, which default to
+ <literal>0</literal> and &nil;, respectively. When the &string-r; is
+ consumed, &func-r; is called again. The &string-r; returned by &func-r; should
+ not be changed. (Otherwise &func-r; should copy the &string-r; with &copy-seq;
+ or &subseq; beforehand.)
  <replaceable>mode</replaceable> determines the behavior of &listen;
  when the current &string-r; buffer is empty:
  <variablelist>
@@ -4296,13 +4292,14 @@ functions are provided:
      i.e. &func-r; is called</simpara></listitem></varlistentry>
   <varlistentry><term>&t;</term>
    <listitem><simpara>the stream acts like an interactive stream without
-     &eos;, i.e. one can assume that further characters will  always
+     &eos;, i.e. one can assume that further characters will always
      arrive, without calling &func-r;</simpara></listitem></varlistentry>
   <varlistentry><term>&function-t;</term>
    <listitem><simpara>this &function-t; tells, upon call, if further
      non-empty &string-r;s are to be expected.</simpara></listitem>
  </varlistentry></variablelist>
-&clear-input; discards whe rest of the current &string-r;.
+ &clear-input; discards the rest of the current &string-r;, so &func-r; will be
+ called upon the next &read-char; operation.
 </para>
 </section>
 
