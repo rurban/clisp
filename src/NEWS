@@ -21,6 +21,9 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#so-opt> for details.
   Suggested by Dave Richards <dave@synergy.org>.
 
+* CLISP character set now uses Unicode 3.2.
+  See <http://clisp.cons.org/impnotes.html#characters> for details.
+
 * DIRECTORY now accepts a new keyword argument :IF-DOES-NOT-EXIST which
   controls treatment of links pointing to non-existent files.
   It defaults to :DISCARD which is fully backward compatible.
