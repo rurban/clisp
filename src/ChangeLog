@@ -1,3 +1,7 @@
+1998-06-03  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * clos.lsp (slot-unbound): Signal SLOT-UNBOUND instead of ERROR.
+
 1998-06-02  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * format.lsp (FORMAT-CALL-USER-FUNCTION): Renamed from FORMAT-SLASH.
