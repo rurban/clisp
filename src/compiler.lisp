@@ -2277,8 +2277,10 @@ for-value   NIL or T
 ;; we need to check *known-functions* to make sure that the side-effect
 ;; class is computed correctly
 (defun f-side-effect (fun)
-  (let ((kf (assoc fun *known-functions* :test #'equal)))
-    (if kf (fourth kf) (function-side-effect fun))))
+  ;; for NOTINLINE functions, side effects are unpredictable!
+  (if (and (symbolp fun) (declared-notinline fun)) '(t . t)
+      (let ((kf (assoc fun *known-functions* :test #'equal)))
+        (if kf (fourth kf) (function-side-effect fun)))))
 
 ;; global function call, normal (notinline): (fun {form}*)
 (defun c-NORMAL-FUNCTION-CALL (fun) ; fun is a symbol or (SETF symbol)
