@@ -8,6 +8,8 @@
 	Shell means GUI shell, not the command.com.
 	* constsym.d: declared SHELL-EXECUTE in EXT.
 	* subr.d: ditto.
+	* win32.d: include <shellapi.h>
+	* makemake.in: link against shell32.lib
 	* clhs.lisp (browse-url) [WIN32]: start default browser by default.
 
 2003-05-24  Arseny Slobodjuck  <ampy@ich.dvo.ru>

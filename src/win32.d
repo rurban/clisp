@@ -43,6 +43,11 @@
   #include <objbase.h>
   #include <shlobj.h>
 
+# ShellExecute declaration
+  #undef unused
+  #include <shellapi.h>
+  #define unused
+
 # Table of system error messages
   #include <winerror.h>
   # extern DWORD GetLastError (void);
