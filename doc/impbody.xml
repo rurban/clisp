@@ -28,7 +28,7 @@
   Error Terminology</ulink></title>
 
 <para>Safety settings are ignored; therefore where the standard uses the
- phrase <quote>should signal an error</quote>, an error is signaled.</para>
+ phrase <quote>should signal an error</quote>, an &error; is signaled.</para>
 
 </section>
 
@@ -45,7 +45,8 @@
 <section><title><ulink url="&clhs;/Body/sec_1-9.html">1.9
    Symbols in the Package</ulink> &cl-pac;</title>
 
-<para>32 symbols missing from the &cl-pac; package (out of 978):</para>
+<para>31 symbol missing from the &cl-pac; package
+ (out of 978 specified by the &ansi-cl;):</para>
 
 <simplelist type="horiz" columns="3">
  <member>&print-lines-var;</member>
@@ -217,10 +218,10 @@
         <replaceable>value</replaceable>) ...)</literal>
    are ignored by the interpreter and the compiler.</para>
 
-<para>The ANSI CL declaration <literal role="sexp">(&optimize-dec; (debug
- ...))</literal> is legal.</para>
+<para>The &ansi-cl; declaration <literal role="sexp">(&optimize-dec;
+ (debug ...))</literal> is legal.</para>
 
-<para>The ANSI CL declaration <literal role="sexp">(&ignorable-dec;
+<para>The &ansi-cl; declaration <literal role="sexp">(&ignorable-dec;
  <replaceable>var</replaceable> ...)</literal> affects the variable
  binding for the variable <replaceable>var</replaceable>.  The compiler
  will not warn about the variable, regardless whether it is used or
@@ -316,7 +317,7 @@ executes a compiled version of form.</para>
  role="sexp">(&complex-class; <replaceable>type</replaceable>
  <replaceable>type</replaceable>)</literal>.</para>
 
-<para>The ANSI CL type specifier <literal role="sexp">(&real-class;
+<para>The &ansi-cl; type specifier <literal role="sexp">(&real-class;
  <replaceable>low</replaceable>
  <replaceable>high</replaceable>)</literal> denotes the real numbers
  between <replaceable>low</replaceable> and
@@ -424,7 +425,7 @@ executes a compiled version of form.</para>
 
 </section>
 
-<section id="clos-diff"><title>Deviations from ANSI CL:</title>
+<section id="clos-diff"><title>Deviations from &ansi-cl;:</title>
 
 <formalpara><title>&defclass;</title>
 <para>It <emphasis>is</emphasis> required that the superclasses of a
@@ -452,7 +453,7 @@ executes a compiled version of form.</para>
  <emphasis
  role="strong"><function>clos:generic-labels</function></emphasis> are
  implemented as macros, not as special operators.  They are not imported
- into the packages &clu-pac; and &cl-pac; because of the ANSI CL issue
+ into the packages &clu-pac; and &cl-pac; because of the &ansi-cl; issue
  <ulink
  url="&clhs;/Issues/iss181.html">GENERIC-FLET-POORLY-DESIGNED:DELETE</ulink>.
  </para>
@@ -957,7 +958,7 @@ executes a compiled version of form.</para>
 <chapter id="packages"><title><ulink url="&clhs;/Body/chap-11.html">
     Chapter 11: Packages</ulink></title>
 
-<para>The standard ANSI CL packages
+<para>The &ansi-cl; packages
 <itemizedlist>
  <listitem><simpara>&cl-pac; with the nicknames <emphasis
   role="strong"><constant>CL</constant></emphasis> and <emphasis
@@ -2446,7 +2447,7 @@ and the international alphabetic characters from the character set:
  <entry>2<superscript>32</superscript> = 4294967296</entry></row>
 </tbody></tgroup></table>
 
-<para>Note that these constants are not fixnums, contrary to the ANSI CL
+<para>Note that these constants are not fixnums, contrary to the &ansi-cl;
  Issue <ulink url="&clhs;/Issues/iss014.html">
  ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</ulink>.</para>
 
@@ -2536,14 +2537,14 @@ and the international alphabetic characters from the character set:
  pointer, the fill pointer is lowered and the remaining elements are
  compacted below the new fill pointer.</para>
 
-<para id="count-ansi">Contrary to the ANSI CL issue 283 <ulink
+<para id="count-ansi">Contrary to the &ansi-cl; issue 283 <ulink
  url="&clhs;/Issues/iss283.html">RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</ulink>,
  negative &count-k; keyword arguments are not allowed unless you set
  <emphasis
  role="strong"><varname>custom:*sequence-count-ansi*</varname></emphasis>
  to a non-&nil; value, in hich case <quote>using a negative integer
  value is functionally equivalent to using a value of zero</quote>, as
- per the ANSI CL issue.</para>
+ per the &ansi-cl; issue.</para>
 
 </section>
 
@@ -2759,7 +2760,7 @@ and &end-k;:</para>
  <seglistitem><seg>or</seg>
   <seg><filename>                      name.typ</filename></seg></seglistitem>
  <seglistitem><seg>or</seg>
-  <seg><filename>    sub1.typ/**/sub3.typ/x*.lsp</filename></seg></seglistitem>
+  <seg><filename>    sub1.typ/**/sub3.typ/x*.lisp</filename></seg></seglistitem>
  <seglistitem><seg>or similar.</seg><seg/></seglistitem>
 </segmentedlist>
 
@@ -2911,7 +2912,7 @@ and &end-k;:</para>
  <seglistitem><seg>or</seg><seg>
   <filename>                         name.typ</filename></seg></seglistitem>
  <seglistitem><seg>or</seg><seg>
-  <filename>       sub1.typ/**/sub3.typ/x*.lsp</filename></seg></seglistitem>
+  <filename>       sub1.typ/**/sub3.typ/x*.lisp</filename></seg></seglistitem>
  <seglistitem><seg>or similar.</seg><seg/></seglistitem>
 </segmentedlist>
 </listitem></varlistentry></variablelist>
@@ -2981,7 +2982,7 @@ and &end-k;:</para>
  <seglistitem><seg>or</seg>
   <seg><filename>                     name.typ</filename></seg></seglistitem>
  <seglistitem><seg>or</seg>
-  <seg><filename>*:\sub1.typ\**\sub3.typ\x*.lsp</filename></seg></seglistitem>
+  <seg><filename>*:\sub1.typ\**\sub3.typ\x*.lisp</filename></seg></seglistitem>
  <seglistitem><seg>or similar.</seg><seg/></seglistitem>
 </segmentedlist>
 
@@ -3058,7 +3059,7 @@ and &end-k;:</para>
  <seglistitem><seg>or</seg>
   <seg><filename>                     name.typ</filename></seg></seglistitem>
  <seglistitem><seg>or</seg>
-  <seg><filename>*:\sub1.typ\**\sub3.typ\x*.lsp</filename></seg></seglistitem>
+  <seg><filename>*:\sub1.typ\**\sub3.typ\x*.lisp</filename></seg></seglistitem>
  <seglistitem><seg>or similar.</seg><seg/></seglistitem>
 </segmentedlist>
 
@@ -3276,8 +3277,8 @@ and &end-k;:</para>
   notation to internal representation</term>
 
  <listitem><simpara><emphasis>No</emphasis> swapping.
-   <filename>foo.lsp</filename> means file type
-   <filename>lsp</filename> and file name <filename>foo</filename>.
+   <filename>foo.lisp</filename> means file type
+   <filename>lisp</filename> and file name <filename>foo</filename>.
    This is pseudo-BNF:</simpara>
  <variablelist>
   <varlistentry><term>legal character ::==</term>
@@ -4546,7 +4547,7 @@ functions are provided:</para>
 
 <para>Pathnames are printed as follows: If &print-escape-var; is &nil;,
  only the namestring is printed; otherwise it is printed with
- <filename>#P""</filename> syntax, as per ANSI CL Issue <ulink
+ <filename>#P""</filename> syntax, as per &ansi-cl; Issue <ulink
  url="&clhs;/Issues/iss276.html">
  PRINT-READABLY-BEHAVIOR:CLARIFY</ulink>.  But, if &print-readably-var;
  is true, we are in trouble as <filename>#P""</filename> is ambiguous
@@ -4571,8 +4572,8 @@ functions are provided:</para>
 <para>In the absence of <emphasis
  role="strong"><function>sys::write-float-decimal</function></emphasis>,
  floating point numbers are output in radix 2.  This function is defined
- in <filename>floatpri.lsp</filename> and is not available if you run
- &clisp; without a memory image.</para>
+ in <filename>floatpri.lisp</filename> and is not available if you run
+ &clisp; without a memory image (which you should never do anyway!)</para>
 
 <para>If &print-readably-var; is true,
  &read-default-float-format-var; has no influence on the way
@@ -4581,7 +4582,7 @@ functions are provided:</para>
 <variablelist>
 <!-- #ifndef AMIGAOS -->
 <varlistentry><term>Platform dependent: &unix;, &dos;, &os2;, &win32;,
-   &acorn;  platforms only.</term>
+   &acorn; platforms only.</term>
 <listitem><simpara>&print-pretty-var; is initially &nil; but set to &t;
  in &config-file;.  This makes screen output prettier.
  </simpara></listitem></varlistentry>
@@ -4691,8 +4692,8 @@ functions are provided:</para>
 
 <section id="chario"><title>characters</title>
 
-<para><keysym>#\</keysym> allows inputting characters of arbitrary code:
- e.g., <keysym>#\Code231</keysym> yields the character
+<para><keysym>#\Code</keysym> allows input of characters of arbitrary code:
+ e.g., <keysym>#\Code231</keysym> reads as the character
  <literal role="sexp">(&code-char; 231.)</literal>.</para>
 
 </section>
@@ -4704,21 +4705,21 @@ functions are provided:</para>
   functions and to set the current input stream's encoding.
   </simpara></listitem>
 <listitem><simpara><filename>#""</filename> is used to read pathnames:
-  <filename>#"test.lsp"</filename> is the value of <literal
-  role="sexp">(&pathname; "test.lsp")</literal></simpara>
+  <filename>#"test.lisp"</filename> is the value of <literal
+  role="sexp">(&pathname; "test.lisp")</literal></simpara>
 <variablelist>
 <!-- #if defined(MSDOS) -->
 <varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
    platforms only.</term>
 <listitem><simpara>As in all strings, backslashes must be written twice
-  here: <filename>#"A:\\programs\\test.lsp"</filename>
+  here: <filename>#"A:\\programs\\test.lisp"</filename>
   </simpara></listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #ifdef RISCOS -->
 <varlistentry><term>Platform dependent: &acorn; platforms only.</term>
 <listitem><simpara> As in all strings, backslashes must be written twice
-  here: <filename>#"\\.test.lsp"</filename>
+  here: <filename>#"\\.test.lisp"</filename>
   </simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist></listitem>
@@ -4853,7 +4854,7 @@ compiles a file to platform-independent bytecode.</para>
  role="strong"><varname>custom:*compile-warnings*</varname></emphasis>,
  &compile-verbose-var;, &compile-print-var; provide defaults for the
  &warnings-k;, &verbose-k;, &print-k; keyword arguments, respectively.
- For each input file (default file type: <filename>#p".lsp"</filename>)
+ For each input file (default file type: <filename>#p".lisp"</filename>)
  the following files are generated:</para>
 
 <segmentedlist>
