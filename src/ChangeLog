@@ -33,7 +33,9 @@
 
 	* foreign1.lisp (parse-c-type): add define-compiler-macro
 	to inline primitive types.
-
+	* foreign1.lisp (with-c-var, with-foreign-object): optimize
+	c-type `(c-array[-max] type ,foo) (typical variable-length array)
+	
 2004-08-31  Sam Steingold  <sds@gnu.org>
 
 	* describe.lisp (describe-object@integer): do not use TYPE-OF to

@@ -33,7 +33,7 @@ T
 nil
 
 (functionp (setq parse-c-type-optimizer
-		 (compiler-macro-function 'parse-c-type)))
+                 (compiler-macro-function 'parse-c-type)))
 T
 
 (funcall parse-c-type-optimizer '(parse-c-type 'c-pointer) nil)
