@@ -225,15 +225,15 @@ global sint32 I_to_L (object obj)
    case_posbignum: { /* bignum >0 */
     var Bignum bn = TheBignum(obj);
     var uintC len = bignum_length(bn);
-   #define IF_LENGTH(i)                                                 \
-    if (bn_minlength <= i) /* exactly i digits possible at all? */      \
-      if (len == i) /* exactly i digits? */                             \
-        /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */            \
-        if ( (i*intDsize > 32)                                          \
-             && ( ((i-1)*intDsize >= 32)                                \
-                  || (bn->data[0] >= (uintD)bitc(31-(i-1)*intDsize))))  \
-          goto bad;                                                     \
-        else
+    #define IF_LENGTH(i)                                                 \
+      if (bn_minlength <= i) /* exactly i digits possible at all? */      \
+        if (len == i) /* exactly i digits? */                             \
+          /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */            \
+          if ( (i*intDsize > 32)                                          \
+               && ( ((i-1)*intDsize >= 32)                                \
+                    || (bn->data[0] >= (uintD)bitc(31-(i-1)*intDsize))))  \
+            goto bad;                                                     \
+          else
     IF_LENGTH(1)
       return get_uint1D_Dptr(bn->data);
     IF_LENGTH(2)
@@ -242,7 +242,7 @@ global sint32 I_to_L (object obj)
       return get_uint3D_Dptr(bn->data);
     IF_LENGTH(4)
       return get_uint4D_Dptr(bn->data);
-   #undef IF_LENGTH
+    #undef IF_LENGTH
     goto bad;
    }
    case_negfixnum: { /* fixnum <0 */
@@ -253,15 +253,15 @@ global sint32 I_to_L (object obj)
    case_negbignum: { /* bignum <0 */
     var Bignum bn = TheBignum(obj);
     var uintC len = bignum_length(bn);
-   #define IF_LENGTH(i)                                                    \
-    if (bn_minlength <= i) /* exactly i digits possible at all? */      \
-      if (len == i) /* exactly i digits? */                             \
-        /* - 2^(i*intDsize-1) <= obj < - 2^((i-1)*intDsize-1) */        \
-        if ( (i*intDsize > 32)                                          \
-             && ( ((i-1)*intDsize >= 32)                                \
-                  || (bn->data[0] < (uintD)(-bitc(31-(i-1)*intDsize))))) \
-          goto bad;                                                     \
-        else
+    #define IF_LENGTH(i)                                                    \
+      if (bn_minlength <= i) /* exactly i digits possible at all? */      \
+        if (len == i) /* exactly i digits? */                             \
+          /* - 2^(i*intDsize-1) <= obj < - 2^((i-1)*intDsize-1) */        \
+          if ( (i*intDsize > 32)                                          \
+               && ( ((i-1)*intDsize >= 32)                                \
+                    || (bn->data[0] < (uintD)(-bitc(31-(i-1)*intDsize))))) \
+            goto bad;                                                     \
+          else
     IF_LENGTH(1)
       return get_sint1D_Dptr(bn->data);
     IF_LENGTH(2)
@@ -270,7 +270,7 @@ global sint32 I_to_L (object obj)
       return get_sint3D_Dptr(bn->data);
     IF_LENGTH(4)
       return get_sint4D_Dptr(bn->data);
-   #undef IF_LENGTH
+    #undef IF_LENGTH
     goto bad;
    }
    default:
@@ -306,15 +306,15 @@ global uint64 I_to_UQ (object obj)
    case_posbignum: { /* bignum >0 */
       var Bignum bn = TheBignum(obj);
       var uintC len = bignum_length(bn);
-     #define IF_LENGTH(i)                                               \
-      if (bn_minlength <= i) /* exactly i digits possible at all? */    \
-        if (len == i) /* exactly i digits? */                           \
-          /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */          \
-          if ( (i*intDsize-1 > 64)                                      \
-               && ( ((i-1)*intDsize-1 >= 64)                            \
-                    || (bn->data[0] >= (uintD)bitc(64-(i-1)*intDsize)))) \
-            goto bad;                                                   \
-          else
+      #define IF_LENGTH(i)                                               \
+        if (bn_minlength <= i) /* exactly i digits possible at all? */    \
+          if (len == i) /* exactly i digits? */                           \
+            /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */          \
+            if ( (i*intDsize-1 > 64)                                      \
+                 && ( ((i-1)*intDsize-1 >= 64)                            \
+                      || (bn->data[0] >= (uintD)bitc(64-(i-1)*intDsize)))) \
+              goto bad;                                                   \
+            else
      #if (intDsize==32)
       IF_LENGTH(1)
         return (uint64)get_uint1D_Dptr(bn->data);
@@ -355,7 +355,7 @@ global uint64 I_to_UQ (object obj)
       IF_LENGTH(9)
         return ((uint64)get_uint4D_Dptr(&bn->data[1]) << 32) | (uint64)get_uint4D_Dptr(&bn->data[5]);
      #endif
-     #undef IF_LENGTH
+      #undef IF_LENGTH
     }
     default:
     bad: /* unsuitable object */
@@ -398,15 +398,15 @@ global sint64 I_to_Q (object obj)
    case_posbignum: { /* Bignum >0 */
       var Bignum bn = TheBignum(obj);
       var uintC len = bignum_length(bn);
-     #define IF_LENGTH(i)  \
-      if (bn_minlength <= i) /* exactly i digits possible at all? */    \
-        if (len == i) /* exaclty i digits? */                           \
-          /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */          \
-          if ( (i*intDsize > 64)                                        \
-               && ( ((i-1)*intDsize >= 64)                              \
-                    || (bn->data[0] >= (uintD)bitc(63-(i-1)*intDsize)))) \
-            goto bad;                                                   \
-          else
+      #define IF_LENGTH(i)  \
+        if (bn_minlength <= i) /* exactly i digits possible at all? */    \
+          if (len == i) /* exaclty i digits? */                           \
+            /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */          \
+            if ( (i*intDsize > 64)                                        \
+                 && ( ((i-1)*intDsize >= 64)                              \
+                      || (bn->data[0] >= (uintD)bitc(63-(i-1)*intDsize)))) \
+              goto bad;                                                   \
+            else
      #if (intDsize==32)
       IF_LENGTH(1)
         return (uint64)get_uint1D_Dptr(bn->data);
@@ -441,7 +441,7 @@ global sint64 I_to_Q (object obj)
       IF_LENGTH(8)
         return ((uint64)get_uint4D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[4]);
      #endif
-     #undef IF_LENGTH
+      #undef IF_LENGTH
       goto bad;
     }
    case_negfixnum: /* Fixnum <0 */
@@ -449,15 +449,15 @@ global sint64 I_to_Q (object obj)
    case_negbignum: { /* Bignum <0 */
       var Bignum bn = TheBignum(obj);
       var uintC len = bignum_length(bn);
-     #define IF_LENGTH(i)  \
-      if (bn_minlength <= i) /* exactly i digits possible at all? */    \
-        if (len == i) /* exactly i digits? */                           \
-          /* - 2^(i*intDsize-1) <= obj < - 2^((i-1)*intDsize-1) */      \
-          if ( (i*intDsize > 64)                                        \
-               && ( ((i-1)*intDsize >= 64)                              \
-                    || (bn->data[0] < (uintD)(-bitc(63-(i-1)*intDsize))))) \
-            goto bad;                                                   \
-          else
+      #define IF_LENGTH(i)  \
+        if (bn_minlength <= i) /* exactly i digits possible at all? */    \
+          if (len == i) /* exactly i digits? */                           \
+            /* - 2^(i*intDsize-1) <= obj < - 2^((i-1)*intDsize-1) */      \
+            if ( (i*intDsize > 64)                                        \
+                 && ( ((i-1)*intDsize >= 64)                              \
+                      || (bn->data[0] < (uintD)(-bitc(63-(i-1)*intDsize))))) \
+              goto bad;                                                   \
+            else
      #if (intDsize==32)
       IF_LENGTH(1)
         return (sint64)get_sint1D_Dptr(bn->data);
@@ -492,7 +492,7 @@ global sint64 I_to_Q (object obj)
       IF_LENGTH(8)
         return ((sint64)get_sint4D_Dptr(bn->data) << 32) | (uint64)get_uint4D_Dptr(&bn->data[4]);
      #endif
-     #undef IF_LENGTH
+      #undef IF_LENGTH
       goto bad;
     }
     default:
@@ -561,33 +561,33 @@ global object L_to_I (sint32 wert)
     if (wert >= 0) goto pos1; else goto neg1; /* bignum with 32/intDsize = 1 digit */
    #endif
   } else {
-        #define FILL_1_DIGIT(from)  \
-          *ptr-- = (uintD)from;
-        #define FILL_2_DIGITS(from)  \
-          *ptr-- = (uintD)from; from = from >> intDsize; \
-          *ptr-- = (uintD)from;
-        #define FILL_3_DIGITS(from)  \
-          *ptr-- = (uintD)from; from = from >> intDsize; \
-          *ptr-- = (uintD)from; from = from >> intDsize; \
-          *ptr-- = (uintD)from;
-        #define FILL_4_DIGITS(from)  \
-          *ptr-- = (uintD)from; from = from >> intDsize; \
-          *ptr-- = (uintD)from; from = from >> intDsize; \
-          *ptr-- = (uintD)from; from = from >> intDsize; \
-          *ptr-- = (uintD)from;
-        #define FILL_1  FILL_1_DIGIT(wert);
-        #define FILL_2  FILL_2_DIGITS(wert);
-        #define FILL_3  FILL_3_DIGITS(wert);
-        #define FILL_4  FILL_4_DIGITS(wert);
-        #define OK  return newnum;
+    #define FILL_1_DIGIT(from)  \
+      *ptr-- = (uintD)from;
+    #define FILL_2_DIGITS(from)  \
+      *ptr-- = (uintD)from; from = from >> intDsize; \
+      *ptr-- = (uintD)from;
+    #define FILL_3_DIGITS(from)  \
+      *ptr-- = (uintD)from; from = from >> intDsize; \
+      *ptr-- = (uintD)from; from = from >> intDsize; \
+      *ptr-- = (uintD)from;
+    #define FILL_4_DIGITS(from)  \
+      *ptr-- = (uintD)from; from = from >> intDsize; \
+      *ptr-- = (uintD)from; from = from >> intDsize; \
+      *ptr-- = (uintD)from; from = from >> intDsize; \
+      *ptr-- = (uintD)from;
+    #define FILL_1  FILL_1_DIGIT(wert);
+    #define FILL_2  FILL_2_DIGITS(wert);
+    #define FILL_3  FILL_3_DIGITS(wert);
+    #define FILL_4  FILL_4_DIGITS(wert);
+    #define OK  return newnum;
     if (wert >= 0) {
-          #define ALLOC(i)  \
-            var object newnum = allocate_bignum(i,0); \
-            var uintD* ptr = &TheBignum(newnum)->data[i-1];
-          #define IF_LENGTH(i)  \
-            if ((bn_minlength <= i) && (i*intDsize <= 32))       \
-              if (!((i+1)*intDsize <= 32)                        \
-                  || ((uint32)wert < (uint32)bitc(i*intDsize-1)))
+      #define ALLOC(i)  \
+        var object newnum = allocate_bignum(i,0); \
+        var uintD* ptr = &TheBignum(newnum)->data[i-1];
+      #define IF_LENGTH(i)  \
+        if ((bn_minlength <= i) && (i*intDsize <= 32))       \
+          if (!((i+1)*intDsize <= 32)                        \
+              || ((uint32)wert < (uint32)bitc(i*intDsize-1)))
      #if (intDsize <= 32)
       IF_LENGTH(1)
         pos1: { ALLOC(1); FILL_1; OK; } /* bignum with 1 digit */
@@ -602,17 +602,17 @@ global object L_to_I (sint32 wert)
      #endif
      #endif
      #endif
-     #undef IF_LENGTH
-     #undef ALLOC
+      #undef IF_LENGTH
+      #undef ALLOC
     } else {
-          #define ALLOC(i)  \
-            var object newnum = allocate_bignum(i,-1); \
-            var uintD* ptr = &TheBignum(newnum)->data[i-1];
-          #define IF_LENGTH(i)  \
-            if ((bn_minlength <= i) && (i*intDsize <= 32))           \
-              if (!((i+1)*intDsize <= 32)                            \
-                  || ((uint32)wert >= (uint32)(-bitc(i*intDsize-1))) \
-                 )
+      #define ALLOC(i)  \
+        var object newnum = allocate_bignum(i,-1); \
+        var uintD* ptr = &TheBignum(newnum)->data[i-1];
+      #define IF_LENGTH(i)  \
+        if ((bn_minlength <= i) && (i*intDsize <= 32))           \
+          if (!((i+1)*intDsize <= 32)                            \
+              || ((uint32)wert >= (uint32)(-bitc(i*intDsize-1))) \
+             )
      #if (intDsize <= 32)
       IF_LENGTH(1)
         neg1: { ALLOC(1); FILL_1; OK; } /* bignum with 1 digit */
@@ -627,18 +627,18 @@ global object L_to_I (sint32 wert)
      #endif
      #endif
      #endif
-     #undef IF_LENGTH
-     #undef ALLOC
+      #undef IF_LENGTH
+      #undef ALLOC
     }
-        #undef OK
-        #undef FILL_4
-        #undef FILL_3
-        #undef FILL_2
-        #undef FILL_1
-        #undef FILL_4_DIGITS
-        #undef FILL_3_DIGITS
-        #undef FILL_2_DIGITS
-        #undef FILL_1_DIGIT
+    #undef OK
+    #undef FILL_4
+    #undef FILL_3
+    #undef FILL_2
+    #undef FILL_1
+    #undef FILL_4_DIGITS
+    #undef FILL_3_DIGITS
+    #undef FILL_2_DIGITS
+    #undef FILL_1_DIGIT
   }
 }
 #endif
@@ -656,7 +656,7 @@ global object UL_to_I (uint32 wert)
     return as_object(((oint)fixnum_type<<oint_type_shift) | (wert<<oint_data_shift));
   /* create bignum:
      (its length  bn_minlength <= n <= ceiling((32+1)/intDsize)  ) */
-      #define UL_maxlength  ceiling(32+1,intDsize)
+ #define UL_maxlength  ceiling(32+1,intDsize)
  #if (bn_minlength <= 1) && (UL_maxlength >= 1)
   if ((1*intDsize-1 < 32)
       ? (wert <= (uint32)(bitc(1*intDsize-1)-1))
@@ -756,61 +756,61 @@ global object L2_to_I (sint32 wert_hi, uint32 wert_lo)
   }
   /* create bignum:
      (its length bn_minlength <= n <= ceiling(64/intDsize) ) */
-      #define FILL_1_DIGIT(from)  \
-        *ptr-- = (uintD)from;
-      #define FILL_2_DIGITS(from)  \
-        *ptr-- = (uintD)from; from = from >> intDsize; \
-        *ptr-- = (uintD)from;
-      #define FILL_3_DIGITS(from)  \
-        *ptr-- = (uintD)from; from = from >> intDsize; \
-        *ptr-- = (uintD)from; from = from >> intDsize; \
-        *ptr-- = (uintD)from;
-      #define FILL_4_DIGITS(from)  \
-        *ptr-- = (uintD)from; from = from >> intDsize; \
-        *ptr-- = (uintD)from; from = from >> intDsize; \
-        *ptr-- = (uintD)from; from = from >> intDsize; \
-        *ptr-- = (uintD)from;
-      #if (32/intDsize==1)
-      #define FILL_1  FILL_1_DIGIT(wert_lo);
-      #define FILL_2  FILL_1_DIGIT(wert_lo); FILL_1_DIGIT(wert_hi);
-      #define FILL_3
-      #define FILL_4
-      #define FILL_5
-      #define FILL_6
-      #define FILL_7
-      #define FILL_8
-      #endif
-      #if (32/intDsize==2)
-      #define FILL_1  FILL_1_DIGIT(wert_lo);
-      #define FILL_2  FILL_2_DIGITS(wert_lo);
-      #define FILL_3  FILL_2_DIGITS(wert_lo); FILL_1_DIGIT(wert_hi);
-      #define FILL_4  FILL_2_DIGITS(wert_lo); FILL_2_DIGITS(wert_hi);
-      #define FILL_5
-      #define FILL_6
-      #define FILL_7
-      #define FILL_8
-      #endif
-      #if (32/intDsize==4)
-      #define FILL_1  FILL_1_DIGIT(wert_lo);
-      #define FILL_2  FILL_2_DIGITS(wert_lo);
-      #define FILL_3  FILL_3_DIGITS(wert_lo);
-      #define FILL_4  FILL_4_DIGITS(wert_lo);
-      #define FILL_5  FILL_4_DIGITS(wert_lo); FILL_1_DIGIT(wert_hi);
-      #define FILL_6  FILL_4_DIGITS(wert_lo); FILL_2_DIGITS(wert_hi);
-      #define FILL_7  FILL_4_DIGITS(wert_lo); FILL_3_DIGITS(wert_hi);
-      #define FILL_8  FILL_4_DIGITS(wert_lo); FILL_4_DIGITS(wert_hi);
-      #endif
-      #define OK  return newnum;
+  #define FILL_1_DIGIT(from)  \
+    *ptr-- = (uintD)from;
+  #define FILL_2_DIGITS(from)  \
+    *ptr-- = (uintD)from; from = from >> intDsize; \
+    *ptr-- = (uintD)from;
+  #define FILL_3_DIGITS(from)  \
+    *ptr-- = (uintD)from; from = from >> intDsize; \
+    *ptr-- = (uintD)from; from = from >> intDsize; \
+    *ptr-- = (uintD)from;
+  #define FILL_4_DIGITS(from)  \
+    *ptr-- = (uintD)from; from = from >> intDsize; \
+    *ptr-- = (uintD)from; from = from >> intDsize; \
+    *ptr-- = (uintD)from; from = from >> intDsize; \
+    *ptr-- = (uintD)from;
+  #if (32/intDsize==1)
+    #define FILL_1  FILL_1_DIGIT(wert_lo);
+    #define FILL_2  FILL_1_DIGIT(wert_lo); FILL_1_DIGIT(wert_hi);
+    #define FILL_3
+    #define FILL_4
+    #define FILL_5
+    #define FILL_6
+    #define FILL_7
+    #define FILL_8
+  #endif
+  #if (32/intDsize==2)
+    #define FILL_1  FILL_1_DIGIT(wert_lo);
+    #define FILL_2  FILL_2_DIGITS(wert_lo);
+    #define FILL_3  FILL_2_DIGITS(wert_lo); FILL_1_DIGIT(wert_hi);
+    #define FILL_4  FILL_2_DIGITS(wert_lo); FILL_2_DIGITS(wert_hi);
+    #define FILL_5
+    #define FILL_6
+    #define FILL_7
+    #define FILL_8
+  #endif
+  #if (32/intDsize==4)
+    #define FILL_1  FILL_1_DIGIT(wert_lo);
+    #define FILL_2  FILL_2_DIGITS(wert_lo);
+    #define FILL_3  FILL_3_DIGITS(wert_lo);
+    #define FILL_4  FILL_4_DIGITS(wert_lo);
+    #define FILL_5  FILL_4_DIGITS(wert_lo); FILL_1_DIGIT(wert_hi);
+    #define FILL_6  FILL_4_DIGITS(wert_lo); FILL_2_DIGITS(wert_hi);
+    #define FILL_7  FILL_4_DIGITS(wert_lo); FILL_3_DIGITS(wert_hi);
+    #define FILL_8  FILL_4_DIGITS(wert_lo); FILL_4_DIGITS(wert_hi);
+  #endif
+  #define OK  return newnum;
   if (wert_hi >= 0) {
-        #define ALLOC(i)  \
-          var object newnum = allocate_bignum(i,0); \
-          var uintD* ptr = &TheBignum(newnum)->data[i-1];
-        #define IF_LENGTH(i)  \
-          if ((bn_minlength <= i) && (i*intDsize <= 64))                         \
-            if (!((i+1)*intDsize <= 64)                                          \
-                || (i*intDsize-1 < 32                                            \
-                    ? ((wert_hi == 0) && (wert_lo < (uint32)bitc(i*intDsize-1))) \
-                    : ((uint32)wert_hi < (uint32)bitc(i*intDsize-1-32))))
+    #define ALLOC(i)  \
+      var object newnum = allocate_bignum(i,0); \
+      var uintD* ptr = &TheBignum(newnum)->data[i-1];
+    #define IF_LENGTH(i)  \
+      if ((bn_minlength <= i) && (i*intDsize <= 64))                         \
+        if (!((i+1)*intDsize <= 64)                                          \
+            || (i*intDsize-1 < 32                                            \
+                ? ((wert_hi == 0) && (wert_lo < (uint32)bitc(i*intDsize-1))) \
+                : ((uint32)wert_hi < (uint32)bitc(i*intDsize-1-32))))
     IF_LENGTH(1)
       { ALLOC(1); FILL_1; OK; } /* bignum with 1 digit */
     IF_LENGTH(2)
@@ -827,18 +827,18 @@ global object L2_to_I (sint32 wert_hi, uint32 wert_lo)
       { ALLOC(7); FILL_7; OK; } /* bignum with 7 digits */
     IF_LENGTH(8)
       { ALLOC(8); FILL_8; OK; } /* bignum with 8 digits */
-        #undef IF_LENGTH
-        #undef ALLOC
+    #undef IF_LENGTH
+    #undef ALLOC
   } else {
-        #define ALLOC(i)  \
-          var object newnum = allocate_bignum(i,-1); \
-          var uintD* ptr = &TheBignum(newnum)->data[i-1];
-        #define IF_LENGTH(i)  \
-          if ((bn_minlength <= i) && (i*intDsize <= 64))                    \
-            if (!((i+1)*intDsize <= 64)                                     \
-                || (i*intDsize-1 < 32                                       \
-                    ? ((wert_hi == ~(uint32)0) && (wert_lo >= (uint32)(-bitc(i*intDsize-1)))) \
-                    : ((uint32)wert_hi >= (uint32)(-bitc(i*intDsize-1-32)))))
+    #define ALLOC(i)  \
+      var object newnum = allocate_bignum(i,-1); \
+      var uintD* ptr = &TheBignum(newnum)->data[i-1];
+    #define IF_LENGTH(i)  \
+      if ((bn_minlength <= i) && (i*intDsize <= 64))                    \
+        if (!((i+1)*intDsize <= 64)                                     \
+            || (i*intDsize-1 < 32                                       \
+                ? ((wert_hi == ~(uint32)0) && (wert_lo >= (uint32)(-bitc(i*intDsize-1)))) \
+                : ((uint32)wert_hi >= (uint32)(-bitc(i*intDsize-1-32)))))
     IF_LENGTH(1)
       { ALLOC(1); FILL_1; OK; } /* bignum with 1 digit */
     IF_LENGTH(2)
@@ -855,22 +855,22 @@ global object L2_to_I (sint32 wert_hi, uint32 wert_lo)
       { ALLOC(7); FILL_7; OK; } /* bignum with 7 digits */
     IF_LENGTH(8)
       { ALLOC(8); FILL_8; OK; } /* bignum with 8 digits */
-        #undef IF_LENGTH
-        #undef ALLOC
+    #undef IF_LENGTH
+    #undef ALLOC
   }
-      #undef OK
-      #undef FILL_8
-      #undef FILL_7
-      #undef FILL_6
-      #undef FILL_5
-      #undef FILL_4
-      #undef FILL_3
-      #undef FILL_2
-      #undef FILL_1
-      #undef FILL_4_DIGITS
-      #undef FILL_3_DIGITS
-      #undef FILL_2_DIGITS
-      #undef FILL_1_DIGIT
+  #undef OK
+  #undef FILL_8
+  #undef FILL_7
+  #undef FILL_6
+  #undef FILL_5
+  #undef FILL_4
+  #undef FILL_3
+  #undef FILL_2
+  #undef FILL_1
+  #undef FILL_4_DIGITS
+  #undef FILL_3_DIGITS
+  #undef FILL_2_DIGITS
+  #undef FILL_1_DIGIT
 }
 
 /* converts an unsigned doppel-longword into an integer.
@@ -886,64 +886,64 @@ global object UL2_to_I (uint32 wert_hi, uint32 wert_lo)
     return as_object(((oint)fixnum_type<<oint_type_shift) | ((oint)wert_lo<<oint_data_shift));
   /* create bignum:
      (its length bn_minlength <= n <= ceiling((64+1)/intDsize) ) */
-      #define UL2_maxlength  ceiling(64+1,intDsize)
-      #define FILL_1_DIGIT(from)  \
-        *ptr-- = (uintD)from;
-      #define FILL_2_DIGITS(from)  \
-        *ptr-- = (uintD)from; from = from >> intDsize; \
-        *ptr-- = (uintD)from;
-      #define FILL_3_DIGITS(from)  \
-        *ptr-- = (uintD)from; from = from >> intDsize; \
-        *ptr-- = (uintD)from; from = from >> intDsize; \
-        *ptr-- = (uintD)from;
-      #define FILL_4_DIGITS(from)  \
-        *ptr-- = (uintD)from; from = from >> intDsize; \
-        *ptr-- = (uintD)from; from = from >> intDsize; \
-        *ptr-- = (uintD)from; from = from >> intDsize; \
-        *ptr-- = (uintD)from;
-      #if (32/intDsize==1)
-      #define FILL_1  FILL_1_DIGIT(wert_lo);
-      #define FILL_2  FILL_1_DIGIT(wert_lo); FILL_1_DIGIT(wert_hi);
-      #define FILL_3  FILL_2 *ptr-- = 0;
-      #define FILL_4
-      #define FILL_5
-      #define FILL_6
-      #define FILL_7
-      #define FILL_8
-      #define FILL_9
-      #endif
-      #if (32/intDsize==2)
-      #define FILL_1  FILL_1_DIGIT(wert_lo);
-      #define FILL_2  FILL_2_DIGITS(wert_lo);
-      #define FILL_3  FILL_2_DIGITS(wert_lo); FILL_1_DIGIT(wert_hi);
-      #define FILL_4  FILL_2_DIGITS(wert_lo); FILL_2_DIGITS(wert_hi);
-      #define FILL_5  FILL_4 *ptr-- = 0;
-      #define FILL_6
-      #define FILL_7
-      #define FILL_8
-      #define FILL_9
-      #endif
-      #if (32/intDsize==4)
-      #define FILL_1  FILL_1_DIGIT(wert_lo);
-      #define FILL_2  FILL_2_DIGITS(wert_lo);
-      #define FILL_3  FILL_3_DIGITS(wert_lo);
-      #define FILL_4  FILL_4_DIGITS(wert_lo);
-      #define FILL_5  FILL_4_DIGITS(wert_lo); FILL_1_DIGIT(wert_hi);
-      #define FILL_6  FILL_4_DIGITS(wert_lo); FILL_2_DIGITS(wert_hi);
-      #define FILL_7  FILL_4_DIGITS(wert_lo); FILL_3_DIGITS(wert_hi);
-      #define FILL_8  FILL_4_DIGITS(wert_lo); FILL_4_DIGITS(wert_hi);
-      #define FILL_9  FILL_8 *ptr-- = 0;
-      #endif
-      #define OK  return newnum;
-      #define ALLOC(i)  \
-        var object newnum = allocate_bignum(i,0); \
-        var uintD* ptr = &TheBignum(newnum)->data[i-1];
-      #define IF_LENGTH(i)  \
-        if ((bn_minlength <= i) && (UL2_maxlength >= i))                       \
-          if ((i*intDsize >= 64+1)                                             \
-              || (i*intDsize-1 < 32                                            \
-                  ? ((wert_hi == 0) && (wert_lo < (uint32)bitc(i*intDsize-1))) \
-                  : (wert_hi < (uint32)bitc(i*intDsize-1-32))))
+  #define UL2_maxlength  ceiling(64+1,intDsize)
+  #define FILL_1_DIGIT(from)  \
+    *ptr-- = (uintD)from;
+  #define FILL_2_DIGITS(from)  \
+    *ptr-- = (uintD)from; from = from >> intDsize; \
+    *ptr-- = (uintD)from;
+  #define FILL_3_DIGITS(from)  \
+    *ptr-- = (uintD)from; from = from >> intDsize; \
+    *ptr-- = (uintD)from; from = from >> intDsize; \
+    *ptr-- = (uintD)from;
+  #define FILL_4_DIGITS(from)  \
+    *ptr-- = (uintD)from; from = from >> intDsize; \
+    *ptr-- = (uintD)from; from = from >> intDsize; \
+    *ptr-- = (uintD)from; from = from >> intDsize; \
+    *ptr-- = (uintD)from;
+  #if (32/intDsize==1)
+    #define FILL_1  FILL_1_DIGIT(wert_lo);
+    #define FILL_2  FILL_1_DIGIT(wert_lo); FILL_1_DIGIT(wert_hi);
+    #define FILL_3  FILL_2 *ptr-- = 0;
+    #define FILL_4
+    #define FILL_5
+    #define FILL_6
+    #define FILL_7
+    #define FILL_8
+    #define FILL_9
+  #endif
+  #if (32/intDsize==2)
+    #define FILL_1  FILL_1_DIGIT(wert_lo);
+    #define FILL_2  FILL_2_DIGITS(wert_lo);
+    #define FILL_3  FILL_2_DIGITS(wert_lo); FILL_1_DIGIT(wert_hi);
+    #define FILL_4  FILL_2_DIGITS(wert_lo); FILL_2_DIGITS(wert_hi);
+    #define FILL_5  FILL_4 *ptr-- = 0;
+    #define FILL_6
+    #define FILL_7
+    #define FILL_8
+    #define FILL_9
+  #endif
+  #if (32/intDsize==4)
+    #define FILL_1  FILL_1_DIGIT(wert_lo);
+    #define FILL_2  FILL_2_DIGITS(wert_lo);
+    #define FILL_3  FILL_3_DIGITS(wert_lo);
+    #define FILL_4  FILL_4_DIGITS(wert_lo);
+    #define FILL_5  FILL_4_DIGITS(wert_lo); FILL_1_DIGIT(wert_hi);
+    #define FILL_6  FILL_4_DIGITS(wert_lo); FILL_2_DIGITS(wert_hi);
+    #define FILL_7  FILL_4_DIGITS(wert_lo); FILL_3_DIGITS(wert_hi);
+    #define FILL_8  FILL_4_DIGITS(wert_lo); FILL_4_DIGITS(wert_hi);
+    #define FILL_9  FILL_8 *ptr-- = 0;
+  #endif
+  #define OK  return newnum;
+  #define ALLOC(i)  \
+    var object newnum = allocate_bignum(i,0); \
+    var uintD* ptr = &TheBignum(newnum)->data[i-1];
+  #define IF_LENGTH(i)  \
+    if ((bn_minlength <= i) && (UL2_maxlength >= i))                       \
+      if ((i*intDsize >= 64+1)                                             \
+          || (i*intDsize-1 < 32                                            \
+              ? ((wert_hi == 0) && (wert_lo < (uint32)bitc(i*intDsize-1))) \
+              : (wert_hi < (uint32)bitc(i*intDsize-1-32))))
   IF_LENGTH(1)
     { ALLOC(1); FILL_1; OK; } /* bignum with 1 digit */
   IF_LENGTH(2)
@@ -962,22 +962,22 @@ global object UL2_to_I (uint32 wert_hi, uint32 wert_lo)
     { ALLOC(8); FILL_8; OK; } /* bignum with 8 digits */
   IF_LENGTH(8)
     { ALLOC(9); FILL_9; OK; } /* bignum with 9 digits */
-      #undef IF_LENGTH
-      #undef ALLOC
-      #undef OK
-      #undef FILL_9
-      #undef FILL_8
-      #undef FILL_7
-      #undef FILL_6
-      #undef FILL_5
-      #undef FILL_4
-      #undef FILL_3
-      #undef FILL_2
-      #undef FILL_1
-      #undef FILL_4_DIGITS
-      #undef FILL_3_DIGITS
-      #undef FILL_2_DIGITS
-      #undef FILL_1_DIGIT
+  #undef IF_LENGTH
+  #undef ALLOC
+  #undef OK
+  #undef FILL_9
+  #undef FILL_8
+  #undef FILL_7
+  #undef FILL_6
+  #undef FILL_5
+  #undef FILL_4
+  #undef FILL_3
+  #undef FILL_2
+  #undef FILL_1
+  #undef FILL_4_DIGITS
+  #undef FILL_3_DIGITS
+  #undef FILL_2_DIGITS
+  #undef FILL_1_DIGIT
 }
 
 #ifdef intQsize
@@ -999,50 +999,50 @@ global object Q_to_I (sint64 wert)
   }
   /* create bignum:
      (its length bn_minlength <= n <= ceiling(64/intDsize) = 2 ) */
-      #define FILL_1_DIGIT(from)  \
-        *ptr-- = (uintD)from;
-      #define FILL_2_DIGITS(from)  \
-        *ptr-- = (uintD)from; from = from >> intDsize; \
-        *ptr-- = (uintD)from;
-      #define FILL_1  FILL_1_DIGIT(wert);
-      #define FILL_2  FILL_2_DIGITS(wert);
-      #define OK  return newnum;
+  #define FILL_1_DIGIT(from)  \
+    *ptr-- = (uintD)from;
+  #define FILL_2_DIGITS(from)  \
+    *ptr-- = (uintD)from; from = from >> intDsize; \
+    *ptr-- = (uintD)from;
+  #define FILL_1  FILL_1_DIGIT(wert);
+  #define FILL_2  FILL_2_DIGITS(wert);
+  #define OK  return newnum;
   if (wert >= 0) {
-        #define ALLOC(i)  \
-          var object newnum = allocate_bignum(i,0); \
-          var uintD* ptr = &TheBignum(newnum)->data[i-1];
-        #define IF_LENGTH(i)  \
-          if ((bn_minlength <= i) && (i*intDsize <= 64))      \
-            if (!((i+1)*intDsize <= 64)                       \
-                || ((uint64)wert < (uint64)bit(i*intDsize-1)) \
-               )
+    #define ALLOC(i)  \
+      var object newnum = allocate_bignum(i,0); \
+      var uintD* ptr = &TheBignum(newnum)->data[i-1];
+    #define IF_LENGTH(i)  \
+      if ((bn_minlength <= i) && (i*intDsize <= 64))      \
+        if (!((i+1)*intDsize <= 64)                       \
+            || ((uint64)wert < (uint64)bit(i*intDsize-1)) \
+           )
     IF_LENGTH(1)
       { ALLOC(1); FILL_1; OK; } /* bignum with 1 digit */
     IF_LENGTH(2)
       { ALLOC(2); FILL_2; OK; } /* bignum with 2 digits */
-        #undef IF_LENGTH
-        #undef ALLOC
+    #undef IF_LENGTH
+    #undef ALLOC
   } else {
-        #define ALLOC(i)  \
-          var object newnum = allocate_bignum(i,-1); \
-          var uintD* ptr = &TheBignum(newnum)->data[i-1];
-        #define IF_LENGTH(i)  \
-          if ((bn_minlength <= i) && (i*intDsize <= 64))          \
-            if (!((i+1)*intDsize <= 64)                           \
-                || ((uint64)wert >= (uint64)(-bit(i*intDsize-1))) \
-               )
+    #define ALLOC(i)  \
+      var object newnum = allocate_bignum(i,-1); \
+      var uintD* ptr = &TheBignum(newnum)->data[i-1];
+    #define IF_LENGTH(i)  \
+      if ((bn_minlength <= i) && (i*intDsize <= 64))          \
+        if (!((i+1)*intDsize <= 64)                           \
+            || ((uint64)wert >= (uint64)(-bit(i*intDsize-1))) \
+           )
     IF_LENGTH(1)
       { ALLOC(1); FILL_1; OK; } /* bignum with 1 digit */
     IF_LENGTH(2)
       { ALLOC(2); FILL_2; OK; } /* bignum with 2 digits */
-        #undef IF_LENGTH
-        #undef ALLOC
+    #undef IF_LENGTH
+    #undef ALLOC
   }
-      #undef OK
-      #undef FILL_2
-      #undef FILL_1
-      #undef FILL_2_DIGITS
-      #undef FILL_1_DIGIT
+  #undef OK
+  #undef FILL_2
+  #undef FILL_1
+  #undef FILL_2_DIGITS
+  #undef FILL_1_DIGIT
 }
 #endif
 
