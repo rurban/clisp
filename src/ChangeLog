@@ -1,3 +1,7 @@
+2000-05-26  Bruno Haible  <haible@clisp.cons.org>
+
+        * array.d (elt_move): Add "break" in switch statement.
+
 2000-05-25  Bruno Haible  <haible@clisp.cons.org>
 
         * makemake.in (MSVCDIR): Change value.

@@ -3447,20 +3447,28 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
       switch (Array_type(dv1)) {
         case Array_type_svector: # Simple-Vector
           elt_move_T(dv1,index1,dv2,index2,count);
+          break;
         case Array_type_sbvector: # Simple-Bit-Vector
           elt_move_Bit(dv1,index1,dv2,index2,count);
+          break;
         case Array_type_sb2vector:
           elt_move_2Bit(dv1,index1,dv2,index2,count);
+          break;
         case Array_type_sb4vector:
           elt_move_4Bit(dv1,index1,dv2,index2,count);
+          break;
         case Array_type_sb8vector:
           elt_move_8Bit(dv1,index1,dv2,index2,count);
+          break;
         case Array_type_sb16vector:
           elt_move_16Bit(dv1,index1,dv2,index2,count);
+          break;
         case Array_type_sb32vector:
           elt_move_32Bit(dv1,index1,dv2,index2,count);
+          break;
         case Array_type_sstring: # Simple-String
           elt_move_Char(dv1,index1,dv2,index2,count);
+          break;
         default: NOTREACHED
       }
     }
