@@ -1,3 +1,13 @@
+2002-01-24  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #506105: check semi-simple vectors&strings for overflow
+	* array.d (fehler_extension): new function
+	(VECTOR-PUSH-EXTEND): use it
+	(fehler_dim_type): moved before semi-simple vectors&strings
+	(make_ssstring, make_ssbvector): check len <= arraysize_limit_1
+	(ssstring_push_extend, ssstring_extend, ssbvector_push_extend):
+	check for overflow
+
 2002-01-23  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (SEMI_SIMPLE_DEFAULT_SIZE): new constant
