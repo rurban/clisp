@@ -1,3 +1,5 @@
+#0Y UTF-8 ;;;  This file is Unicode/UTF-8 encoded.  -*- coding: utf-8 -*-
+
 ;;; ENGLISH: Site specific definitions, to be modified on installation
 ;;; DEUTSCH: Funktionen, die beim Transportieren zu ändern sind
 ;;; FRANCAIS: Fonctions dépendantes de l'installation
