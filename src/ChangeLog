@@ -2,6 +2,7 @@
 
 	* foreign.d (find_library): extracted from FFI::FOREIGN-LIBRARY
 	(FFI::FOREIGN-LIBRARY): use it; fixed a GC-safety bug
+	(object_handle): maygc only if retry_p is true
 
 2005-02-01  Sam Steingold  <sds@gnu.org>
 

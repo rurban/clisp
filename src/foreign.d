@@ -4048,9 +4048,10 @@ local inline void* find_name (void *handle, char *name)
 /* FIXME: BETTER COMMENT! */
 /* return the handle of the object (string) in the library (name fpointer ...)
  can trigger GC */
-local maygc void* object_handle (object library, gcv_object_t *name,
-                                 bool retry_p) {
+local /*maygc*/ void* object_handle (object library, gcv_object_t *name,
+                                     bool retry_p) {
   void * address;
+  GCTRIGGER_IF(retry_p, GCTRIGGER());
  object_handle_restart:
   with_string_0(*name,O(foreign_encoding),namez, {
     address = find_name(TheFpointer(Car(Cdr(library)))->fp_pointer, namez);
