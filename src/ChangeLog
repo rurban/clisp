@@ -1,5 +1,9 @@
 2003-08-07  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d (FOREIGN-FREE): make the freed function invalid
+
+2003-08-07  Sam Steingold  <sds@gnu.org>
+
 	properly update pointers to dynamic objects
 	* foreign.d (object_handle): extracted from object address()
 	(foreign_libraries): keep the objects imported from the library
