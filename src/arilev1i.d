@@ -320,19 +320,25 @@
     {
       if (!(count==0))
       do {
-        var uintD source1 = *--sourceptr1;
-        var uintD source2 = *--sourceptr2;
-        *--destptr = source1 + source2;
-        if (source1 > (uintD)(~source2)) goto carry_1;
+        {
+          var uintD source1 = *--sourceptr1;
+          var uintD source2 = *--sourceptr2;
+          *--destptr = source1 + source2;
+          if (source1 > (uintD)(~source2))
+            goto carry_1;
+        }
        carry_0:
         count--;
       } until (count==0);
       return 0;
       do {
-        var uintD source1 = *--sourceptr1;
-        var uintD source2 = *--sourceptr2;
-        *--destptr = source1 + source2 + 1;
-        if (source1 < (uintD)(~source2)) goto carry_0;
+        {
+          var uintD source1 = *--sourceptr1;
+          var uintD source2 = *--sourceptr2;
+          *--destptr = source1 + source2 + 1;
+          if (source1 < (uintD)(~source2))
+            goto carry_0;
+        }
        carry_1:
         count--;
       } until (count==0);
@@ -351,19 +357,25 @@
     {
       if (!(count==0))
       do {
-        var uintD source1 = *--sourceptr;
-        var uintD source2 = *--destptr;
-        *destptr = source1 + source2;
-        if (source1 > (uintD)(~source2)) goto carry_1;
+        {
+          var uintD source1 = *--sourceptr;
+          var uintD source2 = *--destptr;
+          *destptr = source1 + source2;
+          if (source1 > (uintD)(~source2))
+            goto carry_1;
+        }
        carry_0:
         count--;
       } until (count==0);
       return 0;
       do {
-        var uintD source1 = *--sourceptr;
-        var uintD source2 = *--destptr;
-        *destptr = source1 + source2 + 1;
-        if (source1 < (uintD)(~source2)) goto carry_0;
+        {
+          var uintD source1 = *--sourceptr;
+          var uintD source2 = *--destptr;
+          *destptr = source1 + source2 + 1;
+          if (source1 < (uintD)(~source2))
+            goto carry_0;
+        }
        carry_1:
         count--;
       } until (count==0);
@@ -396,21 +408,28 @@
     var const uintD* sourceptr2;
     var uintD* destptr;
     var uintC count;
-    { if (!(count==0))
+    {
+      if (!(count==0))
       do {
-        var uintD source1 = *--sourceptr1;
-        var uintD source2 = *--sourceptr2;
-        *--destptr = source1 - source2;
-        if (source1 < source2) goto carry_1;
+        {
+          var uintD source1 = *--sourceptr1;
+          var uintD source2 = *--sourceptr2;
+          *--destptr = source1 - source2;
+          if (source1 < source2)
+            goto carry_1;
+        }
        carry_0:
         count--;
       } until (count==0);
       return 0;
       do {
-        var uintD source1 = *--sourceptr1;
-        var uintD source2 = *--sourceptr2;
-        *--destptr = source1 - source2 - 1;
-        if (source1 > source2) goto carry_0;
+        {
+          var uintD source1 = *--sourceptr1;
+          var uintD source2 = *--sourceptr2;
+          *--destptr = source1 - source2 - 1;
+          if (source1 > source2)
+            goto carry_0;
+        }
        carry_1:
         count--;
       } until (count==0);
@@ -433,10 +452,13 @@
       if (carry==0) {
         if (!(count==0))
           do {
-            var uintD source1 = *--sourceptr1;
-            var uintD source2 = *--sourceptr2;
-            *--destptr = source1 - source2;
-            if (source1 < source2) goto carry_1;
+            {
+              var uintD source1 = *--sourceptr1;
+              var uintD source2 = *--sourceptr2;
+              *--destptr = source1 - source2;
+              if (source1 < source2)
+                goto carry_1;
+            }
            carry_0:
             count--;
           } until (count==0);
@@ -444,10 +466,13 @@
       } else {
         if (!(count==0))
           do {
-            var uintD source1 = *--sourceptr1;
-            var uintD source2 = *--sourceptr2;
-            *--destptr = source1 - source2 - 1;
-            if (source1 > source2) goto carry_0;
+            {
+              var uintD source1 = *--sourceptr1;
+              var uintD source2 = *--sourceptr2;
+              *--destptr = source1 - source2 - 1;
+              if (source1 > source2)
+                goto carry_0;
+            }
            carry_1:
             count--;
           } until (count==0);
@@ -468,19 +493,25 @@
     {
       if (!(count==0))
       do {
-        var uintD source1 = *--destptr;
-        var uintD source2 = *--sourceptr;
-        *destptr = source1 - source2;
-        if (source1 < source2) goto carry_1;
+        {
+          var uintD source1 = *--destptr;
+          var uintD source2 = *--sourceptr;
+          *destptr = source1 - source2;
+          if (source1 < source2)
+            goto carry_1;
+        }
        carry_0:
         count--;
       } until (count==0);
       return 0;
       do {
-        var uintD source1 = *--destptr;
-        var uintD source2 = *--sourceptr;
-        *destptr = source1 - source2 - 1;
-        if (source1 > source2) goto carry_0;
+        {
+          var uintD source1 = *--destptr;
+          var uintD source2 = *--sourceptr;
+          *destptr = source1 - source2 - 1;
+          if (source1 > source2)
+            goto carry_0;
+        }
        carry_1:
         count--;
       } until (count==0);
