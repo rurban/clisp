@@ -209,6 +209,7 @@ abs_pwd () { cd "$1" > /dev/null; pwd; }
 # hard link if FILE1 and FILE2 on the same disk, else symbolic link if the
 # system supports that, else file copy.
 link () {
+rm -f "$2";
 # Note: With some versions of "ln" this does not work if FILE2 is a symlink.
 if ln "$1" "$2" 2>/dev/null; then
   :
@@ -237,6 +238,8 @@ fi
 
 abs_path_pwd () { cd "$1" > /dev/null; ${ABSPATHPWD}; }
 
+maybe_mkdir() { test -d "$1" || mkdir "$1"; }
+
 INPLACE=''
 if test -n "$srcdir" ; then
   if test ! -d "$srcdir" ; then
@@ -247,9 +250,7 @@ if test -n "$srcdir" ; then
   if [ "$DIRNAME" = "" ] ; then
     DIRNAME='.'
   fi
-  if [ ! -d $DIRNAME ] ; then
-    mkdir $DIRNAME
-  fi
+  maybe_mkdir "${DIRNAME}";
   REL_SRCDIR="$ABS_SRCDIR"
 else
   if test -f ./ANNOUNCE -a -f ./SUMMARY; then
@@ -270,9 +271,7 @@ else
       exit 1
     fi
   fi
-  if [ ! -d $DIRNAME ] ; then
-    mkdir $DIRNAME
-  fi
+  maybe_mkdir "${DIRNAME}";
   if test `abs_path_pwd "$DIRNAME"/..` = `abs_path_pwd "$srcdir"` ; then
     REL_SRCDIR='..'
   else
@@ -315,22 +314,17 @@ if test -n "$do_config"; then
     for subdir in readline gettext termcap
     do
       if [ -d src/$subdir ] ; then
-        if [ ! -d $ABS_DIRNAME/$subdir ] ; then
-          mkdir $ABS_DIRNAME/$subdir
-        fi
+        maybe_mkdir "${ABS_DIRNAME}/${subdir}";
       fi
     done
     for f in readline readline/doc readline/examples readline/support readline/shlib \
              gettext gettext/autoconf gettext/intl gettext/po
     do
       if [ -d src/$f ] ; then
-        if [ ! -d $ABS_DIRNAME/$f ] ; then
-          mkdir $ABS_DIRNAME/$f
-        fi
+        maybe_mkdir "${ABS_DIRNAME}/${f}";
         ( cd src
           for g in $f/* ; do
             if [ -f $g ] ; then
-              rm -f $ABS_DIRNAME/$g
               link $g $ABS_DIRNAME/$g
             fi
           done
@@ -341,7 +335,6 @@ if test -n "$do_config"; then
              termcap/configure termcap/Makefile.in
     do
       if [ -f src/$f ] ; then
-        rm -f $ABS_DIRNAME/$f
         link src/$f $ABS_DIRNAME/$f
       fi
     done
@@ -351,13 +344,10 @@ if test -n "$do_config"; then
   # be linked over.
   #for subdir in `cd modules > /dev/null ; find . -type d -print`
   #do
-  #  if [ ! -d $ABS_DIRNAME/$f ] ; then
-  #    mkdir $ABS_DIRNAME/$f
-  #  fi
+  #  maybe_mkdir "${ABS_DIRNAME}/${f}";
   #done
   #for f in `cd modules > /dev/null ; find . '!' -type d -print`
   #do
-  #  rm -f $ABS_DIRNAME/$f
   #  link $f $ABS_DIRNAME/$f
   #done
   ( cd modules
@@ -373,16 +363,13 @@ if test -n "$do_config"; then
   for subdir in avcall callback
   do
     if [ -d ffcall/$subdir ] ; then
-      if [ ! -d $ABS_DIRNAME/$subdir ] ; then
-        mkdir $ABS_DIRNAME/$subdir
-      fi
+      maybe_mkdir "${ABS_DIRNAME}/${subdir}";
     fi
   done
   for subdir in avcall callback
   do
     f=$subdir/configure
     if [ -f ffcall/$f ] ; then
-      rm -f $ABS_DIRNAME/$f
       link ffcall/$f $ABS_DIRNAME/$f
     fi
   done
@@ -390,16 +377,13 @@ if test -n "$do_config"; then
   for subdir in libiconv sigsegv
   do
     if [ -d $subdir ] ; then
-      if [ ! -d $ABS_DIRNAME/$subdir ] ; then
-        mkdir $ABS_DIRNAME/$subdir
-      fi
+      maybe_mkdir "${ABS_DIRNAME}/${subdir}";
     fi
   done
   for subdir in libiconv sigsegv
   do
     f=$subdir/configure
     if [ -f $f ] ; then
-      rm -f $ABS_DIRNAME/$f
       link $f $ABS_DIRNAME/$f
     fi
   done
