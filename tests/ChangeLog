@@ -1,3 +1,8 @@
+2003-05-14  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* format.tst: one of the few files that wants TAB characters
+	to test the Tilde Newline cases. I reintroduced them.
+
 2003-05-13  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* ffi.tst: raised test coverage from 53 to 75% of foreign.d
