@@ -1,3 +1,10 @@
+1999-05-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Followup to Sam's 1999-04-07 patch.
+        * eval.d (eval1): Treat arrays as self-evaluating in all cases.
+        * compiler.lsp (l-constantp, c-constantp, c-constant-value): Treat
+          arrays as constants.
+
 1999-05-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * trace.lsp (trace1): No need to use replace-in-fenv.
