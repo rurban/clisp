@@ -1,5 +1,5 @@
 # EVAL, APPLY and bytecode interpreter for CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 
 #include "lispbibl.c"
 
@@ -499,8 +499,7 @@ LISPFUNN(subr_info,1)
 # UP: "unwinds" the STACK up to the next DRIVER_FRAME and
 # jumps into the corresponding top-level-loop.
 # reset();
-nonreturning_function(global, reset, (void));
-global void reset() {
+nonreturning_function(global, reset, (void)) {
   # when unwinding UNWIND-PROTECT-frames, don't save values:
   value1 = NIL; mv_count=0;
   unwind_protect_to_save.fun = (restart)&reset;
@@ -575,8 +574,7 @@ global void progv (object symlist, object vallist) {
 # changes STACK,SP
 # can trigger GC
 # then jumps to the frame, which was found.
-nonreturning_function(global, unwind_upto, (object* upto_frame));
-global void unwind_upto(object *upto_frame) {
+nonreturning_function(global, unwind_upto, (object* upto_frame)) {
   unwind_protect_to_save.fun        = &unwind_upto;
   unwind_protect_to_save.upto_frame = upto_frame;
   until (STACK == upto_frame) { # arrived at target-frame?
@@ -2194,8 +2192,7 @@ local object lambdabody_source (object lambdabody) {
 # fehler_specialform(caller,funname);  (transl.: error_specialfor(...);)
 # > caller: caller (a symbol)
 # > funname: a symbol
-nonreturning_function(local,fehler_specialform,(object caller,object funname));
-local void fehler_specialform (object caller, object funname) {
+nonreturning_function(local, fehler_specialform, (object caller, object funname)) {
   pushSTACK(funname); # CELL-ERROR slot NAME
   pushSTACK(funname);
   pushSTACK(caller);
@@ -2207,8 +2204,7 @@ local void fehler_specialform (object caller, object funname) {
 # fehler_macro(caller,funname);
 # > caller: caller (a symbol)
 # > funname: a symbol
-nonreturning_function(local, fehler_macro, (object caller, object funname));
-local void fehler_macro (object caller, object funname) {
+nonreturning_function(local, fehler_macro, (object caller, object funname)) {
   pushSTACK(funname); # CELL-ERROR slot NAME
   pushSTACK(funname);
   pushSTACK(caller);
@@ -2219,8 +2215,7 @@ local void fehler_macro (object caller, object funname) {
 # fehler_undefined(caller,funname);
 # > caller: caller (a symbol)
 # > funname: symbol or (SETF symbol)
-nonreturning_function(local,fehler_undefined,(object caller,object funname));
-local void fehler_undefined (object caller, object funname) {
+nonreturning_function(local, fehler_undefined, (object caller, object funname)) {
   pushSTACK(funname); # CELL-ERROR slot NAME
   pushSTACK(funname);
   pushSTACK(caller);
@@ -2324,8 +2319,7 @@ local void fehler_undefined (object caller, object funname) {
 # error-message for non-paired keyword-arguments
 # fehler_key_unpaarig(fun); (transl.: error_key_non_paired)
 # > fun: function
-nonreturning_function(local, fehler_key_unpaarig, (object fun));
-local void fehler_key_unpaarig(object fun) {
+nonreturning_function(local, fehler_key_unpaarig, (object fun)) {
   pushSTACK(fun);
   fehler(program_error,
          GETTEXT("EVAL/APPLY: keyword arguments for ~ should occur pairwise"));
@@ -2334,8 +2328,7 @@ local void fehler_key_unpaarig(object fun) {
 # error-message for too many keyword-arguments
 # fehler_key_zuviel(fun); (error_key_toomany)
 # > fun: function
-nonreturning_function(local, fehler_key_zuviel, (object fun));
-local void fehler_key_zuviel(object fun) {
+nonreturning_function(local, fehler_key_zuviel, (object fun)) {
   pushSTACK(fun);
   fehler(program_error,
          GETTEXT("EVAL/APPLY: too many arguments given to ~"));
@@ -2344,8 +2337,7 @@ local void fehler_key_zuviel(object fun) {
 # error-message for flawed keyword
 # fehler_key_notkw(kw);
 # > kw: Non-Symbol
-nonreturning_function(local, fehler_key_notkw, (object kw));
-local void fehler_key_notkw(object kw) {
+nonreturning_function(local, fehler_key_notkw, (object kw)) {
   pushSTACK(kw); # KEYWORD-ERROR slot DATUM
   pushSTACK(S(symbol)); # KEYWORD-ERROR slot EXPECTED-TYPE
   pushSTACK(kw);
@@ -2358,8 +2350,7 @@ local void fehler_key_notkw(object kw) {
 # > fun: function
 # > kw: illegal keyword
 # > kwlist: list of legal keywords
-nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kwlist));
-local void fehler_key_badkw (object fun, object kw, object kwlist) {
+nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kwlist)) {
   pushSTACK(kw); # KEYWORD-ERROR slot DATUM
   pushSTACK(kwlist);
   pushSTACK(kwlist);
@@ -3314,8 +3305,7 @@ local Values eval_applyhook(object fun) {
 }
 
 # In EVAL: error, if too few arguments
-nonreturning_function(local, fehler_eval_zuwenig, (object fun));
-local void fehler_eval_zuwenig(object fun) {
+nonreturning_function(local, fehler_eval_zuwenig, (object fun)) {
   var object form = STACK_(frame_form); # Form
   pushSTACK(form);
   pushSTACK(fun);
@@ -3324,8 +3314,7 @@ local void fehler_eval_zuwenig(object fun) {
 }
 
 # In EVAL: error, if too many arguments
-nonreturning_function(local, fehler_eval_zuviel, (object fun));
-local void fehler_eval_zuviel(object fun) {
+nonreturning_function(local, fehler_eval_zuviel, (object fun)) {
   var object form = STACK_(frame_form); # Form
   pushSTACK(form);
   pushSTACK(fun);
@@ -3334,8 +3323,7 @@ local void fehler_eval_zuviel(object fun) {
 }
 
 # In EVAL: error, if dotted argument-list
-nonreturning_function(local, fehler_eval_dotted, (object fun));
-local void fehler_eval_dotted(object fun) {
+nonreturning_function(local, fehler_eval_dotted, (object fun)) {
   var object form = STACK_(frame_form); # Form
   pushSTACK(form);
   pushSTACK(fun);
@@ -4175,24 +4163,21 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
 
 # Error because of dotted argument-list
 # > name: name of function
-nonreturning_function(local, fehler_apply_dotted, (object name));
-local void fehler_apply_dotted(object name) {
+nonreturning_function(local, fehler_apply_dotted, (object name)) {
   pushSTACK(name);
   fehler(program_error,GETTEXT("APPLY: argument list given to ~ is dotted"));
 }
 
 # Error because of too many arguments
 # > name: name of function
-nonreturning_function(local, fehler_apply_zuviel, (object name));
-local void fehler_apply_zuviel(object name) {
+nonreturning_function(local, fehler_apply_zuviel, (object name)) {
   pushSTACK(name);
   fehler(program_error,GETTEXT("APPLY: too many arguments given to ~"));
 }
 
 # Error because of too few arguments
 # > name: name fo function
-nonreturning_function(local, fehler_apply_zuwenig, (object name));
-local void fehler_apply_zuwenig(object name) {
+nonreturning_function(local, fehler_apply_zuwenig, (object name)) {
   pushSTACK(name);
   fehler(program_error,GETTEXT("APPLY: too few arguments given to ~"));
 }

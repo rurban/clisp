@@ -1,5 +1,5 @@
 # Hash-Tabellen in CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 
 #include "lispbibl.c"
 #include "arilev0.c" # für Hashcode-Berechnung
@@ -1495,18 +1495,15 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
 # fehler_hashtable(obj);
 # > obj: Objekt
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_hashtable, (object obj));
-  local void fehler_hashtable(obj)
-    var object obj;
-    {
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(S(hash_table)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument ~ is not a hash-table")
-            );
-    }
+  nonreturning_function(local, fehler_hashtable, (object obj)) {
+    pushSTACK(obj); # TYPE-ERROR slot DATUM
+    pushSTACK(S(hash_table)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: argument ~ is not a hash-table")
+          );
+  }
 
 # (GETHASH key hashtable [default]), CLTL S. 284
 LISPFUN(gethash,2,1,norest,nokey,0,NIL)

@@ -3883,7 +3883,7 @@
         # nach Möglichkeit noch ausführlicher:
         get_OS_error_info(errcode,&OS_error_internal_body);
       }
-    global void OS_error()
+    nonreturning_function(global, OS_error, (void))
       {
         var DWORD errcode;
         end_system_call(); # just in case
@@ -3897,8 +3897,7 @@
         OS_error_internal(errcode);
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
-    global void OS_file_error(pathname)
-      var object pathname;
+    nonreturning_function(global, OS_file_error, (object pathname))
       {
         var DWORD errcode;
         begin_system_call();
@@ -3916,8 +3915,7 @@
   # Behandlung von Winsock-Fehlern
   # SOCK_error();
   # > WSAGetLastError(): Fehlercode
-    nonreturning_function(global, SOCK_error, (void));
-    global void SOCK_error ()
+    nonreturning_function(global, SOCK_error, (void))
       {
         var int errcode = WSAGetLastError();
         end_system_call();

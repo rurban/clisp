@@ -1,5 +1,5 @@
 # Encodings (character sets and conversions) for CLISP
-# Bruno Haible 1998-2000
+# Bruno Haible 1998-2001
 
 #include "lispbibl.c"
 
@@ -31,22 +31,18 @@ local char hex_table[] = "0123456789ABCDEF";
 
 # Error, when a character cannot be converted to an encoding.
 # fehler_unencodable(encoding);
-  nonreturning_function(global, fehler_unencodable, (object encoding, chart ch));
-  global void fehler_unencodable(encoding,ch)
-    var object encoding;
-    var chart ch;
-    {
-      pushSTACK(code_char(ch)); # Wert für Slot DATUM von CHARSET-TYPE-ERROR
-      pushSTACK(encoding); # Wert für Slot EXPECTED-TYPE von CHARSET-TYPE-ERROR
-      pushSTACK(TheEncoding(encoding)->enc_charset);
-      pushSTACK(ascii_char(hex_table[as_cint(ch)&0x0F]));
-      pushSTACK(ascii_char(hex_table[(as_cint(ch)>>4)&0x0F]));
-      pushSTACK(ascii_char(hex_table[(as_cint(ch)>>8)&0x0F]));
-      pushSTACK(ascii_char(hex_table[(as_cint(ch)>>12)&0x0F]));
-      fehler(charset_type_error,
-             GETTEXT("Character #\\u$$$$ cannot be represented in the character set ~")
-            );
-    }
+  nonreturning_function(global, fehler_unencodable, (object encoding, chart ch)) {
+    pushSTACK(code_char(ch)); # Wert für Slot DATUM von CHARSET-TYPE-ERROR
+    pushSTACK(encoding); # Wert für Slot EXPECTED-TYPE von CHARSET-TYPE-ERROR
+    pushSTACK(TheEncoding(encoding)->enc_charset);
+    pushSTACK(ascii_char(hex_table[as_cint(ch)&0x0F]));
+    pushSTACK(ascii_char(hex_table[(as_cint(ch)>>4)&0x0F]));
+    pushSTACK(ascii_char(hex_table[(as_cint(ch)>>8)&0x0F]));
+    pushSTACK(ascii_char(hex_table[(as_cint(ch)>>12)&0x0F]));
+    fehler(charset_type_error,
+           GETTEXT("Character #\\u$$$$ cannot be represented in the character set ~")
+          );
+  }
 
 # The range function for an encoding covering all of Unicode.
 global object all_range (object encoding, uintL start, uintL end);
@@ -211,21 +207,17 @@ global void uni32le_wcstombs (object encoding, object stream, const chart* *srcp
 
 # Error when a non-Unicode16 character was encountered.
 # fehler_uni32_invalid(encoding,code);
-  nonreturning_function(local, fehler_uni32_invalid, (object encoding, uint32 code));
-  local void fehler_uni32_invalid(encoding,code)
-    var object encoding;
-    var uint32 code;
-    {
-      var uintC count;
-      pushSTACK(TheEncoding(encoding)->enc_charset);
-      dotimespC(count,8, {
-        pushSTACK(ascii_char(hex_table[code&0x0F]));
-        code = code>>4;
-      });
-      fehler(error,
-             GETTEXT("character #x$$$$$$$$ in ~ conversion, not a Unicode-16, sorry")
-            );
-    }
+  nonreturning_function(local, fehler_uni32_invalid, (object encoding, uint32 code)) {
+    var uintC count;
+    pushSTACK(TheEncoding(encoding)->enc_charset);
+    dotimespC(count,8, {
+      pushSTACK(ascii_char(hex_table[code&0x0F]));
+      code = code>>4;
+    });
+    fehler(error,
+           GETTEXT("character #x$$$$$$$$ in ~ conversion, not a Unicode-16, sorry")
+          );
+  }
 
 global uintL uni32_mblen(encoding,src,srcend)
   var object encoding;
@@ -408,57 +400,42 @@ global void utf8_wcstombs (object encoding, object stream, const chart* *srcp, c
 
 # Error when an invalid 1-byte sequence was encountered.
 # fehler_utf8_invalid1(encoding,b1);
-  nonreturning_function(local, fehler_utf8_invalid1, (object encoding, uintB b1));
-  local void fehler_utf8_invalid1(encoding,b1)
-    var object encoding;
-    var uintB b1;
-    {
-      pushSTACK(TheEncoding(encoding)->enc_charset);
-      pushSTACK(ascii_char(hex_table[b1&0x0F]));
-      pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-      fehler(error,
-             GETTEXT("invalid byte #x$$ in ~ conversion, not a Unicode-16")
-            );
-    }
+  nonreturning_function(local, fehler_utf8_invalid1, (object encoding, uintB b1)) {
+    pushSTACK(TheEncoding(encoding)->enc_charset);
+    pushSTACK(ascii_char(hex_table[b1&0x0F]));
+    pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
+    fehler(error,
+           GETTEXT("invalid byte #x$$ in ~ conversion, not a Unicode-16")
+          );
+  }
 
 # Error when an invalid 2-byte sequence was encountered.
 # fehler_utf8_invalid2(encoding,b1,b2);
-  nonreturning_function(local, fehler_utf8_invalid2, (object encoding, uintB b1, uintB b2));
-  local void fehler_utf8_invalid2(encoding,b1,b2)
-    var object encoding;
-    var uintB b1;
-    var uintB b2;
-    {
-      pushSTACK(TheEncoding(encoding)->enc_charset);
-      pushSTACK(ascii_char(hex_table[b2&0x0F]));
-      pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
-      pushSTACK(ascii_char(hex_table[b1&0x0F]));
-      pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-      fehler(error,
-             GETTEXT("invalid byte sequence #x$$ #x$$ in ~ conversion")
-            );
-    }
+  nonreturning_function(local, fehler_utf8_invalid2, (object encoding, uintB b1, uintB b2)) {
+    pushSTACK(TheEncoding(encoding)->enc_charset);
+    pushSTACK(ascii_char(hex_table[b2&0x0F]));
+    pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
+    pushSTACK(ascii_char(hex_table[b1&0x0F]));
+    pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
+    fehler(error,
+           GETTEXT("invalid byte sequence #x$$ #x$$ in ~ conversion")
+          );
+  }
 
 # Error when an invalid 3-byte sequence was encountered.
 # fehler_utf8_invalid3(encoding,b1,b2,b3);
-  nonreturning_function(local, fehler_utf8_invalid3, (object encoding, uintB b1, uintB b2, uintB b3));
-  local void fehler_utf8_invalid3(encoding,b1,b2,b3)
-    var object encoding;
-    var uintB b1;
-    var uintB b2;
-    var uintB b3;
-    {
-      pushSTACK(TheEncoding(encoding)->enc_charset);
-      pushSTACK(ascii_char(hex_table[b3&0x0F]));
-      pushSTACK(ascii_char(hex_table[(b3>>4)&0x0F]));
-      pushSTACK(ascii_char(hex_table[b2&0x0F]));
-      pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
-      pushSTACK(ascii_char(hex_table[b1&0x0F]));
-      pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-      fehler(error,
-             GETTEXT("invalid byte sequence #x$$ #x$$ #x$$ in ~ conversion")
-            );
-    }
+  nonreturning_function(local, fehler_utf8_invalid3, (object encoding, uintB b1, uintB b2, uintB b3)) {
+    pushSTACK(TheEncoding(encoding)->enc_charset);
+    pushSTACK(ascii_char(hex_table[b3&0x0F]));
+    pushSTACK(ascii_char(hex_table[(b3>>4)&0x0F]));
+    pushSTACK(ascii_char(hex_table[b2&0x0F]));
+    pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
+    pushSTACK(ascii_char(hex_table[b1&0x0F]));
+    pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
+    fehler(error,
+           GETTEXT("invalid byte sequence #x$$ #x$$ #x$$ in ~ conversion")
+          );
+  }
 
 global uintL utf8_mblen(encoding,src,srcend)
   var object encoding;
@@ -1052,18 +1029,14 @@ global object nls_range (object encoding, uintL start, uintL end);
 
 # Error when an invalid byte was encountered.
 # fehler_nls_invalid(encoding,b);
-  nonreturning_function(local, fehler_nls_invalid, (object encoding, uintB b));
-  local void fehler_nls_invalid(encoding,b)
-    var object encoding;
-    var uintB b;
-    {
-      pushSTACK(TheEncoding(encoding)->enc_charset);
-      pushSTACK(ascii_char(hex_table[b&0x0F]));
-      pushSTACK(ascii_char(hex_table[(b>>4)&0x0F]));
-      fehler(error,
-             GETTEXT("invalid byte #x$$ in ~ conversion")
-            );
-    }
+  nonreturning_function(local, fehler_nls_invalid, (object encoding, uintB b)) {
+    pushSTACK(TheEncoding(encoding)->enc_charset);
+    pushSTACK(ascii_char(hex_table[b&0x0F]));
+    pushSTACK(ascii_char(hex_table[(b>>4)&0x0F]));
+    fehler(error,
+           GETTEXT("invalid byte #x$$ in ~ conversion")
+          );
+  }
 
 global uintL nls_mblen(encoding,src,srcend)
   var object encoding;
@@ -1514,17 +1487,14 @@ LISPFUNN(encodingp,1)
 # Fehlermeldung, falls ein Argument kein Encoding ist:
 # > obj: Das fehlerhafte Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_encoding, (object obj));
-  local void fehler_encoding(obj)
-    var object obj;
-    {
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(S(encoding)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument ~ is not a character set")
-            );
-    }
+  nonreturning_function(local, fehler_encoding, (object obj)) {
+    pushSTACK(obj); # TYPE-ERROR slot DATUM
+    pushSTACK(S(encoding)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: argument ~ is not a character set")
+          );
+  }
 
 LISPFUNN(charset_typep,2)
 # (SYSTEM::CHARSET-TYPEP object encoding)

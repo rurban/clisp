@@ -27,13 +27,11 @@
 # Fehlermeldung wenn kein Rexx möglich
 # fehler_norexx();
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_norexx, (void));
-  local void fehler_norexx()
-    {
-      fehler(error,
-             GETTEXT("Communication with ARexx isn't possible.")
-            );
-    }
+  nonreturning_function(local, fehler_norexx, (void)) {
+    fehler(error,
+           GETTEXT("Communication with ARexx isn't possible.")
+          );
+  }
 
 # Speicher freigeben, der wegen Fehler nicht freigegeben wurde.
   local UBYTE* rexxLostArgstr = NULL;

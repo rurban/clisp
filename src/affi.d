@@ -76,9 +76,7 @@
 
 
 # stattdessen fehler_funspec verwenden?
-nonreturning_function(local, fehler_ffi_nocall, (object ffinfo));
-local void fehler_ffi_nocall(ffinfo)
-  var object ffinfo;
+nonreturning_function(local, fehler_ffi_nocall, (object ffinfo))
   {
     pushSTACK(ffinfo); pushSTACK(TheSubr(subr_self)->name);
     fehler(error,
@@ -86,9 +84,7 @@ local void fehler_ffi_nocall(ffinfo)
           );
   }
 
-nonreturning_function(local, fehler_ffi_proto, (object ffinfo));
-local void fehler_ffi_proto(ffinfo)
-  var object ffinfo;
+nonreturning_function(local, fehler_ffi_proto, (object ffinfo))
   {
     pushSTACK(ffinfo);
     pushSTACK(TheSubr(subr_self)->name);
@@ -97,9 +93,7 @@ local void fehler_ffi_proto(ffinfo)
           );
   }
 
-nonreturning_function(local, fehler_ffi_argcount, (object ffinfo));
-local void fehler_ffi_argcount(ffinfo)
-  var object ffinfo;
+nonreturning_function(local, fehler_ffi_argcount, (object ffinfo))
   {
     pushSTACK(ffinfo);
     pushSTACK(TheSubr(subr_self)->name);
@@ -108,11 +102,7 @@ local void fehler_ffi_argcount(ffinfo)
           );
   }
 
-nonreturning_function(local, fehler_ffi_argtype, (object obj, object type, object ffinfo));
-local void fehler_ffi_argtype(obj,type,ffinfo)
-  var object obj;
-  var object type; # wird nur unpräzise verwendet
-  var object ffinfo;
+nonreturning_function(local, fehler_ffi_argtype, (object obj, object type, object ffinfo))
   {
     pushSTACK(obj); # TYPE-ERROR slot DATUM
     pushSTACK(fixnump(type) ? S(integer) : T); # TYPE-ERROR slot EXPECTED-TYPE
@@ -123,9 +113,7 @@ local void fehler_ffi_argtype(obj,type,ffinfo)
   }
 
 #define fehler_ffi_type  fehler_ffi_arg
-nonreturning_function(local, fehler_ffi_arg, (object obj));
-local void fehler_ffi_arg(obj)
-  var object obj;
+nonreturning_function(local, fehler_ffi_arg, (object obj))
   {
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     fehler(control_error,

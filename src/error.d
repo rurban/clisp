@@ -198,105 +198,102 @@
 
 # Beendet die Ausgabe einer Fehlermeldung und startet neuen Driver.
 # end_error();
-  nonreturning_function(local, end_error, (object* stackptr));
-  local void end_error(stackptr)
-    var object* stackptr;
-    {
-      if (nullp(STACK_1)) {
-        # *ERROR-HANDER* = NIL, SYS::*USE-CLCS* = NIL
-        skipSTACK(4); # Fehlermeldung wurde schon ausgegeben
+  nonreturning_function(local, end_error, (object* stackptr)) {
+    if (nullp(STACK_1)) {
+      # *ERROR-HANDER* = NIL, SYS::*USE-CLCS* = NIL
+      skipSTACK(4); # Fehlermeldung wurde schon ausgegeben
+      dynamic_unbind(); # Bindungsframe für sys::*recursive-error-count* auflösen,
+                        # da keine Fehlermeldungs-Ausgabe mehr aktiv
+      set_args_end_pointer(stackptr);
+      break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zurück)
+    } else {
+      STACK_0 = get_output_stream_string(&STACK_0);
+      var object arguments = nreverse(STACK_2);
+      # Stackaufbau: type, args, handler, errorstring.
+      if (!eq(STACK_1,unbound)) {
+        # *ERROR-HANDER* /= NIL
+        # Stackaufbau: nil, args, handler, errorstring.
+        # (apply *error-handler* nil errorstring args) ausführen:
+        check_SP(); check_STACK();
+        {
+          var object error_handler = STACK_1; STACK_1 = NIL;
+          apply(error_handler,2,arguments);
+          skipSTACK(2);
+        }
         dynamic_unbind(); # Bindungsframe für sys::*recursive-error-count* auflösen,
                           # da keine Fehlermeldungs-Ausgabe mehr aktiv
         set_args_end_pointer(stackptr);
         break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zurück)
       } else {
-        STACK_0 = get_output_stream_string(&STACK_0);
-        var object arguments = nreverse(STACK_2);
-        # Stackaufbau: type, args, handler, errorstring.
-        if (!eq(STACK_1,unbound)) {
-          # *ERROR-HANDER* /= NIL
-          # Stackaufbau: nil, args, handler, errorstring.
-          # (apply *error-handler* nil errorstring args) ausführen:
-          check_SP(); check_STACK();
-          {
-            var object error_handler = STACK_1; STACK_1 = NIL;
-            apply(error_handler,2,arguments);
-            skipSTACK(2);
-          }
-          dynamic_unbind(); # Bindungsframe für sys::*recursive-error-count* auflösen,
-                            # da keine Fehlermeldungs-Ausgabe mehr aktiv
-          set_args_end_pointer(stackptr);
-          break_driver(NIL); # Break-Driver aufrufen (kehrt nicht zurück)
-        } else {
-          # *ERROR-HANDER* = NIL, SYS::*USE-CLCS* /= NIL
-          # Stackaufbau: type, args, --, errorstring.
-          var object type = STACK_3;
-          var object errorstring = STACK_0;
-          skipSTACK(4);
-          dynamic_unbind(); # Bindungsframe für sys::*recursive-error-count* auflösen
-          # (APPLY #'coerce-to-condition errorstring args 'error type keyword-arguments)
-          # ausführen:
-          pushSTACK(errorstring); pushSTACK(arguments); pushSTACK(S(error)); pushSTACK(type);
-          var uintC argcount = 4;
-          # arithmetic-error, division-by-zero, floating-point-overflow, floating-point-underflow
-          #   --> ergänze :operation :operands ??
-          # cell-error, uncound-variable, undefined-function, unbound-slot
-          #   --> ergänze :name
-          if (eq(type,S(simple_cell_error))
-              || eq(type,S(simple_unbound_variable))
-              || eq(type,S(simple_undefined_function))
-              || eq(type,S(simple_unbound_slot))
-             ) {
-            pushSTACK(S(Kname)); pushSTACK(BEFORE(stackptr)); # :name ...
-            argcount += 2;
-          }
-          # unbound-slot --> ergänze :instance
-          if (eq(type,S(simple_unbound_slot))) {
-            pushSTACK(S(Kinstance)); pushSTACK(BEFORE(stackptr)); # :instance ...
-            argcount += 2;
-          }
-          # type-error, keyword-error --> ergänze :datum, :expected-type
-          if (eq(type,S(simple_type_error))
-              || eq(type,S(simple_keyword_error))
-              || eq(type,S(simple_charset_type_error))
-             ) {
-            pushSTACK(S(Kexpected_type)); pushSTACK(BEFORE(stackptr)); # :expected-type ...
-            pushSTACK(S(Kdatum)); pushSTACK(BEFORE(stackptr)); # :datum ...
-            argcount += 4;
-          }
-          # package-error --> ergänze :package
-          if (eq(type,S(simple_package_error))) {
-            pushSTACK(S(Kpackage)); pushSTACK(BEFORE(stackptr)); # :package ...
-            argcount += 2;
-          }
-          # print-not-readable --> ergänze :object
-          if (eq(type,S(simple_print_not_readable))) {
-            pushSTACK(S(Kobject)); pushSTACK(BEFORE(stackptr)); # :object
-            argcount += 2;
-          }
-          # stream-error, end-of-file --> ergänze :stream
-          if (eq(type,S(simple_stream_error))
-              || eq(type,S(simple_end_of_file))
-             ) {
-            pushSTACK(S(Kstream)); pushSTACK(BEFORE(stackptr)); # :stream ...
-            argcount += 2;
-          }
-          # file-error --> ergänze :pathname
-          if (eq(type,S(simple_file_error))) {
-            pushSTACK(S(Kpathname)); pushSTACK(BEFORE(stackptr)); # :pathname ...
-            argcount += 2;
-          }
-          funcall(S(coerce_to_condition),argcount); # (SYS::COERCE-TO-CONDITION ...)
-          # set_args_end_pointer(stackptr); # wozu? macht das Debuggen nur schwieriger!
-          pushSTACK(value1); # condition retten
-          pushSTACK(value1); funcall(L(clcs_signal),1); # (SIGNAL condition)
-          dynamic_bind(S(prin_stream),unbound); # SYS::*PRIN-STREAM* an #<UNBOUND> binden
-          pushSTACK(STACK_(0+3)); # condition
-          funcall(L(invoke_debugger),1); # (INVOKE-DEBUGGER condition)
+        # *ERROR-HANDER* = NIL, SYS::*USE-CLCS* /= NIL
+        # Stackaufbau: type, args, --, errorstring.
+        var object type = STACK_3;
+        var object errorstring = STACK_0;
+        skipSTACK(4);
+        dynamic_unbind(); # Bindungsframe für sys::*recursive-error-count* auflösen
+        # (APPLY #'coerce-to-condition errorstring args 'error type keyword-arguments)
+        # ausführen:
+        pushSTACK(errorstring); pushSTACK(arguments); pushSTACK(S(error)); pushSTACK(type);
+        var uintC argcount = 4;
+        # arithmetic-error, division-by-zero, floating-point-overflow, floating-point-underflow
+        #   --> ergänze :operation :operands ??
+        # cell-error, uncound-variable, undefined-function, unbound-slot
+        #   --> ergänze :name
+        if (eq(type,S(simple_cell_error))
+            || eq(type,S(simple_unbound_variable))
+            || eq(type,S(simple_undefined_function))
+            || eq(type,S(simple_unbound_slot))
+           ) {
+          pushSTACK(S(Kname)); pushSTACK(BEFORE(stackptr)); # :name ...
+          argcount += 2;
         }
+        # unbound-slot --> ergänze :instance
+        if (eq(type,S(simple_unbound_slot))) {
+          pushSTACK(S(Kinstance)); pushSTACK(BEFORE(stackptr)); # :instance ...
+          argcount += 2;
+        }
+        # type-error, keyword-error --> ergänze :datum, :expected-type
+        if (eq(type,S(simple_type_error))
+            || eq(type,S(simple_keyword_error))
+            || eq(type,S(simple_charset_type_error))
+           ) {
+          pushSTACK(S(Kexpected_type)); pushSTACK(BEFORE(stackptr)); # :expected-type ...
+          pushSTACK(S(Kdatum)); pushSTACK(BEFORE(stackptr)); # :datum ...
+          argcount += 4;
+        }
+        # package-error --> ergänze :package
+        if (eq(type,S(simple_package_error))) {
+          pushSTACK(S(Kpackage)); pushSTACK(BEFORE(stackptr)); # :package ...
+          argcount += 2;
+        }
+        # print-not-readable --> ergänze :object
+        if (eq(type,S(simple_print_not_readable))) {
+          pushSTACK(S(Kobject)); pushSTACK(BEFORE(stackptr)); # :object
+          argcount += 2;
+        }
+        # stream-error, end-of-file --> ergänze :stream
+        if (eq(type,S(simple_stream_error))
+            || eq(type,S(simple_end_of_file))
+           ) {
+          pushSTACK(S(Kstream)); pushSTACK(BEFORE(stackptr)); # :stream ...
+          argcount += 2;
+        }
+        # file-error --> ergänze :pathname
+        if (eq(type,S(simple_file_error))) {
+          pushSTACK(S(Kpathname)); pushSTACK(BEFORE(stackptr)); # :pathname ...
+          argcount += 2;
+        }
+        funcall(S(coerce_to_condition),argcount); # (SYS::COERCE-TO-CONDITION ...)
+        # set_args_end_pointer(stackptr); # wozu? macht das Debuggen nur schwieriger!
+        pushSTACK(value1); # condition retten
+        pushSTACK(value1); funcall(L(clcs_signal),1); # (SIGNAL condition)
+        dynamic_bind(S(prin_stream),unbound); # SYS::*PRIN-STREAM* an #<UNBOUND> binden
+        pushSTACK(STACK_(0+3)); # condition
+        funcall(L(invoke_debugger),1); # (INVOKE-DEBUGGER condition)
       }
-      NOTREACHED
     }
+    NOTREACHED
+  }
 
 # Fehlermeldung mit Errorstring. Kehrt nicht zurück.
 # fehler(errortype,errorstring);
@@ -305,23 +302,19 @@
 #   Bei jeder Tilde wird ein LISP-Objekt vom STACK genommen und statt der
 #   Tilde ausgegeben.
 # > auf dem STACK: Initialisierungswerte für die Condition, je nach errortype
-  nonreturning_function(global, fehler, (conditiontype errortype, const char * errorstring));
-  global void fehler(errortype,errorstring)
-    var conditiontype errortype;
-    var const char * errorstring;
-    {
-      begin_error(); # Fehlermeldung anfangen
-      if (!nullp(STACK_3)) { # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
-        # Error-Typ-Symbol zu errortype auswählen:
-        var object sym = S(simple_condition); # erster Error-Typ
-        sym = objectplus(sym,
-                         (soint)(sizeof(*TheSymbol(sym))<<(oint_addr_shift-addr_shift))
-                         * (uintL)errortype
-                        );
-        STACK_3 = sym;
-      }
-      end_error(write_errorstring(errorstring)); # Fehlermeldung ausgeben, beenden
+  nonreturning_function(global, fehler, (conditiontype errortype, const char* errorstring)) {
+    begin_error(); # Fehlermeldung anfangen
+    if (!nullp(STACK_3)) { # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
+      # Error-Typ-Symbol zu errortype auswählen:
+      var object sym = S(simple_condition); # erster Error-Typ
+      sym = objectplus(sym,
+                       (soint)(sizeof(*TheSymbol(sym))<<(oint_addr_shift-addr_shift))
+                       * (uintL)errortype
+                      );
+      STACK_3 = sym;
     }
+    end_error(write_errorstring(errorstring)); # Fehlermeldung ausgeben, beenden
+  }
 
 #undef OS_error
 #undef OS_file_error
@@ -343,18 +336,15 @@
 # OS_filestream_error(stream);
 # > stream: a channel stream
 # > end_system_call() already called
-  nonreturning_function(global, OS_filestream_error, (object stream));
-  global void OS_filestream_error(stream)
-    var object stream;
-    {
-      if (TheStream(stream)->strmtype == strmtype_file
-          && !nullp(TheStream(stream)->strm_file_truename)
-         ) {
-        OS_file_error(TheStream(stream)->strm_file_truename);
-      } else {
-        OS_error();
-      }
+  nonreturning_function(global, OS_filestream_error, (object stream)) {
+    if (TheStream(stream)->strmtype == strmtype_file
+        && !nullp(TheStream(stream)->strm_file_truename)
+       ) {
+      OS_file_error(TheStream(stream)->strm_file_truename);
+    } else {
+      OS_error();
     }
+  }
 
 LISPFUN(error,1,0,rest,nokey,0,NIL)
 # (ERROR errorstring {expr})
@@ -719,272 +709,218 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
 # fehler_list(obj);
 # > obj: Nicht-Liste
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_list, (object obj));
-  global void fehler_list(obj)
-    var object obj;
-    {
-      pushSTACK(obj);     # TYPE-ERROR slot DATUM
-      pushSTACK(S(list)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a list")
-            );
-    }
+  nonreturning_function(global, fehler_list, (object obj)) {
+    pushSTACK(obj);     # TYPE-ERROR slot DATUM
+    pushSTACK(S(list)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not a list")
+          );
+  }
 
 # Fehlermeldung, wenn ein Objekt keine echte Liste ist.
 # fehler_proper_list(obj);
 # > obj: Ende der Liste, Nicht-Liste
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_proper_list, (object obj));
-  global void fehler_proper_list(obj)
-    var object obj;
-    {
-      pushSTACK(obj);     # TYPE-ERROR slot DATUM
-      pushSTACK(S(list)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: A true list must not end with ~")
-            );
-    }
+  nonreturning_function(global, fehler_proper_list, (object obj)) {
+    pushSTACK(obj);     # TYPE-ERROR slot DATUM
+    pushSTACK(S(list)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: A true list must not end with ~")
+          );
+  }
 
 # Fehlermeldung, wenn ein Objekt kein Symbol ist.
 # fehler_kein_symbol(caller,obj);
 # > caller: Aufrufer (ein Symbol)
 # > obj: Nicht-Symbol
-  nonreturning_function(global, fehler_kein_symbol, (object caller, object obj));
-  global void fehler_kein_symbol(caller,obj)
-    var object caller;
-    var object obj;
-    {
-      pushSTACK(obj);       # TYPE-ERROR slot DATUM
-      pushSTACK(S(symbol)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj);
-      pushSTACK(caller);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a symbol")
-            );
-    }
+  nonreturning_function(global, fehler_kein_symbol, (object caller, object obj)) {
+    pushSTACK(obj);       # TYPE-ERROR slot DATUM
+    pushSTACK(S(symbol)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj);
+    pushSTACK(caller);
+    fehler(type_error,
+           GETTEXT("~: ~ is not a symbol")
+          );
+  }
 
 # Fehlermeldung, wenn ein Objekt kein Symbol ist.
 # fehler_symbol(obj);
 # > subr_self: Aufrufer (ein SUBR oder FSUBR)
 # > obj: Nicht-Symbol
-  nonreturning_function(global, fehler_symbol, (object obj));
-  global void fehler_symbol(obj)
-    var object obj;
-    {
-      var object aufrufer = subr_self;
-      aufrufer = (subrp(aufrufer) ? TheSubr(aufrufer)->name : TheFsubr(aufrufer)->name);
-      fehler_kein_symbol(aufrufer,obj);
-    }
+  nonreturning_function(global, fehler_symbol, (object obj)) {
+    var object aufrufer = subr_self;
+    aufrufer = (subrp(aufrufer) ? TheSubr(aufrufer)->name : TheFsubr(aufrufer)->name);
+    fehler_kein_symbol(aufrufer,obj);
+  }
 
 # Fehlermeldung, wenn ein Objekt kein Simple-Vector ist.
 # fehler_kein_svector(caller,obj);
 # > caller: Aufrufer (ein Symbol)
 # > obj: Nicht-Svector
-  nonreturning_function(global, fehler_kein_svector, (object caller, object obj));
-  global void fehler_kein_svector(caller,obj)
-    var object caller;
-    var object obj;
-    {
-      pushSTACK(obj);              # TYPE-ERROR slot DATUM
-      pushSTACK(S(simple_vector)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj);
-      pushSTACK(caller);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a simple-vector")
-            );
-    }
+  nonreturning_function(global, fehler_kein_svector, (object caller, object obj)) {
+    pushSTACK(obj);              # TYPE-ERROR slot DATUM
+    pushSTACK(S(simple_vector)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj);
+    pushSTACK(caller);
+    fehler(type_error,
+           GETTEXT("~: ~ is not a simple-vector")
+          );
+  }
 
 # Fehlermeldung, wenn ein Objekt kein Vektor ist.
 # fehler_vector(obj);
 # > subr_self: Aufrufer (ein SUBR)
 # > obj: Nicht-Vektor
-  nonreturning_function(global, fehler_vector, (object obj));
-  global void fehler_vector(obj)
-    var object obj;
-    {
-      pushSTACK(obj);       # TYPE-ERROR slot DATUM
-      pushSTACK(S(vector)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a vector")
-            );
-    }
+  nonreturning_function(global, fehler_vector, (object obj)) {
+    pushSTACK(obj);       # TYPE-ERROR slot DATUM
+    pushSTACK(S(vector)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not a vector")
+          );
+  }
 
 # Fehlermeldung, falls ein Argument kein Fixnum >=0 ist:
 # fehler_posfixnum(obj);
 # > obj: Das fehlerhafte Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_posfixnum, (object obj));
-  global void fehler_posfixnum(obj)
-    var object obj;
-    {
-      pushSTACK(obj);               # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument ~ should be a nonnegative fixnum")
-            );
-    }
+  nonreturning_function(global, fehler_posfixnum, (object obj)) {
+    pushSTACK(obj);               # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: argument ~ should be a nonnegative fixnum")
+          );
+  }
 
 # Fehlermeldung, falls ein Argument kein Character ist:
 # fehler_char(obj);
 # > obj: Das fehlerhafte Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_char, (object obj));
-  global void fehler_char(obj)
-    var object obj;
-    {
-      pushSTACK(obj);          # TYPE-ERROR slot DATUM
-      pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument ~ is not a character")
-            );
-    }
+  nonreturning_function(global, fehler_char, (object obj)) {
+    pushSTACK(obj);          # TYPE-ERROR slot DATUM
+    pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: argument ~ is not a character")
+          );
+  }
 
 # Fehlermeldung, falls ein Argument kein String ist:
 # > obj: Das fehlerhafte Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_string, (object obj));
-  global void fehler_string(obj)
-    var object obj;
-    {
-      pushSTACK(obj);       # TYPE-ERROR slot DATUM
-      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument ~ is not a string")
-            );
-    }
+  nonreturning_function(global, fehler_string, (object obj)) {
+    pushSTACK(obj);       # TYPE-ERROR slot DATUM
+    pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: argument ~ is not a string")
+          );
+  }
 
 # Fehlermeldung, falls ein Argument kein Simple-String ist:
 # > obj: Das fehlerhafte Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_sstring, (object obj));
-  global void fehler_sstring(obj)
-    var object obj;
-    {
-      pushSTACK(obj);              # TYPE-ERROR slot DATUM
-      pushSTACK(S(simple_string)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument ~ is not a simple string")
-            );
-    }
+  nonreturning_function(global, fehler_sstring, (object obj)) {
+    pushSTACK(obj);              # TYPE-ERROR slot DATUM
+    pushSTACK(S(simple_string)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: argument ~ is not a simple string")
+          );
+  }
 
 #ifndef TYPECODES
 # Fehlermeldung, falls ein Simple-String immutable ist:
 # fehler_sstring_immutable(obj);
 # > obj: der String
-  nonreturning_function(global, fehler_sstring_immutable, (object obj));
-  global void fehler_sstring_immutable(obj)
-    var object obj;
-    {
-      pushSTACK(obj);
-      fehler(error,
-             GETTEXT("Attempt to modify a read-only string: ~")
-            );
-    }
+  nonreturning_function(global, fehler_sstring_immutable, (object obj)) {
+    pushSTACK(obj);
+    fehler(error,
+           GETTEXT("Attempt to modify a read-only string: ~")
+          );
+  }
 #endif
 
 # Error message, if an argument is not of type (OR STRING INTEGER).
 # fehler_string_integer(obj);
 # > subr_self: caller (a SUBR)
-  nonreturning_function(global, fehler_string_integer, (object obj));
-  global void fehler_string_integer(obj)
-    var object obj;
-    {
-      pushSTACK(obj);                    # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_string_integer)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument ~ is neither a string nor an integer")
-            );
-    }
+  nonreturning_function(global, fehler_string_integer, (object obj)) {
+    pushSTACK(obj);                    # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_string_integer)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: argument ~ is neither a string nor an integer")
+          );
+  }
 
 # Fehlermeldung, wenn ein Argument kein Stream ist:
 # fehler_stream(obj);
 # > obj: Das fehlerhafte Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_stream, (object obj));
-  global void fehler_stream(obj)
-    var object obj;
-    {
-      pushSTACK(obj);       # TYPE-ERROR slot DATUM
-      pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument ~ should be a stream")
-            );
-    }
+  nonreturning_function(global, fehler_stream, (object obj)) {
+    pushSTACK(obj);       # TYPE-ERROR slot DATUM
+    pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: argument ~ should be a stream")
+          );
+  }
 
 # Fehlermeldung, wenn ein Argument kein Stream vom geforderten Stream-Typ ist:
 # fehler_streamtype(obj,type);
 # > obj: Das fehlerhafte Argument
 # > type: geforderten Stream-Typ
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_streamtype, (object obj, object type));
-  global void fehler_streamtype(obj,type)
-    var object obj;
-    var object type;
-    {
-      pushSTACK(obj);  # TYPE-ERROR slot DATUM
-      pushSTACK(type); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(type); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument ~ should be a stream of type ~")
-            );
-    }
+  nonreturning_function(global, fehler_streamtype, (object obj, object type)) {
+    pushSTACK(obj);  # TYPE-ERROR slot DATUM
+    pushSTACK(type); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(type); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: argument ~ should be a stream of type ~")
+          );
+  }
 
 # Fehlermeldung, wenn ein Argument keine Function ist:
 # fehler_function(obj);
 # obj: Das fehlerhafte Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_function, (object obj));
-  global void fehler_function(obj)
-    var object obj;
-    {
-      pushSTACK(obj);         # TYPE-ERROR slot DATUM
-      pushSTACK(S(function)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a function")
-            );
-    }
+  nonreturning_function(global, fehler_function, (object obj)) {
+    pushSTACK(obj);         # TYPE-ERROR slot DATUM
+    pushSTACK(S(function)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not a function")
+          );
+  }
 
 # Fehlermeldung, wenn ein Argument ein Lambda-Ausdruck statt einer Funktion ist:
 # fehler_lambda_expression(obj);
 # obj: Das fehlerhafte Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_lambda_expression, (object obj));
-  global void fehler_lambda_expression(obj)
-    var object obj;
-    {
-      pushSTACK(obj);         # TYPE-ERROR slot DATUM
-      pushSTACK(S(function)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: argument ~ is not a function." NLstring "To get a function in the current environment, write (FUNCTION ...)." NLstring "To get a function in the global environment, write (COERCE '... 'FUNCTION).")
-            );
-    }
+  nonreturning_function(global, fehler_lambda_expression, (object obj)) {
+    pushSTACK(obj);         # TYPE-ERROR slot DATUM
+    pushSTACK(S(function)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: argument ~ is not a function." NLstring "To get a function in the current environment, write (FUNCTION ...)." NLstring "To get a function in the global environment, write (COERCE '... 'FUNCTION).")
+          );
+  }
 
 # Fehler, wenn Argument kein Integer vom Typ `uint8' ist.
 # fehler_uint8(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_uint8, (object obj));
-  global void fehler_uint8(obj)
-    var object obj;
-    {
-      pushSTACK(obj);           # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_uint8)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not an 8-bit number")
-            );
-    }
+  nonreturning_function(global, fehler_uint8, (object obj)) {
+    pushSTACK(obj);           # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_uint8)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not an 8-bit number")
+          );
+  }
 
 #ifdef HAVE_FFI
 
@@ -992,225 +928,186 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
 # fehler_sint8(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_sint8, (object obj));
-  global void fehler_sint8(obj)
-    var object obj;
-    {
-      pushSTACK(obj);           # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_sint8)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not an 8-bit number")
-            );
-    }
+  nonreturning_function(global, fehler_sint8, (object obj)) {
+    pushSTACK(obj);           # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_sint8)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not an 8-bit number")
+          );
+  }
 
 # Fehler, wenn Argument kein Integer vom Typ `uint16' ist.
 # fehler_uint16(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_uint16, (object obj));
-  global void fehler_uint16(obj)
-    var object obj;
-    {
-      pushSTACK(obj);            # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_uint16)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a 16-bit number")
-            );
-    }
+  nonreturning_function(global, fehler_uint16, (object obj)) {
+    pushSTACK(obj);            # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_uint16)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not a 16-bit number")
+          );
+  }
 
 # Fehler, wenn Argument kein Integer vom Typ `sint16' ist.
 # fehler_sint16(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_sint16, (object obj));
-  global void fehler_sint16(obj)
-    var object obj;
-    {
-      pushSTACK(obj);            # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_sint16)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a 16-bit number")
-            );
-    }
+  nonreturning_function(global, fehler_sint16, (object obj)) {
+    pushSTACK(obj);            # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_sint16)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not a 16-bit number")
+          );
+  }
 
 # Fehler, wenn Argument kein Integer vom Typ `uint32' ist.
 # fehler_uint32(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_uint32, (object obj));
-  global void fehler_uint32(obj)
-    var object obj;
-    {
-      pushSTACK(obj);            # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_uint32)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not an 32-bit number")
-            );
-    }
+  nonreturning_function(global, fehler_uint32, (object obj)) {
+    pushSTACK(obj);            # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_uint32)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not an 32-bit number")
+          );
+  }
 
 # Fehler, wenn Argument kein Integer vom Typ `sint32' ist.
 # fehler_sint32(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_sint32, (object obj));
-  global void fehler_sint32(obj)
-    var object obj;
-    {
-      pushSTACK(obj);            # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_sint32)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not an 32-bit number")
-            );
-    }
+  nonreturning_function(global, fehler_sint32, (object obj)) {
+    pushSTACK(obj);            # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_sint32)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not an 32-bit number")
+          );
+  }
 
 # Fehler, wenn Argument kein Integer vom Typ `uint64' ist.
 # fehler_uint64(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_uint64, (object obj));
-  global void fehler_uint64(obj)
-    var object obj;
-    {
-      pushSTACK(obj);            # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_uint64)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not an 64-bit number")
-            );
-    }
+  nonreturning_function(global, fehler_uint64, (object obj)) {
+    pushSTACK(obj);            # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_uint64)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not an 64-bit number")
+          );
+  }
 
 # Fehler, wenn Argument kein Integer vom Typ `sint64' ist.
 # fehler_sint64(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_sint64, (object obj));
-  global void fehler_sint64(obj)
-    var object obj;
-    {
-      pushSTACK(obj);            # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_sint64)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not an 64-bit number")
-            );
-    }
+  nonreturning_function(global, fehler_sint64, (object obj)) {
+    pushSTACK(obj);            # TYPE-ERROR slot DATUM
+    pushSTACK(O(type_sint64)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not an 64-bit number")
+          );
+  }
 
 # Fehler, wenn Argument kein Integer vom Typ `uint' ist.
 # fehler_uint(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_uint, (object obj));
-  global void fehler_uint(obj)
-    var object obj;
-    {
-      pushSTACK(obj);            # TYPE-ERROR slot DATUM
-      #if (int_bitsize==16)
-      pushSTACK(O(type_uint16)); # TYPE-ERROR slot EXPECTED-TYPE
-      #else # (int_bitsize==32)
-      pushSTACK(O(type_uint32)); # TYPE-ERROR slot EXPECTED-TYPE
-      #endif
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not an `unsigned int' number")
-            );
-    }
+  nonreturning_function(global, fehler_uint, (object obj)) {
+    pushSTACK(obj);            # TYPE-ERROR slot DATUM
+    #if (int_bitsize==16)
+    pushSTACK(O(type_uint16)); # TYPE-ERROR slot EXPECTED-TYPE
+    #else # (int_bitsize==32)
+    pushSTACK(O(type_uint32)); # TYPE-ERROR slot EXPECTED-TYPE
+    #endif
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not an `unsigned int' number")
+          );
+  }
 
 # Fehler, wenn Argument kein Integer vom Typ `sint' ist.
 # fehler_sint(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_sint, (object obj));
-  global void fehler_sint(obj)
-    var object obj;
-    {
-      pushSTACK(obj);            # TYPE-ERROR slot DATUM
-      #if (int_bitsize==16)
-      pushSTACK(O(type_sint16)); # TYPE-ERROR slot EXPECTED-TYPE
-      #else # (int_bitsize==32)
-      pushSTACK(O(type_sint32)); # TYPE-ERROR slot EXPECTED-TYPE
-      #endif
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not an `int' number")
-            );
-    }
+  nonreturning_function(global, fehler_sint, (object obj)) {
+    pushSTACK(obj);            # TYPE-ERROR slot DATUM
+    #if (int_bitsize==16)
+    pushSTACK(O(type_sint16)); # TYPE-ERROR slot EXPECTED-TYPE
+    #else # (int_bitsize==32)
+    pushSTACK(O(type_sint32)); # TYPE-ERROR slot EXPECTED-TYPE
+    #endif
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not an `int' number")
+          );
+  }
 
 # Fehler, wenn Argument kein Integer vom Typ `ulong' ist.
 # fehler_ulong(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_ulong, (object obj));
-  global void fehler_ulong(obj)
-    var object obj;
-    {
-      pushSTACK(obj);            # TYPE-ERROR slot DATUM
-      #if (long_bitsize==32)
-      pushSTACK(O(type_uint32)); # TYPE-ERROR slot EXPECTED-TYPE
-      #else # (long_bitsize==64)
-      pushSTACK(O(type_uint64)); # TYPE-ERROR slot EXPECTED-TYPE
-      #endif
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a `unsigned long' number")
-            );
-    }
+  nonreturning_function(global, fehler_ulong, (object obj)) {
+    pushSTACK(obj);            # TYPE-ERROR slot DATUM
+    #if (long_bitsize==32)
+    pushSTACK(O(type_uint32)); # TYPE-ERROR slot EXPECTED-TYPE
+    #else # (long_bitsize==64)
+    pushSTACK(O(type_uint64)); # TYPE-ERROR slot EXPECTED-TYPE
+    #endif
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not a `unsigned long' number")
+          );
+  }
 
 # Fehler, wenn Argument kein Integer vom Typ `slong' ist.
 # fehler_slong(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_slong, (object obj));
-  global void fehler_slong(obj)
-    var object obj;
-    {
-      pushSTACK(obj);            # TYPE-ERROR slot DATUM
-      #if (long_bitsize==32)
-      pushSTACK(O(type_sint32)); # TYPE-ERROR slot EXPECTED-TYPE
-      #else # (long_bitsize==64)
-      pushSTACK(O(type_sint64)); # TYPE-ERROR slot EXPECTED-TYPE
-      #endif
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a `long' number")
-            );
-    }
+  nonreturning_function(global, fehler_slong, (object obj)) {
+    pushSTACK(obj);            # TYPE-ERROR slot DATUM
+    #if (long_bitsize==32)
+    pushSTACK(O(type_sint32)); # TYPE-ERROR slot EXPECTED-TYPE
+    #else # (long_bitsize==64)
+    pushSTACK(O(type_sint64)); # TYPE-ERROR slot EXPECTED-TYPE
+    #endif
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not a `long' number")
+          );
+  }
 
 # Fehler, wenn Argument kein Single-Float ist.
 # fehler_ffloat(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_ffloat, (object obj));
-  global void fehler_ffloat(obj)
-    var object obj;
-    {
-      pushSTACK(obj);             # TYPE-ERROR slot DATUM
-      pushSTACK(S(single_float)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a single-float")
-            );
-    }
+  nonreturning_function(global, fehler_ffloat, (object obj)) {
+    pushSTACK(obj);             # TYPE-ERROR slot DATUM
+    pushSTACK(S(single_float)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not a single-float")
+          );
+  }
 
 # Fehler, wenn Argument kein Double-Float ist.
 # fehler_dfloat(obj);
 # > obj: fehlerhaftes Argument
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(global, fehler_dfloat, (object obj));
-  global void fehler_dfloat(obj)
-    var object obj;
-    {
-      pushSTACK(obj);             # TYPE-ERROR slot DATUM
-      pushSTACK(S(double_float)); # TYPE-ERROR slot EXPECTED-TYPE
-      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~ is not a double-float")
-            );
-    }
+  nonreturning_function(global, fehler_dfloat, (object obj)) {
+    pushSTACK(obj);             # TYPE-ERROR slot DATUM
+    pushSTACK(S(double_float)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: ~ is not a double-float")
+          );
+  }
 
 #endif
 

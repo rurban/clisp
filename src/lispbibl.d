@@ -964,16 +964,24 @@
     #define extern_C  extern
   #endif
 
-# Deklaration einer Funktion, die nie zurückkommt:
+# Declaration of a function which never returns:
 # nonreturning_function(extern,abort,(void)); == extern void abort (void);
+# Works for function declarations and function definitions.
   #ifdef GNU
-    #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 90))
+    #if (__GNUC__ >= 3) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 7))
+      # Note:
+      #   storclass __attribute__((__noreturn__)) void funname arguments
+      #     works in gcc 2.95 or newer, and in g++ 2.7.2 or newer.
+      #   storclass void __attribute__((__noreturn__)) funname arguments
+      #     works in gcc 2.7.2 or newer and in g++ 2.7.2 or newer.
+      #   storclass void funname arguments __attribute__((__noreturn__))
+      #     works in gcc 2.7.2 or newer and in g++ 2.7.2 or newer, but
+      #     only when followed by a semicolon, not in a function definition.
       #define nonreturning_function(storclass,funname,arguments)  \
-        storclass void funname arguments __attribute__((__noreturn__))
+        storclass void __attribute__((__noreturn__)) funname arguments
     #else
       #define nonreturning_function(storclass,funname,arguments)  \
-        typedef void CONCAT3(funname,_function_,__LINE__) arguments; \
-        storclass __volatile__ CONCAT3(funname,_function_,__LINE__) funname
+        storclass void funname arguments
     #endif
   #else
     #define nonreturning_function(storclass,funname,arguments)  \

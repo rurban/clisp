@@ -224,9 +224,7 @@ global long full_write(handle,bufarea,nbyte)
       }
 
   # Rückgabe aller Ressourcen und Programmende:
-  nonreturning_function(global, exit_amiga, (sintL code));
-  global void exit_amiga(code)
-    var sintL code;
+  nonreturning_function(global, exit_amiga, (sintL code))
     {
       begin_system_call();
       # Zurück ins Verzeichnis, in das wir beim Programmstart waren:

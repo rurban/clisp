@@ -430,8 +430,7 @@ local object copy_readtable (object from_readtable) {
 
 # error at wrong value of *READTABLE*
 # fehler_bad_readtable(); english: error_bad_readtable();
-nonreturning_function(local, fehler_bad_readtable, (void));
-local void fehler_bad_readtable() {
+nonreturning_function(local, fehler_bad_readtable, (void)) {
   # correct *READTABLE*:
   var object sym = S(readtablestern); # Symbol *READTABLE*
   var object oldvalue = Symbol_value(sym);
@@ -514,8 +513,7 @@ LISPFUNN(defio,2)
 # fehler_readtable(obj);  means: error_readtable(obj);
 # > obj: erroneous Argument
 # > subr_self: caller (a SUBR)
-nonreturning_function(local, fehler_readtable, (object obj));
-local void fehler_readtable (object obj) {
+nonreturning_function(local, fehler_readtable, (object obj)) {
   pushSTACK(obj);          # TYPE-ERROR slot DATUM
   pushSTACK(S(readtable)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(obj);
@@ -922,8 +920,7 @@ local uintL get_base (object symbol) {
 
 # error, if read object is not a character:
 # fehler_charread(ch,&stream);  english: error_charread(ch,&stream);
-nonreturning_function(local,fehler_charread,(object ch,const object* stream_));
-local void fehler_charread (object ch, const object* stream_) {
+nonreturning_function(local, fehler_charread, (object ch, const object* stream_)) {
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(ch); # Character
   pushSTACK(*stream_); # Stream
@@ -957,8 +954,7 @@ local void fehler_charread (object ch, const object* stream_) {
 # error-message at EOF outside of objects
 # fehler_eof_aussen(&stream); english: error_eof_outside(&stream);
 # > stream: Stream
-nonreturning_function(local, fehler_eof_aussen, (const object* stream_));
-local void fehler_eof_aussen (const object* stream_) {
+nonreturning_function(local, fehler_eof_aussen, (const object* stream_)) {
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(*stream_); # Stream
   pushSTACK(S(read));
@@ -968,8 +964,7 @@ local void fehler_eof_aussen (const object* stream_) {
 # error-message at EOF inside of objects
 # fehler_eof_innen(&stream);  english: error_eof_inside(&stream)
 # > stream: Stream
-nonreturning_function(local, fehler_eof_innen, (const object* stream_));
-local void fehler_eof_innen (const object* stream_) {
+nonreturning_function(local, fehler_eof_innen, (const object* stream_)) {
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   if (posfixnump(Symbol_value(S(read_line_number)))) { # check SYS::*READ-LINE-NUMBER*
     pushSTACK(Symbol_value(S(read_line_number))); # line-number
@@ -987,8 +982,7 @@ local void fehler_eof_innen (const object* stream_) {
 # error-message at EOF, according to *READ-RECURSIVE-P*
 # fehler_eof(&stream); english: error_eof(&stream)
 # > stream: Stream
-nonreturning_function(local, fehler_eof, (const object* stream_));
-local void fehler_eof (const object* stream_) {
+nonreturning_function(local, fehler_eof, (const object* stream_)) {
   if (test_value(S(read_recursive_p))) # *READ-RECURSIVE-P* /= NIL ?
     fehler_eof_innen(stream_);
   else
@@ -2236,8 +2230,7 @@ local object read_recursive (const object* stream_) {
 # error-message because of out-of-place Dot
 # fehler_dot(stream); english: error_dot(stream);
 # > stream: Stream
-nonreturning_function(local, fehler_dot, (object stream));
-local void fehler_dot (object stream) {
+nonreturning_function(local, fehler_dot, (object stream)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(stream); # Stream
   pushSTACK(S(read));
@@ -2730,8 +2723,7 @@ LISPFUNN(line_comment_reader,2) # reads ;
 # fehler_dispatch_zahl(); english: error_dispatch_number();
 # > STACK_1: Stream
 # > STACK_0: sub-char
-nonreturning_function(local, fehler_dispatch_zahl, (void));
-local void fehler_dispatch_zahl () {
+nonreturning_function(local, fehler_dispatch_zahl, (void)) {
   pushSTACK(STACK_1); # STREAM-ERROR slot STREAM
   pushSTACK(STACK_(0+1)); # sub-char
   pushSTACK(STACK_(1+2)); # Stream
@@ -3544,9 +3536,7 @@ LISPFUNN(array_reader,3) # reads #A
 # fehler_read_eval_forbidden(&stream,obj); english: erro_read_eval_forbidden(&stream,obj);
 # > stream: Stream
 # > obj: Object, whose Evaluation was examined
-nonreturning_function(local, fehler_read_eval_forbidden,
-                      (object* stream_, object obj));
-local void fehler_read_eval_forbidden (object* stream_, object obj) {
+nonreturning_function(local, fehler_read_eval_forbidden, (object* stream_, object obj)) {
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(obj); # Object
   pushSTACK(NIL); # NIL
@@ -4213,8 +4203,7 @@ LISPFUNN(structure_reader,3) # reads #S
   # error-message because of wrong Syntax of a Code-Vector
   # fehler_closure_badchar(); english: error_closure_badchar();
   # > stack layout: stream, sub-char, arg.
-nonreturning_function(local, fehler_closure_badchar, (void));
-local void fehler_closure_badchar() {
+nonreturning_function(local, fehler_closure_badchar, (void)) {
   pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
   pushSTACK(STACK_(0+1)); # n
   pushSTACK(STACK_(2+2)); # Stream
@@ -5054,8 +5043,7 @@ local void pr_hex8 (const object* stream_, uintP x) {
 
 # error-message when *PRINT-READABLY* /= NIL.
 # fehler_print_readably(obj); english: error_print_readably(obj);
-nonreturning_function(local, fehler_print_readably, (object obj));
-local void fehler_print_readably (object obj) {
+nonreturning_function(local, fehler_print_readably, (object obj)) {
   # (error-of-type 'print-not-readable
   #        "~: Despite of ~, ~ cannot be printed readably."
   #        'print '*print-readably* obj
@@ -5074,8 +5062,7 @@ local void fehler_print_readably (object obj) {
 
 # error message for inadmissible value of *PRINT-CASE*.
 # fehler_print_case(); english: error_print_case();
-nonreturning_function(local, fehler_print_case, (void));
-local void fehler_print_case() {
+nonreturning_function(local, fehler_print_case, (void)) {
   # (error "~: the value ~ of ~ is neither ~ nor ~ nor ~.
   #         it is reset to ~."
   #        'print *print-case* '*print-case* ':upcase ':downcase ':capitalize

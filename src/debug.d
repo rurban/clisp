@@ -1,5 +1,5 @@
 # Top-Level-Schleife, Hilfsfunktionen für Debugger, Stepper von CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 # ILISP friendliness: Marcus Daniels 8.4.1994
 # Sam Steingold 2001
 
@@ -941,16 +941,13 @@ LISPFUNN(driver_frame_p,1)
 # fehler_evalframe(obj);
 # > subr_self: Aufrufer (ein SUBR)
 # > obj: kein EVAL/APPLY-Frame-Pointer
-  nonreturning_function(local, fehler_evalframe, (object obj));
-  local void fehler_evalframe(obj)
-    var object obj;
-    {
-      pushSTACK(obj);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,
-             GETTEXT("~: ~ is not a pointer to an EVAL/APPLY frame")
-            );
-    }
+  nonreturning_function(local, fehler_evalframe, (object obj)) {
+    pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,
+           GETTEXT("~: ~ is not a pointer to an EVAL/APPLY frame")
+          );
+  }
 
 LISPFUNN(trap_eval_frame,2)
 # (SYS::TRAP-EVAL-FRAME framepointer flag) schaltet den Breakpoint am
