@@ -848,12 +848,14 @@ localized.</para>
 
 </section>
 
-<formalpara id="enc-charset"><title>Function &enc-charset;.</title>
-<para>The function <literal role="sexp">(&enc-charset; &encoding-r;)
+<section id="enc-charset"><title>Function &enc-charset;.</title>
+
+<para>The function <literal role="sexp">(&enc-charset; &encoding-r;)</literal>
  returns the charset of the &encoding-r;, as a symbol or a string.
  Note that <literal role="sexp">(&string; (&enc-charset;
- &encoding-r;))</literal> is not necessarily a valid MIME
- name.</para></formalpara>
+ &encoding-r;))</literal> is not necessarily a valid MIME name.</para>
+
+</section>
 
 <section id="enc-dflt"><title>Default encodings.</title>
 
