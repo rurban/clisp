@@ -1,5 +1,9 @@
 2004-12-19  Bruno Haible  <bruno@clisp.org>
 
+	* setf.tst: Check that dotted lists give an error.
+
+2004-12-19  Bruno Haible  <bruno@clisp.org>
+
 	* clos.tst: Add a test for call-next-method.
 
 2004-12-19  Sam Steingold  <sds@gnu.org>

@@ -45,7 +45,7 @@
                       (tempvars nil (cons (gensym) tempvars))
                       (tempforms nil (cons (car formr) tempforms))
                       (formr (cdr form) (cdr formr)))
-                     ((atom formr)
+                     ((endp formr)
                       (setq tempforms (nreverse tempforms))
                       (values tempvars
                               tempforms
@@ -116,7 +116,7 @@
                  (tempvars nil (cons (gensym) tempvars))
                  (tempforms nil (cons (car formr) tempforms))
                  (formr (cdr form) (cdr formr)))
-                ((atom formr)
+                ((endp formr)
                  (setq tempforms (nreverse tempforms))
                  (values tempvars
                          tempforms
@@ -254,7 +254,7 @@
           (if (null newlambdalist)
             (push `(IGNORE SYSTEM::%LAMBDA-LIST) declarations)
           )
-          (let ((lengthtest (sys::make-length-test 'SYSTEM::%LAMBDA-LIST))
+          (let ((lengthtest (sys::make-length-test 'SYSTEM::%LAMBDA-LIST 1 nil))
                 (mainform
                   `(LET* ,(nreverse SYSTEM::%LET-LIST)
                      ,@(if declarations `(,(cons 'DECLARE declarations)))
@@ -1099,7 +1099,7 @@
        (setterforms nil)
        (getterforms nil)
        (placesr places))
-      ((atom placesr)
+      ((endp placesr)
        (setq temps (nreverse temps))
        (setq subforms (nreverse subforms))
        (setq stores (nreverse stores))

@@ -1,3 +1,12 @@
+2004-12-19  Bruno Haible  <bruno@clisp.org>
+
+	get-setf-method must reject dotted lists.
+	* defmacro.lisp (make-length-test): Add optional argument accept-dotted.
+	Use LIST-LENGTH if dotted lists must be rejected.
+	* places.lisp (get-setf-expansion): Use endp instead of atom.
+	(define-setf-expander): Pass accept-dotted = nil to make-length-test.
+	(setf-VALUES-aux): Use endp instead of atom.
+
 2004-12-18  Bruno Haible  <bruno@clisp.org>
 
 	* places.lisp (subst-in-form, sublis-in-form): New functions.
