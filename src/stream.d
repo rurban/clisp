@@ -13116,10 +13116,13 @@ local void low_close_socket (object stream, object handle) {
   #define CHECK_INTERRUPT
 #endif
 
-#define SYSCALL(res,call)                               \
-  do { begin_system_call(); res = call;                 \
-       if (result<0) { CHECK_INTERRUPT; SOCK_error(); } \
-       end_system_call(); } while(0)
+#define SYSCALL(result,call)                         \
+  do {                                               \
+    begin_system_call();                             \
+    result = (call);                                 \
+    if (result<0) { CHECK_INTERRUPT; SOCK_error(); } \
+    end_system_call();                               \
+  } while(0)
 
 local sintL low_read_unbuffered_socket (object stream) {
   if (UnbufferedStream_status(stream) < 0) # already EOF?

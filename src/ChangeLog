@@ -1,5 +1,10 @@
 2004-10-30  Bruno Haible  <bruno@clisp.org>
 
+	* stream.d (SYSCALL): Use the first argument, not the variable that
+	happens to be called 'result'.
+
+2004-10-30  Bruno Haible  <bruno@clisp.org>
+
 	Prefer poll() over select() when both exist and poll() is not worse.
 	* m4/select.m4 (CL_SELECT): Test whether select() works on regular
 	files. Don't test for poll here conditionally.
