@@ -6048,10 +6048,13 @@ LISPFUNN(pathname_match_p,2)
       }
       return muster;
       #else
-      if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
-        *subst = Cdr(*subst); return NIL;
-      } else
-        return nullobj;
+      if (mconsp(*subst)) {
+        if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
+          *subst = Cdr(*subst); return NIL;
+        } else
+          return nullobj;
+      }
+      return NIL;
       #endif
     }
   local object translate_pathname(subst,muster)
