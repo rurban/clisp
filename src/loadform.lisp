@@ -54,9 +54,11 @@
           (handler-case
               (setf (gethash object compiler::*load-forms*)
                     `(funcall ,(compile nil (mlf-init-function object))))
-            (simple-type-error ()) ; no method defined -- ignore
-            (error (err)        ; something serious -- warn
-              (warn "~s[~s][~s]: ~?~%" 'make-init-form
-                    (type-of object) (type-of err)
-                    (simple-condition-format-control err)
-                    (simple-condition-format-arguments err))))))))
+            (method-call-error ()) ; no method defined -- ignore
+            (error (err)           ; something serious -- warn
+              (with-standard-io-syntax
+                (let ((*print-readably* nil))
+                  (warn "~s[~s][~s]: ~?~%" 'make-init-form
+                        (type-of object) (type-of err)
+                        (simple-condition-format-control err)
+                        (simple-condition-format-arguments err))))))))))

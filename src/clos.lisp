@@ -3063,30 +3063,32 @@
            (methods (gf-methods gf))
            (dispatching-arg (single-dispatching-arg reqanz methods)))
       (if dispatching-arg
-        (error-of-type 'type-error
-          :datum (first args)
+        (error-of-type 'method-call-type-error
+          :datum (nth dispatching-arg args)
           :expected-type (dispatching-arg-type dispatching-arg methods)
+          :generic-function gf :argument-list args
           (TEXT "~S: When calling ~S with arguments ~S, no method is applicable.")
           'no-applicable-method gf args)
-        (error-of-type 'error
+        (error-of-type 'method-call-error
+          :generic-function gf :argument-list args
           (TEXT "~S: When calling ~S with arguments ~S, no method is applicable.")
           'no-applicable-method gf args)))))
 
 (defgeneric no-primary-method (gf &rest args)
   (:method ((gf t) &rest args)
     (let* ((reqanz (sig-req-num (gf-signature gf)))
-           (methods (mapcan #'(lambda (method)
-                                (when (equal (std-method-qualifiers method) '())
-                                  (list method)))
-                            (gf-methods gf)))
+           (methods (remove-if-not #'null (gf-methods gf)
+                                   :key #'std-method-qualifiers))
            (dispatching-arg (single-dispatching-arg reqanz methods)))
       (if dispatching-arg
-        (error-of-type 'type-error
-          :datum (first args)
+        (error-of-type 'method-call-type-error
+          :datum (nth dispatching-arg args)
           :expected-type (dispatching-arg-type dispatching-arg methods)
+          :generic-function gf :argument-list args
           (TEXT "~S: When calling ~S with arguments ~S, no primary method is applicable.")
           'no-primary-method gf args)
-        (error-of-type 'error
+        (error-of-type 'method-call-error
+          :generic-function gf :argument-list args
           (TEXT "~S: When calling ~S with arguments ~S, no primary method is applicable.")
           'no-primary-method gf args)))))
 
@@ -3094,7 +3096,8 @@
   (apply #'no-next-method (std-method-gf method) method args))
 (defgeneric no-next-method (gf method &rest args)
   (:method ((gf standard-generic-function) (method standard-method) &rest args)
-    (error-of-type 'error
+    (error-of-type 'method-call-error
+      :generic-function gf :method method :argument-list args
       (TEXT "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called.")
       'no-next-method gf args method '(call-next-method))))
 

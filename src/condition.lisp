@@ -405,6 +405,14 @@
 (define-condition simple-storage-condition (simple-condition storage-condition) ())
 (define-condition simple-interrupt-condition (simple-condition interrupt-condition) ())
 
+;; for NO-APPLICABLE-METHOD, NO-PRIMARY-METHOD, NO-NEXT-METHOD
+(define-condition method-call-error (simple-error)
+  (($gf :initarg :generic-function :reader method-call-error-generic-function)
+   ($method :initarg :method :reader method-call-error-method)
+   ($args :initarg :argument-list :reader method-call-error-argument-list)))
+(define-condition method-call-type-error
+    (simple-type-error method-call-error) ())
+
 ;; Bootstrapping
 (%defclcs
  ;; The order of the types in this vector must be the same as in lispbibl.d.
