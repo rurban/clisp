@@ -48,12 +48,12 @@ some platforms can be found in file unix/PLATFORMS.
    (This allows you to build CLISP with different compilers on the same
    machine or for different architectures in the same filesystem, sharing
    the same source.)
-   For example, depending on the chosen compiler, let's use with-gcc-wall.
+   For example, depending on the chosen compiler, let's use build-with-gcc.
    Then execute
 
-         ./configure with-gcc-wall
+         ./configure build-with-gcc
 
-   This will prepare a directory with-gcc-wall/ and figure out many
+   This will prepare a directory build-with-gcc/ and figure out many
    system and compiler dependent parameters needed by CLISP.
 
    (Note: Some `make's - for example the HP-UX make - have problems
@@ -187,8 +187,8 @@ some platforms can be found in file unix/PLATFORMS.
 12. If you are lazy and have too few spare neurons to remember this long
     process, just use the shortcut, like I do:
 
-         ./configure --with-export-syscalls --with-module=regexp \
-             --build build-dif
+         ./configure --with-module=syscalls --with-module=regexp \
+             --build build-dir
 
     this covers the build process through step 8.
     You will need to become root to do the install.
