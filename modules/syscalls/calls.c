@@ -447,7 +447,7 @@ DEFUN(POSIX::CONFSTR, &optional what)
     CS_S(cmd); mv_count = 1;
   } else { /* all possible values */
     int pos = 0;
-    for (pos; pos < confstr_arg_table_size; pos++) {
+    for (; pos < confstr_arg_table_size; pos++) {
       CS_S(confstr_arg_table[pos].c_const);
       pushSTACK(*confstr_arg_table[pos].l_const);
       pushSTACK(value1);
