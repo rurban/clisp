@@ -810,3 +810,34 @@ error
  :bound nil nil t t
  :value-2 x y
  nil)
+
+(progn
+(defclass reinit-class-01 ()
+  ((a :initarg :a) (b :initarg :b)))
+(defmethod reinitialize-instance :after ((instance reinit-class-01)
+                                         &rest initargs
+                                         &key (x nil x-p))
+  (declare (ignore initargs))
+  (when x-p (setf (slot-value instance 'a) x))
+  instance)
+t) t
+
+(let* ((obj (make-instance 'reinit-class-01))
+       (obj2 (reinitialize-instance obj :a 1 :b 3)))
+  (list (eq obj obj2) (slot-value obj2 'a) (slot-value obj2 'b)))
+(t 1 3)
+
+(let* ((obj (make-instance 'reinit-class-01 :a 10 :b 20))
+       (obj2 (reinitialize-instance obj :x 3)))
+  (list (eq obj obj2) (slot-value obj2 'a) (slot-value obj2 'b)))
+(t 3 20)
+
+(let* ((obj (make-instance 'reinit-class-01 :a 10 :b 20))
+       (obj2 (reinitialize-instance obj :x 3 :x 100)))
+  (list (eq obj obj2) (slot-value obj2 'a) (slot-value obj2 'b)))
+(t 3 20)
+
+(let* ((obj (make-instance 'reinit-class-01 :a 10 :b 20))
+       (obj2 (reinitialize-instance obj :x 3 :garbage 100)))
+  (list (eq obj obj2) (slot-value obj2 'a) (slot-value obj2 'b)))
+error
