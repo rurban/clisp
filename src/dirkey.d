@@ -1,15 +1,32 @@
-# CLISP: directory key: win32 registry, LDAP, Gnome-config
-# Copyright (C) 2000-2002 by Sam Steingold
-
+/*
+ * CLISP: directory key: win32 registry, LDAP, Gnome-config
+ * Copyright (C) 2000-2002 by Sam Steingold
+ */
 #ifdef DIR_KEY
 
 #include "lispbibl.c"
 
-#ifdef WIN32_NATIVE
+#if defined(UNIX_CYGWIN32)
+#ifdef UNICODE
+#define UNICODE_SAVED
+#undef UNICODE
+#endif
+#define WIN32_LEAN_AND_MEAN  /* avoid including junk */
+/* `unused' is used in function declarations. */
+#undef unused
+#define ULONGLONG OS_ULONGLONG
+#define ULONG OS_ULONG
+#include <windows.h>
+#undef ULONG
+#undef ULONGLONG
+#define unused (void)
+#endif
+
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #include <winreg.h>
-#ifndef __MINGW32__
+#if !defined(__MINGW32__) && !defined(UNIX_CYGWIN32)
 #include <winldap.h>
-#define LDAP
+# define LDAP /* not yet */
 #endif
 #endif
 #if defined(LDAP) && !defined(WIN32_NATIVE)
@@ -29,7 +46,7 @@
 #define SCOPE_KIDS  1
 #define SCOPE_TREE  2
 
-#ifdef WIN32_NATIVE
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #define SYSCALL_WIN32(call)                                            \
   do {                                                                 \
     var uintL status;                                                  \
@@ -82,7 +99,7 @@ local object reg_val_to_vector (uintL size, const char* buffer) {
   return vec;
 }
 
-#ifdef WIN32_NATIVE
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 # convert a registry value [type;size;buffer] to the appropriate Lisp object
 # can trigger GC
 local object registry_value_to_object (DWORD type, DWORD size,
@@ -203,7 +220,7 @@ LISPFUNN(dir_key_close,1) {
   value1 = NIL; mv_count = 1;
 }
 
-#ifdef WIN32_NATIVE
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 struct root {
   const char *name;
   unsigned int namelen;
@@ -279,10 +296,11 @@ local HKEY parse_registry_path (const char* path, const char** base_ret) {
 
 local void open_reg_key (HKEY hkey, char* path, direction_t dir,
                          if_does_not_exist_t if_not_exists, HKEY* p_hkey) {
-  REGSAM perms = KEY_READ;
+  REGSAM perms;
   switch (dir) {
     case DIRECTION_OUTPUT: perms = KEY_WRITE; break;
     case DIRECTION_IO: perms = KEY_ALL_ACCESS; break;
+    default: perms = KEY_READ; break;
   }
   var DWORD status;
   begin_system_call();
@@ -329,7 +347,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist))) {
   if (!stringp(path)) fehler_string(path);
   # create the key handle
   var object type = (dir_key_p(root) ? TheDirKey(root)->type : root);
-  #ifdef WIN32_NATIVE
+  #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
   if (eq(type,S(Kwin32))) {
     if (dir_key_p(root)) {
       test_dir_key(root,true);
@@ -340,7 +358,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist))) {
     } else {
       with_string_0(path,O(misc_encoding),pathz,{
         var char* base;
-        HKEY hkey = parse_registry_path(pathz,&base);
+        HKEY hkey = parse_registry_path(pathz,(const char**)&base);
         open_reg_key(hkey,base,direction,if_not_exists,(HKEY*)&ret_handle);
       });
     }
@@ -499,7 +517,11 @@ local object itst_current (object state) {
     if (Sstring_length(name) > 0) {
       if (depth) {
         depth++;
+       #ifdef WIN32_NATIVE
         pushSTACK(O(backslash_string));
+       #else
+        pushSTACK(O(slash_string));
+       #endif
       }
       depth++;
       pushSTACK(name);
@@ -817,6 +839,31 @@ LISPFUNN(dir_key_value_delete,2) {
 }
 #undef REG_KEY_DEL
 
+#ifdef UNIX_CYGWIN32
+/* Cygwin internal in <src/winsup/cygwin/times.cc> */
+/* Convert a Win32 time to "UNIX" format. */
+#define FACTOR (0x19db1ded53ea710LL)
+#define NSPERSEC 10000000LL
+local long to_time_t_ (FILETIME * ptr) {
+  /* A file time is the number of 100ns since jan 1 1601
+     stuffed into two long words.
+     A time_t is the number of seconds since jan 1 1970.  */
+  long rem;
+  long long x =
+    ((long long) ptr->dwHighDateTime << 32) + ((unsigned) ptr->dwLowDateTime);
+  /* pass "no time" as epoch */
+  if (x == 0) return 0;
+  x -= FACTOR;               /* number of 100ns between 1601 and 1970 */
+  rem = x % ((long long) NSPERSEC);
+  rem += (NSPERSEC/2);
+  x /= (long long) NSPERSEC;	/* number of 100ns in a second */
+  x += (long long) (rem/NSPERSEC);
+  return x;
+}
+#undef FACTOR
+#undef NSPERSEC
+#endif
+
 # (LDAP::DKEY-INFO key)
 # return all the info about the key, as 10 values:
 # class; class_length;
@@ -858,11 +905,23 @@ LISPFUNN(dkey_info,1) {
   value6 = L_to_I(max_value_name_length);
   value7 = L_to_I(max_value_length);
   value8 = L_to_I(security_descriptor);
+ #ifdef WIN32_NATIVE
   value9 = convert_time_to_universal(&write_time);
+ #else
+  {
+   var time_t unix_time = to_time_t_(&write_time);
+   value9 = convert_time_to_universal(&unix_time);
+  }
+ #endif
   mv_count = 9;
 }
 
 #undef SYSCALL_WIN32
 #undef SYSCALL_LDAP
+
+/* see win32.d */
+#ifdef UNICODE_SAVED
+  #define UNICODE
+#endif
 
 #endif # DIR_KEY
