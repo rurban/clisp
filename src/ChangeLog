@@ -1,5 +1,11 @@
 1999-02-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * socket.d (create_server_socket): Cast setsockopt argument.
+
+        * modules.d (_NEXT_NULL): New macro.
+
+1999-02-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in: Fix bug in parsing of --hyperspec argument.
 
         * makemake.in (XCC_DLOPENABLE_EXE_FLAG): Pass -export-dynamic to
