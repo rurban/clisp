@@ -449,7 +449,7 @@ local Display *pop_display (void);
 // ----------------------------------------------------------------------------
 
 #if WITH_SLOT_UP
-extern object* slot_up (void);	// from record.d
+extern gcv_object_t* slot_up (void);	// from record.d
 #else
   // Liefert aus einer Slot-Location-Info die Adresse eines existierenden Slots
   // in einer Instanz einer Standard- oder Structure-Klasse.
@@ -465,7 +465,7 @@ extern object* slot_up (void);	// from record.d
   #ifdef RISCOS_CCBUG
     #pragma -z0
   #endif
-  local object* slot_up (void)
+  local gcv_object_t* slot_up (void)
     { pushSTACK(STACK_1); C_class_of(); // (CLASS-OF instance) bestimmen
      {var object slotinfo = // (GETHASH slot-name (class-slot-location-table class))
         gethash(STACK_0,TheClass(value1)->slot_location_table);
@@ -727,7 +727,7 @@ local object find_display (Display *display)
   return NIL;
 }
 
-local Bool ensure_living_display (object *objf)
+local Bool ensure_living_display (gcv_object_t *objf)
 // ensures that the object pointed to by 'objf' is really a display.
 // Also the display must be 'alive', meaning that it does not contain
 // a fptr from an previous incarnation of CLISP.
@@ -823,7 +823,7 @@ local void *get_ptr_object_and_display (object type, object obj,
 #if !WITH_SLOT_UP
 	  funcall (L(slot_value), 2);
 #else
-	  { object *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
+	  { gcv_object_t *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
 #endif
 	  pushSTACK (value1);
 	  *dpyf = pop_display ();
@@ -834,7 +834,7 @@ local void *get_ptr_object_and_display (object type, object obj,
 #if !WITH_SLOT_UP
       funcall (L(slot_value), 2);
 #else
-      { object *ptr = slot_up (); skipSTACK (2); value1 = *ptr; }
+      { gcv_object_t *ptr = slot_up (); skipSTACK (2); value1 = *ptr; }
 #endif
       ASSERT (fpointerp (value1));				// FIXME raise hash-error?
 
@@ -859,7 +859,8 @@ local void *get_ptr_object_and_display (object type, object obj,
 
 // Now the XID objects
 
-local object make_xid_obj_low (object *prealloc, object *type, object *dpy, XID xid)
+local object make_xid_obj_low (gcv_object_t *prealloc, gcv_object_t *type,
+                               gcv_object_t *dpy, XID xid)
 {
   if (nullp (*prealloc))
     {
@@ -970,7 +971,7 @@ local XID get_xid_object_and_display (object type, object obj, Display **dpyf)
 #if !WITH_SLOT_UP
 	  funcall (L(slot_value), 2);
 #else
-	  { object *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
+	  { gcv_object_t *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
 #endif
 	  pushSTACK (value1);
 	  *dpyf = pop_display();
@@ -981,7 +982,7 @@ local XID get_xid_object_and_display (object type, object obj, Display **dpyf)
 #if !WITH_SLOT_UP
       funcall (L(slot_value), 2);
 #else
-      { object *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
+      { gcv_object_t *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
 #endif
       ASSERT (integerp (value1)); 				// FIXME
       skipSTACK (2);						// clean up
@@ -1004,7 +1005,7 @@ local object get_display_obj_tc (object type, object obj)
 #if !WITH_SLOT_UP
       funcall (L(slot_value), 2);
 #else
-      { object *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
+      { gcv_object_t *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
 #endif
       return value1;
     }
@@ -1025,7 +1026,7 @@ local object get_display_obj (object obj)
 #if !WITH_SLOT_UP
   funcall (L(slot_value), 2);
 #else
-  { object *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
+  { gcv_object_t *ptr = slot_up (); skipSTACK(2); value1 = *ptr; }
 #endif
   return value1;
 }
@@ -1124,7 +1125,8 @@ local object make_font_with_info (object dpy, Font fn, object name, XFontStruct 
 local Font get_font (object obj);
 Values C_xlib_gcontext_font (void);
 
-XFontStruct *get_font_info_and_display (object obj, object* fontf, Display **dpyf)
+XFontStruct *get_font_info_and_display (object obj, gcv_object_t* fontf,
+                                        Display **dpyf)
      // Fetches the font information from a font, if it isn't there
      // already, query the server for it.
      // Further more if a gcontext is passed in, fetch its font slot instead.
@@ -1370,7 +1372,7 @@ object get_font_name (object obj)
 local Font get_font (object self)
      // Does type-checking.
 {
-  object *fidf, *namef;
+  gcv_object_t *fidf, *namef;
 
   pushSTACK (self);
 
@@ -4478,7 +4480,7 @@ static int to_XChar2b (object font, XFontStruct* font_info, const chart* src, XC
 #if !WITH_SLOT_UP
   funcall (L(slot_value), 2); encoding = value1;
 #else
-  { object *ptr = slot_up (); skipSTACK(2); encoding = *ptr; }
+  { gcv_object_t *ptr = slot_up (); skipSTACK(2); encoding = *ptr; }
 #endif
 
   if (font_info->min_byte1 == 0 && font_info->max_byte1 == 0)
@@ -5325,7 +5327,7 @@ defun XLIB:LIST-FONT-NAMES (2, 0, norest, key, 2, /* OK */
 defun XLIB:LIST-FONTS (2, 0, norest, key, 2, (:MAX-FONTS :RESULT-TYPE))
 {
   Display *dpy  = (pushSTACK (STACK_3), pop_display ());
-  object *dpyf  = &(STACK_3);
+  gcv_object_t *dpyf  = &(STACK_3);
   int max_fonts = boundp(STACK_1) ? get_fixnum(STACK_1) : 65535;
   int count = 0, i;
   char **names;
@@ -5756,7 +5758,7 @@ defun XLIB:INSTALLED-COLORMAPS (1, 0, norest, key, 1, (:RESULT-TYPE))
 {
   Display     *dpy;
   Window       win = get_window_and_display (STACK_1, &dpy);
-  object *dpy_objf = &(STACK_1);
+  gcv_object_t *dpy_objf = &(STACK_1);
   int      num_cms = 0;		// paranoia
   int            i;
   Colormap    *cms;
@@ -6959,7 +6961,7 @@ defun XLIB:SET-SELECTION-OWNER (3, 1)
     ESLOT (`:TIME`,		uint32,			time)           \
 
 
-local int disassemble_event_on_stack (XEvent *ev, object *dpy_objf)
+local int disassemble_event_on_stack (XEvent *ev, gcv_object_t *dpy_objf)
 /* Disassembles an X event onto the stack and returns the number of elements
  * push to the stack. [You can then neatly issue a funcall or list call using
  * these stack elements.] */
@@ -9238,7 +9240,7 @@ void module__clx__init_function_2 (module_t *module)
     {
       dprintf (("\n;; otab[%d] = '%s' -->",i,
                 module__clx__object_tab_initdata[i]));
-      pushSTACK (((object * )( & module__clx__object_tab))[i]);
+      pushSTACK (((gcv_object_t *)( & module__clx__object_tab))[i]);
       funcall (L(princ),1);
     }
 #endif
