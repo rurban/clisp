@@ -739,26 +739,26 @@
           (format-padded-string mincol 1 0 padchar t newstring stream)
 ) ) ) ) )
 
-; was ~D bei non-Integer-Argument tut: Argument mit ~A, aber dezimal ausgeben
+;; non-numeric argument for numeric format instruction is printed with ~A
 (defun format-ascii-decimal (arg stream)
   (let ((*print-base* 10.)
         (*print-radix* nil)
         (*print-readably* nil))
-    (princ arg stream)
-) )
+    (princ arg stream)))
 
 ; Unterprogramm für ~D, ~B, ~O, ~X:
 (defun format-base (base stream colon-modifier atsign-modifier
                     mincol padchar commachar commainterval
                     arg)
   (if (or (and (zerop mincol) (not colon-modifier) (not atsign-modifier))
-          (not (integerp arg))
-      )
+          (not (integerp arg)))
     (let ((*print-base* base)
           (*print-radix* nil)
           (*print-readably* nil))
-      (princ arg stream)
-    )
+      (if (integerp arg)
+          (princ arg stream)
+          (format-padded-string mincol 1 0 padchar t
+                                (princ-to-string arg) stream)))
     (format-integer base mincol padchar commachar commainterval
                     colon-modifier atsign-modifier arg stream
 ) ) )
@@ -1380,8 +1380,9 @@
   (when (rationalp arg) (setq arg (float arg)))
   (if (floatp arg)
     (format-float-for-f w d k overflowchar padchar atsign-modifier arg stream)
-    (format-ascii-decimal arg stream)
-) )
+    (if w
+      (format-padded-string w 1 0 padchar t (princ-to-string arg) stream)
+      (format-ascii-decimal arg stream))))
 
 ; ~E, CLTL S.392-395, CLtL2 S. 590-593
 (defformat-simple format-exponential-float (stream colon-modifier atsign-modifier
@@ -1392,10 +1393,10 @@
   (when (rationalp arg) (setq arg (float arg)))
   (if (floatp arg)
     (format-float-for-e w d e k overflowchar padchar exponentchar
-                        atsign-modifier arg stream
-    )
-    (format-ascii-decimal arg stream)
-) )
+                        atsign-modifier arg stream)
+    (if w
+      (format-padded-string w 1 0 padchar t (princ-to-string arg) stream)
+      (format-ascii-decimal arg stream))))
 
 ; ~G, CLTL S.395-396, CLtL2 S. 594-595
 (defformat-simple format-general-float (stream colon-modifier atsign-modifier
@@ -1428,8 +1429,9 @@
           (format-float-for-e w d e k overflowchar padchar exponentchar
                               atsign-modifier arg stream
     ) ) ) )
-    (format-ascii-decimal arg stream)
-) )
+    (if w
+      (format-padded-string w 1 0 padchar t (princ-to-string arg) stream)
+      (format-ascii-decimal arg stream))))
 
 ; ~$, CLTL S.396-397, CLtL2 S. 595-596
 (defformat-simple format-dollars-float (stream colon-modifier atsign-modifier
@@ -1455,8 +1457,9 @@
         (format-padding (- lefts leadings) #\0 stream)
         (write-string digits stream)
     ) )
-    (format-ascii-decimal arg stream)
-) )
+    (if d
+      (format-padded-string d 1 0 padchar t (princ-to-string arg) stream)
+      (format-ascii-decimal arg stream))))
 
 ; ~%, CLTL S.397, CLtL2 S. 596
 (defun format-terpri (stream colon-modifier atsign-modifier &optional (count 1))
