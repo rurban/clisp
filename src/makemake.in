@@ -1263,12 +1263,11 @@ EVERY_INCLUDES_H=''
 if [ $TOS = unix ] ; then
   if [ -n '@STDBOOL_H@' -o -n '@STDINT_H@' ]; then
     EVERY_INCLUDES_H=${EVERY_INCLUDES_H}' @STDBOOL_H@ @STDINT_H@'
-    XCFLAGS=${XCFLAGS}' -I.'
   fi
 else
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' stdbool.h stdint.h'
-  XCFLAGS=${XCFLAGS}' -I.'
 fi
+XCFLAGS=${XCFLAGS}' -I.'
 if [ -n "$USE_LIBCHARSET" ] ; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libcharset.h'
 fi
@@ -1994,10 +1993,8 @@ fi
 for util in ${UTILS} ; do
   case ${util} in
     ccpaux | deema | txt2c | ccmp2c )
-      flags=''
-      if [ $util = ccmp2c ] ; then flags=' -I.'; fi
       echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-      echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) ${flags}" "${UTILDIR_CC}${util}.c" "${util}"
+      echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}${util}.c" "${util}"
       echol ;;
     comment5 )
       if [ $CC_NEED_CCPAUX = true ] ; then
