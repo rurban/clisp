@@ -61,7 +61,7 @@ FFIILLEESS
 
 
 
-                        19 September 1998                       1
+                         19 January 1999                        1
 
 
 
@@ -127,7 +127,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-                        19 September 1998                       2
+                         19 January 1999                        2
 
 
 
@@ -193,7 +193,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-                        19 September 1998                       3
+                         19 January 1999                        3
 
 
 
@@ -259,7 +259,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-                        19 September 1998                       4
+                         19 January 1999                        4
 
 
 
@@ -325,7 +325,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-                        19 September 1998                       5
+                         19 January 1999                        5
 
 
 
@@ -391,7 +391,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-                        19 September 1998                       6
+                         19 January 1999                        6
 
 
 
@@ -457,7 +457,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-                        19 September 1998                       7
+                         19 January 1999                        7
 
 
 
@@ -523,7 +523,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-                        19 September 1998                       8
+                         19 January 1999                        8
 
 
 
@@ -589,7 +589,7 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-                        19 September 1998                       9
+                         19 January 1999                        9
 
 
 
@@ -599,23 +599,23 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
            aauuttooccoonnff//aauuttooccoonnff
-                  the main program of GNU autoconf-2.12
+                  the main program of GNU autoconf-2.13
 
            aauuttooccoonnff//aauuttooccoonnff..mm44
                   _a_u_t_o_c_o_n_f's driver macros.  Part  of  GNU  auto-
-                  conf-2.12
+                  conf-2.13
 
            aauuttooccoonnff//aaccggeenneerraall..mm44
                   _a_u_t_o_c_o_n_f's   general  feature  testing  macros.
-                  Part of GNU autoconf-2.12
+                  Part of GNU autoconf-2.13
 
            aauuttooccoonnff//aaccssppeecciiffiicc..mm44
                   macros that test for  some  standard  features.
-                  Part of GNU autoconf-2.12
+                  Part of GNU autoconf-2.13
 
            aauuttooccoonnff//aaccllooccaall..mm44
                   a  repertoire  of features.  Use with GNU auto-
-                  conf-2.12
+                  conf-2.13
 
            ccoonnffiigguurree
                   configuration script, checks for dozens of fea-
@@ -655,6 +655,6 @@ CLISP SOURCE(1)                                   CLISP SOURCE(1)
 
 
 
-                        19 September 1998                      10
+                         19 January 1999                       10
 
 

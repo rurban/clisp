@@ -183,7 +183,7 @@ AC_DEFUN(CL_CC_WORKS,
 [AC_CACHE_CHECK(whether CC works at all, cl_cv_prog_cc_works, [
 AC_LANG_SAVE()
 AC_LANG_C()
-AC_TRY_RUN([main() { exit(0); }],
+AC_TRY_RUN([int main() { exit(0); }],
 cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no,
 AC_TRY_LINK([], [], cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no))
 AC_LANG_RESTORE()
@@ -388,7 +388,7 @@ typedef RETSIGTYPE (*signal_handler) (int);
 #else
 typedef RETSIGTYPE (*signal_handler) ();
 #endif
-main() { /* returns 0 if they need not to be reinstalled */
+int main() { /* returns 0 if they need not to be reinstalled */
   signal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
   exit(!( (signal_handler)signal(SIGALRM,(signal_handler)sigalrm_handler)
           == (signal_handler)sigalrm_handler
@@ -447,7 +447,7 @@ RETSIGTYPE sigalrm_handler()
 #endif
 }
 int got_sig () { return gotsig; }
-main() { /* returns 0 if they need not to be unblocked */
+int main() { /* returns 0 if they need not to be unblocked */
   signal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
   exit(wasblocked);
 }], cl_cv_func_signal_blocked=no, cl_cv_func_signal_blocked=yes,
@@ -510,7 +510,7 @@ RETSIGTYPE sigalrm_handler()
 #endif
 }
 int got_sig () { return gotsig; }
-main() { /* returns 0 if they need not to be unblocked */
+int main() { /* returns 0 if they need not to be unblocked */
   signal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
   exit(somewereblocked);
 }], cl_cv_func_signal_blocked_others=no, cl_cv_func_signal_blocked_others=yes,
@@ -582,7 +582,7 @@ signal_handler mysignal (sig, handler)
 /* volatile */ int gotsig=0;
 RETSIGTYPE sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
-main() { /* returns 0 if they need not to be reinstalled */
+int main() { /* returns 0 if they need not to be reinstalled */
   mysignal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
   exit(!( mysignal(SIGALRM,(signal_handler)sigalrm_handler)
           == (signal_handler)sigalrm_handler
@@ -665,7 +665,7 @@ RETSIGTYPE sigalrm_handler()
 #endif
 }
 int got_sig () { return gotsig; }
-main() { /* returns 0 if they need not to be unblocked */
+int main() { /* returns 0 if they need not to be unblocked */
   mysignal(SIGALRM,(signal_handler)sigalrm_handler); alarm(1); while (!got_sig());
   exit(wasblocked);
 }], cl_cv_func_sigaction_blocked=no, cl_cv_func_sigaction_blocked=yes,
@@ -799,7 +799,7 @@ RETMMAPTYPE mmap (MMAP_ADDR_T addr, MMAP_SIZE_T length, int prot, int flags, int
 #else
 RETMMAPTYPE mmap();
 #endif
-main () {
+int main () {
 '
 mmap_prog_2="#define bits_to_avoid $avoid"'
 #define my_shift 24
@@ -957,7 +957,7 @@ int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
 int mprotect();
 #endif
 char foo;
-main () {
+int main () {
   unsigned long pagesize = getpagesize();
 #define page_align(address)  (char*)((unsigned long)(address) & -pagesize)
 '
