@@ -1,3 +1,24 @@
+2001-10-05  Arseny Slobodjuck <ampy@ich.dvo.ru>
+	    Sam Steingold  <sds@gnu.org>
+
+	move win32 console attributes to non-GC-ed area to ensure
+	absence of conflicts.
+	* stream.d (strm_console_attrib, strm_console_size)
+	(strm_console_cursor_pos, UnwrapCoord, WrapCoord, ConsolePosR)
+	(ConsoleSizeR, ConsoleAttribR, ConsolePosS, ConsoleSizeS)
+	(ConsoleAttribS, ConsoleHandleS): [WIN32_NATIVE] removed macros
+	(unwrap_coord): removed function
+	(v_put): no need to move cursor
+	(ConsoleData): [WIN32_NATIVE] new console attrib accessor
+	(win32_console_extrafields_struct): new structure, contains
+	strm_channel_extrafields_struct and console state.
+	(make_window, window_size, window_cursor_position)
+	(set_window_cursor_position, clear_window, clear_window_to_eot)
+	(clear_window_to_eol, delete_window_line, insert_window_line)
+	(highlight_on, highlight_off, wr_ch_array_window): updated to
+	get attributes from new structure.
+	(wr_ch_array_window, make_window): fixed UNICODE mode
+
 2001-10-15  Sam Steingold  <sds@gnu.org>
 
 	* io.d (read_internal): clear EOF from the stream
