@@ -3,6 +3,9 @@
         * dutch.lsp: New file, from Tijs van Bakel <smoke@casema.net>.
         * init.lsp: Load it.
         * makemake.in (LPARTS): Add dutch.
+        * spvw_language.d (language_dutch): New macro.
+          (init_language_from): Test for values NEDERLANDS and DUTCH.
+          (init_language): Deal with language_dutch.
 
 2000-03-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
