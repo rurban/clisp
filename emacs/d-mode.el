@@ -78,7 +78,7 @@ The point should be on the prototype and the definition should follow."
 
 (defvar d-font-lock-extra-types
   '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "scint" "Handle"
-           "[csu]?int[BCLPW0-9]*" "Values" "fsubr_function" "lisp_function"
+           "[csu]?int[BCLPWX0-9]*" "Values" "fsubr_function" "lisp_function"
            "SOCKET" "stringarg")
     c-font-lock-extra-types)
   "Extra types to be fontified as such.")
@@ -99,7 +99,7 @@ The point should be on the prototype and the definition should follow."
                  "inline" "NULL" "popSTACK" "pushSTACK" "skipSTACK"
                  "dotimespC" "dotimesC" "dotimespL" "dotimesL" "dotimespW"
                  "dotimesW" "nonreturning_function" "return_Values"
-                 "SstringDispatch")
+                 "SstringDispatch" "SstringCase")
                'words)))
 
 (defvar d-font-lock-keywords-1
