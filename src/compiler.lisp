@@ -5936,6 +5936,7 @@ for-value   NIL or T
           (let (*specials* *ignores* *ignorables* *readonlys* other-decls
                 req-vars req-anodes req-stackzs
                 opt-vars opt-anodes opt-stackzs ; optional and svar together!
+                optdefaulted-vars optdefaulted-anodes optdefaulted-stackzs
                 rest-vars rest-anodes rest-stackzs
                 fixed-anodes fixed-stackz
                 reqfixed-vars reqfixed-dummys reqfixed-stackzs
@@ -6024,30 +6025,43 @@ for-value   NIL or T
                     (return-from main-args
                       (finish-using-applyarg '() optvarr optinitr
                                              optsvarr restvar))
-                    (let* ((svar-init (not (null arglist))) ; = NIL or T
-                           (anode (if svar-init
-                                    (progn
-                                      (let ((*no-code* t))
-                                        (c-form (car optinitr) 'NIL))
-                                      (let ((*venv* oldvenv)
-                                            (*fenv* oldfenv)
-                                            (*benv* oldbenv)
-                                            (*genv* oldgenv)
-                                            (*denv* olddenv))
-                                        (c-form (pop arglist) 'ONE)))
-                                    (c-form (car optinitr) 'ONE)))
-                           (var (bind-movable-var (car optvarr) anode)))
-                      (push anode opt-anodes)
-                      (push var opt-vars)
-                      (push *stackz* opt-stackzs)
-                      (push-*venv* var)
-                      (unless (eql (car optsvarr) 0)
-                        (let* ((anode (c-form svar-init 'ONE))
-                               (var (bind-movable-var (car optsvarr) anode)))
-                          (push anode opt-anodes)
-                          (push var opt-vars)
-                          (push *stackz* opt-stackzs)
-                          (push-*venv* var))))))
+                    (let ((svar-init (not (null arglist)))) ; = NIL or T
+                      (if svar-init
+                        (progn
+                          (let ((*no-code* t))
+                            (c-form (car optinitr) 'NIL))
+                          (let* ((anode
+                                   (let ((*venv* oldvenv)
+                                         (*fenv* oldfenv)
+                                         (*benv* oldbenv)
+                                         (*genv* oldgenv)
+                                         (*denv* olddenv))
+                                     (c-form (pop arglist) 'ONE)))
+                                 (var (bind-movable-var (car optvarr) anode)))
+                            (push anode opt-anodes)
+                            (push var opt-vars)
+                            (push *stackz* opt-stackzs)
+                            (push-*venv* var)
+                            (unless (eql (car optsvarr) 0)
+                              (let* ((anode (c-form svar-init 'ONE))
+                                     (var (bind-movable-var (car optsvarr) anode)))
+                                (push anode opt-anodes)
+                                (push var opt-vars)
+                                (push *stackz* opt-stackzs)
+                                (push-*venv* var)))))
+                        (let* ((anode (c-form (car optinitr) 'ONE))
+                               (var (bind-movable-var (car optvarr) anode)))
+                          (push anode optdefaulted-anodes)
+                          (push var optdefaulted-vars)
+                          (push *stackz* optdefaulted-stackzs)
+                          (push-*venv* var)
+                          (unless (eql (car optsvarr) 0)
+                            (let* ((anode (c-form svar-init 'ONE))
+                                   (var (bind-movable-var (car optsvarr) anode)))
+                              (push anode optdefaulted-anodes)
+                              (push var optdefaulted-vars)
+                              (push *stackz* optdefaulted-stackzs)
+                              (push-*venv* var))))))))
                 (if (eql restvar 0)
                   ;; consume further arguments:
                   (when applyarglist
@@ -6077,6 +6091,9 @@ for-value   NIL or T
             (setq opt-vars (nreverse opt-vars))
             (setq opt-anodes (nreverse opt-anodes))
             (setq opt-stackzs (nreverse opt-stackzs))
+            (setq optdefaulted-vars (nreverse optdefaulted-vars))
+            (setq optdefaulted-anodes (nreverse optdefaulted-anodes))
+            (setq optdefaulted-stackzs (nreverse optdefaulted-stackzs))
             ;; activate the bindings of the Aux-Variables:
             (multiple-value-setq (aux-vars aux-anodes)
               (bind-aux-vars auxvar auxinit))
@@ -6085,13 +6102,14 @@ for-value   NIL or T
             (let* ((body-anode (c-form `(PROGN ,@body-rest)))
                    ;; check the variables:
                    (varlist
-                     (append req-vars opt-vars rest-vars
+                     (append req-vars opt-vars optdefaulted-vars rest-vars
                              reqfixed-vars optfixed-vars optsfixed-vars
                              restfixed-vars aux-vars))
                    (closurevars
                      (append
                        (checking-movable-var-list req-vars req-anodes)
                        (checking-movable-var-list opt-vars opt-anodes)
+                       (checking-movable-var-list optdefaulted-vars optdefaulted-anodes)
                        (checking-movable-var-list rest-vars rest-anodes)
                        (checking-fixed-var-list reqfixed-vars)
                        (checking-fixed-var-list optfixed-vars)
@@ -6108,6 +6126,8 @@ for-value   NIL or T
                              (append req-anodes  opt-anodes  rest-anodes )
                              (append req-stackzs opt-stackzs rest-stackzs)
                              fixed-anodes))
+                       ,@(mapcap #'c-bind-movable-var-anode
+                                 optdefaulted-vars optdefaulted-anodes)
                        ,@(mapcap #'c-bind-fixed-var reqfixed-vars
                                  reqfixed-dummys reqfixed-stackzs)
                        ,@(c-bind-with-svars optfixed-vars optfixed-dummys
@@ -6123,14 +6143,14 @@ for-value   NIL or T
                      (make-anode
                        :type 'FUNCALL
                        :sub-anodes
-                         `(,@req-anodes ,@opt-anodes ,@rest-anodes
+                         `(,@req-anodes ,@opt-anodes ,@optdefaulted-anodes ,@rest-anodes
                            ,@fixed-anodes ,@optfixed-anodes
                            ,@(remove nil optsfixed-anodes)
                            ,@aux-anodes ,body-anode)
                        :seclass
                          (seclass-without
                            (anodelist-seclass-or
-                             `(,@req-anodes ,@opt-anodes ,@rest-anodes
+                             `(,@req-anodes ,@opt-anodes ,@optdefaulted-anodes ,@rest-anodes
                                ,@fixed-anodes ,@optfixed-anodes
                                ,@(remove nil optsfixed-anodes)
                                ,@aux-anodes ,body-anode))
