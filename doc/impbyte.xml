@@ -577,11 +577,8 @@ letters:
 <section id="intr-set"><title>The instruction set</title>
 
 <section id="instr-const"><title>Instructions for constants</title>
-
 <table frame="all"><title>Instructions for constants</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(&nil;)</literal></entry>
       <entry>Load &nil; into values.</entry>
@@ -601,11 +598,8 @@ letters:
 </section>
 
 <section id="instr-lex-var"><title>Instructions for lexical variables</title>
-
 <table frame="all"><title>Instructions for lexical variables</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(LOAD &n-r;)</literal></entry>
       <entry>Load a directly accessible local variable into values.</entry>
@@ -665,15 +659,11 @@ letters:
              &svref;(*(*(&SP;+&k-r;)+&n-r;),1+&m-r;) := &value1;,
              &mv-count; := 1</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-dyn-var"><title>Instructions for dynamic variables</title>
-
 <table frame="all"><title>Instructions for dynamic variables</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(GETVALUE
              &n-r;)</literal></entry>
@@ -711,15 +701,11 @@ letters:
              <replaceable>symbols</replaceable> to the values in &value1;,
              values undefined</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-stack"><title>Instructions for stack operations</title>
-
 <table frame="all"><title>Instructions for stack operations</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(PUSH)</literal></entry>
       <entry>Push one object onto the &STACK;.</entry>
@@ -743,15 +729,11 @@ letters:
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &SP; := &SP;+&k-r;</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-jump"><title>Instructions for control flow, jumps</title>
-
 <table frame="all"><title>Instructions for control flow, jumps</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(SKIP&amp;RET &n-r;)</literal></entry>
       <entry>Clean up the &STACK;, and return from the function.</entry>
@@ -852,17 +834,13 @@ letters:
              *--&STACK; := function.
              Then jump to &lab-r;, with values undefined.</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-env"><title>Instructions for lexical environment,
    creation of closures</title>
-
 <table frame="all"><title>Instructions for lexical environment,
    creation of closures</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(VENV)</literal></entry>
       <entry>Load the &venv-const; into values.</entry>
@@ -884,15 +862,11 @@ letters:
              &STACK; += &n-r;.
              &value1; := &f-r;, &mv-count; := 1</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-funcall"><title>Instructions for function calls</title>
-
 <table frame="all"><title>Instructions for function calls</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(CALL &k-r; &n-r;)</literal></entry>
       <entry>Calls a constant function with &k-r; arguments.</entry>
@@ -967,17 +941,13 @@ letters:
              &STACK; += &n-r;+1.
              The returned values go into values.</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-optkey"><title>Instructions for optional
   and keyword parameters</title>
-
 <table frame="all"><title>Instructions for optional
   and keyword parameters</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(PUSH-UNBOUND &n-r;)</literal></entry>
       <entry>Push &n-r; &unbound;s into the &STACK;.</entry>
@@ -1020,15 +990,11 @@ letters:
       <entry>If *(&STACK;+&n-r;) is &unbound;,
              *(&STACK;+&n-r;) := &nil;.</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-mulval"><title>Instructions for multiple values</title>
-
 <table frame="all"><title>Instructions for multiple values</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(VALUES0)</literal></entry>
       <entry>Load no values into values.</entry>
@@ -1072,16 +1038,12 @@ letters:
              &STACK; := newSTACK.
              The returned values go into values.</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-block"><title>Instructions for
    &block; and &return-from;</title>
-
 <table frame="all"><title>Instructions for &block; and &return-from;</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(BLOCK-OPEN &n-r; &lab-r;)</literal></entry>
       <entry>Create a &block; frame.</entry>
@@ -1109,15 +1071,11 @@ letters:
              Else &cdr;(&bc-r;) is a frame-pointer.
              Unwind the stack up to this frame, pass it values.</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-tagbody"><title>Instructions for &tagbody; and &go;</title>
-
 <table frame="all"><title>Instructions for &tagbody; and &go;</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(TAGBODY-OPEN &n-r;
              <replaceable>label&sub-1;</replaceable> ...
@@ -1159,15 +1117,11 @@ letters:
              Else &cdr;(&tbc-r;) is a frame-pointer. Unwind the stack up
              to this frame, pass it the number &lab-r;.</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-catch"><title>Instructions for &catch; and &throw;</title>
-
 <table frame="all"><title>Instructions for &catch; and &throw;</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(CATCH-OPEN &lab-r;)</literal></entry>
       <entry>Create a &catch; frame.</entry>
@@ -1186,15 +1140,11 @@ letters:
              &tag-r; on the &STACK;, unwind the
              stack up to it, pass it values.</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-unwind"><title>Instructions for &unwind-protect;</title>
-
 <table frame="all"><title>Instructions for &unwind-protect;</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(UNWIND-PROTECT-OPEN
              &lab-r;)</literal></entry>
@@ -1232,15 +1182,11 @@ letters:
              Save the values on the &STACK;, &STACK; -= &mv-count;.
              PC := &lab-r;.</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-handler"><title>Instructions for &handler-bind;</title>
-
 <table frame="all"><title>Instructions for &handler-bind;</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(HANDLER-OPEN &n-r;)</literal></entry>
       <entry>Create a handler frame.</entry>
@@ -1255,17 +1201,12 @@ letters:
              &mv-count; := 1.
              *--&STACK; := &value1;.</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-inline"><title>Instructions for some inlined
   functions</title>
-
-<table frame="all"><title>Instructions for some inlined
-  functions</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>mnemonic</entry><entry>description</entry>
-             <entry>semantics</entry></row></thead>
+<table frame="all"><title>Instructions for some inlined functions</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="sexp">(NOT)</literal></entry>
       <entry>Inlined call to NOT.</entry>
@@ -1310,7 +1251,6 @@ letters:
                                      *(&STACK;+0),&value1;),
              &mv-count; := 1, &STACK; += &n-r;.</entry></row>
 </tbody></tgroup></table>
-
 </section>
 
 <section id="instr-combo"><title>Combined instructions</title>

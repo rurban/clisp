@@ -711,11 +711,7 @@ is the same as
 </literal></para></formalpara>
 
 <table frame="all"><title>Platform dependent</title>
- <tgroup cols="4" colsep="1" rowsep="1" align="center">
- <colspec colname="vars"/><colspec colname="b16"/>
- <colspec colname="b32"/><colspec colname="b64"/>
- <thead><row><entry>CPU type</entry><entry>16-bit CPU</entry>
-             <entry>32-bit CPU</entry><entry>64-bit CPU</entry></row></thead>
+ <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
  <tbody>
   <row><entry>&call-arguments-limit;</entry>
        <entry>2<superscript>16</superscript>=65536</entry>
@@ -1366,11 +1362,7 @@ is the same as
 <ulink url="&clhs;/Body/convar_most-p_ative-fixnum.html">[CLHS]</ulink></title>
 
 <table frame="all"><title>Platform dependent</title>
- <tgroup cols="4" colsep="1" rowsep="1" align="center">
- <colspec colname="vars"/><colspec colname="b16"/>
- <colspec colname="b32"/><colspec colname="b64"/>
- <thead><row><entry>CPU type</entry><entry>16-bit CPU</entry>
-             <entry>32-bit CPU</entry><entry>64-bit CPU</entry></row></thead>
+ <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
  <tbody>
  <row><entry>&most-positive-fixnum;</entry>
       <entry namest="b16" nameend="b32" align="center"
@@ -2212,11 +2204,7 @@ and the international alphabetic characters from the character set:
    <ulink url="&clhs;/Body/sec_15-1-1.html">[CLHS-15.1.1]</ulink></title>
 
 <table frame="all"><title>Platform dependent</title>
- <tgroup cols="4" colsep="1" rowsep="1" align="center">
- <colspec colname="vars"/><colspec colname="b16"/>
- <colspec colname="b32"/><colspec colname="b64"/>
- <thead><row><entry>CPU type</entry><entry>16-bit CPU</entry>
-             <entry>32-bit CPU</entry><entry>64-bit CPU</entry></row></thead>
+ <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
  <tbody>
  <row><entry>&array-rank-limit;</entry>
       <entry namest="b16" nameend="b32" align="center"

@@ -254,6 +254,8 @@
 <!ENTITY tagbody-const "<link linkend='comp-fun'><literal>tagbody-const</literal></link>">
 <!ENTITY keyword-const "<link linkend='comp-fun'><literal>keyword-const</literal></link>">
 <!ENTITY other-const "<link linkend='comp-fun'><literal>other-const</literal></link>">
+<!ENTITY mnem-desc-sem-header "<thead><row><entry>mnemonic</entry>
+   <entry>description</entry><entry>semantics</entry></row></thead>">
 
 <!-- *** variable names *** -->
 <!ENTITY sub-1 "<subscript>1</subscript>">
@@ -337,6 +339,10 @@
 <!ENTITY interp-args "<replaceable>interpreter-arguments</replaceable>">
 <!ENTITY clisp-cmd "<command>clisp</command>">
 
+<!ENTITY cpu-type-header "<colspec colname='vars'/><colspec colname='b16'/>
+ <colspec colname='b32'/><colspec colname='b64'/>
+ <thead><row><entry>CPU type</entry><entry>16-bit CPU</entry>
+           <entry>32-bit CPU</entry><entry>64-bit CPU</entry></row></thead>">
 <!ENTITY cmd-abbrev-oper-header
  " <thead><row><entry>command</entry><entry>abbreviation</entry>
          <entry>operation</entry></row></thead>">
