@@ -167,7 +167,7 @@ local object N_N_contagion_R (object x, object y)
     pushSTACK(symbol);                                                  \
     pushSTACK(symbol);                                                  \
     pushSTACK(Symbol_value(symbol));                                    \
-    STACK_3 = CLSTEXT("The variable ~S had an illegal value." NLstring  \
+    STACK_3 = CLSTEXT("The variable ~S had an illegal value.\n"         \
                       "~S has been reset to ~S.");                      \
     funcall(S(warn),4);                                                 \
     restore_statement;                                                  \

@@ -1,5 +1,18 @@
 2004-03-14  Bruno Haible  <bruno@clisp.org>
 
+	* control.d: Use "\n" instead of NLstring.
+	* error.d: Likewise.
+	* errwin32.d: Likewise.
+	* flo_rest.d: Likewise.
+	* io.d: Likewise.
+	* pathname.d: Likewise.
+	* realelem.d: Likewise.
+	* spvw_memfile.d: Likewise.
+	* stream.d: Likewise.
+	* win32aux.d: Likewise.
+
+2004-03-14  Bruno Haible  <bruno@clisp.org>
+
 	Remove all leading and trailing formatting commands from
 	internationalized strings, to make it easier for translators.
 	* debug.d (print_stackitem): Move newline out of CLSTEXT.

@@ -1252,7 +1252,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
                #ifdef HAVE_MMAP
                 errno_out(errno);
                #else
-                fputs(NLstring,stderr);
+                fputs("\n",stderr);
                #endif
                 use_mmap = false;
                 /* before continuing with READ(handle),

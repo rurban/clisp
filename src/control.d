@@ -2324,8 +2324,8 @@ LISPFUNN(keyword_test,2)
           STACK_3 = type;
         }
         fehler(keyword_error,
-               GETTEXT("Illegal keyword/value pair ~, ~ in argument list."
-                       NLstring "The allowed keywords are ~"));
+               GETTEXT("Illegal keyword/value pair ~, ~ in argument list.\n"
+                       "The allowed keywords are ~"));
       }
     }
   }

@@ -9169,7 +9169,7 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
       }
       # lexema-separating characters: with syntax code whsp,tmac,nmac
       # (see IO.D, actually depends on the current *READTABLE*):
-      rl_basic_word_break_characters = "\t" NLstring " \"#'(),;`";
+      rl_basic_word_break_characters = "\t\n \"#'(),;`";
       rl_basic_quote_characters = "\"|";
       rl_completer_quote_characters = "\\|";
       run_time_stop(); # hold run time clock
