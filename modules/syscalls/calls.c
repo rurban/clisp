@@ -1749,19 +1749,9 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
 /* push the 8 members of WIN32_FIND_DATA onto the STACK */
 static void wfd_to_stack (WIN32_FIND_DATA *wfd) {
   pushSTACK(UL_to_I(wfd->dwFileAttributes));
-#if defined(WIN32_NATIVE)
-  pushSTACK(convert_time_to_universal(&(wfd->ftCreationTime)));
-  pushSTACK(convert_time_to_universal(&(wfd->ftLastAccessTime)));
-  pushSTACK(convert_time_to_universal(&(wfd->ftLastWriteTime)));
-#else  /* cygwin */
-  { time_t unix_time = to_time_t_(&(wfd->ftCreationTime));
-    pushSTACK(convert_time_to_universal(&unix_time));
-    unix_time = to_time_t_(&(wfd->ftLastAccessTime));
-    pushSTACK(convert_time_to_universal(&unix_time));
-    unix_time = to_time_t_(&(wfd->ftLastWriteTime));
-    pushSTACK(convert_time_to_universal(&unix_time));
-  }
-#endif
+  pushSTACK(convert_time_to_universal_w32(&(wfd->ftCreationTime)));
+  pushSTACK(convert_time_to_universal_w32(&(wfd->ftLastAccessTime)));
+  pushSTACK(convert_time_to_universal_w32(&(wfd->ftLastWriteTime)));
   pushSTACK(UL_to_I(wfd->nFileSizeHigh));
   pushSTACK(UL_to_I(wfd->nFileSizeLow));
   pushSTACK(asciz_to_string(wfd->cFileName,GLO(pathname_encoding)));
@@ -2199,7 +2189,7 @@ static int PropVariantToLisp (PROPVARIANT *pvar) {
                                  Symbol_value(S(unicode_16_little_endian))));
       break;
     case VT_FILETIME:
-      pushSTACK(convert_time_to_universal(&(pvar->filetime))); break;
+      pushSTACK(convert_time_to_universal_w32(&(pvar->filetime))); break;
     case VT_CF: pushSTACK(`:CLIPBOARD-FORMAT`); break;
     default:    pushSTACK(`:NOTIMPLEMENTED`); break;
   }
@@ -2283,7 +2273,7 @@ static int LispToPropVariant (PROPVARIANT * pvar) {
     if (typehint == VT_EMPTY) typehint = VT_FILETIME; /* assume FILETIME */
     if (typehint == VT_FILETIME) {
       pvar->vt = VT_FILETIME; rv = 1;
-      convert_time_from_universal(STACK_0,&(pvar->filetime));
+      convert_time_from_universal_w32(STACK_0,&(pvar->filetime));
     } else if (typehint == VT_I1) {
       pvar->vt = typehint; pvar->cVal = I_to_sint8(STACK_0); rv = 1;
     } else if (typehint == VT_UI1) {
