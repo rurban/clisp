@@ -1,5 +1,12 @@
 2001-11-27  Sam Steingold  <sds@gnu.org>
 
+	* array.d (SIMPLE_FILL, SIMPLE_REVERSE, SIMPLE_NREVERSE): new macros
+	(elt_fill): use SIMPLE_FILL
+	(elt_reverse): use SIMPLE_REVERSE
+	(elt_nreverse): use SIMPLE_NREVERSE
+
+2001-11-27  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (READ-INTEGER, READ-FLOAT, WRITE-INTEGER, WRITE-FLOAT):
 	use elt_nreverse() instead of inline code
 
