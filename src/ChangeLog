@@ -1,5 +1,11 @@
 2002-03-30  Sam Steingold  <sds@gnu.org>
 
+	* io.d (pr_stream): print components of TWO-WAY and ECHO streams
+	* lispbibl.d (strm_twoway_input, strm_twoway_output): define here
+	* stream.d (strm_twoway_input, strm_twoway_output): do not define here
+
+2002-03-30  Sam Steingold  <sds@gnu.org>
+
 	For the benefit of internet protocol implementors, allow closing
 	streams in only one direction - an interface to shutdown(2)
 	* stream.d (builtin_stream_close_partial): new function - close a

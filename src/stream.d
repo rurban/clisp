@@ -1667,8 +1667,8 @@ LISPFUNN(concatenated_stream_streams,1) {
 # ===========================
 
 # Additional Components:
-  #define strm_twoway_input   strm_other[0]  # Stream for Input
-  #define strm_twoway_output  strm_other[1]  # Stream for Output
+  # define strm_twoway_input   strm_other[0]  # Stream for Input
+  # define strm_twoway_output  strm_other[1]  # Stream for Output
 
 # WRITE-BYTE - Pseudo-Function for Two-Way- and Echo-Streams:
 local void wr_by_twoway (object stream, object obj) {

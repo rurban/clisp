@@ -9556,17 +9556,17 @@ local void pr_stream (const object* stream_, object obj) {
   var uintL type = TheStream(*obj_)->strmtype;
   switch (type) {
     case strmtype_file:
-#ifdef PIPES
+   #ifdef PIPES
     case strmtype_pipe_in:
     case strmtype_pipe_out:
-#endif
-#ifdef X11SOCKETS
+   #endif
+   #ifdef X11SOCKETS
     case strmtype_x11socket:
-#endif
-#ifdef SOCKET_STREAMS
+   #endif
+   #ifdef SOCKET_STREAMS
     case strmtype_socket:
     case strmtype_twoway_socket:
-#endif
+   #endif
       write_sstring_case(stream_,
                          stream_isbuffered(*obj_)
                          ? O(printstring_buffered)
@@ -9575,8 +9575,7 @@ local void pr_stream (const object* stream_, object obj) {
     default:
       break;
   }
-  # print Streamtype:
-  {
+  { # print Streamtype:
     var const object* stringtable = &O(printstring_strmtype_synonym);
     write_sstring_case(stream_,stringtable[type]); # fetch string from table
   }
@@ -9592,6 +9591,12 @@ local void pr_stream (const object* stream_, object obj) {
     case strmtype_broad: # Broadcast-Stream
       pr_record_rest(stream_,TheStream(*obj_)->strm_broad_list,0); # Streams
       break;
+    case strmtype_twoway: # two-way stream
+    case strmtype_echo: # echo stream
+      pushSTACK(TheStream(*obj_)->strm_twoway_input);
+      pushSTACK(TheStream(*obj_)->strm_twoway_output);
+      pr_record_rest(stream_,listof(2),0);
+      break;
     case strmtype_concat: # Concatenated-Stream
       pr_record_rest(stream_,TheStream(*obj_)->strm_concat_list,0); # Streams
       break;
@@ -9605,13 +9610,13 @@ local void pr_stream (const object* stream_, object obj) {
       JUSTIFY_LAST(true);
       prin_object(stream_,TheStream(*obj_)->strm_buff_out_fun); # Function
       break;
-#ifdef GENERIC_STREAMS
+   #ifdef GENERIC_STREAMS
     case strmtype_generic: # Generic Streams
       JUSTIFY_SPACE;
       JUSTIFY_LAST(true);
       prin_object(stream_,TheStream(*obj_)->strm_controller_object); # Controller
       break;
-#endif
+     #endif
     case strmtype_file: # File-Stream
       JUSTIFY_SPACE;
       JUSTIFY_LAST(nullp(TheStream(*obj_)->strm_file_name) &&
@@ -9630,7 +9635,7 @@ local void pr_stream (const object* stream_, object obj) {
         pr_number(stream_,stream_line_number(*obj_));
       }
       break;
-#ifdef PIPES
+   #ifdef PIPES
     case strmtype_pipe_in: case strmtype_pipe_out: # Pipe-In/Out-Stream
       JUSTIFY_SPACE;
       JUSTIFY_LAST(false);
@@ -9639,15 +9644,15 @@ local void pr_stream (const object* stream_, object obj) {
       JUSTIFY_LAST(true);
       pr_uint(stream_,I_to_UL(TheStream(*obj_)->strm_pipe_pid)); # Process-Id
       break;
-#endif
-#ifdef X11SOCKETS
+   #endif
+   #ifdef X11SOCKETS
     case strmtype_x11socket: # X11-Socket-Stream
       JUSTIFY_SPACE;
       JUSTIFY_LAST(true);
       prin_object(stream_,TheStream(*obj_)->strm_x11socket_connect); # connection destination
       break;
-#endif
-#ifdef SOCKET_STREAMS
+   #endif
+   #ifdef SOCKET_STREAMS
     case strmtype_twoway_socket:
       *obj_ = TheStream(*obj_)->strm_twoway_socket_input;
       /*FALLTHROUGH*/
@@ -9665,7 +9670,7 @@ local void pr_stream (const object* stream_, object obj) {
       write_ascii_char(stream_,':');
       pr_number(stream_,TheStream(*obj_)->strm_socket_port);
       break;
-#endif
+   #endif
     default: # else no supplementary information
       break;
   }
