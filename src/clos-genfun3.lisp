@@ -70,9 +70,9 @@
   (when (sig-keys-p gf-sign)    ; gf has keywords?
     ;; yes ==> method must accept it
     (unless (if (sig-keys-p m-sign)
-                (or (sig-allow-p m-sign) ; keywords match
-                    (subsetp (sig-keywords gf-sign) (sig-keywords m-sign)))
-                (sig-rest-p m-sign)) ; method must have &rest!
+              (or (sig-allow-p m-sign) ; keywords match
+                  (subsetp (sig-keywords gf-sign) (sig-keywords m-sign)))
+              (sig-rest-p m-sign)) ; method must have &rest!
       (error-of-type 'error
         (TEXT "~S does not accept the keywords ~S of ~S")
         method (sig-keywords gf-sign) gf))))
@@ -88,7 +88,7 @@
     (method-combination-name (std-gf-method-combination gf)) gf
     (std-method-qualifiers method) method))
 
-;; Add a method to a generic function
+;; Add a method to a generic function.
 (defun std-add-method (gf method)
   (check-signature-congruence gf method)
   (when (std-method-generic-function method)
@@ -98,14 +98,14 @@
   (check-method-qualifiers gf method)
   (setf (std-method-fast-function method) nil
         (std-method-generic-function method) gf)
-  ;; determine function from initfunction:
+  ;; Determine function from initfunction:
   (when (and (null (std-method-function method))
              (null (std-method-fast-function method)))
     (let ((h (funcall (std-method-initfunction method) method)))
       (setf (std-method-fast-function method) (car h))
       (when (car (cdr h)) ; could the variable ",cont" be optimized away?
         (setf (std-method-wants-next-method-p method) nil))))
-  ;; method is finished. store:
+  ;; The method is finished. Now add it:
   (warn-if-gf-already-called gf)
   (let ((old-method (find method (std-gf-methods gf) :test #'methods-agree-p)))
     (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
@@ -125,20 +125,22 @@
                   (std-gf-methods gf))))
     (setf (std-gf-effective-method-cache gf) '())
     (finalize-fast-gf gf))
-  ;;(sys::closure-set-seclass gf
-  ;;  (sys::seclass-or (sys::function-side-effect gf)
-  ;;                   (sys::seclass-or (sys::function-side-effect (std-method-function method))
-  ;;                                    (sys::function-side-effect (std-method-fast-function method)))))
+  ;; It's not worth updating the seclass of a generic function, since 1. in
+  ;; most cases, it can signal a NO-APPLICABLE-METHOD error and thus has
+  ;; *seclass-dirty*, 2. the compiler must assume that the seclass doesn't
+  ;; change over time, which we cannot guarantee, since generic functions are
+  ;; not sealed.
   gf)
 
-;; removal of a method from a generic function:
+;; Remove a method from a generic function.
 (defun std-remove-method (gf method)
   (let ((old-method (find (std-method-initfunction method) (std-gf-methods gf)
                           :key #'std-method-initfunction)))
     (when old-method
       (warn-if-gf-already-called gf)
       (when (need-gf-already-called-warning-p gf)
-        (warn (TEXT "Removing method ~S in ~S") old-method gf))
+        (warn (TEXT "Removing method ~S in ~S")
+              old-method gf))
       (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
             ((eq gf |#'initialize-instance|) (note-ii-change method))
             ((eq gf |#'reinitialize-instance|) (note-ri-change method))
@@ -148,17 +150,11 @@
       (setf (std-gf-methods gf) (remove old-method (std-gf-methods gf))
             (std-method-generic-function old-method) nil
             (std-method-from-defgeneric old-method) nil)
-      ;;(sys::closure-set-seclass gf
-      ;;  (reduce #'sys::seclass-or (std-gf-methods gf)
-      ;;          :key #'(lambda (method)
-      ;;                   (sys::seclass-or (sys::function-side-effect (std-method-function method))
-      ;;                                    (sys::function-side-effect (std-method-fast-function method))))
-      ;;          :initial-value sys::*seclass-foldable*))
       (setf (std-gf-effective-method-cache gf) '())
       (finalize-fast-gf gf)))
   gf)
 
-;; find a method in a generic function:
+;; Find a method in a generic function.
 (defun std-find-method (gf qualifiers specializers &optional (errorp t))
   (let ((n (sig-req-num (std-gf-signature gf))))
     (unless (listp specializers)
@@ -177,7 +173,7 @@
                         (intern-eql-specializer (second specializer))
                         specializer))
                   specializers)))
-  ;; so to speak
+  ;; Simulate
   ;;   (find hypothetical-method (std-gf-methods gf) :test #'methods-agree-p)
   ;; cf. methods-agree-p
   (dolist (method (std-gf-methods gf))
@@ -187,7 +183,7 @@
       (return-from std-find-method method)))
   (if errorp
     (error-of-type 'error
-      (TEXT "~S has no method with qualifiers ~:S and specializers ~S")
+      (TEXT "~S has no method with qualifiers ~:S and specializers ~:S")
       gf qualifiers specializers)
     nil))
 
@@ -200,9 +196,9 @@
   (multiple-value-bind (method-initargs-forms signature)
       (analyze-method-description 'defmethod whole-form funname method-description)
     `(LET ()
-      (COMPILER::EVAL-WHEN-COMPILE
-       (COMPILER::C-DEFUN ',funname ,signature nil 'defmethod))
-      (DO-DEFMETHOD ',funname (LIST ,@method-initargs-forms)))))
+       (COMPILER::EVAL-WHEN-COMPILE
+         (COMPILER::C-DEFUN ',funname ,signature nil 'DEFMETHOD))
+       (DO-DEFMETHOD ',funname (LIST ,@method-initargs-forms)))))
 
 (defun do-defmethod (funname method-or-initargs)
   (let* ((gf
@@ -257,7 +253,7 @@
       (analyze-method-description 'defmethod whole-form funname method-description)
     (declare (ignore method-initargs-forms))
     `(COMPILER::EVAL-WHEN-COMPILE
-       (COMPILER::C-DEFUN ',funname ,signature nil 'defmethod))))
+       (COMPILER::C-DEFUN ',funname ,signature nil 'DEFMETHOD))))
 
 
 ;;; For DEFGENERIC, GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS,
@@ -314,7 +310,7 @@
            (error-of-type 'ext:source-program-error
              :form whole-form
              :detail options
-             (TEXT "~S ~S: Only one ~S string is allowed")
+             (TEXT "~S ~S: Only one ~S string is allowed.")
              caller funname ':documentation))
          (setq docstrings (rest option)))
         (:METHOD-COMBINATION
@@ -325,7 +321,7 @@
          (let ((designator (cadr option)))
            (if (or (typep designator <method-combination>)
                    (and designator (symbolp designator)))
-             (setf method-combination (rest option))
+             (setq method-combination (rest option))
              (error-of-type 'ext:source-program-error
                :form whole-form
                :detail designator
@@ -398,7 +394,7 @@
                 ;; docstring or nil
                 (car docstrings))))))
 
-;; parse the lambdalist:
+;; Parse a DEFGENERIC lambdalist:
 ;; lambdalist --> reqnum, req-vars, optnum, restp, keyp, keywords, allowp
 (defun analyze-defgeneric-lambdalist (caller whole-form funname lambdalist)
   (multiple-value-bind (reqvars optvars rest keyp keywords keyvars allowp)
@@ -414,12 +410,12 @@
             (or (not (eql rest 0)) keyp) ; &key implies &rest
             keyp keywords allowp)))
 
-;; transform lambdalist into calling convention:
+;; Transform lambdalist into calling convention:
 (defun defgeneric-lambdalist-callinfo (caller whole-form funname lambdalist)
-  (multiple-value-bind (reqanz req-vars optanz restp keyp keywords allowp)
+  (multiple-value-bind (reqnum req-vars optnum restp keyp keywords allowp)
       (analyze-defgeneric-lambdalist caller whole-form funname lambdalist)
     (declare (ignore req-vars keyp))
-    (callinfo reqanz optanz restp keywords allowp)))
+    (callinfo reqnum optnum restp keywords allowp)))
 
 
 ;;; DEFGENERIC
@@ -431,7 +427,7 @@
     `(LET ()
        (DECLARE (SYS::IN-DEFUN ,funname))
        (COMPILER::EVAL-WHEN-COMPILE
-        (COMPILER::C-DEFUN ',funname ',signature nil 'defgeneric))
+         (COMPILER::C-DEFUN ',funname ',signature nil 'DEFGENERIC))
        ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
        ,@(if docstring
            (let ((symbolform
