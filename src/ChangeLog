@@ -1,3 +1,10 @@
+2001-03-27  Bruno Haible  <haible@clisp.cons.org>
+
+	* package.d (SYSTEM::PACKAGE-ITERATE): When looking for inherited
+	symbols, ignore symbols that are simultaneously exported from the
+	used package and present in the main package.
+	Reported by Sam Steingold.
+
 2001-03-22  Sam Steingold  <sds@gnu.org>
 
 	fixed a bug: a single value was sometimes returned by `read-line'
