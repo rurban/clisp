@@ -782,6 +782,23 @@ she will get the output
  sometimes they also accept &unix-k; line terminators or produce
  &mac-k; line terminators.</para>
 
+<para>The &http; protocol also requires &dos-k; line terminators:
+<programlisting language="lisp">
+(&with-open-stream; (s (&so-connect; 80 &host-r; &extfmt; &dos-k;))
+  (&format; s "GET foo.jpeg HTTP/1.0~%")
+  (&sost-shut; s &output-k;)
+  (&loop; :with content-length :and marker = "Content-length: "
+    :for line = (&read-line; s nil nil)
+    :until (&zerop; (&length; line)) :do
+    (&when; (&string-eq; line "Content-length: " :end1 (&length; marker))
+      (&setq; content-length (&parse-integer; line :start (&length; marker)))
+    :finally (&return; (&let; ((data (&make-array; content-length
+                                             :element-type '&unsigned-byte-8;)))
+                       (&setf; (&stream-element-type; s) '&unsigned-byte-8;)
+                       (&rd-by-seq; data s)
+                       data)))))
+</programlisting></para>
+
 <para>The line terminator mode is relevant only for output (writing to a
  &file-pipe-socket-s;).  During input, all three kinds of line terminators
  are recognized.  See also <xref linkend="clhs-newline"/>.</para>
