@@ -1,3 +1,12 @@
+2003-04-26  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 726286 ]: (load :compiling t) redefinition warnings
+	* clos.lisp (setf find-class): always call CHECK-REDEFINITION
+	* init.lisp (check-redefinition): handle LOAD :COMPILING T;
+	always reset SYS::FILE indicator to the new value
+	* places.lisp (define-setf-expander, defsetf): call
+	CHECK-REDEFINITION at definition time, not macroexpansion time
+
 2003-04-25  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 726282 ]: read_form() botches STACK

@@ -179,9 +179,6 @@
 (defmacro define-setf-expander (accessfn lambdalist &body body
                                 &environment env)
   (check-accessor-name accessfn)
-  (sys::check-redefinition
-   accessfn 'define-setf-expander
-   (and (get accessfn 'SYSTEM::SETF-EXPANDER) "SETF expander"))
   (multiple-value-bind (body-rest declarations docstring)
       (system::parse-body body t env)
     (if (null body-rest) (setq body-rest '(NIL)))
@@ -226,6 +223,10 @@
                    ,@(if envvar '() '((DECLARE (IGNORE SYSTEM::ENV))))
                    ,mainform
                  )
+                 (sys::check-redefinition
+                  ',accessfn 'define-setf-expander
+                  (and (get ',accessfn 'SYSTEM::SETF-EXPANDER)
+                       "SETF expander"))
                  (SYSTEM::%PUT ',accessfn 'SYSTEM::SETF-EXPANDER
                    (CONS -5 (FUNCTION ,name))
                  )
@@ -236,13 +237,13 @@
 ;;;----------------------------------------------------------------------------
 (defmacro defsetf (accessfn &rest args &environment env)
   (check-accessor-name accessfn)
-  (sys::check-redefinition
-   accessfn 'DEFSETF
-   (and (get accessfn 'SYSTEM::SETF-EXPANDER) "SETF expander"))
   (cond ((and (consp args) (not (listp (first args))) (symbolp (first args)))
          `(EVAL-WHEN (LOAD COMPILE EVAL)
             (LET ()
               (REMPROP ',accessfn 'SYSTEM::DEFSTRUCT-WRITER)
+              (SYS::CHECK-REDEFINITION
+               ',accessfn 'DEFSETF
+               (and (get ',accessfn 'SYSTEM::SETF-EXPANDER) "SETF expander"))
               (SYSTEM::%PUT ',accessfn 'SYSTEM::SETF-EXPANDER ',(first args))
               (SYSTEM::%SET-DOCUMENTATION ',accessfn 'SETF
                 ,(if (and (null (cddr args))
@@ -295,6 +296,10 @@
              `(EVAL-WHEN (LOAD COMPILE EVAL)
                 (LET ()
                   (REMPROP ',accessfn 'SYSTEM::DEFSTRUCT-WRITER)
+                  (SYS::CHECK-REDEFINITION
+                   ',accessfn 'DEFSETF
+                   (and (get ',accessfn 'SYSTEM::SETF-EXPANDER)
+                        "SETF expander"))
                   (SYSTEM::%PUT ',accessfn 'SYSTEM::SETF-EXPANDER
                     (LIST* ,arg-count ,(length storevars)
                            (FUNCTION ,(concat-pnames "SETF-" accessfn) ,setter)
