@@ -2570,7 +2570,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 #   defined(M88000)
 #   (defined(RS6000) && !defined(UNIX_AIX) && !defined(UNIX_LINUX))
 #   defined(VAX)
-#elif (defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || (defined(UNIX_FREEBSD) && !defined(UNIX_GNU)))) || defined(TRY_TYPECODES_1)
+#elif (defined(I80386) && ((defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) || (defined(UNIX_FREEBSD) && !defined(UNIX_GNU)))) || (defined(RS6000) && defined(UNIX_DARWIN)) || defined(TRY_TYPECODES_1)
   # You can add more platforms here provided that
   # 1. you need it,
   # 2. CODE_ADDRESS_RANGE | MALLOC_ADDRESS_RANGE has at most one bit set,

@@ -1,5 +1,9 @@
 2004-08-26  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d: Support TYPECODES_1 on Darwin/PowerPC.
+
+2004-08-26  Bruno Haible  <bruno@clisp.org>
+
 	* init.lisp (format): Allow the control-string to be a function. Needed
 	for bootstrapping halfcompiled.mem: when the .fas files are loaded, the
 	compiler has already transformed control-strings to functions.
