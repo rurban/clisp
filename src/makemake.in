@@ -478,7 +478,7 @@ if [ $TSYS = win32msvc ] ; then
   # "-Od -Z7" means to compile for debugging.
   # "-O1" means to optimize on msvc4,
   # "-Os -Oy -Ob1 -Gs -Gf -Gy" means to optimize on msvc5
-  # ("-O1" and "-O2" are buggy in msvc5.0 FIXME: what about msvc7?).
+  # ("-O1" and "-O2" are buggy in msvc5 ... msvc7).
   # -Zi - include debug info (-ZI for debug-and-continue)
   # -GZ - runtime debug checks
   case $COMPILER in
