@@ -466,7 +466,20 @@ If you get an error message "initialisation file was not created by this
 version of LISP", remove the "-O2" from CFLAGS in the makefile, remove spvw.o
 and continue.
 
-The testsuite causes a failure because of ISQRT. A workaround is not known.
+The sh and ksh on HP-UX 10 have severe bugs that cause
+  1. Most invocations of lisp.run crash like this (from HP-UX make):
+       ./lisp.run ...
+       /bin/sh: 18546 Bus error
+     or like this (from GNU make):
+       ./lisp.run ...
+       *** Termination signal 11
+  2. A command such as  'grep -v "^ *$$"'  to be executed incorrectly.
+As a workaround, the Makefile has "SHELL = bash" instead of "SHELL = /bin/sh"
+on this platform. For this to work, you need to have GNU bash in your PATH,
+and you need to use GNU make instead of HP-UX make.
+
+With older versions of gcc, the testsuite causes a failure because of ISQRT.
+A workaround is to use gcc 2.95.2 or newer.
 
 
 On SINIX-N 5.43:
@@ -527,6 +540,7 @@ in ./configure or run './configure --without-dynamic-ffi'.
 Dec2002 Developer tools with the gcc 3.3 update work OOTB, but
 older versions of GCC might require the `--traditional-cpp' option.
 If you get weird compilation errors (like #else mismatch), try it.
+
 
 On AIX:
 

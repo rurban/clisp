@@ -1782,7 +1782,19 @@ cat <<\!!
 echol
 if [ $HOS = unix ] ; then
   # On some systems (IRIX SVR3 and others) the default shell is csh.
-  echol "SHELL = /bin/sh"
+  # The sh and ksh on HP-UX 10 have severe bugs that cause
+  #   1. Most invocations of lisp.run crash like this (from HP-UX make):
+  #        ./lisp.run ...
+  #        /bin/sh: 18546 Bus error
+  #      or like this (from GNU make):
+  #        ./lisp.run ...
+  #        *** Termination signal 11
+  #   2. A command such as  'grep -v "^ *$$"'  to be executed incorrectly.
+  # As a workaround, we use GNU bash instead.
+  case "$host_os" in
+    hpux*) echol "SHELL = bash" ;;
+    *)     echol "SHELL = /bin/sh" ;;
+  esac
   echol
 fi
 echol "COMMENT5 = ${HERE}comment5"
