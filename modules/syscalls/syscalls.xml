@@ -224,9 +224,9 @@
  </simpara></listitem></varlistentry>
  <varlistentry id="convert-modes">
   <term><code>(<function>POSIX:CONVERT-MODE</function> &mode-r;)</code></term>
- <listitem><simpara>Convert between numeric, (e.g., <literal>0644</literal>)
-   and symbolic (e.g., <literal role="data">(:RUSR :WUSR :RGRP :ROTH)</literal>)
-   file modes.</simpara></listitem></varlistentry>
+  <listitem><simpara>Convert between numeric, (e.g., <literal>0644</literal>)
+    and symbolic (e.g., <literal role="data">(:RUSR :WUSR :RGRP
+     :ROTH)</literal>) file modes.</simpara></listitem></varlistentry>
  <varlistentry id="umask"><term><code>(<function>UMASK</function>
     &mode-r;)</code></term>
  <listitem><simpara>Change process mask using &umask;.
@@ -237,11 +237,10 @@
     <replaceable>destination-path</replaceable>
     &key-amp; :METHOD :PRESERVE :IF-EXISTS :IF-DOES-NOT-EXIST)</code></term>
   <listitem><simpara>This is an interface to the &symlink;
-    (when <replaceable>method</replaceable> is <constant>:SYMLINK</constant>),
+    (when &method-r; is <constant>:SYMLINK</constant>),
     &link; (when it is <constant>:HARDLINK</constant>), and &rename;
     (when it is <constant>:RENAME</constant>) system calls, as well as,
-    you guessed it, a generic file copy utility
-    (when <replaceable>method</replaceable> is &copy-k;).
+    you guessed it, a generic file copy utility (when &method-r; is &copy-k;).
    </simpara><simpara>Both <replaceable>source-path</replaceable> and
     <replaceable>destination-path</replaceable> may be wild.
  </simpara></listitem></varlistentry>
@@ -271,6 +270,101 @@
  <varlistentry><term><code>(OS:MEMORY-STATUS)</code></term>
   <listitem><simpara>Return &win32; memory status information in a
     <type>MEMORY-STATUS</type> structure.</simpara></listitem></varlistentry>
+ <varlistentry><term><code>(OS:FILE-PROPERTIES filename set
+    &key-amp; :initid &allow-other-keys-amp;
+    [specifier value|:INITID init-id]*))</code></term>
+  <listitem><para>Wrapper for the &win32;
+    <function>IPropertyStorage</function> functionality.
+    <variablelist><varlistentry><term>&filename-r;</term>
+      <listitem><simpara>a compound file name or (on NTFS) name of any
+        file</simpara></listitem></varlistentry>
+     <varlistentry><term><replaceable>set</replaceable></term>
+      <listitem><simpara>property set, either <constant>:BUILT-IN</constant>
+        or <constant>:USER-DEFINED</constant>
+     </simpara></listitem></varlistentry>
+     <varlistentry><term><constant>:INITID</constant>
+       <replaceable>init-id</replaceable></term>
+      <listitem><simpara>set the <replaceable>init-id</replaceable>
+     </simpara></listitem></varlistentry>
+     <varlistentry><term><replaceable>specifier value</replaceable></term>
+      <listitem><para><variablelist>
+         <varlistentry><term><replaceable>specifier</replaceable></term>
+          <listitem><para>the property specifier: an &integer-t;,
+            &keyword-t;, &string-t; or a &list-t; of an &integer-t; or a
+            &keyword-t; and a &string-t;.
+            <variablelist><varlistentry><term>&integer-t;</term>
+              <listitem><simpara>a property identifier
+             </simpara></listitem></varlistentry>
+             <varlistentry><term>&keyword-t;</term>
+              <listitem><para>Predefined &keyword-t; IDs are
+                <simplelist columns="4">
+                 <member><constant>:APPNAME</constant></member>
+                 <member><constant>:AUTHOR</constant></member>
+                 <member><constant>:CHARCOUNT</constant></member>
+                 <member><constant>:CODEPAGE</constant></member>
+                 <member><constant>:COMMENTS</constant></member>
+                 <member><constant>:CREATE-DTM</constant></member>
+                 <member><constant>:DOC-SECURITY</constant></member>
+                 <member><constant>:EDITTIME</constant></member>
+                 <member><constant>:KEYWORDS</constant></member>
+                 <member><constant>:LASTAUTHOR</constant></member>
+                 <member><constant>:LASTPRINTED</constant></member>
+                 <member><constant>:LASTSAVE-DTM</constant></member>
+                 <member><constant>:LOCALE</constant></member>
+                 <member><constant>:PAGECOUNT</constant></member>
+                 <member><constant>:REVNUMBER</constant></member>
+                 <member><constant>:SUBJECT</constant></member>
+                 <member><constant>:TEMPLATE</constant></member>
+                 <member><constant>:THUMBNAIL</constant></member>
+                 <member><constant>:TITLE</constant></member>
+                 <member><constant>:WORDCOUNT</constant></member>
+             </simplelist></para></listitem></varlistentry>
+             <varlistentry><term>&string-t;</term>
+              <listitem><simpara>string property specifier.
+                If no match is found, the first ID &gt;= init-id
+                (which defaults to 2) is associated with the
+                string and its value is replaced with new value.
+             </simpara></listitem></varlistentry>
+             <varlistentry><term>(&integer-t;|&keyword-t;
+               &string-t;)</term>
+              <listitem><simpara>the first element is used as
+                a specifier, the string is associated with this ID.
+            </simpara></listitem></varlistentry></variablelist>
+           </para></listitem></varlistentry>
+         <varlistentry><term>&value-r;</term>
+          <listitem><para>the new value of the property, a suitable Lisp
+            object, &nil; or a &list-t; of a &keyword-t; and the value
+            itself.  If &value-r; is &nil;, no assignment is done.
+            <constant>:EMPTY</constant> and <constant>:NULL</constant>
+            correspond to the <type>VT_EMPTY</type>
+            and <type>VT_NULL</type> datatypes.
+            &keyword-t; in the &list-t; specifies the desired type of
+            the property being set.
+            Supported types are<simplelist columns="4">
+             <member><constant>:BOOL</constant></member>
+             <member><constant>:BSTR</constant></member>
+             <member><constant>:DATE</constant></member>
+             <member><constant>:ERROR</constant></member>
+             <member><constant>:FILETIME</constant></member>
+             <member><constant>:I1</constant></member>
+             <member><constant>:I2</constant></member>
+             <member><constant>:I4</constant></member>
+             <member><constant>:I8</constant></member>
+             <member><constant>:LPSTR</constant></member>
+             <member><constant>:LPWSTR</constant></member>
+             <member><constant>:R4</constant></member>
+             <member><constant>:R8</constant></member>
+             <member><constant>:UI1</constant></member>
+             <member><constant>:UI2</constant></member>
+             <member><constant>:UI4</constant></member>
+             <member><constant>:UI8</constant></member>
+             <member><constant>:UINT</constant></member></simplelist>
+            <type>FILETIME</type>s are converted to/from universal
+            time format, while <type>DATE</type>s are not.
+       </para></listitem></varlistentry></variablelist>
+    </para></listitem></varlistentry></variablelist>
+    Returns the property contents before assignment as multiple values.
+ </para></listitem></varlistentry>
  <varlistentry><term><code>(POSIX:CRYPT &key-r;
     <replaceable>salt</replaceable>)</code></term>
   <listitem><simpara>Call &crypt;, arguments are &string-t;s.
