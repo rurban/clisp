@@ -57,6 +57,7 @@ DEFMODULE(rawsock,"RAWSOCK")
 /* ================== helpers ================== */
 /* can trigger GC */
 static object my_check_argument (object name, object datum) {
+  pushSTACK(NIL);               /* no PLACE */
   pushSTACK(name); pushSTACK(datum); pushSTACK(TheSubr(subr_self)->name);
   check_value(error,"~S: ~S is not a valid ~S argument");
   return value1;
