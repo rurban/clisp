@@ -10,7 +10,7 @@ AC_PROG_MAKE_SET
 CL_PROG_INSTALL
 AC_PROG_LN_S
 CL_CANONICAL_HOST(../autoconf)
-CL_CANONICAL_HOST_CPU
+CL_CANONICAL_HOST_CPU_FOR_FFCALL
 dnl This piece of sed script replaces every line containing '@subdir@'
 dnl by several consecutive lines, each referencing one subdir.
 extrasub="$extrasub"'

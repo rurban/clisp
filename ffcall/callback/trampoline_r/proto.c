@@ -1,7 +1,7 @@
 /* Sample prototype for a trampoline. */
 
 /*
- * Copyright 1995-1997 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1998 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -18,10 +18,7 @@ register void* env __asm__("%ecx");
 #ifdef __m68k__
 register void* env __asm__("a0");
 #endif
-#ifdef __mips__
-register void* env __asm__("$2");
-#endif
-#ifdef __mips64__
+#if defined(__mips__) || defined(__mipsn32__) || defined(__mips64__)
 register void* env __asm__("$2");
 #endif
 #ifdef __sparc__
