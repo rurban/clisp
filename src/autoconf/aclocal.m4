@@ -4352,8 +4352,7 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_WORDS_LITTLEENDIAN,
-[AC_MSG_CHECKING(byte ordering)
-AC_CHECK_VAL(cl_cv_sys_endian, [
+[AC_CACHE_CHECK(byte ordering, cl_cv_sys_endian, [
 AC_TRY_RUN([int main () {
   /* Are we little or big endian?  From Harbison&Steele.  */
   union
@@ -4364,30 +4363,29 @@ AC_TRY_RUN([int main () {
   u.l = 1;
   exit (u.c[0] == 1);
 }],
-cl_cv_sys_endian=big,
-cl_cv_sys_endian=little,
-# must guess the endianness
+cl_cv_sys_endian="big endian",
+cl_cv_sys_endian="little endian",
+: # must guess the endianness
 )
 if test -z "$cl_cv_sys_endian"; then
 AC_EGREP_CPP(yes,[#if defined(m68k) || defined(mc68000) || defined(mc68020) || defined(sparc) || defined(__sparc__) || defined(MIPSEB) || defined(hppa) || defined(__hppa) || defined(m88000)
   yes
 #endif
-], cl_cv_sys_endian=big)
+], cl_cv_sys_endian="big endian")
 fi
 if test -z "$cl_cv_sys_endian"; then
 AC_EGREP_CPP(yes,[#if defined(i386) || defined(__i386) || defined(_I386) || defined(MIPSEL) || defined(__alpha)
   yes
 #endif
-], cl_cv_sys_endian=little)
+], cl_cv_sys_endian="little endian")
 fi
 if test -z "$cl_cv_sys_endian"; then
-cl_cv_sys_endian="guessing little"
+cl_cv_sys_endian="guessing little endian"
 fi
 ])
-AC_MSG_RESULT([$cl_cv_sys_endian endian])
 case "$cl_cv_sys_endian" in
-  *little) AC_DEFINE(WORDS_LITTLEENDIAN) ;;
-  *big)    ;;
+  *little*) AC_DEFINE(WORDS_LITTLEENDIAN) ;;
+  *big*)    ;;
 esac
 ])dnl
 dnl
