@@ -1,3 +1,7 @@
+2004-05-23  Sam Steingold  <sds@gnu.org>
+
+	* clos-class0.lisp (print-object): avoid a compilation warning
+
 2004-05-22  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (init_object_tab): init O(system_type) here...
