@@ -13,12 +13,13 @@ LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
 # if you modify this function wrt it's return values,
 # you should modify POSIX:SYSINFO in posix.lsp accordingly
 {
-  long res, count=0;
-  struct utsname utsname;
+  var long res;
+  var long count = 0;
+  var struct utsname utsname;
 
   begin_system_call(); uname(&utsname); end_system_call();
 
-#define UN(str) pushSTACK(asciz_to_string(str,O(misc_encoding))); count++
+#define UN(str) pushSTACK(asciz_to_string(str,O(misc_encoding))); count++;
 
   UN(utsname.sysname);
   UN(utsname.nodename);
@@ -30,7 +31,7 @@ LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
 
 #define SC_S(cmd) \
   begin_system_call(); res = sysconf(cmd); end_system_call(); \
-  pushSTACK(res == -1 ? T : L_to_I(res)); count++
+  pushSTACK(res == -1 ? T : L_to_I(res)); count++;
 
 #ifdef _SC_PAGESIZE
   SC_S(_SC_PAGESIZE);
@@ -88,24 +89,24 @@ LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
   pushSTACK(L_to_I(ru.ru_msgrcv));        count++; \
   pushSTACK(L_to_I(ru.ru_nsignals));      count++; \
   pushSTACK(L_to_I(ru.ru_nvcsw));         count++; \
-  pushSTACK(L_to_I(ru.ru_nivcsw));        count++
+  pushSTACK(L_to_I(ru.ru_nivcsw));        count++;
 
 #define GETRU(who) \
  begin_system_call(); getrusage(who,&ru); end_system_call(); RU_S
 
 #define RLIM(what) \
- begin_system_call(); getrlimit(what,&rl); end_system_call(); count+=2; \
+ begin_system_call(); getrlimit(what,&rl); end_system_call(); count += 2; \
  pushSTACK(rl.rlim_cur == RLIM_INFINITY ? T : L_to_I(rl.rlim_cur)); \
- pushSTACK(rl.rlim_max == RLIM_INFINITY ? T : L_to_I(rl.rlim_max))
+ pushSTACK(rl.rlim_max == RLIM_INFINITY ? T : L_to_I(rl.rlim_max));
 
 LISPFUN(resource_usage_limits_,0,0,norest,nokey,0,NIL)
 # (POSIX::RESOURCE-USAGE-LIMITS-INTERNAL)
-# if you modify this function wrt it's return values,
+# if you modify this function wrt its return values,
 # you should modify POSIX:RESOURCE-USAGE-LIMITS in posix.lsp accordingly
 {
-  long count=0;
-  struct rlimit rl;
-  struct rusage ru;
+  var long count = 0;
+  var struct rlimit rl;
+  var struct rusage ru;
 
   GETRU(RUSAGE_SELF);
   GETRU(RUSAGE_CHILDREN);
@@ -116,47 +117,47 @@ LISPFUN(resource_usage_limits_,0,0,norest,nokey,0,NIL)
 #ifdef RLIMIT_CORE
   RLIM(RLIMIT_CORE);
 #else
-  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+  pushSTACK(NIL); pushSTACK(NIL); count += 2;
 #endif
 #ifdef RLIMIT_CPU
   RLIM(RLIMIT_CPU);
 #else
-  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+  pushSTACK(NIL); pushSTACK(NIL); count += 2;
 #endif
 #ifdef RLIMIT_DATA
   RLIM(RLIMIT_DATA);
 #else
-  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+  pushSTACK(NIL); pushSTACK(NIL); count += 2;
 #endif
 #ifdef RLIMIT_FSIZE
   RLIM(RLIMIT_FSIZE);
 #else
-  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+  pushSTACK(NIL); pushSTACK(NIL); count += 2;
 #endif
 #ifdef RLIMIT_NOFILE
   RLIM(RLIMIT_NOFILE);
 #else
-  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+  pushSTACK(NIL); pushSTACK(NIL); count += 2;
 #endif
 #ifdef RLIMIT_STACK
   RLIM(RLIMIT_STACK);
 #else
-  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+  pushSTACK(NIL); pushSTACK(NIL); count += 2;
 #endif
 #ifdef RLIMIT_VMEM
   RLIM(RLIMIT_VMEM);
 #else
-  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+  pushSTACK(NIL); pushSTACK(NIL); count += 2;
 #endif
 #ifdef RLIMIT_RSS
   RLIM(RLIMIT_RSS);
 #else
-  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+  pushSTACK(NIL); pushSTACK(NIL); count += 2;
 #endif
 #ifdef RLIMIT_MEMLOCK
   RLIM(RLIMIT_MEMLOCK);
 #else
-  pushSTACK(NIL); pushSTACK(NIL); count+=2;
+  pushSTACK(NIL); pushSTACK(NIL); count += 2;
 #endif
 
 #undef RLIM
