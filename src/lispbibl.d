@@ -3441,7 +3441,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define case_b16vector  case_sb16vector: case_ob16vector # general 16bit vector
   #define case_b32vector  case_sb32vector: case_ob32vector # general 32bit vector
   #define case_vector     case_svector: case_ovector # general vector
-  #define case_array      case_string: case_bvector: case_b2vector: case_b4vector: case_b8vector: case_b16vector: case_b32vector: case_vector: case_mdarray # general Array
+  #define case_array      case_string: case_bvector: case_b2vector: case_b4vector: case_b8vector: case_b16vector: case_b32vector: case_vector: case_weakkvt: case_mdarray # general Array
   #define case_closure    case closure_type   # Closure
   #ifdef structure_type
   #define case_structure  case structure_type # Structure
@@ -6248,7 +6248,7 @@ typedef struct {
     case Rectype_Sb16vector: case Rectype_b16vector:    \
     case Rectype_Sb32vector: case Rectype_b32vector:    \
     case Rectype_Svector: case Rectype_vector:          \
-    case Rectype_mdarray:                               \
+    case Rectype_WeakKVT: case Rectype_mdarray:         \
       goto case_array;
   #define case_Rectype_number_above  /* don't forget immediate_number_p */ \
     case Rectype_Complex: case Rectype_Ratio:                      \
