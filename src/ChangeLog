@@ -1,9 +1,15 @@
 2001-05-05  Sam Steingold  <sds@gnu.org>
 
+	* clos.lisp (function-keywords): return 2 values: list of keywords
+	and allow-other-keys-flag, as per ANSI CL
+
+2001-05-05  Sam Steingold  <sds@gnu.org>
+
 	Made the compiler a little less vociferous
 	* clos.lisp (check-signature-congruence): extracted from
 	STD-ADD-METHOD
 	(std-add-method): use CHECK-SIGNATURE-CONGRUENCE
+
 	* compiler.lisp (c-DEFUN): do not check signature for generic
 	functions since this is better done at load time
 
