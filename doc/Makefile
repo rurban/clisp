@@ -158,7 +158,7 @@ wildcard.html: ../modules/wildcard/wildcard.texinfo
 
 clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html impnotes.pdf html \
-		clisp.html clisp.1
+		clisp.html clisp.1 tdb-*.xml
 
 count: $(IMPNOTES)
 	wc $^
