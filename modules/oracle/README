@@ -66,7 +66,7 @@ applications both simple and sophisticated.  The highlights are:
 
         - Auto-commit feature that commits database results to
           simplify applications that are not transaction intensive.
-          
+
         - Automatic mapping of Oracle data types to and from
           Lisp data types (string, fixnum, bignum, NULL, etc.)
 
@@ -148,7 +148,7 @@ Oracle module, and to build in a separate area.  The command I use is:
        --with-export-syscalls                   \
        --with-module=wildcard                   \
        --with-module=regexp                     \
-       --with-module=bindings/linuxlibc6        \
+       --with-module=bindings/glibc             \
        --with-module=oracle                     \
        --build oralisp
 
@@ -165,7 +165,7 @@ particular Oracle server, then loading that file to do some simple
 database operations.
 
         (6) USING THE MODULE
-            ---------------- 
+            ----------------
 
 The module implements a Lisp package "ORACLE" which exports the
 functions and macros below.  Each function and macro has a complete

@@ -65,8 +65,8 @@ EOF
 echo "Uncomment 'configure' in 'clisp.spec' if you want to build";
 #rm -rf %{builddir}
 #./configure --prefix=%{prefix} --fsstnd=redhat --with-module=regexp \
-#    --with-module=bindings/linuxlibc6 --with-module=clx/new-clx \
-#    --with-export-syscalls --build %{builddir}
+#    --with-module=bindings/glibc --with-module=clx/new-clx \
+#    --with-module=syscalls --build %{builddir}
 %install
 echo "Uncomment 'make install' in 'clisp.spec' if you want to install";
 # cd %{builddir}
