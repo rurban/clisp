@@ -14,8 +14,13 @@
   (every #'typep required-arguments
          (std-method-parameter-specializers method)))
 
-;; CLtL2 28.1.7.1., ANSI CL 7.6.6.1. Sorting the applicable methods by
-;;                                   precedence order
+;; CLtL2 28.1.7.1., ANSI CL 7.6.6.1.2.
+;; Sorting the applicable methods by precedence order
+;; > methods: A list of methods from the same generic function that are
+;;            already known to be applicable for the given required-arguments.
+;; > required-arguments: The list of required arguments.
+;; > argument-order: A list of indices in the range 0..req-num-1 that
+;;                   determines the argument order.
 (defun sort-applicable-methods (methods required-arguments argument-order)
   (sort (copy-list methods)
         #'(lambda (method1 method2) ; method1 < method2 ?
@@ -49,29 +54,34 @@
 (defvar *method-combination* nil
   "The generic function's method combination (in compute-effective-method)")
 
-;;; error functions
+;; Error about a method whose qualifiers don't fit with a method-combination.
+;; This is specified to be a function, not a condition type, because it is
+;; meant to be called from a DEFINE-METHOD-COMBINATION's body.
 (defun invalid-method-error (method format-string &rest args)
-  (error-of-type 'sys::source-program-error
-    (TEXT "for function ~s applied to ~s:~%while computing the effective method through ~s:~%invalid method: ~s~%~?")
-    *method-combination-generic-function*
-    *method-combination-arguments*
+  (error
+    (TEXT "For function ~S applied to argument list ~S:~%While computing the effective method through ~S:~%Invalid method: ~S~%~?")
+    *method-combination-generic-function* *method-combination-arguments*
     *method-combination*
-    method format-string args))
+    method
+    format-string args))
 
+;; Other error during method combination, not tied to a particular method.
+;; This is specified to be a function, not a condition type, because it is
+;; meant to be called from a DEFINE-METHOD-COMBINATION's body.
+;; The fact that MISSING-REQUIRED-METHOD and NO-PRIMARY-METHOD don't call this
+;; function is not a problem, because the user is not supposed to redefine or
+;; customize this function.
 (defun method-combination-error (format-string &rest args)
-  (error-of-type 'sys::source-program-error
-    (TEXT "for function ~s applied to ~s:~%while computing the effective method through ~s:~%invalid method combination: ~s~%~?")
-    *method-combination-generic-function*
-    *method-combination-arguments*
+  (error
+    (TEXT "For function ~S applied to argument list ~S:~%While computing the effective method through ~S:~%Impossible to combine the methods:~%~?")
+    *method-combination-generic-function* *method-combination-arguments*
     *method-combination*
-    *method-combination* format-string args))
+    format-string args))
 
-;;; Method computation implementation:
-;;; - compute-effective-method-function handles the function interface
-;;;   and the next-method support for both short and long forms.
-;;; - short forms: compute-short-form-effective-method-form
-;;;   and short-form-method-combination-expander
-;;; - long forms: long-form-method-combination-expander
+(defun invalid-method-sort-order-error (order-form order-value)
+  (method-combination-error
+    (TEXT "The value of ~S is ~S, should be :MOST-SPECIFIC-FIRST or :MOST-SPECIFIC-LAST.")
+    order-form order-value))
 
 (defun compute-effective-method-function (generic-function combination methods
                                           effective-method-form)
@@ -120,7 +130,7 @@ has already transpired."
                        (apply #'format nil errorstring arguments))))
         (declare (ignore opt opt-i opt-p rest))
         (when (> (setq num-req (length positional)) (length req-vars))
-          (method-combination-error "invalid combination arguments: ~s."
+          (method-combination-error (TEXT "invalid combination arguments: ~s.")
                                     combination-arguments))
         (setf req-vars (append positional (nthcdr num-req req-vars)))
         ;; Construct analogous interface parameter and application
@@ -388,14 +398,14 @@ has already transpired."
                      (push method around-methods)
                      (push method primary-methods))))
              (unless primary-methods
-               (method-combination-error "no applicable primary methods."))
+               (method-combination-error (TEXT "no applicable primary methods.")))
              ;; check that all qualifiers are singular and correct
              (dolist (method primary-methods)
                (let ((qualifiers (std-method-qualifiers method)))
                  (unless (and (null (rest qualifiers))
                               (eq (first qualifiers) qualifier))
                    (invalid-method-error
-                    method "qualifiers ~s not permitted for combination ~s."
+                    method (TEXT "qualifiers ~s not permitted for combination ~s.")
                     qualifiers qualifier))))
              (values
               (ecase order
@@ -507,147 +517,196 @@ partition function includes a clause for it."
     (null (null qualifiers))
     (symbol
      (or (eq pattern '*)
-         (method-combination-error "invalid method group pattern: ~s."
+         (method-combination-error (TEXT "invalid method group pattern: ~s.")
                                    pattern)))
-    (t (method-combination-error "invalid method group pattern: ~s."
+    (t (method-combination-error (TEXT "invalid method group pattern: ~s.")
                                  pattern))))
 
-(defun compute-method-partition-lambdas (method-groups)
-  "Given the method group form from the combination definition,
-computes 1. a function to be applied to a list of methods to produce a
-partitioned plist. The group variables are used as the keys.
-Where order specifications are present consolidate them bind them.??
-2. a function to be applied to a single method to produce a qualifiers check.
-Performs static tests for conflicting patterns components and
-generates dynamic tests for unmatched methods and required groups."
-  (let ((order-bindings nil) (*-group-variable nil))
-    (labels ((group-error (group message)
-               (error "invalid group: ~s: ~a." group message))
-             (normalize-group (group &aux (g group))
-               (let ((variable (pop group)) (patterns nil) (description nil)
-                     (required nil) (order nil))
-                 (loop (unless group (return))
-                   (let ((qp (pop group)))
-                     (cond ((or (eq qp '*) (consp qp) (null qp))
-                            (unless (listp patterns)
-                              (group-error qp "duplicate pattern option"))
-                            (push qp patterns))
-                           ((eq qp :order)
-                            (if order
-                              (group-error qp "duplicate order option")
-                              (setf order (pop group))))
-                           ((eq qp :required)
-                            (if required
-                              (group-error qp "duplicate required option")
-                              (setf required (pop group))))
-                           ((eq qp :description)
-                            (if description
-                              (group-error qp "duplicate description option")
-                              (setf description (pop group))))
-                           ((symbolp qp)
-                            (if patterns
-                              (group-error qp "duplicate predicate option")
-                              (setf patterns qp)))
-                           (t (group-error qp "illegal group pattern")))))
-                 (typecase patterns
-                   (cons (setf patterns (reverse patterns)))
-                   (null (group-error g "at least one pattern is required."))
-                   (symbol t))
-                 (list variable patterns order required
-                       (or description (format nil "~s qualifiers ~s"
-                                               variable patterns)))))
-             (compute-required-form (group)
-               (let ((variable (first group))
-                     (patterns (second group))
-                     (required-form (fourth group)))
-                 (when required-form
-                   `(unless (getf partitioned-method-plist ',variable)
-                      (method-combination-error
-                       "no methods match group: ~s ~s."
-                       ',variable ',patterns)))))
+(defun parse-method-groups (name method-groups)
+  (labels ((group-error (group message &rest message-args)
+             (error-of-type 'sys::source-program-error
+               (TEXT "~S ~S: invalid method group specifier ~S: ~A")
+               'define-method-combination name group
+               (apply #'format nil message message-args)))
+           ;; Performs the syntax check of a method-group-specifier and
+           ;; returns a simple-vector
+           ;;   #(name patterns/predicate orderform required-p description)
+           ;; The second element can be a non-empty list of patterns, or a
+           ;; non-null symbol naming a predicate.
+           (normalize-group (group)
+             (unless (and (consp group) (consp (cdr group)))
+               (group-error group (TEXT "Not a list of at least length 2")))
+             (let ((variable (car group))
+                   (groupr (cdr group))
+                   (patterns '())
+                   (predicate nil)
+                   (orderforms '())
+                   (requireds '())
+                   (description nil))
+               (unless (symbolp variable)
+                 (group-error group (TEXT "Not a variable name: ~S") variable))
+               ; Parse the {qualifier-pattern+ | predicate} part:
+               (do ()
+                   ((atom groupr))
+                 (let ((qp (car groupr)))
+                   (cond ((or (eq qp '*)
+                              (and (listp qp)
+                                   (memq (cdr (last qp)) '(nil *))))
+                          ; A qualifier pattern.
+                          (when predicate
+                            (group-error group (TEXT "In method group ~S: Cannot specify both qualifier patterns and a predicate.") variable))
+                          (push qp patterns))
+                         ((memq qp '(:DESCRIPTION :ORDER :REQUIRED))
+                          ; End of the {qualifier-pattern+ | predicate} part.
+                          (return))
+                         ((symbolp qp)
+                          ; A predicate.
+                          (when predicate
+                            (group-error group (TEXT "In method group ~S: Cannot specify more than one predicate.") variable))
+                          (when patterns
+                            (group-error group (TEXT "In method group ~S: Cannot specify both qualifier patterns and a predicate.") variable))
+                          (setq predicate qp))
+                         (t
+                           (group-error group (TEXT "In method group ~S: Neither a qualifier pattern nor a predicate: ~S") variable qp))))
+                 (setq groupr (cdr groupr)))
+               (do ()
+                   ((atom groupr))
+                 (when (atom (cdr groupr))
+                   (group-error group (TEXT "In method group ~S: options must come in pairs") variable))
+                 (let ((optionkey (first groupr))
+                       (argument (second groupr)))
+                   (case optionkey
+                     (:ORDER
+                      (when orderforms
+                        (group-error group (TEXT "In method group ~S: option ~S may only be given once") variable ':order))
+                      (setq orderforms (list argument)))
+                     (:REQUIRED
+                      (when requireds
+                        (group-error group (TEXT "In method group ~S: option ~S may only be given once") variable ':required))
+                      (setq requireds (list (not (null argument)))))
+                     (:DESCRIPTION
+                      (when description
+                        (group-error group (TEXT "In method group ~S: option ~S may only be given once") variable ':description))
+                      (unless (stringp argument)
+                        (group-error group (TEXT "In method group ~S: ~S is not a string") variable argument))
+                      (setq description argument))
+                     (t
+                      (group-error group (TEXT "In method group ~S: Invalid option ~S") variable optionkey))))
+                 (setq groupr (cddr groupr)))
+               (unless (or patterns predicate)
+                 (group-error group (TEXT "In method group ~S: Missing pattern or predicate.") variable))
+               (vector variable
+                       (or predicate (nreverse patterns))
+                       (if orderforms (first orderforms) '':MOST-SPECIFIC-FIRST)
+                       (if requireds (first requireds) 'NIL)
+                       (or description
+                           (concatenate 'string
+                             (sys::format-quote (format nil "~A" variable))
+                             "~@{ ~S~}"))))))
+    (mapcar #'normalize-group method-groups)))
+
+(defun compute-method-partition-lambdas (method-groups body)
+  "Given the normalized method group specifiers, computes
+1. a function to be applied to a list of methods to produce the effective
+method function's body. The group variables are bound in the body.
+2. a function to be applied to a single method to produce a qualifiers check."
+  (let ((order-bindings nil))
+    (labels (;; Returns a form that tests whether a list of qualifiers, assumed
+             ;; to be present in the variable QUALIFIERS, matches the given pattern.
              (compute-match-predicate-1 (pattern)
-               (typecase pattern
-                 (symbol (case pattern
-                           (* `(qualifiers-match-p qualifiers '*))
-                           ((nil) '(null qualifiers))
-                           (t `(,pattern qualifiers))))
-                 (cons `(qualifiers-match-p qualifiers ',pattern))
-                 (t (error "illegal group pattern: ~s." pattern))))
-             (compute-match-predicate (group)
-               (let ((variable (first group))
-                     (patterns (second group)))
-                 (cond ((equal patterns '(*))
-                        (if *-group-variable
-                            (error "duplicate * group: ~s." group)
-                            (setf *-group-variable variable))
-                        nil)
-                       ((symbolp patterns)
-                        `(,patterns qualifiers))
-                       (t
-                        (if (null patterns)
-                          '(null qualifiers)
-                          `(or ,@(mapcar #'compute-match-predicate-1 patterns)))))))
-             (compute-sort-form (group)
+               ; Already checked above.
+               (assert (or (eq pattern '*)
+                           (and (listp pattern)
+                                (memq (cdr (last pattern)) '(nil *)))))
+               (cond ((null pattern) `(NULL QUALIFIERS))
+                     ((eq pattern '*) `T)
+                     (t `(QUALIFIERS-MATCH-P QUALIFIERS ',pattern))))
+             ;; Returns a form that tests whether a list of qualifiers, assumed
+             ;; to be present in the variable QUALIFIERS, satisfies the test
+             ;; for the given normalized method group description.
+             (compute-match-predicate (ngroup)
+               (let ((patterns (svref ngroup 1)))
+                 ; Already checked above.
+                 (assert (and (or (listp patterns) (symbolp patterns))
+                              (not (null patterns))))
+                 (if (listp patterns)
+                   `(OR ,@(mapcar #'compute-match-predicate-1 patterns))
+                   `(,patterns QUALIFIERS))))
+             ;; Returns the variable binding for the given normalized method
+             ;; group description.
+             (compute-variable-binding (ngroup)
+               (let ((variable (svref ngroup 0)))
+                 `(,variable NIL)))
+             ;; Returns a form that performs the :required check for the given
+             ;; normalized method group description.
+             (compute-required-form (ngroup)
+               (let ((variable (svref ngroup 0))
+                     (required-p (svref ngroup 3)))
+                 (when required-p
+                   `(UNLESS ,variable
+                      (APPLY #'MISSING-REQUIRED-METHOD
+                        *METHOD-COMBINATION-GENERIC-FUNCTION*
+                        *METHOD-COMBINATION*
+                        ',variable
+                        #'(LAMBDA (METH)
+                            (LET ((QUALIFIERS (METHOD-QUALIFIERS METH)))
+                              (DECLARE (IGNORABLE QUALIFIERS))
+                              ,(compute-match-predicate ngroup)))
+                        *METHOD-COMBINATION-ARGUMENTS*)))))
+             ;; Returns a form that reorders the list of methods in the method
+             ;; group that originates from the given normalized method group
+             ;; description.
+             (compute-reorder-form (ngroup)
                ;; If an order spec is present, make a binding for the
                ;; shared value and use that to decide whether to reverse.
-               ;; If no spec if present, then always reverse.
-               (let ((variable (first group))
-                     (order (third group))
-                     (order-variable nil))
-                 (cond (order
-                        (unless (setf order-variable
-                                      (first (find order order-bindings
-                                                   :key #'second
-                                                   :test #'equalp)))
-                          (setf order-variable  (gensym "ORDER-"))
-                          (push (list order-variable  order) order-bindings))
-                        `(ecase ,order-variable
-                           ((nil :most-specific-first)
-                            (setf (getf partitioned-method-plist ',variable)
-                                  (reverse (getf partitioned-method-plist
-                                                 ',variable))))
-                           (:most-specific-last )))
-                       (t
-                        `(setf (getf partitioned-method-plist ',variable)
-                               (reverse (getf partitioned-method-plist
-                                              ',variable))))))))
-      (setq method-groups (mapcar #'normalize-group method-groups))
-      (let ((match-forms '()) (check-forms '()))
-        (dolist (group method-groups)
-          (let ((variable (first group))
-                (predicate (compute-match-predicate group)))
-            (when predicate
-              (push `(when ,predicate
-                       (push methd (getf partitioned-method-plist ',variable)))
-                    match-forms)
-              (push predicate check-forms))))
-        (setq match-forms (nreverse match-forms))
+               ;; If the order is :most-positive-first, we have to reverse,
+               ;; to undo the reversal done by the previous PUSH operations.
+               (let ((variable (svref ngroup 0))
+                     (orderform (svref ngroup 2)))
+                 (if (or (equal orderform '':MOST-SPECIFIC-FIRST)
+                         (equal orderform ':MOST-SPECIFIC-FIRST))
+                   `(SETQ ,variable (NREVERSE ,variable))
+                   (let ((order-variable
+                           (first (find orderform order-bindings :key #'second))))
+                     (unless order-variable
+                       (setq order-variable (gensym "ORDER-"))
+                       (push `(,order-variable ,orderform) order-bindings))
+                     `(COND ((EQ ,order-variable ':MOST-SPECIFIC-FIRST)
+                             (SETQ ,variable (NREVERSE ,variable)))
+                            ((EQ ,order-variable ':MOST-SPECIFIC-LAST))
+                            (T (INVALID-METHOD-SORT-ORDER-ERROR ',orderform ,order-variable))))))))
+      (let ((match-clauses '())
+            (check-forms '()))
+        (dolist (ngroup method-groups)
+          (let ((variable (svref ngroup 0))
+                (qualifier-test-form (compute-match-predicate ngroup)))
+            (push `(,qualifier-test-form (PUSH METHD ,variable))
+                  match-clauses)
+            (push qualifier-test-form check-forms)))
+        (setq match-clauses (nreverse match-clauses))
         (setq check-forms (nreverse check-forms))
         (let ((order-forms
-                (delete nil (mapcar #'compute-sort-form method-groups))))
+                (delete nil (mapcar #'compute-reorder-form method-groups))))
           (values
-            `(lambda (methods)
-               (let ((partitioned-method-plist nil) ,@order-bindings)
-                 (dolist (methd methods)
-                   (let ((qualifiers (method-qualifiers methd)))
-                     (declare (ignorable qualifiers))
-                     (or ,@match-forms
-                         ,(if *-group-variable
-                            `(push methd (getf partitioned-method-plist
-                                               ',*-group-variable))
-                            '(invalid-method-error
-                              "method matched no group: ~s." methd)))))
+            `(LAMBDA (METHODS)
+               (LET (,@(mapcar #'compute-variable-binding method-groups)
+                     ,@order-bindings)
+                 (DOLIST (METHD METHODS)
+                   (LET ((QUALIFIERS (METHOD-QUALIFIERS METHD)))
+                     (DECLARE (IGNORABLE QUALIFIERS))
+                     (COND ,@match-clauses
+                           (T (INVALID-METHOD-QUALIFIERS-ERROR *METHOD-COMBINATION-GENERIC-FUNCTION* METHD)))))
                  ,@order-forms
                  ,@(delete nil (mapcar #'compute-required-form method-groups))
-                 partitioned-method-plist))
-            `(lambda (gf methd)
-               ,(if *-group-variable
-                  'nil
-                  `(let ((qualifiers (method-qualifiers methd)))
-                     (declare (ignorable qualifiers))
-                     (or ,@check-forms (invalid-method-qualifiers-error gf methd)))))))))))
+                 (PROGN ,@body)))
+            `(LAMBDA (GF METHD)
+               (LET ((QUALIFIERS (METHOD-QUALIFIERS METHD)))
+                 (DECLARE (IGNORABLE QUALIFIERS))
+                 (OR ,@check-forms
+                     (INVALID-METHOD-QUALIFIERS-ERROR GF METHD))))))))))
 
-(defmacro define-method-combination (name &rest options)
+(defmacro define-method-combination (&whole whole-form
+                                     name &rest options)
   "The macro define-method-combination defines a new method combination.
 Short-form options are :documentation, :identity-with-one-argument,
  and :operator.
@@ -656,116 +715,174 @@ Long-form options are a list of method-group specifiers,
  followed by respective :description, :order, :required options,
  and optional :generic-function, and :arguments options preceeding
  the definition body."
+  (unless (symbolp name)
+    (error-of-type 'sys::source-program-error
+      (TEXT "~S: method combination name ~S should be a symbol")
+      'define-method-combination name))
   (sys::check-redefinition
-   name 'define-method-combination
-   (and (find-method-combination name :if-does-not-exist nil)
-        "method combination"))
-  (cond ((or (null options)             ; short form
-             (typep (first options) '(and symbol (not null))))
-         (destructuring-bind            ; reconstruct to ensure constants
-               (&key documentation identity-with-one-argument (operator name))
-             options
-           `(%define-method-combination
-             ',name
-             ,@(when documentation
-                 `(:documentation ',documentation))
-             ,@(when identity-with-one-argument
-                 `(:identity-with-one-argument ',identity-with-one-argument))
-             :operator ',operator
-             :qualifiers ',(list name ':around)
-             :expander #'short-form-method-combination-expander
-             :check-method-qualifiers #'short-form-method-combination-check-method-qualifiers
-             :call-next-method-allowed #'short-form-method-combination-call-next-method-allowed)))
-        ((listp (first options))        ; long form
-         (destructuring-bind (lambda-list qualifier-groups . body) options
-           (let ((arguments-lambda-list nil)
-                 (gf-variable nil)
-                 (declarations nil)
+    name 'define-method-combination
+    (and (find-method-combination name :if-does-not-exist nil)
+         "method combination"))
+  (cond ;; "The short form syntax ... is recognized when the second subform is
+        ;;  a non-nil symbol or is not present."
+        ((or (null options)
+             (and (consp options)
+                  (typep (first options) '(and symbol (not null)))))
+         ;; Short form.
+         (when (oddp (length options))
+           (error-of-type 'sys::source-program-error
+             (TEXT "~S ~S: options must come in pairs")
+             'define-method-combination name))
+         (let ((documentation nil)
+               (identities '())
+               (operators '()))
+           (do ((optionsr options (cddr optionsr)))
+               ((atom optionsr))
+             (when (atom (cdr optionsr))
+               (error-of-type 'sys::source-program-error
+                 (TEXT "~S ~S: options must come in pairs")
+                 'define-method-combination name))
+             (let ((optionkey (first optionsr))
+                   (argument (second optionsr)))
+               (case optionkey
+                 (:DOCUMENTATION
+                  (when documentation
+                    (error-of-type 'sys::source-program-error
+                      (TEXT "~S ~S: option ~S may only be given once")
+                      'define-method-combination name ':documentation))
+                  (unless (stringp argument)
+                    (error-of-type 'sys::source-program-error
+                      (TEXT "~S ~S: ~S is not a string")
+                      'define-method-combination name argument))
+                  (setq documentation argument))
+                 (:IDENTITY-WITH-ONE-ARGUMENT
+                  (when identities
+                    (error-of-type 'sys::source-program-error
+                      (TEXT "~S ~S: option ~S may only be given once")
+                      'define-method-combination name ':identity-with-one-argument))
+                  (setq identities (list (not (null argument)))))
+                 (:OPERATOR
+                  (when operators
+                    (error-of-type 'sys::source-program-error
+                      (TEXT "~S ~S: option ~S may only be given once")
+                      'define-method-combination name ':operator))
+                  (unless (symbolp argument)
+                    (error-of-type 'sys::source-program-error
+                      (TEXT "~S ~S, option ~S: ~S is not a symbol")
+                      'define-method-combination name ':operator argument))
+                  (setq operators (list argument)))
+                 (t
+                   (error-of-type 'sys::source-program-error
+                     (TEXT "~S ~S: ~S is not a valid short-form option")
+                     'define-method-combination name optionkey)))))
+           `(DO-DEFINE-METHOD-COMBINATION
+              ',name
+              ,@(when documentation
+                  `(:DOCUMENTATION ',documentation))
+              ,@(when identities
+                  `(:IDENTITY-WITH-ONE-ARGUMENT ',(first identities)))
+              :OPERATOR ',(if operators (first operators) name)
+              :QUALIFIERS ',(list name ':around)
+              :EXPANDER #'SHORT-FORM-METHOD-COMBINATION-EXPANDER
+              :CHECK-METHOD-QUALIFIERS #'SHORT-FORM-METHOD-COMBINATION-CHECK-METHOD-QUALIFIERS
+              :CALL-NEXT-METHOD-ALLOWED #'SHORT-FORM-METHOD-COMBINATION-CALL-NEXT-METHOD-ALLOWED)))
+        ;; "The long form syntax ... is recognized when the second subform is a
+        ;;  list."
+        ((and (consp options) (listp (first options)))
+         ;; Long form.
+         (unless (and (>= (length options) 2) (listp (second options)))
+           (error-of-type 'sys::source-program-error
+             (TEXT "~S ~S: invalid syntax for long form: ~S")
+             'define-method-combination name whole-form))
+         (let ((lambda-list (first options))
+               (method-group-specifiers (second options))
+               (body (cddr options)))
+           ; Check the lambda-list.
+           (analyze-lambdalist lambda-list
+             #'(lambda (errorstring &rest arguments)
+                 (error-of-type 'sys::source-program-error
+                   (TEXT "~S ~S: invalid lambda-list: ~A")
+                   'define-method-combination name
+                   (apply #'format nil errorstring arguments))))
+           ; Check the method-group-specifiers, then the rest.
+           (let ((method-groups
+                   (parse-method-groups name method-group-specifiers))
+                 (arguments-lambda-list nil)
+                 (user-gf-variable nil)
+                 (gf-variable (gensym "GF-"))
                  (combination-variable (gensym "COMBINATION-"))
                  (options-variable (gensym "OPTIONS-"))
                  (args-variable (gensym "ARGUMENTS-"))
                  (methods-variable (gensym "METHODS-"))
-                 (method-variable (gensym "METHOD-"))
-                 (ignore-gf nil)
-                 (documentation nil))
-             (loop
-               (typecase (first body)
-                 (string (when documentation (return))
-                         (setf documentation (pop body)))
-                 (cons (destructuring-bind (keyword . rest) (first body)
-                         (case keyword
-                           (:arguments
-                             (when arguments-lambda-list
-                               (error "duplicate :arguments option."))
-                             (setf arguments-lambda-list rest))
-                           (:generic-function
-                             (when gf-variable
-                               (error "duplicate :generic-function option."))
-                             (setf gf-variable (first rest)))
-                           (declare
-                             (push (first body) declarations))
-                           (t (return))))
-                       (pop body))
-                 (t (return))))
-             (unless gf-variable (setf gf-variable (gensym "GF-") ignore-gf t))
-             (when arguments-lambda-list
-               ;; add reflecive bindings for the planned effective function
-               ;; parameters
-               (setf body
-                     `((let ,(mapcan
-                              (lambda (parameter)
-                                (unless (memq parameter lambda-list-keywords)
-                                  (when (consp parameter)
-                                    (setf parameter
-                                          (if (consp (first parameter))
-                                              (second (first parameter))
-                                              (first parameter))))
-                                  `((,parameter ',parameter))))
-                              arguments-lambda-list)
-                         ,@body))))
-             (multiple-value-bind (partition-lambda check-lambda)
-                 (compute-method-partition-lambdas qualifier-groups)
-               `(%define-method-combination
-                 ',name
-                 ,@(when documentation `(:documentation ,documentation))
-                 ,@(when declarations `(:declarations ',(reverse declarations)))
-                 ,@(when arguments-lambda-list
-                     `(:arguments-lambda-list ',arguments-lambda-list))
-                 :qualifiers ',qualifier-groups
-                 :identity-with-one-argument t
-                 :expander
-                   (lambda (,gf-variable ,combination-variable
-                            ,options-variable ,args-variable)
-                     (long-form-method-combination-expander
-                       ,gf-variable ,combination-variable
-                       ,options-variable ,args-variable
-                       (lambda (,gf-variable ,methods-variable ,@lambda-list)
-                         ,@(when ignore-gf `((declare (ignore ,gf-variable))))
-                         ;; The partition lambda generates a plist keyed by
-                         ;; variable name which is then &key destructured and
-                         ;; bound for the body.
-                         (destructuring-bind
-                           (&key ,@(mapcar (lambda (arg &aux (var (first arg)))
-                                             `((,var ,var)))
-                                           qualifier-groups))
-                           (,partition-lambda ,methods-variable)
+                 (method-variable (gensym "METHOD-")))
+             (when (and (consp body) (consp (car body))
+                        (eq (caar body) ':ARGUMENTS))
+               (setq arguments-lambda-list (cdar body))
+               (setq body (cdr body)))
+             (when (and (consp body) (consp (car body))
+                        (eq (caar body) ':GENERIC-FUNCTION))
+               (let ((option (cdar body)))
+                 (unless (and (consp option) (symbolp (car option))
+                              (null (cdr option)))
+                   (error-of-type 'sys::source-program-error
+                     (TEXT "~S ~S: Invalid syntax for ~S option: ~S")
+                     'define-method-combination name ':generic-function (car body)))
+                 (setq user-gf-variable (car option))
+                 (setq body (cdr body))))
+             (multiple-value-bind (body-rest declarations documentation)
+                 (sys::parse-body body t)
+               (when arguments-lambda-list
+                 ;; Add bindings so that the effective method function can
+                 ;; access the arguments that were passed to generic function.
+                 (setq body-rest
+                       `((LET ,(mapcan
+                                 #'(lambda (parameter)
+                                     (unless (memq parameter lambda-list-keywords)
+                                       (when (consp parameter)
+                                         (setq parameter
+                                               (if (consp (first parameter))
+                                                 (second (first parameter))
+                                                 (first parameter))))
+                                       (list `(,parameter ',parameter))))
+                                 arguments-lambda-list)
                            ,@body))))
-                 :check-method-qualifiers
-                   (lambda (,gf-variable ,combination-variable ,method-variable)
-                     (declare (ignore ,combination-variable))
-                     (,check-lambda ,gf-variable ,method-variable))
-                 :call-next-method-allowed
-                   #'long-form-method-combination-call-next-method-allowed)))))
-        (t (error "invalid method combination options: ~s." options))))
+               (multiple-value-bind (partition-lambda check-lambda)
+                   (compute-method-partition-lambdas method-groups body-rest)
+                 `(DO-DEFINE-METHOD-COMBINATION
+                    ',name
+                    ,@(when documentation
+                        `(:DOCUMENTATION ',documentation))
+                    ,@(when declarations
+                        `(:DECLARATIONS '((DECLARE ,@declarations))))
+                    ,@(when arguments-lambda-list
+                        `(:ARGUMENTS-LAMBDA-LIST ',arguments-lambda-list))
+                    :IDENTITY-WITH-ONE-ARGUMENT T ; really??
+                    :EXPANDER
+                      #'(LAMBDA (,gf-variable ,combination-variable
+                                 ,options-variable ,args-variable)
+                          (LONG-FORM-METHOD-COMBINATION-EXPANDER
+                            ,gf-variable ,combination-variable
+                            ,options-variable ,args-variable
+                            #'(LAMBDA (,gf-variable ,methods-variable ,@lambda-list)
+                                (LET (,@(when user-gf-variable `(,user-gf-variable ,gf-variable)))
+                                  (,partition-lambda ,methods-variable)))))
+                    :CHECK-METHOD-QUALIFIERS
+                      #'(LAMBDA (,gf-variable ,combination-variable ,method-variable)
+                          (DECLARE (IGNORE ,combination-variable))
+                          (,check-lambda ,gf-variable ,method-variable))
+                    :CALL-NEXT-METHOD-ALLOWED
+                      #'LONG-FORM-METHOD-COMBINATION-CALL-NEXT-METHOD-ALLOWED))))))
+        (t (error-of-type 'sys::source-program-error
+             (TEXT "~S ~S: invalid syntax, neither short form nor long form syntax: ~S")
+             'define-method-combination name whole-form))))
 
 ;; DEFINE-METHOD-COMBINATION execution
-(defun %define-method-combination (name &rest initargs)
+(defun do-define-method-combination (name &rest initargs)
   "Support function for the DEFINE-METHOD-COMBINATION macro,
 which performs the instantiation and registration and returns NAME."
-  (declare (dynamic-extent initargs))
-  (let ((definition-object (apply #'make-method-combination
-                                  :name name initargs)))
-    (setf (find-method-combination name) definition-object)
+  (let ((method-combination
+          (apply #'make-method-combination :name name initargs)))
+    (setf (find-method-combination name) method-combination)
     name))
 
 ;;; ---------------------------------- Misc ----------------------------------

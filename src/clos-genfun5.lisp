@@ -47,6 +47,25 @@
            :format-arguments (list 'no-applicable-method gf args)))
        gf args))))
 
+(defgeneric missing-required-method (gf combination group-name group-filter &rest args)
+  (:method ((gf t) (combination method-combination) (group-name symbol) (group-filter function) &rest args)
+    (let* ((reqanz (sig-req-num (gf-signature gf)))
+           (methods (remove-if-not group-filter (gf-methods gf)))
+           (dispatching-arg (single-dispatching-arg reqanz methods)))
+      (if dispatching-arg
+        (error-of-type 'method-call-type-error
+          :datum (nth dispatching-arg args)
+          :expected-type (dispatching-arg-type dispatching-arg methods)
+          :generic-function gf :argument-list args
+          (TEXT "~S: When calling ~S with arguments ~S, no method of group ~S (from ~S) is applicable.")
+          'missing-required-method gf args group-name combination)
+        (error-of-type 'method-call-error
+          :generic-function gf :argument-list args
+          (TEXT "~S: When calling ~S with arguments ~S, no method of group ~S (from ~S) is applicable.")
+          'missing-required-method gf args group-name combination)))))
+
+;; Special case of missing-required-method for STANDARD method combination
+;; and the PRIMARY method group.
 (defgeneric no-primary-method (gf &rest args)
   (:method ((gf t) &rest args)
     (let* ((reqanz (sig-req-num (gf-signature gf)))
