@@ -1593,19 +1593,23 @@ nonreturning_function (local, print_license, (void)) {
   quit_sofort (0);
 }
 
+#include "spvw_calendar.c"
+
 # print the banner
 local void print_banner ()
-{ const char * const banner0[] = { # some lines above 66 characters
+{ const char * banner0[] = { # some lines above 66 characters
  #  |Column 0           |Column 20                                    |Col 66
  # "012345678901234567890123456789012345678901234567890123456789012345678901"
-   "  i i i i i i i       ooooo    o        ooooooo   ooooo   ooooo\n",
-   "  I I I I I I I      8     8   8           8     8     o  8    8\n",
-  "  I  \\ `+' /  I      8         8           8     8        8    8\n",
-  "   \\  `-+-'  /       8         8           8      ooooo   8oooo\n",
-   "    `-__|__-'        8         8           8           8  8\n",
-   "        |            8     o   8           8     o     8  8\n",
-   "  ------+------       ooooo    8oooooo  ooo8ooo   ooooo   8\n",
+   ". . . . . . . . .     ooooo    o        ooooooo   ooooo   ooooo\n",
+   "I I I I I I I I I    8     8   8           8     8     o  8    8\n",
+  "I I  \\ `+' /  I I    8         8           8     8        8    8\n",
+  "I  \\  `-+-'  /  I    8         8           8      ooooo   8oooo\n",
+  " \\  `-__|__-'  /     8         8           8           8  8\n",
+   "  `--___|___--'      8     o   8           8     o     8  8\n",
+   "        |             ooooo    8oooooo  ooo8ooo   ooooo   8\n",
+   "--------+--------\n",
   };
+  char banner0_line1[100];
   const char * const banner1[] = {
    "\n",
    "Copyright (c) Bruno Haible, Michael Stoll 1992, 1993\n",
@@ -1623,9 +1627,62 @@ local void print_banner ()
   #endif
   var const char * banner3 = "\n";
   var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 65 ? 0 : 20);
-  var const char * const * ptr = banner0;
-  var uintC count = sizeof(banner0)/sizeof(banner0[0]);
+  if (offset == 0) {
+    begin_system_call();
+    strcpy(banner0_line1,banner0[0]);
+    var time_t now = time(NULL);
+    var struct tm now_local;
+    var struct tm now_gm;
+    now_local = *(localtime(&now));
+    now_gm = *(gmtime(&now));
+    end_system_call();
+    var sintL dayswest = /* Tage-Differenz, kann als 0,1,-1 angenommen werden */
+      (now_gm.tm_year < now_local.tm_year ? -1 :
+       now_gm.tm_year > now_local.tm_year ? 1 :
+       (now_gm.tm_mon < now_local.tm_mon ? -1 :
+        now_gm.tm_mon > now_local.tm_mon ? 1 :
+        (now_gm.tm_mday < now_local.tm_mday ? -1 :
+         now_gm.tm_mday > now_local.tm_mday ? 1 :
+         0)));
+    var sintL hourswest = 24*dayswest
+      + (sintL)(now_gm.tm_hour - now_local.tm_hour);
+    var uintL hours_since_1900 = ((unsigned long)now / 3600) - hourswest + 613608;
+    /* Add 6 because Hebrew days begin in the evening. */
+    var uintL days_since_1900 = (hours_since_1900 + 6) / 24;
+    var int candles = hebrew_calendar_hanukka_candles(days_since_1900);
+    if (candles > 0) {
+      banner0_line1[8] = 'i';
+      if (candles >= 1) {
+        banner0_line1[16] = 'i';
+        if (candles >= 2) {
+          banner0_line1[14] = 'i';
+          if (candles >= 3) {
+            banner0_line1[12] = 'i';
+            if (candles >= 4) {
+              banner0_line1[10] = 'i';
+              if (candles >= 5) {
+                banner0_line1[6] = 'i';
+                if (candles >= 6) {
+                  banner0_line1[4] = 'i';
+                  if (candles >= 7) {
+                    banner0_line1[2] = 'i';
+                    if (candles >= 8) {
+                      banner0_line1[0] = 'i';
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    banner0[0] = banner0_line1;
+  }
+  var const char * const * ptr;
+  var uintC count;
   pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # to *STANDARD-OUTPUT*
+  ptr = banner0; count = sizeof(banner0)/sizeof(banner0[0]);
   while (count--)
     write_sstring(&STACK_0,asciz_to_string((*ptr++)+offset,O(internal_encoding)));
   ptr = banner1; count = sizeof(banner1)/sizeof(banner1[0]);
