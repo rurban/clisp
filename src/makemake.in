@@ -2253,7 +2253,12 @@ echotab "echo $ARGQ/* generated from Makefile */$ARGQ > cflags.h.new"
 for x in CC CFLAGS CPP CPPLAGS CLFLAGS LIBS X_LIBS; do
   echotab "echo $ARGQ#define $x \"\$($x)\"$ARGQ >> cflags.h.new"
 done
+if [ $TSYS = win32msvc ] ; then
+echotab '$(RM) cflags.h'
+echotab '$(CP) cflags.h.new cflags.h'
+else
 echotab 'if cmp cflags.h.new cflags.h > /dev/null 2>&1; then ${RM} cflags.h.new; else ${MV} cflags.h.new cflags.h; fi'
+fi 
 echotab '$(TOUCH) cflags.h.stamp'
 echol
 

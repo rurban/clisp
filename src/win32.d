@@ -215,6 +215,9 @@ extern_C char *setlocale (int category, const char *locale);
 extern BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer, LPDWORD NumberOfEventsRead);
 /* The following functions deal with all kinds of file/pipe/console handles */
 extern int fd_read_wont_hang_p (HANDLE fd);
+#ifdef MICROSOFT
+typedef long ssize_t;
+#endif
 extern ssize_t fd_read (HANDLE fd, void* buf, size_t nbyte, perseverance_t persev);
 extern ssize_t fd_write (HANDLE fd, const void* buf, size_t nbyte, perseverance_t persev);
 #define safe_read(fd,buf,nbyte)  fd_read(fd,buf,nbyte,persev_partial)
