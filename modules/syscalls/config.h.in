@@ -3,7 +3,8 @@
 /* Define to 1 if you have the `clock' function. */
 #undef HAVE_CLOCK
 
-/* lgamma sign is not available */
+/* Define to 1 if you have the declaration of `signgam', and to 0 if you
+   don't. */
 #undef HAVE_DECL_SIGNGAM
 
 /* Define to 1 if you have the `erf' function. */

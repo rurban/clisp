@@ -3427,17 +3427,19 @@ echo "$as_me:$LINENO: result: $ac_cv_have_decl_signgam" >&5
 echo "${ECHO_T}$ac_cv_have_decl_signgam" >&6
 if test $ac_cv_have_decl_signgam = yes; then
 
-cat >>confdefs.h <<\_ACEOF
+cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_SIGNGAM 1
 _ACEOF
 
-else
 
-cat >>confdefs.h <<\_ACEOF
+else
+  cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_SIGNGAM 0
 _ACEOF
 
+
 fi
+
 
 
 { echo "$as_me:$LINENO:  * System Calls (output)" >&5
