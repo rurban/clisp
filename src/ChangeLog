@@ -1,5 +1,10 @@
 2004-03-16  Bruno Haible  <bruno@clisp.org>
 
+	* genclisph.d (main): Remove trailing comma in definition of
+	condition_t. Needed on AIX with xlc.
+
+2004-03-16  Bruno Haible  <bruno@clisp.org>
+
 	* arilev0.d (divu_3216_1616_, divu_3216_3216_): Change from K&R C to
 	ANSI C style function definition. Needed on AIX with xlc.
 
