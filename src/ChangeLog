@@ -1,3 +1,8 @@
+2004-04-16  Sam Steingold  <sds@gnu.org>
+
+	* comptran.d (R_R_asinh_R_R): fixed the floating point type of the
+	return value
+
 2004-04-09  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (c-constant-number, c-FORMAT): Use c-warn instead of
@@ -6,8 +11,8 @@
 2004-04-09  Bruno Haible  <bruno@clisp.org>
 
 	Make REMOVE-DUPLICATES, DELETE-DUPLICATES cons less.
-	* sequence.d (remove_duplicates_list_from_start,
-	delete_duplicates_list_from_start, delete_duplicates_list_from_end):
+	* sequence.d (remove_duplicates_list_from_start)
+	(delete_duplicates_list_from_start, delete_duplicates_list_from_end):
 	New functions.
 	(seq_duplicates): Use these functions instead of the bit-vector
 	approach when not using a hash-table and the sequence is a list.
@@ -21,8 +26,8 @@
 	(intervals-remove-one): Use a combination of an autonomous local
 	function and macrolet.
 	(canonicalize-type): Make the local function autonomous.
-	(*subtypep-type1parts*, *subtypep-type2parts*, *subtypep-type2eqlparts*):
-	New variables.
+	(*subtypep-type1parts*, *subtypep-type2parts*)
+	(*subtypep-type2eqlparts*): New variables.
 	(subtypep-flatten-AND, subtypep-flatten-OR): New functions.
 	(subtypep-logic): Use them. Use declarations to convince the compiler
 	to expand EVERY, REMOVE-IF, REMOVE-IF-NOT calls inline.

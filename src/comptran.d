@@ -930,14 +930,11 @@ local object N_atan_N (object z)
       if (F_exponent_L(x) < 0) { /* Exponent e (von x/=0) <0 ? */
         /* |x|<1/2 */
         STACK_1 = F_atanhx_F(F_F_durch_F(x,temp)); /* u = atanh(x/sqrt(1+x^2)) */
-      } else {
-        /* |x|>=1/2 */
-        if (!R_minusp(x))
-          /* x>=1 */
-          STACK_1 = R_ln_R(F_F_plus_F(temp,x),true,&STACK_0); /* u = ln(x+sqrt(1+x^2)) */
-        else
-         /* x<=-1 */
-          STACK_1 = F_minus_F(R_ln_R(F_F_minus_F(temp,x),true,&STACK_0)); /* u = -ln(-x+sqrt(1+x^2)) */
+      } else { /* |x| >= 1/2 */
+        if (!R_minusp(x)) /* x >= 1/2 */
+          STACK_1 = R_ln_R(F_F_plus_F(temp,x),true,&STACK_1); /* u = ln(x+sqrt(1+x^2)) */
+        else /* x <= -1/2 */
+          STACK_1 = F_minus_F(R_ln_R(F_F_minus_F(temp,x),true,&STACK_1)); /* u = -ln(-x+sqrt(1+x^2)) */
       }
       return;
     }
