@@ -12,8 +12,8 @@
 	(initialize-instance-<standard-method>): Accept either :function or
 	fast-function argument. Rename :wants-next-method-p keyword to
 	clos::wants-next-method-p.
-	* clos-methcomb2.lisp (method-list-to-continuation,
-	std-method-function-or-substitute): New functions.
+	* clos-methcomb2.lisp (method-list-to-continuation)
+	(std-method-function-or-substitute): New functions.
 	(callable-method-form-p, call-method-arg2elements-error): New
 	functions.
 	(effective-method-code-bricks): Use callable-method-form-p. Generate
@@ -24,8 +24,8 @@
 	result in the fast-function. Don't use the initfunction if there is
 	a slow function.
 	* clos-class3.lisp (install-class-direct-accessors): Update.
-	* clos-class5.lisp (shared-initialize, reinitialize-instance,
-	initialize-instance, allocate-instance, make-instance): Update.
+	* clos-class5.lisp (shared-initialize, reinitialize-instance)
+	(initialize-instance, allocate-instance, make-instance): Update.
 	* clos-method2.lisp (analyze-method-description): Update.
 	* clos-method3.lisp (initialize-instance@standard-method): Update.
 	(method-function): New generic function.
