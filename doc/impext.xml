@@ -2,6 +2,9 @@
 
 <chapter id="ext-p-indep"><title>Platform Independent Extensions</title>
 
+<section id="custom-init-fini"><title>Customizing &clisp; Process
+  Initialization and Termination.</title>
+
 <section id="cradle-grave"><title>Cradle to Grave</title>
 <subtitle>What is done when.</subtitle>
 <procedure><step><title>Initialization</title>
@@ -15,11 +18,9 @@
   <step><simpara>Initialize &ffi-pac;.</simpara></step>
   <step><simpara><link linkend="modinit">Initialize
      modules</link>.</simpara></step>
-  <step id="init-hooks"><simpara>Run all functions in &init-hooks;
-    like this: <code>(&mapc; #'&funcall; &init-hooks;)</code>.
-  </simpara></step>
+  <step><simpara>Run all functions in &init-hooks;.</simpara></step>
   <step><simpara>Say <quote>hi</quote> unless suppressed by &opt-v;.
-</simpara></step></substeps></step>
+ </simpara></step></substeps></step>
 <step><title>The actual work</title><para>Handle command line options: file
   <olink targetdoc="man" targetptr="opt-init">loading</olink> and/or
   <olink targetdoc="man" targetptr="opt-compile">compilation</olink>,
@@ -27,9 +28,7 @@
   <olink targetdoc="man" targetptr="opt-exec-file">script execution</olink>,
   &repl;.</para></step>
 <step><title>Finalization</title>
- <substeps><step id="fini-hooks"><simpara>Run all functions in
-  &fini-hooks; like this: <code>(&mapc; #'&funcall; &fini-hooks;)</code>.
-  </simpara></step>
+ <substeps><step><simpara>Run all functions in &fini-hooks;.</simpara></step>
   <step><simpara>Call &fresh-line; on the standard streams.</simpara></step>
   <step><simpara>Say <quote>bye</quote> unless suppressed by &opt-v;.
   </simpara></step>
@@ -40,7 +39,26 @@
   <step><simpara><link linkend="modfini">Finalize
      modules</link>.</simpara></step>
   <step><simpara>Close opened DLLs.</simpara></step>
-</substeps></step></procedure>
+</substeps></step></procedure></section>
+
+<section id="init-hooks"><title>Customizing Initialization</title>
+<para>&init-hooks; is run like this:<programlisting language="lisp">
+(&mapc; #'&funcall; &init-hooks;)
+</programlisting></para>
+<note><title>The difference between &init-hooks; and
+<link linkend="image"><constant>:INIT-FUNCTION</constant></link></title>
+<para>&init-hooks; are <emphasis>always</emphasis> run regardless of the
+ command line options before even the banner is printed.
+ The <constant>:INIT-FUNCTION</constant> is run <emphasis>only</emphasis>
+ if the &repl; is ever entered and just before the first
+ <link linkend="prompt">prompt</link> is printed.</para></note>
+</section>
+
+<section id="fini-hooks"><title>Customizing Termination</title>
+<para>&fini-hooks; is run like this:<programlisting language="lisp">
+(&mapc; #'&funcall; &fini-hooks;)
+</programlisting></para></section>
+
 </section>
 
 <section id="image"><title>Saving an Image</title>
@@ -61,7 +79,8 @@ extension, &mem-file; extension is automatically added).
    executed at startup of the saved image, before entering the standard
    &repl;; thus, if you want to avoid the &repl;, you have to call
    <link linkend="quit"><function>EXT:EXIT</function></link> at the end
-   of the init function yourself.</simpara>
+   of the init function yourself
+   (this does not prevent &fini-hooks; from being run).</simpara>
    <simpara>See <olink targetdoc="man" targetptr="opt-exec-file">the
      manual</olink> for passing command line arguments to this function.
  </simpara><simpara>See also &init-hooks; and &fini-hooks;.</simpara>
