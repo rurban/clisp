@@ -1,3 +1,16 @@
+2004-06-04  Bruno Haible  <bruno@clisp.org>
+
+	* clos-method1.lisp (standard-method): Add lambda-list slot.
+	(initialize-instance-<standard-method>): Accept :lambda-list argument.
+	Check it. Compute the signature from it.
+	* clos-method2.lisp (analyze-method-description): Add a :LAMBDA-LIST
+	initializer to the generated form.
+	* clos-method3.lisp (method-lambda-list): New function.
+	* clos-class3.lisp (install-class-direct-accessors): Provide
+	:lambda-list arguments for all methods.
+	* clos-class5.lisp (shared-initialize, reinitialize-instance,
+	initialize-instance, allocate-instance, make-instance): Likewise.
+
 2004-06-03  Bruno Haible  <bruno@clisp.org>
 
 	* clos-method1.lisp (initialize-instance-<standard-method>): Check the

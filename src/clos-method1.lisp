@@ -30,6 +30,9 @@
      (qualifiers           ; list of non-NIL atoms, e.g. (:before)
        :type list
        :accessor std-method-qualifiers)
+     (lambda-list          ; lambda list without specializers
+       :type list
+       :accessor std-method-lambda-list)
      (signature            ; signature struct (see functions.lisp)
        :type (simple-vector 6)
        :accessor std-method-signature)
@@ -70,29 +73,58 @@
 
 (defun initialize-instance-<standard-method> (method &rest args
                                               &key (qualifiers '())
-                                                   ;(lambda-list nil lambda-list-p)
+                                                   (lambda-list nil lambda-list-p)
                                                    ;(specializers nil specializers-p)
                                                    (function nil function-p)
                                                    ;(documentation nil)
                                                    initfunction
                                                    wants-next-method-p
                                                    parameter-specializers
-                                                   signature
+                                                   ((signature signature) nil signature-p)
                                                    gf
                                                    origin
                                               &allow-other-keys)
   (when *classes-finished*
     (apply #'%initialize-instance method args)) ; == (call-next-method)
+  ; Check the qualifiers.
   (unless (proper-list-p qualifiers)
     (error (TEXT "(~S ~S): The ~S argument should be a proper list, not ~S")
            'initialize-instance 'standard-method ':qualifiers qualifiers))
   (unless (notany #'listp qualifiers)
     (error (TEXT "(~S ~S): The qualifiers list should consist of non-NIL atoms, not ~S")
            'initialize-instance 'standard-method qualifiers))
+  ; Check the lambda-list and compute the signature from it.
+  (unless lambda-list-p
+    (error (TEXT "(~S ~S): Missing ~S argument.")
+           'initialize-instance 'standard-method ':lambda-list))
+  (multiple-value-bind (reqvars optvars optinits optsvars rest
+                        keyp keywords keyvars keyinits keysvars
+                        allowp auxvars auxinits)
+      (analyze-lambdalist lambda-list
+        #'(lambda (errorstring &rest arguments)
+            (error (TEXT "(~S ~S): Invalid ~S argument: ~A")
+                   'initialize-instance 'standard-method ':lambda-list
+                   (apply #'format nil errorstring arguments))))
+    (declare (ignore optinits optsvars keyvars keyinits keysvars
+                     auxvars auxinits))
+    ; Check the signature argument. It is optional; specifying it only has
+    ; the purpose of saving memory allocation (by sharing the same signature
+    ; for all reader methods and the same signature for all writer methods).
+    (let ((sig (make-signature
+                 :req-num (length reqvars) :opt-num (length optvars)
+                 :rest-p (or keyp (not (eql rest 0))) :keys-p keyp
+                 :keywords keywords :allow-p allowp)))
+      (if signature-p
+        (unless (equalp sig signature)
+          (error (TEXT "(~S ~S): Lambda-list ~S and signature ~S are inconsistent.")
+                 'initialize-instance 'standard-method lambda-list signature))
+        (setq signature sig))))
+  ; Fill the slots.
   (setf (std-method-function method) function)
   (setf (std-method-wants-next-method-p method) wants-next-method-p)
   (setf (std-method-parameter-specializers method) parameter-specializers)
   (setf (std-method-qualifiers method) qualifiers)
+  (setf (std-method-lambda-list method) lambda-list)
   (setf (std-method-signature method) signature)
   (setf (std-method-gf method) gf)
   (setf (std-method-initfunction method) initfunction)

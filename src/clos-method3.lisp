@@ -44,6 +44,11 @@
   (:method ((method standard-method))
     (std-method-qualifiers method)))
 
+;; MOP p. 82
+(defgeneric method-lambda-list (method)
+  (:method ((method standard-method))
+    (std-method-lambda-list method)))
+
 (defgeneric function-keywords (method)
   (:method ((method standard-method))
     (let ((sig (std-method-signature method)))
