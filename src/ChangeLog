@@ -1,3 +1,11 @@
+2000-02-28  Martin Atzmueller  <marty@cs.utexas.edu>
+
+	* reploop.lsp: new and shorter debugger/stepper/main commands;
+	('error :e) command for printing the error-message again;
+	('backtrace-l, :bl, 'frame-limit, :fl) implemented something
+	similar to the "print-frame-limit"-issue in the TODO list.
+	translated the comments.
+
 2000-02-18  Sam Steingold  <sds@gnu.org>
 
 	Implemented the ANSI CL `with-compilation-unit' macro.
