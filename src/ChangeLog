@@ -1,3 +1,9 @@
+2004-05-23  Bruno Haible  <bruno@clisp.org>
+
+	* backquote.lisp (bq-expand): Inline bq-expand-cons, bq-expand-vector.
+	(bq-expand-cons, bq-expand-vector): Remove functions.
+	(bq-expand-list): Simplify.
+
 2004-05-20  Bruno Haible  <bruno@clisp.org>
 
 	Speed up the FILL-STREAMs.
