@@ -76,7 +76,7 @@ T
     slot1
     (slot2 t)
     (slot3 (floor pi))
-    (slot4 44))
+    #-SBCL (slot4 44))
   (defclass structure02b (structure02a)
     ((slot4 :initform -44)
      (slot5)
@@ -131,7 +131,7 @@ T
     slot5
     (slot6 t)
     (slot7 (floor (* pi pi)))
-    (slot8 88))
+    #-SBCL (slot8 88))
   (defclass structure03c (structure03b)
     ((slot8 :initform -88)
      (slot9)
@@ -257,7 +257,7 @@ AS-STRING
 #+CLISP "#<STANDARD-READER-METHOD :UNINITIALIZED>"
 #+CMU "#<#<#<PCL:STANDARD-READER-METHOD {}> {}> {}>"
 #+SBCL "#<SB-MOP:STANDARD-READER-METHOD #<SB-MOP:STANDARD-READER-METHOD #<SB-MOP:STANDARD-READER-METHOD {}> {}> {}>"
-#-CLISP UNKNOWN
+#-(or CLISP CMU SBCL) UNKNOWN
 
 (as-string (allocate-instance (find-class 'clos:standard-writer-method)))
 #+CLISP "#<STANDARD-WRITER-METHOD :UNINITIALIZED>"
@@ -283,6 +283,17 @@ AS-STRING
 #-(or CLISP CMU SBCL) UNKNOWN
 
 
+;; It is possible to redefine a class in a way that makes it non-finalized,
+;; if it was not yet instantiated. Fetching the class-prototype doesn't count
+;; as an instantiation.
+(progn
+  (defclass foo135b () ((s :initarg :s :accessor foo135b-s)))
+  (clos:class-prototype (find-class 'foo135b))
+  (defclass foo135b (foo135a) ((s :accessor foo135b-s)))
+  t)
+T
+
+
 ;; Check that undefined classes are treated as undefined, even though they
 ;; are represented by a FORWARD-REFERENCED-CLASS.
 (progn
@@ -301,10 +312,10 @@ ERROR
 ERROR
 (subtypep 'nil *forwardclass*)
 ERROR
-(sys::subtype-integer *forwardclass*)
-ERROR
-(sys::subtype-sequence *forwardclass*)
-NIL ; should also be ERROR
+#+CLISP (sys::subtype-integer *forwardclass*)
+#+CLISP ERROR
+#+CLISP (sys::subtype-sequence *forwardclass*)
+#+CLISP NIL ; should also be ERROR
 (write-to-string *forwardclass* :readably t)
 ERROR
 (setf (find-class 'foo133a) *forwardclass*)
@@ -373,10 +384,10 @@ ERROR
 ERROR
 (subtypep 'nil *forwardclass*)
 ERROR
-(sys::subtype-integer *forwardclass*)
-ERROR
-(sys::subtype-sequence *forwardclass*)
-NIL ; should also be ERROR
+#+CLISP (sys::subtype-integer *forwardclass*)
+#+CLISP ERROR
+#+CLISP (sys::subtype-sequence *forwardclass*)
+#+CLISP NIL ; should also be ERROR
 (write-to-string *forwardclass* :readably t)
 ERROR
 (setf (find-class 'foo134a) *forwardclass*)
@@ -432,6 +443,102 @@ ERROR
 (subtypep 'clos:forward-referenced-class 'clos:specializer)
 #+CLISP NIL
 #-CLISP T ; misdesign!
+
+
+;; Funcallable instances
+
+; Check set-funcallable-instance-function with a SUBR.
+(let ((f (make-instance 'clos:funcallable-standard-object)))
+  (clos:set-funcallable-instance-function f #'cons)
+  (funcall f 'a 'b))
+(A . B)
+
+; Check set-funcallable-instance-function with a small compiled-function.
+(let ((f (make-instance 'clos:funcallable-standard-object)))
+  (clos:set-funcallable-instance-function f #'(lambda (x y) (declare (compile)) (cons x y)))
+  (funcall f 'a 'b))
+(A . B)
+
+; Check set-funcallable-instance-function with a large compiled-function.
+(let ((f (make-instance 'clos:funcallable-standard-object)))
+  (clos:set-funcallable-instance-function f #'(lambda (x y) (declare (compile)) (list 'start x y 'end)))
+  (funcall f 'a 'b))
+(START A B END)
+
+; Check set-funcallable-instance-function with an interpreted function.
+(let ((f (make-instance 'clos:funcallable-standard-object)))
+  (clos:set-funcallable-instance-function f #'(lambda (x y) (cons x y)))
+  (funcall f 'a 'b))
+(A . B)
+
+; Check set-funcallable-instance-function with a generic.
+(let ((f (make-instance 'clos:funcallable-standard-object)))
+  (defgeneric test-funcallable-01 (x y)
+    (:method (x y) (cons x y)))
+  (clos:set-funcallable-instance-function f #'test-funcallable-01)
+  (funcall f 'a 'b))
+(A . B)
+
+
+;; Check that changing the class of a generic function works.
+;; MOP p. 61 doesn't allow this, but CLISP supports it as an extension.
+
+(progn
+  (defclass my-gf-class (standard-generic-function)
+    ((myslot :initform 17 :accessor my-myslot))
+    (:metaclass clos:funcallable-standard-class))
+  t)
+T
+
+(progn
+  (defgeneric foo110 (x))
+  (defmethod foo110 ((x integer)) (* x x))
+  (defgeneric foo110 (x) (:generic-function-class my-gf-class))
+  (defmethod foo110 ((x float)) (* x x x))
+  (list (foo110 10) (foo110 3.0) (my-myslot #'foo110)))
+(100 27.0 17)
+
+; Also check that the GC cleans up forward pointers.
+
+(progn
+  (defgeneric foo111 (x))
+  (defmethod foo111 ((x integer)) (* x x))
+  (defgeneric foo111 (x) (:generic-function-class my-gf-class))
+  (gc)
+  (defmethod foo111 ((x float)) (* x x x))
+  (list (foo111 10) (foo111 3.0) (my-myslot #'foo111)
+        #+CLISP (eq (sys::%record-ref #'foo111 0) (clos::class-current-version (find-class 'my-gf-class)))))
+(100 27.0 17 #+CLISP T)
+
+(progn
+  (defgeneric foo112 (x))
+  (defmethod foo112 ((x integer)) (* x x))
+  (defgeneric foo112 (x) (:generic-function-class my-gf-class))
+  (defmethod foo112 ((x float)) (* x x x))
+  (gc)
+  (list (foo112 10) (foo112 3.0) (my-myslot #'foo112)
+        #+CLISP (eq (sys::%record-ref #'foo112 0) (clos::class-current-version (find-class 'my-gf-class)))))
+(100 27.0 17 #+CLISP T)
+
+;; Check that ensure-generic-function supports both :DECLARE (ANSI CL)
+;; and :DECLARATIONS (MOP).
+
+(progn
+  (ensure-generic-function 'foo113 :declare '((optimize (speed 3))))
+  (clos:generic-function-declarations #'foo113))
+((OPTIMIZE (SPEED 3)))
+
+(progn
+  (ensure-generic-function 'foo114 :declarations '((optimize (speed 3))))
+  (clos:generic-function-declarations #'foo114))
+((OPTIMIZE (SPEED 3)))
+
+;; Check that ensure-generic-function without :lambda-list argument works.
+(progn
+  (ensure-generic-function 'foo115)
+  (defmethod foo115 (x y) (list x y))
+  (foo115 3 4))
+(3 4)
 
 
 ;; Check that defclass supports user-defined options.
@@ -1037,6 +1144,9 @@ EXTRA
 ;; orthogonal to the method-combination. In particular, check that it's
 ;; possible to provide 'redo' and 'return' restarts for each method invocation.
 (progn
+  (defun prompt-for-new-values ()
+    (format *debug-io* "~&New values: ")
+    (list (read *debug-io*)))
   (defun add-method-restarts (form method)
     (let ((block (gensym))
           (tag (gensym)))
@@ -1050,7 +1160,7 @@ EXTRA
                  (GO ,tag))
                (METHOD-RETURN (L)
                  :REPORT (LAMBDA (STREAM) (FORMAT STREAM "Specify return values for ~S call." ,method))
-                 :INTERACTIVE (LAMBDA () (SYS::PROMPT-FOR-NEW-VALUE 'VALUES))
+                 :INTERACTIVE (LAMBDA () (PROMPT-FOR-NEW-VALUES))
                  (RETURN-FROM ,block (VALUES-LIST L)))))))))
   (defun convert-effective-method (efm)
     (if (consp efm)
@@ -1351,7 +1461,7 @@ EXTRA
   (defclass testclass23 ()
     ()
     (:metaclass externally-documented-class))
-  (documentation 'testclass23 'class))
+  (documentation 'testclass23 'type))
 "This is a dumb class for testing."
 
 
@@ -1489,7 +1599,7 @@ EXTRA
                 :name 'testgf27
                 :lambda-list '(x y)
                 :method-class (find-class 'standard-method)
-                :method-combination (find-method-combination #'print-object 'standard nil))))
+                :method-combination (clos:find-method-combination #'print-object 'standard nil))))
     (list (typep inst 'standard-object)
           (typep inst 'clos:funcallable-standard-object)
           (typep (class-of inst) 'standard-class)

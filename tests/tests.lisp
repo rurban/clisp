@@ -52,7 +52,7 @@
 
 ;; (lisp-implementation-type) may return something quite long, e.g.,
 ;; on CMUCL it returns "CMU Common Lisp".
-(defvar lisp-implementation-type
+(defvar lisp-implementation
   #+CLISP "CLISP" #+AKCL "AKCL" #+ECL "ECL" #+ALLEGRO "ALLEGRO" #+CMU "CMUCL"
   #-(or CLISP AKCL ECL ALLEGRO CMU) (lisp-implementation-type))
 
@@ -78,7 +78,7 @@
                  (incf error-count)
                  (format t "~%ERROR!! ~S should be ~S !" my-result result)
                  (format log "~%Form: ~S~%CORRECT: ~S~%~7A: ~S~%~@[~A~%~]"
-                             form result lisp-implementation-type
+                             form result lisp-implementation
                              my-result error-message)
                  (when (and (typep result 'sequence)
                             (typep my-result 'sequence))
@@ -94,7 +94,7 @@
                                  (if (< pos (length result)) (elt result pos) 'end-of-sequence)
                                  (if (< pos (length my-result)) (elt my-result pos) 'end-of-sequence)
                                  (pretty-tail-10 result)
-                                 lisp-implementation-type
+                                 lisp-implementation
                                  (pretty-tail-10 my-result)))))))))))
     (values total-count error-count)))
 
@@ -116,7 +116,7 @@
                    (incf error-count)
                    (format t "~%ERROR!! ~S instead of ~S !" my-result errtype)
                    (format log "~%Form: ~S~%CORRECT: ~S~%~7A: ~S~%"
-                               form errtype lisp-implementation-type
+                               form errtype lisp-implementation
                                my-result)))))))
     (values total-count error-count)))
 
