@@ -10617,8 +10617,8 @@ extern object ascii_to_string (const char * asciz);
     if (Record_type(array) == Rectype_reallocstring) \
       (array) = TheSiarray(array)->data/*;*/
 #else
-  #define simple_array_to_storage(array)  /*nop*/
-  #define simple_array_to_storage1(array)  /*nop*/
+  #define simple_array_to_storage(array)  (void)0 /*nop*/
+  #define simple_array_to_storage1(array)  (void)0 /*nop*/
 #endif
 
 # Function: Copies a simple-vector.
