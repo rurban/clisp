@@ -1,5 +1,11 @@
 2002-04-25  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 539701 ]: early initialization error -> crash
+	* spvw.d (main): init_other_modules_2() after the stream
+	variables are already initialized
+
+2002-04-25  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 548368 ]: inspector help barfs (nested inspectors)
 	* inspect.lisp (*inspect-all*): bind in INSPECT instead of using
 	a global variable since nested INSPECT sessions can interfere
