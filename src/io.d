@@ -9001,6 +9001,13 @@ LISPFUNN(print_structure,2)
               JUSTIFY_SPACE;
               prin_object(stream_,TheStream(*obj_)->strm_buff_out_fun); # Funktion ausgeben
               break;
+            #ifdef GENERIC_STREAMS
+            case strmtype_generic:
+              # Generic Streams
+              JUSTIFY_SPACE;
+              prin_object(stream_,TheStream(*obj_)->strm_controller_object); # Controller ausgeben
+              break;
+            #endif
             #ifdef PIPES
             case strmtype_pipe_in:
             case strmtype_pipe_out:
@@ -9026,13 +9033,6 @@ LISPFUNN(print_structure,2)
               }
               write_ascii_char(stream_,':');
               pr_number(stream_,TheStream(*obj_)->strm_socket_port);
-              break;
-            #endif
-            #ifdef GENERIC_STREAMS
-            case strmtype_generic:
-              # Generic Streams
-              JUSTIFY_SPACE;
-              prin_object(stream_,TheStream(*obj_)->strm_controller_object); # Controller ausgeben
               break;
             #endif
             default:
