@@ -1,5 +1,39 @@
 1999-01-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Minimize the use of heap-allocated ASCIZ strings.
+        * constobj.d (O(null_string)): Remove.
+        * spvw.d (init_object_tab): Update.
+        * pathname.d (asciz_dir_to_pathname): Make a temporary copy in the
+          stack instead of destructively modifying the argument.
+          (OSnamestring): Renamed from namestring_asciz. Now returns a simple-
+          string without trailing zero byte.
+          (assure_dir_exists): Avoid destructive modifications of a string.
+          Use with_sstring_0 instead of TheAsciz.
+          (default_directory) [AMIGAOS]: Release break_sem_4 in case of error.
+          (assure_dir_exists) [AMIGAOS]: Likewise.
+          (assure_dir_exists) [UNIX]: Allocate the readlink buffer in the
+          stack.
+          (canonicalise_filename) [RISCOS]: Use with_sstring_0 instead of
+          TheAsciz.
+          (canonicalise_dirname) [RISCOS]: Likewise.
+          (prepare_create) [non-RISCOS]: Define as empty.
+          (change_default): Use with_sstring_0 instead of TheAsciz.
+          (file_exists): Use with_sstring_0.
+          (directory_exists): Avoid destructive modifications of a string.
+          Use with_sstring_0 instead of TheAsciz.
+          (DELETE-FILE): Use with_sstring_0 instead of TheAsciz.
+          (rename_file): Likewise.
+          (create_backup_file): New function.
+          (open_file): Call it. Use with_sstring_0 instead of TheAsciz.
+          (directory_search): Use with_sstring_0 instead of TheAsciz.
+          (shorter_directory): Now returns a simple-string without trailing
+          zero byte.
+          (MAKE-DIR, DELETE-DIR): Use with_sstring_0 instead of TheAsciz.
+          (ENSURE-DIRECTORIES-EXIST, FILE-WRITE-DATE, FILE-AUTHOR): Likewise.
+          (EXECUTE): Call string_to_asciz to compensate for assure_dir_exists
+          change.
+          (SHELL): Use with_sstring_0 instead of TheAsciz.
+
         * pathname.d (PARSE-NAMESTRING): Don't create an ASCIZ string in the
           heap. Use macro with_sstring_0 instead of TheAsciz.
           (OSdirnamestring): Renamed from OSnamestring.

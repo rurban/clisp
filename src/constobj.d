@@ -699,7 +699,6 @@
  #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2)
   LISPOBJ_S(wild_wild_string,"*.*")
  #endif
-  LISPOBJ(null_string,"\"0\"") # String aus einem Nullbyte
  #ifdef PATHNAME_MSDOS
   LISPOBJ_S(backuptype_string,"BAK") # Filetyp von Backupfiles
  #endif
