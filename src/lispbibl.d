@@ -11428,6 +11428,10 @@ extern object deleteq (object list, object obj);
 extern object listof (uintC len);
 # is used by STREAM, PATHNAME, PACKAGE, ARRAY, EVAL, PREDTYPE, REXX, ERROR, SPVW
 
+# UP: find OBJ in LIS: (MEMBER OBJ LIS :TEST #'EQ)
+global object memq (const object obj, const object lis);
+# used by RECORD,
+
 # ####################### MISCBIBL for MISC.D ############################## #
 
 #ifdef HAVE_ENVIRONMENT

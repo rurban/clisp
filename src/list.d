@@ -1615,6 +1615,16 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
     }
   }
 
+# UP: find OBJ in LIS: (MEMBER OBJ LIS :TEST #'EQ)
+global object memq (const object obj, const object lis) {
+  var object l = lis;
+  while (consp(l)) {
+    if (eq(Car(l),obj)) return l;
+    l = Cdr(l);
+  }
+  return NIL;
+}
+
 # UP: Liefert den Listenrest ab dem Listenelement, das der TESTFUNktion
 # genügt.
 # member(list,stackptr,up_fun)

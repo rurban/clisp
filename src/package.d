@@ -248,17 +248,9 @@ local bool symtab_find (object sym, object symtab) {
       return true;
     else
       return false;
-  } else {
-    # entry is a symbol-list
-    while (consp(entry)) {
-      # sym and symbol from entry are equal ?
-      if (eq(sym,Car(entry)))
-        goto found;
-      entry = Cdr(entry);
-    }
-    return false; # not found
-  found: # found as CAR from entry
-    return true;
+  } else { # entry is a symbol-list
+    if (nullp(memq(sym,entry))) return false; # not found
+    else return true; # found as CAR from entry
   }
 }
 
@@ -322,15 +314,13 @@ local void symtab_delete (object sym, object symtab) {
             (uintW)(posfixnum_to_L(Symtab_size(symtab))));
   var object* entryptr = &TheSvector(Symtab_table(symtab))->data[index];
   var object entry = *entryptr; # entry in the table
-  if (!listp(entry)) {
-    # entry is a single symbol
+  if (!listp(entry)) { # entry is a single symbol
     # sym and found symbol eq ?
     if (!eq(sym,entry))
       goto notfound;
     # replace entry with NIL:
     *entryptr = NIL;
-  } else {
-    # entry is a symbol-list
+  } else { # entry is a symbol-list
     while (consp(entry)) {
       # sym and symbol from entry eq ?
       if (eq(sym,Car(entry)))
@@ -346,7 +336,6 @@ local void symtab_delete (object sym, object symtab) {
   # (decf count)
   Symtab_count(symtab) = fixnum_inc(Symtab_count(symtab),-1);
   return;
-  # not found
  notfound:
   pushSTACK(unbound); # PACKAGE-ERROR slot PACKAGE
   pushSTACK(sym);
@@ -485,18 +474,7 @@ local bool shadowing_lookup (object string, object pack, object* sym_) {
 # > sym: symbol
 # > pack: package
 # < result: true if found.
-local bool shadowing_find (object sym, object pack) {
-  var object list = ThePackage(pack)->pack_shadowing_symbols;
-  # traverse shadowing-list:
-  while (consp(list)) {
-    if (eq(sym,Car(list)))
-      goto found;
-    list = Cdr(list);
-  }
-  return false; # not found
- found: # found
-  return true;
-}
+#define shadowing_find(s,p) (!nullp(memq(s,ThePackage(p)->pack_shadowing_symbols)))
 
 # UP: Adds a symbol to the shadowing-list of a package, that does not yet
 # contain a symbol of the same name.
@@ -1515,14 +1493,8 @@ local void use_package (object packlist, object pack) {
       var object pack_to_test = Car(packlistr);
       if (eq(pack_to_test,pack))
         goto delete_pack_to_test;
-      {
-        var object usedpacklistr = ThePackage(pack)->pack_use_list;
-        while (consp(usedpacklistr)) {
-          if (eq(pack_to_test,Car(usedpacklistr)))
-            goto delete_pack_to_test;
-          usedpacklistr = Cdr(usedpacklistr);
-        }
-      }
+      if (!nullp(memq(pack_to_test,ThePackage(pack)->pack_use_list)))
+        goto delete_pack_to_test;
       if (true) { # do not discard, advance:
         packlistr_ = &Cdr(packlistr); packlistr = *packlistr_;
       } else {    # discard (car packlistr) :
@@ -2464,12 +2436,8 @@ LISPFUN(pin_package,1,0,norest,key,3,
         while (consp(used_packs)) {
           var object qpack = Car(used_packs);
           # search in uselist:
-          var object listr = STACK_1;
-          while (consp(listr)) {
-            if (eq(qpack,Car(listr)))
-              goto unuse_ok; # found in uselist -> OK
-            listr = Cdr(listr);
-          }
+          if (!nullp(memq(qpack,STACK_1)))
+            goto unuse_ok; # found in uselist -> OK
           # not found in uselist
           unuse_1package(pack,qpack);
          unuse_ok: ;
@@ -2578,23 +2546,15 @@ LISPFUNN(find_all_symbols,1) {
       # found: symbol sym is present in package pack,
       # cons with (pushnew sym STACK_1 :test #'eq) on the symbol-list:
       # Search, if the found symbol sym occurs in STACK_1:
-      {
-        var object symlistr = STACK_1;
-        while (consp(symlistr)) {
-          if (eq(sym,Car(symlistr)))
-            goto already_found; # found -> nothing else to do
-          symlistr = Cdr(symlistr);
+      if (nullp(memq(sym,STACK_1))) { # not found, must cons:
+        pushSTACK(sym);
+        {
+          var object new_cons = allocate_cons();
+          Car(new_cons) = popSTACK();
+          Cdr(new_cons) = STACK_1;
+          STACK_1 = new_cons;
         }
       }
-      # not found, must cons:
-      pushSTACK(sym);
-      {
-        var object new_cons = allocate_cons();
-        Car(new_cons) = popSTACK();
-        Cdr(new_cons) = STACK_1;
-        STACK_1 = new_cons;
-      }
-    already_found: ;
     }
     STACK_0 = Cdr(STACK_0);
   }
@@ -2691,16 +2651,13 @@ LISPFUNN(re_export,2) {
   STACK_0 = test_package_arg(STACK_0); # TO-PACK
   # TO-PACK must be already using FROM-PACK
   var object pack_u_l = ThePackage(STACK_0)->pack_use_list;
-  while (consp(pack_u_l)) {
-    if (eq(STACK_1,Car(pack_u_l)))
-      goto pack_ok;
-    pack_u_l = Cdr(pack_u_l);
+  if (nullp(memq(STACK_1,ThePackage(STACK_0)->pack_use_list))) {
+    pushSTACK(STACK_0); # TO-PACK: PACKAGE slot of PACKAGE-ERROR
+    pushSTACK(STACK_2); # FROM-PACK
+    pushSTACK(STACK_1); # TO-PACK
+    pushSTACK(S(re_export));
+    fehler(package_error,GETTEXT("~: ~ is not using ~"));
   }
-  pushSTACK(STACK_0); # TO-PACK: PACKAGE slot of PACKAGE-ERROR
-  pushSTACK(STACK_2); # FROM-PACK
-  pushSTACK(STACK_1); # TO-PACK
-  fehler(package_error,GETTEXT("~ is not using ~"));
- pack_ok:
   map_symtab_c(&export_symbol_from,&STACK_0,
                ThePackage(STACK_1)->pack_external_symbols);
   value1 = NIL;
