@@ -7,9 +7,9 @@
 
 (in-package "SYSTEM")
 
-(defun deprecate (symbol superseded)
+(defun deprecate (symbol superseded &optional (def (fdefinition superseded)))
   (export symbol "EXT")
-  (sys::%putd symbol (fdefinition superseded))
+  (sys::%putd symbol def)
   (setf (get symbol 'deprecated) superseded)
   #+compiler
   (pushnew symbol *deprecated-functions-list*))
@@ -17,8 +17,8 @@
 ;; ---------------------------------------------------------
 ;; `type-expand-1' -- superseded by (type-expand typespec t)
 
-(deprecate 'ext::type-expand-1 'ext::type-expand)
-(defun type-expand-1 (typespec) (type-expand typespec t))
+(deprecate 'ext::type-expand-1 'ext::type-expand
+           (lambda (typespec) (ext::type-expand typespec t)))
 #+compiler
 (define-compiler-macro type-expand-1 (typespec)
   (let ((ret `(type-expand ,typespec t)))
