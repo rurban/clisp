@@ -707,7 +707,7 @@ global int main()
 # #endif
 # printf("typedef complex_ *  Complex;\n");
   printf("typedef struct { VAROBJECT_HEADER gcv_object_t symvalue; gcv_object_t symfunction; gcv_object_t proplist; gcv_object_t pname; gcv_object_t homepackage; } symbol_;\n");
-# printf("typedef symbol_ *  Symbol;\n");
+  printf("typedef symbol_ *  Symbol;\n");
   printf("typedef uint%d cint;\n",char_int_len);
   printf1("#define int_char(int_from_int_char)  type_data_object(%d,(aint)(cint)(int_from_int_char))\n",(tint)char_type);
   #if !((oint_data_shift==0) && (char_int_len<=oint_data_len) && (exact_uint_size_p(char_int_len)))
@@ -732,8 +732,8 @@ global int main()
   printf("#define char_code(obj)  as_chart(char_int(obj))\n");
   printf("#define fixnum(x)  type_data_object(%d,x)\n",fixnum_type);
   printf("#define Fixnum_0  fixnum(0)\n");
-# printf("#define Fixnum_1  fixnum(1)\n");
-# printf2("#define Fixnum_minus1  type_data_object(%d,%x)\n",(tint)(fixnum_type | bit(sign_bit_t)),(aint)(bitm(oint_data_len)-1));
+  printf("#define Fixnum_1  fixnum(1)\n");
+  printf2("#define Fixnum_minus1  type_data_object(%d,%x)\n",(tint)(fixnum_type | bit(sign_bit_t)),(aint)(bitm(oint_data_len)-1));
   #if !(defined(SPARC) && (oint_data_len+oint_data_shift<32))
     printf2("#define posfixnum_to_L(obj)  ((uintL)((as_oint(obj)&%x)>>%d))\n",(oint)wbitm(oint_data_len+oint_data_shift)-1,oint_data_shift);
   #else
@@ -875,13 +875,13 @@ global int main()
    printf("#define TheCons(obj)  ((Cons)("); printf_type_pointable(cons_type); printf("))\n");
 #   printf("#define TheRatio(obj)  ((Ratio)("); printf_type_pointable(ratio_type|bit(sign_bit_t)); printf("))\n");
 #   printf("#define TheComplex(obj)  ((Complex)("); printf_type_pointable(complex_type); printf("))\n");
-#   printf("#define TheSymbol(obj)  ((Symbol)("); printf_type_pointable(symbol_type); printf("))\n");
-    printf("#define TheBignum(obj)  ((Bignum)("); printf_type_pointable(bignum_type|bit(sign_bit_t)); printf("))\n");
+   printf("#define TheSymbol(obj)  ((Symbol)("); printf_type_pointable(symbol_type); printf("))\n");
+   printf("#define TheBignum(obj)  ((Bignum)("); printf_type_pointable(bignum_type|bit(sign_bit_t)); printf("))\n");
 #   printf("#define TheSarray(obj)  ((Sarray)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type); printf("))\n");
    printf("#define TheSbvector(obj)  ((Sbvector)("); printf_type_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type); printf("))\n");
    printf("#define TheSstring(obj)  ((Sstring)("); printf_type_pointable(sstring_type); printf("))\n");
    printf("#define TheSvector(obj)  ((Svector)("); printf_type_pointable(svector_type); printf("))\n");
-    printf("#define TheRecord(obj)  ((Record)("); printf_type_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type); printf("))\n");
+   printf("#define TheRecord(obj)  ((Record)("); printf_type_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type); printf("))\n");
 #   printf("#define TheSrecord(obj)  ((Srecord)("); printf_type_pointable(closure_type|structure_type|orecord_type|instance_type); printf("))\n");
 #   printf("#define TheXrecord(obj)  ((Xrecord)("); printf_type_pointable(stream_type|orecord_type); printf("))\n");
 #   printf("#define ThePackage(obj)  ((Package)("); printf_type_pointable(orecord_type); printf("))\n");
@@ -909,19 +909,19 @@ global int main()
   printf1("#define TheCons(obj)  ((Cons)(ngci_pointable(obj)-%d))\n",cons_bias);
 #   printf1("#define TheRatio(obj)  ((Ratio)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define TheComplex(obj)  ((Complex)(ngci_pointable(obj)-%d))\n",varobject_bias);
-#   printf1("#define TheSymbol(obj)  ((Symbol)(ngci_pointable(obj)-%d))\n",varobject_bias);
-    printf1("#define TheBignum(obj)  ((Bignum)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf1("#define TheSymbol(obj)  ((Symbol)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf1("#define TheBignum(obj)  ((Bignum)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define TheSarray(obj)  ((Sarray)(ngci_pointable(obj)-%d))\n",varobject_bias);
-   printf1("#define TheSbvector(obj)  ((Sbvector)(ngci_pointable(obj)-%d))\n",varobject_bias);
-   printf1("#define TheSstring(obj)  ((Sstring)(ngci_pointable(obj)-%d))\n",varobject_bias);
-   printf1("#define TheSvector(obj)  ((Svector)(ngci_pointable(obj)-%d))\n",varobject_bias);
-    printf1("#define TheRecord(obj)  ((Record)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf1("#define TheSbvector(obj)  ((Sbvector)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf1("#define TheSstring(obj)  ((Sstring)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf1("#define TheSvector(obj)  ((Svector)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf1("#define TheRecord(obj)  ((Record)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define TheSrecord(obj)  ((Srecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define TheXrecord(obj)  ((Xrecord)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define ThePackage(obj)  ((Package)(ngci_pointable(obj)-%d))\n",varobject_bias);
-   printf1("#define TheStructure(obj)  ((Structure)(ngci_pointable(obj)-%d))\n",varobject_bias);
+  printf1("#define TheStructure(obj)  ((Structure)(ngci_pointable(obj)-%d))\n",varobject_bias);
 #   printf1("#define TheInstance(obj)  ((Instance)(ngci_pointable(obj)-%d))\n",varobject_bias);
-   printf1("#define TheSubr(obj)  ((Subr)(cgci_pointable(obj)-%d))\n",subr_bias);
+  printf1("#define TheSubr(obj)  ((Subr)(cgci_pointable(obj)-%d))\n",subr_bias);
 #   printf1("#define TheMachine(obj)  ((void*)(cgci_pointable(obj)-%d))\n",machine_bias);
   #endif
   printf("#define Car(obj)  (TheCons(obj)->car)\n");
@@ -989,6 +989,11 @@ global int main()
    #endif
  #else
    printf1("#define symbolp(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Symbol);
+ #endif
+ #ifdef case_stream
+   printf("#define builtin_stream_p(obj) (typecode(obj)==%d)\n",stream_type);
+ #else
+   printf("#define builtin_stream_p(obj) (orecordp(obj) && (Record_type(obj) == %d))\n",Rectype_Stream);
  #endif
 # #ifdef TYPECODES
 #   #ifdef WIDE_STRUCT
@@ -1692,14 +1697,14 @@ global int main()
   printf("#include <time.h>\n");
   printf("extern object convert_time_to_universal (const time_t* time);\n");
 #endif
-#ifdef WIN32_NATIVE
+#if defined(WIN32_NATIVE)
   printf("#include <windows.h>\n");
   printf("extern object convert_time_to_universal (const FILETIME* time);\n");
 #endif
   printf("#define UNIX_LISP_TIME_DIFF 2208988800UL\n");
-#ifdef WIN32_NATIVE
+#if defined(WIN32_NATIVE)
   printf("#define Handle HANDLE\n");
-#elif UNIX
+#elif defined(UNIX)
   printf("#define Handle uintW\n");
 #else
   printf("#error \"what is Handle on your platform?!\"\n");
@@ -1711,8 +1716,8 @@ global int main()
   printf("extern void builtin_stream_close (const gcv_object_t* stream_);\n");
   printf("extern object file_stream_truename (object s);\n");
   printf("extern object open_file_stream_handle (object stream, Handle *fd);\n");
-  printf("extern int full_write (HANDLE fd, const void* buf, int nbyte);\n");
-  printf("extern int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p);\n");
+  printf("extern int full_write (Handle fd, const void* buf, int nbyte);\n");
+  printf("extern int read_helper (Handle fd, void* buf, int nbyte, bool partial_p);\n");
   printf("extern object addr_to_string (short type, char *addr);\n");
   printf("extern struct hostent* resolve_host (object arg);\n");
   printf("#define strm_buffered_bufflen %d\n",strm_buffered_bufflen);

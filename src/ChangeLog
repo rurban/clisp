@@ -2,6 +2,8 @@
 
 	* modules/syscalls/calls.c, pathname.d (hardlink_file, symlink_file):
 	moved from pathname.d to calls.c
+	* genclisph.d (Symbol_name, builtin_stream_p): enabled
+	fixed the HANDLE problems
 
 2003-07-26  Sam Steingold  <sds@gnu.org>
 
