@@ -1,5 +1,10 @@
 2004-08-07  Bruno Haible  <bruno@clisp.org>
 
+	* places.lisp (setf-VALUES-aux): Use only the first store variable
+	for each subform. Bind the others to nil.
+
+2004-08-07  Bruno Haible  <bruno@clisp.org>
+
 	* sacla-tests: New directory.
 	* makemake.in (SACLATESTSDIR): New variable.
 	(check-sacla-tests, ${SACLATESTSDIR}): New targets.
