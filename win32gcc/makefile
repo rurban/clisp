@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host mescaline.gnu.org as the output of the command:
+# This file was created on host melange.gnu.org as the output of the command:
 # ./makemake win32gcc gcc
 
 # -------------- Start of configurable section --------------------
@@ -11,20 +11,20 @@ exec_prefix = $(prefix)
 bindir = $(exec_prefix)\bin
 mandir = $(exec_prefix)\man
 libdir = $(exec_prefix)\lib
-lisplibdir = $(libdir)\lisp
+lisplibdir = $(libdir)\clisp
 
 # List of add-on modules:
 # queens               the queens function as a separate module
 # clx/mit-clx          classical X11 interface
 # If you change this after doing "make", you have to "rm -r full; make".
-MODULES = 
+MODULES =  
 
 # Programs used by "make":
 CC = gcc
-CFLAGS = -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -O2 -fexpensive-optimizations -fno-strength-reduce -D_NO_OLDNAMES -DNO_GETTEXT
+CFLAGS = -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -O2 -fexpensive-optimizations -D_NO_OLDNAMES -DNO_GETTEXT
 CPP = gcc -E
 CLFLAGS =  -x none
-LIBS =  -luser32 -lwsock32 -lole32
+LIBS = sigsegv.lib  -luser32 -lwsock32 -lole32
 X_LIBS = 
 
 MAKE = make
@@ -152,11 +152,41 @@ pseudofun.d \
 constsym.d \
 constobj.d \
 win32.d \
+xthread.d \
 constpack.d \
 avl.d \
 sort.d \
 subrkw.d \
 bytecode.d \
+spvw_module.d \
+spvw_debug.d \
+spvw_alloca.d \
+spvw_mmap.d \
+spvw_multimap.d \
+spvw_singlemap.d \
+spvw_page.d \
+spvw_heap.d \
+spvw_global.d \
+spvw_gcstat.d \
+spvw_space.d \
+spvw_mark.d \
+spvw_objsize.d \
+spvw_update.d \
+spvw_fault.d \
+spvw_sigsegv.d \
+spvw_sigcld.d \
+spvw_sigint.d \
+spvw_sigwinch.d \
+spvw_garcol.d \
+spvw_genera1.d \
+spvw_genera2.d \
+spvw_genera3.d \
+spvw_allocate.d \
+spvw_typealloc.d \
+spvw_circ.d \
+spvw_walk.d \
+spvw_language.d \
+spvw_memfile.d \
 errwin32.d \
 aridecl.d \
 arilev0.d \
@@ -226,11 +256,41 @@ pseudofun.c \
 constsym.c \
 constobj.c \
 win32.c \
+xthread.c \
 constpack.c \
 avl.c \
 sort.c \
 subrkw.c \
 bytecode.c \
+spvw_module.c \
+spvw_debug.c \
+spvw_alloca.c \
+spvw_mmap.c \
+spvw_multimap.c \
+spvw_singlemap.c \
+spvw_page.c \
+spvw_heap.c \
+spvw_global.c \
+spvw_gcstat.c \
+spvw_space.c \
+spvw_mark.c \
+spvw_objsize.c \
+spvw_update.c \
+spvw_fault.c \
+spvw_sigsegv.c \
+spvw_sigcld.c \
+spvw_sigint.c \
+spvw_sigwinch.c \
+spvw_garcol.c \
+spvw_genera1.c \
+spvw_genera2.c \
+spvw_genera3.c \
+spvw_allocate.c \
+spvw_typealloc.c \
+spvw_circ.c \
+spvw_walk.c \
+spvw_language.c \
+spvw_memfile.c \
 errwin32.c \
 aridecl.c \
 arilev0.c \
@@ -322,10 +382,10 @@ clos.lsp \
 conditio.lsp \
 defs3.lsp \
 gstream.lsp \
+xcharin.lsp \
 foreign1.lsp \
 screen.lsp \
 rexx1.lsp \
-editor.lsp \
 spanish.lsp
 
 FASFILES = \
@@ -355,10 +415,10 @@ clos.fas \
 conditio.fas \
 defs3.fas \
 gstream.fas \
+xcharin.fas \
 foreign1.fas \
 screen.fas \
 rexx1.fas \
-editor.fas \
 spanish.fas
 
 TXTFILES = \
@@ -394,10 +454,10 @@ stage/clos.lsp \
 stage/conditio.lsp \
 stage/defs3.lsp \
 stage/gstream.lsp \
+stage/xcharin.lsp \
 stage/foreign1.lsp \
 stage/screen.lsp \
 stage/rexx1.lsp \
-stage/editor.lsp \
 stage/spanish.lsp
 
 TESTFASFILES = \
@@ -427,17 +487,17 @@ stage/clos.fas \
 stage/conditio.fas \
 stage/defs3.fas \
 stage/gstream.fas \
+stage/xcharin.fas \
 stage/foreign1.fas \
 stage/screen.fas \
 stage/rexx1.fas \
-stage/editor.fas \
 stage/spanish.fas
 
 
 all : init allc allo lisp.exe interpreted.mem halfcompiled.mem lispinit.mem manual
 
 
-init : comment5.exe ansidecl.exe txt2c.exe ccmp2c.exe $(DFILES) modules.h
+init : comment5.exe ansidecl.exe txt2c.exe ccmp2c.exe modprep.exe $(DFILES) modules.h
 
 comment5.exe : ../utils/comment5.c
 	$(CC) $(CFLAGS) $(CLFLAGS) ../utils/comment5.c -o comment5.exe
@@ -458,6 +518,11 @@ ccmp2c.exe : ../utils/ccmp2c.d comment5.exe ansidecl.exe
 	$(COMMENT5) ../utils/ccmp2c.d | $(ANSIDECL) > ccmp2c.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -I. ccmp2c.c -o ccmp2c.exe
 	$(RM) ccmp2c.c
+
+modprep.exe : ../utils/modprep.d comment5.exe ansidecl.exe
+	$(COMMENT5) ../utils/modprep.d | $(ANSIDECL) > modprep.c
+	$(CC) $(CFLAGS) $(CLFLAGS) modprep.c -o modprep.exe
+	$(RM) modprep.c
 
 
 allc : init $(CFILES)
@@ -558,6 +623,9 @@ constobj.c : constobj.d comment5.exe ansidecl.exe
 win32.c : win32.d comment5.exe ansidecl.exe
 	$(COMMENT5) win32.d | $(ANSIDECL) > win32.c
 
+xthread.c : xthread.d comment5.exe ansidecl.exe
+	$(COMMENT5) xthread.d | $(ANSIDECL) > xthread.c
+
 constpack.c : constpack.d comment5.exe ansidecl.exe
 	$(COMMENT5) constpack.d | $(ANSIDECL) > constpack.c
 
@@ -572,6 +640,93 @@ subrkw.c : subrkw.d comment5.exe ansidecl.exe
 
 bytecode.c : bytecode.d comment5.exe ansidecl.exe
 	$(COMMENT5) bytecode.d | $(ANSIDECL) > bytecode.c
+
+spvw_module.c : spvw_module.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_module.d | $(ANSIDECL) > spvw_module.c
+
+spvw_debug.c : spvw_debug.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_debug.d | $(ANSIDECL) > spvw_debug.c
+
+spvw_alloca.c : spvw_alloca.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_alloca.d | $(ANSIDECL) > spvw_alloca.c
+
+spvw_mmap.c : spvw_mmap.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_mmap.d | $(ANSIDECL) > spvw_mmap.c
+
+spvw_multimap.c : spvw_multimap.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_multimap.d | $(ANSIDECL) > spvw_multimap.c
+
+spvw_singlemap.c : spvw_singlemap.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_singlemap.d | $(ANSIDECL) > spvw_singlemap.c
+
+spvw_page.c : spvw_page.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_page.d | $(ANSIDECL) > spvw_page.c
+
+spvw_heap.c : spvw_heap.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_heap.d | $(ANSIDECL) > spvw_heap.c
+
+spvw_global.c : spvw_global.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_global.d | $(ANSIDECL) > spvw_global.c
+
+spvw_gcstat.c : spvw_gcstat.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_gcstat.d | $(ANSIDECL) > spvw_gcstat.c
+
+spvw_space.c : spvw_space.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_space.d | $(ANSIDECL) > spvw_space.c
+
+spvw_mark.c : spvw_mark.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_mark.d | $(ANSIDECL) > spvw_mark.c
+
+spvw_objsize.c : spvw_objsize.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_objsize.d | $(ANSIDECL) > spvw_objsize.c
+
+spvw_update.c : spvw_update.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_update.d | $(ANSIDECL) > spvw_update.c
+
+spvw_fault.c : spvw_fault.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_fault.d | $(ANSIDECL) > spvw_fault.c
+
+spvw_sigsegv.c : spvw_sigsegv.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_sigsegv.d | $(ANSIDECL) > spvw_sigsegv.c
+
+spvw_sigcld.c : spvw_sigcld.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_sigcld.d | $(ANSIDECL) > spvw_sigcld.c
+
+spvw_sigint.c : spvw_sigint.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_sigint.d | $(ANSIDECL) > spvw_sigint.c
+
+spvw_sigwinch.c : spvw_sigwinch.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_sigwinch.d | $(ANSIDECL) > spvw_sigwinch.c
+
+spvw_garcol.c : spvw_garcol.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_garcol.d | $(ANSIDECL) > spvw_garcol.c
+
+spvw_genera1.c : spvw_genera1.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_genera1.d | $(ANSIDECL) > spvw_genera1.c
+
+spvw_genera2.c : spvw_genera2.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_genera2.d | $(ANSIDECL) > spvw_genera2.c
+
+spvw_genera3.c : spvw_genera3.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_genera3.d | $(ANSIDECL) > spvw_genera3.c
+
+spvw_allocate.c : spvw_allocate.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_allocate.d | $(ANSIDECL) > spvw_allocate.c
+
+spvw_typealloc.c : spvw_typealloc.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_typealloc.d | $(ANSIDECL) > spvw_typealloc.c
+
+spvw_circ.c : spvw_circ.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_circ.d | $(ANSIDECL) > spvw_circ.c
+
+spvw_walk.c : spvw_walk.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_walk.d | $(ANSIDECL) > spvw_walk.c
+
+spvw_language.c : spvw_language.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_language.d | $(ANSIDECL) > spvw_language.c
+
+spvw_memfile.c : spvw_memfile.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_memfile.d | $(ANSIDECL) > spvw_memfile.c
 
 errwin32.c : errwin32.d comment5.exe ansidecl.exe
 	$(COMMENT5) errwin32.d | $(ANSIDECL) > errwin32.c
@@ -688,262 +843,268 @@ alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s pathname.s 
 # Normally not used (just for debugging).
 alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i pathname.i stream.i socket.i io.i array.i hashtabl.i list.i package.i record.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i win32aux.i
 
-spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c constpack.c avl.c sort.c subrkw.c arilev0.c aridecl.c version.h
+spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c sigsegv.h version.h
 	$(CPP) $(CFLAGS) spvw.c > spvw.i
 
-spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c constpack.c avl.c sort.c subrkw.c arilev0.c aridecl.c version.h
+spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c sigsegv.h version.h
 	$(CC) $(CFLAGS) -S spvw.c
 
-spvw.o : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c constpack.c avl.c sort.c subrkw.c arilev0.c aridecl.c version.h
+spvw.o : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c sigsegv.h version.h
 	$(CC) $(CFLAGS) -c spvw.c
 
-spvwtabf.i : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+spvwtabf.i : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) spvwtabf.c > spvwtabf.i
 
-spvwtabf.s : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+spvwtabf.s : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S spvwtabf.c
 
-spvwtabf.o : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+spvwtabf.o : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c spvwtabf.c
 
-spvwtabs.i : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+spvwtabs.i : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) spvwtabs.c > spvwtabs.i
 
-spvwtabs.s : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+spvwtabs.s : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S spvwtabs.c
 
-spvwtabs.o : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+spvwtabs.o : spvwtabs.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c spvwtabs.c
 
-spvwtabo.i : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+spvwtabo.i : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) spvwtabo.c > spvwtabo.i
 
-spvwtabo.s : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+spvwtabo.s : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S spvwtabo.c
 
-spvwtabo.o : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+spvwtabo.o : spvwtabo.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c spvwtabo.c
 
-eval.i : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c bytecode.c
+eval.i : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c bytecode.c sigsegv.h
 	$(CPP) $(CFLAGS) eval.c > eval.i
 
-eval.s : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c bytecode.c
+eval.s : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c bytecode.c sigsegv.h
 	$(CC) $(CFLAGS) -S eval.c
 
-eval.o : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c bytecode.c
+eval.o : eval.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c bytecode.c sigsegv.h
 	$(CC) $(CFLAGS) -c eval.c
 
-control.i : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+control.i : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) control.c > control.i
 
-control.s : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+control.s : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S control.c
 
-control.o : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+control.o : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c control.c
 
-pathname.i : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+pathname.i : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) pathname.c > pathname.i
 
-pathname.s : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+pathname.s : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S pathname.c
 
-pathname.o : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+pathname.o : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c pathname.c
 
-stream.i : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c
+stream.i : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) stream.c > stream.i
 
-stream.s : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c
+stream.s : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CC) $(CFLAGS) -S stream.c
 
-stream.o : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c
+stream.o : stream.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CC) $(CFLAGS) -c stream.c
 
-socket.i : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+socket.i : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) socket.c > socket.i
 
-socket.s : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+socket.s : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S socket.c
 
-socket.o : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+socket.o : socket.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c socket.c
 
-io.i : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c
+io.i : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) io.c > io.i
 
-io.s : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c
+io.s : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CC) $(CFLAGS) -S io.c
 
-io.o : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c
+io.o : io.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CC) $(CFLAGS) -c io.c
 
-array.i : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c
+array.i : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) array.c > array.i
 
-array.s : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c
+array.s : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CC) $(CFLAGS) -S array.c
 
-array.o : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c
+array.o : array.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CC) $(CFLAGS) -c array.c
 
-hashtabl.i : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c aridecl.c
+hashtabl.i : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c aridecl.c sigsegv.h
 	$(CPP) $(CFLAGS) hashtabl.c > hashtabl.i
 
-hashtabl.s : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c aridecl.c
+hashtabl.s : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c aridecl.c sigsegv.h
 	$(CC) $(CFLAGS) -S hashtabl.c
 
-hashtabl.o : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c aridecl.c
+hashtabl.o : hashtabl.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c aridecl.c sigsegv.h
 	$(CC) $(CFLAGS) -c hashtabl.c
 
-list.i : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+list.i : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) list.c > list.i
 
-list.s : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+list.s : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S list.c
 
-list.o : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+list.o : list.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c list.c
 
-package.i : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c constpack.c arilev0.c
+package.i : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) package.c > package.i
 
-package.s : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c constpack.c arilev0.c
+package.s : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c arilev0.c sigsegv.h
 	$(CC) $(CFLAGS) -S package.c
 
-package.o : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c constpack.c arilev0.c
+package.o : package.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c arilev0.c sigsegv.h
 	$(CC) $(CFLAGS) -c package.c
 
-record.i : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+record.i : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) record.c > record.i
 
-record.s : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+record.s : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S record.c
 
-record.o : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+record.o : record.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c record.c
 
-sequence.i : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+sequence.i : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) sequence.c > sequence.i
 
-sequence.s : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+sequence.s : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S sequence.c
 
-sequence.o : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+sequence.o : sequence.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c sequence.c
 
-charstrg.i : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+charstrg.i : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) charstrg.c > charstrg.i
 
-charstrg.s : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+charstrg.s : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S charstrg.c
 
-charstrg.o : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+charstrg.o : charstrg.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c charstrg.c
 
-debug.i : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+debug.i : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) debug.c > debug.i
 
-debug.s : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+debug.s : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S debug.c
 
-debug.o : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+debug.o : debug.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c debug.c
 
-error.i : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c errwin32.c
+error.i : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c sigsegv.h
 	$(CPP) $(CFLAGS) error.c > error.i
 
-error.s : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c errwin32.c
+error.s : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c sigsegv.h
 	$(CC) $(CFLAGS) -S error.c
 
-error.o : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c errwin32.c
+error.o : error.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c errwin32.c sigsegv.h
 	$(CC) $(CFLAGS) -c error.c
 
-misc.i : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+misc.i : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) misc.c > misc.i
 
-misc.s : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+misc.s : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S misc.c
 
-misc.o : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+misc.o : misc.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c misc.c
 
-time.i : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c
+time.i : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CPP) $(CFLAGS) time.c > time.i
 
-time.s : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c
+time.s : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CC) $(CFLAGS) -S time.c
 
-time.o : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c arilev0.c
+time.o : time.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c arilev0.c sigsegv.h
 	$(CC) $(CFLAGS) -c time.c
 
-predtype.i : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c avl.c
+predtype.i : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c avl.c sigsegv.h
 	$(CPP) $(CFLAGS) predtype.c > predtype.i
 
-predtype.s : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c avl.c
+predtype.s : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c avl.c sigsegv.h
 	$(CC) $(CFLAGS) -S predtype.c
 
-predtype.o : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c avl.c
+predtype.o : predtype.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c avl.c sigsegv.h
 	$(CC) $(CFLAGS) -c predtype.c
 
-symbol.i : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+symbol.i : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) symbol.c > symbol.i
 
-symbol.s : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+symbol.s : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S symbol.c
 
-symbol.o : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+symbol.o : symbol.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c symbol.c
 
-lisparit.i : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c ari80386.c
+lisparit.i : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c ari80386.c sigsegv.h
 	$(CPP) $(CFLAGS) lisparit.c > lisparit.i
 
-lisparit.s : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c ari80386.c
+lisparit.s : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c ari80386.c sigsegv.h
 	$(CC) $(CFLAGS) -S lisparit.c
 
-lisparit.o : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c ari80386.c
+lisparit.o : lisparit.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c aridecl.c arilev0.c arilev1.c intelem.c intlog.c intplus.c intcomp.c intbyte.c intmal.c intdiv.c intgcd.c int2adic.c intsqrt.c intprint.c intread.c rational.c sfloat.c ffloat.c dfloat.c lfloat.c flo_konv.c flo_rest.c realelem.c realrand.c realtran.c compelem.c comptran.c arilev1c.c arilev1e.c arilev1i.c ari80386.c sigsegv.h
 	$(CC) $(CFLAGS) -c lisparit.c
 
-win32aux.i : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+win32aux.i : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) win32aux.c > win32aux.i
 
-win32aux.s : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+win32aux.s : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S win32aux.c
 
-win32aux.o : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+win32aux.o : win32aux.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c win32aux.c
 
-genclisph.i : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+genclisph.i : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) genclisph.c > genclisph.i
 
-genclisph.s : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+genclisph.s : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -O0 -S genclisph.c
 
-genclisph.o : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+genclisph.o : genclisph.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -O0 -c genclisph.c
 
-modules.i : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c modules.h
+modules.i : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h modules.h
 	$(CPP) $(CFLAGS) -DNO_CLISP_H modules.c > modules.i
 
-modules.s : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c modules.h
+modules.s : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h modules.h
 	$(CC) $(CFLAGS) -DNO_CLISP_H -S modules.c
 
-modules.o : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c modules.h
+modules.o : modules.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h modules.h
 	$(CC) $(CFLAGS) -DNO_CLISP_H -c modules.c
 
-noreadline.i : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+noreadline.i : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CPP) $(CFLAGS) noreadline.c > noreadline.i
 
-noreadline.s : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+noreadline.s : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -S noreadline.c
 
-noreadline.o : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c
+noreadline.o : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h
 	$(CC) $(CFLAGS) -c noreadline.c
 
 ari80386.o : ari80386.s
 	$(CC) $(CFLAGS) -x assembler -c ari80386.s
 
-lisp.exe : $(OBJECTS) modules.o    
+sigsegv.h : ../sigsegv/sigsegv.h
+	-$(LN) ../sigsegv/sigsegv.h sigsegv.h
+
+sigsegv.lib : ../sigsegv/sigsegv.lib
+	-$(LN) ../sigsegv/sigsegv.lib sigsegv.lib
+
+lisp.exe : $(OBJECTS) modules.o     sigsegv.lib
 	$(CC) $(CFLAGS) $(CLFLAGS) $(OBJECTS) modules.o $(LIBS) $(X_LIBS) -o lisp.exe
 
 
@@ -954,105 +1115,105 @@ config.lsp : cfgwin32.lsp
 
 interpreted.mem : lisp.exe $(LSPFILES)
 	-$(RM) interpreted.mem
-	lisp.exe -m 750KW -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"
+	lisp.exe -m 750KW -norc -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"
 	$(MV) lispimag.mem interpreted.mem
 
 init.fas : init.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c init.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c init.lsp
 
 defseq.fas : defseq.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c defseq.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c defseq.lsp
 
 backquot.fas : backquot.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c backquot.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c backquot.lsp
 
 defmacro.fas : defmacro.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c defmacro.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c defmacro.lsp
 
 macros1.fas : macros1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c macros1.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c macros1.lsp
 
 macros2.fas : macros2.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c macros2.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c macros2.lsp
 
 defs1.fas : defs1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c defs1.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c defs1.lsp
 
 timezone.fas : timezone.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c timezone.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c timezone.lsp
 
 places.fas : places.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c places.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c places.lsp
 
 floatpri.fas : floatpri.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c floatpri.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c floatpri.lsp
 
 type.fas : type.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c type.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c type.lsp
 
 defstruc.fas : defstruc.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c defstruc.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c defstruc.lsp
 
 format.fas : format.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c format.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c format.lsp
 
 user1.fas : user1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c user1.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c user1.lsp
 
 user2.fas : user2.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c user2.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c user2.lsp
 
 trace.fas : trace.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c trace.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c trace.lsp
 
 macros3.fas : macros3.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c macros3.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c macros3.lsp
 
 config.fas : config.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c config.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c config.lsp
 
 compiler.fas : compiler.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c compiler.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c compiler.lsp
 
 disassem.fas : disassem.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c disassem.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c disassem.lsp
 
 defs2.fas : defs2.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c defs2.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c defs2.lsp
 
 loop.fas : loop.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c loop.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c loop.lsp
 
 clos.fas : clos.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c clos.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c clos.lsp
 
 conditio.fas : conditio.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c conditio.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c conditio.lsp
 
 defs3.fas : defs3.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c defs3.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c defs3.lsp
 
 gstream.fas : gstream.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c gstream.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c gstream.lsp
+
+xcharin.fas : xcharin.lsp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c xcharin.lsp
 
 foreign1.fas : foreign1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c foreign1.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c foreign1.lsp
 
 screen.fas : screen.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c screen.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c screen.lsp
 
 rexx1.fas : rexx1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c rexx1.lsp
-
-editor.fas : editor.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c editor.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c rexx1.lsp
 
 spanish.fas : spanish.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c spanish.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c spanish.lsp
 
 halfcompiled.mem : lisp.exe $(LSPFILES) compiler.fas
 	-$(RM) interpreted.mem
-	lisp.exe -m 750KW -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"
+	lisp.exe -m 750KW -norc -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"
 	$(MV) lispimag.mem interpreted.mem
 	$(TOUCH) interpreted.mem
 	$(TOUCH) compiler.fas
@@ -1060,7 +1221,7 @@ halfcompiled.mem : lisp.exe $(LSPFILES) compiler.fas
 
 lispinit.mem : lisp.exe $(FASFILES)
 	-$(RM) lispinit.mem
-	lisp.exe -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"
+	lisp.exe -norc -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"
 	$(MV) lispimag.mem lispinit.mem
 
 
@@ -1153,6 +1314,9 @@ stage/defs3.lsp : defs3.lsp
 stage/gstream.lsp : gstream.lsp
 	$(LN) gstream.lsp stage
 
+stage/xcharin.lsp : xcharin.lsp
+	$(LN) xcharin.lsp stage
+
 stage/foreign1.lsp : foreign1.lsp
 	$(LN) foreign1.lsp stage
 
@@ -1162,107 +1326,104 @@ stage/screen.lsp : screen.lsp
 stage/rexx1.lsp : rexx1.lsp
 	$(LN) rexx1.lsp stage
 
-stage/editor.lsp : editor.lsp
-	$(LN) editor.lsp stage
-
 stage/spanish.lsp : spanish.lsp
 	$(LN) spanish.lsp stage
 
 stage/init.fas : stage/init.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/init.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/init.lsp
 
 stage/defseq.fas : stage/defseq.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/defseq.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/defseq.lsp
 
 stage/backquot.fas : stage/backquot.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/backquot.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/backquot.lsp
 
 stage/defmacro.fas : stage/defmacro.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/defmacro.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/defmacro.lsp
 
 stage/macros1.fas : stage/macros1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/macros1.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/macros1.lsp
 
 stage/macros2.fas : stage/macros2.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/macros2.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/macros2.lsp
 
 stage/defs1.fas : stage/defs1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/defs1.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/defs1.lsp
 
 stage/timezone.fas : stage/timezone.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/timezone.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/timezone.lsp
 
 stage/places.fas : stage/places.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/places.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/places.lsp
 
 stage/floatpri.fas : stage/floatpri.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/floatpri.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/floatpri.lsp
 
 stage/type.fas : stage/type.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/type.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/type.lsp
 
 stage/defstruc.fas : stage/defstruc.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/defstruc.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/defstruc.lsp
 
 stage/format.fas : stage/format.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/format.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/format.lsp
 
 stage/user1.fas : stage/user1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/user1.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/user1.lsp
 
 stage/user2.fas : stage/user2.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/user2.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/user2.lsp
 
 stage/trace.fas : stage/trace.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/trace.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/trace.lsp
 
 stage/macros3.fas : stage/macros3.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/macros3.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/macros3.lsp
 
 stage/config.fas : stage/config.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/config.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/config.lsp
 
 stage/compiler.fas : stage/compiler.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/compiler.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/compiler.lsp
 
 stage/disassem.fas : stage/disassem.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/disassem.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/disassem.lsp
 
 stage/defs2.fas : stage/defs2.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/defs2.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/defs2.lsp
 
 stage/loop.fas : stage/loop.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/loop.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/loop.lsp
 
 stage/clos.fas : stage/clos.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/clos.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/clos.lsp
 
 stage/conditio.fas : stage/conditio.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/conditio.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/conditio.lsp
 
 stage/defs3.fas : stage/defs3.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/defs3.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/defs3.lsp
 
 stage/gstream.fas : stage/gstream.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/gstream.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/gstream.lsp
+
+stage/xcharin.fas : stage/xcharin.lsp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -norc -q -c stage/xcharin.lsp
 
 stage/foreign1.fas : stage/foreign1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/foreign1.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/foreign1.lsp
 
 stage/screen.fas : stage/screen.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/screen.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/screen.lsp
 
 stage/rexx1.fas : stage/rexx1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/rexx1.lsp
-
-stage/editor.fas : stage/editor.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/editor.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/rexx1.lsp
 
 stage/spanish.fas : stage/spanish.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/spanish.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/spanish.lsp
 
 lispinit2.mem : lisp.exe $(TESTFASFILES)
-	lisp.exe -x "(cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%saveinitmem) (exit)"
+	lisp.exe -norc -x "(cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%saveinitmem) (exit)"
 	-$(RM) lispinit2.mem
 	$(MV) lispimag.mem lispinit2.mem
 
@@ -1286,49 +1447,49 @@ GNU-GPL : ../GNU-GPL
 SUMMARY : ../SUMMARY
 	-$(LN) ..\SUMMARY SUMMARY
 
-README : _README lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c _README.de _README.en txt2c.exe
+README : _README lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h _README.de _README.en txt2c.exe
 	$(TXT2C) < _README > txt.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -O0 txt.c -o txt.exe
 	txt > README
 	$(RM) txt.c
 	$(RM) txt.exe
 
-README.de : _README.de lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c txt2c.exe
+README.de : _README.de lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h txt2c.exe
 	$(TXT2C) < _README.de > txt.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -O0 txt.c -o txt.exe
 	txt > README.de
 	$(RM) txt.c
 	$(RM) txt.exe
 
-README.en : _README.en lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c txt2c.exe
+README.en : _README.en lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h txt2c.exe
 	$(TXT2C) < _README.en > txt.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -O0 txt.c -o txt.exe
 	txt > README.en
 	$(RM) txt.c
 	$(RM) txt.exe
 
-README.es : _README.es lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c txt2c.exe
+README.es : _README.es lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h txt2c.exe
 	$(TXT2C) < _README.es > txt.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -O0 txt.c -o txt.exe
 	txt > README.es
 	$(RM) txt.c
 	$(RM) txt.exe
 
-clisp.1 : _clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c txt2c.exe
+clisp.1 : _clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h txt2c.exe
 	$(TXT2C) < _clisp.1 > txt.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -O0 txt.c -o txt.exe
 	txt > clisp.1
 	$(RM) txt.c
 	$(RM) txt.exe
 
-clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c txt2c.exe
+clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h txt2c.exe
 	$(TXT2C) < _clisp.html > txt.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -O0 txt.c -o txt.exe
 	txt > clisp.html
 	$(RM) txt.c
 	$(RM) txt.exe
 
-impnotes.txt : _impnotes.txt lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c txt2c.exe
+impnotes.txt : _impnotes.txt lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c sigsegv.h txt2c.exe
 	$(TXT2C) < _impnotes.txt > txt.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -O0 txt.c -o txt.exe
 	txt > impnotes.txt
@@ -1383,7 +1544,7 @@ distrib : force
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-$(RM) core ansidecl.c ccmp2c.c genclisph.exe wgenclisph.exe linkkit txt.c txt.exe
+	-$(RM) core ansidecl.c ccmp2c.c modprep.c genclisph.exe wgenclisph.exe linkkit txt.c txt.exe
 
 # clean1 removes everything that becomes obsolete once lisp.exe is recompiled
 # without changing the bytecode format and the tables in

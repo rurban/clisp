@@ -32,7 +32,7 @@ exec_prefix = $(prefix)
 bindir = $(exec_prefix)/bin
 libdir = $(exec_prefix)/lib
 
-datadir = $(prefix)/lib
+datadir = $(prefix)/share
 mandir = $(prefix)/man
 man1dir = $(mandir)/man1
 man2dir = $(mandir)/man2
@@ -45,7 +45,6 @@ man8dir = $(mandir)/man8
 man9dir = $(mandir)/man9
 infodir = $(prefix)/info
 includedir = $(prefix)/include
-docdir = $(datadir)/doc
 
 SHELL = /bin/sh
 
