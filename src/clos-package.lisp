@@ -39,7 +39,6 @@
     sys::make-signature         ; defined in functions.lisp
     sys::sig-req-num sys::sig-opt-num sys::sig-rest-p ; likewise
     sys::sig-keys-p sys::sig-keywords sys::sig-allow-p ; likewise
-    ;; clos::generic-function-p ; defined in predtype.d
     ;; clos::class-p clos:class-of clos:find-class ; defined in predtype.d
     ;; clos::typep-class        ; defined in predtype.d
     ;; clos::structure-object-p ; defined in record.d

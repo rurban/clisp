@@ -6564,13 +6564,13 @@ typedef enum {
 # (the Lambdabody for interpreted Closures)
 # or a Simple-Bit-Vector (the code vector for compiled Closures).
 #define cclosurep(obj)  \
-  (closurep(obj) &&     \
-   simple_bit_vector_p(Atype_8Bit,TheClosure(obj)->clos_codevec))
+  (closurep(obj)        \
+   && simple_bit_vector_p(Atype_8Bit,TheClosure(obj)->clos_codevec))
 
-# Test for generic function
-#define genericfunctionp(obj)  \
-  (cclosurep(obj) &&           \
-   (TheCodevec(TheClosure(obj)->clos_codevec)->ccv_flags & bit(4)))
+# Test for a function with a code vector produced by %GENERIC-FUNCTION-LAMBDA.
+#define genericlambda_function_p(obj)  \
+  (cclosurep(obj) \
+   && (TheCodevec(TheClosure(obj)->clos_codevec)->ccv_flags & bit(4)))
 
 # Test for CLOS-Instance
 #ifdef TYPECODES

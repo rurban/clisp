@@ -202,9 +202,9 @@
 ;; So the following is necessary:
 ;;   (declare (inline case eql eq typep
 ;;                    arrayp bit-vector-p characterp complexp consp floatp
-;;                    functionp clos::generic-function-p hash-table-p integerp
-;;                    listp null numberp packagep pathnamep sys::logical-pathname-p
-;;                    random-state-p rationalp readtablep realp sys::sequencep
+;;                    functionp hash-table-p integerp listp null numberp
+;;                    packagep pathnamep sys::logical-pathname-p random-state-p
+;;                    rationalp readtablep realp sys::sequencep
 ;;                    clos::std-instance-p streamp sys::file-stream-p
 ;;                    sys::synonym-stream-p sys::broadcast-stream-p
 ;;                    sys::concatenated-stream-p sys::two-way-stream-p
@@ -676,9 +676,9 @@
                CASE EQL EQ TYPEP
                ;; at the inline-expansion of TYPEP on built-in-classes:
                ARRAYP BIT-VECTOR-P CHARACTERP COMPLEXP CONSP FLOATP
-               FUNCTIONP CLOS::GENERIC-FUNCTION-P HASH-TABLE-P INTEGERP
-               LISTP NULL NUMBERP PACKAGEP PATHNAMEP SYS::LOGICAL-PATHNAME-P
-               RANDOM-STATE-P RATIONALP READTABLEP REALP SYS::SEQUENCEP
+               FUNCTIONP HASH-TABLE-P INTEGERP LISTP NULL NUMBERP
+               PACKAGEP PATHNAMEP SYS::LOGICAL-PATHNAME-P RANDOM-STATE-P
+               RATIONALP READTABLEP REALP SYS::SEQUENCEP
                CLOS::STD-INSTANCE-P STREAMP SYS::FILE-STREAM-P
                SYS::SYNONYM-STREAM-P SYS::BROADCAST-STREAM-P
                SYS::CONCATENATED-STREAM-P SYS::TWO-WAY-STREAM-P

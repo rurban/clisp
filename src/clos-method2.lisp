@@ -61,7 +61,7 @@
           (list* funname qualifiers spec-list) caller
           ;; do not warn about redefinition when no method was defined
           (and (fboundp 'find-method) (fboundp funname)
-               (clos::generic-function-p (fdefinition funname))
+               (typep-class (fdefinition funname) <generic-function>)
                (eql (sig-req-num (std-gf-signature (fdefinition funname))) (length spec-list))
                (find-method (fdefinition funname) qualifiers spec-list nil)
                "method"))

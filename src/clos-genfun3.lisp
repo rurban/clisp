@@ -208,7 +208,7 @@
   (std-add-method
     (if (fboundp funname)
       (let ((gf (fdefinition funname)))
-        (if (clos::generic-function-p gf)
+        (if (typep-class gf <generic-function>)
           gf
           (error-of-type 'error
             (TEXT "~S: ~S does not name a generic function")
