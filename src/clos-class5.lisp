@@ -559,6 +559,8 @@
     :qualifiers '()
     :lambda-list '(class &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
+; No extended method check because this GF is specified in ANSI CL.
+;(initialize-extended-method-check #'allocate-instance)
 
 ;; CLtL2 28.1.9.7., ANSI CL 7.1.7.
 (defgeneric make-instance (class &rest initargs &key &allow-other-keys)
@@ -623,6 +625,8 @@
     :qualifiers '()
     :lambda-list '(class &rest initargs)
     'signature #s(compiler::signature :req-num 1 :rest-p t)))
+; No extended method check because this GF is specified in ANSI CL.
+;(initialize-extended-method-check #'make-instance)
 ;; At the first call of MAKE-INSTANCE or INITIALIZE-INSTANCE of each class
 ;; we memorize the needed information in *make-instance-table*.
 (defun initial-make-instance (class &rest initargs)

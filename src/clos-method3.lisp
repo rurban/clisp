@@ -44,26 +44,32 @@
 (defgeneric method-function (method)
   (:method ((method standard-method))
     (std-method-function-or-substitute method)))
+(initialize-extended-method-check #'method-function)
 
 ;; MOP p. 82
 (defgeneric method-qualifiers (method)
   (:method ((method standard-method))
     (std-method-qualifiers method)))
+; No extended method check because this GF is specified in ANSI CL.
+;(initialize-extended-method-check #'method-qualifiers)
 
 ;; MOP p. 82
 (defgeneric method-lambda-list (method)
   (:method ((method standard-method))
     (std-method-lambda-list method)))
+(initialize-extended-method-check #'method-lambda-list)
 
 ;; MOP p. 82
 (defgeneric method-specializers (method)
   (:method ((method standard-method))
     (std-method-specializers method)))
+(initialize-extended-method-check #'method-specializers)
 
 ;; MOP p. 82
 (defgeneric method-generic-function (method)
   (:method ((method standard-method))
     (std-method-generic-function method)))
+(initialize-extended-method-check #'method-generic-function)
 
 (defgeneric function-keywords (method)
   (:method ((method standard-method))
@@ -74,3 +80,4 @@
 (defgeneric accessor-method-slot-definition (method)
   (:method ((method standard-accessor-method))
     (%accessor-method-slot-definition method)))
+(initialize-extended-method-check #'accessor-method-slot-definition)

@@ -1145,6 +1145,593 @@ EXTRA
 1
 
 
+;;; Check that extending many MOP generic functions is possible, however
+;;; overriding methods of these MOP generic functions is forbidden.
+
+;; Check class-default-initargs.
+(let ((*sampclass* (defclass sampclass01 () ())))
+  (defmethod clos:class-default-initargs ((c (eql *sampclass*)))
+    (call-next-method))
+  (clos:class-default-initargs *sampclass*)
+  t)
+T
+(let ((*sampclass* (defclass sampclass02 () ())))
+  (let ((badmethod
+          (defmethod clos:class-default-initargs ((c (eql *sampclass*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:class-default-initargs *sampclass*))
+      (remove-method #'clos:class-default-initargs badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check class-direct-default-initargs.
+(let ((*sampclass* (defclass sampclass03 () ())))
+  (defmethod clos:class-direct-default-initargs ((c (eql *sampclass*)))
+    (call-next-method))
+  (clos:class-direct-default-initargs *sampclass*)
+  t)
+T
+(let ((*sampclass* (defclass sampclass04 () ())))
+  (let ((badmethod
+          (defmethod clos:class-direct-default-initargs ((c (eql *sampclass*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:class-direct-default-initargs *sampclass*))
+      (remove-method #'clos:class-direct-default-initargs badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check class-direct-slots.
+(let ((*sampclass* (defclass sampclass05 () ())))
+  (defmethod clos:class-direct-slots ((c (eql *sampclass*)))
+    (call-next-method))
+  (clos:class-direct-slots *sampclass*)
+  t)
+T
+(let ((*sampclass* (defclass sampclass06 () ())))
+  (let ((badmethod
+          (defmethod clos:class-direct-slots ((c (eql *sampclass*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:class-direct-slots *sampclass*))
+      (remove-method #'clos:class-direct-slots badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check class-direct-superclasses.
+(let ((*sampclass* (defclass sampclass07 () ())))
+  (defmethod clos:class-direct-superclasses ((c (eql *sampclass*)))
+    (call-next-method))
+  (clos:class-direct-superclasses *sampclass*)
+  t)
+T
+(let ((*sampclass* (defclass sampclass08 () ())))
+  (let ((badmethod
+          (defmethod clos:class-direct-superclasses ((c (eql *sampclass*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:class-direct-superclasses *sampclass*))
+      (remove-method #'clos:class-direct-superclasses badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check class-finalized-p.
+(let ((*sampclass* (defclass sampclass09 () ())))
+  (defmethod clos:class-finalized-p ((c (eql *sampclass*)))
+    (call-next-method))
+  (clos:class-finalized-p *sampclass*)
+  t)
+T
+(let ((*sampclass* (defclass sampclass10 () ())))
+  (let ((badmethod
+          (defmethod clos:class-finalized-p ((c (eql *sampclass*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:class-finalized-p *sampclass*))
+      (remove-method #'clos:class-finalized-p badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check class-precedence-list.
+(let ((*sampclass* (defclass sampclass11 () ())))
+  (defmethod clos:class-precedence-list ((c (eql *sampclass*)))
+    (call-next-method))
+  (clos:class-precedence-list *sampclass*)
+  t)
+T
+(let ((*sampclass* (defclass sampclass12 () ())))
+  (let ((badmethod
+          (defmethod clos:class-precedence-list ((c (eql *sampclass*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:class-precedence-list *sampclass*))
+      (remove-method #'clos:class-precedence-list badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check class-prototype.
+(let ((*sampclass* (defclass sampclass13 () ())))
+  (defmethod clos:class-prototype ((c (eql *sampclass*)))
+    (call-next-method))
+  (clos:class-prototype *sampclass*)
+  t)
+T
+(let ((*sampclass* (defclass sampclass14 () ())))
+  (let ((badmethod
+          (defmethod clos:class-prototype ((c (eql *sampclass*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:class-prototype *sampclass*))
+      (remove-method #'clos:class-prototype badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check class-slots.
+(let ((*sampclass* (defclass sampclass15 () ())))
+  (defmethod clos:class-slots ((c (eql *sampclass*)))
+    (call-next-method))
+  (clos:class-slots *sampclass*)
+  t)
+T
+(let ((*sampclass* (defclass sampclass16 () ())))
+  (let ((badmethod
+          (defmethod clos:class-slots ((c (eql *sampclass*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:class-slots *sampclass*))
+      (remove-method #'clos:class-slots badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check (setf class-name).
+(let ((*sampclass* (defclass sampclass17 () ())))
+  (defmethod (setf class-name) (new-value (c (eql *sampclass*)))
+    (call-next-method))
+  (setf (class-name *sampclass*) 'sampclass17renamed)
+  t)
+T
+(let ((*sampclass* (defclass sampclass18 () ())))
+  (let ((badmethod
+          (defmethod (setf class-name) (new-value (c (eql *sampclass*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (setf (class-name *sampclass*) 'sampclass18renamed))
+      (remove-method #'(setf class-name) badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check finalize-inheritance.
+(let ((*sampclass* (defclass sampclass19 () ())))
+  (defmethod clos:finalize-inheritance ((c (eql *sampclass*)))
+    (call-next-method))
+  (clos:finalize-inheritance *sampclass*)
+  t)
+T
+(let ((*sampclass* (defclass sampclass20 () ())))
+  (let ((badmethod
+          (defmethod clos:finalize-inheritance ((c (eql *sampclass*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:finalize-inheritance *sampclass*))
+      (remove-method #'clos:finalize-inheritance badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check find-method-combination.
+(let ((*sampgf* (defgeneric sampgf01 (x y))))
+  (defmethod clos:find-method-combination ((gf (eql *sampgf*)) name options)
+    (call-next-method))
+  (clos:find-method-combination *sampgf* 'standard nil)
+  t)
+T
+(let ((*sampgf* (defgeneric sampgf02 (x y))))
+  (let ((badmethod
+          (defmethod clos:find-method-combination ((gf (eql *sampgf*)) name options)
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:find-method-combination *sampgf* 'standard nil))
+      (remove-method #'clos:find-method-combination badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check generic-function-argument-precedence-order.
+(let ((*sampgf* (defgeneric sampgf03 (x y))))
+  (defmethod clos:generic-function-argument-precedence-order ((gf (eql *sampgf*)))
+    (call-next-method))
+  (clos:generic-function-argument-precedence-order *sampgf*)
+  t)
+T
+(let ((*sampgf* (defgeneric sampgf04 (x y))))
+  (let ((badmethod
+          (defmethod clos:generic-function-argument-precedence-order ((gf (eql *sampgf*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:generic-function-argument-precedence-order *sampgf*))
+      (remove-method #'clos:generic-function-argument-precedence-order badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check generic-function-declarations.
+(let ((*sampgf* (defgeneric sampgf05 (x y))))
+  (defmethod clos:generic-function-declarations ((gf (eql *sampgf*)))
+    (call-next-method))
+  (clos:generic-function-declarations *sampgf*)
+  t)
+T
+(let ((*sampgf* (defgeneric sampgf06 (x y))))
+  (let ((badmethod
+          (defmethod clos:generic-function-declarations ((gf (eql *sampgf*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:generic-function-declarations *sampgf*))
+      (remove-method #'clos:generic-function-declarations badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check generic-function-lambda-list.
+(let ((*sampgf* (defgeneric sampgf07 (x y))))
+  (defmethod clos:generic-function-lambda-list ((gf (eql *sampgf*)))
+    (call-next-method))
+  (clos:generic-function-lambda-list *sampgf*)
+  t)
+T
+(let ((*sampgf* (defgeneric sampgf08 (x y))))
+  (let ((badmethod
+          (defmethod clos:generic-function-lambda-list ((gf (eql *sampgf*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:generic-function-lambda-list *sampgf*))
+      (remove-method #'clos:generic-function-lambda-list badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check generic-function-method-class.
+(let ((*sampgf* (defgeneric sampgf09 (x y))))
+  (defmethod clos:generic-function-method-class ((gf (eql *sampgf*)))
+    (call-next-method))
+  (clos:generic-function-method-class *sampgf*)
+  t)
+T
+(let ((*sampgf* (defgeneric sampgf10 (x y))))
+  (let ((badmethod
+          (defmethod clos:generic-function-method-class ((gf (eql *sampgf*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:generic-function-method-class *sampgf*))
+      (remove-method #'clos:generic-function-method-class badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check generic-function-method-combination.
+(let ((*sampgf* (defgeneric sampgf11 (x y))))
+  (defmethod clos:generic-function-method-combination ((gf (eql *sampgf*)))
+    (call-next-method))
+  (clos:generic-function-method-combination *sampgf*)
+  t)
+T
+(let ((*sampgf* (defgeneric sampgf12 (x y))))
+  (let ((badmethod
+          (defmethod clos:generic-function-method-combination ((gf (eql *sampgf*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:generic-function-method-combination *sampgf*))
+      (remove-method #'clos:generic-function-method-combination badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check generic-function-methods.
+(let ((*sampgf* (defgeneric sampgf13 (x y))))
+  (defmethod clos:generic-function-methods ((gf (eql *sampgf*)))
+    (call-next-method))
+  (clos:generic-function-methods *sampgf*)
+  t)
+T
+(let ((*sampgf* (defgeneric sampgf14 (x y))))
+  (let ((badmethod
+          (defmethod clos:generic-function-methods ((gf (eql *sampgf*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:generic-function-methods *sampgf*))
+      (remove-method #'clos:generic-function-methods badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check generic-function-name.
+(let ((*sampgf* (defgeneric sampgf15 (x y))))
+  (defmethod clos:generic-function-name ((gf (eql *sampgf*)))
+    (call-next-method))
+  (clos:generic-function-name *sampgf*)
+  t)
+T
+(let ((*sampgf* (defgeneric sampgf16 (x y))))
+  (let ((badmethod
+          (defmethod clos:generic-function-name ((gf (eql *sampgf*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:generic-function-name *sampgf*))
+      (remove-method #'clos:generic-function-name badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check (setf generic-function-name).
+(let ((*sampgf* (defgeneric sampgf17 (x y))))
+  (defmethod (setf clos:generic-function-name) (new-value (gf (eql *sampgf*)))
+    (call-next-method))
+  (setf (clos:generic-function-name *sampgf*) 'sampgf17renamed)
+  t)
+T
+(let ((*sampgf* (defgeneric sampgf18 (x y))))
+  (let ((badmethod
+          (defmethod (setf clos:generic-function-name) (new-value (gf (eql *sampgf*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (setf (clos:generic-function-name *sampgf*) 'sampgf18renamed))
+      (remove-method #'(setf clos:generic-function-name) badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check method-function.
+(let ((*sampmethod* (defmethod sampgf19 () 'bar)))
+  (defmethod clos:method-function ((method (eql *sampmethod*)))
+    (call-next-method))
+  (clos:method-function *sampmethod*)
+  t)
+T
+(let ((*sampmethod* (defmethod sampgf20 () 'bar)))
+  (let ((badmethod
+          (defmethod clos:method-function ((method (eql *sampmethod*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:method-function *sampmethod*))
+      (remove-method #'clos:method-function badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check method-generic-function.
+(let ((*sampmethod* (defmethod sampgf21 () 'bar)))
+  (defmethod clos:method-generic-function ((method (eql *sampmethod*)))
+    (call-next-method))
+  (clos:method-generic-function *sampmethod*)
+  t)
+T
+(let ((*sampmethod* (defmethod sampgf22 () 'bar)))
+  (let ((badmethod
+          (defmethod clos:method-generic-function ((method (eql *sampmethod*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:method-generic-function *sampmethod*))
+      (remove-method #'clos:method-generic-function badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check method-lambda-list.
+(let ((*sampmethod* (defmethod sampgf23 () 'bar)))
+  (defmethod clos:method-lambda-list ((method (eql *sampmethod*)))
+    (call-next-method))
+  (clos:method-lambda-list *sampmethod*)
+  t)
+T
+(let ((*sampmethod* (defmethod sampgf24 () 'bar)))
+  (let ((badmethod
+          (defmethod clos:method-lambda-list ((method (eql *sampmethod*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:method-lambda-list *sampmethod*))
+      (remove-method #'clos:method-lambda-list badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check method-specializers.
+(let ((*sampmethod* (defmethod sampgf25 () 'bar)))
+  (defmethod clos:method-specializers ((method (eql *sampmethod*)))
+    (call-next-method))
+  (clos:method-specializers *sampmethod*)
+  t)
+T
+(let ((*sampmethod* (defmethod sampgf26 () 'bar)))
+  (let ((badmethod
+          (defmethod clos:method-specializers ((method (eql *sampmethod*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:method-specializers *sampmethod*))
+      (remove-method #'clos:method-specializers badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check accessor-method-slot-definition.
+(let ((*sampmethod*
+        (progn (defclass sampclass21 () ((x :reader sampclass21x)))
+               (first (clos:generic-function-methods #'sampclass21x)))))
+  (defmethod clos:accessor-method-slot-definition ((method (eql *sampmethod*)))
+    (call-next-method))
+  (clos:accessor-method-slot-definition *sampmethod*)
+  t)
+T
+(let ((*sampmethod*
+        (progn (defclass sampclass22 () ((x :reader sampclass22x)))
+               (first (clos:generic-function-methods #'sampclass22x)))))
+  (let ((badmethod
+          (defmethod clos:accessor-method-slot-definition ((slotdef (eql *sampmethod*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:accessor-method-slot-definition *sampmethod*))
+      (remove-method #'clos:accessor-method-slot-definition badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check slot-definition-allocation.
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass23 () ((x)))))))
+  (defmethod clos:slot-definition-allocation ((slotdef (eql *sampslot*)))
+    (call-next-method))
+  (clos:slot-definition-allocation *sampslot*)
+  t)
+T
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass24 () ((x)))))))
+  (let ((badmethod
+          (defmethod clos:slot-definition-allocation ((slotdef (eql *sampslot*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:slot-definition-allocation *sampslot*))
+      (remove-method #'clos:slot-definition-allocation badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check slot-definition-initargs.
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass25 () ((x)))))))
+  (defmethod clos:slot-definition-initargs ((slotdef (eql *sampslot*)))
+    (call-next-method))
+  (clos:slot-definition-initargs *sampslot*)
+  t)
+T
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass26 () ((x)))))))
+  (let ((badmethod
+          (defmethod clos:slot-definition-initargs ((slotdef (eql *sampslot*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:slot-definition-initargs *sampslot*))
+      (remove-method #'clos:slot-definition-initargs badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check slot-definition-initform.
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass27 () ((x)))))))
+  (defmethod clos:slot-definition-initform ((slotdef (eql *sampslot*)))
+    (call-next-method))
+  (clos:slot-definition-initform *sampslot*)
+  t)
+T
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass28 () ((x)))))))
+  (let ((badmethod
+          (defmethod clos:slot-definition-initform ((slotdef (eql *sampslot*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:slot-definition-initform *sampslot*))
+      (remove-method #'clos:slot-definition-initform badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check slot-definition-initfunction.
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass29 () ((x)))))))
+  (defmethod clos:slot-definition-initfunction ((slotdef (eql *sampslot*)))
+    (call-next-method))
+  (clos:slot-definition-initfunction *sampslot*)
+  t)
+T
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass30 () ((x)))))))
+  (let ((badmethod
+          (defmethod clos:slot-definition-initfunction ((slotdef (eql *sampslot*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:slot-definition-initfunction *sampslot*))
+      (remove-method #'clos:slot-definition-initfunction badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check slot-definition-name.
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass31 () ((x)))))))
+  (defmethod clos:slot-definition-name ((slotdef (eql *sampslot*)))
+    (call-next-method))
+  (clos:slot-definition-name *sampslot*)
+  t)
+T
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass32 () ((x)))))))
+  (let ((badmethod
+          (defmethod clos:slot-definition-name ((slotdef (eql *sampslot*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:slot-definition-name *sampslot*))
+      (remove-method #'clos:slot-definition-name badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check slot-definition-type.
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass33 () ((x)))))))
+  (defmethod clos:slot-definition-type ((slotdef (eql *sampslot*)))
+    (call-next-method))
+  (clos:slot-definition-type *sampslot*)
+  t)
+T
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass34 () ((x)))))))
+  (let ((badmethod
+          (defmethod clos:slot-definition-type ((slotdef (eql *sampslot*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:slot-definition-type *sampslot*))
+      (remove-method #'clos:slot-definition-type badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check slot-definition-readers.
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass35 () ((x)))))))
+  (defmethod clos:slot-definition-readers ((slotdef (eql *sampslot*)))
+    (call-next-method))
+  (clos:slot-definition-readers *sampslot*)
+  t)
+T
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass36 () ((x)))))))
+  (let ((badmethod
+          (defmethod clos:slot-definition-readers ((slotdef (eql *sampslot*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:slot-definition-readers *sampslot*))
+      (remove-method #'clos:slot-definition-readers badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check slot-definition-writers.
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass37 () ((x)))))))
+  (defmethod clos:slot-definition-writers ((slotdef (eql *sampslot*)))
+    (call-next-method))
+  (clos:slot-definition-writers *sampslot*)
+  t)
+T
+(let ((*sampslot*
+        (first (clos:class-direct-slots (defclass sampclass38 () ((x)))))))
+  (let ((badmethod
+          (defmethod clos:slot-definition-writers ((slotdef (eql *sampslot*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:slot-definition-writers *sampslot*))
+      (remove-method #'clos:slot-definition-writers badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+;; Check slot-definition-location.
+(let ((*sampslot*
+        (first (clos:class-slots (defclass sampclass39 () ((x)))))))
+  (defmethod clos:slot-definition-location ((slotdef (eql *sampslot*)))
+    (call-next-method))
+  (clos:slot-definition-location *sampslot*)
+  t)
+T
+(let ((*sampslot*
+        (first (clos:class-slots (defclass sampclass40 () ((x)))))))
+  (let ((badmethod
+          (defmethod clos:slot-definition-location ((slotdef (eql *sampslot*)))
+            (values (call-next-method) t))))
+    (unwind-protect
+      (nth-value 1 (clos:slot-definition-location *sampslot*))
+      (remove-method #'clos:slot-definition-location badmethod))))
+#+CLISP ERROR
+#-CLISP T
+
+
 ;;; Application example: Typechecked slots
 
 (progn

@@ -56,6 +56,8 @@
   (:method ((class class))
     (check-class-initialized class 1)
     (class-classname class)))
+; No extended method check because this GF is specified in ANSI CL.
+;(initialize-extended-method-check #'class-name)
 ;; MOP p. 92
 (defgeneric (setf class-name) (new-value class)
   (:method (new-value (class class))
@@ -70,12 +72,14 @@
         '(setf class-name) class))
     (reinitialize-instance class :name new-value)
     new-value))
+(initialize-extended-method-check #'(setf class-name))
 
 ;; MOP p. 76
 (defgeneric class-direct-superclasses (class)
   (:method ((class class))
     (check-class-initialized class 2)
     (sys::%record-ref class *<class>-direct-superclasses-location*)))
+(initialize-extended-method-check #'class-direct-superclasses)
 ;; Not in MOP.
 (defun (setf class-direct-superclasses) (new-value class)
   (accessor-typecheck class 'class '(setf class-direct-superclasses))
@@ -94,6 +98,7 @@
   (:method ((class class))
     (check-class-finalized class 3)
     (sys::%record-ref class *<class>-precedence-list-location*)))
+(initialize-extended-method-check #'class-precedence-list)
 ;; Not in MOP.
 (defun (setf class-precedence-list) (new-value class)
   (accessor-typecheck class 'class '(setf class-precedence-list))
@@ -117,6 +122,7 @@
   (:method ((class class))
     (check-class-initialized class 2)
     (sys::%record-ref class *<class>-direct-slots-location*)))
+(initialize-extended-method-check #'class-direct-slots)
 ;; Not in MOP.
 (defun (setf class-direct-slots) (new-value class)
   (accessor-typecheck class 'class '(setf class-direct-slots))
@@ -127,6 +133,7 @@
   (:method ((class class))
     (check-class-finalized class 5)
     (sys::%record-ref class *<class>-slots-location*)))
+(initialize-extended-method-check #'class-slots)
 ;; Not in MOP.
 (defun (setf class-slots) (new-value class)
   (accessor-typecheck class 'class '(setf class-slots))
@@ -145,6 +152,7 @@
   (:method ((class class))
     (check-class-initialized class 2)
     (sys::%record-ref class *<class>-direct-default-initargs-location*)))
+(initialize-extended-method-check #'class-direct-default-initargs)
 ;; Not in MOP.
 (defun (setf class-direct-default-initargs) (new-value class)
   (accessor-typecheck class 'class '(setf class-direct-default-initargs))
@@ -155,6 +163,7 @@
   (:method ((class class))
     (check-class-finalized class 6)
     (sys::%record-ref class *<class>-default-initargs-location*)))
+(initialize-extended-method-check #'class-default-initargs)
 ;; Not in MOP.
 (defun (setf class-default-initargs) (new-value class)
   (accessor-typecheck class 'class '(setf class-default-initargs))
@@ -287,6 +296,7 @@
                   ;; a redefinition with nonexistent or non-finalized
                   ;; superclasses to succeed despite of the prototype.
                   (setf (class-instantiated class) old-instantiated)))))))
+(initialize-extended-method-check #'class-prototype)
 ;; Not in MOP.
 (defun (setf class-prototype) (new-value class)
   (accessor-typecheck class 'semi-standard-class '(setf class-prototype))
@@ -303,6 +313,7 @@
   ;; CLISP extension: Convenience method on symbols.
   (:method ((name symbol))
     (class-finalized-p (find-class name))))
+(initialize-extended-method-check #'class-finalized-p)
 
 ;; MOP p. 54
 (defgeneric finalize-inheritance (class)
@@ -314,6 +325,7 @@
   ;; CLISP extension: Convenience method on symbols.
   (:method ((name symbol))
     (finalize-inheritance (find-class name))))
+(initialize-extended-method-check #'finalize-inheritance)
 
 ;; MOP p. 38
 (defgeneric compute-class-precedence-list (class)

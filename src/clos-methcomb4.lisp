@@ -13,3 +13,4 @@
 (defgeneric find-method-combination (generic-function name options)
   (:method ((gf generic-function) (name symbol) options)
     (find-method-combination-<generic-function>-<symbol> gf name options)))
+(initialize-extended-method-check #'find-method-combination)

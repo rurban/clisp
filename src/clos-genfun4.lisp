@@ -175,67 +175,6 @@
 
 ;; ----------------------------------------------------------------------------
 
-(defun check-generic-function-initialized (gf)
-  (unless (std-gf-initialized gf)
-    (error (TEXT "The generic function ~S has not yet been initialized.")
-           gf)))
-
-;; MOP p. 80
-(defgeneric generic-function-name (generic-function)
-  (:method ((gf standard-generic-function))
-    (check-generic-function-initialized gf)
-    (funcallable-name gf)))
-;; MOP p. 92
-(defgeneric (setf generic-function-name) (new-value generic-function)
-  (:method (new-value (gf standard-generic-function))
-    (unless (sys::function-name-p new-value)
-      (error-of-type 'type-error
-        :datum new-value :expected-type '(or symbol (cons (eql setf) (cons symbol null)))
-        (TEXT "~S: The name of a generic function must be a function name, not ~S")
-        '(setf generic-function-name) new-value))
-    (reinitialize-instance gf :name new-value)
-    new-value))
-
-;; MOP p. 80
-(defgeneric generic-function-methods (generic-function)
-  (:method ((gf standard-generic-function))
-    (check-generic-function-initialized gf)
-    (std-gf-methods gf)))
-
-;; MOP p. 80
-(defgeneric generic-function-method-class (generic-function)
-  (:method ((gf standard-generic-function))
-    (check-generic-function-initialized gf)
-    (std-gf-default-method-class gf)))
-
-;; MOP p. 79
-(defgeneric generic-function-lambda-list (generic-function)
-  (:method ((gf standard-generic-function))
-    (check-generic-function-initialized gf)
-    (std-gf-lambda-list gf)))
-
-;; MOP p. 80
-(defgeneric generic-function-method-combination (generic-function)
-  (:method ((gf standard-generic-function))
-    (check-generic-function-initialized gf)
-    (std-gf-method-combination gf)))
-
-;; MOP p. 79
-(defgeneric generic-function-argument-precedence-order (generic-function)
-  (:method ((gf standard-generic-function))
-    (check-generic-function-initialized gf)
-    (let ((argorder (std-gf-argorder gf))
-          (lambdalist (std-gf-lambda-list gf)))
-      (mapcar #'(lambda (i) (nth i lambdalist)) argorder))))
-
-;; MOP p. 79
-(defgeneric generic-function-declarations (generic-function)
-  (:method ((gf standard-generic-function))
-    (check-generic-function-initialized gf)
-    (std-gf-declspecs gf)))
-
-;; ----------------------------------------------------------------------------
-
 (defgeneric find-method (gf qualifiers specializers &optional errorp)
   (:method ((gf standard-generic-function) qualifiers specializers &optional (errorp t))
     (std-find-method gf qualifiers specializers errorp)))
@@ -244,11 +183,15 @@
 (defgeneric add-method (gf method)
   (:method ((gf standard-generic-function) (method standard-method))
     (std-add-method gf method)))
+; No extended method check because this GF is specified in ANSI CL.
+;(initialize-extended-method-check #'add-method)
 
 ;; MOP p. 91
 (defgeneric remove-method (gf method)
   (:method ((gf standard-generic-function) (method standard-method))
     (std-remove-method gf method)))
+; No extended method check because this GF is specified in ANSI CL.
+;(initialize-extended-method-check #'remove-method)
 
 ;; MOP p. 40
 (fmakunbound 'compute-discriminating-function)
@@ -277,3 +220,185 @@
   (:method ((gf standard-generic-function) combination methods)
     (compute-effective-method-<standard-generic-function> gf combination methods)))
 (setq |#'compute-effective-method| #'compute-effective-method)
+
+;; ----------------------------------------------------------------------------
+
+;; MOP p. 10
+;;
+;; "Portable programs may define methods that override specified methods
+;;  only when the description of the specified method explicitly allows this."
+;; (Note: "override" means a method that does not (call-next-method).)
+;;
+;; "Portable programs may define methods that extend specified methods
+;;  unless the description of the specified method explicitly prohibits this. 
+;;  Unless there is a specific statement to the contrary, these extending
+;;  methods must return whatever value was returned by the call to
+;;  call-next-method."
+;; (Note: "extend" means a method that does (call-next-method).)
+;; There are no explicit prohibitions. So this rule is applicable to all
+;; MOP generic functions that are not part of a protocol.
+
+;; Signal an error if the first MOP-standardized method was not called, or
+;; if the returned values are different ones.
+(defun extended-method-check (called original-values extended-values name)
+  (unless called
+    (error (TEXT "~S: Overriding a standardized method is not allowed. You need to call ~S.")
+           name 'call-next-method))
+  (unless (and (eql (length original-values) (length extended-values))
+               (every #'eql original-values extended-values))
+    (error (if (and (eql (length original-values) 1) (eql (length extended-values) 1))
+             (TEXT "~S: Extending a standardized method is only allowed if it returns the same values as the next method.~%Original value: ~{~S~^, ~}~%Value returned by the extending method: ~{~S~^, ~}")
+             (TEXT "~S: Extending a standardized method is only allowed if it returns the same values as the next method.~%Original values: ~{~S~^, ~}~%Values returned by the extending method: ~{~S~^, ~}"))
+           name original-values extended-values))
+  (values-list extended-values))
+
+;; The list of packages whose classes are considered MOP-standardized.
+(defvar *mop-standardized-packages*
+        (list (find-package "COMMON-LISP") (find-package "CLOS")))
+
+;; Tests whether a method is considered MOP-standardized.
+(defun mop-standardized-p (method)
+  ;; Careful! Don't use the generic function method-specializers here,
+  ;; otherwise we get an infinite recursion.
+  (and (typep method 'standard-method)
+       (every #'(lambda (specializer)
+                  (and (class-p specializer)
+                       (let ((name (class-name specializer)))
+                         (and (symbolp name)
+                              (memq (symbol-package name)
+                                    *mop-standardized-packages*)))))
+              (std-method-specializers method))))
+
+;; Rewrite an effective-method, adding a check that
+;; 1. the first MOP-standardized method in the list is really called,
+;; 2. the returned values are identical to the values of this call.
+(defun add-extended-method-check (efm gf)
+  (let ((name (generic-function-name gf)))
+    (flet ((add-outer-wrapper (form)
+             `(LET ((STANDARDIZED-METHOD-CALLED NIL)
+                    (STANDARDIZED-METHOD-VALUES NIL))
+                (LET ((EXTENDED-VALUES (MULTIPLE-VALUE-LIST ,form)))
+                  (EXTENDED-METHOD-CHECK STANDARDIZED-METHOD-CALLED
+                                         STANDARDIZED-METHOD-VALUES
+                                         EXTENDED-VALUES
+                                         ',name))))
+           (add-method-call-wrapper (form)
+             `(PROGN
+                (SETQ STANDARDIZED-METHOD-VALUES (MULTIPLE-VALUE-LIST ,form))
+                (SETQ STANDARDIZED-METHOD-CALLED T)
+                (VALUES-LIST STANDARDIZED-METHOD-VALUES))))
+      (labels ((convert-effective-method (efm)
+                 (if (consp efm)
+                   (if (eq (car efm) 'CALL-METHOD)
+                     (let ((method-list (third efm)))
+                       (if (or (typep (first method-list) 'method) (rest method-list))
+                         ; Reduce the case of multiple methods to a single one.
+                         ; Make the call to the next-method explicit.
+                         (convert-effective-method
+                           `(CALL-METHOD ,(second efm)
+                              ((MAKE-METHOD
+                                 (CALL-METHOD ,(first method-list) ,(rest method-list))))))
+                         ; Now the case of at most one method.
+                         (if (and (typep (second efm) 'method)
+                                  (mop-standardized-p (second efm)))
+                           ; Wrap the method call. Don't need to recurse into efm
+                           ; because we are only interested in the outermost call
+                           ; to a MOP-standardized method.
+                           (add-method-call-wrapper efm)
+                           ; Normal recursive processing.
+                           (cons (convert-effective-method (car efm))
+                                 (convert-effective-method (cdr efm))))))
+                     (cons (convert-effective-method (car efm))
+                           (convert-effective-method (cdr efm))))
+                   efm)))
+        (add-outer-wrapper (convert-effective-method efm))))))
+
+(defparameter *extended-method-check-method*
+  ;; This method is added for each MOP-standardized generic function.
+  (defmethod compute-effective-method ((gf (eql nil)) method-combination methods)
+    (declare (ignore method-combination))
+    (if (or (every #'mop-standardized-p methods)
+            (notany #'mop-standardized-p methods))
+      (call-next-method)
+      (add-extended-method-check (call-next-method) gf))))
+
+(defun initialize-extended-method-check (gf)
+  (add-method |#'compute-effective-method|
+    (make-instance-<standard-method> <standard-method>
+      :qualifiers          (std-method-qualifiers *extended-method-check-method*)
+      :lambda-list         (std-method-lambda-list *extended-method-check-method*)
+      :specializers        (list (intern-eql-specializer gf) <t> <t>)
+      :documentation       (std-method-documentation *extended-method-check-method*)
+      'fast-function       (std-method-fast-function *extended-method-check-method*)
+      'initfunction        (std-method-initfunction *extended-method-check-method*)
+      'wants-next-method-p (std-method-wants-next-method-p *extended-method-check-method*)
+      'signature           (std-method-signature *extended-method-check-method*))))
+
+;; ----------------------------------------------------------------------------
+
+(defun check-generic-function-initialized (gf)
+  (unless (std-gf-initialized gf)
+    (error (TEXT "The generic function ~S has not yet been initialized.")
+           gf)))
+
+;; MOP p. 80
+(defgeneric generic-function-name (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (funcallable-name gf)))
+(initialize-extended-method-check #'generic-function-name)
+;; MOP p. 92
+(defgeneric (setf generic-function-name) (new-value generic-function)
+  (:method (new-value (gf standard-generic-function))
+    (unless (sys::function-name-p new-value)
+      (error-of-type 'type-error
+        :datum new-value :expected-type '(or symbol (cons (eql setf) (cons symbol null)))
+        (TEXT "~S: The name of a generic function must be a function name, not ~S")
+        '(setf generic-function-name) new-value))
+    (reinitialize-instance gf :name new-value)
+    new-value))
+(initialize-extended-method-check #'(setf generic-function-name))
+
+;; MOP p. 80
+(defgeneric generic-function-methods (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-methods gf)))
+(initialize-extended-method-check #'generic-function-methods)
+
+;; MOP p. 80
+(defgeneric generic-function-method-class (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-default-method-class gf)))
+(initialize-extended-method-check #'generic-function-method-class)
+
+;; MOP p. 79
+(defgeneric generic-function-lambda-list (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-lambda-list gf)))
+(initialize-extended-method-check #'generic-function-lambda-list)
+
+;; MOP p. 80
+(defgeneric generic-function-method-combination (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-method-combination gf)))
+(initialize-extended-method-check #'generic-function-method-combination)
+
+;; MOP p. 79
+(defgeneric generic-function-argument-precedence-order (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (let ((argorder (std-gf-argorder gf))
+          (lambdalist (std-gf-lambda-list gf)))
+      (mapcar #'(lambda (i) (nth i lambdalist)) argorder))))
+(initialize-extended-method-check #'generic-function-argument-precedence-order)
+
+;; MOP p. 79
+(defgeneric generic-function-declarations (generic-function)
+  (:method ((gf standard-generic-function))
+    (check-generic-function-initialized gf)
+    (std-gf-declspecs gf)))
+(initialize-extended-method-check #'generic-function-declarations)
