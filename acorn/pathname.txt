@@ -1,247 +1,247 @@
 
-RISC OS provides several filing systems as standard (ADFS, IDEFS, NetFS,
-RamFS, NetPrint) and support for extra filing systems (DOSFS, ResourceFS and
-DeviceFS).
+ RISC OS provides several filing systems as standard (ADFS, IDEFS, NetFS,
+ RamFS, NetPrint) and support for extra filing systems (DOSFS, ResourceFS and
+ DeviceFS).
 
-A module called FileSwitch is at the centre of all filing system operation
-in RISC OS. FileSwitch provides a common core of functions used by all
-filing systems. It only provides the parts of these services that are device
-independent. The device dependant services that control the hardware are
-provided by separate modules, which are the actual filing systems.
-FileSwitch keeps track of active filing systems and switches betwen them as
-necessary.
+ A module called FileSwitch is at the centre of all filing system operation
+ in RISC OS. FileSwitch provides a common core of functions used by all
+ filing systems. It only provides the parts of these services that are device
+ independent. The device dependant services that control the hardware are
+ provided by separate modules, which are the actual filing systems.
+ FileSwitch keeps track of active filing systems and switches betwen them as
+ necessary.
 
-One of the filing system modules that RISC OS provides is FileCore. It takes
-the normal calls that FileSwitch sends to a filing system module, and
-converts them to a simpler set of calls to modules that control the
-hardware. Unlike FileSwitch it creates a fresh instantiation of itself for
-each module that it supports. Using FileCore to build filing system modules
-imposes a more rigid structure on it, as more of the filing system is
-predefined.
+ One of the filing system modules that RISC OS provides is FileCore. It takes
+ the normal calls that FileSwitch sends to a filing system module, and
+ converts them to a simpler set of calls to modules that control the
+ hardware. Unlike FileSwitch it creates a fresh instantiation of itself for
+ each module that it supports. Using FileCore to build filing system modules
+ imposes a more rigid structure on it, as more of the filing system is
+ predefined.
 
-As well as standard filing systems, FileSwitch supports image filing
-systems. These provide facilities for RISC OS to handle media in foreign
-formats, and to support `image files' (or partitions) in those formats.
-Rather than accessing the hardware directly they rely on standard RISC OS
-filing systems to do so. DOSFS is an example of an image filing system used
-to handle DOS format discs.
+ As well as standard filing systems, FileSwitch supports image filing
+ systems. These provide facilities for RISC OS to handle media in foreign
+ formats, and to support `image files' (or partitions) in those formats.
+ Rather than accessing the hardware directly they rely on standard RISC OS
+ filing systems to do so. DOSFS is an example of an image filing system used
+ to handle DOS format discs.
 
-Terminology
+ Terminology
 
-A pathname may include a filing system name, a special field, a media name
-(e.g., a disc name), directory name(s), and the name of the object itself;
-each of these parts of a pathname is known as an `element' of the pathname.
+ A pathname may include a filing system name, a special field, a media name
+ (e.g., a disc name), directory name(s), and the name of the object itself;
+ each of these parts of a pathname is known as an `element' of the pathname.
 
-Filenames
+ Filenames
 
-Filename `elements' may be up to ten characters in length on FileCore-based
-filing systems and on NetFS. These characters may be digits or letters.
-FileSwitch makes no distinction between upper and lower case, although
-filing systems can do so. As a general rule, you should not use top-bit-set
-characters in filenames, although some filing systems (such as
-FileCore-based ones) support them. Other characters may be used provided
-they do not have a special significance. Those that do are listed below :
+ Filename `elements' may be up to ten characters in length on FileCore-based
+ filing systems and on NetFS. These characters may be digits or letters.
+ FileSwitch makes no distinction between upper and lower case, although
+ filing systems can do so. As a general rule, you should not use top-bit-set
+ characters in filenames, although some filing systems (such as
+ FileCore-based ones) support them. Other characters may be used provided
+ they do not have a special significance. Those that do are listed below :
 
-   .   Separates directory specifications, e.g., $.fred
-   :   Introduces a drive or disc specification, e.g., :0, :bigdisc. It also
-       marks the end of a filing system name, e.g., adfs:
-   *   Acts as a `wildcard' to match zero or more characters.
-   #   Acts as a `wildcard' to match any single character.
-   $   is the name of the root directory of the disc.
-   &   is the user root directory (URD)
-   @   is the currently selected directory (CSD)
-   ^   is the `parent' directory
-   %   is the currently selected library (CSL)
-   \   is the previously selected directory (PSD)
+    .   Separates directory specifications, e.g., $.fred
+    :   Introduces a drive or disc specification, e.g., :0, :bigdisc. It also
+        marks the end of a filing system name, e.g., adfs:
+    *   Acts as a `wildcard' to match zero or more characters.
+    #   Acts as a `wildcard' to match any single character.
+    $   is the name of the root directory of the disc.
+    &   is the user root directory (URD)
+    @   is the currently selected directory (CSD)
+    ^   is the `parent' directory
+    %   is the currently selected library (CSL)
+    \   is the previously selected directory (PSD)
 
-Directories
+ Directories
 
-The root directory, $, forms the top of the directory hierarchy
-of the media which contains the CSD. $ does not have a parent directory,
-trying to access its parent will just access $. Each directory name is
-separated by a '.' character. For example:
+ The root directory, $, forms the top of the directory hierarchy
+ of the media which contains the CSD. $ does not have a parent directory,
+ trying to access its parent will just access $. Each directory name is
+ separated by a '.' character. For example:
 
-   $.Documents.Memos
-   %.cc
+    $.Documents.Memos
+    %.cc
 
-Filing Systems
+ Filing Systems
 
-Files may also be accessed on filing systems other than the current one by
-prefixing the filename with a filing system specification. A filing system
-name may appear between '-' characters, or suffixed by a ':', though the
-latter is advised since '-' can also be used to introduce a parameter on a
-command line, or as part of a file name. For example:
+ Files may also be accessed on filing systems other than the current one by
+ prefixing the filename with a filing system specification. A filing system
+ name may appear between '-' characters, or suffixed by a ':', though the
+ latter is advised since '-' can also be used to introduce a parameter on a
+ command line, or as part of a file name. For example:
 
-   -net-$.SystemMesg
-   adfs:%.aasm
+    -net-$.SystemMesg
+    adfs:%.aasm
 
-Special Fields
+ Special Fields
 
-Special fields are used to supply more information to the filing system than
-you can using standard path names; for example NetFS and NetPrint use them
-to specify server addresses or names. They are introduced by a '#'
-character; a variety of syntaxes are possible:
+ Special fields are used to supply more information to the filing system than
+ you can using standard path names; for example NetFS and NetPrint use them
+ to specify server addresses or names. They are introduced by a '#'
+ character; a variety of syntaxes are possible:
 
-   net#MJHardy::disc1.mike
-      #MJHardy::disc1.mike
-  -net#MJHardy-:disc1.mike
-     -#MJHardy-:disc1.mike
+    net#MJHardy::disc1.mike
+       #MJHardy::disc1.mike
+   -net#MJHardy-:disc1.mike
+      -#MJHardy-:disc1.mike
 
-The special fields here are all MJHardy, and give the name of the fileserver
-to use. Special fields may use any character except for control characters,
-double quote '"', solidus '|' and space. If a special field contains a hypen
-you may only use the first two syntaxes given above.
+ The special fields here are all MJHardy, and give the name of the fileserver
+ to use. Special fields may use any character except for control characters,
+ double quote '"', solidus '|' and space. If a special field contains a hypen
+ you may only use the first two syntaxes given above.
 
-File$Path and Run$Path
+ File$Path and Run$Path
 
-These two special variables control exactly where a file will be looked for,
-according to the operation being performed on it.
+ These two special variables control exactly where a file will be looked for,
+ according to the operation being performed on it.
 
-   File$Path   for read operations
-   Run$Path    for execute operations
+    File$Path   for read operations
+    Run$Path    for execute operations
 
-The contents of each variable should expand to a list or prefixes, separated
-by commas. When a read operation is performed then the prefixes in File$Path
-are used in the order in which they are listed. The first object that
-matches is used, whether it be a file or directory. Similarly any execute
-operation uses the prefixes in Run$Path. These search paths are only used
-when the pathname does not contain an explicit filing system reference,
-e.g., executing adfs:file will not use Run$Path.
+ The contents of each variable should expand to a list or prefixes, separated
+ by commas. When a read operation is performed then the prefixes in File$Path
+ are used in the order in which they are listed. The first object that
+ matches is used, whether it be a file or directory. Similarly any execute
+ operation uses the prefixes in Run$Path. These search paths are only used
+ when the pathname does not contain an explicit filing system reference,
+ e.g., executing adfs:file will not use Run$Path.
 
-Other path variables
+ Other path variables
 
-You can set up other path variables and use them as pseudo filing systems.
-For example if you typed:
+ You can set up other path variables and use them as pseudo filing systems.
+ For example if you typed:
 
-   *Set Source$Path adfs:$.src.,adfs:$.public.src.
+    *Set Source$Path adfs:$.src.,adfs:$.public.src.
 
-you could then refer to the pseudo filing system as Source: or (less
-preferable) as -Source-. These path variables work in the same was as
-File$Path and Run$Path.
+ you could then refer to the pseudo filing system as Source: or (less
+ preferable) as -Source-. These path variables work in the same was as
+ File$Path and Run$Path.
 
-NOTE: Path variables are not implemented in this version of CLISP. A
-workaround for this is to use "<Foo$Path>" instead of "Foo:" until they are
-made available.
+ NOTE: Path variables are not implemented in this version of CLISP. A
+ workaround for this is to use "<Foo$Path>" instead of "Foo:" until they are
+ made available.
 
 
-from Lisp-string notation to internal representation
-----------------------------------------------------
-NO swapping. "foo.lisp" means file type "lisp" and file name "foo".
-This is pseudo-BNF:
+ from Lisp-string notation to internal representation
+ ----------------------------------------------------
+ NO swapping. "foo.lisp" means file type "lisp" and file name "foo".
+ This is pseudo-BNF:
 
-legal character ::= any ISO latin-1 graphic character >= ' ' except
-                    '.' ':' '*' '#' '$' '&' '@' '^' '%' '\' '?'
+ legal character ::= any ISO latin-1 graphic character >= ' ' except
+                     '.' ':' '*' '#' '$' '&' '@' '^' '%' '\' '?'
 
-extended legal character ::= any ISO latin-1 graphic character >= ' ' except
-                             ':' '"' '|'
+ extended legal character ::= any ISO latin-1 graphic character >= ' ' except
+                              ':' '"' '|'
 
-legal-wild char ::= legal char | '*' | '#' | '?'
+ legal-wild char ::= legal char | '*' | '#' | '?'
 
-host ::=   '-' { extended legal char except '-' }+ '-'
-         | { extended legal char except '-' } { extended legal char }* ':'
-         | empty
+ host ::=   '-' { extended legal char except '-' }+ '-'
+          | { extended legal char except '-' } { extended legal char }* ':'
+          | empty
 
-device ::=   ':' { legal char }+ '.'
-           | empty
+ device ::=   ':' { legal char }+ '.'
+            | empty
 
-directory ::=   { '$' | '&' | '@' | '%' | '\' } '.' { subdirectory }*
-              | { subdirectory }+
-              | empty
+ directory ::=   { '$' | '&' | '@' | '%' | '\' } '.' { subdirectory }*
+               | { subdirectory }+
+               | empty
 
-'$' -> :ABSOLUTE :ROOT, '&' -> :ABSOLUTE :HOME, '@' -> :ABSOLUTE :CURRENT,
-'%' -> :ABSOLUTE :LIBRARY, '\' -> :ABSOLUTE :PREVIOUS, else :RELATIVE.
+ '$' -> :ABSOLUTE :ROOT, '&' -> :ABSOLUTE :HOME, '@' -> :ABSOLUTE :CURRENT,
+ '%' -> :ABSOLUTE :LIBRARY, '\' -> :ABSOLUTE :PREVIOUS, else :RELATIVE.
 
-subdirectory ::= { '^' | { legal-wild char }+ } '.'
-                 '^' -> :PARENT
+ subdirectory ::= { '^' | { legal-wild char }+ } '.'
+                  '^' -> :PARENT
 
-filename ::= { { legal-wild char }+ | empty }
+ filename ::= { { legal-wild char }+ | empty }
 
-filetype ::= { '.' { legal-wild char }+ | empty }
+ filetype ::= { '.' { legal-wild char }+ | empty }
 
-pathname ::= host device directory filename filetype
+ pathname ::= host device directory filename filetype
 
-Examples:
-String                          Hostname Device  Directory            Name         Type
--net-$.SystemMesg                "net"   NIL     (:ABSOLUTE :ROOT)    "SystemMesg" NIL
-net#MJHardy::disc1.mike    "net#MJHardy" "disc1" (:ABSOLUTE :ROOT)    "mike"       NIL
-#MJHardy::disc1.mike          "#MJHardy" "disc1" (:ABSOLUTE :ROOT)    "mike"       NIL
--net#MJHardy-:disc1.mike   "net#MJHardy" "disc1" (:ABSOLUTE :ROOT)    "mike"       NIL
--#MJHardy-:disc1.mike         "#MJHardy" "disc1" (:ABSOLUTE :ROOT)    "mike"       NIL
-@.foo                            NIL     NIL     (:ABSOLUTE :CURRENT) "foo"        NIL
-foo                              NIL     NIL     (:RELATIVE)          "foo"        NIL
-^.                               NIL     NIL     (:RELATIVE :PARENT)  NIL          NIL
-@.^.                             NIL     NIL     (:ABSOLUTE :CURRENT :PARENT) NIL  NIL
-foo.bar                          NIL     NIL     (:RELATIVE)          "foo"        "bar"
-foo.bar.baz                      NIL     NIL     (:RELATIVE "foo")    "bar"        "baz"
-foo.bar.                         NIL     NIL     (:RELATIVE "foo" "bar") NIL       NIL
-foo.@.                       illegal
+ Examples:
+ String                          Hostname Device  Directory            Name         Type
+ -net-$.SystemMesg                "net"   NIL     (:ABSOLUTE :ROOT)    "SystemMesg" NIL
+ net#MJHardy::disc1.mike    "net#MJHardy" "disc1" (:ABSOLUTE :ROOT)    "mike"       NIL
+ #MJHardy::disc1.mike          "#MJHardy" "disc1" (:ABSOLUTE :ROOT)    "mike"       NIL
+ -net#MJHardy-:disc1.mike   "net#MJHardy" "disc1" (:ABSOLUTE :ROOT)    "mike"       NIL
+ -#MJHardy-:disc1.mike         "#MJHardy" "disc1" (:ABSOLUTE :ROOT)    "mike"       NIL
+ @.foo                            NIL     NIL     (:ABSOLUTE :CURRENT) "foo"        NIL
+ foo                              NIL     NIL     (:RELATIVE)          "foo"        NIL
+ ^.                               NIL     NIL     (:RELATIVE :PARENT)  NIL          NIL
+ @.^.                             NIL     NIL     (:ABSOLUTE :CURRENT :PARENT) NIL  NIL
+ foo.bar                          NIL     NIL     (:RELATIVE)          "foo"        "bar"
+ foo.bar.baz                      NIL     NIL     (:RELATIVE "foo")    "bar"        "baz"
+ foo.bar.                         NIL     NIL     (:RELATIVE "foo" "bar") NIL       NIL
+ foo.@.                       illegal
 
-from internal representation to RISCOS string
----------------------------------------------
+ from internal representation to RISCOS string
+ ---------------------------------------------
 
-with swapping _only_ of name/type components.
+ with swapping _only_ of name/type components.
 
-Hostname    Device  Directory                   Name    Type      RISCOS String
+ Hostname    Device  Directory                   Name    Type      RISCOS String
 
-"net"       "disc1" (:ABSOLUTE :ROOT)           "foo"   NIL       "net::disc1.$.foo"
-"net#MJ"    "disc1" (:ABSOLUTE :ROOT "foo")     "bar"   "baz"     "net#MJ::disc1.$.foo.baz.bar"
-"adfs"      "4"     (:ABSOLUTE :ROOT "foo" "bar") NIL   NIL       "adfs::4.$.foo.bar"
-NIL         "disc1" (:ABSOLUTE :ROOT "foo")     "bar"   NIL       ":disc1.$.foo.bar"
-NIL         "disc1" (:ABSOLUTE :CURRENT)        NIL     NIL       illegal here
-NIL         "disc1" (:RELATIVE)                 NIL     NIL       ":disc1."
-NIL         "disc1" NIL                         NIL     NIL       ":disc1."
-NIL         NIL     (:ABSOLUTE :ROOT)           "foo"   NIL       "$.foo"
-NIL         NIL     (:ABSOLUTE :CURRENT)        "foo"   NIL       "@.foo"
-NIL         NIL     (:RELATIVE)                 "foo"   "bar"     "bar.foo"
-NIL         NIL     (:RELATIVE "foo")           "bar"   "baz"     "foo.baz.bar"
-NIL         NIL     (:ABSOLUTE :LIBRARY)        "bar"   NIL       "%.bar"
-NIL         NIL     (:ABSOLUTE :LIBRARY "foo")  "bar"   NIL       "%.foo.bar"
-NIL         NIL     (:RELATIVE)                 "foo"   "bar"     "bar.foo"
-NIL         NIL     (:RELATIVE "foo")           "bar"   NIL       "foo.bar"
-NIL         NIL     (:RELATIVE "foo")           NIL     "bar"     illegal here
+ "net"       "disc1" (:ABSOLUTE :ROOT)           "foo"   NIL       "net::disc1.$.foo"
+ "net#MJ"    "disc1" (:ABSOLUTE :ROOT "foo")     "bar"   "baz"     "net#MJ::disc1.$.foo.baz.bar"
+ "adfs"      "4"     (:ABSOLUTE :ROOT "foo" "bar") NIL   NIL       "adfs::4.$.foo.bar"
+ NIL         "disc1" (:ABSOLUTE :ROOT "foo")     "bar"   NIL       ":disc1.$.foo.bar"
+ NIL         "disc1" (:ABSOLUTE :CURRENT)        NIL     NIL       illegal here
+ NIL         "disc1" (:RELATIVE)                 NIL     NIL       ":disc1."
+ NIL         "disc1" NIL                         NIL     NIL       ":disc1."
+ NIL         NIL     (:ABSOLUTE :ROOT)           "foo"   NIL       "$.foo"
+ NIL         NIL     (:ABSOLUTE :CURRENT)        "foo"   NIL       "@.foo"
+ NIL         NIL     (:RELATIVE)                 "foo"   "bar"     "bar.foo"
+ NIL         NIL     (:RELATIVE "foo")           "bar"   "baz"     "foo.baz.bar"
+ NIL         NIL     (:ABSOLUTE :LIBRARY)        "bar"   NIL       "%.bar"
+ NIL         NIL     (:ABSOLUTE :LIBRARY "foo")  "bar"   NIL       "%.foo.bar"
+ NIL         NIL     (:RELATIVE)                 "foo"   "bar"     "bar.foo"
+ NIL         NIL     (:RELATIVE "foo")           "bar"   NIL       "foo.bar"
+ NIL         NIL     (:RELATIVE "foo")           NIL     "bar"     illegal here
 
-That is, the RISCOS string is the flattenation-concatenation of
-  (append
-    (if (null hostname) "" (append hostname ":"))
-    (if (null device) "" (append ":" device "."))
-    (case (pop directory)
-      (:ABSOLUTE (case (pop directory)
-                         (:ROOT "$.")
-                         (:HOME "&.")
-                         (:CURRENT "@.")
-                         (:LIBRARY "%.")
-                         (:PREVIOUS "\\.")
-      )          )
-      (:RELATIVE "")
-    )
-    (mapcar (lambda (subdir) (append subdir ".")) directory)
-    (if (null name)
-      (if (null type) "" (error "type with name illegal here"))
-      (if (null type)
-        name
-        (append type "." name)
-  ) ) )
+ That is, the RISCOS string is the flattenation-concatenation of
+   (append
+     (if (null hostname) "" (append hostname ":"))
+     (if (null device) "" (append ":" device "."))
+     (case (pop directory)
+       (:ABSOLUTE (case (pop directory)
+                          (:ROOT "$.")
+                          (:HOME "&.")
+                          (:CURRENT "@.")
+                          (:LIBRARY "%.")
+                          (:PREVIOUS "\\.")
+       )          )
+       (:RELATIVE "")
+     )
+     (mapcar (lambda (subdir) (append subdir ".")) directory)
+     (if (null name)
+       (if (null type) "" (error "type with name illegal here"))
+       (if (null type)
+         name
+         (append type "." name)
+   ) ) )
 
-internal representation
------------------------
+ internal representation
+ -----------------------
 
-Pathname components:
-HOST          Simple-String or NIL
-DEVICE        Simple-String or NIL
-DIRECTORY     (Startpoint . Subdirs) where
-               Startpoint = :RELATIVE | :ABSOLUTE anchor
-               anchor = :ROOT | :HOME | :CURRENT | :LIBRARY | :PREVIOUS
-               Subdirs = () | (subdir . Subdirs)
-               subdir = :PARENT or
-               subdir = simple string, may contain wildcard characters ?,# and *
-NAME          NIL or
-              simple string, may contain wildcard characters ?,# and *
-              (may also be specified as :WILD)
-TYPE          NIL or
-              simple string, may contain wildcard characters ?,# and *
-              (may also be specified as :WILD)
-VERSION       always NIL (may also be specified as :WILD or :NEWEST)
+ Pathname components:
+ HOST          Simple-String or NIL
+ DEVICE        Simple-String or NIL
+ DIRECTORY     (Startpoint . Subdirs) where
+                Startpoint = :RELATIVE | :ABSOLUTE anchor
+                anchor = :ROOT | :HOME | :CURRENT | :LIBRARY | :PREVIOUS
+                Subdirs = () | (subdir . Subdirs)
+                subdir = :PARENT or
+                subdir = simple string, may contain wildcard characters ?,#,*
+ NAME          NIL or
+               simple string, may contain wildcard characters ?,#,*
+               (may also be specified as :WILD)
+ TYPE          NIL or
+               simple string, may contain wildcard characters ?,#,*
+               (may also be specified as :WILD)
+ VERSION       always NIL (may also be specified as :WILD or :NEWEST)
 
-Constraint: startpoint /= :ABSOLUTE :ROOT only if device = NIL. If the device
-is specified, the pathname must be :ABSOLUTE :ROOT.
+ Constraint: startpoint /= :ABSOLUTE :ROOT only if device = NIL. If the device
+ is specified, the pathname must be :ABSOLUTE :ROOT.
 
