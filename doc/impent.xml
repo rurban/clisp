@@ -102,6 +102,9 @@
 <!ENTITY endianness "<link linkend='endianness'><replaceable>ENDIANNESS</replaceable></link>">
 <!ENTITY extfmt "<link linkend='extfmt'><constant>:EXTERNAL-FORMAT</constant></link>">
 <!ENTITY count-ansi "<link linkend='count-ansi'><varname>CUSTOM:*SEQUENCE-COUNT-ANSI*</varname></link>">
+<!ENTITY fixnum-char-ansi "<link linkend='fixnum-char-ansi'><varname>CUSTOM:*COERCE-FIXNUM-CHAR-ANSI*</varname></link>">
+<!ENTITY default-float-format "<link linkend='default-float-format'><varname>CUSTOM:*DEFAULT-FLOAT-FORMAT*</varname></link>">
+<!ENTITY no-underflow "<link linkend='no-underflow'><function>EXT:WITHOUT-FLOATING-POINT-UNDERFLOW</function></link>">
 <!ENTITY file-pipe-socket "<link linkend='open'>file</link>/<link linkend='pipe'>pipe</link>/<link linkend='socket'>socket</link>">
 <!ENTITY finalize "<link linkend='final'><function>EXT:FINALIZE</function></link>">
 <!ENTITY flocont "<link linkend='flocont'><varname>CUSTOM:*FLOATING-POINT-CONTAGION-ANSI*</varname></link>">

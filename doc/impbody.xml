@@ -520,6 +520,23 @@ executes a compiled version of form.</para>
 <para>The class &method-combination-class; is not implemented.</para>
 
 </section>
+
+<section id="type-class-dict"><title>The Types and Classes Dictionary
+  <ulink url="&clhs;/Body/sec_the_types_s_dictionary.html">[CLHS-4.4]</ulink></title>
+
+<section id="fixnum-char-ansi"><title>Function &coerce;</title>
+
+<para>&fixnum-type; is not a <ulink
+  url="&clhs;/Body/glo_c.html#character_designator">character
+  designator</ulink> in &ansi-cl;, although &code-char; provides an
+  obvious venue to &coerce; a &fixnum-type; to a &character-class;.
+  When &fixnum-char-ansi; is &nil;, &clisp; &coerce;s &fixnum-type;s to
+  &character-class;s via &code-char;.
+  When &fixnum-char-ansi; is non-&nil;, &fixnum-type;s cannot be
+  &coerce;d to &character-class;s.
+</para>
+</section>
+</section>
 </chapter>
 
 
@@ -1227,15 +1244,13 @@ is the same as
  every coercion involving different floating-point types.
 </para></formalpara>
 
-<formalpara><title><varname>custom:*default-float-format*</varname></title>
+<formalpara id="default-float-format"><title>&default-float-format;</title>
 <para>When rational numbers are to be converted to floats (due to
  &float;, &coerce;, &sqrt; or a transcendental function), the result
- type is given by the variable
- <varname>custom:*default-float-format*</varname>.</para></formalpara>
+ type is given by the variable &default-float-format;.</para></formalpara>
 
-<formalpara><title><function>ext:without-floating-point-underflow</function></title>
-<para>The macro <literal
- role="sexp">(<function>ext:without-floating-point-underflow</function>
+<formalpara id="no-underflow"><title>&no-underflow;</title>
+<para>The macro <literal role="sexp">(&no-underflow;
  {&form-r;}*)</literal> executes the &form-r;s, with errors of type
  &floating-point-underflow-type; inhibited.  Floating point operations
  will silently return zero instead of signalling an error of type
@@ -2485,14 +2500,13 @@ and the international alphabetic characters from the character set:
  fill pointer, the fill pointer is lowered and the remaining elements are
  compacted below the new fill pointer.</para>
 
-<para id="count-ansi">Contrary to the &ansi-cl; issue 283 <ulink
+<formalpara id="count-ansi"><title>&count-ansi;</title>
+<para>Contrary to the &ansi-cl; issue 283 <ulink
  url="&clhs;/Issues/iss283.html">RANGE-OF-COUNT-KEYWORD:NIL-OR-INTEGER</ulink>,
  negative &count-k; keyword arguments are not allowed unless you set
- <emphasis
- role="strong"><varname>custom:*sequence-count-ansi*</varname></emphasis>
- to a non-&nil; value, in hich case <quote>using a negative integer
- value is functionally equivalent to using a value of zero</quote>, as
- per the &ansi-cl; issue.</para>
+ &count-ansi; to a non-&nil; value, in hich case <quote>using a negative
+ integer value is functionally equivalent to using a value of
+ zero</quote>, as per the &ansi-cl; issue.</para></formalpara>
 
 </section>
 
