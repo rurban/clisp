@@ -612,7 +612,7 @@ DEFUN(POSIX::USAGE,)
 #if defined(HAVE_GETRLIMIT)
 DEFCHECKER(getrlimit_arg,prefix=RLIMIT, CPU FSIZE DATA STACK CORE RSS NOFILE \
            AS NPROC MEMLOCK LOCKS)
-DEFUN(POSIX::LIMITS, &optional what)
+DEFUN(POSIX::RLIMIT, &optional what)
 { /* getrlimit(3) */
 #define RLIM(what)                                                      \
   begin_system_call();                                                  \
@@ -639,10 +639,53 @@ DEFUN(POSIX::LIMITS, &optional what)
 }
 #endif /* HAVE_GETRLIMIT */
 #if defined(HAVE_SETRLIMIT)
-DEFUN(POSIX::SET-LIMITS, what cur max)
-{ /* setrlimit(3) */
+/* parse the RLIMIT structure
+ can trigger GC */
+static void check_rlimit (object arg, struct rlimit *rl) {
+  pushSTACK(check_classname(arg,`POSIX::RLIMIT`));
+  rl->rlim_cur = posfixnum_default2(TheStructure(STACK_0)->recdata[1],
+                                    RLIM_INFINITY);
+  rl->rlim_max = posfixnum_default2(TheStructure(STACK_0)->recdata[2],
+                                    RLIM_INFINITY);
+  skipSTACK(1);
+}
+DEFUN(POSIX::SET-RLIMIT, what cur max)
+{ /* setrlimit(3): 3 ways to call:
+   (setf (rlimit what) (values cur max))
+   (setf (rlimit what) #S(rlimit :cur cur :max max))
+   (setf (rlimit) rlimit-alist-as-returned-by-rlimit-without-arguments) */
+  if (nullp(STACK_2)) {         /* 3rd way */
+    if (!nullp(STACK_0)) goto rlimit_bad;
+    STACK_0 = STACK_1;
+    while (!endp(STACK_0)) {
+      int what = getrlimit_arg(Car(STACK_0));
+      struct rlimit rl;
+      STACK_0 = Cdr(STACK_0);
+      if (!consp(STACK_0)) { STACK_0 = NIL; goto rlimit_bad; }
+      check_rlimit(Car(STACK_0),&rl);
+      STACK_0 = Cdr(STACK_0);
+      begin_system_call();
+      if (setrlimit(what,&rl)) OS_error();
+      end_system_call();
+    }
+  } else {
+    int what = getrlimit_arg(STACK_2);
+    struct rlimit rl;
+    if (nullp(STACK_1) || posfixnump(STACK_1)) { /* 1st way */
+      rl.rlim_cur = posfixnum_default2(STACK_1,RLIM_INFINITY);
+      rl.rlim_max = posfixnum_default2(STACK_0,RLIM_INFINITY);
+    } else {                    /* 2nd way */
+      if (!nullp(STACK_0)) goto rlimit_bad;
+      check_rlimit(STACK_1,&rl);
+    }
+    begin_system_call();
+    if (setrlimit(what,&rl)) OS_error();
+    end_system_call();
+  }
+  VALUES2(STACK_1,STACK_0); skipSTACK(3); return;
+ rlimit_bad:
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S: not yet implemented"));
+  fehler(error,GETTEXT("~S: bad arguments: ~S ~S ~S"));
 }
 #endif /* HAVE_SETRLIMIT */
 
@@ -863,7 +906,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
 }
 #endif  /* fstat lstat fstat */
 
-#if defined(HAVE_CHMOD) || defined(HAVE_CHOWN) || defined(HAVE_UTIME)
+#if defined(HAVE_STAT) && (defined(HAVE_CHMOD) || defined(HAVE_CHOWN) || defined(HAVE_UTIME))
 DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
 { /* interface to chmod(2), chown(2), utime(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/utime.html
