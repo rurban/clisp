@@ -958,6 +958,7 @@ LISPSYM(symbol_name,"SYMBOL-NAME",lisp)
 LISPSYM(keywordp,"KEYWORDP",lisp)
 LISPSYM(special_variable_p,"SPECIAL-VARIABLE-P",ext)
 LISPSYM(gensym,"GENSYM",lisp)
+LISPSYM(plist,"PLIST",system) /* type in type.lisp */
 /* ---------- LISPARIT ---------- */
 LISPSYM(decimal_string,"DECIMAL-STRING",system)
 LISPSYM(zerop,"ZEROP",lisp)

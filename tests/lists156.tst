@@ -1,3 +1,4 @@
+;; -*- LIsp -*-
 
 (ACONS 'A 'B NIL)
 ((A . B))
@@ -59,8 +60,7 @@ ERROR
        #'(LAMBDA (X)
                 (IF (LISTP X)
                     (CAR X))))
-#-(or GCL ECL ALLEGRO CMU) ((A) U)
-#+(or GCL ECL ALLEGRO CMU) ERROR
+ERROR
 
 (ASSOC 'A
        '((B C)
@@ -72,8 +72,7 @@ ERROR
        #'(LAMBDA (X)
                 (IF (ATOM X)
                     X)))
-#-(or GCL ECL ALLEGRO CMU) (A I)
-#+(or GCL ECL ALLEGRO CMU) ERROR
+ERROR
 
 (ASSOC 'A
        '((B C)
@@ -86,8 +85,7 @@ ERROR
                 (IF (LISTP Y)
                     (EQL (CAR Y)
                          X))))
-#-(or GCL ECL ALLEGRO CMU) ((A) U)
-#+(or GCL ECL ALLEGRO CMU) ERROR
+ERROR
 
 (ASSOC 'A
        '((B C)
@@ -99,8 +97,7 @@ ERROR
        #'(LAMBDA (X Y)
                 (IF (ATOM Y)
                     (EQL Y X))))
-#-(or GCL ECL ALLEGRO CMU) (A I)
-#+(or GCL ECL ALLEGRO CMU) ERROR
+ERROR
 
 (ASSOC 'A
        '((B C)

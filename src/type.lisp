@@ -321,6 +321,7 @@
 (def-atomic-type foreign-pointer
   (lambda (x) (eq 'foreign-pointer (type-of x))))
 (def-atomic-type VECTOR vectorp)
+(def-atomic-type PLIST (lambda (x) (and (listp x) (evenp (length x)))))
 
 ; CLtL1 p. 46-50
 (defun c-typep-array (tester el-type dims x)
