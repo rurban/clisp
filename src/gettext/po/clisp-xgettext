@@ -15,6 +15,8 @@
 ;;
 ;;    Alternatively,
 ;;       GETTEXT(string)
+;;    and
+;;       GETTEXTL(string)
 ;;    is treated as equivalent to
 ;;       ENGLISH ? string : ""
 ;;
@@ -34,10 +36,15 @@
   (with-open-file (pot (concatenate 'string destdir "/" filename ".pot")
                        :direction :output
                        #+UNICODE :external-format #+UNICODE charset:iso-8859-1)
+   (with-open-file (pot2 (concatenate 'string destdir "/" filename ".pot2")
+                        :direction :output
+                        #+UNICODE :external-format #+UNICODE charset:iso-8859-1)
     (with-open-file (en (concatenate 'string destdir "/" filename ".en")
                         :direction :output
                         #+UNICODE :external-format #+UNICODE charset:iso-8859-1)
-      (let ((all (make-broadcast-stream pot en))
+      (let ((allpots (make-broadcast-stream pot pot2))
+            (pot+en (make-broadcast-stream pot en))
+            (allpots+en (make-broadcast-stream pot pot2 en))
             (lineno 0) ; number of the line (usually = (1- (sys::line-number file)))
             (line nil) (pos nil))
        (labels ((goto-line (no)
@@ -143,15 +150,16 @@
                   (unless (and (plusp l) (eql (char string (1- l)) #\Newline))
                     (write-char #\" stream)
                 ) )
-                (output-hunk (no msgid)
-                  (format all "~%#: ~A:~D~%" filename no)
-                  (format all "msgid ")
-                  (output-string msgid all)
-                  (format all "~%msgstr ")
-                  (output-string "" pot)
-                  (output-string msgid en) ; default English translation is msgid itself
-                  (format all "~%")
-                )
+                (output-hunk (no msgid with-2)
+                  (let ((ostream (if with-2 allpots+en pot+en)))
+                    (format ostream "~%#: ~A:~D~%" filename no)
+                    (format ostream "msgid ")
+                    (output-string msgid ostream)
+                    (format ostream "~%msgstr ")
+                    (output-string "" (if with-2 allpots pot))
+                    (output-string msgid en) ; default English translation is msgid itself
+                    (format ostream "~%")
+                ) )
                 (do-one-file (&key all-grepper keys string-parser)
                   (let ((grep
                           (make-pipe-input-stream
@@ -173,7 +181,7 @@
                                 (setq pos (+ key-pos (length key)))
                                 (let ((found-string (funcall string-parser)))
                                   (when found-string
-                                    (output-hunk grep-no found-string)
+                                    (output-hunk grep-no found-string (equal key "GETTEXTL("))
                                     (return)
                           ) ) ) ) )
                           (unless found-a-key
@@ -184,8 +192,8 @@
                )
          (cond ((search ".d$" (concatenate 'string filename "$"))
                 ;; Extract strings from a .d file
-                (do-one-file :all-grepper "grep -n '\\(GETTEXT(\\|ENGLISH \\*/\\)' "
-                             :keys '("GETTEXT(" "ENGLISH ")
+                (do-one-file :all-grepper "grep -n '\\(GETTEXT(\\|GETTEXTL(\\|ENGLISH \\*/\\)' "
+                             :keys '("GETTEXT(" "GETTEXTL(" "ENGLISH ")
                              :string-parser #'d-parse-string
                ))
                ((search ".lisp$" (concatenate 'string filename "$"))
@@ -197,6 +205,6 @@
                (t (error "unknown file type: ~S" filename))
          )
       ))
-))) )
+)))))
 
 (main (first *args*) (second *args*))

@@ -1,5 +1,5 @@
 # Haupt-Include-File für CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 # Marcus Daniels 11.11.1994
 
 
@@ -7246,6 +7246,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 #ifdef LANGUAGE_STATIC
   #if ENGLISH
     #define GETTEXT(english)  english
+    #define GETTEXTL(english)  english
   #endif
 #else
   #define language_english   0
@@ -7254,6 +7255,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     extern uintL language;
     #define ENGLISH  (language==language_english)
     #define GETTEXT(english)  english
+    #define GETTEXTL(english)  english
   #else # GNU_GETTEXT
     #include "libintl.h"
     # Fetch the message translations from a message catalog.
@@ -7261,10 +7263,16 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
       extern char* gettext (const char * msgid);
     #endif
     extern const char * clgettext (const char * msgid);
-    # GETTEXT(english_message) fetches the translation of english_message.
-    # GETTEXT is a special tag recognized by clisp-xgettext. We choose English
-    # because it's the only language understood by all CLISP developers.
+    extern const char * clgettextl (const char * msgid);
+    # GETTEXT(english_message) fetches the translation of english_message
+    # and returns it in UTF-8 (if UNICODE is defined).
+    # GETTEXTL(english_message) fetches the translation of english_message
+    # and returns it in the locale encoding.
+    # GETTEXT and GETTEXTL are special tags recognized by clisp-xgettext. We
+    # choose English because it's the only language understood by all CLISP
+    # developers.
     #define GETTEXT clgettext
+    #define GETTEXTL clgettextl
     #
     # Fetch the message translations of a string.
     # localized_string(obj)
@@ -11025,7 +11033,7 @@ typedef struct {
 # Fehlermeldung mit Errorstring. Kehrt nicht zurück.
 # fehler(errortype,errorstring);
 # > errortype: Condition-Typ
-# > errorstring: Konstanter ASCIZ-String.
+# > errorstring: Konstanter ASCIZ-String, in UTF-8 Encoding.
 #   Bei jeder Tilde wird ein LISP-Objekt vom STACK genommen und statt der
 #   Tilde ausgegeben.
 # > auf dem STACK: Initialisierungswerte für die Condition, je nach errortype

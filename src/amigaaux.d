@@ -209,7 +209,7 @@ global long full_write(handle,bufarea,nbyte)
         if (!(pointable_usable_test((aint)&init_amiga) # Code-Segment überprüfen
               && pointable_usable_test((aint)&symbol_tab) # Daten-Segment überprüfen
            ) ) {
-          asciz_out(GETTEXT("This version of CLISP runs only in low address memory." NLstring));
+          asciz_out(GETTEXTL("This version of CLISP runs only in low address memory." NLstring));
           asciz_out_2("CODE: %x, DATA: %x." NLstring, (aint)&init_amiga, (aint)&symbol_tab);
           exit(RETURN_FAIL);
         }

@@ -2488,15 +2488,19 @@ fi
 if [ -n "$USE_GETTEXT" ] ; then
 
   if [ -n "$GETTEXTLIB" ] ; then
-    echol "libintl.h :"
-    echotab "-\$(LN_S) gettext${NEXT_}intl${NEXT_}intlh.inst libintl.h"
-    echol
     if [ $HOS = unix ] ; then
       echol "${GETTEXTLIB} :"
       echotab "cd gettext/intl && \$(MAKE) -r CC='${XCC}' CFLAGS='${XCFLAGS}' RANLIB='\$(RANLIB)'"
       echol
       echol "libintl.a : ${GETTEXTLIB}"
       echotab "-\$(LN_S) ${GETTEXTLIB} libintl.a"
+      echol
+      echol "libintl.h : ${GETTEXTLIB}"
+      echotab "-\$(LN_S) gettext${NEXT_}intl${NEXT_}libintl.h libintl.h"
+      echol
+    else
+      echol "libintl.h :"
+      echotab "-\$(LN_S) gettext${NEXT_}intl${NEXT_}libintl.h libintl.h"
       echol
     fi
   fi

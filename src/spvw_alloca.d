@@ -46,9 +46,9 @@ typedef struct malloca_header {
         return &ptr->usable_memory;
       } else {
         #ifdef VIRTUAL_MEMORY
-        asciz_out(GETTEXT(NLstring "*** - " "Virtual memory exhausted. RESET"));
+        asciz_out(GETTEXTL(NLstring "*** - " "Virtual memory exhausted. RESET"));
         #else
-        asciz_out(GETTEXT(NLstring "*** - " "Memory exhausted. RESET")); :
+        asciz_out(GETTEXTL(NLstring "*** - " "Memory exhausted. RESET")); :
         #endif
         reset();
       }

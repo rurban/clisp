@@ -316,7 +316,7 @@ if test -n "$do_config"; then
       fi
     done
     for f in readline readline/doc readline/examples readline/support readline/shlib \
-             gettext gettext/intl gettext/po
+             gettext gettext/autoconf gettext/intl gettext/po
     do
       if [ -d src/$f ] ; then
         if [ ! -d $ABS_DIRNAME/$f ] ; then

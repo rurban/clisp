@@ -741,7 +741,7 @@
         var int abbruch_errno = errno;
         asciz_out(program_name); asciz_out(": ");
         asciz_out_s(
-          GETTEXT("operating system error during load of initialisation file `%s'" NLstring),
+          GETTEXTL("operating system error during load of initialisation file `%s'" NLstring),
           filename
           );
         errno_out(abbruch_errno);
@@ -1213,7 +1213,7 @@
                     inc_file_offset(map_len);
                     goto block_done;
                   } else {
-                    asciz_out(GETTEXT("Cannot map the initialisation file into memory."));
+                    asciz_out(GETTEXTL("Cannot map the initialisation file into memory."));
                     #ifdef HAVE_MMAP
                     errno_out(errno);
                     #else
@@ -1477,17 +1477,17 @@
       {
         var int abbruch_errno = OS_errno;
         asciz_out(program_name); asciz_out(": ");
-        asciz_out(GETTEXT("operating system error during load of initialisation file" NLstring));
+        asciz_out(GETTEXTL("operating system error during load of initialisation file" NLstring));
         errno_out(abbruch_errno);
       }
       goto abbruch_quit;
      abbruch2:
       asciz_out(program_name); asciz_out(": ");
-      asciz_out(GETTEXT("initialisation file was not created by this version of LISP" NLstring));
+      asciz_out(GETTEXTL("initialisation file was not created by this version of LISP" NLstring));
       goto abbruch_quit;
      abbruch3:
       asciz_out(program_name); asciz_out(": ");
-      asciz_out(GETTEXT("not enough memory for initialisation" NLstring));
+      asciz_out(GETTEXTL("not enough memory for initialisation" NLstring));
       goto abbruch_quit;
      abbruch_quit:
       # Abbruch.

@@ -1,5 +1,5 @@
 # Error-Handling für CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 # Marcus Daniels 8.4.1994
 
 #include "lispbibl.c"
@@ -107,16 +107,18 @@
       }
     }
 
-# UP: Gibt einen Errorstring unverändert aus.
-# write_errorasciz(asciz);
-  local void write_errorasciz (const char* asciz);
-  local void write_errorasciz(asciz)
-    var const char* asciz;
-    { 
+# UP: Outputs a piece of an error string without modifications.
+# write_errorasciz_substring(start,end);
+# > start, end: delimit an unmovable string in UTF-8 encoding
+  local void write_errorasciz_substring (const uintB* start, const uintB* end);
+  local void write_errorasciz_substring(start,end)
+    var const uintB* start;
+    var const uintB* end;
+    {
       #ifdef UNICODE
       var object encoding = O(internal_encoding);
-      var const uintB* bptr = (const uintB*)asciz;
-      var const uintB* bendptr = bptr + asciz_length(asciz);
+      var const uintB* bptr = start;
+      var const uintB* bendptr = end;
       var uintL clen = Encoding_mblen(encoding)(encoding,bptr,bendptr);
       if (clen > 0) {
         var DYNAMIC_ARRAY(charbuf,chart,clen);
@@ -133,19 +135,30 @@
         FREE_DYNAMIC_ARRAY(charbuf);
       }
       #else
-      var const uintB* bptr = (const uintB*)asciz;
-      while (*bptr != '\0') {
+      var const uintB* bptr = start;
+      while (*bptr != end) {
         write_code_char(&STACK_0,as_chart(*bptr));
         bptr++;
       }
       #endif
     }
 
+# UP: Gibt einen Errorstring unverändert aus.
+# write_errorasciz(asciz);
+# > asciz: Errorstring (ein unverschieblicher ASCIZ-String), in UTF-8 Encoding
+  local void write_errorasciz (const char* asciz);
+  local void write_errorasciz(asciz)
+    var const char* asciz;
+    { 
+      write_errorasciz_substring((const uintB*)asciz,
+                                 (const uintB*)(asciz + asciz_length(asciz)));
+    }
+
 # UP: Gibt einen Errorstring aus. Bei jeder Tilde '~' wird ein Objekt aus dem
 # Stack ausgegeben, bei jedem '$' wird ein Character aus dem Stack ausgegeben.
 # write_errorstring(errorstring)
 # > STACK_0: Stream usw.
-# > errorstring: Errorstring (ein unverschieblicher ASCIZ-String)
+# > errorstring: Errorstring (ein unverschieblicher ASCIZ-String), in UTF-8 Encoding
 # > STACK_7, STACK_8, ...: Argumente (für jedes '~' bzw. '$' eines),
 #   in umgekehrter Reihenfolge wie bei FUNCALL !
 # < ergebnis: STACK-Wert oberhalb des Stream und der Argumente
@@ -155,28 +168,29 @@
     {
       var object* argptr = args_end_pointer STACKop 7; # Pointer übern Stream und Frame
       loop {
-        var uintB ch = *errorstring++; # nächstes Zeichen
+        var char ch = *errorstring; # nächstes Zeichen
         if (ch==0) # String zu Ende?
           break;
-        if (ch=='~') # Tilde?
+        if (ch=='~') { # Tilde?
           # ja -> ein Objekt vom Stack ausgeben:
           write_errorobject(BEFORE(argptr));
-        elif (ch=='$') # '$' ?
+          errorstring++;
+        } elif (ch=='$') { # '$' ?
           # ja -> ein Character vom Stack ausgeben:
           write_errorchar(BEFORE(argptr));
-        else {
-          # nein -> Zeichen normal ausgeben:
-          #ifdef UNICODE
-          var object encoding = O(internal_encoding);
-          var chart chbuf[1];
-          var const uintB* ptr1 = &ch;
-          var chart* ptr2 = &chbuf[0];
-          Encoding_mbstowcs(encoding)(encoding,nullobj,&ptr1,ptr1+1,&ptr2,ptr2+1);
-          if (ptr2 == &chbuf[1])
-            write_code_char(&STACK_0,chbuf[0]);
-          #else
-          write_code_char(&STACK_0,as_chart(ch));
-          #endif
+          errorstring++;
+        } else {
+          # no -> output all characters until the next special character
+          var const char* ptr = errorstring;
+          loop {
+            ptr++;
+            ch = *ptr;
+            if (ch==0 || ch=='~' || ch=='$')
+              break;
+          }
+          write_errorasciz_substring((const uintB*)errorstring,
+                                     (const uintB*)ptr);
+          errorstring = ptr;
         }
       }
       return argptr;
@@ -287,7 +301,7 @@
 # Fehlermeldung mit Errorstring. Kehrt nicht zurück.
 # fehler(errortype,errorstring);
 # > errortype: Condition-Typ
-# > errorstring: Konstanter ASCIZ-String.
+# > errorstring: Konstanter ASCIZ-String, in UTF-8 Encoding.
 #   Bei jeder Tilde wird ein LISP-Objekt vom STACK genommen und statt der
 #   Tilde ausgegeben.
 # > auf dem STACK: Initialisierungswerte für die Condition, je nach errortype
