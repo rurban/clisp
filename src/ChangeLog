@@ -1,3 +1,8 @@
+2002-12-12  Sam Steingold  <sds@gnu.org>
+
+	* unixconf.h.in (ENABLE_NLS): added (this fixes
+	the 2002-07-19 lispbibl.d patch)
+
 2002-12-12  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	* pathname.d (TrueName) [WIN32_NATIVE]: fixed a bug -
@@ -6,9 +11,8 @@
 2002-12-12  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	Fix MSVC compilation
-	* stream.d (sock_opt_bool, sock_opt_int)
-	(sock_opt_time, socket_options): use SOCKLEN_T instead
-	of socklen_t.
+	* stream.d (sock_opt_bool, sock_opt_int, sock_opt_time)
+	(socket_options): use SOCKLEN_T instead of socklen_t.
 	* spvw_mmap.d (mmap_zeromap) [HAVE_WIN32_VM]: fix declaration.
 
 2002-12-11  Sam Steingold  <sds@gnu.org>

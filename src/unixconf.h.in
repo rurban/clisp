@@ -686,6 +686,11 @@
 /* Define as const if the declaration of iconv() needs const. */
 #undef ICONV_CONST
 
+/* AM_GNU_GETTEXT */
+/* Define to 1 if translation of program messages to the user's
+   native language is requested. */
+#undef ENABLE_NLS
+
 
 /* OS services */
 
