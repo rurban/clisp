@@ -48,6 +48,7 @@
 <!ENTITY ioctl "<ulink url='&unix-f;/ioctl.html'><function>ioctl</function></ulink>">
 <!ENTITY link "<ulink url='&unix-f;/link.html'><function>link</function></ulink>">
 <!ENTITY listen-c "<ulink url='&unix-f;/listen.html'><function>listen</function></ulink>">
+<!ENTITY localeconv "<ulink url='&unix-f;/localeconv.html'><function>localeconv</function></ulink>">
 <!ENTITY lstat "<ulink url='&unix-f;/lstat.html'><function>lstat</function></ulink>">
 <!ENTITY malloc "<ulink url='&unix-f;/malloc.html'><function>malloc</function></ulink>">
 <!ENTITY mblen "<ulink url='&unix-f;/mblen.html'><function>mblen</function></ulink>">
