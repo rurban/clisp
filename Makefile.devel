@@ -273,15 +273,28 @@ distrib : linux-distrib src-distrib
 # http://freshmeat.net/projects/clisp/
 # https://sourceforge.net/news/submit.php?group_id=1355
 # https://www.opensourcedirectory.org/projects/clisp/
-# www/index.php, www/impnotes.html, www/impnotes/ have to be updated too
+
+# web pages to be updated:
+# www/index.php, www/impnotes.html, www/clisp.html, www/impnotes/
+
+# careful here: this src/VERSION is changed by this file!
+VER=`cat src/VERSION`
+SRC_DIST=/tmp/clisp-$(VER)$(PACKEXT)
+SRC_DIST1=/tmp/clisp-$(VER).tar.gz
+
+upload : force
+	bzcat -v $(SRC_DIST) | gzip -9 -v > $(SRC_DIST1)
+	scp $(SRC_DIST) $(SRC_DIST1) gnudist:~/ftp-clisp/latest/
+	scp $(SRC_DIST) $(SRC_DIST1) cons:~/ftp-clisp/source/latest/
+	lftp upload.sf.net -e "cd incoming; put $(SRC_DIST) $(SRC_DIST1); quit"
+	lftp sunsite.unc.edu -e "cd /incoming/Linux; put clisp.lsm $(SRC_DIST) $(SRC_DIST1); quit"
 
 src-distrib : src/FILES src/version.h potfiles force
-	$(MAKE) -f Makefile.devel src--distrib TOPDIR=clisp-`cat src/VERSION`
+	$(MAKE) -f Makefile.devel src--distrib TOPDIR=clisp-$(VER)
 
 src--distrib : force
 	ln -s . $(TOPDIR)
-	$(PACK) $(PACKOPT) /tmp/clisp-`cat src/VERSION`$(PACKEXT) \
-		$(EXCLUDE) $(SOURCES)
+	$(PACK) $(PACKOPT) $(SRC_DIST) $(EXCLUDE) $(SOURCES)
 	rm -f $(TOPDIR)
 # No need for this. François Pinard doesn't like CLISP's submissions any more.
 # Doesn't matter; the KDE project's translations work independently too.

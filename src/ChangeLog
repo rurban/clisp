@@ -1,5 +1,10 @@
 2002-03-06  Sam Steingold  <sds@gnu.org>
 
+	infrastructure tweaks
+	* makemake.in (XCFLAGS): handle --with-threads=FLAVOR by
+	adding "-DMULTITHREAD -Dflavor"
+	* configure (info_help): documented all options
+	* Makefile.devel (upload): new target
 	* autoconf/aclocal.m4 (CL_STRERROR, CL_FSYNC, CL_UALARM)
 	(CL_USLEEP): removed trivial defuns
 	* configure.in: call AC_CHECK_FUNCS for strerror(), fsync(),
