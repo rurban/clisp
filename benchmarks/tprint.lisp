@@ -28,8 +28,10 @@
 
 ;;; This will be slower (ha,ha) but won't return that awful
 ;;; thing that breaks the screen editors.
-(defun tprint-test ()
-  (progn
-    (print tprint-test-pattern)
+(defun tprint-test (&optional (repeat 1))
+  (let ((out "tprint-out.tmp"))
+    (with-open-file (s out :direction :output)
+      (loop :repeat repeat :do (print tprint-test-pattern s)))
+    (delete-file out)
     t))
 
