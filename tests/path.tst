@@ -578,5 +578,19 @@ FIXME
 #-clisp
 FIXME
 
+(merge-pathnames (logical-pathname "clocc:clocc.lisp"))
+#+CLISP
+#S(logical-pathname :host "CLOCC" :device nil :directory (:absolute)
+                    :name "CLOCC" :type "LISP" :version :newest)
+#-CLISP
+FIXME
+
+(compile-file-pathname (logical-pathname "clocc:clocc.lisp"))
+#+CLISP
+#S(logical-pathname :host "CLOCC" :device nil :directory (:absolute)
+                    :name "CLOCC" :type "FAS" :version nil)
+#-CLISP
+FIXME
+
 (make-pathname :defaults "a.b" :name "c" :type nil)
 #p"c"
