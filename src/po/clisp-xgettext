@@ -120,6 +120,8 @@
                 (output-hunk (no msgid with-2)
                   (let ((ostream (if with-2 allpots pot)))
                     (format ostream "~%#: ~A:~D~%" filename no)
+                    (when (or (search "~S" msgid) (search "~C" msgid))
+                      (format ostream "#, lisp-format~%"))
                     (format ostream "msgid ")
                     (output-string msgid ostream)
                     (format ostream "~%msgstr ")

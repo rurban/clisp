@@ -616,7 +616,7 @@ global void* my_malloc (size_t size)
   if (ptr)
     return ptr;
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(storage_condition,GETTEXT("~: malloc() failed"));
+  fehler(storage_condition,GETTEXT("~S: malloc() failed"));
 }
 
 #if (int_bitsize < long_bitsize)
@@ -643,7 +643,7 @@ nonreturning_function(global, fehler_notreached,
   pushSTACK(fixnum(line));
   pushSTACK(ascii_to_string(file));
   fehler(serious_condition,
-         GETTEXT("Internal error: statement in file ~, line ~ has been reached!!\n"
+         GETTEXT("Internal error: statement in file ~S, line ~S has been reached!!\n"
                  "Please send the authors of the program a description how you produced this error!"));
 }
 
@@ -3102,7 +3102,7 @@ nonreturning_function(local, fehler_dlerror,
     { pushSTACK(asciz_to_string(symbol,O(internal_encoding))); }
   pushSTACK(asciz_to_string(func,O(internal_encoding)));
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error, (symbol == NULL ? "~: ~ -> ~" : "~: ~(~) -> ~"));
+  fehler(error, (symbol == NULL ? "~S: ~S -> ~S" : "~S: ~S(~S) -> ~S"));
 }
 global void dynload_modules (const char * library, uintC modcount,
                              const char * const * modnames) {

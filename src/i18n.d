@@ -41,7 +41,7 @@ LISPFUNN(set_current_language,1) {
   if (!eq(STACK_0,O(current_language))) {
     pushSTACK(STACK_0);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: cannot set language to ~"));
+    fehler(error,GETTEXT("~S: cannot set language to ~S"));
   }
  #endif
   VALUES1(O(current_language)); skipSTACK(1);
@@ -85,7 +85,7 @@ local int check_category (object category)
   pushSTACK(O(type_category)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(category);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error, GETTEXT("~: invalid locale category ~"));
+  fehler(type_error, GETTEXT("~S: invalid locale category ~S"));
 }
 
 local inline object do_gettext (const char* msgid,
@@ -157,7 +157,7 @@ LISPFUN(i18n_ngettext,seclass_read,3,2,norest,nokey,0,NIL)
     pushSTACK(arg); # TYPE-ERROR slot DATUM
     pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(arg); pushSTACK(S(i18n_ngettext));
-    fehler(type_error, GETTEXT("~: argument should be an integer >=0, not ~"));
+    fehler(type_error, GETTEXT("~S: argument should be an integer >=0, not ~S"));
   }
   var uint32 n;
   if (posfixnump(arg))

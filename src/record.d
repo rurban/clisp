@@ -29,7 +29,7 @@ nonreturning_function(local, fehler_index, (uintL limit)) {
   pushSTACK(STACK_(1+2)); /* record */
   pushSTACK(STACK_(0+3)); /* index */
   pushSTACK(TheSubr(subr_self)->name); /* function name */
-  fehler(type_error,GETTEXT("~: ~ is not a valid index into ~"));
+  fehler(type_error,GETTEXT("~S: ~S is not a valid index into ~S"));
 }
 
 /* Error message
@@ -37,7 +37,7 @@ nonreturning_function(local, fehler_index, (uintL limit)) {
 nonreturning_function(local, fehler_record, (void)) {
   pushSTACK(TheSubr(subr_self)->name); /* function name */
   fehler(error, /* type_error ?? */
-         GETTEXT("~: ~ is not a record"));
+         GETTEXT("~S: ~S is not a record"));
 }
 
 /* Subroutine for record access functions
@@ -93,7 +93,7 @@ nonreturning_function(local, fehler_record_length, (void)) {
   pushSTACK(O(type_posint16)); /* type */
   pushSTACK(STACK_2); /* length */
   pushSTACK(TheSubr(subr_self)->name); /* function name */
-  fehler(type_error,GETTEXT("~: length ~ should be of type ~"));
+  fehler(type_error,GETTEXT("~S: length ~S should be of type ~S"));
 }
 
 /* ===========================================================================
@@ -126,7 +126,7 @@ local gcv_object_t* structure_up (void) {
     pushSTACK(STACK_(2+2));
     pushSTACK(STACK_(1+3));
     pushSTACK(TheSubr(subr_self)->name); /* function name */
-    fehler(type_error,GETTEXT("~: ~ is not a structure of type ~"));
+    fehler(type_error,GETTEXT("~S: ~S is not a structure of type ~S"));
   }
   var object structure = STACK_1;
   /* check if type occurs in namelist = (name_1 ... name_i-1 name_i) : */
@@ -173,7 +173,7 @@ LISPFUNNR(structure_ref,3) {
     pushSTACK(STACK_(1+3+2));
     pushSTACK(value1);
     pushSTACK(S(structure_ref));
-    fehler(unbound_slot,GETTEXT("~: Slot ~ of ~ has no value"));
+    fehler(unbound_slot,GETTEXT("~S: Slot ~S of ~S has no value"));
   }
   skipSTACK(3); /* clean up stack */
 }
@@ -208,7 +208,7 @@ global object check_structure (object obj) {
     pushSTACK(S(structure_object)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(structure_object)); pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
     obj = value1;
   }
   return obj;
@@ -273,7 +273,7 @@ LISPFUNNR(closure_name,1) {
     pushSTACK(closure);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
     fehler(error, /* type_error ?? */
-           GETTEXT("~: ~ is not a closure"));
+           GETTEXT("~S: ~S is not a closure"));
   }
   VALUES1(TheClosure(closure)->clos_name);
 }
@@ -283,7 +283,7 @@ nonreturning_function(local, fehler_cclosure, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name); /* function name */
   fehler(error, /* type_error ?? */
-         GETTEXT("~: This is not a compiled closure: ~"));
+         GETTEXT("~S: This is not a compiled closure: ~S"));
 }
 
 /* (SYS::CLOSURE-CODEVEC closure) returns the code-vector of a compiled
@@ -351,7 +351,7 @@ LISPFUNNR(make_code_vector,1) {
   pushSTACK(Car(listr)); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(STACK_1);
-  fehler(type_error,GETTEXT("~ is not a valid code-vector byte"));
+  fehler(type_error,GETTEXT("~S is not a valid code-vector byte"));
 }
 
 /* parse the seclass object (NIL or SECLASS, see compiler.lisp)
@@ -362,7 +362,7 @@ local seclass_t parse_seclass (object sec, object closure)
   if (!consp(sec) || !consp(Cdr(sec)) || !consp(Cdr(Cdr(sec)))) {
     pushSTACK(closure); pushSTACK(sec);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: invalid side-effect class ~ for function ~"));
+    fehler(error,GETTEXT("~S: invalid side-effect class ~S for function ~S"));
   }
   var object modifies = Car(Cdr(sec));
   return (nullp(Car(sec))
@@ -382,7 +382,7 @@ LISPFUNNR(make_closure,4) {
     pushSTACK(S(simple_bit_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(STACK_(1+2));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: invalid code-vector ~"));
+    fehler(type_error,GETTEXT("~S: invalid code-vector ~S"));
   }
   /* create a new closure of length (+ 2 (length consts)) : */
   var uintL length = 2+llength(STACK_0);
@@ -390,7 +390,7 @@ LISPFUNNR(make_closure,4) {
     /* STACK_0 = consts */
     pushSTACK(STACK_2); /* name */
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: function ~ is too big: ~"));
+    fehler(error,GETTEXT("~S: function ~S is too big: ~S"));
   }
   var object closure = allocate_closure(length,seclass);
   TheCclosure(closure)->clos_name = STACK_2; /* fill name */
@@ -425,7 +425,7 @@ local object check_generic_function (object obj) {
     pushSTACK(S(standard_generic_function)); /* slot EXPECTED-TYPE */
     pushSTACK(S(standard_generic_function)); pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
     obj = value1;
   }
   return obj;
@@ -445,7 +445,7 @@ LISPFUNN(copy_generic_function,2) {
     pushSTACK(oldclos);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
     fehler(error,
-           GETTEXT("~: This is not a prototype of a generic function: ~"));
+           GETTEXT("~S: This is not a prototype of a generic function: ~S"));
   }
   vector = copy_svector(vector); /* copy the vector */
   TheSvector(vector)->data[0] = STACK_1; /* put in venv */
@@ -570,7 +570,7 @@ LISPFUNN(macro_expander,1) {
     pushSTACK(S(macro)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(macro)); pushSTACK(obj);
     pushSTACK(S(macro_expander)); /* function name */
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
     obj = value1;
   }
   VALUES1(TheMacro(obj)->macro_expander);
@@ -611,7 +611,7 @@ local object check_function_macro (object obj) {
     pushSTACK(S(function_macro)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(function_macro)); pushSTACK(obj);
     pushSTACK(S(function_macro_expander)); /* function name */
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
     obj = value1;
   }
   return obj;
@@ -683,7 +683,7 @@ local object check_weak_pointer (object wp) {
     pushSTACK(S(weak_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(weak_pointer)); pushSTACK(wp);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
     wp = value1;
   }
   return wp;
@@ -767,7 +767,7 @@ nonreturning_function(local, fehler_keine_klasse, (object obj)) {
   pushSTACK(S(class)); /* CLOS:CLASS, TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name); /* function name */
-  fehler(type_error,GETTEXT("~: ~ is not a class"));
+  fehler(type_error,GETTEXT("~S: ~S is not a class"));
 }
 
 /* (CLOS::ALLOCATE-STD-INSTANCE class n) returns a CLOS-instance of length n,
@@ -1441,7 +1441,7 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
             /* instance already in STACK_0 */
             pushSTACK(Before(rest_args_pointer));
             pushSTACK(S(allocate_instance));
-            fehler(error,GETTEXT("~ method for ~ returned ~"));
+            fehler(error,GETTEXT("~S method for ~S returned ~S"));
           }
           value1 = popSTACK(); /* restore instance */
         } else {

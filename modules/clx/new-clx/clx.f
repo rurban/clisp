@@ -486,7 +486,7 @@ nonreturning_function(static,my_type_error,(object type, object datum))
   pushSTACK(datum);             /* TYPE-ERROR slot DATUM */
   pushSTACK(type);              /* TYPE-ERROR slot TYPE */
   pushSTACK(type); pushSTACK(datum); pushSTACK(TheSubr(subr_self)->name);
-  fehler (type_error, ("~: ~ is not of type ~"));
+  fehler (type_error, ("~S: ~S is not of type ~S"));
 }
 nonreturning_function (static, closed_display_error,
                        (object caller, object dpy)) {
@@ -1012,7 +1012,7 @@ XFontStruct *get_font_info_and_display (object obj, object* fontf,
 
     if (!info) {
       pushSTACK(STACK_1); pushSTACK(TheSubr (subr_self)->name);
-      fehler (error, "~: Nonexistent font: ~");
+      fehler (error, "~S: Nonexistent font: ~S");
     }
 
     if (dpyf) *dpyf = dpy;
@@ -1134,11 +1134,11 @@ static Font get_font (object self)
         return font;            /* all done */
       } else { /* We could not open the font, so emit an error message */
         pushSTACK(TheSubr(subr_self)->name);    /* function name */
-        fehler (error, "~: Cannot open pseudo font ~");
+        fehler (error, "~S: Cannot open pseudo font ~S");
       }
     } else {                 /* We have no name, tell that the luser. */
       pushSTACK(TheSubr(subr_self)->name);     /* function name */
-      fehler (error, "~: Cannot open pseudo font ~, since it has no name associated with it.");
+      fehler (error, "~S: Cannot open pseudo font ~S, since it has no name associated with it.");
     }
   }
 }
@@ -1210,9 +1210,9 @@ nonreturning_function(static, enum_error, (char *name, int value, int count))
   pushSTACK(asciz_to_string (name, GLO(misc_encoding)));
   pushSTACK(fixnum(count));
   pushSTACK(fixnum(value));
-  fehler (error, "Ouch! ~ is not in [0;~], is it?\n"
-                 "Either my enum definition for ~ is wrong, or your X is strange.\n"
-                 "List of keywords: ~");
+  fehler (error, "Ouch! ~S is not in [0;~S], is it?\n"
+                 "Either my enum definition for ~S is wrong, or your X is strange.\n"
+                 "List of keywords: ~S");
 }
 
 #define DEF_ENUM_MAKER(name,count,kws)                          \
@@ -1463,7 +1463,7 @@ static unsigned long get_event_mask (object obj)
  raise_type_error:
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~: invalid event mask ~"));
+  fehler(error,GETTEXT("~S: invalid event mask ~S"));
 }
 
 static object make_event_mask (unsigned long mask)
@@ -1747,7 +1747,7 @@ Display *x_open_display (char* display_name, int display_number) {
 
   if (!display_name) { /* Which display should we open?! */
     pushSTACK(TheSubr(subr_self)->name); /* function name */
-    fehler (error, ("~: Do not know which display to open."));
+    fehler (error, ("~S: Do not know which display to open."));
   }
 
   {
@@ -1765,7 +1765,7 @@ Display *x_open_display (char* display_name, int display_number) {
     if (!dpy) {
       pushSTACK(asciz_to_string(cname,GLO(misc_encoding))); /* display name */
       pushSTACK(TheSubr(subr_self)->name); /* function name */
-      fehler (error, ("~: Cannot open display ~.")); /* raise error */
+      fehler (error, ("~S: Cannot open display ~S.")); /* raise error */
     }
 
     FREE_DYNAMIC_ARRAY (cname);
@@ -2267,7 +2267,7 @@ DEFUN(XLIB:VISUAL-INFO, display visual-id)      /* NIM / OK */
   } else {
     pushSTACK(STACK_1); /* display argument */
     pushSTACK(STACK_1); /* visual id argument */
-    fehler (error, ("Visual info not found for id #~ in display ~."));
+    fehler (error, ("Visual info not found for id #~S in display ~S."));
   }
 }
 
@@ -2280,7 +2280,7 @@ DEFUN(XLIB:VISUAL-INFO, display visual-id)      /* NIM / OK */
 
 nonreturning_function(static, error_required_keywords, (object list)) {
   pushSTACK(list); pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,"~: At least ~ must be specified");
+  fehler(error,"~S: At least ~S must be specified");
 }
 
 /* 4.1 Drawables */
@@ -2547,7 +2547,7 @@ DEF_WIN_ATTR_READER (VISUAL-INFO,          visual_info, visual)/* NIM */
 DEFUN(XLIB:WINDOW-CURSOR, window)
 {
   pushSTACK(`XLIB::WINDOW-CURSOR`);
-  fehler (error, ("~ can only be set"));
+  fehler (error, ("~S can only be set"));
 }
 
 DEFUN(XLIB:SET-WINDOW-BORDER, arg1 arg2)
@@ -2941,7 +2941,7 @@ DEFUN(XLIB:CREATE-GCONTEXT, &key DRAWABLE FUNCTION PLANE-MASK FOREGROUND \
     }
   } else {
     pushSTACK(TheSubr (subr_self)->name);
-    fehler (error, "~: At least :DRAWABLE should be specifed.");
+    fehler (error, "~S: At least :DRAWABLE should be specifed.");
   }
   skipSTACK(26);
 }
@@ -3043,7 +3043,7 @@ DEFUN(XLIB:SET-GCONTEXT-CACHE-P, arg1 arg2)
   unused get_gcontext_and_display (STACK_1, &dpy);
   if (nullp(STACK_0)) {
     pushSTACK(TheSubr (subr_self)->name);
-    fehler (error, "~: This CLX implemenation does not allow uncached graphics contexts.");
+    fehler (error, "~S: This CLX implemenation does not allow uncached graphics contexts.");
   }
   VALUES1(STACK_0);
   skipSTACK(2);
@@ -3084,7 +3084,7 @@ DEFUN(XLIB::SET-GCONTEXT-DASHES, gcontext dashes)
     uintC n = get_fixnum(funcall1(L(length),STACK_0));
     if (n < 1) {
       pushSTACK(TheSubr(subr_self)->name);
-      fehler (error, "~: The dash list should be non-empty.");
+      fehler (error, "~S: The dash list should be non-empty.");
     }
     { /* FIXME: For efficiency reasons, we should look
               if user gave already a byte vector.
@@ -3153,7 +3153,7 @@ DEFUN(XLIB:SET-GCONTEXT-CLIP-MASK, clip-mask gcontext &optional ordering)
       pushSTACK(TheSubr (subr_self)->name);
       pushSTACK(`XLIB::RECT-SEQ`);
       pushSTACK(fixnum(n));
-      fehler (error, "~: Argument is no proper ~; Length of sequence, ~, is no multiple of four.");
+      fehler (error, "~S: Argument is no proper ~S; Length of sequence, ~S, is no multiple of four.");
     }
 
     {
@@ -4076,7 +4076,7 @@ static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
   if (im == 0) {
     free (data);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler (error, "~: XCreateImage call failed.");
+    fehler (error, "~S: XCreateImage call failed.");
   }
 
   /* fetch the pixarray */
@@ -4199,7 +4199,7 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
       pushSTACK(`(ARRAY XLIB::CARD8 (*))`);
       pushSTACK(STACK_8);
       pushSTACK(TheSubr (subr_self)->name);
-      fehler (error, "~: Slot :DATA of IMAGE-X ~ is not of type ~.");
+      fehler (error, "~S: Slot :DATA of IMAGE-X ~S is not of type ~S.");
     }
 
     dprintf(("\n;; put-image: IMAGE-X -> %dx%d+%d+%d",w,h,x,y));
@@ -4257,7 +4257,7 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
       if (im == 0) {
         free (data);
         pushSTACK(TheSubr(subr_self)->name);
-        fehler (error, "~: XCreateImage call failed.");
+        fehler (error, "~S: XCreateImage call failed.");
       }
 
       dprintf (("\nstill here"));
@@ -4862,7 +4862,7 @@ nonreturning_function(static, error_no_such_color,
   pushSTACK(color); /* color argument */
   pushSTACK(TheSubr(subr_self)->name);
   STACK_2 = get_display_obj(STACK_2); /* display argument */
-  fehler(error,"~: Color ~ is unknown to display ~.");
+  fehler(error,"~S: Color ~S is unknown to display ~S.");
 }
 
 DEFUN(XLIB:ALLOC-COLOR, arg1 arg2)
@@ -5120,7 +5120,7 @@ DEFUN(XLIB:STORE-COLORS, colormap pixel-colors &key RED-P GREEN-P BLUE-P)
   if (ncolors%2) {
     pushSTACK(STACK_3);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
-    fehler (error, ("~: Argument PIXEL-COLORS (~) should an even number of elements"));
+    fehler (error, ("~S: Argument PIXEL-COLORS (~S) should an even number of elements"));
   }
 
   ncolors /= 2;
@@ -5366,7 +5366,7 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
   if (len < 0) {
     pushSTACK(make_sint32 (len));
     pushSTACK(TheSubr (subr_self)->name);
-    fehler (error, "~: How bogus! The effective length (~) is negative.");
+    fehler (error, "~S: How bogus! The effective length (~S) is negative.");
   }
 
   {
@@ -7007,7 +7007,7 @@ DEFUN(XLIB:CLOSE-DOWN-MODE, display)
          server, but you could store it in the display structure. (Like
          MIT-CLX does it.) */
   pushSTACK(`XLIB::CLOSE-DOWN-MODE`);
-  fehler (error, ("~ can only be set"));
+  fehler (error, ("~S can only be set"));
 }
 
 DEFUN(XLIB:SET-CLOSE-DOWN-MODE, mode display)
@@ -7300,7 +7300,7 @@ int xlib_io_error_handler (Display *display)
   begin_callback ();
 
   pushSTACK(find_display (display));
-  fehler (error, "IO Error on display ~.");
+  fehler (error, "IO Error on display ~S.");
 }
 
 int xlib_after_function (Display *display)
@@ -7338,7 +7338,7 @@ static Bool ensure_shape_extension (Display *dpy, object dpy_obj, int error_p)
     if (error_p) {                              /* raise an error */
       pushSTACK(dpy_obj);                       /* the display */
       pushSTACK(TheSubr(subr_self)->name);      /* function name */
-      fehler (error, ("~: Shape extension is not available on display ~."));
+      fehler (error, ("~S: Shape extension is not available on display ~S."));
     } else
       return False;
   }
@@ -7721,7 +7721,7 @@ DEFUN(XPM:READ-FILE-TO-PIXMAP, drawable filename &key SHAPE-MASK-P PIXMAP-P)
     }
     pushSTACK(STACK_4);         /* pathname */
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,"~: Cannot read ~: ~");
+    fehler(error,"~S: Cannot read ~S: ~S");
   }
 
   if (pixmap)     pushSTACK(make_pixmap (STACK_0, pixmap));

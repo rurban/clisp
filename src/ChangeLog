@@ -1,5 +1,27 @@
 2004-03-15  Bruno Haible  <bruno@clisp.org>
 
+	Change the format of internal error message strings:
+	'~' -> '~S', '$' -> '~C'.
+	* error.d (write_errorstring): Expect ~S and ~C instead of ~ and $.
+	Signal an error if a stray ~ is seen.
+	(check_value): Update comments.
+	* lispbibl.d (fehler, check_value): Update comments.
+	* affi.d, array.d, charstrg.d, control.d, debug.d, encoding.d, error.d,
+	* eval.d, foreign.d, hashtabl.d, i18n.d, intbyte.d, intdiv.d,
+	* intelem.d, intlog.d, io.d, lisparit.d, list.d, misc.d, package.d,
+	* pathname.d, predtype.d, record.d, sequence.d, spvw.d, stream.d,
+	* symbol.d, time.d: Update all error messages.
+	* modules/berkeley-db/bdb.c: Likewise.
+	* modules/clx/new-clx/clx.f: Likewise.
+	* modules/dirkey/dirkey.c: Likewise.
+	* modules/regexp/regexi.c: Likewise.
+	* modules/pcre/cpcre.c: Likewise.
+	* modules/syscalls/calls.c: Likewise.
+	* po/clisp-xgettext (main): Heuristic: Mark string as lisp-format if it
+	contains ~S or ~C.
+
+2004-03-15  Bruno Haible  <bruno@clisp.org>
+
 	* po/clisp-xgettext (main): Remove support for scanning Lisp files.
 
 2004-03-14  Bruno Haible  <bruno@clisp.org>
@@ -23323,18 +23345,3 @@
 1997-10-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
 	* disassem.lsp (disassemble-machine-code) [UNIX]: Inhibit line
-	  breaks, 1 instruction per line, otherwise the instruction gets
-	  filtered away.
-
-1997-10-19  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
-
-	* conditio.lsp: Conditionalize upon feature ANSI-CL, not dpANS.
-	* defs2.lsp, defs3.lsp, init.lsp, loop.lsp: Likewise.
-
-1997-10-12  Jörg Höhle  <Joerg.Hoehle@zeus.gmd.de>
-
-	* amigasock.lsp: New file.
-
-1997-10-08  Jörg Höhle  <Joerg.Hoehle@zeus.gmd.de>
-
-	* eval.d (interpret_bytecode (cod_throw)): Tweak message.

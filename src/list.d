@@ -1053,7 +1053,7 @@ nonreturning_function(local, fehler_cons, (object badobject)) {
   pushSTACK(badobject); # TYPE-ERROR slot DATUM
   pushSTACK(S(cons)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(badobject); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a pair"));
+  fehler(type_error,GETTEXT("~S: ~S is not a pair"));
 }
 
 LISPFUNN(rplaca,2) # (RPLACA cons object), CLTL S. 272
@@ -1736,7 +1736,7 @@ LISPFUN(pairlis,seclass_read,2,1,norest,nokey,0,NIL)
     var object keys_list = popSTACK();
     pushSTACK(data_list); pushSTACK(keys_list);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: lists ~ and ~ are not of same length"));
+    fehler(error,GETTEXT("~S: lists ~S and ~S are not of same length"));
   }
  end:
   VALUES1(STACK_2); skipSTACK(5); # alist als Wert
@@ -1936,7 +1936,7 @@ local object elt_up (object seq, object index) {
     tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
     STACK_3 = tmp; # TYPE-ERROR slot EXPECTED-TYPE
   }
-  fehler(type_error,GETTEXT("~: index ~ too large for ~"));
+  fehler(type_error,GETTEXT("~S: index ~S too large for ~S"));
 }
 
 LISPFUNN(list_elt,2)
@@ -1994,7 +1994,7 @@ LISPFUNN(list_init_start,2)
     pushSTACK(STACK_2); # seq
     pushSTACK(STACK_2); # index
     pushSTACK(S(list_init_start));
-    fehler(type_error,GETTEXT("~: start index ~ too large for ~"));
+    fehler(type_error,GETTEXT("~S: start index ~S too large for ~S"));
   }
 
 LISPFUNN(list_fe_init_end,2)
@@ -2037,7 +2037,7 @@ LISPFUNN(list_fe_init_end,2)
     pushSTACK(STACK_(4+2));
     pushSTACK(STACK_(3+3));
     pushSTACK(S(list_fe_init_end));
-    fehler(type_error,GETTEXT("~: end index ~ too large for ~"));
+    fehler(type_error,GETTEXT("~S: end index ~S too large for ~S"));
    end:
     VALUES1(STACK_2); /* return L1 */
     skipSTACK(5);

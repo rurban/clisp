@@ -61,7 +61,7 @@ DEFUN(PCRE::PCRE-CONFIG,what)
     pushSTACK(arg);             /* TYPE-ERROR slot DATUM */
     pushSTACK(`(MEMBER :UTF8 :NEWLINE :LINK-SIZE :POSIX-MALLOC-THRESHOLD :MATCH-LIMIT)`); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: invalid config option ~"));
+    check_value(type_error,GETTEXT("~S: invalid config option ~S"));
     arg = value1;
     goto pcre_config_restart;
   }
@@ -111,7 +111,7 @@ DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
     pushSTACK(asciz_to_string(error_message,GLO(misc_encoding)));
     pushSTACK(fixnum(error_offset));
     pushSTACK(*string); pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~(~) at ~: ~"));
+    check_value(error,GETTEXT("~S(~S) at ~S: ~S"));
     *string = value1;
     goto pcre_compile_restart;
   }
@@ -126,7 +126,7 @@ DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
       STACK_0 = NIL;           /* no PLACE - discard compiled_pattern */
       pushSTACK(asciz_to_string(error_message,GLO(misc_encoding)));
       pushSTACK(*string); pushSTACK(TheSubr(subr_self)->name);
-      check_value(error,"~(~): ~");
+      check_value(error,"~S(~S): ~S");
       *string = value1;
       goto pcre_compile_restart;
     }
@@ -148,7 +148,7 @@ static void check_pattern (object pat, pcre** compiled_pattern,
     pushSTACK(`PCRE::PATTERN`); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(`PCRE::PATTERN`); pushSTACK(pat);
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
     pat = value1;
   }
   /* FIXME for derived structs! */
@@ -161,20 +161,20 @@ static void check_pattern (object pat, pcre** compiled_pattern,
 nonreturning_function(static, pcre_error, (int status)) {
   pushSTACK(sfixnum(status)); pushSTACK(TheSubr(subr_self)->name);
   switch (status) {
-    case PCRE_ERROR_NOMATCH:        fehler(error,"~/~ (~ ~): NOMATCH");
-    case PCRE_ERROR_NULL:           fehler(error,"~/~ (~ ~): NULL");
-    case PCRE_ERROR_BADOPTION:      fehler(error,"~/~ (~ ~): BADOPTION");
-    case PCRE_ERROR_BADMAGIC:       fehler(error,"~/~ (~ ~): BADMAGIC");
-    case PCRE_ERROR_UNKNOWN_NODE:   fehler(error,"~/~ (~ ~): UNKNOWN_NODE");
-    case PCRE_ERROR_NOMEMORY:       fehler(error,"~/~ (~ ~): NOMEMORY");
-    case PCRE_ERROR_NOSUBSTRING:    fehler(error,"~/~ (~ ~): NOSUBSTRING");
-    case PCRE_ERROR_MATCHLIMIT:     fehler(error,"~/~ (~ ~): MATCHLIMIT");
-    case PCRE_ERROR_CALLOUT:        fehler(error,"~/~ (~ ~): CALLOUT");
-    case PCRE_ERROR_BADUTF8:        fehler(error,"~/~ (~ ~): BADUTF8");
+    case PCRE_ERROR_NOMATCH:        fehler(error,"~S/~S (~S ~S): NOMATCH");
+    case PCRE_ERROR_NULL:           fehler(error,"~S/~S (~S ~S): NULL");
+    case PCRE_ERROR_BADOPTION:      fehler(error,"~S/~S (~S ~S): BADOPTION");
+    case PCRE_ERROR_BADMAGIC:       fehler(error,"~S/~S (~S ~S): BADMAGIC");
+    case PCRE_ERROR_UNKNOWN_NODE:   fehler(error,"~S/~S (~S ~S): UNKNOWN_NODE");
+    case PCRE_ERROR_NOMEMORY:       fehler(error,"~S/~S (~S ~S): NOMEMORY");
+    case PCRE_ERROR_NOSUBSTRING:    fehler(error,"~S/~S (~S ~S): NOSUBSTRING");
+    case PCRE_ERROR_MATCHLIMIT:     fehler(error,"~S/~S (~S ~S): MATCHLIMIT");
+    case PCRE_ERROR_CALLOUT:        fehler(error,"~S/~S (~S ~S): CALLOUT");
+    case PCRE_ERROR_BADUTF8:        fehler(error,"~S/~S (~S ~S): BADUTF8");
 #  if defined(PCRE_ERROR_BADUTF8_OFFSET)
-    case PCRE_ERROR_BADUTF8_OFFSET: fehler(error,"~/~ (~ ~): BADUTF8_OFFSET");
+    case PCRE_ERROR_BADUTF8_OFFSET: fehler(error,"~S/~S (~S ~S): BADUTF8_OFFSET");
 #  endif
-    default: fehler(error,"~/~ (~ ~): UNKNOWN ERROR");
+    default: fehler(error,"~S/~S (~S ~S): UNKNOWN ERROR");
   }
 }
 
@@ -274,7 +274,7 @@ DEFUN(PCRE:PATTERN-INFO,pattern request)
   } else {                      /* error */
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(STACK_1); pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~: ~ is not a valid option"));
+    check_value(error,GETTEXT("~S: ~S is not a valid option"));
     STACK_0 = value1;
     goto pcre_fullinfo_restart;
   }
@@ -296,7 +296,7 @@ DEFUN(PCRE:PCRE-NAME-TO-INDEX,pattern name)
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(STACK_1);         /* name */
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~: ~ is not a valid pattern name"));
+    check_value(error,GETTEXT("~S: ~S is not a valid pattern name"));
     STACK_0 = value1;
     goto restart_pcre_get_stringnumber;
   }

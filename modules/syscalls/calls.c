@@ -594,7 +594,7 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,host)
     pushSTACK(arg); pushSTACK(arg);
     STACK_1 = ascii_to_string(H_ERRMSG);
     pushSTACK(`POSIX::RESOLVE-HOST-IPADDR`);
-    fehler(os_error,"~ (~): ~");
+    fehler(os_error,"~S (~S): ~S");
   }
 
   hostent_to_stack(he);
@@ -1105,7 +1105,7 @@ static inline copy_method_t check_copy_method (object method) {
     pushSTACK(method);
     pushSTACK(`:METHOD`);
     pushSTACK(`POSIX::COPY-FILE`);
-    fehler(type_error,GETTEXT("~: ~ illegal ~ argument ~"));
+    fehler(type_error,GETTEXT("~S: ~S illegal ~S argument ~S"));
   }
 }
 static inline object copy_method_object (copy_method_t method) {
@@ -1153,7 +1153,7 @@ static void copy_one_file (object source, object src_path,
         pushSTACK(`:APPEND`);
         pushSTACK(copy_method_object(method));
         pushSTACK(`POSIX::COPY-FILE`);
-        fehler(error,GETTEXT("~: ~ forbids ~"));
+        fehler(error,GETTEXT("~S: ~S forbids ~S"));
       case IF_EXISTS_OVERWRITE:
       case IF_EXISTS_SUPERSEDE:
       case IF_EXISTS_RENAME_AND_DELETE:
@@ -1413,7 +1413,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
         pushSTACK(hk);          /* TYPE-ERROR slot DATUM */
         pushSTACK(`(MEMBER :ALT :CONTROL :EXT :SHIFT)`); /* EXPECTED-TYPE */
         pushSTACK(STACK_0); pushSTACK(hk); pushSTACK(TheSubr(subr_self)->name);
-        check_value(type_error,GETTEXT("~: ~ is not a ~"));
+        check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
         hk = value1;
         goto restart_hot_key;
       }
@@ -1421,7 +1421,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
     }
     if (pb[0] == 0) {           /* STACK_0 is the HOT-KEY arg */
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: invalid hotkey spec ~"));
+      fehler(error,GETTEXT("~S: invalid hotkey spec ~S"));
     }
     begin_system_call();
     hres = psl->lpVtbl->SetHotkey(psl,hot_key);
@@ -1468,7 +1468,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
       pushSTACK(sc);            /* TYPE-ERROR slot DATUM */
       pushSTACK(`(MEMBER :NORMAL :MAX :MIN)`); /* EXPECTED-TYPE */
       pushSTACK(STACK_0); pushSTACK(sc); pushSTACK(TheSubr(subr_self)->name);
-      check_value(type_error,GETTEXT("~: ~ is not a ~"));
+      check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
       sc = value1;
       goto restart_show_command;
     }

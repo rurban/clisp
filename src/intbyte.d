@@ -10,7 +10,7 @@
       pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(position); pushSTACK(size);
       fehler(type_error,
-             GETTEXT("The arguments to BYTE must be fixnums >=0: ~, ~")
+             GETTEXT("The arguments to BYTE must be fixnums >=0: ~S, ~S")
             );
     } elif (!(I_fixnump(position) && !R_minusp(position))) {
       pushSTACK(position); # TYPE-ERROR slot DATUM
@@ -31,7 +31,7 @@
     pushSTACK(S(byte)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(bad);
     fehler(type_error,
-           GETTEXT("~ is not a BYTE specifier")
+           GETTEXT("~S is not a BYTE specifier")
           );
   }
 

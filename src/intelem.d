@@ -190,7 +190,7 @@ global uint32 I_to_UL (object obj)
      pushSTACK(obj); /* TYPE-ERROR slot DATUM */
      pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
      pushSTACK(obj);
-     fehler(type_error,GETTEXT("not a 32-bit integer: ~"));
+     fehler(type_error,GETTEXT("not a 32-bit integer: ~S"));
   }
 }
 
@@ -278,7 +278,7 @@ global sint32 I_to_L (object obj)
      pushSTACK(obj); /* TYPE-ERROR slot DATUM */
      pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
      pushSTACK(obj);
-     fehler(type_error,GETTEXT("not a 32-bit integer: ~"));
+     fehler(type_error,GETTEXT("not a 32-bit integer: ~S"));
   }
 }
 
@@ -362,7 +362,7 @@ global uint64 I_to_UQ (object obj)
       pushSTACK(obj); /* TYPE-ERROR slot DATUM */
       pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(obj);
-      fehler(type_error,GETTEXT("not a 64-bit integer: ~"));
+      fehler(type_error,GETTEXT("not a 64-bit integer: ~S"));
   }
 }
 
@@ -500,7 +500,7 @@ global sint64 I_to_Q (object obj)
       pushSTACK(obj); /* TYPE-ERROR slot DATUM */
       pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(obj);
-      fehler(type_error,GETTEXT("not a 64-bit integer: ~"));
+      fehler(type_error,GETTEXT("not a 64-bit integer: ~S"));
   }
 }
 

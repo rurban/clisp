@@ -423,7 +423,7 @@ LISPFUNN(set_env,2)
     pushSTACK(value);
     pushSTACK(name);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~ (~ ~): out of memory"));
+    fehler(error,GETTEXT("~S (~S ~S): out of memory"));
   }
   VALUES1(value);
 }
@@ -478,7 +478,7 @@ LISPFUNN(registry,2)
           path_name = string_concat(3);
           pushSTACK(path_name);
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(error,GETTEXT("~: type of attribute ~ is unsupported"));
+          fehler(error,GETTEXT("~S: type of attribute ~S is unsupported"));
         }
       }
     });

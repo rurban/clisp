@@ -846,12 +846,12 @@ LISPFUNNF(delta4,5) {
   if ((o1 > n1) /* use the arguments on the stack for error reporting */
       || ((o1 == n1) && (o2 > n2))) {
     skipSTACK(1); pushSTACK(S(delta4));
-    fehler(arithmetic_error,"~: negative difference: [~ ~] > [~ ~]");
+    fehler(arithmetic_error,"~S: negative difference: [~S ~S] > [~S ~S]");
   }
   var uintL del = n1 - o1;
   if (shift + I_integer_length(fixnum(del)) > 64) {
     pushSTACK(STACK_0); pushSTACK(S(ash));
-    fehler(arithmetic_error,GETTEXT("~: too large shift amount ~"));
+    fehler(arithmetic_error,GETTEXT("~S: too large shift amount ~S"));
   }
  #ifdef intQsize
   VALUES1(UQ_to_I((del << shift) + n2 - o2));

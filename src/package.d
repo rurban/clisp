@@ -334,7 +334,7 @@ local void symtab_delete (object sym, object symtab) {
   pushSTACK(unbound); /* PACKAGE-ERROR slot PACKAGE */
   pushSTACK(sym);
   fehler(package_error,
-         GETTEXT("symbol ~ cannot be deleted from symbol table"));
+         GETTEXT("symbol ~S cannot be deleted from symbol table"));
 }
 
 /* lookup the STRING among the EXTernal (resp. INTernal) symbols of PACK */
@@ -624,7 +624,7 @@ local sintBWL find_symbol (object string, object pack, object* sym_) {
       return 1-4; /* found among the external symbols */
     /* contradiction to consistency rule 5. */
     pushSTACK(*sym_); pushSTACK(pack);
-    fehler(serious_condition,GETTEXT("~ inconsistent: symbol ~ is a shadowing symbol but not present"));
+    fehler(serious_condition,GETTEXT("~S inconsistent: symbol ~S is a shadowing symbol but not present"));
   } else { /* symbol not yet found */
     /* search among the internal symbols: */
     if (package_lookup_int(string,pack,sym_))
@@ -908,7 +908,7 @@ local object unintern (const gcv_object_t* sym_, const gcv_object_t* pack_) {
         pushSTACK(*pack_); /* PACKAGE-ERROR slot PACKAGE */
         pushSTACK(*pack_); /* package */
         pushSTACK(*sym_); /* symbol */
-        correctable_error(package_error,GETTEXT("Uninterning ~ from ~ uncovers a name conflict.\nYou may choose the symbol in favour of which to resolve the conflict."));
+        correctable_error(package_error,GETTEXT("Uninterning ~S from ~S uncovers a name conflict.\nYou may choose the symbol in favour of which to resolve the conflict."));
         pushSTACK(value1);
       } else
         STACK_0 = NIL;
@@ -970,8 +970,8 @@ local bool query_intern_conflict (object pack, object sym, object other,
     default: NOTREACHED;
   }
   correctable_error(package_error,(dialog_type == 1
-                                   ? GETTEXT("Importing ~ into ~ produces a name conflict with ~ and other symbols.")
-                                   : GETTEXT("Importing ~ into ~ produces a name conflict with ~.")));
+                                   ? GETTEXT("Importing ~S into ~S produces a name conflict with ~S and other symbols.")
+                                   : GETTEXT("Importing ~S into ~S produces a name conflict with ~S.")));
   return nullp(value1);
 }
 
@@ -1071,7 +1071,7 @@ local void unexport (const gcv_object_t* sym_, const gcv_object_t* pack_) {
     if (eq(pack,O(keyword_package))) { /* test for keyword-package */
       pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
       pushSTACK(pack);
-      fehler(package_error,GETTEXT("UNEXPORT in ~ is illegal"));
+      fehler(package_error,GETTEXT("UNEXPORT in ~S is illegal"));
     }
     set_break_sem_2();
     symtab_delete(sym,symtab); /* remove sym from the external symbols */
@@ -1090,7 +1090,7 @@ local void unexport (const gcv_object_t* sym_, const gcv_object_t* pack_) {
     pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
     pushSTACK(pack); pushSTACK(sym);
     fehler(package_error,
-           GETTEXT("UNEXPORT works only on accessible symbols, not on ~ in ~"));
+           GETTEXT("UNEXPORT works only on accessible symbols, not on ~S in ~S"));
   }
 }
 
@@ -1141,7 +1141,7 @@ global void export (const gcv_object_t* sym_, const gcv_object_t* pack_) {
     pushSTACK(pack); pushSTACK(sym); pushSTACK(S(export));
     STACK_4 = CLOTEXT("((IMPORT \"import the symbol first\" . T)"
                       " (IGNORE \"do nothing, do not export the symbol\" . NIL))");
-    correctable_error(package_error,GETTEXT("~: Symbol ~ should be imported into ~ before being exported."));
+    correctable_error(package_error,GETTEXT("~S: Symbol ~S should be imported into ~S before being exported."));
     if (nullp(value1)) /* NIL-option selected? */
       return; /* yes -> do not export, finished */
    found: ;
@@ -1200,7 +1200,7 @@ global void export (const gcv_object_t* sym_, const gcv_object_t* pack_) {
           temp = listof(2); /* (list (list s1 ... 'T) (list s2 ... 'NIL)) */
           STACK_6 = temp; /* options */
         }
-        correctable_error(package_error,GETTEXT("Exporting ~ from ~ produces a name conflict with ~ from ~.\nYou may choose which symbol should be accessible in ~."));
+        correctable_error(package_error,GETTEXT("Exporting ~S from ~S produces a name conflict with ~S from ~S.\nYou may choose which symbol should be accessible in ~S."));
         pushSTACK(nullp(value1)?STACK_1/*other symbol*/:*sym_);/*solvingsym*/
         { /* extend conflict-resolver with (solvingsym . usingpack) : */
           var object new_cons = allocate_cons();
@@ -1427,7 +1427,7 @@ local void use_package (object packlist, object pack) {
       pushSTACK(Symbol_name(Cdr(Cdr(Car(Car(*conflicts_)))))); /* name */
       pushSTACK(fixnum(llength(*conflicts_))); /* (length conflicts) */
       pushSTACK(*pack_); pushSTACK(*packlist_); pushSTACK(S(use_package));
-      correctable_error(package_error,GETTEXT("(~ ~ ~): ~ name conflicts remain\nWhich symbol with name ~ should be accessible in ~?"));
+      correctable_error(package_error,GETTEXT("(~S ~S ~S): ~S name conflicts remain\nWhich symbol with name ~S should be accessible in ~S?"));
       pushSTACK(value1); /* sym */
       {
         var object new_cons = allocate_cons();
@@ -1651,7 +1651,7 @@ global object get_current_package (void) {
     pushSTACK(S(package)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(newpack); pushSTACK(pack);
     fehler(type_error,
-           GETTEXT("The value of *PACKAGE* was not a package. Old value ~. New value ~."));
+           GETTEXT("The value of *PACKAGE* was not a package. Old value ~S. New value ~S."));
   }
 }
 
@@ -1670,7 +1670,7 @@ local object test_package_arg (object obj) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* PACKAGE-ERROR slot PACKAGE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(package_error,GETTEXT("~: Package ~ has been deleted."));
+    check_value(package_error,GETTEXT("~S: Package ~S has been deleted."));
     obj = value1;
     goto restart_package_arg;
   }
@@ -1682,7 +1682,7 @@ local object test_package_arg (object obj) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* PACKAGE-ERROR slot PACKAGE */
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(package_error,GETTEXT("~: There is no package with name ~"));
+    check_value(package_error,GETTEXT("~S: There is no package with name ~S"));
     obj = value1;
     goto restart_package_arg;
   }
@@ -1699,7 +1699,7 @@ local object test_package_arg (object obj) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_packname)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  check_value(type_error,GETTEXT("~: argument should be a package or a package name, not ~"));
+  check_value(type_error,GETTEXT("~S: argument should be a package or a package name, not ~S"));
   obj = value1;
   goto restart_package_arg;
 }
@@ -1809,7 +1809,7 @@ LISPFUN(rename_package,seclass_default,2,1,norest,nokey,0,NIL) {
         /* found, but another one than the given package: */
         pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
         pushSTACK(name); pushSTACK(TheSubr(subr_self)->name);
-        fehler(package_error,GETTEXT("~: there is already a package named ~"));
+        fehler(package_error,GETTEXT("~S: there is already a package named ~S"));
       }
       /* none or only the given package has the Name name ->
          no conflict with this (nick)name, continue: */
@@ -2044,7 +2044,7 @@ local Values apply_symbols (sym_pack_function_t* fun) {
     goto ok; /* correct symbol-list */
   not_ok:
     pushSTACK(STACK_1); pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~: argument should be a symbol or a list of symbols, not ~"));
+    fehler(error,GETTEXT("~S: argument should be a symbol or a list of symbols, not ~S"));
   ok: ;
   }
   /* test package: */
@@ -2172,7 +2172,7 @@ local object correct_packname (object name, bool nickname_p) {
     tmp = listof(4);
     pushSTACK(tmp);
     tmp = listof(2); STACK_3 = tmp; /* options list */
-    correctable_error(package_error,GETTEXT("~: a package with name ~ already exists."));
+    correctable_error(package_error,GETTEXT("~S: a package with name ~S already exists."));
     if (nullp(value1)) return NIL; /* continue */
     name = test_stringsymchar_arg(value1);
   }
@@ -2260,7 +2260,7 @@ LISPFUN(pin_package,seclass_default,1,0,norest,key,3,
         pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
         pushSTACK(pack);
         fehler(package_error,
-               GETTEXT("Cannot change the case sensitiveness of ~."));
+               GETTEXT("Cannot change the case sensitiveness of ~S."));
       }
     }
     /* adjust the nicknames: */
@@ -2512,7 +2512,7 @@ LISPFUNN(re_export,2) {
     pushSTACK(STACK_2); /* FROM-PACK */
     pushSTACK(STACK_1); /* TO-PACK */
     pushSTACK(S(re_export));
-    fehler(package_error,GETTEXT("~: ~ is not using ~"));
+    fehler(package_error,GETTEXT("~S: ~S is not using ~S"));
   }
   map_symtab_c(&export_symbol_from,&STACK_0,
                ThePackage(STACK_1)->pack_external_symbols);
