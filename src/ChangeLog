@@ -1,3 +1,10 @@
+2004-09-21  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* foreign.d, foreign1.lisp, ffi.tst: Implement c-type
+	'(c-pointer <c-type>) which does not convert data structures
+	to/from Lisp and manipulates FOREIGN-VARIABLE objects instead.
+	* modules/bindings/glibc/linux.lisp (errno): Use it.
+
 2004-09-18  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (Class): Rename field valid_initargs to

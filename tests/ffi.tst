@@ -11,6 +11,9 @@ T
 (bitsizeof 'sint32)
 32
 
+(multiple-value-list (sizeof '(c-pointer int)))
+#.(multiple-value-list (sizeof '(c-ptr int)))
+
 (foreign-address-unsigned (unsigned-foreign-address 3))
 3
 
@@ -76,6 +79,36 @@ ERROR
   (cast place '(c-array sint8 (3 2))))
 #2A((-1 -2) (-3 -9) (-8 -7))
 
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (obj (c-pointer short)))
+    (:return-type (c-ptr-null short)) (:language :stdc))
+  (c-self nil))
+nil
+
+(with-foreign-object (x 'short -29876) (c-self x))
+-29876
+
+(with-foreign-object (x 'short -19635) (c-self (foreign-address x)))
+-19635
+
+(with-foreign-object (x 'character #\t) (c-self x))
+ERROR
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (obj c-pointer))
+    (:return-type (c-pointer char)) (:language :stdc))
+  (c-self nil))
+nil
+
+(with-c-var (x 'char -112)
+  (let ((ref (c-self (c-var-address x))))
+    (list
+     (typep ref 'foreign-variable)
+     (foreign-value ref))))
+(T -112)
+
 ;; <http://sourceforge.net/tracker/index.php?func=detail&aid=679661&group_id=1355&atid=101355>
 (def-c-struct triv (i int))
 TRIV
@@ -100,6 +133,26 @@ TRIGGER
             (slot (foreign-value v) 'i))
     (foreign-free v)))
 ((C-STRUCT TRIV (I INT)) 42)
+
+(def-call-out c-self (:name "ffi_identity")
+  (:arguments (obj c-pointer))
+  (:return-type (c-pointer triv)) (:language :stdc))
+C-SELF
+
+(with-c-var (v 'triv (make-triv :i 8476272))
+  (with-c-place (w (c-self (c-var-object v)))
+    (setf (slot v 'i) -74590302)
+    (list
+     (typeof w)
+     (slot w 'i))))
+((C-STRUCT TRIV (I INT)) -74590302)
+
+(list
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (obj (c-pointer triv)))
+    (:return-type c-pointer) (:language :stdc))
+  (c-self nil))
+(C-SELF NIL)
 
 #+UNICODE
 (type-of (setq orig-encoding custom:*foreign-encoding*))
@@ -487,6 +540,28 @@ FOREIGN-VARIABLE
 (foreign-value fm)
 #(0 0)
 
+(with-c-place (a fm)
+  (dotimes (i 3) (setf (element a i) (+ 100000000 i))))
+ERROR
+
+(with-c-place (a fm) a)
+#(100000000 100000001)
+
+(def-call-out c-self (:name "ffi_identity")
+  (:arguments (obj (c-pointer (c-array long 2))))
+  (:return-type (c-pointer (c-array long 2))) (:language :stdc))
+C-SELF
+
+(foreign-value (c-self fm))
+#(100000000 100000001)
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (obj (c-pointer (c-array long 2))))
+    (:return-type (c-ptr (c-array long 2))) (:language :stdc))
+  (c-self fm))
+#(100000000 100000001)
+
 (progn (foreign-free fm) (makunbound 'fm))
 FM
 
@@ -564,6 +639,30 @@ MAKE-FOREIGN-STRING
 
 (progn (foreign-free *x*) (makunbound '*x*))
 *x*
+
+(def-c-type link-node (c-struct list
+  (x ulong) (s (c-ptr (c-array-max character 3)))
+  (p (c-pointer link-node))))
+LINK-NODE
+
+(type-of (setq fm (allocate-deep 'link-node '(834687632 "Ef" nil))))
+FOREIGN-VARIABLE
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (obj (c-pointer link-node)))
+    (:return-type (c-pointer link-node)) (:language :stdc))
+  (foreign-value (c-self fm)))
+(834687632 "Ef" NIL)
+
+(with-c-var (p 'link-node (list 298734222 "IyH" fm))
+  (cast p '(c-struct vector
+             (x ulong) (s (c-ptr (c-array-max character 3)))
+             (p (c-ptr-null link-node)))))
+#(298734222 "IyH" (834687632 "Ef" NIL))
+
+(progn (foreign-free fm :full t) (makunbound 'fm))
+FM
 
 #+UNICODE
 (type-of (setq custom:*foreign-encoding* orig-encoding))

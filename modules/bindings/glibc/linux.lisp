@@ -300,20 +300,18 @@
 
 (c-lines "#include <bits/errno.h>~%")
 
-(def-call-out __errno_location (:arguments) (:return-type c-pointer))
+(def-call-out errno-location (:name "__errno_location")
+  (:arguments) (:return-type (c-pointer int)))
+
+;; (define-symbol-macro errno (foreign-value (__errno_location))); setf-able
+;; Here we optimize the most common use through an extra function
 (def-call-out get-errno (:name "__errno_location")
   (:arguments) (:return-type (c-ptr int)))
 
 (define-symbol-macro errno (get-errno)); not setf-able per se
 (defun set-errno (value)
-  ;; not efficient at all, better redone as LISPFUNN
-  (with-c-var (el 'c-pointer (__errno_location))
-    (setf (cast el '(c-ptr int)) value)))
+  (setf (foreign-value (errno-location)) value))
 (defsetf get-errno set-errno)
-
-;; in some possible future:
-;; (def-call-out __errno_location (:arguments) (:return-type (c-pointer int)))
-;; (define-symbol-macro errno (foreign-value (__errno_location))); setf-able
 
 ; ------------------------------ <errno.h> ------------------------------------
 

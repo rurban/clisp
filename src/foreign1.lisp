@@ -256,6 +256,11 @@
           (with-defining-c-type (name c-type 2)
             (setf (svref c-type 0) 'C-PTR-NULL)
             (setf (svref c-type 1) (parse-c-type (second typespec)))))
+        (C-POINTER
+          (unless (eql (length typespec) 2) (invalid typespec))
+          (with-defining-c-type (name c-type 2)
+            (setf (svref c-type 0) 'C-POINTER)
+            (setf (svref c-type 1) (parse-c-type (second typespec)))))
         (C-ARRAY-PTR
           (unless (eql (length typespec) 2) (invalid typespec))
           (with-defining-c-type (name c-type 2)
@@ -489,8 +494,8 @@
                                       (cons ':language (flag-to-language
                                                         (svref ctype 3)))))
                                ;; #(c-ptr <c-type>), #(c-ptr-null <c-type>)
-                               ;; #(c-array-ptr <c-type>)
-                               ((C-PTR C-PTR-NULL C-ARRAY-PTR)
+                               ;; #(c-array-ptr <c-type>), #(c-pointer <c-type>)
+                               ((C-PTR C-PTR-NULL C-POINTER C-ARRAY-PTR)
                                 (list (deparse (svref ctype 1))))))
                        typespec)))))
       (deparse ctype))))
@@ -624,7 +629,7 @@
              (c-array-max
               (to-c-typedecl (svref c-type 1)
                              (format nil "(~A)[~D]" name (svref c-type 2))))
-             ((c-ptr c-ptr-null c-array-ptr)
+             ((c-ptr c-ptr-null c-pointer c-array-ptr)
               (to-c-typedecl (svref c-type 1) (format nil "* ~A" name)))
              (c-function
               (to-c-typedecl (svref c-type 1)
