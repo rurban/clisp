@@ -1897,13 +1897,19 @@ global int main (argc_t argc, char* argv[]) {
             SIZE_ARG(GETTEXTL("stack size"),argv_stackneed,40000,8*1024*1024);
             break;
          #endif
-         #ifdef MULTIMAP_MEMORY_VIA_FILE
-          case 't': # temporary directory
-            OPTION_ARG;
-            if (!(argv_tmpdir == NULL)) usage (1);
-            argv_tmpdir = arg;
+          case 't': # traditional, temporary directory
+            if (asciz_equal(arg,"-traditional"))
+              argv_ansi = 2; # traditional
+            else {
+             #ifdef MULTIMAP_MEMORY_VIA_FILE
+              OPTION_ARG;
+              if (!(argv_tmpdir == NULL)) usage (1);
+              argv_tmpdir = arg;
+             #else
+              usage (1);
+             #endif
+            }
             break;
-         #endif
           case 'd': /* developer mode */
             argv_developer = true;
             if (arg[2] != '\0') usage (1);
@@ -2017,11 +2023,6 @@ global int main (argc_t argc, char* argv[]) {
               fprintf(stderr,GETTEXTL("CLISP: -a is deprecated, use -ansi\n"));
               argv_ansi = 1; # ANSI
             }
-            break;
-          case 't': # traditional
-            if (asciz_equal(arg,"-traditional"))
-              argv_ansi = 2; # traditional
-            else usage(1);
             break;
           case 'x': # execute LISP-expression
             if (arg[2] != '\0') usage (1);
