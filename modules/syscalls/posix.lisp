@@ -239,6 +239,41 @@ see getrusage(3) and getrlimit(2) for details"
                     :memlock (mk lim91 lim92))))))
 )
 
+;;; ============================================================
+#+(or win32 cygwin) (progn
+(export '(file-info file-info-attributes
+          file-info-ctime file-info-atime file-info-wtime
+          file-info-size-hi file-info-size-lo
+          file-info-name file-info-name-short))
+
+(defstruct (file-info (:constructor make-fi (attributes ctime atime wtime
+                                             size-hi size-lo name name-short)))
+  (attributes nil :read-only t)
+  (ctime nil :read-only t) (atime nil :read-only t) (wtime nil :read-only t)
+  (size-hi nil :read-only t) (size-lo nil :read-only t)
+  (name nil :read-only t) (name-short nil :read-only t))
+
+(export '(make-shortcut shortcut-info shortcut-info-working-directory
+          shortcut-info-arguments shortcut-info-show-command
+          shortcut-info-original shortcut-info-path
+          shortcut-info-icon shortcut-info-description shortcut-info-hot-key))
+
+(defstruct (shortcut-info
+             (:constructor
+              make-si (original path stat working-directory arguments
+                       show-command icon description hot-key)))
+  (original nil :read-only t)
+  (path nil :read-only t)
+  (working-directory nil :read-only t)
+  (arguments nil :read-only t)
+  (show-command nil :read-only t)
+  (icon nil :read-only t)
+  (description nil :read-only t)
+  (hot-key nil :read-only t)
+  (stat nil :read-only t))
+
+)
+
 ;;; restore locks
 (push "POSIX" *system-package-list*)
 (setf (package-lock *system-package-list*) t)
