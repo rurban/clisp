@@ -111,8 +111,11 @@
 <!ENTITY ascii "<ulink url='http://www.cplusplus.com/doc/papers/ascii.html'><emphasis role='strong'>ASCII</emphasis></ulink>">
 <!ENTITY cygwin "<ulink url='http://cygwin.com/'><emphasis role='strong'>Cygwin</emphasis></ulink>">
 <!ENTITY dos "<ulink url='http://www.freedos.org/'><emphasis role='strong'>DOS</emphasis></ulink>">
+<!ENTITY gnome "<ulink url='http://www.gnome.org/'><emphasis role='strong'>Gnome</emphasis></ulink>">
 <!ENTITY hurd "<ulink url='http://www.gnu.org/software/hurd/'><emphasis role='strong'>Hurd</emphasis></ulink>">
+<!ENTITY kde "<ulink url='http://www.kde.org/'><emphasis role='strong'>KDE</emphasis></ulink>">
 <!ENTITY linux "<ulink url='http://www.linux.org/'><emphasis role='strong'>Linux</emphasis></ulink>">
+<!ENTITY macosx "<ulink url='http://www.apple.com/macosx/'><emphasis role='strong'>Mac OS X</emphasis></ulink>">
 <!ENTITY mingw "<ulink url='http://www.mingw.org/'><emphasis role='strong'>MinGW</emphasis></ulink>">
 <!ENTITY nextstep "<ulink url='http://www.next.com/'><emphasis role='strong'>NeXTstep</emphasis></ulink>">
 <!ENTITY os2 "<ulink url='http://www.os2.org/'><emphasis role='strong'>OS/2</emphasis></ulink>">
