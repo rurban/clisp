@@ -1,3 +1,22 @@
+1999-12-28  Sam Steingold  <sds@gnu.org>
+
+	* posixmath.d: redefine `floor' correctly
+	(to_double, N_D): use functions instead of macros
+	* posix.lsp: `print-object' for `rlimit' and `user-data'
+	* init.lsp: load posix after clos
+	* eval.d: removed all syscalls
+	* constpack.d: added package POSIX
+	* spvw.d, package.d: removed POSIX
+
+1999-12-23  Sam Steingold  <sds@gnu.org>
+
+	* subr.d, constsym.d: added `bogomips' and `resource_usage_limits_'
+	* posix.lsp: export `bogomips' and `resource-usage-limits',
+	reduce `sysinfo'
+	* posixmath.d (bogomips): LISPFUNN now
+	* unixaux.d (sysinfo): use uname(2) instead of sysinfo(2),
+	(resource_usage_limits_): new LISPFUNN
+
 1999-12-22  Sam Steingold  <sds@gnu.org>
 
 	* unixaux.d (sysinfo): new function

@@ -11,7 +11,6 @@
 #endif
 
 #ifdef __linux__
-#define floor_save floor
 #undef floor
 #endif
 
@@ -22,8 +21,7 @@
 #endif
 
 #ifdef __linux__
-#define floor floor_save
-#undef floor_save
+#define floor(a,b)  ((a) / (b))
 #endif
 
 ## done with math.h
@@ -32,7 +30,10 @@ local double to_double (object x);
 local double to_double(x)
   var object x;
 { check_real(x);
-  return DF_to_double(R_rationalp(x) ? RA_to_DF(x) : F_to_DF(x)); }
+ { dfloatjanus fj;
+   DF_to_c_double(R_rationalp(x) ? RA_to_DF(x) : F_to_DF(x), &fj);
+   { double ret; *(dfloatjanus*)&ret = fj; return ret; }
+}}
 
 local int to_int (object x);
 local int to_int(x)
@@ -41,9 +42,11 @@ local int to_int(x)
 
 #define D_S           to_double(popSTACK())
 #define I_S           to_int(popSTACK())
-#define N_D(num,val)  double_to_DF(num,val=,FALSE,FALSE,FALSE,FALSE,FALSE)
+#define N_D(n,v)  \
+ { double x=n; dfloatjanus t=*(dfloatjanus*)&x; v=c_double_to_DF(&t); }
 #define VAL_D(func)   double res=func(D_S); N_D(res,value1)
-#define VAL_ID(func)  double xx=D_S; int nn=I_S; double res=func(nn,xx); N_D(res,value1)
+#define VAL_ID(func)  \
+ double xx=D_S; int nn=I_S; double res=func(nn,xx); N_D(res,value1)
 
 LISPFUNN(erf,1)
 { VAL_D(erf); mv_count=1; }

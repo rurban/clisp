@@ -1194,9 +1194,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                enum_system_index,
                enum_keyword_index,
                enum_charset_index,
-            #ifdef EXPORT_SYSCALLS
-               enum_posix_index,
-            #endif
                #define LISPPACK  LISPPACK_A
                #include "constpack.c"
                #undef LISPPACK

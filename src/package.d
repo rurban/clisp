@@ -2725,12 +2725,8 @@ LISPFUNN(package_iterate,1)
       pushSTACK(coerce_imm_ss(ascii_to_string("KEYWORD")));
       pushSTACK(coerce_imm_ss(ascii_to_string("")));
       pushSTACK(coerce_imm_ss(ascii_to_string("CHARSET")));
-      # Stackaufbau: "LISP", "SYSTEM", "SYS", "KEYWORD", "", "CHARSET"
+      # Stackaufbau: "LISP", "SYSTEM", "SYS", "KEYWORD", "", "CHARSET".
       O(all_packages) = NIL; # ALL_PACKAGES := NIL
-#ifdef EXPORT_SYSCALLS
-      pushSTACK(coerce_imm_ss(ascii_to_string("POSIX")));
-      O(posix_package) = make_package(popSTACK(),NIL,FALSE);
-#endif
       # #<PACKAGE CHARSET> einrichten:
       O(charset_package) = make_package(popSTACK(),NIL,FALSE); # "CHARSET",()
       # #<PACKAGE KEYWORD> einrichten:
