@@ -196,7 +196,7 @@ global maygc void register_foreign_variable (void* address, const char * name_as
     TheFvariable(obj)->fv_name = name = popSTACK();
     TheFvariable(obj)->fv_size = fixnum(size);
     record_flags_replace(TheFvariable(obj), flags);
-    shifthash(O(foreign_variable_table),name,obj);
+    shifthash(O(foreign_variable_table),name,obj,true);
   }
 }
 
@@ -230,7 +230,7 @@ global maygc void register_foreign_function (void* address, const char * name_as
     TheFfunction(obj)->ff_address = popSTACK();
     TheFfunction(obj)->ff_name = name = popSTACK();
     TheFfunction(obj)->ff_flags = fixnum(flags);
-    shifthash(O(foreign_function_table),name,obj);
+    shifthash(O(foreign_function_table),name,obj,true);
   }
 }
 
@@ -489,7 +489,7 @@ local maygc object convert_function_to_foreign (object fun, object resulttype,
       if (eq(alist,nullobj))
         alist = NIL;
       Cdr(new_cons) = alist;
-      shifthash(O(foreign_callin_table),STACK_1,new_cons);
+      shifthash(O(foreign_callin_table),STACK_1,new_cons,true);
     }
     /* Put it into the vector. */
     var gcv_object_t* triple = &TheSvector(TheIarray(O(foreign_callin_vector))->data)->data[3*f_index-2];
@@ -529,7 +529,7 @@ local void free_foreign_callin (void* address)
               if (eq(Cdr(Cdr(Cdr(Car(alist2)))),fixnum(cb_data))) {
                 if (eq(alist2,alist)) {
                   alist2 = alist1 = Cdr(alist2);
-                  shifthash(O(foreign_callin_table),fun,alist2);
+                  shifthash(O(foreign_callin_table),fun,alist2,false);
                 } else
                   Cdr(alist1) = alist2 = Cdr(alist2);
               } else {
@@ -3999,9 +3999,11 @@ global void validate_fpointer (object obj)
   check_fpointer(obj,false);
 }
 
-/* can trigger GC */
+/* Check for a library argument.
+   Return (lib addr obj ...).
+   can trigger GC */
 local maygc object check_library (object obj)
-{ /* Check for a library argument - return (lib addr obj ...) */
+{
  restart:
   if (fpointerp(obj)) {
     var object alist = O(foreign_libraries);

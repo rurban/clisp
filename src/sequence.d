@@ -3401,7 +3401,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
           # item wird in die Tabelle gesteckt; war es schon
           # drin, wird bei pointer gestrichen.
           {
-            var object old_value = shifthash(STACK_1,value1,T);
+            var object old_value = shifthash(STACK_1,value1,T,true);
             if (!nullp(old_value)) {
               # item war schon in ht -> wird jetzt gestrichen
               sbvector_bset(STACK_(0+2),bvi); # (setf (sbit bv bvi) 1)
@@ -3426,7 +3426,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
           # item wird in die Tabelle gesteckt; war es schon
           # drin, wird an der vorigen Position gestrichen.
           {
-            var object old_value = shifthash(STACK_1,value1,fixnum(bvi));
+            var object old_value = shifthash(STACK_1,value1,fixnum(bvi),true);
             if (!nullp(old_value)) {
               # item war schon in ht -> wird an der vorigen Position gestrichen
               var uintL i = posfixnum_to_L(old_value);

@@ -1,5 +1,18 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (shifthash): Add allowgc argument.
+	* hashtabl.d (shifthash): Add allowgc argument.
+	* io.d (perchar_table_put, copy_perchar_table,
+	syntax_table_put_notinline, copy_readtable_contents): Pass allowgc =
+	true.
+	* sequence.d (seq_duplicates): Likewise.
+	* pathname.d (TRANSLATE-LOGICAL-PATHNAME, directory_search): Likewise.
+	* foreign.d (register_foreign_variable, register_foreign_function,
+	convert_function_to_foreign): Pass allowgc = true.
+	(free_foreign_callin): Pass allowgc = false.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* realelem.d (R_I_expt_R): Avoid a false GC-safety bug alert.
 
 2004-12-08  Bruno Haible  <bruno@clisp.org>

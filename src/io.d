@@ -64,7 +64,7 @@ local void perchar_table_put (object table, chart c, object value) {
     TheSvector(table)->data[as_cint(c)] = value;
   } else {
     shifthash(TheSvector(table)->data[small_char_code_limit],
-              code_char(c),value);
+              code_char(c),value,true);
   }
 }
 local object copy_perchar_table (object table) {
@@ -79,7 +79,7 @@ local object copy_perchar_table (object table) {
   pushSTACK(value1);
   # stack layout: table, newht.
   map_hashtable(TheSvector(STACK_1)->data[small_char_code_limit],
-                key,value,{ shifthash(STACK_(0+1),key,value); });
+                key,value,{ shifthash(STACK_(0+1),key,value,true); });
   var object newht = popSTACK();
   var object table1 = popSTACK();
   TheSvector(table1)->data[small_char_code_limit] = newht;
@@ -167,7 +167,7 @@ local inline uintB syntax_table_get (object table, chart c) {
           : syntax_table_get_notinline(table,c));
 }
 local maygc void syntax_table_put_notinline (object table, chart c, uintB value) {
-  shifthash(Cdr(table),code_char(c),fixnum(value));
+  shifthash(Cdr(table),code_char(c),fixnum(value),true);
 }
 local inline maygc void syntax_table_put (object table, chart c, uintB value) {
   if (as_cint(c) < small_char_code_limit)
@@ -387,7 +387,7 @@ local maygc object copy_readtable_contents (object from_readtable,
     pushSTACK(value1);
     # stack layout: to-readtable, from-readtable, newht.
     map_hashtable(Cdr(TheReadtable(STACK_1)->readtable_syntax_table),ch,entry,
-                  { shifthash(STACK_(0+1),ch,entry); });
+                  { shifthash(STACK_(0+1),ch,entry,true); });
     {
       var object newht = popSTACK();
       from_readtable = popSTACK();
@@ -439,7 +439,7 @@ local maygc object copy_readtable_contents (object from_readtable,
     map_hashtable(TheSvector(mtable1)->data[small_char_code_limit],ch,entry, {
       if (simple_vector_p(entry))
         entry = copy_perchar_table(entry);
-      shifthash(STACK_(0+1),ch,entry);
+      shifthash(STACK_(0+1),ch,entry,true);
     });
     TheSvector(STACK_1)->data[small_char_code_limit] = STACK_0;
     skipSTACK(2);
