@@ -3578,6 +3578,23 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    computations at the double float level.
   </simpara><simpara>[UNIX systems only at this time, patches are welcome.]
  </simpara></listitem></varlistentry>
+ <varlistentry><term>
+   <literal role="sexp">(<function>POSIX:STREAM-LOCK</function> &stream-r;
+            <replaceable>lock-p</replaceable>
+            &key-amp; (:block &t;) (:shared &nil;))</literal></term>
+  <listitem><simpara>This is an interface to the
+   <function>flock(2)</function> system call.
+   It sets or removes a discretionary file lock for the file associated
+   with &stream-r;, depending on <replaceable>lock-p</replaceable>. 
+   When <replaceable>block</replaceable> is &nil;, the call is non-blocking,
+   and when the file is already locked, it signals an error.
+   When <replaceable>shared</replaceable> is non-&nil;,
+   then lock can be shared between several callers.
+   Several processes can set a <replaceable>shared</replaceable> lock,
+   but only one can set an <emphasis>exclusive</emphasis> (i.e., 
+   non-<replaceable>shared</replaceable>) lock.
+  </simpara><simpara>[UNIX systems only at this time, patches are welcome.]
+ </simpara></listitem></varlistentry>
 </variablelist>
 
 </section>
