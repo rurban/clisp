@@ -1,3 +1,10 @@
+2001-03-27  Sam Steingold  <sds@gnu.org>
+
+	* package.d (symtab_lookup, shadowing_lookup):
+	check sym_ for being non-NULL
+	(inherited_lookup, inherited_find): new local functions
+	(accessiblep, find_symbol, import, unexport, export): use them
+
 2001-03-27  Bruno Haible  <haible@clisp.cons.org>
 
 	* package.d (SYSTEM::PACKAGE-ITERATE): When looking for inherited
