@@ -3183,22 +3183,13 @@ der Docstring (oder NIL).
   ((anode
     (catch 'c-error
       (if (atom *form*)
-        (cond ((symbolp *form*)
-               (multiple-value-bind (macrop expansion)
-                   (venv-search-macro *form* *venv*)
-                 (if macrop ; Symbol-Macro ?
-                   (c-form expansion) ; -> expandieren
-                   (c-VAR *form*)
-              )) )
-              ((or (numberp *form*) (characterp *form*) (arrayp *form*)
-                   ;; X3J13 vote <72> conditionally implemented: check *package*
-                   (member (find-package "COMMON-LISP") (package-use-list *package*))
-               )
-               (c-CONST)
-              )
-              (t (c-error (ENGLISH "Invalid form: ~S")
-                          *form*
-        )     )  )
+        (if (symbolp *form*)
+          (multiple-value-bind (macrop expansion)
+              (venv-search-macro *form* *venv*)
+            (if macrop ; Symbol-Macro ?
+              (c-form expansion) ; -> expandieren
+              (c-VAR *form*)))
+          (c-CONST))
         (let ((fun (first *form*)))
           (if (function-name-p fun)
             (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search fun)
