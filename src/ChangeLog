@@ -1,9 +1,9 @@
 2004-12-19  Bruno Haible  <bruno@clisp.org>
 
 	More powerful optimizations on places.
-	* places.lisp (occurs-in-p, commuting-forms-p,
-	simple-occurrence-in-basic-block-p, optimized-wrap-let*,
-	optimized-wrap-multiple-value-bind): New functions.
+	* places.lisp (occurs-in-p, commuting-forms-p)
+	(simple-occurrence-in-basic-block-p, optimized-wrap-let*)
+	(optimized-wrap-multiple-value-bind): New functions.
 	(push): Don't use simple-assignment-p, subst-in-form, sublis-in-form.
 	Instead use optimized-wrap-let*.
 	(pop): Likewise.
