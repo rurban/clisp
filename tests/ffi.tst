@@ -164,6 +164,14 @@ C-SELF
 "zrew"
 
 (def-call-out c-self (:name "ffi_identity")
+  (:arguments (first (c-array-ptr uint8)))
+  (:return-type (c-ptr (c-array character 4))) (:language :stdc))
+C-SELF
+
+(c-self #(64 65 66 67 68))
+"@ABC"
+
+(def-call-out c-self (:name "ffi_identity")
   (:arguments (first c-string)
               (obj (c-ptr (c-array sint16 4)) :in-out))
   (:return-type nil) (:language :stdc))
