@@ -1,3 +1,10 @@
+2002-08-12  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (encflags): new variable: -Efile and -Eterminal
+	instead of the general -E (see patch 2002-06-10): need to keep
+	*MISC-ENCODING* set to the user localization
+	Reported by Arseny Slobodjuck.
+
 2002-08-11  Sam Steingold  <sds@gnu.org>
 
 	fixed the EXEEXT inconsistencies
@@ -8,7 +15,7 @@
 
 2002-08-10  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
-	* makemake.in [win32]: don't use apostrophes as shell screening
+	* makemake.in [win32]: do not use apostrophes as shell screening
 	characters on win32.
 
 2002-08-10  Arseny Slobodjuck <ampy@ich.dvo.ru>
