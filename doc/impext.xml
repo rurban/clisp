@@ -3009,7 +3009,9 @@ only.</subtitle>
  <listitem><simpara>This form outputs the string <literal
   role="sexp">(&format; &nil; <replaceable>format-string</replaceable>
     {&arg-r;}*)</literal> to the &c-lang; output file.
-   This is a rarely needed low-level facility.
+   This is usually used to include the relevant header files,
+   see <xref linkend="def-c-struct-external"/>
+   and <xref linkend="ffi-extern-output"/>.
  </simpara></listitem></varlistentry>
 
 <varlistentry id="element"><term><literal role="sexp">(&element;
