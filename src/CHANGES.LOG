@@ -77,6 +77,8 @@ User visible changes
 Portability
 -----------
 
+* Added support for IA-64 running Linux.
+
 * Added support for BeOS 5. Thanks to Alexis Rivera Rios <ahrivera@yahoo.com>.
 
 * Removed support for DOS. Don't worry, OS/2 and Win32 are still supported.

@@ -342,6 +342,10 @@
           # For compatibility of the .mem files between the architectures,
           # choose the same value for both here.
           16384
+        #elif defined(UNIX_LINUX) && defined(IA64)
+          # The pagesize can be 4, 8, 16 or 64 KB.
+          # For compatibility of the .mem files, choose always the same value.
+          65536
         #elif defined(HAVE_GETPAGESIZE)
           getpagesize()
         #elif defined(UNIX_SUNOS5)

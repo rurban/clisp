@@ -1,7 +1,8 @@
 # Prädikate für Gleichheit und Typtests, Typen, Klassen in CLISP
-# Bruno Haible 1990-2000
+# Bruno Haible 1990-2001
 
 #include "lispbibl.c"
+#include "arilev0.c" # für R_sign
 
 # UP: testet auf Atomgleichheit EQL
 # eql(obj1,obj2)
