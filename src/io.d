@@ -8452,7 +8452,7 @@ local maygc void pr_readlabel (const gcv_object_t* stream_, object obj) {
   JUSTIFY_SPACE;
   JUSTIFY_LAST(true);
   var object n = (orecordp(obj) # BigReadLabel or Small-Read-Label?
-                  ? TheBigReadLabel(obj)->brl_value
+                  ? (object)TheBigReadLabel(obj)->brl_value
                   : small_read_label_value(obj));
   print_integer(n,10,stream_); # print n in decimal
   JUSTIFY_END_FILL;

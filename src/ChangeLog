@@ -1,5 +1,9 @@
 2005-01-28  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (pr_readlabel): Fix C++ compilation.
+
+2005-01-28  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (check-fresh-line): Reduce the scope of the test on
 	Woe32.
 
