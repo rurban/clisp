@@ -1,3 +1,7 @@
+2003-01-09  John  Hinsdale <hin@alma.com>
+
+	* modules/fastcgi/*: new add-in module for FastCGI interface
+
 2003-01-09  Sam Steingold  <sds@gnu.org>
 
 	implemented CHANGE-CLASS and UPDATE-INSTANCE-FOR-DIFFERENT-CLASS
