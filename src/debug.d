@@ -368,7 +368,11 @@ LISPFUN(read_eval_print,seclass_default,1,1,norest,nokey,0,NIL)
   global void driver()
     {
       var p_backtrace_t bt_save = back_trace;
-      var const struct backtrace_t bt_here = {NULL, L(driver), STACK , -1};
+      var struct backtrace_t bt_here;
+      bt_here.bt_next = NULL;
+      bt_here.bt_caller = L(driver);
+      bt_here.bt_stack = STACK;
+      bt_here.bt_num_arg = -1;
       back_trace = &bt_here;
       loop {
         var object driverfun = Symbol_value(S(driverstern)); # Wert von *DRIVER*
@@ -409,7 +413,11 @@ global void break_driver (bool continuable_p) {
       reset(1); /* -> back to the previous REPLoop */
   } else {
     var p_backtrace_t bt_save = back_trace;
-    var struct backtrace_t bt_here = {NULL, S(break_driver), STACK , -1};
+    var struct backtrace_t bt_here;
+    bt_here.bt_next = NULL;
+    bt_here.bt_caller = S(break_driver);
+    bt_here.bt_stack = STACK;
+    bt_here.bt_num_arg = -1;
     back_trace = &bt_here;
     /* Default-Driver: (CLEAR-INPUT *DEBUG-IO*), since whatever has been
        typed so far, was not typed in anticipation of this error */

@@ -2603,7 +2603,11 @@ global int main (argc_t argc, char* argv[]) {
   aktenv.go_env    = NIL;
   aktenv.decl_env  = O(top_decl_env);
   # everything completely initialized.
- {var struct backtrace_t bt = { NULL, L(driver), STACK, -1 };
+ {var struct backtrace_t bt;
+  bt.bt_next = NULL;
+  bt.bt_caller = L(driver);
+  bt.bt_stack = STACK;
+  bt.bt_num_arg = -1;
   back_trace = &bt;
   clear_break_sems(); set_break_sem_1();
   begin_system_call();
