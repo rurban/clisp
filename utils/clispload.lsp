@@ -124,9 +124,6 @@
   ;; In CLISP the resulting directory is (:RELATIVE).
   PARSE-NAMESTRING.1 PARSE-NAMESTRING.2 PARSE-NAMESTRING.3 PARSE-NAMESTRING.4
 
-  ;; Broken test.
-  PRINT-UNREADABLE-OBJECT.2
-
   ;; Paul Dietz assumes that binding *PRINT-READABLY* to T has no effect on
   ;; how integers are printed.
   ;; In CLISP *PRINT-READABLY* = T implies the effects of *PRINT-RADIX* = T.
