@@ -12104,7 +12104,10 @@ extern void tast_break (void);
 # fehler_list(obj);
 # > obj: non-list
 nonreturning_function(extern, fehler_list, (object obj));
-# is used by LIST, EVAL
+/* ditto - recoverable
+ can trigger GC */
+global object check_list (object obj);
+/* used by LIST, EVAL, PATHNAME, STREAM */
 
 # Error message, if an object isn't a proper list.
 # fehler_proper_list(caller,obj);

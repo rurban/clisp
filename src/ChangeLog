@@ -1,3 +1,8 @@
+2003-05-24  Sam Steingold  <sds@gnu.org>
+
+	* error.d (check_list): new function
+	* lispbibl.d (check_list): declare
+
 2003-05-24  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	Concerning the CLHS/Win32 issue.
