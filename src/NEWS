@@ -308,6 +308,10 @@ User visible changes
   + When an interpreted INITIALIZE-INSTANCE method uses CALL-NEXT-METHOD with
     a modified argument list, MAKE-INSTANCE could in some cases initialize
     the new object three times instead of just once.
+  + Fixed a compiler bug that could lead to incorrect code when a LAMBDA
+    with SPECIAL-declared optional variables was compiled inline and the
+    initforms of the optional variables depended on the values of the previous
+    optional variables.
   + Passing a package as second argument of RENAME-PACKAGE led to an
     unjustified error.
   + Passing a displaced vector as argument to REVERSE could lead to an
