@@ -21,7 +21,6 @@
 <LI><A NAME="TOC5" HREF="regexp.html#SEC5">Complex Regexp Example</A>
 <LI><A NAME="TOC6" HREF="regexp.html#SEC6">Common Regular Expressions Used in Editing</A>
 </UL>
-<LI><A NAME="TOC7" HREF="regexp.html#SEC7">The Regular Expression Module</A>
 </UL>
 <P><HR><P>
 <P>
@@ -679,97 +678,6 @@ is (in C syntax, again):
 <P>
 This means a period, question mark or exclamation mark, followed by a
 closing brace, followed by tabs, spaces or new lines.
-
-</P>
-
-
-<H1><A NAME="SEC7" HREF="regexp.html#TOC7">The Regular Expression Module</A></H1>
-
-<P>
-<DL>
-<DT><U>Function:</U> <B>match</B> <I>regexp string &#38;key start end</I>
-<DD><A NAME="IDX31"></A>
-This function returns as first value a <CODE>match</CODE> structure containing
-the indices of the start and end of the first match for
-the regular expression <VAR>regexp</VAR> in <VAR>string</VAR>, or <CODE>nil</CODE> if
-there is no match.  If <VAR>start</VAR> is non-<CODE>nil</CODE>, the search starts
-at that index in <VAR>string</VAR>. If <VAR>end</VAR> is non-<CODE>nil</CODE>, only
-<CODE>(subseq <VAR>string</VAR> <VAR>start</VAR> <VAR>end</VAR>)</CODE> is considered.
-
-</P>
-<P>
-For example,
-
-</P>
-
-<PRE>
-(match "quick" "The quick brown fox jumped quickly.")
-     => #S(match :start 4 :end 9)
-(match "quick" "The quick brown fox jumped quickly." :start 8)
-     => #S(match :start 27 :end 32)
-(match "quick" "The quick brown fox jumped quickly."
-       :start 8 :end 30)
-     => nil
-</PRE>
-
-<P>
-The index of the first character of the
-string is 0, the index of the second character is 1, and so on.
-
-</P>
-<P>
-The next values are <CODE>match</CODE> structures for every <SAMP>`\( ... \)'</SAMP>
-contruct in <VAR>regexp</VAR>, in the order that the open parentheses appear
-in <VAR>regexp</VAR>.
-</DL>
-
-</P>
-<P>
-<DL>
-<DT><U>Function:</U> <B>match-start</B> <I>match</I>
-<DD><A NAME="IDX32"></A>
-Extracts the start index of <VAR>match</VAR>.
-</DL>
-
-</P>
-<P>
-<DL>
-<DT><U>Function:</U> <B>match-end</B> <I>match</I>
-<DD><A NAME="IDX33"></A>
-Extracts the end index of <VAR>match</VAR>.
-</DL>
-
-</P>
-<P>
-<DL>
-<DT><U>Function:</U> <B>match-string</B> <I>string match</I>
-<DD><A NAME="IDX34"></A>
-Extracts the substring of <VAR>string</VAR> corresponding to a given pair of
-start and end indices. The result is shared with <VAR>string</VAR>. If you want
-a freshly consed string, use <CODE>copy-string</CODE> or
-<CODE>(coerce (match-string ...) 'simple-string)</CODE>.
-</DL>
-
-</P>
-<P>
-<DL>
-<DT><U>Function:</U> <B>regexp-quote</B> <I>string</I>
-<DD><A NAME="IDX35"></A>
-This function returns a regular expression string that matches exactly
-<VAR>string</VAR> and nothing else.  This allows you to request an exact
-string match when calling a function that wants a regular expression.
-
-</P>
-
-<PRE>
-(regexp-quote "^The cat$")
-     => "\\^The cat\\$"
-</PRE>
-
-<P>
-One use of <CODE>regexp-quote</CODE> is to combine an exact string match with
-context described as a regular expression.
-</DL>
 
 </P>
 <P><HR><P>
