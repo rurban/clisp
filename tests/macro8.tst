@@ -284,12 +284,14 @@ m
 ((T 2 1) (T 2 1) (NIL 4 3))
 
 (macrolet ((%m (&key a b c) `'(,a ,b ,c)))
-  (list (%m :allow-other-keys nil) (%m :a 1 :allow-other-keys nil)
+  (list (%m :allow-other-keys nil)
+        (%m :a 1 :allow-other-keys nil)
         (%m :allow-other-keys t)
         (%m :allow-other-keys t :allow-other-keys nil :foo t)
         (%m :allow-other-keys t :c 1 :b 2 :a 3)
+        (%m :c 1 :b 2 :a 3 :allow-other-keys t)
         (%m :allow-other-keys nil :c 1 :b 2 :a 3)))
-((NIL NIL NIL) (1 NIL NIL) (NIL NIL NIL) (NIL NIL NIL) (3 2 1) (3 2 1))
+((NIL NIL NIL) (1 NIL NIL) (NIL NIL NIL) (NIL NIL NIL) (3 2 1) (3 2 1) (3 2 1))
 
 ;;; <http://www.lisp.org/HyperSpec/Body/fun_macroexpa_acroexpand-1.html>
 (defmacro alpha (x y) `(beta ,x ,y))   ALPHA

@@ -1,5 +1,11 @@
 2003-04-26  Sam Steingold  <sds@gnu.org>
 
+	* array.d (ADJUST-ARRAY): fixed a GC-safety bug
+	* eval.d (funcall_iclosure): fixed 2 GC-safety bugs
+	* record.d (update_instance): fixed 3 GC-safety bugs
+
+2003-04-26  Sam Steingold  <sds@gnu.org>
+
 	* clos.lisp (ensure-class): when either the old definition or the
 	new one is a DEFSTRUCT, just discard the old definition altogether
 
