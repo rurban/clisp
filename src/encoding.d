@@ -642,9 +642,9 @@ global void utf8_mbstowcs (object encoding, object stream, const uintB* *srcp,
       if (((src[1] ^ 0x80) < 0x40) && ((src[2] ^ 0x80) < 0x40)
           && (c >= 0xE1 || src[1] >= 0xA0)
           && (c != 0xED || src[1] < 0xA0)) {
-        *dest++ = as_chart(((cint)(c & 0x0F) << 12) |
-                           ((cint)(src[1] ^ 0x80) << 6) |
-                           (cint)(src[2] ^ 0x80));
+        *dest++ = as_chart(((cint)(c & 0x0F) << 12)
+                           | ((cint)(src[1] ^ 0x80) << 6)
+                           | (cint)(src[2] ^ 0x80));
         src += 3;
         continue;
       }
@@ -664,12 +664,15 @@ global void utf8_mbstowcs (object encoding, object stream, const uintB* *srcp,
       if (((src[1] ^ 0x80) < 0x40) && ((src[2] ^ 0x80) < 0x40)
           && ((src[3] ^ 0x80) < 0x40)
           && (c >= 0xF1 || src[1] >= 0x90)) {
-        *dest++ = as_chart(((cint)(c & 0x07) << 18) |
-                           ((cint)(src[1] ^ 0x80) << 12) |
-                           ((cint)(src[2] ^ 0x80) << 6) |
-                           (cint)(src[3] ^ 0x80));
-        src += 4;
-        continue;
+        var cint ch = ((cint)(c & 0x07) << 18)
+                      | ((cint)(src[1] ^ 0x80) << 12)
+                      | ((cint)(src[2] ^ 0x80) << 6)
+                      | (cint)(src[3] ^ 0x80);
+        if (ch < char_code_limit) {
+          *dest++ = as_chart(ch);
+          src += 4;
+          continue;
+        }
       }
       {
         var object action = TheEncoding(encoding)->enc_towcs_error;
@@ -2161,8 +2164,7 @@ global void init_encodings_2 (void) {
 local object encoding_from_name (const char* name) {
  #ifdef UNICODE
   # Attempt to use the character set implicitly specified by the locale.
-  if (name && (asciz_equal(name,"ASCII") ||
-               asciz_equal(name,"ANSI_X3.4-1968")))
+  if (name && (asciz_equal(name,"ASCII") || asciz_equal(name,"ANSI_X3.4-1968")))
     pushSTACK(Symbol_value(S(ascii)));
   else if (name && asciz_equal(name,"ISO-8859-1"))
     pushSTACK(Symbol_value(S(iso8859_1)));
