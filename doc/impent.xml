@@ -543,8 +543,9 @@
 <!ENTITY classes-r "<replaceable>classes</replaceable>">
 <!ENTITY cname-r "<replaceable>c-name</replaceable>">
 <!ENTITY command-r "<replaceable>command</replaceable>">
-<!ENTITY cont-r "<replaceable>contents</replaceable>">
 <!ENTITY cond-r "<replaceable>condition</replaceable>">
+<!ENTITY conn-r "<replaceable>connection</replaceable>">
+<!ENTITY cont-r "<replaceable>contents</replaceable>">
 <!ENTITY count-r "<replaceable>count</replaceable>">
 <!ENTITY cplace-r "<replaceable>c-place</replaceable>">
 <!ENTITY ctype-r "<replaceable>c-type</replaceable>">
@@ -619,6 +620,7 @@
 <!ENTITY pred-r "<replaceable>predicate</replaceable>">
 <!ENTITY program-r "<replaceable>program</replaceable>">
 <!ENTITY real-r "<replaceable>real</replaceable>">
+<!ENTITY res-r "<replaceable>result</replaceable>">
 <!ENTITY restart-clause-r "<replaceable>restart-clause</replaceable>">
 <!ENTITY sequence-r "<replaceable>sequence</replaceable>">
 <!ENTITY size-r "<replaceable>size</replaceable>">

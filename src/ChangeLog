@@ -1,5 +1,11 @@
 2005-04-05  Sam Steingold  <sds@gnu.org>
 
+	* modules/postgresql/link.sh.in (TO_LOAD): added sql
+	* modules/postgresql/sql.lisp: rewrote to export
+	higher-level functionality
+
+2005-04-05  Sam Steingold  <sds@gnu.org>
+
 	* modules/matlab/Makefile (DISTRIBFILES): added test.tst
 
 2005-04-04  Sam Steingold  <sds@gnu.org>
