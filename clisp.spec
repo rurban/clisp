@@ -55,7 +55,7 @@ The latest and greatest i386 binary RPM is on
 cd %{clisp_build}
 make install
 %files
-%dir /usr/lib/lisp/
+%dir /usr/lib/clisp/
 %docdir /usr/doc/%{name}-%{version}
 %doc build/ANNOUNCE
 %doc build/GNU-GPL
@@ -84,10 +84,10 @@ make install
 /usr/man/man3/clreadline.3
 /usr/man/man1/clisp.1
 /usr/bin/clisp
-/usr/lib/lisp/lisp.run
-/usr/lib/lisp/lispinit.mem
-/usr/lib/lisp/lispfull.mem
-/usr/lib/lisp/lispfull.run
+/usr/lib/clisp/lisp.run
+/usr/lib/clisp/lispinit.mem
+/usr/lib/clisp/full/lisp.mem
+/usr/lib/clisp/full/lispinit.run
 /usr/share/locale/de/LC_MESSAGES/clisp.mo
 /usr/share/locale/en/LC_MESSAGES/clisp.mo
 /usr/share/locale/es/LC_MESSAGES/clisp.mo
