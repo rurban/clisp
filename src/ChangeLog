@@ -2,6 +2,8 @@
 
 	* package.d (make_present): if symbol is homeless, set its home
 	this takes care of the Issue 194
+	* clos.lisp (setf find-class): allow nil as the new-value
+	this takes care of the Issue 304
 
 2003-04-19  Sam Steingold  <sds@gnu.org>
 

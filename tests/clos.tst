@@ -291,6 +291,9 @@ nil
 (x-val (make-instance (find-class '<C1>) :x 101 :y 120))
 101
 
+(setf (find-class '<C1>) nil)
+nil
+
 (unintern '<C1>)
 T
 

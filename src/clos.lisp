@@ -189,7 +189,7 @@
       :datum symbol :expected-type 'symbol
       (TEXT "~S: argument ~S is not a symbol")
       '(setf find-class) symbol))
-  (unless (class-p new-value)
+  (unless (or (null new-value) (class-p new-value))
     (error-of-type 'type-error
       :datum new-value :expected-type 'class
       (TEXT "~S: ~S is not a class")
@@ -203,7 +203,9 @@
       (sys::check-redefinition symbol '(setf find-class) "class")
       ;; should we do (setf (class-name h) nil) ??
       ))
-  (setf (get symbol 'CLOSCLASS) new-value))
+  (if new-value
+      (setf (get symbol 'CLOSCLASS) new-value)
+      (progn (remprop symbol 'CLOSCLASS) nil)))
 
 ;; (CLASS-OF object) see PREDTYPE.D, uses property CLASS.
 
