@@ -991,19 +991,17 @@ is the same as
    <ulink url="&clhs;/Body/sec_the_condi_s_dictionary.html">[CLHS-9.2]</ulink></title>
 
 <formalpara><title>Macro &restart-case;</title>
-<para>In &restart-case; clauses the argument list can also be specified
- after the keyword/value pairs instead of before them.  The syntax
- therefore is
-
-<variablelist><title>Macro <literal role="sexp">(&restart-case; &form-r;
- {<varname>restart-clause</varname>}*)</literal></title>
- <varlistentry><term><varname>restart-clause</varname> ::==</term><listitem>
-  <programlisting>
-   (<varname>restart-name</varname> <replaceable>arglist</replaceable>
-    {<varname>keyword-value</varname>}* {&form-r;}*) |
-   (<varname>restart-name</varname> {<varname>keyword-value</varname>}*
-    <replaceable>arglist</replaceable> {&form-r;}*)
-</programlisting></listitem></varlistentry></variablelist>
+ <para>In <literal role="sexp">(&restart-case; &form-r;
+   {<replaceable>restart-clause</replaceable>}*)</literal>,
+  the argument list can also be specified after the keyword/value pairs
+  instead of before them, i.e., each
+  <replaceable>restart-clause</replaceable> can be either
+  <literal role="sexp">(<varname>restart-name</varname>
+   <replaceable>arglist</replaceable>
+   {<replaceable>keyword-value-pair</replaceable>}* {&form-r;}*)</literal>
+  or <literal role="sexp">(<replaceable>restart-name</replaceable>
+   {<replaceable>keyword-value-pair</replaceable>}*
+   <replaceable>arglist</replaceable> {&form-r;}*)</literal>.
 </para></formalpara>
 
 <formalpara><title>Function &compute-restarts;</title>
@@ -1013,7 +1011,7 @@ is the same as
  restarts associated with no condition at all are considered.
  Therefore the effect of associating a restart to a condition is not to
  activate it, but to hide it from other conditions.
- This makes the syntax dependent implicit association performed by
+ This makes the syntax-dependent implicit association performed by
  &restart-case; nearly obsolete.</para></formalpara>
 
 </section>
@@ -2014,19 +2012,18 @@ are simple characters.</para>
 <para>The types <classname>EXT:STRING-CHAR</classname> and
  &base-char-t; are equivalent to &character-t;.</para>
 
-<para>The graphic characters have been described above.</para>
+<para>The graphic characters have been described
+ <link linkend="graph-char">above</link>.</para>
 
 <para>The standard characters are &nl-s; and the graphic characters with
  a code between 32 and 126 (inclusive).</para>
 
 <para>The alphabetic characters are these characters:
-<literallayout>
-             ABCDEFGHIJKLMNOPQRSTUVWXYZ
+<literallayout>             ABCDEFGHIJKLMNOPQRSTUVWXYZ
              abcdefghijklmnopqrstuvwxyz
 </literallayout>
 and the international alphabetic characters from the character set:
-<literallayout>
-             &Ccedil;&uuml;&eacute;&acirc;&auml;&agrave;&aring;&ccedil;&ecirc;&euml;&egrave;&iuml;&icirc;&igrave;&Auml;&Aring;&Eacute;&aelig;&AElig;&ocirc;&ouml;&ograve;&ucirc;&ugrave;&yuml;&Ouml;&Uuml;&szlig;&aacute;&iacute;&oacute;&uacute;&ntilde;&Ntilde;&ordf;&ordm;&atilde;&otilde;&Oslash;&oslash;&Agrave;&Atilde;&Otilde; etc.
+<literallayout>             &Ccedil;&uuml;&eacute;&acirc;&auml;&agrave;&aring;&ccedil;&ecirc;&euml;&egrave;&iuml;&icirc;&igrave;&Auml;&Aring;&Eacute;&aelig;&AElig;&ocirc;&ouml;&ograve;&ucirc;&ugrave;&yuml;&Ouml;&Uuml;&szlig;&aacute;&iacute;&oacute;&uacute;&ntilde;&Ntilde;&ordf;&ordm;&atilde;&otilde;&Oslash;&oslash;&Agrave;&Atilde;&Otilde; etc.
 </literallayout></para>
 
 <para>The functions &char-equal; &char-not-equal;, &char-lessp;,
@@ -2200,31 +2197,20 @@ and the international alphabetic characters from the character set:
 <section id="map-func">
    <title>Functions &mapcar;, &mapcan;, &maplist;, &mapcon;, ...</title>
 
-<section id="mapcap"><title>Function &mapcap;</title>
-
+<formalpara id="mapcap"><title>Function &mapcap;</title>
 <para>The function &mapcap; is like &mapcan;, except that it
- concatenates the resulting lists with &append; instead of &nconc;:</para>
+ concatenates the resulting lists with &append; instead of &nconc;:
+ <programlisting><literal role="sexp">(&mapcap; &func-r; &x1-r; ... &xn-r;)</literal> &equiv;
+<literal role="sexp">(&apply; #'&append; (&mapcar; &func-r; &x1-r; ... &xn-r;))</literal></programlisting>
+(Actually a bit more efficient that this would have been.)</para></formalpara>
 
-<para><literal role="sexp">(&mapcap; &func-r; &x1-r; ... &xn-r;)</literal> ==
- <literal role="sexp">(&apply; #'&append; (&mapcar; &func-r; &x1-r;
- ... &xn-r;))</literal></para>
-
-<para>(Actually a bit more efficient that this would have been.)</para>
-
-</section>
-
-<section id="maplap"><title>Function &maplap;</title>
-
+<formalpara id="maplap"><title>Function &maplap;</title>
 <para>The function &maplap; is like &mapcon;, except that it
- concatenates the resulting lists with &append; instead of &nconc;:</para>
+ concatenates the resulting lists with &append; instead of &nconc;:
+ <programlisting><literal role="sexp">(&maplap; &func-r; &x1-r; ... &xn-r;)</literal> &equiv;
+<literal role="sexp">(&apply; #'&append; (&maplist; &func-r; &x1-r; ... &xn-r;))</literal></programlisting>
+ (Actually a bit more efficient that this would have been.)</para></formalpara>
 
-<para><literal role="sexp">(&maplap; &func-r; &x1-r; ... &xn-r;)</literal> ==
- <literal role="sexp">(&apply; #'&append; (&maplist; &func-r; &x1-r;
- ... &xn-r;))</literal></para>
-
-<para>(Actually a bit more efficient that this would have been.)</para>
-
-</section>
 </section>
 </section>
 </chapter>
@@ -2262,7 +2248,7 @@ and the international alphabetic characters from the character set:
 </tbody></tgroup></table>
 
 <note><para>Note that &array-dimension-limit; and &array-total-size-limit;
- are not fixnums (they are equal to
+ are not &fixnum-t;s (they are equal to
  <literal role="sexp">(&pl1; &most-positive-fixnum;)</literal>),
  contrary to the &ansi-cl; Issue <ulink url="&clhs;/Issues/iss014.html"
  >ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</ulink>.</para></note>
@@ -2445,7 +2431,7 @@ printed readably.</para>
 
 <para>The fundamental requirement is that the &test-f; and &hash-f; are
  consistent: <programlisting>
-  (&funcall; &test-f; &x-r; &y-r;) ==&gt;
+  (&funcall; &test-f; &x-r; &y-r;) &rArr;
   (&areq; (&funcall; &hash-f; &x-r;) (&funcall; &hash-f; &y-r;))
  </programlisting>
  This means that the following definition: <programlisting>
@@ -2458,7 +2444,7 @@ printed readably.</para>
  </programlisting>
  (note that
  <literal role="sexp">(&coerce; &x-r; &short-float-t;)</literal>
- does &not-e; cons while
+ does &not-e; cons up &fresh; objects while
  <literal role="sexp">(&coerce; &x-r; &double-float-t;)</literal>
  does).</para>
 
@@ -4003,9 +3989,9 @@ compiles a file to platform-independent bytecode.</para>
     empty</entry></row>
 </tbody></tgroup></informaltable></para>
 
-<warning><para>If you have two files in the same directory
-- &foolisp-f; and <filename>#P"foo.c"</filename>,
-and you compile the first file with &clisp;, the second file will be
+<warning id="c-file-overwrite"><para>If you have two files in the same
+directory - &foolisp-f; and <filename>#P"foo.c"</filename>, and you
+compile the first file with &clisp;, the second file will be
 <emphasis>clobbered</emphasis> if you have any &ffi-pac; forms in
 the first one!</para></warning>
 
