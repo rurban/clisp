@@ -158,3 +158,10 @@
 <!ENTITY specializer-mo-arg "<varlistentry><term>&specializer-r;</term>
     <listitem><simpara>a specializer metaobject.
    </simpara></listitem></varlistentry>">
+<!ENTITY clisp-defclass-ensure-class-default "<simpara>This is needed to
+ fulfill the &ansi-cl; requirement (see <xref linkend='redef-class'/>) that
+ the resulting &class; object reflects the &defclass; form.</simpara>">
+<!ENTITY implements-inheritance "<simpara>This method implements the
+ inheritance and defaulting of slot options following the rules
+ described in the &ansi-cl; section <ulink url='&clhs;/Body/sec_7-5-3.html'
+ >7.5.3 <quote>Inheritance of Slots and Options</quote></ulink>.</simpara>">
