@@ -1,9 +1,11 @@
 This file contains suggestions for further work.
+See also <https://sourceforge.net/tracker/?group_id=1355&atid=351355>
 
 MUST-FIX BEFORE NEXT RELEASE
 ============================
 
 Finish MOP. (Bruno)
+<https://sourceforge.net/tracker/index.php?func=detail&aid=454398&group_id=1355&atid=351355>
 
 Defstruct accessors are defined twice, which leads to warnings. (Bruno)
 
@@ -31,6 +33,7 @@ Should handle these soon.
 
 
 Embeddability: additional API in spvw.d; global error handler; example.
+<https://sourceforge.net/tracker/index.php?func=detail&aid=423264&group_id=1355&atid=351355>
 
 
 Review all macros and tighten the runtime interface of the macros.
@@ -148,6 +151,15 @@ DISASSEMBLE, DEFUN, DEFGENERIC.
 
 
 clean up and modularize spvw.d
+
+
+larger fixnums on 64-bit platforms
+<https://sourceforge.net/tracker/index.php?func=detail&aid=999750&group_id=1355&atid=351355>
+
+
+error recovery
+<https://sourceforge.net/tracker/index.php?func=detail&aid=946463&group_id=1355&atid=351355>
+
 
 
 
