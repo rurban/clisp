@@ -1,5 +1,11 @@
 2004-08-31  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_sigsegv.d (install_stackoverflow_handler): Define as a no-op
+	when NOCOST_SP_CHECK is not defined.
+	* spvw.d (main): Call install_stackoverflow_handler a little later.
+
+2004-08-31  Bruno Haible  <bruno@clisp.org>
+
 	Assume the OS manages the C stack sufficiently well.
 	* lispbibl.d (NO_SP_MALLOC): Remove macro.
 	* spvw.d (usage): Remove documentation of option -s.

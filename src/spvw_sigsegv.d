@@ -9,16 +9,12 @@
 
 #endif # GENERATIONAL_GC
 
-#ifdef NOCOST_SP_CHECK
-
-# Install the stack overflow handler.
+# Install the stack overflow handler if possible.
 # install_stackoverflow_handler(size);
 # > size: size of substitute stack.
 # This function must be called from main(); it allocates the substitute stack
 # using alloca().
   local void install_stackoverflow_handler (uintL size);
-
-#endif
 
 # ------------------------------ Implementation -------------------------------
 
@@ -148,5 +144,10 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
   do { var void* room = alloca(size);                                         \
        stackoverflow_install_handler(&stackoverflow_handler,(void*)room,size);\
   } while(0)
+
+#else
+
+# A dummy that does nothing.
+#define install_stackoverflow_handler(size)  (void)(size)
 
 #endif
