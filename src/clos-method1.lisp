@@ -235,6 +235,8 @@
   (std-method-specializers method))
 (defun method-generic-function (method)
   (std-method-generic-function method))
+(defun (setf method-generic-function) (new-gf method)
+  (setf (std-method-generic-function method) new-gf))
 
 ;;; ---------------------------------------------------------------------------
 

@@ -356,7 +356,7 @@
         ((eq gf |#'shared-initialize|) (note-si-change method)))
   ;; Step 1: Add method to the set.
   (setf (std-gf-methods gf) (cons method (std-gf-methods gf))
-        (std-method-generic-function method) gf)
+        (method-generic-function method) gf)
   ;; Step 2: Call add-direct-method for each specializer.
   (dolist (specializer (method-specializers method))
     (add-direct-method specializer method))
@@ -402,7 +402,7 @@
             ((eq gf |#'shared-initialize|) (note-si-change method)))
       ;; Step 1: Remove method from the set.
       (setf (std-gf-methods gf) (remove old-method (std-gf-methods gf))
-            (std-method-generic-function old-method) nil
+            (method-generic-function old-method) nil
             (method-from-defgeneric old-method) nil)
       ;; Step 2: Call remove-direct-method for each specializer.
       (dolist (specializer (method-specializers method))
@@ -506,7 +506,7 @@
     (setf (std-gf-methods gf)
           (remove-if #'(lambda (method)
                          (when (method-from-defgeneric method)
-                           (setf (std-method-generic-function method) nil)
+                           (setf (method-generic-function method) nil)
                            t))
                      (std-gf-methods gf))))
   (apply (cond ((eq (class-of gf) <standard-generic-function>)
