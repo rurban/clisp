@@ -2259,15 +2259,21 @@ LISPFUNNR(function_name_p,1)
   var object arg = popSTACK();
   VALUES_IF(funnamep(arg));
 }
+
+/* (SYS::%CHECK-FUNCTION-NAME caller funname)
+ checks whether the funname argument is a function name, giving the user the
+ opportunity to correct it if it is not. Returns the corrected function name. */
 LISPFUNN(check_function_name,2)
-{ /* (SYS::%CHECK-FUNCTION-NAME caller symbol)
-     signal an error and return the replacement */
+{
   VALUES1(check_funname(source_program_error,STACK_1,STACK_0));
   skipSTACK(2);
 }
+
+/* (SYS::%CHECK-SYMBOL caller symbol)
+ checks whether the symbol argument is a symbol, giving the user the
+ opportunity to correct it if it is not. Returns the corrected symbol. */
 LISPFUNN(check_symbol,2)
-{ /* (SYS::%CHECK-SYMBOL caller symbol)
-     signal an error and return the replacement */
+{
   var gcv_object_t *sym_ = &STACK_0;
   var gcv_object_t *caller_ = &STACK_1;
   while (!symbolp(*sym_)) {
