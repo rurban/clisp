@@ -1,3 +1,8 @@
+2004-02-28  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (namestring_correctly_parseable_p): Mark as GC-unsafe.
+	* io.d (pr_orecord): Fix GC-safety bug.
+
 2004-03-08  Bruno Haible  <bruno@clisp.org>
 
 	* unix.d (NO_BLOCK_DECL, START_NO_BLOCK, END_NO_BLOCK): Prefer the
