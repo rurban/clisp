@@ -5169,8 +5169,7 @@ for-value   NIL or T
             (let* ((name (car fdef))
                    (fnode (c-lambdabody
                             (symbol-suffix (fnode-name *func*) name)
-                            (cons (cadr fdef)
-                                  (add-implicit-block name (cddr fdef))))))
+                            (add-implicit-block name (cdr fdef)))))
               (push name L1)
               (push fnode L2))
             (err-syntax 'FLET fdef))))
@@ -5280,9 +5279,7 @@ for-value   NIL or T
                    (mapcar #'(lambda (name lambdaname lambdabody fenvcons)
                                (c-lambdabody
                                  lambdaname
-                                 (cons (car lambdabody)
-                                       (add-implicit-block
-                                        name (cdr lambdabody)))
+                                 (add-implicit-block name lambdabody)
                                  fenvcons))
                            namelist lambdanamelist lambdabodylist
                            fenvconslist))
