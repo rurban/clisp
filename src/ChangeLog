@@ -1,5 +1,9 @@
 2004-08-11  Sam Steingold  <sds@gnu.org>
 
+	* record.d (SET-FUNCALLABLE-INSTANCE-FUNCTION): fixed G++ compilation
+
+2004-08-11  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: fixed and completely unified -with-* processing
 	* configure (with-debug): pass "--verbose=yes" to makemake
 
