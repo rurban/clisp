@@ -345,6 +345,8 @@
 (defun clos::define-structure-class (name) ; preliminary
   (declare (ignore name))
   (system::note-new-structure-class))
+(defun clos::undefine-structure-class (name) ; preliminary
+  (declare (ignore name)))
 (defun clos::defstruct-remove-print-object-method (name) ; preliminary
   (declare (ignore name))
   nil)
@@ -727,7 +729,9 @@
                  (VECTOR ,namesform ',type-option ,size ',keyword-constructor
                          ,(add-backquote slotlist)
                          ,@slotdefaultvars)))
-         ,@(if (eq type-option 'T) `((CLOS::DEFINE-STRUCTURE-CLASS ',name)))
+         ,(if (eq type-option 'T)
+            `(CLOS::DEFINE-STRUCTURE-CLASS ',name)
+            `(CLOS::UNDEFINE-STRUCTURE-CLASS ',name))
          ,@(if (and named-option predicate-option)
              (ds-make-pred predicate-option type-option name
                            initial-offset-option))
