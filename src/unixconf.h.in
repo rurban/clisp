@@ -199,6 +199,12 @@
 /* Define to 1 if you have the `sun' library (-lsun). */
 #undef HAVE_LIBSUN
 
+/* Define if the compiler supports the 'long long' type */
+#undef HAVE_LONGLONG
+
+/* Define if you have the 'long long' type. */
+#undef HAVE_LONG_LONG
+
 /* have lstat()? */
 #undef HAVE_LSTAT
 
