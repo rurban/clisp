@@ -2,6 +2,9 @@
 User visible changes
 --------------------
 
+* Conforming to ANSI CL issue <SETF-OF-VALUES:ADD>: `values' can take
+  multiple value places in setf &c.
+
 * The variable `*prompt-with-package*' is replaced with `*prompt*',
   which can be a function.  See the impnotes for further details.
 
