@@ -1,5 +1,9 @@
 2001-06-19  Sam Steingold  <sds@gnu.org>
 
+	* stream.d: use memset(3) and memcpy(3) instead of dotimes
+
+2001-06-19  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-FORMAT): avoid calling FORMAT altogether when
 	the destination is T and the format string is constant
 
