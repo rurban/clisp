@@ -1,5 +1,26 @@
 2004-06-23  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/dbi.lisp: export TXN functions
+	(lsn, db-txn-active, db-txn-stat): new structures
+	* modules/berkeley-db/bdb.c (BDB:ENV-CLOSE): clean-up the STACK
+	(set_verbose): new function
+	(BDB:ENV-SET-OPTIONS): use it to fix verbosity handling
+	(env_get_verbose): renamed from env_verbose()
+	(env_get_tmp_dir): renamed from env_tmp_dir()
+	(env_get_data_dirs): renamed from env_data_dirs()
+	(env_get_tx_max): renamed from env_tx_max()
+	(env_get_tx_timestamp): renamed from env_tx_timestamp()
+	(env_get_home_dir, env_get_open_flags, env_get_flags): added
+	(BDB:ENV-GET-OPTIONS): also return home dir and open flags
+	(BDB:DB-OPEN): use posfixnum_default2()
+	(check_gid): new function
+	(BDB:TXN-PREPARE): use it
+	(gid_to_vector): new function
+	(BDB:TXN-RECOVER): use it
+	(BDB:TXN-STAT): new function
+
+2004-06-23  Sam Steingold  <sds@gnu.org>
+
 	* genclisph.d (posfixnum_default2): new function
 	(posfixnum_default): defined in terms of posfixnum_default2()
 
