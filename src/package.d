@@ -760,8 +760,8 @@
         else
         # Symbol modifizieren und in die externen Symbole einfügen:
         { Symbol_value(sym) = sym; # sym erhält sich selbst als Wert
-          # als konstant und als Keyword markieren:
-          TheSymbol(sym)->header_flags |= (bit(constant_bit_hf) | bit(keyword_bit_hf));
+          # als konstant markieren:
+          TheSymbol(sym)->header_flags |= bit(constant_bit_hf);
           symtab_insert(sym,ThePackage(pack)->pack_external_symbols);
     }   }
 

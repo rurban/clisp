@@ -3337,7 +3337,6 @@ Ratio and Complex (only if SPVW_MIXED).
           # Bits für Symbole im Selbstpointer:
           #define constant_bit_t  1  # zeigt an, ob das Symbol eine Konstante ist
           #define special_bit_t   2  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-          #define keyword_bit_t   3  # zeigt an, ob das Symbol ein Keyword ist
   #else
   #define imm_array_mask     0x20  # Maske, die immutable von normalen Arrays unterscheidet
   #define imm_sbvector_type  0x21  # %00100001  ; immutabler Simple-Bit-Vector
@@ -3357,7 +3356,6 @@ Ratio and Complex (only if SPVW_MIXED).
           # Bits für Symbole im Selbstpointer:
           #define constant_bit_t  0  # zeigt an, ob das Symbol eine Konstante ist
           #define special_bit_t   1  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-          #define keyword_bit_t   2  # zeigt an, ob das Symbol ein Keyword ist
   #undef symbol_bit_t
   #undef symbol_bit_o
   #endif
@@ -3453,11 +3451,9 @@ Ratio and Complex (only if SPVW_MIXED).
           #if !((TB3+3==TB7) || (TB3+2==TB7) || (TB3+1==TB7))
             #define constant_bit_t  (TB3+3)  # zeigt an, ob das Symbol eine Konstante ist
             #define special_bit_t   (TB3+2)  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-            #define keyword_bit_t   (TB3+1)  # zeigt an, ob das Symbol ein Keyword ist
           #else
             #define constant_bit_t  (TB7+3)  # zeigt an, ob das Symbol eine Konstante ist
             #define special_bit_t   (TB7+2)  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-            #define keyword_bit_t   (TB7+1)  # zeigt an, ob das Symbol ein Keyword ist
           #endif
   #define cons_type      (         bit(TB3)|bit(TB2)|bit(TB1)         ) # 0x0E  # %00001110  ; Cons
   #define subr_type      (         bit(TB3)|bit(TB2)|bit(TB1)|bit(TB0)) # 0x0F  # %00001111  ; SUBR
@@ -3628,7 +3624,6 @@ Ratio and Complex (only if SPVW_MIXED).
           # Bits für Symbole im Selbstpointer:
           #define constant_bit_t  TB0  # zeigt an, ob das Symbol eine Konstante ist
           #define special_bit_t   TB1  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-          #define keyword_bit_t   TB2  # zeigt an, ob das Symbol ein Keyword ist
   #else
   #define imm_array_mask     (bit(TB5)                                    )  # Maske, die immutable von normalen Arrays unterscheidet
   #define imm_sbvector_type  (bit(TB5)                           |bit(TB0))  # %100001  ; immutabler Simple-Bit-Vector
@@ -3652,7 +3647,6 @@ Ratio and Complex (only if SPVW_MIXED).
           #endif
           #define constant_bit_t  TB0  # zeigt an, ob das Symbol eine Konstante ist
           #define special_bit_t   TB1  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-          #define keyword_bit_t   TB2  # zeigt an, ob das Symbol ein Keyword ist
   #endif
   #define cons_type      (bit(TB5)|bit(TB3)|bit(TB2)                  )  # %101000  ; Cons
   #ifdef IMMUTABLE_CONS
@@ -3726,7 +3720,6 @@ Ratio and Complex (only if SPVW_MIXED).
           # Bits für Symbole im Selbstpointer:
           #define constant_bit_t  TB0  # zeigt an, ob das Symbol eine Konstante ist
           #define special_bit_t   TB4  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-          #define keyword_bit_t   TB5  # zeigt an, ob das Symbol ein Keyword ist
   #define cons_type      (         bit(TB3)                  |bit(TB0))  # %001001  ; Cons
   #define closure_type   (         bit(TB3)         |bit(TB1)         )  # %001010  ; Closure
   #define structure_type (         bit(TB3)         |bit(TB1)|bit(TB0))  # %001011  ; Structure
@@ -3883,7 +3876,6 @@ Ratio and Complex (only if SPVW_MIXED).
           # Bits für Symbole im Selbstpointer:
           #define constant_bit_t  TB4  # zeigt an, ob das Symbol eine Konstante ist
           #define special_bit_t   TB0  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-          #define keyword_bit_t   TB2  # zeigt an, ob das Symbol ein Keyword ist
   #define cons_type      (         bit(TB3)                  |bit(TB0))  # %001001  ; Cons
   #define instance_type  (         bit(TB3)         |bit(TB1)         )  # %001010  ; CLOS-Instanz
   #define closure_type   (         bit(TB3)         |bit(TB1)|bit(TB0))  # %001011  ; Closure
@@ -3998,7 +3990,6 @@ Ratio and Complex (only if SPVW_MIXED).
           # Bits für Symbole im Selbstpointer:
           #define constant_bit_t  3  # zeigt an, ob das Symbol eine Konstante ist
           #define special_bit_t   4  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-          #define keyword_bit_t   5  # zeigt an, ob das Symbol ein Keyword ist
   #define cons_type      0x80  # %10000000  ; Cons
 
 # Typ ist GC-invariant, wenn
@@ -4044,7 +4035,6 @@ Ratio and Complex (only if SPVW_MIXED).
 # Bits für Symbole in den Flags:
   #define constant_bit_f  0  # zeigt an, ob das Symbol eine Konstante ist
   #define special_bit_f   1  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-  #define keyword_bit_f   2  # zeigt an, ob das Symbol ein Keyword ist
 
 #endif
 
@@ -4383,10 +4373,8 @@ typedef varobject_ *  Varobject;
     # Bits für Symbole im Selbstpointer (siehe oben):
     # define constant_bit_t  ...  # zeigt an, ob das Symbol eine Konstante ist
     # define special_bit_t   ...  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-    # define keyword_bit_t   ...  # zeigt an, ob das Symbol ein Keyword ist
     #define constant_bit_hf  (constant_bit_t+(oint_type_shift%hfintsize))
     #define special_bit_hf  (special_bit_t+(oint_type_shift%hfintsize))
-    #define keyword_bit_hf  (keyword_bit_t+(oint_type_shift%hfintsize))
 #else
   # Three possible layouts of type, flags, length:
   #   8 bits type, 24 bits length [Lrecord]
@@ -4409,7 +4397,6 @@ typedef varobject_ *  Varobject;
     #define header_flags  tfl
     #define constant_bit_hf  (constant_bit_f+8)
     #define special_bit_hf  (special_bit_f+8)
-    #define keyword_bit_hf  (keyword_bit_f+8)
 #endif
 
 # Records
@@ -4639,6 +4626,11 @@ typedef symbol_ *  Symbol;
 #define symbol_objects_offset  offsetof(symbol_,symvalue)
 
 # Jedes Keyword ist eine Konstante.
+
+# Test, ob ein Symbol ein Keyword ist:
+  #define keywordp(sym)  \
+    (eq(TheSymbol(sym)->homepackage,O(keyword_package)))
+
 # Bei Konstanten ist das Special-Bit bedeutungslos (denn Konstanten
 # können bei uns weder lexikalisch noch dynamisch gebunden werden).
 
@@ -4649,10 +4641,6 @@ typedef symbol_ *  Symbol;
 # Test, ob ein Symbol eine SPECIAL-proklamierte Variable ist:
   #define special_var_p(sym)  \
     (((sym)->header_flags) & bit(special_bit_hf))
-
-# Test, ob ein Symbol ein Keyword ist:
-  #define keywordp(sym)  \
-    ((TheSymbol(sym)->header_flags) & bit(keyword_bit_hf))
 
 # Constant-Flag eines Symbols setzen:
   #define set_const_flag(sym)  \
