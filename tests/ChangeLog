@@ -1,3 +1,7 @@
+2005-02-02  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: check that DIRECTORY returns TRUENAMEs
+
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
 	* bind.tst: Add tests for MACROLET expander environments.
