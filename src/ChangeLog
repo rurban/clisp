@@ -1,3 +1,8 @@
+2001-11-27  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (READ-INTEGER, READ-FLOAT, WRITE-INTEGER, WRITE-FLOAT):
+	use elt_nreverse() instead of inline code
+
 2001-11-19  Sam Steingold  <sds@gnu.org>
 
 	more consistent floating point computations: (log -1d0) =>
