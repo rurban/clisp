@@ -275,8 +275,10 @@
   <listitem><para>Wrapper for the &win32;
     <function>IPropertyStorage</function> functionality.
     <variablelist><varlistentry><term>&filename-r;</term>
-      <listitem><simpara>a compound file name or (on NTFS) name of any
-        file</simpara></listitem></varlistentry>
+      <listitem><simpara>name of a compound file (where properties are stored) or
+      (on NTFS) name of any file (properties are stored in the filesystem).
+      For compound files on NTFS, file storage is preferred.
+     </simpara></listitem></varlistentry>
      <varlistentry><term><replaceable>set</replaceable></term>
       <listitem><simpara>property set, either <constant>:BUILT-IN</constant>
         or <constant>:USER-DEFINED</constant>
