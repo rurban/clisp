@@ -1,6 +1,6 @@
 /*
  * ======= General internationalization, for Lisp programs too =======
- * Copyright (C) 1990-2004 Bruno Haible
+ * Copyright (C) 1990-2005 Bruno Haible
  * Copyright (C) 1998-2004 Sam Steingold
  * GPL2
  */
@@ -35,6 +35,8 @@ DEFMODULE(i18n,"I18N")
 DEFCHECKER(check_locale_category,"LC", ALL COLLATE CTYPE MESSAGES MONETARY \
            NUMERIC TIME PAPER NAME ADDRESS TELEPHONE MEASUREMENT IDENTIFICATION)
 
+#ifdef GNU_GETTEXT
+
 static inline object do_gettext (const char* msgid,
                                  const char* domain, int category)
 {
@@ -67,11 +69,13 @@ static inline object do_ngettext (const char* msgid, const char* msgid_plural,
   return asciz_to_string(translated_msg,Symbol_value(S(utf_8)));
 }
 
+#endif
+
 DEFUNR(I18N:GETTEXT, msgid &optional domain category)
 { /* returns the translation of msgid in the given domain,
      depending on the given category. */
   object msgid = check_string(STACK_2);
-# ifdef GNU_GETTEXT
+ #ifdef GNU_GETTEXT
   with_string_0(msgid,Symbol_value(S(ascii)),msgid_asciz, {
     object domain = STACK_1;
     if (missingp(domain)) {
@@ -85,9 +89,9 @@ DEFUNR(I18N:GETTEXT, msgid &optional domain category)
       });
     }
   });
-# else
+ #else
   VALUES1(msgid);
-# endif
+ #endif
   skipSTACK(3);
 }
 
@@ -106,7 +110,7 @@ DEFUNR(I18N:NGETTEXT,msgid msgid_plural n &optional domain category)
     n = 1000000 + posfixnum_to_L(value1);
   }
   msgid = STACK_4; msgid_plural = STACK_3;
-#ifdef GNU_GETTEXT
+ #ifdef GNU_GETTEXT
   with_string_0(msgid,Symbol_value(S(ascii)),msgid_asciz, {
     with_string_0(msgid_plural,Symbol_value(S(ascii)),msgid_plural_asciz, {
       object domain = STACK_1;
@@ -124,43 +128,43 @@ DEFUNR(I18N:NGETTEXT,msgid msgid_plural n &optional domain category)
       }
     });
   });
-#else
+ #else
   VALUES1(n == 1 ? msgid : msgid_plural);
-#endif
+ #endif
   skipSTACK(5);
 }
 
 DEFUNR(I18N:TEXTDOMAIN,)
 { /* returns the current default domain. */
-#ifdef GNU_GETTEXT
+ #ifdef GNU_GETTEXT
   const char* domain;
   begin_system_call();
   domain = textdomain(NULL);
   end_system_call();
   VALUES1(asciz_to_string(domain,Symbol_value(S(ascii))));
-#else
+ #else
   VALUES1(NIL);
-#endif
+ #endif
 }
 
 DEFUN(I18N:SET-TEXTDOMAIN, domain)
 { /* sets the default domain. */
   object domain = check_string(popSTACK());
-#ifdef GNU_GETTEXT
+ #ifdef GNU_GETTEXT
   with_string_0(domain,Symbol_value(S(ascii)),domain_asciz, {
     begin_system_call();
     textdomain(domain_asciz);
     if_UNICODE(bind_textdomain_codeset(domain_asciz,"UTF-8"));
     end_system_call();
   });
-#endif
+ #endif
   VALUES1(domain);
 }
 
 DEFUN(I18N:TEXTDOMAINDIR, domain)
 { /* returns the message catalog directory for the given domain. */
   object domain = check_string(popSTACK());
-  #ifdef GNU_GETTEXT
+ #ifdef GNU_GETTEXT
   const char* dir;
   with_string_0(domain,Symbol_value(S(ascii)),domain_asciz, {
     begin_system_call();
@@ -168,15 +172,15 @@ DEFUN(I18N:TEXTDOMAINDIR, domain)
     end_system_call();
   });
   VALUES1(dir != NULL ? OSdir_to_pathname(dir) : (object)NIL);
-  #else
+ #else
   VALUES1(NIL);
-  #endif
+ #endif
 }
 
 DEFUN(I18N:SET-TEXTDOMAINDIR, domain directory)
 { /* sets the message catalog directory for the given domain. */
   object domain = check_string(STACK_1);
-#ifdef GNU_GETTEXT
+ #ifdef GNU_GETTEXT
   /* Check and use default directory, because the bindtextdomain()
      documentation recommends that the argument be an absolute pathname,
      to protect against later chdir() calls. */
@@ -186,7 +190,7 @@ DEFUN(I18N:SET-TEXTDOMAINDIR, domain directory)
     bindtextdomain(domain_asciz,TheAsciz(directory));
     end_system_call();
   });
-#endif
+ #endif
   VALUES1(STACK_0);
   skipSTACK(2);
 }

@@ -1884,11 +1884,7 @@ echol "# List of add-on modules that are already hardwired in the base linking s
 # i18n: essential for internationalized programs
 # syscalls: very useful for scripting
 # regexp: useful for scripting and text processing
-if [ -n "$USE_GETTEXT" ]; then
-  echol "BASE_MODULES = i18n syscalls regexp"
-else
-  echol "BASE_MODULES = syscalls regexp"
-fi
+echol "BASE_MODULES = i18n syscalls regexp"
 echol
 echol '# Programs used by "make":'
 if [ $CROSS = true ] ; then
