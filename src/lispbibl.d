@@ -1224,11 +1224,7 @@
 # See spvw_alloca.d.
 #if !((defined(GNU) && !defined(RISCOS) && !defined(CONVEX)) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(WATCOM) || defined(BORLAND) || defined(MICROSOFT))
   #define NEED_MALLOCA
-  #ifdef HAVE_STDLIB_H
-    #include <stdlib.h>
-  #else
-    #include <sys/types.h>
-  #endif
+  #include <stdlib.h>
   extern void* malloca (size_t size);
   extern void freea (void* ptr);
 #endif
