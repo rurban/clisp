@@ -1232,7 +1232,7 @@ letters:
  <row><entry><literal role="byte">(RETURN-FROM &n-r;)</literal></entry>
       <entry>Leave a &block; whose &bc-r; is given.</entry>
       <entry>&bc-r; := &consts;[&n-r;].
-             If &cdr;(&bc-r;) = &disabled;, &signal; an &error-t;.
+             If &cdr;(&bc-r;) = &disabled;, an &err-sig;.
              Else &cdr;(&bc-r;) is a frame-pointer.
              Unwind the stack up to this frame, pass it values.</entry></row>
  <row><entry><literal
@@ -1240,7 +1240,7 @@ letters:
       <entry>Leave a &block; whose &bc-r; is indirectly accessible.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &bc-r; := *(*(&SP;+&k-r;)+&n-r;).
-             If &cdr;(&bc-r;) = &disabled;, &signal; an &error-t;.
+             If &cdr;(&bc-r;) = &disabled;, an &err-sig;.
              Else &cdr;(&bc-r;) is a frame-pointer.
              Unwind the stack up to this frame, pass it values.</entry></row>
 </tbody></tgroup></informaltable>
@@ -1260,8 +1260,7 @@ letters:
              The third object in the &tagbody; frame is
              &cons;(&consts;[&m-r;],frame-pointer) (the &tbc-r;)
              Upon a &go; to tag &lab-r; of this frame, execution
-             will continue at
-              <replaceable>label<subscript>l</subscript></replaceable>.
+             will continue at <replaceable>label&sub-l;</replaceable>.
              values undefined</entry></row>
  <row><entry><literal role="byte">(TAGBODY-CLOSE-NIL)</literal></entry>
       <entry>Dissolve a &tagbody; frame, and load &nil; into values.</entry>
@@ -1277,7 +1276,7 @@ letters:
  <row><entry><literal role="byte">(GO &n-r; &lab-r;)</literal></entry>
       <entry>Jump into a &tagbody; whose &tbc-r; is given.</entry>
       <entry>&tbc-r; := &consts;[&n-r;].
-             If &cdr;(&tbc-r;) = &disabled;, &signal; an &error-t;.
+             If &cdr;(&tbc-r;) = &disabled;, an &err-sig;.
              Else &cdr;(&tbc-r;) is a frame-pointer. Unwind the stack up
              to this frame, pass it the number &lab-r;.</entry></row>
  <row><entry><literal
@@ -1286,7 +1285,7 @@ letters:
              accessible.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &tbc-r; := *(*(&SP;+&k-r;)+&n-r;).
-             If &cdr;(&tbc-r;) = &disabled;, &signal; an &error-t;.
+             If &cdr;(&tbc-r;) = &disabled;, an &err-sig;.
              Else &cdr;(&tbc-r;) is a frame-pointer. Unwind the stack up
              to this frame, pass it the number &lab-r;.</entry></row>
 </tbody></tgroup></informaltable>
