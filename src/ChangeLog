@@ -1,3 +1,15 @@
+2002-03-01  Sam Steingold  <sds@gnu.org>
+
+	error reporting unification
+	* trace.lisp (error-function-name): new function
+	(trace1): use it
+	* cmacros.lisp (compiler-macro-function): ditto
+	* error.d (fehler_funname_type, fehler_funname_source): new functions
+	* lispbibl.d (fehler_funname_type, fehler_funname_source): declare
+	* control.d (function): use fehler_funname_source()
+	* eval.d (eval1): ditto
+	(apply, funcall): use fehler_funname_type()
+
 2002-02-02  Sam Steingold  <sds@gnu.org>
 
 	* trace.lisp (force-cclosure): take FDEFINITION when compiling
