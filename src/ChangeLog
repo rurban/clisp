@@ -1,3 +1,9 @@
+2005-03-14  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/configure.in: added AC_LIB_LINKFLAGS([db])
+	* modules/berkeley-db/Makefile.in: pass DBCPPFLAGS to CC
+	when building bdb.o
+
 2005-03-12  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (SHREXT): Renamed from DLL.
