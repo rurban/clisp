@@ -654,9 +654,7 @@ global uintL read_char_array (const object* stream_, const object* chararray_,
     if (count == len) {
       var object chararray = *chararray_;
       simple_array_to_storage(chararray);
-      var chart last_ch;
-      SstringDispatch(chararray,X,
-        { last_ch = as_chart(((SstringX)TheVarobject(chararray))->data[index-1]); });
+      var chart last_ch = as_chart(schar(chararray,index-1));
       TheStream(stream)->strm_rd_ch_last = code_char(last_ch);
     } else
       TheStream(stream)->strm_rd_ch_last = eof_value;
@@ -2060,9 +2058,8 @@ local object rd_ch_str_in (const object* stream_) {
     var object string = unpack_string_ro(TheStream(stream)->strm_str_in_string,&len,&offset);
     if (index >= len) # Index too big?
       fehler_str_in_adjusted(stream);
-    var object ch; # fetch character from String
-    SstringDispatch(string,X,
-      { ch = code_char(as_chart(((SstringX)TheVarobject(string))->data[offset+index]));});
+    /* fetch character from String */
+    var object ch = code_char(as_chart(schar(string,offset+index)));
     # increase Index:
     TheStream(stream)->strm_str_in_index =
       fixnum_inc(TheStream(stream)->strm_str_in_index,1);
@@ -2362,11 +2359,9 @@ local void wr_ch_array_pphelp (const object* stream_, const object* chararray_,
     var object nl_type = NIL;
     # printf(" [%d/",beg);
     while (end < start+len) {
-      var chart ch;
-      SstringDispatch(*chararray_,X,
-        { ch = as_chart(((SstringX)TheVarobject(*chararray_))->data[end]); });
-      if (chareq(ch,ascii(NL))) { /*printf("%d=NL",end);*/break; }
-      if (filling && (chareq(ch,ascii(' ')) || chareq(ch,ascii('\t')))) {
+      var cint ch = schar(*chararray_,end);
+      if (ch == NL) { /*printf("%d=NL",end);*/break; }
+      if (filling && ((ch == ' ') || (ch == '\t'))) {
         # printf("%d=SPC",end);
         end++; # include the space
         nl_type = S(Kfill);
@@ -2481,9 +2476,8 @@ local object rd_ch_buff_in (const object* stream_) {
     pushSTACK(stream);
     fehler(stream_error,GETTEXT("~ is beyond the end because the string ~ has been adjusted"));
   }
-  var object ch; # fetch character from String
-  SstringDispatch(string,X,
-    { ch = code_char(as_chart(((SstringX)TheVarobject(string))->data[offset+index])); });
+  /* fetch character from String */
+  var object ch = code_char(as_chart(schar(string,offset+index)));
   # increase Index:
   TheStream(stream)->strm_buff_in_index = fixnum_inc(TheStream(stream)->strm_buff_in_index,1);
   return ch;

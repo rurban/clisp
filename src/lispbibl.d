@@ -10588,8 +10588,8 @@ static inline uintL array_total_size (object array) {
 # > count: number of bits to be compared, > 0
 # < result: true, if both slices are the same, bit for bit, else false.
 extern bool bit_compare (object array1, uintL index1,
-                            object array2, uintL index2,
-                            uintL bitcount);
+                         object array2, uintL index2,
+                         uintL bitcount);
 # used by PREDTYPE
 
 # Function: Copies a slice of an array array1 into another array array2.
@@ -10877,11 +10877,13 @@ extern void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len);
     #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement)  \
       { s32string_statement }
   #endif
+  global inline cint32 schar (object str, uintL idx);
 #else
   # In this case we take the s32string_statement, not the s8string_statement,
   # because the s32string_statement is the right one for normal simple strings.
   #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement)  \
     { /*s8string_statement*/ s32string_statement }
+  #define schar(str,idx)    (((S32string)TheVarobject(str))->data[idx])
 #endif
 # is used by CHARSTRG, ARRAY, HASHTABL, PACKAGE, PATHNAME, PREDTYPE, STREAM
 
