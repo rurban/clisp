@@ -30,7 +30,7 @@ LIBTOOL_UNINSTALL = $(LIBTOOL) --mode=uninstall
 AR = ar
 AR_FLAGS = rc
 RANLIB = @RANLIB@
-LN = @LN_S@
+LN_S = @LN_S@
 RM = rm -f
 @SET_MAKE@
 
@@ -52,13 +52,13 @@ all-subdirs : force
 	cd @subdir@; $(MAKE) -r all
 
 callback.h :
-	$(LN) $(srcdir)/callback.h.in callback.h
+	$(LN_S) $(srcdir)/callback.h.in callback.h
 
 vacall_r.h :
-	$(LN) vacall_r/vacall_r.h vacall_r.h
+	$(LN_S) vacall_r/vacall_r.h vacall_r.h
 
 trampoline_r.h :
-	$(LN) trampoline_r/trampoline_r.h trampoline_r.h
+	$(LN_S) trampoline_r/trampoline_r.h trampoline_r.h
 
 libcallback.la : vacall_r/libvacall.la trampoline_r/libtrampoline.la
 	$(LIBTOOL_LINK) $(CC) -o libcallback.la -rpath $(libdir) vacall_r/vacall.lo vacall_r/misc.lo vacall_r/structcpy.lo trampoline_r/*.lo

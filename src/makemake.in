@@ -155,7 +155,7 @@ fsstnd=gnu_ext # supported styles: gnu, gnu_ext, suse, redhat, debian
 MODULES=''
 CP='cp -p'
 LN_S='ln -s'
-LN='ln'
+HLN='ln'
 
 # NLS nuisances.
 # Needed e.g. for some versions of `tr' so that character classes in `[]' work.
@@ -290,7 +290,7 @@ case $# in
      # srcdir='@srcdir@'                 # either '.' or '../src', see above
      CP='@CP@'                           # either 'cp -p' or 'cp'
      LN_S='@LN_S@'                       # either 'ln -s' or 'ln'
-     LN='@LN@'                           # either 'ln' or 'hln'
+     HLN='@HLN@'                         # either 'ln' or 'hln'
      CC="@CC@"                           # either 'gcc -O' or 'cc'
      CPP="@CPP@"                         # either $CC' -E' or '/lib/cpp'
      CC_GCC='@CC_GCC@'                   # either true or false
@@ -615,8 +615,8 @@ else
 fi
 
 # LN = command for making hard links ($HOS = unix only)
-if [ "$LN" = hln ] ; then
-  LN="${HERE}hln"
+if [ "$HLN" = hln ] ; then
+  HLN="${HERE}hln"
 fi
 
 # MV = command for renaming files
@@ -1720,7 +1720,7 @@ else
 fi
 echol "RM = ${RM}"
 echol "CP = ${CP}"
-echol "LN = ${LN_S}"
+echol "LN_S = ${LN_S}"
 echol "MV = ${MV}"
 echol "CAT = ${CAT}"
 echol "TOUCH = ${TOUCH}"
@@ -2000,7 +2000,6 @@ if [ -n "${SRCDIR}" ] ; then
 fi
 echol $line
 if [ $HOS = unix -a $CROSS = false ] ; then
-  echotab "test -d linkkit || \$(LN) . linkkit"
   echotab "test -d bindings || mkdir bindings"
 else
   echodummyrule init
@@ -2056,7 +2055,7 @@ for util in $UTILS ; do
       flags="${ANSIDECLFLAGS}"
     fi
     echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE}"
-    echotab "\$(LN) ${UTILDIR_}${util}.d ${util}.d"
+    echotab "\$(LN_S) ${UTILDIR_}${util}.d ${util}.d"
     echotab "\$(COMMENT5) ${util}.d ${util}.c"
     echotab "\$(RM) ${util}.d"
     echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)${flags}" "${util}.c" "${util}"
@@ -2097,17 +2096,17 @@ if [ -n "${SRCDIR}" ] ; then
   if [ $HOS = unix ] ; then
     for f in $DFILES $ARI_ASMD $SP_ASMD ; do
       echol "${f}.d : ${SRCDIR}${f}.d"
-      echotab "-\$(LN) ${SRCDIR}${f}.d ${f}.d"
+      echotab "-\$(LN_S) ${SRCDIR}${f}.d ${f}.d"
       echol
     done
     for f in $UNICODE_INCLUDES $NLS_INCLUDES ; do
       echol "${f}.c : ${SRCDIR}${f}.c"
-      echotab "-\$(LN) ${SRCDIR}${f}.c ${f}.c"
+      echotab "-\$(LN_S) ${SRCDIR}${f}.c ${f}.c"
       echol
     done
     for f in version.h modules.h ; do
       echol "${f} : ${SRCDIR}${f}"
-      echotab "-\$(LN) ${SRCDIR}${f} ${f}"
+      echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
       echol
     done
     echol
@@ -2413,15 +2412,15 @@ if [ -n "$with_dynamic_ffi" ] ; then
     fi
     if [ $HOS = win32 ] ; then
       echol "$f.h : ${SRCTOPDIR_M}ffcall${NEXT_M}$f${NEXT_M}$f.h"
-      echotab "-\$(LN) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.h $f.h"
+      echotab "-\$(LN_S) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.h $f.h"
       if [ $f = callback ] ; then
         for g in vacall_r trampoline_r; do
-          echotab "-\$(LN) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$g.h $g.h"
+          echotab "-\$(LN_S) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$g.h $g.h"
         done
       fi
       echol
       echol "$f.lib : ${SRCTOPDIR_M}ffcall${NEXT_M}$f${NEXT_M}$f.lib"
-      echotab "-\$(LN) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.lib $f.lib"
+      echotab "-\$(LN_S) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.lib $f.lib"
       echol
     fi
   done
@@ -2433,7 +2432,7 @@ if [ $TERMINAL = readline -a $HOS = unix ] ; then
   echotab "cd ${READLINEDIR} && \$(MAKE) CC='${XCC}' CFLAGS='${XCFLAGS} -DCLISP' RANLIB='\$(RANLIB)'"
   echol
   echol "libreadline.a : ${READLINELIB}"
-  echotab "-\$(LN) ${READLINELIB} libreadline.a"
+  echotab "-\$(LN_S) ${READLINELIB} libreadline.a"
   echol
 
   echol
@@ -2444,14 +2443,14 @@ if [ -n "$USE_GETTEXT" ] ; then
 
   if [ -n "$GETTEXTLIB" ] ; then
     echol "libintl.h :"
-    echotab "-\$(LN) gettext${NEXT_}intl${NEXT_}intlh.inst libintl.h"
+    echotab "-\$(LN_S) gettext${NEXT_}intl${NEXT_}intlh.inst libintl.h"
     echol
     if [ $HOS = unix ] ; then
       echol "${GETTEXTLIB} :"
       echotab "cd gettext/intl && \$(MAKE) -r CC='${XCC}' CFLAGS='${XCFLAGS}' RANLIB='\$(RANLIB)'"
       echol
       echol "libintl.a : ${GETTEXTLIB}"
-      echotab "-\$(LN) ${GETTEXTLIB} libintl.a"
+      echotab "-\$(LN_S) ${GETTEXTLIB} libintl.a"
       echol
     fi
   fi
@@ -2466,7 +2465,7 @@ if [ -n "$USE_GETTEXT" ] ; then
     for lang in ${ALL_LINGUAS:-"en de fr"}; do
       echotab "mkdir locale${NEXT_}${lang}"
       echotab "mkdir locale${NEXT_}${lang}${NEXT_}LC_MESSAGES"
-      echotab "\$(LN) gettext${NEXT_}po${NEXT_}${lang}.gmo locale${NEXT_}${lang}${NEXT_}LC_MESSAGES${NEXT_}clisp.mo"
+      echotab "\$(LN_S) gettext${NEXT_}po${NEXT_}${lang}.gmo locale${NEXT_}${lang}${NEXT_}LC_MESSAGES${NEXT_}clisp.mo"
     done
   fi
   echol
@@ -2481,7 +2480,7 @@ if [ -n "$USE_TERMCAP" ] ; then
   echotab "cd termcap && ./configure --srcdir=${PARENT_SRCTOPDIR}src/termcap && \$(MAKE) -r CC='${XCC}' CFLAGS='${XCFLAGS}' RANLIB='\$(RANLIB)'"
   echol
   echol "libtermcap.a : ${TERMCAPLIB}"
-  echotab "-\$(LN) ${TERMCAPLIB} libtermcap.a"
+  echotab "-\$(LN_S) ${TERMCAPLIB} libtermcap.a"
   echol
 
   echol
@@ -2496,10 +2495,10 @@ for f in libiconv; do
   fi
   if [ $HOS = win32 ] ; then
     echol "iconv.h : ${SRCTOPDIR_M}$f${NEXT_M}iconv.h"
-    echotab "-\$(LN) ${SRCTOPDIR_}$f${NEXT_}iconv.h iconv.h"
+    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}iconv.h iconv.h"
     echol
     echol "iconv.lib : ${SRCTOPDIR_M}$f${NEXT_M}iconv.lib"
-    echotab "-\$(LN) ${SRCTOPDIR_}$f${NEXT_}iconv.lib iconv.lib"
+    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}iconv.lib iconv.lib"
     echol
   fi
 done
@@ -2512,10 +2511,10 @@ for f in sigsegv; do
   fi
   if [ $HOS = win32 ] ; then
     echol "$f.h : ${SRCTOPDIR_M}$f${NEXT_M}$f.h"
-    echotab "-\$(LN) ${SRCTOPDIR_}$f${NEXT_}$f.h $f.h"
+    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}$f.h $f.h"
     echol
     echol "$f.lib : ${SRCTOPDIR_M}$f${NEXT_M}$f.lib"
-    echotab "-\$(LN) ${SRCTOPDIR_}$f${NEXT_}$f.lib $f.lib"
+    echotab "-\$(LN_S) ${SRCTOPDIR_}$f${NEXT_}$f.lib $f.lib"
     echol
   fi
 done
@@ -2532,17 +2531,21 @@ if [ $TOS = unix ] ; then
   echol "data :"
   echotab "if test -d data; then rm -rf data; fi"
   echotab "mkdir data"
-  echotab "\$(LN) ${PARENT_SRCTOPDIR}utils${NEXT}unicode${NEXT}ftp.unicode.org${NEXT}UnicodeData.txt data${NEXT}UnicodeData.txt"
-  echotab "\$(LN) ${PARENT_SRCTOPDIR}src${NEXT}clhs.txt data${NEXT}clhs.txt"
+  echotab "cd data && \$(LN_S) ${PARENT_SRCTOPDIR}utils${NEXT}unicode${NEXT}ftp.unicode.org${NEXT}UnicodeData.txt UnicodeData.txt"
+  echotab "cd data && \$(LN_S) ${PARENT_}${SRCDIR}clhs.txt clhs.txt"
   echol
   XCL_DATA='data'
 else
   echol "UnicodeData.txt :"
-  echotab "\$(LN) ${SRCTOPDIR_M}utils${NEXT_}unicode${NEXT_}ftp.unicode.org${NEXT_}UnicodeData.txt UnicodeData.txt"
+  echotab "\$(LN_S) ${SRCTOPDIR_M}utils${NEXT_}unicode${NEXT_}ftp.unicode.org${NEXT_}UnicodeData.txt UnicodeData.txt"
   echol
-  echol "clhs.txt :"
-  echotab "\$(LN) ${SRCTOPDIR_M}src${NEXT_}clhs.txt clhs.txt"
-  XCL_DATA='UnicodeData.txt clhs.txt'
+  XCL_DATA='UnicodeData.txt'
+  if [ -n "${SRCDIR}" ] ; then
+    echol "clhs.txt :"
+    echotab "\$(LN_S) ${SRCDIR}clhs.txt clhs.txt"
+    echol
+    XCL_DATA=$XCL_DATA' clhs.txt'
+  fi
 fi
 
 echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_SIGSEGVLIB}${SYSLIBS} ${XCL_DATA}"
@@ -2624,7 +2627,7 @@ for f in $LPARTS ; do
   else
     if [ -n "${SRCDIR}" ] ; then
       echol "${f}.lisp : ${SRCDIR}${f}.lisp"
-      echotab "-\$(LN) ${SRCDIR}${f}.lisp ${f}.lisp"
+      echotab "-\$(LN_S) ${SRCDIR}${f}.lisp ${f}.lisp"
       echol
     fi
   fi
@@ -2744,9 +2747,9 @@ if [ $CROSS = false ] ; then
   for f in $LPARTS ; do
     echol "${TESTDIR}${NEXT_M}${f}.lisp : ${f}.lisp"
     if [ $HOS = unix ] ; then
-      echotab "cd ${TESTDIR} && \$(LN) ${PARENT_}${f}.lisp ${f}.lisp"
+      echotab "cd ${TESTDIR} && \$(LN_S) ${PARENT_}${f}.lisp ${f}.lisp"
     else
-      echotab "\$(LN) ${f}.lisp ${TESTDIR}"
+      echotab "\$(LN_S) ${f}.lisp ${TESTDIR}"
     fi
     echol
   done
@@ -2777,9 +2780,9 @@ if [ $CROSS = false ] ; then
     echol
     echol "${TESTSDIR} :"
     echotab "-mkdir ${TESTSDIR}"
-    echotab "cd ${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/Makefile ."
-    echotab "cd ${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/*.lisp ."
-    echotab "cd ${TESTSDIR} && \$(LN) ${PARENT_SRCTOPDIR}tests/*.tst ."
+    echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR}tests/Makefile ."
+    echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR}tests/*.lisp ."
+    echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR}tests/*.tst ."
     echol
     echol
 
@@ -2801,7 +2804,13 @@ if [ $HOS = unix ] && [ $CROSS = false ] ; then
   echotab "\$(RM) genclisph${HEXE}"
   echol
   echol
-  echol "modular : ${FILES} clisp-link modules.d modules.c clisp.h modules.h modules.o makevars"
+  echol "linkkit : modules.d modules.c clisp.h"
+  echotab "test -d linkkit || mkdir linkkit"
+  echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.d modules.d"
+  echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.c modules.c"
+  echotab "cd linkkit && \$(LN_S) ${PARENT_}clisp.h clisp.h"
+  echol
+  echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars"
   echodummyrule modular
   echol
   echol "makevars :"
@@ -2821,7 +2830,7 @@ if [ $HOS = unix ] && [ $CROSS = false ] ; then
     echol
   done
   echol "base : modular lispinit.mem"
-  echotab "test -d base || (mkdir base && cd base && for f in ${FILES} modules.h modules.o makevars lisp.run lispinit.mem; do \$(LN) ../\$\$f \$\$f; done) || (\$(RM) -r base ; exit 1)"
+  echotab "test -d base || (mkdir base && cd base && for f in ${FILES} modules.h modules.o makevars lisp.run lispinit.mem; do \$(LN_S) ../\$\$f \$\$f; done) || (\$(RM) -r base ; exit 1)"
   echol
   # Some "make"s don't support empty target lists. Hence the "anymodule".
   echol "anymodule \$(MODULES) : lisp${LEXE} lispinit.mem force"
@@ -2884,14 +2893,14 @@ fi
 
 for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY ; do
   echol "${f} : ${SRCTOPDIR_M}${f}"
-  echotab "-\$(LN) ${SRCTOPDIR_}${f} ${f}"
+  echotab "-\$(LN_S) ${SRCTOPDIR_}${f} ${f}"
   echol
 done
 
 for f in NEWS clisp.gif ; do
   if [ -n "${SRCDIR}" ] ; then
     echol "${f} : ${SRCDIR}${f}"
-    echotab "-\$(LN) ${SRCDIR}${f} ${f}"
+    echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
     echol
   fi
 done
@@ -2899,7 +2908,7 @@ done
 if [ $TOS = unix ] ; then
   for f in MAGIC.add ; do
     echol "${f} : ${SRCTOPDIR}unix${NEXT}${f}"
-    echotab "-\$(LN) ${SRCTOPDIR}unix${NEXT}${f} ${f}"
+    echotab "-\$(LN_S) ${SRCTOPDIR}unix${NEXT}${f} ${f}"
     echol
   done
 fi
@@ -2966,13 +2975,13 @@ fi
 
 if [ $TERMINAL = readline ] ; then
   echol "clreadline.3 : ${SRCDIR}${READLINEDIR}${NEXT_M}doc${NEXT_M}clreadline.3"
-  echotab "-\$(LN) ${SRCDIR}${READLINEDIR}${NEXT_}doc${NEXT_}clreadline.3 clreadline.3"
+  echotab "-\$(LN_S) ${SRCDIR}${READLINEDIR}${NEXT_}doc${NEXT_}clreadline.3 clreadline.3"
   echol
   echol "clreadline.html : ${SRCDIR}${READLINEDIR}${NEXT_M}doc${NEXT_M}clreadline.html"
-  echotab "-\$(LN) ${SRCDIR}${READLINEDIR}${NEXT_}doc${NEXT_}clreadline.html clreadline.html"
+  echotab "-\$(LN_S) ${SRCDIR}${READLINEDIR}${NEXT_}doc${NEXT_}clreadline.html clreadline.html"
   echol
   echol "clreadline.dvi : ${SRCDIR}${READLINEDIR}${NEXT_M}doc${NEXT_M}clreadline.dvi"
-  echotab "-\$(LN) ${SRCDIR}${READLINEDIR}${NEXT_}doc${NEXT_}clreadline.dvi clreadline.dvi"
+  echotab "-\$(LN_S) ${SRCDIR}${READLINEDIR}${NEXT_}doc${NEXT_}clreadline.dvi clreadline.dvi"
   echol
 fi
 
@@ -2988,7 +2997,7 @@ fi
 
 for f in $DOC ; do
   echol "${f}.txt : ${DOCDIR_M}${f}.txt"
-  echotab "-\$(LN) ${DOCDIR_}${f}.txt ${f}.txt"
+  echotab "-\$(LN_S) ${DOCDIR_}${f}.txt ${f}.txt"
   echol
 done
 
@@ -2997,7 +3006,7 @@ if [ $TERMINAL = readline ] ; then
   echotab "cd ${SRCDIR}readline${NEXT_}doc && \$(MAKE) rluserman.dvi"
   echol
   echol "readline.dvi : ${SRCDIR}readline${NEXT_M}doc${NEXT_M}rluserman.dvi"
-  echotab "-\$(LN) ${SRCDIR}readline${NEXT_}doc${NEXT_}rluserman.dvi readline.dvi"
+  echotab "-\$(LN_S) ${SRCDIR}readline${NEXT_}doc${NEXT_}rluserman.dvi readline.dvi"
   echol
 fi
 
@@ -3224,7 +3233,7 @@ else
 fi
 echol
 needs='all'
-if test "$LN" != ln; then
+if test "$HLN" != ln; then
   needs=$needs' hln'
   echol "hln :"
   echotab "mkdir buildhln"
@@ -3236,10 +3245,10 @@ echol "distrib : force $needs modular manualx clisp.c distmakefile"
 echotab "\$(RM) \$(PACKDIR)/clisp\$(PACKEXT)"
 echotab "mkdir \$(TOPDIR)"
 # General documentation files.
-echotab "${LN} ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add \$(TOPDIR)"
+echotab "${HLN} ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add \$(TOPDIR)"
 # The linking sets: base and full.
 echotab "mkdir \$(TOPDIR)/base"
-echotab "${LN} ${FILES} modules.h modules.o makevars lispinit.mem \$(TOPDIR)/base"
+echotab "${HLN} ${FILES} modules.h modules.o makevars lispinit.mem \$(TOPDIR)/base"
 if test -n "$BINARY_DISTRIB"; then
   echotab "cp lisp.run \$(TOPDIR)/base/lisp.run"
   # Don't strip the executable, otherwise (disassemble #'cons) won't work.
@@ -3247,7 +3256,7 @@ if test -n "$BINARY_DISTRIB"; then
   echotab "chmod a+x \$(TOPDIR)/base/lisp.run"
 fi
 echotab "mkdir \$(TOPDIR)/full"
-echotab "${LN} "'`'". full/makevars ; for f in \$\$FILES modules.h modules.o makevars lispinit.mem ; do echo full/\$\$f ; done"'`'" \$(TOPDIR)/full"
+echotab "${HLN} "'`'". full/makevars ; for f in \$\$FILES modules.h modules.o makevars lispinit.mem ; do echo full/\$\$f ; done"'`'" \$(TOPDIR)/full"
 if test -n "$BINARY_DISTRIB"; then
   echotab "cp full/lisp.run \$(TOPDIR)/full/lisp.run"
   # Don't strip the executable, otherwise (disassemble #'cons) won't work.
@@ -3258,28 +3267,28 @@ fi
 if test -z "$BINARY_DISTRIB"; then
   echotab ". full/makevars ; full_files='' ; for f in modules.o \$\$FILES ; do full_files=\"\$\$full_files\"' full/'\"\$\$f\" ; done ; full_libs='' ; for f in modules.o \$\$LIBS ; do case \$\$f in -*) full_libs=\"\$\$full_libs \$\$f\";; *) full_libs=\"\$\$full_libs\"' full/'\"\$\$f\";; esac ; done ; sed -e \"s,@@FULL_FILES@@,\$\$full_files,\" -e \"s,@@FULL_LIBS@@,\$\$full_libs,\" < distmakefile > \$(TOPDIR)/Makefile"
 else
-  echotab "${LN} distmakefile \$(TOPDIR)/Makefile"
+  echotab "${HLN} distmakefile \$(TOPDIR)/Makefile"
 fi
 # Architecture independent data files.
 if [ -n "$USE_GETTEXT" ] ; then
   echotab "for f in \`find locale -type d -print\`; do mkdir \$(TOPDIR)/\$\$f; done"
-  echotab "for f in \`find locale -type f -print\`; do ${LN} \$\$f \$(TOPDIR)/\$\$f; done"
+  echotab "for f in \`find locale -type f -print\`; do ${HLN} \$\$f \$(TOPDIR)/\$\$f; done"
 fi
 echotab "mkdir \$(TOPDIR)/data"
-echotab "${LN} data/* \$(TOPDIR)/data"
+echotab "${HLN} data/* \$(TOPDIR)/data"
 echotab "mkdir \$(TOPDIR)/doc"
-echotab "${LN} clisp.1 clisp.man${manual_dvi} clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
+echotab "${HLN} clisp.1 clisp.man${manual_dvi} clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
 echotab "mkdir \$(TOPDIR)/src"
-echotab "${LN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src"
-echotab "${LN} clisp-link \$(TOPDIR)"
+echotab "${HLN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src"
+echotab "${HLN} clisp-link \$(TOPDIR)"
 echotab "mkdir \$(TOPDIR)/linkkit"
-echotab "${LN} modules.d modules.c clisp.h \$(TOPDIR)/linkkit"
+echotab "${HLN} modules.d modules.c clisp.h \$(TOPDIR)/linkkit"
 echotab "for module in '' \$(MODULES); do if test -n \"\$\$module\"; then \\"
-echotab "  (dir=\$(TOPDIR)/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module-distrib distribdir=\$\${dots}\$(TOPDIR)/\$\$module LN="`if test "$LN" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
+echotab "  (dir=\$(TOPDIR)/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module-distrib distribdir=\$\${dots}\$(TOPDIR)/\$\$module LN="`if test "$HLN" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
 echotab "fi; done"
 # For building the `clisp' executable.
 if test -z "$BINARY_DISTRIB"; then
-  echotab "${LN} clisp.c \$(TOPDIR)/src"
+  echotab "${HLN} clisp.c \$(TOPDIR)/src"
 else
   echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"$(lisplibdir)\"' -DLOCALEDIR='\"$(localedir)\"'" clisp.c "\$(TOPDIR)/clisp"
   echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}hardcode.c" "\$(TOPDIR)/hardcode"

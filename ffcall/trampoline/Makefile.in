@@ -29,7 +29,7 @@ AR = ar
 AR_FLAGS = rc
 RANLIB = @RANLIB@
 RM = rm -f
-LN = @LN_S@
+LN_S = @LN_S@
 @SET_MAKE@
 
 # Programs used by "make install":
@@ -46,7 +46,7 @@ OBJECTS = trampoline.o @CPU_OBJECTS@
 all : $(OBJECTS) libtrampoline.a trampoline.h $(srcdir)/trampoline.3 $(srcdir)/trampoline.html
 
 trampoline.h : $(srcdir)/trampoline.h.in
-	-$(LN) $(srcdir)/trampoline.h.in trampoline.h
+	-$(LN_S) $(srcdir)/trampoline.h.in trampoline.h
 
 trampoline.o : $(srcdir)/trampoline.c trampoline.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/trampoline.c
