@@ -28,6 +28,9 @@ User visible changes
 
 * RUN-SHELL-COMMAND and RUN-PROGRAM now accept a :WAIT argument.
 
+* The compiler now checks the signature of function calls
+  for all functions, not just the built-ins.
+
 2.25.1 (2001-04-06)
 ===================
 

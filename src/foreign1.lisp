@@ -25,7 +25,7 @@
   (import (intern "*FFI-MODULE*" "COMPILER"))
   (import (intern "FINALIZE-COUTPUT-FILE" "COMPILER"))
   (import (intern "DEPARSE-C-TYPE" "SYSTEM")) ; called by DESCRIBE
-  (import (intern "FOREIGN-FUNCTION-SIGNATURE" "SYSTEM")) ; called by SYS::FUNCTION-SIGNATURE
+  (import (intern "FOREIGN-FUNCTION-IN-ARG-COUNT" "SYSTEM")) ; called by SYS::FUNCTION-SIGNATURE
 )
 
 ;; These constants are defined in spvw.d.
@@ -858,13 +858,15 @@ void module__~A__init_function_2(module)
 (defmacro DEF-CALL-OUT (&whole whole name &rest options)
   (check-symbol whole)
   (let* ((alist (parse-options options '(:name :arguments :return-type :language) whole))
+         (parsed-function (parse-c-function alist whole))
+         (signature (argvector-to-signature (svref parsed-function 2)))
          (c-name (foreign-name name (assoc ':name alist))))
     (setq alist (remove (assoc ':name alist) alist))
     `(PROGN
        (EVAL-WHEN (COMPILER::COMPILE-ONCE-ONLY) (NOTE-C-FUN ',c-name ',alist ',whole))
        (LET ()
          (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
-         (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name))
+         (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name ',signature))
          (SYSTEM::%PUTD ',name
            (FFI::LOOKUP-FOREIGN-FUNCTION ',c-name
                                          (PARSE-C-FUNCTION ',alist ',whole)
@@ -883,11 +885,14 @@ void module__~A__init_function_2(module)
 (defmacro DEF-LIB-CALL-OUT (&whole whole name library &rest options)
   (check-symbol whole)
   (let* ((alist (parse-options options '(:name :offset :arguments :return-type) whole))
+         (parsed-function
+          (parse-c-function (remove (assoc ':name alist) alist) whole))
+         (signature (argvector-to-signature (svref parsed-function 2)))
          (c-name (foreign-name name (assoc ':name alist)))
          (offset (second (assoc ':offset alist))))
     `(LET ()
        (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
-       (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name))
+       (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name ',signature))
        (SYSTEM::%PUTD ',name
          (FFI::FOREIGN-LIBRARY-FUNCTION ',c-name
            (FFI::FOREIGN-LIBRARY ',library)
@@ -1018,17 +1023,21 @@ void module__~A__init_function_2(module)
 
 ;; ===========================================================================
 
+(defun argvector-to-signature (argvector)
+  (list (count-inarguments argvector) 0 nil nil nil nil))
+
+(defun count-inarguments (arg-vector)
+  (do* ((l (length arg-vector))
+        (inargcount 0)
+        (i 1 (+ i 2)))
+       ((>= i l)
+        inargcount)
+    (when (zerop (logand ff-flag-out (svref arg-vector i)))
+      (incf inargcount))))
+
 ; Called by SYS::FUNCTION-SIGNATURE.
-(defun foreign-function-signature (obj)
-  (let* ((arg-vector (sys::%record-ref obj 3))
-         (l (length arg-vector))
-         (inargcount 0))
-    (do ((i 1 (+ i 2)))
-        ((>= i l))
-      (when (zerop (logand ff-flag-out (svref arg-vector i))) (incf inargcount))
-    )
-    inargcount
-) )
+(defun foreign-function-in-arg-count (obj)
+  (count-inarguments (sys::%record-ref obj 3)))
 
 (defmacro def-c-enum (&whole whole name &rest items)
   (check-symbol whole)

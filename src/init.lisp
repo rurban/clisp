@@ -1730,11 +1730,16 @@ space safety compilation-speed debug declaration dynamic-extent compile
                                 (null compiler::*genv*)
                                 (eql compiler::*denv* *toplevel-denv*)
                            )
-                         `((EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name ',lambdabody))
+                         `((EVAL-WHEN (COMPILE)
+                             (COMPILER::C-DEFUN
+                              ',name (lambda-list-to-signature ',lambdalist)
+                              ',lambdabody))
                            (EVAL-WHEN (LOAD)
                              (SYSTEM::%PUT ,symbolform 'SYSTEM::INLINE-EXPANSION ',lambdabody)
                           ))
-                         `((EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name)))
+                         `((EVAL-WHEN (COMPILE)
+                             (COMPILER::C-DEFUN
+                              ',name (lambda-list-to-signature ',lambdalist))))
                        )
                        (if (and (null (svref env 0)) ; venv
                                 (null (svref env 1)) ; fenv
@@ -1751,7 +1756,9 @@ space safety compilation-speed debug declaration dynamic-extent compile
                           )) ) )
                          '()
                      ) )
-                     `((EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name)))
+                     `((EVAL-WHEN (COMPILE)
+                         (COMPILER::C-DEFUN
+                          ',name (lambda-list-to-signature ',lambdalist))))
                    )
                  ,@(if docstring
                      `((SYSTEM::%SET-DOCUMENTATION ,symbolform 'FUNCTION ',docstring))

@@ -2862,34 +2862,35 @@ der Docstring (oder NIL).
 
 ; (C-SOURCE-LOCATION)
 ; liefert eine Beschreibung, an welcher Source-Stelle man sich befindet.
-(defun c-source-location ()
-  (if (and *compiling-from-file* *compile-file-lineno1* *compile-file-lineno2*)
-    (format nil
-            (if (= *compile-file-lineno1* *compile-file-lineno2*)
-              (ENGLISH " in line ~D")
-              (ENGLISH " in lines ~D..~D")
-            )
-            *compile-file-lineno1* *compile-file-lineno2*
-    )
-    ""
-) )
+(defun c-source-location (&optional (lineno1 *compile-file-lineno1*)
+                          (lineno2 *compile-file-lineno2*))
+  (if (and *compiling-from-file* lineno1 lineno2)
+      (format nil (if (= lineno1 lineno2)
+                      (ENGLISH " in line ~D")
+                      (ENGLISH " in lines ~D..~D"))
+              lineno1 lineno2)
+      ""))
+
+;; memorize the location
+(defun c-source-point (&optional (lineno1 *compile-file-lineno1*)
+                       (lineno2 *compile-file-lineno2*))
+  (cons lineno1 lineno2))
+(defun c-source-point-location (point)
+  (c-source-location (car point) (cdr point)))
+
+(defun current-function ()
+  (and (boundp '*func*) (fnode-p *func*) (fnode-name *func*)))
 
 (defvar *warning-count*)
-; (C-WARN controlstring . args)
-; gibt eine Compiler-Warnung aus (mittels FORMAT).
+;;; (C-WARN format-control-string . args)
+;;; issue a compilation warning using FORMAT.
 (defun c-warn (cstring &rest args)
-  (setq cstring
-    (concatenate 'string (ENGLISH "~%WARNING~@[ in function ~S~]~A :~%")
-                         cstring
-  ) )
   (incf *warning-count*)
-  (let ((dest (if *compile-warnings* *c-error-output* *c-listing-output*)))
-    (when dest
-      (apply #'format dest cstring
-             (and (boundp '*func*) (fnode-p *func*) (fnode-name *func*))
-             (c-source-location)
-             args
-) ) ) )
+  (apply #'c-comment
+         (concatenate 'string (ENGLISH "~%WARNING~@[ in function ~S~]~A :~%")
+                      cstring)
+         (current-function) (c-source-location)
+         args))
 
 (defvar *style-warning-count*)
 ; (C-STYLE-WARN controlstring . args)
@@ -2904,17 +2905,14 @@ der Docstring (oder NIL).
 ; gibt einen Compiler-Error aus (mittels FORMAT) und beendet das laufende C-FORM.
 (defun c-error (cstring &rest args)
   (incf *error-count*)
-  (let ((in-function
-          (and (boundp '*func*) (fnode-p *func*) (fnode-name *func*))
-       ))
+  (let ((in-function (current-function)))
     (when in-function
-      (when *compiling-from-file* (pushnew in-function *functions-with-errors*))
-    )
+      (when *compiling-from-file*
+        (pushnew in-function *functions-with-errors*)))
     (format *c-error-output*
             (ENGLISH "~%ERROR~@[ in function ~S~]~A :~%~?")
             in-function (c-source-location)
-            cstring args
-  ) )
+            cstring args))
   (throw 'c-error
     (make-anode :source NIL
                 :type 'ERROR
@@ -3521,76 +3519,146 @@ der Docstring (oder NIL).
         (push 1 *stackz*)
 ) ) ) )
 
-; Liefert die Signatur einer Funktion aus dem fdescr
+(defstruct (signature (:conc-name sig-))
+  ;; (name nil     :type (or symbol cons))
+  (req-num 0    :type fixnum)
+  (opt-num 0    :type fixnum)
+  (rest-p nil   :type boolean)
+  (keys-p nil   :type boolean)
+  (keywords nil :type list)
+  (allow-p nil  :type boolean))
+
+;; Compute the signature of a function object:
+;; 1. name
+;; 2. req-num
+;; 3. opt-num
+;; 4. rest-p
+;; 5. key-p
+;; 6. keyword-list
+;; 7. allow-other-keys-p
+(defun function-signature (obj &optional no-error)
+  (when (and (function-name-p obj) (fboundp obj))
+    (setq obj (fdefinition obj)))
+  (if (closurep obj)
+    (if (compiled-function-p obj)
+        ;; compiled closure
+        (multiple-value-bind (req-num opt-num rest-p key-p keywords allow-p)
+            (signature obj)
+          (values obj req-num opt-num rest-p key-p keywords allow-p))
+        ;; interpreted closure
+        (let ((clos_keywords (sys::%record-ref obj 16)))
+          (values obj
+                  (sys::%record-ref obj 12) ; req_num
+                  (sys::%record-ref obj 13) ; opt_num
+                  (sys::%record-ref obj 19) ; rest_flag
+                  (not (numberp clos_keywords))
+                  (if (not (numberp clos_keywords)) (copy-list clos_keywords))
+                  (sys::%record-ref obj 18)))) ; allow_flag
+    (cond #+FFI
+          ((eq (type-of obj) 'FOREIGN-FUNCTION)
+           (values obj (foreign-function-in-arg-count obj) 0 nil nil nil nil))
+          (t
+           (multiple-value-bind (name req-num opt-num rest-p keywords allow-p)
+               (subr-info obj)
+             (if name
+               (values name req-num opt-num rest-p keywords keywords allow-p)
+               (if no-error
+                 (values)
+                 (error (ENGLISH "~S: ~S is not a function.")
+                        'function-signature obj))))))))
+
+(defun get-signature (obj)
+  (multiple-value-bind (name req-num opt-num rest-p key-p keywords allow-p)
+      (function-signature obj)
+    (declare (ignore name))
+    (make-signature :req-num req-num :opt-num opt-num :rest-p rest-p
+                    :keys-p key-p :keywords keywords :allow-p allow-p)))
+
+(defun signature-to-list (req-num opt-num rest-p key-p keywords allow-p)
+  (let ((args '()) (count -1))
+    (dotimes (i req-num)
+      (push (intern (format nil "ARG~D" (incf count)) :sys) args))
+    (when (plusp opt-num)
+      (push '&OPTIONAL args)
+      (dotimes (i opt-num)
+        (push (intern (format nil "ARG~D" (incf count)) :sys) args)))
+    (when rest-p
+      (push '&REST args)
+      (push 'other-args args))
+    (when key-p
+      (push '&KEY args)
+      (dolist (kw keywords) (push kw args))
+      (when allow-p (push '&ALLOW-OTHER-KEYS args)))
+    (nreverse args)))
+
+(defun sig-to-list (sig)
+  (signature-to-list (sig-req-num sig) (sig-opt-num sig) (sig-rest-p sig)
+                     (sig-keys-p sig) (sig-keywords sig) (sig-allow-p sig)))
+
+;; returns the signature of a function from fdescr
 (defun fdescr-signature (fdescr)
   (if (cdr fdescr)
     (if (eq (cadr fdescr) 'LABELS)
-      ; bei LABELS: aus der Lambdalisten-Information
-      (multiple-value-bind (reqvar  optvar optinit optsvar  restvar
-                            keyflag keyword keyvar keyinit keysvar allow-other-keys
-                            auxvar auxinit)
+      ;; defined with LABELS: from the lambda list information
+      (multiple-value-bind (reqvar optvar optinit optsvar restvar
+                            keyflag keyword keyvar keyinit keysvar
+                            allow-other-keys auxvar auxinit)
           (values-list (cddr fdescr))
-        (declare (ignore optinit optsvar keyvar keyinit keysvar auxvar auxinit))
+        (declare (ignore optinit optsvar keyvar keyinit
+                         keysvar auxvar auxinit))
         (values (length reqvar) (length optvar)
                 (not (eql restvar 0)) keyflag
-                keyword allow-other-keys
-      ) )
-      ; bei GENERIC-FLET oder GENERIC-LABELS: aus der Signatur
-      (values-list (cddr fdescr))
-    )
-    ; bei FLET oder IN-DEFUN: aus dem fnode
+                keyword allow-other-keys))
+      ;; defined with GENERIC-FLET or GENERIC-LABELS: from the signature
+      (values-list (cddr fdescr)))
+    ;; defined with FLET or IN-DEFUN: from the fnode
     (let ((fnode (car fdescr)))
       (values (fnode-req-anz fnode) (fnode-opt-anz fnode)
               (fnode-rest-flag fnode) (fnode-keyword-flag fnode)
-              (fnode-keywords fnode) (fnode-allow-other-keys-flag fnode)
-) ) ) )
+              (fnode-keywords fnode) (fnode-allow-other-keys-flag fnode)))))
 
-; (test-argument-syntax args applyargs fun req opt rest-p key-p keylist allow-p)
-; überprüft, ob die Argumentliste args (und evtl. weitere Argumente applyargs)
-; als Argumentliste zu fun (Symbol) geeignet ist, d.h. ob sie der gegebenen
-; Spezifikation, gegeben durch req,opt,rest-p,keylist,allow-p, genügt.
-; Gegebenenfalls wird eine Warnung ausgegeben.
-; Liefert:
-;   NO-KEYS           bei korrekter Syntax, ohne Keywords,
-;   STATIC-KEYS       bei korrekter Syntax mit konstanten Keywords,
-;   DYNAMIC-KEYS      bei (vermutlich) korrekter Syntax,
-;                       mit nicht-konstanten Keywords.
-;   NIL               bei fehlerhafter Syntax,
-; In den ersten beiden Fällen ist
-; falls (not applyargs):
-;   req <= (length args) <= (req+opt oder, falls rest-p oder key-p, unendlich)
-; bzw. falls applyargs:
-;   (length args) <= (req+opt oder, falls rest-p oder key-p, unendlich).
-(defun test-argument-syntax (args applyargs fun req opt rest-p key-p keylist allow-p)
+;; (test-argument-syntax args applyargs fun
+;;                       req opt rest-p key-p keylist allow-p)
+;; check whether the arglist ARGS (and maybe additional arguments APPLYARGS)
+;; is a valid arglist for the function FUN with the signature
+;; (REQ OPT REST-P KEY-P KEYLIST ALLOW-P)
+;; The appropriate warnings are printed as necessary
+;; Returns:
+;;   NO-KEYS           correct syntax, no keywords,
+;;   STATIC-KEYS       correct syntax, constant keywords,
+;;   DYNAMIC-KEYS      (probably) correct syntax, non-constant keywords
+;;   NIL               incorrect syntax,
+;; In the first two cases:
+;; if (not applyargs):
+;;   req <= (length args) <= (req+opt or, if rest-p or key-p, infinity)
+;; or if applyargs:
+;;   (length args) <= (req+opt or, if rest-p or key-p, infinity).
+(defun test-argument-syntax (args applyargs fun req opt rest-p key-p keylist
+                             allow-p)
   (unless (and (listp args) (null (cdr (last args))))
     (c-error (ENGLISH "argument list to function ~S is dotted: ~S")
-             fun args
-  ) )
+             fun args))
   (let ((n (length args))
         (reqopt (+ req opt)))
     (unless (and (or applyargs (<= req n)) (or rest-p key-p (<= n reqopt)))
       (c-warn (ENGLISH "~S called with ~S~:[~; or more~] arguments, but it requires ~
                         ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] argument~:p.")
               fun n applyargs
-              (or rest-p key-p)  (eql req reqopt) req reqopt
-      )
-      (return-from test-argument-syntax 'NIL)
-    )
+              (or rest-p key-p) (eql req reqopt) req reqopt)
+      (return-from test-argument-syntax 'NIL))
     (unless key-p (return-from test-argument-syntax 'NO-KEYS))
-    ; Mit Keywords.
+    ;; has keywords
     (when (<= n reqopt) (return-from test-argument-syntax 'STATIC-KEYS))
     (when rest-p (return-from test-argument-syntax 'DYNAMIC-KEYS))
     (setq n (- n reqopt) args (nthcdr reqopt args))
     (unless (evenp n)
-      (c-warn (ENGLISH "keyword arguments to function ~S should occur pairwise: ~S")
-              fun args
-      )
-      (return-from test-argument-syntax 'NIL)
-    )
+      (c-warn
+       (ENGLISH "keyword arguments to function ~S should occur pairwise: ~S")
+       fun args)
+      (return-from test-argument-syntax 'NIL))
     (do ((keyargs args (cddr keyargs))
          (allow-flag allow-p)
-         (wrong-key nil)
-        )
+         (wrong-key nil))
         ((null keyargs)
          (cond (wrong-key
                 (c-warn (ENGLISH "keyword ~S is not allowed for function ~S.~
@@ -3600,25 +3668,18 @@ der Docstring (oder NIL).
                (t 'STATIC-KEYS)))
       (let ((key (first keyargs)))
         (unless (c-constantp key)
-          (return-from test-argument-syntax 'DYNAMIC-KEYS)
-        )
+          (return-from test-argument-syntax 'DYNAMIC-KEYS))
         (setq key (c-constant-value key))
         (unless (symbolp key)
           (c-warn (ENGLISH "argument ~S to function ~S is not a symbol")
-                  (first keyargs) fun
-          )
-          (return-from test-argument-syntax 'DYNAMIC-KEYS)
-        )
+                  (first keyargs) fun)
+          (return-from test-argument-syntax 'DYNAMIC-KEYS))
         (when (eq key ':ALLOW-OTHER-KEYS)
           (unless (c-constantp (second keyargs))
-            (return-from test-argument-syntax 'DYNAMIC-KEYS)
-          )
-          (when (c-constant-value (second keyargs)) (setq allow-flag t))
-        )
+            (return-from test-argument-syntax 'DYNAMIC-KEYS))
+          (when (c-constant-value (second keyargs)) (setq allow-flag t)))
         (unless (or allow-flag (member key keylist :test #'eq))
-          (setq wrong-key key)
-    ) ) )
-) )
+          (setq wrong-key key))))))
 
 ; (c-DIRECT-FUNCTION-CALL args applyargs fun req opt rest-p key-p keylist
 ;                         subr-flag call-code-producer)
@@ -3775,34 +3836,32 @@ der Docstring (oder NIL).
                (t '(T . T)) ; vielleicht Seiteneffekte
         )) ) )
     (if (and (null *for-value*) (null (cdr sideeffects)))
-      ; Brauche die Funktion nicht aufzurufen, nur die Argumente auswerten
+      ;; babelfish: Do not need the function to call, only the arguments analyse
+      ;; Brauche die Funktion nicht aufzurufen, nur die Argumente auswerten
       (progn
         (let ((*no-code* t) (*for-value* 'NIL))
-          (funcall call-code-producer)
-        )
-        (c-form `(PROGN ,@args ,@applyargs))
-      )
+          (funcall call-code-producer))
+        (c-form `(PROGN ,@args ,@applyargs)))
       (let ((n (length args))
             (reqopt (+ req opt))
             (seclass sideeffects)
             (codelist '()))
         (let ((*stackz* *stackz*))
-          ; required und angegebene optionale Parameter:
+          ;; required and given optional parameters:
           (dotimes (i (min n reqopt))
             (let* ((formi (pop args))
                    (anodei (c-form formi 'ONE)))
               (seclass-or-f seclass anodei)
-              (push anodei codelist)
-            )
+              (push anodei codelist))
             (push '(PUSH) codelist)
-            (push 1 *stackz*)
-          )
+            (push 1 *stackz*))
           (if applyargs
             (progn
-              (when subr-flag (compiler-error 'c-DIRECT-FUNCTION-CALL "APPLY-SUBR"))
+              (when subr-flag
+                (compiler-error 'c-DIRECT-FUNCTION-CALL "APPLY-SUBR"))
               (when key-p (compiler-error 'c-DIRECT-FUNCTION-CALL "APPLY-KEY"))
               (if (>= reqopt n)
-                ; fehlende optionale Parameter werden aus der Liste initialisiert:
+                ;; missing optional parameters are initialised from the list:
                 (let* ((anz (- reqopt n))
                        (anode1 (c-form (first applyargs) 'ONE))
                        (anode2 (progn
@@ -4103,8 +4162,8 @@ der Docstring (oder NIL).
 )
 (defun c-GLOBAL-FUNCTION-CALL (fun) ; fun ist ein Symbol oder (SETF symbol)
   (test-list *form* 1)
+  (note-function-used fun (cdr *form*) nil)
   (when *compiling-from-file* ; von COMPILE-FILE aufgerufen?
-    (note-function-used fun)
     ; PROCLAIM-Deklarationen zur Kenntnis nehmen:
     (when (and (eq fun 'PROCLAIM) (= (length *form*) 2))
       (let ((h (second *form*)))
@@ -4136,8 +4195,8 @@ der Docstring (oder NIL).
       (push
         `(,fun
           ,@(mapcar
-              ; Quote the arguments, but only when necessary, because
-              ; a variant of IN-PACKAGE wants unquoted arguments.
+              ;; Quote the arguments, but only when necessary, because
+              ;; ANSI-CL IN-PACKAGE wants unquoted arguments.
               #'(lambda (x)
                   (let ((v (c-constant-value x)))
                     (if (or (numberp v) (characterp v) (arrayp v) (keywordp v))
@@ -4148,14 +4207,17 @@ der Docstring (oder NIL).
          )  )
         *package-tasks*
   ) ) )
-  (let* ((args (cdr *form*)) ; Argumente
-         (n (length args))) ; Anzahl der Argumente
-    (if (not (declared-notinline fun)) ; darf fun INLINE genommen werden?
-      (multiple-value-bind (name req opt rest-p keylist allow-p) (subr-info fun)
-        ; Ist fun ein SUBR, so sollte name = fun sein, und das SUBR hat die
-        ; Spezifikation req, opt, rest-p, key-p = (not (null keylist)), allow-p.
-        ; Sonst ist name = NIL.
-        (if (and name (eq fun name)) ; beschreibt fun ein gültiges SUBR?
+  (let* ((args (cdr *form*))    ; arguments
+         (n (length args)))     ; number of arguments
+    (if (or (not (fboundp fun)) (declared-notinline fun))
+      ;; the function arguments will not be checked
+      (c-NORMAL-FUNCTION-CALL fun)
+      (multiple-value-bind (name req opt rest-p key-p keylist allow-p check)
+          (function-signature fun t)
+        (setq check (and name
+                         (test-argument-syntax args nil fun req opt rest-p
+                                               key-p keylist allow-p)))
+        (if (and name (eq fun name)) ; function is valid
           (case fun
             ((CAR CDR FIRST REST NOT NULL CONS SVREF VALUES
               CAAR CADR CDAR CDDR CAAAR CAADR CADAR CADDR CDAAR CDADR
@@ -4166,7 +4228,7 @@ der Docstring (oder NIL).
              )
              ; Diese hier haben keylist=NIL, allow-p=NIL und
              ; (was aber nicht verwendet wird) opt=0.
-             (if (and (<= req n) (or rest-p (<= n (+ req opt))))
+             (if check ; (and (<= req n) (or rest-p (<= n (+ req opt))))
                ; Wir machen den Aufruf INLINE.
                (let ((sideeffects ; Seiteneffektklasse der Funktionsausführung
                        (case fun
@@ -4270,24 +4332,15 @@ der Docstring (oder NIL).
                          :code codelist
                        )
                ) ) ) )
-               ; falsche Argumentezahl -> doch nicht INLINE:
-               (progn
-                 (c-warn (ENGLISH "~S called with ~S arguments, but it requires ~
-                                   ~:[~:[from ~S to ~S~;~S~]~;at least ~*~S~] argument~:p.")
-                         fun n
-                         rest-p  (eql opt 0) req (+ req opt)
-                 )
-                 (c-NORMAL-FUNCTION-CALL fun)
-            )) )
+               ;; check failed (wrong argument count) => not INLINE:
+               (c-NORMAL-FUNCTION-CALL fun)))
             (t ; Ist das SUBR fun in der FUNTAB enthalten?
              (let ((index (gethash fun function-codes)))
                (if index
-                 (case (test-argument-syntax args nil
-                                    fun req opt rest-p keylist keylist allow-p
-                       )
+                 (case check
                    ((NO-KEYS STATIC-KEYS)
-                    ; korrekte Syntax, Stack-Layout zur Compilezeit vorhersehbar
-                    ; -> INLINE
+                    ;; correct syntax, stack layout is known
+                    ;; at compile time ==> INLINE
                     (c-DIRECT-FUNCTION-CALL
                       args nil fun req opt rest-p keylist keylist
                       t ; es handelt sich um ein SUBR
@@ -4317,36 +4370,39 @@ der Docstring (oder NIL).
                    )) )
                    (t (c-NORMAL-FUNCTION-CALL fun))
                  )
-                 (c-NORMAL-FUNCTION-CALL fun)
-          ) )) )
-          (let ((inline-lambdabody
-                  (or (and *compiling-from-file*
-                           (cdr (assoc fun *inline-definitions* :test #'equal))
-                      )
-                      (get (get-funname-symbol fun) 'sys::inline-expansion)
-               )) )
-            (if (and #| inline-lambdabody |#
-                     (consp inline-lambdabody)
-                     (inline-callable-function-lambda-p `(FUNCTION (LAMBDA ,@inline-lambdabody)) n)
-                )
-              ; Aufruf einer globalen Funktion INLINE möglich
-              (c-FUNCALL-INLINE fun args nil inline-lambdabody nil)
-              (c-NORMAL-FUNCTION-CALL fun)
-      ) ) ) )
-      (c-NORMAL-FUNCTION-CALL fun)
-) ) )
+                 ;; not a SUBR
+                 (let ((inline-lambdabody (inline-lambdabody fun)))
+                   (if (inline-callable-lambdabody-p inline-lambdabody n)
+                     ;; inline call of the global function is possible
+                     (c-FUNCALL-INLINE fun args nil inline-lambdabody nil)
+                     (c-NORMAL-FUNCTION-CALL fun)))))))
+          (c-NORMAL-FUNCTION-CALL fun))))))
 
 (defvar *deprecated-functions-list*
   '(GENTEMP SET SPECIAL-FORM-P GET-SETF-METHOD-MULTIPLE-VALUE))
 
-; Hilfsfunktion: Notiere, dass eine globale Funktionsdefinition benutzt wird.
-(defun note-function-used (name)
-  (unless (or (fboundp name) (member name *known-functions* :test #'equal))
-    (pushnew name *unknown-functions* :test #'equal)
-  )
+;; note a global function call
+;; NAME is function name, ARGS are arguments, APPLY-ARGS are APPLY arguments
+;; ARGS == 0 means non-funcall context
+;; this adds an unknown function to the `*unknown-functions*' list
+;;  an unknown function is (NAME (LINENO1 . LINENO2) . (ARGS . APPLY-ARGS))
+;;  or (NAME (LINENO1 . LINENO2)) if non-funcall context
+(defun note-function-used (name args apply-args)
+  (unless (fboundp name)
+    (if *compiling-from-file*
+      (let ((kf (assoc name *known-functions* :test #'equal))
+            (uf (if (listp args)
+                    (list* name (c-source-point) args apply-args)
+                    (list name (c-source-point)))))
+        (if kf
+          (match-known-unknown-functions uf kf)
+          (push uf *unknown-functions*)))
+      (unless (equalp name (current-function))
+        (c-warn (ENGLISH "Function ~s is not defined") name))))
   (when (memq name *deprecated-functions-list*)
-    (pushnew name *deprecated-functions* :test #'eq)
-) )
+    (if *compiling-from-file*
+        (pushnew name *deprecated-functions* :test #'eq)
+        (c-warn (ENGLISH "Function ~s is deprecated") name))))
 
 ; Hilfsfunktion: PROCLAIM beim Compilieren vom File, vgl. Funktion PROCLAIM
 (defun c-PROCLAIM (declspec)
@@ -4386,7 +4442,7 @@ der Docstring (oder NIL).
       ) )
 ) ) )
 
-; Hilfsfunktion: DEFCONSTANT beim Compilieren
+;; DEFCONSTANT when compiling
 (defun c-PROCLAIM-CONSTANT (symbol initial-value-form)
   (when *compiling-from-file*
     (pushnew symbol *known-special-vars* :test #'eq)
@@ -4395,15 +4451,28 @@ der Docstring (oder NIL).
             *constant-special-vars*
 ) ) ) )
 
-; Hilfsfunktion: DEFUN beim Compilieren
-(defun c-DEFUN (symbol &optional lambdabody)
+;; DEFUN when compiling
+(defun c-DEFUN (symbol signature &optional lambdabody)
   (when *compiling* ; c-DEFUN kann auch vom Expander aus aufgerufen werden!
     (when *compiling-from-file*
-      (pushnew symbol *known-functions* :test #'equal)
-      (when lambdabody ; Lambdabody angegeben ->
-        ; Funktionsdefinition erfolgt im Top-Level-Environment und ist inlinebar.
-        (push (cons symbol lambdabody) *inline-definitions*)
-) ) ) )
+      (let ((kf (assoc symbol *known-functions* :test #'equal)))
+        ;; generic functions are checked by `std-add-method' in clos.lisp
+        ;; but only at load time, not compile time, so limiting the check to
+        ;; (and (fboundp symbol)
+        ;;      (not (clos::generic-function-p (fdefinition symbol))))
+        ;; is wrong
+        (when kf
+          (c-warn (ENGLISH "Function ~s~% was already defined~a~:[~% with the signature~%~s~% it is being re-defined with a new signature~%~s~;~2*~]")
+                  symbol (c-source-point-location (second kf))
+                  (equalp signature (cddr kf))
+                  (sig-to-list (cddr kf))
+                  (sig-to-list signature))))
+      (pushnew (list* symbol (c-source-point) signature)
+               *known-functions* :test #'equal :key #'car)
+      (when lambdabody
+        ;; lambdabody given ==> function definition is in the
+        ;; top-level environment and can be inlined
+        (push (cons symbol lambdabody) *inline-definitions*)))))
 
 ; Hilfsfunktion: PROVIDE beim Compilieren vom File, vgl. Funktion PROVIDE
 (defun c-PROVIDE (module-name)
@@ -4696,6 +4765,21 @@ der Docstring (oder NIL).
              item
 ) ) )
 
+(defun lambda-list-to-signature (lambda-list)
+  (multiple-value-bind (req opt opt-i opt-p rest
+                        key-p keywords key-v key-i key-v-p allow-p)
+      (analyze-lambdalist lambda-list)
+    (declare (ignore opt-i opt-p key-v key-i key-v-p))
+    (make-signature :req-num (length req) :opt-num (length opt)
+                    :rest-p (not (eql 0 rest)) :keys-p key-p
+                    :keywords keywords :allow-p allow-p)))
+
+;; return the inline lambdabody for the function FUN (if any)
+(defun inline-lambdabody (fun)
+  (or (and *compiling-from-file*
+           (cdr (assoc fun *inline-definitions* :test #'equal)))
+      (get (get-funname-symbol fun) 'sys::inline-expansion)))
+
 ; (inline-callable-function-lambda-p form n) bzw.
 ; (inline-callable-function-p form n) stellt fest, ob form eine Form ist, die
 ; eine Funktion liefert, die mit n (und evtl. mehr) Argumenten Inline
@@ -4735,6 +4819,11 @@ der Docstring (oder NIL).
               ) )
        ) )
 ) )
+(defun inline-callable-lambdabody-p (inline-lambdabody n &optional (more nil))
+  (and #| inline-lambdabody |#
+       (consp inline-lambdabody)
+       (inline-callable-function-lambda-p
+        `(FUNCTION (LAMBDA ,@inline-lambdabody)) n more)))
 (defun inline-callable-function-p (form n)
   (or (inline-callable-function-lambda-p form n)
       (and (consp form) (eq (first form) 'FUNCTION)
@@ -4757,18 +4846,8 @@ der Docstring (oder NIL).
                              (and (<= req n) (or rest-flag (<= n (+ req opt))) (not key-flag))
                       )    )
                       |#
-                      (let ((inline-lambdabody
-                              (or (and *compiling-from-file*
-                                       (cdr (assoc fun *inline-definitions* :test #'equal))
-                                  )
-                                  (get (get-funname-symbol fun) 'sys::inline-expansion)
-                           )) )
-                        (and #| inline-lambdabody |#
-                             (consp inline-lambdabody)
-                             (inline-callable-function-lambda-p `(FUNCTION (LAMBDA ,@inline-lambdabody)) n)
-                       ) )
+                      (inline-callable-lambdabody-p (inline-lambdabody fun) n)
 ) )   )    ) )    )
-
 
 ;; Special-deklarierte Symbole:
 
@@ -6630,9 +6709,7 @@ der Docstring (oder NIL).
       (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search name)
         (if (null a)
           (progn
-            (when *compiling-from-file* ; von COMPILE-FILE aufgerufen?
-              (note-function-used name)
-            )
+            (note-function-used name 0 nil)
             (make-anode
               :type 'FUNCTION
               :sub-anodes '()
@@ -7490,46 +7567,46 @@ der Docstring (oder NIL).
       (let ((type (first clause))
             (handler (second clause)))
         ;; the handler is a function with dynamic extent.
-          (let ((label (make-label 'ONE)))
-            (push type types)
-            (push label handler-labels)
-            (push
-              (let* ((*stackz* (cons 'ANYTHING *stackz*))
-                     (oldstackz *stackz*)
-                     (*venv* *venv*))
+        (let ((label (make-label 'ONE)))
+          (push type types)
+          (push label handler-labels)
+          (push
+           (let* ((*stackz* (cons 'ANYTHING *stackz*))
+                  (oldstackz *stackz*)
+                  (*venv* *venv*))
              ;; work place for the function:
-                (push 1 *stackz*)
-                (let* ((condition-sym (gensym))
-                       (condition-anode
-                         (make-anode :type 'CONDITION
-                                     :sub-anodes '()
-                                     :seclass '(T . NIL)
+             (push 1 *stackz*)
+             (let* ((condition-sym (gensym))
+                    (condition-anode
+                     (make-anode :type 'CONDITION
+                                 :sub-anodes '()
+                                 :seclass '(T . NIL)
                                  :code '())) ; first comes (HANDLER-BEGIN)
                     (condition-var (bind-movable-var condition-sym
                                                      condition-anode)))
-                  (push-*venv* condition-var)
-                  (let ((body-anode
+               (push-*venv* condition-var)
+               (let ((body-anode
                       (c-form `(SYS::%FUNCALL ,handler ,condition-sym) 'NIL)))
                  ;; Check the variables (must not happen in the closure):
                  (checking-movable-var-list (list condition-var)
                                             (list condition-anode))
-                    (let* ((codelist
-                             `(,label
-                               (HANDLER-BEGIN)
+                 (let* ((codelist
+                         `(,label
+                           (HANDLER-BEGIN)
                            ,@(c-bind-movable-var-anode condition-var
                                                        condition-anode)
-                               ,body-anode
+                           ,body-anode
                            (UNWINDSP ,*stackz* ,*func*) ; (SKIPSP k1 k2)
                            (UNWIND ,*stackz* ,oldstackz NIL) ; (SKIP 2)
                            (RET)))
-                           (anode
-                             (make-anode
-                               :type 'HANDLER
-                               :sub-anodes `(,body-anode)
+                        (anode
+                         (make-anode
+                          :type 'HANDLER
+                          :sub-anodes `(,body-anode)
                           :seclass '(T . T) ; actually irrelevant
-                               :stackz oldstackz
+                          :stackz oldstackz
                           :code codelist)))
-                      (optimize-var-list (list condition-var))
+                   (optimize-var-list (list condition-var))
                    anode))))
            handler-anodes))))
     (if (null types)
@@ -7907,8 +7984,7 @@ der Docstring (oder NIL).
   (multiple-value-bind (req opt rest-flag key-flag keylist allow-flag)
       (fdescr-signature fdescr)
     (case (test-argument-syntax
-            args nil fun req opt rest-flag key-flag keylist allow-flag
-          )
+           args nil fun req opt rest-flag key-flag keylist allow-flag)
       ((NO-KEYS STATIC-KEYS)
        ; Aufruf INLINE
        (c-DIRECT-FUNCTION-CALL
@@ -7970,83 +8046,79 @@ der Docstring (oder NIL).
   (test-list *form* 3)
   (let* ((funform (second *form*))
          (arglist (cddr *form*))
-         (n (1- (length arglist)))) ; Mindestanzahl Argumente
+         (args (butlast arglist))
+         (apply-args (last arglist))
+         (n (1- (length arglist)))) ; the minimum number of arguments
     (setq funform (macroexpand-form funform))
     (when (inline-callable-function-lambda-p funform n t)
-      ; Aufruf eines Lambda-Ausdrucks INLINE möglich
       (return-from c-APPLY
-        (c-FUNCALL-INLINE funform (butlast arglist) (last arglist) (cdr (second funform)) t)
-    ) )
+        (c-FUNCALL-INLINE funform args apply-args (cdr (second funform)) t)))
     (when (and (consp funform) (eq (first funform) 'COMPLEMENT)
                (consp (rest funform)) (null (cddr funform))
-               (not (fenv-search 'COMPLEMENT)) (not (declared-notinline 'COMPLEMENT))
-               (not (fenv-search 'NOT))
-          )
-      ; (complement fn) --> (let ((f fn)) ... #'(lambda (&rest args) (not (apply f args))) ...)
+               (not (fenv-search 'COMPLEMENT))
+               (not (declared-notinline 'COMPLEMENT))
+               (not (fenv-search 'NOT)))
+      ;; (complement fn) -->
+      ;; (let ((f fn)) ... #'(lambda (&rest args) (not (apply f args))) ...)
       (return-from c-APPLY
-        (c-form `(NOT (APPLY ,(second funform) ,@arglist)))
-    ) )
+        (c-form `(NOT (APPLY ,(second funform) ,@arglist)))))
     (when (and (consp funform) (eq (first funform) 'CONSTANTLY)
                (consp (rest funform)) (null (cddr funform))
-               (not (fenv-search 'CONSTANTLY)) (not (declared-notinline 'CONSTANTLY))
-          )
-      ; (constantly obj) --> (let ((o obj)) ... #'(lambda (&rest args) (declare (ignore args)) o) ...)
+               (not (fenv-search 'CONSTANTLY))
+               (not (declared-notinline 'CONSTANTLY)))
+      ;; (constantly obj) -->
+      ;; (let ((o obj)) ... #'(lambda (&rest a) (declare (ignore a)) o) ...)
       (return-from c-APPLY
-        (c-form `(PROG1 ,(second funform) ,@arglist))
-    ) )
+        (c-form `(PROG1 ,(second funform) ,@arglist))))
     (when (and (consp funform) (eq (first funform) 'FUNCTION)
-               ; Ausdrücke der Form (FUNCTION ...) dürfen zu beliebigem
-               ; Zeitpunkt ausgewertet werden.
-               (consp (rest funform)) (function-name-p (second funform))
-          )
+               ;; (FUNCTION ...) forms can be arbitrary
+               (consp (rest funform)) (function-name-p (second funform)))
       (let ((fun (second funform)))
         (test-list funform 2 2)
+        (multiple-value-bind (name req opt rest-p key-p keylist allow-p)
+            (function-signature fun t) ; global functions only
+          (if (and name (eq fun name))
+              (test-argument-syntax args apply-args fun req opt rest-p
+                                    key-p keylist allow-p)
+              (note-function-used fun args apply-args)))
         (unless (declared-notinline fun) ; darf fun INLINE genommen werden?
           (flet ((c-LOCAL-APPLY (fdescr)
                    (multiple-value-bind (req opt rest-flag key-flag keylist allow-flag)
                        (fdescr-signature fdescr)
                      (unless key-flag
                        ; ohne Keyword-Argumente
-                       (when (eq (test-argument-syntax (butlast arglist) (last arglist)
-                                   fun req opt rest-flag key-flag keylist allow-flag
-                                 )
-                               'NO-KEYS
-                             )
+                       (when (eq 'NO-KEYS
+                                 (test-argument-syntax
+                                  args apply-args
+                                  fun req opt rest-flag key-flag keylist
+                                  allow-flag))
                          ; Syntax stimmt -> Aufruf INLINE
                          (return-from c-APPLY
-                           (c-DIRECT-FUNCTION-CALL (butlast arglist) (last arglist)
+                           (c-DIRECT-FUNCTION-CALL args apply-args
                              fun req opt rest-flag key-flag keylist
                              nil ; kein SUBR-, sondern Cclosure-Aufruf
                              (cclosure-call-code-producer fun (car fdescr) req opt rest-flag key-flag keylist)
                 )) ) ) ) ) )
             (multiple-value-bind (a m f1 f2 f3 f4) (fenv-search fun)
               (declare (ignore m f2 f4))
-              ; (APPLY #'fun . args) kann evtl. vereinfacht werden
+              ;; (APPLY #'fun . args) maybe possible to simplify
               (if (null a)
-                ; globale Funktion
-                (unless (and (symbolp fun) (or (special-operator-p fun) (macro-function fun))) ; Special-Form oder globaler Macro ?
+                ;; global function
+                (unless (and (symbolp fun) ; special form or global macro?
+                             (or (special-operator-p fun)
+                                 (macro-function fun)))
                   (when (and (equal fun (fnode-name *func*))
-                             (member `(SYS::IN-DEFUN ,fun) *denv* :test #'equal)
-                        )
-                    ; rekursiver Aufruf der aktuellen globalen Funktion
-                    (c-LOCAL-APPLY (cons *func* nil))
-                  )
-                  (let ((inline-lambdabody
-                          (or (and *compiling-from-file*
-                                   (cdr (assoc fun *inline-definitions* :test #'equal))
-                              )
-                              (get (get-funname-symbol fun) 'sys::inline-expansion)
-                       )) )
-                    (if (and #| inline-lambdabody |#
-                             (consp inline-lambdabody)
-                             (inline-callable-function-lambda-p `(FUNCTION (LAMBDA ,@inline-lambdabody)) n t)
-                        )
-                      ; Aufruf einer globalen Funktion INLINE möglich
+                             (member `(SYS::IN-DEFUN ,fun) *denv*
+                                     :test #'equal))
+                    ;; recursive call of a defined global function
+                    (c-LOCAL-APPLY (cons *func* nil)))
+                  (let ((inline-lambdabody (inline-lambdabody fun)))
+                    (when (inline-callable-lambdabody-p inline-lambdabody n t)
+                      ;; inline call of the global function is possible
                       (return-from c-APPLY
-                        (c-FUNCALL-INLINE fun (butlast arglist) (last arglist) inline-lambdabody nil)
-                ) ) ) )
-                (if (eq f1 'LOCAL)
-                  ; lokale Funktion
+                        (c-FUNCALL-INLINE fun args apply-args
+                                          inline-lambdabody nil)))))
+                (when (eq f1 'LOCAL) ; local function
                   (c-LOCAL-APPLY f3)
     ) ) ) ) ) ) )
     ; Wenn keine der Optimierungen möglich war:
@@ -8709,28 +8781,32 @@ der Docstring (oder NIL).
 
 
 
-;                     Z W E I T E R   P A S S
+;;;                     S E C O N D   P A S S
 
-; eine Tabelle von Paaren (fnode n).
-; Jedes Paar zeigt an, dass im 3. Pass in der Konstanten Nummer n des
-; funktionalen Objektes von fnode der dort stehende fnode durch das durch ihn
-; erzeugte funktionale Objekt zu ersetzen ist.
+;;; a table of pairs (fnode n).
+;;; Jedes Paar zeigt an, dass im 3. Pass in der Konstanten Nummer n des
+;;; funktionalen Objektes von fnode der dort stehende fnode durch das durch ihn
+;;; erzeugte funktionale Objekt zu ersetzen ist.
+;;; Each pair displays that in the 3. Pass in the constant of number n of the
+;;; functional object of the fnode fnode by by it, which is there
+;;; produced functional object to replace is. [babelfish]
 (defvar *fnode-fixup-table*)
 
 ; macht aus dem ANODE-Baum zum fnode *func* ein funktionales Objekt:
+;;; makes a functional object from the ANODE tree of fnode *func*:
 (defun pass2 (*func*)
-  (when (anode-p (fnode-code *func*)) ; falls 2. Pass noch nicht durchgeführt:
-    ; erst den Code flachklopfen, optimieren und assemblieren:
-    (let ((code-list (compile-to-LAP))) ; Code flachklopfen und in Stücke zerteilen,
-                                        ; optimieren und zu einer Liste machen
-      (when (fnode-gf-p *func*) (setq code-list (CONST-to-LOADV code-list))) ; evtl. CONSTs umwandeln
-      (let ((SPdepth (SP-depth code-list))) ; Stackbedarf bestimmen
-        (setq code-list (insert-combined-LAPs code-list)) ; kombinierte Operationen einführen
-        (create-fun-obj *func* (assemble-LAP code-list) SPdepth) ; assemblieren und funkt. Objekt
-    ) )
-    ; dann die Sub-Funktionen durch den 2. Pass jagen
-    (dolist (x (fnode-Consts *func*)) (if (fnode-p x) (pass2 x)))
-) )
+  (when (anode-p (fnode-code *func*))
+    ;; if Pass2 has not been executed yet,
+    ;; only flatten, optimize and assemble the code
+    (let ((code-list (compile-to-LAP)))
+      ;; flatten code, split into pieces, optimize, turn into a list
+      (when (fnode-gf-p *func*) ; convert CONSTs
+        (setq code-list (CONST-to-LOADV code-list)))
+      (let ((SPdepth (SP-depth code-list))) ; determine stack requirements
+        (setq code-list (insert-combined-LAPs code-list))
+        (create-fun-obj *func* (assemble-LAP code-list) SPdepth)))
+    ;; do Pass2 on the sub-functions
+    (dolist (x (fnode-Consts *func*)) (if (fnode-p x) (pass2 x)))))
 
 #|
 
@@ -8991,6 +9067,10 @@ Neue Operationen:
 ; (fconst-index fnode) liefert den Index in FUNC, an dem dieser fnode in den
 ; Konstanten steht. Wenn nötig, wird er eingefügt und in *fnode-fixup-table*
 ; vermerkt.
+;;; the index to FUNC, to this fnode supplies to that
+;;; Is to constant ones. If necessary, it is inserted and
+;;; into *fnode-fixup-table*; noted.
+
 (defun fconst-index (fnode &optional (func *func*))
   (if (member fnode (fnode-Consts func))
     (constvalue-index fnode)
@@ -11883,17 +11963,17 @@ Die Funktion make-closure wird dazu vorausgesetzt.
   fnode
 )
 
-; Liefert die Signatur eines funktionalen Objekts,
-; als Werte:
-; 1. req-anz
-; 2. opt-anz
-; 3. rest-p
-; 4. key-p
-; 5. keyword-list
-; 6. allow-other-keys-p
-; und zusätzlich
-; 7. byte-list
-; 8. const-list
+;; Return the signature of the byte-compiled function object
+;; values:
+;; 1. req-anz
+;; 2. opt-anz
+;; 3. rest-p
+;; 4. key-p
+;; 5. keyword-list
+;; 6. allow-other-keys-p
+;; additionally:
+;; 7. byte-list
+;; 8. const-list
 (defun signature (closure)
   (let ((const-list (closure-consts closure))
         (byte-list (closure-codevec closure)))
@@ -11931,7 +12011,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 ) ) ) ) )
 
 
-;                  D R I T T E R   P A S S
+;;;                  T H I R D    P A S S
 
 (defun pass3 ()
   (dolist (pair *fnode-fixup-table*)
@@ -11944,9 +12024,9 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 ) ) ) )
 
 
-;             T O P - L E V E L - A U F R U F
+;;;             T O P - L E V E L - C A L L
 
-; compiliert einen Lambdabody und liefert seinen Code.
+;;; compile a lambdabody and return its code.
 (defun compile-lambdabody (name lambdabody)
   (let ((fnode (c-lambdabody name lambdabody)))
     (unless *no-code*
@@ -12261,15 +12341,41 @@ Die Funktion make-closure wird dazu vorausgesetzt.
         *user-declaration-types* nil
         *compiled-modules*       nil))
 
+;;; compare an element of `*unknown-functions*' with
+;;; an element of `*known-functions*'
+;;; returns T if the functions match, NIL otherwise
+;;; this function should be suitable as a :test argument
+;;; for `set-difference'
+(defun match-known-unknown-functions (uf kf)
+  ;; uf: (function source-point arglist . apply-arglist)
+  ;; kf: (function source-point signature)
+  (when (equal (car uf) (car kf))
+    (let ((*compile-file-lineno1* (car (second uf)))
+          (*compile-file-lineno2* (cdr (second uf)))
+          (known-sig (cddr kf)))
+      (unless (or (null (cddr uf)) ; nothing to test
+                  (test-argument-syntax (caddr uf) (cdddr uf) (car uf)
+                                        (sig-req-num  known-sig)
+                                        (sig-opt-num  known-sig)
+                                        (sig-rest-p   known-sig)
+                                        (sig-keys-p   known-sig)
+                                        (sig-keywords known-sig)
+                                        (sig-allow-p  known-sig)))
+        (c-comment (ENGLISH "~%[~s was defined~a]")
+                   (car kf) (c-source-point-location (second kf))))
+      t)))
+
 (defun c-report-problems ()
   (when *functions-with-errors*
     (c-comment (ENGLISH "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}")
                (nreverse *functions-with-errors*)))
   (setq *unknown-functions*
-        (nset-difference *unknown-functions* *known-functions* :test #'equal))
+        (nset-difference *unknown-functions* *known-functions*
+                         :test #'match-known-unknown-functions))
   (when *unknown-functions*
     (c-comment (ENGLISH "~%The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}")
-               (nreverse *unknown-functions*)))
+               (delete-duplicates
+                (mapcar #'car (nreverse *unknown-functions*)))))
   (let ((unknown-vars (set-difference *unknown-free-vars*
                                       *known-special-vars*))
         (too-late-vars (intersection *unknown-free-vars*
@@ -12492,10 +12598,10 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                 (finalize-coutput-file)
                 (c-comment (ENGLISH "~&~%Compilation of file ~A is finished.")
                            file)
-                (c-comment (ENGLISH "~%~D error~:P, ~D warning~:P")
-                           *error-count* *warning-count*)
                 (when *c-top-call*
                   (c-report-problems))
+                (c-comment (ENGLISH "~%~D error~:P, ~D warning~:P")
+                           *error-count* *warning-count*)
                 (c-comment "~%")
                 (setq compilation-successful (zerop *error-count*))
                 (values (if compilation-successful output-file nil)
