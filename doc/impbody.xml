@@ -2904,15 +2904,7 @@ checks whether the &hash-table-t; is weak.</para>
 <listitem><variablelist>&path-comps;
 <varlistentry><term>&host-r;</term>&always-nil;</varlistentry>
 <varlistentry><term>&device-r;</term>&always-nil;</varlistentry>
-<varlistentry>&dir-term;
- <listitem><informaltable id="unix-dir-table" frame="all">
- <tgroup cols="2" colsep="1" rowsep="1" align="center">
-   &elt-val-meaning-header;<tbody>
- &startp-rel-abs; &subdirs-def; &subdir-string-or-wild;
- </tbody></tgroup></informaltable></listitem></varlistentry>
-<varlistentry><term>&name-r;</term>&wild-string-or-nil;</varlistentry>
-<varlistentry><term>&type-r;</term>&wild-string-or-nil;</varlistentry>
-&version-nil;
+&unix-win32-dir-name-type-version;
 </variablelist>
 
 <para>A &unix; &name-type-split;</para>
@@ -2942,15 +2934,7 @@ checks whether the &hash-table-t; is weak.</para>
 <varlistentry><term>&device-r;</term>
  <listitem><simpara>&nil; or &wild-k; or &file-letter-uc;
  </simpara></listitem></varlistentry>
-<varlistentry>&dir-term;
- <listitem><informaltable id="win32-dir-table" frame="all">
-   <tgroup cols="2" colsep="1" rowsep="1" align="center">
-    &elt-val-meaning-header;<tbody>
- &startp-rel-abs; &subdirs-def; &subdir-string-or-wild;
- </tbody></tgroup></informaltable></listitem></varlistentry>
-<varlistentry><term>&name-r;</term>&wild-string-or-nil;</varlistentry>
-<varlistentry><term>&type-r;</term>&wild-string-or-nil;</varlistentry>
-&version-nil;
+&unix-win32-dir-name-type-version;
 </variablelist>
 
 <para>If &host-r; is non-&nil;, &device-r; must be &nil;.</para>
