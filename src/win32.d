@@ -275,6 +275,9 @@ extern ssize_t fd_write (HANDLE fd, const void* buf, size_t nbyte, perseverance_
 #define sock_errno  WSAGetLastError()
 #define sock_errno_is(val)  (WSAGetLastError() == WSA##val)
 #define sock_set_errno(val)  WSASetLastError(WSA##val)
+/* Error values when sock_read, sock_write return 0: */
+#define WSAEAGAIN WSAEWOULDBLOCK
+#define WSAENOENT WSAESHUTDOWN
 /* Signalling a socket related error
    extern void SOCK_error (void);
    Reading and writing from a socket */

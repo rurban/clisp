@@ -1,3 +1,29 @@
+2004-10-31  Bruno Haible  <bruno@clisp.org>
+
+	* unixaux.d (fd_read, fd_write, sock_read, sock_write): When returning
+	0, set errno to indicate whether EOF or EOFW is reached.
+	* win32.d (WSAEAGAIN, WSAENOENT): New macros.
+	* win32aux.d (lowlevel_fd_read): When returning 0, set errno to
+	indicate whether EOF is reached.
+	(do_fd_read, fd_read): Transmit the error code also when result==0.
+	(fd_write): When returning 0, set errno to indicate whether EOWF is
+	reached.
+	(lowlevel_sock_read): When returning 0, set errno to indicate whether
+	EOF is reached.
+	(do_sock_read, sock_read): Transmit the error code also when result==0.
+	(lowlevel_sock_write): When returning 0, set errno to indicate whether
+	EOWF is reached.
+	(do_sock_write, sock_write): Transmit the error code also when
+	result==0.
+	* stream.d (low_read_array_unbuffered_handle): When EOF has been seen,
+	store this information in the stream.
+	(low_fill_buffered_handle): Likewise.
+	(low_read_unbuffered_socket, low_listen_unbuffered_socket): Verify
+	that EOF has really been seen.
+	(low_read_array_unbuffered_socket): When EOF has been seen, store this
+	information in the stream.
+	(low_fill_buffered_socket): Likewise.
+
 2004-10-17  Bruno Haible  <bruno@clisp.org>
 
 	* defstruct.lisp (defstruct): Set the readers and writers slot of the
