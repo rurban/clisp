@@ -1,5 +1,10 @@
 2004-06-06  Bruno Haible  <bruno@clisp.org>
 
+	* clos-methcomb2.lisp (coerce-to-method-combination): Don't need to
+	clone the method-combination if there are no options.
+
+2004-06-06  Bruno Haible  <bruno@clisp.org>
+
 	Check the method-combination options at defgeneric execution time.
 	* clos-methcomb1.lisp (method-combination): New slot check-options.
 	* clos-methcomb2.lisp (invalid-sort-order-error,
