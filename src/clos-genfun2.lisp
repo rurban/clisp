@@ -594,8 +594,15 @@
 
 (defun compute-effective-method-as-function (gf combination methods)
   ;; Apply method combination:
-  (funcall (method-combination-expander combination) gf combination methods
-           (method-combination-options combination)))
+  (let ((ef-fun
+          (funcall (method-combination-expander combination)
+                   gf combination methods
+                   (method-combination-options combination))))
+    ;; Evaluate or compile the resulting form:
+    ;; (eval ef-fun)                                 ; interpreted
+    ;; (eval `(LOCALLY (DECLARE (COMPILE)) ,ef-fun)) ; compiled
+    (eval `(LET () (DECLARE (COMPILE) (INLINE FUNCALL APPLY))
+             ,ef-fun))))
 
 (defun gf-keyword-arguments (restp signature methods)
   ;; CLtL2 28.1.6.4., 28.1.6.5., ANSI CL 7.6.4., 7.6.5.

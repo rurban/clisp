@@ -389,10 +389,7 @@ and with the next-method support."
                       ,@declarations
                       ,@firstforms
                       ,wrapped-ef-form)))))
-      ;; (eval ef-fun)                                 ; interpreted
-      ;; (eval `(LOCALLY (DECLARE (COMPILE)) ,ef-fun)) ; compiled
-      (eval `(LET () (DECLARE (COMPILE) (INLINE FUNCALL APPLY))
-               ,ef-fun)))))
+      ef-fun)))
 
 ;;; ----------------------- Standard Method Combination -----------------------
 
@@ -476,10 +473,7 @@ and with the next-method support."
                               ,@firstforms
                               (MACROLET ,macrodefs
                                 ,ef-form)))))
-          ;; (eval ef-fun)                                 ; interpreted
-          ;; (eval `(LOCALLY (DECLARE (COMPILE)) ,ef-fun)) ; compiled
-          (eval `(LET () (DECLARE (COMPILE) (INLINE FUNCALL APPLY))
-                   ,ef-fun)))))))
+          ef-fun)))))
 
 (defun standard-method-combination-check-method-qualifiers (gf method-combo method)
   ;; CLtL2 28.1.7.2., 28.1.7.4., ANSI CL 7.6.6.2., 7.6.6.4. Method qualifiers
