@@ -1,3 +1,9 @@
+2005-02-24  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in (ALL_LINGUAS): Look for configure.in in the right
+	directory. Update default value. Don't enclose default value in
+	double-quotes.
+
 2005-02-22  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/pari.lisp (pari-1): gen_1 instead of gone
