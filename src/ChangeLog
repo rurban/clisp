@@ -34,7 +34,8 @@
 
 	replaced chartcopy with memcpy
 	compilation time of compile.lisp wend down 3.76%
-	* charstrg.d (chartcopy): commented out
+	fixed bug #438486
+	* charstrg.d (chartcopy): removed
 	* lispbibl.d (chartcopy): defined to expand to memcpy()
 
 2001-07-09  Sam Steingold  <sds@gnu.org>
