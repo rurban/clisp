@@ -1,5 +1,9 @@
 2005-03-16  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (STREAM-LOCK): fixed STACK handling
+
+2005-03-16  Sam Steingold  <sds@gnu.org>
+
 	* modules/postgresql/postgresql.lisp (PQgetCancel, PQfreeCancel)
 	(PQcancel, PQserverVersion, PQgetssl, PQinitSSL, PQdsplen):
 	added v8 functions
