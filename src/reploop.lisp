@@ -230,39 +230,39 @@ Use the usual editing capabilities.
   (list
    (TEXT "
 Commands may be abbreviated as shown in the second column.
-COMMAND        ABBR             DESCRIPTION
-Help           :h (or ?)        this command list
-Error          :e               Print the last error message
-Inspect        :i               Inspect the last error
-Abort          :a               abort to the next recent input loop
-Unwind         :uw              abort to the next recent input loop
-Reset          :re              toggle *PACKAGE* and *READTABLE* between the
-                                local bindings and the sane values
-Quit           :q               quit to the top-level input loop
-Mode-1         :m1              inspect all the stack elements
-Mode-2         :m2              inspect all the frames
-Mode-3         :m3              inspect only lexical frames
-Mode-4         :m4              inspect only EVAL and APPLY frames (default)
-Mode-5         :m5              inspect only APPLY frames
-Where          :w               inspect this frame
-Up             :u               go up one frame, inspect it
-Top            :t               go to top frame, inspect it
-Down           :d               go down one frame, inspect it
-Bottom         :b               go to bottom (most recent) frame, inspect it
-Backtrace-1    :bt1             list all stack elements
-Backtrace-2    :bt2             list all frames
-Backtrace-3    :bt3             list all lexical frames
-Backtrace-4    :bt4             list all EVAL and APPLY frames
-Backtrace-5    :bt5             list all APPLY frames
-Backtrace      :bt              list stack in current mode
-Backtrace-l    :bl              list stack in current mode.
-                                Limit of frames to print will be prompted for.
-Frame-limit    :fl              set the frame-limit. This many frames will
-                                be printed in a backtrace at most.
-Break+         :br+             set breakpoint in EVAL frame
-Break-         :br-             disable breakpoint in EVAL frame
-Redo           :rd              re-evaluate form in EVAL frame
-Return         :rt              leave EVAL frame, prescribing the return values")
+COMMAND        ABBR     DESCRIPTION
+Help           :h, ?    this command list
+Error          :e       Print the last error message
+Inspect        :i       Inspect the last error
+Abort          :a       abort to the next recent input loop
+Unwind         :uw      abort to the next recent input loop
+Reset          :re      toggle *PACKAGE* and *READTABLE* between the
+                          local bindings and the sane values
+Quit           :q       quit to the top-level input loop
+Mode-1         :m1      inspect all the stack elements
+Mode-2         :m2      inspect all the frames
+Mode-3         :m3      inspect only lexical frames
+Mode-4         :m4      inspect only EVAL and APPLY frames (default)
+Mode-5         :m5      inspect only APPLY frames
+Where          :w       inspect this frame
+Up             :u       go up one frame, inspect it
+Top            :t       go to top frame, inspect it
+Down           :d       go down one frame, inspect it
+Bottom         :b       go to bottom (most recent) frame, inspect it
+Backtrace-1    :bt1     list all stack elements
+Backtrace-2    :bt2     list all frames
+Backtrace-3    :bt3     list all lexical frames
+Backtrace-4    :bt4     list all EVAL and APPLY frames
+Backtrace-5    :bt5     list all APPLY frames
+Backtrace      :bt      list stack in current mode
+Backtrace-l    :bl      list stack in current mode.
+                          Limit of frames to print will be prompted for.
+Frame-limit    :fl      set the frame-limit. This many frames will
+                          be printed in a backtrace at most.
+Break+         :br+     set breakpoint in EVAL frame
+Break-         :br-     disable breakpoint in EVAL frame
+Redo           :rd      re-evaluate form in EVAL frame
+Return         :rt      leave EVAL frame, prescribing the return values")
    (cons "Help"         #'debug-help  )
    (cons ":h"           #'debug-help  )
    (cons "?"            #'debug-help  )
@@ -444,7 +444,7 @@ Continue       :c       switch off single step mode, continue evaluation
   (when condition
     (let ((restarts (remove may-continue (compute-restarts condition)))
           (restarts-help (if may-continue
-                           (TEXT "The following restarts are available, too:")
+                           (TEXT "The following restarts are also available:")
                            (TEXT "The following restarts are available:"))))
       (when restarts
         (when interactive-p
@@ -453,19 +453,19 @@ Continue       :c       switch off single step mode, continue evaluation
         (let ((counter 0))
           (dolist (restart restarts)
             (let* ((command
-                    (string-concat "R" (sys::decimal-string (incf counter))))
-                   (helpstring (string-concat "
-" command " = " (princ-to-string restart))))
+                    (string-concat ":R" (sys::decimal-string (incf counter))))
+                   (name (string (restart-name restart)))
+                   (helpstring (format nil "~%~A~15T~A~24T~A" name command
+                                       (princ-to-string restart)))
+                   (restart restart)  ; for FUNC
+                   (func #'(lambda () (invoke-restart-interactively restart))))
               ;; display the restarts:
               (when interactive-p
                 (write-string helpstring *debug-io*))
               (push helpstring commandsr)
               ;; put it into the commandsr list.
-              (push
-               (cons command
-                     (let ((restart restart))
-                       #'(lambda () (invoke-restart-interactively restart))))
-               commandsr)))
+              (push (cons command func) commandsr)
+              (push (cons name func) commandsr)))
           (terpri *debug-io*)
           (setq commandsr (cons (string-concat (string #\Newline) restarts-help)
                                 (nreverse commandsr)))))))
