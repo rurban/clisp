@@ -1,5 +1,5 @@
 %define	name	ffcall
-%define	version	1.8
+%define	version	1.9
 %define	release	1
 %define	serial	1
 
