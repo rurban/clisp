@@ -1,3 +1,7 @@
+2004-11-22  Sam Steingold  <sds@gnu.org>
+
+	* setf.tst (foo22): quote (values)
+
 2004-11-22  Bruno Haible  <bruno@clisp.org>
 
 	* setf.tst: Don't use the symbol 'foo' in too many contexts.
