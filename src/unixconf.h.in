@@ -340,8 +340,6 @@
 /* CL_MKDIR */
 /* Define as const if the declaration of mkdir() needs const. */
 #define MKDIR_CONST
-/* Define as the type of `mode' in mkdir(), open() declaration. */
-#undef MODE_T
 
 /* CL_RMDIR */
 /* Define as const if the declaration of rmdir() needs const. */
