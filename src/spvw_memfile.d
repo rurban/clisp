@@ -851,10 +851,10 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     #define READ(buf,len)                                               \
       do {                                                              \
         begin_system_call();                                            \
-        { var sintL ergebnis = full_read(handle,(void*)buf,len);        \
+        { var ssize_t ergebnis = full_read(handle,(void*)buf,len);      \
           end_system_call();                                            \
           if (ergebnis<0) goto abort1;                                  \
-          if (ergebnis != (sintL)(len)) goto abort2;                    \
+          if (ergebnis != (ssize_t)(len)) goto abort2;                  \
           inc_file_offset(len);                                         \
         }                                                               \
       } while(0)
