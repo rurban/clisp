@@ -3062,6 +3062,11 @@ for-value   NIL or T
                  (go reexpand)))))))
     (values form expanded-p)))
 
+;; check whether the form is a '(LAMBDA ...)
+(proclaim '(inline lambda-form-p))
+(defun lambda-form-p (form)
+  (and (consp form) (eq (car form) 'LAMBDA) (consp (cdr form))))
+
 ;; compiles a form.
 ;; No code is generated, if no values are needed and the form
 ;; does not produce side effects.
@@ -3120,7 +3125,7 @@ for-value   NIL or T
                      ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
                      (c-LOCAL-FUNCTION-CALL fun f3 (cdr *form*)))
                     (t (compiler-error 'c-form))))))
-            (if (and (consp fun) (eq (car fun) 'LAMBDA))
+            (if (lambda-form-p fun)
               (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
               #| not: (c-LAMBDA-FUNCTION-CALL fun (cdr *form*)) |#
               (c-error (ENGLISH "Not the name of a function: ~S")
@@ -4495,7 +4500,7 @@ for-value   NIL or T
 (defun inline-callable-function-lambda-p (form n &optional (more nil))
   (let ((funname (function-form-funform form)))
     ;; funname must be (LAMBDA lambdalist ...)
-    (and (consp funname) (eq (first funname) 'LAMBDA) (consp (cdr funname))
+    (and (lambda-form-p funname)
          (let ((lambdalist (second funname)))
            ;; lambdalist must be a list, with no &KEYs
            ;; (functions with &KEYs cannot be expanded INLINE, since these
@@ -4946,6 +4951,7 @@ for-value   NIL or T
         L))))
 
 ;; add 1 stack slot for closure dummy
+(proclaim '(inline closuredummy-add-stack-slot))
 (defun closuredummy-add-stack-slot (closurevars closuredummy-stackz
                                     closuredummy-venvc)
   (when closurevars
@@ -6203,8 +6209,7 @@ for-value   NIL or T
                           name)
                  (compiler-error 'c-FUNCTION))))))
       (let ((funname (car (last *form*))))
-        (if (and (consp funname) (eq (car funname) 'LAMBDA)
-                 (consp (cdr funname)))
+        (if (lambda-form-p funname)
           (let* ((*no-code* (or *no-code* (null *for-value*)))
                  (fnode
                    (c-lambdabody
