@@ -1,5 +1,9 @@
 2003-06-19  Sam Steingold  <sds@gnu.org>
 
+	* type.lisp (canonicalize-type): canonicalize (VECTOR NIL) correctly
+
+2003-06-19  Sam Steingold  <sds@gnu.org>
+
 	added (SETF WEAK-POINTER-VALUE)
 	* spvw_garcol.d (gar_col_normal): when the value of the weak
 	pointer is GC-invariant, remove it from O(all_weakpointers)

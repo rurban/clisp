@@ -384,6 +384,8 @@ NIL
 (multiple-value-list (subtypep 'vector 'atom)) (t t)
 (multiple-value-list (subtypep nil nil))     (t t)
 (multiple-value-list (subtypep 'extended-char 'character))     (t t)
+;; yuk!!!
+;;(multiple-value-list (subtypep '(vector nil) 'string)) (T T)
 #+(and CLISP FFI)
 (multiple-value-list (subtypep 'ffi:foreign-function 'function))
 #+(and CLISP FFI)
