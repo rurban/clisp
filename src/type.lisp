@@ -206,7 +206,12 @@
   #-BASE-CHAR=CHARACTER
   (lambda (x) (and (characterp x) (base-char-p x)))
 )
-(def-atomic-type BASE-STRING stringp)
+(def-atomic-type BASE-STRING
+  (lambda (x)
+    (and (stringp x)
+         (eq (array-element-type x)
+             #+BASE-CHAR=CHARACTER 'CHARACTER #-BASE-CHAR=CHARACTER 'BASE-CHAR
+) ) )    )
 (def-atomic-type BIGNUM
   (lambda (x) (and (integerp x) (not (fixnump x))))
 )
@@ -257,7 +262,12 @@
 (def-atomic-type SEQUENCE sequencep)
 (def-atomic-type SHORT-FLOAT short-float-p)
 (def-atomic-type SIMPLE-ARRAY simple-array-p)
-(def-atomic-type SIMPLE-BASE-STRING simple-string-p)
+(def-atomic-type SIMPLE-BASE-STRING
+  (lambda (x)
+    (and (simple-string-p x)
+         (eq (array-element-type x)
+             #+BASE-CHAR=CHARACTER 'CHARACTER #-BASE-CHAR=CHARACTER 'BASE-CHAR
+) ) )    )
 (def-atomic-type SIMPLE-BIT-VECTOR simple-bit-vector-p)
 (def-atomic-type SIMPLE-STRING simple-string-p)
 (def-atomic-type SIMPLE-VECTOR simple-vector-p)
