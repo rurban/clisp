@@ -13269,20 +13269,20 @@ extern bool namestring_correctly_parseable_p (gcv_object_t *path_);
 extern object assume_dir_exists (void);
 # is used by STREAM
 
-# Converts a directory pathname to an OS directory specification.
-# > pathname: an object
-# > use_default: whether to use the current default directory
-# < result: a simple-bit-vector containing an ASCIZ string in OS format
-# can trigger GC
+/* Converts a directory pathname to an OS directory specification.
+ > pathname: an object
+ > use_default: whether to use the current default directory
+ < result: a simple-bit-vector containing an ASCIZ string in OS format
+ can trigger GC */
 extern object pathname_to_OSdir (object pathname, bool use_default);
-# used by I18N
+/* used by modules (I18N) */
 
-# Converts an OS directory specification to a directory pathname.
-# > path: a pathname referring to a directory
-# < result: a pathname without name and type
-# can trigger GC
+/* Converts an OS directory specification to a directory pathname.
+ > path: a pathname referring to a directory
+ < result: a pathname without name and type
+ can trigger GC */
 extern object OSdir_to_pathname (const char* path);
-# used by I18N
+/* used by modules (I18N) */
 
 # UP: Initializes the pathname-system.
 # init_pathnames();

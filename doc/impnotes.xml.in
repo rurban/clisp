@@ -21,6 +21,7 @@
   <!ENTITY berkeley-db SYSTEM "../modules/berkeley-db/berkeley-db.xml">
   <!ENTITY oracle SYSTEM "../modules/oracle/oracle.xml">
   <!ENTITY fastcgi SYSTEM "../modules/fastcgi/fastcgi.xml">
+  <!ENTITY i18n SYSTEM "../modules/i18n/i18n.xml">
   <!ENTITY netica SYSTEM "../modules/netica/netica.xml">
   <!ENTITY matlab SYSTEM "../modules/matlab/matlab.xml">
   <!ENTITY regexp SYSTEM "../modules/regexp/regexp.xml">

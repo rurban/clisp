@@ -271,6 +271,10 @@ Modules
   compression and uncompression of vectors.
   See <http://clisp.cons.org/impnotes.html#zlib> for details.
 
+* New module i18n now contains the GNU gettext interface as well as
+  other functionality for Lisp program internationalization.
+  See <http://clisp.cons.org/impnotes.html#i18n-mod> for details.
+
 * Module syscalls now exports functions POSIX:CRYPT, POSIX:ENCRYPT,
   POSIX:SETKEY, POSIX:SET-FILE-STAT, POSIX:CONVERT-MODE, POSIX:UMASK,
   POSIX:MKNOD.
@@ -656,6 +660,7 @@ User visible changes
 * Command line interface: allow multiple -x options.
   New options -repl <http://clisp.cons.org/clisp.html#opt-repl>
   and -v (--verbose) <http://clisp.cons.org/clisp.html#opt-verbose>.
+
 
 2.30 (2002-09-15)
 =================
