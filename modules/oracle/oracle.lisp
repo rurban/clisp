@@ -748,7 +748,7 @@ Argument: none
     (cond ((null val) nil)
           ((find dtype '("NUMBER" "INTEGER" "FLOAT") :test #'equal)
            (read-from-string val))
-          ((find dtype '("VARCHAR" "DATE" "CHAR" "VARCHAR2" "LONG" "RAW" "LONG RAW") :test #'equal)
+          ((find dtype '("VARCHAR" "DATE" "CHAR" "VARCHAR2" "LONG" "RAW" "LONG RAW" "BLOB" "CLOB" "BFILE") :test #'equal)
            val)
           (t (db-error (cat "Unsupported data type '" dtype "'"))))))
 
