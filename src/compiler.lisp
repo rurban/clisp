@@ -2787,11 +2787,12 @@ for-value   NIL or T
 
 (defun current-function ()
   (and (boundp '*func*) (fnode-p *func*) (fnode-name *func*)))
-
+;; check whether we are now defining FUN (maybe defining some internals)
+(defun defining-p (fun)
+  (member `(SYS::IN-DEFUN ,fun) *denv* :test #'equal))
 ;; check whether we are now inside the DEFUN FUN
 (defun in-defun-p (fun)
-  (and (equal fun (current-function))
-       (member `(SYS::IN-DEFUN ,fun) *denv* :test #'equal)))
+  (and (equal fun (current-function)) (defining-p fun)))
 
 (defvar *warning-count*)
 ;;; (C-WARN format-control-string . args)
@@ -4230,7 +4231,7 @@ for-value   NIL or T
         (if kf
           (match-known-unknown-functions uf kf)
           (push uf *unknown-functions*)))
-      (unless (in-defun-p name)
+      (unless (defining-p name)
         (c-warn (TEXT "Function ~s is not defined") name))))
   (when (memq name *deprecated-functions-list*)
     (if *compiling-from-file*
