@@ -246,9 +246,9 @@ interpreter compiler
   end-of-file                   ; vermeide Konflikt mit init.lsp, user2.lsp
   ; Typen für error-of-type:
   condition warning serious-condition error storage-condition type-error
-  program-error control-error package-error print-not-readable stream-error
-  end-of-file file-error cell-error unbound-variable undefined-function
-  arithmetic-error division-by-zero floating-point-overflow
+  program-error control-error package-error print-not-readable parse-error
+  stream-error end-of-file reader-error file-error cell-error unbound-variable
+  undefined-function arithmetic-error division-by-zero floating-point-overflow
   floating-point-underflow floating-point-inexact
   floating-point-invalid-operation
 ))
