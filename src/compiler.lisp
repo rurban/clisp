@@ -1230,12 +1230,6 @@ for-value   NIL or T
                                (list 'do (var-name var)))))))
     (values k n m)))
 
-(define-compiler-macro ext:special-variable-p (var &optional env &whole form)
-  (case env
-    ((nil) form)                ; no env ==> decline
-    ((t) (eq 'special (sys::venv-search (eval var))))
-    (otherwise (%uncompilable form))))
-
 ;;;;****             CONSTANT   MANAGEMENT
 
 ;; A Constant is a Box with the value of the Constant:
