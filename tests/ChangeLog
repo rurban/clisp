@@ -1,3 +1,8 @@
+2003-02-04  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (run-all-tests) [CLISP, FFI]: run "ffi"
+	* ffi.tst: new test file for the CLISP FFI
+
 2002-12-19  Sam Steingold  <sds@gnu.org>
 
 	* streamslong.tst: removed CLISP-specific binary i/o tests
