@@ -776,7 +776,7 @@
 2001-07-10  Sam Steingold  <sds@gnu.org>
 
 	replaced chartcopy with memcpy
-	compilation time of compile.lisp went down 3.76%
+	compilation time of compiler.lisp went down 3.76%
 	fixed bug #438486
 	* charstrg.d (chartcopy): removed
 	* lispbibl.d (chartcopy): defined to expand to memcpy()
@@ -7592,7 +7592,7 @@
 	   space-tabulate): Moved here from user2.lsp.
 	* savemem.lsp: New file.
 	(%saveinitmem, saveinitmem): Moved here from user2.lsp.
-	* compile.lsp (*toplevel-environment*, *toplevel-denv*, eval-env):
+	* compiler.lsp (*toplevel-environment*, *toplevel-denv*, eval-env):
 	  Moved here from user1.lsp.
 	* conditio.lsp (break): Integrate with non-CLCS code from user1.lsp.
 	(*break-on-warnings*, batchmode-break-driver): Moved here from
