@@ -10,6 +10,8 @@ User visible changes
 
 * ANSI CL compliance: more conformant pathname handling.
 
+* Fixed handling of circular structs and pointers to functions in the FFI.
+
 2.26 (2001-05-23)
 =================
 
