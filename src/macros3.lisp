@@ -47,12 +47,10 @@
 ; (LETF (((VALUES-LIST A) form)) ...)
 ;   --> (LET ((A (MULTIPLE-VALUE-LIST form))) ...)
 
-(defmacro LETF* (bindlist &body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-      (SYSTEM::PARSE-BODY body nil env)
+(defmacro LETF* (bindlist &body body)
+  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     (let ((declare (if declarations `((DECLARE ,@declarations)) '())))
-      (values (expand-LETF* bindlist declare body-rest))
-) ) )
+      (values (expand-LETF* bindlist declare body-rest)))))
 
 ; expandiert ein LETF*, liefert die Expansion und
 ; T, falls diese Expansion mit einem LET* anfängt, dessen Bindungsliste
@@ -145,9 +143,8 @@
             ) ) )
 ) ) ) ) ) )
 
-(defmacro LETF (bindlist &body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-      (SYSTEM::PARSE-BODY body nil env)
+(defmacro LETF (bindlist &body body)
+  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     (let ((declare (if declarations `((DECLARE ,@declarations)) '()))
           (let-list nil))
       (multiple-value-bind (let*-list let/let*-list uwp-store1 uwp-store2)

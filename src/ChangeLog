@@ -1,5 +1,12 @@
 2003-12-05  Sam Steingold  <sds@gnu.org>
 
+	* control.d (PARSE-BODY): do not macroexpand anything as per ANSI
+	CL (see also patch 2003-02-14); use parse_dd() for all the work;
+	do not accept ENV argument
+	* subr.d (parse_body): ditto
+	* clos.lisp, compiler.lisp, defmacro.lisp, defs1.lisp:
+	* defs2.lisp, format.lisp, init.lisp, macros1.lisp, macros2.lisp:
+	* macros3.lisp, places.lisp: do not pass ENV to PARSE-BODY
 	* eval.d (parse_dd): do not accept ENV args (not used since 2003-02-14)
 	(get_closure): do not pass ENV to parse_dd()
 	* control.d (LET, LET*, LOCALLY, SYMBOL-MACROLET)

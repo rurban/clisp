@@ -436,9 +436,8 @@
 ;; exactly one argument.
 (defmacro defformat-simple (name (stream colon atsign .
                                          optionals-with-defaults)
-                            (arg) &body body
-                            &environment env)
-  (multiple-value-bind (body-rest declarations) (sys::parse-body body nil env)
+                            (arg) &body body)
+  (multiple-value-bind (body-rest declarations) (sys::parse-body body)
     (let ((name2 (concat-pnames "DO-" name)) ; in #<PACKAGE SYSTEM>
           (optionals (mapcar #'(lambda (opt) (if (consp opt) (first opt) opt))
                              optionals-with-defaults)))

@@ -8,10 +8,9 @@
 
 ;; Import from CONTROL.D:
 
-#| (SYSTEM::PARSE-BODY body &optional docstring-allowed env)
-   expands the first forms in the form list body (in the macro-expansion
-   environment env), detects occurring declarations (and if
-   docstring-allowed=T, also a docstring) and returns three values:
+#| (SYSTEM::PARSE-BODY body &optional docstring-allowed)
+   detects occurring declarations (and if docstring-allowed=T,
+   also a docstring) and returns three values:
    1. body-rest, the remaining forms
    2. declspec-list, a list of declspecs that appeared
    3. docstring, a docstring that appeared, or NIL
@@ -420,8 +419,7 @@ the actual object #<MACRO expander> for the FENV.
   (let ((name (car macrodef))
         (lambdalist (cadr macrodef))
         (body (cddr macrodef)))
-    (multiple-value-bind (body-rest declarations docstring)
-        (parse-body body t) ; global environment!
+    (multiple-value-bind (body-rest declarations docstring) (parse-body body t)
       (if declarations (setq declarations
                              (list (cons 'DECLARE declarations))))
       (multiple-value-bind (newlambdalist envvar)

@@ -2254,83 +2254,21 @@ LISPFUNNR(function_name_p,1)
   VALUES_IF(funnamep(arg));
 }
 
-LISPFUN(parse_body,seclass_default,1,2,norest,nokey,0,NIL)
-{ /* (SYS::PARSE-BODY body [docstring-allowed [env]])
+LISPFUN(parse_body,seclass_default,1,1,norest,nokey,0,NIL)
+{ /* (SYS::PARSE-BODY body [docstring-allowed])
  parses body, recognizes declarations, returns three values:
  1. body-rest, all forms after the declarations,
  2. list of occurred declspecs
  3. docstring (only if docstring-allowed=T ) or NIL.
- (docstring-allowed should be = NIL or T ,
-  env should be a function-environment.) */
-  test_env();
-  var bool docstring_allowed = !missingp(STACK_1);
-  var object body = STACK_2; /* body = ({decl|doc} {form}) */
-  STACK_1 = NIL; /* There was no doc-string, yet */
-  pushSTACK(NIL); /* Start decl-spec-list */
-  /* stack layout: body, docstring, env, declspecs. */
-  while (consp(body)) {
-    pushSTACK(body); /* save body */
-    var object form = Car(body); /* next form */
-    /* poss. macroexpand (without expanding FSUBRs, symbols): */
-    do {
-      var object env = STACK_(1+1);
-      macroexp(form,TheSvector(env)->data[0],TheSvector(env)->data[1]);
-      form = value1;
-    } while (!nullp(value2));
-    body = popSTACK();
-    var object body_rest = Cdr(body); /* shorten body */
-    if (stringp(form)) { /* doc-string found? */
-      if (atomp(body_rest)) /* at last position of the form list? */
-        goto fertig; /* yes -> last form cannot be a doc-string! */
-      if (!docstring_allowed) { /* no doc-string allowed? */
-        pushSTACK(STACK_3); /* whole body */
-        fehler(source_program_error,
-               GETTEXT("no doc-strings allowed here: ~"));
-      }
-      if (!nullp(STACK_2)) { /* has there already been a doc-string? */
-        /* yes -> more than one doc-string is too many: */
-        pushSTACK(STACK_3); /* whole body */
-        fehler(source_program_error,
-               GETTEXT("Too many documentation strings in ~"));
-      }
-      STACK_2 = form; /* new doc-string */
-      body = body_rest;
-    } else if (consp(form) && eq(Car(form),S(declare))) { /* (DECLARE ...) ? */
-      /* cons new decl-specs to STACK_0 one at a time: */
-      pushSTACK(body_rest); /* save body_rest */
-      pushSTACK(Cdr(form)); /* list of new decl-specs */
-      while (mconsp(STACK_0)) {
-        /* cons this declaration to STACK_(0+2) : */
-        var object new_cons = allocate_cons();
-        Car(new_cons) = Car(STACK_0);
-        Cdr(new_cons) = STACK_(0+2);
-        STACK_(0+2) = new_cons;
-        /* go to next decl-spec: */
-        STACK_0 = Cdr(STACK_0);
-      }
-      skipSTACK(1);
-      body = popSTACK(); /* body := old body_rest */
-    } else {
-     fertig: /* done with looping through the form list */
-    #if 0
-      /* good idea in the interpreter, but the compiler is hampered,
-         because then it cannot compile CASE and HANDLER-BIND so well. */
-      if (!eq(form,Car(body))) { /* if the form was expanded, */
-        /* replace body with (cons form (cdr body)) : */
-        pushSTACK(body_rest); pushSTACK(form);
-        body = allocate_cons();
-        Car(body) = popSTACK(); /* form */
-        Cdr(body) = popSTACK(); /* body_rest */
-      }
-     #endif
-      break;
-    }
+ (docstring-allowed should be = NIL or T) */
+  parse_dd(STACK_1/*body*/);
+  if (missingp(STACK_0) && !nullp(value3)) { /* doc forbidden but found */
+    pushSTACK(STACK_1); /* whole body */
+    fehler(source_program_error,GETTEXT("no doc-strings allowed here: ~"));
   }
-  /* 3 values: ({form}), declspecs, doc */
-  VALUES3(body,
-          nreverse(STACK_0), /* decl-spec-list */
-          STACK_2); /* doc-string */
-  skipSTACK(4);
+  /* got 3 values from parse_dd(): ({form}), declspecs, doc */
+  mv_count = 3;
+  skipSTACK(2);
 }
 
 LISPFUNN(keyword_test,2)

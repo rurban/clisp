@@ -336,7 +336,7 @@
 (defsetf slot-value set-slot-value)
 
 ;; WITH-SLOTS
-(defmacro with-slots (slot-entries instance-form &body body &environment env)
+(defmacro with-slots (slot-entries instance-form &body body)
   (let ((vars '())
         (slots '()))
     (unless (listp slot-entries)
@@ -361,8 +361,7 @@
             'with-slots slot))
         (push var vars)
         (push slot slots)))
-    (multiple-value-bind (body-rest declarations)
-        (sys::parse-body body nil env)
+    (multiple-value-bind (body-rest declarations) (sys::parse-body body)
       (let ((instance-var (gensym)))
         `(LET ((,instance-var ,instance-form))
            (SYMBOL-MACROLET
@@ -373,8 +372,7 @@
              ,@body-rest))))))
 
 ;; WITH-ACCESSORS
-(defmacro with-accessors (slot-entries instance-form &body body
-                          &environment env)
+(defmacro with-accessors (slot-entries instance-form &body body)
   (unless (listp slot-entries)
     (error-of-type 'sys::source-program-error
       (TEXT "~S: not a list of slots: ~S")
@@ -392,7 +390,7 @@
       (error-of-type 'sys::source-program-error
         (TEXT "~S: accessor name ~S should be a symbol")
         'with-accessors (second slot-entry))))
-  (multiple-value-bind (body-rest declarations) (sys::parse-body body nil env)
+  (multiple-value-bind (body-rest declarations) (sys::parse-body body)
     (let ((instance-var (gensym)))
       `(LET ((,instance-var ,instance-form))
          (SYMBOL-MACROLET
@@ -1521,6 +1519,7 @@
 ;; description: (qualifier* spec-lambda-list {declaration|docstring}* form*)
 ;; ==> method-building-form
 (defun analyze-method-description (caller funname description env)
+  (declare (ignore env))
   (let ((qualifiers nil))
     (loop
       (when (atom description)
@@ -1601,7 +1600,7 @@
                  (compile nil)
                  (lambdabody
                    (multiple-value-bind (body-rest declarations docstring)
-                       (sys::parse-body body t env)
+                       (sys::parse-body body t)
                      (declare (ignore docstring))
                      (setq compile (member '(COMPILE) declarations :test #'equal))
                      (when ignorable-req-vars
