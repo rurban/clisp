@@ -1,3 +1,19 @@
+1998-08-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * places.lsp: Fix German and French messages, broken by last patch.
+          (define-setf-expander, get-setf-expansion): Change format of
+          SYSTEM::SETF-EXPANDER property list entry. Don't call
+          FUNCTION-SIGNATURE.
+          (PUSH): Rewrite. Do not call COPY-TREE.
+          (POP): Rewrite. Do not call COPY-TREE. Be sure to fetch the CARs
+          before the CDRs.
+          (PUSHNEW): Rewrite. Do not call COPY-TREE.
+          (SETF): Don't nreverse bindlist.
+          (SHIFTF, ROTATEF): Don't call NREVERSE on some unknown piece of code.
+          (SETF THE): Fix totally broken code.
+        * defs3.lsp: Don't export `get-setf-method',
+          `get-setf-method-multiple-value', `define-setf-method' any more.
+
 1998-07-29  Sam Steingold  <sds@goems.com>
 
         Implemented ANSI CL issue SETF-MULTIPLE-STORE-VARIABLES:ALLOW:
