@@ -2018,11 +2018,15 @@ else
 fi
 # DOS echo just echoes all of its argument buffer.
 # Things to beware are only "echo on" and "echo off".
+# Do not touch cflags.h when the changes to Makefile do not modify it.
+# Cost: maybe a few extra "echo"s on each make
+# Benefit: lispinit.mem is not re-dumped when we add something to MODULES
 echol "cflags.h : Makefile"
-echotab "echo $ARGQ/* generated from Makefile */$ARGQ > cflags.h"
+echotab "echo $ARGQ/* generated from Makefile */$ARGQ > cflags.h.new"
 for x in CC CFLAGS CPP CPPLAGS CLFLAGS LIBS X_LIBS; do
-  echotab "echo $ARGQ#define $x \"\$($x)\"$ARGQ >> cflags.h"
+  echotab "echo $ARGQ#define $x \"\$($x)\"$ARGQ >> cflags.h.new"
 done
+echotab 'if cmp cflags.h.new cflags.h 2>&1 > /dev/null; then ${RM} cflags.h.new; else ${MV} cflags.h.new cflags.h; fi'
 echol
 
 UTILS=''
