@@ -292,13 +292,13 @@ if test -n "$do_config"; then
     export CC
   fi
   if test -z "$INPLACE"; then
-    # Create subdirectories for: readline newreadline newnewreadline gettext termcap,
+    # Create subdirectories for: oldoldreadline oldreadline readline gettext termcap,
     # and fill them.
-    # - readline, termcap: Because the Makefile carefully uses $(srcdir), only
+    # - oldoldreadline, termcap: Because the Makefile carefully uses $(srcdir), only
     #   a few files need to be linked over.
-    # - newreadline, newnewreadline, gettext: The Makefiles use VPATH=$(srcdir),
+    # - oldreadline, readline, gettext: The Makefiles use VPATH=$(srcdir),
     #   which is not portable, hence all files need to be linked over.
-    for subdir in readline newreadline newnewreadline gettext termcap
+    for subdir in oldoldreadline oldreadline readline gettext termcap
     do
       if [ -d src/$subdir ] ; then
         if [ ! -d $ABS_DIRNAME/$subdir ] ; then
@@ -306,8 +306,8 @@ if test -n "$do_config"; then
         fi
       fi
     done
-    for f in readline/doc readline/examples \
-             newreadline newnewreadline newnewreadline/doc newnewreadline/examples newnewreadline/support \
+    for f in oldoldreadline/doc oldoldreadline/examples \
+             oldreadline readline readline/doc readline/examples readline/support \
              gettext gettext/intl gettext/po
     do
       if [ -d src/$f ] ; then
@@ -325,7 +325,7 @@ if test -n "$do_config"; then
       fi
     done
     for f in configure unixconf.h.in makemake.in VERSION \
-             readline/configure readline/config.h.in readline/Makefile.in \
+             oldoldreadline/configure oldoldreadline/config.h.in oldoldreadline/Makefile.in \
              termcap/configure termcap/Makefile.in
     do
       if [ -f src/$f ] ; then
@@ -393,7 +393,7 @@ if test -n "$do_config"; then
   done
   # Prepare the configure files.
   chmod a+x $ABS_DIRNAME/configure
-  for subdir in readline newreadline newnewreadline avcall callback sigsegv; do
+  for subdir in oldoldreadline oldreadline readline avcall callback sigsegv; do
     if test -d $ABS_DIRNAME/$subdir; then
       chmod a+x $ABS_DIRNAME/$subdir/configure
     fi
@@ -407,16 +407,16 @@ if test -n "$do_config"; then
     subdir_srcdir_args="--srcdir=$REL_SRCDIR/src"
   fi
   ${CONFIG_SHELL-/bin/sh} configure $subdir_srcdir_args $subdir_configure_args
-  for subdir in readline newreadline newnewreadline gettext; do
+  for subdir in oldoldreadline oldreadline readline gettext; do
     if test -d $subdir; then
       echo "executing $DIRNAME/$subdir/configure ..."
       cd $subdir
-      if test -n "$INPLACE" -o $subdir = newreadline -o $subdir = newnewreadline -o $subdir = gettext; then
+      if test -n "$INPLACE" -o $subdir = oldreadline -o $subdir = readline -o $subdir = gettext; then
         subdir_srcdir_args=''
       else
         subdir_srcdir_args="--srcdir=$RREL_SRCDIR/src/$subdir"
       fi
-      if test $subdir = newnewreadline; then
+      if test $subdir = readline; then
         subdir_cache_args=''
       else
         subdir_cache_args="--cache-file=../config.cache"
@@ -457,11 +457,11 @@ else
   if test -d $ABS_DIRNAME/readline; then
     makemake_args="$makemake_args --with-readline"
   else
-    if test -d $ABS_DIRNAME/newreadline; then
-      makemake_args="$makemake_args --with-newreadline"
+    if test -d $ABS_DIRNAME/oldreadline; then
+      makemake_args="$makemake_args --with-oldreadline"
     else
-      if test -d $ABS_DIRNAME/newnewreadline; then
-        makemake_args="$makemake_args --with-newnewreadline"
+      if test -d $ABS_DIRNAME/oldoldreadline; then
+        makemake_args="$makemake_args --with-oldoldreadline"
       else
         makemake_args="$makemake_args --with-noreadline"
       fi
