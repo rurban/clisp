@@ -1401,15 +1401,11 @@ int main()
     #endif
     printf(" - (aint)&symbol_tab < sizeof(symbol_tab))) return true; else return false; }\n");
   #endif
- #ifdef UNICODE
-  printf("#ifndef UNICODE\n#define REMEMBER_TO_KILL_UNICODE\n#define UNICODE\n#endif\n");
- #endif
-  printf("#define LISPOBJ  LISPOBJ_A\n");
-  printf("extern struct object_tab_ {\n #include \"constobj.c\"\n} object_tab;\n");
-  printf("#undef LISPOBJ\n");
- #ifdef UNICODE
-  printf("#ifdef REMEMBER_TO_KILL_UNICODE\n#undef UNICODE\n#undef REMEMBER_TO_KILL_UNICODE\n#endif\n");
- #endif
+  printf("extern struct object_tab_ {\n");
+  #define LISPOBJ(name,init)  printf("  gcv_object_t %s;\n",STRING(name));
+  #include "constobj.c"
+  #undef LISPOBJ
+  printf("} object_tab;\n");
   printf("#define GLO(name)  (object_tab.name)\n");
   printf("extern uintC module_count;\n");
   printf("typedef struct { const char* packname; const char* symname; } subr_initdata_t;\n");

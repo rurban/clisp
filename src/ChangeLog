@@ -1,6 +1,12 @@
+2003-09-09  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (constobj): include at compile time (like subr &
+	constsym), not at "run time" (clisp.h does not include constobj)
+	Reported by Fred Cohen <fc@all.net>
+
 2003-09-09  Bruno Haible  <bruno@clisp.org>
 
-	* unix,d (nonintr_open): Add const to first argument.
+	* unix.d (nonintr_open): Add const to first argument.
 	* unixaux.d (nonintr_open): Likewise.
 
 2003-09-05  Sam Steingold  <sds@gnu.org>
