@@ -1,5 +1,13 @@
 2004-09-18  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (SYS::WRITE-UNREADABLE): Emit leading or trailing space if
+	*PRINT-UNREADABLE-ANSI* is true.
+	* misc.d (SYS::SET-ANSI): Set *PRINT-UNREADABLE-ANSI* too.
+	* spvw.d (init_symbol_values): Initialize *PRINT-UNREADABLE-ANSI*.
+	* places.lisp (*ansi*): Mention *PRINT-UNREADABLE-ANSI*.
+
+2004-09-18  Bruno Haible  <bruno@clisp.org>
+
 	* io.d (pr_array): If *PRINT-READABLY* is true, ignore
 	*PRINT-EMPTY-ARRAYS-ANSI*.
 
