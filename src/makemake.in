@@ -1643,7 +1643,7 @@ if [ $TSYS = win32msvc ] ; then
   echol '!endif'
   echol
 fi
-if p ${TSYS} = win32gcc ]; then
+if [ ${TSYS} = win32gcc ]; then
   echol "PATH=/bin:."
   echol
 fi
