@@ -3545,7 +3545,7 @@ struct bar my_struct = {10.0, 20.5, 0.0};
 
 double test_dll(struct bar *ptr)
 {
-  return ptr->out = ptr->out + ptr->x + ptr->y;
+  return ptr-&gt;out = ptr-&gt;out + ptr-&gt;x + ptr-&gt;y;
 }
 </programlisting></para>
 
