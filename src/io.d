@@ -2339,6 +2339,10 @@ local object read_delimited_list(const gcv_object_t* stream_, object endch,
     ergebnis = read_delimited_list_recursive(stream_,endch,ifdotted);
     dynamic_unbind(S(read_recursive_p));
   }
+  # ANSI CL spec of *READ-SUPPRESS* says that if *READ-SUPPRESS* is true,
+  # READ-DELIMITED-LIST must return NIL.
+  if (!nullpSv(read_suppress)) /* *READ-SUPPRESS* /= NIL ? */
+    ergebnis = NIL;
   if (terminal_read_open_object_bind)
     dynamic_unbind(S(terminal_read_open_object));
   dynamic_unbind(S(read_line_number));
