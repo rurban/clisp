@@ -1973,7 +1973,7 @@ LISPFUNN(coerce,2)
       result_type = Cdr(result_type);
       var object rtype = Car(result_type); /* type of Re */
       var object itype = /* type of Im, defaults to rtype */
-        (mconsp(Cdr(result_type)) ? Car(Cdr(result_type)) : rtype);
+        (mconsp(Cdr(result_type)) ? (object)Car(Cdr(result_type)) : rtype);
       pushSTACK(rtype); pushSTACK(itype);
       /* get Re and coerce to rtype: */
       pushSTACK(STACK_(1+2)); funcall(L(realpart),1);

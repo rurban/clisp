@@ -1021,47 +1021,52 @@ local inline void symlink_file (char* old_pathstring, char* new_pathstring) {
 # > logical: flag = logpathnamep(pathname)
 # < result: the value of the requested component
 #if HAS_HOST
-#define pathname_host_maybe(obj) ThePathname(obj)->pathname_host
+#define pathname_host_maybe(obj) (object)ThePathname(obj)->pathname_host
 #else
 #define pathname_host_maybe(obj) (unused(obj), NIL)
 #endif
 #if HAS_DEVICE
-#define pathname_device_maybe(obj) ThePathname(obj)->pathname_device
+#define pathname_device_maybe(obj) (object)ThePathname(obj)->pathname_device
 #else
 #define pathname_device_maybe(obj) (unused(obj), NIL)
 #endif
 #if HAS_VERSION
-#define pathname_version_maybe(obj) ThePathname(obj)->pathname_version
+#define pathname_version_maybe(obj) (object)ThePathname(obj)->pathname_version
 #else
 #define pathname_version_maybe(obj) (unused(obj), NIL)
 #endif
 
 #ifdef LOGICAL_PATHNAMES
 #define xpathname_host(logical,pathname)                       \
-  (logical ? TheLogpathname(pathname)->pathname_host :         \
+  (logical ? (object)TheLogpathname(pathname)->pathname_host : \
              pathname_host_maybe(pathname))
-#define xpathname_device(logical,pathname)                  \
+#define xpathname_device(logical,pathname)  \
   (logical ? NIL : pathname_device_maybe(pathname))
-#define xpathname_directory(logical,pathname)               \
-  (logical ? TheLogpathname(pathname)->pathname_directory : \
-                ThePathname(pathname)->pathname_directory)
-#define xpathname_name(logical,pathname)                    \
-  (logical ? TheLogpathname(pathname)->pathname_name : \
-                ThePathname(pathname)->pathname_name)
-#define xpathname_type(logical,pathname)                    \
-  (logical ? TheLogpathname(pathname)->pathname_type : \
-                ThePathname(pathname)->pathname_type)
-#define xpathname_version(logical,pathname)                 \
-  (logical ? TheLogpathname(pathname)->pathname_version : \
+#define xpathname_directory(logical,pathname)                       \
+  (logical ? (object)TheLogpathname(pathname)->pathname_directory : \
+                (object)ThePathname(pathname)->pathname_directory)
+#define xpathname_name(logical,pathname)                       \
+  (logical ? (object)TheLogpathname(pathname)->pathname_name : \
+                (object)ThePathname(pathname)->pathname_name)
+#define xpathname_type(logical,pathname)                       \
+  (logical ? (object)TheLogpathname(pathname)->pathname_type : \
+                (object)ThePathname(pathname)->pathname_type)
+#define xpathname_version(logical,pathname)                       \
+  (logical ? (object)TheLogpathname(pathname)->pathname_version : \
              pathname_version_maybe(pathname))
 #else # no logical pathnames
-#define xpathname_host(logical,pathname) pathname_host_maybe(pathname)
-#define xpathname_device(logical,pathname) pathname_device_maybe(pathname)
+#define xpathname_host(logical,pathname) \
+  pathname_host_maybe(pathname)
+#define xpathname_device(logical,pathname) \
+  pathname_device_maybe(pathname)
 #define xpathname_directory(logical,pathname) \
   ThePathname(pathname)->pathname_directory
-#define xpathname_name(logical,pathname) ThePathname(pathname)->pathname_name
-#define xpathname_type(logical,pathname) ThePathname(pathname)->pathname_type
-#define xpathname_version(logical,pathname) pathname_version_maybe(pathname)
+#define xpathname_name(logical,pathname) \
+  ThePathname(pathname)->pathname_name
+#define xpathname_type(logical,pathname) \
+  ThePathname(pathname)->pathname_type
+#define xpathname_version(logical,pathname) \
+  pathname_version_maybe(pathname)
 #endif
 
 #define SUBST_RECURSE(atom_form,self_call)                      \
@@ -1841,8 +1846,8 @@ local bool logical_host_p (object host) {
 
 #endif
 
-#define string2wild(str) (equal(str,O(wild_string)) ? S(Kwild) : str)
-#define wild2string(obj)    (eq(obj,S(Kwild)) ? O(wild_string) : obj)
+#define string2wild(str)  (equal(str,O(wild_string)) ? S(Kwild) : (object)(str))
+#define wild2string(obj)  (eq(obj,S(Kwild)) ? (object)O(wild_string) : (obj))
 
 #ifdef PATHNAME_NOEXT
 # auxiliary function for PARSE-NAMESTRING:
@@ -3625,12 +3630,12 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild))) {
   var bool wildp = !missingp(STACK_0);
   skipSTACK(1);
 
-#define SPECIFIED(obj)                           \
-    !(called_from_make_pathname ? !boundp(obj) : \
+#define SPECIFIED(obj)                                  \
+    !(called_from_make_pathname ? !boundp(obj) :     \
       (wildp ? eq(obj,S(Kwild)) : nullp(obj)))
 #define NAMETYPE_MATCH(acc,slot)                                           \
     { var object tmp = x##slot(p_log,p);                                   \
-      acc(newp)->slot = (SPECIFIED(tmp) ? tmp : x##slot(d_log,d));         \
+      acc(newp)->slot = (SPECIFIED(tmp) ? tmp : (object)x##slot(d_log,d)); \
     }
 
   # check pathname (STACK_2) and defaults (STACK_1):
@@ -4474,7 +4479,7 @@ LISPFUN(make_logical_pathname,0,0,norest,key,8,
   # enforces a logical pathname as result.
   var object obj = allocate_logpathname();
   TheLogpathname(obj)->pathname_host =
-    (boundp(STACK_5) ? STACK_5 : NIL);
+    (boundp(STACK_5) ? (object)STACK_5 : NIL);
   STACK_5 = obj;
   # continue at MAKE-PATHNAME.
   C_make_pathname();
@@ -5397,7 +5402,7 @@ local void version_diff (object pattern, object sample, bool logical,
   if (logical) {
     if (nullp(pattern) || eq(pattern,S(Kwild))) {
       var object string =
-        (eq(sample,S(Kwild)) ? O(wild_string) :
+        (eq(sample,S(Kwild)) ? (object)O(wild_string) :
          integerp(sample) ? decimal_string(sample) # (SYS::DECIMAL-STRING sample)
          : NIL);
       push_solution_with(string);
@@ -5579,7 +5584,7 @@ local object translate_nametype_aux (gcv_object_t* subst, object pattern,
   if (eq(pattern,S(Kwild)) && mconsp(*subst)) {
     if (TRIVIAL_P(Car(*subst))) {
       var object erg = Car(*subst); *subst = Cdr(*subst);
-      return (nullp(erg) ? O(empty_string) : erg);
+      return (nullp(erg) ? (object)O(empty_string) : erg);
     } else
       return nullobj;
   }
@@ -5613,7 +5618,7 @@ local object translate_nametype_aux (gcv_object_t* subst, object pattern,
       # replace wildcard:
       if (TRIVIAL_P(Car(*subst))) {
         var object s = Car(*subst);
-        pushSTACK(nullp(s) ? O(empty_string) : s);
+        pushSTACK(nullp(s) ? (object)O(empty_string) : s);
         *subst = Cdr(*subst); stringcount++;
       } else {
         skipSTACK(stringcount+1); return nullobj;

@@ -1164,7 +1164,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
                       # found
                       # replace *ptr = obj = (car acons) with (cdr acons) ,
                       # but leave the mark bit untouched:
-                      *ptr = (marked(ptr) ? with_mark_bit(Cdr(acons)) : Cdr(acons));
+                      *ptr = (marked(ptr) ? with_mark_bit(Cdr(acons)) : (object)Cdr(acons));
                       return;
                     }
                     alist = Cdr(alist);
@@ -1530,7 +1530,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
                       # found
                       # replace *ptr = obj = (car acons) with (cdr acons) ,
                       # but leave the mark bit untouched:
-                      *ptr = (marked(ptr) ? with_mark_bit(Cdr(acons)) : Cdr(acons));
+                      *ptr = (marked(ptr) ? with_mark_bit(Cdr(acons)) : (object)Cdr(acons));
                       return;
                     }
                     alist = Cdr(alist);

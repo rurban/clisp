@@ -1218,7 +1218,7 @@ LISPFUNN(numerator,1)
   {
     var object x = popSTACK();
     check_rational(x);
-    VALUES1(RA_integerp(x) ? x : TheRatio(x)->rt_num);
+    VALUES1(RA_integerp(x) ? x : (object)TheRatio(x)->rt_num);
   }
 
 LISPFUNN(denominator,1)
@@ -1226,7 +1226,7 @@ LISPFUNN(denominator,1)
   {
     var object x = popSTACK();
     check_rational(x);
-    VALUES1(RA_integerp(x) ? Fixnum_1 : TheRatio(x)->rt_den);
+    VALUES1(RA_integerp(x) ? Fixnum_1 : (object)TheRatio(x)->rt_den);
   }
 
 LISPFUN(floor,1,1,norest,nokey,0,NIL)

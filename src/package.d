@@ -2760,7 +2760,7 @@ LISPFUNN(package_iterate,1) {
             index--;
             /* check index as a precaution */
             entry = (index < posfixnum_to_L(Symtab_size(symtab))
-                     ? TheSvector(Symtab_table(symtab))->data[index]
+                     ? (object)TheSvector(Symtab_table(symtab))->data[index]
                      : NIL);
             goto search3;
           }

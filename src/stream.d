@@ -859,17 +859,17 @@ nonreturning_function(local, fehler_bad_integer, (object stream, object obj)) {
 
 # barf if the object is not a stream
 #define check_stream(obj) \
-  (streamp(obj) ? (obj) : (fehler_stream(obj),NIL))
+  (streamp(obj) ? (object)(obj) : (fehler_stream(obj),unbound))
 # barf if the object is not a stream of the specific type
 #define check_streamtype(obj,type)                                        \
   if (!streamp(obj)) fehler_stream(obj); else fehler_streamtype(obj,type)
 # barf if the object is not a built-in stream
 #define check_builtin_stream(obj)                               \
   (builtin_stream_p(obj) ? (obj)                                \
-   : (fehler_streamtype(obj,O(type_builtin_stream)), NIL))
+   : (fehler_streamtype(obj,O(type_builtin_stream)), unbound))
 # barf of the object is not an integer
 #define check_wr_int(stream,obj)                                \
-  (integerp(obj) ? (obj) : (fehler_wr_integer(stream,obj),NIL))
+  (integerp(obj) ? (object)(obj) : (fehler_wr_integer(stream,obj),unbound))
 
 # UP: checks, if Arguments are Streams.
 # test_stream_args(args_pointer,argcount);
@@ -968,7 +968,7 @@ nonreturning_function(local, fehler_output_stream, (object stream)) {
 #define get_synonym_stream(sym)                 \
     (!streamp(Symbol_value(sym))                \
      ? (fehler_value_stream(sym), unbound)      \
-     : Symbol_value(sym))
+     : (object)Symbol_value(sym))
 
 # Macro: resolve the synonym stream
 #define resolve_as_synonym(stream)                              \
@@ -5899,7 +5899,7 @@ typedef struct strm_i_buffered_extrafields_t {
 
 #define Truename_or_Self(stream)                                  \
  (nullp(TheStream(stream)->strm_file_truename) ? (object)stream : \
-  TheStream(stream)->strm_file_truename)
+  (object)TheStream(stream)->strm_file_truename)
 
 #define ChannelStream_ihandle(obj)                                      \
   TheHandle(ChannelStream_buffered(obj) ? BufferedStream_channel(obj)   \
@@ -14881,7 +14881,7 @@ local void stream_handles (object obj, bool check_open, bool* char_p,
 # return the number of handles set
 local uintL handle_set (object socket, fd_set *readfds, fd_set *writefds,
                         fd_set *errorfds) {
-  object sock = (consp(socket) ? Car(socket) : socket);
+  object sock = (consp(socket) ? (object)Car(socket) : socket);
   direction_t dir = (consp(socket)?check_direction(Cdr(socket)):DIRECTION_IO);
   SOCKET in_sock = INVALID_SOCKET, out_sock = INVALID_SOCKET;
   uintL ret = 0;
@@ -14907,7 +14907,7 @@ local uintL handle_set (object socket, fd_set *readfds, fd_set *writefds,
 # can trigger GC
 local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
                            fd_set *errorfds) {
-  object sock = (consp(socket) ? Car(socket) : socket);
+  object sock = (consp(socket) ? (object)Car(socket) : socket);
   direction_t dir = (consp(socket)?check_direction(Cdr(socket)):DIRECTION_IO);
   SOCKET in_sock = INVALID_SOCKET, out_sock = INVALID_SOCKET;
   bool char_p = true, rd = false, wr = false;
@@ -15345,7 +15345,7 @@ local int previous_line_virtual (int count, int key) {
                     (stream_twoway_p(tio_s)                             \
                      && !terminal_stream_p                              \
                            (TheStream(tio_s)->strm_twoway_##direction)) \
-                    ? TheStream(tio_s)->strm_twoway_##direction         \
+                    ? (object)TheStream(tio_s)->strm_twoway_##direction \
                     : !nullp(syn_str) ? syn_str                         \
                     : make_synonym_stream(S(terminal_io)));             \
     return Symbol_value(S(standard_##direction));                       \

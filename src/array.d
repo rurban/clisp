@@ -1791,17 +1791,17 @@ local Values bit_up (bit_op_fun* op)
     var uintL index1 = 0; /* index in data vector of bit-array1 */
     var object array1 = /* data vector of bit-array1 */
       (simple_bit_vector_p(Atype_Bit,STACK_2)
-       ? STACK_2
+       ? (object)STACK_2
        : iarray_displace_check(STACK_2,len,&index1));
     var uintL index2 = 0; /* index in data vector of bit-array2 */
     var object array2 = /* data vector of bit-array2 */
       (simple_bit_vector_p(Atype_Bit,STACK_1)
-       ? STACK_1
+       ? (object)STACK_1
        : iarray_displace_check(STACK_1,len,&index2));
     var uintL index3 = 0; /* index in data vector of bit-array3 */
     var object array3 = /* data vector of bit-array3 */
       (simple_bit_vector_p(Atype_Bit,STACK_0)
-       ? STACK_0
+       ? (object)STACK_0
        : iarray_displace_check(STACK_0,len,&index3));
     /* Go ahead: */
     bit_op(array1,index1,array2,index2,array3,index3,op,len);
