@@ -1,5 +1,10 @@
 2004-03-12  Bruno Haible  <bruno@clisp.org>
 
+	* modules/wildcard/Makefile.in (FNMATCH_H): New variable.
+	(wildcard.o): Depend on it.
+
+2004-03-12  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (txt, genclisph, clisp-test-lispbibl): Add ${LIBS} to the
 	link command line. Needed on NetBSD, BeOS, Woe32 with gettext >= 0.13
 	installed, because lispbibl.d include "gettext.h" which can remap
