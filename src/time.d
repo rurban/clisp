@@ -325,7 +325,7 @@
           # conclusions from it.)
           end_system_call();
          {var internal_time real_time;
-          get_real_time(&real_time)
+          get_real_time(&real_time);
           sub_internal_time(real_time,realstart_time, *runtime);
         }}
     }
