@@ -2123,10 +2123,12 @@ else
 fi
 echol
 for parf in ${PARAMS}; do
-  echol "${parf}.h : ${SRCDIR}${parf}.c"
-  echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${SRCDIR}${parf}.c" "${parf}"
+  echol "${parf}.h : ${SRCDIR}${parf}.c unixconf.h"
+  echotab "echo '#include \"unixconf.h\"' > ${parf}.c"
+  echotab "cat '${SRCDIR}${parf}.c' >> ${parf}.c"
+  echotab_to_HEXE "\$(CC)" "${parf}.c" "${parf}"
   echotab "${HERE}${parf}${HEXE} > ${parf}.h"
-  echotab "\$(RM) ${parf}${HEXE}"
+  echotab "\$(RM) ${parf}${HEXE} ${parf}.c"
   echol
 done
 if [ $XCC_UNUSABLE_CPP = true ] ; then
