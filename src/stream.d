@@ -13741,146 +13741,15 @@ LISPFUNN(make_printer_stream,0)
 
   #define UnbufferedPipeStream_input_init(stream)  UnbufferedHandleStream_input_init(stream)
 
+# helper function
+local void make_pipe_stream (int in);
+
 LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
         (kw(element_type),kw(external_format),kw(buffered)) )
 # (MAKE-PIPE-INPUT-STREAM command [:element-type] [:external-format] [:buffered])
 # ruft eine Shell auf, die command ausführt, wobei deren Standard-Output
 # in unsere Pipe hinein geht.
-  { var object command;
-    var decoded_eltype eltype;
-    var signean buffered;
-    # command überprüfen:
-    pushSTACK(STACK_3); funcall(L(string),1); # (STRING command)
-    STACK_3 = value1;
-    # Check and canonicalize the :BUFFERED argument:
-    buffered = test_buffered_arg(STACK_0); # default is NIL
-    # Check and canonicalize the :ELEMENT-TYPE argument:
-    test_eltype_arg(&STACK_2,&eltype);
-    STACK_2 = canon_eltype(&eltype);
-    if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
-    # Check and canonicalize the :EXTERNAL-FORMAT argument:
-    STACK_1 = test_external_format_arg(STACK_1);
-    # Now create the pipe.
-    command = string_to_asciz(STACK_3,O(misc_encoding)); # command als ASCIZ-String
-   {var int child;
-    #ifdef EMUNIX
-    var int handles[2];
-    { begin_system_call();
-     {var FILE* f = popen(TheAsciz(command),"r");
-      if (f==NULL) { OS_error(); }
-      child = f->_pid;
-      handles[0] = fileno(f);
-      end_system_call();
-    }}
-    #endif
-    #ifdef UNIX
-    var int handles[2]; # zwei Handles für die Pipe
-    { # Als Shell nehmen wir immer die Kommando-Shell.
-      # command in den Stack kopieren:
-      var uintL command_length = Sbvector_length(command)/8;
-      var DYNAMIC_ARRAY(command_data,char,command_length);
-      { var const char* ptr1 = TheAsciz(command);
-        var char* ptr2 = &command_data[0];
-        dotimespL(command_length,command_length, { *ptr2++ = *ptr1++; } );
-      }
-      begin_system_call();
-      # Pipe aufbauen:
-      if (!( pipe(handles) ==0))
-        { FREE_DYNAMIC_ARRAY(command_data); OS_error(); }
-      # Alles, was in handles[1] reingeschoben wird, kommt bei handles[0]
-      # wieder raus. Wir werden dies so benutzen:
-      #
-      #       write            system            read
-      # child  ->   handles[1]   ->   handles[0]  ->  parent
-      #
-      # einen neuen Prozess starten:
-      if ((child = vfork()) ==0)
-        # Dieses Programmstück wird vom Child-Prozess ausgeführt:
-        { if ( dup2(handles[1],stdout_handle) >=0) # Standard-Output umleiten
-            if ( CLOSE(handles[1]) ==0) # Wir wollen nur über stdout_handle schreiben
-              if ( CLOSE(handles[0]) ==0) # Wir wollen von der Pipe nicht lesen
-                # (Muss das dem Betriebssystem sagen, damit - wenn der Child
-                # die Pipe gefüllt hat - der Parent-Prozess und nicht etwa der
-                # Child-Prozess aufgerufen wird, um die Pipe zu leeren.)
-                { # Child-Prozess zum Hintergrundprozess machen:
-                  SETSID(); # er bekommt eine eigene Process Group
-                  execl(SHELL,            # Shell aufrufen
-                        SHELL,            # =: argv[0]
-                        "-c",             # =: argv[1]
-                        &command_data[0], # =: argv[2]
-                        NULL
-                       );
-                }
-          _exit(-1); # sollte dies misslingen, Child-Prozess beenden
-        }
-      # Dieses Programmstück wird wieder vom Aufrufer ausgeführt:
-      if (child==-1)
-        # Etwas ist misslungen, entweder beim vfork oder beim execl.
-        # In beiden Fällen wurde errno gesetzt.
-        { var int saved_errno = errno;
-          CLOSE(handles[1]); CLOSE(handles[0]);
-          FREE_DYNAMIC_ARRAY(command_data);
-          errno = saved_errno; OS_error();
-        }
-      # Wir wollen von der Pipe nur lesen, nicht schreiben:
-      if (!( CLOSE(handles[1]) ==0))
-        { var int saved_errno = errno;
-          CLOSE(handles[0]);
-          FREE_DYNAMIC_ARRAY(command_data);
-          errno = saved_errno; OS_error();
-        }
-      # (Muss das dem Betriebssystem sagen, damit - wenn der Parent-Prozess
-      # die Pipe geleert hat - der Child-Prozess und nicht etwa der
-      # Parent-Prozess aufgerufen wird, um die Pipe wieder zu füllen.)
-      end_system_call();
-      FREE_DYNAMIC_ARRAY(command_data);
-    }
-    #endif
-    #ifdef WIN32_NATIVE
-    var Handle handles[2]; # zwei Handles für die Pipe
-    begin_system_call();
-    { var Handle child_write_handle;
-      # Create a pipe and make one of the two handles inheritable.
-      if (!CreatePipe(&handles[0],&handles[1],NULL,0)) { OS_error(); }
-      if (!DuplicateHandle(GetCurrentProcess(),handles[1],
-                           GetCurrentProcess(),&child_write_handle,
-                           0, TRUE, DUPLICATE_SAME_ACCESS))
-        { OS_error(); }
-      if (!CloseHandle(handles[1])) { OS_error(); }
-     {var HANDLE stdinput;
-      var PROCESS_INFORMATION pinfo;
-      stdinput = GetStdHandle(STD_INPUT_HANDLE);
-      if (stdinput == INVALID_HANDLE_VALUE) { OS_error(); }
-      if (!MyCreateProcess(TheAsciz(command),stdinput,child_write_handle,&pinfo))
-        { OS_error(); }
-      # Close our copy of the child's handle, so that the OS knows
-      # that we won't write on it.
-      if (!CloseHandle(child_write_handle)) { OS_error(); }
-      if (!CloseHandle(pinfo.hThread)) { OS_error(); }
-      if (!CloseHandle(pinfo.hProcess)) { OS_error(); }
-      child = pinfo.dwProcessId;
-    }}
-    end_system_call();
-    #endif
-    pushSTACK(UL_to_I(child));
-    pushSTACK(STACK_(1+1));
-    pushSTACK(STACK_(2+2));
-    pushSTACK(allocate_handle(handles[0]));
-    # Stream allozieren:
-    { var object stream;
-      if (!eq(STACK_(0+4),T)) # (buffered <= 0) ?
-        { stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,FALSE);
-          UnbufferedPipeStream_input_init(stream);
-        }
-        else
-        { stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,FALSE,FALSE);
-          BufferedPipeStream_init(stream);
-        }
-      ChannelStreamLow_close(stream) = &low_close_pipe;
-      TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
-      skipSTACK(4);
-      value1 = stream; mv_count=1; # stream als Wert
-  }}}
+  { make_pipe_stream (TRUE); }
 
 
 # Pipe-Output-Stream
@@ -13968,6 +13837,10 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
 # (MAKE-PIPE-OUTPUT-STREAM command [:element-type] [:external-format] [:buffered])
 # ruft eine Shell auf, die command ausführt, wobei unsere Pipe in deren
 # Standard-Input hinein geht.
+  { make_pipe_stream (FALSE); }
+
+local void make_pipe_stream(in)
+  var int in;
   { var object command;
     var decoded_eltype eltype;
     var signean buffered;
@@ -13988,10 +13861,10 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
     #ifdef EMUNIX
     var int handles[2];
     { begin_system_call();
-     {var FILE* f = popen(TheAsciz(command),"w");
+     {var FILE* f = popen(TheAsciz(command),in?"r":"w");
       if (f==NULL) { OS_error(); }
       child = f->_pid;
-      handles[1] = fileno(f);
+      handles[in?0:1] = fileno(f);
       end_system_call();
     }}
     #endif
@@ -14006,23 +13879,24 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
         dotimespL(command_length,command_length, { *ptr2++ = *ptr1++; } );
       }
       begin_system_call();
+      # Pipe aufbauen:
       if (!( pipe(handles) ==0))
         { FREE_DYNAMIC_ARRAY(command_data); OS_error(); }
       # Alles, was in handles[1] reingeschoben wird, kommt bei handles[0]
       # wieder raus. Wir werden dies so benutzen:
       #
-      #        write            system            read
+      #       write            system            read
+      # input pipe:
+      # child  ->   handles[1]   ->   handles[0]  ->  parent
+      # output pipe:
       # parent  ->   handles[1]   ->   handles[0]  ->  child
       #
       # einen neuen Prozess starten:
       if ((child = vfork()) ==0)
         # Dieses Programmstück wird vom Child-Prozess ausgeführt:
-        { if ( dup2(handles[0],stdin_handle) >=0) # Standard-Input umleiten
-            if ( CLOSE(handles[0]) ==0) # Wir wollen nur über stdin_handle lesen
-              if ( CLOSE(handles[1]) ==0) # Wir wollen auf die Pipe nicht schreiben
-                # (Muss das dem Betriebssystem sagen, damit - wenn der Child
-                # die Pipe geleert hat - der Parent-Prozess und nicht etwa der
-                # Child-Prozess aufgerufen wird, um die Pipe zu wieder zu füllen.)
+        { if ( dup2(handles[in?1:0],in?stdout_handle:stdin_handle) >=0)
+            if ( CLOSE(handles[in?1:0]) ==0)
+              if ( CLOSE(handles[in?0:1]) ==0)
                 { # Child-Prozess zum Hintergrundprozess machen:
                   SETSID(); # er bekommt eine eigene Process Group
                   execl(SHELL,            # Shell aufrufen
@@ -14043,16 +13917,12 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
           FREE_DYNAMIC_ARRAY(command_data);
           errno = saved_errno; OS_error();
         }
-      # Wir wollen auf die Pipe nur schreiben, nicht lesen:
-      if (!( CLOSE(handles[0]) ==0))
+      if (!( CLOSE(handles[in?1:0]) ==0))
         { var int saved_errno = errno;
-          CLOSE(handles[1]);
+          CLOSE(handles[in?0:1]);
           FREE_DYNAMIC_ARRAY(command_data);
           errno = saved_errno; OS_error();
         }
-      # (Muss das dem Betriebssystem sagen, damit - wenn der Parent-Prozess
-      # die Pipe gefüllt hat - der Child-Prozess und nicht etwa der
-      # Parent-Prozess aufgerufen wird, um die Pipe wieder zu leeren.)
       end_system_call();
       FREE_DYNAMIC_ARRAY(command_data);
     }
@@ -14060,23 +13930,23 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
     #ifdef WIN32_NATIVE
     var Handle handles[2]; # zwei Handles für die Pipe
     begin_system_call();
-    { var Handle child_read_handle;
+    { var Handle child_handle;
       # Create a pipe and make one of the two handles inheritable.
       if (!CreatePipe(&handles[0],&handles[1],NULL,0)) { OS_error(); }
-      if (!DuplicateHandle(GetCurrentProcess(),handles[0],
-                           GetCurrentProcess(),&child_read_handle,
+      if (!DuplicateHandle(GetCurrentProcess(),handles[in?1:0],
+                           GetCurrentProcess(),&child_handle,
                            0, TRUE, DUPLICATE_SAME_ACCESS))
         { OS_error(); }
-      if (!CloseHandle(handles[0])) { OS_error(); }
-     {var HANDLE stdoutput;
+      if (!CloseHandle(handles[in?1:0])) { OS_error(); }
+     {var HANDLE stdi_o;
       var PROCESS_INFORMATION pinfo;
-      stdoutput = GetStdHandle(STD_OUTPUT_HANDLE);
-      if (stdoutput == INVALID_HANDLE_VALUE) { OS_error(); }
-      if (!MyCreateProcess(TheAsciz(command),child_read_handle,stdoutput,&pinfo))
+      stdi_o = GetStdHandle(in? STD_INPUT_HANDLE : STD_OUTPUT_HANDLE);
+      if (stdi_o == INVALID_HANDLE_VALUE) { OS_error(); }
+      if (!MyCreateProcess(TheAsciz(command),stdi_o,child_handle,&pinfo))
         { OS_error(); }
       # Close our copy of the child's handle, so that the OS knows
-      # that we won't read from it.
-      if (!CloseHandle(child_read_handle)) { OS_error(); }
+      # that we won't write to/read from it.
+      if (!CloseHandle(child_handle)) { OS_error(); }
       if (!CloseHandle(pinfo.hThread)) { OS_error(); }
       if (!CloseHandle(pinfo.hProcess)) { OS_error(); }
       child = pinfo.dwProcessId;
@@ -14086,17 +13956,26 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
     pushSTACK(UL_to_I(child));
     pushSTACK(STACK_(1+1));
     pushSTACK(STACK_(2+2));
-    pushSTACK(allocate_handle(handles[1]));
+    pushSTACK(allocate_handle(handles[in?0:1]));
     # Stream allozieren:
     { var object stream;
-      if (!eq(STACK_(0+4),T)) # (buffered <= 0) ?
-        { stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,FALSE);
+      if (!eq(STACK_(0+4),T)) { # (buffered <= 0) ?
+        if (in) {
+          stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,FALSE);
+          UnbufferedPipeStream_input_init(stream);
+        } else {
+          stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,FALSE);
           UnbufferedPipeStream_output_init(stream);
         }
+      } else {
+        if (in)
+           stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,
+                                         FALSE,FALSE);
         else
-        { stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,FALSE,FALSE);
+           stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,
+                                         FALSE,FALSE);
           BufferedPipeStream_init(stream);
-        }
+      }
       ChannelStreamLow_close(stream) = &low_close_pipe;
       TheStream(stream)->strm_pipe_pid = popSTACK(); # Child-Pid
       skipSTACK(4);
