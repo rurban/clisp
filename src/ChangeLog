@@ -11,6 +11,7 @@
 	((setf compiler-macro-function)): CHECK-FUNCTION-NAME is now a macro
 	* documentation.lisp (documentation): ditto
 	* trace.lisp (check-traceable): ditto
+	* functions.lisp (check-function-name): removed
 
 2004-08-19  Sam Steingold  <sds@gnu.org>
 
