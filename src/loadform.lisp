@@ -9,8 +9,7 @@
 (defun make-load-form-saving-slots
     (object &key environment
      (slot-names (mapcan (lambda (slot)
-                           (when (eq :instance
-                                     (slotdef-allocation slot))
+                           (when (eq :instance (slotdef-allocation slot))
                              (list (slotdef-name slot))))
                          (class-slots (class-of object)))))
   (declare (ignore environment))
