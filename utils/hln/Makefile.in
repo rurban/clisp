@@ -67,64 +67,64 @@ hln : ln.o version.o libfu.a
 	$(CC) $(LDFLAGS) -o $@ ln.o version.o libfu.a $(LIBS)
 
 alloca.o : $(srcdir)/alloca.c
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/alloca.c
 
 argmatch.o : $(srcdir)/argmatch.c
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/argmatch.c
 
 backupfile.o : $(srcdir)/backupfile.c $(srcdir)/backupfile.h
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/backupfile.c
 
 basename.o : $(srcdir)/basename.c
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/basename.c
 
 dirname.o : $(srcdir)/dirname.c
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/dirname.c
 
 error.o : $(srcdir)/error.c
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/error.c
 
 getopt.o : $(srcdir)/getopt.c $(srcdir)/getopt.h
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/getopt.c
 
 getopt1.o : $(srcdir)/getopt1.c $(srcdir)/getopt.h
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/getopt1.c
 
 getversion.o : $(srcdir)/getversion.c $(srcdir)/backupfile.h
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/getversion.c
 
 isdir.o : $(srcdir)/isdir.c $(srcdir)/safe-stat.h
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/isdir.c
 
 ln.o : $(srcdir)/ln.c $(srcdir)/system.h $(srcdir)/pathmax.h $(srcdir)/backupfile.h $(srcdir)/version.h $(srcdir)/safe-lstat.h $(srcdir)/safe-stat.h
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/ln.c
 
 realpath.o : $(srcdir)/realpath.c $(srcdir)/system.h $(srcdir)/pathmax.h
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/realpath.c
 
 resolve.o : $(srcdir)/resolve.c $(srcdir)/system.h $(srcdir)/pathmax.h
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/resolve.c
 
 safe-lstat.o : $(srcdir)/safe-lstat.c $(srcdir)/safe-lstat.h $(srcdir)/safe-stat.h
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/safe-lstat.c
 
 safe-stat.o : $(srcdir)/safe-stat.c $(srcdir)/safe-stat.h
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/safe-stat.c
 
 stpcpy.o : $(srcdir)/stpcpy.c
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/stpcpy.c
 
 stripslash.o : $(srcdir)/stripslash.c
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/stripslash.c
 
 version.o : $(srcdir)/version.c $(srcdir)/version.h
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/version.c
 
 xmalloc.o : $(srcdir)/xmalloc.c
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/xmalloc.c
 
 yesno.o : $(srcdir)/yesno.c
-	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $<
+	$(CC) -c $(CPPFLAGS) $(DEFS) -I. -I$(srcdir) $(CFLAGS) $(srcdir)/yesno.c
 
 
 installdirs:
