@@ -1,5 +1,13 @@
 2002-04-12  Sam Steingold  <sds@gnu.org>
 
+	*BROWSERS* and *BROWSER* are in CUSTOM, as advertised
+	* init.lisp (*browser*, *browsers*): export from CUSTOM
+	* clhs.lisp (*browser*, *browsers*): docstrings
+	* cfgamiga.lisp, cfgdos.lisp, cfgsunux.lisp, cfgunix.lisp:
+	* cfgwin32.lisp, cfgacorn.lisp: suggest customizing *BROWSER*
+
+2002-04-12  Sam Steingold  <sds@gnu.org>
+
 	* time.d (DELTA4): work with up to 64-bit return values
 	* lispbibl.d, intelem.d (UL2_to_I): define always
 
