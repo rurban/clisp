@@ -729,7 +729,9 @@
   (:return-type long))
 (def-call-out srand48 (:arguments (seedval long))
   (:return-type nil))
-(def-call-out seed48 (:arguments (seed16v (c-array ushort 3)))
+;(def-call-out seed48 (:arguments (seed16v (c-ptr (c-array ushort 3))))
+;  (:return-type (c-ptr (c-array ushort 3)) :none))
+(def-call-out seed48 (:arguments (seed16v (c-ptr (c-array ushort 3))))
   (:return-type (c-ptr ushort) :none))
 (def-call-out lcong48 (:arguments (param (c-ptr (c-array ushort 7))))
   (:return-type nil))
@@ -1809,9 +1811,6 @@
 ;;; ------------------------------ <libio.h> ---------------------------------
 
 (def-c-type _IO_pos_t _G_fpos_t)
-(def-c-var _IO_stdin_ (:type c-pointer))
-(def-c-var _IO_stdout_ (:type c-pointer))
-(def-c-var _IO_stderr_ (:type c-pointer))
 
 ; ------------------------------ <stdio.h> ------------------------------------
 
@@ -2004,7 +2003,7 @@
   (:return-type c-pointer))     ; (c-ptr DIR)?!
 (def-call-out closedir (:arguments (dirp c-pointer)) (:return-type int))
 (def-call-out readdir (:arguments (dirp c-pointer))
-  (:return-type (c-ptr dirent)))
+  (:return-type (c-ptr-null dirent)))
 (def-call-out readdir_r
     (:arguments (dirp c-pointer) (entry (c-ptr dirent) :out :alloca)
                 (result (c-ptr (c-ptr dirent)) :out :alloca)) ; ??
@@ -2024,6 +2023,7 @@
 (def-call-out scandir
     (:arguments (dir c-string)
                 (namelist (c-ptr (c-ptr (c-ptr dirent))) :out)
+                ;; select may also be NULL/NIL, which c-function accepts
                 (select (c-function (:arguments (d c-string))
                                     (:return-type boolean)))
                 (compar (c-function (:arguments (d1 (c-ptr (c-ptr dirent)))
@@ -2065,16 +2065,17 @@
 
 (def-call-out setpwent (:arguments) (:return-type nil))
 (def-call-out endpwent (:arguments) (:return-type nil))
-(def-call-out getpwent (:arguments) (:return-type (c-ptr passwd)))
+(def-call-out getpwent (:arguments) (:return-type (c-ptr-null passwd)))
 (def-call-out fgetpwent (:arguments (stream c-pointer))
-  (:return-type (c-ptr passwd)))
-(def-call-out putpwent (:arguments (c-ptr passwd) (stream c-pointer))
+  (:return-type (c-ptr-null passwd)))
+(def-call-out putpwent (:arguments (pw (c-ptr passwd)) (stream c-pointer))
   (:return-type int))
 
-(def-call-out getpwuid (:arguments (uid uid_t)) (:return-type (c-ptr passwd)))
+(def-call-out getpwuid (:arguments (uid uid_t))
+  (:return-type (c-ptr-null passwd)))
 
 (def-call-out getpwnam (:arguments (name c-string))
-  (:return-type (c-ptr passwd)))
+  (:return-type (c-ptr-null passwd)))
 
 ; ... lots of reentrant variants ...
 
@@ -2085,7 +2086,7 @@
   (gr_name c-string)
   (gr_passwd c-string)
   (gr_gid gid_t)
-  (gr_mem (c-ptr c-string)) ; ??
+  (gr_mem (c-array-ptr c-string))
 )
 
 ;(def-call-out __grpopen (:arguments) (:return-type c-pointer))
@@ -2103,18 +2104,19 @@
 
 (def-call-out setgrent (:arguments) (:return-type nil))
 (def-call-out endgrent (:arguments) (:return-type nil))
-(def-call-out getgrent (:arguments) (:return-type (c-ptr group)))
+(def-call-out getgrent (:arguments) (:return-type (c-ptr-null group)))
 (def-call-out fgetgrent (:arguments (stream c-pointer))
-  (:return-type (c-ptr group)))
+  (:return-type (c-ptr-null group)))
 (def-call-out getgrgid (:arguments (gid gid_t))
-  (:return-type (c-ptr group)))
+  (:return-type (c-ptr-null group)))
 (def-call-out getgrnam (:arguments (name c-string))
-  (:return-type (c-ptr group)))
+  (:return-type (c-ptr-null group)))
 
 ; ... lots of reentrant variants ...
 
-(def-call-out setgroups (:arguments (n size_t) (groups (c-ptr gid_t)))
-  (:return-type int))
+;(def-call-out getgroups #); varsize!
+(def-call-out setgroups (:arguments (n size_t) (groups (c-array-ptr gid_t)))
+  (:return-type int)); varsize!
 
 (def-call-out initgroups (:arguments (user c-string) (group gid_t))
   (:return-type int))
@@ -2490,7 +2492,7 @@ and SIG_IGN do anyway, by other means ... They are just sugar, really.
   (sa_handler sighandler_t)
   (sa_mask sigset_t)
   (sa_flags uint32) ; actually int but otherwise CLISP can't coerce SA_RESETHAND?!
-  (sa_restorer (c-function (:arguments) (:return-type))))
+  (sa_restorer (c-function (:arguments) (:return-type nil))))
 
 (defconstant SA_NOCLDSTOP  1)   ; Don't send SIGCHLD when children stop.
 (defconstant SA_NOCLDWAIT  2)   ; Don't create zombie on child death.
