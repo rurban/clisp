@@ -1,5 +1,10 @@
 1999-02-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (publish_host_data): If hd.truename is NULL, use
+          hd.hostname, not hd.truename.
+
+1999-02-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d: Big renaming orgy.
           (strm_ichannel): was strm_ihandle.
           (strm_ochannel): was strm_ohandle.
