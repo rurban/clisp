@@ -724,6 +724,11 @@ localized.</para>
  call &make-encoding; with the character set name (a string) as the
  <constant>:CHARSET</constant> argument.</simpara>
 
+<simpara>
+ When an &encoding; is available both as a &enc-built-in; and
+ through &iconv;, the &enc-built-in; is used, because it is more
+ efficient and available across all platforms.</simpara>
+
 <simpara>These encodings are not assigned to global variables, since
  there is no portable way to get the list of all character sets
  supported by &iconv;.</simpara>
@@ -733,13 +738,9 @@ localized.</para>
  <emphasis>program</emphasis> &iconv-u;: <command>iconv -l</command>.
  </simpara>
 
-<simpara>When an &encoding; is available both as a &enc-built-in; and
- through &iconv;, the &enc-built-in; is used, because it is more
- efficient and available across all platforms.</simpara>
-
 <simpara>The reason we use only &glibc; 2.2 or &libiconv; is
  that the other &iconv; implementations are broken in various ways and
- we do not want deal with random &clisp; crashes caused by those bugs.
+ we do not want to deal with random &clisp; crashes caused by those bugs.
  If your system supplies an &iconv; implementation which passes the
  &libiconv;'s test suite, please report that to &clisp-list; and a
  future &clisp; version will use &iconv; on your system.</simpara>
@@ -2502,8 +2503,7 @@ only.</subtitle>
 </para></listitem></varlistentry>
 
 <varlistentry id="c-type-parse">
- <term><literal role="sexp">(&parse-c-type; &ctype-r;
-   &optional-amp; &name-r;)</literal></term>
+ <term><literal role="sexp">(&parse-c-type; &ctype-r;)</literal></term>
  <term><literal role="sexp">(&deparse-c-type; &ctypei-r;)</literal></term>
  <listitem><simpara>Convert between the external (&list-t;) and internal
    (&vector-t;) &c-lang; type representations (used by &describe;).
@@ -2727,7 +2727,8 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
   role="sexp">(<replaceable>r-c-type</replaceable> (*)
   (<replaceable>a-c-type&sub-1;</replaceable>, ...))</literal>.
   Conversion between &c-lang; functions and Lisp functions
-  is transparent.</simpara></listitem></varlistentry>
+  is transparent, and &c-NULL;/&nil; is recognized and
+  accepted.</simpara></listitem></varlistentry>
 
 <varlistentry id="c-ptr"><term><literal role="type">(&c-ptr;
               &ctype-r;)</literal></term>
