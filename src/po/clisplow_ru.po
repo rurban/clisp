@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2005-02-16 23:22:37+0100\n"
+"POT-Creation-Date: 2005-03-17 17:40:58-0500\n"
 "PO-Revision-Date: 1998-09-02 19:50+0600\n"
 "Last-Translator: Arseny Slobodjuck <ampy@ich.dvo.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -42,18 +42,18 @@ msgstr "Неизвестная сигнатура SUBR: %d %d %d %d"
 msgid "module '%s' requires package %s.\n"
 msgstr "модуль `%s' требует пакета %s.\n"
 
-#: spvw.d:1580
+#: spvw.d:1581
 #, fuzzy
 msgid "is an ANSI Common Lisp."
 msgstr ""
 " - реализация ANSI Common Lisp.\n"
 "Использование:  "
 
-#: spvw.d:1582
+#: spvw.d:1583
 msgid "Usage:  "
 msgstr ""
 
-#: spvw.d:1584
+#: spvw.d:1585
 #, fuzzy
 msgid ""
 " [options] [lispfile [argument ...]]\n"
@@ -66,59 +66,59 @@ msgstr ""
 " принимает значения списка аргументов. Если файл не задан, происходит\n"
 " вход в интерактивный режим `чтение-выполнение-печать'.\n"
 
-#: spvw.d:1588
+#: spvw.d:1589
 msgid "Informative output:\n"
 msgstr "Информативный вывод:\n"
 
-#: spvw.d:1589
+#: spvw.d:1590
 msgid " -h, --help    - print this help and exit\n"
 msgstr " -h, --help    - вывод этой справки и выход\n"
 
-#: spvw.d:1590
+#: spvw.d:1591
 msgid " --version     - print the version information\n"
 msgstr " --version     - вывод информации о версии программы\n"
 
-#: spvw.d:1591
+#: spvw.d:1592
 msgid " --license     - print the licensing information\n"
 msgstr " --license     - вывод информации о лицензии\n"
 
-#: spvw.d:1592
+#: spvw.d:1593
 msgid "Memory image selection:\n"
 msgstr "Выбор файла с образом памяти:\n"
 
-#: spvw.d:1593
+#: spvw.d:1594
 msgid " -B lisplibdir - set the installation directory\n"
 msgstr " -B библ-дир   - задать директорию установки\n"
 
-#: spvw.d:1595
+#: spvw.d:1596
 msgid " -K linkingset - use this executable and memory image\n"
 msgstr " -K линк-набор - задать исполнимый файл и образ памяти\n"
 
-#: spvw.d:1597
+#: spvw.d:1598
 msgid " -M memfile    - use this memory image\n"
 msgstr " -M образ      - использовать файл образа памяти\n"
 
-#: spvw.d:1598
+#: spvw.d:1599
 msgid " -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"
 msgstr " -m размер     - размер памяти (xxxxxxxB или xxxxKB или xMB)\n"
 
-#: spvw.d:1600
+#: spvw.d:1601
 msgid " -t tmpdir     - temporary directory for memmap\n"
 msgstr " -t врем-дир   - временная директория для memmap\n"
 
-#: spvw.d:1602
+#: spvw.d:1603
 msgid "Internationalization:\n"
 msgstr "Интернационализация:\n"
 
-#: spvw.d:1603
+#: spvw.d:1604
 msgid " -L language   - set user language\n"
 msgstr " -L язык       - задать язык\n"
 
-#: spvw.d:1604
+#: spvw.d:1605
 msgid " -N nlsdir     - NLS catalog directory\n"
 msgstr " -N nlsdir     - задать каталог с NLS\n"
 
-#: spvw.d:1605
+#: spvw.d:1606
 msgid " -Edomain encoding - set encoding\n"
 msgstr ""
 " -Eтиппотока кодировка - задавать кодировки для различных типов потоков.\n"
@@ -126,11 +126,11 @@ msgstr ""
 "           Осн. кодировки: koi8-r, koi8-ru, koi8-u, CP866, CP1251,\n"
 "           ISO-8859-5. См. impnotes.\n"
 
-#: spvw.d:1606
+#: spvw.d:1607
 msgid "Interoperability:\n"
 msgstr "Взаимодействие:\n"
 
-#: spvw.d:1607
+#: spvw.d:1608
 msgid ""
 " -q, --quiet, --silent, -v, --verbose - verbosity level:\n"
 "     affects banner, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
@@ -140,143 +140,143 @@ msgstr ""
 "     приветствие, *LOAD-VERBOSE*/*COMPILE-VERBOSE*,\n"
 "     и *LOAD-PRINT*/*COMPILE-PRINT*\n"
 
-#: spvw.d:1610
+#: spvw.d:1611
 msgid " -w            - wait for a keypress after program termination\n"
 msgstr " -w            - ожидать нажатия клавиши после работы\n"
 
-#: spvw.d:1611
+#: spvw.d:1612
 msgid " -I            - be ILISP-friendly\n"
 msgstr " -I            - дружить с ILISP\n"
 
-#: spvw.d:1612
+#: spvw.d:1613
 msgid "Startup actions:\n"
 msgstr "Загрузка:\n"
 
-#: spvw.d:1613
+#: spvw.d:1614
 msgid " -ansi         - more ANSI CL compliance\n"
 msgstr " -ansi         - большее соответствие стандарту ANSI CL\n"
 
-#: spvw.d:1614
+#: spvw.d:1615
 msgid " -traditional  - traditional (undoes -ansi)\n"
 msgstr " -traditional  - традиционные установки clisp (отменяет -ansi)\n"
 
-#: spvw.d:1615
+#: spvw.d:1616
 msgid " -modern       - start in a case-sensitive lowercase-preferring package\n"
 msgstr ""
 
-#: spvw.d:1616
+#: spvw.d:1617
 msgid " -p package    - start in the package\n"
 msgstr " -p пакет      - запускаться в пакете\n"
 
-#: spvw.d:1617
+#: spvw.d:1618
 msgid " -C            - set *LOAD-COMPILING* to T\n"
 msgstr " -C            - установить *LOAD_COMPILING* в T\n"
 
-#: spvw.d:1618
+#: spvw.d:1619
 msgid " -norc         - do not load the user ~/.clisprc file\n"
 msgstr " -norc         - не грузить ~/.clisprc\n"
 
-#: spvw.d:1619
+#: spvw.d:1620
 msgid " -i file       - load initfile (can be repeated)\n"
 msgstr " -i файл       - загрузить файл инициализации (можно повторять)\n"
 
-#: spvw.d:1620
+#: spvw.d:1621
 msgid "Actions:\n"
 msgstr "Действия:\n"
 
-#: spvw.d:1621
+#: spvw.d:1622
 msgid " -c [-l] lispfile [-o outputfile] - compile LISPFILE\n"
 msgstr " -c [-l] лисп-файл [-o вых-файл] - компилировать лисп-файл\n"
 
-#: spvw.d:1622
+#: spvw.d:1623
 msgid " -x expressions - execute the expressions, then exit\n"
 msgstr " -x выражения  - выполнить выражения и завершить работу\n"
 
-#: spvw.d:1623
+#: spvw.d:1624
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr " лисп-файл [аргумент1 ...] - загрузить лисп файл и завершить работу\n"
 
-#: spvw.d:1624
+#: spvw.d:1625
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
 msgstr "Эти действия поместят CLISP в пакетный режим, если не задан\n"
 
-#: spvw.d:1625
+#: spvw.d:1626
 msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 msgstr " -interactive-debug - интерактивное взаимодействие в случае ошибок\n"
 
-#: spvw.d:1626
+#: spvw.d:1627
 msgid " -repl              - enter the interactive read-eval-print loop when done\n"
 msgstr " -repl             - по окончании войти в интерактивный цикл чтение-выполнение-печать.\n"
 
-#: spvw.d:1627
+#: spvw.d:1628
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr "По умолчанию - интерактивный цикл чтение-выполнение-печать.\n"
 
-#: spvw.d:1636
+#: spvw.d:1637
 msgid "%s: use '-h' for help"
 msgstr ""
 
-#: spvw.d:1639
+#: spvw.d:1640
 #, fuzzy
 msgid "invalid argument"
 msgstr "Неправильный аргумент"
 
-#: spvw.d:2015
+#: spvw.d:2016
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
 msgstr "Синтаксис для %s: nnnnnnn, или nnnnKB, или nMB"
 
-#: spvw.d:2020
+#: spvw.d:2021
 msgid "%s out of range"
 msgstr "%s вне диапазона"
 
-#: spvw.d:2025
+#: spvw.d:2026
 msgid "warning: %s out of range, using %u instead"
 msgstr ""
 
-#: spvw.d:2041
+#: spvw.d:2042
 msgid "memory size"
 msgstr "размер памяти"
 
-#: spvw.d:2057
+#: spvw.d:2058
 msgid "multiple -t"
 msgstr ""
 
-#: spvw.d:2077
+#: spvw.d:2078
 msgid "multiple -B"
 msgstr ""
 
-#: spvw.d:2112
+#: spvw.d:2113
 #, fuzzy
 msgid "-E requires an argument"
 msgstr "~S обязательных аргументов"
 
-#: spvw.d:2352
+#: spvw.d:2353
 msgid "-l without -c is invalid"
 msgstr ""
 
-#: spvw.d:2358
+#: spvw.d:2359
 #, fuzzy
 msgid "-x with -c is invalid"
 msgstr "~S в ~S не допускается"
 
-#: spvw.d:2363
+#: spvw.d:2364
 msgid "-x with lisp-file is invalid"
 msgstr ""
 
-#: spvw.d:2484
+#: spvw.d:2485
 #, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
 msgstr "Значение функции malloc() = %x не совместимо с typecode."
 
-#: spvw.d:2491
+#: spvw.d:2492
 msgid "Only %d bytes available."
 msgstr "Только %d байтов доступно."
 
-#: spvw.d:2731
+#: spvw.d:2732
 msgid "Could not determine the end of the SP stack!"
 msgstr "Невозможно определить конец стека SP !"
 
-#: spvw.d:3290
+#: spvw.d:3291
 msgid "%s: Not enough memory for Lisp."
 msgstr "%s: Не достаточно памяти для Лиспa."
 
