@@ -357,6 +357,12 @@ localized.</para>
    represented.</simpara></listitem></varlistentry>
 </variablelist></para>
 
+<para>Encodings are also types.  As such, they represent the set of
+ characters encodable in the character set.  In this context, the way
+ characters are translated into raw bytes is ignored, and the line
+ terminator mode is ignored as well.  &typep; and &subtypep; can be used
+ on encodings.</para>
+
 </section>
 
 <section id="charset"><title>Character Sets</title>
@@ -802,12 +808,6 @@ localized.</para>
  be used instead, or a character to be used instead.  The &unicode;
  character <keysym>#\uFFFD</keysym> can be used here only if it is
  encodable in the character set.</para>
-
-<para>Encodings are types.  As such, they represent the set of
- characters encodable in the character set.  In this context, the way
- characters are translated into raw bytes is ignored, and the line
- terminator mode is ignored as well.  &typep; and &subtypep; can be used
- on encodings.</para>
 
 </section>
 
@@ -1392,6 +1392,9 @@ N. Gray to X3J13.</para>
   </simpara></listitem></varlistentry>
 </variablelist>
 
+<para>If you are interested in weak objects, you may wish to look up weak
+&hash-table;s, see <xref linkend="make-hash"/>.</para> 
+
 </section>
 
 
@@ -1639,8 +1642,6 @@ returns two values:
 
 
 </chapter>
-
-<!-- #if defined(SCREEN) || defined(AMIGAOS) || defined(GRAPHICS) || defined(UNIX) || defined(DYNAMIC_FFI) || defined(SOCKET_STREAMS) -->
 
 <chapter id="platform">
    <title>Extensions-2: Platform specific Extensions</title>
@@ -2260,6 +2261,12 @@ only.</subtitle>
   to foreign functions expecting a parameter of &c-lang; type &c-pointer;.
  </simpara></listitem></varlistentry>
 
+<varlistentry id="c-var-object"><term><literal role="sexp">(&c-var-object;
+           &cplace-r;)</literal></term>
+<listitem><simpara>Return the &foreign-variable; object underlying the
+  &cplace-r;.  This is also an acceptable argument type to a &c-pointer;
+  declaration.</simpara></listitem></varlistentry>
+
 <varlistentry id="typeof"><term><literal role="sexp">(&typeof;
     &cplace-r;)</literal></term>
 <listitem><simpara>returns the &ctype-r; corresponding to the &cplace-r;.
@@ -2283,6 +2290,43 @@ only.</subtitle>
   &c-lang; type of &cplace-r;, measured in bits.
  </simpara></listitem></varlistentry>
 
+<varlistentry id="fa-null">
+  <term><literal role="sexp">(&foreign-address-null; &f-ent;)</literal></term>
+<listitem><simpara>This predicate returns &nil; if the
+  &f-ent; referes to the &c-NULL; address (and thus &f-ent; should
+  probably not be passed to most foreign functions).
+ </simpara></listitem></varlistentry>
+
+<varlistentry id="faddr-u">
+ <term><literal role="sexp">(&foreign-address-unsigned;
+   &f-ent;)</literal></term>
+ <term><literal role="sexp">(&unsigned-foreign-address;
+   &number-r;)</literal></term>
+ <listitem><simpara>&foreign-address-unsigned; returns the &integer-t;
+   address embodied in the Lisp object of type &foreign-address-t;,
+   &foreign-pointer-t;, &foreign-variable; or &foreign-function;.</simpara>
+  <simpara>&unsigned-foreign-address; returns a &foreign-address-t;
+   object pointing to the given &integer-t; address.
+</simpara></listitem></varlistentry>
+
+<varlistentry id="faddr">
+ <term><literal role="sexp">(&foreign-address; &f-ent;)</literal></term>
+ <listitem><simpara>&foreign-address; is both a type name and a
+   selector/constructor function. It is the Lisp object type
+   corresponding to a &c-pointer; external type declaration, e.g. a
+   call-out function with <literal role="sexp">(&ret-type-k;
+    &c-pointer;)</literal> yields a Lisp object of type
+   &foreign-address-t;.</simpara>
+  <simpara>The function extracts the object of type &foreign-address-t;
+   living within any &foreign-variable; or &foreign-function; object.
+   If the &f-ent; already is a &foreign-address-t;, it returns it.
+   If it is a &foreign-pointer-t; (e.g. a base foreign library address),
+   it encapsulates it into a &foreign-address-t; object, as suitable
+   for use with a &c-pointer; external type declaration.
+   It does not construct addresses out of &number-t;s,
+   &unsigned-foreign-address; must be used for that purpose.
+</simpara></listitem></varlistentry>
+
 <varlistentry id="validp">
   <term><literal role="sexp">(&validp; &f-ent;)</literal></term>
   <term><literal role="sexp">(&setf; (&validp; &f-ent;)
@@ -2297,43 +2341,6 @@ only.</subtitle>
   You cannot resurrect a zombie, nor can you kill a non-foreign
   object.</simpara></listitem></varlistentry>
 
-<varlistentry id="fa-null">
-  <term><literal role="sexp">(&foreign-address-null; &f-ent;)</literal></term>
-<listitem><simpara>This predicate returns &nil; if the
-  &f-ent; referes to the &c-NULL; address (and thus &f-ent; should
-  probably not be passed to most foreign functions).
- </simpara></listitem></varlistentry>
-
-<varlistentry id="faddr">
- <term><literal role="sexp">(&foreign-address; &f-ent;)</literal></term>
- <listitem><simpara>&foreign-address; is both a type name and a
-   selector/constructor function. It is the Lisp object type
-   corresponding to a &c-pointer; external type declaration, i.e. a
-   call-out function with <literal role="sexp">(&ret-type-k;
-    &c-pointer;)</literal> yields a Lisp object of type
-   &foreign-address-t;.</simpara>
-  <simpara>The function extracts the object of type &foreign-address-t;
-   living within any &foreign-variable; or &foreign-function; object.
-   If the &f-ent; already is a &foreign-address-t;, it returns it.
-   If it is a &foreign-pointer-t; (e.g. a base foreign library address),
-   it encapsulates it into a &foreign-address-t; object, as suitable
-   for use with a &c-pointer; external type declaration.
-   It does not construct addresses out of &number-t;s,
-   &unsigned-foreign-address; must be used for that purpose.
-</simpara></listitem></varlistentry>
-
-<varlistentry id="faddr-u">
- <term><literal role="sexp">(&foreign-address-unsigned;
-   &f-ent;)</literal></term>
- <term><literal role="sexp">(&unsigned-foreign-address;
-   &number-r;)</literal></term>
- <listitem><simpara>&foreign-address-unsigned; returns the &integer-t;
-   address embodied in the Lisp object of type &foreign-address-t;,
-   &foreign-pointer-t;, &foreign-variable; or &foreign-function;.</simpara>
-  <simpara>&unsigned-foreign-address; returns a &foreign-address-t;
-   object pointing to the given &integer-t; address.
-</simpara></listitem></varlistentry>
-
 <varlistentry id="fptr">
  <term><literal role="sexp">(&foreign-pointer; &f-ent;)</literal></term>
  <term><literal role="sexp">(&setf; (&foreign-pointer; &f-ent;)
@@ -2343,9 +2350,11 @@ only.</subtitle>
    &foreign-pointer-t;, &foreign-variable; or &foreign-function;.</simpara>
   <simpara><literal role="sexp">(&setf; &foreign-pointer;)</literal>
    changes the &foreign-pointer-t; associated with the Lisp object of
-   type &foreign-address-t;, &foreign-variable; or &foreign-function;.
+   type &foreign-address-t;, &foreign-variable; or &foreign-function; to that
+   of the other entity.
    When &f-ptr; is &copy-k;, a fresh &foreign-pointer-t; is allocated.
-   &f-ent; still points to the same object.
+   &f-ent; still points to the same object. This is particularly useful with
+  <literal role="sexp">(&setf; &validp;)</literal>.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="foreign-stack">
@@ -2461,7 +2470,7 @@ only.</subtitle>
   <simpara>If given a &foreign-function; object that corresponds to a
    &clisp; callback, deallocates it.  Callbacks are automatically
    created each time you pass a Lisp function via the &ffi-pac;.</simpara>
-  <simpara>Use <literal role="sexp">(MARK-INVALID-FOREIGN  <!-- FIXME!!! -->
+  <simpara>Use <literal role="sexp">(&setf;
    &f-ent;)</literal> to disable further references to this address from
    Lisp. This is currently not done automatically.
    If the given pointer is already invalid, &foreign-free; (currently)
@@ -2471,6 +2480,19 @@ only.</subtitle>
    requires an internal &c-lang; type descriptor as returned by
    &parse-c-type;.</simpara></listitem></varlistentry>
 </variablelist>
+
+<varlistentry id="with-c-place">
+ <term><literal role="sexp">(&with-c-place; (&var-r; &f-ent;)
+   &body-r;)</literal></term>
+ <listitem><simpara>Create a place out of the given &foreign-variable; object
+  so operations on places (e.g. &cast;, &deref;, &slot; etc.) can be used
+  within &body-r;.  &with-c-var appears as a composition of
+  &with-foreign-object; and &with-c-place;.</simpara>
+  <para>A &f-ent; object can be stored away, places are used to access
+  contents.
+  <programlisting>(setq foo (allocate-deep '(c-array uint8 3) rgb))
+(with-c-place (place foo) (element place 0))</programlisting>
+  </para></listitem></varlistentry>
 
 </section>
 
@@ -2677,11 +2699,12 @@ unit</ulink> (usually a file), a warning is issued and
 
 <section id="dffi-places"><title>Operations on foreign places</title>
 
-<para>A &foreign-variable; &name-r; defined by &def-c-var; defines a
- "place", i.e., a form which can also be used as argument to &setf;.
- (An "lvalue" in &c-lang; terminology.)  The following operations are
- available on foreign places: &element;, &deref;, &slot;, &cast;,
- &typeof;, &sizeof;, &bitsizeof;.</para>
+<para>A &foreign-variable; &name-r; defined by &def-c-var;, &with-c-var; or
+ &with-c-place; defines a "place", i.e., a form which can also be used as
+ argument to &setf;.  (An "lvalue" in &c-lang; terminology.)  The following
+ operations are available on foreign places: &element;, &deref;, &slot;,
+ &cast;, &offset;, &c-var-addr;, &c-var-object;, &typeof;, &sizeof;,
+ &bitsizeof;.</para>
 
 </section>
 
@@ -4623,6 +4646,5 @@ are returned in an &alist;.</para>
 </section>
 
 </chapter>
-<!-- #endif -->
 
 </part>
