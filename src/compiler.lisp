@@ -1369,6 +1369,18 @@ for-value   NIL or T
         (return t)))
     (setq denv (cdr denv))))
 
+;; top-level optimization settings
+(defconstant *optimize* #.(make-hash-table :test 'stablehash-eq))
+;; return 2 values: the quality and the value
+;; or issue a warning and return NIL
+(defun parse-optimize-quality (spec)
+  (typecase spec
+    ((cons #1=(member COMPILATION-SPEED DEBUG SAFETY SPACE SPEED)
+           (cons (integer 0 3) null))
+     (values (first spec) (second spec)))
+    (#1# (values spec 3))
+    (t (c-warn (TEXT "Invalid ~S declaration ~S") 'optimize spec))))
+
 ;; (declared-optimize quality) returns the optimization level for the given
 ;; quality, as an integer between 0 and 3 (inclusive).
 ;; quality - one of COMPILATION-SPEED, DEBUG, SAFETY, SPACE, SPEED.
@@ -1392,21 +1404,13 @@ for-value   NIL or T
 (defun declared-optimize (quality &optional (denv *denv*))
   (loop
     (when (atom denv)
-      (return-from declared-optimize 1))
+      (return-from declared-optimize (gethash quality *optimize* 1)))
     (let ((declspec (car denv)))
       (when (eq (car declspec) 'OPTIMIZE)
-        (dolist (optimspec (cdr declspec))
-          (cond ((eq optimspec quality)
-                 (return-from declared-optimize 3))
-                ((and (consp optimspec) (eq (car optimspec) quality)
-                      (consp (cdr optimspec)) (realp (second optimspec)))
-                 (let ((value (second optimspec)))
-                   (return-from declared-optimize
-                     (if (>= value 0)
-                       (if (<= value 3)
-                         (floor value)
-                         3)
-                       0))))))))
+        ;; PARSE-OPTIMIZE-QUALITY in PROCESS-DECLARATIONS enable ASSOC here
+        (let ((spec (assoc quality (cdr declspec) :test #'eq)))
+          (when spec
+            (return-from declared-optimize (second spec))))))
     (setq denv (cdr denv))))
 
 ;; (process-declarations declspeclist) analyzes the declarations (as they come
@@ -1433,32 +1437,41 @@ for-value   NIL or T
                        (declared-declaration declspectype)
                        (and *compiling-from-file*
                             (memq declspectype *user-declaration-types*))))
-            (cond ((eq declspectype 'SPECIAL)
-                   (dolist (x (cdr declspec))
-                     (if (symbolp x)
-                       (push x specials)
-                       (c-warn (TEXT "Non-symbol ~S may not be declared SPECIAL.")
-                               x))))
-                  ((eq declspectype 'IGNORE)
-                   (dolist (x (cdr declspec))
-                     (if (symbolp x)
-                       (push x ignores)
-                       (c-warn (TEXT "Non-symbol ~S may not be declared IGNORE.")
-                               x))))
-                  ((eq declspectype 'IGNORABLE)
-                   (dolist (x (cdr declspec))
-                     (if (symbolp x)
-                       (push x ignorables)
-                       (c-warn (TEXT "Non-symbol ~S may not be declared IGNORABLE.")
-                               x))))
-                  ((eq declspectype 'SYS::READ-ONLY)
-                   (dolist (x (cdr declspec))
-                     (if (symbolp x)
-                       (push x readonlys)
-                       (c-warn (TEXT "Non-symbol ~S may not be declared READ-ONLY.")
-                               x))))
-                  (t
-                   (push declspec other)))
+            (case declspectype
+              ((SPECIAL)
+               (dolist (x (cdr declspec))
+                 (if (symbolp x)
+                   (push x specials)
+                   (c-warn (TEXT "Non-symbol ~S may not be declared SPECIAL.")
+                           x))))
+              ((IGNORE)
+               (dolist (x (cdr declspec))
+                 (if (symbolp x)
+                   (push x ignores)
+                   (c-warn (TEXT "Non-symbol ~S may not be declared IGNORE.")
+                           x))))
+              ((IGNORABLE)
+               (dolist (x (cdr declspec))
+                 (if (symbolp x)
+                   (push x ignorables)
+                   (c-warn (TEXT "Non-symbol ~S may not be declared IGNORABLE.")
+                           x))))
+              ((SYS::READ-ONLY)
+               (dolist (x (cdr declspec))
+                 (if (symbolp x)
+                   (push x readonlys)
+                   (c-warn (TEXT "Non-symbol ~S may not be declared READ-ONLY.")
+                           x))))
+              ((OPTIMIZE)       ; record only correct declaration
+               (let ((specs
+                      (delete nil (mapcar (lambda (spec)
+                                            (multiple-value-list
+                                             (parse-optimize-quality spec)))
+                                          (cdr declspec)))))
+                 (when specs
+                   (push (cons 'OPTIMIZE specs) other))))
+              (t
+               (push declspec other)))
             (c-warn (TEXT "Unknown declaration ~S.~%The whole declaration will be ignored.")
                     declspectype declspec)))))
     (values specials ignores ignorables readonlys other)))
@@ -3205,6 +3218,14 @@ for-value   NIL or T
                          (TEXT "Function ~S is deprecated.") " ~@?")
                         deprecation-info)))))
 
+;; note global OPTIMIZE proclamations
+;; sed by c-PROCLAIM and PROCLAIM in control.d
+(defun note-optimize (specs)
+  (dolist (quality specs)
+    (multiple-value-bind (quality value) (parse-optimize-quality quality)
+      (when quality
+        (setf (gethash quality *optimize*) value)))))
+
 ;; auxiliary function: PROCLAIM on file-compilation, cf. function PROCLAIM
 (defun c-PROCLAIM (declspec)
   (when (consp declspec)
@@ -3234,6 +3255,7 @@ for-value   NIL or T
           (when (symbolp var)
             (pushnew var *notinline-constants*)
             (setq *inline-constants* (delete var *inline-constants*)))))
+      (OPTIMIZE (note-optimize (cdr declspec)))
       (DECLARATION
         (dolist (var (cdr declspec))
           (when (symbolp var) (pushnew var *user-declaration-types*

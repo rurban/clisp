@@ -1,5 +1,9 @@
 2005-02-10  Sam Steingold  <sds@gnu.org>
 
+	* conditions.tst: check that SAFETY declarations are respected
+
+2005-02-10  Sam Steingold  <sds@gnu.org>
+
 	* conditions.tst: call PRINC-ERROR instead of ignoring conditions
 
 2005-02-08  Bruno Haible  <bruno@clisp.org>
