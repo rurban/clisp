@@ -10,6 +10,11 @@
 (require 'cc-mode)
 (require 'cl)                   ; `subst'
 
+(defun d-mode-translate-word (word)
+  "translate the word at point from German into English"
+  (interactive (list (read-string "translate: " (word-at-point))))
+  (shell-command (format "wordtrans -d de-en -i %s" word)))
+
 (defun d-mode-current-defun-function ()
   "Return the name of the current function."
   (save-excursion
@@ -49,7 +54,7 @@
 (defun d-mode-convert-function ()
   "Convert from the old-style to ANSI function definition.
 The point should be on the prototype and the definition should follow."
-  (interactive "")
+  (interactive)
   (let ((beg (point)))
     (end-of-line 1)
     (delete-region (1- (point)) (- (search-forward "{" nil nil) 2))
@@ -57,7 +62,7 @@ The point should be on the prototype and the definition should follow."
 
 (defun d-mode-convert-lispfun ()
   "Convert the LISPFUN to the new indentation."
-  (interactive "")
+  (interactive)
   (search-forward "LISPFUN")
   (beginning-of-line)
   (let ((beg (point)))
@@ -68,7 +73,7 @@ The point should be on the prototype and the definition should follow."
 
 (defun d-mode-convert-comment ()
   "Comvert the current comment line from # to /**/"
-  (interactive "")
+  (interactive)
   (save-excursion
     (beginning-of-line)
     (when (search-forward "# " (line-end-position) t)
@@ -78,7 +83,7 @@ The point should be on the prototype and the definition should follow."
 
 (defun d-mode-convert-block-comment ()
   "Comvert the current comment block from # to /**/"
-  (interactive "")
+  (interactive)
   (save-excursion
     (beginning-of-line)
     (while (looking-at "[ \t]*# ")
