@@ -1,5 +1,9 @@
 2004-10-03  Bruno Haible  <bruno@clisp.org>
 
+	* modules/syscalls/calls.c (POSIX::CONFSTR): Don't use alloca.
+
+2004-10-03  Bruno Haible  <bruno@clisp.org>
+
 	* modules/syscalls/calls.c: Include sys/resource.h early enough, so
 	that getrlimit_arg can use it. Also include sys/types.h before
 	sys/stat.h, not after it.
