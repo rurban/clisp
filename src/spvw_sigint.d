@@ -1,6 +1,6 @@
 # Handling of signals SIGINT and SIGALRM.
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification --------------------------------
 
 #ifdef PENDING_INTERRUPTS
 # Flag telling whether a Ctrl-C has been seen and is waiting to be handled.
@@ -16,10 +16,10 @@
   extern void install_sigint_handler (void);
 #endif
 
-# ------------------------------ Implementation --------------------------------
+# ------------------------------ Implementation -------------------------------
 
 #ifdef PENDING_INTERRUPTS
-  # Flag, ob eine Unterbrechung anliegt.
+  # Flag, if an interrupt is pending.
   global uintB interrupt_pending = false;
 #endif
 
@@ -28,136 +28,118 @@
 # React on signal SIGINT: Leave the signal handler and enter a break driver
 # loop. If this function returns, this means the signal handler should try
 # again later.
-  local void react_on_sigint (int sig);
-  local void react_on_sigint(sig)
-    var int sig; # sig = SIGINT or SIGALRM
-    {
-     #ifndef NO_ASYNC_INTERRUPTS
-      # Warten, bis Unterbrechung erlaubt:
-      if (!break_sems_cleared())
-        return;
-      # Wir springen jetzt aus dem signal-Handler heraus, weder mit 'return'
-      # noch mit 'longjmp'.
-      #
-      # Hans-J. Boehm <boehm@parc.xerox.com> weist darauf hin, dass dies
-      # Probleme bringen kann, wenn das Signal ein laufendes malloc() oder
-      # free() unterbrochen hat und die malloc()-Library nicht reentrant ist.
-      # Abhilfe: statt malloc() stets xmalloc() verwenden, das eine Break-
-      # Semaphore setzt? Aber was ist mit malloc()-Aufrufen, die von Routinen
-      # wie opendir(), getpwnam(), tgetent(), ... abgesetzt werden? Soll man
-      # malloc() selber definieren und darauf hoffen, dass es von allen Library-
-      # funktionen aufgerufen wird (statisch gelinkt oder per DLL)??
-      #
-      #ifdef RISCOS
-      prepare_signal_handler_exit(sig);
-      #endif
-      #if (defined(USE_SIGACTION) ? defined(SIGACTION_NEED_UNBLOCK) : defined(SIGNAL_NEED_UNBLOCK)) || (defined(GNU_READLINE) && (defined(SIGNALBLOCK_BSD) || defined(SIGNALBLOCK_POSIX)))
-      # Falls entweder [SIGNAL_NEED_UNBLOCK] mit signal() installierte Handler
-      # sowieso mit blockiertem Signal aufgerufen werden - das sind üblicherweise
-      # BSD-Systeme -, oder falls andere unsichere Komponenten [GNU_READLINE]
-      # per sigaction() o.ä. das Blockieren des Signals beim Aufruf veranlassen
-      # können, müssen wir das gerade blockierte Signal entblockieren:
-        #if defined(SIGNALBLOCK_POSIX)
-          {
-            var sigset_t sigblock_mask;
-            sigemptyset(&sigblock_mask); sigaddset(&sigblock_mask,sig);
-            sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
-          }
-        #elif defined(SIGNALBLOCK_BSD)
-          sigsetmask(sigblock(0) & ~sigmask(sig));
-        #endif
-      #endif
-      #ifdef HAVE_SAVED_STACK
-      # STACK auf einen sinnvollen Wert setzen:
-      if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }
-      #endif
-      # Über 'fehler' in eine Break-Schleife springen:
-      fehler(interrupt_condition,
-             GETTEXT("Ctrl-C: User break")
-            );
-     #endif
-    }
+local void react_on_sigint (int sig) { # sig = SIGINT or SIGALRM
+ #ifndef NO_ASYNC_INTERRUPTS
+  # wait, until break is allowed:
+  if (!break_sems_cleared())
+    return;
+  # we jump now out of the signal-handler, neither with 'return'
+  # nor with 'longjmp'.
 
-# Eine Tastatur-Unterbrechung (Signal SIGINT, erzeugt durch Ctrl-C)
-# wird eine Sekunde lang aufgehoben. In dieser Zeit kann sie mittels
-# 'interruptp' auf fortsetzbare Art behandelt werden. Nach Ablauf dieser
-# Zeit wird das Programm nichtfortsetzbar unterbrochen.
-# Signal-Handler für Signal SIGINT:
+  # Hans-J. Boehm <boehm@parc.xerox.com> points out that this might
+  # cause problems, if the signal has interrupted a running malloc() or
+  # free() and the malloc()-library is not reentrant.
+  # remedy: instead of malloc() always use xmalloc() , that sets a break-
+  # semaphore? But how about malloc()-calls, that are issued by routines
+  # like opendir(), getpwnam(), tgetent(), ... ? Should we define malloc()
+  # on our own and hope that it is called by all library-
+  # functions (statically linked or via DLL)??
+
+  #ifdef RISCOS
+  prepare_signal_handler_exit(sig);
+  #endif
+  #if (defined(USE_SIGACTION) ? defined(SIGACTION_NEED_UNBLOCK) : defined(SIGNAL_NEED_UNBLOCK)) || (defined(GNU_READLINE) && (defined(SIGNALBLOCK_BSD) || defined(SIGNALBLOCK_POSIX)))
+  # either if handlers, installed with [SIGNAL_NEED_UNBLOCK] and signal(),
+  # are called with blocked signal anyway - usually on
+  # BSD-systems -, or if other unsecure components [GNU_READLINE] can cause
+  # the blocking of the signal on call via sigaction() or similar,
+  # we must unblock the right now blocked signal:
+  #if defined(SIGNALBLOCK_POSIX)
+  {
+    var sigset_t sigblock_mask;
+    sigemptyset(&sigblock_mask); sigaddset(&sigblock_mask,sig);
+    sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
+  }
+  #elif defined(SIGNALBLOCK_BSD)
+  sigsetmask(sigblock(0) & ~sigmask(sig));
+  #endif
+  #endif
+  #ifdef HAVE_SAVED_STACK
+  # set STACK to a meaningful value:
+  if (saved_STACK != NULL) { setSTACK(STACK = saved_STACK); }
+  #endif
+  # jump into a break-loop via 'fehler':
+  fehler(interrupt_condition,GETTEXT("Ctrl-C: User break"));
+ #endif # NO_ASYNC_INTERRUPTS
+}
+
+# a keyboard-interrupt (signal SIGINT, created by Ctrl-C)
+# is suspended for a second. During this period of time it can be handled
+# via 'interruptp' in a continuable manner. After expiry,
+# the program is interrupted un-continuably.
+# Signal-Handler for signal SIGINT:
 #ifdef PENDING_INTERRUPTS
-  local void interrupt_handler (int sig);
-  local void interrupt_handler(sig)
-    var int sig; # sig = SIGINT
-    {
-      inc_break_sem_5();
-      signal_acknowledge(SIGINT,&interrupt_handler);
-      if (!interrupt_pending) { # Liegt schon ein Interrupt an -> nichts zu tun
-        interrupt_pending = true; # Flag für 'interruptp' setzen
-        #ifdef HAVE_UALARM
-        # eine halbe Sekunde warten, dann jede 1/20 sec probieren
-        ualarm(ticks_per_second/2,ticks_per_second/20);
-        #else
-        alarm(1); # eine Sekunde warten, weiter geht's dann bei alarm_handler
-        #endif
-      }
-      dec_break_sem_5();
-    }
-  local void alarm_handler (int sig);
-  local void alarm_handler(sig)
-    var int sig; # sig = SIGALRM
-    {
-      # Die Zeit ist nun abgelaufen.
-      inc_break_sem_5();
-      #ifdef EMUNIX # Verhindere Programm-Beendigung durch SIGALRM
-      #ifndef HAVE_UALARM
-      alarm(0); # SIGALRM-Timer abbrechen
-      #endif
-      #endif
-      signal_acknowledge(SIGALRM,&alarm_handler);
-      dec_break_sem_5();
-      react_on_sigint(sig);
-      #ifndef HAVE_UALARM
-      alarm(1); # Probieren wir's in einer Sekunde nochmal
-      #endif
-      return; # Nach kurzer Zeit wird wieder ein SIGALRM ausgelöst.
-    }
-  #define install_sigint_handler()  \
+local void interrupt_handler (int sig) { # sig = SIGINT
+  inc_break_sem_5();
+  signal_acknowledge(SIGINT,&interrupt_handler);
+  if (!interrupt_pending) { # is an interrupt pending -> nothing to do
+    interrupt_pending = true; # set flag for 'interruptp'
+   #ifdef HAVE_UALARM
+    # wait half a second, then try every 1/20 sec
+    ualarm(ticks_per_second/2,ticks_per_second/20);
+   #else
+    alarm(1); # wait a second, continues with alarm_handler
+   #endif
+  }
+  dec_break_sem_5();
+}
+local void alarm_handler (int sig) { # sig = SIGALRM
+  # the time is now up.
+  inc_break_sem_5();
+ #ifdef EMUNIX # impede program-termination with SIGALRM
+  #ifndef HAVE_UALARM
+  alarm(0); # abort SIGALRM-timer
+  #endif
+ #endif
+  signal_acknowledge(SIGALRM,&alarm_handler);
+  dec_break_sem_5();
+  react_on_sigint(sig);
+ #ifndef HAVE_UALARM
+  alarm(1); # let's try in another second
+ #endif
+  return; # after a short time a SIGALRM is triggered again.
+}
+#define install_sigint_handler()  \
     SIGNAL(SIGINT,&interrupt_handler); \
     SIGNAL(SIGALRM,&alarm_handler);
-#else
-  local void interrupt_handler (int sig);
-  local void interrupt_handler(sig)
-    var int sig; # sig = SIGINT
-    {
-      inc_break_sem_5();
-      signal_acknowledge(SIGINT,&interrupt_handler);
-      dec_break_sem_5();
-      react_on_sigint(sig);
-      return; # Der Benutzer muss es noch einmal probieren.
-    }
-  #define install_sigint_handler()  \
+#else # PENDING_INTERRUPTS
+local void interrupt_handler (int sig) { # sig = SIGINT
+  inc_break_sem_5();
+  signal_acknowledge(SIGINT,&interrupt_handler);
+  dec_break_sem_5();
+  react_on_sigint(sig);
+  return; # the user must try it again.
+}
+#define install_sigint_handler()  \
     SIGNAL(SIGINT,&interrupt_handler);
-#endif
+#endif # PENDING_INTERRUPTS
 
-#endif
+#endif # HAVE_SIGNALS
 
 #ifdef WIN32_NATIVE
 
-  # This is the Ctrl-C handler. It is executed in the main thread and must
-  # not return!
-  global void interrupt_handler (void);
-  global void interrupt_handler()
-    {
-      # asciz_out("Entering interrupt handler.\n");
-      #ifdef HAVE_SAVED_STACK
-      # STACK auf einen sinnvollen Wert setzen:
-      if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }
-      #endif
-      # Über 'fehler' in eine Break-Schleife springen:
-      fehler(interrupt_condition,
-             GETTEXT("Ctrl-C: User break")
-            );
-    }
+# This is the Ctrl-C handler. It is executed in the main thread and must
+# not return!
+global void interrupt_handler (void) {
+  # asciz_out("Entering interrupt handler.\n");
+ #ifdef HAVE_SAVED_STACK
+  # set STACK to a meaningful value:
+  if (saved_STACK != NULL) { setSTACK(STACK = saved_STACK); }
+ #endif
+  # jump into a break-loop via 'fehler':
+  fehler(interrupt_condition,GETTEXT("Ctrl-C: User break"));
+}
 
-  # install_sigint_handler(); is defined in win32aux.d.
+# install_sigint_handler(); is defined in win32aux.d.
 
-#endif
+#endif # WIN32_NATIVE

@@ -1,6 +1,6 @@
 # Memory management data structures, part 2: Heap
 
-# ------------------------------ Specification ---------------------------------
+# ------------------------------ Specification --------------------------------
 
 #ifdef SPVW_PAGES
 # Pages is a collection of pages.
@@ -13,17 +13,17 @@
 # Iteration through all pages of a heap.
 # map_heap(heap,pagevar,statement);
 
-# ------------------------------ Implementation --------------------------------
+# ------------------------------ Implementation -------------------------------
 
 #ifdef SPVW_PAGES
 
 typedef Page* Pages;
 
 typedef struct {
-  Pages inuse;     # Die gerade benutzten Pages
-  # _Page reserve; # Eine Reserve-Page ??
-  # Bei Heap für Objekte fester Länge:
-  Pages lastused; # Ein Cache für die letzte benutzte Page
+  Pages inuse;     # the currently used pages
+  # _Page reserve; # a reserve-page ??
+  # heap for objects of fixed length:
+  Pages lastused; # a cache for the last used page
 } Heap;
 
   #define map_heap(heap,pagevar,statement)  \
@@ -36,30 +36,30 @@ typedef struct {
 typedef Page Pages;
 
 #ifdef GENERATIONAL_GC
-# Für jede physikalische Speicherseite der alten Generation merken wir uns,
-# um auf diese Seite nicht zugreifen zu müssen, welche Pointer auf Objekte
-# der neuen Generation diese enthält.
-# Solange man auf die Seite nicht schreibend zugreift, bleibt diese Information
-# aktuell. Nachdem man auf die Seite aber schreibend zugegriffen hat, muss man
-# diese Information bei der nächsten GC neu erstellen. Dies sollte man aber
-# machen, ohne auf die Seite davor oder danach zugreifen zu müssen.
+# For each physical memory page of the old generation we memorize,
+# which pointers to objects of the new generation this page contains,
+# so that we do not have to access this page.
+# So long as we do not access this page for writing, this information stays
+# up to date. But after we have written to this page, we must regenerate
+# this information at the next GC. Additionally, this should be done
+# without accessing the page before it or after it.
 typedef struct {
-  object* p; # Adresse des Pointers, innerhalb eines alten Objekts
-  object o;  # o = *p, Pointer auf ein neues Objekt
+  object* p; # address of the pointer, within an old object
+  object o;  # o = *p, pointer to a new object
 } old_new_pointer;
 typedef struct {
-  # Durchlaufen der Pointer in der Seite benötigt Folgendes:
-    # Fortsetzung des letzten Objekts der Seite davor:
+  # traversal of the pointers in the page requires the following:
+    # continuation of the last object on previous page:
     object* continued_addr;
     uintC continued_count;
-    # Erstes Objekt, das in dieser Seite (oder später) beginnt:
+    # first object, that begins at this page (or later) :
     aint firstobject;
-  # Der Cache der Pointer auf Objekte der neuen Generation:
-  int protection; # PROT_NONE : Nur der Cache ist gültig.
-                  # PROT_READ : Seite und Cache beide gültig.
-                  # PROT_READ_WRITE : Nur die Seite ist gültig.
-  uintL cache_size; # Anzahl der gecacheten Pointer
-  old_new_pointer* cache; # Cache aller Pointer in die neue Generation
+  # the cache of pointers to objects of the new generation:
+  int protection; # PROT_NONE : only the cache is valid.
+                  # PROT_READ : both page and cache are valid.
+                  # PROT_READ_WRITE : only the page is valid.
+  uintL cache_size; # number of cached pointers
+  old_new_pointer* cache; # cache of all pointers into the new generation
 } physpage_state;
 #endif
 
@@ -86,52 +86,52 @@ typedef struct {
 #define heap_start  pages.page_start
 #define heap_end    pages.page_end
 #if defined(SPVW_PURE_BLOCKS) || (defined(SPVW_MIXED_BLOCKS) && defined(TRIVIALMAP_MEMORY))
-# Stets heap_start <= heap_end <= heap_limit.
+# always: heap_start <= heap_end <= heap_limit.
 #if defined(SPVW_MIXED_BLOCKS_OPPOSITE)
-# bzw. heap_limit <= heap_start <= heap_end.
+# resp. heap_limit <= heap_start <= heap_end.
 #endif
-# Der Speicher zwischen heap_start und heap_end ist belegt,
-# der Speicher zwischen heap_end (bzw. heap_start) und heap_limit ist frei.
-# heap_limit wird, wenn nötig, vergrößert (bzw. verkleinert).
+# the memory between heap_start and heap_end is occupied,
+# the memory between heap_end (resp. heap_start) and heap_limit is free.
+# heap_limit is enlarged (resp. reduced), if necessary.
 #if !defined(SPVW_MIXED_BLOCKS_OPPOSITE)
-# heap_hardlimit ist der größte bzw. kleinste zulässige Wert von heap_limit.
+# heap_hardlimit is the biggest resp. smallest admissible value of heap_limit.
 #endif
 #else # defined(SPVW_MIXED_BLOCKS) && !defined(TRIVIALMAP_MEMORY)
-# Stets heap_start <= heap_end.
-# Der Speicher zwischen heap_start und heap_end ist belegt,
+# always: heap_start <= heap_end.
+# the memory between heap_start and heap_end is occupied,
 #endif
 #ifdef GENERATIONAL_GC
 #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
-# Die Generation 0 (ältere Generation) beginnt bei heap_gen0_start,
-#                                      geht bis    heap_gen0_end.
-# Die Generation 1 (neuere Generation) beginnt bei heap_gen1_start,
-#                                      geht bis    heap_end.
-# heap_gen0_start und heap_gen1_start sind durch physpagesize teilbar.
-# Zwischen heap_gen0_end und heap_gen1_start ist eine Lücke von weniger als
-# einer Page.
-# heap_start ist entweder = heap_gen0_start oder = heap_gen1_start.
+# the generation 0 (older generation) begins at     heap_gen0_start,
+#                                     reaches until heap_gen0_end.
+# the generation 1 (newer generation) begins at     heap_gen1_start,
+#                                     reaches until heap_end.
+# heap_gen0_start and heap_gen1_start are divisible by physpagesize.
+# Between heap_gen0_end and heap_gen1_start is a gap of
+# less than a page.
+# heap_start is either = heap_gen0_start or = heap_gen1_start.
 #else
-# Die Generation 0 (ältere Generation) beginnt bei heap_gen0_start,
-#                                      geht bis    heap_gen0_end.
-# Bei mem.varobjects:
-#   Generation 1 (neuere Generation) beginnt bei heap_gen1_start,
-#                                    geht bis    heap_end.
-#   heap_gen0_start und heap_gen1_start sind durch physpagesize teilbar.
-#   Zwischen heap_gen0_end und heap_gen1_start ist eine Lücke von weniger als
-#   einer Page.
-#   heap_start ist entweder = heap_gen0_start oder = heap_gen1_start.
-# Bei mem.conses:
+# the generation 0 (older generation) begins at     heap_gen0_start,
+#                                     reaches until heap_gen0_end.
+# For mem.varobjects:
+#   generation 1 (newer generation)   begins at     heap_gen1_start,
+#                                     reaches until heap_end.
+#   heap_gen0_start and heap_gen1_start are divisible by physpagesize.
+#   Between heap_gen0_end and heap_gen1_start is a gap of
+#   less than a page.
+#   heap_start is either = heap_gen0_start or = heap_gen1_start.
+# For mem.conses:
     #define heap_gen1_end  heap_gen1_start
-#   Generation 1 (neuere Generation) beginnt bei heap_start,
-#                                    geht bis    heap_gen1_end.
-#   heap_gen1_end und heap_gen0_end sind durch physpagesize teilbar.
-#   Zwischen heap_gen1_end und heap_gen0_start ist eine Lücke von weniger als
-#   einer Page.
-#   heap_end ist entweder = heap_gen1_end oder = heap_gen0_end.
+#   generation 1 (newer generation) begins at     heap_start,
+#                                   reaches until heap_gen1_end.
+#   heap_gen1_end and heap_gen0_end are divisible by physpagesize.
+#   Between heap_gen1_end and heap_gen0_start is a gap of
+#   less than a page.
+#   heap_end is either = heap_gen1_end or = heap_gen0_end.
 #endif
-# Der Status von Adresse addr (heap_gen0_start <= addr < heap_gen0_end) wird
-# von physpages[(addr>>physpageshift)-(heap_gen0_start>>physpageshift)] gegeben.
-# physpages=NULL ist möglich, wenn nicht genügend Platz da war!
+# the status of address addr (heap_gen0_start <= addr < heap_gen0_end) is
+# given by physpages[(addr>>physpageshift)-(heap_gen0_start>>physpageshift)] .
+# physpages=NULL is possible, if there was not sufficient space!
 #endif
 
   #define map_heap(heap,pagevar,statement)  \
