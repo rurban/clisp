@@ -1285,9 +1285,9 @@ local object resize (object ht, object maxcount) {
  < object ht: hash-table
  < object freelist: start of the free-list in the next-vector, /= nix
  < gcv_object_t* Iptr: arbitrary element of the "list", that belongs to the key
- for EQ/EQL hashtables the hash code changes after GC,
+ for EQ/EQL/EQUAL/EQUALP hashtables the hash code changes after GC,
  so the raw hashcode cannot be cached.
- for EQUAL/EQUALP/user-defined hashtables, raw hashcode caching is good
+ for user-defined hashtables, raw hashcode caching is good
  (especially for the user-defined tables, where hashcode can trigger GC!)
  can trigger GC */
 #define hash_prepare_store(hash_pos,key_pos)                            \
@@ -1297,7 +1297,7 @@ local object resize (object ht, object maxcount) {
     if (eq(freelist,nix)) { /* free-list = empty "list" ? */            \
       var uintB flags = record_flags(TheHashtable(ht));                 \
       var uintL hc_raw = 0;                                             \
-      var bool cacheable = !(flags & (bit(0)|bit(1))); /* not EQ|EQL */ \
+      var bool cacheable = !(flags & (bit(0)|bit(1)|bit(2)|bit(3))); /* not EQ|EQL|EQUAL|EQUALP */ \
       if (cacheable) hc_raw = hashcode_raw(ht,STACK_(key_pos));         \
       do { /* hash-table must still be enlarged: */                     \
         /* calculate new maxcount: */                                   \
@@ -1309,9 +1309,9 @@ local object resize (object ht, object maxcount) {
         ht = resize(STACK_(hash_pos),value1); /* enlarge table */       \
         ht = rehash(ht); /* and reorganize */                           \
         /* newly calculate the address of the entry in the index-vector: */ \
-        { var uintL hashindex = cacheable                               \
-            ? hashcode_cook(hc_raw,TheHashtable(ht)->ht_size)           \
-            : hashcode(ht,STACK_(key_pos));                             \
+        { var uintL hashindex =                                         \
+            (cacheable ? hashcode_cook(hc_raw,TheHashtable(ht)->ht_size) \
+                       : hashcode(ht,STACK_(key_pos)));                 \
           var object kvtable = TheHashtable(ht)->ht_kvtable;            \
           Iptr = &TheSvector(TheHashedAlist(kvtable)->hal_itable)->data[hashindex]; \
           freelist = TheHashedAlist(kvtable)->hal_freelist;             \
