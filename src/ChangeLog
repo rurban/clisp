@@ -7,6 +7,21 @@
 	and EXT and shadow some symbols to avoid conflicts
 	(getenv): removed (there is one in EXT)
 	replaced the EVAL-WHEN kludge with REQUIRE
+	* modules/clx/new-clx/clx.lisp (closed-display-p, x-error): export
+	use PRINT-OBJECT, not :PRINT-FUNCTION DEFSTRUCT option
+	use (DEFSETF foo set-foo) instead of (SETF (FDEFINITION '(SETF
+	foo)) #'set-foo) for all setters
+	(make-gcontext): new funtion (for clue)
+	(x-error, closed-display): new conditions (complete)
+	(request-error, resource-error, request-error, resource-error)
+	(access-error, alloc-error, atom-error, colormap-error)
+	(connection-failure, cursor-error, device-busy, drawable-error)
+	(font-error, gcontext-error, id-choice-error, implementation-error)
+	(length-error, lookup-error, match-error, missing-parameter)
+	(name-error, pixmap-error, reply-length-error, reply-timeout)
+	(sequence-error, server-disconnect, unexpected-reply)
+	(unknown-error, value-error, window-error): new conditions (just
+	the stubs)
 
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
