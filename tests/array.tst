@@ -128,6 +128,7 @@
 (let ((s (prin1-to-string ARRAY-RANK-LIMIT )))
   (or #+XCL (equal s "256")
       #+CLISP (equal s "4294967296") #+CLISP (equal s "65536")
+      #+CLISP (equal s (prin1-to-string lambda-parameters-limit))
       #+(or AKCL ECL) (equal s "64") #+GCL (equal s "63")
       #+ALLEGRO (equal s "65536")
       #+CMU (equal s "65529")
