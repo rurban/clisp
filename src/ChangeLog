@@ -1,3 +1,8 @@
+2005-03-22  Sam Steingold  <sds@gnu.org>
+
+	* modules/wildcard/wildcard.lisp (*features*): add :WILDCARD
+	Requested by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+
 2005-03-22  Bruno Haible  <bruno@clisp.org>
 
 	* build-aux: New directory, taking most files from autoconf/.

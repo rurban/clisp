@@ -7,6 +7,8 @@
   (:use "COMMON-LISP" "FFI")
   (:export #:match #:wildcard-matcher))
 (in-package "WILDCARD")
+(pushnew "WILDCARD" custom:*system-package-list* :test #'string=)
+(pushnew :wildcard *features*)
 
 (default-foreign-language :stdc)
 
