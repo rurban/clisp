@@ -2694,9 +2694,9 @@ if [ $CROSS = false ] ; then
     echotab "-\$(RM) $interpreted.mem"
   fi
   if [ $HOS != dos -a $HOS != os2 ] ; then
-    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -norc"' -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"'
+    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc"' -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"'
   else
-    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -norc < interpreted.in"
+    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc < interpreted.in"
   fi
   echotab "\$(MV) lispimag.mem $interpreted.mem"
   echol
@@ -2709,7 +2709,7 @@ if [ $CROSS = false ] ; then
     echol "${f}.fas : ${f}.lsp lisp${LEXE} $interpreted.mem"
     # The strict minimum needed for compiling compiler.lsp is between 750KW
     # and 800KW. To reduce GCs, we spend 20% more than this.
-    echotab "${HERE}lisp${LEXE} -m 1000KW -M $interpreted.mem$localeflags -norc -q -c ${f}.lsp"
+    echotab "${HERE}lisp${LEXE} -m 1000KW -M $interpreted.mem$localeflags -Efile ISO-8859-1 -norc -q -c ${f}.lsp"
     echol
   done
 
@@ -2717,7 +2717,7 @@ else
 
   for f in $LPARTS ; do
     echol "${f}.fas : ${f}.lsp"
-    echotab 'clisp -M cross.mem$localeflags -norc -q -x "(cross:compile-file \"'"${f}.lsp"'\")"'
+    echotab 'clisp -M cross.mem$localeflags -Efile ISO-8859-1 -norc -q -x "(cross:compile-file \"'"${f}.lsp"'\")"'
     echol
   done
 
@@ -2730,9 +2730,9 @@ if [ $CROSS = false ] ; then
     echotab "-\$(RM) $interpreted.mem"
   fi
   if [ $HOS != dos -a $HOS != os2 ] ; then
-    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -norc"' -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"'
+    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc"' -x "(load \"init.lsp\") (sys::%saveinitmem) (exit)"'
   else
-    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -norc < interpreted.in"
+    echotab "${HERE}lisp${LEXE} -m 750KW$localeflags -Efile ISO-8859-1 -norc < interpreted.in"
   fi
   echotab "\$(MV) lispimag.mem $interpreted.mem"
   # We touch $interpreted.mem only to avoid timestamp problems over NFS.
@@ -2746,9 +2746,9 @@ if [ $CROSS = false ] ; then
     echotab "-\$(RM) lispinit.mem"
   fi
   if [ $HOS != dos -a $HOS != os2 ] ; then
-    echotab "${HERE}lisp${LEXE}$localeflags -norc"' -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"'
+    echotab "${HERE}lisp${LEXE}$localeflags -Efile ISO-8859-1 -norc"' -x "(load \"init.fas\") (sys::%saveinitmem) (exit)"'
   else
-    echotab "${HERE}lisp${LEXE}$localeflags -norc < lispinit.in"
+    echotab "${HERE}lisp${LEXE}$localeflags -Efile ISO-8859-1 -norc < lispinit.in"
   fi
   echotab "\$(MV) lispimag.mem lispinit.mem"
   echol
@@ -2804,12 +2804,12 @@ if [ $CROSS = false ] ; then
 
   for f in $LPARTS ; do
     echol "${TESTDIR}${NEXT_M}${f}.fas : ${TESTDIR}${NEXT_M}${f}.lsp lisp${LEXE} lispinit.mem"
-    echotab "${HERE}lisp${LEXE} -M lispinit.mem$localeflags -norc -q -c ${TESTDIR}${NEXT}${f}.lsp"
+    echotab "${HERE}lisp${LEXE} -M lispinit.mem$localeflags -Efile ISO-8859-1 -norc -q -c ${TESTDIR}${NEXT}${f}.lsp"
     echol
   done
 
   echol "lispinit2.mem : lisp${LEXE} \$(TESTFASFILES)"
-  echotab "${HERE}lisp${LEXE}$localeflags -norc"' -x "(cd \"'"${TESTDIR}${NEXT}"'\") (load \"init.fas\") (cd \"'"${PARENT}"'\") (sys::%saveinitmem) (exit)"'
+  echotab "${HERE}lisp${LEXE}$localeflags -Efile ISO-8859-1 -norc"' -x "(cd \"'"${TESTDIR}${NEXT}"'\") (load \"init.fas\") (cd \"'"${PARENT}"'\") (sys::%saveinitmem) (exit)"'
   echotab "-\$(RM) lispinit2.mem"
   echotab "\$(MV) lispimag.mem lispinit2.mem"
   echol
@@ -2824,7 +2824,7 @@ if [ $CROSS = false ] ; then
       localeflags=' -B `pwd`'
     fi
     echol "testsuite : ${TESTSDIR} lisp${LEXE} lispinit.mem"
-    echotab "LISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags -norc\"; export LISP; cd ${TESTSDIR}; \$(MAKE) LISP=\"\$\$LISP\""
+    echotab "LISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags -Efile ISO-8859-1 -norc\"; export LISP; cd ${TESTSDIR}; \$(MAKE) LISP=\"\$\$LISP\""
     echol
     echol "${TESTSDIR} :"
     echotab "-mkdir ${TESTSDIR}"
@@ -2887,7 +2887,7 @@ if [ $HOS = unix ] && [ $CROSS = false ] ; then
   else
     localeflags=' -B `pwd`'
   fi
-  echotab "CLISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags -norc\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
+  echotab "CLISP=\""'`pwd`'"/lisp${LEXE} -M "'`pwd`'"/lispinit.mem$localeflags -Efile ISO-8859-1 -norc\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" LISPBIBL_INCLUDES=\"$EVERY_INCLUDES_DOTS_C\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
   echol
   echol "full : modular base \$(MODULES)"
   echotab "test -d full || CLISP_LINKKIT=. ./clisp-link add-module-sets base full \$(MODULES) || (\$(RM) -r full ; exit 1)"

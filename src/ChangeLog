@@ -1,5 +1,23 @@
 1999-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Make sure the default-file-encoding is set to ISO-8859-1 during
+        building, even if the user has set a different LC_CTYPE variable.
+        * spvw.d (usage): Add -E option.
+          (argv_encoding_file, argv_encoding_pathname, argv_encoding_terminal,
+           argv_encoding_foreign, argv_encoding_misc): New variables.
+          (main): Add -E option.
+        * _clisp.c (main): Handle -E option.
+        * makemake.in (interpreted.mem, *.fas, lispinit.mem, lispinit2.mem,
+           testsuite, $(MODULES)): Together with option "-norc", pass
+          "-Efile ISO-8859-1".
+        * encoding.d (encoding_from_name): New function, extracted from
+          init_dependent_encodings. Also accept ISO-8859-10/13/14/15.
+          (init_dependent_encodings): Call it. Respect the values of
+          argv_encoding_file, argv_encoding_pathname, argv_encoding_terminal,
+          argv_encoding_foreign, argv_encoding_misc.
+
+1999-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Fix interpretation of LC_* and LANG environment variables.
         * spvw_ctype.d (init_ctype): Treat empty environment values like
           unset environment variables. LANG is not supposed to contain colons.

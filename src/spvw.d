@@ -1659,6 +1659,7 @@ local void usage (int exit_code)
   asciz_out(" -M memfile  - use this memory image" NLstring
             " -L language - set user language" NLstring
             " -N nlsdir   - NLS catalog directory" NLstring
+            " -Edomain encoding - set encoding" NLstring
             " -C          - set *LOAD-COMPILING* to T" NLstring
             " -I          - be ILISP-friendly" NLstring
             " -norc       - do not load the user ~/.clisprc file" NLstring
@@ -1764,6 +1765,11 @@ local void print_banner ()
     #define argc_t int  # Typ von argc ist meist 'int'.
   #endif
   global int main (argc_t argc, char* argv[]);
+  global const char* argv_encoding_file = NULL; # override for *default-file-encoding*
+  global const char* argv_encoding_pathname = NULL; # override for *pathname-encoding*
+  global const char* argv_encoding_terminal = NULL; # override for *terminal-encoding*
+  global const char* argv_encoding_foreign = NULL; # override for *foreign-encoding*
+  global const char* argv_encoding_misc = NULL; # override for *misc-encoding*
   local boolean argv_quiet = FALSE; # ob beim Start Quiet-Option angegeben
   local boolean argv_wait_keypress = FALSE;
   local boolean argv_license = FALSE;
@@ -1887,6 +1893,7 @@ local void print_banner ()
       #   -M file         MEM-File laden
       #   -L language     set the user language
       #   -N directory    NLS catalog directory
+      #   -Edomain encoding  set encoding
       #   -q              quiet: no splash-screen
       #   -norc           do not load the user ~/.clisprc file
       #   -I              ILISP-friendly
@@ -2022,6 +2029,21 @@ local void print_banner ()
                     OPTION_ARG
                     # Bei mehreren -N Argumenten zählt nur das letzte.
                     argv_localedir = arg;
+                    break;
+                  case 'E': # encoding
+                    if (!(argptr < argptr_limit)) usage(1);
+                    if (asciz_equal(&arg[2],"file"))
+                      argv_encoding_file = *argptr++;
+                    elif (asciz_equal(&arg[2],"pathname"))
+                      argv_encoding_pathname = *argptr++;
+                    elif (asciz_equal(&arg[2],"terminal"))
+                      argv_encoding_terminal = *argptr++;
+                    elif (asciz_equal(&arg[2],"foreign"))
+                      argv_encoding_foreign = *argptr++;
+                    elif (asciz_equal(&arg[2],"misc"))
+                      argv_encoding_misc = *argptr++;
+                    else
+                      usage(1);
                     break;
                   case 'q': # keine Copyright-Meldung
                     argv_quiet = TRUE;
