@@ -778,7 +778,7 @@
          (LOAD-TIME-VALUE
            ,(if library
               `(FFI::FOREIGN-LIBRARY-VARIABLE
-                ',c-name (FFI::FOREIGN-LIBRARY ',library)
+                ',c-name (FFI::FOREIGN-LIBRARY ,library)
                 nil (PARSE-C-TYPE ',type))
               `(LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type)))))
        (DEFINE-SYMBOL-MACRO ,name
@@ -908,8 +908,8 @@
          (COMPILER::EVAL-WHEN-COMPILE (COMPILER::C-DEFUN ',name ',signature))
          (SYSTEM::%PUTD ',name
             ,(if library
-               `(ffi::foreign-library-function
-                 ',c-name (ffi::foreign-library ',library)
+               `(FFI::FOREIGN-LIBRARY-FUNCTION
+                 ',c-name (FFI::FOREIGN-LIBRARY ,library)
                  nil ,parsed-function)
                `(LOOKUP-FOREIGN-FUNCTION ',c-name ,parsed-function))))
        ',name)))

@@ -2895,8 +2895,9 @@ only.</subtitle>
    deprecated.</simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(&library-k; &name-r;)</literal></term>
  <listitem><simpara>Specifies the (optional) dynamic library
-   which contains the variable.  &name-r; should be a &string-t; or,
-   depending on the underlying &dlsym; implementation, &default-k;
+   which contains the variable.</simpara>
+  <simpara>&name-r; should <emphasis>evaluate</emphasis> to a &string-t;
+   or, depending on the underlying &dlsym; implementation, &default-k;
    or <constant>:NEXT</constant>.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 
@@ -2927,8 +2928,9 @@ only.</subtitle>
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(&library-k; &name-r;)</literal></term>
  <listitem><simpara>Specifies the (optional) dynamic library
-   which contains the function.  &name-r; should be a &string-t; or,
-   depending on the underlying &dlsym; implementation, &default-k;
+   which contains the function.</simpara>
+  <simpara>&name-r; should <emphasis>evaluate</emphasis> to a &string-t;,
+   or, depending on the underlying &dlsym; implementation, &default-k;
    or <constant>:NEXT</constant>.</simpara></listitem></varlistentry>
 </variablelist></listitem></varlistentry>
 
