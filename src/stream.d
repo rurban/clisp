@@ -192,7 +192,7 @@ typedef uintL (* rd_by_array_Pseudofun) (const gcv_object_t* stream_, const gcv_
   # Specification for WRITE-CHAR-ARRAY - Pseudo-Function:
   # fun(&stream,&chararray,start,len)
   # > stream: stream
-  # > object chararray: simple-string
+  # > object chararray: not-reallocated simple-string
   # > uintL start: start index of character sequence to be written
   # > uintL len: length of character sequence to be written, >0
     typedef void (* wr_ch_array_Pseudofun) (const gcv_object_t* stream_, const gcv_object_t* chararray_, uintL start, uintL len);
@@ -802,7 +802,7 @@ global void write_char (const gcv_object_t* stream_, object ch) {
 # Function: Writes several characters to a stream.
 # write_char_array(&stream,&chararray,start,len)
 # > stream: stream (on the STACK)
-# > object chararray: simple-string (on the STACK)
+# > object chararray: not-reallocated simple-string (on the STACK)
 # > uintL start: start index of character sequence to be written
 # > uintL len: length of character sequence to be written
 global void write_char_array (const gcv_object_t* stream_,
@@ -8925,7 +8925,7 @@ local object rd_ch_terminal1 (const gcv_object_t* stream_) {
 # UP: write several characters on a Terminal-Stream.
 # wr_ch_array_terminal1(&stream,&chararray,start,len);
 # > stream: Terminal-Stream
-# > chararray: Simple-String
+# > chararray: not-reallocated Simple-String
 # > start: Startindex
 # > len: number of characters to be written
 #define wr_ch_array_terminal1  wr_ch_array_unbuffered_unix
@@ -9029,7 +9029,7 @@ local bool clear_input_terminal2 (object stream) {
 # UP: Write several characters to a Terminal-Stream.
 # wr_ch_array_terminal2(&stream,&chararray,start,len);
 # > stream: Terminal-Stream
-# > chararray: Simple-String
+# > chararray: not-reallocated Simple-String
 # > start: Startindex
 # > len: number of characters to be written
 #define wr_ch_array_terminal2  wr_ch_array_unbuffered_dos
@@ -9295,7 +9295,7 @@ local void wr_ch_terminal3 (const gcv_object_t* stream_, object ch) {
 # UP: Write several characters to a Terminal-Stream.
 # wr_ch_array_terminal3(&stream,&chararray,start,len);
 # > stream: Terminal-Stream
-# > chararray: Simple-String
+# > chararray: not-reallocated Simple-String
 # > start: Startindex
 # > len: number of characters to be written
 local void wr_ch_array_terminal3 (const gcv_object_t* stream_,

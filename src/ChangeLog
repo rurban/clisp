@@ -1,3 +1,26 @@
+2004-02-19  Bruno Haible  <bruno@clisp.org>
+
+	Make the small-sstrings more robust.
+	* lispbibl.d (stringsize_limit_1): New macro.
+	(DYNAMIC_STRING): Check the string size.
+	(DBGREALLOC): New macro.
+	(fehler_stringsize): New declaration.
+	(check_stringsize): New macro.
+	* spvw.d (init_symbol_values): Initialize SYS::STRING-DIMENTION-LIMIT.
+	* constobj.d (O(type_stringsize)): New object.
+	* error.d (fehler_stringsize): New function.
+	* io.d (write_sstring, write_sstring_case, pr_symbol_part): Handle
+	reallocated strings correctly.
+	* charstrg.d (string_gleich, string_equal): Handle reallocated strings
+	correctly.
+	(stringof, MAKE-STRING, string_concat): Check the string size before
+	allocating the string.
+	* array.d (VECTOR-PUSH-EXTEND, make_ssstring, ssstring_extend_low,
+	make_storagevector, ADJUST-ARRAY): Likewise.
+	* encoding.d (n_char_to_string, ascii_to_string,
+	CONVERT-STRING-FROM-BYTES): Likewise.
+	* lisparit.d (decimal_string): Likewise.
+
 2004-02-18  Bruno Haible  <bruno@clisp.org>
 
 	Make HAVE_SMALL_SSTRING work also in TYPECODES mode.

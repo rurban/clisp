@@ -469,7 +469,7 @@ nonreturning_function(global, fehler_index_range, (uintL bound)) {
 
 /* checks an index for a AREF/STORE-access into a simple vector.
  test_index()
- > STACK_1: simple Vector
+ > STACK_1: not-reallocated simple Vector
  > STACK_0: index
  < result: index as uintL */
 local uintL test_index (void) {
@@ -3782,6 +3782,8 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
         TheSvector(neuer_datenvektor)->data[len] = STACK_1;
         break;
       case Atype_Char: /* array is a string */
+        if (newlen > stringsize_limit_1)
+          fehler_extension(extension);
         neuer_datenvektor = allocate_string(newlen);
         array = STACK_0; /* fetch array again */
         /* copy old into the new data vector: */
@@ -3919,6 +3921,8 @@ nonreturning_function(local, fehler_dim_type, (object dim)) {
 global object make_ssstring (uintL len) {
   if (len > arraysize_limit_1)
     fehler_dim_type(UL_to_I(len));
+  if (len > stringsize_limit_1)
+    fehler_stringsize(len);
   pushSTACK(allocate_string(len));
   var object new_array =
     allocate_iarray(bit(arrayflags_fillp_bit)|Atype_Char,1,Array_type_string);
@@ -3930,12 +3934,16 @@ global object make_ssstring (uintL len) {
   return new_array;
 }
 
-/* Function: extend the string to length <= arraysize_limit_1 (not checked!)
+/* Function: extend the string to length <= arraysize_limit_1
  > ssstring: a semi-simple-string
  > size:     how much to allocate
  < returns:  the same semi-simple-string
  can trigger GC */
 local object ssstring_extend_low (object ssstring, uintL size) {
+  if (size > arraysize_limit_1)
+    fehler_dim_type(UL_to_I(size));
+  if (size > stringsize_limit_1)
+    fehler_stringsize(size);
   pushSTACK(ssstring);
   var object new_data = allocate_string(size);
   ssstring = popSTACK();
@@ -4215,6 +4223,7 @@ local object make_storagevector (uintL len, uintB eltype) {
       vector = allocate_vector(len);
       break;
     case Atype_Char: /* create simple-string */
+      check_stringsize(len);
      #ifdef HAVE_SMALL_SSTRING
       if (charp(STACK_4) && len>0) {
         var cint initial_element = char_int(STACK_4);
@@ -4477,6 +4486,7 @@ LISPFUN(make_array,seclass_read,1,0,norest,key,7,
        and rank=1 ,
        then return a (semi-)simple vector: */
     if ((rank==1) && nullp(STACK_6) && nullp(STACK_2) && !nullp(datenvektor)) {
+      DBGREALLOC(datenvektor);
       VALUES1(datenvektor); /* return datenvektor */
       skipSTACK(8); return;
     }
@@ -4793,6 +4803,7 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
       datenvektor = initial_contents(datenvektor,STACK_7,rank,STACK_3);
     } else { /* create data vector: */
       if (eltype == Atype_Char) {
+        check_stringsize(totalsize);
        #ifdef HAVE_SMALL_SSTRING
         var uintL oldoffset = 0;
         var object olddatenvektor = iarray_displace(STACK_6,&oldoffset);

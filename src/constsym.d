@@ -1,6 +1,6 @@
 /*
  * List of all symbols known to the C-program ("program constants")
- * Bruno Haible 1990-2002
+ * Bruno Haible 1990-2004
  * Sam Steingold 1998-2004
  */
 
@@ -1247,6 +1247,7 @@ LISPSYM(string_char,"STRING-CHAR",ext) /* type in PREDTYPE */
 LISPSYM(base_char,"BASE-CHAR",lisp) /* type in PREDTYPE */
 LISPSYM(array_rank_limit,"ARRAY-RANK-LIMIT",lisp) /* constant in ARRAY */
 LISPSYM(array_dimension_limit,"ARRAY-DIMENSION-LIMIT",lisp) /* constant in ARRAY */
+LISPSYM(string_dimension_limit,"STRING-DIMENSION-LIMIT",system) /* constant in ARRAY */
 LISPSYM(array_total_size_limit,"ARRAY-TOTAL-SIZE-LIMIT",lisp) /* constant in ARRAY */
 LISPSYM(subtype_integer,"SUBTYPE-INTEGER",system) /* function for ARRAY */
 LISPSYM(char_cod_limit,"CHAR-CODE-LIMIT",lisp) /* constant in CHARSTRG */

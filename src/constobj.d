@@ -370,6 +370,7 @@
   LISPOBJ(type_packname,"(OR PACKAGE STRING SYMBOL CHARACTER)")
   LISPOBJ(type_posint16,"(INTEGER (0) (65536))")
   LISPOBJ(type_string_integer,"(OR STRING INTEGER)")
+  LISPOBJ(type_stringsize,"(INTEGER 0 (#.SYS::STRING-DIMENSION-LIMIT))")
   LISPOBJ(type_uint8_vector,"(ARRAY (UNSIGNED-BYTE 8) (*))")
   LISPOBJ(type_position,"(OR (MEMBER :START :END) (INTEGER 0 4294967295))")
  #if HAS_HOST || defined(LOGICAL_PATHNAMES)
