@@ -1,3 +1,23 @@
+2002-02-26  Sam Steingold  <sds@gnu.org>
+
+	lib dir can now be changed at run-time
+	* constsym.d, subr.d (set_lib_directory); added
+	* constobj.d (lib_dir): new object
+	* pathname.d (LIB-DIRECTORY): use it
+	(SET-LIB-DIRECTORY): set it (new function)
+	* spvw.d (main): set it from argv_lisplibdir
+	* _clisp.html, _clisp.1: document that
+	* places.lisp (*lib-directory*): new symbol-macro
+	* init.lisp (*lib-directory*): export it from CUSTOM
+	* describe (clisp-data-file): new function
+	(unicode-data-file): removed
+	(unicode-attributes-line): use CLISP-DATA-FILE
+	instead of UNICODE-DATA-FILE
+	* clhs.lisp (clhs-file): removed
+	(clhs): use CLISP-DATA-FILE instead of CLHS-FILE
+	* makemake.in: data files, like clhs.txt and UnicodeData.txt,
+	are now in $(lisplibdir)/data on all platforms
+
 2002-02-25  Sam Steingold  <sds@gnu.org>
 
 	Moved language-dependent constants out of constobj.d

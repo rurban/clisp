@@ -10,17 +10,6 @@
 
 (defvar *clhs-table* nil)       ; the hash table
 
-(defun clhs-file ()
-  ; $(lisplibdir)/data/clhs.txt
-  (merge-pathnames
-   "clhs.txt"
-   (let ((libdir (sys::lib-directory)))
-     (make-pathname
-      :host (pathname-host libdir)
-      :device (pathname-device libdir)
-      :directory #+unix (append (pathname-directory libdir) (list "data"))
-                 #-unix (pathname-directory libdir)))))
-
 (defvar *browsers*              ; alist of browsers & commands
   '((:netscape "netscape" "-remote" "openURL(~a,new-window)")
     (:konqueror "kfmclient" "openURL" "~a")
@@ -78,8 +67,8 @@ The keyword argument OUT specifies the output for log messages."
     ;; read in the COMMON-LISP package: the CLHS symbols are supposed to be
     ;; there, but unlock it in case some symbols are still not implemented
     (without-package-lock ("COMMON-LISP")
-      (setq *clhs-table* (read-from-file (clhs-file) :out out
-                                         :package "COMMON-LISP"))))
+      (setq *clhs-table* (read-from-file (clisp-data-file "clhs.txt")
+                                         :out out :package "COMMON-LISP"))))
   (let* ((clhs-root (clhs-root))
          (slash (if (and (> (length clhs-root) 0)
                          (eql (char clhs-root (- (length clhs-root) 1)) #\/))

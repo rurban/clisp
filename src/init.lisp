@@ -320,7 +320,8 @@
 (common-lisp:export
  '(*load-paths* *editor* *clhs-root-default*
    *load-echo* *applyhook* *evalhook* *load-compiling* *compile-warnings*
-   *ansi* *current-language* *default-file-encoding* ; places.lisp
+   ;; places.lisp
+   *ansi* *current-language* *lib-directory* *default-file-encoding*
    #+UNICODE *misc-encoding*
    #+UNICODE *terminal-encoding*
    #+UNICODE *pathname-encoding*

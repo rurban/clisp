@@ -457,6 +457,7 @@
   LISPOBJ(type_scope,"(MEMBER :SELF :LEVEL :TREE)")
  #endif
 # for PATHNAME.D:
+  LISPOBJ(lib_dir,"NIL") # must be set via a command line option
   LISPOBJ(type_designator_pathname,"(OR STRING FILE-STREAM PATHNAME)")
  #ifdef LOGICAL_PATHNAMES
   LISPOBJ(empty_logical_pathname,".") # (already initialized)

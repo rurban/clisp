@@ -1718,7 +1718,7 @@ local void print_banner ()
       #ifdef MULTIMAP_MEMORY_VIA_FILE
       var local char* argv_tmpdir = NULL;
       #endif
-      extern char* argv_lisplibdir;
+      var local char* argv_lisplibdir;
       var local bool argv_wide = false; # for backward compatibility
       var local char* argv_memfile = NULL;
       var local bool argv_load_compiling = false;
@@ -2667,13 +2667,18 @@ local void print_banner ()
         skipSTACK(1);
       }
       if (argv_lisplibdir == NULL) {
-        # Warning for beginners and careless developers
-        pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # on *STANDARD-OUTPUT*
-        write_sstring(&STACK_0,CLSTEXT(NLstring "WARNING: No installation directory specified." NLstring));
-        write_sstring(&STACK_0,CLSTEXT("Please try: "));
-        write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
-        write_string(&STACK_0,ascii_to_string(" -B /usr/local/lib/clisp" NLstring));
-        skipSTACK(1);
+        if (nullp(O(lib_dir))) {
+          # Warning for beginners and careless developers
+          pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # on *STANDARD-OUTPUT*
+          write_sstring(&STACK_0,CLSTEXT(NLstring "WARNING: No installation directory specified." NLstring));
+          write_sstring(&STACK_0,CLSTEXT("Please try: "));
+          write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
+          write_string(&STACK_0,ascii_to_string(" -B /usr/local/lib/clisp" NLstring));
+          skipSTACK(1);
+        }
+      } else { # set it
+        pushSTACK(asciz_to_string(argv_lisplibdir,O(pathname_encoding)));
+        funcall(L(set_lib_directory),1);
       }
       if (argv_compile || !(argv_expr == NULL) || !(argv_execute_file == NULL))
         # '-c' oder '-x' oder file angegeben -> LISP läuft im Batch-Modus:

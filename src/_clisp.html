@@ -116,6 +116,8 @@ more efficiently.</p>
 This option is normally not necessary, because the installation directory
 is already built-in in the <code>clisp</code> executable.
 #endif
+Directory <var>lisplibdir</var> can be changed at run-time using the
+symbol-macro <code>*lib-directory*</code>.
 <p/></dd>
 
 #ifdef UNIX
@@ -213,7 +215,7 @@ Other languages may be specified through the environment variable
 provided the corresponding message catalog is installed.
 #endif
 The language may be changed at run-time using the symbol macro
-<a href="impnotes.html#language">*current-language*</a>,
+<a href="impnotes.html#language"><code>*current-language*</code></a>,
 <p/></dd>
 
 <dt id="opt-locale"><strong><code>-N</code>
@@ -222,7 +224,7 @@ The language may be changed at run-time using the symbol macro
 will search its message catalogs in
 <var>localedir</var><code>/</code><var>language</var><code>/LC_MESSAGES/clisp.mo</code>.
 This directory may be changed at run-time using the symbol macro
-<a href="impnotes.html#language">*current-language*</a>,
+<a href="impnotes.html#language"><code>*current-language*</code></a>,
 <p/></dd>
 
 <dt id="opt-enc"><strong><code>-E</code><var>domain</var>
@@ -627,7 +629,7 @@ EOF (Ctrl-\e)
 <h2 id="projects">Projects</h2>
 
 <ul>
-<li>Writing on-line documentation.</li>
+<li>Write on-line documentation.</li>
 <li>Enhance the compiler so that it can inline local functions.</li>
 <li>Specify a portable set of window and graphics operations.</li>
 <li>Add Multi-Threading capabilities, via OS threads.</li>
