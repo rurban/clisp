@@ -118,8 +118,8 @@
 
 <para>The backquote read macro also works when nested. Example:
 <informalexample id="bq-nested"><programlisting>
-   (&eval; ``(,#'(&lambda; () ',a) ,#'(&lambda; () ',b)))
- = (&eval; `(list #'(&lambda; () ',a) #'(&lambda; () ',b)))
+   (&eval; ``(,#'(&lambda-m; () ',a) ,#'(&lambda-m; () ',b)))
+ = (&eval; `(list #'(&lambda-m; () ',a) #'(&lambda-m; () ',b)))
  = (&eval; (list 'list (list 'function (list 'lambda nil (list 'quote a)))
                      (list 'function (list 'lambda nil (list 'quote b)))))
 </programlisting></informalexample></para>
@@ -565,9 +565,9 @@ executes a compiled version of form.</para>
 <formalpara><title>Macro &destructuring-bind;</title>
 <para>This macro does not perform full error checking.</para></formalpara>
 
-<formalpara><title>Macros &prog1;, &prog2;, &and;, &or;, &psetq;, &when;,
- &unless;, &cond;, &case;, &multiple-value-list;, &multiple-value-bind;,
- &multiple-value-setq;</title>
+<formalpara><title>Macros &prog1;, &prog2;, &and-m;, &or-m;, &psetq;,
+ &when;, &unless;, &cond;, &case;, &multiple-value-list;,
+ &multiple-value-bind;, &multiple-value-setq;</title>
 <para>These macros are implemented as special operators (as permitted by
  <ulink url="&clhs;/Body/sec_3-1-2-1-2-2.html">Section 3.1.2.1.2.2</ulink>)
  and, as such, are rather efficient.</para></formalpara>
@@ -740,7 +740,7 @@ is the same as
 
 </section>
 
-<section id="lambda"><title>Macro &lambda;</title>
+<section id="lambda"><title>Macro &lambda-m;</title>
 
 <formalpara><title>Constant &lambda-list-keywords;</title>
 <para><literal role="sexp">(&optional-amp; &rest-amp; &key-amp;
@@ -823,7 +823,7 @@ is the same as
    <ulink url="&clhs;/Body/chap-8.html">[CLHS-8]</ulink></title>
 
 <para>The &print-function-k; option should contain a &lambda-expr;
- <literal role="sexp">(&lambda; (structure stream depth) (declare
+ <literal role="sexp">(&lambda-m; (structure stream depth) (declare
  (ignore depth)) ...)</literal> This &lambda-expr; names a function
  whose task is to output the external representation of structure onto
  the stream. This may be done by outputting text onto the stream using
@@ -1280,14 +1280,14 @@ performance considerations.
   precision that is greater than its accuracy.
   </simpara></listitem></varlistentry>
 <varlistentry><term>Example:</term>
- <listitem><simpara><literal role="sexp">(- (+ 1.7 &pi;) &pi;)</literal>
+ <listitem><simpara><literal role="sexp">(- (+ 1.7 &pi-v;) &pi-v;)</literal>
   should not return <literal>1.700000726342836417234L0</literal>, it
   should return <literal>1.7f0</literal> (or
   <literal>1.700001f0</literal> if there were rounding errors).
   </simpara></listitem></varlistentry>
 <varlistentry><term>Experience:</term>
  <listitem><simpara>If in a computation using thousands of short floats,
-  a long float (like &pi;) happens to be used, the long precision should
+  a long float (like &pi-v;) happens to be used, the long precision should
   not propagate throughout all the intermediate values. Otherwise, the
   long result would look precise, but its accuracy is only that of a
   short float; furthermore much computation time would be lost by
@@ -1405,10 +1405,10 @@ performance considerations.
 <para><literal role="sexp">(&log; &number-r; &base-r;)</literal> &signal;s
  an &error-t; if <literal>&base-r; = 1</literal>.</para></formalpara>
 
-<formalpara><title>Constant &pi;</title>
-<para>The value of &pi; is a &long-float-t; with the precision given
- by &lfd-l;.  When this precision is changed, the value of &pi; is
- automatically recomputed.  Therefore &pi; is
+<formalpara><title>Constant &pi-v;</title>
+<para>The value of &pi-v; is a &long-float-t; with the precision given
+ by &lfd-l;.  When this precision is changed, the value of &pi-v; is
+ automatically recomputed.  Therefore &pi-v; is
  a <emphasis>variable</emphasis>, <emphasis role="strong">not</emphasis>
  a <emphasis>constant</emphasis>.</para></formalpara>
 
@@ -1478,7 +1478,7 @@ performance considerations.
 <section id="float-lim"><title>Float Limits
 <ulink url="&clhs;/Body/convar_most-p_d-long-float.html">[CLHS]</ulink></title>
 
-<para>Together with &pi;, the other long float constants
+<para>Together with &pi-v;, the other long float constants
  &least-negative-long-float; &least-negative-normalized-long-float;
  &least-positive-long-float; &least-positive-normalized-long-float;
  &long-float-epsilon; &long-float-negative-epsilon;
@@ -2367,7 +2367,7 @@ and the international alphabetic characters from the character set:
 <section id="doseq"><title>Macro &doseq;</title>
 
 <para>For iteration through a sequence, a macro &doseq;,
- similar to &dolist;, may be used instead of &map;:</para>
+ similar to &dolist;, may be used instead of &map-f;:</para>
 
 <programlisting>
 (&doseq; (&var-r; <replaceable>seqform</replaceable> [<replaceable>resultform</replaceable>])
@@ -4075,7 +4075,8 @@ functions are provided:
 
 <para>In addition to the standard functions &listen; and
  &read-char-no-hang;, &clisp; provides the following functionality
- facilitating non-blocking input and output, both binary and character.</para>
+ facilitating non-blocking input and output, both binary and
+ character.</para>
 
 <variablelist>
  <varlistentry id="rcwhp"><term><literal
@@ -4085,7 +4086,7 @@ functions are provided:
   <replaceable>peek-type</replaceable> of &nil; will return immediately.
   Otherwise it returns &t;.  (In the latter case the standard
   &listen; function would return &nil;.)</simpara>
-  <simpara>Note the difference with <literal role="sexp">(&not;
+  <simpara>Note the difference with <literal role="sexp">(&not-f;
   (&listen; &stream-r;))</literal>: When the &eos; is reached, &listen;
   returns &nil;, whereas &rcwhp; returns &nil;.</simpara>
   <simpara>Note also that &rcwhp; is not a good way to test for &eos;:
