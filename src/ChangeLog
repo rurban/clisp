@@ -1,5 +1,16 @@
 2004-10-11  Bruno Haible  <bruno@clisp.org>
 
+	Respect user-defined methods on generic-function-method-class.
+	* clos-genfun1.lisp (generic-function-method-class): New preliminary
+	function.
+	(|#'generic-function-method-class|): New variable.
+	(safe-gf-default-method-class): New function.
+	* clos-methcomb2.lisp (effective-method-code-bricks): Call
+	safe-gf-default-method-class instead of std-gf-default-method-class.
+	* clos-genfun3.lisp (do-defmethod): Likewise.
+	* clos-genfun4.lisp (generic-function-method-class): Redefine smoothly.
+	Initialize |#'generic-function-method-class|.
+
 	Respect user-defined methods on generic-function-methods.
 	* clos-genfun1.lisp (generic-function-methods): New preliminary
 	function.
