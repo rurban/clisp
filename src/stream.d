@@ -4687,7 +4687,7 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
     if (result==0) {
       return ls_wait;
     } else {
-      if (byte) *byte = b;
+      *byte = b;
       return ls_avail;
     }
     # If this doesn't work, should use a timer 0.1 sec ??
@@ -4706,7 +4706,7 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
     if (result==0) {
       return ls_eof;
     } else {
-      if (byte) *byte = b;
+      *byte = b;
       return ls_avail;
     }
   }
@@ -4778,12 +4778,13 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
       var uintB b;
       var int result = read(handle,&b,1);
       if (result<0) {
-          OS_error();
+        OS_error();
       }
       end_system_call();
       if (result==0) {
         return ls_eof;
       } else {
+        if (byte) *byte = b;
         return ls_avail;
       }
     }
@@ -5899,13 +5900,18 @@ local uintL low_fill_buffered_handle (object stream, bool no_hang) {
   var sintL result = 0;
   var Handle handle = TheHandle(BufferedStream_channel(stream));
   var signean listen_status = ls_eof;
+  var int byte = -1;
   /* no_hang => call listen_handle() => correct listen_status
    otherwise, result=0 means there was nothing to read => EOF */
   if (!no_hang
-      || ls_avail_p(listen_status = listen_handle(handle,false,NULL))) {
+      || ls_avail_p(listen_status = listen_handle(handle,false,&byte))) {
+    var uintB * buff = BufferedStream_buffer_address(stream,0);
     begin_system_call();
-    result = read_helper(handle,BufferedStream_buffer_address(stream,0),
-                         strm_buffered_bufflen,no_hang);
+    if (byte != -1) {
+      buff[0] = byte;
+      result = read_helper(handle,buff+1,strm_buffered_bufflen-1,no_hang);
+    } else
+      result = read_helper(handle,buff,strm_buffered_bufflen,no_hang);
     end_system_call();
     if (result<0)               /* error occurred? */
       OS_filestream_error(stream);
