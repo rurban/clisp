@@ -1,6 +1,8 @@
 2005-01-25  Sam Steingold  <sds@gnu.org>
 
 	* install.lisp: use EXT:STRING-CONCAT instead of CONCATENATE 'STRING
+	(*clisp-linkset*): new variable
+	(*clisp-runtime*, *clisp-args*): use it
 
 2005-01-25  Bruno Haible  <bruno@clisp.org>
 
