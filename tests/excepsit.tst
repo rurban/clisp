@@ -242,9 +242,7 @@ error
 (concatenate '(string 3) "ab" "cd")
 type-error
 
-#-CLISP
 (copy-pprint-dispatch 'x)
-#-CLISP
 type-error
 
 (copy-seq 'x)
@@ -289,7 +287,7 @@ program-error
 (defgeneric if (x))
 program-error
 
-(progn 
+(progn
   (defmacro foo11 (x) x)
   (defgeneric foo11 (x)))
 program-error
@@ -324,7 +322,7 @@ program-error
 (defmethod if (x) nil)
 error
 
-(progn 
+(progn
   (defmacro foo17 (x) x)
   (defmethod foo17 (x) nil))
 error
@@ -818,41 +816,27 @@ type-error
 (plusp #c(0 4.2))
 type-error
 
-#-CLISP
 (pprint-dispatch nil t)
-#-CLISP
 type-error
 
-#-CLISP
 (pprint-exit-if-list-exhausted)
-#-CLISP
 error
 
-#-CLISP
 (pprint-indent nil 2)
-#-CLISP
 error
 
-#-CLISP
 (let ((x (make-string-output-stream)))
   (pprint-logical-block (x nil :prefix 24)))
-#-CLISP
 type-error
 
-#-CLISP
 (let ((x (make-string-output-stream)))
   (pprint-logical-block (x nil :prefix "a" :per-line-prefix "b")))
-#-CLISP
 error
 
-#-CLISP
 (pprint-newline :fresh)
-#-CLISP
 type-error
 
-#-CLISP
 (pprint-pop)
-#-CLISP
 error
 
 (pprint-tab :paragraph 0 1)
