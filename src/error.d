@@ -1321,7 +1321,7 @@ global object check_funname_replacement (condition_t errtype, object caller, obj
       default: NOTREACHED;
     }
     pushSTACK(obj); pushSTACK(caller);
-    check_value(errtype,GETTEXT("~S: ~S is not a function name"));
+    check_value(errtype,GETTEXT("~S: ~S is not a function name; try using a symbol instead"));
     obj = value1;
   } while (!funnamep(obj));
   skipSTACK(1); /* drop caller */
