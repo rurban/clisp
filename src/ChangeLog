@@ -1,3 +1,7 @@
+2003-12-31  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (uninstall-bin) [CYGWIN]: remove clisp.README & clisp.exe
+
 2003-12-29  Sam Steingold  <sds@gnu.org>
 
 	* version.h: 2.32 is released
