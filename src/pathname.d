@@ -647,9 +647,11 @@
 # oder                                         name.typ
 # oder                      /sub1.typ/ ** /sub3.typ/x*.lisp  (ohne Spaces!)
 # oder Ähnliches.
+# If NAME starts with a dot, (parse-namestring (namestring pathname)) will not
+# be the same as pathname.
 #endif
 
-#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+#ifdef PATHNAME_OS2
 # Komponenten:
 # HOST          stets NIL
 # DEVICE        NIL oder :WILD oder "A"|...|"Z"
@@ -677,6 +679,39 @@
 # oder                    *:\sub1.typ\**\sub3.typ\x*.lisp
 # oder Ähnliches.
 # Statt '\' ist - wie unter DOS üblich - auch '/' erlaubt.
+#endif
+
+#ifdef PATHNAME_WIN32
+# Komponenten:
+# HOST          NIL oder Simple-String (Wildcard-Zeichen sind ohne Bedeutung)
+# DEVICE        NIL oder :WILD oder "A"|...|"Z"
+# DIRECTORY     (Startpoint . Subdirs) wobei
+#                Startpoint = :RELATIVE | :ABSOLUTE
+#                Subdirs = () | (subdir . Subdirs)
+#                subdir = :WILD-INFERIORS (bedeutet "**" oder "...", alle Subdirectories) oder
+#                subdir = Simple-String, evtl. mit Wildcard-Zeichen ? und *
+# NAME          NIL oder
+#               Simple-String, evtl. mit Wildcard-Zeichen ? und *
+#               (auch :WILD bei der Eingabe)
+# TYPE          NIL oder
+#               Simple-String, evtl. mit Wildcard-Zeichen ? und *
+#               (auch :WILD bei der Eingabe)
+# VERSION       stets NIL (auch :WILD oder :NEWEST bei Eingabe)
+# If HOST is non-NIL, DEVICE must be NIL.
+# Ein WIN32-Filename wird folgendermaßen in Name und Typ aufgespalten:
+#   falls kein '.' im Filename: Name = alles, Typ = NIL,
+#   falls '.' im Filename: Name = alles vor, Typ = alles nach dem letzten '.' .
+# Wenn ein Pathname vollständig spezifiziert sein muss (keine Wildcards),
+# ist :WILD, :WILD-INFERIORS nicht erlaubt, keine Wildcard-Zeichen in den
+# Strings, bei NAME evtl. auch nicht NIL.
+# Externe Notation:       A:\sub1.typ\sub2.typ\name.typ
+# mit Defaults:             \sub1.typ\sub2.typ\name.typ
+# oder                                         name.typ
+# oder                    *:\sub1.typ\**\sub3.typ\x*.lisp
+# oder Ähnliches.
+# Statt '\' ist - wie unter DOS üblich - auch '/' erlaubt.
+# If HOST is non-NIL and the DIRECTORY's Startpoint is not :ABSOLUTE,
+# (parse-namestring (namestring pathname)) will not be the same as pathname.
 #endif
 
 #ifdef PATHNAME_RISCOS
@@ -1952,6 +1987,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
       #endif
       pushSTACK(allocate_pathname());
       # Stackaufbau: ..., Datenvektor, Pathname.
+      # Trennzeichen zwischen subdirs ist unter MSDOS sowohl '\' als auch '/':
       #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
         #define slashp(c)  (chareq(c,ascii('\\')) || chareq(c,ascii('/')))
       #endif
@@ -2010,7 +2046,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               goto hostspec_ok;
             #elif defined(PATHNAME_WIN32)
-              # Look for a slash, then a sequence of characters.
+              # Look for two slashes, then a sequence of characters.
               if (z.count==0) goto no_hostspec;
               ch = TheSstring(STACK_1)->data[z.index];
               if (!slashp(ch)) goto no_hostspec;
@@ -2032,6 +2068,8 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               if (z.index - startz.index - 2 == 0)
                 goto no_hostspec;
               host = subsstring(STACK_1,startz.index+2,z.index);
+              # Note: The next character in the string is not a letter or '*';
+              # therefore the device of the resulting pathname will be NIL.
               goto hostspec_ok;
             #else
               # Kommt eine Folge von alphanumerischen Zeichen und dann ein ':' bzw. '::' ?
@@ -2192,7 +2230,6 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
       }
       # Stackaufbau: ..., Datenvektor, Pathname, (last (pathname-directory Pathname)).
       # Subdirectories parsen:
-      # Trennzeichen zwischen subdirs ist unter MSDOS sowohl '\' als auch '/':
       {
         #if defined(USER_HOMEDIR) && defined(PATHNAME_UNIX)
           # Falls sofort ein '~' kommt, wird bis zum nächsten '/' oder Stringende
@@ -2605,7 +2642,7 @@ LISPFUNN(pathname,1)
   }
 
 LISPFUN(pathnamehost,1,0,norest,key,1, (kw(case)))
-# (PATHNAME-HOST pathname), CLTL S. 417, CLtL2 S. 644
+# (PATHNAME-HOST pathname [:case]), CLTL S. 417, CLtL2 S. 644
   {
     var object pathname = coerce_xpathname(STACK_1);
     #ifdef LOGICAL_PATHNAMES
@@ -2626,7 +2663,7 @@ LISPFUN(pathnamehost,1,0,norest,key,1, (kw(case)))
   }
 
 LISPFUN(pathnamedevice,1,0,norest,key,1, (kw(case)))
-# (PATHNAME-DEVICE pathname), CLTL S. 417, CLtL2 S. 644
+# (PATHNAME-DEVICE pathname [:case]), CLTL S. 417, CLtL2 S. 644
   {
     var object pathname = coerce_xpathname(STACK_1);
     #ifdef LOGICAL_PATHNAMES
@@ -2647,7 +2684,7 @@ LISPFUN(pathnamedevice,1,0,norest,key,1, (kw(case)))
   }
 
 LISPFUN(pathnamedirectory,1,0,norest,key,1, (kw(case)))
-# (PATHNAME-DIRECTORY pathname), CLTL S. 417, CLtL2 S. 644
+# (PATHNAME-DIRECTORY pathname [:case]), CLTL S. 417, CLtL2 S. 644
   {
     var object pathname = coerce_xpathname(STACK_1);
     #ifdef LOGICAL_PATHNAMES
@@ -2664,7 +2701,7 @@ LISPFUN(pathnamedirectory,1,0,norest,key,1, (kw(case)))
   }
 
 LISPFUN(pathnamename,1,0,norest,key,1, (kw(case)))
-# (PATHNAME-NAME pathname), CLTL S. 417, CLtL2 S. 644
+# (PATHNAME-NAME pathname [:case]), CLTL S. 417, CLtL2 S. 644
   {
     var object pathname = coerce_xpathname(STACK_1);
     #ifdef LOGICAL_PATHNAMES
@@ -2681,7 +2718,7 @@ LISPFUN(pathnamename,1,0,norest,key,1, (kw(case)))
   }
 
 LISPFUN(pathnametype,1,0,norest,key,1, (kw(case)))
-# (PATHNAME-TYPE pathname), CLTL S. 417, CLtL2 S. 644
+# (PATHNAME-TYPE pathname [:case]), CLTL S. 417, CLtL2 S. 644
   {
     var object pathname = coerce_xpathname(STACK_1);
     #ifdef LOGICAL_PATHNAMES
@@ -2978,10 +3015,9 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
         return 0; # kein String
       } else {
         #ifdef PATHNAME_WIN32
-        pushSTACK(O(backslash_string));
-        pushSTACK(O(backslash_string));
+        pushSTACK(O(backslashbackslash_string));
         pushSTACK(host);
-        return 3;
+        return 2;
         #else
         pushSTACK(host);
         pushSTACK(O(doppelpunkt_string)); # ":"
@@ -3161,24 +3197,6 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
                                        ThePathname(pathname)->pathname_version);
     }
 
-# check the slots for consistency:
-# remote paths (UNC) must be absolute and not have device
-# make the path into absolute and kill the device
-# (thus HOST always overrides DEVICE)
-local void pathname_fix_remote (object pathname) {
-#if HAS_HOST
-  if (!nullp(ThePathname(pathname)->pathname_host)) {
-    #if HAS_DEVICE
-    if (!nullp(ThePathname(pathname)->pathname_device))
-      ThePathname(pathname)->pathname_device = NIL;
-    #endif
-    if (consp(ThePathname(pathname)->pathname_directory) &&
-        !eq(Car(ThePathname(pathname)->pathname_directory),S(Kabsolute)))
-      Car(ThePathname(pathname)->pathname_directory) = S(Kabsolute);
-  }
-#endif
-}
-
 # UP: Wandelt Pathname in String um.
 # whole_namestring(pathname)
 # > pathname: nicht-Logical Pathname
@@ -3189,7 +3207,6 @@ local void pathname_fix_remote (object pathname) {
     var object pathname;
     {
       var uintC stringcount;
-      pathname_fix_remote(pathname);
       stringcount = host_namestring_parts(pathname); # Strings für den Host
       stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
       stringcount += file_namestring_parts(pathname); # Strings für den Filename
@@ -3215,23 +3232,17 @@ LISPFUNN(file_namestring,1)
   local object directory_namestring(pathname)
     var object pathname;
     {
-      var uintC stringcount = directory_namestring_parts(pathname);
-      return string_concat(stringcount);
+      # The function DIRECTORY-NAMESTRING is totally underspecified. It could return
+      # a. just the string for the directory portion,
+      # b. the string for the device + directory portions,
+      # c. the string for the host + device + directory portions.
+      # Before we used hosts, we have traditionally returned (b). Now, with hosts,
+      # we return (c). This makes most sense, given that CLHS says that programs
+      # shouldn't attempt to concatenate the resulting string with anything.
+      var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
+      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
+      return string_concat(stringcount); # zusammenhängen
     }
-
-# UP: host+directory
-# namestring_host_dir(pathname)
-# > pathname: non-logical pathname
-# > subr_self: the caller (a SUBR)
-# < returns: normal-simple-string
-# can trigger GC
-local object namestring_host_dir (object pathname)
-{
-  pathname_fix_remote(pathname);
-  var uintC stringcount = host_namestring_parts(pathname);
-  stringcount += directory_namestring_parts(pathname);
-  return string_concat(stringcount);
-}
 
 LISPFUNN(directory_namestring,1)
 # (DIRECTORY-NAMESTRING pathname), CLTL S. 417
@@ -3413,6 +3424,7 @@ LISPFUNN(host_namestring,1)
 
 LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
 # (MERGE-PATHNAMES pathname [defaults [default-version]] [:wild]), CLTL S. 415
+# Definition assuming that HAS_HOST and HAS_DEVICE are exclusive:
 # (defun merge-pathnames (pathname &optional (defaults *default-pathname-defaults*) default-version)
 #   (setq pathname (pathname pathname))
 #   (setq defaults (pathname defaults))
@@ -3458,8 +3470,12 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
 #     :name (or (pathname-name pathname) (pathname-name defaults))
 #     :type (or (pathname-type pathname) (pathname-type defaults))
 # ) )
-# Ist das :WILD-Argument angegeben, werden statt fehlenden Komponenten
-# :WILD-Komponenten ersetzt.
+#
+# If HAS_HOST and HAS_DEVICE are both true, the semantics are more
+# complicated; see CLHS for details.
+#
+# If the :WILD argument is specified, :WILD components are replaced,
+# instead of missing components.
 #
 # Explanation of the "<----" line:
 #
@@ -3656,17 +3672,20 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       # beide Hosts gleich -> Devices matchen:
       if (equal(p_host,d_host))
         goto match_devices;
-      if (!wildp && nullp(p_host)) {
-        #if HAS_DEVICE
-        if (!nullp(ThePathname(p)->pathname_device))
-          ThePathname(newp)->pathname_host = NIL;
-        else
-        #endif
-          # pathname-host nicht angegeben, aber defaults-host angegeben:
-          ThePathname(newp)->pathname_host = d_host; # new-host := defaults-host
-        goto match_devices;
-      }
-      goto notmatch_devices;
+      if (!(wildp ? FALSE : nullp(p_host)))
+        goto notmatch_devices;
+      #ifdef PATHNAME_WIN32
+      var object p_device = ThePathname(p)->pathname_device;
+      # On Win32, a non-null p_device implicitly designates p_host as the
+      # local machine. It must not be overridden by d_host.
+      if (!(called_from_make_pathname ? eq(p_device,unbound) :
+            wildp ? eq(p_device,S(Kwild)) : nullp(p_device)
+         ) )
+        goto notmatch_devices;
+      #endif
+      # pathname-host nicht angegeben, aber defaults-host angegeben:
+      ThePathname(newp)->pathname_host = d_host; # new-host := defaults-host
+      goto match_devices;
     }
     #endif
    match_devices:
@@ -3680,14 +3699,10 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       if (equal(p_device,d_device))
         goto match_directories;
       if (called_from_make_pathname ? eq(p_device,unbound) :
-          (wildp ? eq(p_device,S(Kwild)) : nullp(p_device))) {
-        #if HAS_HOST
-        if(!nullp(ThePathname(p)->pathname_host))
-          ThePathname(newp)->pathname_device = NIL;
-        else
-        #endif
-          # pathname-device nicht angegeben, aber defaults-device angegeben:
-          ThePathname(newp)->pathname_device = d_device; # new-device := defaults-device
+          wildp ? eq(p_device,S(Kwild)) : nullp(p_device)
+         ) {
+        # pathname-device nicht angegeben, aber defaults-device angegeben:
+        ThePathname(newp)->pathname_device = d_device; # new-device := defaults-device
         goto match_directories;
       }
       goto notmatch_directories;
@@ -3752,11 +3767,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
    notmatch_directories:
     {
       # new-directory := pathname-directory :
-      ThePathname(newp)->pathname_directory =
-        ThePathname(p)->pathname_directory;
-      if (eq(ThePathname(newp)->pathname_directory,unbound))
-        ThePathname(newp)->pathname_directory =
-          ThePathname(d)->pathname_directory;
+      ThePathname(newp)->pathname_directory = ThePathname(p)->pathname_directory;
     }
    directories_OK:
     # Nun sind die Directories OK.
@@ -3795,15 +3806,13 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
     skipSTACK(1);
     #endif
-    #if HAS_HOST
-    pathname_fix_remote(newp);
-    #endif
     # new als Wert:
     value1 = newp; mv_count=1;
   }
 
 LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
 # (ENOUGH-NAMESTRING pathname [defaults]), CLTL S. 417
+# Definition assuming that HAS_HOST and HAS_DEVICE are exclusive:
 # (defun enough-namestring (pathname &optional (defaults *default-pathname-defaults*))
 #   (setq pathname (pathname pathname))
 #   (setq defaults (pathname defaults))
@@ -3851,6 +3860,9 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
 #               (pathname-type pathname)
 #             )
 # ) ) )
+#
+# If HAS_HOST and HAS_DEVICE are both true, the semantics are more
+# complicated; see CLHS for details.
   {
     # pathname und defaults überprüfen:
     # pathname zu einem Pathname machen:
@@ -3926,6 +3938,8 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
     #if HAS_DEVICE
       } else {
         # verschiedene Devices
+        # (Note for PATHNAME_WIN32: If we have different devices, the common
+        # host must have been NIL.)
         # new-device := pathname-device :
         ThePathname(newp)->pathname_device = p_device;
         # new-directory := pathname-directory :
@@ -4143,6 +4157,16 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         # Keiner der gewünschten Fälle -> Fehler:
         pushSTACK(STACK_4); pushSTACK(S(Kdevice)); goto fehler_arg;
        device_ok: ;
+        #ifdef PATHNAME_WIN32
+        if (!nullp(STACK_5) && !nullp(STACK_4)) {
+          pushSTACK(STACK_4);
+          pushSTACK(STACK_(5+1));
+          pushSTACK(TheSubr(subr_self)->name);
+          fehler(error,
+                 GETTEXT("~: on host ~, device ~ is invalid, should be NIL")
+                );
+        }
+        #endif
       }
     }
     #else
@@ -4366,7 +4390,6 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         #endif
         #if HAS_HOST
         ThePathname(pathname)->pathname_host      = popSTACK();
-        pathname_fix_remote(pathname);
         #else
         skipSTACK(1);
         #endif
@@ -6268,10 +6291,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       return asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding));
     }
 
-# UP: merge the default-drive und default-directory into the pathname.
+# UP: Füllt Default-Drive und Default-Directory in einen Pathname ein.
 # use_default_dir(pathname)
-# > pathname: non-Logical Pathname with Device /= :WILD
-# < return: new absolute Pathname
+# > pathname: nicht-Logical Pathname mit Device /= :WILD
+# < ergebnis: neuer absoluter Pathname
 # can trigger GC
   local object use_default_dir (object pathname);
   local object use_default_dir(pathname)
@@ -6280,36 +6303,42 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       # erst den Pathname kopieren:
       pathname = copy_pathname(pathname);
       pushSTACK(pathname);
-      # stack layout: pathname.
-      # default device:
-      if (nullp(ThePathname(pathname)->pathname_device)
-          #if HAS_HOST
-          # host IS the device
-          && nullp(ThePathname(pathname)->pathname_host)
-          #endif
-          )
-        ThePathname(pathname)->pathname_device = O(default_drive);
-      # default directory:
+      # Stackaufbau: pathname.
+      # Default fürs Device:
+      #if HAS_HOST # PATHNAME_WIN32
+      if (nullp(ThePathname(pathname)->pathname_host))
+      #endif
+        if (nullp(ThePathname(pathname)->pathname_device)) { # kein Device angegeben?
+          # Nimm das Default-Drive stattdessen:
+          ThePathname(pathname)->pathname_device = O(default_drive);
+        }
+      # Default fürs Directory:
       {
         var object subdirs = ThePathname(pathname)->pathname_directory;
         # Fängt pathname-directory mit :RELATIVE an?
-        if (eq(Car(subdirs),S(Krelative))
-            #if HAS_HOST
-            # no default paths on remote machines
-            && nullp(ThePathname(pathname)->pathname_host)
-            #endif
-            ) {
+        if (eq(Car(subdirs),S(Krelative))) {
           # ja -> Ersetze :RELATIVE durch das Default-Directory:
           pushSTACK(Cdr(subdirs));
-          var uintB drive = as_cint(TheSstring(ThePathname(pathname)->pathname_device)->data[0]);
-          var object default_dir = default_directory_of(drive,pathname);
-          # default_dir (ein Pathname) ist fertig.
-          # Ersetze :RELATIVE durch default-subdirs, d.h.
-          # bilde  (append default-subdirs (cdr subdirs))
-          #      = (nreconc (reverse default-subdirs) (cdr subdirs))
-          var object temp = ThePathname(default_dir)->pathname_directory;
-          temp = reverse(temp);
-          subdirs = nreconc(temp,popSTACK());
+          #if HAS_HOST # PATHNAME_WIN32
+          if (!nullp(ThePathname(pathname)->pathname_host)) {
+            # We don't have the concept of a current directory on a
+            # remote host. Simply use :ABSOLUTE instead of :RELATIVE.
+            subdirs = allocate_cons();
+            Car(subdirs) = S(Kabsolute);
+            Cdr(subdirs) = popSTACK();
+          } else
+          #endif
+          {
+            var uintB drive = as_cint(TheSstring(ThePathname(pathname)->pathname_device)->data[0]);
+            var object default_dir = default_directory_of(drive,pathname);
+            # default_dir (ein Pathname) ist fertig.
+            # Ersetze :RELATIVE durch default-subdirs, d.h.
+            # bilde  (append default-subdirs (cdr subdirs))
+            #      = (nreconc (reverse default-subdirs) (cdr subdirs))
+            var object temp = ThePathname(default_dir)->pathname_directory;
+            temp = reverse(temp);
+            subdirs = nreconc(temp,popSTACK());
+          }
         }
         # Liste durchgehen und dabei neu aufconsen, dabei '.\' und '..\'
         # und '...\' verarbeiten (nicht dem DOS überlassen):
@@ -6376,7 +6405,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var boolean links_resolved;
     var boolean tolerantp;
     {
-      var object dir_namestring = namestring_host_dir(STACK_0);
+      var object pathname = STACK_0;
+      var uintC stringcount = host_namestring_parts(pathname); # Strings fürn Host
+      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
+      var object dir_namestring = string_concat(stringcount); # zusammenhängen
       if (!links_resolved) {
         # Existenztest:
         #ifdef MSDOS
@@ -6630,7 +6662,13 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       if (!links_resolved) {
         # Zur Auflösung von :PARENTs, die über Root hinaussteigen,
         # müssen wir das Betriebssystem bemühen. Daher:
-        var object dir_namestring = namestring_host_dir(STACK_0);
+        var object dir_namestring;
+        {
+          var object pathname = STACK_0;
+          var uintC stringcount = host_namestring_parts(pathname); # Strings fürn Host
+          stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
+          dir_namestring = string_concat(stringcount);
+        }
         pushSTACK(dir_namestring);
         dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
         with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
@@ -6707,8 +6745,11 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       var object pathname = STACK_0;
       # Information zum angesprochenen File holen:
       if (namenullp(pathname)) # kein File angesprochen?
-        return namestring_host_dir(pathname); # ja -> fertig
-      var object namestring = whole_namestring(pathname);
+        return directory_namestring(pathname); # ja -> fertig
+      var uintC stringcount = host_namestring_parts(pathname); # Strings fürn Host
+      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
+      stringcount += file_namestring_parts(pathname); # Strings für den Filename
+      var object namestring = string_concat(stringcount); # zusammenhängen
       with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
         # Lock für dieses File holen:
         set_break_sem_4(); # Unterbrechungen währenddessen verhindern
@@ -6871,7 +6912,9 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         {
           var char path_buffer[MAXPATHLEN]; # vgl. REALPATH(3)
           {
-            var uintC stringcount = directory_namestring_parts(STACK_0); # Strings zum Directory
+            var object pathname = STACK_0;
+            var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
+            stringcount += directory_namestring_parts(pathname); # Strings zum Directory
             pushSTACK(O(punkt_string)); # und "."
             var object string = string_concat(stringcount+1); # zusammenhängen
             # symbolische Links darin auflösen:
@@ -6914,9 +6957,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
        dir_exists:
         # Information zum angesprochenen File holen:
         if (namenullp(STACK_0)) # kein File angesprochen?
-          return namestring_host_dir(STACK_0); # ja -> fertig
+          return directory_namestring(STACK_0); # ja -> fertig
         var object pathname = STACK_0;
-        var object namestring = whole_namestring(pathname);
+        var uintC stringcount = host_namestring_parts(pathname); # Strings fürn Host
+        stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
+        stringcount += file_namestring_parts(pathname); # Strings für den Filename
+        var object namestring = string_concat(stringcount); # zusammenhängen
         # Information holen:
         var local struct stat status;
         with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
@@ -7256,7 +7302,9 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var boolean allowdir;
     {
       var object pathname = STACK_0;
-      var object dir_namestring = namestring_host_dir(pathname);
+      var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
+      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
+      var object dir_namestring = string_concat(stringcount); # zusammenhängen
       if (!links_resolved) {
         # Existenztest:
         var struct stat statbuf;
@@ -7391,16 +7439,6 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local void change_default (void);
   local void change_default()
     {
-      #if HAS_HOST
-      if (!nullp(ThePathname(STACK_0)->pathname_host)) {
-        pushSTACK(STACK_0); # flot PATHNAME of FILE-ERROR
-        pushSTACK(STACK_0);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(file_error,
-               GETTEXT("~: path ~ cannot be remote")
-               );
-      }
-      #endif
       # Default-Directory zu diesem Drive neu setzen:
       {
         var object pathname = STACK_0;
@@ -7433,7 +7471,9 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                              # (das gehört nicht uns, nicht freigeben!)
   local void change_default()
     {
-      var object dir_namestring = directory_namestring(STACK_0);
+      var uintC stringcount =
+        directory_namestring_parts(STACK_0); # Strings fürs Directory
+      var object dir_namestring = string_concat(stringcount);
       dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
       with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
         # Default-Directory ändern:
@@ -7461,7 +7501,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local void change_default (void);
   local void change_default()
     {
-      var object string = namestring_host_dir(STACK_0);
+      var object pathname = STACK_0;
+      var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
+      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
+      var object string = string_concat(stringcount); # zusammenhängen
       with_sstring_0(string,O(pathname_encoding),asciz, {
         # Default-Directory ändern:
         begin_system_call();
@@ -7479,7 +7522,9 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local void change_default()
     {
       var object pathname = STACK_0;
-      var object dir_namestring = namestring_host_dir(pathname);
+      var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
+      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
+      var object dir_namestring = string_concat(stringcount); # zusammenhängen
       with_sstring(dir_namestring,O(pathname_encoding),dir_namestring_asciz,len, {
         ASSERT((len > 0) && (dir_namestring_asciz[len-1]=='.'));
         dir_namestring_asciz[len-1] = '\0'; # '.' am Schluss durch Nullbyte ersetzen
@@ -7699,7 +7744,9 @@ LISPFUNN(probe_file,1)
     var object pathname;
     {
       pushSTACK(pathname); # Pathname retten
-      var object dir_namestring = namestring_host_dir(pathname);
+      var uintC stringcount = host_namestring_parts(pathname); # Strings fürn Host
+      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
+      var object dir_namestring = string_concat(stringcount); # zusammenhängen
       # Existenztest, siehe auch assure_dir_exists():
       var boolean exists = TRUE;
       #ifdef MSDOS
@@ -8766,7 +8813,7 @@ LISPFUN(open,1,0,norest,key,6,\
   # kann GC auslösen
   local object pathname_add_subdir (void);
   local object pathname_add_subdir()
-{
+    {
       # Pathname kopieren und dessen Directory gemäß
       # (append x (list y)) = (nreverse (cons y (reverse x))) verlängern:
       var object pathname = copy_pathname(STACK_1);
@@ -9831,6 +9878,16 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
     pathname = use_default_dir(pathname); # absoluten Pathname draus machen
     pushSTACK(pathname);
     assure_dir_exists(FALSE,FALSE); # Directory muss existieren
+    #if HAS_HOST # necessary at least for PATHNAME_WIN32
+    if (!nullp(ThePathname(STACK_0)->pathname_host)) {
+      pushSTACK(STACK_0); # value for slot PATHNAME of FILE-ERROR
+      pushSTACK(STACK_(0+1));
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(file_error,
+             GETTEXT("~: cannot change default directory on remote host: ~")
+            );
+    }
+    #endif
     change_default(); # Default-Drive, Default-Directory setzen
     value1 = popSTACK(); mv_count=1; # neuer pathname als Wert
   }
