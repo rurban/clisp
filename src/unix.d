@@ -572,9 +572,9 @@
   #ifdef IOCTL_DOTS
     extern_C int ioctl (int fd, IOCTL_REQUEST_T request, ...); # siehe IOCTL(2)
   #else
-    extern_C int ioctl (int fd, IOCTL_REQUEST_T request, CADDR_T arg); # siehe IOCTL(2)
-    # 3. Argument stets zum Typ CADDR_T casten:
-    #define ioctl(fd,request,arg)  (ioctl)(fd,request,(CADDR_T)(arg))
+    extern_C int ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg); # siehe IOCTL(2)
+    # 3. Argument stets zum Typ IOCTL_ARGUMENT_T (meist CADDR_T) casten:
+    #define ioctl(fd,request,arg)  (ioctl)(fd,request,(IOCTL_ARGUMENT_T)(arg))
   #endif
   #if defined(HAVE_TERMIOS_H) && defined(HAVE_TCGETATTR) && defined(HAVE_TCSAFLUSH)
     #define UNIX_TERM_TERMIOS
@@ -641,9 +641,9 @@
   extern_C const char* tgetstr (const char* id, char** area); # siehe TERMCAP(3X)
   #ifdef EINTR
     # Wrapper um die System-Aufrufe, die EINTR abfangen und behandeln:
-    extern int nonintr_ioctl (int fd, IOCTL_REQUEST_T request, CADDR_T arg);
+    extern int nonintr_ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg);
     #undef ioctl
-    #define ioctl(fd,request,arg)  nonintr_ioctl(fd,request,(CADDR_T)(arg))
+    #define ioctl(fd,request,arg)  nonintr_ioctl(fd,request,(IOCTL_ARGUMENT_T)(arg))
     #ifdef UNIX_TERM_TERMIOS
       extern int nonintr_tcsetattr (int fd, int optional_actions, struct termios * tp);
       extern int nonintr_tcdrain (int fd); # siehe TERMIOS(3V)

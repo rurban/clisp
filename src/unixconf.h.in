@@ -464,6 +464,9 @@
 /* CL_IOCTL */
 /* Define as the type of `request' in ioctl() declaration. */
 #undef IOCTL_REQUEST_T
+/* Define as the type of `argument' in ioctl() declaration, if not superseded
+   by dots. */
+#undef IOCTL_ARGUMENT_T
 /* Define if the declaration of ioctl() needs dots. */
 #undef IOCTL_DOTS
 /* Define if you have the FIONREAD ioctl(). */
