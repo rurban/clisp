@@ -1,3 +1,26 @@
+2004-07-12  Bruno Haible  <bruno@clisp.org>
+
+	Implement specializer-direct-generic-functions.
+	* clos-specializer1.lisp (add-direct-generic-function-internal):
+	Renamed from add-direct-generic-function.
+	(remove-direct-generic-function-internal): Renamed from
+	remove-direct-generic-function.
+	(forget-direct-generic-functions, add-direct-generic-function,
+	compute-direct-generic-functions, update-list-direct-generic-functions):
+	New functions.
+	(specializer-direct-generic-functions): Use
+	update-list-direct-generic-functions.
+	(add-direct-method-generic-function): New function.
+	(add-direct-method, remove-direct-method): Also update the
+	direct-generic-functions set.
+	* clos-specializer3.lisp (specializer-direct-generic-functions): Use
+	update-list-direct-generic-functions.
+	(add-direct-method, remove-direct-method): Also update the
+	direct-generic-functions set.
+	* clos-method1.lisp (method-generic-function): New function.
+	* clos-method3.lisp (method-generic-function): Use
+	allow-making-generic.
+
 2004-07-11  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp: Export add-direct-method, remove-direct-method.
@@ -67,8 +90,8 @@
 	(struct argv_initparams): New type.
 	(struct argv_actions): New type.
 	(argv_verbose, argv_wait_keypress, argv_license): Remov variables.
-	(parse_options): New function, extracted from main().
-	Signal an error when an invalid option beginning with "-r" is seen.
+	(parse_options): New function, extracted from main(). Signal an error
+	when an invalid option beginning with "-r" is seen.
 	(free_argv_initparams, free_argv_actions): New functions.
 	(argv1, argv2): New variables.
 	(main): Use parse_options.

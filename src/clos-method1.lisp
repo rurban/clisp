@@ -270,3 +270,7 @@
     (apply #'initialize-instance-<standard-accessor-method> method args)))
 
 ;;; ---------------------------------------------------------------------------
+
+;; Preliminary.
+(defun method-generic-function (method)
+  (std-method-generic-function method))
