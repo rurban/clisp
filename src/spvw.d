@@ -1713,7 +1713,7 @@ local void print_banner ()
       typedef struct { char* input_file; char* output_file; } argv_compile_file;
       var local argv_compile_file* argv_compile_files;
       var local char* argv_package = NULL;
-      var local bool argv_ansi = false;
+      var local int argv_ansi = 0; # 0: default; 1: ANSI; 2: traditional
       var local char* argv_expr = NULL;
       var local char* argv_execute_file = NULL;
       var local char** argv_execute_args = NULL;
@@ -1932,16 +1932,18 @@ local void print_banner ()
                     argv_package = arg;
                     break;
                   case 'a': # ANSI CL Compliance
-                    if (asciz_equal(arg,"-ansi")) argv_ansi = true;
+                    if (asciz_equal(arg,"-ansi"))
+                      argv_ansi = 1; # ANSI
                     else if (!(arg[2] == '\0')) usage (1);
                     else {
                       asciz_out(GETTEXTL("CLISP: -a is deprecated, use -ansi"
                                          NLstring));
-                      argv_ansi = true;
+                      argv_ansi = 1; # ANSI
                     }
                     break;
                   case 't': # traditional
-                    if (asciz_equal(arg,"-traditional")) argv_ansi = false;
+                    if (asciz_equal(arg,"-traditional"))
+                      argv_ansi = 2; # traditional
                     else usage(1);
                     break;
                   case 'x': # LISP-Expression ausführen
@@ -2653,12 +2655,11 @@ local void print_banner ()
          {var object stream = var_stream(S(query_io),strmflags_wr_ch_B);
           Symbol_value(S(debug_io)) = make_twoway_stream(popSTACK(),stream);
         }}
-      if (argv_ansi) {
-        # Maximum ANSI CL compliance, even where it hurts.
-        pushSTACK(T); funcall(L(set_ansi),1);
-      } else {
-        # traditional CLISP behavior
-        pushSTACK(NIL); funcall(L(set_ansi),1);
+      switch (argv_ansi) {
+        case 1: # Maximum ANSI CL compliance, even where it hurts.
+          pushSTACK(T); funcall(L(set_ansi),1); break;
+        case 2: # traditional CLISP behavior
+          pushSTACK(NIL); funcall(L(set_ansi),1); break;
       }
       if (argv_package != NULL) {
         # (IN-PACKAGE packagename)
