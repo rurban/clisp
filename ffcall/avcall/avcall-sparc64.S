@@ -9,7 +9,7 @@
 	.proc	04
 __builtin_avcall:
 	!$PROLOGUE$ 0
-	save	%sp, -2368, %sp
+	save	%sp, -2288, %sp
 	!$PROLOGUE$ 1
 	ldx	[%i0+40], %g3
 	ld	[%i0+60], %o7
@@ -349,16 +349,16 @@ __builtin_avcall:
 	add	%g3, -1, %g3
 	cmp	%g3, 0
 	bl,pn	%icc, .LL43
-	sra	%g3, 0, %l0
-	ldx	[%i0+16], %i0
+	sra	%g3, 0, %g3
 .LL86:
-	sllx	%l0, 3, %g3
-	add	%l0, -1, %l0
-	ldx	[%g1+%g3], %o7
-	cmp	%l0, 0
-	stx	%o7, [%i0+%g3]
+	sllx	%g3, 3, %l0
+	add	%g3, -1, %l1
+	ldx	[%g1+%l0], %g3
+	ldx	[%i0+16], %o7
+	stx	%g3, [%o7+%l0]
+	cmp	%l1, 0
 	bge,pt	%icc, .LL86
-	sra	%l0, 0, %l0
+	sra	%l1, 0, %g3
 	ba,pt	%xcc, .LL43
 	 nop
 .LL75:
@@ -934,4 +934,4 @@ __builtin_avcall:
 	restore %g0, 0, %o0
 .LLfe1:
 	.size	 __builtin_avcall,.LLfe1-__builtin_avcall
-	.ident	"GCC: (GNU) 2.95 19990714 (prerelease)"
+	.ident	"GCC: (GNU) 2.95.2 19991024 (release)"
