@@ -1,5 +1,8 @@
 2000-06-11  Bruno Haible  <haible@clisp.cons.org>
 
+        * clos.lisp (analyze-method-description): Generate code expanding into
+          SYSTEM::FUNCTION-MACRO-LET instead of MACROLET.
+
         * fsubr.d (system::function-macro-let): New special form.
         * control.d (system::function-macro-let): Likewise.
         * init.lisp (%expand-form): Handle SYSTEM::FUNCTION-MACRO-LET.

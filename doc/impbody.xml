@@ -446,11 +446,6 @@ executes a compiled version of form.</para>
  original arguments is enforced by the implementation only in
  interpreted code.</para>
 
-<para>&call-next-method; and &next-method-p; are local macros, not local
- functions.  Use <literal role="sexp">#'(&lambda; ()
- (&call-next-method;))</literal> instead of &call-next-method; if you
- really need it as a function.</para>
-
 <para>There is a generic function <emphasis
  role="strong"><function>clos:no-primary-method</function></emphasis>
  (similar to &no-applicable-method;) which is called when a generic
