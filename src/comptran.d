@@ -453,7 +453,9 @@ local object N_tan_N (object x)
     pushSTACK(x);
     R_cos_sin_R_R(x,true,NULL);
     { /* stack layout: x, cos(x), sin(x). */
-      var object erg = F_R_float_F(R_R_durch_R(STACK_0,STACK_1),STACK_2);
+      var object erg = (floatp(STACK_0) || floatp(STACK_1)
+                        ? F_R_float_F(R_R_durch_R(STACK_0,STACK_1),STACK_2)
+                        : R_R_durch_R(STACK_0,STACK_1));
       skipSTACK(3); return erg;
     }
   } else { /* x=a+bi */
@@ -574,7 +576,9 @@ local object N_tanh_N (object x)
     pushSTACK(x);
     R_cosh_sinh_R_R(x,true,NULL);
     /* stack layout: x, cosh(x), sinh(x). */
-    { var object erg = F_R_float_F(R_R_durch_R(STACK_0,STACK_1),STACK_2);
+    { var object erg = (floatp(STACK_0) || floatp(STACK_1)
+                        ? F_R_float_F(R_R_durch_R(STACK_0,STACK_1),STACK_2)
+                        : R_R_durch_R(STACK_0,STACK_1));
       skipSTACK(3); return erg;
     }
   } else { /* x=a+bi */

@@ -44,9 +44,8 @@ check-xgcd
 
 (cis 10) #c(-0.8390715 -0.5440211)
 
-(sinh 0)    0
+(sin 0d0)   0d0
 (sinh 0d0)  0d0
-
 (tan 0d0)   0d0
 (tanh 0d0)  0d0
 
@@ -56,3 +55,10 @@ check-xgcd
 (atan #c(1 2))  #C(1.3389726 0.4023595)
 (tan  #c(1 2))  #C(0.033812825 1.0147936)
 (tanh #c(20 2)) #C(1.0 0.0)
+
+(tan 0)  0
+(tanh 0) 0
+(cosh 0) 1
+(cos 0)  1
+(sin 0)  0
+(sinh 0) 0
