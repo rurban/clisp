@@ -175,7 +175,7 @@
 <!ENTITY meth-call-err "<link linkend='meth-call-err'><classname>CLOS:METHOD-CALL-ERROR</classname></link>">
 <!ENTITY meth-call-type-err "<link linkend='meth-call-type-err'><classname>CLOS:METHOD-CALL-TYPE-ERROR</classname></link>">
 <!ENTITY features-my "<olink targetdoc='impnotes' targetptr='features'><varname>*FEATURES*</varname></olink>">
-<!ENTITY fill-indent-sexp "<olink targetdoc='impnotes' targetptr='fill-stream'><varname>CUSTOM::*FILL-INDENT-SEXP*</varname></olink>">
+<!ENTITY fill-indent-sexp "<olink targetdoc='impnotes' targetptr='fill-stream'><varname>CUSTOM:*FILL-INDENT-SEXP*</varname></olink>">
 <!ENTITY gen-flet "<link linkend='gen-flet'><function>CLOS:GENERIC-FLET</function></link>">
 <!ENTITY gen-labels "<link linkend='gen-labels'><function>CLOS:GENERIC-LABELS</function></link>">
 <!ENTITY symbol-mex "<link linkend='symbol-mex'><function>EXT:SYMBOL-MACRO-EXPAND</function></link>">
