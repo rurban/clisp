@@ -79,6 +79,32 @@ GOOD
        Z))))
 7
 
+;; same as above, with LOCALLY
+(let ((x 5))
+  (progv '(x y) '(20 120)
+    (let ((x (1+ x)) (y (1+ x)) (z (1+ x)))
+      (declare (special x))
+      (list z (locally (declare (special y)) y) x y))))
+(6 120 6 6)
+(let ((x 5))
+  (progv '(x y) '(20 120)
+    (let* ((x (1+ x)) (y (1+ x)) (z (1+ x)))
+      (declare (special x))
+      (list z (locally (declare (special y)) y) x y))))
+(7 120 6 7)
+(let ((x 5))
+  (progv '(x y) '(20 120)
+    (multiple-value-bind (x y z) (values (1+ x) (1+ x) (1+ x))
+      (declare (special x))
+      (list z (locally (declare (special y)) y) x y))))
+(6 120 6 6)
+(let ((x 5))
+  (progv '(x y) '(20 120)
+    ((lambda (&optional (x (1+ x)) (y (1+ x)) (z (1+ x)))
+       (declare (special x))
+       (list z (locally (declare (special y)) y) x y)))))
+(7 120 6 7)
+
 ;; CLHS 3.3.4 - a "free" declaration
 (LET ((X 5))
   (PROGV '(X) '(20)
