@@ -1,5 +1,19 @@
 2004-04-10  Bruno Haible  <bruno@clisp.org>
 
+	Fix the return value of NSTRING-UPCASE/DOWNCASE/CAPITALIZE,
+	WRITE-STRING, WRITE-LINE, when the argument is a displaced string.
+	* lispbibl.d (test_vector_limits): Clarify specification.
+	* charstrg.d (test_vector_limits): Likewise. Return the original
+	string, not the data vector.
+	(EXT:STRING-WIDTH): Use the data vector instead of the original string.
+	* encoding.d (CONVERT-STRING-FROM-BYTES): Likewise.
+	(CONVERT-STRING-TO-BYTES): Likewise.
+	* foreign.d (FFI::CALL-WITH-FOREIGN-STRING): Likewise.
+	* stream.d (MAKE-STRING-INPUT-STREAM, FILE-POSITION): Ignore
+	arg.offset.
+
+2004-04-10  Bruno Haible  <bruno@clisp.org>
+
 	* type.lisp (BASE-STRING, SIMPLE-BASE-STRING): Change the type test
 	so that it excludes vectors of element type NIL.
 

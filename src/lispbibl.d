@@ -11572,12 +11572,17 @@ typedef struct stringarg {
 extern object test_string_limits_ro (stringarg* arg);
 /* used by STREAM, PATHNAME, IO, ENCODING */
 
-/* UP: checks the limits for a vector argument
+/* UP: checks :START and :END limits for a vector argument
  > STACK_2: vector-argument
  > STACK_1: optional :start-argument
  > STACK_0: optional :end-argument
- < stringarg arg: description of the argument
-     (string, len & offset must be pre-set!)
+ > stringarg arg: arg.string its data vector,
+                  [arg.offset .. arg.offset+arg.len-1] the range within the
+                  data vector corresponding to the entire vector-argument
+ < stringarg arg: arg.string and arg.offset unchanged,
+                  [arg.offset+arg.index .. arg.offset+arg.index+arg.len-1] the
+                  range within the data vector corresponding to the selected
+                  vector slice
  < result: vector-argument
  increases STACK by 3 */
 extern object test_vector_limits (stringarg* arg);
