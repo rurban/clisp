@@ -1,3 +1,24 @@
+2001-08-29  Sam Steingold  <sds@gnu.org>
+
+	more ANSI compliance pathnames wrt HOSTS & VERSIONS
+	* constobj.d (semicolon_string, zero_string): added for the
+	benefit of VERSION pathname component
+	* pathname.d (PARSE-NAMESTRING): fixed HOST handling
+	(pathname_version_maybe, pathname_host_maybe,
+	pathname_device_maybe): new convenience macros
+	(subdir_namestring_parts): take an additional logp arg
+	(host_namestring_parts, directory_namestring_parts):
+	handle logical pathnames
+	(nametype_namestring_parts): separate version with ".", not ";"
+	(directory_namestring): do not add host
+	(FILE-NAMESTRING, DIRECTORY-NAMESTRING, HOST-NAMESTRING,
+	ENOUGH-NAMESTRING, NAMESTRING): handle logical pathnames
+	(defaults_pathname): permit logical *DEFAULT-PATHNAME-DEFAULTS*
+	(merge_dirs): new function
+	(MERGE-PATHNAMES): use it; handle versions better
+	(MAKE-PATHNAME): handle defaults early; pass UNBOUND instead of
+	NIL to MERGE-PATHNAMES as default version
+
 2001-08-27  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (testsuite): add on all platforms
