@@ -1,3 +1,7 @@
+2004-03-16  Sam Steingold  <sds@gnu.org>
+
+	* m4/ldap.m4, m4/tcpconn.m4: removed extra quotes ([[]] -> [])
+
 2004-03-16  Bruno Haible  <bruno@clisp.org>
 
 	* genclisph.d (main): Treat alloca() the same way as lispbibl.d.
