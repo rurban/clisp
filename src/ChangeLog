@@ -1,5 +1,29 @@
 2004-05-18  Bruno Haible  <bruno@clisp.org>
 
+	Make the Subr objects look like XRecords, to simplify gc_mark.
+	* lispbibl.d (Rectype_Subr): New enumeration item.
+	(subr_t): Add XRECORD_HEADER and move the lispfunction after the
+	GC-visible fields.
+	(subr_const_offset, subr_const_anz): Remove macros.
+	(subr_length, subr_xlength): New macros.
+	* genclisph.d (main): Update definitions of subr_t and LISPFUN_F.
+	* subr.d (LISPFUN_D, LISPFUN_F, LISPFUN_G): Also initialize the subrs'
+	GCself and type, flags and length.
+	* spvw.d (init_subr_tab_1, init_other_modules_1, init_module_2,
+	dynload_modules): Also initialize the subrs' GCself.
+	* spvw_update.d (update_subr_tab): Don't use subr_const_offset.
+	* spvw_garcol.d (gc_markphase): Treat subrs like constsyms.
+	(alive): The mark bit is now at the beginning of the Subr.
+	(unmark_fixed_varobjects): Unmark the constsyms and subrs, even if
+	GENERATIONAL_GC.
+	* spvw_gcmark.d (down_subr, up_subr): Only needed if HEAPCODES.
+	(gc_mark): Treat subrs like other SXRecords.
+
+	* lispbibl.d (subr_tab_ptr_as_object): Make more portable.
+	* genclisph.d (main): Update.
+
+2004-05-18  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d: Rename NO_TYPECODES to HEAPCODES.
 	* spvw.d: Likewise.
 	* encoding.d: Likewise.

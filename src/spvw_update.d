@@ -51,11 +51,11 @@
 # ------------------------------ Implementation -------------------------------
 
 # update program constants:
-#define update_subr_tab()                                               \
-  for_all_subrs({                                                       \
-    var gcv_object_t* p = (gcv_object_t*)((aint)ptr+subr_const_offset); \
-    var uintC c;                                                        \
-    dotimespC(c,subr_const_anz, { update(p); p++; } );                  \
+#define update_subr_tab()          \
+  for_all_subrs({                  \
+    var gcv_object_t* p;           \
+    p = &ptr->name; update(p);     \
+    p = &ptr->keywords; update(p); \
   })
 #define update_symbol_tab()                     \
   for_all_constsyms({ # traverse symbol_tab     \

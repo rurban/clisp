@@ -46,10 +46,16 @@
   subr_t D_##name;
 
 /* expander for the initialization of the SUBR-table: */
+#ifdef TYPECODES
 #define LISPFUN_D(name_,sec,req_anz_,opt_anz_,rest_flag_,key_flag_,key_anz_,keywords_) \
-  ptr->function = (lisp_function_t)(&C_##name_);                        \
+  ptr->GCself = subr_tab_ptr_as_object(ptr /* = &subr_tab.D_##name_ */);\
+  ptr->rectype = Rectype_Subr;                                          \
+  ptr->recflags = 0;                                                    \
+  ptr->reclength = subr_length;                                         \
+  ptr->recxlength = subr_xlength;                                       \
   ptr->name = S_help_(S_##name_);                                       \
   ptr->keywords = NIL; /* preliminary */                                \
+  ptr->function = (lisp_function_t)(&C_##name_);                        \
   ptr->argtype = (uintW)subr_argtype(req_anz_,opt_anz_,subr_##rest_flag_,subr_##key_flag_,NULL); \
   ptr->req_anz = req_anz_;                                              \
   ptr->opt_anz = opt_anz_;                                              \
@@ -58,13 +64,32 @@
   ptr->key_anz = key_anz_;                                              \
   ptr->seclass = sec;                                                   \
   ptr++;
+#else
+#define LISPFUN_D(name_,sec,req_anz_,opt_anz_,rest_flag_,key_flag_,key_anz_,keywords_) \
+  ptr->GCself = subr_tab_ptr_as_object(ptr /* = &subr_tab.D_##name_ */);\
+  ptr->tfl = xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength);      \
+  ptr->name = S_help_(S_##name_);                                       \
+  ptr->keywords = NIL; /* preliminary */                                \
+  ptr->function = (lisp_function_t)(&C_##name_);                        \
+  ptr->argtype = (uintW)subr_argtype(req_anz_,opt_anz_,subr_##rest_flag_,subr_##key_flag_,NULL); \
+  ptr->req_anz = req_anz_;                                              \
+  ptr->opt_anz = opt_anz_;                                              \
+  ptr->rest_flag = (uintB)subr_##rest_flag_;                            \
+  ptr->key_flag = (uintB)subr_##key_flag_;                              \
+  ptr->key_anz = key_anz_;                                              \
+  ptr->seclass = sec;                                                   \
+  ptr++;
+#endif
 #define LISPFUN_E(name_,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
   ptr->name = S_help_(S_##name_);                                       \
   ptr++;
+#ifdef TYPECODES
 #define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
-  { (lisp_function_t)(&C_##name),                                       \
+  { { nullobj }, /* preliminary */                                      \
+    Rectype_Subr, 0, subr_length, subr_xlength,                         \
     nullobj, /* preliminary */                                          \
     nullobj, /* preliminary */                                          \
+    (lisp_function_t)(&C_##name),                                       \
     0, /* preliminary */                                                \
     req_anz,                                                            \
     opt_anz,                                                            \
@@ -73,10 +98,29 @@
     key_anz,                                                            \
     sec,                                                                \
   },
+#else
+#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
+  { nullobj, /* preliminary */                                          \
+    xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength),               \
+    nullobj, /* preliminary */                                          \
+    nullobj, /* preliminary */                                          \
+    (lisp_function_t)(&C_##name),                                       \
+    0, /* preliminary */                                                \
+    req_anz,                                                            \
+    opt_anz,                                                            \
+    (uintB)subr_##rest_flag,                                            \
+    (uintB)subr_##key_flag,                                             \
+    key_anz,                                                            \
+    sec,                                                                \
+  },
+#endif
+#ifdef TYPECODES
 #define LISPFUN_G(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
-  { (lisp_function_t)(&C_##name),                                       \
+  { { subr_tab_ptr_as_object(&subr_tab.D_##name) },                     \
+    Rectype_Subr, 0, subr_length, subr_xlength,                         \
     S_help_(S_##name),                                                  \
     NIL, /* preliminary */                                              \
+    (lisp_function_t)(&C_##name),                                       \
     0, /* preliminary */                                                \
     req_anz,                                                            \
     opt_anz,                                                            \
@@ -85,6 +129,22 @@
     key_anz,                                                            \
     sec,                                                                \
   },
+#else
+#define LISPFUN_G(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
+  { subr_tab_ptr_as_object(&subr_tab.D_##name),                         \
+    xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength),               \
+    S_help_(S_##name),                                                  \
+    NIL, /* preliminary */                                              \
+    (lisp_function_t)(&C_##name),                                       \
+    0, /* preliminary */                                                \
+    req_anz,                                                            \
+    opt_anz,                                                            \
+    (uintB)subr_##rest_flag,                                            \
+    (uintB)subr_##key_flag,                                             \
+    key_anz,                                                            \
+    sec,                                                                \
+  },
+#endif
 
 /* expander for the second initialization of the SUBR-table: */
 #define LISPFUN_H(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords_) \
