@@ -1,5 +1,12 @@
 2004-09-01  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (search-file): pathname.d:simplify_directory()
+	replaces ".." in pathname-directory with :up, so we need to check
+	for :up instead of ".."
+	Reported by Jörg Höhle  <hoehle@users.sourceforge.net>
+
+2004-09-01  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d (find_name) [WIN32_NATIVE]: check the return values of
 	both EnumProcessModules() calls
 
