@@ -2256,7 +2256,7 @@ LISPFUN(replace,2,0,norest,key,4,
           # Wegen l >= dl > 0 ist zu testen, ob sequence ein Cons ist.
           if (mconsp(*(stackptr STACKop 0)))
             { # Listen speziell behandeln:
-              var object whole_list = *(stackptr STACKop 0); # ganze Liste
+              var gcunsafe_object_t whole_list = *(stackptr STACKop 0); # ganze Liste
               var gcv_object_t* list_ = &whole_list;
               var object list = *list_;
               # Stets list = *list_.

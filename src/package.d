@@ -890,7 +890,10 @@ local void shadow (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   var object pack = *pack_;
   pushSTACK(NIL); /* make room for othersym */
   pushSTACK(string); /* save string */
-  if (!package_lookup(string,pack,&STACK_1,)) {
+  var object othersym;
+  if (package_lookup(string,pack,&othersym,)) {
+    STACK_1 = othersym;
+  } else {
     /* not found -> create new symbol of the same name: */
     var object othersym = make_symbol(string); /* new symbol */
     STACK_1 = othersym;
@@ -1480,8 +1483,10 @@ local void use_package (object packlist, object pack) {
   }
   /* Remove all the packages from packlist, that are equal to pack
      or that already occur in the use-list of pack: */
+  pushSTACK(pack); /* save package pack */
+  pushSTACK(packlist); /* save list of packages to be USE-ed */
   {
-    var gcv_object_t* packlistr_ = &packlist;
+    var gcv_object_t* packlistr_ = &STACK_0;
     var object packlistr = *packlistr_;
     /* packlistr loops over packlist, packlistr = *packlistr_ */
     while (consp(packlistr)) {
@@ -1508,12 +1513,10 @@ local void use_package (object packlist, object pack) {
      the visibility in package pack.
      The conflict list is the list of all occurring conflicts. */
   {
-    pushSTACK(pack); /* save package pack */
-    pushSTACK(packlist); /* save list of packages to be USE-ed */
     pushSTACK(NIL); /* (so far empty) conflict list */
     /* stack-layout: pack, packlist, conflicts. */
     { /* peruse package list: */
-      pushSTACK(packlist);
+      pushSTACK(STACK_1);
       while (mconsp(STACK_0)) {
         var object pack_to_use = Car(STACK_0);
         STACK_0 = Cdr(STACK_0);
