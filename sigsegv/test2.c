@@ -149,7 +149,7 @@ static int area_handler (void* fault_address, void* user_arg)
   return 0;
 }
 
-int handler (void* fault_address)
+int handler (void* fault_address, int serious)
 {
   return sigsegv_dispatch(&dispatcher,fault_address);
 }

@@ -1,3 +1,48 @@
+1999-05-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Support for catching stack overflow on Unix, using sigaltstack().
+        * aclocal.m4 (CL_SIGALTSTACK): New macro.
+        * configure.in: Add CL_SIGALTSTACK and CL_RLIMIT.
+        * config.h.in: Add HAVE_SIGALTSTACK, HAVE_SETRLIMIT,
+          RLIMIT_RESOURCE_T, SETRLIMIT_CONST.
+        * Makefile.in (SEDPREPARE1, SEDCOMMAND1, SEDCOMMAND2): New macros.
+          (sigsegv.h): Use them. Depend on config.h.
+        * sigsegv.h.in: Test __linux__ instead of linux.
+          Conditionally define HAVE_STACK_OVERFLOW_RECOVERY for Linux.
+          (sigsegv_handler_t): Add `serious' argument.
+          (stackoverflow_context_t): New type.
+          (stackoverflow_handler_t, stackoverflow_install_handler,
+           stackoverflow_deinstall_handler): Declare unconditionally.
+          (stackoverflow_handler_t): Add `scp' argument.
+          (stackoverflow_install_handler): Change return type to `int'.
+        * handler.c: Test __linux__ instead of linux.
+          Move Win32 section to the end.
+          On Unix, install SIGSEGV handler if HAVE_SIGSEGV_RECOVERY or
+          HAVE_STACK_OVERFLOW_RECOVERY.
+          (vma_struct): New type.
+          (get_vma): New function.
+          (SIGSEGV_FAULT_CONTEXT, SIGSEGV_FAULT_STACKPOINTER): New macros.
+          (stack_top): New variable.
+          (remember_stack_top): New function.
+          (stk_user_handler, stk_extra_stack, stk_extra_stack_size): New
+          variables.
+          (no_user_handler): Remove, use NULL instead.
+          (sigsegv_handler): Extend to support HAVE_STACK_OVERFLOW_RECOVERY.
+          (install_for): Add SA_ONSTACK to sigaction flags if needed.
+          (sigsegv_deinstall_handler): Deinstall handlers only if
+          not needed for stk_user_handler.
+          (stackoverflow_install_handler, stackoverflow_deinstall_handler):
+          New functions.
+          (stack_overflow_handler) [WIN32]: Add context argument.
+          (main_exception_filter): Pass context argument.
+        * test1.c (handler): Add `serious' argument.
+        * test2.c (handler): Likewise.
+        * test3.c (stackoverflow_handler): Add `scp' argument. Use
+          sigsegv_leave_handler instead of complicated #ifdef spaghetti.
+          (main): Call setrlimit, to make sure the recursion doesn't kill the
+          machine. If stackoverflow_install_handler returns -1, bypass the
+          test, because it would crash.
+
 1999-03-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * configure.in: Add CL_CC_GCC.

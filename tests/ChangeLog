@@ -1,3 +1,7 @@
+1999-05-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stackovf.tst: New file.
+
 1999-04-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * steele7.tst: Add a check for binding of special-declared variables.

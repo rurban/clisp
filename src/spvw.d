@@ -643,6 +643,20 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 
 # -----------------------------------------------------------------------------
 
+#if defined(NOCOST_SP_CHECK) && !defined(WIN32_NATIVE)
+# Check for near stack overflow.
+  global boolean near_SP_overflow (void);
+  global boolean near_SP_overflow()
+    { # Force a stack overflow if there is not a minimum of room available.
+      var uintB dummy[0x1001];
+      dummy[0] = 0; dummy[0x800] = 0; dummy[0x1000] = 0;
+      #ifdef GNU
+      alloca(1); # Makes this function non-inlinable.
+      #endif
+      return FALSE;
+    }
+#endif
+
 # Bei Überlauf eines der Stacks:
   nonreturning_function(global, SP_ueber, (void));
   global void SP_ueber()

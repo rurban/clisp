@@ -160,6 +160,10 @@ Portability
 Other modifications
 -------------------
 
+* On Linux 2.2.x, with glibc-2.1, stack overflow is now caught reliably.
+  Previously, endless recursion in interpreted code could cause a crash in
+  some cases.
+
 * Speed up the function DIRECTORY on Unix in some cases.
 
 * Speed up compiled calls to LDB, LDB-TEST, MASK-FIELD, DPB, DEPOSIT-FIELD.

@@ -1801,6 +1801,13 @@ AC_CHECK_FUNCS(sigvec)dnl
 fi
 ])dnl
 dnl
+AC_DEFUN(CL_SIGALTSTACK,
+[AC_REQUIRE([CL_SIGACTION])dnl
+CL_LINK_CHECK(sigaltstack, cl_cv_func_sigaltstack,
+[#include <signal.h>], [stack_t ss; sigaltstack((stack_t*)0,&ss);],
+AC_DEFINE(HAVE_SIGALTSTACK))dnl
+])dnl
+dnl
 AC_DEFUN(CL_FPU_CONTROL,
 [dnl Check for Linux with <fpu_control.h> and fpu_control_t or __setfpucw().
 dnl glibc versions since October 1998 define fpu_control_t. Earlier versions

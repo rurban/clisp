@@ -1,0 +1,4 @@
+New in 1.1:
+
+* Catching stack overflow now works on Linux 2.2.x with glibc-2.1.
+
