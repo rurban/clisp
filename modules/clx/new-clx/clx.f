@@ -501,18 +501,6 @@ nonreturning_function (local, closed_display_error,
   abort(); /* ERROR does not return: avoid a compiler warning */
 }
 
-
-// Willst es nich' kappiern, naja dann kann ich auch anners:
-#define BLOEDER_COMPILER_VERDAMMT_NOCHMAL for(;;)
-// Bei -O6 scheinst'd ja zu raffen, doch brichst dann gerne mal!
-// ... soll ich jetzt auch meinen C compiler selbst schreiben?
-// Vielleicht sollte man mal 'nen Compiler in Lisp schreiben, der
-// wuerde dann wenigstens funktionieren. [Nicht wirklich, denn dieser
-// Compiler wuerde sich nicht selbst compilieren koennen.] Nur noch
-// ein Beispiel dessen, dass es nicht gut ist Programme in C zu schreiben,
-// die aus 500k Zeilen Code bestehen. BTW mein X leckt auch!
-// ... Ich geh gleich hin und hol mein CP/M raus, da leckt nichts.
-
 local int isa_instance_of_p (object type, object obj)
      // This function tests whether 'obj' is an instance of the class 'type'
      // or some of its subclasses. 'type' should be a symbol.
@@ -597,7 +585,6 @@ local int isa_struct_p (object type, object obj)
 	pushSTACK (obj);					\
 	pushSTACK (`(OR STRING SYMBOL)`);			\
 	my_standard_type_error (TheSubr (subr_self)->name);	\
-	BLOEDER_COMPILER_VERDAMMT_NOCHMAL;			\
       }								\
   }while(0)
 
@@ -650,7 +637,6 @@ local int isa_struct_p (object type, object obj)
 	 pushSTACK (obj);					\
 	 pushSTACK (lspnam);					\
 	 my_standard_type_error (TheSubr(subr_self)->name);	\
-	 BLOEDER_COMPILER_VERDAMMT_NOCHMAL;                     \
        }							\
    }
 
@@ -678,7 +664,6 @@ local uint32 get_aint32 (object obj)
       pushSTACK (obj);
       pushSTACK (`(OR XLIB::INT32 XLIB::CARD32)`);
       my_standard_type_error (TheSubr(subr_self)->name);
-      BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
     }
 }
 
@@ -870,7 +855,6 @@ local void *get_ptr_object_and_display (object type, object obj,
       pushSTACK (STACK_0);					// 'obj' -- Slot DATUM of TYPE-ERROR
       pushSTACK (STACK_2);					// 'type' -- Slot EXPECTED-TYPE of TYPE-ERROR
       my_standard_type_error (TheSubr(subr_self)->name);
-      BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
     }
 }
 
@@ -1009,7 +993,6 @@ local XID get_xid_object_and_display (object type, object obj, Display **dpyf)
       pushSTACK (STACK_0);					// 'obj' -- Slot DATUM of TYPE-ERROR
       pushSTACK (STACK_2);					// 'type' -- Slot EXPECTED-TYPE of TYPE-ERROR
       my_standard_type_error (TheSubr(subr_self)->name);
-      BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
     }
 }
 
@@ -1031,7 +1014,6 @@ local object get_display_obj_tc (object type, object obj)
       pushSTACK (obj);
       pushSTACK (type);
       my_standard_type_error (TheSubr(subr_self)->name);
-      BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
     }
 }
 
@@ -1371,7 +1353,6 @@ XFontStruct *get_font_info_and_display (object obj, object* fontf, Display **dpy
       pushSTACK (obj); 					// datum
       pushSTACK (`XLIB::FONT`);				// expected type
       my_standard_type_error (TheSubr(subr_self)->name);//
-      BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
     }
 }
 
@@ -1528,7 +1509,6 @@ local int get_enum (int n)
   pushSTACK (STACK_0);				// Wert für Slot DATUM von TYPE-ERROR
   pushSTACK (Cdr(value1));			// Wert für Slot EXPECTED-TYPE von TYPE-ERROR
   my_standard_type_error (Car(value1)); 	// Give the right subr name
-  BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
 }
 
 nonreturning_function(local, enum_error, (char *name, int value, int count));
@@ -1645,7 +1625,6 @@ local object make_gc_function (int i)
     case GXset: 	 return Symbol_value (`BOOLE-SET`);   /* 1 */
     default:
       enum_error ("gc_function", i, 0);	// give a wrong error message!
-      BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
     }
 }
 
@@ -1672,7 +1651,6 @@ local int get_gc_function (object obj)
   pushSTACK (obj);
   pushSTACK (`XLIB::GC-FUNCTION`);
   my_standard_type_error (TheSubr (subr_self)->name);
-  BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
 
   // Garnet seem to run in that ...
   // ... not any longer
@@ -1746,7 +1724,6 @@ local unsigned int get_modifier_mask (object obj)
   pushSTACK (`(OR (MEMBER :ANY) LIST XLIB::MASK16)`);
   // FIXME We chould be more verbose here.
   my_standard_type_error (TheSubr(subr_self)->name); // wrong!
-  BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
 }
 
 
@@ -1938,7 +1915,6 @@ local void general_plist_reader (object type)
     {
       pushSTACK (type);
       my_standard_type_error (TheSubr(subr_self)->name);
-      BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
     }
 }
 
@@ -1962,7 +1938,6 @@ local void general_plist_writer (object type)
     {
       pushSTACK (type);
       my_standard_type_error (TheSubr(subr_self)->name);
-      BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
     }
 }
 
@@ -7322,7 +7297,6 @@ local void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
       pushSTACK (STACK_0);		// event_key
       pushSTACK (`XLIB::EVENT-KEY`);	// desired type
       my_standard_type_error (TheSubr (subr_self)->name);
-      BLOEDER_COMPILER_VERDAMMT_NOCHMAL;
     }
 
 #undef DEF_EVENT
