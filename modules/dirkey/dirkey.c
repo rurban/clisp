@@ -920,14 +920,7 @@ DEFUN(LDAP::DKEY-INFO,key) {
   value6 = L_to_I(max_value_name_length);
   value7 = L_to_I(max_value_length);
   value8 = L_to_I(security_descriptor);
-# if defined(WIN32_NATIVE)
-  value9 = convert_time_to_universal(&write_time);
-# else
-  {
-    time_t unix_time = to_time_t_(&write_time);
-    value9 = convert_time_to_universal(&unix_time);
-  }
-# endif
+  value9 = convert_time_to_universal_w32(&write_time);
   mv_count = 9;
 }
 

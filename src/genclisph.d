@@ -2094,11 +2094,25 @@ int main(int argc, char* argv[])
 #endif
 #if defined(UNIX_CYGWIN32)
   printf("#include <windows.h>\n");
-  printf("extern long to_time_t_ (FILETIME * ptr);\n");
+  printf("extern long time_t_from_filetime (const FILETIME * ptr);\n");
+  printf("extern void time_t_to_filetime (time_t time_in,FILETIME * out);\n");
+  printf("#ifndef COMPILE_STANDALONE\n");
+  printf("static object convert_time_to_universal_w32 (const FILETIME* w32_time) {\n");
+  printf("  time_t unix_time = time_t_from_filetime(w32_time);\n");
+  printf("  return convert_time_to_universal(&unix_time);\n");
+  printf("}\n");
+  printf("static void convert_time_from_universal_w32 (object universal, FILETIME* w32_time) {\n");
+  printf("  time_t unix_time;\n");
+  printf("  convert_time_from_universal(universal,&unix_time);");
+  printf("  time_t_to_filetime(unix_time,w32_time);\n");
+  printf("}\n");
+  printf("#endif\n");
 #endif
 #if defined(WIN32_NATIVE)
   printf("extern object convert_time_to_universal (const FILETIME* time);\n");
+  printf("#define convert_time_to_universal_w32 convert_time_to_universal\n");
   printf("extern void convert_time_from_universal (object universal, FILETIME* time);\n");
+  printf("#define convert_time_from_universal_w32 convert_time_from_universal\n");
 #endif
   printf("#define UNIX_LISP_TIME_DIFF 2208988800UL\n");
   printf("extern Handle handle_dup (Handle old_handle, Handle new_handle);\n");
