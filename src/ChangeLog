@@ -1,3 +1,10 @@
+2003-01-16  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (allocate_weakkvt): DON'T USE LOCAL VARIABLES OF TYPE
+	gcv_object_t.
+	* hashtabl.d (prepare_resize): Likewise.
+	* spvw_typealloc.d (allocate_weakkvt_low, allocate_weakkvt): Likewise.
+	
 2003-01-16  Sam Steingold  <sds@gnu.org>
 
 	do not bind slot names (which may be special variables) in keyword

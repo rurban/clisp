@@ -8376,11 +8376,12 @@ extern object allocate_weakpointer (object obj);
 # is used by RECORD
 
 # UP: allocates a WeakKVT of the given length
-# allocate_weakkvt(len)
+# allocate_weakkvt(len,type)
 # > len:    the length of the data vector
+# > type:   ???
 # < result: a fresh weak key-value table
 # can trigger GC
-extern object allocate_weakkvt (uintL len, gcv_object_t type);
+extern object allocate_weakkvt (uintL len, object type);
 # is used by hashtable.d
 
 # UP: allocates finalizer
