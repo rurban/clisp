@@ -8155,7 +8155,7 @@ der Docstring (oder NIL).
   (test-list *form* 1)
   (multiple-value-bind (const-sum other-parts)
       (c-collect-numeric-constants (cdr *form*))
-    (setq const-sum (reduce #'* const-sum))
+    (setq const-sum (reduce #'+ const-sum))
     (cond ((null other-parts)   ; constant summands only
            (c-form const-sum))  ; ==> constant result
           ((eql const-sum 0)    ; const-sum == 0 ==> skip it
