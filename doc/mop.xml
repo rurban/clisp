@@ -3548,9 +3548,6 @@ with the method during initialization.</para></simplesect>
    &standard-method-t;)</literal> and
   <literal role="method">&remove-method;(&standard-generic-function-t;
    &standard-method-t;)</literal>.</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="method">(&accessor-method-slotdef;
-   (&method-r; &standard-accessor-method-t;))</literal></term>
- <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
 </simplesect>
 </section><!-- mop-meth-mo-readers -->
 
@@ -3977,7 +3974,13 @@ restrictions.</para>
 <para>This accessor can only be called on accessor methods.  It returns
 the direct slot definition metaobject that defined this method.  This is
 the value of the &slotdef-k; initialization argument associated with the
-method during initialization.</para></simplesect>
+method during initialization.</para>
+
+<title>The specified methods for the accessor method metaobject readers.</title>
+<varlistentry><term><literal role="method">(&accessor-method-slotdef;
+   (&method-r; &standard-accessor-method-t;))</literal></term>
+ <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
+</simplesect>
 
 <!-- end accessor-method basic introspection -->
 
