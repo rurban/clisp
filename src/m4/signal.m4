@@ -84,7 +84,6 @@ fi
 AC_DEFUN([CL_SIGNALBLOCK],
 [AC_BEFORE([$0], [CL_SIGNAL_UNBLOCK])dnl
 AC_BEFORE([$0], [CL_SIGNAL_BLOCK_OTHERS])dnl
-AC_BEFORE([$0], [CL_SIGPROCMASK])dnl
 signalblocks=""
 AC_CHECK_FUNC(sighold, AC_DEFINE(SIGNALBLOCK_SYSV,,[how to block and unblock signals])
 signalblocks="$signalblocks SystemV", )dnl
@@ -102,27 +101,6 @@ else
   cl_cv_func_signalblocks=`echo $signalblocks`
 fi
 ])
-])
-
-AC_DEFUN([CL_SIGPROCMASK],
-[AC_REQUIRE([CL_SIGNALBLOCK])dnl
-case "$signalblocks" in
-  *POSIX*)
-CL_PROTO([sigprocmask], [
-CL_PROTO_CONST([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <signal.h>
-], [int sigprocmask (int how, sigset_t* set, sigset_t* oset);],
-[int sigprocmask();],
-cl_cv_proto_sigprocmask_arg2)],
-[extern int sigprocmask (int, $cl_cv_proto_sigprocmask_arg2 sigset_t*, sigset_t*);])
-AC_DEFINE_UNQUOTED(SIGPROCMASK_CONST,$cl_cv_proto_sigprocmask_arg2,[declaration of sigprocmask() needs const])
-  ;;
-  *) ;;
-esac
 ])
 
 AC_DEFUN([CL_SIGNAL_REINSTALL],

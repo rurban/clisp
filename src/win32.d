@@ -213,7 +213,6 @@
   #define safe_read(f,b,n)  read_helper(f,b,n,true)
   #define full_read(f,b,n)  read_helper(f,b,n,false)
   extern int full_write (HANDLE fd, const void* buf, int nbyte);
-  #define RW_BUF_T  void*
   #define read  full_read
   #define write  full_write
   # Changing the position within a file.
@@ -289,7 +288,6 @@
   #define TheSocket(obj)  (SOCKET)TheHandle(obj)
   # Autoconfiguration macros
   #define HAVE_GETHOSTNAME
-  #define GETHOSTNAME_SIZE_T int
   #ifndef MAXHOSTNAMELEN
     #define MAXHOSTNAMELEN 64
   #endif
@@ -413,7 +411,6 @@ extern BOOL MyCreateProcess (LPTSTR CommandLine, HANDLE StdInput,
   /* #define HAVE_MMAP */
   #define HAVE_MUNMAP
   #define HAVE_WORKING_MPROTECT
-  #define MPROTECT_CONST
   #define MMAP_ADDR_T  void*
   #define MMAP_SIZE_T  DWORD
   #define off_t  _off_t

@@ -5,7 +5,7 @@
 
 # ==============================================================================
 # a wrapper for Read
-global long read_helper (Handle handle, RW_BUF_T bufarea, long nbyte,
+global long read_helper (Handle handle, void* bufarea, long nbyte,
                          bool partial_p) {
   var char* buf = (char*) bufarea;
   var long done = 0;
@@ -25,10 +25,10 @@ global long read_helper (Handle handle, RW_BUF_T bufarea, long nbyte,
 }
 
 # Ein Wrapper um die Write-Funktion.
-global long full_write (Handle handle, const RW_BUF_T bufarea, long nbyte);
+global long full_write (Handle handle, const void* bufarea, long nbyte);
 global long full_write(handle,bufarea,nbyte)
   var Handle handle;
-  var const RW_BUF_T bufarea;
+  var const void* bufarea;
   var long nbyte;
   {
     var CONST char* buf = (CONST char*) bufarea;

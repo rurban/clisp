@@ -40,7 +40,7 @@
   global int munmap (MMAP_ADDR_T addr, MMAP_SIZE_T len);
 
 # Changes the access protection for a memory range.
-  global int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
+  global int mprotect (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
 
 # ------------------------------ Implementation -------------------------------
 
