@@ -1,3 +1,8 @@
+2003-04-10  Kaz Kylheku  <kaz@ashi.footprints.net>
+
+	* backquote.lisp (bq-optimize-vec): New function.
+	(bq-vec-expand): Use it if optimization is turned on.
+
 2003-04-18  Sam Steingold  <sds@gnu.org>
 
 	* encoding.d (init_encodings_2): unintern CHARSET:WINDOWS-1255 and
