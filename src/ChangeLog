@@ -1,6 +1,7 @@
 2004-12-15  Sam Steingold  <sds@gnu.org>
 
 	* foreign1.lisp (do-c-lines): fixed last patch
+	* package.d (%IN-PACKAGE): fixed last patch
 
 2004-12-12  Bruno Haible  <bruno@clisp.org>
 
