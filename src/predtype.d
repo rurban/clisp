@@ -2161,7 +2161,7 @@ global bool typep_classname (object obj, object classname) {
  > type_spec: Lisp object
  < result: the expansion (when not a deftyped type, returns the argument)
  can trigger GC */
-global object expand_deftype (object type_spec, bool once_p) {
+global maygc object expand_deftype (object type_spec, bool once_p) {
   var uintL max_depth = posfixnump(Symbol_value(S(deftype_depth_limit))) ?
     posfixnum_to_L(Symbol_value(S(deftype_depth_limit))) :
     posfixnum_to_L(Symbol_value(S(most_positive_fixnum)));
@@ -2212,7 +2212,7 @@ LISPFUN(expand_deftype,seclass_default,1,1,norest,nokey,0,NIL)
  check that the result is of type type.
  set value1 to the result.
  can trigger GC */
-local Values coerce_sequence_check (object type, object result_type) {
+local maygc Values coerce_sequence_check (object type, object result_type) {
   pushSTACK(type);
   /* make new sequence: */
   var object new_seq = (coerce_sequence(STACK_2,result_type,true),value1);
@@ -3041,7 +3041,7 @@ local maygc object heap_statistics_record (object type, sintL n_instances, sintM
 /* Creates a vector containing the heap statistics result,
  and pushes it onto the STACK.
  can trigger GC */
-local void heap_statistics_result (hs_locals_t* locals)
+local maygc void heap_statistics_result (hs_locals_t* locals)
 {
   /* Allocate result vector. */
   var uintL length = (uintL)enum_hs_dummy

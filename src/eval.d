@@ -267,8 +267,8 @@ typedef enum {
  changes STACK, can trigger GC
  local Values interpret_bytecode (object closure, object codevec, uintL index);
 */
-local Values interpret_bytecode_ (object closure, Sbvector codeptr,
-                                  const uintB* byteptr);
+local /*maygc*/ Values interpret_bytecode_ (object closure, Sbvector codeptr,
+                                            const uintB* byteptr);
 #define interpret_bytecode(closure,codevec,index)                       \
   with_saved_back_trace(closure,-1,interpret_bytecode_(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index]))
 
@@ -356,9 +356,12 @@ LISPFUNNR(subr_info,1)
    and then calls unwind_protect_to_save.fun .
  changes STACK
  can trigger GC */
-global void unwind (void)
+global /*maygc*/ void unwind (void)
 {
   var fcint frame_info = framecode(STACK_0);
+  GCTRIGGER_IF(frame_info == APPLY_frame_info || frame_info == TRAPPED_APPLY_frame_info
+               || frame_info == EVAL_frame_info || frame_info == TRAPPED_EVAL_frame_info,
+               GCTRIGGER1(mv_space));
  #ifdef unwind_bit_t
   if (frame_info & bit(unwind_bit_t)) /* anything to do? */
  #else
@@ -532,7 +535,7 @@ nonreturning_function(global, reset, (uintL count)) {
  Exactly one variable binding frame is constructed.
  changes STACK
  can trigger GC */
-global void progv (object symlist, object vallist) {
+global maygc void progv (object symlist, object vallist) {
   /* check symlist */
   var uintL llen = 0;
   var bool need_new_symlist = true;
@@ -587,7 +590,8 @@ global void progv (object symlist, object vallist) {
  changes STACK,SP
  can trigger GC
  then jumps to the frame, which was found. */
-nonreturning_function(global, unwind_upto, (gcv_object_t* upto_frame)) {
+nonreturning_function(global /*maygc*/, unwind_upto, (gcv_object_t* upto_frame)) {
+  GCTRIGGER1(mv_space);
   unwind_protect_to_save.fun        = &unwind_upto;
   unwind_protect_to_save.upto_frame = upto_frame;
   until (STACK == upto_frame) { /* arrived at target-frame? */
@@ -634,7 +638,7 @@ global void throw_to (object tag) {
  can trigger GC
  This deactivates the handler, that is called right now,
  and all newer handlers. */
-global void invoke_handlers (object cond) {
+global maygc void invoke_handlers (object cond) {
   /* Also deactivates the handler being called, and all newer handlers.
      the handler-ranges, which are screened off: */
   var stack_range_t* other_ranges = inactive_handlers;
@@ -834,7 +838,7 @@ local gcv_object_t* sym_value_place (object sym, object env)
 /* like sym_value, but force bound
  the value is returned in value1
  can trigger GC */
-local void check_local_symbol_value (object sym, object env)
+local maygc void check_local_symbol_value (object sym, object env)
 {
   value1 = sym_value(sym,env);
   if (!boundp(value1)) {
@@ -866,7 +870,7 @@ global bool sym_macrop (object sym) {
  > value: desired value of the Symbols in the current Environment
  < result: value
  can trigger GC */
-global object setq (object sym, object value)
+global maygc object setq (object sym, object value)
 {
   if (special_var_p(TheSymbol(sym))) # the same for special declared symbols
     goto global_value;
@@ -957,8 +961,8 @@ global object setq (object sym, object value)
 # > form: Form
 # < mv_count/mv_space: values
 # can trigger GC
-global Values eval_5env (object form, object var_env, object fun_env,
-                         object block_env, object go_env, object decl_env) {
+global maygc Values eval_5env (object form, object var_env, object fun_env,
+                               object block_env, object go_env, object decl_env) {
   # bind Environments:
   make_ENV5_frame();
   # set current Environments:
@@ -979,7 +983,7 @@ global Values eval_5env (object form, object var_env, object fun_env,
 # > form: Form
 # < mv_count/mv_space: values
 # can trigger GC
-global Values eval_noenv (object form) {
+global maygc Values eval_noenv (object form) {
   return_Values eval_5env(form,NIL,NIL,NIL,NIL,O(top_decl_env));
 }
 
@@ -989,7 +993,7 @@ global Values eval_noenv (object form) {
 # > env: FUN-Env
 # < result: same environment, no Pointer into the Stack
 # can trigger GC
-  global object nest_fun (object env)
+  global maygc object nest_fun (object env)
   {
     var uintL depth = 0; # recursion counter := 0
     # Pseudorecursion with Input env, Output env.
@@ -1044,7 +1048,7 @@ global Values eval_noenv (object form) {
 # > env: VAR-Env
 # < result: same Environment, no Pointer in the Stack
 # can trigger GC
-  local object nest_var (object env)
+  local maygc object nest_var (object env)
   {
     var uintL depth = 0; # Recursion counter := 0
     # Pseudorecursion with Input env, Output env.
@@ -1124,7 +1128,7 @@ global Values eval_noenv (object form) {
  > gcv_environment_t* env: Pointer to five Environments
  < gcv_environment_t* result: Pointer to the Environments in the STACK
  changes STACK, can trigger GC */
-global gcv_environment_t* nest_env (gcv_environment_t* env5)
+global maygc gcv_environment_t* nest_env (gcv_environment_t* env5)
 {
   /* First copy all Environments in the STACK: */
   make_STACK_env(env5->var_env,env5->fun_env,env5->block_env,env5->go_env,
@@ -1258,7 +1262,7 @@ global gcv_environment_t* nest_env (gcv_environment_t* env5)
 # > env: Declaration-Environment
 # < result: new (poss. augmented) Declaration-Environment
 # can trigger GC
-  global object augment_decl_env (object new_declspec, object env)
+  global maygc object augment_decl_env (object new_declspec, object env)
   {
     var object decltype = Car(new_declspec); # Declaration-Type
     # Is this a declaration type to be payed attention to?
@@ -1295,7 +1299,7 @@ global gcv_environment_t* nest_env (gcv_environment_t* env5)
 # < value2: NIL, if not expanded,
 #           T, if expansion has taken place
 # can trigger GC
-  global void macroexp (object form, object venv, object fenv)
+  global maygc void macroexp (object form, object venv, object fenv)
   {
     if (consp(form)) { # only lists can be a macro-call
       var object funname = Car(form); # function name
@@ -1333,7 +1337,7 @@ global gcv_environment_t* nest_env (gcv_environment_t* env5)
 # < value2: NIL, if not expanded,
 #           T, if expansion has taken place
 # can trigger GC
-  global void macroexp0 (object form, object env)
+  global maygc void macroexp0 (object form, object env)
   {
     if (consp(form)) { # only lists can be a macro-call
       var object funname = Car(form); # function name
@@ -1413,7 +1417,7 @@ global gcv_environment_t* nest_env (gcv_environment_t* env5)
  < value3: Doc-String or NIL
  < result: true if one (COMPILE)-declaration occurred, else false
  can trigger GC */
-global bool parse_dd (object formlist)
+global maygc bool parse_dd (object formlist)
 {
   pushSTACK(formlist); /* store formlist for error message */
   pushSTACK(NIL); /* preliminary Doc-String */
@@ -1535,8 +1539,10 @@ local object lambdabody_source (object lambdabody) {
  > value3: Doc-String or NIL
  < STACK_0: new lambda body
  can trigger GC */
-local void add_implicit_block (void)
-{ /* Replace lambdabody with
+local /*maygc*/ void add_implicit_block (void)
+{
+  GCTRIGGER3(value1,value2,value3);
+  /* Replace lambdabody with
  (cons (car lambdabody) ; lambda list
        (multiple-value-bind (body-rest declarations docstring)
            (sys::parse-body (cdr lambdabody) t) ; body
@@ -1625,8 +1631,8 @@ LISPFUNNR(function_block_name,1)
         env->decl_env = DENV.
  < result: Closure
  can trigger GC */
-global object get_closure (object lambdabody, object name, bool blockp,
-                           gcv_environment_t* env)
+global maygc object get_closure (object lambdabody, object name, bool blockp,
+                                 gcv_environment_t* env)
 {
   /* Lambdabody must be a Cons: */
   if (atomp(lambdabody)) {
@@ -2166,7 +2172,7 @@ nonreturning_function(local, fehler_macro, (object caller, object funname)) {
  > obj: object
  < result: object as function (SUBR or Closure)
  can trigger GC */
-global object coerce_function (object obj)
+global maygc object coerce_function (object obj)
 {
   /* obj should be a symbol, a SUBR or a Closure. */
   if (functionp(obj)) {
@@ -2211,7 +2217,7 @@ global object coerce_function (object obj)
  > uintB caller_type: 'F' for fsubr, 'S' for subr,
                       'C' for cclosure, 'I' for iclosure
  can trigger GC */
-local void trace_call (object fun, uintB type_of_call, uintB caller_type)
+local maygc void trace_call (object fun, uintB type_of_call, uintB caller_type)
 {
   var object stream = Symbol_value(S(funcall_trace_output)); /* SYS::*FUNCALL-TRACE-OUTPUT* */
   /* No output until *funcall-trace-output* has been initialized: */
@@ -2334,8 +2340,8 @@ local void trace_call (object fun, uintB type_of_call, uintB caller_type)
  < mv_count/mv_space: values
  < STACK: cleaned up, = args_pointer
  can trigger GC */
-local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
-                               uintC argcount)
+local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
+                                     uintC argcount)
 {
   /* 1st step: finish building of APPLY-frame: */
   var sp_jmp_buf my_jmp_buf;
@@ -2707,7 +2713,7 @@ local Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
 # < ergebnis: closure
 # changes STACK
 # can trigger GC
-  local object match_cclosure_key (object closure, uintL argcount, gcv_object_t* key_args_pointer, gcv_object_t* rest_args_pointer)
+  local maygc object match_cclosure_key (object closure, uintL argcount, gcv_object_t* key_args_pointer, gcv_object_t* rest_args_pointer)
   {
     /* halve argcount --> the number of pairs Key.Value: */
     if (argcount%2) /* number was odd -> not paired: */
@@ -2811,7 +2817,7 @@ local Values eval_ffunction (object fun);
 # > form: form
 # < mv_count/mv_space: values
 # can trigger GC
-  global Values eval (object form)
+  global maygc Values eval (object form)
   {
    start:
     # Test for Keyboard-Interrupt:
@@ -2868,7 +2874,7 @@ local Values eval_ffunction (object fun);
 # > form: Form
 # < mv_count/mv_space: values
 # can trigger GC
-global Values eval_no_hooks (object form) {
+global maygc Values eval_no_hooks (object form) {
   var sp_jmp_buf my_jmp_buf;
   # build EVAL-Frame:
   {
@@ -2898,7 +2904,7 @@ global Values eval_no_hooks (object form) {
  < mv_count/mv_space: values
  changes STACK
  can trigger GC */
-local Values eval1 (object form)
+local maygc Values eval1 (object form)
 {
   if (atomp(form)) {
     if (symbolp(form)) { /* Form is a Symbol */
@@ -3024,7 +3030,7 @@ local Values eval1 (object form)
 # < mv_count/mv_space: values
 # changes STACK
 # can trigger GC
-  local Values eval_fsubr (object fun, object args)
+  local maygc Values eval_fsubr (object fun, object args)
   {
     skipSTACK(1); # forget value of *APPLYHOOK*
     check_SP(); check_STACK();
@@ -3131,7 +3137,7 @@ local Values eval1 (object form)
 # < mv_count/mv_space: values
 # changes STACK
 # can trigger GC
-local Values eval_applyhook(object fun) {
+local maygc Values eval_applyhook(object fun) {
   var object args = popSTACK(); # argument-list
   var object applyhook_value = popSTACK(); # value of *APPLYHOOK*
   check_SP();
@@ -3201,7 +3207,7 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
 # < mv_count/mv_space: values
 # changes STACK
 # can trigger GC
-  local Values eval_subr (object fun)
+  local maygc Values eval_subr (object fun)
   {
     var object args = popSTACK(); # argument-list
     skipSTACK(1); # forget value of *APPLYHOOK*
@@ -3511,7 +3517,7 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
 # < mv_count/mv_space: values
 # changes STACK
 # can trigger GC
-  local Values eval_closure (object closure)
+  local maygc Values eval_closure (object closure)
   {
     var object args = popSTACK(); # argument-list
     skipSTACK(1); # forget value of *APPLYHOOK*
@@ -3889,7 +3895,7 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
 # < mv_count/mv_space: values
 # changes STACK
 # can trigger GC
-local Values eval_ffunction(object ffun) {
+local maygc Values eval_ffunction(object ffun) {
   var object args = popSTACK(); # Argument-list
   skipSTACK(1); # skip value of *APPLYHOOK*
   # STACK-layout: EVAL-Frame.
@@ -3931,7 +3937,7 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
  < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
  < mv_count/mv_space: values
  changes STACK, can trigger GC */
-global Values apply (object fun, uintC args_on_stack, object other_args)
+global maygc Values apply (object fun, uintC args_on_stack, object other_args)
 {
  apply_restart:
   /* fun must be a SUBR or a Closure or a Cons (LAMBDA ...) : */
@@ -4058,7 +4064,7 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
 # < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
 # < mv_count/mv_space: values
 # changes STACK, can trigger GC
-  local Values apply_subr (object fun, uintC args_on_stack, object args)
+  local maygc Values apply_subr (object fun, uintC args_on_stack, object args)
   {
     #if STACKCHECKS
     var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
@@ -4407,7 +4413,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
 # < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
 # < mv_count/mv_space: values
 # changes STACK, can trigger GC
-  local Values apply_closure (object closure, uintC args_on_stack, object args)
+  local maygc Values apply_closure (object closure, uintC args_on_stack, object args)
   {
     TRACE_CALL(closure,'A','C');
     if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
@@ -4832,7 +4838,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
  < STACK: cleaned up (i.e. STACK is increased by argcount)
  < mv_count/mv_space: values
  changes STACK, can trigger GC */
-global Values funcall (object fun, uintC args_on_stack)
+global maygc Values funcall (object fun, uintC args_on_stack)
 {
  funcall_restart:
   /* fun must be a SUBR or a Closure or a Cons (LAMBDA ...) : */
@@ -4919,7 +4925,7 @@ global Values funcall (object fun, uintC args_on_stack)
 # < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
 # < mv_count/mv_space: values
 # changes STACK, can trigger GC
-  local Values funcall_subr (object fun, uintC args_on_stack)
+  local maygc Values funcall_subr (object fun, uintC args_on_stack)
   {
     #if STACKCHECKS
     var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
@@ -5260,7 +5266,7 @@ global Values funcall (object fun, uintC args_on_stack)
 # < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
 # < mv_count/mv_space: values
 # changes STACK, can trigger GC
-  local Values funcall_closure (object closure, uintC args_on_stack)
+  local maygc Values funcall_closure (object closure, uintC args_on_stack)
   {
     TRACE_CALL(closure,'F','C');
     if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
@@ -5788,8 +5794,14 @@ global Values funcall (object fun, uintC args_on_stack)
     #define GOTO_ERROR(label)  goto label
     #define DEBUG_CHECK_BYTEPTR(b)     do{}while(0)
   #endif
-  local Values interpret_bytecode_ (object closure_in, Sbvector codeptr, const uintB* byteptr_in)
+  local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr, const uintB* byteptr_in)
   {
+   GCTRIGGER_IF(true, {
+     if (*byteptr_in == cod_handler_begin_push)
+       GCTRIGGER3(closure_in,handler_args.condition,handler_args.spdepth);
+     else
+       GCTRIGGER1(closure_in);
+   });
    #if defined(STACKCHECKC) || defined(DEBUG_BYTECODE)
     var const uintL byteptr_min = ((Codevec)codeptr)->ccv_flags & bit(7)
       ? CCV_START_KEY : CCV_START_NONKEY;
@@ -8469,7 +8481,7 @@ global Values funcall (object fun, uintC args_on_stack)
 /* UP: initialize hand-made compiled closures
  init_cclosures();
  can trigger GC */
-global void init_cclosures (void) {
+global maygc void init_cclosures (void) {
   # Build #13Y(00 00 00 00 00 00 00 00 00 01 C5 19 01) ; (CONST 0) (SKIP&RET 1)
   {
     var object codevec = allocate_bit_vector(Atype_8Bit,CCV_START_NONKEY+3);

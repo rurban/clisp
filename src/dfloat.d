@@ -182,14 +182,14 @@
  DF_ftruncate_DF(x)
  x is rounded towards 0, to the next integer number.
  can trigger GC */
-local object DF_ftruncate_DF (object x);
+local maygc object DF_ftruncate_DF (object x);
 /* Method:
  x = 0.0 or e<=0 -> result 0.0
  1<=e<=52 -> set last (53-e) bits of the mantissa to 0 ,
              keep exponent and sign
  e>=53 -> result x */
 #ifdef intQsize
-local object DF_ftruncate_DF (object x) {
+local maygc object DF_ftruncate_DF (object x) {
   var dfloat x_ = TheDfloat(x)->float_value;
   var uintWL uexp = DF_uexp(x_); /* e + DF_exp_mid */
   if (uexp <= DF_exp_mid) { /* 0.0 or e<=0 ? */
@@ -204,7 +204,7 @@ local object DF_ftruncate_DF (object x) {
   }
 }
 #else
-local object DF_ftruncate_DF (object x) {
+local maygc object DF_ftruncate_DF (object x) {
   var uint32 semhi = TheDfloat(x)->float_value.semhi;
   var uint32 mlo = TheDfloat(x)->float_value.mlo;
   var uintWL uexp = DF_uexp(semhi); /* e + DF_exp_mid */
@@ -233,7 +233,7 @@ local object DF_ftruncate_DF (object x) {
  DF_futruncate_DF(x)
  x is rounded away from 0 to the the next integer number.
  can trigger GC */
-local object DF_futruncate_DF (object x);
+local maygc object DF_futruncate_DF (object x);
 /* method:
  x = 0.0 -> result 0.0
  e<=0 -> result 1.0 or -1.0, according to sign of x.
@@ -245,7 +245,7 @@ local object DF_futruncate_DF (object x);
                e:=e+1. (test for overflow because of e<=53 superfluous)
  e>=53 -> result x. */
 #ifdef intQsize
-local object DF_futruncate_DF (object x) {
+local maygc object DF_futruncate_DF (object x) {
   var dfloat x_ = TheDfloat(x)->float_value;
   var uintWL uexp = DF_uexp(x_); /* e + DF_exp_mid */
   if (uexp==0) /* 0.0 ? */
@@ -268,7 +268,7 @@ local object DF_futruncate_DF (object x) {
   }
 }
 #else
-local object DF_futruncate_DF (object x) {
+local maygc object DF_futruncate_DF (object x) {
   var uint32 semhi = TheDfloat(x)->float_value.semhi;
   var uint32 mlo = TheDfloat(x)->float_value.mlo;
   var uintWL uexp = DF_uexp(semhi); /* e + DF_exp_mid */
@@ -310,14 +310,14 @@ local object DF_futruncate_DF (object x) {
  DF_fround_DF(x)
  x is rounded to the next integer number.
  can trigger GC */
-local object DF_fround_DF (object x);
+local maygc object DF_fround_DF (object x);
 /* method:
  x = 0.0 or e<0 -> result 0.0
  0<=e<=52 -> round away last (53-e) bits of the mantissa,
              keep exponent and sign.
  e>52 -> result x */
 #ifdef intQsize
-local object DF_fround_DF (object x) {
+local maygc object DF_fround_DF (object x) {
   var dfloat x_ = TheDfloat(x)->float_value;
   var uintWL uexp = DF_uexp(x_); /* e + DF_exp_mid */
   if (uexp < DF_exp_mid) { /* x = 0.0 or e<0 ? */
@@ -366,7 +366,7 @@ local object DF_fround_DF (object x) {
   }
 }
 #else
-local object DF_fround_DF (object x) {
+local maygc object DF_fround_DF (object x) {
   var uint32 semhi = TheDfloat(x)->float_value.semhi;
   var uint32 mlo = TheDfloat(x)->float_value.mlo;
   var uintWL uexp = DF_uexp(semhi); /* e + DF_exp_mid */
@@ -445,18 +445,18 @@ local object DF_fround_DF (object x) {
 /* Returns for a Double-Float x : (- x), a DF.
  DF_minus_DF(x)
  can trigger GC */
-local object DF_minus_DF (object x);
+local maygc object DF_minus_DF (object x);
 /* method:
  if x=0.0, done. Else reverse sign bit. */
 #ifdef intQsize
-local object DF_minus_DF (object x) {
+local maygc object DF_minus_DF (object x) {
   var dfloat x_ = TheDfloat(x)->float_value;
   return (DF_uexp(x_) == 0
           ? x
           : allocate_dfloat( x_ ^ bit(63) ));
 }
 #else
-local object DF_minus_DF (object x) {
+local maygc object DF_minus_DF (object x) {
   var uint32 semhi = TheDfloat(x)->float_value.semhi;
   var uint32 mlo = TheDfloat(x)->float_value.mlo;
   return (DF_uexp(semhi) == 0
@@ -542,7 +542,7 @@ local signean DF_DF_comp (object x, object y) {
 /* Returns for two Double-Float x and y : (+ x y), a DF.
  DF_DF_plus_DF(x,y)
  can trigger GC */
-  local object DF_DF_plus_DF (object x, object y);
+  local maygc object DF_DF_plus_DF (object x, object y);
 /* method (according to [Knuth, II, Seminumerical Algorithms, section 4.2.1., p.200]):
  x1=0.0 -> result x2.
  x2=0.0 -> result x1.
@@ -562,7 +562,7 @@ local signean DF_DF_comp (object x, object y) {
  Exponent is e1.
  Normalize, done. */
 #ifdef FAST_DOUBLE
-local object DF_DF_plus_DF (object x1, object x2) {
+local maygc object DF_DF_plus_DF (object x1, object x2) {
   double_to_DF(DF_to_double(x1) + DF_to_double(x2), return ,
                true, true, /* catch Overflow and subnormal number */
                false, /* no Underflow with result +/- 0.0 possible */
@@ -570,7 +570,7 @@ local object DF_DF_plus_DF (object x1, object x2) {
                false, false); /* no singularity, no NaN as result possible */
 }
 #elif defined(intQsize)
-local object DF_DF_plus_DF (object x1, object x2) {
+local maygc object DF_DF_plus_DF (object x1, object x2) {
   /* unpack x1,x2: */
   var signean sign1;
   var sintWL exp1;
@@ -661,7 +661,7 @@ local object DF_DF_plus_DF (object x1, object x2) {
   encode_DF(sign1,exp1,mant1, return);
 }
 #else
-local object DF_DF_plus_DF (object x1, object x2) {
+local maygc object DF_DF_plus_DF (object x1, object x2) {
   /* unpack x1,x2: */
   var signean sign1;
   var sintWL exp1;
@@ -793,11 +793,11 @@ local object DF_DF_plus_DF (object x1, object x2) {
 /* Returns for two Double-Float x and y : (- x y), a DF.
  DF_DF_minus_DF(x,y)
  can trigger GC */
-local object DF_DF_minus_DF (object x, object y);
+local maygc object DF_DF_minus_DF (object x, object y);
 /* method:
  (- x1 x2) = (+ x1 (- x2)) */
 #ifdef FAST_DOUBLE
-local object DF_DF_minus_DF (object x1, object x2) {
+local maygc object DF_DF_minus_DF (object x1, object x2) {
   double_to_DF(DF_to_double(x1) - DF_to_double(x2), return ,
                true, true, /* catch Overflow and subnormal number */
                false, /* no Underflow with result +/- 0.0 possible */
@@ -805,7 +805,7 @@ local object DF_DF_minus_DF (object x1, object x2) {
                false, false); /* no singularity, no NaN as result possible */
 }
 #elif defined(intQsize)
-local object DF_DF_minus_DF (object x1, object x2) {
+local maygc object DF_DF_minus_DF (object x1, object x2) {
   var dfloat x2_ = TheDfloat(x2)->float_value;
   if (DF_uexp(x2_) == 0) {
     return x1;
@@ -816,7 +816,7 @@ local object DF_DF_minus_DF (object x1, object x2) {
   }
 }
 #else
-local object DF_DF_minus_DF (object x1, object x2) {
+local maygc object DF_DF_minus_DF (object x1, object x2) {
   var uint32 x2_semhi = TheDfloat(x2)->float_value.semhi;
   var uint32 x2_mlo = TheDfloat(x2)->float_value.mlo;
   if (DF_uexp(x2_semhi) == 0) {
@@ -832,7 +832,7 @@ local object DF_DF_minus_DF (object x1, object x2) {
 /* Returns for two Double-Float x and y : (* x y), a DF.
  DF_DF_mal_DF(x,y)
  can trigger GC */
-local object DF_DF_mal_DF (object x, object y);
+local maygc object DF_DF_mal_DF (object x, object y);
 /* method:
  If x1=0.0 or x2=0.0 -> result 0.0
  Else: result-sign = sign of x1 xor sign of x2.
@@ -849,7 +849,7 @@ local object DF_DF_mal_DF (object x, object y);
             rounding up: If =2^53, shift by 1 bit to the right. Else,
             decrement exponent by 1. */
 #ifdef FAST_DOUBLE
-local object DF_DF_mal_DF (object x1, object x2) {
+local maygc object DF_DF_mal_DF (object x1, object x2) {
   double_to_DF(DF_to_double(x1) * DF_to_double(x2), return ,
                true, true, /* catch Overflow and subnormal number */
                !(DF_zerop(x1) || DF_zerop(x2)), /* a result +/- 0.0 */
@@ -857,7 +857,7 @@ local object DF_DF_mal_DF (object x1, object x2) {
                false, false); /* no singularity, no NaN possible as result */
 }
 #else
-local object DF_DF_mal_DF (object x1, object x2) {
+local maygc object DF_DF_mal_DF (object x1, object x2) {
   /* unpack x1,x2: */
   var signean sign1;
   var sintWL exp1;
@@ -1009,7 +1009,7 @@ local object DF_DF_mal_DF (object x1, object x2) {
 /* Return for two Double-Float x and y : (/ x y), a DF.
  DF_DF_durch_DF(x,y)
  can trigger GC */
-  local object DF_DF_durch_DF (object x, object y);
+  local maygc object DF_DF_durch_DF (object x, object y);
 /* method:
  x2 = 0.0 -> Error
  x1 = 0.0 -> result 0.0
@@ -1029,7 +1029,7 @@ local object DF_DF_mal_DF (object x1, object x2) {
    if the quotient is <2^54 , round the last bit away. On rounding
      overflow, shift by one further bit to the right, increment exponent. */
 #if defined(FAST_DOUBLE) && !defined(DOUBLE_DIV0_EXCEPTION) && !defined(I80386)
-local object DF_DF_durch_DF (object x1, object x2) {
+local maygc object DF_DF_durch_DF (object x1, object x2) {
   double_to_DF(DF_to_double(x1) / DF_to_double(x2), return ,
                true, true, /* catch Overflow and subnormal number */
                !DF_zerop(x1), /* a result +/- 0.0 */
@@ -1038,7 +1038,7 @@ local object DF_DF_durch_DF (object x1, object x2) {
                false); /* no NaN possible as result */
 }
 #else
-local object DF_DF_durch_DF (object x1, object x2) {
+local maygc object DF_DF_durch_DF (object x1, object x2) {
   /* unpack x1,x2: */
   var signean sign1;
   var sintWL exp1;
@@ -1194,7 +1194,7 @@ local object DF_DF_durch_DF (object x1, object x2) {
 /* Return for a Double-Float x>=0 : (sqrt x), a DF.
  DF_sqrt_DF(x)
  can trigger GC */
-local object DF_sqrt_DF (object x);
+local maygc object DF_sqrt_DF (object x);
 /* method:
  x = 0.0 -> result 0.0
  result-sign := positiv,
@@ -1211,7 +1211,7 @@ local object DF_sqrt_DF (object x);
    On rounding up to 2^53 (rounding overflow) shift mantissa by 1 bit to
      to the right and increment exponent. */
 #ifdef intQsize /* && (intDsize==32) */
-local object DF_sqrt_DF (object x) {
+local maygc object DF_sqrt_DF (object x) {
   /* unpack x: */
   var sintWL exp;
   var uint64 mantx;
@@ -1255,7 +1255,7 @@ local object DF_sqrt_DF (object x) {
   encode_DF(0,exp,mantx, return);
 }
 #else
-local object DF_sqrt_DF (object x) {
+local maygc object DF_sqrt_DF (object x) {
   /* unpack x: */
   var sintWL exp;
   var uint32 manthi;
@@ -1324,12 +1324,12 @@ local object DF_sqrt_DF (object x) {
 /* DF_to_I(x) converts a Double-Float x, that represents an integer,
  into an Integer.
  can trigger GC */
-local object DF_to_I (object x);
+local maygc object DF_to_I (object x);
 /* method:
  if x=0.0, result 0.
  else (ASH sign*mantissa (e-53)). */
 #ifdef intQsize
-local object DF_to_I (object x) {
+local maygc object DF_to_I (object x) {
   /* unpack x: */
   var signean sign;
   var sintWL exp;
@@ -1343,7 +1343,7 @@ local object DF_to_I (object x) {
   return I_I_ash_I( Q_to_I(mant), L_to_FN(exp) );
 }
 #else
-local object DF_to_I (object x) {
+local maygc object DF_to_I (object x) {
   /* unpack x: */
   var signean sign;
   var sintWL exp;
@@ -1366,7 +1366,7 @@ local object DF_to_I (object x) {
 /* I_to_DF(x,signal_overflow) converts an integer x to a double-float, and
  rounds thereby.
  can trigger GC */
-local object I_to_DF (object x, bool signal_overflow);
+local maygc object I_to_DF (object x, bool signal_overflow);
 /* method:
  x=0 -> result 0.0
  memorize sign of x.
@@ -1380,7 +1380,7 @@ local object I_to_DF (object x, bool signal_overflow);
    Shift by one bit to the right.
    On rounding up to 2^53 (rounding overflow) shift mantissa by 1 bit
      to the right and increment exponent. */
-local object I_to_DF (object x, bool signal_overflow) {
+local maygc object I_to_DF (object x, bool signal_overflow) {
   if (eq(x,Fixnum_0))
     return DF_0;
   var signean sign = R_sign(x); /* sign */
@@ -1477,7 +1477,7 @@ local object I_to_DF (object x, bool signal_overflow) {
 /* RA_to_DF(x,signal_overflow) converts a rational number x to a double-float,
  and rounds thereby.
  can trigger GC */
-local object RA_to_DF (object x, bool signal_overflow);
+local maygc object RA_to_DF (object x, bool signal_overflow);
 /* method:
  x integer -> obvious.
  x = +/- a/b with Integers a,b>0:
@@ -1491,7 +1491,7 @@ local object RA_to_DF (object x, bool signal_overflow);
    The first value is >=2^53, <2^55.
    If it is >=2^54 , round 2 bits away,
    if it is <2^54 , round 1 bit away. */
-local object RA_to_DF (object x, bool signal_overflow) {
+local maygc object RA_to_DF (object x, bool signal_overflow) {
   if (RA_integerp(x))
     return I_to_DF(x,signal_overflow);
   /* x ratio */

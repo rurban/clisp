@@ -26,7 +26,7 @@
  > size: the desired size of the table (odd number, >0, <2^24)
  < result: new symbol-table of this size
  can trigger GC */
-local object make_symtab (uintL size) {
+local maygc object make_symtab (uintL size) {
   var object table = allocate_vector(size); /* vector with size NIL-entries */
   pushSTACK(table);
   var object symtab = allocate_vector(3); /* vector of length 3 */
@@ -71,7 +71,7 @@ local uint32 string_hashcode (object string) {
  < result: reorganized symbol-table (EQ to the first).
  call only, if BREAK_SEM_2 is set
  can trigger GC */
-local object rehash_symtab (object symtab);
+local maygc object rehash_symtab (object symtab);
 
 /* auxiliary functions: */
 
@@ -80,7 +80,7 @@ local object rehash_symtab (object symtab);
  < result: new Cons.
  stack layout: free-conses, newtable, listr, symbol, entry.
  can trigger GC */
-local object new_cons (void) {
+local maygc object new_cons (void) {
   var object free = STACK_4; /* free-conses */
   if (!nullp(free)) {
     STACK_4 = Cdr(free); /* shorten free-conses */
@@ -95,7 +95,7 @@ local object new_cons (void) {
  > sym: symbol
  stack layout: tab, oldtable, free-conses, newtable, listr.
  can trigger GC */
-local void newinsert (object sym, uintL size) {
+local maygc void newinsert (object sym, uintL size) {
   var uintL index = /* Index = Hashcode mod size */
     string_hashcode(Symbol_name(sym)) % size;
   /* entry in the newtable */
@@ -270,7 +270,7 @@ local bool symtab_find (object sym, object symtab) {
  < result: new symbol-table, EQ to the old one
  call only, if BREAK_SEM_2 is set
  can trigger GC */
-local object symtab_insert (object sym, object symtab) {
+local maygc object symtab_insert (object sym, object symtab) {
   { /* first test if reorganization is necessary: */
     var uintL size = posfixnum_to_L(Symtab_size(symtab));
     var uintL count = posfixnum_to_L(Symtab_count(symtab));
@@ -439,8 +439,8 @@ local void ensure_pack_shortest_name (object pack) {
  > case_sensitive_p: flag, if case-sensitive
  < result: new package
  can trigger GC */
-local object make_package (object name, object nicknames,
-                           bool case_sensitive_p) {
+local maygc object make_package (object name, object nicknames,
+                                 bool case_sensitive_p) {
   set_break_sem_2();
   pushSTACK(nicknames); pushSTACK(name); /* save nicknames and names */
   /* create table for external symbols: */
@@ -508,7 +508,7 @@ local bool shadowing_lookup (object string, object pack, object* sym_) {
  < sym: symbol, EQ to the old one
  < pack: package, EQ to the old one
  can trigger GC */
-local void shadowing_insert (const gcv_object_t* sym_, const gcv_object_t* pack_) {
+local maygc void shadowing_insert (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   /* insert a new cons with symbol as CAR in front of the shadowing-symbols: */
   var object new_cons = allocate_cons();
   var object pack = *pack_;
@@ -676,7 +676,7 @@ local sintBWL find_symbol (object string, object pack, object* sym_) {
 /* raise a continuable error when func(obj) was called on a locked package pack
  continue means "Ignore the lock and proceed"
  can trigger GC */
-local void cerror_package_locked (object func, object pack, object obj) {
+local maygc void cerror_package_locked (object func, object pack, object obj) {
   pushSTACK(NIL);              /* 7 continue-format-string */
   pushSTACK(S(package_error)); /* 6 error type */
   pushSTACK(S(Kpackage));      /* 5 :PACKAGE */
@@ -707,7 +707,7 @@ local void cerror_package_locked (object func, object pack, object obj) {
  > pack: package
  only call, if BREAK_SEM_2 is set
  can trigger GC */
-local void make_present (object sym, object pack) {
+local maygc void make_present (object sym, object pack) {
   if (nullp(Symbol_package(sym)))
     Symbol_package(sym) = pack;
   if (!eq(pack,O(keyword_package))) {
@@ -731,7 +731,7 @@ local void make_present (object sym, object pack) {
              2, if inherited via use-list
              3, if available as internal symbol
  can trigger GC */
-global uintBWL intern (object string, object pack, object* sym_) {
+global maygc uintBWL intern (object string, object pack, object* sym_) {
   {
     var sintBWL ergebnis = find_symbol(string,pack,sym_); /* search */
     if (!(ergebnis==0))
@@ -757,7 +757,7 @@ global uintBWL intern (object string, object pack, object* sym_) {
  > string: string
  < result: symbol, a keyword
  can trigger GC */
-global object intern_keyword (object string) {
+global maygc object intern_keyword (object string) {
   var object sym;
   intern(string,O(keyword_package),&sym);
   return sym;
@@ -780,7 +780,7 @@ global object intern_keyword (object string) {
  < sym: symbol, EQ to the old one
  < pack: package, EQ to the old one
  can trigger GC */
-local void shadowing_import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
+local maygc void shadowing_import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(shadowing_import),*pack_,*sym_);
   set_break_sem_2(); /* protect against breaks */
   {
@@ -828,7 +828,7 @@ local void shadowing_import (const gcv_object_t* sym_, const gcv_object_t* pack_
 /* > pack: package (in STACK)
  < pack: package, EQ to the old
  can trigger GC */
-local void shadow (const gcv_object_t* sym_, const gcv_object_t* pack_) {
+local maygc void shadow (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(shadow),*pack_,*sym_);
   set_break_sem_2(); /* protect against breaks */
   /* Search an internal or external symbol of the same name: */
@@ -872,7 +872,7 @@ local void shadow (const gcv_object_t* sym_, const gcv_object_t* pack_) {
  < pack: package, EQ to the old
  < result: T if found and deleted, NIL if nothing has been done.
  can trigger GC */
-local object unintern (const gcv_object_t* sym_, const gcv_object_t* pack_) {
+local maygc object unintern (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(unintern),*pack_,*sym_);
   var object sym = *sym_;
   var object pack = *pack_;
@@ -979,8 +979,8 @@ local object unintern (const gcv_object_t* sym_, const gcv_object_t* pack_) {
  return true when an abort was requested
  dialog_type == 0 or 1 or 2
  can trigger GC */
-local bool query_intern_conflict (object pack, object sym, object other,
-                                  int dialog_type) {
+local maygc bool query_intern_conflict (object pack, object sym, object other,
+                                        int dialog_type) {
   pushSTACK(NIL); /* place for OPTIONS */
   pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
   pushSTACK(other); pushSTACK(pack); pushSTACK(sym);
@@ -1014,7 +1014,7 @@ local bool query_intern_conflict (object pack, object sym, object other,
  > pack: package (in STACK)
  < pack: package, EQ to the old
  can trigger GC */
-global void import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
+global maygc void import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   var object sym = *sym_;
   var object pack = *pack_;
   var object string = Symbol_name(sym);
@@ -1091,7 +1091,7 @@ global void import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
  > pack: package (in STACK)
  < pack: package, EQ to the old
  can trigger GC */
-local void unexport (const gcv_object_t* sym_, const gcv_object_t* pack_) {
+local maygc void unexport (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(unexport),*pack_,*sym_);
   var object sym = *sym_;
   var object pack = *pack_;
@@ -1129,7 +1129,7 @@ local void unexport (const gcv_object_t* sym_, const gcv_object_t* pack_) {
  > sym: symbol
  > pack: package, in which the symbol is present
  can trigger GC */
-local void make_external (object sym, object pack) {
+local maygc void make_external (object sym, object pack) {
   if (symtab_find(sym,ThePackage(pack)->pack_external_symbols))
     return; /* symbol already external -> nothing to do */
   set_break_sem_2();
@@ -1147,7 +1147,7 @@ local void make_external (object sym, object pack) {
  < sym: symbol, EQ to the old
  < pack: package, EQ to the old
  can trigger GC */
-global void export (const gcv_object_t* sym_, const gcv_object_t* pack_) {
+global maygc void export (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(export),*pack_,*sym_);
   var object sym = *sym_;
   var object pack = *pack_;
@@ -1280,7 +1280,7 @@ global void export (const gcv_object_t* sym_, const gcv_object_t* pack_) {
  > fun: function with one argument
  > symtab: symboltable
  can trigger GC */
-local void map_symtab (object fun, object symtab) {
+local maygc void map_symtab (object fun, object symtab) {
   pushSTACK(fun); /* function */
   pushSTACK(Symtab_table(symtab)); /* table vector */
   /* number of entries */
@@ -1319,8 +1319,8 @@ local void map_symtab (object fun, object symtab) {
  > data: first argument for the function
  > symtab: symbol table
  can trigger GC */
-typedef void one_sym_function_t (void* data, object sym);
-local void map_symtab_c (one_sym_function_t* fun, void* data, object symtab) {
+typedef maygc void one_sym_function_t (void* data, object sym);
+local maygc void map_symtab_c (one_sym_function_t* fun, void* data, object symtab) {
   pushSTACK(Symtab_table(symtab)); /* table vector */
   /* number of entries */
   var uintL size = posfixnum_to_L(Symtab_size(symtab));
@@ -1355,7 +1355,7 @@ local void map_symtab_c (one_sym_function_t* fun, void* data, object symtab) {
  the list packlist is thereby destroyed!
  can trigger GC */
 local one_sym_function_t use_package_aux;
-local void use_package (object packlist, object pack) {
+local maygc void use_package (object packlist, object pack) {
   safe_check_pack_lock(S(use_package),pack,packlist);
   { /* packlist := (delete-duplicates packlist :test #'eq) : */
     var object packlist1 = packlist;
@@ -1510,7 +1510,7 @@ local void use_package (object packlist, object pack) {
  Test the argument (an external symbol from one of the packages of
  packlist), if it creates a conflict. If yes, extend conflicts.
  can trigger GC */
-local void use_package_aux (void* data, object sym) {
+local maygc void use_package_aux (void* data, object sym) {
   var gcv_object_t* localptr = (gcv_object_t*)data;
   /* Pointer to local variables of use_package:
      *(localptr STACKop 2) = pack,
@@ -1634,7 +1634,7 @@ local void use_package_aux (void* data, object sym) {
  Removes qpack from the use-list of pack
  and pack from the used-by-list of qpack.
  can trigger GC */
-local void unuse_1package (object pack, object qpack) {
+local maygc void unuse_1package (object pack, object qpack) {
   safe_check_pack_lock(S(use_package),pack,qpack);
   set_break_sem_2();
   /* remove qpack from the use-list of pack: */
@@ -1654,7 +1654,7 @@ local void unuse_1package (object pack, object qpack) {
  Removes all packages from packlist from the use-list of pack
  and pack from the used-by-lists of all packages from packlist.
  can trigger GC */
-local void unuse_package (object packlist, object pack) {
+local maygc void unuse_package (object packlist, object pack) {
   pushSTACK(pack);
   pushSTACK(packlist);
   set_break_sem_3();
@@ -1692,7 +1692,7 @@ global object get_current_package (void) {
  > obj: argument
  < result: argument turned into a package
  can trigger GC */
-local object test_package_arg (object obj) {
+local maygc object test_package_arg (object obj) {
  restart_package_arg:
   if (packagep(obj)) { /* package -> mostly OK */
     if (!pack_deletedp(obj))
@@ -1781,7 +1781,7 @@ LISPFUNNR(package_nicknames,1)
  into a new list of immutable simple-strings.
  > subr-self: caller (a SUBR)
  can trigger GC */
-local void test_names_args (void) {
+local maygc void test_names_args (void) {
   /* check name for string and turn it into a simple-string: */
   STACK_3 = coerce_imm_ss(test_stringsymchar_arg(STACK_3));
   { /* convert nickname-argument into a list: */
@@ -1942,7 +1942,7 @@ LISPFUNN(set_package_lock,2) {
    && special_var_p(TheSymbol(symbol))  /* special */                     \
    && !externalp(symbol,pack) /* for IN-PACKAGE forms */                  \
    && !accessiblep(symbol,Symbol_value(S(packagestern)))) /* accessible */
-global void symbol_value_check_lock (object caller, object symbol) {
+global maygc void symbol_value_check_lock (object caller, object symbol) {
   var object pack = Symbol_package(symbol);
   if (SYM_VAL_LOCK(symbol,pack))
     check_pack_lock(caller,pack,symbol);
@@ -1985,7 +1985,7 @@ LISPFUNNR(list_all_packages,0)
  > STACK_0: last argument
  < STACK_0: argument transformed into a package
  can trigger GC */
-local void test_optional_package_arg (void) {
+local maygc void test_optional_package_arg (void) {
   var object pack = STACK_0;
   if (!boundp(pack)) {
     STACK_0 = get_current_package(); /* default is the value of *PACKAGE* */
@@ -1997,7 +1997,7 @@ local void test_optional_package_arg (void) {
 /* UP: Check of the arguments of INTERN and FIND-SYMBOL.
  test_intern_args()
  can trigger GC */
-local void test_intern_args (void) {
+local maygc void test_intern_args (void) {
   STACK_1 = check_string(STACK_1); /* test string */
   test_optional_package_arg(); /* test package */
 }
@@ -2070,8 +2070,8 @@ LISPFUN(unintern,seclass_default,1,1,norest,nokey,0,NIL) {
    can trigger GC
  < STACK: cleaned up
  can trigger GC */
-typedef void sym_pack_function_t (const gcv_object_t* sym_, const gcv_object_t* pack_);
-local Values apply_symbols (sym_pack_function_t* fun) {
+typedef maygc void sym_pack_function_t (const gcv_object_t* sym_, const gcv_object_t* pack_);
+local maygc Values apply_symbols (sym_pack_function_t* fun) {
   { /* test, if the first argument is a symbol-list or a symbol: */
     var object symarg = STACK_1;
     /* test for symbol: */
@@ -2160,7 +2160,7 @@ LISPFUN(shadow,seclass_default,1,1,norest,nokey,0,NIL) {
  The first argument STACK_1 is turned into a (newly created)
  list of packages, the second argument STACK_0 is checked.
  can trigger GC */
-local void prepare_use_package (void) {
+local maygc void prepare_use_package (void) {
   /* check second argument (package) : */
   test_optional_package_arg();
   { /* check first argument (package or package-list) : */
@@ -2212,7 +2212,7 @@ LISPFUN(unuse_package,seclass_default,1,1,norest,nokey,0,NIL) {
  < result: not yet existing package-name
            or NIL if CONTINUE restart is selected
  can trigger GC */
-local object correct_packname (object name, bool nickname_p) {
+local maygc object correct_packname (object name, bool nickname_p) {
   var object pack;
   while (!nullp(pack=find_package(name))) {
     /* package with this name already exists */
@@ -2248,7 +2248,7 @@ local object correct_packname (object name, bool nickname_p) {
  > STACK_0: case-sensitive-argument
  removed the 4 STACK elements
  can trigger GC */
-local void in_make_package (void) {
+local maygc void in_make_package (void) {
   /* transform name into simple-string and
      nicknames into a new simple-string-list: */
   test_names_args();
@@ -2440,7 +2440,7 @@ LISPFUNN(delete_package,1) {
 /* UP: Auxiliary function for DELETE-PACKAGE:
  Remove the argument (a present symbol) from pack.
  can trigger GC */
-local void delete_package_aux (void* data, object sym) {
+local maygc void delete_package_aux (void* data, object sym) {
   var gcv_object_t* localptr = (gcv_object_t*)data; /* pointer to pack */
   pushSTACK(sym); unintern(&STACK_0,localptr); skipSTACK(1);
 }
@@ -2501,7 +2501,7 @@ LISPFUNN(map_symbols,2) {
  Test, if the argument is not shadowed in the given package, and
  then apply the given function.
  can trigger GC */
-local void map_symbols_aux (void* data, object sym) {
+local maygc void map_symbols_aux (void* data, object sym) {
   var gcv_object_t* localptr = (gcv_object_t*)data;
   /* Pointer to local variables of map_symbols:
      *(localptr STACKop 1) = fun,
@@ -2705,8 +2705,9 @@ LISPFUNN(package_iterate,1) {
 }
 
 /* UP: initialize the package list
- init_packages(); */
-global void init_packages (void) {
+ init_packages();
+ can trigger GC */
+global maygc void init_packages (void) {
   pushSTACK(coerce_imm_ss(ascii_to_string("COMMON-LISP")));
   pushSTACK(coerce_imm_ss(ascii_to_string("LISP")));
   pushSTACK(coerce_imm_ss(ascii_to_string("CL")));

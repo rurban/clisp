@@ -38,7 +38,7 @@ global void add_module (module_t * new_module);
 extern module_t* find_module (const char *name);
 /* push all module names to STACK and return the number of modules pushed
  can trigger GC */
-extern uintC modules_names_to_stack (void);
+extern maygc uintC modules_names_to_stack (void);
 
 /* --------------------------- Implementation ----------------------------- */
 
@@ -97,7 +97,7 @@ global module_t* find_module (const char *name)
 
 /* push all module names to STACK and return the number of modules pushed
  can trigger GC */
-global uintC modules_names_to_stack (void)
+global maygc uintC modules_names_to_stack (void)
 {
   var uintC count = 0;
   var module_t* module;

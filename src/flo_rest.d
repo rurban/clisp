@@ -35,7 +35,7 @@
 /* Warns, if Floats of different type are combined.
  warn_floating_point_contagion();
  can trigger GC */
-local void warn_floating_point_contagion (void) {
+local maygc void warn_floating_point_contagion (void) {
   pushSTACK(CLSTEXT("Floating point operation combines numbers of different precision. "
                     "See ANSI CL 12.1.4.4 and the CLISP impnotes for details. "
                     "The result's actual precision is controlled by ~S. "
@@ -50,8 +50,9 @@ local void warn_floating_point_contagion (void) {
 
 /* generates a Float-operation F_op_F like F_minus_F or F_durch_F */
 #define GEN_F_op1(op)                                \
-    local object CONCAT3(F_,op,_F) (object x)        \
+    local maygc object CONCAT3(F_,op,_F) (object x)  \
     {                                                \
+      GCTRIGGER1(x);                                 \
       floatcase(x,                                   \
                 { return CONCAT3(SF_,op,_SF) (x); }, \
                 { return CONCAT3(FF_,op,_FF) (x); }, \
@@ -62,12 +63,12 @@ local void warn_floating_point_contagion (void) {
 
 /* F_minus_F(x) returns (- x), with x being a Float.
  can trigger GC */
-local object F_minus_F (object x);
+local maygc object F_minus_F (object x);
 GEN_F_op1(minus)
 
 /* F_abs_F(x) returns (abs x), with x being a Float.
  can trigger GC */
-local object F_abs_F (object x) {
+local maygc object F_abs_F (object x) {
   return (R_minusp(x) ? F_minus_F(x) : x); /* x<0 -> (- x), x>=0 -> x */
 }
 
@@ -84,7 +85,7 @@ local object F_abs_F (object x) {
 
 /* F_square_F(x) returns (* x x), with x being a Float.
  can trigger GC */
-local object F_square_F (object x);
+local maygc object F_square_F (object x);
 GEN_F_op1(square)
 
 /* SF_durch_SF(x) returns (/ x), with x being a SF. */
@@ -100,7 +101,7 @@ GEN_F_op1(square)
 
 /* LF_durch_LF(x) returns (/ x), with x being a LF.
  can trigger GC */
-local object LF_durch_LF (object x)
+local maygc object LF_durch_LF (object x)
 {
   pushSTACK(x);
   encode_LF1(Lfloat_length(x), x=);
@@ -109,12 +110,12 @@ local object LF_durch_LF (object x)
 
 /* F_durch_F(x) returns (/ x), with x being a Float.
  can trigger GC */
-local object F_durch_F (object x);
+local maygc object F_durch_F (object x);
 GEN_F_op1(durch)
 
 /* F_sqrt_F(x) returns (sqrt x), with x being a Float >=0.
  can trigger GC */
-local object F_sqrt_F (object x);
+local maygc object F_sqrt_F (object x);
 GEN_F_op1(sqrt)
 
 
@@ -332,7 +333,7 @@ GEN_F_op1(sqrt)
 
 /* F_F_plus_F(x,y) returns (+ x y), with x and y being Floats.
  can trigger GC */
-local object F_F_plus_F (object x, object y)
+local maygc object F_F_plus_F (object x, object y)
 {
   GEN_F_op2(x,y,SF_SF_plus_SF,FF_FF_plus_FF,DF_DF_plus_DF,LF_LF_plus_LF,
             1,0,return)
@@ -340,7 +341,7 @@ local object F_F_plus_F (object x, object y)
 
 /* F_F_minus_F(x,y) returns (- x y), with x and y being Floats.
  can trigger GC */
-local object F_F_minus_F (object x, object y)
+local maygc object F_F_minus_F (object x, object y)
 {
   GEN_F_op2(x,y,SF_SF_minus_SF,FF_FF_minus_FF,DF_DF_minus_DF,LF_LF_minus_LF,
             1,0,return)
@@ -348,14 +349,14 @@ local object F_F_minus_F (object x, object y)
 
 /* F_F_mal_F(x,y) returns (* x y), with x and y being Floats.
  can trigger GC */
-local object F_F_mal_F (object x, object y)
+local maygc object F_F_mal_F (object x, object y)
 {
   GEN_F_op2(x,y,SF_SF_mal_SF,FF_FF_mal_FF,DF_DF_mal_DF,LF_LF_mal_LF,1,0,return)
 }
 
 /* F_F_durch_F(x,y) returns (/ x y), with x and y being Floats.
  can trigger GC */
-local object F_F_durch_F (object x, object y)
+local maygc object F_F_durch_F (object x, object y)
 {
   GEN_F_op2(x,y,SF_SF_durch_SF,FF_FF_durch_FF,DF_DF_durch_DF,LF_LF_durch_LF,
             1,0,return)
@@ -364,7 +365,7 @@ local object F_F_durch_F (object x, object y)
 /* F_F_comp(x,y) compares two Floats x and y.
  Result: 0 if x=y, +1 if x>y, -1 if x<y.
  can trigger GC */
-local signean F_F_comp (object x, object y)
+local maygc signean F_F_comp (object x, object y)
 {
   GEN_F_op2(x,y,SF_SF_comp,FF_FF_comp,DF_DF_comp,LF_LF_comp,0,1,return)
 }
@@ -372,64 +373,67 @@ local signean F_F_comp (object x, object y)
 
 /* Generates a function like SF_ffloor_SF
  Method: x<0 -> round away from 0, else round towards 0. */
-#define GEN_ffloor(F)                                 \
-  local object CONCAT3(F,_ffloor_,F) (object x) {     \
-    return (R_minusp(x)                               \
-            ? CONCAT3(F,_futruncate_,F) (x)           \
-            : CONCAT3(F,_ftruncate_,F) (x));          \
+#define GEN_ffloor(F)                                   \
+  local maygc object CONCAT3(F,_ffloor_,F) (object x) { \
+    GCTRIGGER1(x);                                      \
+    return (R_minusp(x)                                 \
+            ? CONCAT3(F,_futruncate_,F) (x)             \
+            : CONCAT3(F,_ftruncate_,F) (x));            \
   }
 
 /* SF_ffloor_SF(x) returns (ffloor x), with x being a SF. */
-local object SF_ffloor_SF (object x);
+local maygc object SF_ffloor_SF (object x);
 GEN_ffloor(SF)
 
 /* FF_ffloor_FF(x) returns (ffloor x), with x being a FF.
  can trigger GC */
-local object FF_ffloor_FF (object x);
+local maygc object FF_ffloor_FF (object x);
 GEN_ffloor(FF)
 
 /* DF_ffloor_DF(x) returns (ffloor x), with x being a DF.
  can trigger GC */
-local object DF_ffloor_DF (object x);
+local maygc object DF_ffloor_DF (object x);
 GEN_ffloor(DF)
 
 /* LF_ffloor_LF(x) returns (ffloor x), with x being a LF.
  can trigger GC */
-local object LF_ffloor_LF (object x);
+local maygc object LF_ffloor_LF (object x);
 GEN_ffloor(LF)
 
 /* Generates a function like SF_fceiling_SF
  Method: x<0 -> round towards 0, else round away from 0. */
-#define GEN_fceiling(F)                                 \
-  local object CONCAT3(F,_fceiling_,F) (object x) {     \
-    return (R_minusp(x)                                 \
-            ? CONCAT3(F,_ftruncate_,F) (x)              \
-            : CONCAT3(F,_futruncate_,F) (x));           \
+#define GEN_fceiling(F)                                   \
+  local maygc object CONCAT3(F,_fceiling_,F) (object x) { \
+    GCTRIGGER1(x);                                        \
+    return (R_minusp(x)                                   \
+            ? CONCAT3(F,_ftruncate_,F) (x)                \
+            : CONCAT3(F,_futruncate_,F) (x));             \
   }
 
 /* SF_fceiling_SF(x) returns (fceiling x), with x being a SF. */
-local object SF_fceiling_SF (object x);
+local maygc object SF_fceiling_SF (object x);
 GEN_fceiling(SF)
 
 /* FF_fceiling_FF(x) returns (fceiling x), with x being a FF.
  can trigger GC */
-local object FF_fceiling_FF (object x);
+local maygc object FF_fceiling_FF (object x);
 GEN_fceiling(FF)
 
 /* DF_fceiling_DF(x) returns (fceiling x), with x being a DF.
  can trigger GC */
-local object DF_fceiling_DF (object x);
+local maygc object DF_fceiling_DF (object x);
 GEN_fceiling(DF)
 
 /* LF_fceiling_LF(x) returns (fceiling x), with x being a LF.
  can trigger GC */
-local object LF_fceiling_LF (object x);
+local maygc object LF_fceiling_LF (object x);
 GEN_fceiling(LF)
 
 
 /* Generates a function like SF_fround_SF_SF */
 #define GEN_fround(F,rounding)                                          \
-  local void CONCAT7(F,_f,rounding,_,F,_,F) (object x) {                \
+  local maygc void CONCAT7(F,_f,rounding,_,F,_,F) (object x) {          \
+    GCTRIGGER1(x);                                                      \
     pushSTACK(x);                                                       \
    {var object y = CONCAT5(F,_f,rounding,_,F) (x); /* integer part of x */ \
     x = STACK_0; STACK_0 = y;                                           \
@@ -438,200 +442,202 @@ GEN_fceiling(LF)
 
 /* SF_ffloor_SF_SF(x) returns (ffloor x), with x being a SF.
  Both values into the stack. */
-local void SF_ffloor_SF_SF (object x);
+local maygc void SF_ffloor_SF_SF (object x);
 GEN_fround(SF,floor)
 
 /* FF_ffloor_FF_FF(x) returns (ffloor x), with x being a FF.
  Both values into the stack.
  can trigger GC */
-local void FF_ffloor_FF_FF (object x);
+local maygc void FF_ffloor_FF_FF (object x);
 GEN_fround(FF,floor)
 
 /* DF_ffloor_DF_DF(x) returns (ffloor x), with x being a DF.
  Both values into the stack.
  can trigger GC */
-local void DF_ffloor_DF_DF (object x);
+local maygc void DF_ffloor_DF_DF (object x);
 GEN_fround(DF,floor)
 
 /* LF_ffloor_LF_LF(x) returns (ffloor x), with x being a LF.
  Both values into the stack.
  can trigger GC */
-local void LF_ffloor_LF_LF (object x);
+local maygc void LF_ffloor_LF_LF (object x);
 GEN_fround(LF,floor)
 
 /* SF_fceiling_SF_SF(x) returns (fceiling x), with x being a SF.
  Both values into the stack. */
-local void SF_fceiling_SF_SF (object x);
+local maygc void SF_fceiling_SF_SF (object x);
 GEN_fround(SF,ceiling)
 
 /* FF_fceiling_FF_FF(x) returns (fceiling x), with x being a FF.
  Both values into the stack.
  can trigger GC */
-local void FF_fceiling_FF_FF (object x);
+local maygc void FF_fceiling_FF_FF (object x);
 GEN_fround(FF,ceiling)
 
 /* DF_fceiling_DF_DF(x) returns (fceiling x), with x being a DF.
  Both values into the stack.
  can trigger GC */
-local void DF_fceiling_DF_DF (object x);
+local maygc void DF_fceiling_DF_DF (object x);
 GEN_fround(DF,ceiling)
 
 /* LF_fceiling_LF_LF(x) returns (fceiling x), with x being a LF.
  Both values into the stack.
  can trigger GC */
-local void LF_fceiling_LF_LF (object x);
+local maygc void LF_fceiling_LF_LF (object x);
 GEN_fround(LF,ceiling)
 
 /* SF_ftruncate_SF_SF(x) returns (ftruncate x), with x being a SF.
  Both values into the stack. */
-local void SF_ftruncate_SF_SF (object x);
+local maygc void SF_ftruncate_SF_SF (object x);
 GEN_fround(SF,truncate)
 
 /* FF_ftruncate_FF_FF(x) returns (ftruncate x), with x being a FF.
  Both values into the stack.
  can trigger GC */
-local void FF_ftruncate_FF_FF (object x);
+local maygc void FF_ftruncate_FF_FF (object x);
 GEN_fround(FF,truncate)
 
 /* DF_ftruncate_DF_DF(x) returns (ftruncate x), with x being a DF.
  Both values into the stack.
  can trigger GC */
-local void DF_ftruncate_DF_DF (object x);
+local maygc void DF_ftruncate_DF_DF (object x);
 GEN_fround(DF,truncate)
 
 /* LF_ftruncate_LF_LF(x) returns (ftruncate x), with x being a LF.
  Both values into the stack.
  can trigger GC */
-local void LF_ftruncate_LF_LF (object x);
+local maygc void LF_ftruncate_LF_LF (object x);
 GEN_fround(LF,truncate)
 
 /* SF_fround_SF_SF(x) returns (fround x), with x being a SF.
  Both values into the stack. */
-local void SF_fround_SF_SF (object x);
+local maygc void SF_fround_SF_SF (object x);
 GEN_fround(SF,round)
 
 /* FF_fround_FF_FF(x) returns (fround x), with x being a FF.
  Both values into the stack.
  can trigger GC */
-local void FF_fround_FF_FF (object x);
+local maygc void FF_fround_FF_FF (object x);
 GEN_fround(FF,round)
 
 /* DF_fround_DF_DF(x) returns (fround x), with x being a DF.
  Both values into the stack.
  can trigger GC */
-local void DF_fround_DF_DF (object x);
+local maygc void DF_fround_DF_DF (object x);
 GEN_fround(DF,round)
 
 /* LF_fround_LF_LF(x) returns (fround x), with x being a LF.
  Both values into the stack.
  can trigger GC */
-local void LF_fround_LF_LF (object x);
+local maygc void LF_fround_LF_LF (object x);
 GEN_fround(LF,round)
 
 
 /* Generates a function like SF_round_I_SF */
 #define GEN_round(F,rounding)                                           \
-  local void CONCAT7(F,_,rounding,_,I,_,F) (object x) {                 \
+  local maygc void CONCAT7(F,_,rounding,_,I,_,F) (object x) {           \
+    GCTRIGGER1(x);                                                      \
     CONCAT7(F,_f,rounding,_,F,_,F) (x);                                 \
     STACK_1 = CONCAT3(F,_to_,I) (STACK_1); /* integer part as Integer */ \
   }
 
 /* SF_floor_I_SF(x) returns (floor x), with x being a SF.
  Both values into the stack. */
-local void SF_floor_I_SF (object x);
+local maygc void SF_floor_I_SF (object x);
 GEN_round(SF,floor)
 
 /* FF_floor_I_FF(x) returns (floor x), with x being a FF.
  Both values into the stack.
  can trigger GC */
-local void FF_floor_I_FF (object x);
+local maygc void FF_floor_I_FF (object x);
 GEN_round(FF,floor)
 
 /* DF_floor_I_DF(x) returns (floor x), with x being a DF.
  Both values into the stack.
  can trigger GC */
-local void DF_floor_I_DF (object x);
+local maygc void DF_floor_I_DF (object x);
 GEN_round(DF,floor)
 
 /* LF_floor_I_LF(x) returns (floor x), with x being a LF.
  Both values into the stack.
  can trigger GC */
-local void LF_floor_I_LF (object x);
+local maygc void LF_floor_I_LF (object x);
 GEN_round(LF,floor)
 
 /* SF_ceiling_I_SF(x) returns (ceiling x), with x being a SF.
  Both values into the stack. */
-local void SF_ceiling_I_SF (object x);
+local maygc void SF_ceiling_I_SF (object x);
 GEN_round(SF,ceiling)
 
 /* FF_ceiling_I_FF(x) returns (ceiling x), with x being a FF.
  Both values into the stack.
  can trigger GC */
-local void FF_ceiling_I_FF (object x);
+local maygc void FF_ceiling_I_FF (object x);
 GEN_round(FF,ceiling)
 
 /* DF_ceiling_I_DF(x) returns (ceiling x), with x being a DF.
  Both values into the stack.
  can trigger GC */
-local void DF_ceiling_I_DF (object x);
+local maygc void DF_ceiling_I_DF (object x);
 GEN_round(DF,ceiling)
 
 /* LF_ceiling_I_LF(x) returns (ceiling x), with x being a LF.
  Both values into the stack.
  can trigger GC */
-local void LF_ceiling_I_LF (object x);
+local maygc void LF_ceiling_I_LF (object x);
 GEN_round(LF,ceiling)
 
 /* SF_truncate_I_SF(x) returns (truncate x), with x being a SF.
  Both values into the stack. */
-local void SF_truncate_I_SF (object x);
+local maygc void SF_truncate_I_SF (object x);
 GEN_round(SF,truncate)
 
 /* FF_truncate_I_FF(x) returns (truncate x), with x being a FF.
  Both values into the stack.
  can trigger GC */
-local void FF_truncate_I_FF (object x);
+local maygc void FF_truncate_I_FF (object x);
 GEN_round(FF,truncate)
 
 /* DF_truncate_I_DF(x) returns (truncate x), with x being a DF.
  Both values into the stack.
  can trigger GC */
-local void DF_truncate_I_DF (object x);
+local maygc void DF_truncate_I_DF (object x);
 GEN_round(DF,truncate)
 
 /* LF_truncate_I_LF(x) returns (truncate x), with x being a LF.
  Both values into the stack.
  can trigger GC */
-local void LF_truncate_I_LF (object x);
+local maygc void LF_truncate_I_LF (object x);
 GEN_round(LF,truncate)
 
 /* SF_round_I_SF(x) returns (round x), with x being a SF.
  Both values into the stack. */
-local void SF_round_I_SF (object x);
+local maygc void SF_round_I_SF (object x);
 GEN_round(SF,round)
 
 /* FF_round_I_FF(x) returns (round x), with x being a FF.
  Both values into the stack.
  can trigger GC */
-local void FF_round_I_FF (object x);
+local maygc void FF_round_I_FF (object x);
 GEN_round(FF,round)
 
 /* DF_round_I_DF(x) returns (round x), with x being a DF.
  Both values into the stack.
  can trigger GC */
-local void DF_round_I_DF (object x);
+local maygc void DF_round_I_DF (object x);
 GEN_round(DF,round)
 
 /* LF_round_I_LF(x) returns (round x), with x being a LF.
  Both values into the stack.
  can trigger GC */
-local void LF_round_I_LF (object x);
+local maygc void LF_round_I_LF (object x);
 GEN_round(LF,round)
 
 
 /* Generates a function like F_fround_F_F */
 #define GEN_F_fround(rounding)                                  \
-  local void CONCAT3(F_f,rounding,_F_F) (object x) {            \
+  local maygc void CONCAT3(F_f,rounding,_F_F) (object x) {      \
+    GCTRIGGER1(x);                                              \
     floatcase(x,                                                \
               { CONCAT3(SF_f,rounding,_SF_SF) (x); return; },   \
               { CONCAT3(FF_f,rounding,_FF_FF) (x); return; },   \
@@ -642,31 +648,32 @@ GEN_round(LF,round)
 /* F_ffloor_F_F(x) returns (ffloor x), with x being a Float.
  Both values into the stack.
  can trigger GC */
-local void F_ffloor_F_F (object x);
+local maygc void F_ffloor_F_F (object x);
 GEN_F_fround(floor)
 
 /* F_fceiling_F_F(x) returns (fceiling x), with x being a Float.
  Both values into the stack.
  can trigger GC */
-local void F_fceiling_F_F (object x);
+local maygc void F_fceiling_F_F (object x);
 GEN_F_fround(ceiling)
 
 /* F_ftruncate_F_F(x) returns (ftruncate x), with x being a Float.
  Both values into the stack.
  can trigger GC */
-local void F_ftruncate_F_F (object x);
+local maygc void F_ftruncate_F_F (object x);
 GEN_F_fround(truncate)
 
 /* F_fround_F_F(x) returns (fround x), with x being a Float.
  Both values into the stack.
  can trigger GC */
-local void F_fround_F_F (object x);
+local maygc void F_fround_F_F (object x);
 GEN_F_fround(round)
 
 
 /* Generates a function like F_round_I_F */
 #define GEN_F_round(rounding)                                           \
-  local void CONCAT3(F_,rounding,_I_F) (object x) {                     \
+  local maygc void CONCAT3(F_,rounding,_I_F) (object x) {               \
+    GCTRIGGER1(x);                                                      \
     floatcase(x,                                                        \
               { CONCAT3(SF_,rounding,_I_SF) (x); return; },             \
               { CONCAT3(FF_,rounding,_I_FF) (x); return; },             \
@@ -677,25 +684,25 @@ GEN_F_fround(round)
 /* F_floor_I_F(x) returns (floor x), with x being a Float.
  Both values into the stack.
  can trigger GC */
-local void F_floor_I_F (object x);
+local maygc void F_floor_I_F (object x);
 GEN_F_round(floor)
 
 /* F_ceiling_I_F(x) returns (ceiling x), with x being a Float.
  Both values into the stack.
  can trigger GC */
-local void F_ceiling_I_F (object x);
+local maygc void F_ceiling_I_F (object x);
 GEN_F_round(ceiling)
 
 /* F_truncate_I_F(x) returns (truncate x), with x being a Float.
  Both values into the stack.
  can trigger GC */
-local void F_truncate_I_F (object x);
+local maygc void F_truncate_I_F (object x);
 GEN_F_round(truncate)
 
 /* F_round_I_F(x) returns (round x), with x being a Float.
  Both values into the stack.
  can trigger GC */
-local void F_round_I_F (object x);
+local maygc void F_round_I_F (object x);
 GEN_F_round(round)
 
 
@@ -712,7 +719,8 @@ GEN_F_round(round)
      can trigger GC                                                     \
      Method:                                                            \
      F_rounding_I_F(x/y) -> (q,r). Return q and x-y*q=y*r. \ */         \
-  local void CONCAT3(F_F_,rounding,_I_F) (object x, object y) {         \
+  local maygc void CONCAT3(F_F_,rounding,_I_F) (object x, object y) {   \
+    GCTRIGGER2(x,y);                                                    \
     pushSTACK(y);                                                       \
     CONCAT3(F_,rounding,_I_F) (F_F_durch_F(x,y)); /* form whole-numbered part of the quotient */ \
     y = STACK_2; STACK_2 = STACK_1;                                     \
@@ -723,7 +731,7 @@ GEN_F_round(round)
 /* F_F_floor_I_F(x,y) returns (floor x y), with x and y being Floats.
  Both values into the stack.
  can trigger GC */
-local void F_F_floor_I_F (object x, object y);
+local maygc void F_F_floor_I_F (object x, object y);
 GEN_F_F_round(floor)
 
 #if 0 /* unused */
@@ -731,19 +739,19 @@ GEN_F_F_round(floor)
 /* F_F_ceiling_I_F(x,y) returns (ceiling x y), with x and y being Floats.
  Both values into the stack.
  can trigger GC */
-local void F_F_ceiling_I_F (object x, object y);
+local maygc void F_F_ceiling_I_F (object x, object y);
 GEN_F_F_round(ceiling)
 
 /* F_F_truncate_I_F(x,y) returns (truncate x y), with x and y being Floats.
  Both values into the stack.
  can trigger GC */
-local void F_F_truncate_I_F (object x, object y);
+local maygc void F_F_truncate_I_F (object x, object y);
 GEN_F_F_round(truncate)
 
 /* F_F_round_I_F(x,y) returns (round x y), with x and y being Floats.
  Both values into the stack.
  can trigger GC */
-local void F_F_round_I_F (object x, object y);
+local maygc void F_F_round_I_F (object x, object y);
 GEN_F_F_round(round)
 
 #endif
@@ -761,7 +769,7 @@ local object F_to_SF (object x)
 
 /* F_to_FF(x) converts a Float into a Single-Float and thereby rounds.
  can trigger GC */
-local object F_to_FF (object x)
+local maygc object F_to_FF (object x)
 {
   floatcase(x,
             { return SF_to_FF(x); },
@@ -772,7 +780,7 @@ local object F_to_FF (object x)
 
 /* F_to_DF(x) converts a Float into a Double-Float and thereby rounds.
  can trigger GC */
-local object F_to_DF (object x)
+local maygc object F_to_DF (object x)
 {
   floatcase(x,
             { return SF_to_DF(x); },
@@ -785,7 +793,7 @@ local object F_to_DF (object x)
  and thereby rounds.
  > uintC len: wished number of digits, >=LF_minlen
  can trigger GC */
-local object F_to_LF (object x, uintC len)
+local maygc object F_to_LF (object x, uintC len)
 {
   floatcase(x,
             { return SF_to_LF(x,len); },
@@ -799,7 +807,7 @@ local object F_to_LF (object x, uintC len)
  > x,y: Floats
  < result: (float x y)
  can trigger GC */
-local object F_F_float_F (object x, object y)
+local maygc object F_F_float_F (object x, object y)
 {
   floatcase(y,
             { return F_to_SF(x); },
@@ -856,7 +864,7 @@ local uintC lf_len_extend (uintC n)
  LF(n) -> LF(n+32) for n<=16256
  LF(n) -> LF(n+65) for n<=65535
  can trigger GC */
-local object F_extend_F (object x)
+local maygc object F_extend_F (object x)
 {
   floatcase(x,{
     return (SF_mant_len+1<=17 ? SF_to_FF(x) /* 17+sqrt(17)+2 = 23.2 < 24 */
@@ -876,7 +884,7 @@ local object F_extend_F (object x)
  x = 0.0 returns (0.0, 0, 1.0).
  x = (-1)^s * 2^e * m returns ((-1)^0 * 2^0 * m, e as integer, (-1)^s).
  can trigger GC */
-local void F_decode_float_F_I_F (object x)
+local maygc void F_decode_float_F_I_F (object x)
 {
   floatcase(x, { /* x SF */
     /* unpack x: */
@@ -1010,7 +1018,7 @@ local object SF_I_scale_float_SF (object x, object delta)
 
 /* FF_I_scale_float_FF(x,delta) returns x*2^delta, with x being a FF.
  can trigger GC */
-local object FF_I_scale_float_FF (object x, object delta)
+local maygc object FF_I_scale_float_FF (object x, object delta)
 { /* method:
  x=0.0 -> x as result
  delta must be a Fixnum with absolute value <= FF_exp_high-FF_exp_low.
@@ -1049,7 +1057,7 @@ local object FF_I_scale_float_FF (object x, object delta)
 
 /* DF_I_scale_float_DF(x,delta) returns x*2^delta, with x being a DF.
  can trigger GC */
-local object DF_I_scale_float_DF (object x, object delta)
+local maygc object DF_I_scale_float_DF (object x, object delta)
 { /* method:
  x=0.0 -> x as result
  delta must be a Fixnum with absolute value <= DF_exp_high-DF_exp_low.
@@ -1102,7 +1110,7 @@ local object DF_I_scale_float_DF (object x, object delta)
 
 /* LF_I_scale_float_LF(x,delta) returns x*2^delta, with x being a LF.
  can trigger GC */
-local object LF_I_scale_float_LF (object x, object delta)
+local maygc object LF_I_scale_float_LF (object x, object delta)
 { /* method:
  delta=0 -> x as result
  x=0.0 -> x as result
@@ -1202,7 +1210,7 @@ local object LF_I_scale_float_LF (object x, object delta)
 
 /* F_I_scale_float_F(x,delta) returns x*2^delta, with x being a Float.
  can trigger GC */
-local object F_I_scale_float_F (object x, object delta)
+local maygc object F_I_scale_float_F (object x, object delta)
 {
   floatcase(x,
             { return SF_I_scale_float_SF(x,delta); },
@@ -1222,7 +1230,7 @@ local object F_float_radix_I (object x)
 
 /* F_float_sign_F(x) returns (float-sign x), with x being a Float.
  can trigger GC */
-local object F_float_sign_F (object x)
+local maygc object F_float_sign_F (object x)
 { /* method: x>=0 -> result 1.0; x<0 -> result -1.0 */
   floatcase(x, { /* x SF */
     encode_SF(SF_sign(x),1,bit(SF_mant_len), return);
@@ -1241,7 +1249,7 @@ local object F_float_sign_F (object x)
 
 /* F_F_float_sign_F(x) returns (float-sign x y), with x and y being Floats.
  can trigger GC */
-local object F_F_float_sign_F (object x, object y)
+local maygc object F_F_float_sign_F (object x, object y)
 { /* method:
  if x<0 xor y<0, result (- y), else result y. */
   return (!same_sign_p(x,y) ? F_minus_F(y) : y);
@@ -1261,7 +1269,7 @@ local uintL F_float_digits (object x)
 /* F_float_digits_I(x) returns (float-digits x), with x being a Float.
  < result: an Integer >0
  can trigger GC */
-local object F_float_digits_I (object x)
+local maygc object F_float_digits_I (object x)
 {
   floatcase(x,
             { return fixnum(SF_mant_len+1); }, /* Fixnum 17 */
@@ -1279,7 +1287,7 @@ local object F_float_digits_I (object x)
 /* F_float_precision_I(x) returns (float-precision x), with x being a Float.
  < result: an Integer >=0
  can trigger GC */
-local object F_float_precision_I (object x)
+local maygc object F_float_precision_I (object x)
 { /* method: if x=0.0, result 0, else (float-digits x). */
   floatcase(x,{
     if (SF_zerop(x))
@@ -1309,7 +1317,7 @@ local object F_float_precision_I (object x)
  x = (-1)^s * 2^e * m with float-precision p returns
    (mantissa 2^p * m as integer, e-p as integer, (-1)^s as fixnum).
  can trigger GC */
-local void F_integer_decode_float_I_I_I (object x)
+local maygc void F_integer_decode_float_I_I_I (object x)
 {
   var object x_sign = (!R_minusp(x) ? Fixnum_1 : Fixnum_minus1); /* sign of x (not threatened by GC!) */
   floatcase(x,{ /* x SF */

@@ -282,7 +282,7 @@
 # < STACK_0: Rest r
 # Erniedrigt STACK um 2
 # can trigger GC
-  local void I_I_divide_I_I (object x, object y)
+  local maygc void I_I_divide_I_I (object x, object y)
   {
     if (I_fixnump(x)) {
       # x Fixnum >=0
@@ -374,7 +374,7 @@
 # (DIVIDE x y) -> q,r
 # Falls r<>0, Error.
 # Liefere q.
-  local object I_I_exquopos_I (object x, object y)
+  local maygc object I_I_exquopos_I (object x, object y)
   {
     pushSTACK(y);
     pushSTACK(x);
@@ -400,7 +400,7 @@
 # (DIVIDE (abs x) (abs y)) -> q,r
 # Falls r<>0, Error.
 # Falls x,y verschiedene Vorzeichen haben, liefere -q, sonst q.
-  local object I_I_exquo_I (object x, object y)
+  local maygc object I_I_exquo_I (object x, object y)
   {
     pushSTACK(y);
     pushSTACK(x);
@@ -432,7 +432,7 @@
 # Falls x,y verschiedene Vorzeichen haben, setze r:=r-abs(y).
 # Falls x<0, setze r:=-r.
 # Liefere r.
-  local object I_I_mod_I (object x, object y)
+  local maygc object I_I_mod_I (object x, object y)
   {
     pushSTACK(y);
     pushSTACK(x);
@@ -461,7 +461,7 @@
 # (DIVIDE (abs x) (abs y)) -> q,r
 # Falls x<0, setze r:=-r.
 # Liefere r.
-  local object I_I_rem_I (object x, object y)
+  local maygc object I_I_rem_I (object x, object y)
   {
     pushSTACK(y);
     pushSTACK(x);
@@ -495,7 +495,7 @@
 # Falls x<0, setze r:=-r.
 # Falls x,y verschiedene Vorzeichen haben, setze q:=-q.
 # Liefere q,r.
-  local void I_I_floor_I_I (object x, object y)
+  local maygc void I_I_floor_I_I (object x, object y)
   {
     pushSTACK(y);
     pushSTACK(x);
@@ -541,7 +541,7 @@
 # Falls x<0, setze r:=-r.
 # Falls x,y verschiedene Vorzeichen haben, setze q:=-q.
 # Liefere q,r.
-  local void I_I_ceiling_I_I (object x, object y)
+  local maygc void I_I_ceiling_I_I (object x, object y)
   {
     pushSTACK(y);
     pushSTACK(x);
@@ -585,7 +585,7 @@
 # Falls x<0, setze r:=-r.
 # Falls x,y verschiedene Vorzeichen haben, setze q:=-q.
 # Liefere q,r.
-  local void I_I_truncate_I_I (object x, object y)
+  local maygc void I_I_truncate_I_I (object x, object y)
   {
     pushSTACK(y);
     pushSTACK(x);
@@ -627,7 +627,7 @@
 # Falls x<0, setze r:=-r.
 # Falls x,y verschiedene Vorzeichen haben, setze q:=-q.
 # Liefere q,r.
-  local void I_I_round_I_I (object x, object y)
+  local maygc void I_I_round_I_I (object x, object y)
   {
     pushSTACK(y);
     pushSTACK(x);
@@ -657,7 +657,7 @@
 
 /* (EXT:MOD-EXPT base exponent modulo) = (MOD (EXPT base exponent) modulus)
    where exponent >= 0. */
-local object I_I_I_mod_expt_I (object base, object exponent, object modulus)
+local maygc object I_I_I_mod_expt_I (object base, object exponent, object modulus)
 {
   /* See I_I_expt_I() in intmal.d for algorithm description.
      A much better algorithm is [Cohen, Algorithm 1.2.1.], implemented in

@@ -402,7 +402,7 @@
 # < ergebnis: true falls x Quadratzahl, false sonst
 # erniedrigt STACK um 1
 # can trigger GC
-  local bool I_isqrt_I (object x)
+  local maygc bool I_isqrt_I (object x)
   {
     var uintD* x_MSDptr;
     var uintC x_len;
@@ -424,11 +424,11 @@
 # > x: ein Integer >=0
 # < ergebnis: Integer (sqrt x) falls x Quadratzahl, nullobj sonst
 # can trigger GC
-  local object I_sqrtp (object x);
+  local maygc object I_sqrtp (object x);
 # Methode:
 # Damit x eine Quadratzahl ist, muss es ==0,1 mod 4 sein, und
 # bei ISQRT muss ein Rest 0 herauskommen.
-  local object I_sqrtp (object x)
+  local maygc object I_sqrtp (object x)
   {
     if (I_I_logbitp(Fixnum_1,x)) # Bit 1 von x gesetzt?
       return nullobj; # ja -> x==2,3 mod 4, also kein Quadrat
@@ -453,7 +453,7 @@
 # > n: ein Integer >0
 # < ergebnis: Integer (expt x (/ n)) falls x eine n-te Potenz, nullobj sonst
 # can trigger GC
-  local object I_rootp (object x, object n1);
+  local maygc object I_rootp (object x, object n1);
 # Methode:
 # Falls x=0 oder x=1: x = x^n -> JA, x als Ergebnis.
 # Hier also x>1. Suche ein Integer y > 1 mit x=y^n.
@@ -483,7 +483,7 @@
 #   Damit hat man  (y0 + beta^k*y1)^n == x mod beta^2k . 2k=m -> fertig.
 #   Den Anfang (k=1) bekommt man analog, mit beta:=2 und k=1,k=2,k=4,...
 # Dann testet man, ob wirklich x = y^n, und ist fertig.
-  local object I_rootp (object x, object n1)
+  local maygc object I_rootp (object x, object n1)
   {
     if (eq(x,Fixnum_0) || eq(x,Fixnum_1)) # x=0 oder x=1 ?
       return x; # ja -> x als Ergebnis

@@ -88,7 +88,7 @@ LISPSPECFORM(function, 1,1,nobody)
  > symbol: symbol
  < value1: bound value
  can trigger GC */
-local void check_global_symbol_value (object symbol) {
+local maygc void check_global_symbol_value (object symbol) {
   value1 = Symbol_value(symbol);
   if (!boundp(value1)) {
     do {
@@ -135,7 +135,7 @@ LISPFUNNR(symbol_function,1)
  except that it does not create the new symbol when there is none yet
  and does not issue a warning when the SETF symbol is shadowed
  can trigger GC */
-local object funname_to_symbol (object symbol) {
+local maygc object funname_to_symbol (object symbol) {
   if (!funnamep(symbol))
     symbol = check_funname_replacement(type_error,TheSubr(subr_self)->name,symbol);
   if (!symbolp(symbol)) /* (get ... 'SYS::SETF-FUNCTION) */
@@ -182,7 +182,7 @@ LISPFUNNF(special_operator_p,1)
  > STACK_0: Body
  < result: true if symbol-macros have to be expanded.
  can trigger GC */
-local bool check_setq_body (object caller) {
+local maygc bool check_setq_body (object caller) {
   pushSTACK(STACK_0); /* save body */
   while (consp(STACK_0)) {
     var object sym = check_symbol_non_constant(Car(STACK_0),caller);
@@ -369,7 +369,7 @@ LISPSPECFORM(prog2, 2,0,body)
  parse_doc_decl(body);
  > body: whole Body
  can trigger GC */
-local bool parse_doc_decl (object body, bool permit_doc_string) {
+local maygc bool parse_doc_decl (object body, bool permit_doc_string) {
   var bool to_compile = parse_dd(body);
   if (!permit_doc_string && !nullp(value3)) {
     pushSTACK(value1); pushSTACK(value2); pushSTACK(value3); /* save */
@@ -408,7 +408,7 @@ local inline void aktenv_to_stack (void) {
  > in STACK: EVAL-frame with the form
  < mv_count/mv_space: Values
  can trigger GC */
-local Values compile_eval_form (void)
+local maygc Values compile_eval_form (void)
 { /* execute (SYS::COMPILE-FORM form venv fenv benv genv denv) :
      get the whole form from the EVAL-frame in the stack: */
   pushSTACK(STACK_(frame_form)); /* as first argument */
@@ -420,7 +420,7 @@ local Values compile_eval_form (void)
 
 /* signal a correctable error for a broken LET variable spec
  can trigger GC */
-local object check_varspec (object varspec, object caller) {
+local maygc object check_varspec (object varspec, object caller) {
   pushSTACK(NIL);     /* no PLACE */
   pushSTACK(varspec); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(varspec); pushSTACK(caller);
@@ -442,9 +442,10 @@ local object check_varspec (object varspec, object caller) {
  < uintC bind_count: number of "genuine" bindings.
  changes STACK
  can trigger GC */
-local void make_variable_frame (object caller, object varspecs,
-                                gcv_object_t** bind_ptr_, uintC* bind_count_)
+local /*maygc*/ void make_variable_frame (object caller, object varspecs,
+                                          gcv_object_t** bind_ptr_, uintC* bind_count_)
 {
+  GCTRIGGER4(caller,varspecs,value1,value2);
   var object declarations = value2;
   { /* build up variable binding frame: */
     var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
@@ -859,7 +860,7 @@ local void skip_declarations (object* body) {
  > body: list of forms
  < mv_count/mv_space: values
  can trigger GC */
-local Values finish_flet (gcv_object_t* top_of_frame, object body) {
+local maygc Values finish_flet (gcv_object_t* top_of_frame, object body) {
   {
     var uintL bindcount = /* number of bindings */
       STACK_item_count(STACK,top_of_frame) / 2;
@@ -1352,7 +1353,7 @@ local inline void set_last_inplace (object list) {
     STACK_0 = list; /* (last totallist) <- (last list) */
   }
 }
-local inline void set_last_copy (object list) {
+local inline maygc void set_last_copy (object list) {
   if (consp(list)) {
     pushSTACK(list);
     pushSTACK(allocate_cons());
@@ -1972,7 +1973,7 @@ LISPFUNN(unwind_to_driver,1)
  > STACK_0: argument
  < STACK_0: macroexpansions-environment #(venv fenv)
  can trigger GC */
-local void test_env (void) {
+local maygc void test_env (void) {
   var object arg = STACK_0;
   if (missingp(arg)) { /* required by ANSI CL sections 3.1.1.3.1, 3.1.1.4 */
     arg = allocate_vector(2); /* vector #(nil nil) as default */

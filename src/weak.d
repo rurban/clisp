@@ -30,7 +30,7 @@ LISPFUNNF(weak_pointer_p,1) {
  > obj: not a weak-pointer
  < result: a weak-pointer, a replacement
  can trigger GC */
-local object check_weakpointer_replacement (object obj) {
+local maygc object check_weakpointer_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -46,7 +46,7 @@ local object check_weakpointer_replacement (object obj) {
  > obj: an object
  < result: a weak-pointer, either the same as obj or a replacement
  can trigger GC */
-local inline object check_weakpointer (object obj) {
+local inline maygc object check_weakpointer (object obj) {
   if (!weakpointerp(obj))
     obj = check_weakpointer_replacement(obj);
   return obj;
@@ -120,7 +120,7 @@ LISPFUNNF(weak_list_p,1) {
  > obj: not a weak-list
  < result: a weak-list, a replacement
  can trigger GC */
-local object check_weaklist_replacement (object obj) {
+local maygc object check_weaklist_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -136,7 +136,7 @@ local object check_weaklist_replacement (object obj) {
  > obj: an object
  < result: a weak-list, either the same as obj or a replacement
  can trigger GC */
-local inline object check_weaklist (object obj) {
+local inline maygc object check_weaklist (object obj) {
   if (!(orecordp(obj) && Record_type(obj)==Rectype_MutableWeakList))
     obj = check_weaklist_replacement(obj);
   return obj;
@@ -238,7 +238,7 @@ LISPFUNNF(weak_and_relation_p,1) {
  > obj: not a weak-and-relation
  < result: a weak-and-relation, a replacement
  can trigger GC */
-local object check_weakandrelation_replacement (object obj) {
+local maygc object check_weakandrelation_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -254,7 +254,7 @@ local object check_weakandrelation_replacement (object obj) {
  > obj: an object
  < result: a weak-and-relation, either the same as obj or a replacement
  can trigger GC */
-local inline object check_weakandrelation (object obj) {
+local inline maygc object check_weakandrelation (object obj) {
   if (!(lrecordp(obj) && Record_type(obj)==Rectype_WeakAnd))
     obj = check_weakandrelation_replacement(obj);
   return obj;
@@ -304,7 +304,7 @@ LISPFUNNF(weak_or_relation_p,1) {
  > obj: not a weak-or-relation
  < result: a weak-or-relation, a replacement
  can trigger GC */
-local object check_weakorrelation_replacement (object obj) {
+local maygc object check_weakorrelation_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -320,7 +320,7 @@ local object check_weakorrelation_replacement (object obj) {
  > obj: an object
  < result: a weak-or-relation, either the same as obj or a replacement
  can trigger GC */
-local inline object check_weakorrelation (object obj) {
+local inline maygc object check_weakorrelation (object obj) {
   if (!(lrecordp(obj) && Record_type(obj)==Rectype_WeakOr))
     obj = check_weakorrelation_replacement(obj);
   return obj;
@@ -362,7 +362,7 @@ LISPFUNNF(weak_mapping_p,1) {
  > obj: not a weak-mapping
  < result: a weak-mapping, a replacement
  can trigger GC */
-local object check_weakmapping_replacement (object obj) {
+local maygc object check_weakmapping_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -378,7 +378,7 @@ local object check_weakmapping_replacement (object obj) {
  > obj: an object
  < result: a weak-mapping, either the same as obj or a replacement
  can trigger GC */
-local inline object check_weakmapping (object obj) {
+local inline maygc object check_weakmapping (object obj) {
   if (!(orecordp(obj) && Record_type(obj)==Rectype_Weakmapping))
     obj = check_weakmapping_replacement(obj);
   return obj;
@@ -463,7 +463,7 @@ LISPFUNNF(weak_and_mapping_p,1) {
  > obj: not a weak-and-mapping
  < result: a weak-and-mapping, a replacement
  can trigger GC */
-local object check_weakandmapping_replacement (object obj) {
+local maygc object check_weakandmapping_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -479,7 +479,7 @@ local object check_weakandmapping_replacement (object obj) {
  > obj: an object
  < result: a weak-and-mapping, either the same as obj or a replacement
  can trigger GC */
-local inline object check_weakandmapping (object obj) {
+local inline maygc object check_weakandmapping (object obj) {
   if (!(lrecordp(obj) && Record_type(obj)==Rectype_WeakAndMapping))
     obj = check_weakandmapping_replacement(obj);
   return obj;
@@ -565,7 +565,7 @@ LISPFUNNF(weak_or_mapping_p,1) {
  > obj: not a weak-or-mapping
  < result: a weak-or-mapping, a replacement
  can trigger GC */
-local object check_weakormapping_replacement (object obj) {
+local maygc object check_weakormapping_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -581,7 +581,7 @@ local object check_weakormapping_replacement (object obj) {
  > obj: an object
  < result: a weak-or-mapping, either the same as obj or a replacement
  can trigger GC */
-local inline object check_weakormapping (object obj) {
+local inline maygc object check_weakormapping (object obj) {
   if (!(lrecordp(obj) && Record_type(obj)==Rectype_WeakOrMapping))
     obj = check_weakormapping_replacement(obj);
   return obj;
@@ -712,7 +712,7 @@ LISPFUNNF(weak_alist_p,1) {
  > obj: not a weak-alist
  < result: a weak-alist, a replacement
  can trigger GC */
-local object check_weakalist_replacement (object obj) {
+local maygc object check_weakalist_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -728,7 +728,7 @@ local object check_weakalist_replacement (object obj) {
  > obj: an object
  < result: a weak-alist, either the same as obj or a replacement
  can trigger GC */
-local inline object check_weakalist (object obj) {
+local inline maygc object check_weakalist (object obj) {
   if (!(orecordp(obj) && Record_type(obj)==Rectype_MutableWeakAlist))
     obj = check_weakalist_replacement(obj);
   return obj;
@@ -863,7 +863,7 @@ local void test_key_arg (void) {
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-local bool up_test (const gcv_object_t* stackptr, object x) {
+local maygc bool up_test (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
   var object item = *(stackptr STACKop 3);
   var object fun = *(stackptr STACKop 1);
@@ -890,7 +890,7 @@ local bool up_test (const gcv_object_t* stackptr, object x) {
 # > x: Argument
 # < ergebnis: true falls der Test erfüllt ist, false sonst
 # can trigger GC
-local bool up_test_not (const gcv_object_t* stackptr, object x) {
+local maygc bool up_test_not (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (not (funcall testfun item x)) ausführen:
   pushSTACK(*(stackptr STACKop 3)); # item
   pushSTACK(x); # x
@@ -914,7 +914,7 @@ local bool up_test_not (const gcv_object_t* stackptr, object x) {
 #       > x: Argument
 #       < true, falls der Test erfüllt ist, false sonst.
   # up_function_t sei der Typ der Adresse einer solchen Testfunktion:
-typedef bool (*up_function_t) (const gcv_object_t* stackptr, object x);
+typedef maygc bool (*up_function_t) (const gcv_object_t* stackptr, object x);
 local up_function_t test_test_args (gcv_object_t* stackptr) {
   var object test_arg = *(stackptr STACKop 1);
   if (!boundp(test_arg))

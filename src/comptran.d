@@ -5,12 +5,12 @@
 /* N_phase_R(x,want_exact) liefert (phase x), wo x eine Zahl ist.
  Ergebnis rational nur wenn (= x 0) oder wenn x reell und >0.
  can trigger GC */
-  local object N_phase_R (object x, bool want_exact);
+  local maygc object N_phase_R (object x, bool want_exact);
 /* Methode:
  (= x 0) -> willkürliches Ergebnis 0
  x reell -> Winkel von (x,0) in Polarkoordinaten
  x komplex -> Winkel von ((realpart x),(imagpart x)) in Polarkoordinaten */
-  local object N_phase_R (object x, bool want_exact)
+  local maygc object N_phase_R (object x, bool want_exact)
   {
     if (N_realp(x)) {
       /* For nonnegative real numbers, the natural mathematical result is the
@@ -46,7 +46,7 @@
  x reell -> klar.
  x = a+bi -> (exp a) mit (cos b) + i (sin b) multiplizieren:
              (complex (* (exp a) (cos b)) (* (exp a) (sin b))) */
-local object N_exp_N (object x, bool start_p, gcv_object_t* end_p)
+local maygc object N_exp_N (object x, bool start_p, gcv_object_t* end_p)
 {
   if (N_realp(x)) {
     return R_exp_R(x,start_p,end_p);
@@ -82,7 +82,7 @@ local object N_exp_N (object x, bool start_p, gcv_object_t* end_p)
  can trigger GC
  Methode:
  (complex (log (abs x)) (phase x)) */
-local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
+local maygc object N_log_N (object x, bool start_p, gcv_object_t *end_p)
 {
   pushSTACK(x); /* save x */
   pushSTACK(N_abs_R(x)); /* (abs x) */
@@ -118,7 +118,7 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
 
 /* N_N_log_N(a,b) liefert (log a b), wo a und b Zahlen sind.
  can trigger GC */
-  local object N_N_log_N (object a, object b);
+  local maygc object N_N_log_N (object a, object b);
 /* Methode:
  (log a b) =
    falls b reell, >0:
@@ -139,7 +139,7 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
               wandle b (falls rational) ins selbe Float-Format um,
               setze  Realteil := (/ (log (abs a)) (log dieses_b)).
    sonst: (/ (log a) (log b)) */
-  local object N_N_log_N (object a, object b)
+  local maygc object N_N_log_N (object a, object b)
   {
     if (N_realp(b) && R_plusp(b)) {
       /* b ist reell und >0 */
@@ -213,7 +213,7 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
 
 /* N_I_expt_N(x,y) = (expt x y), wo x eine Zahl und y ein Integer ist.
  can trigger GC */
-  local object N_I_expt_N (object x, object y);
+  local maygc object N_I_expt_N (object x, object y);
   /* Methode:
    Für y>0:
      a:=x, b:=y.
@@ -224,7 +224,7 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
      Ergebnis c.
    Für y=0: Ergebnis 1.
    Für y<0: (/ (expt x (- y))). */
-  local object N_I_expt_N (object x, object y)
+  local maygc object N_I_expt_N (object x, object y)
   {
     if (N_realp(x)) /* x reell -> schnellere Routine */
       return R_I_expt_R(x,y);
@@ -271,7 +271,7 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
 
 /* N_N_expt_N(x,y) = (expt x y), wo x und y Zahlen sind.
  can trigger GC */
-  local object N_N_expt_N (object x, object y);
+  local maygc object N_N_expt_N (object x, object y);
   /* Methode:
    Falls y rational:
      Falls y Integer:
@@ -314,7 +314,7 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
    Das Ergebnis liegt in Q(i), falls x in Q(i) liegt und 4y ein Integer ist.??
    Genauigkeit erhöhen, log2(|y|) Bits mehr??
    Bei x oder y rational und der andere Long-Float: bitte kein Single-Float!?? */
-  local object N_N_expt_N (object x, object y)
+  local maygc object N_N_expt_N (object x, object y)
   {
     if (N_realp(y) && R_rationalp(y)) {
       /* y rational */
@@ -440,7 +440,7 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
  Methode:
  x reell -> klar
  x = a+bi -> (complex (* (sin a) (cosh b)) (* (cos a) (sinh b))) */
-local object N_sin_N (object x)
+local maygc object N_sin_N (object x)
 {
   if (N_realp(x)) {
     return R_sin_R(x);
@@ -468,7 +468,7 @@ local object N_sin_N (object x)
  Methode:
  x reell -> klar
  x = a+bi -> (complex (* (cos a) (cosh b)) (- (* (sin a) (sinh b)))) */
-local object N_cos_N (object x)
+local maygc object N_cos_N (object x)
 {
   if (N_realp(x)) {
     return R_cos_R(x);
@@ -501,7 +501,7 @@ local object N_cos_N (object x)
  x reell -> (/ (sin x) (cos x))
  x = a+bi -> (/ (complex (* (sin a) (cosh b)) (* (cos a) (sinh b)))
                 (complex (* (cos a) (cosh b)) (- (* (sin a) (sinh b)))) ) */
-local object N_tan_N (object x)
+local maygc object N_tan_N (object x)
 {
   if (N_realp(x)) {
     pushSTACK(x);
@@ -539,7 +539,7 @@ local object N_tan_N (object x)
  Methode:
  x reell -> (complex (cos x) (sin x))
  x = a+bi -> (complex (* (exp (- b)) (cos a)) (* (exp (- b)) (sin a))) */
-local object N_cis_N (object x)
+local maygc object N_cis_N (object x)
 {
   if (N_realp(x)) {
     pushSTACK(x);
@@ -569,7 +569,7 @@ local object N_cis_N (object x)
  Methode:
  x reell -> klar
  x = a+bi -> (complex (* (sinh a) (cos b)) (* (cosh a) (sin b))) */
-local object N_sinh_N (object x)
+local maygc object N_sinh_N (object x)
 {
   if (N_realp(x)) {
     return R_sinh_R(x);
@@ -597,7 +597,7 @@ local object N_sinh_N (object x)
  Methode:
  x reell -> klar
  x = a+bi -> (complex (* (cosh a) (cos b)) (* (sinh a) (sin b))) */
-local object N_cosh_N (object x)
+local maygc object N_cosh_N (object x)
 {
   if (N_realp(x)) {
     return R_cosh_R(x);
@@ -629,7 +629,7 @@ local object N_cosh_N (object x)
  x reell -> (/ (sinh x) (cosh x))
  x = a+bi -> (/ (complex (* (sinh a) (cos b)) (* (cosh a) (sin b)))
                 (complex (* (cosh a) (cos b)) (* (sinh a) (sin b))) ) */
-local object N_tanh_N (object x)
+local maygc object N_tanh_N (object x)
 {
   if (N_realp(x)) {
     pushSTACK(x);
@@ -664,7 +664,7 @@ local object N_tanh_N (object x)
 
 /* N_atanh_N(z) liefert den Artanh einer Zahl z.
  can trigger GC */
-  local object N_atanh_N (object z);
+  local maygc object N_atanh_N (object z);
 /* Methode:
  Wert und Branch Cuts nach der Formel CLTL2, S. 315:
    artanh(z) = (log(1+z)-log(1-z)) / 2
@@ -695,7 +695,7 @@ local object N_tanh_N (object x)
 
 /* N_atan_N(z) liefert den Arctan einer Zahl z.
  can trigger GC */
-  local object N_atan_N (object z);
+  local maygc object N_atan_N (object z);
 /* Methode:
  Wert und Branch Cuts nach der Formel CLTL2, S. 307/312/313:
    arctan(z) = (log(1+iz)-log(1-iz)) / 2i
@@ -704,7 +704,7 @@ local object N_tanh_N (object x)
  rein imaginär ist. */
 
 /* Hilfsfunktion für beide: u+iv := artanh(x+iy), u,v beide auf den Stack. */
-local void R_R_atanh_R_R (object x, object y)
+local maygc void R_R_atanh_R_R (object x, object y)
 {
   if (eq(x,Fixnum_0)) { /* x=0 -> u=0, v=atan(X=1,Y=y) (y=0 is included) */
     pushSTACK(x); pushSTACK(R_R_atan_R(Fixnum_1,y)); return;
@@ -798,7 +798,7 @@ local void R_R_atanh_R_R (object x, object y)
   }
 }
 
-local object N_atanh_N (object  z)
+local maygc object N_atanh_N (object  z)
 {
   if (N_realp(z)) {
     R_R_atanh_R_R(z,Fixnum_0);
@@ -810,7 +810,7 @@ local object N_atanh_N (object  z)
   skipSTACK(2); return z;
 }
 
-local object N_atan_N (object z)
+local maygc object N_atan_N (object z)
 { /* compute atanh(iz): */
   if (N_realp(z)) {
     R_R_atanh_R_R(Fixnum_0,z);
@@ -834,7 +834,7 @@ local object N_atan_N (object z)
 
 /* N_asinh_N(z) liefert den Arsinh einer Zahl z.
  can trigger GC */
-  local object N_asinh_N (object z);
+  local maygc object N_asinh_N (object z);
 /* Methode:
  Wert und Branch Cuts nach der Formel CLTL2, S. 313:
    arsinh(z) = log(z+sqrt(1+z^2))
@@ -877,7 +877,7 @@ local object N_atan_N (object z)
 
 /* N_asin_N(z) liefert den Arcsin einer Zahl z.
  can trigger GC */
-  local object N_asin_N (object z);
+  local maygc object N_asin_N (object z);
 /* Methode:
  Wert und Branch Cuts nach der Formel CLTL2, S. 311:
    arcsin(z) = log(iz+sqrt(1-z^2))/i
@@ -886,7 +886,7 @@ local object N_atan_N (object z)
  rein imaginär ist. */
 
 /* Hilfsfunktion für beide: u+iv := arsinh(x+iy), u,v beide auf den Stack. */
-  local void R_R_asinh_R_R (object x, object y)
+  local maygc void R_R_asinh_R_R (object x, object y)
   {
     if (eq(x,Fixnum_0)) { /* x=0 ? */
       pushSTACK(x); pushSTACK(y);
@@ -990,7 +990,7 @@ local object N_atan_N (object z)
     return;
   }
 
-  local object N_asinh_N (object z)
+  local maygc object N_asinh_N (object z)
   {
     if (N_realp(z))
       R_R_asinh_R_R(z,Fixnum_0);
@@ -1000,7 +1000,7 @@ local object N_atan_N (object z)
     z = R_R_complex_N(STACK_1,STACK_0); skipSTACK(2); return z;
   }
 
-  local object N_asin_N (object z)
+  local maygc object N_asin_N (object z)
   {
     /* asinh(iz) errechnen: */
     if (N_realp(z))
@@ -1017,7 +1017,7 @@ local object N_atan_N (object z)
 
 /* N_acos_N(z) liefert den Arccos einer Zahl z.
  can trigger GC */
-  local object N_acos_N (object z);
+  local maygc object N_acos_N (object z);
 /* Methode:
  Wert und Branch Cuts nach der Formel CLTL2, S. 312:
    arccos(z) = log(z+i*sqrt(1-z^2))/i = pi/2 - arcsin(z)
@@ -1032,7 +1032,7 @@ local object N_atan_N (object z)
      Sonst x in Float umwandeln.
    Falls x>1: Ergebnis i ln(x+sqrt(x^2-1)).
  Sonst errechne u+iv = arsinh(-y+ix) wie oben, Ergebnis (pi/2-v)+iu. */
-  local object N_acos_N (object z)
+  local maygc object N_acos_N (object z)
   {
     if (N_realp(z)) { /* y=0 ? */
       if (R_rationalp(z)) {
@@ -1087,7 +1087,7 @@ local object N_atan_N (object z)
 
 /* N_acosh_N(z) liefert den Arcosh einer Zahl z.
  can trigger GC */
-  local object N_acosh_N (object z);
+  local maygc object N_acosh_N (object z);
 /* Methode:
  Wert und Branch Cuts nach der Formel CLTL2, S. 314:
    arcosh(z) = 2 log(sqrt((z+1)/2)+sqrt((z-1)/2))
@@ -1103,7 +1103,7 @@ local object N_atan_N (object z)
      x in Float umwandeln, Ergebnis log(sqrt(x^2-1)-x) + i pi.
  Sonst nach (!) mit u = sqrt((z+1)/2) und v = sqrt((z-1)/2) :
  arcosh(z) = 4 artanh(v/(u+1)) = 4 artanh(sqrt((z-1)/2)/(1+sqrt((z+1)/2))) */
-  local object N_acosh_N (object z)
+  local maygc object N_acosh_N (object z)
   {
     if (N_realp(z)) { /* y=0 ? */
       if (R_rationalp(z)) {

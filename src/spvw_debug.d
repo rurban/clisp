@@ -20,7 +20,7 @@ local void mem_hex_out (const void* buf, uintL count) {
 
 /* Output a lisp object in lisp notation to standard output.
  can trigger GC */
-global object object_out (object obj) {
+global maygc object object_out (object obj) {
   pushSTACK(obj);
   pushSTACK(var_stream(S(terminal_io),strmflags_wr_ch_B)); # *TERMINAL-IO*
   prin1(&STACK_0,STACK_1); # output the object

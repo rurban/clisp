@@ -630,7 +630,7 @@ global bool string_equal (object string1, object string2) {
  > element: a character
  < result: the possibly reallocated string
  can trigger GC */
-global object sstring_store (object string, uintL index, chart element) {
+global maygc object sstring_store (object string, uintL index, chart element) {
   var object inner_string = string;
   sstring_un_realloc(inner_string);
   switch (sstring_eltype(TheSstring(inner_string))) {
@@ -682,8 +682,8 @@ global object sstring_store (object string, uintL index, chart element) {
  > charptr[0..len-1]: a character array, not GC affected
  < result: the possibly reallocated string
  can trigger GC */
-global object sstring_store_array (object string, uintL offset,
-                                   const chart *charptr, uintL len)
+global maygc object sstring_store_array (object string, uintL offset,
+                                         const chart *charptr, uintL len)
 {
   if (len > 0) {
     var object inner_string = string;
@@ -807,7 +807,7 @@ global object sstring_store_array (object string, uintL offset,
  < result: Simple-String with these objects
  increases STACK
  changes STACK, can trigger GC */
-global object stringof (uintL len) {
+global maygc object stringof (uintL len) {
   check_stringsize(len);
   var object new_string = allocate_string(len);
   if (len > 0) {
@@ -847,7 +847,7 @@ global object stringof (uintL len) {
  > string: String
  < result: mutable Normal-Simple-String with the same characters
  can trigger GC */
-global object copy_string_normal (object string) {
+global maygc object copy_string_normal (object string) {
   var uintL len;
   var uintL offset;
   string = unpack_string_ro(string,&len,&offset);
@@ -881,7 +881,7 @@ global object copy_string_normal (object string) {
  > string: String
  < result: mutable Simple-String with the same characters
  can trigger GC */
-global object copy_string (object string) {
+global maygc object copy_string (object string) {
   var uintL len;
   var uintL offset;
   string = unpack_string_ro(string,&len,&offset);
@@ -942,7 +942,7 @@ global object copy_string (object string) {
  > obj: Lisp-object, should be a string.
  < ergebnis: Simple-String with the same characters
  can trigger GC */
-global object coerce_ss (object obj) {
+global maygc object coerce_ss (object obj) {
  start:
  #ifdef TYPECODES
   switch (typecode(obj))
@@ -974,7 +974,7 @@ global object coerce_ss (object obj) {
  > obj: Lisp-object, should be a string.
  < result: immutable Simple-String with the same characters
  can trigger GC */
-global object coerce_imm_ss (object obj)
+global maygc object coerce_imm_ss (object obj)
 {
  start:
  #ifdef TYPECODES
@@ -1115,7 +1115,7 @@ global object coerce_imm_ss (object obj)
  > obj: Lisp-object, should be a string.
  < result: Normal-Simple-String with the same characters
  can trigger GC */
-global object coerce_normal_ss (object obj)
+global maygc object coerce_normal_ss (object obj)
 {
  start:
  #ifdef TYPECODES
@@ -1153,7 +1153,7 @@ global object coerce_normal_ss (object obj)
  > obj: Lisp-object, should be a string.
  < result: immutable Normal-Simple-String with the same characters
  can trigger GC */
-global object coerce_imm_normal_ss (object obj)
+global maygc object coerce_imm_normal_ss (object obj)
 {
  start:
  #ifdef TYPECODES
@@ -1301,7 +1301,7 @@ local const uintB charname_table_codes [charname_table_length]
  Note that the resulting string is ready to be output unmodified; no prior
  STRING-CAPITALIZE or so is needed.
  can trigger GC */
-global object char_name (chart code) {
+global maygc object char_name (chart code) {
   var cint c = as_cint(code);
   {
     var const uintB* codes_ptr = &charname_table_codes[0];
@@ -1565,7 +1565,7 @@ LISPFUNNF(both_case_p,1)
  < result: radix, an integer >=2, <=36
  removes one element from STACK
  can trigger GC */
-local uintWL test_radix_arg (void) {
+local maygc uintWL test_radix_arg (void) {
   var object arg = popSTACK(); /* argument */
  restart_radix_check:
   if (!boundp(arg))
@@ -1689,7 +1689,7 @@ LISPFUNNF(alphanumericp,1)
  > argcount: number of arguments - 1
  > args_pointer: pointer to the arguments
  can trigger GC */
-local void test_char_args (uintC argcount, gcv_object_t* args_pointer) {
+local maygc void test_char_args (uintC argcount, gcv_object_t* args_pointer) {
   do {
     var gcv_object_t* argptr = &NEXT(args_pointer);
     var object arg = *argptr; /* next argument */
@@ -1704,7 +1704,7 @@ local void test_char_args (uintC argcount, gcv_object_t* args_pointer) {
  > argcount: number of arguments - 1
  > args_pointer: pointer to the arguments
  can trigger GC */
-local void test_char_args_upcase (uintC argcount, gcv_object_t* args_pointer) {
+local maygc void test_char_args_upcase (uintC argcount, gcv_object_t* args_pointer) {
   do {
     var gcv_object_t* argptr = &NEXT(args_pointer);
     var object arg = *argptr; /* next argument */
@@ -2283,7 +2283,7 @@ global object test_vector_limits (stringarg* arg) {
  < result: string-argument
  increases STACK by 3
  can trigger GC */
-global object test_string_limits_ro (stringarg* arg) {
+global maygc object test_string_limits_ro (stringarg* arg) {
   /* check string-argument: */
   STACK_2 = check_string(STACK_2);
   arg->string = unpack_string_ro(STACK_2,&arg->len,&arg->offset);
@@ -2299,7 +2299,7 @@ global object test_string_limits_ro (stringarg* arg) {
  < result: string-argument
  increases STACK by 3
  can trigger GC */
-local object test_string_limits_rw (stringarg* arg) {
+local maygc object test_string_limits_rw (stringarg* arg) {
   var object string = test_string_limits_ro(arg);
   if (arg->len > 0) {
     if (simple_nilarray_p(arg->string)) fehler_nilarray_access();
@@ -2312,7 +2312,7 @@ local object test_string_limits_rw (stringarg* arg) {
  > obj: argument
  < ergebnis: argument as string
  can trigger GC */
-global object test_stringsymchar_arg (object obj) {
+global maygc object test_stringsymchar_arg (object obj) {
  restart_stringsymchar:
   if (stringp(obj)) /* string: return unchanged */
     return obj;
@@ -2345,8 +2345,8 @@ global object test_stringsymchar_arg (object obj) {
  < uintL len: number of affected characters
  increases STACK by 3
  can trigger GC */
-local void test_1_stringsym_limits (object* string_, uintL* offset_,
-                                    uintL* len_) {
+local maygc void test_1_stringsym_limits (object* string_, uintL* offset_,
+                                          uintL* len_) {
   var object string;
   var uintL len;
   var uintL start;
@@ -3116,7 +3116,7 @@ LISPFUN(string_width,seclass_default,1,0,norest,key,2, (kw(start),kw(end)) )
  > uintL offset: index of first affected character
  > uintL len: number of affected characters
  can trigger GC */
-global void nstring_upcase (object dv, uintL offset, uintL len) {
+global maygc void nstring_upcase (object dv, uintL offset, uintL len) {
  restart_it:
   if (len > 0)
     SstringCase(dv,{
@@ -3153,7 +3153,7 @@ global void nstring_upcase (object dv, uintL offset, uintL len) {
  > string: string
  < ergebnis: new normal-simple-string, in uppercase letters
  can trigger GC */
-global object string_upcase (object string) {
+global maygc object string_upcase (object string) {
   string = copy_string_normal(string); /* copy and turn into a normal-simple-string */
   pushSTACK(string);
   nstring_upcase(string,0,Sstring_length(string)); /* convert */
@@ -3190,7 +3190,7 @@ LISPFUN(string_upcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
  > uintL offset: index of first affected character
  > uintL len: number of affected characters
  can trigger GC */
-global void nstring_downcase (object dv, uintL offset, uintL len) {
+global maygc void nstring_downcase (object dv, uintL offset, uintL len) {
  restart_it:
   if (len > 0)
     SstringCase(dv,{
@@ -3227,7 +3227,7 @@ global void nstring_downcase (object dv, uintL offset, uintL len) {
  > string: string
  < result: new normal-simple-string, in lowercase letters
  can trigger GC */
-global object string_downcase (object string) {
+global maygc object string_downcase (object string) {
   string = copy_string_normal(string); /* copy and turn into a normal-simple-string */
   pushSTACK(string);
   nstring_downcase(string,0,Sstring_length(string)); /* convert */
@@ -3269,7 +3269,7 @@ LISPFUN(string_downcase,seclass_read,1,0,norest,key,2, (kw(start),kw(end)) )
   alternately, seach for beginning of a word (and do not convert)
   resp. search for end of word (and do convert).
  can trigger GC */
-global void nstring_capitalize (object dv, uintL offset, uintL len) {
+global maygc void nstring_capitalize (object dv, uintL offset, uintL len) {
   if (len > 0) {
     var chart ch;
     SstringCase(dv,{
@@ -3401,7 +3401,7 @@ LISPFUNNR(name_char,1)
  < object result: (subseq string start end),
            a freshly created normal-simple-string
  can trigger GC */
-global object subsstring (object string, uintL start, uintL end) {
+global maygc object subsstring (object string, uintL start, uintL end) {
   var uintL count = end - start;
   pushSTACK(string);
   var object new_string = allocate_string(count);
@@ -3489,7 +3489,7 @@ LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
  < result: total string, freshly created
  < STACK: cleaned up
  can trigger GC */
-global object string_concat (uintC argcount) {
+global maygc object string_concat (uintC argcount) {
   var gcv_object_t* args_pointer = (args_end_pointer STACKop argcount);
   /* args_pointer = pointer to the arguments
      check, if they are all strings, and add the lengths: */

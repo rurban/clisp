@@ -1401,7 +1401,7 @@ local uint32 hashcode_raw_user (object fun, object obj) {
   #     *Iptr : entry belonging to key in index-vector
   #             or an arbitrary element of the "list" starting there
   # can trigger GC - if allowgc is true
-    typedef bool (* lookup_Pseudofun) (object ht, object obj, bool allowgc, gcv_object_t** KVptr_, gcv_object_t** Iptr_);
+    typedef maygc bool (* lookup_Pseudofun) (object ht, object obj, bool allowgc, gcv_object_t** KVptr_, gcv_object_t** Iptr_);
 
   # Specification for HASHCODE - Pseudo-Function:
   # hashcode(obj)
@@ -1438,8 +1438,9 @@ local uint32 hashcode_raw_user (object fun, object obj) {
  > obj: object
  < result: index into the index-vector
  can trigger GC - for user-defined ht_test */
-local inline uintL hashcode_raw (object ht, object obj) {
+local inline /*maygc*/ uintL hashcode_raw (object ht, object obj) {
   var uintB flags = record_flags(TheHashtable(ht));
+  GCTRIGGER_IF(flags & htflags_test_user_B, GCTRIGGER2(ht,obj));
   return (flags & (htflags_test_builtin_B | htflags_stablehash_B)
           ? hashcodefn(ht)(obj) /* General built-in hash code */
           : !(flags & htflags_test_user_B)
@@ -1478,7 +1479,7 @@ local inline uintL hashcode_builtin (object ht, object obj) {
  > obj: object
  < result: index into the index-vector
  can trigger GC */
-local uintL hashcode_user (object ht, object obj) {
+local maygc uintL hashcode_user (object ht, object obj) {
   var uintL size = TheHashtable(ht)->ht_size;
   var uint32 coderaw = hashcode_raw_user(TheHashtable(ht)->ht_hash,obj);
   return hashcode_cook(coderaw,size);
@@ -1489,7 +1490,9 @@ local uintL hashcode_user (object ht, object obj) {
  rehash(ht);
  > ht: hash-table
  can trigger GC - for user-defined ht_test */
-local object rehash (object ht) {
+local /*maygc*/ object rehash (object ht) {
+  GCTRIGGER_IF(record_flags(TheHashtable(ht)) & htflags_test_user_B,
+               GCTRIGGER1(ht));
   /* fill index-vector with "nix" : */
   var object kvtable = TheHashtable(ht)->ht_kvtable;
   var object Ivektor = TheHashedAlist(kvtable)->hal_itable; /* index-vector */
@@ -1547,7 +1550,7 @@ local object rehash (object ht) {
 
 /* Warn if a hash table is rehashed because of a GC, degrading performance.
  can trigger GC */
-local void warn_forced_gc_rehash (object ht) {
+local maygc void warn_forced_gc_rehash (object ht) {
   pushSTACK(NIL); pushSTACK(ht);
   STACK_1 = CLSTEXT("Performance/scalability warning: The hash table ~S needs "
                     "to be rehashed after a garbage collection, since it "
@@ -1568,8 +1571,9 @@ local void warn_forced_gc_rehash (object ht) {
      *Iptr : entry belonging to key in index-vector
              or an arbitrary element of the "list" starting there
  can trigger GC - if allowgc is true */
-global bool hash_lookup_builtin (object ht, object obj, bool allowgc,
-                                 gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
+global /*maygc*/ bool hash_lookup_builtin (object ht, object obj, bool allowgc,
+                                           gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
+  GCTRIGGER_IF(allowgc, GCTRIGGER2(ht,obj));
   #ifdef GENERATIONAL_GC
   if (!ht_validp(TheHashtable(ht))) { /* hash-table must be reorganized? */
     # Rehash it before the warning, otherwise we risk an endless recursion.
@@ -1627,8 +1631,10 @@ global bool hash_lookup_builtin (object ht, object obj, bool allowgc,
   *Iptr_ = Nptr; return false;
 }
 #ifndef GENERATIONAL_GC
-global bool hash_lookup_builtin_with_rehash (object ht, object obj, bool allowgc,
-                                             gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
+/* can trigger GC - if allowgc is true */
+global /*maygc*/ bool hash_lookup_builtin_with_rehash (object ht, object obj, bool allowgc,
+                                                       gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
+  GCTRIGGER_IF(allowgc, GCTRIGGER2(ht,obj));
   if (!ht_validp(TheHashtable(ht))) { /* hash-table must be reorganized? */
     # Rehash it before the warning, otherwise we risk an endless recursion.
     ht = rehash(ht);
@@ -1665,8 +1671,8 @@ global bool hash_lookup_builtin_with_rehash (object ht, object obj, bool allowgc
      *Iptr : entry belonging to key in index-vector
              or an arbitrary element of the "list" starting there
  can trigger GC - if allowgc is true */
-global bool hash_lookup_user (object ht, object obj, bool allowgc,
-                              gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
+global maygc bool hash_lookup_user (object ht, object obj, bool allowgc,
+                                    gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
   ASSERT(allowgc);
   pushSTACK(ht); pushSTACK(obj);
   if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
@@ -1730,7 +1736,7 @@ local inline bool hashcode_gc_invariant_p (object ht, object obj) {
 
 /* Warn if adding an key to a hash table degrades its performance.
  can trigger GC */
-local void warn_key_forces_gc_rehash (object ht, object key) {
+local maygc void warn_key_forces_gc_rehash (object ht, object key) {
   pushSTACK(NIL); pushSTACK(ht); pushSTACK(key);
   STACK_2 = CLSTEXT("Performance/scalability warning: The hash table ~S must "
                     "be rehashed after each garbage collection, since its "
@@ -1807,7 +1813,7 @@ global object hash_table_weak_type (object ht) {
  > maxcount: number of key/value pairs to make room for
  < result: a key-value-table
  can trigger GC */
-local inline object allocate_kvt (object weak, uintL maxcount) {
+local inline maygc object allocate_kvt (object weak, uintL maxcount) {
   if (nullp(weak)) {
     var object kvt = allocate_vector(4+3*maxcount);
     TheHashedAlist(kvt)->hal_freelist = nix; /* dummy as free-list */
@@ -1849,8 +1855,8 @@ local inline object allocate_kvt (object weak, uintL maxcount) {
  < stack-layout: MAXCOUNT, SIZE, MINCOUNT, index-vector, key-value-vector.
  decreases STACK by 5
  can trigger GC */
-local uintL prepare_resize (object maxcount, object mincount_threshold,
-                            object weak) {
+local maygc uintL prepare_resize (object maxcount, object mincount_threshold,
+                                  object weak) {
  prepare_resize_restart:
   /* check, if maxcount is not a too big fixnum >0 : */
   if (!posfixnump(maxcount))
@@ -1894,7 +1900,7 @@ local uintL prepare_resize (object maxcount, object mincount_threshold,
  > maxcount: wished new size MAXCOUNT
  < result: hash-table, EQ to the old one
  can trigger GC */
-local object resize (object ht, object maxcount) {
+local maygc object resize (object ht, object maxcount) {
   pushSTACK(ht);
   var uintL maxcountL =
     prepare_resize(maxcount,TheHashtable(ht)->ht_mincount_threshold,
@@ -2090,7 +2096,7 @@ local object get_equal_hashfunction () {
 
 /* check the :WEAK argument and return it
  can trigger GC */
-local object check_weak (object weak) {
+local maygc object check_weak (object weak) {
  check_weak_restart:
   if (missingp(weak)) return NIL;
   if (eq(weak,S(Kkey)) || eq(weak,S(Kvalue))
@@ -2403,7 +2409,8 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
             (should be true if the hash-table has a user-defined test)
  < result: if found, belonging value, else nullobj
  can trigger GC - if allowgc is true */
-global object gethash (object obj, object ht, bool allowgc) {
+global /*maygc*/ object gethash (object obj, object ht, bool allowgc) {
+  GCTRIGGER_IF(allowgc, GCTRIGGER2(obj,ht));
   var gcv_object_t* KVptr;
   var gcv_object_t* Iptr;
   if (hash_lookup(ht,obj,allowgc,&KVptr,&Iptr))
@@ -2417,7 +2424,7 @@ global object gethash (object obj, object ht, bool allowgc) {
  > obj: object
  < hashtable
  can trigger GC */
-local object check_hashtable (object obj) {
+local maygc object check_hashtable (object obj) {
   while (!hash_table_p(obj)) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot DATUM */
@@ -2473,7 +2480,7 @@ LISPFUNN(puthash,3)
  > value: new value
  < result: old value
  can trigger GC */
-global object shifthash (object ht, object obj, object value) {
+global maygc object shifthash (object ht, object obj, object value) {
   var gcv_object_t* KVptr;
   var gcv_object_t* Iptr;
   pushSTACK(ht); pushSTACK(obj); pushSTACK(value); /* save args */
@@ -2613,7 +2620,7 @@ LISPFUNN(set_hash_table_warn_if_needs_rehash_after_gc,2)
 /* return the hash table symbol
  or cons (test . hash) for user-defined ht_test
  can trigger GC - for user-defined ht_test */
-global object hash_table_test (object ht) {
+global maygc object hash_table_test (object ht) {
   var uintB test_code = ht_test_code(record_flags(TheHashtable(ht)));
   switch (test_code) {
     case htflags_test_eq_B:
@@ -2913,8 +2920,6 @@ LISPFUN(class_tuple_gethash,seclass_default,2,0,rest,nokey,0,NIL) {
  (equal X Y) implies (= (sxhash X) (sxhash Y)).
  > obj: an object
  < result: hashcode, a 32-bit-number */
-/* can trigger GC
-   -- if the argument was a CLOS instance that had to be updated */
 local uint32 sxhash (object obj);
 /* auxiliary functions for known type:
  atom -> fall differentiation by type */

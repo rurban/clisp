@@ -103,14 +103,14 @@ global uint32 hashcode_lfloat (object obj) {
  LF_ftruncate_LF(x)
  x is rounded towards 0 to the next whole number.
  can trigger GC */
-local object LF_ftruncate_LF (object x);
+local maygc object LF_ftruncate_LF (object x);
 /* method:
  x = 0.0 or e<=0 -> result 0.0
  1<=e<=16n -> set the last (16n-e) bits of the mantissa to 0,
               keep exponent and sign
  e>=16n -> result x */
 #if 0
-local object LF_ftruncate_LF (object x)
+local maygc object LF_ftruncate_LF (object x)
 {
   var signean sign;
   var sintL exp;
@@ -140,7 +140,7 @@ local object LF_ftruncate_LF (object x)
   }
 }
 #else
-local object LF_ftruncate_LF (object x)
+local maygc object LF_ftruncate_LF (object x)
 {
   var uintC len = Lfloat_length(x);
   var uintL uexp = TheLfloat(x)->expo;
@@ -172,7 +172,7 @@ local object LF_ftruncate_LF (object x)
  LF_futruncate_LF(x)
  x is rounded away from the 0 to the next whole number.
  can trigger GC */
-local object LF_futruncate_LF (object x);
+local maygc object LF_futruncate_LF (object x);
 /* method:
  x = 0.0 -> result 0.0
  e<=0 -> result 1.0 or -1.0, according to sign of x.
@@ -185,7 +185,7 @@ local object LF_futruncate_LF (object x);
                e:=e+1. (test for overflow superfluous because of e<=16n)
  e>=16n -> result x. */
 #if 0
-local object LF_futruncate_LF (object x)
+local maygc object LF_futruncate_LF (object x)
 {
   var signean sign;
   var sintL exp;
@@ -227,7 +227,7 @@ local object LF_futruncate_LF (object x)
   }
 }
 #else
-local object LF_futruncate_LF (object x)
+local maygc object LF_futruncate_LF (object x)
 {
   var uintC len = Lfloat_length(x);
   var uintL uexp = TheLfloat(x)->expo;
@@ -272,14 +272,14 @@ local object LF_futruncate_LF (object x)
  LF_fround_LF(x)
  x is rounded to the next whole number.
  can trigger GC */
-local object LF_fround_LF (object x);
+local maygc object LF_fround_LF (object x);
 /* method:
  x = 0.0 or e<0 -> result 0.0
  0<=e<16n -> round away the last (16n-e) bits of the mantissa,
              keep exponent and sign.
  e>=16n -> result x */
 #if 0
-local object LF_fround_LF (object x)
+local maygc object LF_fround_LF (object x)
 {
   var signean sign;
   var sintL exp;
@@ -348,7 +348,7 @@ local object LF_fround_LF (object x)
   }
 }
 #else
-local object LF_fround_LF (object x)
+local maygc object LF_fround_LF (object x)
 {
   var uintC len = Lfloat_length(x);
   var uintL uexp = TheLfloat(x)->expo;
@@ -430,7 +430,7 @@ local object LF_fround_LF (object x)
  can trigger GC
  method:
  if x=0.0, done. Else flip sign bit and keep pointer. */
-local object LF_minus_LF (object x)
+local maygc object LF_minus_LF (object x)
 {
   if (TheLfloat(x)->expo == 0) {
     return x;
@@ -542,7 +542,7 @@ local signean LF_LF_comp (object x, object y)
  > uintC len: wished length (>= LF_minlen, < Lfloat_length(x))
  < object result: shortened Long-Float
  can trigger GC */
-local object LF_shorten_LF (object x, uintC len)
+local maygc object LF_shorten_LF (object x, uintC len)
 {
   /* x = 0.0 does not need to be caught, because when mantissa is 0
      we round of anyway, so the mantissa remains 0. */
@@ -577,7 +577,7 @@ local object LF_shorten_LF (object x, uintC len)
  > uintC len: wished length (> Lfloat_length(x))
  < object result: extended Long-Float
  can trigger GC */
-local object LF_extend_LF (object x, uintC len)
+local maygc object LF_extend_LF (object x, uintC len)
 {
   pushSTACK(x);
   var object y = allocate_lfloat(len,TheLfloat(x)->expo,LF_sign(x)); /* new LF */
@@ -597,7 +597,7 @@ local object LF_extend_LF (object x, uintC len)
  > uintC len: wished length (>= LF_minlen)
  < object result: Long-Float of given length
  can trigger GC */
-local object LF_to_LF (object x, uintC len)
+local maygc object LF_to_LF (object x, uintC len)
 {
   var uintC oldlen = Lfloat_length(x);
   if (len < oldlen)
@@ -626,7 +626,7 @@ local object LF_to_LF (object x, uintC len)
                     =0 -> result 0.0
  exponent is e1.
  normalize, done. */
-local object LF_LF_plus_LF (object x1, object x2)
+local maygc object LF_LF_plus_LF (object x1, object x2)
 {
   var uintL uexp1 = TheLfloat(x1)->expo;
   var uintL uexp2 = TheLfloat(x2)->expo;
@@ -879,7 +879,7 @@ local object LF_LF_plus_LF (object x1, object x2)
  can trigger GC
  method:
  (- x1 x2) = (+ x1 (- x2)) */
-local object LF_LF_minus_LF (object x1, object x2)
+local maygc object LF_LF_minus_LF (object x1, object x2)
 {
   if (TheLfloat(x2)->expo == 0) {
     return x1;
@@ -909,7 +909,7 @@ local object LF_LF_minus_LF (object x1, object x2)
           the left (the front n+1 digits are enough)
           and decrement exponent.
         rounding to n digits yields the result-mantissa. */
-local object LF_square_LF (object x)
+local maygc object LF_square_LF (object x)
 {
   var uintL uexp = TheLfloat(x)->expo;
   if (uexp==0)
@@ -1000,7 +1000,7 @@ local object LF_square_LF (object x)
           the left (the front n+1 digits are enough)
           and decrement exponent.
         Rounding to n digits yields the result-mantissa. */
-local object LF_LF_mal_LF (object x1, object x2)
+local maygc object LF_LF_mal_LF (object x1, object x2)
 {
   var uintL uexp1 = TheLfloat(x1)->expo;
   if (uexp1==0)
@@ -1114,7 +1114,7 @@ local object LF_LF_mal_LF (object x1, object x2)
 #else
   #define workaround_gcc270_bug()
 #endif
-local object LF_LF_durch_LF (object x1, object x2)
+local maygc object LF_LF_durch_LF (object x1, object x2)
 {
   var uintL uexp2 = TheLfloat(x2)->expo;
   if (uexp2==0)
@@ -1255,7 +1255,7 @@ local object LF_LF_durch_LF (object x1, object x2)
      else round up.
    When rounding overflow occurs, shift mantissa by 1 bit to the right
      and increment exponent. */
-local object LF_sqrt_LF (object x)
+local maygc object LF_sqrt_LF (object x)
 {
   var uintL uexp = TheLfloat(x)->expo;
   if (uexp==0)
@@ -1321,7 +1321,7 @@ local object LF_sqrt_LF (object x)
  method:
  If x=0.0, result 0.
  Else (ASH sign*mantissa (e-16n)). */
-local object LF_to_I (object x)
+local maygc object LF_to_I (object x)
 {
   var uintL uexp = TheLfloat(x)->expo;
   if (uexp==0)
@@ -1370,7 +1370,7 @@ local object LF_to_I (object x)
    next bit bit = 1 and rest >0 -> round up.
  When rounding up: rounding overflow -> shift mantissa by 1 bit to the right
    and increment exponent. */
-local object I_to_LF (object x, uintC len, bool signal_overflow)
+local maygc object I_to_LF (object x, uintC len, bool signal_overflow)
 {
   if (eq(x,Fixnum_0)) {
     encode_LF0(len, return); /* x=0 -> result 0.0 */
@@ -1485,7 +1485,7 @@ local object I_to_LF (object x, uintC len, bool signal_overflow)
        round 2 bits away and shift by 2 bits to the right;
      if it is <2^(16n+1) ,
        round 1 bit away and shift by 1 bit to the right. */
-local object RA_to_LF (object x, uintC len, bool signal_overflow)
+local maygc object RA_to_LF (object x, uintC len, bool signal_overflow)
 {
   if (RA_integerp(x))
     return I_to_LF(x,len,signal_overflow);

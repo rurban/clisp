@@ -251,7 +251,7 @@
   # x=0 -> Ergebnis 0
   # x Fixnum -> direkt quadrieren
   # sonst: zu WS machen, quadrieren.
-  local object I_square_I (object x)
+  local maygc object I_square_I (object x)
   {
     if (eq(x,Fixnum_0))
       return Fixnum_0;
@@ -717,7 +717,7 @@
   # x=0 oder y=0 -> Ergebnis 0
   # x und y beide Fixnums -> direkt multiplizieren
   # sonst: zu WS machen, multiplizieren.
-  local object I_I_mal_I (object x, object y)
+  local maygc object I_I_mal_I (object x, object y)
   {
     if (eq(x,Fixnum_0) || eq(y,Fixnum_0))
       return Fixnum_0;
@@ -763,7 +763,7 @@
 
 # (EXPT x y), wo x Integer, y Integer >0 ist.
 # can trigger GC
-  local object I_I_expt_I (object x, object y);
+  local maygc object I_I_expt_I (object x, object y);
   # Methode:
   #   a:=x, b:=y, c:=1. [a^b*c bleibt invariant, = x^y.]
   #   Solange b>1,
@@ -779,7 +779,7 @@
   #   Solange b:=floor(b/2) >0 ist,
   #     setze a:=a*a, und falls b ungerade, setze c:=a*c.
   #   Liefere c.
-  local object I_I_expt_I (object x, object y)
+  local maygc object I_I_expt_I (object x, object y)
   {
     #if 0 # unoptimiert
       pushSTACK(x); pushSTACK(Fixnum_1); pushSTACK(y);
@@ -830,7 +830,7 @@
   #   (c := floor((a+b)/2)) bestimmt und beide zusammenmultipliziert. Dies
   #   vermeidet, dass oft große Zahlen mit ganz kleinen Zahlen multipliziert
   #   werden.
-  local object FN_fak_I (object n);
+  local maygc object FN_fak_I (object n);
   # UP für Fakultät:
   # Bilde das Produkt prod(a < i <= b, 2*i+1), wobei 0 <= a < b klein.
     local object prod_ungerade (uintL a, uintL b)
@@ -855,7 +855,7 @@
         return I_I_mal_I(popSTACK(),teil); # und beide multiplizieren
       }
     }
-  local object FN_fak_I (object n)
+  local maygc object FN_fak_I (object n)
   {
     local var const uintL fakul_table [] = {
       1UL,

@@ -1973,8 +1973,8 @@ LISPFUN(charset_range,seclass_read,3,1,norest,nokey,0,NIL) {
  < return: normal-simple-string with len characters as content
  can trigger GC */
 #ifdef UNICODE
-global object n_char_to_string (const char* srcptr, uintL blen,
-                                object encoding) {
+global maygc object n_char_to_string (const char* srcptr, uintL blen,
+                                      object encoding) {
   var const uintB* bptr = (const uintB*)srcptr;
   var const uintB* bendptr = bptr+blen;
   var uintL clen = Encoding_mblen(encoding)(encoding,bptr,bendptr);
@@ -1991,7 +1991,7 @@ global object n_char_to_string (const char* srcptr, uintL blen,
   return obj;
 }
 #else
-global object n_char_to_string_ (const char* srcptr, uintL len) {
+global maygc object n_char_to_string_ (const char* srcptr, uintL len) {
   var const uintB* bptr = (const uintB*)srcptr;
   check_stringsize(len);
   var object obj = allocate_string(len);
@@ -2012,15 +2012,15 @@ global object n_char_to_string_ (const char* srcptr, uintL len) {
  < return: normal-simple-string the same string (without NULL)
  can trigger GC */
 #ifdef UNICODE
-global object asciz_to_string (const char * asciz, object encoding) {
+global maygc object asciz_to_string (const char * asciz, object encoding) {
   return n_char_to_string(asciz,asciz_length(asciz),encoding);
 }
 #else
-global object asciz_to_string_ (const char * asciz) {
+global maygc object asciz_to_string_ (const char * asciz) {
   return n_char_to_string_(asciz,asciz_length(asciz));
 }
 #endif
-global object ascii_to_string (const char * asciz) {
+global maygc object ascii_to_string (const char * asciz) {
   var const uintB* bptr = (const uintB*)asciz;
   var uintL len = asciz_length(asciz);
   check_stringsize(len);
@@ -2046,7 +2046,7 @@ global object ascii_to_string (const char * asciz) {
  < TheAsciz(ergebnis): address of the byte sequence contain therein
  can trigger GC */
 #ifdef UNICODE
-global object string_to_asciz (object obj, object encoding) {
+global maygc object string_to_asciz (object obj, object encoding) {
   var uintL len;
   var uintL offset;
   var object string = unpack_string_ro(obj,&len,&offset);
@@ -2064,7 +2064,7 @@ global object string_to_asciz (object obj, object encoding) {
   return newasciz;
 }
 #else
-global object string_to_asciz_ (object obj) {
+global maygc object string_to_asciz_ (object obj) {
   pushSTACK(obj); /* save string */
   var object newasciz = allocate_bit_vector(Atype_8Bit,vector_length(obj)+1);
   obj = popSTACK(); /* restore string */
@@ -2296,7 +2296,7 @@ local char *canonicalize_encoding (char *encoding) {
                function.
  > char* context: for warnings
  can trigger GC */
-local object encoding_from_name (const char* name, const char* context) {
+local maygc object encoding_from_name (const char* name, const char* context) {
  #ifdef UNICODE
   /* Attempt to use the character set implicitly specified by the locale. */
   name = canonicalize_encoding((char*)name); /* FIXME: dangerous cast */

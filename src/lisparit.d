@@ -66,7 +66,7 @@ global bool number_gleich (object x, object y);
  > x: digit value X (>=0,<10)
  < result: integer Y*10+X (>=0)
  can trigger GC */
-global object mal_10_plus_x (object y, uintB x) {
+global maygc object mal_10_plus_x (object y, uintB x) {
   SAVE_NUM_STACK
   var uintD* MSDptr;
   var uintC len;
@@ -97,8 +97,8 @@ global object mal_10_plus_x (object y, uintB x) {
    (that is index2-index1 digits, incl. poss. decimal point at the end)
  < result: integer
  can trigger GC */
-global object read_integer (uintWL base, signean sign, object string,
-                            uintL index1, uintL index2) {
+global maygc object read_integer (uintWL base, signean sign, object string,
+                                  uintL index1, uintL index2) {
   var const chart* charptr;
   unpack_sstring_alloca(string,index2-index1,index1, charptr=);
   var object x = /* convert into integer: */
@@ -121,8 +121,8 @@ global object read_integer (uintWL base, signean sign, object string,
    (that is index3-index1 numerator-digits, index2-index3-1 denominator-digits)
  < result: rational number
  can trigger GC */
-global object read_rational (uintWL base, signean sign, object string,
-                             uintL index1, uintL index3, uintL index2) {
+global maygc object read_rational (uintWL base, signean sign, object string,
+                                   uintL index1, uintL index3, uintL index2) {
   pushSTACK(string); /* save string */
   {
     var uintL index3_1 = index3+1; /* index of the first denominator digit */
@@ -159,9 +159,9 @@ global object read_rational (uintWL base, signean sign, object string,
     digit of the exponent)
  < result: Float
  can trigger GC */
-global object read_float (uintWL base, signean sign, object string,
-                          uintL index1, uintL index4, uintL index2,
-                          uintL index3) {
+global maygc object read_float (uintWL base, signean sign, object string,
+                                uintL index1, uintL index4, uintL index2,
+                                uintL index3) {
   pushSTACK(string); /* save string */
   /* exponent: */
   var chart exp_marker;
@@ -242,7 +242,7 @@ global object read_float (uintWL base, signean sign, object string,
  > stream: stream
  < stream: stream
  can trigger GC */
-global void print_integer (object z, uintWL base, const gcv_object_t* stream_)
+global maygc void print_integer (object z, uintWL base, const gcv_object_t* stream_)
 {
   if (R_minusp(z)) { /* z<0 -> print sign: */
     pushSTACK(z);
@@ -274,7 +274,7 @@ global void print_integer (object z, uintWL base, const gcv_object_t* stream_)
  > stream: Stream
  < stream: stream
  can trigger GC */
-global void print_float (object z, const gcv_object_t* stream_) {
+global maygc void print_float (object z, const gcv_object_t* stream_) {
   /* if SYS::WRITE-FLOAT-DECIMAL is defined, call
      (SYS::WRITE-FLOAT-DECIMAL stream z) : */
   var object fun = Symbol_function(S(write_float_decimal));
@@ -326,8 +326,8 @@ nonreturning_function(local, fehler_digits, (object obj)) {
  > obj: an object
  < result: a number, either the same as obj or a replacement
  can trigger GC */
-local object check_number_replacement (object obj);
-static inline object check_number (object obj) {
+local maygc object check_number_replacement (object obj);
+static inline maygc object check_number (object obj) {
   if (!numberp(obj))
     obj = check_number_replacement(obj);
   return obj;
@@ -336,7 +336,7 @@ static inline object check_number (object obj) {
  > obj: not a number
  < result: a number, a replacement
  can trigger GC */
-local object check_number_replacement (object obj) {
+local maygc object check_number_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
@@ -353,7 +353,7 @@ local object check_number_replacement (object obj) {
  > obj: not a real number
  < result: a real number, a replacement
  can trigger GC */
-global object check_real_replacement (object obj) {
+global maygc object check_real_replacement (object obj) {
   for (;;) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
@@ -371,8 +371,8 @@ global object check_real_replacement (object obj) {
  > obj: an object
  < result: a floating-point number, either the same as obj or a replacement
  can trigger GC */
-local object check_float_replacement (object obj);
-static inline object check_float (object obj) {
+local maygc object check_float_replacement (object obj);
+static inline maygc object check_float (object obj) {
   if (!floatp(obj))
     obj = check_float_replacement(obj);
   return obj;
@@ -381,7 +381,7 @@ static inline object check_float (object obj) {
  > obj: not a floating-point number
  < result: a floating-point number, a replacement
  can trigger GC */
-local object check_float_replacement (object obj) {
+local maygc object check_float_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);      /* TYPE-ERROR slot DATUM */
@@ -398,8 +398,8 @@ local object check_float_replacement (object obj) {
  > obj: an object
  < result: a rational number, either the same as obj or a replacement
  can trigger GC */
-local object check_rational_replacement (object obj);
-static inline object check_rational (object obj) {
+local maygc object check_rational_replacement (object obj);
+static inline maygc object check_rational (object obj) {
   if_rationalp(obj, ; , { obj = check_rational_replacement(obj); });
   return obj;
 }
@@ -407,7 +407,7 @@ static inline object check_rational (object obj) {
  > obj: not a rational number
  < result: a rational number, a replacement
  can trigger GC */
-local object check_rational_replacement (object obj) {
+local maygc object check_rational_replacement (object obj) {
   for (;;) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
@@ -423,14 +423,14 @@ local object check_rational_replacement (object obj) {
 
 /* coercions - used in modules
  can trigger GC */
-global double to_double (object x) {
+global maygc double to_double (object x) {
   double ret;
   x = check_real(x);
   DF_to_c_double(R_rationalp(x) ? RA_to_DF(x,true) : F_to_DF(x),
                  (dfloatjanus*)&ret);
   return ret;
 }
-global int to_int (object x) {
+global maygc int to_int (object x) {
   x = check_integer(x);
   return I_to_L(x);
 }
@@ -440,7 +440,7 @@ global int to_int (object x) {
  > object x: an integer >= 0
  < object result: a normal-simple-string containing the digits
  can trigger GC */
-global object decimal_string (object x) {
+global maygc object decimal_string (object x) {
   SAVE_NUM_STACK
   var uintD* MSDptr;
   var uintC len;
@@ -505,7 +505,7 @@ LISPFUNNF(evenp,1)
  are numbers. if not, error.
  > argcount: number of arguments-1
  > args_pointer: pointer to the arguments */
-local void test_number_args (uintC argcount, gcv_object_t* args_pointer) {
+local maygc void test_number_args (uintC argcount, gcv_object_t* args_pointer) {
   do {
     var gcv_object_t* argptr = &NEXT(args_pointer);
     var object arg = *argptr; /* next argument */
@@ -518,7 +518,7 @@ local void test_number_args (uintC argcount, gcv_object_t* args_pointer) {
  are real numbers. if not, Error.
  > argcount: number of arguments-1
  > args_pointer: pointer to the arguments */
-local void test_real_args (uintC argcount, gcv_object_t* args_pointer) {
+local maygc void test_real_args (uintC argcount, gcv_object_t* args_pointer) {
   do {
     var gcv_object_t* argptr = &NEXT(args_pointer);
     var object arg = *argptr; /* next argument */
@@ -530,7 +530,7 @@ local void test_real_args (uintC argcount, gcv_object_t* args_pointer) {
  ganze Zahlen sind. Wenn nein, Error.
  > argcount: number of arguments-1
  > args_pointer: pointer to the arguments */
-local void test_integer_args (uintC argcount, gcv_object_t* args_pointer) {
+local maygc void test_integer_args (uintC argcount, gcv_object_t* args_pointer) {
   do {
     var gcv_object_t* argptr = &NEXT(args_pointer);
     var object arg = *argptr; /* next argument */
@@ -1093,7 +1093,7 @@ LISPFUN(float,seclass_read,1,1,norest,nokey,0,NIL)
          FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT
  < result: (coerce obj type)
  can trigger GC */
-global object coerce_float (object obj, object type) {
+global maygc object coerce_float (object obj, object type) {
   pushSTACK(type); obj = check_real(obj); type = popSTACK();
   if (eq(type,S(short_float))) /* SHORT-FLOAT */
     return R_to_SF(obj);
@@ -1634,7 +1634,7 @@ LISPFUN(random_posfixnum,seclass_default,0,1,norest,nokey,0,NIL)
  - from random-state *RANDOM-STATE*, if r=NIL or r=unbound,
  - from random-state r itself, otherwise.
  can trigger GC */
-local object make_random_state (object r)
+local maygc object make_random_state (object r)
 {
   var uint32 seed_hi;
   var uint32 seed_lo;
@@ -1717,7 +1717,7 @@ LISPFUNN(long_float_digits,0)
 /* Sets the default-long-float length to the value len (>= LF_minlen).
  set_lf_digits(len);
  can trigger GC */
-local void set_lf_digits (uintC len) {
+local maygc void set_lf_digits (uintC len) {
   O(LF_digits) = UL_to_I(len);
   /* MOST-POSITIVE-LONG-FLOAT and MOST-NEGATIVE-LONG-FLOAT : */
   { /* exponent as big as possible, mantissa 1...1 */
@@ -1781,7 +1781,7 @@ LISPFUNN(set_long_float_digits,1)
 
 /* UP for LOG2 and LOG10: calculate logarithm of the fixnum x with at least
  digits bits and - if necessary - update the value in *objptr. */
-local object log_digits (object x, object digits, gcv_object_t* objptr) {
+local maygc object log_digits (object x, object digits, gcv_object_t* objptr) {
   /* check digits-argument: */
   if (!posfixnump(digits)) /* not necessarily Fixnum!?? */
     fehler_digits(digits);
@@ -1869,7 +1869,7 @@ local const uintD ln10_mantisse [64/intDsize] = {
 /* UP: Initializes the arithmetics.
  init_arith();
  can trigger GC */
-global void init_arith (void)
+global maygc void init_arith (void)
 {
   /* different constants: */
  #ifndef IMMEDIATE_FFLOAT

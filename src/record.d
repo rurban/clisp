@@ -207,7 +207,7 @@ LISPFUNNR(make_structure,2) {
  > obj: not a structure object
  < result: a structure object, a replacement
  can trigger GC */
-global object check_structure_replacement (object obj) {
+global maygc object check_structure_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot DATUM */
@@ -503,7 +503,7 @@ LISPFUNN(set_funcallable_instance_function,2)
  < result: a function with a code vector produced by %GENERIC-FUNCTION-LAMBDA,
            either the same as obj or a replacement
  can trigger GC */
-local object check_genericlambda_function_replacement (object obj) {
+local maygc object check_genericlambda_function_replacement (object obj) {
   do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot DATUM */
@@ -515,7 +515,7 @@ local object check_genericlambda_function_replacement (object obj) {
   } while (!genericlambda_function_p(obj));
   return obj;
 }
-local inline object check_genericlambda_function (object obj) {
+local inline maygc object check_genericlambda_function (object obj) {
   if (!genericlambda_function_p(obj))
     obj = check_genericlambda_function_replacement(obj);
   return obj;
@@ -694,7 +694,7 @@ LISPFUNN(function_macro_p,1) {
 
 /* ensure that the OBJ is a FUNCTION-MACRO and return it
  can trigger GC */
-local object check_function_macro (object obj) {
+local maygc object check_function_macro (object obj) {
   while (!functionmacrop(obj)) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj); /* TYPE-ERROR slot DATUM */
@@ -769,7 +769,7 @@ LISPFUNNF(funcallable_instance_p,1)
 
 /* returns (CLOS:CLASS-OF object). Especially efficient for CLOS objects.
  can trigger GC */
-local inline object class_of (object obj) {
+local inline maygc object class_of (object obj) {
   if (instancep(obj)) {
     var object obj_forwarded = obj;
     instance_un_realloc(obj_forwarded);
@@ -1247,7 +1247,7 @@ LISPFUNNF(punbound,0) {
  > obj: the same CLOS instance, not a forward pointer
  < result: the same CLOS instance, not a forward pointer
  can trigger GC */
-global object update_instance (object user_obj, object obj) {
+global maygc object update_instance (object user_obj, object obj) {
   /* Note about the handling of multiple consecutive class redefinitions:
      When there are multiple class redefinitions before an instance gets to
      be updated, we call UPDATE-INSTANCE-FOR-REDEFINED-CLASS once for each

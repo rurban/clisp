@@ -252,7 +252,7 @@ extern_C char** environ;
 
 /* push the (VAR . VALUE) on the STACK
  can trigger GC */
-local inline char* push_envar (char *env) {
+local inline maygc char* push_envar (char *env) {
   char *ep = env;
   while ((*ep != 0) && (*ep != '=')) ep++;
   pushSTACK(allocate_cons());

@@ -2,7 +2,7 @@
 
 # pi_F_float_F(f) liefert die Zahl pi im selben Float-Format wie f.
 # can trigger GC
-  local object pi_F_float_F (object f)
+  local maygc object pi_F_float_F (object f)
   {
     floatcase(f,
               { return O(SF_pi); },
@@ -97,7 +97,7 @@
 
 # pi(x) returns the number pi in default-float-format or the format of x
 # can trigger GC
-local object pi (object x) {
+local maygc object pi (object x) {
   defaultfloatcase(S(default_float_format),x,
                    return O(SF_pi), # pi as SF
                    return O(FF_pi), # pi as FF
@@ -108,7 +108,7 @@ local object pi (object x) {
 
 # F_atanhx_F(x) liefert zu einem Float x (betragsmäßig <1/2) atanh(x) als Float.
 # can trigger GC
-  local object F_atanhx_F (object x);
+  local maygc object F_atanhx_F (object x);
 # Methode:
 # e := Exponent aus (decode-float x), d := (float-digits x)
 # Bei x=0.0 oder e<=-d/2 liefere x
@@ -129,7 +129,7 @@ local object pi (object x) {
 
 # F_atanx_F(x) liefert zu einem Float x (betragsmäßig <=1) atan(x) als Float.
 # can trigger GC
-  local object F_atanx_F (object x);
+  local maygc object F_atanx_F (object x);
 # Methode:
 # e := Exponent aus (decode-float x), d := (float-digits x)
 # Bei x=0.0 oder e<=-d/2 liefere x
@@ -150,8 +150,9 @@ local object pi (object x) {
 
 # Generiert eine Funktion wie F_atanx_F
   #define GEN_F_atanx(name,Fixnum_plusminus1,F_plusminus_F)                         \
-    local object CONCAT3(F_,name,_F) (object x)                                     \
-      { if (R_zerop(x))                                                             \
+    local maygc object CONCAT3(F_,name,_F) (object x)                               \
+      { GCTRIGGER1(x);                                                              \
+        if (R_zerop(x))                                                             \
           return x;                                                                 \
        {var uintL d = F_float_digits(x);                                            \
         var sintL e = F_exponent_L(x);                                              \
@@ -212,7 +213,7 @@ local object pi (object x) {
 # R_R_atan_R(x,y) liefert zu zwei reellen Zahlen x, y den Winkel von (x,y)
 # in Polarkoordinaten. Ergebnis rational nur, wenn x>0 und y=0.
 # can trigger GC
-  local object R_R_atan_R (object x, object y);
+  local maygc object R_R_atan_R (object x, object y);
 # Methode:
 # y=0 -> bei x>0: 0 als Ergebnis,
 #        bei x<0: pi als Ergebnis.
@@ -225,7 +226,7 @@ local object pi (object x) {
 # 0 <= |x| <= y  ->  pi/2 - atan(x/y)
 # 0 <= |x| <= -y  ->  -pi/2 - atan(x/y)
 # 0 <= |y| <= -x  ->  für y>=0: pi + atan(y/x), für y<0: -pi + atan(y/x)
-  local object R_R_atan_R (object x, object y)
+  local maygc object R_R_atan_R (object x, object y)
   {
     if (eq(y,Fixnum_0)) {
       # y=0 (exakt)
@@ -289,11 +290,11 @@ local object pi (object x) {
 # R_atan_R(x) liefert den Arctan einer reellen Zahl x.
 # Ergebnis rational nur, wenn x=0.
 # can trigger GC
-  local object R_atan_R (object x);
+  local maygc object R_atan_R (object x);
 # Methode:
 # arctan(x) = arctan(X=1,Y=x).
 #if 0
-  local object R_atan_R (object x)
+  local maygc object R_atan_R (object x)
   { return R_R_atan_R(Fixnum_1,x); }
 #else # Macro spart Code
   #define R_atan_R(x)  R_R_atan_R(Fixnum_1,x)
@@ -301,7 +302,7 @@ local object pi (object x) {
 
 # F_sinx_F(x) liefert zu einem Float x (betragsmäßig <2) (sin(x)/x)^2 als Float.
 # can trigger GC
-  local object F_sinx_F (object x);
+  local maygc object F_sinx_F (object x);
 # Methode:
 # e := Exponent aus (decode-float x), d := (float-digits x)
 # Bei x=0.0 oder e<=-d/2 liefere 1.0
@@ -326,7 +327,7 @@ local object pi (object x) {
 
 # F_sinhx_F(x) liefert zu einem Float x (betragsmäßig <2) (sinh(x)/x)^2 als Float.
 # can trigger GC
-  local object F_sinhx_F (object x);
+  local maygc object F_sinhx_F (object x);
 # Methode:
 # e := Exponent aus (decode-float x), d := (float-digits x)
 # Bei x=0.0 oder e<=(1-d)/2 liefere 1.0
@@ -351,8 +352,9 @@ local object pi (object x) {
 
 # Generiert eine Funktion wie F_sinx_F
   #define GEN_F_sinx(name,f,flag,R_R_plusminus_R)                              \
-    local object CONCAT3(F_,name,_F) (object x)                                \
-      { if (R_zerop(x))                                                        \
+    local maygc object CONCAT3(F_,name,_F) (object x)                          \
+      { GCTRIGGER1(x);                                                         \
+        if (R_zerop(x))                                                        \
           return I_F_float_F(Fixnum_1,x);                                      \
        {var uintL d = F_float_digits(x);                                       \
         var sintL e = F_exponent_L(x);                                         \
@@ -411,7 +413,7 @@ local object pi (object x) {
 /* F_pi2_round_I_F(x) divides a float x by pi/2.
  both values of (round x (float pi/2 x)) a pushed to the STACK.
  can trigger GC */
-local void F_pi2_round_I_F (object x)
+local maygc void F_pi2_round_I_F (object x)
 {
   if (F_exponent_L(x) < 0) {
     /* Exponent <0 -> |x|<1/2 -> |x/(pi/2)| < 1/2, ==> no division necessary */
@@ -429,7 +431,7 @@ local void F_pi2_round_I_F (object x)
 }
 
 /* compute the sin(r=STACK_0) with precision of STACK_2 */
-local object sin_stack ()
+local maygc object sin_stack ()
 {
   var object x = F_sqrt_F(F_sinx_F(STACK_0)); /* sin(r)/r */
   x = F_F_mal_F(x,STACK_0); /* sin(r) = (sin(r)/r) * r */
@@ -437,7 +439,7 @@ local object sin_stack ()
 }
 
 /* compute the cos(r=STACK_0) with precision of STACK_2 */
-local object cos_stack ()
+local maygc object cos_stack ()
 {
   var object s = F_I_scale_float_F(STACK_0,Fixnum_minus1); /* s := r/2 */
   pushSTACK(s);
@@ -450,13 +452,13 @@ local object cos_stack ()
 
 /* R_sin_R(x) returns the sinus (sin x) for a real number x.
  can trigger GC
- Method:1
+ Method:
  x rational -> if x=0 return 0, otherwise convert x to a float.
  x float -> increase precision
    (q,r) := (round x (float pi/2 x)), so that |r|<=pi/4.
    if r~0, return +-1 or +-r depending on q, otherwise
    use +-sin_stack() or +-cos_stack() depending on q */
-local object R_sin_R (object x)
+local maygc object R_sin_R (object x)
 {
   if (R_rationalp(x)) {
     if (eq(x,Fixnum_0)) { return x; } /* x=0 -> return 0 */
@@ -501,7 +503,7 @@ local object R_sin_R (object x)
    (q,r) := (round x (float pi/2 x)), so that |r|<=pi/4.
    if r~0, return +-1 or +-r depending on q, otherwise
    use +-sin_stack() or +-cos_stack() depending on q */
-local object R_cos_R (object x)
+local maygc object R_cos_R (object x)
 {
   if (R_rationalp(x)) {
     if (eq(x,Fixnum_0)) { return Fixnum_1; } /* x=0 -> return 1 */
@@ -563,7 +565,7 @@ local object R_cos_R (object x)
    if q = 1 mod 4: ((- (sin r)), (cos r))
    if q = 2 mod 4: ((- (cos r)), (- (sin r)))
    if q = 3 mod 4: ((sin r), (- (cos r))) */
-local void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
+local maygc void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
 {
   if (R_rationalp(x)) {
     if (eq(x,Fixnum_0)) # x=0 -> return (1,0)
@@ -629,7 +631,7 @@ local void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
 
 # F_lnx_F(x) liefert zu einem Float x (>=1/2, <=2) ln(x) als Float.
 # can trigger GC
-  local object F_lnx_F (object x);
+  local maygc object F_lnx_F (object x);
 # Methode:
 # y:=x-1, e := Exponent aus (decode-float y), d := (float-digits y)
 # Bei y=0.0 oder e<=-d liefere y
@@ -644,7 +646,7 @@ local void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
 # Sonst setze y := sqrt(x), berechne rekursiv z:=ln(y)
 #   und liefere 2*z = (scale-float z 1).
 # Aufwand: asymptotisch d^2.5 .
-  local object F_lnx_F (object x)
+  local maygc object F_lnx_F (object x)
   {
     pushSTACK(x);
     x = R_R_minus_R(x,Fixnum_1); # y := (- x 1)
@@ -694,7 +696,7 @@ local void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
 
 # ln2_F_float_F(f) liefert die Zahl ln(2) im selben Float-Format wie f.
 # can trigger GC
-  local object ln2_F_float_F (object f)
+  local maygc object ln2_F_float_F (object f)
   {
     var object ln2 = O(LF_ln2);
     floatcase(f,
@@ -753,7 +755,7 @@ local void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
 # FF -> DF wegen 24+sqrt(24)+2+7 = 37.9 < 53
 # DF -> LF(5) wegen 53+sqrt(53)+2+10 = 72.3 < 80
 # can trigger GC
-  local object F_extend2_F (object x)
+  local maygc object F_extend2_F (object x)
   {
     floatcase(x,
               { return SF_to_DF(x); }, # 17+sqrt(17)+2+7 = 30.2 < 53
@@ -773,7 +775,7 @@ local void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
 #   (m,e) := (decode-float x), so dass 1/2 <= m < 1.
 #   m<2/3 -> m:=2m, e:=e-1, so dass 2/3 <= m <= 4/3.
 #   ln(m) errechnen, ln(x)=ln(m)+e*ln(2) als Ergebnis.
-local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
+local maygc object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
 {
   if (R_rationalp(x)) {
     if (eq(x,Fixnum_1)) { return Fixnum_0; } /* x=1 -> return 0 */
@@ -807,7 +809,7 @@ local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
 # I_I_log_RA(a,b) liefert zu Integers a>0, b>1 den Logarithmus log(a,b)
 # als exakte rationale Zahl, oder nullobj wenn er irrational ist.
 # can trigger GC
-  local object I_I_log_RA (object a, object b);
+  local maygc object I_I_log_RA (object a, object b);
 # Methode:
 #   log(a,b) soll Bruch c/d mit teilerfremdem c>=0,d>0 ergeben.
 #   a=1 -> c=0, d=1.
@@ -837,7 +839,7 @@ local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
 #             Sonst a:=a/b, und (für später c:=c+d) ud:=uc+ud, vd:=vc+vd.
 #     1<a<b -> vertausche a und b, uc und ud, vc und vd.
 #   Liefere (ud,vd), der Bruch ud/vd ist gekürzt.
-  local object I_I_log_RA (object a, object b)
+  local maygc object I_I_log_RA (object a, object b)
   {
     var uintL uc = 1;
     var uintL ud = 0;
@@ -872,7 +874,7 @@ local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
 # log(a,b)=ln(a)/ln(b).
 # Ergebnis rational nur, wenn a=1 oder a und b rational.
 # can trigger GC
-  local object R_R_log_R (object a, object b);
+  local maygc object R_R_log_R (object a, object b);
 # Methode:
 # a und b rational:
 #   b=1 -> Error
@@ -893,7 +895,7 @@ local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
 # a Float, b rational -> bei b=1 Error, sonst b := (float b a)
 # a rational, b Float -> bei a=1 Ergebnis 0, sonst a := (float a b)
 # a,b Floats -> log(a,b) = ln(a)/ln(b)
-  local object R_R_log_R (object a, object b)
+  local maygc object R_R_log_R (object a, object b)
   {
     pushSTACK(a); pushSTACK(b);
     # Stackaufbau: a, b.
@@ -996,7 +998,7 @@ local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
 
 # F_expx_F(x) liefert zu einem Float x (betragsmäßig <1) exp(x) als Float.
 # can trigger GC
-  local object F_expx_F (object x);
+  local maygc object F_expx_F (object x);
 # Methode:
 # e := Exponent aus (decode-float x), d := (float-digits x)
 # Bei x=0.0 oder e<-d liefere 1.0
@@ -1010,7 +1012,7 @@ local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
 # Sonst setze y := x/2 = (scale-float x -1),
 #   berechne rekursiv z:=exp(y) und liefere z^2.
 # Aufwand: asymptotisch d^2.5 .
-  local object F_expx_F (object x)
+  local maygc object F_expx_F (object x)
   {
     if (R_zerop(x))
       return I_F_float_F(Fixnum_1,x);
@@ -1064,7 +1066,7 @@ local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
 #   Genauigkeit um sqrt(d)+max(integer-length(e)) Bits erhöhen,
 #   (q,r) := (floor x ln(2))
 #   Ergebnis ist exp(q*ln(2)+r) = (scale-float exp(r) q).
-local object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
+local maygc object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
 {
   if (R_rationalp(x)) { /* x rational */
     if (eq(x,Fixnum_0)) { return Fixnum_1; } /* x=0 -> return 1 */
@@ -1096,14 +1098,14 @@ local object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
 
 # R_sinh_R(x) liefert zu einer reellen Zahl x die Zahl sinh(x).
 # can trigger GC
-  local object R_sinh_R (object x);
+  local maygc object R_sinh_R (object x);
 # Methode:
 # x rational -> bei x=0 0 als Ergebnis, sonst x in Float umwandeln.
 # x Float -> Genauigkeit erhöhen,
 #   e := Exponent aus (decode-float x)
 #   falls e<=0: (sinh(x)/x)^2 errechnen, Wurzel ziehen, mit x multiplizieren.
 #   falls e>0: y:=exp(x) errechnen, (scale-float (- y (/ y)) -1) bilden.
-  local object R_sinh_R (object x)
+  local maygc object R_sinh_R (object x)
   {
     if (R_rationalp(x)) {
       # x rational
@@ -1136,7 +1138,7 @@ local object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
 
 # R_cosh_R(x) liefert zu einer reellen Zahl x die Zahl cosh(x).
 # can trigger GC
-  local object R_cosh_R (object x);
+  local maygc object R_cosh_R (object x);
 # Methode:
 # x rational -> bei x=0 1 als Ergebnis, sonst x in Float umwandeln.
 # x Float -> Genauigkeit erhöhen,
@@ -1148,7 +1150,7 @@ local object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
 #     y := x/2 = (scale-float x -1), (sinh(y)/y)^2 errechnen,
 #     cosh(x) = 1+x*y*(sinh(y)/y)^2 errechnen.
 #   falls e>0: y:=exp(x) errechnen, (scale-float (+ y (/ y)) -1) bilden.
-  local object R_cosh_R (object x)
+  local maygc object R_cosh_R (object x)
   {
     if (R_rationalp(x)) {
       # x rational
@@ -1209,7 +1211,7 @@ local object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
 #   falls e>0: y:=exp(x) errechnen,
 #     (scale-float (+ y (/ y)) -1) und (scale-float (- y (/ y)) -1) bilden.
 #   Genauigkeit wieder verringern.
-local void R_cosh_sinh_R_R (object x, bool start_p, gcv_object_t* end_p)
+local maygc void R_cosh_sinh_R_R (object x, bool start_p, gcv_object_t* end_p)
 {
   if (R_rationalp(x)) { /* x rational */
     if (eq(x,Fixnum_0)) /* x=0 -> return (1,0) */
