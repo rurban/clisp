@@ -21,7 +21,10 @@ SEP=;
 DTD=/usr/share/docbook-xml$(DTDVER)/docbookx.dtd
 else
 # XMLSOC=/usr/local/src/sp/pubtext/xml.soc
-XMLSOC=/usr/share/sgml/xml.soc
+# XMLSOC=/usr/share/sgml/xml.soc
+# XMLSOC=/usr/share/sgml/jade_dsl/xml.soc
+# XMLSOC=/usr/share/sgml/openjade-1.3.1/pubtext/xml.soc
+XMLSOC := $(shell find /usr/share/sgml -name xml.soc -print | head -1)
 JAVAXML=/usr/local/src/xml
 JAVA=java
 SEP=:
