@@ -495,22 +495,7 @@ DEFUN(RAWSOCK:POLL,sockets) {
 
 /* remove 3 objects from the STACK and return the RECV flag
    based on MSG_PEEK MSG_OOB MSG_WAITALL */
-int recv_flags (void) {
-  int flags = 0
-#  if defined(MSG_WAITALL)
-    | (missingp(STACK_0) ? 0 : MSG_WAITALL)
-#  endif
-#  if defined(MSG_OOB)
-    | (missingp(STACK_1) ? 0 : MSG_OOB)
-#  endif
-#  if defined(MSG_PEEK)
-    | (missingp(STACK_2) ? 0 : MSG_PEEK)
-#  endif
-    ;
-  skipSTACK(3);
-  return flags;
-}
-
+DEFFLAGSET(recv_flags,MSG_PEEK MSG_OOB MSG_WAITALL)
 DEFUN(RAWSOCK:RECV,socket buffer &key MSG_PEEK MSG_OOB MSG_WAITALL) {
   int flags = recv_flags();
   int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
@@ -565,19 +550,7 @@ DEFUN(RAWSOCK:SOCK-READ,socket buffer) {
 
 /* remove 2 objects from the STACK and return the SEND flag
    based on MSG_OOB MSG_EOR */
-int send_flags (void) {
-   int flags = 0
-#  if defined(MSG_EOR)
-    | (missingp(STACK_0) ? 0 : MSG_EOR)
-#  endif
-#  if defined(MSG_OOB)
-    | (missingp(STACK_1) ? 0 : MSG_OOB)
-#  endif
-    ;
-   skipSTACK(2);
-   return flags;
-}
-
+DEFFLAGSET(send_flags, MSG_OOB MSG_EOR)
 DEFUN(RAWSOCK:SEND,socket buffer &key MSG_OOB MSG_EOR) {
   int flags = send_flags();
   int sock = posfixnum_to_L(check_posfixnum(STACK_1)), retval;
@@ -678,23 +651,17 @@ static void configdev (int sock, char* name, int ipaddress, int flags) {
 #endif
 }
 
+DEFFLAGSET(configdev_flags,IFF_PROMISC IFF_NOARP )
 DEFUN(RAWSOCK:CONFIGDEV, socket name ipaddress &key PROMISC NOARP) {
-  int flags = 0
-#  if defined(IFF_NOARP)
-    | (missingp(STACK_0) ? 0 : IFF_NOARP)
-#  endif
-#  if defined(IFF_PROMISC)
-    | (missingp(STACK_1) ? 0 : IFF_PROMISC)
-#  endif
-    ;
-  uint32_t ipaddress = I_to_UL(check_uint32(STACK_2));
-  int sock = posfixnum_to_L(check_posfixnum(STACK_4));
-  with_string_0(check_string(STACK_3),Symbol_value(S(utf_8)),name, {
+  int flags = configdev_flags();
+  uint32_t ipaddress = I_to_UL(check_uint32(STACK_0));
+  int sock = posfixnum_to_L(check_posfixnum(STACK_2));
+  with_string_0(check_string(STACK_1),Symbol_value(S(utf_8)),name, {
       begin_system_call();
       configdev(sock, name, ipaddress, flags);
       end_system_call();
     });
-  VALUES0;
+  VALUES0; skipSTACK(3);
 }
 
 /* ================== CHECKSUM from Fred Cohen ================== */
