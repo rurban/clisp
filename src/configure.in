@@ -73,6 +73,11 @@ CL_CANONICAL_HOST(autoconf)
 dnl sets variables host, host_cpu, host_vendor, host_os
 CL_CANONICAL_HOST_CPU
 dnl
+dnl           check for add-ons
+dnl
+dnl USE_NLS CPPFLAGS LIBINTL
+AM_GNU_GETTEXT([external], [need-ngettext])
+dnl
 dnl           checks for compiler characteristics
 dnl
 dnl DEFS inline
@@ -300,7 +305,7 @@ CL_SHM_RMID
 dnl DEFS HAVE_DLOPEN, DLERROR_CONST, set variable LIBDL
 CL_DYNLOAD
 dnl DEFS HAVE_ICONV, ICONV_CONST, set variable LIBICONV
-CL_ICONV
+AM_ICONV
 dnl
 dnl           checks for libraries
 dnl
