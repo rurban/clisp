@@ -2511,7 +2511,7 @@ LISPFUNN(make_buffered_input_stream,2)
     TheStream(stream)->strm_rd_ch_array = P(rd_ch_array_dummy);
     TheStream(stream)->strm_buff_in_mode = popSTACK();
     TheStream(stream)->strm_buff_in_fun = popSTACK();
-    TheStream(stream)->strm_buff_in_string = O(leer_string); # String := ""
+    TheStream(stream)->strm_buff_in_string = O(empty_string); # String := ""
     TheStream(stream)->strm_buff_in_index = Fixnum_0; # Index := 0
     TheStream(stream)->strm_buff_in_endindex = Fixnum_0; # Endindex := 0
     value1 = stream; mv_count=1; # stream als Wert
