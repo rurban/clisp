@@ -2977,7 +2977,8 @@ LISPFUNN(package_iterate,1)
       { var object nicks = listof(2); # ("LISP" "CL")
         O(default_package) = make_package(popSTACK(),nicks,false); # "COMMON-LISP"
       }
-      # created all packages, now at the end of ALL_PACKAGES:
+      # Created all basic packages.
+      # Now append all further packages to the end of O(all_packages).
       nreverse(O(all_packages));
       #define LISPPACK  LISPPACK_B
       #include "constpack.c"

@@ -232,7 +232,7 @@
     # < STACK_1: Quotient q, ein Integer                              \
     # < STACK_0: Rest r, eine reelle Zahl                             \
     # Erniedrigt STACK um 2                                           \
-    # can trigger GC                                                \
+    # can trigger GC                                                  \
     # Methode:                                          \
     # x rational -> RA_rounding_I_RA(x)                 \
     # x Float -> F_rounding_I_F(x)                      \
@@ -276,7 +276,7 @@
     # < STACK_1: Quotient q, ein integer-wertiges Float               \
     # < STACK_0: Rest r, eine reelle Zahl                             \
     # Erniedrigt STACK um 2                                           \
-    # can trigger GC                                                \
+    # can trigger GC                                                  \
     # Methode:                                                          \
     # x rational -> RA_rounding_I_RA(x), Quotienten in Float umwandeln. \
     # x Float -> F_frounding_F_F(x).                                    \
@@ -424,7 +424,7 @@
     # < STACK_1: Quotient q, ein Integer       \
     # < STACK_0: Rest r, eine reelle Zahl      \
     # Erniedrigt STACK um 2                    \
-    # can trigger GC                         \
+    # can trigger GC                           \
     # Methode:                                                      \
     # Beides Integers -> I_I_rounding_I_I(x,y).                     \
     # Sonst: R_rounding_I_R(x/y) -> (q,r). Liefere q und x-y*q=y*r. \

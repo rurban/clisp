@@ -91,13 +91,13 @@ local inline int my_readlink (const char* path, char* buf, size_t bufsiz) {
   #   cess.   On  failure, it returns NULL, sets errno to indicate
   #   the error, and places in resolved_path the absolute pathname
   #   of the path component which could not be resolved.
-#define realpath my_realpath # there is no consensus on realpath declaration
-  # method: use getwd and readlink.
+#define realpath my_realpath # avoid conflict with Consensys realpath declaration
 local char* realpath (const char* path, char* resolved_path) {
+  # Method: use getwd and readlink.
   var char mypath[MAXPATHLEN];
   var int symlinkcount = 0; # the number of symbolic links so far
   var char* resolved_limit = &resolved_path[MAXPATHLEN-1];
-  # valid pointers with resolved_path <= ptr <= resolved_limit.
+  # Valid pointers are those with resolved_path <= ptr <= resolved_limit.
   # in *resolved_limit at most one null byte.
   # (similarly with mypath.)
   var char* resolve_start;
