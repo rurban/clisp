@@ -1,5 +1,5 @@
-30 July 1998 (Almost There Release)
-===================================
+5 August 1998
+=============
 
 Important note
 --------------
@@ -166,7 +166,7 @@ User visible changes
 
 * Fixed a bug in function FILE-AUTHOR on Win32.
 
-* Fixed a bug: Clisp was unable to determine the user's homedir in
+* Fixed a bug: CLISP was unable to determine the user's homedir in
   certain (obscure) circumstances.
 
 * Don't warn anymore if someone modifies one of the standard generic
@@ -212,6 +212,8 @@ Other modifications
 * Added a new type encoding scheme which allows all address ranges from
   0x00000000 to 0x7FFFFFFF to be used. This should make porting to some
   systems easier.
+
+* Added bindings to libc for Linux with libc6 (aka glibc 2.0).
 
 * Miscellaneous documentation updates.
 
