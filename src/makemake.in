@@ -2879,7 +2879,7 @@ if [ $CROSS = false ] ; then
   echol "# Test: recompile \$(LISPFILES) and compare their contents."
 
   echol "test : lispinit.mem ${TESTDIR} \$(TESTLISPFILES) \$(TESTFASFILES)"
-  if [ $HOS = unix -o $HSYS = win32gcc] ; then
+  if [ $HOS = unix -o $HSYS = win32gcc ] ; then
     # replace GENSYMs with a string
     SEDRE='s/\(#Y([-a-zA-Z:]\{1,\}\)[0-9]\{2,\}\(-*[0-9]*\)/\1<GENSYM>\2/g';
     FAIL=' || (echo "Test failed." ; exit 1)';
