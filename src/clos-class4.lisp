@@ -44,7 +44,7 @@
                                    ((direct-slots direct-slots-as-metaobjects) '())
                                    ((names names) nil)
                                    ((kconstructor kconstructor) nil)
-                                   ((boa-constructors boa-constructors) nil)
+                                   ((boa-constructors boa-constructors) '())
                                    ((copier copier) nil)
                                    ((predicate predicate) nil)
                                    ((slots slots) '()) ((size size) 1))

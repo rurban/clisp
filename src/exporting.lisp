@@ -107,17 +107,17 @@
 (cl:defun class-accessor-symbols (class) ; ABI
   (all-accessor-symbols (clos:class-direct-slots class)))
 
-(cl:defun export-accessories (name)
+(cl:defun export-structure-accessories (name) ; ABI
   (export name)
-  (export (clos::class-kconstructor name))
-  (export (clos::class-boa-constructors name))
-  (export (clos::class-copier name))
-  (export (clos::class-predicate name))
-  (export (class-accessor-symbols name)))
+  (export (sys::structure-kconstructor name))
+  (export (sys::structure-boa-constructors name))
+  (export (sys::structure-copier name))
+  (export (sys::structure-predicate name))
+  (export (all-accessor-symbols (sys::structure-slots name))))
 
 (cl:defmacro defstruct (name+options &rest slots)
   `(LET ((NAME (CL:DEFSTRUCT ,name+options ,@slots)))
-     (EXPORT-ACCESSORIES NAME)
+     (EXPORT-STRUCTURE-ACCESSORIES NAME)
      NAME))
 
 (cl:defmacro defclass (name superclasses slot-specs &rest options)
@@ -168,7 +168,7 @@
 #+FFI
 (cl:defmacro def-c-struct (name+options &rest slots)
   `(LET ((NAME (FFI:DEF-C-STRUCT ,name+options ,@slots)))
-     (EXPORT-ACCESSORIES NAME)
+     (EXPORT-STRUCTURE-ACCESSORIES NAME)
      NAME))
 
 #+FFI
