@@ -1,3 +1,8 @@
+1998-10-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * editor.lsp: Remove file.
+        * makemake.in (LPARTS): Adjust.
+
 1998-10-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * charstrg.d (coerce_char): An integer is coercible to a character

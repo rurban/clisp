@@ -1358,7 +1358,7 @@ COMMENTS=''
 LPARTS='        init defseq backquot defmacro macros1 macros2 defs1 timezone'
 LPARTS=$LPARTS' places floatpri type defstruc format user1 user2 trace macros3'
 LPARTS=$LPARTS' config compiler disassem defs2 loop clos conditio defs3'
-LPARTS=$LPARTS' gstream foreign1 screen rexx1 editor spanish'
+LPARTS=$LPARTS' gstream foreign1 screen rexx1 spanish'
 
 DOC='LISP-tutorial CLOS-guide cltl2 editors'
 
