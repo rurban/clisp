@@ -21,16 +21,16 @@
 #          (>= 2^(intDsize*mantlen-1), < 2^(intDsize*mantlen)),
 #          mit mantlen>=LF_minlen.
   #define LF_decode(obj, zero_statement, sign_zuweisung,exp_zuweisung,mantMSDptr_zuweisung,mantlen_zuweisung,mantLSDptr_zuweisung)  \
-    { var object _obj = (obj);                                                    \
-      var Lfloat _x = TheLfloat(_obj);                                            \
-      var uintL uexp = _x->expo;                                                  \
-      if (uexp==0)                                                                \
-        { mantlen_zuweisung lfloat_length(_x); zero_statement } # e=0 -> Zahl 0.0 \
-        else                                                                      \
-        { exp_zuweisung (sintL)(uexp - LF_exp_mid);     # Exponent                \
-          sign_zuweisung LF_sign(_obj);                 # Vorzeichen              \
-          unused (mantMSDptr_zuweisung &(_x->data[0])); # Mantissen-UDS           \
-          mantLSDptr_zuweisung &(_x->data[(uintP)( mantlen_zuweisung lfloat_length(_x) )]); \
+    { var object _obj = (obj);                                          \
+      var Lfloat _x = TheLfloat(_obj);                                  \
+      var uintL uexp = _x->expo;                                        \
+      if (uexp==0)                                                      \
+        { unused (mantlen_zuweisung lfloat_length(_x)); zero_statement } # e=0 -> Zahl 0.0 \
+        else                                                            \
+        { exp_zuweisung (sintL)(uexp - LF_exp_mid);     # Exponent      \
+          sign_zuweisung LF_sign(_obj);                 # Vorzeichen    \
+          unused (mantMSDptr_zuweisung &(_x->data[0])); # Mantissen-UDS \
+          unused (mantLSDptr_zuweisung &(_x->data[(uintP)( mantlen_zuweisung lfloat_length(_x) )])); \
     }   }
 
 # Einpacken eines Long-Float:
