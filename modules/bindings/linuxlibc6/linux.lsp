@@ -2204,12 +2204,12 @@
 
 (defconstant P_tmpdir "/tmp")
 
-(def-c-var _IO_stdin (:type c-pointer))
-(def-c-var _IO_stdout (:type c-pointer))
-(def-c-var _IO_stderr (:type c-pointer))
-(define-symbol-macro stdin _IO_stdin)
-(define-symbol-macro stdout _IO_stdout)
-(define-symbol-macro stderr _IO_stderr)
+(def-c-var _IO_stdin_ (:type c-pointer))
+(def-c-var _IO_stdout_ (:type c-pointer))
+(def-c-var _IO_stderr_ (:type c-pointer))
+(define-symbol-macro stdin _IO_stdin_)
+(define-symbol-macro stdout _IO_stdout_)
+(define-symbol-macro stderr _IO_stderr_)
 
 (def-c-call-out clearerr (:arguments (fp c-pointer))
                          (:return-type nil)
