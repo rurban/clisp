@@ -236,7 +236,7 @@ NIL
 (GET-OUTPUT-STREAM-STRING A)
 #+XCL ""
 #-XCL "
-\"yyy\"
+\"yyy\" 
 \"zzz\" "
 
 (GET-OUTPUT-STREAM-STRING B)
@@ -310,7 +310,7 @@ ERROR
 "EOF"
 
 (PROGN (SETQ A (MAKE-STRING-INPUT-STREAM "1   2   ;32  abA"))
-(SETQ B (MAKE-STRING-INPUT-STREAM " 1 2 3 A x y z
+(SETQ B (MAKE-STRING-INPUT-STREAM " 1 2 3 A x y z 
 a b c  ")) T)
 T
 
