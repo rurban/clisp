@@ -6265,42 +6265,47 @@ local object use_default_dir (object pathname) {
 # < fullname: buffer should be not less than MAX_PATH
 # < result: true on success
 bool FullName(LPCSTR shortname, LPSTR fullname) {
-  WIN32_FIND_DATA wfd;
-  char drive[_MAX_DRIVE];
-  char dir[_MAX_DIR];
-  char fname[_MAX_FNAME];
-  char ext[_MAX_EXT];
-  char current[_MAX_PATH];
-  HANDLE h = NULL;
-  *current = 0;*fullname = 0;
+  var WIN32_FIND_DATA wfd;
+  var char drive[_MAX_DRIVE];
+  var char dir[_MAX_DIR];
+  var char fname[_MAX_FNAME];
+  var char ext[_MAX_EXT];
+  var char current[_MAX_PATH];
+  var HANDLE h = NULL;
+  var *fullname = 0; # also first loop flag
+  var char savedslash[2];savedslash[0] = 0;savedslash[1] = 0;
+  strcpy(current,shortname);
   do {
-    _splitpath(*current?current:shortname,drive,dir,fname,ext);
-    h = FindFirstFile(*current?current:shortname,&wfd);
+    var int l = strlen(current);
+    if (l>0 && (current[l-1]=='\\'|| current[l-1]=='/')) {
+      if (!*fullname) *savedslash = current[l-1];
+      current[l-1] = 0; # remove trailing slash
+    }
+    _splitpath(current,drive,dir,fname,ext);
+    h = FindFirstFile(current,&wfd);
     if (h != INVALID_HANDLE_VALUE) {
-      if (*current) strcat(fullname,"\\");
+      if (*fullname) strcat(fullname,"\\");
       strrev(wfd.cFileName);
       strcat(fullname,wfd.cFileName);
       FindClose(h);
     } else return false;
     _makepath(current,drive,dir,NULL,NULL);
-    current[strlen(current) - 1] = 0;//remove trailing slash
   } while (strcmp(dir,"\\")!=0);
   strrev(drive);
   strcat(fullname,"\\");
   strcat(fullname,drive);
   strrev(fullname);
+  if (*savedslash) strcat(fullname,savedslash);
   return true;
 }
 
 
 # UP: extracts a filename field from windows shortcut
 # > filename: name the shortcut file
-# < resolved (can be null) buffer not less than MAX_PATH
-# < result true if link was successfully resolved AND
-#          target is not directory AND target exists
+# < resolved: buffer not less than MAX_PATH
+# < result:   true if link was successfully resolved
 bool resolve_shell_shortcut(LPCSTR filename,
                             LPSTR resolved) {
-  var char pathname[_MAX_PATH];
   var DWORD fileattr;
   var HRESULT hres;
   var IShellLink* psl;
@@ -6323,19 +6328,15 @@ bool resolve_shell_shortcut(LPCSTR filename,
     # Load the shortcut.
     hres = ppf->lpVtbl->Load(ppf, wsz, STGM_READ);
     if (SUCCEEDED(hres)) {
-      # Resolve the link.
-      hres = psl->lpVtbl->Resolve(psl, NULL, SLR_NO_UI );
-      if (SUCCEEDED(hres)) {
-        # Get the path to the link target.
-        hres = psl->lpVtbl->GetPath(psl, pathname,
-                 MAX_PATH, (WIN32_FIND_DATA *)&wfd,
-                        SLGP_SHORTPATH );
-        if (SUCCEEDED(hres) &&
-            !(GetFileAttributes(pathname)&FILE_ATTRIBUTE_DIRECTORY)) {
-          result = true;
-          if (resolved && !FullName(pathname,resolved))
-            result = false;
-        }
+      # Get the path to the link target.
+      hres = psl->lpVtbl->GetPath(psl, resolved,
+               MAX_PATH, (WIN32_FIND_DATA *)&wfd,
+                      SLGP_RAWPATH );
+      if (SUCCEEDED(hres)) result = true;
+      if (!*resolved) { # empty string. maybe broken link. try to get description
+                        # as cygwin stores filenames there
+         hres = psl->lpVtbl->GetDescription(psl, resolved, MAX_PATH);
+         if (FAILED(hres)) *resolved = 0;
       }
     }
     # Release the pointer to the IPersistFile interface.
@@ -6346,30 +6347,200 @@ bool resolve_shell_shortcut(LPCSTR filename,
   return result;
 }
 
+typedef enum {shell_shortcut_notresolved = 0,
+              shell_shortcut_notexists,
+              shell_shortcut_file,
+              shell_shortcut_directory } shell_shortcut_target_t;
+
+# UP: resolves shortcuts to shortcuts
+# > filename : name of link file to resolve
+# < resolved : buffer to receive resolved name
+# < result : status of resolving and target file attributes
+shell_shortcut_target_t
+  resolve_shell_shortcut_more (LPCSTR filename,
+                                 LPSTR resolved) {
+  var char pathname[_MAX_PATH];
+  var int dirp = 0;
+  var int exists = 0;
+  var int try_counter = 33;
+  var int l,
+
+  resolvedp = resolve_shell_shortcut(filename,pathname);
+  /* handle links to links. cygwin can do such */
+  while (resolvedp 
+     && try_counter--
+     && (l=strlen(pathname))>4
+     && stricmp(pathname+l-4,".lnk") == 0
+     && (resolvedp = resolve_shell_shortcut(pathname,pathname)));
+  if (resolvedp) { # additional checks
+    DWORD fileattr = GetFileAttributes(pathname);
+    exists = fileattr != 0xFFFFFFFF;
+    dirp = exists && fileattr&FILE_ATTRIBUTE_DIRECTORY;
+    if (resolved) {
+      strcpy(resolved,pathname);
+      if (dirp) strcat(resolved,"\\");
+    }
+    if (dirp) return shell_shortcut_directory;
+    if (exists && !dirp) return shell_shortcut_file;
+    return shell_shortcut_notexists;
+  } else return shell_shortcut_notresolved;
+}
+
+# UP: ultimate shortcut megaresolver
+#   style inspired by directory_search_scandir 
+# > namein: filename pointing to file or directory
+#            wildcards (only asterisk) may appear only as filename
+# < nameout: filename with directory and file shortcuts resolved
+#             on failure holds filename resolved so far 
+# < result:  true if resolving succeeded
+int TrueName (LPCSTR namein, LPSTR nameout) {
+  var WIN32_FIND_DATA wfd;
+  var HANDLE h = NULL;
+  var char * nametocheck;
+  var char * nametocheck_end;
+/*  drive|dir1|dir2|name
+          ^nametocheck
+              ^nametocheck_end */  
+  var char saved_char;
+  var int next_name = 0;/* if we found an lnk and need to start over */
+  var int try_counter = 33;
+  strcpy(nameout,namein);
+  do { /* whole file names */
+    next_name = 0;
+    if (!*nameout) return 0;
+    /* skip drive or host or first slash */
+    nametocheck = nameout;
+    if (isalpha(*nametocheck) && nametocheck[1] == ':'
+         && (nametocheck[2] == '/' || nametocheck[2] == '\\'))
+      /* drive */
+      nametocheck += 3;
+    else
+    if (*nametocheck == '\\' && nametocheck[1] == '\\') {
+      int i;
+      /* host */
+      nametocheck+=2;
+      for (i=0;i<2;i++) {/* skip host and sharename */
+        while (*nametocheck && *nametocheck!='\\' && *nametocheck!='/')
+          nametocheck++;
+        if (*nametocheck) nametocheck++; else return 0;
+      }
+    } else
+    if (*nametocheck == '\\' || *nametocheck == '/') nametocheck++;
+    /* prefix skipped start checking */
+    do {/* each component after just skipped */
+      var int dots_only = 0;
+      var int have_stars = 0;
+      /* separate a component */
+      for (nametocheck_end = nametocheck;
+        *nametocheck_end
+        && *nametocheck_end!='\\'
+        && *nametocheck_end!='/';
+        nametocheck_end++);
+      if (*nametocheck_end
+          && nametocheck_end == nametocheck) return 0;/* two slashes one after another */
+      /* save slash or zero */
+      saved_char = *nametocheck_end;
+      *nametocheck_end = 0;
+      /* Is it . or .. ? FF handles this strange way */
+      { char * cp = nametocheck;
+        for (;*cp=='.';cp++);
+        dots_only = !(*cp) && cp > nametocheck; }
+      /* Stars in the middle of filename: error
+         Stars as pathname: success */
+      { char * cp = nametocheck;
+        for (;*cp && *cp!='*';cp++);
+        have_stars = *cp == '*'; }
+      if (have_stars && saved_char) return 0;
+      if (!have_stars) {
+        if (dots_only) {
+          /* treat specially */
+          /* search for ....\.\* */
+          char saved[2];
+          if (nametocheck_end - nameout + 2 > MAX_PATH) return 0;
+          strncpy(saved,nametocheck_end+1,2);
+          strncpy(nametocheck_end,"\\*",3);
+          h = FindFirstFile(nameout,&wfd);
+          strncpy(nametocheck_end+1,saved,2);
+          *nametocheck_end = 0;
+          if (h != INVALID_HANDLE_VALUE) {
+            FindClose(h); /* don't substitute */
+          } else return 0; /* don't try lnk */
+        } else {/* not only dots */
+          h = FindFirstFile(nameout,&wfd);
+          if (h != INVALID_HANDLE_VALUE) {
+            /* make space for full (non 8.3) name component */
+            int l = strlen(wfd.cFileName);
+            FindClose(h);
+            if (l != (nametocheck_end - nametocheck)) {
+              int restlen = saved_char?(strlen(nametocheck_end+1)+1/*saved_char*/+1/*zero byte*/):0;
+              if (nametocheck - nameout + restlen + l + 2 > MAX_PATH) return 0;
+              if (restlen) memmove(nametocheck+l,nametocheck_end,restlen);
+            }
+            strncpy(nametocheck,wfd.cFileName,l);
+            nametocheck_end = nametocheck + l;
+          } else {/* try shortcut */
+            char saved[4];
+            char resolved[MAX_PATH];
+            shell_shortcut_target_t rresult;
+            int l = 0;
+            if (nametocheck_end - nameout + 4 > MAX_PATH) return 0;
+            strncpy(saved,nametocheck_end+1,4);
+            strncpy(nametocheck_end,".lnk",5);
+            rresult = resolve_shell_shortcut_more(nameout,resolved);
+            strncpy(nametocheck_end+1,saved,4);
+            *nametocheck_end = 0;
+            /* use saved_char as directory indicator */
+            if (rresult == shell_shortcut_notresolved
+                || rresult == shell_shortcut_notexists
+                || !saved_char && rresult == shell_shortcut_directory
+                || saved_char && rresult == shell_shortcut_file) return 0;
+
+            if (saved_char) {/*need to subst nameout..nametocheck-1 with resolved path */
+              int l1 = strlen(resolved);
+              int l2 = strlen(nametocheck_end + 1);
+              if (l1 + l2 + 2 > MAX_PATH) return 0;
+              strcpy(nameout,resolved);
+              memmove(nameout+l1,nametocheck_end + 1,l2+1);
+            } else { /* subst all the pathname */
+              strcpy(nameout,resolved);
+            }
+            next_name = 1;
+          }
+        }
+      }
+      if (!next_name) {
+        *nametocheck_end = saved_char;
+        nametocheck = nametocheck_end;
+        if (*nametocheck) nametocheck++;
+      }
+    } while (!next_name && *nametocheck);
+    if (!(--try_counter)) return 0;
+  } while (next_name);
+  return 1;
+}
 
 # UP: see if a file is normal file or it is a "shell symlink"
 # If directory+filename exists do nothing return false
 # If it doesn't but direstory+filename+".lnk" exists then
 # try to read it. On reading success return true with lnk
 # filename value as resolved. See resolve_shell_shortcut also.
-# > LPCSTR directory: path to opening file (with ending /)
-# > LPCSTR filename: file name
-# < LPSTR resolved: buffer for resolved path and filename.
-# < result: true if substitution happened.
-bool resolve_shell_symlink(LPCSTR directory,
-                            LPCSTR filename,
+# > filename: resolving file name
+# < resolved: buffer for resolved path and filename.
+# < result: shell_shortcut_notresolved if file exists or link is invalid.
+#           otherwise - shortcut target status
+shell_shortcut_target_t
+ resolve_shell_symlink( LPCSTR filename,
                             LPSTR resolved) {
   var char pathname[_MAX_PATH];
   var DWORD fileattr;
 
-  strcpy(pathname,directory);
-  strcat(pathname,filename);
+  strcpy(pathname,filename);
   fileattr = GetFileAttributes(pathname);
-  if (fileattr != 0xFFFFFFFF) return false;
+  if (fileattr != 0xFFFFFFFF) return shell_shortcut_notresolved;
   strcat(pathname,".lnk");
   fileattr = GetFileAttributes(pathname);
-  if (fileattr == 0xFFFFFFFF) return false;
-  return resolve_shell_shortcut(pathname,resolved);
+  if (fileattr == 0xFFFFFFFF) return shell_shortcut_notresolved;
+  return resolve_shell_shortcut_more(pathname,resolved);
 }
 
 #endif
@@ -6386,10 +6557,10 @@ bool resolve_shell_symlink(LPCSTR directory,
 #     if Name/=NIL: Namestring (for DOS)
 #     if tolerantp, maybe: nullobj
 # can trigger GC
+#ifdef MSDOS
 local object assure_dir_exists (bool links_resolved, bool tolerantp) {
   var object dir_namestring = directory_namestring(STACK_0);
   if (!links_resolved) { # test for existence:
-   #ifdef MSDOS
     # 1. subdir-list empty -> OK
     #    (must be intercepted, because stat() on rootdir returns error.)
     # 2. OS/2: subdir-list = ("PIPE") -> OK
@@ -6420,53 +6591,50 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
         fehler_dir_not_exists(dir_namestring);
       }
     }
-   #endif
-   #ifdef WIN32_NATIVE
-    var DWORD fileattr;
-    with_sstring_0(dir_namestring,O(pathname_encoding),path, {
-      if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory))) {
-        var uintL len = Sstring_length(dir_namestring);
-        ASSERT((len > 0) && (path[len-1] == '\\'));
-        path[len-1] = '\0'; # replace '\' at the end with nullbyte
-      }
-      begin_system_call();
-      fileattr = GetFileAttributes(path);
-      if (!(fileattr & FILE_ATTRIBUTE_DIRECTORY)) { # not a directory
-        fileattr = 0xFFFFFFFF;
-        SetLastError(ERROR_DIRECTORY);
-      }
-      if (fileattr == 0xFFFFFFFF) {
-        if (!(tolerantp && WIN32_ERROR_NOT_FOUND)) {
-          end_system_call(); OS_file_error(STACK_0);
-        }
-        end_system_call();
-        FREE_DYNAMIC_ARRAY(path);
-        return nullobj;
-      }
-      end_system_call();
-    });
-    if (!(fileattr & FILE_ATTRIBUTE_DIRECTORY)) { # found file is no subdirectory ?
-      if (tolerantp) return nullobj;
-      fehler_dir_not_exists(dir_namestring);
-    }
-   #endif
   }
   if (namenullp(STACK_0))
     return dir_namestring;
-  else {
-    with_string_0(directory_namestring(STACK_0),O(pathname_encoding),dirname, {
-      with_string_0(file_namestring(STACK_0),O(pathname_encoding),filename, {
-        var char resolved[MAX_PATH];
-        if (resolve_shell_symlink(dirname,filename,resolved)) {
-          var object resolved_string = asciz_to_string(resolved,O(pathname_encoding));
-          STACK_0 = coerce_pathname(resolved_string);
-          dir_namestring = directory_namestring(STACK_0);
-        }
-      });
-    });
+  else
     return OSnamestring(dir_namestring);
-  }
 }
+#endif
+
+
+#ifdef WIN32_NATIVE
+local object assure_dir_exists (bool links_resolved, bool tolerantp) {
+  var bool nnullp = namenullp(STACK_0);
+  if (nnullp && links_resolved) return directory_namestring(STACK_0);
+  with_sstring_0(whole_namestring(STACK_0),O(pathname_encoding),path, {
+    var char resolved[MAX_PATH];
+    var bool substitute = false;
+    var bool error = false;
+    if (links_resolved) { # use light function
+      shell_shortcut_target_t rresolve = resolve_shell_symlink(path,resolved);
+      if (rresolve != shell_shortcut_notresolved) {
+        if (rresolve == shell_shortcut_notexists)
+          error = true;
+        else
+          substitute = true;
+      }
+    } else {
+      if (TrueName(path,resolved)) 
+        substitute = true;
+      else error = true;
+    }
+    if (error) {
+      if (tolerantp) return nullobj;
+      fehler_dir_not_exists(directory_namestring(STACK_0));
+    }
+    if (substitute) {
+      var object resolved_string = asciz_to_string(resolved,O(pathname_encoding));
+      STACK_0 = coerce_pathname(resolved_string);
+      nnullp = namenullp(STACK_0);
+    }
+    { var object dns = directory_namestring(STACK_0);
+      return nnullp?dns:OSnamestring(dns); }
+  });
+}
+#endif
 
 # UP: returns the directory-namestring of a pathname under the assumption,
 #     that the directory of this pathname exists.
@@ -8800,7 +8968,7 @@ local void with_stat_info (void) {
     }   }
 #endif
 
-#ifndef MSDOS
+#if !defined(MSDOS)
 # Search for a subdirectory with a given name.
 # directory_search_1subdir(subdir,namestring);
 # > STACK_0 = pathname
@@ -8810,6 +8978,8 @@ local void with_stat_info (void) {
 # < STACK_0: replaced
 # < STACK_(3+1): augmented
 # can trigger GC
+
+#if !defined(WIN32_NATIVE)
 local void directory_search_1subdir (object subdir, object namestring) {
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     check_stat_directory(namestring_asciz,
@@ -8829,15 +8999,39 @@ local void directory_search_1subdir (object subdir, object namestring) {
     });
   });
 }
+#else
+local void directory_search_1subdir (object subdir, object namestring) {
+  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+    char resolved[MAX_PATH];
+    if (TrueName(namestring_asciz,resolved)) {
+      # copy pathname and lengthen its directory by subdir:
+      pushSTACK(subdir);
+      {
+        var object pathname = pathname_add_subdir();
+        pushSTACK(pathname);
+      }
+      { # push this new pathname in front of new-pathname-list:
+        var object new_cons = allocate_cons();
+        Car(new_cons) = STACK_0;
+        Cdr(new_cons) = STACK_(3+1);
+        STACK_(3+1) = new_cons;
+      }
+    }
+  });
+}
+#endif
 #endif
 
-#ifdef UNIX
+#if defined(UNIX) || defined(WIN32_NATIVE)
 # Returns a truename dependent hash code for a directory.
 # directory_search_hashcode()
 # STACK_0 = dir_namestring
 # STACK_1 = pathname
 # < result: a hash code, or nullobj if the directory does not exist
 # can trigger GC
+
+#ifdef UNIX
+# return (cons drive inode) 
 local object directory_search_hashcode (void) {
   pushSTACK(STACK_0); # Directory-Name
   pushSTACK(O(dot_string)); # and "."
@@ -8860,6 +9054,13 @@ local object directory_search_hashcode (void) {
   Cdr(new_cons) = popSTACK(); Car(new_cons) = popSTACK();
   return new_cons;
 }
+#else
+# win32 - there is stat but no inodes
+# using directory truenames as hashcodes
+local object directory_search_hashcode (void) {
+  return STACK_0;
+}
+#endif
 #endif
 
 #if defined(UNIX) || defined(RISCOS)
@@ -9295,22 +9496,11 @@ local void directory_search_scandir (bool recursively, signean next_task,
     var object namestring = string_concat(2); # "*.*" resp. "*"
     with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
       # scan directory, according to DOS-convention resp. Win32-convention:
-
-      # handle shell shortcuts specially:
-      # Valid shortcuts for us are ones that
-      # a) have ".lnk" type
-      # b) point to existing file
-      # c) that is, not on directory
-      # So directory_search_scandir won't see valid shortcuts.
-      # instead it collects filenames with ".lnk" suffix removed
-      # so latter open can lead (via assure_dir_exists) to successful
-      # link following. We should first resolve a link to determine if
-      # it valid and (for :full) to retrieve target file date and size.
-
       READDIR_var_declarations;
       # start of search, search for folders and normal files:
       begin_system_call();
       do {
+        # readdir in resolved directory. directory was resolved earlier
         READDIR_findfirst(namestring_asciz,
         { end_system_call(); OS_file_error(STACK_1); },
                           break; );
@@ -9321,100 +9511,116 @@ local void directory_search_scandir (bool recursively, signean next_task,
           # skip "." and "..":
           if (!(equal(direntry,O(dot_string))
                 || equal(direntry,O(dotdot_string)))) {
+            var shell_shortcut_target_t rresolved = shell_shortcut_notresolved;
+            var bool dont_follow_this_dir = false; # needed when :IF-DOES-NOT-EXIST :KEEP && recursively
             pushSTACK(direntry);
             # stack layout: ..., pathname, dir_namestring, direntry.
-            if (READDIR_entry_ISDIR()) { # is it a directory?
-              # entry is a directory.
-              if (recursively) { # all recursive subdirectories wanted?
-                # yes -> turn into a pathname and push onto
-                # pathnames-to-insert (is inserted in front of
-                # pathname-list-rest later):
-                pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname and direntry
-                {
-                  var object pathname = pathname_add_subdir();
-                  pushSTACK(pathname);
-                }
-                { # push this new pathname in front of pathname-to-insert:
-                  var object new_cons = allocate_cons();
-                  Car(new_cons) = popSTACK();
-                  Cdr(new_cons) = STACK_(0+3);
-                  STACK_(0+3) = new_cons;
-                }
-              }
-              if (next_task<0) {
-                # match (car subdir-list) with direntry:
-                if (wildcard_match(Car(STACK_(1+4+3)),STACK_0)) {
-                  # Subdirectory matches -> turn into a pathname
-                  # and push onto new-pathname-list:
-                  pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname and direntry
-                  {
-                    var object pathname = pathname_add_subdir();
-                    pushSTACK(pathname);
-                  }
-                  { # push this new pathname in front of new-pathname-list:
-                    var object new_cons = allocate_cons();
-                    Car(new_cons) = popSTACK();
-                    Cdr(new_cons) = STACK_(3+3);
-                    STACK_(3+3) = new_cons;
-                  }
-                }
-              }
+            pushSTACK(NIL);       # will become found file full pathname
+            pushSTACK(NIL);       # true pathname of it
+            pushSTACK(direntry);  # here will come filename to wildcard match AKA result filename (no dir)
+            split_name_type(1);
+            # stack layout: ..., pathname, dir_namestring, direntry, NIL, NIL, direntry-name, direntry-type.
+
+            # make full name of found file - dir + direntry
+            # TODO: optimize to not do it when it not needed
+            if (READDIR_entry_ISDIR()) {
+              pushSTACK(STACK_(6)); pushSTACK(STACK_(4+1)); # pathname and direntry
+              STACK_(3) = pathname_add_subdir();
             } else {
-              # entry is a (halfway) normal file.
-              if (next_task>0) {
-                # prepare pathname for assembling
-                pushSTACK(copy_pathname(STACK_(2)));
-                # there will be resolved pathname
-                pushSTACK(NIL);
-                # direntry hacking
-                pushSTACK(STACK_(2)); # direntry
-                split_name_type(1);
-                # stack layout: direntry, pathname, resolved-pathname==NIL, name, type
-                {
-                  var bool followedp = false; # if .lnk was followed
-                  ThePathname(STACK_(3))->pathname_type = STACK_0; # insert type
-                  ThePathname(STACK_(3))->pathname_name = STACK_1; # insert name
-                  if (!nullp(STACK_0) && string_equal(STACK_0,ascii_to_string("lnk"))) {
-                    var char resolved[MAX_PATH];
-                    with_sstring_0(whole_namestring(STACK_(3)),O(pathname_encoding),linkfile_asciiz, {
-                      followedp = resolve_shell_shortcut(linkfile_asciiz,resolved);
-                      if (followedp)
-                        STACK_(2) = coerce_pathname(asciz_to_string(resolved,O(pathname_encoding)));
-                    });
+              STACK_(3) = copy_pathname(STACK_(6));
+              ThePathname(STACK_(3))->pathname_type = STACK_0; # insert type
+              ThePathname(STACK_(3))->pathname_name = STACK_1; # insert name
+            }
+                   
+            # try to resolve .lnk files
+            if (!READDIR_entry_ISDIR() && !nullp(STACK_0)
+                && string_equal(STACK_0,ascii_to_string("lnk")))
+            {
+              var char resolved[MAX_PATH];
+              var char * full_resolved = resolved;
+              with_sstring_0(whole_namestring(STACK_(3)),O(pathname_encoding),linkfile_asciiz, {
+                rresolved =
+                  resolve_shell_shortcut_more(linkfile_asciiz,resolved); 
+                if (rresolved != shell_shortcut_notresolved) {
+                  var char resolved_f[MAX_PATH];
+                  if (FullName(resolved,resolved_f))
+                    full_resolved = resolved_f;
+                  STACK_(2) = coerce_pathname(asciz_to_string(full_resolved,O(pathname_encoding)));
+                }
+              });
+            } 
+
+            if (rresolved == shell_shortcut_notresolved) {
+              # truename is the pathname itself
+              STACK_(2) = STACK_(3);
+              # nametomatch is direntry
+              STACK_(1) = STACK_(4);
+            }
+
+            skipSTACK(1); # drop direntry-type
+            # stack layout: ..., pathname, dir_namestring, direntry,
+            #       direntry-pathname, true-pathname, direntry-name.
+
+            if (rresolved == shell_shortcut_notexists
+                && dsp->if_none == DIR_IF_NONE_ERROR)
+                  fehler_file_not_exists();
+
+            if (rresolved != shell_shortcut_notexists
+                || dsp->if_none != DIR_IF_NONE_DISCARD) {
+              if (READDIR_entry_ISDIR() || rresolved == shell_shortcut_directory) {
+                if (recursively) { # all recursive subdirectories wanted?
+                  # yes -> push truename onto
+                  # pathnames-to-insert (is inserted in front of
+                  # pathname-list-rest later):
+                  var object new_cons = allocate_cons();
+                  Car(new_cons) = STACK_(1);
+                  Cdr(new_cons) = STACK_(0+6);
+                  STACK_(0+6) = new_cons;
+                }
+                if (next_task<0) {
+                  # match (car subdir-list) with direntry:
+                  if (wildcard_match(Car(STACK_(1+4+6)),STACK_0)) {
+                    # Subdirectory matches -> push truename onto new-pathname-list:
+                    var object new_cons = allocate_cons();
+                    Car(new_cons) = STACK_(1);
+                    Cdr(new_cons) = STACK_(3+6);
+                    STACK_(3+6) = new_cons;
                   }
-                  skipSTACK(1); # drop type
-
-                  # stack layout: pathname, dir_namestring,
-                  # direntry, pathname, resolved-pathname, name.
-
-                  # either direntry or name of lnk file (w/o ".lnk")
-                  # should be matched with pattern
-                  if (!followedp) STACK_0 = STACK_(3);
-
-                  if (wildcard_match(STACK_(2+4+2+4),STACK_0)) {
-                    if (followedp) {
-                      # hack pathname to place it to result list
-                      # result link names are ones w/o ".lnk"
-                      # so split the name again
-                      pushSTACK(STACK_0);
-                      split_name_type(1);
-                      ThePathname(STACK_(2+2))->pathname_name = STACK_1;
-                      ThePathname(STACK_(2+2))->pathname_type = STACK_0;
-                      skipSTACK(2);
-                    }
+                }
+              } else {
+                # entry is a (halfway) normal file.
+                if (next_task>0) {
+                  if (wildcard_match(STACK_(2+4+6),STACK_0)) {
+                    # stack layout: ..., pathname, dir_namestring, direntry,
+                    #       direntry-maybhacked-pathname, true-pathname, direntry-name.
                     # test Full-Flag and poss. get more information:
-                    if (dsp->full_p) { /* :FULL wanted? */
+                    if (dsp->full_p
+                         && rresolved != shell_shortcut_notexists) { /* :FULL wanted? */
+                      if (rresolved == shell_shortcut_file) {
+                        # hack direntry-pathname to place it as symbolic name
+                        # symbolic link names are ones w/o ".lnk"
+                        # so split the name again
+                        # hack it in-place since lnk filename is not need anymore
+                        pushSTACK(STACK_0);
+                        split_name_type(1);
+                        ThePathname(STACK_(2+2))->pathname_name = STACK_1;
+                        ThePathname(STACK_(2+2))->pathname_type = STACK_0;
+                        skipSTACK(2);
+                      }
                       var decoded_time_t timepoint;
                       var uintL entry_size = 0;
                       # get file attributes into these vars
-                      if (followedp) { # need another readdir here
+                      if (rresolved == shell_shortcut_file) { # need another readdir here
                         READDIR_var_declarations;
                         with_sstring_0(whole_namestring(STACK_1),O(pathname_encoding),resolved_asciz, {
                           var bool notfound = false;
                           begin_system_call();
                           READDIR_findfirst(resolved_asciz, notfound = true; , notfound = true; );
                           end_system_call();
-                          if (notfound || READDIR_entry_ISDIR()) OS_file_error(STACK_1);
+                          if (notfound || READDIR_entry_ISDIR()) {
+                            # just to be paranoid
+                            OS_file_error(STACK_1);
+                          }
                           READDIR_entry_timedate(&timepoint);
                           entry_size = READDIR_entry_size();
                         });
@@ -9424,7 +9630,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
                         entry_size = READDIR_entry_size();
                       }
                       pushSTACK(STACK_(2)); # newpathname as 1st list element
-                      pushSTACK(STACK_(1+(followedp?1:2))); # resolved pathname as 2nd list element
+                      pushSTACK(STACK_(1+1)); # resolved pathname as 2nd list element
                       # convert time and date from DOS-format to decoded-time:
                       pushSTACK(timepoint.Sekunden);
                       pushSTACK(timepoint.Minuten);
@@ -9435,22 +9641,23 @@ local void directory_search_scandir (bool recursively, signean next_task,
                       pushSTACK(listof(6)); # build 6-element list
                                             # as 3th list element
                       pushSTACK(UL_to_I(entry_size)); # length as 4th list element
-                      STACK_(2) = listof(4);          # build 4-element list
+                      STACK_(1) = listof(4);          # build 4-element list
                     }
-                    # now STACK_2 can contain either pathname or
+                    # now STACK_1 can contain either truename or
                     # list-of-file-information (both for insertion to result-list)
-                    { # push STACK_2 in front of result-list:
+                    # stack layout: ..., pathname, dir_namestring, direntry,
+                    #       direntry-maybhacked-pathname, true-pathname-or-list-of-info, direntry-name.
+                    { # push STACK_1 in front of result-list:
                       var object new_cons = allocate_cons();
-                      Car(new_cons) = STACK_2;
-                      Cdr(new_cons) = STACK_(4+4+2+4);
-                      STACK_(4+4+2+4) = new_cons;
+                      Car(new_cons) = STACK_1;
+                      Cdr(new_cons) = STACK_(4+4+6);
+                      STACK_(4+4+6) = new_cons;
                     }
                   }
-                  skipSTACK(3); # forget pathname, resolved-pathname, name.
                 }
               }
             }
-            skipSTACK(1); # forget direntry
+            skipSTACK(4); # forget all up to dir_namestring
           }
           # next file:
           begin_system_call();
@@ -9569,7 +9776,7 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
     }
     # traverse pathname-list and construct new list:
     pushSTACK(NIL);
-   #ifdef UNIX
+   #if defined(UNIX) || defined(WIN32_NATIVE)
     if (dsp->circle_p) { /* query :CIRCLE-Flag */
       # maintain hash-table of all scanned directories so far (as
       # cons (dev . ino)) :
@@ -9597,7 +9804,7 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
         if (!recursively) {
           switch (next_task) {
             case 0: # return this pathname
-             #ifdef UNIX
+             #if defined(UNIX) || defined(WIN32_NATIVE) 
               assure_dir_exists(false,false); # first resolve links
              #endif
               { # and push STACK_0 in front of result-list:
@@ -9644,9 +9851,10 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
            #endif
            #ifndef MSDOS
             case -1: # search for a subdirectory in this pathname
-              {
+              {                                        
                 var object namestring = assure_dir_exists(true,false); # resolve links, directory-namestring
                 pushSTACK(namestring); # directory-namestring
+
                 {
                   var object subdir = Car(STACK_(1+4+1+1)); # (car subdir-list)
                  #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_RISCOS)
@@ -9662,6 +9870,11 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
                     SUBDIR_PUSHSTACK(subdir);
                 }
                 namestring = string_concat(2); # concatenate
+                #if defined(WIN32_NATIVE)
+                pushSTACK(namestring);
+                pushSTACK(ascii_to_string("\\"));
+                namestring = string_concat(2);
+                #endif
                 # get information:
                 directory_search_1subdir(Car(STACK_(1+4+1)),namestring);
               }
@@ -9672,12 +9885,13 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
         }
         # in order to finish the task, all entries in this directory
         # have to be scanned:
-        {
+        
+        {                                              
           var object dir_namestring = assure_dir_exists(true,false); # resolve links, form directory-name
           pushSTACK(dir_namestring); # save
         }
         # stack layout: ..., pathname, dir_namestring.
-       #ifdef UNIX
+       #if defined(UNIX) || defined(WIN32_NATIVE)
         if (dsp->circle_p) { /* query :CIRCLE flag */
           # search pathname in the hash-table:
           var object hashcode = directory_search_hashcode();
