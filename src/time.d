@@ -414,6 +414,10 @@ global object convert_time_to_universal (const time_t* time)
      we can assume that the OS's timezone and CLISP's timezone agree. */
   return UL_to_I(UNIX_LISP_TIME_DIFF + (uintL)(*time));
 }
+global void convert_time_from_universal (object universal, time_t* time)
+{
+  *time = I_to_UL(universal) - UNIX_LISP_TIME_DIFF;
+}
 #endif
 
 #if defined(WIN32_NATIVE)
