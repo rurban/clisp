@@ -6,6 +6,7 @@
 	* modules/syscalls/posix.lisp (file-info, shortcut-info)
 	[WIN32_NATIVE, UNIX_CYGWIN32]: new structures
 	* install.bat: run the full linking set
+	* install.lisp: create a shortcut
 
 2003-07-29  Sam Steingold  <sds@gnu.org>
 
