@@ -11,6 +11,29 @@
 
 #if !defined(_WIN32) /* Unix */
 
+/* Detection of various Unix brands */
+#if defined(__linux__) /* Linux */
+#  define UNIX_LINUX
+#endif
+#if defined(__NetBSD__) || defined(__FreeBSD__) /* NetBSD, FreeBSD */
+#  define UNIX_FREEBSD
+#endif
+#if defined(sun) && defined(unix) && (defined(mc68020) || defined(sparc) || (defined(i386) || defined(__i386))) /* SunOS */
+#  define UNIX_SUNOS
+#endif
+#if (defined(sgi) || defined(__sgi)) && (defined(SYSTYPE_SVR4) || defined(__SYSTYPE_SVR4)) /* Irix 5 or 6 */
+#  define UNIX_IRIX
+#endif
+#if defined(__osf__) /* OSF/1 */
+#  define UNIX_OSF
+#endif
+#if defined(_AIX) /* AIX */
+#  define UNIX_AIX
+#endif
+#if defined(NeXT) /* NeXTstep */
+#  define UNIX_NEXTSTEP
+#endif
+
 #if defined(HAVE_SIGSEGV_RECOVERY) || defined(HAVE_STACK_OVERFLOW_RECOVERY)
 
 #include "config.h"
@@ -18,67 +41,109 @@
 #include <stddef.h> /* needed for NULL on SunOS4 */
 #include <stdlib.h>
 
-#if defined(HAVE_SIGSEGV_RECOVERY)
-
 /*
  * Portability section:
  * - SIGSEGV_FAULT_HANDLER_ARGLIST  is the argument list for the actual fault
  *                                  handler.
  * - SIGSEGV_FAULT_ADDRESS          is a macro for fetching the fault address.
  * - SIGSEGV_ALL_SIGNALS            enumerates the fault signals.
+ * If available:
+ * - SIGSEGV_FAULT_CONTEXT          is a macro giving a pointer to the entire
+ *                                  fault context (i.e. the register set etc.).
+ * - SIGSEGV_FAULT_STACKPOINTER     is a macro for fetching the stackpointer
+ *                                  at the moment the fault occurred.
  */
-#if defined(__linux__) && (defined(i386) || defined(__i386)) /* Linux */
+#if defined(UNIX_LINUX) /* Linux */
+#define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
+#if (defined(i386) || defined(__i386))
+/* Don't include <asm/sigcontext.h> here, because some older kernels don't
+   have it or don't define `struct sigcontext' in it. */
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, unsigned long more
 #define SIGSEGV_FAULT_ADDRESS  ((unsigned long *) &more) [21]
-#define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
+#define SIGSEGV_FAULT_CONTEXT  ((struct sigcontext*) &more)
+#define SIGSEGV_FAULT_STACKPOINTER  ((unsigned long *) &more) [7]
 #endif
-#if defined(__NetBSD__) || defined(__FreeBSD__) /* NetBSD, FreeBSD */
+#if (defined(m68k) || defined(__m68k))
+#include <asm/sigcontext.h>
+#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext* scp
+#define SIGSEGV_FAULT_CONTEXT  scp
+#define SIGSEGV_FAULT_STACKPOINTER  scp->sc_usp
+#endif
+#if (defined(mips) || defined(__mips))
+#include <asm/sigcontext.h>
+#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext* scp
+#define SIGSEGV_FAULT_CONTEXT  scp
+#define SIGSEGV_FAULT_STACKPOINTER  scp->sc_regs[29]
+#endif
+#if (defined(sparc) || defined(__sparc))
+#include <asm/sigcontext.h>
+#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext* scp, char* addr
+#define SIGSEGV_FAULT_ADDRESS  addr  /* in case of SunOS4 signal frames */
+#define SIGSEGV_FAULT_CONTEXT  scp
+#define SIGSEGV_FAULT_STACKPOINTER  scp->sigc_sp
+#endif
+#if (defined(alpha) || defined(__alpha))
+#include <asm/sigcontext.h>
+#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext* scp
+#define SIGSEGV_FAULT_CONTEXT  scp
+#define SIGSEGV_FAULT_STACKPOINTER  scp->sc_regs[30]
+#endif
+#if (defined(arm) || defined(__arm))
+/* Not sure about this one. */
+#include <asm/sigcontext.h>
+#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int r1, int r2, int r3, struct sigcontext sc
+#define SIGSEGV_FAULT_CONTEXT  &sc
+#define SIGSEGV_FAULT_STACKPOINTER  sc.arm_sp
+#endif
+#endif /* UNIX_LINUX */
+#if defined(UNIX_FREEBSD)
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, void* scp, char* addr
 #define SIGSEGV_FAULT_ADDRESS  addr
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGBUS)
 #endif
-#if defined(__linux__) && defined(sparc) /* Linux, in case of SunOS4 signal frames */
-#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, void* scp, char* addr
-#define SIGSEGV_FAULT_ADDRESS  addr
-#define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
-#endif
-#if defined(sun) && defined(unix) && (defined(mc68020) || defined(sparc) || (defined(i386) || defined(__i386))) && defined(HAVE_VADVISE) /* SunOS 4 */
+#if defined(UNIX_SUNOS) && defined(HAVE_VADVISE) /* SunOS 4 */
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, void* scp, char* addr
 #define SIGSEGV_FAULT_ADDRESS  addr
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV) FAULT_HANDLER(SIGBUS)
 #endif
-#if defined(sun) && defined(unix) && (defined(mc68020) || defined(sparc) || (defined(i386) || defined(__i386))) && !defined(HAVE_VADVISE) /* SunOS 5 */
+#if defined(UNIX_SUNOS) && !defined(HAVE_VADVISE) /* SunOS 5 */
 #include <siginfo.h>
-#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, siginfo_t* sip, void* ucp
+#include <ucontext.h>
+#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, siginfo_t* sip, ucontext_t* ucp
 #define SIGSEGV_FAULT_ADDRESS  sip->si_addr
+#define SIGSEGV_FAULT_CONTEXT  ucp
+#define SIGSEGV_FAULT_STACKPOINTER  ucp->uc_mcontext.gregs[REG_O6]
 #define SIGSEGV_FAULT_ADDRESS_FROM_SIGINFO
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
 #endif
-#if (defined(sgi) || defined(__sgi)) && (defined(SYSTYPE_SVR4) || defined(__SYSTYPE_SVR4)) /* Irix 5 */
+#if defined(UNIX_IRIX) /* Irix 5 on MIPS */
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext *scp
 #define SIGSEGV_FAULT_ADDRESS  scp->sc_badvaddr
+#define SIGSEGV_FAULT_CONTEXT  scp
+#define SIGSEGV_FAULT_STACKPOINTER  scp->sc_regs[29]
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
 #endif
-#if defined(__osf__) /* OSF/1 */
+#if defined(UNIX_OSF) /* OSF/1 on Alpha */
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext *scp
 #define SIGSEGV_FAULT_ADDRESS  scp->sc_traparg_a0
+#define SIGSEGV_FAULT_CONTEXT  scp
+#define SIGSEGV_FAULT_STACKPOINTER  scp->sc_regs[30]
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
 #endif
-#if defined(_AIX) /* AIX */
+#if defined(UNIX_AIX) /* AIX */
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext *scp
 #define SIGSEGV_FAULT_ADDRESS  scp->sc_jmpbuf.jmp_context.o_vaddr
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
 #endif
-#if defined(NeXT) /* NeXTstep */
+#if defined(UNIX_NEXTSTEP) /* NeXTstep */
 #endif
 #if 0 /* Single Unix Specification, Version 2 */
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, siginfo_t* sip, void* ucp
 #define SIGSEGV_FAULT_ADDRESS  sip->si_addr
+#define SIGSEGV_FAULT_CONTEXT  ucp
 #define SIGSEGV_FAULT_ADDRESS_FROM_SIGINFO
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
 #endif
-
-#endif /* HAVE_SIGSEGV_RECOVERY */
 
 #if defined(HAVE_STACK_OVERFLOW_RECOVERY)
 
@@ -103,20 +168,14 @@ static int get_vma (unsigned long address, vma_struct* vma);
  *   must be defined.
  * - The get_vma() function must be defined, to return the vma containing
  *   a given address.
- * - SIGSEGV_ALL_SIGNALS            enumerates the fault signals.
- * If available:
- * - SIGSEGV_FAULT_HANDLER_ARGLIST  is the argument list for the actual fault
- *                                  handler.
- * - SIGSEGV_FAULT_CONTEXT          is a macro giving a pointer to the entire
- *                                  fault context (i.e. the register set etc.).
- * - SIGSEGV_FAULT_STACKPOINTER     is a macro for fetching the old stackpointer.
+ * - The reset_onstack_flag() function must be defined.
  */
-#if defined(__linux__) /* Linux */
+#if defined(UNIX_LINUX) /* Linux */
 #include <stdio.h>
 static int get_vma (unsigned long address, vma_struct* vma)
 {
   FILE* f = fopen("/proc/self/maps","r");
-  unsigned long start, end, prev = 0;
+  unsigned long start, end, prev;
   int c;
   if (!f) return -1;
   for (prev = 0; ; prev = end) {
@@ -129,42 +188,56 @@ static int get_vma (unsigned long address, vma_struct* vma)
   }
   fclose(f); return -1;
 }
-#define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
-#if (defined(i386) || defined(__i386))
-#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, unsigned long more
-#define SIGSEGV_FAULT_CONTEXT  ((struct sigcontext*) &more)
-#define SIGSEGV_FAULT_STACKPOINTER  ((unsigned long *) &more) [7]
+static void reset_onstack_flag ()
+{
+  /* Nothing to do. sigaltstack() simply looks at the stack pointer,
+   * therefore SS_ONSTACK is not sticky. */
+}
 #endif
-#if (defined(m68k) || defined(__m68k))
-#include <asm/sigcontext.h>
-#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext* scp
-#define SIGSEGV_FAULT_CONTEXT  scp
-#define SIGSEGV_FAULT_STACKPOINTER  scp->sc_usp
-#endif
-#if (defined(mips) || defined(__mips))
-#include <asm/sigcontext.h>
-#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext* scp
-#define SIGSEGV_FAULT_CONTEXT  scp
-#define SIGSEGV_FAULT_STACKPOINTER  scp->sc_regs[29]
-#endif
-#if (defined(sparc) || defined(__sparc))
-#include <asm/sigcontext.h>
-#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext* scp, char* addr
-#define SIGSEGV_FAULT_CONTEXT  scp
-#define SIGSEGV_FAULT_STACKPOINTER  scp->sigc_sp
-#endif
-#if (defined(alpha) || defined(__alpha))
-#include <asm/sigcontext.h>
-#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext* scp
-#define SIGSEGV_FAULT_CONTEXT  scp
-#define SIGSEGV_FAULT_STACKPOINTER  scp->sc_regs[30]
-#endif
-#if (defined(arm) || defined(__arm))
-#include <asm/sigcontext.h>
-#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int r1, int r2, int r3, struct sigcontext sc
-#define SIGSEGV_FAULT_CONTEXT  &sc
-#define SIGSEGV_FAULT_STACKPOINTER  sc.arm_sp
-#endif
+#if defined(UNIX_SUNOS) || defined(UNIX_IRIX) || defined(UNIX_OSF) /* SunOS, Irix, OSF/1 */
+#include <stdio.h> /* sprintf */
+#include <unistd.h> /* open, close */
+#include <fcntl.h> /* open */
+#include <stdlib.h> /* malloc, free */
+#include <sys/procfs.h> /* PIOC*, prmap_t */
+static int get_vma (unsigned long address, vma_struct* vma)
+{
+  char fname[6+10+1];
+  int fd;
+  int nmaps;
+  prmap_t* maps;
+  unsigned long start, end, prev;
+  sprintf(fname,"/proc/%u", (unsigned int) getpid());
+  fd = open(fname,O_RDONLY);
+  if (fd<0) return -1;
+  if (ioctl(fd,PIOCNMAP,&nmaps)<0) { close(fd); return -1; }
+  /* Use malloc here, not alloca, because we are low on stack space. */
+  maps = (prmap_t*) malloc((nmaps+10)*sizeof(prmap_t));
+  if (maps == NULL) { close(fd); return -1; }
+  if (ioctl(fd,PIOCMAP,maps)<0) { free(maps); close(fd); return -1; }
+  for (prev = 0; ; prev = end, maps++) {
+    start = (unsigned long) maps->pr_vaddr; end = start + maps->pr_size;
+    if (start==0 && end==0) break;
+    if (address >= start && address <= end-1) {
+      vma->start = start; vma->end = end; vma->prev_end = prev;
+      free(maps); close(fd); return 0;
+    }
+  }
+  free(maps); close(fd); return -1;
+}
+#include <ucontext.h>
+static void reset_onstack_flag ()
+{
+  /* You can't do that using sigaltstack(). */
+  static int fl;
+  static ucontext_t uc;
+  fl = 0;
+  if (getcontext(&uc) < 0)
+    { perror("libsigsegv (sigsegv_leave_handler)"); return; }
+  if (fl == 0)
+    if (uc.uc_stack.ss_flags & SS_ONSTACK)
+      { fl = 1; uc.uc_stack.ss_flags &= ~SS_ONSTACK; setcontext(&uc); }
+}
 #endif
 
 /* Address of the last byte belonging to the stack vma. */
@@ -186,7 +259,7 @@ static unsigned long stk_extra_stack_size;
 /* User's SIGSEGV handler. */
 static sigsegv_handler_t user_handler = (sigsegv_handler_t)NULL;
 
-#if !defined(NeXT)
+#if !defined(UNIX_NEXTSTEP)
 /* Generic Unix support. */
 
 /* Signal handling support. */
@@ -572,6 +645,11 @@ void sigsegv_leave_handler (void)
 #ifdef SIGWINCH
     sigaddset(&sigblock_mask,SIGWINCH);
 #endif
+#if defined(SIGACTION_NEED_UNBLOCK)
+#define FAULT_HANDLER(sig)  sigaddset(&sigblock_mask,sig);
+    SIGSEGV_ALL_SIGNALS
+#undef FAULT_HANDLER
+#endif
     sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
   }
 #else
@@ -587,6 +665,14 @@ void sigsegv_leave_handler (void)
 #if defined(SIGNAL_NEED_UNBLOCK_OTHERS)
   sigsetmask(0);
 #endif
+#endif
+#ifdef HAVE_STACK_OVERFLOW_RECOVERY
+  /*
+   * Reset the system's knowledge that we are executing on the alternate
+   * stack. If we didn't do that, siglongjmp would be needed instead of
+   * longjmp to leave the signal handler.
+   */
+  reset_onstack_flag();
 #endif
 }
 
@@ -643,14 +729,15 @@ void stackoverflow_deinstall_handler (void)
   {
     stack_t ss;
     ss.ss_flags = SS_DISABLE;
-    sigaltstack(&ss,(stack_t*)0);
+    if (sigaltstack(&ss,(stack_t*)0) < 0)
+      perror("libsigsegv (stackoverflow_deinstall_handler)");
   }
 #endif
 }
 
 #endif /* Generic Unix */
 
-#if defined(NeXT) /* NeXTstep */
+#if defined(UNIX_NEXTSTEP) /* NeXTstep */
 
 /*
  * We get the fault address as a subcode of a Mach exception. To get this,
