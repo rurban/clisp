@@ -75,6 +75,9 @@
   [ <a href="#opt-traditional"><code>-traditional</code></a> ]
   [ <a href="#opt-pack"><code>-p</code> <var>packagename</var></a> ]
   [ <a href="#opt-load-comp"><code>-C</code></a> ]
+  [ <a href="#opt-verbose"><code>-v</code></a> |
+    <a href="#opt-verbose"><code>-verbose</code></a> |
+    <a href="#opt-verbose"><code>--verbose</code></a> ]
   [ <a href="#opt-norc"><code>-norc</code></a> ]
   [ <a href="#opt-init"><code>-i</code> <var>initfile</var> ...</a> ]
   [ <a href="#opt-compile"><code>-c</code></a>
@@ -324,10 +327,23 @@ The default is the package which was active when the image was
 
 <dt id="opt-load-comp"><strong><code>-C</code></strong></dt>
 <dd>Compile when loading: At startup the value of the variable
-<code><a href="impnotes.html#loadfile">*load-compiling*</a></code>
+<a href="impnotes.html#loadfile"><code>*load-compiling*</code></a>
 will be set to <code>t</code>.
 Code being <code>load</code>ed will then be compiled on the fly.
 This results in slower loading, but faster execution.<p/></dd>
+
+<dt id="opt-verbose"><strong><code>-v</code></strong>,
+ <strong><code>-verbose</code></strong>,
+ <strong><code>--verbose</code></strong></dt>
+<dd>Verbose loading (with <a href="#opt-init"><code>-i</code></a>)
+ and compiling (with <a href="#opt-compile"><code>-c</code></a>);
+ this sets variables
+ <a href="CLHSROOT/Body/var_stload-pr_ad-verbosest.html"
+    ><code>*load-print*</code></a> and
+ <a href="CLHSROOT/Body/var_stcompile_le-verbosest.html"
+    ><code>*compile-print*</code></a>
+ to <code>t</code>.
+ Note that this setting persists into the read-eval-print loop.</dd>
 
 <dt id="opt-norc"><strong><code>-norc</code></strong></dt>
 <dd>Normally <code>clisp</code> loads a user run control (RC) file on

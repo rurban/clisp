@@ -1883,6 +1883,8 @@ LISPSYM(Koutput_file,"OUTPUT-FILE",keyword) /* argument for SPVW */
 LISPSYM(compile_file,"COMPILE-FILE",lisp) /* function for SPVW */
 LISPSYM(load_compiling,"*LOAD-COMPILING*",custom) /* variable for SPVW */
 LISPSYM(load_verbose,"*LOAD-VERBOSE*",lisp) /* variable for SPVW */
+LISPSYM(load_print,"*LOAD-PRINT*",lisp) /* variable for SPVW */
+LISPSYM(compile_print,"*COMPILE-PRINT*",lisp) /* variable for SPVW */
 LISPSYM(args,"*ARGS*",ext) /* variable in SPVW */
 LISPSYM(appease_cerrors,"APPEASE-CERRORS",ext) /* macro for SPVW */
 LISPSYM(batchmode_errors,"BATCHMODE-ERRORS",system) /* macro for SPVW */
