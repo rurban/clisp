@@ -982,10 +982,9 @@ is the same as
 <section id="cond-nl"><title>Embedded Newlines in Condition Reports
    <ulink url="&clhs;/Body/sec_9-1-3-1-3.html">[CLHS-9.1.3.1.3]</ulink></title>
 
-<para>The error message prefix for the first line is "*** - ". There is
- no prefix for subsequent error lines. The aesthetics of &condition-t;
- reports containing an object which requires newlines when pretty
- printing is enabled, is undefined.</para>
+<para>The error message prefix for the first line is <quote>*** - </quote>.
+ All subsequent lines are indented by 6 characters.
+ Long lines are broken on white spaces.</para>
 
 </section>
 
