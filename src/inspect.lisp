@@ -10,7 +10,7 @@
 ;;; for details.
 ;;;
 ;;; Please do not fork a separate CLISP version of this file!
-;;; All changes should first go into CLOCC/CLLIB/inspect.lisp first,
+;;; All changes should go into CLOCC/CLLIB/inspect.lisp first,
 ;;; and only then merged into this file.
 ;;; If you encounter a bug in this file, please set sys::*inspect-debug*
 ;;; to 5 and report all output with a detailed description of what you did
@@ -552,7 +552,7 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
                               port)
                       :browser *inspect-browser*)
           server))
-       sock id com)
+       sock id com keep-alive)
       ((eq com :q) (socket-server-close server)
        (when (open-stream-p sock)
          (do () ((null (read-char-no-hang sock))))
