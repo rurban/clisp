@@ -1,3 +1,11 @@
+2004-05-29  Bruno Haible  <bruno@clisp.org>
+
+	* clos-package.lisp: Import ext:proper-list-p.
+	* clos-slotdef1.lisp (initialize-instance-<slot-definition>): Use it.
+	Improve error messages.
+	(initialize-instance-<direct-slot-definition>): Likewise.
+	(initialize-instance-<effective-slot-definition>): Likewise.
+
 2004-05-23  Bruno Haible  <bruno@clisp.org>
 
 	Many improvements to BACKQUOTE.
