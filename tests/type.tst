@@ -384,8 +384,7 @@ NIL
 (multiple-value-list (subtypep 'vector 'atom)) (t t)
 (multiple-value-list (subtypep nil nil))     (t t)
 (multiple-value-list (subtypep 'extended-char 'character))     (t t)
-;; yuk!!!
-;;(multiple-value-list (subtypep '(vector nil) 'string)) (T T)
+(multiple-value-list (subtypep '(vector nil) 'string)) (T T)
 #+(and CLISP FFI)
 (multiple-value-list (subtypep 'ffi:foreign-function 'function))
 #+(and CLISP FFI)
@@ -403,6 +402,75 @@ NIL
 (multiple-value-list (subtypep '(integer 1 2) '(real 1 2)))  (t t)
 (multiple-value-list (subtypep '(integer 1 2) '(real (1) 2)))  (nil t)
 (multiple-value-list (subtypep '(mod 10) '(or (mod 10) (mod 10))))  (t t)
+
+;; http://www.lisp.org/HyperSpec/Body/fun_type-of.html
+;; mandates that (TYPEP X Y) ==> (SUBTYPEP (TYPE-OF X) Y)
+;; for all "built-in types" Y as listed in table 4-2 in
+;; http://www.lisp.org/HyperSpec/Body/sec_4-2-3.html
+
+(let ((x #\Space) (y 'standard-char))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(STANDARD-CHAR T T)
+
+(let ((x #\Return) (y 'standard-char))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(BASE-CHAR NIL NIL)
+
+(let ((x (symbol-function 'let)) (y 'compiled-function))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(SPECIAL-OPERATOR NIL NIL)
+
+(let ((x (symbol-function 'let)) (y 'function))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(SPECIAL-OPERATOR NIL NIL)
+
+(let ((x #'car) (y 'compiled-function))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(COMPILED-FUNCTION T T)
+
+(let ((x #'car) (y 'function))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(COMPILED-FUNCTION T T)
+
+(let ((x #'car) (y 'generic-function))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(COMPILED-FUNCTION NIL NIL)
+
+(let ((x #'compile) (y 'compiled-function))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(COMPILED-FUNCTION T T)
+
+(let ((x #'compile) (y 'function))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(COMPILED-FUNCTION T T)
+
+(let ((x #'compile) (y 'generic-function))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(COMPILED-FUNCTION NIL NIL)
+
+(let ((x #'print-object) (y 'compiled-function))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(STANDARD-GENERIC-FUNCTION NIL NIL)
+
+(let ((x #'print-object) (y 'function))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(STANDARD-GENERIC-FUNCTION T T)
+
+(let ((x #'print-object) (y 'generic-function))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(STANDARD-GENERIC-FUNCTION T T)
+
+(let ((x #'print-object) (y 'standard-generic-function))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+(STANDARD-GENERIC-FUNCTION T T)
+
+(let ((x (make-array 0 :element-type nil)) (y 'string))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+((SIMPLE-ARRAY NIL (0)) T T)
+
+(let ((x (make-array 0 :element-type nil)) (y '(vector nil)))
+  (list (type-of x) (typep x y) (subtypep (type-of x) y)))
+((SIMPLE-ARRAY NIL (0)) T T)
 
 ;; from GCL ansi-test
 (progn
