@@ -6633,6 +6633,15 @@ local object use_default_dir (object pathname) {
 # < filestatus: if Name/=NIL: NULL if the file does not exist,
 #                                  else a pointer to a STAT-information.
 # can trigger GC
+
+# this has to be done this ugly way since C does not allow conditionals
+# (like #ifdef HAVE_LSTAT) inside macros (like with_sstring_0)
+#ifdef HAVE_LSTAT
+  #define if_HAVE_LSTAT(statement)  statement
+#else
+  #define if_HAVE_LSTAT(statement)
+#endif
+
 local var struct stat * filestatus;
 local object assure_dir_exists (bool links_resolved, bool tolerantp) {
   var uintC allowed_links = MAXSYMLINKS; # number of allowed symbolic links
@@ -6707,7 +6716,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
         pushSTACK(TheSubr(subr_self)->name);
         fehler(file_error,GETTEXT("~: ~ names a directory, not a file"));
       }
-     #ifdef HAVE_LSTAT
+     if_HAVE_LSTAT(
       else if (possible_symlink(namestring_asciz) && S_ISLNK(status.st_mode)) {
         # is it a symbolic link?
         # yes -> continue resolving:
@@ -6750,7 +6759,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
         subr_self = popSTACK();
         STACK_0 = value1;
       }
-     #endif # HAVE_LSTAT
+     ) # HAVE_LSTAT
       else { # normal file
         filestatus = &status; return namestring;
       }
