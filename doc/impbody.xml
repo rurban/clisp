@@ -1020,7 +1020,7 @@ temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>
 <ulink url="mailto:haflich@pacbell.net">Steven M. Haflich</ulink></title>
 <para>This should prevent you from accidentally hosing yourself with
 <programlisting>
- (defstruct instance ...)
+ (&defstruct; instance ...)
 </programlisting>
 and allow enforcing modularity.
 Note that you will also get the continuable error when you try to
@@ -2441,17 +2441,17 @@ and &end-k;:</para>
 <section id="make-hash"><title>Function &make-hash-table;</title>
 
 <para>&make-hash-table; supports additional keywords
- <constant>:initial-contents</constant>
- and <constant>:weak</constant>:</para>
+ <constant>:INITIAL-CONTENTS</constant>
+ and <constant>:WEAK</constant>:</para>
 
 <programlisting>
 (&make-hash-table; &key-amp; :test :initial-contents :size
                  :rehash-size :rehash-threshold :weak)
 </programlisting>
 
-<para>The <constant>:initial-contents</constant> argument is an
+<para>The <constant>:INITIAL-CONTENTS</constant> argument is an
  &alist; that is used to initialize the new hash table.
- The <constant>:rehash-threshold</constant> argument is ignored.</para>
+ The <constant>:REHASH-THRESHOLD</constant> argument is ignored.</para>
 
 <para>The <constant>:WEAK</constant> can take the following values:
  <simplelist columns="1">
