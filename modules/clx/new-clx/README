@@ -193,9 +193,9 @@ CLX
    X release in the contrib directory.  Also available by anonymous ftp from
    ftp.x.org:/R5contrib/ as the files CLX.Manual.tar.Z and CLX.R5.02.tar.Z. 
    [Note: The new version of CLX for X11R6 can be found (untarred) in
-      ftp.x.org:/pub/R6.1/contrib/lib/CLX/ 
+      ftp://ftp.x.org/pub/R6.1/contrib/lib/CLX/ 
    with documentation in
-      ftp.x.org:/pub/R6.1/contrib/doc/CLX/ 
+      ftp://ftp.x.org/pub/R6.1/contrib/doc/CLX/ 
    and includes some slight modifications for CLtL2 compatibility. You
    can get it in tarred form from the CMU AI Repository, Lisp section.]
    Primary Interface Author: Robert W. Scheifler <rws@zermatt.lcs.mit.edu>
@@ -209,7 +209,8 @@ CLUE
    to provide a simple, object-oriented toolkit (like Xt) library that uses
    CLOS. Provides basic window classes, some stream I/O facilities, and a few
    other utilities. Still pretty low level (it's a toolkit, not widget
-   library).  Available free by anonymous ftp from csc.ti.com:/pub/clue.tar.Z
+   library).  Available free by anonymous ftp from
+   ftp://csc.ti.com/pub/clue.tar.Z
    Written by Kerry Kimbrough. Send bug reports to clue-bugs@dsg.csc.ti.com.
 
 Garnet
