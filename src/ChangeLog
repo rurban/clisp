@@ -58,9 +58,18 @@
 
 2004-04-27  Kaz Kylheku  <kaz@ashi.footprints.net>
 
-	* backquote.lisp (bq-optimize-list*): be careful to watch for
-	splicing UNQUOTE forms in the last position, and also for
-	quoted UNQUOTE, SPLICE or NSPLICE in the last position
+	* backquote.lisp (quoted-bq-operator-p, bq-constant-p, bq-eval):
+	New functions.
+	(bq-optimize-list): Use special rules to determine what is a
+	constant expression, and how to evaluate it.
+	E.g instance (LIST 1 (QUOTE (UNQUOTE (+ 2 2)))) is reduced
+	to (QUOTE (1 4)) because (QUOTE (UNQUOTE (+ 2 2))) is considered a
+	BQ-CONSTANT-P expression, with the rule that it evaluates to 4
+	under BQ-EVAL.
+	(bq-optimize-list*): If the last element is (QUOTE ...), do not
+	break it up into individual elements if it is a quoted backquote
+	operator.  E.g. (LIST* 1 (QUOTE (UNQUOTE X))) must not turn
+	into (LIST 1 'UNQUOTE 'X).
 
 2004-04-13  Bruno Haible  <bruno@clisp.org>
 
