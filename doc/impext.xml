@@ -8,7 +8,7 @@
 <section id="image"><title>Extensions-1.1. Saving an Image</title>
 
 <para>The function
-  <literal role="sexp">(<function>lisp:saveinitmem</function>
+  <literal role="sexp">(<function>ext:saveinitmem</function>
     &optional-amp; (<replaceable>filename</replaceable> "lispinit.mem")
     &key-amp; :quiet :init-function)</literal>
  saves the running &clisp;'s memory to a file.  If the
@@ -17,17 +17,17 @@
  <constant>:init-function</constant> argument specifies a function that
  will be executed at startup of the saved image.  The starting package
  of the new image is the one in which you were when you invoked
- <function>lisp:saveinitmem</function>.</para>
+ <function>ext:saveinitmem</function>.</para>
 
 </section>
 
 <section id="quit"><title>Extensions-1.2. Quitting Lisp</title>
 
-<para>The functions <literal role="sexp">(<function>lisp:exit</function>
+<para>The functions <literal role="sexp">(<function>ext:exit</function>
  [<replaceable>errorp</replaceable>])</literal>, <literal
- role="sexp">(<function>lisp:quit</function>
+ role="sexp">(<function>ext:quit</function>
  [<replaceable>errorp</replaceable>])</literal> and <literal
- role="sexp">(<function>lisp:bye</function>
+ role="sexp">(<function>ext:bye</function>
  [<replaceable>errorp</replaceable>])</literal> - all synonymous -
  terminate &clisp;.  If <replaceable>errorp</replaceable> is non-&nil;,
  &clisp; aborts with error status, i.e., the environment is informed
@@ -42,8 +42,8 @@
  (i.e., German) or <function>FRANCAIS</function> (i.e., French) or
  <function>ESPA&Ntilde;OL</function> (i.e.  Spanish).  More languages
  can be defined through the macro <emphasis
- role="strong"><function>lisp:deflanguage</function></emphasis>:
- <literal role="sexp">(<function>lisp:deflanguage</function>
+ role="strong"><function>i18n:deflanguage</function></emphasis>:
+ <literal role="sexp">(<function>i18n:deflanguage</function>
  <replaceable>lang</replaceable>)</literal>.  For such an additional
  language to take effect, you must install the corresponding message
  catalog, or translate the messages yourself, using &gnu; gettext and
@@ -64,21 +64,21 @@
 
 <para>This works only for strings.  For arbitrary language-dependent
  Lisp objects, you define one through the macro <emphasis
- role="strong"><function>lisp:definternational</function></emphasis>:
- <literal role="sexp">(<function>lisp:definternational</function>
+ role="strong"><function>i18n:definternational</function></emphasis>:
+ <literal role="sexp">(<function>i18n:definternational</function>
  <replaceable>symbol</replaceable> &optional-amp;
  (<replaceable>default-language</replaceable> &t;))</literal> and add
  language-dependent values through the macro <emphasis
- role="strong"><function>lisp:deflocalized</function></emphasis>:
- <literal role="sexp">(<function>lisp:deflocalized</function>
+ role="strong"><function>i18n:deflocalized</function></emphasis>:
+ <literal role="sexp">(<function>i18n:deflocalized</function>
  <replaceable>symbol</replaceable> <replaceable>language</replaceable>
  <replaceable>value-form</replaceable>)</literal></para>
 
 <para>(One such form for each language.  Languages without an assigned
  value will be treated like the default-language.)  You can then access
  the localized value by calling <emphasis
- role="strong"><function>lisp:localized</function></emphasis>: <literal
- role="sexp">(<function>lisp:localized</function>
+ role="strong"><function>i18n:localized</function></emphasis>: <literal
+ role="sexp">(<function>i18n:localized</function>
  <replaceable>symbol</replaceable> &optional-amp;
  <replaceable>language</replaceable>)</literal></para>
 
@@ -628,10 +628,10 @@
 
 </section>
 
-<section><title>lisp:make-encoding</title>
+<section><title>ext:make-encoding</title>
 
 <para>The function
-  <literal role="sexp">(<function>lisp:make-encoding</function>
+  <literal role="sexp">(<function>ext:make-encoding</function>
      &key-amp; :charset :line-terminator :input-error-action
      :output-error-action)</literal>
  returns an encoding. The <constant>:charset</constant> argument may be
@@ -664,7 +664,7 @@
  the following &symbol-macro; places contain global encodings:</para>
 
 <para id="def-file-enc"><emphasis
- role="strong"><varname>lisp:*default-file-encoding*</varname></emphasis>
+ role="strong"><varname>custom:*default-file-encoding*</varname></emphasis>
  is the encoding used for new &file-pipe-socket; streams, when no
  &extfmt; argument was specified.</para>
 
@@ -674,16 +674,16 @@
   &with; compile-time flag &unicode;.</term>
 <listitem>
 <variablelist>
-<varlistentry><term><varname>lisp:*pathname-encoding*</varname></term>
+<varlistentry><term><varname>custom:*pathname-encoding*</varname></term>
  <listitem><simpara>is the encoding used for pathnames in the file
  system. Normally, this is a 1:1 encoding.  Its <link
  linkend="newline">line terminator</link> mode is ignored.
  </simpara></listitem></varlistentry>
-<varlistentry><term><varname>lisp:*terminal-encoding*</varname></term>
+<varlistentry><term><varname>custom:*terminal-encoding*</varname></term>
  <listitem><simpara>is the encoding used for communication with the
   terminal, in particular by &terminal-io-var;.
  </simpara></listitem></varlistentry>
-<varlistentry><term><varname>lisp:*misc-encoding*</varname></term>
+<varlistentry><term><varname>custom:*misc-encoding*</varname></term>
  <listitem><simpara>is the encoding used for access to environment
  variables, command line options, and the like.
  Its <link linkend="newline">line terminator</link> mode is ignored.
@@ -703,7 +703,7 @@ their corresponding byte vector representation according to that encoding.
 <variablelist>
 
 <varlistentry><term><literal role="sexp">
- (<function>lisp:convert-string-from-bytes</function>
+ (<function>ext:convert-string-from-bytes</function>
   <replaceable>byte-vector</replaceable> <replaceable>encoding</replaceable>
   &key-amp; :start :end)</literal></term>
  <listitem><simpara>converts the subsequence of
@@ -713,7 +713,7 @@ their corresponding byte vector representation according to that encoding.
   </simpara></listitem></varlistentry>
 
 <varlistentry><term><literal role="sexp">
- (<function>lisp:convert-string-to-bytes</function>
+ (<function>ext:convert-string-to-bytes</function>
   <replaceable>string</replaceable> <replaceable>encoding</replaceable>
   &key-amp; :start :end)</literal></term>
  <listitem><simpara>converts the subsequence of
@@ -728,31 +728,32 @@ their corresponding byte vector representation according to that encoding.
 </section>
 </section>
 
-<section id="gstream">
+<section id="clos-stream">
   <title>Extensions-1.5. Defining new kinds of Streams</title>
 
 <para>Two mechanisms are supported for creating new streams with
 user-defined behavior:
 <itemizedlist>
   <listitem><simpara>You can create a new subclass of
-    <classname>lisp:fundamental-stream</classname> and define methods for
+    <classname>gray:fundamental-stream</classname> and define methods for
     the elementary stream operations on it.  These generic functions all
     have a name starting with the prefix "stream-".</simpara></listitem>
   <listitem><simpara>You can create a new subclass of
-    <classname>lisp:generic-stream-controller</classname> and define
+    <classname>gstream:generic-stream-controller</classname> and define
     methods for the elementary stream operations on it.  These generic
     functions all have a name starting with the prefix
     "generic-stream-".  The stream itself is a different object, created
-    using the function <function>lisp:make-generic-stream</function>.
+    using the function <function>gstream:make-generic-stream</function>.
     </simpara></listitem>
 </itemizedlist></para>
 
-<para>The <function>fundamental-stream</function> API is based on a
- proposal by David N. Gray and is supported by most &cl; implementations
- currently in use.  The <classname>generic-stream-controller</classname>
+<para>The <function>fundamental-stream</function> API is based on the
+ &gray-streams; proposal by David N. Gray and is supported by most &cl;
+ implementations currently in use.
+ The <classname>generic-stream-controller</classname>
  API is &clisp; specific and is now obsolete.</para>
 
-<section><title>Gray streams</title>
+<section id="gray"><title>Gray streams</title>
 
 <para>This interface permits the definition of new classes of streams,
 and programming their behavior by defining methods for the elementary
@@ -761,69 +762,69 @@ N. Gray to X3J13.</para>
 
 <para>All symbols defined by this interface, starting with the prefix
  "fundamental-" or "stream-", are exported from the package
- <quote>LISP</quote>.</para>
+ &gray-pac; and re-exported from &ext-pac;.</para>
 
 <variablelist><title>Defined classes</title>
- <varlistentry><term><classname>lisp:fundamental-stream</classname></term>
+ <varlistentry><term><classname>gray:fundamental-stream</classname></term>
   <listitem><simpara>This is a superclass of all user-defined streams.
    It is a subclass of &stream-class; and of &standard-object-class;.
    Its metaclass is &standard-class;.</simpara></listitem></varlistentry>
  <varlistentry>
-     <term><classname>lisp:fundamental-input-stream</classname></term>
+     <term><classname>gray:fundamental-input-stream</classname></term>
   <listitem><simpara>This is a superclass of all user-defined input streams.
-   It is a subclass of <classname>lisp:fundamental-stream</classname>.
+   It is a subclass of <classname>gray:fundamental-stream</classname>.
    The built-in function &input-stream-p; returns true on instances of
    this class.  This means that when you define a new stream class
    capable of doing input, you have to make it a subclass of
-   <classname>lisp:fundamental-input-stream</classname>.
+   <classname>gray:fundamental-input-stream</classname>.
   </simpara></listitem></varlistentry>
  <varlistentry>
-    <term><classname>lisp:fundamental-output-stream</classname></term>
+    <term><classname>gray:fundamental-output-stream</classname></term>
   <listitem><simpara>This is a superclass of all user-defined output streams.
-   It is a subclass of <classname>lisp:fundamental-stream</classname>.
+   It is a subclass of <classname>gray:fundamental-stream</classname>.
    The built-in function &output-stream-p; returns true on instances of
    this class.  This means that when you define a new stream class
    capable of doing output, you have to make it a subclass of
-   <classname>lisp:fundamental-output-stream</classname>.
+   <classname>gray:fundamental-output-stream</classname>.
   </simpara></listitem></varlistentry>
  <varlistentry>
-    <term><classname>lisp:fundamental-character-stream</classname></term>
+    <term><classname>gray:fundamental-character-stream</classname></term>
   <listitem><simpara>This is a superclass of all user-defined streams
    whose element-type is &character-class;.  It is a subclass of
-   <classname>lisp:fundamental-stream</classname>.  It defines a method on
+   <classname>gray:fundamental-stream</classname>.  It defines a method on
    &stream-element-type; that returns &character-class;.
   </simpara></listitem></varlistentry>
  <varlistentry>
-    <term><classname>lisp:fundamental-binary-stream</classname></term>
+    <term><classname>gray:fundamental-binary-stream</classname></term>
   <listitem><simpara>This is a superclass of all user-defined streams
    whose element-type is a subtype of &integer-class;.  It is a subclass
-   of <classname>lisp:fundamental-stream</classname>.  When you define a
-   subclass of <classname>lisp:fundamental-binary-stream</classname>,
+   of <classname>gray:fundamental-stream</classname>.  When you define a
+   subclass of <classname>gray:fundamental-binary-stream</classname>,
    you have to provide a method on &stream-element-type;.
   </simpara></listitem></varlistentry>
  <varlistentry>
-    <term><classname>lisp:fundamental-character-input-stream</classname></term>
+    <term><classname>gray:fundamental-character-input-stream</classname></term>
   <listitem><simpara>This is a convenience class inheriting from both
-   <classname>lisp:fundamental-character-stream</classname> and
-   <classname>lisp:fundamental-input-stream</classname>.
+   <classname>gray:fundamental-character-stream</classname> and
+   <classname>gray:fundamental-input-stream</classname>.
   </simpara></listitem></varlistentry>
  <varlistentry>
-   <term><classname>lisp:fundamental-character-output-stream</classname></term>
+   <term><classname>gray:fundamental-character-output-stream</classname></term>
   <listitem><simpara>This is a convenience class inheriting from both
-   <classname>lisp:fundamental-character-stream</classname> and
-   <classname>lisp:fundamental-output-stream</classname>.
+   <classname>gray:fundamental-character-stream</classname> and
+   <classname>gray:fundamental-output-stream</classname>.
   </simpara></listitem></varlistentry>
  <varlistentry>
-    <term><classname>lisp:fundamental-binary-input-stream</classname></term>
+    <term><classname>gray:fundamental-binary-input-stream</classname></term>
   <listitem><simpara>This is a convenience class inheriting from both
-   <classname>lisp:fundamental-binary-stream</classname> and
-   <classname>lisp:fundamental-input-stream</classname>.
+   <classname>gray:fundamental-binary-stream</classname> and
+   <classname>gray:fundamental-input-stream</classname>.
   </simpara></listitem></varlistentry>
  <varlistentry>
-    <term><classname>lisp:fundamental-binary-output-stream</classname></term>
+    <term><classname>gray:fundamental-binary-output-stream</classname></term>
   <listitem><simpara>This is a convenience class inheriting from both
-   <classname>lisp:fundamental-binary-stream</classname> and
-   <classname>lisp:fundamental-output-stream</classname>.
+   <classname>gray:fundamental-binary-stream</classname> and
+   <classname>gray:fundamental-output-stream</classname>.
   </simpara></listitem></varlistentry>
 </variablelist>
 
@@ -833,7 +834,7 @@ N. Gray to X3J13.</para>
   <listitem><simpara>Returns the stream's element type, normally a
    subtype of &character-class; or &integer-class;.
    </simpara><simpara>The method for
-   <classname>lisp:fundamental-character-stream</classname>
+   <classname>gray:fundamental-character-stream</classname>
    returns &character-class;.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">((&setf; &stream-element-type;)
@@ -859,16 +860,16 @@ N. Gray to X3J13.</para>
 
 <variablelist><title>generic functions for character input</title>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-read-char</function>
+    role="sexp">(<function>gray:stream-read-char</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>If a character was pushed back using
-   <function>lisp:stream-unread-char</function>, returns and consumes it.
+   <function>gray:stream-unread-char</function>, returns and consumes it.
    Otherwise returns and consumes the next character from the stream.
    Returns &eof-k; if the &eos; is reached.
    </simpara><simpara>You must define a method for this function.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-unread-char</function>
+    role="sexp">(<function>gray:stream-unread-char</function>
                  <replaceable>stream</replaceable>
                  <replaceable>character</replaceable>)</literal></term>
   <listitem><simpara>Pushes <replaceable>character</replaceable>, which
@@ -880,57 +881,57 @@ N. Gray to X3J13.</para>
     role="sexp">(<function>stream-read-char-no-hang</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>Returns a character or &eof-k;, like
-   <function>lisp:stream-read-char</function>, if that would return
-   immediately.  If <function>lisp:stream-read-char</function>'s value
+   <function>gray:stream-read-char</function>, if that would return
+   immediately.  If <function>gray:stream-read-char</function>'s value
    is not available immediately, returns &nil; instead of waiting.
    </simpara><simpara>The default method simply calls
-   <function>lisp:stream-read-char</function>; this is sufficient for
-   streams whose <function>lisp:stream-read-char</function> method never
+   <function>gray:stream-read-char</function>; this is sufficient for
+   streams whose <function>gray:stream-read-char</function> method never
    blocks.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-peek-char</function>
+    role="sexp">(<function>gray:stream-peek-char</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>If a character was pushed back using
-   <function>lisp:stream-unread-char</function>, returns it.  Otherwise
+   <function>gray:stream-unread-char</function>, returns it.  Otherwise
    returns the next character from the stream, avoiding any side effects
-   <function>lisp:stream-read-char</function> would do.
+   <function>gray:stream-read-char</function> would do.
    Returns &eof-k; if the &eos; is reached.
    </simpara><simpara>The default method calls
-   <function>lisp:stream-read-char</function> and
-   <function>lisp:stream-unread-char</function>; this is sufficient for
-   streams whose <function>lisp:stream-read-char</function> method has
+   <function>gray:stream-read-char</function> and
+   <function>gray:stream-unread-char</function>; this is sufficient for
+   streams whose <function>gray:stream-read-char</function> method has
    no side-effects.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-listen</function>
+    role="sexp">(<function>gray:stream-listen</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>If a character was pushed back using
-   <function>lisp:stream-unread-char</function>, returns it.  Otherwise
+   <function>gray:stream-unread-char</function>, returns it.  Otherwise
    returns the next character from the stream, if already available.  If
    no character is available immediately, or if &eos; is reached,
    returns &nil;.
    </simpara><simpara>The default method calls
-   <function>lisp:stream-read-char-no-hang</function> and
-   <function>lisp:stream-unread-char</function>; this is sufficient for
-   streams whose <function>lisp:stream-read-char</function> method has
+   <function>gray:stream-read-char-no-hang</function> and
+   <function>gray:stream-unread-char</function>; this is sufficient for
+   streams whose <function>gray:stream-read-char</function> method has
    no side-effects.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-read-char-will-hang-p</function>
+    role="sexp">(<function>gray:stream-read-char-will-hang-p</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>Returns &nil; if
-   <function>lisp:stream-read-char</function> will return immediately.
+   <function>gray:stream-read-char</function> will return immediately.
    Otherwise it returns true.
    </simpara><simpara>The default method calls
-   <function>lisp:stream-read-char-no-hang</function> and
-   <function>lisp:stream-unread-char</function>; this is sufficient for
-   streams whose <function>lisp:stream-read-char</function> method has no
+   <function>gray:stream-read-char-no-hang</function> and
+   <function>gray:stream-unread-char</function>; this is sufficient for
+   streams whose <function>gray:stream-read-char</function> method has no
    side-effects.
    </simpara><simpara>This function is a &clisp; extension.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-     role="sexp">(<function>lisp:stream-read-char-sequence</function>
+     role="sexp">(<function>gray:stream-read-char-sequence</function>
                   <replaceable>stream</replaceable>
                   <replaceable>sequence</replaceable> &optional-amp;
                   [<replaceable>start</replaceable>
@@ -949,12 +950,12 @@ N. Gray to X3J13.</para>
    for <literal role="sexp">(&length;
    <replaceable>sequence</replaceable>)</literal>.
    </simpara><simpara>The default method repeatedly calls
-   <function>lisp:stream-read-char</function>;
+   <function>gray:stream-read-char</function>;
    this is always sufficient if speed does not matter.
    </simpara><simpara>This function is a &clisp; extension.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-read-line</function>
+    role="sexp">(<function>gray:stream-read-line</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>Reads a line of characters, and return two values:
    the line (a string, without the terminating
@@ -962,11 +963,11 @@ N. Gray to X3J13.</para>
    true if the line was terminated by &eos; instead of
    <keysym>#\Newline</keysym>.
    </simpara><simpara>The default method repeatedly calls
-   <function>lisp:stream-read-char</function>;
+   <function>gray:stream-read-char</function>;
    this is always sufficient.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-clear-input</function>
+    role="sexp">(<function>gray:stream-clear-input</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>Clears all pending interactive input from the
    stream, and returns true if some pending input was removed.
@@ -977,14 +978,14 @@ N. Gray to X3J13.</para>
 
 <variablelist><title>generic functions for character output</title>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-write-char</function>
+    role="sexp">(<function>gray:stream-write-char</function>
                  <replaceable>stream</replaceable>
                  <replaceable>character</replaceable>)</literal></term>
   <listitem><simpara>Writes <replaceable>character</replaceable>.
    </simpara><simpara>You must define a method for this function.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-line-column</function>
+    role="sexp">(<function>gray:stream-line-column</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>Returns the column number where the next character
    would be written (0 stands for the first column), or &nil; if that is
@@ -992,17 +993,17 @@ N. Gray to X3J13.</para>
    </simpara><simpara>You must define a method for this function.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-start-line-p</function>
+    role="sexp">(<function>gray:stream-start-line-p</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>Returns true if the next character would be
    written at the start of a new line.
    </simpara><simpara>The default method calls
-   <function>lisp:stream-line-column</function> and compares its
+   <function>gray:stream-line-column</function> and compares its
    result with 0; this is sufficient for streams whose
-   <function>lisp:stream-line-column</function> never returns &nil;.
+   <function>gray:stream-line-column</function> never returns &nil;.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-write-char-sequence</function>
+    role="sexp">(<function>gray:stream-write-char-sequence</function>
                  <replaceable>stream</replaceable>
                  <replaceable>sequence</replaceable> &optional-amp;
                  [<replaceable>start</replaceable>
@@ -1017,12 +1018,12 @@ N. Gray to X3J13.</para>
    for <literal role="sexp">(&length;
    <replaceable>sequence</replaceable>)</literal>.
    </simpara><simpara>The default method repeatedly calls
-   <function>lisp:stream-write-char</function>;
+   <function>gray:stream-write-char</function>;
    this is always sufficient if speed does not matter.
    </simpara><simpara>This function is a &clisp; extension.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-write-string</function>
+    role="sexp">(<function>gray:stream-write-string</function>
                  <replaceable>stream</replaceable>
                  <replaceable>string</replaceable> &optional-amp;
                  [<replaceable>start</replaceable>
@@ -1037,38 +1038,38 @@ N. Gray to X3J13.</para>
    &nil; and defaults to &nil;, which stands for <literal
    role="sexp">(&length; <replaceable>string</replaceable>)</literal>.
    </simpara><simpara>The default method calls
-   <function>lisp:stream-write-char-sequence</function>;
+   <function>gray:stream-write-char-sequence</function>;
    this is always sufficient.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-terpri</function>
+    role="sexp">(<function>gray:stream-terpri</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>Outputs a <keysym>#\Newline</keysym> character.
    </simpara><simpara>The default method calls
-   <function>lisp:stream-write-char</function>;
+   <function>gray:stream-write-char</function>;
    this is always sufficient.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-fresh-line</function>
+    role="sexp">(<function>gray:stream-fresh-line</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>Possibly outputs a <keysym>#\Newline</keysym>
    character, so as to ensure that the next character would be written
    at the start of a new line.  Returns true if it did output a
    <keysym>#\Newline</keysym> character.
    </simpara><simpara>The default method calls
-   <function>lisp:stream-start-line-p</function> and then
-   <function>lisp:stream-terpri</function> if necessary;
+   <function>gray:stream-start-line-p</function> and then
+   <function>gray:stream-terpri</function> if necessary;
    this is always sufficient.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-finish-output</function>
+    role="sexp">(<function>gray:stream-finish-output</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>Ensures that any buffered output has reached its
    destination, and then returns.
    </simpara><simpara>The default method does nothing.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-force-output</function>
+    role="sexp">(<function>gray:stream-force-output</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>Brings any buffered output on its way towards its
    destination, and returns without waiting until it has reached its
@@ -1076,14 +1077,14 @@ N. Gray to X3J13.</para>
    </simpara><simpara>The default method does nothing.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-clear-output</function>
+    role="sexp">(<function>gray:stream-clear-output</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>Attempts to discard any buffered output which has
    not yet reached its destination.
    </simpara><simpara>The default method does nothing.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-advance-to-column</function>
+    role="sexp">(<function>gray:stream-advance-to-column</function>
                  <replaceable>stream</replaceable>
                  <replaceable>column</replaceable>)</literal></term>
   <listitem><simpara>Ensures that the next character will be written at
@@ -1095,7 +1096,7 @@ N. Gray to X3J13.</para>
 
 <variablelist><title>generic functions for binary input</title>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-read-byte</function>
+    role="sexp">(<function>gray:stream-read-byte</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>Returns and consumes the next integer from the
    stream. Returns &eof-k; if the &eos; is reached.
@@ -1108,9 +1109,9 @@ N. Gray to X3J13.</para>
    <replaceable>stream</replaceable>'s element-type is
    <literal role="sexp">(unsigned-byte 8)</literal> or
    <literal role="sexp">(signed-byte 8)</literal>. Returns &t; if
-   <function>lisp:stream-read-byte</function> would return immediately
+   <function>gray:stream-read-byte</function> would return immediately
    with an integer result. Returns &eof-k; if the &eos; is already known
-   to be reached. If <function>lisp:stream-read-byte</function>'s value
+   to be reached. If <function>gray:stream-read-byte</function>'s value
    is not available immediately, returns &nil; instead of waiting.
    </simpara><simpara>You must define a method for this function.
   </simpara></listitem></varlistentry>
@@ -1121,10 +1122,10 @@ N. Gray to X3J13.</para>
    <replaceable>stream</replaceable>'s element-type is
    <literal role="sexp">(unsigned-byte 8)</literal> or
    <literal role="sexp">(signed-byte 8)</literal>. Returns &nil; if
-   <function>lisp:stream-read-byte</function> will return immediately.
+   <function>gray:stream-read-byte</function> will return immediately.
    Otherwise it returns true.
    </simpara><simpara>The default method calls
-   <function>lisp:stream-read-byte-lookahead</function>;
+   <function>gray:stream-read-byte-lookahead</function>;
    this is always sufficient.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
@@ -1134,17 +1135,17 @@ N. Gray to X3J13.</para>
    <replaceable>stream</replaceable>'s element-type is
    <literal role="sexp">(unsigned-byte 8)</literal> or
    <literal role="sexp">(signed-byte 8)</literal>. Returns an integer or
-   &eof-k;, like <function>lisp:stream-read-byte</function>, if that
+   &eof-k;, like <function>gray:stream-read-byte</function>, if that
    would return immediately.  If
-   <function>lisp:stream-read-byte</function>'s value
+   <function>gray:stream-read-byte</function>'s value
    is not available immediately, returns &nil; instead of waiting.
    </simpara><simpara>The default method calls
-   <function>lisp:stream-read-byte</function> if
-   <function>lisp:stream-read-byte-lookahead</function> returns true;
+   <function>gray:stream-read-byte</function> if
+   <function>gray:stream-read-byte-lookahead</function> returns true;
    this is always sufficient.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-read-byte-sequence</function>
+    role="sexp">(<function>gray:stream-read-byte-sequence</function>
                  <replaceable>stream</replaceable>
                  <replaceable>sequence</replaceable> &optional-amp;
                  [<replaceable>start</replaceable>
@@ -1163,7 +1164,7 @@ N. Gray to X3J13.</para>
    role="sexp">(&length;
    <replaceable>sequence</replaceable>)</literal>.
    </simpara><simpara>The default method repeatedly calls
-   <function>lisp:stream-read-byte</function>;
+   <function>gray:stream-read-byte</function>;
    this is always sufficient if speed does not matter.
    </simpara><simpara>This function is a &clisp; extension.
   </simpara></listitem></varlistentry>
@@ -1171,14 +1172,14 @@ N. Gray to X3J13.</para>
 
 <variablelist><title>generic functions for binary output</title>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-write-byte</function>
+    role="sexp">(<function>gray:stream-write-byte</function>
                  <replaceable>stream</replaceable>
                  <replaceable>integer</replaceable>)</literal></term>
   <listitem><simpara>Writes <replaceable>integer</replaceable>.
    </simpara><simpara>You must define a method for this function.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:stream-write-byte-sequence</function>
+    role="sexp">(<function>gray:stream-write-byte-sequence</function>
                  <replaceable>stream</replaceable>
                  <replaceable>sequence</replaceable> &optional-amp;
                  [<replaceable>start</replaceable>
@@ -1193,7 +1194,7 @@ N. Gray to X3J13.</para>
    role="sexp">(&length;
    <replaceable>sequence</replaceable>)</literal>.
    </simpara><simpara>The default method repeatedly calls
-   <function>lisp:stream-write-byte</function>;
+   <function>gray:stream-write-byte</function>;
    this is always sufficient if speed does not matter.
    </simpara><simpara>This function is a &clisp; extension.
   </simpara></listitem></varlistentry>
@@ -1202,7 +1203,7 @@ N. Gray to X3J13.</para>
 </section>
 
 <!-- #ifdef GENERIC_STREAMS -->
-<section><title>Generic streams</title>
+<section id="gstream"><title>Generic streams</title>
 
 <para>This interface is &clisp; specific and now obsolete.  Please use
  the Gray streams interface instead.</para>
@@ -1212,20 +1213,20 @@ N. Gray to X3J13.</para>
 
 <variablelist>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:make-generic-stream</function>
+    role="sexp">(<function>gstream:make-generic-stream</function>
                  <replaceable>controller</replaceable>)</literal></term>
   <listitem><simpara>returns a generic stream.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:generic-stream-controller</function>
+    role="sexp">(<function>gstream:generic-stream-controller</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>returns a private object to which generic stream
    methods dispatch.  The typical usage is to retrieve the object
    originally provided by the user in
-   <function>lisp:make-generic-stream</function>.
+   <function>gstream:make-generic-stream</function>.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:generic-stream-p</function>
+    role="sexp">(<function>gstream:generic-stream-p</function>
                  <replaceable>stream</replaceable>)</literal></term>
   <listitem><simpara>determines whether a stream is a generic stream,
    returning &t; if it is, &nil; otherwise.
@@ -1235,20 +1236,20 @@ N. Gray to X3J13.</para>
 <para>In order to specify the behavior of a generic stream, the user
  must define &clos; methods on the following &clos; generic
  functions.  The function
- <function>lisp:generic-stream-<replaceable>xyz</replaceable></function>
+ <function>gstream:generic-stream-<replaceable>xyz</replaceable></function>
  corresponds to the &cl; function
  <function><replaceable>xyz</replaceable></function>.  They all take a
  controller and some number of arguments.</para>
 
 <variablelist>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:generic-stream-read-char</function>
+    role="sexp">(<function>gstream:generic-stream-read-char</function>
                  <replaceable>controller</replaceable>)</literal></term>
   <listitem><simpara> Returns and consumes the next character, &nil; at
     end of file.  Takes one argument, the controller object.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:generic-stream-peek-char</function>
+    role="sexp">(<function>gstream:generic-stream-peek-char</function>
                  <replaceable>controller</replaceable>)</literal></term>
   <listitem><simpara> Returns the next character, &nil; at end of file.  A
    second value indicates whether the side effects associated with
@@ -1257,36 +1258,36 @@ N. Gray to X3J13.</para>
    Takes one argument, the controller object.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:generic-stream-read-byte</function>
+    role="sexp">(<function>gstream:generic-stream-read-byte</function>
                  <replaceable>controller</replaceable>)</literal></term>
   <listitem><simpara>Returns and consumes the next integer, &nil; at end
    of file.  Takes one argument, the controller object.
   </simpara></listitem></varlistentry>
- <varlistentry><term><literal
-    role="sexp">(<function>lisp:generic-stream-read-char-will-hang-p</function>
-                 <replaceable>controller</replaceable>)</literal></term>
+ <varlistentry><term><literal role="sexp"
+   >(<function>gstream:generic-stream-read-char-will-hang-p</function>
+     <replaceable>controller</replaceable>)</literal></term>
   <listitem><simpara>This generic function is used to query the stream's
    input status.  It returns &nil; if
-   <function>lisp:generic-stream-read-char</function> and
-   <function>lisp:generic-stream-peek-char</function> will certainly
+   <function>gstream:generic-stream-read-char</function> and
+   <function>gstream:generic-stream-peek-char</function> will certainly
    return immediately.  Otherwise it returns true.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:generic-stream-write-char</function>
+    role="sexp">(<function>gstream:generic-stream-write-char</function>
                  <replaceable>controller</replaceable>
                  <replaceable>ch</replaceable>)</literal></term>
   <listitem><simpara>The first argument is the controller object.
    The second argument is the character to be written.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:generic-stream-write-byte</function>
+    role="sexp">(<function>gstream:generic-stream-write-byte</function>
                  <replaceable>controller</replaceable>
                  <replaceable>by</replaceable>)</literal></term>
   <listitem><simpara>The first argument is the controller object.
    The second argument is the integer to be written.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:generic-stream-write-string</function>
+    role="sexp">(<function>gstream:generic-stream-write-string</function>
                  <replaceable>controller</replaceable>
                  <replaceable>string</replaceable>
                  <replaceable>start</replaceable>
@@ -1298,16 +1299,20 @@ N. Gray to X3J13.</para>
    The first argument is the controller object.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:generic-stream-clear-input</function>
+    role="sexp">(<function>gstream:generic-stream-clear-input</function>
                  <replaceable>controller</replaceable>)</literal>
-  <literal role="sexp">(<function>lisp:generic-stream-clear-output</function>
-                        <replaceable>controller</replaceable>)</literal>
-  <literal role="sexp">(<function>lisp:generic-stream-finish-output</function>
-                        <replaceable>controller</replaceable>)</literal>
-  <literal role="sexp">(<function>lisp:generic-stream-force-output</function>
-                        <replaceable>controller</replaceable>)</literal>
-  <literal role="sexp">(<function>lisp:generic-stream-close</function>
-                        <replaceable>controller</replaceable>)</literal></term>
+  <literal role="sexp"
+   >(<function>gstream:generic-stream-clear-output</function>
+     <replaceable>controller</replaceable>)</literal>
+  <literal role="sexp"
+   >(<function>gstream:generic-stream-finish-output</function>
+     <replaceable>controller</replaceable>)</literal>
+  <literal role="sexp"
+   >(<function>gstream:generic-stream-force-output</function>
+     <replaceable>controller</replaceable>)</literal>
+  <literal role="sexp"
+   >(<function>gstream:generic-stream-close</function>
+     <replaceable>controller</replaceable>)</literal></term>
   <listitem><simpara>Take one argument, the controller object.
  </simpara></listitem></varlistentry>
 </variablelist>
@@ -1324,19 +1329,19 @@ N. Gray to X3J13.</para>
 
 <variablelist>
 <varlistentry><term><literal
-   role="sexp">(<function>lisp:make-weak-pointer</function>
+   role="sexp">(<function>ext:make-weak-pointer</function>
    <replaceable>value</replaceable>)</literal></term>
  <listitem><simpara>returns a fresh weak pointer referring to
   <replaceable>value</replaceable>.</simpara></listitem></varlistentry>
 <varlistentry><term><literal
-   role="sexp">(<function>lisp:weak-pointer-p</function>
+   role="sexp">(<function>ext:weak-pointer-p</function>
    <replaceable>object</replaceable>)</literal></term>
  <listitem><simpara>returns true if the
    <replaceable>object</replaceable> is of type <emphasis
    role="strong"><classname>weak-pointer</classname></emphasis>.
  </simpara></listitem></varlistentry>
 <varlistentry><term><literal
-    role="sexp">(<function>lisp:weak-pointer-value</function>
+    role="sexp">(<function>ext:weak-pointer-value</function>
     <replaceable>weak-pointer</replaceable>)</literal></term>
  <listitem><simpara> returns two values: The original value and &t;, if
     the value has not yet been &gc;ed, else &nil; and &nil;.
@@ -1383,11 +1388,11 @@ N. Gray to X3J13.</para>
 <section id="prompt"><title>Extensions-1.8. The Prompt</title>
 
 <para>The variable <emphasis
- role="strong"><varname>sys::*prompt*</varname></emphasis> controls the
+ role="strong"><varname>custom:*prompt*</varname></emphasis> controls the
  appearance of the prompt.  When its value is a function, it is called
  and its value is printed with &princ;.  Otherwise, the value itself is
  printed with &princ;.  The default value of
- <varname>sys::*prompt*</varname> prints
+ <varname>custom:*prompt*</varname> prints
  <prompt>"package[nn]&gt;&nbsp;"</prompt> where
  <replaceable>package</replaceable> is the shortest (nick)name of the
  current package &package-var; if it is the same as it was in the
@@ -1397,16 +1402,16 @@ N. Gray to X3J13.</para>
  ordinal number of the current prompt (hopefully, it will remain
  finite).  To help you in constructing your own fancy prompts, two
  functions are provided: <emphasis
- role="strong"><function>sys::prompt-new-package</function></emphasis>,
+ role="strong"><function>ext:prompt-new-package</function></emphasis>,
  returning &package-var; or &nil; if the current package is the same as
  it was initially; and <emphasis
- role="strong"><function>sys::package-short-name</function></emphasis>
+ role="strong"><function>ext:package-short-name</function></emphasis>
  taking one argument, a package, and returning its shortest name or
  nickname.  Also, a variable <emphasis
- role="strong"><varname>sys::*command-index*</varname></emphasis>
+ role="strong"><varname>ext:*command-index*</varname></emphasis>
  contains the current prompt number, it is your responsibility to
- increment it (this variable is bound to 0 before saving the
- image).</para>
+ increment it (this variable is bound to 0 before
+ <link linkend="image">saving the image</link>).</para>
 
 </section>
 
@@ -1422,7 +1427,7 @@ N. Gray to X3J13.</para>
  <listitem><simpara>Setting &pathprint; to &t; for &ansi-cl; compliant
   &pathname-class; printing.</simpara></listitem>
  <listitem><simpara>Setting <emphasis
-  role="strong"><varname>lisp:*coerce-fixnum-char-ansi*</varname></emphasis>
+  role="strong"><varname>custom:*coerce-fixnum-char-ansi*</varname></emphasis>
   to &t; so that &fixnum-type;s cannot be &coerce;d to
   &character-class;s (because a &fixnum-type; is not a <ulink
   url="&clhs;/Body/glo_c.html#character_designator">character
@@ -1451,7 +1456,7 @@ N. Gray to X3J13.</para>
  <listitem><simpara>Setting &pathprint; to &nil; for readable
   &pathname-class; printing.</simpara></listitem>
  <listitem><simpara>Setting <emphasis
-  role="strong"><varname>lisp:*coerce-fixnum-char-ansi*</varname></emphasis>
+  role="strong"><varname>custom:*coerce-fixnum-char-ansi*</varname></emphasis>
   to &nil; so that &fixnum-type;s <emphasis>can</emphasis> be &coerce;d
   to &character-class;s (via &code-char;).</simpara></listitem>
  <listitem><simpara>Setting &count-ansi; to &nil; to signal an error on
@@ -1477,14 +1482,14 @@ N. Gray to X3J13.</para>
  <filename>macros3.lsp</filename>into a running &clisp;, you gain access
  to the following macros:</para>
 
-<formalpara id="ethe"><title><function>lisp:ethe</function></title>
-<para><literal role="sexp">(<function>lisp:ethe</function>
+<formalpara id="ethe"><title><function>ext:ethe</function></title>
+<para><literal role="sexp">(<function>ext:ethe</function>
  <replaceable>value-type</replaceable>
  <replaceable>form</replaceable>)</literal> enforces a type check in
  both interpreted and compiled code.</para></formalpara>
 
-<formalpara id="letf"><title><function>lisp:letf</function> &amp;
-                             <function>lisp:letf*</function></title>
+<formalpara id="letf"><title><function>ext:letf</function> &amp;
+                             <function>ext:letf*</function></title>
 <para>These macros are similar to &let; and &let-star;, respectively,
  except that they can bind places, even places with multiple values.
  Example:
@@ -1515,14 +1520,14 @@ is approximately equivalent to
 </para></formalpara>
 
 <formalpara id="with-collect">
-     <title><function>lisp:with-collect</function></title>
+     <title><function>ext:with-collect</function></title>
 <para>Similar to the &loop;'s <constant>collect</constant> instruction,
  except that it is more "Lispy" in appearance and can appear arbitrarily
  deep.  It defines local macros (with &macrolet;) which collect objects
  given to it in lists, which are then returned as multiple values.  E.g.,
 
 <programlisting>
- (lisp:with-collect (c0 c1)
+ (ext:with-collect (c0 c1)
    (dotimes (i 10) (if (oddp i) (c0 i) (c1 i))))
 </programlisting>
 
@@ -1536,6 +1541,17 @@ returns two lists <literal role="sexp">(1 3 5 7 9)</literal> and
  file if you do not want to dump your own image.</para>
 
 </section>
+
+<section id="customize">
+  <title>Extensions-1.11. Customizing %clisp; behavior.</title>
+
+<para>The user-customizable variables are located in the package
+ &custom-pac; and thus can be listed using
+   <literal role="sexp">(&apropos; "" "CUSTOM")</literal>
+</para>
+
+</section>
+
 </section>
 
 <!-- #if defined(SCREEN) || defined(AMIGAOS) || defined(GRAPHICS) || defined(UNIX) || defined(DYNAMIC_FFI) || defined(SOCKET_STREAMS) -->
@@ -2605,7 +2621,7 @@ within Lisp (using &setq; or similar).</simpara>
 <varlistentry><term>Platform dependent: only in &clisp; built
   &with; compile-time flag &unicode;.</term>
 <listitem><simpara>A &symbol-macro; place <emphasis
- role="strong"><varname>lisp:*foreign-encoding*</varname></emphasis>
+ role="strong"><varname>custom:*foreign-encoding*</varname></emphasis>
  contains the encoding for characters and strings passed through the
  FFI.  Its value must be a 1:1 encoding, i.e., an encoding in which
  every character is represented by one byte.
@@ -3106,7 +3122,7 @@ array at a constant address longer than the dynamic extent of the call
 <varlistentry><term>Platform dependent: Only in &clisp; built
    &with; compile-time flag &unicode;.</term>
 <listitem><simpara>A &symbol-macro; place <emphasis
-role="strong"><varname>lisp:*foreign-encoding*</varname></emphasis>
+role="strong"><varname>custom:*foreign-encoding*</varname></emphasis>
 contains the encoding for characters and strings passed through the FFI.
 Its value must be a 1:1 encoding, i.e., an encoding in which every
 character is represented by one byte.
@@ -3430,7 +3446,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 
 <variablelist>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:socket-server</function> &optional-amp;
+    role="sexp">(<function>socket:socket-server</function> &optional-amp;
                  [<replaceable>port-or-socket</replaceable>])</literal></term>
   <listitem><simpara>This function creates a socket, binds a port to the
    socket, and then listens for connect attempts.  The server exists to
@@ -3439,33 +3455,33 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    connections will be made).
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:socket-server-close</function>
+    role="sexp">(<function>socket:socket-server-close</function>
                  <replaceable>socket-server</replaceable>)</literal></term>
   <listitem><simpara>Closes down the server socket.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:socket-server-port</function>
+    role="sexp">(<function>socket:socket-server-port</function>
                  <replaceable>socket-server</replaceable>)</literal></term>
   <listitem><simpara>Returns the port which was bound using
-   <function>lisp:socket-server</function>.
+   <function>socket:socket-server</function>.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:socket-wait</function>
+    role="sexp">(<function>socket:socket-wait</function>
                  <replaceable>socket-server</replaceable>
                  &optional-amp; [<replaceable>seconds</replaceable>
                  [<replaceable>microseconds</replaceable>]])</literal></term>
   <listitem><simpara>Given time argument(s), waits for (possibly zero)
    fixed duration for a connect on the socket-server.  Without an
-   argument, <function>lisp:socket-wait</function> blocks indefinitely.
+   argument, <function>socket:socket-wait</function> blocks indefinitely.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:socket-accept</function>
+    role="sexp">(<function>socket:socket-accept</function>
                  <replaceable>socket-server</replaceable>
                  &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
   <listitem><simpara>Creates the server-side two-way stream for the connection.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:socket-connect</function>
+    role="sexp">(<function>socket:socket-connect</function>
                  <replaceable>port</replaceable>
                  &optional-amp; [<replaceable>host</replaceable>]
                  &key-amp; &eltype; &extfmt; &buffered;)</literal></term>
@@ -3473,7 +3489,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    Blocks until the server accepts the connections.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:socket-status</function>
+    role="sexp">(<function>socket:socket-status</function>
                  <replaceable>socket-stream-or-list</replaceable>
                  &optional-amp; [<replaceable>seconds</replaceable>
                  [<replaceable>microseconds</replaceable>]])</literal></term>
@@ -3490,7 +3506,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    become available.</simpara>
    <simpara>For each &socket-stream; this function returns</simpara>
    <variablelist><title>Return values of
-      <function>lisp:socket-status</function></title>
+      <function>socket:socket-status</function></title>
     <varlistentry><term>&nil;</term>
      <listitem><simpara>when no information is available or no operation
       is possible</simpara></listitem></varlistentry>
@@ -3508,16 +3524,16 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
      </simpara></listitem></varlistentry>
   </variablelist></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:socket-stream-host</function>
+    role="sexp">(<function>socket:socket-stream-host</function>
                  <replaceable>socket-stream</replaceable>)</literal>,
-   <literal role="sexp">(<function>lisp:socket-stream-port</function>
+   <literal role="sexp">(<function>socket:socket-stream-port</function>
                  <replaceable>socket-stream</replaceable>)</literal></term>
   <listitem><simpara>These two functions return information about the
    &socket-stream;.  For a server,
-   <function>lisp:socket-stream-host</function> returns &nil;.
+   <function>socket:socket-stream-host</function> returns &nil;.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:socket-service-port</function>
+    role="sexp">(<function>socket:socket-service-port</function>
                  &optional-amp; <replaceable>service-name</replaceable>
                  (<replaceable>protocol</replaceable> "tcp"))</literal></term>
   <listitem><simpara>A convenience function for looking up a port given
@@ -3529,20 +3545,20 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    not given or is <constant>:default</constant> or &nil;.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:socket-stream-peer</function>
+    role="sexp">(<function>socket:socket-stream-peer</function>
                  <replaceable>socket-stream</replaceable>)</literal></term>
   <listitem><simpara>Given a stream, this function returns the name of
    the host on the opposite side of the connection and its port number;
    the server-side can use this to see who connected.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:socket-stream-local</function>
+    role="sexp">(<function>socket:socket-stream-local</function>
                  <replaceable>socket-stream</replaceable>)</literal></term>
   <listitem><simpara>The dual to
-   <function>lisp:socket-stream-peer</function> - same information,
+   <function>socket:socket-stream-peer</function> - same information,
    host name and port number, but for the local host.  The difference
-   from <function>lisp:socket-stream-host</function> and
-   <function>lisp:socket-stream-port</function> is that this function
+   from <function>socket:socket-stream-host</function> and
+   <function>socket:socket-stream-port</function> is that this function
    asks the OS (and thus returns the correct trusted values) while the
    other two are just accessors to the internal data structure, and
    basically return the arguments given to the function which created
@@ -3556,7 +3572,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 
 <para>When &clisp; is configured with an option
  <option>--with-export-syscalls</option>, some system calls are
- available from lisp, in package <quote>POSIX</quote>.</para>
+ available from lisp, in package &posix-pac;.</para>
 
 <variablelist>
  <varlistentry><term><literal
@@ -3741,7 +3757,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 <para>The script should contain Lisp forms, except in the #! line.  The
  file is normally loaded, through the function &load;.  Before it is
  loaded, the variable <emphasis
- role="strong"><varname>lisp:*args*</varname></emphasis> is bound to a
+ role="strong"><varname>ext:*args*</varname></emphasis> is bound to a
  list of strings, representing the arguments given to the Lisp script.
  &standard-input-var; and &standard-output-var; are bound, as usual, to
  the Unix standard input and output.  &error-output-var; is bound to the
@@ -3940,7 +3956,7 @@ bash$
 <varlistentry><term>Platform dependent: &unix;, &acorn;, &dos;, &os2;,
    platforms only.</term>
  <listitem><simpara><literal
-   role="sexp">(<function>lisp:execute</function>
+   role="sexp">(<function>ext:execute</function>
        <replaceable>programfile</replaceable>
        <replaceable>arg<subscript>1</subscript></replaceable>
        <replaceable>arg<subscript>2</subscript></replaceable> ...)</literal>
@@ -3953,7 +3969,7 @@ bash$
 <!-- #ifdef AMIGAOS -->
 <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
  <listitem><simpara><literal
-   role="sexp">(<function>lisp:execute</function>
+   role="sexp">(<function>ext:execute</function>
        <replaceable>command</replaceable>)</literal>
    executes a given <replaceable>command</replaceable> using the
    operating system's shell.
@@ -3964,13 +3980,13 @@ bash$
 <varlistentry><term>Platform dependent: &unix;, &amiga;, &acorn;, &dos;,
    &os2;, &win32; platforms only.</term>
  <listitem><simpara><literal
-    role="sexp">(<function>lisp:shell</function>
+    role="sexp">(<function>ext:shell</function>
         [<replaceable>command</replaceable>])</literal>
 
    calls the operating system's shell.  <literal
-   role="sexp">(<function>lisp:shell</function>)</literal> calls
+   role="sexp">(<function>ext:shell</function>)</literal> calls
    the shell for interactive use.  <literal
-   role="sexp">(<function>lisp:shell</function>
+   role="sexp">(<function>ext:shell</function>
    <replaceable>command</replaceable>)</literal> calls the shell only
    for execution of the one given <replaceable>command</replaceable>.
  </simpara></listitem></varlistentry>
@@ -3980,19 +3996,19 @@ bash$
 <varlistentry><term>Platform dependent: &unix;, &os2;, &win32;
    platforms only.</term>
  <listitem><simpara>The functions <emphasis
-   role="strong"><function>lisp:run-shell-command</function></emphasis>
+   role="strong"><function>ext:run-shell-command</function></emphasis>
    and <emphasis
-   role="strong"><function>lisp:run-program</function></emphasis> are the
+   role="strong"><function>ext:run-program</function></emphasis> are the
    general interface to <emphasis
-   role="strong"><function>lisp:shell</function></emphasis> and the
+   role="strong"><function>ext:shell</function></emphasis> and the
    above:</simpara>
 
    <simpara><literal
-   role="sexp">(<function>lisp:run-shell-command</function>
+   role="sexp">(<function>ext:run-shell-command</function>
    <replaceable>command</replaceable> &input-k; &output-k;
    &if-output-exists;)</literal> runs a shell command.</simpara>
 
-   <simpara><literal role="sexp">(<function>lisp:run-program</function>
+   <simpara><literal role="sexp">(<function>ext:run-program</function>
    <replaceable>program</replaceable> <constant>:arguments</constant>
    &input-k; &output-k; &if-output-exists;)</literal> runs an external
    program.</simpara>
@@ -4039,10 +4055,10 @@ bash$
 <para>If &stream-k; was specified for &input-k; or &output-k;, a Lisp
  stream is returned.  If &stream-k; was specified for &input-k; and
  &output-k;, three Lisp streams are returned, as for the function <link
- linkend="pipe"><function>lisp:make-pipe-io-stream</function></link>.
- This use of <function>lisp:run-program</function> can cause deadlocks,
+ linkend="pipe"><function>ext:make-pipe-io-stream</function></link>.
+ This use of <function>ext:run-program</function> can cause deadlocks,
  see <link
- linkend="pipe"><function>lisp:make-pipe-io-stream</function></link>.</para>
+ linkend="pipe"><function>ext:make-pipe-io-stream</function></link>.</para>
 </listitem></varlistentry>
 <!-- #endif -->
  </variablelist>
@@ -4056,7 +4072,7 @@ bash$
     platforms only.</term>
 <listitem><variablelist>
  <varlistentry><term><literal
-    role="sexp">(<function>lisp:make-pipe-input-stream</function>
+    role="sexp">(<function>ext:make-pipe-input-stream</function>
     <replaceable>command</replaceable> &key-amp; &eltype; &extfmt;
     &buffered;)</literal></term>
 <listitem><simpara>returns an input stream that will supply the output
@@ -4064,7 +4080,7 @@ bash$
   </simpara></listitem></varlistentry>
 
 <varlistentry><term><literal
-   role="sexp">(<function>lisp:make-pipe-output-stream</function>
+   role="sexp">(<function>ext:make-pipe-output-stream</function>
    <replaceable>command</replaceable> &key-amp; &eltype; &extfmt;
    &buffered;)</literal></term>
 <listitem><simpara>returns an output stream that will pass its output as
@@ -4073,7 +4089,7 @@ bash$
 
 <!-- #ifdef PIPES2 -->
 <varlistentry><term><literal
-   role="sexp">(<function>lisp:make-pipe-io-stream</function>
+   role="sexp">(<function>ext:make-pipe-io-stream</function>
    <replaceable>command</replaceable> &key-amp; &eltype; &extfmt;
    &buffered;)</literal></term>
 <listitem><simpara>returns three values.  The first value is a
@@ -4103,9 +4119,9 @@ bash$
 <section><title>Printing</title>
 
 <para>The macro <emphasis
- role="strong"><function>lisp:with-output-to-printer</function></emphasis>:
+ role="strong"><function>ext:with-output-to-printer</function></emphasis>:
 <programlisting>
-(lisp:with-output-to-printer (<replaceable>var</replaceable> [&extfmt;])
+(ext:with-output-to-printer (<replaceable>var</replaceable> [&extfmt;])
   {<replaceable>declaration</replaceable>}*
   {<replaceable>form</replaceable>}*)
 </programlisting>
@@ -4141,7 +4157,7 @@ future).</para>
 
 <variablelist>
  <varlistentry id="dir-key-open"><term><literal
-   role="sexp">(<function>lisp:dir-key-open</function>
+   role="sexp">(<function>ldap:dir-key-open</function>
                 <replaceable>dkey</replaceable>
                 <replaceable>path</replaceable>
                 &key-amp; (&direction-k; &input-k;)
@@ -4154,74 +4170,74 @@ future).</para>
    arguments is the same as for &open;.
   </simpara></listitem></varlistentry>
  <varlistentry id="dir-key-close"><term><literal
-   role="sexp">(<function>lisp:dir-key-close</function>
+   role="sexp">(<function>ldap:dir-key-close</function>
                 <replaceable>dkey</replaceable>)</literal></term>
   <listitem><simpara>Close the directory key.
    The preferred way is to use the <link linkend="with-dir-key-open"
-   ><function>lisp:with-dir-key-open</function></link> macro.
+   ><function>ldap:with-dir-key-open</function></link> macro.
   </simpara></listitem></varlistentry>
  <varlistentry id="with-dir-key-open"><term><literal
-   role="sexp">(<function>lisp:with-dir-key-open</function>
+   role="sexp">(<function>ldap:with-dir-key-open</function>
                 (<replaceable>var</replaceable>
                  <replaceable>dkey</replaceable>
                  <replaceable>path</replaceable>
                  &rest-amp; <replaceable>options</replaceable>)
                 &body-amp; <replaceable>body</replaceable>)</literal></term>
   <listitem><simpara>Open the directory key (by calling <link
-   linkend="dir-key-open"><function>lisp:dir-key-open</function></link>
+   linkend="dir-key-open"><function>ldap:dir-key-open</function></link>
    on <replaceable>dkey</replaceable>, <replaceable>path</replaceable>
    and <replaceable>options</replaceable>), bind it to
    <replaceable>var</replaceable>, execute
    <replaceable>body</replaceable>, then close it with <link
-   linkend="dir-key-close"><function>lisp:dir-key-close</function></link>.
+   linkend="dir-key-close"><function>ldap:dir-key-close</function></link>.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>lisp:dir-key-type</function>
+   role="sexp">(<function>ldap:dir-key-type</function>
                 <replaceable>dkey</replaceable>)</literal></term>
   <listitem><simpara>Return the <link linkend="dir-key-type">type</link>
    of the directory key</simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>lisp:dir-key-path</function>
+   role="sexp">(<function>ldap:dir-key-path</function>
                 <replaceable>dkey</replaceable>)</literal></term>
   <listitem><simpara>Return the path of this directory key, which is the
    <replaceable>path</replaceable> argument of <link
-   linkend="dir-key-open"><function>lisp:dir-key-open</function></link>
+   linkend="dir-key-open"><function>ldap:dir-key-open</function></link>
    if <replaceable>dkey</replaceable> was a <link
    linkend="dir-key-type">type</link> or the concatenation of the
    <replaceable>path</replaceable> argument and the
-   <function>lisp:dir-key-path</function> of
+   <function>ldap:dir-key-path</function> of
    <replaceable>dkey</replaceable>.
    </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>lisp:dir-key-direction</function>
+   role="sexp">(<function>ldap:dir-key-direction</function>
                 <replaceable>dkey</replaceable>)</literal></term>
   <listitem><simpara>One of &input-k;, &output-k; and &io-k;, indicating
    the permitted operation on this key and its derivatives.
    </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>lisp:dir-key-closed-p</function>
+   role="sexp">(<function>ldap:dir-key-closed-p</function>
                 <replaceable>dkey</replaceable>)</literal></term>
   <listitem><simpara>Check whether the key has been closed.
    It is not an error to close a closed key.
    </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>lisp:dir-key-subkey-delete</function>
+   role="sexp">(<function>ldap:dir-key-subkey-delete</function>
                 <replaceable>dkey</replaceable>
                 <replaceable>subkey</replaceable>)</literal>
-   <literal role="sexp">(<function>lisp:dir-key-value-delete</function>
+   <literal role="sexp">(<function>ldap:dir-key-value-delete</function>
                          <replaceable>dkey</replaceable>
                          <replaceable>attribute</replaceable>)</literal></term>
   <listitem><simpara>Delete the specified subkey or attribute.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>lisp:dir-key-subkey</function>
+   role="sexp">(<function>ldap:dir-key-subkey</function>
                 <replaceable>dkey</replaceable>)</literal>
-  <literal role="sexp">(<function>lisp:dir-key-attributes</function>
+  <literal role="sexp">(<function>ldap:dir-key-attributes</function>
                 <replaceable>dkey</replaceable>)</literal></term>
   <listitem><simpara>Return the list of the subkeys or attributes.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>lisp:dir-key-value</function>
+   role="sexp">(<function>ldap:dir-key-value</function>
                 <replaceable>dkey</replaceable>
                 <replaceable>attribute</replaceable>
                 &optional-amp; <replaceable>default</replaceable>)
@@ -4230,7 +4246,7 @@ future).</para>
    similar to &gethash; and &setf;able just like &gethash;.
    </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-   role="sexp">(<function>lisp:dir-key-info</function>
+   role="sexp">(<function>ldap:dir-key-info</function>
                 <replaceable>dkey</replaceable>)</literal></term>
   <listitem><simpara>Return some information about the directory key.
    This is highly platform-dependent and will probably be removed or
