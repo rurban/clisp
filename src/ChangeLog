@@ -1,3 +1,9 @@
+2004-05-22  Bruno Haible  <bruno@clisp.org>
+
+	Make DEBUG_GCSAFETY work with LINUX_NOEXEC_HEAPCODES.
+	* lispbibl.d (nonimmsubrp): New function/macro.
+	(gcv_object_t::gcv_object_t, pgci_pointable, ngci_pointable): Use it.
+
 2004-05-23  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_allocate.d (make_space_gc) [SPVW_BLOCKS]: Take
