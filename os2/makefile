@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host glip.premonitia.com as the output of the command:
+# This file was created on host loiso.podval.org as the output of the command:
 # ./makemake os2 gcc
 
 # -------------- Start of configurable section --------------------
@@ -396,7 +396,6 @@ clos.lisp \
 disassem.lisp \
 condition.lisp \
 loadform.lisp \
-threads.lisp \
 gstream.lisp \
 xcharin.lisp \
 keyboard.lisp \
@@ -448,7 +447,6 @@ clos.fas \
 disassem.fas \
 condition.fas \
 loadform.fas \
-threads.fas \
 gstream.fas \
 xcharin.fas \
 keyboard.fas \
@@ -505,7 +503,6 @@ stage\clos.lisp \
 stage\disassem.lisp \
 stage\condition.lisp \
 stage\loadform.lisp \
-stage\threads.lisp \
 stage\gstream.lisp \
 stage\xcharin.lisp \
 stage\keyboard.lisp \
@@ -557,7 +554,6 @@ stage\clos.fas \
 stage\disassem.fas \
 stage\condition.fas \
 stage\loadform.fas \
-stage\threads.fas \
 stage\gstream.fas \
 stage\xcharin.fas \
 stage\keyboard.fas \
@@ -607,7 +603,21 @@ VERSION : version.h
 configure : configure.in
 	cd ..\ && $(MAKE) -f Makefile.devel src\configure
 
-init : comment5.exe ansidecl.exe varbrace.exe txt2c.exe ccmp2c.exe modprep.exe $(DFILES) modules.h
+init : intparam.h floatparam.h comment5.exe ansidecl.exe varbrace.exe txt2c.exe ccmp2c.exe modprep.exe $(DFILES) modules.h
+
+intparam.h : intparam.c unixconf.h
+	echo '#include "unixconf.h"' > tmp.c
+	cat 'intparam.c' >> tmp.c
+	$(CC) tmp.c -o intparam.exe
+	intparam.exe > intparam.h
+	$(RM) intparam.exe tmp.c
+
+floatparam.h : floatparam.c unixconf.h
+	echo '#include "unixconf.h"' > tmp.c
+	cat 'floatparam.c' >> tmp.c
+	$(CC) tmp.c -o floatparam.exe
+	floatparam.exe > floatparam.h
+	$(RM) floatparam.exe tmp.c
 
 comment5.exe : ..\utils\comment5.c
 	$(CC) $(CFLAGS) $(CLFLAGS) ../utils/comment5.c -o comment5.exe
@@ -1231,10 +1241,10 @@ ari80386.o : ari80386.s
 libcharset.h libcharset.a :
 	builddir="`pwd`"; cd libcharset && $(MAKE) && $(MAKE) install-lib libdir="$$builddir" includedir="$$builddir"
 
-data : ..\utils\unicode\ftp.unicode.org\UnicodeData.txt ..\src\clhs.txt
+data : ..\utils\unicode\UnicodeDataFull.txt ..\src\clhs.txt
 	$(RMRF) data
 	mkdir data
-	cd data && $(LN_S) ..\..\utils\unicode\ftp.unicode.org\UnicodeData.txt .
+	cd data && $(LN_S) ..\..\utils\unicode\UnicodeDataFull.txt .
 	cd data && $(LN_S) ..\..\src\clhs.txt .
 
 lisp.exe : $(OBJECTS) modules.o     data
@@ -1329,9 +1339,6 @@ condition.fas : condition.lisp lisp.exe halfcompiled.mem
 loadform.fas : loadform.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c loadform.lisp
 
-threads.fas : threads.lisp lisp.exe halfcompiled.mem
-	$(RUN) -m 1000KW -M halfcompiled.mem -q -c threads.lisp
-
 gstream.fas : gstream.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c gstream.lisp
 
@@ -1420,10 +1427,12 @@ lispinit.mem : lisp.exe $(FASFILES)
 # Perform self-tests.
 check : test testsuite
 
-# check the sources: subr.d, fsubr.d, subrkw.d and
-# all the LISPFUNs must add up
+# check the sources:
+# 1. subr.d, fsubr.d, subrkw.d and all the LISPFUNs must add up
+# 2. no variables of type gcv_object_t - only pointers to it
 check-sources : # lisp.exe lispinit.mem
 	$(RUN) -M lispinit.mem -C -i check-lispfun.lisp -x '(check-lisp-defs "")'
+	if egrep ' var gcv_object_t *[^* ]' *.d; then false; else true; fi
 
 # Test: recompile $(LISPFILES) and compare their contents.
 test : lispinit.mem stage $(TESTLISPFILES) $(TESTFASFILES)
@@ -1504,9 +1513,6 @@ stage\condition.lisp : condition.lisp
 
 stage\loadform.lisp : loadform.lisp
 	$(LN_S) loadform.lisp stage
-
-stage\threads.lisp : threads.lisp
-	$(LN_S) threads.lisp stage
 
 stage\gstream.lisp : gstream.lisp
 	$(LN_S) gstream.lisp stage
@@ -1658,9 +1664,6 @@ stage\condition.fas : stage\condition.lisp lisp.exe stage\testinit.mem
 stage\loadform.fas : stage\loadform.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage\loadform.lisp
 
-stage\threads.fas : stage\threads.lisp lisp.exe stage\testinit.mem
-	$(RUN) -M stage\testinit.mem -q -c stage\threads.lisp
-
 stage\gstream.fas : stage\gstream.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage\gstream.lisp
 
@@ -1737,7 +1740,7 @@ stage\config.fas : stage\config.lisp lisp.exe stage\testinit.mem
 	$(RUN) -M stage\testinit.mem -q -c stage\config.lisp
 
 lispinit2.mem : lisp.exe $(TESTFASFILES)
-	$(RUN) -x "(cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%saveinitmem) (exit)"
+	$(RUN) -x "(and (cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%saveinitmem) (ext::exit))"
 	-$(RM) lispinit2.mem
 	$(MV) lispimag.mem lispinit2.mem
 
@@ -1756,9 +1759,12 @@ lispbibl.h : lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c
 	(($(CPP) $(CFLAGS) -P lispbibl.c | $(GREP) -v "^ *$$") ; ($(CPP) $(CFLAGS) -P -dM lispbibl.c | sort) ) > lispbibl.h
 
 
-clisp.h : genclisph.o unixconf.h intparam.h
+clisp.h : genclisph.o unixconf.h  intparam.h floatparam.h
 	$(CC) $(CFLAGS) $(CLFLAGS) genclisph.o -o genclisph.exe
-	(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo ; grep '^#' unixconf.h ; echo ; grep '^#' intparam.h ; echo ; genclisph ; echo ; echo '#endif /* _CLISP_H */') > clisp.h
+	(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* unixconf */' ; grep '^#' unixconf.h ) > clisp.h
+	(echo; echo '/* 'intparam.h' */' ; grep '^#' intparam.h ) >> clisp.h
+	(echo; echo '/* 'floatparam.h' */' ; grep '^#' floatparam.h ) >> clisp.h
+	(echo; echo '/* genclisph */' ; genclisph ; echo ; echo '#endif /* _CLISP_H */') >> clisp.h
 	$(RM) genclisph.exe
 
 linkkit : modules.d modules.c clisp.h
@@ -1845,10 +1851,10 @@ clisp.1 : _clisp.1 lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c m
 	$(RM) txt.c
 	$(RM) txt.exe
 
-clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c stdbool.h stdint.h txt2c.exe
+clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c stdbool.h stdint.h VERSION txt2c.exe
 	$(TXT2C) < _clisp.html > txt.c
 	$(CC) $(CFLAGS) $(CLFLAGS) -O0 txt.c -o txt.exe
-	txt | sed -e 's,HREF="CLHSROOT/,HREF="http://www.lisp.org/HyperSpec/,' > clisp.html
+	txt | sed -e 's,="CLHSROOT/,="http://www.lisp.org/HyperSpec/,' -e "s,VERSION,`cat VERSION`," > clisp.html
 	$(RM) txt.c
 	$(RM) txt.exe
 
@@ -1889,7 +1895,7 @@ install-bin : lisp.exe lispinit.mem force
 	-mkdir $(DESTDIR)$(libdir)
 	-mkdir $(DESTDIR)$(lisplibdir)
 	-mkdir $(DESTDIR)$(lisplibdir)data
-	$(INSTALL_DATA) data/UnicodeData.txt $(DESTDIR)$(lisplibdir)data/UnicodeData.txt
+	$(INSTALL_DATA) data/UnicodeDataFull.txt $(DESTDIR)$(lisplibdir)data/UnicodeDataFull.txt
 	$(INSTALL_DATA) data/clhs.txt $(DESTDIR)$(lisplibdir)data/clhs.txt
 	$(INSTALL_PROGRAM) lisp.exe $(DESTDIR)$(lisplibdir)lisp.exe
 	$(INSTALL_DATA) lispinit.mem $(DESTDIR)$(lisplibdir)lispinit.mem
@@ -1899,7 +1905,7 @@ install-bin : lisp.exe lispinit.mem force
 uninstall : uninstall-bin
 
 uninstall-bin : force
-	$(RM) $(DESTDIR)$(lisplibdir)/data/UnicodeData.txt
+	$(RM) $(DESTDIR)$(lisplibdir)/data/UnicodeDataFull.txt
 	$(RM) $(DESTDIR)$(lisplibdir)/data/clhs.txt
 	$(RM) $(DESTDIR)$(lisplibdir)/lisp.exe
 	$(RM) $(DESTDIR)$(lisplibdir)/lispinit.mem
@@ -1952,7 +1958,7 @@ clean6 : clean5
 
 # clean7 lets us go back to the main "configure".
 clean7 : clean6
-	-$(RM) config.status config.log config.cache intparam.h unixconf.h makemake
+	-$(RM) config.status config.log config.cache  intparam.h floatparam.h unixconf.h makemake
 	-$(RMRF) avcall
 	-$(RMRF) callback
 	-$(RMRF) libcharset

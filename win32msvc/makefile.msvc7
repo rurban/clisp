@@ -40,7 +40,7 @@ DESTDIR =
 MODULES =  
 
 # Programs used by "make":
-CC = cl $(MFLAGS) -G5 -O1
+CC = cl $(MFLAGS) -G5 -Os -Oy -Ob1 -Gs -Gf -Gy
 CFLAGS =  -DUNICODE -DEXPORT_SYSCALLS -DDIR_KEY -DDYNAMIC_FFI -DNO_GETTEXT -DNO_SIGSEGV -I.
 CPP = ..\utils\gcc-cccp\cccp -U__GNUC__ -+ -D_M_IX86=500 -D_WIN32 -I$(MSVCDIR)/include -D_MSC_VER=1300 -D_INTEGRAL_MAX_BITS=64 -I$(MSVCDIR)/PlatformSDK/include
 CLFLAGS = 
