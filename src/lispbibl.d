@@ -4928,6 +4928,7 @@ typedef struct {
 #endif
 #define hashtable_xlength  (sizeof(*(Hashtable)0)-offsetofa(record_,recdata)-hashtable_length*sizeof(gcv_object_t))
 # Mark a Hash Table as new to reorganize
+# set_ht_invalid(TheHashtable(ht));
 # mark_ht_invalid(TheHashtable(ht));
 #ifdef GENERATIONAL_GC
   #define mark_ht_invalid(ptr)  (ptr)->ht_lastrehash = unbound
@@ -4937,6 +4938,21 @@ typedef struct {
   #define mark_ht_invalid(ptr)  record_flags_set(ptr,bit(7))
   #define mark_ht_valid(ptr)  record_flags_clr(ptr,bit(7))
   #define ht_validp(ptr)  ((record_flags(ptr) & bit(7)) == 0)
+#endif
+#ifdef GENERATIONAL_GC
+  #define set_ht_invalid(ptr)  mark_ht_invalid(ptr)
+  #define set_ht_valid(ptr)  mark_ht_valid(ptr)
+#else
+  extern bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Nptr_, gcv_object_t** Iptr_);
+  extern bool hash_lookup_builtin_with_rehash (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Nptr_, gcv_object_t** Iptr_);
+  #define set_ht_invalid(ptr)  \
+    (mark_ht_invalid(ptr),                                               \
+     eq((ptr)->ht_lookupfn,P(hash_lookup_builtin))                       \
+     ? ((ptr)->ht_lookupfn = P(hash_lookup_builtin_with_rehash), 0) : 0)
+  #define set_ht_valid(ptr)  \
+    (mark_ht_valid(ptr),                                       \
+     eq((ptr)->ht_lookupfn,P(hash_lookup_builtin_with_rehash)) \
+     ? ((ptr)->ht_lookupfn = P(hash_lookup_builtin), 0) : 0)
 #endif
 #define ht_test_code(flags) (flags & (bit(0) | bit(1) | bit(2) | bit(3)))
 # Test whether a hash table is weak.

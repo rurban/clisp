@@ -970,7 +970,7 @@ local object rehash (object ht) {
   }
   TheHashtable(ht)->ht_freelist = freelist; /* save freelist */
   TheHashtable(ht)->ht_count = count; /* save number of pairs for consistency */
-  mark_ht_valid(TheHashtable(ht)); /* hashtable is now completely organized */
+  set_ht_valid(TheHashtable(ht)); /* hashtable is now completely organized */
   return ht;
 }
 
@@ -987,9 +987,12 @@ local object rehash (object ht) {
              or an arbitrary element of the "list" starting there */
 global bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_,
                                  gcv_object_t** Nptr_, gcv_object_t** Iptr_) {
-  var uintB flags = record_flags(TheHashtable(ht));
+  #ifdef GENERATIONAL_GC
   if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
     ht = rehash(ht);
+  #endif
+  ASSERT(ht_validp(TheHashtable(ht)));
+  var uintB flags = record_flags(TheHashtable(ht));
   var uintL hashindex = hashcode(ht,obj); /* calculate hashcode */
   var gcv_object_t* Nptr =      /* pointer to the current entry */
     &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
@@ -1022,6 +1025,14 @@ global bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_,
   /* not found */
   *Iptr_ = Nptr; return false;
 }
+#ifndef GENERATIONAL_GC
+global bool hash_lookup_builtin_with_rehash (object ht, object obj, gcv_object_t** KVptr_,
+                                             gcv_object_t** Nptr_, gcv_object_t** Iptr_) {
+  if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
+    ht = rehash(ht);
+  return hash_lookup_builtin(ht,obj,KVptr_,Nptr_,Iptr_);
+}
+#endif
 
 /* UP: Searches a key in a hash-table with user-defined test.
  hash_lookup_user(ht,obj,&KVptr,&Nptr,&Iptr)
@@ -1287,7 +1298,7 @@ local object resize (object ht, object maxcount) {
   dotimesL(count,count, { *KVptr++ = leer; *KVptr++ = leer; } );
   /* modify hash-table: */
   set_break_sem_2();                 /* protect from breaks */
-  mark_ht_invalid(TheHashtable(ht)); /* table must still be reorganized */
+  set_ht_invalid(TheHashtable(ht)); /* table must still be reorganized */
   TheHashtable(ht)->ht_size = posfixnum_to_L(size);  /* enter new SIZE */
   TheHashtable(ht)->ht_itable = Ivektor;    /* enter new index-vector */
   TheHashtable(ht)->ht_maxcount = maxcount; /* enter new MAXCOUNT */
@@ -1357,7 +1368,7 @@ local void clrhash (object ht) {
     }
   }
   TheHashtable(ht)->ht_count = Fixnum_0; /* COUNT := 0 */
-  mark_ht_invalid(TheHashtable(ht)); /* reorganize hashtable later */
+  set_ht_invalid(TheHashtable(ht)); /* reorganize hashtable later */
   clr_break_sem_2();                 /* allow breaks again */
 }
 

@@ -1328,7 +1328,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           # is invalidated (because the hash-function of the objects stored
           # in it changes).
           if (Record_type(obj) == Rectype_Hashtable) # a hash-table?
-            mark_ht_invalid(TheHashtable(obj)); # yes -> note for reorganization
+            set_ht_invalid(TheHashtable(obj)); # yes -> note for reorganization
           # traverse all elements:
           {
             var uintC len = Record_nonweak_length(obj);
@@ -1689,7 +1689,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           # is invalidated (because the hash-function of the objects stored
           # in it changes).
           if (Record_type(obj) == Rectype_Hashtable) # a Hash-Table ?
-            mark_ht_invalid(TheHashtable(obj)); # yes -> note for reorganization
+            set_ht_invalid(TheHashtable(obj)); # yes -> note for reorganization
           # traverse all elements:
           {
             var uintC len = Record_nonweak_length(obj);

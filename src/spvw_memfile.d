@@ -158,7 +158,7 @@ typedef struct {
   #ifdef SPVW_PURE_BLOCKS
    /* Finally, the addresses of all objects within the heaps that
       have to be updated by loadmem_update(), the addresses of the
-      hashtables that have to be marked with mark_ht_invalid(), the addresses
+      hashtables that have to be marked with set_ht_invalid(), the addresses
       of the foreign-pointers that have to be marked with mark_fp_invalid(),
       the addresses of the Fsubrs that have to be relocated with
       loadmem_update_fsubr(). But beforehand, their numbers.
@@ -1366,7 +1366,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
          #define update_fpointer_invalid  false
        #endif
        #define update_fsubr_function  true
-       #define update_ht_invalid  mark_ht_invalid
+       #define update_ht_invalid  set_ht_invalid
        #define update_fp_invalid  mark_fp_invalid
        #define update_fs_function  loadmem_update_fsubr
         update_varobjects();
@@ -1409,7 +1409,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
           var uintL count;
           READ(&htbuf[0],rheader.htcount*sizeof(Hashtable));
           dotimespL(count,rheader.htcount, {
-            var Hashtable ptr = *htbufptr++; mark_ht_invalid(ptr);
+            var Hashtable ptr = *htbufptr++; set_ht_invalid(ptr);
           });
           FREE_DYNAMIC_ARRAY(htbuf);
         }
