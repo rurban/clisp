@@ -11,6 +11,7 @@ User visible changes
 --------------------
 
 * Parts of the CLOS MetaObject Protocol are supported:
+  + New class METAOBJECT.
   + Classes:
     New classes
       STANDARD-READER-METHOD, STANDARD-WRITER-METHOD.
@@ -27,15 +28,30 @@ User visible changes
         WRITER-METHOD-CLASS.
       For notification about subclasses:
         CLASS-DIRECT-SUBCLASSES, ADD-DIRECT-SUBCLASS, REMOVE-DIRECT-SUBCLASS.
+  + Generic Functions:
+    New classes
+      FUNCALLABLE-STANDARD-CLASS, FUNCALLABLE-STANDARD-OBJECT.
+    New functions
+      ENSURE-GENERIC-FUNCTION, SET-FUNCALLABLE-INSTANCE-FUNCTION.
+    New generic functions
+      GENERIC-FUNCTION-NAME, GENERIC-FUNCTION-METHODS,
+      GENERIC-FUNCTION-METHOD-CLASS, GENERIC-FUNCTION-LAMBDA-LIST,
+      GENERIC-FUNCTION-METHOD-COMBINATION,
+      GENERIC-FUNCTION-ARGUMENT-PRECEDENCE-ORDER, GENERIC-FUNCTION-DECLARATIONS.
+    New customizable generic functions
+      ENSURE-GENERIC-FUNCTION-USING-CLASS, COMPUTE-DISCRIMINATING-FUNCTION,
+      COMPUTE-APPLICABLE-METHODS, COMPUTE-APPLICABLE-METHODS-USING-CLASSES.
   + Methods:
     New generic functions
       METHOD-FUNCTION, METHOD-GENERIC-FUNCTION, METHOD-LAMBDA-LIST,
-      METHOD-SPECIALIZERS, ACCESOR-METHOD-SLOT-DEFINITION.
+      METHOD-SPECIALIZERS, ACCESSOR-METHOD-SLOT-DEFINITION.
     New functions
       EXTRACT-LAMBDA-LIST, EXTRACT-SPECIALIZER-NAMES.
   + Method-Combinations:
     New generic function
       FIND-METHOD-COMBINATION.
+    New customizable generic function
+      COMPUTE-EFFECTIVE-METHOD.
   + Slot-Definitions:
     New classes
       SLOT-DEFINITION, STANDARD-SLOT-DEFINITION,
@@ -50,16 +66,25 @@ User visible changes
     New customizable generic functions
       DIRECT-SLOT-DEFINITION-CLASS, EFFECTIVE-SLOT-DEFINITION-CLASS.
   + Specializers:
+    New classes
+      SPECIALIZER, EQL-SPECIALIZER.
     New generic functions
       SPECIALIZER-DIRECT-GENERIC-FUNCTIONS, SPECIALIZER-DIRECT-METHODS.
     New functions
       EQL-SPECIALIZER-OBJECT, INTERN-EQL-SPECIALIZER.
+    New customizable generic functions
+      ADD-DIRECT-METHOD, REMOVE-DIRECT-METHOD.
   + Slot access:
     New generic functions
       SLOT-VALUE-USING-CLASS, (SETF SLOT-VALUE-USING-CLASS),
       SLOT-BOUNDP-USING-CLASS, SLOT-MAKUNBOUND-USING-CLASS.
     New functions
       STANDARD-INSTANCE-ACCESS, FUNCALLABLE-STANDARD-INSTANCE-ACCESS.
+  + Dependent object notification:
+    New functions
+      MAP-DEPENDENTS.
+    New customizable generic functions
+      ADD-DEPENDENT, REMOVE-DEPENDENT, UPDATE-DEPENDENT.
 
 * Several new datatypes that manage weak references:
     WEAK-LIST, WEAK-AND-RELATION, WEAK-OR-RELATION,
