@@ -1,3 +1,7 @@
+2004-03-15  Bruno Haible  <bruno@clisp.org>
+
+	* po/clisp-xgettext (main): Remove support for scanning Lisp files.
+
 2004-03-14  Bruno Haible  <bruno@clisp.org>
 
 	Remove special casing of germanic plural in messages.

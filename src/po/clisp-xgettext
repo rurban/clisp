@@ -5,29 +5,17 @@
 ;;; Bruno Haible 26.3.1997, 5.4.1999
 ;;; Sam Steingold 2002-01-03
 
-;; In the clisp sources internationalized messages are recognized through
+;; In the clisp .d sources internationalized messages are recognized through
 ;; the following constructs:
 ;;
-;; 1. In .d files,
-;;       ENGLISH ? string :
-;;       ""
+;;    GETTEXT(string)
+;;    GETTEXTL(string)
+;;    CLSTEXT(string)
+;;    CLOTEXT(string)
 ;;    The string may consist of multiple pieces
 ;;        (ANSI C string concatenation),
 ;;    and some of the pieces may be the token NLstring
 ;;        (to be replaced by "\n").
-;;
-;;    Alternatively,
-;;       GETTEXT(string)
-;;       GETTEXTL(string)
-;;       CLSTEXT(string)
-;;       CLOTEXT(string)
-;;
-;;    is treated as equivalent to
-;;       ENGLISH ? string : ""
-;;
-;; 2. In .lisp files,
-;;       (TEXT string)
-;;    The strings may cross lines; in that case, "\n" is to be inserted.
 ;;
 ;; We present to the translator:
 ;; - One translation. This is the english translation because it is expected
@@ -91,37 +79,6 @@
                           )
                           ((member (char line pos) '(#\: #\, #\)))
                            (return accu))
-                          (t
-                           (warn "no string found at ~A:~S" filename lineno)
-                           (return nil))
-                ) ) )
-                (lisp-parse-string ()
-                  (loop
-                    (cond ((>= pos (length line))
-                           (setf line (read-line file))
-                           (incf lineno)
-                           (setf pos 0))
-                          ((eql (char line pos) #\Space)
-                           (incf pos))
-                          ((eql (char line pos) #\")
-                           (multiple-value-bind (string newpos)
-                               (ignore-errors
-                                 (read-from-string line nil nil :start pos))
-                             (if string
-                               (setq pos newpos)
-                               ; read a multiline string
-                               (let ((s (make-concatenated-stream
-                                          (make-string-input-stream
-                                            (concatenate 'string (subseq line pos) (string #\Newline)))
-                                          file
-                                    ))  )
-                                 (setq string (read s))
-                                 (incf lineno (count #\Newline string))
-                                 (setf line (read-line file))
-                                 (setf pos 0)
-                             ) )
-                             (return string)
-                          ))
                           (t
                            (warn "no string found at ~A:~S" filename lineno)
                            (return nil))
@@ -205,12 +162,6 @@
                              :keys '("GETTEXT(" "GETTEXTL("
                                      "CLSTEXT(" "CLOTEXT(")
                              :string-parser #'d-parse-string
-               ))
-               ((search ".lisp$" (concatenate 'string filename "$"))
-                ;; Extract strings from a .lisp file
-                (do-one-file :all-grepper "grep -n '(TEXT ' "
-                             :keys '("(TEXT ")
-                             :string-parser #'lisp-parse-string
                ))
                (t (error "unknown file type: ~S" filename))
          )
