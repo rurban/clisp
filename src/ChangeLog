@@ -1,3 +1,7 @@
+2000-02-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * makemake.in: Don't install emacs/*.el any more.
+
 2000-02-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * arimips.d (subx_loop_down): If compiling for n32 ABI, the fifth
