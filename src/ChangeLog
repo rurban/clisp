@@ -1,3 +1,38 @@
+2004-06-05  Bruno Haible  <bruno@clisp.org>
+
+	* clos-genfun5.lisp (missing-required-method): New function.
+	* clos-methcomb1.lisp (method-combination): Reorder the slots.
+	* clos-methcomb2.lisp (invalid-method-error, method-combination-error):
+	Signal an error of type ERROR, not SOURCE-PROGRAM-ERROR. Tweak error
+	message.
+	(invalid-method-sort-order-error): New function.
+	(compute-effective-method-function, qualifiers-match-p):
+	Internationalize.
+	(parse-method-groups): New function, extracted from
+	compute-method-partition-lambdas. Improved syntax checking. Improved
+	error messages.
+	(compute-method-partition-lambdas): Accept a body argument. Remove
+	*-group-variable and its associated unjustified error. Remove code that
+	can never be executed. Generate code that operates directly on
+	variables instead of on a property list. Emit code to call
+	MISSING-REQUIRED-METHOD and INVALID-METHOD-SORT-ORDER-ERROR.
+	(define-method-combination): Improved syntax checking. Improved error
+	messages. Use sys::parse-body. In the long-form combination, don't pass
+	:qualifiers. Keep gf-variable and user-gf-variable distinct, so that
+	the user cannot accidentally change the value of the gf-variable.
+	(do-define-method-combination): Renamed from %define-method-combination.
+	Remove dynamic-extent declaration.
+	* format.lisp (format-quote): New function.
+
+2004-05-15  Bruno Haible  <bruno@clisp.org>
+
+	* clos-macros.lisp: New file.
+	* clos-class2.lisp (add-direct-subclass, remove-direct-subclass,
+	list-direct-subclasses): Define through def-weak-set-accessors.
+	* init.lisp: Load clos-macros.
+	* makemake.in (LPARTS): Add clos-macros.
+	* po/Makefile.devel (LISPSOURCES): Add clos-macros.
+
 2004-05-15  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp: Load clos-stablehash1.
