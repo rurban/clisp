@@ -31,7 +31,7 @@ localedir = $(datadir)/locale
 #ifdef UNIX_AIX
 CC = xlc
 #else
-#ifdef UNIX_CYGWIN32
+#if defined(UNIX_SUNOS4) || defined(UNIX_CYGWIN32)
 CC = gcc
 #else
 #ifdef UNIX_HPUX
