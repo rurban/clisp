@@ -43,9 +43,9 @@
     be sent to <email>clisp-list@lists.sourceforge.net</email>
    </para></authorblurb>
   </author>
-  <author><honorific>Dr</honorific><firstname>Bruno</firstname>
+  <author><honorific>Dr</honorific> <firstname>Bruno</firstname>
    <surname>Haible</surname></author>
-  <author><honorific>Dr</honorific><firstname>Sam</firstname>
+  <author><honorific>Dr</honorific> <firstname>Sam</firstname>
    <surname>Steingold</surname></author>
  </authorgroup>
  <keywordset>
@@ -67,7 +67,7 @@
 <para>These notes discuss the &clisp; implementation of &cl; by
 <blockquote><address>
  <honorific>Dr</honorific>
- <firstname>Bruno</firstname><surname>Haible</surname>
+ <firstname>Bruno</firstname> <surname>Haible</surname>
  <email>haible@clisp.cons.org</email>
  <street>17, rue Danton</street>
  <city>Le Kremlin-Bic&ecirc;tre</city>
@@ -77,7 +77,7 @@
  and
 <blockquote><address>
  <honorific>Dr</honorific>
- <firstname>Michael</firstname><surname>Stoll</surname>
+ <firstname>Michael</firstname> <surname>Stoll</surname>
  <email>stoll@math.uni-duesseldorf.de</email>
  <street>Westerwaldweg 22</street>
  <city>Remagen-Oberwinter</city>
@@ -85,9 +85,9 @@
  <otheraddr><ulink url="http://www.math.uni-duesseldorf.de/home/stoll">http://www.math.uni-duesseldorf.de/home/stoll</ulink></otheraddr>
 </address></blockquote>
  The current maintainers are <address><honorific>Dr</honorific>
- <firstname>Bruno</firstname><surname>Haible</surname></address> and
- <address><honorific>Dr</honorific><firstname>Sam</firstname>
- <surname>Steingold</surname><email>sds@clisp.cons.org</email>
+ <firstname>Bruno</firstname> <surname>Haible</surname></address> and
+ <address><honorific>Dr</honorific> <firstname>Sam</firstname>
+ <surname>Steingold</surname> <email>sds@clisp.cons.org</email>
  <otheraddr><ulink url="http://clisp.cons.org/~sds">http://clisp.cons.org/~sds</ulink></otheraddr></address>.
 </para>
 
