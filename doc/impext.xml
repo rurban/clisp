@@ -2005,7 +2005,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <section id="mod-dynload"><title>Function &mod-dynload;</title>
 <subtitle>Platform dependent: some &unix; platforms only, compiled &with;
- compile-time flag <option>--with-dynamic-modules</option>.</subtitle>
+ configure flag <option>--with-dynamic-modules</option>.</subtitle>
 
 <note><para>Dynamic loading does not work on all operating systems
 (&dlopen; is required)</para></note>
