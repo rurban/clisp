@@ -1,3 +1,10 @@
+2004-08-26  Bruno Haible  <bruno@clisp.org>
+
+	Avoid link error when compiling without optimization.
+	* makemake.in (clisp.h): Define COMPILE_STANDALONE also when using <clisp.h>.
+	* genclisph.d (main): Wrap check_list and posfixnum_default2 in #ifndef
+	COMPILE_STANDALONE.
+
 2004-08-25  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class6.lisp (initialize-instance@class): Avoid compiler warning.
