@@ -1991,7 +1991,7 @@ local void print_banner ()
                     if (!strcmp (arg, "-norc")) argv_norc = TRUE;
                     else usage (1);
                     break;
-                  #if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
+                  #ifdef UNIX
                   case 'K': # linKing set
                     OPTION_ARG
                     # This option has already been digested by clisp.c.

@@ -67,8 +67,6 @@ CL_SOCKET
                       dnl LIBS -lsocket
 CL_CC_WORKS
                       dnl final CC check
-CL_SHELLARGS
-                      dnl DEFS UNIX_USE_KSH, UNIX_BROKEN_SH, sets variable GOOD_SH
 dnl
 dnl           check for host type
 dnl

@@ -47,7 +47,7 @@
 [ <A HREF="#Option -t"><CODE>-t</CODE> <EM>tempdir</EM></A> ]
 #endif
 [ <A HREF="#Option -B"><CODE>-B</CODE> <EM>lisplibdir</EM></A> ]
-#if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
+#ifdef UNIX
 [ <A HREF="#Option -K"><CODE>-K</CODE> <EM>linking-set</EM></A> ]
 #endif
 [ <A HREF="#Option -M"><CODE>-M</CODE> <EM>memfile</EM></A> ]
@@ -146,7 +146,7 @@ is already built-in in the <CODE>clisp</CODE> executable.
 #endif
 <P>
 
-#if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
+#ifdef UNIX
 <DT> <A NAME="Option -K"> <CODE>-K</CODE> <EM>linking-set</EM> </A>
 <DD> Specifies the linking set to be run. This is a directory containing
 at least a main executable and an initial memory image. Possible values are
@@ -602,7 +602,7 @@ and Michael Stoll.
 Bruno Haible &lt;haible@clisp.cons.org&gt;
 </ADDRESS>
 <P>
-Last modified: 13 May 1999.
+Last modified: 20 May 1999.
 
 </BODY>
 

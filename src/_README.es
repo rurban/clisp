@@ -401,33 +401,16 @@ Y cree un fichero de ejecución por lotes que ejecute lisp:
    [Ctrl-Z]
 #endif
 #ifdef UNIX
-#ifdef UNIX_BINARY_DISTRIB
-Y cree un `shell script' que ejecute lisp:
-
-   cat > /usr/local/bin/clisp
-#ifndef UNIX_BROKEN_SH
-#ifdef UNIX_USE_KSH
-   #!/bin/ksh
-#else
-   #!/bin/sh
-#endif
-   exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/ "$@"
-#else
-   #!/bin/sh
-   if test $# = 0; then
-     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/
-   else
-     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/ "$@"
-   fi
-#endif
-   [Ctrl-D]EOF
-   chmod a+x /usr/local/bin/clisp
-#else
 Y cree el programa que ejeute lisp:
 
+#ifdef UNIX_BINARY_DISTRIB
    cc -O -DLISPLIBDIR='"/usr/local/lib/lisp"' \
          -DLOCALEDIR='"/usr/local/share/locale"' \
       src/clisp.c -o /usr/local/bin/clisp
+#else
+   ./hardcode -DLISPLIBDIR='/usr/local/lib/lisp' \
+              -DLOCALEDIR='/usr/local/share/locale' \
+              clisp /usr/local/bin/clisp
 #endif
 
 #ifdef GNU_READLINE
