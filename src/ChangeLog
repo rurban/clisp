@@ -1,5 +1,10 @@
 1999-03-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (FILE-STRING-LENGTH): Depend on the stream's encoding.
+          Don't look at the strm_wr_ch pointer.
+
+1999-03-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * pathname.d (directory_search_scandir): Avoid calling stat() if
           the given wildcard mask excludes a given directory entry.
 
