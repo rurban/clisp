@@ -1,3 +1,14 @@
+1999-03-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (rd_ch_terminal2): Restructure this function. Call
+          rd_ch_unbuffered, in order to respect the stream's encoding.
+          When EOF has been reached, no need to set strm_rd_ch_last,
+          the caller already does this.
+          (lisp_completion_matches): Do filename completion also after #P".
+          (rd_ch_terminal3): Restructure this function. Respect the stream's
+          encoding. When EOF has been reached, no need to set strm_rd_ch_last,
+          the caller already does this.
+
 1999-03-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d: Test for `__linux__', not `linux', so that even when
