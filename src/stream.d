@@ -9593,76 +9593,47 @@ LISPFUNN(make_keyboard_stream,0)
 
 # Lesen eines Zeichens von einem Terminal-Stream.
   local object rd_ch_terminal2 (const object* stream_);
-  # vgl. rd_ch_unbuffered() :
   local object rd_ch_terminal2(stream_)
     var const object* stream_;
-    { restart_it:
-     {var object stream = *stream_;
+    { var object stream = *stream_;
       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
         { return eof_value; }
-      #if TERMINAL_LINEBUFFERED
-      { var object inbuff = TheStream(stream)->strm_terminal_inbuff; # Eingabebuffer
-        if (posfixnum_to_L(TheStream(stream)->strm_terminal_index)
-            < TheIarray(inbuff)->dims[1]
-           )
-          # index<count -> Es sind noch Zeichen im Buffer
-          { var uintL index =
-              posfixnum_to_L(TheStream(stream)->strm_terminal_index); # Index
-            TheStream(stream)->strm_terminal_index =
-              fixnum_inc(TheStream(stream)->strm_terminal_index,1); # Index erhöhen
-            return code_char(TheSstring(TheIarray(inbuff)->data)->data[index]); # nächstes Character
-          }
-        # index=count -> muss eine ganze Zeile von Tastatur lesen:
-        TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
-        TheIarray(inbuff)->dims[1] = 0; # count := 0
-      }
-      continue_line:
-      #endif
-      {var uintB c;
-       run_time_stop(); # Run-Time-Stoppuhr anhalten
-       begin_system_call();
-       {var int ergebnis = read(stdin_handle,&c,1); # Zeichen lesen versuchen
-        end_system_call();
-        run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
-        if (ergebnis<0)
-          { begin_system_call();
-            if (errno==EINTR) # Unterbrechung (evtl. durch Ctrl-C) ?
-              { end_system_call();
-                interruptp({ pushSTACK(S(read_char)); tast_break(); }); # Break-Schleife aufrufen
-                goto restart_it;
-              }
-            OS_error();
-          }
-        if (ergebnis==0)
-          # kein Zeichen verfügbar -> EOF erkennen
-          #if TERMINAL_LINEBUFFERED
-          if (TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] > 0)
-            goto restart_it; # Zeichen des Buffers liefern, dann erst eof_value liefern
-            else
-          #endif
-            { TheStream(stream)->strm_rd_ch_last = eof_value; return eof_value; }
-       }
-       #if TERMINAL_LINEBUFFERED
-       # Zeichen c zur Eingabezeile dazunehmen, evtl. die Zeile vergrößern:
-       # FIXME: This should take into account the encoding.
-       ssstring_push_extend(TheStream(stream)->strm_terminal_inbuff,as_chart(c));
-       stream = *stream_;
-       #endif
-       # Wenn stdin und stdout beide dasselbe Terminal sind,
-       # und wir lesen ein NL, so können wir davon ausgehen,
-       # dass der Cursor danach in Spalte 0 steht.
-       if (c==NL)
-         { if (eq(TheStream(stream)->strm_terminal_isatty,S(equal)))
-             { TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; }
-         }
-       #if TERMINAL_LINEBUFFERED
-         else
-         goto continue_line; # so lang weiterlesen, bis ein NL kommt...
-       # Kam ein NL, so fangen wir an, die Zeichen des Buffers zu liefern:
-       goto restart_it;
-       #endif
-       # FIXME: No return value here??
-      }
+      if (!(posfixnum_to_L(TheStream(stream)->strm_terminal_index)
+            < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
+         ) )
+        { # index=count -> muss eine ganze Zeile von Tastatur lesen:
+          TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
+          TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; # count := 0
+          loop
+            { var object ch = rd_ch_unbuffered(stream_);
+              if (eq(ch,eof_value))
+                { if (TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] > 0)
+                    break; # Zeichen des Buffers liefern, dann erst eof_value liefern
+                  else
+                    return eof_value;
+                }
+              # Zeichen ch zur Eingabezeile dazunehmen, evtl. die Zeile vergrößern:
+              ssstring_push_extend(TheStream(stream)->strm_terminal_inbuff,char_code(ch));
+              stream = *stream_;
+              # Wenn stdin und stdout beide dasselbe Terminal sind,
+              # und wir lesen ein NL, so können wir davon ausgehen,
+              # dass der Cursor danach in Spalte 0 steht.
+              if (chareq(char_code(ch),ascii(NL)))
+                { if (eq(TheStream(stream)->strm_terminal_isatty,S(equal)))
+                    { TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; }
+                  break; # Zeichen des Buffers liefern
+                }
+            }
+          ASSERT(posfixnum_to_L(TheStream(stream)->strm_terminal_index)
+                 < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
+                );
+        }
+      # index<count -> Es sind noch Zeichen im Buffer
+     {var uintL index =
+        posfixnum_to_L(TheStream(stream)->strm_terminal_index); # Index
+      TheStream(stream)->strm_terminal_index =
+        fixnum_inc(TheStream(stream)->strm_terminal_index,1); # Index erhöhen
+      return code_char(TheSstring(TheIarray(TheStream(stream)->strm_terminal_inbuff)->data)->data[index]); # nächstes Character
     }}
 
 # Stellt fest, ob ein Terminal-Stream ein Zeichen verfügbar hat.
@@ -9742,8 +9713,17 @@ LISPFUNN(make_keyboard_stream,0)
     var char* text; # text[0..end-start-1] = the_line[start..end-1]
     var int start;
     var int end;
-    { if ((start>=2) && (rl_line_buffer[start-2]=='#') && (rl_line_buffer[start-1]== '\"'))
-        # Vervollständigung nach #" bezieht sich auf Filenamen:
+    { if (((start>=2)
+           && (rl_line_buffer[start-2]=='#')
+           && (rl_line_buffer[start-1]== '\"')
+          )
+          ||
+          ((start>=3)
+           && (rl_line_buffer[start-3]=='#')
+           && (rl_line_buffer[start-2]=='P' || rl_line_buffer[start-2]=='p')
+           && (rl_line_buffer[start-1]== '\"')
+         ))
+        # Vervollständigung nach #" oder #P" bezieht sich auf Filenamen:
         { want_filename_completion = TRUE; return NULL; }
      {var char** result = lisp_completion(rl_line_buffer,start,end);
       want_filename_completion = FALSE;
@@ -9767,87 +9747,101 @@ LISPFUNN(make_keyboard_stream,0)
   # vgl. rd_ch_unbuffered() :
   local object rd_ch_terminal3(stream_)
     var const object* stream_;
-    { restart_it:
-     {var object stream = *stream_;
+    { var object stream = *stream_;
       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
         { return eof_value; }
-      #if TERMINAL_LINEBUFFERED
-      { var object inbuff = TheStream(stream)->strm_terminal_inbuff; # Eingabebuffer
-        if (posfixnum_to_L(TheStream(stream)->strm_terminal_index)
-            < TheIarray(inbuff)->dims[1]
-           )
-          # index<count -> Es sind noch Zeichen im Buffer
-          { var uintL index =
-              posfixnum_to_L(TheStream(stream)->strm_terminal_index); # Index
-            TheStream(stream)->strm_terminal_index =
-              fixnum_inc(TheStream(stream)->strm_terminal_index,1); # Index erhöhen
-            return code_char(TheSstring(TheIarray(inbuff)->data)->data[index]); # nächstes Character
-          }
-        # index=count -> muss eine ganze Zeile von Tastatur lesen:
-        TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
-        TheIarray(inbuff)->dims[1] = 0; # count := 0
-      }
-      #endif
-      { var char* prompt; # Prompt: letzte bisher ausgegebene Zeile
-       {var object lastline = string_to_asciz(TheStream(*stream_)->strm_terminal_outbuff,O(terminal_encoding));
-        begin_system_call();
-        prompt = (char*) malloc(Sbvector_length(lastline)/8+1);
-        if (!(prompt==NULL))
-          { strcpy(prompt,TheAsciz(lastline));
-            #ifndef NO_MATCH  # not needed any more in readline-2.2-clisp or newer
-            # Die readline()-Library arbeitet mit einer anderen Bildschirmbreite,
-            # als sie bei der Ausgabe des Prompts benutzt wurde. Bei Prompts
-            # länger als eine Bildschirmzeile gibt das Probleme. Wir behelfen
-            # uns, indem wir an passender Stelle ein '\n' einfügen.
-            { var uintL prompt_length = asciz_length(prompt);
-              var uintL screenwidth = posfixnum_to_L(Symbol_value(S(prin_linelength)))+1;
-              if (prompt_length >= screenwidth)
-                { var uintL insertpos = round_down(prompt_length,screenwidth);
-                  var uintL i;
-                  for (i = prompt_length; i >= insertpos; i--)
-                    { prompt[i+1] = prompt[i]; }
-                  prompt[insertpos] = '\n';
-            }   }
+      if (!(posfixnum_to_L(TheStream(stream)->strm_terminal_index)
+            < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
+         ) )
+        { # index=count -> muss eine ganze Zeile von Tastatur lesen:
+          TheStream(stream)->strm_terminal_index = Fixnum_0; # index := 0
+          TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; # count := 0
+          { var char* prompt; # Prompt: letzte bisher ausgegebene Zeile
+            { var object lastline = string_to_asciz(TheStream(stream)->strm_terminal_outbuff,TheStream(stream)->strm_encoding);
+              begin_system_call();
+              prompt = (char*) malloc(Sbvector_length(lastline)/8+1);
+              if (!(prompt==NULL))
+                { strcpy(prompt,TheAsciz(lastline));
+                  #ifndef NO_MATCH  # not needed any more in readline-2.2-clisp or newer
+                  # Die readline()-Library arbeitet mit einer anderen Bildschirmbreite,
+                  # als sie bei der Ausgabe des Prompts benutzt wurde. Bei Prompts
+                  # länger als eine Bildschirmzeile gibt das Probleme. Wir behelfen
+                  # uns, indem wir an passender Stelle ein '\n' einfügen.
+                  { var uintL prompt_length = asciz_length(prompt);
+                    var uintL screenwidth = posfixnum_to_L(Symbol_value(S(prin_linelength)))+1;
+                    if (prompt_length >= screenwidth)
+                      { var uintL insertpos = round_down(prompt_length,screenwidth);
+                        var uintL i;
+                        for (i = prompt_length; i >= insertpos; i--)
+                          { prompt[i+1] = prompt[i]; }
+                        prompt[insertpos] = '\n';
+                  }   }
+                  #endif
+                }
+              end_system_call();
+            }
+            # Lexem-trennende Characters: die mit Syntaxcode whsp,tmac,nmac
+            # (siehe IO.D, eigentlich von der Readtable abhängig):
+            rl_basic_word_break_characters = "\t" NLstring " \"#'(),;`";
+            rl_basic_quote_characters = "\"|";
+            rl_completer_quote_characters = "\\|";
+            run_time_stop(); # Run-Time-Stoppuhr anhalten
+            begin_call();
+            rl_already_prompted = TRUE;
+           {var uintB* line = (uintB*)readline(prompt==NULL ? "" : prompt); # Zeile lesen
+            end_call();
+            run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
+            if (!(prompt==NULL))
+              { begin_system_call(); free(prompt); end_system_call(); }
+            if (line==NULL)
+              # EOF (am Zeilenanfang) erkennen
+              { return eof_value; }
+            # gelesene Zeile zur Eingabezeile dazunehmen:
+            #ifdef UNICODE
+            { var object inbuff = TheStream(*stream_)->strm_terminal_inbuff;
+              var object encoding = TheStream(*stream_)->strm_encoding;
+              var const uintB* bptr = line;
+              var const uintB* bendptr = bptr+asciz_length(bptr);
+              var uintL clen = Encoding_mblen(encoding)(encoding,bptr,bendptr);
+              ssstring_extend(inbuff,TheIarray(inbuff)->dims[1]+clen);
+              inbuff = TheStream(*stream_)->strm_terminal_inbuff;
+              encoding = TheStream(*stream_)->strm_encoding;
+             {var chart* cptr = &TheSstring(TheIarray(inbuff)->data)->data[TheIarray(inbuff)->dims[1]];
+              var chart* cendptr = cptr+clen;
+              Encoding_mbstowcs(encoding)(encoding,nullobj,&bptr,bendptr,&cptr,cendptr);
+              ASSERT(cptr == cendptr);
+              TheIarray(inbuff)->dims[1] += clen;
+            }}
+            #else
+            { var const uintB* ptr = line;
+              until (*ptr == '\0')
+                { ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,as_chart(*ptr++)); }
+            }
             #endif
-       }  }
-       end_system_call();
-       # Lexem-trennende Characters: die mit Syntaxcode whsp,tmac,nmac
-       # (siehe IO.D, eigentlich von der Readtable abhängig):
-       rl_basic_word_break_characters = "\t" NLstring " \"#'(),;`";
-       rl_basic_quote_characters = "\"|";
-       rl_completer_quote_characters = "\\|";
-       run_time_stop(); # Run-Time-Stoppuhr anhalten
-       begin_call();
-       rl_already_prompted = TRUE;
-       {var uintB* line = (uintB*)readline(prompt==NULL ? "" : prompt); # Zeile lesen
-        end_call();
-        run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
-        if (!(prompt==NULL))
-          { begin_system_call(); free(prompt); end_system_call(); }
-        if (line==NULL)
-          # EOF (am Zeilenanfang) erkennen
-          { TheStream(stream)->strm_rd_ch_last = eof_value; return eof_value; }
-        # gelesene Zeile zur Eingabezeile dazunehmen:
-        # FIXME: This should take into account the encoding.
-        {var uintB* ptr = line;
-         until (*ptr == '\0')
-           { ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,as_chart(*ptr++)); }
-         ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,ascii(NL));
+            ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,ascii(NL));
+            # und in die History übernehmen, falls nicht leer:
+            if (!(line[0]=='\0'))
+              { begin_system_call(); add_history(line); end_system_call(); }
+            # Freigeben müssen wir die Zeile!
+            begin_system_call(); free(line); end_system_call();
+          }}
+          stream = *stream_;
+          # Wenn stdin und stdout beide dasselbe Terminal sind, können
+          # wir davon ausgehen, dass der Cursor in Spalte 0 steht.
+          if (eq(TheStream(stream)->strm_terminal_isatty,S(equal)))
+            { TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
+              TheIarray(TheStream(stream)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
+            }
+          ASSERT(posfixnum_to_L(TheStream(stream)->strm_terminal_index)
+                 < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1]
+                );
         }
-        # und in die History übernehmen, falls nicht leer:
-        if (!(line[0]=='\0'))
-          { begin_system_call(); add_history(line); end_system_call(); }
-        # Freigeben müssen wir die Zeile!
-        begin_system_call(); free(line); end_system_call();
-      }}
-      # Wenn stdin und stdout beide dasselbe Terminal sind, können
-      # wir davon ausgehen, dass der Cursor in Spalte 0 steht.
-      if (eq(TheStream(*stream_)->strm_terminal_isatty,S(equal)))
-        { TheStream(*stream_)->strm_wr_ch_lpos = Fixnum_0;
-          TheIarray(TheStream(*stream_)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
-        }
-      # Nun fangen wir an, die Zeichen des Buffers zu liefern:
-      goto restart_it;
+      # index<count -> Es sind noch Zeichen im Buffer
+     {var uintL index =
+        posfixnum_to_L(TheStream(stream)->strm_terminal_index); # Index
+      TheStream(stream)->strm_terminal_index =
+        fixnum_inc(TheStream(stream)->strm_terminal_index,1); # Index erhöhen
+      return code_char(TheSstring(TheIarray(TheStream(stream)->strm_terminal_inbuff)->data)->data[index]); # nächstes Character
     }}
 
 # Stellt fest, ob ein Terminal-Stream ein Zeichen verfügbar hat.
