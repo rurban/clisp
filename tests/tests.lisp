@@ -48,14 +48,15 @@
   #-(or CLISP AKCL ECL ALLEGRO CMU) (lisp-implementation-type))
 
 (defun do-test (stream log &optional (ignore-errors t))
-  (let ((eof "EOF") (error-count 0))
+  (let ((eof "EOF") (error-count 0) (total-count 0))
     (loop
+      (incf total-count)
       (let ((form (read stream nil eof))
             (result (read stream nil eof)))
         (when (or (eq form eof) (eq result eof)) (return))
         (print form)
         (let ((my-result
-                (if ignore-errors
+               (if ignore-errors
                   (with-ignored-errors (eval form)) ; return ERROR on errors
                   (eval form)))) ; don't disturb the condition system when testing it!
           (cond ((eql result my-result)
@@ -70,12 +71,13 @@
                  (format log "~%Form: ~S~%CORRECT: ~S~%~7A: ~S~%"
                              form result lisp-implementation-type
                              my-result))))))
-    error-count))
+    (values total-count error-count)))
 
 (defun do-errcheck (stream log &optional ignore-errors)
   (declare (ignore ignore-errors))
-  (let ((eof "EOF") (error-count 0))
+  (let ((eof "EOF") (error-count 0) (total-count 0))
     (loop
+      (incf total-count)
       (let ((form (read stream nil eof))
             (errtype (read stream nil eof)))
         (when (or (eq form eof) (eq errtype eof)) (return))
@@ -91,28 +93,33 @@
                    (format log "~%Form: ~S~%CORRECT: ~S~%~7A: ~S~%"
                                form errtype lisp-implementation-type
                                my-result)))))))
-    error-count))
+    (values total-count error-count)))
 
 (defun run-test (testname
                  &optional (tester #'do-test) (ignore-errors t)
                  &aux (logname (merge-extension "erg" testname))
-                      error-count)
+                      error-count total-count)
   (with-open-file (s (merge-extension "tst" testname) :direction :input)
     (format t "~&~s: started ~s~%" 'run-test s)
     (with-open-file (log logname :direction :output
                                  #+ANSI-CL :if-exists #+ANSI-CL :new-version)
       (let ((*package* *package*)
             (*print-pretty* nil))
-        (setq error-count (funcall tester s log ignore-errors)))))
+        (setf (values total-count error-count)
+              (funcall tester s log ignore-errors)))))
   (when (zerop error-count) (delete-file logname))
-  (format t "~&~s: finished ~s (~:d error~:p)~%"
-          'run-test testname error-count)
-  error-count)
+  (format t "~&~s: finished ~s (~:d error~:p out of ~:d test~:p)~%"
+          'run-test testname error-count total-count)
+  (values total-count error-count))
 
-(defun run-all-tests ()
-  (format t "~s: grand total: ~:d error~:p~%" 'run-all-tests
-   (+ (reduce #'+
-              '(#-(or AKCL ECL)     "alltest"
+(defmacro with-accumulating-errors ((error-count total-count) &body body)
+  (let ((err (gensym)) (tot (gensym)))
+    `(multiple-value-bind (,tot ,err) (progn ,@body)
+       (incf ,error-count ,err)
+       (incf ,total-count ,tot))))
+
+(defun run-all-tests (&aux (error-count 0) (total-count 0))
+  (dolist (ff '(#-(or AKCL ECL)     "alltest"
                                     "array"
                                     "backquot"
                 #+CLISP             "bin-io"
@@ -153,8 +160,13 @@
                                     "symbols"
                 #+XCL               "tprint"
                 #+XCL               "tread"
-                                    "type")
-              :key #'run-test)
-      #+(or CLISP ALLEGRO CMU)
-      (run-test "conditions" #'do-test nil)
-      (run-test "excepsit" #'do-errcheck))))
+                                    "type"))
+    (with-accumulating-errors (error-count total-count) (run-test ff)))
+  #+(or CLISP ALLEGRO CMU)
+  (with-accumulating-errors (error-count total-count)
+    (run-test "conditions" #'do-test nil))
+  (with-accumulating-errors (error-count total-count)
+    (run-test "excepsit" #'do-errcheck))
+  (format t "~s: grand total: ~:d error~:p out of ~:d test~:p~%"
+          'run-all-tests error-count total-count)
+  (values total-count error-count))
