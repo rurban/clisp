@@ -1132,6 +1132,7 @@ LISPSYM(simple_print_not_readable,"SIMPLE-PRINT-NOT-READABLE",system) # als Typ 
 LISPSYM(simple_parse_error,"SIMPLE-PARSE-ERROR",system) # als Typ für ERROR                             |
 LISPSYM(simple_stream_error,"SIMPLE-STREAM-ERROR",system) # als Typ für ERROR                           |
 LISPSYM(simple_end_of_file,"SIMPLE-END-OF-FILE",system) # als Typ für ERROR                             |
+LISPSYM(simple_reader_error,"SIMPLE-READER-ERROR",system) # als Typ für ERROR                           |
 LISPSYM(simple_file_error,"SIMPLE-FILE-ERROR",system) # als Typ für ERROR                               |
 LISPSYM(simple_storage_condition,"SIMPLE-STORAGE-CONDITION",system) # als Typ für ERROR                 |
 LISPSYM(simple_warning,"SIMPLE-WARNING",lisp) # als Typ für ERROR                                     --+
@@ -1224,6 +1225,7 @@ LISPSYM(with_output_to_string,"WITH-OUTPUT-TO-STRING",lisp) # als Fehlermelder i
 LISPSYM(integer,"INTEGER",lisp) # als Typ in STREAM
 LISPSYM(hash_table,"HASH-TABLE",lisp) # als Typ in IO, PREDTYPE
 LISPSYM(random_state,"RANDOM-STATE",lisp) # als Typ in IO, PREDTYPE
+LISPSYM(reader_error,"READER-ERROR",lisp) # als Typ für IO
 LISPSYM(read_base,"*READ-BASE*",lisp) # als Variable in IO
 LISPSYM(read_suppress,"*READ-SUPPRESS*",lisp) # als Variable in IO
 LISPSYM(read_eval,"*READ-EVAL*",lisp) # als Variable in IO

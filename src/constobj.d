@@ -823,6 +823,9 @@
   LISPOBJ(token_buff_1,".")
   LISPOBJ(token_buff_2,".")
   LISPOBJ(displaced_string,".")
+  # Handler-Typen:
+  LISPOBJ(handler_for_arithmetic_error,"(#(ARITHMETIC-ERROR NIL))")
+  LISPOBJ_S(tildeA,"~A")
  # zum Printer:
   # beim Ausgeben von Objekten verwendete Teilstrings:
   LISPOBJ_S(printstring_array,"ARRAY")

@@ -1806,6 +1806,19 @@ LISPFUNN(set_readtable_case,2)
        }
     }}}
 
+# Handler: Signals a READER-ERROR with the same error message as the current
+# condition.
+  local void signal_reader_error (void* sp, object* frame, object label, object condition);
+  local void signal_reader_error(sp,frame,label,condition)
+    var void* sp;
+    var object* frame;
+    var object label;
+    var object condition;
+    { # (SYS::ERROR-OF-TYPE 'READER-ERROR "~A" condition)
+      pushSTACK(S(reader_error)); pushSTACK(O(tildeA)); pushSTACK(condition);
+      funcall(L(error_of_type),3);
+    }
+
 # UP: ‹berpr¸ft, ob ein Token nur aus Dots besteht.
 # test_dots()
 # > O(token_buff_1): gelesene Characters
@@ -2128,15 +2141,24 @@ LISPFUNN(set_readtable_case,2)
         var uintWL numtype = test_number_syntax(&base,&string,&info);
         if (!(numtype==0)) # Zahl?
           { upcase_token(); # in Groﬂbuchstaben umwandeln
+           {var object result;
+            # ANSI CL 2.3.1.1 requires that we transform ARITHMETIC-ERROR into READER-ERROR
+            make_HANDLER_frame(O(handler_for_arithmetic_error),&signal_reader_error,NULL);
             switch (numtype)
               { case 1: # Integer
-                  return read_integer(base,info.sign,string,info.index1,info.index2);
+                  result = read_integer(base,info.sign,string,info.index1,info.index2);
+                  break;
                 case 2: # Rational
-                  return read_rational(base,info.sign,string,info.index1,info.index3,info.index2);
+                  result = read_rational(base,info.sign,string,info.index1,info.index3,info.index2);
+                  break;
                 case 3: # Float
-                  return read_float(base,info.sign,string,info.index1,info.index4,info.index2,info.index3);
+                  result = read_float(base,info.sign,string,info.index1,info.index4,info.index2,info.index3);
+                  break;
                 default: NOTREACHED
-          }   }
+              }
+            unwind_HANDLER_frame();
+            return result;
+          }}
       }
       # Token nicht als Zahl interpretierbar.
       # Wir interpretieren das Token als Symbol (auch dann, wenn das Token

@@ -61,6 +61,10 @@ User visible changes
 * Conforming with ANSI CL, FILE-LENGTH and FILE-POSITION, when called on
   an unbuffered file stream, now return NIL instead of signalling an error.
 
+* Conforming with ANSI CL, the reader now signals an error of type
+  READER-ERROR when trying to parse tokens like 35/000 or 1.5e1000,
+  instead of DIVISION-BY-ZERO and FLOATING-POINT-OVERFLOW, respectively.
+
 * On Unix, calling OPEN on a block device now returns a buffered stream
   instead of an unbuffered stream.
 
