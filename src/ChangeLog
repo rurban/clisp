@@ -1,3 +1,8 @@
+2000-01-12  Sam Steingold  <sds@gnu.org>
+
+	* modules/regexp/regexp.lsp (regexp-compile): use `assert'
+	(regexp-exec): `assert' that `string'  is a string
+
 2000-01-10  Sam Steingold  <sds@gnu.org>
 
 	* posixmisc.d: new file
