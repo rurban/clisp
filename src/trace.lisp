@@ -214,10 +214,10 @@ This will not work with closures that use lexical variables!"
                        (let ((*trace-values*
                               (multiple-value-list
                                ,(if (tracer-local-p trr)
-                                    `(funcall ,(tracer-cur-def trr) ,@sig)
-                                  (if (tracer-step-if trr)
-                                    '(trace-step-apply)
-                                    '(apply *trace-function* *trace-args*))))))
+                                  `(funcall ,(tracer-cur-def trr) ,@sig)
+                                  `(if ,(tracer-step-if trr)
+                                     (trace-step-apply)
+                                     (apply *trace-function* *trace-args*))))))
                          ,@(when (tracer-post-break-if trr)
                              `((when ,(tracer-post-break-if trr)
                                  (sys::break-loop t))))
