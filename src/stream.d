@@ -3593,6 +3593,10 @@ LISPFUNN(generic_stream_p,1)
         return value1;
       }
       #endif
+      #else
+      # This is a hack to get away without an error.
+      if (symbolp(arg) && eq(Symbol_package(arg),O(charset_package)))
+        return O(default_file_encoding);
       #endif
       if (eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos))) {
         # (make-encoding :charset default-file-encoding :line-terminator arg)
