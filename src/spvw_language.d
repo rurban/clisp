@@ -148,6 +148,7 @@
       #define language_deutsch   1
       #define language_francais  2
       #define language_spanish   3
+      #define language_dutch     4
     #endif
     local boolean init_language_from(langname)
       var const char* langname;
@@ -176,6 +177,11 @@
             || asciz_equal(langname,"SPANISH") || asciz_equal(langname,"spanish")
            ) {
           language = language_spanish; return TRUE;
+        }
+        if (asciz_equal(langname,"NEDERLANDS") || asciz_equal(langname,"nederlands")
+            || asciz_equal(langname,"DUTCH") || asciz_equal(langname,"dutch")
+           ) {
+          language = language_dutch; return TRUE;
         }
         #endif
         return FALSE;
@@ -251,6 +257,7 @@
               language == language_deutsch ? "de" :
               language == language_francais ? "fr" :
               language == language_spanish ? "es" :
+              language == language_dutch ? "nl" :
               "";
             if (getenv("LANGUAGE"))
               mysetenv("LANGUAGE","");

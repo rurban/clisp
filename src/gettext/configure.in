@@ -19,7 +19,7 @@ AM_INIT_AUTOMAKE(clisp,[`cat ${srcdir}/../VERSION`])
 AM_CONFIG_HEADER(config.h)
 
 dnl Set of available languages.
-ALL_LINGUAS="en de fr es"
+ALL_LINGUAS="en de fr es nl"
 
 dnl Checks for programs.
 AC_PROG_CC            dnl check for C compiler

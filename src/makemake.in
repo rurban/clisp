@@ -1502,11 +1502,12 @@ fi
 
 COMMENTS=''
 
-LPARTS='init defseq backquot defmacro macros1 macros2 defs1 timezone places
-  floatpri type defstruc format savemem trace compiler disassem defs2 loop
-  conditio gstream xcharin keyboard screen runprog query reploop dribble
-  complete describe room edit macros3 posix foreign1 defs3 clhs
-  german french spanish config'
+LPARTS='        init defseq backquot defmacro macros1 macros2 defs1 timezone'
+LPARTS=$LPARTS' places floatpri type defstruc format savemem trace compiler'
+LPARTS=$LPARTS' disassem defs2 loop clos conditio gstream xcharin keyboard'
+LPARTS=$LPARTS' screen runprog query reploop dribble complete describe room'
+LPARTS=$LPARTS' edit macros3 posix foreign1 defs3 clhs'
+LPARTS=$LPARTS' german french spanish dutch config'
 
 DOC='LISP-tutorial CLOS-guide editors'
 
@@ -3383,8 +3384,6 @@ echotab "mkdir \$(TOPDIR)/data"
 echotab "${LN} data/* \$(TOPDIR)/data"
 echotab "mkdir \$(TOPDIR)/doc"
 echotab "${LN} clisp.1 clisp.man${manual_dvi} clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
-echotab "mkdir \$(TOPDIR)/emacs"
-echotab "${LN} ${SRCTOPDIR}emacs/*.el \$(TOPDIR)/emacs"
 echotab "mkdir \$(TOPDIR)/src"
 echotab "${LN} \$(LSPFILES) \$(FASFILES) \$(TOPDIR)/src"
 echotab "${LN} clisp-link \$(TOPDIR)"
@@ -3459,8 +3458,6 @@ if [ $HOS = win32 ] ; then
   echotab "for f in clisp.1 clisp.man clisp.html \$(TXTFILES) impnotes.html clisp.gif ; do \\"
   echotab "  if test -f \$\$f ; then cp -p \$\$f \$\$distdir/doc/\$\$f ; else cp -p \`echo \$\$f | tr '[A-Z]' '[a-z]'\` \$\$distdir/doc/\$\$f ; fi ; \\"
   echotab "done ; \\"
-  echotab "mkdir \$\$distdir/emacs ; \\"
-  echotab "cp -p ../emacs/*.el \$\$distdir/emacs/ ; \\"
   echotab "mkdir \$\$distdir/src ; \\"
   echotab "cp -p \$(LSPFILES) \$\$distdir/src/ ; \\"
   echotab "chmod 755 \$\$distdir/. \$\$distdir/*/. ; \\"

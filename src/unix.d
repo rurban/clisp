@@ -1,5 +1,5 @@
 # Include-File für UNIX-Version von CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 
 # Konstanten für Steuerzeichen:
@@ -701,7 +701,7 @@
       #include <sys/time.h> # für CLK_TCK nötig, unter UNIX_SYSV_PTX
     #endif
     #include <sys/times.h>
-    extern_C CLOCK_T times (struct tms * buffer); # siehe TIMES(3V)
+    extern_C clock_t times (struct tms * buffer); # siehe TIMES(3V)
     extern_C time_t time (time_t* tloc); # siehe TIME(3V)
   #else
     #error "Cannot access real time with finer resolution than 1 second."
@@ -719,7 +719,7 @@
     #include <sys/types.h>
     #include <sys/param.h> # definiert HZ, Maßeinheit ist 1/HZ Sekunden
     #include <sys/times.h>
-    extern_C CLOCK_T times (struct tms * buffer); # siehe TIMES(3V)
+    extern_C clock_t times (struct tms * buffer); # siehe TIMES(3V)
   #endif
   # Alternative:
   # #include <??>
