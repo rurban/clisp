@@ -1,3 +1,19 @@
+2001-05-09  Sam Steingold  <sds@gnu.org>
+
+	ANSI CL compiler macros are implemented
+	* cmacros.lisp: new file
+	* makemake.in (LPARTS): added cmacros
+	* compiler.lisp (env, mac-exp): new aux inline functions
+	(macroexpand-1, c-form, compile-toplevel-form &c): use them
+	(macroexpand-form): call COMPILER-MACRO-FUNCTION
+	(inline-callable-function-lambda-p, inline-callable-lambdabody-p):
+	 use FUNCTION-FORM-FUNFORM
+	(c-FUNCTION-CALL, c-APPLY): use SIMPLE-FUNCTION-FORM-P
+	* init.lisp: load cmacros; export COMPILER-MACRO,
+	 COMPILER-MACRO-FUNCTION DEFINE-COMPILER-MACRO
+	* defmacro.lisp (make-macro-expansion): accept an optional
+	 PRE-PROCESS argument
+
 2001-05-06  Bruno Haible  <haible@clisp.cons.org>
 
 	* configure: Configure and build libiconv before configuring gettext.
