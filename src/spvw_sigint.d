@@ -58,7 +58,8 @@
       # per sigaction() o.ä. das Blockieren des Signals beim Aufruf veranlassen
       # können, müssen wir das gerade blockierte Signal entblockieren:
         #if defined(SIGNALBLOCK_POSIX)
-          { var sigset_t sigblock_mask;
+          {
+            var sigset_t sigblock_mask;
             sigemptyset(&sigblock_mask); sigaddset(&sigblock_mask,sig);
             sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
           }
@@ -86,23 +87,25 @@
   local void interrupt_handler (int sig);
   local void interrupt_handler(sig)
     var int sig; # sig = SIGINT
-    { inc_break_sem_5();
+    {
+      inc_break_sem_5();
       signal_acknowledge(SIGINT,&interrupt_handler);
-      if (!interrupt_pending) # Liegt schon ein Interrupt an -> nichts zu tun
-        { interrupt_pending = TRUE; # Flag für 'interruptp' setzen
-          #ifdef HAVE_UALARM
-          # eine halbe Sekunde warten, dann jede 1/20 sec probieren
-          ualarm(ticks_per_second/2,ticks_per_second/20);
-          #else
-          alarm(1); # eine Sekunde warten, weiter geht's dann bei alarm_handler
-          #endif
-        }
+      if (!interrupt_pending) { # Liegt schon ein Interrupt an -> nichts zu tun
+        interrupt_pending = TRUE; # Flag für 'interruptp' setzen
+        #ifdef HAVE_UALARM
+        # eine halbe Sekunde warten, dann jede 1/20 sec probieren
+        ualarm(ticks_per_second/2,ticks_per_second/20);
+        #else
+        alarm(1); # eine Sekunde warten, weiter geht's dann bei alarm_handler
+        #endif
+      }
       dec_break_sem_5();
     }
   local void alarm_handler (int sig);
   local void alarm_handler(sig)
     var int sig; # sig = SIGALRM
-    { # Die Zeit ist nun abgelaufen.
+    {
+      # Die Zeit ist nun abgelaufen.
       inc_break_sem_5();
       #ifdef EMUNIX # Verhindere Programm-Beendigung durch SIGALRM
       #ifndef HAVE_UALARM
@@ -126,7 +129,8 @@
   local void interrupt_handler (int sig);
   local void interrupt_handler(sig)
     var int sig; # sig = SIGINT
-    { inc_break_sem_5();
+    {
+      inc_break_sem_5();
       signal_acknowledge(SIGINT,&interrupt_handler);
       dec_break_sem_5();
       react_on_sigint(sig);
@@ -144,7 +148,8 @@
   # not return!
   global void interrupt_handler (void);
   global void interrupt_handler()
-    { # asciz_out("Entering interrupt handler.\n");
+    {
+      # asciz_out("Entering interrupt handler.\n");
       #ifdef HAVE_SAVED_STACK
       # STACK auf einen sinnvollen Wert setzen:
       if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }
