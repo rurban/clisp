@@ -516,22 +516,22 @@ abort continue muffle-warning store-value use-value
 ;; there is SYS::%HANDLER-BIND which is synonymous to HANDLER-BIND except
 ;; that SYS::%HANDLER-BIND only occurs in compiled code.
 (defmacro handler-bind (clauses &body body)
-  (let ((typespecs (mapcar #'first clauses))
-        (handlers (append (mapcar #'rest clauses) (list body))))
-    (let ((handler-vars (gensym-list (length handlers))))
-      `(LET ,(mapcar #'list
-               handler-vars
-               (mapcar #'(lambda (handler)
-                           `(FUNCTION (LAMBDA () (PROGN ,@handler))))
-                       handlers))
-         (LOCALLY (DECLARE (COMPILE))
-           (SYS::%HANDLER-BIND
-             ,(mapcar #'(lambda (typespec handler-var)
-                          `(,typespec #'(LAMBDA (CONDITION)
-                                          (FUNCALL (FUNCALL ,handler-var)
-                                                   CONDITION))))
-                      typespecs handler-vars)
-             (FUNCALL ,(car (last handler-vars)))))))))
+  (let* ((typespecs (mapcar #'first clauses))
+         (handlers (nconc (mapcar #'rest clauses) (list body)))
+         (handler-vars (gensym-list (length handlers))))
+    `(LET ,(mapcar #'list
+                   handler-vars
+                   (mapcar #'(lambda (handler)
+                               `(FUNCTION (LAMBDA () (PROGN ,@handler))))
+                           handlers))
+       (LOCALLY (DECLARE (COMPILE))
+         (SYS::%HANDLER-BIND
+          ,(mapcar #'(lambda (typespec handler-var)
+                       `(,typespec #'(LAMBDA (CONDITION)
+                                       (FUNCALL (FUNCALL ,handler-var)
+                                                CONDITION))))
+                   typespecs handler-vars)
+          (FUNCALL ,(car (last handler-vars))))))))
 
 ;; SIGNAL, CLtL2 p. 888
 ; is in error.d
@@ -644,7 +644,7 @@ abort continue muffle-warning store-value use-value
 
 ;; The RESTART type, CLtL2 p. 916
 ;; Also defines RESTART-NAME, CLtL2 p. 911
-(defstruct (restart (:print-object print-restart))
+(defstruct restart
   name             ; its name, or NIL if it is not named
   (test #'default-restart-test) ; function that tests whether this restart
                                 ; applies to a given condition
@@ -670,25 +670,13 @@ abort continue muffle-warning store-value use-value
 |#
 
 ;; Printing restarts
-(defun print-restart (restart stream)
-  (if (or *print-escape* *print-readably*)
-    (print-unreadable-object (restart stream :type t :identity t)
-      (write (restart-name restart) :stream stream)
-    )
-    (let ((report-function (restart-report restart)))
-      (if report-function
-        (funcall report-function stream)
-        (prin1 (restart-name restart) stream)
-) ) ) )
-#| ; If RESTART were a CLOS class:
- (clos:defmethod clos:print-object ((restart restart) stream)
+(clos:defmethod clos:print-object ((restart restart) stream)
   (if (or *print-escape* *print-readably*)
     (clos:call-next-method)
     (let ((report-function (restart-report restart)))
       (if report-function
         (funcall report-function stream)
         (prin1 (restart-name restart) stream)))))
-|#
 
 ;; Expands to the equivalent of `(MAKE-RESTART :NAME name ...)
 ;; but makes intelligent use of the defaults to reduce code size.
@@ -738,64 +726,49 @@ abort continue muffle-warning store-value use-value
 ; Tests whether a given restart is applicable to a given condition
 (defun applicable-restart-p (restart condition)
   (and
-    #| ; We choose the ANSI-CL behaviour because it makes the need for the
-       ; syntax-dependent implicit restart association in RESTART-CASE
-       ; nearly obsolete.
-    #-ANSI-CL
-    ; A restart is applicable iff it is associated to that condition.
-    (dolist (asso *condition-restarts* nil)
-      (when (and (eq (car asso) condition) (eq (cdr asso) restart))
-        (return t)
-    ) )
-    #+ANSI-CL
-    |#
-    ; A restart is applicable if it is associated to that condition
-    ; or if it is not associated to any condition.
-    (let ((not-at-all t))
-      (dolist (asso *condition-restarts* not-at-all)
-        (when (eq (cdr asso) restart)
-          (if (eq (car asso) condition)
-            (return t)
-            (setq not-at-all nil)
-    ) ) ) )
-    ; Call the restart's test function:
-    (funcall (restart-test restart) condition)
-) )
+   (or (null condition)
+       ;; A restart is applicable if it is associated to that condition
+       ;; or if it is not associated to any condition.
+       (let ((not-at-all t))
+         (dolist (asso *condition-restarts* not-at-all)
+           (when (eq (cdr asso) restart)
+             (if (eq (car asso) condition)
+                 (return t)
+                 (setq not-at-all nil))))))
+   ;; Call the restart's test function:
+   (funcall (restart-test restart) condition)))
 
 ;; COMPUTE-RESTARTS, CLtL2 p. 910
 (defun compute-restarts (&optional condition)
-  (if condition
-    ; return only restarts that are applicable to that condition
-    (remove-if-not #'(lambda (restart) (applicable-restart-p restart condition))
-                   *active-restarts*
-    )
-    ; return all restarts
-    *active-restarts*
-) )
+  (remove-if-not #'(lambda (restart) (applicable-restart-p restart condition))
+                 *active-restarts*))
 
 ;; FIND-RESTART, CLtL2 p. 911
 ; returns a restart or nil
 (defun find-restart (restart-identifier &optional condition)
+  ;; cannot use (E)TYPECASE for bootstrapping reasons
   (cond ((null restart-identifier)
          (error-of-type 'error
            (TEXT "~S: ~S is not a valid restart name here. Use ~S instead.")
            'find-restart restart-identifier 'compute-restarts))
         ((symbolp restart-identifier)
+         ;;(find restart-identifier *active-restarts*
+         ;;      :test (lambda (ri restart)
+         ;;              (and (eq (restart-name restart) ri)
+         ;;                   (applicable-restart-p restart condition))))
          (dolist (restart *active-restarts*)
            (when (and (eq (restart-name restart) restart-identifier)
-                      (or (null condition)
-                          (applicable-restart-p restart condition)
-                 )    )
-             (return restart)
-        )) )
+                      (applicable-restart-p restart condition))
+             (return restart))))
         ((typep restart-identifier 'restart)
+         ;;(find restart-identifier *active-restarts*
+         ;;      :test (lambda (ri restart)
+         ;;              (and (eq restart ri)
+         ;;                   (applicable-restart-p restart condition))))
          (dolist (restart *active-restarts*)
            (when (and (eq restart restart-identifier)
-                      (or (null condition)
-                          (applicable-restart-p restart condition)
-                 )    )
-             (return restart)
-        )) )
+                      (applicable-restart-p restart condition))
+             (return restart))))
         (t (error-of-type 'type-error
              :datum restart-identifier :expected-type '(or symbol restart)
              (TEXT "~S: invalid restart name ~S")
@@ -1091,10 +1064,8 @@ abort continue muffle-warning store-value use-value
     `(WITH-RESTARTS
          ((,name
            :REPORT (LAMBDA (STREAM) (FORMAT STREAM ,format-string ,@format-arguments))
-           () (VALUES NIL T)
-         ))
-       ,@body
-     )
+           () (VALUES NIL T)))
+       ,@body)
     ;; Here's an example of how we can easily optimize things. There is no
     ;; need to refer to anything in the lexical environment, so we can avoid
     ;; consing a restart at run time.
@@ -1103,19 +1074,15 @@ abort continue muffle-warning store-value use-value
       `(BLOCK ,blockname
          (CATCH ',tag
            (LET ((*ACTIVE-RESTARTS*
-                   (CONS
-                     (LOAD-TIME-VALUE
-                       (MAKE-RESTART :NAME ',name
-                                     :INVOKE-TAG ',tag
-                                     :REPORT #'(LAMBDA (STREAM) (FORMAT STREAM ,format-string))
-                     ) )
-                     *ACTIVE-RESTARTS*
-                )) )
-             (RETURN-FROM ,blockname (PROGN ,@body))
-           )
-           (VALUES NIL T)
-       ) )
-) ) )
+                  (CONS
+                   (LOAD-TIME-VALUE
+                    (MAKE-RESTART :NAME ',name
+                                  :INVOKE-TAG ',tag
+                                  :REPORT #'(LAMBDA (STREAM)
+                                              (FORMAT STREAM ,format-string))))
+                   *ACTIVE-RESTARTS*)))
+             (RETURN-FROM ,blockname (PROGN ,@body))))
+         (VALUES NIL T)))))
 
 
 ;;; 29.4.10. Restart Functions
