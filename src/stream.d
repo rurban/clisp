@@ -6402,6 +6402,7 @@ local object rd_ch_buffered (const object* stream_) {
   } else if (chareq(c,ascii(CR))) {
     # check next character for LF
     bufferptr = buffered_nextbyte(stream);
+    # FIXME: This is wrong. It assumes an ASCII compatible encoding.
     if ((bufferptr != NULL) && chareq(as_chart(*bufferptr),ascii(LF))) {
       # increment index and position
       BufferedStream_index(stream) += 1;
@@ -6522,6 +6523,7 @@ local uintL rd_ch_array_buffered (const object* stream_,
             if (ptr1 == currptr) {
               var uintB* bufferptr = buffered_nextbyte(stream);
               if ((bufferptr != NULL)
+                  # FIXME: This is wrong. It assumes an ASCII compatible encoding.
                   && chareq(as_chart(*bufferptr),ascii(LF))) {
                 # increment index and position
                 BufferedStream_index(stream) += 1;
