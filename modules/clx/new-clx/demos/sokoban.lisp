@@ -422,6 +422,7 @@ If you quit sokoban using 'q' the current state will be saved in
         nil)))
   (save-state)
   (xlib:unmap-window *window*)
+  (xlib:display-finish-output *display*)
   (xlib:close-display *display*))
 
 (defun update (&optional all-p)
