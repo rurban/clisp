@@ -2952,7 +2952,7 @@ if [ $CROSS = false ] ; then
   echol
 
   echol "testsuite : ${TESTSDIR} lisp${LEXE} lispinit.mem"
-  echotab "LISP=\"${CLISP_}\"; export LISP; cd ${TESTSDIR}; \$(MAKE) LISP=\"\$\$LISP\""
+  echotab "cd ${TESTSDIR} && \$(MAKE) LEXE=${LEXE}"
   echol
   echol "${TESTSDIR} :"
   echotab "-mkdir ${TESTSDIR}"

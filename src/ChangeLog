@@ -1,3 +1,7 @@
+2003-07-03  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (testsuite): pass LEXE to make in suite
+
 2003-07-02  Sam Steingold  <sds@gnu.org>
 
 	* control.d (PROCLAIM): fixed STACK indexing for CONSTANT-(NOT)INLINE
