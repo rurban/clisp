@@ -44,7 +44,7 @@
 
 (defparameter *update-instance-for-different-class-table*
   (make-hash-table :key-type '(cons class class) :value-type 'list
-                   :test #'equal))
+                   :test 'ext:stablehash-equal :warn-if-needs-rehash-after-gc t))
   ;; Hash table, mapping a cons (old-class . new-class) to
   ;; - a list of valid keyword arguments.
 

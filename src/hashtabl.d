@@ -2636,7 +2636,7 @@ LISPFUNN(class_gethash,2)
   if (!ht_validp(TheHashtable(ht))) /* hash-table must still be reorganized */
     ht = rehash(ht);
   {
-    var uint32 code =           /* calculate hashcode of the class */
+    var uint32 code =           /* calculate hashcode1stable of the class */
       posfixnum_to_L(TheClass(clas)->hashcode);
     var uintL hashindex;
     divu_3232_3232(code,TheHashtable(ht)->ht_size, (void),hashindex = );
@@ -2665,8 +2665,8 @@ LISPFUNN(class_gethash,2)
 /* (CLOS::CLASS-TUPLE-GETHASH ht object1 ... objectn)
  is like (GETHASH (funcall (hash-tuple-function n) class1 ... classn) ht)
  with classi = (CLASS-OF objecti).
- Definition: n>0, ht is an EQUAL-hashtable and (hash-tuple-function n) is
- defined in clos.lisp .
+ Definition: n>0, ht is a STABLEHASH-EQUAL-hashtable and
+ (hash-tuple-function n) is defined in clos.lisp .
  This function is the core of the dispatch for generic functions. It has to
  be fast and must not cons.
 
@@ -2681,7 +2681,8 @@ local const uintC tuple_half_2 [17] = {0,0,1,2,2,3,4,4,4,5,6,7,8,8,8,8,8};
 local uint32 hashcode_tuple (uintC n, const gcv_object_t* args_pointer,
                              uintC depth) {
   if (n==1) {
-    return hashcode1(Next(args_pointer)); /* hashcode3_atom for classes */
+    var object clas = Next(args_pointer);
+    return posfixnum_to_L(TheClass(clas)->hashcode); /* hashcode3stable_atom for classes */
   } else if (n<=16) {
     var uintC n1 = tuple_half_1[n];
     var uintC n2 = tuple_half_2[n]; /* n1 + n2 = n */

@@ -1,3 +1,13 @@
+2004-05-14  Bruno Haible  <bruno@clisp.org>
+
+	* hashtabl.d (hashcode_tuple): Use inlined hashcode3stable_atom.
+	* clos-genfun2.lisp (compute-dispatch): When the number of dispatching
+	arguments is > 1, use a hash table with test STABLEHASH-EQUAL.
+	* clos-class5.lisp (*update-instance-for-different-class-table*):
+	Use hash table test FASTHASH-EQUAL.
+
+	* loop.lisp (loop-keywordp): Use hash table test FASTHASH-EQUAL.
+
 2004-05-13  Bruno Haible  <bruno@clisp.org>
 
 	Make the hashcode of classes GC-invariant.
