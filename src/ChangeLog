@@ -5,7 +5,8 @@
 	* pathname.d (maybe_executable): only on UNIX
 	(find_executable) [WIN32_NATIVE]: use GetModuleFileName()
 	instead of GetCommandLine()
-	* spvw.d (init_lowest_level): always call find_executable()
+	* spvw.d (init_lowest_level): predicate find_executable() on
+	HAVE_DISASSEMBLER, not on UNIX
 
 2005-02-24  Bruno Haible  <bruno@clisp.org>
 
