@@ -134,20 +134,34 @@
         funcall(L(read_line),3); # (READ-LINE istream nil nil)
         var object line = value1;
         if (nullp(line)) { # EOF am Zeilenanfang?
-          dynamic_unbind(); goto eof;
+          dynamic_unbind(); # S(key_bindings)
+          goto eof;
         }
         # search for line in *KEY-BINDINGS*:
         {
           var object alist = Symbol_value(S(key_bindings));
-          while (consp(alist)) {
-            if (mconsp(Car(alist)) && simple_string_p(Car(Car(alist))) &&
-                string_eqcomp_ci(line,0,Car(Car(alist)),0,
-                                 Sstring_length(Car(Car(alist))))) {
-              # found -> call the appropriate function:
-              funcall(Cdr(Car(alist)),0); dynamic_unbind(); goto eof;
+          var uintL input_len = Sstring_length(line);
+          for (;consp(alist);alist = Cdr(alist))
+            if (mconsp(Car(alist)) && simple_string_p(Car(Car(alist)))) {
+              object key = Car(Car(alist));
+              uintL len = Sstring_length(key);
+              # check whether the line starts with the key and a whitespace
+              if (string_eqcomp_ci(line,0,key,0,len)) {
+                if (len == input_len) goto found;
+                # now len < input_len
+                var cint ch;
+                SstringDispatch(line,
+                 { ch=as_cint(TheSstring(line)->data[len]); },
+                 { ch=as_cint(as_chart(TheSmallSstring(line)->data[len])); });
+                if (ch == '\t' || ch == '\n' || ch == ' ' ||
+                    ch == '\r' || ch == '\f' || ch == '\v') {
+                 found:
+                  funcall(Cdr(Car(alist)),0); # call the appropriate function
+                  dynamic_unbind(); # S(key_bindings)
+                  goto eof;
+                }
+              }
             }
-            alist = Cdr(alist);
-          }
         }
         # tweak string-input-stream for this line:
         if (nullp(value2)) {
