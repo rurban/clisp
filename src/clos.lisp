@@ -303,6 +303,7 @@
 ; compute-discriminating-function                       OK      OK
 ; compute-effective-method                              --      OK
 ; compute-effective-slot-definition                     OK      OK
+; compute-effective-slot-definition-initargs            OK      OK
 ; compute-slots                                         OK      OK
 ; direct-slot-definition-class                          OK      OK
 ; effective-slot-definition-class                       OK      OK
