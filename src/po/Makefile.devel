@@ -26,12 +26,12 @@ DSOURCES = \
     spvw_singlemap spvw_page spvw_heap spvw_global spvw_gcstat spvw_space \
     spvw_mark spvw_objsize spvw_update spvw_fault spvw_sigsegv spvw_sigcld \
     spvw_sigpipe spvw_sigint spvw_sigwinch spvw_garcol spvw_genera1 \
-    spvw_genera2 spvw_genera3 spvw_allocate spvw_typealloc spvw_circ \
-    spvw_walk spvw_ctype spvw_language spvw_memfile \
+    spvw_gcmark spvw_genera2 spvw_weak spvw_genera3 spvw_allocate \
+    spvw_typealloc spvw_circ spvw_walk spvw_ctype spvw_language spvw_memfile \
  spvwtabf spvwtabs spvwtabo \
  eval control \
  encoding pathname stream socket io \
- array hashtabl list package record sequence \
+ array hashtabl list package record weak sequence \
  charstrg debug \
  error errunix errwin32 \
  misc time predtype symbol \

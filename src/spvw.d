@@ -2640,6 +2640,7 @@ global int main (argc_t argc, char* argv[]) {
   }
  #endif
   init_subr_tab_1(); # initialize subr_tab
+  markwatchset = NULL; markwatchset_allocated = markwatchset_size = 0;
   if (argv_memfile==NULL) # manual initialization:
     initmem();
   else # load memory file:

@@ -196,7 +196,8 @@
                                     "symbols"
                   #+XCL             "tprint"
                   #+XCL             "tread"
-                                    "type"))
+                                    "type"
+                  #+CLISP           "weak"))
       (with-accumulating-errors (error-count total-count) (run-test ff)))
     #+CLISP
     (dotimes (i 50)

@@ -549,6 +549,58 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           case Rectype_Weakpointer: /* only the value is printed! */
             get_circ_mark(TheWeakpointer(obj)->wp_value,env);
             goto m_end;
+          case Rectype_MutableWeakList:
+            get_circ_mark(TheMutableWeakList(obj)->mwl_list,env);
+            goto m_end;
+          case Rectype_MutableWeakAlist:
+            get_circ_mark(TheMutableWeakAlist(obj)->mwal_list,env);
+            goto m_end;
+          case Rectype_Weakmapping:
+            get_circ_mark(TheWeakmapping(obj)->wm_value,env);
+            get_circ_mark(TheWeakmapping(obj)->wm_key,env);
+            goto m_end;
+          case Rectype_WeakList:
+            {
+              var uintL count = Lrecord_length(obj)-2;
+              if (count > 0) {
+                var gcv_object_t* ptr = &TheWeakList(obj)->wl_elements[0];
+                if (SP_overflow()) # check SP-depth
+                  longjmp(env->abbruch_context,true); # abort
+                dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # mark elements (recursive)
+              }
+            }
+            goto m_end;
+          case Rectype_WeakAnd:
+            get_circ_mark(TheWeakAnd(obj)->war_keys_list,env);
+            goto m_end;
+          case Rectype_WeakOr:
+            get_circ_mark(TheWeakOr(obj)->wor_keys_list,env);
+            goto m_end;
+          case Rectype_WeakAndMapping:
+            get_circ_mark(TheWeakAndMapping(obj)->wam_value,env);
+            get_circ_mark(TheWeakAndMapping(obj)->wam_keys_list,env);
+            goto m_end;
+          case Rectype_WeakOrMapping:
+            get_circ_mark(TheWeakOrMapping(obj)->wom_value,env);
+            get_circ_mark(TheWeakOrMapping(obj)->wom_keys_list,env);
+            goto m_end;
+          case Rectype_WeakAlist_Key:
+          case Rectype_WeakAlist_Value:
+          case Rectype_WeakAlist_Either:
+          case Rectype_WeakAlist_Both:
+            {
+              var uintL count = (Lrecord_length(obj)-2)/2;
+              if (count > 0) {
+                var gcv_object_t* ptr = &TheWeakAlist(obj)->wal_data[0];
+                if (SP_overflow()) # check SP-depth
+                  longjmp(env->abbruch_context,true); # abort
+                dotimespC(count,count, {
+                  get_circ_mark(*ptr++,env); # mark key (recursive)
+                  get_circ_mark(*ptr++,env); # mark value (recursive)
+                });
+              }
+            }
+            goto m_end;
           default: break;
         }
         # Pathnames, Random-States, Bytes, Fsubrs, Loadtimeevals,
@@ -858,6 +910,58 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           case Rectype_Weakpointer: /* only the value is printed! */
             get_circ_mark(TheWeakpointer(obj)->wp_value,env);
             goto m_end;
+          case Rectype_MutableWeakList:
+            get_circ_mark(TheMutableWeakList(obj)->mwl_list,env);
+            goto m_end;
+          case Rectype_MutableWeakAlist:
+            get_circ_mark(TheMutableWeakAlist(obj)->mwal_list,env);
+            goto m_end;
+          case Rectype_Weakmapping:
+            get_circ_mark(TheWeakmapping(obj)->wm_value,env);
+            get_circ_mark(TheWeakmapping(obj)->wm_key,env);
+            goto m_end;
+          case Rectype_WeakList:
+            {
+              var uintL count = Lrecord_length(obj)-2;
+              if (count > 0) {
+                var gcv_object_t* ptr = &TheWeakList(obj)->wl_elements[0];
+                if (SP_overflow()) # check SP-depth
+                  longjmp(env->abbruch_context,true); # abort
+                dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); # mark elements (recursive)
+              }
+            }
+            goto m_end;
+          case Rectype_WeakAnd:
+            get_circ_mark(TheWeakAnd(obj)->war_keys_list,env);
+            goto m_end;
+          case Rectype_WeakOr:
+            get_circ_mark(TheWeakOr(obj)->wor_keys_list,env);
+            goto m_end;
+          case Rectype_WeakAndMapping:
+            get_circ_mark(TheWeakAndMapping(obj)->wam_value,env);
+            get_circ_mark(TheWeakAndMapping(obj)->wam_keys_list,env);
+            goto m_end;
+          case Rectype_WeakOrMapping:
+            get_circ_mark(TheWeakOrMapping(obj)->wom_value,env);
+            get_circ_mark(TheWeakOrMapping(obj)->wom_keys_list,env);
+            goto m_end;
+          case Rectype_WeakAlist_Key:
+          case Rectype_WeakAlist_Value:
+          case Rectype_WeakAlist_Either:
+          case Rectype_WeakAlist_Both:
+            {
+              var uintL count = (Lrecord_length(obj)-2)/2;
+              if (count > 0) {
+                var gcv_object_t* ptr = &TheWeakAlist(obj)->wal_data[0];
+                if (SP_overflow()) # check SP-depth
+                  longjmp(env->abbruch_context,true); # abort
+                dotimespC(count,count, {
+                  get_circ_mark(*ptr++,env); # mark key (recursive)
+                  get_circ_mark(*ptr++,env); # mark value (recursive)
+                });
+              }
+            }
+            goto m_end;
           default: break;
         }
         # Pathnames, Random-States, Bytes, Fsubrs, Loadtimeevals,
@@ -1044,6 +1148,54 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             goto u_end;
           case Rectype_Weakpointer: /* only the value is printed! */
             get_circ_unmark(TheWeakpointer(obj)->wp_value,env);
+            goto u_end;
+          case Rectype_MutableWeakList:
+            get_circ_unmark(TheMutableWeakList(obj)->mwl_list,env);
+            goto u_end;
+          case Rectype_MutableWeakAlist:
+            get_circ_unmark(TheMutableWeakAlist(obj)->mwal_list,env);
+            goto u_end;
+          case Rectype_Weakmapping:
+            get_circ_unmark(TheWeakmapping(obj)->wm_value,env);
+            get_circ_unmark(TheWeakmapping(obj)->wm_key,env);
+            goto u_end;
+          case Rectype_WeakList:
+            {
+              var uintL count = Lrecord_length(obj)-2;
+              if (count > 0) {
+                var gcv_object_t* ptr = &TheWeakList(obj)->wl_elements[0];
+                dotimespC(count,count, { get_circ_unmark(*ptr++,env); } ); # mark elements (recursive)
+              }
+            }
+            goto u_end;
+          case Rectype_WeakAnd:
+            get_circ_unmark(TheWeakAnd(obj)->war_keys_list,env);
+            goto u_end;
+          case Rectype_WeakOr:
+            get_circ_unmark(TheWeakOr(obj)->wor_keys_list,env);
+            goto u_end;
+          case Rectype_WeakAndMapping:
+            get_circ_unmark(TheWeakAndMapping(obj)->wam_value,env);
+            get_circ_unmark(TheWeakAndMapping(obj)->wam_keys_list,env);
+            goto u_end;
+          case Rectype_WeakOrMapping:
+            get_circ_unmark(TheWeakOrMapping(obj)->wom_value,env);
+            get_circ_unmark(TheWeakOrMapping(obj)->wom_keys_list,env);
+            goto u_end;
+          case Rectype_WeakAlist_Key:
+          case Rectype_WeakAlist_Value:
+          case Rectype_WeakAlist_Either:
+          case Rectype_WeakAlist_Both:
+            {
+              var uintL count = (Lrecord_length(obj)-2)/2;
+              if (count > 0) {
+                var gcv_object_t* ptr = &TheWeakAlist(obj)->wal_data[0];
+                dotimespC(count,count, {
+                  get_circ_unmark(*ptr++,env); # mark key (recursive)
+                  get_circ_unmark(*ptr++,env); # mark value (recursive)
+                });
+              }
+            }
             goto u_end;
           default: break;
         }
