@@ -819,13 +819,9 @@ local maygc void shadowing_import (const gcv_object_t* sym_, const gcv_object_t*
 /* UP: Shadows in a package all symbols accessible from other packages
  of give name by one symbol present in this package
  of the same name.
- shadow(&sym,&pack) */
-#ifdef X3J13_161
-/* > sym: symbol or string (in STACK) */
-#else
-/* > sym: symbol (in STACK) */
-#endif
-/* > pack: package (in STACK)
+ shadow(&sym,&pack)
+ > sym: symbol or string (in STACK)
+ > pack: package (in STACK)
  < pack: package, EQ to the old
  can trigger GC */
 local maygc void shadow (const gcv_object_t* sym_, const gcv_object_t* pack_) {
@@ -833,11 +829,7 @@ local maygc void shadow (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   set_break_sem_2(); /* protect against breaks */
   /* Search an internal or external symbol of the same name: */
   var object string = /* only the name of the symbol counts. */
- #ifdef X3J13_161
     test_stringsymchar_arg(*sym_);
- #else
-    Symbol_name(*sym_);
- #endif
   var object pack = *pack_;
   pushSTACK(NIL); /* make room for othersym */
   pushSTACK(string); /* save string */
@@ -2077,18 +2069,13 @@ local maygc Values apply_symbols (sym_pack_function_t* fun) {
     /* test for symbol: */
     if (symbolp(symarg))
       goto ok;
-   #ifdef X3J13_161
     if ((fun == &shadow) && (stringp(symarg) || charp(symarg)))
       goto ok;
-   #endif
     /* test for symbol-list: */
     while (consp(symarg)) { /* symarg loops over STACK_1 */
       if (!(symbolp(Car(symarg))
-           #ifdef X3J13_161
             || ((fun == &shadow)
-                && (stringp(Car(symarg)) || charp(Car(symarg))))
-           #endif
-         ) )
+                && (stringp(Car(symarg)) || charp(Car(symarg))))))
         goto not_ok;
       symarg = Cdr(symarg);
     }
