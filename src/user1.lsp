@@ -7,6 +7,19 @@
 (in-package "SYSTEM")
 
 ;-------------------------------------------------------------------------------
+;;                               LOAD-RC-FILE
+
+(defun load-rc-file ()
+  "Load ~/.clisprc"
+  (let ((rc (make-pathname :directory (user-homedir-pathname)
+                           :name #+DOS "_CLISPRC"
+                                 #+(or OS/2 WIN32 ACORN) "_clisprc"
+                                 #+(or UNIX AMIGA) ".clisprc"
+       ))   )
+    (load rc :if-does-not-exist nil)
+) )
+
+;-------------------------------------------------------------------------------
 ;;                                 EVAL-ENV
 
 ; Das Toplevel-Environment
@@ -86,16 +99,6 @@ If anything else, printed.")
   (dolist (s (reverse (remove-if-not #'stringp *key-bindings*)))
     (write-string s #|*debug-io*|#)
 ) )
-
-(defun load-rc-file ()
-  "Load ~/.clisprc"
-  (let ((rc (make-pathname :directory (user-homedir-pathname)
-                           :name ".clisprc")) ff)
-    (when (probe-file rc)
-      (return-from load-rc-file (load rc :print t)))
-    (dolist (ext (append *compiled-file-types* *source-file-types*))
-      (when (probe-file (setq ff (merge-pathnames rc ext)))
-        (return-from load-rc-file (load ff :print t))))))
 
 ; Bausteine der Break-Schleife:
 (defvar *debug-frame*)
@@ -198,15 +201,15 @@ If anything else, printed.")
                (DEUTSCH "
 Help = diese Liste
 Benutzen Sie die üblichen Editiermöglichkeiten.
-(quit) oder ^D (Control-D, oder C-d) vor exit."
+(quit) oder (exit) verlässt CLISP."
                 ENGLISH "
 Help = this list
 Use the usual editing capabilities.
-(quit) or ^D (Control-D, or C-d) to exit."
+(quit) or (exit) leaves CLISP."
                 FRANCAIS "
 Help = cette liste
 Éditez de la façon habituelle.
-(quit) ou ^D (Control-D, ou C-d) pour exit."
+(quit) ou (exit) quitte CLISP."
                )
                (cons "Help"   #'debug-help  )
 )            )

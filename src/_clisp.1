@@ -184,14 +184,27 @@ Normally
 loads a user run control (RC) file on startup (this happens after the
 .BI -C
 option is processed).  The file loaded is
-.BI ${HOME}/.clisprc
+#if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
+.B _clisprc.lsp
 or
-.BI ${HOME}/.clisprc.fas
+.B _clisprc.fas
+in the home directory
+.IR "(user-homedir-pathname)" ,
+#endif
+#if defined(PATHNAME_AMIGAOS)
+.B .clisprc.lsp
 or
-.BI ${HOME}/.clisprc.lsp,
-tried in that order.  The first existing file from the above list is
-loaded.  This option,
-.BI -norc,
+.B .clisprc.fas
+in the home directory
+.IR "(user-homedir-pathname)" ,
+#endif
+#if defined(PATHNAME_UNIX)
+.B ${HOME}/.clisprc.lsp
+or
+.BR ${HOME}/.clisprc.fas ,
+#endif
+whichever is newest. This option,
+.B -norc,
 prevents loading of the RC file.
 .TP
 .BI "-L " language
