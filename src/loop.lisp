@@ -21,7 +21,7 @@
          (load-time-value
            (make-hash-table
              :key-type 'string :value-type 'symbol
-             :test #'equal
+             :test 'fasthash-equal :warn-if-needs-rehash-after-gc t
              :initial-contents
                (mapcar #'(lambda (s) (cons (symbol-name s) s))
                  '(named
