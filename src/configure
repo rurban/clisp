@@ -21392,9 +21392,9 @@ done
     if  test $ac_cv_func_rl_filename_completion_function = no ;
     then RL_FCF=filename_completion_function;
     else RL_FCF=rl_filename_completion_function; fi
-    echo "$as_me:$LINENO: checking for ${RL_FCF} declaration" >&5
-echo $ECHO_N "checking for ${RL_FCF} declaration... $ECHO_C" >&6
-if eval "test \"\${cl_cv_proto_${RL_FCF}+set}\" = set"; then
+    echo "$as_me:$LINENO: checking for rl_filename_completion_function declaration" >&5
+echo $ECHO_N "checking for rl_filename_completion_function declaration... $ECHO_C" >&6
+if test "${cl_cv_proto_rl_filename_completion_function+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
 
@@ -21451,14 +21451,14 @@ fi
 rm -f conftest.$ac_objext conftest.$ac_ext
 
 
-cl_cv_proto_${RL_FCF}="extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);"
+cl_cv_proto_rl_filename_completion_function="extern char* ${RL_FCF}($cl_cv_proto_readline_const char*, int);"
 fi
 
-cl_cv_proto_${RL_FCF}=`echo "$cl_cv_proto_${RL_FCF}" | tr -s ' ' | sed -e 's/( /(/'`
+cl_cv_proto_rl_filename_completion_function=`echo "$cl_cv_proto_rl_filename_completion_function" | tr -s ' ' | sed -e 's/( /(/'`
 echo "$as_me:$LINENO: result: ${ac_t:-
-         }$cl_cv_proto_${RL_FCF}" >&5
+         }$cl_cv_proto_rl_filename_completion_function" >&5
 echo "${ECHO_T}${ac_t:-
-         }$cl_cv_proto_${RL_FCF}" >&6
+         }$cl_cv_proto_rl_filename_completion_function" >&6
 
       cat >>confdefs.h <<_ACEOF
 #define READLINE_FILE_COMPLETE ${RL_FCF}
