@@ -1,5 +1,18 @@
 2005-03-10  Sam Steingold  <sds@gnu.org>
 
+	relocatable driver on win32
+	* pathname.d (find_executable): extracted to ...
+	* execname.c: new file
+	* _clisp.c: include it
+	* install.lisp, install.bat: use driver instead of batch file
+	and runtime
+	* makemake.in (pathname, clisp): depend on execname.c
+	(clisp): build relocatable
+	(distrib) [win32]: distribute clisp.exe, locale (when USE_GETTEXT)
+	* version.sh: bumped
+
+2005-03-10  Sam Steingold  <sds@gnu.org>
+
 	* m4/readline.m4 (CL_READLINE): added AC_ARG_WITH([readline])
 	* configure.in: removed AC_ARG_WITH([readline])
 

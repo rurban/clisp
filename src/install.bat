@@ -12,10 +12,10 @@ if exist src\install.lisp goto installsrc
 if exist install.lisp goto install
 goto notfound
 :installsrc
-full\lisp.exe -B . -M full\lispinit.mem -norc -C src\install.lisp
+clisp.exe -K full -norc -C src\install.lisp
 goto exit
 :install
-full\lisp.exe -B . -M full\lispinit.mem -norc -C install.lisp
+clisp.exe -K full -norc -C install.lisp
 goto exit
 :notfound
 echo Sorry, install.lisp not found, cannot install

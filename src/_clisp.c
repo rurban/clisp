@@ -4,13 +4,12 @@
  * Needed so that we can write #!/usr/local/bin/clisp as the first line
  * of a Lisp script. Normally, only real executables and no shell scripts
  * can be mentioned after #!.
- * This is needed for Unix only. On other platforms, a shell script or
- * batch file or whatever does the job as well.
  *
  * Since we are at it, this driver program also implements the "-K" option.
  * All other options are passed to the main program.
  *
  * Bruno Haible 31.3.1997
+ * Sam Steingold 1998-2005
  */
 
 /*
@@ -27,29 +26,20 @@
  */
 #endif
 
+/* needed for execname.c to work
+   the only reason at this time is the UNIX stat() headers */
+# include "lispbibl.c"
+
 /* Declare strlen(), strcpy(), strcat(). */
 # include <string.h>
-
-/* Declare malloc(). */
-#if defined(STDC_HEADERS)
-# include <stdlib.h>
-#endif
-/* Declare exec() */
-#if defined(HAVE_UNISTD_H)
-# include <unistd.h>
-#endif
-
-/* Declare errno. */
-# include <errno.h>
-
 /* Declare stderr. */
 # include <stdio.h>
 
 #if defined(WIN32_NATIVE)
-# undef UNICODE
-# include <windows.h>
 # include "w32shell.c"
 #endif
+
+# include "execname.c"
 
 #if !defined(HAVE_PERROR_DECL)
 /* Both <errno.h> and <stdio.h> failed to declare perror(). Declare it now. */
@@ -77,11 +67,14 @@ int main (int argc, char* argv[])
   char* lisplibdir = LISPLIBDIR;
   char* localedir = LOCALEDIR;
   char* argv_lisplibdir = NULL;
+#if defined(WIN32_NATIVE) && !defined(__MINGW32__)
+  char* argv_linkingset = "";
+#else
   char* argv_linkingset = "base";
+#endif
   char* argv_memfile = NULL;
   char* argv_localedir = NULL;
   char* program_name;
-
   /*
    * To determine whether -K was given, we go through the options.
    * Because when "clisp foo.lisp -K" is invoked, the "-K" is an argument
@@ -100,6 +93,30 @@ int main (int argc, char* argv[])
    * It follows that we cannot tell whether we have been called as
    * script interpreter or directly.
    */
+  if (NULL == lisplibdir) {
+    /* put my absolute path into executable_name */
+    if (-1 == find_executable(program_name)) {
+      fprintf(stderr,"%s: cannot figure out the absolute executable path",
+              program_name);
+      return -1;
+    }
+    { /* figure out lisplibdir and localedir */
+      int exec_len = strlen(executable_name), lib_len;
+      char *p = executable_name + exec_len;
+      while (*p != '/' && *p != '\\') p--;
+      lib_len = p-executable_name;
+      lisplibdir = (char*)malloc(lib_len+1);
+      if (NULL == lisplibdir) goto oom;
+      strncpy(lisplibdir,executable_name,lib_len);
+      lisplibdir[lib_len] = 0;
+      if (NULL == localedir) {
+        localedir = (char*)malloc(lib_len + 10);
+        if (NULL == localedir) goto oom;
+        strcpy(localedir,lisplibdir);
+        strcat(localedir,"/locale/");
+      }
+    }
+  }
   /*
    * Script execution on Unix is implemented like this:
    * - The basename/fullname of the interpreter is put into argv[0].
