@@ -530,6 +530,9 @@
 /* return type of read(), write() */
 #undef RETRWTYPE
 
+/* return type of shmat() */
+#undef RETSHMATTYPE
+
 /* return type of signal handlers (int or void) */
 #undef RETSIGTYPE
 
@@ -571,6 +574,9 @@
 
 /* address range of shared library code */
 #undef SHLIB_ADDRESS_RANGE
+
+/* declaration of shmat() needs const */
+#undef SHMAT_CONST
 
 /* attaching removed (but alive!) shared memory segments works */
 #undef SHM_RMID_VALID
