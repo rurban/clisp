@@ -8557,6 +8557,39 @@ local void pr_record_descr (const object* stream_, object obj,
   LEVEL_END;
 }
 
+# print a key-value table (for a hash table) kvt (on the stack)
+# the table is printed as an alist: a sequence of (key . value)
+# can trigger GC
+local void pr_kvtable (const object* stream_, object* kvt,
+                       uint index, uint count) {
+  var uintL length = 0;
+  var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
+  var object cons = allocate_cons(); # the cons (key . value)
+  loop {
+    length++; # increase previous length
+    # search for next to be printed Key-Value-Pair:
+    loop {
+      if (index==0) # finished kvtable?
+        return;
+      index -= 2; # decrease index
+      if (!eq(TheSvector(*kvt)->data[index+0],unbound)) # Key /= "empty" ?
+        break;
+    }
+    JUSTIFY_SPACE; # print Space
+    # check for attaining of *PRINT-LENGTH* :
+    CHECK_LENGTH_LIMIT(length >= length_limit,break);
+    # test for attaining of *PRINT-LINES* :
+    CHECK_LINES_LIMIT(break);
+    count--;
+    JUSTIFY_LAST(count==0);
+    # create Cons (Key . Value) and print:
+    var object* ptr = &TheSvector(*kvt)->data[index];
+    Car(cons) = ptr[0]; # Key
+    Cdr(cons) = ptr[1]; # Value
+    prin_object(stream_,cons);
+  }
+}
+
 # UP: prints an OtherRecord to stream.
 # pr_orecord(&stream,obj);
 # > obj: OtherRecord
@@ -8612,49 +8645,21 @@ local void pr_orecord (const object* stream_, object obj) {
             var uintL index = # move Index into the Key-Value-Vector
               2*posfixnum_to_L(TheHashtable(obj)->ht_maxcount);
             pushSTACK(TheHashtable(obj)->ht_kvtable); # Key-Value-Vector
-            var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
-            var uintL length = 0; # previous length := 0
             JUSTIFY_SPACE; # print Space
-            # check for attaining of *PRINT-LENGTH* :
-            CHECK_LENGTH_LIMIT(length >= length_limit,goto kvtable_end);
             # test for attaining of *PRINT-LINES* :
             CHECK_LINES_LIMIT(goto kvtable_end);
             JUSTIFY_LAST(count==0);
             { # print Hash-Test:
               var uintB flags = record_flags(TheHashtable(*obj_));
-              var object test = # Test-Symbol EQ/EQL/EQUAL
+              var object test = # Test-Symbol EQ/EQL/EQUAL/EQUALP
                 (flags & bit(0) ? S(eq) :
                  flags & bit(1) ? S(eql) :
                  flags & bit(2) ? S(equal) :
-                 NIL); # (Default-Symbol)
+                 flags & bit(3) ? S(equalp) :
+                 (NOTREACHED,nullobj));
               prin_object(stream_,test);
             }
-            loop {
-              length++; # increase previous length
-              # search for next to be printed Key-Value-Pair:
-              loop {
-                if (index==0) # finished kvtable?
-                  goto kvtable_end;
-                index -= 2; # decrease index
-                if (!eq(TheSvector(STACK_0)->data[index+0],unbound)) # Key /= "empty" ?
-                  break;
-              }
-              JUSTIFY_SPACE; # print Space
-              # check for attaining of *PRINT-LENGTH* :
-              CHECK_LENGTH_LIMIT(length >= length_limit,break);
-              # test for attaining of *PRINT-LINES* :
-              CHECK_LINES_LIMIT(break);
-              count--;
-              JUSTIFY_LAST(count==0);
-              # create Cons (Key . Value) and print:
-              obj = allocate_cons();
-              {
-                var object* ptr = &TheSvector(STACK_0)->data[index];
-                Car(obj) = ptr[0]; # Key
-                Cdr(obj) = ptr[1]; # Value
-              }
-              prin_object(stream_,obj);
-            }
+            pr_kvtable(stream_,&STACK_0,index,count);
           kvtable_end: # output of Key-Value-Pairs finished
             skipSTACK(1);
           }
