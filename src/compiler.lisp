@@ -1736,7 +1736,7 @@ for-value   NIL or T
 (defun c-warn (cstring &rest args)
   (incf *warning-count*)
   (apply #'c-comment
-         (concatenate 'string "~%" (TEXT "WARNING~@[ in ~A~]~A :") "~%" cstring)
+         (concatenate 'string "~&" (TEXT "WARNING~@[ in ~A~]~A :") "~." cstring)
          (current-function) (c-source-location)
          args))
 
@@ -1757,7 +1757,7 @@ for-value   NIL or T
       (when *compiling-from-file*
         (pushnew in-function *functions-with-errors*)))
     (format *c-error-output*
-            (concatenate 'string "~%" (TEXT "ERROR~@[ in ~S~]~A :") "~%~?")
+            (concatenate 'string "~&" (TEXT "ERROR~@[ in ~S~]~A :") "~%~?~.")
             in-function (c-source-location) cstring args))
   (throw 'c-error
     (make-anode :source NIL
@@ -10668,22 +10668,24 @@ The function make-closure is required.
                                         (sig-keywords known-sig)
                                         (sig-allow-p  known-sig))
                   (null (c-source-point-file (second kf))))
-        (c-comment (concatenate 'string "~%" (TEXT "[~s was defined~a]"))
+        (c-comment (concatenate 'string "~&" (TEXT "[~s was defined~a]") "~.")
                    (car kf) (c-source-point-location (second kf))))
       t)))
 
 ;; report the compilation problems accumulated so far and reset them
 (defun c-report-problems ()
   (when *functions-with-errors*
-    (c-comment (concatenate 'string "~%"
-                 (TEXT "There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}"))
+    (c-comment (concatenate 'string "~&"
+                 (TEXT "There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}")
+                 "~.")
                (nreverse *functions-with-errors*)))
   (setq *unknown-functions*
         (nset-difference *unknown-functions* *known-functions*
                          :test #'match-known-unknown-functions))
   (when *unknown-functions*
-    (c-comment (concatenate 'string "~%"
-                 (TEXT "The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}"))
+    (c-comment (concatenate 'string "~&"
+                 (TEXT "The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}")
+                 "~.")
                (delete-duplicates (mapcar #'car (nreverse *unknown-functions*))
                                   :test #'equal)))
   (let ((unknown-vars (set-difference *unknown-free-vars*
@@ -10691,24 +10693,27 @@ The function make-closure is required.
         (too-late-vars (intersection *unknown-free-vars*
                                      *known-special-vars*)))
     (when unknown-vars
-      (c-comment (concatenate 'string "~%"
-                   (TEXT "The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}"))
+      (c-comment (concatenate 'string "~&"
+                   (TEXT "The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}")
+                   "~.")
                  (nreverse unknown-vars)))
     (when too-late-vars
-      (c-comment (concatenate 'string "~%"
-                   (TEXT "The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}"))
+      (c-comment (concatenate 'string "~&"
+                   (TEXT "The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}")
+                   "~.")
                  (nreverse too-late-vars))))
   (when *deprecated-functions*
-    (c-comment (concatenate 'string "~%"
-                 (TEXT "The following functions were used but are deprecated:~%~:{~<~%~:; ~S - ~@?~>~^~}"))
+    (c-comment (concatenate 'string "~&"
+                 (TEXT "The following functions were used but are deprecated:~%~:{~<~%~:; ~S - ~@?~>~^~}")
+                 "~.")
                (mapcar #'(lambda (funname)
                            (assoc funname *deprecated-functions-alist* :test #'eq))
                        (nreverse *deprecated-functions*))))
   (when (boundp '*error-count*) ; then `*warning-count*' is bound too
-    (c-comment (concatenate 'string "~%"
-                 (TEXT "~D error~:P, ~D warning~:P"))
-               *error-count* *warning-count*)
-    (c-comment "~%"))
+    (c-comment (concatenate 'string "~&"
+                 (TEXT "~D error~:P, ~D warning~:P")
+                 "~.")
+               *error-count* *warning-count*))
   ;; clean-up for the next compilation unit
   (c-reset-globals))
 
@@ -10886,8 +10891,9 @@ The function make-closure is required.
                     (eof-value "EOF")
                     (form-count 0))
                 (when verbose-out
-                  (terpri verbose-out)
-                  (format verbose-out (TEXT ";; Compiling file ~A ...") file))
+                  (fresh-line verbose-out)
+                  (format verbose-out (TEXT ";; Compiling file ~A ...") file)
+                  (elastic-newline verbose-out))
                 (when *fasoutput-stream*
                   (let ((*package* *keyword-package*))
                     (write `(SYSTEM::VERSION ',(version))
@@ -10924,31 +10930,34 @@ The function make-closure is required.
                                       form :level 2 :length 3 :pretty nil))))
                     (setq *compile-file-lineno2* (line-number istream))
                     (when (eql form eof-value) (return))
-                    (when *compile-print* (format t "~%; ~A" form-name))
+                    (when *compile-print* (format t "~&; ~A~." form-name))
                     (compile-toplevel-form form
                       (symbol-suffix form-name (incf form-count)))))
                 (finalize-coutput-file)
                 (setq compilation-successful (zerop *error-count*))
                 (when verbose-out
                   (cond (compilation-successful
-                         (fresh-line verbose-out) (terpri verbose-out)
+                         (fresh-line verbose-out)
                          (format verbose-out (TEXT ";; Wrote file ~A")
                                  output-file)
                          (when *coutput-stream*
                            (terpri verbose-out)
                            (format verbose-out (TEXT ";; Wrote file ~A")
-                                   *coutput-file*)))
+                                   *coutput-file*))
+                         (elastic-newline verbose-out))
                         (new-output-stream
-                         (fresh-line verbose-out) (terpri verbose-out)
+                         (fresh-line verbose-out)
                          (format verbose-out (TEXT ";; Deleted file ~A")
                                  output-file)
                          (when *coutput-stream*
                            (terpri verbose-out)
                            (format verbose-out (TEXT ";; Deleted file ~A")
-                                   *coutput-file*))))
+                                   *coutput-file*))
+                         (elastic-newline verbose-out)))
                   (when new-listing-stream
                     (terpri verbose-out)
-                    (format verbose-out (TEXT ";; Wrote file ~A") listing)))
+                    (format verbose-out (TEXT ";; Wrote file ~A") listing)
+                    (elastic-newline verbose-out)))
                 (values (if compilation-successful output-file nil)
                         (compile-warnings-p)
                         (compile-failure-p))))
