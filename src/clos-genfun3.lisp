@@ -196,7 +196,7 @@
 ;;; DEFMETHOD
 
 (defmacro defmethod (funname &rest method-description)
-  (sys::check-function-name 'defmethod funname)
+  (sys::check-function-name funname 'defmethod)
   (multiple-value-bind (method-initargs-forms signature)
       (analyze-method-description 'defmethod funname method-description)
     `(LET ()
@@ -254,7 +254,7 @@
 ;; (DEFMETHOD function-name qualifier* spec-lambda-list ...)
 
 (defmacro declaim-method (funname &rest method-description)
-  (sys::check-function-name 'declaim-method funname)
+  (sys::check-function-name funname 'declaim-method)
   (multiple-value-bind (method-initargs-forms signature)
       (analyze-method-description 'defmethod funname method-description)
     (declare (ignore method-initargs-forms))
@@ -270,7 +270,7 @@
 ;; options: (option*)
 ;; --> signature, argument-precedence-order, method combination, method-forms, docstring
 (defun analyze-defgeneric (caller funname lambdalist options)
-  (sys::check-function-name caller funname)
+  (sys::check-function-name funname caller)
   ;; Parse the lambdalist:
   (analyze-defgeneric-lambdalist caller funname lambdalist)
   ;; Process the options:

@@ -172,7 +172,7 @@ This will not work with closures that use lexical variables!"
            (when (get (tracer-symb trr) 'sys::untraced-name)
              (setf (tracer-symb trr)
                    (get (tracer-symb trr) 'sys::untraced-name))))
-          (t (check-function-name caller funname)
+          (t (check-function-name funname caller)
              (go restart))))
   (check-redefinition funname caller "function")
   trr)
