@@ -1,5 +1,10 @@
 2004-06-16  Bruno Haible  <bruno@clisp.org>
 
+	* init.lisp: Export the generic-function-* accessors.
+	* clos-package.lisp: Likewise.
+
+2004-06-16  Bruno Haible  <bruno@clisp.org>
+
 	* documentation.lisp (documentation): For generic functions, take
 	the doc string from the generic function object, not its name.
 	((setf documentation)): For generic functions, store the doc string
