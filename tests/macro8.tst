@@ -383,3 +383,29 @@ my-mac
 
 (my-mac 1 :y 10)
 (1 10)
+
+;; <http://www.lisp.org/HyperSpec/Body/mac_defmacro.html>
+(defmacro dm1a (&whole x) `',x) dm1a
+(macroexpand '(dm1a))           '(DM1A)
+
+(defmacro dm1b (&whole x a &optional b) `'(,x ,a ,b)) dm1b
+(macroexpand '(dm1b q))   '((DM1B Q) Q NIL)
+(macroexpand '(dm1b q r)) '((DM1B Q R) Q R)
+
+(defmacro dm2a (&whole form a b) `'(form ,form a ,a b ,b)) dm2a
+(macroexpand '(dm2a x y)) '(FORM (DM2A X Y) A X B Y)
+(dm2a x y)                (FORM (DM2A X Y) A X B Y)
+
+(defmacro dm2b (&whole form a (&whole b (c . d) &optional (e 5))
+                &body f &environment env)
+  ``(,',form ,,a ,',b ,',(macroexpand c env) ,',d ,',e ,',f))
+dm2b
+(dm2b :x1 (((incf x2) x3 x4)) x5 x6)
+((DM2B :X1 (((INCF X2) X3 X4)) X5 X6) :X1 (((INCF X2) X3 X4))
+ (SETQ X2 (+ X2 1)) (X3 X4) 5 (X5 X6))
+
+(let ((x1 5))
+  (macrolet ((segundo (x) `(cadr ,x)))
+    (dm2b x1 (((segundo x2) x3 x4)) x5 x6)))
+((DM2B X1 (((SEGUNDO X2) X3 X4)) X5 X6)
+ 5 (((SEGUNDO X2) X3 X4)) (CADR X2) (X3 X4) 5 (X5 X6))
