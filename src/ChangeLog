@@ -1,5 +1,10 @@
 1999-08-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * modules/clx/new-clx/demos/qix.lsp (draw-qix): Don't ignore nlines.
+          Improve herald message.
+
+1999-08-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * pathname.d (PARSE-NAMESTRING): Don't make strong assumptions about
           the algorithm employed by nreconc. Fixes a bug parsing "~/foo/".
 
