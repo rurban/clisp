@@ -1521,8 +1521,7 @@ local void init_module_2 (module_t* module) {
     var uintC count;
     dotimespC(count,*module->otab_size, { *ptr++ = NIL; });
   }
-  # now, GC my see this subr_tab, object_tab:
-  module->initialized = true;
+  module->initialized = true; /* GC can see this subr_tab, object_tab */
   # enter Subr-symbols:
   if (*module->stab_size > 0) {
     var subr_t* subr_ptr = module->stab;
