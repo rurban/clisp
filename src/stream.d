@@ -905,8 +905,8 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     var object stream;
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);          # TYPE-ERROR slot DATUM
+      pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(stream);
       pushSTACK(obj);
       fehler(type_error,
@@ -921,8 +921,8 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     var object stream;
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);        # TYPE-ERROR slot DATUM
+      pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(stream);
       pushSTACK(obj);
       fehler(type_error,
@@ -990,8 +990,8 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
   local void fehler_input_stream(stream)
     var object stream;
     {
-      pushSTACK(stream); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_input_stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(stream);               # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_input_stream)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ should be an input stream")
@@ -1008,8 +1008,8 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
   local void fehler_output_stream(stream)
     var object stream;
     {
-      pushSTACK(stream); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_output_stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(stream);                # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_output_stream)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ should be an output stream")
@@ -1347,8 +1347,8 @@ LISPFUNN(make_synonym_stream,1)
   {
     var object arg = popSTACK();
     if (!symbolp(arg)) {
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg);       # TYPE-ERROR slot DATUM
+      pushSTACK(S(symbol)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument should be a symbol, not ~")
@@ -2693,8 +2693,8 @@ LISPFUNN(make_string_push_stream,1)
       var object arg = STACK_0; # Argument
       # muss ein String mit Fill-Pointer sein:
       if (!(stringp(arg) && array_has_fill_pointer_p(arg))) {
-        pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_string_with_fill_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg);                              # TYPE-ERROR slot DATUM
+        pushSTACK(O(type_string_with_fill_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(S(with_output_to_string));
         fehler(type_error,
                GETTEXT("~: argument ~ should be a string with fill pointer")
@@ -3604,8 +3604,8 @@ LISPFUNN(generic_stream_p,1)
         C_make_encoding();
         return value1;
       }
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_external_format)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg);                     # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_external_format)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: illegal :EXTERNAL-FORMAT argument ~")
@@ -10267,8 +10267,8 @@ LISPFUNN(make_keyboard_stream,0)
       } else if (!consp(mlist)) {
         # This error message is self-defense against people who fiddle
         # around with sys::completion.
-        pushSTACK(mlist);       # slot DATUM of TYPE-ERROR
-        pushSTACK(S(list));     # slot EXPECTED-TYPE of TYPE-ERROR
+        pushSTACK(mlist);   # slot DATUM of TYPE-ERROR
+        pushSTACK(S(list)); # slot EXPECTED-TYPE of TYPE-ERROR
         pushSTACK(S(list));
         pushSTACK(S(completion));
         pushSTACK(mlist);
@@ -15921,16 +15921,16 @@ LISPFUNN(make_x11socket_stream,2)
 # liefert einen X11-Socket-Stream für X-Windows oder NIL.
   {
     if (!stringp(STACK_1)) {
-      pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_1);   # TYPE-ERROR slot DATUM
+      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(1+2));
       fehler(type_error,
              GETTEXT("host should be string, not ~")
             );
     }
     if (!posfixnump(STACK_0)) {
-      pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_0);           # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(0+2));
       fehler(type_error,
              GETTEXT("display should be a nonnegative fixnum, not ~")
@@ -16009,8 +16009,8 @@ LISPFUNN(make_x11socket_stream,2)
       {
         var object vector = STACK_2;
         if (!bit_vector_p(Atype_8Bit,vector)) {
-          pushSTACK(vector); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_uint8_vector)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(vector);               # TYPE-ERROR slot DATUM
+          pushSTACK(O(type_uint8_vector)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(vector);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
@@ -16301,8 +16301,8 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
           break;
       }
     }
-    pushSTACK(STACK_0);
-    pushSTACK(S(stream)); # ??
+    pushSTACK(STACK_0);   # TYPE-ERROR slot DATUM
+    pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(STACK_(0+2));
     pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,
@@ -16495,8 +16495,8 @@ local object test_socket_stream(obj,check_open)
           /*FALLTHROUGH*/
         case strmtype_socket:
           if (check_open && ((TheStream(obj)->strmflags & strmflags_open_B) == 0)) {
-            pushSTACK(obj);
-            pushSTACK(S(stream)); # ??
+            pushSTACK(obj);       # TYPE-ERROR slot DATUM
+            pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
             pushSTACK(obj);
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,
@@ -16508,8 +16508,8 @@ local object test_socket_stream(obj,check_open)
           break;
       }
     }
-    pushSTACK(obj);
-    pushSTACK(S(stream)); # ??
+    pushSTACK(obj);       # TYPE-ERROR slot DATUM
+    pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,
@@ -16823,8 +16823,8 @@ LISPFUNN(socket_stream_handle,1)
         stream = make_synonym_stream(S(terminal_io));
       } else {
         # sonstiges Symbol, nicht reparierbar -> sofort Fehlermeldung:
-        pushSTACK(Symbol_value(sym)); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(Symbol_value(sym)); # TYPE-ERROR slot DATUM
+        pushSTACK(S(stream));         # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(Symbol_value(sym)); # Variablenwert
         pushSTACK(sym); # Variable
         if (!streamp(Symbol_value(sym))) {
@@ -16841,8 +16841,8 @@ LISPFUNN(socket_stream_handle,1)
       # Reparatur beendet: stream ist der neue Wert von sym.
       var object oldvalue = Symbol_value(sym);
       Symbol_value(sym) = stream;
-      pushSTACK(oldvalue); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(oldvalue);  # TYPE-ERROR slot DATUM
+      pushSTACK(S(stream)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(stream); # neuer Variablenwert
       pushSTACK(oldvalue); # alter Variablenwert
       pushSTACK(sym); # Variable
@@ -17785,8 +17785,8 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
         # Call the generic function (STREAM-READ-LINE stream):
         pushSTACK(stream); funcall(S(stream_read_line),1);
         if (!stringp(value1)) {
-          pushSTACK(value1); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(value1);    # TYPE-ERROR slot DATUM
+          pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(S(string));
           pushSTACK(S(stream_read_line));
           pushSTACK(value1);
@@ -18414,8 +18414,8 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
         return false;
       if (eq(arg,S(Kbig)))
         return true;
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_endianness)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg);                # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_endianness)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: illegal endianness argument ~")
@@ -19048,8 +19048,8 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL)
     switch (bytesize) {
       case sizeof(ffloatjanus):
         if (!single_float_p(obj)) {
-          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(single_float)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(obj);             # TYPE-ERROR slot DATUM
+          pushSTACK(S(single_float)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(STACK_(2+2));
           pushSTACK(S(single_float));
           pushSTACK(obj);
@@ -19060,8 +19060,8 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL)
         break;
       case sizeof(dfloatjanus):
         if (!double_float_p(obj)) {
-          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(double_float)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(obj);             # TYPE-ERROR slot DATUM
+          pushSTACK(S(double_float)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(STACK_(2+2));
           pushSTACK(S(double_float));
           pushSTACK(obj);
@@ -19148,8 +19148,8 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL)
         goto fehler_bad_obj;
       return obj; # ja -> OK
      fehler_bad_obj:
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_open_file_stream)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);                      # TYPE-ERROR slot DATUM
+      pushSTACK(O(type_open_file_stream)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -19182,8 +19182,8 @@ LISPFUN(file_position,1,1,norest,nokey,0,NIL)
           logical_position_file(stream,I_to_UL(position));
         } else {
           # Unzulässiges Position-Argument
-          pushSTACK(position); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_position)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(position);         # TYPE-ERROR slot DATUM
+          pushSTACK(O(type_position)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(position); pushSTACK(S(Kend)); pushSTACK(S(Kstart));
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
