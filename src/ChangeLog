@@ -1,5 +1,9 @@
 2002-09-18  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: treat floatparam.[ch] just like intparam.[ch]
+
+2002-09-18  Sam Steingold  <sds@gnu.org>
+
 	* m4/fenv_default.m4: fixed AC_DEFINE macro calls
 
 2002-09-18  Sam Steingold  <sds@gnu.org>
