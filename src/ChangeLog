@@ -1,5 +1,12 @@
 1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (stream_line_number): New declaration.
+        * stream.d (stream_line_number): New function.
+          (SYS::LINE-NUMBER): Call it.
+        * io.d (read_delimited_list, pr_stream): Likewise.
+
+1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Speed up exponentiation.
         * intmal.d (UDS_square_UDS): New macro.
           (square_2loop_down, square_2bigloop_down, I_square_I): New functions.

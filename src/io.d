@@ -2307,8 +2307,7 @@ LISPFUNN(set_readtable_case,2)
     { var object ergebnis;
       # SYS::*READ-LINE-NUMBER* an (SYS::LINE-NUMBER stream) binden
       # (für Fehlermeldung, damit man die Zeile der öffnenden Klammer erfährt):
-      pushSTACK(*stream_); C_line_number();
-      dynamic_bind(S(read_line_number),value1);
+      dynamic_bind(S(read_line_number),stream_line_number(*stream_));
       # evtl. zuerst noch SYS::*READ-RECURSIVE-P* an T binden:
       if (test_value(S(read_recursive_p))) # schon rekursiv?
         { ergebnis = read_delimited_list_recursive(stream_,endch,ifdotted); }
@@ -9027,7 +9026,7 @@ LISPFUNN(print_structure,2)
           { JUSTIFY_SPACE;
             # Zeilennummer ausgeben, in der sich der Stream gerade befindet:
             write_schar(stream_,'@');
-            pushSTACK(*obj_); C_line_number(); pr_number(stream_,value1);
+            pr_number(stream_,stream_line_number(*obj_));
           }
       }
       JUSTIFY_END_ENG;
