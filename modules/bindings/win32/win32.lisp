@@ -2,21 +2,12 @@
 ;; Sam Steingold 2003
 
 (defpackage "WIN32"
-  (:case-sensitive t)
   (:nicknames "WOE32" "W32")
-  (:use))
-
-(eval-when (compile eval)
-  (require "exporting" "../../exporting")
-  (make-exporting "WIN32"
-    cl:compile cl:defconstant cl:eval cl:load
-    ffi:cast ffi:char ffi:character ffi:c-array ffi:c-array-max
-    ffi:c-array-ptr ffi:c-function ffi:c-ptr ffi:c-ptr-null ffi:c-pointer
-    ffi:c-string ffi:c-struct ffi:deref ffi::foreign-value ffi:double-float
-    ffi:element ffi:int ffi:long ffi:nil ffi:short ffi:sint8 ffi:sint16
-    ffi:sint32 ffi:sint64 ffi:single-float ffi:sizeof ffi:slot ffi:uchar
-    ffi:uint ffi:uint8 ffi:uint16 ffi:uint32 ffi:uint64 ffi:ulong ffi:ushort
-    ffi:boolean ffi:with-c-var))
+  (:case-sensitive t) (:case-inverted t)
+  (:use "CS-COMMON-LISP" "FFI")
+  (:shadowing-import-from "EXPORTING"
+           #:defconstant #:defun #:defmacro
+           #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
 
 (ffi:default-foreign-language :stdc)
 
@@ -277,6 +268,5 @@
 |#
 
 ;;; ==========================================================================
-;;; clean up
-(lisp:in-package "CL-USER")
+
 (provide "win32")

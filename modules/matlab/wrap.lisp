@@ -3,11 +3,8 @@
 
 (require "matlab")
 
-(defpackage "MATLAB"
-  (:export "MATFILE-CONTENT"))
+(in-package "MATLAB")
 
-(in-package "SYS")
-(eval-when (compile load) (setf (package-lock "SYS") nil))
 (pushnew :matlab *features*)
 
 (defun matfile-content (mf)
@@ -19,6 +16,4 @@
            names)
       (matlab::mxFree buf))))
 
-(push "MATLAB" ext:*system-package-list*)
-(eval-when (compile load)
-  (setf (ext:package-lock ext:*system-package-list*) t))
+(push "MATLAB" custom:*system-package-list*)
