@@ -1074,21 +1074,6 @@ local inline void rename_file_to_nonexisting (char* old_pathstring,
     }}                                                          \
   }
 
-# Wandelt Strings in Normal-Simple-Strings um.
-# subst_coerce_normal_ss(obj)
-# can trigger GC
-local object subst_coerce_normal_ss (object obj) {
-  SUBST_RECURSE((stringp(obj) ? coerce_normal_ss(obj) : obj),
-                subst_coerce_normal_ss);
-}
-
-# replace :UP with ".." in the relative pathnames
-# can trigger GC
-local object subst_up_dotdot (object obj) {
-  SUBST_RECURSE((eq(obj,S(Kup)) || eq(obj,S(Kback)) ? O(dotdot_string) : obj),
-                subst_up_dotdot);
-}
-
 # Wandelt Groß-/Klein-Schreibung zwischen :LOCAL und :COMMON um.
 # common_case(string)
 # > string: Normal-Simple-String oder Symbol/Zahl
@@ -1661,6 +1646,58 @@ local object parse_logical_host_prefix (zustand* zp, object string) {
   return host;
 }
 
+# CLHS for MAKE-PATHNAME: "Whenever a pathname is constructed the
+# components may be canonicalized if appropriate."
+# simplify the subdirectory list
+# strings are coerced to normal simple strings
+# the list should start with a valid startpoint (not checked!)
+# > dir : pathname directory list
+# < dir : the same list, destructively modified:
+#         ".." or :back         ==> :up
+#         ... x "foo" :up y ... ==> ... x y ...
+#         ... x     "."   y ... ==> ... x y ...
+#         :absolute :up   y ... ==> :absolute y ...
+# can trigger GC
+local object simplify_directory (object dir) {
+  if (!consp(dir)) return dir;
+  DOUT("simplify_directory:< ",dir);
+  # kill ".", ".."->:up, coerce to normal simple strings
+  var object cur = dir;
+  while (consp(cur) && consp(Cdr(cur))) {
+    if (stringp(Car(Cdr(cur)))) {
+      if (string_equal(Car(Cdr(cur)),O(dot_string)))
+        Cdr(cur) = Cdr(Cdr(cur)); # drop "."
+      if (!consp(Cdr(cur))) break;
+      if (string_equal(Car(Cdr(cur)),O(dotdot_string)))
+        Car(Cdr(cur)) = S(Kup); # ".." --> :UP
+      else # coerce to normal
+        Car(Cdr(cur)) = coerce_normal_ss(Car(Cdr(cur)));
+    } else if (eq(Car(Cdr(cur)),S(Kback)))
+      Car(Cdr(cur)) = S(Kup); # :BACK --> :UP (ANSI)
+    cur = Cdr(cur);
+  }
+  # collapse "foo/../" (quadratic algorithm)
+  var bool changed_p = true;
+  while (changed_p) {
+    changed_p = false;
+    cur = dir;
+    while (consp(cur) && consp(Cdr(cur))) {
+      if (consp(Cdr(Cdr(cur))) && !eq(Car(Cdr(cur)),S(Kup))
+          && !eq(Car(Cdr(cur)),S(Kwild_inferiors))
+          && eq(Car(Cdr(Cdr(cur))),S(Kup))) {
+        changed_p = true;
+        Cdr(cur) = Cdr(Cdr(Cdr(cur))); # collapse "foo/../"
+      } else cur = Cdr(cur);
+    }
+  }
+  if (eq(Car(dir),S(Kabsolute))) { # drop initial :up after :absolute
+    while (consp(Cdr(dir)) && eq(Car(Cdr(dir)),S(Kup)))
+      Cdr(dir) = Cdr(Cdr(dir));
+  }
+  DOUT("simplify_directory:> ",dir);
+  return dir;
+}
+
 # Parses a logical pathname.
 # parse_logical_pathnamestring(z)
 # > STACK_1: storage vector, a normal-simple-string
@@ -1761,6 +1798,8 @@ local uintL parse_logical_pathnamestring (zustand z) {
     }
   }
   skipSTACK(1);
+  TheLogpathname(STACK_0)->pathname_directory =
+    simplify_directory(TheLogpathname(STACK_0)->pathname_directory);
   DOUT("parse_logical_pathnamestring:>0",STACK_0);
   DOUT("parse_logical_pathnamestring:>1",STACK_1);
   return z.count;
@@ -2606,6 +2645,8 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
             ThePathname(STACK_0)->pathname_device = device;
           }
         #endif
+          ThePathname(STACK_0)->pathname_directory =
+            simplify_directory(ThePathname(STACK_0)->pathname_directory);
       }
     }
     # Pathname is finished.
@@ -2967,42 +3008,38 @@ local object coerce_pathname (object obj) {
 # > logicalp: boolean
 # < ergebnis: Anzahl der auf den Stack gelegten Strings
 # verändert STACK
+
+#define SUBDIR_PUSHSTACK(subdir)                                \
+  if (eq(subdir,S(Kwild_inferiors))) {                          \
+    pushSTACK(O(wildwild_string)); return 1;                    \
+  } else if (eq(subdir,S(Kwild))) {                             \
+    pushSTACK(O(wild_string)); return 1;                        \
+  } else if (eq(subdir,S(Kup)) || eq(subdir,S(Kback))) {        \
+    pushSTACK(O(dotdot_string)); return 1;                      \
+  } else { pushSTACK(subdir); return 1; }
+
 local uintC subdir_namestring_parts (object path,bool logp) {
   var object subdir = Car(path);
 #if defined(LOGICAL_PATHNAMES) && (defined(PATHNAME_AMIGAOS) || defined(PATHNAME_RISCOS))
-  if (logp) {
-    # same as UNIX/win32/OS2
-    if (eq(subdir,S(Kwild_inferiors))) { # :WILD-INFERIORS ?
-      pushSTACK(O(wildwild_string)); return 1;
-    } else { # normal subdir
-      pushSTACK(subdir); return 1;
-    }
+  if (logp) { # same as UNIX/win32/OS2
+    SUBDIR_PUSHSTACK(subdir);
   }
 #endif
 #ifdef PATHNAME_AMIGAOS
   if (eq(subdir,S(Kparent))) { # :PARENT ?
     return 0; # Leerstring
-  } else if (eq(subdir,S(Kwild_inferiors))) { # :WILD-INFERIORS ?
-    pushSTACK(O(wildwild_string)); return 1;
-  } else { # normales subdir
-    pushSTACK(subdir); return 1;
-  }
+  } else SUBDIR_PUSHSTACK(subdir);
 #endif
 #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-  if (eq(subdir,S(Kwild_inferiors))) { # :WILD-INFERIORS ?
-    pushSTACK(O(wildwild_string)); return 1;
-  } else { # normales subdir
-    pushSTACK(subdir); return 1;
-  }
+  SUBDIR_PUSHSTACK(subdir);
 #endif
 #ifdef PATHNAME_RISCOS
   if (eq(subdir,S(Kparent))) { # :PARENT ?
     pushSTACK(O(parent_string)); return 1;
-  } else { # normales subdir
-    pushSTACK(subdir); return 1;
-  }
+  } else SUBDIR_PUSHSTACK(subdir);
 #endif
 }
+#undef SUBDIR_PUSHSTACK
 
 # UP: Legt Teilstrings für STRING_CONCAT auf den STACK, die zusammen den
 # String für den Host des Pathname pathname ergeben.
@@ -3446,10 +3483,8 @@ local object merge_dirs (object p_directory, object d_directory, bool p_log,
       # (append defaults-subdirs (cdr pathname-subdirs)) =
       # (nreconc (reverse defaults-subdirs) (cdr pathname-subdirs)) :
       pushSTACK(Cdr(p_directory));
-      {
-        var object temp = reverse(d_directory);
-        new_subdirs = nreconc(temp,popSTACK());
-      }
+      var object temp = reverse(d_directory);
+      new_subdirs = simplify_directory(nreconc(temp,popSTACK()));
     }
   }
   return new_subdirs;
@@ -4012,6 +4047,67 @@ local bool legal_name (object obj) {
 
 local object copy_pathname (object pathname);
 
+# check whether the list is a valid directory list
+local bool directory_list_valid_p (bool logical, object dirlist) {
+  { # CAR must be either :RELATIVE or :ABSOLUTE ?
+    var object startpoint = Car(dirlist);
+    if (!(eq(startpoint,S(Krelative)) || eq(startpoint,S(Kabsolute))))
+      return false;
+   #ifdef PATHNAME_RISCOS
+    if (!logical && eq(startpoint,S(Kabsolute))) {
+      dirlist = Cdr(dirlist);
+      startpoint = Car(dirlist);
+      if (!(   eq(startpoint,S(Kroot))
+               || eq(startpoint,S(Khome))
+               || eq(startpoint,S(Kcurrent))
+               || eq(startpoint,S(Klibrary))
+               || eq(startpoint,S(Kprevious))) )
+        return false;
+    }
+   #endif
+  }
+  dirlist = Cdr(dirlist);
+  # check subdir list:
+  while (consp(dirlist)) {
+    # check the next subdir = POP(dirlist);
+    var object subdir = Car(dirlist); dirlist = Cdr(dirlist);
+   #ifdef LOGICAL_PATHNAMES
+    if (logical) {
+      if (!(eq(subdir,S(Kwild_inferiors)) || legal_logical_word(subdir)
+            || eq(subdir,S(Kup))))
+        return false;
+    } else
+   #endif
+    {
+     #ifdef PATHNAME_NOEXT
+      #ifdef PATHNAME_AMIGAOS
+      if (!(eq(subdir,S(Kwild_inferiors)) || eq(subdir,S(Kparent))
+            || legal_name(subdir) || eq(subdir,S(Kup))))
+        return false;
+      #endif
+      #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+      if (!(eq(subdir,S(Kwild_inferiors)) || legal_name(subdir)
+            || eq(subdir,S(Kup))))
+        return false;
+      #endif
+     #endif
+      #ifdef PATHNAME_RISCOS
+      if (!(eq(subdir,S(Kparent)) || legal_name(subdir) || eq(subdir,S(Kup))))
+        return false;
+      #endif
+    }
+  }
+  return true;
+}
+
+#ifdef LOGICAL_PATHNAMES
+ #define COERCE_PATHNAME_SLOT(slot,obj,stack_res)       \
+   stack_res = ThePathname(coerce_pathname(obj))->pathname_##slot
+#else
+ #define COERCE_PATHNAME_SLOT(slot,obj,stack_res)       \
+   stack_res = ThePathname(obj)->pathname_##slot
+#endif
+
 LISPFUN(make_pathname,0,0,norest,key,8,\
         (kw(defaults),kw(case),kw(host),kw(device),kw(directory),kw(name),kw(type),kw(version)) )
 # (MAKE-PATHNAME [:host] [:device] [:directory] [:name] [:type] [:version]
@@ -4125,10 +4221,8 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         }
         #endif
         else if (xpathnamep(device)) { # Pathname -> dessen Device
-          #ifdef LOGICAL_PATHNAMES
-          device = coerce_pathname(device);
-          #endif
-          STACK_4 = ThePathname(device)->pathname_device; goto device_ok;
+          COERCE_PATHNAME_SLOT(device,device,STACK_4);
+          goto device_ok;
         }
         # Keiner der gewünschten Fälle -> Fehler:
         pushSTACK(STACK_4); pushSTACK(S(Kdevice)); goto fehler_arg;
@@ -4180,61 +4274,13 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         directory = listof(2); STACK_3 = directory;
         goto directory_ok;
       } else if (consp(directory)) { # ein Cons?
-        STACK_3 = directory = subst_coerce_normal_ss(directory);
-        STACK_3 = directory = subst_up_dotdot(directory);
+        STACK_3 = directory = simplify_directory(copy_list(directory));
         if (convert)
           STACK_3 = directory = subst_common_case(directory);
-        # Der CAR entweder :RELATIVE oder :ABSOLUTE ?
-        if (!consp(directory))
+        if (!directory_list_valid_p(logical,directory))
           goto directory_bad;
-        {
-          var object startpoint = Car(directory);
-          if (!(eq(startpoint,S(Krelative)) || eq(startpoint,S(Kabsolute))))
-            goto directory_bad;
-          #ifdef PATHNAME_RISCOS
-          if (!logical && eq(startpoint,S(Kabsolute))) {
-            directory = Cdr(directory);
-            startpoint = Car(directory);
-            if (!(   eq(startpoint,S(Kroot))
-                  || eq(startpoint,S(Khome))
-                  || eq(startpoint,S(Kcurrent))
-                  || eq(startpoint,S(Klibrary))
-                  || eq(startpoint,S(Kprevious))) )
-              goto directory_bad;
-          }
-          #endif
-        }
-        directory = Cdr(directory);
-        # Subdir-Liste überprüfen:
-        while (consp(directory)) {
-          # nächstes subdir überprüfen:
-          var object subdir = Car(directory);
-          #ifdef LOGICAL_PATHNAMES
-          if (logical) {
-            if (!(eq(subdir,S(Kwild_inferiors)) || legal_logical_word(subdir)))
-              goto directory_bad;
-          } else
-          #endif
-          {
-            #ifdef PATHNAME_NOEXT
-            #ifdef PATHNAME_AMIGAOS
-            if (!(eq(subdir,S(Kwild_inferiors)) || eq(subdir,S(Kparent))
-                  || legal_name(subdir)))
-              goto directory_bad;
-            #endif
-            #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-            if (!(eq(subdir,S(Kwild_inferiors)) || legal_name(subdir)))
-              goto directory_bad;
-            #endif
-            #endif
-            #ifdef PATHNAME_RISCOS
-            if (!(eq(subdir,S(Kparent)) || legal_name(subdir)))
-              goto directory_bad;
-            #endif
-          }
-          directory = Cdr(directory);
-        }
-        goto directory_ok;
+        else
+          goto directory_ok;
       }
       #ifdef LOGICAL_PATHNAMES
       else if (logical) {
@@ -4244,10 +4290,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       }
       #endif
       else if (xpathnamep(directory)) { # Pathname -> dessen Directory
-        #ifdef LOGICAL_PATHNAMES
-        directory = coerce_pathname(directory);
-        #endif
-        STACK_3 = ThePathname(directory)->pathname_directory;
+        COERCE_PATHNAME_SLOT(directory,directory,STACK_3);
         goto directory_ok;
       }
       # Keiner der gewünschten Fälle -> Fehler:
@@ -4293,10 +4336,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       else if (legal_name(name)) { # zulässiger Name ist OK
         STACK_2 = name = coerce_normal_ss(name);
       } else if (xpathnamep(name)) { # Pathname -> dessen Name
-        #ifdef LOGICAL_PATHNAMES
-        name = coerce_pathname(name);
-        #endif
-        STACK_2 = ThePathname(name)->pathname_name;
+        COERCE_PATHNAME_SLOT(name,name,STACK_2);
       } else { # Keiner der gewünschten Fälle -> Fehler:
         pushSTACK(STACK_2); pushSTACK(S(Kname)); goto fehler_arg;
       }
@@ -4331,10 +4371,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       #endif
       else if (legal_type(type)) {
       } else if (xpathnamep(type)) { # Pathname -> its Type
-        #ifdef LOGICAL_PATHNAMES
-        type = coerce_pathname(type);
-        #endif
-        STACK_1 = ThePathname(type)->pathname_type;
+        COERCE_PATHNAME_SLOT(type,type,STACK_1);
       } else { # Keiner der gewünschten Fälle -> Fehler:
         pushSTACK(STACK_1); pushSTACK(S(Ktype)); goto fehler_arg;
       }
@@ -4351,7 +4388,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     {
       var object pathname;
       #ifdef LOGICAL_PATHNAMES
-      if (logical || logpathnamep(STACK_7)) { # defaults is logical
+      if (logical) {
         pathname = allocate_logpathname(); # new Logical Pathname
         TheLogpathname(pathname)->pathname_version   = popSTACK();
         TheLogpathname(pathname)->pathname_type      = popSTACK();
@@ -4406,6 +4443,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: illegal ~ argument ~"));
   }
+#undef COERCE_PATHNAME_SLOT
 
 #ifdef LOGICAL_PATHNAMES
 
