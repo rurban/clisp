@@ -122,6 +122,7 @@ typedef pthread_key_t     xthread_key_t;
 #define xthread_exit(v)  pthread_exit(v)
 #define xthread_yield()  do { if (sched_yield() < 0) OS_error(); } while(0)
 #define xthread_equal(t1,t2)  pthread_equal(t1,t2)
+#define xthread_cancel(t) pthread_cancel(t)
 
 #ifdef POSIX_THREADS
 #define xcondition_init(c)  pthread_cond_init(c,NULL)
@@ -131,6 +132,7 @@ typedef pthread_key_t     xthread_key_t;
 #endif
 #define xcondition_destroy(c)  pthread_cond_destroy(c)
 #define xcondition_wait(c,m)  pthread_cond_wait(c,m)
+#define xcondition_timedwait(c,m,to)  pthread_cond_timedwait(c,m,to)
 #define xcondition_signal(c)  pthread_cond_signal(c)
 #define xcondition_broadcast(c)  pthread_cond_broadcast(c)
 

@@ -12388,6 +12388,12 @@ nonreturning_function(extern, fehler_both_tests, (void));
 
 # ###################### STRMBIBL for STREAM.D ############################# #
 
+/* parse timeout argument
+ sec = posfixnum or (SEC . USEC) or (SEC USEC) or float or ratio or nil/unbound
+ usec = posfixnum or nil/unbound
+ can trigger GC */
+extern struct timeval * sec_usec (object sec, object usec, struct timeval *tv);
+
 # UP: Initializes the stream-variables.
 # init_streamvars(unixyp);
 # > unixyp: Flag, whether *error-output* should be initialized Unix-style
@@ -13309,13 +13315,13 @@ extern object decimal_string (object x);
     #define sp_to_thread(sp)  \
       (thread_t*)(((aint)(sp) | (bit(THREAD_SP_SHIFT)-1)) - 0x1FFFF)
   #endif
-# Returns a pointer to the current thread structure.
-  typedef thread_t* current_thread_function (void);
-  extern inline const current_thread_function current_thread;
-  extern inline thread_t* current_thread (void)
+/* Returns a pointer to the current thread structure. */
+  typedef thread_t* current_thread_function_t (void);
+  local inline const current_thread_function_t current_thread;
+  local inline thread_t* current_thread (void)
   { return sp_to_thread(roughly_SP()); }
 
 #endif
 
-# ######################################################################### #
+/*************************************************************************/
 
