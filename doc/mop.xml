@@ -219,11 +219,10 @@ slot in instances of the class is available.
 <listitem><simpara>The argument precedence order is available as a
   permutation of those symbols from the &lalist; which name the
   required arguments of the generic function.</simpara></listitem>
-<listitem><simpara>The &ldquo;declarations&rdquo; are available as a list
- of &declaration-specifier-glo;s.
-</simpara>
+<listitem><simpara>The <quote>declarations</quote> are available as a
+ list of &declaration-specifier-glo;s.</simpara>
 <note><simpara>There is a slight misnomer in the naming of functions and
- options in this document: Where the term &ldquo;declaration&rdquo; is
+ options in this document: Where the term <quote>declaration</quote> is
  used, actually a &declaration-specifier-glo; is meant.
 </simpara></note></listitem>
 &doc-li;</itemizedlist></para>
@@ -2512,10 +2511,11 @@ initialization or reinitialization.
  <subtitle><literal role="sexp">(&gf-declarations;
    &gf-r;)</literal></subtitle>
 
-<para>Returns a possibly empty list of the &ldquo;declarations&rdquo; of the generic
-function.  The elements of this list are &declaration-specifier-glo;s.  This list is the
-defaulted value of the &declarations-k; initialization argument that was
-associated with the generic function metaobject during initialization or
+<para>Returns a possibly empty list of the <quote>declarations</quote>
+of the generic function.  The elements of this list are
+&declaration-specifier-glo;s.  This list is the defaulted value of the
+&declarations-k; initialization argument that was associated with the
+generic function metaobject during initialization or
 reinitialization.</para></simplesect>
 
 <simplesect id="gf-method-class">
@@ -2595,11 +2595,11 @@ argument to &ensure-gf;.</simpara></listitem>
 keyword argument with the same name.  If the option does not appear in
 the macro form, the keyword argument does not appear in the resulting
 call to &ensure-gf;.</simpara></listitem>
-<listitem><simpara>For the option <literal>declare</literal>,
-the list of &ldquo;declarations&rdquo; becomes the value of the &declarations-k;
-keyword argument.  If the <literal>declare</literal> option does
-not appear in the macro form, the &declarations-k; keyword argument does
-not appear in the call to &ensure-gf;.</simpara></listitem>
+<listitem><simpara>For the option <literal>declare</literal>, the list
+of <quote>declarations</quote> becomes the value of the &declarations-k;
+keyword argument.  If the <literal>declare</literal> option does not
+appear in the macro form, the &declarations-k; keyword argument does not
+appear in the call to &ensure-gf;.</simpara></listitem>
 <listitem><simpara>The handling of the &method-combination-k; option is
 not specified.</simpara></listitem>
 </itemizedlist>
@@ -3003,7 +3003,8 @@ restrictions.</para>
 <varlistentry><term><literal role="method">(&add-method;
    (&gf-r; &standard-generic-function-t;)
    (&method-r; &method-t;))</literal></term>
- <listitem>This method is specified by &ansi-cl;.</listitem></varlistentry>
+ <listitem><simpara>This method is specified by &ansi-cl;.
+</simpara></listitem></varlistentry>
 </variablelist>
 </section><!-- add-method -->
 
@@ -3052,7 +3053,8 @@ restrictions.</para>
 <varlistentry><term><literal role="method">(&remove-method;
    (&gf-r; &standard-generic-function-t;)
    (&method-r; &method-t;))</literal></term>
- <listitem>This method is specified by &ansi-cl;.</listitem></varlistentry>
+ <listitem><simpara>This method is specified by &ansi-cl;.
+</simpara></listitem></varlistentry>
 </variablelist>
 </section><!-- mop-remove-method -->
 
@@ -3562,7 +3564,7 @@ with the method during initialization.</para></simplesect>
    &standard-method-t;)</literal> and
   <literal role="method">&remove-method;(&standard-generic-function-t;
    &standard-method-t;)</literal>.</simpara></listitem></varlistentry>
-</simplesect>
+</variablelist></simplesect>
 </section><!-- mop-meth-mo-readers -->
 
 
@@ -3990,7 +3992,8 @@ the direct slot definition metaobject that defined this method.  This is
 the value of the &slotdef-k; initialization argument associated with the
 method during initialization.</para>
 
-<title>The specified methods for the accessor method metaobject readers.</title>
+<variablelist><title>The specified methods for the accessor method
+  metaobject readers.</title>
 <varlistentry><term><literal role="method">(&accessor-method-slotdef;
    (&method-r; &standard-accessor-method-t;))</literal></term>
  <listitem>&no-extra-spec;</listitem></varlistentry></variablelist>
