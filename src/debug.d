@@ -452,7 +452,7 @@ global void driver (void)
   var p_backtrace_t bt_save = back_trace;
   var struct backtrace_t bt_here;
   bt_here.bt_next = back_trace;
-  bt_here.bt_caller = L(driver);
+  bt_here.bt_function = L(driver);
   bt_here.bt_stack = STACK;
   bt_here.bt_num_arg = -1;
   back_trace = &bt_here;
@@ -496,7 +496,7 @@ global maygc void break_driver (bool continuable_p) {
     var p_backtrace_t bt_save = back_trace;
     var struct backtrace_t bt_here;
     bt_here.bt_next = back_trace;
-    bt_here.bt_caller = S(break_driver);
+    bt_here.bt_function = S(break_driver);
     bt_here.bt_stack = STACK;
     bt_here.bt_num_arg = -1;
     back_trace = &bt_here;
@@ -1102,7 +1102,7 @@ local void print_back_trace (const gcv_object_t* stream_,
   else write_ascii_char(stream_,'#');
   write_ascii_char(stream_,'>');
   write_ascii_char(stream_,' ');
-  prin1(stream_,bt->bt_caller);
+  prin1(stream_,bt->bt_function);
   if (bt->bt_num_arg >= 0) {
     write_ascii_char(stream_,' ');
     prin1(stream_,fixnum(bt->bt_num_arg));
