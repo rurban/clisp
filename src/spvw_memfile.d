@@ -600,7 +600,7 @@ local void loadmem_update (gcv_object_t* objptr)
       goto case_record;
     } else if (consp(*objptr)) {
       goto case_cons;
-    } else if (subrp(*objptr)) {
+    } else if (immsubrp(*objptr)) {
       goto case_subr;
     } else if (machinep(*objptr)) {
       goto case_machine;
@@ -630,11 +630,25 @@ local void loadmem_update (gcv_object_t* objptr)
      #endif
     #endif
     case_record:
-     #ifndef TYPECODES
+     #ifdef HEAPCODES
       if (as_oint(*objptr) - old_symbol_tab_o
           < ((oint)sizeof(symbol_tab)<<(oint_addr_shift-addr_shift))) {
         /* symbol from symbol_tab */
         *objptr = as_object(as_oint(*objptr) + offset_symbols_o); break;
+      }
+     #endif
+     #ifdef LINUX_NOEXEC_HEAPCODES
+      { /* Test for a SUBR in one of the modules. */
+        var oint addr = as_oint(*objptr);
+        var offset_subrs_t* ptr = offset_subrs;
+        var uintC count;
+        dotimespC(count,offset_subrs_anz, {
+          if ((ptr->low_o <= addr) && (addr < ptr->high_o)) {
+            *objptr = as_object(as_oint(*objptr) + ptr->offset_o);
+            goto found_subr;
+          }
+          ptr++;
+        });
       }
      #endif
     #ifdef TYPECODES
@@ -683,6 +697,8 @@ local void loadmem_update (gcv_object_t* objptr)
       break; /* everything so far experiences no displacement */
       #endif
      #endif
+    /*---NOTREACHED---*/
+   #ifndef LINUX_NOEXEC_HEAPCODES
     case_subr: { /* SUBR */
         var oint addr = as_oint(*objptr);
         var offset_subrs_t* ptr = offset_subrs;
@@ -697,8 +713,10 @@ local void loadmem_update (gcv_object_t* objptr)
       }
       /* SUBR not found -> #<UNBOUND> */
       *objptr = unbound;
+   #endif
     found_subr:
       break;
+    /*---NOTREACHED---*/
    #ifdef TYPECODES
     case_system: /* frame-pointer or read-label or system-constant */
       if ((as_oint(*objptr) & wbit(0+oint_addr_shift)) ==0) {
@@ -707,6 +725,7 @@ local void loadmem_update (gcv_object_t* objptr)
       }
       break;
    #endif
+    /*---NOTREACHED---*/
     case_machine: { /* pseudo-function or other machine pointer */
         /* conversion old_pseudofun_tab -> pseudofun_tab : */
         var object addr = *objptr;
@@ -723,6 +742,7 @@ local void loadmem_update (gcv_object_t* objptr)
         /* other machine pointer */
         break;
       }
+    /*---NOTREACHED---*/
    #ifdef TYPECODES
     case_char:
     case_fixnum:
@@ -732,6 +752,10 @@ local void loadmem_update (gcv_object_t* objptr)
     #endif
    #endif
       break;
+    /*---NOTREACHED---*/
+   #ifdef LINUX_NOEXEC_HEAPCODES
+    case_subr: /* immediate Subrs don't exist in this case */
+   #endif
     default: /*NOTREACHED*/ abort();
   }
 }

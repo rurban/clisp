@@ -467,6 +467,9 @@ int main(int argc, char* argv[])
    printf("#define WIDE\n");
  #endif
 #endif
+#ifdef HEAPCODES
+  printf("#define HEAPCODES\n");
+#endif
   var const char* attribute_aligned_object = "";
 #if defined(WIDE_AUXI) || defined(OBJECT_STRUCT) || defined(WIDE_STRUCT)
  #if defined(WIDE) && !defined(WIDE_HARD)
@@ -713,11 +716,20 @@ int main(int argc, char* argv[])
   printf("#define type_zero_oint(type)  ((oint)(tint)(type) << %d)\n",oint_type_shift);
 #endif
 #else
+ #ifdef STANDARD_HEAPCODES
   printf("#define type_data_object(type,data)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(data) << %d)))\n",oint_type_shift,oint_data_shift);
   printf("#define type_zero_oint(type)  ((oint)(tint)(type) << %d)\n",oint_type_shift);
   printf("#define immediate_object_p(obj)  ((7 & ~as_oint(obj)) == 0)\n");
   printf("#define gcinvariant_object_p(obj)  (((as_oint(obj) & 1) == 0) || immediate_object_p(obj))\n");
   printf("#define gcinvariant_bias_p(bias)  ((((bias) & 1) == 0) || ((7 & ~(bias)) == 0))\n");
+ #endif
+ #ifdef LINUX_NOEXEC_HEAPCODES
+  printf("#define type_data_object(type,data)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(data) << %d)))\n",oint_type_shift,oint_data_shift);
+  printf("#define type_zero_oint(type)  ((oint)(tint)(type) << %d)\n",oint_type_shift);
+  printf("#define immediate_object_p(obj)  ((0xC0000003 & ~as_oint(obj)) == 0x00000003)\n");
+  printf("#define gcinvariant_object_p(obj)  ((as_oint(obj) & bit(1)) == 0)\n");
+  printf("#define gcinvariant_bias_p(bias)  (((bias) & 2) == 0)\n");
+ #endif
 #endif
   printf1("#define varobjects_misaligned  %d\n",varobjects_misaligned);
 #if varobjects_misaligned
@@ -1111,14 +1123,14 @@ int main(int argc, char* argv[])
   printf1("#define matomp(obj)  (!(mtypecode(obj) == %d))\n",(tint)cons_type);
  #endif
 #else
-  printf2("#define consp(obj)  ((as_oint(obj) & %d) == %d)\n",7,cons_bias);
+  printf2("#define consp(obj)  ((as_oint(obj) & %d) == %d)\n",7,cons_bias+conses_misaligned);
   printf("#define mconsp(obj)  consp(obj)\n");
   printf("#define atomp(obj)  (!consp(obj))\n");
   printf("#define matomp(obj)  atomp(obj)\n");
 #endif
   printf("#define listp(obj)  (nullp(obj) || consp(obj))\n");
 #ifndef TYPECODES
-  printf2("#define varobjectp(obj)  ((as_oint(obj) & %d) == %d)\n",3,varobject_bias);
+  printf2("#define varobjectp(obj)  ((as_oint(obj) & %d) == %d)\n",nonimmediate_heapcode_mask,varobject_bias+varobjects_misaligned);
 #endif
 #ifdef TYPECODES
  #if defined(symbol_bit_o)
@@ -1674,7 +1686,14 @@ int main(int argc, char* argv[])
 #ifdef TYPECODES
   printf("#define framecode(bottomword)  mtypecode(bottomword)\n");
 #else
+ #ifdef STANDARD_HEAPCODES
+  printf("#define makebottomword(type,size)  as_object((oint)(type)+(oint)(size))\n");
   printf1("#define framecode(bottomword)  (as_oint(bottomword) & minus_wbit(%d))\n",FB1);
+ #endif
+ #ifdef LINUX_NOEXEC_HEAPCODES
+  printf("#define makebottomword(type,size)  as_object((oint)(type)+((oint)(size)<<6))\n");
+  printf1("#define framecode(bottomword)  (as_oint(bottomword) & %d)\n",0x3F);
+ #endif
 #endif
 #ifdef TYPECODES
  #if !defined(SINGLEMAP_MEMORY_STACK)
@@ -1685,10 +1704,10 @@ int main(int argc, char* argv[])
   printf("#define finish_frame(frametype)  pushSTACK(framebottomword(frametype##_frame_info,top_of_frame,bot_of_frame_ignored))\n");
 #else
  #ifdef STACK_UP
-  printf("#define framebottomword(type,top_of_frame,bot_of_frame)  as_object((oint)(type)+(oint)((uintP)(bot_of_frame)-(uintP)(top_of_frame)))\n");
+  printf("#define framebottomword(type,top_of_frame,bot_of_frame)  makebottomword(type,(uintP)(bot_of_frame)-(uintP)(top_of_frame))\n");
  #endif
  #ifdef STACK_DOWN
-  printf("#define framebottomword(type,top_of_frame,bot_of_frame)  as_object((oint)(type)+(oint)((uintP)(top_of_frame)-(uintP)(bot_of_frame)))\n");
+  printf("#define framebottomword(type,top_of_frame,bot_of_frame)  makebottomword(type,(uintP)(top_of_frame)-(uintP)(bot_of_frame))\n");
  #endif
   printf("#define finish_frame(frametype)  (STACK_(-1) = framebottomword(frametype##_frame_info,top_of_frame,STACK STACKop -1), skipSTACK(-1))\n");
 #endif

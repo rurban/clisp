@@ -27,7 +27,7 @@
      DEBUG_BYTECODE
  Flags that may be set through CFLAGS, in order to override the defaults:
    Object representation (on 32-bit platforms only):
-     TYPECODES, HEAPCODES, WIDE
+     TYPECODES, HEAPCODES, STANDARD_HEAPCODES, LINUX_NOEXEC_HEAPCODES, WIDE
    Advanced memory management:
      NO_SINGLEMAP, NO_TRIVIALMAP, NO_MULTIMAP_FILE, NO_MULTIMAP_SHM,
      NO_MORRIS_GC, NO_GENERATIONAL_GC
@@ -1651,6 +1651,10 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
    more memory accesses on average, but this model is portable even to
    systems whose memory map looks like Swiss Cheese. */
 
+#if defined(STANDARD_HEAPCODES) || defined(LINUX_NOEXEC_HEAPCODES)
+  #define HEAPCODES
+#endif
+
 #if defined(WIDE_SOFT) && defined(HEAPCODES)
   #error "WIDE_SOFT and HEAPCODES make no sense together, no need for WIDE_SOFT"
 #endif
@@ -2297,52 +2301,83 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     #define oint_addr_len 64
     #define oint_addr_mask 0xFFFFFFFFFFFFFFFFUL
   #else
+    # HEAPCODES model:
     # For pointers, the address takes the full word (with type info in the
     # lowest two bits). For immediate objects, we use 24 bits for the data
     # (but exclude the highest available bit, which is the garcol_bit).
-    #if defined(SPARC) && defined(UNIX_LINUX) && (__GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2))
-      #define LINUX_SPARC_OLD_GLIBC
+    #if !(defined(STANDARD_HEAPCODES) || defined(LINUX_NOEXEC_HEAPCODES))
+      # Choose the appropriate HEAPCODES variant for the machine.
+      # On most systems, one of the high bits is suitable as GC bit; here we
+      # choose STANDARD_HEAPCODES.
+      # On some Linux/x86 systems, starting in 2004, a "no-exec" kernel patch
+      # is used that distributes virtual addresses over the entire address
+      # space from 0x00000000 to 0xBFFFFFFF (as a function of its access
+      # permissions); here we use LINUX_NOEXEC_HEAPCODES.
+      #if defined(I80386) && defined(UNIX_LINUX)
+        #define LINUX_NOEXEC_HEAPCODES
+      #else
+        #define STANDARD_HEAPCODES
+      #endif
     #endif
-    #if !((defined(MC680X0) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_BEOS)) || defined(LINUX_SPARC_OLD_GLIBC))
+    #ifdef STANDARD_HEAPCODES
+      # The portable case. Assumes only that the GC bit can be chosen.
+      #if defined(SPARC) && defined(UNIX_LINUX) && (__GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2))
+        #define LINUX_SPARC_OLD_GLIBC
+      #endif
+      #if !((defined(MC680X0) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_BEOS)) || defined(LINUX_SPARC_OLD_GLIBC))
+        #define oint_type_shift 0
+        #define oint_type_len 8
+        #define oint_type_mask 0x0000007FUL
+        #define oint_data_shift 7
+        #define oint_data_len 24
+        #define oint_data_mask 0x7FFFFF80UL
+        #define garcol_bit_o 31
+      #elif defined(I80386) && defined(UNIX_BEOS)
+        # On BeOS 5, malloc()ed addresses are of the form 0x80...... Bit 31
+        # is therefore part of an address and cannot be used as garcol_bit.
+        #define oint_type_shift 0
+        #define oint_type_len 8
+        #define oint_type_mask 0x0000003FUL
+        #define oint_data_shift 6
+        #define oint_data_len 24
+        #define oint_data_mask 0x3FFFFFC0UL
+        #define garcol_bit_o 30
+      #elif (defined(MC680X0) && defined(UNIX_LINUX)) || defined(LINUX_SPARC_OLD_GLIBC)
+        # On Sparc-Linux with glibc 2.1 and older:
+        # malloc()ed addresses are of the form 0x0....... or 0xe........
+        # Bits 31..29 are therefore part of an address and cannot
+        # be used as garcol_bit. We therefore choose bit 28 as garcol_bit.
+        # Now, the 24 data bits of an immediate value must not intersect the
+        # garcol_bit, so we use bits 27..4 for that (we could use bits 26..3
+        # as well).
+        # On m68k-Linux, malloc()ed addresses are of the form 0x80...... or
+        # 0xc0....... Bits 31..30 are therefore part of an address and cannot
+        # be used as garcol_bit. We therefore have three choices:
+        #   data bits: bits 26..3, garcol_bit_o = 28/27
+        #   data bits: bits 27..4, garcol_bit_o = 28/3
+        #   data bits: bits 28..5, garcol_bit_o = 4/3
+        #define oint_type_shift 0
+        #define oint_type_len 32
+        #define oint_type_mask 0xE000000FUL
+        #define oint_data_shift 4
+        #define oint_data_len 24
+        #define oint_data_mask 0x0FFFFFF0UL
+        #define garcol_bit_o 28
+      #endif
+    #endif # STANDARD_HEAPCODES
+    #ifdef LINUX_NOEXEC_HEAPCODES
+      # The Linux/32-bit case. Assumes 1. that the virtual memory addresses end
+      # at 0xC0000000, 2. that the compiler and linker can enforce an 8-byte
+      # alignment of symbol_tab and subr_tab.
+      # Only bit 0 or 1 can be used as GC-bit.
       #define oint_type_shift 0
-      #define oint_type_len 8
-      #define oint_type_mask 0x0000007FUL
-      #define oint_data_shift 7
-      #define oint_data_len 24
-      #define oint_data_mask 0x7FFFFF80UL
-      #define garcol_bit_o 31
-    #elif defined(I80386) && defined(UNIX_BEOS)
-      # On BeOS 5, malloc()ed addresses are of the form 0x80...... Bit 31
-      # is therefore part of an address and cannot be used as garcol_bit.
-      #define oint_type_shift 0
-      #define oint_type_len 8
-      #define oint_type_mask 0x0000003FUL
+      #define oint_type_len 32
+      #define oint_type_mask 0xC000003FUL
       #define oint_data_shift 6
       #define oint_data_len 24
       #define oint_data_mask 0x3FFFFFC0UL
-      #define garcol_bit_o 30
-    #elif (defined(MC680X0) && defined(UNIX_LINUX)) || defined(LINUX_SPARC_OLD_GLIBC)
-      # On Sparc-Linux with glibc 2.1 and older:
-      # malloc()ed addresses are of the form 0x0....... or 0xe........
-      # Bits 31..29 are therefore part of an address and cannot
-      # be used as garcol_bit. We therefore choose bit 28 as garcol_bit.
-      # Now, the 24 data bits of an immediate value must not intersect the
-      # garcol_bit, so we use bits 27..4 for that (we could use bits 26..3
-      # as well).
-      # On m68k-Linux, malloc()ed addresses are of the form 0x80...... or
-      # 0xc0....... Bits 31..30 are therefore part of an address and cannot
-      # be used as garcol_bit. We therefore have three choices:
-      #   data bits: bits 26..3, garcol_bit_o = 28/27
-      #   data bits: bits 27..4, garcol_bit_o = 28/3
-      #   data bits: bits 28..5, garcol_bit_o = 4/3
-      #define oint_type_shift 0
-      #define oint_type_len 32
-      #define oint_type_mask 0xE000000FUL
-      #define oint_data_shift 4
-      #define oint_data_len 24
-      #define oint_data_mask 0x0FFFFFF0UL
-      #define garcol_bit_o 28
-    #endif
+      #define garcol_bit_o 0
+    #endif # LINUX_NOEXEC_HEAPCODES
     #define oint_addr_shift 0
     #define oint_addr_len 32
     #define oint_addr_mask 0xFFFFFFFFUL
@@ -2953,91 +2988,184 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
     #define type_zero_oint(type)  ((oint)(tint)(type) << oint_type_shift)
   #endif
 
-#else # no TYPECODES
+#else # HEAPCODES
 
-# We can assume a general alignment of 4 bytes, and thus have the low 2 bits
-# for encoding type. Here's how we divide the address space:
-#   machine, frame_pointer  1/4
-#   subr                    1/4
-#   cons                    1/8
-#   varobject               1/4 (not 1/8 because symbol_tab is not 8-aligned)
-#   immediate               > 0 (anything >= 7/256 does it).
-# Note that cons and varobject cannot have the same encoding mod 8
-# (otherwise gc_mark:up wouldn't work).
-# So, here are the encodings.
-#   machine           ... .00   encodes pointers, offset 0
-#   subr              ... .10   encodes pointers, offset 2
-#   varobject         ... .01   offset 1, the pointers are == 0 mod 4
-#   cons              ... 011   offset 3, the pointers are == 0 mod 8
-#   immediate         ... 111
-#     fixnum          00s 111   s = sign bit
-#     sfloat          01s 111   s = sign bit
-#     char            100 111
-#     read-label      110 111
-#     system          111 111
-# Varobjects all start with a word containing the type (1 byte) and a length
-# field (up to 24 bits).
+  #ifdef STANDARD_HEAPCODES
 
-# These are the biases, mod 8.
-  #define machine_bias    0  # mod 4
-  #define subr_bias       2  # mod 4
-  #define varobject_bias  1  # mod 4
-  #define cons_bias       3  # mod 8
-  #define immediate_bias  7  # mod 8
+    # We can assume a general alignment of 4 bytes, and thus have the low 2
+    # bits for encoding type. Here's how we divide the address space:
+    #   machine, frame_pointer  1/4
+    #   subr                    1/4
+    #   cons                    1/8
+    #   varobject               1/4 (not 1/8 because symbol_tab is not 8-aligned)
+    #   immediate               > 0 (anything >= 7/256 does it).
+    # Note that cons and varobject cannot have the same encoding mod 8
+    # (otherwise gc_mark:up wouldn't work).
+    # So, here are the encodings.
+    #   machine           ... .00   encodes pointers, offset 0
+    #   subr              ... .10   encodes pointers, offset 2
+    #   varobject         ... .01   offset 1, the pointers are == 0 mod 4
+    #   cons              ... 011   offset 3, the pointers are == 0 mod 8
+    #   immediate         ... 111
+    #     fixnum          00s 111   s = sign bit
+    #     sfloat          01s 111   s = sign bit
+    #     char            100 111
+    #     read-label      110 111
+    #     system          111 111
+    # Varobjects all start with a word containing the type (1 byte) and a
+    # length field (up to 24 bits).
 
-# Immediate objects have a second type field.
-  #if defined(LINUX_SPARC_OLD_GLIBC)
-    #define imm_type_shift  29
-  #else
-    #define imm_type_shift  3
-  #endif
+    # These are the biases, mod 8.
+      #define machine_bias    0  # mod 4
+      #define subr_bias       2  # mod 4
+      #define varobject_bias  1  # mod 4
+      #define cons_bias       3  # mod 8
+      #define immediate_bias  7  # mod 8
 
-# The types of immediate objects.
-  #define fixnum_type      ((0 << imm_type_shift) + immediate_bias)
-  #define sfloat_type      ((2 << imm_type_shift) + immediate_bias)
-  #define char_type        ((4 << imm_type_shift) + immediate_bias)
-  #define read_label_type  ((6 << imm_type_shift) + immediate_bias)
-  #define system_type      ((7 << imm_type_shift) + immediate_bias)
+    # Immediate objects have a second type field.
+      #if defined(LINUX_SPARC_OLD_GLIBC)
+        #define imm_type_shift  29
+      #else
+        #define imm_type_shift  3
+      #endif
 
-# The sign bit, for immediate numbers only.
-  #define sign_bit_t  (0 + imm_type_shift)
-  #define sign_bit_o  (sign_bit_t+oint_type_shift)
-# Distinction between fixnums and bignums.
-  #define bignum_bit_o  1
-  #define NUMBER_BITS_INVERTED
-# Distinction between fixnums, short-floats and other kinds of numbers.
-# (NB: IMMEDIATE_FFLOAT is not defined for HEAPCODES.)
-  #define number_immediatep(obj)  ((as_oint(obj) & wbit(1)) != 0)
+    # The types of immediate objects.
+      #define fixnum_type      ((0 << imm_type_shift) + immediate_bias)
+      #define sfloat_type      ((2 << imm_type_shift) + immediate_bias)
+      #define char_type        ((4 << imm_type_shift) + immediate_bias)
+      #define read_label_type  ((6 << imm_type_shift) + immediate_bias)
+      #define system_type      ((7 << imm_type_shift) + immediate_bias)
 
-# For masking out the nonimmediate biases.
-# This must be 3, not 7, otherwise gc_mark won't work.
-  #define nonimmediate_bias_mask  3
+    # The sign bit, for immediate numbers only.
+      #define sign_bit_t  (0 + imm_type_shift)
+      #define sign_bit_o  (sign_bit_t+oint_type_shift)
+    # Distinction between fixnums and bignums.
+      #define bignum_bit_o  1
+      #define NUMBER_BITS_INVERTED
+    # Distinction between fixnums, short-floats and other kinds of numbers.
+    # (NB: IMMEDIATE_FFLOAT is not defined for HEAPCODES.)
+      #define number_immediatep(obj)  ((as_oint(obj) & wbit(1)) != 0)
 
-# Combine an object from type info and immediate data.
-# type_data_object(type,data)
-  #define type_data_object(type,data)  \
-      (as_object(  ((oint)(tint)(type) << oint_type_shift) + \
-                   ((oint)(aint)(data) << oint_data_shift) ))
+    # For masking out the nonimmediate biases.
+    # This must be 3, not 7, otherwise gc_mark won't work.
+      #define nonimmediate_bias_mask  3
+      #define nonimmediate_heapcode_mask  3
 
-# An oint made up with a given type info, and address = 0.
-# type_zero_oint(type)
-  #define type_zero_oint(type)  ((oint)(tint)(type) << oint_type_shift)
+    # Combine an object from type info and immediate data.
+    # type_data_object(type,data)
+      #define type_data_object(type,data)  \
+          (as_object(  ((oint)(tint)(type) << oint_type_shift) + \
+                       ((oint)(aint)(data) << oint_data_shift) ))
 
-# The GC bit. Addresses may not have this bit set.
-  # define garcol_bit_o  (already defined above)  # only set during garbage collection
+    # An oint made up with a given type info, and address = 0.
+    # type_zero_oint(type)
+      #define type_zero_oint(type)  ((oint)(tint)(type) << oint_type_shift)
 
-# Test for immediate object.
-# immediate_object_p(obj)
-  #define immediate_object_p(obj)  ((7 & ~as_oint(obj)) == 0)
+    # The GC bit. Addresses may not have this bit set.
+      # define garcol_bit_o  (already defined above)  # only set during garbage collection
 
-# Test for gc-invariant object. (This includes immediate, machine, subr.)
-# gcinvariant_object_p(obj)
-  #define gcinvariant_object_p(obj)  \
-    (((as_oint(obj) & 1) == 0) || immediate_object_p(obj))
+    # Test for immediate object.
+    # immediate_object_p(obj)
+      #define immediate_object_p(obj)  ((7 & ~as_oint(obj)) == 0)
 
-# Test for gc-invariant object, given only the bias.
-  #define gcinvariant_bias_p(bias)  \
-    ((((bias) & 1) == 0) || ((7 & ~(bias)) == 0))
+    # Test for gc-invariant object. (This includes immediate, machine, subr.)
+    # gcinvariant_object_p(obj)
+      #define gcinvariant_object_p(obj)  \
+        (((as_oint(obj) & 1) == 0) || immediate_object_p(obj))
+
+    # Test for gc-invariant object, given only the bias.
+      #define gcinvariant_bias_p(bias)  \
+        ((((bias) & 1) == 0) || ((7 & ~(bias)) == 0))
+
+  #endif # STANDARD_HEAPCODES
+
+  #ifdef LINUX_NOEXEC_HEAPCODES
+
+    # We must assume a general alignment of 4 bytes and an enforced alignment
+    # of 8 bytes for Lisp objects, and thus have the low 2 to 3 bits for
+    # encoding heap and the garcol_bit. Here's how we divide the address space:
+    #   machine, frame_pointer  1/4 * 3/4
+    #   immediate               1/4 * 1/4
+    #   cons                    1/8
+    #   varobject               1/8
+    # Note that cons and varobject cannot have the same encoding mod 8
+    # (otherwise gc_mark:up wouldn't work).
+    # Immediates look like pointers in the range 0xC0000000..0xFFFFFFFF.
+    # We know that the Linux kernel never assigns virtual memory in this area.
+    # So, here are the encodings. Bit 0 is used as the garcol_bit.
+    #   machine           ... ... .00   encodes pointers, offset 0
+    #   cons              ... ... 010   offset 2, the pointers are == 0 mod 8
+    #   varobject         ... ... 110   offset 6, the pointers are == 4 mod 8
+    #   immediate      11 ... ...  00
+    #     fixnum       11 ... 00s  00   s = sign bit
+    #     sfloat       11 ... 01s  00   s = sign bit
+    #     char         11 ... 100  00
+    #     read-label   11 ... 110  00
+    #     system       11 ... 111  00
+    # Varobjects all start with a word containing the type (1 byte) and a
+    # length field (up to 24 bits).
+
+    # These are the biases.
+      #define machine_bias    0  # + 0 mod 4
+      #define varobject_bias  2  # + 4 mod 8
+      #define cons_bias       2  # + 0 mod 8
+      #define immediate_bias  0xC0000000  # + 0 mod 4
+      #define subr_bias       varobject_bias
+
+    # Immediate objects have a second type field.
+      #define imm_type_shift  2  # could also be 3
+
+    # The types of immediate objects.
+      #define fixnum_type      ((0 << imm_type_shift) + immediate_bias)
+      #define sfloat_type      ((2 << imm_type_shift) + immediate_bias)
+      #define char_type        ((4 << imm_type_shift) + immediate_bias)
+      #define read_label_type  ((6 << imm_type_shift) + immediate_bias)
+      #define system_type      ((7 << imm_type_shift) + immediate_bias)
+
+    # The sign bit, for immediate numbers only.
+      #define sign_bit_t  (0 + imm_type_shift)
+      #define sign_bit_o  (sign_bit_t+oint_type_shift)
+    # Distinction between fixnums and bignums.
+      #define bignum_bit_o  1
+    # Distinction between fixnums, short-floats and other kinds of numbers.
+    # (NB: IMMEDIATE_FFLOAT is not defined for HEAPCODES.)
+      #define number_immediatep(obj)  ((as_oint(obj) & wbit(1)) == 0)
+
+    # The misalignment of varobjects, modulo varobject_alignment.
+      #define varobjects_misaligned  4
+
+    # For masking out the nonimmediate biases.
+      #define nonimmediate_bias_mask  3
+      #define nonimmediate_heapcode_mask  7
+
+    # Combine an object from type info and immediate data.
+    # type_data_object(type,data)
+      #define type_data_object(type,data)  \
+          (as_object(  ((oint)(tint)(type) << oint_type_shift) + \
+                       ((oint)(aint)(data) << oint_data_shift) ))
+
+    # An oint made up with a given type info, and address = 0.
+    # type_zero_oint(type)
+      #define type_zero_oint(type)  ((oint)(tint)(type) << oint_type_shift)
+
+    # The GC bit. Addresses may not have this bit set.
+      # define garcol_bit_o  (already defined above)  # only set during garbage collection
+
+    # Test for immediate object.
+    # immediate_object_p(obj)
+      #define immediate_object_p(obj)  \
+        ((0xC0000003 & ~as_oint(obj)) == 0x00000003)
+
+    # Test for gc-invariant object. (This includes immediate, machine, subr.)
+    # gcinvariant_object_p(obj)
+      #define gcinvariant_object_p(obj)  \
+        ((as_oint(obj) & bit(1)) == 0)
+
+    # Test for gc-invariant object, given only the bias.
+      #define gcinvariant_bias_p(bias)  \
+        (((bias) & 2) == 0)
+
+  #endif # LINUX_NOEXEC_HEAPCODES
 
 #endif # TYPECODES
 
@@ -3078,7 +3206,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #undef varobject_alignment
   #define varobject_alignment  4
 #endif
-#if (defined(GENERATIONAL_GC) && defined(WIDE)) && (varobject_alignment < 8)
+#if ((defined(GENERATIONAL_GC) && defined(WIDE)) || defined(LINUX_NOEXEC_HEAPCODES)) && (varobject_alignment < 8)
   #undef varobject_alignment
   #define varobject_alignment  8
 #endif
@@ -6069,7 +6197,7 @@ typedef enum {
     #define mconsp(obj)  (mtypecode(obj) == cons_type)
   #endif
 #else
-  #define consp(obj)  ((as_oint(obj) & 7) == cons_bias)
+  #define consp(obj)  ((as_oint(obj) & 7) == (cons_bias+conses_misaligned))
   #define mconsp(obj)  consp(obj)
 #endif
 
@@ -6104,7 +6232,7 @@ typedef enum {
 
 #ifndef TYPECODES
   # Test for Object with variable length
-  #define varobjectp(obj)  ((as_oint(obj) & 3) == varobject_bias)
+  #define varobjectp(obj)  ((as_oint(obj) & nonimmediate_heapcode_mask) == (varobject_bias+varobjects_misaligned))
 #endif
 
 # Test for Symbol
@@ -6529,10 +6657,17 @@ typedef enum {
 #ifdef TYPECODES
   #define subrp(obj)  (typecode(obj)==subr_type)
 #else
-  #define subrp(obj)  ((as_oint(obj) & 3) == subr_bias)
+  #ifdef STANDARD_HEAPCODES
+    #define subrp(obj)  ((as_oint(obj) & 3) == subr_bias)
+    #define immsubrp(obj)  subrp(obj)
+  #endif
+  #ifdef LINUX_NOEXEC_HEAPCODES
+    #define subrp(obj)  (orecordp(obj) && (Record_type(obj) == Rectype_Subr))
+    #define immsubrp(obj)  false
+  #endif
 #endif
 
-# Test for pointer into the STACK (usualy at a frame)
+# Test for pointer into the STACK (usually at a frame)
 #ifdef TYPECODES
   #define framepointerp(obj)  (typecode(obj)==system_type) # other cases??
 #else
@@ -6542,7 +6677,13 @@ typedef enum {
 #ifndef TYPECODES
 
   # Test for Machine-Pointer
-  #define machinep(obj)  ((as_oint(obj) & 3) == machine_bias)
+  #ifdef STANDARD_HEAPCODES
+    #define machinep(obj)  ((as_oint(obj) & 3) == machine_bias)
+  #endif
+  #ifdef LINUX_NOEXEC_HEAPCODES
+    #define machinep(obj)  \
+      ((as_oint(obj) & 3) == machine_bias && as_oint(obj) < 0xC0000000)
+  #endif
 
   # Test for Read-Label
   #define read_label_p(obj)  ((as_oint(obj) & ((7 << imm_type_shift) | immediate_bias)) == read_label_type)
@@ -6872,6 +7013,13 @@ typedef enum {
       goto case_float;
   #define case_Rectype_integer_above  /* don't forget fixnump */ \
     case Rectype_Bignum: goto case_integer;
+#endif
+
+#if defined(TYPECODES) || defined(STANDARD_HEAPCODES)
+  #define case_Rectype_Subr_above
+#else # LINUX_NOEXEC_HEAPCODES
+  #define case_Rectype_Subr_above  \
+    case Rectype_Subr: goto case_subr;
 #endif
 
 
@@ -10156,13 +10304,22 @@ typedef struct {
     #define FB3  (garcol_bit_t>TB2 ? TB2 : TB3)
     #define FB2  (garcol_bit_t>TB1 ? TB1 : TB2)
     #define FB1  (garcol_bit_t>TB0 ? TB0 : TB1)
-  #else
+  #else # HEAPCODES
     #define FB6  garcol_bit_o
-    #define FB5  (garcol_bit_o-1)
-    #define FB4  (garcol_bit_o-2)
-    #define FB3  (garcol_bit_o-3)
-    #define FB2  (garcol_bit_o-4)
-    #define FB1  (garcol_bit_o-5)
+    #ifdef STANDARD_HEAPCODES
+      #define FB5  (garcol_bit_o-1)
+      #define FB4  (garcol_bit_o-2)
+      #define FB3  (garcol_bit_o-3)
+      #define FB2  (garcol_bit_o-4)
+      #define FB1  (garcol_bit_o-5)
+    #endif
+    #ifdef LINUX_NOEXEC_HEAPCODES
+      #define FB5  5
+      #define FB4  4
+      #define FB3  3
+      #define FB2  2
+      #define FB1  1
+    #endif
   #endif
   # depending on it:
   #define frame_bit_t    FB6  # garcol_bit as FRAME-indicator
@@ -10344,21 +10501,30 @@ typedef struct {
   # Here the bottomword consists of the frame size, not the top of frame itself.
   # This leaves room for the frame info byte.
   #define make_framepointer(stack_ptr)  make_machine(stack_ptr)
+  #ifdef STANDARD_HEAPCODES
+    #define makebottomword(type,size)  as_object((oint)(type)+(oint)(size))
+    #define framecode(bottomword)  (as_oint(bottomword) & minus_wbit(FB1))
+    #define framesize(bottomword)  (as_oint(bottomword)&(wbit(FB1)-1))
+  #endif
+  #ifdef LINUX_NOEXEC_HEAPCODES
+    #define makebottomword(type,size)  as_object((oint)(type)+((oint)(size)<<6))
+    #define framecode(bottomword)  (as_oint(bottomword) & 0x3F)
+    #define framesize(bottomword)  (as_oint(bottomword) >> 6)
+  #endif
   #ifdef STACK_UP
     #define topofframe(bottomword)  \
-      (gcv_object_t*)((uintP)(&(bottomword))-(uintP)(as_oint(bottomword)&(wbit(FB1)-1))+sizeof(gcv_object_t))
+      (gcv_object_t*)((uintP)(&(bottomword))-(uintP)framesize(bottomword)+sizeof(gcv_object_t))
   #endif
   #ifdef STACK_DOWN
     #define topofframe(bottomword)  \
-      (gcv_object_t*)((uintP)(&(bottomword))+(uintP)(as_oint(bottomword)&(wbit(FB1)-1)))
+      (gcv_object_t*)((uintP)(&(bottomword))+(uintP)framesize(bottomword))
   #endif
   #define uTheFramepointer(obj)  TheFramepointer(obj) # = (gcv_object_t*)(obj)
-  #define framecode(bottomword)  (as_oint(bottomword) & minus_wbit(FB1))
   typedef oint fcint;
 #endif
 # is used by EVAL, CONTROL, DEBUG
 
-# To detemine the size of a frame:
+# To determine the size of a frame:
 # STACK_item_count(new_STACK_ptr,old_STACK_ptr)
 # calculates the number of STACK-elements between an older stack pointer
 # old_STACK_ptr and a new one new_STACK_ptr.
@@ -10389,11 +10555,11 @@ typedef struct {
 #else
   #ifdef STACK_UP
     #define framebottomword(type,top_of_frame,bot_of_frame)  \
-      as_object((oint)(type)+(oint)((uintP)(bot_of_frame)-(uintP)(top_of_frame)))
+      makebottomword(type,(uintP)(bot_of_frame)-(uintP)(top_of_frame))
   #endif
   #ifdef STACK_DOWN
     #define framebottomword(type,top_of_frame,bot_of_frame)  \
-      as_object((oint)(type)+(oint)((uintP)(top_of_frame)-(uintP)(bot_of_frame)))
+      makebottomword(type,(uintP)(top_of_frame)-(uintP)(bot_of_frame))
   #endif
   #define finish_frame(frametype)  \
     (STACK_(-1) = framebottomword(frametype##_frame_info,top_of_frame,STACK STACKop -1), skipSTACK(-1))

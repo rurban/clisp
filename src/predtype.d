@@ -1371,7 +1371,7 @@ LISPFUNNR(type_of,1)
     goto case_orecord;
   } else if (consp(arg)) {
     goto case_cons;
-  } else if (subrp(arg)) {
+  } else if (immsubrp(arg)) {
     goto case_subr;
   } else if (charp(arg)) {
     goto case_char;
@@ -1606,6 +1606,7 @@ LISPFUNNR(type_of,1)
         case_Rectype_Dfloat_above;
         case_Rectype_Lfloat_above;
         case_Rectype_Complex_above;
+        case_Rectype_Subr_above;
         case Rectype_Hashtable: /* Hash-Table */
           value1 = S(hash_table); break;
         case Rectype_Package: /* Package */
@@ -1796,7 +1797,7 @@ LISPFUNNR(class_of,1)
     goto case_orecord;
   } else if (consp(arg)) {
     goto case_cons;
-  } else if (subrp(arg)) {
+  } else if (immsubrp(arg)) {
     goto case_subr;
   } else if (charp(arg)) {
     goto case_char;
@@ -1898,6 +1899,7 @@ LISPFUNNR(class_of,1)
         case_Rectype_Ratio_above;
         case_Rectype_float_above;
         case_Rectype_Complex_above;
+        case_Rectype_Subr_above;
         case Rectype_Hashtable: /* Hash-Table */
           value1 = O(class_hash_table); break;
         case Rectype_Package: /* Package */
@@ -2660,7 +2662,7 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
     goto case_orecord;
   } else if (consp(obj)) {
     goto case_cons;
-  } else if (subrp(obj)) {
+  } else if (immsubrp(obj)) {
     goto case_subr;
   } else
     switch (0)
@@ -2852,6 +2854,7 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
         case_Rectype_Dfloat_above;
         case_Rectype_Lfloat_above;
         case_Rectype_Complex_above;
+        case_Rectype_Subr_above;
         case Rectype_Hashtable: /* Hash-Table */
           pighole = &locals->builtins[(int)enum_hs_hash_table]; break;
         case Rectype_Package: /* Package */

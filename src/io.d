@@ -6716,7 +6716,7 @@ local void prin_object_dispatch (const gcv_object_t* stream_, object obj) {
     pr_number(stream_,obj);
   else if (charp(obj))
     pr_character(stream_,obj);
-  else if (subrp(obj))
+  else if (immsubrp(obj))
     pr_subr(stream_,obj);
   else if (machinep(obj))
     pr_machine(stream_,obj);
@@ -8694,6 +8694,11 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
       pr_record_descr(stream_,obj,S(byte),true,O(byte_slotlist));
 #endif
       break;
+    #ifdef LINUX_NOEXEC_HEAPCODES
+    case Rectype_Subr: # Subr
+      pr_subr(stream_,obj);
+      break;
+    #endif
     case Rectype_Fsubr: # Fsubr
       pr_fsubr(stream_,obj);
       break;
