@@ -1,5 +1,10 @@
 2001-03-18  Bruno Haible  <haible@clisp.cons.org>
 
+	* socket.d (MACHINE-INSTANCE): Return hostname as returned by
+	gethostbyname, i.e. including the domainname.
+
+2001-03-18  Bruno Haible  <haible@clisp.cons.org>
+
 	* clhs.lisp: Export CLHS-ROOT.
 	* cfgunix.lisp: Export CLHS-ROOT and *CLHS-ROOT-DEFAULT*.
 	* cfgacorn.lisp: Likewise.
