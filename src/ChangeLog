@@ -1,3 +1,11 @@
+2002-01-21  Sam Steingold  <sds@gnu.org>
+
+	SOCKET-STATUS now works on all handle streams, whose handles are
+	acceptable to the underlying OS's select system call
+	* stream.d (stream_handles): work on many streams and return 2
+	handles (renamed from socket_handle)
+	(handle_set, handle_isset, SOCKET-STATUS): modified accordingly
+
 2002-01-18  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (stream_char_p): removed (good only for "basic streams")
