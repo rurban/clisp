@@ -901,10 +901,10 @@ int main (int argc, char* argv[]) {
     for (i = 0; i < main_output.index; i++)
       emit_control_directive(&main_output.data[i]);
   }
-  printf("  if (ferror(stdout)) { exit(1); }\n");
+  printf("  if (fflush(stdout) || ferror(stdout)) { exit(1); }\n");
   printf("  exit(0);\n");
   printf("}\n");
   /* Done. */
-  if (ferror(stdout)) { exit(1); }
+  if (fflush(stdout) || ferror(stdout)) { exit(1); }
   exit(0);
 }

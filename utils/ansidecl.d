@@ -533,7 +533,7 @@ int main ()
   { infile = stdin;
     outfile = stdout;
     convert();
-    if (ferror(stdin) || ferror(stdout)) { exit(1); }
+    if (ferror(stdin) || fflush(stdout) || ferror(stdout)) { exit(1); }
     exit(0);
   }
 
