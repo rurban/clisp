@@ -14895,9 +14895,10 @@ local object make_socket_stream(handle,eltype,buffered,host,port)
     return stream;
   }}
 
-local void test_socket_server (object obj);
-local void test_socket_server(obj)
+local void test_socket_server (object obj, boolean check_open);
+local void test_socket_server(obj,check_open)
   var object obj;
+  var boolean check_open;
   {
     if (!socket_server_p(obj))
       { pushSTACK(obj);
@@ -14911,21 +14912,35 @@ local void test_socket_server(obj)
                ""
               );
       }
+    if (check_open && nullp(TheSocketServer(obj)->socket_handle))
+      { pushSTACK(obj);
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(error,
+               DEUTSCH ? "~ auf ~ ist unzulässig." :
+               ENGLISH ? "~ on ~ is illegal" :
+               FRANCAIS ? "~ de/sur ~ est impossible." :
+               ""
+              );
+      }
   }
 
 # Called when some socket server dies.
 LISPFUNN(socket_server_close,1)
-  { test_socket_server(STACK_0);
-   {var SOCKET s = TheSocket(TheSocketServer(popSTACK())->socket_handle);
-    begin_system_call();
-    loop
-      { if (closesocket(s) < 0)
-          { if (!sock_errno_is(EINTR)) { SOCK_error(); } }
-          else
-          break;
+  { test_socket_server(STACK_0,FALSE);
+   {var object ss = popSTACK();
+    if (!nullp(TheSocketServer(ss)->socket_handle))
+      { var SOCKET s = TheSocket(TheSocketServer(ss)->socket_handle);
+        begin_system_call();
+        loop
+          { if (closesocket(s) < 0)
+              { if (!sock_errno_is(EINTR)) { SOCK_error(); } }
+              else
+              break;
+          }
+        end_system_call();
+        TheSocketServer(ss)->socket_handle = NIL;
       }
-    end_system_call();
-    value1 = NIL; mv_count=0;
+    value1 = NIL; mv_count=1;
   }}
 
 extern SOCKET create_server_socket (host_data *hd, SOCKET sock, unsigned int port);
@@ -14989,7 +15004,7 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
 
 LISPFUNN(socket_server_port,1)
 # (SOCKET-SERVER-PORT socket-server)
-  { test_socket_server(STACK_0);
+  { test_socket_server(STACK_0,FALSE);
     value1 = TheSocketServer(STACK_0)->port;
     mv_count = 1;
     skipSTACK(1);
@@ -14997,7 +15012,7 @@ LISPFUNN(socket_server_port,1)
 
 LISPFUNN(socket_server_host,1)
 # (SOCKET-SERVER-HOST socket-server)
-  {test_socket_server(STACK_0);
+  {test_socket_server(STACK_0,FALSE);
     value1 = TheSocketServer(STACK_0)->host;
     mv_count = 1;
     skipSTACK(1);
@@ -15014,7 +15029,7 @@ LISPFUN(socket_accept,1,0,norest,key,3,\
     var signean buffered;
     var SOCKET handle;
 
-    test_socket_server(STACK_3);
+    test_socket_server(STACK_3,TRUE);
 
     # Check and canonicalize the :BUFFERED argument:
     buffered = test_buffered_arg(STACK_0); # default is NIL
@@ -15046,7 +15061,7 @@ LISPFUN(socket_wait,1,2,norest,nokey,0,NIL)
     var SOCKET handle;
     var struct timeval timeout;
     var struct timeval * timeout_ptr;
-    test_socket_server(STACK_2);
+    test_socket_server(STACK_2,TRUE);
     handle = TheSocket(TheSocketServer(STACK_2)->socket_handle);
     restart_select:
     if (eq(STACK_1,unbound))
