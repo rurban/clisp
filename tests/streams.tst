@@ -779,6 +779,9 @@ T
           (READ-CHAR SS))))
 (#\a #\b #\c #\d #\e)
 
+(STREAM-EXTERNAL-FORMAT (MAKE-BROADCAST-STREAM))
+:DEFAULT
+
 (progn
 (makunbound 's)
 (makunbound 's1)
