@@ -5,6 +5,9 @@
 ;;  - to set the Registry appropriately
 ;;  - to create CLISP.LNK & CLISP.URL on your desktop
 
+(in-package "CL-USER")
+(use-package "LDAP")
+
 (defvar *clisp-home* (namestring (default-directory)))
 (defvar *clisp-runtime*
   (if (position #\Space *clisp-home*)

@@ -1,3 +1,8 @@
+2003-10-22  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 826792 ]: unbound WITH-DIR-KEY-OPEN params
+	* install.lisp: use-package "LDAP"
+
 2003-10-22  Christophe Rhodes  <csr21@cam.ac.uk>
 	    Sam Steingold  <sds@gnu.org>
 
