@@ -4841,6 +4841,8 @@ typedef struct {
   #define strm_pphelp_lpos     strm_wr_ch_lpos # Line Position (Fixnum>=0)
   #define strm_pphelp_strings  strm_other[0]   # Semi-Simple-Strings for Output
   #define strm_pphelp_modus    strm_other[1]   # Mode (NIL=Single line, T=multiple lines)
+  #define strm_pphelp_miserp   strm_other[2] # miser mode indicator
+  #define strm_pphelp_offset   strm_other[3] # initial line offset (indent)
   #define strm_buff_in_fun     strm_other[0] # read function
   #define strm_buff_out_fun    strm_other[0] # output function
   #ifdef PIPES
@@ -5811,6 +5813,9 @@ typedef struct {
 #else
   #define ffunctionp(obj)  ((void)(obj), 0)
 #endif
+
+# Test for Function
+#define functionp(obj) (subrp(obj) || closurep(obj) || ffunctionp(obj))
 
 # Test for Weakpointer
 #define weakpointerp(obj)  \
