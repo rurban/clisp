@@ -11070,7 +11070,8 @@ global int find_executable(program_name)
             strcpy(concat_name,program_name);
           } else {
             memcpy(concat_name, p, p_len);
-            sprintf(concat_name+p_len, "/%s", program_name);
+            concat_name[p_len] = '/';
+            strcpy(concat_name+p_len+1, program_name);
           }
           if (maybe_executable(concat_name)) {
             # Assume we have found the executable
