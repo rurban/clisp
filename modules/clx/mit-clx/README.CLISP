@@ -1,6 +1,6 @@
 This directory contains CLX (a Common Lisp interface to the X window system).
 
-The original version of this is distributed at beta.xerox.com:/pub/pcl/.
+The original version of this is distributed at ftp://beta.xerox.com/pub/pcl/.
 The files have been renamed to CLISP conventions (.txt for miscellaneous text),
 and some CLISP specific patches have been applied.
 
