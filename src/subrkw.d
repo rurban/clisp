@@ -1,5 +1,8 @@
-# Liste aller SUBRs mit Keywords
-# Bruno Haible 1990-2004
+/*
+ * List of all the SUBRs with Keywords
+ * Bruno Haible 1990-2004
+ * Sam Steingold 1998-2004
+ */
 
 v(7, (kw(adjustable),kw(element_type),kw(initial_element),
       kw(initial_contents),kw(fill_pointer),
