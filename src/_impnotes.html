@@ -8549,10 +8549,10 @@ regular Common Lisp types or CLOS classes.
 
 <p>Objects of type <a href="CLHSROOT/Body/syscla_string.html">
 <code>string</code></a> are copied and passed
-NULL-terminated on the execution stack.  On return, a Lisp string is
+NUL-terminated on the execution stack.  On return, a Lisp string is
 allocated and filled from the address returned (unless NULL). Functions
 with <code>:io</code> parameters are passed the address of the Lisp
-string or unsigned byte vector. These are not NULL-terminated!  This is
+string or unsigned byte vector. These are not NUL-terminated!  This is
 useful for functions like like <code>read()</code> which do not need an
 array at a constant address longer than the dynamic extent of the call
 (it is dangerous to define callback functions with <code>:io</code> (or
@@ -8642,7 +8642,7 @@ checks may be performed and the call can be sort of inlined.
 <var>offset</var>)</code> can read 8, 16 and 32 bit signed or
 unsigned integers (AFFI types <code>-4</code>, <code>-2</code>,
 <code>-1</code>, <code>1</code>, <code>2</code>, <code>4</code>), a
-pointer (<code>*</code>), a NULL-terminated string (<code>string</code>)
+pointer (<code>*</code>), a NUL-terminated string (<code>string</code>)
 or, if the type argument is of type <code>string</code> or unsigned byte
 vector, it can fill this vector. <code>:external</code> is not an
 acceptable type as no object can be created by using
