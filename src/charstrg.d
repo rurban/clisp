@@ -3149,8 +3149,7 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
       pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(STACK_(2+2)); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             GETTEXT("~: the string length ~ should be nonnegative fixnum")
-            );
+             GETTEXT("~: the string length ~ should be nonnegative fixnum"));
     }
     size = posfixnum_to_L(STACK_2);
     # element-type überprüfen:
@@ -3164,32 +3163,52 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
           pushSTACK(S(character)); # CHARACTER
           pushSTACK(S(Kelement_type)); # :ELEMENT-TYPE
           pushSTACK(S(make_string));
-          fehler(error,
-                 GETTEXT("~: ~ argument must be a subtype of ~, not ~")
-                );
+          fehler(error,GETTEXT("~: ~ argument must be a subtype of ~, not ~"));
         }
       }
     }
-    var object new_string = allocate_string(size); # neuen String besorgen
-    # evtl. mit initial-element füllen:
+    var object new_string;
+    # maybe fill with initial-element:
     var object initial_element = STACK_1;
     if (eq(initial_element,unbound)) {
-      # nicht angegeben -> nichts zu tun
+      new_string = allocate_string(size);
     } else {
-      if (!charp(initial_element)) { # sonst: muss ein Character sein
+      if (!charp(initial_element)) { # must be a character
         pushSTACK(initial_element); # TYPE-ERROR slot DATUM
         pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(initial_element); pushSTACK(TheSubr(subr_self)->name);
-        fehler(type_error,
-               GETTEXT("~: :initial-element ~ should be of type character")
-              );
+        pushSTACK(S(character)); pushSTACK(initial_element);
+        pushSTACK(S(Kinitial_element)); pushSTACK(TheSubr(subr_self)->name);
+        fehler(type_error,GETTEXT("~: ~ ~ should be of type ~"));
       } else {
         var chart ch = char_code(initial_element);
-        # String mit ch vollschreiben:
-        if (!(size==0)) {
+       #ifdef HAVE_SMALL_SSTRING
+        var cint c = as_cint(ch);
+        if (c < cint8_limit) {
+          new_string = allocate_s8string(size);
+          if (size !=0) {
+            var cint8* pdata = TheS8string(new_string)->data;
+            dotimespL(size,size, { *pdata++ = c; } );
+          }
+        } else if (c < cint16_limit) {
+          new_string = allocate_s16string(size);
+          if (size !=0) {
+            var cint16* pdata = TheS16string(new_string)->data;
+            dotimespL(size,size, { *pdata++ = c; } );
+          }
+        } else {
+          new_string = allocate_s32string(size);
+          if (size !=0) {
+            var cint32* pdata = TheS32string(new_string)->data;
+            dotimespL(size,size, { *pdata++ = c; } );
+          }
+        }
+       #else
+        new_string = allocate_string(size);
+        if (size!=0) {
           var chart* charptr = &TheSstring(new_string)->data[0];
           dotimespL(size,size, { *charptr++ = ch; } );
         }
+       #endif
       }
     }
     value1 = new_string; mv_count=1; skipSTACK(3);
