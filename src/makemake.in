@@ -868,6 +868,10 @@ if [ $XCC_GCC = true ] ; then
           # gcc-2.7.2 has a strength-reduction bug (fixed in gcc-2.7.2.1,
           # also fixed through the specs file of some Linux distributions).
           XCFLAGS=$XCFLAGS'-O2 -fexpensive-optimizations -fno-strength-reduce' ;;
+        3.1 )
+          # gcc-3.1 with -O mis-compiles eval.d, and with -O2 control.d,
+          # record.d and some other ==> no optimizations
+          ;;
         2.3.[3-9]* | 2.[4-9]* | 3.* | egcs-2.*)
           # XCFLAGS=$XCFLAGS'-O2 -fno-omit-frame-pointer' ;;
           # Let's try it nevertheless!
