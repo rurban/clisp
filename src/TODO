@@ -293,6 +293,12 @@ Rick Taube does the following in his Common Music package:
 "The ugliest hack I have ever written", he writes. And he is probably right.
 
 
+Optimize the compiler or the LOOP expander so that
+  (macroexpand '(loop for (a b c) = (multiple-value-list (foo))))
+contains
+  (MULTIPLE-VALUE-SETQ (A B C) (FOO))
+
+
 NOT TO DO
 =========
 
