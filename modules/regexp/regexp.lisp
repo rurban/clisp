@@ -295,7 +295,8 @@ extern void mregfree (regex_t *preg);
     qstring))
 
 (defun regexp-split (pattern string &key (start 0) end (case-sensitive t))
-  "Split the STRING by the regexp PATTERN."
+  "Split the STRING by the regexp PATTERN.
+Return a list of substrings of STRINGS."
   (loop
     :with compiled =
             (if (stringp pattern)
@@ -313,7 +314,8 @@ extern void mregfree (regex_t *preg);
 (defmacro with-loop-split ((var stream pattern
                             &key (start 0) end (case-sensitive t))
                            &body forms)
-  "Read from STREAM one line at a time, binding VAR to the split line."
+  "Read from STREAM one line at a time, binding VAR to the split line.
+The line is split with REGEXP-SPLIT using PATTERN."
   (let ((compiled-pattern (gensym "WLS-")) (line (gensym "WLS-")))
     `(loop
        :with ,compiled-pattern =
@@ -324,5 +326,5 @@ extern void mregfree (regex_t *preg);
        :for ,line = (read-line ,stream nil nil)
        :while ,line
        :do (setq ,var
-             (regexp-split ,compiled-pattern ,line :start start :end end))
+             (regexp-split ,compiled-pattern ,line :start ,start :end ,end))
       ,@forms)))
