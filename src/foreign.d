@@ -4022,11 +4022,17 @@ local object check_library (object obj)
 local object object_address (object library, gcv_object_t *name, object offset)
 { /* return the foreign address of the foreign object named `name' */
   var object lib_addr = Car(Cdr(library));
-  if (nullp(offset))
-    return make_faddress(lib_addr,(sintP)object_handle(library,name,true) -
-                         (sintP)TheFpointer(lib_addr)->fp_pointer);
-  else
-    return make_faddress(lib_addr,(sintP)I_to_sint32(offset));
+  var sintP result_offset;
+  if (nullp(offset)) {
+    pushSTACK(lib_addr);
+    var void* name_handle = object_handle(library,name,true);
+    lib_addr = popSTACK();
+    result_offset =
+      (sintP)name_handle - (sintP)TheFpointer(lib_addr)->fp_pointer;
+  } else {
+    result_offset = (sintP)I_to_sint32(offset);
+  }
+  return make_faddress(lib_addr,result_offset);
 }
 
 /* add foreign object obj to the acons (name addr obj1 ...)
