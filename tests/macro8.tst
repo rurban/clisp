@@ -474,3 +474,18 @@ dm2b
     (sys::compile-form-in-toplevel-environment
      '(typep (make-instance 't1) 't1)))))
 #+CLISP (T T)
+
+(progn
+  ;; the first definition of NOTINLINE-TEST-FUNC-1 is side-effect-free,
+  ;; so the compiler could have eliminated the call to it in
+  ;; NOTINLINE-TEST-FUNC-2,
+  ;; except that the NOTINLINE declaration should prevent that
+  (declaim (notinline notinline-test-func-1))
+  (defun notinline-test-func-1 (x) x)
+  (compile 'notinline-test-func-1)
+  (defun notinline-test-func-2 (x) (notinline-test-func-1 x) x)
+  (compile 'notinline-test-func-2)
+  (defvar *notinline-test-var* 10)
+  (defun notinline-test-func-1 (x) (incf *notinline-test-var* x))
+  (list (notinline-test-func-2 12) *notinline-test-var*))
+(12 22)
