@@ -457,7 +457,7 @@ local /*maygc*/ void make_variable_frame
             }
             /* store special-declared symbol in stack: */
             pushSTACK(specdecl); /* SPECDECL as "value" */
-            pushSTACK_symbolwithflags(declsym,wbit(active_bit_o)); /* Symbol active */
+            pushSTACK_symbolwithflags(declsym,0); /* Symbol inactive */
             check_STACK();
             spec_anz++;
           }
