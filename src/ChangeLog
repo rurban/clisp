@@ -1,3 +1,12 @@
+2000-02-18  Sam Steingold  <sds@gnu.org>
+
+	Implemented the ANSI CL `with-compilation-unit' macro.
+	* compiler.lsp (with-compilation-unit): new macro.
+	(*c-top-call*): new variable.
+	(c-report-problems, c-reset-globals): new functions.
+	(compile-file): use them.
+	(init.lsp, defs3.lsp): export `with-compilation-unit'.
+
 2000-02-18  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (oint_symbolflags_shift): Remove obsolete definition.
