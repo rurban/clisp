@@ -324,8 +324,8 @@
                    (RETURN-FROM ,block-name
                      (OR ,em-expr
                          (,@setf-em-expr
-                               (,apply-fun 'COMPUTE-EFFECTIVE-METHOD ',gf
-                                           ,@apply-args))))))
+                               (,apply-fun 'COMPUTE-APPLICABLE-METHODS-EFFECTIVE-METHOD
+                                           ',gf ,@apply-args))))))
               |# ; use CLASS-GETHASH and CLASS-TUPLE-GETHASH :
               (let ((ht-var (gensym))
                     (n (length class-of-exprs)) ; index with n-tuples
@@ -362,8 +362,8 @@
                 `(RETURN-FROM ,block-name
                    (OR ,em-expr
                        (,@setf-em-expr
-                             (,apply-fun 'COMPUTE-EFFECTIVE-METHOD ',gf
-                                         ,@apply-args)))))
+                             (,apply-fun 'COMPUTE-APPLICABLE-METHODS-EFFECTIVE-METHOD
+                                         ',gf ,@apply-args)))))
               ;; process next argument:
               (let* ((arg-index (first remaining-args))
                      (arg-var (nth arg-index req-vars))
@@ -573,8 +573,7 @@
 ;;; It is actually the effective method for all arguments,
 ;;; for the same EQL and class restrictions as the given arguments,
 ;;; therefore compute dispatch is already taken care of.
-(defun compute-effective-method (gf &rest args)
-  (declare (dynamic-extent args))
+(defun compute-applicable-methods-effective-method (gf &rest args)
   (let ((combination (gf-method-combination gf)))
     (funcall (method-combination-expander combination) gf combination
              (method-combination-options combination) args)))

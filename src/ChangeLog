@@ -1,5 +1,13 @@
 2004-06-06  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun2.lisp (compute-applicable-methods-effective-method):
+	Renamed from compute-effective-method.
+	(compute-dispatch): Update.
+	* clos-class5.lisp (make-instance-table-entry1,
+	make-instance-table-entry2, initial-reinitialize-instance): Update.
+
+2004-06-06  Bruno Haible  <bruno@clisp.org>
+
 	* clos-methcomb2.lisp (coerce-to-method-combination): Don't need to
 	clone the method-combination if there are no options.
 
