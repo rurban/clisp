@@ -4207,6 +4207,53 @@ functions are provided:
  streams</ulink>.</para>
 
 </section>
+
+<section id="stream-buffer"><title>Functions
+  <function>EXT:MAKE-BUFFERED-INPUT-STREAM</function> and
+  <function>EXT:MAKE-BUFFERED-OUTPUT-STREAM</function></title>
+
+<para><literal role="sexp">(EXT:MAKE-BUFFERED-OUTPUT-STREAM &func-r;)</literal>
+ returns a buffered &out-s;.
+ &func-r; is a &function-t; expecting one argument, a &simple-string-t;.
+ &write-char; collects the &character-t;s in a &string-t;, until a
+ newline character is written or &force-output;/&finish-output; is called.
+ Then &func-r; is called with a &simple-string-t; as argument,
+ that contains the characters collected so far.
+ &clear-output; dicards the characters collected so far.</para>
+
+<para><literal role="sexp">(EXT:MAKE-BUFFERED-INPUT-STREAM &func-r;
+  <replaceable>mode</replaceable>)</literal> returns a buffered &in-s;.
+ &func-r; is a &function-t; of 0 arguments that returns
+ either &nil; (stands for &eos;) or up to three values
+ &string-r;, &start-r;, &end-r;.
+ &read-char; returns the &character-t;s of the current &string-r; one
+ after another; when the &string-r; is consumed, &func-r; is called
+ again, and if the first value is a &string-t;, the new &string-r;
+ buffer is given by
+<programlisting>
+  (multiple-value-bind (str start end) (funcall fun)
+     (subseq str (or start 0) (or end 'NIL)))
+</programlisting>
+ The &string-r; returned by &func-r; should not be changed.
+ (Otherwise &func-r; should copy the &string-r; with &copy-seq; beforehand.)
+ <replaceable>mode</replaceable> determines the behavior of &listen;
+ when the current &string-r; buffer is empty:
+ <variablelist>
+  <varlistentry><term>&nil;</term>
+   <listitem><simpara>the stream acts like a &file-stream-t;,
+     i.e. &func-r; is called</simpara></listitem></varlistentry>
+  <varlistentry><term>&t;</term>
+   <listitem><simpara>the stream acts like an interactive stream without
+     &eos;, i.e. one can assume that further characters will  always
+     arrive, without calling &func-r;</simpara></listitem></varlistentry>
+  <varlistentry><term>&function-t;</term>
+   <listitem><simpara>this &function-t; tells, upon call, if further
+     non-empty &string-r;s are to be expected.</simpara></listitem>
+ </varlistentry></variablelist>
+&clear-input; discards whe rest of the current &string-r;.
+</para>
+</section>
+
 </section>
 </chapter>
 
