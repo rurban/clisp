@@ -1,5 +1,16 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_objsize.d: New file.
+        * spvw.d (typecode_at, case_symbolwithflags, speicher_laenge,
+           Varobject_aligned_size, size_symbol, size_sbvector, size_sstring,
+           size_svector, size_iarray, size_srecord, size_xrecord, size_bignum,
+           size_ffloat, size_dfloat, size_lfloat, speicher_laengen,
+           init_speicher_laengen, var_speicher_laenge_, calc_speicher_laenge,
+           varobject_bytelength): Move out.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_space.d: New file.
         * spvw.d (static_space, used_space, free_space, recalc_space): Move
           out.

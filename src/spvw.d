@@ -214,7 +214,7 @@ allocated (using one of the allocate_... routines). The size can be
 computed from the type tag and - if necessary - the length field of
 the object's header. The length field always contains the number of
 elements of the object. The number of bytes is given by the function
-speicher_laenge().
+objsize().
 
 Lisp objects which contain exactly 2 Lisp objects (i.e. conses, complex
 numbers, ratios) are stored in a separate area and occupy 2 words each.
@@ -686,276 +686,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 # ------------------------------------------------------------------------------
 #                   Speicherlängenbestimmung
 
-# Bei allen Objekten variabler Länge (die von links nach rechts wachsen)
-# steht (außer während der GC) in den ersten 4 Bytes ein Pointer auf sich
-# selbst, bei Symbolen auch noch die Flags.
-
-#ifdef TYPECODES
-
-# Liefert den Typcode eines Objekts variabler Länge an einer gegebenen Adresse:
-  #define typecode_at(addr)  mtypecode(((Varobject)(addr))->GCself)
-  # oder (äquivalent):
-  # define typecode_at(addr)  (((((Varobject)(addr))->header_flags)>>(oint_type_shift%8))&tint_type_mask)
-# Fallunterscheidungen nach diesem müssen statt 'case_symbol:' ein
-# 'case_symbolwithflags:' enthalten.
-  #define case_symbolwithflags  \
-    case symbol_type:                                        \
-    case symbol_type|bit(constant_bit_t):                    \
-    case symbol_type|bit(special_bit_t):                     \
-    case symbol_type|bit(special_bit_t)|bit(constant_bit_t)
-
-#endif
-
-# UP, bestimmt die Länge eines LISP-Objektes variabler Länge (in Bytes).
-# (Sie ist durch varobject_alignment teilbar.)
-  local uintL speicher_laenge (void* addr);
-  # Varobject_aligned_size(HS,ES,C) liefert die Länge eines Objekts variabler
-  # Länge mit HS=Header-Size, ES=Element-Size, C=Element-Count.
-  # Varobject_aligned_size(HS,ES,C) = round_up(HS+ES*C,varobject_alignment) .
-    #define Varobject_aligned_size(HS,ES,C)  \
-      ((ES % varobject_alignment) == 0               \
-       ? # ES ist durch varobject_alignment teilbar  \
-         round_up(HS,varobject_alignment) + (ES)*(C) \
-       : round_up((HS)+(ES)*(C),varobject_alignment) \
-      )
-  # Länge eines Objekts, je nach Typ:
-    #ifdef TYPECODES
-    #define size_symbol()  # Symbol \
-      round_up( sizeof(symbol_), varobject_alignment)
-    #endif
-    #define size_sbvector(length)  # simple-bit-vector \
-      ( ceiling( (uintL)(length) + 8*offsetofa(sbvector_,data), 8*varobject_alignment ) \
-        * varobject_alignment                                                           \
-      )
-    #define size_sstring(length)  # simple-string \
-      round_up( (uintL)(length) + offsetofa(sstring_,data), varobject_alignment)
-    #define size_svector(length)  # simple-vector \
-      Varobject_aligned_size(offsetofa(svector_,data),sizeof(object),(uintL)(length))
-    #define size_iarray(size)  # Nicht-simpler Array, mit \
-      # size = Dimensionszahl + (1 falls Fill-Pointer) + (1 falls Displaced-Offset) \
-      Varobject_aligned_size(offsetofa(iarray_,dims),sizeof(uintL),(uintL)(size))
-    #define size_srecord(length)  # Simple-Record \
-      Varobject_aligned_size(offsetofa(record_,recdata),sizeof(object),(uintL)(length))
-    #define size_xrecord(length,xlength)  # Extended-Record \
-      Varobject_aligned_size(offsetofa(record_,recdata),sizeof(uintB),(sizeof(object)/sizeof(uintB))*(uintL)(length)+(uintL)(xlength))
-    #define size_bignum(length)  # Bignum \
-      Varobject_aligned_size(offsetofa(bignum_,data),sizeof(uintD),(uintL)(length))
-    #ifdef TYPECODES
-    #ifndef WIDE
-    #define size_ffloat()  # Single-Float \
-      round_up( sizeof(ffloat_), varobject_alignment)
-    #endif
-    #define size_dfloat()  # Double-Float \
-      round_up( sizeof(dfloat_), varobject_alignment)
-    #else
-    #define size_ffloat()  # Single-Float \
-      size_xrecord(0,sizeof(ffloat))
-    #define size_dfloat()  # Double-Float \
-      size_xrecord(0,sizeof(dfloat))
-    #endif
-    #define size_lfloat(length)  # Long-Float \
-      Varobject_aligned_size(offsetofa(lfloat_,data),sizeof(uintD),(uintL)(length))
-
-#ifdef SPVW_MIXED
-
-  local uintL speicher_laenge (addr)
-    var void* addr;
-    {
-      #ifdef TYPECODES
-      switch (typecode_at(addr) & ~bit(garcol_bit_t)) # Typ des Objekts
-      #else
-      switch (record_type((Record)addr))
-        { case_Rectype_Sbvector_above;
-          case_Rectype_Sstring_above;
-          case_Rectype_Svector_above;
-          case_Rectype_mdarray_above;
-          case_Rectype_obvector_above;
-          case_Rectype_ostring_above;
-          case_Rectype_ovector_above;
-          case_Rectype_Bignum_above;
-          case_Rectype_Lfloat_above;
-          default: goto case_record;
-        }
-      switch (0)
-      #endif
-        {
-          #ifdef TYPECODES
-          case_symbolwithflags: # Symbol
-            return size_symbol();
-          #endif
-          case_sbvector: # simple-bit-vector
-            return size_sbvector(sbvector_length((Sbvector)addr));
-          case_sstring: # simple-string
-            return size_sstring(sstring_length((Sstring)addr));
-          case_svector: # simple-vector
-            return size_svector(svector_length((Svector)addr));
-          case_mdarray: case_obvector: case_ostring: case_ovector:
-            # Nicht-simpler Array:
-            { var uintL size;
-              size = (uintL)iarray_rank((Iarray)addr);
-              if (iarray_flags((Iarray)addr) & bit(arrayflags_fillp_bit)) { size += 1; }
-              if (iarray_flags((Iarray)addr) & bit(arrayflags_dispoffset_bit)) { size += 1; }
-              # size = Dimensionszahl + (1 falls Fill-Pointer) + (1 falls Displaced-Offset)
-              return size_iarray(size);
-            }
-          case_record: # Record
-            if (record_type((Record)addr) < rectype_limit)
-              return size_srecord(srecord_length((Srecord)addr));
-              else
-              return size_xrecord(xrecord_length((Xrecord)addr),xrecord_xlength((Xrecord)addr));
-          case_bignum: # Bignum
-            return size_bignum(bignum_length((Bignum)addr));
-          #ifdef TYPECODES
-          #ifndef WIDE
-          case_ffloat: # Single-Float
-            return size_ffloat();
-          #endif
-          case_dfloat: # Double-Float
-            return size_dfloat();
-          #endif
-          case_lfloat: # Long-Float
-            return size_lfloat(lfloat_length((Lfloat)addr));
-          #ifdef TYPECODES
-          case_machine:
-          #ifndef SIXBIT_TYPECODES
-          case_char:
-          case_subr:
-          case_system:
-          #endif
-          case_fixnum:
-          case_sfloat:
-          #ifdef WIDE
-          case_ffloat:
-          #endif
-            # Das sind direkte Objekte, keine Pointer.
-          #endif
-          default:
-            # Das sind keine Objekte variabler Länge.
-            /*NOTREACHED*/ abort();
-    }   }
-
-  #define var_speicher_laenge_
-  #define calc_speicher_laenge(addr)  speicher_laenge((void*)(addr))
-
-#endif # SPVW_MIXED
-
-#ifdef SPVW_PURE
-
-  # spezielle Funktionen für jeden Typ:
-  inline local uintL speicher_laenge_symbol (addr) # Symbol
-    var void* addr;
-    { return size_symbol(); }
-  inline local uintL speicher_laenge_sbvector (addr) # simple-bit-vector
-    var void* addr;
-    { return size_sbvector(sbvector_length((Sbvector)addr)); }
-  inline local uintL speicher_laenge_sstring (addr) # simple-string
-    var void* addr;
-    { return size_sstring(sstring_length((Sstring)addr)); }
-  inline local uintL speicher_laenge_svector (addr) # simple-vector
-    var void* addr;
-    { return size_svector(svector_length((Svector)addr)); }
-  inline local uintL speicher_laenge_iarray (addr) # nicht-simpler Array
-    var void* addr;
-    { var uintL size;
-      size = (uintL)iarray_rank((Iarray)addr);
-      if (iarray_flags((Iarray)addr) & bit(arrayflags_fillp_bit)) { size += 1; }
-      if (iarray_flags((Iarray)addr) & bit(arrayflags_dispoffset_bit)) { size += 1; }
-      # size = Dimensionszahl + (1 falls Fill-Pointer) + (1 falls Displaced-Offset)
-      return size_iarray(size);
-    }
-  inline local uintL speicher_laenge_record (addr) # Record
-    var void* addr;
-    { if (record_type((Record)addr) < rectype_limit)
-        return size_srecord(srecord_length((Srecord)addr));
-        else
-        return size_xrecord(xrecord_length((Xrecord)addr),xrecord_xlength((Xrecord)addr));
-    }
-  inline local uintL speicher_laenge_bignum (addr) # Bignum
-    var void* addr;
-    { return size_bignum(bignum_length((Bignum)addr)); }
-  #ifndef WIDE
-  inline local uintL speicher_laenge_ffloat (addr) # Single-Float
-    var void* addr;
-    { return size_ffloat(); }
-  #endif
-  inline local uintL speicher_laenge_dfloat (addr) # Double-Float
-    var void* addr;
-    { return size_dfloat(); }
-  inline local uintL speicher_laenge_lfloat (addr) # Long-Float
-    var void* addr;
-    { return size_lfloat(lfloat_length((Lfloat)addr)); }
-
-  # Tabelle von Funktionen:
-  typedef uintL (*speicher_laengen_fun) (void* addr);
-  local speicher_laengen_fun speicher_laengen[heapcount];
-
-  local void init_speicher_laengen (void);
-  local void init_speicher_laengen()
-    { var uintL heapnr;
-      for (heapnr=0; heapnr<heapcount; heapnr++)
-        { switch (heapnr)
-            { case_symbol:
-                speicher_laengen[heapnr] = &speicher_laenge_symbol; break;
-              case_sbvector:
-                speicher_laengen[heapnr] = &speicher_laenge_sbvector; break;
-              case_sstring:
-                speicher_laengen[heapnr] = &speicher_laenge_sstring; break;
-              case_svector:
-                speicher_laengen[heapnr] = &speicher_laenge_svector; break;
-              case_mdarray: case_obvector: case_ostring: case_ovector:
-                speicher_laengen[heapnr] = &speicher_laenge_iarray; break;
-              case_record:
-                speicher_laengen[heapnr] = &speicher_laenge_record; break;
-              case_bignum:
-                speicher_laengen[heapnr] = &speicher_laenge_bignum; break;
-              #ifndef WIDE
-              case_ffloat:
-                speicher_laengen[heapnr] = &speicher_laenge_ffloat; break;
-              #endif
-              case_dfloat:
-                speicher_laengen[heapnr] = &speicher_laenge_dfloat; break;
-              case_lfloat:
-                speicher_laengen[heapnr] = &speicher_laenge_lfloat; break;
-              case_machine:
-              case_char:
-              case_subr:
-              case_system:
-              case_fixnum:
-              case_sfloat:
-              #ifdef WIDE
-              case_ffloat:
-              #endif
-                # Das sind direkte Objekte, keine Pointer.
-              /* case_ratio: */
-              /* case_complex: */
-              default:
-                # Das sind keine Objekte variabler Länge.
-                speicher_laengen[heapnr] = (speicher_laengen_fun)&abort; break;
-    }   }   }
-
-  #define var_speicher_laenge_  \
-    var speicher_laengen_fun speicher_laenge_ = speicher_laengen[heapnr];
-  #define calc_speicher_laenge(addr)  (*speicher_laenge_)((void*)(addr))
-
-#endif # SPVW_PURE
-
-# UP: Liefert die Größe eines Objekts in Bytes.
-# varobject_bytelength(obj)
-# > obj: Heap-Objekt variabler Länge
-# < ergebnis; die Anzahl der von ihm belegten Bytes (inklusive Header)
-  global uintL varobject_bytelength (object obj);
-  global uintL varobject_bytelength(obj)
-    var object obj;
-    {
-      #ifdef SPVW_MIXED
-      return speicher_laenge(TheVarobject(obj));
-      #endif
-      #ifdef SPVW_PURE
-      var uintL heapnr = typecode(obj);
-      var_speicher_laenge_;
-      return calc_speicher_laenge(TheVarobject(obj));
-      #endif
-    }
+#include "spvw_objsize.c"
 
 # ------------------------------------------------------------------------------
 #                      Page Fault and Protection handling
@@ -1926,7 +1657,7 @@ local uintC generation;
       { var object* ptr = &((Iarray)objptr)->data;            \
         if ((aint)ptr < physpage_end)                         \
           { walkfun(*ptr); }                                  \
-        objptr += speicher_laenge_iarray((Iarray)objptr);     \
+        objptr += objsize_iarray((Iarray)objptr);             \
       }
   #define walk_area_svector(objptr,physpage_end,walkfun)  \
       { var uintL count = svector_length((Svector)objptr);    \
@@ -2003,7 +1734,7 @@ local uintC generation;
                           walk_area_record(objptr,physpage_end,walkfun);           \
                           break;                                                   \
                         default: # simple-bit-vector, simple-string, bignum, float \
-                          objptr += speicher_laenge((Varobject)objptr);            \
+                          objptr += objsize((Varobject)objptr);                    \
                           break;                                                   \
                   }   }                                                            \
                 break;                                                             \
@@ -2036,7 +1767,7 @@ local uintC generation;
                         case Rectype_Dfloat:                                        \
                         case Rectype_Lfloat:                                        \
                           # simple-bit-vector, simple-string, bignum, float         \
-                          objptr += speicher_laenge((Varobject)objptr);             \
+                          objptr += objsize((Varobject)objptr);                     \
                           break;                                                    \
                         default: # Srecord/Xrecord                                  \
                           walk_area_record(objptr,physpage_end,walkfun);            \
@@ -2049,7 +1780,6 @@ local uintC generation;
               default: /*NOTREACHED*/ abort();                                      \
         }   }
     #endif
-    #define speicher_laenge_iarray  speicher_laenge
   #endif
 # Dasselbe als Funktion:
 # walk_physpage_(heapnr,physpage,pageend,heapend,walkstep);
@@ -2938,7 +2668,7 @@ local uintC generation;
       var aint p1 = p2; # Ziel-Pointer
       #endif
       # start <= p1 <= p2 <= end, p1 und p2 wachsen, p2 schneller als p1.
-      var_speicher_laenge_;
+      var_prepare_objsize;
       sweeploop1:
         # Nächstes markiertes Objekt suchen.
         # Adresse des nächsten markierten Objekts in *last_open_ptr eintragen.
@@ -2948,7 +2678,7 @@ local uintC generation;
           var tint flags = mtypecode(((Varobject)p2)->GCself);
           # Typinfo (und Flags bei Symbolen) retten
           #endif
-          var uintL laenge = calc_speicher_laenge(p2); # Byte-Länge bestimmen
+          var uintL laenge = objsize((Varobject)p2); # Byte-Länge bestimmen
           if (!marked(p2)) # Objekt unmarkiert?
             { p2 += laenge; goto sweeploop1; } # ja -> zum nächsten Objekt
           # Objekt markiert
@@ -2969,7 +2699,7 @@ local uintC generation;
           var tint flags = mtypecode(((Varobject)p2)->GCself);
           # Typinfo (und Flags bei Symbolen) retten
           #endif
-          var uintL laenge = calc_speicher_laenge(p2); # Byte-Länge bestimmen
+          var uintL laenge = objsize((Varobject)p2); # Byte-Länge bestimmen
           if (!marked(p2)) # Objekt unmarkiert?
             { last_open_ptr = (object*)p2; # ja -> Hier den nächsten Pointer ablegen
               p2 += laenge; goto sweeploop1; # und zum nächsten Objekt
@@ -3214,7 +2944,7 @@ local uintC generation;
         #ifdef TYPECODES
           #define aktualisiere_varobject(type_expr)  \
             { var tint type = (type_expr); # Typinfo                                  \
-              var uintL laenge = calc_speicher_laenge(ptr); # Länge bestimmen         \
+              var uintL laenge = objsize((Varobject)ptr); # Länge bestimmen           \
               var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt              \
               # Fallunterscheidung nach:                                              \
                 # Symbol; Simple-Vector; Nicht-simpler Array;                         \
@@ -3245,7 +2975,7 @@ local uintC generation;
             }
         #else
           #define aktualisiere_varobject(type_expr)  \
-            { var uintL laenge = calc_speicher_laenge(ptr); # Länge bestimmen   \
+            { var uintL laenge = objsize((Varobject)ptr); # Länge bestimmen     \
               var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt        \
               switch (record_type((Record)ptr)) # Typ des nächsten Objekts      \
                 { case Rectype_mdarray:                                         \
@@ -3280,32 +3010,32 @@ local uintC generation;
       #endif
       #ifdef SPVW_PURE
       #define aktualisiere_symbol(type_expr)  # ignoriert type_expr \
-        { var uintL laenge = speicher_laenge_symbol((void*)ptr); # Länge bestimmen \
-          var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt               \
-          # Symbol: alle Pointer aktualisieren                                     \
-          do_aktualisiere_symbol();                                                \
-          ptr = newptr; # zum nächsten Objekt weiterrücken                         \
+        { var uintL laenge = objsize_symbol((void*)ptr); # Länge bestimmen \
+          var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt       \
+          # Symbol: alle Pointer aktualisieren                             \
+          do_aktualisiere_symbol();                                        \
+          ptr = newptr; # zum nächsten Objekt weiterrücken                 \
         }
       #define aktualisiere_svector(type_expr)  # ignoriert type_expr \
-        { var uintL laenge = speicher_laenge_svector((void*)ptr); # Länge bestimmen \
-          var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt                \
-          # Simple-vector: alle Pointer aktualisieren                               \
-          do_aktualisiere_svector();                                                \
-          ptr = newptr; # zum nächsten Objekt weiterrücken                          \
+        { var uintL laenge = objsize_svector((void*)ptr); # Länge bestimmen \
+          var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt        \
+          # Simple-vector: alle Pointer aktualisieren                       \
+          do_aktualisiere_svector();                                        \
+          ptr = newptr; # zum nächsten Objekt weiterrücken                  \
         }
       #define aktualisiere_iarray(type_expr)  # ignoriert type_expr \
-        { var uintL laenge = speicher_laenge_iarray((void*)ptr); # Länge bestimmen \
-          var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt               \
-          # nicht-simpler Array: Datenvektor aktualisieren                         \
-          do_aktualisiere_iarray();                                                \
-          ptr = newptr; # zum nächsten Objekt weiterrücken                         \
+        { var uintL laenge = objsize_iarray((void*)ptr); # Länge bestimmen \
+          var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt       \
+          # nicht-simpler Array: Datenvektor aktualisieren                 \
+          do_aktualisiere_iarray();                                        \
+          ptr = newptr; # zum nächsten Objekt weiterrücken                 \
         }
       #define aktualisiere_record(type_expr)  # ignoriert type_expr \
-        { var uintL laenge = speicher_laenge_record((void*)ptr); # Länge bestimmen \
-          var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt               \
-          # Record: alle Pointer aktualisieren                                     \
-          do_aktualisiere_record();                                                \
-          ptr = newptr; # zum nächsten Objekt weiterrücken                         \
+        { var uintL laenge = objsize_record((void*)ptr); # Länge bestimmen \
+          var aint newptr = ptr+laenge; # Zeiger auf nächstes Objekt       \
+          # Record: alle Pointer aktualisieren                             \
+          do_aktualisiere_record();                                        \
+          ptr = newptr; # zum nächsten Objekt weiterrücken                 \
         }
       #define aktualisiere_varobjects()  \
         for_each_varobject_page(page,                                               \
@@ -3418,13 +3148,13 @@ local uintC generation;
     { var aint p1 = (aint)pointer_was_object(page->page_gcpriv.firstmarked); # Source-Pointer, erstes markiertes Objekt
       var aint p1end = page->page_end;
       var aint p2 = page->page_start; # Ziel-Pointer
-      var_speicher_laenge_;
+      var_prepare_objsize;
       until (p1==p1end) # obere Grenze erreicht -> fertig
         { # nächstes Objekt hat Adresse p1
           if (marked(p1)) # markiert?
             { unmark(p1); # Markierung löschen
               # Objekt behalten und verschieben:
-             {var uintL count = calc_speicher_laenge(p1); # Länge (durch varobject_alignment teilbar, >0)
+             {var uintL count = objsize((Varobject)p1); # Länge (durch varobject_alignment teilbar, >0)
               if (!(p1==p2)) # falls Verschiebung nötig
                 { move_aligned_p1_p2(count); } # verschieben und weiterrücken
                 else # sonst nur weiterrücken:
@@ -3575,7 +3305,7 @@ local uintC generation;
                             physpage->firstobject = gen0_start;
                             gen0_start += physpagesize; physpage++;
                             while (objptr < gen0_end)
-                              { var aint nextptr = objptr + speicher_laenge_iarray((Iarray)objptr);
+                              { var aint nextptr = objptr + objsize_iarray((Iarray)objptr);
                                 # Hier ist gen0_start-physpagesize <= objptr < gen0_start.
                                 if (nextptr >= gen0_start)
                                   { var aint ptr = (aint)&((Iarray)objptr)->data;
@@ -3725,7 +3455,7 @@ local uintC generation;
                                 break;
                               #endif
                               case_mdarray: case_obvector: case_ostring: case_ovector: # nicht-simple Arrays:
-                                { var aint nextptr = objptr + speicher_laenge((Iarray)objptr);
+                                { var aint nextptr = objptr + objsize((Iarray)objptr);
                                   # Hier ist gen0_start-physpagesize <= objptr < gen0_start.
                                   if (nextptr >= gen0_start)
                                     { var aint ptr = (aint)&((Iarray)objptr)->data;
@@ -3837,7 +3567,7 @@ local uintC generation;
                               case_nopointers:
                               default: # simple-bit-vector, simple-string, bignum, float
                                 # Keine Pointer.
-                                objptr += speicher_laenge((Varobject)objptr);
+                                objptr += objsize((Varobject)objptr);
                                 while (objptr >= gen0_start)
                                   { physpage->continued_addr = (object*)gen0_start; # irrelevant
                                     physpage->continued_count = 0;
@@ -4089,14 +3819,14 @@ local uintC generation;
         # Von unten nach oben durchgehen:
         { var aint p1 = page->page_start;
           var aint p1end = page->page_end;
-          var_speicher_laenge_;
+          var_prepare_objsize;
           until (p1==p1end) # obere Grenze erreicht -> fertig
             { # nächstes Objekt hat Adresse p1
               if (marked(p1)) # markiert?
                 { asciz_out_1("\nObjekt 0x%x markiert!!\n",p1);
                   abort();
                 }
-              p1 += calc_speicher_laenge(p1);
+              p1 += objsize((Varobject)p1);
         }   }
         );
       for_each_cons_page(page,
@@ -4723,7 +4453,7 @@ local uintC generation;
   #endif
     { var aint p1 = page->page_start;
       var aint p1end = page->page_end;
-      var_speicher_laenge_;
+      var_prepare_objsize;
      {var Pages new_page = EMPTY; # Page, in die gefüllt wird
       var AVL(AVLID,stack) stack; # Weg von der Wurzel bis zu ihr
       var aint p2; # Cache von new_page->page_end
@@ -4731,7 +4461,7 @@ local uintC generation;
       # Versuche alle Objekte zwischen p1 und p1end zu kopieren:
       loop
         { if (p1==p1end) break; # obere Grenze erreicht -> fertig
-         {var uintL laenge = calc_speicher_laenge(p1); # Byte-Länge bestimmen
+         {var uintL laenge = objsize((Varobject)p1); # Byte-Länge bestimmen
           # Suche eine Page, die noch mindestens laenge Bytes frei hat:
           if ((new_page == EMPTY) || (l2 < laenge))
             { if (!(new_page == EMPTY)) # Cache leeren?
@@ -4765,7 +4495,7 @@ local uintC generation;
       page->page_start = p1; # jetziger Anfang der Page
       if (!(p1==p2)) # falls Verschiebung nötig
         until (p1==p1end) # obere Grenze erreicht -> fertig
-          { var uintL laenge = calc_speicher_laenge(p1); # Byte-Länge bestimmen
+          { var uintL laenge = objsize((Varobject)p1); # Byte-Länge bestimmen
             #ifdef TYPECODES
             var tint flags = mtypecode(((Varobject)p1)->GCself); # Typinfo (und Flags bei Symbolen) retten
             #endif
@@ -4970,13 +4700,13 @@ local uintC generation;
                 var aint p1end = page->page_end;
                 var aint p2 = p1 - page->page_gcpriv.d;
                 if (!(p1==p2)) # falls Verschiebung nötig
-                  { var_speicher_laenge_;
+                  { var_prepare_objsize;
                     page->page_start = p2;
                     until (p1==p1end) # obere Grenze erreicht -> fertig
                       { # nächstes Objekt hat Adresse p1, ist markiert
                         unmark(p1); # Markierung löschen
                         # Objekt behalten und verschieben:
-                       {var uintL count = calc_speicher_laenge(p1); # Länge (durch varobject_alignment teilbar, >0)
+                       {var uintL count = objsize((Varobject)p1); # Länge (durch varobject_alignment teilbar, >0)
                         move_aligned_p1_p2(count); # verschieben und weiterrücken
                       }}
                     page->page_end = p2;
@@ -6450,12 +6180,12 @@ local uintC generation;
       #ifdef GENERATIONAL_GC
         # Objekte variabler Länge:
         for_each_varobject_heap(heap,
-          { var_speicher_laenge_;
+          { var_prepare_objsize;
             { var aint p = heap->heap_gen0_start;
               var aint p_end = heap->heap_gen0_end;
               until (p==p_end)
                 { varobject_typecode_at(type,p);
-                 {var uintL laenge = calc_speicher_laenge(p);
+                 {var uintL laenge = objsize((Varobject)p);
                   fun(arg,with_typecode(p),laenge);
                   p += laenge;
             }   }}
@@ -6463,7 +6193,7 @@ local uintC generation;
               var aint p_end = heap->heap_end;
               until (p==p_end)
                 { varobject_typecode_at(type,p);
-                 {var uintL laenge = calc_speicher_laenge(p);
+                 {var uintL laenge = objsize((Varobject)p);
                   fun(arg,with_typecode(p),laenge);
                   p += laenge;
             }   }}
@@ -6509,10 +6239,10 @@ local uintC generation;
         for_each_varobject_page(page,
           { var aint p = page->page_start;
             var aint p_end = page->page_end;
-            var_speicher_laenge_;
+            var_prepare_objsize;
             until (p==p_end)
               { varobject_typecode_at(type,p);
-               {var uintL laenge = calc_speicher_laenge(p);
+               {var uintL laenge = objsize((Varobject)p);
                 fun(arg,with_typecode(p),laenge);
                 p += laenge;
               }}
@@ -8558,7 +8288,7 @@ local uintC generation;
      #endif
      #ifdef SPVW_PURE
      init_mem_heaptypes();
-     init_speicher_laengen();
+     init_objsize_table();
      #endif
      #if defined(SPVW_MIXED_BLOCKS) && defined(TYPECODES) && defined(GENERATIONAL_GC)
      init_mem_heapnr_from_type();
