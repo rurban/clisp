@@ -868,7 +868,7 @@ global object convert_from_foreign (object fvd, const void* data);
               #ifdef UNICODE
               var object encoding = O(foreign_encoding);
               ASSERT(Encoding_mblen(encoding)(encoding,ptr1,ptr1+size) == size);
-              Encoding_mbstowcs(encoding)(encoding,&ptr1,ptr1+size,&ptr2,ptr2+size);
+              Encoding_mbstowcs(encoding)(encoding,nullobj,&ptr1,ptr1+size,&ptr2,ptr2+size);
               ASSERT(ptr1 == (const uintB*)data+size);
               #else
               dotimespL(size,size, { *ptr2++ = as_chart(*ptr1++); } );
@@ -941,7 +941,7 @@ global object convert_from_foreign(fvd,data)
             var chart chbuf[1];
             var const uintB* ptr1 = pdata;
             var chart* ptr2 = &chbuf[0];
-            Encoding_mbstowcs(encoding)(encoding,&ptr1,ptr1+1,&ptr2,ptr2+1);
+            Encoding_mbstowcs(encoding)(encoding,nullobj,&ptr1,ptr1+1,&ptr2,ptr2+1);
             ASSERT(ptr2 == &chbuf[1]);
             ch = chbuf[0];
             #else

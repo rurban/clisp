@@ -5128,10 +5128,10 @@ typedef struct { XRECORD_HEADER
                                      # or a simple-string
                  # Functions to convert bytes to characters.
                    object enc_mblen; # uintL (*) (object encoding, const uintB* src, const uintB* srcend);
-                   object enc_mbstowcs; # void (*) (object encoding, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+                   object enc_mbstowcs; # void (*) (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
                  # Functions to convert characters to bytes.
                    object enc_wcslen; # uintL (*) (object encoding, const chart* src, const chart* srcend);
-                   object enc_wcstombs; # void (*) (object encoding, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+                   object enc_wcstombs; # void (*) (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
                  # An auxiliary pointer.
                  object enc_table;
                  # Minimum number of bytes needed to represent a character.
@@ -5149,9 +5149,9 @@ typedef struct { XRECORD_HEADER
 #define encoding_xlength  (sizeof(*(Encoding)0)-offsetofa(record_,recdata)-encoding_length*sizeof(object))
 #ifdef UNICODE
   #define Encoding_mblen(encoding)  ((uintL (*) (object, const uintB*, const uintB*)) ThePseudofun(TheEncoding(encoding)->enc_mblen))
-  #define Encoding_mbstowcs(encoding)  ((void (*) (object, const uintB**, const uintB*, chart**, chart*)) ThePseudofun(TheEncoding(encoding)->enc_mbstowcs))
+  #define Encoding_mbstowcs(encoding)  ((void (*) (object, object, const uintB**, const uintB*, chart**, chart*)) ThePseudofun(TheEncoding(encoding)->enc_mbstowcs))
   #define Encoding_wcslen(encoding)  ((uintL (*) (object, const chart*, const chart*)) ThePseudofun(TheEncoding(encoding)->enc_wcslen))
-  #define Encoding_wcstombs(encoding)  ((void (*) (object, const chart**, const chart*, uintB**, uintB*)) ThePseudofun(TheEncoding(encoding)->enc_wcstombs))
+  #define Encoding_wcstombs(encoding)  ((void (*) (object, object, const chart**, const chart*, uintB**, uintB*)) ThePseudofun(TheEncoding(encoding)->enc_wcstombs))
 #endif
 #ifdef UNICODE
   #define cslen(encoding,src,srclen)  \
@@ -5161,7 +5161,7 @@ typedef struct { XRECORD_HEADER
       var const chart* _srcendptr = _srcptr+(srclen);               \
       var uintB* _destptr = (dest);                                 \
       var uintB* _destendptr = _destptr+(destlen);                  \
-      Encoding_wcstombs(encoding)(encoding,&_srcptr,_srcendptr,&_destptr,_destendptr); \
+      Encoding_wcstombs(encoding)(encoding,nullobj,&_srcptr,_srcendptr,&_destptr,_destendptr); \
       ASSERT((_srcptr == _srcendptr) && (_destptr == _destendptr)); \
     }
 #else

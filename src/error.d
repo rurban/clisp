@@ -135,7 +135,7 @@
               var chart chbuf[1];
               var const uintB* ptr1 = &ch;
               var chart* ptr2 = &chbuf[0];
-              Encoding_mbstowcs(encoding)(encoding,&ptr1,ptr1+1,&ptr2,ptr2+1);
+              Encoding_mbstowcs(encoding)(encoding,nullobj,&ptr1,ptr1+1,&ptr2,ptr2+1);
               if (ptr2 == &chbuf[1]) { write_code_char(&STACK_0,chbuf[0]); }
               #else
               write_code_char(&STACK_0,as_chart(ch));

@@ -3512,6 +3512,10 @@ typedef struct strm_channel_extrafields_struct {
   void (* low_close) (object stream, object handle);
   # Fields used if the element-type is CHARACTER:
   uintL lineno;                        # line number during read, >0
+  #if defined(UNICODE) && defined(HAVE_ICONV)
+  iconv_t iconvdesc;                   # input conversion descriptor and state
+  iconv_t oconvdesc;                   # output conversion descriptor and state
+  #endif
 } strm_channel_extrafields_struct;
 
 # Accessors.
@@ -3523,6 +3527,10 @@ typedef struct strm_channel_extrafields_struct {
 #define ChannelStream_bitsize(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->bitsize
 #define ChannelStreamLow_close(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->low_close
 #define ChannelStream_lineno(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->lineno
+#if defined(UNICODE) && defined(HAVE_ICONV)
+#define ChannelStream_iconvdesc(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->iconvdesc
+#define ChannelStream_oconvdesc(stream)   ((strm_channel_extrafields_struct*)&TheStream(stream)->strm_channel_extrafields)->oconvdesc
+#endif
 
 # Additional binary (not GCed) fields, used by unbuffered streams only:
 typedef struct strm_unbuffered_extrafields_struct {
@@ -3590,6 +3598,331 @@ typedef struct strm_unbuffered_extrafields_struct {
 
 # General Subroutines
 # ===================
+
+# iconv-based encodings
+# ---------------------
+
+# Here enc_charset is a simple-string, not a symbol. The system decides
+# which encodings are available, and there is no API for getting them all.
+
+#if defined(UNICODE) && defined(HAVE_ICONV)
+
+# Our internal encoding is UCS-2 with platform dependent endianness.
+#ifdef __GLIBC__
+  #if BIG_ENDIAN_P
+    #define CLISP_INTERNAL_CHARSET  "UNICODEBIG"
+  #else
+    #define CLISP_INTERNAL_CHARSET  "UNICODELITTLE"
+  #endif
+#else
+  #if BIG_ENDIAN_P
+    #define CLISP_INTERNAL_CHARSET  "UCS-2"
+  #else
+    #define CLISP_INTERNAL_CHARSET  "UCS-2"  # FIXME: This is probably wrong
+  #endif
+#endif
+
+# min. bytes per character = 1
+# max. bytes per character unknown, assume it's <= 6
+
+global uintL iconv_mblen (object encoding, const uintB* src, const uintB* srcend);
+global void iconv_mbstowcs (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend);
+global uintL iconv_wcslen (object encoding, const chart* src, const chart* srcend);
+global void iconv_wcstombs (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend);
+
+# fehler_iconv_invalid_charset(encoding);
+  nonreturning_function(local, fehler_iconv_invalid_charset, (object encoding));
+  local void fehler_iconv_invalid_charset(encoding)
+    var object encoding;
+    { pushSTACK(TheEncoding(encoding)->enc_charset);
+      fehler(error,
+             DEUTSCH ? "Unbekannter Zeichensatz ~" :
+             ENGLISH ? "unknown character set ~" :
+             FRANCAIS ? "jeu de caractères ~ inconnu" :
+             ""
+            );
+    }
+
+# Error, when a character cannot be converted to an encoding.
+# fehler_unencodable(encoding);
+  nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
+
+# Bytes to characters.
+
+global uintL iconv_mblen(encoding,src,srcend)
+  var object encoding;
+  var const uintB* src;
+  var const uintB* srcend;
+  { var uintL count = 0;
+    #define tmpbufsize 4096
+    var chart tmpbuf[tmpbufsize];
+    with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),charset_asciz,
+      { begin_system_call();
+       {var iconv_t cd = iconv_open(CLISP_INTERNAL_CHARSET,charset_asciz);
+        if (cd == (iconv_t)(-1))
+          { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+            OS_error();
+          }
+        while (src < srcend)
+          { var const char* inptr = src;
+            var size_t insize = srcend-src;
+            var char* outptr = (char*)tmpbuf;
+            var size_t outsize = tmpbufsize*sizeof(chart);
+            var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
+            if (res == (size_t)(-1))
+              { if (errno == EINVAL) # incomplete input?
+                  break; 
+                else
+                  { var int saved_errno = errno;
+                    iconv_close(cd);
+                    errno = saved_errno;
+                    OS_error();
+              }   }
+            src = inptr; count += (outptr-(char*)tmpbuf);
+          }
+        if (iconv_close(cd) < 0) { OS_error(); }
+        end_system_call();
+      }});
+    #undef tmpbufsize
+    return count/sizeof(chart);
+  }
+
+global void iconv_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
+  var object encoding;
+  var object stream;
+  var const uintB* *srcp;
+  var const uintB* srcend;
+  var chart* *destp;
+  var chart* destend;
+  { var const char* inptr = *srcp;
+    var size_t insize = srcend-*srcp;
+    var char* outptr = (char*)*destp;
+    var size_t outsize = (char*)destend-(char*)*destp;
+    if (eq(stream,nullobj))
+      { # Standalone call, must be consistent with iconv_mblen:
+        with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),charset_asciz,
+          { begin_system_call();
+           {var iconv_t cd = iconv_open(CLISP_INTERNAL_CHARSET,charset_asciz);
+            if (cd == (iconv_t)(-1))
+              { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+                OS_error();
+              }
+            while (insize > 0 && outsize > 0)
+              { var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
+                if (res == (size_t)(-1))
+                  { if (errno == EINVAL) # incomplete input?
+                      { inptr += insize; break; }
+                    else
+                      { var int saved_errno = errno;
+                        iconv_close(cd);
+                        errno = saved_errno;
+                        OS_error();
+                  }   }
+              }
+            if (iconv_close(cd) < 0) { OS_error(); }
+            end_system_call();
+            ASSERT(insize == 0 && outsize == 0);
+          }});
+      }
+      else
+      { # Called from a channel-stream.
+        var iconv_t cd = ChannelStream_iconvdesc(stream);
+        begin_system_call();
+        while (insize > 0)
+          { var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
+            if (res == (size_t)(-1))
+              { if (errno == EINVAL) # incomplete input?
+                  break;
+                elif (errno == E2BIG) # output buffer full?
+                  break;
+                else
+                  { OS_error(); }
+              }
+          }
+        end_system_call();
+      }
+    *srcp = (const uintB*)inptr;
+    *destp = (chart*)outptr;
+  }
+
+# Characters to bytes.
+
+global uintL iconv_wcslen(encoding,src,srcend)
+  var object encoding;
+  var const chart* src;
+  var const chart* srcend;
+  { var uintL count = 0;
+    #define tmpbufsize 4096
+    var uintB tmpbuf[tmpbufsize];
+    with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),charset_asciz,
+      { begin_system_call();
+       {var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
+        if (cd == (iconv_t)(-1))
+          { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+            OS_error();
+          }
+        # I don't think we need a call iconv(cd,NULL,....) here.
+        while (src < srcend)
+          { var const char* inptr = (const char*)src;
+            var size_t insize = (char*)srcend-(char*)src;
+            var char* outptr = (char*)tmpbuf;
+            var size_t outsize = tmpbufsize;
+            var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
+            if (res == (size_t)(-1))
+              { if (errno == EILSEQ) # invalid input?
+                  { fehler_unencodable(encoding,*(const chart*)inptr); }
+                elif (errno == EINVAL) # incomplete input?
+                  { NOTREACHED }
+                elif (errno == E2BIG) # output buffer too small?
+                  { NOTREACHED }
+                else
+                  { var int saved_errno = errno;
+                    iconv_close(cd);
+                    errno = saved_errno;
+                    OS_error();
+              }   }
+            src = (const chart*)inptr; count += (outptr-(char*)tmpbuf);
+          }
+        if (iconv_close(cd) < 0) { OS_error(); }
+        end_system_call();
+      }});
+    #undef tmpbufsize
+    return count;
+  }
+
+global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
+  var object encoding;
+  var object stream;
+  var const chart* *srcp;
+  var const chart* srcend;
+  var uintB* *destp;
+  var uintB* destend;
+  { var const char* inptr = (char*)*srcp;
+    var size_t insize = (char*)srcend-(char*)*srcp;
+    var char* outptr = *destp;
+    var size_t outsize = destend-*destp;
+    if (eq(stream,nullobj))
+      { # Standalone call, must be consistent with iconv_wcslen:
+        with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),charset_asciz,
+          { begin_system_call();
+           {var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
+            if (cd == (iconv_t)(-1))
+              { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+                OS_error();
+              }
+            # I don't think we need a call iconv(cd,NULL,....) here.
+            while (insize > 0 && outsize > 0)
+              { var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
+                if (res == (size_t)(-1))
+                  { if (errno == EILSEQ) # invalid input?
+                      { fehler_unencodable(encoding,*(const chart*)inptr); }
+                    elif (errno == EINVAL) # incomplete input?
+                      { NOTREACHED }
+                    elif (errno == E2BIG) # output buffer too small?
+                      { NOTREACHED }
+                    else
+                      { var int saved_errno = errno;
+                        iconv_close(cd);
+                        errno = saved_errno;
+                        OS_error();
+                  }   }
+              }
+            if (iconv_close(cd) < 0) { OS_error(); }
+            end_system_call();
+            ASSERT(insize == 0 && outsize == 0);
+          }});
+      }
+      else
+      { # Called from a channel-stream.
+        var iconv_t cd = ChannelStream_oconvdesc(stream);
+        begin_system_call();
+        while (insize > 0)
+          { var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
+            if (res == (size_t)(-1))
+              { if (errno == EILSEQ) # invalid input?
+                  { fehler_unencodable(encoding,*(const chart*)inptr); }
+                elif (errno == EINVAL) # incomplete input?
+                  { NOTREACHED }
+                elif (errno == E2BIG) # output buffer full?
+                  break;
+                else
+                  { OS_error(); }
+              }
+          }
+        end_system_call();
+      }
+    *srcp = (const chart*)inptr;
+    *destp = (uintB*)outptr;
+  }
+
+#endif # UNICODE && HAVE_ICONV
+
+# Initializes some ChannelStream fields.
+# ChannelStream_init(stream);
+# > stream: channel-stream with encoding
+#if defined(UNICODE) && defined(HAVE_ICONV)
+  local void ChannelStream_init (object stream);
+  local void ChannelStream_init(stream)
+    var object stream;
+    { var object encoding = TheStream(stream)->strm_encoding;
+      if (simple_string_p(TheEncoding(encoding)->enc_charset))
+        { with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),charset_asciz,
+            { var uintB flags = TheStream(stream)->strmflags;
+              if (flags & strmflags_rd_B)
+                { begin_system_call();
+                 {var iconv_t cd = iconv_open(CLISP_INTERNAL_CHARSET,charset_asciz);
+                  if (cd == (iconv_t)(-1))
+                    { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+                      OS_error();
+                    }
+                  ChannelStream_iconvdesc(stream) = cd;
+                }}
+                else
+                { ChannelStream_iconvdesc(stream) = (iconv_t)0; }
+              if (flags & strmflags_wr_B)
+                { begin_system_call();
+                 {var iconv_t cd = iconv_open(charset_asciz,CLISP_INTERNAL_CHARSET);
+                  if (cd == (iconv_t)(-1))
+                    { if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
+                      OS_error();
+                    }
+                  ChannelStream_oconvdesc(stream) = cd;
+                }}
+                else
+                { ChannelStream_oconvdesc(stream) = (iconv_t)0; }
+            });
+        }
+        else
+        { ChannelStream_iconvdesc(stream) = (iconv_t)0;
+          ChannelStream_oconvdesc(stream) = (iconv_t)0;
+        }
+    }
+#else
+  #define ChannelStream_init(stream)
+#endif
+
+# Cleans up some ChannelStream fields.
+# ChannelStream_fini(stream);
+#if defined(UNICODE) && defined(HAVE_ICONV)
+  local void ChannelStream_fini (object stream);
+  local void ChannelStream_fini(stream)
+    var object stream;
+    { if (ChannelStream_iconvdesc(stream) != (iconv_t)0)
+        { begin_system_call();
+          if (iconv_close(ChannelStream_iconvdesc(stream)) < 0) { OS_error(); }
+          end_system_call();
+          ChannelStream_iconvdesc(stream) = (iconv_t)0;
+        }
+      if (ChannelStream_oconvdesc(stream) != (iconv_t)0)
+        { begin_system_call();
+          if (iconv_close(ChannelStream_oconvdesc(stream)) < 0) { OS_error(); }
+          end_system_call();
+          ChannelStream_oconvdesc(stream) = (iconv_t)0;
+        }
+    }
+#else
+  #define ChannelStream_fini(stream)
+#endif
 
 # Closes a handle.
   local void low_close_handle (object stream, object handle);
@@ -4529,7 +4862,7 @@ typedef struct strm_unbuffered_extrafields_struct {
           buf[buflen++] = (uintB)b;
          {var const uintB* bptr = &buf[0];
           var chart* cptr = &c;
-          Encoding_mbstowcs(encoding)(encoding,&bptr,&buf[buflen],&cptr,cptr+1);
+          Encoding_mbstowcs(encoding)(encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
           if (cptr == &c)
             # Not a complete character.
             { # Shift the buffer
@@ -4601,7 +4934,7 @@ typedef struct strm_unbuffered_extrafields_struct {
            buf[buflen++] = (uintB)b;
           {var const uintB* bptr = &buf[0];
            var chart* cptr = &c;
-           Encoding_mbstowcs(encoding)(encoding,&bptr,&buf[buflen],&cptr,cptr+1);
+           Encoding_mbstowcs(encoding)(encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
            if (cptr == &c)
              # Not a complete character.
              { # Shift the buffer
@@ -4682,7 +5015,7 @@ typedef struct strm_unbuffered_extrafields_struct {
               UnbufferedStreamLow_read_array(stream)(stream,tmptmpbuf,remaining);
             var const uintB* tmptmpptr = &tmptmpbuf[0];
             var chart* tmpptr = &tmpbuf[0];
-            Encoding_mbstowcs(encoding)(encoding,&tmptmpptr,tmptmpendptr,&tmpptr,&tmpbuf[tmpbufsize]);
+            Encoding_mbstowcs(encoding)(encoding,stream,&tmptmpptr,tmptmpendptr,&tmpptr,&tmpbuf[tmpbufsize]);
             count = tmpptr - &tmpbuf[0];
             ASSERT(tmptmpendptr-tmptmpptr < max_bytes_per_chart);
             # Move the remainder of tmptmpbuf into bytebuf.
@@ -4758,6 +5091,7 @@ typedef struct strm_unbuffered_extrafields_struct {
   local void close_ichannel(stream)
     var object stream;
     { ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ichannel);
+      ChannelStream_fini(stream);
       if (ChannelStream_bitsize(stream) > 0)
         { ChannelStream_bitsize(stream) = 0; # bitsize löschen
           TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
@@ -4900,7 +5234,7 @@ typedef struct strm_unbuffered_extrafields_struct {
         var object encoding = TheStream(stream)->strm_encoding;
         var const chart* cptr = &c;
         var uintB* bptr = &buf[0];
-        Encoding_wcstombs(encoding)(encoding,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
+        Encoding_wcstombs(encoding)(encoding,stream,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
         ASSERT(cptr == &c+1);
         UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0]);
       }
@@ -4923,7 +5257,7 @@ typedef struct strm_unbuffered_extrafields_struct {
       var object encoding = TheStream(stream)->strm_encoding;
       do {
         var uintB* bptr = &tmptmpbuf[0];
-        Encoding_wcstombs(encoding)(encoding,&charptr,endptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
+        Encoding_wcstombs(encoding)(encoding,stream,&charptr,endptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
         UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
       } until (charptr == endptr);
       #undef tmpbufsize
@@ -4962,7 +5296,7 @@ typedef struct strm_unbuffered_extrafields_struct {
         var object encoding = TheStream(stream)->strm_encoding;
         var const chart* cptr = &c;
         var uintB* bptr = &buf[0];
-        Encoding_wcstombs(encoding)(encoding,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
+        Encoding_wcstombs(encoding)(encoding,stream,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
         ASSERT(cptr == &c+1);
         UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0]);
       }
@@ -4998,7 +5332,7 @@ typedef struct strm_unbuffered_extrafields_struct {
           #ifdef UNICODE
           { var const chart* cptr = tmpbuf;
             var uintB* bptr = &tmptmpbuf[0];
-            Encoding_wcstombs(encoding)(encoding,&cptr,tmpptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
+            Encoding_wcstombs(encoding)(encoding,stream,&cptr,tmpptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
             ASSERT(cptr == tmpptr);
             UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
           }
@@ -5044,7 +5378,7 @@ typedef struct strm_unbuffered_extrafields_struct {
         if (chareq(c,ascii(NL))) { cp = &c; n = 1; } else { cp = crlf; n = 2; }
        {var const chart* cptr = cp;
         var uintB* bptr = &buf[0];
-        Encoding_wcstombs(encoding)(encoding,&cptr,cp+n,&bptr,&buf[2*max_bytes_per_chart]);
+        Encoding_wcstombs(encoding)(encoding,stream,&cptr,cp+n,&bptr,&buf[2*max_bytes_per_chart]);
         ASSERT(cptr == cp+n);
         UnbufferedStreamLow_write_array(stream)(stream,&buf[0],bptr-&buf[0]);
       }}
@@ -5085,7 +5419,7 @@ typedef struct strm_unbuffered_extrafields_struct {
           #ifdef UNICODE
           { var const chart* cptr = tmpbuf;
             var uintB* bptr = &tmptmpbuf[0];
-            Encoding_wcstombs(encoding)(encoding,&cptr,tmpptr,&bptr,&tmptmpbuf[2*tmpbufsize*max_bytes_per_chart]);
+            Encoding_wcstombs(encoding)(encoding,stream,&cptr,tmpptr,&bptr,&tmptmpbuf[2*tmpbufsize*max_bytes_per_chart]);
             ASSERT(cptr == tmpptr);
             UnbufferedStreamLow_write_array(stream)(stream,&tmptmpbuf[0],bptr-&tmptmpbuf[0]);
           }
@@ -5157,6 +5491,7 @@ typedef struct strm_unbuffered_extrafields_struct {
   local void close_ochannel(stream)
     var object stream;
     { ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_ochannel);
+      ChannelStream_fini(stream);
       if (ChannelStream_bitsize(stream) > 0)
         { ChannelStream_bitsize(stream) = 0; # bitsize löschen
           TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
@@ -5322,6 +5657,7 @@ typedef struct strm_unbuffered_extrafields_struct {
       TheStream(stream)->strm_isatty = (handle_tty ? T : NIL);
       TheStream(stream)->strm_eltype = popSTACK();
       ChannelStream_buffered(stream) = FALSE;
+      ChannelStream_init(stream);
       # element-type dependent initializations:
       ChannelStream_bitsize(stream) = eltype->size;
       ChannelStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
@@ -5952,7 +6288,7 @@ typedef struct strm_i_buffered_extrafields_struct {
           - BufferedStream_index(stream);
         var const uintB* bptr = bufferptr;
         var chart* cptr = &c;
-        Encoding_mbstowcs(encoding)(encoding,&bptr,bufferptr+available,&cptr,&c+1);
+        Encoding_mbstowcs(encoding)(encoding,stream,&bptr,bufferptr+available,&cptr,&c+1);
         if (cptr == &c+1)
           { var uintL n = bptr-bufferptr;
             # index und position incrementieren:
@@ -5970,7 +6306,7 @@ typedef struct strm_i_buffered_extrafields_struct {
                 BufferedStream_position(stream) += 1;
                {var const uintB* bptr = &buf[0];
                 var chart* cptr = &c;
-                Encoding_mbstowcs(encoding)(encoding,&bptr,&buf[buflen],&cptr,cptr+1);
+                Encoding_mbstowcs(encoding)(encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
                 if (cptr == &c)
                   # Not a complete character.
                   { # Shift the buffer
@@ -6057,7 +6393,7 @@ typedef struct strm_i_buffered_extrafields_struct {
               - BufferedStream_index(stream);
             var const uintB* bptr = bufferptr;
             var chart* cptr = charptr;
-            Encoding_mbstowcs(encoding)(encoding,&bptr,bufferptr+available,&cptr,endptr);
+            Encoding_mbstowcs(encoding)(encoding,stream,&bptr,bufferptr+available,&cptr,endptr);
             if (cptr == charptr)
               { var uintB buf[max_bytes_per_chart];
                 var uintL buflen = 0;
@@ -6069,7 +6405,7 @@ typedef struct strm_i_buffered_extrafields_struct {
                     BufferedStream_position(stream) += 1;
                    {var const uintB* bptr = &buf[0];
                     var chart* cptr = charptr;
-                    Encoding_mbstowcs(encoding)(encoding,&bptr,&buf[buflen],&cptr,cptr+1);
+                    Encoding_mbstowcs(encoding)(encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
                     if (cptr == charptr)
                       # Not a complete character.
                       { # Shift the buffer
@@ -6184,7 +6520,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         var object encoding = TheStream(stream)->strm_encoding;
         var const chart* cptr = &c;
         var uintB* bptr = &buf[0];
-        Encoding_wcstombs(encoding)(encoding,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
+        Encoding_wcstombs(encoding)(encoding,stream,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
         ASSERT(cptr == &c+1);
        {var uintL buflen = bptr-&buf[0];
         write_byte_array_buffered(stream,&buf[0],buflen);
@@ -6209,7 +6545,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       var object encoding = TheStream(stream)->strm_encoding;
       do {
         var uintB* bptr = &tmptmpbuf[0];
-        Encoding_wcstombs(encoding)(encoding,&charptr,endptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
+        Encoding_wcstombs(encoding)(encoding,stream,&charptr,endptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
        {var uintL tmptmpbuflen = bptr-&tmptmpbuf[0];
         write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen);
         # position incrementieren:
@@ -6253,7 +6589,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         var object encoding = TheStream(stream)->strm_encoding;
         var const chart* cptr = &c;
         var uintB* bptr = &buf[0];
-        Encoding_wcstombs(encoding)(encoding,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
+        Encoding_wcstombs(encoding)(encoding,stream,&cptr,cptr+1,&bptr,&buf[max_bytes_per_chart]);
         ASSERT(cptr == &c+1);
        {var uintL buflen = bptr-&buf[0];
         write_byte_array_buffered(stream,&buf[0],buflen);
@@ -6291,7 +6627,7 @@ typedef struct strm_i_buffered_extrafields_struct {
             });
           { var const chart* cptr = tmpbuf;
             var uintB* bptr = &tmptmpbuf[0];
-            Encoding_wcstombs(encoding)(encoding,&cptr,tmpptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
+            Encoding_wcstombs(encoding)(encoding,stream,&cptr,tmpptr,&bptr,&tmptmpbuf[tmpbufsize*max_bytes_per_chart]);
             ASSERT(cptr == tmpptr);
            {var uintL tmptmpbuflen = bptr-&tmptmpbuf[0];
             write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen);
@@ -6346,7 +6682,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       if (chareq(c,ascii(NL))) { cp = &c; n = 1; } else { cp = crlf; n = 2; }
       { var const chart* cptr = cp;
         var uintB* bptr = &buf[0];
-        Encoding_wcstombs(encoding)(encoding,&cptr,cp+n,&bptr,&buf[2*max_bytes_per_chart]);
+        Encoding_wcstombs(encoding)(encoding,stream,&cptr,cp+n,&bptr,&buf[2*max_bytes_per_chart]);
         ASSERT(cptr == cp+n);
        {var uintL buflen = bptr-&buf[0];
         write_byte_array_buffered(stream,&buf[0],buflen);
@@ -6389,7 +6725,7 @@ typedef struct strm_i_buffered_extrafields_struct {
             });
           { var const chart* cptr = tmpbuf;
             var uintB* bptr = &tmptmpbuf[0];
-            Encoding_wcstombs(encoding)(encoding,&cptr,tmpptr,&bptr,&tmptmpbuf[2*tmpbufsize*max_bytes_per_chart]);
+            Encoding_wcstombs(encoding)(encoding,stream,&cptr,tmpptr,&bptr,&tmptmpbuf[2*tmpbufsize*max_bytes_per_chart]);
             ASSERT(cptr == tmpptr);
            {var uintL tmptmpbuflen = bptr-&tmptmpbuf[0];
             write_byte_array_buffered(stream,&tmptmpbuf[0],tmptmpbuflen);
@@ -7151,6 +7487,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       { var object handle = popSTACK(); # Handle zurück
         TheStream(stream)->strm_eltype = popSTACK(); # Element-Type eintragen
         ChannelStream_buffered(stream) = TRUE;
+        ChannelStream_init(stream);
         if (!nullp(handle)) # Handle=NIL -> Rest bereits mit NIL initialisiert, fertig
           { TheStream(stream)->strm_buffered_channel = handle; # Handle eintragen
             BufferedStream_regular(stream) = handle_regular;
@@ -7542,6 +7879,10 @@ typedef struct strm_i_buffered_extrafields_struct {
         { ChannelStream_bitsize(stream) = 0; # bitsize löschen
           TheStream(stream)->strm_bitbuffer = NIL; # Bitbuffer freimachen
         }
+      #if defined(UNICODE) && defined(HAVE_ICONV)
+      ChannelStream_iconvdesc(stream) = (iconv_t)0; # iconvdesc löschen
+      ChannelStream_oconvdesc(stream) = (iconv_t)0; # oconvdesc löschen
+      #endif
     }
 
 # UP: Schließt einen File-Stream.
@@ -7558,6 +7899,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       # Nun ist das modified_flag gelöscht.
       # File schließen:
       ChannelStreamLow_close(stream)(stream,TheStream(stream)->strm_buffered_channel);
+      ChannelStream_fini(stream);
       # Komponenten ungültig machen (close_dummys kommt später):
       closed_buffered(stream);
       # stream aus der Liste aller offenen File-Streams streichen:
@@ -8739,6 +9081,9 @@ local object make_key_event(event)
         # Flags: nur READ-CHAR erlaubt
       # und füllen:
       var Stream s = TheStream(stream);
+        #ifdef UNICODE
+        s->strm_encoding = O(terminal_encoding);
+        #endif
         s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
         s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
         s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
@@ -8760,12 +9105,14 @@ local object make_key_event(event)
         s->strm_keyboard_buffer = NIL;
         s->strm_keyboard_keytab = popSTACK();
         ChannelStream_buffered(stream) = FALSE;
+        ChannelStream_init(stream);
         UnbufferedHandleStream_input_init(stream);
         #endif
         #ifdef WIN32_NATIVE
         s->strm_keyboard_isatty = T;
         s->strm_keyboard_handle = popSTACK();
         ChannelStream_buffered(stream) = FALSE;
+        ChannelStream_init(stream);
         UnbufferedHandleStream_input_init(stream);
         #endif
       return stream;
@@ -9607,6 +9954,7 @@ LISPFUNN(make_keyboard_stream,0)
           s->strm_terminal_ihandle = popSTACK();
           s->strm_terminal_ohandle = popSTACK();
         ChannelStream_buffered(stream) = FALSE;
+        ChannelStream_init(stream);
         UnbufferedHandleStream_input_init(stream);
         UnbufferedHandleStream_output_init(stream);
         return stream;
@@ -9701,6 +10049,7 @@ LISPFUNN(make_keyboard_stream,0)
               s->strm_terminal_outbuff = popSTACK(); # Zeilenbuffer eintragen
               #endif
             ChannelStream_buffered(stream) = FALSE;
+            ChannelStream_init(stream);
             UnbufferedHandleStream_input_init(stream);
             UnbufferedHandleStream_output_init(stream);
             return stream;
@@ -9741,6 +10090,7 @@ LISPFUNN(make_keyboard_stream,0)
               s->strm_terminal_index = Fixnum_0; # index := 0
               #endif
             ChannelStream_buffered(stream) = FALSE;
+            ChannelStream_init(stream);
             UnbufferedHandleStream_input_init(stream);
             UnbufferedHandleStream_output_init(stream);
             return stream;
@@ -9774,6 +10124,7 @@ LISPFUNN(make_keyboard_stream,0)
             s->strm_terminal_ihandle = popSTACK(); # Handle für listen_unbuffered()
             s->strm_terminal_ohandle = popSTACK(); # Handle für Output
           ChannelStream_buffered(stream) = FALSE;
+          ChannelStream_init(stream);
           UnbufferedHandleStream_input_init(stream);
           UnbufferedHandleStream_output_init(stream);
           return stream;
@@ -15421,6 +15772,7 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
         #endif
           { var decoded_eltype eltype;
             test_eltype_arg(&TheStream(stream)->strm_eltype,&eltype); # no GC here!
+            ChannelStream_fini(stream);
             value1 = TheStream(stream)->strm_encoding = encoding;
             if (ChannelStream_buffered(stream))
               { fill_pseudofuns_buffered(stream,&eltype); }
@@ -15428,6 +15780,7 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
               { fill_pseudofuns_unbuffered(stream,&eltype);
                 UnbufferedStream_ignore_next_LF(stream) = FALSE;
               }
+            ChannelStream_init(stream);
           }
           break;
         #ifdef SOCKET_STREAMS

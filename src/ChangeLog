@@ -1,5 +1,58 @@
 1999-03-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Finish implementing the iconv-based encodings.
+        * lispbibl.d (Encoding): Add a stream argument to the enc_mbstowcs and
+          enc_wcstombs fields.
+          (Encoding_mbstowcs, Encoding_wcstombs): Update.
+          (cstombs): Pass nullobj as stream.
+        * error.d (write_errorstring): Likewise.
+        * foreign.d (convert_from_foreign_array_fill, convert_from_foreign):
+          Likewise.
+        * affi.d (SYSTEM::MEM-READ): Likewise.
+        * encoding.d (MAKE-ENCODING, make_string, asciz_to_string,
+           string_to_asciz): Move to the end of the file.
+          (fehler_unencodable): Declare as global.
+          (uni16be_mbstowcs, uni16le_mbstowcs, uni16be_wcstombs,
+           uni16le_wcstombs, utf8_mbstowcs, utf8_wcstombs, java_mbstowcs,
+           java_wcstombs, nls_mbstowcs, nls_asciiext_mbstowcs, nls_wcstombs,
+           nls_asciiext_wcstombs): Add an unused stream argument.
+          (iconv_mblen, iconv_mbstowcs, iconv_wcslen, iconv_wcstombs,
+           fehler_iconv_invalid_charset): Move to stream.d.
+        * stream.d (strm_channel_extrafields_struct): Add iconvdesc, oconvdesc
+          fields.
+          (ChannelStream_iconvdesc, ChannelStream_oconvdesc): New macros.
+          (CLISP_INTERNAL_CHARSET): New macro.
+          (fehler_iconv_invalid_charset, iconv_mblen, iconv_mbstowcs,
+           iconv_wcslen, iconv_wcstombs): New functions, moved to here from
+          encoding.d. If the stream is passed, use the iconvdesc, oconvdesc
+          fields.
+          (ChannelStream_init, ChannelStream_fini): New functions.
+          (rd_ch_unbuffered, listen_unbuffered, rd_ch_array_unbuffered): Pass
+          the stream to the mbstowcs function.
+          (close_ichannel): Call ChannelStream_fini.
+          (wr_ch_unbuffered_unix, wr_ch_array_unbuffered_unix,
+           wr_ch_unbuffered_mac, wr_ch_array_unbuffered_mac,
+           wr_ch_unbuffered_dos, wr_ch_array_unbuffered_dos): Pass the stream
+          to the wcstombs function.
+          (close_ochannel): Call ChannelStream_fini.
+          (make_unbuffered_stream): Call ChannelStream_init.
+          (rd_ch_buffered, rd_ch_array_buffered): Pass the stream to the
+          mbstowcs function.
+          (wr_ch_buffered_unix, wr_ch_array_buffered_unix, wr_ch_buffered_mac,
+           wr_ch_array_buffered_mac, wr_ch_buffered_dos,
+           wr_ch_array_buffered_dos): Pass the stream to the wcstombs function.
+          (make_buffered_stream): Call ChannelStream_init.
+          (closed_buffered): Erase the old iconv descriptors.
+          (close_buffered): Call ChannelStream_fini.
+          (make_keyboard_stream): Add O(terminal_encoding), and call
+          ChannelStream_init.
+          (make_terminal_stream_): Call ChannelStream_init.
+          (SYSTEM::SET-STREAM-EXTERNAL-FORMAT): Call ChannelStream_fini and
+          ChannelStream_init.
+        * pseudofun.d: Update.
+
+1999-03-10  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Support for IPv6 sockets.
         * aclocal.m4 (CL_TCPCONN): Add checks for IPv4 and IPv6 facilities.
           Add checks for `inet_pton' and `inet_ntop' functions.
