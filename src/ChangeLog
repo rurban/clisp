@@ -1,5 +1,18 @@
 1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * io.d (klammer_auf, klammer_zu, justify_start, justify_space,
+           justify_end_eng, justify_end_weit, indent_start, indent_end,
+           indentprep_start, indentprep_end, pr_enter1): Test for
+          builtin_stream_p before accessing ->strmtype.
+        * encoding.d (SYSTEM::SET-TERMINAL-ENCODING): Likewise.
+        * stream.d (CONCATENATED-STREAM-STREAMS, TWO-WAY-STREAM-INPUT-STREAM,
+           TWO-WAY-STREAM-OUTPUT-STREAM, ECHO-STREAM-INPUT-STREAM,
+           ECHO-STREAM-OUTPUT-STREAM): Likewise.
+          (SYSTEM::BUILT-IN-STREAM-SET-ELEMENT-TYPE): If the synonym stream's
+          target is a Gray stream, recurse through (SETF STREAM-ELEMENT-TYPE).
+
+1999-09-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_language.d (init_language): Use `ascii_alphanumericp' instead
           of `alphanumericp'.
 
