@@ -2098,8 +2098,8 @@ LISPFUNN(proclaim,1)
   } else if (eq(decltype,S(constant_inline))
              || eq(decltype,S(constant_notinline))) {
     pushSTACK(decltype); /* CONSTANT-INLINE, CONSTANT-NOTINLINE */
-    while (consp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
-      var object symbol = check_symbol(Car(STACK_0/*declspec*/));
+    while (consp( STACK_1/*declspec*/ = Cdr(STACK_1/*declspec*/) )) {
+      var object symbol = check_symbol(Car(STACK_1/*declspec*/));
       /* (SYS::%PUT symbol 'SYS::CONSTANT-INLINABLE decltype) : */
       pushSTACK(symbol); pushSTACK(S(constant_inlinable));
       pushSTACK(STACK_2)/*decltype*/; funcall(L(put),3);
