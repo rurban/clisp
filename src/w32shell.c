@@ -170,8 +170,8 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
     if (!*nameout) return FALSE;
     /* skip drive or host or first slash */
     nametocheck = nameout;
-    if ((*nametocheck >= 'a' && *nametocheck <= 'z'
-         || *nametocheck >= 'A' && *nametocheck <= 'Z')
+    if (((*nametocheck >= 'a' && *nametocheck <= 'z')
+         || (*nametocheck >= 'A' && *nametocheck <= 'Z'))
         && nametocheck[1] == ':' && cpslashp(nametocheck[2]))
       /* drive */
       nametocheck += 3;
@@ -243,7 +243,6 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
             char saved[4];
             char resolved[MAX_PATH];
             shell_shortcut_target_t rresult;
-            int l = 0;
             if (nametocheck_end - nameout + 4 > MAX_PATH) return FALSE;
             strncpy(saved,nametocheck_end+1,4);
             strncpy(nametocheck_end,".lnk",5);
@@ -253,8 +252,8 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
             /* use saved_char as directory indicator */
             if (rresult == shell_shortcut_notresolved
                 || rresult == shell_shortcut_notexists
-                || !saved_char && rresult == shell_shortcut_directory
-                || saved_char && rresult == shell_shortcut_file)
+                || (saved_char ? rresult == shell_shortcut_file
+                    : rresult == shell_shortcut_directory))
               return FALSE;
             if (saved_char) {
               /*need to subst nameout..nametocheck-1 with resolved path */
