@@ -1629,6 +1629,7 @@ nonreturning_function (local, print_license, (void)) {
   var const char * const * ptr = license;
   var uintC count = sizeof(license)/sizeof(license[0]);
   pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
+  pushSTACK(STACK_0);funcall(L(fresh_line),1);/* clean up after *INIT-HOOKS* */
   while (count--)
     write_sstring(&STACK_0,asciz_to_string(*ptr++,O(internal_encoding)));
   skipSTACK(1);
@@ -1733,6 +1734,7 @@ local void print_banner ()
   var const char * const * ptr;
   var uintC count;
   pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); # to *STANDARD-OUTPUT*
+  pushSTACK(STACK_0);funcall(L(fresh_line),1);/* clean up after *INIT-HOOKS* */
   if (candles > 0) {
     ptr = banner0_hanukka; count = sizeof(banner0_hanukka)/sizeof(banner0_hanukka[0]);
   } else {
