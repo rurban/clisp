@@ -1,5 +1,5 @@
 # Liste aller SUBRs mit Keywords
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 v(7, (kw(adjustable),kw(element_type),kw(initial_element),
       kw(initial_contents),kw(fill_pointer),
@@ -152,8 +152,6 @@ s(make_logical_pathname)
 #endif
 v(2, (kw(all),kw(merge)) )
 s(translate_pathname)
-v(5, (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format)) )
-s(old_open)
 v(6, (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format),kw(buffered)) )
 s(open)
 v(2, (kw(circle),kw(full)) )
