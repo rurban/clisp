@@ -750,8 +750,8 @@ localized.</para>
 
 <section id="newline"><title>Line Terminators</title>
 
-<table id="newline-table" frame="all"><title>The line terminator mode
-  can be one of the following three keywords</title>
+<para>The line terminator mode can be one of the following three keywords:
+<informaltable id="newline-table" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
 <thead><row><entry>keyword</entry>
             <entry>newline representation</entry></row></thead>
@@ -762,7 +762,7 @@ localized.</para>
      &cr-c; character (<keycode>U000D</keycode>).</entry></row>
 <row><entry>&dos-k;</entry><entry>Newline is represented by the &ascii;
      &cr-c; followed by the &ascii; &lf-c;.</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable></para>
 
 <para>Windows programs typically use the &dos-k; line terminator,
  sometimes they also accept &unix-k; line terminators or produce
@@ -2048,7 +2048,7 @@ containing:</para>
 <varlistentry id="def-c-var">
  <term><literal role="sexp">(&def-c-var; &name-r;
    {&option-r;}*)</literal></term>
-<listitem><table id="def-c-var-bnf" frame="all" role="bnf"><title/>
+<listitem><informaltable id="def-c-var-bnf" frame="all" role="bnf">
  <tgroup cols="3" colsep="1" rowsep="1" align="left"><thead><row>
  <entry>&option-r; ::==</entry><entry/><entry/></row></thead><tbody>
 <row><entry/><entry/><entry><literal role="sexp">(&name-k;
@@ -2059,7 +2059,7 @@ containing:</para>
   <replaceable>boolean</replaceable>)</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(:ALLOC
   &allocation;)</literal></entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 
 <simpara>This form defines a &foreign-variable;.  &name-r; is the Lisp
  name, a regular Lisp &symbol-t;.</simpara>
@@ -2090,7 +2090,7 @@ containing:</para>
 
 <varlistentry id="def-call-out"><term><literal role="sexp">(&def-call-out;
               &name-r; {&option-r;}*)</literal></term>
-<listitem><table id="def-call-out-bnf" frame="all" role="bnf"><title/>
+<listitem><informaltable id="def-call-out-bnf" frame="all" role="bnf">
  <tgroup cols="3" colsep="1" rowsep="1" align="left">
  <thead><row><entry>&option-r; ::==</entry>
  <entry/><entry/></row></thead><tbody>
@@ -2105,7 +2105,7 @@ containing:</para>
    &lang-r;)</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(:BUILT-IN
    &boolean-t;)</literal></entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 
 <simpara>This form defines a named call-out function (a foreign function
  called from Lisp: control flow temporarily leaves Lisp).  Any Lisp
@@ -2116,7 +2116,7 @@ containing:</para>
 
 <varlistentry id="def-call-in"><term><literal role="sexp">(&def-call-in;
               &name-r; {&option-r;}*)</literal></term>
-<listitem><table id="def-call-in-bnf" frame="all" role="bnf"><title/>
+<listitem><informaltable id="def-call-in-bnf" frame="all" role="bnf">
  <tgroup cols="3" colsep="1" rowsep="1" align="left">
  <thead><row><entry>&option-r; ::==</entry>
  <entry/><entry/></row></thead><tbody>
@@ -2129,7 +2129,7 @@ containing:</para>
    &ctype-r; [&allocation;])</literal></entry></row>
 <row><entry/><entry>|</entry><entry><literal role="sexp">(&lang-k;
    &lang-r;)</literal></entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 
 <simpara>This form defines a named call-in function (i.e., a Lisp
  function called from the foreign language: control flow temporary
@@ -2483,8 +2483,8 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
 <variablelist><title>the predefined &c-lang; types (&ctype-r;)</title>
 <varlistentry id="simple-c-type">
    <term><replaceable>simple-c-type</replaceable></term>
-<listitem><table id="simple-c-type-tab" frame="all">
-  <title>the simple &c-lang; types</title>
+<listitem><para>the simple &c-lang; types
+  <informaltable id="simple-c-type-tab" frame="all">
  <tgroup cols="5" colsep="1" rowsep="1" align="center">
  <thead><row><entry>Lisp name</entry><entry>Lisp equivalent</entry>
  <entry>&c-lang; equivalent</entry><entry>ILU
@@ -2538,7 +2538,7 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
    <entry><type>float</type></entry></row>
 <row><entry>&double-float-t;</entry><entry>&double-float-t;</entry>
    <entry><type>double</type></entry></row>
-</tbody></tgroup></table></listitem></varlistentry>
+</tbody></tgroup></informaltable></para></listitem></varlistentry>
 
 <varlistentry id="c-pointer"><term>&c-pointer;</term>
  <listitem><simpara>This type corresponds to what &c-lang; calls
@@ -2706,9 +2706,8 @@ unit</ulink> (usually a file), a warning is issued and
  with dynamic extent. The &allocation; is effectively ignored.</para>
 
 <para>Values of type &c-string;, &c-ptr;, &c-ptr-null;, &c-array-ptr;
- need storage.  The &allocation; specifies the allocation policy:</para>
-
-<table id="allocation-tab" frame="all"><title>allocation policy</title>
+ need storage.  The &allocation; specifies the allocation policy:
+<informaltable id="allocation-tab" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="left">
  <thead><row><entry>&allocation;</entry>
         <entry>meaning</entry></row></thead><tbody>
@@ -2718,7 +2717,7 @@ unit</ulink> (usually a file), a warning is issued and
    stack, which has dynamic extent.</entry></row>
 <row><entry>&malloc-free-k;</entry><entry>storage will be allocated via
    &malloc; and freed via &free;.</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable></para>
 
 <para>If no &allocation; is specified, the default &allocation; is
  &none-k; for most types, but &alloca-k; for &c-string; and &c-ptr; and
@@ -3274,10 +3273,8 @@ module exit functions.]  Programmers, watch
 <section id="affi-types"><title>(Foreign) &c-lang; types</title>
 
 <para>The following foreign &c-lang; types are used in &affi-pac;.
-They are &not-e; regular &cl; types or &clos; classes.</para>
-
-<table id="affi-types-tab" frame="all">
- <title>foreign &c-lang; types used in &affi-pac;</title>
+They are &not-e; regular &cl; types or &clos; classes.
+<informaltable id="affi-types-tab" frame="all">
  <tgroup cols="5" colsep="1" rowsep="1" align="center">
  <thead><row><entry>&affi-pac; name</entry><entry>Lisp equivalent</entry>
  <entry>&c-lang; equivalent</entry><entry>Comment</entry></row></thead><tbody>
@@ -3308,7 +3305,7 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
 <row><entry>&io-k;</entry>
   <entry>&string-t; or &vector-t;</entry>
   <entry><type>char*</type></entry><entry/></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable></para>
 
 <para>Objects of type &string-t; are copied and passed
 &c-NULL;-terminated on the execution stack.  On return, a Lisp string is
@@ -3368,7 +3365,7 @@ the output side.</para>
 
 <variablelist>
  <varlistentry><term>&option-r; ::==</term>
- <listitem><table id="affi-dec-lib-fun-opt-bnf" frame="all" role="bnf"><title/>
+ <listitem><informaltable id="affi-dec-lib-fun-opt-bnf" frame="all" role="bnf">
   <tgroup cols="3" colsep="1" rowsep="1" align="left"><tbody>
   <row><entry/><entry><literal role="sexp">(:offset
     <replaceable>library-offset</replaceable>)</literal></entry></row>
@@ -3377,7 +3374,7 @@ the output side.</para>
       <replaceable>register</replaceable>)}*)</literal></entry></row>
   <row><entry>|</entry><entry><literal role="sexp">(:return-type
     <replaceable>&affi-pac;-type</replaceable>)</literal></entry></row>
-</tbody></tgroup></table></listitem></varlistentry>
+</tbody></tgroup></informaltable></listitem></varlistentry>
 <varlistentry><term><replaceable>register</replaceable> ::==</term>
  <listitem><simpara><constant>:d0</constant> | <constant>:d1</constant>
  | ... | <constant>:d7</constant> | <constant>:a0</constant> | ... |

@@ -1209,10 +1209,8 @@ performance considerations.
    <ulink url="&clhs;/Body/sec_12-1-4.html">[CLHS-12.1.4]</ulink></title>
 
 <para>There are four floating point types: &short-float-t;,
- &single-float-t;, &double-float-t; and &long-float-t;:</para>
-
-<table id="floating-types-table" frame="all">
-  <title>floating point types</title>
+ &single-float-t;, &double-float-t; and &long-float-t;:
+<informaltable id="floating-types-table" frame="all">
 <tgroup cols="5" colsep="1" rowsep="1" align="center">
 <thead><row><entry>type</entry><entry>sign</entry><entry>mantissa</entry>
        <entry>exponent</entry><entry>comment</entry></row></thead>
@@ -1224,7 +1222,7 @@ performance considerations.
  <entry>52+1 bits</entry><entry>11 bits</entry><entry>&ieee-bfp;</entry></row>
        <row><entry>&long-float-t;</entry><entry>1 bit</entry>
  <entry>&gt;=64 bits</entry><entry>32 bits</entry><entry>variable
- length</entry></row></tbody></tgroup></table>
+ length</entry></row></tbody></tgroup></informaltable></para>
 
 <para>The single and double float formats are those of the &ieee-bfp;
  <quote>Standard for Binary Floating-Point Arithmetic</quote>,
@@ -1503,8 +1501,7 @@ performance considerations.
 <section id="fixnum-lim"><title>Fixnum Limits
 <ulink url="&clhs;/Body/convar_most-p_ative-fixnum.html">[CLHS]</ulink></title>
 
-<table id="fixnum-lim-table" frame="all">
-  <title>Fixnum limits (platform dependent)</title>
+<table id="fixnum-lim-table" frame="all"><title>Fixnum limits</title>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
  <tbody>
  <row><entry>&most-positive-fixnum;</entry>
@@ -1565,8 +1562,7 @@ performance considerations.
    only in &clisp; built &without; compile-time flag &unicode;.</term>
 <listitem><para>More precisely, &clisp; uses the IBM PC character set
  (code page 437):
-<table id="ibmpc-charset-table" frame="all">
-  <title>the IBM PC character set (code page 437)</title>
+<informaltable id="ibmpc-charset-table" frame="all">
  <tgroup cols="17" colsep="1" rowsep="1" align="center">
   &char-table-header;<tbody>
   <row><entry>#x00</entry>&cc;<entry/><entry/><entry/><entry/><entry/><entry/>
@@ -1623,7 +1619,7 @@ performance considerations.
    <entry>&deg;</entry><entry>&#8729;</entry><entry>&middot;</entry>
    <entry>&radic;</entry><entry>&#8319;</entry><entry>&sup2;</entry>
    <entry>&#9632;</entry><entry>&nbsp;</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
  &char-table-legend;
 </para></listitem></varlistentry></variablelist>
 <!-- #endif -->
@@ -1635,8 +1631,7 @@ performance considerations.
    &clisp; built &without; compile-time flag &unicode;.</term>
 <listitem><para>More precisely, &clisp; uses the ISO Latin-1 (ISO
  8859-1) character set:
-<table id="latin-1-table" frame="all">
-   <title>the ISO Latin-1 (ISO 8859-1) character set</title>
+<informaltable id="latin-1-table" frame="all">
   <tgroup cols="17" colsep="1" rowsep="1" align="center">
   &char-table-header;<tbody>
   <row><entry>#x00</entry>&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;
@@ -1688,7 +1683,7 @@ performance considerations.
    <entry>&oslash;</entry><entry>&ugrave;</entry><entry>&uacute;</entry>
    <entry>&ucirc;</entry><entry>&uuml;</entry><entry>&yacute;</entry>
    <entry>&thorn;</entry><entry>&yuml;</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 &char-table-legend;
 </para></listitem></varlistentry></variablelist>
 <!-- #endif -->
@@ -1698,8 +1693,7 @@ performance considerations.
 <varlistentry><term>Platform dependent: &nextstep; platforms only, and
  only in &clisp; built &without; compile-time flag &unicode;.</term>
 <listitem><para>More precisely, &clisp; uses the &nextstep; character set:
-<table id="next-charset-table" frame="all">
-   <title>the &nextstep; character set</title>
+<informaltable id="next-charset-table" frame="all">
   <tgroup cols="17" colsep="1" rowsep="1" align="center">
   &char-table-header;<tbody>
   <row><entry>#x00</entry>&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;&cc;
@@ -1755,13 +1749,13 @@ performance considerations.
    <entry>&#322;</entry><entry>&oslash;</entry><entry>&oelig;</entry>
    <entry>&szlig;</entry><entry>&thorn;</entry><entry>&yuml;</entry>
    <entry/><entry/></row>
-  </tbody></tgroup></table>
+  </tbody></tgroup></informaltable>
 &char-table-legend;
 </para></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
 <table id="standard-char-table" frame="all">
-  <title>Standard characters:</title>
+  <title>Standard characters</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &char-code-header;<tbody>
  <row><entry><keysym>#\Space</keysym></entry>
@@ -1771,7 +1765,7 @@ performance considerations.
 </tbody></tgroup></table>
 
 <table id="semi-standard-char-table" frame="all">
-  <title>Semi-standard characters:</title>
+  <title>Semi-standard characters</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &char-code-header;<tbody>
  <row><entry><keysym>#\Backspace</keysym></entry>
@@ -1842,15 +1836,15 @@ performance considerations.
   <listitem><simpara>The system uses only font 0.
   </simpara></listitem></varlistentry>
  <varlistentry><term><constant>ext:char-bits-limit</constant> = 16</term>
-  <listitem><table id="bit-table" frame="all">
-    <title>Character bits</title>
-   <tgroup cols="2" colsep="1" rowsep="1" align="center">
-    &key-value-header;<tbody>
-   <row><entry>&control-k;</entry><entry>&ch-ctrl;</entry></row>
-   <row><entry>&meta-k;</entry><entry>&ch-meta;</entry></row>
-   <row><entry>&super-k;</entry><entry>&ch-super;</entry></row>
-   <row><entry>&hyper-k;</entry><entry>&ch-hyper;</entry></row>
-  </tbody></tgroup></table></listitem></varlistentry>
+  <listitem><para>Character bits:
+    <informaltable id="bit-table" frame="all">
+     <tgroup cols="2" colsep="1" rowsep="1" align="center">
+      &key-value-header;<tbody>
+       <row><entry>&control-k;</entry><entry>&ch-ctrl;</entry></row>
+       <row><entry>&meta-k;</entry><entry>&ch-meta;</entry></row>
+       <row><entry>&super-k;</entry><entry>&ch-super;</entry></row>
+       <row><entry>&hyper-k;</entry><entry>&ch-hyper;</entry></row>
+ </tbody></tgroup></informaltable></para></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(<function>ext:char-font</function>
   &object-r;)</literal> </term>
  <listitem><simpara>returns the font of a &character-t; or &input-char;.
@@ -2007,7 +2001,7 @@ are simple characters.</para>
  supports exactly &char-code-limit; characters.</para>
 
 <table id="char-code-limit-table" frame="all">
-  <title>Number of characters (platform dependent)</title>
+ <title>Number of characters</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">
  <thead><row><entry>binaries built</entry>
              <entry>&without; &unicode; support</entry>
@@ -2062,7 +2056,7 @@ and the international alphabetic characters from the character set:
 
 <!-- #ifdef AMIGA_CHARNAMES -->
 <table id="amiga-chars-table" frame="all">
-  <title>Platform dependent characters: &amiga; platforms only.</title>
+ <title>Platform dependent characters: &amiga; platforms.</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><literal role="sexp">(&code-char; #x00)</literal></entry>
@@ -2148,8 +2142,7 @@ and the international alphabetic characters from the character set:
 
 <!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
 <table id="dos-win32-chars-table" frame="all">
-  <title>Platform dependent characters:
-    &dos;, &os2;, &win32; platforms only.</title>
+ <title>Platform dependent characters: &dos;, &os2;, &win32; platforms.</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><literal role="sexp">(&code-char; #x00)</literal></entry>
@@ -2181,8 +2174,7 @@ and the international alphabetic characters from the character set:
 
 <!-- #ifdef UNIX_CHARNAMES -->
 <table id="unix-chars-table" frame="all">
-  <title>Platform dependent characters:
-    &unix;, &acorn; platforms only.</title>
+ <title>Platform dependent characters: &unix;, &acorn; platforms.</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><literal role="sexp">(&code-char; #x00)</literal></entry>
@@ -2340,8 +2332,7 @@ and the international alphabetic characters from the character set:
 <section id="array-elts"><title>Array Elements
    <ulink url="&clhs;/Body/sec_15-1-1.html">[CLHS-15.1.1]</ulink></title>
 
-<table id="array-limit-table" frame="all">
-  <title>Array limits (platform dependent)</title>
+<table id="array-limit-table" frame="all"><title>Array limits</title>
  <tgroup cols="4" colsep="1" rowsep="1" align="center">&cpu-type-header;
  <tbody>
  <row><entry>&array-rank-limit;</entry>
@@ -2641,14 +2632,14 @@ printed readably.</para>
 <listitem><variablelist>&path-comps;
 <varlistentry><term>&host-r;</term>&always-nil;</varlistentry>
 <varlistentry><term>&device-r;</term>&string-or-nil;</varlistentry>
-<varlistentry><term>&directory-r;</term>
- <listitem><table id="amiga-dir-table" frame="all">&dir-title;
+<varlistentry>&dir-term;
+ <listitem><informaltable id="amiga-dir-table" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
    &elt-val-meaning-header;<tbody>
  &startp-rel-abs; &subdirs-def; &subdir-string-or-wild;
  <row><entry>&subdir-r;</entry><entry>&parent-k;</entry>
   <entry>&file-slash; instead of <filename>"subdir/"</filename></entry></row>
- </tbody></tgroup></table></listitem></varlistentry>
+ </tbody></tgroup></informaltable></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>&wild-string-or-nil;</varlistentry>
 <varlistentry><term>&type-r;</term>&wild-string-or-nil;</varlistentry>
 &version-nil;
@@ -2662,8 +2653,7 @@ printed readably.</para>
 <para>Case is ignored in the strings on comparison.
   No case conversions are performed.</para>
 
-<table id="pathnames-externally-amiga" frame="all">
- <title>filename notations</title>
+<informaltable id="pathnames-externally-amiga" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
  <row><entry>External notation:</entry>
   <entry><filename>"dev:sub1.typ/sub2.typ/name.typ"</filename></entry></row>
@@ -2674,7 +2664,7 @@ printed readably.</para>
  <row><entry>or</entry>
   <entry><filename>    "sub1.typ/**/sub3.typ/x*.lisp"</filename></entry></row>
  <row><entry>or similar.</entry><entry/></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 
 <variablelist><title>Formal specification of the external notation</title>
   <varlistentry><term>ch ::==</term>
@@ -2684,7 +2674,7 @@ printed readably.</para>
    <listitem><simpara>{ch}+</simpara></listitem></varlistentry>
   <varlistentry><term>device ::==</term>
    <listitem><para>[ &lt;empty&gt; | ':' | name ':' ]
-    <table id="amiga-dev" frame="all"><title/>
+    <informaltable id="amiga-dev" frame="all">
     <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
     <row><entry>empty</entry><entry>current device, relative to
      current directory</entry></row>
@@ -2692,19 +2682,20 @@ printed readably.</para>
      to root for disks)</entry></row>
     <row><entry>name ':'</entry><entry>specified device, absolute
      (relative to root for disks)</entry></row>
-   </tbody></tgroup></table></para></listitem></varlistentry>
+   </tbody></tgroup></informaltable></para></listitem></varlistentry>
   <varlistentry><term>subdir ::==</term>
    <listitem><para>[ &lt;empty&gt; | name ]
-    <table id="amifa-subdir" frame="all"><title/>
+    <informaltable id="amifa-subdir" frame="all">
     <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
     <row><entry>empty</entry><entry>parent directory</entry></row>
-   </tbody></tgroup></table></para></listitem></varlistentry>
+   </tbody></tgroup></informaltable></para></listitem></varlistentry>
   <varlistentry><term>pathname ::==</term>
    <listitem><simpara>device { subdir '/' }* name
    </simpara></listitem></varlistentry>
 </variablelist>
 
-<table id="amiga-path-examples-table" frame="all"><title>Examples</title>
+<para>Examples:
+<informaltable id="amiga-path-examples-table" frame="all">
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
   <thead><row><entry>String</entry><entry>Device</entry>
   <entry>Directory</entry><entry>our pathname</entry></row></thead><tbody>
@@ -2740,7 +2731,7 @@ printed readably.</para>
  <row><entry>&file-bsla;</entry><entry>current</entry>
    <entry><filename>"device"</filename></entry>
    <entry>&nil; (&relative-k;)</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable></para>
 
 <para>Appending a &file-slash; to a path string that is non-empty and
  does not end with &file-colon; or &file-slash; does not change its
@@ -2761,12 +2752,12 @@ printed readably.</para>
 <listitem><variablelist>&path-comps;
 <varlistentry><term>&host-r;</term>&always-nil;</varlistentry>
 <varlistentry><term>&device-r;</term>&always-nil;</varlistentry>
-<varlistentry><term>&directory-r;</term>
- <listitem><table id="unix-dir-table" frame="all">&dir-title;
+<varlistentry>&dir-term;
+ <listitem><informaltable id="unix-dir-table" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
    &elt-val-meaning-header;<tbody>
  &startp-rel-abs; &subdirs-def; &subdir-string-or-wild;
- </tbody></tgroup></table></listitem></varlistentry>
+ </tbody></tgroup></informaltable></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>&wild-string-or-nil;</varlistentry>
 <varlistentry><term>&type-r;</term>&wild-string-or-nil;</varlistentry>
 &version-nil;
@@ -2774,7 +2765,7 @@ printed readably.</para>
 
 <para>A &unix; &name-type-split;</para>
 
-<table id="unix-filename-table" frame="all"><title>filename notations</title>
+<informaltable id="unix-filename-table" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
  <row><entry>External notation:</entry><entry>
   <filename>"server:sub1.typ/sub2.typ/name.typ"</filename></entry></row>
@@ -2785,7 +2776,7 @@ printed readably.</para>
  <row><entry>or</entry><entry>
   <filename>       "sub1.typ/**/sub3.typ/x*.lisp"</filename></entry></row>
  <row><entry>or similar.</entry><entry/></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 </listitem></varlistentry></variablelist>
 <!-- #endif -->
 
@@ -2797,12 +2788,12 @@ printed readably.</para>
 <varlistentry><term>&device-r;</term>
  <listitem><simpara>&nil; or &wild-k; or &file-letter-uc;
  </simpara></listitem></varlistentry>
-<varlistentry><term>&directory-r;</term>
- <listitem><table id="os2-dir-table" frame="all">&dir-title;
+<varlistentry>&dir-term;
+ <listitem><informaltable id="os2-dir-table" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &elt-val-meaning-header;<tbody>
  &startp-rel-abs; &subdirs-def; &subdir-string-or-wild;
- </tbody></tgroup></table></listitem></varlistentry>
+ </tbody></tgroup></informaltable></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>&wild-string-or-nil;</varlistentry>
 <varlistentry><term>&type-r;</term>&wild-string-or-nil;</varlistentry>
 &version-nil;
@@ -2810,7 +2801,7 @@ printed readably.</para>
 
 <para>An &os2; &name-type-split;</para>
 
-<table id="os2-filename-table" frame="all"><title>filename notations</title>
+<informaltable id="os2-filename-table" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
  <row><entry>External notation:</entry>
   <entry><filename>"A:\sub1.typ\sub2.typ\name.typ"</filename></entry></row>
@@ -2821,7 +2812,7 @@ printed readably.</para>
  <row><entry>or</entry>
   <entry><filename>"*:\sub1.typ\**\sub3.typ\x*.lisp"</filename></entry></row>
  <row><entry>or similar.</entry><entry/></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 
 <para>Instead of &file-bsla; one may use &file-slash;, as usual for
  &dos; calls.</para></listitem></varlistentry></variablelist>
@@ -2837,12 +2828,12 @@ printed readably.</para>
 <varlistentry><term>&device-r;</term>
  <listitem><simpara>&nil; or &wild-k; or &file-letter-uc;
  </simpara></listitem></varlistentry>
-<varlistentry><term>&directory-r;</term>
- <listitem><table id="win32-dir-table" frame="all">&dir-title;
+<varlistentry>&dir-term;
+ <listitem><informaltable id="win32-dir-table" frame="all">
    <tgroup cols="2" colsep="1" rowsep="1" align="center">
     &elt-val-meaning-header;<tbody>
  &startp-rel-abs; &subdirs-def; &subdir-string-or-wild;
- </tbody></tgroup></table></listitem></varlistentry>
+ </tbody></tgroup></informaltable></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>&wild-string-or-nil;</varlistentry>
 <varlistentry><term>&type-r;</term>&wild-string-or-nil;</varlistentry>
 &version-nil;
@@ -2852,7 +2843,7 @@ printed readably.</para>
 
 <para>A &win32; &name-type-split;</para>
 
-<table id="win32-filename-table" frame="all"><title>filename notations</title>
+<informaltable id="win32-filename-table" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
  <row><entry>External notation:</entry>
   <entry><filename>"A:\sub1.typ\sub2.typ\name.typ"</filename></entry></row>
@@ -2863,7 +2854,7 @@ printed readably.</para>
  <row><entry>or</entry>
   <entry><filename>"*:\sub1.typ\**\sub3.typ\x*.lisp"</filename></entry></row>
  <row><entry>or similar.</entry><entry/></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 
 <para>Instead of &file-bsla; one may use &file-slash;, as usual for DOS
  calls.</para>
@@ -3058,14 +3049,14 @@ printed readably.</para>
   file will be looked for, according to the operation being performed on
   it.</simpara>
 
-<table id="acorn-path-vars" frame="all"><title/>
+<informaltable id="acorn-path-vars" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <thead><row><entry>name</entry><entry>purpose</entry></row></thead><tbody>
  <row><entry>File$Path</entry>
     <entry>for read operations</entry></row>
  <row><entry>Run$Path</entry>
     <entry>for execute operations</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 
  <simpara>The contents of each variable should expand to a list or
   prefixes, separated by commas.  When a read operation is performed
@@ -3120,7 +3111,7 @@ printed readably.</para>
   <varlistentry><term>directory ::==</term>
     <listitem><para> { '$' | '&amp;' | '@' | '%' | '\' } '.'
     { subdirectory }* | { subdirectory }+ | empty
-    <table id="acorn-directory" frame="all"><title/>
+    <informaltable id="acorn-directory" frame="all">
     <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
      <row><entry>'$' -&gt;</entry>
          <entry>&absolute-k; &root-k;</entry></row>
@@ -3133,13 +3124,13 @@ printed readably.</para>
      <row><entry>'\' -&gt;</entry>
          <entry>&absolute-k; &previous-k;</entry></row>
      <row><entry>else</entry><entry>&relative-k;</entry></row>
-    </tbody></tgroup></table></para></listitem></varlistentry>
+    </tbody></tgroup></informaltable></para></listitem></varlistentry>
   <varlistentry><term>subdirectory ::==</term>
    <listitem><para>{ '^' | { legal-wild char }+ } '.'
-   <table id="acorn-subdirectory" frame="all"><title/>
+   <informaltable id="acorn-subdirectory" frame="all">
     <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
     <row><entry>'^' -&gt;</entry><entry>&parent-k;</entry></row>
-   </tbody></tgroup></table></para></listitem></varlistentry>
+   </tbody></tgroup></informaltable></para></listitem></varlistentry>
   <varlistentry><term>filename ::==</term>
    <listitem><simpara>{ { legal-wild char }+ | empty }
    </simpara></listitem></varlistentry>
@@ -3151,7 +3142,8 @@ printed readably.</para>
    </simpara></listitem></varlistentry>
  </variablelist>
 
-<table id="acorn-path-example-table" frame="all"><title>Examples</title>
+<para>Examples:
+<informaltable id="acorn-path-example-table" frame="all">
  <tgroup cols="6" colsep="1" rowsep="1" align="center">
    <thead><row><entry>String</entry><entry>Hostname</entry>
    <entry>Device</entry><entry>Directory</entry>
@@ -3220,14 +3212,14 @@ printed readably.</para>
  <row><entry><filename>"foo.@."</filename></entry>
    <entry>illegal</entry>
    <entry/><entry/><entry/><entry/></row>
-</tbody></tgroup></table></listitem></varlistentry>
+</tbody></tgroup></informaltable></para></listitem></varlistentry>
 
 <varlistentry><term>From internal representation to RISCOS string</term>
 
  <listitem><simpara>with swapping <emphasis>only</emphasis> of name/type
   components.</simpara>
 
-<table id="acorn-name-type-swap" frame="all"><title/>
+<informaltable id="acorn-name-type-swap" frame="all">
  <tgroup cols="6" colsep="1" rowsep="1" align="center">
   <thead><row><entry>Hostname</entry><entry>Device</entry>
   <entry>Directory</entry><entry>Name</entry>
@@ -3307,7 +3299,7 @@ printed readably.</para>
    <entry><literal role="sexp">(&relative-k; &foo-f;)</literal></entry>
    <entry>&nil;</entry><entry>&bar-f;</entry>
    <entry>illegal here</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 
 <simpara>That is, the RISCOS string is the flattening-concatenation
  of</simpara>
@@ -3337,8 +3329,8 @@ printed readably.</para>
 <listitem><variablelist>&path-comps;
 <varlistentry><term>&host-r;</term>&string-or-nil;</varlistentry>
 <varlistentry><term>&device-r;</term>&string-or-nil;</varlistentry>
-<varlistentry><term>&directory-r;</term>
- <listitem><table id="acorn-dir-table" frame="all">&dir-title;
+<varlistentry>&dir-term;
+ <listitem><informaltable id="acorn-dir-table" frame="all">
   <tgroup cols="2" colsep="1" rowsep="1" align="center">
    <thead><row><entry>element</entry><entry>values</entry></row></thead><tbody>
  <row><entry>&startpoint-r;</entry>
@@ -3352,7 +3344,7 @@ printed readably.</para>
  <row><entry>&subdir-r;</entry>
    <entry>&simple-string-t;, may contain wildcard characters
    &file-ques;, &file-hash; and &file-star;</entry></row>
- </tbody></tgroup></table></listitem></varlistentry>
+ </tbody></tgroup></informaltable></listitem></varlistentry>
 <varlistentry><term>&name-r;</term>
  <listitem><simpara>&simple-string-t; or &nil;, may contain wildcard
  characters &file-ques;,&file-hash; and &file-star; (may also be
@@ -3399,7 +3391,7 @@ printed readably.</para>
 <variablelist>
 <!-- #ifdef PATHNAME_MSDOS -->
 <varlistentry><term>Platform dependent: &dos; platforms only.</term>
-<listitem><table id="dos-path-external-table" frame="all"><title/>
+<listitem><informaltable id="dos-path-external-table" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
   <row><entry>[ [drivespec] : ]</entry>
    <entry>a letter &file-star;|&file-letter-lc;|&file-letter-uc;</entry></row>
@@ -3408,7 +3400,7 @@ printed readably.</para>
     &file-slash;</entry></row>
   <row><entry>[ name [. type] ]</entry>
    <entry>filename with type (extension)</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 
 <para>Name and type may be &string-t;s of any &length;
  (consisting of alphanumeric characters and &file-dash;,
@@ -3426,7 +3418,7 @@ printed readably.</para>
 
 <!-- #ifdef PATHNAME_UNIX -->
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
-<listitem><table id="unix-path-external-table" frame="all"><title/>
+<listitem><informaltable id="unix-path-external-table" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
   <row><entry>[ &file-slash; ]</entry>
    <entry>&file-slash; denotes absolute pathnames</entry></row>
@@ -3434,7 +3426,7 @@ printed readably.</para>
    <entry>each one a subdirectory</entry></row>
   <row><entry>[ &name-r; [&file-dot; &type-r;] ]</entry>
    <entry>filename with type (extension)</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 
 <para>Name and type may be &string-t;s of any &length;
  (consisting of printing &ascii; characters, except &file-slash;).</para>
@@ -3443,7 +3435,7 @@ printed readably.</para>
 
 <!-- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
 <varlistentry><term>Platform dependent: &os2;, &win32; platforms only.</term>
-<listitem><table id="win32-path-external-table" frame="all"><title/>
+<listitem><informaltable id="win32-path-external-table" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
   <row><entry>[ [<replaceable>drivespec</replaceable>] : ]</entry>
    <entry>a letter &file-star;|&file-letter-lc;|&file-letter-uc;</entry></row>
@@ -3452,7 +3444,7 @@ printed readably.</para>
      replaced by &file-slash;</entry></row>
   <row><entry>[ &name-r; [. &type-r;] ]</entry>
    <entry>filename with type (extension)</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable>
 
 <para>Name and type may be &string-t;s of any &length;
  (consisting of printing &ascii; characters, except &file-slash;,
@@ -3854,7 +3846,7 @@ pointing to non-existent files and can take the following values:
 <!-- #ifdef MSDOS -->
        <varlistentry><term>Platform dependent: &dos;, &os2;
           platforms only.</term>
-      <listitem><table id="dos-kbd-keys" frame="all"><title/>
+      <listitem><informaltable id="dos-kbd-keys" frame="all">
       <tgroup cols="2" colsep="1" rowsep="1" align="center">
        &key-value-header;<tbody>
        <row><entry><keycode>F1</keycode>..<keycode>F12</keycode></entry>
@@ -3875,13 +3867,13 @@ pointing to non-existent files and can take the following values:
        <row><entry>Arrow keys</entry>
          <entry><constant>:Left</constant><constant>:Right</constant>
          <constant>:Up</constant><constant>:Down</constant></entry></row>
-      </tbody></tgroup></table></listitem></varlistentry>
+      </tbody></tgroup></informaltable></listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #if defined(UNIX) || defined(WIN32) -->
       <varlistentry><term>Platform dependent: &unix;, &win32;
          platforms only.</term>
-      <listitem><table id="unix-kbd-keys" frame="all"><title/>
+      <listitem><informaltable id="unix-kbd-keys" frame="all">
        <tgroup cols="2" colsep="1" rowsep="1" align="center">
        &key-value-header;<tbody>
        <row><entry><keycode>F1</keycode>..<keycode>F12</keycode></entry>
@@ -3904,12 +3896,12 @@ pointing to non-existent files and can take the following values:
        <row><entry>Arrow keys</entry>
          <entry><constant>:Left</constant><constant>:Right</constant>
          <constant>:Up</constant><constant>:Down</constant></entry></row>
-      </tbody></tgroup></table></listitem></varlistentry>
+      </tbody></tgroup></informaltable></listitem></varlistentry>
 <!-- #endif -->
 
 <!-- #ifdef AMIGAOS -->
     <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
-    <listitem><table id="amiga-kbd-keys" frame="all"><title/>
+    <listitem><informaltable id="amiga-kbd-keys" frame="all">
      <tgroup cols="2" colsep="1" rowsep="1" align="center">
       &key-value-header;<tbody>
        <row><entry><keycode>F1</keycode>..<keycode>F10</keycode></entry>
@@ -3920,7 +3912,7 @@ pointing to non-existent files and can take the following values:
        <row><entry>Arrow keys</entry>
          <entry><constant>:Left</constant><constant>:Right</constant>
          <constant>:Up</constant><constant>:Down</constant></entry></row>
-      </tbody></tgroup></table></listitem></varlistentry>
+      </tbody></tgroup></informaltable></listitem></varlistentry>
 <!-- #endif -->
       </variablelist></para></listitem></varlistentry>
 
@@ -4514,7 +4506,7 @@ functions are provided:
 <para>This is the list of objects whose external representation cannot
   be meaningfully read in:
 <table id="unreadable-objects-table" frame="all">
-  <title>unreadable objects</title>
+  <title>Unreadable objects</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   <thead><row><entry>format</entry><entry>meaning</entry></row></thead><tbody>
  <row><entry><literal>#&lt;&type-r; ...&gt;</literal></entry>
@@ -4697,9 +4689,8 @@ compiles a file to platform-independent bytecode.</para>
  these arguments are recursive.</para>
 
 <para>For each input file (default file type: &lisp-file;)
- the following files are generated:</para>
-
-<table id="compile-file-new-files-table" frame="all"><title/>
+ the following files are generated:
+<informaltable id="compile-file-new-files-table" frame="all">
  <tgroup cols="4" colsep="1" rowsep="1" align="center">
   <thead><row><entry>File</entry><entry>When</entry>
   <entry>Default file type</entry><entry>Contents</entry></row></thead><tbody>
@@ -4719,7 +4710,7 @@ compiles a file to platform-independent bytecode.</para>
    <entry><filename>#P".c"</filename></entry>
    <entry>foreign function interface; this file is deleted if it is
     empty</entry></row>
-</tbody></tgroup></table>
+</tbody></tgroup></informaltable></para>
 
 <warning><para>If you have two files in the same directory
 - &foolisp-f; and <filename>#P"foo.c"</filename>,
@@ -4859,7 +4850,8 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <section id="features"><title>Variable &features-var;</title>
 
 <para>The variable &features-var; initially contains the symbols
-<table id="features-table" frame="all"><title/>
+<table id="features-table" frame="all">
+ <title>&features-var; content</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
  <thead><row><entry>keyword</entry><entry>meaning</entry></row></thead><tbody>
 <row><entry><constant>:CLISP</constant></entry>
@@ -5352,7 +5344,7 @@ exhaust the available line length.</para></formalpara>
  it should be a multiple of <literal>1/3600</literal>.</para>
 
 <table id="internal-time-units-table" frame="all">
- <title>Platform dependent</title>
+ <title>Time granularity</title>
  <tgroup cols="5" colsep="1" rowsep="1" align="center">
  <thead><row><entry>platform</entry><entry>&acorn;, &dos;, &os2;</entry>
         <entry>&amiga;</entry><entry>&unix;</entry>
