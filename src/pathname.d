@@ -1,6 +1,6 @@
 /*
  * Pathnames for CLISP
- * Bruno Haible 1990-2003
+ * Bruno Haible 1990-2004
  * Logical Pathnames: Marcus Daniels 16.9.1994
  * ANSI compliance, bugs: Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-01-03
@@ -585,7 +585,7 @@ local object common_case (object string) {
   var bool all_upper = true;
   var bool all_lower = true;
   if (len > 0) {
-    var object storage = string; simple_array_to_storage(storage);
+    var object storage = string; sstring_un_realloc(storage);
     SstringDispatch(storage,X, {
       var const cintX* ptr = &((SstringX)TheVarobject(storage))->data[0];
       var uintL count;
@@ -722,7 +722,7 @@ local object test_optional_host (object host) {
   {
     var uintL len = Sstring_length(host);
     if (len > 0) {
-      var object storage = host; simple_array_to_storage(storage);
+      var object storage = host; sstring_un_realloc(storage);
       SstringDispatch(storage,X, {
         var const cintX* ptr = &((SstringX)TheVarobject(storage))->data[0];
         dotimespL(len,len, {
@@ -998,10 +998,10 @@ typedef struct {
    starting at DEST_OFFSET, up-casing all characters */
 local void copy_upcase (object dest, uintL dest_offset,
                         object orig, uintL orig_offset, uintL len) {
-  simple_array_to_storage(orig);
+  sstring_un_realloc(orig);
   SstringDispatch(orig,X1, {
     var cintX1* ptr1 = &((SstringX1)TheVarobject(orig))->data[orig_offset];
-    simple_array_to_storage(dest);
+    sstring_un_realloc(dest);
     SstringDispatch(dest,X2, {
       var cintX2* ptr2 = &((SstringX2)TheVarobject(dest))->data[dest_offset];
       dotimespL(len,len, { *ptr2++ = as_cint(up_case(as_chart(*ptr1++))); });
@@ -1071,7 +1071,7 @@ local object parse_logical_word (zustand* z, bool subdirp) {
 local bool all_digits (object string) {
   var uintL len = Sstring_length(string);
   if (len > 0) {
-    var object storage = string; simple_array_to_storage(storage);
+    var object storage = string; sstring_un_realloc(storage);
     SstringDispatch(storage,X, {
       var const cintX* ptr = &((SstringX)TheVarobject(storage))->data[0];
       dotimespL(len,len, {
@@ -1518,7 +1518,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
       pushSTACK(string);
       nstring_downcase(string,0,Sstring_length(string));
       string = popSTACK();
-      simple_array_to_storage(string);
+      sstring_un_realloc(string);
      #endif
     }
     /* Coerce string to be a normal-simple-string. */
@@ -3849,9 +3849,9 @@ local bool wildcard_match (object pattern, object sample) {
   ASSERT(sstring_normal_p(sample));
   return wildcard_match_ab(
                            /* m_count = */ Sstring_length(pattern),
-                           /* m_ptr   = */ &TheSstring(pattern)->data[0],
+                           /* m_ptr   = */ &TheSnstring(pattern)->data[0],
                            /* b_count = */ Sstring_length(sample),
-                           /* b_ptr   = */ &TheSstring(sample)->data[0]
+                           /* b_ptr   = */ &TheSnstring(sample)->data[0]
                                            );
 }
 local bool wildcard_match_ab (uintL m_count, const chart* m_ptr,

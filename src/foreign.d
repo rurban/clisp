@@ -866,9 +866,9 @@ local object convert_from_foreign_array_fill (object eltype, uintL size,
       sstring_store_array(array,0,&tmpbuf[0],size);
       FREE_DYNAMIC_ARRAY(tmpbuf);
       array = popSTACK();
-      simple_array_to_storage(array);
+      sstring_un_realloc(array);
      #else
-      var chart* ptr2 = &TheSstring(array)->data[0];
+      var chart* ptr2 = &TheSnstring(array)->data[0];
       dotimespL(size,size, { *ptr2++ = as_chart(*ptr1++); } );
      #endif
     }

@@ -66,21 +66,21 @@ Use GC_MARK when the argument might be a reallocated object */
        case Rectype_reallocstring:                            \
          fprintf(stderr,"[%s:%d] realloc string: %d",         \
                  __FILE__,__LINE__,as_oint(o));               \
-         simple_array_to_storage(o);                          \
+         sstring_un_realloc(o);                               \
          fprintf(stderr," --> %d\n",as_oint(o));              \
          break;                                               \
      }                                                        \
    } while(0)
 #else
- #define UNREALLOC(o)  do {                                           \
-   if (orecordp(o))                                                   \
-     switch (Record_type(o)) {                                        \
-       case Rectype_realloc_Instance:                                 \
-         if (Record_flags(o) & instflags_forwarded_B)                 \
-           instance_un_realloc(o);                                    \
-         break;                                                       \
-       case Rectype_reallocstring: simple_array_to_storage(o); break; \
-     }                                                                \
+ #define UNREALLOC(o)  do {                                      \
+   if (orecordp(o))                                              \
+     switch (Record_type(o)) {                                   \
+       case Rectype_realloc_Instance:                            \
+         if (Record_flags(o) & instflags_forwarded_B)            \
+           instance_un_realloc(o);                               \
+         break;                                                  \
+       case Rectype_reallocstring: sstring_un_realloc(o); break; \
+     }                                                           \
    } while(0)
 #endif
 /* do we want GC to un-realloc strings and instances? */
@@ -173,6 +173,26 @@ local void gc_mark (object obj)
   }
 #define up_iarray()                                                     \
   { dies = objectplus(vorg,-(soint)iarray_data_offset<<(oint_addr_shift-addr_shift)); /* array becomes current object */ \
+    vorg = vorvorg; goto up; /* go further up */                        \
+  }
+#define down_sistring()                                                 \
+  if (in_old_generation(dies,typecode(dies),0))                         \
+    goto up; /* do not mark older generation */                         \
+  { var gcv_object_t* dies_ = (gcv_object_t*)TheSistring(dies);         \
+    if (marked(dies_)) goto up; /* marked -> up */                      \
+    mark(dies_); /* mark */                                             \
+  }                                                                     \
+  { var object dies_ = objectplus(dies,(soint)(sistring_data_offset)<<(oint_addr_shift-addr_shift)); \
+    /* data vector is the first and only pointer */                     \
+    var object nachf = *(gcv_object_t*)TheSistring(dies_); /* successor */ \
+    *(gcv_object_t*)TheSistring(dies_) = vorg; /* store predecessor */  \
+    mark(TheSistring(dies_)); /* mark first and only pointer */         \
+    vorg = dies_; /* current object becomes new predecessor */          \
+    dies = nachf; /* predecessor becomes current object */              \
+    goto down; /* and descent */                                        \
+  }
+#define up_sistring()                                                   \
+  { dies = objectplus(vorg,-(soint)sistring_data_offset<<(oint_addr_shift-addr_shift)); /* array becomes current object */ \
     vorg = vorvorg; goto up; /* go further up */                        \
   }
 #define down_svector()                                                  \
@@ -270,13 +290,17 @@ local void gc_mark (object obj)
     case_symbol: /* Symbol */
       down_varobject(TheSymbol,symbol_objects_offset,
                      sizeof(symbol_)-sizeof(gcv_object_t));
+    case_sstring: /* simple-string */
+      if (sstring_reallocatedp(TheSstring(dies))) {
+        down_sistring();
+      }
+      /*FALLTHROUGH*/
     case_sbvector: /* simple-bit-vector */
     case_sb2vector: /* simple-2bit-vector */
     case_sb4vector: /* simple-4bit-vector */
     case_sb8vector: /* simple-8bit-vector */
     case_sb16vector: /* simple-16bit-vector */
     case_sb32vector: /* simple-32bit-vector */
-    case_sstring: /* simple-string */
     case_bignum: /* bignum */
    #ifndef IMMEDIATE_FFLOAT
     case_ffloat: /* single-float */
@@ -336,12 +360,14 @@ local void gc_mark (object obj)
           down_svector();
         case Rectype_WeakKVT:
           down_weakkvt();
+        #ifdef HAVE_SMALL_SSTRING
         case Rectype_reallocstring:
          #if GC_UNREALLOC && 0
           /* this breaks the relationship between dies & vorg */
-          simple_array_to_storage(dies);
+          sstring_un_realloc(dies);
          #endif
-          /*FALLTHROUGH*/
+          down_sistring();
+        #endif
         case Rectype_mdarray:
         case Rectype_bvector:
         case Rectype_b2vector:
@@ -419,6 +445,11 @@ local void gc_mark (object obj)
         up_record();
       case_subr: /* SUBR */
         up_subr();
+      case_sstring: /* simple-string */
+        if (sstring_reallocatedp(TheSstring(vorg))) {
+          up_sistring();
+        }
+        /*FALLTHROUGH*/
       case_machine: /* maschine address */
       case_char: /* character */
       case_system: /* frame-pointer, read-label, system */
@@ -434,7 +465,6 @@ local void gc_mark (object obj)
       case_sb8vector: /* simple-8bit-vector */
       case_sb16vector: /* simple-16bit-vector */
       case_sb32vector: /* simple-32bit-vector */
-      case_sstring: /* simple-string */
       case_bignum: /* bignum */
      #ifndef IMMEDIATE_FFLOAT
       case_ffloat: /* single-float */

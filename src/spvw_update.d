@@ -128,6 +128,8 @@
   } while(0)
 #define do_update_iarray()  \
   do { var gcv_object_t* p = &((Iarray)ptr)->data; update(p); } while(0)
+#define do_update_sistring()  \
+  do { var gcv_object_t* p = &((Sistring)ptr)->data; update(p); } while(0)
 #define do_update_record()                                                \
   do {                                                                    \
     # on update of pointers, the hash-tables are invalidated              \
@@ -172,6 +174,10 @@
        case_svector: # Simple-vector: update all pointers              \
          do_update_svector();                                          \
          break;                                                        \
+       case_sstring: # Simple-string                                   \
+         if (sstring_reallocatedp((Sstring)ptr))                       \
+           do_update_sistring(); # update data vector                  \
+         break;                                                        \
        case_mdarray: case_obvector: case_ob2vector: case_ob4vector:    \
        case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: \
        case_ovector: # non-simple array: update data vector            \
@@ -199,12 +205,17 @@
        case Rectype_b8vector:                                       \
        case Rectype_b16vector:                                      \
        case Rectype_b32vector:                                      \
-       case Rectype_reallocstring:                                  \
        case Rectype_string:                                         \
        case Rectype_vector:                                         \
          # non-simple array: update data vector                     \
          do_update_iarray();                                        \
          break;                                                     \
+       if_HAVE_SMALL_SSTRING(                                       \
+       case Rectype_reallocstring:                                  \
+         # reallocated simple string: update data vector            \
+         do_update_sistring();                                      \
+         break;                                                     \
+       )                                                            \
        case Rectype_Svector:                                        \
          # Simple-vector: update all pointers                       \
          do_update_svector();                                       \
@@ -258,6 +269,16 @@
      do_update_iarray();                                               \
      ptr = newptr; # advance to the next object                        \
    } while(0)
+ #define update_sstring(type_expr)  # ignores type_expr                 \
+   do {                                                                 \
+     var uintL laenge = objsize_sstring((void*)ptr); # determine length \
+     var aint newptr = ptr+laenge; # pointer to the next object         \
+     if (sstring_reallocatedp((Sstring)ptr)) {                          \
+       # reallocated simple string: update data vector                  \
+       do_update_sistring();                                            \
+     }                                                                  \
+     ptr = newptr; # advance to the next object                         \
+   } while(0)
  #define update_record(type_expr)  # ignores type_expr                 \
    do {                                                                \
      var uintL laenge = objsize_record((void*)ptr); # determine length \
@@ -273,6 +294,9 @@
      # Record (esp. hash-table); rest.                                 \
      switch (heapnr) {                                                 \
        case_symbol: update_page(page,update_symbol); break;            \
+       case_sstring:                                                   \
+         if_HAVE_SMALL_SSTRING( update_page(page,update_sstring); )    \
+         break;                                                        \
        case_svector: update_page(page,update_svector); break;          \
        case_mdarray: case_obvector: case_ob2vector: case_ob4vector:    \
        case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: \

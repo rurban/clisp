@@ -68,8 +68,11 @@ LISPFUNNR(copy_simple_vector,1)
  < result: its length */
 global uintL vector_length (object vector) {
   if (array_simplep(vector)) {
-    simple_array_to_storage(vector);
-    return Sarray_length(vector);
+    if (simple_string_p(vector)) {
+      sstring_un_realloc(vector);
+      return Sstring_length(vector);
+    } else
+      return Sarray_length(vector);
   }
   /* Indirect Array */
   var Iarray addr = TheIarray(vector);
@@ -220,11 +223,17 @@ local object iarray_displace (object array, uintL* index) {
   /* array is indirect, but not displaced */
   array = TheIarray(array)->data; /* next array is the storage-vector */
  simple:
-  simple_array_to_storage(array);
   /* have reached the storage-vector, not indirect */
-  if (!nullp(array))
-    if (*index >= Sarray_length(array))
-      goto fehler_bad_index;
+  if (!nullp(array)) {
+    if (simple_string_p(array)) {
+      sstring_un_realloc(array);
+      if (*index >= Sstring_length(array))
+        goto fehler_bad_index;
+    } else {
+      if (*index >= Sarray_length(array))
+        goto fehler_bad_index;
+    }
+  }
   return array;
  fehler_bad_index:
   fehler(error,GETTEXT("index too large")); /* more details?? */
@@ -258,11 +267,17 @@ global object iarray_displace_check (object array, uintL size, uintL* index) {
   /* array is indirect, but not displaced */
   array = TheIarray(array)->data; /* next array is the storage-vector */
  simple:
-  simple_array_to_storage(array);
   /* have reached the storage-vector, not indirect */
-  if (!nullp(array))
-    if (*index+size > Sarray_length(array))
-      goto fehler_bad_index;
+  if (!nullp(array)) {
+    if (simple_string_p(array)) {
+      sstring_un_realloc(array);
+      if (*index+size > Sstring_length(array))
+        goto fehler_bad_index;
+    } else {
+      if (*index+size > Sarray_length(array))
+        goto fehler_bad_index;
+    }
+  }
   return array;
  fehler_bad_index:
   fehler_displaced_inconsistent();
@@ -293,11 +308,17 @@ global object array_displace_check (object array, uintL size, uintL* index) {
   /* array is indirect, but not displaced */
   array = TheIarray(array)->data; /* next array is the storage-vector */
  simple:
-  simple_array_to_storage(array);
   /* have reached the storage-vector, not indirect */
-  if (!nullp(array))
-    if (*index+size > Sarray_length(array))
-      goto fehler_bad_index;
+  if (!nullp(array)) {
+    if (simple_string_p(array)) {
+      sstring_un_realloc(array);
+      if (*index+size > Sstring_length(array))
+        goto fehler_bad_index;
+    } else {
+      if (*index+size > Sarray_length(array))
+        goto fehler_bad_index;
+    }
+  }
   return array;
  fehler_bad_index:
   fehler_displaced_inconsistent();
@@ -455,8 +476,9 @@ local uintL test_index (void) {
   if (!posfixnump(STACK_0)) /* index must be fixnum>=0 . */
     fehler_index_type();
   var uintL index = posfixnum_to_L(STACK_0); /* index as uintL */
-  if (index >= Sarray_length(STACK_1)) /* index must be smaller then length */
-    fehler_index_range(Sarray_length(STACK_1));
+  var uintL length = (simple_string_p(STACK_1) ? Sstring_length(STACK_1) : Sarray_length(STACK_1));
+  if (index >= length) /* index must be smaller then length */
+    fehler_index_range(length);
   return index;
 }
 
@@ -475,7 +497,7 @@ local object subscripts_to_index (object array, gcv_object_t* argptr,
     /* check number of subscripts: */
     if (argcount != 1) /* should be = 1 */
       fehler_subscript_anz(array,argcount);
-    simple_array_to_storage(STACK_1);
+    sstring_un_realloc(STACK_1);
     /* check subscript itself: */
     *index_ = test_index(); /* index = row-major-index = subscript */
     skipSTACK(1); return STACK_0;
@@ -606,52 +628,71 @@ local object storagevector_store (object datenvektor, uintL index,
     case Array_type_sb32vector:
       ((uint32*)&TheSbvector(datenvektor)->data[0])[index] = I_to_UL(element); /* poss. error-message does I_to_UL */
       return datenvektor;
-  #ifndef TYPECODES
+    #ifdef TYPECODES
+    case_sstring:
+      if (sstring_immutable(TheSstring(datenvektor)))
+        fehler_sstring_immutable(datenvektor);
+      #ifdef HAVE_SMALL_SSTRING
+      switch (sstring_eltype(TheSstring(datenvektor))) {
+        case Sstringtype_8Bit: goto case_s8string;
+        case Sstringtype_16Bit: goto case_s16string;
+        case Sstringtype_32Bit: goto case_s32string;
+        default: NOTREACHED;
+      }
+      #else
+      goto case_s32string;
+      #endif
+    #else
     case Rectype_Imm_S8string:
     case Rectype_Imm_S16string:
     case Rectype_Imm_S32string: /* immutable Simple-String */
       fehler_sstring_immutable(datenvektor);
     #ifdef HAVE_SMALL_SSTRING
     case Rectype_S8string: /* mutable Simple-String */
+      goto case_s8string;
+    case Rectype_S16string: /* mutable Simple-String */
+      goto case_s16string;
+    case Rectype_S32string: /* mutable Simple-String */
+      goto case_s32string;
+    #else
+    case Rectype_S8string: case Rectype_S16string: case Rectype_S32string:
+      goto case_s32string;
+    #endif
+    #endif
+    #ifdef HAVE_SMALL_SSTRING
+    case_s8string:
       if (charp(element)) {
         if (char_int(element) < cint8_limit)
           TheS8string(datenvektor)->data[index] = char_int(element);
         else if (maygc) {
           if (char_int(element) < cint16_limit) {
-            datenvektor = reallocate_small_string(datenvektor,Rectype_S16string);
-            TheS16string(TheSiarray(datenvektor)->data)->data[index] = char_int(element);
+            datenvektor = reallocate_small_string(datenvektor,Sstringtype_16Bit);
+            TheS16string(TheSistring(datenvektor)->data)->data[index] = char_int(element);
           } else {
-            datenvektor = reallocate_small_string(datenvektor,Rectype_S32string);
-            TheS32string(TheSiarray(datenvektor)->data)->data[index] = char_int(element);
+            datenvektor = reallocate_small_string(datenvektor,Sstringtype_32Bit);
+            TheS32string(TheSistring(datenvektor)->data)->data[index] = char_int(element);
           }
         } else
-          abort();
+          NOTREACHED;
         return datenvektor;
       }
       break;
-    case Rectype_S16string: /* mutable Simple-String */
+    case_s16string: /* mutable Simple-String */
       if (charp(element)) {
         if (char_int(element) < cint16_limit)
           TheS16string(datenvektor)->data[index] = char_int(element);
         else if (maygc) {
-          datenvektor = reallocate_small_string(datenvektor,Rectype_S32string);
-          TheS32string(TheSiarray(datenvektor)->data)->data[index] = char_int(element);
+          datenvektor = reallocate_small_string(datenvektor,Sstringtype_32Bit);
+          TheS32string(TheSistring(datenvektor)->data)->data[index] = char_int(element);
         } else
-          abort();
+          NOTREACHED;
         return datenvektor;
       }
       break;
     #endif
-    #ifdef UNICODE
-    case Rectype_S32string: /* mutable Simple-String */
-    #else
-    case Rectype_S8string: /* mutable Simple-String */
-    #endif
-   #else
-    case Array_type_sstring: /* Simple-String */
-   #endif
+    case_s32string: /* mutable Simple-String */
       if (charp(element)) {
-        TheSstring(datenvektor)->data[index] = char_code(element);
+        TheS32string(datenvektor)->data[index] = char_int(element);
         return datenvektor;
       }
       break;
@@ -741,7 +782,7 @@ LISPFUNNR(row_major_aref,2)
   if (index >= array_total_size(array)) /* index must be smaller than size */
     fehler_index_range(array_total_size(array));
   if (array_simplep(array)) {
-    simple_array_to_storage(array);
+    sstring_un_realloc(array);
   } else {
     array = iarray_displace(array,&index);
   }
@@ -761,7 +802,7 @@ LISPFUNN(row_major_store,3)
   if (index >= array_total_size(array)) /* index must be smaller than size */
     fehler_index_range(array_total_size(array));
   if (array_simplep(array)) {
-    simple_array_to_storage(array);
+    sstring_un_realloc(array);
   } else {
     array = iarray_displace(array,&index);
   }
@@ -851,8 +892,13 @@ LISPFUNNR(array_dimension,2)
   if (array_simplep(array)) {
     /* simple vector: axis-number must be =0, value is then the length. */
     if (eq(axis_number,Fixnum_0)) {
-      simple_array_to_storage(array);
-      VALUES1(fixnum(Sarray_length(array))); return;
+      if (simple_string_p(array)) {
+        sstring_un_realloc(array);
+        VALUES1(fixnum(Sstring_length(array)));
+      } else {
+        VALUES1(fixnum(Sarray_length(array)));
+      }
+      return;
     } else
       goto fehler_axis;
   } else { /* non-simple array */
@@ -889,9 +935,13 @@ LISPFUNNR(array_dimension,2)
  can trigger GC */
 global object array_dimensions (object array) {
   if (array_simplep(array)) { /* simple vector, form (LIST length) */
-    simple_array_to_storage(array);
-    var object len /* length as fixnum (non endangered by GC) */
-      = fixnum(Sarray_length(array));
+    var object len; /* length as fixnum (non endangered by GC) */
+    if (simple_string_p(array)) {
+      sstring_un_realloc(array);
+      len = fixnum(Sstring_length(array));
+    } else {
+      len = fixnum(Sarray_length(array));
+    }
     var object new_cons = allocate_cons();
     Car(new_cons) = len; Cdr(new_cons) = NIL;
     return new_cons;
@@ -968,10 +1018,13 @@ LISPFUN(array_in_bounds_p,seclass_read,1,0,rest,nokey,0,NIL)
       fehler_index_type();
     /* subscript must be fixnum>=0 , */
     /* subscript as uintL must be smaller than length: */
-    simple_array_to_storage(array);
-    if (!( posfixnump(subscriptobj)
-           && (posfixnum_to_L(subscriptobj) < Sarray_length(array)) ))
-      goto no;
+    if (!posfixnump(subscriptobj)) goto no;
+    if (simple_string_p(array)) {
+      sstring_un_realloc(array);
+      if (!(posfixnum_to_L(subscriptobj) < Sstring_length(array))) goto no;
+    } else {
+      if (!(posfixnum_to_L(subscriptobj) < Sarray_length(array))) goto no;
+    }
     goto yes;
   } else { /* non-simple array */
     /* check number of subscripts: */
@@ -1010,7 +1063,7 @@ LISPFUN(array_row_major_index,seclass_read,1,0,rest,nokey,0,NIL)
     /* check number of subscripts: */
     if (argcount != 1) /* should be = 1 */
       fehler_subscript_anz(array,argcount);
-    simple_array_to_storage(STACK_1);
+    sstring_un_realloc(STACK_1);
     /* check subscript itself: */
     test_index();
     VALUES1(popSTACK()); /* Index = Row-Major-Index = Subscript */
@@ -2061,8 +2114,8 @@ local void elt_copy_T_Char (object dv1, uintL index1,
       dv2 = sstring_store(dv2,index2++,char_code(value));
       if (--count == 0)
         break;
-      if (Record_type(dv2) == Rectype_reallocstring) { /* reallocated? */
-        dv2 = TheSiarray(dv2)->data;
+      if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
+        dv2 = TheSistring(dv2)->data;
         goto restart_it;
       }
     }
@@ -2073,8 +2126,8 @@ local void elt_copy_T_Char (object dv1, uintL index1,
       dv2 = sstring_store(dv2,index2++,char_code(value));
       if (--count == 0)
         break;
-      if (Record_type(dv2) == Rectype_reallocstring) { /* reallocated? */
-        dv2 = TheSiarray(dv2)->data;
+      if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
+        dv2 = TheSistring(dv2)->data;
         goto restart_it;
       }
     }
@@ -2121,8 +2174,8 @@ local void elt_copy_Char_Char (object dv1, uintL index1,
         dv2 = sstring_store(dv2,index2++,ch);
         if (--count == 0)
           break;
-        if (Record_type(dv2) == Rectype_reallocstring) { /* reallocated? */
-          dv2 = TheSiarray(dv2)->data;
+        if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
+          dv2 = TheSistring(dv2)->data;
           dv1 = popSTACK();
           goto restart16;
         }
@@ -2152,8 +2205,8 @@ local void elt_copy_Char_Char (object dv1, uintL index1,
         dv2 = sstring_store(dv2,index2++,ch);
         if (--count == 0)
           break;
-        if (Record_type(dv2) == Rectype_reallocstring) { /* reallocated? */
-          dv2 = TheSiarray(dv2)->data;
+        if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
+          dv2 = TheSistring(dv2)->data;
           dv1 = popSTACK();
           goto restart32;
         }
@@ -2166,8 +2219,8 @@ local void elt_copy_Char_Char (object dv1, uintL index1,
         dv2 = sstring_store(dv2,index2++,ch);
         if (--count == 0)
           break;
-        if (Record_type(dv2) == Rectype_reallocstring) { /* reallocated? */
-          dv2 = TheSiarray(dv2)->data;
+        if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
+          dv2 = TheSistring(dv2)->data;
           dv1 = popSTACK();
           goto restart32;
                                 }
@@ -3246,12 +3299,12 @@ global bool elt_fill (object dv, uintL index, uintL count, object element) {
     case Array_type_sstring: /* Simple-String */
       if (!charp(element)) return true;
       if (count > 0) {
-        simple_array_to_storage(dv);
+        sstring_un_realloc(dv);
         check_sstring_mutable(dv);
         var chart c = char_code(element);
         /* The first store can cause reallocation, the remaining ones cannot. */
         dv = sstring_store(dv,index++,c);
-        simple_array_to_storage1(dv); /* reallocated? */
+        sstring_un_realloc1(dv); /* reallocated? */
         if (--count > 0) {
           SstringDispatch(dv,X, {
             var cintX* ptr = &((SstringX)TheVarobject(dv))->data[index];
@@ -3374,8 +3427,8 @@ global void elt_reverse (object dv1, uintL index1, object dv2, uintL index2,
             dv2 = sstring_store(dv2,index2--,ch);
             if (--count == 0)
               break;
-            if (Record_type(dv2) == Rectype_reallocstring) { /* reallocated? */
-              dv2 = TheSiarray(dv2)->data;
+            if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
+              dv2 = TheSistring(dv2)->data;
               dv1 = popSTACK();
               goto restart16;
             }
@@ -3403,8 +3456,8 @@ global void elt_reverse (object dv1, uintL index1, object dv2, uintL index2,
             dv2 = sstring_store(dv2,index2--,ch);
             if (--count == 0)
               break;
-            if (Record_type(dv2) == Rectype_reallocstring) { /* reallocated? */
-              dv2 = TheSiarray(dv2)->data;
+            if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
+              dv2 = TheSistring(dv2)->data;
               dv1 = popSTACK();
               goto restart32;
             }
@@ -3417,8 +3470,8 @@ global void elt_reverse (object dv1, uintL index1, object dv2, uintL index2,
             dv2 = sstring_store(dv2,index2--,ch);
             if (--count == 0)
               break;
-            if (Record_type(dv2) == Rectype_reallocstring) { /* reallocated? */
-              dv2 = TheSiarray(dv2)->data;
+            if (sstring_reallocatedp(TheSstring(dv2))) { /* reallocated? */
+              dv2 = TheSistring(dv2)->data;
               dv1 = popSTACK();
               goto restart32;
             }
@@ -3740,7 +3793,7 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
         /* then append new_element: */
         if (!charp(STACK_1))
           goto fehler_type;
-        TheSstring(neuer_datenvektor)->data[len] = char_code(STACK_1);
+        TheSnstring(neuer_datenvektor)->data[len] = char_code(STACK_1);
         break;
       case Atype_Bit: /* array is a bit-vector */
       case Atype_2Bit: case Atype_4Bit: case Atype_8Bit:
@@ -3924,7 +3977,7 @@ global object ssstring_push_extend (object ssstring, chart ch) {
   /* now sstring is still the data vector, and we have
      fill-pointer < length(data vector).
      push the character in and increase the fill-pointer: */
-  TheSstring(sstring)->data[ TheIarray(ssstring)->dims[1]++ ] = ch;
+  TheSnstring(sstring)->data[ TheIarray(ssstring)->dims[1]++ ] = ch;
   return ssstring;
 }
 
@@ -3977,7 +4030,7 @@ global object ssstring_append_extend (object ssstring, object srcstring,
       { copy_16bit_32bit(&TheS16string(srcstring)->data[start],ptr,len); },
       { copy_32bit_32bit(&TheS32string(srcstring)->data[start],ptr,len); });
     #else
-    copy_8bit_8bit(&TheSstring(srcstring)->data[start],ptr,len);
+    copy_8bit_8bit(&TheS8string(srcstring)->data[start],ptr,len);
     #endif
   }
   /* increase the fill-pointer: */
@@ -4204,7 +4257,7 @@ local object make_storagevector (uintL len, uintB eltype) {
       }
       vector = popSTACK();
      #ifdef HAVE_SMALL_SSTRING
-      ASSERT(Record_type(vector) != Rectype_reallocstring);
+      ASSERT(!sarray_reallocstringp(vector));
      #endif
     }
   return vector;
@@ -4270,8 +4323,8 @@ local void initial_contents_aux (void* arg, object obj) {
     pushSTACK(datenvektor);
     datenvektor = storagevector_store(datenvektor,locals->index,STACK_1,true);
    #ifdef HAVE_SMALL_SSTRING
-    if (Record_type(datenvektor) == Rectype_reallocstring) /* has it been reallocated? */
-      *(localptr STACKop -1) = datenvektor = TheSiarray(datenvektor)->data;
+    if (sarray_reallocstringp(datenvektor)) /* has it been reallocated? */
+      *(localptr STACKop -1) = datenvektor = TheSistring(datenvektor)->data;
    #endif
     locals->index++;
     skipSTACK(2); /* clean up stack */
@@ -4704,7 +4757,11 @@ LISPFUN(adjust_array,seclass_default,2,0,norest,key,6,
         array_displace_check(value1,totalsize,&offset2);
       var uintL* dimptr;
       if (array_simplep(STACK_0)) {
-        offset2 = Sarray_length(STACK_0);
+        if (simple_string_p(STACK_0)) {
+          sstring_un_realloc(STACK_0);
+          offset2 = Sstring_length(STACK_0);
+        } else
+          offset2 = Sarray_length(STACK_0);
         dimptr = &offset2;
       } else {
         dimptr = &TheIarray(STACK_0)->dims[0];

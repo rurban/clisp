@@ -134,6 +134,24 @@ local uintC generation;
       }                                                  \
       objptr += objsize_iarray((Iarray)objptr);          \
     } while(0)
+  #define walk_area_sistring(objptr,physpage_end,walkfun)       \
+    do {                                                        \
+      var gcv_object_t* ptr = &((Sistring)objptr)->data;        \
+      if ((aint)ptr < physpage_end) {                           \
+        walkfun(*ptr);                                          \
+      }                                                         \
+      objptr += size_sistring(sstring_length((Sstring)objptr)); \
+    } while(0)
+  #define walk_area_sstring(objptr,physpage_end,walkfun)   \
+    do {                                                   \
+      if (sstring_reallocatedp((Sstring)objptr)) {         \
+        var gcv_object_t* ptr = &((Sistring)objptr)->data; \
+        if ((aint)ptr < physpage_end) {                    \
+          walkfun(*ptr);                                   \
+        }                                                  \
+      }                                                    \
+      objptr += objsize_sstring((Sstring)objptr);          \
+    } while(0)
   #define walk_area_svector(objptr,physpage_end,walkfun)    \
     do {                                                    \
       var uintL count = svector_length((Svector)objptr);    \
@@ -182,6 +200,12 @@ local uintC generation;
             while (objptr < physpage_end)                                 \
               walk_area_iarray(objptr,physpage_end,walkfun);              \
             break;                                                        \
+          if_HAVE_SMALL_SSTRING(                                          \
+          case_sstring: # simple-string                                   \
+            while (objptr < physpage_end)                                 \
+              walk_area_sstring(objptr,physpage_end,walkfun);             \
+            break;                                                        \
+          )                                                               \
           case_weakkvt: # weak-key-value-table                            \
           case_svector: # simple-vector                                   \
             while (objptr < physpage_end)                                 \
@@ -214,6 +238,11 @@ local uintC generation;
                     # arrays that are not simple:                            \
                     walk_area_iarray(objptr,physpage_end,walkfun);           \
                     break;                                                   \
+                  if_HAVE_SMALL_SSTRING(                                     \
+                  case_sstring: # simple-string                              \
+                    walk_area_sstring(objptr,physpage_end,walkfun);          \
+                    break;                                                   \
+                  )                                                          \
                   case_weakkvt: # weak-key-value-table                       \
                   case_svector: # simple-vector                              \
                     walk_area_svector(objptr,physpage_end,walkfun);          \
@@ -247,12 +276,17 @@ local uintC generation;
                   case Rectype_b8vector:                                  \
                   case Rectype_b16vector:                                 \
                   case Rectype_b32vector:                                 \
-                  case Rectype_reallocstring:                             \
                   case Rectype_string:                                    \
                   case Rectype_vector:                                    \
                     # arrays that are not simple:                         \
                     walk_area_iarray(objptr,physpage_end,walkfun);        \
                     break;                                                \
+                  if_HAVE_SMALL_SSTRING(                                  \
+                  case Rectype_reallocstring:                             \
+                    # reallocated simple-string                           \
+                    walk_area_sistring(objptr,physpage_end,walkfun);      \
+                    break;                                                \
+                  )                                                       \
                   case Rectype_WeakKVT: # weak-key-value-table            \
                   case Rectype_Svector: # simple-vector                   \
                     walk_area_svector(objptr,physpage_end,walkfun);       \
@@ -479,6 +513,46 @@ local uintC generation;
                 }
                 if (!(objptr == gen0_end)) abort();
                 break;
+              #ifdef HAVE_SMALL_SSTRING
+              case_sstring: # simple-string
+                physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
+                physpage->continued_count = 0;
+                physpage->firstobject = gen0_start;
+                gen0_start += physpagesize; physpage++;
+                while (objptr < gen0_end) {
+                  var aint nextptr = objptr + objsize_sstring((Sstring)objptr);
+                  # here is gen0_start-physpagesize <= objptr < gen0_start.
+                  if (nextptr >= gen0_start) {
+                    if (sstring_reallocatedp((Sstring)objptr)) {
+                      var aint ptr = (aint)&((Sistring)objptr)->data;
+                      # count = 1;
+                      if (ptr < gen0_start) {
+                        physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
+                        physpage->continued_count = 0;
+                      } else {
+                        physpage->continued_addr = (gcv_object_t*)ptr;
+                        physpage->continued_count = 1;
+                      }
+                    } else {
+                      physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
+                      physpage->continued_count = 0;
+                    }
+                    # At most one page boundary has been crossed.
+                    # Then, there are no more pointers (until nextptr).
+                    loop {
+                      physpage->firstobject = nextptr;
+                      gen0_start += physpagesize; physpage++;
+                      if (nextptr < gen0_start)
+                        break;
+                      physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
+                      physpage->continued_count = 0;
+                    }
+                  }
+                  objptr = nextptr;
+                }
+                if (!(objptr == gen0_end)) abort();
+                break;
+              #endif
               case_weakkvt: # weak-key-value-table
               case_svector: # simple-vector
                 physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
@@ -632,6 +706,41 @@ local uintC generation;
                     objptr = nextptr;
                   }
                   break;
+                #ifdef HAVE_SMALL_SSTRING
+                case_sstring: # simple-string
+                  {
+                    var aint nextptr = objptr + objsize_sstring((Sstring)objptr);
+                    # here is gen0_start-physpagesize <= objptr < gen0_start.
+                    if (nextptr >= gen0_start) {
+                      if (sstring_reallocatedp((Sstring)objptr)) {
+                        var aint ptr = (aint)&((Sistring)objptr)->data;
+                        # count = 1;
+                        if (ptr < gen0_start) {
+                          physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
+                          physpage->continued_count = 0;
+                        } else {
+                          physpage->continued_addr = (gcv_object_t*)ptr;
+                          physpage->continued_count = 1;
+                        }
+                      } else {
+                        physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
+                        physpage->continued_count = 0;
+                      }
+                      # At most one page boundary has been crossed.
+                      # Then, there are no more pointers (until nextptr).
+                      loop {
+                        physpage->firstobject = nextptr;
+                        gen0_start += physpagesize; physpage++;
+                        if (nextptr < gen0_start)
+                          break;
+                        physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
+                        physpage->continued_count = 0;
+                      }
+                    }
+                    objptr = nextptr;
+                  }
+                  break;
+                #endif
                 case_weakkvt: # weak-key-value-table
                 case_svector: # simple-vector
                   {
@@ -694,6 +803,10 @@ local uintC generation;
                     case Rectype_Bignum:
                     case Rectype_Ffloat: case Rectype_Dfloat: case Rectype_Lfloat:
                       goto case_nopointers;
+                    #ifdef HAVE_SMALL_SSTRING
+                    case Rectype_reallocstring:
+                      goto case_sstring;
+                    #endif
                     default: ;
                   }
                   #endif
@@ -736,7 +849,7 @@ local uintC generation;
                   }
                   break;
                 case_nopointers:
-                default: # simple-bit-vector, simple-string, bignum, float
+                default: # simple-bit-vector, bignum, float
                   # no pointers.
                   objptr += objsize((Varobject)objptr);
                   while (objptr >= gen0_start) {

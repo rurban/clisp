@@ -3870,7 +3870,7 @@ typedef xrecord_ *  Xrecord;
          Rectype_Imm_S16string,    /* 20 */ # immutable S16string, not Srecord/Xrecord
          Rectype_S32string,        /* 21 */ # S32string, not Srecord/Xrecord
          Rectype_Imm_S32string,    /* 22 */ # immutable S32string, not Srecord/Xrecord
-         Rectype_reallocstring,    /* 23 */ # reallocated simple string, Siarray, an Xrecord, only used #ifdef HAVE_SMALL_SSTRING
+         Rectype_reallocstring,    /* 23 */ # reallocated simple string, an Sistring, only used #ifdef HAVE_SMALL_SSTRING
            /* Rectype_reallocstring is the top SIMPLE-STRING & SIMPLE-VECTOR */
          Rectype_string,           /* 24 */ # Iarray, not Srecord/Xrecord
            /* Rectype_string is the top STRING */
@@ -4097,11 +4097,12 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 #define ascii_char(x)  code_char(ascii(x))
 
 # Whether to use three different kinds of string representations.
-#if !defined(TYPECODES) && defined(SPVW_MIXED) && defined(UNICODE) && (defined(GNU) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT)) && !defined(NO_SMALL_SSTRING)
+#if defined(UNICODE) && (defined(GNU) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT)) && !defined(NO_SMALL_SSTRING)
 #define HAVE_SMALL_SSTRING
 #endif
 
 #ifdef HAVE_SMALL_SSTRING
+  #define if_HAVE_SMALL_SSTRING(statement)  statement
   # We have three kinds of simple strings, with 8-bit codes (ISO-8859-1
   # strings), with 16-bit codes (UCS-2 strings) and with 32-bit codes
   # (UCS-4/UTF-32 strings).
@@ -4112,6 +4113,7 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
   typedef uint32 cint32;
   #define cint32_limit 0x110000UL
 #else
+  #define if_HAVE_SMALL_SSTRING(statement)  /*nop*/
   # Only one kind of simple strings.
   typedef cint cint8;
   #define cint8_limit char_int_limit
@@ -4328,8 +4330,7 @@ typedef lfloat_ *  Lfloat;
 #endif
 #define Lfloat_length(obj)  lfloat_length(TheLfloat(obj))
 
-# simple array (cover simple linear arrays:
-# simple bit vector, simple string, simple vector)
+# simple array (cover simple linear arrays: simple bit vector, simple vector)
 typedef struct {
   LRECORD_HEADER # Self-pointer for GC, length in elements
 } sarray_;
@@ -4347,10 +4348,22 @@ typedef sbvector_ *  Sbvector;
 #define Sbvector_length(obj)  sbvector_length(TheSbvector(obj))
 
 # simple string template
+#ifdef TYPECODES
+  #define SSTRING_HEADER  \
+                 VAROBJECT_HEADER # self-pointer for GC \
+                 uintL tfl;       # type, flags, length
+#else
+  #define SSTRING_HEADER  \
+                 VAROBJECT_HEADER # self-pointer for GC, tfl
+#endif
+typedef struct {
+  SSTRING_HEADER
+} sstring_;
+typedef sstring_ *  Sstring;
 #define STRUCT_SSTRING(cint_type) \
-  struct {                                                              \
-    LRECORD_HEADER /* self-pointer for GC, length in characters */      \
-    cint_type  data[unspecified];  /* characters */                     \
+  struct {                                                                     \
+    SSTRING_HEADER /* self-pointer for GC, type+flags, length in characters */ \
+    cint_type  data[unspecified];  /* characters */                            \
   }
 #ifdef HAVE_SMALL_SSTRING
   typedef STRUCT_SSTRING(cint8)  s8string_;
@@ -4382,11 +4395,62 @@ typedef sbvector_ *  Sbvector;
 # A "normal simple string" is one of maximum-width element type.
 # It cannot be reallocated. Only strings with smaller element type
 # (called "small simple strings") can be reallocated.
-typedef STRUCT_SSTRING(chart)  sstring_;
-typedef sstring_ *  Sstring;
+  typedef STRUCT_SSTRING(chart)  snstring_;
+  typedef snstring_ *  Snstring;
 # These accessors work on any simple string, except reallocated simple-strings.
-#define sstring_length(ptr)  sarray_length(ptr)
+#ifdef TYPECODES
+  #define sstring_length(ptr)  ((ptr)->tfl >> 6)
+#else
+  #define sstring_length(ptr)  ((ptr)->tfl >> 10)
+#endif
 #define Sstring_length(obj)  sstring_length(TheSstring(obj))
+# Constructing the tfl word:
+#ifdef TYPECODES
+  #define sstring_tfl(eltype,imm,flags,length)  \
+    (((length) << 6) + ((eltype) << 4) + ((imm) << 3) + (flags))
+#else
+  # This must be consistent with lrecord_tfl.
+  #define sstringrecord_tfl(rectype,flags,length)  \
+    (((length) << 10) + ((flags) << 8) + (rectype))
+  #define sstring_tfl(eltype,imm,flags,length)  \
+    sstringrecord_tfl(Rectype_S8string + ((eltype) << 1) + (imm),flags,length)
+#endif
+# Test whether a simple string is reallocated:
+#ifdef HAVE_SMALL_SSTRING
+  #ifdef TYPECODES
+    #define sstringflags_forwarded_B  bit(2)
+    #define sstring_reallocatedp(ptr)  ((ptr)->tfl & sstringflags_forwarded_B)
+  #else
+    #define sstring_reallocatedp(ptr)  (record_type(ptr) == Rectype_reallocstring)
+  #endif
+#else
+  #define sstring_reallocatedp(ptr)  0
+#endif
+# Extract the element type of a not-reallocated simple string:
+#ifdef TYPECODES
+  #define sstring_eltype(ptr)  (((ptr)->tfl >> 4) & 3)
+#else
+  #define sstring_eltype(ptr)  ((record_type(ptr) - Rectype_S8string) >> 1)
+#endif
+# Possible values of sstring_eltype:
+  #define Sstringtype_8Bit   0
+  #define Sstringtype_16Bit  1
+  #define Sstringtype_32Bit  2
+# Extract the immutable bit of a simple string (reallocated or not):
+#ifdef TYPECODES
+  #define sstring_immutable(ptr)  (((ptr)->tfl >> 3) & 1)
+#else
+  #define sstring_immutable(ptr)  ((record_type(ptr) - Rectype_S8string) & 1)
+#endif
+# Extract the flags of a simple string (reallocated or not):
+#ifdef TYPECODES
+  #define sstring_flags(ptr)  ((ptr)->tfl & 3)
+#else
+  #define sstring_flags(ptr)  (((ptr)->tfl) >> 8) & 3)
+#endif
+# Bit masks in the flags. Only used during garbage collection.
+  #define sstringflags_backpointer_B  bit(0)
+  #define sstringflags_relocated_B    bit(1)
 
 # simple vector
 typedef struct {
@@ -4397,14 +4461,13 @@ typedef svector_ *  Svector;
 #define svector_length(ptr)  sarray_length(ptr)
 #define Svector_length(obj)  svector_length(TheSvector(obj))
 
-# simple indirect array
-#ifndef TYPECODES
+# simple indirect string
 typedef struct {
-  VAROBJECT_HEADER   # self-pointer for GC, tfl
+  SSTRING_HEADER   # self-pointer for GC, tfl
   gcv_object_t data _attribute_aligned_object_; # data vector
-} siarray_;
-typedef siarray_ *  Siarray;
-#endif
+} sistring_;
+typedef sistring_ *  Sistring;
+#define sistring_data_offset  offsetof(sistring_,data)
 
 # non-simple indirect Array
 typedef struct {
@@ -5456,6 +5519,8 @@ typedef enum {
   #define TheS8string(obj)  ((S8string)(types_pointable(sstring_type,obj)))
   #define TheS16string(obj)  ((S16string)(types_pointable(sstring_type,obj)))
   #define TheS32string(obj)  ((S32string)(types_pointable(sstring_type,obj)))
+  #define TheSnstring(obj)  ((Snstring)(types_pointable(sstring_type,obj)))
+  #define TheSistring(obj)  ((Sistring)(types_pointable(sstring_type,obj)))
   #define TheSstring(obj)  ((Sstring)(types_pointable(sstring_type,obj)))
   #define TheSvector(obj)  ((Svector)(types_pointable(svector_type,obj)))
   #define TheWeakKVT(obj)  ((WeakKVT)(types_pointable(weakkvt_type,obj)))
@@ -5597,10 +5662,11 @@ typedef enum {
   #define TheS8string(obj)  ((S8string)(ngci_pointable(obj)-varobject_bias))
   #define TheS16string(obj)  ((S16string)(ngci_pointable(obj)-varobject_bias))
   #define TheS32string(obj)  ((S32string)(ngci_pointable(obj)-varobject_bias))
+  #define TheSnstring(obj)  ((Snstring)(ngci_pointable(obj)-varobject_bias))
+  #define TheSistring(obj)  ((Sistring)(ngci_pointable(obj)-varobject_bias))
   #define TheSstring(obj)  ((Sstring)(ngci_pointable(obj)-varobject_bias))
   #define TheSvector(obj)  ((Svector)(ngci_pointable(obj)-varobject_bias))
   #define TheWeakKVT(obj)  ((WeakKVT)(ngci_pointable(obj)-varobject_bias))
-  #define TheSiarray(obj)  ((Siarray)(ngci_pointable(obj)-varobject_bias))
   #define TheIarray(obj)  ((Iarray)(ngci_pointable(obj)-varobject_bias))
   #define TheRecord(obj)  ((Record)(ngci_pointable(obj)-varobject_bias))
   #define TheSrecord(obj)  ((Srecord)(ngci_pointable(obj)-varobject_bias))
@@ -7817,7 +7883,7 @@ extern object allocate_s8string (uintL len);
 #define allocate_s8string(len)  allocate_s32string(len)
 #endif
 
-#if (!defined(UNICODE) || defined(HAVE_SMALL_SSTRING)) && !defined(TYPECODES)
+#if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
 # UP, provides immutable 8-bit character string
 # allocate_imm_s8string(len)
 # > len: length of the string (in characters)
@@ -7859,7 +7925,7 @@ extern object allocate_imm_s16string (uintL len);
 extern object allocate_s32string (uintL len);
 #endif
 
-#if defined(UNICODE) && !defined(TYPECODES)
+#ifdef UNICODE
 # UP, provides immutable 32-bit character string
 # allocate_imm_s32string(len)
 # > len: length of the string (in characters)
@@ -7902,30 +7968,22 @@ extern object allocate_imm_s32string (uintL len);
 #else
   # Careful: Fill GCself with pointers to itself, so that GC will leave
   # pointers to this object untouched.
-  #ifdef TYPECODES
+  #ifdef UNICODE
     #define DYNAMIC_STRING(objvar,len)  \
-      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(gcv_object_t))); \
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(s32string_,data),sizeof(gcv_object_t))); \
       var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
-      ((Sstring)objvar##_storage)->length = (len);
+      ((Sstring)objvar##_storage)->tfl = sstring_tfl(Sstringtype_32Bit,0,0,len);
   #else
-    #ifdef UNICODE
-      #define DYNAMIC_STRING(objvar,len)  \
-        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(gcv_object_t))); \
-        var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
-        ((Sstring)objvar##_storage)->tfl = lrecord_tfl(Rectype_S32string,len);
-    #else
-      #define DYNAMIC_STRING(objvar,len)  \
-        DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(sstring_,data),sizeof(gcv_object_t))); \
-        var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
-        ((Sstring)objvar##_storage)->tfl = lrecord_tfl(Rectype_S8string,len);
-    #endif
+    #define DYNAMIC_STRING(objvar,len)  \
+      DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(s8string_,data),sizeof(gcv_object_t))); \
+      var object objvar = ((Sstring)objvar##_storage)->GCself = bias_type_pointer_object(varobject_bias,sstring_type,(Sstring)objvar##_storage); \
+      ((Sstring)objvar##_storage)->tfl = sstring_tfl(Sstringtype_8Bit,0,0,len);
   #endif
   #define FREE_DYNAMIC_STRING(objvar)  \
     FREE_DYNAMIC_ARRAY(objvar##_storage)
 #endif
 # used by LISPARIT
 
-#ifndef TYPECODES
 # UP: allocates an immutable String
 # allocate_imm_string(len)
 # > len: length of the String (in Characters)
@@ -7937,17 +7995,16 @@ extern object allocate_imm_s32string (uintL len);
   #define allocate_imm_string(len)  allocate_imm_s8string(len)
 #endif
 # is used by CHARSTRG
-#endif
 
 #ifdef HAVE_SMALL_SSTRING
-# UP: Changes the allocation of a Small-String to an Siarray, while
+# UP: Changes the allocation of a Small-String to an Sistring, while
 # copying the contents to a fresh normal string.
 # reallocate_small_string(string)
 # > string: a nonempty Small-String
-# > newtype: new wider string type, Rectype_S16string or Rectype_S32string
-# < result: an Siarray pointing to a wider String
+# > newtype: new wider string type, Sstringtype_16Bit or Sstringtype_32Bit
+# < result: an Sistring pointing to a wider String
 # can trigger GC
-  extern object reallocate_small_string (object string, sintBWL newtype);
+  extern object reallocate_small_string (object string, uintB newtype);
 # is used by ARRAY
 #endif
 
@@ -10611,7 +10668,7 @@ extern object ascii_to_string (const char * asciz);
     }} while(0)
   #define with_sstring_0(string,encoding,ascizvar,statement)  \
     do { var object ascizvar##_string = (string);                         \
-      simple_array_to_storage(ascizvar##_string);                         \
+      sstring_un_realloc(ascizvar##_string);                              \
      {var uintL ascizvar##_len = Sstring_length(ascizvar##_string);       \
       var const chart* ptr1;                                              \
       unpack_sstring_alloca(ascizvar##_string,ascizvar##_len,0, ptr1=);   \
@@ -10656,7 +10713,7 @@ extern object ascii_to_string (const char * asciz);
   }} while(0)
 #define with_sstring(string,encoding,charptrvar,lenvar,statement)  \
   do { var object charptrvar##_string = (string);                         \
-    simple_array_to_storage(charptrvar##_string);                         \
+    sstring_un_realloc(charptrvar##_string);                              \
    {var uintL charptrvar##_len = Sstring_length(charptrvar##_string);     \
     var const chart* ptr1;                                                \
     unpack_sstring_alloca(charptrvar##_string,charptrvar##_len,0, ptr1=); \
@@ -10684,22 +10741,31 @@ extern object ascii_to_string (const char * asciz);
  so we are limited like with LAMBDA-PARAMETERS-LIMIT */
 #define arrayrank_limit_1  lp_limit_1
 
-# Macro: Follows the Siarray chain, to get from a simple array (actually,
+# Macro: Follows the Sistring chain, to get from a simple array (actually,
 # a string) to its storage vector.
-# simple_array_to_storage(array);
-# simple_array_to_storage1(array); [when at most one Siarray is involved]
+# sstring_un_realloc(array);
+# sstring_un_realloc1(array); [when at most one Sistring is involved]
 # > array: a simple array
 # < array: its storage vector
 #ifdef HAVE_SMALL_SSTRING
-  #define simple_array_to_storage(array)  \
-    while (Record_type(array) == Rectype_reallocstring) \
-      (array) = TheSiarray(array)->data/*;*/
-  #define simple_array_to_storage1(array)  \
-    if (Record_type(array) == Rectype_reallocstring) \
-      (array) = TheSiarray(array)->data/*;*/
+  #ifdef TYPECODES
+    #define sarray_reallocstringp(array)  \
+      (typecode(array) == sstring_type                                  \
+       && (sstring_flags(TheSstring(array)) & sstringflags_forwarded_B) \
+      )
+  #else
+    #define sarray_reallocstringp(array)  \
+      (Record_type(array) == Rectype_reallocstring)
+  #endif
+  #define sstring_un_realloc(array)  \
+    while (sarray_reallocstringp(array)) \
+      (array) = TheSistring(array)->data/*;*/
+  #define sstring_un_realloc1(array)  \
+    if (sarray_reallocstringp(array)) \
+      (array) = TheSistring(array)->data/*;*/
 #else
-  #define simple_array_to_storage(array)  (void)0 /*nop*/
-  #define simple_array_to_storage1(array)  (void)0 /*nop*/
+  #define sstring_un_realloc(array)  (void)0 /*nop*/
+  #define sstring_un_realloc1(array)  (void)0 /*nop*/
 #endif
 
 # Function: Copies a simple-vector.
@@ -10856,8 +10922,11 @@ extern void iarray_dims_sizes (object array, array_dim_size_t* dims_sizes);
 #ifndef COMPILE_STANDALONE
 static inline uintL array_total_size (object array) {
   if (array_simplep(array)) {
-    simple_array_to_storage(array);
-    return Sarray_length(array); # simple vector: total length
+    sstring_un_realloc(array);
+    if (simple_string_p(array))
+      return Sstring_length(array); # simple string: total length
+    else
+      return Sarray_length(array); # simple vector: total length
   } else
     return TheIarray(array)->totalsize; # indirect array: contains totalsize
 }
@@ -11149,14 +11218,14 @@ extern void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len);
 
 # Dispatches among S8string, S16string and S32string.
 # SstringCase(string,s8string_statement,s16string_statement,s32string_statement);
-# > string: a simple-string
+# > string: a not-reallocated simple-string
 # Executes one of the three statement, depending on the element size of string.
 #ifdef UNICODE
   #ifdef HAVE_SMALL_SSTRING
     #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement)  \
-      if (Record_type(string) == Rectype_S8string || Record_type(string) == Rectype_Imm_S8string) { s8string_statement } else \
-      if (Record_type(string) == Rectype_S16string || Record_type(string) == Rectype_Imm_S16string) { s16string_statement } else \
-      if (Record_type(string) == Rectype_S32string || Record_type(string) == Rectype_Imm_S32string) { s32string_statement } else \
+      if (sstring_eltype(TheSstring(string)) == Sstringtype_8Bit) { s8string_statement } else \
+      if (sstring_eltype(TheSstring(string)) == Sstringtype_16Bit) { s16string_statement } else \
+      if (sstring_eltype(TheSstring(string)) == Sstringtype_32Bit) { s32string_statement } else \
       NOTREACHED;
   #else
     #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement)  \
@@ -11172,7 +11241,7 @@ extern void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len);
 
 # Dispatches among S8string, S16string and S32string.
 # SstringDispatch(string,suffix,statement)
-# > string: a simple-string
+# > string: a not-reallocated simple-string
 # Executes the statement with cint##suffix being bound to the appropriate
 # integer type (cint8, cint16 or cint32) and with Sstring being bound to the
 # appropriate struct pointer type (S8string, S16string or S32string).
@@ -11191,34 +11260,31 @@ extern void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len);
 
 # Tests whether a simple-string is a normal-simple-string.
 # sstring_normal_p(string)
-# > string: a simple-string
+# > string: a not-reallocated simple-string
 #ifdef HAVE_SMALL_SSTRING
   #define sstring_normal_p(string)  \
-    (Record_type(string) == Rectype_S32string || Record_type(string) == Rectype_Imm_S32string)
+    (sstring_eltype(TheSstring(string)) == Sstringtype_32Bit)
 #else
   #define sstring_normal_p(string)  1
 #endif
 
 # Makes a string contents available.
 # unpack_sstring_alloca(string,len,offset, charptr = );
-# > object string: a simple-string
+# > object string: a not-reallocated simple-string
 # > uintL len: the number of characters to be accessed
 # > uintL offset: where the characters to be accessed start
 # < const chart* charptr: pointer to the characters
 #   (may be in string, may be on the stack)
 #ifdef HAVE_SMALL_SSTRING
   #define unpack_sstring_alloca(string,len,offset,charptr_assignment)  \
-    if (Record_type(string) == Rectype_S32string                               \
-        || Record_type(string) == Rectype_Imm_S32string) {                     \
+    if (sstring_eltype(TheSstring(string)) == Sstringtype_32Bit) {             \
       charptr_assignment (const chart*) &TheS32string(string)->data[offset];   \
     } else {                                                                   \
       var chart* _unpacked_ = (chart*)alloca((len)*sizeof(chart));             \
       if ((len) > 0) {                                                         \
-        if (Record_type(string) == Rectype_S16string                           \
-            || Record_type(string) == Rectype_Imm_S16string)                   \
+        if (sstring_eltype(TheSstring(string)) == Sstringtype_16Bit)           \
           copy_16bit_32bit(&TheS16string(string)->data[offset],(cint32*)_unpacked_,len);\
-        elif (Record_type(string) == Rectype_S8string                          \
-              || Record_type(string) == Rectype_Imm_S8string)                  \
+        elif (sstring_eltype(TheSstring(string)) == Sstringtype_8Bit)          \
           copy_8bit_32bit(&TheS8string(string)->data[offset],(cint32*)_unpacked_,len);\
         else                                                                   \
           NOTREACHED;                                                          \
@@ -11227,13 +11293,13 @@ extern void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len);
     }
 #else
   #define unpack_sstring_alloca(string,len,offset,charptr_assignment)  \
-    charptr_assignment (const chart*) &TheSstring(string)->data[offset];
+    charptr_assignment (const chart*) &TheSnstring(string)->data[offset];
 #endif
 # is used by
 
 # UP: Fetches a character from a simple string.
 # schar(string,index)
-# > object string: a simple string
+# > object string: a not-reallocated simple string
 # > uintL index: >= 0, < length of string
 # < chart result: character at the given position
 #ifdef UNICODE
@@ -11336,11 +11402,7 @@ extern object coerce_ss (object obj);
 # > obj: Lisp-Object, should be a String.
 # < result: immutable Simple-String with the same characters.
 # can trigger GC
-#ifdef TYPECODES
-  #define coerce_imm_ss coerce_ss
-#else
-  extern object coerce_imm_ss (object obj);
-#endif
+extern object coerce_imm_ss (object obj);
 # is used by PACKAGE
 
 # UP: Converts a String to a Normal-Simple-String.
@@ -11964,27 +12026,14 @@ nonreturning_function(extern, fehler_sstring, (object obj));
 
 # Checks a simple-string for being mutable.
 # check_sstring_mutable(string);
-#ifdef TYPECODES
-  #define check_sstring_mutable(obj)
-#else
   #define check_sstring_mutable(obj)  \
-    switch (Record_type(obj)) {        \
-      case Rectype_Imm_S8string:       \
-      case Rectype_Imm_S16string:      \
-      case Rectype_Imm_S32string:      \
-        fehler_sstring_immutable(obj); \
-      case Rectype_S8string:           \
-      case Rectype_S16string:          \
-      case Rectype_S32string:          \
-        break;                         \
-      default: NOTREACHED;             \
-    }
+    if (sstring_immutable(TheSstring(obj))) \
+      fehler_sstring_immutable(obj);
   # Error message, if a Simple-String is immutable:
   # fehler_sstring_immutable(obj);
   # > obj: der String
   nonreturning_function(extern, fehler_sstring_immutable, (object obj));
   # is used by Macro check_sstring_mutable
-#endif
 
 # Error message, if an argument is not of type (OR STRING INTEGER).
 # fehler_string_integer(obj);
