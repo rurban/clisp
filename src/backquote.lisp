@@ -299,13 +299,13 @@
                   (list (list 'append last-opt)))))
 
         ;; (... '(x1 x2 ...)) -> (list ... 'x1 'x2 ...)
-	;; But CAREFUL! Must not rip apart unquotes and splices:
-	;; (... ',form) -> (list ... 'system::unquote 'form)
+        ;; But CAREFUL! Must not rip apart unquotes and splices:
+        ;; (... ',form) -> (list ... 'system::unquote 'form)
         ((and (consp last-opt)
               (eq (first last-opt) 'quote)
               (listp (second last-opt))
-	      (not (quoted-bq-operator-p last-opt)))
-	 (bq-optimize-list
+              (not (quoted-bq-operator-p last-opt)))
+         (bq-optimize-list
           (append '(list) (butlast forms)
                   (mapcar #'maybe-quote
                           (second last-opt)))))
