@@ -4,6 +4,11 @@ See also <https://sourceforge.net/tracker/?group_id=1355&atid=351355>
 MUST-FIX BEFORE NEXT RELEASE
 ============================
 
+Contagion warnings emitted by many floating-point operations.
+Even though the warnings are off by default now,
+the user who enables them will will report bug
+<http://sourceforge.net/tracker/index.php?func=detail&aid=945469&group_id=1355&atid=101355>
+
 Inefficiency of class redefinition when old or new class is unfinalizable
 
 support perseverances also on write side
@@ -196,6 +201,9 @@ Debugger:
   should be used for which purpose?
 - Turn the <n> entries of show-stack into normal entries, with equal rights
   as the other entries. Remove the <n>, as it's no information.
+  * actually, these entries specify control flow (function calls)
+    rather than local data (the other entries), they are "headers",
+    so they should be printed differently and counted separately
 - Devise a better variety of stack traces, maybe one without args and one with
   args?
 
