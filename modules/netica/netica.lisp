@@ -165,9 +165,7 @@
 
 (eval-when (compile eval load)
   (defconstant MESG_LEN_ns 256)
-  (defconstant NAME_MAX_ns 30)
-  (defconstant MAX_PARENT 32)
-  (defconstant MAX_STATE 32))
+  (defconstant NAME_MAX_ns 30))
 
 (def-c-enum checking_ns
   (NO_CHECK 1)
@@ -398,7 +396,8 @@
   (:return-type state_bn))
 (def-call-out GetNodeLikelihood_bn
   (:arguments (node node_bn_))
-  (:return-type (c-ptr prob_bn)))
+  ;; `(c-array prob_bn ,(GetNodeNumberStates_bn node))
+  (:return-type c-pointer))
 (def-call-out GetNodeValueEntered_bn
   (:arguments (node node_bn_))
   (:return-type double-float))
@@ -432,14 +431,16 @@
   (:return-type bool_ns))
 (def-call-out GetNodeBeliefs_bn
   (:arguments (node node_bn_))
-  (:return-type (c-array-max prob_bn #.MAX_STATE)))
+  ;; `(c-array-max prob_bn ,(GetNodeNumberStates_bn node))
+  (:return-type c-pointer))
 (def-call-out GetNodeExpectedValue_bn
   (:arguments (node node_bn_) (stddev (c-ptr double-float))
               (x3 (c-ptr double-float)) (x4 (c-ptr double-float)))
   (:return-type double-float))
 (def-call-out GetNodeExpectedUtils_bn
   (:arguments (node node_bn_))
-  (:return-type (c-ptr util_bn)))
+  ;; `(c-array prob_bn ,(GetNodeNumberStates_bn node))
+  (:return-type c-pointer))
 (def-call-out JointProbability_bn
   (:arguments (nodes nodelist_bn_) (states (c-ptr state_bn)))
   (:return-type double-float))
@@ -627,8 +628,8 @@
   (:return-type nil))
 (def-call-out SetNodeProbs_bn
   (:arguments (node node_bn_)
-              (parent_states (c-array-max state_bn #.MAX_PARENT))
-              (probs (c-array-max prob_bn #.MAX_STATE)))
+              (parent_states (c-array-ptr state_bn))
+              (probs (c-array-ptr prob_bn)))
   (:return-type nil))
 (def-call-out SetNodeFuncState_bn
   (:arguments (node node_bn_) (parent_states (c-ptr state_bn))
@@ -735,7 +736,11 @@
   (:return-type state_bn))
 (def-call-out GetNodeLevels_bn
   (:arguments (node node_bn_))
-  (:return-type (c-ptr level_bn)))
+  #| `(c-array prob_bn
+        ,(+ (GetNodeNumberStates_bn node)
+            (ecase (GetNodeType_bn node)
+              (#.CONTINUOUS_TYPE 1) (#.DISCRETE_TYPE 0)))) |#
+  (:return-type c-pointer))
 (def-call-out GetNodeParents_bn
   (:arguments (node node_bn_))
   (:return-type nodelist_bn_))
@@ -759,7 +764,8 @@
   (:return-type c-string))
 (def-call-out GetNodeProbs_bn
   (:arguments (node node_bn_) (parent_states (c-ptr state_bn)))
-  (:return-type (c-ptr prob_bn)))
+  ;; `(c-array prob_bn ,(GetNodeNumberStates_bn node))
+  (:return-type c-pointer))
 (def-call-out GetNodeFuncState_bn
   (:arguments (node node_bn_) (parent_states (c-ptr state_bn)))
   (:return-type state_bn))

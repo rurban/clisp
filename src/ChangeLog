@@ -1,5 +1,22 @@
 2003-08-06  Sam Steingold  <sds@gnu.org>
 
+	the demo now works just fine
+	* modules/netica/demo.lisp: use DEFPARAMETER
+	* modules/netica/wrap.lisp (null-pointer): removed (use NIL instead)
+	(check-errors): use CERROR
+	(make-net): set comment and title
+	(net-info, node-info): new functions
+	(make-node): fixed the SetNodeProbs_bn call
+	(make-node-wrapper): new build-time macro
+	(GetNodeBeliefs, GetNodeExpectedUtils, GetNodeLikelihood)
+	(GetNodeProbs): new low-level wrappers defined with it
+	(save-net): fixed file type merging
+	* modules/netica/netica.lisp (MAX_PARENT, MAX_STATE): removed
+	(GetNodeBeliefs_bn, GetNodeExpectedUtils_bn, SetNodeProbs_bn)
+	(GetNodeLevels_bn, GetNodeProbs_bn): fixed declarations
+
+2003-08-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/regexp/regexi.c (mregexec): new function
 	* modules/regexp/regexp.lisp (num-matches, regexec): removed
 	(mregexec): replaces regexec
