@@ -22,9 +22,15 @@
   #define LISPSYM_B(name,printname,package)  \
     { {S(name)}, unbound, unbound, NIL, NIL, NIL, },
 #else
-  #define LISPSYM_B(name,printname,package)  \
-    { S(name), xrecord_tfl(Rectype_Symbol,0,5,0), \
-      unbound, unbound, NIL, NIL, NIL, },
+  #ifdef LINUX_NOEXEC_HEAPCODES
+    #define LISPSYM_B(name,printname,package)  \
+      { S(name), xrecord_tfl(Rectype_Symbol,0,5,0), \
+        unbound, unbound, NIL, NIL, NIL, unbound, },
+  #else
+    #define LISPSYM_B(name,printname,package)  \
+      { S(name), xrecord_tfl(Rectype_Symbol,0,5,0), \
+        unbound, unbound, NIL, NIL, NIL, },
+  #endif
 #endif
 #define LISPSYM_C(name,printname,package)  printname,
 #define LISPSYM_D(name,printname,package)  (uintB)enum_##package##_index,
