@@ -459,6 +459,7 @@ int main(int argc, char* argv[])
   printf("#include <stdlib.h>\n");
   printf("#include <sys/types.h>\n");
 #if defined(WIN32_NATIVE)
+  printf("#include <windows.h>\n");
   printf("#define Handle HANDLE\n");
 #elif defined(UNIX)
   printf("#define Handle uintW\n");
@@ -2091,7 +2092,6 @@ int main(int argc, char* argv[])
   printf("extern long to_time_t_ (FILETIME * ptr);\n");
 #endif
 #if defined(WIN32_NATIVE)
-  printf("#include <windows.h>\n");
   printf("extern object convert_time_to_universal (const FILETIME* time);\n");
 #endif
   printf("#define UNIX_LISP_TIME_DIFF 2208988800UL\n");
