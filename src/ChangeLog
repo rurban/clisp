@@ -1,5 +1,13 @@
 2004-09-18  Bruno Haible  <bruno@clisp.org>
 
+	Support for user-defined DEFCLASS options.
+	* clos-class5.lisp (class-valid-initialization-keywords): New function.
+	* clos-class3.lisp (defclass): Accept class options that depend on
+	the metaclass. Move the verification of the class option checking from
+	macroexpansion time to execution time.
+
+2004-09-18  Bruno Haible  <bruno@clisp.org>
+
 	* clos-genfun4.lisp (shared-initialize@generic-function,
 	shared-initialize@standard-generic-function): Remove &allow-other-keys.
 	* clos-specializer2.lisp (shared-initialize@eql-specializer): Likewise.

@@ -223,122 +223,164 @@
                                 ,@(when initform `(:INITFORM ',initform :INITFUNCTION ,initfunction))
                                 ,@(when types `(:TYPE ',(first types)))
                                 ,@(when documentation `(:DOCUMENTATION ',documentation))))))
-                     slot-specs))))
-    `(LET ()
-       (EVAL-WHEN (COMPILE LOAD EVAL)
-         (APPLY #'ENSURE-CLASS
-           ',name
-           :DIRECT-SUPERCLASSES (LIST ,@superclass-forms)
-           :DIRECT-SLOTS (LIST ,@slot-forms)
-           ,@(let ((metaclass nil)
-                   (direct-default-initargs nil)
-                   (documentation nil)
-                   (fixed-slot-locations nil))
-               (dolist (option options)
-                 (block nil
-                   (when (listp option)
-                     (let ((optionkey (first option)))
-                       (when (case optionkey
-                               (:METACLASS metaclass)
-                               (:DEFAULT-INITARGS direct-default-initargs)
-                               (:DOCUMENTATION documentation))
-                         (error-of-type 'ext:source-program-error
-                           :form whole-form
-                           :detail options
-                           (TEXT "~S ~S, option ~S may only be given once")
-                           'defclass name optionkey))
-                       (case optionkey
-                         (:METACLASS
-                          (when (eql (length option) 2)
-                            (let ((argument (second option)))
-                              (unless (symbolp argument)
-                                (error-of-type 'ext:source-program-error
-                                  :form whole-form
-                                  :detail argument
-                                  (TEXT "~S ~S, option ~S: ~S is not a symbol")
-                                  'defclass name option argument))
-                              (setq metaclass `(FIND-CLASS ',argument)))
-                            (return)))
-                         (:DEFAULT-INITARGS
-                          (let ((list (rest option)))
-                            (when (and (consp list) (null (cdr list)) (listp (car list)))
-                              (setq list (car list))
-                              (warn (TEXT "~S ~S: option ~S should be written ~S")
-                                    'defclass name option (cons ':DEFAULT-INITARGS list)))
-                            (when (oddp (length list))
-                              (error-of-type 'ext:source-program-error
-                                :form whole-form
-                                :detail list
-                                (TEXT "~S ~S, option ~S: arguments must come in pairs")
-                                'defclass name option))
-                            (setq direct-default-initargs
-                                  `(:DIRECT-DEFAULT-INITARGS
-                                    (LIST
-                                     ,@(let ((arglist nil) (formlist nil))
-                                         (do ((listr list (cddr listr)))
-                                             ((atom listr))
-                                           (unless (symbolp (first listr))
-                                             (error-of-type 'ext:source-program-error
-                                               :form whole-form
-                                               :detail (first listr)
-                                               (TEXT "~S ~S, option ~S: ~S is not a symbol")
-                                               'defclass name option (first listr)))
-                                           (when (member (first listr) arglist)
-                                             (error-of-type 'ext:source-program-error
-                                               :form whole-form
-                                               :detail list
-                                               (TEXT "~S ~S, option ~S: ~S may only be given once")
-                                               'defclass name option (first listr)))
-                                           (push (first listr) arglist)
-                                           (push (second listr) formlist))
-                                         (mapcan #'(lambda (arg form)
-                                                     `((LIST ',arg ',form ,(make-initfunction-form form arg))))
-                                                 (nreverse arglist) (nreverse formlist)))))))
-                          (return))
-                         (:DOCUMENTATION
-                          (when (eql (length option) 2)
-                            (let ((argument (second option)))
-                              (unless (stringp argument)
-                                (error-of-type 'ext:source-program-error
-                                  :form whole-form
-                                  :detail argument
-                                  (TEXT "~S ~S, option ~S: ~S is not a string")
-                                  'defclass name option argument))
-                              (setq documentation
-                                    `(:DOCUMENTATION ',argument)))
-                            (return)))
-                         (:GENERIC-ACCESSORS
-                          (when (eql (length option) 2)
-                            (let ((argument (second option)))
-                              (setq generic-accessors argument)
-                              (return))))
-                         (:FIXED-SLOT-LOCATIONS
-                          (setq fixed-slot-locations `(:FIXED-SLOT-LOCATIONS 'T))
-                          (return)))))
+                     slot-specs)))
+         (metaclass nil)
+         (direct-default-initargs nil)
+         (documentation nil)
+         (fixed-slot-locations nil)
+         (user-defined-args nil))
+    (dolist (option options)
+      (block nil
+        (when (listp option)
+          (let ((optionkey (first option)))
+            (when (case optionkey
+                    (:METACLASS metaclass)
+                    (:DEFAULT-INITARGS direct-default-initargs)
+                    (:DOCUMENTATION documentation))
+              (error-of-type 'ext:source-program-error
+                :form whole-form
+                :detail options
+                (TEXT "~S ~S, option ~S may only be given once")
+                'defclass name optionkey))
+            (case optionkey
+              (:METACLASS
+               (when (eql (length option) 2)
+                 (let ((argument (second option)))
+                   (unless (symbolp argument)
+                     (error-of-type 'ext:source-program-error
+                       :form whole-form
+                       :detail argument
+                       (TEXT "~S ~S, option ~S: ~S is not a symbol")
+                       'defclass name option argument))
+                   (setq metaclass `(FIND-CLASS ',argument)))
+                 (return)))
+              (:DEFAULT-INITARGS
+               (let ((list (rest option)))
+                 (when (and (consp list) (null (cdr list)) (listp (car list)))
+                   (setq list (car list))
+                   (warn (TEXT "~S ~S: option ~S should be written ~S")
+                         'defclass name option (cons ':DEFAULT-INITARGS list)))
+                 (when (oddp (length list))
                    (error-of-type 'ext:source-program-error
                      :form whole-form
-                     :detail option
-                     (TEXT "~S ~S: invalid option ~S")
-                     'defclass name option)))
-               `(,@(if metaclass `(:METACLASS ,metaclass))
-                 ;; Here we use (or ... '(... NIL)) because when a class is
-                 ;; being redefined, :DOCUMENTATION NIL means to erase the
-                 ;; documentation string, while nothing means to keep it!
-                 ;; See MOP p. 57.
-                 ,@(or direct-default-initargs '(:DIRECT-DEFAULT-INITARGS NIL))
-                 ,@(or documentation '(:DOCUMENTATION NIL))
-                 :GENERIC-ACCESSORS ',generic-accessors
-                 ,@(or fixed-slot-locations '(:FIXED-SLOT-LOCATIONS NIL))
-                 ;; Pass the default initargs of the metaclass, in
-                 ;; order to erase leftovers from the previous definition.
-                 ,(if metaclass
-                    `(MAPCAP #'(LAMBDA (X) (LIST (FIRST X) (FUNCALL (THIRD X))))
-                             (CLASS-DEFAULT-INITARGS ,metaclass))
-                    `NIL)))))
-       ,@(if generic-accessors
-           (nreverse accessor-method-decl-forms) ; the DECLAIM-METHODs
-           (nreverse accessor-function-decl-forms)) ; the C-DEFUNs
-       (FIND-CLASS ',name))))
+                     :detail list
+                     (TEXT "~S ~S, option ~S: arguments must come in pairs")
+                     'defclass name option))
+                 (setq direct-default-initargs
+                       `(:DIRECT-DEFAULT-INITARGS
+                         (LIST
+                          ,@(let ((arglist nil) (formlist nil))
+                              (do ((listr list (cddr listr)))
+                                  ((atom listr))
+                                (unless (symbolp (first listr))
+                                  (error-of-type 'ext:source-program-error
+                                    :form whole-form
+                                    :detail (first listr)
+                                    (TEXT "~S ~S, option ~S: ~S is not a symbol")
+                                    'defclass name option (first listr)))
+                                (when (member (first listr) arglist)
+                                  (error-of-type 'ext:source-program-error
+                                    :form whole-form
+                                    :detail list
+                                    (TEXT "~S ~S, option ~S: ~S may only be given once")
+                                    'defclass name option (first listr)))
+                                (push (first listr) arglist)
+                                (push (second listr) formlist))
+                              (mapcan #'(lambda (arg form)
+                                          `((LIST ',arg ',form ,(make-initfunction-form form arg))))
+                                      (nreverse arglist) (nreverse formlist)))))))
+               (return))
+              (:DOCUMENTATION
+               (when (eql (length option) 2)
+                 (let ((argument (second option)))
+                   (unless (stringp argument)
+                     (error-of-type 'ext:source-program-error
+                       :form whole-form
+                       :detail argument
+                       (TEXT "~S ~S, option ~S: ~S is not a string")
+                       'defclass name option argument))
+                   (setq documentation
+                         `(:DOCUMENTATION ',argument)))
+                 (return)))
+              ((:NAME :DIRECT-SUPERCLASSES :DIRECT-SLOTS :DIRECT-DEFAULT-INITARGS)
+               ;; These are valid initialization keywords for <class>, but
+               ;; nevertheless not valid DEFCLASS options.
+               (error-of-type 'ext:source-program-error
+                 :form whole-form
+                 :detail option
+                 (TEXT "~S ~S: invalid option ~S")
+                 'defclass name option))
+              (:GENERIC-ACCESSORS
+               (when (eql (length option) 2)
+                 (let ((argument (second option)))
+                   (setq generic-accessors argument)
+                   (return))))
+              (:FIXED-SLOT-LOCATIONS
+               (setq fixed-slot-locations `(:FIXED-SLOT-LOCATIONS 'T))
+               (return))
+              (T
+               (when (symbolp optionkey)
+                 (when (assoc optionkey user-defined-args)
+                   (error-of-type 'ext:source-program-error
+                     :form whole-form
+                     :detail options
+                     (TEXT "~S ~S, option ~S may only be given once")
+                     'defclass name optionkey))
+                 (push option user-defined-args)
+                 (return))))))
+        (error-of-type 'ext:source-program-error
+          :form whole-form
+          :detail option
+          (TEXT "~S ~S: invalid option ~S")
+          'defclass name option)))
+    (setq user-defined-args (nreverse user-defined-args))
+    (let ((metaclass-var (gensym))
+          (metaclass-keywords-var (gensym)))
+      `(LET ()
+         (EVAL-WHEN (COMPILE LOAD EVAL)
+           (LET* ((,metaclass-var ,(or metaclass '<STANDARD-CLASS>))
+                  ,@(if user-defined-args
+                      `((,metaclass-keywords-var
+                          (CLASS-VALID-INITIALIZATION-KEYWORDS ,metaclass-var)))))
+             ;; Provide good error messages. The error message from
+             ;; ENSURE-CLASS (actually MAKE-INSTANCE) later is unintelligible.
+             ,@(if user-defined-args
+                 `((UNLESS (EQ ,metaclass-keywords-var 'T)
+                     ,@(mapcar #'(lambda (option)
+                                   `(UNLESS (MEMBER ',(first option) ,metaclass-keywords-var)
+                                      (ERROR-OF-TYPE 'EXT:SOURCE-PROGRAM-ERROR
+                                        :FORM ',whole-form
+                                        :DETAIL ',option
+                                        (TEXT "~S ~S: invalid option ~S")
+                                        'DEFCLASS ',name ',option)))
+                               user-defined-args))))
+             (APPLY #'ENSURE-CLASS
+               ',name
+               :DIRECT-SUPERCLASSES (LIST ,@superclass-forms)
+               :DIRECT-SLOTS (LIST ,@slot-forms)
+               :METACLASS ,metaclass-var
+               ;; Here we use (or ... '(... NIL)) because when a class is
+               ;; being redefined, :DOCUMENTATION NIL means to erase the
+               ;; documentation string, while nothing means to keep it!
+               ;; See MOP p. 57.
+               ,@(or direct-default-initargs '(:DIRECT-DEFAULT-INITARGS NIL))
+               ,@(or documentation '(:DOCUMENTATION NIL))
+               :GENERIC-ACCESSORS ',generic-accessors
+               ,@(or fixed-slot-locations '(:FIXED-SLOT-LOCATIONS NIL))
+               ;; Pass user-defined initargs of the metaclass.
+               ,@(mapcan #'(lambda (option)
+                             (list `',(first option) `',(rest option)))
+                         user-defined-args)
+               ;; Pass the default initargs of the metaclass, in
+               ;; order to erase leftovers from the previous definition.
+               ,(if metaclass
+                  `(MAPCAP #'(LAMBDA (X) (LIST (FIRST X) (FUNCALL (THIRD X))))
+                           (CLASS-DEFAULT-INITARGS ,metaclass))
+                  `NIL))))
+         ,@(if generic-accessors
+             (nreverse accessor-method-decl-forms) ; the DECLAIM-METHODs
+             (nreverse accessor-function-decl-forms)) ; the C-DEFUNs
+         (FIND-CLASS ',name)))))
 
 ;; DEFCLASS execution:
 
