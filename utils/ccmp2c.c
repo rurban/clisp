@@ -47,7 +47,8 @@
 #include <stdio.h>
 
 /* Boolean type.  */
-typedef int boolean_t;
+/* Not a typedef because AIX <sys/types.h> already defines boolean_t.  */
+#define boolean_t int
 #define FALSE 0
 #define TRUE 1
 
