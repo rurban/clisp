@@ -4948,7 +4948,7 @@ nonreturning_function(local, fehler_print_case, (void)) {
 
 # UP: prints a part of a simple-string elementwise to stream.
 # write_sstring_ab(&stream,string,start,len);
-# > string: not-reallocated simple-string
+# > string: not-reallocated simple-string or (only if len==0) NIL
 # > start: startindex
 # > len: number of to-be-printed characters
 # > stream: Stream
@@ -6988,7 +6988,7 @@ local void pr_character (const gcv_object_t* stream_, object ch) {
 
 # UP: prints part of a simple-string to stream.
 # pr_sstring_ab(&stream,string,start,len);
-# > string: not-reallocated simple-string
+# > string: not-reallocated simple-string or (only if len==0) NIL
 # > start: startindex
 # > len: number of characters to be printed
 # > stream: stream
@@ -7052,7 +7052,7 @@ local void pr_string (const gcv_object_t* stream_, object string) {
   var uintL len = vector_length(string); # length
   var uintL offset = 0; # Offset of string in the data-vector
   var object sstring = array_displace_check(string,len,&offset); # data-vector
-  if (!simple_nilarray_p(sstring))
+  if (!simple_nilarray_p(sstring) || (len==0 && nullpSv(print_readably)))
     pr_sstring_ab(stream_,sstring,offset,len);
   else # nilvector
     pr_nilvector(stream_,string);
