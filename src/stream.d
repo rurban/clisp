@@ -1424,6 +1424,19 @@ LISPFUNNR(broadcast_stream_streams,1)
   VALUES1(copy_list(TheStream(stream)->strm_broad_list));
 }
 
+/* (car (last (broadcast_stream stream)))
+ this is necessary for issue 021
+ <http://www.lisp.org/HyperSpec/Issues/iss021.html> */
+local object broadcast_stream_last (object stream)
+{
+  var object stream_list = TheStream(stream)->strm_broad_list;
+  if (consp(stream_list)) {
+    do {   stream = Car(stream_list);
+      stream_list = Cdr(stream_list);
+    } while (consp(stream_list));
+    return stream;
+  } else return nullobj;
+}
 
 # Concatenated-Stream
 # ===================
@@ -15639,7 +15652,14 @@ LISPFUNNR(built_in_stream_element_type,1) {
         goto start;
       else { # Call (STREAM-ELEMENT-TYPE stream):
         pushSTACK(stream); funcall(S(stream_element_type),1);
+        return;
       }
+    case strmtype_broad: /* issue 021 */
+      stream = broadcast_stream_last(stream);
+      if (streamp(stream)) {
+        pushSTACK(stream); funcall(S(stream_element_type),1);
+        return;
+      } else eltype = T; /* empty stream list */
       break;
     # first the stream-types with restricted element-types:
     case strmtype_str_in:
@@ -15806,8 +15826,8 @@ LISPFUNN(built_in_stream_set_element_type,2) {
       else { # Call ((SETF STREAM-ELEMENT-TYPE) element-type stream):
         pushSTACK(STACK_1); pushSTACK(stream);
         funcall(O(setf_stream_element_type),2);
+        return;
       }
-      break;
     case strmtype_file:
    #ifdef PIPES
     case strmtype_pipe_in:
@@ -15938,6 +15958,10 @@ LISPFUNNR(stream_external_format,1)
       case strmtype_socket:
      #endif
         VALUES1(TheStream(stream)->strm_encoding); break;
+      case strmtype_broad:
+        pushSTACK(broadcast_stream_last(stream));
+        funcall(L(stream_external_format),1);
+        return;
       default:
         VALUES1(S(Kdefault)); break;
     }
