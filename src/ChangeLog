@@ -1,3 +1,7 @@
+2004-01-06  Sam Steingold  <sds@gnu.org>
+
+	* defs2.lisp (with-standard-io-syntax): bind *PRINT-SYMBOLS-LONG*
+
 2004-01-06  Bruno Haible  <bruno@clisp.org>
 
 	Assume that <sys/mman.h> declares mmap() in a POSIX compliant way.
@@ -8,8 +12,8 @@
 	* win32.d (MMAP_ADDR_T, MMAP_SIZE_T, RETMMAPTYPE): Remove macros.
 	* unixaux.d (fixed_mmap, mprotect): Use void* and size_t instead of
 	MMAP_ADDR_T and MMAP_SIZE_T.
-	* spvw_fault.d (handle_read_fault, handle_readwrite_fault,
-	handle_fault, handle_fault_range, xmprotect): Likewise.
+	* spvw_fault.d (handle_read_fault, handle_readwrite_fault)
+	(handle_fault, handle_fault_range, xmprotect): Likewise.
 	* spvw_garcol.d (gar_col_normal): Likewise.
 	* spvw_mmap.d (munmap, mprotect, mmap_zeromap, mmap_filemap): Likewise.
 	* spvw_multimap.d (msync_mmap_intervals, fdmap): Likewise.
