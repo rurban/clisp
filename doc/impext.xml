@@ -106,7 +106,8 @@ depends on the &domain;: usually it is located at
 The notion of &domain; allows several Lisp programs running in the same
 image to request translations independently of each other.</para>
 
-<para id="textdomain"><literal role="sexp">(&textdomain;)</literal> is a
+<formalpara id="textdomain"><title>&textdomain;</title>
+<para><literal role="sexp">(&textdomain;)</literal> is a
 place that returns the default &domain;, used when no &domain;
 argument is passed to the &gettext; and &ngettext; functions.
 It is &setf;able.
@@ -115,18 +116,19 @@ during the startup phase of a program.
 Note that the default &domain; is not saved in a &mem-image;.
 The use of <literal role="sexp">(&setf; &textdomain;)</literal> is
 recommended only for programs that are so simple that they will never
-need more than one &domain;.</para>
+need more than one &domain;.</para></formalpara>
 
-<para id="textdomaindir"><literal role="sexp">(&textdomaindir;
-&domain;)</literal> is a place that returns the base
-directory, called <filename>TEXTDOMAINDIR</filename> above, where the
-message catalogs for the given &domain; are assumed to be installed.
+<formalpara id="textdomaindir"><title>&textdomaindir;</title>
+<para><literal role="sexp">(&textdomaindir; &domain;)</literal>
+is a place that returns the base directory, called
+<filename>TEXTDOMAINDIR</filename> above, where the message
+catalogs for the given &domain; are assumed to be installed.
 It is &setf;able.
 <literal role="sexp">(&setf; &textdomaindir;)</literal> is usually used
 during the startup phase of a program, and should be used because only
 the program knows where its message catalogs are installed.
 Note that the <filename>TEXTDOMAINDIR</filename>s
-are not saved in a &mem-image;.</para>
+are not saved in a &mem-image;.</para></formalpara>
 
 </section>
 
@@ -2631,29 +2633,6 @@ unit</ulink> (usually a file), a warning is issued and
  </listitem></varlistentry></variablelist></listitem></varlistentry>
 </variablelist>
 
-<para id="param-mode">A function parameter's &param-mode; may be</para>
-
-<variablelist>
- <varlistentry><term>&in-k; (means: read-only):</term>
-  <listitem><simpara>The caller passes information to the callee.
-  </simpara></listitem></varlistentry>
- <varlistentry><term>&out-k; (means: write-only):</term>
-  <listitem><simpara>The callee passes information back to the caller on
-   return.  When viewed as a Lisp function, there is no Lisp argument
-   corresponding to this, instead it means an additional return value.
-  </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:IN-OUT</constant> (means: read-write):</term>
-  <listitem><simpara>Information is passed from the caller to the callee
-   and then back to the caller.  When viewed as a Lisp function, the
-   &out-k; value is returned as an additional multiple value.
-  </simpara></listitem></varlistentry>
-</variablelist>
-
-<para>The default is &in-k;.</para>
-
-<para>[Currently, only &in-k; is fully implemented.  &out-k; works only
- with &allocation; = &alloca-k;.]</para>
-
 <variablelist>
 <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
 <listitem><simpara>&allocation; may not be &malloc-free-k; because there
@@ -2681,6 +2660,32 @@ unit</ulink> (usually a file), a warning is issued and
 <para>See also &foreign-enc;.</para>
 <!-- #endif -->
 
+</section>
+
+<section id="param-mode"><title>Parameter Mode</title>
+
+<para>A function parameter's &param-mode; may be</para>
+
+<variablelist>
+ <varlistentry><term>&in-k; (means: read-only):</term>
+  <listitem><simpara>The caller passes information to the callee.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&out-k; (means: write-only):</term>
+  <listitem><simpara>The callee passes information back to the caller on
+   return.  When viewed as a Lisp function, there is no Lisp argument
+   corresponding to this, instead it means an additional return value.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:IN-OUT</constant> (means: read-write):</term>
+  <listitem><simpara>Information is passed from the caller to the callee
+   and then back to the caller.  When viewed as a Lisp function, the
+   &out-k; value is returned as an additional multiple value.
+  </simpara></listitem></varlistentry>
+</variablelist>
+
+<para>The default is &in-k;.</para>
+
+<para>[Currently, only &in-k; is fully implemented.  &out-k; works only
+ with &allocation; = &alloca-k;.]</para>
 </section>
 
 <section id="dffi-examples"><title>Examples</title>

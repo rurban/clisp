@@ -107,6 +107,7 @@
 <!ENTITY repl "<ulink url='&clhs;/Body/sec_25-1-1.html'>read-eval-print loop</ulink>">
 <!ENTITY iter-forms "<ulink url='&clhs;/Body/glo_i.html#iteration_form'><quote>iteration forms</quote></ulink>">
 <!ENTITY alist "<ulink url='&clhs;/Body/glo_a.html#association_list'>alist</ulink>">
+<!ENTITY type-eq "<ulink url='&clhs;/Body/glo_t.html#type_equivalent'>type equivalent</ulink>">
 
 <!-- *** packages *** -->
 <!ENTITY cl-pac "<ulink url='&clhs;/Body/sec_11-1-2-1.html'><quote>COMMON-LISP</quote></ulink>">
