@@ -1,5 +1,13 @@
 2002-01-14  Sam Steingold  <sds@gnu.org>
 
+	* defs1.lisp (*system-package-list*): new custom variable
+	(without-package-lock): new extension macro
+	* package.d (%SET-PACKAGE-LOCK): allow multiple packages
+	* savemem.lisp (saveinitmem): default LOCKED-PACKAGES
+	to *SYSTEM-PACKAGE-LIST*
+
+2002-01-14  Sam Steingold  <sds@gnu.org>
+
 	add :SCREEN to *FEATURES* when the "SCREEN" package is present
 	* init.lisp: use #+SCREEN instead of (find-package "SCREEN")
 	* spvw.d (*features*): add :SCREEN #ifdef SCREEN

@@ -27,7 +27,7 @@
 ;; This function works only when compiled!
 (defun saveinitmem (&optional (filename "lispinit.mem")
                     &key ((:quiet *quiet*) nil) init-function
-                    (locked-packages '("SYSTEM" "LISP" "EXT" "CUSTOM")))
+                    (locked-packages *system-package-list*))
   (let* ((old-driver *driver*)
          (*driver*
            #'(lambda ()
@@ -60,8 +60,7 @@
                (funcall *driver*)
              )
         ))
-    (dolist (pack locked-packages)
-      (setf (package-lock pack) t))
+    (setf (package-lock locked-packages) t)
     (savemem (merge-pathnames #p".mem" filename)))
   (room nil)
 )

@@ -2195,10 +2195,18 @@ LISPFUNN(package_lock,1) {
 # (SYSTEM::%SET-PACKAGE-LOCK package lock)
 LISPFUNN(set_package_lock,2) {
   var object lock_p = popSTACK();
-  var object pack = test_package_arg(popSTACK());
-  if (eq(lock_p,NIL)) { value1 = NIL; mark_pack_unlocked(pack); }
-  else {                value1 = T;   mark_pack_locked(pack); }
-  mv_count = 1;
+  var object pack = popSTACK();
+  if (mconsp(pack)) {
+    while (mconsp(pack)) {
+      var object pa = test_package_arg(Car(pack)); pack = Cdr(pack);
+      if (eq(lock_p,NIL)) mark_pack_unlocked(pa);
+      else                mark_pack_locked(pa);
+    }
+  } else {
+    if (eq(lock_p,NIL)) mark_pack_unlocked(pack);
+    else                mark_pack_locked(pack);
+  }
+  value1 = (eq(lock_p,NIL) ? NIL : T); mv_count = 1;
 }
 
 # (SYSTEM::CHECK-PACKAGE-LOCK function package symbol)

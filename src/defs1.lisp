@@ -2,11 +2,11 @@
 ;;;; 1.8.1989, 2.9.1989, 8.10.1989
 
 (in-package "EXT")
-(export '(doseq dohash))
+(export '(doseq dohash without-package-lock))
 
-#-(or UNIX WIN32)
-(export '(custom::*default-time-zone*) "CUSTOM")
-#-(or UNIX WIN32)
+(export '(#-(or UNIX WIN32) custom::*default-time-zone*
+          custom::*system-package-list*)
+        "CUSTOM")
 (ext:re-export "CUSTOM" "EXT")
 
 (in-package "SYSTEM")
@@ -134,6 +134,23 @@
             (return nil)
       ) ) )
 ) )
+
+;; The list of packages that will be locked by SAVEINITMEM.
+;; Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.
+(defvar *system-package-list*
+  '("SYSTEM" "LISP" "EXT" "CUSTOM" "I18N" "GRAY" "CHARSET" "CLOS"
+    #+sockets "SOCKET" #+generic-streams "GSTREAM" #+syscalls "POSIX"
+    #+ffi "FFI" #+amiga "AFFI" #+dir-key "LDAP" #+screen "SCREEN"))
+
+;; Unlock the specified packages, execute the BODY, then lock them again.
+(defmacro without-package-lock (packages &body body)
+  (let ((locked-packages (gensym "WOPL-")))
+    `(let ((,locked-packages
+            (remove-if-not #'package-lock
+                           (or ',packages *system-package-list*))))
+      (unwind-protect (progn (setf (package-lock ,locked-packages) nil)
+                             ,@body)
+        (setf (package-lock ,locked-packages) t)))))
 
 ;;; Modulverwaltung (Kapitel 11.8), CLTL S. 188
 
