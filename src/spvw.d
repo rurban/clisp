@@ -1427,46 +1427,8 @@ local void init_object_tab (void) {
       objptr++;
     });
   }
-  { /* initialize software_type */
-    #include "cflags.h"
-    O(software_type) =
-      ascii_to_string(CC" "CFLAGS" "CLFLAGS" "LIBS" "X_LIBS"\n"
-                      "SAFETY=" STRINGIFY(SAFETY)
-                     #ifdef TYPECODES
-                      " TYPECODES"
-                     #endif
-                     #ifdef HEAPCODES
-                      " HEAPCODES"
-                     #endif
-                     #ifdef WIDE
-                      " WIDE"
-                     #endif
-                     #ifdef GENERATIONAL_GC
-                      " GENERATIONAL_GC"
-                     #endif
-                     #ifdef SPVW_BLOCKS
-                      " SPVW_BLOCKS"
-                     #endif
-                     #ifdef SPVW_PAGES
-                      " SPVW_PAGES"
-                     #endif
-                     #ifdef SPVW_MIXED
-                      " SPVW_MIXED"
-                     #endif
-                     #ifdef SPVW_PURE
-                      " SPVW_PURE"
-                     #endif
-                     #ifdef MULTIMAP_MEMORY
-                      " MULTIMAP_MEMORY"
-                     #endif
-                     #ifdef SINGLEMAP_MEMORY
-                      " SINGLEMAP_MEMORY"
-                     #endif
-                     #ifdef TRIVIALMAP_MEMORY
-                      " TRIVIALMAP_MEMORY"
-                     #endif
-                      );
-  }
+  /* initialize software_type */
+  O(software_type) = ascii_to_string(built_flags());
   # build toplevel-declaration-environment
   Car(O(top_decl_env)) = O(declaration_types);
   # Initialize compiled closures.
