@@ -33,7 +33,7 @@
 (defmacro with-timeout ((seconds &body timeout-forms) &body body)
   "Execute BODY; if execution takes more than SECONDS seconds,
 terminate and evaluate TIMEOUT-FORMS."
-  (with-gensyms ("WT-" bodyf timeoutf)
+  (let ((bodyf (gensym "WT-")) (timeoutf (gensym "WT-")))
     `(flet ((,bodyf () ,@body)
             (,timeoutf () ,@timeout-forms))
       (with-timeout-f ,seconds #',bodyf #',timeoutf))))
@@ -47,7 +47,7 @@ terminate and evaluate TIMEOUT-FORMS."
 
 (defmacro with-lock ((lock) &body body)
   "Execute BODY with LOCK locked."
-  (with-gensyms ("WL-" lk)
+  (let ((lk (gensym "WL-")))
     `(let ((,lk ,lock))
       (unwind-protect (progn (thread-lock ,lk) ,@body)
         (thread-unlock ,lk)))))
