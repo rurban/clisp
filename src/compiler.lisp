@@ -726,11 +726,6 @@ for-value   NIL or T
 (defun stackz-fun (stackz)
   (if (atom stackz) stackz (cdr (last stackz))))
 
-;; (in-same-function-p stackz1 stackz2) determines, if in both Stack-States
-;; the same function is processed.
-(defun in-same-function-p (stackz1 stackz2)
-  (eq (stackz-fun stackz1) (stackz-fun stackz2)))
-
 ;; (access-in-stack stackz1 stackz2)
 ;; For the access to local variables in the Stack:
 ;; Outcome for two Stack-States stackz1 and stackz2, that lie both within
