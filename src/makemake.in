@@ -2537,7 +2537,20 @@ if [ $TOS = win32 ] ; then
   done
 fi
 
-echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_SIGSEGVLIB}${SYSLIBS}"
+if [ $TOS = unix ] ; then
+  echol "data :"
+  echotab "if test -d data; then rm -rf data; fi"
+  echotab "mkdir data"
+  echotab "\$(LN) ${PARENT_SRCTOPDIR}utils${NEXT}unicode${NEXT}ftp.unicode.org${NEXT}UnicodeData.txt data${NEXT}UnicodeData.txt"
+  echol
+  XCL_DATA='data'
+else
+  echol "UnicodeData.txt :"
+  echotab "\$(LN) ${SRCTOPDIR_M}utils${NEXT_M}unicode${NEXT_M}ftp.unicode.org${NEXT_M}UnicodeData.txt UnicodeData.txt"
+  XCL_DATA='UnicodeData.txt'
+fi
+
+echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_SIGSEGVLIB}${SYSLIBS} ${XCL_DATA}"
 if [ $HOS != dos -a $HOS != os2 -a $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.
@@ -3009,6 +3022,7 @@ if [ $CROSS = false ] ; then
     echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
     echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
     echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
+    echotab "if [ ! -d \$(lisplibdir)/data ] ; then mkdir \$(lisplibdir)/data ; fi"
     echotab "if [ ! -d \$(lisplibdir)/linkkit ] ; then mkdir \$(lisplibdir)/linkkit ; fi"
     echotab "if [ ! -d \$(lisplibdir)/base ] ; then mkdir \$(lisplibdir)/base ; fi"
     echotab "if [ ! -d \$(lisplibdir)/full ] ; then mkdir \$(lisplibdir)/full ; fi"
@@ -3035,6 +3049,8 @@ if [ $CROSS = false ] ; then
     echotab "if [ ! -d \$(exec_prefix) ] ; then mkdir \$(exec_prefix) ; fi"
     echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
     echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
+    echotab "if [ ! -d \$(lisplibdir)/data ] ; then mkdir \$(lisplibdir)/data ; fi"
+    echotab "\$(INSTALL_DATA) data/UnicodeData.txt \$(lisplibdir)/data/UnicodeData.txt"
     echotab "if [ ! -d \$(lisplibdir)/linkkit ] ; then mkdir \$(lisplibdir)/linkkit ; fi"
     echotab "(cd \$(lisplibdir) && rm -rf base full)"
     echotab "tar cf - clisp-link linkkit/modules.d linkkit/modules.c linkkit/clisp.h | (cd \$(lisplibdir) && tar xf -)"
@@ -3144,6 +3160,7 @@ if [ $CROSS = false ] ; then
     echol "install-bin : lisp${LEXE} lispinit.mem force"
     echotab "-mkdir \$(libdir)"
     echotab "-mkdir \$(lisplibdir)"
+    echotab "\$(INSTALL_DATA) UnicodeData.txt \$(lisplibdir)\UnicodeData.txt"
     echotab "\$(INSTALL_PROGRAM) lisp${LEXE} \$(lisplibdir)\lisp${LEXE}"
     echotab "\$(INSTALL_DATA) lispinit.mem \$(lisplibdir)\lispinit.mem"
     echotab "-mkdir \$(bindir)"
@@ -3158,6 +3175,7 @@ if [ $CROSS = false ] ; then
     echodummyrule uninstall
     echol
     echol "uninstall-bin : force"
+    echotab "\$(RM) \$(lisplibdir)/UnicodeData.txt"
     echotab "\$(RM) \$(lisplibdir)/lisp${LEXE}"
     echotab "\$(RM) \$(lisplibdir)/lispinit.mem"
     if [ $HOS = dos ] ; then

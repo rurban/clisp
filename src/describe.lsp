@@ -204,6 +204,12 @@
   (:method ((obj character) (stream stream))
     (format stream (ENGLISH "a character"))
     (format stream (ENGLISH "."))
+    #+UNICODE
+    (let ((unicode-name (unicode-attributes obj)))
+      (if unicode-name
+        (format stream (ENGLISH "~%Unicode name: ~A") unicode-name)
+        (format stream (ENGLISH "~%It is not defined by the Unicode standard."))
+    ) )
     (format stream (ENGLISH "~%It is a ~:[non-~;~]printable character.")
             (graphic-char-p obj))
     (unless (standard-char-p obj)
@@ -391,6 +397,9 @@
   (values)
 )
 
+;;-----------------------------------------------------------------------------
+;; auxiliary functions for DESCRIBE of FUNCTION
+
 ; Liefert die Signatur eines funktionalen Objekts, als Werte:
 ; 1. req-anz
 ; 2. opt-anz
@@ -459,6 +468,147 @@
   (format s "(~{~A~^ ~})"
           (signature-to-list req-anz opt-anz rest-p keyword-p keywords
                              allow-other-keys)))
+
+;;-----------------------------------------------------------------------------
+;; auxiliary functions for DESCRIBE of CHARACTER
+
+#+UNICODE (progn
+
+(defun unicode-data-file ()
+  ; $(lisplibdir)/data/UnicodeData.txt
+  (merge-pathnames
+    #-DOS "UnicodeData.txt" #+DOS "UNICODED.TXT"
+    (let ((libdir (sys::lib-directory)))
+      (make-pathname
+        :host (pathname-host libdir)
+        :device (pathname-device libdir)
+        :directory #+UNIX (append (pathname-directory libdir) (list "data"))
+                   #-UNIX (pathname-directory libdir)
+) ) ) )
+
+; Return the line associated with a Unicode code in the Unicode data file.
+(defun unicode-attributes-line (code)
+  (with-open-file (f (unicode-data-file) :direction :input
+                                         :element-type 'character
+                                         :external-format 'charset:ascii)
+    ;; We know that the file's lines are sorted according to the code, and
+    ;; we use this fact to perform a fast binary search.
+    (flet ((code-at-pos ()
+             ; Returns the code of the first line contained after the current
+             ; position.
+             (if (read-line f nil nil)
+               (let ((c1 (read-char f nil nil))
+                     (c2 (read-char f nil nil))
+                     (c3 (read-char f nil nil))
+                     (c4 (read-char f nil nil)))
+                 (if (and c1 c2 c3 c4)
+                   (parse-integer (coerce (list c1 c2 c3 c4) 'string)
+                                  :radix 16
+                   )
+                   #x10000
+               ) )
+               #x10000
+          )) )
+      (let* ((blocksize 1024)
+             (f-size (progn (file-position f :end) (file-position f)))
+             (lblock 0) ; lower bound for block number
+             (rblock (1+ (floor f-size blocksize))))
+        ; The block number where the line starts is >= lblock, < rblock.
+        (loop
+          (when (= (- rblock lblock) 1) (return))
+          (let ((mblock (ash (+ lblock rblock) -1)))
+            (file-position f (* mblock blocksize))
+            (if (> (code-at-pos) code)
+              (setq rblock mblock)
+              (setq lblock mblock)
+        ) ) )
+        ; Sequentially read the block, searching for the first line whose
+        ; number is >= code.
+        (file-position f (* lblock blocksize))
+        (when (plusp code) ; hack to make code=0000 work
+          (read-line f nil nil)
+        )
+        (loop
+          (let ((line (read-line f nil nil)))
+            (unless line (return nil))
+            (let ((c (parse-integer line :end 4 :radix 16)))
+              ; Treat the range start/end lines specially.
+              (when (eql (char line 4) #\;)
+                (when (eql (char line 5) #\<)
+                  (let* ((piece1 (subseq line 5
+                                              (or (position #\; line :start 5)
+                                                  (length line))))
+                         (n (length piece1)))
+                    (cond ((and (= c code)
+                                (>= n 8)
+                                (string= piece1 ", First>" :start1 (- n 8))
+                           )
+                           (return
+                             (concatenate 'string
+                               (format nil "~4,'0X" code)
+                               (subseq line 4 (+ 5 n -8))
+                               (subseq line (+ 5 n -1))
+                          )) )
+                          ((and (>= c code)
+                                (>= n 7)
+                                (string= piece1 ", Last>" :start1 (- n 7))
+                           )
+                           (return
+                             (concatenate 'string
+                               (format nil "~4,'0X" code)
+                               (subseq line 4 (+ 5 n -7))
+                               (subseq line (+ 5 n -1))
+                          )) )
+              ) ) ) )
+              (if (= c code) (return line))
+              (if (> c code) (return nil))
+        ) ) )
+) ) ) )
+
+;; Return the Unicode attributes of a character, as 14 values,
+;; or NIL if the character is not defined in the Unicode standard.
+;; The values are:
+;;  1. Character name.
+;;  2. General category.
+;;  3. Canonical combining classes.
+;;  4. Bidirectional category.
+;;  5. Character decomposition.
+;;  6. Decimal digit value.
+;;  7. Digit value.
+;;  8. Numeric value.
+;;  9. mirrored-p.
+;; 10. Old Unicode 1.0 name.
+;; 11. Comment.
+;; 12. Upper case equivalent mapping.
+;; 13. Lower case equivalent mapping.
+;; 14. Title case equivalent mapping.
+(defun unicode-attributes (ch)
+  (let ((line (unicode-attributes-line (char-code ch))))
+    (if line
+      (let ((pieces
+              (loop for pos = 0 then (1+ semicolon-pos)
+                    for semicolon-pos = (position #\; line :start pos)
+                    do collect (subseq line pos (or semicolon-pos (length line)))
+                    do (unless semicolon-pos (loop-finish))
+           )) )
+        (assert (= (parse-integer (nth 0 pieces) :radix 16) (char-code ch)))
+        (values-list
+          (append
+            (mapcar #'(lambda (x) (if (equal x "") nil x))
+                    (subseq pieces 1 12)
+            )
+            (mapcar #'(lambda (x)
+                        (if (equal x "") nil (code-char (parse-integer x :radix 16)))
+                      )
+                    (subseq pieces 12 15)
+        ) ) )
+      )
+      nil
+) ) )
+
+) ; #+UNICODE
+
+;;-----------------------------------------------------------------------------
 
 ;; DOCUMENTATION mit abfragen und ausgeben??
 ;; function, variable, type, structure, setf
