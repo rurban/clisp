@@ -1,5 +1,10 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* eval.d (interpret_bytecode_ PROGV): Fix GC-safety bug introduced on
+	2003-05-20.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (SYS::MAKE-SOCKET-STREAM, SOCKET-ACCEPT, SOCKET-CONNECT):
 	Don't declare variables earlier than needed. (Deprecated BSD style.)
 
