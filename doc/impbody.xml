@@ -1606,9 +1606,9 @@ performance considerations.
 
 <!-- #if defined(ISOLATIN_CHS) && !defined(UNICODE) -->
 <variablelist>
-<varlistentry><term>Platform dependent: &unix; (except &nextstep;),
+<varlistentry><term><emphasis role="plat-dep">&unix; (except &nextstep;),
    &win32; platforms only, and only in
-   &clisp; built &without; compile-time flag &unicode;.</term>
+   &clisp; built &without; compile-time flag &unicode;.</emphasis></term>
 <listitem><para>More precisely, &clisp; uses the ISO Latin-1 (ISO
  8859-1) character set:
 <informaltable id="latin-1-table" frame="all">
@@ -1670,8 +1670,9 @@ performance considerations.
 
 <!-- #if defined(NEXTSTEP_CHS) && !defined(UNICODE) -->
 <variablelist>
-<varlistentry><term>Platform dependent: &nextstep; platforms only, and
- only in &clisp; built &without; compile-time flag &unicode;.</term>
+<varlistentry><term><emphasis role="plat-dep">&nextstep; platforms
+ only, and only in &clisp; built &without; compile-time flag
+ &unicode;.</emphasis></term>
 <listitem><para>More precisely, &clisp; uses the &nextstep; character set:
 <informaltable id="next-charset-table" frame="all">
   <tgroup cols="17" colsep="1" rowsep="1" align="center">
@@ -2063,7 +2064,7 @@ and the international alphabetic characters from the character set:
 
 <!-- #ifdef WIN32_CHARNAMES -->
 <table id="dos-win32-chars-table" frame="all">
- <title>Platform dependent characters: &win32; platforms.</title>
+ <title>&win32-only;</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><code>(&code-char; #x00)</code></entry>
@@ -2094,7 +2095,7 @@ and the international alphabetic characters from the character set:
 
 <!-- #ifdef UNIX_CHARNAMES -->
 <table id="unix-chars-table" frame="all">
- <title>Platform dependent characters: &unix; platforms.</title>
+ <title>&unix-only;</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><code>(&code-char; #x00)</code></entry>
@@ -2509,7 +2510,7 @@ checks whether the &hash-table-t; is weak.</para>
   (&areq; (&funcall; &hash-f; &x-r;) (&funcall; &hash-f; &y-r;))
  </programlisting>
  This means that the following definition: <programlisting language="lisp">
-  (&defhash; number &areq; &sxhash;) ; <emphasis role="strong">BAD!</emphasis>
+  (&defhash; number &areq; &sxhash;) <lineannotation>; broken!</lineannotation>
  </programlisting>
  is &not-e; correct because <code>(&areq; 1 1d0)</code> is
  &t; but <code>(&areq; (&sxhash; 1) (&sxhash; 1d0))</code>
@@ -2572,8 +2573,8 @@ checks whether the &hash-table-t; is weak.</para>
 <!-- #endif -->
 
 <!-- #if defined(PATHNAME_WIN32) || defined(UNIX_CYGWIN32) -->
-<varlistentry id="device-prefix"><term>Platform dependent: &win32; and
-  &cygwin; platforms only.</term>
+<varlistentry id="device-prefix"><term><emphasis role="plat-dep">&win32;
+   and &cygwin; platforms only.</emphasis></term>
  <listitem><simpara>User variable <firstterm>&dev-prefix;</firstterm>
   controls translation between &cygwin; pathnames
   (e.g., <filename>#P"/cygdrive/c/gnu/clisp/"</filename>) and native
@@ -3151,9 +3152,9 @@ pointing to non-existent files and can take the following values:
 
 <!-- #ifdef GNU_READLINE -->
 <variablelist id="readline"><title>&readline;</title>
- <varlistentry><term>Platform dependent: &unix; platforms only,
+ <varlistentry><term><emphasis role="plat-dep">&unix; platforms only,
    and only in &clisp; built &without; compile-time flag &noreadline;
-   (and when &readline; is installed on your machine already).</term>
+   (and when &readline; is installed on your machine already).</emphasis></term>
  <listitem><simpara>Input through &terminal-io-var; uses the &readline;
   library.  Arrow keys can be used to move within the input history.
   The <keysym>#\Tab</keysym> key completes the &symbol-t; name or
@@ -3630,11 +3631,11 @@ functions are provided:
 
 <section id="stream-buffer"><title>Functions
   <firstterm><function>EXT:MAKE-BUFFERED-INPUT-STREAM</function>
-   <indexterm significance="preferred">
+   <indexterm id="stream-buffer-i" significance="preferred">
     <primary><function>MAKE-BUFFERED-INPUT-STREAM</function>
   </primary></indexterm></firstterm> and
   <firstterm><function>EXT:MAKE-BUFFERED-OUTPUT-STREAM</function>
-   <indexterm significance="preferred">
+   <indexterm id="stream-buffer-o" significance="preferred">
     <primary><function>MAKE-BUFFERED-OUTPUT-STREAM</function>
  </primary></indexterm></firstterm></title>
 
@@ -4289,15 +4290,15 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <varlistentry><term><constant>:FFI</constant></term>
  <listitem><simpara>if a foreign function interface
    (see <olink targetdoc="impnotes" targetptr="dffi"/>) is supported
-   <emphasis>(Platform dependent: many &unix;, &win32;
-    platforms only)</emphasis></simpara></listitem></varlistentry>
+   (<emphasis role="plat-dep">Many &unix;, &win32;
+    platforms only</emphasis>)</simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef GNU_GETTEXT -->
 <varlistentry><term><constant>:GETTEXT</constant></term>
  <listitem><simpara>if internationalization (see <xref linkend="i18n"/>)
    using the &ggettext; package is supported
-   <emphasis>(Platform dependent: most &unix; platforms
-    only)</emphasis></simpara></listitem></varlistentry>
+   (<emphasis role="plat-dep">most &unix; platforms
+    only</emphasis>)</simpara></listitem></varlistentry>
 <!-- #endif -->
 <!-- #ifdef UNICODE -->
 <varlistentry><term><constant>:UNICODE</constant></term>
@@ -4791,7 +4792,7 @@ exhaust the available line length.</para></formalpara>
 
 <!-- #if !(defined(UNIX) || defined(WIN32)) -->
 <variablelist id="default-tz"><title>Default Time Zone</title>
-<varlistentry><term>Platform dependent: unknown platforms only.</term>
+<varlistentry><term>&no-platform-only;</term>
  <listitem><simpara>The variable <firstterm>&default-tz;</firstterm>
    contains the default time zone used by &encode-universal-time; and
    &decode-universal-time;.  It is initially set to -1
@@ -4833,7 +4834,7 @@ exhaust the available line length.</para></formalpara>
    The default implementations try to read the registry.
 </simpara></listitem></varlistentry>
 <!-- #else -->
-<varlistentry><term>Platform dependent: unknown platforms only.</term>
+<varlistentry><term>&no-platform-only;</term>
  <listitem><simpara>The functions &machine-type;, &machine-version;,
    &machine-instance; and &short-site-name;, &long-site-name; should be
    defined by every user in his user-specific &config-file; file.
