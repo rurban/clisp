@@ -5535,34 +5535,34 @@ local maygc void wr_ch_array_unbuffered_dos (const gcv_object_t* stream_,
 # oconv_unshift_output_unbuffered(stream);
 # > stream: Unbuffered-Channel-Stream
 #if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
-  #define oconv_unshift_output_unbuffered(stream)               \
-      if (ChannelStream_oconvdesc(stream) != (iconv_t)0) {      \
-        oconv_unshift_output_unbuffered_(stream);               \
-      }
-  local void oconv_unshift_output_unbuffered_ (object stream) {
-    #define tmpbufsize 4096
-    var uintB tmpbuf[tmpbufsize];
-    var char* outptr = (char*)tmpbuf;
-    var size_t outsize = tmpbufsize;
-    begin_system_call();
-    var size_t res =
-      iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
-    if (res == (size_t)(-1)) {
-      if (errno == E2BIG) { # output buffer too small?
-        NOTREACHED;
-      } else {
-        OS_error();
-      }
+ #define oconv_unshift_output_unbuffered(stream)               \
+     if (ChannelStream_oconvdesc(stream) != (iconv_t)0) {      \
+       oconv_unshift_output_unbuffered_(stream);               \
+     }
+local void oconv_unshift_output_unbuffered_ (object stream) {
+ #define tmpbufsize 4096
+  var uintB tmpbuf[tmpbufsize];
+  var char* outptr = (char*)tmpbuf;
+  var size_t outsize = tmpbufsize;
+  begin_system_call();
+  var size_t res =
+    iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
+  if (res == (size_t)(-1)) {
+    if (OS_errno == E2BIG) {    /* output buffer too small? */
+      NOTREACHED;
+    } else {
+      OS_error();
     }
-    end_system_call();
-    var uintL outcount = outptr-(char*)tmpbuf;
-    if (outcount > 0)
-      UnbufferedStreamLow_write_array(stream)(stream,&tmpbuf[0],
-                                              outcount,persev_full);
-    #undef tmpbufsize
   }
+  end_system_call();
+  var uintL outcount = outptr-(char*)tmpbuf;
+  if (outcount > 0)
+    UnbufferedStreamLow_write_array(stream)(stream,&tmpbuf[0],
+                                            outcount,persev_full);
+ #undef tmpbufsize
+}
 #else
-  #define oconv_unshift_output_unbuffered(stream)
+ #define oconv_unshift_output_unbuffered(stream)
 #endif
 
 # UP: Move the pending Output of a Unbuffered-Channel-Stream to the destination.
@@ -6839,30 +6839,30 @@ local maygc void wr_ch_array_buffered_dos (const gcv_object_t* stream_,
       if (ChannelStream_oconvdesc(stream) != (iconv_t)0) { \
         oconv_unshift_output_buffered_(stream);            \
       }
- local void oconv_unshift_output_buffered_ (object stream) {
-   #define tmpbufsize 4096
-   var uintB tmpbuf[tmpbufsize];
-   var char* outptr = (char*)tmpbuf;
-   var size_t outsize = tmpbufsize;
-   begin_system_call();
-   var size_t res =
-     iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
-   if (res == (size_t)(-1)) {
-     if (errno == E2BIG) { # output buffer too small?
-       NOTREACHED;
-     } else {
-       OS_error();
-     }
-   }
-   end_system_call();
-   var uintL outcount = outptr-(char*)tmpbuf;
-   if (outcount > 0) {
-     write_byte_array_buffered(stream,&tmpbuf[0],outcount,persev_full);
-     # increment position
-     BufferedStream_position(stream) += outcount;
-   }
+local void oconv_unshift_output_buffered_ (object stream) {
+ #define tmpbufsize 4096
+  var uintB tmpbuf[tmpbufsize];
+  var char* outptr = (char*)tmpbuf;
+  var size_t outsize = tmpbufsize;
+  begin_system_call();
+  var size_t res =
+    iconv(ChannelStream_oconvdesc(stream),NULL,NULL,&outptr,&outsize);
+  if (res == (size_t)(-1)) {
+    if (OS_errno == E2BIG) {    /* output buffer too small? */
+      NOTREACHED;
+    } else {
+      OS_error();
+    }
+  }
+  end_system_call();
+  var uintL outcount = outptr-(char*)tmpbuf;
+  if (outcount > 0) {
+    write_byte_array_buffered(stream,&tmpbuf[0],outcount,persev_full);
+    /* increment position */
+    BufferedStream_position(stream) += outcount;
+  }
  #undef tmpbufsize
- }
+}
 #else
  #define oconv_unshift_output_buffered(stream)
 #endif
