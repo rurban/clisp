@@ -44,7 +44,7 @@ vacall-sparc.S : vacall-sparc.c vacall_r.h.in
 
 vacall-alpha.s : vacall-alpha.c vacall_r.h.in
 	$(GCC) -V 2.7.2 -b alpha-dec-osf $(GCCFLAGS) -D__alpha__ -S vacall-alpha.c -o vacall-alpha-temp.s
-	$(SED) -e 's/\.rdata/\.data/g' < vacall-alpha-temp.s > vacall-alpha.s
+	$(SED) -e '/ldgp/d' < vacall-alpha-temp.s > vacall-alpha.s
 	$(RM) vacall-alpha-temp.s
 
 vacall-hppa.s : vacall-hppa.c vacall_r.h.in

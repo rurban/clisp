@@ -46,59 +46,87 @@ vacall (__vaword firstword)
   (*env->vacall_function) (env->arg,&list);
 #endif
   /* Put return value into proper register. */
-  switch (list.rtype)
-    {
-      case __VAvoid:	break;
-      case __VAchar:	iret = list.tmp._char; break;
-      case __VAschar:	iret = list.tmp._schar; break;
-      case __VAuchar:	iret = list.tmp._uchar; break;
-      case __VAshort:	iret = list.tmp._short; break;
-      case __VAushort:	iret = list.tmp._ushort; break;
-      case __VAint:	iret = list.tmp._int; break;
-      case __VAuint:	iret = list.tmp._uint; break;
-      case __VAlong:	iret = list.tmp._long; break;
-      case __VAulong:	iret = list.tmp._ulong; break;
-      case __VAlonglong:
-      case __VAulonglong:
-        iret  = ((__vaword *) &list.tmp._longlong)[0];
-        iret2 = ((__vaword *) &list.tmp._longlong)[1];
-        break;
-      case __VAfloat:
-        if (list.flags & __VA_FREG_FLOAT_RETURN)
-          fp_fret = list.tmp._float;
-        else
-          if (list.flags & __VA_SUNCC_FLOAT_RETURN)
-            dret = (double)list.tmp._float;
-          else
-            fret = list.tmp._float;
-        break;
-      case __VAdouble:
-        if (list.flags & __VA_FREG_FLOAT_RETURN)
-          fp_dret = list.tmp._double;
-        else
-          dret = list.tmp._double;
-        break;
-      case __VAvoidp:	pret = iret = (long)list.tmp._ptr; break;
-      case __VAstruct:
-        /* NB: On m68k, all structure sizes are divisible by 2. */
-        if (list.flags & __VA_REGISTER_STRUCT_RETURN)
-          switch (list.rsize)
-            { case sizeof(char):  iret = *(unsigned char *) list.raddr; goto done; /* can't occur */
-              case sizeof(short): iret = *(unsigned short *) list.raddr; goto done;
-              case sizeof(int):   iret = *(unsigned int *) list.raddr; goto done;
-              case 2*sizeof(__vaword):
-                iret  = ((__vaword *) list.raddr)[0];
-                iret2 = ((__vaword *) list.raddr)[1];
-                goto done;
-              default:            break;
-            }
-        if (list.flags & __VA_PCC_STRUCT_RETURN)
-          { /* pcc struct return convention */
-            pret = iret = (long) list.raddr;
-          }
-        else
-          { /* normal struct return convention */ }
-       done:
-        break;
+  if (list.rtype == __VAvoid) {
+  } else
+  if (list.rtype == __VAchar) {
+    iret = list.tmp._char;
+  } else
+  if (list.rtype == __VAschar) {
+    iret = list.tmp._schar;
+  } else
+  if (list.rtype == __VAuchar) {
+    iret = list.tmp._uchar;
+  } else
+  if (list.rtype == __VAshort) {
+    iret = list.tmp._short;
+  } else
+  if (list.rtype == __VAushort) {
+    iret = list.tmp._ushort;
+  } else
+  if (list.rtype == __VAint) {
+    iret = list.tmp._int;
+  } else
+  if (list.rtype == __VAuint) {
+    iret = list.tmp._uint;
+  } else
+  if (list.rtype == __VAlong) {
+    iret = list.tmp._long;
+  } else
+  if (list.rtype == __VAulong) {
+    iret = list.tmp._ulong;
+  } else
+  if (list.rtype == __VAlonglong || list.rtype == __VAulonglong) {
+    iret  = ((__vaword *) &list.tmp._longlong)[0];
+    iret2 = ((__vaword *) &list.tmp._longlong)[1];
+  } else
+  if (list.rtype == __VAfloat) {
+    if (list.flags & __VA_FREG_FLOAT_RETURN) {
+      fp_fret = list.tmp._float;
+    } else {
+      if (list.flags & __VA_SUNCC_FLOAT_RETURN) {
+        dret = (double)list.tmp._float;
+      } else {
+        fret = list.tmp._float;
+      }
     }
+  } else
+  if (list.rtype == __VAdouble) {
+    if (list.flags & __VA_FREG_FLOAT_RETURN) {
+      fp_dret = list.tmp._double;
+    } else {
+      dret = list.tmp._double;
+    }
+  } else
+  if (list.rtype == __VAvoidp) {
+    pret = iret = (long)list.tmp._ptr;
+  } else
+  if (list.rtype == __VAstruct) {
+    /* NB: On m68k, all structure sizes are divisible by 2. */
+    if (list.flags & __VA_REGISTER_STRUCT_RETURN) {
+      if (list.rsize == sizeof(char)) { /* can't occur */
+        iret = *(unsigned char *) list.raddr;
+        goto done;
+      } else
+      if (list.rsize == sizeof(short)) {
+        iret = *(unsigned short *) list.raddr;
+        goto done;
+      } else
+      if (list.rsize == sizeof(int)) {
+        iret = *(unsigned int *) list.raddr;
+        goto done;
+      } else
+      if (list.rsize == 2*sizeof(__vaword)) {
+        iret  = ((__vaword *) list.raddr)[0];
+        iret2 = ((__vaword *) list.raddr)[1];
+        goto done;
+      }
+    }
+    if (list.flags & __VA_PCC_STRUCT_RETURN) {
+      /* pcc struct return convention */
+      pret = iret = (long) list.raddr;
+    } else {
+      /* normal struct return convention */
+    }
+    done: ;
+  }
 }

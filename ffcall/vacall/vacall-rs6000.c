@@ -1,7 +1,7 @@
 /* vacall function for rs6000 CPU */
 
 /*
- * Copyright 1995-1997 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -82,45 +82,69 @@ vacall (__vaword word1, __vaword word2, __vaword word3, __vaword word4,
   (*env->vacall_function) (env->arg,&list);
 #endif
   /* Put return value into proper register. */
-  switch (list.rtype)
-    {
-      case __VAvoid:	break;
-      case __VAchar:	iret = list.tmp._char; break;
-      case __VAschar:	iret = list.tmp._schar; break;
-      case __VAuchar:	iret = list.tmp._uchar; break;
-      case __VAshort:	iret = list.tmp._short; break;
-      case __VAushort:	iret = list.tmp._ushort; break;
-      case __VAint:	iret = list.tmp._int; break;
-      case __VAuint:	iret = list.tmp._uint; break;
-      case __VAlong:	iret = list.tmp._long; break;
-      case __VAulong:	iret = list.tmp._ulong; break;
-      case __VAlonglong:
-      case __VAulonglong:
-        iret  = ((__vaword *) &list.tmp._longlong)[0];
-        iret2 = ((__vaword *) &list.tmp._longlong)[1];
-        break;
-      case __VAfloat:	fret = list.tmp._float; break;
-      case __VAdouble:	dret = list.tmp._double; break;
-      case __VAvoidp:	iret = (long)list.tmp._ptr; break;
-      case __VAstruct:
-        if (list.flags & __VA_PCC_STRUCT_RETURN)
-          { /* pcc struct return convention */
-            iret = (long) list.raddr;
-          }
-        else
-          { /* normal struct return convention */
-            if (list.flags & __VA_REGISTER_STRUCT_RETURN)
-              switch (list.rsize)
-                { case sizeof(char):  iret = *(unsigned char *) list.raddr; break;
-                  case sizeof(short): iret = *(unsigned short *) list.raddr; break;
-                  case sizeof(int):   iret = *(unsigned int *) list.raddr; break;
-                  case 2*sizeof(__vaword):
-                    iret  = ((__vaword *) list.raddr)[0];
-                    iret2 = ((__vaword *) list.raddr)[1];
-                    break;
-                  default:            break;
-                }
-          }
-        break;
+  if (list.rtype == __VAvoid) {
+  } else
+  if (list.rtype == __VAchar) {
+    iret = list.tmp._char;
+  } else
+  if (list.rtype == __VAschar) {
+    iret = list.tmp._schar;
+  } else
+  if (list.rtype == __VAuchar) {
+    iret = list.tmp._uchar;
+  } else
+  if (list.rtype == __VAshort) {
+    iret = list.tmp._short;
+  } else
+  if (list.rtype == __VAushort) {
+    iret = list.tmp._ushort;
+  } else
+  if (list.rtype == __VAint) {
+    iret = list.tmp._int;
+  } else
+  if (list.rtype == __VAuint) {
+    iret = list.tmp._uint;
+  } else
+  if (list.rtype == __VAlong) {
+    iret = list.tmp._long;
+  } else
+  if (list.rtype == __VAulong) {
+    iret = list.tmp._ulong;
+  } else
+  if (list.rtype == __VAlonglong || list.rtype == __VAulonglong) {
+    iret  = ((__vaword *) &list.tmp._longlong)[0];
+    iret2 = ((__vaword *) &list.tmp._longlong)[1];
+  } else
+  if (list.rtype == __VAfloat) {
+    fret = list.tmp._float;
+  } else
+  if (list.rtype == __VAdouble) {
+    dret = list.tmp._double;
+  } else
+  if (list.rtype == __VAvoidp) {
+    iret = (long)list.tmp._ptr;
+  } else
+  if (list.rtype == __VAstruct) {
+    if (list.flags & __VA_PCC_STRUCT_RETURN) {
+      /* pcc struct return convention */
+      iret = (long) list.raddr;
+    } else {
+      /* normal struct return convention */
+      if (list.flags & __VA_REGISTER_STRUCT_RETURN) {
+        if (list.rsize == sizeof(char)) {
+          iret = *(unsigned char *) list.raddr;
+        } else
+        if (list.rsize == sizeof(short)) {
+          iret = *(unsigned short *) list.raddr;
+        } else
+        if (list.rsize == sizeof(int)) {
+          iret = *(unsigned int *) list.raddr;
+        } else
+        if (list.rsize == 2*sizeof(__vaword)) {
+          iret  = ((__vaword *) list.raddr)[0];
+          iret2 = ((__vaword *) list.raddr)[1];
+        }
+      }
     }
+  }
 }
