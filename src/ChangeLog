@@ -1,5 +1,16 @@
 2004-07-11  Bruno Haible  <bruno@clisp.org>
 
+	* clos.lisp: Set *allow-making-generic* to t while bootstrapping.
+	* clos-slotdef3.lisp: No need to use fmakunbound here.
+	* clos-specializer3.lisp: Likewise.
+	* clos-class6.lisp: No need to bind *allow-making-generic* or use
+	fmakunbound here.
+	* clos-methcomb4.lisp: No need to bind *allow-making-generic* here.
+	* clos-genfun5.lisp: Likewise.
+	* clos-print.lisp: No need to use fmakunbound here.
+
+2004-07-11  Bruno Haible  <bruno@clisp.org>
+
 	* clos-genfun2.lisp (|#'allocate-instance|, |#'initialize-instance|,
 	|#'reinitialize-instance|, |#'update-instance-for-redefined-class|,
 	|#'update-instance-for-different-class|, |#'shared-initialize|,

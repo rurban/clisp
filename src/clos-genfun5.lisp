@@ -17,19 +17,18 @@
 ;;; Generic function definition customization
 
 ;; MOP p. 50
-(let ((*allow-making-generic* t))
-  (defgeneric ensure-generic-function-using-class (gf funname
-                                                   &key generic-function-class
-                                                        lambda-list
-                                                        argument-precedence-order
-                                                        method-class
-                                                        method-combination
-                                                        documentation
-                                                        declarations
-                                                        declare
-                                                        environment
-                                                   &allow-other-keys)
-    (:method ((gf generic-function) funname &rest args)
-      (apply #'ensure-generic-function-using-class-<t> gf funname args))
-    (:method ((gf null) funname &rest args)
-      (apply #'ensure-generic-function-using-class-<t> gf funname args))))
+(defgeneric ensure-generic-function-using-class (gf funname
+                                                 &key generic-function-class
+                                                      lambda-list
+                                                      argument-precedence-order
+                                                      method-class
+                                                      method-combination
+                                                      documentation
+                                                      declarations
+                                                      declare
+                                                      environment
+                                                 &allow-other-keys)
+  (:method ((gf generic-function) funname &rest args)
+    (apply #'ensure-generic-function-using-class-<t> gf funname args))
+  (:method ((gf null) funname &rest args)
+    (apply #'ensure-generic-function-using-class-<t> gf funname args)))

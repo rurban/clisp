@@ -52,11 +52,10 @@
   (accessor-typecheck class 'class '(setf class-classname))
   (setf (sys::%record-ref class *<class>-classname-location*) new-value))
 ;; MOP p. 76
-(let ((*allow-making-generic* t))
-  (defgeneric class-name (class)
-    (:method ((class class))
-      (check-class-initialized class)
-      (class-classname class))))
+(defgeneric class-name (class)
+  (:method ((class class))
+    (check-class-initialized class)
+    (class-classname class)))
 ;; MOP p. 92
 (defgeneric (setf class-name) (new-value class)
   (:method (new-value (class class))
@@ -73,7 +72,6 @@
     new-value))
 
 ;; MOP p. 76
-(fmakunbound 'class-direct-superclasses)
 (defgeneric class-direct-superclasses (class)
   (:method ((class class))
     (check-class-initialized class)
@@ -99,7 +97,6 @@
   (accessor-typecheck class 'class '(setf class-precedence-list))
   (setf (sys::%record-ref class *<class>-precedence-list-location*) new-value))
 ;; MOP p. 76
-(fmakunbound 'class-precedence-list)
 (defgeneric class-precedence-list (class)
   (:method ((class class))
     (check-class-finalized class)
@@ -119,7 +116,6 @@
     (list-direct-subclasses class)))
 
 ;; MOP p. 75
-(fmakunbound 'class-direct-slots)
 (defgeneric class-direct-slots (class)
   (:method ((class class))
     (check-class-initialized class)
@@ -130,7 +126,6 @@
   (setf (sys::%record-ref class *<class>-direct-slots-location*) new-value))
 
 ;; MOP p. 77
-(fmakunbound 'class-slots)
 (defgeneric class-slots (class)
   (:method ((class class))
     (check-class-finalized class)
@@ -149,7 +144,6 @@
   (setf (sys::%record-ref class *<class>-slot-location-table-location*) new-value))
 
 ;; MOP p. 75
-(fmakunbound 'class-direct-default-initargs)
 (defgeneric class-direct-default-initargs (class)
   (:method ((class class))
     (check-class-initialized class)
@@ -160,7 +154,6 @@
   (setf (sys::%record-ref class *<class>-direct-default-initargs-location*) new-value))
 
 ;; MOP p. 75
-(fmakunbound 'class-default-initargs)
 (defgeneric class-default-initargs (class)
   (:method ((class class))
     (check-class-finalized class)
@@ -275,7 +268,6 @@
   (setf (sys::%record-ref class *<semi-standard-class>-finalized-direct-subclasses-location*) new-value))
 
 ;; MOP p. 77
-(fmakunbound 'class-prototype)
 (defgeneric class-prototype (class)
   (:method ((class semi-standard-class))
     (check-class-finalized class)
@@ -320,19 +312,16 @@
     (finalize-inheritance (find-class name))))
 
 ;; MOP p. 38
-(fmakunbound 'compute-class-precedence-list)
 (defgeneric compute-class-precedence-list (class)
   (:method ((class class))
     (compute-class-precedence-list-<class> class)))
 
 ;; MOP p. 42
-(fmakunbound 'compute-effective-slot-definition)
 (defgeneric compute-effective-slot-definition (class slotname direct-slot-definitions)
   (:method ((class class) slotname direct-slot-definitions)
     (compute-effective-slot-definition-<class> class slotname direct-slot-definitions)))
 
 ;; MOP p. 43
-(fmakunbound 'compute-slots)
 (defgeneric compute-slots (class)
   (:method ((class semi-standard-class))
     (compute-slots-<class>-primary class))
@@ -341,7 +330,6 @@
       #'(lambda (c) (call-next-method c)))))
 
 ;; MOP p. 39
-(fmakunbound 'compute-default-initargs)
 (defgeneric compute-default-initargs (class)
   (:method ((class class))
     (compute-default-initargs-<class> class)))
@@ -351,7 +339,6 @@
 ;;; Class definition customization
 
 ;; MOP p. 47
-(fmakunbound 'ensure-class-using-class)
 (defgeneric ensure-class-using-class (class name
                                       &key metaclass
                                            direct-superclasses
@@ -367,7 +354,6 @@
     (apply #'ensure-class-using-class-<t> class name args)))
 
 ;; MOP p. 102
-(fmakunbound 'validate-superclass)
 (defgeneric validate-superclass (class superclass)
   (:method ((class class) (superclass class))
     (or (eq superclass <t>)
@@ -392,13 +378,11 @@
 ;;; Subclass relationship change notification
 
 ;; MOP p. 32
-(fmakunbound 'add-direct-subclass)
 (defgeneric add-direct-subclass (class subclass)
   (:method ((class class) (subclass class))
     (add-direct-subclass-internal class subclass)))
 
 ;; MOP p. 90
-(fmakunbound 'remove-direct-subclass)
 (defgeneric remove-direct-subclass (class subclass)
   (:method ((class class) (subclass class))
     (remove-direct-subclass-internal class subclass)))
@@ -408,14 +392,12 @@
 ;;; Accessor definition customization
 
 ;; MOP p. 86
-(fmakunbound 'reader-method-class)
 (defgeneric reader-method-class (class direct-slot &rest initargs)
   (:method ((class class) direct-slot &rest initargs)
     (declare (ignore direct-slot initargs))
     <standard-reader-method>))
 
 ;; MOP p. 103
-(fmakunbound 'writer-method-class)
 (defgeneric writer-method-class (class direct-slot &rest initargs)
   (:method ((class class) direct-slot &rest initargs)
     (declare (ignore direct-slot initargs))
