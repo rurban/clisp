@@ -704,34 +704,29 @@ global SOCKET create_server_socket (hd, sock, port)
   var host_data *hd;
   var SOCKET sock;
   var unsigned int port;
-  {
-    var SOCKET fd;
-    if (sock == INVALID_SOCKET)
-      {
-        var const char* host;
-        get_hostname(host =); # was: host = "localhost";
-        fd = with_hostname(host,port,&bindlisten_via_ip);
+  { var SOCKET fd;
+    if (sock == INVALID_SOCKET) {
+      var const char* host;
+      get_hostname(host =); # was: host = "localhost";
+      fd = with_hostname(host,port,&bindlisten_via_ip);
+    } else {
+      var sockaddr_max addr;
+      var int addrlen = sizeof(sockaddr_max);
+      if (getsockname(sock,(struct sockaddr *)&addr,&addrlen) < 0)
+        return INVALID_SOCKET;
+      switch (((struct sockaddr *)&addr)->sa_family) {
+        #ifdef HAVE_IPV6
+        case AF_INET6:
+          addr.inaddr6.sin6_port = htons(0);
+          break;
+        #endif
+        case AF_INET:
+          addr.inaddr.sin_port = htons(0);
+          break;
+        default: NOTREACHED
       }
-      else
-      {
-        var sockaddr_max addr;
-        var int addrlen = sizeof(sockaddr_max);
-        if (getsockname(sock,(struct sockaddr *)&addr,&addrlen) < 0)
-          return INVALID_SOCKET;
-        switch (((struct sockaddr *)&addr)->sa_family)
-          {
-            #ifdef HAVE_IPV6
-            case AF_INET6:
-              addr.inaddr6.sin6_port = htons(0);
-              break;
-            #endif
-            case AF_INET:
-              addr.inaddr.sin_port = htons(0);
-              break;
-            default: NOTREACHED
-          }
-        fd = bindlisten_via_ip((struct sockaddr *)&addr,addrlen);
-      }
+      fd = bindlisten_via_ip((struct sockaddr *)&addr,addrlen);
+    }
     if (fd == INVALID_SOCKET)
       return INVALID_SOCKET;
     # Retrieve the assigned port.
@@ -880,8 +875,8 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 	 (h_errno == TRY_AGAIN ? "try again later" :                       \
 	  (h_errno == NO_RECOVERY ? "a non-recoverable error occurred" :   \
 	   (h_errno == NO_DATA ? "valid name, but no data for this host" : \
-	    ((h_errno == NO_ADDRESS) || (h_errno == NO_DATA) ?             \
-	     "no IP address for this host" : "unknown error")))))
+	    (h_errno == NO_ADDRESS ? "no IP address for this host" :       \
+             "unknown error")))))
 
 #ifdef HAVE_IPV6
 #define ADDR_TO_STRING(type,addr,buf)                              \
