@@ -181,7 +181,7 @@
 <!ENTITY gen-flet "<link linkend='gen-flet'><function>CLOS:GENERIC-FLET</function></link>">
 <!ENTITY gen-labels "<link linkend='gen-labels'><function>CLOS:GENERIC-LABELS</function></link>">
 <!ENTITY symbol-mex "<link linkend='symbol-mex'><function>EXT:SYMBOL-MACRO-EXPAND</function></link>">
-<!ENTITY compile-decl "<link linkend='compile-decl'><literal role='sexp'>(compile)</literal></link>">
+<!ENTITY compile-decl "<link linkend='compile-decl'><code>(COMPILE)</code></link>">
 <!ENTITY compile-warn "<link linkend='compilefile'><varname>CUSTOM:*COMPILE-WARNINGS*</varname></link>">
 <!ENTITY compiled-types "<link linkend='loadfile'><varname>CUSTOM:*COMPILED-FILE-TYPES*</varname></link>">
 <!ENTITY count-ansi "<link linkend='count-ansi'><varname>CUSTOM:*SEQUENCE-COUNT-ANSI*</varname></link>">
@@ -237,7 +237,7 @@
 <!ENTITY letf "<link linkend='letf'><function>EXT:LETF</function></link>">
 <!ENTITY letf-star "<link linkend='letf'><function>EXT:LETF*</function></link>">
 <!ENTITY lfd "<link linkend='lfd'><function>EXT:LONG-FLOAT-DIGITS</function></link>">
-<!ENTITY lfd-l "<literal role='sexp'>(<link linkend='lfd'><function>EXT:LONG-FLOAT-DIGITS</function></link>)</literal>">
+<!ENTITY lfd-l "<code>(<link linkend='lfd'><function>EXT:LONG-FLOAT-DIGITS</function></link>)</code>">
 <!ENTITY line-term "<link linkend='newline'>line terminator</link>">
 <!ENTITY load-comp "<olink targetdoc='impnotes' targetptr='loadfile'><varname>CUSTOM:*LOAD-COMPILING*</varname></olink>">
 <!ENTITY load-echo "<link linkend='loadfile'><varname>CUSTOM:*LOAD-ECHO*</varname></link>">
@@ -595,6 +595,7 @@
 <!ENTITY pred-r "<replaceable>predicate</replaceable>">
 <!ENTITY program-r "<replaceable>program</replaceable>">
 <!ENTITY real-r "<replaceable>real</replaceable>">
+<!ENTITY restart-clause-r "<replaceable>restart-clause</replaceable>">
 <!ENTITY sequence-r "<replaceable>sequence</replaceable>">
 <!ENTITY size-r "<replaceable>size</replaceable>">
 <!ENTITY slot-r "<replaceable>slot</replaceable>">
@@ -744,12 +745,12 @@
    &newest-k;)</simpara></listitem></varlistentry>">
 <!ENTITY name-type-split "filename is <link
    linkend='name-type-split'>split into name and type</link>.">
-<!ENTITY dir-term "<term><literal role='sexp'>&directory-r; = (&startpoint-r;
-   . <replaceable>subdirs</replaceable>)</literal></term>">
+<!ENTITY dir-term "<term><code>&directory-r; = (&startpoint-r;
+   . <replaceable>subdirs</replaceable>)</code></term>">
 <!ENTITY startp-rel-abs "<row><entry>&startpoint-r;</entry>
    <entry>&relative-k; | &absolute-k;</entry></row>">
 <!ENTITY subdirs-def "<row><entry><replaceable>subdirs</replaceable></entry>
-   <entry><literal role='sexp'>()</literal> | <literal role='sexp'>(&subdir-r;
+   <entry><literal role='data'>()</literal> | <literal role='data'>(&subdir-r;
    . <replaceable>subdirs</replaceable>)</literal></entry></row>">
 <!ENTITY subdir-string-or-wild " <row><entry>&subdir-r;</entry>
   <entry>&wild-inferiors-k;</entry><entry><filename>**</filename> or

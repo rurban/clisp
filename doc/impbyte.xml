@@ -580,7 +580,7 @@ vector does not need to be scanned for pointers).</para>
 <variablelist>
  <varlistentry id="func-name"><term>name</term>
   <listitem><simpara>This is the name of the function, normally a symbol
-   or a list of the form <literal role="sexp">(&setf; &symbol-r;)</literal>.
+   or a list of the form <code>(&setf; &symbol-r;)</code>.
    It is used for printing the function and for error messages.
    This field is immutable.</simpara></listitem></varlistentry>
  <varlistentry id="func-codevec"><term>&codevec;</term>

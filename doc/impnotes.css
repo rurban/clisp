@@ -12,8 +12,8 @@ li p { margin: 0pt; }
 td p { margin: 0pt; }
 dd p { margin: 0pt; }
 
-/* mark sexps with color */
-.sexp { background-color: lightgray; color: darkblue; }
+/* mark code with color */
+.code { background-color: lightgray; color: darkblue; }
 
 /* mark methods with color - same background as type! */
 .method { background-color: lightcyan; color: darkblue; }

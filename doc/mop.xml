@@ -31,8 +31,8 @@ made in the way methods are presented.</para>
 
 <para>The following is an example of the format for the syntax
 description of a generic function:
-<programlisting>
-<literal role="sexp">(<function>gf1</function> &x-r; &y-r; &optional-amp; &v-r; &key-amp; &k-r;)</literal>
+<programlisting language="lisp">
+(<function>gf1</function> &x-r; &y-r; &optional-amp; &v-r; &key-amp; &k-r;)
 </programlisting></para>
 
 <para>This description indicates that <function>gf1</function> is a
@@ -995,7 +995,7 @@ implementation.</para>
 
 <simplesect id="class-name">
  <title>Generic Function &class-name;</title>
- <subtitle><literal role="sexp">(&class-name; &class-r;)</literal></subtitle>
+ <subtitle><code>(&class-name; &class-r;)</code></subtitle>
 
 <para>Returns the name of &class-r;.  This value can be any Lisp object,
 but is usually a symbol, or &nil; if the class has no name.  This is the
@@ -1006,8 +1006,7 @@ associated with the class during initialization or reinitialization.
 
 <simplesect id="class-direct-superclasses">
  <title>Generic Function &class-direct-superclasses;</title>
- <subtitle><literal role="sexp">(&class-direct-superclasses;
-   &class-r;)</literal></subtitle>
+ <subtitle><code>(&class-direct-superclasses; &class-r;)</code></subtitle>
 
 <para>Returns a list of the direct superclasses of &class-r;.  The
 elements of this list are class metaobjects.  The empty list is returned
@@ -1024,8 +1023,7 @@ with the class during initialization or reinitialization.
 
 <simplesect id="class-direct-slots">
  <title>Generic Function &class-direct-slots;</title>
- <subtitle><literal role="sexp">(&class-direct-slots;
-   &class-r;)</literal></subtitle>
+ <subtitle><code>(&class-direct-slots; &class-r;)</code></subtitle>
 
 <para>Returns a set of the direct slots of &class-r;.  The elements of
 this set are direct slot definition metaobjects.  If the class has no
@@ -1036,8 +1034,7 @@ the class during initialization and reinitialization.
 
 <simplesect id="class-direct-default-initargs">
  <title>Generic Function &class-direct-default-initargs;</title>
- <subtitle><literal role="sexp">(&class-direct-default-initargs;
-   &class-r;)</literal></subtitle>
+ <subtitle><code>(&class-direct-default-initargs; &class-r;)</code></subtitle>
 
 <para>Returns a list of the direct default initialization arguments for
 &class-r;.  Each element of this list is a &canonicalized-default-initarg;.
@@ -1048,7 +1045,7 @@ associated with the class during initialization or reinitialization.
 </para></simplesect>
 
 <simplesect id="cpl"><title>Generic Function &cpl;</title>
- <subtitle><literal role="sexp">(&cpl; &class-r;)</literal></subtitle>
+ <subtitle><code>(&cpl; &class-r;)</code></subtitle>
 
 <para>Returns the class precedence list of &class-r;.  The elements of
 this list are class metaobjects.</para>
@@ -1063,8 +1060,7 @@ value is associated with the class metaobject and is returned by &cpl;.
 
 <simplesect id="class-direct-subclasses">
  <title>Generic Function &class-direct-subclasses;</title>
- <subtitle><literal role="sexp">(&class-direct-subclasses;
-   &class-r;)</literal></subtitle>
+ <subtitle><code>(&class-direct-subclasses; &class-r;)</code></subtitle>
 
 <para>Returns a set of the direct subclasses of &class-r;. The elements
 of this set are class metaobjects that all mention this class among
@@ -1081,7 +1077,7 @@ no direct subclasses.  This value is maintained by the generic functions
 
 <simplesect id="class-slots">
  <title>Generic Function &class-slots;</title>
- <subtitle><literal role="sexp">(&class-slots; &class-r;)</literal></subtitle>
+ <subtitle><code>(&class-slots; &class-r;)</code></subtitle>
 
 <para>Returns a possibly empty set of the slots accessible in instances
 of &class-r;.  The elements of this set are effective slot definition
@@ -1097,8 +1093,7 @@ associated with the class metaobject and is returned by &class-slots;.
 
 <simplesect id="class-default-initargs">
  <title>Generic Function &class-default-initargs;</title>
- <subtitle><literal role="sexp">(&class-default-initargs;
-   &class-r;)</literal></subtitle>
+ <subtitle><code>(&class-default-initargs; &class-r;)</code></subtitle>
 
 <para>Returns a list of the default initialization arguments for
 &class-r;.  Each element of this list is a &canonicalized-default-initarg;.
@@ -1120,8 +1115,7 @@ finalized.</para>
 
 <simplesect id="class-finalized-p">
  <title>Generic Function &class-finalized-p;</title>
- <subtitle><literal role="sexp">(&class-finalized-p;
-   &class-r;)</literal></subtitle>
+ <subtitle><code>(&class-finalized-p; &class-r;)</code></subtitle>
 
 <para>Returns true if &class-r; has been finalized.  Returns false
 otherwise.  Also returns false if the class has not been initialized.
@@ -1129,8 +1123,7 @@ otherwise.  Also returns false if the class has not been initialized.
 
 <simplesect id="class-prototype">
  <title>Generic Function &class-prototype;</title>
- <subtitle><literal role="sexp">(&class-prototype;
-   &class-r;)</literal></subtitle>
+ <subtitle><code>(&class-prototype; &class-r;)</code></subtitle>
 
 <para>Returns a prototype instance of &class-r;.  Whether the instance
 is initialized is not specified.  The results are undefined if a
@@ -1150,8 +1143,7 @@ portable program modifies the binding of any slot of a prototype instance.
  </programlisting>
  Now one can find out how many <classname>COUNTED-OBJECT</classname>s
  have been created by using
-  <literal role="sexp">(HOW-MANY
-   (&class-prototype; (&find-class; 'COUNTER)))</literal>:
+  <code>(HOW-MANY (&class-prototype; (&find-class; 'COUNTER)))</code>:
   <programlisting>
   (&make-instance; 'counted-object :name 'foo)
     <returnvalue>#&lt;COUNTED-OBJECT #x203028C9&gt;</returnvalue>
@@ -1497,11 +1489,11 @@ initialization has taken effect.</para>
 <simplesect id="mop-cl-init-anon">
  <title>Initialization of Anonymous Classes</title>
 
-<para>Class metaobjects created with &make-instance; are
-usually <firstterm>anonymous</firstterm>; that is, they have no &proper-name-glo;.
+<para>Class metaobjects created with &make-instance; are usually
+ <firstterm>anonymous</firstterm>; that is, they have no &proper-name-glo;.
 An anonymous class metaobject can be given a &proper-name-glo; using
-<literal role="sexp">(&setf; &find-class;)</literal> and
-<literal role="sexp">(&setf; &class-name;)</literal>.</para>
+<code>(&setf; &find-class;)</code> and
+<code>(&setf; &class-name;)</code>.</para>
 
 <para>When a class metaobject is created with &make-instance;, it is
 initialized in the usual way.  The initialization arguments passed to
@@ -1566,8 +1558,8 @@ any dependents of the class metaobject will be updated by calling
 <section id="setf-class-name"><title>Generic Function &setf-class-name;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&setf-class-name; &nname-r;
-    &class-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&setf-class-name; &nname-r;
+ &class-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -1590,9 +1582,8 @@ any dependents of the class metaobject will be updated by calling
 <section id="ensure-class"><title>Generic Function &ensure-class;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&ensure-class;
-    &name-r; &key-amp; &allow-other-keys-amp;)
-</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&ensure-class; &name-r; &key-amp;
+    &allow-other-keys-amp;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&name-r;</term>
@@ -1629,10 +1620,10 @@ any dependents of the class metaobject will be updated by calling
 <section id="ensure-class-UC"><title>Generic Function &ensure-class-UC;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&ensure-class-UC;
-    &class-r; &name-r; &key-amp; &direct-default-initargs-k; &direct-slots-k;
-    &direct-superclasses-k; &name-k; &metaclass-k; &allow-other-keys-amp;)
-</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&ensure-class-UC; &class-r; &name-r; &key-amp;
+    &direct-default-initargs-k; &direct-slots-k; &direct-superclasses-k;
+    &name-k; &metaclass-k; &allow-other-keys-amp;)
+ </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -1739,8 +1730,8 @@ any dependents of the class metaobject will be updated by calling
  <title>Generic Function &finalize-inheritance;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&finalize-inheritance; &class-r;)
-</literal></simpara></listitem></varlistentry>
+  <listitem><simpara><code>(&finalize-inheritance;
+     &class-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -1778,9 +1769,8 @@ any dependents of the class metaobject will be updated by calling
 <section id="mop-make-instance"><title>Generic Function &make-instance;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&make-instance;
-    &class-r; &rest-amp; &initargs-r;)
- </literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&make-instance; &class-r; &rest-amp;
+    &initargs-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -1819,8 +1809,8 @@ any dependents of the class metaobject will be updated by calling
 <section id="alloc-instance"><title>Generic Function &allocate-instance;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
-  <listitem><simpara><literal role="sexp">(&allocate-instance; &class-r;
-     &rest-amp; &initargs-r;)</literal></simpara></listitem></varlistentry>
+  <listitem><simpara><code>(&allocate-instance; &class-r;
+     &rest-amp; &initargs-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -1875,8 +1865,8 @@ any dependents of the class metaobject will be updated by calling
  <title>Generic Function &validate-superclass;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&validate-superclass;
-    &class-r; &superclass-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&validate-superclass; &class-r;
+    &superclass-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -1931,9 +1921,8 @@ any dependents of the class metaobject will be updated by calling
 <section id="dsd-class"><title>Generic Function &dsd-class;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&dsd-class;
-    &class-r; &rest-amp; &initargs-r;)
- </literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&dsd-class; &class-r; &rest-amp;
+    &initargs-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -1965,8 +1954,8 @@ any dependents of the class metaobject will be updated by calling
 <section id="compute-cpl"><title>Generic Function &compute-cpl;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
-  <listitem><simpara><literal role="sexp">(&compute-cpl;
-     &class-r;)</literal></simpara></listitem></varlistentry>
+  <listitem><simpara><code>(&compute-cpl;
+     &class-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -2006,8 +1995,8 @@ any dependents of the class metaobject will be updated by calling
 <section id="compute-slots"><title>Generic Function &compute-slots;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&compute-slots; &class-r;)
- </literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&compute-slots; &class-r;)
+ </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -2062,9 +2051,9 @@ any dependents of the class metaobject will be updated by calling
 <section id="compute-esd"><title>Generic Function &compute-esd;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&compute-esd;
-    &class-r; &name-r; <replaceable>direct-slot-definitions</replaceable>)
- </literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&compute-esd; &class-r; &name-r;
+    <replaceable>direct-slot-definitions</replaceable>)
+ </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -2120,9 +2109,9 @@ any dependents of the class metaobject will be updated by calling
  <subtitle>Implementation dependent: only in &clisp;.</subtitle>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&compute-esd-initargs;
-    &class-r; <replaceable>direct-slot-definitions</replaceable>)
- </literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&compute-esd-initargs; &class-r;
+    <replaceable>direct-slot-definitions</replaceable>)
+ </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -2163,9 +2152,8 @@ any dependents of the class metaobject will be updated by calling
 <section id="esd-class"><title>Generic Function &esd-class;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&esd-class;
-    &class-r; &rest-amp; &initargs-r;)
-</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&esd-class; &class-r; &rest-amp;
+    &initargs-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -2197,8 +2185,8 @@ any dependents of the class metaobject will be updated by calling
  <title>Generic Function &compute-default-initargs;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&compute-default-initargs;
-    &class-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&compute-default-initargs;
+    &class-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -2252,8 +2240,8 @@ any dependents of the class metaobject will be updated by calling
  <title>Generic Function &add-direct-subclass;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&add-direct-subclass;
-    &superclass-r; &subclass-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&add-direct-subclass; &superclass-r;
+    &subclass-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&superclass-r;</term>
@@ -2292,9 +2280,8 @@ any dependents of the class metaobject will be updated by calling
  <title>Generic Function &remove-direct-subclass;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&remove-direct-subclass;
-    &superclass-r; &subclass-r;)
-</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&remove-direct-subclass; &superclass-r;
+    &subclass-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&superclass-r;</term>
@@ -2361,7 +2348,7 @@ implementation.</para>
 
 <simplesect id="slotdef-name">
  <title>Generic Function &slotdef-name;</title>
- <subtitle><literal role="sexp">(&slotdef-name; &slot-r;)</literal></subtitle>
+ <subtitle><code>(&slotdef-name; &slot-r;)</code></subtitle>
 
 <para>Returns the name of &slot-r;.  This value is a symbol that can be
 used as a variable name.  This is the value of the &name-k;
@@ -2374,8 +2361,7 @@ metaobject during initialization.</para>
 
 <simplesect id="slotdef-allocation">
  <title>Generic Function &slotdef-allocation;</title>
- <subtitle><literal role="sexp">(&slotdef-allocation;
-   &slot-r;)</literal></subtitle>
+ <subtitle><code>(&slotdef-allocation; &slot-r;)</code></subtitle>
 
 <para>Returns the allocation of &slot-r;.  This is a symbol.  This is
 the defaulted value of the &allocation-k; initialization argument that
@@ -2384,8 +2370,7 @@ initialization.</para></simplesect>
 
 <simplesect id="slotdef-initform">
  <title>Generic Function &slotdef-initform;</title>
- <subtitle><literal role="sexp">(&slotdef-initform;
-   &slot-r;)</literal></subtitle>
+ <subtitle><code>(&slotdef-initform; &slot-r;)</code></subtitle>
 
 <para>Returns the initialization form of &slot-r;.  This can be any
 form.  This is the defaulted value of the &initform-k; initialization
@@ -2396,8 +2381,7 @@ to return &nil;).</para></simplesect>
 
 <simplesect id="slotdef-initfunction">
  <title>Generic Function &slotdef-initfunction;</title>
- <subtitle><literal role="sexp">(&slotdef-initfunction;
-   &slot-r;)</literal></subtitle>
+ <subtitle><code>(&slotdef-initfunction; &slot-r;)</code></subtitle>
 
 <para>Returns the initialization function of &slot-r;.  This value is
 either a function of no arguments, or &nil;, indicating that the slot
@@ -2407,7 +2391,7 @@ slot definition metaobject during initialization.</para></simplesect>
 
 <simplesect id="slotdef-type">
  <title>Generic Function &slotdef-type;</title>
- <subtitle><literal role="sexp">(&slotdef-type; &slot-r;)</literal></subtitle>
+ <subtitle><code>(&slotdef-type; &slot-r;)</code></subtitle>
 
 <para>Returns the type of &slot-r;.  This is a type specifier
 name.  This is the defaulted value of the &type-k; initialization
@@ -2416,8 +2400,7 @@ initialization.</para></simplesect>
 
 <simplesect id="slotdef-initargs">
  <title>Generic Function &slotdef-initargs;</title>
- <subtitle><literal role="sexp">(&slotdef-initargs;
-   &slot-r;)</literal></subtitle>
+ <subtitle><code>(&slotdef-initargs; &slot-r;)</code></subtitle>
 
 <para>Returns the set of initialization argument keywords for &slot-r;.
 This is the defaulted value of the &initargs-k; initialization argument
@@ -2453,8 +2436,7 @@ initialization.</para></simplesect>
 
 <simplesect id="slotdef-readers">
  <title>Generic Function &slotdef-readers;</title>
- <subtitle><literal role="sexp">(&slotdef-readers;
-   &dsd-r;)</literal></subtitle>
+ <subtitle><code>(&slotdef-readers; &dsd-r;)</code></subtitle>
 
 <para>Returns a (possibly empty) set of readers of the &dsd-r;.  This
 value is a list of function names.  This is the defaulted value of the
@@ -2463,8 +2445,7 @@ slot definition metaobject during initialization.</para></simplesect>
 
 <simplesect id="slotdef-writers">
  <title>Generic Function &slotdef-writers;</title>
- <subtitle><literal role="sexp">(&slotdef-writers;
-   &dsd-r;)</literal></subtitle>
+ <subtitle><code>(&slotdef-writers; &dsd-r;)</code></subtitle>
 
 <para>Returns a (possibly empty) set of writers of the &dsd-r;.  This
 value is a list of function names.  This is the defaulted value of the
@@ -2492,8 +2473,7 @@ slot definition metaobject during initialization.
 
 <simplesect id="slotdef-location">
  <title>Generic Function &slotdef-location;</title>
- <subtitle><literal role="sexp">(&slotdef-location;
-   &esd-r;)</literal></subtitle>
+ <subtitle><code>(&slotdef-location; &esd-r;)</code></subtitle>
 
 <para>Returns the location of &esd-r;.  The meaning and interpretation
  of this value is described in <xref linkend="mop-sa-instance-stuct"/>.</para>
@@ -2680,7 +2660,7 @@ implementation.</para>
 
 <simplesect id="gf-name">
  <title>Generic Function &gf-name;</title>
- <subtitle><literal role="sexp">(&gf-name; &gf-r;)</literal></subtitle>
+ <subtitle><code>(&gf-name; &gf-r;)</code></subtitle>
 
 <para>Returns the name of the generic function, or &nil; if the generic
 function has no name.  This is the defaulted value of the &name-k;
@@ -2690,7 +2670,7 @@ metaobject during initialization or reinitialization.  (See also
 
 <simplesect id="gf-methods">
  <title>Generic Function &gf-methods;</title>
- <subtitle><literal role="sexp">(&gf-methods; &gf-r;)</literal></subtitle>
+ <subtitle><code>(&gf-methods; &gf-r;)</code></subtitle>
 
 <para>Returns the set of methods currently connected to the generic
 function.  This is a set of method metaobjects.  This value is
@@ -2699,7 +2679,7 @@ maintained by the generic functions &add-method; and &remove-method;.
 
 <simplesect id="gf-lambda-list">
  <title>Generic Function &gf-lambda-list;</title>
- <subtitle><literal role="sexp">(&gf-lambda-list; &gf-r;)</literal></subtitle>
+ <subtitle><code>(&gf-lambda-list; &gf-r;)</code></subtitle>
 
 <para>Returns the &lalist; of the generic function.  This is the
 defaulted value of the &lambda-list-k; initialization argument that was
@@ -2709,8 +2689,7 @@ supplied.</para></simplesect>
 
 <simplesect id="gf-argument-precedence-order">
  <title>Generic Function &gf-argument-precedence-order;</title>
- <subtitle><literal role="sexp">(&gf-argument-precedence-order;
-   &gf-r;)</literal></subtitle>
+ <subtitle><code>(&gf-argument-precedence-order; &gf-r;)</code></subtitle>
 
 <para>Returns the argument precedence order of the generic function.
 This value is a list of symbols, a permutation of the required
@@ -2729,8 +2708,7 @@ initialization or reinitialization.
 
 <simplesect id="gf-declarations">
  <title>Generic Function &gf-declarations;</title>
- <subtitle><literal role="sexp">(&gf-declarations;
-   &gf-r;)</literal></subtitle>
+ <subtitle><code>(&gf-declarations; &gf-r;)</code></subtitle>
 
 <para>Returns a possibly empty list of the <quote>declarations</quote>
 of the generic function.  The elements of this list are
@@ -2741,7 +2719,7 @@ reinitialization.</para></simplesect>
 
 <simplesect id="gf-method-class">
  <title>Generic Function &gf-method-class;</title>
- <subtitle><literal role="sexp">(&gf-method-class; &gf-r;)</literal></subtitle>
+ <subtitle><code>(&gf-method-class; &gf-r;)</code></subtitle>
 
 <para>Returns the default method class of the generic function.  This
 class must be a subclass of the class &method-t;.  This is the defaulted
@@ -2751,8 +2729,7 @@ reinitialization.</para></simplesect>
 
 <simplesect id="gf-method-combination">
  <title>Generic Function &gf-method-combination;</title>
- <subtitle><literal role="sexp">(&gf-method-combination;
-   &gf-r;)</literal></subtitle>
+ <subtitle><code>(&gf-method-combination; &gf-r;)</code></subtitle>
 
 <para>Returns the method combination of the generic function.  This is a
 method combination metaobject.  This is the defaulted value of the
@@ -3053,8 +3030,8 @@ restrictions.</para>
 <section id="setf-gf-name"><title>Generic Function &setf-gf-name;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&setf-gf-name; &nname-r; &gf-r;)
-</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&setf-gf-name; &nname-r; &gf-r;)
+</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term>&nname-r;</term>
@@ -3076,9 +3053,8 @@ restrictions.</para>
 <section id="ensure-gf"><title>Generic Function &ensure-gf;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&ensure-gf;
-     &funcname-r; &key-amp; &allow-other-keys-amp;)
- </literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&ensure-gf; &funcname-r; &key-amp;
+     &allow-other-keys-amp;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&funcname-r;</term>
@@ -3120,11 +3096,10 @@ restrictions.</para>
  <title>Generic Function &ensure-gf-UC;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&ensure-gf-UC; &gf-r;
-    &funcname-r; &key-amp; &argument-precedence-order-k;
-    &declarations-k; &documentation-k; &gf-class-k; &lambda-list-k;
-    &method-class-k; &method-combination-k; &name-k;
-    &allow-other-keys-amp;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&ensure-gf-UC; &gf-r; &funcname-r; &key-amp;
+    &argument-precedence-order-k; &declarations-k; &documentation-k;
+    &gf-class-k; &lambda-list-k; &method-class-k; &method-combination-k;
+    &name-k; &allow-other-keys-amp;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&gf-r;</term>
@@ -3201,8 +3176,8 @@ restrictions.</para>
 <section id="add-method"><title>Generic Function &add-method;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
-<listitem><simpara><literal role="sexp">(&add-method; &gf-r; &method-r;)
- </literal></simpara></listitem></varlistentry>
+<listitem><simpara><code>(&add-method; &gf-r; &method-r;)
+ </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&gf-mo-arg; &method-mo-arg;
 </variablelist></listitem></varlistentry>
@@ -3254,8 +3229,8 @@ restrictions.</para>
 <section id="mop-remove-method"><title>Generic Function &remove-method;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&remove-method; &gf-r; &method-r;)
-</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&remove-method; &gf-r; &method-r;)
+</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&gf-mo-arg; &method-mo-arg;
 </variablelist></listitem></varlistentry>
@@ -3304,8 +3279,8 @@ restrictions.</para>
  <title>Generic Function &compute-applicable-methods-mop;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
-  <listitem><simpara><literal role="sexp">(&compute-applicable-methods-mop;
-     &gf-r; &args-r;)</literal></simpara></listitem></varlistentry>
+  <listitem><simpara><code>(&compute-applicable-methods-mop;
+     &gf-r; &args-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term>&args-r;</term>
@@ -3362,8 +3337,8 @@ restrictions.</para>
  <title>Generic Function &compute-applicable-methods-UC;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
-  <listitem><simpara><literal role="sexp">(&compute-applicable-methods-UC;
-    &gf-r; &classes-r;)</literal></simpara></listitem></varlistentry>
+  <listitem><simpara><code>(&compute-applicable-methods-UC;
+    &gf-r; &classes-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term>&classes-r;</term>
@@ -3447,8 +3422,8 @@ their own memoization scheme.</para></simplesect>
  <title>Generic Function &compute-effective-method;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&compute-effective-method;
-    &gf-r; &mc-r; &methods-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&compute-effective-method; &gf-r; &mc-r;
+    &methods-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term>&mc-r;</term>
@@ -3501,8 +3476,8 @@ their own memoization scheme.</para></simplesect>
  <title>Function &compute-effective-method-as-function;</title>
 <subtitle>Implementation dependent: only in &clisp;.</subtitle>
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&compute-effective-method-as-function;
-    &gf-r; &methods-r; &args-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&compute-effective-method-as-function;
+    &gf-r; &methods-r; &args-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&gf-r;</term>
@@ -3535,9 +3510,9 @@ their own memoization scheme.</para></simplesect>
  <title>Generic Function &make-method-lambda;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&make-method-lambda;
-    &gf-r; &method-r; <replaceable>lambda-expression</replaceable> &env-r;)
- </literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&make-method-lambda; &gf-r;
+    &method-r; <replaceable>lambda-expression</replaceable> &env-r;)
+ </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term>&method-r;</term>
@@ -3662,8 +3637,8 @@ override the system's definitions.</para>
  <title>Generic Function &compute-discriminating-function;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&compute-discriminating-function;
-    &gf-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&compute-discriminating-function;
+    &gf-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&gf-mo-arg;</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>
@@ -3764,8 +3739,7 @@ if the method metaobject has not been initialized.</para>
 
 <simplesect id="method-specializers">
  <title>Generic Function &method-specializers;</title>
- <subtitle><literal role="sexp">(&method-specializers;
-   &method-r;)</literal></subtitle>
+ <subtitle><code>(&method-specializers; &method-r;)</code></subtitle>
 
 <para>Returns a list of the specializers of &method-r;.  This value is a
 list of specializer metaobjects.  This is the value of the
@@ -3774,8 +3748,7 @@ method during initialization.</para></simplesect>
 
 <simplesect id="method-qualifiers">
  <title>Generic Function &method-qualifiers;</title>
- <subtitle><literal role="sexp">(&method-qualifiers;
-   &method-r;)</literal></subtitle>
+ <subtitle><code>(&method-qualifiers; &method-r;)</code></subtitle>
 
 <para>Returns a (possibly empty) list of the qualifiers of &method-r;.
 This value is a list of non-&nil; atoms.  This is the defaulted value of
@@ -3784,8 +3757,7 @@ method during initialization.</para></simplesect>
 
 <simplesect id="method-lambda-list">
  <title>Generic Function &method-lambda-list;</title>
- <subtitle><literal role="sexp">(&method-lambda-list;
-   &method-r;)</literal></subtitle>
+ <subtitle><code>(&method-lambda-list; &method-r;)</code></subtitle>
 
 <para>Returns the (unspecialized) &lalist; of &method-r;.  This value
 is a &cl; &lalist;.  This is the value of the &lambda-list-k;
@@ -3798,7 +3770,7 @@ initialization.</para></simplesect>
 
 <simplesect id="method-gf">
  <title>Generic Function &method-gf;</title>
- <subtitle><literal role="sexp">(&method-gf; &method-r;)</literal></subtitle>
+ <subtitle><code>(&method-gf; &method-r;)</code></subtitle>
 
 <para>Returns the generic function that &method-r; is currently
 connected to, or &nil; if it is not currently connected to any generic
@@ -3809,8 +3781,7 @@ function.  This connection is maintained by the generic functions
 
 <simplesect id="method-function">
  <title>Generic Function &method-function;</title>
- <subtitle><literal role="sexp">(&method-function;
-   &method-r;)</literal></subtitle>
+ <subtitle><code>(&method-function; &method-r;)</code></subtitle>
 
 <para>Returns the method function of &method-r;.  This is the
 value of the &function-k; initialization argument that was associated
@@ -4189,8 +4160,8 @@ restrictions.</para>
 <section id="extract-lambda-list"><title>Function &extract-lambda-list;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&extract-lambda-list; &spec-lalist-r;)
-</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&extract-lambda-list; &spec-lalist-r;)
+</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&spec-lalist-r;</term>
@@ -4227,8 +4198,8 @@ restrictions.</para>
  <title>Function &extract-specializer-names;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&extract-specializer-names;
-    &spec-lalist-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&extract-specializer-names;
+    &spec-lalist-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&spec-lalist-r;</term>
@@ -4277,8 +4248,7 @@ restrictions.</para>
 
 <simplesect id="accessor-method-slotdef">
  <title>Generic Function &accessor-method-slotdef;</title>
- <subtitle><literal role="sexp">(&accessor-method-slotdef;
-   &method-r;)</literal></subtitle>
+ <subtitle><code>(&accessor-method-slotdef; &method-r;)</code></subtitle>
 
 <para>This accessor can only be called on accessor methods.  It returns
 the direct slot definition metaobject that defined this method.  This is
@@ -4304,9 +4274,8 @@ method during initialization.</para>
  <title>Generic Function &reader-method-class;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&reader-method-class;
-    &class-r; &dsd-r; &rest-amp; &initargs-r;)
- </literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&reader-method-class; &class-r; &dsd-r;
+    &rest-amp; &initargs-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -4346,9 +4315,9 @@ method during initialization.</para>
  <title>Generic Function &writer-method-class;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&writer-method-class;
-    &class-r; <replaceable>direct-slot</replaceable> &rest-amp; &initargs-r;)
- </literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&writer-method-class; &class-r;
+    <replaceable>direct-slot</replaceable> &rest-amp; &initargs-r;)
+ </code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -4407,9 +4376,9 @@ method during initialization.</para>
  <title>Function &eql-specializer-object;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&eql-specializer-object;
+ <listitem><simpara><code>(&eql-specializer-object;
     <replaceable>eql-specializer</replaceable>)
-</literal></simpara></listitem></varlistentry>
+</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term><replaceable>eql-specializer</replaceable></term>
@@ -4439,8 +4408,8 @@ method during initialization.</para>
  <title>Function &intern-eql-specializer;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&intern-eql-specializer;
-    &object-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&intern-eql-specializer;
+    &object-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&object-r;</term>
@@ -4468,8 +4437,8 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
  <title>Generic Function &specializer-direct-methods;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&specializer-direct-methods;
-    &specializer-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&specializer-direct-methods;
+    &specializer-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&specializer-mo-arg;
 </variablelist></listitem></varlistentry>
@@ -4506,8 +4475,8 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
  <title>Generic Function &specializer-direct-gfs;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&specializer-direct-gfs;
-    &specializer-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&specializer-direct-gfs;
+    &specializer-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&specializer-mo-arg;
 </variablelist></listitem></varlistentry>
@@ -4544,8 +4513,8 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
  <title>Generic Function &add-direct-method;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
-  <listitem><simpara><literal role="sexp">(&add-direct-method;
-     &specializer-r; &method-r;)</literal></simpara></listitem></varlistentry>
+  <listitem><simpara><code>(&add-direct-method;
+     &specializer-r; &method-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&specializer-mo-arg; &method-mo-arg;
 </variablelist></listitem></varlistentry>
@@ -4594,9 +4563,8 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
  <title>Generic Function &remove-direct-method;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&remove-direct-method;
-    &specializer-r; &method-r;)
-</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&remove-direct-method; &specializer-r;
+    &method-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&specializer-mo-arg; &method-mo-arg;
 </variablelist></listitem></varlistentry>
@@ -4660,10 +4628,10 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
  <title>Generic Function &find-method-combination;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&find-method-combination;
-    &gf-r; <replaceable>method-combination-type-name</replaceable>
+ <listitem><simpara><code>(&find-method-combination; &gf-r;
+    <replaceable>method-combination-type-name</replaceable>
     <replaceable>method-combination-options</replaceable>)
-</literal></simpara></listitem></varlistentry>
+</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term><replaceable>method-combination-type-name</replaceable></term>
@@ -4697,7 +4665,7 @@ original &object-r; argument, not necessarily &eq;.</para></formalpara>
 
 <para>The instance structure protocol is responsible for implementing
 the behavior of the slot access functions like &slot-value; and
-<literal role="sexp">(&setf; &slot-value;)</literal>.</para>
+<code>(&setf; &slot-value;)</code>.</para>
 
 <para>For each &clos; slot access function other than &slot-exists-p;,
 there is a corresponding generic function which actually provides the
@@ -4879,9 +4847,8 @@ objects linked, for example, by hash tables.)
  <title>Function &standard-instance-access;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&standard-instance-access;
-    &instance-r; &location-r;)
-</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&standard-instance-access; &instance-r;
+    &location-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&instance-r;</term>
@@ -4922,8 +4889,8 @@ objects linked, for example, by hash tables.)
  <title>Function &funcallable-standard-instance-access;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&funcallable-standard-instance-access;
-    &instance-r; &location-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&funcallable-standard-instance-access;
+    &instance-r; &location-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&instance-r;</term>
@@ -4962,9 +4929,9 @@ objects linked, for example, by hash tables.)
  <title>Function &set-funcallable-instance-function;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&set-funcallable-instance-function;
+ <listitem><simpara><code>(&set-funcallable-instance-function;
     <replaceable>funcallable-instance</replaceable> &func-r;)
-</literal></simpara></listitem></varlistentry>
+</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term><replaceable>funcallable-instance</replaceable></term>
@@ -4992,8 +4959,8 @@ objects linked, for example, by hash tables.)
 <section id="slot-value-UC"><title>Generic Function &slot-value-UC;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&slot-value-UC; &class-r;
-    &object-r; &slot-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&slot-value-UC; &class-r;
+    &object-r; &slot-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -5036,9 +5003,8 @@ objects linked, for example, by hash tables.)
  <title>Generic Function &setf-slot-value-UC;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&setf-slot-value-UC;
-    &nval-r; &class-r; &object-r; &slot-r;)
-</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&setf-slot-value-UC; &nval-r; &class-r;
+    &object-r; &slot-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&nval-r;</term>
@@ -5083,9 +5049,8 @@ objects linked, for example, by hash tables.)
 <section id="slot-boundp-UC"><title>Generic Function &slot-boundp-UC;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&slot-boundp-UC;
-    &class-r; &object-r; &slot-r;)
-</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&slot-boundp-UC; &class-r; &object-r;
+    &slot-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -5131,9 +5096,8 @@ unbound slots, true should be returned.</para></formalpara>
  <title>Generic Function &slot-makunbound-UC;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&slot-makunbound-UC;
-    &class-r; &object-r; &slot-r;)
-</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&slot-makunbound-UC; &class-r; &object-r;
+    &slot-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&class-r;</term>
@@ -5250,9 +5214,9 @@ cache of the dependent when it is updated.</para>
  <title>Generic Function &update-dependent;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&update-dependent;
-    &metaobject-r; &dependent-r; &rest-amp; &initargs-r;)
-</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&update-dependent; &metaobject-r;
+    &dependent-r; &rest-amp; &initargs-r;)
+</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&metaobject-r;</term>
@@ -5300,8 +5264,8 @@ cache of the dependent when it is updated.</para>
 <section id="add-dependent"><title>Generic Function &add-dependent;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&add-dependent; &metaobject-r;
-    &dependent-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&add-dependent; &metaobject-r;
+    &dependent-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&metaobject-r;</term>
@@ -5361,9 +5325,8 @@ cache of the dependent when it is updated.</para>
  <title>Generic Function &remove-dependent;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
-  <listitem><simpara><literal role="sexp">(&remove-dependent;
-     &metaobject-r; &dependent-r;)
-</literal></simpara></listitem></varlistentry>
+  <listitem><simpara><code>(&remove-dependent; &metaobject-r;
+     &dependent-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&metaobject-r;</term>
@@ -5422,8 +5385,8 @@ cache of the dependent when it is updated.</para>
 <section id="map-dependents"><title>Generic Function &map-dependents;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
- <listitem><simpara><literal role="sexp">(&map-dependents;
-    &metaobject-r; &func-r;)</literal></simpara></listitem></varlistentry>
+ <listitem><simpara><code>(&map-dependents; &metaobject-r;
+    &func-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&metaobject-r;</term>

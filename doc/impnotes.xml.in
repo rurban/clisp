@@ -146,8 +146,8 @@ and
     <row><entry>&lalist; keyword</entry><entry>&key-amp;</entry></row>
     <row><entry>Declaration</entry><entry>&ftype-dec;</entry></row>
     <row><entry>Package</entry><entry>&clu-pac;</entry></row>
-    <row><entry>SEXP (you are likely to type it)</entry>
-     <entry><literal role="sexp">(&cons; 1 2)</literal></entry></row>
+    <row><entry>Code (you are likely to type it)</entry>
+     <entry><code>(&cons; 1 2)</code></entry></row>
     <row><entry>Data (&clisp; is likely to print it)</entry>
      <entry><literal role="data">#(1 2 3)</literal></entry></row>
     <row><entry>Code sample</entry><entry><programlisting role="lisp">

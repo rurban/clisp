@@ -36,35 +36,35 @@
 <section id="bdb-db-environment"><title>Database Environment</title>
 
 <variablelist>
- <varlistentry><term><literal role="sexp">(BDB:DB-VERSION)</literal></term>
+ <varlistentry><term><code>(BDB:DB-VERSION)</code></term>
   <listitem><simpara>Return version information as 4 values: descriptive
     &string-t; and 3 &fixnum-t;s: major, minor and patch number (&db_version;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(BDB:DBE-CREATE &key-amp;
-    PASSWORD ENCRYPT HOST CLIENT_TIMEOUT SERVER_TIMEOUT)</literal></term>
+ <varlistentry><term><code>(BDB:DBE-CREATE &key-amp;
+    PASSWORD ENCRYPT HOST CLIENT_TIMEOUT SERVER_TIMEOUT)</code></term>
   <listitem><simpara>Create an environment handle (&dbe_create;),
     possibly connecting to a remote host (&DBE_set_rpc_server;) and
     possibly using encryption with password (&DBE_set_encrypt;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(BDB:DBE-CLOSE dbe)</literal></term>
+ <varlistentry><term><code>(BDB:DBE-CLOSE dbe)</code></term>
   <listitem><simpara>Close an environment (&DBE_close;).
     You can also call &close;.</simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(BDB:DBREMOVE dbe file
-    database &key-amp; TRANSACTION AUTO_COMMIT)</literal></term>
+ <varlistentry><term><code>(BDB:DBREMOVE dbe file
+    database &key-amp; TRANSACTION AUTO_COMMIT)</code></term>
   <listitem><simpara>Remove a database (&DBE_dbremove;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(BDB:DBREMOVE dbe file
-    database newname &key-amp; TRANSACTION AUTO_COMMIT)</literal></term>
+ <varlistentry><term><code>(BDB:DBREMOVE dbe file
+    database newname &key-amp; TRANSACTION AUTO_COMMIT)</code></term>
   <listitem><simpara>Rename a database (&DBE_dbrename;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(BDB:DBE-OPEN dbe &key-amp;
+ <varlistentry><term><code>(BDB:DBE-OPEN dbe &key-amp;
     HOME JOIN INIT_CDB INIT_LOCK INIT_LOG INIT_MPOOL INIT_TXN
     RECOVER RECOVER_FATAL USE_ENVIRON USE_ENVIRON_ROOT CREATE
-    LOCKDOWN PRIVATE SYSTEM_MEM THREAD MODE)</literal></term>
+    LOCKDOWN PRIVATE SYSTEM_MEM THREAD MODE)</code></term>
   <listitem><simpara>Open an environment (&DBE_open;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><literal role="sexp">(BDB:DBE-REMOVE dbe &key-amp;
-    HOME FORCE USE_ENVIRON USE_ENVIRON_ROOT)</literal></term>
+ <varlistentry><term><code>(BDB:DBE-REMOVE dbe &key-amp;
+    HOME FORCE USE_ENVIRON USE_ENVIRON_ROOT)</code></term>
   <listitem><simpara>Destroy an environment (&DBE_remove;).
  </simpara></listitem></varlistentry>
 </variablelist>
@@ -74,14 +74,14 @@
 <section id="bdb-environment-config"><title>Environment Configuration</title>
 
 <variablelist>
-<varlistentry><term><literal role="sexp">(BDB:DBE-SET-OPTIONS dbe
+<varlistentry><term><code>(BDB:DBE-SET-OPTIONS dbe
    &key-amp; ERRFILE ERRPFX PASSWORD ENCRYPT LOCK_TIMEOUT TXN_TIMEOUT SHM_KEY
    TAS_SPINS TX_TIMESTAMP TX_MAX DATA_DIR TMP_DIR LG_BSIZE LG_DIR LG_MAX
    LG_REGIONMAX LK_CONFLICTS LK_DETECT LK_MAX_LOCKERS LK_MAX_LOCKS
    LK_MAX_OBJECTS AUTO_COMMIT CDB_ALLDB DIRECT_DB DIRECT_LOG NOLOCKING
    NOMMAP NOPANIC OVERWRITE PANIC_ENVIRONMENT REGION_INIT TXN_NOSYNC
    TXN_WRITE_NOSYNC YIELDCPU VERB_CHKPOINT VERB_DEADLOCK VERB_RECOVERY
-   VERB_REPLICATION VERB_WAITSFOR VERBOSE)</literal></term>
+   VERB_REPLICATION VERB_WAITSFOR VERBOSE)</code></term>
  <listitem><para>Set some environment options using <simplelist columns="4">
     <member>&DBE_set_flags;</member>
     <member>&DBE_set_verbose;</member>
@@ -105,8 +105,8 @@
     <member>&DBE_set_lk_max_locks;</member>
     <member>&DBE_set_lk_max_objects;</member>
 </simplelist></para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DBE-GET-OPTIONS dbe
-   &optional-amp; &what-r;)</literal></term>
+<varlistentry><term><code>(BDB:DBE-GET-OPTIONS dbe
+   &optional-amp; &what-r;)</code></term>
  <listitem><para>Retrieve some environment options.
    <variablelist><title>Values of &what-r;</title>
     <varlistentry><term>missing</term><term>&nil;</term>
@@ -217,24 +217,21 @@
  DB->errx	Error message
  -->
 <variablelist>
-<varlistentry><term><literal role="sexp">(BDB:DB-CREATE dbe &key-amp;
-   XA)</literal></term>
+<varlistentry><term><code>(BDB:DB-CREATE dbe &key-amp; XA)</code></term>
  <listitem><simpara>Create a database handle (&db_create;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-CLOSE db &key-amp;
-   NOSYNC)</literal></term>
+<varlistentry><term><code>(BDB:DB-CLOSE db &key-amp; NOSYNC)</code></term>
  <listitem><simpara>Close a database (&DB_close;).
    You can also call &close;.</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-DEL dbe key &key-amp;
-   TRANSACTION AUTO_COMMIT)</literal></term>
+<varlistentry><term><code>(BDB:DB-DEL dbe key &key-amp;
+   TRANSACTION AUTO_COMMIT)</code></term>
  <listitem><simpara>Delete items from a database (&DB_del;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-FD db)</literal></term>
+<varlistentry><term><code>(BDB:DB-FD db)</code></term>
  <listitem><simpara>Return a file descriptor from a database (&DB_fd;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-GET db key &key-amp;
-   ACTION AUTO_COMMIT DIRTY_READ MULTIPLE RMW TRANSACTION (ERROR &t;))
- </literal></term>
+<varlistentry><term><code>(BDB:DB-GET db key &key-amp; ACTION
+   AUTO_COMMIT DIRTY_READ MULTIPLE RMW TRANSACTION (ERROR &t;))</code></term>
  <listitem><para>Get items from a database (&DB_get;).
    If &error-k; is &nil; and the record is not found, no &err-sig;,
    instead <constant>:NOTFOUND</constant> is returned.
@@ -244,21 +241,20 @@
     <member><constant>:DB_GET_BOTH</constant></member>
     <member><constant>:DB_SET_RECNO</constant></member></simplelist>
 </para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-PUT db key val
-   &key-amp; AUTO_COMMIT ACTION TRANSACTION)</literal></term>
+<varlistentry><term><code>(BDB:DB-PUT db key val
+   &key-amp; AUTO_COMMIT ACTION TRANSACTION)</code></term>
 <listitem><para>Store items into a database (&DB_put;).
   <constant>:ACTION</constant> should be one of
   <simplelist columns="3"><member><constant>:DB_APPEND</constant></member>
    <member><constant>:DB_NODUPDATA</constant></member>
    <member><constant>:DB_NOOVERWRITE</constant></member></simplelist>
 </para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-STAT db &key-amp;
-   FAST_STAT)</literal></term>
+<varlistentry><term><code>(BDB:DB-STAT db &key-amp; FAST_STAT)</code></term>
  <listitem><simpara>Return database statistics (&DB_get_byteswapped;,
    &DB_get_type;, &DB_stat;).</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-OPEN db file &key-amp;
+<varlistentry><term><code>(BDB:DB-OPEN db file &key-amp;
    DATABASE TYPE MODE CREATE DIRTY_READ EXCL NOMMAP RDONLY
-   THREAD TRUNCATE AUTO_COMMIT TRANSACTION)</literal></term>
+   THREAD TRUNCATE AUTO_COMMIT TRANSACTION)</code></term>
  <listitem><para>Open a database (&DB_open;).
    <constant>:TYPE</constant> should be one of
    <simplelist columns="2"><member><constant>:BTREE</constant></member>
@@ -267,46 +263,44 @@
     <member><constant>:RECNO</constant></member>
     <member><constant>:UNKNOWN</constant> (default)</member></simplelist>
 </para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-SYNC db)</literal></term>
+<varlistentry><term><code>(BDB:DB-SYNC db)</code></term>
  <listitem><simpara>Flush a database to stable storage (&DB_sync;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-TRUNCATE db &key-amp;
-   TRANSACTION AUTO_COMMIT)</literal></term>
+<varlistentry><term><code>(BDB:DB-TRUNCATE db &key-amp;
+   TRANSACTION AUTO_COMMIT)</code></term>
  <listitem><simpara>Empty a database (&DB_truncate;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-UPGRADE db file
-   &key-amp; DUPSORT)</literal></term>
+<varlistentry><term><code>(BDB:DB-UPGRADE db file
+   &key-amp; DUPSORT)</code></term>
  <listitem><simpara>Upgrade a database (&DB_upgrade;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-RENAME db file database
-   newname)</literal></term>
+<varlistentry><term><code>(BDB:DB-RENAME db file database newname)</code></term>
  <listitem><simpara>Rename a database (&DB_rename;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-REMOVE db file
-   database)</literal></term>
+<varlistentry><term><code>(BDB:DB-REMOVE db file database)</code></term>
  <listitem><simpara>Remove a database (&DB_remove;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-JOIN db cursor-sequence
-   &key-amp; JOIN_NOSORT)</literal></term>
+<varlistentry><term><code>(BDB:DB-JOIN db cursor-sequence
+   &key-amp; JOIN_NOSORT)</code></term>
  <listitem><simpara>Create a specialized join cursor for use in
    performing equality or natural joins on secondary indices (&DB_join;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-KEY-RANGE db key
-   &key-amp; TRANSACTION)</literal></term>
+<varlistentry><term><code>(BDB:DB-KEY-RANGE db key
+   &key-amp; TRANSACTION)</code></term>
  <listitem><simpara>return an estimate of the proportion of keys that
    are less than, equal to, and greater than the specified key
    (&DB_key_range;).  The underlying database must be of type Btree.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-VERIFY db file &key-amp;
-   DATABASE SALVAGE AGGRESSIVE PRINTABLE NOORDERCHK)</literal></term>
+<varlistentry><term><code>(BDB:DB-VERIFY db file &key-amp;
+   DATABASE SALVAGE AGGRESSIVE PRINTABLE NOORDERCHK)</code></term>
  <listitem><simpara>Verify/salvage a database (&DB_verify;).
    <constant>:SALVAGE</constant>, if supplied, should be the output
    file name.  <constant>:DATABASE</constant>, if supplied,
    will force <constant>DB_ORDERCHKONLY</constant>.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:WITH-DB (var dbe file
+<varlistentry><term><code>(BDB:WITH-DB (var dbe file
    &rest-amp; options &key-amp; xa &allow-other-keys-amp;)
-   &body-amp; body)</literal></term>
+   &body-amp; body)</code></term>
  <listitem><simpara>Open the database, execute &body-r;, close it.
 </simpara></listitem></varlistentry>
 </variablelist></section>
@@ -326,12 +320,12 @@
  DB->set_h_hash	Set a hashing function
  -->
 <variablelist>
-<varlistentry><term><literal role="sexp">(BDB:DB-SET-OPTIONS db
+<varlistentry><term><code>(BDB:DB-SET-OPTIONS db
    &key-amp; ERRFILE ERRPFX PASSWORD ENCRYPTION NCACHE CACHESIZE CACHE
    LORDER PAGESIZE BT_MINKEY H_FFACTOR H_NELEM Q_EXTENTSIZE
    RE_DELIM RE_LEN RE_PAD RE_SOURCE
    CHKSUM ENCRYPT TXN_NOT_DURABLE DUP DUPSORT RECNUM REVSPLITOFF
-   RENUMBER SNAPSHOT)</literal></term>
+   RENUMBER SNAPSHOT)</code></term>
  <listitem><para>Set some database options using <simplelist columns="4">
     <member>&DBE_set_errfile;</member>
     <member>&DBE_set_errpfx;</member>
@@ -349,8 +343,8 @@
     <member>&DB_set_re_source;</member>
     <member>&DB_set_flags;</member>
    </simplelist></para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-GET-OPTIONS db
-   &optional-amp; &what-r;)</literal></term>
+<varlistentry><term><code>(BDB:DB-GET-OPTIONS db
+   &optional-amp; &what-r;)</code></term>
  <listitem><para>Retrieve some database options.
    <variablelist><title>Values of &what-r;</title>
     <varlistentry><term>missing</term><term>&nil;</term>
@@ -437,28 +431,24 @@
 <section id="bdb-cursor"><title>Database Cursor Operations</title>
 
 <variablelist>
-<varlistentry><term><literal role="sexp">(BDB:MAKE-DBC db &key-amp;
-   DIRTY_READ WRITECURSOR TRANSACTION)</literal></term>
+<varlistentry><term><code>(BDB:MAKE-DBC db &key-amp;
+   DIRTY_READ WRITECURSOR TRANSACTION)</code></term>
  <listitem><simpara>Create a cursor handle (&DB_cursor;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DBC-CLOSE
-   cursor)</literal></term>
+<varlistentry><term><code>(BDB:DBC-CLOSE cursor)</code></term>
  <listitem><simpara>Close the cursor handle (&DBC_close;).
    You can also call &close;.</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DBC-COUNT
-   cursor)</literal></term>
+<varlistentry><term><code>(BDB:DBC-COUNT cursor)</code></term>
  <listitem><simpara>Return count of duplicates (&DBC_count;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DBC-DEL
-   cursor)</literal></term>
+<varlistentry><term><code>(BDB:DBC-DEL cursor)</code></term>
  <listitem><simpara>Delete by cursor (&DBC_del;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DBC-DUP
-   cursor &key-amp; POSITION)</literal></term>
+<varlistentry><term><code>(BDB:DBC-DUP cursor &key-amp; POSITION)</code></term>
  <listitem><simpara>Duplicate a cursor (&DBC_dup;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DBC-GET cursor key data
-   action &key-amp; DIRTY_READ MULTIPLE (ERROR &t;))</literal></term>
+<varlistentry><term><code>(BDB:DBC-GET cursor key data
+   action &key-amp; DIRTY_READ MULTIPLE (ERROR &t;))</code></term>
  <listitem><para>Retrieve by cursor (&DBC_get;).
    If &error-k; is &nil; and the record is not found, no &err-sig;,
    <constant>:NOTFOUND</constant> or <constant>:KEYEMPTY</constant>
@@ -480,12 +470,12 @@
     <member><constant>:DB_SET_RANGE</constant></member>
     <member><constant>:DB_SET_RECNO</constant></member></simplelist>
 </para></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DBC-PUT
-   cursor key data flag)</literal></term>
+<varlistentry><term><code>(BDB:DBC-PUT cursor key data
+   flag)</code></term>
  <listitem><simpara>Store by cursor (&DBC_put;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:WITH-DBC (var &rest-amp;
-   options) &body-amp; &body-r;))</literal></term>
+<varlistentry><term><code>(BDB:WITH-DBC (var &rest-amp;
+   options) &body-amp; &body-r;))</code></term>
  <listitem><simpara>Open a cursor, execute &body-r;, close it.
 </simpara></listitem></varlistentry></variablelist></section>
 
@@ -493,38 +483,34 @@
 <section id="bdb-lock"><title>Lock Subsystem</title>
 
 <variablelist>
-<varlistentry><term><literal role="sexp">(BDB:LOCK-DETECT dbe
-   action)</literal></term>
+<varlistentry><term><code>(BDB:LOCK-DETECT dbe action)</code></term>
  <listitem><simpara>Perform deadlock detection
    (&DBE_lock_detect;).</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:LOCK-ID dbe)</literal></term>
+<varlistentry><term><code>(BDB:LOCK-ID dbe)</code></term>
  <listitem><simpara>Acquire a locker ID
   (&DBE_lock_id;).</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:LOCK-ID-FREE dbe
-   id)</literal></term>
+<varlistentry><term><code>(BDB:LOCK-ID-FREE dbe id)</code></term>
  <listitem><simpara>Release a locker ID (&DBE_lock_id_free;).
    All associated locks should be released first.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:LOCK-GET dbe object locker
-   mode &key-amp; NOWAIT)</literal></term>
+<varlistentry><term><code>(BDB:LOCK-GET dbe object locker
+   mode &key-amp; NOWAIT)</code></term>
  <listitem><simpara>Acquire a lock (&DBE_lock_get;).
    The <type>BDB:DBLOCK</type> object returned by this function will
    &not-e; be released when the environment is closed.
    This permits long-lived locks.</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:LOCK-PUT dbe
-   lock)</literal></term>
+<varlistentry><term><code>(BDB:LOCK-PUT dbe lock)</code></term>
  <listitem><simpara>Release a lock
    (&DBE_lock_put;).</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:LOCK-CLOSE
-   lock)</literal></term>
+<varlistentry><term><code>(BDB:LOCK-CLOSE lock)</code></term>
  <listitem><simpara>Release a lock (&DBE_lock_put;) using the
    environment with which it has been acquired.
    This is used to &finalize; <type>BDB:DBLOCK</type> objects.
    If that environment has already been closed, you are in big trouble,
    so you better release your locks or do not drop them.
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:LOCK-STAT dbe &key-amp;
-   STAT_CLEAR)</literal></term>
+<varlistentry><term><code>(BDB:LOCK-STAT dbe &key-amp;
+   STAT_CLEAR)</code></term>
  <listitem><simpara>Return lock subsystem statistics
    (&DBE_lock_stat;).</simpara></listitem></varlistentry>
 </variablelist></section>
@@ -533,38 +519,37 @@
 <section id="bdb-log"><title>Log Subsystem</title>
 
 <variablelist>
-<varlistentry><term><literal role="sexp">(BDB:LOG-ARCHIVE dbe
-   &key-amp; :ARCH_ABS :ARCH_DATA :ARCH_LOG :ARCH_REMOVE)</literal></term>
+<varlistentry><term><code>(BDB:LOG-ARCHIVE dbe
+   &key-amp; :ARCH_ABS :ARCH_DATA :ARCH_LOG :ARCH_REMOVE)</code></term>
  <listitem><simpara>Return a list of log or database filenames
    (&DBE_log_archive;).</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:LOG-FILE dbe lsn)</literal></term>
+<varlistentry><term><code>(BDB:LOG-FILE dbe lsn)</code></term>
  <listitem><simpara>Return the name of the file containing the record
    named by <replaceable>lsn</replaceable> (&DBE_log_file;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:LOG-FLUSH dbe
-   lsn)</literal></term>
+<varlistentry><term><code>(BDB:LOG-FLUSH dbe lsn)</code></term>
  <listitem><simpara>Flush log records to disk (&DBE_log_flush;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:LOG-PUT dbe data
-   &key-amp; :FLUSH)</literal></term>
+<varlistentry><term><code>(BDB:LOG-PUT dbe data
+   &key-amp; :FLUSH)</code></term>
  <listitem><simpara>Write a log record (&DBE_log_put;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:LOG-STAT dbe
-   &key-amp; STAT_CLEAR)</literal></term>
+<varlistentry><term><code>(BDB:LOG-STAT dbe
+   &key-amp; STAT_CLEAR)</code></term>
  <listitem><simpara>Logging subsystem statistics (&DBE_log_stat;).
 </simpara></listitem></varlistentry>
 </variablelist>
 
 <section id="bdb-log-cursor"><title>Log Cursor Operations</title>
 <variablelist>
-<varlistentry><term><literal role="sexp">(BDB:LOG-CURSOR dbe)</literal></term>
+<varlistentry><term><code>(BDB:LOG-CURSOR dbe)</code></term>
  <listitem><simpara>Create a log cursor handle
    (&DBE_log_cursor;).</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:LOGC-CLOSE logc)</literal></term>
+<varlistentry><term><code>(BDB:LOGC-CLOSE logc)</code></term>
  <listitem><simpara>Close a log cursor handle
    (&LOGC_close;).</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:LOGC-GET logc action
-   &key-amp; TYPE ERROR)</literal></term>
+<varlistentry><term><code>(BDB:LOGC-GET logc action
+   &key-amp; TYPE ERROR)</code></term>
  <listitem><para>Retrieve a log record (&LOGC_get;).
    If &error-k; is &nil; and the record is not found, no &err-sig;,
    <constant>:NOTFOUND</constant> is returned instead.
@@ -590,8 +575,7 @@
 <section id="bdb-log-seq"><title>Log Sequence Numbers</title>
 <para>Use &equalp; to check similarity of <type>BDB:LSN</type> objects.</para>
 <variablelist>
-<varlistentry><term><literal role="sexp">(BDB:LOG-COMPARE
-   lsn1 lsn2)</literal></term>
+<varlistentry><term><code>(BDB:LOG-COMPARE lsn1 lsn2)</code></term>
  <listitem><simpara>Compare two Log Sequence Numbers (&db_log_compare;).
 </simpara></listitem></varlistentry>
 </variablelist></section>
@@ -623,7 +607,7 @@ Memory Pool Files
  DB_MPOOLFILE->set_pgcookie	Set file cookie for pgin/pgout
  -->
 <variablelist>
-<varlistentry><term><literal role="sexp">()</literal></term>
+<varlistentry><term><code>()</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 </variablelist>
 </section>
@@ -632,42 +616,41 @@ Memory Pool Files
 <section id="bdb-transaction"><title>Transaction Subsystem</title>
 
 <variablelist>
-<varlistentry><term><literal role="sexp">(BDB:TXN-BEGIN dbe &key-amp;
-   PARENT DIRTY_READ NOSYNC NOWAIT SYNC)</literal></term>
+<varlistentry><term><code>(BDB:TXN-BEGIN dbe &key-amp;
+   PARENT DIRTY_READ NOSYNC NOWAIT SYNC)</code></term>
  <listitem><simpara>Begin a transaction (&DBE_txn_begin;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:TXN-ABORT txn)</literal></term>
+<varlistentry><term><code>(BDB:TXN-ABORT txn)</code></term>
  <listitem><simpara>Abort a transaction (&TXN_abort;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:TXN-COMMIT txn &key-amp;
-   NOSYNC SYNC)</literal></term>
+<varlistentry><term><code>(BDB:TXN-COMMIT txn &key-amp;
+   NOSYNC SYNC)</code></term>
  <listitem><simpara>Commit a transaction (&TXN_commit;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:TXN-DISCARD txn)</literal></term>
+<varlistentry><term><code>(BDB:TXN-DISCARD txn)</code></term>
  <listitem><simpara>Discard a transaction (&TXN_discard;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:TXN-ID txn)</literal></term>
+<varlistentry><term><code>(BDB:TXN-ID txn)</code></term>
  <listitem><simpara>Return the transaction's ID (&TXN_id;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:TXN-CHECKPOINT dbe
-   &key-amp; KBYTE MIN FORCE)</literal></term>
+<varlistentry><term><code>(BDB:TXN-CHECKPOINT dbe
+   &key-amp; KBYTE MIN FORCE)</code></term>
  <listitem><simpara>Checkpoint the transaction subsystem
    (&DBE_txn_checkpoint;).</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:TXN-PREPARE txn
-   id)</literal></term>
+<varlistentry><term><code>(BDB:TXN-PREPARE txn id)</code></term>
  <listitem><simpara>Initiate the beginning of a two-phase commit
    (&TXN_prepare;).</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:TXN-RECOVER dbe &key-amp;
-   FIRST NEXT)</literal></term>
+<varlistentry><term><code>(BDB:TXN-RECOVER dbe &key-amp;
+   FIRST NEXT)</code></term>
  <listitem><simpara>Return a list of prepared but not yet resolved
    transactions (&DBE_txn_recover;).</simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:TXN-SET-TIMEOUT txn
-   timeout which)</literal></term>
+<varlistentry><term><code>(BDB:TXN-SET-TIMEOUT txn
+   timeout which)</code></term>
  <listitem><simpara>Set timeout values for locks or transactions for the
    specified transaction (&TXN_set_timeout;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:TXN-STAT dbe &key-amp;
-   STAT_CLEAR)</literal></term>
+<varlistentry><term><code>(BDB:TXN-STAT dbe &key-amp;
+   STAT_CLEAR)</code></term>
  <listitem><simpara>Transaction subsystem statistics (&DBE_txn_stat;).
 </simpara></listitem></varlistentry>
 </variablelist></section>
@@ -683,7 +666,7 @@ Memory Pool Files
  DB_ENV->rep_stat	Replication statistics
   -->
 <variablelist>
-<varlistentry><term><literal role="sexp">()</literal></term>
+<varlistentry><term><code>()</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 </variablelist>
 </section>
