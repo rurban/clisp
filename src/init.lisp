@@ -486,6 +486,7 @@
           generic-function-declarations
           compute-discriminating-function
           compute-applicable-methods compute-applicable-methods-using-classes
+          ensure-generic-function ensure-generic-function-using-class
           ;; CLISP specific symbols
           generic-flet generic-labels no-primary-method
           method-call-error method-call-type-error

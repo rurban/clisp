@@ -51,47 +51,6 @@
        (specializers-agree-p (std-method-specializers method1)
                              (std-method-specializers method2))))
 
-;; CLtL2 28.1.6.4., ANSI CL 7.6.4. Congruent Lambda-lists
-(defun check-signature-congruence (gf method &optional
-                                   (gf-sign (std-gf-signature gf))
-                                   (m-sign (std-method-signature method)))
-  (unless (= (sig-req-num m-sign) (sig-req-num gf-sign))
-    (error-of-type 'error
-      (TEXT "~S has ~D, but ~S has ~D required parameter~:P")
-      method (sig-req-num m-sign) gf (sig-req-num gf-sign)))
-  (unless (= (sig-opt-num m-sign) (sig-opt-num gf-sign))
-    (error-of-type 'error
-      (TEXT "~S has ~D, but ~S has ~D optional parameter~:P")
-      method (sig-opt-num m-sign) gf (sig-opt-num gf-sign)))
-  (when (and (sig-rest-p m-sign) (not (sig-rest-p gf-sign)))
-    (error-of-type 'error
-      (TEXT "~S accepts &REST or &KEY, but ~S does not.")
-      method gf))
-  (when (and (sig-rest-p gf-sign) (not (sig-rest-p m-sign)))
-    (error-of-type 'error
-      (TEXT "~S accepts &REST or &KEY, but ~S does not.")
-      gf method))
-  (when (sig-keys-p gf-sign)    ; gf has keywords?
-    ;; yes ==> method must accept it
-    (unless (if (sig-keys-p m-sign)
-              (or (sig-allow-p m-sign) ; keywords match
-                  (subsetp (sig-keywords gf-sign) (sig-keywords m-sign)))
-              (sig-rest-p m-sign)) ; method must have &rest!
-      (error-of-type 'error
-        (TEXT "~S does not accept the keywords ~S of ~S")
-        method (sig-keywords gf-sign) gf))))
-
-;; CLtL2 28.1.7.2., 28.1.7.4., ANSI CL 7.6.6.2., 7.6.6.4. Method qualifiers
-(defun check-method-qualifiers (gf method
-                                &optional (method-combo (std-gf-method-combination gf)))
-  (funcall (method-combination-check-method-qualifiers method-combo)
-           gf method-combo method))
-(defun invalid-method-qualifiers-error (gf method)
-  (error-of-type 'program-error
-    (TEXT "~S method combination, used by ~S, does not allow the method qualifiers ~:S: ~S")
-    (method-combination-name (std-gf-method-combination gf)) gf
-    (std-method-qualifiers method) method))
-
 ;; MOP p. 62 says that the lambda-list of a generic function may become
 ;; determined only at the moment when the first method is added.
 (defun gf-lambdalist-from-first-method (m-lambdalist m-signature)
@@ -235,8 +194,143 @@
     gf))
 
 ;; When this is true, it is possible to replace a non-generic function with
-;; a generic function through DEFGENERIC.
+;; a generic function through DEFGENERIC or ENSURE-GENERIC-FUNCTION.
 (defparameter *allow-making-generic* nil)
+
+(defun ensure-generic-function-using-class-<t> (gf funname &rest all-keys
+                                                &key (generic-function-class <standard-generic-function>)
+                                                     lambda-list
+                                                     argument-precedence-order
+                                                     (method-class nil method-class-p)
+                                                     method-combination
+                                                     documentation
+                                                     declarations
+                                                     declare
+                                                     environment
+                                                     ((methods methods) nil methods-p) ; from DEFGENERIC
+                                                &allow-other-keys)
+  (declare (ignore lambda-list argument-precedence-order method-combination
+                   documentation declarations declare environment))
+  ;; Argument checks.
+  (unless (function-name-p funname)
+    (error-of-type 'program-error
+      (TEXT "~S: the name of a function must be a symbol, not ~S")
+      'ensure-generic-function-using-class funname))
+  (unless (class-p generic-function-class)
+    (if (symbolp generic-function-class)
+      (setq generic-function-class (find-class generic-function-class))
+      (error (TEXT "~S for generic-function ~S: generic-function-class ~S is neither a class or a symbol")
+             'ensure-generic-function-using-class funname generic-function-class)))
+  (unless (subclassp generic-function-class <generic-function>)
+    (error (TEXT "~S for generic-function ~S: generic-function-class ~S is not a subclass of GENERIC-FUNCTION")
+           'ensure-generic-function-using-class funname generic-function-class))
+  ;; Preparation of initialization arguments.
+  (setq all-keys (copy-list all-keys))
+  (remf all-keys ':generic-function-class)
+  (when method-class-p
+    (unless (class-p method-class)
+      (if (symbolp method-class)
+        (setq method-class (find-class method-class))
+        (error (TEXT "~S for generic-function ~S: method-class ~S is neither a class or a symbol")
+               'ensure-generic-function-using-class funname method-class)))
+    (setf (getf all-keys ':method-class) method-class))
+  (if gf
+    ;; Redefinition of a generic function.
+    (progn
+      ;; Take into account the new generic-function-class.
+      (unless (eq (class-of gf) generic-function-class)
+        ;; MOP p. 51 says that an error should be signalled in this case,
+        ;; but ANSI CL says that CHANGE-CLASS is used to modify the GF.
+        (change-class gf generic-function-class))
+      (warn-if-gf-already-called gf)
+      (when methods-p
+        ;; When invoked from DEFGENERIC:
+        ;; Remove the old defgeneric-originated methods. Instead of calling
+        ;; std-remove-method on each such method, while inhibiting warnings,
+        ;; we can just as well remove the methods directly.
+        (setf (std-gf-methods gf)
+              (remove-if #'(lambda (method)
+                             (when (std-method-from-defgeneric method)
+                               (setf (std-method-generic-function method) nil)
+                               t))
+                         (std-gf-methods gf))))
+      (apply (cond ((eq (class-of gf) <standard-generic-function>)
+                    #'shared-initialize-<standard-generic-function>)
+                   (t #'shared-initialize))
+             gf nil all-keys)
+      (when methods-p
+        ;; When invoked from DEFGENERIC: Install the defgeneric-originated
+        ;; methods.
+        (dolist (method methods) (std-add-method gf method)))
+      gf)
+    ;; First definition of a generic function.
+    (setf (fdefinition funname)
+          (let ((gf (apply #'make-generic-function-instance
+                           generic-function-class
+                           :name funname
+                           all-keys)))
+            (when methods-p
+              ;; When invoked from DEFGENERIC: Install the defgeneric-originated
+              ;; methods.
+              (dolist (method methods) (std-add-method gf method)))
+            gf))))
+
+;; Preliminary.
+(defun ensure-generic-function-using-class (gf funname &rest args
+                                            &key generic-function-class
+                                                 lambda-list
+                                                 argument-precedence-order
+                                                 method-class
+                                                 method-combination
+                                                 documentation
+                                                 declarations
+                                                 declare
+                                                 environment
+                                            &allow-other-keys)
+  (declare (ignore generic-function-class lambda-list argument-precedence-order
+                   method-class method-combination documentation declarations
+                   declare environment))
+  (apply #'ensure-generic-function-using-class-<t> gf funname args))
+
+;; MOP p. 49
+(defun ensure-generic-function (funname &rest args
+                                &key generic-function-class
+                                     lambda-list
+                                     argument-precedence-order
+                                     method-class
+                                     method-combination
+                                     documentation
+                                     declarations
+                                     declare
+                                     environment
+                                &allow-other-keys)
+  (declare (ignore generic-function-class lambda-list argument-precedence-order
+                   method-class method-combination documentation declarations
+                   declare environment))
+  (unless (function-name-p funname)
+    (error-of-type 'program-error
+      (TEXT "~S: the name of a function must be a symbol, not ~S")
+      'ensure-generic-function funname))
+  (let ((result
+          (apply #'ensure-generic-function-using-class
+                 (if (fboundp funname)
+                   (let ((gf (fdefinition funname)))
+                     (if (typep-class gf <generic-function>)
+                       gf
+                       (if (not *allow-making-generic*)
+                         (error-of-type 'program-error
+                           (TEXT "~S: ~S does not name a generic function")
+                           'ensure-generic-function funname)
+                         nil)))
+                   nil)
+                 funname
+                 args)))
+    ; A check, to verify that user-defined methods on
+    ; ensure-generic-function-using-class work as they should.
+    (unless (typep-class result <generic-function>)
+      (error (TEXT "Wrong ~S result for ~S: not a generic-function: ~S")
+             'ensure-generic-function-using-class funname result))
+    result))
 
 (defun do-defgeneric (funname generic-function-class lambda-list signature argument-precedence-order method-combo method-class declspecs documentation &rest methods)
   (if (fboundp funname)
@@ -542,28 +636,6 @@
        ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
        (DO-DEFGENERIC ',funname ,generic-function-class-form ',lambda-list ',signature ',argument-precedence-order ',method-combo ,method-class-form ',declspecs ',docstring
                       ,@method-forms))))
-
-(defun ensure-generic-function (function-name &key argument-precedence-order
-                                declare declarations documentation environment
-                                generic-function-class lambda-list
-                                method-class method-combination)
-  (declare (ignore environment))
-  (multiple-value-bind (generic-function-class-form signature argument-precedence-order method-combo method-class-form declspecs docstring method-forms)
-      (analyze-defgeneric
-       'defgeneric nil function-name lambda-list
-       `(,@(if (or declare declarations) `((declare ,@(append declare declarations))))
-         ,@(if documentation `((:documentation ,documentation)))
-         ,@(if argument-precedence-order
-               `((:argument-precedence-order ,argument-precedence-order)))
-         ,@(if generic-function-class
-              `((:generic-function-class
-                 ,(if (class-p generic-function-class)
-                      (class-name generic-function-class)
-                      generic-function-class))))
-         ,@(if method-combination `((:method-combination ,method-combination)))
-         ,@(if method-class `((:method-class ,method-class)))))
-    (declare (ignore declspecs docstring method-forms))
-    (do-defgeneric function-name (eval generic-function-class-form) lambda-list signature argument-precedence-order method-combo (eval method-class-form) (append declare declarations) documentation)))
 
 ;; ============================================================================
 

@@ -1,3 +1,23 @@
+2004-06-24  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp: Export ensure-generic-function-using-class.
+	* clos-package.lisp: Likewise.
+	* clos-genfun2.lisp (check-signature-congruence,
+	check-method-qualifiers, invalid-method-qualifiers-error): New
+	functions, moved here from clos-genfun3.lisp.
+	(shared-initialize-<standard-generic-function>): During redefinition,
+	check the new signature and the new method-combination against the
+	existing methods. At the end, call finalize-fast-gf.
+	(make-fast-gf): Don't call finalize-fast-gf here.
+	* clos-genfun3.lisp (check-signature-congruence,
+	check-method-qualifiers, invalid-method-qualifiers-error): Moved to
+	clos-genfun2.lisp.
+	(ensure-generic-function-using-class-<t>): New function.
+	(ensure-generic-function-using-class): New function.
+	(ensure-generic-function): Completely rewritten.
+	* clos-genfun5.lisp (ensure-generic-function-using-class): New generic
+	function.
+
 2004-08-30  Stefan Kain  <stefan.kain@freenet.de>
 
 	* debug.d: translated all comments
