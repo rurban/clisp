@@ -311,7 +311,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP ALLOCA REGEX_O REGEX_H LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP REGEX_O REGEX_H LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -844,7 +844,8 @@ if test -n "$ac_init_help"; then
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-sysre            use the system-wide regexp library (default is YES,
+  --without-included-regexp
+                          use the system-wide regexp library (default is YES,
                           if present)
 
 Some influential environment variables:
@@ -1308,14 +1309,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
           ac_config_headers="$ac_config_headers config.h"
 
-
-# Check whether --with-sysre or --without-sysre was given.
-if test "${with_sysre+set}" = set; then
-  withval="$with_sysre"
-  ac_cv_use_sysre=$withval
-else
-  ac_cv_use_sysre=yes
-fi;
 
 { echo "$as_me:$LINENO: * Regexp (Checks)" >&5
 echo "$as_me: * Regexp (Checks)" >&6;}
@@ -2695,365 +2688,6 @@ _ACEOF
 
 fi
 
-# The Ultrix 4.2 mips builtin alloca declared by alloca.h only works
-# for constant arguments.  Useless!
-echo "$as_me:$LINENO: checking for working alloca.h" >&5
-echo $ECHO_N "checking for working alloca.h... $ECHO_C" >&6
-if test "${ac_cv_working_alloca_h+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <alloca.h>
-int
-main ()
-{
-char *p = (char *) alloca (2 * sizeof (int));
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_working_alloca_h=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_working_alloca_h=no
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: $ac_cv_working_alloca_h" >&5
-echo "${ECHO_T}$ac_cv_working_alloca_h" >&6
-if test $ac_cv_working_alloca_h = yes; then
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_ALLOCA_H 1
-_ACEOF
-
-fi
-
-echo "$as_me:$LINENO: checking for alloca" >&5
-echo $ECHO_N "checking for alloca... $ECHO_C" >&6
-if test "${ac_cv_func_alloca_works+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#ifdef __GNUC__
-# define alloca __builtin_alloca
-#else
-# ifdef _MSC_VER
-#  include <malloc.h>
-#  define alloca _alloca
-# else
-#  if HAVE_ALLOCA_H
-#   include <alloca.h>
-#  else
-#   ifdef _AIX
- #pragma alloca
-#   else
-#    ifndef alloca /* predefined by HP cc +Olibcalls */
-char *alloca ();
-#    endif
-#   endif
-#  endif
-# endif
-#endif
-
-int
-main ()
-{
-char *p = (char *) alloca (1);
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_func_alloca_works=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_func_alloca_works=no
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: $ac_cv_func_alloca_works" >&5
-echo "${ECHO_T}$ac_cv_func_alloca_works" >&6
-
-if test $ac_cv_func_alloca_works = yes; then
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_ALLOCA 1
-_ACEOF
-
-else
-  # The SVR3 libPW and SVR4 libucb both contain incompatible functions
-# that cause trouble.  Some versions do not even contain alloca or
-# contain a buggy version.  If you still want to use their alloca,
-# use ar to extract alloca.o from them instead of compiling alloca.c.
-
-ALLOCA=alloca.$ac_objext
-
-cat >>confdefs.h <<\_ACEOF
-#define C_ALLOCA 1
-_ACEOF
-
-
-echo "$as_me:$LINENO: checking whether \`alloca.c' needs Cray hooks" >&5
-echo $ECHO_N "checking whether \`alloca.c' needs Cray hooks... $ECHO_C" >&6
-if test "${ac_cv_os_cray+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#if defined(CRAY) && ! defined(CRAY2)
-webecray
-#else
-wenotbecray
-#endif
-
-_ACEOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  $EGREP "webecray" >/dev/null 2>&1; then
-  ac_cv_os_cray=yes
-else
-  ac_cv_os_cray=no
-fi
-rm -f conftest*
-
-fi
-echo "$as_me:$LINENO: result: $ac_cv_os_cray" >&5
-echo "${ECHO_T}$ac_cv_os_cray" >&6
-if test $ac_cv_os_cray = yes; then
-  for ac_func in _getb67 GETB67 getb67; do
-    as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $ac_func" >&5
-echo $ECHO_N "checking for $ac_func... $ECHO_C" >&6
-if eval "test \"\${$as_ac_var+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-/* Define $ac_func to an innocuous variant, in case <limits.h> declares $ac_func.
-   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
-#define $ac_func innocuous_$ac_func
-
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char $ac_func (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-
-#undef $ac_func
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char $ac_func ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub_$ac_func) || defined (__stub___$ac_func)
-choke me
-#else
-char (*f) () = $ac_func;
-#endif
-#ifdef __cplusplus
-}
-#endif
-
-int
-main ()
-{
-return f != $ac_func;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  eval "$as_ac_var=yes"
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-eval "$as_ac_var=no"
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_var'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_var'}'`" >&6
-if test `eval echo '${'$as_ac_var'}'` = yes; then
-
-cat >>confdefs.h <<_ACEOF
-#define CRAY_STACKSEG_END $ac_func
-_ACEOF
-
-    break
-fi
-
-  done
-fi
-
-echo "$as_me:$LINENO: checking stack direction for C alloca" >&5
-echo $ECHO_N "checking stack direction for C alloca... $ECHO_C" >&6
-if test "${ac_cv_c_stack_direction+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test "$cross_compiling" = yes; then
-  ac_cv_c_stack_direction=0
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-int
-find_stack_direction ()
-{
-  static char *addr = 0;
-  auto char dummy;
-  if (addr == 0)
-    {
-      addr = &dummy;
-      return find_stack_direction ();
-    }
-  else
-    return (&dummy > addr) ? 1 : -1;
-}
-
-int
-main ()
-{
-  exit (find_stack_direction () < 0);
-}
-_ACEOF
-rm -f conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_c_stack_direction=1
-else
-  echo "$as_me: program exited with status $ac_status" >&5
-echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-( exit $ac_status )
-ac_cv_c_stack_direction=-1
-fi
-rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
-fi
-fi
-echo "$as_me:$LINENO: result: $ac_cv_c_stack_direction" >&5
-echo "${ECHO_T}$ac_cv_c_stack_direction" >&6
-
-cat >>confdefs.h <<_ACEOF
-#define STACK_DIRECTION $ac_cv_c_stack_direction
-_ACEOF
-
-
-fi
-
 # On IRIX 5.3, sys/types and inttypes.h are conflicting.
 
 
@@ -3277,11 +2911,19 @@ fi
 
 done
 
-if test "$ac_cv_use_sysre" = no; then
+
+
+# Check whether --with-included-regexp or --without-included-regexp was given.
+if test "${with_included_regexp+set}" = set; then
+  withval="$with_included_regexp"
+  ac_cv_use_included_regexp=$withval
+else
+  ac_cv_use_included_regexp=no
+fi;
+if test "$ac_cv_use_included_regexp" = yes; then
 { echo "$as_me:$LINENO: not checking for system-wide regexp" >&5
 echo "$as_me: not checking for system-wide regexp" >&6;}
 else
-
 
 for ac_header in regex.h
 do
@@ -3623,7 +3265,8 @@ cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 #include <regex.h>
 #include <stdio.h>
-int check_re (char* pat, char* str, int count, regoff_t* beg, regoff_t* end) {
+int check_re (char* pat, char* str, int matchp,
+              int count, regoff_t* beg, regoff_t* end) {
   regex_t re;
   regmatch_t *matches;
   int num, ii, status = regcomp(&re,pat,0);
@@ -3640,17 +3283,19 @@ int check_re (char* pat, char* str, int count, regoff_t* beg, regoff_t* end) {
   status = regexec(&re,str,num,matches,0);
   regfree(&re);
   if (status) {
-    fprintf(stderr,"regexec(%s): %d\n",str,status);
-    return 1;
-  }
-  for (ii=0; ii < num; ii++)
-    if ((beg[ii] != matches[ii].rm_so) || (end[ii] != matches[ii].rm_eo)) {
-      /* regoff_t may be 64-bit! */
-      fprintf(stderr,"matches(%d): [%d/%d] != [%d/%d]\n",ii,
-              (int)matches[ii].rm_so,(int)matches[ii].rm_eo,
-              (int)beg[ii],(int)end[ii]);
+    if (matchp) {
+      fprintf(stderr,"regexec(%s): %d\n",str,status);
       free(matches); return 1;
     }
+  } else
+    for (ii=0; ii < num; ii++)
+      if ((beg[ii] != matches[ii].rm_so) || (end[ii] != matches[ii].rm_eo)) {
+        /* regoff_t may be 64-bit! */
+        fprintf(stderr,"matches(%d): [%d/%d] != [%d/%d]\n",ii,
+                (int)matches[ii].rm_so,(int)matches[ii].rm_eo,
+                (int)beg[ii],(int)end[ii]);
+        free(matches); return 1;
+      }
   free(matches);
   return 0;
 }
@@ -3661,8 +3306,18 @@ main ()
 
   regoff_t beg[3] = { 4, 0, 0 };
   regoff_t end[3] = { 9, 0, 0 };
-  if (check_re("quick","The quick brown fox jumped quickly.",1,beg,end))
+  if (check_re("quick","The quick brown fox jumped quickly.",1,1,beg,end))
     return 1;
+  beg[0] = 1; end[0] = 3;
+  if (check_re("{1","2{1}",1,1,beg,end)) return 1;
+  beg[0] = 0; end[0] = 2;
+  if (check_re("[[an\371]]*n","an",1,1,beg,end)) return 1;
+  beg[0] = end[0] = 0;
+  if (check_re("","",1,1,beg,end)) return 1;
+  if (check_re("ab{1,1}c","abbc",0,1,beg,end)) return 1;
+  if (check_re("b{2,7}","b",0,1,beg,end)) return 1;
+  beg[0] = 0; end[0] = 9;
+  if (check_re("ab{3,7}c","abbbbbbbc",1,1,beg,end)) return 1;
 
   ;
   return 0;
@@ -3705,7 +3360,7 @@ fi
 fi
 fi
 # can we use the system-wide regex implementation?
-if test "$ac_cv_use_sysre" = yes -a "$cl_cv_regexp" = yes; then
+if test "$ac_cv_use_included_regexp" = no -a "$cl_cv_regexp" = yes; then
   REGEX_H=""
   REGEX_O=""
 else
@@ -4338,7 +3993,6 @@ s,@EXEEXT@,$EXEEXT,;t t
 s,@OBJEXT@,$OBJEXT,;t t
 s,@CPP@,$CPP,;t t
 s,@EGREP@,$EGREP,;t t
-s,@ALLOCA@,$ALLOCA,;t t
 s,@REGEX_O@,$REGEX_O,;t t
 s,@REGEX_H@,$REGEX_H,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
