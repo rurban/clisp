@@ -8973,6 +8973,11 @@ typedef struct module_t {
   extern void dynload_modules (const char * library, uintC modcount, const char * const * modnames);
 #endif
 
+/* find the module with the given name */
+extern module_t* find_module (const char *name);
+/* push all module names to STACK and return the number of modules pushed
+ can trigger GC */
+extern uintC modules_names_to_stack (void);
 
 # ####################### EVALBIBL for EVAL.D ############################## #
 

@@ -539,11 +539,10 @@ LISPFUNN(program_id,0)
 
 #endif
 
-LISPFUNN(ansi,0)
-# (SYS::ANSI)
-  {
-    VALUES1(O(ansi));
-  }
+LISPFUNNF(ansi,0)
+{ /* (SYS::ANSI) */
+  VALUES1(O(ansi));
+}
 
 LISPFUNN(set_ansi,1)
 # (SYS::SET-ANSI ansi-p)
@@ -565,3 +564,34 @@ LISPFUNN(set_ansi,1)
     Symbol_value(S(coerce_fixnum_char_ansi)) = val;
     VALUES1(val);
   }
+
+LISPFUN(module_info,seclass_no_se,0,2,norest,nokey,0,NIL)
+{ /* (EXT:MODULE-INFO)       ==> list of all module names
+  (EXT:MODULE-INFO "name")   ==> "name", subr-count, obj-count
+  (EXT:MODULE-INFO "name" t) ==> "name", s-count, s-list, o-count, o-list */
+  var object verbose = popSTACK();
+  var bool verbosep = !missingp(verbose);
+  var object arg = popSTACK();
+  if (missingp(arg)) {
+    VALUES1(listof(modules_names_to_stack()));
+  } else if (stringp(arg)) {
+    var module_t *mod;
+    with_string_0(arg,O(misc_encoding),mod_namez,
+                  { mod = find_module(mod_namez); });
+    if (mod == NULL) VALUES0;
+    else if (verbosep) {
+      var uintC count = *(mod->stab_size);
+      pushSTACK(arg);
+      while (count--) pushSTACK(mod->stab[count].name);
+      count = *(mod->otab_size);
+      while (count--) pushSTACK(mod->otab[count]);
+      value5 = listof(*mod->otab_size);
+      value4 = fixnum(*(mod->otab_size));
+      value3 = listof(*mod->stab_size);
+      value2 = fixnum(*(mod->stab_size));
+      value1 = popSTACK();
+      mv_count = 5;
+    } else
+      VALUES3(arg,fixnum(*(mod->stab_size)),fixnum(*(mod->otab_size)));
+  } else fehler_string(arg);
+}

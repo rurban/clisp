@@ -1,3 +1,14 @@
+2003-03-11  Sam Steingold  <sds@gnu.org>
+
+	added EXT:MODULE-INFO for module information extraction
+	* spvw_module.d (find_module, modules_names_to_stack): implemented
+	* lispbibl.d (find_module, modules_names_to_stack): declared
+	* misc.d (MODULE-INFO): implemented
+	* constsym.d, subr.d (module_info): added
+	* init.lisp (MODULE-INFO): export
+	* modules.d (MODULE): cannot use STRING() because module_name may
+	be a CPP macro, e.g., for the "linux" module, module name was "1"
+
 2003-03-12  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
 
 	* time.d: [TIME_WIN32]: use GetSystemTimeAsFileTime, not ftime()
