@@ -1,2 +1,12 @@
+.libs
+config.cache
+config.h
+config.log
+config.status
+dispatcher.lo
+handler.lo
+libsigsegv.la
+libtool
+Makefile
 sigsegv.h
 sigsegv.lib
