@@ -1,5 +1,11 @@
 1999-06-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Try to solve startup problems on Win95.
+        * spvw.d (main) [TRIVIALMAP_MEMORY]: Call prepare_zeromap with
+          shrinkp=FALSE.
+
+1999-06-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Determine the initial encoding by examining the user's locale.
         * lispbibl.d (init_dependent_encodings): New declaration.
         * spvw_ctype.d: New file.
