@@ -22,9 +22,12 @@ extension, &mem-file; extension is automatically added).
  <varlistentry><term><constant>:INIT-FUNCTION</constant></term>
   <listitem><simpara>This argument specifies a function that will be
    executed at startup of the saved image, before entering the standard
-   &repl;, thus, if you want to avoid the &repl;, you have to call
+   &repl;; thus, if you want to avoid the &repl;, you have to call
    <link linkend="quit"><function>EXT:EXIT</function></link> at the end
-   of the init function yourself.</simpara></listitem></varlistentry>
+   of the init function yourself.</simpara>
+   <simpara>See <ulink url="clisp.html#opt-exec-file">the
+   manual</ulink> for passing command line arguments to this function.
+ </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:LOCKED-PACKAGES</constant></term>
   <listitem><simpara>This argument specifies the packages to lock before
    saving the image; this is convenient for application delivery, when
@@ -37,7 +40,7 @@ extension, &mem-file; extension is automatically added).
    value of &package-var;.</simpara></listitem></varlistentry>
 </variablelist>
 You can use this memory image with the
-<ulink url="clisp.html#opt-lang"><option>-M</option></ulink>
+<ulink url="clisp.html#opt-memfile"><option>-M</option></ulink>
 option.  On &unix; systems, you may compress it with &gnu;
 <ulink url="http://www.gzip.org/"><command>gzip</command></ulink>
 to save disk space.</para>
