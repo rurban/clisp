@@ -1013,8 +1013,20 @@ static inline Objdef_t* get_objdef (const char* initstring)
 
 
 /* Representation of a function signature. */
+typedef enum { /* see lispbibl.d */
+  seclass_foldable,
+  seclass_no_se,
+  seclass_read,
+  seclass_write,
+  seclass_default,
+} seclass_t;
+static const char *seclass_table[] = {
+  "seclass_foldable", "seclass_no_se", "seclass_read",
+  "seclass_write","seclass_default"
+};
 
 typedef struct {
+  seclass_t seclass;
   int req;
   int opt;
   boolean_t rest;
@@ -1028,22 +1040,20 @@ typedef struct {
 static boolean_t Signature_equals (const Signature_t* sig1,
                                    const Signature_t* sig2)
 {
-  if (sig1->req == sig2->req) {
-    if (sig1->opt == sig2->opt) {
-      if (sig1->rest == sig2->rest) {
-        if (sig1->key == sig2->key) {
-          unsigned long len1 = VectorObjdef_length(sig1->keywords);
-          unsigned long len2 = VectorObjdef_length(sig2->keywords);
-          if (len1 == len2) {
-            unsigned long i;
-            for (i = 0; i < len1; i++)
-              if (VectorObjdef_element(sig1->keywords,i) !=
-                  VectorObjdef_element(sig2->keywords,i))
-                return FALSE;
-            return TRUE;
-          }
-        }
-      }
+  if (sig1->req == sig2->req &&
+      sig1->opt == sig2->opt &&
+      sig1->rest == sig2->rest &&
+      sig1->seclass == sig2->seclass &&
+      sig1->key == sig2->key) {
+    unsigned long len1 = VectorObjdef_length(sig1->keywords);
+    unsigned long len2 = VectorObjdef_length(sig2->keywords);
+    if (len1 == len2) {
+      unsigned long i;
+      for (i = 0; i < len1; i++)
+        if (VectorObjdef_element(sig1->keywords,i) !=
+            VectorObjdef_element(sig2->keywords,i))
+          return FALSE;
+      return TRUE;
     }
   }
   return FALSE;
@@ -1116,6 +1126,7 @@ static Signature_t* parseSignature (const char* line)
     return NULL;
   {
     Signature_t* sig = (Signature_t*) xmalloc(sizeof(Signature_t));
+    sig->seclass = seclass_default;
     sig->req = req;
     sig->opt = opt;
     sig->rest = rest_seen;
@@ -1379,12 +1390,11 @@ static char* get_signature_for_LISPFUN (const Fundef_t* fdef,
              (sig->key?"key":"nokey"),
              VectorObjdef_length(sig->keywords)); */
   char buffer[1+15+1+10+1+10+1+6+1+5+10+5+1];
-  sprintf(buffer,",seclass_default,%d,%d,%s,%s,%lu,NIL)",
-                 sig->req,
-                 sig->opt,
-                 (sig->rest?"rest":"norest"),
-                 (sig->key?"key":"nokey"),
-                 VectorObjdef_length(sig->keywords));
+  sprintf(buffer,",%s,%d,%d,%s,%s,%lu,NIL)",
+          seclass_table[sig->seclass],sig->req,sig->opt,
+          (sig->rest?"rest":"norest"),
+          (sig->key?"key":"nokey"),
+          VectorObjdef_length(sig->keywords));
   return concat3("(",fdef->tag,buffer);
 }
 
@@ -1395,6 +1405,7 @@ and turn it into  DEFUN(funname,lambdalist,signature). */
 static char* is_defun (const char* line) {
   unsigned long n = strlen(line);
   unsigned long i = 0;
+  seclass_t seclass = seclass_default;
   /* Skip whitespace. */
   for (; i < n && is_whitespace(line[i]); i++);
   /* Check for "DEFUN". */
@@ -1404,7 +1415,12 @@ static char* is_defun (const char* line) {
       && line[i+2] == 'F'
       && line[i+3] == 'U'
       && line[i+4] == 'N'
-      && (is_whitespace(line[i+5]) || line[i+5] == '(')) {
+      && (is_whitespace(line[i+5]) || line[i+5] == '('
+          || (line[i+5]=='F' ? seclass = seclass_foldable,++i : 0)
+          || (line[i+5]=='N' ? seclass = seclass_no_se,   ++i : 0)
+          || (line[i+5]=='R' ? seclass = seclass_read,    ++i : 0)
+          || (line[i+5]=='W' ? seclass = seclass_write,   ++i : 0)
+          || (line[i+5]=='D' ? seclass = seclass_default, ++i : 0))) {
     i += 5;
     for (; i < n && is_whitespace(line[i]); i++);
     if (i < n && line[i] == '(') {
@@ -1434,6 +1450,7 @@ static char* is_defun (const char* line) {
               fprintf(stderr,"%s:%ld: invalid lambdalist syntax for function `%s': %s\n",file,lineno,funname,lambdalist);
               exit(1);
             }
+            signature->seclass = seclass;
             {
               Fundef_t* fdef = get_fundef(funname,signature);
               return concat4(substring(line,0,i),",",
