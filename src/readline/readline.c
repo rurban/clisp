@@ -64,7 +64,7 @@
 #include "history.h"
 
 #ifndef RL_LIBRARY_VERSION
-#  define RL_LIBRARY_VERSION "2.2-bash"
+#  define RL_LIBRARY_VERSION "2.2-clisp"
 #endif
 
 /* Evaluates its arguments multiple times. */
@@ -99,6 +99,9 @@ static void readline_default_bindings _PROTO((void));
 /* **************************************************************** */
 
 char *rl_library_version = RL_LIBRARY_VERSION;
+
+/* Always true. */
+int rl_present_p = 1;
 
 /* A pointer to the keymap that is currently in use.
    By default, it is the standard emacs keymap. */

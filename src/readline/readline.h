@@ -549,6 +549,9 @@ extern int _rl_undo_group_level;
 /*								    */
 /* **************************************************************** */
 
+/* Always true. */
+extern int rl_present_p;
+
 /* The version of this incarnation of the readline library. */
 extern char *rl_library_version;
 
