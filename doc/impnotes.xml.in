@@ -6,6 +6,7 @@
   <!ENTITY imp-body SYSTEM "impbody.xml">
   <!ENTITY imp-issues SYSTEM "impissue.xml">
   <!ENTITY imp-ext SYSTEM "impext.xml">
+  <!ENTITY imp-byte SYSTEM "impbyte.xml">
 ]>
 
 <!-- *** Conventions: ***
@@ -160,10 +161,9 @@
    <ulink url="&clhs;/Issues/Issues-Categorized.html">[CLHS-ic]</ulink></tocentry>
 </tocpart>
 
-<!--
 <tocpart><tocentry linkend="bytecode">Bytecode Specification</tocentry>
+<!-- filling this in would require some work and it is ignored anyway! -->
 </tocpart>
--->
 
 <tocpart><tocentry linkend="extensions">Extensions</tocentry>
  <tocchap><tocentry linkend="p-indep">
@@ -197,13 +197,15 @@
 </tocpart>
 </toc>
 
-<part id="clhs-chapters"><title>&hyperspec; Chapters</title>
+<part id="clhs-chapters"><title>Chapters or the &hyperspec;</title>
 
 &imp-body;
 
 &imp-issues;
 
 </part>
+
+&imp-byte;
 
 &imp-ext;
 

@@ -24,6 +24,7 @@
 <!ENTITY compiling-k "<constant>:compiling</constant>">
 <!ENTITY count-k "<constant>:count</constant>">
 <!ENTITY current-k "<constant>:current</constant>">
+<!ENTITY default-k "<constant>:default</constant>">
 <!ENTITY direction-k "<constant>:direction</constant>">
 <!ENTITY echo-k "<constant>:echo</constant>">
 <!ENTITY end-k "<constant>:end</constant>">
@@ -135,3 +136,59 @@
 <!ENTITY simple-c-type "<link linkend='simple-c-type'><replaceable>simple-c-type</replaceable></link>">
 <!ENTITY allocation "<link linkend='allocation'><replaceable>allocation</replaceable></link>">
 <!ENTITY param-mode "<link linkend='param-mode'><replaceable>param-mode</replaceable></link>">
+
+<!-- *** Byte code *** -->
+<!ENTITY SP "<link linkend='vm'><literal>SP</literal></link>">
+<!ENTITY STACK "<link linkend='vm'><literal>STACK</literal></link>">
+<!ENTITY mv-count "<link linkend='vm'><varname>mv_count</varname></link>">
+<!ENTITY value1 "<link linkend='vm'><varname>value1</varname></link>">
+<!ENTITY mv-space "<link linkend='vm'><varname>mv_space</varname></link>">
+<!ENTITY jbs "<link linkend='vm'><varname>jmpbufsize</varname></link>">
+<!ENTITY disabled "<literal>#&lt;DISABLED&gt;</literal>">
+<!ENTITY unbound "<literal>#&lt;UNBOUND&gt;</literal>">
+<!ENTITY codevec "<link linkend='comp-fun'><literal>codevec</literal></link>">
+<!ENTITY flags "<link linkend='comp-fun'><literal>flags</literal></link>">
+<!ENTITY numreq "<link linkend='comp-fun'><literal>numreq</literal></link>">
+<!ENTITY consts "<link linkend='comp-fun'><literal>consts</literal></link>">
+<!ENTITY venv-const "<link linkend='comp-fun'><literal>venv-const</literal></link>">
+<!ENTITY block-const "<link linkend='comp-fun'><literal>block-const</literal></link>">
+<!ENTITY tagbody-const "<link linkend='comp-fun'><literal>tagbody-const</literal></link>">
+<!ENTITY keyword-const "<link linkend='comp-fun'><literal>keyword-const</literal></link>">
+<!ENTITY other-const "<link linkend='comp-fun'><literal>other-const</literal></link>">
+
+<!-- *** variable names *** -->
+<!ENTITY b-r "<replaceable>b</replaceable>">
+<!ENTITY bc-r "<replaceable>block-cons</replaceable>">
+<!ENTITY c-r "<replaceable>c</replaceable>">
+<!ENTITY declaration-r "<replaceable>declaration</replaceable>">
+<!ENTITY eltype-r "<replaceable>element-type</replaceable>">
+<!ENTITY end-r "<replaceable>end</replaceable>">
+<!ENTITY f-r "<replaceable>f</replaceable>">
+<!ENTITY func-r "<replaceable>function</replaceable>">
+<!ENTITY form-r "<replaceable>form</replaceable>">
+<!ENTITY i-r "<replaceable>i</replaceable>">
+<!ENTITY int-r "<replaceable>integer</replaceable>">
+<!ENTITY k-r "<replaceable>k</replaceable>">
+<!ENTITY k1-r "<replaceable>k<subscript>1</subscript></replaceable>">
+<!ENTITY k2-r "<replaceable>k<subscript>2</subscript></replaceable>">
+<!ENTITY kn-r "<replaceable>k<subscript>n</subscript></replaceable>">
+<!ENTITY l-r "<replaceable>l</replaceable>">
+<!ENTITY m-r "<replaceable>m</replaceable>">
+<!ENTITY n-r "<replaceable>n</replaceable>">
+<!ENTITY name-r "<replaceable>name</replaceable>">
+<!ENTITY object-r "<replaceable>object</replaceable>">
+<!ENTITY option-r "<replaceable>option</replaceable>">
+<!ENTITY sequence-r "<replaceable>sequence</replaceable>">
+<!ENTITY start-r "<replaceable>start</replaceable>">
+<!ENTITY stream-r "<replaceable>stream</replaceable>">
+<!ENTITY string-r "<replaceable>string</replaceable>">
+<!ENTITY symbol-r "<replaceable>symbol</replaceable>">
+<!ENTITY tbc-r "<replaceable>tagbody-cons</replaceable>">
+<!ENTITY type-r "<replaceable>type</replaceable>">
+<!ENTITY v-r "<replaceable>v</replaceable>">
+<!ENTITY var-r "<replaceable>variable</replaceable>">
+<!ENTITY value-r "<replaceable>value</replaceable>">
+<!ENTITY x-r "<replaceable>x</replaceable>">
+<!ENTITY x1-r "<replaceable>x<subscript>1</subscript></replaceable>">
+<!ENTITY xn-r "<replaceable>x<subscript>n</subscript></replaceable>">
+<!ENTITY y-r "<replaceable>y</replaceable>">

@@ -1,0 +1,1256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<part id="bytecode"><title>The &clisp; bytecode specification</title>
+<subtitle>Last modified: 19 September 1998.</subtitle>
+
+<chapter id="byte-intro"><title>Introduction</title>
+
+<para>The &clisp; compiler compiles &cl; programs into instruction codes
+for a virtual processor.  This bytecode is optimized for saving space in
+the most common cases of &cl; programs.  The main advantages/drawbacks
+of this approach, compared to native code compilation, are:
+<itemizedlist>
+ <listitem><simpara>Bytecode compiled programs are a lot smaller than
+  when compiled to native code.  This results in better use of CPU
+  caches, and in less virtual memory paging. Users perceive this as good
+  responsiveness.
+  </simpara></listitem>
+  <listitem><simpara>Maximum execution speed (throughput in tight loops)
+   is limited.</simpara></listitem>
+  <listitem><simpara>Since no bytecode instructions are provided for
+   "unsafe" operations (like unchecked array accesses, or "fast"
+   &car;/&cdr;), programs run with all safety checks enabled even when
+   compiled.</simpara></listitem>
+  <listitem><simpara>Execution speed of a program can easily be
+   understood by looking at the output of the &disassemble; function.
+   A rule of thumb is that every elementary instruction costs 1 time
+   unit, whereas a function call costs 3 to 4 time units.
+  </simpara></listitem>
+  <listitem><simpara>Needing to do no type inference, the compiler is
+   pretty straightforward and fast.  As a consequence, the definition of
+   &clos; generic functions, which needs to compile small pieces of
+   generated code, is not perceived to be slow.</simpara></listitem>
+  <listitem><simpara>The compiler is independent from the hardware CPU.
+   Different backends, one for each hardware CPU, are not needed.  As a
+   consequence, the compiler is fairly small (and would have been easily
+   maintainable if it were written in a less kludgy way...), and it is
+   impossible for the compiler writer to introduce CPU dependent bugs.
+ </simpara></listitem></itemizedlist>
+</para>
+</chapter>
+
+<chapter id="vm"><title>The virtual machine</title>
+
+<para>The bytecode can be thought of as being interpreted by a virtual
+processor.  The engine which actually interprets the bytecode (the
+"implementation of the virtual machine") is actually a &c-lang;
+function, but it could as well be a just-in-time compiler which
+translates a function's bytecode into hardware CPU instructions the
+first time said function is called.</para>
+
+<para>The virtual machine is a stack machine with two stacks:
+<variablelist>
+ <varlistentry><term>&STACK;</term>
+  <listitem><simpara>a stack for Lisp objects and frames.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&SP;</term>
+  <listitem><simpara>a stack for other data and pointers.
+</simpara></listitem></varlistentry></variablelist></para>
+
+<para>This two-stack architecture permits to save an unlimited number of
+Lisp objects on the &STACK; (needed for handling of Common Lisp multiple
+values), without consing.  Also, in a world with a compacting
+no-ambiguous-roots garbage collector, &STACK; must only hold Lisp
+objects, and &SP; can hold all the other data belonging to a frame,
+which would not fit into &STACK; without tagging/untagging
+overhead.</para>
+
+<para>The scope of &STACK; and &SP; is only valid for a given function
+invocation.  Whereas the amount of &STACK; space needed for executing a
+function (excluding other function calls) is unlimited, the amount of
+&SP; space needed is known a priori, at compile time.  When a function
+is called, no relation is specified between the caller's &STACK; and the
+callee's &STACK;, and between the caller's &SP; and the callee's &SP;.
+The bytecode is designed so that outgoing arguments on the caller's
+&STACK; can be shared by the caller's incoming arguments area (on the
+callee's &STACK;), but a virtual machine implementation may also copy
+outgoing arguments to incoming arguments instead of sharing them.</para>
+
+<para>The virtual machine has a special data structure,
+<literal>values</literal>, containing the "top of stack", specially
+adapted to &cl; multiple values:
+<variablelist>
+ <varlistentry><term>&mv-count;</term>
+  <listitem><simpara>an unsigned integer.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&value1;</term>
+  <listitem><simpara>the first value, a Lisp object.
+  If <literal>&mv-count;</literal> = 0, this is &nil;.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&mv-space;</term>
+  <listitem><simpara>all values except the first one, an array of Lisp
+  objects.</simpara></listitem></varlistentry>
+</variablelist></para>
+
+<para>The contents of <literal>values</literal> is short-lived.
+It does not survive a function call, not even a garbage collection.</para>
+
+<para>The interpretation of some bytecode instructions depends on a
+constant, &jbs;.  This is a CPU-dependent number, the value of
+<varname>system::*jmpbuf-size*</varname>.  In C, it is defined as
+<literal>ceiling(sizeof(jmp_buf),sizeof(void*))</literal>.</para>
+
+</chapter>
+
+<chapter id="comp-fun"><title>The structure of compiled functions</title>
+
+<para>A compiled function consists of two objects: The function itself,
+containing the references to all Lisp objects needed for the bytecode,
+and a byte vector containing only immediate data, including the bytecode
+proper.</para>
+
+<para>Typically, the byte vector is about twice as large as the function
+vector.  The separation thus helps the garbage collector (since the byte
+vector does not need to be scanned for pointers).</para>
+
+<para>A function looks like this
+ (cf. the &c-lang; type <literal>Cclosure</literal>):
+<variablelist>
+ <varlistentry><term>name</term>
+  <listitem><simpara>This is the name of the function, normally a symbol
+   or a list of the form <literal role="sexp">(&setf; &symbol-r;)</literal>.
+   It is used for printing the function and for error messages.
+   This field is immutable.</simpara></listitem></varlistentry>
+ <varlistentry><term>&codevec;</term>
+  <listitem><simpara>This is the byte vector. It is a
+   &simple-bit-vector-type; (because that's the simplest type in &clisp;
+   which contains immediate data -- note that <literal
+   role="sexp">(&simple-vector-type; (&unsigned-byte-type; 8))</literal>
+   is more complex than this).
+   This field is immutable.</simpara></listitem></varlistentry>
+ <varlistentry><term>&consts;[]</term>
+  <listitem><simpara>The remaining fields in the function object are
+   references to other Lisp objects.  These references are immutable,
+   which is why they are called "constants".  (The referenced Lisp
+   objects can be mutable objects, such as conses or vectors, however.)
+  </simpara></listitem></varlistentry>
+</variablelist></para>
+
+<para>There is actually one exception to the immutability rule: When a
+generic function's dispatch code is installed, the &codevec; and
+&consts; fields are destructively modified.</para>
+
+<para>Some of the &consts; can play special roles.
+ A function looks like this, in more detail:
+<variablelist>
+ <varlistentry><term>name</term>
+  <listitem><simpara>see above</simpara></listitem></varlistentry>
+ <varlistentry><term>&codevec;</term>
+  <listitem><simpara>see above</simpara></listitem></varlistentry>
+ <varlistentry><term>&venv-const;*</term>
+  <listitem><simpara>At most one object, representing the closed-up
+   variables, representing the variables of the lexical environment in
+   which this function was defined.  It is a &simple-vector-type;, which
+   looks like this: <literal
+   role="sexp">#(<replaceable>next</replaceable>
+   <replaceable>value<subscript>1</subscript></replaceable> ...
+   <replaceable>value<subscript>n</subscript></replaceable>)</literal>
+   where <replaceable>value<subscript>1</subscript></replaceable>, ...,
+   <replaceable>value<subscript>n</subscript></replaceable>
+   are the values of the closed-up variables, and
+   <replaceable>next</replaceable> is either &nil; or a
+   &simple-vector-type; having the same structure.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&block-const;*</term>
+  <listitem><simpara>Objects representing closed-up &block; tags,
+   representing the &block; tags of the lexical environment in which
+   this function was defined.  Each is a &cons-class; containing in the
+   &cdr; part: either a frame pointer to the block frame, or &disabled;.
+   The &car; is the block's name, only for error message purposes.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&tagbody-const;*</term>
+  <listitem><simpara>Objects representing closed-up &tagbody; tags,
+   representing the &tagbody; tags of the lexical environment in which
+   this function was defined.  Each is a &cons-class; containing in the
+   &cdr; part: either a frame pointer to the &tagbody; frame, or
+   &disabled; if the &tagbody; has already been left.  The &car; is a
+   &simple-vector-type; containing the names of the &tagbody; tags, only
+   for the error message purposes.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&keyword-const;*</term>
+  <listitem><simpara>If the function was defined with a &lalist;
+   containing &key-amp;, here come the symbols ("keywords"), in their
+   correct order.  They are used by the interpreter during function call.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&other-const;*</term>
+  <listitem><simpara>Other objects needed by the function's bytecode.
+  </simpara></listitem></varlistentry>
+</variablelist>
+</para>
+
+<para>If &venv-const;, &block-const;, &tagbody-const; are all absent,
+the function is called <emphasis>autonomous</emphasis>.
+This is the case if the function does not refer to lexical variables,
+blocks or tags defined in compile code outside of the function.
+In particular, it is the case if the function is defined in a null
+lexical environment.</para>
+
+<para>If some &venv-const;, &block-const;, or &tagbody-const; are
+present, the function (a "closure") is created at runtime.
+The compiler only generates a prototype, containing &nil; values
+instead of each &venv-const;, &block-const;, &tagbody-const;.
+At runtime, a function is created by copying this prototype and
+replacing the &nil; values by the definitive ones.</para>
+
+<para>The list <literal role="sexp">(&keyword-const;*
+&other-const;*)</literal> normally does not contain duplicates, because
+the compiler removes duplicates when possible.  (Duplicates can occur
+nevertheless, through the use of &load-time-value;.)</para>
+
+<para>The &codevec; looks like this
+ (cf. the &c-lang; type <literal>Codevec</literal>):
+<variablelist>
+ <varlistentry><term><literal>spdepth_1</literal> (2 bytes)</term>
+  <listitem><simpara>The 1st part of the maximal &SP; depth.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal>spdepth_jmpbufsize</literal> (2 bytes)</term>
+  <listitem><simpara>The &jbs; part of the maximal &SP; depth.
+   The maximal &SP; depth (precomputed by the compiler) is given by
+   <literal>spdepth_1 + spdepth_jmpbufsize * &jbs;</literal>.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&numreq; (2 bytes)</term>
+  <listitem><simpara>Number of required parameters.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><literal>numopt</literal> (2 bytes)</term>
+  <listitem><simpara>Number of optional parameters.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&flags; (1 byte)</term>
+  <listitem><variablelist>
+   <varlistentry><term>bit 0</term>
+    <listitem><simpara>set if the function has an &rest-amp; parameter
+    </simpara></listitem></varlistentry>
+   <varlistentry><term>bit 7</term>
+    <listitem><simpara>set if the function has &key-amp; parameters
+    </simpara></listitem></varlistentry>
+   <varlistentry><term>bit 6</term>
+    <listitem><simpara>set if the function has &allow-other-keys-amp;
+    </simpara></listitem></varlistentry>
+   <varlistentry><term>bit 4</term>
+    <listitem><simpara>set if the function is a generic function
+    </simpara></listitem></varlistentry>
+   <varlistentry><term>bit 3</term>
+    <listitem><simpara>set if the function is a generic function and its
+     effective method shall be returned (instead of being executed)
+    </simpara></listitem></varlistentry></variablelist></listitem>
+   </varlistentry>
+  <varlistentry><term><literal>signature</literal> (1 byte)</term>
+   <listitem><simpara>An abbreviation code depending on
+    &numreq;, <literal>numopt</literal>, &flags;.
+    It is used for speeding up the function
+    call.</simpara></listitem></varlistentry>
+  <varlistentry><term><literal>numkey</literal> (2 bytes, only if the
+     function has &key-amp;)</term>
+   <listitem><simpara>The number of &key-amp; parameters.
+   </simpara></listitem></varlistentry>
+  <varlistentry><term><literal>keyconsts</literal> (2 bytes, only if the
+     function has &key-amp;)</term>
+   <listitem><simpara>The offset of the &keyword-const; in the function.
+   </simpara></listitem></varlistentry>
+  <varlistentry><term><literal>byte</literal>* (any number of bytes)</term>
+   <listitem><simpara>The bytecode instructions.
+   </simpara></listitem></varlistentry>
+</variablelist></para>
+
+</chapter>
+
+<chapter id="intr-struct">
+   <title>The general structure of the instructions</title>
+
+<para>All instructions consist of one byte, denoting the opcode, and
+some number of operands.</para>
+
+<para>The conversion from a byte (in the range 0..255) to the opcode is
+performed by lookup in the table contained in the file
+<filename>bytecode.d</filename>.</para>
+
+<para>There are the following types of operands, denoted by different
+letters:
+<variablelist>
+ <varlistentry><term>&k-r;,
+   &n-r;, &m-r;,
+   &l-r;</term>
+  <listitem><simpara>A (nonnegative) numeric operand.
+   The next byte is read.
+   If its bit 7 is zero, then the bits 6..0 give the value (7 bits).
+   If its bit 7 is one, then the bits 6..0 and the subsequent byte
+   together form the value (15 bits).
+  </simpara></listitem></varlistentry>
+ <varlistentry><term>&b-r;</term>
+  <listitem><simpara>A (nonnegative) 1-byte operand.
+   The next byte is read and is the value.
+  </simpara></listitem></varlistentry>
+ <varlistentry><term><replaceable>label</replaceable></term>
+  <listitem><simpara>A label operand.
+   A signed numeric operand is read: The next byte is read.
+   If its bit 7 is zero, then the bits 6..0 give the value
+    (7 bits, sign-extended).
+   If its bit 7 is one, then the bits 6..0 and the subsequent byte
+    together form the value (15 bits, sign-extended).
+   If the latter 15-bit result is zero, then four more bytes are read
+    and put together (32 bits, sign-extended).
+   Finally, the bytecode pointer for the target is computed as the
+   current bytecode pointer (pointing after the operand just read), plus
+   the signed numeric operand.
+  </simpara></listitem></varlistentry>
+</variablelist></para>
+</chapter>
+
+<chapter id="intr-set"><title>The instruction set</title>
+
+<section id="instr-const"><title>Instructions for constants</title>
+
+<table frame="all"><title>Instructions for constants</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(&nil;)</literal></entry>
+      <entry>Load &nil; into values.</entry>
+      <entry>&value1; := &nil;, &mv-count; := 1</entry></row>
+ <row><entry><literal role="sexp">(PUSH-NIL &n-r;)</literal></entry>
+      <entry>Push &n-r; &nil;s into the &STACK;.</entry>
+      <entry>&n-r; times do: *--&STACK; := &nil;,
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(&t;)</literal></entry>
+      <entry>Load &t; into values.</entry>
+      <entry>&value1; := &t;, &mv-count; := 1</entry></row>
+ <row><entry><literal role="sexp">(CONST &n-r;)</literal></entry>
+      <entry>Load the function's &n-r;th constant into values.</entry>
+      <entry>&value1; := &consts;[&n-r;],
+             &mv-count; := 1</entry></row>
+</tbody></tgroup></table>
+</section>
+
+<section id="instr-lex-var"><title>Instructions for lexical variables</title>
+
+<table frame="all"><title>Instructions for lexical variables</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(LOAD &n-r;)</literal></entry>
+      <entry>Load a directly accessible local variable into values.</entry>
+      <entry>&value1; := *(&STACK;+&n-r;),
+             &mv-count; := 1</entry></row>
+ <row><entry><literal role="sexp">(LOADI &k1-r; &k2-r; &n-r;)</literal></entry>
+      <entry>Load an indirectly accessible local variable into values.</entry>
+      <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
+              &value1; := *(*(&SP;+&k-r;)+ &n-r;),
+              &mv-count; := 1</entry></row>
+ <row><entry><literal role="sexp">(LOADC &n-r; &m-r;)</literal></entry>
+      <entry>Load a closed-up variable, defined in the same function and
+             directly accessible, into values.</entry>
+      <entry>&value1; := &svref;(*(&STACK;+&n-r;),1+&m-r;),
+             &mv-count; := 1</entry></row>
+ <row><entry><literal role="sexp">(LOADV &k-r; &m-r;)</literal></entry>
+      <entry>Load a closed-up variable, defined in an outer function,
+             into values.</entry>
+      <entry>&v-r; := &venv-const;,
+             &m-r; times do: &v-r; := &svref;(&v-r;,0),
+             &value1; := &svref;(&v-r;,&m-r;),
+             &mv-count; := 1</entry></row>
+ <row><entry><literal
+         role="sexp">(LOADIC &k1-r; &k2-r; &n-r; &m-r;)</literal></entry>
+      <entry>Load a closed-up variable, defined in the same function and
+             indirectly accessible, into values.</entry>
+      <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
+             &value1; := &svref;(*(*(&SP;+&k-r;)+&n-r;),1+&m-r;),
+             &mv-count; := 1</entry></row>
+ <row><entry><literal role="sexp">(STORE &n-r;)</literal></entry>
+      <entry>Store values into a directly accessible local variable.</entry>
+      <entry>*(&STACK;+&n-r;) := &value1;,
+             &mv-count; := 1</entry></row>
+ <row><entry><literal
+         role="sexp">(STOREI &k1-r; &k2-r; &n-r;)</literal></entry>
+      <entry>Store values into an indirectly accessible local variable.</entry>
+      <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
+              *(*(&SP;+&k-r;)+ &n-r;) := &value1;,
+              &mv-count; := 1</entry></row>
+ <row><entry><literal role="sexp">(STOREC &n-r; &m-r;)</literal></entry>
+      <entry>Store values into a closed-up variable, defined in the same
+             function and directly accessible.</entry>
+      <entry>&svref;(*(&STACK;+&n-r;),1+m) := &value1;,
+             &mv-count; := 1</entry></row>
+ <row><entry><literal role="sexp">(STOREV &k-r; &m-r;)</literal></entry>
+      <entry>Store values into a closed-up variable, defined in an outer
+             function.</entry>
+      <entry>&v-r; := &venv-const;,
+             &m-r; times do: &v-r; := &svref;(&v-r;,0),
+             &svref;(&v-r;,&m-r;) := &value1;,
+             &mv-count; := 1</entry></row>
+ <row><entry><literal
+         role="sexp">(STOREIC &k1-r; &k2-r; &n-r; &m-r;)</literal></entry>
+      <entry>Store values into a closed-up variable, defined in the same
+             function and indirectly accessible.</entry>
+      <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
+             &svref;(*(*(&SP;+&k-r;)+&n-r;),1+&m-r;) := &value1;,
+             &mv-count; := 1</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-dyn-var"><title>Instructions for dynamic variables</title>
+
+<table frame="all"><title>Instructions for dynamic variables</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(GETVALUE
+             &n-r;)</literal></entry>
+      <entry>Load a symbol's value into values.</entry>
+      <entry>&value1; := symbol-value(&consts;[&n-r;]),
+             &mv-count; := 1</entry></row>
+ <row><entry><literal role="sexp">(SETVALUE
+             &n-r;)</literal></entry>
+      <entry>Store values into a symbol's value.</entry>
+      <entry>symbol-value(&consts;[&n-r;]) := &value1;,
+             &mv-count; := 1</entry></row>
+ <row><entry><literal role="sexp">(BIND
+             &n-r;)</literal></entry>
+      <entry>Bind a symbol dynamically.</entry>
+      <entry>Bind the value of the symbol
+             &consts;[&n-r;] to &value1;,
+             implicitly &STACK; -= 3,
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(UNBIND1)</literal></entry>
+      <entry>Dissolve one binding frame.</entry>
+      <entry>Unbind the binding frame &STACK; is pointing to,
+             implicitly &STACK; += 3</entry></row>
+ <row><entry><literal role="sexp">(UNBIND
+             &n-r;)</literal></entry>
+      <entry>Dissolve &n-r; binding frames.</entry>
+      <entry>&n-r; times do:
+              Unbind the binding frame &STACK; is pointing to, thereby
+              incrementing &STACK;
+             Thus, &STACK; += 1+2*&n-r;</entry></row>
+ <row><entry><literal role="sexp">(PROGV)</literal></entry>
+      <entry>Bind a set of symbols dynamically to a set of values.</entry>
+      <entry><replaceable>symbols</replaceable> := *&STACK;++,
+             *--&SP; := &STACK;,
+             build a single binding frame binding the symbols in
+             <replaceable>symbols</replaceable> to the values in &value1;,
+             values undefined</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-stack"><title>Instructions for stack operations</title>
+
+<table frame="all"><title>Instructions for stack operations</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(PUSH)</literal></entry>
+      <entry>Push one object onto the &STACK;.</entry>
+      <entry>*--&STACK; := &value1;,
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(POP)</literal></entry>
+      <entry>Pop one object from the &STACK;, into values.</entry>
+      <entry>&value1; := *&STACK;++, &mv-count; := 1</entry></row>
+ <row><entry><literal role="sexp">(SKIP &n-r;)</literal></entry>
+      <entry>Restore a previous &STACK; pointer.
+             Remove &n-r; objects from the &STACK;.</entry>
+      <entry>&STACK; := &STACK; + &n-r;</entry></row>
+ <row><entry><literal role="sexp">(SKIPI &k1-r; &k2-r; &n-r;)</literal></entry>
+      <entry>Restore a previous &STACK; pointer. Remove an unknown
+             number of objects from the &STACK;.</entry>
+      <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
+             &STACK; := *(&SP;+&k-r;),
+             &SP; := &SP;+&k-r;+1</entry></row>
+ <row><entry><literal role="sexp">(SKIPSP &k1-r; &k2-r;)</literal></entry>
+      <entry>Restore a previous &SP; pointer.</entry>
+      <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
+             &SP; := &SP;+&k-r;</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-jump"><title>Instructions for control flow, jumps</title>
+
+<table frame="all"><title>Instructions for control flow, jumps</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(SKIP&amp;RET &n-r;)</literal></entry>
+      <entry>Clean up the &STACK;, and return from the function.</entry>
+      <entry>&STACK; := &STACK;+&n-r;,
+            return from the function, returning values.</entry></row>
+ <row><entry><literal role="sexp">(SKIP&amp;RETGF &n-r;)</literal></entry>
+      <entry>Clean up the &STACK;, and return from the generic
+             function.</entry>
+      <entry>If bit 3 is set in the function's &flags;,
+                then &STACK; := &STACK;+&n-r;, &mv-count; := 1,
+                     and return from the function.
+             Otherwise: if the current function has no &rest-amp; argument,
+                then &STACK; := &STACK;+&n-r;-&numreq;,
+                     apply &value1; to the &numreq; arguments
+                           still on the &STACK;, and
+                           return from the function.
+                Else &STACK; := &STACK;+&n-r;-&numreq;-1,
+                     apply &value1; to the &numreq; arguments and the
+                           &rest-amp; argument, all still on the &STACK;, and
+                           return from the function.</entry></row>
+ <row><entry><literal role="sexp">(JMP &l-r;)</literal></entry>
+      <entry>Jump to &l-r;.</entry>
+      <entry>PC := &l-r;.</entry></row>
+ <row><entry><literal role="sexp">(JMPIF &l-r;)</literal></entry>
+      <entry>Jump to &l-r;, if &value1; is true.</entry>
+      <entry>If &value1; is not &nil;, PC := &l-r;.</entry></row>
+ <row><entry><literal role="sexp">(JMPIFNOT &l-r;)</literal></entry>
+      <entry>Jump to &l-r;, if &value1; is false.</entry>
+      <entry>If &value1; is &nil;, PC := &l-r;.</entry></row>
+ <row><entry><literal role="sexp">(JMPIF1 &l-r;)</literal></entry>
+      <entry>Jump to &l-r; and forget secondary values,
+             if &value1; is true.</entry>
+      <entry>If &value1; is not &nil;,
+                &mv-count; := 1, PC := &l-r;.</entry></row>
+ <row><entry><literal role="sexp">(JMPIFNOT1 &l-r;)</literal></entry>
+      <entry>Jump to &l-r; and forget secondary values,
+             if &value1; is false.</entry>
+      <entry>If &value1; is &nil;,
+                &mv-count; := 1, PC := &l-r;.</entry></row>
+ <row><entry><literal role="sexp">(JMPIFATOM &l-r;)</literal></entry>
+      <entry>Jump to &l-r;, if &value1; is not a cons.</entry>
+      <entry>If &value1; is not a cons, PC := &l-r;.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(JMPIFCONSP &l-r;)</literal></entry>
+      <entry>Jump to &l-r;, if &value1; is a cons.</entry>
+      <entry>If &value1; is a cons, PC := &l-r;.
+                values undefined</entry></row>
+ <row><entry><literal role="sexp">(JMPIFEQ &l-r;)</literal></entry>
+      <entry>Jump to &l-r;, if &value1; is &eq; to the top-of-stack.</entry>
+      <entry>If eq(&value1;,*&STACK;++), PC := &l-r;.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(JMPIFNOTEQ &l-r;)</literal></entry>
+      <entry>Jump to &l-r;, if &value1; is not &eq;
+             to the top-of-stack.</entry>
+      <entry>If not eq(&value1;,*&STACK;++), PC := &l-r;.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(JMPIFEQTO &n-r; &l-r;)</literal></entry>
+      <entry>Jump to &l-r;, if the top-of-stack is &eq; to a constant.</entry>
+      <entry>If eq(*&STACK;++,&consts;[&n-r;]), PC := &l-r;.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(JMPIFNOTEQTO &n-r; &l-r;)</literal></entry>
+      <entry>Jump to &l-r;, if the top-of-stack is not &eq;
+             to a constant.</entry>
+      <entry>If not eq(*&STACK;++,&consts;[&n-r;]), PC := &l-r;.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(JMPHASH &n-r; &l-r;)</literal></entry>
+      <entry>Table-driven jump, depending on &value1;.</entry>
+      <entry>Lookup &value1; in the hash table &consts;[&n-r;].
+             (The hash table's test is either &eq; or &eql;.)
+             If found, the hash table value is a signed &fixnum-type;,
+             jump to it: PC := PC + value.  Else jump to &l-r;.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(JMPHASHV &n-r; &l-r;)</literal></entry>
+      <entry>Table-driven jump, depending on &value1;,
+             inside a generic function.</entry>
+      <entry>Lookup &value1; in the hash table &svref;(&consts;[0],&n-r;).
+             (The hash table's test is either &eq; or &eql;.)
+             If found, the hash table value is a signed &fixnum-type;,
+             jump to it: PC := PC + value.  Else jump to &l-r;.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(JSR &l-r;)</literal></entry>
+      <entry>Subroutine call.</entry>
+      <entry>*--&STACK; := function. Then start interpreting the
+             bytecode at &l-r;, with values undefined.
+             When a <literal role="sexp">(RET)</literal> is encountered,
+             program execution is resumed at the instruction after
+             <literal role="sexp">(JSR &l-r;)</literal>.</entry></row>
+ <row><entry><literal role="sexp">(JMPTAIL &m-r; &n-r; &l-r;)</literal></entry>
+      <entry>Tail subroutine call.</entry>
+      <entry>&n-r; &gt;= &m-r;.
+             The &STACK; frame of size &n-r; is reduced to size &m-r;:
+             {*(&STACK;+&n-r;-&m-r;), ..., *(&STACK;+&n-r;-1)} :=
+               {*&STACK;, ..., *(&STACK;+&m-r;-1)}.
+             &STACK; += n-m.
+             *--&STACK; := function.
+             Then jump to &l-r;, with values undefined.</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-env"><title>Instructions for lexical environment,
+   creation of closures</title>
+
+<table frame="all"><title>Instructions for lexical environment,
+   creation of closures</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(VENV)</literal></entry>
+      <entry>Load the &venv-const; into values.</entry>
+      <entry>&value1; := &consts;[0], &mv-count; := 1.</entry>
+  </row>
+ <row><entry><literal
+         role="sexp">(MAKE-VECTOR1&amp;PUSH &n-r;)</literal></entry>
+      <entry>Create a simple-vector used for closed-up variables.</entry>
+      <entry>&v-r; := new simple-vector of size &n-r;+1.
+             &svref;(&v-r;,0) := &value1;.
+             *--&STACK; := &v-r;.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(COPY-CLOSURE &m-r; &n-r;)</literal></entry>
+      <entry>Create a closure by copying the prototype and filling in
+             the lexical environment.</entry>
+      <entry>&f-r; := copy-function(&consts;[&m-r;]).
+             For &i-r;=0,..,&n-r;-1:
+                 &f-r;_&consts;[i] := *(&STACK;+&n-r;-1-&i-r;).
+             &STACK; += &n-r;.
+             &value1; := &f-r;, &mv-count; := 1</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-funcall"><title>Instructions for function calls</title>
+
+<table frame="all"><title>Instructions for function calls</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(CALL &k-r; &n-r;)</literal></entry>
+      <entry>Calls a constant function with &k-r; arguments.</entry>
+      <entry>The function &consts;[&n-r;] is called
+             with the arguments *(&STACK;+&k-r;-1), ..., *(&STACK;+0).
+             &STACK; += &k-r;.
+             The returned values go into values.</entry></row>
+ <row><entry><literal role="sexp">(CALL0 &n-r;)</literal></entry>
+      <entry>Calls a constant function with 0 arguments.</entry>
+      <entry>The function &consts;[&n-r;] is called with 0 arguments.
+             The returned values go into values.</entry></row>
+ <row><entry><literal role="sexp">(CALL1 &n-r;)</literal></entry>
+      <entry>Calls a constant function with 1 argument.</entry>
+      <entry>The function &consts;[&n-r;] is called with one argument *&STACK;.
+             &STACK; += 1. The returned values go into values.</entry></row>
+ <row><entry><literal role="sexp">(CALL2 &n-r;)</literal></entry>
+      <entry>Calls a constant function with 2 arguments.</entry>
+      <entry>The function &consts;[&n-r;] is called
+             with two arguments *(&STACK;+1) and *(&STACK;+0).
+             &STACK; += 2. The returned values go into values.</entry></row>
+ <row><entry><literal role="sexp">(CALLS1 &b-r;)</literal></entry>
+      <entry>Calls a system function with no &rest-amp;.</entry>
+      <entry>Calls the system function FUNTAB[&b-r;].
+             The right number of arguments is already on the &STACK;
+             (including &unbound;s in place of absent &optional-amp; or
+              &key-amp; parameters).
+             The arguments are removed from the &STACK;.
+             The returned values go into values.</entry></row>
+ <row><entry><literal role="sexp">(CALLS2 &b-r;)</literal></entry>
+      <entry>Calls a system function with no &rest-amp;.</entry>
+      <entry>Calls the system function FUNTAB[256+&b-r;].
+             The right number of arguments is already on the &STACK;
+             (including &unbound;s in place of absent &optional-amp; or
+              &key-amp; parameters).
+             The arguments are removed from the &STACK;.
+             The returned values go into values.</entry></row>
+ <row><entry><literal role="sexp">(CALLSR &m-r; &b-r;)</literal></entry>
+      <entry>Calls a system function with &rest-amp;.</entry>
+      <entry>Calls the system function FUNTABR[&b-r;].
+             The minimum number of arguments is already on the &STACK;,
+             and &m-r; additional arguments as well.
+             The arguments are removed from the &STACK;.
+             The returned values go into values.</entry></row>
+ <row><entry><literal role="sexp">(CALLC)</literal></entry>
+      <entry>Calls a computed compiled function with no &key-amp;.</entry>
+      <entry>Calls the compiled function &value1;.
+             The right number of arguments is already on the &STACK;
+             (including &unbound;s in place of absent &optional-amp;
+              parameters).
+             The arguments are removed from the &STACK;.
+             The returned values go into values.</entry></row>
+ <row><entry><literal role="sexp">(CALLCKEY)</literal></entry>
+      <entry>Calls a computed compiled function with &key-amp;.</entry>
+      <entry>Calls the compiled function &value1;.
+             The right number of arguments is already on the &STACK;
+             (including &unbound;s in place of absent &optional-amp;
+              or &key-amp; parameters).
+             The arguments are removed from the &STACK;.
+             The returned values go into values.</entry></row>
+ <row><entry><literal role="sexp">(FUNCALL &n-r;)</literal></entry>
+      <entry>Calls a computed function.</entry>
+      <entry>Calls the function *(&STACK;+&n-r;)
+             with the arguments *(&STACK;+&n-r;-1), ..., *(&STACK;+0).
+             &STACK; += &n-r;+1.
+             The returned values go into values.</entry></row>
+ <row><entry><literal role="sexp">(APPLY &n-r;)</literal></entry>
+      <entry>Calls a computed function with an unknown number of
+             arguments.</entry>
+      <entry>Calls the function *(&STACK;+&n-r;)
+             with the arguments *(&STACK;+&n-r;-1), ..., *(&STACK;+0)
+             and a list of additional arguments &value1;.
+             &STACK; += &n-r;+1.
+             The returned values go into values.</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-optkey"><title>Instructions for optional
+  and keyword parameters</title>
+
+<table frame="all"><title>Instructions for optional
+  and keyword parameters</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(PUSH-UNBOUND &n-r;)</literal></entry>
+      <entry>Push &n-r; &unbound;s into the &STACK;.</entry>
+      <entry>&n-r; times do: *--&STACK; := &unbound;.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(UNLIST &n-r; &m-r;)</literal></entry>
+      <entry>Destructure a proper list.</entry>
+      <entry>0 &le; &m-r; &le; &n-r;.
+             &n-r; times do: *--&STACK; := &car;(&value1;),
+             &value1; := &cdr;(&value1;).
+             During the last &m-r; iterations, the list &value1;
+             may already have reached its end;
+             in this case, *--&STACK; := &unbound;.
+             At the end, &value1; must be &nil;.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(UNLIST* &n-r; &m-r;)</literal></entry>
+      <entry>Destructure a proper or dotted list.</entry>
+      <entry>0 &le; &m-r; &le; &n-r;, &n-r; &gt; 0.
+             &n-r; times do: *--&STACK; := &car;(&value1;),
+             &value1; := &cdr;(&value1;).
+             During the last &m-r; iterations, the list &value1;
+             may already have reached its end;
+             in this case, *--&STACK; := &unbound;.
+             At the end, after &n-r; &cdr;s, *--&STACK; := &value1;.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(JMPIFBOUNDP &n-r; &l-r;)</literal></entry>
+      <entry>Jump to &l-r;, if a local variable is not unbound.</entry>
+      <entry>If *(&STACK;+&n-r;) is not &unbound;,
+                &value1; := *(&STACK;+&n-r;), &mv-count; := 1, PC := &l-r;.
+             Else: values undefined.</entry></row>
+ <row><entry><literal role="sexp">(BOUNDP &n-r;)</literal></entry>
+      <entry>Load &t; or &nil; into values, depending on whether a local
+             variable is bound.</entry>
+      <entry>If *(&STACK;+&n-r;) is not &unbound;,
+                &value1; := &t;, &mv-count; := 1.
+             Else: &value1; := &nil;, &mv-count; := 1.</entry></row>
+ <row><entry><literal role="sexp">(UNBOUND->NIL &n-r;)</literal></entry>
+      <entry>If a local variable is unbound, assign a default value
+             &nil; to it.</entry>
+      <entry>If *(&STACK;+&n-r;) is &unbound;,
+             *(&STACK;+&n-r;) := &nil;.</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-mulval"><title>Instructions for multiple values</title>
+
+<table frame="all"><title>Instructions for multiple values</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(VALUES0)</literal></entry>
+      <entry>Load no values into values.</entry>
+      <entry>&value1; := &nil;, &mv-count; := 0</entry>
+  </row>
+ <row><entry><literal role="sexp">(VALUES1)</literal></entry>
+      <entry>Forget secondary values.</entry>
+      <entry>&mv-count; := 1</entry>
+  </row>
+ <row><entry><literal role="sexp">(&STACK;-TO-MV &n-r;)</literal></entry>
+      <entry>Pop the first &n-r; objects from &STACK; into values.</entry>
+      <entry>Load values(*(&STACK;+&n-r;-1),...,*(&STACK;+0)) into
+             values. &STACK; += &n-r;.</entry></row>
+ <row><entry><literal role="sexp">(MV-TO-&STACK;)</literal></entry>
+      <entry>Save values on &STACK;.</entry>
+      <entry>Push the &mv-count; values onto the &STACK;
+             (in order: &value1; comes first).
+             &STACK; -= &mv-count;.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(NV-TO-&STACK; &n-r;)</literal></entry>
+      <entry>Save &n-r; values on &STACK;.</entry>
+      <entry>Push the first &n-r; values onto the &STACK;
+             (in order: &value1; comes first).
+             &STACK; -= &n-r;.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(MV-TO-LIST)</literal></entry>
+      <entry>Convert multiple values into a list.</entry>
+      <entry>&value1; := list of values, &mv-count; := 1</entry></row>
+ <row><entry><literal role="sexp">(LIST-TO-MV)</literal></entry>
+      <entry>Convert a list into multiple values.</entry>
+      <entry>Call the function &values-list; with &value1; as argument.
+             The returned values go into values.</entry></row>
+ <row><entry><literal role="sexp">(MVCALLP)</literal></entry>
+      <entry>Start a &multiple-value-call; invocation.</entry>
+      <entry>*--&SP; := &STACK;. *--&STACK; := &value1;.</entry></row>
+ <row><entry><literal role="sexp">(MVCALL)</literal></entry>
+      <entry>Finish a &multiple-value-call; invocation.</entry>
+      <entry>newSTACK := *&SP;++.
+             Call the function *(newSTACK-1), passing it
+             *(newSTACK-2), ..., *(&STACK;+0) as arguments.
+             &STACK; := newSTACK.
+             The returned values go into values.</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-block"><title>Instructions for
+   &block; and &return-from;</title>
+
+<table frame="all"><title>Instructions for &block; and &return-from;</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(BLOCK-OPEN &n-r; &l-r;)</literal></entry>
+      <entry>Create a &block; frame.</entry>
+      <entry>Create a &block; frame, &STACK; -= 3, &SP; -= 2+&jbs;.
+             The topmost (third) object in the block frame is
+             &cons;(&consts;[&n-r;],frame-pointer) (its &bc-r;).
+             Upon a &return-from; to this frame,
+             execution will continue at &l-r;.</entry></row>
+ <row><entry><literal role="sexp">(BLOCK-CLOSE)</literal></entry>
+      <entry>Dissolve a &block; frame.</entry>
+      <entry>Dissolve the &block; frame at &STACK;, &STACK; += 3,
+             &SP; += 2+&jbs;. Mark the &bc-r; as invalid.</entry></row>
+ <row><entry><literal role="sexp">(RETURN-FROM &n-r;)</literal></entry>
+      <entry>Leave a &block; whose &bc-r; is given.</entry>
+      <entry>&bc-r; := &consts;[&n-r;].
+             If &cdr;(&bc-r;) = &disabled;, signal an error.
+             Else &cdr;(&bc-r;) is a frame-pointer.
+             Unwind the stack up to this frame, pass it values.</entry></row>
+ <row><entry><literal
+         role="sexp">(RETURN-FROM-I &k1-r; &k2-r; &n-r;)</literal></entry>
+      <entry>Leave a &block; whose &bc-r; is indirectly accessible.</entry>
+      <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
+             &bc-r; := *(*(&SP;+&k-r;)+&n-r;).
+             If &cdr;(&bc-r;) = &disabled;, signal an error.
+             Else &cdr;(&bc-r;) is a frame-pointer.
+             Unwind the stack up to this frame, pass it values.</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-tagbody"><title>Instructions for &tagbody; and &go;</title>
+
+<table frame="all"><title>Instructions for &tagbody; and &go;</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(TAGBODY-OPEN &n-r;
+             <replaceable>label<subscript>1</subscript></replaceable> ...
+             <replaceable>label<subscript>m</subscript></replaceable>)</literal></entry>
+      <entry>Create a tagbody frame.</entry>
+      <entry>Fetch &consts;[&n-r;], this is a &simple-vector-type; with
+             &m-r; elements, then decode &m-r; label operands.
+             Create a &tagbody; frame, &STACK; -= 3+&m-r;, &SP; -= 1+&jbs;.
+             The third object in the tagbody frame is
+             &cons;(&consts;[&n-r;],frame-pointer) (the &tbc-r;)
+             Upon a &go; to tag &l-r; of this frame, execution
+             will continue at
+              <replaceable>label<subscript>l</subscript></replaceable>.
+             values undefined</entry></row>
+ <row><entry><literal role="sexp">(TAGBODY-CLOSE-NIL)</literal></entry>
+      <entry>Dissolve a tagbody frame, and load &nil; into values.</entry>
+      <entry>Dissolve the tagbody frame at &STACK;,
+             &STACK; += 3+&m-r;, &SP; += 1+&jbs;.
+             Mark the &tbc-r; as invalid.
+             &value1; := &nil;, &mv-count; := 1.</entry></row>
+ <row><entry><literal role="sexp">(TAGBODY-CLOSE)</literal></entry>
+      <entry>Dissolve a tagbody frame.</entry>
+      <entry>Dissolve the tagbody frame at &STACK;,
+             &STACK; += 3+&m-r;, &SP; += 1+&jbs;.
+             Mark the &tbc-r; as invalid.</entry></row>
+ <row><entry><literal role="sexp">(GO &n-r; &l-r;)</literal></entry>
+      <entry>Jump into a tagbody whose &tbc-r; is given.</entry>
+      <entry>&tbc-r; := &consts;[&n-r;].
+             If &cdr;(&tbc-r;) = &disabled;, signal an error.
+             Else &cdr;(&tbc-r;) is a frame-pointer. Unwind the stack up
+             to this frame, pass it the number &l-r;.</entry></row>
+ <row><entry><literal
+         role="sexp">(GO-I &k1-r; &k2-r; &n-r; &l-r;)</literal></entry>
+      <entry>Jump into a tagbody whose &tbc-r; is indirectly
+             accessible.</entry>
+      <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
+             &tbc-r; := *(*(&SP;+&k-r;)+&n-r;).
+             If &cdr;(&tbc-r;) = &disabled;, signal an error.
+             Else &cdr;(&tbc-r;) is a frame-pointer. Unwind the stack up
+             to this frame, pass it the number &l-r;.</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-catch"><title>Instructions for &catch; and &throw;</title>
+
+<table frame="all"><title>Instructions for &catch; and &throw;</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(CATCH-OPEN &l-r;)</literal></entry>
+      <entry>Create a &catch; frame.</entry>
+      <entry>Create a &catch; frame, with &value1; as tag.
+             &STACK; -= 3, &SP; -= 2+&jbs;.
+             Upon a &throw; to this tag execution continues at
+             &l-r;.</entry></row>
+ <row><entry><literal role="sexp">(CATCH-CLOSE)</literal></entry>
+      <entry>Dissolve a &catch; frame.</entry>
+      <entry>Dissolve the &catch; frame at &STACK;.
+             &STACK; += 3, &SP; += 2+&jbs;.</entry></row>
+ <row><entry><literal role="sexp">(THROW)</literal></entry>
+      <entry>Non-local exit to a &catch; frame.</entry>
+      <entry><replaceable>tag</replaceable> := *&STACK;++.
+             Search the innermost &catch; frame with tag
+             <replaceable>tag</replaceable> on the &STACK;, unwind the
+             stack up to it, pass it values.</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-unwind"><title>Instructions for &unwind-protect;</title>
+
+<table frame="all"><title>Instructions for &unwind-protect;</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(UNWIND-PROTECT-OPEN &l-r;)</literal></entry>
+      <entry>Create an &unwind-protect; frame.</entry>
+      <entry>Create an &unwind-protect; frame.
+             &STACK; -= 2, &SP; -= 2+&jbs;.
+             When the stack will be unwound by a non-local exit,
+             values will be saved on &STACK;, and execution will be
+             transferred to &l-r;.</entry></row>
+ <row><entry><literal
+         role="sexp">(UNWIND-PROTECT-NORMAL-EXIT)</literal></entry>
+      <entry>Dissolve an &unwind-protect; frame, and start the cleanup
+             code.</entry>
+      <entry>Dissolve the &unwind-protect; frame at &STACK;.
+             &STACK; += 2, &SP; += 2+&jbs;.
+             *--&SP; := 0, *--&SP; := 0, *--&SP; := &STACK;.
+             Save the values on the &STACK;,
+             &STACK; -= &mv-count;.</entry></row>
+ <row><entry><literal role="sexp">(UNWIND-PROTECT-CLOSE)</literal></entry>
+      <entry>Terminate the cleanup code.</entry>
+      <entry>newSTACK := *&SP;++. Load
+             values(*(newSTACK-1), ..., *(&STACK;+0)) into values.
+             &STACK; := newSTACK. SPword1 := *&SP;++, SPword2 := *&SP;++.
+             Continue depending on SPword1 and SPword2.
+             If both are 0, simply continue execution.
+             If SPword2 is 0 but SPword1 is nonzero, interpret it as a
+             label and jump to it.</entry></row>
+ <row><entry><literal role="sexp">(UNWIND-PROTECT-CLEANUP)</literal></entry>
+      <entry>Dissolve an &unwind-protect; frame, and execute the cleanup
+             code like a subroutine call.</entry>
+      <entry>Dissolve the &unwind-protect; frame at &STACK;,
+             get &l-r; out of the frame.
+             &STACK; += 2, &SP; += 2+&jbs;.
+             *--&SP; := 0, *--&SP; := PC, *--&SP; := &STACK;.
+             Save the values on the &STACK;, &STACK; -= &mv-count;.
+             PC := &l-r;.</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-handler"><title>Instructions for &handler-bind;</title>
+
+<table frame="all"><title>Instructions for &handler-bind;</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(HANDLER-OPEN &n-r;)</literal></entry>
+      <entry>Create a handler frame.</entry>
+      <entry>Create a handler frame, using &consts;[&n-r;] which
+             contains the condition types, the corresponding labels and
+             the current &SP; depth (= function entry &SP; - current &SP;).
+             </entry></row>
+ <row><entry><literal role="sexp">(HANDLER-BEGIN&amp;PUSH)</literal></entry>
+      <entry>Start a handler.</entry>
+      <entry>Restore the same &SP; state as after the HANDLER-OPEN.
+             &value1; := the condition that was passed to the handler,
+             &mv-count; := 1.
+             *--&STACK; := &value1;.</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-inline"><title>Instructions for some inlined
+  functions</title>
+
+<table frame="all"><title>Instructions for some inlined
+  functions</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>description</entry>
+             <entry>semantics</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(NOT)</literal></entry>
+      <entry>Inlined call to NOT.</entry>
+      <entry>&value1; := not(&value1;), &mv-count; := 1.</entry></row>
+ <row><entry><literal role="sexp">(EQ)</literal></entry>
+      <entry>Inlined call to EQ.</entry>
+      <entry>&value1; := eq(*&STACK;++,&value1;),
+             &mv-count; := 1.</entry></row>
+ <row><entry><literal role="sexp">(CAR)</literal></entry>
+      <entry>Inlined call to &car;.</entry>
+      <entry>&value1; := &car;(&value1;), &mv-count; := 1.</entry></row>
+ <row><entry><literal role="sexp">(CDR)</literal></entry>
+      <entry>Inlined call to &cdr;.</entry>
+      <entry>&value1; := &cdr;(&value1;), &mv-count; := 1.</entry></row>
+ <row><entry><literal role="sexp">(CONS)</literal></entry>
+      <entry>Inlined call to &cons;.</entry>
+      <entry>&value1; := cons(*&STACK;++,&value1;),
+             &mv-count; := 1.</entry></row>
+ <row><entry><literal role="sexp">(SYMBOL-FUNCTION)</literal></entry>
+      <entry>Inlined call to &symbol-function;.</entry>
+      <entry>&value1; := &symbol-function;(&value1;),
+             &mv-count; := 1.</entry></row>
+ <row><entry><literal role="sexp">(SVREF)</literal></entry>
+      <entry>Inlined call to &svref;.</entry>
+      <entry>&value1; := &svref;(*&STACK;++,&value1;),
+             &mv-count; := 1.</entry></row>
+ <row><entry><literal role="sexp">(SVSET)</literal></entry>
+      <entry>Inlined call to SYSTEM::SVSTORE.</entry>
+      <entry><replaceable>arg1</replaceable> := *(&STACK;+1),
+             <replaceable>arg2</replaceable> := *(&STACK;+0), &STACK; += 2.
+             &svref;(<replaceable>arg2</replaceable>,&value1;) :=
+                  <replaceable>arg1</replaceable>.
+             &value1; := <replaceable>arg1</replaceable>,
+             &mv-count; := 1.</entry></row>
+ <row><entry><literal role="sexp">(LIST &n-r;)</literal></entry>
+      <entry>Inlined call to &list;.</entry>
+      <entry>&value1; := &list;(*(&STACK;+&n-r;-1),...,*(&STACK;+0)),
+             &mv-count; := 1, &STACK; += &n-r;.</entry></row>
+ <row><entry><literal role="sexp">(LIST* &n-r;)</literal></entry>
+      <entry>Inlined call to &list-star;.</entry>
+      <entry>&value1; := &list-star;(*(&STACK;+&n-r;-1),...,
+                                     *(&STACK;+0),&value1;),
+             &mv-count; := 1, &STACK; += &n-r;.</entry></row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-combo"><title>Combined instructions</title>
+
+<para>The most frequent short sequences of instructions have an
+equivalent combined instruction.  They are only present for space and
+speed optimization. The only exception is
+<literal role="sexp">FUNCALL&amp;SKIP&amp;RETGF</literal>, which is needed for
+generic functions.</para>
+
+<table frame="all"><title>Combined instructions</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>equivalent</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(NIL&amp;PUSH)</literal></entry>
+      <entry><literal role="sexp">(NIL) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(T&amp;PUSH)</literal></entry>
+      <entry><literal role="sexp">(T) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CONST&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(CONST &n-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOAD&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &n-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOADI&amp;PUSH &k1-r; &k2-r; &n-r;)</literal></entry>
+      <entry><literal role="sexp">(LOADI &k1-r; &k2-r; &n-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOADC&amp;PUSH &n-r; &m-r;)</literal></entry>
+      <entry><literal role="sexp">(LOADC &n-r; &m-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOADV&amp;PUSH &k-r; &m-r;)</literal></entry>
+      <entry><literal role="sexp">(LOADV &k-r; &m-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(POP&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="sexp">(POP) (STORE &n-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(GETVALUE&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(GETVALUE &n-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(JSR&amp;PUSH &l-r;)</literal></entry>
+      <entry><literal role="sexp">(JSR &l-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(COPY-CLOSURE&amp;PUSH &m-r; &n-r;)</literal></entry>
+      <entry><literal role="sexp">(COPY-CLOSURE &m-r; &n-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALL&amp;PUSH &k-r; &n-r;)</literal></entry>
+      <entry><literal role="sexp">(CALL &k-r; &n-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALL1&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(CALL1 &n-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALL2&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(CALL2 &n-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLS1&amp;PUSH &b-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLS1 &b-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLS2&amp;PUSH &b-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLS2 &b-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLSR&amp;PUSH &m-r; &n-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLSR &m-r; &n-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLC&amp;PUSH)</literal></entry>
+      <entry><literal role="sexp">(CALLC) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLCKEY&amp;PUSH)</literal></entry>
+      <entry><literal role="sexp">(CALLCKEY) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(FUNCALL&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(FUNCALL &n-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(APPLY&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(APPLY &n-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CAR&amp;PUSH)</literal></entry>
+      <entry><literal role="sexp">(CAR) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CDR&amp;PUSH)</literal></entry>
+      <entry><literal role="sexp">(CDR) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CONS&amp;PUSH)</literal></entry>
+      <entry><literal role="sexp">(CONS) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LIST&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(LIST &n-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LIST*&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(LIST* &n-r;) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(NIL&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="sexp">(NIL) (STORE &n-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(T&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="sexp">(T) (STORE &n-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOAD&amp;STOREC &k-r; &n-r; &m-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &k-r;) (STOREC &n-r; &m-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLS1&amp;STORE &b-r; &k-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLS1 &b-r;) (STORE &k-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLS2&amp;STORE &b-r; &k-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLS2 &b-r;) (STORE &k-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLSR&amp;STORE &m-r; &n-r; &k-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLSR &m-r; &n-r;) (STORE &k-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOAD&amp;CDR&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &n-r;) (CDR) (STORE &n-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOAD&amp;CONS&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &n-r;+1) (CONS) (STORE &n-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOAD&amp;INC&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &n-r;) (CALL1 #'1+) (STORE &n-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOAD&amp;DEC&amp;STORE &n-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &n-r;) (CALL1 #'1-) (STORE &n-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOAD&amp;CAR&amp;STORE &m-r; &n-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &m-r;) (CAR) (STORE &n-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALL1&amp;JMPIF &n-r; &l-r;)</literal></entry>
+      <entry><literal role="sexp">(CALL1 &n-r;) (JMPIF &l-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALL1&amp;JMPIFNOT &n-r; &l-r;)</literal></entry>
+      <entry><literal role="sexp">(CALL1 &n-r;) (JMPIFNOT &l-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALL2&amp;JMPIF &n-r; &l-r;)</literal></entry>
+      <entry><literal role="sexp">(CALL2 &n-r;) (JMPIF &l-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALL2&amp;JMPIFNOT &n-r; &l-r;)</literal></entry>
+      <entry><literal role="sexp">(CALL2 &n-r;) (JMPIFNOT &l-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLS1&amp;JMPIF &b-r; &l-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLS1 &b-r;) (JMPIF &l-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLS1&amp;JMPIFNOT &b-r; &l-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLS1 &b-r;) (JMPIFNOT &l-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLS2&amp;JMPIF &b-r; &l-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLS2 &b-r;) (JMPIF &l-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLS2&amp;JMPIFNOT &b-r; &l-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLS2 &b-r;) (JMPIFNOT &l-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLSR&amp;JMPIF &m-r; &n-r; &l-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLSR &m-r; &n-r;) (JMPIF &l-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CALLSR&amp;JMPIFNOT &m-r; &n-r; &l-r;)</literal></entry>
+      <entry><literal role="sexp">(CALLSR &m-r; &n-r;) (JMPIFNOT &l-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOAD&amp;JMPIF &n-r; &l-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &n-r;) (JMPIF &l-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOAD&amp;JMPIFNOT &n-r; &l-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &n-r;) (JMPIFNOT &l-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOAD&amp;CAR&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &n-r;) (CAR) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOAD&amp;CDR&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &n-r;) (CDR) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOAD&amp;INC&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &n-r;) (CALL1 #'1+) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(LOAD&amp;DEC&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(LOAD &n-r;) (CALL1 #'1-) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CONST&amp;SYMBOL-FUNCTION &n-r;)</literal></entry>
+      <entry><literal role="sexp">(CONST &n-r;) (SYMBOL-FUNCTION)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CONST&amp;SYMBOL-FUNCTION&amp;PUSH &n-r;)</literal></entry>
+      <entry><literal role="sexp">(CONST &n-r;) (SYMBOL-FUNCTION) (PUSH)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(CONST&amp;SYMBOL-FUNCTION&amp;STORE &n-r; &k-r;)</literal></entry>
+      <entry><literal role="sexp">(CONST &n-r;) (SYMBOL-FUNCTION) (STORE &k-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(APPLY&amp;SKIP&amp;RET &n-r; &k-r;)</literal></entry>
+      <entry><literal role="sexp">(APPLY &n-r;) (SKIP&amp;RET &k-r;)</literal></entry>
+  </row>
+ <row><entry><literal role="sexp">(FUNCALL&amp;SKIP&amp;RETGF &n-r; &k-r;)</literal></entry>
+      <entry><literal role="sexp">(FUNCALL &n-r;) (SKIP&amp;RETGF &k-r;)</literal></entry>
+  </row>
+</tbody></tgroup></table>
+
+</section>
+
+<section id="instr-shortcut"><title>Shortcut instructions</title>
+
+<para>There are special one-byte instructions (without explicit
+operands) for the following frequent instructions:</para>
+
+<table frame="all"><title>Shortcut instructions</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>mnemonic</entry><entry>operand range</entry></row></thead>
+<tbody>
+ <row><entry><literal role="sexp">(LOAD &n-r;)</literal></entry>
+      <entry>0 &le; &n-r; &lt; 15</entry></row>
+ <row><entry><literal role="sexp">(LOAD&amp;PUSH &n-r;)</literal></entry>
+      <entry>0 &le; &n-r; &lt; 25</entry></row>
+ <row><entry><literal role="sexp">(CONST &n-r;)</literal></entry>
+      <entry>0 &le; &n-r; &lt; 21</entry></row>
+ <row><entry><literal role="sexp">(CONST&amp;PUSH &n-r;)</literal></entry>
+      <entry>0 &le; &n-r; &lt; 30</entry></row>
+ <row><entry><literal role="sexp">(STORE &n-r;)</literal></entry>
+      <entry>0 &le; &n-r; &lt; 8</entry></row>
+</tbody></tgroup></table>
+
+</section>
+</chapter>
+</part>
