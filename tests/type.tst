@@ -396,6 +396,11 @@ NIL
 (let ((x 1)) (ctypecase x (t 'a)))  a
 (let ((x 1)) (etypecase x (t 'a)))  a
 
+(multiple-value-list (subtypep '(AND CONS (NOT (EQL 0))) 'CONS))  (t t)
+
+(multiple-value-list (subtypep '(integer 1 2) '(real 1 2)))  (t t)
+(multiple-value-list (subtypep '(integer 1 2) '(real (1) 2)))  (nil t)
+
 ;; from GCL ansi-test
 (progn
   (setq *DISJOINT-TYPES-LIST*
