@@ -1,3 +1,12 @@
+2004-07-18  Sam Steingold  <sds@gnu.org>
+
+	invalidate Fpointer instead of making it NULL on close
+	* modules/berkeley-db/bdb.c(object_handle_t): renamed OH_ADDRESS
+	to OH_INVALIDATE
+	(object_handle): invalidate Fpointer on OH_INVALIDATE;
+	(BDB:DB-CLOSE, BDB:CURSOR-CLOSE, BDB:TXN-ABORT, BDB:TXN-COMMIT)
+	(BDB:TXN-DISCARD): use OH_INVALIDATE instead of OH_ADDRESS
+
 2004-06-10  Bruno Haible  <bruno@clisp.org>
 
 	* clos-methcomb2.lisp (build-effective-method-function-form): Add
