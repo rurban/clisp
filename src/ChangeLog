@@ -1,3 +1,7 @@
+2004-05-15  Bruno Haible  <bruno@clisp.org>
+
+	* hashtabl.d (MAKE-HASH-TABLE): Add arguments :KEY-TYPE, :VALUE-TYPE.
+
 2004-05-10  Bruno Haible  <bruno@clisp.org>
 
 	* hashtabl.d (hashcode_raw_user): Renamed from hashcode5.
