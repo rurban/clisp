@@ -1,5 +1,10 @@
 2002-01-05  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (BufferedStream_buffer_address): new macro, use it
+	along with BufferedStream_channel() and BufferedStream_buffer()
+
+2002-01-05  Sam Steingold  <sds@gnu.org>
+
 	some new macros for brevity
 	* pathname.d (WIN32_ERROR_NOT_FOUND) [WIN32_NATIVE]: new macro
 	(check_noname, check_notdir, check_delete_open): new macros
