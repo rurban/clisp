@@ -1,3 +1,11 @@
+1999-02-10  Sam Steingold  <sds@goems.com>
+
+	* spvw.d: added :ANSI-CL and :IEEE-FLOATING-POINT to *features*
+        when invoked with "-a".
+
+	* io.d: when lisp:*ansi* is non-nil, do not print pathnames with
+	#S() when *print-readably* is non-nil.
+
 1999-02-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * unixaux.d (full_read): Call handle_fault_range before the system

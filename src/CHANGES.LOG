@@ -2,6 +2,9 @@
 User visible changes
 --------------------
 
+* When CLISP is invoked with an "-a" option, *features* contain :ANSI-CL
+  and :IEEE-FLOATING-POINT.
+
 * Weak pointers are implemented. New functions MAKE-WEAK-POINTER,
   WEAK-POINTER-P, WEAK-POINTER-VALUE.
 
