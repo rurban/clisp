@@ -2273,7 +2273,7 @@ local void wr_ch_array_str_out (const gcv_object_t* stream_,
                                 uintL start, uintL len) {
   var object ssstring = TheStream(*stream_)->strm_str_out_string; # Semi-Simple-String
   ssstring = ssstring_append_extend(ssstring,*chararray_,start,len);
-  wr_ss_lpos(*stream_,(chart*)&TheS32string(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len); # update Line-Position
+  wr_ss_lpos(*stream_,&TheSnstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],len); # update Line-Position
 }
 
 # Returns a String-Output-Stream.
@@ -2495,7 +2495,7 @@ local void wr_ch_array_pphelp (const gcv_object_t* stream_,
       var uintL count = end-beg;
       var object ssstring = Car(TheStream(*stream_)->strm_pphelp_strings); # Semi-Simple-String
       ssstring = ssstring_append_extend(ssstring,*chararray_,beg,count);
-      if (wr_ss_lpos(*stream_,(chart*)&TheS32string(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],count)) # update Line-Position
+      if (wr_ss_lpos(*stream_,&TheSnstring(TheIarray(ssstring)->data)->data[TheIarray(ssstring)->dims[1]],count)) # update Line-Position
         TheStream(*stream_)->strm_pphelp_modus = T; # After NL: Mode := multi-liner
     }
     if (end == start+len)
