@@ -33,6 +33,6 @@
 (load "clos-slots2")
 (load "clos-class5")
 (setq *classes-finished* t)
-(load "clos-class4")
+(load "clos-print")
 (load "documentation")
 (load "clos-methcomb5")
