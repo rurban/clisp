@@ -692,6 +692,22 @@ if test $cl_cv_host_mips64 = yes; then
   host_cpu=mips64
 fi
     ;;
+dnl UltraSPARCs running Linux have `uname -m` = "sparc64", but the C compiler
+dnl still generates 32-bit code.
+  sparc | sparc64 )
+    AC_CACHE_CHECK([for 64-bit SPARC], cl_cv_host_sparc64, [
+AC_EGREP_CPP(yes,
+[#if defined(__arch64__)
+  yes
+#endif
+], cl_cv_host_sparc64=yes, cl_cv_host_sparc64=no)
+])
+if test $cl_cv_host_sparc64 = yes; then
+  host_cpu=sparc64
+else
+  host_cpu=sparc
+fi
+    ;;
 esac
 dnl was AC_DEFINE_UNQUOTED(__${host_cpu}__) but KAI C++ 3.2d doesn't like this
 cat >> confdefs.h <<EOF
@@ -748,6 +764,22 @@ AC_EGREP_CPP(yes,
 if test $cl_cv_host_mipsn32 = yes; then
   host_cpu=mipsn32
 fi
+fi
+    ;;
+dnl UltraSPARCs running Linux have `uname -m` = "sparc64", but the C compiler
+dnl still generates 32-bit code.
+  sparc | sparc64 )
+    AC_CACHE_CHECK([for 64-bit SPARC], cl_cv_host_sparc64, [
+AC_EGREP_CPP(yes,
+[#if defined(__arch64__)
+  yes
+#endif
+], cl_cv_host_sparc64=yes, cl_cv_host_sparc64=no)
+])
+if test $cl_cv_host_sparc64 = yes; then
+  host_cpu=sparc64
+else
+  host_cpu=sparc
 fi
     ;;
 esac
