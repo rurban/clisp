@@ -46,7 +46,7 @@
     pushSTACK(STACK_3); pushSTACK(NIL); funcall(L(terminal_raw),2); pushSTACK(value1);
     # Stackaufbau: ostream, istream, prompt, command-list, inputstream, raw.
    {var signean status = stream_listen(STACK_4); # horchen
-    if (status<0) goto eof;
+    if (ls_eof_p(status)) goto eof;
     # bereits Zeichen verfügbar (und nicht im ilisp_mode) -> kein Prompt
     if (ilisp_mode || interactive_stream_p(STACK_4))
       { # interaktiver Input-Stream -> Prompt ausgeben:
@@ -111,7 +111,7 @@
       }
       #endif
       #if !defined(TERMINAL_USES_KEYBOARD) # auf dem Atari ging's über Funktionstasten
-      if (status>0) # nur bei interaktivem Input-Stream
+      if (!ls_avail_p(status)) # nur bei interaktivem Input-Stream
         { # Erkennung von Kommandos statt Formen:
           # (multiple-value-bind (line flag) (read-line istream)
           #   (let ((h (assoc line *key-bindings* :test #'string-equal)))
@@ -160,7 +160,7 @@
           pushSTACK(STACK_(4+1)); pushSTACK(STACK_(0+1+1)); funcall(L(terminal_raw),2);
           # wartenden Input bis Zeilenende löschen
           if (interactive_stream_p(STACK_(4+1)))
-            { while (stream_listen(STACK_(4+1)) == 0)
+            { while (ls_avail_p(stream_listen(STACK_(4+1))))
                 { var object ch = peek_char(&STACK_(4+1));
                   if (eq(ch,eof_value))
                     break;
