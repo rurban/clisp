@@ -240,7 +240,7 @@
 <varlistentry><term><literal role="sexp">(BDB:DB-SET-OPTIONS db &key-amp;
       ERRFILE PASSWORD ENCRYPT NCACHE CACHESIZE)</literal></term>
  <listitem><simpara>Call &DB_set_errfile;, &DB_set_encrypt;,
-   &DB_set_cashesize;.</simpara></listitem></varlistentry>
+   &DB_set_cachesize;.</simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:ENV-GET-OPTIONS dbe
    &optional-amp; what)</literal></term>
  <listitem><para>Retrieve some environment options.
