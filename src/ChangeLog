@@ -1,5 +1,14 @@
 1999-01-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Fix a compilation problem on new glibc2 systems.
+        * aclocal.m4 (CL_FPU_CONTROL): Check for fpu_control_t too.
+        * unixconf.h.in (HAVE_FPU_CONTROL_T): New macro.
+        * spvw.d (main): Don't call __setfpucw if the control word can be
+          initialized statically.
+        * unixaux.d: Initialize the control word statically if possible.
+
+1999-01-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (lisplibdir): Change to $(libdir)/clisp.
         * _distmakefile (lisplibdir): Likewise.
         * clisp.spec: Change installation directory.

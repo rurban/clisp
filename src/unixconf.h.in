@@ -267,7 +267,10 @@
 #undef HAVE_SIGVEC
 
 /* CL_FPU_CONTROL */
-/* Define if you have <fpu_control.h> and the __setfpucw() function. */
+/* Define if you have <fpu_control.h> and it defines the fpu_control_t type. */
+#undef HAVE_FPU_CONTROL_T
+/* Define if you have <fpu_control.h> and it declares the __setfpucw()
+   function. */
 #undef HAVE_SETFPUCW
 
 /* CL_ABORT */

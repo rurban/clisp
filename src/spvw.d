@@ -1756,7 +1756,7 @@ local void usage (int exit_code)
           end_system_call();
         }
       #endif
-      #if defined(UNIX_LINUX) && (defined(FAST_FLOAT) || defined(FAST_DOUBLE)) && defined(HAVE_SETFPUCW)
+      #if defined(UNIX_LINUX) && (defined(FAST_FLOAT) || defined(FAST_DOUBLE)) && !defined(HAVE_FPU_CONTROL_T) && defined(HAVE_SETFPUCW)
       # Damit Division durch 0.0 ein NaN und kein SIGFPE liefert.
       __setfpucw(_FPU_IEEE);
       #endif
