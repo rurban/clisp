@@ -203,7 +203,7 @@ while test -z "$endofargs"; do
     # Testing for yes:   test "${with_foo}" != no
     # Testing for no:    test "${with_foo}" = no
     -without-* | --without-* | -with-no* | --with-no*)
-      package=`echol "$1"|sed 's/-*with\(out-\|-no-*\)//'`
+      package=`echol "$1" | sed -e 's/^-*without-//' -e 's/^-*with-no-*//'`
       # Delete all the valid chars; see if any are left.
       if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
         echol "makemake: $package: invalid package name" >&2; exit 1
@@ -214,7 +214,7 @@ while test -z "$endofargs"; do
     -with-* | --with-*)
       package=`echol "$1"|sed 's/-*with-//'`
       case "$package" in
-        *=*) packopt=`echol "${package}" | sed -e 's/^.*=\(.*\)$/\1/'` ;;
+        *=*) packopt=`echol "${package}" | sed -e 's/^[^=]*=//'` ;;
         *) packopt=yes ;;
       esac
       package=`echol "${package}" | sed -e 's/=.*//'`
