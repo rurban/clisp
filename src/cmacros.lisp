@@ -43,13 +43,13 @@
 
 (defun compiler-macro-function (name &optional environment)
   (declare (ignore environment))
-  (check-function-name name 'compiler-macro-function)
+  (setq name (check-function-name name 'compiler-macro-function))
   (if (symbolp name) (get name 'compiler-macro)
       (get (second name) 'compiler-macro-setf)))
 
 (defun (setf compiler-macro-function) (newf name &optional environment)
   (declare (ignore environment))
-  (check-function-name name '(setf compiler-macro-function))
+  (setq name (check-function-name name '(setf compiler-macro-function)))
   (if (symbolp name) (setf (get name 'compiler-macro) newf)
       (setf (get (second name) 'compiler-macro-setf) newf)))
 
