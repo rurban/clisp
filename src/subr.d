@@ -723,9 +723,11 @@ LISPFUN(execute,seclass_default,1,0,norest,nokey,0,NIL)
 #ifdef HAVE_SHELL
 #ifdef WIN32_NATIVE
 LISPFUNN(shell_name,0)
-LISPFUN(launch,seclass_default,1,0,norest,key,6,(kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority)))
-#endif
 LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL)
+#endif
+#endif
+#if defined(UNIX) || defined(WIN32_NATIVE) || defined(RISCOS)
+LISPFUN(launch,seclass_default,1,0,norest,key,6,(kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority)))
 #endif
 LISPFUNN(savemem,1)
 #ifdef DYNAMIC_MODULES
