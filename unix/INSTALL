@@ -178,11 +178,14 @@ some platforms can be found in file unix/PLATFORMS.
    /usr/local/lib/clisp) and the manual page into /usr/local/man/man1.
    You may need superuser privileges for this step when installing into
    public directories.
-   If you built with modules (e.g., ./configure --with-module=regexp)
+   If you built with modules (e.g., ./configure --with-module=rawsock)
    there will be two "linking sets" in /usr/local/lib/clisp/ - "base"
    and "full" (see <http://clisp.cons.org/impnotes.html#modules>).
-   You can chose which liking set to run by using "-K" option of clisp
+   You can chose which linking set to run by using "-K" option of clisp
    (see <http://clisp.cons.org/clisp.html#opt-link-set>)
+   Note that some modules (i18n, regexp and syscalls at this time)
+   are included in the "base" linking set by default,
+   see BASE_MODULES in build-dir/Makefile.
 
 10. If you want other people to benefit from your work, you can make a binary
    distribution of CLISP for your platform which we will distribute.
@@ -204,8 +207,7 @@ some platforms can be found in file unix/PLATFORMS.
 12. If you are lazy and have too few spare neurons to remember this long
     process, just use the shortcut, like I do:
 
-         ./configure --with-module=syscalls --with-module=regexp \
-             --build build-dir
+         ./configure --with-module=rawsock --build build-dir
 
     this covers the build process through step 8.
     You will need to become root to do the install.
