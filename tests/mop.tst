@@ -866,7 +866,7 @@ EXTRA
 (progn
   (defclass typechecking-reader-method (clos:standard-reader-method)
     ())
-  (defmethod initialize-instance ((method standard-reader-method) &rest initargs
+  (defmethod initialize-instance ((method typechecking-reader-method) &rest initargs
                                   &key slot-definition)
     (let ((name (clos:slot-definition-name slot-definition))
           (type (clos:slot-definition-type slot-definition)))
@@ -911,7 +911,7 @@ EXTRA
 (progn
   (defclass typechecking-writer-method (clos:standard-writer-method)
     ())
-  (defmethod initialize-instance ((method standard-writer-method) &rest initargs
+  (defmethod initialize-instance ((method typechecking-writer-method) &rest initargs
                                   &key slot-definition)
     (let ((name (clos:slot-definition-name slot-definition))
           (type (clos:slot-definition-type slot-definition)))
