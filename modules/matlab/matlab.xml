@@ -5,14 +5,13 @@
 <para>This is an interface to the
  <ulink url="&matlab-c-api;apiref.shtml">Matlab C API</ulink>.
  The package <quote role="package">MATLAB</quote> is
- <link linkend="make-pack">case-sensitive</link>, so you would write
+ <link linkend="package-case">case-sensitive</link>, so you would write
  <code>(matlab:engOpen ...)</code>
  when you need to call
  <ulink url="&matlab-c-api;engopen.html"><function>engOpen()</function></ulink>.
 </para>
 
 <para>Additionally, some higher level functionality is available
- (see <filename>modules/matlab/demo.lisp</filename> for sample
- usage)</para>
+ (see <filename>modules/matlab/demo.lisp</filename> for sample usage).</para>
 
 </section>
