@@ -1295,7 +1295,7 @@ typedef signed int  signean;
 # Attention: depending on your implementation my_array is either the array
 # itself or a pointer to the array! Always use my_array only as expression!
 #if defined(GNU)
-  # can deal with dynamically allocated arrays in the maschine stack
+  # can deal with dynamically allocated arrays in the machine stack
   # { var uintL my_array[n]; ... }
   #define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  \
     arrayeltype arrayvar[arraysize]
@@ -1649,32 +1649,32 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
   #define HAVE_DD 0
 #endif
 
-# Other acronyms like 'oint', 'tint', 'aint', 'cint' will be used
-# for the corresponding Integer-types:
-#   Integer type      contains information equivalent to
-#      oint           LISP object
-#      tint           type code of a LISP object
-#      aint           address of a LISP object
-#      cint           LISP character
+/* Other acronyms like 'oint', 'tint', 'aint', 'cint' will be used
+   for the corresponding integer types:
+   Integer type      contains information equivalent to
+      oint           LISP object
+      tint           type code of a LISP object
+      aint           address of a LISP object
+      cint           LISP character
 
-# Usually sizeof(oint) = sizeof(aint) = sizeof(uintL) = 32 Bit.
-# Under the model WIDE sizeof(oint) is > sizeof(uintL).
-# Model WIDE_HARD stands for sizeof(aint) > sizeof(uintL).
-#   This model is to be chosen if the following holds true:
-#   sizeof(void*) > sizeof(uintL) = 32 bit ist. It also requires that
-#   sizeof(long) = sizeof(void*) = 64 bit, because some 64-bit numbers
-#   appear as pre-processor constants.
-# Model WIDE_SOFT stands for sizeof(oint) = 64 bit and sizeof(aint) = 32 bit.
-#   This modell can be chosen on any 32-Bit-Maschine, if the
-#   compiler has 64-bit numbers (in software or hardware). You'll also need to
-#   choose it, if there wouldn't be enough space for the type-bits in a
-#   32-bit pointer.
-# Model NO_TYPECODES stands for sizeof(oint) = sizeof(aint), and only minimal
-#   type information is stored in a pointer. All heap allocated objects
-#   (except conses) must contain the complete type and a length field in the
-#   first word. The heap gets somewhat bigger by this, and type tests require
-#   more memory accesses on average. But this model is portable even to
-#   systems whose memory map looks like Swiss Cheese.
+ Usually sizeof(oint) = sizeof(aint) = sizeof(uintL) = 32 Bit.
+ Under the model WIDE sizeof(oint) is > sizeof(uintL).
+ Model WIDE_HARD stands for sizeof(aint) > sizeof(uintL).
+   This model is to be chosen if the following holds true:
+   sizeof(void*) > sizeof(uintL) = 32 bit ist. It also requires that
+   sizeof(long) = sizeof(void*) = 64 bit, because some 64-bit numbers
+   appear as pre-processor constants.
+ Model WIDE_SOFT stands for sizeof(oint) = 64 bit and sizeof(aint) = 32 bit.
+   This modell can be chosen on any 32-Bit-Machine, if the
+   compiler has 64-bit numbers (in software or hardware).
+   You will also need to choose it, if there would not be enough space
+   for the type-bits in a 32-bit pointer.
+ Model NO_TYPECODES stands for sizeof(oint) = sizeof(aint), and only minimal
+   type information is stored in a pointer. All heap allocated objects
+   (except conses) must contain the complete type and a length field in the
+   first word. The heap gets somewhat bigger by this, and type tests require
+   more memory accesses on average, but this model is portable even to
+   systems whose memory map looks like Swiss Cheese. */
 
 #if defined(WIDE_SOFT) && defined(NO_TYPECODES)
   #error "WIDE and NO_TYPECODES make no sense together, no need for WIDE"
