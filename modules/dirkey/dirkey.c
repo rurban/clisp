@@ -887,31 +887,6 @@ DEFUN(LDAP::DIR-KEY-VALUE-DELETE, key name)
 }
 #undef REG_KEY_DEL
 
-#if defined(UNIX_CYGWIN32)
-/* Cygwin internal in <src/winsup/cygwin/times.cc>
- Convert a Win32 time to "UNIX" format. */
-#define FACTOR (0x19db1ded53ea710LL)
-#define NSPERSEC 10000000LL
-static long to_time_t_ (FILETIME * ptr) {
-  /* A file time is the number of 100ns since jan 1 1601
-     stuffed into two long words.
-     A time_t is the number of seconds since jan 1 1970.  */
-  long rem;
-  long long x =
-    ((long long) ptr->dwHighDateTime << 32) + ((unsigned) ptr->dwLowDateTime);
-  /* pass "no time" as epoch */
-  if (x == 0) return 0;
-  x -= FACTOR;               /* number of 100ns between 1601 and 1970 */
-  rem = x % ((long long) NSPERSEC);
-  rem += (NSPERSEC/2);
-  x /= (long long) NSPERSEC;	/* number of 100ns in a second */
-  x += (long long) (rem/NSPERSEC);
-  return x;
-}
-#undef FACTOR
-#undef NSPERSEC
-#endif
-
 /* return all the info about the key, as 10 values:
  class; class_length;
  num_sub_keys; max_sub_key_length; max_class_length;
