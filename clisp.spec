@@ -88,7 +88,7 @@ EOF
 ## make -f Makefile.devel check-configures
 ./configure --prefix=/usr --fsstnd=redhat --with-module=wildcard \
     --with-module=regexp --with-module=bindings/linuxlibc6 \
-    --with-module=clx/new-clx --with-module=postgresql \
+    --with-module=clx/new-clx --with-module=postgresql642 \
     --with-export-syscalls --build %{clisp_build}
 %install
 cd %{clisp_build}
