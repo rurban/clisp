@@ -13885,7 +13885,8 @@ local void publish_host_data (func)
     if (NULL == (*func)(sk, &hd)) { SOCK_error(); }
     end_system_call();
     skipSTACK(1);
-    if (NULL == hd.truename) value1 = asciz_to_string (hd.truename);
+    if (hd.truename == NULL)
+      value1 = asciz_to_string (hd.hostname);
     else {
       var char* tmp_str = malloc (strlen (hd.truename) + strlen (hd.hostname) + 4);
       strcpy(tmp_str, hd.hostname);
