@@ -60,6 +60,14 @@ document run_all_tests
          run the specified test in the test suite
 end
 
+define ansi_tests
+       run -B . -M lispinit.mem -q -norc -ansi -x '(cd "../../../gcl/ansi-tests/") (load "gclload")'
+end
+document ansi_tests
+         run the gcl/ansi-test suite
+end
+
+
 define stack
        set $idx = $arg1
        while $idx >= $arg0
