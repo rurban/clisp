@@ -11155,7 +11155,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
    #define CHILD_DUP(from,to)                                           \
     if (handle_dup(from,to) == (Handle)-1) {                            \
         fprintf(stderr,"clisp/child: cannot duplicate %d to %d: %s\n",  \
-                from,to,sys_errlist[errno]);                            \
+                from,to,strerror(errno));                               \
         _exit(-1);                                                      \
       }                                                                 \
       if (from>2) close(from)
@@ -11167,12 +11167,12 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
     errno = 0; nice(priority);
     if (errno) {
       fprintf(stderr,"clisp/child: cannot set priority to %d: %s\n",
-              priority,sys_errlist[errno]);
+              priority,strerror(errno));
       _exit(-1);
     }
    #endif
     execvp(*argv,argv);
-    fprintf(stderr,"clisp/child: execvp failed: %s\n",sys_errlist[errno]);
+    fprintf(stderr,"clisp/child: execvp failed: %s\n",strerror(errno));
     _exit(-1);
   } else if (child < 0) {
     /* TODO: FIXME: no easy way to be aware of dup2 or exec failures */
