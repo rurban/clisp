@@ -595,10 +595,10 @@ TYPEDEF struct { uintC count; NODE** path[MAXHEIGHT]; } AVL(AVLID,stack);
 # (inclusive, d.h. Ergebnis = stack->path[stack->count-1] ).
 #ifndef NO_AVL_LEAST
   local NODE* AVL(AVLID,least) (KEY limit, NODE** tree_ptr, AVL(AVLID,stack) * stack);
-  local NODE* AVL(AVLID,least) (limit,tree_ptr,stack)
-    var KEY limit;
-    var NODE** tree_ptr;
-    var AVL(AVLID,stack) * stack; # Ausgabe: Pfad von der Wurzel ab
+  local NODE* AVL(AVLID,least) (
+    var KEY limit,
+    var NODE** tree_ptr,
+    var AVL(AVLID,stack) * stack) # Ausgabe: Pfad von der Wurzel ab
     { var NODE* mark = EMPTY;
       var uintC markdepth = 0;
       var NODE** nodeplace = tree_ptr;
@@ -632,8 +632,8 @@ TYPEDEF struct { uintC count; NODE** path[MAXHEIGHT]; } AVL(AVLID,stack);
 # Setzt ein Element in einem AVL-Baum um, nachdem sich sein Key verändert hat.
 #ifndef NO_AVL_MOVE
   local void AVL(AVLID,move) (AVL(AVLID,stack) * stack);
-  local void AVL(AVLID,move) (stack)
-    var AVL(AVLID,stack) * stack; # Ein kleiner Stack
+  local void AVL(AVLID,move) (
+    var AVL(AVLID,stack) * stack) # Ein kleiner Stack
     { var uintC stack_count = stack->count; # Anzahl der Elemente auf dem Stack
       var NODE** * stack_ptr = &stack->path[stack_count]; # stets = &stack->path[stack_count]
       # 1. Schritt, vgl. AVL(AVLID,delete) :

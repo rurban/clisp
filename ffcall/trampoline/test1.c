@@ -1,7 +1,7 @@
 /* Trampoline test */
 
 /*
- * Copyright 1995 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -18,12 +18,20 @@
 
 static int magic = MAGIC1;
 
+#ifdef __cplusplus
+typedef int (*function)(...);
+#else
 typedef int (*function)();
+#endif
 
 void* function_data;
 
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
+int f (int x)
+#else
 int f (x)
   int x;
+#endif
 { return *(int*)function_data + x; }
 
 int main ()

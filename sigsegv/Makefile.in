@@ -70,13 +70,13 @@ uninstall : force
 	$(RM) $(includedir)/sigsegv.h
 
 test1 : $(srcdir)/test1.c sigsegv.h libsigsegv.a
-	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test1.c libsigsegv.a -o test1
+	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test1.c @GCC_X_NONE@ libsigsegv.a -o test1
 
 test2 : $(srcdir)/test2.c sigsegv.h libsigsegv.a
-	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test2.c libsigsegv.a -o test2
+	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test2.c @GCC_X_NONE@ libsigsegv.a -o test2
 
 test3 : $(srcdir)/test3.c sigsegv.h libsigsegv.a
-	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test3.c libsigsegv.a -o test3
+	$(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test3.c @GCC_X_NONE@ libsigsegv.a -o test3
 
 check : all test1 test2 test3
 	./test1

@@ -94,7 +94,7 @@ tests.s : $(srcdir)/tests.c callback.h vacall_r.h trampoline_r.h
 	$(CC) $(CFLAGS) $(INCLUDES) -S $(srcdir)/tests.c
 
 tests : tests.o vacall_r/libvacall.a trampoline_r/libtrampoline.a
-	$(CC) $(CFLAGS) tests.o vacall_r/libvacall.a trampoline_r/libtrampoline.a -o tests
+	$(CC) $(CFLAGS) @GCC_X_NONE@ tests.o vacall_r/libvacall.a trampoline_r/libtrampoline.a -o tests
 
 check-subdirs : force
 	cd @subdir@; $(MAKE) check

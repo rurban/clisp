@@ -10,15 +10,6 @@
 # Readtable-Funktionen
 # =============================================================================
 
-#ifdef UNICODE
-# inline boolean graphic_char_p (chart ch);
-# see charstrg.d
-  extern const uintB * const unicode_attribute_table[];
-  #define unicode_attribute(c)  \
-    ((unicode_attribute_table[(c)>>10][((c)>>2)&0xFF] >> (((c)&0x3)*2)) & 0x3)
-  #define graphic_char_p(ch)  (!(unicode_attribute(as_cint(ch)) == 0))
-#endif
-
 # Tables indexed by characters.
 # allocate_perchar_table()
 # perchar_table_get(table,c)
@@ -152,9 +143,9 @@
           return (graphic_char_p(c) ? syntax_constituent : syntax_illegal);
       }
     #define syntax_table_put(table,c,value)  \
-      (as_cint(c) < small_char_code_limit                       \
-       ? (TheSbvector(Car(table))->data[as_cint(c)] = (value)) \
-       : syntax_table_put_notinline(table,c,value)             \
+      (as_cint(c) < small_char_code_limit                            \
+       ? (void)(TheSbvector(Car(table))->data[as_cint(c)] = (value)) \
+       : syntax_table_put_notinline(table,c,value)                   \
       )
     local void syntax_table_put_notinline (object table, chart c, uintB value);
     local void syntax_table_put_notinline(table,c,value)

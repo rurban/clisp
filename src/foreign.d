@@ -584,7 +584,12 @@ local void foreign_layout (object fvd);
 local uintL data_size;
 local uintL data_alignment;
 local boolean data_splittable;
+#ifdef __cplusplus
+template <class type> struct alignof_helper { char slot1; type slot2; };
+#define alignof(type)  offsetof(alignof_helper<type>, slot2)
+#else
 #define alignof(type)  offsetof(struct { char slot1; type slot2; }, slot2)
+#endif
 # `struct_alignment' is what gcc calls STRUCTURE_SIZE_BOUNDARY/8.
 # It is = 1 on most machines, but = 2 on MC680X0 and = 4 on ARM.
 #define struct_alignment  sizeof(struct { char slot1; })
@@ -1766,7 +1771,7 @@ local void convert_to_foreign(fvd,obj,data)
               var const chart* ptr1;
               unpack_sstring_alloca(string,len,offset, ptr1=);
              {var uintL bytelen = cslen(O(foreign_encoding),ptr1,len);
-              var char* asciz = converter_malloc(*(char**)data,bytelen+1,1);
+              var char* asciz = (char*)converter_malloc(*(char**)data,bytelen+1,1);
               cstombs(O(foreign_encoding),ptr1,len,(uintB*)asciz,bytelen);
               asciz[bytelen] = '\0';
               *(char**)data = asciz;

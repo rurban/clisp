@@ -1,5 +1,5 @@
 /*
- * Copyright 1993-1998 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1993-1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -13,6 +13,11 @@
 #include <stdlib.h>
 #ifdef _WIN32
 #include <malloc.h>
+#endif
+
+/* C++ doesn't allow us to define a function called `delete'. */
+#ifdef __cplusplus
+#define delete my_delete
 #endif
 
 /*

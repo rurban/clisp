@@ -8,6 +8,26 @@
         * configure: Don't configure in readline subdir if compiling
           in C++ mode.
 
+        * utils/modprep.d: Define `inline' to empty when compiling with
+          "gcc -ansi -pedantic".
+          (String_equalsIgnoreCase): Don't use `isascii', it is not portable.
+
+        * io.d (unicode_attribute, graphic_char_p): Remove the macros. The
+          global definition in charstrg.d is sufficient.
+          (syntax_table_put): Cast one branch of the conditional expression
+          to void, to make this valid C++.
+
+        * stream.d (host_data_fetcher): New type.
+          (publish_host_data): Adjust declaration, for increased type safety.
+
+        * charstrg.d (string_search): Change for being valid C++.
+
+        * foreign.d (alignof): Provide alternate definition, valid C++.
+          (convert_to_foreign): Cast converter_malloc result to char*.
+
+        * avl.d (AVL(AVLID,least), AVL(AVLID,move)): Change K&R C declaration
+          into ANSI C declaration.
+
 1999-03-14  Sam Steingold  <sds@gnu.org>
 
 	* stream.d: removed `stream_fd';

@@ -15198,9 +15198,10 @@ LISPFUNN(socket_stream_host,1)
 extern host_data * socket_getpeername (SOCKET socket_handle, host_data * hd);
 extern host_data * socket_getlocalname (SOCKET socket_handle, host_data * hd);
 
-local void publish_host_data (host_data * (*func)());
+typedef host_data * host_data_fetcher (SOCKET, host_data *);
+local void publish_host_data (host_data_fetcher* func);
 local void publish_host_data (func)
-  var host_data * (*func)();
+  var host_data_fetcher* func;
   {
     var object stream = test_socket_stream(popSTACK(),TRUE);
     var SOCKET sk = TheSocket(TheStream(stream)->strm_ichannel);
