@@ -11,8 +11,8 @@
 (require 'cl)                   ; `subst'
 
 (defvar d-font-lock-extra-types
-  '(nconc (list "bool" "object" "chart" "[otac]int" "signean" "u?int[LB0-9]*"
-           "Values")
+  '(nconc (list "bool" "object" "chart" "[otac]int" "signean"
+           "[su]?int[LB0-9]*" "Values")
     c-font-lock-extra-types)
   "Extra types to be fontified as such.")
 
