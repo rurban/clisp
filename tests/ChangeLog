@@ -1,4 +1,9 @@
-1999-03-16    Sam Steingold  <sds@gnu.org>
+1999-04-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * hash.tst: Move hash-table-iterator test to alltest.tst.
+        * alltest.tst (test-hash-table-iterator): Moved to here.
+
+1999-03-16  Sam Steingold  <sds@gnu.org>
 
 	* hash.tst: added `test-hash-table-iterator'.
 	* pack11.tst: added `test-package-iterator'.
