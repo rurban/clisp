@@ -2206,7 +2206,7 @@ echol "stdbool.h : ${SRCDIR}stdbool.h.in"
 if [ $TOS = unix ] ; then
   echotab "sed -e 's/@''HAVE__BOOL''@/@HAVE__BOOL@/g' < ${SRCDIR}stdbool.h.in > stdbool.h"
 else
-  if [ $HOS = win32 ] ; then 
+  if [ $HOS = win32 ] ; then
     echotab "sed -e \"s/@HAVE__BOOL@/0/g\" < ${SRCDIR}stdbool.h.in > stdbool.h"
   else
     echotab "sed -e 's/@''HAVE__BOOL''@/0/g' < ${SRCDIR}stdbool.h.in > stdbool.h"
@@ -2721,12 +2721,12 @@ for f in $LPARTS ; do
 done
 
 if [ -n "$USE_GETTEXT" ] ; then
-  localeflags=' -B . -N locale'
+  localeflags='-B . -N locale'
 else
-  localeflags=' -B .'
+  localeflags='-B .'
 fi
-
-echol "RUN= ${HERE}lisp${LEXE}$localeflags -E UTF-8 -norc";
+encflags='-Efile UTF-8 -Eterminal UTF-8'
+echol "RUN= ${HERE}lisp${LEXE} ${localeflags} ${encflags} -norc";
 echol;
 
 if [ $CROSS = false ] ; then
@@ -2768,7 +2768,7 @@ else
 
   for f in $LPARTS ; do
     echol "${f}.fas : ${f}.lisp"
-    echotab 'clisp -M cross.mem$localeflags -E UTF-8 -norc -q -x "(cross:compile-file \"'"${f}.lisp"'\")"'
+    echotab 'clisp -M cross.mem ${localeflags} ${encflags} -norc -q -x "(cross:compile-file \"'"${f}.lisp"'\")"'
     echol
   done
 
@@ -2814,11 +2814,11 @@ fi
 echol
 
 if [ -n "$USE_GETTEXT" ] ; then
-  localeflags=' -B `pwd` -N '"${HERE_}locale"
+  localeflags='-B `pwd` -N '"${HERE_}locale"
 else
-  localeflags=' -B `pwd`'
+  localeflags='-B `pwd`'
 fi
-CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem$localeflags -E UTF-8 -norc"
+CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem ${localeflags} ${encflags} -norc"
 
 if [ $CROSS = false ] ; then
 
@@ -3180,9 +3180,6 @@ if [ $CROSS = false ] ; then
     # echotab "strip \$(DESTDIR)\$(lisplibdir)/base/lisp${LEXE}"
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd po && \$(MAKE) install prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
-      localeflags=" -B \$(lisplibdir) -N \$(localedir)"
-    else
-      localeflags=" -B \$(lisplibdir)"
     fi
     echotab_mkdir_maybe "\$(DESTDIR)\$(bindir)"
     echotab "\$(CC) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(DESTDIR)\$(bindir)/clisp"
