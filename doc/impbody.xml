@@ -3412,7 +3412,7 @@ printed readably.</para>
    <entry>filename with type (extension)</entry></row>
 </tbody></tgroup></table>
 
-<para>Name and type may be character sequences of any &length;
+<para>Name and type may be &string-t;s of any &length;
  (consisting of alphanumeric characters and &file-dash;,
  <filename>"_"</filename>).  They are shortened to 8 (respectively 3)
  characters and converted to upper case.  A single &file-star; is
@@ -3438,7 +3438,7 @@ printed readably.</para>
    <entry>filename with type (extension)</entry></row>
 </tbody></tgroup></table>
 
-<para>Name and type may be character sequences of any &length;
+<para>Name and type may be &string-t;s of any &length;
  (consisting of printing &ascii; characters, except &file-slash;).</para>
 </listitem></varlistentry>
 <!-- #endif -->
@@ -3456,7 +3456,7 @@ printed readably.</para>
    <entry>filename with type (extension)</entry></row>
 </tbody></tgroup></table>
 
-<para>Name and type may be character sequences of any &length;
+<para>Name and type may be &string-t;s of any &length;
  (consisting of printing &ascii; characters, except &file-slash;,
  &file-bsla;, &file-colon;).</para></listitem></varlistentry>
 <!-- #endif -->
@@ -3481,9 +3481,8 @@ printed readably.</para>
 <listitem><simpara>The function &user-homedir-pathname; is not implemented.
 </simpara></listitem></varlistentry>
 <!-- #if defined(MSDOS) -->
-
 <varlistentry><term>Platform dependent: &dos;, &os2; platforms only.</term>
-<listitem><para>If you really need that function, you might define it
+<listitem><para>If you really need that function, you can define it
     like this:
 <programlisting>
 (defun user-homedir-pathname (&optional-amp; host)
