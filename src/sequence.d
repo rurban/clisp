@@ -4123,16 +4123,12 @@ LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
       { var uintL start = posfixnum_to_L(STACK_2);
         var uintL end = posfixnum_to_L(STACK_1);
         var uintL index = 0;
-        var object dv = iarray_displace_check(STACK_4,end,&index);
-        var uintB* byteptr = &TheSbvector(TheIarray(dv)->data)->data[index];
-        # Ab byteptr kommen end Bytes.
-        # Versuche, eine optimierte Lese-Routine aufzurufen:
-        var uintB* endptr = read_byte_array(STACK_3,&byteptr[start],end-start);
-        if (!(endptr==NULL))
-          { value1 = fixnum(endptr-byteptr); mv_count=1;
-            skipSTACK(5);
-            return;
-      }   }
+        STACK_0 = iarray_displace_check(STACK_4,end,&index);
+       {var uintL result = read_byte_array(&STACK_3,&STACK_0,index+start,end-start);
+        value1 = fixnum(result); mv_count=1;
+        skipSTACK(5);
+        return;
+      }}
     # Durchlauf-Pointer bestimmen:
     pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
     funcall(seq_init_start(STACK_(0+2)),2); # (SEQ-INIT-START sequence start)
