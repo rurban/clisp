@@ -661,10 +661,11 @@
             }
           case_symbol:
             if (marked(TheSymbol(obj))) # markiert?
-              if (eq(Symbol_package(obj),NIL)) # uninterniertes Symbol?
-                goto m_schon_da; # ja -> war schon da, merken
-                else
-                goto m_end; # nein -> war zwar schon da, aber unberücksichtigt lassen
+              { if (eq(Symbol_package(obj),NIL)) # uninterniertes Symbol?
+                  goto m_schon_da; # ja -> war schon da, merken
+                  else
+                  goto m_end; # nein -> war zwar schon da, aber unberücksichtigt lassen
+              }
             # bisher unmarkiertes Symbol
             mark(TheSymbol(obj)); # markieren
             goto m_end;

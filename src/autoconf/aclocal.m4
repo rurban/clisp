@@ -4158,20 +4158,29 @@ main ()
                  y = z-1;
                  z++;
                } while ((z < N) && legal[z]);
-            { int need_and = 0;
-              if (x > 0) { printf("(ch >= %d)",x); need_and = 1; }
-              if (y < N-1)
-                { if (need_and) printf(" && ");
-                  printf("(ch <= %d)",y);
-                  need_and = 1;
-                }
+            { int premises = 0;
+              if (x > 0) premises++;
+              if (y < N-1) premises++;
               for (i = x; i <= y; i++)
                 if (! legal[i])
+                  premises++;
+              if (premises > 1) printf("(");
+              { int need_and = 0;
+                if (x > 0) { printf("(ch >= %d)",x); need_and = 1; }
+                if (y < N-1)
                   { if (need_and) printf(" && ");
-                    printf("(ch != %d)",i);
+                    printf("(ch <= %d)",y);
                     need_and = 1;
                   }
-              if (!need_and) printf("1");
+                for (i = x; i <= y; i++)
+                  if (! legal[i])
+                    { if (need_and) printf(" && ");
+                      printf("(ch != %d)",i);
+                      need_and = 1;
+                    }
+                if (!need_and) printf("1");
+              }
+              if (premises > 1) printf(")");
             }
             z = y+1;
           }
@@ -4194,7 +4203,7 @@ rm -rf conftest*
 if test -z "$cl_cv_os_valid_filename_char"; then
   cl_cv_os_valid_filename_charset="guessing 7-bit"
 else
-  if test "$cl_cv_os_valid_filename_char" = '(ch >= 1) && (ch != 47)'; then
+  if test "$cl_cv_os_valid_filename_char" = '((ch >= 1) && (ch != 47))'; then
     cl_cv_os_valid_filename_charset="8-bit"
   else
     cl_cv_os_valid_filename_charset="7-bit"
