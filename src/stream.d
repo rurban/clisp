@@ -5425,7 +5425,7 @@ local uintL wr_by_array_iau8_unbuffered (const gcv_object_t* stream_,
                                         uintL start, uintL len, bool no_hang) {
   object stream = *stream_;
   uintB* startp = &TheSbvector(*bytearray_)->data[start];
-  uintB* endp =
+  const uintB* endp =
     UnbufferedStreamLow_write_array(stream)(stream,startp,len,no_hang);
   return (endp - startp);
 }
@@ -6132,12 +6132,11 @@ local uintB* buffered_nextbyte (object stream, bool no_hang) {
     if (BufferedStream_blockpositioning(stream)
         || (TheStream(stream)->strmflags & strmflags_rd_B)) {
       result = BufferedStreamLow_fill(stream)(stream,no_hang);
-     if (errno == EAGAIN){
-        // never executes printf("buffered_nextbyte returning -1\n");
-        return -1; /* hang case */
-        }
+     if (errno == EAGAIN) {
+        /* FIXME: never executes printf("buffered_nextbyte returning -1\n");*/
+        return (uintB*)-1; /* hang case */
       }
-    else
+    } else
       result = 0;
     BufferedStream_index(stream) = index = 0;
     BufferedStream_modified(stream) = false;
