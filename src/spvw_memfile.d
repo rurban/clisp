@@ -782,14 +782,11 @@
       end_system_call();
       loadmem_from_handle(handle);
       return;
-     abort1:
-      {
-        var int abort_errno = errno;
+     abort1: {
+        var int abort_errno = OS_errno;
         asciz_out(program_name); asciz_out(": ");
-        asciz_out_s(
-          GETTEXTL("operating system error during load of initialization file `%s'" NLstring),
-          filename
-          );
+        asciz_out_s(GETTEXTL("operating system error during load of initialization file `%s'" NLstring),
+                    filename);
         errno_out(abort_errno);
       }
       goto abort_quit;

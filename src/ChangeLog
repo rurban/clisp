@@ -1,3 +1,8 @@
+2002-04-04  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 538748 ]: OS_errno lost before error reporting
+	* spvw_memfile.d (loadmem): use OS_errno instead of errno
+
 2002-04-02  Sam Steingold  <sds@gnu.org>
 
 	* clhs.lisp (*browsers*): added mozilla and links and various
