@@ -1,5 +1,6 @@
 ;;; Case-Sensitive Packages for CLISP
 ;;; Bruno Haible 2004-07-14
+;;; Sam Steingold 2005
 
 (in-package "SYSTEM")
 
@@ -19,3 +20,4 @@
 
 ;; #<PACKAGE CS-COMMON-LISP-USER> is default case-sensitive user package.
 (use-package '("CS-COMMON-LISP" "EXT") "CS-COMMON-LISP-USER")
+(pushnew "CS-COMMON-LISP" custom:*system-package-list* :test #'string=)
