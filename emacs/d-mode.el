@@ -66,6 +66,12 @@ The point should be on the prototype and the definition should follow."
     (goto-char beg)
     (c-indent-region beg (progn (forward-sexp 3) (point)))))
 
+(defun d-mode-wrap-do-while ()
+  "Wrap this block in do/while(0) [for CPP macros]."
+  (interactive)
+  (insert "do") (just-one-space) (forward-sexp 1) (just-one-space)
+  (insert "while(0)"))
+
 (defun d-mode-indent-sharp (s-element)
   "Check whether a macro or a comment and indent accordingly."
   (save-excursion (back-to-indentation) (if (looking-at "# ") 0 [0])))
