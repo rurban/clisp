@@ -32,6 +32,7 @@ User visible changes
 
 * CUSTOM:*SOURCE-FILE-TYPES* and CUSTOM:*COMPILED-FILE-TYPES*
   now contain strings, not pathnames.
+  See <http://clisp.cons.org/impnotes.html#loadfile> for details.
 
 * When configured with --with-export-syscalls, a new function
   POSIX:STREAM-LOCK provides an interface to flock(2).
