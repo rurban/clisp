@@ -95,7 +95,7 @@
             ; Some methods are known a-priori to not use the next-method list.
             fast-func))
         ; Slow method function calling conventions.
-        (let ((slow-func (std-method-function method)))
+        (let ((slow-func (method-function method)))
           #'(lambda (&rest args)
               (funcall slow-func args next-methods-list)))))
     nil))
@@ -417,7 +417,7 @@
                   (PROGN
                     (UNLESS (EVERY #'CALLABLE-METHOD-FORM-P NEXT-METHODS-LIST)
                       (CALL-METHOD-ARG2ELEMENTS-ERROR WHOLE))
-                    (LIST 'FUNCALL (LIST 'QUOTE (STD-METHOD-FUNCTION METHOD))
+                    (LIST 'FUNCALL (LIST 'QUOTE (METHOD-FUNCTION METHOD))
                       ',(cons (ecase apply-fun (APPLY 'LIST*) (FUNCALL 'LIST))
                               apply-args)
                       (LIST* 'LIST

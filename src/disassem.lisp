@@ -19,6 +19,8 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
            (declare (ignore junk))
            (disassemble-machine-code
             (sys::program-name) (sys::program-id) nil object))
+  (:method ((object method) &key &allow-other-keys)
+    (disassemble (method-function object)))
   (:method ((object clos::standard-method) &key &allow-other-keys)
     (disassemble (or (clos::std-method-fast-function object)
                      (clos::std-method-function object)))
