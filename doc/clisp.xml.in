@@ -14,7 +14,9 @@
   <!ENTITY lf "<replaceable>lisp-file</replaceable>">
   <!ENTITY lld "<replaceable>lisp-lib-dir</replaceable>">
   <!ENTITY rt "<link linkend='runtime'>runtime</link>">
+  <!ENTITY exprs "<replaceable>expressions</replaceable>">
   <!ENTITY opt-c "<option><link linkend='opt-compile'>-c</link></option>">
+  <!ENTITY opt-x "<option><link linkend='opt-exec-expr'>-x</link></option>">
   <!ENTITY config-lisp "<link linkend='config-file'><filename>config.lisp</filename></link>">
 ]>
 
@@ -44,9 +46,7 @@
 <refpurpose>ANSI Common Lisp compiler, interpreter and debugger.</refpurpose>
 </refnamediv>
 
-<refsynopsisdiv>
-<cmdsynopsis>
-<command>clisp</command>
+<refsynopsisdiv><cmdsynopsis>&clisp-cmd;
 <group><arg><option><link linkend="opt-help">-h</link></option></arg>
  <arg><option><link linkend="opt-help">--help</link></option></arg></group>
 <arg><option><link linkend="opt-version">--version</link></option></arg>
@@ -93,7 +93,7 @@
  <arg><option><link linkend="opt-out">-o</link>
    <replaceable>output-file</replaceable></option></arg></arg>
 <arg rep="repeat"><option><link linkend="opt-exec-expr">-x
-   <replaceable>expressions</replaceable></link></option></arg>
+   &exprs;</link></option></arg>
 <arg><option><link linkend="opt-exec-file">&lf;</link></option>
  <arg rep="repeat"><option><link linkend="opt-exec-file"
                                  >&arg-r;</link></option></arg></arg>
@@ -317,18 +317,16 @@ compiles the specified lisp files to a platform-independent
 <varlistentry id="opt-interactive-debug">
  <term><option>-interactive-debug</option></term>
  <listitem><simpara>Override the batch mode imposed by
-   &opt-c;, <option><link linkend="opt-exec-expr">-x</link></option>,
-   and <link linkend="opt-exec-file">&lf;</link>: &cont-err;s are still
-   turned into &warning-t;s (and, in case of &assert;, you are
-   immeditely asked for new values), but other &error-t;s are handled
-   interactively.
+   &opt-c;, &opt-x;, and <link linkend="opt-exec-file">&lf;</link>:
+   &cont-err;s are still turned into &warning-t;s (and, in case of
+   &assert;, you are immeditely asked for new values), but other
+   &error-t;s are handled interactively.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-repl"><term><option>-repl</option></term>
  <listitem><simpara>Start an interactive &repl; after processing the
-   &opt-c;, <option><link linkend="opt-exec-expr">-x</link></option>,
-   and <link linkend="opt-exec-file">&lf;</link> options and on any
-   &error-t; &signal;ed during that processing.
+   &opt-c;, &opt-x;, and <link linkend="opt-exec-file">&lf;</link>
+   options and on any &error-t; &signal;ed during that processing.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-wait"><term><option>-w</option></term>
@@ -357,8 +355,7 @@ compiles the specified lisp files to a platform-independent
 
 <varlistentry id="opt-traditional"><term><option>-traditional</option></term>
  <listitem><simpara>Traditional: reverses the residual effects of
-   <option><link linkend="opt-ansi">-ansi</link></option>
-   in the saved &mem-image;.</simpara></listitem></varlistentry>
+   &ansi-opt; in the saved &mem-image;.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-pack"><term><option>-p</option> &pack-r;</term>
  <listitem><simpara>At startup the value of the variable &package-var;
@@ -412,29 +409,26 @@ compiles the specified lisp files to a platform-independent
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-list"><term><option>-l</option></term>
- <listitem><simpara>A bytecode &disassemble; listing
-   (<filename>*.lis</filename>)
-   of the files being compiled will be produced.
-   Useful only for debugging purposes.
+ <listitem><simpara>Produce a bytecode &disassemble; listing
+   (<filename>*.lis</filename>) of the files being compiled.
+   Useful only for debugging.
    See <olink targetdoc="impnotes" targetptr="compilefile"/> for details.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="opt-exec-expr"><term><option>-x</option>
-  <replaceable>expressions</replaceable></term>
+<varlistentry id="opt-exec-expr"><term><option>-x</option> &exprs;</term>
  <listitem><simpara>Executes a series of arbitrary expressions instead
    of a &repl;.
    The values of the expressions will be output to &standard-output-var;.
-   Due to the argument processing done by the shell,
-   the <replaceable>expressions</replaceable> must be enclosed in double
-   quotes, and double quotes and backslashes must be escaped with
-   backslashes.</simpara></listitem></varlistentry>
+   Due to the argument processing done by the shell, the &exprs; must be
+   enclosed in double quotes, and double quotes and backslashes must be
+   escaped with backslashes.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-exec-file"><term>&lf; [ &arg-r; ... ]</term>
  <listitem><simpara>Loads and executes a &lf;, as described in
    <olink targetdoc="impnotes" targetptr="script-exec"/>.
    There will be no &repl;.
-   Before &lf; is loaded, the variable <varname>*ARGS*</varname>
-   will be bound to a list of strings, representing the &arg-r;s.
+   Before &lf; is loaded, the variable &args; will be bound to a list of
+   strings, representing the &arg-r;s.
 <!-- #ifdef UNIX -->
    The first line of &lf; may start with <command>#!</command>,
    thus permitting &clisp; to be used as a script interpreter.
@@ -443,9 +437,8 @@ compiles the specified lisp files to a platform-independent
    the &standard-input-var; is used instead of a file.
    If &lf; is the empty string <command>""</command>
    or <command>"--"</command>, the normal &repl; is
-   entered, and the rest of the arguments is still available
-   in <varname>*ARGS*</varname>, for parsing by the
-   &init-function; of the current image.
+   entered, and the rest of the arguments is still available in &args;,
+   for parsing by the &init-function; of the current image.
    This option must be the last one.
    No &RC-file; will be executed.
 </simpara></listitem></varlistentry>
