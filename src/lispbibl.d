@@ -13866,8 +13866,9 @@ extern object make_pphelp_stream (void);
 # UP: Tells whether a stream is buffered.
 # stream_isbuffered(stream)
 # > stream: a channel or socket stream
-# < result: true if stream is buffered, else false
-extern bool stream_isbuffered (object stream);
+# < result: bit(1) set if input side is buffered,
+#           bit(0) set if output side is buffered
+extern uintB stream_isbuffered (object stream);
 # is used by IO
 
 # UP: Returns the current line number of a stream.

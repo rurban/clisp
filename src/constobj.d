@@ -586,8 +586,12 @@
   LISPOBJ_S(printstring_input,"INPUT ")
   LISPOBJ_S(printstring_output,"OUTPUT ")
   LISPOBJ_S(printstring_io,"IO ")
-  LISPOBJ_S(printstring_buffered,"BUFFERED ")
-  LISPOBJ_S(printstring_unbuffered,"UNBUFFERED ")
+  # Buffering mode, addressed by
+  # (bit(1) if input-buffered) | (bit(0) if output-buffered).
+  LISPOBJ_S(printstring_buffered_00,"UNBUFFERED ")
+  LISPOBJ_S(printstring_buffered_01,"OUTPUT-BUFFERED ")
+  LISPOBJ_S(printstring_buffered_10,"INPUT-BUFFERED ")
+  LISPOBJ_S(printstring_buffered_11,"BUFFERED ")
     # name-string for each streamtype, addressed by streamtype:
     LISPOBJ_S(printstring_strmtype_synonym,"SYNONYM")
     LISPOBJ_S(printstring_strmtype_broad,"BROADCAST")
