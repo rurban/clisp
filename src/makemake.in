@@ -2942,7 +2942,7 @@ for f in $TXT_FILES ; do
     line=$line" | sed -e 's,=\"${HSDEFAULT}/,=\"${hyperspec}/,'"
   fi
   if [ $f = distmakefile ] ; then
-    line=$line" | (libs=''; for f in modules.o lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in modules.o ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
+    line=$line" | (libs=''; for f in modules.o lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in modules.o ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed_escape_commas='s/,/\\\\,/g' ; libs=\`echo \"\$\$libs\" | sed -e \"\$\$sed_escape_commas\"\` ; sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
   fi
   echotabpipe "${line} > ${f}"
   echotab "\$(RM) txt.c"
@@ -3278,7 +3278,7 @@ if test -n "$BINARY_DISTRIB"; then
 fi
 # The Makefile, generated from distmakefile.
 if test -z "$BINARY_DISTRIB"; then
-  echotab ". full/makevars ; full_files='' ; for f in modules.o \$\$FILES ; do full_files=\"\$\$full_files\"' full/'\"\$\$f\" ; done ; full_libs='' ; for f in modules.o \$\$LIBS ; do case \$\$f in -*) full_libs=\"\$\$full_libs \$\$f\";; *) full_libs=\"\$\$full_libs\"' full/'\"\$\$f\";; esac ; done ; sed -e \"s,@@FULL_FILES@@,\$\$full_files,\" -e \"s,@@FULL_LIBS@@,\$\$full_libs,\" < distmakefile > \$(TOPDIR)/Makefile"
+  echotab ". full/makevars ; full_files='' ; for f in modules.o \$\$FILES ; do full_files=\"\$\$full_files\"' full/'\"\$\$f\" ; done ; full_libs='' ; for f in modules.o \$\$LIBS ; do case \$\$f in -*) full_libs=\"\$\$full_libs \$\$f\";; *) full_libs=\"\$\$full_libs\"' full/'\"\$\$f\";; esac ; done ; sed_escape_commas='s/,/\\\\,/g' ; full_libs=\`echo \"\$\$full_libs\" | sed -e \"\$\$sed_escape_commas\"\` ; sed -e \"s,@@FULL_FILES@@,\$\$full_files,\" -e \"s,@@FULL_LIBS@@,\$\$full_libs,\" < distmakefile > \$(TOPDIR)/Makefile"
 else
   echotab "${HLN} distmakefile \$(TOPDIR)/Makefile"
 fi
