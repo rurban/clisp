@@ -12,6 +12,48 @@
 </para>
 
 <para>Additionally, some higher level functionality is available
- (see <filename>modules/matlab/demo.lisp</filename> for sample usage).</para>
+ (see <filename>modules/matlab/test.tst</filename> for sample usage):</para>
+
+<formalpara id="matlab-matfile-content">
+ <title><code>(matfile-content mf)</code></title>
+<para>Return a &vector-t; of &string-t;s naming the variables
+ in file <replaceable>mf</replaceable>
+ (opened using <function>matOpen</function>).</para></formalpara>
+
+<formalpara id="matlab-command"><title><varname>*commane*</varname></title>
+<para>The default argument to <function>engOpen</function>.</para></formalpara>
+<formalpara id="matlab-engine-v"><title><varname>*engine*</varname></title>
+<para>The currrently open Matlab engine.</para></formalpara>
+<formalpara id="matlab-engine-f"><title><code>(engine)</code></title>
+<para>Make sure <varname>*engine*</varname> is valid and return it.
+</para></formalpara>
+<formalpara id="matlab-with-engine"><title><code>(with-engine
+   (&optional-amp; engine command) &body-amp; &body-r;)</code></title>
+<para>Run the body wuth the <replaceable>engine</replaceable> bound to
+ a Matlab engine (default <varname>*engine*</varname>).</para></formalpara>
+<formalpara id="matlab-with-MATfile"><title><code>(with-MATfile (file
+   name &optional-amp; mode) &body-amp; &body-r;)</code></title>
+<para>Open the matlab file, do the &body-r;.</para></formalpara>
+<formalpara id="copy-lisp-to-mxArray"><title><code>(copy-lisp-to-mxArray
+   lisp-array &optional-amp; matlab-matrix)</code></title>
+<para>Copy data from the 2-dimensional lisp array to the Matlab matrix.
+</para></formalpara>
+<formalpara id="copy-lisp-to-matlab"><title><code>(copy-lisp-to-matlab
+   lisp-array matlab-variable &key-amp; engine)</code></title>
+<para>Copy the 2-dimensional lisp array to the Matlab variable
+ (a &string-t;) in the supplied engine
+ (defaults to <varname>*engine*</varname>).</para></formalpara>
+<formalpara id="copy-mxArray-to-lisp"><title><code>(copy-mxArray-to-lisp
+   matlab-matrix &optional-amp; lisp-array)</code></title>
+<para>Copy the matlab matrix to the 2-dimensional lisp array
+ (created anew or re-used if supplied).</para></formalpara>
+<formalpara id="copy-matlab-to-lisp"><title><code>(copy-matlab-to-lisp
+   matlab-variable &optional-amp; lisp-array &key-amp; engine)</code></title>
+<para>Copy data from the matlab variable to the 2-dimensional lisp array
+ (created anew or re-used if supplied).</para></formalpara>
+<formalpara id="matlab-invert-matrix"><title><code>(invert-matrix
+   lisp-array &key-amp; engine)</code></title>
+<para>Invert the lisp matrix using the specified engine.</para></formalpara>
+
 
 </section>
