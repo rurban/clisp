@@ -514,7 +514,7 @@ global object read_byte (object stream) {
 # > object bytearray: simple-8bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be filled
 # > uintL len: length of byte sequence to be filled
-# > bool no_hang: don't block (return #bytes read)
+# > bool no_hang: don't block, return already after partial read
 # < uintL result: number of bytes that have been filled
 # can trigger GC
 global uintL read_byte_array (const gcv_object_t* stream_,
@@ -566,7 +566,8 @@ global void write_byte (object stream, object byte) {
 # > object bytearray: simple-8bit-vector (on the STACK)
 # > uintL start: start index of byte sequence to be written
 # > uintL len: length of byte sequence to be written
-# > bool no_hang: don't block, return #bytes written
+# > bool no_hang: don't block, return already after partial write
+# < uintL result: number of bytes that have been written
 global uintL write_byte_array (const gcv_object_t* stream_,
                               const gcv_object_t* bytearray_,
                               uintL start, uintL len, bool no_hang) {
@@ -1091,11 +1092,10 @@ local void wr_by_synonym (object stream, object obj) {
 local uintL wr_by_array_synonym (const gcv_object_t* stream_,
                                 const gcv_object_t* bytearray_,
                                 uintL start, uintL len, bool no_hang) {
-  int result;
   check_SP(); check_STACK();
   var object symbol = TheStream(*stream_)->strm_synonym_symbol;
   pushSTACK(get_synonym_stream(symbol));
-  result = write_byte_array(&STACK_0,bytearray_,start,len,no_hang);
+  var uintL result = write_byte_array(&STACK_0,bytearray_,start,len,no_hang);
   skipSTACK(1);
   return result;
 }
@@ -1334,7 +1334,7 @@ local uintL wr_by_array_broad (const gcv_object_t* stream_, const gcv_object_t* 
                               uintL start, uintL len, bool no_hang) {
   /* what happens if different streams write different amounts?
      no_hang not supported for broadcast streams */
-  if(no_hang){
+  if (no_hang) {
     fehler_illegal_streamop(S(write_byte_sequence),*stream_);
   }
   check_SP(); check_STACK();
@@ -1761,10 +1761,9 @@ local void wr_by_twoway (object stream, object obj) {
 local uintL wr_by_array_twoway (const gcv_object_t* stream_,
                                const gcv_object_t* bytearray_,
                                uintL start, uintL len, bool no_hang) {
-  int result;
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_twoway_output);
-  result = write_byte_array(&STACK_0,bytearray_,start,len,no_hang);
+  var uintL result = write_byte_array(&STACK_0,bytearray_,start,len,no_hang);
   skipSTACK(1);
   return result;
 }
@@ -4565,8 +4564,10 @@ local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
       b = UnbufferedStream_bytebuf(stream)[0];
 #endif
 
-local inline uintB* UnbufferedStream_pop_all
-(object stream, uintB* byteptr, uintL *len)
+/* Pop at most *len bytes from stream's bytebuf and store them at byteptr.
+   Returns the increased byteptr and decrements *len accordingly. */
+local inline uintB* UnbufferedStream_pop_all (object stream,
+                                              uintB* byteptr, uintL *len)
 { /* pop bytebuf into byteptr */
   while (UnbufferedStream_status(stream) > 0) { /* have valid bytes? */
     UnbufferedStreamLow_pop_byte(stream,b);
@@ -5371,8 +5372,10 @@ local void low_write_unbuffered_handle (object stream, uintB b) {
     fehler_unwritable(TheSubr(subr_self)->name,stream);
 }
 
-local const uintB* low_write_array_unbuffered_handle
-(object stream, const uintB* byteptr, uintL len, bool no_hang) {
+local const uintB* low_write_array_unbuffered_handle (object stream,
+                                                      const uintB* byteptr,
+                                                      uintL len,
+                                                      bool no_hang) {
   var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
   begin_system_call();
   var sintL result = write_helper(handle,byteptr,len,no_hang);
@@ -6127,7 +6130,7 @@ local void buffered_flush (object stream) {
  > no_hang: do not block
  < result : 0 = EOF (the next byte can be written, not read)
             -1 = would block (only if no_hang, next byte cannot yet
-	         be read or written)
+                 be read or written)
             else Pointer to the next Byte (can be read or written)
  changed in stream: index, endvalid, have_eof_p, buffstart */
 local uintB* buffered_nextbyte (object stream, bool no_hang) {
@@ -13699,8 +13702,9 @@ local void low_write_unbuffered_pipe (object stream, uintB b) {
     fehler_unwritable(TheSubr(subr_self)->name,stream);
 }
 
-local const uintB* low_write_array_unbuffered_pipe
-(object stream, const uintB* byteptr, uintL len, bool no_hang) {
+local const uintB* low_write_array_unbuffered_pipe (object stream,
+                                                    const uintB* byteptr,
+                                                    uintL len, bool no_hang) {
   var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
   begin_system_call();
   writing_to_subprocess = true;
