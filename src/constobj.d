@@ -586,6 +586,7 @@
  #ifdef LOGICAL_PATHNAMES
   LISPOBJ(type_logical_pathname,"(OR LOGICAL-PATHNAME STRING STREAM SYMBOL)")
  #endif
+  LISPOBJ(type_builtin_stream,"(SATISFIES SYSTEM::BUILT-IN-STREAM-P)")
 # zu PATHNAME.D:
   LISPOBJ(type_designator_pathname,"(OR STRING FILE-STREAM PATHNAME)")
  #ifdef LOGICAL_PATHNAMES
@@ -695,6 +696,7 @@
   LISPOBJ(type_input_stream,"(SATISFIES INPUT-STREAM-P)") # Typ für Fehlermeldung
   LISPOBJ(type_output_stream,"(SATISFIES OUTPUT-STREAM-P)") # Typ für Fehlermeldung
   LISPOBJ(type_string_with_fill_pointer,"(AND STRING (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # Typ für Fehlermeldung
+  LISPOBJ(setf_stream_element_type,"(SETF STREAM-ELEMENT-TYPE)")
   LISPOBJ(type_read_char_status,"(MEMBER :EOF :INPUT-AVAILABLE :WAIT)")
   LISPOBJ(type_endianness,"(MEMBER :LITTLE :BIG)") # Typ für Fehlermeldung
   LISPOBJ(type_open_file_stream,"(AND FILE-STREAM (SATISFIES OPEN-STREAM-P))") # Typ für Fehlermeldung

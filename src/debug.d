@@ -424,7 +424,7 @@ LISPFUNN(load,1)
           else
           { eval_noenv(obj); } # sonstige Form evaluieren
       }
-    stream_close(&STACK_0); # stream schlieﬂen
+    builtin_stream_close(&STACK_0); # stream schlieﬂen
     skipSTACK(1); value1 = T; mv_count=1; # Wert T
   }
 

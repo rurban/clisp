@@ -135,8 +135,9 @@
     _(make_string_input_stream), _(string_input_stream_index),
     _(make_string_output_stream), _(get_output_stream_string),
     _(make_string_push_stream), _(string_stream_p), _(input_stream_p),
-    _(output_stream_p), _(stream_element_type), _(stream_external_format),
-    _(close), _(read_byte), _(write_byte), _(file_position), _(file_length),
+    _(output_stream_p), _(built_in_stream_element_type),
+    _(stream_external_format), _(built_in_stream_close), _(read_byte),
+    _(write_byte), _(file_position), _(file_length),
     # SYMBOL : 15 SUBRs
     _(putd), _(proclaim_constant), _(get), _(getf), _(get_properties),
     _(putplist), _(put), _(remprop), _(symbol_package), _(symbol_plist),

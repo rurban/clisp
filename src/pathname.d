@@ -7680,7 +7680,7 @@ LISPFUNN(delete_file,1)
         # Streamtyp File-Stream.
         # Falls Datei geöffnet, erst Datei schließen:
         if (TheStream(stream)->strmflags & strmflags_open_B) # Datei geöffnet ?
-          { pushSTACK(stream); stream_close(&STACK_0); stream = popSTACK(); }
+          { pushSTACK(stream); builtin_stream_close(&STACK_0); stream = popSTACK(); }
         # Dann den Truename als zu löschende Datei nehmen:
         pathname = TheStream(stream)->strm_file_truename;
       }

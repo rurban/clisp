@@ -11932,16 +11932,16 @@ extern object stream_fd (object stream);
 # wird verwendet von DEBUG
 
 # UP: Schließt einen Stream.
-# stream_close(&stream);
-# > stream: Stream
-# < stream: Stream
+# builtin_stream_close(&stream);
+# > stream: Builtin-Stream
+# < stream: Builtin-Stream
 # can trigger GC
-  extern void stream_close (const object* stream_);
+  extern void builtin_stream_close (const object* stream_);
 # wird verwendet von PATHNAME, SPVW, DEBUG, MISC
 
 # UP: Schließt eine Liste offener Files.
 # close_some_files(list);
-# > list: Liste von offenen Streams
+# > list: Liste von offenen Builtin-Streams
 # can trigger GC
   extern void close_some_files (object list);
 # wird verwendet von SPVW
