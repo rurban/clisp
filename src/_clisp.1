@@ -9,6 +9,14 @@ clisp \- Common Lisp language interpreter and compiler
 .B clisp
 [
 .B -h
+|
+.B --help
+]
+[
+.B --version
+]
+[
+.B --license
 ]
 [
 .B -m
@@ -57,6 +65,10 @@ clisp \- Common Lisp language interpreter and compiler
 ]
 [
 .B -q
+|
+.B --quiet
+|
+.B --silent
 ]
 [
 .B -w
@@ -87,6 +99,9 @@ clisp \- Common Lisp language interpreter and compiler
 .I packagename
 ]
 [
+.B -a
+]
+[
 .B -x
 .I expression
 ]
@@ -113,9 +128,20 @@ executed more efficiently.
 .SH OPTIONS
 
 .TP
-.B -h
+.BR -h ", " --help 
 Displays a help message on how to use
 .BR clisp .
+
+.TP
+.B --version
+Displays the
+.B clisp
+version number, as given by the function call
+.IR "(lisp-implementation-version)" .
+
+.TP
+.B --license
+Displays a summary of the licensing information, the GNU GPL.
 
 .TP
 .BI "-m " memsize
@@ -252,7 +278,7 @@ Specifies the language
 .B clisp
 uses to communicate with the user. This may be
 #ifndef GNU_GETTEXT
-.BR english ", " deutsch ", " francais .
+.BR english .
 #endif
 #ifdef GNU_GETTEXT
 .BR english ", " deutsch ", " francais ", " espanol .
@@ -266,7 +292,7 @@ provided the corresponding message catalog is installed.
 Specifies the base directory of locale files.
 .B clisp
 will search its message catalogs in
-.IR localedir / language /LC_MESSAGES/clisp. ext .
+.IR localedir / language /LC_MESSAGES/clisp.mo.
 
 .TP
 .BI -E "domain encoding"
@@ -296,7 +322,7 @@ affecting
 .BR *misc-encoding* .
 
 .TP
-.B -q
+.BR -q ", " --quiet ", " --silent
 Quiet:
 .B clisp
 displays no banner at startup and no good-bye message when quitting.
@@ -307,9 +333,10 @@ Wait for keypress after program termination.
 
 .TP
 .B -I
-ILISP friendly:
+Be ILISP friendly. ILISP is an alternative Emacs interface to Common Lisp
+systems. With this option,
 .B clisp
-interacts in a way that ILISP (a popular Emacs LISP interface) can deal with.
+interacts in a way that ILISP can deal with.
 Currently the only effect of this is that unnecessary prompts are not
 suppressed.
 #ifdef GNU_READLINE
@@ -332,13 +359,15 @@ execution.
 .BI "-i " "initfile ..."
 Specifies initialization files to be
 .IR load ed
-at startup. These should be lisp files (source or compiled).
+at startup. These should be lisp files (source or compiled). Several
+.B -i
+options can be given; all the specified files will be loaded in order.
 
 .TP
 .BI "-c " "lispfile ..."
 Compiles the specified
 .IR lispfile s
-to bytecode. The compiled files can then be
+to bytecode (*.fas). The compiled files can then be
 .IR load ed
 instead of the sources to gain efficiency.
 
@@ -350,8 +379,10 @@ specified
 
 .TP
 .B -l
-A bytecode listing of the files being compiled will be produced.
-Useful only for debugging purposes.
+A bytecode listing (*.lis) of the files being compiled will be produced.
+Useful only for debugging purposes. See the documentation of
+.I "compile-file"
+for details.
 
 .TP
 .BI "-p " packagename
@@ -359,12 +390,27 @@ At startup the value of the variable
 .I *package*
 will be set to the package named
 .IR packagename .
+The default is the package which was active when the image was saved, normally
+.BR USER ,
+or
+.B COMMON-LISP-USER
+if the option
+.B -a
+was specified.
 
 .TP
 .B -a
 ANSI CL compliant: Comply with the ANSI CL specification even on those issues
 where ANSI CL is broken. This option is provided for maximum portability of
-Lisp programs. It is not useful for actual everyday work.
+Lisp programs, and is not useful for actual everyday work. It sets the variable
+.I *package*
+to
+.BR COMMON-LISP-USER ,
+and the symbol macro
+.I *ansi*
+to
+.BR t .
+See impnotes.html, section "Maximum ANSI CL compliance", for details.
 
 .TP
 .BI "-x " expressions
