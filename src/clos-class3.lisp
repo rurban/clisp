@@ -236,7 +236,7 @@
                                 ,@(when writers `(:WRITERS ',writers))
                                 ,@(when (eq allocation ':class) `(:ALLOCATION :CLASS))
                                 ,@(when initargs `(:INITARGS ',(nreverse initargs)))
-                                ,@(when initform `(:INITFORM ',initform :INITFUNCTION ,initfunction))
+                                ,@(when initform `(:INITFORM ,initform :INITFUNCTION ,initfunction))
                                 ,@(when types `(:TYPE ',(first types)))
                                 ,@(when documentation `(:DOCUMENTATION ',documentation))
                                 ,@(when user-defined-args

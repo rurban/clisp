@@ -1,3 +1,8 @@
+2004-10-16  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class3.lisp (defclass): Remove a level of quoting for the slot
+	initforms.
+
 2004-10-14  Bruno Haible  <bruno@clisp.org>
 
 	* describe.lisp (describe-object@t): Handle the weak-list,
