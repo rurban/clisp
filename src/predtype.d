@@ -1938,10 +1938,11 @@ LISPFUN(find_class,1,2,norest,nokey,0,NIL)
     skipSTACK(3);
   }
 
-# UP: expand all DEFTYPE definitions in the type spec (recursively)
+# UP: expand all DEFTYPE definitions in the type spec
+# (recursively, unless once_p is true)
 # > type_spec: Lisp object
 # < result: the expansion (when not a deftyped type, returns the argument)
-extern object expand_deftype (object type_spec) {
+extern object expand_deftype (object type_spec, bool once_p) {
  start:
   if (symbolp(type_spec)) { # (GET type-spec 'DEFTYPE-EXPANDER)
     var object expander = get(type_spec,S(deftype_expander));
@@ -1953,21 +1954,30 @@ extern object expand_deftype (object type_spec) {
       Car(new_cons) = popSTACK(); # new_cons = (list type-spec)
       pushSTACK(new_cons); funcall(expander,1); # call expander
       type_spec = value1; # use the return value as the new type-spec
-      goto start;
+      if (!once_p) goto start;
     }
   } else if (mconsp(type_spec)) { # (GET (CAR type-spec) 'DEFTYPE-EXPANDER)
     var object expander = get(Car(type_spec),S(deftype_expander));
     if (!eq(expander,unbound)) {
       pushSTACK(type_spec); funcall(expander,1); # call expander
       type_spec = value1; # use the return value as the new type-spec
-      goto start;
+      if (!once_p) goto start;
     }
   }
   return type_spec;
 }
 
-LISPFUNN(expand_deftype,1) # (SYS::EXPAND-DEFTYPE type-spec)
-{ value1 = expand_deftype(popSTACK()); mv_count = 1; }
+LISPFUN(expand_deftype,1,1,norest,nokey,0,NIL)
+# (SYS::EXPAND-DEFTYPE type-spec &optional once-p)
+#   ==> expanded, user-defined-p
+{
+  var object once_p = popSTACK();
+  value1 = expand_deftype(STACK_0,(eq(once_p,unbound) || eq(once_p,NIL) ?
+                                   false : true));
+  value2 = (eq(STACK_0,value1) ? NIL : T);
+  skipSTACK(1);
+  mv_count = 2;
+}
 
 LISPFUNN(coerce,2)
 # (COERCE object result-type), CLTL S. 51
@@ -2010,6 +2020,7 @@ LISPFUNN(coerce,2)
      return_object:
       value1 = STACK_1; mv_count=1; skipSTACK(2); return;
     }
+    STACK_0 = expand_deftype(STACK_0,false);
     # stack layout: object, result-type.
     if (matomp(STACK_0)) {
       if (!symbolp(STACK_0)) goto fehler_type;
