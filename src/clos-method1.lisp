@@ -167,6 +167,12 @@
   (unless (typep wants-next-method-p 'boolean)
     (error (TEXT "(~S ~S): The ~S argument should be a NIL or T, not ~S")
            'initialize-instance 'standard-method 'wants-next-method-p  wants-next-method-p))
+  (when function-p
+    ;; :function overrides fast-function and wants-next-method-p, because it is
+    ;; the standardized way (employed by user-defined method classes) to define
+    ;; the behaviour of a method.
+    (setq fast-function nil
+          wants-next-method-p t))
   ; Check the documentation.
   (unless (or (null documentation) (stringp documentation))
     (error (TEXT "(~S ~S): The ~S argument should be a string or NIL, not ~S")

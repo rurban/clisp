@@ -1,5 +1,10 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	* clos-method1.lisp (initialize-instance-<standard-method>): Ignore
+	fast-function if :function was specified.
+
+2004-10-10  Bruno Haible  <bruno@clisp.org>
+
 	Support for custom method classes not inheriting from STANDARD-METHOD.
 	* clos-class3.lisp (install-class-direct-accessors): Create method
 	in two steps. Pass fast-function instead of initfunction initarg,
