@@ -1,3 +1,10 @@
+2003-02-04  Sam Steingold  <sds@gnu.org>
+
+	* array.d (bit_up): fixed a GC-safety bug: allocation invalidates
+	dimptr (a pointer inside an Iarray structure) [this bug have
+	never triggered before because, as the 2003-01-31 indicates, this
+	code has never been used since it was written!]
+
 2003-02-04  Hoehle, Joerg-Cyril  <Joerg-Cyril.Hoehle@t-systems.com>
 	    Sam Steingold  <sds@gnu.org>
 
