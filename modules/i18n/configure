@@ -2728,8 +2728,7 @@ done
 
 
 
-
-for ac_header in locale.h langinfo.h
+for ac_header in langinfo.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -2880,8 +2879,7 @@ done
 
 
 
-
-for ac_func in setlocale nl_langinfo localeconv
+for ac_func in nl_langinfo localeconv
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
