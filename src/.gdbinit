@@ -23,7 +23,7 @@ define interpreted
        file lisp.run
        set args -B . -M interpreted.mem -q -norc
 end
-document base
+document interpreted
          debug the base linking set with the interpreted memory image
 end
 
@@ -47,9 +47,16 @@ document xout
 end
 
 define run_test
-       run -B . -M lispinit.mem -q -norc -i suite/tests.lisp -x '(run-test "suite/'$arg0'.tst")'
+       run -B . -M lispinit.mem -q -norc -C -i suite/tests.lisp -x '(run-test "suite/'$arg0'.tst")'
 end
 document run_test
+         run the specified test in the test suite
+end
+
+define run_all_tests
+       run -B . -M lispinit.mem -q -norc -C -i suite/tests.lisp -x '(cd "suite/") (run-all-tests)'
+end
+document run_all_tests
          run the specified test in the test suite
 end
 
