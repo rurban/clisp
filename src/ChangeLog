@@ -1,3 +1,8 @@
+2001-11-08  Sam Steingold  <sds@gnu.org>
+
+	* defs1.lisp (load-lpt-many): evaluate the definition for
+	AllegroCL compatibility
+
 2001-11-07  Sam Steingold  <sds@gnu.org>
 
 	Support CMUCL- and AllegroCL-style logical host loading
