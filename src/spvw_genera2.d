@@ -14,7 +14,7 @@
 #ifdef GENERATIONAL_GC
 
 local void gc_mark_at (gcv_object_t* ptr) {
-  GC_MARK(*ptr);
+  gc_mark(*ptr);
 }
 
 local void gc_mark_old_generation (void) {
@@ -40,7 +40,7 @@ local void gc_mark_old_generation (void) {
               if (count > 0) {
                 var old_new_pointer_t* ptr = physpage->cache;
                 dotimespL(count,count, {
-                  GC_MARK(ptr->o); ptr++;
+                  gc_mark(ptr->o); ptr++;
                 });
               }
             } else { # mark the entire page-content:
