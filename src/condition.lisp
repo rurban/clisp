@@ -679,6 +679,8 @@
   (interactive #'default-restart-interactive)
                    ; function used to gather additional data from the user
                    ; before invoking the restart
+  (meaningfulp t)  ; whether it makes sense to invoke this restart without
+                   ; prior corrective action
 )
 #| ; We could also define it as a CLOS class:
  (clos:defclass restart ()
@@ -691,7 +693,9 @@
   (report          :initarg :report          :reader restart-report
                    :initform nil)
   (interactive     :initarg :interactive     :reader restart-interactive
-                   :initform #'default-restart-interactive))
+                   :initform #'default-restart-interactive)
+  (meaningfulp     :initarg :meaningfulp     :reader restart-meaningfulp
+                   :initform t))
 |#
 
 ;; Printing restarts
@@ -706,7 +710,7 @@
 
 ;; Expands to the equivalent of `(MAKE-RESTART :NAME name ...)
 ;; but makes intelligent use of the defaults to reduce code size.
-(defun make-restart-form (name test invoke-tag invoke-function report interactive)
+(defun make-restart-form (name test invoke-tag invoke-function report interactive meaningfulp)
   `(MAKE-RESTART
      :NAME ,name
      ,@(if (not (equal test '(FUNCTION DEFAULT-RESTART-TEST)))
@@ -717,7 +721,9 @@
      ,@(if (not (equal report 'NIL))
          `(:REPORT ,report))
      ,@(if (not (equal interactive '(FUNCTION DEFAULT-RESTART-INTERACTIVE)))
-         `(:INTERACTIVE ,interactive))))
+         `(:INTERACTIVE ,interactive))
+     ,@(if (not (equal meaningfulp 'T))
+         `(:MEANINGFULP ,meaningfulp))))
 
 ;; The list of active restarts.
 (defvar *active-restarts* nil) ; ABI
@@ -864,8 +870,9 @@
                                'restart-bind spec))
                            (apply #'(lambda (name function
                                              &key (test-function '(FUNCTION DEFAULT-RESTART-TEST))
-                                             (interactive-function '(FUNCTION DEFAULT-RESTART-INTERACTIVE))
-                                             (report-function 'NIL))
+                                                  (interactive-function '(FUNCTION DEFAULT-RESTART-INTERACTIVE))
+                                                  (report-function 'NIL)
+                                                  ((meaningfulp meaningfulp) 'T))
                                       (when (and (null name) (eq report-function 'NIL))
                                         ;; CLtL2 p. 906: "It is an error if an unnamed restart is used
                                         ;; and no report information is provided."
@@ -875,9 +882,13 @@
                                           (TEXT "~S: unnamed restarts require ~S to be specified: ~S")
                                           'restart-bind ':REPORT-FUNCTION spec))
                                       (make-restart-form
-                                       `',name test-function
-                                       'NIL function report-function
-                                       interactive-function))
+                                        `',name
+                                        test-function
+                                        'NIL
+                                        function
+                                        report-function
+                                        interactive-function
+                                        meaningfulp))
                                   spec))
                        restart-specs)
              *ACTIVE-RESTARTS*)))
@@ -939,11 +950,12 @@
                       :detail clause
                       (TEXT "~S: missing lambda list in restart specification ~S")
                       caller clause))
-                  (multiple-value-bind (test interactive report)
+                  (multiple-value-bind (test interactive report meaningfulp)
                       (apply #'(lambda (&key (test 'DEFAULT-RESTART-TEST)
-                                        (interactive 'DEFAULT-RESTART-INTERACTIVE)
-                                        (report 'DEFAULT-RESTART-REPORT))
-                                 (values test interactive report))
+                                             (interactive 'DEFAULT-RESTART-INTERACTIVE)
+                                             (report 'DEFAULT-RESTART-REPORT)
+                                             ((meaningfulp meaningfulp) 'T))
+                                 (values test interactive report meaningfulp))
                              (nreverse keywords))
                     (when (and (null name) (eq report 'DEFAULT-RESTART-REPORT))
                       ;; CLtL2 p. 906: "It is an error if an unnamed restart
@@ -959,7 +971,7 @@
                       ;; interactive function that will prompt for them.
                       (warn (TEXT "~S: restart cannot be invoked interactively because it is missing a ~S option: ~S")
                             caller ':INTERACTIVE restart-clause))
-                    `(,(gensym) ,name ,test ,interactive ,report
+                    `(,(gensym) ,name ,test ,interactive ,report ,meaningfulp
                        ,arglist ,@clause))))
             restart-clauses))
           (blockname (gensym))
@@ -983,20 +995,24 @@
                                        (name (second xclause))
                                        (test (third xclause))
                                        (interactive (fourth xclause))
-                                       (report (fifth xclause)))
+                                       (report (fifth xclause))
+                                       (meaningfulp (sixth xclause)))
                                    (make-restart-form
-                                    `',name `(FUNCTION ,test) 'NIL
-                                    `(FUNCTION (LAMBDA (&REST ARGUMENTS)
-                                       (SETQ ,arglistvar ARGUMENTS)
-                                       (GO ,tag)))
-                                    (if (eq report 'DEFAULT-RESTART-REPORT)
-                                      `NIL
-                                      `(FUNCTION
-                                        ,(if (stringp report)
-                                           `(LAMBDA (STREAM)
-                                              (WRITE-STRING ,report STREAM))
-                                           report)))
-                                    `(FUNCTION ,interactive))))
+                                     `',name
+                                     `(FUNCTION ,test)
+                                     'NIL
+                                     `(FUNCTION (LAMBDA (&REST ARGUMENTS)
+                                        (SETQ ,arglistvar ARGUMENTS)
+                                        (GO ,tag)))
+                                     (if (eq report 'DEFAULT-RESTART-REPORT)
+                                       `NIL
+                                       `(FUNCTION
+                                          ,(if (stringp report)
+                                             `(LAMBDA (STREAM)
+                                                (WRITE-STRING ,report STREAM))
+                                             report)))
+                                     `(FUNCTION ,interactive)
+                                     meaningfulp)))
                              xclauses))
                     (form `(RETURN-FROM ,blockname ,form)))
                  `(LET* ,(if associate
@@ -1032,7 +1048,7 @@
                        form)))
              ,@(mapcap #'(lambda (xclause)
                            (let ((tag (first xclause))
-                                 (lambdabody (cdddr (cddr xclause))))
+                                 (lambdabody (cddddr (cddr xclause))))
                              `(,tag
                                (RETURN-FROM ,blockname
                                  (APPLY (FUNCTION (LAMBDA ,@lambdabody))
@@ -1163,10 +1179,6 @@
       :interactive (lambda () (prompt-for-new-value place place-numvalues))
       (new-value) (funcall place-setter new-value))))
 
-;; this is the same as `default-restart-interactive' but it must
-;; be kept a separate object for the benefit of `appease-cerrors'
-(defun assert-restart-no-prompts () nil) ; ABI
-
 ;; ASSERT, CLtL2 p. 891
 (defmacro assert (test-form &optional (place-list nil) (datum nil) &rest args
                   &environment env)
@@ -1230,9 +1242,10 @@
         "~A" error-string)
       (apply #'error condition-datum+args)) ; use coerce-to-condition??
     ;; Only one restart: CONTINUE.
+    ;; But mark it as not meaningful, because it leads to user frustration.
     (CONTINUE
       :REPORT (lambda (stream) (format stream (report-no-new-value-string)))
-      :INTERACTIVE assert-restart-no-prompts
+      MEANINGFULP nil
       ())))
 
 (defun correctable-error (options condition)
@@ -1280,7 +1293,6 @@
                    :name 'RETRY
                    :report (lambda (stream)
                              (format stream (report-no-new-value-string)))
-                   :interactive #'assert-restart-no-prompts
                    :invoke-function
                      (lambda ()
                        (return-from check-value (values nil 0))))))
@@ -1303,7 +1315,6 @@
                    :report (lambda (out)
                              (format out (TEXT "try calling ~S again")
                                      (function-name function)))
-                   :interactive assert-restart-no-prompts
                    () (return-from retry-function-call
                         (apply function arguments)))
                   (return
@@ -1588,34 +1599,34 @@ Todo:
 (defun maybe-continue (condition report-p)
   (let ((restart (find-restart 'CONTINUE condition)))
     (when restart
-      (let ((res-int (restart-interactive restart)))
-        (case (and res-int (closure-name res-int))
-          ((assert-restart-no-prompts)
-           (if (interactive-stream-p *debug-io*)
-             (invoke-debugger condition)
-             (exitunconditionally condition)))
-          ((assert-restart-prompt) ; prompt for new values
-           (if (interactive-stream-p *debug-io*)
-             (progn
-               (fresh-line *error-output*)
-               (write-string "** - " *error-output*)
-               (write-string (TEXT "Continuable Error") *error-output*)
-               (terpri *error-output*)
-               (pretty-print-condition condition *error-output* :text-indent 5)
-               (elastic-newline *error-output*)
-               (invoke-restart-interactively restart))
-             (exitunconditionally condition)))
-          (otherwise            ; general automatic error handling
-           (when report-p
-             (warn "~A" (with-output-to-string (stream)
-                          (print-condition condition stream)
-                          (let ((report-function (restart-report restart)))
-                            (when report-function
-                              (terpri stream)
-                              (funcall report-function stream))))))
-           (if (restart-interactive restart)
-             (invoke-restart-interactively restart)
-             (invoke-restart restart))))))))
+      (if (restart-meaningfulp restart)
+        (let ((res-int (restart-interactive restart)))
+          (case (and res-int (closure-name res-int))
+            ((assert-restart-prompt) ; prompt for new values
+             (if (interactive-stream-p *debug-io*)
+               (progn
+                 (fresh-line *error-output*)
+                 (write-string "** - " *error-output*)
+                 (write-string (TEXT "Continuable Error") *error-output*)
+                 (terpri *error-output*)
+                 (pretty-print-condition condition *error-output* :text-indent 5)
+                 (elastic-newline *error-output*)
+                 (invoke-restart-interactively restart))
+               (exitunconditionally condition)))
+            (otherwise            ; general automatic error handling
+             (when report-p
+               (warn "~A" (with-output-to-string (stream)
+                            (print-condition condition stream)
+                            (let ((report-function (restart-report restart)))
+                              (when report-function
+                                (terpri stream)
+                                (funcall report-function stream))))))
+             (if (restart-interactive restart)
+               (invoke-restart-interactively restart)
+               (invoke-restart restart)))))
+        (if (interactive-stream-p *debug-io*)
+          (invoke-debugger condition)
+          (exitunconditionally condition))))))
 
 (defun muffle-cerror (condition) (maybe-continue condition nil)) ; ABI
 (defmacro muffle-cerrors (&body body)
