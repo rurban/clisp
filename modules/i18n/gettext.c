@@ -13,7 +13,9 @@
 #include "clisp.h"
 #include "config.h"
 
-#include <string.h>             /* strncpy() */
+#if HAVE_STRING_H
+# include <string.h>             /* strncpy() */
+#endif
 #if defined(HAVE_LOCALE_H)
 # include <locale.h>
 #endif
@@ -242,6 +244,162 @@ DEFUN(I18N:SET-LOCALE, &optional category locale)
 }
 #endif
 
+#if defined(HAVE_LOCALECONV)
+static void thousands_sep_to_STACK (char* sep1000) {
+  int ii;
+  for (ii=0; sep1000[ii]; ii++) pushSTACK(fixnum(sep1000[ii]));
+  pushSTACK(Fixnum_0); value1 = vectorof(ii+1); pushSTACK(value1);
+}
+#if !defined(CHAR_MAX)
+# define CHAR_MAX 127
+#endif
+static object bool_char_lconv(char val) {
+  switch (val) {
+    case 0: return NIL;
+    case 1: return T;
+    case CHAR_MAX: return S(Kunspecific);
+    default: NOTREACHED;
+  }
+}
+static object int_char_lconv(char val) {
+  switch (val) {
+    case CHAR_MAX: return S(Kunspecific);
+    default: return fixnum(val);
+  }
+}
+DEFUN(I18N:LOCALE-CONV,)
+{ /* call localeconv(3) */
+  struct lconv *lc;
+  begin_system_call(); lc = localeconv(); end_system_call();
+  pushSTACK(asciz_to_string(lc->decimal_point,Symbol_value(S(utf_8))));
+  pushSTACK(asciz_to_string(lc->thousands_sep,Symbol_value(S(utf_8))));
+  thousands_sep_to_STACK(lc->grouping);
+  pushSTACK(asciz_to_string(lc->int_curr_symbol,Symbol_value(S(utf_8))));
+  pushSTACK(asciz_to_string(lc->currency_symbol,Symbol_value(S(utf_8))));
+  pushSTACK(asciz_to_string(lc->mon_decimal_point,Symbol_value(S(utf_8))));
+  pushSTACK(asciz_to_string(lc->mon_thousands_sep,Symbol_value(S(utf_8))));
+  thousands_sep_to_STACK(lc->mon_grouping);
+  pushSTACK(asciz_to_string(lc->positive_sign,Symbol_value(S(utf_8))));
+  pushSTACK(asciz_to_string(lc->negative_sign,Symbol_value(S(utf_8))));
+  pushSTACK(int_char_lconv(lc->int_frac_digits));
+  pushSTACK(int_char_lconv(lc->frac_digits));
+  pushSTACK(bool_char_lconv(lc->p_cs_precedes));
+  pushSTACK(bool_char_lconv(lc->p_sep_by_space));
+  pushSTACK(bool_char_lconv(lc->n_cs_precedes));
+  pushSTACK(bool_char_lconv(lc->n_sep_by_space));
+  pushSTACK(bool_char_lconv(lc->p_sign_posn));
+  pushSTACK(bool_char_lconv(lc->n_sign_posn));
+#if HAVE_STRUCT_LCONV_INT_P_CS_PRECEDES
+  pushSTACK(bool_char_lconv(lc->int_p_cs_precedes));
+#else
+  pushSTACK(S(Kunspecific));
+#endif
+#if HAVE_STRUCT_LCONV_INT_N_CS_PRECEDES
+  pushSTACK(bool_char_lconv(lc->int_n_cs_precedes));
+#else
+  pushSTACK(S(Kunspecific));
+#endif
+#if HAVE_STRUCT_LCONV_INT_P_SEP_BY_SPACE
+  pushSTACK(bool_char_lconv(lc->int_p_sep_by_space));
+#else
+  pushSTACK(S(Kunspecific));
+#endif
+#if HAVE_STRUCT_LCONV_INT_N_SEP_BY_SPACE
+  pushSTACK(bool_char_lconv(lc->int_n_sep_by_space));
+#else
+  pushSTACK(S(Kunspecific));
+#endif
+#if HAVE_STRUCT_LCONV_INT_P_SIGN_POSN
+  pushSTACK(bool_char_lconv(lc->int_p_sign_posn));
+#else
+  pushSTACK(S(Kunspecific));
+#endif
+#if HAVE_STRUCT_LCONV_INT_N_SIGN_POSN
+  pushSTACK(bool_char_lconv(lc->int_n_sign_posn));
+#else
+  pushSTACK(S(Kunspecific));
+#endif
+  funcall(`I18N::MK-LOCALE-CONV`,24);
+}
+#elif defined(WIN32_NATIVE)
+# define GET_LOCALE_INFO_BUF_SIZE 256
+static void get_locale_info (int what, char**res, int *res_size) {
+  int val = GetLocaleInfo(LOCALE_SYSTEM_DEFAULT,what|LOCALE_USE_CP_ACP,
+                          *res,*res_size);
+  if (val == 0) OS_error();
+  if (val > *res_size) {
+    *res = realloc(*res,val);
+    if (*res == NULL) OS_error();
+    *res_size = val;
+    GetLocaleInfo(LOCALE_SYSTEM_DEFAULT,what|LOCALE_USE_CP_ACP,
+                  *res,*res_size);
+  }
+}
+static void thousands_sep_to_STACK (int what, char** gres, int* res_size) {
+  /* "1;2;3" ==> #(1 2 3) */
+  int start = 0, end = 0, count = 0, ret, limit;
+  char *res;
+  begin_system_call();
+  get_locale_info(what,gres,res_size);
+  end_system_call();
+  res = *gres; limit = *res_size;
+  while (res[end] && (end < limit)) {
+    while (res[end] && (res[end] != ';') && (end < limit)) end++;
+    begin_system_call(); ret = atoi(res+start); end_system_call();
+    pushSTACK(fixnum(ret)); count++;
+    if (!res[end]) break;
+    start = ++end;
+  }
+  value1 = vectorof(count); pushSTACK(value1);
+}
+static void locale_string_to_STACK (int what, char**res, int* res_size) {
+  begin_system_call(); get_locale_info(what,res,res_size);
+  end_system_call(); pushSTACK(asciz_to_string(*res,Symbol_value(S(utf_8))));
+}
+static void locale_int_to_STACK (int what, char**res, int* res_size) {
+  int val;
+  begin_system_call(); get_locale_info(what,res,res_size);
+  val = atoi(*res); end_system_call(); pushSTACK(fixnum(val));
+}
+static void locale_bool_to_STACK (int what, char**res, int* res_size) {
+  int val;
+  begin_system_call(); get_locale_info(what,res,res_size);
+  val = atoi(*res); end_system_call(); pushSTACK(val ? T : NIL);
+}
+DEFUN(I18N:LOCALE-CONV,)
+{ /* call GetLocaleInfo(3) */
+  int res_size = GET_LOCALE_INFO_BUF_SIZE;
+  char *res;
+  begin_system_call(); res = malloc(res_size); end_system_call();
+  locale_string_to_STACK(LOCALE_SDECIMAL,&res,&res_size);
+  locale_string_to_STACK(LOCALE_STHOUSAND,&res,&res_size);
+  thousands_sep_to_STACK(LOCALE_SGROUPING,&res,&res_size);
+  locale_string_to_STACK(LOCALE_SINTLSYMBOL,&res,&res_size);
+  locale_string_to_STACK(LOCALE_SCURRENCY,&res,&res_size);
+  locale_string_to_STACK(LOCALE_SMONDECIMALSEP,&res,&res_size);
+  locale_string_to_STACK(LOCALE_SMONTHOUSANDSEP,&res,&res_size);
+  thousands_sep_to_STACK(LOCALE_SMONGROUPING,&res,&res_size);
+  locale_string_to_STACK(LOCALE_SPOSITIVESIGN,&res,&res_size);
+  locale_string_to_STACK(LOCALE_SNEGATIVESIGN,&res,&res_size);
+  locale_int_to_STACK(LOCALE_IINTLCURRDIGITS,&res,&res_size);
+  locale_int_to_STACK(LOCALE_ICURRDIGITS,&res,&res_size);
+  locale_bool_to_STACK(LOCALE_IPOSSYMPRECEDES,&res,&res_size);
+  locale_bool_to_STACK(LOCALE_IPOSSEPBYSPACE,&res,&res_size);
+  locale_bool_to_STACK(LOCALE_INEGSYMPRECEDES,&res,&res_size);
+  locale_bool_to_STACK(LOCALE_INEGSEPBYSPACE,&res,&res_size);
+  locale_bool_to_STACK(LOCALE_IPOSSIGNPOSN,&res,&res_size);
+  locale_bool_to_STACK(LOCALE_INEGSIGNPOSN,&res,&res_size);
+  pushSTACK(S(Kunspecific));
+  pushSTACK(S(Kunspecific));
+  pushSTACK(S(Kunspecific));
+  pushSTACK(S(Kunspecific));
+  pushSTACK(S(Kunspecific));
+  pushSTACK(S(Kunspecific));
+  funcall(`I18N::MK-LOCALE-CONV`,24);
+  free(res);
+}
+#endif
+
 #if defined(HAVE_NL_LANGINFO) || defined(WIN32_NATIVE)
 DEFCHECKER(check_nl_item,CODESET                                        \
            D_T_FMT D_FMT T_FMT T_FMT_AMPM AM_STR PM_STR                 \
@@ -304,21 +462,9 @@ DEFCHECKER(check_nl_item,CODESET                                        \
 # define DECLARE_RES  char* res
 # define FINISH_RES
 #elif defined(WIN32_NATIVE)
-# define GET_LOC_INFO_BUF_SIZE 256
-# define get_lang_info(what)  do {                                      \
-    int val = GetLocaleInfo(LOCALE_SYSTEM_DEFAULT,what|LOCALE_USE_CP_ACP,\
-                            res,res_size);                              \
-    if (val == 0) OS_error();                                           \
-    if (val > res_size) {                                               \
-      res = realloc(res,val);                                           \
-      if (res == NULL) OS_error();                                      \
-      res_size = val;                                                   \
-      GetLocaleInfo(LOCALE_SYSTEM_DEFAULT,what|LOCALE_USE_CP_ACP,       \
-                    res,res_size);                                      \
-    }                                                                   \
-  } while(0)
+# define get_lang_info(what)  get_locale_info(what,&res,&res_size)
 # define res_to_obj() (asciz_to_string(res,Symbol_value(S(utf_8))))
-# define DECLARE_RES  int res_size=GET_LOC_INFO_BUF_SIZE; char *res=malloc(res_size)
+# define DECLARE_RES  int res_size=GET_LOCALE_INFO_BUF_SIZE; char *res=malloc(res_size)
 # define FINISH_RES   free(res)
 #endif
 DEFUNR(I18N:LANGUAGE-INFORMATION,&optional item)

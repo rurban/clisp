@@ -219,6 +219,12 @@ she will get the output
   <simpara>When &category; is missing or &nil;, return all categories
    as a &list-t;.</simpara></listitem></varlistentry>
 
+<varlistentry id="locale-conv"><term><literal
+   role="sexp">(&locale-conv;)</literal></term>
+ <listitem><simpara>This is an interface to &localeconv;.</simpara>
+  <simpara>Returns a <type>I18N:LOCALE-CONV</type>
+   structure.</simpara></listitem></varlistentry>
+
 <varlistentry id="lang-info"><term><literal role="sexp">(&lang-info;
    &optional-amp; &item-r;)</literal></term>
  <listitem><simpara>This is an interface to &nl_langinfo; (&unix;)

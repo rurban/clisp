@@ -1,3 +1,8 @@
+2004-10-25  Sam Steingold  <sds@gnu.org>
+
+	* modules/i18n/i18n.lisp (locale-conv): new defstruct
+	* modules/i18n/gettext.c (locale-conv): new function
+
 2004-10-18  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (c-WITHOUT-PACKAGE-LOCK): Call macroexpand-1 instead
