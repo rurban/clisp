@@ -8,7 +8,8 @@
   <!ENTITY imp-ext SYSTEM "impext.xml">
   <!ENTITY imp-byte SYSTEM "impbyte.xml">
   <!ENTITY regexp SYSTEM "../modules/regexp/regexp.xml">
-  <!ENTITY gfdl-text SYSTEM "http://www.gnu.org/licenses/fdl.sgml">
+  <!-- ENTITY gfdl-text SYSTEM "http://www.gnu.org/licenses/fdl.sgml" -->
+  <!ENTITY gfdl-text SYSTEM "/usr/share/sgml/gnu/fdl.sgml">
 ]>
 
 <!-- *** Conventions: ***
@@ -65,7 +66,7 @@
  <textobject><phrase>[CLISP icon]</phrase></textobject>
 </inlinemediaobject></title>
 
-<subtitle>Last modified: 2002-01-02</subtitle>
+<subtitle>Last modified: 2002-02-13</subtitle>
 
 <para>These notes discuss the &clisp; implementation of &cl; by
 <blockquote><address><honorific>Dr</honorific> <firstname>Bruno</firstname> <surname>Haible</surname>
