@@ -1,3 +1,9 @@
+2004-09-15  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (main): define NULL differently for C & C++
+	depending on include environment, not file generation environment
+	Reported by "Goffioul Michael" <goffioul@imec.be>
+
 2004-08-01  Bruno Haible  <bruno@clisp.org>
 
 	* record.d (check_initialization_argument_list): Internationalize
