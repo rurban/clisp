@@ -301,7 +301,7 @@
 (defvar *FORMAT-NEXT-ARGLIST*) ; pointer to next sublist in ~:{ iteration
 (defvar *FORMAT-UP-AND-OUT* nil) ; reason for up-and-out
 
-;; (format-error type {keyword value}* control-string errorpos errorcode . arguments)
+;; (format-error type {keyword value}* control-string errorpos errorstring . arguments)
 ;; signals an Error of the given type, that occurred in FORMAT. The position
 ;; in the Control-string is marked with an arrow.
 (defun format-error (type &rest arguments)
@@ -393,8 +393,13 @@
 ;; list *FORMAT-NEXT-ARG*.
 (defun next-arg ()
   (if (atom *FORMAT-NEXT-ARG*)
-    (format-error 'error *FORMAT-CS* nil
-      (TEXT "There are not enough arguments left for this format directive."))
+    (if (null *FORMAT-NEXT-ARG*)
+      (format-error 'error *FORMAT-CS* nil
+        (TEXT "There are not enough arguments left for this format directive."))
+      (format-error 'type-error :datum *FORMAT-NEXT-ARG* :expected-type 'list
+        *FORMAT-CS* nil
+        (TEXT "The argument list is a dotted list: ~S")
+        *FORMAT-ARG-LIST*))
     (pop *FORMAT-NEXT-ARG*)))
 
 ;; (format-interpret stream [endmarker]) interprets *FORMAT-CSDL* .
