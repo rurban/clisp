@@ -1350,14 +1350,9 @@ head: AND/OR: (head (real lo1 hi1) (real lo2 hi2))"
         (TEXT "~S: type ~S is not a subtype of ~S")
         'upgraded-complex-part-type spec 'real)))
 
-#-UNICODE
-(defun charset-subtypep (encoding1 encoding2)
-  (declare (ignore encoding1 encoding2))
-  t
-)
 #+UNICODE
 (let ((table (make-hash-table :test #'equal)))
-     ; cache: charset name -> list of intervals #(start1 end1 ... startm endm)
+  ;; cache: charset name -> list of intervals #(start1 end1 ... startm endm)
   #| ; Now in C and much more efficient.
   (defun charset-range (encoding start end)
     (setq start (char-code start))
@@ -1368,71 +1363,60 @@ head: AND/OR: (head (real lo1 hi1) (real lo2 hi2))"
       (loop
         (if (charset-typep (code-char i) encoding)
           (if i2 (setq i2 i) (setq i1 i i2 i))
-          (if i2 (setq intervals (list* i2 i1 intervals) i1 nil i2 nil))
-        )
+          (if i2 (setq intervals (list* i2 i1 intervals) i1 nil i2 nil)))
         (when (eql i end) (return))
-        (incf i)
-      )
+        (incf i))
       (when i2 (setq intervals (list* i2 i1 intervals)))
-      (map 'simple-string #'code-char (nreverse intervals))
-  ) )
+      (map 'simple-string #'code-char (nreverse intervals))))
   |#
-  ; Return the definition range of a character set. If necessary, compute it
-  ; and store it in the cache.
+  ;; Return the definition range of a character set. If necessary, compute it
+  ;; and store it in the cache.
   (defun get-charset-range (charset &optional maxintervals)
     (or (gethash charset table)
         (setf (gethash charset table)
               (charset-range (make-encoding :charset charset)
                              (code-char 0) (code-char (1- char-code-limit))
-                             maxintervals
-  ) )   )     )
-  ; Fill the cache, but cache only the results with small lists of intervals.
-  ; Some iconv based encodings have large lists of intervals (up to 5844
-  ; intervals for ISO-2022-JP-2) which are rarely used and not worth caching.
+                             maxintervals))))
+  ;; Fill the cache, but cache only the results with small lists of intervals.
+  ;; Some iconv based encodings have large lists of intervals (up to 5844
+  ;; intervals for ISO-2022-JP-2) which are rarely used and not worth caching.
   (do-external-symbols (sym (find-package "CHARSET"))
     (let* ((charset (encoding-charset (symbol-value sym)))
            (computed-range (get-charset-range charset 100))
            (intervals (/ (length computed-range) 2)))
-      (when (>= intervals 100) (remhash charset table))
-  ) )
-  ; Test whether all characters encodable in encoding1 are also encodable in
-  ; encoding2.
-  (defun charset-subtypep (encoding1 encoding2)
-    (let* ((intervals1 (get-charset-range (encoding-charset encoding1)))
-           (intervals2 (get-charset-range (encoding-charset encoding2)))
-           (n1 (length intervals1))
-           (n2 (length intervals2))
-           (jj1 0)  ; grows by 2 from 0 to n1
-           (jj2 0)) ; grows by 2 from 0 to n2
-      (loop
-        ; Get next interval from intervals1.
-        (when (eql jj1 n1) (return-from charset-subtypep t))
-        (let ((i1 (schar intervals1 jj1)) (i2 (schar intervals1 (+ jj1 1))))
-          ; Test whether [i1,i2] is contained in intervals2.
-          (let (i3 i4)
-            (loop
-              (when (eql jj2 n2)
-                ; [i1,i2] not contained in intervals2.
-                (return-from charset-subtypep nil)
-              )
-              (setq i3 (schar intervals2 jj2))
-              (setq i4 (schar intervals2 (+ jj2 1)))
-              ; If i3 <= i4 < i1 <= i2, skip the interval [i3,i4].
-              (when (char>= i4 i1) (return))
-              (incf jj2 2)
-            )
-            (when (char< i1 i3)
-              ; i1 not contained in intervals2.
-              (return-from charset-subtypep nil)
-            )
-            (when (char< i4 i2)
-              ; i4+1 (in [i1,i2]) not contained in intervals2.
-              (return-from charset-subtypep nil)
-            )
-            ; Now (<= i3 i1) and (<= i2 i4), hence [i1,i2] contained in intervals2.
-            (incf jj1 2)
-  ) ) ) ) )
-)
+      (when (>= intervals 100) (remhash charset table)))))
+;; Test whether all characters encodable in encoding1 are also encodable in
+;; encoding2.
+(defun charset-subtypep (encoding1 encoding2)
+  #-UNICODE (declare (ignore encoding1 encoding2)) #-UNICODE t
+  #+UNICODE
+  (let* ((intervals1 (get-charset-range (encoding-charset encoding1)))
+         (intervals2 (get-charset-range (encoding-charset encoding2)))
+         (n1 (length intervals1))
+         (n2 (length intervals2))
+         (jj1 0)  ; grows by 2 from 0 to n1
+         (jj2 0)) ; grows by 2 from 0 to n2
+    (loop
+      ;; Get next interval from intervals1.
+      (when (eql jj1 n1) (return-from charset-subtypep t))
+      (let ((i1 (schar intervals1 jj1)) (i2 (schar intervals1 (+ jj1 1))))
+        ;; Test whether [i1,i2] is contained in intervals2.
+        (let (i3 i4)
+          (loop
+            (when (eql jj2 n2) ; [i1,i2] not contained in intervals2.
+              (return-from charset-subtypep nil))
+            (setq i3 (schar intervals2 jj2))
+            (setq i4 (schar intervals2 (+ jj2 1)))
+            ;; If i3 <= i4 < i1 <= i2, skip the interval [i3,i4].
+            (when (char>= i4 i1) (return))
+            (incf jj2 2))
+          (when (char< i1 i3) ; i1 not contained in intervals2.
+            (return-from charset-subtypep nil))
+          (when (char< i4 i2) ; i4+1 (in [i1,i2]) not contained in intervals2.
+            (return-from charset-subtypep nil))
+          ;; Now (<= i3 i1) and (<= i2 i4),
+          ;; hence [i1,i2] is contained in intervals2.
+          (incf jj1 2))))))
 (defun encoding-zeroes (encoding)
   #+UNICODE
   ;; this should use min_bytes_per_char for cache, not the hash table
