@@ -103,65 +103,26 @@
 
 ;;; ===========================================================================
 
-#|
-;; Adds a generic function to the list of direct generic functions.
-(defun add-direct-generic-function (specializer gf) ...)
-;; Removes a generic function from the list of direct generic functions.
-(defun remove-direct-generic-function (specializer gf) ...)
-;; Returns the currently existing direct generic functions, as a freshly consed
-;; list.
-(defun list-direct-generic-functions (specializer) ...)
-|#
-(def-weak-set-accessors specializer-direct-generic-functions-table generic-function
-  add-direct-generic-function-internal
-  remove-direct-generic-function-internal
-  list-direct-generic-functions)
+;; We don't store the list of generic functions that use a given specializer
+;; in the specializer, but instead compute it on the fly, because
+;; 1. For good asymptotic performance the generic-functions list would have to
+;;    be stored as a weak set or a weak multiset, thus requiring that
+;;    <generic-function> inherits from <standard-stable-hash> - but this gives
+;;    a collision with <funcallable-instance>.
+;; 2. The generic-functions list of a specializer is generally not much
+;;    shorter than the methods list of the specializer, and is redundant.
 
-;; The MOP description of specializer-direct-generic-functions specifies that
-;; the list of direct-generic-functions is managed through add-direct-method
-;; and remove-direct-method. However, the MOP description of remove-method
-;; says that when remove-direct-method is called, the association between the
-;; method and the generic function has already been dissolved. (This is a flaw
-;; in the MOP: The notification upon removal should be split into a notification
-;; before removal and a notification after removal.) Therefore the list of
-;; direct-generic-functions cannot be managed incrementally when a method is
-;; removed. Instead, we clear the list and mark it as to be recomputed from
-;; the direct-methods list.
-(fmakunbound 'remove-direct-generic-function-internal)
-(defun forget-direct-generic-functions (specializer)
-  (setf (specializer-direct-generic-functions-table specializer) 'unknown))
-(defun add-direct-generic-function (specializer gf)
-  (unless (eq (specializer-direct-generic-functions-table specializer) 'unknown)
-    (add-direct-generic-function-internal specializer gf)))
 (defun compute-direct-generic-functions (specializer)
   (let* ((methods (specializer-direct-methods specializer))
          (gfs (delete-duplicates (mapcar #'method-generic-function methods) :test #'eq)))
     (when (memq nil gfs)
       (error (TEXT "~S: Some methods have been removed from their generic function, but the list in the ~S specializer was not updated.")
              'specializer-direct-generic-functions specializer))
-    (cond ((null gfs) nil)
-          ((<= (length gfs) 10) (ext:make-weak-list gfs))
-          (t (let ((ht (make-hash-table :key-type 'generic-function :value-type '(eql t)
-                                        :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t
-                                        :weak :key)))
-               (dolist (x gfs) (setf (gethash x ht) t))
-               ht)))))
-(defun update-list-direct-generic-functions (specializer)
-  (when (eq (specializer-direct-generic-functions-table specializer) 'unknown)
-    (setf (specializer-direct-generic-functions-table specializer)
-          (compute-direct-generic-functions specializer)))
-  (list-direct-generic-functions specializer))
+    gfs))
 
 ;; MOP p. 103
 (defun specializer-direct-generic-functions (specializer)
-  (update-list-direct-generic-functions specializer))
-
-(defun add-direct-method-generic-function (specializer method)
-  (let ((gf (method-generic-function method)))
-    (unless gf
-      (error (TEXT "~S: Attempting to add a method that is not attached to a generic function: ~S")
-             'add-direct-method method))
-    (add-direct-generic-function specializer gf)))
+  (compute-direct-generic-functions specializer))
 
 #|
 ;; Adds a method to the list of direct methods.
@@ -178,11 +139,9 @@
 
 ;; Preliminary.
 (defun add-direct-method (specializer method)
-  (add-direct-method-internal specializer method)
-  (add-direct-method-generic-function specializer method))
+  (add-direct-method-internal specializer method))
 (defun remove-direct-method (specializer method)
-  (remove-direct-method-internal specializer method)
-  (forget-direct-generic-functions specializer))
+  (remove-direct-method-internal specializer method))
 
 ;; MOP p. 103
 (defun specializer-direct-methods (specializer)
