@@ -3,6 +3,7 @@
 	* realelem.d (F_R_float_F, RA_R_float_F): use Lfloat_length(y)
 	instead of O(LF_digits), when y is actually a long float
 	* comptran.d (N_N_log_N): fixed a typo in the last patch
+	(N_cis_N): (sin a) may be 0
 
 2002-10-04  Sam Steingold  <sds@gnu.org>
 
