@@ -891,29 +891,29 @@ Facility</a></dt>
 
 <dd>
 <dl>
-<dt>0. <a href="#d41e40474">PREAMBLE</a></dt>
+<dt>0. <a href="#d41e40563">PREAMBLE</a></dt>
 
-<dt>1. <a href="#d41e40483">APPLICABILITY AND DEFINITIONS</a></dt>
+<dt>1. <a href="#d41e40572">APPLICABILITY AND DEFINITIONS</a></dt>
 
-<dt>2. <a href="#d41e40502">VERBATIM COPYING</a></dt>
+<dt>2. <a href="#d41e40591">VERBATIM COPYING</a></dt>
 
-<dt>3. <a href="#d41e40509">COPYING IN QUANTITY</a></dt>
+<dt>3. <a href="#d41e40598">COPYING IN QUANTITY</a></dt>
 
-<dt>4. <a href="#d41e40520">MODIFICATIONS</a></dt>
+<dt>4. <a href="#d41e40609">MODIFICATIONS</a></dt>
 
-<dt>5. <a href="#d41e40576">COMBINING DOCUMENTS</a></dt>
+<dt>5. <a href="#d41e40665">COMBINING DOCUMENTS</a></dt>
 
-<dt>6. <a href="#d41e40585">COLLECTIONS OF DOCUMENTS</a></dt>
+<dt>6. <a href="#d41e40674">COLLECTIONS OF DOCUMENTS</a></dt>
 
-<dt>7. <a href="#d41e40592">AGGREGATION WITH INDEPENDENT WORKS</a></dt>
+<dt>7. <a href="#d41e40681">AGGREGATION WITH INDEPENDENT WORKS</a></dt>
 
-<dt>8. <a href="#d41e40599">TRANSLATION</a></dt>
+<dt>8. <a href="#d41e40688">TRANSLATION</a></dt>
 
-<dt>9. <a href="#d41e40604">TERMINATION</a></dt>
+<dt>9. <a href="#d41e40693">TERMINATION</a></dt>
 
-<dt>10. <a href="#d41e40609">FUTURE REVISIONS OF THIS LICENSE</a></dt>
+<dt>10. <a href="#d41e40698">FUTURE REVISIONS OF THIS LICENSE</a></dt>
 
-<dt><a href="#d41e40619">How to use this License for your
+<dt><a href="#d41e40708">How to use this License for your
 documents</a></dt>
 </dl>
 </dd>
@@ -931,7 +931,7 @@ alt="[CLISP icon]" /></span></h2>
 </div>
 
 <div>
-<h3 class="subtitle"><i>Last modified: 2002-01-02</i></h3>
+<h3 class="subtitle"><i>Last modified: 2002-01-03</i></h3>
 </div>
 </div>
 
@@ -9583,7 +9583,7 @@ notation to internal representation</span></dt>
 
 <dd>
 <p><span class="emphasis"><i>No</i></span> swapping. <tt>foo.lisp</tt>
-means file type <tt>lisp</tt> and file name <tt>foo</tt>. This is
+means file type <tt>#P".lisp"</tt> and file name <tt>foo</tt>. This is
 pseudo-BNF:</p>
 
 <div class="variablelist">
@@ -12851,8 +12851,8 @@ target="_top"><tt>*COMPILE-VERBOSE*</tt></a>, <a
 href="http://www.lisp.org/HyperSpec/Body/var_stcompile_le-verbosest.html"
 target="_top"><tt>*COMPILE-PRINT*</tt></a> provide defaults for the
 <tt>:WARNINGS</tt>, <tt>:VERBOSE</tt>, <tt>:PRINT</tt> keyword arguments,
-respectively. For each input file (default file type: <tt>lisp</tt>) the
-following files are generated:</p>
+respectively. For each input file (default file type: <tt>#P".lisp"</tt>)
+the following files are generated:</p>
 
 <div class="table">
 <p><a id="compile-file-new-files-table"
@@ -12880,7 +12880,7 @@ name="compile-file-new-files-table"></a><b>Table 24.1.</b></p>
 <td>only if <tt>:output-file</tt> is not <a
 href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a></td>
-<td><tt>fas</tt></td>
+<td><tt>#P".fas"</tt></td>
 <td>can be loaded using the <a
 href="http://www.lisp.org/HyperSpec/Body/fun_load.html"
 target="_top"><tt>LOAD</tt></a> function</td>
@@ -12891,7 +12891,7 @@ target="_top"><tt>LOAD</tt></a> function</td>
 <td>only if <tt>:output-file</tt> is not <a
 href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a></td>
-<td><tt>#p".lib"</tt></td>
+<td><a href="#lib-file"><tt>#P".lib"</tt></a></td>
 <td>used by <a
 href="http://www.lisp.org/HyperSpec/Body/fun_compile-file.html"
 target="_top"><tt>COMPILE-FILE</tt></a> when compiling a <a
@@ -12920,6 +12920,43 @@ target="_top"><tt>NIL</tt></a></td>
 </tbody>
 </table>
 </div>
+
+<p><a id="lib-file" name="lib-file"></a><b><a
+href="#lib-file"><tt>#P".lib"</tt></a> files.&#160;</b> Suppose you have a
+file <tt>"A.lisp"</tt>, defining functions, macros, constants etc., and
+you have a file <tt>"B.lisp"</tt>, which contains a <tt>(<a
+href="http://www.lisp.org/HyperSpec/Body/fun_providecm_require.html"
+target="_top"><tt>REQUIRE</tt></a> 'A)</tt> statement, because it uses
+some things defined in <tt>"A.lisp"</tt>. Then compilations of
+<tt>"B.lisp"</tt> will benefit from the file <tt>"A.lib"</tt>, generated
+by a previous compilation of <tt>"A.lisp"</tt>. The benefit is
+threefold:</p>
+
+<div class="itemizedlist">
+<ul>
+<li><a id="d41e17387" name="d41e17387"></a>You do not need to have
+<tt>"A"</tt> loaded in order to compile <tt>"B.lisp"</tt>. If memory is
+tight, and if <tt>"A.lisp"</tt> contains only a few inline functions,
+macros or constants, this is a space and time saver. If <tt>"A.lisp"</tt>
+does a lot of initializations or side effects when being loaded, this is
+important as well.</li>
+
+<li><a id="d41e17402" name="d41e17402"></a>You do not need to have
+<tt>"A"</tt> loaded in order to compile <tt>"B.lisp"</tt>. You do not even
+have to <span class="emphasis"><i>think</i></span> about <tt>"A"</tt> when
+loading or compiling <tt>"B"</tt>.</li>
+
+<li><a id="d41e17420" name="d41e17420"></a>Suppose <tt>"A.lisp"</tt> is
+changed rarely, and <tt>"B.lisp"</tt> is changed frequently. It would be a
+waste of time to compile both <tt>"A"</tt> and <tt>"B"</tt> every time.
+File <tt>"A.lib"</tt> ensures that <tt>"A"</tt> is compiled only when
+needed.</li>
+</ul>
+</div>
+
+
+<br />
+<br />
 </div>
 
 <div class="section"><a id="compile-file-path"
@@ -12935,7 +12972,7 @@ target="_top"><tt>COMPILE-FILE-PATHNAME</tt></a></h3>
 
 <p>The default for the <tt>:output-file</tt> argument is <a
 href="http://www.lisp.org/HyperSpec/Body/convar_t.html"
-target="_top"><tt>T</tt></a>, which means <tt>fas</tt>.</p>
+target="_top"><tt>T</tt></a>, which means <tt>#P".fas"</tt>.</p>
 </div>
 
 <div class="section"><a id="require" name="require"></a>
@@ -12975,7 +13012,7 @@ target="_top"><tt>&amp;KEY</tt></a> <tt>:VERBOSE</tt> <tt>:PRINT</tt>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e17429" name="d41e17429"></a><span
+<dt><a id="d41e17518" name="d41e17518"></a><span
 class="term"><tt>:VERBOSE</tt> <a
 href="http://www.lisp.org/HyperSpec/Body/convar_t.html"
 target="_top"><tt>T</tt></a></span></dt>
@@ -12988,7 +13025,7 @@ target="_top"><tt>*LOAD-VERBOSE*</tt></a>, which is initially <a
 href="http://www.lisp.org/HyperSpec/Body/convar_t.html"
 target="_top"><tt>T</tt></a>.</dd>
 
-<dt><a id="d41e17452" name="d41e17452"></a><span
+<dt><a id="d41e17541" name="d41e17541"></a><span
 class="term"><tt>:PRINT</tt> <a
 href="http://www.lisp.org/HyperSpec/Body/convar_t.html"
 target="_top"><tt>T</tt></a></span></dt>
@@ -13001,7 +13038,7 @@ target="_top"><tt>*LOAD-PRINT*</tt></a>, which is initially <a
 href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a>.</dd>
 
-<dt><a id="d41e17475" name="d41e17475"></a><span
+<dt><a id="d41e17564" name="d41e17564"></a><span
 class="term"><tt>:ECHO</tt> <a
 href="http://www.lisp.org/HyperSpec/Body/convar_t.html"
 target="_top"><tt>T</tt></a></span></dt>
@@ -13015,7 +13052,7 @@ class="strong"><i><tt>custom:*load-echo*</tt></i></span>, which is
 initially <a href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a>.</dd>
 
-<dt><a id="d41e17498" name="d41e17498"></a><span
+<dt><a id="d41e17587" name="d41e17587"></a><span
 class="term"><tt>:COMPILING</tt> <a
 href="http://www.lisp.org/HyperSpec/Body/convar_t.html"
 target="_top"><tt>T</tt></a></span></dt>
@@ -13721,7 +13758,7 @@ target="_top"><tt>DISASSEMBLE</tt></a></h3>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e18295" name="d41e18295"></a><span class="term">Platform
+<dt><a id="d41e18384" name="d41e18384"></a><span class="term">Platform
 dependent: <a href="http://www.UNIX-systems.org/online.html"
 target="_top"><span class="strong"><i>UNIX</i></span></a> platforms
 only.</span></dt>
@@ -13805,51 +13842,51 @@ target="_top"><tt>&amp;KEY</tt></a> <tt>:suppress-if</tt>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e18458" name="d41e18458"></a><span
+<dt><a id="d41e18547" name="d41e18547"></a><span
 class="term"><tt>:suppress-if</tt> <i><tt>form</tt></i></span></dt>
 
 <dd>no trace output as long as <i><tt>form</tt></i> is true</dd>
 
-<dt><a id="d41e18471" name="d41e18471"></a><span
+<dt><a id="d41e18560" name="d41e18560"></a><span
 class="term"><tt>:step-if</tt> <i><tt>form</tt></i></span></dt>
 
 <dd>invokes the stepper as soon as <i><tt>form</tt></i> is true</dd>
 
-<dt><a id="d41e18484" name="d41e18484"></a><span
+<dt><a id="d41e18573" name="d41e18573"></a><span
 class="term"><tt>:pre</tt> <i><tt>form</tt></i></span></dt>
 
 <dd>evaluates <i><tt>form</tt></i> before calling the function</dd>
 
-<dt><a id="d41e18497" name="d41e18497"></a><span
+<dt><a id="d41e18586" name="d41e18586"></a><span
 class="term"><tt>:post</tt> <i><tt>form</tt></i></span></dt>
 
 <dd>evaluates <i><tt>form</tt></i> after return from the function</dd>
 
-<dt><a id="d41e18510" name="d41e18510"></a><span
+<dt><a id="d41e18599" name="d41e18599"></a><span
 class="term"><tt>:pre-break-if</tt> <i><tt>form</tt></i></span></dt>
 
 <dd>goes into the break loop before calling the function if
 <i><tt>form</tt></i> is true</dd>
 
-<dt><a id="d41e18523" name="d41e18523"></a><span
+<dt><a id="d41e18612" name="d41e18612"></a><span
 class="term"><tt>:post-break-if</tt> <i><tt>form</tt></i></span></dt>
 
 <dd>goes into the break loop after return from the function if
 <i><tt>form</tt></i> is true</dd>
 
-<dt><a id="d41e18536" name="d41e18536"></a><span
+<dt><a id="d41e18625" name="d41e18625"></a><span
 class="term"><tt>:pre-print</tt> <i><tt>form</tt></i></span></dt>
 
 <dd>prints the values of <i><tt>form</tt></i> before calling the
 function</dd>
 
-<dt><a id="d41e18549" name="d41e18549"></a><span
+<dt><a id="d41e18638" name="d41e18638"></a><span
 class="term"><tt>:post-print</tt> <i><tt>form</tt></i></span></dt>
 
 <dd>prints the values of <i><tt>form</tt></i> after return from the
 function</dd>
 
-<dt><a id="d41e18562" name="d41e18562"></a><span
+<dt><a id="d41e18651" name="d41e18651"></a><span
 class="term"><tt>:PRINT</tt> <i><tt>form</tt></i></span></dt>
 
 <dd>prints the values of <i><tt>form</tt></i> both before calling and
@@ -13861,17 +13898,17 @@ after return from the function</dd>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e18578" name="d41e18578"></a><span
+<dt><a id="d41e18667" name="d41e18667"></a><span
 class="term"><tt>EXT:*TRACE-FUNCTION*</tt></span></dt>
 
 <dd>the function itself</dd>
 
-<dt><a id="d41e18585" name="d41e18585"></a><span
+<dt><a id="d41e18674" name="d41e18674"></a><span
 class="term"><tt>EXT:*TRACE-ARGS*</tt></span></dt>
 
 <dd>the arguments to the function</dd>
 
-<dt><a id="d41e18592" name="d41e18592"></a><span
+<dt><a id="d41e18681" name="d41e18681"></a><span
 class="term"><tt>EXT:*TRACE-FORM*</tt></span></dt>
 
 <dd>the function/macro call as form</dd>
@@ -13921,7 +13958,7 @@ target="_top"><tt>INSPECT</tt></a> in <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a></b></p>
 
 <dl>
-<dt><a id="d41e18663" name="d41e18663"></a><span
+<dt><a id="d41e18752" name="d41e18752"></a><span
 class="term"><tt>:tty</tt></span></dt>
 
 <dd>The interaction is conducted via the <a
@@ -13929,7 +13966,7 @@ href="http://www.lisp.org/HyperSpec/Body/var_stterminal-iost.html"
 target="_top"><tt>*TERMINAL-IO*</tt></a> stream. Please use the
 <b><tt>:h</tt></b> command to get the list of all available commands.</dd>
 
-<dt><a id="d41e18677" name="d41e18677"></a><span
+<dt><a id="d41e18766" name="d41e18766"></a><span
 class="term"><tt>:http</tt></span></dt>
 
 <dd>
@@ -14051,7 +14088,7 @@ which was used to define the function.</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e18827" name="d41e18827"></a><span class="term">Platform
+<dt><a id="d41e18916" name="d41e18916"></a><span class="term">Platform
 dependent: <a href="http://www.amiga.org/" target="_top"><span
 class="strong"><i>Amiga</i></span></a>, <a href="http://www.acorn.com/"
 target="_top"><span class="strong"><i>Acorn</i></span></a>, <a
@@ -14136,7 +14173,7 @@ target="_top"><b>CLISP</b></a> process since its startup.</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e18930" name="d41e18930"></a><span class="term">Platform
+<dt><a id="d41e19019" name="d41e19019"></a><span class="term">Platform
 dependent: <a href="http://www.UNIX-systems.org/online.html"
 target="_top"><span class="strong"><i>UNIX</i></span></a>, <a
 href="http://www.willows.com/" target="_top"><span
@@ -14149,7 +14186,7 @@ href="http://www.lisp.org/HyperSpec/Body/fun_short-sit_ng-site-name.html"
 target="_top"><tt>LONG-SITE-NAME</tt></a> should be defined in a
 site-specific <tt>config.lisp</tt> file.</dd>
 
-<dt><a id="d41e18956" name="d41e18956"></a><span class="term">Platform
+<dt><a id="d41e19045" name="d41e19045"></a><span class="term">Platform
 dependent: <a href="http://www.amiga.org/" target="_top"><span
 class="strong"><i>Amiga</i></span></a>, <a href="http://www.acorn.com/"
 target="_top"><span class="strong"><i>Acorn</i></span></a>, <a
@@ -16682,16 +16719,16 @@ target="_top"><b>CLISP</b></a></h2>
 <p><b>Three kinds of storage are distinguished:</b></p>
 
 <ul>
-<li><a id="d41e21814" name="d41e21814"></a><a href="http://clisp.cons.org"
+<li><a id="d41e21903" name="d41e21903"></a><a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a> data (the "heap"), i.e. storage which
 contains Lisp objects and is managed by the garbage collector.</li>
 
-<li><a id="d41e21820" name="d41e21820"></a><a href="http://clisp.cons.org"
+<li><a id="d41e21909" name="d41e21909"></a><a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a> stack (called <a href="#vm"
 title="The virtual machine"><tt>STACK</tt></a>), contains <a
 href="http://clisp.cons.org" target="_top"><b>CLISP</b></a> objects</li>
 
-<li><a id="d41e21834" name="d41e21834"></a><a
+<li><a id="d41e21923" name="d41e21923"></a><a
 href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> data (including program text, data,
 <tt>malloc()</tt>ed memory)</li>
@@ -16760,11 +16797,11 @@ system and is determined at build time.</p>
 <p><b>Memory Models</b></p>
 
 <dl>
-<dt><a id="d41e21923" name="d41e21923"></a><span
+<dt><a id="d41e22012" name="d41e22012"></a><span
 class="term">SPVW_MIXED_BLOCKS_OPPOSITE</span></dt>
 
 <dd>
-<p><a id="d41e21926" name="d41e21926"></a>The heap consists of one block
+<p><a id="d41e22015" name="d41e22015"></a>The heap consists of one block
 of fixed length (allocated at startup). The variable-length objects are
 allocated from the left, the 2-pointer objects are allocated from the
 right. There is a hole between them. When the hole shrinks to 0, <a
@@ -16781,17 +16818,17 @@ halved, and the 2-pointer objects are moved to the right accordingly.</p>
 <p><b>overview</b></p>
 
 <dl>
-<dt><a id="d41e21938" name="d41e21938"></a><span
+<dt><a id="d41e22027" name="d41e22027"></a><span
 class="term">(+)</span></dt>
 
 <dd>Simple management.</dd>
 
-<dt><a id="d41e21944" name="d41e21944"></a><span
+<dt><a id="d41e22033" name="d41e22033"></a><span
 class="term">(+)</span></dt>
 
 <dd>No fragmentation at all.</dd>
 
-<dt><a id="d41e21950" name="d41e21950"></a><span
+<dt><a id="d41e22039" name="d41e22039"></a><span
 class="term">(-)</span></dt>
 
 <dd>The total heap size is limited.</dd>
@@ -16803,12 +16840,12 @@ class="term">(-)</span></dt>
 <br />
 </dd>
 
-<dt><a id="d41e21957" name="d41e21957"></a><span
+<dt><a id="d41e22046" name="d41e22046"></a><span
 class="term">SPVW_MIXED_BLOCKS_OPPOSITE &amp;
 TRIVIALMAP_MEMORY</span></dt>
 
 <dd>
-<p><a id="d41e21960" name="d41e21960"></a>The heap consists of two big
+<p><a id="d41e22049" name="d41e22049"></a>The heap consists of two big
 blocks, one for variable-length objects and one for 2-pointer objects. The
 former one has a hole to the right and is extensible to the right, the
 latter one has a hole to the left and is extensible to the left. Similar
@@ -16818,17 +16855,17 @@ to the previous model, except that the hole is unmapped.</p>
 <p><b>overview</b></p>
 
 <dl>
-<dt><a id="d41e21966" name="d41e21966"></a><span
+<dt><a id="d41e22055" name="d41e22055"></a><span
 class="term">(+)</span></dt>
 
 <dd>Total heap size grows depending on the application's needs.</dd>
 
-<dt><a id="d41e21972" name="d41e21972"></a><span
+<dt><a id="d41e22061" name="d41e22061"></a><span
 class="term">(+)</span></dt>
 
 <dd>No fragmentation at all.</dd>
 
-<dt><a id="d41e21978" name="d41e21978"></a><span
+<dt><a id="d41e22067" name="d41e22067"></a><span
 class="term">(*)</span></dt>
 
 <dd>Works only when SINGLEMAP_MEMORY is possible as well.</dd>
@@ -16840,12 +16877,12 @@ class="term">(*)</span></dt>
 <br />
 </dd>
 
-<dt><a id="d41e21985" name="d41e21985"></a><span
+<dt><a id="d41e22074" name="d41e22074"></a><span
 class="term">SPVW_MIXED_BLOCKS_STAGGERED &amp;
 TRIVIALMAP_MEMORY</span></dt>
 
 <dd>
-<p><a id="d41e21988" name="d41e21988"></a>The heap consists of two big
+<p><a id="d41e22077" name="d41e22077"></a>The heap consists of two big
 blocks, one for variable-length objects and one for 2-pointer objects.
 Both have a hole to the right, but are extensible to the right.</p>
 
@@ -16853,17 +16890,17 @@ Both have a hole to the right, but are extensible to the right.</p>
 <p><b>overview</b></p>
 
 <dl>
-<dt><a id="d41e21994" name="d41e21994"></a><span
+<dt><a id="d41e22083" name="d41e22083"></a><span
 class="term">(+)</span></dt>
 
 <dd>Total heap size grows depending on the application's needs.</dd>
 
-<dt><a id="d41e22000" name="d41e22000"></a><span
+<dt><a id="d41e22089" name="d41e22089"></a><span
 class="term">(+)</span></dt>
 
 <dd>No fragmentation at all.</dd>
 
-<dt><a id="d41e22006" name="d41e22006"></a><span
+<dt><a id="d41e22095" name="d41e22095"></a><span
 class="term">(*)</span></dt>
 
 <dd>Works only when SINGLEMAP_MEMORY is possible as well.</dd>
@@ -16875,11 +16912,11 @@ class="term">(*)</span></dt>
 <br />
 </dd>
 
-<dt><a id="d41e22013" name="d41e22013"></a><span
+<dt><a id="d41e22102" name="d41e22102"></a><span
 class="term">SPVW_MIXED_PAGES</span></dt>
 
 <dd>
-<p><a id="d41e22016" name="d41e22016"></a>The heap consists of many small
+<p><a id="d41e22105" name="d41e22105"></a>The heap consists of many small
 pages (usually around 8 KB). There are two kinds of pages: one for
 2-pointer objects, one for variable-length objects. The set of all pages
 of a fixed kind is called a "Heap". Each page has its hole (free space) at
@@ -16897,17 +16934,17 @@ possible.</p>
 <p><b>overview</b></p>
 
 <dl>
-<dt><a id="d41e22022" name="d41e22022"></a><span
+<dt><a id="d41e22111" name="d41e22111"></a><span
 class="term">(-)</span></dt>
 
 <dd>every allocation requires AVL tree operations, thus slower</dd>
 
-<dt><a id="d41e22028" name="d41e22028"></a><span
+<dt><a id="d41e22117" name="d41e22117"></a><span
 class="term">(+)</span></dt>
 
 <dd>Total heap size grows depending on the application's needs.</dd>
 
-<dt><a id="d41e22034" name="d41e22034"></a><span
+<dt><a id="d41e22123" name="d41e22123"></a><span
 class="term">(+)</span></dt>
 
 <dd>Works on operating systems which do not provide large contiguous
@@ -16920,11 +16957,11 @@ areas.</dd>
 <br />
 </dd>
 
-<dt><a id="d41e22041" name="d41e22041"></a><span
+<dt><a id="d41e22130" name="d41e22130"></a><span
 class="term">SPVW_PURE_PAGES</span></dt>
 
 <dd>
-<p><a id="d41e22044" name="d41e22044"></a>Just like SPVW_MIXED_PAGES,
+<p><a id="d41e22133" name="d41e22133"></a>Just like SPVW_MIXED_PAGES,
 except that every page contains data of only a single type tag, i.e. there
 is a Heap for every type tag.</p>
 
@@ -16932,23 +16969,23 @@ is a Heap for every type tag.</p>
 <p><b>overview</b></p>
 
 <dl>
-<dt><a id="d41e22050" name="d41e22050"></a><span
+<dt><a id="d41e22139" name="d41e22139"></a><span
 class="term">(-)</span></dt>
 
 <dd>every allocation requires AVL tree operations, thus slower</dd>
 
-<dt><a id="d41e22056" name="d41e22056"></a><span
+<dt><a id="d41e22145" name="d41e22145"></a><span
 class="term">(+)</span></dt>
 
 <dd>Total heap size grows depending on the application's needs.</dd>
 
-<dt><a id="d41e22062" name="d41e22062"></a><span
+<dt><a id="d41e22151" name="d41e22151"></a><span
 class="term">(+)</span></dt>
 
 <dd>Works on operating systems which do not provide large contiguous
 areas.</dd>
 
-<dt><a id="d41e22068" name="d41e22068"></a><span
+<dt><a id="d41e22157" name="d41e22157"></a><span
 class="term">(-)</span></dt>
 
 <dd>More fragmentation because objects of different type never fit into
@@ -16961,11 +16998,11 @@ the same page.</dd>
 <br />
 </dd>
 
-<dt><a id="d41e22074" name="d41e22074"></a><span
+<dt><a id="d41e22163" name="d41e22163"></a><span
 class="term">SPVW_PURE_BLOCKS</span></dt>
 
 <dd>
-<p><a id="d41e22077" name="d41e22077"></a>There is a big block of storage
+<p><a id="d41e22166" name="d41e22166"></a>There is a big block of storage
 for each type tag. Each of these blocks has its data to the left and the
 hole to the right, but these blocks are extensible to the right (because
 there is enough room between them). A garbage collection is triggered when
@@ -16977,17 +17014,17 @@ up each block separately: data is moved left.</p>
 <p><b>overview</b></p>
 
 <dl>
-<dt><a id="d41e22083" name="d41e22083"></a><span
+<dt><a id="d41e22172" name="d41e22172"></a><span
 class="term">(+)</span></dt>
 
 <dd>Total heap size grows depending on the application's needs.</dd>
 
-<dt><a id="d41e22089" name="d41e22089"></a><span
+<dt><a id="d41e22178" name="d41e22178"></a><span
 class="term">(+)</span></dt>
 
 <dd>No 16 MB total size limit.</dd>
 
-<dt><a id="d41e22095" name="d41e22095"></a><span
+<dt><a id="d41e22184" name="d41e22184"></a><span
 class="term">(*)</span></dt>
 
 <dd>Works only in combination with SINGLEMAP_MEMORY.</dd>
@@ -17009,7 +17046,7 @@ to a big object.</p>
 possible:</p>
 
 <div class="table">
-<p><a id="d41e22106" name="d41e22106"></a><b>Table 29.1. With TYPECODES
+<p><a id="d41e22195" name="d41e22195"></a><b>Table 29.1. With TYPECODES
 (the number indicates the order in which the respective models have been
 developed:</b></p>
 
@@ -17084,7 +17121,7 @@ developed:</b></p>
 </div>
 
 <div class="table">
-<p><a id="d41e22174" name="d41e22174"></a><b>Table 29.2. With no
+<p><a id="d41e22263" name="d41e22263"></a><b>Table 29.2. With no
 TYPECODES</b></p>
 
 <table summary="With no TYPECODES" border="1">
@@ -17296,15 +17333,15 @@ compilation, are:</p>
 
 <div class="itemizedlist">
 <ul>
-<li><a id="d41e22362" name="d41e22362"></a>Bytecode compiled programs are
+<li><a id="d41e22451" name="d41e22451"></a>Bytecode compiled programs are
 a lot smaller than when compiled to native code. This results in better
 use of CPU caches, and in less virtual memory paging. Users perceive this
 as good responsiveness.</li>
 
-<li><a id="d41e22365" name="d41e22365"></a>Maximum execution speed
+<li><a id="d41e22454" name="d41e22454"></a>Maximum execution speed
 (throughput in tight loops) is limited.</li>
 
-<li><a id="d41e22368" name="d41e22368"></a>Since no bytecode instructions
+<li><a id="d41e22457" name="d41e22457"></a>Since no bytecode instructions
 are provided for "unsafe" operations (like unchecked array accesses, or
 "fast" <a
 href="http://www.lisp.org/HyperSpec/Body/acc_carcm_cdr_darcm_cddddr.html"
@@ -17313,20 +17350,20 @@ href="http://www.lisp.org/HyperSpec/Body/acc_carcm_cdr_darcm_cddddr.html"
 target="_top"><tt>CDR</tt></a>), programs run with all safety checks
 enabled even when compiled.</li>
 
-<li><a id="d41e22379" name="d41e22379"></a>Execution speed of a program
+<li><a id="d41e22468" name="d41e22468"></a>Execution speed of a program
 can easily be understood by looking at the output of the <a
 href="http://www.lisp.org/HyperSpec/Body/fun_disassemble.html"
 target="_top"><tt>DISASSEMBLE</tt></a> function. A rule of thumb is that
 every elementary instruction costs 1 time unit, whereas a function call
 costs 3 to 4 time units.</li>
 
-<li><a id="d41e22386" name="d41e22386"></a>Needing to do no type
+<li><a id="d41e22475" name="d41e22475"></a>Needing to do no type
 inference, the compiler is pretty straightforward and fast. As a
 consequence, the definition of <b>CLOS</b> generic functions, which needs
 to compile small pieces of generated code, is not perceived to be
 slow.</li>
 
-<li><a id="d41e22392" name="d41e22392"></a>The compiler is independent
+<li><a id="d41e22481" name="d41e22481"></a>The compiler is independent
 from the hardware CPU. Different backends, one for each hardware CPU, are
 not needed. As a consequence, the compiler is fairly small (and would have
 been easily maintainable if it were written in a less kludgey way...), and
@@ -17360,13 +17397,13 @@ CPU instructions the first time said function is called.</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e22408" name="d41e22408"></a><span class="term"><a
+<dt><a id="d41e22497" name="d41e22497"></a><span class="term"><a
 href="#vm" title="The virtual machine"><tt>STACK</tt></a></span></dt>
 
 <dd>a stack for <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a> objects and frames.</dd>
 
-<dt><a id="d41e22420" name="d41e22420"></a><span class="term"><a
+<dt><a id="d41e22509" name="d41e22509"></a><span class="term"><a
 href="#vm" title="The virtual machine"><tt>SP</tt></a></span></dt>
 
 <dd>a stack for other data and pointers.</dd>
@@ -17416,12 +17453,12 @@ values:</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e22510" name="d41e22510"></a><span class="term"><a
+<dt><a id="d41e22599" name="d41e22599"></a><span class="term"><a
 href="#vm" title="The virtual machine"><tt>mv_count</tt></a></span></dt>
 
 <dd>an unsigned integer.</dd>
 
-<dt><a id="d41e22518" name="d41e22518"></a><span class="term"><a
+<dt><a id="d41e22607" name="d41e22607"></a><span class="term"><a
 href="#vm" title="The virtual machine"><tt>value1</tt></a></span></dt>
 
 <dd>the first value, a <a href="http://clisp.cons.org"
@@ -17430,7 +17467,7 @@ title="The virtual machine"><tt>mv_count</tt></a></tt> = 0, this is <a
 href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a>.</dd>
 
-<dt><a id="d41e22539" name="d41e22539"></a><span class="term"><a
+<dt><a id="d41e22628" name="d41e22628"></a><span class="term"><a
 href="#vm" title="The virtual machine"><tt>mv_space</tt></a></span></dt>
 
 <dd>all values except the first one, an array of <a
@@ -17475,7 +17512,7 @@ target="_top"><b>C</b></a> type <tt>Cclosure</tt>):</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e22593" name="d41e22593"></a><span
+<dt><a id="d41e22682" name="d41e22682"></a><span
 class="term">name</span></dt>
 
 <dd>This is the name of the function, normally a symbol or a list of the
@@ -17485,7 +17522,7 @@ target="_top"><tt>SETF</tt></a> <i><tt>symbol</tt></i>)</tt>. It is used
 for printing the function and for error messages. This field is
 immutable.</dd>
 
-<dt><a id="d41e22609" name="d41e22609"></a><span class="term"><a
+<dt><a id="d41e22698" name="d41e22698"></a><span class="term"><a
 href="#comp-fun"
 title="The structure of compiled functions"><tt>codevec</tt></a></span></dt>
 
@@ -17500,7 +17537,7 @@ href="http://www.lisp.org/HyperSpec/Body/typ_unsigned-byte.html"
 target="_top"><tt>UNSIGNED-BYTE</tt></a> 8))</tt> is more complex than
 this). This field is immutable.</dd>
 
-<dt><a id="d41e22636" name="d41e22636"></a><span class="term"><a
+<dt><a id="d41e22725" name="d41e22725"></a><span class="term"><a
 href="#comp-fun"
 title="The structure of compiled functions"><tt>consts</tt></a>[]</span></dt>
 
@@ -17528,18 +17565,18 @@ special roles. A function looks like this, in more detail:</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e22670" name="d41e22670"></a><span
+<dt><a id="d41e22759" name="d41e22759"></a><span
 class="term">name</span></dt>
 
 <dd>see above</dd>
 
-<dt><a id="d41e22676" name="d41e22676"></a><span class="term"><a
+<dt><a id="d41e22765" name="d41e22765"></a><span class="term"><a
 href="#comp-fun"
 title="The structure of compiled functions"><tt>codevec</tt></a></span></dt>
 
 <dd>see above</dd>
 
-<dt><a id="d41e22684" name="d41e22684"></a><span class="term"><a
+<dt><a id="d41e22773" name="d41e22773"></a><span class="term"><a
 href="#comp-fun"
 title="The structure of compiled functions"><tt>venv-const</tt></a>*</span></dt>
 
@@ -17557,7 +17594,7 @@ target="_top"><tt>NIL</tt></a> or a <a
 href="http://www.lisp.org/HyperSpec/Body/typ_simple-vector.html"
 target="_top"><tt>SIMPLE-VECTOR</tt></a> having the same structure.</dd>
 
-<dt><a id="d41e22734" name="d41e22734"></a><span class="term"><a
+<dt><a id="d41e22823" name="d41e22823"></a><span class="term"><a
 href="#comp-fun"
 title="The structure of compiled functions"><tt>block-const</tt></a>*</span></dt>
 
@@ -17576,7 +17613,7 @@ href="http://www.lisp.org/HyperSpec/Body/acc_carcm_cdr_darcm_cddddr.html"
 target="_top"><tt>CAR</tt></a> is the block's name, only for error message
 purposes.</dd>
 
-<dt><a id="d41e22766" name="d41e22766"></a><span class="term"><a
+<dt><a id="d41e22855" name="d41e22855"></a><span class="term"><a
 href="#comp-fun"
 title="The structure of compiled functions"><tt>tagbody-const</tt></a>*</span></dt>
 
@@ -17602,7 +17639,7 @@ href="http://www.lisp.org/HyperSpec/Body/speope_tagbody.html"
 target="_top"><tt>TAGBODY</tt></a> tags, only for the error message
 purposes.</dd>
 
-<dt><a id="d41e22814" name="d41e22814"></a><span class="term"><a
+<dt><a id="d41e22903" name="d41e22903"></a><span class="term"><a
 href="#comp-fun"
 title="The structure of compiled functions"><tt>keyword-const</tt></a>*</span></dt>
 
@@ -17614,7 +17651,7 @@ target="_top"><tt>&amp;KEY</tt></a>, here come the symbols ("keywords"),
 in their correct order. They are used by the interpreter during function
 call.</dd>
 
-<dt><a id="d41e22830" name="d41e22830"></a><span class="term"><a
+<dt><a id="d41e22919" name="d41e22919"></a><span class="term"><a
 href="#comp-fun"
 title="The structure of compiled functions"><tt>other-const</tt></a>*</span></dt>
 
@@ -17673,13 +17710,13 @@ target="_top"><b>C</b></a> type <tt>Codevec</tt>):</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e22922" name="d41e22922"></a><span
+<dt><a id="d41e23011" name="d41e23011"></a><span
 class="term"><tt>spdepth_1</tt> (2 bytes)</span></dt>
 
 <dd>The 1st part of the maximal <a href="#vm"
 title="The virtual machine"><tt>SP</tt></a> depth.</dd>
 
-<dt><a id="d41e22934" name="d41e22934"></a><span
+<dt><a id="d41e23023" name="d41e23023"></a><span
 class="term"><tt>spdepth_jmpbufsize</tt> (2 bytes)</span></dt>
 
 <dd>The <a href="#vm" title="The virtual machine"><tt>jmpbufsize</tt></a>
@@ -17689,19 +17726,19 @@ href="#vm" title="The virtual machine"><tt>SP</tt></a> depth (precomputed
 by the compiler) is given by <tt>spdepth_1 + spdepth_jmpbufsize * <a
 href="#vm" title="The virtual machine"><tt>jmpbufsize</tt></a></tt>.</dd>
 
-<dt><a id="d41e22960" name="d41e22960"></a><span class="term"><a
+<dt><a id="d41e23049" name="d41e23049"></a><span class="term"><a
 href="#comp-fun"
 title="The structure of compiled functions"><tt>numreq</tt></a> (2
 bytes)</span></dt>
 
 <dd>Number of required parameters.</dd>
 
-<dt><a id="d41e22969" name="d41e22969"></a><span
+<dt><a id="d41e23058" name="d41e23058"></a><span
 class="term"><tt>numopt</tt> (2 bytes)</span></dt>
 
 <dd>Number of optional parameters.</dd>
 
-<dt><a id="d41e22977" name="d41e22977"></a><span class="term"><a
+<dt><a id="d41e23066" name="d41e23066"></a><span class="term"><a
 href="#comp-fun"
 title="The structure of compiled functions"><tt>flags</tt></a> (1
 byte)</span></dt>
@@ -17709,33 +17746,33 @@ byte)</span></dt>
 <dd>
 <div class="variablelist">
 <dl>
-<dt><a id="d41e22985" name="d41e22985"></a><span class="term">bit
+<dt><a id="d41e23074" name="d41e23074"></a><span class="term">bit
 0</span></dt>
 
 <dd>set if the function has an <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 target="_top"><tt>&amp;REST</tt></a> parameter</dd>
 
-<dt><a id="d41e22995" name="d41e22995"></a><span class="term">bit
+<dt><a id="d41e23084" name="d41e23084"></a><span class="term">bit
 7</span></dt>
 
 <dd>set if the function has <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 target="_top"><tt>&amp;KEY</tt></a> parameters</dd>
 
-<dt><a id="d41e23005" name="d41e23005"></a><span class="term">bit
+<dt><a id="d41e23094" name="d41e23094"></a><span class="term">bit
 6</span></dt>
 
 <dd>set if the function has <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 target="_top"><tt>&amp;ALLOW-OTHER-KEYS</tt></a></dd>
 
-<dt><a id="d41e23015" name="d41e23015"></a><span class="term">bit
+<dt><a id="d41e23104" name="d41e23104"></a><span class="term">bit
 4</span></dt>
 
 <dd>set if the function is a generic function</dd>
 
-<dt><a id="d41e23021" name="d41e23021"></a><span class="term">bit
+<dt><a id="d41e23110" name="d41e23110"></a><span class="term">bit
 3</span></dt>
 
 <dd>set if the function is a generic function and its effective method
@@ -17744,7 +17781,7 @@ shall be returned (instead of being executed)</dd>
 </div>
 </dd>
 
-<dt><a id="d41e23027" name="d41e23027"></a><span
+<dt><a id="d41e23116" name="d41e23116"></a><span
 class="term"><tt>signature</tt> (1 byte)</span></dt>
 
 <dd>An abbreviation code depending on <a href="#comp-fun"
@@ -17753,7 +17790,7 @@ title="The structure of compiled functions"><tt>numreq</tt></a>,
 title="The structure of compiled functions"><tt>flags</tt></a>. It is used
 for speeding up the function call.</dd>
 
-<dt><a id="d41e23046" name="d41e23046"></a><span
+<dt><a id="d41e23135" name="d41e23135"></a><span
 class="term"><tt>numkey</tt> (2 bytes, only if the function has <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 target="_top"><tt>&amp;KEY</tt></a>)</span></dt>
@@ -17762,7 +17799,7 @@ target="_top"><tt>&amp;KEY</tt></a>)</span></dt>
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 target="_top"><tt>&amp;KEY</tt></a> parameters.</dd>
 
-<dt><a id="d41e23062" name="d41e23062"></a><span
+<dt><a id="d41e23151" name="d41e23151"></a><span
 class="term"><tt>keyconsts</tt> (2 bytes, only if the function has <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 target="_top"><tt>&amp;KEY</tt></a>)</span></dt>
@@ -17771,7 +17808,7 @@ target="_top"><tt>&amp;KEY</tt></a>)</span></dt>
 title="The structure of compiled functions"><tt>keyword-const</tt></a> in
 the function.</dd>
 
-<dt><a id="d41e23078" name="d41e23078"></a><span
+<dt><a id="d41e23167" name="d41e23167"></a><span
 class="term"><tt>byte</tt>* (any number of bytes)</span></dt>
 
 <dd>The bytecode instructions.</dd>
@@ -17803,7 +17840,7 @@ letters:</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e23099" name="d41e23099"></a><span
+<dt><a id="d41e23188" name="d41e23188"></a><span
 class="term"><i><tt>k</tt></i>, <i><tt>n</tt></i>, <i><tt>m</tt></i>,
 <i><tt>l</tt></i></span></dt>
 
@@ -17812,13 +17849,13 @@ is zero, then the bits 6..0 give the value (7 bits). If its bit 7 is one,
 then the bits 6..0 and the subsequent byte together form the value (15
 bits).</dd>
 
-<dt><a id="d41e23115" name="d41e23115"></a><span
+<dt><a id="d41e23204" name="d41e23204"></a><span
 class="term"><i><tt>b</tt></i></span></dt>
 
 <dd>A (nonnegative) 1-byte operand. The next byte is read and is the
 value.</dd>
 
-<dt><a id="d41e23122" name="d41e23122"></a><span
+<dt><a id="d41e23211" name="d41e23211"></a><span
 class="term"><i><tt>label</tt></i></span></dt>
 
 <dd>A label operand. A signed numeric operand is read: The next byte is
@@ -17854,7 +17891,7 @@ for constants</h3>
 </div>
 
 <div class="table">
-<p><a id="d41e23135" name="d41e23135"></a><b>Table 30.1. Instructions for
+<p><a id="d41e23224" name="d41e23224"></a><b>Table 30.1. Instructions for
 constants</b></p>
 
 <table summary="Instructions for constants" border="1">
@@ -17928,7 +17965,7 @@ name="instr-lex-var"></a>Instructions for lexical variables</h3>
 </div>
 
 <div class="table">
-<p><a id="d41e23264" name="d41e23264"></a><b>Table 30.2. Instructions for
+<p><a id="d41e23353" name="d41e23353"></a><b>Table 30.2. Instructions for
 lexical variables</b></p>
 
 <table summary="Instructions for lexical variables" border="1">
@@ -18090,7 +18127,7 @@ name="instr-dyn-var"></a>Instructions for dynamic variables</h3>
 </div>
 
 <div class="table">
-<p><a id="d41e23740" name="d41e23740"></a><b>Table 30.3. Instructions for
+<p><a id="d41e23829" name="d41e23829"></a><b>Table 30.3. Instructions for
 dynamic variables</b></p>
 
 <table summary="Instructions for dynamic variables" border="1">
@@ -18179,7 +18216,7 @@ for stack operations</h3>
 </div>
 
 <div class="table">
-<p><a id="d41e23908" name="d41e23908"></a><b>Table 30.4. Instructions for
+<p><a id="d41e23997" name="d41e23997"></a><b>Table 30.4. Instructions for
 stack operations</b></p>
 
 <table summary="Instructions for stack operations" border="1">
@@ -18267,7 +18304,7 @@ for control flow, jumps</h3>
 </div>
 
 <div class="table">
-<p><a id="d41e24113" name="d41e24113"></a><b>Table 30.5. Instructions for
+<p><a id="d41e24202" name="d41e24202"></a><b>Table 30.5. Instructions for
 control flow, jumps</b></p>
 
 <table summary="Instructions for control flow, jumps" border="1">
@@ -18517,7 +18554,7 @@ lexical environment, creation of closures</h3>
 </div>
 
 <div class="table">
-<p><a id="d41e24767" name="d41e24767"></a><b>Table 30.6. Instructions for
+<p><a id="d41e24856" name="d41e24856"></a><b>Table 30.6. Instructions for
 lexical environment, creation of closures</b></p>
 
 <table summary="Instructions for lexical environment,
@@ -18588,7 +18625,7 @@ name="instr-funcall"></a>Instructions for function calls</h3>
 </div>
 
 <div class="table">
-<p><a id="d41e24904" name="d41e24904"></a><b>Table 30.7. Instructions for
+<p><a id="d41e24993" name="d41e24993"></a><b>Table 30.7. Instructions for
 function calls</b></p>
 
 <table summary="Instructions for function calls" border="1">
@@ -18771,7 +18808,7 @@ parameters</h3>
 </div>
 
 <div class="table">
-<p><a id="d41e25284" name="d41e25284"></a><b>Table 30.8. Instructions for
+<p><a id="d41e25373" name="d41e25373"></a><b>Table 30.8. Instructions for
 optional and keyword parameters</b></p>
 
 <table summary="Instructions for optional
@@ -18905,7 +18942,7 @@ name="instr-mulval"></a>Instructions for multiple values</h3>
 </div>
 
 <div class="table">
-<p><a id="d41e25610" name="d41e25610"></a><b>Table 30.9. Instructions for
+<p><a id="d41e25699" name="d41e25699"></a><b>Table 30.9. Instructions for
 multiple values</b></p>
 
 <table summary="Instructions for multiple values" border="1">
@@ -19037,7 +19074,7 @@ target="_top"><tt>RETURN-FROM</tt></a></h3>
 </div>
 
 <div class="table">
-<p><a id="d41e25862" name="d41e25862"></a><b>Table 30.10. Instructions for
+<p><a id="d41e25951" name="d41e25951"></a><b>Table 30.10. Instructions for
 <a href="http://www.lisp.org/HyperSpec/Body/speope_block.html"
 target="_top"><tt>BLOCK</tt></a> and <a
 href="http://www.lisp.org/HyperSpec/Body/speope_return-from.html"
@@ -19147,7 +19184,7 @@ target="_top"><tt>GO</tt></a></h3>
 </div>
 
 <div class="table">
-<p><a id="d41e26100" name="d41e26100"></a><b>Table 30.11. Instructions for
+<p><a id="d41e26189" name="d41e26189"></a><b>Table 30.11. Instructions for
 <a href="http://www.lisp.org/HyperSpec/Body/speope_tagbody.html"
 target="_top"><tt>TAGBODY</tt></a> and <a
 href="http://www.lisp.org/HyperSpec/Body/speope_go.html"
@@ -19273,7 +19310,7 @@ target="_top"><tt>THROW</tt></a></h3>
 </div>
 
 <div class="table">
-<p><a id="d41e26411" name="d41e26411"></a><b>Table 30.12. Instructions for
+<p><a id="d41e26500" name="d41e26500"></a><b>Table 30.12. Instructions for
 <a href="http://www.lisp.org/HyperSpec/Body/speope_catch.html"
 target="_top"><tt>CATCH</tt></a> and <a
 href="http://www.lisp.org/HyperSpec/Body/speope_throw.html"
@@ -19353,7 +19390,7 @@ target="_top"><tt>UNWIND-PROTECT</tt></a></h3>
 </div>
 
 <div class="table">
-<p><a id="d41e26540" name="d41e26540"></a><b>Table 30.13. Instructions for
+<p><a id="d41e26629" name="d41e26629"></a><b>Table 30.13. Instructions for
 <a href="http://www.lisp.org/HyperSpec/Body/speope_unwind-protect.html"
 target="_top"><tt>UNWIND-PROTECT</tt></a></b></p>
 
@@ -19463,7 +19500,7 @@ target="_top"><tt>HANDLER-BIND</tt></a></h3>
 </div>
 
 <div class="table">
-<p><a id="d41e26754" name="d41e26754"></a><b>Table 30.14. Instructions for
+<p><a id="d41e26843" name="d41e26843"></a><b>Table 30.14. Instructions for
 <a href="http://www.lisp.org/HyperSpec/Body/mac_handler-bind.html"
 target="_top"><tt>HANDLER-BIND</tt></a></b></p>
 
@@ -19519,7 +19556,7 @@ name="instr-inline"></a>Instructions for some inlined functions</h3>
 </div>
 
 <div class="table">
-<p><a id="d41e26831" name="d41e26831"></a><b>Table 30.15. Instructions for
+<p><a id="d41e26920" name="d41e26920"></a><b>Table 30.15. Instructions for
 some inlined functions</b></p>
 
 <table summary="Instructions for some inlined functions" border="1">
@@ -19677,7 +19714,7 @@ optimization. The only exception is <tt>FUNCALL&amp;SKIP&amp;RETGF</tt>,
 which is needed for generic functions.</p>
 
 <div class="table">
-<p><a id="d41e27178" name="d41e27178"></a><b>Table 30.16. Combined
+<p><a id="d41e27267" name="d41e27267"></a><b>Table 30.16. Combined
 instructions</b></p>
 
 <table summary="Combined instructions" border="1">
@@ -20035,7 +20072,7 @@ name="instr-shortcut"></a>Shortcut instructions</h3>
 the following frequent instructions:</p>
 
 <div class="table">
-<p><a id="d41e28112" name="d41e28112"></a><b>Table 30.17. Shortcut
+<p><a id="d41e28201" name="d41e28201"></a><b>Table 30.17. Shortcut
 instructions</b></p>
 
 <table summary="Shortcut instructions" border="1">
@@ -20340,13 +20377,13 @@ target="_top"><tt>&amp;OPTIONAL</tt></a> (<i><tt>filename</tt></i>
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 target="_top"><tt>&amp;KEY</tt></a> :quiet :init-function) saves the
 running <a href="http://clisp.cons.org" target="_top"><b>CLISP</b></a>'s
-memory to the file <i><tt>filename</tt></i>; extension <tt>mem</tt> is
-recommended. If the <tt>:quiet</tt> argument is not <a
+memory to the file <i><tt>filename</tt></i>; extension <tt>#P".mem"</tt>
+is recommended. If the <tt>:quiet</tt> argument is not <a
 href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a>, the startup banner and the good-bye
 message will be suppressed. The <tt>:init-function</tt> argument specifies
 a function that will be executed at startup of the saved image. When
-<i><tt>filename</tt></i> does not have an extension, <tt>mem</tt>
+<i><tt>filename</tt></i> does not have an extension, <tt>#P".mem"</tt>
 extension is automatically used. The starting package of the new image is
 the one in which you were when you invoked <tt>ext:saveinitmem</tt>.</p>
 </div>
@@ -20547,7 +20584,7 @@ name="i18n-example"></a>Example</h4>
 look as follows.</p>
 
 <div class="example">
-<p><a id="d41e28626" name="d41e28626"></a><b>Example 31.1.
+<p><a id="d41e28715" name="d41e28715"></a><b>Example 31.1.
 prog.lisp</b></p>
 
 <pre class="programlisting">
@@ -20568,7 +20605,7 @@ href="#textdomaindir"><tt>I18N:TEXTDOMAINDIR</tt></a> is assigned a value;
 in our case, for simplicity, the current directory.</p>
 
 <div class="example">
-<p><a id="d41e28645" name="d41e28645"></a><b>Example 31.2.
+<p><a id="d41e28734" name="d41e28734"></a><b>Example 31.2.
 prog.lisp</b></p>
 
 <pre class="programlisting">
@@ -20591,7 +20628,7 @@ prog.lisp</b></p>
 customary.</p>
 
 <div class="example">
-<p><a id="d41e28656" name="d41e28656"></a><b>Example 31.3.
+<p><a id="d41e28745" name="d41e28745"></a><b>Example 31.3.
 prog.lisp</b></p>
 
 <pre class="programlisting">
@@ -20622,7 +20659,7 @@ Note: xgettext version 0.11 or higher is required here.
 <p>The message catalog template looks roughly like this.</p>
 
 <div class="example">
-<p><a id="d41e28668" name="d41e28668"></a><b>Example 31.4.
+<p><a id="d41e28757" name="d41e28757"></a><b>Example 31.4.
 prog.pot</b></p>
 
 <pre class="programlisting">
@@ -20639,7 +20676,7 @@ msgstr[1] ""
 <p>Then a French translator creates a French message catalog</p>
 
 <div class="example">
-<p><a id="d41e28675" name="d41e28675"></a><b>Example 31.5.
+<p><a id="d41e28764" name="d41e28764"></a><b>Example 31.5.
 prog.fr.po</b></p>
 
 <pre class="programlisting">
@@ -20782,7 +20819,7 @@ composed of the following facets:</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e28880" name="d41e28880"></a><span class="term"><a
+<dt><a id="d41e28969" name="d41e28969"></a><span class="term"><a
 href="#charset" title="Character Sets">character set</a></span></dt>
 
 <dd>This denotes both the set of characters that can be represented and
@@ -20791,7 +20828,7 @@ into raw bytes. In this context, for example, "UTF-8" and "UCS-4" are
 considered different, although they can represent the same set of
 characters.</dd>
 
-<dt><a id="d41e28887" name="d41e28887"></a><span class="term"><a
+<dt><a id="d41e28976" name="d41e28976"></a><span class="term"><a
 href="#newline" title="Line Terminators">line terminator</a>
 mode</span></dt>
 
@@ -20813,7 +20850,7 @@ mode</span></dt>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e28900" name="d41e28900"></a><span class="term">Platform
+<dt><a id="d41e28989" name="d41e28989"></a><span class="term">Platform
 dependent: Only in <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a> built <span
 class="strong"><i>without</i></span> compile-time flag <a
@@ -20832,7 +20869,7 @@ href="http://www.unicode.org/" target="_top"><span
 class="strong"><i>UNICODE</i></span></a>.</span></dt>
 
 <dd>
-<p><a id="d41e28935" name="d41e28935"></a>The following character sets are
+<p><a id="d41e29024" name="d41e29024"></a>The following character sets are
 supported, as values of the corresponding (constant) symbol in the <a
 href="#encoding"
 title="Extensions-1.4. Encodings">&ldquo;CHARSET&rdquo;</a> package:</p>
@@ -20979,7 +21016,7 @@ Ukrainian language.</li>
 an extension of the ASCII character set, suitable for Russian (this is the
 standard Russian encoding on the Internet)</li>
 
-<li><a id="d41e29136" name="d41e29136"></a><tt>JIS_X0201</tt>, a character
+<li><a id="d41e29225" name="d41e29225"></a><tt>JIS_X0201</tt>, a character
 set for the Japanese language.</li>
 
 <li><a id="charset-MAC-ARABIC"
@@ -21318,15 +21355,17 @@ particular, among others:</p>
 <div class="itemizedlist"><a id="gnu-extra-charset-list"
 name="gnu-extra-charset-list"></a>
 <ul>
-<li><a id="charset-EUC-JP" name="charset-EUC-JP"></a><tt>EUC-JP</tt> and
-<tt>SHIFT-JIS</tt>, for the Japanese language,</li>
+<li><a id="charset-EUC-JP-gnu"
+name="charset-EUC-JP-gnu"></a><tt>EUC-JP</tt> and <tt>SHIFT-JIS</tt>, for
+the Japanese language,</li>
 
-<li><a id="charset-EUC-CN" name="charset-EUC-CN"></a><tt>EUC-CN</tt>,
-<tt>EUC-TW</tt>, <tt>BIG5</tt> and <tt>GB</tt>, for the Chinese
-language,</li>
+<li><a id="charset-EUC-CN-gnu"
+name="charset-EUC-CN-gnu"></a><tt>EUC-CN</tt>, <tt>EUC-TW</tt>,
+<tt>BIG5</tt> and <tt>GB</tt>, for the Chinese language,</li>
 
-<li><a id="charset-EUC-KR" name="charset-EUC-KR"></a><tt>EUC-KR</tt> and
-<tt>ISO-2022-KR</tt>, for the Korean language.</li>
+<li><a id="charset-EUC-KR-gnu"
+name="charset-EUC-KR-gnu"></a><tt>EUC-KR</tt> and <tt>ISO-2022-KR</tt>,
+for the Korean language.</li>
 </ul>
 </div>
 
@@ -21527,7 +21566,7 @@ href="#extfmt"><tt>:EXTERNAL-FORMAT</tt></a> argument was specified.</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e30020" name="d41e30020"></a><span class="term">Platform
+<dt><a id="d41e30109" name="d41e30109"></a><span class="term">Platform
 dependent: Only in <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a> built <span
 class="strong"><i>with</i></span> compile-time flag <a
@@ -21596,7 +21635,7 @@ encoding.</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e30105" name="d41e30105"></a><span
+<dt><a id="d41e30194" name="d41e30194"></a><span
 class="term"><tt>(</tt>EXT:CONVERT-STRING-FROM-BYTES</span>
 <i><tt>byte-vector</tt></i> <i><tt>encoding</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -21606,7 +21645,7 @@ target="_top"><tt>&amp;KEY</tt></a> <tt>:START</tt> <tt>:END</tt>)</dt>
 <i><tt>start</tt></i> to <i><tt>end</tt></i> to a string, according to the
 given <i><tt>encoding</tt></i>, and returns the resulting string.</dd>
 
-<dt><a id="d41e30143" name="d41e30143"></a><span
+<dt><a id="d41e30232" name="d41e30232"></a><span
 class="term"><tt>(</tt>EXT:CONVERT-STRING-TO-BYTES</span>
 <i><tt>string</tt></i> <i><tt>encoding</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -21637,12 +21676,12 @@ behavior:</p>
 
 <div class="itemizedlist">
 <ul>
-<li><a id="d41e30198" name="d41e30198"></a>You can create a new subclass
+<li><a id="d41e30287" name="d41e30287"></a>You can create a new subclass
 of <a href="#fu-st"><tt>GRAY:FUNDAMENTAL-STREAM</tt></a> and define
 methods for the elementary stream operations on it. These generic
 functions all have a name starting with the prefix "stream-".</li>
 
-<li><a id="d41e30205" name="d41e30205"></a>You can create a new subclass
+<li><a id="d41e30294" name="d41e30294"></a>You can create a new subclass
 of <tt>gstream:generic-stream-controller</tt> and define methods for the
 elementary stream operations on it. These generic functions all have a
 name starting with the prefix "generic-stream-". The stream itself is a
@@ -21750,28 +21789,28 @@ provide a method on <a
 href="http://www.lisp.org/HyperSpec/Body/fun_stream-element-type.html"
 target="_top"><tt>STREAM-ELEMENT-TYPE</tt></a>.</dd>
 
-<dt><a id="d41e30370" name="d41e30370"></a><span
+<dt><a id="d41e30459" name="d41e30459"></a><span
 class="term"><tt>GRAY:FUNDAMENTAL-CHARACTER-INPUT-STREAM</tt></span></dt>
 
 <dd>This is a convenience class inheriting from both <a
 href="#fu-st-char"><tt>GRAY:FUNDAMENTAL-CHARACTER-STREAM</tt></a> and <a
 href="#fu-st-in"><tt>GRAY:FUNDAMENTAL-INPUT-STREAM</tt></a>.</dd>
 
-<dt><a id="d41e30385" name="d41e30385"></a><span
+<dt><a id="d41e30474" name="d41e30474"></a><span
 class="term"><tt>GRAY:FUNDAMENTAL-CHARACTER-OUTPUT-STREAM</tt></span></dt>
 
 <dd>This is a convenience class inheriting from both <a
 href="#fu-st-char"><tt>GRAY:FUNDAMENTAL-CHARACTER-STREAM</tt></a> and <a
 href="#fu-st-out"><tt>GRAY:FUNDAMENTAL-OUTPUT-STREAM</tt></a>.</dd>
 
-<dt><a id="d41e30400" name="d41e30400"></a><span
+<dt><a id="d41e30489" name="d41e30489"></a><span
 class="term"><tt>GRAY:FUNDAMENTAL-BINARY-INPUT-STREAM</tt></span></dt>
 
 <dd>This is a convenience class inheriting from both <a
 href="#fu-st-bin"><tt>GRAY:FUNDAMENTAL-BINARY-STREAM</tt></a> and <a
 href="#fu-st-in"><tt>GRAY:FUNDAMENTAL-INPUT-STREAM</tt></a>.</dd>
 
-<dt><a id="d41e30415" name="d41e30415"></a><span
+<dt><a id="d41e30504" name="d41e30504"></a><span
 class="term"><tt>GRAY:FUNDAMENTAL-BINARY-OUTPUT-STREAM</tt></span></dt>
 
 <dd>This is a convenience class inheriting from both <a
@@ -21784,7 +21823,7 @@ href="#fu-st-out"><tt>GRAY:FUNDAMENTAL-OUTPUT-STREAM</tt></a>.</dd>
 <p><b>general generic functions defined on streams</b></p>
 
 <dl>
-<dt><a id="d41e30433" name="d41e30433"></a><span class="term"><tt>(<a
+<dt><a id="d41e30522" name="d41e30522"></a><span class="term"><tt>(<a
 href="http://www.lisp.org/HyperSpec/Body/fun_stream-element-type.html"
 target="_top"><tt>STREAM-ELEMENT-TYPE</tt></a>
 <i><tt>stream</tt></i>)</tt></span></dt>
@@ -21802,7 +21841,7 @@ href="#fu-st-char"><tt>GRAY:FUNDAMENTAL-CHARACTER-STREAM</tt></a> returns
 target="_top"><tt>CHARACTER</tt></a>.</p>
 </dd>
 
-<dt><a id="d41e30465" name="d41e30465"></a><span class="term"><tt>((<a
+<dt><a id="d41e30554" name="d41e30554"></a><span class="term"><tt>((<a
 href="http://www.lisp.org/HyperSpec/Body/mac_setfcm_psetf.html"
 target="_top"><tt>SETF</tt></a> <a
 href="http://www.lisp.org/HyperSpec/Body/fun_stream-element-type.html"
@@ -21821,7 +21860,7 @@ href="http://www.lisp.org/HyperSpec/Body/fun_stream-element-type.html"
 target="_top"><tt>STREAM-ELEMENT-TYPE</tt></a>)</p>
 </dd>
 
-<dt><a id="d41e30500" name="d41e30500"></a><span class="term"><tt>(<a
+<dt><a id="d41e30589" name="d41e30589"></a><span class="term"><tt>(<a
 href="http://www.lisp.org/HyperSpec/Body/fun_close.html"
 target="_top"><tt>CLOSE</tt></a> <i><tt>stream</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -21835,7 +21874,7 @@ href="http://www.lisp.org/HyperSpec/Body/locfun_call-next-method.html"
 target="_top"><tt>CALL-NEXT-METHOD</tt></a>.</p>
 </dd>
 
-<dt><a id="d41e30527" name="d41e30527"></a><span class="term"><tt>(<a
+<dt><a id="d41e30616" name="d41e30616"></a><span class="term"><tt>(<a
 href="http://www.lisp.org/HyperSpec/Body/fun_open-stream-p.html"
 target="_top"><tt>OPEN-STREAM-P</tt></a>
 <i><tt>stream</tt></i>)</tt></span></dt>
@@ -21897,7 +21936,7 @@ streams whose <a href="#st-rc"><tt>GRAY:STREAM-READ-CHAR</tt></a> method
 never blocks.</p>
 </dd>
 
-<dt><a id="d41e30643" name="d41e30643"></a><span
+<dt><a id="d41e30732" name="d41e30732"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-PEEK-CHAR</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -21915,7 +21954,7 @@ streams whose <a href="#st-rc"><tt>GRAY:STREAM-READ-CHAR</tt></a> method
 has no side-effects.</p>
 </dd>
 
-<dt><a id="d41e30684" name="d41e30684"></a><span
+<dt><a id="d41e30773" name="d41e30773"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-LISTEN</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -21935,7 +21974,7 @@ streams whose <a href="#st-rc"><tt>GRAY:STREAM-READ-CHAR</tt></a> method
 has no side-effects.</p>
 </dd>
 
-<dt><a id="d41e30722" name="d41e30722"></a><span
+<dt><a id="d41e30811" name="d41e30811"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-READ-CHAR-WILL-HANG-P</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -21956,7 +21995,7 @@ target="_top"><b>CLISP</b></a> extension (see <a
 href="#rcwhp"><tt>EXT:READ-CHAR-WILL-HANG-P</tt></a>).</p>
 </dd>
 
-<dt><a id="d41e30767" name="d41e30767"></a><span
+<dt><a id="d41e30856" name="d41e30856"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-READ-CHAR-SEQUENCE</span>
 <i><tt>stream</tt></i> <i><tt>sequence</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -21989,7 +22028,7 @@ target="_top"><b>CLISP</b></a> extension (see <a
 href="#rd-ch-seq"><tt>EXT:READ-CHAR-SEQUENCE</tt></a>)</p>
 </dd>
 
-<dt><a id="d41e30858" name="d41e30858"></a><span
+<dt><a id="d41e30947" name="d41e30947"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-READ-LINE</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -22004,7 +22043,7 @@ href="#st-rc"><tt>GRAY:STREAM-READ-CHAR</tt></a>; this is always
 sufficient.</p>
 </dd>
 
-<dt><a id="d41e30886" name="d41e30886"></a><span
+<dt><a id="d41e30975" name="d41e30975"></a><span
 class="term"><tt>(</tt>gray:stream-clear-input</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -22048,7 +22087,7 @@ stream.</p>
 <p>You must define a method for this function.</p>
 </dd>
 
-<dt><a id="d41e30950" name="d41e30950"></a><span
+<dt><a id="d41e31039" name="d41e31039"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-START-LINE-P</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -22064,7 +22103,7 @@ href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a>.</p>
 </dd>
 
-<dt><a id="d41e30977" name="d41e30977"></a><span
+<dt><a id="d41e31066" name="d41e31066"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-WRITE-CHAR-SEQUENCE</span>
 <i><tt>stream</tt></i> <i><tt>sequence</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -22094,7 +22133,7 @@ target="_top"><b>CLISP</b></a> extension (see <a
 href="#wr-ch-seq"><tt>EXT:WRITE-CHAR-SEQUENCE</tt></a>)</p>
 </dd>
 
-<dt><a id="d41e31059" name="d41e31059"></a><span
+<dt><a id="d41e31148" name="d41e31148"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-WRITE-STRING</span>
 <i><tt>stream</tt></i> <i><tt>string</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -22119,7 +22158,7 @@ target="_top"><tt>LENGTH</tt></a> <i><tt>string</tt></i>)</tt>.</p>
 is always sufficient.</p>
 </dd>
 
-<dt><a id="d41e31133" name="d41e31133"></a><span
+<dt><a id="d41e31222" name="d41e31222"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-TERPRI</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -22131,7 +22170,7 @@ href="#st-wc"><tt>GRAY:STREAM-WRITE-CHAR</tt></a>; this is always
 sufficient.</p>
 </dd>
 
-<dt><a id="d41e31155" name="d41e31155"></a><span
+<dt><a id="d41e31244" name="d41e31244"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-FRESH-LINE</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -22144,7 +22183,7 @@ did output a #\Newline character.</p>
 <tt>GRAY:STREAM-TERPRI</tt> if necessary; this is always sufficient.</p>
 </dd>
 
-<dt><a id="d41e31182" name="d41e31182"></a><span
+<dt><a id="d41e31271" name="d41e31271"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-FINISH-OUTPUT</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -22155,7 +22194,7 @@ returns.</p>
 <p>The default method does nothing.</p>
 </dd>
 
-<dt><a id="d41e31197" name="d41e31197"></a><span
+<dt><a id="d41e31286" name="d41e31286"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-FORCE-OUTPUT</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -22166,7 +22205,7 @@ returns without waiting until it has reached its destination.</p>
 <p>The default method does nothing.</p>
 </dd>
 
-<dt><a id="d41e31212" name="d41e31212"></a><span
+<dt><a id="d41e31301" name="d41e31301"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-CLEAR-OUTPUT</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -22177,7 +22216,7 @@ destination.</p>
 <p>The default method does nothing.</p>
 </dd>
 
-<dt><a id="d41e31227" name="d41e31227"></a><span
+<dt><a id="d41e31316" name="d41e31316"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-ADVANCE-TO-COLUMN</span>
 <i><tt>stream</tt></i> <i><tt>column</tt></i>)</dt>
 
@@ -22236,7 +22275,7 @@ target="_top"><b>CLISP</b></a> extension (see <a
 href="#rbla"><tt>EXT:READ-BYTE-LOOKAHEAD</tt></a>).</p>
 </dd>
 
-<dt><a id="d41e31346" name="d41e31346"></a><span
+<dt><a id="d41e31435" name="d41e31435"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-READ-BYTE-WILL-HANG-P</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -22258,7 +22297,7 @@ href="#st-rbla"><tt>GRAY:STREAM-READ-BYTE-LOOKAHEAD</tt></a>; this is
 always sufficient.</p>
 </dd>
 
-<dt><a id="d41e31394" name="d41e31394"></a><span
+<dt><a id="d41e31483" name="d41e31483"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-READ-BYTE-NO-HANG</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -22284,7 +22323,7 @@ href="#st-rbla"><tt>GRAY:STREAM-READ-BYTE-LOOKAHEAD</tt></a> returns true;
 this is always sufficient.</p>
 </dd>
 
-<dt><a id="d41e31457" name="d41e31457"></a><span
+<dt><a id="d41e31546" name="d41e31546"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-READ-BYTE-SEQUENCE</span>
 <i><tt>stream</tt></i> <i><tt>sequence</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -22323,7 +22362,7 @@ href="#rd-by-seq"><tt>EXT:READ-BYTE-SEQUENCE</tt></a>).</p>
 <p><b>generic functions for binary output</b></p>
 
 <dl>
-<dt><a id="d41e31551" name="d41e31551"></a><span
+<dt><a id="d41e31640" name="d41e31640"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-WRITE-BYTE</span>
 <i><tt>stream</tt></i> <i><tt>integer</tt></i>)</dt>
 
@@ -22333,7 +22372,7 @@ class="term"><tt>(</tt>GRAY:STREAM-WRITE-BYTE</span>
 <p>You must define a method for this function.</p>
 </dd>
 
-<dt><a id="d41e31572" name="d41e31572"></a><span
+<dt><a id="d41e31661" name="d41e31661"></a><span
 class="term"><tt>(</tt>GRAY:STREAM-WRITE-BYTE-SEQUENCE</span>
 <i><tt>stream</tt></i> <i><tt>sequence</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -22382,13 +22421,13 @@ interface:</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e31668" name="d41e31668"></a><span
+<dt><a id="d41e31757" name="d41e31757"></a><span
 class="term"><tt>(</tt>gstream:make-generic-stream</span>
 <i><tt>controller</tt></i>)</dt>
 
 <dd>returns a generic stream.</dd>
 
-<dt><a id="d41e31681" name="d41e31681"></a><span
+<dt><a id="d41e31770" name="d41e31770"></a><span
 class="term"><tt>(</tt>gstream:generic-stream-controller</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -22396,7 +22435,7 @@ class="term"><tt>(</tt>gstream:generic-stream-controller</span>
 typical usage is to retrieve the object originally provided by the user in
 <tt>gstream:make-generic-stream</tt>.</dd>
 
-<dt><a id="d41e31697" name="d41e31697"></a><span
+<dt><a id="d41e31786" name="d41e31786"></a><span
 class="term"><tt>(</tt>gstream:generic-stream-p</span>
 <i><tt>stream</tt></i>)</dt>
 
@@ -22417,7 +22456,7 @@ controller and some number of arguments.</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e31740" name="d41e31740"></a><span
+<dt><a id="d41e31829" name="d41e31829"></a><span
 class="term"><tt>(</tt>gstream:generic-stream-read-char</span>
 <i><tt>controller</tt></i>)</dt>
 
@@ -22426,7 +22465,7 @@ href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a> at end of file. Takes one argument, the
 controller object.</dd>
 
-<dt><a id="d41e31757" name="d41e31757"></a><span
+<dt><a id="d41e31846" name="d41e31846"></a><span
 class="term"><tt>(</tt>gstream:generic-stream-peek-char</span>
 <i><tt>controller</tt></i>)</dt>
 
@@ -22442,7 +22481,7 @@ href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a> means that no side effects were done. Takes
 one argument, the controller object.</dd>
 
-<dt><a id="d41e31786" name="d41e31786"></a><span
+<dt><a id="d41e31875" name="d41e31875"></a><span
 class="term"><tt>(</tt>gstream:generic-stream-read-byte</span>
 <i><tt>controller</tt></i>)</dt>
 
@@ -22451,7 +22490,7 @@ href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a> at end of file. Takes one argument, the
 controller object.</dd>
 
-<dt><a id="d41e31803" name="d41e31803"></a><span
+<dt><a id="d41e31892" name="d41e31892"></a><span
 class="term"><tt>(</tt>gstream:generic-stream-read-char-will-hang-p</span>
 <i><tt>controller</tt></i>)</dt>
 
@@ -22462,21 +22501,21 @@ target="_top"><tt>NIL</tt></a> if
 <tt>gstream:generic-stream-peek-char</tt> will certainly return
 immediately. Otherwise it returns true.</dd>
 
-<dt><a id="d41e31826" name="d41e31826"></a><span
+<dt><a id="d41e31915" name="d41e31915"></a><span
 class="term"><tt>(</tt>gstream:generic-stream-write-char</span>
 <i><tt>controller</tt></i> <i><tt>char</tt></i>)</dt>
 
 <dd>The first argument is the controller object. The second argument is
 the character to be written.</dd>
 
-<dt><a id="d41e31842" name="d41e31842"></a><span
+<dt><a id="d41e31931" name="d41e31931"></a><span
 class="term"><tt>(</tt>gstream:generic-stream-write-byte</span>
 <i><tt>controller</tt></i> <i><tt>by</tt></i>)</dt>
 
 <dd>The first argument is the controller object. The second argument is
 the integer to be written.</dd>
 
-<dt><a id="d41e31858" name="d41e31858"></a><span
+<dt><a id="d41e31947" name="d41e31947"></a><span
 class="term"><tt>(</tt>gstream:generic-stream-write-string</span>
 <i><tt>controller</tt></i> <i><tt>string</tt></i> <i><tt>start</tt></i>
 <i><tt>length</tt></i>)</dt>
@@ -22485,7 +22524,7 @@ class="term"><tt>(</tt>gstream:generic-stream-write-string</span>
 <i><tt>start</tt></i> of length <i><tt>length</tt></i>. The first argument
 is the controller object.</dd>
 
-<dt><a id="d41e31889" name="d41e31889"></a><span
+<dt><a id="d41e31978" name="d41e31978"></a><span
 class="term"><tt>(</tt>gstream:generic-stream-clear-input</span>
 <i><tt>controller</tt></i>) <tt>(</tt>gstream:generic-stream-clear-output
 <i><tt>controller</tt></i>) <tt>(</tt>gstream:generic-stream-finish-output
@@ -22513,20 +22552,20 @@ title="Chapter 29. Overview of CLISP's Garbage Collection">garbage-collect</a>ed
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e31948" name="d41e31948"></a><span
+<dt><a id="d41e32037" name="d41e32037"></a><span
 class="term"><tt>(</tt>EXT:MAKE-WEAK-POINTER</span>
 <i><tt>value</tt></i>)</dt>
 
 <dd>returns a fresh weak pointer referring to <i><tt>value</tt></i>.</dd>
 
-<dt><a id="d41e31964" name="d41e31964"></a><span
+<dt><a id="d41e32053" name="d41e32053"></a><span
 class="term"><tt>(</tt>EXT:WEAK-POINTER-P</span>
 <i><tt>object</tt></i>)</dt>
 
 <dd>returns true if the <i><tt>object</tt></i> is of type <a href="#weak"
 title="Extensions-1.6. Weak Pointers"><tt>EXT:WEAK-POINTER</tt></a>.</dd>
 
-<dt><a id="d41e31984" name="d41e31984"></a><span
+<dt><a id="d41e32073" name="d41e32073"></a><span
 class="term"><tt>(</tt>EXT:WEAK-POINTER-VALUE</span>
 <i><tt>weak-pointer</tt></i>)</dt>
 
@@ -22652,33 +22691,33 @@ target="_top"><tt>T</tt></a> implies the following:</p>
 
 <div class="itemizedlist">
 <ul>
-<li><a id="d41e32210" name="d41e32210"></a>Setting <a href="#pathprint"
+<li><a id="d41e32299" name="d41e32299"></a>Setting <a href="#pathprint"
 title="pathnames"><tt>CUSTOM:*PRINT-PATHNAMES-ANSI*</tt></a> to <a
 href="http://www.lisp.org/HyperSpec/Body/convar_t.html"
 target="_top"><tt>T</tt></a>.</li>
 
-<li><a id="d41e32221" name="d41e32221"></a>Setting <a
+<li><a id="d41e32310" name="d41e32310"></a>Setting <a
 href="#fixnum-char-ansi"
 title="Function COERCE"><tt>CUSTOM:*COERCE-FIXNUM-CHAR-ANSI*</tt></a> to
 <a href="http://www.lisp.org/HyperSpec/Body/convar_t.html"
 target="_top"><tt>T</tt></a>.</li>
 
-<li><a id="d41e32232" name="d41e32232"></a>Setting <a
+<li><a id="d41e32321" name="d41e32321"></a>Setting <a
 href="#count-ansi"><tt>CUSTOM:*SEQUENCE-COUNT-ANSI*</tt></a> to <a
 href="http://www.lisp.org/HyperSpec/Body/convar_t.html"
 target="_top"><tt>T</tt></a>.</li>
 
-<li><a id="d41e32243" name="d41e32243"></a>Setting <a href="#pathmerge"
+<li><a id="d41e32332" name="d41e32332"></a>Setting <a href="#pathmerge"
 title="Function MERGE-PATHNAMES"><tt>CUSTOM:*MERGE-PATHNAMES-ANSI*</tt></a>
 to <a href="http://www.lisp.org/HyperSpec/Body/convar_t.html"
 target="_top"><tt>T</tt></a>.</li>
 
-<li><a id="d41e32254" name="d41e32254"></a>Setting <a href="#parsename"
+<li><a id="d41e32343" name="d41e32343"></a>Setting <a href="#parsename"
 title="Function PARSE-NAMESTRING"><tt>CUSTOM:*PARSE-NAMESTRING-ANSI*</tt></a>
 to <a href="http://www.lisp.org/HyperSpec/Body/convar_t.html"
 target="_top"><tt>T</tt></a>.</li>
 
-<li><a id="d41e32265" name="d41e32265"></a>Setting <a href="#flocont"
+<li><a id="d41e32354" name="d41e32354"></a>Setting <a href="#flocont"
 title="Rule of Float Precision Contagion
  [CLHS-12.1.4.4]"><tt>CUSTOM:*FLOATING-POINT-CONTAGION-ANSI*</tt></a> to
 <a href="http://www.lisp.org/HyperSpec/Body/convar_t.html"
@@ -22711,33 +22750,33 @@ switch, reversing the above settings, i.e.,</p>
 
 <div class="itemizedlist">
 <ul>
-<li><a id="d41e32334" name="d41e32334"></a>Setting <a href="#pathprint"
+<li><a id="d41e32423" name="d41e32423"></a>Setting <a href="#pathprint"
 title="pathnames"><tt>CUSTOM:*PRINT-PATHNAMES-ANSI*</tt></a> to <a
 href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a>.</li>
 
-<li><a id="d41e32345" name="d41e32345"></a>Setting <a
+<li><a id="d41e32434" name="d41e32434"></a>Setting <a
 href="#fixnum-char-ansi"
 title="Function COERCE"><tt>CUSTOM:*COERCE-FIXNUM-CHAR-ANSI*</tt></a> to
 <a href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a>.</li>
 
-<li><a id="d41e32356" name="d41e32356"></a>Setting <a
+<li><a id="d41e32445" name="d41e32445"></a>Setting <a
 href="#count-ansi"><tt>CUSTOM:*SEQUENCE-COUNT-ANSI*</tt></a> to <a
 href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a>.</li>
 
-<li><a id="d41e32367" name="d41e32367"></a>Setting <a href="#pathmerge"
+<li><a id="d41e32456" name="d41e32456"></a>Setting <a href="#pathmerge"
 title="Function MERGE-PATHNAMES"><tt>CUSTOM:*MERGE-PATHNAMES-ANSI*</tt></a>
 to <a href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a>.</li>
 
-<li><a id="d41e32378" name="d41e32378"></a>Setting <a href="#parsename"
+<li><a id="d41e32467" name="d41e32467"></a>Setting <a href="#parsename"
 title="Function PARSE-NAMESTRING"><tt>CUSTOM:*PARSE-NAMESTRING-ANSI*</tt></a>
 to <a href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a>.</li>
 
-<li><a id="d41e32389" name="d41e32389"></a>Setting <a href="#flocont"
+<li><a id="d41e32478" name="d41e32478"></a>Setting <a href="#flocont"
 title="Rule of Float Precision Contagion
  [CLHS-12.1.4.4]"><tt>CUSTOM:*FLOATING-POINT-CONTAGION-ANSI*</tt></a> to
 <a href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
@@ -22983,7 +23022,7 @@ class="strong"><i>Win32</i></span></a> platforms only.</h2>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e32589" name="d41e32589"></a><span
+<dt><a id="d41e32678" name="d41e32678"></a><span
 class="term"><tt>(</tt>screen:make-window</span>)</dt>
 
 <dd>returns a "window stream". As long as this stream is open, the
@@ -22996,7 +23035,7 @@ href="#terminal"
 title="Terminal interaction."><tt>EXT:*KEYBOARD-INPUT*</tt></a>
 instead.)</dd>
 
-<dt><a id="d41e32611" name="d41e32611"></a><span
+<dt><a id="d41e32700" name="d41e32700"></a><span
 class="term"><tt>(</tt>screen:with-window</span> .
 <i><tt>body</tt></i>)</dt>
 
@@ -23007,14 +23046,14 @@ href="http://www.lisp.org/HyperSpec/Body/var_stterminal-iost.html"
 target="_top"><tt>*TERMINAL-IO*</tt></a> should not be used, as
 above.</dd>
 
-<dt><a id="d41e32635" name="d41e32635"></a><span
+<dt><a id="d41e32724" name="d41e32724"></a><span
 class="term"><tt>(</tt>screen:window-size</span>
 <i><tt>window-stream</tt></i>)</dt>
 
 <dd>returns the window's size, as two values: height (= y<sub>max</sub>+1)
 and width (= x<sub>max</sub>+1).</dd>
 
-<dt><a id="d41e32654" name="d41e32654"></a><span
+<dt><a id="d41e32743" name="d41e32743"></a><span
 class="term"><tt>(</tt>screen:window-cursor-position</span>
 <i><tt>window-stream</tt></i>)</dt>
 
@@ -23022,67 +23061,67 @@ class="term"><tt>(</tt>screen:window-cursor-position</span>
 (&ge;0, &le;y<sub>max</sub>, 0 means top), column (&ge;0,
 &le;x<sub>max</sub>, 0 means left margin).</dd>
 
-<dt><a id="d41e32673" name="d41e32673"></a><span
+<dt><a id="d41e32762" name="d41e32762"></a><span
 class="term"><tt>(</tt>screen:set-window-cursor-position</span>
 <i><tt>window-stream</tt></i> <i><tt>line</tt></i>
 <i><tt>column</tt></i>)</dt>
 
 <dd>sets the position of the cursor in the window.</dd>
 
-<dt><a id="d41e32692" name="d41e32692"></a><span
+<dt><a id="d41e32781" name="d41e32781"></a><span
 class="term"><tt>(</tt>screen:clear-window</span>
 <i><tt>window-stream</tt></i>)</dt>
 
 <dd>clears the window's contents and puts the cursor in the upper left
 corner.</dd>
 
-<dt><a id="d41e32705" name="d41e32705"></a><span
+<dt><a id="d41e32794" name="d41e32794"></a><span
 class="term"><tt>(</tt>screen:clear-window-to-eot</span>
 <i><tt>window-stream</tt></i>)</dt>
 
 <dd>clears the window's contents from the cursor position to the end of
 window.</dd>
 
-<dt><a id="d41e32718" name="d41e32718"></a><span
+<dt><a id="d41e32807" name="d41e32807"></a><span
 class="term"><tt>(</tt>screen:clear-window-to-eol</span>
 <i><tt>window-stream</tt></i>)</dt>
 
 <dd>clears the window's contents from the cursor position to the end of
 line.</dd>
 
-<dt><a id="d41e32731" name="d41e32731"></a><span
+<dt><a id="d41e32820" name="d41e32820"></a><span
 class="term"><tt>(</tt>screen:delete-window-line</span>
 <i><tt>window-stream</tt></i>)</dt>
 
 <dd>removes the cursor's line, moves the lines below it up by one line and
 clears the window's last line.</dd>
 
-<dt><a id="d41e32744" name="d41e32744"></a><span
+<dt><a id="d41e32833" name="d41e32833"></a><span
 class="term"><tt>(</tt>screen:insert-window-line</span>
 <i><tt>window-stream</tt></i>)</dt>
 
 <dd>inserts a line at the cursor's line, moving the lines below it down by
 one line.</dd>
 
-<dt><a id="d41e32757" name="d41e32757"></a><span
+<dt><a id="d41e32846" name="d41e32846"></a><span
 class="term"><tt>(</tt>screen:highlight-on</span>
 <i><tt>window-stream</tt></i>)</dt>
 
 <dd>switches highlighted output on.</dd>
 
-<dt><a id="d41e32770" name="d41e32770"></a><span
+<dt><a id="d41e32859" name="d41e32859"></a><span
 class="term"><tt>(</tt>screen:highlight-off</span>
 <i><tt>window-stream</tt></i>)</dt>
 
 <dd>switches highlighted output off.</dd>
 
-<dt><a id="d41e32783" name="d41e32783"></a><span
+<dt><a id="d41e32872" name="d41e32872"></a><span
 class="term"><tt>(</tt>screen:window-cursor-on</span>
 <i><tt>window-stream</tt></i>)</dt>
 
 <dd>makes the cursor visible, a cursor block in most implementations.</dd>
 
-<dt><a id="d41e32796" name="d41e32796"></a><span
+<dt><a id="d41e32885" name="d41e32885"></a><span
 class="term"><tt>(</tt>screen:window-cursor-off</span>
 <i><tt>window-stream</tt></i>)</dt>
 
@@ -23122,11 +23161,11 @@ Normally a module name is derived from the corresponding file name.</p>
 
 <div class="itemizedlist">
 <ul>
-<li><a id="d41e32863" name="d41e32863"></a><tt>modules.d</tt></li>
+<li><a id="d41e32952" name="d41e32952"></a><tt>modules.d</tt></li>
 
-<li><a id="d41e32867" name="d41e32867"></a><tt>modules.c</tt></li>
+<li><a id="d41e32956" name="d41e32956"></a><tt>modules.c</tt></li>
 
-<li><a id="d41e32871" name="d41e32871"></a><tt>clisp.h</tt></li>
+<li><a id="d41e32960" name="d41e32960"></a><tt>clisp.h</tt></li>
 </ul>
 </div>
 
@@ -23143,49 +23182,49 @@ containing:</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e32899" name="d41e32899"></a><span
+<dt><a id="d41e32988" name="d41e32988"></a><span
 class="term"><tt>makevars</tt></span></dt>
 
 <dd>
-<p><a id="d41e32903" name="d41e32903"></a>some <b>/bin/sh</b> commands,
+<p><a id="d41e32992" name="d41e32992"></a>some <b>/bin/sh</b> commands,
 setting the variables</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e32910" name="d41e32910"></a><span
+<dt><a id="d41e32999" name="d41e32999"></a><span
 class="term"><tt>CC</tt></span></dt>
 
 <dd>the <a href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> compiler</dd>
 
-<dt><a id="d41e32921" name="d41e32921"></a><span
+<dt><a id="d41e33010" name="d41e33010"></a><span
 class="term"><tt>CFLAGS</tt></span></dt>
 
 <dd>flags for the <a href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> compiler, when compiling</dd>
 
-<dt><a id="d41e32932" name="d41e32932"></a><span
+<dt><a id="d41e33021" name="d41e33021"></a><span
 class="term"><tt>CLFLAGS</tt></span></dt>
 
 <dd>flags for the <a href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> compiler, when linking</dd>
 
-<dt><a id="d41e32943" name="d41e32943"></a><span
+<dt><a id="d41e33032" name="d41e33032"></a><span
 class="term"><tt>LIBS</tt></span></dt>
 
 <dd>libraries to use when linking</dd>
 
-<dt><a id="d41e32950" name="d41e32950"></a><span
+<dt><a id="d41e33039" name="d41e33039"></a><span
 class="term"><tt>X_LIBS</tt></span></dt>
 
 <dd>additional X window system libraries to use</dd>
 
-<dt><a id="d41e32957" name="d41e32957"></a><span
+<dt><a id="d41e33046" name="d41e33046"></a><span
 class="term"><tt>RANLIB</tt></span></dt>
 
 <dd>the ranlib command</dd>
 
-<dt><a id="d41e32964" name="d41e32964"></a><span
+<dt><a id="d41e33053" name="d41e33053"></a><span
 class="term"><tt>FILES</tt></span></dt>
 
 <dd>the list of files needed when linking</dd>
@@ -23197,27 +23236,27 @@ class="term"><tt>FILES</tt></span></dt>
 <br />
 </dd>
 
-<dt><a id="d41e32971" name="d41e32971"></a><span
+<dt><a id="d41e33060" name="d41e33060"></a><span
 class="term"><tt>modules.h</tt></span></dt>
 
 <dd>the list of modules contained in this linking set</dd>
 
-<dt><a id="d41e32978" name="d41e32978"></a><span
+<dt><a id="d41e33067" name="d41e33067"></a><span
 class="term"><tt>modules.o</tt></span></dt>
 
 <dd>the compiled list of modules contained in this linking set</dd>
 
-<dt><a id="d41e32985" name="d41e32985"></a><span class="term">all the
+<dt><a id="d41e33074" name="d41e33074"></a><span class="term">all the
 <tt>FILES</tt></span></dt>
 
 <dd>listed in <tt>makevars</tt></dd>
 
-<dt><a id="d41e32996" name="d41e32996"></a><span
+<dt><a id="d41e33085" name="d41e33085"></a><span
 class="term"><tt>lisp.run</tt></span></dt>
 
 <dd>the executable</dd>
 
-<dt><a id="d41e33003" name="d41e33003"></a><span
+<dt><a id="d41e33092" name="d41e33092"></a><span
 class="term"><tt>lispinit.mem</tt></span></dt>
 
 <dd>the <a href="#image" title="Extensions-1.1. Saving an Image">memory
@@ -23235,7 +23274,7 @@ containing:</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e33034" name="d41e33034"></a><span
+<dt><a id="d41e33123" name="d41e33123"></a><span
 class="term"><b>link.sh</b></span></dt>
 
 <dd>some <b>/bin/sh</b> commands, which prepare the directory before
@@ -23243,7 +23282,7 @@ linking, and set the variables <tt>NEW_FILES</tt>, <tt>NEW_LIBS</tt>,
 <tt>NEW_MODULES</tt>, <tt>TO_LOAD</tt> and optionally
 <tt>TO_PRELOAD</tt></dd>
 
-<dt><a id="d41e33058" name="d41e33058"></a><span class="term">and any
+<dt><a id="d41e33147" name="d41e33147"></a><span class="term">and any
 other files</span></dt>
 
 <dd>needed by <b>link.sh</b></dd>
@@ -23255,13 +23294,13 @@ other files</span></dt>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e33076" name="d41e33076"></a><span
+<dt><a id="d41e33165" name="d41e33165"></a><span
 class="term"><tt>NEW_FILES</tt></span></dt>
 
 <dd>the space-separated list of files that belong to the module set and
 will belong to every new linking set.</dd>
 
-<dt><a id="d41e33083" name="d41e33083"></a><span
+<dt><a id="d41e33172" name="d41e33172"></a><span
 class="term"><tt>NEW_LIBS</tt></span></dt>
 
 <dd>the space-separated list of files or <a
@@ -23271,26 +23310,26 @@ target="_top"><b>C</b></a> compiler switches that need to be passed to the
 target="_top"><b>C</b></a> compiler when linking the lisp.run belonging to
 a new linking set.</dd>
 
-<dt><a id="d41e33098" name="d41e33098"></a><span
+<dt><a id="d41e33187" name="d41e33187"></a><span
 class="term"><tt>NEW_MODULES</tt></span></dt>
 
 <dd>the space-separated list of the module names belonging to the module
-set. Normally, every <tt>c</tt> file in the module set defines a module of
-its own. The module name is derived from the file name.</dd>
+set. Normally, every <tt>#P".c"</tt> file in the module set defines a
+module of its own. The module name is derived from the file name.</dd>
 
-<dt><a id="d41e33108" name="d41e33108"></a><span
+<dt><a id="d41e33197" name="d41e33197"></a><span
 class="term"><tt>TO_LOAD</tt></span></dt>
 
 <dd>the space-separated list of Lisp files to load before building the
 <tt>lispinit.mem</tt> belonging to a new linking set.</dd>
 
-<dt><a id="d41e33118" name="d41e33118"></a><span
+<dt><a id="d41e33207" name="d41e33207"></a><span
 class="term"><tt>TO_PRELOAD</tt> (optional)</span></dt>
 
 <dd>the space-separated list of Lisp files to load into an intermediate
 <tt>lispinit.mem</tt> file, before building the <tt>lispinit.mem</tt>
 belonging to a new linking set. This variable is usually used for defining
-Lisp packages which must be present when the new <tt>c</tt> files are
+Lisp packages which must be present when the new <tt>#P".c"</tt> files are
 initialized.</dd>
 </dl>
 </div>
@@ -23335,7 +23374,7 @@ needed. (Step 1 and step 2 need not be executed in this order.)</p>
 <div class="orderedlist">
 <ol type="1">
 <li>
-<p><a id="d41e33211" name="d41e33211"></a>Create a new module set:</p>
+<p><a id="d41e33300" name="d41e33300"></a>Create a new module set:</p>
 
 <pre class="programlisting">
 $ clisp-link create-module-set linux /<i><tt>somewhere</tt></i>/bindings/linux.c
@@ -23374,7 +23413,7 @@ TO_LOAD='/<i><tt>somewhere</tt></i>/bindings/linux.fas'
 </li>
 
 <li>
-<p><a id="d41e33249" name="d41e33249"></a>Compile <tt>linux.lisp</tt>,
+<p><a id="d41e33338" name="d41e33338"></a>Compile <tt>linux.lisp</tt>,
 creating <tt>linux.c</tt>:</p>
 
 <pre class="programlisting">
@@ -23387,7 +23426,7 @@ $ clisp -c /<i><tt>somewhere</tt></i>/bindings/linux.lisp
 </li>
 
 <li>
-<p><a id="d41e33263" name="d41e33263"></a>Create a new linking set:</p>
+<p><a id="d41e33352" name="d41e33352"></a>Create a new linking set:</p>
 
 <pre class="programlisting">
 $ clisp-link add-module-set linux base base+linux
@@ -23399,7 +23438,7 @@ $ clisp-link add-module-set linux base base+linux
 </li>
 
 <li>
-<p><a id="d41e33268" name="d41e33268"></a>Run and try it:</p>
+<p><a id="d41e33357" name="d41e33357"></a>Run and try it:</p>
 
 <pre class="programlisting">
 $ base+linux/lisp.run -M base+linux/lispinit.mem &gt; (linux::stat "/tmp")
@@ -23426,21 +23465,21 @@ href="http://clisp.cons.org" target="_top"><b>CLISP</b></a>:</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e33284" name="d41e33284"></a><span
+<dt><a id="d41e33373" name="d41e33373"></a><span
 class="term">bindings</span></dt>
 
 <dd>
-<p><a id="d41e33287" name="d41e33287"></a>Call the operating system
+<p><a id="d41e33376" name="d41e33376"></a>Call the operating system
 functions from <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a>. The following platforms are supported:</p>
 
 <div class="itemizedlist">
 <ul>
-<li><a id="d41e33295" name="d41e33295"></a>AmigaOS</li>
+<li><a id="d41e33384" name="d41e33384"></a>AmigaOS</li>
 
-<li><a id="d41e33298" name="d41e33298"></a>Linux/libc5</li>
+<li><a id="d41e33387" name="d41e33387"></a>Linux/libc5</li>
 
-<li><a id="d41e33301" name="d41e33301"></a>Linux/libc6</li>
+<li><a id="d41e33390" name="d41e33390"></a>Linux/libc6</li>
 </ul>
 </div>
 
@@ -23449,21 +23488,21 @@ target="_top"><b>CLISP</b></a>. The following platforms are supported:</p>
 <br />
 </dd>
 
-<dt><a id="d41e33304" name="d41e33304"></a><span
+<dt><a id="d41e33393" name="d41e33393"></a><span
 class="term">CLX</span></dt>
 
 <dd>
-<p><a id="d41e33307" name="d41e33307"></a>Call Xlib functions from <a
+<p><a id="d41e33396" name="d41e33396"></a>Call Xlib functions from <a
 href="http://clisp.cons.org" target="_top"><b>CLISP</b></a>. Two
 implementations are supplied:</p>
 
 <div class="itemizedlist">
 <ul>
-<li><a id="d41e33315" name="d41e33315"></a>mit-clx, from MIT <a
+<li><a id="d41e33404" name="d41e33404"></a>mit-clx, from MIT <a
 href="ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z"
 target="_top">ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z</a></li>
 
-<li><a id="d41e33321" name="d41e33321"></a>new-clx, by <a
+<li><a id="d41e33410" name="d41e33410"></a>new-clx, by <a
 href="http://www.uni-karlsruhe.de/~unk6/" target="_top">Gilbert
 Baumann</a> <a href="mailto:unk6@rz.uni-karlsruhe.de"
 target="_top">&lt;unk6@rz.uni-karlsruhe.de&gt;</a>.</li>
@@ -23475,27 +23514,27 @@ target="_top">&lt;unk6@rz.uni-karlsruhe.de&gt;</a>.</li>
 <br />
 </dd>
 
-<dt><a id="d41e33330" name="d41e33330"></a><span
+<dt><a id="d41e33419" name="d41e33419"></a><span
 class="term">postgresql632, postgresql642</span></dt>
 
 <dd>Access <a href="http://www.PostgreSQL.org/"
 target="_top">PostgreSQL</a> from <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a>.</dd>
 
-<dt><a id="d41e33343" name="d41e33343"></a><span
+<dt><a id="d41e33432" name="d41e33432"></a><span
 class="term">queens</span></dt>
 
 <dd>Compute the number of solutions to the n-queens problem on a n*n
 checkboard.</dd>
 
-<dt><a id="d41e33349" name="d41e33349"></a><span class="term"><a
+<dt><a id="d41e33438" name="d41e33438"></a><span class="term"><a
 href="#regexp"
 title="CLISP &ldquo;REGEXP&rdquo; module">regexp</a></span></dt>
 
 <dd>The <a href="regexp.html" target="_top">POSIX Regular Expressions</a>
 matching, compiling, executing.</dd>
 
-<dt><a id="d41e33359" name="d41e33359"></a><span class="term"><a
+<dt><a id="d41e33448" name="d41e33448"></a><span class="term"><a
 href="wildcard.html" target="_top">wildcard</a></span></dt>
 
 <dd>Shell globbing</dd>
@@ -23561,7 +23600,7 @@ target="_top"><tt>&amp;KEY</tt></a> (<tt>:START</tt> 0) <tt>:END</tt>
 (<tt>:CASE-SENSITIVE</tt> t))</tt></span></dt>
 
 <dd>
-<p><a id="d41e33472" name="d41e33472"></a>This macro returns as first
+<p><a id="d41e33561" name="d41e33561"></a>This macro returns as first
 value a <tt>REGEXP::REGMATCH_T</tt> structure containing the indices of
 the start and end of the first match for the regular expression
 <i><tt>pattern</tt></i> in <i><tt>string</tt></i>; or <a
@@ -23581,7 +23620,7 @@ target="_top"><tt>SUBSEQ</tt></a> <i><tt>string</tt></i>
 <i><tt>start</tt></i> <i><tt>end</tt></i>)</tt> is considered.</p>
 
 <div class="example">
-<p><a id="d41e33533" name="d41e33533"></a><b>Example 32.1. <a
+<p><a id="d41e33622" name="d41e33622"></a><b>Example 32.1. <a
 href="#re-match"><tt>REGEXP:MATCH</tt></a></b></p>
 
 <pre class="programlisting">
@@ -23646,13 +23685,13 @@ href="#re-regexp-quote"><tt>REGEXP:REGEXP-QUOTE</tt></a>
 <i><tt>string</tt></i>)</tt></span></dt>
 
 <dd>
-<p><a id="d41e33685" name="d41e33685"></a>This function returns a regular
+<p><a id="d41e33774" name="d41e33774"></a>This function returns a regular
 expression string that matches exactly <i><tt>string</tt></i> and nothing
 else. This allows you to request an exact string match when calling a
 function that wants a regular expression.</p>
 
 <div class="example">
-<p><a id="d41e33691" name="d41e33691"></a><b>Example 32.2. <a
+<p><a id="d41e33780" name="d41e33780"></a><b>Example 32.2. <a
 href="#re-regexp-quote"><tt>REGEXP:REGEXP-QUOTE</tt></a></b></p>
 
 <pre class="programlisting">
@@ -23807,8 +23846,8 @@ only.</h2>
 </div>
 
 <p>A foreign function description is written as a Lisp file, and when
-compiled it produces a <tt>c</tt> file which is then compiled by the <a
-href="http://www.eskimo.com/~scs/C-faq/top.html"
+compiled it produces a <tt>#P".c"</tt> file which is then compiled by the
+<a href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> compiler and may be linked together with
 <tt>lisp.a</tt>.</p>
 
@@ -23860,7 +23899,7 @@ class="term"><tt>(</tt>def-c-var</span> <i><tt>name</tt></i>
 
 <dd>
 <div class="table">
-<p><a id="d41e34022" name="d41e34022"></a><b>Table 32.1.</b></p>
+<p><a id="d41e34111" name="d41e34111"></a><b>Table 32.1.</b></p>
 
 <table summary="" border="1">
 <colgroup>
@@ -23947,7 +23986,7 @@ class="term"><tt>(<a href="#def-call-out"><tt>FFI:DEF-CALL-OUT</tt></a>
 
 <dd>
 <div class="table">
-<p><a id="d41e34180" name="d41e34180"></a><b>Table 32.2.</b></p>
+<p><a id="d41e34269" name="d41e34269"></a><b>Table 32.2.</b></p>
 
 <table summary="" border="1">
 <colgroup>
@@ -24009,7 +24048,7 @@ href="#def-call-in"><tt>FFI:DEF-CALL-IN</tt></a> <i><tt>name</tt></i>
 
 <dd>
 <div class="table">
-<p><a id="d41e34279" name="d41e34279"></a><b>Table 32.3.</b></p>
+<p><a id="d41e34368" name="d41e34368"></a><b>Table 32.3.</b></p>
 
 <table summary="" border="1">
 <colgroup>
@@ -24268,7 +24307,7 @@ class="term"><i><tt>simple-c-type</tt></i></span></dt>
 
 <dd>
 <div class="table">
-<p><a id="d41e34998" name="d41e34998"></a><b>Table 32.4. the simple <a
+<p><a id="d41e35087" name="d41e35087"></a><b>Table 32.4. the simple <a
 href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> types</b></p>
 
@@ -24730,7 +24769,7 @@ title="Argument and result passing conventions"><i><tt>ALLOCATION</tt></i></a>
 specifies the allocation policy:</p>
 
 <div class="table">
-<p><a id="d41e35982" name="d41e35982"></a><b>Table 32.5. allocation
+<p><a id="d41e36071" name="d41e36071"></a><b>Table 32.5. allocation
 policy</b></p>
 
 <table summary="allocation policy" border="1">
@@ -24780,13 +24819,13 @@ to pass arbitrarily nested structs containing pointers pointing to structs
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e36058" name="d41e36058"></a><span class="term">For call-out
+<dt><a id="d41e36147" name="d41e36147"></a><span class="term">For call-out
 functions:</span></dt>
 
 <dd>
 <div class="variablelist">
 <dl>
-<dt><a id="d41e36063" name="d41e36063"></a><span class="term">For
+<dt><a id="d41e36152" name="d41e36152"></a><span class="term">For
 arguments passed from Lisp to <a
 href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a>:</span></dt>
@@ -24794,7 +24833,7 @@ target="_top"><b>C</b></a>:</span></dt>
 <dd>
 <div class="variablelist">
 <dl>
-<dt><a id="d41e36072" name="d41e36072"></a><span class="term">If <a
+<dt><a id="d41e36161" name="d41e36161"></a><span class="term">If <a
 href="#allocation"
 title="Argument and result passing conventions"><i><tt>ALLOCATION</tt></i></a>
 is <tt>:MALLOC-FREE</tt>:</span></dt>
@@ -24804,7 +24843,7 @@ deallocates it. The <a href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> function is supposed to call <tt>free()</tt>
 when done with it.</dd>
 
-<dt><a id="d41e36095" name="d41e36095"></a><span class="term">If <a
+<dt><a id="d41e36184" name="d41e36184"></a><span class="term">If <a
 href="#allocation"
 title="Argument and result passing conventions"><i><tt>ALLOCATION</tt></i></a>
 is <tt>:ALLOCA</tt>:</span></dt>
@@ -24813,7 +24852,7 @@ is <tt>:ALLOCA</tt>:</span></dt>
 freed when the <a href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> function returns.</dd>
 
-<dt><a id="d41e36112" name="d41e36112"></a><span class="term">If <a
+<dt><a id="d41e36201" name="d41e36201"></a><span class="term">If <a
 href="#allocation"
 title="Argument and result passing conventions"><i><tt>ALLOCATION</tt></i></a>
 is <tt>:NONE</tt>:</span></dt>
@@ -24825,21 +24864,21 @@ deprecated.</dd>
 </div>
 </dd>
 
-<dt><a id="d41e36125" name="d41e36125"></a><span class="term">For results
+<dt><a id="d41e36214" name="d41e36214"></a><span class="term">For results
 passed from <a href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> to Lisp:</span></dt>
 
 <dd>
 <div class="variablelist">
 <dl>
-<dt><a id="d41e36134" name="d41e36134"></a><span class="term">If <a
+<dt><a id="d41e36223" name="d41e36223"></a><span class="term">If <a
 href="#allocation"
 title="Argument and result passing conventions"><i><tt>ALLOCATION</tt></i></a>
 is <tt>:MALLOC-FREE</tt>:</span></dt>
 
 <dd>Lisp calls <tt>free()</tt> on it when done.</dd>
 
-<dt><a id="d41e36150" name="d41e36150"></a><span class="term">If <a
+<dt><a id="d41e36239" name="d41e36239"></a><span class="term">If <a
 href="#allocation"
 title="Argument and result passing conventions"><i><tt>ALLOCATION</tt></i></a>
 is <tt>:NONE</tt>:</span></dt>
@@ -24852,27 +24891,27 @@ is <tt>:NONE</tt>:</span></dt>
 </div>
 </dd>
 
-<dt><a id="d41e36163" name="d41e36163"></a><span class="term">For call-in
+<dt><a id="d41e36252" name="d41e36252"></a><span class="term">For call-in
 functions:</span></dt>
 
 <dd>
 <div class="variablelist">
 <dl>
-<dt><a id="d41e36168" name="d41e36168"></a><span class="term">For
+<dt><a id="d41e36257" name="d41e36257"></a><span class="term">For
 arguments passed from <a href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> to Lisp:</span></dt>
 
 <dd>
 <div class="variablelist">
 <dl>
-<dt><a id="d41e36177" name="d41e36177"></a><span class="term">If <a
+<dt><a id="d41e36266" name="d41e36266"></a><span class="term">If <a
 href="#allocation"
 title="Argument and result passing conventions"><i><tt>ALLOCATION</tt></i></a>
 is <tt>:MALLOC-FREE</tt>:</span></dt>
 
 <dd>Lisp calls <tt>free()</tt> on it when done.</dd>
 
-<dt><a id="d41e36193" name="d41e36193"></a><span class="term">If <a
+<dt><a id="d41e36282" name="d41e36282"></a><span class="term">If <a
 href="#allocation"
 title="Argument and result passing conventions"><i><tt>ALLOCATION</tt></i></a>
 is <tt>:ALLOCA</tt> or <tt>:NONE</tt>:</span></dt>
@@ -24882,14 +24921,14 @@ is <tt>:ALLOCA</tt> or <tt>:NONE</tt>:</span></dt>
 </div>
 </dd>
 
-<dt><a id="d41e36209" name="d41e36209"></a><span class="term">For results
+<dt><a id="d41e36298" name="d41e36298"></a><span class="term">For results
 passed from Lisp to <a href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a>:</span></dt>
 
 <dd>
 <div class="variablelist">
 <dl>
-<dt><a id="d41e36218" name="d41e36218"></a><span class="term">If <a
+<dt><a id="d41e36307" name="d41e36307"></a><span class="term">If <a
 href="#allocation"
 title="Argument and result passing conventions"><i><tt>ALLOCATION</tt></i></a>
 is <tt>:MALLOC-FREE</tt>:</span></dt>
@@ -24899,7 +24938,7 @@ deallocates it. The <a href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> function is supposed to call <tt>free()</tt>
 when done with it.</dd>
 
-<dt><a id="d41e36241" name="d41e36241"></a><span class="term">If <a
+<dt><a id="d41e36330" name="d41e36330"></a><span class="term">If <a
 href="#allocation"
 title="Argument and result passing conventions"><i><tt>ALLOCATION</tt></i></a>
 is <tt>:NONE</tt>:</span></dt>
@@ -24921,19 +24960,19 @@ href="#param-mode"><i><tt>PARAM-MODE</tt></i></a> may be</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e36261" name="d41e36261"></a><span class="term"><tt>:IN</tt>
+<dt><a id="d41e36350" name="d41e36350"></a><span class="term"><tt>:IN</tt>
 (means: read-only):</span></dt>
 
 <dd>The caller passes information to the callee.</dd>
 
-<dt><a id="d41e36269" name="d41e36269"></a><span
+<dt><a id="d41e36358" name="d41e36358"></a><span
 class="term"><tt>:OUT</tt> (means: write-only):</span></dt>
 
 <dd>The callee passes information back to the caller on return. When
 viewed as a Lisp function, there is no Lisp argument corresponding to
 this, instead it means an additional return value.</dd>
 
-<dt><a id="d41e36277" name="d41e36277"></a><span
+<dt><a id="d41e36366" name="d41e36366"></a><span
 class="term"><tt>:IN-OUT</tt> (means: read-write):</span></dt>
 
 <dd>Information is passed from the caller to the callee and then back to
@@ -24951,7 +24990,7 @@ title="Argument and result passing conventions"><i><tt>ALLOCATION</tt></i></a>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e36309" name="d41e36309"></a><span class="term">Platform
+<dt><a id="d41e36398" name="d41e36398"></a><span class="term">Platform
 dependent: <a href="http://www.amiga.org/" target="_top"><span
 class="strong"><i>Amiga</i></span></a> platforms only.</span></dt>
 
@@ -24999,7 +25038,7 @@ name="dffi-examples"></a>Examples</h3>
 </div>
 
 <div class="example">
-<p><a id="d41e36431" name="d41e36431"></a><b>Example 32.3. Simple
+<p><a id="d41e36520" name="d41e36520"></a><b>Example 32.3. Simple
 declarations and access</b></p>
 
 <p>The <a href="http://www.eskimo.com/~scs/C-faq/top.html"
@@ -25043,7 +25082,7 @@ corresponds to
 </div>
 
 <div class="example">
-<p><a id="d41e36452" name="d41e36452"></a><b>Example 32.4. external <a
+<p><a id="d41e36541" name="d41e36541"></a><b>Example 32.4. external <a
 href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> variable and some accesses</b></p>
 
@@ -25089,7 +25128,7 @@ or (setq my_struct (deref (slot my_struct 'n)))
 </div>
 
 <div class="example">
-<p><a id="d41e36465" name="d41e36465"></a><b>Example 32.5. Calling an
+<p><a id="d41e36554" name="d41e36554"></a><b>Example 32.5. Calling an
 external function</b></p>
 
 <p>On ANSI <a href="http://www.eskimo.com/~scs/C-faq/top.html"
@@ -25127,7 +25166,7 @@ Sample call from within Lisp:
 </div>
 
 <div class="example">
-<p><a id="d41e36485" name="d41e36485"></a><b>Example 32.6. Another example
+<p><a id="d41e36574" name="d41e36574"></a><b>Example 32.6. Another example
 for calling an external function</b></p>
 
 <p>Suppose the following is defined in a file <tt>cfun.c</tt>:</p>
@@ -25221,7 +25260,7 @@ is not an alternative because this would also <tt>free(r2-&gt;x)</tt> but
 </div>
 
 <div class="example">
-<p><a id="d41e36545" name="d41e36545"></a><b>Example 32.7. call-in</b></p>
+<p><a id="d41e36634" name="d41e36634"></a><b>Example 32.7. call-in</b></p>
 
 <p>To sort an array of double-floats using the Lisp function <tt>sort</tt>
 instead of the <a href="http://www.eskimo.com/~scs/C-faq/top.html"
@@ -25335,9 +25374,9 @@ issues</h3>
 <p><a href="#affi"
 title="Extensions-2.4. The Amiga Foreign Function Call Facility">&ldquo;AFFI&rdquo;</a>
 was designed to be small in size but powerful enough to use most library
-functions. Lisp files may be compiled to <tt>fas</tt> files without the
-need to load function definition files at run-time and without external <a
-href="http://www.eskimo.com/~scs/C-faq/top.html"
+functions. Lisp files may be compiled to <tt>#P".fas"</tt> files without
+the need to load function definition files at run-time and without
+external <a href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> or linker support. <a href="#image"
 title="Extensions-1.1. Saving an Image">memory image</a>s can be created,
 provided that the function libraries are opened at run-time.</p>
@@ -25516,7 +25555,7 @@ href="http://www.lisp.org" target="_top"><b>Common Lisp</b></a> types or
 <b>CLOS</b> classes.</p>
 
 <div class="table">
-<p><a id="d41e36987" name="d41e36987"></a><b>Table 32.6. foreign <a
+<p><a id="d41e37076" name="d41e37076"></a><b>Table 32.6. foreign <a
 href="http://www.eskimo.com/~scs/C-faq/top.html"
 target="_top"><b>C</b></a> types used in <a href="#affi"
 title="Extensions-2.4. The Amiga Foreign Function Call Facility">&ldquo;AFFI&rdquo;</a></b></p>
@@ -25731,12 +25770,12 @@ resource-tracking on the output side.</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e37355" name="d41e37355"></a><span
+<dt><a id="d41e37444" name="d41e37444"></a><span
 class="term"><i><tt>option</tt></i> ::==</span></dt>
 
 <dd>
 <div class="table">
-<p><a id="d41e37361" name="d41e37361"></a><b>Table 32.7.</b></p>
+<p><a id="d41e37450" name="d41e37450"></a><b>Table 32.7.</b></p>
 
 <table summary="" border="1">
 <colgroup>
@@ -25767,7 +25806,7 @@ title="Extensions-2.4. The Amiga Foreign Function Call Facility">&ldquo;AFFI&rdq
 </div>
 </dd>
 
-<dt><a id="d41e37403" name="d41e37403"></a><span
+<dt><a id="d41e37492" name="d41e37492"></a><span
 class="term"><i><tt>register</tt></i> ::==</span></dt>
 
 <dd><tt>:d0</tt> | <tt>:d1</tt> | ... | <tt>:d7</tt> | <tt>:a0</tt> | ...
@@ -26053,7 +26092,7 @@ with a small yet extensible and powerful ARexx interface.</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e37779" name="d41e37779"></a><span
+<dt><a id="d41e37868" name="d41e37868"></a><span
 class="term"><tt>(rexx-do-command "return address()" :string <a
 href="http://www.lisp.org/HyperSpec/Body/convar_t.html"
 target="_top"><tt>T</tt></a> :result <a
@@ -26065,7 +26104,7 @@ target="_top"><b>CLISP</b></a> ARexx port. The default extension for <a
 href="http://clisp.cons.org" target="_top"><b>CLISP</b></a> ARexx scripts
 is <tt>cl</tt>.</dd>
 
-<dt><a id="d41e37805" name="d41e37805"></a><span
+<dt><a id="d41e37894" name="d41e37894"></a><span
 class="term"><tt>(rexx-do-command <i><tt>command</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 target="_top"><tt>&amp;KEY</tt></a> :string :result :token :io
@@ -26077,7 +26116,7 @@ target="_top"><tt>&amp;OPTIONAL</tt></a> <i><tt>result</tt></i>)</tt>, or
 <a href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a> on failure</dd>
 
-<dt><a id="d41e37833" name="d41e37833"></a><span
+<dt><a id="d41e37922" name="d41e37922"></a><span
 class="term"><tt>(rexx-run-command <i><tt>command</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 target="_top"><tt>&amp;KEY</tt></a> :string :token)</tt></span></dt>
@@ -26087,7 +26126,7 @@ target="_top"><tt>T</tt></a>, or <a
 href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a> on failure</dd>
 
-<dt><a id="d41e37855" name="d41e37855"></a><span
+<dt><a id="d41e37944" name="d41e37944"></a><span
 class="term"><tt>(rexx-send-command <i><tt>command</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 target="_top"><tt>&amp;KEY</tt></a> :string :result :token :io
@@ -26097,7 +26136,7 @@ target="_top"><tt>&amp;KEY</tt></a> :string :result :token :io
 href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a> on failure</dd>
 
-<dt><a id="d41e37876" name="d41e37876"></a><span
+<dt><a id="d41e37965" name="d41e37965"></a><span
 class="term"><tt>(rexx-wait-sent-command
 <i><tt>arexx-msg-handle</tt></i>)</tt></span></dt>
 
@@ -26107,7 +26146,7 @@ target="_top"><tt>&amp;OPTIONAL</tt></a> <i><tt>result</tt></i>)</tt>, or
 <a href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a> on failure</dd>
 
-<dt><a id="d41e37900" name="d41e37900"></a><span
+<dt><a id="d41e37989" name="d41e37989"></a><span
 class="term"><tt>(rexx-loop)</tt></span></dt>
 
 <dd>-&gt; no return, use the <tt>exit-loop.cl</tt> ARexx script to abort
@@ -26243,7 +26282,7 @@ title="Extensions-2.6. Socket Streams"><tt>SOCKET:SOCKET-SERVER</tt></a>s.</p>
 <p><b>Possible values of <i><tt>socket-stream-or-list</tt></i></b></p>
 
 <dl>
-<dt><a id="d41e38173" name="d41e38173"></a><span class="term"><a
+<dt><a id="d41e38262" name="d41e38262"></a><span class="term"><a
 href="#socket"
 title="Extensions-2.6. Socket Streams"><tt>SOCKET:SOCKET-STREAM</tt></a>
 or <a href="#socket"
@@ -26256,7 +26295,7 @@ is available; or <tt>:INPUT</tt>, <tt>:OUTPUT</tt> or <tt>:IO</tt> is some
 input/output is possible on the <a href="#socket"
 title="Extensions-2.6. Socket Streams"><tt>SOCKET:SOCKET-STREAM</tt></a></dd>
 
-<dt><a id="d41e38206" name="d41e38206"></a><span class="term"><tt>(<a
+<dt><a id="d41e38295" name="d41e38295"></a><span class="term"><tt>(<a
 href="#socket"
 title="Extensions-2.6. Socket Streams"><tt>SOCKET:SOCKET-STREAM</tt></a> .
 <i><tt>direction</tt></i>)</tt></span></dt>
@@ -26267,7 +26306,7 @@ title="Extensions-2.6. Socket Streams"><tt>SOCKET:SOCKET-STREAM</tt></a>
 in the specified <i><tt>direction</tt></i> (which should be one of
 <tt>:INPUT</tt>, <tt>:OUTPUT</tt> or <tt>:IO</tt>).</dd>
 
-<dt><a id="d41e38245" name="d41e38245"></a><span class="term">a list of
+<dt><a id="d41e38334" name="d41e38334"></a><span class="term">a list of
 the above</span></dt>
 
 <dd>Return a list of values, one for each element of the argument list (a
@@ -26297,28 +26336,28 @@ this function returns</p>
 href="#so-status"><tt>SOCKET:SOCKET-STATUS</tt></a></b></p>
 
 <dl>
-<dt><a id="d41e38284" name="d41e38284"></a><span class="term"><a
+<dt><a id="d41e38373" name="d41e38373"></a><span class="term"><a
 href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a></span></dt>
 
 <dd>when no information is available or no operation is possible</dd>
 
-<dt><a id="d41e38292" name="d41e38292"></a><span
+<dt><a id="d41e38381" name="d41e38381"></a><span
 class="term"><tt>:ERROR</tt></span></dt>
 
 <dd>when an i/o operation will cause an error</dd>
 
-<dt><a id="d41e38299" name="d41e38299"></a><span
+<dt><a id="d41e38388" name="d41e38388"></a><span
 class="term"><tt>:INPUT</tt></span></dt>
 
 <dd>when you can only read from the stream</dd>
 
-<dt><a id="d41e38306" name="d41e38306"></a><span
+<dt><a id="d41e38395" name="d41e38395"></a><span
 class="term"><tt>:OUTPUT</tt></span></dt>
 
 <dd>when you can only write to the stream</dd>
 
-<dt><a id="d41e38313" name="d41e38313"></a><span
+<dt><a id="d41e38402" name="d41e38402"></a><span
 class="term"><tt>:IO</tt></span></dt>
 
 <dd>when you can both read from and write to the stream</dd>
@@ -26407,7 +26446,7 @@ title="Extensions-2.7. System Calls">&ldquo;POSIX&rdquo;</a>.</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e38474" name="d41e38474"></a><span
+<dt><a id="d41e38563" name="d41e38563"></a><span
 class="term"><tt>(</tt>posix:resolve-host-ipaddr</span> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 target="_top"><tt>&amp;OPTIONAL</tt></a> <i><tt>host</tt></i>)</dt>
@@ -26422,7 +26461,7 @@ target="_top"><tt>NIL</tt></a>, all the host database is returned as a
 list (this would be the contents of the <tt>/etc/hosts</tt> file on a UNIX
 system or <tt>${windir}/system32/etc/hosts</tt> on a Win32 system).</dd>
 
-<dt><a id="d41e38513" name="d41e38513"></a><span
+<dt><a id="d41e38602" name="d41e38602"></a><span
 class="term"><tt>(</tt>posix:file-stat</span> <i><tt>pathname</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 target="_top"><tt>&amp;OPTIONAL</tt></a> <i><tt>link-p</tt></i>)</dt>
@@ -26454,7 +26493,7 @@ hard links for Win32 or DOS) is returned.</p>
 <p>[UNIX systems only at this time, patches are welcome.]</p>
 </dd>
 
-<dt><a id="d41e38571" name="d41e38571"></a><span
+<dt><a id="d41e38660" name="d41e38660"></a><span
 class="term"><tt>(</tt>posix:user-data</span> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
 target="_top"><tt>&amp;OPTIONAL</tt></a> <i><tt>user</tt></i>)</dt>
@@ -26474,19 +26513,19 @@ target="_top"><tt>NIL</tt></a> (or the default, like
 <p>[UNIX systems only at this time, patches are welcome.]</p>
 </dd>
 
-<dt><a id="d41e38610" name="d41e38610"></a><span
+<dt><a id="d41e38699" name="d41e38699"></a><span
 class="term"><tt>(</tt>posix:sysinfo</span>)</dt>
 
 <dd>Return a struct describing the OS, derived from <tt>uname(2)</tt> and
 <tt>sysconf(3)</tt>.</dd>
 
-<dt><a id="d41e38626" name="d41e38626"></a><span
+<dt><a id="d41e38715" name="d41e38715"></a><span
 class="term"><tt>(</tt>posix:resource-usage-limits</span>)</dt>
 
 <dd>Return 3 structs describing the resources usage and limits, derived
 from <tt>getrlimit(2)</tt> and <tt>getrusage(3)</tt>.</dd>
 
-<dt><a id="d41e38643" name="d41e38643"></a> <span
+<dt><a id="d41e38732" name="d41e38732"></a> <span
 class="term"><tt>(</tt>posix:erf</span> <i><tt>real</tt></i>)
 <tt>(</tt>posix:erfc <i><tt>real</tt></i>) <tt>(</tt>posix:j0
 <i><tt>real</tt></i>) <tt>(</tt>posix:j1 <i><tt>real</tt></i>)
@@ -26525,13 +26564,13 @@ written in other languages.</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e38759" name="d41e38759"></a><span
+<dt><a id="d41e38848" name="d41e38848"></a><span
 class="term">UNIX</span></dt>
 
 <dd><a href="http://clisp.cons.org" target="_top"><b>CLISP</b></a> can act
 as a script interpreter.</dd>
 
-<dt><a id="d41e38768" name="d41e38768"></a><span class="term">Desktop
+<dt><a id="d41e38857" name="d41e38857"></a><span class="term">Desktop
 environments such as <a href="http://www.kde.org" target="_top">KDE</a>,
 <a href="http://www.gnome.org" target="_top">GNOME</a>, or
 Windows.</span></dt>
@@ -26542,14 +26581,14 @@ href="http://clisp.cons.org" target="_top"><b>CLISP</b></a> executables so
 that clicking on them would make <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a> execute the appropriate code.</dd>
 
-<dt><a id="d41e38792" name="d41e38792"></a><span class="term">Linux kernel
+<dt><a id="d41e38881" name="d41e38881"></a><span class="term">Linux kernel
 with <tt>CONFIG_BINFMT_MISC=y</tt></span></dt>
 
-<dd>Associate the extensions <tt>fas</tt> and <tt>lisp</tt> with <a
-href="http://clisp.cons.org" target="_top"><b>CLISP</b></a>; then you can
-make the files executable and run them from the command line.</dd>
+<dd>Associate the extensions <tt>#P".fas"</tt> and <tt>#P".lisp"</tt> with
+<a href="http://clisp.cons.org" target="_top"><b>CLISP</b></a>; then you
+can make the files executable and run them from the command line.</dd>
 
-<dt><a id="d41e38810" name="d41e38810"></a><span class="term"><a
+<dt><a id="d41e38899" name="d41e38899"></a><span class="term"><a
 href="http://www.amiga.org/" target="_top"><span
 class="strong"><i>Amiga</i></span></a></span></dt>
 
@@ -26557,27 +26596,28 @@ class="strong"><i>Amiga</i></span></a></span></dt>
 target="_top"><b>CLISP</b></a> can be associated with a Workbench project
 icon so that clicking on them would make <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a> execute the appropriate code. Note that
-several <tt>fas</tt> files can be concatenated (using <tt>Join</tt>) into
-one file.</dd>
+several <tt>#P".fas"</tt> files can be concatenated (using <tt>Join</tt>)
+into one file.</dd>
 </dl>
 </div>
 
-<p>These four techniques apply to a single <tt>lisp</tt> or <tt>fas</tt>
-file. If your application is made up of several <tt>lisp</tt> or
-<tt>fas</tt> files, you can simply concatenate them (using <b>cat</b>(1))
-into one file; the techniques then apply to that concatenated file.</p>
+<p>These four techniques apply to a single <tt>#P".lisp"</tt> or
+<tt>#P".fas"</tt> file. If your application is made up of several
+<tt>#P".lisp"</tt> or <tt>#P".fas"</tt> files, you can simply concatenate
+them (using <b>cat</b>(1)) into one file; the techniques then apply to
+that concatenated file.</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e38851" name="d41e38851"></a><span class="term">Platform
+<dt><a id="d41e38940" name="d41e38940"></a><span class="term">Platform
 dependent: <a href="http://www.UNIX-systems.org/online.html"
 target="_top"><span class="strong"><i>UNIX</i></span></a> platforms
 only.</span></dt>
 
 <dd>
-<p><a id="d41e38858" name="d41e38858"></a>On Unix, a text file
-(<tt>fas</tt> or <tt>lisp</tt>) can be made executable by adding a first
-line of the form</p>
+<p><a id="d41e38947" name="d41e38947"></a>On Unix, a text file
+(<tt>#P".fas"</tt> or <tt>#P".lisp"</tt>) can be made executable by adding
+a first line of the form</p>
 
 <pre class="programlisting">
 #!<i><tt>interpreter</tt></i> [<i><tt>interpreter-arguments</tt></i>]
@@ -26590,7 +26630,7 @@ a script interpreter under the following circumstances:
 <br />
 <div class="itemizedlist">
 <ul>
-<li><a id="d41e38884" name="d41e38884"></a>The <i><tt>interpreter</tt></i>
+<li><a id="d41e38973" name="d41e38973"></a>The <i><tt>interpreter</tt></i>
 must be the full pathname of <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a>. The recommended path is
 <tt>/usr/local/bin/clisp</tt>, and if <a href="http://clisp.cons.org"
@@ -26598,7 +26638,7 @@ target="_top"><b>CLISP</b></a> is actually installed elsewhere, making
 <tt>/usr/local/bin/clisp</tt> be a symbolic link to the real <a
 href="http://clisp.cons.org" target="_top"><b>CLISP</b></a>.</li>
 
-<li><a id="d41e38908" name="d41e38908"></a>The <i><tt>interpreter</tt></i>
+<li><a id="d41e38997" name="d41e38997"></a>The <i><tt>interpreter</tt></i>
 must be a real executable, not a script. Unfortunately, in the binary
 distributions of <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a> on Solaris, <b>clisp</b> is a shell script
@@ -26612,18 +26652,18 @@ source yourself; <b>make install</b> will install <b>clisp</b> as a real
 executable.</li>
 
 <li>
-<p><a id="d41e38939" name="d41e38939"></a>On some platforms, the first
+<p><a id="d41e39028" name="d41e39028"></a>On some platforms, the first
 line which specifies the interpreter is limited in length:</p>
 
 <div class="itemizedlist">
 <ul>
-<li><a id="d41e38943" name="d41e38943"></a>max. 32 characters on SunOS
+<li><a id="d41e39032" name="d41e39032"></a>max. 32 characters on SunOS
 4,</li>
 
-<li><a id="d41e38946" name="d41e38946"></a>max. 80 characters on
+<li><a id="d41e39035" name="d41e39035"></a>max. 80 characters on
 HP-UX,</li>
 
-<li><a id="d41e38949" name="d41e38949"></a>max. 127 characters on
+<li><a id="d41e39038" name="d41e39038"></a>max. 127 characters on
 Linux.</li>
 </ul>
 </div>
@@ -26635,7 +26675,7 @@ workaround: You have to keep the interpreter pathname and arguments short.
 <br />
 </li>
 
-<li><a id="d41e38953" name="d41e38953"></a>On Solaris and HP-UX, only the
+<li><a id="d41e39042" name="d41e39042"></a>On Solaris and HP-UX, only the
 first <i><tt>interpreter-arg</tt></i> is passed to the
 <i><tt>interpreter</tt></i>. In order to pass more than one option (for
 example, <tt>-Msomewhere.mem</tt> and <tt>-C</tt>) to <a
@@ -26686,7 +26726,7 @@ will be printed to the standard output. Another problem is that no user
 input will be available.</p>
 </dd>
 
-<dt><a id="d41e39031" name="d41e39031"></a><span class="term">Platform
+<dt><a id="d41e39120" name="d41e39120"></a><span class="term">Platform
 dependent: <a href="http://www.willows.com/" target="_top"><span
 class="strong"><i>Win32</i></span></a> platforms only.</span></dt>
 
@@ -26696,40 +26736,41 @@ target="_top"><b>CLISP</b></a> "executables" for Windows platforms.</p>
 
 <div class="itemizedlist">
 <ul>
-<li><a id="d41e39046" name="d41e39046"></a>Associate the <tt>mem</tt>
+<li><a id="d41e39135" name="d41e39135"></a>Associate the <tt>#P".mem"</tt>
 extension with <b>c:\clisp\lisp.exe -B c:\clisp -M %s</b>.</li>
 
-<li><a id="d41e39055" name="d41e39055"></a>Associate the <tt>fas</tt>
+<li><a id="d41e39144" name="d41e39144"></a>Associate the <tt>#P".fas"</tt>
 extension with <b>c:\clisp\lisp.exe -B c:\clisp -M c:\clisp\lispinit.mem
 -i %s</b>. Alternatively, you may want to have a function <tt>main</tt> in
-your <tt>fas</tt> files and associate the <tt>fas</tt> extension with
-<b>c:\clisp\lisp.exe -B c:\clisp -M c:\clisp\lispinit.mem -i %s -x
+your <tt>#P".fas"</tt> files and associate the <tt>#P".fas"</tt> extension
+with <b>c:\clisp\lisp.exe -B c:\clisp -M c:\clisp\lispinit.mem -i %s -x
 (main)</b>.</li>
 </ul>
 </div>
 
-<p>Then clicking on the compiled lisp file (with <tt>fas</tt> extension)
-will load the file (thus executing all the code in the file), while the
-clicking on a <a href="http://clisp.cons.org"
+<p>Then clicking on the compiled lisp file (with <tt>#P".fas"</tt>
+extension) will load the file (thus executing all the code in the file),
+while the clicking on a <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a> <a href="#image"
 title="Extensions-1.1. Saving an Image">memory image</a> (with
-<tt>mem</tt> extension) will start clisp with the given <a href="#image"
-title="Extensions-1.1. Saving an Image">memory image</a>.</p>
+<tt>#P".mem"</tt> extension) will start clisp with the given <a
+href="#image" title="Extensions-1.1. Saving an Image">memory
+image</a>.</p>
 
 <p>Note that <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a> is distributed with a file
 <tt>install.bat</tt>, which creates a file <tt>clisp.bat</tt> on your
-desktop and also associates <tt>fas</tt>, <tt>lisp</tt>, and <tt>mem</tt>
-files with <a href="http://clisp.cons.org"
+desktop and also associates <tt>#P".fas"</tt>, <tt>#P".lisp"</tt>, and
+<tt>#P".mem"</tt> files with <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a>.</p>
 </dd>
 
-<dt><a id="d41e39120" name="d41e39120"></a><span class="term">Platform
+<dt><a id="d41e39209" name="d41e39209"></a><span class="term">Platform
 dependent: <a href="http://www.linux.org/" target="_top"><span
 class="strong"><i>Linux</i></span></a> platforms only.</span></dt>
 
 <dd>
-<p><a id="d41e39127" name="d41e39127"></a>You have to build your kernel
+<p><a id="d41e39216" name="d41e39216"></a>You have to build your kernel
 with <tt>CONFIG_BINFMT_MISC=y</tt> and <tt>CONFIG_PROC_FS=y</tt>. Then you
 will have a <tt>/proc/sys/fs/binfmt_misc/</tt> directory and you will be
 able to do (as <tt>root</tt>; you might want to put these lines into
@@ -26769,46 +26810,46 @@ bash$
 details.</p>
 </dd>
 
-<dt><a id="d41e39157" name="d41e39157"></a><span class="term">Platform
+<dt><a id="d41e39246" name="d41e39246"></a><span class="term">Platform
 dependent: <a href="http://www.amiga.org/" target="_top"><span
 class="strong"><i>Amiga</i></span></a> platforms only.</span></dt>
 
 <dd>
-<p><a id="d41e39164" name="d41e39164"></a>Using a Workbench project file,
+<p><a id="d41e39253" name="d41e39253"></a>Using a Workbench project file,
 the <a href="#image" title="Extensions-1.1. Saving an Image">memory
 image</a>s, source and binary files can be made "executable".</p>
 
 <div class="itemizedlist">
 <ul>
-<li><a id="d41e39171" name="d41e39171"></a>Using IconEdit, create a
+<li><a id="d41e39260" name="d41e39260"></a>Using IconEdit, create a
 project icon.</li>
 
-<li><a id="d41e39174" name="d41e39174"></a>Set the tool to
+<li><a id="d41e39263" name="d41e39263"></a>Set the tool to
 <tt>lisp:lisp.run</tt> (or wherever the binary is located).</li>
 
-<li><a id="d41e39180" name="d41e39180"></a>Define a tooltype named
+<li><a id="d41e39269" name="d41e39269"></a>Define a tooltype named
 <i><tt>ARGS</tt></i> set to <tt>-M *</tt> for a <a href="#image"
 title="Extensions-1.1. Saving an Image">memory image</a> project icon or
 to <tt>-M lisp:lispinit.mem -i *</tt> for a source or compiled lisp file.
 The startup code will replace an isolated * token with the file name.</li>
 
-<li><a id="d41e39198" name="d41e39198"></a>Alternatively, you may want to
+<li><a id="d41e39287" name="d41e39287"></a>Alternatively, you may want to
 have a function <tt>main</tt> in your files and set the
 <i><tt>ARGS</tt></i> tooltype to <tt>-M lisp:lispinit.mem -i * -x
 (main)</tt>.</li>
 
-<li><a id="d41e39210" name="d41e39210"></a>You might want to add more <a
+<li><a id="d41e39299" name="d41e39299"></a>You might want to add more <a
 href="clisp.html" target="_top">command line options</a> to the
 <i><tt>ARGS</tt></i> tooltype.</li>
 </ul>
 </div>
 
-Clicking on the compiled lisp file (with <tt>fas</tt> suffix) will load
-the image and the file (thus executing all the code in the file), while
-clicking on the <a href="http://clisp.cons.org"
+Clicking on the compiled lisp file (with <tt>#P".fas"</tt> suffix) will
+load the image and the file (thus executing all the code in the file),
+while clicking on the <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a>'s <a href="#image"
 title="Extensions-1.1. Saving an Image">memory image</a> (with
-<tt>mem</tt> suffix) with start <a href="http://clisp.cons.org"
+<tt>#P".mem"</tt> suffix) with start <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a> with the given <a href="#image"
 title="Extensions-1.1. Saving an Image">memory image</a>.
 <br />
@@ -26880,22 +26921,22 @@ depending on their distribution form:</p>
 
 <div class="itemizedlist">
 <ul>
-<li><a id="d41e39351" name="d41e39351"></a>Programs distributed as Lisp
-source or <tt>fas</tt> files can be distributed without restrictions
+<li><a id="d41e39440" name="d41e39440"></a>Programs distributed as Lisp
+source or <tt>#P".fas"</tt> files can be distributed without restrictions
 coming from <a href="http://clisp.cons.org"
 target="_top"><b>CLISP</b></a>.</li>
 
-<li><a id="d41e39361" name="d41e39361"></a>Programs distributed as <a
+<li><a id="d41e39450" name="d41e39450"></a>Programs distributed as <a
 href="http://clisp.cons.org" target="_top"><b>CLISP</b></a> <a
 href="#image" title="Extensions-1.1. Saving an Image">memory image</a>s
 can be distributed only if accompanied with the non-<a
-href="http://clisp.cons.org" target="_top"><b>CLISP</b></a> <tt>fas</tt>
-files which make up the <a href="#image"
+href="http://clisp.cons.org" target="_top"><b>CLISP</b></a>
+<tt>#P".fas"</tt> files which make up the <a href="#image"
 title="Extensions-1.1. Saving an Image">memory image</a>, and a
 <tt>Makefile</tt> for rebuilding the <a href="#image"
 title="Extensions-1.1. Saving an Image">memory image</a>.</li>
 
-<li><a id="d41e39387" name="d41e39387"></a>If you need to distribute a
+<li><a id="d41e39476" name="d41e39476"></a>If you need to distribute a
 modified <a href="http://clisp.cons.org" target="_top"><b>CLISP</b></a>
 executable (for example, incorporating additional modules written in <a
 href="http://www.eskimo.com/~scs/C-faq/top.html"
@@ -26932,7 +26973,7 @@ name="shell"></a>Extensions-2.10. Shell, Pipes and Printing</h2>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e39420" name="d41e39420"></a><span class="term">Platform
+<dt><a id="d41e39509" name="d41e39509"></a><span class="term">Platform
 dependent: <a href="http://www.UNIX-systems.org/online.html"
 target="_top"><span class="strong"><i>UNIX</i></span></a>, <a
 href="http://www.acorn.com/" target="_top"><span
@@ -26948,7 +26989,7 @@ Its name is <i><tt>programfile</tt></i>. It is given the strings
 <i><tt>arg<sub>1</sub></tt></i>, <i><tt>arg<sub>2</sub></tt></i>, ... as
 arguments.</dd>
 
-<dt><a id="d41e39476" name="d41e39476"></a><span class="term">Platform
+<dt><a id="d41e39565" name="d41e39565"></a><span class="term">Platform
 dependent: <a href="http://www.amiga.org/" target="_top"><span
 class="strong"><i>Amiga</i></span></a> platforms only.</span></dt>
 
@@ -26956,7 +26997,7 @@ class="strong"><i>Amiga</i></span></a> platforms only.</span></dt>
 <i><tt>command</tt></i>)</tt> executes a given <i><tt>command</tt></i>
 using the operating system's shell.</dd>
 
-<dt><a id="d41e39500" name="d41e39500"></a><span class="term">Platform
+<dt><a id="d41e39589" name="d41e39589"></a><span class="term">Platform
 dependent: <a href="http://www.UNIX-systems.org/online.html"
 target="_top"><span class="strong"><i>UNIX</i></span></a>, <a
 href="http://www.amiga.org/" target="_top"><span
@@ -26976,7 +27017,7 @@ title="Shell"><tt>EXT:SHELL</tt></a> <i><tt>command</tt></i>)</tt> calls
 the shell only for execution of the one given
 <i><tt>command</tt></i>.</dd>
 
-<dt><a id="d41e39561" name="d41e39561"></a><span class="term">Platform
+<dt><a id="d41e39650" name="d41e39650"></a><span class="term">Platform
 dependent: <a href="http://www.UNIX-systems.org/online.html"
 target="_top"><span class="strong"><i>UNIX</i></span></a>, <a
 href="http://www.os2.org/" target="_top"><span
@@ -27001,7 +27042,7 @@ target="_top"><tt>&amp;KEY</tt></a> <tt>:arguments</tt> <tt>:INPUT</tt>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e39639" name="d41e39639"></a><span
+<dt><a id="d41e39728" name="d41e39728"></a><span
 class="term"><i><tt>command</tt></i></span></dt>
 
 <dd>
@@ -27009,7 +27050,7 @@ class="term"><i><tt>command</tt></i></span></dt>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e39648" name="d41e39648"></a><span class="term">Platform
+<dt><a id="d41e39737" name="d41e39737"></a><span class="term">Platform
 dependent: <a href="http://www.UNIX-systems.org/online.html"
 target="_top"><span class="strong"><i>UNIX</i></span></a> platforms
 only.</span></dt>
@@ -27023,18 +27064,18 @@ should be a ``simple command''; a ``command list'' should be enclosed in
 </div>
 </dd>
 
-<dt><a id="d41e39671" name="d41e39671"></a><span
+<dt><a id="d41e39760" name="d41e39760"></a><span
 class="term"><i><tt>program</tt></i></span></dt>
 
 <dd>the program. The directories listed in the <tt>PATH</tt> environment
 variable will be searched for it.</dd>
 
-<dt><a id="d41e39681" name="d41e39681"></a><span
+<dt><a id="d41e39770" name="d41e39770"></a><span
 class="term"><tt>:arguments</tt></span></dt>
 
 <dd>a list of arguments (strings) that are given to the program.</dd>
 
-<dt><a id="d41e39688" name="d41e39688"></a><span
+<dt><a id="d41e39777" name="d41e39777"></a><span
 class="term"><tt>:INPUT</tt></span></dt>
 
 <dd>where the program's input is to come from: either <tt>:terminal</tt>
@@ -27043,7 +27084,7 @@ a pathname (an input file) or <a
 href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a> (no input at all).</dd>
 
-<dt><a id="d41e39705" name="d41e39705"></a><span
+<dt><a id="d41e39794" name="d41e39794"></a><span
 class="term"><tt>:OUTPUT</tt></span></dt>
 
 <dd>where the program's output is to be sent to: either <tt>:terminal</tt>
@@ -27052,7 +27093,7 @@ a pathname (an output file) or <a
 href="http://www.lisp.org/HyperSpec/Body/convar_nil.html"
 target="_top"><tt>NIL</tt></a> (ignore the output).</dd>
 
-<dt><a id="d41e39722" name="d41e39722"></a><span
+<dt><a id="d41e39811" name="d41e39811"></a><span
 class="term"><tt>:IF-OUTPUT-EXISTS</tt></span></dt>
 
 <dd>what to do if the <tt>:OUTPUT</tt> file already exists. The possible
@@ -27084,7 +27125,7 @@ title="Pipes"><tt>EXT:MAKE-PIPE-IO-STREAM</tt></a>.</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e39782" name="d41e39782"></a><span class="term">Platform
+<dt><a id="d41e39871" name="d41e39871"></a><span class="term">Platform
 dependent: <a href="http://www.UNIX-systems.org/online.html"
 target="_top"><span class="strong"><i>UNIX</i></span></a>, <a
 href="http://www.os2.org/" target="_top"><span
@@ -27095,7 +27136,7 @@ only.</span></dt>
 <dd>
 <div class="variablelist">
 <dl>
-<dt><a id="d41e39799" name="d41e39799"></a><span class="term"><tt>(<a
+<dt><a id="d41e39888" name="d41e39888"></a><span class="term"><tt>(<a
 href="#pipe" title="Pipes"><tt>EXT:MAKE-PIPE-INPUT-STREAM</tt></a>
 <i><tt>command</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -27107,7 +27148,7 @@ href="#buffered"><tt>:BUFFERED</tt></a>)</tt></span></dt>
 <dd>returns an input stream that will supply the output from the execution
 of the given operating system command.</dd>
 
-<dt><a id="d41e39829" name="d41e39829"></a><span class="term"><tt>(<a
+<dt><a id="d41e39918" name="d41e39918"></a><span class="term"><tt>(<a
 href="#pipe" title="Pipes"><tt>EXT:MAKE-PIPE-OUTPUT-STREAM</tt></a>
 <i><tt>command</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -27119,7 +27160,7 @@ href="#buffered"><tt>:BUFFERED</tt></a>)</tt></span></dt>
 <dd>returns an output stream that will pass its output as input to the
 execution of the given operating system command.</dd>
 
-<dt><a id="d41e39860" name="d41e39860"></a><span class="term"><tt>(<a
+<dt><a id="d41e39949" name="d41e39949"></a><span class="term"><tt>(<a
 href="#pipe" title="Pipes"><tt>EXT:MAKE-PIPE-IO-STREAM</tt></a>
 <i><tt>command</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -27208,20 +27249,20 @@ of directory keys may exist, depending on the compilation environment.</p>
 <p><b>valid directory key types</b></p>
 
 <dl>
-<dt><a id="d41e39968" name="d41e39968"></a><span
+<dt><a id="d41e40057" name="d41e40057"></a><span
 class="term">:win32</span></dt>
 
 <dd><a href="http://www.willows.com/" target="_top"><span
 class="strong"><i>Win32</i></span></a> registry access</dd>
 
-<dt><a id="d41e39977" name="d41e39977"></a><span
+<dt><a id="d41e40066" name="d41e40066"></a><span
 class="term">:gnome</span></dt>
 
 <dd><a
 href="http://developer.gnome.org/doc/API/libgnome/gnome-gnome-config.html"
 target="_top">gnome-config</a> access</dd>
 
-<dt><a id="d41e39985" name="d41e39985"></a><span
+<dt><a id="d41e40074" name="d41e40074"></a><span
 class="term">:ldap</span></dt>
 
 <dd>LDAP interface via <a href="http://www.openldap.org"
@@ -27272,13 +27313,13 @@ href="#dir-key-open"><tt>LDAP:DIR-KEY-OPEN</tt></a> on
 <i><tt>body</tt></i>, then close it with <a
 href="#dir-key-close"><tt>LDAP:DIR-KEY-CLOSE</tt></a>.</dd>
 
-<dt><a id="d41e40117" name="d41e40117"></a><span
+<dt><a id="d41e40206" name="d41e40206"></a><span
 class="term"><tt>(</tt>LDAP:DIR-KEY-TYPE</span> <i><tt>dkey</tt></i>)</dt>
 
 <dd>Return the <a href="#dir-key-type">directory key type</a> of the
 directory key</dd>
 
-<dt><a id="d41e40133" name="d41e40133"></a><span
+<dt><a id="d41e40222" name="d41e40222"></a><span
 class="term"><tt>(</tt>LDAP:DIR-KEY-PATH</span> <i><tt>dkey</tt></i>)</dt>
 
 <dd>Return the path of this directory key, which is the
@@ -27288,21 +27329,21 @@ href="#dir-key-open"><tt>LDAP:DIR-KEY-OPEN</tt></a> if
 or the concatenation of the <i><tt>pathname</tt></i> argument and the
 <tt>ldap:dir-key-path</tt> of <i><tt>dkey</tt></i>.</dd>
 
-<dt><a id="d41e40168" name="d41e40168"></a><span
+<dt><a id="d41e40257" name="d41e40257"></a><span
 class="term"><tt>(</tt>LDAP:DIR-KEY-DIRECTION</span>
 <i><tt>dkey</tt></i>)</dt>
 
 <dd>One of <tt>:INPUT</tt>, <tt>:OUTPUT</tt> and <tt>:IO</tt>, indicating
 the permitted operation on this key and its derivatives.</dd>
 
-<dt><a id="d41e40190" name="d41e40190"></a><span
+<dt><a id="d41e40279" name="d41e40279"></a><span
 class="term"><tt>(</tt>LDAP:DIR-KEY-CLOSED-P</span>
 <i><tt>dkey</tt></i>)</dt>
 
 <dd>Check whether the key has been closed. It is not an error to close a
 closed key.</dd>
 
-<dt><a id="d41e40203" name="d41e40203"></a><span
+<dt><a id="d41e40292" name="d41e40292"></a><span
 class="term"><tt>(</tt>LDAP:DIR-KEY-SUBKEY-DELETE</span>
 <i><tt>dkey</tt></i> <i><tt>subkey</tt></i>)
 <tt>(</tt>LDAP:DIR-KEY-VALUE-DELETE <i><tt>dkey</tt></i>
@@ -27310,13 +27351,13 @@ class="term"><tt>(</tt>LDAP:DIR-KEY-SUBKEY-DELETE</span>
 
 <dd>Delete the specified subkey or attribute.</dd>
 
-<dt><a id="d41e40231" name="d41e40231"></a><span
+<dt><a id="d41e40320" name="d41e40320"></a><span
 class="term"><tt>(</tt>LDAP:DIR-KEY-SUBKEY</span> <i><tt>dkey</tt></i>)
 <tt>(</tt>LDAP:DIR-KEY-ATTRIBUTES <i><tt>dkey</tt></i>)</dt>
 
 <dd>Return the list of the subkeys or attributes.</dd>
 
-<dt><a id="d41e40253" name="d41e40253"></a><span
+<dt><a id="d41e40342" name="d41e40342"></a><span
 class="term"><tt>(</tt>LDAP:DIR-KEY-VALUE</span> <i><tt>dkey</tt></i>
 <i><tt>attribute</tt></i> <a
 href="http://www.lisp.org/HyperSpec/Body/sec_3-4-1.html"
@@ -27330,7 +27371,7 @@ target="_top"><tt>SETF</tt></a>able just like <a
 href="http://www.lisp.org/HyperSpec/Body/acc_gethash.html"
 target="_top"><tt>GETHASH</tt></a>.</dd>
 
-<dt><a id="d41e40288" name="d41e40288"></a><span
+<dt><a id="d41e40377" name="d41e40377"></a><span
 class="term"><tt>(</tt>LDAP:DIR-KEY-INFO</span> <i><tt>dkey</tt></i>)</dt>
 
 <dd>Return some information about the directory key. This is highly
@@ -27369,17 +27410,17 @@ and can be</p>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e40370" name="d41e40370"></a><span
+<dt><a id="d41e40459" name="d41e40459"></a><span
 class="term"><tt>:self</tt></span></dt>
 
 <dd>iterate over the key itself</dd>
 
-<dt><a id="d41e40377" name="d41e40377"></a><span
+<dt><a id="d41e40466" name="d41e40466"></a><span
 class="term"><tt>:level</tt></span></dt>
 
 <dd>iterate over the children of the key</dd>
 
-<dt><a id="d41e40384" name="d41e40384"></a><span
+<dt><a id="d41e40473" name="d41e40473"></a><span
 class="term"><tt>:tree</tt></span></dt>
 
 <dd>iterate over the subtree</dd>
@@ -27408,12 +27449,12 @@ name="other"></a>Extensions-2.12. Other</h2>
 
 <div class="variablelist">
 <dl>
-<dt><a id="d41e40414" name="d41e40414"></a><span class="term">Platform
+<dt><a id="d41e40503" name="d41e40503"></a><span class="term">Platform
 dependent: <a href="http://www.amiga.org/" target="_top"><span
 class="strong"><i>Amiga</i></span></a> platforms only.</span></dt>
 
 <dd>
-<p><a id="d41e40421" name="d41e40421"></a>To have <a
+<p><a id="d41e40510" name="d41e40510"></a>To have <a
 href="http://www.lisp.org/HyperSpec/Body/var_stdebug-i_ace-outputst.html"
 target="_top"><tt>*DEBUG-IO*</tt></a> and <a
 href="http://www.lisp.org/HyperSpec/Body/var_stdebug-i_ace-outputst.html"
@@ -27457,29 +27498,29 @@ Documentation License</h2>
 <p><b>Table of Contents</b></p>
 
 <dl>
-<dt>0. <a href="#d41e40474">PREAMBLE</a></dt>
+<dt>0. <a href="#d41e40563">PREAMBLE</a></dt>
 
-<dt>1. <a href="#d41e40483">APPLICABILITY AND DEFINITIONS</a></dt>
+<dt>1. <a href="#d41e40572">APPLICABILITY AND DEFINITIONS</a></dt>
 
-<dt>2. <a href="#d41e40502">VERBATIM COPYING</a></dt>
+<dt>2. <a href="#d41e40591">VERBATIM COPYING</a></dt>
 
-<dt>3. <a href="#d41e40509">COPYING IN QUANTITY</a></dt>
+<dt>3. <a href="#d41e40598">COPYING IN QUANTITY</a></dt>
 
-<dt>4. <a href="#d41e40520">MODIFICATIONS</a></dt>
+<dt>4. <a href="#d41e40609">MODIFICATIONS</a></dt>
 
-<dt>5. <a href="#d41e40576">COMBINING DOCUMENTS</a></dt>
+<dt>5. <a href="#d41e40665">COMBINING DOCUMENTS</a></dt>
 
-<dt>6. <a href="#d41e40585">COLLECTIONS OF DOCUMENTS</a></dt>
+<dt>6. <a href="#d41e40674">COLLECTIONS OF DOCUMENTS</a></dt>
 
-<dt>7. <a href="#d41e40592">AGGREGATION WITH INDEPENDENT WORKS</a></dt>
+<dt>7. <a href="#d41e40681">AGGREGATION WITH INDEPENDENT WORKS</a></dt>
 
-<dt>8. <a href="#d41e40599">TRANSLATION</a></dt>
+<dt>8. <a href="#d41e40688">TRANSLATION</a></dt>
 
-<dt>9. <a href="#d41e40604">TERMINATION</a></dt>
+<dt>9. <a href="#d41e40693">TERMINATION</a></dt>
 
-<dt>10. <a href="#d41e40609">FUTURE REVISIONS OF THIS LICENSE</a></dt>
+<dt>10. <a href="#d41e40698">FUTURE REVISIONS OF THIS LICENSE</a></dt>
 
-<dt><a href="#d41e40619">How to use this License for your
+<dt><a href="#d41e40708">How to use this License for your
 documents</a></dt>
 </dl>
 </div>
@@ -27493,11 +27534,11 @@ distribute verbatim copies of this license document, but changing it is
 not allowed.</p>
 </blockquote>
 
-<div class="sect1"><a id="d41e40474" name="d41e40474"></a>
+<div class="sect1"><a id="d41e40563" name="d41e40563"></a>
 <div class="titlepage">
 <div>
-<h2 class="title" style="clear: both"><a id="d41e40474"
-name="d41e40474"></a>PREAMBLE</h2>
+<h2 class="title" style="clear: both"><a id="d41e40563"
+name="d41e40563"></a>PREAMBLE</h2>
 </div>
 </div>
 
@@ -27523,11 +27564,11 @@ published as a printed book. We recommend this License principally for
 works whose purpose is instruction or reference.</p>
 </div>
 
-<div class="sect1"><a id="d41e40483" name="d41e40483"></a>
+<div class="sect1"><a id="d41e40572" name="d41e40572"></a>
 <div class="titlepage">
 <div>
-<h2 class="title" style="clear: both"><a id="d41e40483"
-name="d41e40483"></a>APPLICABILITY AND DEFINITIONS</h2>
+<h2 class="title" style="clear: both"><a id="d41e40572"
+name="d41e40572"></a>APPLICABILITY AND DEFINITIONS</h2>
 </div>
 </div>
 
@@ -27588,11 +27629,11 @@ most prominent appearance of the work's title, preceding the beginning of
 the body of the text.</p>
 </div>
 
-<div class="sect1"><a id="d41e40502" name="d41e40502"></a>
+<div class="sect1"><a id="d41e40591" name="d41e40591"></a>
 <div class="titlepage">
 <div>
-<h2 class="title" style="clear: both"><a id="d41e40502"
-name="d41e40502"></a>VERBATIM COPYING</h2>
+<h2 class="title" style="clear: both"><a id="d41e40591"
+name="d41e40591"></a>VERBATIM COPYING</h2>
 </div>
 </div>
 
@@ -27610,11 +27651,11 @@ must also follow the conditions in section 3.</p>
 you may publicly display copies.</p>
 </div>
 
-<div class="sect1"><a id="d41e40509" name="d41e40509"></a>
+<div class="sect1"><a id="d41e40598" name="d41e40598"></a>
 <div class="titlepage">
 <div>
-<h2 class="title" style="clear: both"><a id="d41e40509"
-name="d41e40509"></a>COPYING IN QUANTITY</h2>
+<h2 class="title" style="clear: both"><a id="d41e40598"
+name="d41e40598"></a>COPYING IN QUANTITY</h2>
 </div>
 </div>
 
@@ -27652,11 +27693,11 @@ Document well before redistributing any large number of copies, to give
 them a chance to provide you with an updated version of the Document.</p>
 </div>
 
-<div class="sect1"><a id="d41e40520" name="d41e40520"></a>
+<div class="sect1"><a id="d41e40609" name="d41e40609"></a>
 <div class="titlepage">
 <div>
-<h2 class="title" style="clear: both"><a id="d41e40520"
-name="d41e40520"></a>MODIFICATIONS</h2>
+<h2 class="title" style="clear: both"><a id="d41e40609"
+name="d41e40609"></a>MODIFICATIONS</h2>
 </div>
 </div>
 
@@ -27670,7 +27711,7 @@ addition, you must do these things in the Modified Version:</p>
 <div class="orderedlist">
 <ol type="A">
 <li>
-<p><a id="d41e40526" name="d41e40526"></a>Use in the Title Page (and on
+<p><a id="d41e40615" name="d41e40615"></a>Use in the Title Page (and on
 the covers, if any) a title distinct from that of the Document, and from
 those of previous versions (which should, if there were any, be listed in
 the History section of the Document). You may use the same title as a
@@ -27679,7 +27720,7 @@ permission.</p>
 </li>
 
 <li>
-<p><a id="d41e40529" name="d41e40529"></a>List on the Title Page, as
+<p><a id="d41e40618" name="d41e40618"></a>List on the Title Page, as
 authors, one or more persons or entities responsible for authorship of the
 modifications in the Modified Version, together with at least five of the
 principal authors of the Document (all of its principal authors, if it has
@@ -27687,40 +27728,40 @@ less than five).</p>
 </li>
 
 <li>
-<p><a id="d41e40532" name="d41e40532"></a>State on the Title page the name
+<p><a id="d41e40621" name="d41e40621"></a>State on the Title page the name
 of the publisher of the Modified Version, as the publisher.</p>
 </li>
 
 <li>
-<p><a id="d41e40535" name="d41e40535"></a>Preserve all the copyright
+<p><a id="d41e40624" name="d41e40624"></a>Preserve all the copyright
 notices of the Document.</p>
 </li>
 
 <li>
-<p><a id="d41e40538" name="d41e40538"></a>Add an appropriate copyright
+<p><a id="d41e40627" name="d41e40627"></a>Add an appropriate copyright
 notice for your modifications adjacent to the other copyright notices.</p>
 </li>
 
 <li>
-<p><a id="d41e40541" name="d41e40541"></a>Include, immediately after the
+<p><a id="d41e40630" name="d41e40630"></a>Include, immediately after the
 copyright notices, a license notice giving the public permission to use
 the Modified Version under the terms of this License, in the form shown in
 the Addendum below.</p>
 </li>
 
 <li>
-<p><a id="d41e40544" name="d41e40544"></a>Preserve in that license notice
+<p><a id="d41e40633" name="d41e40633"></a>Preserve in that license notice
 the full lists of Invariant Sections and required Cover Texts given in the
 Document's license notice.</p>
 </li>
 
 <li>
-<p><a id="d41e40547" name="d41e40547"></a>Include an unaltered copy of
+<p><a id="d41e40636" name="d41e40636"></a>Include an unaltered copy of
 this License.</p>
 </li>
 
 <li>
-<p><a id="d41e40550" name="d41e40550"></a>Preserve the section entitled
+<p><a id="d41e40639" name="d41e40639"></a>Preserve the section entitled
 "History", and its title, and add to it an item stating at least the
 title, year, new authors, and publisher of the Modified Version as given
 on the Title Page. If there is no section entitled "History" in the
@@ -27730,7 +27771,7 @@ Modified Version as stated in the previous sentence.</p>
 </li>
 
 <li>
-<p><a id="d41e40553" name="d41e40553"></a>Preserve the network location,
+<p><a id="d41e40642" name="d41e40642"></a>Preserve the network location,
 if any, given in the Document for public access to a Transparent copy of
 the Document, and likewise the network locations given in the Document for
 previous versions it was based on. These may be placed in the "History"
@@ -27740,27 +27781,27 @@ of the version it refers to gives permission.</p>
 </li>
 
 <li>
-<p><a id="d41e40556" name="d41e40556"></a>In any section entitled
+<p><a id="d41e40645" name="d41e40645"></a>In any section entitled
 "Acknowledgements" or "Dedications", preserve the section's title, and
 preserve in the section all the substance and tone of each of the
 contributor acknowledgements and/or dedications given therein.</p>
 </li>
 
 <li>
-<p><a id="d41e40559" name="d41e40559"></a>Preserve all the Invariant
+<p><a id="d41e40648" name="d41e40648"></a>Preserve all the Invariant
 Sections of the Document, unaltered in their text and in their titles.
 Section numbers or the equivalent are not considered part of the section
 titles.</p>
 </li>
 
 <li>
-<p><a id="d41e40562" name="d41e40562"></a>Delete any section entitled
+<p><a id="d41e40651" name="d41e40651"></a>Delete any section entitled
 "Endorsements". Such a section may not be included in the Modified
 Version.</p>
 </li>
 
 <li>
-<p><a id="d41e40565" name="d41e40565"></a>Do not retitle any existing
+<p><a id="d41e40654" name="d41e40654"></a>Do not retitle any existing
 section as "Endorsements" or to conflict in title with any Invariant
 Section.</p>
 </li>
@@ -27794,11 +27835,11 @@ give permission to use their names for publicity for or to assert or imply
 endorsement of any Modified Version.</p>
 </div>
 
-<div class="sect1"><a id="d41e40576" name="d41e40576"></a>
+<div class="sect1"><a id="d41e40665" name="d41e40665"></a>
 <div class="titlepage">
 <div>
-<h2 class="title" style="clear: both"><a id="d41e40576"
-name="d41e40576"></a>COMBINING DOCUMENTS</h2>
+<h2 class="title" style="clear: both"><a id="d41e40665"
+name="d41e40665"></a>COMBINING DOCUMENTS</h2>
 </div>
 </div>
 
@@ -27824,11 +27865,11 @@ sections entitled "Dedications". You must delete all sections entitled
 "Endorsements."</p>
 </div>
 
-<div class="sect1"><a id="d41e40585" name="d41e40585"></a>
+<div class="sect1"><a id="d41e40674" name="d41e40674"></a>
 <div class="titlepage">
 <div>
-<h2 class="title" style="clear: both"><a id="d41e40585"
-name="d41e40585"></a>COLLECTIONS OF DOCUMENTS</h2>
+<h2 class="title" style="clear: both"><a id="d41e40674"
+name="d41e40674"></a>COLLECTIONS OF DOCUMENTS</h2>
 </div>
 </div>
 
@@ -27845,11 +27886,11 @@ of this License into the extracted document, and follow this License in
 all other respects regarding verbatim copying of that document.</p>
 </div>
 
-<div class="sect1"><a id="d41e40592" name="d41e40592"></a>
+<div class="sect1"><a id="d41e40681" name="d41e40681"></a>
 <div class="titlepage">
 <div>
-<h2 class="title" style="clear: both"><a id="d41e40592"
-name="d41e40592"></a>AGGREGATION WITH INDEPENDENT WORKS</h2>
+<h2 class="title" style="clear: both"><a id="d41e40681"
+name="d41e40681"></a>AGGREGATION WITH INDEPENDENT WORKS</h2>
 </div>
 </div>
 
@@ -27869,11 +27910,11 @@ that surround only the Document within the aggregate. Otherwise they must
 appear on covers around the whole aggregate.</p>
 </div>
 
-<div class="sect1"><a id="d41e40599" name="d41e40599"></a>
+<div class="sect1"><a id="d41e40688" name="d41e40688"></a>
 <div class="titlepage">
 <div>
-<h2 class="title" style="clear: both"><a id="d41e40599"
-name="d41e40599"></a>TRANSLATION</h2>
+<h2 class="title" style="clear: both"><a id="d41e40688"
+name="d41e40688"></a>TRANSLATION</h2>
 </div>
 </div>
 
@@ -27888,11 +27929,11 @@ disagreement between the translation and the original English version of
 this License, the original English version will prevail.</p>
 </div>
 
-<div class="sect1"><a id="d41e40604" name="d41e40604"></a>
+<div class="sect1"><a id="d41e40693" name="d41e40693"></a>
 <div class="titlepage">
 <div>
-<h2 class="title" style="clear: both"><a id="d41e40604"
-name="d41e40604"></a>TERMINATION</h2>
+<h2 class="title" style="clear: both"><a id="d41e40693"
+name="d41e40693"></a>TERMINATION</h2>
 </div>
 </div>
 
@@ -27905,11 +27946,11 @@ have their licenses terminated so long as such parties remain in full
 compliance.</p>
 </div>
 
-<div class="sect1"><a id="d41e40609" name="d41e40609"></a>
+<div class="sect1"><a id="d41e40698" name="d41e40698"></a>
 <div class="titlepage">
 <div>
-<h2 class="title" style="clear: both"><a id="d41e40609"
-name="d41e40609"></a>FUTURE REVISIONS OF THIS LICENSE</h2>
+<h2 class="title" style="clear: both"><a id="d41e40698"
+name="d41e40698"></a>FUTURE REVISIONS OF THIS LICENSE</h2>
 </div>
 </div>
 
@@ -27930,11 +27971,11 @@ this License, you may choose any version ever published (not as a draft)
 by the Free Software Foundation.</p>
 </div>
 
-<div class="sect1"><a id="d41e40619" name="d41e40619"></a>
+<div class="sect1"><a id="d41e40708" name="d41e40708"></a>
 <div class="titlepage">
 <div>
-<h2 class="title" style="clear: both"><a id="d41e40619"
-name="d41e40619"></a>How to use this License for your documents</h2>
+<h2 class="title" style="clear: both"><a id="d41e40708"
+name="d41e40708"></a>How to use this License for your documents</h2>
 </div>
 </div>
 
@@ -27972,7 +28013,7 @@ use in free software.</p>
 </div>
 
 <div class="bibliodiv">
-<h3 class="title"><a id="d41e40635" name="d41e40635">Books</a></h3>
+<h3 class="title"><a id="d41e40724" name="d41e40724">Books</a></h3>
 
 <div id="CLtL1" class="biblioentry"><a id="CLtL1" name="CLtL1"></a>
 <p><span class="abbrev">[CLtL1]</span> <span class="authorgroup">Guy L.
@@ -27995,7 +28036,7 @@ href="http://www.cs.cmu.edu/afs/cs.cmu.edu/project/ai-repository/ai/html/cltl/cl
 </div>
 
 <div class="bibliodiv">
-<h3 class="title"><a id="d41e40683" name="d41e40683">ANSI standard
+<h3 class="title"><a id="d41e40772" name="d41e40772">ANSI standard
 documents</a></h3>
 
 <div id="ansi-cl" class="biblioentry"><a id="ansi-cl" name="ansi-cl"></a>
