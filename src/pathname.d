@@ -6238,7 +6238,7 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
         SetLastError(ERROR_DIRECTORY);
       }
       if (fileattr == 0xFFFFFFFF) {
-        if (!WIN32_ERROR_NOT_FOUND) {
+        if (!(tolerantp && WIN32_ERROR_NOT_FOUND)) {
           end_system_call(); OS_file_error(STACK_0);
         }
         end_system_call();
