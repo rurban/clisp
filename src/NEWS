@@ -196,6 +196,8 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#translate-pathname> and
   <http://clisp.cons.org/impnotes.html#translate-logpath> for details.
 
+* New function ABSOLUTE-PATHNAME.
+
 * TRACE has a new option :MAX-DEPTH, that is useful to avoid infinite
   recursions in the tracer.
   See <http://clisp.cons.org/impnotes.html#trace> for details.
@@ -231,6 +233,7 @@ User visible changes
   + Passing a displaced vector as argument to REVERSE could lead to an
     unjustified error.
   + Fixed ATANH on complex numbers.
+  + Fixed a spurious crash of MULTIPLE-VALUE-SETQ in interpreted code.
   + Fixed a crash of (COPY-READTABLE NIL some-readtable).
   + Fixed a crash when using a hash-table as hash-table key.
   + Fixed a crash triggered by the READ-BYTE function on streams with
