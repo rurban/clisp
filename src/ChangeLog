@@ -1,5 +1,14 @@
 2005-03-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (OPENLOG, SETLOGMASK, %SYSLOG, CLOSELOG):
+	implemented a <syslog.h> interface
+	* modules/syscalls/posix.lisp (openlog, setlogmask, syslog, closelog):
+	export
+	(syslog): thin wrapper over %SYSLOG, calling FORMAT
+	* modules/syscalls/configure.in: check for the syslog facilities
+
+2005-03-06  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 1157691 ]: (optimize (debug 3)) fails
 	* compiler.lisp (parse-optimize-quality): extracted code from
 	PROCESS-DECLARATIONS; use CL:DEBUG instead of DEBUG

@@ -101,6 +101,10 @@
 <!ENTITY inet_ntoa "<ulink url='&unix-f;/inet_ntoa.html'><function>inet_ntoa</function></ulink>">
 <!ENTITY inet_ntop "<ulink url='&unix-f;/inet_ntop.html'><function>inet_ntop</function></ulink>">
 <!ENTITY inet_pton "<ulink url='&unix-f;/inet_pton.html'><function>inet_pton</function></ulink>">
+<!ENTITY openlog "<ulink url='&unix-f;/openlog.html'><function>openlog</function></ulink>">
+<!ENTITY setlogmask "<ulink url='&unix-f;/setlogmask.html'><function>setlogmask</function></ulink>">
+<!ENTITY syslog "<ulink url='&unix-f;/syslog.html'><function>syslog</function></ulink>">
+<!ENTITY closelog "<ulink url='&unix-f;/closelog.html'><function>closelog</function></ulink>">
 
 <!-- header files -->
 <!ENTITY unix-b "&unix-top;/basedefs">
@@ -108,6 +112,7 @@
 <!ENTITY stdlib-h "<ulink url='&unix-b;/stdlib.h.html'><filename>&lt;stdlib.h&gt;</filename></ulink>">
 <!ENTITY stdio-h "<ulink url='&unix-b;/stdio.h.html'><filename>&lt;stdio.h&gt;</filename></ulink>">
 <!ENTITY socket-h "<ulink url='&unix-b;/syssocket.h.html'><filename>&lt;sys/socket.h&gt;</filename></ulink>">
+<!ENTITY syslog-h "<ulink url='&unix-b;/syslog.h.html'><filename>&lt;syslog.h&gt;</filename></ulink>">
 <!ENTITY fcntl-h "<ulink url='&unix-b;/fcntl.h.html'><filename>&lt;fcntl.h&gt;</filename></ulink>">
 <!ENTITY env-var "<ulink url='&unix-b;/xbd_chap08.html'>environment variable</ulink>">
 <!ENTITY file-des "<ulink url='&unix-b;/xbd_chap03.html#tag_03_165'>file descriptor</ulink>">

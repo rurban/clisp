@@ -409,6 +409,17 @@
   <listitem><simpara>Return the process ID (on &unix; calls &getpid;,
     on &win32; calls <function>GetCurrentProcessId</function>)
  </simpara></listitem></varlistentry>
+ <varlistentry id="openlog"><term><code>(POSIX:OPENLOG ident &key-amp;
+    :PID :CONS :NDELAY :ODELAY :NOWAIT :FACILITY)</code></term>
+  <listitem><simpara>calls &openlog;</simpara></listitem></varlistentry>
+ <varlistentry id="setlogmask"><term><code>(POSIX:SETLOGMASK
+    maskpri)</code></term>
+  <listitem><simpara>calls &setlogmask;</simpara></listitem></varlistentry>
+ <varlistentry id="syslog"><term><code>(POSIX:SYSLOG severity facility
+    &fmt-r; &rest-amp; format-arguments)</code></term>
+  <listitem><simpara>calls &syslog;</simpara></listitem></varlistentry>
+ <varlistentry id="closelog"><term><code>(POSIX:CLOSELOG)</code></term>
+  <listitem><simpara>calls &closelog;</simpara></listitem></varlistentry>
 </variablelist>
 
 </section>
