@@ -1,6 +1,5 @@
-# Functions for characters and strings for CLISP
-# Bruno Haible 1990-2001
-# Sam Steingold 1999, 2001
+# Funktionen für Characters und Strings für CLISP
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
@@ -631,6 +630,22 @@ static const cint nop_page[256] = {
       #endif
     }
 
+# Copies an array of chart to an array of chart.
+# chartcopy(src,dest,len);
+# > chart* src: characters
+# > chart* dest: room for characters
+# > uintL len: number of characters to be copied, > 0
+  global void chartcopy (const chart* src, chart* dest, uintL len);
+  global void chartcopy(src,dest,len)
+    var const chart* src;
+    var chart* dest;
+    var uintL len;
+    {
+      dotimespL(len,len, {
+        *dest++ = *src++;
+      });
+    }
+
 #ifdef HAVE_SMALL_SSTRING
 # Copies an array of scint to an array of chart.
 # scintcopy(src,dest,len);
@@ -650,65 +665,78 @@ static const cint nop_page[256] = {
 #endif
 
 # UP: verfolgt einen String.
-# unpack_string(string,&tot_len,&fil_len,&offset)
-# > object string: the string.
-# < uintL tot_len: the total length of the string
-# < uintL fil_len: the fill-pointer length of the string
-# < uintL offset: offset in the data vector.
-# < object return: data vector
-local object unpack_string (object string, uintL* tot_len, uintL* fil_len,
-                            uintL* offset) {
-  if (simple_string_p(string)) {
-    var uintL len = Sstring_length(string);
-    if (tot_len) *tot_len = len;
-    if (fil_len) *fil_len = len;
-    *offset = 0;
-    return string;
-  } else {
-   # string, but not simple-string => follow the displacement
-   # determine the length (like vector_length() in array.d):
-    var uintL tot_size;
-    var uintL fil_size;
-    {
-      var Iarray addr = TheIarray(string);
-      var uintL offset_fil = offsetofa(iarray_,dims);
-      if (iarray_flags(addr) & bit(arrayflags_dispoffset_bit))
-        offset_fil += sizeof(uintL);
-      var uintL offset_tot = offset_fil;
-      if (iarray_flags(addr) & bit(arrayflags_fillp_bit))
-        offset_fil += sizeof(uintL);
-      fil_size = *(uintL*)pointerplus(addr,offset_fil);
-      tot_size = *(uintL*)pointerplus(addr,offset_tot);
-    }
-    if (tot_len) *tot_len = tot_size;
-    if (fil_len) *fil_len = fil_size;
-    # follow the displacement:
-    *offset = 0;
-    return iarray_displace_check(string,fil_size,offset);
-  }
-}
-
-# UP: unpack a string
-# unpack_string_ro(string,&len,&offset)  [for read-only access]
-# > object string: a string
-# < uintL len: the fill-pointer length of the string
-# < uintL offset: offset into the datastorage vector
-# < object result: datastorage vector
-global object unpack_string_ro (object string, uintL* len, uintL* offset) {
-  return unpack_string(string,NULL,len,offset);
-}
-
-# UP: unpack a string
 # unpack_string_rw(string,&len)  [for read-write access]
-# > object string: a string
-# < uintL len: the fill-pointer length of the string
-# < chart* result: the beginning of the characters
-global chart* unpack_string_rw (object string, uintL* len) {
-  var uintL index = 0;
-  var object unpacked = unpack_string(string,NULL,len,&index);
-  check_sstring_mutable(unpacked);
-  return &TheSstring(unpacked)->data[index];
-}
+# > object string: ein String.
+# < uintL len: Anzahl der Zeichen des Strings.
+# < chart* ergebnis: Anfangsadresse der Characters
+  global chart* unpack_string_rw (object string, uintL* len);
+  global chart* unpack_string_rw(string,len)
+    var object string;
+    var uintL* len;
+    {
+      if (simple_string_p(string)) {
+        *len = Sstring_length(string);
+        check_sstring_mutable(string);
+        return &TheSstring(string)->data[0];
+      } else {
+        # String, aber kein Simple-String => Displacement verfolgen
+        # Länge bestimmen (wie in vector_length in ARRAY.D):
+        var uintL size;
+        {
+          var Iarray addr = TheIarray(string);
+          var uintL offset = offsetofa(iarray_,dims);
+          if (iarray_flags(addr) & bit(arrayflags_dispoffset_bit))
+            offset += sizeof(uintL);
+          # Bei addr+offset fangen die Dimensionen an.
+          if (iarray_flags(addr) & bit(arrayflags_fillp_bit)) # evtl. Fillpointer
+            offset += sizeof(uintL);
+          size = *(uintL*)pointerplus(addr,offset);
+        }
+        *len = size;
+        # Displacement verfolgen:
+        var uintL index = 0;
+        var object datenvektor = iarray_displace_check(string,size,&index);
+        check_sstring_mutable(datenvektor);
+        return &TheSstring(datenvektor)->data[index];
+      }
+    }
+
+# UP: verfolgt einen String.
+# unpack_string_ro(string,&len,&offset)  [for read-only access]
+# > object string: ein String.
+# < uintL len: Anzahl der Zeichen des Strings.
+# < uintL offset: Offset in den Datenvektor.
+# < object ergebnis: Datenvektor
+  global object unpack_string_ro (object string, uintL* len, uintL* offset);
+  global object unpack_string_ro(string,len,index)
+    var object string;
+    var uintL* len;
+    var uintL* index;
+    {
+      if (simple_string_p(string)) {
+        *len = Sstring_length(string);
+        *index = 0;
+        return string;
+      } else {
+        # String, aber kein Simple-String => Displacement verfolgen
+        # Länge bestimmen (wie in vector_length in ARRAY.D):
+        var uintL size;
+        {
+          var Iarray addr = TheIarray(string);
+          var uintL offset = offsetofa(iarray_,dims);
+          if (iarray_flags(addr) & bit(arrayflags_dispoffset_bit))
+            offset += sizeof(uintL);
+          # Bei addr+offset fangen die Dimensionen an.
+          if (iarray_flags(addr) & bit(arrayflags_fillp_bit)) # evtl. Fillpointer
+            offset += sizeof(uintL);
+          size = *(uintL*)pointerplus(addr,offset);
+        }
+        *len = size;
+        # Displacement verfolgen:
+        *index = 0;
+        return iarray_displace_check(string,size,index);
+      }
+    }
 
 # UP: vergleicht zwei Strings auf Gleichheit
 # string_gleich(string1,string2)
@@ -839,7 +867,7 @@ global chart* unpack_string_rw (object string, uintL* len) {
 # > auf STACK: len Characters, erstes zuoberst
 # < ergebnis: Simple-String mit diesen Objekten
 # Erhöht STACK
-# changes STACK, can trigger GC
+# verändert STACK, kann GC auslösen
   global object stringof (uintL len);
   global object stringof(len)
     var uintL len;
@@ -911,8 +939,8 @@ global chart* unpack_string_rw (object string, uintL* len) {
             # sonstiger String, kopieren
             return copy_string(obj);
           default:
-            pushSTACK(obj); # TYPE-ERROR slot DATUM
-            pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
+            pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+            pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(obj);
             fehler(type_error,
                    GETTEXT("This is not a string: ~")
@@ -993,8 +1021,8 @@ global chart* unpack_string_rw (object string, uintL* len) {
           default:
             break;
         }
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       fehler(type_error,
              GETTEXT("This is not a string: ~")
@@ -1025,8 +1053,8 @@ global chart* unpack_string_rw (object string, uintL* len) {
           default:
             break;
         }
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       fehler(type_error,
              GETTEXT("This is not a string: ~")
@@ -1072,8 +1100,8 @@ global chart* unpack_string_rw (object string, uintL* len) {
           default:
             break;
         }
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       fehler(type_error,
              GETTEXT("This is not a string: ~")
@@ -1257,333 +1285,329 @@ static const char jamo_final_short_name[28][3] = {
 
 #endif
 
-# UP: return the name of a character
+# UP: Liefert den Namen eines Zeichens.
 # char_name(code)
-# > chart code: character code
-# < ergebnis: simple-string (the name of the character) or NIL
+# > chart code: Code eines Zeichens
+# < ergebnis: Simple-String (Name dieses Zeichens) oder NIL
 # can trigger GC
-global object char_name (chart code) {
-  var cint c = as_cint(code);
-  {
-    var const uintB* codes_ptr = &charname_table_codes[0];
-    var object* strings_ptr = &charname_table[0];
-    var uintC count;
-    dotimesC(count,charname_table_length, {
-      if (c == *codes_ptr++) # compare code with charname_table_codes[i]
-        return *strings_ptr; # return string charname_table[i] from the table
-      strings_ptr++;
-    });
-  }
-  # not found
- #ifdef UNICODE
-  # Try to find the long name, from UnicodeData.txt. It is the second
-  # semicolon separated field from (sys::unicode-attributes-line c).
-  #ifdef AWFULLY_SLOW
-  {
-    pushSTACK(fixnum(c));
-    funcall(S(unicode_attributes_line),1);
-    var object line = value1;
-    if (!nullp(line)) {
-      var uintL len = Sstring_length(line);
-      var uintL i1;
-      var uintL i2;
-      for (i1 = 0; i1 < len; i1++)
-        if (chareq(TheSstring(line)->data[i1],ascii(';'))) {
-          i1++;
-          for (i2 = i1; i2 < len; i2++)
-            if (chareq(TheSstring(line)->data[i2],ascii(';'))) {
-              if (!chareq(TheSstring(line)->data[i1],ascii('<'))) {
-                var object name = subsstring(line,i1,i2);
-                # Replace ' ' with '_':
-                var uintL count = i2-i1;
-                if (count > 0) {
-                  var chart* ptr = &TheSstring(name)->data[0];
-                  dotimespL(count,count, {
-                    if (chareq(*ptr,ascii(' ')))
-                      *ptr = ascii('_');
-                    ptr++;
-                  });
+  global object char_name (chart code);
+  global object char_name(code)
+    var chart code;
+    {
+      var cint c = as_cint(code);
+      {
+        var const uintB* codes_ptr = &charname_table_codes[0];
+        var object* strings_ptr = &charname_table[0];
+        var uintC count;
+        dotimesC(count,charname_table_length, {
+          if (c == *codes_ptr++) # code mit charname_table_codes[i] vergleichen
+            return *strings_ptr; # String charname_table[i] aus der Tabelle holen
+          strings_ptr++;
+        });
+      }
+      # nicht gefunden
+      #ifdef UNICODE
+      # Try to find the long name, from UnicodeData.txt. It is the second
+      # semicolon separated field from (sys::unicode-attributes-line c).
+      #ifdef AWFULLY_SLOW
+      {
+        pushSTACK(fixnum(c));
+        funcall(S(unicode_attributes_line),1);
+        var object line = value1;
+        if (!nullp(line)) {
+          var uintL len = Sstring_length(line);
+          var uintL i1;
+          var uintL i2;
+          for (i1 = 0; i1 < len; i1++)
+            if (chareq(TheSstring(line)->data[i1],ascii(';'))) {
+              i1++;
+              for (i2 = i1; i2 < len; i2++)
+                if (chareq(TheSstring(line)->data[i2],ascii(';'))) {
+                  if (!chareq(TheSstring(line)->data[i1],ascii('<'))) {
+                    var object name = subsstring(line,i1,i2);
+                    # Replace ' ' with '_':
+                    var uintL count = i2-i1;
+                    if (count > 0) {
+                      var chart* ptr = &TheSstring(name)->data[0];
+                      dotimespL(count,count, {
+                        if (chareq(*ptr,ascii(' ')))
+                          *ptr = ascii('_');
+                        ptr++;
+                      });
+                    }
+                    return name;
+                  }
+                  break;
                 }
-                return name;
-              }
               break;
             }
-          break;
-        }
-    }
-  }
-  #else
-  # Here is a much faster implementation.
-  if (c >= 0xAC00 && c <= 0xD7A3) {
-    # Special case for Hangul syllables. Keeps the tables small.
-    var char buf[16+7];
-    var char* ptr;
-    memcpy(buf,"HANGUL_SYLLABLE_",16);
-    ptr = buf+16;
-    var uintL tmp = c - 0xAC00;
-    var uintL index3 = tmp % 28; tmp = tmp / 28;
-    var uintL index2 = tmp % 21; tmp = tmp / 21;
-    var uintL index1 = tmp;
-    var const char* q;
-    q = jamo_initial_short_name[index1];
-    while (*q != '\0') { *ptr++ = *q++; }
-    q = jamo_medial_short_name[index2];
-    while (*q != '\0') { *ptr++ = *q++; }
-    q = jamo_final_short_name[index3];
-    while (*q != '\0') { *ptr++ = *q++; }
-    return n_char_to_string(buf,ptr-buf,Symbol_value(S(ascii)));
-  } else {
-    var const uint16* words = NULL;
-    { # Binary search in unicode_code_to_name.
-      var uintL i1 = 0;
-      var uintL i2 =
-        sizeof(unicode_code_to_name)/sizeof(unicode_code_to_name[0]);
-      loop {
-        var uintL i = (i1+i2)>>1;
-        var uint16 code = unicode_code_to_name[i].code;
-        if (code == c) {
-          words = &unicode_names[unicode_code_to_name[i].name];
-          break;
-        } else if (code < c) {
-          if (i1 == i)
-            break;
-          # Note here: i1 < i < i2.
-          i1 = i;
-        } else if (code > c) {
-          if (i2 == i)
-            break;
-          # Note here: i1 <= i < i2.
-          i2 = i;
         }
       }
-    }
-    if (words != NULL) {
-      # Found it in unicode_code_to_name. Now concatenate the words.
-      var char buf[UNICODE_CHARNAME_MAX_LENGTH];
-      var char* ptr = buf;
-      loop {
-        var uintL wordlen;
-        var const char* word = unicode_name_word(*words>>1,&wordlen);
-        do { *ptr++ = *word++; } while (--wordlen > 0);
-        if ((*words & 1) == 0)
-          break;
-        *ptr++ = '_';
-        words++;
-      }
-      return n_char_to_string(buf,ptr-buf,Symbol_value(S(ascii)));
-    }
-  }
-  #endif # AWFULLY_SLOW
-  # CLHS (glossary "name" 5) specifies that all non-graphic characters have
-  # a name. Let's give a name to all of them, it's more uniform (and avoids
-  # printer errors).
-  /* if (!graphic_char_p(code)) */
-  {
-    var object name = allocate_string(5);
-    local char hex_table[] = "0123456789ABCDEF";
-    TheSstring(name)->data[0] = ascii('U');
-    TheSstring(name)->data[1] = ascii(hex_table[(c>>12)&0x0F]);
-    TheSstring(name)->data[2] = ascii(hex_table[(c>>8)&0x0F]);
-    TheSstring(name)->data[3] = ascii(hex_table[(c>>4)&0x0F]);
-    TheSstring(name)->data[4] = ascii(hex_table[c&0x0F]);
-    return name;
-  }
- #else # no UNICODE
-  {
-    var object name = allocate_string(1);
-    TheSstring(name)->data[0] = ascii(c);
-    return name;
-  }
- #endif
-  return NIL;
-}
-
-# UP: find the character with the given name
-# name_char(string)
-# > string: String
-# < ergebnis: character with the name, or NIL if does not exist
-global object name_char (object string) {
-  {
-    var const uintB* codes_ptr = &charname_table_codes[0];
-    var object* strings_ptr = &charname_table[0];
-    var uintC count;
-    dotimesC(count,charname_table_length, {
-      if (string_equal(string,*strings_ptr++)) # compare string with charname_table[i]
-        return code_char(as_chart(*codes_ptr)); # return Code charname_table_codes[i] from the table
-      codes_ptr++;
-    });
-  }
-  # no character with the name name found
- #ifdef UNICODE
-  {
-    var uintL len;
-    var uintL offset;
-    string = unpack_string_ro(string,&len,&offset);
-    if (len > 1 && len <= UNICODE_CHARNAME_MAX_LENGTH) {
-      var const chart* charptr;
-      unpack_sstring_alloca(string,len,offset, charptr=);
-      # Test for Uxxxx syntax.
-      if (len == 5
-          && (chareq(charptr[0],ascii('U')) || chareq(charptr[0],ascii('u')))) {
-        # decode a hexadecimal number:
-        var uintL code = 0;
-        var uintL index = 1;
-        var const chart* tmpcharptr = charptr+1;
-        loop {
-          var cint c = as_cint(*tmpcharptr++); # next character
-          # should be a hexadecimal digit:
-          if (c > 'f') break;
-          if (c >= 'a') { c -= 'a'-'A'; }
-          if (c < '0') break;
-          if (c <= '9') { c = c - '0'; }
-          else if ((c >= 'A') && (c <= 'F')) { c = c - 'A' + 10; }
-          else break;
-          code = 16*code + c; # put in the digit
-          # code should be < char_code_limit:
-          if (code >= char_code_limit) break; # should not occur
-          index++;
-          if (index == len) {
-            # character name was "Uxxxx" with code = xxxx < char_code_limit
-            # Don't test for graphic_char_p - see comment in char_name().
-            # This also avoids us special-casing the #\Uxxxx syntax in io.d.
-            /* if (!graphic_char_p(as_chart(code))) */
-            return code_char(as_chart(code));
+      #else
+      # Here is a much faster implementation.
+      if (c >= 0xAC00 && c <= 0xD7A3) {
+        # Special case for Hangul syllables. Keeps the tables small.
+        var char buf[16+7];
+        var char* ptr;
+        memcpy(buf,"HANGUL_SYLLABLE_",16);
+        ptr = buf+16;
+        var uintL tmp = c - 0xAC00;
+        var uintL index3 = tmp % 28; tmp = tmp / 28;
+        var uintL index2 = tmp % 21; tmp = tmp / 21;
+        var uintL index1 = tmp;
+        var const char* q;
+        q = jamo_initial_short_name[index1];
+        while (*q != '\0') { *ptr++ = *q++; }
+        q = jamo_medial_short_name[index2];
+        while (*q != '\0') { *ptr++ = *q++; }
+        q = jamo_final_short_name[index3];
+        while (*q != '\0') { *ptr++ = *q++; }
+        return n_char_to_string(buf,ptr-buf,Symbol_value(S(ascii)));
+      } else {
+        var const uint16* words;
+        {
+          # Binary search in unicode_code_to_name.
+          var uintL i1 = 0;
+          var uintL i2 = sizeof(unicode_code_to_name)/sizeof(unicode_code_to_name[0]);
+          loop {
+            var uintL i = (i1+i2)>>1;
+            if (unicode_code_to_name[i].code == c) {
+              words = &unicode_names[unicode_code_to_name[i].name];
+              break;
+            } else if (unicode_code_to_name[i].code < c) {
+              if (i1 == i) {
+                words = NULL;
+                break;
+              }
+              # Note here: i1 < i < i2.
+              i1 = i;
+            } else if (unicode_code_to_name[i].code > c) {
+              # Note here: i1 <= i < i2.
+              i2 = i;
+            }
           }
         }
-      }
-      # Test for word1_word2_... syntax.
-      {
-        var char buf[UNICODE_CHARNAME_MAX_LENGTH];
-        var char* ptr = buf;
-        loop {
-          var cint c = as_cint(*charptr++);
-          if (!(c >= ' ' && c <= '~'))
-            break;
-          *ptr++ = (char)(c >= 'a' && c <= 'z' ? c-'a'+'A' : c);
-          if (--len == 0)
-            goto filled_buf;
+        if (words != NULL) {
+          # Found it in unicode_code_to_name. Now concatenate the words.
+          var char buf[UNICODE_CHARNAME_MAX_LENGTH];
+          var char* ptr = buf;
+          loop {
+            var uintL wordlen;
+            var const char* word = unicode_name_word(*words>>1,&wordlen);
+            do { *ptr++ = *word++; } while (--wordlen > 0);
+            if ((*words & 1) == 0)
+              break;
+            *ptr++ = '_';
+            words++;
+          }
+          return n_char_to_string(buf,ptr-buf,Symbol_value(S(ascii)));
         }
-        if (false) {
-        filled_buf:
-          # Convert the constituents to uint16 words.
-          var uint16 words[UNICODE_CHARNAME_MAX_WORDS];
-          var uint16* wordptr = words;
-          {
-            var const char* p1 = buf;
+      }
+      #endif
+      # CLHS (glossary "name" 5) specifies that all non-graphic characters have
+      # a name. Let's give a name to all of them, it's more uniform (and avoids
+      # printer errors).
+      /* if (!graphic_char_p(code)) */
+      {
+        var object name = allocate_string(5);
+        local char hex_table[] = "0123456789ABCDEF";
+        TheSstring(name)->data[0] = ascii('U');
+        TheSstring(name)->data[1] = ascii(hex_table[(c>>12)&0x0F]);
+        TheSstring(name)->data[2] = ascii(hex_table[(c>>8)&0x0F]);
+        TheSstring(name)->data[3] = ascii(hex_table[(c>>4)&0x0F]);
+        TheSstring(name)->data[4] = ascii(hex_table[c&0x0F]);
+        return name;
+      }
+      #endif
+      return NIL;
+    }
+
+# UP: Bestimmt das Character mit einem gegebenen Namen
+# name_char(string)
+# > string: String
+# < ergebnis: Character mit diesem Namen, oder NIL falls keins existiert
+  global object name_char (object string);
+  global object name_char(string)
+    var object string;
+    {
+      {
+        var const uintB* codes_ptr = &charname_table_codes[0];
+        var object* strings_ptr = &charname_table[0];
+        var uintC count;
+        dotimesC(count,charname_table_length, {
+          if (string_equal(string,*strings_ptr++)) # string mit charname_table[i] vergleichen
+            return code_char(as_chart(*codes_ptr)); # Code charname_table_codes[i] aus der Tabelle holen
+          codes_ptr++;
+        });
+      }
+      # kein Character mit diesem Namen gefunden
+      #ifdef UNICODE
+      {
+        var uintL len;
+        var uintL offset;
+        string = unpack_string_ro(string,&len,&offset);
+        if (len > 1 && len <= UNICODE_CHARNAME_MAX_LENGTH) {
+          var const chart* charptr;
+          unpack_sstring_alloca(string,len,offset, charptr=);
+          # Test for Uxxxx syntax.
+          if (len == 5
+              && (chareq(charptr[0],ascii('U')) || chareq(charptr[0],ascii('u')))) {
+            # Hexadezimalzahl entziffern:
+            var uintL code = 0;
+            var uintL index = 1;
+            var const chart* tmpcharptr = charptr+1;
             loop {
-              var const char* p2 = p1;
-              while (p2 < ptr && *p2 != '_') p2++;
-              var sintL word = unicode_name_word_lookup(p1,p2-p1);
-              if (word < 0)
+              var cint c = as_cint(*tmpcharptr++); # nächstes Character
+              # soll Hexadezimalziffer sein:
+              if (c > 'f') break;
+              if (c >= 'a') { c -= 'a'-'A'; }
+              if (c < '0') break;
+              if (c <= '9') { c = c - '0'; }
+              else if ((c >= 'A') && (c <= 'F')) { c = c - 'A' + 10; }
+              else break;
+              code = 16*code + c; # Ziffer dazunehmen
+              # code soll < char_code_limit bleiben:
+              if (code >= char_code_limit) break; # sollte nicht passieren
+              index++;
+              if (index == len) {
+                # Charactername war vom Typ "Uxxxx" mit code = xxxx < char_code_limit
+                # Don't test for graphic_char_p - see comment in char_name().
+                # This also avoids us special-casing the #\Uxxxx syntax in io.d.
+                /* if (!graphic_char_p(as_chart(code))) */
+                return code_char(as_chart(code));
+              }
+            }
+          }
+          # Test for word1_word2_... syntax.
+          {
+            var char buf[UNICODE_CHARNAME_MAX_LENGTH];
+            var char* ptr = buf;
+            loop {
+              var cint c = as_cint(*charptr++);
+              if (!(c >= ' ' && c <= '~'))
                 break;
-              if (wordptr == &words[UNICODE_CHARNAME_MAX_WORDS])
-                break;
-              *wordptr++ = word;
-              if (p2 == ptr)
-                goto filled_words;
-              p1 = p2+1;
-              # Special case for Hangul syllables. Keeps the tables small.
-              if (wordptr == &words[2]
-                  && words[0] == UNICODE_CHARNAME_WORD_HANGUL
-                  && words[1] == UNICODE_CHARNAME_WORD_SYLLABLE) {
-                # Split the last word [p1..ptr) into three parts:
-                # 1) [BCDGHJKMNPRST]
-                # 2) [AEIOUWY]
-                # 3) [BCDGHIJKLMNPST]
-                var const char* p2 = p1;
-                while (p2 < ptr
-                       && (*p2=='B' || *p2=='C' || *p2=='D' || *p2=='G'
-                           || *p2=='H' || *p2=='J' || *p2=='K' || *p2=='M'
-                           || *p2=='N' || *p2=='P' || *p2=='R' || *p2=='S'
-                           || *p2=='T'))
-                  p2++;
-                var const char* p3 = p2;
-                while (p3 < ptr
-                       && (*p3=='A' || *p3=='E' || *p3=='I' || *p3=='O'
-                           || *p3=='U' || *p3=='W' || *p3=='Y'))
-                  p3++;
-                var const char* p4 = p3;
-                while (p4 < ptr
-                       && (*p4=='B' || *p4=='C' || *p4=='D' || *p4=='G'
-                           || *p4=='H' || *p4=='I' || *p4=='J' || *p4=='K'
-                           || *p4=='L' || *p4=='M' || *p4=='N' || *p4=='P'
-                           || *p4=='S' || *p4=='T'))
-                  p4++;
-                if (p4 == ptr) {
-                  var uintL n1 = p2-p1;
-                  var uintL n2 = p3-p2;
-                  var uintL n3 = p4-p3;
-                  if (n1 <= 2 && (n2 >= 1 && n2 <= 3) && n3 <= 2) {
-                    var uintL index1;
-                    for (index1 = 0; index1 < 19; index1++)
-                      if (memcmp(jamo_initial_short_name[index1],p1,n1)==0
-                          && jamo_initial_short_name[index1][n1] == '\0') {
-                        var uintL index2;
-                        for (index2 = 0; index2 < 21; index2++)
-                          if (memcmp(jamo_medial_short_name[index2],p2,n2)==0
-                              && jamo_medial_short_name[index2][n2] == '\0') {
-                            var uintL index3;
-                            for (index3 = 0; index3 < 28; index3++)
-                              if (memcmp(jamo_final_short_name[index3],p3,n3)==0
-                                  && jamo_final_short_name[index3][n3] == '\0')
-                                return code_char(as_chart(0xAC00 + (index1*21+index2)*28+index3));
+              *ptr++ = (char)(c >= 'a' && c <= 'z' ? c-'a'+'A' : c);
+              if (--len == 0)
+                goto filled_buf;
+            }
+            if (false) {
+             filled_buf:
+              # Convert the constituents to uint16 words.
+              var uint16 words[UNICODE_CHARNAME_MAX_WORDS];
+              var uint16* wordptr = words;
+              {
+                var const char* p1 = buf;
+                loop {
+                  var const char* p2 = p1;
+                  while (p2 < ptr && *p2 != '_') p2++;
+                  var sintL word = unicode_name_word_lookup(p1,p2-p1);
+                  if (word < 0)
+                    break;
+                  if (wordptr == &words[UNICODE_CHARNAME_MAX_WORDS])
+                    break;
+                  *wordptr++ = word;
+                  if (p2 == ptr)
+                    goto filled_words;
+                  p1 = p2+1;
+                  # Special case for Hangul syllables. Keeps the tables small.
+                  if (wordptr == &words[2]
+                      && words[0] == UNICODE_CHARNAME_WORD_HANGUL
+                      && words[1] == UNICODE_CHARNAME_WORD_SYLLABLE) {
+                    # Split the last word [p1..ptr) into three parts:
+                    # 1) [BCDGHJKMNPRST]
+                    # 2) [AEIOUWY]
+                    # 3) [BCDGHIJKLMNPST]
+                    var const char* p2 = p1;
+                    while (p2 < ptr
+                           && (*p2=='B' || *p2=='C' || *p2=='D' || *p2=='G'
+                               || *p2=='H' || *p2=='J' || *p2=='K' || *p2=='M'
+                               || *p2=='N' || *p2=='P' || *p2=='R' || *p2=='S'
+                               || *p2=='T'))
+                      p2++;
+                    var const char* p3 = p2;
+                    while (p3 < ptr
+                           && (*p3=='A' || *p3=='E' || *p3=='I' || *p3=='O'
+                               || *p3=='U' || *p3=='W' || *p3=='Y'))
+                      p3++;
+                    var const char* p4 = p3;
+                    while (p4 < ptr
+                           && (*p4=='B' || *p4=='C' || *p4=='D' || *p4=='G'
+                               || *p4=='H' || *p4=='I' || *p4=='J' || *p4=='K'
+                               || *p4=='L' || *p4=='M' || *p4=='N' || *p4=='P'
+                               || *p4=='S' || *p4=='T'))
+                      p4++;
+                    if (p4 == ptr) {
+                      var uintL n1 = p2-p1;
+                      var uintL n2 = p3-p2;
+                      var uintL n3 = p4-p3;
+                      if (n1 <= 2 && (n2 >= 1 && n2 <= 3) && n3 <= 2) {
+                        var uintL index1;
+                        for (index1 = 0; index1 < 19; index1++)
+                          if (memcmp(jamo_initial_short_name[index1],p1,n1)==0
+                              && jamo_initial_short_name[index1][n1] == '\0') {
+                            var uintL index2;
+                            for (index2 = 0; index2 < 21; index2++)
+                              if (memcmp(jamo_medial_short_name[index2],p2,n2)==0
+                                  && jamo_medial_short_name[index2][n2] == '\0') {
+                                var uintL index3;
+                                for (index3 = 0; index3 < 28; index3++)
+                                  if (memcmp(jamo_final_short_name[index3],p3,n3)==0
+                                      && jamo_final_short_name[index3][n3] == '\0') {
+                                    return code_char(as_chart(0xAC00 + (index1*21+index2)*28+index3));
+                                  }
+                                break;
+                              }
                             break;
                           }
-                        break;
                       }
+                    }
                   }
                 }
               }
-            }
-          }
-          if (false) {
-          filled_words:
-            # Multiply by 2, to simplify later comparisons.
-            var uintL words_length = wordptr - words;
-            {
-              var sintL i = words_length-1;
-              words[i] = 2*words[i];
-              for (; --i >= 0; )
-                words[i] = 2*words[i] + 1;
-            }
-            # Binary search in unicode_name_to_code.
-            var uintL i1 = 0;
-            var uintL i2 = sizeof(unicode_name_to_code)/sizeof(unicode_name_to_code[0]);
-            loop {
-              var uintL i = (i1+i2)>>1;
-              var const uint16* w = words;
-              var const uint16* p = &unicode_names[unicode_name_to_code[i].name];
-              var uintL n = words_length;
-              loop {
-                if (*p < *w) {
-                  if (i1 == i)
-                    goto name_not_found;
-                  # Note here: i1 < i < i2.
-                  i1 = i;
-                  break;
-                } else if (*p > *w) {
-                  if (i2 == i)
-                    goto name_not_found;
-                  # Note here: i1 <= i < i2.
-                  i2 = i;
-                  break;
+              if (false) {
+               filled_words:
+                # Multiply by 2, to simplify later comparisons.
+                var uintL words_length = wordptr - words;
+                {
+                  var sintL i = words_length-1;
+                  words[i] = 2*words[i];
+                  for (; --i >= 0; )
+                    words[i] = 2*words[i] + 1;
                 }
-                p++; w++; n--;
-                if (n == 0)
-                  return code_char(as_chart(unicode_name_to_code[i].code));
+                # Binary search in unicode_name_to_code.
+                var uintL i1 = 0;
+                var uintL i2 = sizeof(unicode_name_to_code)/sizeof(unicode_name_to_code[0]);
+                loop {
+                  var uintL i = (i1+i2)>>1;
+                  var const uint16* w = words;
+                  var const uint16* p = &unicode_names[unicode_name_to_code[i].name];
+                  var uintL n = words_length;
+                  loop {
+                    if (*p < *w) {
+                      if (i1 == i)
+                        goto name_not_found;
+                      # Note here: i1 < i < i2.
+                      i1 = i;
+                      break;
+                    } else if (*p > *w) {
+                      # Note here: i1 <= i < i2.
+                      i2 = i;
+                      break;
+                    }
+                    p++; w++; n--;
+                    if (n == 0)
+                      return code_char(as_chart(unicode_name_to_code[i].code));
+                  }
+                }
+               name_not_found:;
               }
             }
-          name_not_found:;
           }
         }
       }
+      #endif
+      return NIL;
     }
-  }
- #else # no UNICODE
-  return coerce_char(string);
- #endif
-  return NIL;
-}
 
 LISPFUNN(standard_char_p,1) # (STANDARD-CHAR-P char), CLTL S. 234
 # (standard-char-p char) ==
@@ -1729,8 +1753,8 @@ LISPFUNN(both_case_p,1) # (BOTH-CASE-P char), CLTL S. 235
           return radix;
       }
       # Fehler.
-      pushSTACK(arg); # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_radix)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_radix)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: the radix must be an integer between 2 and 36, not ~")
@@ -2103,8 +2127,8 @@ LISPFUNN(code_char,1)
     var object codeobj = popSTACK(); # code-Argument
     if (!integerp(codeobj)) {
       # code-Argument ist kein Integer.
-      pushSTACK(codeobj); # TYPE-ERROR slot DATUM
-      pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(codeobj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(codeobj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: the code argument should be an integer, not ~")
@@ -2113,8 +2137,7 @@ LISPFUNN(code_char,1)
     # codeobj ist jetzt ein Integer.
     var uintL code;
     # Teste, ob  0 <= code < char_code_limit :
-    if (posfixnump(codeobj) &&
-        ((code = posfixnum_to_L(codeobj)) < char_code_limit)) {
+    if (posfixnump(codeobj) && ((code = posfixnum_to_L(codeobj)) < char_code_limit)) {
       value1 = code_char(as_chart(code)); mv_count=1; # Character basteln
     } else {
       value1 = NIL; mv_count=1; # sonst Wert NIL
@@ -2125,8 +2148,8 @@ LISPFUNN(character,1) # (CHARACTER object), CLTL S. 241
   {
     var object trial = coerce_char(STACK_0); # Argument in Character umwandeln
     if (nullp(trial)) { # erfolglos?
-      # Argument still in STACK_0, TYPE-ERROR slot DATUM
-      pushSTACK(O(type_designator_character)); # TYPE-ERROR slot EXPECTED-TYPE
+      # Argument noch in STACK_0, Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_designator_character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_1);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -2167,8 +2190,8 @@ LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
     var object weightobj = popSTACK(); # weight-Argument
     if (!integerp(weightobj)) {
       # weight-Argument ist kein Integer.
-      pushSTACK(weightobj); # TYPE-ERROR slot DATUM
-      pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(weightobj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(weightobj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: the weight argument should be an integer, not ~")
@@ -2209,8 +2232,8 @@ LISPFUNN(int_char,1) # (INT-CHAR integer), CLTL S. 242
       }
     } else {
       # arg kein Integer -> Fehler:
-      pushSTACK(arg); # TYPE-ERROR slot DATUM
-      pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument should be an integer, not ~")
@@ -2229,106 +2252,128 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
 
 
 # Fehler, wenn Index-Argument kein Integer ist.
-  nonreturning_function(local, fehler_int, (object kw, object obj)) {
-    pushSTACK(obj); # TYPE-ERROR slot DATUM
-    pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(obj);
-    if (eq(kw,nullobj)) {
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: index should be an integer, not ~")
-            );
-    } else {
-      pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~-index should be an integer, not ~")
-            );
+  nonreturning_function(local, fehler_int, (object kw, object obj));
+  local void fehler_int(kw,obj)
+    var object kw;
+    var object obj;
+    {
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(integer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);
+      if (eq(kw,nullobj)) {
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(type_error,
+               GETTEXT("~: index should be an integer, not ~")
+              );
+      } else {
+        pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
+        fehler(type_error,
+               GETTEXT("~: ~-index should be an integer, not ~")
+              );
+      }
     }
-  }
 
 # Fehler, wenn Index-Argument kein Integer oder NIL ist.
-  nonreturning_function(local, fehler_int_null, (object kw, object obj)) {
-    pushSTACK(obj); # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_end_index)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(obj);
-    if (eq(kw,nullobj)) {
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: index should be NIL or an integer, not ~")
-            );
-    } else {
-      pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~-index should be NIL or an integer, not ~")
-            );
+  nonreturning_function(local, fehler_int_null, (object kw, object obj));
+  local void fehler_int_null(kw,obj)
+    var object kw;
+    var object obj;
+    {
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_end_index)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);
+      if (eq(kw,nullobj)) {
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(type_error,
+               GETTEXT("~: index should be NIL or an integer, not ~")
+              );
+      } else {
+        pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
+        fehler(type_error,
+               GETTEXT("~: ~-index should be NIL or an integer, not ~")
+              );
+      }
     }
-  }
 
 # Fehler, wenn Index-Argument negativ ist.
-  nonreturning_function(local, fehler_posint, (object kw, object obj)) {
-    pushSTACK(obj); # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(obj);
-    if (eq(kw,nullobj)) {
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: index should not be negative: ~")
-            );
-    } else {
-      pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~-index should not be negative: ~")
-            );
+  nonreturning_function(local, fehler_posint, (object kw, object obj));
+  local void fehler_posint(kw,obj)
+    var object kw;
+    var object obj;
+    {
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);
+      if (eq(kw,nullobj)) {
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(type_error,
+               GETTEXT("~: index should not be negative: ~")
+              );
+      } else {
+        pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
+        fehler(type_error,
+               GETTEXT("~: ~-index should not be negative: ~")
+              );
+      }
     }
-  }
 
 # Fehler, wenn Index-Argument nicht <= Grenze.
-  nonreturning_function(local, fehler_cmp_inclusive, (object kw, object obj, uintL grenze)) {
-    pushSTACK(obj); # TYPE-ERROR slot DATUM
-    pushSTACK(NIL);
-    pushSTACK(obj);
+  nonreturning_function(local, fehler_cmp_inclusive, (object kw, object obj, uintL grenze));
+  local void fehler_cmp_inclusive(kw,obj,grenze)
+    var object kw;
+    var object obj;
+    var uintL grenze;
     {
-      var object tmp;
-      pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(grenze));
-      tmp = listof(3);
-      STACK_1 = tmp; # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(NIL);
+      pushSTACK(obj);
+      {
+        var object tmp;
+        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(grenze));
+        tmp = listof(3);
+        STACK_1 = tmp; # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      }
+      if (eq(kw,nullobj)) {
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(type_error,
+               GETTEXT("~: index ~ should not be greater than the length of the string")
+              );
+      } else {
+        pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
+        fehler(type_error,
+               GETTEXT("~: ~-index ~ should not be greater than the length of the string")
+              );
+      }
     }
-    if (eq(kw,nullobj)) {
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: index ~ should not be greater than the length of the string")
-            );
-    } else {
-      pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~-index ~ should not be greater than the length of the string")
-            );
-    }
-  }
 
 # Fehler, wenn Index-Argument nicht < Grenze.
-  nonreturning_function(local, fehler_cmp_exclusive, (object kw, object obj, uintL grenze)) {
-    pushSTACK(obj); # TYPE-ERROR slot DATUM
-    pushSTACK(NIL);
-    pushSTACK(obj);
+  nonreturning_function(local, fehler_cmp_exclusive, (object kw, object obj, uintL grenze));
+  local void fehler_cmp_exclusive(kw,obj,grenze)
+    var object kw;
+    var object obj;
+    var uintL grenze;
     {
-      var object tmp;
-      pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(grenze));
-      tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-      STACK_1 = tmp; # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(NIL);
+      pushSTACK(obj);
+      {
+        var object tmp;
+        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(grenze));
+        tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+        STACK_1 = tmp; # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      }
+      if (eq(kw,nullobj)) {
+        pushSTACK(TheSubr(subr_self)->name);
+        fehler(type_error,
+               GETTEXT("~: index ~ should be less than the length of the string")
+              );
+      } else {
+        pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
+        fehler(type_error,
+               GETTEXT("~: ~-index ~ should be less than the length of the string")
+              );
+      }
     }
-    if (eq(kw,nullobj)) {
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: index ~ should be less than the length of the string")
-            );
-    } else {
-      pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
-             GETTEXT("~: ~-index ~ should be less than the length of the string")
-            );
-    }
-  }
 
 # Macro: Überprüft ein Index-Argument
 # test_index(woher,wohin_zuweisung,def,default,vergleich,grenze,ucname,lcname)
@@ -2365,44 +2410,43 @@ LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
             }                                                                   \
     }   }
 
-# UP: check the index argument for string functions
+# UP: Überprüft ein Index-Argument für Stringfunktionen
 # > STACK_0: Argument
-# > len: length of the strings (< array-total-size-limit)
-# > subr_self: caller (ein SUBR)
-# < return: index in the string
+# > len: Länge des Strings (< array-total-size-limit)
+# > subr_self: Aufrufer (ein SUBR)
+# < ergebnis: Index in den String
   local uintL test_index_arg (uintL len);
   local uintL test_index_arg(len)
     var uintL len;
     {
       var uintL i;
-      # i := Index STACK_0, no default value, must be <len:
+      # i := Index STACK_0, kein Defaultwert nötig, muss <len sein:
       test_index(STACK_0,i=,0,0,<,len,nullobj);
       return i;
     }
 
 LISPFUNN(char,2) # (CHAR string index), CLTL S. 300
   {
-    var object string = STACK_1;
-    if (!stringp(string))
+    var object string = STACK_1; # string-Argument
+    if (!stringp(string)) # muss ein String sein
       fehler_string(string);
     var uintL len;
     var uintL offset;
-    # almost unpack_string_ro() -- but need tot_len, not fil_len
-    string = unpack_string(string,&len,NULL,&offset);
+    string = unpack_string_ro(string,&len,&offset); # zu den Characters vorrücken
     var uintL index = test_index_arg(len);
     var chart ch;
     SstringDispatch(string,
       { ch = TheSstring(string)->data[offset+index]; },
       { ch = as_chart(TheSmallSstring(string)->data[offset+index]); }
       );
-    value1 = code_char(ch); mv_count=1;
+    value1 = code_char(ch); mv_count=1; # Character herausgreifen
     skipSTACK(2);
   }
 
 LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
   {
-    var object string = STACK_1;
-    if (!simple_string_p(string))
+    var object string = STACK_1; # string-Argument
+    if (!simple_string_p(string)) # muss ein Simple-String sein
       fehler_sstring(string);
     var uintL index = test_index_arg(Sstring_length(string));
     var chart ch;
@@ -2410,7 +2454,7 @@ LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
       { ch = TheSstring(string)->data[index]; },
       { ch = as_chart(TheSmallSstring(string)->data[index]); }
       );
-    value1 = code_char(ch); mv_count=1;
+    value1 = code_char(ch); mv_count=1; # Character herausgreifen
     skipSTACK(2);
   }
 
@@ -2427,8 +2471,8 @@ LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
       if (charp(arg)) {
         return arg;
       } else {
-        pushSTACK(arg); # TYPE-ERROR slot DATUM
-        pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
+        pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
                GETTEXT("~: argument should be a character, not ~")
@@ -2444,13 +2488,9 @@ LISPFUNN(store_char,3) # (SYSTEM::STORE-CHAR string index newchar)
     if (!stringp(string)) # muss ein String sein
       fehler_string(string);
     var uintL len;
-    # almost unpack_string_rw() -- but need tot_len, not fil_len
-    var uintL offset = 0;
-    var object unpacked = unpack_string(string,&len,NULL,&offset);
-    check_sstring_mutable(unpacked);
-    var chart* charptr = &TheSstring(unpacked)->data[offset];
-    charptr += test_index_arg(len); # go to the element addressed by index
-    *charptr = char_code(newchar); # put in the character
+    var chart* charptr = unpack_string_rw(string,&len); # zu den Characters vorrücken
+    charptr += test_index_arg(len); # zum vom Index angesprochenen Element gehen
+    *charptr = char_code(newchar); # Character eintragen
     value1 = newchar; mv_count=1;
     skipSTACK(2);
   }
@@ -2557,8 +2597,8 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
         TheSstring(new_string)->data[0] = char_code(obj);
         return new_string;
       }
-      pushSTACK(obj); # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_stringsymchar)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_stringsymchar)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ should be a string, a symbol or a character")
@@ -3259,8 +3299,8 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
     var uintL size;
     # size überprüfen:
     if (!posfixnump(STACK_2)) { # size muss Fixnum >= 0 sein
-      pushSTACK(STACK_2); # TYPE-ERROR slot DATUM
-      pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(STACK_2); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_(2+2)); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: the string length ~ should be nonnegative fixnum")
@@ -3291,8 +3331,8 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
       # nicht angegeben -> nichts zu tun
     } else {
       if (!charp(initial_element)) { # sonst: muss ein Character sein
-        pushSTACK(initial_element); # TYPE-ERROR slot DATUM
-        pushSTACK(S(character)); # TYPE-ERROR slot EXPECTED-TYPE
+        pushSTACK(initial_element); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(initial_element); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
                GETTEXT("~: :initial-element ~ should be of type character")

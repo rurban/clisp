@@ -41,8 +41,8 @@ vorkommt. Sollte dies nicht der Fall sein, wird eine Errormeldung ausgegeben.
     ) )   )   ))
     (unless allow-other-keys-flag
       (if unallowed-arglistr
-        (cerror (TEXT "Both will be ignored.")
-                (TEXT "Invalid keyword-value-pair: ~S ~S")
+        (cerror (ENGLISH "Both will be ignored.")
+                (ENGLISH "Invalid keyword-value-pair: ~S ~S")
                 (first unallowed-arglistr) (second unallowed-arglistr)
     ) ) )
 ) )
@@ -51,8 +51,9 @@ vorkommt. Sollte dies nicht der Fall sein, wird eine Errormeldung ausgegeben.
 
 (defun macro-call-error (macro-form)
   (error-of-type 'source-program-error
-    (TEXT "The macro ~S may not be called with ~S arguments: ~S")
-    (car macro-form) (1- (length macro-form)) macro-form))
+    (ENGLISH "The macro ~S may not be called with ~S arguments: ~S")
+    (car macro-form) (1- (length macro-form)) macro-form
+) )
 
 (proclaim '(special
         %restp ; gibt an, ob &REST/&BODY/&KEY angegeben wurde,
@@ -121,14 +122,16 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
       (do ((listr lambdalistr (cdr listr)))
           ((atom listr)
            (if listr
-             (cerror (TEXT "The rest of the lambda list will be ignored.")
-                     (TEXT "The lambda list of macro ~S contains a dot after &AUX.")
-                     name)))
+             (cerror (ENGLISH "The rest of the lambda list will be ignored.")
+                     (ENGLISH "The lambda list of macro ~S contains a dot after &AUX.")
+                     name
+          )) )
         (cond ((symbolp (car listr)) (setq %let-list (cons `(,(car listr) nil) %let-list)))
               ((atom (car listr))
                (error-of-type 'source-program-error
-                 (TEXT "in macro ~S: ~S may not be used as &AUX variable.")
-                 name (car listr)))
+                 (ENGLISH "in macro ~S: ~S may not be used as &AUX variable.")
+                 name (car listr)
+              ))
               (t (setq %let-list
                    (cons `(,(caar listr) ,(cadar listr)) %let-list)
   ) ) ) )     )  )
@@ -144,18 +147,20 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
            (g))
           ((atom listr)
            (if listr
-             (cerror (TEXT "The rest of the lambda list will be ignored.")
-                     (TEXT "The lambda list of macro ~S contains a dot after &KEY.")
-                     name)))
+             (cerror (ENGLISH "The rest of the lambda list will be ignored.")
+                     (ENGLISH "The lambda list of macro ~S contains a dot after &KEY.")
+                     name
+          )) )
         (setq next (car listr))
         (cond ((eq next '&ALLOW-OTHER-KEYS) (setq otherkeysforbidden nil))
               ((eq next '&AUX) (return-from nil (analyze-aux (cdr listr) name)))
               ((or (eq next '&ENVIRONMENT) (eq next '&WHOLE) (eq next '&OPTIONAL)
                    (eq next '&REST) (eq next '&BODY) (eq next '&KEY)
                )
-               (cerror (TEXT "It will be ignored.")
-                       (TEXT "The lambda list of macro ~S contains a badly placed ~S.")
-                       name next))
+               (cerror (ENGLISH "It will be ignored.")
+                       (ENGLISH "The lambda list of macro ~S contains a badly placed ~S.")
+                       name next
+              ))
               (t
                 (if %default-form
                   (cond ((symbolp next) (setq next (list next %default-form)))
@@ -170,9 +175,10 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                        (setq kwlist (cons kw kwlist))
                       )
                       ((atom next)
-                       (cerror (TEXT "It will be ignored.")
-                               (TEXT "The lambda list of macro ~S contains the invalid element ~S")
-                               name next))
+                       (cerror (ENGLISH "It will be ignored.")
+                               (ENGLISH "The lambda list of macro ~S contains the invalid element ~S")
+                               name next
+                      ))
                       ((symbolp (car next))
                        (setq kw (intern (symbol-name (car next)) *keyword-package*))
                        (setq %let-list
@@ -200,9 +206,10 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                        (setq kwlist (cons kw kwlist))
                       )
                       ((not (and (consp (car next)) (symbolp (caar next)) (consp (cdar next))))
-                       (cerror (TEXT "~0*It will be ignored.")
-                               (TEXT "The lambda list of macro ~S contains an invalid keyword specification ~S")
-                               name (car next)))
+                       (cerror (ENGLISH "~0*It will be ignored.")
+                               (ENGLISH "The lambda list of macro ~S contains an invalid keyword specification ~S")
+                               name (car next)
+                      ))
                       ((symbolp (cadar next))
                        (setq kw (caar next))
                        (setq %let-list
@@ -271,8 +278,9 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
     (lambda (lambdalistr restexp name)
       (if (atom lambdalistr)
         (error-of-type 'source-program-error
-          (TEXT "The lambda list of macro ~S is missing a variable after &REST/&BODY.")
-          name))
+          (ENGLISH "The lambda list of macro ~S is missing a variable after &REST/&BODY.")
+          name
+      ) )
       (let ((restvar (car lambdalistr))
             (listr (cdr lambdalistr)))
         (setq %restp t)
@@ -281,22 +289,26 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
               )
               ((atom restvar)
                (error-of-type 'source-program-error
-                 (TEXT "The lambda list of macro ~S contains an illegal variable after &REST/&BODY: ~S")
-                 name restvar))
+                 (ENGLISH "The lambda list of macro ~S contains an illegal variable after &REST/&BODY: ~S")
+                 name restvar
+              ))
               (t
                (let ((%min-args 0) (%arg-count 0) (%restp nil))
                  (analyze1 restvar restexp name restexp)
         )     ))
         (cond ((null listr))
               ((atom listr)
-               (cerror (TEXT "The rest of the lambda list will be ignored.")
-                       (TEXT "The lambda list of macro ~S contains a misplaced dot.")
-                       name))
+               (cerror (ENGLISH "The rest of the lambda list will be ignored.")
+                       (ENGLISH "The lambda list of macro ~S contains a misplaced dot.")
+                       name
+              ))
               ((eq (car listr) '&KEY) (analyze-key (cdr listr) restvar name))
               ((eq (car listr) '&AUX) (analyze-aux (cdr listr) name))
-              (t (cerror (TEXT "They will be ignored.")
-                         (TEXT "The lambda list of macro ~S contains superfluous elements: ~S")
-                         name listr)))))))
+              (t (cerror (ENGLISH "They will be ignored.")
+                         (ENGLISH "The lambda list of macro ~S contains superfluous elements: ~S")
+                         name listr
+  ) ) ) )     )  )
+)
 
 (%putd 'cons-car
   (function cons-car
@@ -346,24 +358,29 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
            (when listr
              (unless (symbolp listr)
                (error-of-type 'source-program-error
-                 (TEXT "The lambda list of macro ~S contains an illegal &REST variable: ~S")
-                 name listr))
+                 (ENGLISH "The lambda list of macro ~S contains an illegal &REST variable: ~S")
+                 name listr
+             ) )
              (setq %let-list (cons `(,listr ,accessexp) %let-list))
              (setq %restp t)
           ))
         (setq item (car listr))
         (cond ((eq item '&WHOLE)
                (if (and wholevar (cdr listr) (symbolp (cadr listr)))
-                 (setq %let-list (cons `(,(cadr listr) ,wholevar) %let-list)
-                       listr (cdr listr))
+                 (progn
+                   (setq %let-list (cons `(,(cadr listr) ,wholevar) %let-list))
+                   (setq listr (cdr listr))
+                 )
                  (error-of-type 'source-program-error
-                   (TEXT "The lambda list of macro ~S contains an invalid &WHOLE: ~S")
-                   name listr)))
+                   (ENGLISH "The lambda list of macro ~S contains an invalid &WHOLE: ~S")
+                   name listr
+              )) )
               ((eq item '&OPTIONAL)
                (if withinoptional
-                 (cerror (TEXT "It will be ignored.")
-                         (TEXT "The lambda list of macro ~S contains a superfluous ~S.")
-                         name item))
+                 (cerror (ENGLISH "It will be ignored.")
+                         (ENGLISH "The lambda list of macro ~S contains a superfluous ~S.")
+                         name item
+               ) )
                (setq withinoptional t)
               )
               ((or (eq item '&REST) (eq item '&BODY))
@@ -376,13 +393,15 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                (return-from nil (analyze-key (cdr listr) g name))
               )
               ((eq item '&ALLOW-OTHER-KEYS)
-               (cerror (TEXT "It will be ignored.")
-                       (TEXT "The lambda list of macro ~S contains ~S before &KEY.")
-                       name item))
+               (cerror (ENGLISH "It will be ignored.")
+                       (ENGLISH "The lambda list of macro ~S contains ~S before &KEY.")
+                       name item
+              ))
               ((eq item '&ENVIRONMENT)
-               (cerror (TEXT "It will be ignored.")
-                       (TEXT "The lambda list of macro ~S contains ~S which is illegal here.")
-                       name item))
+               (cerror (ENGLISH "It will be ignored.")
+                       (ENGLISH "The lambda list of macro ~S contains ~S which is illegal here.")
+                       name item
+              ))
               ((eq item '&AUX)
                (return-from nil (analyze-aux (cdr listr) name))
               )
@@ -399,8 +418,9 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                      ((atom item)
                       #1=
                       (error-of-type 'source-program-error
-                        (TEXT "The lambda list of macro ~S contains an invalid element ~S")
-                        name item))
+                        (ENGLISH "The lambda list of macro ~S contains an invalid element ~S")
+                        name item
+                     ))
                      ((symbolp (car item))
                       (setq %let-list
                         (cons `(,(car item) (IF ,accessexp
@@ -412,8 +432,9 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                       (when (and (consp (cdr item)) (consp (cddr item)))
                         (unless (symbolp (caddr item))
                           (error-of-type 'source-program-error
-                            (TEXT "The lambda list of macro ~S contains an invalid supplied-variable ~S")
-                            name (caddr item)))
+                            (ENGLISH "The lambda list of macro ~S contains an invalid supplied-variable ~S")
+                            name (caddr item)
+                        ) )
                         (setq %let-list
                           (cons `(,(caddr item) (NOT (NULL ,accessexp))) %let-list)
                      )) )
@@ -473,8 +494,11 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                 (cadr listr)
             ) )
             (error-of-type 'source-program-error
-              (TEXT "In the lambda list of macro ~S, &ENVIRONMENT must be followed by a non-NIL symbol: ~S")
-              name lambdalist)))))))
+              (ENGLISH "In the lambda list of macro ~S, &ENVIRONMENT must be followed by a non-NIL symbol: ~S")
+              name lambdalist
+          ) )
+  ) ) ) )
+)
 
 (%putd 'make-length-test
   (function make-length-test
@@ -489,19 +513,22 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
 
 (%putd 'make-macro-expansion
   (function make-macro-expansion
-    (lambda (macrodef &optional pre-process)
+    (lambda (macrodef)
       (if (atom macrodef)
         (error-of-type 'source-program-error
-          (TEXT "Cannot define a macro from that: ~S")
-          macrodef))
+          (ENGLISH "Cannot define a macro from that: ~S")
+          macrodef
+      ) )
       (unless (symbolp (car macrodef))
         (error-of-type 'source-program-error
-          (TEXT "The name of a macro must be a symbol, not ~S")
-          (car macrodef)))
+          (ENGLISH "The name of a macro must be a symbol, not ~S")
+          (car macrodef)
+      ) )
       (if (atom (cdr macrodef))
         (error-of-type 'source-program-error
-          (TEXT "Macro ~S is missing a lambda list.")
-          (car macrodef)))
+          (ENGLISH "Macro ~S is missing a lambda list.")
+          (car macrodef)
+      ) )
       (let ((name (car macrodef))
             (lambdalist (cadr macrodef))
             (body (cddr macrodef))
@@ -535,9 +562,6 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                            '((DECLARE (IGNORE <ENV-ARG>)))
                          )
                        ,@(if docstring (list docstring))
-                       ,@(if pre-process
-                             `((setq <MACRO-FORM>
-                                (,pre-process <MACRO-FORM>))))
                        ,mainform
                    ) )
                   name

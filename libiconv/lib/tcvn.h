@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1999-2001 Free Software Foundation, Inc.
+ * Copyright (C) 1999-2000 Free Software Foundation, Inc.
  * This file is part of the GNU LIBICONV Library.
  *
  * The GNU LIBICONV Library is free software; you can redistribute it
@@ -21,13 +21,6 @@
 /*
  * TCVN-5712
  */
-
-#include "flushwc.h"
-#include "vietcomb.h"
-
-static const unsigned char tcvn_comb_table[] = {
-  0xb0, 0xb3, 0xb2, 0xb1, 0xb4,
-};
 
 static const unsigned short tcvn_2uni_1[32] = {
   /* 0x00 */
@@ -64,84 +57,18 @@ static const unsigned short tcvn_2uni_2[128] = {
   0x1ee9, 0x1ef1, 0x1ef3, 0x1ef7, 0x1ef9, 0x00fd, 0x1ef5, 0x1ed0,
 };
 
-/* In the TCVN to Unicode direction, the state contains a buffered
-   character, or 0 if none. */
-
 static int
 tcvn_mbtowc (conv_t conv, ucs4_t *pwc, const unsigned char *s, int n)
 {
   unsigned char c = *s;
-  unsigned short wc;
-  unsigned short last_wc;
   if (c < 0x20)
-    wc = tcvn_2uni_1[c];
+    *pwc = (ucs4_t) tcvn_2uni_1[c];
   else if (c < 0x80)
-    wc = c;
+    *pwc = (ucs4_t) c;
   else
-    wc = tcvn_2uni_2[c-0x80];
-  last_wc = conv->istate;
-  if (last_wc) {
-    if (wc >= 0x0300 && wc < 0x0340) {
-      /* See whether last_wc and wc can be combined. */
-      unsigned int k;
-      unsigned int i1, i2;
-      switch (wc) {
-        case 0x0300: k = 0; break;
-        case 0x0301: k = 1; break;
-        case 0x0303: k = 2; break;
-        case 0x0309: k = 3; break;
-        case 0x0323: k = 4; break;
-        default: abort();
-      }
-      i1 = viet_comp_table[k].idx;
-      i2 = i1 + viet_comp_table[k].len-1;
-      if (last_wc >= viet_comp_table_data[i1].base
-          && last_wc <= viet_comp_table_data[i2].base) {
-        unsigned int i;
-        for (;;) {
-          i = (i1+i2)>>1;
-          if (last_wc == viet_comp_table_data[i].base)
-            break;
-          if (last_wc < viet_comp_table_data[i].base) {
-            if (i1 == i)
-              goto not_combining;
-            i2 = i;
-          } else {
-            if (i1 != i)
-              i1 = i;
-            else {
-              i = i2;
-              if (last_wc == viet_comp_table_data[i].base)
-                break;
-              goto not_combining;
-            }
-          }
-        }
-        last_wc = viet_comp_table_data[i].composed;
-        /* Output the combined character. */
-        conv->istate = 0;
-        *pwc = (ucs4_t) last_wc;
-        return 1;
-      }
-    }
-  not_combining:
-    /* Output the buffered character. */
-    conv->istate = 0;
-    *pwc = (ucs4_t) last_wc;
-    return 0; /* Don't advance the input pointer. */
-  }
-  if (wc >= 0x0041 && wc <= 0x01b0) {
-    /* wc is a possible match in viet_comp_table_data. Buffer it. */
-    conv->istate = wc;
-    return RET_TOOFEW(1);
-  } else {
-    /* Output wc immediately. */
-    *pwc = (ucs4_t) wc;
-    return 1;
-  }
+    *pwc = (ucs4_t) tcvn_2uni_2[c-0x80];
+  return 1;
 }
-
-#define tcvn_flushwc normal_flushwc
 
 static const unsigned char tcvn_page00[96+184] = {
   0xa0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 0xa0-0xa7 */
@@ -215,66 +142,11 @@ tcvn_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
     c = tcvn_page00[wc-0x00a0];
   else if (wc >= 0x0300 && wc < 0x0328)
     c = tcvn_page03[wc-0x0300];
-  else if (wc >= 0x0340 && wc < 0x0342) /* deprecated Vietnamese tone marks */
-    c = tcvn_page03[wc-0x0340];
   else if (wc >= 0x1ea0 && wc < 0x1f00)
     c = tcvn_page1e[wc-0x1ea0];
   if (c != 0) {
     *r = c;
     return 1;
   }
-  /* Try compatibility or canonical decomposition. */
-  {
-    /* Binary search through viet_decomp_table. */
-    unsigned int i1 = 0;
-    unsigned int i2 = sizeof(viet_decomp_table)/sizeof(viet_decomp_table[0])-1;
-    if (wc >= viet_decomp_table[i1].composed
-        && wc <= viet_decomp_table[i2].composed) {
-      unsigned int i;
-      for (;;) {
-        /* Here i2 - i1 > 0. */
-        i = (i1+i2)>>1;
-        if (wc == viet_decomp_table[i].composed)
-          break;
-        if (wc < viet_decomp_table[i].composed) {
-          if (i1 == i)
-            return RET_ILUNI;
-          /* Here i1 < i < i2. */
-          i2 = i;
-        } else {
-          /* Here i1 <= i < i2. */
-          if (i1 != i)
-            i1 = i;
-          else {
-            /* Here i2 - i1 = 1. */
-            i = i2;
-            if (wc == viet_decomp_table[i].composed)
-              break;
-            else
-              return RET_ILUNI;
-          }
-        }
-      }
-      /* Found a compatibility or canonical decomposition. */
-      wc = viet_decomp_table[i].base;
-      /* wc is one of 0x0020, 0x0041..0x005a, 0x0061..0x007a, 0x00a5, 0x00a8,
-         0x00c2, 0x00c5..0x00c7, 0x00ca, 0x00cf, 0x00d3, 0x00d4, 0x00d6,
-         0x00d8, 0x00da, 0x00dc, 0x00e2, 0x00e5..0x00e7, 0x00ea, 0x00ef,
-         0x00f3, 0x00f4, 0x00f6, 0x00f8, 0x00fc, 0x0102, 0x0103, 0x01a0,
-         0x01a1, 0x01af, 0x01b0. */
-      if (wc < 0x0080)
-        c = wc;
-      else {
-        c = tcvn_page00[wc-0x00a0];
-        if (c == 0)
-          return RET_ILUNI;
-      }
-      if (n < 2)
-        return RET_TOOSMALL;
-      r[0] = c;
-      r[1] = tcvn_comb_table[viet_decomp_table[i].comb1];
-      return 2;
-    }
-  }
-  return RET_ILUNI;
+  return RET_ILSEQ;
 }

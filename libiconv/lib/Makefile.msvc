@@ -1,4 +1,4 @@
-# -*- Makefile -*- for libiconv/lib
+# Makefile for libiconv/lib
 
 #### Start of system configuration section. ####
 
@@ -59,13 +59,15 @@ OPTIMFLAGS = -D_NDEBUG -O1
 # -DBUILDING_LIBICONV: Change expansion of LIBICONV_DLL_EXPORTED macro.
 CFLAGS = $(MFLAGS) $(WARN_CFLAGS) $(PICFLAGS) $(OPTIMFLAGS) -DBUILDING_LIBICONV
 
+CPP = cl -E
+
 INCLUDES = -I. -I$(srcdir) -I../include -I$(srcdir)/../include
 
 AR = lib
 AR_FLAGS = /out:
 
 LN = copy
-RM = -del
+RM = del
 
 # Programs used by "make install":
 INSTALL = @INSTALL@
@@ -89,16 +91,16 @@ RESOURCES =
 all : iconv.lib
 
 config.h : config.h.msvc
-	-$(RM) config.h
+	$(RM) config.h
 	$(LN) config.h.msvc config.h
 
 iconv.obj : $(srcdir)/iconv.c $(srcdir)/encodings.def $(srcdir)/encodings_local.def $(srcdir)/aliases.h config.h
-	$(CC) $(INCLUDES) $(CFLAGS) -c $(srcdir)/iconv.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/iconv.c
 
 !if !$(DLL)
 
 iconv.lib : $(OBJECTS)
-	-$(RM) iconv.lib
+	$(RM) iconv.lib
 	$(AR) $(AR_FLAGS)iconv.lib $(OBJECTS) $(LIBCHARSET_OBJECTS)
 
 !else

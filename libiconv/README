@@ -17,7 +17,7 @@ It provides support for the encodings:
     Japanese
         EUC-JP, SHIFT-JIS, CP932, ISO-2022-JP, ISO-2022-JP-2, ISO-2022-JP-1
     Chinese
-        EUC-CN, HZ, GBK, GB18030, EUC-TW, BIG5, CP950, BIG5-HKSCS,
+        EUC-CN, HZ, GBK, GB18030, EUC-TW, BIG5, CP950, BIG5HKSCS,
         ISO-2022-CN, ISO-2022-CN-EXT
     Korean
         EUC-KR, CP949, ISO-2022-KR, JOHAB
@@ -38,7 +38,6 @@ It provides support for the encodings:
         UCS-2, UCS-2BE, UCS-2LE
         UCS-4, UCS-4BE, UCS-4LE
         UTF-16, UTF-16BE, UTF-16LE
-        UTF-32, UTF-32BE, UTF-32LE
         UTF-7
         JAVA
     Full Unicode, in terms of `uint16_t' or `uint32_t'
@@ -48,8 +47,6 @@ It provides support for the encodings:
         (with machine dependent endianness and alignment, and with OS and
         locale dependent semantics)
         char, wchar_t
-        The empty encoding name "" is equivalent to "char": it denotes the
-        locale dependent character encoding.
 
 It can convert from any of these encodings to any other, through Unicode
 conversion.
@@ -82,8 +79,6 @@ This library can be built and installed in two variants:
     - If you don't use automake, append extras/iconv.m4 to your aclocal.m4
       file.
     - If you do use automake, add extras/iconv.m4 to your m4 macro repository.
-    Note that 'iconv.m4' is also part of the GNU gettext package, which
-    installs it in /usr/local/share/aclocal/iconv.m4.
 
   - The libc plug/override mode. This works on GNU/Linux, Solaris and OSF/1
     systems only. It is a way to get good iconv support without having
@@ -102,14 +97,11 @@ This library can be built and installed in two variants:
 
 
 Distribution:
-    ftp://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.7.tar.gz
-    ftp://ftp.ilog.fr/pub/Users/haible/gnu/libiconv-1.7.tar.gz
+    ftp://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.6.1.tar.gz
+    ftp://ftp.ilog.fr/pub/Users/haible/gnu/libiconv-1.6.1.tar.gz
 
 Homepage:
     http://clisp.cons.org/~haible/packages-libiconv.html
-
-Bug reports to:
-    <bug-gnu-libiconv@gnu.org>
 
 
 Bruno Haible <haible@clisp.cons.org>

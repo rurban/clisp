@@ -1,6 +1,6 @@
 # Aus der Speicherverwaltung ausgelagert:
 # Tabelle aller festen Symbole
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-1999
 
 #include "lispbibl.c"
 
@@ -13,8 +13,6 @@
 # WIN32.D macht "#define read" und "#define write"
   #undef read
   #undef write
-# LISPBIBL.D does "#define export"
-  #undef export
 
 # Tabelle aller festen Symbole:
   global struct symbol_tab_ symbol_tab_data

@@ -31,6 +31,14 @@ if not errorlevel 1 mv -f %XSRC%/config.h.in %XSRC%/config.h-in
 test -f %XSRC%/include/libcharset.h.in
 if not errorlevel 1 mv -f %XSRC%/include/libcharset.h.in %XSRC%/include/libcharset.h-in
 
+Rem Let libtool use _libs all the time.
+test -f %XSRC%/autoconf/ltconfig.orig
+if errorlevel 1 update %XSRC%/autoconf/ltconfig %XSRC%/autoconf/ltconfig.orig
+sed "/objdir=/s|\.libs|_libs|" %XSRC%/autoconf/ltconfig > ltconfig.tmp
+if errorlevel 1 goto SedError
+update ltconfig.tmp %XSRC%/autoconf/ltconfig
+rm ltconfig.tmp
+
 Rem This is required because DOS/Windows are case-insensitive
 Rem to file names, and "make install" will do nothing if Make
 Rem finds a file called `install'.
@@ -76,11 +84,8 @@ set HOSTNAME=%_HOSTNAME%
 set _HOSTNAME=
 set OS=
 
-Rem With libtool 1.4 -fPIC is the default. This completely breaks compilations
-Rem with djgpp, so we will always use --disable-shared to inhibit the usage of
-Rem -fPIC and -DPIC flags in libtool.
 echo Running the ./configure script...
-sh ./configure --enable-static --disable-shared --src=%XSRC%
+sh ./configure --src=%XSRC%
 if errorlevel 1 goto CfgError
 echo Done.
 goto End

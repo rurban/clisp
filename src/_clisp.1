@@ -1,4 +1,4 @@
-.TH CLISP 1 "31 May 2001"
+.TH CLISP 1 "31 March 2000"
 
 
 .SH NAME
@@ -74,10 +74,7 @@ clisp \- Common Lisp language interpreter and compiler
 .B \-I
 ]
 [
-.B \-ansi
-]
-[
-.B \-traditional
+.B \-a
 ]
 [
 .B \-p
@@ -131,7 +128,7 @@ executed more efficiently.
 .SH OPTIONS
 
 .TP
-.BR \-h ", " \-\-help
+.BR \-h ", " \-\-help 
 Displays a help message on how to use
 .BR clisp .
 
@@ -156,8 +153,6 @@ is already built-in in the
 .B clisp
 executable.
 #endif
-Directory lisplibdir can be changed at run-time using the symbol-macro
-.B *lib-directory*.
 
 #ifdef UNIX
 .TP
@@ -261,8 +256,6 @@ Other languages may be specified through the environment variable
 .BR LANG ,
 provided the corresponding message catalog is installed.
 #endif
-The language may be changed at run-time using the symbol macro
-.B *current-language*.
 
 .TP
 .BI "\-N " localedir
@@ -270,8 +263,6 @@ Specifies the base directory of locale files.
 .B clisp
 will search its message catalogs in
 .IR localedir / language /LC_MESSAGES/clisp.mo.
-The localedir may be changed at run-time using the symbol macro
-.B *current-language*.
 
 .TP
 .BI \-E "domain encoding"
@@ -324,20 +315,18 @@ character.
 #endif
 
 .TP
-.B \-ansi
-ANSI CL compliant: comply with the ANSI CL specification
-even where CLISP has been traditionally different.
-It sets the symbol macro
+.B \-a
+ANSI CL compliant: Comply with the ANSI CL specification even on those issues
+where ANSI CL is broken. This option is provided for maximum portability of
+Lisp programs, and is not useful for actual everyday work. It sets the variable
+.I *package*
+to
+.BR COMMON-LISP-USER ,
+and the symbol macro
 .I *ansi*
 to
 .BR t .
 See impnotes.html, section "Maximum ANSI CL compliance", for details.
-
-.TP
-.B \-traditional
-Traditional: reverses the residual effects of
-.B \-ansi
-in the saved image.
 
 .TP
 .BI "\-p " packagename
@@ -456,15 +445,6 @@ If
 is
 .BR "\-" ,
 the standard input is used instead of a file.
-If
-.I lispfile
-is an empty string
-.B "",
-the rest of the arguments is still available in
-.I "*args*",
-for parsing by the
-.B "init-function"
-of the current image.
 This option must be the last one. No RC file will be executed.
 
 #ifdef EMUNIX
@@ -713,6 +693,7 @@ is used to find the command interpreter called by the function
 .TP
 .B TERM
 determines the screen size recognized by the pretty printer.
+This environment variable is also mandatory for the built-in screen editor.
 #endif
 
 #ifdef EMUNIX_PORTABEL
@@ -745,8 +726,12 @@ specifies the directory where the temporary core file is to be held.
 
 impnotes.html,
 .IR cmucl (1),
-.IR emacs (1),
+#ifdef UNIX
 .IR xemacs (1).
+#else
+.IR emacs (1).
+#endif
+
 
 .SH BUGS
 
@@ -791,7 +776,7 @@ does not recognize Ctrl-S and Ctrl-Q.
 Writing on-line documentation.
 
 .PP
-Enhance the compiler so that it can inline local functions.
+Enhance the compiler such that it can inline local functions.
 
 .PP
 Specify a portable set of window and graphics operations.
@@ -799,4 +784,6 @@ Specify a portable set of window and graphics operations.
 
 .SH AUTHORS
 
-Bruno Haible and Michael Stoll.
+Bruno Haible
+<haible@clisp.cons.org>
+and Michael Stoll.

@@ -66,7 +66,6 @@
 #   CP950                     win32 dos
 #   CP1046                    aix
 #   CP1124                    aix
-#   CP1125                    dos
 #   CP1129                    aix
 #   CP1250                    win32
 #   CP1251                    glibc win32
@@ -81,10 +80,10 @@
 #   EUC-KR                    glibc aix hpux irix osf solaris freebsd   yes
 #   EUC-TW                    glibc aix hpux irix osf solaris
 #   BIG5                      glibc aix hpux osf solaris freebsd        yes
-#   BIG5-HKSCS                glibc
+#   BIG5HKSCS                 glibc
 #   GBK                       aix osf win32 dos
 #   GB18030                   glibc
-#   SHIFT_JIS                 hpux osf solaris freebsd                  yes
+#   SJIS                      hpux osf solaris freebsd
 #   JOHAB                     glibc win32
 #   TIS-620                   glibc aix hpux osf solaris
 #   VISCII                    glibc                                     yes
@@ -175,7 +174,7 @@ case "$os" in
 	echo "eucTW EUC-TW"
 	echo "hp15CN GB2312"
 	#echo "ccdc ?" # what is this?
-	echo "SJIS SHIFT_JIS"
+	echo "SJIS SJIS"
 	echo "utf8 UTF-8"
 	;;
     irix*)
@@ -210,7 +209,7 @@ case "$os" in
 	echo "GBK GBK"
 	echo "KSC5601 CP949"
 	echo "sdeckanji EUC-JP"
-	echo "SJIS SHIFT_JIS"
+	echo "SJIS SJIS"
 	echo "TACTIS TIS-620"
 	echo "UTF-8 UTF-8"
 	;;
@@ -231,7 +230,7 @@ case "$os" in
 	echo "cns11643 EUC-TW"
 	echo "5601 EUC-KR"
 	echo "eucJP EUC-JP"
-	echo "PCK SHIFT_JIS"
+	echo "PCK SJIS"
 	echo "TIS620.2533 TIS-620"
 	#echo "sun_eu_greek ?" # what is this?
 	echo "UTF-8 UTF-8"
@@ -267,8 +266,8 @@ case "$os" in
 	echo "zh_TW.Big5 BIG5"
 	echo "zh_CN.EUC GB2312"
 	echo "ja_JP.EUC EUC-JP"
-	echo "ja_JP.SJIS SHIFT_JIS"
-	echo "ja_JP.Shift_JIS SHIFT_JIS"
+	echo "ja_JP.SJIS SJIS"
+	echo "ja_JP.Shift_JIS SJIS"
 	echo "ko_KR.EUC EUC-KR"
 	;;
     beos*)
@@ -397,8 +396,6 @@ case "$os" in
 	echo "mk_MK CP866" # not CP855 ??
 	echo "ru KOI8-R"    # not CP866 ??
 	echo "ru_RU KOI8-R" # not CP866 ??
-	echo "uk CP1125"
-	echo "uk_UA CP1125"
 	# ISO-8859-6 languages
 	echo "ar CP864"
 	echo "ar_AE CP864"

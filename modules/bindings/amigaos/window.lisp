@@ -1,6 +1,7 @@
 ;;;; Open a little window and draw lines
-(defpackage "AFFI-DEMOS" (:use "AFFI"))
 (in-package "AFFI-DEMOS")
+
+(use-package "AFFI")
 
 (export 'make-window-demo)
 

@@ -1,7 +1,7 @@
 ;;;; Saving memory images
 
-(in-package "EXT")
-(export '(saveinitmem *command-index*))
+(in-package "LISP")
+(export '(saveinitmem))
 (in-package "SYSTEM")
 
 ;;---------------------------------------------------------------------------
@@ -26,8 +26,7 @@
 ;; Saves the current memory contents.
 ;; This function works only when compiled!
 (defun saveinitmem (&optional (filename "lispinit.mem")
-                    &key ((:quiet *quiet*) nil) init-function
-                    (locked-packages *system-package-list*))
+                    &key ((:quiet *quiet*) nil) init-function)
   (let* ((old-driver *driver*)
          (*driver*
            #'(lambda ()
@@ -60,7 +59,7 @@
                (funcall *driver*)
              )
         ))
-    (setf (package-lock locked-packages) t)
-    (savemem (merge-pathnames #p".mem" filename)))
+    (savemem filename)
+  )
   (room nil)
 )

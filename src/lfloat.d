@@ -1,11 +1,13 @@
 # Grundfunktionen für Long-Floats
 
 # Fehlermeldung bei zu langen Long-FLoats
-  nonreturning_function(local, fehler_LF_toolong, (void)) {
-    fehler(arithmetic_error,
-           GETTEXT("long float too long")
-          );
-  }
+  nonreturning_function(local, fehler_LF_toolong, (void));
+  local void fehler_LF_toolong()
+    {
+      fehler(arithmetic_error,
+             GETTEXT("long float too long")
+            );
+    }
 
 # Entpacken eines Long-Float:
 # LF_decode(obj, zero_statement, sign=,exp=,mantMSDptr=,mantlen=,mantLSDptr=);
@@ -805,7 +807,7 @@
             if ( dec_loop_down(ptr,i) ) {
               # Übertrag über das erste Digit hinaus, also e1=e2
               #if !(defined(SPVW_MIXED) && defined(TYPECODES))
-              NOTREACHED; # diesen Fall haben wir schon behandelt
+              NOTREACHED # diesen Fall haben wir schon behandelt
               #else
               # Negieren:
               y = as_object(as_oint(y) ^ wbit(vorz_bit_o));
@@ -837,7 +839,7 @@
           end_arith_call();
           RESTORE_NUM_STACK # num_stack zurück
           #if !(defined(SPVW_MIXED) && defined(TYPECODES))
-          NOTREACHED; # diesen Fall haben wir schon behandelt
+          NOTREACHED # diesen Fall haben wir schon behandelt
           #else
           TheLfloat(y)->expo = 0; # 0.0 als Ergebnis
           return as_object(as_oint(y) & ~wbit(vorz_bit_o));

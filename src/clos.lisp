@@ -3,20 +3,20 @@
 
 ; Zur Benutzung reicht ein einfaches (USE-PACKAGE "CLOS").
 
-(in-package "COMMON-LISP")
+
+(in-package "LISP")
 (pushnew ':clos *features*)
+
 
 (in-package "SYSTEM") ; Trotz DEFPACKAGE nötig!
 
 (defpackage "CLOS"
-(:import-from "EXT" ext:mapcap)
+
 (:import-from "SYSTEM"
   ;; Import:
-  sys::text                     ; for error messages (i18n.d)
   sys::error-of-type                                 ; in error.d definiert
   sys::function-name-p                               ; in control.d definiert
   sys::function-block-name                           ; in init.lisp definiert
-  sys::gensym-list              ; defined in macros2.lisp
 ; clos::generic-function-p                           ; in predtype.d definiert
 ; clos::class-p clos:class-of clos:find-class        ; in predtype.d definiert
 ; clos::structure-object-p                           ; in record.d definiert
@@ -29,9 +29,6 @@
   compiler::memq compiler::*keyword-package*         ; in compiler.lisp definiert
   compiler::%generic-function-lambda                 ; in compiler.lisp definiert
   compiler::%optimize-function-lambda                ; in compiler.lisp definiert
-  compiler::make-signature compiler::sig-req-num compiler::sig-opt-num
-  compiler::sig-rest-p compiler::sig-keys-p compiler::sig-keywords
-  compiler::sig-allow-p compiler::signature ; defined in compiled.lisp
 ; clos:generic-flet clos:generic-labels              ; in compiler.lisp behandelt
   ;; Export:
 ; clos::closclass   ; als Property in predtype.d, type.lisp, compiler.lisp benutzt
@@ -61,26 +58,27 @@
 (in-package "CLOS")
 
 ;;; Exportierungen: ** auch in init.lisp ** !
-(export
- '(;; Namen von Funktionen und Macros:
-   slot-value slot-boundp slot-makunbound slot-exists-p with-slots
-   with-accessors
-   find-class class-of defclass defmethod call-next-method next-method-p
-   defgeneric generic-function generic-flet generic-labels
-   class-name no-applicable-method no-next-method no-primary-method
-   find-method add-method remove-method
-   compute-applicable-methods method-qualifiers function-keywords
-   slot-missing slot-unbound
-   print-object describe-object
-   make-instance allocate-instance initialize-instance reinitialize-instance
-   shared-initialize
-   make-load-form make-load-form-saving-slots
-   ;; names of classes:
-   standard-class structure-class built-in-class
-   standard-object structure-object
-   generic-function standard-generic-function method standard-method
-   ;; other symbols:
-   standard)) ; method combination
+(export '(
+  ;; Namen von Funktionen und Macros:
+  slot-value slot-boundp slot-makunbound slot-exists-p with-slots with-accessors
+  find-class class-of defclass defmethod call-next-method next-method-p
+  defgeneric generic-function generic-flet generic-labels
+  class-name
+  no-applicable-method no-primary-method no-next-method
+  find-method add-method remove-method
+  compute-applicable-methods method-qualifiers function-keywords
+  slot-missing slot-unbound
+  print-object describe-object
+  make-instance allocate-instance initialize-instance reinitialize-instance
+  shared-initialize
+  ;; Namen von Klassen:
+  standard-class structure-class built-in-class
+  standard-object
+  generic-function standard-generic-function method standard-method
+  ;; andere Symbole:
+  standard ; Methoden-Kombination
+))
+
 
 ;;; Vorbemerkungen:
 
@@ -166,15 +164,16 @@
   (unless (symbolp symbol)
     (error-of-type 'type-error
       :datum symbol :expected-type 'symbol
-      (TEXT "~S: argument ~S is not a symbol")
+      (ENGLISH "~S: argument ~S is not a symbol")
       'find-class symbol
   ) )
   (let ((class (get symbol 'CLOSCLASS)))
     (if (not (class-p class))
       (if errorp
         (error-of-type 'error
-          (TEXT "~S: ~S does not name a class")
-          'find-class symbol)
+          (ENGLISH "~S: ~S does not name a class")
+          'find-class symbol
+        )
         nil
       )
       class
@@ -186,20 +185,27 @@
   (unless (symbolp symbol)
     (error-of-type 'type-error
       :datum symbol :expected-type 'symbol
-      (TEXT "~S: argument ~S is not a symbol")
-      '(setf find-class) symbol))
+      (ENGLISH "~S: argument ~S is not a symbol")
+      '(setf find-class) symbol
+  ) )
   (unless (class-p new-value)
     (error-of-type 'type-error
       :datum new-value :expected-type 'class
-      (TEXT "~S: ~S is not a class")
-      '(setf find-class) new-value))
+      (ENGLISH "~S: ~S is not a class")
+      '(setf find-class) new-value
+  ) )
   (let ((h (get symbol 'CLOSCLASS)))
     (when (class-p h)
       (when (and (built-in-class-p h) (eq (class-name h) symbol)) ; auch Structure-Klassen schützen??
         (error-of-type 'error
-          (TEXT "~S: cannot redefine built-in class ~S")
-          '(setf find-class) h))
-      (sys::check-redefinition symbol '(setf find-class) "class")
+          (ENGLISH "~S: cannot redefine built-in class ~S")
+          '(setf find-class) h
+      ) )
+      (when (sys::exported-lisp-symbol-p symbol)
+        (cerror (ENGLISH "The old definition will be lost")
+                (ENGLISH "~S: Redefining the COMMON LISP class ~S")
+                '(setf find-class) symbol
+      ) )
       ; Sollte man (setf (class-name h) nil) machen??
   ) )
   (setf (get symbol 'CLOSCLASS) new-value)
@@ -352,8 +358,9 @@
 (defun no-slot-error (class object slot-name)
   (declare (ignore slot-name))
   (error-of-type 'error
-    (TEXT "instance ~S of class ~S has no slots (wrong metaclass)")
-    object class))
+    (ENGLISH "instance ~S of class ~S has no slots (wrong metaclass)")
+    object class
+) )
 |#
 
 ;; Der Effizienz halber - wir wollen den Test auf <standard-class> umgehen -
@@ -372,24 +379,29 @@
         (slots '()))
     (unless (listp slot-entries)
       (error-of-type 'sys::source-program-error
-        (TEXT "~S: not a list of slots: ~S")
-        'with-slots slot-entries))
+        (ENGLISH "~S: not a list of slots: ~S")
+        'with-slots slot-entries
+    ) )
     (dolist (slot slot-entries)
       (let ((var slot))
         (when (consp slot)
           (unless (eql (length slot) 2)
             (error-of-type 'sys::source-program-error
-              (TEXT "~S: invalid slot and variable specification ~S")
-              'with-slots slot))
+              (ENGLISH "~S: invalid slot and variable specification ~S")
+              'with-slots slot
+          ) )
           (setq var (first slot) slot (second slot))
           (unless (symbolp var)
             (error-of-type 'sys::source-program-error
-              (TEXT "~S: variable ~S should be a symbol")
-              'with-slots var)))
+              (ENGLISH "~S: variable ~S should be a symbol")
+              'with-slots var
+          ) )
+        )
         (unless (symbolp slot)
           (error-of-type 'sys::source-program-error
-            (TEXT "~S: slot name ~S should be a symbol")
-            'with-slots slot))
+            (ENGLISH "~S: slot name ~S should be a symbol")
+            'with-slots slot
+        ) )
         (push var vars)
         (push slot slots)
     ) )
@@ -412,21 +424,26 @@
 (defmacro with-accessors (slot-entries instance-form &body body &environment env)
   (unless (listp slot-entries)
     (error-of-type 'sys::source-program-error
-      (TEXT "~S: not a list of slots: ~S")
-      'with-accessors slot-entries))
+      (ENGLISH "~S: not a list of slots: ~S")
+      'with-accessors slot-entries
+  ) )
   (dolist (slot-entry slot-entries)
     (unless (and (consp slot-entry) (eql (length slot-entry) 2))
       (error-of-type 'sys::source-program-error
-        (TEXT "~S: invalid slot and accessor specification ~S")
-        'with-accessors slot-entry))
+        (ENGLISH "~S: invalid slot and accessor specification ~S")
+        'with-accessors slot-entry
+    ) )
     (unless (symbolp (first slot-entry))
       (error-of-type 'sys::source-program-error
-        (TEXT "~S: variable ~S should be a symbol")
-        'with-accessors (first slot-entry)))
+        (ENGLISH "~S: variable ~S should be a symbol")
+        'with-accessors (first slot-entry)
+    ) )
     (unless (symbolp (second slot-entry))
       (error-of-type 'sys::source-program-error
-        (TEXT "~S: accessor name ~S should be a symbol")
-        'with-accessors (second slot-entry))))
+        (ENGLISH "~S: accessor name ~S should be a symbol")
+        'with-accessors (second slot-entry)
+    ) )
+  )
   (multiple-value-bind (body-rest declarations) (sys::parse-body body nil env)
     (let ((instance-var (gensym)))
       `(LET ((,instance-var ,instance-form))
@@ -456,7 +473,7 @@
 
 (defconstant empty-ht (make-hash-table :test #'eq :size 0))
 
-(defstruct (class (:predicate nil))
+(defstruct (class (:predicate nil)) ; (:print-object print-class) s.u.
   metaclass ; (class-of class) = (class-metaclass class), eine Klasse
   classname ; (class-name class) = (class-classname class), ein Symbol
   direct-superclasses ; Liste aller direkten Oberklassen
@@ -503,24 +520,33 @@
           'string 'symbol 't 'vector
 ) )
 
+(defun print-class (class stream)
+  (print-unreadable-object (class stream :type t)
+    (write (class-classname class) :stream stream)
+) )
+
+
 ;;; DEFCLASS
 
 (defmacro defclass (name superclass-specs slot-specs &rest options)
   (unless (symbolp name)
     (error-of-type 'sys::source-program-error
-      (TEXT "~S: class name ~S should be a symbol")
-      'defclass name))
+      (ENGLISH "~S: class name ~S should be a symbol")
+      'defclass name
+  ) )
   (let* ((superclass-forms
            (progn
              (unless (listp superclass-specs)
                (error-of-type 'sys::source-program-error
-                 (TEXT "~S ~S: expecting list of superclasses instead of ~S")
-                 'defclass name superclass-specs))
+                 (ENGLISH "~S ~S: expecting list of superclasses instead of ~S")
+                 'defclass name superclass-specs
+             ) )
              (mapcar #'(lambda (superclass)
                          (unless (symbolp superclass)
                            (error-of-type 'sys::source-program-error
-                             (TEXT "~S ~S: superclass name ~S should be a symbol")
-                             'defclass name superclass))
+                             (ENGLISH "~S ~S: superclass name ~S should be a symbol")
+                             'defclass name superclass
+                         ) )
                          `(FIND-CLASS ',superclass)
                        )
                      superclass-specs
@@ -530,8 +556,9 @@
            (let ((slot-names '()))
              (unless (listp slot-specs)
                (error-of-type 'sys::source-program-error
-                 (TEXT "~S ~S: expecting list of slot specifications instead of ~S")
-                 'defclass name slot-specs))
+                 (ENGLISH "~S ~S: expecting list of slot specifications instead of ~S")
+                 'defclass name slot-specs
+             ) )
              (mapcar #'(lambda (slot-spec)
                          (let ((slot-name slot-spec) (slot-options '()))
                            (when (consp slot-spec)
@@ -539,12 +566,14 @@
                            )
                            (unless (symbolp slot-name)
                              (error-of-type 'sys::source-program-error
-                               (TEXT "~S ~S: slot name ~S should be a symbol")
-                               'defclass name slot-name))
+                               (ENGLISH "~S ~S: slot name ~S should be a symbol")
+                               'defclass name slot-name
+                           ) )
                            (if (member slot-name slot-names :test #'eq)
                              (error-of-type 'sys::source-program-error
-                               (TEXT "~S ~S: There may be only one direct slot with the name ~S.")
-                               'defclass name slot-name)
+                               (ENGLISH "~S ~S: There may be only one direct slot with the name ~S.")
+                               'defclass name slot-name
+                             )
                              (push slot-name slot-names)
                            )
                            (let ((accessors '())
@@ -557,8 +586,9 @@
                                  (documentation nil))
                              (when (oddp (length slot-options))
                                (error-of-type 'sys::source-program-error
-                                 (TEXT "~S ~S: slot options for slot ~S must come in pairs")
-                                 'defclass name slot-name))
+                                 (ENGLISH "~S ~S: slot options for slot ~S don't come in pairs")
+                                 'defclass name slot-name
+                             ) )
                              (do ((optionsr slot-options (cddr optionsr)))
                                  ((atom optionsr))
                                (let ((optionkey (first optionsr))
@@ -567,8 +597,9 @@
                                    ((:READER :WRITER)
                                     (unless (function-name-p argument)
                                       (error-of-type 'sys::source-program-error
-                                        (TEXT "~S ~S, slot option for slot ~S: ~S is not a function name")
-                                        'defclass name slot-name argument))
+                                        (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a function name")
+                                        'defclass name slot-name argument
+                                    ) )
                                     (case optionkey
                                       (:READER (push argument readers))
                                       (:WRITER (push argument writers))
@@ -576,8 +607,9 @@
                                    (:ACCESSOR
                                     (unless (symbolp argument)
                                       (error-of-type 'sys::source-program-error
-                                        (TEXT "~S ~S, slot option for slot ~S: ~S is not a symbol")
-                                        'defclass name slot-name argument))
+                                        (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a symbol")
+                                        'defclass name slot-name argument
+                                    ) )
                                     (push argument accessors)
                                     (push argument readers)
                                     (push `(SETF ,argument) writers)
@@ -585,47 +617,59 @@
                                    (:ALLOCATION
                                     (when allocation
                                       (error-of-type 'sys::source-program-error
-                                        (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
-                                        'defclass name ':allocation slot-name))
+                                        (ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once")
+                                        'defclass name ':allocation slot-name
+                                    ) )
                                     (case argument
                                       ((:INSTANCE :CLASS) (setq allocation argument))
                                       (t (error-of-type 'sys::source-program-error
-                                           (TEXT "~S ~S, slot option for slot ~S must have the value ~S or ~S, not ~S")
-                                           'defclass name slot-name ':instance ':class argument))))
+                                           (ENGLISH "~S ~S, slot option for slot ~S must have the value ~S or ~S, not ~S")
+                                           'defclass name slot-name ':instance ':class argument
+                                   )) )  )
                                    (:INITARG
                                     (unless (symbolp argument)
                                       (error-of-type 'sys::source-program-error
-                                        (TEXT "~S ~S, slot option for slot ~S: ~S is not a symbol")
-                                        'defclass name slot-name argument))
-                                    (push argument initargs))
+                                        (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a symbol")
+                                        'defclass name slot-name argument
+                                    ) )
+                                    (push argument initargs)
+                                   )
                                    (:INITFORM
                                     (when initform
                                       (error-of-type 'sys::source-program-error
-                                        (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
-                                        'defclass name ':initform slot-name))
+                                        (ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once")
+                                        'defclass name ':initform slot-name
+                                    ) )
                                     (setq initform `(QUOTE ,argument)
                                           initer (make-initer argument)
                                    ))
                                    (:TYPE
                                     (when types
                                       (error-of-type 'sys::source-program-error
-                                        (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
-                                        'defclass name ':type slot-name))
-                                    (setq types (list argument)))
+                                        (ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once")
+                                        'defclass name ':type slot-name
+                                    ) )
+                                    (setq types (list argument))
+                                   )
                                    (:DOCUMENTATION
                                     (when documentation
                                       (error-of-type 'sys::source-program-error
-                                        (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
-                                        'defclass name ':documentation slot-name))
+                                        (ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once")
+                                        'defclass name ':documentation slot-name
+                                    ) )
                                     (unless (stringp argument)
                                       (error-of-type 'sys::source-program-error
-                                        (TEXT "~S ~S, slot option for slot ~S: ~S is not a string")
-                                        'defclass name slot-name argument))
-                                    (setq documentation argument))
+                                        (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a string")
+                                        'defclass name slot-name argument
+                                    ) )
+                                    (setq documentation argument)
+                                   )
                                    (t
                                      (error-of-type 'sys::source-program-error
-                                       (TEXT "~S ~S, slot option for slot ~S: ~S is not a valid slot option")
-                                       'defclass name slot-name optionkey)))))
+                                       (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a valid slot option")
+                                       'defclass name slot-name optionkey
+                                   ) )
+                             ) ) )
                              (setq readers (nreverse readers))
                              (setq writers (nreverse writers))
                              (dolist (funname readers)
@@ -673,29 +717,34 @@
                                (:DOCUMENTATION documentation)
                              )
                          (error-of-type 'sys::source-program-error
-                           (TEXT "~S ~S, option ~S may only be given once")
-                           'defclass name optionkey))
+                           (ENGLISH "~S ~S, option ~S may only be given once")
+                           'defclass name optionkey
+                       ) )
                        (case optionkey
                          (:METACLASS
                           (when (eql (length option) 2)
                             (let ((argument (second option)))
                               (unless (symbolp argument)
                                 (error-of-type 'sys::source-program-error
-                                  (TEXT "~S ~S, option ~S: ~S is not a symbol")
-                                  'defclass name option argument))
-                              (setq metaclass `(:METACLASS (FIND-CLASS ',argument))))
+                                  (ENGLISH "~S ~S, option ~S: ~S is not a symbol")
+                                  'defclass name option argument
+                              ) )
+                              (setq metaclass `(:METACLASS (FIND-CLASS ',argument)))
+                            )
                             (return)
                          ))
                          (:DEFAULT-INITARGS
                           (let ((list (rest option)))
                             (when (and (consp list) (null (cdr list)) (listp (car list)))
                               (setq list (car list))
-                              (warn (TEXT "~S ~S: option ~S should be written ~S")
-                                    'defclass name option (cons ':DEFAULT-INITARGS list)))
+                              (warn (ENGLISH "~S ~S: option ~S should be written ~S")
+                                    'defclass name option (cons ':DEFAULT-INITARGS list)
+                            ) )
                             (when (oddp (length list))
                               (error-of-type 'sys::source-program-error
-                                (TEXT "~S ~S, option ~S: arguments must come in pairs")
-                                'defclass name option))
+                                (ENGLISH "~S ~S, option ~S: arguments don't come in pairs")
+                                'defclass name option
+                            ) )
                             (setq direct-default-initargs
                                   `(:DIRECT-DEFAULT-INITARGS
                                     (LIST
@@ -704,12 +753,14 @@
                                              ((atom list))
                                            (unless (symbolp (first list))
                                              (error-of-type 'sys::source-program-error
-                                               (TEXT "~S ~S, option ~S: ~S is not a symbol")
-                                               'defclass name option (first list)))
+                                               (ENGLISH "~S ~S, option ~S: ~S is not a symbol")
+                                               'defclass name option (first list)
+                                           ) )
                                            (when (member (first list) arglist)
                                              (error-of-type 'sys::source-program-error
-                                               (TEXT "~S ~S, option ~S: ~S may only be given once")
-                                               'defclass name option (first list)))
+                                               (ENGLISH "~S ~S, option ~S: ~S may only be given once")
+                                               'defclass name option (first list)
+                                           ) )
                                            (push (first list) arglist)
                                            (push (second list) formlist)
                                          )
@@ -727,16 +778,18 @@
                             (let ((argument (second option)))
                               (unless (stringp argument)
                                 (error-of-type 'sys::source-program-error
-                                  (TEXT "~S ~S, option ~S: ~S is not a string")
-                                  'defclass name option argument))
+                                  (ENGLISH "~S ~S, option ~S: ~S is not a string")
+                                  'defclass name option argument
+                              ) )
                               (setq documentation `(:DOCUMENTATION ',argument))
                             )
                             (return)
                          ))
                    ) ) )
                    (error-of-type 'sys::source-program-error
-                     (TEXT "~S ~S: invalid option ~S")
-                     'defclass name option)))
+                     (ENGLISH "~S ~S: invalid option ~S")
+                     'defclass name option
+               ) ) )
                `(,@metaclass ,@direct-default-initargs ,@documentation)
              )
        ) )
@@ -841,8 +894,9 @@
           (return-from ensure-class class)
         )
         (progn
-          (warn (TEXT "~S: Class ~S is being redefined, instances are obsolete")
-                'defclass name)
+          (warn (ENGLISH "~S: Class ~S is being redefined, instances are obsolete")
+                'defclass name
+          )
           ; Durch alle Symbole durchlaufen, um die Unterklassen abzugrasen.
           ; Sollte eleganter gehen??
           (let ((subclass-names (list name)))
@@ -927,8 +981,9 @@
   (unless *allow-mixing-metaclasses*
     (unless (every #'standard-class-p direct-superclasses)
       (error-of-type 'error
-        (TEXT "~S ~S: superclass ~S should belong to class STANDARD-CLASS")
-        'defclass name (find-if-not #'standard-class-p direct-superclasses))))
+        (ENGLISH "~S ~S: superclass ~S should belong to class STANDARD-CLASS")
+        'defclass name (find-if-not #'standard-class-p direct-superclasses)
+  ) ) )
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
   (setf (class-precedence-list class)
         (std-compute-cpl class
@@ -1096,7 +1151,7 @@
         ) )
         (when (null M)
           (error-of-type 'error
-            (TEXT "~S ~S: inconsistent precedence graph, cycle ~S")
+            (ENGLISH "~S ~S: inconsistent precedence graph, cycle ~S")
             'defclass (class-classname class)
             ; Zyklus finden: mit Hilfe der Restriktionen zu immer
             ; kleineren Elementen voranschreiten.
@@ -1135,8 +1190,9 @@
                     ((null DL) t)
                   (when (null (setq CL (member (car DL) CL))) (return nil))
                 )
-                (warn (TEXT "(class-precedence-list ~S) and (class-precedence-list ~S) are inconsistent")
-                      class D)))
+                (warn (ENGLISH "(class-precedence-list ~S) and (class-precedence-list ~S) are inconsistent")
+                      class D
+            ) ) )
           direct-superclasses
     )
     L
@@ -1291,8 +1347,9 @@
   (unless *allow-mixing-metaclasses*
     (unless (every #'built-in-class-p direct-superclasses)
       (error-of-type 'error
-        (TEXT "~S: superclass ~S should belong to class BUILT-IN-CLASS")
-        name (find-if-not #'built-in-class-p direct-superclasses))))
+        (ENGLISH "~S: superclass ~S should belong to class BUILT-IN-CLASS")
+        name (find-if-not #'built-in-class-p direct-superclasses)
+  ) ) )
   (let ((class (make-built-in-class :classname name :metaclass metaclass)))
     (setf (class-direct-superclasses class) (copy-list direct-superclasses))
     (setf (class-precedence-list class)
@@ -1332,13 +1389,15 @@
   ; metaclass <= <structure-class>
   (unless (null (cdr direct-superclasses))
     (error-of-type 'error
-      (TEXT "~S: metaclass STRUCTURE-CLASS forbids more than one direct superclass")
-      name))
+      (ENGLISH "~S: metaclass STRUCTURE-CLASS forbids more than one direct superclass")
+      name
+  ) )
   (unless *allow-mixing-metaclasses*
     (unless (every #'structure-class-p direct-superclasses)
       (error-of-type 'error
-        (TEXT "~S: superclass ~S should belong to class STRUCTURE-CLASS")
-        name (first direct-superclasses))))
+        (ENGLISH "~S: superclass ~S should belong to class STRUCTURE-CLASS")
+        name (first direct-superclasses)
+  ) ) )
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
   (setf (class-precedence-list class)
         (std-compute-cpl class
@@ -1376,8 +1435,9 @@
            (shared-index (std-layout-slots class more-slots)))
       (when (plusp shared-index)
         (error-of-type 'error
-          (TEXT "~S: metaclass STRUCTURE-CLASS does not support shared slots")
-          name))
+          (ENGLISH "~S: metaclass STRUCTURE-CLASS does not support shared slots")
+          name
+      ) )
       (setf (class-slots class) (append (class-slots class) more-slots))
   ) )
   (setf (class-default-initargs class)
@@ -1600,7 +1660,7 @@
                          ; werden soll (= NIL bei :BEFORE- und :AFTER-Methoden)
   parameter-specializers ; Liste ({class | (EQL object)}*)
   qualifiers             ; Liste von Symbolen, z.B. (:before)
-  signature              ; signature struct (see sompiler.lisp)
+  signature              ; Liste (reqanz optanz restp keyp keywords allowp)
   gf                     ; die generische Funktion, zu der diese Methode
                          ; gehört (nur für den Bedarf von CALL-NEXT-METHOD und
                          ; NO-NEXT-METHOD)
@@ -1625,6 +1685,13 @@
     (write (std-method-parameter-specializers method) :stream stream)
 ) )
 
+; Hilfsfunktion: Liefert eine Liste von n Gensyms.
+(defun n-gensyms (n)
+  (do ((l '() (cons (gensym) l))
+       (i n (1- i)))
+      ((eql i 0) l)
+) )
+
 ; Hilfsfunktion: Testet auf Lambda-Listen-Marker.
 (defun lambda-list-keyword-p (x)
   (memq x lambda-list-keywords)
@@ -1641,8 +1708,9 @@
     (loop
       (when (atom description)
         (error-of-type 'sys::source-program-error
-          (TEXT "~S ~S: missing lambda list")
-          caller funname ))
+          (ENGLISH "~S ~S: missing lambda list")
+          caller funname
+      ) )
       (when (listp (car description)) (return))
       (push (pop description) qualifiers)
     )
@@ -1652,14 +1720,14 @@
           ((equal qualifiers '(:after)))
           ((equal qualifiers '(:around)))
           (t (error-of-type 'sys::source-program-error
-               (TEXT "STANDARD method combination does not allow the method qualifiers to be ~S")
-               (nreverse qualifiers))))
+               (ENGLISH "STANDARD method combination doesn't allow the method qualifiers to be ~S")
+               (nreverse qualifiers)
+    )     )  )
     ; Lambdaliste bilden, Parameter-Specializer und Signatur extrahieren:
     (let ((specialized-lambda-list (car description))
           (body (cdr description)))
       (let ((req-vars '())
             (ignorable-req-vars '())
-            (spec-list '())
             (req-specializer-forms '()))
         (do ()
             ((or (atom specialized-lambda-list)
@@ -1674,7 +1742,6 @@
                        (push (first item) ignorable-req-vars) ; CLtL2 S. 840 oben
                        (second item)
                 )) ) )
-            (push specializer-name spec-list)
             (push (if (class-p specializer-name)
                     `',specializer-name
                     (if (and (consp specializer-name)
@@ -1684,9 +1751,7 @@
                       `(FIND-CLASS ',specializer-name)
                   ) )
                   req-specializer-forms
-                  ) ) )
-        (sys::check-redefinition (cons funname (nreverse spec-list))
-                                 caller "method")
+        ) ) )
         (let* ((reqanz (length req-vars))
                (lambda-list (nreconc req-vars specialized-lambda-list))
                (optanz
@@ -1742,9 +1807,10 @@
                                `((BLOCK ,(function-block-name funname) ,@body-rest))
                           )) )
                        (if wants-next-method-p
-                         (let ((cont (gensym)) ; variable for the continuation
-                               (req-dummies ; list of reqanz dummies
-                                (gensym-list reqanz))
+                         (let ((cont (gensym)) ; Variable für die Continuation
+                               (req-dummies ; Liste von reqanz Dummies
+                                 (n-gensyms reqanz)
+                               )
                                (rest-dummy (if (or restp (> optanz 0)) (gensym)))
                                (lambda-expr `(LAMBDA ,@lambdabody-part1 ,@lambdabody-part2)))
                            `(; neue Lambda-Liste:
@@ -1837,12 +1903,16 @@
                          )
                          (let ((errorform1
                                  `(ERROR-OF-TYPE 'PROGRAM-ERROR
-                                    (TEXT "~S ~S: ~S is invalid within ~S methods")
-                                    ',caller ',funname 'CALL-NEXT-METHOD ',(first qualifiers)))
+                                    (ENGLISH "~S ~S: ~S is invalid within ~S methods")
+                                    ',caller ',funname 'CALL-NEXT-METHOD ',(first qualifiers)
+                                  )
+                               )
                                (errorform2
                                  `(ERROR-OF-TYPE 'PROGRAM-ERROR
-                                    (TEXT "~S ~S: ~S is invalid within ~S methods")
-                                    ',caller ',funname 'NEXT-METHOD-P ',(first qualifiers))))
+                                    (ENGLISH "~S ~S: ~S is invalid within ~S methods")
+                                    ',caller ',funname 'NEXT-METHOD-P ',(first qualifiers)
+                                  )
+                              ))
                            `(,@lambdabody-part1
                              (SYSTEM::FUNCTION-MACRO-LET
                                ((CALL-NEXT-METHOD
@@ -1861,11 +1931,8 @@
                                ))
                                ,@lambdabody-part2
                             ))
-                          )))))
-                 (sig (make-signature :req-num reqanz :opt-num optanz
-                                      :rest-p restp :keys-p keyp
-                                      :keywords keywords :allow-p allowp)))
-            (values
+                          )
+                )) ) ) )
             `(MAKE-STANDARD-METHOD
                :INITFUNCTION
                  #'(LAMBDA (,self)
@@ -1877,8 +1944,8 @@
                :WANTS-NEXT-METHOD-P ',wants-next-method-p
                :PARAMETER-SPECIALIZERS (LIST ,@(nreverse req-specializer-forms))
                :QUALIFIERS ',qualifiers
-               :SIGNATURE ,sig)
-            sig)
+               :SIGNATURE '(,reqanz ,optanz ,restp ,keyp ,keywords ,allowp)
+             )
 ) ) ) ) ) )
 
 ;; 28.1.6.3. agreement on parameter specializers and qualifiers
@@ -2093,13 +2160,14 @@
 
 ; Aufruf einer generischen Funktion
 (defun slow-funcall-gf (gf &rest args)
-  (let ((reqanz (sig-req-num (gf-signature gf)))
+  (let ((reqanz (first (gf-signature gf)))
         (arg-order (gf-argorder gf))
         (methods (gf-methods gf)))
     (unless (>= (length args) reqanz)
       (error-of-type 'program-error
-        (TEXT "Too few arguments to ~S: ~S")
-        gf args))
+        (ENGLISH "Too few arguments to ~S: ~S")
+        gf args
+    ) )
     (let ((req-args (subseq args 0 reqanz)))
       ; Determine the effective method:
       ; 1. Select the applicable methods:
@@ -2169,8 +2237,6 @@
 
 |#
 
-(defun gf-sig-restp (sig)
-  (or (sig-rest-p sig) (> (sig-opt-num sig) 0)))
 
 ;; Generische Funktionen mit optimiertem Dispatch:
 
@@ -2183,13 +2249,13 @@
 (let ((prototype-table (make-hash-table :test #'equal)))
   (defun finalize-fast-gf (gf)
     (let* ((signature (gf-signature gf))
-           (reqanz (sig-req-num signature))
-           (restp (gf-sig-restp signature))
+           (reqanz (first signature))
+           (restp (or (third signature) (> (second signature) 0)))
            (hash-key (cons reqanz restp))
            (prototype
              (or (gethash hash-key prototype-table)
                  (setf (gethash hash-key prototype-table)
-                       (let* ((reqvars (gensym-list reqanz))
+                       (let* ((reqvars (n-gensyms reqanz))
                               (proto-gf
                                 (eval `(LET ((GF 'MAGIC))
                                          (DECLARE (COMPILE))
@@ -2207,8 +2273,8 @@
   ) )
   (defun gf-never-called-p (gf)
     (let* ((signature (gf-signature gf))
-           (reqanz (sig-req-num signature))
-           (restp (gf-sig-restp signature))
+           (reqanz (first signature))
+           (restp (or (third signature) (> (second signature) 0)))
            (hash-key (cons reqanz restp))
            (prototype (gethash hash-key prototype-table)))
       (eq (sys::%record-ref gf 1) prototype)
@@ -2220,15 +2286,17 @@
       function-keywords initialize-instance make-instance method-qualifiers
       no-applicable-method no-next-method no-primary-method print-object
       reinitialize-instance remove-method shared-initialize slot-missing
-      slot-unbound make-load-form))
+      slot-unbound
+  )  )
   (defvar *warn-if-gf-already-called* t)
   (defun warn-if-gf-already-called (gf)
     (when (and *warn-if-gf-already-called* (not (gf-never-called-p gf))
                (not (member (sys::%record-ref gf 0)
                             *dynamically-modifiable-generic-function-names*
                             :test #'eq)))
-      (warn (TEXT "The generic function ~S is being modified, but has already been called.")
-            gf)))
+      (warn (ENGLISH "The generic function ~S is being modified, but has already been called.")
+            gf
+  ) ) )
 )
 
 ; Der eigentliche Dispatch-Code wird erst beim ersten Aufruf der Funktion
@@ -2273,9 +2341,9 @@
 ; %GENERIC-FUNCTION-LAMBDA automatisch.
 (defun compute-dispatch (gf)
   (let* ((signature (gf-signature gf))
-         (req-anz (sig-req-num signature))
-         (req-vars (gensym-list req-anz))
-         (restp (gf-sig-restp signature))
+         (req-anz (first signature))
+         (req-vars (n-gensyms req-anz))
+         (restp (or (third signature) (> (second signature) 0)))
          (rest-var (if restp (gensym)))
          (apply-fun (if restp 'APPLY 'FUNCALL))
          (apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
@@ -2610,18 +2678,18 @@
           (cons (cons (cons (cons t1 t2) (cons t3 t4)) (cons (cons t5 t6) (cons t7 t8))) (cons (cons (cons t9 t10) (cons t11 t12)) (cons (cons t13 t14) more-t))) ))
 ) )
 
-;;; Calculate the effective method for the given arguments.
-;;; It is actually the effective method for all arguments,
-;;; for the same EQL and class restrictions as the given arguments,
-;;; therefore compute dispatch is already taken case of.
+; Berechnet die effektive Methode zu gegebenen Argumenten.
+; Es ist eigentlich die effektive Methode zu allen Argumenten, die dieselben
+; EQL- und Klassen-Einschränkungen haben wie die gegebenen Argumente, aber
+; darum hat sich compute-dispatch schon gekümmert.
 (defun compute-effective-method (gf &rest args)
   (tagbody restart-compute
     (return-from compute-effective-method
       (let* ((signature (gf-signature gf))
-             (req-anz (sig-req-num signature))
-             (req-vars (gensym-list req-anz))
+             (req-anz (first signature))
+             (req-vars (n-gensyms req-anz))
              (req-args (subseq args 0 req-anz))
-             (restp (gf-sig-restp signature))
+             (restp (or (third signature) (> (second signature) 0)))
              (rest-var (if restp (gensym)))
              (apply-fun (if restp 'APPLY 'FUNCALL))
              (apply-args `(,@req-vars ,@(if restp `(,rest-var) '())))
@@ -2631,60 +2699,63 @@
              (lambdalist-keypart '())
              (arg-order (gf-argorder gf))
              (methods (gf-methods gf)))
-        ;; Determine the effective method:
-        ;; 1. Select the applicable methods:
+        ; Determine the effective method:
+        ; 1. Select the applicable methods:
         (setq methods
-              (remove-if-not #'(lambda (method)
-                                 (method-applicable-p method req-args))
-                             methods))
+          (remove-if-not #'(lambda (method) (method-applicable-p method req-args))
+                         methods
+        ) )
         (when (null methods)
           (apply #'no-applicable-method gf args)
-          (go restart-compute))
+          (go restart-compute)
+        )
         ; 28.1.6.4., 28.1.6.5.: Keyword arguments in generic functions
         (when restp
-          ;; The generic function has &REST or &KEY, thus try all methods.
-          ;; "If the lambda-list of ... the generic function definition
-          ;;  contains &allow-other-keys, all keyword arguments are accepted."
-          (unless (sig-allow-p signature)
-            ;; "The specific set of keyword arguments accepted ...
-            ;;  varies according to the applicable methods."
+          ; Die generische Funktion hat &REST oder &KEY, also auch alle Methoden.
+          ; "If the lambda-list of ... the generic function definition contains
+          ;  &allow-other-keys, all keyword arguments are accepted."
+          (unless (fifth signature)
+            ; "The specific set of keyword arguments accepted ... varies according
+            ;  to the applicable methods."
             (let ((signatures (mapcar #'std-method-signature methods)))
-              ;; "A method that has &rest but not &key does not affect the
-              ;;   set of acceptable keyword arguments."
-              (setq signatures (delete-if-not #'sig-keys-p signatures))
-              ;; No method with &key ==> no restriction on the arguments
+              ; "A method that has &rest but not &key does not affect the set of
+              ;  acceptable keyword arguments."
+              (setq signatures (delete-if-not #'fourth signatures))
+              ; Keine Methode mit &key -> keine Einschränkung der Argumente.
               (unless (null signatures)
-                ;; "If the lambda-list of any applicable method ... contains
-                ;;  &allow-other-keys, all keyword arguments are accepted."
-                (unless (some #'sig-allow-p signatures)
-                  ;; "The set of keyword arguments accepted for a
-                  ;;  particular call is the union of the keyword
-                  ;;  arguments accepted by all applicable methods and
-                  ;;  the keyword arguments mentioned after &key in the
-                  ;;  generic function definition."
+                ; "If the lambda-list of any applicable method ... contains
+                ;  &allow-other-keys, all keyword arguments are accepted."
+                (unless (some #'sixth signatures)
+                  ; "The set of keyword arguments accepted for a particular call
+                  ;  is the union of the keyword arguments accepted by all
+                  ;  applicable methods and the keyword arguments mentioned after
+                  ;  &key in the generic function definition."
                   (let ((keywords
-                         (remove-duplicates
-                          (append (sig-keywords signature)
-                                  (mapcap #'sig-keywords signatures))
-                            :from-end t)))
-                    (setq opt-vars (gensym-list (sig-opt-num signature)))
-                    (setq key-vars (gensym-list keywords))
+                          (remove-duplicates
+                            (append (fourth signature) (mapcap #'fifth signatures))
+                            :from-end t
+                       )) )
+                    (setq opt-vars (n-gensyms (second signature)))
+                    (setq key-vars (n-gensyms (length keywords)))
                     (setq lambdalist-keypart
                           `(&KEY
                             ,@(mapcar #'(lambda (kw var) `((,kw ,var)))
-                                      keywords key-vars)))))))))
-        ;; 2. Sort the applicable methods by precedence order:
+                                      keywords key-vars
+                              )
+                           )
+        ) ) ) ) ) ) )
+        ; 2. Sort the applicable methods by precedence order:
         (setq methods (sort-applicable-methods methods req-args arg-order))
-        ;; 3. Apply method combination:
-        ;; only the STANDARD method combination is implemented.
-        ;; split up into individual method types.
-        (multiple-value-bind
-              (primary-methods before-methods after-methods around-methods)
+        ; 3. Apply method combination:
+        ; Nur STANDARD Methoden-Kombination ist implementiert.
+        ; Aufspalten in einzelne Methoden-Typen:
+        (multiple-value-bind (primary-methods before-methods after-methods around-methods)
             (partition-method-list methods)
           (when (null primary-methods)
             (apply #'no-primary-method gf args)
-            (go restart-compute))
-          ;; combine methods into an "effectiven method":
+            (go restart-compute)
+          )
+          ; Methoden zu einer "effektiven Methode" kombinieren:
           (labels ((ef-1 (primary-methods before-methods after-methods around-methods)
                      (if (null around-methods)
                        (ef-2 primary-methods before-methods after-methods)
@@ -2782,8 +2853,9 @@
     (if (eq original-em new-em)
       (apply next-methods new-args)
       (error-of-type 'error
-        (TEXT "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S")
-        'call-next-method gf new-args original-args))))
+        (ENGLISH "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S")
+        'call-next-method gf new-args original-args
+) ) ) )
 
 
 ; Cruel hack (CLtL2 28.1.9.2., ANSI CL 7.1.2.):
@@ -2799,40 +2871,45 @@
 (defvar |#'shared-initialize| nil)
 (defvar *gf-warn-on-replacing-method* t)
 
-;; 28.1.6.4. congruent lambda lists
-(defun check-signature-congruence (gf method &optional
-                                   (gf-sign (gf-signature gf))
-                                   (m-sign (std-method-signature method)))
-  (unless (= (sig-req-num m-sign) (sig-req-num gf-sign))
-    (error-of-type 'error
-      (TEXT "~S has ~D, but ~S has ~D required parameter~:P")
-      method (sig-req-num m-sign) gf (sig-req-num gf-sign)))
-  (unless (= (sig-opt-num m-sign) (sig-opt-num gf-sign))
-    (error-of-type 'error
-      (TEXT "~S has ~D, but ~S has ~D optional parameter~:P")
-      method (sig-opt-num m-sign) gf (sig-opt-num gf-sign)))
-  (when (and (sig-rest-p m-sign) (not (sig-rest-p gf-sign)))
-    (error-of-type 'error
-      (TEXT "~S accepts &REST or &KEY, but ~S does not.")
-      method gf))
-  (when (and (sig-rest-p gf-sign) (not (sig-rest-p m-sign)))
-    (error-of-type 'error
-      (TEXT "~S accepts &REST or &KEY, but ~S does not.")
-      gf method))
-  (when (sig-keys-p gf-sign)    ; gf has keywords?
-    ;; yes ==> method must accept it
-    (unless (if (sig-keys-p m-sign)
-                (or (sig-allow-p m-sign) ; keywords match
-                    (subsetp (sig-keywords gf-sign) (sig-keywords m-sign)))
-                (sig-rest-p m-sign)) ; method must have &rest!
-      (error-of-type 'error
-        (TEXT "~S does not accept the keywords ~S of ~S")
-        method (sig-keywords gf-sign) gf))))
-
-;; Add a method to a generic function
+; Hinzufügen einer Methode zu einer generischen Funktion:
 (defun std-add-method (gf method)
-  (check-signature-congruence gf method)
-  ;; copy method, so that one can enter gf:
+  ; 28.1.6.4. congruent lambda lists
+  (let ((gf-sign (gf-signature gf))             ; (reqanz optanz restp keywords allowp)
+        (m-sign (std-method-signature method))) ; (reqanz optanz restp keyp keywords allowp)
+    (unless (= (first m-sign) (first gf-sign))
+      (error-of-type 'error
+        (ENGLISH "~S has ~S, but ~S has ~S required parameters")
+        method (first m-sign) gf (first gf-sign)
+    ) )
+    (unless (= (second m-sign) (second gf-sign))
+      (error-of-type 'error
+        (ENGLISH "~S has ~S, but ~S has ~S optional parameters")
+        method (second m-sign) gf (second gf-sign)
+    ) )
+    (when (and (third m-sign) (not (third gf-sign)))
+      (error-of-type 'error
+        (ENGLISH "~S has &REST or &KEY, but ~S hasn't.")
+        method gf
+    ) )
+    (when (and (third gf-sign) (not (third m-sign)))
+      (error-of-type 'error
+        (ENGLISH "~S has &REST or &KEY, but ~S hasn't.")
+        gf method
+    ) )
+    (when (fourth gf-sign) ; gf hat Keywords?
+      ; ja -> Methode muss sie akzeptieren:
+      (unless (if (fourth m-sign) ; Methode hat &key ?
+                (or (sixth m-sign) ; Methode muss &allow-other-keys haben oder
+                    (subsetp (fourth gf-sign) (fifth m-sign)) ; die Keywords aufzählen
+                )
+                (third m-sign) ; Methode muss &rest haben!
+              )
+        (error-of-type 'error
+          (ENGLISH "~S doesn't accept the keywords ~S of ~S")
+          method (fourth gf-sign) gf
+    ) ) )
+  )
+  ; method kopieren, damit man gf eintragen kann:
   (when (std-method-wants-next-method-p method)
     (setq method (copy-standard-method method))
     (setf (std-method-function method) nil)
@@ -2858,8 +2935,9 @@
                 (if old-method
                   (progn
                     (when *gf-warn-on-replacing-method*
-                      (warn (TEXT "Replacing method ~S in ~S")
-                            old-method gf))
+                      (warn (ENGLISH "Replacing method ~S in ~S")
+                            old-method gf
+                    ) )
                     (remove old-method (gf-methods gf))
                   )
                   (gf-methods gf)
@@ -2875,8 +2953,9 @@
                           :key #'std-method-initfunction)))
     (when old-method
       (warn-if-gf-already-called gf)
-      (warn (TEXT "Removing method ~S in ~S")
-            old-method gf)
+      (warn (ENGLISH "Removing method ~S in ~S")
+            old-method gf
+      )
       (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
             ((eq gf |#'initialize-instance|) (note-ii-change method))
             ((eq gf |#'reinitialize-instance|) (note-ri-change method))
@@ -2902,8 +2981,9 @@
   ) )
   (if errorp
     (error-of-type 'error
-      (TEXT "~S has no method with qualifiers ~:S and specializers ~S")
-      gf qualifiers specializers)
+      (ENGLISH "~S has no method with qualifiers ~:S and specializers ~S")
+      gf qualifiers specializers
+    )
     nil
 ) )
 
@@ -2913,14 +2993,15 @@
 (defmacro defmethod (funname &rest method-description &environment env)
   (unless (function-name-p funname)
     (error-of-type 'sys::source-program-error
-      (TEXT "~S: the name of a function must be a symbol, not ~S")
-      'defmethod funname))
-  (multiple-value-bind (method sig)
-      (analyze-method-description 'defmethod funname method-description env)
-    `(LET ()
-      (COMPILER::EVAL-WHEN-COMPILE
-       (COMPILER::C-DEFUN ',funname ,sig nil 'defmethod))
-      (DO-DEFMETHOD ',funname ,method))))
+      (ENGLISH "~S: the name of a function must be a symbol, not ~S")
+      'defmethod funname
+  ) )
+  `(LET ()
+     (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',funname))
+     (DO-DEFMETHOD ',funname
+       ,(analyze-method-description 'defmethod funname method-description env)
+   ) )
+)
 
 (defun do-defmethod (funname method)
   (std-add-method
@@ -2929,18 +3010,23 @@
         (if (clos::generic-function-p gf)
           gf
           (error-of-type 'error
-            (TEXT "~S does not name a generic function")
-            funname)))
+            (ENGLISH "~S doesn't name a generic function")
+            funname
+      ) ) )
       (setf (fdefinition funname)
             (let ((signature (std-method-signature method)))
               (make-fast-gf funname
-                            ;; GF signature <== method signature
-                            (make-signature
-                             :req-num (sig-req-num signature)
-                             :opt-num (sig-opt-num signature)
-                             :rest-p (sig-rest-p signature))
-                            ;; argorder := (0 ... reqanz-1)
-                            (countup (sig-req-num signature))))))
+                            ; GF-Signatur aus der Methoden-Signatur bestimmen:
+                            (list (first signature) ; reqanz
+                                  (second signature) ; optanz
+                                  (third signature) ; restp
+                                  '() ; keywords
+                                  nil ; allowp
+                            )
+                            ; argorder := (0 ... reqanz-1)
+                            (countup (first signature))
+      )     ) )
+    )
     method
   )
   method
@@ -2964,10 +3050,11 @@
 (defun analyze-defgeneric (caller funname lambdalist options env)
   (unless (function-name-p funname)
     (error-of-type 'sys::source-program-error
-      (TEXT "~S: the name of a function must be a symbol, not ~S")
-      caller funname lambdalist))
+      (ENGLISH "~S: the name of a function must be a symbol, not ~S")
+      caller funname lambdalist
+  ) )
   ; Lambdaliste parsen:
-  (multiple-value-bind (reqanz req-vars optanz restp keyp keywords allowp)
+  (multiple-value-bind (reqanz req-vars optanz restp keywords allowp)
       (analyze-defgeneric-lambdalist caller funname lambdalist)
     ; Optionen abarbeiten:
     (let ((method-forms '())
@@ -2976,54 +3063,64 @@
       (dolist (option options)
         (unless (listp option)
           (error-of-type 'sys::source-program-error
-            (TEXT "~S ~S: not a ~S option: ~S")
-            caller funname 'defgeneric option))
+            (ENGLISH "~S ~S: not a ~S option: ~S")
+            caller funname 'defgeneric option
+        ) )
         (case (first option)
           (DECLARE
             (unless (every
                        #'(lambda (x) (and (consp x) (eq (first x) 'OPTIMIZE)))
-                       (rest option))
-              (warn (TEXT "~S ~S: Only ~S declarations are permitted: ~S")
-                    caller funname 'optimize option))
+                       (rest option)
+                    )
+              (warn (ENGLISH "~S ~S: Only ~S declarations are permitted: ~S")
+                    caller funname 'optimize option
+            ) )
             ; Die Deklaration wird ignoriert.
             ; Der Compiler ignoriert sie sowieso.
           )
           (:ARGUMENT-PRECEDENCE-ORDER
             (when argorders
               (error-of-type 'sys::source-program-error
-                (TEXT "~S ~S: ~S may only be specified once.")
-                caller funname ':argument-precedence-order))
-            (setq argorders option))
+                (ENGLISH "~S ~S: ~S may only be specified once.")
+                caller funname ':argument-precedence-order
+            ) )
+            (setq argorders option)
+          )
           (:DOCUMENTATION
             (unless (and (eql (length option) 2) (stringp (second option)))
               (error-of-type 'sys::source-program-error
-                (TEXT "~S ~S: A string must be specified after ~S : ~S")
-                caller funname ':documentation option))
+                (ENGLISH "~S ~S: A string must be specified after ~S : ~S")
+                caller funname ':documentation option
+            ) )
             (when docstrings
               (error-of-type 'sys::source-program-error
-                (TEXT "~S ~S: Only one ~S string is allowed")
-                caller funname ':documentation))
+                (ENGLISH "~S ~S: Only one ~S string is allowed")
+                caller funname ':documentation
+            ) )
             (setq docstrings (rest option))
           )
           (:METHOD-COMBINATION
             (unless (equal (rest option) '(STANDARD))
               (error-of-type 'sys::source-program-error
-                (TEXT "~S ~S: The only valid method combination is ~S : ~S")
-                caller funname 'standard option))
+                (ENGLISH "~S ~S: The only valid method combination is ~S : ~S")
+                caller funname 'standard option
+            ) )
             ; Die Methodenkombination wird ignoriert.
           )
           (:GENERIC-FUNCTION-CLASS
             (unless (equal (rest option) '(STANDARD-GENERIC-FUNCTION))
               (error-of-type 'sys::source-program-error
-                (TEXT "~S ~S: The only valid generic function class name is ~S : ~S")
-                caller funname 'standard-generic-function option))
+                (ENGLISH "~S ~S: The only valid generic function class name is ~S : ~S")
+                caller funname 'standard-generic-function option
+            ) )
             ; Die Klasse der generischen Funktion wird ignoriert.
           )
           (:METHOD-CLASS
             (unless (equal (rest option) '(STANDARD-METHOD))
               (error-of-type 'sys::source-program-error
-                (TEXT "~S ~S: The only valid method class name is ~S : ~S")
-                caller funname 'standard-method option))
+                (ENGLISH "~S ~S: The only valid method class name is ~S : ~S")
+                caller funname 'standard-method option
+            ) )
             ; Die Klasse der Methoden wird ignoriert.
           )
           (:METHOD
@@ -3031,16 +3128,18 @@
                   method-forms
           ) )
           (t (error-of-type 'sys::source-program-error
-               (TEXT "~S ~S: invalid syntax in ~S option: ~S")
-               caller funname 'defstruct option))))
+               (ENGLISH "~S ~S: invalid syntax in ~S option: ~S")
+               caller funname 'defstruct option
+      ) ) )  )
       ; :argument-precedence-order überprüfen:
       (let ((argorder
               (if argorders
                 (let ((l (mapcar #'(lambda (x)
                                      (or (position x req-vars)
                                          (error-of-type 'sys::source-program-error
-                                           (TEXT "~S ~S: ~S is not one of the required parameters: ~S")
-                                           caller funname x argorders)))
+                                           (ENGLISH "~S ~S: ~S is not one of the required parameters: ~S")
+                                           caller funname x argorders
+                                   ) )   )
                                  (rest argorders)
                      ))  )
                   ; Ist (rest argorders) eine Permutation von req-vars ?
@@ -3050,18 +3149,20 @@
                   ; bijektiv?
                   (unless (apply #'/= l) ; injektiv?
                     (error-of-type 'sys::source-program-error
-                      (TEXT "~S ~S: some variable occurs twice in ~S")
-                      caller funname argorders))
+                      (ENGLISH "~S ~S: some variable occurs twice in ~S")
+                      caller funname argorders
+                  ) )
                   (unless (eql (length l) reqanz) ; surjektiv?
                     (error-of-type 'sys::source-program-error
-                      (TEXT "~S ~S: ~S is missing some required parameter")
-                      caller funname argorders))
-                  l)
+                      (ENGLISH "~S ~S: ~S is missing some required parameter")
+                      caller funname argorders
+                  ) )
+                  l
+                )
                 (countup reqanz)
            )) )
-        (values (make-signature :req-num reqanz :opt-num optanz
-                                :rest-p restp :keys-p keyp
-                                :keywords keywords :allow-p allowp)
+        (values ; Signatur
+                `(,reqanz ,optanz ,restp ,keywords ,allowp)
                 ; argorder
                 argorder
                 ; Liste der Methoden-Formen
@@ -3072,7 +3173,7 @@
 ) ) ) )
 
 ; Lambdaliste parsen:
-; lambdalist --> reqanz, req-vars, optanz, restp, keyp, keywords, allowp
+; lambdalist --> reqanz, req-vars, optanz, restp, keywords, allowp
 (defun analyze-defgeneric-lambdalist (caller funname lambdalist)
   (let ((req-vars '())
         (optanz 0)
@@ -3082,17 +3183,20 @@
         (allowp nil))
     (when (some #'(lambda (item) (and (consp item) (cdr item))) lambdalist)
       (error-of-type 'sys::source-program-error
-        (TEXT "~S ~S: No initializations are allowed in a generic function lambda-list: ~S")
-        caller funname lambdalist))
+        (ENGLISH "~S ~S: No initializations are allowed in a generic function lambda-list: ~S")
+        caller funname lambdalist
+    ) )
     (flet ((check-varname (var)
              (unless (symbolp var)
                (error-of-type 'sys::source-program-error
-                 (TEXT "~S ~S: variable name ~S should be a symbol")
-                 caller funname var))
+                 (ENGLISH "~S ~S: variable name ~S should be a symbol")
+                 caller funname var
+             ) )
              (when (member var req-vars :test #'eq)
                (error-of-type 'sys::source-program-error
-                 (TEXT "~S ~S: duplicate variable name ~S")
-                 caller funname var))
+                 (ENGLISH "~S ~S: duplicate variable name ~S")
+                 caller funname var
+             ) )
              var
           ))
       (loop
@@ -3120,7 +3224,7 @@
       )
       (when (and (consp lambdalist) (eq (first lambdalist) '&key))
         (pop lambdalist)
-        (setq restp t keyp t) ; &key implies &rest
+        (setq restp t) ; &key impliziert &rest
         (loop
           (when (or (atom lambdalist) (lambda-list-keyword-p (first lambdalist)))
             (return)
@@ -3141,16 +3245,18 @@
     )
     (when lambdalist
       (error-of-type 'sys::source-program-error
-        (TEXT "~S ~S: invalid lambda list portion: ~S")
-        caller funname lambdalist))
+        (ENGLISH "~S ~S: invalid lambda list portion: ~S")
+        caller funname lambdalist
+    ) )
     (values (length req-vars) (nreverse req-vars) optanz
-            restp keyp keywords allowp)))
+            (or restp keyp) keywords allowp
+) ) )
 
 ; Lambdaliste in Aufrufkonvention umrechnen:
 (defun defgeneric-lambdalist-callinfo (caller funname lambdalist)
-  (multiple-value-bind (reqanz req-vars optanz restp keyp keywords allowp)
+  (multiple-value-bind (reqanz req-vars optanz restp keywords allowp)
       (analyze-defgeneric-lambdalist caller funname lambdalist)
-    (declare (ignore req-vars keyp))
+    (declare (ignore req-vars))
     (callinfo reqanz optanz restp keywords allowp)
 ) )
 
@@ -3161,9 +3267,8 @@
   (multiple-value-bind (signature argorder method-forms docstring)
       (analyze-defgeneric 'defgeneric funname lambda-list options env)
     `(LET ()
-       (COMPILER::EVAL-WHEN-COMPILE
-        (COMPILER::C-DEFUN ',funname ',signature nil 'defgeneric))
-       ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
+       (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',funname))
+       ; NB: Kein (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
        ,@(if docstring
            (let ((symbolform
                    (if (atom funname)
@@ -3193,12 +3298,17 @@
         (progn
           (warn-if-gf-already-called gf)
           (when (and *gf-warn-on-removing-all-methods* (gf-methods gf))
-            (warn (TEXT "Removing all methods of ~S") gf)
+            (warn (ENGLISH "Removing all methods of ~S")
+                  gf
+            )
             (setf (gf-methods gf) nil)
           )
-          (unless (and (equalp signature (gf-signature gf))
-                       (equal argorder (gf-argorder gf)))
-            (warn (TEXT "Modifying the parameter profile of ~S") gf)
+          (unless (and (equal signature (gf-signature gf))
+                       (equal argorder (gf-argorder gf))
+                  )
+            (warn (ENGLISH "Modifying the parameter profile of ~S")
+                  gf
+            )
             (setf (gf-signature gf) signature)
             (setf (gf-argorder gf) argorder)
           )
@@ -3207,8 +3317,9 @@
           gf
         )
         (error-of-type 'program-error
-          (TEXT "~S does not name a generic function")
-          funname)))
+          (ENGLISH "~S doesn't name a generic function")
+          funname
+    ) ) )
     (setf (fdefinition funname)
           (apply #'make-generic-function funname signature argorder methods)
 ) ) )
@@ -3251,8 +3362,9 @@
     (dolist (fundef fundefs)
       (unless (and (consp fundef) (consp (cdr fundef)))
         (error-of-type 'sys::source-program-error
-          (TEXT "~S: ~S is not a generic function specification")
-          caller fundef))
+          (ENGLISH "~S: ~S is not a generic function specification")
+          caller fundef
+      ) )
       (push (first fundef) names)
       (push (make-generic-function-form caller (first fundef) (second fundef) (cddr fundef) env) funforms)
     )
@@ -3265,26 +3377,36 @@
 (defmacro generic-flet (fundefs &body body &environment env)
   (multiple-value-bind (funnames funforms)
       (analyze-generic-fundefs 'generic-flet fundefs env)
-    (let ((varnames (gensym-list funnames)))
+    (let ((varnames (n-gensyms (length funnames))))
       `(LET ,(mapcar #'list varnames funforms)
          (FLET ,(mapcar #'(lambda (varname funname)
-                            `(,funname (&rest args) (apply ,varname args)))
-                        varnames funnames)
-           ,@body)))))
+                            `(,funname (&rest args) (apply ,varname args))
+                          )
+                        varnames funnames
+                )
+           ,@body
+       ) )
+) ) )
+
 
 ;;; GENERIC-LABELS
 
 (defmacro generic-labels (fundefs &body body &environment env)
   (multiple-value-bind (funnames funforms)
       (analyze-generic-fundefs 'generic-labels fundefs env)
-    (let ((varnames (gensym-list funnames)))
+    (let ((varnames (n-gensyms (length funnames))))
       `(LET ,varnames
          (FLET ,(mapcar #'(lambda (varname funname)
-                            `(,funname (&rest args) (apply ,varname args)))
-                        varnames funnames)
+                            `(,funname (&rest args) (apply ,varname args))
+                          )
+                        varnames funnames
+                )
            ,@(mapcar #'(lambda (varname funform) `(SETQ ,varname ,funform))
-                     varnames funforms)
-           ,@body)))))
+                     varnames funforms
+             )
+           ,@body
+       ) )
+) ) )
 
 
 ;;; WITH-ADDED-METHODS
@@ -3303,12 +3425,14 @@
     (unless (symbolp new-value)
       (error-of-type 'type-error
         :datum new-value :expected-type 'symbol
-        (TEXT "~S: The name of a class must be a symbol, not ~S")
-        '(setf class-name) new-value))
+        (ENGLISH "~S: The name of a class must be a symbol, not ~S")
+        '(setf class-name) new-value
+    ) )
     (when (built-in-class-p class)
       (error-of-type 'error
-        (TEXT "~S: The name of the built-in class ~S cannot be modified")
-        '(setf class-name) class))
+        (ENGLISH "~S: The name of the built-in class ~S cannot be modified")
+        '(setf class-name) class
+    ) )
     (setf (class-classname class) new-value)
 ) )
 
@@ -3342,22 +3466,24 @@
 
 (defgeneric no-applicable-method (gf &rest args)
   (:method ((gf t) &rest args)
-    (let* ((reqanz (sig-req-num (gf-signature gf)))
+    (let* ((reqanz (first (gf-signature gf)))
            (methods (gf-methods gf))
            (dispatching-arg (single-dispatching-arg reqanz methods)))
       (if dispatching-arg
         (error-of-type 'type-error
           :datum (first args)
           :expected-type (dispatching-arg-type dispatching-arg methods)
-          (TEXT "~S: When calling ~S with arguments ~S, no method is applicable.")
-          'no-applicable-method gf args)
+          (ENGLISH "~S: When calling ~S with arguments ~S, no method is applicable.")
+          'no-applicable-method gf args
+        )
         (error-of-type 'error
-          (TEXT "~S: When calling ~S with arguments ~S, no method is applicable.")
-          'no-applicable-method gf args)))))
+          (ENGLISH "~S: When calling ~S with arguments ~S, no method is applicable.")
+          'no-applicable-method gf args
+) ) ) ) )
 
 (defgeneric no-primary-method (gf &rest args)
   (:method ((gf t) &rest args)
-    (let* ((reqanz (sig-req-num (gf-signature gf)))
+    (let* ((reqanz (first (gf-signature gf)))
            (methods (mapcan #'(lambda (method)
                                 (when (equal (std-method-qualifiers method) '())
                                   (list method)
@@ -3369,11 +3495,13 @@
         (error-of-type 'type-error
           :datum (first args)
           :expected-type (dispatching-arg-type dispatching-arg methods)
-          (TEXT "~S: When calling ~S with arguments ~S, no primary method is applicable.")
-          'no-primary-method gf args)
+          (ENGLISH "~S: When calling ~S with arguments ~S, no primary method is applicable.")
+          'no-primary-method gf args
+        )
         (error-of-type 'error
-          (TEXT "~S: When calling ~S with arguments ~S, no primary method is applicable.")
-          'no-primary-method gf args)))))
+          (ENGLISH "~S: When calling ~S with arguments ~S, no primary method is applicable.")
+          'no-primary-method gf args
+) ) ) ) )
 
 (defun %no-next-method (method &rest args)
   (apply #'no-next-method (std-method-gf method) method args)
@@ -3381,8 +3509,9 @@
 (defgeneric no-next-method (gf method &rest args)
   (:method ((gf standard-generic-function) (method standard-method) &rest args)
     (error-of-type 'error
-      (TEXT "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called.")
-      'no-next-method gf args method '(call-next-method))))
+      (ENGLISH "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called.")
+      'no-next-method gf args method '(call-next-method)
+) ) )
 
 (defgeneric find-method (gf qualifiers specializers &optional errorp)
   (:method ((gf standard-generic-function) qualifiers specializers &optional (errorp t))
@@ -3401,7 +3530,7 @@
 
 (defgeneric compute-applicable-methods (gf args)
   (:method ((gf standard-generic-function) args)
-    (let ((reqanz (sig-req-num (gf-signature gf)))
+    (let ((reqanz (first (gf-signature gf)))
           (methods (gf-methods gf)))
       (if (>= (length args) reqanz)
         (let ((req-args (subseq args 0 reqanz)))
@@ -3419,20 +3548,21 @@
 
 (defgeneric method-qualifiers (method)
   (:method ((method standard-method))
-    (std-method-qualifiers method)))
+    (std-method-qualifiers method)
+) )
 
 (defgeneric function-keywords (method)
   (:method ((method standard-method))
-    (let ((sig (std-method-signature method)))
-      (values (sig-keywords sig) (sig-allow-p sig)))))
+    (values-list (cddddr (std-method-signature method)))
+) )
 
-(defgeneric slot-missing (class instance slot-name operation
-                          &optional new-value)
+(defgeneric slot-missing (class instance slot-name operation &optional new-value)
   (:method ((class t) instance slot-name operation &optional new-value)
     (declare (ignore instance new-value))
     (error-of-type 'error
-      (TEXT "~S: The class ~S has no slot named ~S")
-      operation class slot-name)))
+      (ENGLISH "~S: The class ~S has no slot named ~S")
+      operation class slot-name
+) ) )
 
 (defgeneric slot-unbound (class instance slot-name)
   (:method ((class t) instance slot-name)
@@ -3440,34 +3570,29 @@
     (error-of-type 'unbound-slot
       :name slot-name
       :instance instance
-      (TEXT "~S: The slot ~S of ~S has no value")
-      'slot-value slot-name instance)))
+      (ENGLISH "~S: The slot ~S of ~S has no value")
+      'slot-value slot-name instance
+) ) )
 
 (defgeneric print-object (object stream)
   (:method ((object standard-object) stream)
-    (if *print-readably*
-        (let ((form (make-init-form object)))
-          (if form
-              (write (sys::make-load-time-eval form) :stream stream)
-              (print-unreadable-object (object stream :type t :identity t))))
-        (print-unreadable-object (object stream :type t :identity t))))
+    (print-unreadable-object (object stream :type t :identity t))
+  )
   (:method ((object structure-object) stream)
-    (system::print-structure object stream))
+    (system::print-structure object stream)
+  )
   (:method ((object class) stream)
-    (if *print-readably*
-        (write (sys::make-load-time-eval
-                `(find-class ',(class-classname object)))
-               :stream stream)
-        (print-unreadable-object (object stream :type t)
-          (write (class-classname object) :stream stream))))
+    (print-class object stream)
+  )
   (:method ((object standard-method) stream)
-    (print-std-method object stream)))
+    (print-std-method object stream)
+) )
 
 ; Noch ein DEFSTRUCT-Hook
 (defun defstruct-remove-print-object-method (name)
-  (let ((method (find-method #'print-object nil
-                             (list (find-class name) <t>) nil)))
-    (when method (remove-method #'print-object method))))
+  (let ((method (find-method #'print-object nil (list (find-class name) <t>) nil)))
+    (when method (remove-method #'print-object method))
+) )
 
 ;; 28.1.9. Object creation and initialization
 
@@ -3560,23 +3685,24 @@
       )
 ) ) )
 
-;;; collect all keywords from a list of applicable methods
+; Aus einer Liste von anwendbaren Methoden alle Keywords sammeln:
 (defun valid-initarg-keywords (class methods)
   (let ((signatures (mapcar #'std-method-signature methods)))
-    ;; "A method that has &rest but not &key does not affect the set of
-    ;;  acceptable keyword srguments."
-    (setq signatures (delete-if-not #'sig-keys-p signatures))
-    ;; "The presence of &allow-other-keys in the lambda list of an applicable
-    ;;  method disables validity checking of initialization arguments."
-    ;; (ANSI CL section 7.1.2)
-    (if (some #'sig-allow-p signatures)
+    ; "A method that has &rest but not &key does not affect the set of
+    ;  acceptable keyword srguments."
+    (setq signatures (delete-if-not #'fourth signatures))
+    ; "The presence of &allow-other-keys in the lambda list of an applicable
+    ;  method disables validity checking of initialization arguments."
+    ; (ANSI CL section 7.1.2)
+    (if (some #'sixth signatures)
       't
-      ;; "The keyword name of each keyword parameter specified in the method's
-      ;;  lambda-list becomes an initialization argument for all classes for
-      ;;  which the method is applicable."
+      ; "The keyword name of each keyword parameter specified in the method's
+      ;  lambda-list becomes an initialization argument for all classes for
+      ;  which the method is applicable."
       (remove-duplicates
-       (append (class-valid-initargs class) (mapcap #'sig-keywords signatures))
-       :from-end t))))
+        (append (class-valid-initargs class) (mapcap #'fifth signatures))
+        :from-end t
+) ) ) )
 
 ; NB: Beim Berechnen einer effektiven Methode kommt es auf die restlichen
 ; Argumente nicht an.
@@ -3662,7 +3788,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-object) (find-class 't))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 2 :rest-p t)))
+    :signature '(2 0 t () () ())
+) )
 (do-defmethod 'shared-initialize
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -3671,7 +3798,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-object) (find-class 't))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 2 :rest-p t)))
+    :signature '(2 0 t () () ())
+) )
 
 ; 28.1.12.
 (defgeneric reinitialize-instance (instance &rest initargs))
@@ -3719,7 +3847,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-object))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :signature '(1 0 t () () ())
+) )
 (do-defmethod 'reinitialize-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -3728,7 +3857,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-object))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :signature '(1 0 t () () ())
+) )
 ; Beim ersten REINITIALIZE-INSTANCE-Aufruf einer jeden Klasse merkt man sich die
 ; benötigte Information in *reinitialize-instance-table*.
 (defun initial-reinitialize-instance (instance &rest initargs)
@@ -3802,7 +3932,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-object))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :signature '(1 0 t () () ())
+) )
 (do-defmethod 'initialize-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -3811,7 +3942,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-object))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :signature '(1 0 t () () ())
+) )
 (defun initial-initialize-instance (instance &rest initargs)
   (let ((class (class-of instance)))
     (multiple-value-bind (valid-keywords ai-ef) (make-instance-table-entry1 class)
@@ -3852,7 +3984,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-class))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :signature '(1 0 t () () ())
+) )
 (do-defmethod 'allocate-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -3861,7 +3994,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-class))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :signature '(1 0 t () () ())
+) )
 
 ; 28.1.9.7.
 (defgeneric make-instance (class &rest initargs)
@@ -3923,7 +4057,8 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'standard-class))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :signature '(1 0 t () () ())
+) )
 (do-defmethod 'make-instance
   (make-standard-method
     :initfunction #'(lambda (gf) (declare (ignore gf))
@@ -3932,27 +4067,26 @@
     :wants-next-method-p nil
     :parameter-specializers (list (find-class 'structure-class))
     :qualifiers '()
-    :signature #s(compiler::signature :req-num 1 :rest-p t)))
+    :signature '(1 0 t () () ())
+) )
 (defun initial-make-instance (class &rest initargs)
-  (multiple-value-bind (valid-keywords ai-ef)
-      (make-instance-table-entry1 class)
-    ;; http://www.lisp.org/HyperSpec/Body/sec_7-1-2.html
-    ;; 7.1.2 Declaring the Validity of Initialization Arguments
+  (multiple-value-bind (valid-keywords ai-ef) (make-instance-table-entry1 class)
+    ; 28.1.9.2. validity of initialization arguments
     (unless (eq valid-keywords 't)
-      (sys::keyword-test initargs valid-keywords))
-    ;; call the effective method of ALLOCATE-INSTANCE:
+      (sys::keyword-test initargs valid-keywords)
+    )
+    ; effektive Methode von ALLOCATE-INSTANCE anwenden:
     (let ((instance (apply ai-ef class initargs)))
       (unless (eq (class-of instance) class)
         (error-of-type 'error
-          (TEXT "~S method for ~S returned ~S")
-          'allocate-instance class instance))
+          (ENGLISH "~S method for ~S returned ~S")
+          'allocate-instance class instance
+      ) )
       (multiple-value-bind (ii-ef si-ef) (make-instance-table-entry2 instance)
-        (setf (gethash class *make-instance-table*)
-              (vector valid-keywords ai-ef ii-ef si-ef))
-        ;; call the effective method of INITIALIZE-INSTANCE:
-        (apply ii-ef instance initargs))
-      ;; return the instance
-      instance)))
+        (setf (gethash class *make-instance-table*) (vector valid-keywords ai-ef ii-ef si-ef))
+        ; effektive Methode von INITIALIZE-INSTANCE anwenden:
+        (apply ii-ef instance initargs)
+) ) ) )
 
 
 ;; Users want to be able to create instances of subclasses of <standard-class>
@@ -3990,6 +4124,7 @@
   new-class-object
 )
 
+
 ;;; Utility functions
 
 ;; Returns the slot names of an instance of a slotted-class
@@ -3997,4 +4132,3 @@
 (defun slot-names (object)
   (mapcar #'slotdef-name (class-slots (class-of object))))
 
-(eval-when (compile load eval) (unuse-package '("I18N") "CLOS"))

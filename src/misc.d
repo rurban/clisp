@@ -55,26 +55,23 @@ LISPFUNN(lisp_implementation_version,0)
             ztime[11]=0;
             ye = atol(ztime+7);
           });
-          # no month ==> l_i_v_b_s must have been converted already
-          if (mo != 0) {
-            # YYYY-MM-DD HH:MM:SS
-            var char build_time[4+1+2+1+2 +1+ 2+1+2+1+2+1];
-            if (eq(unbound,Symbol_function(S(encode_universal_time)))) {
-              sprintf(build_time,"%04d-%02d-%02d %02d:%02d:%02d",
-                      ye,mo,da,ho,mi,se);
-            } else {
-              pushSTACK(fixnum(se));
-              pushSTACK(fixnum(mi));
-              pushSTACK(fixnum(ho));
-              pushSTACK(fixnum(da));
-              pushSTACK(fixnum(mo));
-              pushSTACK(fixnum(ye));
-              funcall(S(encode_universal_time),6);
-              sprintf(build_time,"%u",I_to_UL(value1));
-            }
-            O(lisp_implementation_version_built_string) =
-              ascii_to_string(build_time);
+          # YYYY-MM-DD HH:MM:SS
+          var char build_time[4+1+2+1+2 +1+ 2+1+2+1+2+1];
+          if (eq(unbound,Symbol_function(S(encode_universal_time)))) {
+            sprintf(build_time,"%04d-%02d-%02d %02d:%02d:%02d",
+                    ye,mo,da,ho,mi,se);
+          } else {
+            pushSTACK(fixnum(se));
+            pushSTACK(fixnum(mi));
+            pushSTACK(fixnum(ho));
+            pushSTACK(fixnum(da));
+            pushSTACK(fixnum(mo));
+            pushSTACK(fixnum(ye));
+            funcall(S(encode_universal_time),6);
+            sprintf(build_time,"%u",I_to_UL(value1));
           }
+          O(lisp_implementation_version_built_string) =
+            ascii_to_string(build_time);
           pushSTACK(ascii_to_string(") (built "));
           pushSTACK(O(lisp_implementation_version_built_string));
           count += 2;
@@ -248,146 +245,26 @@ LISPFUNN(machine_version,0)
 #ifdef HAVE_ENVIRONMENT
 
 LISPFUNN(get_env,1)
-# (EXT:GETENV string) return the string associated with the given string
-# in the OS Environment or NIL if no value
-{
-  var object arg = popSTACK();
-  if (!stringp(arg))
-    fehler_string(arg);
-  var const char* found;
-  with_string_0(arg,O(misc_encoding),envvar, {
-    begin_system_call();
-    found = getenv(envvar);
-    end_system_call();
-  });
-  if (found!=NULL)
-    value1 = asciz_to_string(found,O(misc_encoding));
-  else
-    value1 = NIL;
-  mv_count=1;
-}
-
-# Creates a string concatenating an environment variable and its value.
-# Like sprintf(buffer, "%s=%s", name, value);
-local char * cat_env_var (char * buffer, const char * name, uintL namelen,
-                          const char * value, uintL valuelen) {
-  memcpy(buffer,name,namelen);
-  if (value != NULL) {
-    buffer[namelen] = '=';
-    memcpy(buffer+namelen+1,value,valuelen);
-    buffer[namelen+1+valuelen] = 0;
-  } else
-    buffer[namelen] = 0;
-  return buffer;
-}
-
-# Modify the environment variables. putenv() is POSIX, but some BSD systems
-# only have setenv(). Therefore (and because it's simpler to use) we
-# implement this interface, but without the third argument.
-# clisp_setenv(name,value) sets the value of the environment variable `name'
-# to `value' and returns 0. Returns -1 if not enough memory.
-global int clisp_setenv (const char * name, const char * value) {
-  var uintL namelen = asciz_length(name);
-  var uintL valuelen = (value==NULL ? 0 : asciz_length(value));
-#if defined(HAVE_PUTENV)
-  var char* buffer = (char*)malloc(namelen+1+valuelen+1);
-  if (!buffer)
-    return -1; # no need to set errno = ENOMEM
-  return putenv(cat_env_var(buffer,name,namelen,value,valuelen));
-#elif defined(HAVE_SETENV)
-  return setenv(name,value,1);
-#else
-  # Uh oh, neither putenv() nor setenv(), have to frob the environment
-  # ourselves. Routine taken from glibc and fixed in several aspects.
-  extern char** environ;
-  var char** epp;
-  var char* ep;
-  var uintL envvar_count = 0;
-  for (epp = environ; (ep = *epp) != NULL; epp++) {
-    var const char * np = name;
-    # Compare *epp and name:
-    while (*np != '\0' && *np == *ep) { np++; ep++; }
-    if (*np == '\0' && *ep == '=')
-      break;
-    envvar_count++;
-  }
-  ep = *epp;
-  if (ep == NULL) {
-    if (value != NULL) {
-      # name not found in environ, add it.
-      # if value is NULL - nothing is to be done!
-      # Remember the environ, so that we can free it if we need
-      # to reallocate it again next time.
-      var static char** last_environ = NULL;
-      var char** new_environ = (char**) malloc((envvar_count+2)*sizeof(char*));
-      if (!new_environ)
-        return -1; # no need to set errno = ENOMEM
-      { # copy environ
-        var uintL count;
-        epp = environ;
-        for (count = 0; count < envvar_count; count++)
-          new_environ[count] = epp[count];
-      }
-      ep = (char*) malloc(namelen+1+valuelen+1);
-      if (!ep) {
-        free(new_environ); return -1; # no need to set errno = ENOMEM
-      }
-      new_environ[envvar_count] = cat_env_var(ep,name,namelen,value,valuelen);
-      new_environ[envvar_count+1] = NULL;
-      environ = new_environ;
-      if (last_environ != NULL)
-        free(last_environ);
-      last_environ = new_environ;
-    }
-  } else {
-    # name found, replace its value.
-    # We could be tempted to overwrite name's value directly if
-    # the new value is not longer than the old value. But that's
-    # not a good idea - maybe someone still has a pointer to
-    # this area around.
-    # should we free() the old value?!
-    ep = (char*) malloc(namelen+1+valuelen+1);
-    if (!ep)
-      return -1; # no need to set errno = ENOMEM
-    *epp = cat_env_var(ep,name,namelen,value,valuelen);
-  }
-  return 0;
-#endif
-}
-
-LISPFUNN(set_env,2)
-# (SYS::SETENV name value)
-# define the OS Environment variable NAME to have VALUE (string or NIL)
-{
-  if (!stringp(STACK_1)) fehler_string(STACK_1);
-  if (!stringp(STACK_0) && !nullp(STACK_0)) fehler_string(STACK_0);
-  var object value = popSTACK();
-  var object name = popSTACK();
-  var int ret;
-  with_string_0(name,O(misc_encoding),namez, {
-    begin_system_call();
-    if (nullp(value)) {
-      if (getenv(namez))
-        ret = clisp_setenv(namez,NULL);
-      else
-        ret = 0;
-    } else {
-      with_string_0(value,O(misc_encoding),valuez, {
-        ret = clisp_setenv(namez,valuez);
+# (SYSTEM::GETENV string) liefert den zu string im Betriebssystem-Environment
+# assoziierten String oder NIL.
+  {
+    var object arg = popSTACK();
+    if (stringp(arg)) {
+      var const char* found;
+      with_string_0(arg,O(misc_encoding),envvar, {
+        begin_system_call();
+        found = getenv(envvar);
+        end_system_call();
       });
+      if (!(found==NULL))
+        value1 = asciz_to_string(found,O(misc_encoding)); # gefunden -> String als Wert
+      else
+        value1 = NIL; # nicht gefunden -> Wert NIL
+    } else {
+      value1 = NIL; # Kein String -> Wert NIL
     }
-    end_system_call();
-  });
-  if (ret) {
-    pushSTACK(value);
-    pushSTACK(name);
-    pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,
-           GETTEXT("~ (~ ~): out of memory"));
+    mv_count=1;
   }
-  value1 = value;
-  mv_count = 1;
-}
 
 #endif
 
@@ -458,32 +335,62 @@ LISPFUNN(registry,2)
 
 #endif
 
-LISPFUNN(software_type,0) { # (SOFTWARE-TYPE), CLTL p. 448
-  value1 = CLSTEXT("ANSI C program"); mv_count=1;
-}
+LISPFUNN(software_type,0)
+# (SOFTWARE-TYPE), CLTL S. 448
+  {
+    value1 = OLS(software_type_string); mv_count=1;
+  }
 
-LISPFUNN(software_version,0) { # (SOFTWARE-VERSION), CLTL p. 448
-#if defined(GNU)
- #if defined(__cplusplus)
-  pushSTACK(CLSTEXT("GNU C++ "));
- #else
-  pushSTACK(CLSTEXT("GNU C "));
- #endif
-  pushSTACK(O(c_compiler_version));
-  value1 = string_concat(2);
-#else
- #if defined(__cplusplus)
-  value1 = CLSTEXT("C++ compiler");
- #else
-  value1 = CLSTEXT("C compiler");
- #endif
-#endif
-  mv_count=1;
-}
+LISPFUNN(software_version,0)
+# (SOFTWARE-VERSION), CLTL S. 448
+  {
+    #if defined(GNU)
+      value1 = O(software_version_string);
+      if (nullp(value1)) { # noch unbekannt?
+        pushSTACK(OLS(c_compiler_name));
+        pushSTACK(O(c_compiler_version));
+        value1 = O(software_version_string) = string_concat(2);
+      }
+    #else
+      value1 = OLS(software_version_string);
+    #endif
+    mv_count=1;
+  }
 
-LISPFUNN(identity,1) { # (IDENTITY object), CLTL p. 448
-  value1 = popSTACK(); mv_count=1;
-}
+LISPFUNN(current_language,0)
+# (SYS::CURRENT-LANGUAGE) liefert die aktuelle Sprache.
+  {
+    #ifndef GNU_GETTEXT
+      value1 = (ENGLISH ? S(english) : NIL);
+    #else # GNU_GETTEXT
+      if (nullp(O(current_language_cache))) {
+        O(current_language_cache) = OL(current_language);
+      }
+      value1 = O(current_language_cache);
+    #endif
+    mv_count=1;
+  }
+
+LISPFUNN(language,3)
+# (SYS::LANGUAGE english deutsch francais) liefert je nach der aktuellen
+# Sprache das entsprechende Argument.
+  {
+    #ifndef GNU_GETTEXT
+      value1 = (ENGLISH ? STACK_2 : NIL);
+    #else
+      if (!stringp(STACK_2))
+        fehler_string(STACK_2);
+      value1 = localized_string(STACK_2);
+    #endif
+    mv_count=1;
+    skipSTACK(3);
+  }
+
+LISPFUNN(identity,1)
+# (IDENTITY object), CLTL S. 448
+  {
+    value1 = popSTACK(); mv_count=1;
+  }
 
 LISPFUNN(address_of,1)
 # (SYS::ADDRESS-OF object) liefert die Adresse von object
@@ -556,5 +463,14 @@ LISPFUNN(set_ansi,1)
     Symbol_value(S(sequence_count_ansi)) = val;
     # (SETQ *COERCE-FIXNUM-CHAR-ANSI* val)
     Symbol_value(S(coerce_fixnum_char_ansi)) = val;
+    # *FEATURES*: PUSHNEW or DELETE
+    {
+      pushSTACK(S(Kansi_cl)); pushSTACK(Symbol_value(S(features)));
+      if (eq(val,T))      # (ADJOIN :ANSI-CL *FEATURES*)
+        funcall(L(adjoin),2);
+      else                # (DELETE :ANSI-CL *FEATURES*)
+        funcall(L(delete),2);
+      Symbol_value(S(features)) = value1;
+    }
     value1 = val; mv_count = 1;
   }

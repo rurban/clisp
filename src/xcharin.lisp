@@ -3,18 +3,19 @@
 ;; This file provides the data type used by the keyboard stream,
 ;; and CLtL1 compatible character functions operating on font and bits.
 
-(in-package "EXT")
+(in-package "LISP")
 (export '(char-bits char-font char-font-limit char-bits-limit
           char-control-bit char-meta-bit char-super-bit char-hyper-bit
-          make-char char-bit set-char-bit))
+          make-char char-bit set-char-bit
+)        )
 
 (in-package "SYSTEM")
 
 (defconstant char-font-limit 16) ; for backward compatibility only
 (defconstant char-bits-limit 16)
                    ;; CLtL1, p. 233, 234
-(defconstant char-int-limit     ; CLISP specific
-  (* char-code-limit char-font-limit char-bits-limit))
+(defconstant char-int-limit (* char-code-limit char-font-limit char-bits-limit))
+                   ;; CLISP specific
 
 (defstruct input-character
   (char nil :type (or null character))
@@ -32,7 +33,7 @@
 (defun fehler-char-arg (arg caller)
   (error-of-type 'type-error
     :datum arg :expected-type 'character
-    (TEXT "~: argument ~S is not a character")
+    (ENGLISH "~: argument ~S is not a character")
     caller arg
 ) )
 
@@ -53,7 +54,7 @@
     arg
     (error-of-type 'type-error
       :datum arg :expected-type 'integer
-      (TEXT "~S: the font argument should be an integer, not ~S")
+      (ENGLISH "~S: the font argument should be an integer, not ~S")
       caller arg
 ) ) )
 
@@ -62,7 +63,7 @@
     arg
     (error-of-type 'type-error
       :datum arg :expected-type 'integer
-      (TEXT "~S: the bits argument should be an integer, not ~S")
+      (ENGLISH "~S: the bits argument should be an integer, not ~S")
       caller arg
 ) ) )
 
@@ -84,7 +85,7 @@
     (:HYPER   char-hyper-bit)
     (t (error-of-type 'type-error
          :datum arg :expected-type '(MEMBER :CONTROL :META :SUPER :HYPER)
-         (TEXT "~S: the only bit names are ~S, ~S, ~S, ~S, not ~S")
+         (ENGLISH "~S: the only bit names are ~S, ~S, ~S, ~S, not ~S")
          caller ':CONTROL ':META ':SUPER ':HYPER arg
 ) ) )  )
 

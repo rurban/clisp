@@ -1,4 +1,4 @@
-# -*- Makefile -*- for libiconv/src
+# Makefile for libiconv/src
 
 #### Start of system configuration section. ####
 
@@ -41,8 +41,9 @@ srcdir = .
 # Programs used by "make":
 CC = cl
 CFLAGS = $(MFLAGS) $(WARN_CFLAGS) $(OPTIMFLAGS)
+CPP = cl -E
 INCLUDES = -I. -I$(srcdir) -I..\include -I$(srcdir)\..\include
-RM = -del
+RM = del
 
 #### End of system configuration section. ####
 
@@ -51,7 +52,7 @@ SHELL = /bin/sh
 all : iconv.exe
 
 iconv.exe : $(srcdir)/iconv.c ../lib/iconv.lib
-	$(CC) $(INCLUDES) -I..\lib $(CFLAGS) $(srcdir)/iconv.c ../lib/iconv.lib -Feiconv.exe
+	$(CC) $(CFLAGS) $(INCLUDES) -I..\lib $(srcdir)/iconv.c ../lib/iconv.lib -Feiconv.exe
 	$(RM) iconv.obj
 !if $(DLL)
 	copy ..\lib\iconv.dll iconv.dll

@@ -1,8 +1,8 @@
-;;; Copyright (C) 2000-2002 by Sam Steingold
+;;; Copyright (C) 2000 by Sam Steingold
 ;;; This file is a part of CLISP (http://clisp.cons.org), and, as such,
 ;;; is distributed under the GNU GPL (http://www.gnu.org/copyleft/gpl.html)
 
-(in-package "EXT")
+(in-package "LISP")
 
 (export '(clhs clhs-root *browsers* *browser* read-from-file browse-url))
 
@@ -10,9 +10,19 @@
 
 (defvar *clhs-table* nil)       ; the hash table
 
+(defun clhs-file ()
+  ; $(lisplibdir)/data/clhs.txt
+  (merge-pathnames
+   "clhs.txt"
+   (let ((libdir (sys::lib-directory)))
+     (make-pathname
+      :host (pathname-host libdir)
+      :device (pathname-device libdir)
+      :directory #+unix (append (pathname-directory libdir) (list "data"))
+                 #-unix (pathname-directory libdir)))))
+
 (defvar *browsers*              ; alist of browsers & commands
   '((:netscape "netscape" "-remote" "openURL(~a,new-window)")
-    (:konqueror "kfmclient" "openURL" "~a")
     (:lynx "xterm" "-e" "lynx" "~a")
     (:w3m "xterm" "-e" "w3m" "~a")
     (:mmm "mmm" "-external" "~a")
@@ -20,10 +30,8 @@
     (:emacs-w3 "gnudoit" "-q" "(w3-fetch \"~a\")")))
 (defvar *browser* nil)          ; the default browser
 
-(defun read-from-file (file &key (out *standard-output*)
-                       (package (find-package "KEYWORD")))
+(defun read-from-file (file &key (out *standard-output*))
   "Read an object from a file.
-The keyword argument KEYWORD specifies the package to read in.
 The keyword argument OUT specifies the output for log messages."
   (let ((beg-real (get-internal-real-time)))
     (prog1 (with-open-file (str file :direction :input)
@@ -32,10 +40,9 @@ The keyword argument OUT specifies the output for log messages."
                        file (file-length str))
                (force-output (if (eq out t) *standard-output* out)))
              (with-standard-io-syntax
-               (let ((*package* (etypecase package
-                                  (package package)
-                                  ((or string symbol)
-                                   (find-package package)))))
+               ; Look up the symbols in package COMMON-LISP, not
+               ; COMMON-LISP-USER, which is under user's control.
+               (let ((*package* (find-package "COMMON-LISP")))
                  (read str))))
       (when out
         (format out "done [~,2f sec]~%"
@@ -55,21 +62,17 @@ The keyword argument OUT specifies the output for log messages."
            (when out
              (format out "~&;; running [~s~{ ~s~}]..." (car command) args)
              (force-output (if (eq out t) *standard-output* out)))
-           (run-program (car command) :arguments args :wait nil)
+           (run-program (car command) :arguments args)
            (when out
              (format out "done~%")))
           ((format t "~s: no browser specified; please point your browser at
  --> <URL:~a>~%" 'browse-url url)))))
 
-(defun clhs (symbol-string &key (browser *browser*) (out *standard-output*))
+(defun clhs (symbol-string &key (browser :netscape) (out *standard-output*))
   "Dump the CLHS doc for the symbol."
   (unless *clhs-table*
-    ;; read in the COMMON-LISP package: the CLHS symbols are supposed to be
-    ;; there, but unlock it in case some symbols are still not implemented
-    (without-package-lock ("COMMON-LISP")
-      (setq *clhs-table* (read-from-file (clisp-data-file "clhs.txt")
-                                         :out out :package "COMMON-LISP"))))
-  (let* ((clhs-root (clhs-root))
+    (setq *clhs-table* (read-from-file (clhs-file) :out out)))
+  (let* ((clhs-root (lisp::clhs-root))
          (slash (if (and (> (length clhs-root) 0)
                          (eql (char clhs-root (- (length clhs-root) 1)) #\/))
                   ""

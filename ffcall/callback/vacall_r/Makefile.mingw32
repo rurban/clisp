@@ -1,4 +1,4 @@
-# -*-Makefile-*- for vacall
+# Makefile for vacall
 
 #### Start of system configuration section. ####
 
@@ -17,7 +17,7 @@ includedir = $(prefix)/include
 mandir = $(prefix)/man
 
 # Programs used by "make":
-CC = gcc -mno-cygwin
+CC = gcc
 CFLAGS = -O
 CPP = gcc -E
 INCLUDES = -I. -I$(srcdir)
@@ -26,7 +26,7 @@ AR = ar
 AR_FLAGS = rc
 MV = mv
 LN = cp
-RM = rm -f
+RM = del
 
 # Programs used by "make install":
 INSTALL = @INSTALL@
@@ -56,8 +56,8 @@ vacall.o : vacall-$(CPU).o
 vacall-i386.o : vacall-i386.asm
 	$(CC) -c -x assembler vacall-i386.asm
 
-vacall-i386.asm : $(srcdir)/vacall-i386-macro.S
-	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-i386-macro.S | grep -v '^ *#line' | grep -v '^#ident' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > vacall-i386.asm
+vacall-i386.asm : $(srcdir)/vacall-i386.S
+	$(CPP) $(ASPFLAGS) $(srcdir)/vacall-i386.S | grep -v '^ *#line' | grep -v '^#ident' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > vacall-i386.asm
 
 misc.o : $(srcdir)/misc.c vacall_r.h config.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/misc.c
@@ -70,8 +70,6 @@ libvacall.a : $(OBJECTS)
 	$(AR) $(AR_FLAGS) libvacall.a $(OBJECTS)
 
 check : all
-
-extracheck : all
 
 mostlyclean : clean
 

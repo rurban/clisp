@@ -778,7 +778,7 @@
               return elt_compare_T_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return elt_compare_T_Char(dv1,index1,dv2,index2,count);
-            default: NOTREACHED;
+            default: NOTREACHED
           }
         case Array_type_sbvector: # Simple-Bit-Vector
           switch (Array_type(dv2)) {
@@ -798,7 +798,7 @@
               return elt_compare_Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return false; # because count > 0
-            default: NOTREACHED;
+            default: NOTREACHED
           }
         case Array_type_sb2vector:
           switch (Array_type(dv2)) {
@@ -818,7 +818,7 @@
               return elt_compare_2Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return false; # because count > 0
-            default: NOTREACHED;
+            default: NOTREACHED
           }
         case Array_type_sb4vector:
           switch (Array_type(dv2)) {
@@ -838,7 +838,7 @@
               return elt_compare_4Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return false; # because count > 0
-            default: NOTREACHED;
+            default: NOTREACHED
           }
         case Array_type_sb8vector:
           switch (Array_type(dv2)) {
@@ -858,7 +858,7 @@
               return elt_compare_8Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return false; # because count > 0
-            default: NOTREACHED;
+            default: NOTREACHED
           }
         case Array_type_sb16vector:
           switch (Array_type(dv2)) {
@@ -878,7 +878,7 @@
               return elt_compare_16Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return false; # because count > 0
-            default: NOTREACHED;
+            default: NOTREACHED
           }
         case Array_type_sb32vector:
           switch (Array_type(dv2)) {
@@ -898,7 +898,7 @@
               return elt_compare_32Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return false; # because count > 0
-            default: NOTREACHED;
+            default: NOTREACHED
           }
         case Array_type_sstring: # Simple-String
           switch (Array_type(dv2)) {
@@ -913,9 +913,9 @@
               return false; # because count > 0
             case Array_type_sstring: # Simple-String
               return elt_compare_Char_Char(dv1,index1,dv2,index2,count);
-            default: NOTREACHED;
+            default: NOTREACHED
           }
-        default: NOTREACHED;
+        default: NOTREACHED
       }
     }
   # Now EQUALP itself.
@@ -963,7 +963,6 @@
           case_b16vector: # 16Bit-Vektor
           case_b32vector: # 32Bit-Vektor
           case_string: # String
-          case_weakkvt: # weak-key-value-table
           case_vector: # (VECTOR T)
             if (!vectorp(obj2)) goto no;
             # obj1, obj2 beide Vektoren.
@@ -1099,7 +1098,7 @@
           case_machine: # Maschinenpointer
             goto no; # hätte schon EQ sein müssen
           #endif
-          default: NOTREACHED;
+          default: NOTREACHED
         }
       }
      no: return false;
@@ -1403,6 +1402,60 @@ LISPFUNN(simple_bit_vector_p,1)
     value1 = (simple_bit_vector_p(Atype_Bit,STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
   }
 
+LISPFUNN(commonp,1)
+# (COMMONP object), CLTL S. 76
+  {
+    var object arg = popSTACK();
+    # Fallunterscheidung nach Typ:
+    #ifdef TYPECODES
+    switch (typecode(arg))
+    #else
+    if (orecordp(arg)) {
+      goto case_orecord;
+    } elif (consp(arg)) {
+      goto case_cons;
+    } elif (immediate_number_p(arg)) {
+      goto case_number;
+    } elif (charp(arg)) {
+      goto case_char;
+    } else switch (0)
+    #endif
+    {
+      case_cons: goto yes; # Conses ja
+      case_symbol: goto yes; # Symbole ja
+      case_number: goto yes; # Zahlen ja
+      case_array: goto yes; # Arrays ja
+      case_structure: goto yes; # Structures ja
+      case_stream: goto yes; # Streams ja
+      case_char: # Character: nur Standard-Char
+        # (STANDARD-CHAR-P object) als Wert:
+        pushSTACK(arg); funcall(L(standard_char_p),1); return;
+      case_orecord: # sonstige Records:
+        # nur Package, Hash-Table, Readtable, Pathname, Random-State [,Structure, Stream]
+        switch (Record_type(arg)) {
+          case_Rectype_Symbol_above;
+          case_Rectype_number_above;
+          case_Rectype_array_above;
+          case_Rectype_Structure_above;
+          case_Rectype_Stream_above;
+          case Rectype_Hashtable:
+          case Rectype_Package:
+          case Rectype_Readtable:
+          case Rectype_Pathname:
+          #ifdef LOGICAL_PATHNAMES
+          case Rectype_Logpathname:
+          #endif
+          case Rectype_Random_State:
+            goto yes;
+          default:
+            goto no;
+        }
+      default: goto no;
+    }
+   no: value1 = NIL; mv_count=1; return;
+   yes: value1 = T; mv_count=1; return;
+  }
+
 LISPFUNN(type_of,1)
 # (TYPE-OF object), CLTL S. 52
   {
@@ -1455,15 +1508,6 @@ LISPFUNN(type_of,1)
         #endif
       case_svector: # Simple-Vector -> (SIMPLE-VECTOR dim0)
         pushSTACK(S(simple_vector)); goto vectors;
-      case_weakkvt: # weak-key-value-table -> (WEAK-KEY-VALUE-TABLE dim)
-        pushSTACK(arg);
-        pushSTACK(allocate_cons());
-        value1 = allocate_cons();
-        Car(value1) = S(weak_kvtable);
-        Cdr(value1) = popSTACK();
-        Car(Cdr(value1)) = fixnum(Weakkvt_length(popSTACK())%2);
-        Cdr(Cdr(value1)) = NIL;
-        break;
       case_ostring: # sonstiger String -> ([BASE-]STRING dim0)
         #if (base_char_code_limit == char_code_limit)
         pushSTACK(S(base_string)); goto vectors;
@@ -1555,7 +1599,6 @@ LISPFUNN(type_of,1)
           case_Rectype_Sb32vector_above;
           case_Rectype_Sstring_above;
           case_Rectype_Svector_above;
-          case_Rectype_WeakKVT_above;
           case_Rectype_ostring_above;
           case_Rectype_ovector_above;
           case_Rectype_obvector_above;
@@ -1777,7 +1820,7 @@ LISPFUNN(class_of,1)
       case_sb8vector: case_ob8vector:
       case_sb16vector: case_ob16vector:
       case_sb32vector: case_ob32vector:
-      case_svector: case_ovector: case_weakkvt: # General-Vector -> <vector>
+      case_svector: case_ovector: # General-Vector -> <vector>
         value1 = O(class_vector); break;
       case_mdarray: # sonstiger Array -> <array>
         value1 = O(class_array); break;
@@ -1821,7 +1864,6 @@ LISPFUNN(class_of,1)
           case_Rectype_Sb32vector_above;
           case_Rectype_ob32vector_above;
           case_Rectype_Svector_above;
-          case_Rectype_WeakKVT_above;
           case_Rectype_ovector_above;
           case_Rectype_mdarray_above;
           case_Rectype_Closure_above;
@@ -1930,13 +1972,23 @@ LISPFUN(find_class,1,2,norest,nokey,0,NIL)
 #       class
 # ) ) )
   {
-    if (!symbolp(STACK_2)) fehler_symbol(STACK_2);
+    if (!symbolp(STACK_2)) {
+      pushSTACK(STACK_2); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_(2+2));
+      pushSTACK(S(find_class));
+      fehler(type_error,
+             GETTEXT("~: argument ~ is not a symbol")
+            );
+    }
     var object clas = get(STACK_2,S(closclass)); # (GET symbol 'CLOS::CLOSCLASS)
     if_classp(clas, { value1 = clas; } , {
       if (!nullp(STACK_1)) {
         pushSTACK(STACK_2);
         pushSTACK(S(find_class));
-        fehler(error,GETTEXT("~: ~ does not name a class"));
+        fehler(error,
+               GETTEXT("~: ~ does not name a class")
+              );
       }
       value1 = NIL;
     });
@@ -1944,147 +1996,90 @@ LISPFUN(find_class,1,2,norest,nokey,0,NIL)
     skipSTACK(3);
   }
 
-# UP: expand all DEFTYPE definitions in the type spec
-# (recursively, unless once_p is true)
-# > type_spec: Lisp object
-# < result: the expansion (when not a deftyped type, returns the argument)
-global object expand_deftype (object type_spec, bool once_p) {
-  var uintL max_depth = posfixnump(Symbol_value(S(deftype_depth_limit))) ?
-    posfixnum_to_L(Symbol_value(S(deftype_depth_limit))) :
-    posfixnum_to_L(Symbol_value(S(most_positive_fixnum)));
-  pushSTACK(type_spec);
-  pushSTACK(TheSubr(subr_self)->name);
- start:
-  if (max_depth > 0) max_depth--;
-  else { # too many nested DEFTYPEs
-    # type_spec & TheSubr(subr_self)->name are already on the stack
-    fehler(error,GETTEXT("~: type definition for ~ exceeds depth limit, maybe recursive"));
-  }
-  if (symbolp(type_spec)) { # (GET type-spec 'DEFTYPE-EXPANDER)
-    var object expander = get(type_spec,S(deftype_expander));
-    if (!eq(expander,unbound)) {
-      pushSTACK(type_spec);
-      pushSTACK(expander);
-      var object new_cons = allocate_cons();
-      expander = popSTACK();
-      Car(new_cons) = popSTACK(); # new_cons = (list type-spec)
-      pushSTACK(new_cons); funcall(expander,1); # call expander
-      type_spec = value1; # use the return value as the new type-spec
-      if (!once_p) goto start;
-    }
-  } else if (mconsp(type_spec) && symbolp(Car(type_spec))) {
-    # (GET (CAR type-spec) 'DEFTYPE-EXPANDER)
-    var object expander = get(Car(type_spec),S(deftype_expander));
-    if (!eq(expander,unbound)) {
-      pushSTACK(type_spec); funcall(expander,1); # call expander
-      type_spec = value1; # use the return value as the new type-spec
-      if (!once_p) goto start;
-    }
-  }
-  skipSTACK(2);
-  return type_spec;
-}
-
-LISPFUN(expand_deftype,1,1,norest,nokey,0,NIL)
-# (SYS::EXPAND-DEFTYPE type-spec &optional once-p)
-#   ==> expanded, user-defined-p
-{
-  var object once_p = popSTACK();
-  value1 = expand_deftype(STACK_0,(eq(once_p,unbound) || eq(once_p,NIL) ?
-                                   false : true));
-  value2 = (eq(STACK_0,value1) ? NIL : T);
-  skipSTACK(1);
-  mv_count = 2;
-}
-
-# UP: coerce STACK_1 to result_type (a sequence).
-# check that the result is of type type.
-# set value1 to the result.
-# can trigger GC
-local Values coerce_sequence_check (object type, object result_type) {
-  pushSTACK(type);
-  # make new sequence:
-  var object new_seq = (coerce_sequence(STACK_2,result_type,true),value1);
-  # and re-check with TYPEP:
-  pushSTACK(new_seq); pushSTACK(STACK_(0+1)); STACK_(0+2) = new_seq;
-  funcall(S(typep),2); # (TYPEP new_seq type)
-  if (!nullp(value1)) { # yes -> new_seq is the value
-    value1 = popSTACK();
-  } else { # does not match because of SIMPLE-... -> copy new_seq:
-    funcall(L(copy_seq),1); # (COPY-SEQ new_seq)
-  }
-}
-
 LISPFUNN(coerce,2)
 # (COERCE object result-type), CLTL S. 51
-# Method:
-# (TYPEP object result-type) -> return object
-#  first, expand deftype in result-type
-# result-type -- a type symbol:
-#   type = T -> return object
-#   type = CHARACTER, STRING-CHAR -> call COERCE_CHAR
-#   type = BASE-CHAR -> call COERCE_CHAR and check
+# Methode:
+# (TYPEP object result-type) -> object zurück
+# result-type ein Symbol type:
+#   (get type 'DEFTYPE-EXPANDER) /= NIL ->
+#          mit (list result-type) als Argument aufrufen, zum Anfang
+#   type = T -> object zurück
+#   type = CHARACTER, STRING-CHAR -> COERCE_CHAR anwenden
+#   type = BASE-CHAR -> COERCE_CHAR anwenden und überprüfen
 #   type = FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT ->
-#          use arithmetic conversion
-#   type = COMPLEX -> chech for being a numeber
-#   type = FUNCTION -> function name or lambda expression --> function
+#          mit der Arithmetik umwandeln
+#   type = COMPLEX -> auf Zahl überprüfen
+#   type = FUNCTION -> Funktionsname oder Lambda-Ausdruck in Funktion umwandeln
 #   type = ARRAY, SIMPLE-ARRAY, VECTOR, SIMPLE-VECTOR, STRING, SIMPLE-STRING,
 #          BASE-STRING, SIMPLE-BASE-STRING, BIT-VECTOR, SIMPLE-BIT-VECTOR ->
 #          [hier auch result-type an object anpassen wie unten??]
-#          convert with COERCE-SEQUENCE, check with TYPEP, and
-#          copy with COPY-SEQ.
-#   otherwise convert with COERCE-SEQUENCE
-# result-type -- a cons with symbol TYPE as CAR:
-#   type = AND -> (coerce object (second result-type)), check with TYPEP
+#          mit COERCE-SEQUENCE umwandeln, mit TYPEP überprüfen
+#          und evtl. mit COPY-SEQ kopieren.
+#   sonst mit COERCE-SEQUENCE umwandeln
+# result-type ein Cons mit Symbol type als CAR:
+#   type = AND -> (coerce object (second result-type)), mit TYPEP überprüfen
+#   (get type 'DEFTYPE-EXPANDER) /= NIL ->
+#          mit result-type als Argument aufrufen, zum Anfang
 #   type = FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT ->
-#          use arithmetic conversion, then check with TYPEP
-#   type = COMPLEX -> check for being a numeber
-#          coerce Re to (second result-type).
-#          coerce Im to (or (third result-type) (second result-type))
-#          then call COMPLEX.
+#          mit der Arithmetik umwandeln, mit TYPEP überprüfen
+#   type = COMPLEX -> auf Zahl überprüfen,
+#          Realteil zum Typ (second result-type) coercen,
+#          Imaginärteil zum Typ (third result-type) bzw. (second result-type)
+#          coercen, COMPLEX anwenden.
 #   type = ARRAY, SIMPLE-ARRAY, VECTOR, SIMPLE-VECTOR, STRING, SIMPLE-STRING,
 #          BASE-STRING, SIMPLE-BASE-STRING, BIT-VECTOR, SIMPLE-BIT-VECTOR ->
-#          result-type an object anpassen, convert with COERCE-SEQUENCE
-#          (element-type indicated in result-type is also processed),
-#          check type and possibly copy with COPY-SEQ
-#          check the result-type.
-# otherwise Error.
+#          result-type an object anpassen, mit COERCE-SEQUENCE umwandeln (das
+#          verarbeitet auch den in result-type angegebenen element-type), auf
+#          type überprüfen und evtl. mit COPY-SEQ kopieren. Dann auf
+#          result-type überprüfen.
+# Sonst Error.
   {
-    # (TYPEP object result-type):
+    # (TYPEP object result-type) abfragen:
     pushSTACK(STACK_1); pushSTACK(STACK_(0+1)); funcall(S(typep),2);
-    if (!nullp(value1)) { # object as the value
+    if (!nullp(value1)) {
+      # object als Wert
      return_object:
       value1 = STACK_1; mv_count=1; skipSTACK(2); return;
     }
-    STACK_0 = expand_deftype(STACK_0,false);
-    # stack layout: object, result-type.
+   anfang: # Los geht's mit der Umwandlung.
+    # Stackaufbau: object, result-type.
     if (matomp(STACK_0)) {
       if (!symbolp(STACK_0)) goto fehler_type;
-      # result-type is a symbol
+      # result-type ist ein Symbol
       var object result_type = STACK_0;
+      {
+        var object expander = get(result_type,S(deftype_expander)); # (GET result-type 'DEFTYPE-EXPANDER)
+        if (!eq(expander,unbound)) {
+          pushSTACK(expander);
+          var object new_cons = allocate_cons();
+          expander = popSTACK();
+          Car(new_cons) = STACK_0; # new_cons = (list result-type)
+          pushSTACK(new_cons); funcall(expander,1); # Expander aufrufen
+          STACK_0 = value1; # Ergebnis als neues result-type verwenden
+          goto anfang;
+        }
+      }
       if (eq(result_type,T)) # result-type = T ?
-        goto return_object; # yes -> object as the value
+        goto return_object; # ja -> object als Wert
       if (eq(result_type,S(character)) || eq(result_type,S(string_char))
           #if (base_char_code_limit == char_code_limit)
           || eq(result_type,S(base_char))
           #endif
-         ) { # result-type = CHARACTER or STRING-CHAR [or BASE-CHAR] ?
-        # try to convert object to character
-        var object as_char = coerce_char(STACK_1);
+         ) { # result-type = CHARACTER oder STRING-CHAR [oder BASE-CHAR] ?
+        var object as_char = coerce_char(STACK_1); # object in Character umzuwandeln versuchen
         if (nullp(as_char)) {
-          pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
-          pushSTACK(O(type_designator_character)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_designator_character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           goto fehler_object;
         }
         value1 = as_char; mv_count=1; skipSTACK(2); return;
       }
       #if (base_char_code_limit < char_code_limit)
       if (eq(result_type,S(base_char))) { # result-type = BASE-CHAR ?
-        # try to convert object to character
-        var object as_char = coerce_char(STACK_1);
+        var object as_char = coerce_char(STACK_1); # object in Character umzuwandeln versuchen
         if (!base_char_p(as_char)) {
-          pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
-          pushSTACK(O(type_designator_base_char)); # TYPE-ERROR slot EXPECTED-TYPE
+          pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_designator_base_char)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           goto fehler_object;
         }
         value1 = as_char; mv_count=1; skipSTACK(2); return;
@@ -2095,25 +2090,26 @@ LISPFUNN(coerce,2)
           || eq(result_type,S(single_float)) # SINGLE-FLOAT ?
           || eq(result_type,S(double_float)) # DOUBLE-FLOAT ?
           || eq(result_type,S(long_float)) # LONG-FLOAT ?
-         ) { # convert object to float:
+         ) {
+        # object in Float umwandeln:
         subr_self = L(coerce);
         value1 = coerce_float(STACK_1,result_type); mv_count=1;
         skipSTACK(2); return;
       }
       if (eq(result_type,S(complex))) { # COMPLEX ?
-        if (!numberp(STACK_1)) { # object must be a number
-          pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
-          pushSTACK(S(number)); # TYPE-ERROR slot EXPECTED-TYPE
+        if (!numberp(STACK_1)) { # object muss eine Zahl sein
+          pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(S(number)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           goto fehler_object;
         }
         goto return_object;
       }
       if (eq(result_type,S(function))) { # FUNCTION ?
-        # viz. coerce_function()
+        # vgl. coerce_function()
         var object fun = STACK_1;
-        if (funnamep(fun)) { # Symbol or (SETF symbol) ?
-          value1 = sym_function(fun,NIL); # global function definition
-          if (!functionp(value1)) {
+        if (funnamep(fun)) { # Symbol oder (SETF symbol) ?
+          value1 = sym_function(fun,NIL); # globale Funktionsdefinition holen
+          if (!(subrp(value1) || closurep(value1) || ffunctionp(value1))) { # FUNCTIONP überprüfen
             if (functionmacrop(value1))
               value1 = TheFunctionMacro(value1)->functionmacro_function;
             else
@@ -2122,16 +2118,16 @@ LISPFUNN(coerce,2)
           mv_count=1;
           skipSTACK(2); return;
         }
-        if (!(consp(fun) && eq(Car(fun),S(lambda)))) { # object must be a lambda expression
-          pushSTACK(fun); # TYPE-ERROR slot DATUM
-          pushSTACK(O(type_designator_function)); # TYPE-ERROR slot EXPECTED-TYPE
+        if (!(consp(fun) && eq(Car(fun),S(lambda)))) { # object muss ein Lambda-Ausdruck sein
+          pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_designator_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           goto fehler_object;
         }
-        # empty environment for get_closure:
+        # leeres Environment für get_closure:
         var environment* env;
         make_STACK_env(NIL,NIL,NIL,NIL,O(top_decl_env), env = );
-        # build closure with lambdabody = (cdr fun), name = :LAMBDA :
-        value1 = get_closure(Cdr(fun),S(Klambda),false,env); mv_count=1;
+        # Closure bilden aus lambdabody = (cdr fun), name = :LAMBDA :
+        value1 = get_closure(Cdr(fun),S(Klambda),false,env); mv_count=1; # Closure erzeugen
         skipSTACK(2+5); return;
       }
       if (   eq(result_type,S(array)) # ARRAY ?
@@ -2144,52 +2140,67 @@ LISPFUNN(coerce,2)
           || eq(result_type,S(simple_base_string)) # SIMPLE-BASE-STRING ?
           || eq(result_type,S(bit_vector)) # BIT-VECTOR ?
           || eq(result_type,S(simple_bit_vector)) # SIMPLE-BIT-VECTOR ?
-         ) { # adapt result-type to the type of object
-        if (eq(result_type,S(array)) || eq(result_type,S(vector))) { # ARRAY or VECTOR ?
-          if (vectorp(STACK_1)) # already a vector?
-            goto return_object; # -> is a vector and array
-        } else if (eq(result_type,S(simple_array))) { # SIMPLE-ARRAY ?
-          if (simplep(STACK_1)) # already a simple-array?
+         ) {
+        # result-type an den Typ von object anpassen:
+        if (eq(result_type,S(array)) || eq(result_type,S(vector))) { # ARRAY oder VECTOR ?
+          if (vectorp(STACK_1)) # Schon ein Vektor?
+            goto return_object; # -> ist ein Vektor und Array
+        } elif (eq(result_type,S(simple_array))) { # SIMPLE-ARRAY ?
+          if (simplep(STACK_1)) # Schon ein simple-Array?
             goto return_object;
-          if (stringp(STACK_1)) # object is a string
+          if (stringp(STACK_1)) # object ein String
             result_type = S(simple_string); # -> result-type := SIMPLE-STRING
-          else if (bit_vector_p(Atype_Bit,STACK_1)) # object is a bit-vector
+          elif (bit_vector_p(Atype_Bit,STACK_1)) # object ein Bitvektor
             result_type = S(simple_bit_vector); # -> result-type := SIMPLE-BIT-VECTOR
-          # threat here byte-vectors!??
+          # Hier auch Byte-Vektoren behandeln!??
         }
-        coerce_sequence_check(result_type,result_type);
-        skipSTACK(2); return;
+        pushSTACK(result_type);
+        # neue Sequence bauen:
+        var object new_seq = (coerce_sequence(STACK_2,result_type),value1);
+        # und nochmals mit TYPEP überprüfen:
+        pushSTACK(new_seq); pushSTACK(STACK_(0+1)); STACK_(0+2) = new_seq;
+        funcall(S(typep),2); # (TYPEP new_seq result-type)
+        if (!nullp(value1)) {
+          # ja -> new_seq als Wert
+          value1 = STACK_0; mv_count=1; skipSTACK(2+1); return;
+        } else {
+          # Trifft wegen SIMPLE-... nicht zu -> new_seq kopieren:
+          funcall(L(copy_seq),1); # (COPY-SEQ new_seq)
+          skipSTACK(2); return;
+        }
       }
-      # result-type is some other symbol
-      # (coerce-sequence object result-type)
-      coerce_sequence(STACK_1,STACK_0,false);
-      if (eq(value1,nullobj)) { # failed!
-        pushSTACK(STACK_1);     # TYPE-ERROR slot DATUM (object)
-        pushSTACK(STACK_(0+1)); # TYPE-ERROR slot EXPECTED-TYPE (result-type)
-        goto fehler_object;
-      }
+      # result-type ist ein sonstiges Symbol
+      coerce_sequence(STACK_1,result_type); # (coerce-sequence object result-type)
       skipSTACK(2); return;
     } else {
-      # result-type is a cons
+      # result-type ist ein Cons.
       var object result_type = STACK_0;
       var object type = Car(result_type);
-      if (!symbolp(type)) goto fehler_type; # must be a symbol
+      if (!symbolp(type)) goto fehler_type; # muss ein Symbol sein
       if (eq(type,S(and))) { # (AND ...) ?
         if (matomp(Cdr(result_type))) # (AND)
-          goto return_object; # treat like T
-        # call (COERCE object (second result-type)):
+          goto return_object; # wie T behandeln
+        # (COERCE object (second result-type)) ausführen:
         pushSTACK(STACK_1); pushSTACK(Car(Cdr(result_type)));
         funcall(L(coerce),2);
-       check_return: # check new-object in value1 and then return it as value:
-        pushSTACK(value1); # save new-object
-        # check (TYPEP new-object result-type):
+       check_return: # new-object in value1 überprüfen und dann als Wert liefern:
+        pushSTACK(value1); # new-object retten
+        # (TYPEP new-object result-type) abfragen:
         pushSTACK(value1); pushSTACK(STACK_(0+1+1)); funcall(S(typep),2);
         if (nullp(value1)) {
-          # STACK_0 = new-object, TYPE-ERROR slot DATUM
-          pushSTACK(STACK_(0+1)); # TYPE-ERROR slot EXPECTED-TYPE
+          # STACK_0 = new-object, Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(STACK_(0+1)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           goto fehler_object;
         } else {
           value1 = STACK_0; mv_count=1; skipSTACK(3); return; # new-object
+        }
+      }
+      {
+        var object expander = get(type,S(deftype_expander)); # (GET type 'DEFTYPE-EXPANDER)
+        if (!eq(expander,unbound)) {
+          pushSTACK(result_type); funcall(expander,1); # Expander aufrufen
+          STACK_0 = value1; # Ergebnis als neues result-type verwenden
+          goto anfang;
         }
       }
       if (   eq(type,S(float)) # FLOAT ?
@@ -2197,32 +2208,33 @@ LISPFUNN(coerce,2)
           || eq(type,S(single_float)) # SINGLE-FLOAT ?
           || eq(type,S(double_float)) # DOUBLE-FLOAT ?
           || eq(type,S(long_float)) # LONG-FLOAT ?
-         ) { # convert object to float
+         ) {
+        # object in Float umwandeln:
         subr_self = L(coerce);
         value1 = coerce_float(STACK_1,result_type);
-        goto check_return; # and chech against result-type
+        goto check_return; # und auf result-type überprüfen
       }
       if (eq(type,S(complex))) { # COMPLEX ?
-        if (!numberp(STACK_1)) { # object must be a number
-          pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
-          pushSTACK(S(number)); # TYPE-ERROR slot EXPECTED-TYPE
+        if (!numberp(STACK_1)) { # object muss eine Zahl sein
+          pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(S(number)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           goto fehler_object;
         }
-        if (!mconsp(Cdr(result_type))) goto fehler_type; # (rest result-type) must be a cons
+        if (!mconsp(Cdr(result_type))) goto fehler_type; # (rest result-type) muss ein Cons sein
         result_type = Cdr(result_type);
-        var object rtype = Car(result_type); # type of Re
-        var object itype = # type of Im, defaults to rtype
+        var object rtype = Car(result_type); # Typ für den Realteil
+        var object itype = # Typ für den Imaginärteil, Default ist rtype
           (mconsp(Cdr(result_type)) ? Car(Cdr(result_type)) : rtype);
         pushSTACK(rtype); pushSTACK(itype);
-        # get Re and coerce to rtype:
+        # Realteil holen und zum Typ rtype coercen:
         pushSTACK(STACK_(1+2)); funcall(L(realpart),1);
         pushSTACK(value1); pushSTACK(STACK_(1+1)); funcall(L(coerce),2);
         STACK_1 = value1;
-        # get Im and coerce to itype:
+        # Imaginärteil holen und zum Typ itype coercen:
         pushSTACK(STACK_(1+2)); funcall(L(imagpart),1);
         pushSTACK(value1); pushSTACK(STACK_(0+1)); funcall(L(coerce),2);
         STACK_0 = value1;
-        # call COMPLEX on it:
+        # COMPLEX darauf anwenden:
         funcall(L(complex),2);
         skipSTACK(2); return;
       }
@@ -2236,48 +2248,69 @@ LISPFUNN(coerce,2)
           || eq(type,S(simple_base_string)) # SIMPLE-BASE-STRING ?
           || eq(type,S(bit_vector)) # BIT-VECTOR ?
           || eq(type,S(simple_bit_vector)) # SIMPLE-BIT-VECTOR ?
-         ) { # adapt result-type to the type of object
-        if (eq(type,S(array)) || eq(type,S(simple_array))
-            || eq(type,S(vector))) { # [SIMPLE-]ARRAY or VECTOR ?
+         ) {
+        # result-type an den Typ von object anpassen:
+        if (eq(type,S(array)) || eq(type,S(simple_array)) || eq(type,S(vector))) { # [SIMPLE-]ARRAY oder VECTOR ?
           var object type2 = Cdr(result_type);
           if (nullp(type2))
             goto adjust_eltype;
           if (!consp(type2)) goto fehler_type;
           if (eq(Car(type2),S(mal))) { # element-type = * (unspecified) ?
             type2 = Cdr(type2);
-           adjust_eltype: # here type2 = (cddr result-type)
-            # replace with a suitable element type:
-            pushSTACK(type2);
+           adjust_eltype: # Hier ist type2 = (cddr result-type)
+            # wird ersetzt durch geeigneten Elementtyp:
             pushSTACK(type);
+            pushSTACK(type2);
             if (arrayp(STACK_(1+2)))
               pushSTACK(array_element_type(STACK_(1+2)));
             else
               pushSTACK(T);
-            result_type = listof(2);
-            type = Car(result_type);
-            Cdr(Cdr(result_type)) = popSTACK();
+            {
+              var object new_cons = allocate_cons();
+              Car(new_cons) = popSTACK(); Cdr(new_cons) = popSTACK();
+              pushSTACK(new_cons);
+            }
+            {
+              var object new_cons = allocate_cons();
+              Cdr(new_cons) = popSTACK();
+              Car(new_cons) = type = popSTACK();
+              result_type = new_cons;
+            }
           }
         }
-        coerce_sequence_check(type,result_type);
+        pushSTACK(type);
+        # neue Sequence bauen:
+        var object new_seq = (coerce_sequence(STACK_2,result_type),value1);
+        # und nochmals mit TYPEP überprüfen:
+        pushSTACK(new_seq); pushSTACK(STACK_(0+1)); STACK_(0+2) = new_seq;
+        funcall(S(typep),2); # (TYPEP new_seq type)
+        if (!nullp(value1)) {
+          value1 = popSTACK();
+        } else {
+          # Trifft wegen SIMPLE-... nicht zu -> new_seq kopieren:
+          funcall(L(copy_seq),1); # (COPY-SEQ new_seq)
+        }
         goto check_return;
       }
-      # type is some other symbol
+      # type ist ein sonstiges Symbol
     }
    fehler_type:
-    # due to the TYPEP call, which checks result-type,
-    # this should never happen
     # result-type in STACK_0
     pushSTACK(S(coerce));
-    fehler(error,GETTEXT("~: invalid type specification ~"));
+    fehler(error,
+           GETTEXT("~: bad type specification ~")
+          );
    fehler_object:
-    # stack layout: object, result-type, type-error-datum, type-error-expected-type.
+    # Stackaufbau: object, result-type, type-error-datum, type-error-expected-type.
     pushSTACK(STACK_2); # result-type
     pushSTACK(STACK_(3+1)); # object
     pushSTACK(S(coerce));
-    fehler(type_error,GETTEXT("~: ~ cannot be coerced to type ~"));
+    fehler(type_error,
+           GETTEXT("~: ~ cannot be coerced to type ~")
+          );
   }
 
-# =============================================================================
+# ==============================================================================
 #                               Heap statistics
 
 # Notification from defstruct.lisp and clos.lisp.
@@ -2382,7 +2415,6 @@ enum { # The values of this enumeration are 0,1,2,...
   enum_hs_foreign_function,
   #endif
   enum_hs_weakpointer,
-  enum_hs_weakkvt,
   enum_hs_finalizer,
   #ifdef SOCKET_STREAMS
   enum_hs_socket_server,
@@ -2568,9 +2600,6 @@ local void heap_statistics_mapper(arg,obj,bytelen)
       case_svector: # Simple-Vector
         pighole = &locals->builtins[(int)enum_hs_simple_vector];
         break;
-      case_weakkvt: # weak-key-value-table
-        pighole = &locals->builtins[(int)enum_hs_weakkvt];
-        break;
       case_obvector: # sonstiger Bit-Vector
         pighole = &locals->builtins[(int)enum_hs_bit_vector];
         break;
@@ -2649,7 +2678,6 @@ local void heap_statistics_mapper(arg,obj,bytelen)
           case_Rectype_Sb32vector_above;
           case_Rectype_Sstring_above;
           case_Rectype_Svector_above;
-          case_Rectype_WeakKVT_above;
           case_Rectype_obvector_above;
           case_Rectype_ob2vector_above;
           case_Rectype_ob4vector_above;
@@ -2852,7 +2880,7 @@ LISPFUNN(gc_statistics,0)
       if (!posfixnump(flag)) {
         # No need to do statistics, throw old ones away.
         O(gc_statistics_list) = NIL; fun();
-      } else if (eq(flag,Fixnum_0)) {
+      } elif (eq(flag,Fixnum_0)) {
         # No need to do statistics, but keep old ones.
         fun();
       } else {
@@ -2861,14 +2889,8 @@ LISPFUNN(gc_statistics,0)
         init_hs_locals(locals);
         # Walk through memory.
         map_heap_objects(&heap_statistics_mapper,&locals);
-       #ifdef DEBUG_SPVW
-        asciz_out("with_gc_statistics: starting a GC...");
-       #endif
         # Now do the GC.
         fun();
-       #ifdef DEBUG_SPVW
-        asciz_out_1("done [%d]\n",free_space());
-       #endif
         # Walk through memory again, this time decrementing.
         locals.decrementing = true;
         map_heap_objects(&heap_statistics_mapper,&locals);

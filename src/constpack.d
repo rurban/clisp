@@ -18,28 +18,14 @@
 
 
 LISPPACK(clos,"CLOS")
-LISPPACK(ext,"EXT")
-LISPPACK(custom,"CUSTOM")
-#ifdef MULTITHREAD
-LISPPACK(mt,"THREADS")
-#endif
+LISPPACK(user,"USER")
 #ifdef SCREEN
 LISPPACK(screen,"SCREEN")
 #endif
 #ifdef DYNAMIC_FFI
 LISPPACK(ffi,"FFI")
 #endif
-#ifdef DIR_KEY
-LISPPACK(ldap,"LDAP")
-#endif
+
 #ifdef EXPORT_SYSCALLS
 LISPPACK(posix,"POSIX")
-#endif
-#ifdef SOCKET_STREAMS
-LISPPACK(socket,"SOCKET")
-#endif
-LISPPACK(i18n,"I18N")
-LISPPACK(gray,"GRAY")
-#ifdef GENERIC_STREAMS
-LISPPACK(gstream,"GSTREAM")
 #endif

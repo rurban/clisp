@@ -1,5 +1,3 @@
-;; -*- Lisp -*-
-
 (SETf LI1 '(A (B) ((C) (D)) )  VEC1 '#(0 1 2 3))
 #(0 1 2 3)
 
@@ -358,14 +356,13 @@ x
 (list y z w v u)
 (2 nil nil 8 9)
 
-(progn
-  (defsetf my-subseq (sequence start &optional end) (new-sequence)
-    `(progn (replace ,sequence ,new-sequence
-             :start1 ,start :end1 ,end)
-      ,new-sequence)) t)
+(progn (defsetf subseq (sequence start &optional end) (new-sequence)
+                       `(progn (replace ,sequence ,new-sequence
+                                        :start1 ,start :end1 ,end)
+                       ,new-sequence)) t)
 t
 
-(setf s "asdfg" (my-subseq s 1 3) "xy")
+(setf s "asdfg" (subseq s 1 3) "xy")
 "xy"
 
 s

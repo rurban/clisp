@@ -1231,7 +1231,7 @@
       #else
       var uintL manthi;
       #endif
-      { SAVE_NUM_STACK # save num_stack
+      SAVE_NUM_STACK # num_stack retten
       {
         var DS q;
         var DS r;
@@ -1243,7 +1243,7 @@
         end_arith_call();
         # Es ist 2^53 <= q < 2^55, also q.len = ceiling(54/intDsize)=ceiling(55/intDsize),
         # und r=0 genau dann, wenn r.len=0.
-        ASSERT(q.len==ceiling(54,intDsize));
+        ASSERT(q.len==ceiling(54,intDsize))
         {
           var uintD* ptr = q.MSDptr;
           manthi = get_max32_Dptr(23,ptr);
@@ -1324,7 +1324,7 @@
         }
         #endif
       }
-      RESTORE_NUM_STACK } # num_stack back
+      RESTORE_NUM_STACK # num_stack zurück
       #ifdef intQsize
       encode_DF(sign1,exp1,manthi, return);
       #else
@@ -1373,8 +1373,8 @@
       {
         var uintD mant [128/intDsize];
         set_32_Dptr(mant,(uint32)(mantx>>32)); set_32_Dptr(&mant[32/intDsize],(uint32)mantx);
-        set_32_Dptr(&mant[2*32/intDsize],0); set_32_Dptr(&mant[3*32/intDsize],0);
-        { SAVE_NUM_STACK # save num_stack
+          set_32_Dptr(&mant[2*32/intDsize],0); set_32_Dptr(&mant[3*32/intDsize],0);
+        SAVE_NUM_STACK # num_stack retten
         var DS wurzel;
         var bool exactp;
         UDS_sqrt(&mant[0],128/intDsize,&mant[128/intDsize], &wurzel, exactp=);
@@ -1400,7 +1400,7 @@
             mantx = mantx>>1; exp = exp+1;
           }
         }
-        RESTORE_NUM_STACK } # num_stack back
+        RESTORE_NUM_STACK # num_stack zurück
       }
       encode_DF(0,exp,mantx, return);
     }

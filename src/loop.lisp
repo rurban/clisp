@@ -2,9 +2,9 @@
 ;; (LOOP {loop-clause}*), CLTL2 S. 163,709-747
 ;; Bruno Haible 19.10.1991-20.10.1991, 22.10.1991, 6.6.1993, 28.6.1994,
 ;;   16.6.1996
-;; Sam Steingold 1999-03-11, 2000-02-24, 2001-08-16
+;; Sam Steingold 1999-03-11, 2000-02-24
 
-(in-package "COMMON-LISP")
+(in-package "LISP")
 (export '(loop loop-finish))
 (pushnew ':loop *features*)
 
@@ -44,7 +44,7 @@
 
 ;; (loop-syntax-error loop-keyword) reports a syntax error.
 (defun loop-syntax-error (loop-keyword)
-  (error (TEXT "~S: syntax error after ~A in ~S")
+  (error (ENGLISH "~S: syntax error after ~A in ~S")
          'loop (symbol-name loop-keyword) *whole*))
 
 ;; destructuring:
@@ -153,10 +153,10 @@
                 (t (setf (second declspec) `(OR NULL ,type)))))))
     bindings))
 
-;; A loop-initialization describes at macro expansion time the task
-;; to initialise one or more variables. The initialization may end up
+;; A loop-initialisation describes at macro expansion time the task
+;; to initialise one or more variables. The initialisation may end up
 ;; generating code in the prologue or in the inner loop.
-(defstruct (loop-initialization
+(defstruct (loop-initialisation
              (:copier nil)
              (:conc-name "LI-")
              (:predicate nil)
@@ -168,7 +168,7 @@
   declspecs          ; list of declspecs
   (endtest-forms nil) ; more forms to be inserted after the declarations,
                       ; within the tagbody.
-  ;; Properties of this initialization.
+  ;; Properties of this initialisation.
   everytime ; If the assignment has to be evaluated in the prologue only: NIL.
             ; If the assignment has to be evaluated once for each iteration:
             ; a cons, pointing at the right place in the stepafter-code.
@@ -184,20 +184,20 @@
                       ; so that these values
                       ; must be computed no later than in the initially-code.
 
-#+CLISP (remprop 'loop-initialization 'sys::defstruct-description)
+#+CLISP (remprop 'loop-initialisation 'sys::defstruct-description)
 
-; (wrap-initializations initializations form) wickelt eine (umgedrehte!)
+; (wrap-initialisations initialisations form) wickelt eine (umgedrehte!)
 ; Liste von Initialisierungen um form herum und liefert die neue Form.
-(defun wrap-initializations (initializations form)
-  (dolist (initialization initializations)
-    (let ((name (li-specform initialization))
-          (bindings (li-bindings initialization))
-          (declarations (li-declspecs initialization)))
+(defun wrap-initialisations (initialisations form)
+  (dolist (initialisation initialisations)
+    (let ((name (li-specform initialisation))
+          (bindings (li-bindings initialisation))
+          (declarations (li-declspecs initialisation)))
       (setq form
             `(,name
               ,@(case name (MULTIPLE-VALUE-BIND bindings) (LET `(,bindings)))
               ,@(if declarations `((DECLARE ,@declarations)))
-              ,@(li-endtest-forms initialization)
+              ,@(li-endtest-forms initialisation)
               ,form))))
   form)
 
@@ -219,7 +219,7 @@
         (accu-vars-nil nil) ; Akkumulationsvariablen mit Initialwert NIL
         (accu-vars-0 nil) ; Akkumulationsvariablen mit Initialwert 0
         (accu-declarations nil) ; Typdeklarationen (umgedrehte Liste von declspecs)
-        (initializations nil) ; Bindungen: (init ...) (umgedrehte Liste)
+        (initialisations nil) ; Bindungen: (init ...) (umgedrehte Liste)
         (seen-for-as-= nil) ; schon eine FOR-AS-= Klausel gesehen?
         (seen-endtest nil) ; schon eine FOR-AS Klausel mit Abbruchbedingung gesehen?
         (initially-code nil) ; initially-Code (umgedrehte Liste)
@@ -251,7 +251,7 @@
        (parse-var-typespec () ;; parse var [typespec]
          ;; return the variable pattern and the list of declspecs
          (unless (consp body-rest)
-           (error (TEXT "~S: missing variable.")
+           (error (ENGLISH "~S: missing variable.")
                   'loop))
          (let ((pattern (pop body-rest))
                (typedecl nil))
@@ -261,7 +261,7 @@
                ((NIL)           ; no loop keyword ->interpret as typespec
                 (setq typedecl (pop body-rest))
                 (unless (simple-type-p typedecl)
-                  (warn (TEXT "~S: After ~S, ~S is interpreted as a type specification")
+                  (warn (ENGLISH "~S: After ~S, ~S is interpreted as a type specification")
                         'loop pattern typedecl)))
                ((OF-TYPE)       ; OF-TYPE -> expect a typespec
                 (pop body-rest)
@@ -450,15 +450,15 @@
        ;   FOR-AS-= Klausel vorkommt und hinter ihr auch keine andere FOR-AS
        ;   Klausel stört, können die Bindung und die Initialiserung der
        ;   Variablen ins Schleifeninnere verschoben werden.
-       (note-initialization (initialization)
-         (when (or (li-bindings initialization)
-                   (li-declspecs initialization)
-                   (li-endtest-forms initialization))
+       (note-initialisation (initialisation)
+         (when (or (li-bindings initialisation)
+                   (li-declspecs initialisation)
+                   (li-endtest-forms initialisation))
            (when seen-for-as-=
-             (setf (li-requires-stepbefore initialization) t))
-           (when (li-endtest-forms initialization)
+             (setf (li-requires-stepbefore initialisation) t))
+           (when (li-endtest-forms initialisation)
              (setq seen-endtest t))
-           (push initialization initializations)))
+           (push initialisation initialisations)))
        (make-endtest (endtest-form)
          (make-loop-init
            :specform 'PROGN
@@ -517,7 +517,7 @@
                 ((WITH FOR AS REPEAT)
                  (pop body-rest)
                  (when already-within-main
-                   (warn (TEXT "~S: ~A clauses should occur before the loop's main body")
+                   (warn (ENGLISH "~S: ~A clauses should occur before the loop's main body")
                          'loop (symbol-name kw)))
                  (case kw
                    ((WITH)
@@ -536,14 +536,13 @@
                             (setq declspecs (revappend new-declspecs declspecs))))
                         (unless (parse-kw-p 'and) (return))
                         (setq kw 'and))
-                      (note-initialization
+                      (note-initialisation
                         (make-loop-init
                           :specform 'LET
                           :bindings (nreverse bindings)
                           :declspecs (nreverse declspecs)
                           :everytime nil
-                          ;; WITH vars should always be bound on top
-                          :requires-stepbefore nil ; seen-endtest
+                          :requires-stepbefore seen-endtest
                           :depends-preceding t))))
                    ((FOR AS)
                     ; for-as ::= {for | as} for-as-clause {and [{for | as}] for-as-clause}*
@@ -563,16 +562,16 @@
                     ;                   {in | of} expr
                     (let ((bindings nil)
                           (declspecs nil)
-                          (initializations nil)
+                          (initialisations nil)
                           (stepafter nil)
                           (old-seen-endtest seen-endtest)
                           (depends-preceding nil))
-                      (flet ((note-initialization (initialization)
+                      (flet ((note-initialisation (initialisation)
                                ;; supersedes the outer definition!
-                               ;; Calls to note-initialization must temporarily be suspended.
-                               (when (li-endtest-forms initialization)
+                               ;; Calls to note-initialisation must temporarily be suspended.
+                               (when (li-endtest-forms initialisation)
                                  (setq seen-endtest t))
-                               (push initialization initializations)))
+                               (push initialisation initialisations)))
                         (loop
                           (multiple-value-bind (pattern new-declspecs) (parse-var-typespec)
                             (let ((preposition (next-kw)))
@@ -595,9 +594,9 @@
                                      (when step-function-var
                                        (push `(,step-function-var ,step-function-form)
                                              bindings))
-                                     (note-initialization
+                                     (note-initialisation
                                        (make-endtest `(WHEN (ENDP ,var) (LOOP-FINISH))))
-                                     (note-initialization
+                                     (note-initialisation
                                        (make-loop-init
                                          :specform 'LET
                                          :bindings (destructure pattern (if (eq preposition 'IN) `(CAR ,var) var))
@@ -636,9 +635,9 @@
                                        (index-var (gensym)))
                                    (push `(,vector-var ,vector-form) bindings)
                                    (push `(,index-var 0) bindings)
-                                   (note-initialization
+                                   (note-initialisation
                                      (make-endtest `(WHEN (>= ,index-var (LENGTH ,vector-var)) (LOOP-FINISH))))
-                                   (note-initialization
+                                   (note-initialisation
                                      (make-loop-init
                                        :specform 'LET
                                        :bindings (destructure pattern `(AREF ,vector-var ,index-var))
@@ -658,12 +657,12 @@
                                        ((HASH-KEY HASH-VALUE
                                          SYMBOL PRESENT-SYMBOL INTERNAL-SYMBOL EXTERNAL-SYMBOL)
                                         (when (eq plural 'THE)
-                                          (warn (TEXT "~S: After ~S a plural loop keyword is required, not ~A")
+                                          (warn (ENGLISH "~S: After ~S a plural loop keyword is required, not ~A")
                                                 'loop plural (symbol-name preposition))))
                                        ((HASH-KEYS HASH-VALUES
                                          SYMBOLS PRESENT-SYMBOLS INTERNAL-SYMBOLS EXTERNAL-SYMBOLS)
                                         (when (eq plural 'EACH)
-                                          (warn (TEXT "~S: After ~S a singular loop keyword is required, not ~A")
+                                          (warn (ENGLISH "~S: After ~S a singular loop keyword is required, not ~A")
                                                 'loop plural (symbol-name preposition))))
                                        (t (loop-syntax-error plural)))
                                      (pop body-rest)
@@ -698,7 +697,7 @@
                                                   ((HASH-KEY HASH-KEYS) (values nextkey-var nextvalue-var))
                                                   ((HASH-VALUE HASH-VALUES) (values nextvalue-var nextkey-var)))
                                                 (push `(,state-var (SYS::HASH-TABLE-ITERATOR ,form)) bindings)
-                                                (note-initialization
+                                                (note-initialisation
                                                   (make-loop-init
                                                     :specform 'MULTIPLE-VALUE-BIND
                                                     :bindings `((,nextp-var ,nextkey-var ,nextvalue-var)
@@ -707,7 +706,7 @@
                                                     :endtest-forms `((UNLESS ,nextp-var (LOOP-FINISH)))
                                                     :everytime t
                                                     :requires-stepbefore seen-endtest))
-                                                (note-initialization
+                                                (note-initialisation
                                                   (make-loop-init
                                                     :specform 'LET
                                                     :bindings (destructure pattern nextmain-var)
@@ -715,7 +714,7 @@
                                                     :everytime t
                                                     :requires-stepbefore seen-endtest))
                                                 (when other-pattern
-                                                  (note-initialization
+                                                  (note-initialisation
                                                     (make-loop-init
                                                       :specform 'LET
                                                       :bindings (destructure other-pattern nextother-var)
@@ -734,7 +733,7 @@
                                                 (nextsym-var (gensym)))
                                             (push `(,state-var (SYS::PACKAGE-ITERATOR ,form ',flags))
                                                   bindings)
-                                            (note-initialization
+                                            (note-initialisation
                                               (make-loop-init
                                                 :specform 'MULTIPLE-VALUE-BIND
                                                 :bindings `((,nextp-var ,nextsym-var)
@@ -743,7 +742,7 @@
                                                 :endtest-forms `((UNLESS ,nextp-var (LOOP-FINISH)))
                                                 :everytime t
                                                 :requires-stepbefore seen-endtest))
-                                            (note-initialization
+                                            (note-initialisation
                                               (make-loop-init
                                                 :specform 'LET
                                                 :bindings (destructure pattern nextsym-var)
@@ -805,7 +804,7 @@
                                    (let ((step-direction
                                            (if (or (eq step-start-p 'down) (eq step-end-p 'down))
                                              (if (or (eq step-start-p 'up) (eq step-end-p 'up))
-                                               (error (TEXT "~S: questionable iteration direction after ~A")
+                                               (error (ENGLISH "~S: questionable iteration direction after ~A")
                                                       'loop (symbol-name kw))
                                                'down)
                                              'up)))
@@ -814,7 +813,7 @@
                                        (when (eq step-direction 'down)
                                          ; Abwärtsiteration ohne Startwert ist nicht erlaubt.
                                          ; Die zweite optionale Klausel (d.h. preposition) muss abwärts zeigen.
-                                         (error (TEXT "~S: specifying ~A requires FROM or DOWNFROM")
+                                         (error (ENGLISH "~S: specifying ~A requires FROM or DOWNFROM")
                                                 'loop (symbol-name preposition)))
                                        ; Aufwärtsiteration -> Startwert 0
                                        (setq step-start-form '0)
@@ -835,7 +834,7 @@
                                                     (<= `(NOT (PLUSP ,pattern)))
                                                     (< `(MINUSP ,pattern)))
                                                   `(,compfun ,pattern ,step-end-form))))
-                                         (note-initialization
+                                         (note-initialisation
                                            (make-endtest `(WHEN ,endtest (LOOP-FINISH))))))
                                      (push
                                        (list pattern `(,(if (eq step-direction 'up) '+ '-) ,pattern ,step-by-form))
@@ -846,7 +845,7 @@
                       (when (setq stepafter (apply #'append (nreverse stepafter)))
                         (push `(PSETQ ,@stepafter) stepafter-code))
                       (push 'NIL stepafter-code) ; Markierung für spätere Initialisierungen
-                      (note-initialization ; outer `note-initialization'!
+                      (note-initialisation ; outer `note-initialisation'!
                         (make-loop-init
                           :specform 'LET
                           :bindings (nreverse bindings)
@@ -854,14 +853,14 @@
                           :everytime nil
                           :requires-stepbefore old-seen-endtest
                           :depends-preceding depends-preceding))
-                      (dolist (initialization (nreverse initializations))
-                        (when (li-everytime initialization)
-                          (setf (li-everytime initialization) stepafter-code))
-                        (note-initialization initialization))))
+                      (dolist (initialisation (nreverse initialisations))
+                        (when (li-everytime initialisation)
+                          (setf (li-everytime initialisation) stepafter-code))
+                        (note-initialisation initialisation))))
                    ((REPEAT)
                     (let ((form (parse-form kw))
                           (var (gensym)))
-                      (note-initialization
+                      (note-initialisation
                         (make-loop-init
                           :specform 'LET
                           :bindings `((,var ,form))
@@ -870,43 +869,43 @@
                           :requires-stepbefore seen-endtest
                           :depends-preceding t))
                       (push `(SETQ ,var (1- ,var)) stepafter-code)
-                      (note-initialization
+                      (note-initialisation
                        (make-endtest `(UNLESS (PLUSP ,var) (LOOP-FINISH))))))))
-                (t (error (TEXT "~S: illegal syntax near ~S in ~S")
+                (t (error (ENGLISH "~S: illegal syntax near ~S in ~S")
                           'loop (first body-rest) *whole*)))))))
       ; Noch einige semantische Tests:
       (setq results (delete-duplicates results :test #'equal))
       (when (> (length results) 1)
-        (error (TEXT "~S: ambiguous result of loop ~S")
+        (error (ENGLISH "~S: ambiguous result of loop ~S")
                'loop *whole*))
       (unless (null results)
         (push `(RETURN-FROM ,block-name ,@results) finally-code))
       ; Initialisierungen abarbeiten und optimieren:
-      (let ((initializations1 nil)
-            (initializations2 nil))
+      (let ((initialisations1 nil)
+            (initialisations2 nil))
         (unless seen-for-as-=
           (loop
-            (when (null initializations) (return))
-            (let ((initialization (first initializations)))
-              (unless (li-everytime initialization) (return))
-              ; letzte Initialiserungsklausel nach initializations2 verschieben:
-              (pop initializations)
-              (push initialization initializations2))))
+            (when (null initialisations) (return))
+            (let ((initialisation (first initialisations)))
+              (unless (li-everytime initialisation) (return))
+              ; letzte Initialiserungsklausel nach initialisations2 verschieben:
+              (pop initialisations)
+              (push initialisation initialisations2))))
         ; `depends-preceding' backpropagation:
         (let ((later-depend nil))
-          (dolist (initialization initializations)
-            (when later-depend (setf (li-later-depend initialization) t))
-            (when (li-depends-preceding initialization)
+          (dolist (initialisation initialisations)
+            (when later-depend (setf (li-later-depend initialisation) t))
+            (when (li-depends-preceding initialisation)
               (setq later-depend t))))
-        (setq initializations (nreverse initializations))
+        (setq initialisations (nreverse initialisations))
         (loop
-          (when (null initializations) (return))
-          (let* ((initialization (pop initializations))
-                 (everytime (li-everytime initialization))
-                 (requires-stepbefore (li-requires-stepbefore initialization))
-                 (name (li-specform initialization))
-                 (bindings (li-bindings initialization))
-                 (declarations (li-declspecs initialization))
+          (when (null initialisations) (return))
+          (let* ((initialisation (pop initialisations))
+                 (everytime (li-everytime initialisation))
+                 (requires-stepbefore (li-requires-stepbefore initialisation))
+                 (name (li-specform initialisation))
+                 (bindings (li-bindings initialisation))
+                 (declarations (li-declspecs initialisation))
                  (vars (case name
                          (MULTIPLE-VALUE-BIND (first bindings))
                          (LET (mapcar #'first bindings))))
@@ -915,7 +914,7 @@
                      (MULTIPLE-VALUE-BIND `((MULTIPLE-VALUE-SETQ ,@bindings)))
                      (LET `((SETQ ,@(apply #'append bindings))))
                      (t '())))
-                 (endtest-forms (li-endtest-forms initialization)))
+                 (endtest-forms (li-endtest-forms initialisation)))
             (if requires-stepbefore
               ; wegen seen-for-as-= oder AREF nicht optimierbar
               (progn
@@ -924,34 +923,34 @@
                     :specform 'LET
                     :bindings (default-bindings vars declarations)
                     :declspecs declarations)
-                  initializations1)
+                  initialisations1)
                 (if everytime
-                  (if (li-later-depend initialization)
+                  (if (li-later-depend initialisation)
                     (progn ; double code: initially-code and stepafter-code
                       (setq initially-code (revappend endtest-forms (revappend initforms initially-code)))
                       (setf (cdr everytime) (revappend endtest-forms (revappend initforms (cdr everytime)))))
                     (setq stepbefore-code (revappend endtest-forms (revappend initforms stepbefore-code))))
                   (setq initially-code (revappend endtest-forms (revappend initforms initially-code)))))
-              ; Initialisierungsklausel nach initializations1 schaffen:
+              ; Initialisierungsklausel nach initialisations1 schaffen:
               (progn
                 (push
                   (make-loop-init
                     :specform name
                     :bindings bindings
                     :declspecs declarations)
-                  initializations1)
+                  initialisations1)
                 (if everytime
                   (progn
                     ; put the initforms into the stepafter-code only.
                     (setf (cdr everytime) (revappend initforms (cdr everytime)))
                     ; handle the endtest-forms.
-                    (if (li-later-depend initialization)
+                    (if (li-later-depend initialisation)
                       (progn ; double endtest: initially-code and stepafter-code
                         (setq initially-code (revappend endtest-forms initially-code))
                         (setf (cdr everytime) (revappend endtest-forms (cdr everytime))))
                       (setq stepbefore-code (revappend endtest-forms stepbefore-code))))
                   (setq initially-code (revappend endtest-forms initially-code)))))))
-        (setq initializations1 (nreverse initializations1))
+        (setq initialisations1 (nreverse initialisations1))
         (push
           (make-loop-init
             :specform 'LET
@@ -961,7 +960,7 @@
                 ,@(mapcar #'(lambda (var) `(,var 0)) (delete-duplicates accu-vars-0)))
             :declspecs
               (nreverse accu-declarations))
-          initializations1)
+          initialisations1)
         ;; Remove the NIL placeholders in stepafter-code.
         (setq stepafter-code (delete 'NIL stepafter-code))
         ;; If initially-code and stepafter-code both end in the same
@@ -984,13 +983,13 @@
         ;; Final macroexpansion.
         `(MACROLET ((LOOP-FINISH () (LOOP-FINISH-ERROR)))
            (BLOCK ,block-name
-             ,(wrap-initializations (nreverse initializations1)
+             ,(wrap-initialisations (nreverse initialisations1)
                 `(MACROLET ((LOOP-FINISH () '(GO END-LOOP)))
                    (TAGBODY
                      ,@(if initially-code `((PROGN ,@(nreverse initially-code))))
                      BEGIN-LOOP
                      ,@(if stepbefore-code `((PROGN ,@(nreverse stepbefore-code))))
-                     ,(wrap-initializations (nreverse initializations2)
+                     ,(wrap-initialisations (nreverse initialisations2)
                         `(PROGN ,@(nreverse main-code)))
                      ,@(if stepafter-code `((PROGN ,@(nreverse stepafter-code))))
                      (GO BEGIN-LOOP)
@@ -1001,6 +1000,7 @@
                        ,@(nreverse finally-code)))))))))))
 
 ;; Der eigentliche Macro:
+
 (defmacro loop (&whole whole &body body)
   (if (some #'loop-keywordp body)
     ;; "extended" loop form
@@ -1009,13 +1009,13 @@
     (let ((tag (gensym)))
       `(BLOCK NIL (TAGBODY ,tag ,@body (GO ,tag))))))
 (defmacro loop-finish (&whole whole)
-  (error (TEXT "~S is possible only from within ~S")
+  (error (ENGLISH "~S is possible only from within ~S")
          whole 'loop))
 (defun loop-finish-warn ()
-  (warn (TEXT "Use of ~S in FINALLY clauses is deprecated because it can lead to infinite loops.")
+  (warn (ENGLISH "Use of ~S in FINALLY clauses is deprecated because it can lead to infinite loops.")
         '(loop-finish)))
 (defun loop-finish-error ()
-  (error (TEXT "~S is not possible here")
+  (error (ENGLISH "~S is not possible here")
          '(loop-finish)))
 
 )

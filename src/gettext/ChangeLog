@@ -1,45 +1,6 @@
-2001-08-25  Bruno Haible  <haible@clisp.cons.org>
-
-	Upgrade to autoconf-2.52.
-	* autoconf/autoconf: Upgrade to autoconf-2.52.
-	* autoconf/autoheader: Likewise.
-	* autoconf/acgeneral.m4: Remove file.
-	* autoconf/acspecific.m4: Remove file.
-	* autoconf/autoconf.m4f: New file, from autoconf-2.52.
-	* autoconf/aclocal.m4: Quote first argument of AC_DEFUN.
-	* Makefile.devel (configure): Use autoconf options -A, -l instead of
-	-m.
-	(config.h.in): Use autoheader options -A, -l instead of -m.
-
-2001-08-05  Bruno Haible  <haible@clisp.cons.org>
-
-	* autoconf/acgeneral.m4 (AC_MSG_RESULTPROTO): Remove macro.
-	(AC_LANG_EXTERN): Move to aclocal.m4.
-
-2001-07-21  Bruno Haible  <haible@clisp.cons.org>
-
-	* po/clisp-msguniq: Update comments.
-	(main): Omit the newline after the last hunk.
-
-2001-06-08  Bruno Haible <haible@clisp.cons.org>
-
-	* intl/*: Upgrade from 0.10.37 to 0.10.38.
-	* aclocal.m4: Likewise.
-
-2001-06-08  Bruno Haible <haible@clisp.cons.org>
-
-	* autoconf/config.guess: Update to GNU version 2001-05-11.
-	* autoconf/config.sub: Likewise.
-
-2001-05-06  Bruno Haible <haible@clisp.cons.org>
-
-	* intl/*: Upgrade from 2001-03-22 to 0.10.37.
-	* aclocal.m4: Likewise.
-
-2001-03-23  Bruno Haible  <haible@clisp.cons.org>
+2001-03-22  Bruno Haible  <haible@clisp.cons.org>
 
 	* intl/*: Upgrade from 2001-03-15 to 2001-03-22.
-	* aclocal.m4: Likewise.
 
 2001-03-15  Bruno Haible  <haible@clisp.cons.org>
 

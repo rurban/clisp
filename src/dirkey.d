@@ -1,5 +1,4 @@
-# CLISP: directory key: win32 registry, LDAP, Gnome-config
-# Copyright (C) 2000-2001 by Sam Steingold
+# directory key: win32 registry, LDAP, Gnome-config
 
 #ifdef DIR_KEY
 
@@ -7,10 +6,8 @@
 
 #ifdef WIN32_NATIVE
 #include <winreg.h>
-#ifndef __MINGW32__
 #include <winldap.h>
 #define LDAP
-#endif
 #endif
 #if defined(LDAP) && !defined(WIN32_NATIVE)
 #include <ldap.h>
@@ -24,6 +21,20 @@
 #define LDAP_PORT 389
 #endif
 
+#ifdef WIN32_NATIVE
+#define DIR_KEY_INPUT  KEY_READ
+#define DIR_KEY_OUTPUT KEY_WRITE
+#define DIR_KEY_IO     KEY_ALL_ACCESS
+#else
+#define DIR_KEY_INPUT  0
+#define DIR_KEY_OUTPUT 1
+#define DIR_KEY_IO     2
+#endif
+# :IF_DOES_NOT_EXIST
+#define IDNE_ERROR  0
+#define IDNE_NIL    1
+#define IDNE_CREATE 2
+#define IDNE_IGNORE 3 /* used only in `init_iteration_node' */
 # :SCOPE
 #define SCOPE_SELF  0
 #define SCOPE_KIDS  1
@@ -145,7 +156,7 @@ local object registry_value_to_object (DWORD type, DWORD size,
 #endif
 
 LISPFUNN(dir_key_type,1)
-# (LDAP:DIR-KEY-TYPE dkey)
+# (LISP:DIR-KEY-TYPE dkey)
 # return the type of the key (:win32 or :gnome-config or :ldap)
 {
   var object dkey = test_dir_key(popSTACK(),false);
@@ -153,7 +164,7 @@ LISPFUNN(dir_key_type,1)
 }
 
 LISPFUNN(dir_key_path,1)
-# (LDAP:DIR-KEY-PATH dkey)
+# (LISP:DIR-KEY-PATH dkey)
 # return the path of the key (a string)
 {
   var object dkey = test_dir_key(popSTACK(),false);
@@ -161,7 +172,7 @@ LISPFUNN(dir_key_path,1)
 }
 
 LISPFUNN(dir_key_direction,1)
-# (LDAP:DIR-KEY-DIRECTION dkey)
+# (LISP:DIR-KEY-DIRECTION dkey)
 # return the direction of this key - :input :output or :io
 {
   var object dkey = test_dir_key(popSTACK(),true);
@@ -169,7 +180,7 @@ LISPFUNN(dir_key_direction,1)
 }
 
 LISPFUNN(dir_key_open_p,1)
-# (LDAP:DIR-KEY-OPEN-P dkey)
+# (LISP:DIR-KEY-OPEN-P dkey)
 # return T if the key is open
 {
   var object dkey = test_dir_key(popSTACK(),false);
@@ -177,7 +188,7 @@ LISPFUNN(dir_key_open_p,1)
 }
 
 LISPFUNN(dir_key_close,1)
-# (LDAP:DIR-KEY-CLOSE dkey)
+# (LISP:DIR-KEY-CLOSE dkey)
 # close the supplied DIR-KEY
 {
   var object dkey = popSTACK();
@@ -290,28 +301,23 @@ local HKEY parse_registry_path (const char* path, const char** base_ret)
   }
 }
 
-local void open_reg_key (HKEY hkey, char* path, direction_t dir,
-                         if_does_not_exist_t if_not_exists, HKEY* p_hkey) {
-  REGSAM perms = KEY_READ;
-  switch (dir) {
-    case DIRECTION_OUTPUT: perms = KEY_WRITE; break;
-    case DIRECTION_IO: perms = KEY_ALL_ACCESS; break;
-  }
+local void open_reg_key (HKEY hkey, char* path, REGSAM perms,
+                         int if_not_exists, HKEY* p_hkey)
+{
   var DWORD status;
   begin_system_call();
   status = RegOpenKeyEx(hkey,path,0,perms,p_hkey);
   if (status != ERROR_SUCCESS) {
-    if ((if_not_exists == IF_DOES_NOT_EXIST_UNBOUND /*ignore*/) ||
-        ((status == ERROR_FILE_NOT_FOUND) &&
-         (if_not_exists != IF_DOES_NOT_EXIST_ERROR))) {
+    if ((if_not_exists == IDNE_IGNORE) ||
+        (status == ERROR_FILE_NOT_FOUND) && (if_not_exists != IDNE_ERROR)) {
       switch (if_not_exists) {
-        case IF_DOES_NOT_EXIST_NIL: case IF_DOES_NOT_EXIST_UNBOUND:
+        case IDNE_NIL: case IDNE_IGNORE:
           *p_hkey = NULL; break;
-        case IF_DOES_NOT_EXIST_CREATE:
+        case IDNE_CREATE:
           status = RegCreateKey(hkey,path,p_hkey);
           if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }
           break;
-        default: NOTREACHED;
+        default: NOTREACHED
       }
     } else { SetLastError(status); OS_error(); }
   }
@@ -319,8 +325,55 @@ local void open_reg_key (HKEY hkey, char* path, direction_t dir,
 }
 #endif
 
+local uintL parse_if_not_exists (object if_not_exists_arg, uintL direction)
+{
+  var uintL res = IDNE_ERROR;
+  if ((eq(if_not_exists_arg,unbound) && (direction == DIR_KEY_INPUT))
+      || eq(if_not_exists_arg,S(Kerror))) {
+    res = IDNE_ERROR;
+  } else if (eq(if_not_exists_arg,NIL)) {
+    res = IDNE_NIL;
+  } else if (eq(if_not_exists_arg,S(Kcreate))
+             || eq(if_not_exists_arg,unbound)) {
+    res = IDNE_CREATE;
+  } else {
+    pushSTACK(if_not_exists_arg);         # slot DATUM of         TYPE-ERROR
+    pushSTACK(O(type_if_does_not_exist)); # slot EXPECTED-TYPE of TYPE-ERROR
+    pushSTACK(if_not_exists_arg);
+    pushSTACK(S(Kif_does_not_exist));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: illegal ~ argument ~")
+           );
+  }
+  return res;
+}
+
+local uintL parse_direction (object* direction_arg)
+{
+  var uintL res = DIR_KEY_INPUT;
+  if (eq(*direction_arg,unbound) || eq(*direction_arg,S(Kinput))) {
+    res = DIR_KEY_INPUT;
+    *direction_arg = S(Kinput);
+  } else if (eq(*direction_arg,S(Koutput))) {
+    res = DIR_KEY_OUTPUT;
+  } else if (eq(*direction_arg,S(Kio))) {
+    res = DIR_KEY_IO;
+  } else {
+    pushSTACK(*direction_arg);    # slot DATUM         of TYPE-ERROR
+    pushSTACK(O(type_direction)); # slot EXPECTED-TYPE of TYPE-ERROR
+    pushSTACK(*direction_arg);
+    pushSTACK(S(Kdirection));
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,
+           GETTEXT("~: illegal ~ argument ~")
+           );
+  }
+  return res;
+}
+
 LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
-# (LDAP:DIR-KEY-OPEN key path [:direction] [:if-does-not-exist])
+# (LISP:DIR-KEY-OPEN key path [:direction] [:if-does-not-exist])
 # return the DIR-KEY object corresponding to the PATH under KEY
 # PATH should be a string, like "HKEY_LOCAL_MACHINE\\Something"
 # KEY can be either a DIR-KEY or a (MEMBER :win32 :gnome :ldap),
@@ -333,13 +386,8 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
   var object root = STACK_3;
   var void* ret_handle;
   var uintL status;
-  if (eq(unbound,direction_arg)) direction_arg=S(Kinput);
-  var direction_t direction = check_direction(direction_arg);
-  var if_does_not_exist_t if_not_exists =
-    check_if_does_not_exist(if_not_exists_arg);
-  if (if_not_exists == IF_DOES_NOT_EXIST_UNBOUND)
-    if_not_exists = (direction == DIRECTION_INPUT ?
-                     IF_DOES_NOT_EXIST_ERROR : IF_DOES_NOT_EXIST_CREATE);
+  var uintL direction = parse_direction(&direction_arg);
+  var uintL if_not_exists = parse_if_not_exists(if_not_exists_arg,direction);
   if (!stringp(path)) fehler_string(path);
   # create the key handle
   var object type = (dir_key_p(root) ? TheDirKey(root)->type : root);
@@ -462,7 +510,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
   mv_count = 1
 
 LISPFUNN(dir_key_subkeys,1)
-# (LDAP:DIR-KEY-SUBKEYS key)
+# (LISP:DIR-KEY-SUBKEYS key)
 # return the list of subkey names of the given KEY
 {
   if (eq(STACK_0,S(Kwin32))) { # top-level keys
@@ -481,7 +529,7 @@ LISPFUNN(dir_key_subkeys,1)
 }
 
 LISPFUNN(dir_key_attributes,1)
-# (LDAP:DIR-KEY-ATTRIBUTES key)
+# (LISP:DIR-KEY-ATTRIBUTES key)
 # return the list of attribute names of the given KEY
 {
   MAKE_OBJECT_LIST(RegQueryInfoKey(hkey,NULL,NULL,NULL,NULL,NULL,NULL,
@@ -543,7 +591,7 @@ local int parse_scope (object scope) {
 }
 
 LISPFUNN(dkey_search_iterator,3)
-# (LDAP::DKEY-SEARCH-ITERATOR key path scope)
+# (SYS::DKEY-SEARCH-ITERATOR key path scope)
 # return a simple vector with the iteration state
 # < dkey path scope
 # > #(dkey init-path scope (node ...))
@@ -560,8 +608,8 @@ LISPFUNN(dkey_search_iterator,3)
   skipSTACK(3);
 }
 
-local void init_iteration_node (object state, object subkey,
-                                object *new_path, object *failed_p)
+local void init_iteration_node (object state,object subkey,
+                                object *new_path,object *failed_p)
 # open HANDLE to point to DKEY\\PATH
 # compute KEY_S, ATT_S and DAT_S
 # return the full current path (itst_current)
@@ -599,8 +647,8 @@ local void init_iteration_node (object state, object subkey,
   var Dir_Key dk = TheDirKey(test_dir_key(ITST_DKEY(STACK_4),TRUE)); # state
   var Fpointer fp = TheFpointer(STACK_0); # handle
   with_string_0(*new_path,O(misc_encoding),pathz,{
-    open_reg_key((HKEY)(dk->handle),pathz,check_direction(dk->direction),
-                 IF_DOES_NOT_EXIST_UNBOUND/*ignore*/,(HKEY*)&(fp->fp_pointer));
+    open_reg_key((HKEY)(dk->handle),pathz,parse_direction(&(dk->direction)),
+                 IDNE_IGNORE,(HKEY*)&(fp->fp_pointer));
   });
   if (fp->fp_pointer) {
     var DWORD k_size;
@@ -655,7 +703,7 @@ local object state_next_key (object state)
 }
 
 LISPFUNN(dkey_search_next_key,1)
-# (LDAP::DKEY-SEARCH-NEXT-KEY state)
+# (SYS::DKEY-SEARCH-NEXT-KEY state)
 # return the next key of this iteration
 # and T if open failed
 # can trigger GC
@@ -693,14 +741,14 @@ LISPFUNN(dkey_search_next_key,1)
         skipSTACK(1);
       }
       break;
-    default: NOTREACHED;
+    default: NOTREACHED
   }
   skipSTACK(1);
   mv_count = 2;
 }
 
 LISPFUNN(dkey_search_next_att,1)
-# (LDAP::DKEY-SEARCH-NEXT-ATT state)
+# (SYS::DKEY-SEARCH-NEXT-ATT state)
 # return the next attribute and its value of this iteration
 # can trigger GC
 {
@@ -754,7 +802,7 @@ LISPFUNN(dkey_search_next_att,1)
 #undef NODE_HANDLE
 
 LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL)
-# (LDAP:DIR-KEY-VALUE key name [default])
+# (LISP:DIR-KEY-VALUE key name [default])
 # return the value of the given NAME in the KEY
 # KEY must be an open DIR-KEY, NAME - a string
 # if the name does not exists, return the DEFAULT (or signal an error)
@@ -793,7 +841,7 @@ LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL)
 }
 
 LISPFUNN(set_dkey_value,3)
-# (LDAP::SET-DKEY-VALUE key name value)
+# (SYS::SET-DKEY-VALUE key name value)
 # set the given NAME in the KEY to the VALUE
 {
   var object value = popSTACK();
@@ -841,13 +889,13 @@ LISPFUNN(set_dkey_value,3)
   mv_count = 1
 
 LISPFUNN(dir_key_subkey_delete,2)
-# (LDAP:DIR-KEY-SUBKEY-DELETE key name)
+# (LISP:DIR-KEY-SUBKEY-DELETE key name)
 # delete the specified subkey (and all its subkeys)
 {
   REG_KEY_DEL(RegDeleteKey);
 }
 LISPFUNN(dir_key_value_delete,2)
-# (LDAP:DIR-KEY-VALUE-DELETE key name)
+# (LISP:DIR-KEY-VALUE-DELETE key name)
 # delete the specified value
 {
   REG_KEY_DEL(RegDeleteValue);
@@ -855,7 +903,7 @@ LISPFUNN(dir_key_value_delete,2)
 #undef REG_KEY_DEL
 
 LISPFUNN(dkey_info,1)
-# (LDAP::DKEY-INFO key)
+# (SYS::DKEY-INFO key)
 # return all the info about the key, as 10 values:
 # class; class_length;
 # num_sub_keys; max_sub_key_length; max_class_length;

@@ -1,5 +1,9 @@
 ;;; Auxiliary socket related functions for BeOS
 
+(in-package "LISP")
+
+(export '(socket-service-port))
+
 (in-package "SYSTEM")
 
 (defstruct (servent (:type vector))  ;; see getservent(3)
@@ -70,7 +74,7 @@
                            (and (string= (servent-name se) service-name)
                                 (string= (servent-proto se) protocol)))
                        *servents*)
-              (error (TEXT "service does not exist: ~A/~A")
+              (error (ENGLISH "service does not exist: ~A/~A")
                      service-name protocol))
           'list)))
     (integer
@@ -80,7 +84,7 @@
                            (and (= (servent-port se) service-name)
                                 (string= (servent-proto se) protocol)))
                        *servents*)
-              (error (TEXT "service does not exist: ~A/~A")
+              (error (ENGLISH "service does not exist: ~A/~A")
                      service-name protocol))
           'list)))
 ) )

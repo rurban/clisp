@@ -2,7 +2,7 @@
 ;;; David Gadbois <gadbois@cs.utexas.edu> 30.11.1993
 ;;; Bruno Haible 24.11.1993, 2.12.1993
 
-(in-package "COMMON-LISP")
+(in-package "LISP")
 ;;; exports:
 (export '(
 ;; types:
@@ -12,34 +12,29 @@ floating-point-underflow floating-point-inexact
 floating-point-invalid-operation
 cell-error unbound-variable undefined-function unbound-slot
 type-error package-error print-not-readable parse-error stream-error
-end-of-file reader-error file-error storage-condition warning
+end-of-file reader-error file-error os-error storage-condition warning
 style-warning simple-condition simple-error simple-type-error simple-warning
 ;; macros:
 define-condition handler-bind ignore-errors handler-case
-with-condition-restarts restart-bind restart-case
+with-condition-restarts restart-bind restart-case with-restarts
 with-simple-restart check-type assert etypecase ctypecase ecase ccase
 ;; functions:
 make-condition arithmetic-error-operation arithmetic-error-operands
 cell-error-name unbound-slot-instance type-error-datum
 type-error-expected-type package-error-package print-not-readable-object
-stream-error-stream file-error-pathname
+stream-error-stream file-error-pathname simple-condition-format-string
 simple-condition-format-control simple-condition-format-arguments
 signal restart-name compute-restarts find-restart invoke-restart
 invoke-restart-interactively invoke-debugger break error cerror warn
 ;; functions and restart names:
 abort continue muffle-warning store-value use-value
 ;; variables:
-*break-on-signals* *debugger-hook*))
+*break-on-signals* *debugger-hook*
 ;; extensions:
-(in-package "EXT")
-(export
- '(muffle-cerrors appease-cerrors exit-on-error with-restarts os-error
-   simple-condition-format-string simple-charset-type-error)
- "EXT")
-(in-package "CUSTOM")
-(common-lisp:export '(*break-on-warnings*) "CUSTOM")
-(ext:re-export "CUSTOM" "EXT")
-(common-lisp:in-package "SYSTEM")
+muffle-cerrors appease-cerrors exit-on-error
+))
+(in-package "SYSTEM")
+
 
 ;;; Overview of Concepts
 
@@ -82,16 +77,19 @@ abort continue muffle-warning store-value use-value
 (defmacro define-condition (name parent-types slot-specs &rest options)
   (unless (symbolp name)
     (error-of-type 'source-program-error
-      (TEXT "~S: the name of a condition must be a symbol, not ~S")
-      'define-condition name))
+      (ENGLISH "~S: the name of a condition must be a symbol, not ~S")
+      'define-condition name
+  ) )
   (unless (and (listp parent-types) (every #'symbolp parent-types))
     (error-of-type 'source-program-error
-      (TEXT "~S: the parent-type list must be a list of symbols, not ~S")
-      'define-condition parent-types))
+      (ENGLISH "~S: the parent-type list must be a list of symbols, not ~S")
+      'define-condition parent-types
+  ) )
   (unless (listp slot-specs)
     (error-of-type 'source-program-error
-      (TEXT "~S: the slot description list must be a list, not ~S")
-      'define-condition slot-specs))
+      (ENGLISH "~S: the slot description list must be a list, not ~S")
+      'define-condition slot-specs
+  ) )
   (let ((default-initargs-option nil)
         (docstring-option nil)
         (report-function nil))
@@ -105,15 +103,19 @@ abort continue muffle-warning store-value use-value
                  (:DOCUMENTATION (setq docstring-option option))
                  (:REPORT (setq report-function (rest option)))
                  (T (error-of-type 'source-program-error
-                      (TEXT "~S ~S: unknown option ~S")
-                      'define-condition name (first option)))))
+                      (ENGLISH "~S ~S: unknown option ~S")
+                      'define-condition name (first option)
+               ) )  )
+              )
               (t
                (error-of-type 'source-program-error
-                 (TEXT "~S ~S: invalid syntax in ~S option: ~S")
-                 'define-condition name 'define-condition option)))
+                 (ENGLISH "~S ~S: invalid syntax in ~S option: ~S")
+                 'define-condition name 'define-condition option
+        )     ))
         (error-of-type 'source-program-error
-          (TEXT "~S ~S: not a ~S option: ~S")
-          'define-condition name 'define-condition option)))
+          (ENGLISH "~S ~S: not a ~S option: ~S")
+          'define-condition name 'define-condition option
+    ) ) )
     (let ((defclass-form
             `(CLOS:DEFCLASS ,name
                ,(clos::add-default-superclass parent-types 'CONDITION)
@@ -140,9 +142,11 @@ abort continue muffle-warning store-value use-value
 (defun make-condition (type &rest slot-initializations)
   (unless (subtypep type 'condition)
     (error-of-type 'error
-      (TEXT "~S: type ~S is not a subtype of ~S")
-      'make-condition type 'condition))
-  (apply #'clos:make-instance type slot-initializations))
+      (ENGLISH "~S: type ~S is not a subtype of ~S")
+      'make-condition type 'condition
+  ) )
+  (apply #'clos:make-instance type slot-initializations)
+)
 
 ; canonicalize a condition argument, CLtL2 p. 888
 (defun coerce-to-condition (datum arguments
@@ -154,8 +158,9 @@ abort continue muffle-warning store-value use-value
         (unless (eq caller-name 'cerror)
           (error-of-type 'type-error
             :datum arguments :expected-type 'null
-            (TEXT "~S ~S: superfluous arguments ~S")
-            caller-name datum arguments)))
+            (ENGLISH "~S ~S: superfluous arguments ~S")
+            caller-name datum arguments
+      ) ) )
       datum
     )
     (symbol
@@ -170,8 +175,9 @@ abort continue muffle-warning store-value use-value
     (t
       (error-of-type 'type-error
         :datum datum :expected-type '(or condition symbol string function)
-        (TEXT "~S: the condition argument must be a string, a symbol or a condition, not ~S")
-        caller-name datum))))
+        (ENGLISH "~S: the condition argument must be a string, a symbol or a condition, not ~S")
+        caller-name datum
+) ) ) )
 
 ;;; 29.5. Predefined Condition Types
 
@@ -393,7 +399,7 @@ abort continue muffle-warning store-value use-value
 (define-condition simple-error (simple-condition error) ())
 
 ; conditions usually created by CHECK-TYPE
-(define-condition simple-type-error (simple-condition type-error) ())
+(define-condition simple-type-error (simple-error type-error) ())
 
 ; conditions usually created by WARN
 (define-condition simple-warning (simple-condition warning) ())
@@ -519,26 +525,28 @@ abort continue muffle-warning store-value use-value
 |#
 
 ;; HANDLER-BIND, CLtL2 p. 898
-;; Since we can build handler frames only in compiled code
-;; there is SYS::%HANDLER-BIND which is synonymous to HANDLER-BIND except
-;; that SYS::%HANDLER-BIND only occurs in compiled code.
+; Since we can build handler frames only in compiled code
+; there is SYS::%HANDLER-BIND which is synonymous to HANDLER-BIND except
+; that SYS::%HANDLER-BIND only occurs in compiled code.
 (defmacro handler-bind (clauses &body body)
   (let ((typespecs (mapcar #'first clauses))
         (handlers (append (mapcar #'rest clauses) (list body))))
-    (let ((handler-vars (gensym-list (length handlers))))
+    (let ((handler-vars (map-into (make-list (length handlers)) #'gensym)))
       `(LET ,(mapcar #'list
                handler-vars
-               (mapcar #'(lambda (handler)
-                           `(FUNCTION (LAMBDA () (PROGN ,@handler))))
-                       handlers))
+               (mapcar #'(lambda (handler) `(FUNCTION (LAMBDA () (PROGN ,@handler))))
+                       handlers
+             ) )
          (LOCALLY (DECLARE (COMPILE))
            (SYS::%HANDLER-BIND
              ,(mapcar #'(lambda (typespec handler-var)
-                          `(,typespec #'(LAMBDA (CONDITION)
-                                          (FUNCALL (FUNCALL ,handler-var)
-                                                   CONDITION))))
-                      typespecs handler-vars)
-             (FUNCALL ,(car (last handler-vars)))))))))
+                          `(,typespec #'(LAMBDA (CONDITION) (FUNCALL (FUNCALL ,handler-var) CONDITION)))
+                        )
+                      typespecs handler-vars
+              )
+             (FUNCALL ,(car (last handler-vars)))
+       ) ) )
+) ) )
 
 ;; SIGNAL, CLtL2 p. 888
 ; is in error.d
@@ -558,31 +566,33 @@ abort continue muffle-warning store-value use-value
 
 ;; HANDLER-CASE, CLtL2 p. 895
 (defmacro handler-case (form &rest clauses)
-  ;; split off the :NO-ERROR clause and
-  ;; add a GO tag to the other clauses (type varlist . body)
-  (let ((no-error-clause nil) ; the :no-error clause, if found
+  ; split off the :NO-ERROR clause and
+  ; add a GO tag to the other clauses (type varlist . body)
+  (let ((no-error-clause nil) ; the last clause, if it is a :no-error clause
         (extended-clauses '())) ; ((tag type varlist . body) ...)
     (do ()
         ((endp clauses))
       (let ((clause (pop clauses)))
         (block check-clause
-          (unless (and (consp clause) (consp (cdr clause))
-                       (listp (second clause)))
+          (unless (and (consp clause) (consp (cdr clause)) (listp (second clause)))
             (error-of-type 'source-program-error
-                           (TEXT "~S: illegal syntax of clause ~S")
-                           'handler-case clause))
+              (ENGLISH "~S: illegal syntax of clause ~S")
+              'handler-case clause
+          ) )
           (when (eq (first clause) ':no-error)
-            (if (null no-error-clause)
-              (setq no-error-clause clause)
-              (warn (TEXT "~S: multiple ~S clauses: ~S and ~S")
-                    'handler-case ':no-error clause no-error-clause))
-            (return-from check-clause))
-          (let ((varlist (second clause))) ; known to be a list
+            (if (null clauses) ; at the end of the clauses?
+              (progn (setq no-error-clause clause) (return-from check-clause))
+              (warn (ENGLISH "~S: misplaced ~S clause: ~S")
+                    'handler-case ':no-error clause
+          ) ) )
+          (let ((varlist (second clause))) ; known as a list
             (unless (null (cdr varlist))
               (error-of-type 'source-program-error
-                (TEXT "~S: too many variables ~S in clause ~S")
-                'handler-case varlist clause)))
-          (push (cons (gensym) clause) extended-clauses))))
+                (ENGLISH "~S: too many variables ~S in clause ~S")
+                'handler-case varlist clause
+          ) ) )
+          (push (cons (gensym) clause) extended-clauses)
+    ) ) )
     (setq extended-clauses (nreverse extended-clauses))
     (let ((blockname (gensym))
           (tempvar (gensym)))
@@ -791,8 +801,9 @@ abort continue muffle-warning store-value use-value
 (defun find-restart (restart-identifier &optional condition)
   (cond ((null restart-identifier)
          (error-of-type 'error
-           (TEXT "~S: ~S is not a valid restart name here. Use ~S instead.")
-           'find-restart restart-identifier 'compute-restarts))
+           (ENGLISH "~S: ~S is not a valid restart name here. Use ~S instead.")
+           'find-restart restart-identifier 'compute-restarts
+        ))
         ((symbolp restart-identifier)
          (dolist (restart *active-restarts*)
            (when (and (eq (restart-name restart) restart-identifier)
@@ -811,13 +822,16 @@ abort continue muffle-warning store-value use-value
         )) )
         (t (error-of-type 'type-error
              :datum restart-identifier :expected-type '(or symbol restart)
-             (TEXT "~S: invalid restart name ~S")
-             'find-restart restart-identifier))))
+             (ENGLISH "~S: invalid restart name ~S")
+             'find-restart restart-identifier
+        )  )
+) )
 
 (defun restart-not-found (restart-identifier)
   (error-of-type 'control-error
-    (TEXT "~S: No restart named ~S is visible.")
-    'invoke-restart restart-identifier))
+    (ENGLISH "~S: No restart named ~S is visible.")
+    'invoke-restart restart-identifier
+) )
 
 (defun %invoke-restart (restart arguments)
   (if (restart-invoke-tag restart)
@@ -873,16 +887,18 @@ abort continue muffle-warning store-value use-value
   (setq body `(PROGN ,@body))
   (unless (listp restart-specs)
     (error-of-type 'source-program-error
-      (TEXT "~S: not a list: ~S")
-      'restart-bind restart-specs))
+      (ENGLISH "~S: not a list: ~S")
+      'restart-bind restart-specs
+  ) )
   (if restart-specs
     `(LET ((*ACTIVE-RESTARTS*
              (LIST*
                ,@(mapcar #'(lambda (spec)
                              (unless (and (listp spec) (consp (cdr spec)) (symbolp (first spec)))
                                (error-of-type 'source-program-error
-                                 (TEXT "~S: invalid restart specification ~S")
-                                 'restart-bind spec))
+                                 (ENGLISH "~S: invalid restart specification ~S")
+                                 'restart-bind spec
+                             ) )
                              (apply #'(lambda (name function
                                                &key (test-function '(FUNCTION DEFAULT-RESTART-TEST))
                                                     (interactive-function '(FUNCTION DEFAULT-RESTART-INTERACTIVE))
@@ -891,8 +907,9 @@ abort continue muffle-warning store-value use-value
                                           ; CLtL2 p. 906: "It is an error if an unnamed restart is used
                                           ; and no report information is provided."
                                           (error-of-type 'source-program-error
-                                            (TEXT "~S: unnamed restarts require ~S to be specified: ~S")
-                                            'restart-bind ':REPORT-FUNCTION spec))
+                                            (ENGLISH "~S: unnamed restarts require ~S to be specified: ~S")
+                                            'restart-bind ':REPORT-FUNCTION spec
+                                        ) )
                                         (make-restart-form `',name
                                                            test-function
                                                            'NIL
@@ -929,16 +946,18 @@ abort continue muffle-warning store-value use-value
   (defun expand-restart-case (caller restart-clauses form)
     (unless (listp restart-clauses)
       (error-of-type 'source-program-error
-        (TEXT "~S: not a list: ~S")
-        caller restart-clauses))
+        (ENGLISH "~S: not a list: ~S")
+        caller restart-clauses
+    ) )
     (let ((xclauses ; list of expanded clauses
                     ; ((tag name test interactive report lambdalist . body) ...)
             (mapcar
               #'(lambda (restart-clause &aux (clause restart-clause))
                   (unless (and (consp clause) (consp (cdr clause)) (symbolp (first clause)))
                     (error-of-type 'source-program-error
-                      (TEXT "~S: invalid restart specification ~S")
-                      caller clause))
+                      (ENGLISH "~S: invalid restart specification ~S")
+                      caller clause
+                  ) )
                   (let ((name (pop clause))
                         (passed-arglist nil)
                         (passed-keywords nil)
@@ -959,8 +978,9 @@ abort continue muffle-warning store-value use-value
                     ) )
                     (unless passed-arglist
                       (error-of-type 'source-program-error
-                        (TEXT "~S: missing lambda list in restart specification ~S")
-                        caller clause))
+                        (ENGLISH "~S: missing lambda list in restart specification ~S")
+                        caller clause
+                    ) )
                     (multiple-value-bind (test interactive report)
                         (apply #'(lambda (&key (test 'DEFAULT-RESTART-TEST)
                                                (interactive 'DEFAULT-RESTART-INTERACTIVE)
@@ -973,15 +993,17 @@ abort continue muffle-warning store-value use-value
                         ; CLtL2 p. 906: "It is an error if an unnamed restart is used
                         ; and no report information is provided."
                         (error-of-type 'source-program-error
-                          (TEXT "~S: unnamed restarts require ~S to be specified: ~S")
-                          caller ':REPORT restart-clause))
+                          (ENGLISH "~S: unnamed restarts require ~S to be specified: ~S")
+                          caller ':REPORT restart-clause
+                      ) )
                       (when (and (consp arglist) (not (member (first arglist) lambda-list-keywords))
                                  (eq interactive 'DEFAULT-RESTART-INTERACTIVE)
                             )
                         ; restart takes required arguments but does not have an
                         ; interactive function that will prompt for them.
-                        (warn (TEXT "~S: restart cannot be invoked interactively because it is missing a ~S option: ~S")
-                              caller ':INTERACTIVE restart-clause))
+                        (warn (ENGLISH "~S: restart cannot be invoked interactively because it is missing a ~S option: ~S")
+                              caller ':INTERACTIVE restart-clause
+                      ) )
                       `(,(gensym)
                         ,name
                         ,test ,interactive ,report
@@ -1177,7 +1199,8 @@ abort continue muffle-warning store-value use-value
            (list (read *query-io*)))
           ((do ((ii 1 (1+ ii)) res)
                ((> ii nn) (nreverse res))
-             (format *query-io* (TEXT "~%New ~S [value ~D of ~D]: ")
+             (format *query-io*
+                     (ENGLISH "~%New ~S [value ~D of ~D]: ")
                      place ii nn)
              (push (read *query-io*) res))))))
 
@@ -1266,6 +1289,7 @@ abort continue muffle-warning store-value use-value
 ;;; 29.4.3. Exhaustive Case Analysis
 
 ;; These macros supersede the corresponding ones from macros2.lisp.
+
 (flet ((parenthesize-keys (clauses)
          ;; PARENTHESIZE-KEYS is necessary to avoid confusing
          ;; the symbols OTHERWISE and T used as keys, with the same
@@ -1273,7 +1297,7 @@ abort continue muffle-warning store-value use-value
          (mapcar #'(lambda (c)
                      (cond ((or (eq (car c) 't)
                                 (eq (car c) 'otherwise))
-                            (warn (TEXT "~S used as a key in ~S, it would be better to use parentheses.")
+                            (warn (ENGLISH "~S used as a key in ~S, it would be better to use parentheses.")
                                   (car c) c)
                             (cons (list (car c)) (cdr c)))
                            (t c)))
@@ -1395,8 +1419,9 @@ abort continue muffle-warning store-value use-value
       (with-restarts
           ((CONTINUE
             :report (lambda (stream)
-                      (format stream (TEXT "Return from ~S loop")
-                                     'break))
+                      (format stream (ENGLISH "Return from ~S loop")
+                                     'break
+                    ) )
             ()
           ))
         (with-condition-restarts condition (list (find-restart 'CONTINUE))
@@ -1444,8 +1469,9 @@ abort continue muffle-warning store-value use-value
         (terpri *debug-io*)
         (if (interactive-stream-p *debug-io*)
           (progn
-            (write-string (TEXT "If you continue (by typing 'continue'): ")
-                          *debug-io*)
+            (write-string (ENGLISH "If you continue (by typing 'continue'): ")
+                          *debug-io*
+            )
             (apply #'format *debug-io* continue-format-string args)
             (funcall *break-driver* t)
           )
@@ -1477,7 +1503,9 @@ abort continue muffle-warning store-value use-value
   (if (not *use-clcs*)
     (progn
       (terpri *error-output*)
-      (write-string (TEXT "WARNING:") *error-output*)
+      (write-string (ENGLISH "WARNING:")
+                    *error-output*
+      )
       (terpri *error-output*)
       (apply #'format *error-output* format-string args)
       (when *break-on-warnings* (funcall *break-driver* t))
@@ -1487,8 +1515,9 @@ abort continue muffle-warning store-value use-value
         (unless (typep condition 'warning)
           (error-of-type 'type-error
             :datum condition :expected-type 'warning
-            (TEXT "~S: This is more serious than a warning: ~A")
-            'warn condition))
+            (ENGLISH "~S: This is more serious than a warning: ~A")
+            'warn condition
+        ) )
         (with-restarts
             ((MUFFLE-WARNING
                () (return-from warn)
@@ -1497,14 +1526,18 @@ abort continue muffle-warning store-value use-value
             (signal condition)
         ) )
         (terpri *error-output*)
-        (write-string (TEXT "WARNING:") *error-output* )
+        (write-string (ENGLISH "WARNING:")
+                      *error-output*
+        )
         (terpri *error-output*)
         (print-condition condition *error-output*)
         (when *break-on-warnings*
           (with-restarts
               ((CONTINUE
                 :report (lambda (stream)
-                          (format stream (TEXT "Return from ~S loop") 'break))
+                          (format stream (ENGLISH "Return from ~S loop")
+                                         'break
+                        ) )
                 () (return-from warn)
               ))
             (with-condition-restarts condition (list (find-restart 'CONTINUE))
@@ -1530,23 +1563,37 @@ Todo:
 
 ;; Extensions. They assume *USE-CLCS* is T.
 
+; (MUFFLE-CERRORS {form}*) executes the forms, but when a continuable
+; error occurs, the CONTINUE restart is silently invoked.
 (defmacro muffle-cerrors (&body body)
-  "(MUFFLE-CERRORS {form}*) executes the forms, but when a continuable
-error occurs, the CONTINUE restart is silently invoked."
-  `(HANDLER-BIND ((ERROR #'CONTINUE))
-     ,@body))
+  `(HANDLER-BIND ((ERROR #'(LAMBDA (CONDITION) (CONTINUE CONDITION))))
+     ,@body
+   )
+)
 #| ; This works as well, but looks more like a hack.
 (defmacro muffle-cerrors (&body body)
   (let ((old-debugger-hook (gensym)))
-    `(LET* ((,old-debugger-hook *DEBUGGER-HOOK*)
+    `(LET* ((,old-debugger-hook *DEBUGGER-HOOK*) 
             (*DEBUGGER-HOOK*
-             (LAMBDA (CONDITION DEBUGGER-HOOK)
-               (CONTINUE CONDITION)
-               (WHEN ,old-debugger-hook
-                 (FUNCALL ,old-debugger-hook CONDITION ,old-debugger-hook)))))
-      (PROGN ,@body))))
+              #'(LAMBDA (CONDITION DEBUGGER-HOOK)
+                  (CONTINUE CONDITION)
+                  (WHEN ,old-debugger-hook
+                    (FUNCALL ,old-debugger-hook CONDITION ,old-debugger-hook)
+                ) )
+           ))
+       (PROGN ,@body)
+     )
+) )
 |#
 
+; (APPEASE-CERRORS {form}*) executes the forms, but turns continuable errors
+; into warnings. A continuable error is signalled again as a warning, then
+; its CONTINUE restart is invoked.
+(defmacro appease-cerrors (&body body)
+  `(HANDLER-BIND ((ERROR #'(LAMBDA (CONDITION) (APPEASE-CERROR CONDITION))))
+     ,@body
+   )
+)
 (defun appease-cerror (condition)
   (let ((restart (find-restart 'CONTINUE condition)))
     (when restart
@@ -1555,33 +1602,34 @@ error occurs, the CONTINUE restart is silently invoked."
                    (let ((report-function (restart-report restart)))
                      (when report-function
                        (terpri stream)
-                       (funcall report-function stream)))))
-      (invoke-restart restart))))
-(defmacro appease-cerrors (&body body)
-  "(APPEASE-CERRORS {form}*) executes the forms, but turns continuable errors
-into warnings. A continuable error is signalled again as a warning, then
-its CONTINUE restart is invoked."
-  `(HANDLER-BIND ((ERROR #'APPEASE-CERROR))
-     ,@body))
+                       (funcall report-function stream)
+      )          ) ) )
+      (invoke-restart restart)
+) ) )
 
+; (EXIT-ON-ERROR {form}*) executes the forms, but exits Lisp if a
+; non-continuable error or a Ctrl-C interrupt occurs.
 (defun exitunconditionally (condition)
   (terpri *error-output*)
   (write-string "*** - " *error-output*)
   (print-condition condition *error-output*)
-  (exit t))                     ; exit Lisp with error
+  (exit t) ; exit Lisp with error
+)
 (defun exitonerror (condition)
   (unless (find-restart 'CONTINUE condition)
-    (exitunconditionally condition)))
+    (exitunconditionally condition)
+) )
 (defmacro exit-on-error (&body body)
-  "(EXIT-ON-ERROR {form}*) executes the forms, but exits Lisp if a
-non-continuable error or a Ctrl-C interrupt occurs."
   `(HANDLER-BIND ((INTERRUPT-CONDITION #'EXITUNCONDITIONALLY)
                   (SERIOUS-CONDITION #'EXITONERROR))
-    ,@body))
+     ,@body
+   )
+)
 
+; (SYSTEM::BATCHMODE-ERRORS {form}*) executes the forms, but handles errors
+; just as a batch program should do: continuable errors are signalled as
+; warnings, non-continuable errors and Ctrl-C interrupts cause Lisp to exit.
 (defmacro batchmode-errors (&body body)
-  "(SYSTEM::BATCHMODE-ERRORS {form}*) executes the forms, but handles errors
-just as a batch program should do: continuable errors are signalled as
-warnings, non-continuable errors and Ctrl-C interrupts cause Lisp to exit."
-  `(EXIT-ON-ERROR (APPEASE-CERRORS ,@body)))
+  `(EXIT-ON-ERROR (APPEASE-CERRORS ,@body))
+)
 

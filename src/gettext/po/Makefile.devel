@@ -1,12 +1,16 @@
-# This is the developer's -*- Makefile -*-, not the user's makefile.
+# This is the developer's makefile, not the user's makefile.
 # Don't use it unless you know exactly what you do!
 
-# This Makefile needs GNU make and GNU msgfmt (from the GNU gettext package).
+# This Makefile needs GNU make.
 
 SHELL = /bin/sh
-RM = rm -rf
+RM = rm -f
 
-GMSGFMT = msgfmt --statistics
+# My reason for writing "gmsgfmt" (although GNU gettext installs it as
+# "msgfmt") is to force an error if Solaris msgfmt would be used. Either
+# this, or one should put a comment in the Makefile.devel saying
+# "This Makefile needs GNU make and GNU msgfmt (from the GNU gettext package)."
+GMSGFMT = gmsgfmt --statistics
 
 all : tmp pot gmo
 
@@ -28,21 +32,13 @@ DSOURCES = \
  charstrg debug \
  error erramiga errunix errwin32 \
  misc time predtype symbol \
- lisparit aridecl arilev0 arilev1 arilev1c arilev1e arilev1i intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran posixmath \
- posixmisc \
+ lisparit aridecl arilev0 arilev1 arilev1c arilev1e arilev1i intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran \
+ posixmath \
  rexx affi \
  foreign \
- unixaux win32aux acornaux acornsig amigaaux \
- dirkey
+ unixaux win32aux acornaux acornsig amigaaux
 
-LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
-              timezone places floatprint type defstruct format \
-              savemem trace cmacros compiler defs2 loop clos \
-              disassem condition threads gstream xcharin keyboard \
-              screen beossock runprog query reploop dribble complete \
-              describe room edit macros3 clhs inspect gray \
-              foreign1 posix dirkey german french spanish dutch \
-              affi1 rexx1 amigasock
+LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 timezone places floatprint type defstruct format savemem trace compiler disassem defs2 loop clos condition gstream xcharin keyboard screen amigasock beossock runprog query reploop dribble complete describe room edit macros3 foreign1 affi1 rexx1 defs3
 
 SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lisp,$(LISPSOURCES))
 
@@ -127,6 +123,6 @@ $(GMOFILES) : %.gmo : %.po
 
 
 clean :
-	$(RM) *.pox *.new.po tmp
+	$(RM) *.pox *.new.po
 
 force :

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1999-2001 Free Software Foundation, Inc.
+ * Copyright (C) 1999-2000 Free Software Foundation, Inc.
  * This file is part of the GNU LIBICONV Library.
  *
  * The GNU LIBICONV Library is free software; you can redistribute it
@@ -60,11 +60,6 @@ euc_tw_mbtowc (conv_t conv, ucs4_t *pwc, const unsigned char *s, int n)
             case 1: ret = cns11643_1_mbtowc(conv,pwc,buf,2); break;
             case 2: ret = cns11643_2_mbtowc(conv,pwc,buf,2); break;
             case 3: ret = cns11643_3_mbtowc(conv,pwc,buf,2); break;
-            case 4: ret = cns11643_4_mbtowc(conv,pwc,buf,2); break;
-            case 5: ret = cns11643_5_mbtowc(conv,pwc,buf,2); break;
-            case 6: ret = cns11643_6_mbtowc(conv,pwc,buf,2); break;
-            case 7: ret = cns11643_7_mbtowc(conv,pwc,buf,2); break;
-            case 15: ret = cns11643_15_mbtowc(conv,pwc,buf,2); break;
             default: return RET_ILSEQ;
           }
           if (ret == RET_ILSEQ)
@@ -86,15 +81,15 @@ euc_tw_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
 
   /* Code set 0 (ASCII) */
   ret = ascii_wctomb(conv,r,wc,n);
-  if (ret != RET_ILUNI)
+  if (ret != RET_ILSEQ)
     return ret;
 
   ret = cns11643_wctomb(conv,buf,wc,3);
-  if (ret != RET_ILUNI) {
+  if (ret != RET_ILSEQ) {
     if (ret != 3) abort();
 
     /* Code set 1 (CNS 11643-1992 Plane 1) */
-    if (buf[0] == 1) {
+    if (buf[0] == 0) {
       if (n < 2)
         return RET_TOOSMALL;
       r[0] = buf[1]+0x80;
@@ -106,11 +101,11 @@ euc_tw_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
     if (n < 4)
       return RET_TOOSMALL;
     r[0] = 0x8e;
-    r[1] = buf[0]+0xa0;
+    r[1] = buf[0]+0xa1;
     r[2] = buf[1]+0x80;
     r[3] = buf[2]+0x80;
     return 4;
   }
 
-  return RET_ILUNI;
+  return RET_ILSEQ;
 }

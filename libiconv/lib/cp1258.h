@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1999-2001 Free Software Foundation, Inc.
+ * Copyright (C) 1999-2000 Free Software Foundation, Inc.
  * This file is part of the GNU LIBICONV Library.
  *
  * The GNU LIBICONV Library is free software; you can redistribute it
@@ -21,13 +21,6 @@
 /*
  * CP1258
  */
-
-#include "flushwc.h"
-#include "vietcomb.h"
-
-static const unsigned char cp1258_comb_table[] = {
-  0xcc, 0xec, 0xde, 0xd2, 0xf2,
-};
 
 static const unsigned short cp1258_2uni[128] = {
   /* 0x80 */
@@ -56,85 +49,23 @@ static const unsigned short cp1258_2uni[128] = {
   0x00f8, 0x00f9, 0x00fa, 0x00fb, 0x00fc, 0x01b0, 0x20ab, 0x00ff,
 };
 
-/* In the CP1258 to Unicode direction, the state contains a buffered
-   character, or 0 if none. */
-
 static int
 cp1258_mbtowc (conv_t conv, ucs4_t *pwc, const unsigned char *s, int n)
 {
   unsigned char c = *s;
-  unsigned short wc;
-  unsigned short last_wc;
   if (c < 0x80) {
-    wc = c;
-  } else {
-    wc = cp1258_2uni[c-0x80];
-    if (wc == 0xfffd)
-      return RET_ILSEQ;
-  }
-  last_wc = conv->istate;
-  if (last_wc) {
-    if (wc >= 0x0300 && wc < 0x0340) {
-      /* See whether last_wc and wc can be combined. */
-      unsigned int k;
-      unsigned int i1, i2;
-      switch (wc) {
-        case 0x0300: k = 0; break;
-        case 0x0301: k = 1; break;
-        case 0x0303: k = 2; break;
-        case 0x0309: k = 3; break;
-        case 0x0323: k = 4; break;
-        default: abort();
-      }
-      i1 = viet_comp_table[k].idx;
-      i2 = i1 + viet_comp_table[k].len-1;
-      if (last_wc >= viet_comp_table_data[i1].base
-          && last_wc <= viet_comp_table_data[i2].base) {
-        unsigned int i;
-        for (;;) {
-          i = (i1+i2)>>1;
-          if (last_wc == viet_comp_table_data[i].base)
-            break;
-          if (last_wc < viet_comp_table_data[i].base) {
-            if (i1 == i)
-              goto not_combining;
-            i2 = i;
-          } else {
-            if (i1 != i)
-              i1 = i;
-            else {
-              i = i2;
-              if (last_wc == viet_comp_table_data[i].base)
-                break;
-              goto not_combining;
-            }
-          }
-        }
-        last_wc = viet_comp_table_data[i].composed;
-        /* Output the combined character. */
-        conv->istate = 0;
-        *pwc = (ucs4_t) last_wc;
-        return 1;
-      }
-    }
-  not_combining:
-    /* Output the buffered character. */
-    conv->istate = 0;
-    *pwc = (ucs4_t) last_wc;
-    return 0; /* Don't advance the input pointer. */
-  }
-  if (wc >= 0x0041 && wc <= 0x01b0) {
-    /* wc is a possible match in viet_comp_table_data. Buffer it. */
-    conv->istate = wc;
-    return RET_TOOFEW(1);
-  } else {
-    /* Output wc immediately. */
-    *pwc = (ucs4_t) wc;
+    *pwc = (ucs4_t) c;
     return 1;
   }
+  else {
+    unsigned short wc = cp1258_2uni[c-0x80];
+    if (wc != 0xfffd) {
+      *pwc = (ucs4_t) wc;
+      return 1;
+    }
+  }
+  return RET_ILSEQ;
 }
-
-#define cp1258_flushwc normal_flushwc
 
 static const unsigned char cp1258_page00[88] = {
   0xc0, 0xc1, 0xc2, 0x00, 0xc4, 0xc5, 0xc6, 0xc7, /* 0xc0-0xc7 */
@@ -205,8 +136,6 @@ cp1258_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
     c = cp1258_page02[wc-0x02c0];
   else if (wc >= 0x0300 && wc < 0x0328)
     c = cp1258_page03[wc-0x0300];
-  else if (wc >= 0x0340 && wc < 0x0342) /* deprecated Vietnamese tone marks */
-    c = cp1258_page03[wc-0x0340];
   else if (wc >= 0x2010 && wc < 0x2040)
     c = cp1258_page20[wc-0x2010];
   else if (wc == 0x20ab)
@@ -219,57 +148,5 @@ cp1258_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
     *r = c;
     return 1;
   }
-  /* Try canonical decomposition. */
-  {
-    /* Binary search through viet_decomp_table. */
-    unsigned int i1 = 0;
-    unsigned int i2 = sizeof(viet_decomp_table)/sizeof(viet_decomp_table[0])-1;
-    if (wc >= viet_decomp_table[i1].composed
-        && wc <= viet_decomp_table[i2].composed) {
-      unsigned int i;
-      for (;;) {
-        /* Here i2 - i1 > 0. */
-        i = (i1+i2)>>1;
-        if (wc == viet_decomp_table[i].composed)
-          break;
-        if (wc < viet_decomp_table[i].composed) {
-          if (i1 == i)
-            return RET_ILUNI;
-          /* Here i1 < i < i2. */
-          i2 = i;
-        } else {
-          /* Here i1 <= i < i2. */
-          if (i1 != i)
-            i1 = i;
-          else {
-            /* Here i2 - i1 = 1. */
-            i = i2;
-            if (wc == viet_decomp_table[i].composed)
-              break;
-            else
-              return RET_ILUNI;
-          }
-        }
-      }
-      /* Found a canonical decomposition. */
-      wc = viet_decomp_table[i].base;
-      /* wc is one of 0x0020, 0x0041..0x005a, 0x0061..0x007a, 0x00a5, 0x00a8,
-         0x00c2, 0x00c5..0x00c7, 0x00ca, 0x00cf, 0x00d3, 0x00d4, 0x00d6,
-         0x00d8, 0x00da, 0x00dc, 0x00e2, 0x00e5..0x00e7, 0x00ea, 0x00ef,
-         0x00f3, 0x00f4, 0x00f6, 0x00f8, 0x00fc, 0x0102, 0x0103, 0x01a0,
-         0x01a1, 0x01af, 0x01b0. */
-      if (wc < 0x0100)
-        c = wc;
-      else if (wc < 0x0118)
-        c = cp1258_page00[wc-0x00c0];
-      else
-        c = cp1258_page01[wc-0x0150];
-      if (n < 2)
-        return RET_TOOSMALL;
-      r[0] = c;
-      r[1] = cp1258_comb_table[viet_decomp_table[i].comb1];
-      return 2;
-    }
-  }
-  return RET_ILUNI;
+  return RET_ILSEQ;
 }

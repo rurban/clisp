@@ -15,8 +15,8 @@
 ;;;   Expander: eine Funktion, die den zu expandierenden Type-Specifier (eine
 ;;;   mindestens einelementige Liste) als Argument bekommt.
 
-(in-package "EXT")
-(export '(type-expand))
+(in-package "LISP")
+(export '(type-expand-1 type-expand))
 (in-package "SYSTEM")
 
 ; vorläufig, solange bis clos.lisp geladen wird:
@@ -27,7 +27,7 @@
 
 (defun typespec-error (fun type)
   (error-of-type 'error
-    (TEXT "~S: invalid type specification ~S")
+    (ENGLISH "~S: invalid type specification ~S")
     fun type
 ) )
 
@@ -35,23 +35,22 @@
 ; Return the character set of an encoding (a symbol or string).
 (defun encoding-charset (encoding) (sys::%record-ref encoding 3))
 
-;; ============================================================================
-
-;; return the CLOS class named by TYPESPEC or NIL
-(defun clos-class (typespec)
-  (let ((cc (get typespec 'CLOS::CLOSCLASS)))
-    (when (and cc (clos::class-p cc) (eq (clos:class-name cc) typespec))
-      cc)))
+;===============================================================================
 
 ;;; TYPEP, CLTL S. 72, S. 42-51
 (defun typep (x y &aux f) ; x = Objekt, y = Typ
-  (setq y (expand-deftype y))
   (cond
     ((symbolp y)
        (cond ((setq f (get y 'TYPE-SYMBOL)) (funcall f x))
              ((setq f (get y 'TYPE-LIST)) (funcall f x))
+             ((setq f (get y 'DEFTYPE-EXPANDER)) (typep x (funcall f (list y))))
              ((get y 'DEFSTRUCT-DESCRIPTION) (%STRUCTURE-TYPE-P y x))
-             ((setf f (clos-class y)) (clos::subclassp (clos:class-of x) f))
+             ((and (setf f (get y 'CLOS::CLOSCLASS))
+                   (clos::class-p f)
+                   (eq (clos:class-name f) y)
+              )
+              (clos::subclassp (clos:class-of x) f)
+             )
              (t (typespec-error 'typep y))
     )  )
     ((and (consp y) (symbolp (first y)))
@@ -59,7 +58,7 @@
          ((and (eq (first y) 'SATISFIES) (eql (length y) 2))
             (unless (symbolp (second y))
               (error-of-type 'error
-                (TEXT "~S: argument to SATISFIES must be a symbol: ~S")
+                (ENGLISH "~S: argument to SATISFIES must be a symbol: ~S")
                 'typep (second y)
             ) )
             (if (funcall (symbol-function (second y)) x) t nil)
@@ -82,6 +81,7 @@
               (when (typep x type) (return t))
          )  )
          ((setq f (get (first y) 'TYPE-LIST)) (apply f x (rest y)))
+         ((setq f (get (first y) 'DEFTYPE-EXPANDER)) (typep x (funcall f y)))
          (t (typespec-error 'typep y))
     )  )
     ((clos::class-p y) (clos::subclassp (clos:class-of x) y))
@@ -89,7 +89,7 @@
     (t (typespec-error 'typep y))
 ) )
 
-;; ----------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
 (defun upgraded-array-element-type (type)
   ; siehe array.d
@@ -116,7 +116,7 @@
   ) )  ) ) )
 )
 
-;; ----------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
 ;; Macros for defining the various built-in "atomic type specifier"s and
 ;; "compound type specifier"s. The following macros add information for both
@@ -218,6 +218,7 @@
   (lambda (x) (or (eq x 'nil) (eq x 't)))
 )
 (def-atomic-type CHARACTER characterp)
+(def-atomic-type COMMON commonp)
 (def-atomic-type COMPILED-FUNCTION compiled-function-p)
 (def-atomic-type COMPLEX complexp)
 (def-atomic-type CONS consp)
@@ -279,22 +280,9 @@
 (def-atomic-type STRING-CHAR characterp)
 (def-atomic-type CLOS:STRUCTURE-OBJECT clos::structure-object-p)
 (def-atomic-type SYMBOL symbolp)
-(def-atomic-type T (lambda (x) (declare (ignore x)) t))
-;; foreign1.lisp is loaded after this file,
-;; so these symbols are not external yet
-#+ffi
-(def-atomic-type ffi::foreign-function
-  (lambda (x) (eq 'ffi::foreign-function (type-of x))))
-#+ffi
-(def-atomic-type ffi::foreign-variable
-  (lambda (x) (eq 'ffi::foreign-variable (type-of x))))
-#+ffi
-(def-atomic-type ffi::foreign-address
-  (lambda (x) (eq 'ffi::foreign-address (type-of x))))
-;; see lispbibl.d (#define FOREIGN) and predtype.d (TYPE-OF):
-#+(or unix ffi amiga dir-key)
-(def-atomic-type foreign-pointer
-  (lambda (x) (eq 'foreign-pointer (type-of x))))
+(def-atomic-type T
+  (lambda (x) (declare (ignore x)) t)
+)
 (def-atomic-type VECTOR vectorp)
 
 ; CLtL1 p. 46-50
@@ -340,7 +328,7 @@
                 (< (first low) x)
              )
              (t (error-of-type 'error
-                  (TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
+                  (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                   'typep type type type low
        )     )  )
        (cond ((eq high '*))
@@ -349,7 +337,7 @@
                 (> (first high) x)
              )
              (t (error-of-type 'error
-                  (TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
+                  (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                   'typep type type type high
 ) )    )     )  )
 (defun c-typep-number (caller tester low high x)
@@ -359,7 +347,7 @@
                 ((and (consp low) (null (rest low)) (funcall tester (first low)))
                  `((< ,(first low) ,x))
                 )
-                (t (c-warn (TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
+                (t (c-warn (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                            'typep caller caller caller low
                    )
                    (throw 'c-TYPEP nil)
@@ -369,7 +357,7 @@
                 ((and (consp high) (null (rest high)) (funcall tester (first high)))
                  `((> ,(first high) ,x))
                 )
-                (t (c-warn (TEXT "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
+                (t (c-warn (ENGLISH "~S: argument to ~S must be *, ~S or a list of ~S: ~S")
                            'typep caller caller caller high
                    )
                    (throw 'c-TYPEP nil)
@@ -456,7 +444,7 @@
 )
 (def-compound-type MOD (n) (x)
   (unless (integerp n)
-    (error (TEXT "~S: argument to MOD must be an integer: ~S")
+    (error (ENGLISH "~S: argument to MOD must be an integer: ~S")
            'typep n
   ) )
   (and (integerp x) (<= 0 x) (< x n))
@@ -464,7 +452,7 @@
 )
 (def-compound-type SIGNED-BYTE (&optional (n '*)) (x)
   (unless (or (eq n '*) (integerp n))
-    (error (TEXT "~S: argument to SIGNED-BYTE must be an integer or * : ~S")
+    (error (ENGLISH "~S: argument to SIGNED-BYTE must be an integer or * : ~S")
            'typep n
   ) )
   (and (integerp x) (or (eq n '*) (< (integer-length x) n)))
@@ -474,7 +462,7 @@
 )
 (def-compound-type UNSIGNED-BYTE (&optional (n '*)) (x)
   (unless (or (eq n '*) (integerp n))
-    (error (TEXT "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S")
+    (error (ENGLISH "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S")
            'typep n
   ) )
   (and (integerp x)
@@ -577,7 +565,7 @@
 (fmakunbound 'def-atomic-type)
 (fmakunbound 'def-compound-type)
 
-;; ----------------------------------------------------------------------------
+;-------------------------------------------------------------------------------
 
 ; Typtest ohne Gefahr einer Fehlermeldung. Für SIGNAL und HANDLER-BIND.
 (defun safe-typep (x y)
@@ -648,7 +636,7 @@
     (if (and (consp type) (eq (car type) 'VALUES))
       (macrolet ((typespec-error ()
                    '(error-of-type 'error
-                      (TEXT "Invalid type specifier ~S")
+                      (ENGLISH "Invalid type specifier ~S")
                       type
                 ))  )
         (let ((vals values)
@@ -733,173 +721,175 @@
 
 ;;; SUBTYPEP, the provisional version
 (defun canonicalize-type (type)
-  (setq type (expand-deftype type))
   ;; small, non-recursive simplifications
   (cond ((symbolp type)
-         (case type
-           (ATOM '(NOT CONS))
-           (BASE-CHAR #+BASE-CHAR=CHARACTER 'CHARACTER
-                      #-BASE-CHAR=CHARACTER '(AND CHARACTER (SATISFIES BASE-CHAR-P)))
-           (BIGNUM '(AND INTEGER (NOT FIXNUM)))
-           (BIT '(INTEGER 0 1))
-           (BOOLEAN '(MEMBER NIL T))
-           (EXTENDED-CHAR #+BASE-CHAR=CHARACTER '(OR) ; NIL
-                          #-BASE-CHAR=CHARACTER '(AND CHARACTER (NOT (SATISFIES BASE-CHAR-P))))
-           (FIXNUM '(INTEGER #,most-negative-fixnum #,most-positive-fixnum))
-           (KEYWORD '(AND SYMBOL (SATISFIES KEYWORDP)))
-           (LIST '(OR CONS (MEMBER NIL)))
-           ((NIL) '(OR))
-           (NULL '(MEMBER NIL))
-           (NUMBER '(OR REAL COMPLEX))
-           (RATIO '(AND RATIONAL (NOT INTEGER)))
-           (SEQUENCE '(OR LIST VECTOR)) ; user-defined sequences??
-           (SIGNED-BYTE 'INTEGER)
-           (STANDARD-CHAR '(AND CHARACTER #-BASE-CHAR=CHARACTER (SATISFIES BASE-CHAR-P) (SATISFIES STANDARD-CHAR-P)))
-           (STRING-CHAR 'CHARACTER)
-           ((T) '(AND))
-           (UNSIGNED-BYTE '(INTEGER 0 *))
-           ((ARRAY SIMPLE-ARRAY BIT-VECTOR SIMPLE-BIT-VECTOR
-             STRING SIMPLE-STRING BASE-STRING SIMPLE-BASE-STRING
-             VECTOR SIMPLE-VECTOR
-             COMPLEX REAL INTEGER RATIONAL FLOAT
-             SHORT-FLOAT SINGLE-FLOAT DOUBLE-FLOAT LONG-FLOAT)
-            (canonicalize-type (list type)))
-           ((STREAM FILE-STREAM SYNONYM-STREAM BROADCAST-STREAM
-             CONCATENATED-STREAM TWO-WAY-STREAM ECHO-STREAM STRING-STREAM)
-            ;; We treat STREAM and subclasses like CLOS classes, so that
-            ;; (subtypep 'FUNDAMENTAL-STREAM 'STREAM) can return T.
-            (or (clos-class type) type))
-           (t
-            (let ((f (clos-class type)))
-              (if (and f (not (clos::built-in-class-p f)))
-                  f
-                  type)))))
+         (let ((f (get type 'DEFTYPE-EXPANDER)))
+           (if f
+             (canonicalize-type (funcall f (list type))) ; macroexpandieren
+             (case type
+               (ATOM '(NOT CONS))
+               (BASE-CHAR #+BASE-CHAR=CHARACTER 'CHARACTER
+                          #-BASE-CHAR=CHARACTER '(AND CHARACTER (SATISFIES BASE-CHAR-P))
+               )
+               (BIGNUM '(AND INTEGER (NOT FIXNUM)))
+               (BIT '(INTEGER 0 1))
+               (BOOLEAN '(MEMBER NIL T))
+               (COMMON '(OR CONS SYMBOL NUMBER ARRAY STANDARD-CHAR
+                         STREAM PACKAGE HASH-TABLE READTABLE PATHNAME RANDOM-STATE
+                         STRUCTURE
+               )        )
+               (EXTENDED-CHAR #+BASE-CHAR=CHARACTER 'NIL
+                              #-BASE-CHAR=CHARACTER '(AND CHARACTER (NOT (SATISFIES BASE-CHAR-P)))
+               )
+               (FIXNUM '(INTEGER #,most-negative-fixnum #,most-positive-fixnum))
+               (KEYWORD '(AND SYMBOL (SATISFIES KEYWORDP)))
+               (LIST '(OR CONS (MEMBER NIL)))
+               ((NIL) '(OR))
+               (NULL '(MEMBER NIL))
+               (NUMBER '(OR REAL COMPLEX))
+               (RATIO '(AND RATIONAL (NOT INTEGER)))
+               (SEQUENCE '(OR LIST VECTOR)) ; user-defined sequences??
+               (SIGNED-BYTE 'INTEGER)
+               (STANDARD-CHAR '(AND CHARACTER #-BASE-CHAR=CHARACTER (SATISFIES BASE-CHAR-P) (SATISFIES STANDARD-CHAR-P)))
+               (STRING-CHAR 'CHARACTER)
+               ((T) '(AND))
+               (UNSIGNED-BYTE '(INTEGER 0 *))
+               ((ARRAY SIMPLE-ARRAY BIT-VECTOR SIMPLE-BIT-VECTOR
+                 STRING SIMPLE-STRING BASE-STRING SIMPLE-BASE-STRING
+                 VECTOR SIMPLE-VECTOR
+                 COMPLEX REAL INTEGER RATIONAL FLOAT
+                 SHORT-FLOAT SINGLE-FLOAT DOUBLE-FLOAT LONG-FLOAT
+                )
+                 (canonicalize-type (list type))
+               )
+               ((STREAM FILE-STREAM SYNONYM-STREAM BROADCAST-STREAM
+                 CONCATENATED-STREAM TWO-WAY-STREAM ECHO-STREAM STRING-STREAM
+                )
+                 ; We treat STREAM and subclasses like CLOS classes, so that
+                 ; (subtypep 'FUNDAMENTAL-STREAM 'STREAM) can return T.
+                 (if (and (setq f (get type 'CLOS::CLOSCLASS))
+                          (clos::class-p f) (eq (clos:class-name f) type)
+                     )
+                   f
+                   type
+               ) )
+               (t (if (and (setq f (get type 'CLOS::CLOSCLASS))
+                           (clos::class-p f) (not (clos::built-in-class-p f))
+                           (eq (clos:class-name f) type)
+                      )
+                    f
+                    type
+        )) ) ) )  )
         ((and (consp type) (symbolp (first type)))
-         (case (first type)
-           (MEMBER ; (MEMBER &rest objects)
-            (if (null (rest type)) '(OR) type))
-           (EQL ; (EQL object)
-            `(MEMBER ,(second type)))
-           ((AND OR) ; (AND type*), (OR type*) - may be able to simplify
-            (if (null (cdr type)) type ; itself: (or), (and)
-              (let ((terms (delete-duplicates
-                            (mapcar #'canonicalize-type (rest type))
-                            :test #'equal)))
-                (cond ((null (cdr terms)) (car terms)) ; (or type), (and type)
-                      ((and (eq (first type) 'and) ; (and ... nil ...) => nil
-                            (member '(or) terms :test #'equal))
-                       '(or))   ; nil
-                      ((and (eq (first type) 'or) ; (or ... t ...) => t
-                            (member '(and) terms) :test #'equal)
-                       '(and))  ; t
-                      (t
-                       (let ((new-rest
-                              (delete-duplicates
-                               ;; splice (OR (OR foo) bar) into (OR foo bar)
-                               (mapcap (lambda (ty)
-                                         (if (and (consp ty)
-                                                  (eq (first ty) (first type)))
-                                             (rest ty) (list ty)))
-                                       terms)
-                               :test #'equal)))
-                         (if (equal new-rest (rest type)) type
-                           (canonicalize-type
-                            (cons (first type) new-rest)))))))))
-           (NOT                 ; (NOT type)
-            (let ((not-type (canonicalize-type (second type))))
-              (cond ((and (consp not-type) (eq (car not-type) 'NOT))
-                     (second not-type)) ; (NOT (NOT A)) ==> A
-                    ((and (consp not-type) (member (car not-type) '(AND OR))
-                          (null (cdr not-type))) ; i.e., '(AND) or '(OR)
-                     ;; this might not be good
-                     ;; (NOT (AND A B)) ==> (OR (NOT A) (NOT B))
-                     ;;(canonicalize-type
-                     ;; (cons (case (car not-type) (AND 'OR) (OR 'AND))
-                     ;;       (mapcar (lambda (ty) (list 'NOT ty))
-                     ;;               (rest not-type)))))
-                     (list (case (car not-type) (AND 'OR) (OR 'AND))))
-                    (t (list 'NOT not-type)))))
-           (MOD ; (MOD n)
-            (let ((n (second type)))
-              (unless (and (integerp n) (>= n 0))
-                (typespec-error 'subtypep type))
-              `(INTEGER 0 (,n))))
-           (SIGNED-BYTE ; (SIGNED-BYTE &optional s)
-            (let ((s (or (second type) '*)))
-              (if (eq s '*)
-                'INTEGER
-                (progn
-                  (unless (and (integerp s) (plusp s))
-                    (typespec-error 'subtypep type))
-                  (let ((n (ash 1 (1- s)))) ; (ash 1 *) == (expt 2 *)
-                    `(INTEGER ,(- n) (,n)))))))
-           (UNSIGNED-BYTE ; (UNSIGNED-BYTE &optional s)
-            (let ((s (or (second type) '*)))
-              (if (eq s '*)
-                '(INTEGER 0 *)
-                (progn
-                  (unless (and (integerp s) (>= s 0))
-                    (typespec-error 'subtypep type))
-                  (let ((n (ash 1 s))) ; (ash 1 *) == (expt 2 *)
-                    `(INTEGER 0 (,n)))))))
-           (SIMPLE-BIT-VECTOR ; (SIMPLE-BIT-VECTOR &optional size)
-            (let ((size (or (second type) '*)))
-              `(SIMPLE-ARRAY BIT (,size))))
-           (SIMPLE-STRING ; (SIMPLE-STRING &optional size)
-            (let ((size (or (second type) '*)))
-              `(SIMPLE-ARRAY CHARACTER (,size))))
-           (SIMPLE-BASE-STRING ; (SIMPLE-BASE-STRING &optional size)
-            (let ((size (or (second type) '*)))
-              `(SIMPLE-ARRAY BASE-CHAR (,size))))
-           (SIMPLE-VECTOR ; (SIMPLE-VECTOR &optional size)
-            (let ((size (or (second type) '*)))
-              `(SIMPLE-ARRAY T (,size))))
-           (BIT-VECTOR ; (BIT-VECTOR &optional size)
-            (let ((size (or (second type) '*)))
-              `(ARRAY BIT (,size))))
-           (STRING ; (STRING &optional size)
-            (let ((size (or (second type) '*)))
-              `(ARRAY CHARACTER (,size))))
-           (BASE-STRING ; (BASE-STRING &optional size)
-            (let ((size (or (second type) '*)))
-              `(ARRAY BASE-CHAR (,size))))
-           (VECTOR ; (VECTOR &optional el-type size)
-            (let ((el-type (or (second type) '*))
-                  (size (or (third type) '*)))
-              `(ARRAY ,el-type (,size))))
-           (t type)))
+         (let ((f (get (first type) 'DEFTYPE-EXPANDER)))
+           (if f
+             (canonicalize-type (funcall f type)) ; macroexpandieren
+             (case (first type)
+               (MEMBER ; (MEMBER &rest objects)
+                 (if (null (rest type)) '(OR) type)
+               )
+               (EQL ; (EQL object)
+                 `(MEMBER ,(second type))
+               )
+               ((AND OR) ; (AND type*), (OR type*) kann man evtl. vereinfachen
+                 (if (and (consp (cdr type)) (null (cddr type)))
+                   (canonicalize-type (second type))
+                   type
+               ) )
+               (MOD ; (MOD n)
+                 (let ((n (second type)))
+                   (unless (and (integerp n) (>= n 0)) (typespec-error 'subtypep type))
+                   `(INTEGER 0 (,n))
+               ) )
+               (SIGNED-BYTE ; (SIGNED-BYTE &optional s)
+                 (let ((s (or (second type) '*)))
+                   (if (eq s '*)
+                     'INTEGER
+                     (progn
+                       (unless (and (integerp s) (plusp s)) (typespec-error 'subtypep type))
+                       (let ((n (ash 1 (1- s)))) ; (ash 1 *) == (expt 2 *)
+                         `(INTEGER ,(- n) (,n))
+               ) ) ) ) )
+               (UNSIGNED-BYTE ; (UNSIGNED-BYTE &optional s)
+                 (let ((s (or (second type) '*)))
+                   (if (eq s '*)
+                     '(INTEGER 0 *)
+                     (progn
+                       (unless (and (integerp s) (>= s 0)) (typespec-error 'subtypep type))
+                       (let ((n (ash 1 s))) ; (ash 1 *) == (expt 2 *)
+                         `(INTEGER 0 (,n))
+               ) ) ) ) )
+               (SIMPLE-BIT-VECTOR ; (SIMPLE-BIT-VECTOR &optional size)
+                 (let ((size (or (second type) '*)))
+                   `(SIMPLE-ARRAY BIT (,size))
+               ) )
+               (SIMPLE-STRING ; (SIMPLE-STRING &optional size)
+                 (let ((size (or (second type) '*)))
+                   `(SIMPLE-ARRAY CHARACTER (,size))
+               ) )
+               (SIMPLE-BASE-STRING ; (SIMPLE-BASE-STRING &optional size)
+                 (let ((size (or (second type) '*)))
+                   `(SIMPLE-ARRAY BASE-CHAR (,size))
+               ) )
+               (SIMPLE-VECTOR ; (SIMPLE-VECTOR &optional size)
+                 (let ((size (or (second type) '*)))
+                   `(SIMPLE-ARRAY T (,size))
+               ) )
+               (BIT-VECTOR ; (BIT-VECTOR &optional size)
+                 (let ((size (or (second type) '*)))
+                   `(ARRAY BIT (,size))
+               ) )
+               (STRING ; (STRING &optional size)
+                 (let ((size (or (second type) '*)))
+                   `(ARRAY CHARACTER (,size))
+               ) )
+               (BASE-STRING ; (BASE-STRING &optional size)
+                 (let ((size (or (second type) '*)))
+                   `(ARRAY BASE-CHAR (,size))
+               ) )
+               (VECTOR ; (VECTOR &optional el-type size)
+                 (let ((el-type (or (second type) '*))
+                       (size (or (third type) '*)))
+                   `(ARRAY ,el-type (,size))
+               ) )
+               (t type)
+        )) ) )
         ((clos::class-p type)
          (if (and (clos::built-in-class-p type)
-                  (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type))
+                  (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type)
+             )
            (canonicalize-type (clos:class-name type))
-           type))
+           type
+        ))
         ((encodingp type)
          #+UNICODE
-         (let ((charset (encoding-charset type)))
-           (case charset
-             ((charset:unicode-16-big-endian charset:unicode-16-little-endian
-               charset:unicode-32-big-endian charset:unicode-32-little-endian
-               charset:utf-8 charset:java)
-              'CHARACTER)
-             (t
-              (if (and (stringp charset)
-                       (or (string= charset "UTF-16")
-                           (string= charset "UTF-7")))
+           (let ((charset (encoding-charset type)))
+             (case charset
+               ((charset:unicode-16-big-endian charset:unicode-16-little-endian
+                 charset:unicode-32-big-endian charset:unicode-32-little-endian
+                 charset:utf-8 charset:java)
                 'CHARACTER
-                type))))
-         #-UNICODE 'CHARACTER)
-        (t (typespec-error 'subtypep type))))
+               )
+               (t
+                (if (and (stringp charset)
+                         (or (string= charset "UTF-16")
+                             (string= charset "UTF-7")
+                    )    )
+                  'CHARACTER
+                 type
+           ) ) ))
+         #-UNICODE 'CHARACTER
+        )
+        (t (typespec-error 'subtypep type))
+) )
 (defun subtypep (type1 type2)
   (macrolet ((yes () '(return-from subtypep (values t t)))
              (no () '(return-from subtypep (values nil t)))
              (unknown () '(return-from subtypep (values nil nil))))
     (setq type1 (canonicalize-type type1))
     (setq type2 (canonicalize-type type2))
-    ;; canonicalize-type: T ==> (AND),  NIL ==> (OR)
-    (when (or (equal '(OR) type1) (equal (AND) type2)) (yes))
-    (when (equal '(OR) type2) (no))
-    (when (equal type1 type2) (yes)) ; (subtypep type type) always true
-                                     ; equal on MEMBER and EQL is forbidden!!??
+    (when (equal type1 type2) (yes)) ; (subtypep type type) stimmt immer
+                                     ; equal auf MEMBER und EQL verboten!!??
     (when (consp type1)
       (cond ;; über SATISFIES-Typen kann man nichts aussagen
             ;((and (eq (first type1) 'SATISFIES) (eql (length type1) 2))
@@ -914,12 +904,10 @@
             ;; zu (subtypep type2 type1), sonst ist Entscheidung schwierig
             ((and (eq (first type1) 'NOT) (eql (length type1) 2))
              (return-from subtypep
-               (cond ((and (consp type2) (eq (first type2) 'NOT)
-                           (eql (length type2) 2))
-                      (subtypep (second type2) (second type1)))
-                     ((subtypep (second type1) type2)
-                      (no))     ; assumes type2 != T
-                     (t (unknown)))))
+               (if (and (consp type2) (eq (first type2) 'NOT) (eql (length type2) 2))
+                 (subtypep (second type2) (second type1))
+                 (unknown)
+            )) )
             ;; OR: Jeder Typ muss Subtyp von type2 sein
             ((eq (first type1) 'OR)
              (dolist (type (rest type1) (yes))
@@ -1129,7 +1117,7 @@
         READTABLE SYMBOL)
        (no)
       )
-      ((CLOS:GENERIC-FUNCTION COMPILED-FUNCTION #+ffi FFI::FOREIGN-FUNCTION)
+      (CLOS:GENERIC-FUNCTION
        (if (eq type2 'FUNCTION) (yes) (no))
       )
       (CLOS:STANDARD-GENERIC-FUNCTION
@@ -1146,12 +1134,6 @@
          (unknown)
       ))
 ) ) )
-
-;; this function does not return anything useful,
-;; since CLISP complex numbers can always hold any number
-(defun upgraded-complex-part-type (spec)
-  (declare (ignore spec))
-  t)
 
 #-UNICODE
 (defun charset-subtypep (encoding1 encoding2)
@@ -1203,24 +1185,24 @@
            (intervals2 (get-charset-range (encoding-charset encoding2)))
            (n1 (length intervals1))
            (n2 (length intervals2))
-           (jj1 0)  ; grows by 2 from 0 to n1
-           (jj2 0)) ; grows by 2 from 0 to n2
+           (j1 0)  ; grows by 2 from 0 to n1
+           (j2 0)) ; grows by 2 from 0 to n2
       (loop
         ; Get next interval from intervals1.
-        (when (eql jj1 n1) (return-from charset-subtypep t))
-        (let ((i1 (schar intervals1 jj1)) (i2 (schar intervals1 (+ jj1 1))))
+        (when (eql j1 n1) (return-from charset-subtypep t))
+        (let ((i1 (schar intervals1 j1)) (i2 (schar intervals1 (+ j1 1))))
           ; Test whether [i1,i2] is contained in intervals2.
           (let (i3 i4)
             (loop
-              (when (eql jj2 n2)
+              (when (eql j2 n2)
                 ; [i1,i2] not contained in intervals2.
                 (return-from charset-subtypep nil)
               )
-              (setq i3 (schar intervals2 jj2))
-              (setq i4 (schar intervals2 (+ jj2 1)))
+              (setq i3 (schar intervals2 j2))
+              (setq i4 (schar intervals2 (+ j2 1)))
               ; If i3 <= i4 < i1 <= i2, skip the interval [i3,i4].
               (when (char>= i4 i1) (return))
-              (incf jj2 2)
+              (incf j2 2)
             )
             (when (char< i1 i3)
               ; i1 not contained in intervals2.
@@ -1231,7 +1213,7 @@
               (return-from charset-subtypep nil)
             )
             ; Now (<= i3 i1) and (<= i2 i4), hence [i1,i2] contained in intervals2.
-            (incf jj1 2)
+            (incf j1 2)
   ) ) ) ) )
 )
 
@@ -1319,114 +1301,141 @@
   (macrolet ((yes () '(return-from subtype-integer (values low high)))
              (no () '(return-from subtype-integer nil))
              (unknown () '(return-from subtype-integer nil)))
-    (setq type (expand-deftype type))
     (cond ((symbolp type)
-           (case type
-             (BIT (let ((low 0) (high 1)) (yes)))
-             (FIXNUM
-              (let ((low '#,most-negative-fixnum)
-                    (high '#,most-positive-fixnum))
-                (yes)))
-             ((INTEGER BIGNUM SIGNED-BYTE)
-              (let ((low '*) (high '*)) (yes)))
-             (UNSIGNED-BYTE
-              (let ((low 0) (high '*)) (yes)))
-             ((NIL)
-              (let ((low 0) (high 0)) (yes))) ; wlog!
-             (t (no))))
+           (let ((f (get type 'DEFTYPE-EXPANDER)))
+             (if f
+               (return-from subtype-integer
+                 (subtype-integer (funcall f (list type)))
+               )
+               (case type
+                 (BIT
+                   (let ((low 0) (high 1)) (yes))
+                 )
+                 (FIXNUM
+                   (let ((low '#,most-negative-fixnum)
+                         (high '#,most-positive-fixnum))
+                     (yes)
+                 ) )
+                 ((INTEGER BIGNUM SIGNED-BYTE)
+                   (let ((low '*) (high '*)) (yes))
+                 )
+                 (UNSIGNED-BYTE
+                   (let ((low 0) (high '*)) (yes))
+                 )
+                 ((NIL)
+                   (let ((low 0) (high 0)) (yes)) ; w.l.o.g.
+                 )
+                 (t
+                   (no)
+          )) ) ) )
           ((and (consp type) (symbolp (first type)))
-           (case (first type)
-             (MEMBER ; (MEMBER &rest objects)
-              ;; All elements must be of type INTEGER.
-              (let ((low 0) (high 0)) ; wlog!
-                (dolist (x (rest type) (yes))
-                  (unless (typep x 'INTEGER) (return (no)))
-                  (setq low (min low x) high (max high x)))))
-             (EQL ; (EQL object)
-              (let ((x (second type)))
-                (if (typep x 'INTEGER)
-                  (let ((low (min 0 x)) (high (max 0 x))) (yes))
-                  (no))))
-             (OR ; (OR type*)
-              ;; Every type must be subtype of INTEGER.
-              (let ((low 0) (high 0)) ; wlog!
-                (dolist (type1 (rest type) (yes))
-                  (multiple-value-bind (low1 high1) (subtype-integer type1)
-                    (unless low1 (return (no)))
-                    (setq low (if (or (eq low '*) (eq low1 '*))
-                                  '* (min low low1))
-                          high (if (or (eq high '*) (eq high1 '*))
-                                   '* (max high high1)))))))
-             (AND ; (AND type*)
-              ;; If one of the types is subtype of INTEGER, then yes,
-              ;; otherwise unknown.
-              (let ((low nil) (high nil))
-                (dolist (type1 (rest type))
-                  (multiple-value-bind (low1 high1) (subtype-integer type1)
-                    (when low1
-                      (if low
-                        (setq low (if (eq low '*) low1
-                                      (if (eq low1 '*) low
-                                          (max low low1)))
-                              high (if (eq high '*) high1
-                                       (if (eq high1 '*) high
-                                           (min high high1))))
-                        (setq low low1
-                              high high1)))))
-                (if low
-                  (progn
-                    (when (and (numberp low) (numberp high)
-                               (not (<= low high)))
-                      (setq low 0 high 0)) ; type equivalent to NIL
-                    (yes))
-                  (unknown))))
-             (INTEGER
-              (let ((low (if (rest type) (second type) '*))
-                    (high (if (cddr type) (third type) '*)))
-                (when (consp low)
-                  (setq low (first low))
-                  (when (numberp low) (incf low)))
-                (when (consp high)
-                  (setq high (first high))
-                  (when (numberp high) (decf high)))
-                (when (and (numberp low) (numberp high) (not (<= low high)))
-                  (setq low 0 high 0)) ; type equivalent to NIL
-                (yes)))
-             (MOD ; (MOD n)
-              (let ((n (second type)))
-                (unless (and (integerp n) (>= n 0))
-                  (typespec-error 'subtypep type))
-                (let ((low 0) (high (max 0 (1- n))))
-                  (yes))))
-             (SIGNED-BYTE ; (SIGNED-BYTE &optional s)
-              (let ((s (or (second type) '*)))
-                (if (eq s '*)
-                  (let ((low '*) (high '*)) (yes))
-                  (progn
-                    (unless (and (integerp s) (plusp s))
-                      (typespec-error 'subtypep type))
-                    (let ((n (ash 1 (1- s)))) ; (ash 1 *) == (expt 2 *)
-                      (let ((low (- n)) (high (1- n)))
-                        (yes)))))))
-             (UNSIGNED-BYTE ; (UNSIGNED-BYTE &optional s)
-              (let ((s (or (second type) '*)))
-                (if (eq s '*)
-                    (let ((low 0) (high '*)) (yes))
-                    (progn
-                      (unless (and (integerp s) (>= s 0))
-                        (typespec-error 'subtypep type))
-                      (let ((n (ash 1 s))) ; (ash 1 *) == (expt 2 *)
-                        (let ((low 0) (high (1- n)))
-                          (yes)))))))
-             (t (no))))
+           (let ((f (get (first type) 'DEFTYPE-EXPANDER)))
+             (if f
+               (return-from subtype-integer
+                 (subtype-integer (funcall f type))
+               )
+               (case (first type)
+                 (MEMBER ; (MEMBER &rest objects)
+                   ;; All elements must be of type INTEGER.
+                   (let ((low 0) (high 0)) ; wlog!
+                     (dolist (x (rest type) (yes))
+                       (unless (typep x 'INTEGER) (return (no)))
+                       (setq low (min low x) high (max high x))
+                 ) ) )
+                 (EQL ; (EQL object)
+                   (let ((x (second type)))
+                     (if (typep x 'INTEGER)
+                       (let ((low (min 0 x)) (high (max 0 x))) (yes))
+                       (no)
+                 ) ) )
+                 (OR ; (OR type*)
+                   ;; Every type must be subtype of INTEGER.
+                   (let ((low 0) (high 0)) ; wlog!
+                     (dolist (type1 (rest type) (yes))
+                       (multiple-value-bind (low1 high1) (subtype-integer type1)
+                         (unless low1 (return (no)))
+                         (setq low (if (or (eq low '*) (eq low1 '*)) '* (min low low1))
+                               high (if (or (eq high '*) (eq high1 '*)) '* (max high high1))
+                 ) ) ) ) )
+                 (AND ; (AND type*)
+                   ;; If one of the types is subtype of INTEGER, then yes,
+                   ;; otherwise unknown.
+                   (let ((low nil) (high nil))
+                     (dolist (type1 (rest type))
+                       (multiple-value-bind (low1 high1) (subtype-integer type1)
+                         (when low1
+                           (if low
+                             (setq low (if (eq low '*) low1 (if (eq low1 '*) low (max low low1)))
+                                   high (if (eq high '*) high1 (if (eq high1 '*) high (min high high1)))
+                             )
+                             (setq low low1
+                                   high high1
+                     ) ) ) ) )
+                     (if low
+                       (progn
+                         (when (and (numberp low) (numberp high) (not (<= low high)))
+                           (setq low 0 high 0) ; type equivalent to NIL
+                         )
+                         (yes)
+                       )
+                       (unknown)
+                 ) ) )
+                 (INTEGER
+                   (let ((low (if (rest type) (second type) '*))
+                         (high (if (cddr type) (third type) '*)))
+                     (when (consp low)
+                       (setq low (first low))
+                       (when (numberp low) (incf low))
+                     )
+                     (when (consp high)
+                       (setq high (first high))
+                       (when (numberp high) (decf high))
+                     )
+                     (when (and (numberp low) (numberp high) (not (<= low high)))
+                       (setq low 0 high 0) ; type equivalent to NIL
+                     )
+                     (yes)
+                 ) )
+                 (MOD ; (MOD n)
+                   (let ((n (second type)))
+                     (unless (and (integerp n) (>= n 0)) (typespec-error 'subtypep type))
+                     (let ((low 0) (high (max 0 (1- n))))
+                       (yes)
+                 ) ) )
+                 (SIGNED-BYTE ; (SIGNED-BYTE &optional s)
+                   (let ((s (or (second type) '*)))
+                     (if (eq s '*)
+                       (let ((low '*) (high '*)) (yes))
+                       (progn
+                         (unless (and (integerp s) (plusp s)) (typespec-error 'subtypep type))
+                         (let ((n (ash 1 (1- s)))) ; (ash 1 *) == (expt 2 *)
+                           (let ((low (- n)) (high (1- n)))
+                             (yes)
+                 ) ) ) ) ) )
+                 (UNSIGNED-BYTE ; (UNSIGNED-BYTE &optional s)
+                   (let ((s (or (second type) '*)))
+                     (if (eq s '*)
+                       (let ((low 0) (high '*)) (yes))
+                       (progn
+                         (unless (and (integerp s) (>= s 0)) (typespec-error 'subtypep type))
+                         (let ((n (ash 1 s))) ; (ash 1 *) == (expt 2 *)
+                           (let ((low 0) (high (1- n)))
+                             (yes)
+                 ) ) ) ) ) )
+                 (t (no))
+          )) ) )
           ((clos::class-p type)
            (if (and (clos::built-in-class-p type)
-                    (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type))
+                    (eq (get (clos:class-name type) 'CLOS::CLOSCLASS) type)
+               )
              (return-from subtype-integer
-               (subtype-integer (clos:class-name type)))
-             (no)))
+               (subtype-integer (clos:class-name type))
+             )
+             (no)
+          ))
           ((encodingp type) (no))
-          (t (typespec-error 'subtypep type)))))
+          (t (typespec-error 'subtypep type))
+) ) )
 
 #| Zu tun:
 SUBTYPEP so verbessern, dass
@@ -1466,26 +1475,46 @@ Calling (equal type1 type2) is wrong: they may be MEMBER or EQL specifiers
 referring to circular lists.
 |#
 
-;; ============================================================================
+;===============================================================================
 
-(defun type-expand (typespec &optional once-p)
-  (multiple-value-bind (expanded user-defined-p)
-      (expand-deftype typespec once-p)
-    (if user-defined-p (values expanded user-defined-p)
-      (cond ((symbolp typespec)
-             (cond ((or (get typespec 'TYPE-SYMBOL) (get typespec 'TYPE-LIST))
-                    (values typespec nil))
-                   ((or (get typespec 'DEFSTRUCT-DESCRIPTION)
-                        (clos-class typespec))
-                    (values typespec nil))
-                   (t (typespec-error 'type-expand typespec))))
-            ((and (consp typespec) (symbolp (first typespec)))
-             (case (first typespec)
-               ((SATISFIES MEMBER EQL NOT AND OR) (values typespec nil))
-               (t (cond ((get (first typespec) 'TYPE-LIST)
-                         (values typespec nil))
-                        (t (typespec-error 'type-expand typespec))))))
-            ((clos::class-p typespec) (values typespec nil))
-            (t (typespec-error 'type-expand typespec))))))
+(defun type-expand-1 (typespec &aux f)
+  (cond ((symbolp typespec)
+         (cond ((or (get typespec 'TYPE-SYMBOL) (get typespec 'TYPE-LIST))
+                (values typespec nil)
+               )
+               ((setq f (get typespec 'DEFTYPE-EXPANDER))
+                (values (funcall f (list typespec)) t)
+               )
+               ((or (get typespec 'DEFSTRUCT-DESCRIPTION)
+                    (and (setq f (get typespec 'CLOS::CLOSCLASS))
+                         (clos::class-p f)
+                         (eq (clos:class-name f) typespec)
+                )   )
+                (values typespec nil)
+               )
+               (t (typespec-error 'type-expand-1 typespec))
+        ))
+        ((and (consp typespec) (symbolp (first typespec)))
+         (case (first typespec)
+           ((SATISFIES MEMBER EQL NOT AND OR) (values typespec nil))
+           (t (cond ((get (first typespec) 'TYPE-LIST) (values typespec nil))
+                    ((setq f (get (first typespec) 'DEFTYPE-EXPANDER))
+                     (values (funcall f typespec) t)
+                    )
+                    (t (typespec-error 'type-expand-1 typespec))
+        )) )  )
+        ((clos::class-p typespec) (values typespec nil))
+        (t (typespec-error 'type-expand-1 typespec))
+) )
 
-;; ============================================================================
+(defun type-expand (typespec)
+  (multiple-value-bind (a b) (type-expand-1 typespec)
+    (if b
+      (loop
+        (multiple-value-setq (a b) (type-expand-1 a))
+        (unless b (return (values a t)))
+      )
+      (values typespec nil)
+) ) )
+
+;===============================================================================

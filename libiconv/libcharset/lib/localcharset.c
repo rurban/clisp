@@ -63,11 +63,6 @@
 # define ISSLASH(C) ((C) == DIRECTORY_SEPARATOR)
 #endif
 
-#ifdef __cplusplus
-/* When compiling with "gcc -x c++", produce a function with C linkage.  */
-extern "C" const char * locale_charset (void);
-#endif
-
 /* The following static variable is declared 'volatile' to avoid a
    possible multithread problem in the function get_charset_aliases. If we
    are running in a threaded environment, and if two threads initialize
@@ -80,13 +75,13 @@ extern "C" const char * locale_charset (void);
 /* Pointer to the contents of the charset.alias file, if it has already been
    read, else NULL.  Its format is:
    ALIAS_1 '\0' CANONICAL_1 '\0' ... ALIAS_n '\0' CANONICAL_n '\0' '\0'  */
-static const char * volatile charset_aliases;
+static char * volatile charset_aliases;
 
 /* Return a pointer to the contents of the charset.alias file.  */
 static const char *
 get_charset_aliases ()
 {
-  const char *cp;
+  char *cp;
 
   cp = charset_aliases;
   if (cp == NULL)
@@ -150,12 +145,12 @@ get_charset_aliases ()
 	      if (res_size == 0)
 		{
 		  res_size = l1 + 1 + l2 + 1;
-		  res_ptr = (char *) malloc (res_size + 1);
+		  res_ptr = malloc (res_size + 1);
 		}
 	      else
 		{
 		  res_size += l1 + 1 + l2 + 1;
-		  res_ptr = (char *) realloc (res_ptr, res_size + 1);
+		  res_ptr = realloc (res_ptr, res_size + 1);
 		}
 	      if (res_ptr == NULL)
 		{
@@ -271,12 +266,6 @@ locale_charset ()
 	codeset = aliases + strlen (aliases) + 1;
 	break;
       }
-
-  /* Don't return an empty string.  GNU libc and GNU libiconv interpret
-     the empty string as denoting "the locale's character encoding",
-     thus GNU libiconv would call this function a second time.  */
-  if (codeset[0] == '\0')
-    codeset = "ASCII";
 
   return codeset;
 }

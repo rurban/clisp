@@ -21,10 +21,10 @@
 MY-CPL
 
 (defun check-superclasses (class expected)
-  (let ((expected (list* class 't #+(or CLISP ALLEGRO) 'standard-object #+CMU 'instance 'condition expected))
-        (super (mapcar #' #+(or CLISP ALLEGRO) class-name #+CMU pcl:class-name (my-cpl class))))
-    (list (set-difference super expected)
-          (set-difference expected super))))
+  (let ((expected (list* class 't #+CLISP 'clos:standard-object #+ALLEGRO 'standard-object #+CMU 'instance 'condition expected))
+        (super (mapcar #' #+CLISP clos:class-name #+ALLEGRO class-name #+CMU pcl:class-name (my-cpl class))))
+    (and (null (set-difference super expected))
+         (null (set-difference expected super)))))
 CHECK-SUPERCLASSES
 
 ;;;
@@ -48,64 +48,35 @@ CHECK-SUPERCLASSES
 ;;; Predefined condition types.
 ;;;
 
-(check-superclasses 'warning '())
-(nil nil)
-(check-superclasses 'style-warning '(warning))
-(nil nil)
-(check-superclasses 'serious-condition '())
-(nil nil)
-(check-superclasses 'error '(serious-condition))
-(nil nil)
-(check-superclasses 'cell-error '(error serious-condition))
-(nil nil)
-(check-superclasses 'parse-error '(error serious-condition))
-(nil nil)
-(check-superclasses 'storage-condition '(serious-condition))
-(nil nil)
-(check-superclasses 'simple-error '(simple-condition error serious-condition))
-(nil nil)
-(check-superclasses 'simple-condition '())
-(nil nil)
-(check-superclasses 'simple-warning '(simple-condition warning))
-(nil nil)
-(check-superclasses 'file-error '(error serious-condition))
-(nil nil)
-(check-superclasses 'control-error '(error serious-condition))
-(nil nil)
-(check-superclasses 'program-error '(error serious-condition))
-(nil nil)
-(check-superclasses 'undefined-function '(cell-error error serious-condition))
-(nil nil)
-(check-superclasses 'arithmetic-error '(error serious-condition))
-(nil nil)
-(check-superclasses 'division-by-zero '(arithmetic-error error serious-condition))
-(nil nil)
-(check-superclasses 'floating-point-invalid-operation '(arithmetic-error error serious-condition))
-(nil nil)
-(check-superclasses 'floating-point-inexact '(arithmetic-error error serious-condition))
-(nil nil)
-(check-superclasses 'floating-point-overflow '(arithmetic-error error serious-condition))
-(nil nil)
-(check-superclasses 'floating-point-underflow '(arithmetic-error error serious-condition))
-(nil nil)
-(check-superclasses 'unbound-slot '(cell-error error serious-condition))
-(nil nil)
-(check-superclasses 'package-error '(error serious-condition))
-(nil nil)
-(check-superclasses 'print-not-readable '(error serious-condition))
-(nil nil)
-(check-superclasses 'reader-error '(parse-error stream-error error serious-condition))
-(nil nil)
-(check-superclasses 'stream-error '(error serious-condition))
-(nil nil)
-(check-superclasses 'end-of-file '(stream-error error serious-condition))
-(nil nil)
-(check-superclasses 'unbound-variable '(cell-error error serious-condition))
-(nil nil)
-(check-superclasses 'type-error '(error serious-condition))
-(nil nil)
-(check-superclasses 'simple-type-error '(simple-condition type-error error serious-condition))
-(nil nil)
+(check-superclasses 'warning '()) T
+(check-superclasses 'style-warning '(warning)) T
+(check-superclasses 'serious-condition '()) T
+(check-superclasses 'error '(serious-condition)) T
+(check-superclasses 'cell-error '(error serious-condition)) T
+(check-superclasses 'parse-error '(error serious-condition)) T
+(check-superclasses 'storage-condition '(serious-condition)) T
+(check-superclasses 'simple-error '(simple-condition error serious-condition)) T
+(check-superclasses 'simple-condition '()) T
+(check-superclasses 'simple-warning '(simple-condition warning)) T
+(check-superclasses 'file-error '(error serious-condition)) T
+(check-superclasses 'control-error '(error serious-condition)) T
+(check-superclasses 'program-error '(error serious-condition)) T
+(check-superclasses 'undefined-function '(cell-error error serious-condition)) T
+(check-superclasses 'arithmetic-error '(error serious-condition)) T
+(check-superclasses 'division-by-zero '(arithmetic-error error serious-condition)) T
+(check-superclasses 'floating-point-invalid-operation '(arithmetic-error error serious-condition)) T
+(check-superclasses 'floating-point-inexact '(arithmetic-error error serious-condition)) T
+(check-superclasses 'floating-point-overflow '(arithmetic-error error serious-condition)) T
+(check-superclasses 'floating-point-underflow '(arithmetic-error error serious-condition)) T
+(check-superclasses 'unbound-slot '(cell-error error serious-condition)) T
+(check-superclasses 'package-error '(error serious-condition)) T
+(check-superclasses 'print-not-readable '(error serious-condition)) T
+(check-superclasses 'reader-error '(parse-error stream-error error serious-condition)) T
+(check-superclasses 'stream-error '(error serious-condition)) T
+(check-superclasses 'end-of-file '(stream-error error serious-condition)) T
+(check-superclasses 'unbound-variable '(cell-error error serious-condition)) T
+(check-superclasses 'type-error '(error serious-condition)) T
+(check-superclasses 'simple-type-error '(#-ANSI-CL simple-error simple-condition type-error error serious-condition)) T
 
 ;;;
 ;;; Defining conditions.
@@ -113,20 +84,20 @@ CHECK-SUPERCLASSES
 (progn (define-condition test () ()) t)
 T
 
-(check-superclasses 'test '())
-(nil nil)
+(check-superclasses  'test '())
+T
 
 (progn (define-condition test2 (test) ()) t)
 T
 
 (check-superclasses 'test2 '(test))
-(nil nil)
+T
 
 (progn (define-condition test3 (test2 simple-condition) ()) t)
 T
 
 (check-superclasses 'test3 '(test2 test simple-condition))
-(nil nil)
+T
 
 ;;;
 ;;; Making conditions
@@ -210,7 +181,7 @@ nil
 ;;; Handlers should work.
 (multiple-value-list
     (block foo
-      (handler-bind
+      (handler-bind 
           ((error #'(lambda (c)
                       (declare (ignore c))
                       (return-from foo (values 23 17)))))
@@ -220,7 +191,7 @@ nil
 ;;; Only the appropriate handlers should be called.
 (ignore-errors
  (block foo
-   (handler-bind
+   (handler-bind 
        ((type-error #'(lambda (c)
                         (declare (ignore c))
                         (return-from foo 23))))
@@ -229,7 +200,7 @@ nil
 
 ;;; Handlers can be specified type expressions.
 (block foo
-  (handler-bind
+  (handler-bind 
       (((or type-error error)
         #'(lambda (c)
             (declare (ignore c))
@@ -241,7 +212,7 @@ nil
 (ignore-errors
  (block foo
    (let ((first-time t))
-     (handler-bind
+     (handler-bind 
          ((error
            #'(lambda (c)
                (declare (ignore c))
@@ -262,7 +233,7 @@ nil
               (declare (ignore c))
               (return-from foo 23))))
       (handler-bind
-          ((error
+          ((error 
             #'(lambda (c)
                 (declare (ignore c))
                 (if first-time
@@ -276,7 +247,7 @@ nil
 ;;; Handlers in the same cluster should be accessible.
 (ignore-errors
  (block foo
-   (handler-bind
+   (handler-bind 
        ((error
          #'(lambda (c) (declare (ignore c)) nil))
         (error
@@ -284,13 +255,13 @@ nil
              (declare (ignore c))
              (return-from foo 23))))
      (error "Foo"))))
-23
+#-ANSI-CL nil #+ANSI-CL 23
 
 ;;; Multiple handlers should work.
 (block foo
-  (handler-bind
+  (handler-bind 
       ((type-error
-        #'(lambda (c)
+        #'(lambda (c) 
             (declare (ignore c))
             (return-from foo 42)))
        (error
@@ -321,7 +292,7 @@ nil
 
 ;;; HANDLER-CASE should handle errors.
 (multiple-value-list
-    (handler-case
+    (handler-case 
         (error "Foo")
       (error (c) (when (typep c 'error) (values 23 42)))))
 (23 42)
@@ -361,12 +332,12 @@ NIL
   (:no-error (&rest args) (declare (ignore args)) 42))
 23
 
-;;; It does not have to be the last clause.
+;;; Or if it is not the last clause.
 (handler-case
     23
   (:no-error (v) (1+ v))
   (error () 42))
-24
+#-ANSI-CL 23 #+ANSI-CL 24
 
 ;;; Multiple handlers should be OK.
 (handler-case
@@ -377,7 +348,7 @@ NIL
 
 ;;; Handlers should get undone.
 (ignore-errors
- (progn
+ (progn 
    (block foo
      (handler-case
          (return-from foo 23)
@@ -398,6 +369,6 @@ NIL
                (error "Bar"))
              (return-from foo 23)))))))
 NIL
-
+      
 
 

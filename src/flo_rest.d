@@ -4,28 +4,37 @@
 # Macro: verteilt je nach Float-Typ eines Floats x auf 4 Statements.
 # floatcase(x, SF_statement,FF_statement,DF_statement,LF_statement);
 # x sollte eine Variable sein.
-#ifdef TYPECODES
-  #define floatcase(obj,SF_statement,FF_statement,DF_statement,LF_statement) \
-    do {                                                                     \
-      if (!number_wbit_test(as_oint(obj),float1_bit_o)) {                    \
-        if (!number_wbit_test(as_oint(obj),float2_bit_o)) { SF_statement; }  \
-        else { FF_statement; }                                               \
-      } else {                                                               \
-        if (!number_wbit_test(as_oint(obj),float2_bit_o)) { DF_statement; }  \
-        else { LF_statement; }                                               \
-      }                                                                      \
-    } while(0)
-#else
-  #define floatcase(obj,SF_statement,FF_statement,DF_statement,LF_statement) \
-    do {                                                                     \
-      if (as_oint(obj) & wbit(1)) { SF_statement; }                          \
-      else {                                                                 \
-        if (Record_type(obj) > Rectype_Dfloat) { FF_statement; }             \
-        else if (Record_type(obj) == Rectype_Dfloat) { DF_statement; }       \
-        else { LF_statement; }                                               \
-      }                                                                      \
-    } while(0)
-#endif
+  #ifdef TYPECODES
+    #define floatcase(obj, SF_statement,FF_statement,DF_statement,LF_statement) \
+      {                                                       \
+        if (!number_wbit_test(as_oint(obj),float1_bit_o)) {   \
+          if (!number_wbit_test(as_oint(obj),float2_bit_o)) { \
+            SF_statement                                      \
+          } else {                                            \
+            FF_statement                                      \
+          }                                                   \
+        } else {                                              \
+          if (!number_wbit_test(as_oint(obj),float2_bit_o)) { \
+            DF_statement                                      \
+          } else {                                            \
+            LF_statement                                      \
+          }                                                   \
+        }                                                     \
+      }
+  #else
+    #define floatcase(obj, SF_statement,FF_statement,DF_statement,LF_statement) \
+      if (as_oint(obj) & wbit(1)) {                   \
+        SF_statement                                  \
+      } else {                                        \
+        if (Record_type(obj) > Rectype_Dfloat) {      \
+          FF_statement                                \
+        } elif (Record_type(obj) == Rectype_Dfloat) { \
+          DF_statement                                \
+        } else {                                      \
+          LF_statement                                \
+        }                                             \
+      }
+  #endif
 # DF_statement darf kein #if enthalten. Daher:
   #ifdef intQsize
     #define ifdef_intQsize(A,B)  A
@@ -36,13 +45,16 @@
 # Warnt, wenn Floats verschiedenen Typs kombiniert werden.
 # warn_floating_point_contagion();
 # can trigger GC
-local void warn_floating_point_contagion (void) {
-  pushSTACK(CLSTEXT("Floating point operation combines numbers of different precision." NLstring "See ANSI CL 12.1.4.4 and the CLISP impnotes for details." NLstring "The result's actual precision is controlled by" NLstring "~S." NLstring "To shut off this warning, set ~S to ~S."));
-  pushSTACK(S(floating_point_contagion_ansi));
-  pushSTACK(S(warn_on_floating_point_contagion));
-  pushSTACK(NIL);
-  funcall(S(warn),4);
-}
+  local void warn_floating_point_contagion (void);
+  local void warn_floating_point_contagion()
+    {
+      # (WARN "Floating point operation combines numbers of different precision.~%See ANSI CL 12.1.4.4 and the CLISP impnotes for details.~%The result's actual precision is controlled by~%~S.~%To shut off this warning, set ~S to ~S." '*FLOATING-POINT-CONTAGION-ANSI* '*WARN-ON-FLOATING-POINT-CONTAGION* 'NIL) :
+      pushSTACK(OLS(fpcontagion_warn_string));
+      pushSTACK(S(floating_point_contagion_ansi));
+      pushSTACK(S(warn_on_floating_point_contagion));
+      pushSTACK(NIL);
+      funcall(S(warn),4);
+    }
 
 
 # Generiert eine Float-Operation F_op_F wie F_minus_F oder F_durch_F
@@ -752,7 +764,7 @@ local void warn_floating_point_contagion (void) {
     # < STACK_1: Quotient q, ein Integer       \
     # < STACK_0: Rest r, eine reelle Zahl      \
     # Erniedrigt STACK um 2                    \
-    # can trigger GC                           \
+    # kann GC auslösen                         \
     # Methode:                                               \
     # F_rounding_I_F(x/y) -> (q,r). Liefere q und x-y*q=y*r. \
     local void CONCAT3(F_F_,rounding,_I_F) (var object x, var object y) \

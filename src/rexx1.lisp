@@ -1,12 +1,10 @@
 ;;;; Rexx Funktionen für CLISP
 ;;;; Jörg Höhle 15.4.1997
 
-(defpackage "REXX")
-(in-package "REXX")
-(export '(rexx-run-command rexx-send-command rexx-wait-sent-command
-          rexx-do-command rexx-loop *rexx-ignore-errors*))
-(use-package '("REXX") "EXT")
-(ext:re-export "REXX" "EXT")
+(in-package "LISP")
+(export '(rexx-run-command rexx-send-command rexx-wait-sent-command rexx-do-command
+          rexx-loop *rexx-ignore-errors*
+)        )
 
 ;;;; Interface:
 ;;;
@@ -24,7 +22,7 @@
 ;;; rc ist der ARexx return Code.
 ;;; result ist der ARexx return String, nur wenn rc gleich 0.
 
-;;;; ==========================================================================
+;;;; ===========================================================================
 ;;;; Implementation:
 
 (in-package "SYSTEM")
@@ -145,7 +143,7 @@
   (let ((index (rexx-find-index handle)))
     (unless index
       (error-of-type 'error
-        (TEXT "No waiting for ~S possible.")
+        (ENGLISH "No waiting for ~S possible.")
          handle
     ) )
     (loop

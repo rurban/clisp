@@ -104,31 +104,6 @@
       #undef SETTFL
     }
 
-# allocate and init the weak kvtable
-# > len:    the length of the data vector
-# < result: a fresh weak key-value table
-# can trigger GC
-local inline object allocate_weakkvt_low (uintL len) {
-  var uintL need = size_svector(len+1);
- #ifdef TYPECODES
-  #define SETTFL  ptr->length = len+1
- #else
-  #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_WeakKVT,len+1)
- #endif
-  allocate(weakkvt_type,true,need,WeakKVT,ptr,{
-    SETTFL;
-    ptr->wkvt_cdr = O(all_weakkvtables);
-    if (len > 0) {
-      var object* p = ptr->data;
-      dotimespL(len,len, { *p++ = unbound; } );
-    }
-  });
- #undef SETTFL
-}
-global object allocate_weakkvt (uintL len) {
-  return O(all_weakkvtables) = allocate_weakkvt_low(len);
-}
-
 # Function: Allocates a bit/byte vector.
 # allocate_bit_vector(atype,len)
 # > uintB atype: Atype_nBit

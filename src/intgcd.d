@@ -868,9 +868,8 @@
         { pushSTACK(Fixnum_0); pushSTACK(Fixnum_1);
           pushSTACK(b); return;
         }
-     {# sA and sB are booleans, but bit op ~ is faster than !, so use it
-      var int sA = (R_minusp(a) ? ~0 : 0); # signum A
-      var int sB = (R_minusp(b) ? ~0 : 0); # signum B
+     {var bool sA = (R_minusp(a) ? ~0 : 0); # Vorzeichen von A
+      var bool sB = (R_minusp(b) ? ~0 : 0); # Vorzeichen von B
       SAVE_NUM_STACK # num_stack retten
       var uintD* a_MSDptr;
       var uintC a_len;

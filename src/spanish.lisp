@@ -1,14 +1,13 @@
 ;;; Spanish translations of DEFINTERNATIONALed values.
 ;;; Bruno Haible, Carlos Linares
 
-(in-package "I18N")
-(common-lisp:export 'ESPAÑOL)
-(common-lisp:import 'ESPAÑOL "EXT")
-(common-lisp:export 'ESPAÑOL "EXT")
+(in-package "LISP")
 
-(common-lisp:in-package "SYSTEM")
+(export 'ESPAÑOL)
 
 (deflanguage ESPAÑOL)
+
+(in-package "SYSTEM")
 
 (deflocalized y-or-n ESPAÑOL '((#\N) . (#\S #\Y)))
 (deflocalized yes-or-no ESPAÑOL '(("no") . ("si")))

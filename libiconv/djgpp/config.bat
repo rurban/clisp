@@ -95,18 +95,23 @@ sed -f %XSRC%/djgpp/sources.sed %XSRC%/lib/cns/11643.h > 11643.tmp
 if errorlevel 1 goto SedError
 update 11643.tmp %XSRC%/lib/cns/11643.h
 rm 11643.tmp
-test -f %XSRC%/lib/cns/11643_4.orig
-if errorlevel 1 update %XSRC%/lib/cns/11643_4.h %XSRC%/lib/cns/11643_4.orig
-sed -f %XSRC%/djgpp/sources.sed %XSRC%/lib/cns/11643_4.h > 11643_4.tmp
-if errorlevel 1 goto SedError
-update 11643_4.tmp %XSRC%/lib/cns/11643_4.h
-rm 11643_4.tmp
 test -f %XSRC%/lib/iso/ir165.orig
 if errorlevel 1 update %XSRC%/lib/iso/ir165.h %XSRC%/lib/iso/ir165.orig
 sed -f %XSRC%/djgpp/sources.sed %XSRC%/lib/iso/ir165.h > ir165.tmp
 if errorlevel 1 goto SedError
 update ir165.tmp %XSRC%/lib/iso/ir165.h
 rm ir165.tmp
+
+Rem Let libtool use _libs all the time.
+test -f %XSRC%/autoconf/ltconfig.orig
+if errorlevel 1 update %XSRC%/autoconf/ltconfig %XSRC%/autoconf/ltconfig.orig
+sed "/objdir=/s|\.libs|_libs|" %XSRC%/autoconf/ltconfig > ltconfig.tmp
+if errorlevel 1 goto SedError
+update ltconfig.tmp %XSRC%/autoconf/ltconfig
+test -f %XSRC%/libcharset/autoconf/ltconfig.orig
+if errorlevel 1 update %XSRC%/libcharset/autoconf/ltconfig %XSRC%/libcharset/autoconf/ltconfig.orig
+update ltconfig.tmp %XSRC%/libcharset/autoconf/ltconfig
+rm ltconfig.tmp
 
 Rem Change file's NL to CRLF.
 utod %XSRC%/tests/*.txt
@@ -176,11 +181,8 @@ set HOSTNAME=%_HOSTNAME%
 set _HOSTNAME=
 set OS=
 
-Rem With libtool 1.4 -fPIC is the default. This completely breaks compilations
-Rem with djgpp, so we will always use --disable-shared to inhibit the usage of
-Rem -fPIC and -DPIC flags in libtool.
 echo Running the ./configure script...
-sh ./configure --enable-static --disable-shared --src=%XSRC%
+sh ./configure --src=%XSRC%
 if errorlevel 1 goto CfgError
 echo Done.
 goto End

@@ -1,13 +1,4 @@
-;; SCREEN is actually conditionally defined in constpack.d,
-;; but the condition (in lispbibl.d) is too hairy
-;; to duplicate it in makemake.in, so this file is always compiled
-;; (even when it is not subsequently loaded by init.lisp),
-;; thus we have to use DEFPACKAGE here just in case
-
-(defpackage "SCREEN"
-  (:use "COMMON-LISP" "EXT"))
-
-(in-package "SCREEN")
+(in-package "SCREEN" :use '("LISP"))
 
 #|
 ; Re-Export von importierten Symbolen kann man nicht mit der
@@ -233,7 +224,7 @@ string of a special file to be OPENed, e.g. \"RAW:0/11/581/231/Window Title\"."
          ) )
          (response (parse-csi (coerce chars 'string))))
     (unless (string= expected (first response))
-      (error (TEXT "Got bad response from ~S: ~S")
+      (error (ENGLISH "Got bad response from ~S: ~S")
              stream chars
     ) )
     (cdr response)
@@ -447,3 +438,4 @@ Will flush pending characters!"
      (UNWIND-PROTECT (PROGN ,@body) (CLOSE *WINDOW*))
    )
 )
+

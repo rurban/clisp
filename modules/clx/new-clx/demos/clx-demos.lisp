@@ -2,9 +2,9 @@
 ;;; Copyright (C) 1999 by Sam Steingold (sds@gnu.org)
 ;;; GPL2 is applicable
 
-(defpackage "CLX-DEMOS"
-  (:use "COMMON-LISP")
-  (:export "QIX" "SOKOBAN"))
+(defpackage clx-demos
+  (:use common-lisp)
+  (:export qix sokoban))
 
 (in-package :clx-demos)
 
@@ -13,8 +13,7 @@
   #+cmu (cdr (assoc (string var) *environment-list* :test #'equalp
                     :key #'string))
   #-cmu
-  (#+allegro system::getenv #+clisp ext:getenv
-   #+lispworks lw:environment-variable
+  (#+(or allegro clisp) system::getenv #+lispworks lw:environment-variable
    #+lucid lcl:environment-variable #+gcl si:getenv (string var)))
 
 (defun x-host-display (&optional (disp (getenv "DISPLAY")))
@@ -35,9 +34,7 @@ Return 3 values: host, server, screen."
 
 (eval-when (compile)
   (compile-file (merge-pathnames "qix" *compile-file-pathname*))
-  (when (find-package "XPM")
-    (compile-file (merge-pathnames "sokoban" *compile-file-pathname*))))
+  (compile-file (merge-pathnames "sokoban" *compile-file-pathname*)))
 
 (load (merge-pathnames "qix" *load-pathname*))
-(when (find-package "XPM")
-  (load (merge-pathnames "sokoban" *load-pathname*)))
+(load (merge-pathnames "sokoban" *load-pathname*))

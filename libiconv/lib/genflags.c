@@ -44,7 +44,7 @@ static void emit_encoding (struct wctomb_funcs * ofuncs, const char* c_name)
     for (i = 0; i < 6; i++) {
       unsigned char buf[10];
       memset(&conv.ostate,'\0',sizeof(state_t));
-      res[i] = (conv.ofuncs.xxx_wctomb(&conv,buf,probe[i],sizeof(buf)) != RET_ILUNI);
+      res[i] = (conv.ofuncs.xxx_wctomb(&conv,buf,probe[i],sizeof(buf)) != 0);
     }
     printf("#define ei_%s_oflags (",c_name);
     {
@@ -89,7 +89,7 @@ int main ()
   printf("#define HAVE_HANGUL_JAMO %d\n",bitmask);
   printf("\n");
 
-#define DEFENCODING(xxx_names,xxx,xxx_ifuncs1,xxx_ifuncs2,xxx_ofuncs1,xxx_ofuncs2) \
+#define DEFENCODING(xxx_names,xxx,xxx_ifuncs,xxx_ofuncs1,xxx_ofuncs2) \
   {                                                       \
     struct wctomb_funcs ofuncs = xxx_ofuncs1,xxx_ofuncs2; \
     emit_encoding(&ofuncs,#xxx);                          \

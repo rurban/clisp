@@ -49,21 +49,20 @@ s(convert_string_from_bytes)
 s(convert_string_to_bytes)
 v(4, (kw(charset),kw(line_terminator),kw(input_error_action),kw(output_error_action)) )
 s(make_encoding)
-v(6, (kw(weak),kw(initial_contents),
+v(5, (kw(initial_contents),
       kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
 s(make_hash_table)
 v(3, (kw(preserve_whitespace),kw(start),kw(end)) )
 s(read_from_string)
 v(4, (kw(start),kw(end),kw(radix),kw(junk_allowed)) )
 s(parse_integer)
-v(17, (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
+v(14, (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
        kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),
-       kw(lines),kw(miser_width),kw(pprint_dispatch),
        kw(right_margin),kw(stream)))
 s(write)
-v(16, (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
+v(13, (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),
        kw(base),kw(array),kw(circle),kw(pretty),kw(closure),kw(readably),
-       kw(lines),kw(miser_width),kw(pprint_dispatch),kw(right_margin)))
+       kw(right_margin)))
 s(write_to_string)
 v(2, (kw(type),kw(identity)) )
 s(write_unreadable)
@@ -93,6 +92,7 @@ s(merge)
 v(3, (kw(nicknames),kw(use),kw(case_sensitive)) )
 s(make_package)
 s(pin_package)
+s(in_package)
 v(2, (kw(initial_element),kw(update)) )
 s(make_sequence)
 v(5, (kw(from_end),kw(start),kw(end),kw(key),kw(initial_value)) )

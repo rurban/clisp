@@ -8,8 +8,7 @@ srcdir = @srcdir@
 # Programs used by "make":
 CC = @CC@
 CFLAGS = @CFLAGS@
-CPPFLAGS = @CPPFLAGS@
-LDFLAGS = @LDFLAGS@
+CPP = @CPP@
 INCLUDES = -I. -I$(srcdir) -I../include -I$(srcdir)/../include -I../lib
 LIBTOOL = @LIBTOOL@
 LIBTOOL_COMPILE = $(LIBTOOL) --mode=compile
@@ -31,7 +30,7 @@ all :
 check : all table-from table-to ../src/iconv
 	$(srcdir)/check-stateless $(srcdir) ASCII
 #	/* General multi-byte encodings */
-	$(CC) $(LDFLAGS) $(CFLAGS) $(CPPFLAGS) $(srcdir)/genutf8.c -o genutf8 && \
+	$(CC) $(CFLAGS) $(srcdir)/genutf8.c -o genutf8 && \
 	./genutf8 > UTF-8.TXT && \
 	$(srcdir)/check-stateless . UTF-8 && \
 	$(RM) genutf8 UTF-8.TXT
@@ -42,9 +41,6 @@ check : all table-from table-to ../src/iconv
 	$(srcdir)/check-stateful $(srcdir) UTF-16
 	$(srcdir)/check-stateful $(srcdir) UTF-16BE
 	$(srcdir)/check-stateful $(srcdir) UTF-16LE
-	$(srcdir)/check-stateful $(srcdir) UTF-32
-	$(srcdir)/check-stateful $(srcdir) UTF-32BE
-	$(srcdir)/check-stateful $(srcdir) UTF-32LE
 	$(srcdir)/check-stateful $(srcdir) UTF-7
 #	/* 8-bit encodings */
 	$(srcdir)/check-stateless $(srcdir) ISO-8859-1
@@ -70,11 +66,9 @@ check : all table-from table-to ../src/iconv
 	$(srcdir)/check-stateless $(srcdir) CP1253
 	$(srcdir)/check-stateless $(srcdir) CP1254
 	$(srcdir)/check-stateless $(srcdir) CP1255
-	$(srcdir)/check-stateful $(srcdir) CP1255
 	$(srcdir)/check-stateless $(srcdir) CP1256
 	$(srcdir)/check-stateless $(srcdir) CP1257
 	$(srcdir)/check-stateless $(srcdir) CP1258
-	$(srcdir)/check-stateful $(srcdir) CP1258
 	$(srcdir)/check-stateless $(srcdir) CP850
 	$(srcdir)/check-stateless $(srcdir) CP862
 	$(srcdir)/check-stateless $(srcdir) CP866
@@ -101,7 +95,6 @@ check : all table-from table-to ../src/iconv
 	$(srcdir)/check-stateless $(srcdir) CP874
 	$(srcdir)/check-stateless $(srcdir) VISCII
 	$(srcdir)/check-stateless $(srcdir) TCVN
-	$(srcdir)/check-stateful $(srcdir) TCVN
 #	/* CJK character sets */
 	$(srcdir)/check-stateless $(srcdir) ISO646-JP
 	$(srcdir)/check-stateless $(srcdir) JIS_X0201
@@ -127,7 +120,7 @@ check : all table-from table-to ../src/iconv
 	$(srcdir)/check-stateless $(srcdir) EUC-TW
 	$(srcdir)/check-stateless $(srcdir) BIG5
 	$(srcdir)/check-stateless $(srcdir) CP950
-	$(srcdir)/check-stateless $(srcdir) BIG5-HKSCS
+	$(srcdir)/check-stateless $(srcdir) BIG5HKSCS
 	$(srcdir)/check-stateless $(srcdir) EUC-KR
 	$(srcdir)/check-stateless $(srcdir) CP949
 	$(srcdir)/check-stateless $(srcdir) JOHAB
@@ -135,19 +128,12 @@ check : all table-from table-to ../src/iconv
 #	/* transliteration */
 	$(srcdir)/check-translit $(srcdir) Quotes UTF-8 ISO-8859-1
 	$(srcdir)/check-translit $(srcdir) Quotes UTF-8 ASCII
-	$(srcdir)/check-translitfailure $(srcdir) TranslitFail1 ISO-8859-1 ASCII
 
-table-from : table-from.@OBJEXT@ ../lib/libiconv.la
-	$(LIBTOOL_LINK) $(CC) $(LDFLAGS) table-from.@OBJEXT@ ../lib/libiconv.la -o $@
+table-from : $(srcdir)/table-from.c ../lib/libiconv.la
+	$(LIBTOOL_LINK) $(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/table-from.c ../lib/libiconv.la -o $@
 
-table-from.@OBJEXT@ : $(srcdir)/table-from.c
-	$(CC) -c $(INCLUDES) $(CFLAGS) $(CPPFLAGS) $(srcdir)/table-from.c
-
-table-to : table-to.@OBJEXT@ ../lib/libiconv.la
-	$(LIBTOOL_LINK) $(CC) $(LDFLAGS) table-to.@OBJEXT@ ../lib/libiconv.la -o $@
-
-table-to.@OBJEXT@ : $(srcdir)/table-to.c
-	$(CC) -c $(INCLUDES) $(CFLAGS) $(CPPFLAGS) $(srcdir)/table-to.c
+table-to : $(srcdir)/table-to.c ../lib/libiconv.la
+	$(LIBTOOL_LINK) $(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/table-to.c ../lib/libiconv.la -o $@
 
 # The following rule is necessary to avoid a toplevel "make -n check" failure.
 ../lib/libiconv.la :
@@ -156,7 +142,7 @@ table-to.@OBJEXT@ : $(srcdir)/table-to.c
 mostlyclean : clean
 
 clean : force
-	$(RM) *.@OBJEXT@ *.lo table-from table-to tmp-* genutf8 UTF-8.TXT core
+	$(RM) *.o *.lo table-from table-to tmp-* genutf8 UTF-8.TXT core
 	$(RM) -r .libs _libs
 
 distclean : clean

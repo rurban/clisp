@@ -1,5 +1,3 @@
-;; -*- Lisp -*-
-
 #-CMU
 (use-package "CLOS")
 #-CMU
@@ -44,48 +42,6 @@ A
 
 (x-val a)
 10
-
-(with-slots (x y) a (+ x y))
-11
-
-(defun foo (z) (with-slots (x y) z (+ x y)))
-foo
-
-(foo a)
-11
-
-(compile 'foo)
-foo
-
-(foo a)
-11
-
-(fmakunbound 'foo)
-foo
-
-(x-val (reinitialize-instance a :x 20))
-20
-
-(x-val (reinitialize-instance a :x 30))
-30
-
-(x-val (reinitialize-instance a :x 50))
-50
-
-(x-val (reinitialize-instance a :x 80))
-80
-
-(x-val (reinitialize-instance a :y 20))
-80
-
-(y-val (reinitialize-instance a :x 30))
-20
-
-(x-val (reinitialize-instance a :y 50))
-30
-
-(y-val (reinitialize-instance a :x 80))
-50
 
 (defparameter b (make-instance (find-class '<C2>) :x 10 :y 20 :z 30))
 B
@@ -280,16 +236,6 @@ NIL
 (x-val (make-instance (find-class '<C1>) :x 10 :y 20))
 10
 
-(progn
-(defmethod initialize-instance ((inst <C1>) &rest ignore)
-  (call-next-method)
-  123)
-nil)
-nil
-
-(x-val (make-instance (find-class '<C1>) :x 101 :y 120))
-101
-
 (unintern '<C1>)
 T
 
@@ -389,29 +335,3 @@ T
 
 (subclassp (find-class 'float)            (find-class 'number))
 T
-
-;; make-load-form
-;; from kmp
-(progn
-  (defclass test-class1 () ((foo :initarg :foo :accessor foo :initform 0)))
-  (defclass test-class2 () ((foo :initarg :foo :accessor foo :initform 0)))
-  (defmethod make-load-form ((obj test-class1) &optional environment)
-    `(make-instance 'test-class1 :foo ',(foo obj)))
-  (defparameter *t-list*
-    (list (make-instance 'test-class1 :foo 100)
-          (make-instance 'test-class2 :foo 200)))
-  (let* ((lisp-file "make-load-form-demo.lisp")
-         (compiled-file
-          (compile-file
-           (with-open-file (stream lisp-file :direction :output
-                                   :if-exists :supersede)
-             (format stream "(in-package \"CL-USER\")~
-                             ~%(defparameter *t-list* '#.*t-list*)~%")
-             (truename stream)))))
-    (setq *t-list* '())
-    (load compiled-file)
-    (delete-file compiled-file)
-    (delete-file lisp-file)
-    #+clisp (delete-file (merge-pathnames ".lib" lisp-file))
-    (mapcar #'foo *t-list*)))
-(100 200)

@@ -1,26 +1,21 @@
-;; -*- Lisp -*-
-;;*****************************************************************************
-;;*                    short test      XCL                                    *
-;;*****************************************************************************
-
-;; Chapter 1  Introduction
-;; -----------------------
-
-;; Chapter 2  Data Types
-;; ---------------------
-
-;; Chapter 3  Valid Values
-;; -----------------------
-
-;; Chapter 4  Type specifiers
-;; --------------------------
-;;
-;; deftype, COERCE, TYPE-OF
-
-;; Chapter 5  Program Structure
-;; ----------------------------
-
-;; lambda lists
+;*******************************************************************************
+;*                      Kurztest        XCL                                    *
+;*******************************************************************************
+;Kap. 1 Einfuehrung
+;-------------------------------------------------------------------------------
+;Kap. 2  Datentypen
+;-------------------------------------------------------------------------------
+;Kap. 3  Gueltigkeitsbereiche
+;-------------------------------------------------------------------------------
+;Kap. 4  Typspezifier
+;-------------------------------------------------------------------------------
+;
+;deftype, COERCE, TYPE-OF
+;
+;Kap. 5  Programmstrukturen
+;-------------------------------------------------------------------------------
+;
+;Lambda-Listen
 ((LAMBDA (A B) (+ A (* B 3))) 4 5)
 19
 
@@ -70,8 +65,8 @@ T
 
 ;DEFVAR, DEFCONSTANT, DEFPARAMETER, eval-when
 
-;; Chapter 6  Predicates
-;; ---------------------
+;Kap 6 Praedikate
+;-------------------------------------------------------------------------------
 
 (TYPEP (QUOTE NIL) (QUOTE NULL))
 T
@@ -152,7 +147,7 @@ T
 NIL
 
 (TYPEP X (QUOTE COMMON))
-ERROR
+#-ANSI-CL T #+ANSI-CL ERROR
 
 (SUBTYPEP (QUOTE CHARACTER) (QUOTE NUMBER))
 NIL
@@ -577,9 +572,6 @@ NIL
 (1 2 3))
 (QUOTE (U I V)))
 (A 1 U B 2 I C 3 V)
-
-(funcall (compile nil (lambda (x) (flet ((foo (y) (+ y 1))) (foo (* 2 x))))) 3)
-7
 
 ;TAGBODY, GO, MULTIPLE-VALUE-LIST, MULTIPLE-VALUE-CALL, MULTIPLE-VALUE-PROG1,
 ;MULTIPLE-VALUE-BIND, MULTIPLE-VALUE-SETQ, VALUES, VALUES-LIST, CATCH,
@@ -1291,8 +1283,7 @@ T
 #+CMU "5.960465e-8"
 #-(or XCL CLISP ALLEGRO CMU) UNKNOWN
 
-#-CLISP (prin1-to-string DOUBLE-FLOAT-EPSILON )
-#+CLISP "1.1102230246251568d-16" ; different on linux/i386
+(prin1-to-string DOUBLE-FLOAT-EPSILON )
 #+XCL "1.387778780781446D-17"
 #+(or CLISP CMU) "1.1102230246251568d-16"
 #+ALLEGRO "2.220446049250313d-16"
@@ -1319,8 +1310,7 @@ T
 #+CMU "2.9802325e-8"
 #-(or XCL CLISP ALLEGRO CMU) UNKNOWN
 
-#-CLISP (prin1-to-string DOUBLE-FLOAT-NEGATIVE-EPSILON )
-#+CLISP "5.551115123125784d-17" ; different on linux/i386
+(prin1-to-string DOUBLE-FLOAT-NEGATIVE-EPSILON )
 #+XCL "1.387778780781446D-17"
 #+(or CLISP CMU) "5.551115123125784d-17"
 #+ALLEGRO "2.220446049250313d-16"
@@ -1956,28 +1946,6 @@ NIL
 (LDIFF (QUOTE (A B C D . E)) (QUOTE E))
 (A B C D)
 
-(LDIFF (QUOTE (1 . 2)) 3)
-(1 . 2)
-
-(let ((lists '#((a b c) (a b c . d)))
-      (ld-res #(#(nil (a b) (a b c) (a b c) (a b c) (a b c) (a b c))
-                #(nil (a b) (a b c . d) (a b c . d) (a b c . d) (a b c)
-                  (a b c . d))))
-      (tp-res #(#(t t nil nil t nil nil) #(t t nil nil nil t nil))))
-  (dotimes (i (length lists))
-    (let* ((list (aref lists i)) (l-r (aref ld-res i)) (t-r (aref tp-res i))
-           (objects (vector list (cddr list) (copy-list (cddr list))
-                            '(f g h) '() 'd 'x)))
-      (dotimes (j (length objects))
-        (let ((object (aref objects j)))
-          (unless (equal (tailp object list) (aref t-r j))
-            (error "(tailp ~s ~s): ~s; should be: ~s"
-                   object list (tailp object list) (aref t-r j)))
-          (unless (equal (ldiff list object) (aref l-r j))
-            (error "(ldiff ~s ~s): ~s; should be: ~s"
-                   list object (ldiff list object) (aref l-r j))))))))
-nil
-
 ;RPLACA, RPLACD
 
 (NSUBST (QUOTE A) (QUOTE B) (QUOTE (U B (B) C)) :TEST-NOT
@@ -2123,7 +2091,7 @@ T
     (maphash #'(lambda (key value) (push (list key value) all-entries))
              hash-table)
     (with-hash-table-iterator (generator-fn hash-table)
-      (loop
+      (loop     
         (multiple-value-bind (more? key value) (generator-fn)
           (unless more? (return))
           (unless (eql value (gethash key hash-table unique))
@@ -2146,12 +2114,6 @@ test-hash-table-iterator
   (test-hash-table-iterator tab)
 )
 T
-
-(gethash "foo" (read-from-string
-                (prin1-to-string
-                 (make-hash-table :test 'equalp :initial-contents
-                                  '(("FOO" . "bar"))))))
-"bar"
 
 ;Kap 17 Felder
 ;-------------------------------------------------------------------------------
@@ -2181,8 +2143,8 @@ T
 
 ;STRING-DOWNCASE, NSTRING-CAPITALIZE, NSTRING-DOWNCASE, NSTRING-UPCASE, STRING,
 
-;;Kap 19 Structures
-;;-----------------------------------------------------------------------------
+;Kap 19 Strukturen
+;-------------------------------------------------------------------------------
 
 ;DEFSTRUCT,
 
@@ -2196,16 +2158,19 @@ T
                        ((hawaii) '(pineapple macadamia guava))
                        ((massachusetts) '(lobster baked-bean))
                        ((california) '(ginger lotus avocado bean-sprout garlic))
-                       ((texas) '(jalapeno barbecue))))
+                       ((texas) '(jalapeno barbecue))
+                    ))
                     (flavors
                      (subseq (append local-flavors
                                      '(vanilla chocolate strawberry pistachio
-                                       maple-walnut peppermint))
-                             0 capacity))
-                    ((:own owner)))))
+                                       maple-walnut peppermint
+                             )        )
+                             0 capacity
+                    ))
+           )) )
   (capacity 3)
   (flavors '(vanilla chocolate strawberry mango))
-  (owner 'me))
+)
 ICE-CREAM-FACTORY
 
 (let ((houston (fabricate-factory :capacity 4 :location 'texas)))

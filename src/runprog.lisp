@@ -1,6 +1,6 @@
 ;;;; Running external programs
 
-(in-package "EXT")
+(in-package "LISP")
 #+WIN32 (export '(execute))
 #+(or UNIX OS/2 WIN32) (export '(run-shell-command run-program))
 (in-package "SYSTEM")
@@ -135,7 +135,6 @@
   ) ) )      )
   (defun run-shell-command (command &key (input ':terminal) (output ':terminal)
                                          (if-output-exists ':overwrite)
-                                         (wait t)
                                          #+UNIX (may-exec nil)
                                          #+WIN32 (indirectp nil)
                            )
@@ -160,7 +159,7 @@
                (setq output (pathname output))
                (error-of-type 'file-error
                  :pathname output
-                 (TEXT "~S: File ~S already exists")
+                 (ENGLISH "~S: File ~S already exists")
                  'run-shell-command output
          ) ) ) )
          (setq command
@@ -173,8 +172,6 @@
          )     )
          #+WIN32 (setq indirectp t)
     ) )
-    (unless wait
-      (setq command (string-concat command " &")))
     #+UNIX
     (when may-exec
       ; Wenn die ausführende Shell die "/bin/sh" ist und command eine
@@ -198,7 +195,6 @@
   (defun run-program (program &key (arguments '())
                                    (input ':terminal) (output ':terminal)
                                    (if-output-exists ':overwrite)
-                                   (wait t)
                                    #+WIN32 (indirectp nil)
                      )
     (run-shell-command
@@ -211,7 +207,7 @@
       )      )
       #+UNIX :may-exec #+UNIX t
       #+WIN32 :indirectp #+WIN32 indirectp
-      :wait wait
       :input input :output output :if-output-exists if-output-exists
   ) )
 )
+

@@ -1,15 +1,10 @@
 ;;;; Einige Definitionen von Standard-Funktionen in LISP
 ;;;; 1.8.1989, 2.9.1989, 8.10.1989
 
-(in-package "EXT")
-(export '(doseq dohash without-package-lock))
-
-(export '(#-(or UNIX WIN32) custom::*default-time-zone*
-          custom::*system-package-list*)
-        "CUSTOM")
-(ext:re-export "CUSTOM" "EXT")
-
+(in-package "LISP")
+(export '(doseq dohash #-(or UNIX WIN32) *default-time-zone*))
 (in-package "SYSTEM")
+
 
 ;;; Funktionen für Symbole (Kapitel 10)
 
@@ -100,14 +95,14 @@
 (defmacro with-package-iterator ((name pack-list &rest types) &body body)
   (unless types
     (error-of-type 'source-program-error
-      (TEXT "missing symbol types (~S/~S/~S) in ~S")
+      (ENGLISH "missing symbol types (~S/~S/~S) in ~S")
       ':internal ':external ':inherited 'with-package-iterator
   ) )
   (dolist (symboltype types)
     (case symboltype
       ((:INTERNAL :EXTERNAL :INHERITED))
       (t (error-of-type 'source-program-error
-           (TEXT "~S: flag must be one of the symbols ~S, ~S, ~S, not ~S")
+           (ENGLISH "~S: flag must be one of the symbols ~S, ~S, ~S, not ~S")
            'with-package-iterator ':internal ':external ':inherited symboltype
   ) ) )  )
   (let ((iterfun (gensym "WPI")))
@@ -135,23 +130,6 @@
       ) ) )
 ) )
 
-;; The list of packages that will be locked by SAVEINITMEM.
-;; Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.
-(defvar *system-package-list*
-  '("SYSTEM" "LISP" "EXT" "CUSTOM" "I18N" "GRAY" "CHARSET" "CLOS"
-    #+sockets "SOCKET" #+generic-streams "GSTREAM" #+syscalls "POSIX"
-    #+ffi "FFI" #+amiga "AFFI" #+dir-key "LDAP" #+screen "SCREEN"))
-
-;; Unlock the specified packages, execute the BODY, then lock them again.
-(defmacro without-package-lock (packages &body body)
-  (let ((locked-packages (gensym "WOPL-")))
-    `(let ((,locked-packages
-            (remove-if-not #'package-lock
-                           (or ',packages *system-package-list*))))
-      (unwind-protect (progn (setf (package-lock ,locked-packages) nil)
-                             ,@body)
-        (setf (package-lock ,locked-packages) t)))))
-
 ;;; Modulverwaltung (Kapitel 11.8), CLTL S. 188
 
 (defvar *modules* nil)
@@ -163,13 +141,10 @@
 (defun require (module-name &optional (pathname nil p-given))
   (unless (member (string module-name) *modules* :test #'string-equal)
     (unless p-given (setq pathname (pathname module-name)))
-    (let (#+CLISP
-          (*load-paths* (if (null *load-truename*) *load-paths*
-                            (cons (make-pathname :name nil :type nil
-                                                 :defaults *load-truename*)
-                                  *load-paths*)))
-          #-CLISP (*default-pathname-defaults* '#""))
-      (if (atom pathname) (load pathname) (mapcar #'load pathname)))))
+    (let (#-CLISP(*default-pathname-defaults* '#""))
+      (if (atom pathname) (load pathname) (mapcar #'load pathname))
+    )
+) )
 
 
 ;;; Konstanten für Zahlen (Kapitel 12)
@@ -434,104 +409,56 @@
 )
 
 
-;;; Functions for pathnames (Chapter 23.1.5)
-#+LOGICAL-PATHNAMES
-(export '(custom::*load-logical-pathname-translations-database*) "CUSTOM")
-#+LOGICAL-PATHNAMES
-(ext:re-export "CUSTOM" "EXT")
+;;; Funktionen für Pathnames (Kapitel 23.1.5)
 #+LOGICAL-PATHNAMES
 (progn
-  (defvar *load-logical-pathname-translations-database*
-    '(#p"loghosts" #p"loghosts/"))
   (defun logical-pathname-translations (host)
     (setq host (string-upcase host))
-    (or (gethash host *logical-pathname-translations*) ; :test #'equal !
-        (error (TEXT "~S: ~S does not name a logical host")
-               'logical-pathname-translations host)))
+    (or (gethash host sys::*logical-pathname-translations*) ; :test #'equal !
+        (error (ENGLISH "~S: ~S does not name a logical host")
+               'logical-pathname-translations host
+  ) )   )
   (defun set-logical-pathname-translations (host translations)
     (setq host (string-upcase host))
-    (puthash host *logical-pathname-translations* ; :test #'equal !
-             (let ((host-pathname (make-logical-pathname :host host)))
+    (puthash host sys::*logical-pathname-translations* ; :test #'equal !
+             (let ;((host-pathname (logical-pathname (string-concat host ":;"))))
+                  ((host-pathname (sys::make-logical-pathname :host host)))
                (mapcar #'(lambda (rule)
-                           (cons (merge-pathnames
-                                  (logical-pathname (first rule))
-                                  host-pathname 'NIL)
-                                 (rest rule)))
-                       translations))))
-  ;; load many hosts from a file, AllegroCL-style
-  (defun load-lpt-many (file host)
-    (with-open-file (fi file :if-does-not-exist nil)
-      (unless fi (return-from load-lpt-many nil))
-      (when *load-verbose*
-        (fresh-line) (write-string ";; ")
-        (write-string (TEXT "Loading logical hosts from file "))
-        (princ file)
-        (write-string " ...")
-        (terpri))
-      (do* ((eof (gensym)) (host (read fi nil eof) (read fi nil eof)))
-           ((eq host eof)
-            (write-string ";; ")
-            (write-string (TEXT "Loading of file "))
-            (princ file)
-            (write-string (TEXT " is finished."))
-            (terpri))
-        (setq host (string-upcase host))
-        (set-logical-pathname-translations host (eval (read fi)))
-        (when *load-verbose*
-          (fresh-line) (write-string ";; ")
-          (write-string (TEXT "Defined logical host "))
-          (write-string host)
-          (terpri))))
-    (gethash host *logical-pathname-translations*))
-  ;; load a single host from a file, CMUCL-style
-  (defun load-lpt-one (file host)
-    (with-open-file (fi file :if-does-not-exist nil)
-      (unless fi (return-from load-lpt-one nil))
-      (when *load-verbose*
-        (fresh-line) (write-string ";; ")
-        (write-string (TEXT "Loading logical host "))
-        (write-string host)
-        (write-string (TEXT " from file "))
-        (princ file)
-        (write-string " ..."))
-      (set-logical-pathname-translations host (read fi))
-      (when *load-verbose*
-        (write-string (TEXT " done"))
-        (terpri)))
-    (gethash host *logical-pathname-translations*))
+                           (cons (merge-pathnames (logical-pathname (first rule))
+                                                  host-pathname 'NIL
+                                 )
+                                 (rest rule)
+                         ) )
+                       translations
+  ) )        ) )
   (defun load-logical-pathname-translations (host)
     (setq host (string-upcase host))
-    (unless (gethash host *logical-pathname-translations*) ; :test #'equal !
-      (let ((from (string-concat "LOGICAL_HOST_" host "_FROM"))
-            (to (string-concat "LOGICAL_HOST_" host "_TO"))
-            (ho (string-concat "LOGICAL_HOST_" host)))
-        (cond ((and (fboundp 'getenv) (getenv from) (getenv to))
-               (set-logical-pathname-translations host
-                 (list (list (getenv from) (getenv to)))))
-              ((and (fboundp 'getenv) (getenv ho))
-               (set-logical-pathname-translations host
-                 (read-from-string (getenv ho))))
-              ((dolist (file *load-logical-pathname-translations-database*)
-                 (if (pathname-name file)
-                   (progn       ; non-directory
-                     (when (load-lpt-many file host) ; successfully defined?
-                       (return-from load-logical-pathname-translations t))
-                     (dolist (ff (search-file file '("" ".host")))
-                       (when (load-lpt-many ff host) ; successfully defined?
-                         (return-from load-logical-pathname-translations t))))
-                   (progn       ; directory
-                     (when (load-lpt-one (merge-pathnames
-                                          (string-downcase host) file)
-                                         host) ; successfully defined?
-                       (return-from load-logical-pathname-translations t))
-                     (dolist (ff (search-file file nil))
-                       (and (string-equal host (pathname-name ff))
-                            (load-lpt-one ff host) ; successfully defined?
-                            (return-from load-logical-pathname-translations
-                              t)))))))))
-      (error (TEXT "No translations for logical host ~S found") host)))
+    (unless (gethash host sys::*logical-pathname-translations*) ; :test #'equal !
+      (set-logical-pathname-translations host
+        ; Woher bekommt man die Liste der Umsetzungen??
+        #| ; Marcus versucht es so:
+           (read
+             (open
+               (merge-pathnames
+                 (merge-pathnames host
+                   (string-concat (sys::getenv "CLISP_LOGICAL_PATHNAME_TRANSLATIONS"))
+                 )
+                 (make-pathname :type '#".lisp")
+           ) ) )
+        |#
+        (if (and (fboundp 'sys::getenv)
+                 (sys::getenv (string-concat "LOGICAL_HOST_" host "_FROM"))
+                 (sys::getenv (string-concat "LOGICAL_HOST_" host "_TO"))
+            )
+          (list (list (sys::getenv (string-concat "LOGICAL_HOST_" host "_FROM"))
+                      (sys::getenv (string-concat "LOGICAL_HOST_" host "_TO"))
+          )     )
+          (error (ENGLISH "No translations for logical host ~S found")
+                 host
+  ) ) ) ) )
   (set-logical-pathname-translations "SYS"
-    '((";*.LISP" "*.lisp") ("*.*" "*.*") ("*" "*")))
+    '((";*.LISP" "*.lisp") ("*.*" "*.*") ("*" "*"))
+  )
 )
 
 
@@ -612,7 +539,7 @@
     )
     (error-of-type 'type-error
       :datum time :expected-type '(REAL 0 *)
-      (TEXT "~S: argument ~S should be a nonnegative number")
+      (ENGLISH "~S: argument ~S should be a nonnegative number")
       'sleep time
 ) ) )
 
@@ -774,7 +701,7 @@
                                   (<= -13 Zeitzone 12)
           )    ) )    ) )    )
     (error-of-type 'error
-      (TEXT "incorrect date: ~S.~S.~S, ~Sh~Sm~Ss, time zone ~S")
+      (ENGLISH "incorrect date: ~S.~S.~S, ~Sh~Sm~Ss, time zone ~S")
       Tag Monat Jahr Stunde Minute Sekunde Zeitzone
   ) )
   (+ Sekunde
@@ -840,6 +767,17 @@
       (intern str)
 ) ) )
 
+; Liefert den Typ eines Symbols sym mit (fboundp sym).
+(defun fbound-string (sym)
+  (cond ((special-operator-p sym)
+         (ENGLISH "special operator")
+        )
+        ((functionp (symbol-function sym))
+         (ENGLISH "function")
+        )
+        (t (ENGLISH "macro"))
+) )
+
 ; *ERROR-HANDLER* should be NIL or a function which accepts the following
 ; arguments:
 ; - NIL (in case of ERROR) or a continue-format-string (in case of CERROR),
@@ -847,3 +785,8 @@
 ; - more argument list for these two format strings,
 ; and which may return only if the first argument is /= NIL.
 (defvar *error-handler* nil)
+
+;; Backward compatibility
+
+(sys::%putd 'special-form-p #'special-operator-p)
+

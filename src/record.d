@@ -1,115 +1,120 @@
-# Functions for records and structures in CLISP
-# Bruno Haible 1990-2002
-# Sam Steingold 1998-2002
+# Funktionen für Records und Structures von CLISP
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 
 
-# ===========================================================================
-# general records:
+# ==============================================================================
+# Records allgemein:
 
-# (SYS::%RECORD-REF record index) return the index'th entry in the record.
-# (SYS::%RECORD-STORE record index value) store value as the index'th
-#   entry in the record and return value.
-# (SYS::%RECORD-LENGTH record) return the length of the record.
+# (SYS::%RECORD-REF record index) liefert den Eintrag index in einem record.
+# (SYS::%RECORD-STORE record index value) speichert value als Eintrag index
+#   in record ab und liefert value.
+# (SYS::%RECORD-LENGTH record) liefert die Länge eines record.
 
-# Error message
-# > STACK_1: record
-# > STACK_0: (bad) index
-# > limit: exclusive upper bound on the index
-# > subr_self: caller (a SUBR)
-nonreturning_function(local, fehler_index, (uintL limit)) {
-  pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
+# Fehlermeldung
+# > STACK_1: Record
+# > STACK_0: (fehlerhafter) Index
+# > limit: exklusive Obergrenze für den Index
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(local, fehler_index, (uintL limit));
+  local void fehler_index(limit)
+    var uintL limit;
+    {
+      pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
+      {
+        var object tmp;
+        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(limit));
+        tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+        pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      }
+      pushSTACK(STACK_(1+2)); # Record
+      pushSTACK(STACK_(0+3)); # Index
+      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+      fehler(type_error,
+             GETTEXT("~: ~ is not a valid index into ~")
+            );
+    }
+
+# Fehlermeldung
+# > STACK_0: (fehlerhafter) Record
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(local, fehler_record, (void));
+  local void fehler_record()
+    {
+      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+      fehler(error, # type_error ??
+             GETTEXT("~: ~ is not a record")
+            );
+    }
+
+# Unterprogramm für Record-Zugriffsfunktionen:
+# > STACK_1: record-Argument
+# > STACK_0: index-Argument
+# > subr_self: Aufrufer (ein SUBR)
+# < STACK: aufgeräumt
+# < ergebnis: Adresse des angesprochenen Record-Elements
+  local object* record_up (void);
+  local object* record_up ()
+    {
+      # record muss vom Typ Closure/Structure/Stream/OtherRecord sein:
+      if_recordp(STACK_1, ; , { skipSTACK(1); fehler_record(); } );
+      var object record = STACK_1;
+      var uintL length = Record_length(record);
+      var uintL index;
+      if (!(posfixnump(STACK_0) && ((index = posfixnum_to_L(STACK_0)) < length))) # Index holen und prüfen
+        fehler_index(length);
+      skipSTACK(2); # Stack aufräumen
+      return &TheRecord(record)->recdata[index]; # Record-Element adressieren
+    }
+
+LISPFUNN(record_ref,2)
+# (SYS::%RECORD-REF record index) liefert den Eintrag index in einem record.
   {
-    var object tmp;
-    pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(limit));
-    tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-    pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
+    value1 = *(record_up()); mv_count=1; # Record-Element als Wert
   }
-  pushSTACK(STACK_(1+2)); # record
-  pushSTACK(STACK_(0+3)); # index
-  pushSTACK(TheSubr(subr_self)->name); # function name
-  fehler(type_error,GETTEXT("~: ~ is not a valid index into ~"));
-}
 
-# Error message
-# > STACK_0: (bad) record
-# > subr_self: caller (a SUBR)
-nonreturning_function(local, fehler_record, (void)) {
-  pushSTACK(TheSubr(subr_self)->name); # function name
-  fehler(error, # type_error ??
-         GETTEXT("~: ~ is not a record"));
-}
-
-# Subroutine for record access functions
-# > STACK_1: record argument
-# > STACK_0: index argument
-# > subr_self: caller (a SUBR)
-# < STACK: cleared up
-# < returns: the address of the referred record item
-local object* record_up (void) {
-  # the record must be a Closure/Structure/Stream/OtherRecord:
-  if_recordp(STACK_1, ; , { skipSTACK(1); fehler_record(); } );
-  var object record = STACK_1;
-  var uintL length = Record_length(record);
-  var uintL index;
-  if (!(posfixnump(STACK_0) && ((index = posfixnum_to_L(STACK_0)) < length)))
-    # extract and check index
-    fehler_index(length);
-  skipSTACK(2); # clear up stack
-  return &TheRecord(record)->recdata[index]; # record element address
-}
-
-# (SYS::%RECORD-REF record index) return the index'th entry in the record
-LISPFUNN(record_ref,2) {
-  value1 = *(record_up()); mv_count=1; # record element as value
-}
-
-# (SYS::%RECORD-STORE record index value) store value as the index'th
-#   entry in the record and return value.
-LISPFUNN(record_store,3) {
-  var object value = popSTACK();
-  value1 = *(record_up()) = value; mv_count=1; # set record element
-}
-
-# (SYS::%RECORD-LENGTH record) return the length of the record.
-LISPFUNN(record_length,1) {
-  # the record must be a Closure/Structure/Stream/OtherRecord:
-  if_recordp(STACK_0, ; , { fehler_record(); } );
-  var object record = popSTACK();
-  var uintL length = Record_length(record);
-  value1 = fixnum(length); mv_count=1; # Länge als Fixnum
-}
-
-# check that the length is of type (INTEGER (0) (65536))
-# > STACK_0: length
-# > subr_self: caller (a SUBR)
-# < uintL length: checked length
-#define test_record_length(length)                                           \
-  if (!(posfixnump(STACK_0)                                                  \
-        && ((length = posfixnum_to_L(STACK_0)) <= (uintL)(bitm(intWsize)-1)) \
-        && (length>0)))                                                      \
-    fehler_record_length()
-nonreturning_function(local, fehler_record_length, (void)) {
-  # STACK_0 = length, TYPE-ERROR slot DATUM
-  pushSTACK(O(type_posint16)); # TYPE-ERROR slot EXPECTED-TYPE
-  pushSTACK(O(type_posint16)); # type
-  pushSTACK(STACK_1); # length
-  pushSTACK(TheSubr(subr_self)->name); # function name
-  fehler(type_error,GETTEXT("~: length ~ is illegal, should be of type ~"));
-}
-
-# UP: find OBJ in LIS
-local inline bool obj_in_list (const object obj, const object lis) {
-  var object l = lis;
-  while (consp(l)) {
-    if (eq(Car(l),obj)) return true;
-    l = Cdr(l);
+LISPFUNN(record_store,3)
+# (SYS::%RECORD-STORE record index value) speichert value als Eintrag index
+#   in record ab und liefert value.
+  {
+    var object value = popSTACK();
+    value1 = *(record_up()) = value; mv_count=1; # Record-Element eintragen
   }
-  return false;
-}
 
-# ===========================================================================
+LISPFUNN(record_length,1)
+# (SYS::%RECORD-LENGTH record) liefert die Länge eines record.
+  {
+    # record muss vom Typ Closure/Structure/Stream/OtherRecord sein:
+    if_recordp(STACK_0, ; , { fehler_record(); } );
+    var object record = popSTACK();
+    var uintL length = Record_length(record);
+    value1 = fixnum(length); mv_count=1; # Länge als Fixnum
+  }
+
+# Überprüfung einer Länge auf Typ (INTEGER (0) (65536))
+# > STACK_0: gewünschte Länge
+# > subr_self: Aufrufer (ein SUBR)
+# < uintL length: Länge, überprüft
+  #define test_record_length(length)  \
+    if (!(posfixnump(STACK_0)                                                  \
+          && ((length = posfixnum_to_L(STACK_0)) <= (uintL)(bitm(intWsize)-1)) \
+          && (length>0)                                                        \
+       ) )                                                                     \
+      fehler_record_length();
+  nonreturning_function(local, fehler_record_length, (void));
+  local void fehler_record_length()
+    {
+      # STACK_0 = length, Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_posint16)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_1); # length
+      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+      fehler(type_error,
+             GETTEXT("~: length ~ is illegal, should be of type (INTEGER (0) (65536))")
+            );
+    }
+
+# ==============================================================================
 # Structures:
 
 # (SYS::%STRUCTURE-REF type structure index) liefert zu einer Structure vom
@@ -129,7 +134,7 @@ local inline bool obj_in_list (const object obj, const object lis) {
 # > STACK_2: type-Argument
 # > STACK_1: structure-Argument
 # > STACK_0: index-Argument
-# > subr_self: caller (a SUBR)
+# > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: Adresse des angesprochenen Structure-Elements
   local object* structure_up (void);
   local object* structure_up ()
@@ -137,19 +142,24 @@ local inline bool obj_in_list (const object obj, const object lis) {
       # structure muss vom Typ Structure sein:
       if (!structurep(STACK_1)) {
         fehler_bad_structure: # STACK_2 = type, STACK_1 = structure
-        pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
-        pushSTACK(STACK_(2+1)); # TYPE-ERROR slot EXPECTED-TYPE
+        pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
+        pushSTACK(STACK_(2+1)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(2+2));
         pushSTACK(STACK_(1+3));
-        pushSTACK(TheSubr(subr_self)->name); # function name
+        pushSTACK(TheSubr(subr_self)->name); # Funktionsname
         fehler(type_error,
                GETTEXT("~: ~ is not a structure of type ~")
               );
       }
       var object structure = STACK_1;
+      var object namelist = TheStructure(structure)->structure_types; # erste Komponente
+      var object type = STACK_2; # type-Argument
       # Teste, ob in namelist = (name_1 ... name_i-1 name_i) type vorkommt:
-      if (obj_in_list(STACK_2,TheStructure(structure)->structure_types))
-        goto yes;
+      while (consp(namelist)) {
+        if (eq(Car(namelist),type))
+          goto yes;
+        namelist = Cdr(namelist);
+      }
       # type kam nicht vor -> Error:
       goto fehler_bad_structure;
       # type kam vor:
@@ -225,10 +235,10 @@ LISPFUNN(copy_structure,1)
 #   vom selben Typ.
   {
     if (!structurep(STACK_0)) {
-      # STACK_0 = TYPE-ERROR slot DATUM
-      pushSTACK(S(structure_object)); # TYPE-ERROR slot EXPECTED-TYPE
+      # STACK_0 = Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(structure_object)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_1); # structure
-      pushSTACK(TheSubr(subr_self)->name); # function name
+      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
              GETTEXT("~: ~ is not a structure")
             );
@@ -257,8 +267,11 @@ LISPFUNN(structure_type_p,2)
       var object namelist = TheStructure(popSTACK())->structure_types;
       var object type = popSTACK();
       # Teste, ob in namelist = (name_1 ... name_i-1 name_i) type vorkommt:
-      if (obj_in_list(type,namelist))
-        goto yes;
+      while (consp(namelist)) {
+        if (eq(Car(namelist),type))
+          goto yes;
+        namelist = Cdr(namelist);
+      }
     }
     # type kam nicht vor:
    no:
@@ -268,7 +281,7 @@ LISPFUNN(structure_type_p,2)
     value1 = T; mv_count=1; return; # 1 Wert T
   }
 
-# ===========================================================================
+# ==============================================================================
 # Closures:
 
 # (SYS::CLOSURE-NAME closure) liefert den Namen einer Closure.
@@ -295,7 +308,7 @@ LISPFUNN(closure_name,1)
     var object closure = popSTACK();
     if (!closurep(closure)) {
       pushSTACK(closure);
-      pushSTACK(TheSubr(subr_self)->name); # function name
+      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(error, # type_error ??
              GETTEXT("~: ~ is not a closure")
             );
@@ -304,13 +317,16 @@ LISPFUNN(closure_name,1)
   }
 
 # Fehler, wenn Argument keine compilierte Closure
-  nonreturning_function(local, fehler_cclosure, (object obj)) {
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name); # function name
-    fehler(error, # type_error ??
-           GETTEXT("~: This is not a compiled closure: ~")
-          );
-  }
+  nonreturning_function(local, fehler_cclosure, (object obj));
+  local void fehler_cclosure(obj)
+    var object obj;
+    {
+      pushSTACK(obj);
+      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+      fehler(error, # type_error ??
+             GETTEXT("~: This is not a compiled closure: ~")
+            );
+    }
 
 LISPFUNN(closure_codevec,1)
 # (SYS::CLOSURE-CODEVEC closure) liefert den Code-Vektor einer compilierten
@@ -378,8 +394,8 @@ LISPFUNN(make_code_vector,1)
     }
     value1 = bv; mv_count=1; return; # bv als Wert
    bad_byte:
-    pushSTACK(Car(listr)); # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_uint8)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(Car(listr)); # Wert für Slot DATUM von TYPE-ERROR
+    pushSTACK(O(type_uint8)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(STACK_1);
     fehler(type_error,
            GETTEXT("~ is not a valid code-vector byte")
@@ -394,8 +410,8 @@ LISPFUNN(make_closure,3)
     # codevec muss ein Simple-Bit-Vector sein:
     if (!simple_bit_vector_p(Atype_8Bit,STACK_1)) {
       # STACK_1 = codevec
-      pushSTACK(STACK_1); # TYPE-ERROR slot DATUM
-      pushSTACK(S(simple_bit_vector)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(simple_bit_vector)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_(1+2));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -435,10 +451,10 @@ LISPFUNN(copy_generic_function,2)
     # with the passed venv.
     var object oldclos = STACK_0;
     if (!genericfunctionp(oldclos)) {
-      pushSTACK(oldclos); # TYPE-ERROR slot DATUM
-      pushSTACK(S(standard_generic_function)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(oldclos); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(standard_generic_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(oldclos);
-      pushSTACK(TheSubr(subr_self)->name); # function name
+      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
              GETTEXT("~: This is not a generic function: ~")
             );
@@ -448,7 +464,7 @@ LISPFUNN(copy_generic_function,2)
           && (Svector_length(vector) > 0)
           && nullp(TheSvector(vector)->data[0]))) {
       pushSTACK(oldclos);
-      pushSTACK(TheSubr(subr_self)->name); # function name
+      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(error,
              GETTEXT("~: This is not a prototype of a generic function: ~")
             );
@@ -478,10 +494,10 @@ LISPFUNN(generic_function_effective_method_function,1)
     var object oldclos = STACK_0;
     var object newclos;
     if (!genericfunctionp(oldclos)) {
-      pushSTACK(oldclos); # TYPE-ERROR slot DATUM
-      pushSTACK(S(standard_generic_function)); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(oldclos); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(standard_generic_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(oldclos);
-      pushSTACK(TheSubr(subr_self)->name); # function name
+      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
              GETTEXT("~: This is not a generic function: ~")
             );
@@ -500,7 +516,7 @@ LISPFUNN(generic_function_effective_method_function,1)
     value1 = newclos; mv_count=1;
   }
 
-# ===========================================================================
+# ==============================================================================
 # Load-Time-Eval:
 
 # (SYS::MAKE-LOAD-TIME-EVAL form) liefert ein Load-Time-Eval-Objekt, das
@@ -515,7 +531,7 @@ LISPFUNN(make_load_time_eval,1)
     value1 = lte; mv_count=1;
   }
 
-# ===========================================================================
+# ==============================================================================
 # Symbol-Macro:
 
 # (SYS::MAKE-SYMBOL-MACRO expansion) liefert ein Symbol-Macro-Objekt,
@@ -565,7 +581,7 @@ LISPFUNN(symbol_macro_expand,1)
     value1 = T; value2 = TheSymbolmacro(obj)->symbolmacro_expansion; mv_count=2;
   }
 
-# ===========================================================================
+# ==============================================================================
 # Macro:
 
 # (SYS::MAKE-MACRO expander) returns a Macro object with the given expander
@@ -579,7 +595,7 @@ LISPFUNN(make_macro,1)
   {
     var object m = allocate_macro();
     var object arg = popSTACK();
-    if (!functionp(arg))
+    if (!(subrp(arg) || closurep(arg) || ffunctionp(arg))) # Test for FUNCTIONP
       fehler_function(arg);
     TheMacro(m)->macro_expander = arg;
     value1 = m; mv_count=1;
@@ -598,7 +614,7 @@ LISPFUNN(macro_expander,1)
     var object obj = popSTACK();
     if (!macrop(obj)) {
       pushSTACK(obj);
-      pushSTACK(S(macro_expander)); # function name
+      pushSTACK(S(macro_expander)); # Funktionsname
       fehler(error, # type_error ??
              GETTEXT("~: ~ is not a Macro")
             );
@@ -606,7 +622,7 @@ LISPFUNN(macro_expander,1)
     value1 = TheMacro(obj)->macro_expander; mv_count=1;
   }
 
-# ===========================================================================
+# ==============================================================================
 # FunctionMacro:
 
 # (SYS::MAKE-FUNCTION-MACRO function expander) returns a FunctionMacro object
@@ -622,13 +638,13 @@ LISPFUNN(make_function_macro,2)
     var object m = allocate_functionmacro();
     {
       var object arg = STACK_1;
-      if (!functionp(arg))
+      if (!(subrp(arg) || closurep(arg) || ffunctionp(arg))) # Test for FUNCTIONP
         fehler_function(arg);
       TheFunctionMacro(m)->functionmacro_function = arg;
     }
     {
       var object arg = STACK_0;
-      if (!functionp(arg))
+      if (!(subrp(arg) || closurep(arg) || ffunctionp(arg))) # Test for FUNCTIONP
         fehler_function(arg);
       TheFunctionMacro(m)->functionmacro_macro_expander = arg;
     }
@@ -649,7 +665,7 @@ LISPFUNN(function_macro_function,1)
     var object obj = popSTACK();
     if (!functionmacrop(obj)) {
       pushSTACK(obj);
-      pushSTACK(S(function_macro_function)); # function name
+      pushSTACK(S(function_macro_function)); # Funktionsname
       fehler(error, # type_error ??
              GETTEXT("~: ~ is not a FunctionMacro")
             );
@@ -663,7 +679,7 @@ LISPFUNN(function_macro_expander,1)
     var object obj = popSTACK();
     if (!functionmacrop(obj)) {
       pushSTACK(obj);
-      pushSTACK(S(function_macro_expander)); # function name
+      pushSTACK(S(function_macro_expander)); # Funktionsname
       fehler(error, # type_error ??
              GETTEXT("~: ~ is not a FunctionMacro")
             );
@@ -671,66 +687,54 @@ LISPFUNN(function_macro_expander,1)
     value1 = TheFunctionMacro(obj)->functionmacro_macro_expander; mv_count=1;
   }
 
-# ===========================================================================
+# ==============================================================================
 # Weak-Pointer:
 
-# UP: make a weakpointer to popSTACK()
-# can trigger GC, modifies STACK
-local object mk_weakpointer () {
-  var object wp = allocate_xrecord(0,Rectype_Weakpointer,weakpointer_length,
-                                   weakpointer_xlength,orecord_type);
-  var object obj = popSTACK();
-  TheWeakpointer(wp)->wp_value = obj;
-  if (gcinvariant_object_p(obj)) {
-    TheWeakpointer(wp)->wp_cdr = Fixnum_0; # a GC-invariant dummy
-  } else {
-    TheWeakpointer(wp)->wp_cdr = O(all_weakpointers);
-    O(all_weakpointers) = wp;
-  }
-  return wp;
-}
-
-# UP: allocates a Weakpointer to the given object
-# allocate_weakpointer(obj)
-# > obj: a Lisp object to which the result should point
-# < result: a fresh weak-pointer
-# can trigger GC
-global object allocate_weakpointer (object obj) {
-  pushSTACK(obj);
-  return mk_weakpointer();
-}
-
+LISPFUNN(make_weak_pointer,1)
 # (MAKE-WEAK-POINTER value) returns a fresh weak pointer referring to value.
-LISPFUNN(make_weak_pointer,1) {
-  value1 = mk_weakpointer(); mv_count=1;
-}
+  {
+    var object wp = allocate_weakpointer();
+    var object obj = popSTACK();
+    TheWeakpointer(wp)->wp_value = obj;
+    if (gcinvariant_object_p(obj)) {
+      TheWeakpointer(wp)->wp_cdr = Fixnum_0; # a GC-invariant dummy
+    } else {
+      TheWeakpointer(wp)->wp_cdr = O(all_weakpointers);
+      O(all_weakpointers) = wp;
+    }
+    value1 = wp; mv_count=1;
+  }
 
+LISPFUNN(weak_pointer_p,1)
 # (WEAK-POINTER-P object) returns true if the object is of type WEAK-POINTER.
-LISPFUNN(weak_pointer_p,1) {
-  var object obj = popSTACK();
-  value1 = (weakpointerp(obj) ? T : NIL); mv_count=1;
-}
-
-# (WEAK-POINTER-VALUE weak-pointer) returns two values: The original value
-# and T, if the value has not yet been garbage collected, else NIL and NIL.
-LISPFUNN(weak_pointer_value,1) {
-  var object wp = popSTACK();
-  if (!weakpointerp(wp)) {
-    pushSTACK(wp); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(S(weak_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(wp);
-    pushSTACK(TheSubr(subr_self)->name); # function name
-    fehler(type_error,GETTEXT("~: ~ is not a weak pointer"));
+  {
+    var object obj = popSTACK();
+    value1 = (weakpointerp(obj) ? T : NIL); mv_count=1;
   }
-  if (weakpointer_broken_p(wp)) {
-    value1 = NIL; value2 = NIL;
-  } else {
-    value1 = TheWeakpointer(wp)->wp_value; value2 = T;
-  }
-  mv_count=2;
-}
 
-# ===========================================================================
+LISPFUNN(weak_pointer_value,1)
+# (WEAK-POINTER-VALUE weak-pointer) returns two values: The original value and
+# T, if the value has not yet been garbage collected, else NIL and NIL.
+  {
+    var object wp = popSTACK();
+    if (!weakpointerp(wp)) {
+      pushSTACK(wp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(S(weak_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(wp);
+      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+      fehler(type_error,
+             GETTEXT("~: ~ is not a weak pointer")
+            );
+    }
+    if (eq(TheWeakpointer(wp)->wp_cdr,unbound)) {
+      value1 = NIL; value2 = NIL;
+    } else {
+      value1 = TheWeakpointer(wp)->wp_value; value2 = T;
+    }
+    mv_count=2;
+  }
+
+# ==============================================================================
 # Finalisierer:
 
 LISPFUN(finalize,2,1,norest,nokey,0,NIL)
@@ -751,8 +755,8 @@ LISPFUN(finalize,2,1,norest,nokey,0,NIL)
     skipSTACK(3); value1 = NIL; mv_count=1;
   }
 
-# ===========================================================================
-# CLOS-Object:
+# ==============================================================================
+# CLOS-Objekte:
 
 LISPFUNN(structure_object_p,1)
 # (CLOS::STRUCTURE-OBJECT-P object) überprüft, ob object eine Structure ist.
@@ -778,15 +782,18 @@ LISPFUNN(std_instance_p,1)
 # fehler_keine_klasse(caller,obj);
 # > subr_self: Aufrufer
 # > obj: Nicht-Klasse
-  nonreturning_function(local, fehler_keine_klasse, (object obj)) {
-    pushSTACK(obj); # TYPE-ERROR slot DATUM
-    pushSTACK(S(class)); # CLOS:CLASS, TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name); # function name
-    fehler(type_error,
-           GETTEXT("~: ~ is not a class")
-          );
-  }
+  nonreturning_function(local, fehler_keine_klasse, (object obj));
+  local void fehler_keine_klasse(obj)
+    var object obj;
+    {
+      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(class)); # CLOS:CLASS, Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj);
+      pushSTACK(TheSubr(subr_self)->name); # Funktionsname
+      fehler(type_error,
+             GETTEXT("~: ~ is not a class")
+            );
+    }
 
 LISPFUNN(allocate_std_instance,2)
 # (CLOS::ALLOCATE-STD-INSTANCE class n) liefert eine CLOS-Instanz der Länge n,
@@ -974,7 +981,7 @@ LISPFUNN(slot_exists_p,2)
 
 # UP: Keywords überprüfen, vgl. SYSTEM::KEYWORD-TEST
 # keyword_test(caller,rest_args_pointer,argcount,valid_keywords);
-# > caller: caller (a symbol)
+# > caller: Aufrufer (ein Symbol)
 # > rest_args_pointer: Pointer über die Argumente
 # > argcount: Anzahl der Argumente / 2
 # > valid_keywords: Liste der gültigen Keywords, oder T wenn alle gültig sind
@@ -1006,8 +1013,12 @@ LISPFUNN(slot_exists_p,2)
         var uintC count;
         dotimespC(count,argcount, {
           var object key = NEXT(ptr);
-          if (obj_in_list(key,valid_keywords))
-            goto kw_found;
+          var object kwlistr = valid_keywords;
+          while (consp(kwlistr)) {
+            if (eq(Car(kwlistr),key))
+              goto kw_found;
+            kwlistr = Cdr(kwlistr);
+          }
           # nicht gefunden
           pushSTACK(key); # Wert für Slot DATUM von KEYWORD-ERROR
           pushSTACK(valid_keywords);
@@ -1028,21 +1039,6 @@ LISPFUNN(slot_exists_p,2)
         });
       }
     }
-
-# UP: find initarg of the slot in the arglist
-local inline object* slot_in_arglist (const object slot, uintC argcount,
-                                      object* rest_args_pointer) {
-  var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
-  var object* ptr = rest_args_pointer;
-  var uintC count;
-  dotimespC(count,argcount, {
-    var object initarg = NEXT(ptr);
-    if (obj_in_list(initarg,l))
-      return ptr;
-    NEXT(ptr);
-  });
-  return NULL;
-}
 
 LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL)
 # (CLOS::%SHARED-INITIALIZE instance slot-names &rest initargs)
@@ -1086,9 +1082,22 @@ LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL)
         slots = Cdr(slots);
         # Suche ob der Slot durch die Initargs initialisiert wird:
         if (argcount > 0) {
-          var object* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
-          if (NULL == ptr)
-            goto initarg_not_found;
+          var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
+          var object* ptr = rest_args_pointer;
+          var uintC count;
+          dotimespC(count,argcount, {
+            var object initarg = NEXT(ptr);
+            # Suche initarg in l
+            var object lr = l;
+            while (consp(lr)) {
+              if (eq(initarg,Car(lr)))
+                goto initarg_found;
+              lr = Cdr(lr);
+            }
+            NEXT(ptr);
+          });
+          goto initarg_not_found;
+         initarg_found:
           value1 = NEXT(ptr);
           goto fill_slot;
         }
@@ -1110,8 +1119,11 @@ LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL)
             if (eq(slotnames,T))
               goto eval_init;
             var object slotname = TheSvector(slot)->data[0]; # (slotdef-name slot)
-            if (obj_in_list(slotname,slotnames))
-              goto eval_init;
+            while (consp(slotnames)) {
+              if (eq(Car(slotnames),slotname))
+                goto eval_init;
+              slotnames = Cdr(slotnames);
+            }
             goto slot_done;
           }
          eval_init:
@@ -1214,14 +1226,30 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
         slots = Cdr(slots);
         # Suche ob der Slot durch die Initargs initialisiert wird:
         if (argcount > 0) {
-          var object* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
-          if (NULL != ptr) {
+          var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
+          var object* ptr = rest_args_pointer;
+          var uintC count;
+          dotimespC(count,argcount, {
+            var object initarg = NEXT(ptr);
+            # Suche initarg in l
+            var object lr = l;
+            while (consp(lr)) {
+              if (eq(initarg,Car(lr)))
+                goto initarg_found;
+              lr = Cdr(lr);
+            }
+            NEXT(ptr);
+          });
+          goto slot_done;
+         initarg_found:
+          {
             var object value = NEXT(ptr);
             # Slot mit value initialisieren:
             var object slotinfo = TheSvector(slot)->data[2]; # (slotdef-location slot)
-            *ptr_to_slot(Before(rest_args_pointer),slotinfo) = value;
+            *ptr_to_slot(Before(rest_args_pointer STACKop 1),slotinfo) = value;
           }
         }
+       slot_done: ;
       }
     }
     value1 = Before(rest_args_pointer); mv_count=1; # Instanz als Wert
@@ -1315,9 +1343,22 @@ local Values do_initialize_instance(info,rest_args_pointer,argcount)
         slots = Cdr(slots);
         # Suche ob der Slot durch die Initargs initialisiert wird:
         if (argcount > 0) {
-          var object* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
-          if (NULL == ptr)
-            goto initarg_not_found;
+          var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
+          var object* ptr = rest_args_pointer;
+          var uintC count;
+          dotimespC(count,argcount, {
+            var object initarg = NEXT(ptr);
+            # Suche initarg in l
+            var object lr = l;
+            while (consp(lr)) {
+              if (eq(initarg,Car(lr)))
+                goto initarg_found;
+              lr = Cdr(lr);
+            }
+            NEXT(ptr);
+          });
+          goto initarg_not_found;
+         initarg_found:
           value1 = NEXT(ptr);
           goto fill_slot;
         }
@@ -1399,7 +1440,8 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
       var object arglist = listof(argcount);
       pushSTACK(arglist);
       fehler(program_error,
-             GETTEXT("MAKE-INSTANCE: keyword argument list ~ has an odd length"));
+             GETTEXT("MAKE-INSTANCE: keyword argument list ~ has an odd length")
+            );
     }
     argcount = argcount/2; # Anzahl der Initarg/Wert-Paare
     # Stackaufbau: class, argcount Initarg/Wert-Paare.
@@ -1446,10 +1488,9 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
         # Hash-Tabellen-Eintrag neu berechnen. Siehe clos.lisp.
         return_Values funcall(S(initial_make_instance),2*argcount+1);
       } else {
-        # check keywords:
-        keyword_test(S(make_instance),rest_args_pointer,
-                     argcount,TheSvector(info)->data[0]);
-        # call the effective method of ALLOCATE-INSTANCE:
+        # Keywords überprüfen:
+        keyword_test(S(make_instance),rest_args_pointer,argcount,TheSvector(info)->data[0]);
+        # Effektive Methode von ALLOCATE-INSTANCE anwenden:
         pushSTACK(info);
         {
           var object fun = TheSvector(info)->data[1];
@@ -1464,7 +1505,9 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
               # instance already in STACK_0
               pushSTACK(Before(rest_args_pointer));
               pushSTACK(S(allocate_instance));
-              fehler(error,GETTEXT("~ method for ~ returned ~"));
+              fehler(error,
+                     GETTEXT("~ method for ~ returned ~")
+                    );
             }
             value1 = popSTACK(); # restore instance
           } else {
@@ -1472,29 +1515,17 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
           }
         }
         info = popSTACK();
-        # call the effective method of INITIALIZE-INSTANCE:
-        # instance as the 1st argument instead of class:
-        Before(rest_args_pointer) = value1;
+        # Effektive Methode von INITIALIZE-INSTANCE anwenden:
+        Before(rest_args_pointer) = value1; # instance als 1. Argument statt class
         var object fun = TheSvector(info)->data[2];
-        # save the instance in case INITIALIZE-INSTANCE returns junk
-        # see 7.1.7 "Definitions of Make-Instance and Initialize-Instance"
-        # http://www.lisp.org/HyperSpec/Body/sec_7-1-7.html
-        pushSTACK(value1);
-        if (argcount>0) { # (rotatef STACK_0 ... STACK_(2*argcount))
-          var uintC count;
-          var object* ptr = &(STACK_0);
-          dotimespC(count,2*argcount,
-            { *ptr = *(ptr STACKop 1); ptr skipSTACKop 1; });
-          *ptr = value1;
+        if (!eq(fun,L(initialize_instance))) {
+          return_Values funcall(fun,2*argcount+1);
+        } else {
+          # CLOS::%INITIALIZE-INSTANCE lässt sich vereinfachen (man braucht
+          # nicht nochmal in *make-instance-table* nachzusehen):
+          return_Values do_initialize_instance(info,rest_args_pointer,argcount);
         }
-        rest_args_pointer skipSTACKop -1;
-        if (eq(fun,L(initialize_instance)))
-          # CLOS::%INITIALIZE-INSTANCE can be simplified
-          # (do not have to look into *make-instance-table* again):
-          do_initialize_instance(info,rest_args_pointer,argcount);
-        else
-          funcall(fun,2*argcount+1);
-        value1 = popSTACK(); mv_count = 1;
+        # Deren Wert ist die Instanz.
       }
     }
   }
@@ -1502,5 +1533,5 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
   #pragma -z1
 #endif
 
-# ===========================================================================
+# ==============================================================================
 

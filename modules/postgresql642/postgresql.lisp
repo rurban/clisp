@@ -1,5 +1,5 @@
 ;; Foreign functions provided by PostgreSQL
-;; File: <postgresql.lisp - 2001-04-20 Fri 13:08:00 EDT sds@xchange.com>
+;; File: <postgresql.lisp - 1999-03-20 Sat 21:02:41 EST sds@eho.eaglets.com>
 
 (defpackage "SQL"
   (:case-sensitive t)
@@ -8,7 +8,7 @@
 
 ;; This requires linking with NEW_LIBS='postgresql.o -lpq'.
 
-(in-package "LISP")
+(lisp:in-package "LISP")
 
 (eval-when (compile eval)
   ;; A temporary package, case-insensitive, so that we don't need to prefix
@@ -206,7 +206,7 @@
 (def-c-call-out PQoptions
     (:arguments (conn PGconn)) (:return-type c-string))
 (def-c-call-out PQstatus
-    (:arguments (conn PGconn)) (:return-type ConnStatusType))
+    (:arguments (conn PGconn)) (:return-type int)) ; ConnStatusType
 (def-c-call-out PQerrorMessage
     (:arguments (conn PGconn)) (:return-type c-string))
 (def-c-call-out PQsocket
@@ -258,10 +258,10 @@
                 (args (c-array-ptr PQArgBlock)) (nargs int))
   (:return-type PGresult))
 (def-c-call-out PQmakeEmptyPGresult
-    (:arguments (conn PGconn) (status ExecStatusType))
+    (:arguments (conn PGconn) (status int)) ; ?? ExecStatusType
   (:return-type PGresult))
 (def-c-call-out PQresultStatus
-    (:arguments (res PGresult)) (:return-type ExecStatusType))
+    (:arguments (res PGresult)) (:return-type int)) ; ?? ExecStatusType
 (def-c-call-out PQresultErrorMessage ; not in Pg.pm
     (:arguments (res PGresult)) (:return-type c-string))
 (def-c-call-out PQntuples

@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2001 Free Software Foundation, Inc.
+/* Copyright (C) 2000 Free Software Foundation, Inc.
    This file is part of the GNU LIBICONV Library.
 
    The GNU LIBICONV Library is free software; you can redistribute it
@@ -23,12 +23,8 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <iconv.h>
 #include <errno.h>
-
-/* If nonzero, ignore conversions outside Unicode plane 0. */
-static int bmp_only;
 
 static const char* hexbuf (unsigned char buf[], unsigned int buflen)
 {
@@ -43,17 +39,13 @@ static const char* hexbuf (unsigned char buf[], unsigned int buflen)
   return msg;
 }
 
-static int try (iconv_t cd, unsigned char buf[], unsigned int buflen, unsigned int* out)
+static int try (iconv_t cd, unsigned char buf[], unsigned int buflen, unsigned int *out)
 {
   const char* inbuf = (const char*) buf;
   size_t inbytesleft = buflen;
   char* outbuf = (char*) out;
-  size_t outbytesleft = 3*sizeof(unsigned int);
-  size_t result;
-  iconv(cd,NULL,NULL,NULL,NULL);
-  result = iconv(cd,(ICONV_CONST char**)&inbuf,&inbytesleft,&outbuf,&outbytesleft);
-  if (result != (size_t)(-1))
-    result = iconv(cd,NULL,NULL,&outbuf,&outbytesleft);
+  size_t outbytesleft = sizeof(unsigned int);
+  size_t result = iconv(cd,(ICONV_CONST char**)&inbuf,&inbytesleft,&outbuf,&outbytesleft);
   if (result == (size_t)(-1)) {
     if (errno == EILSEQ) {
       return -1;
@@ -69,36 +61,18 @@ static int try (iconv_t cd, unsigned char buf[], unsigned int buflen, unsigned i
   } else if (result > 0) /* ignore conversions with transliteration */ {
     return -1;
   } else {
-    if (inbytesleft != 0) {
-      fprintf(stderr,"%s: inbytes = %ld, outbytes = %ld\n",hexbuf(buf,buflen),(long)(buflen-inbytesleft),(long)(3*sizeof(unsigned int)-outbytesleft));
+    if (inbytesleft != 0 || outbytesleft != 0) {
+      fprintf(stderr,"%s: inbytes = %ld, outbytes = %ld\n",hexbuf(buf,buflen),(long)(buflen-inbytesleft),(long)(sizeof(unsigned int)-outbytesleft));
       exit(1);
     }
-    return (3*sizeof(unsigned int)-outbytesleft)/sizeof(unsigned int);
+    return 1;
   }
-}
-
-/* Returns the out[] buffer as a Unicode value, formatted as 0x%04X. */
-static const char* ucs4_decode (const unsigned int* out, unsigned int outlen)
-{
-  static char hexbuf[21];
-  char* p = hexbuf;
-  while (outlen > 0) {
-    if (p > hexbuf)
-      *p++ = ' ';
-    sprintf (p, "0x%04X", out[0]);
-    out += 1; outlen -= 1;
-    if (bmp_only && strlen(p) > 6)
-      return NULL;
-    p += strlen(p);
-  }
-  return hexbuf;
 }
 
 int main (int argc, char* argv[])
 {
   const char* charset;
   iconv_t cd;
-  int search_depth;
 
   if (argc != 2) {
     fprintf(stderr,"Usage: table-to charset\n");
@@ -112,51 +86,38 @@ int main (int argc, char* argv[])
     exit(1);
   }
 
-  /* When testing UTF-8 or GB18030, stop at 0x10000, otherwise the output
-     file gets too big. */
-  bmp_only = (strcmp(charset,"UTF-8") == 0 || strcmp(charset,"GB18030") == 0);
-  search_depth = (strcmp(charset,"UTF-8") == 0 ? 3 : 4);
-
   {
-    unsigned int out[3];
+    unsigned int out;
     unsigned char buf[4];
     unsigned int i0, i1, i2, i3;
     int result;
     for (i0 = 0; i0 < 0x100; i0++) {
       buf[0] = i0;
-      result = try(cd,buf,1,out);
+      result = try(cd,buf,1,&out);
       if (result < 0) {
       } else if (result > 0) {
-        const char* unicode = ucs4_decode(out,result);
-        if (unicode != NULL)
-          printf("0x%02X\t%s\n",i0,unicode);
+        printf("0x%02X\t0x%04X\n",i0,out);
       } else {
         for (i1 = 0; i1 < 0x100; i1++) {
           buf[1] = i1;
-          result = try(cd,buf,2,out);
+          result = try(cd,buf,2,&out);
           if (result < 0) {
           } else if (result > 0) {
-            const char* unicode = ucs4_decode(out,result);
-            if (unicode != NULL)
-              printf("0x%02X%02X\t%s\n",i0,i1,unicode);
+            printf("0x%02X%02X\t0x%04X\n",i0,i1,out);
           } else {
             for (i2 = 0; i2 < 0x100; i2++) {
               buf[2] = i2;
-              result = try(cd,buf,3,out);
+              result = try(cd,buf,3,&out);
               if (result < 0) {
               } else if (result > 0) {
-                const char* unicode = ucs4_decode(out,result);
-                if (unicode != NULL)
-                  printf("0x%02X%02X%02X\t%s\n",i0,i1,i2,unicode);
-              } else if (search_depth > 3) {
+                printf("0x%02X%02X%02X\t0x%04X\n",i0,i1,i2,out);
+              } else if (strcmp(charset,"UTF-8")) {
                 for (i3 = 0; i3 < 0x100; i3++) {
                   buf[3] = i3;
-                  result = try(cd,buf,4,out);
+                  result = try(cd,buf,4,&out);
                   if (result < 0) {
                   } else if (result > 0) {
-                    const char* unicode = ucs4_decode(out,result);
-                    if (unicode != NULL)
-                      printf("0x%02X%02X%02X%02X\t%s\n",i0,i1,i2,i3,unicode);
+                    printf("0x%02X%02X%02X%02X\t0x%04X\n",i0,i1,i2,i3,out);
                   } else {
                     fprintf(stderr,"%s: incomplete byte sequence\n",hexbuf(buf,4));
                     exit(1);

@@ -2,8 +2,12 @@
 ;;; Load this file from ~/.emacs or ~/.emacs.el
 ;;; Tested with Emacs 20 with Mule-UCS, Emacs 21
 
-;; All the *.d and *.lisp sources are in UTF-8 encoding.
-(modify-coding-system-alist 'file "\\.\\(d\\|lisp\\)\\'" 'utf-8)
+(defun clisp-find-file-coding-system (arg-list)
+  (and (eq (car arg-list) 'insert-file-contents)
+       'utf-8))
 
-;; For CLISP in `inferior-lisp-mode' under win32
-(modify-coding-system-alist 'process "lisp" 'unix)
+; All the *.d sources are in UTF-8 encoding.
+(modify-coding-system-alist 'file "\\.d\\'" 'clisp-find-file-coding-system)
+
+; All the *.lisp sources are in UTF-8 encoding.
+(modify-coding-system-alist 'file "\\.lisp\\'" 'clisp-find-file-coding-system)

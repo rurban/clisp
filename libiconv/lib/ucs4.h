@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1999-2001 Free Software Foundation, Inc.
+ * Copyright (C) 1999-2000 Free Software Foundation, Inc.
  * This file is part of the GNU LIBICONV Library.
  *
  * The GNU LIBICONV Library is free software; you can redistribute it
@@ -22,7 +22,7 @@
  * UCS-4
  */
 
-/* Here we accept FFFE0000/0000FEFF marks as endianness indicators everywhere
+/* Here we accept 0000FFFE/0000FEFF marks as endianness indicators everywhere
    in the stream, not just at the beginning. The default is big-endian. */
 /* The state is 0 if big-endian, 1 if little-endian. */
 static int
@@ -35,8 +35,8 @@ ucs4_mbtowc (conv_t conv, ucs4_t *pwc, const unsigned char *s, int n)
                   ? s[0] + (s[1] << 8) + (s[2] << 16) + (s[3] << 24)
                   : (s[0] << 24) + (s[1] << 16) + (s[2] << 8) + s[3]);
     s += 4; n -= 4; count += 4;
-    if (wc == 0x0000feff) {
-    } else if (wc == 0xfffe0000u) {
+    if (wc == 0xfeff) {
+    } else if (wc == 0xfffe) {
       state ^= 1;
     } else if (wc <= 0x7fffffff) {
       *pwc = wc;
@@ -53,7 +53,7 @@ ucs4_mbtowc (conv_t conv, ucs4_t *pwc, const unsigned char *s, int n)
 static int
 ucs4_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
 {
-  if (wc <= 0x7fffffff) {
+  if (wc != 0xfffe) {
     if (n >= 4) {
       r[0] = (unsigned char) (wc >> 24);
       r[1] = (unsigned char) (wc >> 16);
@@ -63,5 +63,5 @@ ucs4_wctomb (conv_t conv, unsigned char *r, ucs4_t wc, int n)
     } else
       return RET_TOOSMALL;
   } else
-    return RET_ILUNI;
+    return RET_ILSEQ;
 }

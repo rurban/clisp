@@ -3,11 +3,12 @@
 
 ;; ============================================================================
 
-(in-package "COMMON-LISP")
+(in-package "LISP")
 (export '(nth-value function-lambda-expression defpackage
           print-unreadable-object declaim destructuring-bind complement
           constantly with-standard-io-syntax with-hash-table-iterator
-          read-sequence write-sequence))
+          read-sequence write-sequence designator
+)        )
 (in-package "SYSTEM")
 
 ;; ----------------------------------------------------------------------------
@@ -59,7 +60,7 @@
         (t
          (error-of-type 'type-error
            :datum obj :expected-type 'function
-           (TEXT "~S: ~S is not a function")
+           (ENGLISH "~S: ~S is not a function")
            'function-lambda-expression obj
 ) )     ))
 
@@ -73,14 +74,14 @@
            (cond ((stringp name) name)
                  ((symbolp name) (symbol-name name))
                  (t (error-of-type 'source-program-error
-                      (TEXT "~S: package name ~S should be a string or a symbol")
+                      (ENGLISH "~S: package name ~S should be a string or a symbol")
                       'defpackage name
          ) )     )  )
          (check-symname (name)
            (cond ((stringp name) name)
                  ((symbolp name) (symbol-name name))
                  (t (error-of-type 'source-program-error
-                      (TEXT "~S ~A: symbol name ~S should be a string or a symbol")
+                      (ENGLISH "~S ~A: symbol name ~S should be a string or a symbol")
                       'defpackage packname name
         )) )     )  )
     (setq packname (check-packname packname))
@@ -91,7 +92,7 @@
           (shadow-list '()) ; Liste von Symbolnamen für shadow
           (shadowing-list '()) ; Listen von Paaren (Symbolname . Paketname) für shadowing-import
           (use-list '()) ; Liste von Paketnamen für use-package
-          (use-default '("COMMON-LISP")) ; default for use-list
+          (use-default '("LISP")) ; Default-Wert für use-list
           (case-sensitive nil) ; Flag für :CASE-SENSITIVE
           (import-list '()) ; Listen von Paaren (Symbolname . Paketname) für import
           (intern-list '()) ; Liste von Symbolnamen für intern
@@ -100,7 +101,7 @@
       (flet ((record-symname (name)
                (if (member name symname-list :test #'string=)
                  (error-of-type 'source-program-error
-                   (TEXT "~S ~A: the symbol ~A must not be specified more than once")
+                   (ENGLISH "~S ~A: the symbol ~A must not be specified more than once")
                    'defpackage packname name
                  )
                  (push name symname-list)
@@ -112,7 +113,7 @@
                 (:SIZE
                   (if size
                     (error-of-type 'source-program-error
-                      (TEXT "~S ~A: the ~S option must not be given more than once")
+                      (ENGLISH "~S ~A: the ~S option must not be given more than once")
                       'defpackage packname ':SIZE
                     )
                     (setq size t) ; Argument wird ignoriert
@@ -120,7 +121,7 @@
                 (:DOCUMENTATION ; ANSI-CL
                   (if documentation
                     (error-of-type 'source-program-error
-                      (TEXT "~S ~A: the ~S option must not be given more than once")
+                      (ENGLISH "~S ~A: the ~S option must not be given more than once")
                       'defpackage packname ':DOCUMENTATION
                     )
                     (setq documentation t) ; Argument wird ignoriert
@@ -178,15 +179,15 @@
                     (setq case-sensitive t)
                 ) )
                 (T (error-of-type 'source-program-error
-                     (TEXT "~S ~A: unknown option ~S")
+                     (ENGLISH "~S ~A: unknown option ~S")
                      'defpackage packname (first option)
               ) )  )
               (error-of-type 'source-program-error
-                (TEXT "~S ~A: invalid syntax in ~S option: ~S")
+                (ENGLISH "~S ~A: invalid syntax in ~S option: ~S")
                 'defpackage packname 'defpackage option
             ) )
             (error-of-type 'source-program-error
-              (TEXT "~S ~A: not a ~S option: ~S")
+              (ENGLISH "~S ~A: not a ~S option: ~S")
               'defpackage packname 'defpackage option
         ) ) )
         ; Auf Überschneidungen zwischen intern-list und export-list prüfen:
@@ -242,8 +243,8 @@
   (multiple-value-bind (sym found) (find-symbol string packname)
     (unless found
       (cerror ; 'package-error ??
-              (TEXT "This symbol will be created.")
-              (TEXT "~S ~A: There is no symbol ~A::~A .")
+              (ENGLISH "This symbol will be created.")
+              (ENGLISH "~S ~A: There is no symbol ~A::~A .")
               'defpackage calling-packname packname string
       )
       (setq sym (intern string packname))
@@ -317,7 +318,7 @@
   (let ((min (car min.max))
         (max (cdr min.max)))
     (error-of-type 'error
-      (TEXT "The object to be destructured should be a list with ~:[at least ~*~S~;~:[from ~S to ~S~;~S~]~] elements, not ~4@*~S.")
+      (ENGLISH "The object to be destructured should be a list with ~:[at least ~*~S~;~:[from ~S to ~S~;~S~]~] elements, not ~4@*~S.")
       max (eql min max) min max destructuring-form
 ) ) )
 
@@ -342,13 +343,12 @@
 (defconstant *common-lisp-user-package* (find-package "COMMON-LISP-USER"))
 
 (defmacro with-standard-io-syntax (&body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-      (SYSTEM::PARSE-BODY body nil env)
-    ;; It would be possible to put all these bindings into a single function,
-    ;; but this would force variables into closures.
-    `(LET (;; printer/reader variables:
+  (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body nil env)
+    ; It would be possible to put all these bindings into a single function,
+    ; but this would force variables into closures.
+    `(LET (; printer/reader variables:
            (*PACKAGE*                   *COMMON-LISP-USER-PACKAGE*)
-           ;; printer variables:
+           ; printer variables:
            (*PRINT-ARRAY*               T)
            (*PRINT-BASE*                10)
            (*PRINT-CASE*                ':UPCASE)
@@ -357,27 +357,29 @@
            (*PRINT-GENSYM*              T)
            (*PRINT-LENGTH*              NIL)
            (*PRINT-LEVEL*               NIL)
-           (*PRINT-LINES*               NIL)
-           (*PRINT-MISER-WIDTH*         NIL)
-           (*PRINT-PPRINT-DISPATCH*     NIL)
+          ;(*PRINT-LINES*               NIL) ; XP variable not present in CLISP
+          ;(*PRINT-MISER-WIDTH*         NIL) ; XP variable not present in CLISP
+          ;(*PRINT-PPRINT-DISPATCH*     NIL) ; XP variable not present in CLISP
            (*PRINT-PRETTY*              NIL)
            (*PRINT-RADIX*               NIL)
            (*PRINT-READABLY*            T)
            (*PRINT-RIGHT-MARGIN*        NIL)
            (*PRINT-CLOSURE*             NIL) ; CLISP specific
-           (*PRINT-RPARS*               nil) ; CLISP specific
-           (*PRINT-INDENT-LISTS*        1)   ; CLISP specific
+           (*PRINT-RPARS*               T) ; CLISP specific
+           (*PRINT-INDENT-LISTS*        2) ; CLISP specific
            (SYSTEM::*PRIN-STREAM*       NIL) ; CLISP specific
-           (SYSTEM::*PRIN-LINELENGTH*   79)  ; CLISP specific
-           (SYSTEM::*PRIN-LINE-PREFIX*  NIL) ; CLISP specific
-           ;; reader variables:
+           (SYSTEM::*PRIN-LINELENGTH*   79) ; CLISP specific
+           ; reader variables:
            (*READ-BASE*                 10)
            (*READ-DEFAULT-FLOAT-FORMAT* 'SINGLE-FLOAT)
            (*READ-EVAL*                 T)
            (*READ-SUPPRESS*             NIL)
-           (*READTABLE*                 (COPY-READTABLE NIL)))
+           (*READTABLE*                 (COPY-READTABLE NIL))
+          )
        ,@(if declarations `((DECLARE ,@declarations)))
-       ,@body-rest)))
+       ,@body-rest
+     )
+) )
 
 ;; ----------------------------------------------------------------------------
 
@@ -385,20 +387,25 @@
 
 (defmacro with-hash-table-iterator ((macroname hashtable) &body body)
   (unless (symbolp macroname)
-    (error (TEXT "~S: macro name should be a symbol, not ~S")
-           'with-hash-table-iterator macroname))
+    (error (ENGLISH "~S: macro name should be a symbol, not ~S")
+           'with-hash-table-iterator macroname
+  ) )
   (let ((var (gensym)))
     `(LET ((,var (SYS::HASH-TABLE-ITERATOR ,hashtable)))
        (MACROLET ((,macroname () '(SYS::HASH-TABLE-ITERATE ,var) ))
-         ,@body))))
+         ,@body
+     ) )
+) )
 
 ;; ----------------------------------------------------------------------------
 
 ;; ANSI-CL
 
-(defmacro lambda (&whole whole lambdalist &body body)
+(defmacro lambda (&whole whole
+                  lambdalist &body body)
   (declare (ignore lambdalist body))
-  `(FUNCTION ,whole))
+  `(FUNCTION ,whole)
+)
 
 ;; ----------------------------------------------------------------------------
 
@@ -415,13 +422,13 @@
             (unless nextch
               (error-of-type 'end-of-file
                 :stream stream
-                (TEXT "~S: input stream ~S ends within read macro beginning to ~S")
+                (ENGLISH "~S: input stream ~S ends within read macro beginning to ~S")
                 'read stream ch
             ) )
             (unless (characterp nextch)
               (error-of-type 'stream-error
                 :stream stream
-                (TEXT "~S from ~S: character read should be a character: ~S")
+                (ENGLISH "~S from ~S: character read should be a character: ~S")
                 'read stream ch
             ) )
             (unless (char<= #\0 nextch #\9)
@@ -442,7 +449,7 @@
         (unless macrodef
           (error-of-type 'stream-error
             :stream stream
-            (TEXT "~S from ~S: After ~S is ~S an undefined dispatch macro character")
+            (ENGLISH "~S from ~S: After ~S is ~S an undefined dispatch macro character")
             'read stream ch subch
         ) )
         (funcall macrodef stream subch arg)
@@ -508,7 +515,7 @@
            (apply #'read-byte-sequence sequence stream rest)
           )
           (t
-           (error (TEXT "~S: ~S of ~S is ambiguous. Please use ~S or ~S.")
+           (error (ENGLISH "~S: ~S of ~S is ambiguous. Please use ~S or ~S.")
                   'read-sequence 'stream-element-type stream
                   'read-char-sequence 'read-byte-sequence
 ) ) )     ))
@@ -523,7 +530,7 @@
            (apply #'write-byte-sequence sequence stream rest)
           )
           (t
-           (error (TEXT "~S: ~S of ~S is ambiguous. Please use ~S or ~S.")
+           (error (ENGLISH "~S: ~S of ~S is ambiguous. Please use ~S or ~S.")
                   'write-sequence 'stream-element-type stream
                   'write-char-sequence 'write-byte-sequence
 ) ) )     ))

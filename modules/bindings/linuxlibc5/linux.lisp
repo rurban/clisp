@@ -9,7 +9,8 @@
 
 ;; This requires linking with NEW_LIBS='linux.o -lm'.
 
-(in-package "LISP")
+
+(lisp:in-package "LISP")
 
 (eval-when (compile eval)
   ; A temporary package, case-insensitive, so that we don't need to prefix
@@ -2574,6 +2575,6 @@ rpcsvc:
 (lisp:in-package "LISP")
 
 (eval-when (compile eval)
-  (lisp:delete-package "LINUX-AUX")
+  (delete-package "LINUX-AUX")
 )
 

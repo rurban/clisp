@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1999-2001 Free Software Foundation, Inc.
+ * Copyright (C) 1999-2000 Free Software Foundation, Inc.
  * This file is part of the GNU LIBICONV Library.
  *
  * The GNU LIBICONV Library is free software; you can redistribute it
@@ -275,7 +275,7 @@ active:
         k = 4;
         count += ((state & 3) >= 3 ? 6 : 5);
       } else
-        return RET_ILUNI;
+        return RET_ILSEQ;
       if (n < count)
         return RET_TOOSMALL;
       for (;;) {

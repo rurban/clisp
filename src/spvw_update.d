@@ -37,8 +37,6 @@
 # Same, but here update(objptr) may modify *objptr. and the
 # value before update should be taken while following the list.
 #   update_weakpointers_mod();
-# ditto for weak key-value tables:
-#   update_weakkvtables() and update_weakkvtables_mod()
 
 # Update the stacks.
 #   #define update_stackobj ...
@@ -267,46 +265,27 @@
       #endif
 
     # Weak-Pointer-Liste aktualisieren:
-      #define update_weakpointer(ww)                                      \
-        do { var object* p = &TheRecord(ww)->recdata[weakpointer_length]; \
-             var uintC count = weakpointer_xlength/sizeof(object);        \
-             dotimespC(count,count,{ update(p); p++; });                  \
-        } while(0)
-      #define update_weakpointers()                     \
-        do { var object L = O(all_weakpointers);        \
-             while (!eq(L,Fixnum_0)) {                  \
-               update_weakpointer(L);                   \
-               L = TheWeakpointer(L)->wp_cdr;           \
-        }    } while(0)
-      #define update_weakpointers_mod()                         \
-        do { var object L = O(all_weakpointers);                \
-             while (!eq(L,Fixnum_0)) {                          \
-               var object next = TheWeakpointer(L)->wp_cdr;     \
-               update_weakpointer(L);                           \
-               L = next;                                        \
-        }    } while(0)
-
-    # update weak key-value tables
-      #define update_weakkvtable(wkvt)                                  \
-        do { # weak key-value table is just another fancy svector       \
-          var object* p = TheSvector(wkvt)->data; # nothing GC-visible  \
-          var uintL count = Svector_length(wkvt);                       \
-          dotimespL(count,count,{ update(p); p++; });                   \
-        } while(0)
-      #define update_weakkvtables()                     \
-        do { var object L = O(all_weakkvtables);        \
-             while (!eq(L,Fixnum_0)) {                  \
-               update_weakkvtable(L);                   \
-               L = TheWeakKVT(L)->wkvt_cdr;             \
-        }    } while(0)
-      #define update_weakkvtables_mod()                         \
-        do { var object L = O(all_weakkvtables);                \
-             while (!eq(L,Fixnum_0)) {                          \
-               var object next = TheWeakKVT(L)->wkvt_cdr;       \
-               update_weakkvtable(L);                           \
-               L = next;                                        \
-        }    } while(0)
-
+      #define update_weakpointers()  \
+        { var object L = O(all_weakpointers);                             \
+          until (eq(L,Fixnum_0))                                          \
+            { var object* p = &TheRecord(L)->recdata[weakpointer_length]; \
+              var uintC count;                                            \
+              dotimespC(count,weakpointer_xlength/sizeof(object),         \
+                { update(p); p++; }                                       \
+                );                                                        \
+              L = TheWeakpointer(L)->wp_cdr;                              \
+        }   }
+      #define update_weakpointers_mod()  \
+        { var object L = O(all_weakpointers);                             \
+          until (eq(L,Fixnum_0))                                          \
+            { var object next = TheWeakpointer(L)->wp_cdr;                \
+              var object* p = &TheRecord(L)->recdata[weakpointer_length]; \
+              var uintC count;                                            \
+              dotimespC(count,weakpointer_xlength/sizeof(object),         \
+                { update(p); p++; }                                       \
+                );                                                        \
+              L = next;                                                   \
+        }   }
 
     # STACKs aktualisieren:
       #define update_stackobj_normal(objptr)  \

@@ -1,4 +1,4 @@
-# -*- Makefile -*- for libcharset/lib
+# Makefile for libcharset/lib
 
 #### Start of system configuration section. ####
 
@@ -68,7 +68,7 @@ AR = lib
 AR_FLAGS = /out:
 
 LN = copy
-RM = -del
+RM = del
 
 # Programs used by "make install":
 INSTALL = @INSTALL@
@@ -90,12 +90,12 @@ RESOURCES =
 all : charset.lib
 
 localcharset.obj : $(srcdir)/localcharset.c
-	$(CC) $(INCLUDES) $(CFLAGS) -c $(srcdir)/localcharset.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/localcharset.c
 
 !if !$(DLL)
 
 charset.lib : $(OBJECTS)
-	-$(RM) charset.lib
+	$(RM) charset.lib
 	$(AR) $(AR_FLAGS)charset.lib $(OBJECTS)
 
 !else
