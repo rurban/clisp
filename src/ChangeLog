@@ -1,5 +1,16 @@
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
+	Remove an extra blank line at the beginning of trace output, and
+	also after trace output if the program is using newline convention A.
+	* trace.lisp (trace-pre-output): Use fresh-line instead of terpri at
+	the beginning, and elastic-newline at the end.
+	(trace-post-output): Use fresh-line instead of terpri at the beginning,
+	and rely on trace-print for the final elastic newline.
+	(trace-print): Use fresh-line instead of terpri at the beginning, and
+	emit an elastic newline at the end.
+
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
 	Remove redundant blank lines in stepper output when a program uses
 	newline convention A.
 	* reploop.lisp (step-values): Use fresh-line before and elastic-newline
