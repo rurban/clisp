@@ -8906,26 +8906,22 @@ local void directory_search_scandir (bool recursively, signean next_task,
         break;
       }
       end_system_call();
-      # convert directory-entry into string:
+      /* convert directory-entry into string: */
       var object direntry;
       {
         var uintL direntry_len;
        #if defined(UNIX_CYGWIN32)
-        # Neither d_reclen nor d_namlen present in DIR structure.
+        /* Neither d_reclen nor d_namlen present in DIR structure. */
         direntry_len = asciz_length(dp->d_name);
-       #elif defined(HAVE_STRUCT_DIRENT_D_NAMLEN) || defined(__USE_GNU)
-        # On UNIX_LINUX direntry_len := dp->d_reclen was sufficient, but in
-        # general direntry_len := min(dp->d_reclen,asciz_length(dp->d_name))
-        # is necessary. The GNU libc is buggy: it does "#define d_namlen d_reclen",
-        # just as the Linux libc-5.0.9.
-        {
+       #elif !defined(HAVE_STRUCT_DIRENT_D_NAMLEN) || defined(__USE_GNU)
+        { /* On UNIX_LINUX direntry_len := dp->d_reclen was sufficient, but in
+           general direntry_len := min(dp->d_reclen,asciz_length(dp->d_name))
+           is necessary. The GNU libc is buggy: it does
+           "#define d_namlen d_reclen", just as the Linux libc-5.0.9. */
           var const uintB* ptr = (const uintB*)(&dp->d_name[0]);
-          var uintL count;
+          var uintL count = dp->d_reclen;
           direntry_len = 0;
-          dotimesL(count,dp->d_reclen, {
-            if (*ptr == '\0') break;
-            ptr++; direntry_len++;
-          });
+          while (count-- && *ptr++) direntry_len++;
         }
        #else
         direntry_len = dp->d_namlen;
