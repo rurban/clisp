@@ -1,3 +1,18 @@
+2002-07-01  LaMont Jones  <lamont@smallone.fc.hp.com>
+
+	* ffcall/callback/trampoline_r/trampoline.c (alloc_trampoline_r)
+	(is_tramp): work around a bug in gcc 3.*
+	* ffcall/avcall/avcall-hppa.s:
+	* ffcall/callback/trampoline_r/cache-hppa.s:
+	* ffcall/callback/trampoline_r/proto-hppa.s:
+	* ffcall/callback/trampoline_r/tramp-hppa.s:
+	* ffcall/callback/vacall_r/vacall-hppa.s:
+	* ffcall/trampoline/cache-hppa.s:
+	* ffcall/trampoline/proto-hppa.s:
+	* ffcall/trampoline/tramp-hppa.s:
+	* ffcall/vacall/vacall-hppa.s:
+	support both HP-UX assembler and GAS
+
 2002-07-01  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (echotab_mkdir_maybe): pass `-p' to mkdir(1)

@@ -1,18 +1,12 @@
-	.SPACE $PRIVATE$
-	.SUBSPA $DATA$,QUAD=1,ALIGN=8,ACCESS=31
-	.SUBSPA $BSS$,QUAD=1,ALIGN=8,ACCESS=31,ZERO,SORT=82
-	.SPACE $TEXT$
-	.SUBSPA $LIT$,QUAD=0,ALIGN=8,ACCESS=44
-	.SUBSPA $CODE$,QUAD=0,ALIGN=8,ACCESS=44,CODE_ONLY
+	.code
 	.IMPORT $global$,DATA
 	.IMPORT $$dyncall,MILLICODE
 ; gcc_compiled.:
-	.SPACE $TEXT$
-	.SUBSPA $CODE$
+	.code
 
 	.align 4
 	.EXPORT __vacall_r,ENTRY,PRIV_LEV=3,ARGW0=GR,ARGW1=GR,ARGW2=GR,ARGW3=GR
-__vacall_r
+	.label __vacall_r
 	.PROC
 	.CALLINFO FRAME=192,CALLS,SAVE_RP
 	.ENTRY
@@ -53,26 +47,26 @@ __vacall_r
 	ldw -212(0,%r30),%r2
 	comiclr,= 1,%r19,0
 	comib,<>,n 2,%r19,L$0006
-L$0057
+	.label L$0057
 	ldb -160(0,%r30),%r19
 	bl L$0065,0
 	extrs %r19,31,8,%r28
-L$0006
+	.label L$0006
 	comib,<>,n 3,%r19,L$0008
 	ldb -160(0,%r30),%r28
 	bl L$0065,0
 	ldw -212(0,%r30),%r2
-L$0008
+	.label L$0008
 	comib,<>,n 4,%r19,L$0010
 	ldh -160(0,%r30),%r19
 	bl L$0003,0
 	extrs %r19,31,16,%r28
-L$0010
+	.label L$0010
 	comib,<>,n 5,%r19,L$0012
 	ldh -160(0,%r30),%r28
 	bl L$0065,0
 	ldw -212(0,%r30),%r2
-L$0012
+	.label L$0012
 	comib,=,n 6,%r19,L$0060
 	comib,=,n 7,%r19,L$0060
 	comib,=,n 8,%r19,L$0060
@@ -83,18 +77,18 @@ L$0012
 	comib,<>,n 12,%r19,L$0024
 	ldo -152(%r30),%r19
 	fldws -8(0,%r19),%fr4L
-L$0060
+	.label L$0060
 	bl L$0003,0
 	ldw -160(0,%r30),%r28
-L$0024
+	.label L$0024
 	comib,<>,n 13,%r19,L$0026
 	ldo -152(%r30),%r19
 	fldds -8(0,%r19),%fr4
-L$0059
+	.label L$0059
 	ldw -160(0,%r30),%r28
 	bl L$0003,0
 	ldw -156(0,%r30),%r29
-L$0026
+	.label L$0026
 	comiclr,<> 14,%r19,0
 	bl,n L$0060,0
 	comib,<> 15,%r19,L$0065
@@ -103,7 +97,7 @@ L$0026
 	bb,>=,n %r19,31,L$0031
 	ldw -176(0,%r30),%r28
 	bl,n L$0003,0
-L$0031
+	.label L$0031
 	bb,>= %r19,30,L$0065
 	ldw -212(0,%r30),%r2
 	bb,>= %r19,28,L$0034
@@ -113,22 +107,22 @@ L$0031
 	ldw -176(0,%r30),%r19
 	bl L$0065,0
 	ldh 0(0,%r19),%r28
-L$0037
+	.label L$0037
 	comib,<> 4,%r19,L$0065
 	ldw -212(0,%r30),%r2
 	ldw -176(0,%r30),%r19
 	bl L$0065,0
 	ldw 0(0,%r19),%r28
-L$0034
+	.label L$0034
 	comib,= 0,%r19,L$0065
 	ldw -212(0,%r30),%r2
 	comib,<<,n 8,%r19,L$0065
 	comib,<>,n 1,%r19,L$0042
-L$0061
+	.label L$0061
 	ldw -176(0,%r30),%r19
 	bl L$0003,0
 	ldb 0(0,%r19),%r28
-L$0042
+	.label L$0042
 	comib,<>,n 2,%r19,L$0044
 	ldw -176(0,%r30),%r19
 	ldb 0(0,%r19),%r20
@@ -136,7 +130,7 @@ L$0042
 	zdep %r20,23,24,%r20
 	bl L$0003,0
 	or %r20,%r19,%r28
-L$0044
+	.label L$0044
 	comib,<> 3,%r19,L$0046
 	ldw -176(0,%r30),%r21
 	ldb 0(0,%r21),%r19
@@ -147,12 +141,12 @@ L$0044
 	or %r19,%r20,%r19
 	bl L$0003,0
 	or %r19,%r21,%r28
-L$0046
+	.label L$0046
 	comib,= 4,%r19,L$0062
 	ldw -176(0,%r30),%r22
 	comib,<>,n 5,%r19,L$0050
 	ldb 4(0,%r22),%r29
-L$0062
+	.label L$0062
 	ldb 0(0,%r22),%r19
 	ldb 1(0,%r22),%r20
 	ldb 2(0,%r22),%r21
@@ -164,7 +158,7 @@ L$0062
 	or %r19,%r21,%r19
 	bl L$0003,0
 	or %r19,%r20,%r28
-L$0050
+	.label L$0050
 	comib,<> 6,%r19,L$0052
 	ldw -176(0,%r30),%r22
 	ldb 0(0,%r22),%r19
@@ -181,7 +175,7 @@ L$0050
 	ldb 5(0,%r22),%r20
 	bl L$0063,0
 	zdep %r19,23,24,%r19
-L$0052
+	.label L$0052
 	comib,<>,n 7,%r19,L$0054
 	ldb 0(0,%r22),%r19
 	ldb 1(0,%r22),%r20
@@ -201,7 +195,7 @@ L$0052
 	or %r19,%r20,%r19
 	bl L$0003,0
 	or %r19,%r21,%r29
-L$0054
+	.label L$0054
 	comib,<> 8,%r19,L$0065
 	ldw -212(0,%r30),%r2
 	ldw -176(0,%r30),%r22
@@ -224,11 +218,11 @@ L$0054
 	or %r19,%r20,%r19
 	ldb 7(0,%r22),%r20
 	or %r19,%r21,%r19
-L$0063
+	.label L$0063
 	or %r19,%r20,%r29
-L$0003
+	.label L$0003
 	ldw -212(0,%r30),%r2
-L$0065
+	.label L$0065
 	bv 0(%r2)
 	ldo -192(%r30),%r30
 	.EXIT
