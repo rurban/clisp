@@ -1,7 +1,7 @@
 2004-07-26  Bruno Haible  <bruno@clisp.org>
 
-	* lispbibl.d (array_rank, get_array_dimensions): New declarations.
 	* array.d (array_rank, get_array_dimensions): New functions.
+	* genclisph.d (main): Exported array_rank() and get_array_dimensions().
 
 2004-06-02  Bruno Haible  <bruno@clisp.org>
 
@@ -41,7 +41,7 @@
 
 2004-07-23  Sam Steingold  <sds@gnu.org>
 
-	interface to the LOCK sybsystem
+	interface to the LOCK subsystem
 	* modules/berkeley-db/bdb.c (OH_INVALID_IS_NULL): new object_handle_t
 	(object_handle): handle it
 	(BDB:DBE-SET-OPTIONS, BDB:DBE-GET-OPTIONS): handle lock options
