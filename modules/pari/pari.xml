@@ -7,4 +7,7 @@
 <simpara>When this module is present, &features-var; contains the
  symbol <constant>:PARI</constant>.</simpara>
 
+<para>PARI objects are printed and read using a
+ special <literal>#Z""</literal> syntax.</para>
+
 </section>
