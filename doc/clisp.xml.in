@@ -299,9 +299,8 @@ compiles the specified lisp files to a platform-independent
  <term><option>-interactive-debug</option></term>
  <listitem><simpara>Override the batch mode imposed by
    &opt-c;, &opt-x;, and <link linkend="opt-exec-file">&lf;</link>:
-   &cont-err;s are still turned into &warning-t;s (and, in case of
-   &assert;, you are immeditely asked for new values), but other
-   &error-t;s are handled interactively.
+   &cont-err;s are still turned into &warning-t;s,
+   but other &error-t;s are handled interactively.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-repl"><term><option>-repl</option></term>
