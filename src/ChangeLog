@@ -6,7 +6,8 @@
 
 2005-03-01  Sam Steingold  <sds@gnu.org>
 
-	* modules/syscalls/configure.in: check for getpriority and setpriority
+	* modules/syscalls/configure.in: check for limits.h,
+	getpriority and setpriority
 	* modules/syscalls/posix.lisp (priority, process-id): export
 	(priority): defsetf
 	* modules/syscalls/calls.c (priority, set-priority): implemented
