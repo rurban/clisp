@@ -35,6 +35,8 @@ DBHOME=$(XMLHOME)/db4xml
 #  or
 # http://users.iclway.co.uk/mhkay/saxon/
 
+all: check impnotes.html regexp.html
+
 impnotes.xml: impnotes.xml.in Makefile
 	$(RM) $@
 	echo '<?xml version="1.0" encoding="UTF-8"?>' >> $@
