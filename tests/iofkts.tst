@@ -236,7 +236,7 @@ NIL
 (GET-OUTPUT-STREAM-STRING A)
 #+XCL ""
 #-XCL "
-\"yyy\" 
+\"yyy\"
 \"zzz\" "
 
 (GET-OUTPUT-STREAM-STRING B)
@@ -310,7 +310,7 @@ ERROR
 "EOF"
 
 (PROGN (SETQ A (MAKE-STRING-INPUT-STREAM "1   2   ;32  abA"))
-(SETQ B (MAKE-STRING-INPUT-STREAM " 1 2 3 A x y z 
+(SETQ B (MAKE-STRING-INPUT-STREAM " 1 2 3 A x y z
 a b c  ")) T)
 T
 
@@ -749,28 +749,34 @@ MY-PPRINT-LOGICAL
   (write-to-string '(bar foo :boo 1) :pretty t :escape t))
 "(?BAR? ?FOO? ?:BOO? ?1?)"
 
-(defun object-out (obj out)
-  ;; have to pass NIL as object to PPRINT-LOGICAL-BLOCK
-  ;; because PPRINT-LOGICAL-BLOCK requires a list!
-  (pprint-logical-block (out nil :prefix "#[" :suffix "]")
-    (let ((cl (class-of obj)))
-      (write (class-name cl) :stream out)
-      (loop :for slotdef :in (clos::class-slots cl)
-        :for slot = (clos::slotdef-name slotdef)
-        :when (and slot (slot-boundp obj slot))
-        :do (write-char #\space out) (pprint-newline :fill out)
-        (write slot :stream out)
-        (write-char #\space out) (pprint-newline :fill out)
-        (write (slot-value obj slot) :stream out)))))
-OBJECT-OUT
+(progn
+ (defclass c1 () ((a :initarg a) (b :initarg b) (c :initarg c)))
+ (defclass c2 (c1) ((aa :initarg aa) (bb :initarg bb) (cc :initarg cc)))
+ (defmethod print-object ((obj c2) (out stream))
+   ;; have to pass NIL as object to PPRINT-LOGICAL-BLOCK
+   ;; because PPRINT-LOGICAL-BLOCK requires a list!
+   (pprint-logical-block (out nil :prefix "#[" :suffix "]")
+     (let ((cl (class-of obj)))
+       (write (class-name cl) :stream out)
+       (loop :for slotdef :in (clos::class-slots cl)
+         :for slot = (clos::slotdef-name slotdef)
+         :when (and slot (slot-boundp obj slot))
+         :do (write-char #\space out) (pprint-newline :fill out)
+         (write slot :stream out)
+         (write-char #\space out) (pprint-newline :fill out)
+         (write (slot-value obj slot) :stream out)))))
+ t)
+T
 
-(let ((x (progn (defclass c1 () (a b c)) (defclass c2 (c1) (aa bb cc))
-                (make-instance 'c2)))
-      (*print-pretty* t))
-  (setf (slot-value x 'b) 123
-        (slot-value x 'cc) 42)
-  (with-output-to-string (out) (object-out x out)))
+(write-to-string (make-instance 'c2 'b 123 'cc 42) :pretty t)
 "#[C2 CC 42 B 123]"
+
+#+:enable-risky-tests
+(write-to-string (list (make-instance 'c2 'a 45 'bb 17 'aa 12)
+                       (make-instance 'c2 'b 123 'cc 42))
+                 :pretty t)
+#+:enable-risky-tests
+"(#[C2 AA 12 BB 17 A 45] #[C2 CC 42 B 123])"
 
 (let ((*print-readably* t))
   (with-output-to-string (out) (pprint-linear out (list 'a 'b 'c))))
