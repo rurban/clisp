@@ -14,7 +14,7 @@
                 if (*ptr_from_DS_1_plus == bit(intDsize-1))         \
                   { # 7FFF + 1 muss zu 00008000 werden:             \
                     *--MSDptr = 0;                                  \
-                    len++; if (uintWCoverflow(len)) BN_ueberlauf(); \
+                    len++; if (uintWCoverflow(len)) { RESTORE_NUM_STACK; BN_ueberlauf(); } \
                   }                                                 \
                 break;                                              \
               }                                                     \
@@ -36,7 +36,7 @@
                 if (*ptr_from_DS_minus1_plus == (uintD)bit(intDsize-1)-1) \
                   { # 8000 - 1 muss zu FFFF7FFF werden:              \
                     *--MSDptr = (uintD)(-1);                         \
-                    len++; if (uintWCoverflow(len)) BN_ueberlauf();  \
+                    len++; if (uintWCoverflow(len)) { RESTORE_NUM_STACK; BN_ueberlauf(); } \
                   }                                                  \
                 break;                                               \
               }                                                      \
@@ -61,9 +61,10 @@
         var uintD* LSDptr;
         I_to_NDS_1(x, MSDptr=,len=,LSDptr=); # NDS zu x bilden.
         DS_1_plus(LSDptr,len); # zur NDS 1 addieren
-        RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-        return DS_to_I(MSDptr,len); # wieder zum Integer machen
-    } }
+       {var object result = DS_to_I(MSDptr,len); # wieder zum Integer machen
+        RESTORE_NUM_STACK # num_stack zurück
+        return result;
+    } }}
 
 # (1- x), wo x ein Integer ist. Ergebnis Integer.
 # can trigger GC
@@ -82,9 +83,10 @@
         var uintD* LSDptr;
         I_to_NDS_1(x, MSDptr=,len=,LSDptr=); # NDS zu x bilden.
         DS_minus1_plus(LSDptr,len); # von der NDS 1 subtrahieren
-        RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-        return DS_to_I(MSDptr,len); # wieder zum Integer machen
-    } }
+       {var object result = DS_to_I(MSDptr,len); # wieder zum Integer machen
+        RESTORE_NUM_STACK # num_stack zurück
+        return result;
+    } }}
 
 # (+ x y), wo x und y Integers sind. Ergebnis Integer.
 # can trigger GC
@@ -161,9 +163,10 @@
                       # (Beispiel: 00020003 + FFF5 = 0001FFF8)
                       { DS_minus1_plus(midptr,len-pFN_maxlength); }
               }   }
-              RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-              return DS_to_I(MSDptr,len); # DS wieder zum Integer machen
-            }}
+              { var object result = DS_to_I(MSDptr,len); # DS wieder zum Integer machen
+                RESTORE_NUM_STACK # num_stack zurück
+                return result;
+            }}}
             else
             { # x und y sind Bignums
               SAVE_NUM_STACK # num_stack retten
@@ -179,7 +182,7 @@
               # len>ylen erzwingen:
               if (len==ylen)
                 { var sintD sign = sign_of_sintD(MSDptr[0]);
-                  *--MSDptr = sign; len++; if (uintWCoverflow(len)) BN_ueberlauf();
+                  *--MSDptr = sign; len++; if (uintWCoverflow(len)) { RESTORE_NUM_STACK; BN_ueberlauf(); }
                 }
               # addieren:
               { var uintD* midptr = LSDptr-(uintP)ylen;
@@ -198,9 +201,10 @@
                       # (Beispiel: 00020003 + FFF5 = 0001FFF8)
                       { DS_minus1_plus(midptr,len-ylen); }
               }   }
-              RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-              return DS_to_I(MSDptr,len); # DS wieder zum Integer machen
-            }}
+              { var object result = DS_to_I(MSDptr,len); # DS wieder zum Integer machen
+                RESTORE_NUM_STACK # num_stack zurück
+                return result;
+            }}}
     }   }
 
 # (- x), wenn x ein Integer ist. Ergebnis Integer.
@@ -230,14 +234,15 @@
           BN_to_NDS_1(x, MSDptr=,len=,LSDptr=); # NDS zu x bilden, len>0
           # vorsorglich 1 Digit mehr belegen:
           { var sintD sign = sign_of_sintD(MSDptr[0]);
-            *--MSDptr = sign; len++; if (uintWCoverflow(len)) BN_ueberlauf();
+            *--MSDptr = sign; len++; if (uintWCoverflow(len)) { RESTORE_NUM_STACK; BN_ueberlauf(); }
           }
           # Negierschleife:
           neg_loop_down(LSDptr,len);
           # MSDigit ist nun = 0x0000 oder = 0xFFFF
-          RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-          return DS_to_I(MSDptr,len); # DS wieder zum Integer machen
-    }   }
+         {var object result = DS_to_I(MSDptr,len); # DS wieder zum Integer machen
+          RESTORE_NUM_STACK # num_stack zurück
+          return result;
+    }   }}
 
 # (- x y), wo x und y Integers sind. Ergebnis Integer.
 # can trigger GC
@@ -283,7 +288,7 @@
               BN_to_NDS_1(y, MSDptr=,len=,LSDptr=); # NDS zu y bilden.
               # vorsorglich 1 Digit mehr belegen:
               { var sintD sign = sign_of_sintD(MSDptr[0]);
-                *--MSDptr = sign; len++; if (uintWCoverflow(len)) BN_ueberlauf();
+                *--MSDptr = sign; len++; if (uintWCoverflow(len)) { RESTORE_NUM_STACK; BN_ueberlauf(); }
               }
               # Negierschleife:
               neg_loop_down(LSDptr,len);
@@ -307,9 +312,10 @@
                       # (Beispiel: 00020003 + FFF5 = 0001FFF8)
                       { DS_minus1_plus(midptr,len-pFN_maxlength); }
               }   }
-              RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-              return DS_to_I(MSDptr,len); # DS wieder zum Integer machen
-            }}
+              { var object result = DS_to_I(MSDptr,len); # DS wieder zum Integer machen
+                RESTORE_NUM_STACK # num_stack zurück
+                return result;
+            }}}
         }
         else
         { # x ist Bignum
@@ -343,9 +349,10 @@
                       # (Beispiel: 0002FFF8 - FFF5 = 00030003)
                       { DS_1_plus(midptr,len-pFN_maxlength); }
               }   }
-              RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-              return DS_to_I(MSDptr,len); # DS wieder zum Integer machen
-            }}
+              { var object result = DS_to_I(MSDptr,len); # DS wieder zum Integer machen
+                RESTORE_NUM_STACK # num_stack zurück
+                return result;
+            }}}
             else
             { # x und y sind Bignums
               if (Bignum_length(x) > Bignum_length(y))
@@ -375,16 +382,17 @@
                           # (Beispiel: 0002FFF8 - FFF5 = 00030003)
                           { DS_1_plus(midptr,len-ylen); }
                   }   }
-                  RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-                  return DS_to_I(MSDptr,len); # DS wieder zum Integer machen
-                }}
+                  { var object result = DS_to_I(MSDptr,len); # DS wieder zum Integer machen
+                    RESTORE_NUM_STACK # num_stack zurück
+                    return result;
+                }}}
                 else
                 { # y das längere von beiden.
                   SAVE_NUM_STACK # num_stack retten
                   BN_to_NDS_1(y, MSDptr=,len=,LSDptr=); # NDS zu y bilden.
                   # vorsorglich 1 Digit mehr belegen:
                   { var sintD sign = sign_of_sintD(MSDptr[0]);
-                    *--MSDptr = sign; len++; if (uintWCoverflow(len)) BN_ueberlauf();
+                    *--MSDptr = sign; len++; if (uintWCoverflow(len)) { RESTORE_NUM_STACK; BN_ueberlauf(); }
                   }
                   # Negierschleife:
                   neg_loop_down(LSDptr,len);
@@ -412,9 +420,10 @@
                           # (Beispiel: 00020003 + FFF5 = 0001FFF8)
                           { DS_minus1_plus(midptr,len-xlen); }
                   }   }
-                  RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-                  return DS_to_I(MSDptr,len); # DS wieder zum Integer machen
-                }}
+                  { var object result = DS_to_I(MSDptr,len); # DS wieder zum Integer machen
+                    RESTORE_NUM_STACK # num_stack zurück
+                    return result;
+                }}}
     }   }   }
 
 # (abs x), wenn x ein Integer ist. Ergebnis Integer.

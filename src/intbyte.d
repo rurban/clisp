@@ -102,8 +102,7 @@
     var object x;
     var uintL p;
     var uintL q;
-    { SAVE_NUM_STACK # num_stack retten
-      var uintD* MSDptr;
+    { var uintD* MSDptr;
       var uintC len;
       var uintD* LSDptr;
       I_to_NDS_nocopy(x, MSDptr=,len=,LSDptr=); # NDS zu x bilden
@@ -120,7 +119,8 @@
         len -= pD;
       }
       # Jetzt enthält MSDptr/len/LSDptr genau die maßgeblichen Digits.
-     {var uintD* newMSDptr;
+     {SAVE_NUM_STACK # num_stack retten
+      var uintD* newMSDptr;
       { var uintL i = p%intDsize; # p mod intDsize
         # Kopiere sie und schiebe sie dabei um i Bits nach rechts:
         num_stack_need_1((uintL)len, newMSDptr=,); # neue UDS newMSDptr/len/..
@@ -143,9 +143,10 @@
           { newMSDptr[0] &= (uintD)(bit(intDsize-bitcount)-1); }
       }
       # Jetzt enthält die UDS newMSDptr/len/.. die extrahierten Bits.
-      RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-      return UDS_to_I(newMSDptr,len); # UDS in Integer umwandeln
-    }}
+      {var object result = UDS_to_I(newMSDptr,len); # UDS in Integer umwandeln
+       RESTORE_NUM_STACK # num_stack zurück
+       return result;
+    }}}
 
 # (LDB byte n), wo n ein Integer ist.
 # can trigger GC
@@ -295,8 +296,7 @@
     var object x;
     var uintL p;
     var uintL q;
-    { SAVE_NUM_STACK # num_stack retten
-      var uintD* MSDptr;
+    { var uintD* MSDptr;
       var uintC len;
       var uintD* LSDptr;
       I_to_NDS_nocopy(x, MSDptr=,len=,LSDptr=); # NDS zu x bilden
@@ -307,7 +307,8 @@
         MSDptr += ((uintL)len - qD); # MSDptr um len-qD Digits erhöhen
         len = qD; # len um len-qD erniedrigen
       }
-     {# Platz (len Digits) für die neue UDS bereitstellen:
+     {SAVE_NUM_STACK # num_stack retten
+      # Platz (len Digits) für die neue UDS bereitstellen:
       var uintD* newMSDptr;
       num_stack_need_1((uintL)len, newMSDptr = ,); # Platz belegen
       {var uintL pD = p/intDsize; # floor(p/intDsize), passt in ein uintC
@@ -326,9 +327,10 @@
          { newMSDptr[0] &= (uintD)((1L<<q_D)-1); } # intDsize-q_D Bits löschen
       }
       # Jetzt enthält die UDS newMSDptr/len/.. die extrahierten Bits.
-      RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-      return UDS_to_I(newMSDptr,len);
-    }}
+      {var object result = UDS_to_I(newMSDptr,len);
+       RESTORE_NUM_STACK # num_stack zurück
+       return result;
+    }}}
 
 # (MASK-FIELD byte n), wo n ein Integer ist.
 # can trigger GC

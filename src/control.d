@@ -1880,11 +1880,8 @@ LISPFUNN(driver,1)
 # fun (mit 0 Argumenten) aufruft. fun wird in einer Endlosschleife ausgeführt,
 # die mit GO oder THROW abgebrochen werden kann.
   { var object* top_of_frame = STACK; # Pointer übern Frame
-    var DRIVER_frame_data returner_and_data; # Einsprungpunkt merken
-    #ifdef HAVE_NUM_STACK
-    returner_and_data.old_NUM_STACK_normal = NUM_STACK_normal;
-    #endif
-    finish_entry_frame(DRIVER,&!returner_and_data.returner,,;);
+    var sp_jmp_buf returner; # Einsprungpunkt merken
+    finish_entry_frame(DRIVER,&!returner,,;);
     # Hier ist der Einsprungpunkt.
     loop { funcall(STACK_(0+2),0); } # fun aufrufen, Endlosschleife
   }
