@@ -135,9 +135,9 @@ int main (int argc, char* argv[]) {
   printf("\n");
   printf("int main () {\n");
   process_file(stdin);
-  printf("  if (fflush(stdout) || ferror(stdout)) { exit(1); }\n");
+  printf("  if (ferror(stdout) || fclose(stdout)) { exit(1); }\n");
   printf("  exit(0);\n");
   printf("}\n");
-  if (fflush(stdout) || ferror(stdout)) { exit(1); }
+  if (ferror(stdout) || fclose(stdout)) { exit(1); }
   exit(0);
 }

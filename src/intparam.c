@@ -594,10 +594,10 @@ int main()
   main9();
   main10();
 #if defined(__cplusplus)
-  if (ferror(stdout)) return 1;
+  if (ferror(stdout) || fclose(stdout)) return 1;
   return 0;
 #else
-  if (ferror(stdout)) { exit(1); }
+  if (ferror(stdout) || fclose(stdout)) { exit(1); }
   exit(0);
 #endif
 }

@@ -21,7 +21,7 @@ int main ()
     putchar(c);
     c1 = c;
   }
-  if (ferror(stdin) || fflush(stdout) || ferror(stdout)) { exit(1); }
+  if (ferror(stdin) || ferror(stdout) || fclose(stdout)) { exit(1); }
   exit(0);
 }
 
