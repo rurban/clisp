@@ -1,3 +1,7 @@
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
+	* makemake.in: Update documentation of --with-[no]gettext.
+
 2001-08-16  Sam Steingold  <sds@gnu.org>
 
 	* loop.lisp (expand-loop): WITH vars should always be bound on top
