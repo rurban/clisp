@@ -3940,8 +3940,19 @@ functions are provided:</para>
    &file-pipe-socket; functions</title>
  <varlistentry id="eltype"><term>&eltype;</term>
   <listitem><simpara>types equivalent to &character-class; or
-   &unsigned-byte-n;, &signed-byte-n;; if the
-   stream is to be unbuffered, &n-r; must be a multiple of 8.
+    &unsigned-byte-n;, &signed-byte-n;; if the stream is to be
+    unbuffered, &n-r; must be a multiple of 8.</simpara>
+   <simpara>If &n-r; is not a multiple of 8, &clisp; will use the
+    specified number of bits for i/o, and write the file length
+    (as a number of &n-r;-bit bytes) in the preamble.</simpara>
+   <simpara>This is done to ensure the input/output consistency.
+    Suppose you open a file with &eltype; of <literal
+    role="sexp">(&unsigned-byte-type; 3)</literal> and write 7 bytes
+    (i.e., 21 bit) there.
+    The underlying OS can do input/output only in whole 8-bit bytes.
+    Thus the OS will report the size of the file as 3 (8-bit) bytes.
+    Without the preamble &clisp; will have no way to know how many
+    3-bit bytes to read from this file - 6, 7 or 8.
    </simpara></listitem></varlistentry>
  <varlistentry id="extfmt"><term>&extfmt;</term>
   <listitem><simpara>&encoding;s, (constant) &symbol-class;s in the
