@@ -1,5 +1,9 @@
 2004-04-22  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (direction_t): Work around a g++ 3.4.0 bug.
+
+2004-04-22  Bruno Haible  <bruno@clisp.org>
+
 	Make it compile with g++ 3.4.
 	* lispbibl.d (offsetofa): Define differently for C++.
 	(restartf_t): Define with nonreturning for C, without nonreturning
