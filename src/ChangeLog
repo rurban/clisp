@@ -1,3 +1,8 @@
+2005-02-17  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in (VERSION, CLISP_VERSION, BASE_MODULES): Move out of the
+	customizable section.
+
 2005-02-16  Bruno Haible  <bruno@clisp.org>
 
 	* configure: Accept --enable and --disable options and pass them down.
