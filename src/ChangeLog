@@ -1,3 +1,9 @@
+2005-01-27  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (check_endianness_arg): renamed from test_endianness_arg()
+	(READ-INTEGER, READ-FLOAT, WRITE-INTEGER, WRITE-FLOAT): call
+	check_endianness_arg() before check_stream() for GC-safety
+
 2005-01-26  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (same_handle_p): added debugging infrastructure
