@@ -8074,7 +8074,7 @@ Simplification-Rules for Operations:
                   (LIST* ; rule 7
                    (when (equal (rest (car middle)) '(1))
                      (replace1 '(CONS)))))))
-              (when (atom middle) (return))
+            (when (atom middle) (return))
             ;; calculate new for-value, depending on (car middle):
             (setq for-value
                   (gethash (first (car middle)) for-value-table for-value))
