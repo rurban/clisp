@@ -76,7 +76,7 @@ CHECK-SUPERCLASSES
 (check-superclasses 'end-of-file '(stream-error error serious-condition)) T
 (check-superclasses 'unbound-variable '(cell-error error serious-condition)) T
 (check-superclasses 'type-error '(error serious-condition)) T
-(check-superclasses 'simple-type-error '(#-ANSI-CL simple-error simple-condition type-error error serious-condition)) T
+(check-superclasses 'simple-type-error '(simple-condition type-error error serious-condition)) T
 
 ;;;
 ;;; Defining conditions.
@@ -181,7 +181,7 @@ nil
 ;;; Handlers should work.
 (multiple-value-list
     (block foo
-      (handler-bind 
+      (handler-bind
           ((error #'(lambda (c)
                       (declare (ignore c))
                       (return-from foo (values 23 17)))))
@@ -191,7 +191,7 @@ nil
 ;;; Only the appropriate handlers should be called.
 (ignore-errors
  (block foo
-   (handler-bind 
+   (handler-bind
        ((type-error #'(lambda (c)
                         (declare (ignore c))
                         (return-from foo 23))))
@@ -200,7 +200,7 @@ nil
 
 ;;; Handlers can be specified type expressions.
 (block foo
-  (handler-bind 
+  (handler-bind
       (((or type-error error)
         #'(lambda (c)
             (declare (ignore c))
@@ -212,7 +212,7 @@ nil
 (ignore-errors
  (block foo
    (let ((first-time t))
-     (handler-bind 
+     (handler-bind
          ((error
            #'(lambda (c)
                (declare (ignore c))
@@ -233,7 +233,7 @@ nil
               (declare (ignore c))
               (return-from foo 23))))
       (handler-bind
-          ((error 
+          ((error
             #'(lambda (c)
                 (declare (ignore c))
                 (if first-time
@@ -247,7 +247,7 @@ nil
 ;;; Handlers in the same cluster should be accessible.
 (ignore-errors
  (block foo
-   (handler-bind 
+   (handler-bind
        ((error
          #'(lambda (c) (declare (ignore c)) nil))
         (error
@@ -259,9 +259,9 @@ nil
 
 ;;; Multiple handlers should work.
 (block foo
-  (handler-bind 
+  (handler-bind
       ((type-error
-        #'(lambda (c) 
+        #'(lambda (c)
             (declare (ignore c))
             (return-from foo 42)))
        (error
@@ -292,7 +292,7 @@ nil
 
 ;;; HANDLER-CASE should handle errors.
 (multiple-value-list
-    (handler-case 
+    (handler-case
         (error "Foo")
       (error (c) (when (typep c 'error) (values 23 42)))))
 (23 42)
@@ -337,7 +337,7 @@ NIL
     23
   (:no-error (v) (1+ v))
   (error () 42))
-#-ANSI-CL 23 #+ANSI-CL 24
+23
 
 ;;; Multiple handlers should be OK.
 (handler-case
@@ -348,7 +348,7 @@ NIL
 
 ;;; Handlers should get undone.
 (ignore-errors
- (progn 
+ (progn
    (block foo
      (handler-case
          (return-from foo 23)
@@ -369,6 +369,6 @@ NIL
                (error "Bar"))
              (return-from foo 23)))))))
 NIL
-      
+
 
 
