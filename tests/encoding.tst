@@ -1,10 +1,10 @@
 ;; -*- Lisp -*-
 
-(defvar *no-iconv-p* (null (ignore-errors (make-encoding :charset "utf-16"))))
+(defparameter *no-iconv-p* (with-ignored-errors (not (make-encoding :charset "utf-16"))))
 *no-iconv-p*
 
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=543072&group_id=1355&atid=101355
-(or *no-iconv-p*
+(if *no-iconv-p* t
     (string=
      (ext:convert-string-from-bytes
       '#(255 254 65 0 13 0)

@@ -1,3 +1,7 @@
+2002-06-07  Peter Burwood  <clisp@peterb.org.uk>
+
+	* encoding.tst: Handle error when encoding does not exist.
+
 2002-05-26  Bruno Haible  <bruno@clisp.org>
 
 	* alltest.tst [CLISP & UNICODE]: Change CHAR-CODE-LIMIT expected value
