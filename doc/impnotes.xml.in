@@ -16,6 +16,7 @@
   <!ENTITY oracle SYSTEM "../modules/oracle/oracle.xml">
   <!ENTITY fastcgi SYSTEM "../modules/fastcgi/fastcgi.xml">
   <!ENTITY netica SYSTEM "../modules/netica/netica.xml">
+  <!ENTITY matlab SYSTEM "../modules/matlab/matlab.xml">
   <!ENTITY regexp SYSTEM "../modules/regexp/regexp.xml">
   <!ENTITY pcre SYSTEM "../modules/pcre/pcre.xml">
   <!ENTITY syscalls SYSTEM "../modules/syscalls/syscalls.xml">

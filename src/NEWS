@@ -4,6 +4,9 @@ User visible changes
 * You can create formatting streams of class EXT:FILL-STREAM.
   See <http://clisp.cons.org/impnotes.html#fill-stream> for details.
 
+* New module matlab interfaces to <http://www.mathworks.com/products/matlab/>
+  and allows complicated matrix computations.
+  See <http://clisp.cons.org/impnotes.html#matlab> for details.
 
 
 2.33 (2004-03-17)

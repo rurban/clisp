@@ -2238,6 +2238,10 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
   <listitem><simpara>Access
     <ulink url="http://www.fastcgi.com/">FastCGI</ulink> from &clisp;;
     by &hin;.</simpara></listitem></varlistentry>
+ <varlistentry><term><link linkend="matlab">matlab</link></term>
+  <listitem><simpara>Do matrix computations via
+    <ulink url="http://www.mathworks.com/products/matlab/">MATLAB</ulink>.
+ </simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="netica">netica</link></term>
   <listitem><simpara>Work with Bayesian belief networks and influence
     diagrams using
@@ -2270,6 +2274,8 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
  <varlistentry><term><ulink url="wildcard.html">wildcard</ulink></term>
   <listitem><simpara>Shell (&sh;) globbing</simpara></listitem></varlistentry>
 </variablelist>
+
+&matlab;
 
 &netica;
 
