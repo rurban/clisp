@@ -1,5 +1,8 @@
 2003-12-11  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 858011 ]: RETURN-FROM not working in compiled FLET/LABELS
+	* compiler.lisp (c-FLET, c-LABELS): fixed ADD-IMPLICIT-BLOCK call
+	* init.lisp (%expand-lambdabody): ditto
 	* eval.lisp (ADD-IMPLICIT-BLOCK): before 2003-12-05,
 	ADD-IMPLICIT-BLOCK and add_implicit_block() accepted different
 	arguments and returned different values!

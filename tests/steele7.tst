@@ -402,3 +402,18 @@ b
 ;; 7.10
 
 ;;catch/throw/unwind-protect
+
+;;; <https://sourceforge.net/tracker/?func=detail&aid=858011&group_id=1355&atid=101355>
+
+(funcall (compile nil (lambda (x) (flet ((z (x) (return-from z x))) (z x)))) 7)
+7
+
+(flet ((z () (return-from z 6))) (z))
+6
+
+(funcall (compile nil (lambda () (labels ((z () (return-from z 5))) (z)))))
+5
+
+(labels ((z () (return-from z 4))) (z))
+4
+
