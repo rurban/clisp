@@ -14023,6 +14023,23 @@ extern sintL I_to_L (object obj);
 #endif
 # is used by FFI
 
+/* Unsigned Digit Sequence to Integer
+ UDS_to_I(MSDptr,len)
+ convert UDS MSDptr/len/.. into Integer >=0 .
+ MSDptr[0] is the most significant digit, MSDptr[len-1] the least significant.
+ there must be room for 1 digit below of MSDptr.
+ can trigger GC */
+extern object UDS_to_I (uintD* MSDptr, uintC len);
+# is used by modules
+
+/* Digit Sequence to Integer
+ DS_to_I(MSDptr,len)
+ convert DS MSDptr/len/.. into Integer.
+ MSDptr[0] is the most significant digit, MSDptr[len-1] the least significant.
+ can trigger GC */
+extern object DS_to_I (const uintD* MSDptr, uintC len);
+# is used by modules
+
 # I_I_comp(x,y) compares two Integers x and y.
 # Result: 0 if x=y, +1 if x>y, -1 if x<y.
 extern signean I_I_comp (object x, object y);
