@@ -1,3 +1,8 @@
+2001-08-04  Bruno Haible  <haible@clisp.cons.org>
+
+	* eval.d (check_for_illegal_keywords): Don't signal an error for
+	((LAMBDA (&KEY X) X) :X 1 :ALLOW-OTHER-KEYS NIL :ALLOW-OTHER-KEYS NIL)
+
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
 	Make it possible again to build clisp with the CFLAGS option "-x c++".

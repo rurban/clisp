@@ -2387,7 +2387,9 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
       var bool allow_flag = # Flag for allow-other-keys (if                 \
         # &ALLOW-OTHER-KEYS was specified or ':ALLOW-OTHER-KEY T' occurred) \
         (allow_flag_expr);                                                  \
-      var bool check_forced = false; # allow-other-key nil                  \
+      # But ':ALLOW-OTHER-KEYS NIL' hides a subsequent ':ALLOW-OTHER-KEYS T' \
+      # (see CLHS 3.4.1.4.1.1).                                             \
+      var bool allow_hidden = false; # true if seen ':ALLOW-OTHER-KEYS NIL' \
       var uintC check_count;                                                \
       dotimesC(check_count,argcount, {                                      \
         var object kw = NEXT(argptr); # next Argument                       \
@@ -2396,9 +2398,13 @@ local void fehler_key_badkw(object fun,object kw,object kwlist) {
         if (!symbolp(kw))                                                   \
           fehler_key_notkw(kw);                                             \
         if (!allow_flag) { # other keywords allowed? yes -> ok              \
-          if (!check_forced && eq(kw,S(Kallow_other_keys))) {               \
-            if (!nullp(val)) { allow_flag = true; }                         \
-            else { check_forced = true; }                                   \
+          if (eq(kw,S(Kallow_other_keys))) {                                \
+            if (!allow_hidden) {                                            \
+              if (!nullp(val))                                              \
+                allow_flag = true;                                          \
+              else                                                          \
+                allow_hidden = true;                                        \
+            }                                                               \
           } else {                                                          \
             # up to now :ALLOW-OTHER-KEYS was not there, and NOALLOW        \
             if (eq(bad_keyword,nullobj)) { # all Keywords ok so far?        \
