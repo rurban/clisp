@@ -138,13 +138,23 @@
                               })
                  );
       warn_x:
-        if (!nullpSv(warn_on_floating_point_contagion))
-          { pushSTACK(x); warn_floating_point_contagion(); x = popSTACK(); }
-        return nullpSv(floating_point_contagion_ansi) ? x : y;
+        { var object result = (nullpSv(floating_point_contagion_ansi) ? x : y);
+          if (!nullpSv(warn_on_floating_point_contagion))
+            { pushSTACK(result);
+              warn_floating_point_contagion();
+              result = popSTACK();
+            }
+          return result;
+        }
       warn_y:
-        if (!nullpSv(warn_on_floating_point_contagion))
-          { pushSTACK(y); warn_floating_point_contagion(); y = popSTACK(); }
-        return nullpSv(floating_point_contagion_ansi) ? y : x;
+        { var object result = (nullpSv(floating_point_contagion_ansi) ? y : x);
+          if (!nullpSv(warn_on_floating_point_contagion))
+            { pushSTACK(result);
+              warn_floating_point_contagion();
+              result = popSTACK();
+            }
+          return result;
+        }
       #undef WY
       #undef WX
       #undef Y
@@ -153,19 +163,14 @@
 
 local object N_N_contagion_R (object x, object y)
 {
+  pushSTACK(y);
   if (complexp(x))
-    if (complexp(y))
-      return R_R_contagion_R(R_R_contagion_R(TheComplex(x)->c_real,
-                                             TheComplex(x)->c_imag),
-                             R_R_contagion_R(TheComplex(y)->c_real,
-                                             TheComplex(y)->c_imag));
-    else return R_R_contagion_R(R_R_contagion_R(TheComplex(x)->c_real,
-                                                TheComplex(x)->c_imag),y);
-  else if (complexp(y))
-    return R_R_contagion_R(x,R_R_contagion_R(TheComplex(y)->c_real,
-                                             TheComplex(y)->c_imag));
-  else
-    return R_R_contagion_R(x,y);
+    x = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
+  y = STACK_0; STACK_0 = x;
+  if (complexp(y))
+    y = R_R_contagion_R(TheComplex(y)->c_real,TheComplex(y)->c_imag);
+  x = popSTACK();
+  return R_R_contagion_R(x,y);
 }
 
 # Macro: verteilt je nach Default-Float-Typ auf 4 Statements.
@@ -273,19 +278,23 @@ local object R_R_float_F (object x, object y)
 local object C_R_float_C (object c, object y)
 {
   pushSTACK(c); pushSTACK(y);
-  { var object ret =
-      make_complex(R_R_float_F(TheComplex(STACK_1)->c_real,STACK_0),
-                   R_R_float_F(TheComplex(STACK_1)->c_imag,STACK_0));
-    skipSTACK(2); return ret;
-  }
+  var object realpart = R_R_float_F(TheComplex(c)->c_real,y);
+  var object imagpart = TheComplex(STACK_1)->c_imag;
+  STACK_1 = realpart;
+  imagpart = R_R_float_F(imagpart,popSTACK());
+  realpart = popSTACK();
+  return make_complex(realpart,imagpart);
 }
-local object N_N_float_N (object n, object y)
+local object N_N_float_N (object x, object y)
 {
-  var object contagion = !complexp(y) ? y
-    : R_R_contagion_R(TheComplex(y)->c_real,TheComplex(y)->c_imag);
-  if (complexp(n))
-    return C_R_float_C(n,contagion);
-  return R_R_float_F(n,contagion);
+  if (complexp(y)) {
+    pushSTACK(x);
+    y = R_R_contagion_R(TheComplex(y)->c_real,TheComplex(y)->c_imag);
+    x = popSTACK();
+  }
+  if (complexp(x))
+    return C_R_float_C(x,y);
+  return R_R_float_F(x,y);
 }
 
 # Generiert eine Funktion wie R_floor_I_R
