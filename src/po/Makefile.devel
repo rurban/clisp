@@ -2,12 +2,12 @@
 # Do not use it unless you know exactly what you are doing!
 
 # This Makefile requires GNU make and
-# GNU gettext 0.11 or above (msgfmt and msguniq).
+# GNU gettext 0.13 or above (msgfmt, msguniq, msgen, xgettext).
 
 SHELL = /bin/sh
 RM = rm -rf
 
-GMSGFMT = msgfmt --statistics
+GMSGFMT = msgfmt --statistics --check
 
 all : tmp pot gmo
 
@@ -58,24 +58,51 @@ SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lisp,$(LISPSOURCES))
 # Lots of small catalog pieces. This will help reduce the building time
 # for the catalogs, since most often only a few source files change.
 SOURCES_POT := $(patsubst %,tmp/%.pot,$(SOURCES))
-SOURCES_POT2 := $(patsubst %,tmp/%.pot2,$(SOURCES))
-SOURCES_EN := $(patsubst %,tmp/%.en,$(SOURCES))
+DSOURCES_POT := $(patsubst %,tmp/%.pot,$(patsubst %,%.d,$(DSOURCES)))
+LISPSOURCES_POT := $(patsubst %,tmp/%.pot,$(patsubst %,%.lisp,$(LISPSOURCES)))
+SOURCES_POT2 := $(patsubst %,tmp/%.pot2,$(patsubst %,%.d,$(DSOURCES)))
 
 tmp :
 	test -d tmp || mkdir tmp
 
-$(SOURCES_POT) : tmp/%.pot : ../% clisp-xgettext
+$(DSOURCES_POT) : tmp/%.pot : ../% clisp-xgettext
 	(cd .. ; $${CLISP} po/clisp-xgettext $* po/tmp)
 
-# When a .pot file is built, it automatically builds also the .pot2 and .en
-# files.
+# xgettext >= 0.13 has extra support for Lisp format string recognition.
+XGETTEXT = xgettext
+XGETTEXT_OPTIONS = \
+  --from-code=UTF-8 \
+  --add-comments=TRANSLATORS: \
+  --keyword --keyword=TEXT --flag=TEXT:1:pass-lisp-format \
+  --flag=break:1:lisp-format \
+  --flag=c-comment:1:lisp-format \
+  --flag=c-error:1:lisp-format \
+  --flag=c-style-warn:1:lisp-format \
+  --flag=c-warn:1:lisp-format \
+  --flag=cerror-of-type:1:lisp-format \
+  --flag=cerror:1:lisp-format \
+  --flag=cerror:2:lisp-format \
+  --flag=do-c-lines:1:lisp-format \
+  --flag=error:1:lisp-format \
+  --flag=format:2:lisp-format \
+  --flag=formatter:1:lisp-format \
+  --flag=invalid-method-error:2:lisp-format \
+  --flag=method-combination-error:1:lisp-format \
+  --flag=warn:1:lisp-format \
+  --flag=y-or-n-p:1:lisp-format \
+  --flag=yes-or-no-p:1:lisp-format
+
+$(LISPSOURCES_POT) : tmp/%.pot : ../%
+	(cd .. ; $(XGETTEXT) $(XGETTEXT_OPTIONS) --omit-header -o - $*) > $@
+
+# When a .pot file is built, it automatically builds also the .pot2 file.
 $(SOURCES_POT2) : tmp/%.pot2 : tmp/%.pot
-$(SOURCES_EN) : tmp/%.en : tmp/%.pot
 
 pot : clisp.pot $(patsubst %,%.po,$(LINGUAS)) \
       clisplow.pot $(patsubst %,clisplow_%.po,$(LINGUAS))
 
 MSGUNIQ = msguniq -w 1000
+MSGEN = msgen -w 1000
 
 # We build the .pot file by simple concatenation. No sorting!!
 clisp.pot : $(SOURCES_POT) ../VERSION po_header
@@ -83,10 +110,8 @@ clisp.pot : $(SOURCES_POT) ../VERSION po_header
 	$(MSGUNIQ) clisp.pox -o $@
 	$(RM) clisp.pox
 
-en.po : $(SOURCES_EN) ../VERSION po_header
-	(./po_header en ; cat $(SOURCES_EN)) > en.pox
-	$(MSGUNIQ) en.pox -o $@
-	$(RM) en.pox
+en.po : $(SOURCES_POT) ../VERSION po_header
+	(./po_header en ; cat $(SOURCES_POT)) | $(MSGUNIQ) | $(MSGEN) - > $@
 
 
 PACKAGE = clisp

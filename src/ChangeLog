@@ -1,5 +1,17 @@
 2004-03-14  Bruno Haible  <bruno@clisp.org>
 
+	Make use of GNU gettext >= 0.13 features.
+	* po/Makefile.devel (GMSGFMT): Add option --check.
+	(DSOURCES_POT, LISPSOURCES_POT): New variables.
+	(SOURCES_POT): Apply clisp-xgettext only to *.d files.
+	(SOURCES_POT2): Remove the *.lisp contributions.
+	(SOURCES_EN): Remove variable and rule.
+	(XGETTEXT, XGETTEXT_OPTIONS): New variables.
+	(LISPSOURCES_POT): New rule.
+	(MSGEN): New variable.
+	(en.po): Use msgen.
+	* clisp-xgettext (main): Don't write a *.en file.
+
 	Modernize PO file header.
 	* po/po_header.txt: Add license clause and Report-Msgid-Bugs-To field.
 	* po/po_header: Likewise. Use the official format for the timezone in
