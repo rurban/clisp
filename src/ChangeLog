@@ -1,5 +1,19 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (FILE-STAT): Move to pathname.d.
+        * pathname.d (fehler_pathname_designator): Renamed from
+          fehler_pathname_descriptor.
+          (as_file_stream): global -> local. Update.
+          (fehler_file_stream_unnamed): global -> local.
+          (PARSE-NAMESTRING): Update.
+          (unix_user_pwd): Fix treatment of error in getpwuid call.
+          (init_pathnames): Restore comments.
+          (USER-DATA, FILE-DATA): Move here, before the EMX "#undef stat".
+        * subr.d: Keep in sync.
+        * constsym.d: Likewise.
+
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * constobj.d (O(type_string_integer)): Renamed from O(type_gensym_arg).
         * symbol.d (GENSYM): Update.
         * lispbibl.d (fehler_string_integer): Renamed from fehler_string_int.

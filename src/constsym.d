@@ -592,6 +592,12 @@ LISPSYM(dynload_modules,"DYNLOAD-MODULES",system)
 #ifdef HAVE_DISASSEMBLER
 LISPSYM(program_name,"PROGRAM-NAME",system)
 #endif
+#ifdef EXPORT_SYSCALLS
+#ifdef UNIX
+LISPSYM(user_data,"USER-DATA",lisp)
+LISPSYM(file_stat,"FILE-STAT",lisp)
+#endif
+#endif
 # ---------- PREDTYPE ----------
 LISPSYM(eq,"EQ",lisp)
 LISPSYM(eql,"EQL",lisp)
@@ -823,15 +829,11 @@ LISPSYM(socket_stream_local,"SOCKET-STREAM-LOCAL",lisp)
 #ifndef WIN32_NATIVE
 LISPSYM(socket_stream_handle,"SOCKET-STREAM-HANDLE",lisp)
 #endif
-#endif # SOCKET_STREAMS
+#endif
 #ifdef EXPORT_SYSCALLS
 #ifdef HAVE_GETHOSTBYNAME
 LISPSYM(resolve_host_ipaddr,"RESOLVE-HOST-IPADDR",lisp)
 #endif # HAVE_GETHOSTBYNAME
-#ifdef UNIX
-LISPSYM(file_stat,"FILE-STAT",lisp)
-LISPSYM(user_data,"USER-DATA",lisp)
-#endif # UNIX
 #endif # EXPORT_SYSCALLS
 LISPSYM(open_stream_p,"OPEN-STREAM-P",lisp)
 LISPSYM(input_stream_p,"INPUT-STREAM-P",lisp)
