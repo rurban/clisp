@@ -12,6 +12,7 @@
 <!ENTITY mop "http://www.lisp.org/mop">
 <!ENTITY cl "<ulink url='http://www.lisp.org'><command>Common Lisp</command></ulink>">
 <!ENTITY clos "<command>CLOS</command>">
+<!ENTITY clx "<ulink url='http://www.cliki.net/CLX'><command>CLX</command></ulink>">
 
 <!ENTITY ansi-cl "<citation><link linkend='ansi-cl'>ANSI CL standard</link></citation>">
 <!ENTITY ansi-cl-bib
