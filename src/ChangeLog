@@ -5,15 +5,16 @@
 
 2005-01-24  Bruno Haible  <bruno@clisp.org>
 
-	* stream.d (read_byte, wr_ch_unbuffered_unix,
-	wr_ch_array_unbuffered_unix, wr_ch_unbuffered_mac,
-	wr_ch_array_unbuffered_mac, wr_ch_unbuffered_dos,
-	wr_ch_array_unbuffered_dos, wr_ch_buffered_unix,
-	wr_ch_array_buffered_unix, wr_ch_buffered_mac,
-	wr_ch_array_buffered_mac, wr_ch_buffered_dos, wr_ch_array_buffered_dos):
-	Don't assume that when the input of Encoding_wcstombs is nonempty,
-	the output is nonempty as well. For example, glibc converts #\U000E0000
-	to an empty multibyte sequence for most encodings.
+	* stream.d (read_byte, wr_ch_unbuffered_unix)
+	(wr_ch_array_unbuffered_unix, wr_ch_unbuffered_mac)
+	(wr_ch_array_unbuffered_mac, wr_ch_unbuffered_dos)
+	(wr_ch_array_unbuffered_dos, wr_ch_buffered_unix)
+	(wr_ch_array_buffered_unix, wr_ch_buffered_mac)
+	(wr_ch_array_buffered_mac, wr_ch_buffered_dos)
+	(wr_ch_array_buffered_dos): Don't assume that when the input of
+	Encoding_wcstombs is nonempty, the output is nonempty as well.
+	For example, glibc converts #\U000E0000 to an empty multibyte
+	sequence for most encodings.
 	Reported by Pascal Bourguignon.
 
 2005-01-24  Bruno Haible  <bruno@clisp.org>
@@ -37,8 +38,8 @@
 
 2005-01-24  Bruno Haible  <bruno@clisp.org>
 
-	* i18n/gettext.c (do_gettext, do_ngettext): Don't define if GNU_GETTEXT
-	is not defined. Needed for platforms without gettext().
+	* i18n/gettext.c (do_gettext, do_ngettext): Don't define if
+	GNU_GETTEXT is not defined. Needed for platforms without gettext().
 	* makemake.in (BASE_MODULES): Add i18n always.
 
 2005-01-22  Bruno Haible  <bruno@clisp.org>
@@ -67,8 +68,8 @@
 
 	Implement the scope of free SPECIAL declarations as ANSI CL 3.3.4
 	specifies it. ANSI CL issue <DECLARATION-SCOPE:NO-HOISTING>.
-	* compiler.lisp (c-LAMBDABODY,c-LET/LET*, c-MULTIPLE-VALUE-BIND,
-	c-FUNCALL-INLINE): Call push-specials immediately before
+	* compiler.lisp (c-LAMBDABODY,c-LET/LET*, c-MULTIPLE-VALUE-BIND)
+	(c-FUNCALL-INLINE): Call push-specials immediately before
 	compiling the body-forms, not at the beginning.
 
 2005-01-24  Sam Steingold  <sds@gnu.org>
@@ -9194,7 +9195,7 @@
 	* defstruct.lisp (ds-accessor-name): New function.
 	(ds-make-accessors, ds-make-defsetfs): Use it.
 
-2005-04-15  Bruno Haible  <bruno@clisp.org>
+2004-04-15  Bruno Haible  <bruno@clisp.org>
 
 	* clos-slotdef1.lisp (*<slot-definition>-...-location*): New constants.
 	(slot-definition-...): Use them.
