@@ -259,7 +259,7 @@
      {var uintL index = start;
       pushSTACK(string); # Simple-String retten
       dotimespL(len,len,
-        { write_schar(stream_,TheSstring(STACK_0)->data[index]);
+        { write_code_char(stream_,TheSstring(STACK_0)->data[index]);
           index++;
         });
       skipSTACK(1);
@@ -273,7 +273,7 @@
     var uintL len;
     { if (len==0) return;
      {var uintB* ptr = &TheSstring(string)->data[start];
-      dotimespL(len,len, { write_schar(stream_,*ptr++); } );
+      dotimespL(len,len, { write_code_char(stream_,*ptr++); } );
     }}
   # Am Ende eines wr_ss die Line-Position aktualisieren:
   # wr_ss_lpos(stream,ptr,len);
