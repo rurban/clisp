@@ -32,14 +32,23 @@ User visible changes
   See <http://clisp.cons.org/impnotes.html#del-file> for details.
 
 * ANSI CL compliance issues:
-    MAPC, MAPCAR, MAPCAN, MAPL, MAPLIST, MAPCON now require their list
-      arguments to be proper lists;
-    TAILP uses EQL, not EQ, to compare the sublists;
-    LOOP uses ATOM as the end test for ON iteration and checks for
-      duplicate variables in iteration clauses;
-    sequence functions (MAP, LENGTH and such) no longer accept dotted lists
-      and treat NULL as LIST of length 0 and CONS as LIST of positive length;
-    a character is now accepted as a package designator.
+  + MAPC, MAPCAR, MAPCAN, MAPL, MAPLIST, MAPCON now require their list
+    arguments to be proper lists;
+  + TAILP uses EQL, not EQ, to compare the sublists;
+  + LOOP was fixed in many many ways, including
+    - using ATOM as the end test for ON iteration,
+    - returning the SUMs (and alike) of the specified type (if any),
+    - checking that the THEREIS return value is not shadowed,
+    - treating keyword IT in an inappropriate place as a variable,
+    - signaling SOURCE-PROGRAM-ERROR errors at macroexpansion time,
+    - not requiring the package argument for symbol iteration,
+    - making local variables accessible in the INITIALLY clauses,
+    - initializing accumulation variables after iteration variables
+      to avoid shadowing,
+    - checking for duplicate variables in iteration clauses;
+  + sequence functions (MAP, LENGTH and such) no longer accept dotted lists
+    and treat NULL as LIST of length 0 and CONS as LIST of positive length;
+  + a character is now accepted as a package designator.
 
 * FUNCTION-LAMBDA-EXPRESSION now always returns the correct function name.
   See <http://clisp.cons.org/impnotes.html#fle> for details.
@@ -643,7 +652,7 @@ User visible changes
   SIMPLE-CONDITION-FORMAT-CONTROL.
 
 * Conforming with ANSI CL, FILE-LENGTH and FILE-POSITION, when called on
-  an unbuffered file stream, now return NIL instead of signalling an error.
+  an unbuffered file stream, now return NIL instead of signaling an error.
 
 * Conforming with ANSI CL, MACROEXPAND and MACROEXPAND-1 now accept NIL as
   second argument, denoting the global environment.
@@ -1430,7 +1439,7 @@ User visible changes
   compiled functions can be printed readably when *PRINT-READABLY* = T.
 
 * Built-in function objects (SUBRs) are now printed readably when
-  *PRINT-READABLY* = T, instead of signalling an error.
+  *PRINT-READABLY* = T, instead of signaling an error.
 
 * Added a <c-type>, C-PTR-NULL to the FFI.  C-PTR-NULL will convert
   NIL objects into NULL pointers (so that type conflicts can be avoided).
@@ -1465,7 +1474,7 @@ User visible changes
   Thanks to Paul Graham <pg@das.harvard.edu>.
 
 * Fixed at least two bugs in the LOOP macro: FOR-AS-ACROSS clauses could
-  result in AREF signalling an out-of-bounds error at the end of the vector.
+  result in AREF signaling an out-of-bounds error at the end of the vector.
   Initialisations for FOR-AS-= clauses could be executed in the wrong order.
 
 * Fixed a bug: the functions ENCODE-UNIVERSAL-TIME and DECODE-UNIVERSAL-TIME
@@ -1765,7 +1774,7 @@ User visible changes
   cause CLISP to exit with error status.
 
 * The function ED, when asked to edit a non-existent file, now creates that
-  file instead of signalling an error.
+  file instead of signaling an error.
 
 * When a non-absolute pathname is specified for the -o command line option
   (destination file of a compilation), it is interpreted as relative to the
@@ -1775,7 +1784,7 @@ User visible changes
   is an xterm, for example. Work done by Chet Ramey.
 
 * Fixed two bugs in the LOOP macro: FOR-AS-ACROSS clauses could result in AREF
-  signalling an out-of-bounds error at the end of the vector. Initialisations
+  signaling an out-of-bounds error at the end of the vector. Initialisations
   for FOR-AS-= clauses could be executed in the wrong order.
 
 * Fixed a bug in the compiler which caused LOAD-TIME-VALUE forms to be
