@@ -8,6 +8,7 @@
 
 	fixed bug #[ 685855 ]: ext:string-width ignores :start
 	* charstrg.d (STRING-WIDTH): start with :START, not 0
+	* stream.d (MAKE-STRING-INPUT-STREAM): respect both index and offset
 
 2003-02-10  Sam Steingold  <sds@gnu.org>
 
