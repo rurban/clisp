@@ -1,5 +1,10 @@
 2002-07-09  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (compile-file): do not clobber *.c file when
+	there are no FFI forms
+
+2002-07-09  Sam Steingold  <sds@gnu.org>
+
 	* bindings/linuxlibc6/linux.lisp (read): added commas before
 	arguments in backquote
 
