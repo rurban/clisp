@@ -204,12 +204,8 @@
 #
 #  Keyboard-Stream
 #  Interaktiver Terminalstream             Eingabebuffer, Zeichenzähler
-#  File-Stream für Characters              Handle, Pathname, File-Position,
-#  (Input, Output, I/O, Closed=Probe)      Buffer
-#  File-Stream für Unsigned-Bytes          Handle, Pathname, File-Position,
-#  (Input, Output, I/O, Closed=Probe)      Buffer, Bit-Buffer
-#  File-Stream für Signed-Bytes            Handle, Pathname, File-Position,
-#  (Input, Output, I/O, Closed=Probe)      Buffer, Bit-Buffer
+#  File-Stream                             Handle, Pathname, File-Position,
+#  (Input, Output, I/O, Closed=Probe)      Buffer, [Bit-Buffer]
 #  Window-Stream                           ---
 #ifdef PRINTER
 #  Printer-Stream
@@ -3214,6 +3210,7 @@ LISPFUNN(generic_stream_p,1)
 #define strm_isatty   strm_other[0]  # Flag, ob das Input-Handle ein TTY ist
 #define strm_ihandle  strm_other[1]  # Input-Handle immer als zweite Komponente
 #define strm_ohandle  strm_other[2]  # Output-Handle immer als dritte Komponente
+# define strm_eltype  strm_other[3]  # CHARACTER or ([UN]SIGNED-BYTE n)
 
 # Dass beim Input EOF erreicht ist, erkennt man an
 # TheStream(stream)->strm_rd_ch_last = eof_value.
@@ -3968,17 +3965,18 @@ LISPFUNN(generic_stream_p,1)
 #define close_handle  close_ihandle
 
 #ifdef AMIGAOS
-  #define strm_handle_rawp strm_other[5]  # Flag, ob im Raw-Modus oder nicht
-  #define strm_handle_len  (strm_len+6)
+  #define strm_handle_rawp strm_other[6]  # Flag, ob im Raw-Modus oder nicht
+  #define strm_handle_len  (strm_len+7)
 #else
-  #define strm_handle_len  (strm_len+5)
+  #define strm_handle_len  (strm_len+6)
 #endif
 
 # UP: erzeugt ein File-Handle-Stream
 # make_handle_stream(handle,direction)
 # > handle: Handle des geöffneten Files
-# > STACK_1: Filename, ein Pathname
-# > STACK_0: Truename, ein Pathname
+# > STACK_2: Filename, ein Pathname
+# > STACK_1: Truename, ein Pathname
+# > STACK_0: Element-Type
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
 # < ergebnis: File-Handle-Stream
 # < STACK: aufgeräumt
@@ -4035,6 +4033,7 @@ LISPFUNN(generic_stream_p,1)
       begin_system_call();
       TheStream(stream)->strm_isatty = (isatty(TheHandle(handle)) ? T : NIL);
       end_system_call();
+      TheStream(stream)->strm_eltype = popSTACK();
       # File-Handle-Streams werden für Pathname-Zwecke wie File-Streams behandelt.
       # Daher ist (vgl. file_write_date) strm_file_handle == strm_ohandle,
       # und wir tragen nun die Pathnames ein:
@@ -9639,14 +9638,14 @@ LISPFUNN(window_cursor_off,1)
 # eine Beschleunigung um einen Faktor 2.7 von 500 sec auf 180 sec.)
 
 # Additional fields:
-  # define strm_file_name       strm_other[3] # Filename, a pathname or NIL
-  # define strm_file_truename   strm_other[4] # Truename, ein non-logical pathname or NIL
+  # define strm_file_name       strm_other[4] # Filename, a pathname or NIL
+  # define strm_file_truename   strm_other[5] # Truename, ein non-logical pathname or NIL
   # define strm_file_handle     strm_other[2] # a wrapped Handle
   #define strm_file_bufflen     4096          # buffer length, a power of 2, <2^16
   #define strm_file_buffer      strm_other[0] # our own buffer, a simple-bit-vector
                                               # with strm_file_bufflen bytes
-  #define strm_file_extrafields strm_other[5] # here some binary fields begin
-#define strm_file_length  (strm_len+5)
+  #define strm_file_extrafields strm_other[6] # here some binary fields begin
+#define strm_file_length  (strm_len+6)
 
 # Additional binary (not GCed) fields:
 typedef struct strm_file_extrafields_struct {
@@ -11219,9 +11218,7 @@ typedef struct strm_i_file_extrafields_struct {
 # > STACK_1: Filename, ein Pathname oder NIL
 # > STACK_0: Truename, ein Pathname oder NIL
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
-# > type: nähere Typinfo
-#         (STRMTYPE_SCH_FILE oder STRMTYPE_CH_FILE oder
-#          STRMTYPE_IU_FILE oder STRMTYPE_IS_FILE)
+# > type: nähere Typinfo (strmtype_ch_file, strmtype_iu_file, strmtype_is_file)
 # > eltype_size: (bei Integer-Streams) Größe der Elemente in Bits,
 #         ein Fixnum >0 und <intDsize*uintWC_max
 # > append_flag: TRUE falls der Stream gleich ans Ende positioniert werden
@@ -11236,7 +11233,29 @@ typedef struct strm_i_file_extrafields_struct {
     var uintB type;
     var object eltype_size;
     var boolean append_flag;
-    {
+    { # Construct Element-Type as an object:
+      { var object eltype;
+        switch (type)
+          { case strmtype_ch_file:
+              # CHARACTER
+              eltype = S(character); break;
+            case strmtype_iu_file:
+              # (UNSIGNED-BYTE bitsize)
+              pushSTACK(S(unsigned_byte));
+              pushSTACK(eltype_size);
+              eltype = listof(2);
+              break;
+            case strmtype_is_file:
+              # (SIGNED-BYTE bitsize)
+              pushSTACK(S(signed_byte));
+              pushSTACK(eltype_size);
+              eltype = listof(2);
+              break;
+            default: NOTREACHED;
+          }
+        pushSTACK(eltype);
+      }
+      # Stackaufbau: filename, truename, eltype.
       #if defined(HANDLES)
       # Nur reguläre Files zu gebufferten File-Streams machen.
       # Alles andere gibt File-Handle-Streams, weil vermutlich lseek() nicht geht.
@@ -11249,7 +11268,7 @@ typedef struct strm_i_file_extrafields_struct {
                  )
                 { return make_handle_stream(handle,direction); }
                 else
-                { # Truename noch in STACK_0, Wert für Slot PATHNAME von FILE-ERROR
+                { pushSTACK(STACK_1); # Truename, Wert für Slot PATHNAME von FILE-ERROR
                   pushSTACK(STACK_0);
                   pushSTACK(S(open));
                   fehler(file_error,
@@ -11265,7 +11284,7 @@ typedef struct strm_i_file_extrafields_struct {
          (direction==0 ? 0 : # bei Modus :PROBE sind alle Flags =0
            # sonst:
            (direction<4 ? strmflags_rd_B : # Modus :INPUT[-IMMUTABLE] -> nur Read
-            direction==4 && nullp(STACK_0) ? strmflags_wr_B : # Modus :OUTPUT ohne Filename -> nur Write
+            direction==4 && nullp(STACK_1) ? strmflags_wr_B : # Modus :OUTPUT ohne Filename -> nur Write
             strmflags_open_B # sonst Read/Write
            )
            &
@@ -11294,7 +11313,7 @@ typedef struct strm_i_file_extrafields_struct {
        pushSTACK(handle); # Handle retten
        #endif
       {# Stream allozieren:
-       var object stream = allocate_stream(flags,type,strm_file_length,xlen);
+       var object stream = allocate_stream(flags,strmtype_file,strm_file_length,xlen);
        # und füllen:
        # Komponenten aller Streams:
        switch (type)
@@ -11372,6 +11391,7 @@ typedef struct strm_i_file_extrafields_struct {
        #if defined(FOREIGN_HANDLE) || !NIL_IS_CONSTANT
        handle = popSTACK(); # Handle zurück
        #endif
+       TheStream(stream)->strm_eltype = popSTACK(); # Element-Type eintragen
        TheStream(stream)->strm_file_truename = popSTACK(); # Truename eintragen
        TheStream(stream)->strm_file_name = popSTACK(); # Filename eintragen
        if (!nullp(handle)) # Handle=NIL -> Rest bereits mit NIL initialisiert, fertig
@@ -11754,7 +11774,7 @@ LISPFUNN(make_printer_stream,0)
 # =================
 
 # Zusätzliche Komponenten:
-  # define strm_pipe_pid       strm_other[3] # Prozess-Id, ein Fixnum >=0
+  # define strm_pipe_pid       strm_other[4] # Prozess-Id, ein Fixnum >=0
   #define strm_pipe_in_handle  strm_ihandle  # Handle für Input
   #if defined(EMUNIX) && defined(PIPES2)
   #define strm_pipe_in_other   strm_ohandle  # Pipe-Stream in Gegenrichtung
@@ -11921,7 +11941,7 @@ LISPFUNN(make_pipe_input_stream,1)
     pushSTACK(UL_to_I(child));
     # Stream allozieren:
     { var object stream = # neuer Stream, nur READ-CHAR und READ-BYTE erlaubt
-        allocate_stream(strmflags_rd_B,strmtype_pipe_in,strm_len+4,0);
+        allocate_stream(strmflags_rd_B,strmtype_pipe_in,strm_len+5,0);
       TheStream(stream)->strm_rd_by = P(rd_by_pipe_in);
       TheStream(stream)->strm_rd_by_array = P(rd_by_array_pipe_in);
       TheStream(stream)->strm_wr_by = P(wr_by_error);
@@ -11945,7 +11965,7 @@ LISPFUNN(make_pipe_input_stream,1)
 # ==================
 
 # Zusätzliche Komponenten:
-  # define strm_pipe_pid          strm_other[3] # Prozess-Id, ein Fixnum >=0
+  # define strm_pipe_pid          strm_other[4] # Prozess-Id, ein Fixnum >=0
   #define strm_pipe_out_handle    strm_ohandle  # Handle für Output
   #if defined(EMUNIX) && defined(PIPES2)
   # define strm_pipe_out_other    strm_ihandle  # Pipe-Stream in Gegenrichtung
@@ -12104,7 +12124,7 @@ LISPFUNN(make_pipe_output_stream,1)
     pushSTACK(UL_to_I(child));
     # Stream allozieren:
     { var object stream = # neuer Stream, nur WRITE-CHAR und WRITE-BYTE erlaubt
-        allocate_stream(strmflags_wr_B,strmtype_pipe_out,strm_len+4,0);
+        allocate_stream(strmflags_wr_B,strmtype_pipe_out,strm_len+5,0);
       TheStream(stream)->strm_rd_by = P(rd_by_error);
       TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
       TheStream(stream)->strm_wr_by = P(wr_by_pipe_out);
@@ -12278,7 +12298,7 @@ LISPFUNN(make_pipe_io_stream,1)
     pushSTACK(allocate_handle(out_handles[1]));
     # Input-Stream allozieren:
     { var object stream = # neuer Stream, nur READ-CHAR erlaubt
-        allocate_stream(strmflags_rd_ch_B,strmtype_pipe_in,strm_len+4,0);
+        allocate_stream(strmflags_rd_ch_B,strmtype_pipe_in,strm_len+5,0);
       TheStream(stream)->strm_rd_by = P(rd_by_error);
       TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
       TheStream(stream)->strm_wr_by = P(wr_by_error);
@@ -12298,7 +12318,7 @@ LISPFUNN(make_pipe_io_stream,1)
     }
     # Output-Stream allozieren:
     { var object stream = # neuer Stream, nur WRITE-CHAR erlaubt
-        allocate_stream(strmflags_wr_ch_B,strmtype_pipe_out,strm_len+4,0);
+        allocate_stream(strmflags_wr_ch_B,strmtype_pipe_out,strm_len+5,0);
       TheStream(stream)->strm_rd_by = P(rd_by_error);
       TheStream(stream)->strm_rd_by_array = P(rd_by_array_error);
       TheStream(stream)->strm_wr_by = P(wr_by_error);
@@ -12664,7 +12684,7 @@ LISPFUNN(make_pipe_io_stream,1)
 # Verwendung: für X-Windows.
 
 # Zusätzliche Komponenten:
-  # define strm_x11socket_connect strm_other[3] # Liste (host display)
+  # define strm_x11socket_connect strm_other[4] # Liste (host display)
 
 #define rd_ch_x11socket  rd_ch_socket
 #define listen_x11socket  listen_socket
@@ -12716,7 +12736,7 @@ LISPFUNN(make_x11socket_stream,2)
     pushSTACK(allocate_socket(handle));
     # Stream allozieren:
     {var object stream = # neuer Stream, alles erlaubt
-       allocate_stream(strmflags_open_B,strmtype_x11socket,strm_len+4,0);
+       allocate_stream(strmflags_open_B,strmtype_x11socket,strm_len+5,0);
      TheStream(stream)->strm_rd_by = P(rd_by_x11socket);
      TheStream(stream)->strm_rd_by_array = P(rd_by_array_x11socket);
      TheStream(stream)->strm_wr_by = P(wr_by_x11socket);
@@ -12860,8 +12880,8 @@ LISPFUNN(write_n_bytes,4)
 # Socket-Streams
 # ==============
 
-  # define strm_socket_port strm_other[3] # port, a fixnum >=0
-  # define strm_socket_host strm_other[4] # host, NIL or a string
+  # define strm_socket_port strm_other[4] # port, a fixnum >=0
+  # define strm_socket_host strm_other[5] # host, NIL or a string
 
 # Creates a socket stream.
 local object make_socket_stream (SOCKET handle, object host, object port);
@@ -12872,7 +12892,7 @@ local object make_socket_stream(handle,host,port)
   { pushSTACK(allocate_socket(handle));
     # Stream allozieren:
    {var object stream = # neuer Stream, alles erlaubt
-      allocate_stream(strmflags_open_B,strmtype_socket,strm_len+5,0);
+      allocate_stream(strmflags_open_B,strmtype_socket,strm_len+6,0);
     TheStream(stream)->strm_rd_by = P(rd_by_socket);
     TheStream(stream)->strm_rd_by_array = P(rd_by_array_socket);
     TheStream(stream)->strm_wr_by = P(wr_by_socket);
@@ -13291,7 +13311,7 @@ LISPFUNN(socket_stream_handle,1)
         { # Für *ERROR-OUTPUT* einen anderen Stream verwenden. Auf den
           # Filenamen kommt es nicht an, /dev/fd/2 existiert auch nicht überall.
           pushSTACK(asciz_to_string("/dev/fd/2")); funcall(L(pathname),1);
-          pushSTACK(value1); pushSTACK(value1);
+          pushSTACK(value1); pushSTACK(value1); pushSTACK(S(character));
           stream = make_handle_stream(allocate_handle(2),4);
         }
       #endif
@@ -13468,7 +13488,6 @@ LISPFUNN(stream_element_type,1)
               break;
             #endif
             case strmtype_terminal:
-            case strmtype_ch_file:
             #ifdef SCREEN
             case strmtype_window:
             #endif
@@ -13477,24 +13496,15 @@ LISPFUNN(stream_element_type,1)
             #endif
               # CHARACTER
               eltype = S(character); break;
-            case strmtype_iu_file:
-              # (UNSIGNED-BYTE bitsize)
-              pushSTACK(S(unsigned_byte));
-              pushSTACK(UL_to_I(FileStream_bitsize(stream)));
-              eltype = listof(2);
-              break;
-            case strmtype_is_file:
-              # (SIGNED-BYTE bitsize)
-              pushSTACK(S(signed_byte));
-              pushSTACK(UL_to_I(FileStream_bitsize(stream)));
-              eltype = listof(2);
-              break;
+            case strmtype_file:
+            #ifdef HANDLES
+            case strmtype_handle:
+            #endif
+              # CHARACTER or ([UN]SIGNED-BYTE n)
+              eltype = TheStream(stream)->strm_eltype; break;
             # dann die allgemeinen Streams:
             #ifdef GENERIC_STREAMS
             case strmtype_generic:
-            #endif
-            #ifdef HANDLES
-            case strmtype_handle:
             #endif
             #ifdef PIPES
             case strmtype_pipe_in:
@@ -13631,9 +13641,7 @@ LISPFUNN(stream_external_format,1)
           case strmtype_socket:
           #endif
             return TRUE;
-          case strmtype_ch_file:
-          case strmtype_iu_file:
-          case strmtype_is_file:
+          case strmtype_file:
           default:
             return FALSE;
     }   }
@@ -13683,9 +13691,7 @@ LISPFUNN(interactive_stream_p,1)
           case strmtype_keyboard: break;
           #endif
           case strmtype_terminal: break;
-          case strmtype_ch_file:
-          case strmtype_iu_file:
-          case strmtype_is_file:
+          case strmtype_file:
             close_file(stream); break;
           #ifdef SCREEN
           case strmtype_window:
@@ -13751,12 +13757,11 @@ LISPFUNN(interactive_stream_p,1)
     { var object streamlist = O(open_files); # Liste aller offenen File-Streams
       while (consp(streamlist))
         { var object stream = Car(streamlist); # ein Stream aus der Liste
-          if_strm_bfile_p(stream, # File-Stream ?
+          if (TheStream(stream)->strmtype == strmtype_file) # File-Stream ?
             { if (!nullp(TheStream(stream)->strm_file_handle)) # mit Handle /= NIL ?
                 # ja: Stream noch offen
                 { closed_file(stream); }
-            },
-            ; );
+            }
           close_dummys(stream);
           streamlist = Cdr(streamlist); # restliche Streams
         }
@@ -13821,13 +13826,11 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                             );
                 #endif
                 NOTREACHED
-              case strmtype_ch_file:
+              case strmtype_file:
                 if (TheStream(stream)->strmflags & strmflags_rd_ch_B)
                   { return listen_ch_file(stream); }
                   else
                   { return signean_minus; } # kein READ-CHAR
-              case strmtype_iu_file:  return signean_minus; # kein READ-CHAR
-              case strmtype_is_file:  return signean_minus; # kein READ-CHAR
               #ifdef SCREEN
               case strmtype_window:   return signean_minus; # kein READ-CHAR
               #endif
@@ -13965,9 +13968,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               #endif
               case strmtype_terminal:
                 finish_output_terminal(stream); break;
-              case strmtype_ch_file:
-              case strmtype_iu_file:
-              case strmtype_is_file:
+              case strmtype_file:
                 finish_output_file(stream); break;
               #ifdef PRINTER_AMIGAOS
               case strmtype_printer: # Printer:
@@ -14019,9 +14020,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
               #endif
               case strmtype_terminal:
                 force_output_terminal(stream); break;
-              case strmtype_ch_file:
-              case strmtype_iu_file:
-              case strmtype_is_file:
+              case strmtype_file:
                 force_output_file(stream); break;
               #ifdef PRINTER_AMIGAOS
               case strmtype_printer: # Printer:
@@ -14084,9 +14083,7 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
                             );
                 #endif
                 break;
-              case strmtype_ch_file:
-              case strmtype_iu_file:
-              case strmtype_is_file:
+              case strmtype_file:
                 # File: nichts tun (würde die File-Verwaltung durcheinanderbringen)
                 break;
               #ifdef PRINTER_AMIGAOS
@@ -14217,7 +14214,7 @@ LISPFUNN(write_byte,2)
           else
             break;
         }
-      if_strm_bfile_p(obj, ; , goto fehler_bad_obj; ); # Streamtyp File-Stream ?
+      if (!(TheStream(obj)->strmtype == strmtype_file)) goto fehler_bad_obj; # Streamtyp File-Stream ?
       if ((TheStream(obj)->strmflags & strmflags_open_B) == 0) goto fehler_bad_obj; # Stream offen ?
       if (nullp(TheStream(obj)->strm_file_handle)) goto fehler_bad_obj; # und Handle /= NIL ?
       return obj; # ja -> OK
@@ -14329,7 +14326,8 @@ LISPFUNN(file_string_length,2)
   global object stream_line_number (object stream);
   global object stream_line_number(stream)
     var object stream;
-    { return (TheStream(stream)->strmtype == strmtype_ch_file
+    { return (TheStream(stream)->strmtype == strmtype_file
+              && eq(TheStream(stream)->strm_eltype,S(character))
               ? UL_to_I(FileStream_lineno(stream)) # aktuelle Zeilennummer
               : NIL                                # NIL falls unbekannt
              );

@@ -8995,13 +8995,13 @@ LISPFUNN(print_structure,2)
         write_sstring_case(stream_,O(printstring_stream));
       # Streamspezifische Zusatzinformation:
         switch (type)
-          { case strmtype_ch_file:
-            case strmtype_iu_file:
-            case strmtype_is_file:
+          { case strmtype_file:
             #ifdef HANDLES
             case strmtype_handle:
             #endif
               # File-Stream
+              JUSTIFY_SPACE;
+              prin_object(stream_,TheStream(*obj_)->strm_eltype); # Stream-Element-Type
               if (!nullp(TheStream(*obj_)->strm_file_name))
                 { JUSTIFY_SPACE;
                   prin_object(stream_,TheStream(*obj_)->strm_file_name); # Filename ausgeben
@@ -9068,7 +9068,7 @@ LISPFUNN(print_structure,2)
               # sonst keine Zusatzinformation
               break;
           }
-        if (type==strmtype_ch_file)
+        if (type==strmtype_file && eq(TheStream(*obj_)->strm_eltype,S(character)))
           { JUSTIFY_SPACE;
             # Zeilennummer ausgeben, in der sich der Stream gerade befindet:
             write_ascii_char(stream_,'@');
