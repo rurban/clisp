@@ -1,5 +1,9 @@
 2005-04-06  Sam Steingold  <sds@gnu.org>
 
+	* .gdbinit (full): added commented-out module debugging infrastructure
+
+2005-04-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (XLIB::%DISPLAY-XID): new function
 	(XLIB:DISPLAY-XID): return it
 	(display_hash_table): pass the arguments the usual way, not via STACK
