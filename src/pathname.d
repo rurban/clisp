@@ -62,7 +62,14 @@ local inline int my_readlink (const char* path, char* buf, size_t bufsiz) {
 #define readlink  my_readlink
 #endif
 
-#ifdef UNIX
+/* we need realpath() (declared in <stdlib.h>, included under STDC_HEADERS)
+   http://www.opengroup.org/onlinepubs/009695399/functions/realpath.html
+   which is alleged to be broken on some systems
+   OTOH, on some other systems, notably on cygwin,
+   we _do_ need the system implementation of realpath
+   because otherwise we get screwed on /proc/self/exe -> lisp
+   instead of lisp.exe and possibly other quirks */
+#if defined(UNIX) && !defined(HAVE_REALPATH)
   /* library-function realpath implementation:
    [Copyright: SUN Microsystems, B. Haible]
    TITLE
