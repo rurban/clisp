@@ -1212,7 +1212,7 @@ world is defined in the &cs-cl; package, which has the nickname
 It plays the same role as &clu-pac;, but for the case-sensitive
 world.</para></section>
 
-<section id="cs-pack-name"><title>Pakage Names</title>
+<section id="cs-pack-name"><title>Package Names</title>
 <para>The handling of package names is unchanged.  Package names are
  still usually uppercase.  The package names are also subject to
  <code>(&readtable-case; &readtable-var;)</code>.</para></section>
