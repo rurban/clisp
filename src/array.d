@@ -479,8 +479,8 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
 # > STACK_1: Array (meist Vektor)
 # > STACK_0: (fehlerhafter) Index
 # > subr_self: Aufrufer (ein SUBR)
-  nonreturning_function(local, fehler_index_range, (uintL bound));
-  local void fehler_index_range(bound)
+  nonreturning_function(global, fehler_index_range, (uintL bound));
+  global void fehler_index_range(bound)
     var uintL bound;
     {
       var object tmp;
