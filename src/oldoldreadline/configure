@@ -2611,7 +2611,7 @@ EOF
 esac
 
 case "$signalblocks" in
-  *BSD*)
+  *POSIX* | *BSD*)
 echo $ac_n "checking whether signals are blocked when signal handlers are entered""... $ac_c" 1>&6
 echo "configure:2617: checking whether signals are blocked when signal handlers are entered" >&5
 if eval "test \"`echo '$''{'cl_cv_func_signal_blocked'+set}'`\" = set"; then
