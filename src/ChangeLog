@@ -1,5 +1,11 @@
 2000-05-21  Bruno Haible  <haible@clisp.cons.org>
 
+        * type.lisp (canonicalize-type): Treat STREAM and subclasses like
+          CLOS classes, not like other built-in classes.
+          (subtypep): Remove special code for STREAM and subclasses.
+
+2000-05-21  Bruno Haible  <haible@clisp.cons.org>
+
         * init.lisp (LOAD): Add :external-format argument and conditionally
           pass it to OPEN.
 
