@@ -481,7 +481,7 @@ if [ $TSYS = win32msvc ] ; then
   # ("-O1" and "-O2" are buggy in msvc5.0).
   # -Zi - include debug info (-ZI for debug-and-continue)
   # -GZ - runtime debug checks
-  # 
+  #
   if [ $COMPILER = msvc5 ] ; then
     if [ "$DEBUGGING" != debug ] ; then
       CFLAGS=$CFLAGS' -G5 -Os -Oy -Ob1 -Gs -Gf -Gy'
@@ -2756,7 +2756,7 @@ if [ $CROSS = false ] ; then
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
   if [ $HOS != os2 ] ; then
-    echotab '$(RUN) -m 750KW -x "(load \"init.lisp\") (sys::%saveinitmem) (exit)"'
+    echotab '$(RUN) -m 750KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"'
   else
     echotab '$(RUN) -m 750KW < interpreted.in'
   fi
@@ -2799,7 +2799,7 @@ if [ $CROSS = false ] ; then
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
   if [ $HOS != os2 ] ; then
-    echotab '$(RUN) -m 750KW -x "(load \"init.lisp\") (sys::%saveinitmem) (exit)"'
+    echotab '$(RUN) -m 750KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"'
   else
     echotab '$(RUN) -m 750KW < interpreted.in'
   fi
@@ -2816,7 +2816,7 @@ if [ $CROSS = false ] ; then
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
   if [ $HOS != os2 ] ; then
-    echotab '$(RUN) -x "(load \"init.fas\") (saveinitmem) (exit)"'
+    echotab '$(RUN) -x "(and (load \"init.fas\") (ext::saveinitmem) (ext::exit))"'
   else
     echotab '$(RUN) < lispinit.in'
   fi
@@ -2916,7 +2916,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab '$(RUN) -x "(cd \"'"${TESTDIR}${NEXT}"'\") (load \"init.fas\") (cd \"'"${PARENT}"'\") (sys::%saveinitmem) (exit)"'
+  echotab '$(RUN) -x "(and (cd \"'"${TESTDIR}${NEXT}"'\") (load \"init.fas\") (cd \"'"${PARENT}"'\") (sys::%saveinitmem) (ext::exit))"'
   echotab "-\$(RM) lispinit2.mem"
   echotab "\$(MV) lispimag.mem lispinit2.mem"
   echol
