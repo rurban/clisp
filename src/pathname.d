@@ -10917,43 +10917,45 @@ local int shell_quote (char * dest, const char * source) {
  returns: if wait exit code, child PID otherwise */
 LISPFUN(launch,seclass_default,1,0,norest,key,6,
         (kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
-  var object command_arg = check_string(STACK_6);
-  var object priority_arg = STACK_0;
-  var object error_arg = STACK_1;
-  var object output_arg = STACK_2;
-  var object input_arg = STACK_3;
+  STACK_6 = check_string(STACK_6); /* command_arg */
+  if (!boundp(STACK_5)) STACK_5 = NIL; /* arguments_arg */
+  else STACK_5 = check_list(STACK_5);
   var bool wait_p = !nullp(STACK_4); /* default: do wait! */
-  var object arg_arg = STACK_5;
   var int handletype; # TODO: check it
   var DWORD pry = NORMAL_PRIORITY_CLASS;
-  if (boundp(priority_arg))
+  if (boundp(STACK_0)) {        /* priority_arg */
+    var object priority_arg = STACK_0;
+   restart_priority:
     if (eq(priority_arg,S(Khigh))) pry = HIGH_PRIORITY_CLASS;
     else if (eq(priority_arg,S(Klow))) pry = IDLE_PRIORITY_CLASS;
     else if (!eq(priority_arg,S(Knormal))) {
+      pushSTACK(NIL);              /* no PLACE */
       pushSTACK(priority_arg);     /* TYPE-ERROR slot DATUM */
       pushSTACK(O(type_priority)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(priority_arg);
       pushSTACK(S(Kpriority));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
+      check_value(type_error,GETTEXT("~: illegal ~ argument ~"));
+      priority_arg = value1;
+      goto restart_priority;
     }
-  if (!boundp(arg_arg)) arg_arg = S(nil);
-  else if (!consp(arg_arg)) fehler_list(arg_arg);
-  var Handle hinput =
-    handle_dup1((boundp(input_arg) && !eq(input_arg,S(Kterminal)))
-                ? stream_lend_handle(input_arg,true,&handletype)
+  }
+  var Handle hinput = /* STACK_3 == input_stream_arg */
+    handle_dup1((boundp(STACK_3) && !eq(STACK_3,S(Kterminal)))
+                ? stream_lend_handle(STACK_3,true,&handletype)
                 : stdin_handle);
-  var Handle houtput =
-    handle_dup1((boundp(output_arg) && !eq(output_arg,S(Kterminal)))
-                ? stream_lend_handle(output_arg,false,&handletype)
+  var Handle houtput = /* STACK_2 == output_stream_arg */
+    handle_dup1((boundp(STACK_2) && !eq(STACK_2,S(Kterminal)))
+                ? stream_lend_handle(STACK_2,false,&handletype)
                 : stdout_handle);
-  var Handle herror =
-    handle_dup1((boundp(error_arg) && !eq(error_arg,S(Kterminal)))
-                ? stream_lend_handle(error_arg,false,&handletype)
+  var Handle herror = /* STACK_1 == error_stream_arg */
+    handle_dup1((boundp(STACK_1) && !eq(STACK_1,S(Kterminal)))
+                ? stream_lend_handle(STACK_1,false,&handletype)
                 : stderr_handle);
   var HANDLE prochandle;
   var object cmdlist_cons = allocate_cons();
-  Car(cmdlist_cons) = command_arg; Cdr(cmdlist_cons) = arg_arg;
+  Car(cmdlist_cons) = STACK_6; /* command_arg */
+  Cdr(cmdlist_cons) = STACK_5; /* arguments_arg */
   pushSTACK(cmdlist_cons);
   var int command_len =
     stringlist_to_asciizlist(STACK_0,&O(misc_encoding),NULL);
