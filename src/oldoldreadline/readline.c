@@ -484,7 +484,7 @@ rl_unget_char (key)
 void
 rl_gather_tyi ()
 {
-#ifdef MINIMAL
+#if defined(MINIMAL) && !defined(WIN32)
   if (isatty(0))
     if (kbhit() && ibuffer_space())
       rl_stuff_char (rl_getc (in_stream));
@@ -3139,7 +3139,7 @@ rl_getc (stream)
   int result;
   unsigned char c;
 
-#if (defined(__EMX__) && defined(unix)) || defined(MINIMAL) /* emx <= 0.8d or GO32 or WIN32 */
+#if (defined(__EMX__) && defined(unix)) || (defined(MINIMAL) && !defined(WIN32)) /* emx <= 0.8d or GO32 */
   if (isatty(0))
     { static unsigned char pending = 0;
       register unsigned short ch;

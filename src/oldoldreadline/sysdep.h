@@ -89,7 +89,10 @@ extern void* alloca RL((int size)); /* either from libc.a or from alloca.o */
 #include <stdlib.h> /* declares malloc(), realloc(), free(), getenv(), abort(), qsort() */
 #endif
 extern char* getenv RL((/* [const] char* string */));
-/* SCO systems may need "#include <malloc.h>" ?? */
+#if defined(WIN32) && defined(_MSC_VER) /* MSVC */
+#include <malloc.h> /* declares malloc() etc. */
+#endif
+/* SCO systems may need "#include <malloc.h>" too ?? */
 
 #ifdef HAVE_UNISTD_H
 #include <sys/types.h>
