@@ -282,7 +282,7 @@ space safety compilation-speed debug declaration dynamic-extent compile
    char-meta-bit char-super-bit char-hyper-bit string-char-p
    long-float-digits special-form-p
    the-environment arglist getenv special-variable-p
-   *driver* *break-driver* *args* *keyboard-input* clhs-root shell
+   *driver* *break-driver* *args* *keyboard-input* clhs-root shell execute
    ;; declarations
    constant-inline constant-notinline
    ;; pseudo-types:

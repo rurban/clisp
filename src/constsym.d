@@ -594,7 +594,7 @@ LISPSYM(ensure_directories_exist,"ENSURE-DIRECTORIES-EXIST",lisp)
 LISPSYM(file_write_date,"FILE-WRITE-DATE",lisp)
 LISPSYM(file_author,"FILE-AUTHOR",lisp)
 #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS)
-LISPSYM(execute,"EXECUTE",lisp)
+LISPSYM(execute,"EXECUTE",ext)
 #endif
 #ifdef HAVE_SHELL
 #ifdef WIN32_NATIVE

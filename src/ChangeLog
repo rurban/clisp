@@ -1,5 +1,11 @@
 2001-04-18  Sam Steingold  <sds@gnu.org>
 
+	Move EXECUTE from COMMON-LISP to EXT
+	* constsym.d (EXECUTE): in EXT, not LISP
+	* init.lisp (export): export EXECUTE from EXT
+
+2001-04-18  Sam Steingold  <sds@gnu.org>
+
 	ANSI CL compliance: HANDLER-BIND uses multiple handlers
 	for the a single error
 	* compiler.lisp (c-HANDLER-BIND): collect all handlers, even for
