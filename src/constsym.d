@@ -254,6 +254,7 @@ LISPSYM(gc,"GC",lisp)
 # ---------- ERROR ----------
 LISPSYM(error,"ERROR",lisp)
 LISPSYM(defclcs,"%DEFCLCS",system)
+LISPSYM(cerror_of_type,"CERROR-OF-TYPE",system)
 LISPSYM(error_of_type,"ERROR-OF-TYPE",system)
 LISPSYM(invoke_debugger,"INVOKE-DEBUGGER",lisp)
 LISPSYM(clcs_signal,"SIGNAL",lisp)
