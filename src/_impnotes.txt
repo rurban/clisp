@@ -1832,12 +1832,8 @@ the function LOGICAL-PATHNAME can be used.
 
 OPEN cannot handle files of size >= 4 GB.
 
-#ifdef HANDLES
 The file streams returned by OPEN are buffered for regular files and
 unbuffered for special files.
-#else
-The file streams returned by OPEN are always buffered.
-#endif
 
 23.3.
 -----

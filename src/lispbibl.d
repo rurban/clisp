@@ -1839,12 +1839,6 @@
   #endif
 # Bei Erweiterung: STREAM erweitern (viel Arbeit!).
 
-# Ob es File-Handle-Streams gibt:
-  #if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS) || defined(WIN32_NATIVE) # || defined(RISCOS)
-    #define HANDLES
-  #endif
-# Bei Erweiterung: STREAM erweitern.
-
 # Ob es Pipe-Streams gibt:
   #if defined(UNIX) || defined(EMUNIX_PORTABEL) || defined(WIN32_NATIVE)
     #define PIPES
@@ -5222,10 +5216,8 @@ typedef struct {
   # These come first, for the if_strm_file_p macro.
                               enum_strmtype_file,
   #define strmtype_file       (uintB)enum_strmtype_file
-  #ifdef HANDLES
                               enum_strmtype_handle,
   #define strmtype_handle     (uintB)enum_strmtype_handle
-  #endif
   # First the OS independent streams.
                               enum_strmtype_synonym,
   #define strmtype_synonym    (uintB)enum_strmtype_synonym
@@ -6143,17 +6135,10 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #endif
 
 # Test, ob ein Stream vom Typ File-Stream ist:
-  #ifdef HANDLES
-    #define case_strmtype_file  \
-      case strmtype_file:       \
-      case strmtype_handle
-  #else
-    #define case_strmtype_file  \
-      case strmtype_file
-  #endif
   #define if_strm_file_p(strm,statement1,statement2)  \
     switchu (TheStream(strm)->strmtype) \
-      { case_strmtype_file:             \
+      { case strmtype_file:             \
+        case strmtype_handle:           \
           statement1; break;            \
         default:                        \
           statement2; break;            \
