@@ -1,3 +1,9 @@
+2004-10-27  Bruno Haible  <bruno@clisp.org>
+
+	* Makefile.devel (DOCBOOK_XML_DOWNLOAD): New variable.
+	(update-docbook-utils): New target.
+	(all): Depend on it.
+
 2004-10-17  Bruno Haible  <bruno@clisp.org>
 
 	* format.lisp: Remove obsolete removal of defstruct-description.
