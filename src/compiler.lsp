@@ -254,29 +254,49 @@
 (defvar *c-error-output*) ; Compiler-Error-Stream
 ; Es ist im wesentlichen
 ; *c-error-output* = (make-broadcast-stream *error-output* *c-listing-output*)
-(defvar *known-special-vars*) ; Namen von deklarierten dynamischen Variablen
-(defvar *constant-special-vars*) ; Namen und Werte von konstanten Variablen
 
-; Variablen für COMPILE-FILE:
-(defvar *fasoutput-stream* nil) ; Compiler-Output-Stream oder nil
-(defvar *liboutput-stream* nil) ; Compiler-Library-Stream oder nil
-(defvar *coutput-file* nil) ; Compiler-C-Output-File oder nil
-(defvar *coutput-stream* nil) ; Compiler-C-Output-Stream oder nil
-(defvar *functions-with-errors* nil) ; Namen der Funktionen, wo es Fehler gab
-(defvar *known-functions*) ; Namen der bisher bekannten Funktionen,
-                           ; wird vom Macroexpander von DEFUN verändert
-(defvar *unknown-functions*) ; Namen der bisher unbekannten Funktionen
-(defvar *unknown-free-vars*) ; Namen von undeklarierten dynamischen Variablen
-(defvar *deprecated-functions*) ; Namen der bisher bisherigen unguten Funktionen
-(defvar *inline-functions*) ; global inline-deklarierte Funktionssymbole
-(defvar *notinline-functions*) ; global notinline-deklarierte Funktionssymbole
-(defvar *inline-definitions*) ; Aliste globaler inlinebarer Funktionsdefinitionen
-(defvar *inline-constants*) ; constant-inline-deklarierte Konstantensymbole
-(defvar *notinline-constants*) ; constant-notinline-deklarierte Konstantensymbole
-(defvar *user-declaration-types*) ; global definierte zusätzliche Deklarationen
-(defvar *compiled-modules*) ; bereits "geladene" (compilierte) Modulnamen
-(defvar *package-tasks*) ; noch durchzuführende Package-Anforderungen
-(defvar *ffi-module* nil) ; Daten, die das FFI ansammelt
+;;; The variables for COMPILE-FILE:
+;; The names of declared dynamic variables
+(defvar *known-special-vars* nil)
+;; The names and values of constants
+(defvar *constant-special-vars* nil)
+;; The compiler's output file stream, or nil
+(defvar *fasoutput-stream* nil)
+;; The compiler's library file stream, or nil
+(defvar *liboutput-stream* nil)
+;; The compiler's C output file name, or nil
+(defvar *coutput-file* nil)
+;; The compiler's C output file stream, or nil
+(defvar *coutput-stream* nil)
+;; The names of functions which contained errors
+(defvar *functions-with-errors* nil)
+;; The names of functions known up to now, modified by the DEFUN macroexpander
+(defvar *known-functions* nil)
+;; The names of unknown functions (up to now)
+(defvar *unknown-functions* nil)
+;; The names of undeclared dynamic variables (up to now)
+(defvar *unknown-free-vars* nil)
+;; The names of used obsolete functions (up to now)
+(defvar *deprecated-functions* nil)
+;; The names of functions declared globally inline (up to now)
+(defvar *inline-functions* nil)
+;; The names of functions declared globally notinline (up to now)
+(defvar *notinline-functions* nil)
+;; The alist of global inlinable function definitions
+(defvar *inline-definitions* nil)
+;; The symbols denoting constants which are declared constant-inline
+(defvar *inline-constants* nil)
+;; The symbols denoting constants which are declared constant-notinline
+(defvar *notinline-constants* nil)
+;; The additional user defined declaration types (not really "types")
+(defvar *user-declaration-types* nil)
+;; The names of modules already compiled
+;; (treated as if they were already loaded)
+(defvar *compiled-modules* nil)
+;; The list of the pending package tasks
+(defvar *package-tasks* nil)
+;; The data accumulated by the FFI.
+(defvar *ffi-module* nil)
 
 #|
 The compiler's target is the virtual machine described in bytecode.html.
@@ -12099,6 +12119,59 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 ; Hook fürs FFI:
 (defun finalize-coutput-file ())
 
+(defun c-reset-globals ()
+  ;; the golbal variables have to be assigned, not bound!
+  (setq *functions-with-errors*  nil
+        *known-special-vars*     nil
+        *unknown-free-vars*      nil
+        *constant-special-vars*  nil
+        *known-functions*        nil
+        *unknown-functions*      nil
+        *deprecated-functions*   nil
+        *inline-functions*       nil
+        *notinline-functions*    nil
+        *inline-definitions*     nil
+        *inline-constants*       nil
+        *notinline-constants*    nil
+        *user-declaration-types* nil
+        *compiled-modules*       nil))
+
+(defun c-report-problems ()
+  (when *functions-with-errors*
+    (c-comment (ENGLISH "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}")
+               (nreverse *functions-with-errors*)))
+  (setq *unknown-functions*
+        (nset-difference *unknown-functions* *known-functions* :test #'equal))
+  (when *unknown-functions*
+    (c-comment (ENGLISH "~%The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}")
+               (nreverse *unknown-functions*)))
+  (let ((unknown-vars (set-difference *unknown-free-vars*
+                                      *known-special-vars*))
+        (too-late-vars (intersection *unknown-free-vars*
+                                     *known-special-vars*)))
+    (when unknown-vars
+      (c-comment (ENGLISH "~%The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}")
+                 (nreverse unknown-vars)))
+    (when too-late-vars
+      (c-comment (ENGLISH "~%The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}")
+                 (nreverse too-late-vars))))
+  (when *deprecated-functions*
+    (c-comment (ENGLISH "~%The following functions were used but are deprecated:~%~{~<~%~:; ~S~>~^~}")
+               (nreverse *deprecated-functions*))))
+
+(defvar *c-top-call* nil)
+
+(defmacro with-compilation-unit ((&key override) &body forms)
+  `(let ((*c-top-call* (or ,override (not *c-top-call*)))
+         (*c-error-output* *error-output*))
+    (when *c-top-call*
+      (c-report-problems)
+      (c-reset-globals))
+    (unwind-protect (progn ,@forms)
+      (when *c-top-call*
+        (c-report-problems)
+        (c-reset-globals)))))
+
 ; Common-Lisp-Funktion COMPILE-FILE
 ; file          sollte ein Pathname/String/Symbol sein.
 ; :output-file  sollte nil oder t oder ein Pathname/String/Symbol oder
@@ -12113,7 +12186,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                                ((:warnings *compile-warnings*) *compile-warnings*)
                                ((:verbose *compile-verbose*) *compile-verbose*)
                                ((:print *compile-print*) *compile-print*)
-                          &aux (top-call nil) liboutput-file (*coutput-file* nil)
+                          &aux liboutput-file (*coutput-file* nil)
                                (new-output-stream nil) (new-listing-stream nil)
                     )
   (setq file (or (first (search-file file *source-file-types*))
@@ -12137,10 +12210,10 @@ Die Funktion make-closure wird dazu vorausgesetzt.
     (setq new-listing-stream t)
   )
   (with-open-file (istream file :direction :input-immutable)
-    (let ((listing-stream (if new-listing-stream
+    (let ((listing-stream (if new-listing-stream ; stream or NIL
                             (open listing :direction :output)
-                            (if (streamp listing) listing nil)
-         ))               ) ; ein Stream oder NIL
+                            (if (streamp listing) listing nil)))
+          (*c-top-call* (and (null *c-top-call*) (null *compiling*))))
       (unwind-protect
         (let ((*compile-file-pathname* file)
               (*compile-file-truename* (truename file))
@@ -12170,19 +12243,8 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                     ; Liste (sec min hour day month year ...)
                   (lisp-implementation-type) (lisp-implementation-version)
               ) )
-              (unless *compiling* ; Variablen setzen, nicht binden!
-                (setq *functions-with-errors* '())
-                (setq *known-special-vars* '()) (setq *unknown-free-vars* '())
-                (setq *constant-special-vars* '())
-                (setq *known-functions* '()) (setq *unknown-functions* '())
-                (setq *deprecated-functions* '())
-                (setq *inline-functions* '()) (setq *notinline-functions* '())
-                (setq *inline-definitions* '())
-                (setq *inline-constants* '()) (setq *notinline-constants* '())
-                (setq *user-declaration-types* '())
-                (setq *compiled-modules* '())
-                (setq top-call t)
-              )
+              (when *c-top-call*
+                (c-reset-globals))
               (let ((*compiling* t)
                     (*compiling-from-file* t)
                     (*package* *package*)
@@ -12256,39 +12318,10 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                       (symbol-suffix '#:TOP-LEVEL-FORM (incf form-count))
                 ) ) )
                 (finalize-coutput-file)
-                (c-comment (ENGLISH "~&~%Compilation of file ~A is finished.")
-                           file
-                )
-                (c-comment (ENGLISH "~%~D error~:P, ~D warning~:P")
-                           *error-count* *warning-count* (eql *warning-count* 1)
-                )
-                (when top-call
-                  (when *functions-with-errors*
-                    (c-comment (ENGLISH "~%There were errors in the following functions:~%~{~<~%~:; ~S~>~^~}")
-                               (nreverse *functions-with-errors*)
-                  ) )
-                  (setq *unknown-functions*
-                    (nset-difference *unknown-functions* *known-functions* :test #'equal)
-                  )
-                  (when *unknown-functions*
-                    (c-comment (ENGLISH "~%The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}")
-                               (nreverse *unknown-functions*)
-                  ) )
-                  (let ((unknown-vars (set-difference *unknown-free-vars* *known-special-vars*))
-                        (too-late-vars (intersection *unknown-free-vars* *known-special-vars*)))
-                    (when unknown-vars
-                      (c-comment (ENGLISH "~%The following special variables were not defined:~%~{~<~%~:; ~S~>~^~}")
-                                 (nreverse unknown-vars)
-                    ) )
-                    (when too-late-vars
-                      (c-comment (ENGLISH "~%The following special variables were defined too late:~%~{~<~%~:; ~S~>~^~}")
-                                 (nreverse too-late-vars)
-                  ) ) )
-                  (when *deprecated-functions*
-                    (c-comment (ENGLISH "~%The following functions were used but are deprecated:~%~{~<~%~:; ~S~>~^~}")
-                               (nreverse *deprecated-functions*)
-                  ) )
-                )
+                (c-comment (ENGLISH "~&~%Compilation of file ~A is finished.~%~D error~:P, ~D warning~:P")
+                           file *error-count* *warning-count*)
+                (when *c-top-call*
+                  (c-report-problems))
                 (c-comment "~%")
                 (setq compilation-successful (zerop *error-count*))
                 (values (if compilation-successful output-file nil)
