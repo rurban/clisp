@@ -683,7 +683,7 @@ local signean R_R_comp (object x, object y)
       pushSTACK(x); pushSTACK(y);
       var object xf = RA_F_float_F(x,y,false); /* convert x into a float */
       if (eq(xf,nullobj)) { /* overflow? */
-        skipSTACK(2); return RA_RA_comp(x,Fixnum_0);
+        skipSTACK(1); return RA_RA_comp(popSTACK(),Fixnum_0);
       }
       var signean erg = F_F_comp(xf,STACK_0); /* and compare with y */
       if (erg!=0) { skipSTACK(2); return erg; } /* unequal -> done */
@@ -695,7 +695,7 @@ local signean R_R_comp (object x, object y)
       pushSTACK(y); pushSTACK(x);
       var object yf = RA_F_float_F(y,x,false); /* convert y into a float */
       if (eq(yf,nullobj)) { /* overflow? */
-        skipSTACK(2); return RA_RA_comp(Fixnum_0,y);
+        skipSTACK(1); return RA_RA_comp(Fixnum_0,popSTACK());
       }
       var signean erg = F_F_comp(STACK_0,yf); /* and compare with x */
       if (erg!=0) { skipSTACK(2); return erg; } /* unequal -> done */
