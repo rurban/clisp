@@ -2436,46 +2436,47 @@ LISPFUNN(cast,2)
 # (FFI::%OFFSET foreign-variable offset c-type)
 # returns a foreign variable, referring to (memory-location + offset),
 # of the given c-type.
-# This is more low-level than FFI::%SLOT and more general than FFI::%CAST.
-# Unused for the moment.
-LISPFUNN(offset,3)
+# This is lower-level than FFI::%SLOT and more general than FFI::%CAST.
+# It allows dynamic resizing of arrays,
+# e.g. (C-ARRAY uint8 <N>) to (C-ARRAY uint8 <M>).
+LISPFUNN(offset,3) {
+  var object fvar = STACK_2;
+  if (!fvariablep(fvar))
+    fehler_foreign_variable(fvar);
   {
-    var object fvar = STACK_2;
-    if (!fvariablep(fvar))
-      fehler_foreign_variable(fvar);
-    {
-      var object fvd = TheFvariable(fvar)->fv_type;
-      if (nullp(fvd))
-        fehler_variable_no_fvd(fvar);
-    }
-    check_sint32(STACK_1);
-    foreign_layout(STACK_0);
-    var uintL size = data_size;
-    var uintL alignment = data_alignment;
-    # Allocate a new foreign address.
-    {
-      var object fvaddr = TheFvariable(fvar)->fv_address;
-      fvaddr = make_faddress(TheFaddress(fvaddr)->fa_base,
-                             TheFaddress(fvaddr)->fa_offset
-                             + (sintP)I_to_sint32(STACK_1));
-      pushSTACK(fvaddr);
-    }
-    # Allocate a new foreign variable.
-    var object new_fvar = allocate_fvariable();
-    fvar = STACK_(2+1);
-    record_flags_replace(TheFvariable(new_fvar), record_flags(TheFvariable(fvar)));
-    TheFvariable(new_fvar)->fv_name    = TheFvariable(fvar)->fv_name;
-    TheFvariable(new_fvar)->fv_address = STACK_0;
-    TheFvariable(new_fvar)->fv_size    = fixnum(size);
-    TheFvariable(new_fvar)->fv_type    = STACK_(0+1);
-    if (!(((uintP)Faddress_value(TheFvariable(new_fvar)->fv_address) & (alignment-1)) == 0)) {
-      pushSTACK(new_fvar);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
-    }
-    value1 = new_fvar; mv_count=1;
-    skipSTACK(3+1);
+    var object fvd = TheFvariable(fvar)->fv_type;
+    if (nullp(fvd))
+      fehler_variable_no_fvd(fvar);
   }
+  check_sint32(STACK_1);
+  foreign_layout(STACK_0);
+  var uintL size = data_size;
+  var uintL alignment = data_alignment;
+  { # Allocate a new foreign address.
+    var object fvaddr = TheFvariable(fvar)->fv_address;
+    fvaddr = make_faddress(TheFaddress(fvaddr)->fa_base,
+                           TheFaddress(fvaddr)->fa_offset
+                           + (sintP)I_to_sint32(STACK_1));
+    pushSTACK(fvaddr);
+  }
+  # Allocate a new foreign variable.
+  var object new_fvar = allocate_fvariable();
+  fvar = STACK_(2+1);
+  record_flags_replace(TheFvariable(new_fvar),
+                       record_flags(TheFvariable(fvar)));
+  TheFvariable(new_fvar)->fv_name    = TheFvariable(fvar)->fv_name;
+  TheFvariable(new_fvar)->fv_address = STACK_0;
+  TheFvariable(new_fvar)->fv_size    = fixnum(size);
+  TheFvariable(new_fvar)->fv_type    = STACK_(0+1);
+  if (((uintP)Faddress_value(TheFvariable(new_fvar)->fv_address)
+       & (alignment-1))) {
+    pushSTACK(new_fvar);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
+  }
+  value1 = new_fvar; mv_count=1;
+  skipSTACK(3+1);
+}
 
 
 # Error messages.

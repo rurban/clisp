@@ -269,6 +269,8 @@
 <!ENTITY deref "<link linkend='deref'><function>FFI:DEREF</function></link>">
 <!ENTITY slot "<link linkend='slot'><function>FFI:SLOT</function></link>">
 <!ENTITY cast "<link linkend='cast'><function>FFI:CAST</function></link>">
+<!ENTITY offset "<link linkend='offset'><function>FFI:OFFSET</function></link>">
+<!ENTITY c-var-addr "<link linkend='c-var-addr'><function>FFI:C-VAR-ADDRESS</function></link>">
 <!ENTITY typeof "<link linkend='typeof'><function>FFI:TYPEOF</function></link>">
 <!ENTITY sizeof "<link linkend='sizeof'><function>FFI:SIZEOF</function></link>">
 <!ENTITY bitsizeof "<link linkend='bitsizeof'><function>FFI:BITSIZEOF</function></link>">
@@ -353,6 +355,7 @@ linkend='fa-null'><function>FFI:FOREIGN-ADDRESS-NULL</function></link>">
 <!ENTITY number-r "<replaceable>number</replaceable>">
 <!ENTITY name-r "<replaceable>name</replaceable>">
 <!ENTITY object-r "<replaceable>object</replaceable>">
+<!ENTITY offset-r "<replaceable>offset</replaceable>">
 <!ENTITY option-r "<replaceable>option</replaceable>">
 <!ENTITY path-r "<replaceable>pathname</replaceable>">
 <!ENTITY pattern-r "<replaceable>pattern</replaceable>">

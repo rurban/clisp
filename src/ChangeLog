@@ -1,3 +1,10 @@
+2002-04-23  Hoehle, Joerg-Cyril  <Joerg-Cyril.Hoehle@t-systems.com>
+	    Sam Steingold  <sds@gnu.org>
+
+	patch [ 547491 ]: C-VAR-ADDRESS and OFFSET foreign-places
+	* foreign1.lisp (OFFSET, C-VAR-ADDRESS): new public macros
+	* foreign.d (%OFFSET): comment that it is used now
+
 2002-04-22  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (main): new option: `-interactive-debug', which
