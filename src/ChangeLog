@@ -1,3 +1,7 @@
+2001-05-21  Bruno Haible  <haible@clisp.cons.org>
+
+	* ariarm.d: Use #0x instead of #& to designate hexadecimal constants.
+
 2001-05-15  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.lisp: use DEFPACKAGE to define XLIB;

@@ -179,7 +179,7 @@ GLABEL(mulu32_)
         MUL     a3,ip,a3                # high section of result
         ADDS    a2,a2,a1                # add middle sections
                                         # (can't use mla as we need carry)
-        ADDCS   a3,a3,#&10000           # carry from above add
+        ADDCS   a3,a3,#0x10000          # carry from above add
         ADDS    a1,a4,a2,LSL #16        # x is now bottom 32 bits of result
         ADC     a2,a3,a2,LSR #16        # hi is top 32 bits
 #endif
@@ -261,7 +261,7 @@ GLABEL(divu_6432_3232_)
         STMFD   sp!, {v1,v2,v3,v4,v5,v6,lr}
         MOV     v2, a2                  # = xlo
         MOV     v1, a3                  # = y
-        CMP     a3,#&10000              # y <= (uint32)(bit(16)-1)
+        CMP     a3, #0x10000            # y <= (uint32)(bit(16)-1)
         BCS     divu_6432_3232_l1
         MOV     a2, v2, LSR #16
         ORR     a1, a2, a1, ASL #16     # = highlow32(low16(xhi),high16(xlo))
@@ -303,7 +303,7 @@ LABEL(divu_6432_3232_l1)
         RSBNE   a1, v3, #32             #   { xhi = (xhi << s)
         ORRNE   a1, a2, v2, LSR a1      #         | (xlo >> (32-s));
         MOVNE   v2, v2, ASL v3          #     xlo = xlo << s; }
-        ADD     a2, v1, #&10000         # y1_1 = high16(y)+1
+        ADD     a2, v1, #0x10000        # y1_1 = high16(y)+1
         MOVS    v5, a2, LSR #16         # if (y1_1 = 0)
         MOVEQ   v4, a1, ASL #16         # r16 = low16(xhi) * 2^16
         MOVEQ   a1, a1, LSR #16         # q1 = high16(xhi)
@@ -1797,7 +1797,7 @@ LABEL(mulu32_64_vregs)
         MUL     v2,v1,v2                # high section of result
         ADDS    ip,ip,v3                # add middle sections
                                         # (can't use mla as we need carry)
-        ADDCS   v2,v2,#&10000           # carry from above add
+        ADDCS   v2,v2,#0x10000          # carry from above add
         ADDS    v1,v4,ip,LSL #16        # x is now bottom 32 bits of result
         ADC     ip,v2,ip,LSR #16        # hi is top 32 bits
         MOVS    pc,lr
