@@ -915,11 +915,11 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 # This piece of code is under the responsibility of Sam Steingold.
 
 #define H_ERRMSG                                                           \
-	(h_errno == HOST_NOT_FOUND ? "host not found" :                    \
-	 (h_errno == TRY_AGAIN ? "try again later" :                       \
-	  (h_errno == NO_RECOVERY ? "a non-recoverable error occurred" :   \
-	   (h_errno == NO_DATA ? "valid name, but no data for this host" : \
-	    (h_errno == NO_ADDRESS ? "no IP address for this host" :       \
+        (h_errno == HOST_NOT_FOUND ? "host not found" :                    \
+         (h_errno == TRY_AGAIN ? "try again later" :                       \
+          (h_errno == NO_RECOVERY ? "a non-recoverable error occurred" :   \
+           (h_errno == NO_DATA ? "valid name, but no data for this host" : \
+            (h_errno == NO_ADDRESS ? "no IP address for this host" :       \
              "unknown error")))))
 
 #ifdef HAVE_IPV6
