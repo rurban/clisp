@@ -1,5 +1,11 @@
 2003-05-24  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (stringlist_to_asciizlist): always defined
+	fixed GC-safety errors
+	(LAUNCH) [UNIX/RISCOS]: fixed GC-safety errors
+
+2003-05-24  Sam Steingold  <sds@gnu.org>
+
 	* error.d (check_list): new function
 	* lispbibl.d (check_list): declare
 
