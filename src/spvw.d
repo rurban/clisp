@@ -1699,7 +1699,6 @@ global int main (argc_t argc, char* argv[]) {
   var local char* argv_tmpdir = NULL;
  #endif
   var local char* argv_lisplibdir;
-  var local bool argv_wide = false; # for backward compatibility
   var local bool argv_developer = false;
   var local char* argv_memfile = NULL;
   var local bool argv_load_compiling = false;
@@ -1731,7 +1730,6 @@ global int main (argc_t argc, char* argv[]) {
   #   -s size         Stack size (size = xxxxxxxB oder xxxxKB oder xMB)
   #   -t directory    temporary directory
   #   -B directory    set lisplibdir
-  #   -W              choose WIDE-version
   #   -K linkingset   specify executable and mem file
   #   -M file         load MEM-file
   #   -L language     set the user language
@@ -1850,10 +1848,6 @@ global int main (argc_t argc, char* argv[]) {
             OPTION_ARG;
             if (!(argv_lisplibdir == NULL)) usage (1);
             argv_lisplibdir = arg;
-            break;
-          case 'W': # choose WIDE-version, for backward compatibility
-            argv_wide = true;
-            if (arg[2] != '\0') usage (1);
             break;
           case 'n':
             if (asciz_equal(arg,"-norc"))
@@ -2040,19 +2034,6 @@ global int main (argc_t argc, char* argv[]) {
     if (argv_tmpdir == NULL) {
       argv_tmpdir = getenv("TMPDIR"); # try environment-variable
       if (argv_tmpdir == NULL) { argv_tmpdir = "/tmp"; }
-    }
-   #endif
-   #ifdef UNIX
-    if (argv_memfile != NULL) {
-      # Search for a ':' in argv_memfile, for backward compatibility.
-      var char* ptr = argv_memfile;
-      while (*ptr != '\0' && *ptr != ':') { ptr++; }
-      if (*ptr != '\0') {
-        if (argv_wide) # Choose second pathname, after the colon.
-          argv_memfile = ptr+1;
-        else # Choose first pathname, before the colon.
-          *ptr = '\0';
-      }
     }
    #endif
     if (argv_memfile == NULL)
