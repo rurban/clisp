@@ -687,7 +687,7 @@
 ) )
 
 ; gibt den Integer arg auf den Stream aus:
-; in Zahlenbasis base, mit Vorzeichen (+ nur falls >0 und positive-sign-flag),
+; in Zahlenbasis base, mit Vorzeichen (+ nur falls >=0 und positive-sign-flag),
 ; bei commaflag alle drei Stellen unterbrochen durch ein Zeichen commachar.
 ; Das Ganze links aufgefüllt mit padchar's, so dass die Gesamtbreite mindestens
 ; mincol ist.
