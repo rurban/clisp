@@ -9,9 +9,8 @@ srcdir = @srcdir@
 prefix = @prefix@
 local_prefix = /usr/local
 exec_prefix = @exec_prefix@
-libdir = $(exec_prefix)/lib
-includedir = $(prefix)/include
-mandir = $(exec_prefix)/man
+libdir = @libdir@
+includedir = @includedir@
 
 # Programs used by "make":
 CC = @CC@
@@ -78,22 +77,22 @@ install-lib : all force
 	$(INSTALL_DATA) sigsegv.h $(includedir)/sigsegv.h
 
 install : all force
-	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
-	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
-	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
-	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libsigsegv.la $(libdir)/libsigsegv.la
-	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
-	$(INSTALL_DATA) sigsegv.h $(includedir)/sigsegv.h
+	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
+	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
+	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
+	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libsigsegv.la $(DESTDIR)$(libdir)/libsigsegv.la
+	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
+	$(INSTALL_DATA) sigsegv.h $(DESTDIR)$(includedir)/sigsegv.h
 
 installdirs : force
-	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
-	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
-	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
-	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
+	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
+	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
+	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
+	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
 
 uninstall : force
-	$(LIBTOOL_UNINSTALL) $(RM) $(libdir)/libsigsegv.la
-	$(RM) $(includedir)/sigsegv.h
+	$(LIBTOOL_UNINSTALL) $(RM) $(DESTDIR)$(libdir)/libsigsegv.la
+	$(RM) $(DESTDIR)$(includedir)/sigsegv.h
 
 test1 : $(srcdir)/test1.c sigsegv.h libsigsegv.la
 	$(LIBTOOL_LINK) $(CC) $(CFLAGS) $(INCLUDES) $(srcdir)/test1.c @GCC_X_NONE@ libsigsegv.la -o test1
