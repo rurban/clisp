@@ -1,5 +1,9 @@
 2002-07-21  Bruno Haible  <bruno@clisp.org>
 
+	* defs1.lisp (module-name): Rewrite without using ETYPECASE.
+
+2002-07-21  Bruno Haible  <bruno@clisp.org>
+
 	* m4/rusage.m4 (CL_RUSAGE): Move CL_LINK_CHECK outside of
 	AC_CACHE_CHECK.
 
