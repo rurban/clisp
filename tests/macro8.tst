@@ -866,10 +866,12 @@ NIL
 (5 4 5 4 5 4)
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel:13153>
-(defun test-constant-folding (x) (* 1e30 x 1e30))  test-constant-folding
+(defun test-constant-folding (x) (* 1e30 x 1e30))
+TEST-CONSTANT-FOLDING
 (multiple-value-list (compile 'test-constant-folding))
-(test-constant-folding 1 1)
-(test-constant-folding 12)  error
+(TEST-CONSTANT-FOLDING 1 1)
+(test-constant-folding 12)
+ERROR
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.general:9093>
 (multiple-value-list (compile nil #'test-constant-folding))
