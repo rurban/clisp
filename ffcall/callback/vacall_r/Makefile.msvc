@@ -1,4 +1,4 @@
-# Makefile for vacall
+# -*- Makefile -*- for vacall
 
 #### Start of system configuration section. ####
 
@@ -53,7 +53,7 @@ AR = lib
 AR_FLAGS = /out:
 MV = ren
 LN = copy
-RM = del
+RM = -del
 
 # Programs used by "make install":
 INSTALL = @INSTALL@

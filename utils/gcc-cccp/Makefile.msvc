@@ -31,4 +31,4 @@ alloca.obj : alloca.c
 	$(CC) $(CFLAGS) -c alloca.c
 
 clean :
-	del *.obj cccp.exe
+	-del *.obj cccp.exe

@@ -1,4 +1,4 @@
-# Makefile for sigsegv
+# -*- Makefile -*- for sigsegv
 
 #### Start of system configuration section. ####
 
@@ -50,7 +50,7 @@ AR_FLAGS = /out:
 MV = ren
 CP = copy
 LN = copy
-RM = del
+RM = -del
 
 # Programs used by "make install":
 INSTALL = @INSTALL@
