@@ -1,11 +1,17 @@
+2002-03-03  Sam Steingold  <sds@gnu.org>
+
+	* version.h: 2.28 is released
+
+2002-03-05  Sam Steingold  <sds@gnu.org>
+
+	* spvw_garcol.d (gc_mark): added down_weakkvt(), up_weakkvt(),
+	and case_weakkvt statements that call them (fixes weak HTs on
+	the TYPECODES platforms)
+
 2002-03-05  Sam Steingold  <sds@gnu.org>
 
 	* array.d (elt_nreverse): do not use SIMPLE_NREVERSE for simple strings
 	since TheSstring != TheSvector (breaks NREVERSE on Alpha)
-
-2002-03-03  Sam Steingold  <sds@gnu.org>
-
-	* version.h: 2.28 is released
 
 2002-03-03  Sam Steingold  <sds@gnu.org>
 
