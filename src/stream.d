@@ -15589,10 +15589,10 @@ LISPFUNN(built_in_stream_set_element_type,2) {
    #ifdef SOCKET_STREAMS
     case strmtype_twoway_socket:
       # Apply to the input and output side individually.
-      pushSTACK(TheStream(STACK_1)->strm_twoway_socket_input);
+      pushSTACK(TheStream(STACK_2)->strm_twoway_socket_input); # stream
       pushSTACK(STACK_(0+1));
       funcall(L(built_in_stream_set_element_type),2);
-      pushSTACK(TheStream(STACK_1)->strm_twoway_socket_output);
+      pushSTACK(TheStream(STACK_2)->strm_twoway_socket_output); # stream
       pushSTACK(STACK_(0+1));
       funcall(L(built_in_stream_set_element_type),2);
       break;
