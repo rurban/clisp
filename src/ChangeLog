@@ -1,3 +1,12 @@
+1999-11-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * affi.d (affi_call_argsa): Treat simple 8/16/32-bit-vectors like
+          non-simple ones. Use array_displace_check instead of
+          iarray_displace_check.
+        * stream.d (test_n_bytes_args): Use array_displace_check instead of
+          iarray_displace_check.
+        * sequence.d (READ-BYTE-SEQUENCE, WRITE-BYTE-SEQUENCE): Likewise.
+
 1999-10-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * conditio.lsp (define-condition): Accept a :DEFAULT-INITARGS option.
