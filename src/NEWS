@@ -134,6 +134,8 @@ Portability
 
 * Weak pointers now also work on platforms without mmap().
 
+* Weak hash tables now also work on platforms without mmap().
+
 * Fixed a bug in (ASH x MOST-NEGATIVE-FIXNUM) on some platforms.
 
 * Fixed a bug in (SIGNUM negative-single-float) on 64-bit platforms.

@@ -81,7 +81,9 @@
  ht_ntable              next-vector of length MAXCOUNT, contains indices
  ht_kvtable             key-value-vector, vector of length 2*MAXCOUNT
  ht_freelist            start-index of the free-list in next-vector
- ht_count               number of entries in the table, Fixnum >=0, <=MAXCOUNT
+ ht_count               number of entries in the table (for weak hash-tables,
+                        more precisely: total length of all lists in the
+                        next-vector), Fixnum >=0, <=MAXCOUNT
  ht_rehash_size         growth-rate on reorganization. Float >1.1
  ht_mincount_threshold  ratio MINCOUNT/MAXCOUNT = 1/rehash-size^2
  ht_mincount            Fixnum>=0, lower bound for COUNT
@@ -981,7 +983,7 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
     var gcv_object_t* KVptr = /* pointer to entries in key-value-vector */
       kvt_data + 2*index;
     var object key = KVptr[0];
-    if (!boundp(key) || !boundp(KVptr[1])) {
+    if (eq(key,unbound)) {
       /* weak HT - obsolete key and value */
       set_break_sem_2();        /* protect from breaks */
       TheHashtable(ht)->ht_freelist = *Iptr;
@@ -1023,11 +1025,15 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
     var uintL index = posfixnum_to_L(freelist);    /* free index */     \
     var gcv_object_t* Nptr = /* address of the free entry in next-vector */ \
       &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];            \
+    var object kvtable = TheHashtable(ht)->ht_kvtable;                  \
     /* address of the free entries in key-value-vector: */              \
-    var gcv_object_t* KVptr = ht_kvt_data(ht) + 2*index;                \
+    var gcv_object_t* KVptr = kvtable_data(kvtable) + 2*index;          \
     set_break_sem_2();                       /* protect from breaks */  \
     /* increment COUNT: */                                              \
     TheHashtable(ht)->ht_count = fixnum_inc(TheHashtable(ht)->ht_count,1); \
+    if (!simple_vector_p(kvtable)) { /* ht_weak_p(ht) */                \
+      TheWeakAlist(kvtable)->wal_count = fixnum_inc(TheWeakAlist(kvtable)->wal_count,1); \
+    }                                                                   \
     /* shorten free-list: */                                            \
     TheHashtable(ht)->ht_freelist = *Nptr;                              \
     /* save key and value: */                                           \
@@ -1040,6 +1046,62 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
     *Nptr = *Iptr; *Iptr = freelist;                                    \
     clr_break_sem_2();                        /* allow breaks again */  \
   } while(0)
+
+/* hash_table_weak_type(ht)
+ > ht: hash-table
+ < result: symbol NIL/:KEY/:VALUE/:EITHER/:BOTH */
+global object hash_table_weak_type (object ht) {
+  var object kvt = TheHashtable(ht)->ht_kvtable;
+  if (simple_vector_p(kvt))
+    return NIL;
+  else {
+    switch (Record_type(kvt)) {
+      case Rectype_WeakAlist_Key:
+        return S(Kkey);
+      case Rectype_WeakAlist_Value:
+        return S(Kvalue);
+      case Rectype_WeakAlist_Either:
+        return S(Keither);
+      case Rectype_WeakAlist_Both:
+        return S(Kboth);
+      default: NOTREACHED;
+    }
+  }
+}
+
+/* UP: Allocates the key-value-table for a new hash-table.
+ allocate_kvt(weak,maxcount)
+ > weak: NIL or :KEY or :VALUE or :EITHER or :BOTH
+ > maxcount: number of key/value pairs to make room for
+ < result: a key-value-table 
+ can trigger GC */
+local inline object allocate_kvt (object weak, uintL maxcount) {
+  if (nullp(weak))
+    return allocate_vector(2*maxcount);
+  else {
+    var sintB rectype;
+    if (eq(weak,S(Kkey))) # :KEY
+      rectype = Rectype_WeakAlist_Key;
+    else if (eq(weak,S(Kvalue))) # :VALUE
+      rectype = Rectype_WeakAlist_Value;
+    else if (eq(weak,S(Keither))) # :EITHER
+      rectype = Rectype_WeakAlist_Either;
+    else if (eq(weak,S(Kboth))) # :BOTH
+      rectype = Rectype_WeakAlist_Both;
+    else
+      NOTREACHED;
+    var object kvt = allocate_lrecord(rectype,2+2*maxcount,lrecord_type);
+    TheWeakAlist(kvt)->wp_cdr = unbound; /* a GC-invariant dummy */
+    TheWeakAlist(kvt)->wal_count = Fixnum_0;
+    var uintL i;
+    for (i = 0; i < maxcount; i++) {
+      TheWeakAlist(kvt)->wal_data[2*i+0] = unbound;
+      TheWeakAlist(kvt)->wal_data[2*i+1] = unbound;
+    }
+    activate_weak(kvt); /* add to O(all_weakpointers) */
+    return kvt;
+  }
+}
 
 /* UP: Provides the numbers and vectors for a new hash-table.
  prepare_resize(maxcount,mincount_threshold)
@@ -1075,9 +1137,7 @@ local uintL prepare_resize (object maxcount, object mincount_threshold,
      allocate new vectors: */
     pushSTACK(allocate_vector(sizeL)); /* supply index-vector */
     pushSTACK(allocate_vector(maxcountL)); /* supply next-vector */
-    if (!nullp(weak)) /* supply key-value-vector */
-      pushSTACK(allocate_weakkvt(2*maxcountL,weak));
-    else pushSTACK(allocate_vector(2*maxcountL));
+    pushSTACK(allocate_kvt(weak,maxcountL)); /* supply key-value-vector */
     /* finished. */
     return maxcountL;
   }
@@ -1103,7 +1163,7 @@ local object resize (object ht, object maxcount) {
   pushSTACK(ht);
   var uintL maxcountL =
     prepare_resize(maxcount,TheHashtable(ht)->ht_mincount_threshold,
-                   ht_weak(ht));
+                   hash_table_weak_type(ht));
   /* no GC from now on! */
   var object KVvektor = popSTACK(); /* new key-value-vector */
   var object Nvektor = popSTACK();  /* next-vector */
@@ -1151,6 +1211,8 @@ local object resize (object ht, object maxcount) {
   TheHashtable(ht)->ht_ntable = Nvektor;    /* enter new next-vector */
   TheHashtable(ht)->ht_kvtable = KVvektor; /* enter new key-value-vector */
   TheHashtable(ht)->ht_count = counter; /* enter COUNT (for consistency) */
+  if (!simple_vector_p(KVvektor))
+    TheWeakAlist(KVvektor)->wal_count = counter;
   TheHashtable(ht)->ht_mincount = mincount; /* enter new MINCOUNT */
   clr_break_sem_2();                        /* allow breaks again */
   return ht;
@@ -1627,9 +1689,15 @@ LISPFUNN(clrhash,1)
 LISPFUNNR(hash_table_count,1)
 { /* (HASH-TABLE-COUNT hashtable), CLTL p. 285, CLtL2 p. 439 */
   var object ht = check_hashtable(popSTACK()); /* hashtable argument */
-  if (ht_weak_p(ht) && !ht_validp(TheHashtable(ht)))
-    ht = rehash(ht); /* update count after GC */
-  VALUES1(TheHashtable(ht)->ht_count); /* fixnum COUNT as value */
+  var object count;
+  if (ht_weak_p(ht))
+    # The TheHashtable(ht)->ht_count counts the number of used entries in the
+    # next-vector. This is >= TheWeakAlist(kvt)->wal_count. The latter is
+    # right because it is maintained by the GC.
+    count = TheWeakAlist(TheHashtable(ht)->ht_kvtable)->wal_count;
+  else
+    count = TheHashtable(ht)->ht_count;
+  VALUES1(count); /* fixnum COUNT as value */
 }
 
 LISPFUNNR(hash_table_rehash_size,1)
@@ -1724,7 +1792,7 @@ LISPFUNN(hash_table_iterate,1) {
 LISPFUNNR(hash_table_weak_p,1)
 { /* (EXT:HASH-TABLE-WEAK-P ht) */
   var object ht = check_hashtable(popSTACK()); /* hashtable argument */
-  VALUES1(ht_weak(ht));
+  VALUES1(hash_table_weak_type(ht));
 }
 
 LISPFUNN(set_hash_table_weak_p,2)
@@ -1733,21 +1801,30 @@ LISPFUNN(set_hash_table_weak_p,2)
   STACK_1 = check_hashtable(STACK_1);
   var object val = check_weak(popSTACK()); /* weak-p */
   var object ht = STACK_0; /* hashtable argument */
-  if (nullp(val) && ht_weak_p(ht)) {
-    var uintL len = Weakkvt_length(TheHashtable(ht)->ht_kvtable);
-    var object vec = allocate_vector(len);
-    copy_mem_o(TheSvector(vec)->data,
-               TheWeakKVT(TheHashtable(STACK_0)->ht_kvtable)->data,len);
-    TheHashtable(STACK_0)->ht_kvtable = vec;
-  } else if (!nullp(val) && !ht_weak_p(ht)) {
-    var uintL len = Svector_length(TheHashtable(ht)->ht_kvtable);
-    var object wkvt = allocate_weakkvt(len,val);
-    copy_mem_o(TheWeakKVT(wkvt)->data,
-               TheSvector(TheHashtable(STACK_0)->ht_kvtable)->data,len);
-    TheHashtable(STACK_0)->ht_kvtable = wkvt;
-  } else if (ht_weak_p(ht))
-    TheWeakKVT(TheHashtable(STACK_0)->ht_kvtable)->wkvt_type = val;
-  VALUES1(ht_weak(STACK_0)); skipSTACK(1);
+  if (!eq(val,hash_table_weak_type(ht))) {
+    var uintL maxcount = posfixnum_to_L(TheHashtable(STACK_0)->ht_maxcount);
+    var object new_kvt;
+    for (;;) {
+      new_kvt = allocate_kvt(val,maxcount);
+      # Check whether the hash-table has not been resized during allocate_kvt.
+      var uintL new_maxcount = posfixnum_to_L(TheHashtable(STACK_0)->ht_maxcount);
+      if (maxcount == new_maxcount)
+        break;
+      maxcount = new_maxcount;
+    }
+    ht = STACK_0;
+    var object old_kvt = TheHashtable(ht)->ht_kvtable;
+    copy_mem_o(kvtable_data(new_kvt),kvtable_data(old_kvt),2*maxcount);
+    if (!simple_vector_p(new_kvt))
+      TheWeakAlist(new_kvt)->wal_count =
+        (simple_vector_p(old_kvt) ? TheHashtable(ht)->ht_count : TheWeakAlist(old_kvt)->wal_count);
+    TheHashtable(ht)->ht_kvtable = new_kvt;
+    /* FIXME: When switching from a weak to a non-weak hash table, the
+       lists in the next-vector need to be cleaned up: remove stale
+       entries, so that ht_count is decremented to become equal to
+       TheWeakAlist(old_kvt)->wal_count. */
+  }
+  VALUES1(hash_table_weak_type(popSTACK()));
 }
 
 LISPFUNN(class_gethash,2)

@@ -169,7 +169,6 @@
                   #+CLISP           "genstream"
                   #+XCL             "hash"
                                     "hashlong"
-                  #+CLISP ,@(unless disable-risky '("hashweak"))
                                     "iofkts"
                                     "lambda"
                                     "lists151"
@@ -197,7 +196,8 @@
                   #+XCL             "tprint"
                   #+XCL             "tread"
                                     "type"
-                  #+CLISP           "weak"))
+                  #+CLISP           "weak"
+                  #+CLISP           "hashweak"))
       (with-accumulating-errors (error-count total-count) (run-test ff)))
     #+CLISP
     (dotimes (i 50)
