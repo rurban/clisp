@@ -48,6 +48,33 @@
 #ifdef WIN32_NATIVE
 # undef UNICODE
 # include <windows.h>
+/* shell_quote -- see pathname.d
+ surrounds dangerous strings with double quotes. quotes quotes.
+ dest should be twice as large as source
+  + 2 (for quotes) + 1 for zero byte + 1 for poss endslash */
+int shell_quote (char * dest, const char * source) {
+  const char * characters = " &<>|^\t";
+  /* Chars other than command separators are actual only when command
+     interpreter is used */
+  BOOL ech, quote = !(*source); /* quote empty arguments */
+  int escaped = 0;
+  char * dcp = dest;
+  *dcp++ = ' ';
+  while (*source) {
+    quote = quote || strchr(characters,*source);
+    ech = *source == '\\';
+    if (!escaped && *source == '"') *dcp++ = '\\';
+    *dcp++ = *source++;
+    escaped = !escaped && ech;
+  }
+  if (quote) {
+    if (escaped) *dcp++ = '\\'; /* double ending slash */
+    *dcp++ = '"'; *dest = '"'; }
+  *dcp = 0;
+  /* shift string left if no quote was inserted */
+  if (!quote) for (dcp = dest;;dcp++) if (!(*dcp = dcp[1])) break;
+  return dcp - dest;
+}
 #endif
 
 #ifndef HAVE_PERROR_DECL
@@ -302,9 +329,9 @@ int main (int argc, char* argv[])
 #ifdef WIN32_NATIVE
     {
       PROCESS_INFORMATION pinfo;
-      char * command_line;
-      int cmd_len = 0;
-      DWORD exitcode;
+      char * command_line = NULL;
+      int cmd_len = 0, cmd_pos = 0;
+      DWORD exitcode = 0;
       STARTUPINFO sinfo;
       sinfo.cb = sizeof(STARTUPINFO);
       sinfo.lpReserved = NULL;
@@ -320,24 +347,27 @@ int main (int argc, char* argv[])
       sinfo.hStdError  = GetStdHandle(STD_ERROR_HANDLE);
       if (sinfo.hStdError == INVALID_HANDLE_VALUE)  goto w32err;
       /* conmand line */
-      for (argv = new_argv; *argv; argv++) cmd_len += strlen(*argv)+1;
+      for (argv = new_argv; *argv; argv++) cmd_len += 2*strlen(*argv)+3;
       command_line = (char*)malloc(cmd_len);
       if (!command_line) goto oom;
       command_line[0] = 0;
       for (argv = new_argv; *argv; argv++) {
-        strcat(command_line,*argv);
-        strcat(command_line," ");
+        if (cmd_pos) command_line[cmd_pos++] = ' ';
+        cmd_pos += shell_quote(command_line+cmd_pos,*argv);
+        if (cmd_pos > cmd_len) abort();
       }
       if (!CreateProcess(NULL, command_line, NULL, NULL, 1, 0,
                          NULL, NULL, &sinfo, &pinfo))
         goto w32err;
+      /* there is no reason to wait for CLISP to terminate, except that
+         if we do not, the console i/o breaks down. */
       if (WaitForSingleObject(pinfo.hProcess,INFINITE) == WAIT_FAILED)
         goto w32err;
       if (!GetExitCodeProcess(pinfo.hProcess,&exitcode)) goto w32err;
       if (!CloseHandle(pinfo.hProcess)) goto w32err;
       return exitcode;
      w32err:
-      fprintf(stderr,"%s (%s): %s\n",program_name,command_line,
+      fprintf(stderr,"%s [%s]: %s\n",program_name,command_line,
               strerror(GetLastError()));
       return 1;
     }
