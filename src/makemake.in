@@ -1506,7 +1506,8 @@ LPARTS='        init defseq backquot defmacro macros1 macros2 defs1 timezone'
 LPARTS=$LPARTS' places floatpri type defstruc format savemem trace compiler'
 LPARTS=$LPARTS' disassem defs2 loop clos conditio gstream xcharin keyboard'
 LPARTS=$LPARTS' screen runprog query reploop dribble complete describe room'
-LPARTS=$LPARTS' edit macros3 posix foreign1 defs3 german french spanish config'
+LPARTS=$LPARTS' edit macros3 posix foreign1 defs3 german french spanish dutch'
+LPARTS=$LPARTS' config'
 
 DOC='LISP-tutorial CLOS-guide editors'
 
