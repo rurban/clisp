@@ -119,7 +119,7 @@
 ; <100>  hash-table tests                    yes             hashtabl.d
 ; <101>  IEEE & ATAN branch cut              yes
 ; <102>  IMPORT & SETF SYMBOL-PACKAGE        no              package.d
-; <103>  IN-PACKAGE functionality            no              package.d, compiler.lsp
+; <103>  IN-PACKAGE functionality            yes             package.d, compiler.lsp
 ; <104>  in syntax                           yes             init.lsp, compiler.lsp
 ; <105>  keyword argument name package       no
 ; <106>  LAST n                              yes             list.d

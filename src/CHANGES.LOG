@@ -8,6 +8,12 @@ User visible changes
   SET-MACRO-CHARACTER, SET-DISPATCH-MACRO-CHARACTER. The latter two now
   accept a symbol instead of a function.
 
+* X3J13 vote <103> = writeup <IN-PACKAGE-FUNCTIONALITY:MAR89-X3J13> is 
+  implemented: COMMON-LISP:IN-PACKAGE is now a macro. LISP:IN-PACKAGE retains 
+  the old semantics as a function.
+  The syntaxes (IN-PACKAGE "FOO") and (IN-PACKAGE :FOO) work with both
+  variations.
+
 * X3J13 writeups <READER-ERROR:NEW-TYPE> and <PARSE-ERROR-STREAM:SPLIT-TYPES>
   are implemented: New condition classes PARSE-ERROR and READER-ERROR.
 
