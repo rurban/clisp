@@ -1,4 +1,4 @@
-              <!-- -*- xml -*- -->
+              <!-- -*- sgml -*- -->
   <!ENTITY % cl-entities SYSTEM "cl-ent.xml">
   %cl-entities;
   <!ENTITY % imp-entities SYSTEM "impent.xml">
@@ -10,8 +10,7 @@
   <!ENTITY imp-ext SYSTEM "impext.xml">
   <!ENTITY imp-byte SYSTEM "impbyte.xml">
   <!ENTITY regexp SYSTEM "../modules/regexp/regexp.xml">
-  <!-- ENTITY gfdl-text SYSTEM "http://www.gnu.org/licenses/fdl.sgml" -->
-  <!ENTITY gfdl-text SYSTEM "/usr/share/sgml/gnu/fdl.sgml">
+  <!ENTITY gfdl-text SYSTEM "http://www.gnu.org/licenses/fdl.sgml">
 ]>
 
 <!-- *** Conventions: ***
@@ -34,10 +33,17 @@
 <bookinfo>
  <graphic srccredit="[CLISP icon]" align="center"
           fileref="clisp.png" width="48" depth="48"/>
- <date>Last modified: 2002-04-04</date>
- <address>
-   <otheraddr><ulink url="http://clisp.cons.org/">http://clisp.cons.org/</ulink></otheraddr>
-   <email>clisp-list@lists.sourceforge.net</email></address>
+ <date>Last modified: 2002-04-11</date>
+ <author><honorific>Dr</honorific> <firstname>Bruno</firstname>
+   <surname>Haible</surname></author>
+ <author><honorific>Dr</honorific> <firstname>Sam</firstname>
+   <surname>Steingold</surname></author>
+ <authorblurb><para>Bugs in both these notes and &clisp; itself
+     should be reported to the mailing list
+     <email>clisp-list@sf.net</email>.</para></authorblurb>
+ <copyright><year>1992-2002</year><holder>Bruno Haible</holder></copyright>
+ <copyright><year>1998-2002</year><holder>Sam Steingold</holder></copyright>
+
  <legalnotice><para>These notes are covered by the &gnu; &gfdl;:</para>
 
  <para>Permission is granted to copy, distribute and/or modify this
@@ -50,17 +56,6 @@
   <link linkend="gfdl">"GNU Free Documentation License."</link></para>
 
  </legalnotice>
- <authorgroup>
-  <author><honorific>Dr</honorific> <firstname>Bruno</firstname>
-    <surname>Haible</surname></author>
-  <author><honorific>Dr</honorific> <firstname>Sam</firstname>
-    <surname>Steingold</surname></author>
- </authorgroup>
-  <othercredit>
-    <othername><emphasis><email>clisp-list@lists.sourceforge.net</email></emphasis></othername>
-    <authorblurb><para>Bugs in both these notes and &clisp; itself should
-        be sent to the mailing list.</para></authorblurb>
-  </othercredit>
  <keywordset>
    <keyword>Lisp</keyword>
    <keyword>Common Lisp</keyword>
