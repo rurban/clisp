@@ -2269,10 +2269,10 @@ global object coerce_function (object obj)
         # not found                                                       \
         notfound_statement                                                \
       } else {                                                            \
-        kw_found: # found                                                 \
-        var object value = NEXT(argptr);                                  \
+       kw_found: # found                                                  \
+       {var object value = NEXT(argptr);                                  \
         found_statement                                                   \
-      }                                                                   \
+      }}                                                                  \
     }
 
 /* UP: Applies an interpreted closure to arguments.
