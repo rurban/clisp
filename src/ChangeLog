@@ -1,3 +1,8 @@
+2003-06-25  Sam Steingold  <sds@gnu.org>
+
+	* spvw_debug.d (nobject_out1): accept third argument `level'
+	(nobject_out): pass 5 as the level to avoid circularity problems
+
 2003-06-24  Sam Steingold  <sds@gnu.org>
 
 	* spvw_circ.d (get_circ_unmark, get_circ_mark): handle
