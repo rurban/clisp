@@ -2907,6 +2907,7 @@ if [ $CROSS = false ] ; then
     echol "installdirs : force"
     echotab "if [ ! -d \$(libdir) ] ; then mkdir \$(libdir) ; fi"
     echotab "if [ ! -d \$(lisplibdir) ] ; then mkdir \$(lisplibdir) ; fi"
+    echotab "if [ ! -d \$(lisplibdir)/full ] ; then mkdir \$(lisplibdir)/full ; fi"
     echotab "if [ ! -d \$(bindir) ] ; then mkdir \$(bindir) ; fi"
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd gettext/po && \$(MAKE) installdirs prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
@@ -3056,8 +3057,6 @@ if [ $CROSS = false ] ; then
     echol "uninstall-bin : force"
     echotab "\$(RM) \$(lisplibdir)/lisp${LEXE}"
     echotab "\$(RM) \$(lisplibdir)/lispinit.mem"
-    echotab "\$(RM) \$(lisplibdir)/full/lisp${LEXE}"
-    echotab "\$(RM) \$(lisplibdir)/full/lispinit.mem"
     if [ $HOS = dos ] ; then
       echotab "\$(RM) \$(bindir)/clisp.bat"
     fi

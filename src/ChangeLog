@@ -1,5 +1,10 @@
 1998-12-21  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
+        * makemake.in: Don't remove full/* for DOS,OS/2, as it doesn't exist.
+          On Unix, create the full/ directory during `make installdirs'.
+
+1998-12-21  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
         * stream.d (FILE-POSITION): Accept any integer >= 0, < 2^32, not only
           fixnums.
 
@@ -20,7 +25,7 @@
 
 	* _clisp.c (main): accept an '-F' argument to run the full version
 	of CLISP (with modules).
-	* spvw.d (usage): metion -F.
+	* spvw.d (usage): mention -F.
 	* makemake.in: install the full CLISP version too.
 	* _distmakefile: ditto.
 
