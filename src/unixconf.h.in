@@ -674,10 +674,6 @@
 /* Define if __builtin_strlen() is compiled inline (not a call to strlen()). */
 #undef HAVE_BUILTIN_STRLEN
 
-/* CL_BUILTIN_STRCMP */
-/* Define if __builtin_strcmp() is compiled inline (not a call to strcmp()). */
-#undef HAVE_BUILTIN_STRCMP
-
 /* CL_CHAR_UNSIGNED */
 #ifndef __CHAR_UNSIGNED__
 #undef __CHAR_UNSIGNED__
