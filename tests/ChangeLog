@@ -1,5 +1,9 @@
 2001-07-24  Sam Steingold  <sds@gnu.org>
 
+	* clos.tst: added a test for make-load-form
+
+2001-07-24  Sam Steingold  <sds@gnu.org>
+
 	* symbols.tst: CLISP known-missing: make-load-form,
 	make-load-form-saving-slots and *print-lines* are implemented
 
