@@ -53,7 +53,7 @@ avcall-i386.o : avcall-i386.asm
 	$(CC) -c -x assembler avcall-i386.asm
 
 avcall-i386.asm : $(srcdir)/avcall-i386.S
-	$(CPP) $(ASPFLAGS) $(srcdir)/avcall-i386.S | grep -v '^ *#line' | grep -v '^#ident' | grep -v '^#' | sed -e 's,% ,%,g' > avcall-i386.asm
+	$(CPP) $(ASPFLAGS) $(srcdir)/avcall-i386.S | grep -v '^ *#line' | grep -v '^#ident' | grep -v '^#' | sed -e 's,% ,%,g' -e 's,\. ,.,g' > avcall-i386.asm
 
 structcpy.o : $(srcdir)/structcpy.c
 	$(CC) $(CFLAGS) -c $(srcdir)/structcpy.c
