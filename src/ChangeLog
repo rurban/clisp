@@ -1,5 +1,13 @@
 2000-05-30  Bruno Haible  <haible@clisp.cons.org>
 
+        * pathname.d (MERGE-PATHNAMES): New variable called_from_make_pathname.
+          Accept unbound slot values in this case.
+          (MAKE-PATHNAME): If a :DEFAULTS argument is given, don't fill in
+          default values. Call MERGE-PATHNAMES with magic arguments
+          :wild #'make-pathname.
+
+2000-05-30  Bruno Haible  <haible@clisp.cons.org>
+
         * makemake.in (install-bin): Use $(INSTALL_PROGRAM) or $(INSTALL_DATA)
           instead of "cp -p".
         Reported by Thomas Klausner <wiz@danbala.ifoer.tuwien.ac.at>.

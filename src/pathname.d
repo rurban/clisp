@@ -3395,6 +3395,10 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
 #    twice-default = once-default rule holds for all pathnames in CLISP.
 #
   {
+    # :wild #'make-pathname causes NIL components to be considered specified,
+    # only #<unbound> components are considered unspecified.
+    var boolean called_from_make_pathname = eq(STACK_0,L(make_pathname));
+    # :wild t causes only wild components to be considered unspecified.
     var boolean wildp = !(eq(STACK_0,unbound) || nullp(STACK_0));
     skipSTACK(1);
     # default-version überprüfen:
@@ -3457,33 +3461,40 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
         var object p_directory = TheLogpathname(p)->pathname_directory; # pathname-directory
         var object d_directory = TheLogpathname(d)->pathname_directory; # defaults-directory
         var object new_subdirs = p_directory;
-        # Fängt pathname-subdirs mit :RELATIVE an?
-        if (!wildp && eq(Car(p_directory),S(Krelative))) {
-          # ja.
-          # Endet pathname-subdirs danach?
-          if (matomp(Cdr(p_directory))) {
+        if (called_from_make_pathname) {
+          # pathname-subdirs nicht angegeben?
+          if (eq(p_directory,unbound))
             # ja -> verwende defaults-subdirs:
             new_subdirs = d_directory;
-          } else {
-            # nein.
-            # Fängt defaults-subdirs mit :RELATIVE an?
-            if (eq(Car(d_directory),S(Krelative))) {
-              # ja -> Ersetzen von :RELATIVE in pathname-subdirs
-              # durch das gesamte defaults-subdirs ist nicht sinnvoll
-              # (da nicht klar ist, auf was das dabei entstehende
-              # Default-Directory sich beziehen soll). Daher nichts tun:
+        } else {
+          # Fängt pathname-subdirs mit :RELATIVE an?
+          if (!wildp && eq(Car(p_directory),S(Krelative))) {
+            # ja.
+            # Endet pathname-subdirs danach?
+            if (matomp(Cdr(p_directory))) {
+              # ja -> verwende defaults-subdirs:
+              new_subdirs = d_directory;
             } else {
-              # nein -> Um :RELATIVE aufzulösen: ersetze :RELATIVE
-              # in pathname-subdirs durch defaults-subdirs, d.h.
-              # bilde (append defaults-subdirs (cdr pathname-subdirs)) =
-              # (nreconc (reverse defaults-subdirs) (cdr pathname-subdirs)) :
-              pushSTACK(p); pushSTACK(d); pushSTACK(newp);
-              pushSTACK(Cdr(p_directory));
-              {
-                var object temp = reverse(d_directory);
-                new_subdirs = nreconc(temp,popSTACK());
+              # nein.
+              # Fängt defaults-subdirs mit :RELATIVE an?
+              if (eq(Car(d_directory),S(Krelative))) {
+                # ja -> Ersetzen von :RELATIVE in pathname-subdirs
+                # durch das gesamte defaults-subdirs ist nicht sinnvoll
+                # (da nicht klar ist, auf was das dabei entstehende
+                # Default-Directory sich beziehen soll). Daher nichts tun:
+              } else {
+                # nein -> Um :RELATIVE aufzulösen: ersetze :RELATIVE
+                # in pathname-subdirs durch defaults-subdirs, d.h.
+                # bilde (append defaults-subdirs (cdr pathname-subdirs)) =
+                # (nreconc (reverse defaults-subdirs) (cdr pathname-subdirs)) :
+                pushSTACK(p); pushSTACK(d); pushSTACK(newp);
+                pushSTACK(Cdr(p_directory));
+                {
+                  var object temp = reverse(d_directory);
+                  new_subdirs = nreconc(temp,popSTACK());
+                }
+                newp = popSTACK(); d = popSTACK(); p = popSTACK();
               }
-              newp = popSTACK(); d = popSTACK(); p = popSTACK();
             }
           }
         }
@@ -3496,7 +3507,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       {
         var object p_name = TheLogpathname(p)->pathname_name;
         TheLogpathname(newp)->pathname_name =
-          (!(wildp ? eq(p_name,S(Kwild)) : nullp(p_name))
+          (!(called_from_make_pathname ? eq(p_name,unbound) : wildp ? eq(p_name,S(Kwild)) : nullp(p_name))
            ? p_name
            : TheLogpathname(d)->pathname_name
           );
@@ -3506,7 +3517,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       {
         var object p_type = TheLogpathname(p)->pathname_type;
         TheLogpathname(newp)->pathname_type =
-          (!(wildp ? eq(p_type,S(Kwild)) : nullp(p_type))
+          (!(called_from_make_pathname ? eq(p_type,unbound) : wildp ? eq(p_type,S(Kwild)) : nullp(p_type))
            ? p_type
            : TheLogpathname(d)->pathname_type
           );
@@ -3516,7 +3527,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       {
         var object p_version = TheLogpathname(p)->pathname_version;
         TheLogpathname(newp)->pathname_version =
-          (!(wildp ? eq(p_version,S(Kwild)) : nullp(p_version))
+          (!(called_from_make_pathname ? eq(p_version,unbound) : wildp ? eq(p_version,S(Kwild)) : nullp(p_version))
            ? p_version
            : STACK_0
           );
@@ -3560,7 +3571,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       # beide Devices gleich -> Directories matchen:
       if (equal(p_device,d_device))
         goto match_directories;
-      if (wildp ? eq(p_device,S(Kwild)) : nullp(p_device)) {
+      if (called_from_make_pathname ? eq(p_device,unbound) : wildp ? eq(p_device,S(Kwild)) : nullp(p_device)) {
         # pathname-device nicht angegeben, aber defaults-device angegeben:
         ThePathname(newp)->pathname_device = d_device; # new-device := defaults-device
         goto match_directories;
@@ -3574,34 +3585,41 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       var object p_directory = ThePathname(p)->pathname_directory; # pathname-directory
       var object d_directory = ThePathname(d)->pathname_directory; # defaults-directory
       var object new_subdirs = p_directory;
-      # Fängt pathname-subdirs mit :RELATIVE an?
-      if (!wildp && eq(Car(p_directory),S(Krelative))) {
-        # ja.
-        # Endet pathname-subdirs danach?
-        if (matomp(Cdr(p_directory))) {
+      if (called_from_make_pathname) {
+        # pathname-subdirs nicht angegeben?
+        if (eq(p_directory,unbound))
           # ja -> verwende defaults-subdirs:
           new_subdirs = d_directory;
-        } else {
-          # nein.
-          # Fängt defaults-subdirs mit :RELATIVE an?
-          if (nullp(Symbol_value(S(merge_pathnames_ansi)))
-              && eq(Car(d_directory),S(Krelative))) {
-            # ja -> Ersetzen von :RELATIVE in pathname-subdirs
-            # durch das gesamte defaults-subdirs ist nicht sinnvoll
-            # (da nicht klar ist, auf was das dabei entstehende
-            # Default-Directory sich beziehen soll). Daher nichts tun:
+      } else {
+        # Fängt pathname-subdirs mit :RELATIVE an?
+        if (!wildp && eq(Car(p_directory),S(Krelative))) {
+          # ja.
+          # Endet pathname-subdirs danach?
+          if (matomp(Cdr(p_directory))) {
+            # ja -> verwende defaults-subdirs:
+            new_subdirs = d_directory;
           } else {
-            # nein -> Um :RELATIVE aufzulösen: ersetze :RELATIVE
-            # in pathname-subdirs durch defaults-subdirs, d.h.
-            # bilde (append defaults-subdirs (cdr pathname-subdirs)) =
-            # (nreconc (reverse defaults-subdirs) (cdr pathname-subdirs)) :
-            pushSTACK(p); pushSTACK(d); pushSTACK(newp);
-            pushSTACK(Cdr(p_directory));
-            {
-              var object temp = reverse(d_directory);
-              new_subdirs = nreconc(temp,popSTACK());
+            # nein.
+            # Fängt defaults-subdirs mit :RELATIVE an?
+            if (nullp(Symbol_value(S(merge_pathnames_ansi)))
+                && eq(Car(d_directory),S(Krelative))) {
+              # ja -> Ersetzen von :RELATIVE in pathname-subdirs
+              # durch das gesamte defaults-subdirs ist nicht sinnvoll
+              # (da nicht klar ist, auf was das dabei entstehende
+              # Default-Directory sich beziehen soll). Daher nichts tun:
+            } else {
+              # nein -> Um :RELATIVE aufzulösen: ersetze :RELATIVE
+              # in pathname-subdirs durch defaults-subdirs, d.h.
+              # bilde (append defaults-subdirs (cdr pathname-subdirs)) =
+              # (nreconc (reverse defaults-subdirs) (cdr pathname-subdirs)) :
+              pushSTACK(p); pushSTACK(d); pushSTACK(newp);
+              pushSTACK(Cdr(p_directory));
+              {
+                var object temp = reverse(d_directory);
+                new_subdirs = nreconc(temp,popSTACK());
+              }
+              newp = popSTACK(); d = popSTACK(); p = popSTACK();
             }
-            newp = popSTACK(); d = popSTACK(); p = popSTACK();
           }
         }
       }
@@ -3629,7 +3647,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     {
       var object p_name = ThePathname(p)->pathname_name;
       ThePathname(newp)->pathname_name =
-        (!(wildp ? equal(p_name,O(wild_string)) : nullp(p_name))
+        (!(called_from_make_pathname ? eq(p_name,unbound) : wildp ? equal(p_name,O(wild_string)) : nullp(p_name))
          ? p_name
          : ThePathname(d)->pathname_name
         );
@@ -3639,7 +3657,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     {
       var object p_type = ThePathname(p)->pathname_type;
       ThePathname(newp)->pathname_type =
-        (!(wildp ? equal(p_type,O(wild_string)) : nullp(p_type))
+        (!(called_from_make_pathname ? eq(p_type,unbound) : wildp ? equal(p_type,O(wild_string)) : nullp(p_type))
          ? p_type
          : ThePathname(d)->pathname_type
         );
@@ -3650,7 +3668,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     {
       var object p_version = ThePathname(p)->pathname_version;
       ThePathname(newp)->pathname_version =
-        (!(wildp ? eq(p_version,S(Kwild)) : nullp(p_version))
+        (!(called_from_make_pathname ? eq(p_version,unbound) : wildp ? eq(p_version,S(Kwild)) : nullp(p_version))
          ? p_version
          : STACK_0
         );
@@ -3939,7 +3957,9 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     {
       var object device = STACK_4;
       if (eq(device,unbound)) { # angegeben ?
-        STACK_4 = NIL; # nein -> verwende NIL
+        # nein
+        if (eq(STACK_7,unbound)) # keine Defaults ?
+          STACK_4 = NIL; # -> verwende NIL
       } else {
         if (stringp(device))
           STACK_4 = device = coerce_normal_ss(device);
@@ -4017,7 +4037,10 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     # 3. directory überprüfen:
     {
       var object directory = STACK_3;
-      if (eq(directory,unbound) || nullp(directory)) { # nicht angegeben oder =NIL ?
+      if (eq(directory,unbound) && !eq(STACK_7,unbound)) { # nicht angegeben
+        # aber Defaults
+        goto directory_ok;
+      } elif (eq(directory,unbound) || nullp(directory)) { # nicht angegeben oder =NIL ?
         #ifdef PATHNAME_AMIGAOS
         if (!nullp(STACK_4)) # Device angegeben (bei nicht-logical Pathname)?
           STACK_3 = O(directory_absolute); # Default ist (:ABSOLUTE)
@@ -4115,7 +4138,9 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       if (convert)
         STACK_2 = name = common_case(name);
       if (eq(name,unbound)) {
-        STACK_2 = NIL; # nicht angegeben -> verwende NIL
+        # nicht angegeben
+        if (eq(STACK_7,unbound)) # keine Defaults ?
+          STACK_2 = NIL; # -> verwende NIL
       } elif (nullp(name)) { # NIL ist OK
       }
       #ifdef LOGICAL_PATHNAMES
@@ -4153,7 +4178,9 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       if (convert)
         STACK_1 = type = common_case(type);
       if (eq(type,unbound)) {
-        STACK_1 = NIL; # nicht angegeben -> verwende NIL
+        # nicht angegeben
+        if (eq(STACK_7,unbound)) # keine Defaults ?
+          STACK_1 = NIL; # -> verwende NIL
       } elif (nullp(type)) { # NIL ist OK
       }
       #ifdef LOGICAL_PATHNAMES
@@ -4183,7 +4210,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     }
     # 6. version überprüfen:
     #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
-    STACK_0 = test_optional_version(NIL); # Default ist NIL
+    STACK_0 = test_optional_version(eq(STACK_7,unbound) ? NIL : unbound); # Default ist NIL
     #else
     test_optional_version(NIL);
     #endif
@@ -4229,9 +4256,10 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         # keine Defaults angegeben -> pathname als Wert
         value1 = pathname;
       } else {
-        # (MERGE-PATHNAMES pathname defaults [nil]) aufrufen:
+        # (MERGE-PATHNAMES pathname defaults [nil] :wild #'make-pathname) aufrufen:
         pushSTACK(pathname); pushSTACK(defaults); pushSTACK(NIL);
-        funcall(L(merge_pathnames),3);
+        pushSTACK(S(Kwild)); pushSTACK(L(make_pathname));
+        funcall(L(merge_pathnames),5);
       }
       mv_count=1;
       return;
