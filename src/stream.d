@@ -3029,16 +3029,6 @@ local void test_eltype_arg (object* eltype_, decoded_el_t* decoded) {
   fehler(error,GETTEXT("~: illegal ~ argument ~"));
 }
 
-# UP: Check whether the stream is binary or not
-# local inline bool stream_char_p (object stream) {
-#   decoded_el_t det;
-#   test_eltype_arg(&(TheStream(stream)->strm_eltype),&det);
-#   return det.kind == eltype_ch;
-# }
-#define stream_char_p(stream)                           \
- (eq(TheStream(stream)->strm_eltype,S(character)) ||    \
-  eq(TheStream(stream)->strm_eltype,S(string_char)))
-
 # evaluate the appropriate forms
 #define ELTYPE_DISPATCH(decoded,ch,iu,is)                       \
   switch (decoded->kind) {                                      \
@@ -14869,6 +14859,7 @@ local SOCKET socket_handle (object obj, bool check_open) {
 # set the appropriate fd_sets for the socket,
 # either a socket-server, a socket-stream or a (socket . direction)
 # see socket_status() for details
+# "socket" must be a "single-channel" stream (e.g., not a 2-way pipe)
 local void handle_set (object socket, fd_set *readfds, fd_set *writefds,
                        fd_set *errorfds) {
   object sock = (consp(socket) ? Car(socket) : socket);
@@ -14886,6 +14877,7 @@ local void handle_set (object socket, fd_set *readfds, fd_set *writefds,
 # check the appropriate fd_sets for the socket,
 # either a socket-server, a socket-stream or a (socket . direction)
 # see socket_status() for details
+# "socket" must be a "single-channel" stream (e.g., not a 2-way pipe)
 # can trigger GC
 local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
                            fd_set *errorfds) {
@@ -14899,7 +14891,7 @@ local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
     } else {
       bool wr = WRITE_P(dir) && FD_ISSET(handle,writefds),
         rd = (READ_P(dir) && FD_ISSET(handle,readfds)
-              && (ls_avail_p(stream_char_p(sock)
+              && (ls_avail_p(eq(TheStream(sock)->strm_eltype,S(character))
                              ? listen_char(sock)
                              : listen_byte(sock))));
       if      ( rd && !wr) return S(Kinput);
@@ -15507,13 +15499,14 @@ LISPFUNN(built_in_stream_element_type,1) {
 # UP: reset the stream for the eltype and flush out the missing LF.
 # IF the stream is unbuffered, AND ignore_next_LF is true, THEN
 # this can block (we will try to read the next LF) and trigger GC
+# The stream must be a "basic" (non-composite) stream: no two-way &c
 # can trigger GC
 local object stream_reset_eltype (object stream, decoded_el_t* eltype_) {
   if (ChannelStream_buffered(stream)) {
     fill_pseudofuns_buffered(stream,eltype_);
   } else {
     if (UnbufferedStream_ignore_next_LF(stream)
-        && stream_char_p(stream)) {
+        && eq(TheStream(stream)->strm_eltype,S(character))) {
       pushSTACK(stream);
       UnbufferedStream_ignore_next_LF(stream) = false; # do not skip LF!
       var object ch = read_char(&STACK_0);
