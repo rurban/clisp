@@ -2332,6 +2332,9 @@
     (:arguments (fd int) (request int) (arg (c-ptr int) :out :alloca))
   (:return-type int) (:name "ioctl"))
 
+;;; =============================== <signal.h> ===============================
+(c-lines "#include <signal.h>~%")
+
 ;;; --------------------------------- <bits/signum.h> ------------------------
 ;;;  --- Posix sigaction ---
 ;;;  Peter Wood 2002
