@@ -1,3 +1,8 @@
+2005-01-22  Bruno Haible  <bruno@clisp.org>
+
+	* compiler.lisp (c-GLOBAL-FUNCTION-CALL): Fix bug introduced on
+	2003-12-30.
+
 2005-02-09  Bruno Haible  <bruno@clisp.org>
 
 	* type.lisp (%the): Add comments about the (VALUES ...) type specifier.

@@ -3045,7 +3045,7 @@ for-value   NIL or T
                        (if (>= (declared-optimize 'SAFETY) 3)
                          *seclass-dirty* ; see comment in F-SIDE-EFFECT
                          (function-side-effect fun)))) ; no need for a check
-                 (if (and (null *for-value*) (null (cdr sideeffects)))
+                 (if (and (null *for-value*) (null (seclass-modifies sideeffects)))
                    ;; don't have to call the function,
                    ;; only evaluate the arguments
                    (c-form `(PROGN ,@args))
