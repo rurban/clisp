@@ -85,7 +85,7 @@ nonreturning_function(static, error_bdb, (int status, char *caller)) {
 
 /* check whether the OBJ has type TYPE and return its handle
  can trigger GC */
-static void* object_handle (object obj, object type, bool null_on_error) {
+static void** object_handle_ (object obj, object type, bool null_on_error) {
   while (!typep_classname(obj,type)) {
     if (null_on_error) return NULL;
     pushSTACK(type);            /* save */
@@ -96,7 +96,23 @@ static void* object_handle (object obj, object type, bool null_on_error) {
     check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
     obj = value1; type = popSTACK(); /* restore */
   }
-  return TheFpointer(*(TheStructure(obj)->recdata+1))->fp_pointer; /* FIXME for derived structs! */
+  return &(TheFpointer(*(TheStructure(obj)->recdata+1))->fp_pointer); /* FIXME for derived structs! */
+}
+static inline void* object_handle (object obj, object type, bool null_on_error)
+{
+  void ** ret = object_handle_(obj,type,null_on_error);
+  if (ret == NULL) return NULL;
+  return *ret;
+}
+
+/* allocate a wrapper for the pointer and add a finalizer to it
+ can trigger GC */
+static void wrap_finalize (void* pointer, gcv_object_t* maker,
+                           gcv_object_t* closer) {
+  pushSTACK(allocate_fpointer(pointer)); funcall(*maker,1);
+  pushSTACK(value1);            /* save for VALUES */
+  pushSTACK(value1); pushSTACK(*closer); funcall(L(finalize),2);
+  VALUES1(popSTACK());
 }
 
 /* ===== Database Environment ===== */
@@ -153,15 +169,17 @@ DEFUN(BDB:ENV-CREATE,&key :PASSWORD :ENCRYPT    \
                   { SYSCALL(dbe->set_encrypt,(dbe,password,flags)); });
   }
   skipSTACK(5);
-  pushSTACK(allocate_fpointer(dbe));
-  funcall(`BDB::MKENV`,1);
+  wrap_finalize(dbe,&`BDB::MKENV`,&``BDB::ENV-CLOSE``);
 }
 
 DEFUN(BDB:ENV-CLOSE, dbe)
 { /* close DB environment */
-  DB_ENV *dbe = object_handle(popSTACK(),`BDB::ENV`,false);
-  SYSCALL(dbe->close,(dbe,0));
-  VALUES0;
+  DB_ENV **dbe = (DB_ENV**)object_handle_(STACK_0,`BDB::ENV`,false);
+  if (*dbe) {
+    SYSCALL((*dbe)->close,(*dbe,0));
+    *dbe = NULL;
+    VALUES1(T);
+  } else VALUES1(NIL);
 }
 
 DEFUN(BDB:ENV-DBREMOVE, dbe file database &key :TRANSACTION :AUTO-COMMIT)
@@ -467,17 +485,19 @@ DEFUN(BDB:DB-CREATE, dbe &key :XA)
   DB *db;
   SYSCALL(db_create,(&db,dbe,flags));
   skipSTACK(2);
-  pushSTACK(allocate_fpointer(db));
-  funcall(`BDB::MKDB`,1);
+  wrap_finalize(db,&`BDB::MKDB`,&``BDB::DB-CLOSE``);
 }
 
 DEFUN(BDB:DB-CLOSE, db &key :NOSYNC)
 { /* Close a database */
   u_int32_t flags = missingp(STACK_0) ? 0 : DB_NOSYNC;
-  DB *db = object_handle(STACK_1,`BDB::DB`,false);
-  SYSCALL(db->close,(db,flags));
+  DB **db = (DB**)object_handle_(STACK_1,`BDB::DB`,false);
+  if (*db) {
+    SYSCALL((*db)->close,(*db,flags));
+    *db = NULL;
+    VALUES1(T);
+  } else VALUES1(NIL);
   skipSTACK(2);
-  VALUES0;
 }
 
 /* zero-out DBT and set allocation */
@@ -753,15 +773,18 @@ DEFUN(BDB:MAKE-CURSOR,db &key :DIRTY_READ :WRITECURSOR :TRANSACTION)
   DB *db = object_handle(popSTACK(),`BDB::DB`,false);
   DBC *cursor;
   SYSCALL(db->cursor,(db,txn,&cursor,flags));
-  pushSTACK(allocate_fpointer(cursor));
-  funcall(`BDB::MKCURSOR`,1);
+  wrap_finalize(cursor,&`BDB::MKCURSOR`,&``BDB::CURSOR-CLOSE``);
 }
 
 DEFUN(BDB:CURSOR-CLOSE, cursor)
 { /* close a cursor */
-  DBC *cursor = object_handle(popSTACK(),`BDB::CURSOR`,false);
-  SYSCALL(cursor->c_close,(cursor));
-  VALUES0;
+  DBC **cursor = (DBC**)object_handle_(STACK_1,`BDB::CURSOR`,false);
+  if (*cursor) {
+    SYSCALL((*cursor)->c_close,(*cursor));
+    *cursor = NULL;
+    VALUES1(T);
+  } else VALUES1(NIL);
+  skipSTACK(1);
 }
 
 DEFUN(BDB:CURSOR-COUNT, cursor)
@@ -788,8 +811,7 @@ DEFUN(BDB:CURSOR-DUP, cursor &key :POSITION)
   DBC *cursor = object_handle(popSTACK(),`BDB::CURSOR`,false);
   DBC *new_cursor;
   SYSCALL(cursor->c_dup,(cursor,&new_cursor,flags));
-  pushSTACK(allocate_fpointer(new_cursor));
-  funcall(`BDB::MKCURSOR`,1);
+  wrap_finalize(cursor,&`BDB::MKCURSOR`,&``BDB::CURSOR-CLOSE``);
 }
 
 DEFCHECKER(cursor_get_flag, DB_CURRENT DB_FIRST DB_GET_BOTH            \
