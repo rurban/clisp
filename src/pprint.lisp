@@ -138,11 +138,12 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                (*prin-lm* (+ *prin-lm* *print-indent-lists*)))
            (macrolet ((pprint-pop ()
                         ;; FIXME: dotted lists &c
-                        ',`(pop obj))
+                        '(pop obj))
                       (pprint-exit-if-list-exhausted ()
-                        ',`(unless obj
-                            (go pprint-logical-block-end))))
-             (when ,pre (write-string ,pre out))
+                        '(unless obj (go pprint-logical-block-end))))
+             (when ,pre
+               (write-string ,pre out)
+               (pprint-indent :current 0 out))
              (tagbody ,@body
               pprint-logical-block-end
                 (when ,suf (write-string ,suf out))))))

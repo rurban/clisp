@@ -1,5 +1,10 @@
 2001-08-22  Sam Steingold  <sds@gnu.org>
 
+	* pprint.lisp (pprint-logical-block): set indentation with
+	PPRINT-INDENT after printing :PREFIX
+
+2001-08-22  Sam Steingold  <sds@gnu.org>
+
 	* io.d (PPRINT-NEWLINE): output only to PPHELP streams
 	and when *PRINT-PRETTY* is non-NIL
 	(%PPRINT-LOGICAL-BLOCK): bind *PRIN-PPRINTER*, not set it
