@@ -643,7 +643,7 @@ is the same as
 
 <section id="setf"><title>Macro &setf;</title>
 
-<para>Additional places:
+<para>Additional &place;s:
 <variablelist>
  <varlistentry><term>&funcall;</term>
   <listitem><simpara><literal role="sexp">(&setf; (&funcall; #'&symbol-r; ...)
@@ -1232,11 +1232,12 @@ performance considerations.
 <formalpara id="lfd"><title>Arbitrary Precision Floats</title>
 <para>Long floats have variable mantissa length, which is a
  multiple of 16 (or 32, depending on the word size of the processor).
- The default length used when long floats are read is given by the place
- &lfd-l;.  It can be set by <literal role="sexp">(&setf; (&lfd;)
- &n-r;)</literal>, where &n-r; is a positive integer.  E.g., <literal
- role="sexp">(&setf; (&lfd;) 3322)</literal> sets the default precision
- of long floats to about 1000 decimal digits.</para></formalpara>
+ The default length used when long floats are read is given by the
+ &place; &lfd-l;.  It can be set by <literal role="sexp">(&setf;
+ (&lfd;) &n-r;)</literal>, where &n-r; is a positive integer.
+ E.g., <literal role="sexp">(&setf; (&lfd;) 3322)</literal> sets the
+ default precision of long floats to about 1000 decimal digits.
+</para></formalpara>
 
 
 <section id="flocont"><title>Rule of Float Precision Contagion
@@ -1385,10 +1386,9 @@ performance considerations.
    <ulink url="&clhs;/Body/sec_the_numbers_dictionary.html">[CLHS-12.2]</ulink></title>
 
 <formalpara><title>Function &upgraded-complex-part-type;</title>
-<para>When the argument is not a
- <ulink url="&clhs;/Body/glo_r.html#recognizable_subtype">recognizable
- subtype</ulink> or &real-t;, &upgraded-complex-part-type; &signal;s an
- &error-t;, otherwise it returns &real-t;, since a &complex-t; number in
+<para>When the argument is not a &recog-subt; or &real-t;,
+ &upgraded-complex-part-type; &signal;s an &error-t;,
+ otherwise it returns &real-t;, since a &complex-t; number in
  &clisp; can always have &realpart; and &imagpart; of any type.
 </para></formalpara>
 
@@ -4165,8 +4165,7 @@ pointing to non-existent files and can take the following values:
  <simpara>This function is especially efficient if &sequence-r; is a
   &string-t; and &stream-k; is a &file-pipe-socket; stream with
   &stream-element-type; &character-t; or an <ulink
-  url="&clhs;/Body/glo_i.html#input">input</ulink> <ulink
-  url="&clhs;/Body/glo_s.html#string_stream">string stream</ulink>.
+  url="&clhs;/Body/glo_i.html#input">input</ulink> &string-stream-t;.
   </simpara></listitem></varlistentry>
 </variablelist></para></formalpara>
 
@@ -4351,8 +4350,7 @@ functions are provided:
 <section id="broadcast-stream"><title>Class &broadcast-stream-t;</title>
 
 <para>&input-stream-p; and &interactive-stream-p; return false for
- <ulink url="&clhs;/Body/glo_b.html#broadcast_stream">broadcast
- streams</ulink>.</para>
+ &broadcast-stream-t;s.</para>
 
 </section>
 
@@ -4585,8 +4583,7 @@ functions are provided:
 <varlistentry><term>Platform dependent: &amiga; platforms only.</term>
 <listitem><simpara>&print-pretty-var; is initially &nil; but set to &t;
  in &config-file;.  This makes unbuffered screen output both much faster
- and prettier.
- </simpara></listitem></varlistentry>
+ and prettier.</simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist>
 
@@ -4636,7 +4633,7 @@ functions are provided:
   <entry>&readtable-t;</entry></row>
  <row><entry><literal>#&lt;SYMBOL-MACRO &form-r;&gt;</literal></entry>
   <entry>&symbol-macro; handler</entry></row>
- <row><entry><literal>#&lt;MACRO &fun-r;&gt;</literal></entry>
+ <row><entry><literal>#&lt;MACRO &func-r;&gt;</literal></entry>
   <entry>macro expander (defined by &defmacro; and friends)</entry></row>
  <!-- #ifdef FOREIGN -->
  <row><entry><literal>#&lt;&foreign-pointer-t; #x...&gt;</literal></entry>
@@ -4967,8 +4964,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <row><entry><constant>:FFI</constant></entry>
    <entry>if a foreign function interface (see &ffi-pac;) is supported
      <emphasis>(Platform dependent: many &unix;, &win32; platforms
-     only)</emphasis>
-    </entry></row>
+     only)</emphasis></entry></row>
 <!-- #endif -->
 <!-- #ifdef GNU_GETTEXT -->
 <row><entry><constant>:GETTEXT</constant></entry>
@@ -5014,7 +5010,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
    <ulink url="&clhs;/Body/sec_25-1-2.html">[CLHS-25.1.2]</ulink></title>
 
 <para>The debugger may be invoked through the functions
- &invoke-debugger;, &break;, &signal;, &error;, &cerror;, &warn;. The
+ &invoke-debugger;, &break;, &signal;, &error;, &cerror;, &warn;.  The
  stepper is invoked through the macro &step; .  Debugger and stepper
  execute subordinate &repl; (called "break loops") which are similar to
  the main &repl; except for the prompt and the set of available
@@ -5087,14 +5083,13 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <row><entry><command>Mode-3</command></entry>
    <entry><command>:m3</command></entry>
    <entry>sets the current mode to 3: only lexical frames (frames that
-         correspond to special forms that modify the lexical environment)
-         are considered.</entry></row>
+    correspond to special forms that modify the lexical
+    environment) are considered.</entry></row>
  <row><entry><command>Mode-4</command></entry>
    <entry><command>:m4</command></entry>
-   <entry>sets the current mode to 4 (the default): only &eval;
-         and &apply; frames are considered. Every evaluation
-         of a form in the interpreter corresponds to an EVAL frame.
-     </entry></row>
+   <entry>sets the current mode to 4 (the default): only &eval; and
+    &apply; frames are considered. Every evaluation of a form in the
+    interpreter corresponds to an EVAL frame.</entry></row>
  <row><entry><command>Mode-5</command></entry>
    <entry><command>:m5</command></entry>
    <entry>sets the current mode to 5: only &apply; frames are
@@ -5227,12 +5222,14 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 
 <variablelist>
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
-<listitem><simpara>&disassemble; can disassemble to machine code,
- provided that &gnu; gdb is present.  In that case the argument may be a
- <classname>EXT:SYSTEM-FUNCTION</classname>, a
- &foreign-function;, a special operator indicator,
- a symbol denoting one of these, a number, or a string.
- </simpara></listitem></varlistentry>
+ <listitem><simpara>&disassemble; can disassemble to machine code,
+   provided that &gnu;
+   <ulink url="http://sources.redhat.com/gdb/">gdb</ulink> is present.
+   In that case the argument may be a
+   <classname>EXT:SYSTEM-FUNCTION</classname>, a
+   &foreign-function;, a special operator indicator,
+   a symbol denoting one of these, a number, or a string.
+</simpara></listitem></varlistentry>
 </variablelist>
 </section>
 
@@ -5377,17 +5374,17 @@ exhaust the available line length.</para></formalpara>
 
 <para>The timing data printed by the macro &time; includes:
  <simplelist columns="1">
- <member>the real time (elapsed time),</member>
+ <member>the real time ("wall" time),</member>
  <member>the run time (processor time for this process),</member>
  <member>the number of bytes allocated, and</member>
  <member>the number of &gc;ions performed, if any.</member>
 </simplelist></para>
 
-<para>The macro &ts; (mnemonic: "TIME and Space") is like the macro
- &time;: <literal role="sexp">(&ts; &form-r;)</literal>
- evaluates the &form-r;, and, as a side effect, outputs detailed
- information about the memory allocations caused by this evaluation.
- It also prints everything printed by &time;.</para>
+<para>The macro <emphasis role="first">&ts;</emphasis> (mnemonic: "TIME
+ and Space") is like the macro &time;: <literal role="sexp">(&ts;
+  &form-r;)</literal> evaluates the &form-r;, and, as a side effect,
+ outputs detailed information about the memory allocations caused by
+ this evaluation.  It also prints everything printed by &time;.</para>
 
 </section>
 
@@ -5468,9 +5465,8 @@ exhaust the available line length.</para></formalpara>
  enabled, a warning is printed, and the new dribbling request is
  ignored.</para>
 
-<para>Dribbling is implemented via a special (&not-e;
- <ulink url="&clhs;/Body/glo_r.html#recognizable_subtype">recognizable</ulink>)
- subtype of &two-way-stream-t;, named &ds-t;.
+<para>Dribbling is implemented via a kind (but &not-e; &recog-subt;) of
+ &two-way-stream-t;, named &ds-t;.
  If you have a &source-r; &bidi-s; &x-r; and you want all transactions
  (input and output) on &x-r; to be copied to the &target-r; &out-s; &y-r;,
  you can do
