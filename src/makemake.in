@@ -448,6 +448,7 @@ case $# in
      shift 2
      if [ ${TSYS} = "win32gcc" ]; then
        CC="gcc -mno-cygwin";
+       LN_S="cp -p"; # CLISP/WIN32_NATIVE does not suppport win32 *.lnk
      fi
      ;;
 esac
@@ -2933,12 +2934,11 @@ if [ $CROSS = false ] ; then
   echol
 fi
 
-if [ $HOS = unix ] && [ $XCC_GCC = true ] ; then
+if [ $XCC_GCC = true ] ; then
   echol "lispbibl.h :${EVERY_INCLUDES_C}${EVERY_INCLUDES_H}"
   echotab "((${XCPP} ${XCFLAGS} -P lispbibl.c | \$(GREP) -v \"^ *\$\$\") ; (${XCPP} ${XCFLAGS} -P -dM lispbibl.c | sort) ) > lispbibl.h"
   echol
   echol
-
 fi
 
 echol "clisp.h : genclisph.o unixconf.h intparam.h"

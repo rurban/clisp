@@ -386,6 +386,7 @@
 
 # Letzte Fehlernummer
   #define OS_errno  IoErr()
+  #define OS_set_errno(e) SetIoErr(e)
 
 # Arbeiten mit offenen Files:
   #define read Read

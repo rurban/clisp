@@ -44,6 +44,11 @@
 /* Declare stderr. */
 # include <stdio.h>
 
+#ifdef WIN32_NATIVE
+# undef UNICODE
+# include <windows.h>
+#endif
+
 #ifndef HAVE_PERROR_DECL
 /* Both <errno.h> and <stdio.h> failed to declare perror(). Declare it now. */
 # if defined(__cplusplus)
@@ -70,7 +75,11 @@ int main (int argc, char* argv[])
   char* lisplibdir = LISPLIBDIR;
   char* localedir = LOCALEDIR;
   char* argv_lisplibdir = NULL;
+#ifdef WIN32_NATIVE
+  char* argv_linkingset = NULL;
+#else
   char* argv_linkingset = "base";
+#endif
   char* argv_memfile = NULL;
   char* argv_localedir = NULL;
   char* program_name;
@@ -233,9 +242,11 @@ int main (int argc, char* argv[])
     char* executable;
     char** new_argv;
     /* Compute linking set. */
-    if (argv_linkingset[0]=='/')
+    if (argv_linkingset == NULL || strlen(argv_linkingset)==0) {
+      linkingsetdir = lisplibdir;
+    } else if (argv_linkingset[0]=='/') {
       linkingsetdir = argv_linkingset;
-    else {
+    } else {
       linkingsetdir = (char*)malloc(strlen(lisplibdir)+1+strlen(argv_linkingset)+1);
       if (!linkingsetdir) goto oom;
       strcpy(linkingsetdir, lisplibdir);
@@ -283,12 +294,55 @@ int main (int argc, char* argv[])
       *new_argptr = NULL;
     }
     /* Launch the executable. */
+#ifdef WIN32_NATIVE
+    {
+      PROCESS_INFORMATION pinfo;
+      char * command_line;
+      int cmd_len = 0;
+      DWORD exitcode;
+      STARTUPINFO sinfo;
+      sinfo.cb = sizeof(STARTUPINFO);
+      sinfo.lpReserved = NULL;
+      sinfo.lpDesktop = NULL;
+      sinfo.lpTitle = NULL;
+      sinfo.cbReserved2 = 0;
+      sinfo.lpReserved2 = NULL;
+      sinfo.dwFlags = STARTF_USESTDHANDLES;
+      sinfo.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
+      if (sinfo.hStdInput == INVALID_HANDLE_VALUE)  goto w32err;
+      sinfo.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+      if (sinfo.hStdOutput == INVALID_HANDLE_VALUE) goto w32err;
+      sinfo.hStdError  = GetStdHandle(STD_ERROR_HANDLE);
+      if (sinfo.hStdError == INVALID_HANDLE_VALUE)  goto w32err;
+      /* conmand line */
+      for (argv = new_argv; *argv; argv++) cmd_len += strlen(*argv)+1;
+      command_line = (char*)malloc(cmd_len);
+      if (!command_line) goto oom;
+      command_line[0] = 0;
+      for (argv = new_argv; *argv; argv++) {
+        strcat(command_line,*argv);
+        strcat(command_line," ");
+      }
+      if (!CreateProcess(NULL, command_line, NULL, NULL, 1, 0,
+                         NULL, NULL, &sinfo, &pinfo))
+        goto w32err;
+      if (WaitForSingleObject(pinfo.hProcess,INFINITE) == WAIT_FAILED)
+        goto w32err;
+      if (!GetExitCodeProcess(pinfo.hProcess,&exitcode)) goto w32err;
+      if (!CloseHandle(pinfo.hProcess)) goto w32err;
+      return exitcode;
+     w32err:
+      perror(program_name);
+      return 1;
+    }
+#else
     execv(executable,new_argv);
     { /* execv() returns only if there was an error. */
       int saved_errno = errno;
       fprintf(stderr,"%s: ",program_name);
       errno = saved_errno; perror(executable);
     }
+#endif
     return 1;
   }
   usage: {
