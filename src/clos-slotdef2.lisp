@@ -23,10 +23,11 @@
                                      type allocation documentation
                                      ((inheritable-initer inheritable-initer))
                                      ((inheritable-doc inheritable-doc))
-                                     readers writers)
+                                     readers writers
+                                     ((defclass-form defclass-form)))
   (declare (ignore name initform initfunction initargs type allocation
                    documentation inheritable-initer inheritable-doc readers
-                   writers))
+                   writers defclass-form))
   (apply #'initialize-instance-<direct-slot-definition> slotdef args))
 
 (defmethod initialize-instance ((slotdef effective-slot-definition) &rest args
