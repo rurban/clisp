@@ -1218,8 +1218,8 @@ LISPFUNN(make_synonym_stream,1) {
   if (!symbolp(arg)) {
     pushSTACK(arg);       # TYPE-ERROR slot DATUM
     pushSTACK(S(symbol)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: argument should be a symbol, not ~"));
+    pushSTACK(arg); pushSTACK(S(symbol)); pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,GETTEXT("~: argument should be a ~, not ~"));
   }
   VALUES1(make_synonym_stream(arg));
 }
