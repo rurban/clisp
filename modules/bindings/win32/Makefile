@@ -1,6 +1,7 @@
 # Makefile for CLISP module set win32
 
 CC =
+CPPFLAGS =
 CFLAGS =
 INCLUDES=
 
@@ -22,7 +23,7 @@ win32.c win32.fas : win32.lisp
 	$(CLISP) -c win32.lisp
 
 win32.o : win32.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -c win32.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c win32.c
 
 # Make a module
 clisp-module : all

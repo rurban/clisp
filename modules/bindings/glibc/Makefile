@@ -1,6 +1,7 @@
 # Makefile for CLISP module set bindings/glibc
 
 CC =
+CPPFLAGS =
 CFLAGS =
 INCLUDES=
 
@@ -21,7 +22,7 @@ linux.c : linux.lisp
 	$(CLISP) -c linux.lisp
 
 linux.o : linux.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -c linux.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c linux.c
 
 wrap.fas: wrap.lisp
 	$(CLISP) -c wrap.lisp
