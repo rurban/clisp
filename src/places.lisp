@@ -138,7 +138,7 @@
       (error-of-type 'source-program-error
         :form form
         :detail form
-        (TEXT "SETF place ~S produces more than one store variable.")
+        (TEXT "SETF place ~S should produce exactly one store variable.")
         form
     ) )
     (values vars vals stores store-form access-form)
