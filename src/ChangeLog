@@ -1,22 +1,29 @@
-2000-12-20  Bruno Haible  <haible@clisp.cons.org>
+2000-12-21  Sam Steingold  <sds@gnu.org>
 
-        * dirkey.d (registry_value_to_object): Make GC safe. Fix possible
-          buffer overrun.
-          (struct root): Add length field.
-          (MKKEY): Store string length as well.
-          (parse_registry_path): Use memcmp instead of strncmp.
-          (DIR-KEY-OPEN): Make GC safe.
-          (MAKE_OBJECT_LIST): Make GC safe.
+	* dirkey.d: made the second half of the file GC safe (sort of)
+	(registry_value_to_object): Fixed the bugs introduced yesterday:
+	extra "" at the end of a REG_MULTI_SZ and a += instead of =.
+	(scope_error): Replaced with `parse_scope'.
 
 2000-12-20  Bruno Haible  <haible@clisp.cons.org>
 
-        * charstrg.d (nonspacing_table_data): Update to match glibc 2.2 width
-          definition.
+	* dirkey.d (registry_value_to_object): Make GC safe. Fix possible
+	  buffer overrun.
+	(struct root): Add length field.
+	(MKKEY): Store string length as well.
+	(parse_registry_path): Use memcmp instead of strncmp.
+	(DIR-KEY-OPEN): Make GC safe.
+	(MAKE_OBJECT_LIST): Make GC safe.
+
+2000-12-20  Bruno Haible  <haible@clisp.cons.org>
+
+	* charstrg.d (nonspacing_table_data): Update to match glibc 2.2 width
+	  definition.
 
 2000-12-19  Bruno Haible  <haible@clisp.cons.org>
 
-        * time.d (SYS::DEFAULT-TIME-ZONE) [WIN32]: Don't produce time_t values
-          >= 2^31.
+	* time.d (SYS::DEFAULT-TIME-ZONE) [WIN32]: Don't produce time_t values
+	  >= 2^31.
 
 2000-12-13  Sam Steingold  <sds@gnu.org>
 
