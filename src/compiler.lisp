@@ -10659,8 +10659,8 @@ The function make-closure is required.
   (when *unknown-functions*
     (c-comment (concatenate 'string "~%"
                  (TEXT "The following functions were used but not defined:~%~{~<~%~:; ~S~>~^~}"))
-               (delete-duplicates
-                (mapcar #'car (nreverse *unknown-functions*)))))
+               (delete-duplicates (mapcar #'car (nreverse *unknown-functions*))
+                                  :test #'equal)))
   (let ((unknown-vars (set-difference *unknown-free-vars*
                                       *known-special-vars*))
         (too-late-vars (intersection *unknown-free-vars*
