@@ -1392,8 +1392,8 @@ N. Gray to X3J13.</para>
   </simpara></listitem></varlistentry>
 </variablelist>
 
-<para>If you are interested in weak objects, you may wish to look up weak
-&hash-table;s, see <xref linkend="make-hash"/>.</para> 
+<para>&clisp; also has <link linkend="make-hash">weak</link>
+ &hash-table-t;.</para>
 
 </section>
 
@@ -1639,7 +1639,6 @@ returns two values:
  except that the code walker would probably leave the &macrolet; and
  &symbol-macrolet; forms intact and just do the expansion.</para>
 </section>
-
 
 </chapter>
 
@@ -2262,15 +2261,15 @@ only.</subtitle>
  </simpara></listitem></varlistentry>
 
 <varlistentry id="c-var-object"><term><literal role="sexp">(&c-var-object;
-           &cplace-r;)</literal></term>
-<listitem><simpara>Return the &foreign-variable; object underlying the
-  &cplace-r;.  This is also an acceptable argument type to a &c-pointer;
-  declaration.</simpara></listitem></varlistentry>
+   &cplace-r;)</literal></term>
+ <listitem><simpara>Return the &foreign-variable; object underlying the
+   &cplace-r;.  This is also an acceptable argument type to a &c-pointer;
+   declaration.</simpara></listitem></varlistentry>
 
 <varlistentry id="typeof"><term><literal role="sexp">(&typeof;
     &cplace-r;)</literal></term>
-<listitem><simpara>returns the &ctype-r; corresponding to the &cplace-r;.
-  </simpara></listitem></varlistentry>
+ <listitem><simpara>returns the &ctype-r; corresponding to the &cplace-r;.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="sizeof">
   <term><literal role="sexp">(&sizeof; &ctype-r;)</literal></term>
@@ -2350,11 +2349,11 @@ only.</subtitle>
    &foreign-pointer-t;, &foreign-variable; or &foreign-function;.</simpara>
   <simpara><literal role="sexp">(&setf; &foreign-pointer;)</literal>
    changes the &foreign-pointer-t; associated with the Lisp object of
-   type &foreign-address-t;, &foreign-variable; or &foreign-function; to that
-   of the other entity.
+   type &foreign-address-t;, &foreign-variable; or &foreign-function; to
+   that of the other entity.
    When &f-ptr; is &copy-k;, a fresh &foreign-pointer-t; is allocated.
-   &f-ent; still points to the same object. This is particularly useful with
-  <literal role="sexp">(&setf; &validp;)</literal>.
+   &f-ent; still points to the same object. This is particularly useful
+   with <literal role="sexp">(&setf; &validp;)</literal>.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="foreign-stack">
@@ -2470,29 +2469,30 @@ only.</subtitle>
   <simpara>If given a &foreign-function; object that corresponds to a
    &clisp; callback, deallocates it.  Callbacks are automatically
    created each time you pass a Lisp function via the &ffi-pac;.</simpara>
-  <simpara>Use <literal role="sexp">(&setf;
-   &f-ent;)</literal> to disable further references to this address from
-   Lisp. This is currently not done automatically.
+  <simpara>Use <literal role="sexp">(&setf; &validp;)</literal> to
+   disable further references to this address from Lisp.
+   This is currently not done automatically.
    If the given pointer is already invalid, &foreign-free; (currently)
-   signals an error. This may change to make it easier to integrate with
-   &finalize;.</simpara>
+   signals an &error-t;. This may change to make it easier to integrate
+   with &finalize;.</simpara>
    <simpara>Function &foreign-allocate; is a lower-level interface as it
    requires an internal &c-lang; type descriptor as returned by
    &parse-c-type;.</simpara></listitem></varlistentry>
-</variablelist>
 
 <varlistentry id="with-c-place">
  <term><literal role="sexp">(&with-c-place; (&var-r; &f-ent;)
    &body-r;)</literal></term>
- <listitem><simpara>Create a place out of the given &foreign-variable; object
-  so operations on places (e.g. &cast;, &deref;, &slot; etc.) can be used
-  within &body-r;.  &with-c-var appears as a composition of
+ <listitem><simpara>Create a place out of the given &foreign-variable;
+  object so operations on places (e.g. &cast;, &deref;, &slot; etc.) can
+  be used within &body-r;.  &with-c-var; appears as a composition of
   &with-foreign-object; and &with-c-place;.</simpara>
-  <para>A &f-ent; object can be stored away, places are used to access
-  contents.
+  <para>A &f-ent; object can be stored into, places can be used to
+   access contents:
   <programlisting>(setq foo (allocate-deep '(c-array uint8 3) rgb))
 (with-c-place (place foo) (element place 0))</programlisting>
-  </para></listitem></varlistentry>
+</para></listitem></varlistentry>
+
+</variablelist>
 
 </section>
 
@@ -2699,12 +2699,14 @@ unit</ulink> (usually a file), a warning is issued and
 
 <section id="dffi-places"><title>Operations on foreign places</title>
 
-<para>A &foreign-variable; &name-r; defined by &def-c-var;, &with-c-var; or
- &with-c-place; defines a "place", i.e., a form which can also be used as
- argument to &setf;.  (An "lvalue" in &c-lang; terminology.)  The following
- operations are available on foreign places: &element;, &deref;, &slot;,
- &cast;, &offset;, &c-var-addr;, &c-var-object;, &typeof;, &sizeof;,
- &bitsizeof;.</para>
+<para>A &foreign-variable; &name-r; defined by &def-c-var;, &with-c-var;
+ or &with-c-place; defines a
+ <ulink url="&clhs;/Body/glo_p.html#place">place</ulink>,
+ i.e., a form which can also be used as argument to &setf;.
+ (An "lvalue" in &c-lang; terminology.)
+ The following operations are available on foreign places:
+ &element;, &deref;, &slot;, &cast;, &offset;, &c-var-addr;,
+ &c-var-object;, &typeof;, &sizeof;, &bitsizeof;.</para>
 
 </section>
 
