@@ -2,6 +2,34 @@
 
 #### Start of system configuration section. ####
 
+# Flags that can be set on the nmake command line:
+#   MFLAGS={-ML|-MT|-MD} for defining the compilation model
+#     MFLAGS=-ML (the default)  Single-threaded, statically linked - libc.lib
+#     MFLAGS=-MT                Multi-threaded, statically linked  - libcmt.lib
+#     MFLAGS=-MD                Multi-threaded, dynamically linked - msvcrt.lib
+#   DEBUG=1   for compiling with debugging information
+# Note that nmake command line flags are automatically passed to subdirectory
+# Makefiles. Therefore we don't need to pass them explicitly to subdirectory
+# Makefiles, but the subdirectory Makefiles need to have the same defaults.
+# Building as a DLL not supported yet.
+STATIC=1
+!if !defined(DEBUG)
+DEBUG=0
+!endif
+!if !defined(MFLAGS)
+!if $(STATIC)
+MFLAGS=
+!else
+MFLAGS=-MD
+!endif
+!endif
+
+!if $(DEBUG)
+OPTIMFLAGS = -Od -Z7
+!else
+OPTIMFLAGS = -D_NDEBUG -O1
+!endif
+
 HOST = i386-pc-win32-msvc
 CPU = i386
 
@@ -18,7 +46,7 @@ mandir = $(exec_prefix)/man
 
 # Programs used by "make":
 CC = cl
-CFLAGS = -O1
+CFLAGS = $(MFLAGS) $(OPTIMFLAGS)
 CPP = cl -E
 INCLUDES = -I. -I$(srcdir)
 AR = lib
@@ -55,9 +83,15 @@ avcall-i386.obj : $(srcdir)/avcall-i386-msvc.c
 structcpy.obj : $(srcdir)/structcpy.c
 	$(CC) $(CFLAGS) -c $(srcdir)/structcpy.c
 
+!if $(STATIC)
 avcall.lib : $(OBJECTS)
 	$(RM) avcall.lib
 	$(AR) $(AR_FLAGS)avcall.lib $(OBJECTS)
+!else
+# avcall.dll and avcall.lib are created together.
+avcall.lib : $(OBJECTS)
+	$(CC) $(MFLAGS) -LD $(OBJECTS)
+!endif
 
 tests.obj : $(srcdir)/tests.c avcall.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(srcdir)/tests.c
@@ -80,7 +114,7 @@ check : all tests.exe uniq-u.exe
 mostlyclean : clean
 
 clean : force
-	$(RM) *.obj *.lib core
+	$(RM) *.obj *.lib *.exp *.dll core
 	$(RM) avcall-i386.s
 	$(RM) tests.obj tests.s tests.exe uniq-u.exe tests.out
 
