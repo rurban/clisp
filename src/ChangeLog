@@ -1,5 +1,13 @@
 2004-08-20  Sam Steingold  <sds@gnu.org>
 
+	ported RAWSOCK to win32
+	* modules/rawsock/configure.in: check for <winsock2.h>,
+	<ws2tcpip.h> and ws2_32
+	* modules/rawsock/rawsock.c (rawsock_t): new typedef
+	(socketpair, recvmsg, sendmsg, ifreq): not present on win32
+
+2004-08-20  Sam Steingold  <sds@gnu.org>
+
 	* m4/ioctl.m4 (IOCTL_REQUEST_T): quote shell variable to avoid a
 	bash warning
 
