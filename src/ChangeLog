@@ -1,5 +1,10 @@
 2004-01-20  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (structure_reader): Accept also strings and characters as slot
+	names, and use test_stringsymchar_arg for converting them to a string.
+
+2004-01-20  Bruno Haible  <bruno@clisp.org>
+
 	* charstrg.d (test_stringsymchar_arg): Remove redundant code.
 
 2004-01-20  Bruno Haible  <bruno@clisp.org>

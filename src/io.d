@@ -4138,7 +4138,7 @@ LISPFUNN(structure_reader,3) { # reads #S
     }
     {
       var object slot = Car(args);
-      if (!symbolp(slot)) {
+      if (!(symbolp(slot) || stringp(slot) || charp(slot))) {
         pushSTACK(*stream_); # STREAM-ERROR slot STREAM
         pushSTACK(*(stream_ STACKop -2)); # name
         pushSTACK(slot);
@@ -4158,10 +4158,9 @@ LISPFUNN(structure_reader,3) { # reads #S
       }
       if (matomp(Cdr(args)))
         goto dotted;
-      {
-        var object kw = intern_keyword(Symbol_name(slot)); # Slotname as Keyword
-        pushSTACK(kw); # Keyword into STACK
-      }
+      slot = test_stringsymchar_arg(slot,false); # Slotname as string
+      var object kw = intern_keyword(slot); # Slotname as Keyword
+      pushSTACK(kw); # Keyword into STACK
     }
     args = *(stream_ STACKop -1); # again the same remaining Args
     args = Cdr(args);
