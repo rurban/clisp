@@ -1374,7 +1374,7 @@ for-value   NIL oder T
           (make-sequence 2 0 nil (:initial-element :update) nil)
           (make-string 1 0 nil (:initial-element :element-type) nil)
           (make-string-input-stream 1 2 nil nil nil)
-          (make-string-output-stream 0 1 nil nil nil)
+          (make-string-output-stream 0 0 nil (:element-type :line-position) nil)
           (system::make-string-push-stream 1 0 nil nil nil)
           (make-symbol 1 0 nil nil nil)
           (make-synonym-stream 1 0 nil nil nil)

@@ -152,6 +152,8 @@ v(2, (kw(circle),kw(full)) )
 s(directory)
 v(1, (kw(abort)) )
 s(close)
+v(2, (kw(element_type),kw(line_position)) )
+s(make_string_output_stream)
 #ifdef REXX
 v(5, (kw(result),kw(string),kw(token),kw(host),kw(io)) )
 s(rexx_put)
