@@ -3971,6 +3971,12 @@ functions are provided:</para>
     for regular files and (on Unix) block-devices, and unbuffered file
     streams for special files.</simpara></listitem>
   </itemizedlist>
+  Note that some files, notably those on the <filename>/proc</filename>
+  filesystem (on &unix; systems), are actually, despite their innocuous
+  appearance, special files, so you might need to supply an explicit
+  &buffered; &nil; argument for them.  Actually, &clisp; detects that
+  the file is a <filename>/proc</filename> file, so that one is covered,
+  but there are probably more strange beasts there!
 </para></listitem></varlistentry>
 </variablelist>
 

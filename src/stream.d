@@ -7591,6 +7591,15 @@ global object make_file_stream (direction_t direction, bool append_flag,
   # Default is T for regular files, NIL for non-regular files because they
   # probably don't support lseek().
   buffered = test_buffered_arg(STACK_3);
+ #if defined(UNIX) || defined(RISCOS)
+  # /proc files are unbuffered by default
+  if ((buffered == 0) && !nullp(STACK_4)) { # truename
+    var object dir = ThePathname(STACK_4)->pathname_directory;
+    if (consp(dir) && consp(Cdr(dir)))
+      with_sstring_0(Car(Cdr(dir)),O(pathname_encoding),top_dir,
+                     { if (asciz_equal(top_dir,"proc")) buffered = -1; });
+  }
+ #endif
   if (buffered == 0)
     buffered = (handle_regular ? 1 : -1);
   if (buffered < 0) {
