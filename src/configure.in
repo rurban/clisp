@@ -203,7 +203,7 @@ CL_EXECV
 CL_EXECL
                       dnl DEFS EXECL_DOTS, EXECL_CONST
 CL_WAITPID
-                      dnl DEFS HAVE_WAITPID, PID_T, HAVE_SYS_WAIT_H
+                      dnl DEFS PID_T
 CL_RUSAGE
                       dnl DEFS HAVE_SYS_RESOURCE_H, HAVE_GETRUSAGE, RUSAGE_WHO_T, HAVE_SYS_TIMES_H
 CL_GETCWD

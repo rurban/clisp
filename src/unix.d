@@ -774,18 +774,8 @@
   # Child-Prozess nur auf Daten im Stack und konstante Daten zugreifen.
   # Denn der Parent-Prozess läuft in dieser Zeit schon weiter und kann dabei
   # Daten in STACK, malloc()-Bereich, Lisp-Daten-Bereich usw. modifizieren.
-  #ifdef HAVE_WAITPID
-    #include <sys/wait.h>
-    extern_C pid_t waitpid (PID_T pid, int* statusp, int options); # siehe WAIT(2V)
-  #else
-    #ifdef HAVE_SYS_WAIT_H
-      #include <sys/wait.h>
-    #endif
-    #ifndef UNIX_NEXTSTEP # NeXTstep 3.1 ohne _POSIX_VERSION deklariert:  extern int wait (union wait);
-      extern_C int wait (int* statusp); # siehe WAIT(2V)
-    #endif
-    #define PID_T  int
-  #endif
+  #include <sys/wait.h>
+  extern_C pid_t waitpid (PID_T pid, int* statusp, int options); # siehe WAIT(2V)
   extern int wait2 (PID_T pid); # siehe unixaux.d
 # wird verwendet von STREAM, PATHNAME, SPVW, UNIXAUX
 
