@@ -283,7 +283,9 @@
   nonreturning_function(global, OS_filestream_error, (object stream));
   global void OS_filestream_error(stream)
     var object stream;
-    { if (!nullp(TheStream(stream)->strm_file_truename))
+    { if (TheStream(stream)->strmtype == strmtype_file
+          && !nullp(TheStream(stream)->strm_file_truename)
+         )
         { OS_file_error(TheStream(stream)->strm_file_truename); }
         else
         { OS_error(); }

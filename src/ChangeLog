@@ -1,3 +1,82 @@
+1999-02-02  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Implement unbuffered file-streams, and buffered pipes and socket
+        streams.
+        * lispbibl.d (strmtype_twoway_socket): New enum value.
+          (strm_twoway_socket_input): New macro.
+          (make_file_stream): Change calling convention.
+        * error.d (OS_filestream_error): Use the truename only for file
+          streams, as opposed to pipe and socket streams.
+        * stream.d (test_buffered_arg): New function.
+          (strm_handle_extrafields_struct): New field low_close.
+          (HandleStreamLow_close): New macro.
+          (low_close_handle): New function.
+          (close_ihandle, close_ohandle): Call HandleStreamLow_close(stream).
+          (strm_file_extrafields_struct): New fields low_fill, low_flush,
+          regular, blockpositioning.
+          (FileStreamLow_fill, FileStreamLow_flush, FileStream_regular,
+           FileStream_blockpositioning): New macros.
+          (b_file_fill): New function.
+          (HandleStream_init): New macro.
+          (b_file_full_flush): Use FileStream_blockpositioning and
+          FileStreamLow_flush.
+          (b_file_half_flush): Likewise.
+          (b_file_nextbyte): Use FileStream_blockpositioning and
+          FileStreamLow_fill.
+          (position_b_file): Use FileStream_blockpositioning.
+          (position_file_end): Likewise. If no repositioning is needed, call
+          lseek only once.
+          (make_buffered_stream): New function.
+          (make_file_stream): Change calling convention. Rewritten to call
+          make_buffered_stream. Deal with buffered, handle_regular,
+          handle_fresh. Support :APPEND for unbuffered streams as well.
+          (finish_output_file): Call fsync or close/open on regular files only.
+          If no repositioning is needed, don't call position_b_file.
+          (close_file): Call HandleStreamLow_close(stream).
+          (strm_pipe_in_other, strm_pipe_out_other): Remove macros.
+          (strm_pipe_other): New macro.
+          (low_close_pipe): New function.
+          (close_pipe_in, close_pipe_out): Remove functions.
+          (MAKE-PIPE-INPUT-STREAM): Call test_buffered_arg. Call either
+          make_unbuffered_stream or make_buffered_stream. Set the
+          HandleStreamLow_close function.
+          (MAKE-PIPE-OUTPUT-STREAM): Likewise.
+          (MAKE-PIPE-IO-STREAM): Likewise.
+          (low_close_socket): New function.
+          (close_socket): Remove function.
+          (SYSTEM::MAKE-SOCKET-STREAM): Set the HandleStreamLow_close
+          function.
+          (b_socket_fill, b_socket_finish_flush): New functions.
+          (SocketStream_init): New macro.
+          (strm_twoway_socket_input, strm_twoway_socket_output): New macros.
+          (low_close_socket_nop): New function.
+          (make_socket_stream): Change signature. Call either
+          make_unbuffered_stream, or make_buffered_stream and allocate a
+          two-way-socket stream. Set the HandleStreamLow_close function.
+          (SOCKET-SERVER): Deal with both strmtype_socket and
+          strmtype_twoway_scoket. Check that the stream argument is open.
+          (SOCKET-ACCEPT, SOCKET-CONNECT): Call test_buffered_arg.
+          (test_socket_stream): Optionally check that the stream argument is
+          open.
+          (SOCKET-STREAM-PORT, SOCKET-STREAM-HOST): Update.
+          (publish_host_data, SOCKET-STREAM-HANDLE): Update.
+          (make_terminal_io): Remove the file positioning code, now done by
+          make_file_stream.
+          (init_streamvars): Set the HandleStreamLow_close function.
+          (STREAM-ELEMENT-TYPE, SYSTEM::SET-STREAM-ELEMENT-TYPE,
+           interactive_stream_p): Treat strmtype_twoway_socket.
+          (stream_close): Treat pipes and sockets like file streams. Treat
+          strmtype_twoway_socket.
+          (stream_listen, clear_input): Treat strmtype_twoway_socket.
+          (finish_output, force_output, clear_output): Likewise.
+          (get_line_position): Likewise.
+          (stream_isbuffered): Treat pipes and sockets like file streams.
+          Treat strmtype_twoway_socket.
+        * io.d (pr_stream): Print a "buffered"/"unbuffered" for pipes and
+          sockets as well. Treat strmtype_twoway_socket.
+        * pathname.d (open_file): Change calling convention.
+          (OPEN): Update.
+
 1999-02-01  Sam Steingold  <sds@goems.com>
 
 	* defs2.lsp (with-standard-io-syntax): set `*print-right-margin*'.
