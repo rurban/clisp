@@ -5253,7 +5253,18 @@ but (as float or rational number) it should be a multiple of
 
 <p><table border=1>
 <tr><th><em>Platform dependent:</em>
-    <th>DOS, OS/2, Acorn <th>Amiga <th>UNIX <th>Win32
+    <!-- #if defined(TIME_MSDOS) || defined(TIME_RISCOS) -->
+    <th>DOS, OS/2, Acorn
+    <!-- #endif -->
+    <!-- #ifdef TIME_AMIGAOS -->
+    <th>Amiga
+    <!-- #endif -->
+    <!-- #ifdef TIME_UNIX -->
+    <th>UNIX
+    <!-- #endif -->
+    <!-- #ifdef TIME_WIN32 -->
+    <th>Win32
+    <!-- #endif -->
 <tr><th><a href="CLHSROOT/Body/convar_intern_s-per-second.html">
     <code>internal-time-units-per-second</code></a>
     <td>100 <td>50 <td>1,000,000 <td>10,000,000
