@@ -535,9 +535,9 @@ nonreturning_function(local, fehler_malloc_free, (void)) {
 # < data_size, data_alignment: size and alignment (in bytes) of the type
 # < data_splittable: splittable flag of the type, if a struct/union/array type
 local void foreign_layout (object fvd);
-local uintL data_size;
-local uintL data_alignment;
-local bool data_splittable;
+local var uintL data_size;
+local var uintL data_alignment;
+local var bool data_splittable;
 # `struct_alignment' is what gcc calls STRUCTURE_SIZE_BOUNDARY/8.
 # It is = 1 on most machines, but = 2 on MC680X0 and = 4 on ARM.
 #ifdef __cplusplus
@@ -1187,7 +1187,7 @@ local bool foreign_with_pointers_p(fvd)
 # Walk foreign data, giving special attention to the pointers.
 local void walk_foreign_pointers (object fvd, void* data);
 # Some flags and hooks that direct the walk:
-local bool walk_foreign_null_terminates;
+local var bool walk_foreign_null_terminates;
 local void (*walk_foreign_pre_hook) (object fvd, void** pdata); # what's the meaning of fvd here??
 local void (*walk_foreign_post_hook) (object fvd, void** pdata); # what's the meaning of fvd here??
 local void (*walk_foreign_function_hook) (object fvd, void** pdata);
@@ -1359,7 +1359,7 @@ global void free_foreign(fvd,data)
 # can trigger GC
 local void walk_lisp_pointers (object fvd, object obj);
 # Some flags and hooks that direct the walk:
-local bool walk_lisp_nil_terminates;
+local var bool walk_lisp_nil_terminates;
 local void (*walk_lisp_pre_hook) (object fvd, object obj);
 local void (*walk_lisp_post_hook) (object fvd, object obj);
 local void (*walk_lisp_function_hook) (object fvd, object obj);
@@ -1536,8 +1536,8 @@ local void walk_lisp_pointers(fvd,obj)
 # Determine amount of additional storage needed to convert Lisp data to foreign data.
 # can trigger GC
 local void convert_to_foreign_needs (object fvd, object obj);
-local uintL walk_counter;
-local uintL walk_alignment;
+local var uintL walk_counter;
+local var uintL walk_alignment;
 local void count_walk_pre (object fvd, object obj);
 local void count_walk_post (object fvd, object obj);
 local void count_walk_pre(fvd,obj)
@@ -1977,7 +1977,7 @@ local void convert_to_foreign(fvd,obj,data)
 # 2. make room according to data_size and data_alignment, set allocaing_room_pointer.
 # 3. convert_to_foreign_allocaing(fvd,obj,data,room_pointer);
 global void convert_to_foreign_allocaing (object fvd, object obj, void* data);
-local void* allocaing_room_pointer;
+local var void* allocaing_room_pointer;
 local void* allocaing (void* old_data, uintL size, uintL alignment);
 local void* allocaing(old_data,size,alignment)
   var void* old_data;
@@ -2630,7 +2630,7 @@ LISPFUNN(lookup_foreign_function,2)
 # do_av_arg(flags,arg_fvd,&alist,arg_address,arg_size,arg_alignment);
   local void do_av_arg (uintWL flags, object arg_fvd, av_alist * alist, void* arg_address, unsigned long arg_size, unsigned long arg_alignment);
   #ifdef AMIGAOS
-  local sintWL AV_ARG_REGNUM; # number of register where the argument is to be passed
+  local var sintWL AV_ARG_REGNUM; # number of register where the argument is to be passed
   #endif
   local void do_av_arg(flags,arg_fvd,alist,arg_address,arg_size,arg_alignment)
     var uintWL flags;
