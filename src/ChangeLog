@@ -1,3 +1,8 @@
+2002-02-09  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: include impnotes.css in the distribution along
+	with impnotes.html
+
 2002-02-03  Sam Steingold  <sds@gnu.org>
 
 	fixed a bug: (defmethod foo ((x (eql 1))) x)
