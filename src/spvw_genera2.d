@@ -29,7 +29,7 @@ local void gc_mark_old_generation (void) {
         if (heap->physpages==NULL) {
           walk_area_(heapnr,gen0_start,gen0_end,gc_mark_at); # fallback
         } else {
-          var physpage_state* physpage = heap->physpages;
+          var physpage_state_t* physpage = heap->physpages;
           gen0_start &= -physpagesize;
           do {
             gen0_start += physpagesize;
@@ -38,7 +38,7 @@ local void gc_mark_old_generation (void) {
               # take advantage of cache, mark cached pointers:
               var uintL count = physpage->cache_size;
               if (count > 0) {
-                var old_new_pointer* ptr = physpage->cache;
+                var old_new_pointer_t* ptr = physpage->cache;
                 dotimespL(count,count, {
                   GC_MARK(ptr->o); ptr++;
                 });

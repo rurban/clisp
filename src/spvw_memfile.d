@@ -121,7 +121,7 @@ typedef struct {
  #endif
   uintL _dumptime;
   char _dumphost[DUMPHOST_LEN+1];
-} memdump_header;
+} memdump_header_t;
 /* then the module names,
  then fsubr_tab, pseudofun_tab, symbol_tab,
  and for each module subr_addr, subr_anz, object_anz, subr_tab, object_tab, */
@@ -141,7 +141,7 @@ typedef struct {
 typedef struct {
   aint _page_start;
   aint _page_end;
-} memdump_page;
+} memdump_page_t;
   #if defined(SPVW_PURE_BLOCKS) && defined(GENERATIONAL_GC)
  /* then for each heap the length of physpages,
     then for each heap the complete physpages-array, */
@@ -149,7 +149,7 @@ typedef struct {
   gcv_object_t* continued_addr;
   uintC continued_count;
   aint firstobject;
-} memdump_physpage_state;
+} memdump_physpage_state_t;
   #endif
   /* then the content of the pages in the same order. */
   #ifdef SPVW_PURE_BLOCKS
@@ -165,7 +165,7 @@ typedef struct {
   uintL htcount;
   uintL fpcount;
   uintL fscount;
-} memdump_reloc_header;
+} memdump_reloc_header_t;
   #endif
 #endif
 
@@ -237,7 +237,7 @@ global void savemem (object stream)
       end_system_call();                                                \
     }} while(0)
   /* write basic information: */
-  var memdump_header header;
+  var memdump_header_t header;
   var uintL module_names_size;
   header._magic = memdump_magic;
   header._memflags = memflags;
@@ -344,14 +344,14 @@ global void savemem (object stream)
     for (heapnr=0; heapnr<heapcount; heapnr++) {
      #if !defined(GENERATIONAL_GC)
       map_heap(mem.heaps[heapnr],page, {
-        var memdump_page _page;
+        var memdump_page_t _page;
         _page._page_start = page->page_start;
         _page._page_end = page->page_end;
         WRITE(&_page,sizeof(_page));
       });
      #else /* defined(GENERATIONAL_GC) */
       var Heap* heap = &mem.heaps[heapnr];
-      var memdump_page _page;
+      var memdump_page_t _page;
       _page._page_start = heap->heap_gen0_start;
       _page._page_end = heap->heap_gen0_end;
       WRITE(&_page,sizeof(_page));
@@ -375,15 +375,15 @@ global void savemem (object stream)
       if (numphyspages[heapnr] > 0) {
         var uintL count = numphyspages[heapnr];
         var Heap* heap = &mem.heaps[heapnr];
-        var physpage_state* physpages = heap->physpages;
-        var DYNAMIC_ARRAY(_physpages,memdump_physpage_state,count);
+        var physpage_state_t* physpages = heap->physpages;
+        var DYNAMIC_ARRAY(_physpages,memdump_physpage_state_t,count);
         var uintL i;
         for (i=0; i<count; i++) {
           _physpages[i].continued_addr  = physpages[i].continued_addr;
           _physpages[i].continued_count = physpages[i].continued_count;
           _physpages[i].firstobject     = physpages[i].firstobject;
         }
-        WRITE(_physpages,count*sizeof(memdump_physpage_state));
+        WRITE(_physpages,count*sizeof(memdump_physpage_state_t));
         FREE_DYNAMIC_ARRAY(_physpages);
       }
   }
@@ -421,7 +421,7 @@ global void savemem (object stream)
      (only frame-pointers, subr, machine must be relocated, and
      hashtables and fpointers must be marked, see
      update_varobjects(), update_record(), loadmem_update().) */
-    var memdump_reloc_header rheader;
+    var memdump_reloc_header_t rheader;
     rheader.reloccount = 0;
     rheader.htcount = 0;
     rheader.fpcount = 0;
@@ -798,7 +798,7 @@ local void loadmem (const char* filename)
 }
 local void loadmem_from_handle (Handle handle, const char* filename)
 {
-  var memdump_header header;
+  var memdump_header_t header;
   {
    #if (defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))
     #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
@@ -945,7 +945,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     /* initialize offset-of-SUBRs-table: */
     offset_subrs_anz = 1+header._module_count;
     begin_system_call();
-    offset_subrs = (offset_subrs_t*) malloc(offset_subrs_anz*sizeof(offset_subrs_t));
+    offset_subrs = MALLOC(offset_subrs_anz,offset_subrs_t);
     end_system_call();
     if (offset_subrs==NULL) goto abort3;
     /* read module names and compare with the existing modules: */
@@ -1024,8 +1024,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     #ifdef SINGLEMAP_MEMORY_RELOCATE
     { /* read start- and end-addresses of each Heap and compare
          with mem.heaps[]: */
-      var memdump_page old_pages[heapcount];
-      var memdump_page* old_page;
+      var memdump_page_t old_pages[heapcount];
+      var memdump_page_t* old_page;
       var uintL heapnr;
       READ(&old_pages,sizeof(old_pages));
       offset_heaps_all_zero = true;
@@ -1050,8 +1050,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     #else
     { /* take over start- and end-addresses of each heap in mem.heaps[] : */
       var uintL heapnr;
-      var memdump_page old_pages[heapcount];
-      var memdump_page* old_page;
+      var memdump_page_t old_pages[heapcount];
+      var memdump_page_t* old_page;
       READ(&old_pages,sizeof(old_pages));
       old_page = &old_pages[0];
       for (heapnr=0; heapnr<heapcount; heapnr++) {
@@ -1068,8 +1068,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     { /* read start- and end-addresses of each heap and adjust
          the size in mem.heaps[] to the same length: */
       var uintL heapnr;
-      var memdump_page old_pages[heapcount];
-      var memdump_page* old_page;
+      var memdump_page_t old_pages[heapcount];
+      var memdump_page_t* old_page;
       READ(&old_pages,sizeof(old_pages));
       old_page = &old_pages[0];
       for (heapnr=0; heapnr<heapcount; heapnr++) {
@@ -1090,10 +1090,10 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         var uintL count = numphyspages[heapnr];
         var Heap* heap = &mem.heaps[heapnr];
         if (count > 0) {
-          var DYNAMIC_ARRAY(_physpages,memdump_physpage_state,count);
-          var physpage_state* physpages;
-          READ(_physpages,count*sizeof(memdump_physpage_state));
-          physpages = (physpage_state*) malloc(count*sizeof(physpage_state));
+          var DYNAMIC_ARRAY(_physpages,memdump_physpage_state_t,count);
+          var physpage_state_t* physpages;
+          READ(_physpages,count*sizeof(memdump_physpage_state_t));
+          physpages = MALLOC(count,physpage_state_t);
           if (physpages != NULL) {
             var uintL i;
             for (i=0; i<count; i++) {
@@ -1126,7 +1126,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       }
       /* initialize offset-per-page-table: */
       begin_system_call();
-      offset_pages = (offset_pages_t *)malloc(offset_pages_len*sizeof(*offset_pages));
+      offset_pages = MALLOC(offset_pages_len,offset_pages_t);
       end_system_call();
       if (offset_pages==NULL) goto abort3;
       {
@@ -1137,11 +1137,11 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         }
       }
       /* read addresses and sizes of the pages and allocate pages: */
-      var DYNAMIC_ARRAY(old_pages,memdump_page,total_pagecount);
-      READ(old_pages,total_pagecount*sizeof(memdump_page));
+      var DYNAMIC_ARRAY(old_pages,memdump_page_t,total_pagecount);
+      READ(old_pages,total_pagecount*sizeof(memdump_page_t));
       var DYNAMIC_ARRAY(new_pages,aint,total_pagecount);
       {
-        var memdump_page* old_page_ptr = &old_pages[0];
+        var memdump_page_t* old_page_ptr = &old_pages[0];
         var aint* new_page_ptr = &new_pages[0];
         var uintL heapnr;
         for (heapnr=0; heapnr<heapcount; heapnr++) {
@@ -1190,7 +1190,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         }
       }
       { /* read content of the pages pages: */
-        var memdump_page* old_page_ptr = &old_pages[0];
+        var memdump_page_t* old_page_ptr = &old_pages[0];
         var aint* new_page_ptr = &new_pages[0];
         while (total_pagecount != 0) {
           var uintL len = old_page_ptr->_page_end - old_page_ptr->_page_start;
@@ -1365,7 +1365,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
           if ( lseek(handle,file_offset,SEEK_SET) <0) goto abort1;
         }
        #endif
-        var memdump_reloc_header rheader;
+        var memdump_reloc_header_t rheader;
         READ(&rheader,sizeof(rheader));
         if (rheader.reloccount > 0) {
           var DYNAMIC_ARRAY(relocbuf,gcv_object_t*,rheader.reloccount);
