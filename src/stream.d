@@ -3170,7 +3170,14 @@ LISPFUNN(generic_stream_p,1)
   local boolean regular_handle_p(handle)
     var Handle handle;
     {
-      #if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
+      #if defined(UNIX)
+        var struct stat statbuf;
+        begin_system_call();
+        if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
+        end_system_call();
+        return (S_ISREG(statbuf.st_mode) || S_ISBLK(statbuf.st_mode) ? TRUE : FALSE);
+      #endif
+      #if defined(MSDOS) || defined(RISCOS)
         var struct stat statbuf;
         begin_system_call();
         if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
