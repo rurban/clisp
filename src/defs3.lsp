@@ -75,6 +75,7 @@ stringp bit-vector-p vectorp simple-vector-p simple-string-p
 simple-bit-vector-p arrayp packagep functionp compiled-function-p eq
 eql equal equalp not symbol-value symbol-function fdefinition boundp fboundp
 special-operator-p set makunbound fmakunbound get-setf-method
+get-setf-expansion
 get-setf-method-multiple-value apply funcall mapcar maplist mapc mapl mapcan
 mapcon values values-list macro-function macroexpand macroexpand-1 proclaim
 get remprop symbol-plist getf get-properties symbol-name make-symbol
@@ -182,7 +183,7 @@ the load-time-value
 ;; Macros:
 deftype defun defvar defparameter defconstant and or psetq setf psetf shiftf
 rotatef define-modify-macro defsetf define-setf-method prog1 prog2
-when unless cond
+when unless cond define-setf-expander
 case typecase  otherwise ; otherwise als Marker für die catchall-clause
 return loop do do* dolist dotimes prog prog* multiple-value-list
 multiple-value-bind multiple-value-setq nth-value defmacro destructuring-bind
