@@ -920,11 +920,11 @@
               (ds-make-boa-constructor
                 constructor-option type-option name namesform size slotlist whole-form)
               (progn
-                (if (null keyword-constructor)
+                (when (null keyword-constructor)
                   (setq keyword-constructor constructor-option))
                 (ds-make-keyword-constructor
-                 constructor-option type-option name namesform size
-                 slotlist))))
+                  constructor-option type-option name namesform size
+                  slotlist))))
         constructor-option-list))
     ;; constructor-forms = list of forms, that define the constructors.
     (let ((index 6))
@@ -964,7 +964,11 @@
                                      directslotlist))
                          ,@slotdefaultvars)))
          ,(if (eq type-option 'T)
-            `(CLOS::DEFINE-STRUCTURE-CLASS ',name)
+            `(CLOS::DEFINE-STRUCTURE-CLASS ',name
+               (SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) 0)
+               (SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) 3)
+               (SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) 4)
+               (SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) 5))
             `(CLOS::UNDEFINE-STRUCTURE-CLASS ',name))
          ,@(if (and named-option predicate-option)
              (ds-make-pred predicate-option type-option name slotlist size))
