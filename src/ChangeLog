@@ -1,5 +1,9 @@
 2001-07-16  Sam Steingold  <sds@gnu.org>
 
+	* version.h: 2.27 is released
+
+2001-07-16  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (previous_line_virtual): fixed an off-by-one error
 
 2001-07-16  Sam Steingold  <sds@gnu.org>
