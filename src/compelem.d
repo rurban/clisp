@@ -493,10 +493,10 @@ global object F_complex_C (object x) {
           # a rational, b Float
           pushSTACK(b);
           floatcase(b,
-                    { a = RA_to_SF(a); SFC_durch_SFC(a,popSTACK()); },
-                    { a = RA_to_FF(a); FFC_durch_FFC(a,popSTACK()); },
-                    { a = RA_to_DF(a); DFC_durch_DFC(a,popSTACK()); },
-                    { a = RA_to_LF(a,Lfloat_length(b)); LFC_durch_LFC(a,popSTACK()); }
+                    { a = RA_to_SF(a,true); SFC_durch_SFC(a,popSTACK()); },
+                    { a = RA_to_FF(a,true); FFC_durch_FFC(a,popSTACK()); },
+                    { a = RA_to_DF(a,true); DFC_durch_DFC(a,popSTACK()); },
+                    { a = RA_to_LF(a,Lfloat_length(b),true); LFC_durch_LFC(a,popSTACK()); }
                    );
         }
       } else {
@@ -504,10 +504,10 @@ global object F_complex_C (object x) {
           # a Float, b rational
           pushSTACK(a);
           floatcase(a,
-                    { b = RA_to_SF(b); SFC_durch_SFC(popSTACK(),b); },
-                    { b = RA_to_FF(b); FFC_durch_FFC(popSTACK(),b); },
-                    { b = RA_to_DF(b); DFC_durch_DFC(popSTACK(),b); },
-                    { b = RA_to_LF(b,Lfloat_length(a)); LFC_durch_LFC(popSTACK(),b); }
+                    { b = RA_to_SF(b,true); SFC_durch_SFC(popSTACK(),b); },
+                    { b = RA_to_FF(b,true); FFC_durch_FFC(popSTACK(),b); },
+                    { b = RA_to_DF(b,true); DFC_durch_DFC(popSTACK(),b); },
+                    { b = RA_to_LF(b,Lfloat_length(a),true); LFC_durch_LFC(popSTACK(),b); }
                    );
         } else {
           # a,b Floats
@@ -739,10 +739,10 @@ global object F_complex_C (object x) {
         # a rational, b Float
         pushSTACK(b);
         floatcase(b,
-                  { a = RA_to_SF(a); return SF_SF_hypot_SF(a,popSTACK()); },
-                  { a = RA_to_FF(a); return FF_FF_hypot_FF(a,popSTACK()); },
-                  { a = RA_to_DF(a); return DF_DF_hypot_DF(a,popSTACK()); },
-                  { a = RA_to_LF(a,Lfloat_length(b)); return LF_LF_hypot_LF(a,popSTACK()); }
+                  { a = RA_to_SF(a,true); return SF_SF_hypot_SF(a,popSTACK()); },
+                  { a = RA_to_FF(a,true); return FF_FF_hypot_FF(a,popSTACK()); },
+                  { a = RA_to_DF(a,true); return DF_DF_hypot_DF(a,popSTACK()); },
+                  { a = RA_to_LF(a,Lfloat_length(b),true); return LF_LF_hypot_LF(a,popSTACK()); }
                  );
       }
     } else {
@@ -752,10 +752,10 @@ global object F_complex_C (object x) {
           return R_abs_R(a);
         pushSTACK(a);
         floatcase(a,
-                  { b = RA_to_SF(b); return SF_SF_hypot_SF(popSTACK(),b); },
-                  { b = RA_to_FF(b); return FF_FF_hypot_FF(popSTACK(),b); },
-                  { b = RA_to_DF(b); return DF_DF_hypot_DF(popSTACK(),b); },
-                  { b = RA_to_LF(b,Lfloat_length(a)); return LF_LF_hypot_LF(popSTACK(),b); }
+                  { b = RA_to_SF(b,true); return SF_SF_hypot_SF(popSTACK(),b); },
+                  { b = RA_to_FF(b,true); return FF_FF_hypot_FF(popSTACK(),b); },
+                  { b = RA_to_DF(b,true); return DF_DF_hypot_DF(popSTACK(),b); },
+                  { b = RA_to_LF(b,Lfloat_length(a),true); return LF_LF_hypot_LF(popSTACK(),b); }
                  );
       } else {
         # a,b Floats

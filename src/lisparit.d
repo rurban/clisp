@@ -209,19 +209,19 @@ global object read_float (uintWL base, signean sign, object string,
   /* mantissa = mantissa * power of ten, as unshortened rationale number! */
   switch (as_cint(exp_marker)) {
     case 'S': SF: { /* convert into a short-float */
-      var object x = RA_to_SF(mantisse);
+      var object x = RA_to_SF(mantisse,true);
       return (sign==0 ? x : SF_minus_SF(x)); /* poss. still a sign-change */
     }
     case 'F': FF: { /* convert into a single-float */
-      var object x = RA_to_FF(mantisse);
+      var object x = RA_to_FF(mantisse,true);
       return (sign==0 ? x : FF_minus_FF(x)); /* poss. still a sign-change */
     }
     case 'D': DF: { /* convert into a double-float */
-      var object x = RA_to_DF(mantisse);
+      var object x = RA_to_DF(mantisse,true);
       return (sign==0 ? x : DF_minus_DF(x)); /* poss. still a sign-change */
     }
     case 'L': LF: { /* convert into a long-float of default-exactness */
-      var object x = RA_to_LF(mantisse,I_to_UL(O(LF_digits)));
+      var object x = RA_to_LF(mantisse,I_to_UL(O(LF_digits)),true);
       return (sign==0 ? x : LF_minus_LF(x)); /* poss. still a sign-change */
     }
     default: /* case 'E': */
@@ -426,7 +426,7 @@ local object check_rational_replacement (object obj) {
 global double to_double (object x) {
   double ret;
   x = check_real(x);
-  DF_to_c_double(R_rationalp(x) ? RA_to_DF(x) : F_to_DF(x),
+  DF_to_c_double(R_rationalp(x) ? RA_to_DF(x,true) : F_to_DF(x),
                  (dfloatjanus*)&ret);
   return ret;
 }
@@ -1803,7 +1803,7 @@ local object log_digits (object x, object digits, gcv_object_t* objptr) {
        > 1 , so that it is not recalculated to often: */
     oldlen += floor(oldlen,2); /* oldlen * 3/2 */
     var uintC newlen = (d < oldlen ? oldlen : d);
-    ln_x = *objptr = LF_shorten_LF(R_ln_R(I_to_LF(x,newlen),true,NULL),
+    ln_x = *objptr = LF_shorten_LF(R_ln_R(I_to_LF(x,newlen,true),true,NULL),
                                    newlen); /* (ln x) - LF of len newlen */
     return (d < newlen ? LF_shorten_LF(ln_x,d) : ln_x);
   } else if (d > FF_mant_len+1) /* a double-float is sufficient */

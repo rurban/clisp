@@ -726,7 +726,8 @@
       );
   }
 
-/* I_to_FF(x) wandelt ein Integer x in ein Single-Float um und rundet dabei.
+/* I_to_FF(x,signal_overflow) converts an integer x to a single-float, and
+ rounds thereby.
  Methode:
  x=0 -> Ergebnis 0.0
  Merke Vorzeichen von x.
@@ -741,7 +742,7 @@
    Bei Aufrundung auf 2^24 (rounding overflow) Mantisse um 1 Bit nach rechts
      schieben und Exponent incrementieren.
  can trigger GC */
-local object I_to_FF (object x)
+local object I_to_FF (object x, bool signal_overflow)
 {
   if (eq(x,Fixnum_0))
     return FF_0;
@@ -791,14 +792,17 @@ local object I_to_FF (object x)
         mant = mant>>1; exp = exp+1;
       }
     }
+    #define fehler_overflow() \
+      if (signal_overflow) (fehler_overflow)(); else return nullobj;
     encode_FF(sign,(sintL)exp,mant, return);
+    #undef fehler_overflow
   }
 }
 
-# RA_to_FF(x) wandelt eine rationale Zahl x in ein Single-Float um
-# und rundet dabei.
+# RA_to_FF(x,signal_overflow) converts a rational number x to a single-float,
+# and rounds thereby.
 # can trigger GC
-  local object RA_to_FF (object x);
+  local object RA_to_FF (object x, bool signal_overflow);
 # Methode:
 # x ganz -> klar.
 # x = +/- a/b mit Integers a,b>0:
@@ -812,11 +816,13 @@ local object I_to_FF (object x)
 #   Der erste Wert ist >=2^24, <2^26.
 #   Falls er >=2^25 ist, runde 2 Bits weg,
 #   falls er <2^25 ist, runde 1 Bit weg.
-  local object RA_to_FF (object x)
+  local object RA_to_FF (object x, bool signal_overflow)
   {
     if (RA_integerp(x))
-      return I_to_FF(x);
+      return I_to_FF(x,signal_overflow);
     # x Ratio
+    #define fehler_overflow() \
+      if (signal_overflow) (fehler_overflow)(); else return nullobj;
     pushSTACK(TheRatio(x)->rt_den); # b
     var signean sign = RT_sign(x); # Vorzeichen
     x = TheRatio(x)->rt_num; # +/- a
@@ -826,8 +832,9 @@ local object I_to_FF (object x)
     # Stackaufbau: b, a.
     var sintL lendiff = I_integer_length(x) # (integer-length a)
                         - I_integer_length(STACK_1); # (integer-length b)
-    if (lendiff > FF_exp_high-FF_exp_mid) # Exponent >= n-m > Obergrenze ?
+    if (lendiff > FF_exp_high-FF_exp_mid) { # Exponent >= n-m > Obergrenze ?
       fehler_overflow(); # -> Overflow
+    }
     if (lendiff < FF_exp_low-FF_exp_mid-2) { # Exponent <= n-m+2 < Untergrenze ?
       if (underflow_allowed()) {
         fehler_underflow(); # -> Underflow
@@ -891,5 +898,6 @@ local object I_to_FF (object x)
     skipSTACK(2);
     # Fertig.
     encode_FF(sign,lendiff,mant, return);
+    #undef fehler_overflow
   }
 

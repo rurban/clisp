@@ -1,3 +1,23 @@
+2004-09-18  Bruno Haible  <bruno@clisp.org>
+
+	Avoid floating-point overflow in comparison of floats with rational
+	numbers.
+	* sfloat.d (I_to_SF, RA_to_SF): Add signal_overflow argument.
+	* ffloat.d (I_to_FF, RA_to_FF): Add signal_overflow argument.
+	* dfloat.d (I_to_DF, RA_to_DF): Add signal_overflow argument.
+	* lfloat.d (I_to_LF, RA_to_LF): Add signal_overflow argument.
+	* realelem.d (I_F_float_F): Update.
+	(RA_F_float_F): Add signal_overflow argument.
+	(R_F_float_F, R_to_SF, R_to_FF, R_to_DF, R_to_LF,
+	RA_F_exact_contagion_R, I_float_F, RA_float_F, RA_R_float_F,
+	GEN_R_op21): Update.
+	(R_R_comp): Avoid floating-point overflow when comparing float with
+	rational number.
+	* realtran.d (pi_F_float_F, ln2_F_float_F, R_R_log_R): Update.
+	* compelem.d (N_durch_N, R_R_hypot_R): Update.
+	* comptran.d (N_N_log_N, R_R_atanh_R_R): Update.
+	* lisparit.d (read_float, to_double, log_digits): Update.
+
 2004-09-21  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* foreign.d, foreign1.lisp, ffi.tst: Implement c-type
