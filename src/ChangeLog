@@ -1,3 +1,8 @@
+2000-08-26  Bruno Haible  <haible@clisp.cons.org>
+
+        * autoconf/acgeneral.m4 (AC_OUTPUT): Use braces in exec_prefix default
+          value, not parens.
+
 2000-08-18  Bruno Haible  <haible@clisp.cons.org>
 
         * pathname.d (parse_logical_host_prefix): Renamed from logical_host.
