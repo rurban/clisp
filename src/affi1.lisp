@@ -13,7 +13,7 @@
   (:use "COMMON-LISP" "EXT")
   (:import-from "SYSTEM"
                 sys::mem-read sys::mem-write sys::mem-write-vector
-                sys::nzero-pointer-p)
+                sys::nzero-pointer-p sys::text)
   (:export "DECLARE-LIBRARY-BASE" "REQUIRE-LIBRARY-FUNCTIONS"
            "OPEN-LIBRARY" "CLOSE-LIBRARY" "WITH-OPEN-LIBRARY"
            "DEFFLIBFUN" "DECLARE-LIBRARY-FUNCTION" "FLIBCALL" "MLIBCALL"
@@ -36,15 +36,16 @@
 (defun declare-library-base (symbol name)
   "Associate the SYMBOL referencing library NAME and import it."
   (unless (and (keywordp symbol) (stringp name))
-    (error (ENGLISH "Basename ~S not a keyword or libraryname ~S not a string")
+    (error (TEXT "Basename ~S not a keyword or libraryname ~S not a string")
       symbol name))
-  (setq symbol (intern (symbol-name symbol) (load-time-value (find-package "AFFI"))))
+  (setq symbol (intern (symbol-name symbol)
+                       (load-time-value (find-package "AFFI"))))
   (let ((found (assoc symbol *libraries-alist* :test #'eq)))
     (cond (found
            (unless (string-equal name (third found))
              ;; how possibly continue with cerror?
-             (error (ENGLISH "Library redefinition: old ~S, new ~S")
-               (third found) name)))
+             (error (TEXT "Library redefinition: old ~S, new ~S")
+                    (third found) name)))
           (t (push (list symbol 0 name) *libraries-alist*))))
   (proclaim `(special ,symbol))
   (import symbol)
@@ -53,8 +54,7 @@
 
 (defun check-library-base (symbol)
   (or (assoc symbol *libraries-alist* :test #'eq)
-      (error (ENGLISH "Unknown library: ~S")
-        symbol)))
+      (error (TEXT "Unknown library: ~S") symbol)))
 
 ;;TODO? library version
 (defun open-library (symbol)
@@ -80,8 +80,7 @@
   (let ((found (check-library-base symbol)))
     (cond
       ((not (boundp symbol))
-       (error (ENGLISH "Library ~S is not open")
-         symbol))
+       (error (TEXT "Library ~S is not open") symbol))
       ;;TODO? count<0 Test
       ((zerop (decf (second found)))
        (sys::%libcall
@@ -142,8 +141,8 @@ be a string, which must be the name of a known library."
                    (info (gethash common *library-functions*)))
               (if (and info (eq (car info) base))
                   (import-or-loose common)
-                  (error (ENGLISH "Unknown function of library ~S: ~S")
-                   name common))))))))
+                  (error (TEXT "Unknown function of library ~S: ~S")
+                         name common))))))))
       ((EQL T)
        ;; as we don't store functions on a per-library basis, walk over all
        (maphash
@@ -168,8 +167,7 @@ be a string, which must be the name of a known library."
 (defun defflibfun (name library offset mask result-type &rest arg-types)
   (check-library-base library)
   (unless (typep offset 'fixnum)        ;TODO not only reg calls
-    (error (ENGLISH "Offset must be a fixnum: ~S")
-      offset))
+    (error (TEXT "Offset must be a fixnum: ~S") offset))
   (let ((old (gethash name *library-functions*))
         (new (cons library
                    (concatenate
@@ -179,7 +177,7 @@ be a string, which must be the name of a known library."
     (unless (equalp old new)
       (when old
         (format *error-output*
-                (ENGLISH "~&;; redefining foreign library function ~S~%;;  from ~S to ~S~%")
+                (TEXT "~&;; redefining foreign library function ~S~%;;  from ~S to ~S~%")
                 name old new))
       ;; TODO check types
       (setf (gethash name *library-functions*) new)))
@@ -198,8 +196,8 @@ be a string, which must be the name of a known library."
                              '(:D0 :D1 :D2 :D3 :D4 :D5 :D6 :D7
                                :A0 :A1 :A2 :A3 :A4 :A5 :A6)
                              :test test)
-                            (error (ENGLISH "Unknown register: ~S")
-                              (first regs)))))))))
+                            (error (TEXT "Unknown register: ~S")
+                                   (first regs)))))))))
     (calc (reverse regs) 0)))
 
 ;; better-looking definitions (closer to FFI)
@@ -210,8 +208,8 @@ be a string, which must be the name of a known library."
       (unless (and (symbolp (first arg))  ; variable name
                    #+AMIGA (keywordp (third arg)) ; register
                    (null (nthcdr 3 arg))) ; nothing more
-        (error (ENGLISH "Invalid parameter specification ~S in function ~S")
-          arg name)))
+        (error (TEXT "Invalid parameter specification ~S in function ~S")
+               arg name)))
     `(defflibfun ',name ',base
       ',(second (assoc :offset options))
       ',(calc-register-mask (mapcar #'third arguments) #'eq)
@@ -219,11 +217,9 @@ be a string, which must be the name of a known library."
       ,.(mapcar #'(lambda (arg) (list 'quote (second arg))) arguments))))
 
 
-(flet
-    ((function-info (name)
-       (or (gethash name *library-functions*)
-           (error (ENGLISH "Unknown library function: ~S")
-             name))))
+(flet ((function-info (name)
+         (or (gethash name *library-functions*)
+             (error (TEXT "Unknown library function: ~S") name))))
 
 (defun flibcall (name &rest args)
   "Call library function NAME with any number of ARGS."
@@ -239,7 +235,7 @@ be a string, which must be the name of a known library."
     (if (= (length args) (- (length (cdr info)) 2))
         `(sys::%libcall ,(car info) ',(cdr info) . ,args)
         (sys::error-of-type 'sys::source-program-error
-          (ENGLISH "Bad number of arguments for ~S: ~S")
+          (TEXT "Bad number of arguments for ~S: ~S")
           name (length args)))))
 
 ) ; flet

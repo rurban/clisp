@@ -82,19 +82,16 @@ abort continue muffle-warning store-value use-value
 (defmacro define-condition (name parent-types slot-specs &rest options)
   (unless (symbolp name)
     (error-of-type 'source-program-error
-      (ENGLISH "~S: the name of a condition must be a symbol, not ~S")
-      'define-condition name
-  ) )
+      (TEXT "~S: the name of a condition must be a symbol, not ~S")
+      'define-condition name))
   (unless (and (listp parent-types) (every #'symbolp parent-types))
     (error-of-type 'source-program-error
-      (ENGLISH "~S: the parent-type list must be a list of symbols, not ~S")
-      'define-condition parent-types
-  ) )
+      (TEXT "~S: the parent-type list must be a list of symbols, not ~S")
+      'define-condition parent-types))
   (unless (listp slot-specs)
     (error-of-type 'source-program-error
-      (ENGLISH "~S: the slot description list must be a list, not ~S")
-      'define-condition slot-specs
-  ) )
+      (TEXT "~S: the slot description list must be a list, not ~S")
+      'define-condition slot-specs))
   (let ((default-initargs-option nil)
         (docstring-option nil)
         (report-function nil))
@@ -108,19 +105,15 @@ abort continue muffle-warning store-value use-value
                  (:DOCUMENTATION (setq docstring-option option))
                  (:REPORT (setq report-function (rest option)))
                  (T (error-of-type 'source-program-error
-                      (ENGLISH "~S ~S: unknown option ~S")
-                      'define-condition name (first option)
-               ) )  )
-              )
+                      (TEXT "~S ~S: unknown option ~S")
+                      'define-condition name (first option)))))
               (t
                (error-of-type 'source-program-error
-                 (ENGLISH "~S ~S: invalid syntax in ~S option: ~S")
-                 'define-condition name 'define-condition option
-        )     ))
+                 (TEXT "~S ~S: invalid syntax in ~S option: ~S")
+                 'define-condition name 'define-condition option)))
         (error-of-type 'source-program-error
-          (ENGLISH "~S ~S: not a ~S option: ~S")
-          'define-condition name 'define-condition option
-    ) ) )
+          (TEXT "~S ~S: not a ~S option: ~S")
+          'define-condition name 'define-condition option)))
     (let ((defclass-form
             `(CLOS:DEFCLASS ,name
                ,(clos::add-default-superclass parent-types 'CONDITION)
@@ -147,11 +140,9 @@ abort continue muffle-warning store-value use-value
 (defun make-condition (type &rest slot-initializations)
   (unless (subtypep type 'condition)
     (error-of-type 'error
-      (ENGLISH "~S: type ~S is not a subtype of ~S")
-      'make-condition type 'condition
-  ) )
-  (apply #'clos:make-instance type slot-initializations)
-)
+      (TEXT "~S: type ~S is not a subtype of ~S")
+      'make-condition type 'condition))
+  (apply #'clos:make-instance type slot-initializations))
 
 ; canonicalize a condition argument, CLtL2 p. 888
 (defun coerce-to-condition (datum arguments
@@ -163,9 +154,8 @@ abort continue muffle-warning store-value use-value
         (unless (eq caller-name 'cerror)
           (error-of-type 'type-error
             :datum arguments :expected-type 'null
-            (ENGLISH "~S ~S: superfluous arguments ~S")
-            caller-name datum arguments
-      ) ) )
+            (TEXT "~S ~S: superfluous arguments ~S")
+            caller-name datum arguments)))
       datum
     )
     (symbol
@@ -180,9 +170,8 @@ abort continue muffle-warning store-value use-value
     (t
       (error-of-type 'type-error
         :datum datum :expected-type '(or condition symbol string function)
-        (ENGLISH "~S: the condition argument must be a string, a symbol or a condition, not ~S")
-        caller-name datum
-) ) ) )
+        (TEXT "~S: the condition argument must be a string, a symbol or a condition, not ~S")
+        caller-name datum))))
 
 ;;; 29.5. Predefined Condition Types
 
@@ -580,22 +569,20 @@ abort continue muffle-warning store-value use-value
           (unless (and (consp clause) (consp (cdr clause))
                        (listp (second clause)))
             (error-of-type 'source-program-error
-                           (ENGLISH "~S: illegal syntax of clause ~S")
+                           (TEXT "~S: illegal syntax of clause ~S")
                            'handler-case clause))
           (when (eq (first clause) ':no-error)
             (if (null no-error-clause)
               (setq no-error-clause clause)
-              (warn (ENGLISH "~S: multiple ~S clauses: ~S and ~S")
+              (warn (TEXT "~S: multiple ~S clauses: ~S and ~S")
                     'handler-case ':no-error clause no-error-clause))
             (return-from check-clause))
           (let ((varlist (second clause))) ; known to be a list
             (unless (null (cdr varlist))
               (error-of-type 'source-program-error
-                (ENGLISH "~S: too many variables ~S in clause ~S")
-                'handler-case varlist clause
-          ) ) )
-          (push (cons (gensym) clause) extended-clauses)
-    ) ) )
+                (TEXT "~S: too many variables ~S in clause ~S")
+                'handler-case varlist clause)))
+          (push (cons (gensym) clause) extended-clauses))))
     (setq extended-clauses (nreverse extended-clauses))
     (let ((blockname (gensym))
           (tempvar (gensym)))
@@ -804,9 +791,8 @@ abort continue muffle-warning store-value use-value
 (defun find-restart (restart-identifier &optional condition)
   (cond ((null restart-identifier)
          (error-of-type 'error
-           (ENGLISH "~S: ~S is not a valid restart name here. Use ~S instead.")
-           'find-restart restart-identifier 'compute-restarts
-        ))
+           (TEXT "~S: ~S is not a valid restart name here. Use ~S instead.")
+           'find-restart restart-identifier 'compute-restarts))
         ((symbolp restart-identifier)
          (dolist (restart *active-restarts*)
            (when (and (eq (restart-name restart) restart-identifier)
@@ -825,16 +811,13 @@ abort continue muffle-warning store-value use-value
         )) )
         (t (error-of-type 'type-error
              :datum restart-identifier :expected-type '(or symbol restart)
-             (ENGLISH "~S: invalid restart name ~S")
-             'find-restart restart-identifier
-        )  )
-) )
+             (TEXT "~S: invalid restart name ~S")
+             'find-restart restart-identifier))))
 
 (defun restart-not-found (restart-identifier)
   (error-of-type 'control-error
-    (ENGLISH "~S: No restart named ~S is visible.")
-    'invoke-restart restart-identifier
-) )
+    (TEXT "~S: No restart named ~S is visible.")
+    'invoke-restart restart-identifier))
 
 (defun %invoke-restart (restart arguments)
   (if (restart-invoke-tag restart)
@@ -890,18 +873,16 @@ abort continue muffle-warning store-value use-value
   (setq body `(PROGN ,@body))
   (unless (listp restart-specs)
     (error-of-type 'source-program-error
-      (ENGLISH "~S: not a list: ~S")
-      'restart-bind restart-specs
-  ) )
+      (TEXT "~S: not a list: ~S")
+      'restart-bind restart-specs))
   (if restart-specs
     `(LET ((*ACTIVE-RESTARTS*
              (LIST*
                ,@(mapcar #'(lambda (spec)
                              (unless (and (listp spec) (consp (cdr spec)) (symbolp (first spec)))
                                (error-of-type 'source-program-error
-                                 (ENGLISH "~S: invalid restart specification ~S")
-                                 'restart-bind spec
-                             ) )
+                                 (TEXT "~S: invalid restart specification ~S")
+                                 'restart-bind spec))
                              (apply #'(lambda (name function
                                                &key (test-function '(FUNCTION DEFAULT-RESTART-TEST))
                                                     (interactive-function '(FUNCTION DEFAULT-RESTART-INTERACTIVE))
@@ -910,9 +891,8 @@ abort continue muffle-warning store-value use-value
                                           ; CLtL2 p. 906: "It is an error if an unnamed restart is used
                                           ; and no report information is provided."
                                           (error-of-type 'source-program-error
-                                            (ENGLISH "~S: unnamed restarts require ~S to be specified: ~S")
-                                            'restart-bind ':REPORT-FUNCTION spec
-                                        ) )
+                                            (TEXT "~S: unnamed restarts require ~S to be specified: ~S")
+                                            'restart-bind ':REPORT-FUNCTION spec))
                                         (make-restart-form `',name
                                                            test-function
                                                            'NIL
@@ -949,18 +929,16 @@ abort continue muffle-warning store-value use-value
   (defun expand-restart-case (caller restart-clauses form)
     (unless (listp restart-clauses)
       (error-of-type 'source-program-error
-        (ENGLISH "~S: not a list: ~S")
-        caller restart-clauses
-    ) )
+        (TEXT "~S: not a list: ~S")
+        caller restart-clauses))
     (let ((xclauses ; list of expanded clauses
                     ; ((tag name test interactive report lambdalist . body) ...)
             (mapcar
               #'(lambda (restart-clause &aux (clause restart-clause))
                   (unless (and (consp clause) (consp (cdr clause)) (symbolp (first clause)))
                     (error-of-type 'source-program-error
-                      (ENGLISH "~S: invalid restart specification ~S")
-                      caller clause
-                  ) )
+                      (TEXT "~S: invalid restart specification ~S")
+                      caller clause))
                   (let ((name (pop clause))
                         (passed-arglist nil)
                         (passed-keywords nil)
@@ -981,9 +959,8 @@ abort continue muffle-warning store-value use-value
                     ) )
                     (unless passed-arglist
                       (error-of-type 'source-program-error
-                        (ENGLISH "~S: missing lambda list in restart specification ~S")
-                        caller clause
-                    ) )
+                        (TEXT "~S: missing lambda list in restart specification ~S")
+                        caller clause))
                     (multiple-value-bind (test interactive report)
                         (apply #'(lambda (&key (test 'DEFAULT-RESTART-TEST)
                                                (interactive 'DEFAULT-RESTART-INTERACTIVE)
@@ -996,17 +973,15 @@ abort continue muffle-warning store-value use-value
                         ; CLtL2 p. 906: "It is an error if an unnamed restart is used
                         ; and no report information is provided."
                         (error-of-type 'source-program-error
-                          (ENGLISH "~S: unnamed restarts require ~S to be specified: ~S")
-                          caller ':REPORT restart-clause
-                      ) )
+                          (TEXT "~S: unnamed restarts require ~S to be specified: ~S")
+                          caller ':REPORT restart-clause))
                       (when (and (consp arglist) (not (member (first arglist) lambda-list-keywords))
                                  (eq interactive 'DEFAULT-RESTART-INTERACTIVE)
                             )
                         ; restart takes required arguments but does not have an
                         ; interactive function that will prompt for them.
-                        (warn (ENGLISH "~S: restart cannot be invoked interactively because it is missing a ~S option: ~S")
-                              caller ':INTERACTIVE restart-clause
-                      ) )
+                        (warn (TEXT "~S: restart cannot be invoked interactively because it is missing a ~S option: ~S")
+                              caller ':INTERACTIVE restart-clause))
                       `(,(gensym)
                         ,name
                         ,test ,interactive ,report
@@ -1202,8 +1177,7 @@ abort continue muffle-warning store-value use-value
            (list (read *query-io*)))
           ((do ((ii 1 (1+ ii)) res)
                ((> ii nn) (nreverse res))
-             (format *query-io*
-                     (ENGLISH "~%New ~S [value ~D of ~D]: ")
+             (format *query-io* (TEXT "~%New ~S [value ~D of ~D]: ")
                      place ii nn)
              (push (read *query-io*) res))))))
 
@@ -1299,7 +1273,7 @@ abort continue muffle-warning store-value use-value
          (mapcar #'(lambda (c)
                      (cond ((or (eq (car c) 't)
                                 (eq (car c) 'otherwise))
-                            (warn (ENGLISH "~S used as a key in ~S, it would be better to use parentheses.")
+                            (warn (TEXT "~S used as a key in ~S, it would be better to use parentheses.")
                                   (car c) c)
                             (cons (list (car c)) (cdr c)))
                            (t c)))
@@ -1421,9 +1395,8 @@ abort continue muffle-warning store-value use-value
       (with-restarts
           ((CONTINUE
             :report (lambda (stream)
-                      (format stream (ENGLISH "Return from ~S loop")
-                                     'break
-                    ) )
+                      (format stream (TEXT "Return from ~S loop")
+                                     'break))
             ()
           ))
         (with-condition-restarts condition (list (find-restart 'CONTINUE))
@@ -1471,9 +1444,8 @@ abort continue muffle-warning store-value use-value
         (terpri *debug-io*)
         (if (interactive-stream-p *debug-io*)
           (progn
-            (write-string (ENGLISH "If you continue (by typing 'continue'): ")
-                          *debug-io*
-            )
+            (write-string (TEXT "If you continue (by typing 'continue'): ")
+                          *debug-io*)
             (apply #'format *debug-io* continue-format-string args)
             (funcall *break-driver* t)
           )
@@ -1505,9 +1477,7 @@ abort continue muffle-warning store-value use-value
   (if (not *use-clcs*)
     (progn
       (terpri *error-output*)
-      (write-string (ENGLISH "WARNING:")
-                    *error-output*
-      )
+      (write-string (TEXT "WARNING:") *error-output*)
       (terpri *error-output*)
       (apply #'format *error-output* format-string args)
       (when *break-on-warnings* (funcall *break-driver* t))
@@ -1517,9 +1487,8 @@ abort continue muffle-warning store-value use-value
         (unless (typep condition 'warning)
           (error-of-type 'type-error
             :datum condition :expected-type 'warning
-            (ENGLISH "~S: This is more serious than a warning: ~A")
-            'warn condition
-        ) )
+            (TEXT "~S: This is more serious than a warning: ~A")
+            'warn condition))
         (with-restarts
             ((MUFFLE-WARNING
                () (return-from warn)
@@ -1528,18 +1497,14 @@ abort continue muffle-warning store-value use-value
             (signal condition)
         ) )
         (terpri *error-output*)
-        (write-string (ENGLISH "WARNING:")
-                      *error-output*
-        )
+        (write-string (TEXT "WARNING:") *error-output* )
         (terpri *error-output*)
         (print-condition condition *error-output*)
         (when *break-on-warnings*
           (with-restarts
               ((CONTINUE
                 :report (lambda (stream)
-                          (format stream (ENGLISH "Return from ~S loop")
-                                         'break
-                        ) )
+                          (format stream (TEXT "Return from ~S loop") 'break))
                 () (return-from warn)
               ))
             (with-condition-restarts condition (list (find-restart 'CONTINUE))

@@ -1036,7 +1036,12 @@
         var const char * const * pname_ptr = &pname_table[0]; # pname_table durchgehen
         var const uintB* index_ptr = &package_index_table[0]; # package_index_table durchgehen
         var uintC count = symbol_anz;
-        do { ptr->pname = coerce_imm_ss(ascii_to_string(*pname_ptr++)); # Printnamen eintragen
+        do { ptr->pname =
+               coerce_imm_ss(' ' == **pname_ptr # non-ASCII
+                             ? asciz_to_string(*pname_ptr+1, # skip ' '
+                                               Symbol_value(S(utf_8)))
+                             : ascii_to_string(*pname_ptr));
+             pname_ptr++;
             {var uintB index = *index_ptr++;
              var object* package_ = &STACK_(package_anz-1) STACKop -(uintP)index; # Pointer auf Package
              pushSTACK(symbol_tab_ptr_as_object(ptr)); # Symbol
@@ -1414,10 +1419,10 @@
         init_subr_tab_2();
         # Packages initialisieren:
         init_packages();
+        init_encodings_1(); # init some encodings (utf_8 for init_symbol_tab_2)
         # symbol_tab fertig initialisieren:
         init_symbol_tab_2();
-        # Encodings initialisieren:
-        init_encodings();
+        init_encodings_2(); # init the rest of encodings
         # SUBRs/FSUBRs in ihre Symbole eintragen:
         init_symbol_functions();
         # Konstanten/Variablen: Wert in die Symbole eintragen:
@@ -2539,6 +2544,8 @@ local void print_banner ()
         else
         # Speicherfile laden:
         { loadmem(argv_memfile); }
+      # init O(current_language)
+      O(current_language) = current_language_o(language);
       init_other_modules_2(); # die noch uninitialisierten Module initialisieren
       # aktuelle Evaluator-Environments auf den Toplevel-Wert setzen:
       aktenv.var_env   = NIL;

@@ -16,7 +16,7 @@
     (if file
       (progn
         (if dribble-file
-          (warn (ENGLISH "Already dribbling to ~S")
+          (warn (TEXT "Already dribbling to ~S")
                 dribble-file
           )
           ;; Dribbling means to redirect all screen output to the file.
@@ -102,5 +102,5 @@
             (close *dribble-stream*)
             (setq *dribble-stream* (make-broadcast-stream))
         ) )
-        (warn (ENGLISH "Currently not dribbling."))
+        (warn (TEXT "Currently not dribbling."))
 ) ) ) )

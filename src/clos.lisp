@@ -12,6 +12,7 @@
 (:import-from "EXT" ext:mapcap)
 (:import-from "SYSTEM"
   ;; Import:
+  sys::text                     ; for error messages (i18n.d)
   sys::error-of-type                                 ; in error.d definiert
   sys::function-name-p                               ; in control.d definiert
   sys::function-block-name                           ; in init.lisp definiert
@@ -58,8 +59,6 @@
 ) ; defpackage
 
 (in-package "CLOS")
-;; for the `ENGLISH' macro
-(eval-when (compile load eval) (use-package '("I18N") "CLOS"))
 
 ;;; Exportierungen: ** auch in init.lisp ** !
 (export
@@ -167,16 +166,15 @@
   (unless (symbolp symbol)
     (error-of-type 'type-error
       :datum symbol :expected-type 'symbol
-      (ENGLISH "~S: argument ~S is not a symbol")
+      (TEXT "~S: argument ~S is not a symbol")
       'find-class symbol
   ) )
   (let ((class (get symbol 'CLOSCLASS)))
     (if (not (class-p class))
       (if errorp
         (error-of-type 'error
-          (ENGLISH "~S: ~S does not name a class")
-          'find-class symbol
-        )
+          (TEXT "~S: ~S does not name a class")
+          'find-class symbol)
         nil
       )
       class
@@ -188,22 +186,19 @@
   (unless (symbolp symbol)
     (error-of-type 'type-error
       :datum symbol :expected-type 'symbol
-      (ENGLISH "~S: argument ~S is not a symbol")
-      '(setf find-class) symbol
-  ) )
+      (TEXT "~S: argument ~S is not a symbol")
+      '(setf find-class) symbol))
   (unless (class-p new-value)
     (error-of-type 'type-error
       :datum new-value :expected-type 'class
-      (ENGLISH "~S: ~S is not a class")
-      '(setf find-class) new-value
-  ) )
+      (TEXT "~S: ~S is not a class")
+      '(setf find-class) new-value))
   (let ((h (get symbol 'CLOSCLASS)))
     (when (class-p h)
       (when (and (built-in-class-p h) (eq (class-name h) symbol)) ; auch Structure-Klassen schützen??
         (error-of-type 'error
-          (ENGLISH "~S: cannot redefine built-in class ~S")
-          '(setf find-class) h
-      ) )
+          (TEXT "~S: cannot redefine built-in class ~S")
+          '(setf find-class) h))
       (sys::check-redefinition symbol '(setf find-class) "class")
       ; Sollte man (setf (class-name h) nil) machen??
   ) )
@@ -357,9 +352,8 @@
 (defun no-slot-error (class object slot-name)
   (declare (ignore slot-name))
   (error-of-type 'error
-    (ENGLISH "instance ~S of class ~S has no slots (wrong metaclass)")
-    object class
-) )
+    (TEXT "instance ~S of class ~S has no slots (wrong metaclass)")
+    object class))
 |#
 
 ;; Der Effizienz halber - wir wollen den Test auf <standard-class> umgehen -
@@ -378,29 +372,24 @@
         (slots '()))
     (unless (listp slot-entries)
       (error-of-type 'sys::source-program-error
-        (ENGLISH "~S: not a list of slots: ~S")
-        'with-slots slot-entries
-    ) )
+        (TEXT "~S: not a list of slots: ~S")
+        'with-slots slot-entries))
     (dolist (slot slot-entries)
       (let ((var slot))
         (when (consp slot)
           (unless (eql (length slot) 2)
             (error-of-type 'sys::source-program-error
-              (ENGLISH "~S: invalid slot and variable specification ~S")
-              'with-slots slot
-          ) )
+              (TEXT "~S: invalid slot and variable specification ~S")
+              'with-slots slot))
           (setq var (first slot) slot (second slot))
           (unless (symbolp var)
             (error-of-type 'sys::source-program-error
-              (ENGLISH "~S: variable ~S should be a symbol")
-              'with-slots var
-          ) )
-        )
+              (TEXT "~S: variable ~S should be a symbol")
+              'with-slots var)))
         (unless (symbolp slot)
           (error-of-type 'sys::source-program-error
-            (ENGLISH "~S: slot name ~S should be a symbol")
-            'with-slots slot
-        ) )
+            (TEXT "~S: slot name ~S should be a symbol")
+            'with-slots slot))
         (push var vars)
         (push slot slots)
     ) )
@@ -423,26 +412,21 @@
 (defmacro with-accessors (slot-entries instance-form &body body &environment env)
   (unless (listp slot-entries)
     (error-of-type 'sys::source-program-error
-      (ENGLISH "~S: not a list of slots: ~S")
-      'with-accessors slot-entries
-  ) )
+      (TEXT "~S: not a list of slots: ~S")
+      'with-accessors slot-entries))
   (dolist (slot-entry slot-entries)
     (unless (and (consp slot-entry) (eql (length slot-entry) 2))
       (error-of-type 'sys::source-program-error
-        (ENGLISH "~S: invalid slot and accessor specification ~S")
-        'with-accessors slot-entry
-    ) )
+        (TEXT "~S: invalid slot and accessor specification ~S")
+        'with-accessors slot-entry))
     (unless (symbolp (first slot-entry))
       (error-of-type 'sys::source-program-error
-        (ENGLISH "~S: variable ~S should be a symbol")
-        'with-accessors (first slot-entry)
-    ) )
+        (TEXT "~S: variable ~S should be a symbol")
+        'with-accessors (first slot-entry)))
     (unless (symbolp (second slot-entry))
       (error-of-type 'sys::source-program-error
-        (ENGLISH "~S: accessor name ~S should be a symbol")
-        'with-accessors (second slot-entry)
-    ) )
-  )
+        (TEXT "~S: accessor name ~S should be a symbol")
+        'with-accessors (second slot-entry))))
   (multiple-value-bind (body-rest declarations) (sys::parse-body body nil env)
     (let ((instance-var (gensym)))
       `(LET ((,instance-var ,instance-form))
@@ -524,22 +508,19 @@
 (defmacro defclass (name superclass-specs slot-specs &rest options)
   (unless (symbolp name)
     (error-of-type 'sys::source-program-error
-      (ENGLISH "~S: class name ~S should be a symbol")
-      'defclass name
-  ) )
+      (TEXT "~S: class name ~S should be a symbol")
+      'defclass name))
   (let* ((superclass-forms
            (progn
              (unless (listp superclass-specs)
                (error-of-type 'sys::source-program-error
-                 (ENGLISH "~S ~S: expecting list of superclasses instead of ~S")
-                 'defclass name superclass-specs
-             ) )
+                 (TEXT "~S ~S: expecting list of superclasses instead of ~S")
+                 'defclass name superclass-specs))
              (mapcar #'(lambda (superclass)
                          (unless (symbolp superclass)
                            (error-of-type 'sys::source-program-error
-                             (ENGLISH "~S ~S: superclass name ~S should be a symbol")
-                             'defclass name superclass
-                         ) )
+                             (TEXT "~S ~S: superclass name ~S should be a symbol")
+                             'defclass name superclass))
                          `(FIND-CLASS ',superclass)
                        )
                      superclass-specs
@@ -549,9 +530,8 @@
            (let ((slot-names '()))
              (unless (listp slot-specs)
                (error-of-type 'sys::source-program-error
-                 (ENGLISH "~S ~S: expecting list of slot specifications instead of ~S")
-                 'defclass name slot-specs
-             ) )
+                 (TEXT "~S ~S: expecting list of slot specifications instead of ~S")
+                 'defclass name slot-specs))
              (mapcar #'(lambda (slot-spec)
                          (let ((slot-name slot-spec) (slot-options '()))
                            (when (consp slot-spec)
@@ -559,14 +539,12 @@
                            )
                            (unless (symbolp slot-name)
                              (error-of-type 'sys::source-program-error
-                               (ENGLISH "~S ~S: slot name ~S should be a symbol")
-                               'defclass name slot-name
-                           ) )
+                               (TEXT "~S ~S: slot name ~S should be a symbol")
+                               'defclass name slot-name))
                            (if (member slot-name slot-names :test #'eq)
                              (error-of-type 'sys::source-program-error
-                               (ENGLISH "~S ~S: There may be only one direct slot with the name ~S.")
-                               'defclass name slot-name
-                             )
+                               (TEXT "~S ~S: There may be only one direct slot with the name ~S.")
+                               'defclass name slot-name)
                              (push slot-name slot-names)
                            )
                            (let ((accessors '())
@@ -579,9 +557,8 @@
                                  (documentation nil))
                              (when (oddp (length slot-options))
                                (error-of-type 'sys::source-program-error
-                                 (ENGLISH "~S ~S: slot options for slot ~S must come in pairs")
-                                 'defclass name slot-name
-                             ) )
+                                 (TEXT "~S ~S: slot options for slot ~S must come in pairs")
+                                 'defclass name slot-name))
                              (do ((optionsr slot-options (cddr optionsr)))
                                  ((atom optionsr))
                                (let ((optionkey (first optionsr))
@@ -590,9 +567,8 @@
                                    ((:READER :WRITER)
                                     (unless (function-name-p argument)
                                       (error-of-type 'sys::source-program-error
-                                        (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a function name")
-                                        'defclass name slot-name argument
-                                    ) )
+                                        (TEXT "~S ~S, slot option for slot ~S: ~S is not a function name")
+                                        'defclass name slot-name argument))
                                     (case optionkey
                                       (:READER (push argument readers))
                                       (:WRITER (push argument writers))
@@ -600,9 +576,8 @@
                                    (:ACCESSOR
                                     (unless (symbolp argument)
                                       (error-of-type 'sys::source-program-error
-                                        (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a symbol")
-                                        'defclass name slot-name argument
-                                    ) )
+                                        (TEXT "~S ~S, slot option for slot ~S: ~S is not a symbol")
+                                        'defclass name slot-name argument))
                                     (push argument accessors)
                                     (push argument readers)
                                     (push `(SETF ,argument) writers)
@@ -610,59 +585,47 @@
                                    (:ALLOCATION
                                     (when allocation
                                       (error-of-type 'sys::source-program-error
-                                        (ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once")
-                                        'defclass name ':allocation slot-name
-                                    ) )
+                                        (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
+                                        'defclass name ':allocation slot-name))
                                     (case argument
                                       ((:INSTANCE :CLASS) (setq allocation argument))
                                       (t (error-of-type 'sys::source-program-error
-                                           (ENGLISH "~S ~S, slot option for slot ~S must have the value ~S or ~S, not ~S")
-                                           'defclass name slot-name ':instance ':class argument
-                                   )) )  )
+                                           (TEXT "~S ~S, slot option for slot ~S must have the value ~S or ~S, not ~S")
+                                           'defclass name slot-name ':instance ':class argument))))
                                    (:INITARG
                                     (unless (symbolp argument)
                                       (error-of-type 'sys::source-program-error
-                                        (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a symbol")
-                                        'defclass name slot-name argument
-                                    ) )
-                                    (push argument initargs)
-                                   )
+                                        (TEXT "~S ~S, slot option for slot ~S: ~S is not a symbol")
+                                        'defclass name slot-name argument))
+                                    (push argument initargs))
                                    (:INITFORM
                                     (when initform
                                       (error-of-type 'sys::source-program-error
-                                        (ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once")
-                                        'defclass name ':initform slot-name
-                                    ) )
+                                        (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
+                                        'defclass name ':initform slot-name))
                                     (setq initform `(QUOTE ,argument)
                                           initer (make-initer argument)
                                    ))
                                    (:TYPE
                                     (when types
                                       (error-of-type 'sys::source-program-error
-                                        (ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once")
-                                        'defclass name ':type slot-name
-                                    ) )
-                                    (setq types (list argument))
-                                   )
+                                        (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
+                                        'defclass name ':type slot-name))
+                                    (setq types (list argument)))
                                    (:DOCUMENTATION
                                     (when documentation
                                       (error-of-type 'sys::source-program-error
-                                        (ENGLISH "~S ~S, slot option ~S for slot ~S may only be given once")
-                                        'defclass name ':documentation slot-name
-                                    ) )
+                                        (TEXT "~S ~S, slot option ~S for slot ~S may only be given once")
+                                        'defclass name ':documentation slot-name))
                                     (unless (stringp argument)
                                       (error-of-type 'sys::source-program-error
-                                        (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a string")
-                                        'defclass name slot-name argument
-                                    ) )
-                                    (setq documentation argument)
-                                   )
+                                        (TEXT "~S ~S, slot option for slot ~S: ~S is not a string")
+                                        'defclass name slot-name argument))
+                                    (setq documentation argument))
                                    (t
                                      (error-of-type 'sys::source-program-error
-                                       (ENGLISH "~S ~S, slot option for slot ~S: ~S is not a valid slot option")
-                                       'defclass name slot-name optionkey
-                                   ) )
-                             ) ) )
+                                       (TEXT "~S ~S, slot option for slot ~S: ~S is not a valid slot option")
+                                       'defclass name slot-name optionkey)))))
                              (setq readers (nreverse readers))
                              (setq writers (nreverse writers))
                              (dolist (funname readers)
@@ -710,34 +673,29 @@
                                (:DOCUMENTATION documentation)
                              )
                          (error-of-type 'sys::source-program-error
-                           (ENGLISH "~S ~S, option ~S may only be given once")
-                           'defclass name optionkey
-                       ) )
+                           (TEXT "~S ~S, option ~S may only be given once")
+                           'defclass name optionkey))
                        (case optionkey
                          (:METACLASS
                           (when (eql (length option) 2)
                             (let ((argument (second option)))
                               (unless (symbolp argument)
                                 (error-of-type 'sys::source-program-error
-                                  (ENGLISH "~S ~S, option ~S: ~S is not a symbol")
-                                  'defclass name option argument
-                              ) )
-                              (setq metaclass `(:METACLASS (FIND-CLASS ',argument)))
-                            )
+                                  (TEXT "~S ~S, option ~S: ~S is not a symbol")
+                                  'defclass name option argument))
+                              (setq metaclass `(:METACLASS (FIND-CLASS ',argument))))
                             (return)
                          ))
                          (:DEFAULT-INITARGS
                           (let ((list (rest option)))
                             (when (and (consp list) (null (cdr list)) (listp (car list)))
                               (setq list (car list))
-                              (warn (ENGLISH "~S ~S: option ~S should be written ~S")
-                                    'defclass name option (cons ':DEFAULT-INITARGS list)
-                            ) )
+                              (warn (TEXT "~S ~S: option ~S should be written ~S")
+                                    'defclass name option (cons ':DEFAULT-INITARGS list)))
                             (when (oddp (length list))
                               (error-of-type 'sys::source-program-error
-                                (ENGLISH "~S ~S, option ~S: arguments must come in pairs")
-                                'defclass name option
-                            ) )
+                                (TEXT "~S ~S, option ~S: arguments must come in pairs")
+                                'defclass name option))
                             (setq direct-default-initargs
                                   `(:DIRECT-DEFAULT-INITARGS
                                     (LIST
@@ -746,14 +704,12 @@
                                              ((atom list))
                                            (unless (symbolp (first list))
                                              (error-of-type 'sys::source-program-error
-                                               (ENGLISH "~S ~S, option ~S: ~S is not a symbol")
-                                               'defclass name option (first list)
-                                           ) )
+                                               (TEXT "~S ~S, option ~S: ~S is not a symbol")
+                                               'defclass name option (first list)))
                                            (when (member (first list) arglist)
                                              (error-of-type 'sys::source-program-error
-                                               (ENGLISH "~S ~S, option ~S: ~S may only be given once")
-                                               'defclass name option (first list)
-                                           ) )
+                                               (TEXT "~S ~S, option ~S: ~S may only be given once")
+                                               'defclass name option (first list)))
                                            (push (first list) arglist)
                                            (push (second list) formlist)
                                          )
@@ -771,18 +727,16 @@
                             (let ((argument (second option)))
                               (unless (stringp argument)
                                 (error-of-type 'sys::source-program-error
-                                  (ENGLISH "~S ~S, option ~S: ~S is not a string")
-                                  'defclass name option argument
-                              ) )
+                                  (TEXT "~S ~S, option ~S: ~S is not a string")
+                                  'defclass name option argument))
                               (setq documentation `(:DOCUMENTATION ',argument))
                             )
                             (return)
                          ))
                    ) ) )
                    (error-of-type 'sys::source-program-error
-                     (ENGLISH "~S ~S: invalid option ~S")
-                     'defclass name option
-               ) ) )
+                     (TEXT "~S ~S: invalid option ~S")
+                     'defclass name option)))
                `(,@metaclass ,@direct-default-initargs ,@documentation)
              )
        ) )
@@ -887,9 +841,8 @@
           (return-from ensure-class class)
         )
         (progn
-          (warn (ENGLISH "~S: Class ~S is being redefined, instances are obsolete")
-                'defclass name
-          )
+          (warn (TEXT "~S: Class ~S is being redefined, instances are obsolete")
+                'defclass name)
           ; Durch alle Symbole durchlaufen, um die Unterklassen abzugrasen.
           ; Sollte eleganter gehen??
           (let ((subclass-names (list name)))
@@ -974,9 +927,8 @@
   (unless *allow-mixing-metaclasses*
     (unless (every #'standard-class-p direct-superclasses)
       (error-of-type 'error
-        (ENGLISH "~S ~S: superclass ~S should belong to class STANDARD-CLASS")
-        'defclass name (find-if-not #'standard-class-p direct-superclasses)
-  ) ) )
+        (TEXT "~S ~S: superclass ~S should belong to class STANDARD-CLASS")
+        'defclass name (find-if-not #'standard-class-p direct-superclasses))))
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
   (setf (class-precedence-list class)
         (std-compute-cpl class
@@ -1144,7 +1096,7 @@
         ) )
         (when (null M)
           (error-of-type 'error
-            (ENGLISH "~S ~S: inconsistent precedence graph, cycle ~S")
+            (TEXT "~S ~S: inconsistent precedence graph, cycle ~S")
             'defclass (class-classname class)
             ; Zyklus finden: mit Hilfe der Restriktionen zu immer
             ; kleineren Elementen voranschreiten.
@@ -1183,9 +1135,8 @@
                     ((null DL) t)
                   (when (null (setq CL (member (car DL) CL))) (return nil))
                 )
-                (warn (ENGLISH "(class-precedence-list ~S) and (class-precedence-list ~S) are inconsistent")
-                      class D
-            ) ) )
+                (warn (TEXT "(class-precedence-list ~S) and (class-precedence-list ~S) are inconsistent")
+                      class D)))
           direct-superclasses
     )
     L
@@ -1340,9 +1291,8 @@
   (unless *allow-mixing-metaclasses*
     (unless (every #'built-in-class-p direct-superclasses)
       (error-of-type 'error
-        (ENGLISH "~S: superclass ~S should belong to class BUILT-IN-CLASS")
-        name (find-if-not #'built-in-class-p direct-superclasses)
-  ) ) )
+        (TEXT "~S: superclass ~S should belong to class BUILT-IN-CLASS")
+        name (find-if-not #'built-in-class-p direct-superclasses))))
   (let ((class (make-built-in-class :classname name :metaclass metaclass)))
     (setf (class-direct-superclasses class) (copy-list direct-superclasses))
     (setf (class-precedence-list class)
@@ -1382,15 +1332,13 @@
   ; metaclass <= <structure-class>
   (unless (null (cdr direct-superclasses))
     (error-of-type 'error
-      (ENGLISH "~S: metaclass STRUCTURE-CLASS forbids more than one direct superclass")
-      name
-  ) )
+      (TEXT "~S: metaclass STRUCTURE-CLASS forbids more than one direct superclass")
+      name))
   (unless *allow-mixing-metaclasses*
     (unless (every #'structure-class-p direct-superclasses)
       (error-of-type 'error
-        (ENGLISH "~S: superclass ~S should belong to class STRUCTURE-CLASS")
-        name (first direct-superclasses)
-  ) ) )
+        (TEXT "~S: superclass ~S should belong to class STRUCTURE-CLASS")
+        name (first direct-superclasses))))
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
   (setf (class-precedence-list class)
         (std-compute-cpl class
@@ -1428,9 +1376,8 @@
            (shared-index (std-layout-slots class more-slots)))
       (when (plusp shared-index)
         (error-of-type 'error
-          (ENGLISH "~S: metaclass STRUCTURE-CLASS does not support shared slots")
-          name
-      ) )
+          (TEXT "~S: metaclass STRUCTURE-CLASS does not support shared slots")
+          name))
       (setf (class-slots class) (append (class-slots class) more-slots))
   ) )
   (setf (class-default-initargs class)
@@ -1694,9 +1641,8 @@
     (loop
       (when (atom description)
         (error-of-type 'sys::source-program-error
-          (ENGLISH "~S ~S: missing lambda list")
-          caller funname
-      ) )
+          (TEXT "~S ~S: missing lambda list")
+          caller funname ))
       (when (listp (car description)) (return))
       (push (pop description) qualifiers)
     )
@@ -1706,9 +1652,8 @@
           ((equal qualifiers '(:after)))
           ((equal qualifiers '(:around)))
           (t (error-of-type 'sys::source-program-error
-               (ENGLISH "STANDARD method combination does not allow the method qualifiers to be ~S")
-               (nreverse qualifiers)
-    )     )  )
+               (TEXT "STANDARD method combination does not allow the method qualifiers to be ~S")
+               (nreverse qualifiers))))
     ; Lambdaliste bilden, Parameter-Specializer und Signatur extrahieren:
     (let ((specialized-lambda-list (car description))
           (body (cdr description)))
@@ -1892,16 +1837,12 @@
                          )
                          (let ((errorform1
                                  `(ERROR-OF-TYPE 'PROGRAM-ERROR
-                                    (ENGLISH "~S ~S: ~S is invalid within ~S methods")
-                                    ',caller ',funname 'CALL-NEXT-METHOD ',(first qualifiers)
-                                  )
-                               )
+                                    (TEXT "~S ~S: ~S is invalid within ~S methods")
+                                    ',caller ',funname 'CALL-NEXT-METHOD ',(first qualifiers)))
                                (errorform2
                                  `(ERROR-OF-TYPE 'PROGRAM-ERROR
-                                    (ENGLISH "~S ~S: ~S is invalid within ~S methods")
-                                    ',caller ',funname 'NEXT-METHOD-P ',(first qualifiers)
-                                  )
-                              ))
+                                    (TEXT "~S ~S: ~S is invalid within ~S methods")
+                                    ',caller ',funname 'NEXT-METHOD-P ',(first qualifiers))))
                            `(,@lambdabody-part1
                              (SYSTEM::FUNCTION-MACRO-LET
                                ((CALL-NEXT-METHOD
@@ -2157,9 +2098,8 @@
         (methods (gf-methods gf)))
     (unless (>= (length args) reqanz)
       (error-of-type 'program-error
-        (ENGLISH "Too few arguments to ~S: ~S")
-        gf args
-    ) )
+        (TEXT "Too few arguments to ~S: ~S")
+        gf args))
     (let ((req-args (subseq args 0 reqanz)))
       ; Determine the effective method:
       ; 1. Select the applicable methods:
@@ -2287,9 +2227,8 @@
                (not (member (sys::%record-ref gf 0)
                             *dynamically-modifiable-generic-function-names*
                             :test #'eq)))
-      (warn (ENGLISH "The generic function ~S is being modified, but has already been called.")
-            gf
-  ) ) )
+      (warn (TEXT "The generic function ~S is being modified, but has already been called.")
+            gf)))
 )
 
 ; Der eigentliche Dispatch-Code wird erst beim ersten Aufruf der Funktion
@@ -2843,9 +2782,8 @@
     (if (eq original-em new-em)
       (apply next-methods new-args)
       (error-of-type 'error
-        (ENGLISH "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S")
-        'call-next-method gf new-args original-args
-) ) ) )
+        (TEXT "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S")
+        'call-next-method gf new-args original-args))))
 
 
 ; Cruel hack (CLtL2 28.1.9.2., ANSI CL 7.1.2.):
@@ -2867,19 +2805,19 @@
                                    (m-sign (std-method-signature method)))
   (unless (= (sig-req-num m-sign) (sig-req-num gf-sign))
     (error-of-type 'error
-      (ENGLISH "~S has ~D, but ~S has ~D required parameter~:P")
+      (TEXT "~S has ~D, but ~S has ~D required parameter~:P")
       method (sig-req-num m-sign) gf (sig-req-num gf-sign)))
   (unless (= (sig-opt-num m-sign) (sig-opt-num gf-sign))
     (error-of-type 'error
-      (ENGLISH "~S has ~D, but ~S has ~D optional parameter~:P")
+      (TEXT "~S has ~D, but ~S has ~D optional parameter~:P")
       method (sig-opt-num m-sign) gf (sig-opt-num gf-sign)))
   (when (and (sig-rest-p m-sign) (not (sig-rest-p gf-sign)))
     (error-of-type 'error
-      (ENGLISH "~S accepts &REST or &KEY, but ~S does not.")
+      (TEXT "~S accepts &REST or &KEY, but ~S does not.")
       method gf))
   (when (and (sig-rest-p gf-sign) (not (sig-rest-p m-sign)))
     (error-of-type 'error
-      (ENGLISH "~S accepts &REST or &KEY, but ~S does not.")
+      (TEXT "~S accepts &REST or &KEY, but ~S does not.")
       gf method))
   (when (sig-keys-p gf-sign)    ; gf has keywords?
     ;; yes ==> method must accept it
@@ -2888,7 +2826,7 @@
                     (subsetp (sig-keywords gf-sign) (sig-keywords m-sign)))
                 (sig-rest-p m-sign)) ; method must have &rest!
       (error-of-type 'error
-        (ENGLISH "~S does not accept the keywords ~S of ~S")
+        (TEXT "~S does not accept the keywords ~S of ~S")
         method (sig-keywords gf-sign) gf))))
 
 ;; Add a method to a generic function
@@ -2920,9 +2858,8 @@
                 (if old-method
                   (progn
                     (when *gf-warn-on-replacing-method*
-                      (warn (ENGLISH "Replacing method ~S in ~S")
-                            old-method gf
-                    ) )
+                      (warn (TEXT "Replacing method ~S in ~S")
+                            old-method gf))
                     (remove old-method (gf-methods gf))
                   )
                   (gf-methods gf)
@@ -2938,9 +2875,8 @@
                           :key #'std-method-initfunction)))
     (when old-method
       (warn-if-gf-already-called gf)
-      (warn (ENGLISH "Removing method ~S in ~S")
-            old-method gf
-      )
+      (warn (TEXT "Removing method ~S in ~S")
+            old-method gf)
       (cond ((eq gf |#'allocate-instance|) (note-ai-change method))
             ((eq gf |#'initialize-instance|) (note-ii-change method))
             ((eq gf |#'reinitialize-instance|) (note-ri-change method))
@@ -2966,9 +2902,8 @@
   ) )
   (if errorp
     (error-of-type 'error
-      (ENGLISH "~S has no method with qualifiers ~:S and specializers ~S")
-      gf qualifiers specializers
-    )
+      (TEXT "~S has no method with qualifiers ~:S and specializers ~S")
+      gf qualifiers specializers)
     nil
 ) )
 
@@ -2978,9 +2913,8 @@
 (defmacro defmethod (funname &rest method-description &environment env)
   (unless (function-name-p funname)
     (error-of-type 'sys::source-program-error
-      (ENGLISH "~S: the name of a function must be a symbol, not ~S")
-      'defmethod funname
-  ) )
+      (TEXT "~S: the name of a function must be a symbol, not ~S")
+      'defmethod funname))
   (multiple-value-bind (method sig)
       (analyze-method-description 'defmethod funname method-description env)
     `(LET ()
@@ -2995,9 +2929,8 @@
         (if (clos::generic-function-p gf)
           gf
           (error-of-type 'error
-            (ENGLISH "~S does not name a generic function")
-            funname
-      ) ) )
+            (TEXT "~S does not name a generic function")
+            funname)))
       (setf (fdefinition funname)
             (let ((signature (std-method-signature method)))
               (make-fast-gf funname
@@ -3031,9 +2964,8 @@
 (defun analyze-defgeneric (caller funname lambdalist options env)
   (unless (function-name-p funname)
     (error-of-type 'sys::source-program-error
-      (ENGLISH "~S: the name of a function must be a symbol, not ~S")
-      caller funname lambdalist
-  ) )
+      (TEXT "~S: the name of a function must be a symbol, not ~S")
+      caller funname lambdalist))
   ; Lambdaliste parsen:
   (multiple-value-bind (reqanz req-vars optanz restp keyp keywords allowp)
       (analyze-defgeneric-lambdalist caller funname lambdalist)
@@ -3044,64 +2976,54 @@
       (dolist (option options)
         (unless (listp option)
           (error-of-type 'sys::source-program-error
-            (ENGLISH "~S ~S: not a ~S option: ~S")
-            caller funname 'defgeneric option
-        ) )
+            (TEXT "~S ~S: not a ~S option: ~S")
+            caller funname 'defgeneric option))
         (case (first option)
           (DECLARE
             (unless (every
                        #'(lambda (x) (and (consp x) (eq (first x) 'OPTIMIZE)))
-                       (rest option)
-                    )
-              (warn (ENGLISH "~S ~S: Only ~S declarations are permitted: ~S")
-                    caller funname 'optimize option
-            ) )
+                       (rest option))
+              (warn (TEXT "~S ~S: Only ~S declarations are permitted: ~S")
+                    caller funname 'optimize option))
             ; Die Deklaration wird ignoriert.
             ; Der Compiler ignoriert sie sowieso.
           )
           (:ARGUMENT-PRECEDENCE-ORDER
             (when argorders
               (error-of-type 'sys::source-program-error
-                (ENGLISH "~S ~S: ~S may only be specified once.")
-                caller funname ':argument-precedence-order
-            ) )
-            (setq argorders option)
-          )
+                (TEXT "~S ~S: ~S may only be specified once.")
+                caller funname ':argument-precedence-order))
+            (setq argorders option))
           (:DOCUMENTATION
             (unless (and (eql (length option) 2) (stringp (second option)))
               (error-of-type 'sys::source-program-error
-                (ENGLISH "~S ~S: A string must be specified after ~S : ~S")
-                caller funname ':documentation option
-            ) )
+                (TEXT "~S ~S: A string must be specified after ~S : ~S")
+                caller funname ':documentation option))
             (when docstrings
               (error-of-type 'sys::source-program-error
-                (ENGLISH "~S ~S: Only one ~S string is allowed")
-                caller funname ':documentation
-            ) )
+                (TEXT "~S ~S: Only one ~S string is allowed")
+                caller funname ':documentation))
             (setq docstrings (rest option))
           )
           (:METHOD-COMBINATION
             (unless (equal (rest option) '(STANDARD))
               (error-of-type 'sys::source-program-error
-                (ENGLISH "~S ~S: The only valid method combination is ~S : ~S")
-                caller funname 'standard option
-            ) )
+                (TEXT "~S ~S: The only valid method combination is ~S : ~S")
+                caller funname 'standard option))
             ; Die Methodenkombination wird ignoriert.
           )
           (:GENERIC-FUNCTION-CLASS
             (unless (equal (rest option) '(STANDARD-GENERIC-FUNCTION))
               (error-of-type 'sys::source-program-error
-                (ENGLISH "~S ~S: The only valid generic function class name is ~S : ~S")
-                caller funname 'standard-generic-function option
-            ) )
+                (TEXT "~S ~S: The only valid generic function class name is ~S : ~S")
+                caller funname 'standard-generic-function option))
             ; Die Klasse der generischen Funktion wird ignoriert.
           )
           (:METHOD-CLASS
             (unless (equal (rest option) '(STANDARD-METHOD))
               (error-of-type 'sys::source-program-error
-                (ENGLISH "~S ~S: The only valid method class name is ~S : ~S")
-                caller funname 'standard-method option
-            ) )
+                (TEXT "~S ~S: The only valid method class name is ~S : ~S")
+                caller funname 'standard-method option))
             ; Die Klasse der Methoden wird ignoriert.
           )
           (:METHOD
@@ -3109,18 +3031,16 @@
                   method-forms
           ) )
           (t (error-of-type 'sys::source-program-error
-               (ENGLISH "~S ~S: invalid syntax in ~S option: ~S")
-               caller funname 'defstruct option
-      ) ) )  )
+               (TEXT "~S ~S: invalid syntax in ~S option: ~S")
+               caller funname 'defstruct option))))
       ; :argument-precedence-order überprüfen:
       (let ((argorder
               (if argorders
                 (let ((l (mapcar #'(lambda (x)
                                      (or (position x req-vars)
                                          (error-of-type 'sys::source-program-error
-                                           (ENGLISH "~S ~S: ~S is not one of the required parameters: ~S")
-                                           caller funname x argorders
-                                   ) )   )
+                                           (TEXT "~S ~S: ~S is not one of the required parameters: ~S")
+                                           caller funname x argorders)))
                                  (rest argorders)
                      ))  )
                   ; Ist (rest argorders) eine Permutation von req-vars ?
@@ -3130,16 +3050,13 @@
                   ; bijektiv?
                   (unless (apply #'/= l) ; injektiv?
                     (error-of-type 'sys::source-program-error
-                      (ENGLISH "~S ~S: some variable occurs twice in ~S")
-                      caller funname argorders
-                  ) )
+                      (TEXT "~S ~S: some variable occurs twice in ~S")
+                      caller funname argorders))
                   (unless (eql (length l) reqanz) ; surjektiv?
                     (error-of-type 'sys::source-program-error
-                      (ENGLISH "~S ~S: ~S is missing some required parameter")
-                      caller funname argorders
-                  ) )
-                  l
-                )
+                      (TEXT "~S ~S: ~S is missing some required parameter")
+                      caller funname argorders))
+                  l)
                 (countup reqanz)
            )) )
         (values (make-signature :req-num reqanz :opt-num optanz
@@ -3165,20 +3082,17 @@
         (allowp nil))
     (when (some #'(lambda (item) (and (consp item) (cdr item))) lambdalist)
       (error-of-type 'sys::source-program-error
-        (ENGLISH "~S ~S: No initializations are allowed in a generic function lambda-list: ~S")
-        caller funname lambdalist
-    ) )
+        (TEXT "~S ~S: No initializations are allowed in a generic function lambda-list: ~S")
+        caller funname lambdalist))
     (flet ((check-varname (var)
              (unless (symbolp var)
                (error-of-type 'sys::source-program-error
-                 (ENGLISH "~S ~S: variable name ~S should be a symbol")
-                 caller funname var
-             ) )
+                 (TEXT "~S ~S: variable name ~S should be a symbol")
+                 caller funname var))
              (when (member var req-vars :test #'eq)
                (error-of-type 'sys::source-program-error
-                 (ENGLISH "~S ~S: duplicate variable name ~S")
-                 caller funname var
-             ) )
+                 (TEXT "~S ~S: duplicate variable name ~S")
+                 caller funname var))
              var
           ))
       (loop
@@ -3227,9 +3141,8 @@
     )
     (when lambdalist
       (error-of-type 'sys::source-program-error
-        (ENGLISH "~S ~S: invalid lambda list portion: ~S")
-        caller funname lambdalist
-    ) )
+        (TEXT "~S ~S: invalid lambda list portion: ~S")
+        caller funname lambdalist))
     (values (length req-vars) (nreverse req-vars) optanz
             restp keyp keywords allowp)))
 
@@ -3280,17 +3193,12 @@
         (progn
           (warn-if-gf-already-called gf)
           (when (and *gf-warn-on-removing-all-methods* (gf-methods gf))
-            (warn (ENGLISH "Removing all methods of ~S")
-                  gf
-            )
+            (warn (TEXT "Removing all methods of ~S") gf)
             (setf (gf-methods gf) nil)
           )
           (unless (and (equalp signature (gf-signature gf))
-                       (equal argorder (gf-argorder gf))
-                  )
-            (warn (ENGLISH "Modifying the parameter profile of ~S")
-                  gf
-            )
+                       (equal argorder (gf-argorder gf)))
+            (warn (TEXT "Modifying the parameter profile of ~S") gf)
             (setf (gf-signature gf) signature)
             (setf (gf-argorder gf) argorder)
           )
@@ -3299,9 +3207,8 @@
           gf
         )
         (error-of-type 'program-error
-          (ENGLISH "~S does not name a generic function")
-          funname
-    ) ) )
+          (TEXT "~S does not name a generic function")
+          funname)))
     (setf (fdefinition funname)
           (apply #'make-generic-function funname signature argorder methods)
 ) ) )
@@ -3344,9 +3251,8 @@
     (dolist (fundef fundefs)
       (unless (and (consp fundef) (consp (cdr fundef)))
         (error-of-type 'sys::source-program-error
-          (ENGLISH "~S: ~S is not a generic function specification")
-          caller fundef
-      ) )
+          (TEXT "~S: ~S is not a generic function specification")
+          caller fundef))
       (push (first fundef) names)
       (push (make-generic-function-form caller (first fundef) (second fundef) (cddr fundef) env) funforms)
     )
@@ -3397,14 +3303,12 @@
     (unless (symbolp new-value)
       (error-of-type 'type-error
         :datum new-value :expected-type 'symbol
-        (ENGLISH "~S: The name of a class must be a symbol, not ~S")
-        '(setf class-name) new-value
-    ) )
+        (TEXT "~S: The name of a class must be a symbol, not ~S")
+        '(setf class-name) new-value))
     (when (built-in-class-p class)
       (error-of-type 'error
-        (ENGLISH "~S: The name of the built-in class ~S cannot be modified")
-        '(setf class-name) class
-    ) )
+        (TEXT "~S: The name of the built-in class ~S cannot be modified")
+        '(setf class-name) class))
     (setf (class-classname class) new-value)
 ) )
 
@@ -3445,13 +3349,11 @@
         (error-of-type 'type-error
           :datum (first args)
           :expected-type (dispatching-arg-type dispatching-arg methods)
-          (ENGLISH "~S: When calling ~S with arguments ~S, no method is applicable.")
-          'no-applicable-method gf args
-        )
+          (TEXT "~S: When calling ~S with arguments ~S, no method is applicable.")
+          'no-applicable-method gf args)
         (error-of-type 'error
-          (ENGLISH "~S: When calling ~S with arguments ~S, no method is applicable.")
-          'no-applicable-method gf args
-) ) ) ) )
+          (TEXT "~S: When calling ~S with arguments ~S, no method is applicable.")
+          'no-applicable-method gf args)))))
 
 (defgeneric no-primary-method (gf &rest args)
   (:method ((gf t) &rest args)
@@ -3467,13 +3369,11 @@
         (error-of-type 'type-error
           :datum (first args)
           :expected-type (dispatching-arg-type dispatching-arg methods)
-          (ENGLISH "~S: When calling ~S with arguments ~S, no primary method is applicable.")
-          'no-primary-method gf args
-        )
+          (TEXT "~S: When calling ~S with arguments ~S, no primary method is applicable.")
+          'no-primary-method gf args)
         (error-of-type 'error
-          (ENGLISH "~S: When calling ~S with arguments ~S, no primary method is applicable.")
-          'no-primary-method gf args
-) ) ) ) )
+          (TEXT "~S: When calling ~S with arguments ~S, no primary method is applicable.")
+          'no-primary-method gf args)))))
 
 (defun %no-next-method (method &rest args)
   (apply #'no-next-method (std-method-gf method) method args)
@@ -3481,9 +3381,8 @@
 (defgeneric no-next-method (gf method &rest args)
   (:method ((gf standard-generic-function) (method standard-method) &rest args)
     (error-of-type 'error
-      (ENGLISH "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called.")
-      'no-next-method gf args method '(call-next-method)
-) ) )
+      (TEXT "~S: When calling ~S with arguments ~S, there is no next method after ~S, and ~S was called.")
+      'no-next-method gf args method '(call-next-method))))
 
 (defgeneric find-method (gf qualifiers specializers &optional errorp)
   (:method ((gf standard-generic-function) qualifiers specializers &optional (errorp t))
@@ -3532,7 +3431,7 @@
   (:method ((class t) instance slot-name operation &optional new-value)
     (declare (ignore instance new-value))
     (error-of-type 'error
-      (ENGLISH "~S: The class ~S has no slot named ~S")
+      (TEXT "~S: The class ~S has no slot named ~S")
       operation class slot-name)))
 
 (defgeneric slot-unbound (class instance slot-name)
@@ -3541,7 +3440,7 @@
     (error-of-type 'unbound-slot
       :name slot-name
       :instance instance
-      (ENGLISH "~S: The slot ~S of ~S has no value")
+      (TEXT "~S: The slot ~S of ~S has no value")
       'slot-value slot-name instance)))
 
 (defgeneric print-object (object stream)
@@ -4045,7 +3944,7 @@
     (let ((instance (apply ai-ef class initargs)))
       (unless (eq (class-of instance) class)
         (error-of-type 'error
-          (ENGLISH "~S method for ~S returned ~S")
+          (TEXT "~S method for ~S returned ~S")
           'allocate-instance class instance))
       (multiple-value-bind (ii-ef si-ef) (make-instance-table-entry2 instance)
         (setf (gethash class *make-instance-table*)

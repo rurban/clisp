@@ -61,7 +61,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
   (unless (pprint-dispatch-p table)
     (error-of-type 'type-error
       :datum table :expected-type '(satisfies pprint-dispatch-p)
-      (ENGLISH "~S: ~S is not a valid print dispatch table")
+      (TEXT "~S: ~S is not a valid print dispatch table")
       'copy-pprint-dispatch table))
   (if table
       (copy-alist table)
@@ -77,7 +77,7 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
   (unless (realp priority)
     (error-of-type 'type-error
       :datum priority :expected-type 'real
-      (ENGLISH "~S: priority must be a ~S, not ~S")
+      (TEXT "~S: priority must be a ~S, not ~S")
       'set-pprint-dispatch 'real priority))
   (let ((rec (member type-specifier (cdr table) :test #'equal :key #'car)))
     (if rec
@@ -122,23 +122,23 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
                 (+ *prin-indentation* *print-indent-lists*)
                 0)))
       (when (and ,pre *prin-line-prefix*)
-        (error (ENGLISH "~S: cannot supply both ~S (~S) and ~S (~S)")
+        (error (TEXT "~S: cannot supply both ~S (~S) and ~S (~S)")
                'pprint-logical-block :prefix ,pre
                :per-line-prefix *prin-line-prefix*))
       (when (and ,pre (not (stringp ,pre)))
         (error-of-type 'type-error
           :datum ,pre :expected-type 'string
-          (ENGLISH "~S: ~S must be a ~S, not ~S")
+          (TEXT "~S: ~S must be a ~S, not ~S")
           'pprint-logical-block :prefix 'string ,pre))
       (when (and ,suf (not (stringp ,suf)))
         (error-of-type 'type-error
           :datum ,suf :expected-type 'string
-          (ENGLISH "~S: ~S must be a ~S, not ~S")
+          (TEXT "~S: ~S must be a ~S, not ~S")
           'pprint-logical-block :suffix 'string ,suf))
       (when (and *prin-line-prefix* (not (stringp *prin-line-prefix*)))
         (error-of-type 'type-error
           :datum *prin-line-prefix* :expected-type 'string
-          (ENGLISH "~S: ~S must be a ~S, not ~S")
+          (TEXT "~S: ~S must be a ~S, not ~S")
           'pprint-logical-block :prefix 'string *prin-line-prefix*))
       (%pprint-logical-block
        (lambda (,out obj)

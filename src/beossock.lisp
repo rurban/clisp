@@ -70,7 +70,7 @@
                            (and (string= (servent-name se) service-name)
                                 (string= (servent-proto se) protocol)))
                        *servents*)
-              (error (ENGLISH "service does not exist: ~A/~A")
+              (error (TEXT "service does not exist: ~A/~A")
                      service-name protocol))
           'list)))
     (integer
@@ -80,7 +80,7 @@
                            (and (= (servent-port se) service-name)
                                 (string= (servent-proto se) protocol)))
                        *servents*)
-              (error (ENGLISH "service does not exist: ~A/~A")
+              (error (TEXT "service does not exist: ~A/~A")
                      service-name protocol))
           'list)))
 ) )

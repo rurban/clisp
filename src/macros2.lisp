@@ -7,7 +7,7 @@
         ((atom typeclauselistr))
       (cond ((atom (car typeclauselistr))
              (error-of-type 'source-program-error
-               (ENGLISH "Invalid clause in ~S: ~S")
+               (TEXT "Invalid clause in ~S: ~S")
                'typecase (car typeclauselistr)))
             ((let ((type (caar typeclauselistr)))
                (or (eq type T) (eq type 'OTHERWISE)))
@@ -19,15 +19,15 @@
     `(LET ((,tempvar ,keyform)) (COND ,@(nreverse condclauselist)))))
 ;; ----------------------------------------------------------------------------
 (defun type-error-string ()
-  (ENGLISH "~A~%The value is: ~S"))
+  (TEXT "~A~%The value is: ~S"))
 (defun check-type-error-string (place string typespec)
   (format nil
-    (ENGLISH "The value of ~S should be ~:[of type ~S~;~:*~A~].")
+    (TEXT "The value of ~S should be ~:[of type ~S~;~:*~A~].")
     place string typespec))
 (defun report-one-new-value-string ()
-  (ENGLISH "You may input a new value."))
+  (TEXT "You may input a new value."))
 (defun prompt-for-new-value-string ()
-  (ENGLISH "~%New ~S: "))
+  (TEXT "~%New ~S: "))
 (defmacro check-type (place typespec &optional (string nil))
   (let ((tag1 (gensym))
         (tag2 (gensym)))
@@ -44,12 +44,12 @@
        ,tag2)))
 ;; ----------------------------------------------------------------------------
 (defun report-no-new-value-string ()
-  (ENGLISH "Retry"))
+  (TEXT "Retry"))
 (defun report-new-values-string ()
-  (ENGLISH "You may input new values."))
+  (TEXT "You may input new values."))
 (defun assert-error-string (test-form)
   (format nil
-    (ENGLISH "~S must evaluate to a non-NIL value.")
+    (TEXT "~S must evaluate to a non-NIL value.")
     test-form))
 (defmacro assert (test-form &optional (place-list nil) (string nil) &rest args)
   (let ((tag1 (gensym))
@@ -75,11 +75,11 @@
 ;; ----------------------------------------------------------------------------
 (defun typecase-error-string (keyform typelist)
   (format nil
-    (ENGLISH "The value of ~S must be of one of the types ~{~S~^, ~}")
+    (TEXT "The value of ~S must be of one of the types ~{~S~^, ~}")
     keyform typelist))
 (defun case-error-string (keyform caselist)
   (format nil
-    (ENGLISH "The value of ~S must be one of ~{~S~^, ~}")
+    (TEXT "The value of ~S must be one of ~{~S~^, ~}")
     keyform caselist))
 
 ;;; Exhaustive Case Analysis
@@ -94,7 +94,7 @@
          (mapcar #'(lambda (c)
                      (cond ((or (eq (car c) 't)
                                 (eq (car c) 'otherwise))
-                            (warn (ENGLISH "~S used as a key in ~S, it would be better to use parentheses.")
+                            (warn (TEXT "~S used as a key in ~S, it would be better to use parentheses.")
                                   (car c) c)
                             (cons (list (car c)) (cdr c)))
                            (t c)))
@@ -160,11 +160,11 @@
 (defmacro deftype (name lambdalist &body body &environment env)
   (unless (symbolp name)
     (error-of-type 'source-program-error
-      (ENGLISH "type name should be a symbol, not ~S")
+      (TEXT "type name should be a symbol, not ~S")
       name))
   (if (or (get name 'TYPE-SYMBOL) (get name 'TYPE-LIST))
     (error-of-type 'source-program-error
-      (ENGLISH "~S is a built-in type and may not be redefined.")
+      (TEXT "~S is a built-in type and may not be redefined.")
       name))
   (multiple-value-bind (body-rest declarations docstring)
       (SYSTEM::PARSE-BODY body t env)
@@ -191,14 +191,14 @@
              ',name))))))
 (defun type-call-error (deftype-form)
   (error-of-type 'error
-    (ENGLISH "The deftype expander for ~S may not be called with ~S arguments.")
+    (TEXT "The deftype expander for ~S may not be called with ~S arguments.")
     (car deftype-form) (1- (length deftype-form))))
 ;; ----------------------------------------------------------------------------
 ;; cf. X3J13 vote <173>
 (defmacro define-symbol-macro (symbol expansion)
   (unless (symbolp symbol)
     (error-of-type 'source-program-error
-      (ENGLISH "~S: the name of a symbol macro must be a symbol, not ~S")
+      (TEXT "~S: the name of a symbol macro must be a symbol, not ~S")
       'define-symbol-macro symbol))
   `(LET ()
      (EVAL-WHEN (COMPILE LOAD EVAL)
@@ -210,7 +210,7 @@
 (defun check-not-special-variable-p (symbol)
   (when (special-variable-p symbol)
     (error-of-type 'program-error
-      (ENGLISH "~S: the symbol ~S names a global variable")
+      (TEXT "~S: the symbol ~S names a global variable")
       'define-symbol-macro symbol)))
 ;; ----------------------------------------------------------------------------
 (defun gensym-list (how-many)

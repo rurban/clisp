@@ -29,6 +29,7 @@
   (import (intern "*COUTPUT-STREAM*" "COMPILER"))
   (import (intern "*FFI-MODULE*" "COMPILER"))
   (import (intern "FINALIZE-COUTPUT-FILE" "COMPILER"))
+  (import (intern "TEXT" "SYSTEM")) ; messages
   (import (intern "DEPARSE-C-TYPE" "SYSTEM")) ; called by DESCRIBE
   (import (intern "FOREIGN-FUNCTION-IN-ARG-COUNT" "SYSTEM")) ; called by SYS::FUNCTION-SIGNATURE
 )
@@ -85,7 +86,7 @@
     (write-char #\" s)
     (map nil #'(lambda (c)
                  (cond ((eql c #\Null)
-                        (error (ENGLISH "Cannot map string ~S to C since it contains a character ~S")
+                        (error (TEXT "Cannot map string ~S to C since it contains a character ~S")
                                string c))
                        ((eq c #\Newline)
                         (write-char #\\ s) (write-char #\n s))
@@ -123,7 +124,7 @@
               (unless (and (consp subspec)
                            (eql (length subspec) 2)
                            (symbolp (first subspec)))
-                (error (ENGLISH "Invalid ~S component: ~S")
+                (error (TEXT "Invalid ~S component: ~S")
                        form-type subspec))
               (parse-c-type (second subspec)))
             spec-list)))
@@ -174,14 +175,14 @@
     (if (symbolp typespec)
       (multiple-value-bind (c-type found) (gethash typespec *c-type-table*)
         (unless found
-          (error (ENGLISH "Incomplete FFI type ~S is not allowed here.")
+          (error (TEXT "Incomplete FFI type ~S is not allowed here.")
                  typespec))
         (when name (setf (gethash name *c-type-table*) c-type))
         c-type)
-      (error (ENGLISH "FFI type should be a symbol, not ~S")
+      (error (TEXT "FFI type should be a symbol, not ~S")
              typespec))
     (flet ((invalid (typespec)
-             (error (ENGLISH "Invalid FFI type: ~S")
+             (error (TEXT "Invalid FFI type: ~S")
                     typespec))
            (dimp (dim) (typep dim '(integer 0 *))))
       (case (first typespec)
@@ -244,10 +245,10 @@
   (let ((alist '()))
     (dolist (option options)
       (unless (and (consp option) (member (first option) keywords))
-        (error (ENGLISH "Invalid option in ~S: ~S")
+        (error (TEXT "Invalid option in ~S: ~S")
                whole option))
       (when (assoc (first option) alist)
-        (error (ENGLISH "Only one ~S option is allowed: ~S")
+        (error (TEXT "Only one ~S option is allowed: ~S")
               (first option) whole))
       (push option alist))
     alist))
@@ -287,7 +288,7 @@
                       (unless (and (listp argspec)
                                    (symbolp (first argspec))
                                    (<= 2 (length argspec) #-AMIGA 4 #+AMIGA 5))
-                        (error (ENGLISH "Invalid parameter specification in ~S: ~S")
+                        (error (TEXT "Invalid parameter specification in ~S: ~S")
                                whole argspec))
                       (let* ((argtype (parse-c-type (second argspec)))
                              (argmode (if (cddr argspec) (third argspec) ':IN))
@@ -326,17 +327,17 @@
 
 (defun parse-foreign-name (name)
   (unless (stringp name)
-    (error (ENGLISH "The name must be a string, not ~S")
+    (error (TEXT "The name must be a string, not ~S")
            name))
   (if (c-ident-p name)
     name
-    (error (ENGLISH "The name ~S is not a valid C identifier")
+    (error (TEXT "The name ~S is not a valid C identifier")
            name)))
 
 (defun check-symbol (whole &optional (name (second whole)))
   (unless (symbolp name)
     (sys::error-of-type 'sys::source-program-error
-      (ENGLISH "~S: this is not a symbol: ~S")
+      (TEXT "~S: this is not a symbol: ~S")
       (first whole) name)))
 
 (defmacro DEF-C-TYPE (&whole whole name typespec)
@@ -555,7 +556,7 @@
                                                 c-t (gensym "arg")))
                                              (split-c-fun-arglist
                                               (svref c-type 2) 0)))))
-             (t (error (ENGLISH "illegal foreign data type ~S")
+             (t (error (TEXT "illegal foreign data type ~S")
                        c-type))))))))
 
 (defun prepare-module ()
@@ -667,7 +668,7 @@
          (c-name (foreign-name name (assoc ':name alist)))
          (type (second (or (assoc ':type alist)
                            (sys::error-of-type 'sys::source-program-error
-                                  (ENGLISH "~S: ~S option missing in ~S")
+                                  (TEXT "~S: ~S option missing in ~S")
                                   'def-c-var ':type whole))))
          (read-only (second (assoc ':read-only alist)))
          (flags (+ (if read-only fv-flag-readonly 0)
@@ -840,7 +841,7 @@
           (mapc #'(lambda (argtype argflag argname)
                     (when (flag-set-p argflag flag-output)
                       (unless (eq (ctype-type argtype) 'C-PTR)
-                        (error (ENGLISH "~S: :OUT argument is not a pointer: ~S")
+                        (error (TEXT "~S: :OUT argument is not a pointer: ~S")
                                'DEF-CALL-IN argtype))
                       (format *coutput-stream* "  ~A~A(~A,~A,~A);~%"
                               (if (eql outargcount 0) ""
@@ -904,7 +905,7 @@
 ;; (slot (foreign-value x) ...)    --> (foreign-value (%slot x ...))
 (flet ((err (whole)
          (sys::error-of-type 'sys::source-program-error
-           (ENGLISH "~S is only allowed after ~S: ~S")
+           (TEXT "~S is only allowed after ~S: ~S")
            (first whole) 'FOREIGN-VALUE whole))
        (foreign-place-p (place type)
          (and (consp place) (eq (first place) type) (eql (length place) 2))))

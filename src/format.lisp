@@ -69,7 +69,7 @@
 (defun format-parse-cs (control-string startindex csdl stop-at)
   (declare (fixnum startindex))
   (macrolet ((errorstring ()
-               (ENGLISH "The control string terminates within a directive.")))
+               (TEXT "The control string terminates within a directive.")))
     (prog* ((index startindex)  ; cs-index of the next character
             ch                  ; current character
             intparam            ; Integer-Parameter
@@ -126,7 +126,7 @@
             (parse-integer control-string :start index :junk-allowed t))
           (unless intparam
             (format-error control-string index
-                          (ENGLISH "~A must introduce a number.")
+                          (TEXT "~A must introduce a number.")
                           ch))
           (push intparam (csd-parm-list newcsd))
           (go param-ok-2)
@@ -135,7 +135,7 @@
           (incf index)
           (when (>= index (length control-string))
             (format-error control-string index
-              (ENGLISH "The control string terminates in the middle of a parameter."))
+              (TEXT "The control string terminates in the middle of a parameter."))
             (go string-ended))
           (setq ch (schar control-string index))
           (push ch (csd-parm-list newcsd))
@@ -210,14 +210,14 @@
             (if directive-name
               (setf (csd-data newcsd) directive-name)
               (format-error control-string index
-                (ENGLISH "Non-existent directive"))))
+                (TEXT "Non-existent directive"))))
           (incf index)
           (case ch
             (#\/
              (let* ((start index)
                     (end (or (position #\/ control-string :start start)
                              (format-error control-string index
-                               (ENGLISH "Closing '/' is missing"))))
+                               (TEXT "Closing '/' is missing"))))
                     (pos (position #\: control-string :start start :end end))
                     (name (string-upcase
                            (subseq control-string
@@ -231,7 +231,7 @@
                                                      start pos))))
                               (or (find-package packname)
                                   (format-error control-string index
-                                   (ENGLISH "There is no package with name ~S")
+                                   (TEXT "There is no package with name ~S")
                                    packname)))
                             *common-lisp-user-package*)))
                (push (list (intern name pack)) (csd-parm-list newcsd))
@@ -243,18 +243,18 @@
             (( #\) #\] #\} #\> )
              (unless stop-at
                (format-error control-string index
-                 (ENGLISH "The closing directive '~A' does not have a corresponding opening one.")
+                 (TEXT "The closing directive '~A' does not have a corresponding opening one.")
                  ch))
              (unless (eql ch stop-at)
                (format-error control-string index
-                 (ENGLISH "The closing directive '~A' does not match the corresponding opening one. It should read '~A'.")
+                 (TEXT "The closing directive '~A' does not match the corresponding opening one. It should read '~A'.")
                  ch stop-at))
              (setf (csd-clause-chain last-separator-csd) csdl)
              (go end))
             (#\;
              (unless (or (eql stop-at #\]) (eql stop-at #\>))
                (format-error control-string index
-                 (ENGLISH "The ~~; directive is not allowed at this point.")))
+                 (TEXT "The ~~; directive is not allowed at this point.")))
              (setf (csd-clause-chain last-separator-csd) csdl)
              (setq last-separator-csd newcsd))
             (#\Newline
@@ -262,7 +262,7 @@
              (if (csd-colon-p newcsd)
                (if (csd-atsign-p newcsd)
                  (format-error control-string index
-                   (ENGLISH "The ~~newline directive cannot take both modifiers."))
+                   (TEXT "The ~~newline directive cannot take both modifiers."))
                  nil) ; ~:<newline> -> ignore Newline, retain Whitespace
                (progn
                  (when (csd-atsign-p newcsd)
@@ -279,7 +279,7 @@
       string-ended
       (when stop-at
         (format-error control-string index
-          (ENGLISH "An opening directive is never closed; expecting '~A'.")
+          (TEXT "An opening directive is never closed; expecting '~A'.")
           stop-at))
 
       end
@@ -302,7 +302,7 @@
     (unless errorpos (setq errorpos (csd-cs-index (car *FORMAT-CSDL*))))
     (setq errorstring
       (string-concat errorstring
-        (ENGLISH "~%Current point in control string:")))
+        (TEXT "~%Current point in control string:")))
     (let ((pos1 0) (pos2 0))
       (declare (simple-string errorstring) (fixnum pos1 pos2))
       (loop
@@ -340,12 +340,12 @@
            (let ((stream (sys::make-string-push-stream destination)))
              (format-apply stream control-string arguments))
            (error-of-type 'error
-             (ENGLISH "The destination string ~S should have a fill pointer.")
+             (TEXT "The destination string ~S should have a fill pointer.")
              destination))
          nil)
         (t (error-of-type 'type-error
              :datum destination :expected-type '(or boolean stream string)
-             (ENGLISH "The destination argument ~S is invalid (not NIL or T or a stream or a string).")
+             (TEXT "The destination argument ~S is invalid (not NIL or T or a stream or a string).")
              destination))))
 
 (defun format-apply (stream control-string arguments
@@ -370,7 +370,7 @@
 (defun format-cs-error (control-string)
   (error-of-type 'type-error
     :datum control-string :expected-type '(or string function)
-    (ENGLISH "~S: The control-string must be a string, not ~S")
+    (TEXT "~S: The control-string must be a string, not ~S")
     'format control-string))
 
 ;;; ---------------------------------------------------------------------------
@@ -380,7 +380,7 @@
 (defun next-arg ()
   (if (atom *FORMAT-NEXT-ARG*)
     (format-error *FORMAT-CS* nil
-      (ENGLISH "There are not enough arguments left for this directive."))
+      (TEXT "There are not enough arguments left for this directive."))
     (pop *FORMAT-NEXT-ARG*)))
 
 ;; (format-interpret stream [endmarker]) interprets *FORMAT-CSDL* .
@@ -465,7 +465,7 @@
 (defun format-old-roman (arg stream)
   (unless (and (integerp arg) (<= 1 arg 4999))
     (format-error *FORMAT-CS* nil
-      (ENGLISH "The ~~:@R directive requires an integer in the range 1 - 4999, not ~S")
+      (TEXT "The ~~:@R directive requires an integer in the range 1 - 4999, not ~S")
       arg))
   (do ((charlistr  '(#\M  #\D #\C #\L #\X #\V #\I) (cdr charlistr))
        (valuelistr '(1000 500 100 50  10   5   1) (cdr valuelistr))
@@ -480,7 +480,7 @@
 (defun format-new-roman (arg stream)
   (unless (and (integerp arg) (<= 1 arg 3999))
     (format-error *FORMAT-CS* nil
-      (ENGLISH "The ~~@R directive requires an integer in the range 1 - 3999, not ~S")
+      (TEXT "The ~~@R directive requires an integer in the range 1 - 3999, not ~S")
       arg))
   (do ((charlistr       '(#\M #\D #\C #\L #\X #\V #\I) (cdr charlistr))
        (valuelistr     '(1000 500 100 50  10   5   1 ) (cdr valuelistr))
@@ -537,7 +537,7 @@
         ((blocks1000 (illions-list arg) ; decomposition in 1000er-Blocks
            (when (null illions-list)
              (format-error *FORMAT-CS* nil
-               (ENGLISH "The argument for the ~~R directive is too large.")))
+               (TEXT "The argument for the ~~R directive is too large.")))
            (multiple-value-bind (thousands small) (truncate arg 1000)
              (when (> thousands 0) (blocks1000 (cdr illions-list) thousands))
              (when (> small 0)
@@ -1180,7 +1180,7 @@
           (format-old-roman arg stream)
           (format-new-roman arg stream))
         (format-error *FORMAT-CS* nil
-          (ENGLISH "The ~~R and ~~:R directives require an integer argument, not ~S")
+          (TEXT "The ~~R and ~~:R directives require an integer argument, not ~S")
           arg))
       (if colon-modifier
         (format-ordinal arg stream)
@@ -1199,7 +1199,7 @@
                   (arg)
   (unless (characterp arg)
     (format-error *FORMAT-CS* nil
-      (ENGLISH "The ~~C directive requires a character argument, not ~S")
+      (TEXT "The ~~C directive requires a character argument, not ~S")
       arg))
   (if (not colon-modifier)
     (if (not atsign-modifier)
@@ -1417,11 +1417,11 @@
       (apply node stream arglistarg)))) ; wholelistarg??
 (defun format-indirection-cserror (csarg)
   (format-error *FORMAT-CS* nil
-    (ENGLISH "The control string argument for the ~~? directive is invalid: ~S")
+    (TEXT "The control string argument for the ~~? directive is invalid: ~S")
     csarg))
 (defun format-indirection-lerror (arguments)
   (format-error *FORMAT-CS* nil
-    (ENGLISH "The argument list argument for the ~~? directive is invalid: ~S")
+    (TEXT "The argument list argument for the ~~? directive is invalid: ~S")
     arguments))
 
 ;;; ~// ANSI CL 22.3.5.4 Tilde Slash: Call Function
@@ -1471,11 +1471,11 @@
         (format-interpret stream 'FORMAT-CONDITIONAL-END)
         (unless (null (csd-clause-chain (car *FORMAT-CSDL*)))
           (format-error *FORMAT-CS* nil
-            (ENGLISH "The ~~; directive is not allowed at this point."))))
+            (TEXT "The ~~; directive is not allowed at this point."))))
       (let ((index (or prefix (next-arg))))
         (unless (integerp index)
           (format-error *FORMAT-CS* nil
-            (ENGLISH "The ~~[ parameter must be an integer, not ~S")
+            (TEXT "The ~~[ parameter must be an integer, not ~S")
             index))
         (dotimes (i (if (minusp index) most-positive-fixnum index))
           (when (eq (csd-data (car *FORMAT-CSDL*)) 'FORMAT-CONDITIONAL-END)
@@ -1489,7 +1489,7 @@
 
 (defun format-conditional-error ()
   (format-error *FORMAT-CS* nil
-    (ENGLISH "The ~~[ directive cannot take both modifiers.")))
+    (TEXT "The ~~[ directive cannot take both modifiers.")))
 
 ; ~{, CLTL p.403-404, CLtL2 p. 602-604
 (defun format-iteration (stream colon-modifier atsign-modifier
@@ -1511,7 +1511,7 @@
                             (let ((arg (next-arg)))
                               (unless (listp arg)
                                 (format-error *FORMAT-CS* nil
-                                  (ENGLISH "The ~~{ directive requires a list argument, not ~S")
+                                  (TEXT "The ~~{ directive requires a list argument, not ~S")
                                   arg))
                               arg))))
       (do* ((iteration-count 0 (1+ iteration-count)))
@@ -1923,7 +1923,7 @@
                 (labels ((simple-arglist (n)
                            (unless (<= (length arglist) n)
                              (format-error *format-cs* nil
-                                (ENGLISH "Too many arguments for this directive")))
+                                (TEXT "Too many arguments for this directive")))
                            (setq arglist
                                  (append arglist
                                          (make-list (- n (length arglist))
@@ -2161,7 +2161,7 @@
                            (unless (null (csd-clause-chain
                                           (car *format-csdl*)))
                              (format-error *format-cs* nil
-                                 (ENGLISH "The ~~; directive is not allowed at this point."))))
+                                 (TEXT "The ~~; directive is not allowed at this point."))))
                          (progn
                            (simple-arglist 1)
                            (push `(CASE ,(or (first arglist)
@@ -2373,7 +2373,7 @@
   (unless (stringp control-string)
     (error-of-type 'type-error
       :datum control-string :expected-type 'string
-      (ENGLISH "~S: The control-string must be a string, not ~S")
+      (TEXT "~S: The control-string must be a string, not ~S")
       'formatter control-string))
   ;; possibly convert control-string to Simple-String ??
   (or

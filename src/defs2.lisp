@@ -59,7 +59,7 @@
         (t
          (error-of-type 'type-error
            :datum obj :expected-type 'function
-           (ENGLISH "~S: ~S is not a function")
+           (TEXT "~S: ~S is not a function")
            'function-lambda-expression obj
 ) )     ))
 
@@ -73,14 +73,14 @@
            (cond ((stringp name) name)
                  ((symbolp name) (symbol-name name))
                  (t (error-of-type 'source-program-error
-                      (ENGLISH "~S: package name ~S should be a string or a symbol")
+                      (TEXT "~S: package name ~S should be a string or a symbol")
                       'defpackage name
          ) )     )  )
          (check-symname (name)
            (cond ((stringp name) name)
                  ((symbolp name) (symbol-name name))
                  (t (error-of-type 'source-program-error
-                      (ENGLISH "~S ~A: symbol name ~S should be a string or a symbol")
+                      (TEXT "~S ~A: symbol name ~S should be a string or a symbol")
                       'defpackage packname name
         )) )     )  )
     (setq packname (check-packname packname))
@@ -100,7 +100,7 @@
       (flet ((record-symname (name)
                (if (member name symname-list :test #'string=)
                  (error-of-type 'source-program-error
-                   (ENGLISH "~S ~A: the symbol ~A must not be specified more than once")
+                   (TEXT "~S ~A: the symbol ~A must not be specified more than once")
                    'defpackage packname name
                  )
                  (push name symname-list)
@@ -112,7 +112,7 @@
                 (:SIZE
                   (if size
                     (error-of-type 'source-program-error
-                      (ENGLISH "~S ~A: the ~S option must not be given more than once")
+                      (TEXT "~S ~A: the ~S option must not be given more than once")
                       'defpackage packname ':SIZE
                     )
                     (setq size t) ; Argument wird ignoriert
@@ -120,7 +120,7 @@
                 (:DOCUMENTATION ; ANSI-CL
                   (if documentation
                     (error-of-type 'source-program-error
-                      (ENGLISH "~S ~A: the ~S option must not be given more than once")
+                      (TEXT "~S ~A: the ~S option must not be given more than once")
                       'defpackage packname ':DOCUMENTATION
                     )
                     (setq documentation t) ; Argument wird ignoriert
@@ -178,15 +178,15 @@
                     (setq case-sensitive t)
                 ) )
                 (T (error-of-type 'source-program-error
-                     (ENGLISH "~S ~A: unknown option ~S")
+                     (TEXT "~S ~A: unknown option ~S")
                      'defpackage packname (first option)
               ) )  )
               (error-of-type 'source-program-error
-                (ENGLISH "~S ~A: invalid syntax in ~S option: ~S")
+                (TEXT "~S ~A: invalid syntax in ~S option: ~S")
                 'defpackage packname 'defpackage option
             ) )
             (error-of-type 'source-program-error
-              (ENGLISH "~S ~A: not a ~S option: ~S")
+              (TEXT "~S ~A: not a ~S option: ~S")
               'defpackage packname 'defpackage option
         ) ) )
         ; Auf Überschneidungen zwischen intern-list und export-list prüfen:
@@ -242,8 +242,8 @@
   (multiple-value-bind (sym found) (find-symbol string packname)
     (unless found
       (cerror ; 'package-error ??
-              (ENGLISH "This symbol will be created.")
-              (ENGLISH "~S ~A: There is no symbol ~A::~A .")
+              (TEXT "This symbol will be created.")
+              (TEXT "~S ~A: There is no symbol ~A::~A .")
               'defpackage calling-packname packname string
       )
       (setq sym (intern string packname))
@@ -317,7 +317,7 @@
   (let ((min (car min.max))
         (max (cdr min.max)))
     (error-of-type 'error
-      (ENGLISH "The object to be destructured should be a list with ~:[at least ~*~S~;~:[from ~S to ~S~;~S~]~] elements, not ~4@*~S.")
+      (TEXT "The object to be destructured should be a list with ~:[at least ~*~S~;~:[from ~S to ~S~;~S~]~] elements, not ~4@*~S.")
       max (eql min max) min max destructuring-form
 ) ) )
 
@@ -385,7 +385,7 @@
 
 (defmacro with-hash-table-iterator ((macroname hashtable) &body body)
   (unless (symbolp macroname)
-    (error (ENGLISH "~S: macro name should be a symbol, not ~S")
+    (error (TEXT "~S: macro name should be a symbol, not ~S")
            'with-hash-table-iterator macroname))
   (let ((var (gensym)))
     `(LET ((,var (SYS::HASH-TABLE-ITERATOR ,hashtable)))
@@ -415,13 +415,13 @@
             (unless nextch
               (error-of-type 'end-of-file
                 :stream stream
-                (ENGLISH "~S: input stream ~S ends within read macro beginning to ~S")
+                (TEXT "~S: input stream ~S ends within read macro beginning to ~S")
                 'read stream ch
             ) )
             (unless (characterp nextch)
               (error-of-type 'stream-error
                 :stream stream
-                (ENGLISH "~S from ~S: character read should be a character: ~S")
+                (TEXT "~S from ~S: character read should be a character: ~S")
                 'read stream ch
             ) )
             (unless (char<= #\0 nextch #\9)
@@ -442,7 +442,7 @@
         (unless macrodef
           (error-of-type 'stream-error
             :stream stream
-            (ENGLISH "~S from ~S: After ~S is ~S an undefined dispatch macro character")
+            (TEXT "~S from ~S: After ~S is ~S an undefined dispatch macro character")
             'read stream ch subch
         ) )
         (funcall macrodef stream subch arg)
@@ -508,7 +508,7 @@
            (apply #'read-byte-sequence sequence stream rest)
           )
           (t
-           (error (ENGLISH "~S: ~S of ~S is ambiguous. Please use ~S or ~S.")
+           (error (TEXT "~S: ~S of ~S is ambiguous. Please use ~S or ~S.")
                   'read-sequence 'stream-element-type stream
                   'read-char-sequence 'read-byte-sequence
 ) ) )     ))
@@ -523,7 +523,7 @@
            (apply #'write-byte-sequence sequence stream rest)
           )
           (t
-           (error (ENGLISH "~S: ~S of ~S is ambiguous. Please use ~S or ~S.")
+           (error (TEXT "~S: ~S of ~S is ambiguous. Please use ~S or ~S.")
                   'write-sequence 'stream-element-type stream
                   'write-char-sequence 'write-byte-sequence
 ) ) )     ))
