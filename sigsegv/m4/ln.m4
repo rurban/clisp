@@ -68,7 +68,7 @@ mkdir conftest.d
 cd conftest.d
 ln ../conftest.y conftest.z 2>&AC_FD_CC
 data=`cat conftest.z 2>/dev/null`
-if test $data = "blabla" ; then
+if test "$data" = "blabla" ; then
   # conftest.z contains the correct data -- good!
   cl_cv_prog_hln="ln"
 else
