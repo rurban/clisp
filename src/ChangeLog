@@ -1,5 +1,8 @@
 1999-06-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * compiler.lsp (macroexpand-1): Do not pass ENV to `macro-function'.
+          (c-form): Do not pass ENV to `macro-function'.
+
         * places.lsp (MACRO-FUNCTION): Add optional, ignored env argument.
 
         * control.d (SYSTEM::OLD-MACRO-FUNCTION): New function.

@@ -94,8 +94,9 @@
       (multiple-value-bind (a b c) (fenv-search (car form) (svref env 1))
         (declare (ignore c))
         (cond ((eq a 'system::macro) (values (funcall b form env) t))
-              ((macro-function (car form) env)
-               (values (funcall (macro-function (car form) env) form env) t))
+              ((macro-function (car form))
+               (values (funcall (macro-function (car form)) form env) t)
+              )
               (t (values form nil))
       ) )
       (if (symbolp form)
@@ -3144,23 +3145,23 @@ der Docstring (oder NIL).
               (declare (ignore b))
               (if (null a)
                 ; nicht lokal definiert
-                (let ((handler (gethash fun c-form-table))
-                      (env (vector *venv* *fenv*)))
+                (let ((handler (gethash fun c-form-table)))
                   (if handler ; Behandlungsfunktion gefunden?
                     ; also (symbolp fun)
                     (if (or (and (special-operator-p fun)
-                                 (not (macro-function fun env)))
-                            (not (declared-notinline fun)))
+                                 (not (macro-function fun)))
+                            (not (declared-notinline fun))
+                        )
                       (funcall handler) ; ja -> aufrufen
-                      (if (macro-function fun env)
-                        (c-form (macroexpand-1 *form* env)) ; -> expandieren
+                      (if (macro-function fun)
+                        (c-form (macroexpand-1 *form* (vector *venv* *fenv*))) ; -> expandieren
                         ; normaler Aufruf globaler Funktion
                         (c-GLOBAL-FUNCTION-CALL fun)
                     ) )
                     ; nein -> jedenfalls keine Special-Form (die sind ja
                     ; alle in der Tabelle).
                     (if (and (symbolp fun) (macro-function fun)) ; globaler Macro ?
-                      (c-form (macroexpand-1 *form* env)) ; -> expandieren
+                      (c-form (macroexpand-1 *form* (vector *venv* *fenv*))) ; -> expandieren
                       ; globale Funktion
                       (if (and (equal fun (fnode-name *func*))
                                (not (declared-notinline fun))
