@@ -138,6 +138,7 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
            (next)
            (kw)
            (svar)
+           (initv)
            (g))
           ((atom listr)
            (if listr
@@ -172,6 +173,8 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                                name next))
                       ((symbolp (car next))
                        (setq kw (intern (symbol-name (car next)) *keyword-package*))
+                       (setq initv (gensym))
+                       (setq %let-list (cons `(,initv ,(cadr next)) %let-list))
                        (setq %let-list
                          (cons `(,(car next) (GETF ,restvar ,kw MACRO-MISSING-VALUE))
                                %let-list
@@ -184,11 +187,11 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                          (cons
                            (if svar
                              `(,svar (IF (EQ ,(car next) MACRO-MISSING-VALUE)
-                                       (PROGN (SETQ ,(car next) ,(cadr next)) NIL)
+                                       (PROGN (SETQ ,(car next) ,initv) NIL)
                                        T
                               )      )
                              `(,(car next) (IF (EQ ,(car next) MACRO-MISSING-VALUE)
-                                             ,(cadr next)
+                                             ,initv
                                              ,(car next)
                               )            )
                            )
@@ -202,6 +205,8 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                                name (car next)))
                       ((symbolp (cadar next))
                        (setq kw (caar next))
+                       (setq initv (gensym))
+                       (setq %let-list (cons `(,initv ,(cadr next)) %let-list))
                        (setq %let-list
                          (cons `(,(cadar next) (GETF ,restvar ,kw MACRO-MISSING-VALUE))
                            %let-list
@@ -214,11 +219,11 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                          (cons
                            (if svar
                              `(,svar (IF (EQ ,(cadar next) MACRO-MISSING-VALUE)
-                                       (PROGN (SETQ ,(cadar next) ,(cadr next)) NIL)
+                                       (PROGN (SETQ ,(cadar next) ,initv) NIL)
                                        T
                               )      )
                              `(,(cadar next) (IF (EQ ,(cadar next) MACRO-MISSING-VALUE)
-                                             ,(cadr next)
+                                             ,initv
                                              ,(cadar next)
                               )            )
                            )
@@ -229,6 +234,8 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                       (t
                        (setq kw (caar next))
                        (setq g (gensym))
+                       (setq initv (gensym))
+                       (setq %let-list (cons `(,initv ,(cadr next)) %let-list))
                        (setq %let-list
                          (cons `(,g (GETF ,restvar ,kw MACRO-MISSING-VALUE)) %let-list)
                        )
@@ -240,11 +247,11 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                          (cons
                            (if svar
                              `(,svar (IF (EQ ,g MACRO-MISSING-VALUE)
-                                       (PROGN (SETQ ,g ,(cadr next)) NIL)
+                                       (PROGN (SETQ ,g ,initv) NIL)
                                        T
                               )      )
                              `(,g (IF (EQ ,g MACRO-MISSING-VALUE)
-                                    ,(cadr next)
+                                    ,initv
                                     ,(cadar next)
                               )   )
                            )
