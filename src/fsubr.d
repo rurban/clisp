@@ -4,30 +4,30 @@
 # Eine Special-Form wird definiert durch eine Deklaration
 #   LISPSPECFORM(name,req_anz,opt_anz,body_flag)
 # in diesem File.
-# Zusätzlich muss in CONTROL.D dieselbe Deklaration samt C-Body stehen.
+# ZusÃ¤tzlich muss in CONTROL.D dieselbe Deklaration samt C-Body stehen.
 
 # name ist der Funktionsname (ein C-Identifier), req_anz die Anzahl der
 # required-Parameter (eine Zahl), opt_anz die Anzahl der optional-Parameter
 # (eine Zahl), body_flag entweder nobody oder body.
 
 
-# Expander für die Konstruktion der extern-Deklarationen:
+# Expander fÃ¼r die Konstruktion der extern-Deklarationen:
   #define LISPSPECFORM_A(name,req_anz,opt_anz,body_flag)  \
     extern fsubr_function C_##name;
 
-# Expander für die Konstruktion der Deklaration der C-Funktion:
+# Expander fÃ¼r die Konstruktion der Deklaration der C-Funktion:
   #define LISPSPECFORM_B(name,req_anz,opt_anz,body_flag)  \
     global Values C_##name (void)
 
-# Expander für die Deklaration der FSUBR-Tabelle:
+# Expander fÃ¼r die Deklaration der FSUBR-Tabelle:
   #define LISPSPECFORM_C(name,req_anz,opt_anz,body_flag)  \
     fsubr_ D_##name;
 
-# Expander für die Initialisierung der FSUBR-Tabelle:
+# Expander fÃ¼r die Initialisierung der FSUBR-Tabelle:
   #define LISPSPECFORM_D(name,req_anz,opt_anz,body_flag)  \
     &C_##name,
 
-# Expander für die Initialisierung der FSUBR-Symbole:
+# Expander fÃ¼r die Initialisierung der FSUBR-Symbole:
   #define LISPSPECFORM_E(name,req_anz,opt_anz,body_flag)  \
     { offsetof(struct symbol_tab_,S_##name), \
       req_anz,                  \

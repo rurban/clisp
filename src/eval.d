@@ -1,4 +1,4 @@
-# Evaluator, Applyer und Bytecode-Interpreter für CLISP
+# Evaluator, Applyer und Bytecode-Interpreter fÃ¼r CLISP
 # Bruno Haible 1990-2000
 
 #include "lispbibl.c"
@@ -208,7 +208,7 @@
   #define FUNTAB_length  (sizeof(FUNTAB)/sizeof(Subr))
   #define FUNTABR_length  (sizeof(FUNTABR)/sizeof(Subr))
 
-# Argumenttyp-Kürzel bei compilierten Closures:
+# Argumenttyp-KÃ¼rzel bei compilierten Closures:
   typedef enum {
     cclos_argtype_default,
     cclos_argtype_0_0,
@@ -262,7 +262,7 @@
 # > codevec: ihr Codevektor, ein Simple-Bit-Vector
 # > index: Start-Index
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# verÃ¤ndert STACK, kann GC auslÃ¶sen
   # local Values interpret_bytecode (object closure, object codevec, uintL index);
   local Values interpret_bytecode_ (object closure, Sbvector codeptr, const uintB* byteptr);
   #define interpret_bytecode(closure,codevec,index)  \
@@ -278,7 +278,7 @@
     #endif
   #endif
 
-# Werte der Bytecodes (256 Stück):
+# Werte der Bytecodes (256 StÃ¼ck):
   #ifndef FAST_DISPATCH
     typedef enum {
       #define BYTECODE(code)  code,
@@ -299,7 +299,7 @@ LISPFUNN(funtabref,1)
     var uintL i;
     if (posfixnump(arg) # sollte ein Fixnum >=0
         && (i = posfixnum_to_L(arg),
-            i < FUNTAB_length+FUNTABR_length # und < Tabellenlänge sein
+            i < FUNTAB_length+FUNTABR_length # und < TabellenlÃ¤nge sein
        )   ) {
       # Name des indizierten Elements der Tabelle:
       value1 = (i < FUNTAB_length
@@ -319,8 +319,8 @@ LISPFUNN(funtabref,1)
 #   req-anz           Anzahl der required-Parameter,
 #   opt-anz           Anzahl der optionalen Parameter,
 #   rest-p            Flag, ob &rest angegeben,
-#   keywords          Liste der zulässigen Keywords (leer: kein &key angegeben),
-#   allow-other-keys  Flag, ob zusätzliche Keywords erlaubt sind,
+#   keywords          Liste der zulÃ¤ssigen Keywords (leer: kein &key angegeben),
+#   allow-other-keys  Flag, ob zusÃ¤tzliche Keywords erlaubt sind,
 # und sonst NIL.
 LISPFUNN(subr_info,1)
   {
@@ -345,23 +345,23 @@ LISPFUNN(subr_info,1)
 
 #        ----------------------- UNTERPROGRAMME -----------------------
 
-# UP: Löst einen Frame auf, auf den STACK zeigt.
+# UP: LÃ¶st einen Frame auf, auf den STACK zeigt.
 # unwind();
 # Die Werte mv_count/mv_space bleiben dieselben.
-# Falls es kein Unwind-Protect-Frame ist: kehrt normal zurück.
+# Falls es kein Unwind-Protect-Frame ist: kehrt normal zurÃ¼ck.
 # Falls es ein Unwind-Protect-Frame ist:
 #   rettet die Werte, klettert STACK und SP hoch
 #   und springt dann unwind_protect_to_save.fun an.
-# verändert STACK
+# verÃ¤ndert STACK
 # can trigger GC
   global void unwind (void);
   global void unwind()
     {
       var fcint frame_info = framecode(STACK_0);
       #ifdef unwind_bit_t
-      if (frame_info & bit(unwind_bit_t)) # überhaupt etwas zu tun?
+      if (frame_info & bit(unwind_bit_t)) # Ã¼berhaupt etwas zu tun?
       #else
-      if (frame_info >= unwind_limit_t) # überhaupt etwas zu tun?
+      if (frame_info >= unwind_limit_t) # Ã¼berhaupt etwas zu tun?
       #endif
         # (Nein bei APPLY, EVAL ungetrapped, CATCH, HANDLER,
         #  IBLOCK und ITAGBODY ungenestet)
@@ -408,42 +408,42 @@ LISPFUNN(subr_info,1)
                                               : S(apply)
                                              );
                             );
-                  dynamic_unbind(); # Bindung auflösen
+                  dynamic_unbind(); # Bindung auflÃ¶sen
                 }
               }
             else {
               #ifdef HAVE_SAVED_REGISTERS
               if ((frame_info & bit(callback_bit_t)) == 0) {
                 # CALLBACK_FRAME liegt vor
-                var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
+                var object* new_STACK = topofframe(STACK_0); # Pointer Ã¼bern Frame
                 # callback_saved_registers neu setzen:
                 callback_saved_registers = (struct registers *)(aint)as_oint(STACK_1);
-                # STACK neu setzen, dadurch Frame auflösen:
+                # STACK neu setzen, dadurch Frame auflÃ¶sen:
                 setSTACK(STACK = new_STACK);
                 goto fertig;
               } else
               #endif
               {
                 # VAR_FRAME oder FUN_FRAME liegt vor
-                var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
+                var object* new_STACK = topofframe(STACK_0); # Pointer Ã¼bern Frame
                 if (frame_info & bit(fun_bit_t)) {
                   # bei Funktionen nichts weiter zu tun
                 } else {
-                  # VAR_FRAME liegt vor, bindingptr läuft durch die Bindungen hoch
+                  # VAR_FRAME liegt vor, bindingptr lÃ¤uft durch die Bindungen hoch
                   var object* frame_end = STACKpointable(new_STACK);
                   var object* bindingptr = &STACK_(frame_bindings); # Beginn der Variablen-/Funktionsbindungen
                   until (bindingptr == frame_end) {
                     if (as_oint(*(bindingptr STACKop 0)) & wbit(dynam_bit_o))
                       if (as_oint(*(bindingptr STACKop 0)) & wbit(active_bit_o)) {
                         # Bindung statisch oder inaktiv -> nichts zu tun
-                        # Bindung dynamisch und aktiv -> Wert zurückschreiben:
+                        # Bindung dynamisch und aktiv -> Wert zurÃ¼ckschreiben:
                         TheSymbolflagged(*(bindingptr STACKop varframe_binding_sym))->symvalue =
                           *(bindingptr STACKop varframe_binding_value);
                       }
-                    bindingptr skipSTACKop varframe_binding_size; # nächste Bindung
+                    bindingptr skipSTACKop varframe_binding_size; # nÃ¤chste Bindung
                   }
                 }
-                # STACK neu setzen, dadurch Frame auflösen:
+                # STACK neu setzen, dadurch Frame auflÃ¶sen:
                 setSTACK(STACK = new_STACK);
                 goto fertig;
               }
@@ -479,46 +479,46 @@ LISPFUNN(subr_info,1)
               }
             } else {
               # DYNBIND_FRAME liegt vor
-              var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
+              var object* new_STACK = topofframe(STACK_0); # Pointer Ã¼bern Frame
               var object* frame_end = STACKpointable(new_STACK);
               var object* bindingptr = &STACK_1; # Beginn der Bindungen
-              # bindingptr läuft durch die Bindungen hoch
+              # bindingptr lÃ¤uft durch die Bindungen hoch
               until (bindingptr == frame_end) {
                 Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
-                bindingptr skipSTACKop 2; # nächste Bindung
+                bindingptr skipSTACKop 2; # nÃ¤chste Bindung
               }
-              # STACK neu setzen, dadurch Frame auflösen:
+              # STACK neu setzen, dadurch Frame auflÃ¶sen:
               setSTACK(STACK = new_STACK);
               goto fertig;
             }
           }
         }
-      # STACK neu setzen, dadurch Frame auflösen:
+      # STACK neu setzen, dadurch Frame auflÃ¶sen:
       setSTACK(STACK = topofframe(STACK_0));
       fertig: ;
     }
 
-# UP: "unwindet" den STACK bis zum nächsten DRIVER_FRAME und
+# UP: "unwindet" den STACK bis zum nÃ¤chsten DRIVER_FRAME und
 # springt in die entsprechende Top-Level-Schleife.
 # reset();
   nonreturning_function(global, reset, (void));
   global void reset()
     {
-      # Beim Auflösen von UNWIND-PROTECT-Frames keine Werte retten:
+      # Beim AuflÃ¶sen von UNWIND-PROTECT-Frames keine Werte retten:
       value1 = NIL; mv_count=0;
       unwind_protect_to_save.fun = (restart)&reset;
       loop {
-        # Hört der STACK hier auf?
+        # HÃ¶rt der STACK hier auf?
         if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) {
-          driver(); quit(); # STACK völlig weg -> Neustart
+          driver(); quit(); # STACK vÃ¶llig weg -> Neustart
         }
         if (framecode(STACK_0) & bit(frame_bit_t)) {
           # Bei STACK_0 beginnt ein Frame
           if (framecode(STACK_0) == DRIVER_frame_info) # DRIVER_FRAME ?
             break; # ja -> gefunden
-          unwind(); # Frame auflösen
+          unwind(); # Frame auflÃ¶sen
         } else {
-          # STACK_0 enthält ein normales LISP-Objekt
+          # STACK_0 enthÃ¤lt ein normales LISP-Objekt
           skipSTACK(1);
         }
       }
@@ -531,7 +531,7 @@ LISPFUNN(subr_info,1)
 # progv(symlist,vallist);
 # > symlist, vallist: zwei Listen
 # Es wird genau ein Variablenbindungsframe aufgebaut.
-# verändert STACK
+# verÃ¤ndert STACK
   global void progv (object symlist, object vallist);
   global void progv(symlist,vallist)
     var object symlist;
@@ -540,7 +540,7 @@ LISPFUNN(subr_info,1)
       # Platz auf dem STACK verlangen:
       get_space_on_STACK(llength(symlist)*2*sizeof(object));
       # Frame aufbauen:
-      var object* top_of_frame = STACK; # Pointer übern Frame
+      var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
       var object symlistr = symlist;
       while (consp(symlistr)) { # Symbolliste durchgehen
         var object sym = Car(symlistr);
@@ -558,10 +558,10 @@ LISPFUNN(subr_info,1)
         symlistr = Cdr(symlistr);
       }
       finish_frame(DYNBIND);
-      # Frame fertig aufgebaut, nun die Werte der Variablen verändern:
+      # Frame fertig aufgebaut, nun die Werte der Variablen verÃ¤ndern:
       while (consp(symlist)) {
         if (atomp(vallist)) {
-          # Wertliste kürzer als Symbolliste
+          # Wertliste kÃ¼rzer als Symbolliste
           # -> alle weiteren "Werte" sind #<UNBOUND>
           do {
             Symbol_value(Car(symlist)) = unbound;
@@ -575,12 +575,12 @@ LISPFUNN(subr_info,1)
       }
     }
 
-# UP: Löst die dynamische Schachtelung im STACK auf bis zu dem Frame
-# (ausschließlich), auf den upto zeigt, und springt diesen dann an.
+# UP: LÃ¶st die dynamische Schachtelung im STACK auf bis zu dem Frame
+# (ausschlieÃŸlich), auf den upto zeigt, und springt diesen dann an.
 # unwind_upto(upto);
 # > upto: Pointer auf einen Frame (in den Stack, ohne Typinfo).
 # Rettet die Werte mv_count/mv_space.
-# verändert STACK,SP
+# verÃ¤ndert STACK,SP
 # can trigger GC
 # Springt dann den gefundenen Frame an.
   nonreturning_function(global, unwind_upto, (object* upto_frame));
@@ -591,7 +591,7 @@ LISPFUNN(subr_info,1)
       unwind_protect_to_save.upto_frame = upto_frame;
       until (STACK == upto_frame) { # am Ziel-Frame angelangt?
         if (framecode(STACK_0) & bit(frame_bit_t)) { # liegt ein Frame vor?
-          unwind(); # ja -> auflösen
+          unwind(); # ja -> auflÃ¶sen
           # (Sollte dies ein Unwind-Protect-Frame sein, so wird danach wieder
           # unwind_upto(upto_frame) aufgerufen, und wir sind wieder hier.)
         } else {
@@ -602,8 +602,8 @@ LISPFUNN(subr_info,1)
       enter_frame_at_STACK();
     }
 
-# UP: throwt zum Tag tag und übergibt dabei die Werte mv_count/mv_space.
-# Kommt nur dann zurück, wenn es keinen CATCH-Frame dieses Tags gibt.
+# UP: throwt zum Tag tag und Ã¼bergibt dabei die Werte mv_count/mv_space.
+# Kommt nur dann zurÃ¼ck, wenn es keinen CATCH-Frame dieses Tags gibt.
 # throw_to(tag);
   global void throw_to (object tag);
   global void throw_to(tag)
@@ -613,25 +613,25 @@ LISPFUNN(subr_info,1)
       var object* FRAME = STACK;
       loop { # Suche im Stack ab FRAME nach einem CATCH-Frame mit demselben Tag:
         if (eq(FRAME_(0),nullobj)) # Stackende?
-          return; # ja -> kein passendes Catch vorhanden -> Rücksprung
+          return; # ja -> kein passendes Catch vorhanden -> RÃ¼cksprung
         if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
           # Frame gefunden
           if ((framecode(FRAME_(0)) == CATCH_frame_info) # Catch-Frame?
               && eq(FRAME_(frame_tag),tag) # mit demselben Tag?
              )
             break; # ja -> Suchschleife fertig
-          # Frame übergehen:
+          # Frame Ã¼bergehen:
           FRAME = topofframe(FRAME_(0));
         } else {
           FRAME skipSTACKop 1;
         }
       }
       # FRAME zeigt auf den untersten CATCH-Frame mit demselben Tag
-      unwind_upto(FRAME); # bis dorthin auflösen, dann anspringen
+      unwind_upto(FRAME); # bis dorthin auflÃ¶sen, dann anspringen
     }
 
-# UP: Ruft alle Handler zur Condition cond auf. Kommt nur zurück, wenn keiner
-# dieser Handler sich zuständig fühlt (d.h. wenn jeder Handler zurückkehrt).
+# UP: Ruft alle Handler zur Condition cond auf. Kommt nur zurÃ¼ck, wenn keiner
+# dieser Handler sich zustÃ¤ndig fÃ¼hlt (d.h. wenn jeder Handler zurÃ¼ckkehrt).
 # invoke_handlers(cond);
 # can trigger GC
   global void invoke_handlers (object cond);
@@ -650,7 +650,7 @@ LISPFUNN(subr_info,1)
           FRAME = other_ranges->high_limit;
           other_ranges = other_ranges->next;
         } elif (eq(FRAME_(0),nullobj)) { # Stackende?
-          break; # ja -> fertig, Rücksprung
+          break; # ja -> fertig, RÃ¼cksprung
         } elif (framecode(FRAME_(0)) & bit(frame_bit_t)) {
           # Frame gefunden
           if (framecode(FRAME_(0)) == HANDLER_frame_info) { # Handler-Frame?
@@ -661,10 +661,10 @@ LISPFUNN(subr_info,1)
               pushSTACK(cond); # cond retten
               pushSTACK(cond);
               pushSTACK(TheSvector(Car(FRAME_(frame_handlers)))->data[i]); # typei
-              funcall(S(safe_typep),2); # (SYS::SAFE-TYPEP cond typei) ausführen
+              funcall(S(safe_typep),2); # (SYS::SAFE-TYPEP cond typei) ausfÃ¼hren
               if (!nullp(value1)) # passender Handler gefunden?
                 goto found_handler;
-              cond = popSTACK(); # cond zurück
+              cond = popSTACK(); # cond zurÃ¼ck
               i += 2;
             } while (i < m2);
             if (FALSE) {
@@ -679,11 +679,11 @@ LISPFUNN(subr_info,1)
               new_range.high_limit = topofframe(FRAME_(0));
               new_range.next = other_ranges;
               var object* top_of_frame = STACK;
-              var sp_jmp_buf returner; # Rücksprungpunkt
+              var sp_jmp_buf returner; # RÃ¼cksprungpunkt
               finish_entry_frame(UNWIND_PROTECT,&!returner,, {
                 var restart fun = unwind_protect_to_save.fun;
                 var object* arg = unwind_protect_to_save.upto_frame;
-                skipSTACK(2); # Unwind-Protect-Frame auflösen
+                skipSTACK(2); # Unwind-Protect-Frame auflÃ¶sen
                 # Cleanup: Handler reaktivieren:
                 inactive_handlers = saved_inactive_handlers;
                 # und weiterspringen:
@@ -693,7 +693,7 @@ LISPFUNN(subr_info,1)
               # Handler deaktivieren:
               inactive_handlers = &new_range;
               if (!nullp(Cdr(FRAME_(frame_handlers)))) {
-                # Information für den Handler bereitlegen:
+                # Information fÃ¼r den Handler bereitlegen:
                 handler_args.condition = STACK_(0+2);
                 handler_args.stack = FRAME STACKop 4;
                 handler_args.sp = (SPint*)(aint)as_oint(FRAME_(frame_SP));
@@ -714,13 +714,13 @@ LISPFUNN(subr_info,1)
                    STACK_(0+2)
                   );
               }
-              skipSTACK(2); # Unwind-Protect-Frame auflösen
+              skipSTACK(2); # Unwind-Protect-Frame auflÃ¶sen
               # Handler reaktivieren:
               inactive_handlers = saved_inactive_handlers;
-              cond = popSTACK(); # cond zurück
+              cond = popSTACK(); # cond zurÃ¼ck
             }
           }
-          # Frame übergehen:
+          # Frame Ã¼bergehen:
           FRAME = topofframe(FRAME_(0));
         } else {
           FRAME skipSTACKop 1;
@@ -787,7 +787,7 @@ LISPFUNN(subr_info,1)
                 else
                   return value;
               }
-              bindingsptr skipSTACKop varframe_binding_size; # nein: nächste Bindung
+              bindingsptr skipSTACKop varframe_binding_size; # nein: nÃ¤chste Bindung
             });
           }
           env = FRAME_(frame_next_env);
@@ -811,9 +811,9 @@ LISPFUNN(subr_info,1)
               else
                 return value;
             }
-            ptr += 2; # nächste Bindung
+            ptr += 2; # nÃ¤chste Bindung
           });
-          env = *ptr; # nächstes Environment
+          env = *ptr; # nÃ¤chstes Environment
           if (simple_vector_p(env)) # ein Simple-Vector?
             goto next_vector;
           # sonst: Environment ist NIL
@@ -839,7 +839,7 @@ LISPFUNN(subr_info,1)
 # UP: Setzt den Wert eines Symbols im aktuellen Environment.
 # setq(symbol,value);
 # > symbol: Symbol, keine Konstante
-# > value: gewünschter Wert des Symbols im aktuellen Environment
+# > value: gewÃ¼nschter Wert des Symbols im aktuellen Environment
   global void setq (object sym, object value);
   global void setq(sym,value)
     var object sym;
@@ -875,7 +875,7 @@ LISPFUNN(subr_info,1)
                   return;
                 }
               }
-              bindingsptr skipSTACKop varframe_binding_size; # nein: nächste Bindung
+              bindingsptr skipSTACKop varframe_binding_size; # nein: nÃ¤chste Bindung
             });
           }
           env = FRAME_(frame_next_env);
@@ -900,9 +900,9 @@ LISPFUNN(subr_info,1)
                 return;
               }
             }
-            ptr += 2; # nächste Bindung
+            ptr += 2; # nÃ¤chste Bindung
           });
-          env = *ptr; # nächstes Environment
+          env = *ptr; # nÃ¤chstes Environment
           if (simple_vector_p(env)) # ein Simple-Vector?
             goto next_vector;
           # sonst: Environment ist NIL
@@ -937,7 +937,7 @@ LISPFUNN(subr_info,1)
               if (equal(*(bindingsptr STACKop 0),sym)) { # richtiges Symbol?
                 value = *(bindingsptr STACKop 1); goto fertig;
               }
-              bindingsptr skipSTACKop 2; # nein: nächste Bindung
+              bindingsptr skipSTACKop 2; # nein: nÃ¤chste Bindung
             });
           }
           env = FRAME_(frame_next_env);
@@ -957,9 +957,9 @@ LISPFUNN(subr_info,1)
             if (equal(*ptr,sym)) { # richtiges Symbol?
               value = *(ptr+1); goto fertig;
             }
-            ptr += 2; # nächste Bindung
+            ptr += 2; # nÃ¤chste Bindung
           });
-          env = *ptr; # nächstes Environment
+          env = *ptr; # nÃ¤chstes Environment
           if (simple_vector_p(env)) # ein Simple-Vector?
             goto next_vector;
           # sonst: Environment ist NIL
@@ -974,7 +974,7 @@ LISPFUNN(subr_info,1)
       return Symbol_function(sym);
      fertig: # Symbol aktiv im Environment gefunden, "Wert" value
       # (eine Closure oder Macro oder FunctionMacro oder NIL)
-      # Falls Definition = NIL (während LABELS), gilt die Funktion als
+      # Falls Definition = NIL (wÃ¤hrend LABELS), gilt die Funktion als
       # undefiniert:
       if (nullp(value))
         value = unbound;
@@ -983,11 +983,11 @@ LISPFUNN(subr_info,1)
 
 # UP: Wertet eine Form in einem gegebenen Environment aus.
 # eval_5env(form,var,fun,block,go,decl);
-# > var_env: Wert für VAR_ENV
-# > fun_env: Wert für FUN_ENV
-# > block_env: Wert für BLOCK_ENV
-# > go_env: Wert für GO_ENV
-# > decl_env: Wert für DECL_ENV
+# > var_env: Wert fÃ¼r VAR_ENV
+# > fun_env: Wert fÃ¼r FUN_ENV
+# > block_env: Wert fÃ¼r BLOCK_ENV
+# > go_env: Wert fÃ¼r GO_ENV
+# > decl_env: Wert fÃ¼r DECL_ENV
 # > form: Form
 # < mv_count/mv_space: Werte
 # can trigger GC
@@ -1010,7 +1010,7 @@ LISPFUNN(subr_info,1)
       aktenv.decl_env = decl_env;
       # Form auswerten:
       eval(form);
-      # Environment-Frame auflösen:
+      # Environment-Frame auflÃ¶sen:
       unwind();
       return; # fertig
     }
@@ -1037,14 +1037,14 @@ LISPFUNN(subr_info,1)
   global object nest_fun(env)
     var object env;
     {
-      var uintL depth = 0; # Rekursionszähler:=0
+      var uintL depth = 0; # RekursionszÃ¤hler:=0
       # Pseudorekursion mit Input env, Output env.
      nest_start: # Rekursionsbeginn
       if (framepointerp(env)) {
         # env ist ein Pointer auf einen STACK-Frame.
         check_STACK();
         pushSTACK(env); # env retten
-        # entrekursiviert nest_fun(NEXT_ENV(env)) durchführen:
+        # entrekursiviert nest_fun(NEXT_ENV(env)) durchfÃ¼hren:
         {
           var object* FRAME = TheFramepointer(env);
           env = FRAME_(frame_next_env); depth++; goto nest_start;
@@ -1052,16 +1052,16 @@ LISPFUNN(subr_info,1)
        nest_reentry: depth--;
         # NEXT_ENV ist nun genestet.
         {
-          var object* FRAME = TheFramepointer(STACK_0); # nächster zu nestender STACK-Frame
+          var object* FRAME = TheFramepointer(STACK_0); # nÃ¤chster zu nestender STACK-Frame
           STACK_0 = env; # bisher genestetes Environment
           var uintL anzahl = as_oint(FRAME_(frame_anz)); # Anzahl der noch nicht genesteten Bindungen
           if (anzahl == 0) {
-            # keine Bindungen -> unnötig, einen Vektor zu erzeugen.
+            # keine Bindungen -> unnÃ¶tig, einen Vektor zu erzeugen.
             env = popSTACK();
           } else {
-            # Vektor für anzahl Bindungen erzeugen:
+            # Vektor fÃ¼r anzahl Bindungen erzeugen:
             env = allocate_vector(2*anzahl+1);
-            # und füllen:
+            # und fÃ¼llen:
             {
               var object* ptr = &TheSvector(env)->data[0];
               var object* bindingsptr = &FRAME_(frame_bindings); # Pointer auf die erste Bindung
@@ -1094,14 +1094,14 @@ LISPFUNN(subr_info,1)
   local object nest_var(env)
     var object env;
     {
-      var uintL depth = 0; # Rekursionszähler:=0
+      var uintL depth = 0; # RekursionszÃ¤hler:=0
       # Pseudorekursion mit Input env, Output env.
      nest_start: # Rekursionsbeginn
       if (framepointerp(env)) {
         # env ist ein Pointer auf einen STACK-Frame.
         check_STACK();
         pushSTACK(env); # env retten
-        # entrekursiviert nest_var(NEXT_ENV(env)) durchführen:
+        # entrekursiviert nest_var(NEXT_ENV(env)) durchfÃ¼hren:
         {
           var object* FRAME = TheFramepointer(env);
           env = FRAME_(frame_next_env); depth++; goto nest_start;
@@ -1109,7 +1109,7 @@ LISPFUNN(subr_info,1)
        nest_reentry: depth--;
         # NEXT_ENV ist nun genestet.
         {
-          var object* FRAME = TheFramepointer(STACK_0); # nächster zu nestender STACK-Frame
+          var object* FRAME = TheFramepointer(STACK_0); # nÃ¤chster zu nestender STACK-Frame
           STACK_0 = env; # bisher genestetes Environment
           # Suche (von unten) die erste aktive unter den noch nicht
           # genesteten Bindungen:
@@ -1127,12 +1127,12 @@ LISPFUNN(subr_info,1)
           # Ab bindingsptr kommen anzahl-count aktive, zu nestende Bindungen.
           anzahl = anzahl-count; # Anzahl zu nestender Bindungen
           if (anzahl == 0) {
-            # keine Bindungen -> unnötig, einen Vektor zu erzeugen.
+            # keine Bindungen -> unnÃ¶tig, einen Vektor zu erzeugen.
             env = popSTACK();
           } else {
-            # Vektor für anzahl Bindungen erzeugen:
+            # Vektor fÃ¼r anzahl Bindungen erzeugen:
             env = allocate_vector(2*anzahl+1);
-            # und füllen:
+            # und fÃ¼llen:
             {
               var object* ptr = &TheSvector(env)->data[0];
               # Bindungen ab bindingsptr in den Vektor ab ptr eintragen:
@@ -1165,14 +1165,14 @@ LISPFUNN(subr_info,1)
     }
 
 # UP: Nestet die Environments in *env (d.h. schreibt alle Informationen in
-# Stack-unabhängige Strukturen) und schiebt sie auf den STACK.
+# Stack-unabhÃ¤ngige Strukturen) und schiebt sie auf den STACK.
 # (Die Werte VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV werden nicht
-# verändert, da evtl. noch inaktive Bindungen in Frames sitzen, die ohne
-# Veränderung von VAR_ENV aktiviert werden können müssen.)
+# verÃ¤ndert, da evtl. noch inaktive Bindungen in Frames sitzen, die ohne
+# VerÃ¤nderung von VAR_ENV aktiviert werden kÃ¶nnen mÃ¼ssen.)
 # nest_env(env)
-# > environment* env: Pointer auf fünf einzelne Environments
+# > environment* env: Pointer auf fÃ¼nf einzelne Environments
 # < environment* ergebnis: Pointer auf die Environments im STACK
-# verändert STACK, kann GC auslösen
+# verÃ¤ndert STACK, kann GC auslÃ¶sen
   global environment* nest_env (environment* env);
   global environment* nest_env(env5)
     var environment* env5;
@@ -1180,7 +1180,7 @@ LISPFUNN(subr_info,1)
       # Erst alle Environments in den STACK kopieren:
       make_STACK_env(env5->var_env,env5->fun_env,env5->block_env,env5->go_env,env5->decl_env,
                      env5 = );
-      # DECL_ENV: Nicht zu verändern.
+      # DECL_ENV: Nicht zu verÃ¤ndern.
       # GO_ENV:
       {
         var object env = env5->go_env;
@@ -1196,23 +1196,23 @@ LISPFUNN(subr_info,1)
             env = FRAME_(frame_next_env); # ja -> bisherige Aliste holen
           } else {
             pushSTACK(env); # env retten
-            # entrekursiviert nest_go(NEXT_ENV(env)) durchführen:
+            # entrekursiviert nest_go(NEXT_ENV(env)) durchfÃ¼hren:
             env = FRAME_(frame_next_env); depth++; goto nest_go_start;
            nest_go_reentry: depth--;
             # NEXT_ENV ist nun genestet.
             {
-              var object frame = STACK_0; # nächster zu nestender STACK-Frame
+              var object frame = STACK_0; # nÃ¤chster zu nestender STACK-Frame
               FRAME = uTheFramepointer(frame);
               STACK_0 = env; # bisher genestetes Environment
               var object* tagsptr = &FRAME_(frame_bindings); # Pointer aufs unterste Tag
-              var object* frame_end = STACKpointable(topofframe(FRAME_(0))); # Pointer übern Frame
+              var object* frame_end = STACKpointable(topofframe(FRAME_(0))); # Pointer Ã¼bern Frame
               var uintL count = # Anzahl der Tags
                 # Dazu die Pointer tagsptr und frame_end (beide ohne Typinfo!) abziehen:
                 STACK_item_count(tagsptr,frame_end) / 2;
-              # Vektor für count Tags erzeugen:
+              # Vektor fÃ¼r count Tags erzeugen:
               {
                 var object tagvec = allocate_vector(count);
-                # und füllen:
+                # und fÃ¼llen:
                 if (count > 0) {
                   var object* ptr = &TheSvector(tagvec)->data[0];
                   # Tags ab tagsptr in den Vektor ab ptr eintragen:
@@ -1223,14 +1223,14 @@ LISPFUNN(subr_info,1)
                 }
                 pushSTACK(tagvec); # und retten
               }
-              # Nächstes Alistencons (cons Tag-Vektor Frame-Pointer) erzeugen:
+              # NÃ¤chstes Alistencons (cons Tag-Vektor Frame-Pointer) erzeugen:
               {
                 var object new_cons = allocate_cons();
                 Car(new_cons) = STACK_0; # tagvec
                 Cdr(new_cons) = frame;
                 STACK_0 = new_cons;
               }
-              # und vor die Aliste hängen:
+              # und vor die Aliste hÃ¤ngen:
               env = allocate_cons();
               Car(env) = popSTACK(); # new_cons
               Cdr(env) = popSTACK(); # bisherige Aliste
@@ -1259,22 +1259,22 @@ LISPFUNN(subr_info,1)
             env = FRAME_(frame_next_env); # ja -> bisherige Aliste holen
           } else {
             pushSTACK(env); # env retten
-            # entrekursiviert nest_block(NEXT_ENV(env)) durchführen:
+            # entrekursiviert nest_block(NEXT_ENV(env)) durchfÃ¼hren:
             env = FRAME_(frame_next_env); depth++; goto nest_block_start;
            nest_block_reentry: depth--;
             # NEXT_ENV ist nun genestet.
             {
-              var object frame = STACK_0; # nächster zu nestender STACK-Frame
+              var object frame = STACK_0; # nÃ¤chster zu nestender STACK-Frame
               FRAME = TheFramepointer(frame);
               STACK_0 = env; # bisher genestetes Environment
-              # Nächstes Alistencons (cons Block-Name Frame-Pointer) erzeugen:
+              # NÃ¤chstes Alistencons (cons Block-Name Frame-Pointer) erzeugen:
               {
                 var object new_cons = allocate_cons();
                 Car(new_cons) = FRAME_(frame_name);
                 Cdr(new_cons) = frame;
                 pushSTACK(new_cons);
               }
-              # und vor die Aliste hängen:
+              # und vor die Aliste hÃ¤ngen:
               env = allocate_cons();
               Car(env) = popSTACK(); # new_cons
               Cdr(env) = popSTACK(); # bisherige Aliste
@@ -1297,16 +1297,16 @@ LISPFUNN(subr_info,1)
     }
 
 # UP: Nestet die aktuellen Environments (d.h. schreibt alle Informationen in
-# Stack-unabhängige Strukturen) und schiebt sie auf den STACK.
+# Stack-unabhÃ¤ngige Strukturen) und schiebt sie auf den STACK.
 # (Die Werte VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV werden nicht
-# verändert, da evtl. noch inaktive Bindungen in Frames sitzen, die ohne
-# Veränderung von VAR_ENV aktiviert werden können müssen.)
+# verÃ¤ndert, da evtl. noch inaktive Bindungen in Frames sitzen, die ohne
+# VerÃ¤nderung von VAR_ENV aktiviert werden kÃ¶nnen mÃ¼ssen.)
 # nest_aktenv()
 # < environment* ergebnis: Pointer auf die Environments im STACK
-# verändert STACK, kann GC auslösen
+# verÃ¤ndert STACK, kann GC auslÃ¶sen
   #define nest_aktenv()  nest_env(&aktenv)
 
-# UP: Ergänzt ein Deklarations-Environment um ein decl-spec.
+# UP: ErgÃ¤nzt ein Deklarations-Environment um ein decl-spec.
 # augment_decl_env(declspec,env)
 # > declspec: Deklarations-Specifier, ein Cons
 # > env: Deklarations-Environment
@@ -1338,7 +1338,7 @@ LISPFUNN(subr_info,1)
         }
       }
       # nicht zu beachtende Deklaration.
-      return env; # env unverändert lassen
+      return env; # env unverÃ¤ndert lassen
      beachten:
       # eine zu beachtende Deklaration -> env := (cons new_declspec env)
       pushSTACK(env); pushSTACK(new_declspec);
@@ -1347,7 +1347,7 @@ LISPFUNN(subr_info,1)
       return env;
     }
 
-# UP: expandiert eine Form, falls möglich, (nicht jedoch, wenn FSUBR-Aufruf
+# UP: expandiert eine Form, falls mÃ¶glich, (nicht jedoch, wenn FSUBR-Aufruf
 # oder Symbol oder FunctionMacro-Aufruf) in einem Environment
 # macroexp(form,venv,fenv);
 # > form: Form
@@ -1363,20 +1363,20 @@ LISPFUNN(subr_info,1)
     var object venv;
     var object fenv;
     {
-      if (consp(form)) { # nur Listen können Macro-call sein
+      if (consp(form)) { # nur Listen kÃ¶nnen Macro-call sein
         var object funname = Car(form); # Funktionsname
         if (symbolp(funname)) {
           var object fdef = sym_function(funname,fenv); # Funktionsdefinition holen
           # Ist sie #<MACRO expander> ?
           if (macrop(fdef)) {
             # ja -> expandieren:
-            # (FUNCALL *MACROEXPAND-HOOK* expander form env) ausführen:
+            # (FUNCALL *MACROEXPAND-HOOK* expander form env) ausfÃ¼hren:
             pushSTACK(TheMacro(fdef)->macro_expander); # Expander als erstes Argument
             pushSTACK(form); # Form als zweites Argument
             pushSTACK(fenv);
             pushSTACK(nest_var(venv)); # genestetes Variablen- und Symbolmacro-Environment
             STACK_1 = nest_fun(STACK_1); # genestetes Funktions- und Macrobindungs-Environment
-            var object env = allocate_vector(2); # Environment für beide
+            var object env = allocate_vector(2); # Environment fÃ¼r beide
             TheSvector(env)->data[0] = popSTACK(); # venv als 1. Komponente
             TheSvector(env)->data[1] = STACK_0;    # fenv als 2. Komponente
             STACK_0 = env; # Environment als drittes Argument
@@ -1390,7 +1390,7 @@ LISPFUNN(subr_info,1)
       value1 = form; value2 = NIL;
     }
 
-# UP: expandiert eine Form, falls möglich, (auch, wenn FSUBR-Aufruf oder
+# UP: expandiert eine Form, falls mÃ¶glich, (auch, wenn FSUBR-Aufruf oder
 # Symbol, nicht jedoch, wenn FunctionMacro-Aufruf) in einem Environment
 # macroexp0(form,env);
 # > form: Form
@@ -1404,17 +1404,17 @@ LISPFUNN(subr_info,1)
     var object form;
     var object env;
     {
-      if (consp(form)) { # nur Listen können Macro-call sein
+      if (consp(form)) { # nur Listen kÃ¶nnen Macro-call sein
         var object funname = Car(form); # Funktionsname
         if (symbolp(funname)) {
           var object fdef = sym_function(funname,TheSvector(env)->data[1]); # Funktionsdefinition holen
           if (fsubrp(fdef)) {
-            # fdef ist ein FSUBR, also war die globale Funktionsdefinition gültig.
-            # Schaue nach, ob die Propertyliste eine Macrodefinition enthält:
+            # fdef ist ein FSUBR, also war die globale Funktionsdefinition gÃ¼ltig.
+            # Schaue nach, ob die Propertyliste eine Macrodefinition enthÃ¤lt:
             var object expander = get(funname,S(macro)); # nach Property SYS::MACRO suchen
             if (!eq(expander,unbound)) {
               # gefunden. Mit dem Expander aus der Propertyliste expandieren:
-              # (FUNCALL *MACROEXPAND-HOOK* expander form env) ausführen:
+              # (FUNCALL *MACROEXPAND-HOOK* expander form env) ausfÃ¼hren:
               pushSTACK(expander); # Expander als erstes Argument
               pushSTACK(form); # Form als zweites Argument
               pushSTACK(env); # Environment als drittes Argument
@@ -1423,7 +1423,7 @@ LISPFUNN(subr_info,1)
               return;
             }
           } else {
-            # 4 Möglichkeiten:
+            # 4 MÃ¶glichkeiten:
             # #UNBOUND/SUBR/Closure (globale oder lexikalische Funktionsdef.)
             #   -> nicht expandieren
             # #<MACRO expander> (lexikalische Macrodefinition)
@@ -1431,11 +1431,11 @@ LISPFUNN(subr_info,1)
             # #<FUNCTION-MACRO function expander> (lexikalische FunctionMacro-
             #   Definition) -> nicht expandieren, weil
             #   (MACRO-FUNCTION funname) => NIL liefert
-            # Symbol (lexikalische Funktionsdefinition während SYS::%EXPAND)
+            # Symbol (lexikalische Funktionsdefinition wÃ¤hrend SYS::%EXPAND)
             #   expandieren: (list* 'SYS::%FUNCALL Symbol (cdr form))
             if (macrop(fdef)) {
               # #<MACRO expander> -> expandieren:
-              # (FUNCALL *MACROEXPAND-HOOK* expander form env) ausführen:
+              # (FUNCALL *MACROEXPAND-HOOK* expander form env) ausfÃ¼hren:
               pushSTACK(TheMacro(fdef)->macro_expander); # Expander als erstes Argument
               pushSTACK(form); # Form als zweites Argument
               pushSTACK(env); # Environment als drittes Argument
@@ -1475,11 +1475,11 @@ LISPFUNN(subr_info,1)
 
 # UP: Parse-Declarations-Docstring. Trennt von einer Formenliste diejenigen
 # ab, die als Deklarationen bzw. Dokumentationsstring angesehen werden
-# müssen.
+# mÃ¼ssen.
 # parse_dd(formlist,venv,fenv)
 # > formlist: ( {decl|doc-string} . body )
-# > venv: ein Variablen- und Symbolmacro-Environment (für die Macroexpansionen)
-# > fenv: Funktions- und Macrobindungs-Environment (für die Macroexpansionen)
+# > venv: ein Variablen- und Symbolmacro-Environment (fÃ¼r die Macroexpansionen)
+# > fenv: Funktions- und Macrobindungs-Environment (fÃ¼r die Macroexpansionen)
 # < value1: body
 # < value2: Liste der decl-specs
 # < value3: Doc-String oder NIL
@@ -1491,23 +1491,23 @@ LISPFUNN(subr_info,1)
     var object venv;
     var object fenv;
     {
-      pushSTACK(formlist); # formlist aufheben für Fehlermeldung
+      pushSTACK(formlist); # formlist aufheben fÃ¼r Fehlermeldung
       pushSTACK(venv); # Variablen-Environment
       pushSTACK(fenv); # Macrobindungs-Environment
-      pushSTACK(NIL); # vorläufiger Doc-String
+      pushSTACK(NIL); # vorlÃ¤ufiger Doc-String
       pushSTACK(NIL); # Anfang decl-spec-Liste
       # Stackaufbau: formlist, venv, fenv, docstring, declspecs.
       var boolean compile_decl = FALSE; # Flag, ob eine (COMPILE)-Deklaration vorkam
       var object body = formlist; # Rest der Formenliste
       while (consp(body)) {
         pushSTACK(body); # body retten
-        var object form = Car(body); # nächste Form
+        var object form = Car(body); # nÃ¤chste Form
         # evtl. macroexpandieren (ohne FSUBRs, Symbole, FunctionMacros zu expandieren):
         do {
           macroexp(form,STACK_(3+1),STACK_(2+1)); form = value1;
         } until (nullp(value2));
          body = popSTACK();
-        var object body_rest = Cdr(body); # body verkürzen
+        var object body_rest = Cdr(body); # body verkÃ¼rzen
         if (stringp(form)) { # Doc-String gefunden?
           if (atomp(body_rest)) # an letzter Stelle der Formenliste?
             goto fertig; # ja -> letzte Form kann kein Doc-String sein!
@@ -1526,7 +1526,7 @@ LISPFUNN(subr_info,1)
           pushSTACK(Cdr(form)); # Liste der neuen decl-specs
           while (mconsp(STACK_0)) {
             {
-              var object declspec = Car(STACK_0); # nächstes decl-spec
+              var object declspec = Car(STACK_0); # nÃ¤chstes decl-spec
               # Teste, ob (EQUAL d '(COMPILE)) =
               #   (and (consp d) (eq (car d) 'COMPILE) (null (cdr d)))
               if (consp(declspec)
@@ -1542,7 +1542,7 @@ LISPFUNN(subr_info,1)
               Cdr(new_cons) = STACK_(0+2);
               STACK_(0+2) = new_cons;
             }
-            # zum nächsten decl-spec:
+            # zum nÃ¤chsten decl-spec:
             STACK_0 = Cdr(STACK_0);
           }
           skipSTACK(1);
@@ -1550,13 +1550,13 @@ LISPFUNN(subr_info,1)
         } else {
          fertig: # fertig mit Durchlaufen der Formenliste
           #if 0
-          # Das war einmal eine schöne Optimierung, die zweimaliges
+          # Das war einmal eine schÃ¶ne Optimierung, die zweimaliges
           # Macroexpandieren vermied. Leider ist sie nicht mehr sicher,
           # denn bei (FUNCTION (LAMBDA ...)), LET, LET*, MULTIPLE-VALUE-BIND
-          # wird das äußere(!) Variablen-Environment übergeben, so dass in
+          # wird das Ã¤uÃŸere(!) Variablen-Environment Ã¼bergeben, so dass in
           # (SYMBOL-MACROLET ((X Y)) (LET ((X (FOO))) (SETF X ...) ...))
-          # der SETF-Macro ein verkehrtes venv übergeben bekäme und zu
-          # (SETQ Y ...) expandieren würde.
+          # der SETF-Macro ein verkehrtes venv Ã¼bergeben bekÃ¤me und zu
+          # (SETQ Y ...) expandieren wÃ¼rde.
           if (!eq(form,Car(body))) { # sofern die Form expandiert wurde,
             # ersetze body durch (cons form (cdr body)) :
             pushSTACK(body_rest); pushSTACK(form);
@@ -1577,9 +1577,9 @@ LISPFUNN(subr_info,1)
 
 # UP: bindet *EVALHOOK* und *APPLYHOOK* dynamisch an die gegebenen Werte.
 # bindhooks(evalhook_value,applyhook_value);
-# > evalhook_value: Wert für *EVALHOOK*
-# > applyhook_value: Wert für *APPLYHOOK*
-# verändert STACK
+# > evalhook_value: Wert fÃ¼r *EVALHOOK*
+# > applyhook_value: Wert fÃ¼r *APPLYHOOK*
+# verÃ¤ndert STACK
   global void bindhooks (object evalhook_value, object applyhook_value);
   global void bindhooks(evalhook_value,applyhook_value)
     var object evalhook_value;
@@ -1587,21 +1587,21 @@ LISPFUNN(subr_info,1)
     {
       # Frame aufbauen:
       {
-        var object* top_of_frame = STACK; # Pointer übern Frame
+        var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
         pushSTACK(Symbol_value(S(evalhookstern)));  # alter Wert von *EVALHOOK*
         pushSTACK(S(evalhookstern));                # *EVALHOOK*
         pushSTACK(Symbol_value(S(applyhookstern))); # alter Wert von *APPLYHOOK*
         pushSTACK(S(applyhookstern));               # *APPLYHOOK*
         finish_frame(DYNBIND);
       }
-      # Frame fertig aufgebaut, nun die Werte der Variablen verändern:
+      # Frame fertig aufgebaut, nun die Werte der Variablen verÃ¤ndern:
       Symbol_value(S(evalhookstern)) = evalhook_value; # (SETQ *EVALHOOK* evalhook_value)
       Symbol_value(S(applyhookstern)) = applyhook_value; # (SETQ *APPLYHOOK* applyhook_value)
     }
 
 # UP: bindet *EVALHOOK* und *APPLYHOOK* dynamisch an NIL.
 # bindhooks_NIL();
-# verändert STACK
+# verÃ¤ndert STACK
   #define bindhooks_NIL()  bindhooks(NIL,NIL)
 
 # UP: Bestimmt den Source-Lambdabody eines Lambdabody.
@@ -1635,7 +1635,7 @@ LISPFUNN(subr_info,1)
       return unbound;
     }
 
-# UP: Fügt einen impliziten BLOCK in einen Lambdabody ein.
+# UP: FÃ¼gt einen impliziten BLOCK in einen Lambdabody ein.
 # add_implicit_block();
 # > STACK_1: Funktionsname
 # > STACK_0: Lambdabody
@@ -1710,7 +1710,7 @@ LISPFUNN(subr_info,1)
 # > lambdabody: (lambda-list {decl|doc} {form})
 # > name: Name, ein Symbol oder (SETF symbol)
 # > blockp: ob ein impliziter BLOCK einzuschieben ist
-# > env: Pointer auf die fünf einzelnen Environments:
+# > env: Pointer auf die fÃ¼nf einzelnen Environments:
 #        env->var_env = VENV, env->fun_env = FENV,
 #        env->block_env = BENV, env->go_env = GENV,
 #        end->decl_env = DENV.
@@ -1747,7 +1747,7 @@ LISPFUNN(subr_info,1)
       if (parse_dd(Cdr(lambdabody),env->var_env,env->fun_env)) { # ({decl|doc} {form}) zerlegen
         # Es trat eine (COMPILE)-Deklaration auf.
         # Lambdabody durch seine Source ersetzen (denn manche Macros
-        # können effizienter compiliert werden als ihre Macro-Expansion):
+        # kÃ¶nnen effizienter compiliert werden als ihre Macro-Expansion):
         {
           var object source = lambdabody_source(STACK_0);
           if (eq(source,unbound)) {
@@ -1762,7 +1762,7 @@ LISPFUNN(subr_info,1)
           var environment* stack_env = nest_env(env); # nesten, auf den STACK legen
           #if !defined(STACK_UP)
           var environment my_env;
-          my_env = *stack_env; # und hierher übertragen
+          my_env = *stack_env; # und hierher Ã¼bertragen
           skipSTACK(5); # und wieder vom STACK nehmen
           pushSTACK(my_env.var_env);
           pushSTACK(my_env.fun_env);
@@ -1772,7 +1772,7 @@ LISPFUNN(subr_info,1)
           #endif
           # Stackaufbau: name, lambdabody, venv, fenv, benv, genv, denv.
         }
-        # (SYS::COMPILE-LAMBDA name lambdabody venv fenv benv genv denv) ausführen:
+        # (SYS::COMPILE-LAMBDA name lambdabody venv fenv benv genv denv) ausfÃ¼hren:
         funcall(S(compile_lambda),7);
         return value1; # compilierte Closure als Wert
       }
@@ -1803,10 +1803,10 @@ LISPFUNN(subr_info,1)
       pushSTACK(value2); # Deklarationen
       pushSTACK(value3); # Doc-String oder NIL
       var object* closure_; # Pointer auf die Closure im STACK
-      # Closure erzeugen (mit NIL gefüllt):
+      # Closure erzeugen (mit NIL gefÃ¼llt):
       {
         var object closure = allocate_closure(iclos_length);
-        # und teilweise füllen:
+        # und teilweise fÃ¼llen:
         TheIclosure(closure)->clos_docstring = popSTACK(); # Doc-String
         var object declarations              = popSTACK(); # Deklarationen
         TheIclosure(closure)->clos_body      = popSTACK(); # Body
@@ -1843,7 +1843,7 @@ LISPFUNN(subr_info,1)
         # Deklarationen verarbeiten:
         # Dynamisch referenzierte Variablen aus der decl-spec-Liste declarations
         # herauslesen und auf dem STACK ablegen. Sonstige zu beachtende
-        # Deklarationen verändern das Deklarations-Environment der Closure.
+        # Deklarationen verÃ¤ndern das Deklarations-Environment der Closure.
         while (consp(declarations)) { # alle decl-specs abgearbeitet?
           var object declspec = Car(declarations);
           # declspec muss Liste sein:
@@ -1870,7 +1870,7 @@ LISPFUNN(subr_info,1)
             }
           }
           # sonstige Deklaration verarbeiten:
-          pushSTACK(Cdr(declarations)); # declarations verkürzen und retten
+          pushSTACK(Cdr(declarations)); # declarations verkÃ¼rzen und retten
           {
             var object denv = TheIclosure(*closure_)->clos_decl_env;
             denv = augment_decl_env(declspec,denv);
@@ -1884,13 +1884,13 @@ LISPFUNN(subr_info,1)
       # Macro:
       # NEXT_ITEM(&OPTIONAL_label,&REST_label,&KEY_label,
       #           &ALLOW-OTHER-KEYS_label,&AUX_label,Ende_label)
-      # verkürzt den Lambdalistenrest, bringt das nächste Element nach item
+      # verkÃ¼rzt den Lambdalistenrest, bringt das nÃ¤chste Element nach item
       # und springt im Falle eines der 6 angegebenen Lambdalistenmarker an
       # die entsprechenden Stellen.
         #define NEXT_ITEM(opt_label,rest_label,key_label,allow_label,aux_label,end_label)  \
           { if (atomp(lambdalist)) goto end_label; # Lambda-Liste zu Ende?              \
-            item = Car(lambdalist); # nächstes Element                                  \
-            lambdalist = Cdr(lambdalist); # Liste verkürzen                             \
+            item = Car(lambdalist); # nÃ¤chstes Element                                  \
+            lambdalist = Cdr(lambdalist); # Liste verkÃ¼rzen                             \
             if (eq(item,S(LLoptional)))         goto opt_label;   # &OPTIONAL ?         \
             if (eq(item,S(LLrest)))             goto rest_label;  # &REST ?             \
             if (eq(item,S(LLkey)))              goto key_label;   # &KEY ?              \
@@ -1952,7 +1952,7 @@ LISPFUNN(subr_info,1)
                 goto fehler_symbol;
               if (constantp(TheSymbol(item)))
                 goto fehler_constant;
-              # svar-Bit für var setzen:
+              # svar-Bit fÃ¼r var setzen:
               STACK_0 = fixnum_inc(STACK_0,bit(svar_bit));
               # Variable im STACK ablegen:
               pushSTACK(item); pushSTACK(Fixnum_0); var_count++;
@@ -2036,7 +2036,7 @@ LISPFUNN(subr_info,1)
           } else {
             # item = (key var)
             keyword = Car(item); # key
-            # sollte ein Symbol (früher: Keyword) sein:
+            # sollte ein Symbol (frÃ¼her: Keyword) sein:
             if (!symbolp(keyword)) {
               pushSTACK(*(closure_ STACKop -1)); # ganze Lambda-Liste
               pushSTACK(keyword);
@@ -2217,16 +2217,16 @@ LISPFUNN(subr_info,1)
       TheIclosure(closure)->clos_key_anz  = fixnum(key_count);
       TheIclosure(closure)->clos_aux_anz  = fixnum(aux_count);
       # Im Variablen-Vektor sind die ersten spec_count Variablen die
-      # SPECIAL-Deklarierten. In jeder übrigen Variablen wird das DYNAM_BIT
+      # SPECIAL-Deklarierten. In jeder Ã¼brigen Variablen wird das DYNAM_BIT
       # gesetzt, falls sie unter den SPECIAL-deklarierten vorkommt.
       if (!(spec_count==0)) {
-        # Schleife über die übrigen Variablen:
+        # Schleife Ã¼ber die Ã¼brigen Variablen:
         if (var_count-spec_count > 0) {
           var object* othervarptr = &TheSvector(vars)->data[spec_count];
           var uintB* othervarflagsptr = &TheSbvector(varflags)->data[0];
           var uintC count1;
           dotimespC(count1,var_count-spec_count, {
-            var object othervar = *othervarptr++; # nächste Variable
+            var object othervar = *othervarptr++; # nÃ¤chste Variable
             # Suche sie in den SPECIAL-deklarierten Variablen:
             {
               var object* specvarptr = &TheSvector(vars)->data[0];
@@ -2242,7 +2242,7 @@ LISPFUNN(subr_info,1)
           });
         }
       }
-      # Schließlich noch die akkumulierten Listen in der Closure umdrehen:
+      # SchlieÃŸlich noch die akkumulierten Listen in der Closure umdrehen:
       nreverse(TheIclosure(closure)->clos_opt_inits);
       nreverse(TheIclosure(closure)->clos_keywords);
       nreverse(TheIclosure(closure)->clos_key_inits);
@@ -2262,7 +2262,7 @@ LISPFUNN(subr_info,1)
     var object caller;
     var object funname;
     {
-      pushSTACK(funname); # Wert für Slot NAME von CELL-ERROR
+      pushSTACK(funname); # Wert fÃ¼r Slot NAME von CELL-ERROR
       pushSTACK(funname);
       pushSTACK(caller);
       fehler(undefined_function,
@@ -2279,7 +2279,7 @@ LISPFUNN(subr_info,1)
     var object caller;
     var object funname;
     {
-      pushSTACK(funname); # Wert für Slot NAME von CELL-ERROR
+      pushSTACK(funname); # Wert fÃ¼r Slot NAME von CELL-ERROR
       pushSTACK(funname);
       pushSTACK(caller);
       fehler(undefined_function,
@@ -2296,7 +2296,7 @@ LISPFUNN(subr_info,1)
     var object caller;
     var object funname;
     {
-      pushSTACK(funname); # Wert für Slot NAME von CELL-ERROR
+      pushSTACK(funname); # Wert fÃ¼r Slot NAME von CELL-ERROR
       pushSTACK(funname);
       pushSTACK(caller);
       fehler(undefined_function,
@@ -2427,8 +2427,8 @@ LISPFUNN(subr_info,1)
   local void fehler_key_notkw(kw)
     var object kw;
     {
-      pushSTACK(kw); # Wert für Slot DATUM von KEYWORD-ERROR
-      pushSTACK(S(symbol)); # Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
+      pushSTACK(kw); # Wert fÃ¼r Slot DATUM von KEYWORD-ERROR
+      pushSTACK(S(symbol)); # Wert fÃ¼r Slot EXPECTED-TYPE von KEYWORD-ERROR
       pushSTACK(kw);
       fehler(keyword_error,
              GETTEXT("EVAL/APPLY: ~ is not a symbol")
@@ -2438,7 +2438,7 @@ LISPFUNN(subr_info,1)
 # Fehlermeldung bei fehlerhaftem Keyword
 # fehler_key_badkw(fun,kw,kwlist);
 # > fun: Funktion
-# > kw: unzulässiges Keyword
+# > kw: unzulÃ¤ssiges Keyword
 # > kwlist: Liste der zugelassenen Keywords
   nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kwlist));
   local void fehler_key_badkw(fun,kw,kwlist)
@@ -2446,7 +2446,7 @@ LISPFUNN(subr_info,1)
     var object kw;
     var object kwlist;
     {
-      pushSTACK(kw); # Wert für Slot DATUM von KEYWORD-ERROR
+      pushSTACK(kw); # Wert fÃ¼r Slot DATUM von KEYWORD-ERROR
       pushSTACK(kwlist);
       pushSTACK(kwlist);
       pushSTACK(fun);
@@ -2454,7 +2454,7 @@ LISPFUNN(subr_info,1)
       {
         var object type = allocate_cons();
         Car(type) = S(member); Cdr(type) = STACK_3;
-        STACK_3 = type; # `(MEMBER ,@kwlist) = Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
+        STACK_3 = type; # `(MEMBER ,@kwlist) = Wert fÃ¼r Slot EXPECTED-TYPE von KEYWORD-ERROR
       }
       fehler(keyword_error,
              GETTEXT("EVAL/APPLY: keyword ~ is illegal for ~. The possible keywords are ~")
@@ -2464,20 +2464,20 @@ LISPFUNN(subr_info,1)
 # Test auf unerlaubte Keywords
 # check_for_illegal_keywords(allow_flag,fehler_statement);
 # > uintC argcount: Anzahl der Keyword/Value-Paare
-# > object* rest_args_pointer: Pointer über die 2*argcount restlichen Argumente
+# > object* rest_args_pointer: Pointer Ã¼ber die 2*argcount restlichen Argumente
 # > boolean allow_flag: Flag, ob &ALLOW-OTHER-KEYS angegeben war
-# > for_every_keyword: Macro, der alle Keywords durchläuft und an 'keyword'
+# > for_every_keyword: Macro, der alle Keywords durchlÃ¤uft und an 'keyword'
 #                      zuweist.
 # > fehler_statement: Statement, das meldet, dass bad_keyword illegal ist.
   #define check_for_illegal_keywords(allow_flag_expr,fehler_statement)  \
     { var object* argptr = rest_args_pointer; # Pointer in die Argumente    \
       var object bad_keyword = nullobj; # erstes unerlaubtes Keyword oder nullobj \
-      var boolean allow_flag = # Flag für allow-other-keys (ob              \
+      var boolean allow_flag = # Flag fÃ¼r allow-other-keys (ob              \
         # &ALLOW-OTHER-KEYS angegeben war oder ':ALLOW-OTHER-KEY T' vorkam) \
         (allow_flag_expr);                                                  \
       var uintC check_count;                                                \
       dotimesC(check_count,argcount, {                                      \
-        var object kw = NEXT(argptr); # nächstes Argument                   \
+        var object kw = NEXT(argptr); # nÃ¤chstes Argument                   \
         var object val = NEXT(argptr); # und Wert dazu                      \
         # muss ein Symbol, sollte ein Keyword sein:                         \
         if (!symbolp(kw))                                                   \
@@ -2509,7 +2509,7 @@ LISPFUNN(subr_info,1)
 # find_keyword_value( notfound_statement, found_statement );
 # > keyword: Keyword
 # > uintC argcount: Anzahl der Keyword/Value-Paare
-# > object* rest_args_pointer: Pointer über die 2*argcount restlichen Argumente
+# > object* rest_args_pointer: Pointer Ã¼ber die 2*argcount restlichen Argumente
 # > notfound_statement: Was zu tun ist, wenn nicht gefunden
 # > found_statement: Was zu tun ist, wenn Wert value gefunden
   #define find_keyword_value(notfound_statement,found_statement)  \
@@ -2532,10 +2532,10 @@ LISPFUNN(subr_info,1)
 # UP: Wendet eine interpretierte Closure auf Argumente an.
 # funcall_iclosure(closure,args_pointer,argcount);
 # > closure: Closure
-# > args_pointer: Pointer über die Argumente (im Stack)
+# > args_pointer: Pointer Ã¼ber die Argumente (im Stack)
 # > argcount: Anzahl der Argumente
 # < mv_count/mv_space: Werte
-# < STACK: aufgeräumt, = args_pointer
+# < STACK: aufgerÃ¤umt, = args_pointer
 # can trigger GC
   local Values funcall_iclosure (object closure, object* args_pointer, uintC argcount);
   local Values funcall_iclosure(closure,args_pointer,argcount)
@@ -2551,17 +2551,17 @@ LISPFUNN(subr_info,1)
       }
       #endif
       {
-        var object* top_of_frame = args_pointer; # Pointer übern Frame
+        var object* top_of_frame = args_pointer; # Pointer Ã¼bern Frame
         pushSTACK(closure);
         finish_entry_frame(APPLY,&!my_jmp_buf,,
           {
-            if (mv_count==0) { # nach Wiedereintritt: Form übergeben?
+            if (mv_count==0) { # nach Wiedereintritt: Form Ã¼bergeben?
               closure = STACK_(frame_closure); # selben APPLY nochmals versuchen
               args_pointer = topofframe(STACK_0);
               argcount = STACK_item_count(STACK STACKop frame_args,args_pointer);
             } else {
-              setSTACK(STACK = topofframe(STACK_0)); # STACK aufräumen # oder unwind() ??
-              eval_noenv(value1); return; # übergebene Form evaluieren
+              setSTACK(STACK = topofframe(STACK_0)); # STACK aufrÃ¤umen # oder unwind() ??
+              eval_noenv(value1); return; # Ã¼bergebene Form evaluieren
             }
           }
           );
@@ -2570,7 +2570,7 @@ LISPFUNN(subr_info,1)
       var object* frame_pointer; # Pointer in den Frame
       # 2. Schritt: Variablenbindungsframe aufbauen:
       {
-        var object* top_of_frame = STACK; # Pointer übern Frame
+        var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
         var object vars = TheIclosure(closure)->clos_vars; # Vektor mit Variablennamen
         var uintL var_count = Svector_length(vars); # Anzahl der Variablen
         get_space_on_STACK(var_count * 2 * sizeof(object)); # Platz reservieren
@@ -2588,8 +2588,8 @@ LISPFUNN(subr_info,1)
           if (var_count-spec_count > 0) {
             var uintB* varflagsptr = &TheSbvector(TheIclosure(closure)->clos_varflags)->data[0];
             dotimespC(count,var_count-spec_count, {
-              pushSTACK(NIL); # NIL als vorläufiger Wert
-              var object next_var = *varptr++; # nächste Variable
+              pushSTACK(NIL); # NIL als vorlÃ¤ufiger Wert
+              var object next_var = *varptr++; # nÃ¤chste Variable
               var oint next_varflags = (oint)(*varflagsptr++)<<oint_symbolflags_shift; # mit evtl. dynam_bit, svar_bit
               if (special_var_p(TheSymbol(next_var))) # SPECIAL-proklamiert?
                 next_varflags |= wbit(dynam_bit_o); # -> dynamisch binden
@@ -2603,7 +2603,7 @@ LISPFUNN(subr_info,1)
         finish_frame(VAR);
       }
       # STACK zeigt nun unter den Variablenbindungs-Frame.
-      # frame_pointer = Pointer in den Variablenbindungsframe, über die erste
+      # frame_pointer = Pointer in den Variablenbindungsframe, Ã¼ber die erste
       # noch inaktive Bindung, unter die bereits aktiven SPECIAL-Referenzen.
       {
         var object new_var_env = make_framepointer(STACK);
@@ -2625,7 +2625,7 @@ LISPFUNN(subr_info,1)
       {
         check_SP();
         # Macro zum Binden von Variablen im Variablenframe:
-        # Bindet die nächste Variable an value, erniedrigt frame_pointer um 2 bzw. 3.
+        # Bindet die nÃ¤chste Variable an value, erniedrigt frame_pointer um 2 bzw. 3.
         # (Benutzt, dass varframe_binding_mark = 0 !)
         #define bind_next_var(value,markptr_zuweisung)  \
           { frame_pointer skipSTACKop -varframe_binding_size;                                  \
@@ -2644,7 +2644,7 @@ LISPFUNN(subr_info,1)
               }                                                                                \
           }}
         # required-Parameter abarbeiten:
-        # Es ist das jeweils nächste Argument zu holen und im Stack zu binden.
+        # Es ist das jeweils nÃ¤chste Argument zu holen und im Stack zu binden.
         {
           var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_req_anz);
           if (count>0) {
@@ -2656,14 +2656,14 @@ LISPFUNN(subr_info,1)
             }
             argcount -= count;
             dotimespC(count,count, {
-              var object next_arg = NEXT(args_pointer); # nächstes Argument
-              bind_next_var(next_arg,); # nächste Variable binden
+              var object next_arg = NEXT(args_pointer); # nÃ¤chstes Argument
+              bind_next_var(next_arg,); # nÃ¤chste Variable binden
             });
           }
         }
         # optionale Parameter abarbeiten:
-        # Es ist jeweils das nächste Argument zu holen; falls keines vorliegt,
-        # eine Init-Form auszuführen; dann im Stack zu binden.
+        # Es ist jeweils das nÃ¤chste Argument zu holen; falls keines vorliegt,
+        # eine Init-Form auszufÃ¼hren; dann im Stack zu binden.
         {
           var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_opt_anz);
           if (count==0)
@@ -2674,27 +2674,27 @@ LISPFUNN(subr_info,1)
               if (argcount==0)
                 goto optional_aus;
               argcount--;
-              var object next_arg = NEXT(args_pointer); # nächstes Argument
+              var object next_arg = NEXT(args_pointer); # nÃ¤chstes Argument
               var object* optmarkptr;
-              bind_next_var(next_arg,optmarkptr=); # nächste Variable binden
+              bind_next_var(next_arg,optmarkptr=); # nÃ¤chste Variable binden
               if (as_oint(*optmarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter folgt?
                 *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
                 bind_next_var(T,); # ja -> an T binden
               }
-              inits = Cdr(inits); # Init-Formen-Liste verkürzen
+              inits = Cdr(inits); # Init-Formen-Liste verkÃ¼rzen
               count--;
             } until (count==0);
             goto optional_ende;
            optional_aus: # Hier sind die optionalen Argumente ausgegangen.
             pushSTACK(inits);
           }
-          # Ab hier alle Init-Formen der optionalen Parameter ausführen:
+          # Ab hier alle Init-Formen der optionalen Parameter ausfÃ¼hren:
           dotimespC(count,count, {
             var object inits = STACK_0; # restliche Initformen
             STACK_0 = Cdr(inits);
-            inits = (eval(Car(inits)),value1); # nächste Initform, ausgewertet
+            inits = (eval(Car(inits)),value1); # nÃ¤chste Initform, ausgewertet
             var object* optmarkptr;
-            bind_next_var(inits,optmarkptr=); # nächste Variable binden
+            bind_next_var(inits,optmarkptr=); # nÃ¤chste Variable binden
             if (as_oint(*optmarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter folgt?
               *optmarkptr = as_object(as_oint(*optmarkptr) & ~wbit(svar_bit_o));
               bind_next_var(NIL,); # ja -> an NIL binden
@@ -2707,13 +2707,13 @@ LISPFUNN(subr_info,1)
           # &KEY-Parameter ohne Argumente initialisieren:
           count = posfixnum_to_L(TheIclosure(closure)->clos_key_anz); # Anzahl Keyword-Parameter
           if (count>0) {
-            STACK_0 = TheIclosure(closure)->clos_key_inits; # zugehörige Init-Formen
+            STACK_0 = TheIclosure(closure)->clos_key_inits; # zugehÃ¶rige Init-Formen
             dotimespC(count,count, {
               var object inits = STACK_0; # restliche Initformen
               STACK_0 = Cdr(inits);
-              inits = (eval(Car(inits)),value1); # nächste Initform, ausgewertet
+              inits = (eval(Car(inits)),value1); # nÃ¤chste Initform, ausgewertet
               var object* keymarkptr;
-              bind_next_var(inits,keymarkptr=); # nächste Variable binden
+              bind_next_var(inits,keymarkptr=); # nÃ¤chste Variable binden
               if (as_oint(*keymarkptr) & wbit(svar_bit_o)) { # supplied-p-Parameter folgt?
                 *keymarkptr = as_object(as_oint(*keymarkptr) & ~wbit(svar_bit_o));
                 bind_next_var(NIL,); # ja -> an NIL binden
@@ -2740,7 +2740,7 @@ LISPFUNN(subr_info,1)
           # &KEY oder &REST vorhanden.
           # &REST-Parameter abarbeiten:
           if (!nullp(TheIclosure(closure)->clos_rest_flag)) { # Rest-Parameter vorhanden?
-            # ja -> übrige Argumente zu einer Liste zusammenfassen:
+            # ja -> Ã¼brige Argumente zu einer Liste zusammenfassen:
             pushSTACK(NIL); # Listenanfang
             if (argcount>0) {
               var object* ptr = args_pointer STACKop -(uintP)argcount;
@@ -2799,12 +2799,12 @@ LISPFUNN(subr_info,1)
                       pushSTACK(keywords); pushSTACK(key_inits);
                       var_value = (eval(Car(key_inits)),value1);
                       key_inits = popSTACK(); keywords = popSTACK();
-                      svar_value = NIL; # NIL für evtl. supplied-p-Parameter
+                      svar_value = NIL; # NIL fÃ¼r evtl. supplied-p-Parameter
                     },
                     # gefunden -> Wert nehmen:
                     {
                       var_value = value;
-                      svar_value = T; # T für evtl. supplied-p-Parameter
+                      svar_value = T; # T fÃ¼r evtl. supplied-p-Parameter
                     }
                     );
                   {
@@ -2827,11 +2827,11 @@ LISPFUNN(subr_info,1)
         {
           var uintC count = posfixnum_to_L(TheIclosure(closure)->clos_aux_anz);
           if (count>0) {
-            pushSTACK(TheIclosure(closure)->clos_aux_inits); # Init-Formen für &AUX-Variablen
+            pushSTACK(TheIclosure(closure)->clos_aux_inits); # Init-Formen fÃ¼r &AUX-Variablen
             dotimespC(count,count, {
               var object inits = STACK_0;
               STACK_0 = Cdr(inits);
-              inits = (eval(Car(inits)),value1); # nächstes Init auswerten
+              inits = (eval(Car(inits)),value1); # nÃ¤chstes Init auswerten
               bind_next_var(inits,); # und Variable daran binden
             });
             skipSTACK(1); # restliche Init-Formen vergessen
@@ -2842,9 +2842,9 @@ LISPFUNN(subr_info,1)
       }
       # 5. Schritt: Body auswerten:
       implicit_progn(TheIclosure(closure)->clos_body,NIL);
-      unwind(); # ENV-Frame auflösen
-      unwind(); # Variablenbindungsframe auflösen
-      unwind(); # APPLY-Frame auflösen
+      unwind(); # ENV-Frame auflÃ¶sen
+      unwind(); # Variablenbindungsframe auflÃ¶sen
+      unwind(); # APPLY-Frame auflÃ¶sen
       # fertig
     }
 
@@ -2853,10 +2853,10 @@ LISPFUNN(subr_info,1)
 # > fun: Funktion, ein SUBR
 # > argcount: Argumentezahl nach den optionalen
 # > STACK_(argcount-1),...,STACK_0: die argcount Argumente nach den optionalen
-# > key_args_pointer: Pointer über die Key-Parameter im STACK
-# > rest_args_pointer: Pointer über die restlichen Argumente im STACK
+# > key_args_pointer: Pointer Ã¼ber die Key-Parameter im STACK
+# > rest_args_pointer: Pointer Ã¼ber die restlichen Argumente im STACK
 # < STACK: korrekt gesetzt
-# verändert STACK
+# verÃ¤ndert STACK
   local void match_subr_key (object fun, uintL argcount, object* key_args_pointer, object* rest_args_pointer);
   local void match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer)
     var object fun;
@@ -2926,13 +2926,13 @@ LISPFUNN(subr_info,1)
 # > closure: compilierte Closure mit &KEY-Parametern
 # > argcount: Argumentezahl nach den optionalen
 # > STACK_(argcount-1),...,STACK_0: die argcount Argumente nach den optionalen
-# > key_args_pointer: Pointer über die Key-Parameter im STACK
+# > key_args_pointer: Pointer Ã¼ber die Key-Parameter im STACK
 #                     (evtl. auch Pointer unter den Rest-Parameter im STACK,
 #                      der = #<UNBOUND> ist, falls er noch zu versorgen ist)
-# > rest_args_pointer: Pointer über die restlichen Argumente im STACK
+# > rest_args_pointer: Pointer Ã¼ber die restlichen Argumente im STACK
 # < STACK: korrekt gesetzt
 # < ergebnis: closure
-# verändert STACK
+# verÃ¤ndert STACK
 # can trigger GC
   local object match_cclosure_key (object closure, uintL argcount, object* key_args_pointer, object* rest_args_pointer);
   local object match_cclosure_key(closure,argcount,key_args_pointer,rest_args_pointer)
@@ -3002,7 +3002,7 @@ LISPFUNN(subr_info,1)
         # Closure mit Keywords und &REST-Flag:
         var object* rest_arg_ = &BEFORE(key_args_pointer); # Pointer auf den REST-Parameter
         if (eq(*rest_arg_,unbound)) {
-          # muss noch gefüllt werden: Liste basteln
+          # muss noch gefÃ¼llt werden: Liste basteln
           *rest_arg_ = closure; # Closure retten
           var object rest_arg = NIL;
           until (args_end_pointer == rest_args_pointer) {
@@ -3011,7 +3011,7 @@ LISPFUNN(subr_info,1)
             Cdr(rest_arg) = popSTACK();
             Car(rest_arg) = popSTACK();
           }
-          closure = *rest_arg_; # Closure zurück
+          closure = *rest_arg_; # Closure zurÃ¼ck
           *rest_arg_ = rest_arg;
         } else {
           # restliche Argumente vergessen:
@@ -3027,7 +3027,7 @@ LISPFUNN(subr_info,1)
 
 #           ----------------------- E V A L -----------------------
 
-# später:
+# spÃ¤ter:
   local Values eval1 (object form);
   local Values eval_fsubr (object fun, object args);
   local Values eval_applyhook (object fun);
@@ -3057,14 +3057,14 @@ LISPFUNN(subr_info,1)
       var sp_jmp_buf my_jmp_buf;
       # EVAL-Frame aufbauen:
       {
-        var object* top_of_frame = STACK; # Pointer übern Frame
+        var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
         pushSTACK(form); # Form
         finish_entry_frame(EVAL,&!my_jmp_buf,,
           {
-            if (mv_count==0) { # nach Wiedereintritt: Form übergeben?
+            if (mv_count==0) { # nach Wiedereintritt: Form Ã¼bergeben?
               form = STACK_(frame_form); # selbe Form nochmal evaluieren
             } else {
-              form = STACK_(frame_form) = value1; # übergebene Form evaluieren
+              form = STACK_(frame_form) = value1; # Ã¼bergebene Form evaluieren
             }
           });
       }
@@ -3077,26 +3077,26 @@ LISPFUNN(subr_info,1)
         } else {
           # *EVALHOOK*, *APPLYHOOK* an NIL binden:
           bindhooks_NIL();
-          # (FUNCALL *EVALHOOK* form env) ausführen:
+          # (FUNCALL *EVALHOOK* form env) ausfÃ¼hren:
           pushSTACK(form); # Form als 1. Argument
           pushSTACK(evalhook_value); # Funktion retten
           var environment* stack_env = nest_aktenv(); # Environments in den Stack,
           var object env = allocate_vector(5); # in neu allozierten Vektor
           *(environment*)(&TheSvector(env)->data[0]) = *stack_env; # hineinschieben
           skipSTACK(5);
-          evalhook_value = popSTACK(); # Funktion zurück
+          evalhook_value = popSTACK(); # Funktion zurÃ¼ck
           pushSTACK(env); # gesamtes Environment als 2. Argument
           funcall(evalhook_value,2);
-          # alte Werte von *EVALHOOK*, *APPLYHOOK* zurück:
+          # alte Werte von *EVALHOOK*, *APPLYHOOK* zurÃ¼ck:
           unwind();
-          # EVAL-Frame auflösen:
+          # EVAL-Frame auflÃ¶sen:
           unwind();
         }
       }
     }
 
 # UP: Wertet eine Form im aktuellen Environment aus. Nimmt dabei auf
-# *EVALHOOK* und *APPLYHOOK* keine Rücksicht.
+# *EVALHOOK* und *APPLYHOOK* keine RÃ¼cksicht.
 # eval_no_hooks(form);
 # > form: Form
 # < mv_count/mv_space: Werte
@@ -3108,14 +3108,14 @@ LISPFUNN(subr_info,1)
       var sp_jmp_buf my_jmp_buf;
       # EVAL-Frame aufbauen:
       {
-        var object* top_of_frame = STACK; # Pointer übern Frame
+        var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
         pushSTACK(form); # Form
         finish_entry_frame(EVAL,&!my_jmp_buf,,
           {
-            if (mv_count==0) { # nach Wiedereintritt: Form übergeben?
+            if (mv_count==0) { # nach Wiedereintritt: Form Ã¼bergeben?
               form = STACK_(frame_form); # selbe Form nochmal evaluieren
             } else {
-              form = STACK_(frame_form) = value1; # übergebene Form evaluieren
+              form = STACK_(frame_form) = value1; # Ã¼bergebene Form evaluieren
             }
           });
       }
@@ -3141,7 +3141,7 @@ LISPFUNN(subr_info,1)
     }
 
 # UP: Wertet eine Form im aktuellen Environment aus.
-# Nimmt dabei auf *EVALHOOK* keine Rücksicht, und erwartet den Wert von
+# Nimmt dabei auf *EVALHOOK* keine RÃ¼cksicht, und erwartet den Wert von
 # *APPLYHOOK*.
 # Der EVAL-Frame muss bereits aufgebaut sein; er wird dann abgebaut.
 # eval1(form);
@@ -3149,7 +3149,7 @@ LISPFUNN(subr_info,1)
 # > STACK_3..STACK_1: EVAL-Frame, mit Form in STACK_3
 # > STACK_0: Wert von *APPLYHOOK*
 # < mv_count/mv_space: Werte
-# verändert STACK
+# verÃ¤ndert STACK
 # can trigger GC
   local Values eval1(form)
     var object form;
@@ -3159,7 +3159,7 @@ LISPFUNN(subr_info,1)
           # Form ist Symbol
           value1 = sym_value(form,aktenv.var_env); # Wert im aktuellen Environment
           if (eq(value1,unbound)) {
-            pushSTACK(form); # Wert für Slot NAME von CELL-ERROR
+            pushSTACK(form); # Wert fÃ¼r Slot NAME von CELL-ERROR
             pushSTACK(form);
             fehler(unbound_variable,
                    GETTEXT("EVAL: variable ~ has no value")
@@ -3169,21 +3169,21 @@ LISPFUNN(subr_info,1)
             skipSTACK(1); # Wert von *APPLYHOOK* vergessen
             check_SP(); check_STACK();
             eval(TheSymbolmacro(value1)->symbolmacro_expansion); # Expansion evaluieren
-            unwind(); # EVAL-Frame auflösen
+            unwind(); # EVAL-Frame auflÃ¶sen
           } else {
             mv_count=1; # value1 als Wert
             skipSTACK(1);
-            unwind(); # EVAL-Frame auflösen
+            unwind(); # EVAL-Frame auflÃ¶sen
           }
         } elif (   numberp(form) # Zahl ?
                 || charp(form) # Character ?
                 || arrayp(form) # Array ?
-                || other_self_evaluating_p() # X3J13 vote <72> erwünscht?
+                || other_self_evaluating_p() # X3J13 vote <72> erwÃ¼nscht?
                ) {
           # self-evaluating form
           value1 = form; mv_count=1; # form als Wert
           skipSTACK(1);
-          unwind(); # EVAL-Frame auflösen
+          unwind(); # EVAL-Frame auflÃ¶sen
         } else {
           pushSTACK(form);
           fehler(source_program_error,
@@ -3199,7 +3199,7 @@ LISPFUNN(subr_info,1)
           skipSTACK(1); # Wert von *APPLYHOOK* vergessen
           check_SP(); check_STACK();
           eval(form); # expandierte Form evaluieren
-          unwind(); # EVAL-Frame auflösen
+          unwind(); # EVAL-Frame auflÃ¶sen
         } else {
           var object fun = Car(form); # Funktionsbezeichnung
           if (funnamep(fun)) {
@@ -3278,15 +3278,15 @@ LISPFUNN(subr_info,1)
       }
     }
 
-# In EVAL: Wendet ein FSUBR auf eine Argumentliste an, räumt den STACK auf
+# In EVAL: Wendet ein FSUBR auf eine Argumentliste an, rÃ¤umt den STACK auf
 # und liefert die Werte.
 # eval_fsubr(fun,args);
 # > fun: ein FSUBR
 # > args: Argumentliste
 # > STACK-Aufbau: EVAL-Frame, *APPLYHOOK*.
-# < STACK: aufgeräumt
+# < STACK: aufgerÃ¤umt
 # < mv_count/mv_space: Werte
-# verändert STACK
+# verÃ¤ndert STACK
 # can trigger GC
   local Values eval_fsubr(fun,args)
     var object fun;
@@ -3299,10 +3299,10 @@ LISPFUNN(subr_info,1)
       #endif
       # Argumente in den STACK legen:
       switch ((uintW)posfixnum_to_L(TheFsubr(fun)->argtype)) {
-        # Macro für 1 required-Parameter:
+        # Macro fÃ¼r 1 required-Parameter:
         #define REQ_PAR()  \
           { if (atomp(args)) goto fehler_zuwenig;                   \
-            pushSTACK(Car(args)); # nächster Parameter in den STACK \
+            pushSTACK(Car(args)); # nÃ¤chster Parameter in den STACK \
             args = Cdr(args);                                       \
           }
         case (uintW)fsubr_argtype_2_0_nobody:
@@ -3341,7 +3341,7 @@ LISPFUNN(subr_info,1)
         default: NOTREACHED
         fehler_zuwenig: # Argumentliste args ist vorzeitig ein Atom
           if (!nullp(args)) goto fehler_dotted;
-          # STACK bis zum aufrufenden EVAL-Frame aufräumen:
+          # STACK bis zum aufrufenden EVAL-Frame aufrÃ¤umen:
           until (framecode(STACK_0) & bit(frame_bit_t)) {
             skipSTACK(1);
           }
@@ -3355,7 +3355,7 @@ LISPFUNN(subr_info,1)
           }
         fehler_zuviel: # Argumentliste args ist am Schluss nicht NIL
           if (atomp(args)) goto fehler_dotted;
-          # STACK bis zum aufrufenden EVAL-Frame aufräumen:
+          # STACK bis zum aufrufenden EVAL-Frame aufrÃ¤umen:
           until (framecode(STACK_0) & bit(frame_bit_t)) {
             skipSTACK(1);
           }
@@ -3368,7 +3368,7 @@ LISPFUNN(subr_info,1)
                   );
           }
         fehler_dotted: # Argumentliste args endet mit Atom /= NIL
-          # STACK bis zum aufrufenden EVAL-Frame aufräumen:
+          # STACK bis zum aufrufenden EVAL-Frame aufrÃ¤umen:
           until (framecode(STACK_0) & bit(frame_bit_t)) {
             skipSTACK(1);
           }
@@ -3389,17 +3389,17 @@ LISPFUNN(subr_info,1)
        if (!(STACK == STACKbefore)) # STACK so wie vorher?
          abort(); # nein -> ab in den Debugger
       #endif
-      unwind(); # EVAL-Frame auflösen
+      unwind(); # EVAL-Frame auflÃ¶sen
     }
 
 # In EVAL: Wendet *APPLYHOOK* auf eine Funktion (SUBR oder Closure) und
-# eine Argumentliste an, räumt den STACK auf und liefert die Werte.
+# eine Argumentliste an, rÃ¤umt den STACK auf und liefert die Werte.
 # eval_applyhook(fun);
 # > fun: Funktion, ein SUBR oder eine Closure
 # > STACK-Aufbau: EVAL-Frame, *APPLYHOOK* (/= NIL), Argumentliste.
-# < STACK: aufgeräumt
+# < STACK: aufgerÃ¤umt
 # < mv_count/mv_space: Werte
-# verändert STACK
+# verÃ¤ndert STACK
 # can trigger GC
   local Values eval_applyhook(fun)
     var object fun;
@@ -3410,7 +3410,7 @@ LISPFUNN(subr_info,1)
       # *EVALHOOK*, *APPLYHOOK* an NIL binden:
       bindhooks_NIL();
       #ifndef X3J13_005
-      # (FUNCALL *APPLYHOOK* fun args env) ausführen:
+      # (FUNCALL *APPLYHOOK* fun args env) ausfÃ¼hren:
       pushSTACK(fun); # Funktion als 1. Argument
       pushSTACK(args); # Argumentliste als 2. Argument
       pushSTACK(applyhook_value); # Funktion retten
@@ -3420,18 +3420,18 @@ LISPFUNN(subr_info,1)
         *(environment*)(&TheSvector(env)->data[0]) = *stack_env; # hineinschieben
         skipSTACK(5);
       }
-      applyhook_value = popSTACK(); # Funktion zurück
+      applyhook_value = popSTACK(); # Funktion zurÃ¼ck
       pushSTACK(env); # gesamtes Environment als 3. Argument
       funcall(applyhook_value,3);
       #else
-      # (FUNCALL *APPLYHOOK* fun args) ausführen:
+      # (FUNCALL *APPLYHOOK* fun args) ausfÃ¼hren:
       pushSTACK(fun); # Funktion als 1. Argument
       pushSTACK(args); # Argumentliste als 2. Argument
       funcall(applyhook_value,2);
       #endif
-      # alte Werte von *EVALHOOK*, *APPLYHOOK* zurück:
+      # alte Werte von *EVALHOOK*, *APPLYHOOK* zurÃ¼ck:
       unwind();
-      # EVAL-Frame auflösen:
+      # EVAL-Frame auflÃ¶sen:
       unwind();
     }
 
@@ -3474,14 +3474,14 @@ LISPFUNN(subr_info,1)
             );
     }
 
-# In EVAL: Wendet ein SUBR auf eine Argumentliste an, räumt den STACK auf
+# In EVAL: Wendet ein SUBR auf eine Argumentliste an, rÃ¤umt den STACK auf
 # und liefert die Werte.
 # eval_subr(fun);
 # > fun: Funktion, ein SUBR
 # > STACK-Aufbau: EVAL-Frame, *APPLYHOOK*, Argumentliste.
-# < STACK: aufgeräumt
+# < STACK: aufgerÃ¤umt
 # < mv_count/mv_space: Werte
-# verändert STACK
+# verÃ¤ndert STACK
 # can trigger GC
   local Values eval_subr(fun)
     var object fun;
@@ -3489,24 +3489,24 @@ LISPFUNN(subr_info,1)
       var object args = popSTACK(); # Argumentliste
       skipSTACK(1); # Wert von *APPLYHOOK* vergessen
       check_SP(); check_STACK();
-      var object* args_pointer = args_end_pointer; # Pointer über die Argumente
-      var object* rest_args_pointer; # Pointer über die restlichen Argumente
+      var object* args_pointer = args_end_pointer; # Pointer Ã¼ber die Argumente
+      var object* rest_args_pointer; # Pointer Ã¼ber die restlichen Argumente
       var uintL argcount; # Anzahl der restlichen Argumente
       # Argumente ausgewertet in den STACK legen:
-      # erst ein Dispatch für die wichtigsten Fälle:
+      # erst ein Dispatch fÃ¼r die wichtigsten FÃ¤lle:
       switch (TheSubr(fun)->argtype) {
-        # Macro für ein required-Argument:
+        # Macro fÃ¼r ein required-Argument:
         #define REQ_ARG()  \
           { if (atomp(args)) goto fehler_zuwenig;                \
             pushSTACK(Cdr(args)); # restliche Argumente          \
-            eval(Car(args)); # nächstes Argument auswerten       \
+            eval(Car(args)); # nÃ¤chstes Argument auswerten       \
             args = STACK_0; STACK_0 = value1; # und in den STACK \
           }
-        # Macro für das n-letzte optional-Argument:
+        # Macro fÃ¼r das n-letzte optional-Argument:
         #define OPT_ARG(n)  \
           { if (atomp(args)) goto unbound_optional_##n ;         \
             pushSTACK(Cdr(args)); # restliche Argumente          \
-            eval(Car(args)); # nächstes Argument auswerten       \
+            eval(Car(args)); # nÃ¤chstes Argument auswerten       \
             args = STACK_0; STACK_0 = value1; # und in den STACK \
           }
         case (uintW)subr_argtype_6_0:
@@ -3607,13 +3607,13 @@ LISPFUNN(subr_info,1)
           REQ_ARG();
         case (uintW)subr_argtype_0_0_rest:
           # SUBR mit weiteren Argumenten
-          rest_args_pointer = args_end_pointer; # Pointer über die restlichen Argumente
+          rest_args_pointer = args_end_pointer; # Pointer Ã¼ber die restlichen Argumente
           # alle weiteren Argumente auswerten und in den Stack:
-          argcount = 0; # Zähler für die restlichen Argumente
+          argcount = 0; # ZÃ¤hler fÃ¼r die restlichen Argumente
           while (consp(args)) {
             check_STACK();
             pushSTACK(Cdr(args)); # restliche Argumente
-            eval(Car(args)); # nächstes Argument auswerten
+            eval(Car(args)); # nÃ¤chstes Argument auswerten
             args = STACK_0; STACK_0 = value1; # und in den STACK
             argcount++;
           }
@@ -3676,7 +3676,7 @@ LISPFUNN(subr_info,1)
         dotimesC(count,TheSubr(fun)->req_anz, {
           if (atomp(args)) goto fehler_zuwenig; # Argumentliste zu Ende?
           pushSTACK(Cdr(args)); # restliche Argumentliste
-          eval(Car(args)); # nächstes Argument auswerten
+          eval(Car(args)); # nÃ¤chstes Argument auswerten
           args = STACK_0; STACK_0 = value1; # und in den Stack
         });
       }
@@ -3688,7 +3688,7 @@ LISPFUNN(subr_info,1)
           if (count==0) goto optionals_ok; # alle optionalen Parameter versorgt?
           count--;
           pushSTACK(Cdr(args)); # restliche Argumentliste
-          eval(Car(args)); # nächstes Argument auswerten
+          eval(Car(args)); # nÃ¤chstes Argument auswerten
           args = STACK_0; STACK_0 = value1; # und in den Stack
         }
         # Argumentliste beendet.
@@ -3696,7 +3696,7 @@ LISPFUNN(subr_info,1)
         # #<UNBOUND>, auch die Keyword-Parameter:
         dotimesC(count,count + TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
         if (TheSubr(fun)->rest_flag == subr_rest) { # &REST-Flag?
-          # ja -> 0 zusätzliche Argumente:
+          # ja -> 0 zusÃ¤tzliche Argumente:
           argcount = 0; rest_args_pointer = args_end_pointer;
         }
         # nein -> nichts zu tun
@@ -3708,16 +3708,16 @@ LISPFUNN(subr_info,1)
       if (TheSubr(fun)->key_flag == subr_nokey) {
         # SUBR ohne KEY
         if (TheSubr(fun)->rest_flag == subr_norest) {
-          # SUBR ohne REST oder KEY -> Argumentliste müsste zu Ende sein
+          # SUBR ohne REST oder KEY -> Argumentliste mÃ¼sste zu Ende sein
           goto fehler_zuviel;
         } else {
           # SUBR mit nur REST, ohne KEY: Behandlung der restlichen Argumente
           rest_args_pointer = args_end_pointer;
-          argcount = 0; # Zähler für die restlichen Argumente
+          argcount = 0; # ZÃ¤hler fÃ¼r die restlichen Argumente
           do {
             check_STACK();
             pushSTACK(Cdr(args)); # restliche Argumentliste
-            eval(Car(args)); # nächstes Argument auswerten
+            eval(Car(args)); # nÃ¤chstes Argument auswerten
             args = STACK_0; STACK_0 = value1; # und in den Stack
             argcount++;
           } while (consp(args));
@@ -3731,19 +3731,19 @@ LISPFUNN(subr_info,1)
         # Erst die Keyword-Parameter mit #<UNBOUND> vorbesetzen, dann
         # die restlichen Argumente auswerten und im Stack ablegen, dann
         # die Keywords zuordnen:
-        var object* key_args_pointer = args_end_pointer; # Pointer über Keyword-Parameter
+        var object* key_args_pointer = args_end_pointer; # Pointer Ã¼ber Keyword-Parameter
         # alle Keyword-Parameter mit #<UNBOUND> vorbesetzen:
         {
           var uintC count;
           dotimesC(count,TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
         }
-        rest_args_pointer = args_end_pointer; # Pointer über die restlichen Argumente
+        rest_args_pointer = args_end_pointer; # Pointer Ã¼ber die restlichen Argumente
         # alle weiteren Argumente auswerten und in den Stack:
-        argcount = 0; # Zähler für die restlichen Argumente
+        argcount = 0; # ZÃ¤hler fÃ¼r die restlichen Argumente
         do {
           check_STACK();
           pushSTACK(Cdr(args)); # restliche Argumentliste
-          eval(Car(args)); # nächstes Argument auswerten
+          eval(Car(args)); # nÃ¤chstes Argument auswerten
           args = STACK_0; STACK_0 = value1; # und in den Stack
           argcount++;
         } while (consp(args));
@@ -3767,33 +3767,33 @@ LISPFUNN(subr_info,1)
         (*(subr_rest_function*)(TheSubr(fun)->function)) (argcount,rest_args_pointer);
       }
       #if STACKCHECKS
-      if (!(args_pointer == args_end_pointer)) # Stack aufgeräumt?
+      if (!(args_pointer == args_end_pointer)) # Stack aufgerÃ¤umt?
         abort(); # nein -> ab in den Debugger
       #endif
-      unwind(); # EVAL-Frame auflösen
+      unwind(); # EVAL-Frame auflÃ¶sen
       return; # fertig
       # Gesammelte Fehlermeldungen:
      fehler_zuwenig: # Argumentliste args ist vorzeitig ein Atom
       if (!nullp(args)) goto fehler_dotted;
-      set_args_end_pointer(args_pointer); # STACK aufräumen
+      set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen
       fehler_eval_zuwenig(TheSubr(fun)->name);
      fehler_zuviel: # Argumentliste args ist am Schluss nicht NIL
       if (atomp(args)) goto fehler_dotted;
-      set_args_end_pointer(args_pointer); # STACK aufräumen
+      set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen
       fehler_eval_zuviel(TheSubr(fun)->name);
      fehler_dotted: # Argumentliste args endet mit Atom /= NIL
-      set_args_end_pointer(args_pointer); # STACK aufräumen
+      set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen
       fehler_eval_dotted(TheSubr(fun)->name);
     }
 
-# In EVAL: Wendet eine Closure auf eine Argumentliste an, räumt den STACK auf
+# In EVAL: Wendet eine Closure auf eine Argumentliste an, rÃ¤umt den STACK auf
 # und liefert die Werte.
 # eval_closure(fun);
 # > fun: Funktion, eine Closure
 # > STACK-Aufbau: EVAL-Frame, *APPLYHOOK*, Argumentliste.
-# < STACK: aufgeräumt
+# < STACK: aufgerÃ¤umt
 # < mv_count/mv_space: Werte
-# verändert STACK
+# verÃ¤ndert STACK
 # can trigger GC
   local Values eval_closure(closure)
     var object closure;
@@ -3809,20 +3809,20 @@ LISPFUNN(subr_info,1)
         var object* STACKbefore = STACK;
         var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vektor
         # Argumente ausgewertet in den STACK legen:
-        # erst ein Dispatch für die wichtigsten Fälle:
+        # erst ein Dispatch fÃ¼r die wichtigsten FÃ¤lle:
         switch (TheCodevec(codevec)->ccv_signature) {
-          # Macro für ein required-Argument:
+          # Macro fÃ¼r ein required-Argument:
           #define REQ_ARG()  \
             { if (atomp(args)) goto fehler_zuwenig;                \
               pushSTACK(Cdr(args)); # restliche Argumente          \
-              eval(Car(args)); # nächstes Argument auswerten       \
+              eval(Car(args)); # nÃ¤chstes Argument auswerten       \
               args = STACK_0; STACK_0 = value1; # und in den STACK \
             }
-          # Macro für das n-letzte optional-Argument:
+          # Macro fÃ¼r das n-letzte optional-Argument:
           #define OPT_ARG(n)  \
             { if (atomp(args)) goto unbound_optional_##n ;         \
               pushSTACK(Cdr(args)); # restliche Argumente          \
-              eval(Car(args)); # nächstes Argument auswerten       \
+              eval(Car(args)); # nÃ¤chstes Argument auswerten       \
               args = STACK_0; STACK_0 = value1; # und in den STACK \
             }
           case (uintB)cclos_argtype_5_0:
@@ -4015,7 +4015,7 @@ LISPFUNN(subr_info,1)
             dotimesC(count,req_anz, {
               if (atomp(args)) goto fehler_zuwenig; # Argumentliste zu Ende?
               pushSTACK(Cdr(args)); # restliche Argumentliste
-              eval(Car(args)); # nächstes Argument auswerten
+              eval(Car(args)); # nÃ¤chstes Argument auswerten
               args = STACK_0; STACK_0 = value1; # und in den Stack
             });
           }
@@ -4027,7 +4027,7 @@ LISPFUNN(subr_info,1)
               if (count==0) goto optionals_ok; # alle optionalen Parameter versorgt?
               count--;
               pushSTACK(Cdr(args)); # restliche Argumentliste
-              eval(Car(args)); # nächstes Argument auswerten
+              eval(Car(args)); # nÃ¤chstes Argument auswerten
               args = STACK_0; STACK_0 = value1; # und in den Stack
             }
             # Argumentliste beendet.
@@ -4049,7 +4049,7 @@ LISPFUNN(subr_info,1)
           # args = restliche Argumentliste (noch nicht zu Ende)
           closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
           if (flags == 0)
-            # Closure ohne REST oder KEY -> Argumentliste müsste zu Ende sein
+            # Closure ohne REST oder KEY -> Argumentliste mÃ¼sste zu Ende sein
             goto fehler_zuviel;
           elif (flags & bit(7)) { # Key-Flag?
             # Closure mit Keywords.
@@ -4073,19 +4073,19 @@ LISPFUNN(subr_info,1)
         goto done;
        apply_cclosure_key: # Closure mit nur &KEY anspringen:
         {
-          var object* key_args_pointer = args_end_pointer; # Pointer über Keyword-Parameter
+          var object* key_args_pointer = args_end_pointer; # Pointer Ã¼ber Keyword-Parameter
           # alle Keyword-Parameter mit #<UNBOUND> vorbesetzen:
           {
             var uintC count = TheCodevec(codevec)->ccv_numkey;
             dotimesC(count,count, { pushSTACK(unbound); } );
           }
-          var object* rest_args_pointer = args_end_pointer; # Pointer über die restlichen Argumente
+          var object* rest_args_pointer = args_end_pointer; # Pointer Ã¼ber die restlichen Argumente
           # alle weiteren Argumente auswerten und in den Stack:
-          var uintL argcount = 0; # Zähler für die restlichen Argumente
+          var uintL argcount = 0; # ZÃ¤hler fÃ¼r die restlichen Argumente
           do {
             check_STACK();
             pushSTACK(Cdr(args)); # restliche Argumentliste
-            eval(Car(args)); # nächstes Argument auswerten
+            eval(Car(args)); # nÃ¤chstes Argument auswerten
             args = STACK_0; STACK_0 = value1; # und in den Stack
             argcount++;
           } while (consp(args));
@@ -4106,7 +4106,7 @@ LISPFUNN(subr_info,1)
         pushSTACK(args); # restliche Argumente, unausgewertet
         do {
           args = STACK_0; STACK_0 = Cdr(args);
-          eval(Car(args)); # nächstes Argument auswerten
+          eval(Car(args)); # nÃ¤chstes Argument auswerten
           pushSTACK(value1);
           # und auf die Liste consen:
           var object new_cons = allocate_cons();
@@ -4129,30 +4129,30 @@ LISPFUNN(subr_info,1)
           abort(); # nein -> ab in den Debugger
         #endif
         skipSTACK(1); # Closure wegwerfen
-        unwind(); # EVAL-Frame auflösen
+        unwind(); # EVAL-Frame auflÃ¶sen
         return; # fertig
         # Gesammelte Fehlermeldungen:
        fehler_zuwenig: # Argumentliste args ist vorzeitig ein Atom
         if (!nullp(args)) goto fehler_dotted;
-        setSTACK(STACK = STACKbefore); # STACK aufräumen
+        setSTACK(STACK = STACKbefore); # STACK aufrÃ¤umen
         closure = popSTACK();
         fehler_eval_zuwenig(TheCclosure(closure)->clos_name);
        fehler_zuviel: # Argumentliste args ist am Schluss nicht NIL
         if (atomp(args)) goto fehler_dotted;
-        setSTACK(STACK = STACKbefore); # STACK aufräumen
+        setSTACK(STACK = STACKbefore); # STACK aufrÃ¤umen
         closure = popSTACK();
         fehler_eval_zuviel(TheCclosure(closure)->clos_name);
        fehler_dotted: # Argumentliste args endet mit Atom /= NIL
-        setSTACK(STACK = STACKbefore); # STACK aufräumen
+        setSTACK(STACK = STACKbefore); # STACK aufrÃ¤umen
         closure = popSTACK();
         fehler_eval_dotted(TheCclosure(closure)->clos_name);
       } else {
         # closure ist eine interpretierte Closure
-        var object* args_pointer = args_end_pointer; # Pointer über die Argumente
+        var object* args_pointer = args_end_pointer; # Pointer Ã¼ber die Argumente
         var uintC args_on_stack = 0; # Anzahl der Argumente
         while (consp(args)) {
           pushSTACK(Cdr(args)); # Listenrest retten
-          eval(Car(args)); # nächstes Element auswerten
+          eval(Car(args)); # nÃ¤chstes Element auswerten
           args = STACK_0; STACK_0 = value1; # Auswertungsergebnis in den STACK
           args_on_stack += 1;
           if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1))
@@ -4160,20 +4160,20 @@ LISPFUNN(subr_info,1)
         }
         funcall_iclosure(*closure_,args_pointer,args_on_stack);
         skipSTACK(1); # Closure wegwerfen
-        unwind(); # EVAL-Frame auflösen
+        unwind(); # EVAL-Frame auflÃ¶sen
         return; # fertig
       }
     }
 
 #ifdef DYNAMIC_FFI
 # In EVAL: Wendet eine Foreign-Function auf eine Argumentliste an,
-# räumt den STACK auf und liefert die Werte.
+# rÃ¤umt den STACK auf und liefert die Werte.
 # eval_ffunction(fun);
 # > fun: Funktion, eine Foreign-Function
 # > STACK-Aufbau: EVAL-Frame, *APPLYHOOK*, Argumentliste.
-# < STACK: aufgeräumt
+# < STACK: aufgerÃ¤umt
 # < mv_count/mv_space: Werte
-# verändert STACK
+# verÃ¤ndert STACK
 # can trigger GC
   local Values eval_ffunction(ffun)
     var object ffun;
@@ -4185,11 +4185,11 @@ LISPFUNN(subr_info,1)
       check_SP(); check_STACK();
       pushSTACK(ffun); # Foreign-Funktion als 1. Argument
       {
-        var object* args_pointer = args_end_pointer; # Pointer über die Argumente
+        var object* args_pointer = args_end_pointer; # Pointer Ã¼ber die Argumente
         var uintC args_on_stack = 1; # Anzahl der Argumente
         while (consp(args)) {
           pushSTACK(Cdr(args)); # Listenrest retten
-          eval(Car(args)); # nächstes Element auswerten
+          eval(Car(args)); # nÃ¤chstes Element auswerten
           args = STACK_0; STACK_0 = value1; # Auswertungsergebnis in den STACK
           args_on_stack += 1;
           if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1)) {
@@ -4199,7 +4199,7 @@ LISPFUNN(subr_info,1)
         }
         funcall(L(foreign_call_out),args_on_stack);
       }
-      unwind(); # EVAL-Frame auflösen
+      unwind(); # EVAL-Frame auflÃ¶sen
       return; # fertig
     }
 #endif
@@ -4207,7 +4207,7 @@ LISPFUNN(subr_info,1)
 
 #          ----------------------- A P P L Y -----------------------
 
-# später:
+# spÃ¤ter:
   local Values apply_subr (object fun, uintC args_on_stack, object other_args);
   local Values apply_closure (object fun, uintC args_on_stack, object other_args);
 
@@ -4216,9 +4216,9 @@ LISPFUNN(subr_info,1)
 # > function: Funktion
 # > Argumente: args_on_stack Argumente auf dem STACK,
 #              restliche Argumentliste in other_args
-# < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
+# < STACK: aufgerÃ¤umt (d.h. STACK wird um args_on_stack erhÃ¶ht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# verÃ¤ndert STACK, kann GC auslÃ¶sen
   global Values apply (object fun, uintC args_on_stack, object other_args);
   global Values apply(fun,args_on_stack,other_args)
     var object fun;
@@ -4269,7 +4269,7 @@ LISPFUNN(subr_info,1)
         }
         #endif
         else
-          # Solche Funktionsnamen können keine FSUBRs oder Macros bezeichnen.
+          # Solche Funktionsnamen kÃ¶nnen keine FSUBRs oder Macros bezeichnen.
           # fdef wird vermutlich #<UNBOUND> sein.
           goto undef;
       }
@@ -4291,8 +4291,8 @@ LISPFUNN(subr_info,1)
       elif (consp(fun) && eq(Car(fun),S(lambda))) { # Cons (LAMBDA ...) ?
         subr_self = L(apply); fehler_lambda_expression(fun);
       } else {
-        pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_designator_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(fun); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_designator_function)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(fun);
         pushSTACK(S(apply));
         fehler(type_error,
@@ -4337,35 +4337,35 @@ LISPFUNN(subr_info,1)
             );
     }
 
-# Fehler wegen zu vielen Argumenten für ein SUBR
+# Fehler wegen zu vielen Argumenten fÃ¼r ein SUBR
 # > fun: Funktion, ein SUBR
   nonreturning_function(local, fehler_subr_zuviel, (object fun));
   #define fehler_subr_zuviel(fun)  fehler_apply_zuviel(TheSubr(fun)->name)
 
-# Fehler wegen zu wenig Argumenten für ein SUBR
+# Fehler wegen zu wenig Argumenten fÃ¼r ein SUBR
 # > fun: Funktion, ein SUBR
   nonreturning_function(local, fehler_subr_zuwenig, (object fun));
   #define fehler_subr_zuwenig(fun)  fehler_apply_zuwenig(TheSubr(fun)->name)
 
-# In APPLY: Wendet ein SUBR auf eine Argumentliste an, räumt den STACK auf
+# In APPLY: Wendet ein SUBR auf eine Argumentliste an, rÃ¤umt den STACK auf
 # und liefert die Werte.
 # apply_subr(fun,args_on_stack,other_args);
 # > fun: Funktion, ein SUBR
 # > Argumente: args_on_stack Argumente auf dem STACK,
 #              restliche Argumentliste in other_args
-# < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
+# < STACK: aufgerÃ¤umt (d.h. STACK wird um args_on_stack erhÃ¶ht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# verÃ¤ndert STACK, kann GC auslÃ¶sen
   local Values apply_subr(fun,args_on_stack,args)
     var object fun;
     var uintC args_on_stack;
     var object args;
     {
       #if STACKCHECKS
-      var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer über die Argumente
+      var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer Ã¼ber die Argumente
       #endif
-      var object* key_args_pointer; # Pointer über die Keyword-Argumente
-      var object* rest_args_pointer; # Pointer über die restlichen Argumente
+      var object* key_args_pointer; # Pointer Ã¼ber die Keyword-Argumente
+      var object* rest_args_pointer; # Pointer Ã¼ber die restlichen Argumente
       var uintL argcount; # Anzahl der restlichen Argumente
       #ifdef DEBUG_EVAL
       if (streamp(Symbol_value(S(funcall_trace_output)))) {
@@ -4373,15 +4373,15 @@ LISPFUNN(subr_info,1)
       }
       #endif
       # Argumente in den STACK legen:
-      # erst ein Dispatch für die wichtigsten Fälle:
+      # erst ein Dispatch fÃ¼r die wichtigsten FÃ¤lle:
       switch (TheSubr(fun)->argtype) {
-        # Macro für ein required-Argument:
+        # Macro fÃ¼r ein required-Argument:
         #define REQ_ARG()  \
           { if (args_on_stack>0) { args_on_stack--; }                      \
             elif (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
             else goto fehler_zuwenig;                                      \
           }
-        # Macro für das n-letzte optional-Argument:
+        # Macro fÃ¼r das n-letzte optional-Argument:
         #define OPT_ARG(n)  \
           { if (args_on_stack>0) { args_on_stack--; }                      \
             elif (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
@@ -4542,7 +4542,7 @@ LISPFUNN(subr_info,1)
           key_anz = TheSubr(fun)->key_anz;
           if (args_on_stack < req_anz) {
             # weniger Argumente da als verlangt
-            req_anz = req_anz - args_on_stack; # soviele müssen noch auf den STACK
+            req_anz = req_anz - args_on_stack; # soviele mÃ¼ssen noch auf den STACK
             # Platz auf dem STACK reservieren:
             get_space_on_STACK(sizeof(object) * (uintL)(req_anz + opt_anz + key_anz));
             # required Parameter in den Stack ablegen:
@@ -4551,7 +4551,7 @@ LISPFUNN(subr_info,1)
               dotimespC(count,req_anz, {
                 if (atomp(args))
                   goto fehler_zuwenig;
-                pushSTACK(Car(args)); # nächstes Argument ablegen
+                pushSTACK(Car(args)); # nÃ¤chstes Argument ablegen
                 args = Cdr(args);
               });
             }
@@ -4559,8 +4559,8 @@ LISPFUNN(subr_info,1)
           }
           args_on_stack -= req_anz; # verbleibende Anzahl
           if (args_on_stack < opt_anz) {
-            # Argumente im Stack reichen nicht für die optionalen
-            opt_anz = opt_anz - args_on_stack; # soviele müssen noch auf den STACK
+            # Argumente im Stack reichen nicht fÃ¼r die optionalen
+            opt_anz = opt_anz - args_on_stack; # soviele mÃ¼ssen noch auf den STACK
             # Platz auf dem STACK reservieren:
             get_space_on_STACK(sizeof(object) * (uintL)(opt_anz + key_anz));
            optionals_from_list:
@@ -4573,7 +4573,7 @@ LISPFUNN(subr_info,1)
                 if (count==0) # alle optionalen Parameter versorgt?
                   goto optionals_ok;
                 count--;
-                pushSTACK(Car(args)); # nächstes Argument ablegen
+                pushSTACK(Car(args)); # nÃ¤chstes Argument ablegen
                 args = Cdr(args);
               }
               # Argumentliste beendet.
@@ -4581,7 +4581,7 @@ LISPFUNN(subr_info,1)
               # #<UNBOUND>, auch die Keyword-Parameter:
               dotimesC(count,count + key_anz, { pushSTACK(unbound); } );
               if (TheSubr(fun)->rest_flag == subr_rest) { # &REST-Flag?
-                # ja -> 0 zusätzliche Argumente:
+                # ja -> 0 zusÃ¤tzliche Argumente:
                 argcount = 0; rest_args_pointer = args_end_pointer;
                 goto apply_subr_rest;
               } else {
@@ -4629,7 +4629,7 @@ LISPFUNN(subr_info,1)
         key_anz = TheSubr(fun)->key_anz;
        apply_subr_key_:
         # restliche Argumente im STACK nach unten schieben und dadurch
-        # Platz für die Keyword-Parameter schaffen:
+        # Platz fÃ¼r die Keyword-Parameter schaffen:
         argcount = args_on_stack;
         get_space_on_STACK(sizeof(object) * (uintL)key_anz);
         {
@@ -4643,9 +4643,9 @@ LISPFUNN(subr_info,1)
           dotimesC(count,key_anz, { NEXT(ptr1) = unbound; } );
           set_args_end_pointer(new_args_end_pointer);
         }
-       key_from_list: # restliche Argumente für Keywords aus der Liste nehmen
+       key_from_list: # restliche Argumente fÃ¼r Keywords aus der Liste nehmen
         while (consp(args)) {
-          check_STACK(); pushSTACK(Car(args)); # nächstes Argument in den Stack
+          check_STACK(); pushSTACK(Car(args)); # nÃ¤chstes Argument in den Stack
           args = Cdr(args);
           argcount++;
         }
@@ -4666,7 +4666,7 @@ LISPFUNN(subr_info,1)
       rest_args_pointer = args_end_pointer STACKop argcount;
      rest_from_list: # restliche Argumente aus der Liste nehmen
       while (consp(args)) {
-        check_STACK(); pushSTACK(Car(args)); # nächstes Argument in den Stack
+        check_STACK(); pushSTACK(Car(args)); # nÃ¤chstes Argument in den Stack
         args = Cdr(args);
         argcount++;
       }
@@ -4685,7 +4685,7 @@ LISPFUNN(subr_info,1)
       (*(subr_norest_function*)(TheSubr(fun)->function))();
      done:
       #if STACKCHECKS
-      if (!(args_pointer == args_end_pointer)) # Stack aufgeräumt?
+      if (!(args_pointer == args_end_pointer)) # Stack aufgerÃ¤umt?
         abort(); # nein -> ab in den Debugger
       #endif
       return; # fertig
@@ -4695,25 +4695,25 @@ LISPFUNN(subr_info,1)
      fehler_dotted: fehler_apply_dotted(TheSubr(fun)->name);
     }
 
-# Fehler wegen zu vielen Argumenten für eine Closure
+# Fehler wegen zu vielen Argumenten fÃ¼r eine Closure
 # > closure: Funktion, eine Closure
   nonreturning_function(local, fehler_closure_zuviel, (object closure));
   #define fehler_closure_zuviel(closure)  fehler_apply_zuviel(closure)
 
-# Fehler wegen zu wenig Argumenten für eine Closure
+# Fehler wegen zu wenig Argumenten fÃ¼r eine Closure
 # > closure: Funktion, eine Closure
   nonreturning_function(local, fehler_closure_zuwenig, (object closure));
   #define fehler_closure_zuwenig(closure)  fehler_apply_zuwenig(closure)
 
-# In APPLY: Wendet eine Closure auf eine Argumentliste an, räumt den STACK auf
+# In APPLY: Wendet eine Closure auf eine Argumentliste an, rÃ¤umt den STACK auf
 # und liefert die Werte.
 # apply_closure(fun,args_on_stack,other_args);
 # > fun: Funktion, eine Closure
 # > Argumente: args_on_stack Argumente auf dem STACK,
 #              restliche Argumentliste in other_args
-# < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
+# < STACK: aufgerÃ¤umt (d.h. STACK wird um args_on_stack erhÃ¶ht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# verÃ¤ndert STACK, kann GC auslÃ¶sen
   local Values apply_closure(closure,args_on_stack,args)
     var object closure;
     var uintC args_on_stack;
@@ -4727,23 +4727,23 @@ LISPFUNN(subr_info,1)
       if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
         # closure ist eine compilierte Closure
         #if STACKCHECKC
-        var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer über die Argumente
+        var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer Ã¼ber die Argumente
         #endif
         var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vektor
-        var object* key_args_pointer; # Pointer über die Keyword-Argumente
-        var object* rest_args_pointer; # Pointer über die restlichen Argumente
+        var object* key_args_pointer; # Pointer Ã¼ber die Keyword-Argumente
+        var object* rest_args_pointer; # Pointer Ã¼ber die restlichen Argumente
         var uintL argcount; # Anzahl der restlichen Argumente
         check_SP(); check_STACK();
         # Argumente in den STACK legen:
-        # erst ein Dispatch für die wichtigsten Fälle:
+        # erst ein Dispatch fÃ¼r die wichtigsten FÃ¤lle:
         switch (TheCodevec(codevec)->ccv_signature) {
-          # Macro für ein required-Argument:
+          # Macro fÃ¼r ein required-Argument:
           #define REQ_ARG()  \
             { if (args_on_stack>0) { args_on_stack--; }                      \
               elif (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
               else goto fehler_zuwenig;                                      \
             }
-          # Macro für das n-letzte optional-Argument:
+          # Macro fÃ¼r das n-letzte optional-Argument:
           #define OPT_ARG(n)  \
             { if (args_on_stack>0) { args_on_stack--; }                      \
               elif (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
@@ -4937,7 +4937,7 @@ LISPFUNN(subr_info,1)
             flags = TheCodevec(codevec)->ccv_flags; # Flags
             if (args_on_stack < req_anz) {
               # weniger Argumente da als verlangt
-              req_anz = req_anz - args_on_stack; # soviele müssen noch auf den STACK
+              req_anz = req_anz - args_on_stack; # soviele mÃ¼ssen noch auf den STACK
               # Platz auf dem STACK reservieren:
               get_space_on_STACK(sizeof(object) * (uintL)(req_anz + opt_anz));
               # required Parameter in den Stack ablegen:
@@ -4946,7 +4946,7 @@ LISPFUNN(subr_info,1)
                 dotimespC(count,req_anz, {
                   if (atomp(args))
                     goto fehler_zuwenig;
-                  pushSTACK(Car(args)); # nächstes Argument ablegen
+                  pushSTACK(Car(args)); # nÃ¤chstes Argument ablegen
                   args = Cdr(args);
                 });
               }
@@ -4954,8 +4954,8 @@ LISPFUNN(subr_info,1)
             }
             args_on_stack -= req_anz; # verbleibende Anzahl
             if (args_on_stack < opt_anz) {
-              # Argumente im Stack reichen nicht für die optionalen
-              opt_anz = opt_anz - args_on_stack; # soviele müssen noch auf den STACK
+              # Argumente im Stack reichen nicht fÃ¼r die optionalen
+              opt_anz = opt_anz - args_on_stack; # soviele mÃ¼ssen noch auf den STACK
               # Platz auf dem STACK reservieren:
               get_space_on_STACK(sizeof(object) * (uintL)opt_anz);
               optionals_from_list:
@@ -4968,7 +4968,7 @@ LISPFUNN(subr_info,1)
                   if (count==0) # alle optionalen Parameter versorgt?
                     goto optionals_ok;
                   count--;
-                  pushSTACK(Car(args)); # nächstes Argument ablegen
+                  pushSTACK(Car(args)); # nÃ¤chstes Argument ablegen
                   args = Cdr(args);
                 }
                 # Argumentliste beendet.
@@ -4988,9 +4988,9 @@ LISPFUNN(subr_info,1)
               # Rest- und Keyword-Parameter behandeln.
               # args = restliche Argumentliste (noch nicht zu Ende)
               if (flags == 0)
-                # Closure ohne REST oder KEY -> Argumentliste müsste zu Ende sein
+                # Closure ohne REST oder KEY -> Argumentliste mÃ¼sste zu Ende sein
                 goto fehler_zuviel;
-              # evtl. den Rest-Parameter füllen:
+              # evtl. den Rest-Parameter fÃ¼llen:
               if (flags & bit(0))
                 pushSTACK(args);
               if (flags & bit(7)) { # Key-Flag?
@@ -4999,14 +4999,14 @@ LISPFUNN(subr_info,1)
                 # Erst die Keyword-Parameter mit #<UNBOUND> vorbesetzen,
                 # dann die restlichen Argumente im Stack ablegen,
                 # dann die Keywords zuordnen:
-                key_args_pointer = args_end_pointer; # Pointer über Keyword-Parameter
+                key_args_pointer = args_end_pointer; # Pointer Ã¼ber Keyword-Parameter
                 # alle Keyword-Parameter mit #<UNBOUND> vorbesetzen:
                 {
                   var uintC count = TheCodevec(codevec)->ccv_numkey;
                   dotimesC(count,count, { pushSTACK(unbound); } );
                 }
-                rest_args_pointer = args_end_pointer; # Pointer über die restlichen Argumente
-                argcount = 0; # Zähler für die restlichen Argumente
+                rest_args_pointer = args_end_pointer; # Pointer Ã¼ber die restlichen Argumente
+                argcount = 0; # ZÃ¤hler fÃ¼r die restlichen Argumente
                 goto key_from_list;
               } else
                 # Closure mit nur REST, ohne KEY:
@@ -5041,11 +5041,11 @@ LISPFUNN(subr_info,1)
           {
             var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # Anzahl Keyword-Parameter
             # restliche Argumente im STACK nach unten schieben und dadurch
-            # Platz für die Keyword-Parameter (und evtl. Rest-Parameter)
+            # Platz fÃ¼r die Keyword-Parameter (und evtl. Rest-Parameter)
             # schaffen:
             var uintL shift = key_anz;
             if (flags & bit(0))
-              shift++; # evtl. 1 mehr für Rest-Parameter
+              shift++; # evtl. 1 mehr fÃ¼r Rest-Parameter
             argcount = args_on_stack;
             get_space_on_STACK(sizeof(object) * shift);
             var object* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
@@ -5054,13 +5054,13 @@ LISPFUNN(subr_info,1)
             var uintC count;
             dotimesC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
             if (flags & bit(0))
-              NEXT(ptr1) = args; # Rest-Parameter (vorläufig)
+              NEXT(ptr1) = args; # Rest-Parameter (vorlÃ¤ufig)
             key_args_pointer = ptr1;
             rest_args_pointer = ptr2;
             dotimesC(count,key_anz, { NEXT(ptr1) = unbound; } );
             set_args_end_pointer(new_args_end_pointer);
             if (flags & bit(0))
-              # Rest-Parameter versorgen, sparsamer als match_cclosure_key das tun würde:
+              # Rest-Parameter versorgen, sparsamer als match_cclosure_key das tun wÃ¼rde:
               if (args_on_stack > 0) {
                 var object* ptr3 = new_args_end_pointer;
                 pushSTACK(closure); # Closure retten
@@ -5075,9 +5075,9 @@ LISPFUNN(subr_info,1)
                 closure = popSTACK();
               }
           }
-         key_from_list: # restliche Argumente für Keywords aus der Liste nehmen
+         key_from_list: # restliche Argumente fÃ¼r Keywords aus der Liste nehmen
           while (consp(args)) {
-            check_STACK(); pushSTACK(Car(args)); # nächstes Argument in den Stack
+            check_STACK(); pushSTACK(Car(args)); # nÃ¤chstes Argument in den Stack
             args = Cdr(args);
             argcount++;
           }
@@ -5100,7 +5100,7 @@ LISPFUNN(subr_info,1)
           dotimespC(args_on_stack,args_on_stack, {
             var object new_cons = allocate_cons();
             Cdr(new_cons) = STACK_1;
-            Car(new_cons) = STACK_2; # nächstes Argument draufconsen
+            Car(new_cons) = STACK_2; # nÃ¤chstes Argument draufconsen
             STACK_2 = new_cons;
             STACK_1 = STACK_0; skipSTACK(1);
           });
@@ -5111,7 +5111,7 @@ LISPFUNN(subr_info,1)
         interpret_bytecode(closure,codevec,CCV_START_NONKEY); # Bytecode ab Byte 8 abinterpretieren
        done:
         #if STACKCHECKC
-        if (!(args_pointer == args_end_pointer)) # Stack aufgeräumt?
+        if (!(args_pointer == args_end_pointer)) # Stack aufgerÃ¤umt?
           abort(); # nein -> ab in den Debugger
         #endif
         return; # fertig
@@ -5124,7 +5124,7 @@ LISPFUNN(subr_info,1)
         # Platz auf dem STACK reservieren:
         get_space_on_STACK(sizeof(object) * llength(args));
         while (consp(args)) { # Noch Argumente in der Liste?
-          pushSTACK(Car(args)); # nächstes Element in den STACK
+          pushSTACK(Car(args)); # nÃ¤chstes Element in den STACK
           args = Cdr(args);
           args_on_stack += 1;
           if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1))
@@ -5137,7 +5137,7 @@ LISPFUNN(subr_info,1)
 
 #        ----------------------- F U N C A L L -----------------------
 
-# später:
+# spÃ¤ter:
   local Values funcall_subr (object fun, uintC args_on_stack);
   local Values funcall_closure (object fun, uintC args_on_stack);
 
@@ -5145,9 +5145,9 @@ LISPFUNN(subr_info,1)
 # funcall(function,argcount);
 # > function: Funktion
 # > Argumente: argcount Argumente auf dem STACK
-# < STACK: aufgeräumt (d.h. STACK wird um argcount erhöht)
+# < STACK: aufgerÃ¤umt (d.h. STACK wird um argcount erhÃ¶ht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# verÃ¤ndert STACK, kann GC auslÃ¶sen
   global Values funcall (object fun, uintC argcount);
   global Values funcall(fun,args_on_stack)
     var object fun;
@@ -5197,7 +5197,7 @@ LISPFUNN(subr_info,1)
         }
         #endif
         else
-          # Solche Funktionsnamen können keine FSUBRs oder Macros bezeichnen.
+          # Solche Funktionsnamen kÃ¶nnen keine FSUBRs oder Macros bezeichnen.
           # fdef wird vermutlich #<UNBOUND> sein.
           goto undef;
       }
@@ -5219,8 +5219,8 @@ LISPFUNN(subr_info,1)
       elif (consp(fun) && eq(Car(fun),S(lambda))) { # Cons (LAMBDA ...) ?
         subr_self = L(funcall); fehler_lambda_expression(fun);
       } else {
-        pushSTACK(fun); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_designator_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(fun); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_designator_function)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(fun);
         pushSTACK(S(funcall));
         fehler(type_error,
@@ -5229,23 +5229,23 @@ LISPFUNN(subr_info,1)
       }
     }
 
-# In FUNCALL: Wendet ein SUBR auf Argumente an, räumt den STACK auf
+# In FUNCALL: Wendet ein SUBR auf Argumente an, rÃ¤umt den STACK auf
 # und liefert die Werte.
 # funcall_subr(fun,args_on_stack);
 # > fun: Funktion, ein SUBR
 # > Argumente: args_on_stack Argumente auf dem STACK
-# < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
+# < STACK: aufgerÃ¤umt (d.h. STACK wird um args_on_stack erhÃ¶ht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# verÃ¤ndert STACK, kann GC auslÃ¶sen
   local Values funcall_subr(fun,args_on_stack)
     var object fun;
     var uintC args_on_stack;
     {
       #if STACKCHECKS
-      var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer über die Argumente
+      var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer Ã¼ber die Argumente
       #endif
-      var object* key_args_pointer; # Pointer über die Keyword-Argumente
-      var object* rest_args_pointer; # Pointer über die restlichen Argumente
+      var object* key_args_pointer; # Pointer Ã¼ber die Keyword-Argumente
+      var object* rest_args_pointer; # Pointer Ã¼ber die restlichen Argumente
       var uintL argcount; # Anzahl der restlichen Argumente
       #ifdef DEBUG_EVAL
       if (streamp(Symbol_value(S(funcall_trace_output)))) {
@@ -5253,7 +5253,7 @@ LISPFUNN(subr_info,1)
       }
       #endif
       # Argumente in den STACK legen:
-      # erst ein Dispatch für die wichtigsten Fälle:
+      # erst ein Dispatch fÃ¼r die wichtigsten FÃ¤lle:
       switch (TheSubr(fun)->argtype) {
         case (uintW)subr_argtype_0_0:
           # SUBR ohne Argumente
@@ -5482,8 +5482,8 @@ LISPFUNN(subr_info,1)
             goto fehler_zuwenig;
           args_on_stack -= req_anz; # verbleibende Anzahl
           if (args_on_stack <= opt_anz) {
-            # Argumente im Stack reichen nicht für die optionalen
-            opt_anz = opt_anz - args_on_stack; # soviele müssen noch auf den STACK
+            # Argumente im Stack reichen nicht fÃ¼r die optionalen
+            opt_anz = opt_anz - args_on_stack; # soviele mÃ¼ssen noch auf den STACK
             if (opt_anz + key_anz > 0) {
               # Platz auf dem STACK reservieren:
               get_space_on_STACK(sizeof(object) * (uintL)(opt_anz + key_anz));
@@ -5493,7 +5493,7 @@ LISPFUNN(subr_info,1)
               dotimespC(count,opt_anz + key_anz, { pushSTACK(unbound); } );
             }
             if (TheSubr(fun)->rest_flag == subr_rest) { # &REST-Flag?
-              # ja -> 0 zusätzliche Argumente:
+              # ja -> 0 zusÃ¤tzliche Argumente:
               argcount = 0; rest_args_pointer = args_end_pointer;
               goto apply_subr_rest;
             } else {
@@ -5518,7 +5518,7 @@ LISPFUNN(subr_info,1)
         key_anz = TheSubr(fun)->key_anz;
        apply_subr_key_:
         # restliche Argumente im STACK nach unten schieben und dadurch
-        # Platz für die Keyword-Parameter schaffen:
+        # Platz fÃ¼r die Keyword-Parameter schaffen:
         argcount = args_on_stack; # (> 0)
         get_space_on_STACK(sizeof(object) * (uintL)key_anz);
         {
@@ -5553,7 +5553,7 @@ LISPFUNN(subr_info,1)
       (*(subr_norest_function*)(TheSubr(fun)->function))();
      done:
       #if STACKCHECKS
-      if (!(args_pointer == args_end_pointer)) # Stack aufgeräumt?
+      if (!(args_pointer == args_end_pointer)) # Stack aufgerÃ¤umt?
         abort(); # nein -> ab in den Debugger
       #endif
       return; # fertig
@@ -5567,14 +5567,14 @@ LISPFUNN(subr_info,1)
      fehler_zuviel: fehler_subr_zuviel(fun);
     }
 
-# In FUNCALL: Wendet eine Closure auf Argumente an, räumt den STACK auf
+# In FUNCALL: Wendet eine Closure auf Argumente an, rÃ¤umt den STACK auf
 # und liefert die Werte.
 # funcall_closure(fun,args_on_stack);
 # > fun: Funktion, eine Closure
 # > Argumente: args_on_stack Argumente auf dem STACK
-# < STACK: aufgeräumt (d.h. STACK wird um args_on_stack erhöht)
+# < STACK: aufgerÃ¤umt (d.h. STACK wird um args_on_stack erhÃ¶ht)
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# verÃ¤ndert STACK, kann GC auslÃ¶sen
   local Values funcall_closure(closure,args_on_stack)
     var object closure;
     var uintC args_on_stack;
@@ -5587,15 +5587,15 @@ LISPFUNN(subr_info,1)
       if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
         # closure ist eine compilierte Closure
         #if STACKCHECKC
-        var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer über die Argumente
+        var object* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer Ã¼ber die Argumente
         #endif
         var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vektor
-        var object* key_args_pointer; # Pointer über die Keyword-Argumente
-        var object* rest_args_pointer; # Pointer über die restlichen Argumente
+        var object* key_args_pointer; # Pointer Ã¼ber die Keyword-Argumente
+        var object* rest_args_pointer; # Pointer Ã¼ber die restlichen Argumente
         var uintL argcount; # Anzahl der restlichen Argumente
         check_SP(); check_STACK();
         # Argumente in den STACK legen:
-        # erst ein Dispatch für die wichtigsten Fälle:
+        # erst ein Dispatch fÃ¼r die wichtigsten FÃ¤lle:
         switch (TheCodevec(codevec)->ccv_signature) {
           case (uintB)cclos_argtype_0_0:
             # keine Argumente
@@ -5906,8 +5906,8 @@ LISPFUNN(subr_info,1)
               goto fehler_zuwenig;
             args_on_stack -= req_anz; # verbleibende Anzahl
             if (args_on_stack <= opt_anz) {
-              # Argumente im Stack reichen nicht für die optionalen
-              opt_anz = opt_anz - args_on_stack; # soviele müssen noch auf den STACK
+              # Argumente im Stack reichen nicht fÃ¼r die optionalen
+              opt_anz = opt_anz - args_on_stack; # soviele mÃ¼ssen noch auf den STACK
               if (opt_anz > 0) {
                 # Platz auf dem STACK reservieren:
                 get_space_on_STACK(sizeof(object) * (uintL)opt_anz);
@@ -5953,11 +5953,11 @@ LISPFUNN(subr_info,1)
           {
             var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # Anzahl Keyword-Parameter
             # restliche Argumente im STACK nach unten schieben und dadurch
-            # Platz für die Keyword-Parameter (und evtl. Rest-Parameter)
+            # Platz fÃ¼r die Keyword-Parameter (und evtl. Rest-Parameter)
             # schaffen:
             var uintL shift = key_anz;
             if (flags & bit(0))
-              shift++; # evtl. 1 mehr für Rest-Parameter
+              shift++; # evtl. 1 mehr fÃ¼r Rest-Parameter
             argcount = args_on_stack;
             get_space_on_STACK(sizeof(object) * shift);
             var object* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
@@ -5989,7 +5989,7 @@ LISPFUNN(subr_info,1)
           dotimesC(args_on_stack,args_on_stack, {
             var object new_cons = allocate_cons();
             Cdr(new_cons) = STACK_1;
-            Car(new_cons) = STACK_2; # nächstes Argument draufconsen
+            Car(new_cons) = STACK_2; # nÃ¤chstes Argument draufconsen
             STACK_2 = new_cons;
             STACK_1 = STACK_0; skipSTACK(1);
           });
@@ -5999,7 +5999,7 @@ LISPFUNN(subr_info,1)
         interpret_bytecode(closure,codevec,CCV_START_NONKEY); # Bytecode ab Byte 8 abinterpretieren
        done:
         #if STACKCHECKC
-        if (!(args_pointer == args_end_pointer)) # Stack aufgeräumt?
+        if (!(args_pointer == args_end_pointer)) # Stack aufgerÃ¤umt?
           abort(); # nein -> ab in den Debugger
         #endif
         return; # fertig
@@ -6026,12 +6026,12 @@ LISPFUNN(subr_info,1)
 # > codeptr: ihr Codevektor, ein Simple-Bit-Vector, pointable
 # > byteptr: Start-Bytecodepointer
 # < mv_count/mv_space: Werte
-# verändert STACK, kann GC auslösen
+# verÃ¤ndert STACK, kann GC auslÃ¶sen
   # Syntax lokaler Labels in GNU-C Assembler-Anweisungen:
   #if defined(GNU) && !defined(NO_ASM)
     # LD(x) definiert Label mit Nummer x
-    # LR(x,f) referenziert Label mit Nummer x vorwärts
-    # LR(x,b) referenziert Label mit Nummer x rückwärts
+    # LR(x,f) referenziert Label mit Nummer x vorwÃ¤rts
+    # LR(x,b) referenziert Label mit Nummer x rÃ¼ckwÃ¤rts
     # Der Sichtbarkeitsbereich der Labels ist nur die eine Assembler-Anweisung.
     #if defined(I80386) && !defined(UNIX_NEXTSTEP)
       #ifdef ASM_UNDERSCORE
@@ -6049,7 +6049,7 @@ LISPFUNN(subr_info,1)
       #define LR(nr,fb)  CONCAT(STRING(nr),STRING(fb))
     #endif
   #endif
-  # Den GNU-C dazu überreden, closure und byteptr in Registern zu halten:
+  # Den GNU-C dazu Ã¼berreden, closure und byteptr in Registern zu halten:
   #ifdef GNU
     #ifdef MC680X0
       #define closure_register  "a2"
@@ -6060,7 +6060,7 @@ LISPFUNN(subr_info,1)
       #define byteptr_register  "%l1"
     #endif
     #ifdef I80386
-      #if (__GNUC__ >= 2) # Die Namen der Register haben sich verändert
+      #if (__GNUC__ >= 2) # Die Namen der Register haben sich verÃ¤ndert
         #define byteptr_register  "%edi"
       #else
         #define byteptr_register  "di"
@@ -6085,7 +6085,7 @@ LISPFUNN(subr_info,1)
       #define byteptr_register  "$14"
     #endif
     #ifdef WIDE_SOFT
-      # Ein `object' passt nicht in ein einzelnes Register, GCC ist überfordert.
+      # Ein `object' passt nicht in ein einzelnes Register, GCC ist Ã¼berfordert.
       #undef closure_register
     #endif
   #endif
@@ -6119,7 +6119,7 @@ LISPFUNN(subr_info,1)
       var object* closureptr = (pushSTACK(closure), &STACK_0);
       #ifndef FAST_SP
         # Hat man keinen schnellen SP-Zugriff, muss man einen extra Pointer
-        # einführen:
+        # einfÃ¼hren:
         var uintL private_SP_length =
           (uintL)(((Codevec)codeptr)->ccv_spdepth_1)
           + jmpbufsize * (uintL)(((Codevec)codeptr)->ccv_spdepth_jmpbufsize);
@@ -6148,7 +6148,7 @@ LISPFUNN(subr_info,1)
           private_SP += jmpbufsize;
         #define finish_entry_frame_1(frametype,returner,reentry_statement)  \
           finish_entry_frame(frametype,&!*returner, # Beim Eintritt: returner = private_SP      \
-            returner = (sp_jmp_buf*) , # returner wird beim Rücksprung wieder gesetzt           \
+            returner = (sp_jmp_buf*) , # returner wird beim RÃ¼cksprung wieder gesetzt           \
             { private_SP = (SPint*)returner; reentry_statement } # und private_SP rekonstruiert \
             )
       #else
@@ -6184,21 +6184,21 @@ LISPFUNN(subr_info,1)
                                           };
       #endif
       #
-      # nächstes Byte abzuinterpretieren
+      # nÃ¤chstes Byte abzuinterpretieren
       # > mv_count/mv_space: aktuelle Werte
       # > closureptr: Pointer auf die compilierte Closure im Stack
       # > closure: compilierte Closure
       # > codeptr: ihr Codevektor, ein Simple-Bit-Vektor, pointable
-      #            (kein LISP-Objekt, aber dennoch GC-gefährdet!)
-      # > byteptr: Pointer auf das nächste Byte im Code
-      #            (kein LISP-Objekt, aber dennoch GC-gefährdet!)
+      #            (kein LISP-Objekt, aber dennoch GC-gefÃ¤hrdet!)
+      # > byteptr: Pointer auf das nÃ¤chste Byte im Code
+      #            (kein LISP-Objekt, aber dennoch GC-gefÃ¤hrdet!)
      next_byte:
       # Fallunterscheidung nach abzuinterpretierendem Byte
       #ifndef FAST_DISPATCH
        switch (*byteptr++)
        #define CASE  case (uintB)
       #else # FAST_DISPATCH
-       # Das ist etwa 2% schneller, weil die Index-Überprüfung entfällt.
+       # Das ist etwa 2% schneller, weil die Index-ÃœberprÃ¼fung entfÃ¤llt.
        goto *cod_labels[*byteptr++];
        #define CASE
        #ifdef FAST_DISPATCH_THREADED
@@ -6208,30 +6208,30 @@ LISPFUNN(subr_info,1)
       #endif
       {
         # Holen der Operanden:
-        #   nächstes Byte:
+        #   nÃ¤chstes Byte:
         #     Bit 7 = 0 --> Bits 6..0 sind der Operand (7 Bits).
-        #     Bit 7 = 1 --> Bits 6..0 und nächstes Byte bilden den
+        #     Bit 7 = 1 --> Bits 6..0 und nÃ¤chstes Byte bilden den
         #                   Operanden (15 Bits).
         #                   Bei Sprungdistanzen: Sollte dieser =0 sein, so
-        #                   bilden die nächsten 4 Bytes den Operanden
+        #                   bilden die nÃ¤chsten 4 Bytes den Operanden
         #                   (32 Bits).
         #
         # Macro B_operand(where);
-        # bringt den nächsten Operanden (ein Byte als Unsigned Integer)
-        # nach (uintL)where und rückt dabei den Bytecodepointer weiter.
+        # bringt den nÃ¤chsten Operanden (ein Byte als Unsigned Integer)
+        # nach (uintL)where und rÃ¼ckt dabei den Bytecodepointer weiter.
           #define B_operand(where)  \
             { where = *byteptr++; }
         #
         # Macro U_operand(where);
-        # bringt den nächsten Operanden (ein Unsigned Integer)
+        # bringt den nÃ¤chsten Operanden (ein Unsigned Integer)
         # nach (uintL)where oder (uintC)where
-        # und rückt dabei den Bytecodepointer weiter.
+        # und rÃ¼ckt dabei den Bytecodepointer weiter.
           #define U_operand(where)  \
             { where = *byteptr++; # erstes Byte lesen            \
               if ((uintB)where & bit(7)) # Bit 7 gesetzt?        \
-                { where &= ~bit(7); # ja -> löschen              \
+                { where &= ~bit(7); # ja -> lÃ¶schen              \
                   where = where << 8;                            \
-                  where |= *byteptr++; # und nächstes Byte lesen \
+                  where |= *byteptr++; # und nÃ¤chstes Byte lesen \
             }   }
         #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
           #undef U_operand
@@ -6292,9 +6292,9 @@ LISPFUNN(subr_info,1)
               "incl %1"         "\n"   \
               LD(1)":"                 \
               : OUT_EAX (where), "=r" (byteptr) : "1" (byteptr) );
-          # Vorsicht: 1. Der Sun-Assembler kennt diese Syntax für lokale Labels nicht.
+          # Vorsicht: 1. Der Sun-Assembler kennt diese Syntax fÃ¼r lokale Labels nicht.
           #              Daher generieren wir unsere lokalen Labels selbst.
-          # Vorsicht: 2. ccr wird verändert. Wie deklariert man das??
+          # Vorsicht: 2. ccr wird verÃ¤ndert. Wie deklariert man das??
         #endif
         #if defined(GNU) && defined(ARM) && !defined(NO_ASM)
           # Macros written by Peter Burwood.
@@ -6330,14 +6330,14 @@ LISPFUNN(subr_info,1)
         #endif
         #
         # Macro S_operand(where);
-        # bringt den nächsten Operanden (ein Signed Integer)
-        # nach (uintL)where und rückt dabei den Bytecodepointer weiter.
+        # bringt den nÃ¤chsten Operanden (ein Signed Integer)
+        # nach (uintL)where und rÃ¼ckt dabei den Bytecodepointer weiter.
           #define S_operand(where)  \
             { where = *byteptr++; # erstes Byte lesen              \
               if ((uintB)where & bit(7))                           \
                 # Bit 7 war gesetzt                                \
                 { where = where << 8;                              \
-                  where |= *byteptr++; # nächstes Byte dazunehmen  \
+                  where |= *byteptr++; # nÃ¤chstes Byte dazunehmen  \
                   # Sign-Extend von 15 auf 32 Bits:                \
                   where = (sintL)((sintL)(sintWL)((sintWL)where << (intWLsize-15)) >> (intWLsize-15)); \
                   if (where == 0)                                  \
@@ -6351,7 +6351,7 @@ LISPFUNN(subr_info,1)
                       byteptr += 4;                                \
                 }   }                                              \
                 else                                               \
-                # Bit 7 war gelöscht                               \
+                # Bit 7 war gelÃ¶scht                               \
                 { # Sign-Extend von 7 auf 32 Bits:                 \
                   where = (sintL)((sintL)(sintBWL)((sintBWL)where << (intBWLsize-7)) >> (intBWLsize-7)); \
                 }                                                  \
@@ -6475,13 +6475,13 @@ LISPFUNN(subr_info,1)
         #endif
         #
         # Macro S_operand_ignore();
-        # übergeht den nächsten Operanden (ein Signed Integer)
-        # und rückt dabei den Bytecodepointer weiter.
+        # Ã¼bergeht den nÃ¤chsten Operanden (ein Signed Integer)
+        # und rÃ¼ckt dabei den Bytecodepointer weiter.
           #define S_operand_ignore()  \
             { var uintB where = *byteptr++; # erstes Byte lesen        \
               if ((uintB)where & bit(7))                               \
                 # Bit 7 war gesetzt                                    \
-                { if ((uintB)((where<<1) | *byteptr++) == 0) # nächstes Byte dazu \
+                { if ((uintB)((where<<1) | *byteptr++) == 0) # nÃ¤chstes Byte dazu \
                     # Sonderfall: 2-Byte-Operand = 0 -> 6-Byte-Operand \
                     { byteptr += 4; }                                  \
             }   }
@@ -6539,17 +6539,17 @@ LISPFUNN(subr_info,1)
         #endif
         #
         # Macro L_operand(where);
-        # bringt den nächsten Operanden (ein Label)
-        # nach (uintB*)where und rückt dabei den Bytecodepointer weiter.
+        # bringt den nÃ¤chsten Operanden (ein Label)
+        # nach (uintB*)where und rÃ¼ckt dabei den Bytecodepointer weiter.
           #define L_operand(Lwhere)  \
-            { var uintL where; # Variable fürs Displacement \
+            { var uintL where; # Variable fÃ¼rs Displacement \
               S_operand(where); # Displacement              \
               Lwhere = byteptr + (sintL)where; # addieren   \
             }
         #
         # Macro L_operand_ignore();
-        # übergeht den nächsten Operanden (ein Label)
-        # und rückt dabei den Bytecodepointer weiter.
+        # Ã¼bergeht den nÃ¤chsten Operanden (ein Label)
+        # und rÃ¼ckt dabei den Bytecodepointer weiter.
           #define L_operand_ignore()  S_operand_ignore()
         #
         # Die einzelnen Bytecodes werden interpretiert:
@@ -6557,8 +6557,8 @@ LISPFUNN(subr_info,1)
         # closureptr = Pointer auf die compilierte Closure im Stack,
         # closure = compilierte Closure,
         # codeptr = Pointer auf ihren Codevektor,
-        # byteptr = Pointer auf das nächste Byte im Code.
-        # (byteptr ist kein LISP-Objekt, aber dennoch GC-gefährdet! Um es
+        # byteptr = Pointer auf das nÃ¤chste Byte im Code.
+        # (byteptr ist kein LISP-Objekt, aber dennoch GC-gefÃ¤hrdet! Um es
         #  GC-invariant zu machen, muss man CODEPTR
         #  davon subtrahieren. Addiert man dann Fixnum_0 dazu,
         #  so hat man die Bytenummer als Fixnum.)
@@ -6569,7 +6569,7 @@ LISPFUNN(subr_info,1)
         #endif
         #
         # Kontextinformation aufbewahren:
-        # Wird etwas aufgerufen, das eine GC auslösen kann, so muss dies in ein
+        # Wird etwas aufgerufen, das eine GC auslÃ¶sen kann, so muss dies in ein
         # with_saved_context( ... ) eingebaut werden.
           #define with_saved_context(statement)  \
             { var uintL index = byteptr - CODEPTR;                       \
@@ -6787,9 +6787,9 @@ LISPFUNN(subr_info,1)
             var uintL n;
             U_operand(n);
             var object symbol = TheCclosure(closure)->clos_consts[n];
-            # Der Compiler hat schon überprüft, dass es ein Symbol ist.
+            # Der Compiler hat schon Ã¼berprÃ¼ft, dass es ein Symbol ist.
             if (eq(Symbol_value(symbol),unbound)) {
-              pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
+              pushSTACK(symbol); # Wert fÃ¼r Slot NAME von CELL-ERROR
               pushSTACK(symbol);
               fehler(unbound_variable,
                      GETTEXT("symbol ~ has no value")
@@ -6803,9 +6803,9 @@ LISPFUNN(subr_info,1)
             var uintL n;
             U_operand(n);
             var object symbol = TheCclosure(closure)->clos_consts[n];
-            # Der Compiler hat schon überprüft, dass es ein Symbol ist.
+            # Der Compiler hat schon Ã¼berprÃ¼ft, dass es ein Symbol ist.
             if (eq(Symbol_value(symbol),unbound)) {
-              pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
+              pushSTACK(symbol); # Wert fÃ¼r Slot NAME von CELL-ERROR
               pushSTACK(symbol);
               fehler(unbound_variable,
                      GETTEXT("symbol ~ has no value")
@@ -6819,7 +6819,7 @@ LISPFUNN(subr_info,1)
             var uintL n;
             U_operand(n);
             var object symbol = TheCclosure(closure)->clos_consts[n];
-            # Der Compiler hat schon überprüft, dass es ein Symbol ist.
+            # Der Compiler hat schon Ã¼berprÃ¼ft, dass es ein Symbol ist.
             if (constantp(TheSymbol(symbol))) {
               pushSTACK(symbol);
               fehler(error,
@@ -6841,18 +6841,18 @@ LISPFUNN(subr_info,1)
           if (!(framecode(STACK_0) == DYNBIND_frame_info))
             goto fehler_STACK_putt;
           #endif
-          # Variablenbindungsframe auflösen:
+          # Variablenbindungsframe auflÃ¶sen:
           {
-            var object* new_STACK = topofframe(STACK_0); # Pointer übern Frame
+            var object* new_STACK = topofframe(STACK_0); # Pointer Ã¼bern Frame
             var object* frame_end = STACKpointable(new_STACK);
             var object* bindingptr = &STACK_1; # Beginn der Bindungen
-            # bindingptr läuft durch die Bindungen hoch
+            # bindingptr lÃ¤uft durch die Bindungen hoch
             until (bindingptr == frame_end) {
-              # alten Wert zurückschreiben:
+              # alten Wert zurÃ¼ckschreiben:
               Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
-              bindingptr skipSTACKop 2; # nächste Bindung
+              bindingptr skipSTACKop 2; # nÃ¤chste Bindung
             }
-            # STACK neu setzen, dadurch Frame auflösen:
+            # STACK neu setzen, dadurch Frame auflÃ¶sen:
             setSTACK(STACK = new_STACK);
           }
           goto next_byte;
@@ -6866,15 +6866,15 @@ LISPFUNN(subr_info,1)
               if (!(framecode(FRAME_(0)) == DYNBIND_frame_info))
                 goto fehler_STACK_putt;
               #endif
-              # Variablenbindungsframe auflösen:
-              var object* new_FRAME = topofframe(FRAME_(0)); # Pointer übern Frame
+              # Variablenbindungsframe auflÃ¶sen:
+              var object* new_FRAME = topofframe(FRAME_(0)); # Pointer Ã¼bern Frame
               var object* frame_end = STACKpointable(new_FRAME);
               var object* bindingptr = &FRAME_(1); # Beginn der Bindungen
-              # bindingptr läuft durch die Bindungen hoch
+              # bindingptr lÃ¤uft durch die Bindungen hoch
               until (bindingptr == frame_end) {
-                # alten Wert zurückschreiben:
+                # alten Wert zurÃ¼ckschreiben:
                 Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
-                bindingptr skipSTACKop 2; # nächste Bindung
+                bindingptr skipSTACKop 2; # nÃ¤chste Bindung
               }
               FRAME = new_FRAME;
             } until (--n == 0);
@@ -6926,13 +6926,13 @@ LISPFUNN(subr_info,1)
             skipSP(k1+jmpbufsize*k2);
           }
           goto next_byte;
-        # ------------------- (5) Programmfluss und Sprünge -----------------------
+        # ------------------- (5) Programmfluss und SprÃ¼nge -----------------------
         CASE cod_skip_ret:               # (SKIP&RET n)
           {
             var uintL n;
             U_operand(n);
             skipSTACK(n);
-            goto finished; # Rücksprung zum Aufrufer
+            goto finished; # RÃ¼cksprung zum Aufrufer
           }
         CASE cod_skip_retgf:             # (SKIP&RETGF n)
           {
@@ -6941,7 +6941,7 @@ LISPFUNN(subr_info,1)
             if (((Codevec)codeptr)->ccv_flags & bit(3)) { # Aufrufhemmung?
               skipSTACK(n);
               mv_count=1;
-              goto finished; # Rücksprung zum Aufrufer
+              goto finished; # RÃ¼cksprung zum Aufrufer
             }
             # Es ist bekannt (siehe clos.lisp), dass diese Funktion
             # keine optionalen Parameter hat, aber evtl. Rest-Parameter.
@@ -6954,7 +6954,7 @@ LISPFUNN(subr_info,1)
             } else {
               skipSTACK(n); funcall(value1,r);
             }
-            goto finished; # Rücksprung zum Aufrufer
+            goto finished; # RÃ¼cksprung zum Aufrufer
           }
         #define JMP()  \
           { var const uintB* label_byteptr; \
@@ -7030,7 +7030,7 @@ LISPFUNN(subr_info,1)
               byteptr += fixnum_to_L(hashvalue);
           }
           goto next_byte;
-        # Führt einen (JSR label)-Befehl aus.
+        # FÃ¼hrt einen (JSR label)-Befehl aus.
         #define JSR()  \
           check_STACK(); check_SP();                              \
           { var const uintB* label_byteptr;                       \
@@ -7051,14 +7051,14 @@ LISPFUNN(subr_info,1)
             var uintL n;
             U_operand(m);
             U_operand(n);
-            # Es gilt n>=m. m Stackeinträge um n-m nach oben kopieren:
+            # Es gilt n>=m. m StackeintrÃ¤ge um n-m nach oben kopieren:
             var object* ptr1 = STACK STACKop m;
             var object* ptr2 = STACK STACKop n;
             var uintC count;
             dotimesC(count,m, { NEXT(ptr2) = NEXT(ptr1); } );
             # Nun ist ptr1 = STACK und ptr2 = STACK STACKop (n-m).
             *(closureptr = &NEXT(ptr2)) = closure; # Closure im Stack ablegen
-            setSTACK(STACK = ptr2); # STACK verkürzen
+            setSTACK(STACK = ptr2); # STACK verkÃ¼rzen
           }
           JMP(); # an label springen
         # ------------------- (6) Environments und Closures -----------------------
@@ -7088,7 +7088,7 @@ LISPFUNN(subr_info,1)
               U_operand(m);
               oldclos = TheCclosure(closure)->clos_consts[m];
             }
-            # Closure gleicher Länge allozieren:
+            # Closure gleicher LÃ¤nge allozieren:
             var object newclos;
             pushSTACK(oldclos);
             with_saved_context(
@@ -7116,7 +7116,7 @@ LISPFUNN(subr_info,1)
               U_operand(m);
               oldclos = TheCclosure(closure)->clos_consts[m];
             }
-            # Closure gleicher Länge allozieren:
+            # Closure gleicher LÃ¤nge allozieren:
             var object newclos;
             pushSTACK(oldclos);
             with_saved_context(
@@ -7136,7 +7136,7 @@ LISPFUNN(subr_info,1)
           }
           goto next_byte;
         # ------------------- (7) Funktionsaufrufe -----------------------
-        # Führt (CALL k n)-Befehl aus.
+        # FÃ¼hrt (CALL k n)-Befehl aus.
         #define CALL()  \
           { var uintC k; # Argumentezahl                       \
             var uintL n;                                       \
@@ -7146,7 +7146,7 @@ LISPFUNN(subr_info,1)
               funcall(TheCclosure(closure)->clos_consts[n],k); \
             );                                                 \
           }
-        # Führt (CALL0 n)-Befehl aus.
+        # FÃ¼hrt (CALL0 n)-Befehl aus.
         #define CALL0()  \
           { var uintL n;                                       \
             U_operand(n);                                      \
@@ -7154,7 +7154,7 @@ LISPFUNN(subr_info,1)
               funcall(TheCclosure(closure)->clos_consts[n],0); \
             );                                                 \
           }
-        # Führt (CALL1 n)-Befehl aus.
+        # FÃ¼hrt (CALL1 n)-Befehl aus.
         #define CALL1()  \
           { var uintL n;                                       \
             U_operand(n);                                      \
@@ -7162,7 +7162,7 @@ LISPFUNN(subr_info,1)
               funcall(TheCclosure(closure)->clos_consts[n],1); \
             );                                                 \
           }
-        # Führt (CALL2 n)-Befehl aus.
+        # FÃ¼hrt (CALL2 n)-Befehl aus.
         #define CALL2()  \
           { var uintL n;                                       \
             U_operand(n);                                      \
@@ -7170,35 +7170,35 @@ LISPFUNN(subr_info,1)
               funcall(TheCclosure(closure)->clos_consts[n],2); \
             );                                                 \
           }
-        # Führt (CALLS1 n)-Befehl aus.
+        # FÃ¼hrt (CALLS1 n)-Befehl aus.
         #define CALLS1()  \
           { var uintL n;                                              \
             B_operand(n);                                             \
-            # Der Compiler hat die Argumentüberprüfung schon gemacht. \
+            # Der Compiler hat die ArgumentÃ¼berprÃ¼fung schon gemacht. \
            {var Subr fun = FUNTAB1[n];                                \
             subr_self = subr_tab_ptr_as_object(fun);                  \
             with_saved_context(                                       \
               (*(subr_norest_function*)(fun->function))();            \
             );                                                        \
           }}
-        # Führt (CALLS2 n)-Befehl aus.
+        # FÃ¼hrt (CALLS2 n)-Befehl aus.
         #define CALLS2()  \
           { var uintL n;                                              \
             B_operand(n);                                             \
-            # Der Compiler hat die Argumentüberprüfung schon gemacht. \
+            # Der Compiler hat die ArgumentÃ¼berprÃ¼fung schon gemacht. \
            {var Subr fun = FUNTAB2[n];                                \
             subr_self = subr_tab_ptr_as_object(fun);                  \
             with_saved_context(                                       \
               (*(subr_norest_function*)(fun->function))();            \
             );                                                        \
           }}
-        # Führt (CALLSR m n)-Befehl aus.
+        # FÃ¼hrt (CALLSR m n)-Befehl aus.
         #define CALLSR()  \
           { var uintL m;                                              \
             var uintL n;                                              \
             U_operand(m);                                             \
             B_operand(n);                                             \
-            # Der Compiler hat die Argumentüberprüfung schon gemacht. \
+            # Der Compiler hat die ArgumentÃ¼berprÃ¼fung schon gemacht. \
            {var Subr fun = FUNTABR[n];                                \
             subr_self = subr_tab_ptr_as_object(fun);                  \
             with_saved_context(                                       \
@@ -7244,17 +7244,17 @@ LISPFUNN(subr_info,1)
         CASE cod_callsr_push:            # (CALLSR&PUSH m n)
           CALLSR(); pushSTACK(value1);
           goto next_byte;
-        # Führt einen (CALLC)-Befehl aus.
+        # FÃ¼hrt einen (CALLC)-Befehl aus.
         #define CALLC()  \
-          { check_STACK(); check_SP(); # STACK und SP überprüfen \
+          { check_STACK(); check_SP(); # STACK und SP Ã¼berprÃ¼fen \
             with_saved_context(                                  \
               # compilierte Closure ab Byte 8 interpretieren:    \
               interpret_bytecode(value1,TheCclosure(value1)->clos_codevec,CCV_START_NONKEY); \
             );                                                   \
           }
-        # Führt einen (CALLCKEY)-Befehl aus.
+        # FÃ¼hrt einen (CALLCKEY)-Befehl aus.
         #define CALLCKEY()  \
-          { check_STACK(); check_SP(); # STACK und SP überprüfen \
+          { check_STACK(); check_SP(); # STACK und SP Ã¼berprÃ¼fen \
             with_saved_context(                                  \
               # compilierte Closure ab Byte 12 interpretieren:   \
               interpret_bytecode(value1,TheCclosure(value1)->clos_codevec,CCV_START_KEY); \
@@ -7400,26 +7400,26 @@ LISPFUNN(subr_info,1)
           {
             var uintL n;
             U_operand(n);
-            # Test auf Stacküberlauf:
+            # Test auf StackÃ¼berlauf:
             get_space_on_STACK(n*sizeof(object));
             # n Werte in den Stack schieben:
             var uintC count = mv_count;
-            if (n==0) goto nv_to_stack_end; # kein Wert gewünscht -> fertig
-            # mindestens 1 Wert gewünscht
+            if (n==0) goto nv_to_stack_end; # kein Wert gewÃ¼nscht -> fertig
+            # mindestens 1 Wert gewÃ¼nscht
             pushSTACK(value1);
-            n--; if (n==0) goto nv_to_stack_end; # nur 1 Wert gewünscht -> fertig
-            if (count<=1) goto nv_to_stack_fill; # nur 1 Wert vorhanden -> mit NILs auffüllen
+            n--; if (n==0) goto nv_to_stack_end; # nur 1 Wert gewÃ¼nscht -> fertig
+            if (count<=1) goto nv_to_stack_fill; # nur 1 Wert vorhanden -> mit NILs auffÃ¼llen
             count--;
-            # mindestens 2 Werte gewünscht und vorhanden
+            # mindestens 2 Werte gewÃ¼nscht und vorhanden
             {
               var object* mvp = &mv_space[1];
               loop {
                 pushSTACK(*mvp++);
-                n--; if (n==0) goto nv_to_stack_end; # kein Wert mehr gewünscht -> fertig
-                count--; if (count==0) goto nv_to_stack_fill; # kein Wert mehr vorhanden -> mit NILs auffüllen
+                n--; if (n==0) goto nv_to_stack_end; # kein Wert mehr gewÃ¼nscht -> fertig
+                count--; if (count==0) goto nv_to_stack_fill; # kein Wert mehr vorhanden -> mit NILs auffÃ¼llen
               }
             }
-            nv_to_stack_fill: # Auffüllen mit n>0 NILs als zusätzlichen Werten:
+            nv_to_stack_fill: # AuffÃ¼llen mit n>0 NILs als zusÃ¤tzlichen Werten:
             dotimespL(n,n, { pushSTACK(NIL); } );
             nv_to_stack_end: ;
           }
@@ -7436,11 +7436,11 @@ LISPFUNN(subr_info,1)
           goto next_byte;
         CASE cod_mvcallp:                # (MVCALLP)
           pushSP((aint)STACK); # STACK retten
-          pushSTACK(value1); # auszuführende Funktion retten
+          pushSTACK(value1); # auszufÃ¼hrende Funktion retten
           goto next_byte;
         CASE cod_mvcall:                 # (MVCALL)
           {
-            var object* FRAME; popSP( FRAME = (object*) ); # Pointer über Argumente und Funktion
+            var object* FRAME; popSP( FRAME = (object*) ); # Pointer Ã¼ber Argumente und Funktion
             var object fun = NEXT(FRAME); # Funktion
             with_saved_context({
               var uintL argcount = # Anzahl der Argumente auf dem Stack
@@ -7460,7 +7460,7 @@ LISPFUNN(subr_info,1)
           goto next_byte;
         # ------------------- (10) BLOCK -----------------------
         CASE cod_block_open:             # (BLOCK-OPEN n label)
-          # belegt 3 STACK-Einträge und 1 SP-jmp_buf-Eintrag und 2 SP-Einträge
+          # belegt 3 STACK-EintrÃ¤ge und 1 SP-jmp_buf-Eintrag und 2 SP-EintrÃ¤ge
           {
             var uintL n;
             var sintL label_dist;
@@ -7472,15 +7472,15 @@ LISPFUNN(subr_info,1)
               block_cons = allocate_cons();
               label_dist += index; # CODEPTR+label_dist ist das Sprungziel
             );
-            # Block-Cons füllen: (CONST n) als CAR
+            # Block-Cons fÃ¼llen: (CONST n) als CAR
             Car(block_cons) = TheCclosure(closure)->clos_consts[n];
             # Sprungziel in den SP:
             pushSP(label_dist); pushSP((aint)closureptr);
             # CBLOCK-Frame aufbauen:
             {
-              var object* top_of_frame = STACK; # Pointer übern Frame
+              var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
               pushSTACK(block_cons); # Cons ( (CONST n) . ...)
-              var JMPBUF_on_SP(returner); # Rücksprungpunkt merken
+              var JMPBUF_on_SP(returner); # RÃ¼cksprungpunkt merken
               finish_entry_frame_1(CBLOCK,returner, goto block_return; );
             }
             # Framepointer im Block-Cons ablegen:
@@ -7491,10 +7491,10 @@ LISPFUNN(subr_info,1)
                        # CBLOCK-Frame ein RETURN-FROM gefangen hat.
           {
             FREE_JMPBUF_on_SP();
-            skipSTACK(2); # CBLOCK-Frame auflösen, dabei
+            skipSTACK(2); # CBLOCK-Frame auflÃ¶sen, dabei
             Cdr(popSTACK()) = disabled; # Block-Cons als Disabled markieren
             var uintL index;
-            # closure zurück, byteptr:=label_byteptr :
+            # closure zurÃ¼ck, byteptr:=label_byteptr :
             popSP(closureptr = (object*) ); popSP(index = );
             closure = *closureptr; # Closure aus dem Stack holen
             codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
@@ -7502,14 +7502,14 @@ LISPFUNN(subr_info,1)
           }
           goto next_byte; # am Label weiterinterpretieren
         CASE cod_block_close:            # (BLOCK-CLOSE)
-          # CBLOCK-Frame auflösen:
+          # CBLOCK-Frame auflÃ¶sen:
           #if STACKCHECKC
           if (!(framecode(STACK_0) == CBLOCK_frame_info))
             goto fehler_STACK_putt;
           #endif
           {
             FREE_JMPBUF_on_SP();
-            skipSTACK(2); # CBLOCK-Frame auflösen, dabei
+            skipSTACK(2); # CBLOCK-Frame auflÃ¶sen, dabei
             Cdr(popSTACK()) = disabled; # Block-Cons als Disabled markieren
             skipSP(2); # Ziel-Closureptr und Ziel-Label kennen wir
           }
@@ -7521,7 +7521,7 @@ LISPFUNN(subr_info,1)
             var object block_cons = TheCclosure(closure)->clos_consts[n];
             if (eq(Cdr(block_cons),disabled))
               fehler_block_left(Car(block_cons));
-            # Bis zum Block-Frame unwinden, dann seine Routine zum Auflösen anspringen:
+            # Bis zum Block-Frame unwinden, dann seine Routine zum AuflÃ¶sen anspringen:
             #ifndef FAST_SP
             FREE_DYNAMIC_ARRAY(private_SP_space);
             #endif
@@ -7539,7 +7539,7 @@ LISPFUNN(subr_info,1)
             var object block_cons = FRAME_(n);
             if (eq(Cdr(block_cons),disabled))
               fehler_block_left(Car(block_cons));
-            # Bis zum Block-Frame unwinden, dann seine Routine zum Auflösen anspringen:
+            # Bis zum Block-Frame unwinden, dann seine Routine zum AuflÃ¶sen anspringen:
             #ifndef FAST_SP
             FREE_DYNAMIC_ARRAY(private_SP_space);
             #endif
@@ -7547,7 +7547,7 @@ LISPFUNN(subr_info,1)
           }
         # ------------------- (11) TAGBODY -----------------------
         CASE cod_tagbody_open:           # (TAGBODY-OPEN n label1 ... labelm)
-          # belegt 3+m STACK-Einträge und 1 SP-jmp_buf-Eintrag und 1 SP-Eintrag
+          # belegt 3+m STACK-EintrÃ¤ge und 1 SP-jmp_buf-Eintrag und 1 SP-Eintrag
           {
             var uintL n;
             U_operand(n);
@@ -7556,7 +7556,7 @@ LISPFUNN(subr_info,1)
             with_saved_context(
               tagbody_cons = allocate_cons();
             );
-            # Tagbody-Cons füllen: Tag-Vektor (CONST n) als CAR
+            # Tagbody-Cons fÃ¼llen: Tag-Vektor (CONST n) als CAR
             {
               var object tag_vector = TheCclosure(closure)->clos_consts[n];
               var uintL m = Svector_length(tag_vector);
@@ -7574,9 +7574,9 @@ LISPFUNN(subr_info,1)
             pushSP((aint)closureptr);
             # CTAGBODY-Frame aufbauen:
             {
-              var object* top_of_frame = STACK; # Pointer übern Frame
+              var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
               pushSTACK(tagbody_cons); # Cons ( (CONST n) . ...)
-              var JMPBUF_on_SP(returner); # Rücksprungpunkt merken
+              var JMPBUF_on_SP(returner); # RÃ¼cksprungpunkt merken
               finish_entry_frame_1(CTAGBODY,returner, goto tagbody_go; );
             }
             # Framepointer im Tagbody-Cons ablegen:
@@ -7587,10 +7587,10 @@ LISPFUNN(subr_info,1)
                      # CTAGBODY-Frame ein GO zum Label Nummer i gefangen hat.
           {
             var uintL m = Svector_length(Car(STACK_2)); # Anzahl der Labels
-            # (Könnte auch das obige m als 'auto' deklarieren und hier benutzen.)
+            # (KÃ¶nnte auch das obige m als 'auto' deklarieren und hier benutzen.)
             var uintL i = posfixnum_to_L(value1); # Nummer des Labels
             var uintL index = posfixnum_to_L(STACK_((m-i)+3)); # labeli
-            # closure zurück, byteptr:=labeli_byteptr :
+            # closure zurÃ¼ck, byteptr:=labeli_byteptr :
             closureptr = (object*) SP_(jmpbufsize+0);
             closure = *closureptr; # Closure aus dem Stack holen
             codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
@@ -7600,7 +7600,7 @@ LISPFUNN(subr_info,1)
         CASE cod_tagbody_close_nil:      # (TAGBODY-CLOSE-NIL)
           value1 = NIL; mv_count=1; # Wert des Tagbody ist NIL
         CASE cod_tagbody_close:          # (TAGBODY-CLOSE)
-          # CTAGBODY-Frame auflösen:
+          # CTAGBODY-Frame auflÃ¶sen:
           #if STACKCHECKC
           if (!(framecode(STACK_0) == CTAGBODY_frame_info))
             goto fehler_STACK_putt;
@@ -7630,7 +7630,7 @@ LISPFUNN(subr_info,1)
                      GETTEXT("(~ ~): the tagbody of the tags ~ has already been left")
                     );
             }
-            # Übergabewert an den Tagbody:
+            # Ãœbergabewert an den Tagbody:
             # Bei CTAGBODY-Frames 1+l als Fixnum,
             # bei ITAGBODY-Frames die Formenliste zu Tag Nummer l.
             var object* FRAME = uTheFramepointer(Cdr(tagbody_cons));
@@ -7667,7 +7667,7 @@ LISPFUNN(subr_info,1)
                      GETTEXT("(~ ~): the tagbody of the tags ~ has already been left")
                     );
             }
-            # Übergabewert an den Tagbody:
+            # Ãœbergabewert an den Tagbody:
             # Bei CTAGBODY-Frames 1+l als Fixnum.
             var object* FRAME = uTheFramepointer(Cdr(tagbody_cons));
             value1 = fixnum(1+l); mv_count=1;
@@ -7680,7 +7680,7 @@ LISPFUNN(subr_info,1)
           }
         # ------------------- (12) CATCH und THROW -----------------------
         CASE cod_catch_open:             # (CATCH-OPEN label)
-          # belegt 3 STACK-Einträge und 1 SP-jmp_buf-Eintrag und 2 SP-Einträge
+          # belegt 3 STACK-EintrÃ¤ge und 1 SP-jmp_buf-Eintrag und 2 SP-EintrÃ¤ge
           {
             var const uintB* label_byteptr;
             L_operand(label_byteptr);
@@ -7691,7 +7691,7 @@ LISPFUNN(subr_info,1)
           {
             var object* top_of_frame = STACK;
             pushSTACK(value1); # Tag
-            var JMPBUF_on_SP(returner); # Rücksprungpunkt merken
+            var JMPBUF_on_SP(returner); # RÃ¼cksprungpunkt merken
             finish_entry_frame_1(CATCH,returner, goto catch_return; );
           }
           goto next_byte;
@@ -7699,9 +7699,9 @@ LISPFUNN(subr_info,1)
                        # Catch-Frame einen Throw gefangen hat.
           {
             FREE_JMPBUF_on_SP();
-            skipSTACK(3); # CATCH-Frame auflösen
+            skipSTACK(3); # CATCH-Frame auflÃ¶sen
             var uintL index;
-            # closure zurück, byteptr:=label_byteptr :
+            # closure zurÃ¼ck, byteptr:=label_byteptr :
             popSP(closureptr = (object*) ); popSP(index = );
             closure = *closureptr; # Closure aus dem Stack holen
             codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
@@ -7719,7 +7719,7 @@ LISPFUNN(subr_info,1)
           if (!(closureptr == (object*)SP_(0))) # dort stehender Closureptr muss der jetzige sein
             goto fehler_STACK_putt;
           #endif
-          skipSP(2); skipSTACK(3); # CATCH-Frame auflösen
+          skipSP(2); skipSTACK(3); # CATCH-Frame auflÃ¶sen
           goto next_byte;
         CASE cod_throw:                  # (THROW)
           {
@@ -7733,7 +7733,7 @@ LISPFUNN(subr_info,1)
           }
         # ------------------- (13) UNWIND-PROTECT -----------------------
         CASE cod_uwp_open:               # (UNWIND-PROTECT-OPEN label)
-          # belegt 2 STACK-Einträge und 1 SP-jmp_buf-Eintrag und 2 SP-Einträge
+          # belegt 2 STACK-EintrÃ¤ge und 1 SP-jmp_buf-Eintrag und 2 SP-EintrÃ¤ge
           {
             var const uintB* label_byteptr;
             L_operand(label_byteptr);
@@ -7743,7 +7743,7 @@ LISPFUNN(subr_info,1)
           # Frame aufbauen:
           {
             var object* top_of_frame = STACK;
-            var JMPBUF_on_SP(returner); # Rücksprungpunkt merken
+            var JMPBUF_on_SP(returner); # RÃ¼cksprungpunkt merken
             finish_entry_frame_1(UNWIND_PROTECT,returner, goto throw_save; );
           }
           goto next_byte;
@@ -7757,21 +7757,21 @@ LISPFUNN(subr_info,1)
                   );
           }
           #endif
-          # Frame auflösen:
+          # Frame auflÃ¶sen:
           FREE_JMPBUF_on_SP();
           skipSTACK(2);
           {
             var uintL index;
-            # closure zurück, byteptr:=label_byteptr :
+            # closure zurÃ¼ck, byteptr:=label_byteptr :
             popSP(closureptr = (object*) );
             popSP(index = );
             # unwind_protect_to_save retten:
             pushSP((aint)unwind_protect_to_save.fun);
             pushSP((aint)unwind_protect_to_save.upto_frame);
-            pushSP((aint)STACK); # Pointer übern Frame zusätzlich auf den SP
+            pushSP((aint)STACK); # Pointer Ã¼bern Frame zusÃ¤tzlich auf den SP
             # alle Werte auf den Stack:
             mv_to_STACK();
-            # Cleanup-Formen ausführen:
+            # Cleanup-Formen ausfÃ¼hren:
             closure = *closureptr; # Closure aus dem Stack holen
             codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
             byteptr = CODEPTR + index;
@@ -7784,16 +7784,16 @@ LISPFUNN(subr_info,1)
           if (!(closureptr == (object*)SP_(jmpbufsize+0))) # dort stehender Closureptr muss der jetzige sein
             goto fehler_STACK_putt;
           #endif
-          # Frame auflösen:
-          # Nichts zu tun, da closure und byteptr unverändert bleiben.
+          # Frame auflÃ¶sen:
+          # Nichts zu tun, da closure und byteptr unverÃ¤ndert bleiben.
           FREE_JMPBUF_on_SP(); skipSP(2);
           skipSTACK(2);
-          # Dummy-Werte für 'unwind_protect_to_save':
+          # Dummy-Werte fÃ¼r 'unwind_protect_to_save':
           pushSP((aint)NULL); pushSP((aint)NULL); # NULL,NULL -> uwp_continue
-          pushSP((aint)STACK); # Pointer übern Frame zusätzlich auf den SP
+          pushSP((aint)STACK); # Pointer Ã¼bern Frame zusÃ¤tzlich auf den SP
           # alle Werte auf den Stack:
           mv_to_STACK();
-          # Cleanup-Formen ausführen:
+          # Cleanup-Formen ausfÃ¼hren:
           goto next_byte;
         CASE cod_uwp_close:              # (UNWIND-PROTECT-CLOSE)
           # Hierher wird am Ende der Cleanup-Formen gesprungen.
@@ -7805,24 +7805,24 @@ LISPFUNN(subr_info,1)
             if (mvcount >= mv_limit) goto fehler_zuviele_werte;
             STACK_to_mv(mvcount);
           }
-          # Rücksprung zum geretteten unwind_protect_to_save.fun :
+          # RÃ¼cksprung zum geretteten unwind_protect_to_save.fun :
           {
             var restart fun;
             var object* arg;
             popSP( arg = (object*) ); popSP( fun = (restart) );
-            # Rücksprung zu uwp_continue oder uwp_jmpback oder unwind_upto:
+            # RÃ¼cksprung zu uwp_continue oder uwp_jmpback oder unwind_upto:
             if (!(fun == (restart)NULL)) {
-              (*fun)(arg); # Rücksprung zu unwind_upto o.ä.
+              (*fun)(arg); # RÃ¼cksprung zu unwind_upto o.Ã¤.
               NOTREACHED
             }
             if (arg == (object*)NULL) {
               # uwp_continue:
-              # Hierher wird gesprungen, wenn nach dem Ausführen der
+              # Hierher wird gesprungen, wenn nach dem AusfÃ¼hren der
               # Cleanup-Formen einfach weiterinterpretiert werden soll.
               goto next_byte;
             } else {
               # uwp_jmpback:
-              # Hierher wird gesprungen, wenn nach dem Ausführen der
+              # Hierher wird gesprungen, wenn nach dem AusfÃ¼hren der
               # Cleanup-Formen an der alten Stelle in derselben Closure
               # weiterinterpretiert werden soll.
               byteptr = CODEPTR + (uintP)arg;
@@ -7830,8 +7830,8 @@ LISPFUNN(subr_info,1)
             }
           }
         CASE cod_uwp_cleanup:            # (UNWIND-PROTECT-CLEANUP)
-          # Dies wird ausgeführt, wenn innerhalb derselben Closure ein
-          # Ausführen des Cleanup-Codes nötig ist.
+          # Dies wird ausgefÃ¼hrt, wenn innerhalb derselben Closure ein
+          # AusfÃ¼hren des Cleanup-Codes nÃ¶tig ist.
           #if STACKCHECKC
           if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
             goto fehler_STACK_putt;
@@ -7841,27 +7841,27 @@ LISPFUNN(subr_info,1)
           # closure bleibt, byteptr:=label_byteptr :
           {
             var uintL index = SP_(jmpbufsize+1);
-            # Frame auflösen:
+            # Frame auflÃ¶sen:
             FREE_JMPBUF_on_SP(); skipSP(2);
             skipSTACK(2);
-            # Dummy-Werte für 'unwind_protect_to_save':
+            # Dummy-Werte fÃ¼r 'unwind_protect_to_save':
             pushSP((aint)NULL); # NULL -> uwp_jmpback
             pushSP(byteptr - CODEPTR);
-            pushSP((aint)STACK); # Pointer übern Frame zusätzlich auf den SP
+            pushSP((aint)STACK); # Pointer Ã¼bern Frame zusÃ¤tzlich auf den SP
             # alle Werte auf den Stack:
             mv_to_STACK();
-            # Cleanup-Formen ausführen:
+            # Cleanup-Formen ausfÃ¼hren:
             byteptr = CODEPTR + index;
           }
           goto next_byte;
         # ------------------- (14) HANDLER-BIND -----------------------
         CASE cod_handler_open:           # (HANDLER-OPEN n)
-          # belegt 4 STACK-Einträge
+          # belegt 4 STACK-EintrÃ¤ge
           {
             var uintL n;
             U_operand(n);
             # Frame aufbauen:
-            var object* top_of_frame = STACK; # Pointer übern Frame
+            var object* top_of_frame = STACK; # Pointer Ã¼bern Frame
             pushSTACK(TheCclosure(closure)->clos_consts[n]);
             pushSTACK(closure);
             pushSTACK(as_object((aint)(_SP_(0))));
@@ -7875,13 +7875,13 @@ LISPFUNN(subr_info,1)
             var uintL count = posfixnum_to_L(Car(handler_args.spdepth))
                               + jmpbufsize * posfixnum_to_L(Cdr(handler_args.spdepth));
             if (count > 0) {
-              var SPint* oldsp = handler_args.sp; # war früher &SP_(0)
+              var SPint* oldsp = handler_args.sp; # war frÃ¼her &SP_(0)
               # oldsp[0..count-1] auf den jetzigen SP kopieren:
               oldsp skipSPop count;
               dotimespL(count,count, { oldsp skipSPop -1; pushSP(*oldsp); } );
             }
           }
-          pushSP((aint)handler_args.stack); # Pointer übern Handler-Frame
+          pushSP((aint)handler_args.stack); # Pointer Ã¼bern Handler-Frame
           value1 = handler_args.condition; mv_count=1;
           pushSTACK(value1);
           goto next_byte;
@@ -8007,7 +8007,7 @@ LISPFUNN(subr_info,1)
             # Cons anfordern:
             var object new_cons;
             with_saved_context( { new_cons = allocate_cons(); } );
-            # Cons füllen:
+            # Cons fÃ¼llen:
             Cdr(new_cons) = popSTACK();
             Car(new_cons) = popSTACK();
             value1 = new_cons; mv_count=1;
@@ -8019,7 +8019,7 @@ LISPFUNN(subr_info,1)
             # Cons anfordern:
             var object new_cons;
             with_saved_context( { new_cons = allocate_cons(); } );
-            # Cons füllen:
+            # Cons fÃ¼llen:
             Cdr(new_cons) = popSTACK();
             Car(new_cons) = STACK_0;
             STACK_0 = new_cons;
@@ -8032,7 +8032,7 @@ LISPFUNN(subr_info,1)
             # Cons anfordern:
             var object new_cons;
             with_saved_context( { new_cons = allocate_cons(); } );
-            # Cons füllen:
+            # Cons fÃ¼llen:
             Car(new_cons) = popSTACK();
             var object* arg_ = &STACK_(n);
             Cdr(new_cons) = *arg_;
@@ -8085,7 +8085,7 @@ LISPFUNN(subr_info,1)
         csf_unbound:
           # (symbol zwar evtl. nicht der eigentliche Funktionsname, denn
           # z.B. (FUNCTION FOO) wird in (SYMBOL-FUNCTION '#:|(SETF FOO)|)
-          # umgewandelt, aber für die Fehlermeldung reicht das wohl.)
+          # umgewandelt, aber fÃ¼r die Fehlermeldung reicht das wohl.)
           fehler_undefined(S(symbol_function),symbol);
         }
         {var object vec; var object index;
@@ -8094,7 +8094,7 @@ LISPFUNN(subr_info,1)
           if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
           vec = popSTACK(); # Simple-Vector
           index = value1;
-          # und der Index muss ein Fixnum >=0, <Länge(vec) sein:
+          # und der Index muss ein Fixnum >=0, <LÃ¤nge(vec) sein:
           {
             var uintL i;
             if (!(posfixnump(index) &&
@@ -8110,7 +8110,7 @@ LISPFUNN(subr_info,1)
           if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
           vec = popSTACK(); # Simple-Vector
           index = value1;
-          # und der Index muss ein Fixnum >=0, <Länge(vec) sein:
+          # und der Index muss ein Fixnum >=0, <LÃ¤nge(vec) sein:
           {
             var uintL i;
             if (!(posfixnump(index) &&
@@ -8126,12 +8126,12 @@ LISPFUNN(subr_info,1)
         svref_kein_index: # unpassender Index in index, zum Vektor vec
           pushSTACK(vec);
           pushSTACK(index);
-          pushSTACK(index); # Wert für Slot DATUM von TYPE-ERROR
+          pushSTACK(index); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
           {
             var object tmp;
             pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(Svector_length(vec)));
             tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-            pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+            pushSTACK(tmp); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
           }
           pushSTACK(STACK_(1+2)); # vec
           pushSTACK(STACK_(0+3)); # index
@@ -8209,7 +8209,7 @@ LISPFUNN(subr_info,1)
         CASE cod_callsr_store:           # (CALLSR&STORE m n k)
           CALLSR();
           goto store;
-        # Incrementieren. Speziell optimiert für Fixnums >=0.
+        # Incrementieren. Speziell optimiert fÃ¼r Fixnums >=0.
         #define INC(arg,statement)  \
           { if (posfixnump(arg) # Fixnum >= 0 und < most-positive-fixnum ? \
                 && !eq(arg,fixnum(bitm(oint_data_len)-1))                  \
@@ -8221,7 +8221,7 @@ LISPFUNN(subr_info,1)
                   );                                                       \
                 arg = value1;                                              \
           }   }
-        # Decrementieren. Speziell optimiert für Fixnums >=0.
+        # Decrementieren. Speziell optimiert fÃ¼r Fixnums >=0.
         #define DEC(arg,statement)  \
           { if (posfixnump(arg) && !eq(arg,Fixnum_0)) # Fixnum > 0 ? \
               { arg = fixnum_inc(arg,-1); statement; }               \
@@ -8323,7 +8323,7 @@ LISPFUNN(subr_info,1)
             with_saved_context({
               apply(fun,n,value1); # Funktion aufrufen
               skipSTACK(k+1); # Funktion u.a. aus dem Stack streichen
-              goto finished; # Rücksprung zum Aufrufer
+              goto finished; # RÃ¼cksprung zum Aufrufer
             }); # der Kontext wird nicht restauriert
           }
         CASE cod_funcall_skip_retgf:     # (FUNCALL&SKIP&RETGF n k)
@@ -8343,7 +8343,7 @@ LISPFUNN(subr_info,1)
               } else {
                 skipSTACK(k+1); funcall(value1,r);
               }
-              goto finished; # Rücksprung zum Aufrufer
+              goto finished; # RÃ¼cksprung zum Aufrufer
             }); # der Kontext wird nicht restauriert
           }
         # ------------------- (17) Kurzcodes -----------------------
@@ -8779,8 +8779,8 @@ LISPFUNN(subr_info,1)
     }
 
 
-# wo ist check_SP() oder check_STACK() einzufügen??
-# soll nest_env sein Ziel-Environment übergeben bekommen??
+# wo ist check_SP() oder check_STACK() einzufÃ¼gen??
+# soll nest_env sein Ziel-Environment Ã¼bergeben bekommen??
 # Register-Allozierung in eval_subr und eval_cclosure usw.??
 # subr_self eliminieren??
 

@@ -1,4 +1,4 @@
-# Ein Ersatz für die GNU readline()-Library.
+# Ein Ersatz fÃ¼r die GNU readline()-Library.
 # Bruno Haible 1992-1999
 
 # These are the only things we need from lispbibl.c :

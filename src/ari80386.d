@@ -2,9 +2,9 @@
 # Prozessor: 80386 im native mode
 # Assembler-Syntax: GNU oder SUN, Moves von links nach rechts
 # Compiler: GNU-C oder SUN-C
-# Parameter-Übergabe: auf dem Stack 4(%esp),8(%esp),...
-# Register: %eax,%edx,%ecx dürfen stets verändert werden, alles andere retten.
-# Ergebnis-Übergabe: in %eax
+# Parameter-Ãœbergabe: auf dem Stack 4(%esp),8(%esp),...
+# Register: %eax,%edx,%ecx dÃ¼rfen stets verÃ¤ndert werden, alles andere retten.
+# Ergebnis-Ãœbergabe: in %eax
 # Einstellungen: intCsize=32, intDsize=32.
 
 # Bruno Haible 1992-1999
@@ -61,7 +61,7 @@
     #endif
   #endif
   #if defined(__EMX__)
-    # Direction-Flag ist defaultmäßig gelöscht
+    # Direction-Flag ist defaultmÃ¤ÃŸig gelÃ¶scht
     #define dir0start
     #define dir0end
     #define dir1start  std
@@ -160,11 +160,11 @@ C(copy_loop_up:)
             movl    8(%esp),%edi    # %edi = destptr
             movl    12(%esp),%ecx   # %ecx = count
             dir0start
-            rep ; movsl             # %ecx mal aufwärts (%edi) := (%esi)
+            rep ; movsl             # %ecx mal aufwÃ¤rts (%edi) := (%esi)
             dir0end
-            movl    %eax,%esi       # %esi zurück
+            movl    %eax,%esi       # %esi zurÃ¼ck
             movl    %edi,%eax       # %edi als Ergebnis
-            movl    %edx,%edi       # %edi zurück
+            movl    %edx,%edi       # %edi zurÃ¼ck
             ret
 
 # extern uintD* copy_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
@@ -178,11 +178,11 @@ C(copy_loop_down:)
             leal    -4(%esi),%esi
             leal    -4(%edi),%edi
             dir1start
-            rep ; movsl             # %ecx mal abwärts (%edi) := (%esi)
+            rep ; movsl             # %ecx mal abwÃ¤rts (%edi) := (%esi)
             dir1end
-            movl    %eax,%esi       # %esi zurück
+            movl    %eax,%esi       # %esi zurÃ¼ck
             leal    4(%edi),%eax    # %edi als Ergebnis
-            movl    %edx,%edi       # %edi zurück
+            movl    %edx,%edi       # %edi zurÃ¼ck
             ret
 
 # extern uintD* fill_loop_up (uintD* destptr, uintC count, uintD filler);
@@ -193,10 +193,10 @@ C(fill_loop_up:)
             movl    8(%esp),%ecx    # %ecx = count
             movl    12(%esp),%eax   # %eax = filler
             dir0start
-            rep ; stosl             # %ecx mal aufwärts (%edi) := %eax
+            rep ; stosl             # %ecx mal aufwÃ¤rts (%edi) := %eax
             dir0end
             movl    %edi,%eax       # %edi als Ergebnis
-            movl    %edx,%edi       # %edi zurück
+            movl    %edx,%edi       # %edi zurÃ¼ck
             ret
 
 # extern uintD* fill_loop_down (uintD* destptr, uintC count, uintD filler);
@@ -208,10 +208,10 @@ C(fill_loop_down:)
             movl    12(%esp),%eax   # %eax = filler
             leal    -4(%edi),%edi
             dir1start
-            rep ; stosl             # %ecx mal abwärts (%edi) := %eax
+            rep ; stosl             # %ecx mal abwÃ¤rts (%edi) := %eax
             dir1end
             leal    4(%edi),%eax    # %edi als Ergebnis
-            movl    %edx,%edi       # %edi zurück
+            movl    %edx,%edi       # %edi zurÃ¼ck
             ret
 
 # extern uintD* clear_loop_up (uintD* destptr, uintC count);
@@ -222,10 +222,10 @@ C(clear_loop_up:)
             movl    8(%esp),%ecx    # %ecx = count
             xorl    %eax,%eax       # %eax = 0
             dir0start
-            rep ; stosl             # %ecx mal aufwärts (%edi) := %eax
+            rep ; stosl             # %ecx mal aufwÃ¤rts (%edi) := %eax
             dir0end
             movl    %edi,%eax       # %edi als Ergebnis
-            movl    %edx,%edi       # %edi zurück
+            movl    %edx,%edi       # %edi zurÃ¼ck
             ret
 
 # extern uintD* clear_loop_down (uintD* destptr, uintC count);
@@ -237,10 +237,10 @@ C(clear_loop_down:)
             leal    -4(%edi),%edi
             xorl    %eax,%eax       # %eax = 0
             dir1start
-            rep ; stosl             # %ecx mal abwärts (%edi) := %eax
+            rep ; stosl             # %ecx mal abwÃ¤rts (%edi) := %eax
             dir1end
             leal    4(%edi),%eax    # %edi als Ergebnis
-            movl    %edx,%edi       # %edi zurück
+            movl    %edx,%edi       # %edi zurÃ¼ck
             ret
 
 # extern void or_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -257,7 +257,7 @@ L(olu1:)      movl    (%edx,%esi),%eax # *yptr
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
               jnz     L(olu1)
-L(olu2:)    popl    %esi            # %esi zurück
+L(olu2:)    popl    %esi            # %esi zurÃ¼ck
             ret
 
 # extern void xor_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -274,7 +274,7 @@ L(xlu1:)      movl    (%edx,%esi),%eax # *yptr
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
               jnz     L(xlu1)
-L(xlu2:)    popl    %esi            # %esi zurück
+L(xlu2:)    popl    %esi            # %esi zurÃ¼ck
             ret
 
 # extern void and_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -291,7 +291,7 @@ L(alu1:)      movl    (%edx,%esi),%eax # *yptr
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
               jnz     L(alu1)
-L(alu2:)    popl    %esi            # %esi zurück
+L(alu2:)    popl    %esi            # %esi zurÃ¼ck
             ret
 
 # extern void eqv_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -310,7 +310,7 @@ L(elu1:)      movl    (%edx),%eax      # *xptr
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
               jnz     L(elu1)
-L(elu2:)    popl    %esi            # %esi zurück
+L(elu2:)    popl    %esi            # %esi zurÃ¼ck
             ret
 
 # extern void nand_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -329,7 +329,7 @@ L(nalu1:)     movl    (%edx),%eax      # *xptr
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
               jnz     L(nalu1)
-L(nalu2:)   popl    %esi            # %esi zurück
+L(nalu2:)   popl    %esi            # %esi zurÃ¼ck
             ret
 
 # extern void nor_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -348,7 +348,7 @@ L(nolu1:)     movl    (%edx),%eax      # *xptr
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
               jnz     L(nolu1)
-L(nolu2:)   popl    %esi            # %esi zurück
+L(nolu2:)   popl    %esi            # %esi zurÃ¼ck
             ret
 
 # extern void andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -366,7 +366,7 @@ L(aclu1:)     movl    (%edx,%esi),%eax # *yptr
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
               jnz     L(aclu1)
-L(aclu2:)   popl    %esi            # %esi zurück
+L(aclu2:)   popl    %esi            # %esi zurÃ¼ck
             ret
 
 # extern void orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -384,7 +384,7 @@ L(oclu1:)     movl    (%edx,%esi),%eax # *yptr
               leal    4(%edx),%edx     # xptr++, yptr++
               decl    %ecx
               jnz     L(oclu1)
-L(oclu2:)   popl    %esi            # %esi zurück
+L(oclu2:)   popl    %esi            # %esi zurÃ¼ck
             ret
 
 # extern void not_loop_up (uintD* xptr, uintC count);
@@ -416,7 +416,7 @@ L(atlu1:)     movl    (%edx,%esi),%eax # *yptr
               decl    %ecx
               jnz     L(atlu1)
 L(atlu2:)   xorl    %eax,%eax       # Ergebnis 0
-L(atlu3:)   popl    %esi            # %esi zurück
+L(atlu3:)   popl    %esi            # %esi zurÃ¼ck
             ret
 
 # extern boolean test_loop_up (uintD* ptr, uintC count);
@@ -428,13 +428,13 @@ C(test_loop_up:)
             xorl    %eax,%eax       # %eax = 0
             dir0start
             repz ; scasl            # Falls %ecx > 0:
-                                    # %ecx mal aufwärts (%edi) testen
+                                    # %ecx mal aufwÃ¤rts (%edi) testen
                                     # und weiterschleifen, falls Z, d.h. (%edi)=0.
             dir0end
             # Noch ist %eax = 0.
             jz      L(tlu1)         # alles =0 -> Ergebnis 0
             incl    %eax            # Ergebnis 1
-L(tlu1:)    movl    %edx,%edi       # %edi zurück
+L(tlu1:)    movl    %edx,%edi       # %edi zurÃ¼ck
             ret
 
 # extern signean compare_loop_up (uintD* xptr, uintD* yptr, uintC count);
@@ -447,15 +447,15 @@ C(compare_loop_up:)
             movl    12(%esp),%ecx   # %ecx = count
             dir0start
             repz ; cmpsl            # Falls %ecx > 0:
-                                    # %ecx mal aufwärts (%edi) und (%esi) vergleichen
+                                    # %ecx mal aufwÃ¤rts (%edi) und (%esi) vergleichen
                                     # und weiterschleifen, falls Z, d.h. (%edi)=(%esi).
             dir0end
             # Flags -> Ergebnis:
             # Z,NC -> bis zum Schluss (%esi)-(%edi) = 0 -> x=y -> Ergebnis 0
-            # NZ,C -> schließlich (%esi)-(%edi) < 0 -> x<y -> Ergebnis -1
-            # NZ,NC -> schließlich (%esi)-(%edi) > 0 -> x>y -> Ergebnis +1
-            movl    %eax,%edi       # %edi zurück
-            movl    %edx,%esi       # %esi zurück
+            # NZ,C -> schlieÃŸlich (%esi)-(%edi) < 0 -> x<y -> Ergebnis -1
+            # NZ,NC -> schlieÃŸlich (%esi)-(%edi) > 0 -> x>y -> Ergebnis +1
+            movl    %eax,%edi       # %edi zurÃ¼ck
+            movl    %edx,%esi       # %esi zurÃ¼ck
             jbe     L(cmlu1)        # "be" = Z oder C
             movl    $1,%eax         # Ergebnis +1
             ret
@@ -473,7 +473,7 @@ C(add_loop_down:)
             movl    24(%esp),%ecx   # %ecx = count
             subl    %edi,%edx
             subl    %edi,%esi
-            orl     %ecx,%ecx       # %ecx = 0 ?, Carry löschen
+            orl     %ecx,%ecx       # %ecx = 0 ?, Carry lÃ¶schen
             jz      L(ald2)
 L(ald1:)      leal    -4(%edi),%edi   # sourceptr1--, sourceptr2--, destptr--
               movl    (%edx,%edi),%eax # *sourceptr1
@@ -482,8 +482,8 @@ L(ald1:)      leal    -4(%edi),%edi   # sourceptr1--, sourceptr2--, destptr--
               decl    %ecx
               jnz     L(ald1)
 L(ald2:)    sbbl    %eax,%eax      # Ergebnis := - Carry
-            popl    %edi           # %edi zurück
-            popl    %esi           # %esi zurück
+            popl    %edi           # %edi zurÃ¼ck
+            popl    %esi           # %esi zurÃ¼ck
             ret
 
 # extern uintD addto_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
@@ -494,7 +494,7 @@ C(addto_loop_down:)
             movl    12(%esp),%edi   # %edi = destptr
             movl    16(%esp),%ecx   # %ecx = count
             subl    %edi,%edx
-            orl     %ecx,%ecx       # %ecx = 0 ?, Carry löschen
+            orl     %ecx,%ecx       # %ecx = 0 ?, Carry lÃ¶schen
             jz      L(atld2)
 L(atld1:)     leal    -4(%edi),%edi   # sourceptr--, destptr--
               movl    (%edx,%edi),%eax # *sourceptr
@@ -502,7 +502,7 @@ L(atld1:)     leal    -4(%edi),%edi   # sourceptr--, destptr--
               decl    %ecx
               jnz     L(atld1)
 L(atld2:)   sbbl    %eax,%eax       # Ergebnis := - Carry
-            popl    %edi            # %edi zurück
+            popl    %edi            # %edi zurÃ¼ck
             ret
 
 # extern uintD inc_loop_down (uintD* ptr, uintC count);
@@ -532,7 +532,7 @@ C(sub_loop_down:)
             movl    24(%esp),%ecx   # %ecx = count
             subl    %edi,%edx
             subl    %edi,%esi
-            orl     %ecx,%ecx       # %ecx = 0 ?, Carry löschen
+            orl     %ecx,%ecx       # %ecx = 0 ?, Carry lÃ¶schen
             jz      L(sld2)
 L(sld1:)      leal    -4(%edi),%edi   # sourceptr1--, sourceptr2--, destptr--
               movl    (%edx,%edi),%eax # *sourceptr1
@@ -541,8 +541,8 @@ L(sld1:)      leal    -4(%edi),%edi   # sourceptr1--, sourceptr2--, destptr--
               decl    %ecx
               jnz     L(sld1)
 L(sld2:)    sbbl    %eax,%eax      # Ergebnis := - Carry
-            popl    %edi           # %edi zurück
-            popl    %esi           # %esi zurück
+            popl    %edi           # %edi zurÃ¼ck
+            popl    %esi           # %esi zurÃ¼ck
             ret
 
 # extern uintD subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
@@ -567,12 +567,12 @@ L(sxld1:)     leal    -4(%edi),%edi   # sourceptr1--, sourceptr2--, destptr--
               decl    %ecx
               jnz     L(sxld1)
             sbbl    %eax,%eax      # Ergebnis := - Carry
-            popl    %edi           # %edi zurück
-            popl    %esi           # %esi zurück
+            popl    %edi           # %edi zurÃ¼ck
+            popl    %esi           # %esi zurÃ¼ck
             ret
 L(sxld2:)   movl    28(%esp),%eax  # Ergebnis := carry
-            popl    %edi           # %edi zurück
-            popl    %esi           # %esi zurück
+            popl    %edi           # %edi zurÃ¼ck
+            popl    %esi           # %esi zurÃ¼ck
             ret
 
 # extern uintD subfrom_loop_down (uintD* sourceptr, uintD* destptr, uintC count);
@@ -583,7 +583,7 @@ C(subfrom_loop_down:)
             movl    12(%esp),%edi   # %edi = destptr
             movl    16(%esp),%ecx   # %ecx = count
             subl    %edi,%edx
-            orl     %ecx,%ecx       # %ecx = 0 ?, Carry löschen
+            orl     %ecx,%ecx       # %ecx = 0 ?, Carry lÃ¶schen
             jz      L(sfld2)
 L(sfld1:)     leal    -4(%edi),%edi   # sourceptr--, destptr--
               movl    (%edx,%edi),%eax # *sourceptr
@@ -591,7 +591,7 @@ L(sfld1:)     leal    -4(%edi),%edi   # sourceptr--, destptr--
               decl    %ecx
               jnz     L(sfld1)
 L(sfld2:)   sbbl    %eax,%eax       # Ergebnis := - Carry
-            popl    %edi            # %edi zurück
+            popl    %edi            # %edi zurÃ¼ck
             ret
 
 # extern uintD dec_loop_down (uintD* ptr, uintC count);
@@ -641,7 +641,7 @@ L(nld5:)    movl    $-1,%eax        # Ergebnis := -1
 C(shift1left_loop_down:)
             movl    4(%esp),%edx    # %edx = ptr
             movl    8(%esp),%ecx    # %ecx = count
-            orl     %ecx,%ecx       # %ecx = 0 ?, Carry löschen
+            orl     %ecx,%ecx       # %ecx = 0 ?, Carry lÃ¶schen
             jz      L(s1lld2)
             nop ; nop ; nop ; nop
 L(s1lld1:)    leal    -4(%edx),%edx   # ptr--
@@ -688,13 +688,13 @@ L(slld1:)     # weiteres Digit shiften:
               jnz     L(slld1)
 L(slld2:)   movl    %eax,%ebx
 L(slld3:)   xorl    %eax,%eax       # %eax := 0
-            shldl   shcl %ebx,%eax  # %eax := höchste %cl=i Bits von %ebx
-            popl    %ebx            # %ebx zurück
-            popl    %edi            # %edi zurück
+            shldl   shcl %ebx,%eax  # %eax := hÃ¶chste %cl=i Bits von %ebx
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
             ret
 L(slld4:)   movl    24(%esp),%eax   # %eax := carry
-            popl    %ebx            # %ebx zurück
-            popl    %edi            # %edi zurück
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
             ret
 
 # extern uintD shiftleftcopy_loop_down (uintD* sourceptr, uintD* destptr, uintC count, uintC i);
@@ -722,7 +722,7 @@ C(shiftleftcopy_loop_down:)
             jz      L(slcld2)
 L(slcld1:)    # weiteres Digit shiften:
               leal    -4(%edi),%edi   # sourceptr--, destptr--
-              movl    (%edi,%esi),%eax # nächstes Digit nach %eax
+              movl    (%edi,%esi),%eax # nÃ¤chstes Digit nach %eax
               shrdl   shcl %eax,%ebx  # %ebx um %cl=32-i Bits rechts shiften, %eax von links reinshiften
               movl    %ebx,(%edi)     # %ebx als *destptr ablegen
               # Letztes Digit in %eax.
@@ -730,7 +730,7 @@ L(slcld1:)    # weiteres Digit shiften:
               jz      L(slcld3)
               # weiteres Digit shiften:
               leal    -4(%edi),%edi   # sourceptr--, destptr--
-              movl    (%edi,%esi),%ebx # nächstes Digit nach %ebx
+              movl    (%edi,%esi),%ebx # nÃ¤chstes Digit nach %ebx
               shrdl   shcl %ebx,%eax  # %eax um %cl=32-i Bits rechts shiften, %ebx von links reinshiften
               movl    %eax,(%edi)     # %eax als *destptr ablegen
               # Letztes Digit in %ebx.
@@ -738,14 +738,14 @@ L(slcld1:)    # weiteres Digit shiften:
               jnz     L(slcld1)
 L(slcld2:)  movl    %ebx,%eax
 L(slcld3:)  shrl    %cl,%eax        # %eax um 32-i Bits nach rechts shiften
-            popl    %ebx            # %ebx zurück
-            popl    %edi            # %edi zurück
-            popl    %esi            # %esi zurück
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
+            popl    %esi            # %esi zurÃ¼ck
             ret
 L(slcld4:)  xorl    %eax,%eax       # %eax := 0
-            popl    %ebx            # %ebx zurück
-            popl    %edi            # %edi zurück
-            popl    %esi            # %esi zurück
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
+            popl    %esi            # %esi zurÃ¼ck
             ret
 
 # extern uintD shift1right_loop_up (uintD* ptr, uintC count, uintD carry);
@@ -799,12 +799,12 @@ L(srlu1:)     # weiteres Digit shiften:
 L(srlu2:)   movl    %eax,%ebx
 L(srlu3:)   xorl    %eax,%eax       # %eax := 0
             shrdl   shcl %ebx,%eax  # %eax := niedrigste %cl=i Bits von %ebx, als Bits 31..32-i
-            popl    %ebx            # %ebx zurück
-            popl    %edi            # %edi zurück
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
             ret
 L(srlu4:)   xorl    %eax,%eax       # %eax := 0
-            popl    %ebx            # %ebx zurück
-            popl    %edi            # %edi zurück
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
             ret
 
 # extern uintD shiftrightsigned_loop_up (uintD* ptr, uintC count, uintC i);
@@ -840,8 +840,8 @@ L(srslu1:)    # weiteres Digit shiften:
 L(srslu2:)  movl    %eax,%ebx
 L(srslu3:)  xorl    %eax,%eax       # %eax := 0
             shrdl   shcl %ebx,%eax  # %eax := niedrigste %cl=i Bits von %ebx, als Bits 31..32-i
-            popl    %ebx            # %ebx zurück
-            popl    %edi            # %edi zurück
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
             ret
 
 # extern uintD shiftrightcopy_loop_up (uintD* sourceptr, uintD* destptr, uintC count, uintC i, uintD carry);
@@ -868,7 +868,7 @@ C(shiftrightcopy_loop_up:)
             jz      L(srcld2)
 L(srcld1:)    # weiteres Digit shiften:
               leal    4(%edi),%edi    # sourceptr++, destptr++
-              movl    (%edi,%esi),%eax # nächstes Digit nach %eax
+              movl    (%edi,%esi),%eax # nÃ¤chstes Digit nach %eax
               shldl   shcl %eax,%ebx  # %ebx um %cl=32-i Bits links shiften, %eax von rechts reinshiften
               movl    %ebx,(%edi)     # %ebx als *destptr ablegen
               # Letztes Digit in %eax.
@@ -876,7 +876,7 @@ L(srcld1:)    # weiteres Digit shiften:
               jz      L(srcld3)
               # weiteres Digit shiften:
               leal    4(%edi),%edi    # sourceptr++, destptr++
-              movl    (%edi,%esi),%ebx # nächstes Digit nach %ebx
+              movl    (%edi,%esi),%ebx # nÃ¤chstes Digit nach %ebx
               shldl   shcl %ebx,%eax  # %eax um %cl=32-i Bits links shiften, %ebx von rechts reinshiften
               movl    %eax,(%edi)     # %eax als *destptr ablegen
               # Letztes Digit in %ebx.
@@ -884,9 +884,9 @@ L(srcld1:)    # weiteres Digit shiften:
               jnz     L(srcld1)
 L(srcld2:)  movl    %ebx,%eax
 L(srcld3:)  shll    %cl,%eax        # %eax um 32-i Bits nach links shiften
-            popl    %ebx            # %ebx zurück
-            popl    %edi            # %edi zurück
-            popl    %esi            # %esi zurück
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
+            popl    %esi            # %esi zurÃ¼ck
             ret
 
 # extern uintD mulusmall_loop_down (uintD digit, uintD* ptr, uintC len, uintD newdigit);
@@ -908,14 +908,14 @@ L(msld1:)     movl    (%edi,%ecx,4),%eax # *ptr
               mull    %ebx               # %edx|%eax := digit * *ptr
               addl    %ebp,%eax          # carry und Low-Teil des Produktes addieren
               movl    $0,%ebp
-              adcl    %edx,%ebp          # Übertrag zum High-Teil %edx dazu, gibt neuen carry
+              adcl    %edx,%ebp          # Ãœbertrag zum High-Teil %edx dazu, gibt neuen carry
               movl    %eax,(%edi,%ecx,4) # Low-Teil als *ptr ablegen
               decl    %ecx               # count--, ptr--
               jnz     L(msld1)
-L(msld2:)   movl    %ebp,%eax       # Ergebnis := letzter Übertrag
-            popl    %ebx            # %ebx zurück
-            popl    %edi            # %edi zurück
-            popl    %ebp            # %ebp zurück
+L(msld2:)   movl    %ebp,%eax       # Ergebnis := letzter Ãœbertrag
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
+            popl    %ebp            # %ebp zurÃ¼ck
             ret
 
 # extern void mulu_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
@@ -938,15 +938,15 @@ L(muld1:)     movl    (%esi,%ecx,4),%eax # *sourceptr
               mull    %ebx               # %edx|%eax := digit * *sourceptr
               addl    %ebp,%eax          # carry und Low-Teil des Produktes addieren
               movl    $0,%ebp
-              adcl    %edx,%ebp          # Übertrag zum High-Teil %edx dazu, gibt neuen carry
+              adcl    %edx,%ebp          # Ãœbertrag zum High-Teil %edx dazu, gibt neuen carry
               movl    %eax,(%edi,%ecx,4) # Low-Teil als *destptr ablegen
               decl    %ecx               # count--, sourceptr--, destptr--
               jnz     L(muld1)
-            movl    %ebp,(%edi)     # letzten Übertrag ablegen
-            popl    %ebx            # %ebx zurück
-            popl    %esi            # %esi zurück
-            popl    %edi            # %edi zurück
-            popl    %ebp            # %ebp zurück
+            movl    %ebp,(%edi)     # letzten Ãœbertrag ablegen
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %esi            # %esi zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
+            popl    %ebp            # %ebp zurÃ¼ck
             ret
 
 # extern uintD muluadd_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
@@ -969,16 +969,16 @@ L(muald1:)    movl    (%esi,%ecx,4),%eax # *sourceptr
               mull    %ebx               # %edx|%eax := digit * *sourceptr
               addl    %ebp,%eax          # carry und Low-Teil des Produktes addieren
               movl    $0,%ebp
-              adcl    %ebp,%edx          # Übertrag zum High-Teil %edx dazu
+              adcl    %ebp,%edx          # Ãœbertrag zum High-Teil %edx dazu
               addl    %eax,(%edi,%ecx,4) # Low-Teil zu *destptr addieren
-              adcl    %edx,%ebp          # zweiten Übertrag zu %edx addieren, gibt neuen carry
+              adcl    %edx,%ebp          # zweiten Ãœbertrag zu %edx addieren, gibt neuen carry
               decl    %ecx               # count--, sourceptr--, destptr--
               jnz     L(muald1)
-            movl    %ebp,%eax       # Ergebnis := letzter Übertrag
-            popl    %ebx            # %ebx zurück
-            popl    %esi            # %esi zurück
-            popl    %edi            # %edi zurück
-            popl    %ebp            # %ebp zurück
+            movl    %ebp,%eax       # Ergebnis := letzter Ãœbertrag
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %esi            # %esi zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
+            popl    %ebp            # %ebp zurÃ¼ck
             ret
 
 # extern uintD mulusub_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
@@ -1001,16 +1001,16 @@ L(musld1:)    movl    (%esi,%ecx,4),%eax # *sourceptr
               mull    %ebx               # %edx|%eax := digit * *sourceptr
               addl    %ebp,%eax          # carry und Low-Teil des Produktes addieren
               movl    $0,%ebp
-              adcl    %ebp,%edx          # Übertrag zum High-Teil %edx dazu
+              adcl    %ebp,%edx          # Ãœbertrag zum High-Teil %edx dazu
               subl    %eax,(%edi,%ecx,4) # Low-Teil von *destptr subtrahieren
-              adcl    %edx,%ebp          # zweiten Übertrag zu %edx addieren, gibt neuen carry
+              adcl    %edx,%ebp          # zweiten Ãœbertrag zu %edx addieren, gibt neuen carry
               decl    %ecx               # count--, sourceptr--, destptr--
               jnz     L(musld1)
-            movl    %ebp,%eax       # Ergebnis := letzter Übertrag
-            popl    %ebx            # %ebx zurück
-            popl    %esi            # %esi zurück
-            popl    %edi            # %edi zurück
-            popl    %ebp            # %ebp zurück
+            movl    %ebp,%eax       # Ergebnis := letzter Ãœbertrag
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %esi            # %esi zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
+            popl    %ebp            # %ebp zurÃ¼ck
             ret
 
 # extern uintD divu_loop_up (uintD digit, uintD* ptr, uintC len);
@@ -1023,15 +1023,15 @@ C(divu_loop_up:)
             movl    20(%esp),%ecx   # %ecx = len
             xorl    %edx,%edx       # %edx = Rest := 0
             jecxz   L(dlu2)         # %ecx = 0 ?
-L(dlu1:)      movl    (%edi),%eax     # nächstes Digit *ptr
+L(dlu1:)      movl    (%edi),%eax     # nÃ¤chstes Digit *ptr
               divl    %ebx            # Division von %edx|%eax durch %ebx
               movl    %eax,(%edi)     # Quotient %eax ablegen, Rest in %edx behalten
               leal    4(%edi),%edi    # ptr++
               decl    %ecx
               jnz     L(dlu1)
 L(dlu2:)    movl    %edx,%eax       # Ergebnis := letzter Rest
-            popl    %ebx            # %ebx zurück
-            popl    %edi            # %edi zurück
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
             ret
 
 # extern uintD divucopy_loop_up (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
@@ -1047,16 +1047,16 @@ C(divucopy_loop_up:)
             xorl    %edx,%edx       # %edx = Rest := 0
             jecxz   L(dclu2)        # %ecx = 0 ?
             subl    %edi,%esi
-L(dclu1:)     movl    (%esi,%edi),%eax # nächstes Digit *ptr
+L(dclu1:)     movl    (%esi,%edi),%eax # nÃ¤chstes Digit *ptr
               divl    %ebx            # Division von %edx|%eax durch %ebx
               movl    %eax,(%edi)     # Quotient %eax ablegen, Rest in %edx behalten
               leal    4(%edi),%edi    # sourceptr++, destptr++
               decl    %ecx
               jnz     L(dclu1)
 L(dclu2:)   movl    %edx,%eax       # Ergebnis := letzter Rest
-            popl    %ebx            # %ebx zurück
-            popl    %esi            # %esi zurück
-            popl    %edi            # %edi zurück
+            popl    %ebx            # %ebx zurÃ¼ck
+            popl    %esi            # %esi zurÃ¼ck
+            popl    %edi            # %edi zurÃ¼ck
             ret
 
 #endif

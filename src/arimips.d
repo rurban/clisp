@@ -2,12 +2,12 @@
 # Prozessor: MIPS
 # Endianness: irrelevant
 # Compiler: GNU-C oder ...
-# Parameter-Übergabe:
+# Parameter-Ãœbergabe:
 #   o32: in Registern $4,$5,$6,$7, und auf dem Stack 16($sp),...
 #   n32: in Registern $4,$5,$6,$7,$8,$9,$10,$11, und auf dem Stack 4($sp),...
-# Rückgabewert: in Register $2
+# RÃ¼ckgabewert: in Register $2
 # Einstellungen: intCsize=32, intDsize=32.
-# Besonderheiten: Nach jedem Ladebefehl ein Wartetakt nötig, bevor der
+# Besonderheiten: Nach jedem Ladebefehl ein Wartetakt nÃ¶tig, bevor der
 #   geholte Wert benutzt werden darf.
 
 #ifdef INCLUDED_FROM_C

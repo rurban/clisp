@@ -1,4 +1,4 @@
-# Hilfsfunktionen für CLISP auf UNIX
+# Hilfsfunktionen fÃ¼r CLISP auf UNIX
 # Bruno Haible 1990-2000
 
 #include "lispbibl.c"
@@ -6,7 +6,7 @@
 # =============================================================================
 
 #ifdef NEED_OWN_UALARM
-# Ein Ersatz für die ualarm-Funktion.
+# Ein Ersatz fÃ¼r die ualarm-Funktion.
   global unsigned int ualarm (unsigned int value, unsigned int interval);
   global unsigned int ualarm(value,interval)
     var unsigned int value;
@@ -18,14 +18,14 @@
       itimer.it_interval.tv_sec = floor(interval,1000000);
       itimer.it_interval.tv_usec = interval % 1000000;
       setitimer(ITIMER_REAL,&itimer,NULL);
-      return 0; # den Rückgabewert ignorieren wir immer.
+      return 0; # den RÃ¼ckgabewert ignorieren wir immer.
     }
 #endif
 
 # =============================================================================
 
 #ifdef NEED_OWN_SELECT
-# Ein Ersatz für die select-Funktion.
+# Ein Ersatz fÃ¼r die select-Funktion.
   global int select (int width, fd_set* readfds, fd_set* writefds, fd_set* exceptfds, struct timeval * timeout);
   global int select(width,readfds,writefds,exceptfds,timeout)
     var int width;
@@ -83,7 +83,7 @@
 # =============================================================================
 
 #ifdef NEED_OWN_GETTIMEOFDAY
-# Ein Ersatz für die gettimeofday-Funktion.
+# Ein Ersatz fÃ¼r die gettimeofday-Funktion.
   global int gettimeofday (struct timeval * tp, struct timezone * tzp);
   global int gettimeofday(tp,tzp)
     var struct timeval * tp;
@@ -199,7 +199,7 @@
 
 #ifdef NEED_OWN_SIGINTERRUPT
 
-# Ein Ersatz für die siginterrupt-Funktion.
+# Ein Ersatz fÃ¼r die siginterrupt-Funktion.
   global int siginterrupt (int sig, int flag);
   #if defined(HAVE_SIGACTION)
     extern_C int sigaction (/* int sig, [const] struct sigaction * new, struct sigaction * old */);
@@ -250,7 +250,7 @@
       }
       sigvec(sig,&sv,(struct sigvec *)NULL);
      #endif
-      return 0; # den Rückgabewert ignorieren wir immer.
+      return 0; # den RÃ¼ckgabewert ignorieren wir immer.
     }
 
 #endif
@@ -724,7 +724,7 @@ global unsigned int usleep (unsigned int useconds)
     var off_t off;
     {
       if (fd < 0) {
-        # Brauche ein Handle auf ein reguläres File.
+        # Brauche ein Handle auf ein regulÃ¤res File.
         var local int regular_fd = -2;
         #define regular_file  "/tmp/lispdummy.mmap"
         if (regular_fd < -1) {
@@ -739,7 +739,7 @@ global unsigned int usleep (unsigned int useconds)
       return mmap(addr,&len,prot,flags|MAP_FILE,fd,off);
     }
 
-# Ein Ersatz für die mprotect-Funktion.
+# Ein Ersatz fÃ¼r die mprotect-Funktion.
   global int mprotect(addr,len,prot)
     var MMAP_ADDR_T addr;
     var MMAP_SIZE_T len;

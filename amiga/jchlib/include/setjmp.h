@@ -1,6 +1,6 @@
 /* Tiny GCC Library
  * setjmp.h
- * Jörg Höhle, 29-Nov-92
+ * JÃ¶rg HÃ¶hle, 29-Nov-92
  */
 
 #ifndef _SETJMP_H_

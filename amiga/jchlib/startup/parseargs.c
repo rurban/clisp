@@ -1,5 +1,5 @@
 /* GCC Library
- * Jörg Höhle, 21-Nov-92
+ * JÃ¶rg HÃ¶hle, 21-Nov-92
  * from parseargs (c) Matthew Dillon
  */
 

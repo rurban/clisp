@@ -1,11 +1,11 @@
-# Sequences für CLISP
+# Sequences fÃ¼r CLISP
 # Bruno Haible 1987-2000
 
 #include "lispbibl.c"
 
 
-# O(seq_types) enthält eine Liste von Typdescriptoren für Sequences.
-# Das sind Simple-Vektoren der Länge 16, mit folgendem Inhalt:
+# O(seq_types) enthÃ¤lt eine Liste von Typdescriptoren fÃ¼r Sequences.
+# Das sind Simple-Vektoren der LÃ¤nge 16, mit folgendem Inhalt:
 #  SEQ-TYPE        ; der Typ der Sequence, meist ein Symbol
 #  Zugriffsfunktionen:
 #  SEQ-INIT
@@ -26,21 +26,21 @@
 
 /*
 
- Erklärung der Einzelfunktionen SEQ-XXX:
+ ErklÃ¤rung der Einzelfunktionen SEQ-XXX:
 
 Ein "Pointer" ist etwas, was durch die Sequence durchlaufen kann.
 Es gibt Pointer, die von links nach rechts laufen;
   sie werden mit INIT oder INIT-START kreiert, mit COPY kopiert,
-             mit UPD um eine Stelle weitergerückt,
+             mit UPD um eine Stelle weitergerÃ¼ckt,
              mit ENDTEST getestet, ob sie am Ende der Sequence angelangt sind,
              mit ACCESS wird das Element, worauf der Pointer zeigt, geholt,
              mit ACCESS-SET wird das Element, worauf der Pointer zeigt, gesetzt.
 Es gibt auch Pointer, die von rechts nach links laufen;
   sie werden mit FE-INIT oder FE-INIT-END kreiert, mit COPY kopiert,
-             mit FE-UPD um eine Stelle nach links weitergerückt,
+             mit FE-UPD um eine Stelle nach links weitergerÃ¼ckt,
              mit FE-ENDTEST getestet, ob sie am Ende der Sequence angelangt sind,
              mit ACCESS wird das Element, worauf der Pointer zeigt, geholt.
-  Für sie funktioniert ACCESS-SET nicht.
+  FÃ¼r sie funktioniert ACCESS-SET nicht.
 
 Durchlaufe-Operationen:
 INIT          (lambda (seq) ...) -> pointer
@@ -48,7 +48,7 @@ INIT          (lambda (seq) ...) -> pointer
 UPD           (lambda (seq pointer) ...) -> pointer
               liefert zu einem Pointer den Pointer eins weiter rechts.
               SEQ-UPD kann voraussetzen, dass dabei der rechte Rand von
-              SEQ nicht überschritten wird.
+              SEQ nicht Ã¼berschritten wird.
 ENDTEST       (lambda (seq pointer) ...) -> boolean
               testet, ob dieser Pointer am rechten Rand von SEQ steht.
 Dasselbe "FROM END" :
@@ -57,7 +57,7 @@ FE-INIT       (lambda (seq) ...) -> pointer
 FE-UPD        (lambda (seq pointer) ...) -> pointer
               liefert zu einem Pointer den Pointer eins weiter links.
               SEQ-FE-UPD kann voraussetzen, dass dabei der linke Rand von
-              SEQ nicht überschritten wird.
+              SEQ nicht Ã¼berschritten wird.
 FE-ENDTEST    (lambda (seq pointer) ...) -> boolean
               testet, ob dieser Pointer am linken Rand von SEQ steht.
 Zugriff mit Pointer:
@@ -69,24 +69,24 @@ ACCESS-SET    (lambda (seq pointer value) ...) ->
               gegebenen Wert. Nur bei von links nach rechts laufenden Pointern!
 COPY          (lambda (pointer) ...) -> pointer
               liefert eine Kopie des Pointers zu SEQ (denn UPD und FE-UPD
-              können destruktiv auf den Pointern arbeiten)
-Gesamtlänge:
+              kÃ¶nnen destruktiv auf den Pointern arbeiten)
+GesamtlÃ¤nge:
 LENGTH        (lambda (seq) ...) -> size
-              liefert die (aktive) Länge der Sequence SEQ.
+              liefert die (aktive) LÃ¤nge der Sequence SEQ.
 MAKE          (lambda (size) ...) -> sequence
               liefert eine neu allozierte, leere Sequence, die vom Typ
-              SEQ-TYPE ist und die angegebene Länge hat.
-Zugriff über Index (meist ineffizienter als über Pointer):
+              SEQ-TYPE ist und die angegebene LÃ¤nge hat.
+Zugriff Ã¼ber Index (meist ineffizienter als Ã¼ber Pointer):
 ELT           (lambda (seq index) ...) -> value
               liefert (ELT SEQ index)
 SET-ELT       (lambda (seq index value) ...) ->
               setzt (ELT SEQ index) auf value.
 INIT-START    (lambda (seq index) ...) -> pointer
               liefert einen nach rechts laufenden Pointer in SEQ
-              ab Position index. Muss den Range-test selbst durchführen.
+              ab Position index. Muss den Range-test selbst durchfÃ¼hren.
 FE-INIT-END   (lambda (seq index) ...) -> pointer
               liefert einen nach links laufenden Pointer in SEQ
-              an Position index. Muss den Range-test selbst durchführen.
+              an Position index. Muss den Range-test selbst durchfÃ¼hren.
 
 */
 
@@ -107,12 +107,12 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 #define seq_init_start(seqdesc)   (TheSvector(seqdesc)->data[14])
 #define seq_fe_init_end(seqdesc)  (TheSvector(seqdesc)->data[15])
 
-# UP: überprüft, ob name ein gültiger Sequence-Typ-Bezeichner ist
-# (sonst Error) und liefert den dazugehörigen Typdescriptor.
+# UP: Ã¼berprÃ¼ft, ob name ein gÃ¼ltiger Sequence-Typ-Bezeichner ist
+# (sonst Error) und liefert den dazugehÃ¶rigen Typdescriptor.
 # valid_type(name)
 # > name: Sequence-Typ-Bezeichner
-# < ergebnis: dazugehöriger Typdescriptor
-# < -(STACK): durch den Typ erzwungene Länge, oder unbound.
+# < ergebnis: dazugehÃ¶riger Typdescriptor
+# < -(STACK): durch den Typ erzwungene LÃ¤nge, oder unbound.
 # can trigger GC
   local object valid_type (object name);
   local object valid_type(name)
@@ -123,13 +123,13 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
       # - ([SIMPLE-]ARRAY [eltype [1 | (dim)]]), (VECTOR [eltype [size]]) ergeben
       #   STRING falls eltype = CHARACTER,
       #   BIT-VECTOR falls eltype = BIT,
-      #   n [steht für (VECTOR (UNSIGNED-BYTE n))] falls eltype = n BIT,
+      #   n [steht fÃ¼r (VECTOR (UNSIGNED-BYTE n))] falls eltype = n BIT,
       #   VECTOR sonst.
       # - (SIMPLE-VECTOR [size]), VECTOR, SIMPLE-VECTOR ergeben VECTOR.
       # - ([SIMPLE-]STRING [size]), [SIMPLE-]STRING ergeben STRING.
       # - ([SIMPLE-]BASE-STRING [size]), [SIMPLE-]BASE-STRING ergeben STRING.
       # - ([SIMPLE-]BIT-VECTOR [size]), [SIMPLE-]BIT-VECTOR ergeben BIT-VECTOR.
-      # - Zusätzlich (nicht sehr schön): [SIMPLE-]ARRAY ergibt VECTOR.
+      # - ZusÃ¤tzlich (nicht sehr schÃ¶n): [SIMPLE-]ARRAY ergibt VECTOR.
       reexpand:
       if (symbolp(name))
         { if (eq(name,S(list))) { goto expanded_unconstrained; }
@@ -149,7 +149,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
                funcall(expander,1); # Expander aufrufen
                name = value1; goto reexpand; # Ergebnis weiterverwenden
           } }
-          goto expanded_unconstrained; # sonstige Symbole können DEFSTRUCT-Typen sein
+          goto expanded_unconstrained; # sonstige Symbole kÃ¶nnen DEFSTRUCT-Typen sein
         }
       elif (consp(name))
         { var object name1 = Car(name);
@@ -212,8 +212,8 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
             list = Cdr(list);
       }   }
     bad_name:
-      pushSTACK(name); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_recognizable_sequence_type)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(name); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_recognizable_sequence_type)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(name);
       fehler(type_error,
              GETTEXT("There are no sequences of type ~")
@@ -278,26 +278,26 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
     { var object typdescr = get_seq_type(seq); # Typdescriptor bestimmen
       if (!(nullp(typdescr))) { return typdescr; } # gefunden -> OK
       # sonst Fehler melden:
-      pushSTACK(seq); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(sequence)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(seq); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(sequence)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(seq);
       fehler(type_error,
              GETTEXT("~ is not a sequence")
             );
     }
 
-# Fehler, wenn der Sequence-Typ eine andere Länge vorgibt als die, die
+# Fehler, wenn der Sequence-Typ eine andere LÃ¤nge vorgibt als die, die
 # herauskommt.
   nonreturning_function(local, fehler_seqtype_length, (object seqtype_length, object computed_length));
   local void fehler_seqtype_length(seqtype_length,computed_length)
     var object seqtype_length;
     var object computed_length;
-    { pushSTACK(computed_length); # Wert für Slot DATUM von TYPE-ERROR
+    { pushSTACK(computed_length); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
       pushSTACK(NIL);
       pushSTACK(computed_length);
       pushSTACK(seqtype_length);
       pushSTACK(S(eql)); pushSTACK(seqtype_length);
-      { var object type = listof(2); STACK_2 = type; } # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      { var object type = listof(2); STACK_2 = type; } # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       fehler(type_error,
              GETTEXT("sequence type forces length ~, but result has length ~")
             );
@@ -309,8 +309,8 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
     var object fun;
     var object kw;
     var object obj;
-    { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+    { pushSTACK(obj); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_posinteger)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       pushSTACK(kw);
       pushSTACK(fun);
@@ -319,29 +319,29 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
             );
     }
 
-# Macro: Trägt NIL als Defaultwert eines Parameters in den Stack ein:
+# Macro: TrÃ¤gt NIL als Defaultwert eines Parameters in den Stack ein:
 # default_NIL(par);
   #define default_NIL(par)  \
     if (eq(par,unbound)) { par = NIL; }
 
-# Macro: Trägt 0 als Defaultwert von START in den Stack ein:
+# Macro: TrÃ¤gt 0 als Defaultwert von START in den Stack ein:
 # start_default_0(start);
   #define start_default_0(start)  \
     if (eq(start,unbound)) { start = Fixnum_0; }
 
-# Macro: Trägt (SEQ-LENGTH sequence) als Defaultwert von END in den Stack ein:
+# Macro: TrÃ¤gt (SEQ-LENGTH sequence) als Defaultwert von END in den Stack ein:
 # end_default_len(end,seq,typdescr);
 # can trigger GC
   #define end_default_len(end,seq,typdescr)  \
     if (eq(end,unbound) || eq(end,NIL))              \
-      { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet! \
+      { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefÃ¤hrdet! \
         var object lengthfun = seq_length(typdescr); \
         pushSTACK(seq); funcall(lengthfun,1);        \
         end = value1;                                \
         subr_self = old_subr_self;                   \
       }
 
-# UP: Überprüft START- und END- Argumente
+# UP: ÃœberprÃ¼ft START- und END- Argumente
 # > subr_self: Aufrufer (ein SUBR)
 # > kwptr: kwptr[0] = START-Keyword,
 #          kwptr[1] = END-Keyword
@@ -371,7 +371,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
         }
     }}
 
-# UP: Überprüft START- und END- Argumente (END-Argument evtl. NIL)
+# UP: ÃœberprÃ¼ft START- und END- Argumente (END-Argument evtl. NIL)
 # > subr_self: Aufrufer (ein SUBR)
 # > kwptr: kwptr[0] = START-Keyword,
 #          kwptr[1] = END-Keyword
@@ -418,7 +418,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 # can trigger GC
   #define decrement(var)  (var = I_minus1_plus_I(var)) # var := (1- var)
 
-# Macro: Rückt einen Vorwärts-Pointer (im Stack) weiter.
+# Macro: RÃ¼ckt einen VorwÃ¤rts-Pointer (im Stack) weiter.
 # pointer_update(pointer,sequence,typdescr);
 # pointer muss von der Form STACK_i sein!
 # can trigger GC
@@ -430,7 +430,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
       pointer = value1; # =: pointer                     \
     }
 
-# Macro: Rückt einen Rückwärts-Pointer (im Stack) weiter.
+# Macro: RÃ¼ckt einen RÃ¼ckwÃ¤rts-Pointer (im Stack) weiter.
 # pointer_fe_update(pointer,sequence,typdescr);
 # pointer muss von der Form STACK_i sein!
 # can trigger GC
@@ -463,7 +463,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 # > STACK_2: count (ein Integer >=0)
 # > STACK_1: pointer1
 # > STACK_0: pointer2
-# kopiert count Elemente von sequence1 nach sequence2 und rückt dabei
+# kopiert count Elemente von sequence1 nach sequence2 und rÃ¼ckt dabei
 # pointer1 und pointer2 um count Stellen weiter (mit SEQ-UPD), setzt count:=0.
 # can trigger GC
   local void copy_seqpart_into (void);
@@ -504,7 +504,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
           pushSTACK(STACK_(6+0)); # seq1
           pushSTACK(STACK_(1+1)); # pointer1
           funcall(seq_access(STACK_(5+2)),2);
-          # (SEQ2-ACCESS-SET seq2 pointer2 ...) ausführen:
+          # (SEQ2-ACCESS-SET seq2 pointer2 ...) ausfÃ¼hren:
           pushSTACK(STACK_(4+0)); # seq2
           pushSTACK(STACK_(0+1)); # pointer2
           pushSTACK(value1);
@@ -527,24 +527,24 @@ LISPFUNN(sequencep,1)
 
 LISPFUNN(defseq,1)
 # (SYSTEM::%DEFSEQ typdescr) erweitert die Liste der Sequencetypen um
-# typdescr (muss ein Simple-Vector der Länge 16 sein).
+# typdescr (muss ein Simple-Vector der LÃ¤nge 16 sein).
   { # (list typdescr) bilden:
     var object new_cons = allocate_cons();
     Car(new_cons) = STACK_0;
     # (nconc SEQ_TYPES (list typdescr)) bilden:
     Cdr(new_cons) = nreverse(O(seq_types)); # (nreverse SEQ_TYPES)
     O(seq_types) = nreverse(new_cons);
-    # Typ (als Symbol) zurück:
+    # Typ (als Symbol) zurÃ¼ck:
     value1 = seq_type(popSTACK()); mv_count=1;
   }
 
 LISPFUNN(elt,2) # (ELT sequence index), CLTL S. 248
-  { # sequence überprüfen:
+  { # sequence Ã¼berprÃ¼fen:
     var object typdescr = get_valid_seq_type(STACK_1);
-    # index überprüfen:
+    # index Ã¼berprÃ¼fen:
     if (!(posfixnump(STACK_0)))
-      { pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      { pushSTACK(STACK_0); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_posfixnum)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(0+2)); pushSTACK(S(elt));
         fehler(type_error,
                GETTEXT("~: the index should be a fixnum >=0, not ~")
@@ -556,12 +556,12 @@ LISPFUNN(elt,2) # (ELT sequence index), CLTL S. 248
   }
 
 LISPFUNN(setelt,3) # (SYSTEM::%SETELT sequence index value), vgl. CLTL S. 248
-  { # sequence überprüfen:
+  { # sequence Ã¼berprÃ¼fen:
     var object typdescr = get_valid_seq_type(STACK_2);
-    # index überprüfen:
+    # index Ã¼berprÃ¼fen:
     if (!(posfixnump(STACK_1)))
-      { pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      { pushSTACK(STACK_1); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_posfixnum)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(1+2)); pushSTACK(S(elt)); pushSTACK(S(setf));
         fehler(type_error,
                GETTEXT("~ ~: the index should be a fixnum >=0, not ~")
@@ -576,29 +576,29 @@ LISPFUNN(setelt,3) # (SYSTEM::%SETELT sequence index value), vgl. CLTL S. 248
     skipSTACK(2);
   }
 
-# UP: Kopiert ein sequence1 - Teilstück in sequence2 hinein
+# UP: Kopiert ein sequence1 - TeilstÃ¼ck in sequence2 hinein
 # und liefert sequence2 als Wert.
 # copy_seqpart_onto()
 # > Stackaufbau: seq1, typdescr1, seq2, typdescr2, count, pointer1
-# < STACK: aufgeräumt
-# < Wert: gefüllte seq2
+# < STACK: aufgerÃ¤umt
+# < Wert: gefÃ¼llte seq2
   local Values copy_seqpart_onto (void);
   local Values copy_seqpart_onto()
     { # Stackaufbau: seq1, typdescr1, seq2, typdescr2, count, pointer1.
       pushSTACK(STACK_3); funcall(seq_init(STACK_(2+1)),1); # (SEQ2-INIT seq2)
       pushSTACK(value1);
       # Stackaufbau: seq1, typdescr1, seq2, typdescr2, count, pointer1, pointer2.
-      copy_seqpart_into(); # Teilstück von seq1 nach seq2 kopieren
+      copy_seqpart_into(); # TeilstÃ¼ck von seq1 nach seq2 kopieren
       value1 = STACK_4; mv_count=1; # seq2 als Wert
       skipSTACK(7);
     }
 
-# UP: Liefert ein neu alloziertes sequence-Teilstück als Wert.
+# UP: Liefert ein neu alloziertes sequence-TeilstÃ¼ck als Wert.
 # subseq()
 # > Stackaufbau: sequence, start, end, typdescr,
-#   mit überprüften Argumenten (start,end Integers >=0, start<=end)
-# < STACK: aufgeräumt
-# < Wert: Kopie des angegebenen Teilstücks von sequence
+#   mit Ã¼berprÃ¼ften Argumenten (start,end Integers >=0, start<=end)
+# < STACK: aufgerÃ¤umt
+# < Wert: Kopie des angegebenen TeilstÃ¼cks von sequence
   local Values subseq (void);
   local Values subseq()
     { STACK_1 = I_I_minus_I(STACK_1,STACK_2); # count := (- end start)
@@ -619,34 +619,34 @@ LISPFUNN(setelt,3) # (SYSTEM::%SETELT sequence index value), vgl. CLTL S. 248
 LISPFUN(subseq,2,1,norest,nokey,0,NIL)
 # (SUBSEQ sequence start &optional end), CLTL S. 248
   { # Stackaufbau: sequence, start, end.
-    # sequence überprüfen:
+    # sequence Ã¼berprÃ¼fen:
     var object typdescr = get_valid_seq_type(STACK_2);
     pushSTACK(typdescr);
     # Stackaufbau: sequence, start, end, typdescr.
-    # Defaultwert für end ist (length sequence):
+    # Defaultwert fÃ¼r end ist (length sequence):
     if (eq(STACK_1,unbound)
         #ifdef X3J13_149
         || nullp(STACK_1)
         #endif
        )
-      { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
+      { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefÃ¤hrdet!
         # end nicht angegeben -> muss end:=(length sequence) setzen:
         pushSTACK(STACK_3); funcall(seq_length(typdescr),1); # (SEQ-LENGTH sequence)
         STACK_1 = value1;
         subr_self = old_subr_self;
       }
     # Stackaufbau: sequence, start, end, typdescr.
-    # Start- und End-Argumente überprüfen:
+    # Start- und End-Argumente Ã¼berprÃ¼fen:
     test_start_end(&O(kwpair_start),&STACK_1);
-    # Teilstück bilden:
+    # TeilstÃ¼ck bilden:
     return_Values subseq();
   }
 
 # UP: Kopiert sequence1 in sequence2 hinein und liefert sequence2 als Wert.
 # copy_seq_onto()
 # > Stackaufbau: seq1, typdescr1, seq2, typdescr2, len
-# < STACK: aufgeräumt
-# < Wert: gefüllte seq2
+# < STACK: aufgerÃ¤umt
+# < Wert: gefÃ¼llte seq2
   local Values copy_seq_onto (void);
   local Values copy_seq_onto()
     { # Stackaufbau: seq1, typdescr1, seq2, typdescr2, len.
@@ -658,7 +658,7 @@ LISPFUN(subseq,2,1,norest,nokey,0,NIL)
 
 LISPFUNN(copy_seq,1) # (COPY-SEQ sequence), CLTL S. 248
   { # Stackaufbau: sequence.
-    # sequence überprüfen:
+    # sequence Ã¼berprÃ¼fen:
     var object typdescr = get_valid_seq_type(STACK_0);
     pushSTACK(typdescr);
     # Stackaufbau: sequence, typdescr.
@@ -675,19 +675,19 @@ LISPFUNN(length,1) # (LENGTH sequence), CLTL S. 248
   { var object arg = popSTACK();
     if (consp(arg))
       { # arg ist ein Cons
-        value1 = fixnum(llength(arg)); # Listenlänge als Fixnum
+        value1 = fixnum(llength(arg)); # ListenlÃ¤nge als Fixnum
         mv_count=1;
         return;
       }
     elif (symbolp(arg))
       { # arg ist ein Symbol
         if (nullp(arg))
-          { value1 = Fixnum_0; mv_count=1; # NIL hat als Liste die Länge 0
+          { value1 = Fixnum_0; mv_count=1; # NIL hat als Liste die LÃ¤nge 0
             return;
       }   } # sonstige Symbole sind keine Sequences
     elif (vectorp(arg))
       { # arg ist ein Vektor
-        value1 = fixnum(vector_length(arg)); # Vektorlänge als Fixnum
+        value1 = fixnum(vector_length(arg)); # VektorlÃ¤nge als Fixnum
         mv_count=1;
         return;
       }
@@ -699,8 +699,8 @@ LISPFUNN(length,1) # (LENGTH sequence), CLTL S. 248
         return;
       }
     # arg ist keine Sequence
-    pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-    pushSTACK(S(sequence)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+    pushSTACK(arg); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+    pushSTACK(S(sequence)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(arg); pushSTACK(S(length));
     fehler(type_error,
            GETTEXT("~: ~ is not a sequence")
@@ -744,7 +744,7 @@ LISPFUNN(reverse,1) # (REVERSE sequence), CLTL S. 248
             # (SEQ-ACCESS seq1 pointer1) bilden:
             pushSTACK(STACK_5); pushSTACK(STACK_(1+1));
             funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS seq1 pointer1)
-            # (SEQ-ACCESS-SET seq2 pointer2 ...) ausführen:
+            # (SEQ-ACCESS-SET seq2 pointer2 ...) ausfÃ¼hren:
             pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); pushSTACK(value1);
             funcall(seq_access_set(STACK_(4+3)),3); # (SEQ-ACCESS-SET seq2 pointer2 ...)
             # pointer1 := (SEQ-FE-UPD seq1 pointer1) :
@@ -800,10 +800,10 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
             # (SEQ-ACCESS seq pointer2) bilden:
             pushSTACK(STACK_(4+1)); pushSTACK(STACK_(0+1+1));
             funcall(seq_access(STACK_(3+1+2)),2); # (SEQ-ACCESS seq pointer2)
-            # (SEQ-ACCESS-SET seq pointer1 ...) ausführen:
+            # (SEQ-ACCESS-SET seq pointer1 ...) ausfÃ¼hren:
             pushSTACK(STACK_(4+1)); pushSTACK(STACK_(1+1+1)); pushSTACK(value1);
             funcall(seq_access_set(STACK_(3+1+3)),3); # (SEQ-ACCESS-SET seq pointer1 ...)
-            # (SEQ-ACCESS-SET seq pointer2 ...) ausführen:
+            # (SEQ-ACCESS-SET seq pointer2 ...) ausfÃ¼hren:
            {var object element1 = popSTACK(); # gerettetes ELement
             pushSTACK(STACK_4); pushSTACK(STACK_(0+1)); pushSTACK(element1); }
             funcall(seq_access_set(STACK_(3+3)),3); # (SEQ-ACCESS-SET seq pointer2 ...)
@@ -830,13 +830,13 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
                   );
           }
         {var uintL len = posfixnum_to_L(value1); # len
-         # Grundidee: Um eine Sequence mit len Elementen umzudrehen, müssen
+         # Grundidee: Um eine Sequence mit len Elementen umzudrehen, mÃ¼ssen
          # der linke und der rechte Block mit je floor(len/2) Elementen
          # vertauscht und dann einzeln umgedreht werden (rekursiv!); das
-         # mittlere Element (bei ungeradem len) bleibt unverändert.
+         # mittlere Element (bei ungeradem len) bleibt unverÃ¤ndert.
          # Entrekursivierter Algorithmus:
-         # Für j=0,1,2,... sind 2^j mal zwei (fast) adjazente Blöcke
-         # der Länge k2=floor(len/2^(j+1)) zu vertauschen.
+         # FÃ¼r j=0,1,2,... sind 2^j mal zwei (fast) adjazente BlÃ¶cke
+         # der LÃ¤nge k2=floor(len/2^(j+1)) zu vertauschen.
          var uintL j = 0; # j := 0
          var uintL k = len; # k = floor(len/2^j) := len
          var uintL k2; # k2 = floor(k/2)
@@ -855,7 +855,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
              # pointer1 und pointer2 laufen gemeinsam durch seq, dabei hat
              # pointer2 einen Vorsprung von k1.
              loop
-               { # Zwei Blöcke der Länge k2 = floor(len/2^(j+1)) vertauschen:
+               { # Zwei BlÃ¶cke der LÃ¤nge k2 = floor(len/2^(j+1)) vertauschen:
                  {var uintL i = k2; # i:=k2 >0
                   do { # (SEQ-ACCESS seq pointer1) bilden:
                        pushSTACK(STACK_3); pushSTACK(STACK_(1+1));
@@ -864,10 +864,10 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
                        # (SEQ-ACCESS seq pointer2) bilden:
                        pushSTACK(STACK_(3+1)); pushSTACK(STACK_(0+1+1));
                        funcall(seq_access(STACK_(2+1+2)),2); # (SEQ-ACCESS seq pointer2)
-                       # (SEQ-ACCESS-SET seq pointer1 ...) ausführen:
+                       # (SEQ-ACCESS-SET seq pointer1 ...) ausfÃ¼hren:
                        pushSTACK(STACK_(3+1)); pushSTACK(STACK_(1+1+1)); pushSTACK(value1);
                        funcall(seq_access_set(STACK_(2+1+3)),3); # (SEQ-ACCESS-SET seq pointer1 ...)
-                       # (SEQ-ACCESS-SET seq pointer2 ...) ausführen:
+                       # (SEQ-ACCESS-SET seq pointer2 ...) ausfÃ¼hren:
                       {var object element1 = popSTACK(); # gerettetes ELement
                        pushSTACK(STACK_3); pushSTACK(STACK_(0+1)); pushSTACK(element1); }
                        funcall(seq_access_set(STACK_(2+3)),3); # (SEQ-ACCESS-SET seq pointer2 ...)
@@ -881,7 +881,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
                  }
                  pstack = pstack+1; # stack:=stack+1
                  if (pstack == (1UL<<j)) break; # stack=2^j geworden -> Schleifenabbruch
-                 # pointer1 und pointer2 um k1+(0 oder 1) Stellen weiterrücken:
+                 # pointer1 und pointer2 um k1+(0 oder 1) Stellen weiterrÃ¼cken:
                  { var uintL skipcount = k1;
                    { var uintL r1 = 1;
                      # r := Anzahl der Nullbits am Ende der Dualdarstellung von stack:
@@ -913,24 +913,24 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
 LISPFUN(make_sequence,2,0,norest,key,2,\
         (kw(initial_element),kw(update)) )
 # (MAKE-SEQUENCE type size [:initial-element] [:update]), CLTL S. 249
-# mit zusätzlichem Argument :update, z.B.
+# mit zusÃ¤tzlichem Argument :update, z.B.
 # (make-sequence 'vector 5 :initial-element 3 :update #'1+) ==> #(3 4 5 6 7)
   { # Stackaufbau: type, size, initial-element, updatefun.
-    # type überprüfen:
+    # type Ã¼berprÃ¼fen:
     var object typdescr = valid_type(STACK_3);
     # Stackaufbau: type, size, initial-element, updatefun, type-len.
     STACK_4 = typdescr;
-    # size überprüfen, muss Integer >=0 sein:
+    # size Ã¼berprÃ¼fen, muss Integer >=0 sein:
    {var object size = STACK_3;
     if (!(integerp(size) && positivep(size)))
-      { pushSTACK(size); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      { pushSTACK(size); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_posinteger)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(size); pushSTACK(S(make_sequence));
         fehler(type_error,
                GETTEXT("~: size should be an integer >=0, not ~")
               );
       }
-    # initial-element bei Strings defaultmäßig ergänzen:
+    # initial-element bei Strings defaultmÃ¤ÃŸig ergÃ¤nzen:
     if (eq(STACK_2,unbound)) # :initial-element nicht angegeben?
       { if (!eq(STACK_1,unbound)) # :update ohne :initial-element -> Error
           { pushSTACK(S(make_sequence));
@@ -993,7 +993,7 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
     var object result_type;
     { pushSTACK(sequence);
       pushSTACK(result_type);
-      { # result-type überprüfen:
+      { # result-type Ã¼berprÃ¼fen:
         var object typdescr2 = valid_type(result_type);
         pushSTACK(typdescr2);
         # Stackaufbau: seq1, result-type, typdescr2-len, typdescr2.
@@ -1089,38 +1089,38 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
       type = valid_type(type);
       BEFORE(args_pointer) = type;
     }
-    # args_pointer = Pointer über die Argumente,
-    # rest_args_pointer = Pointer über die argcount Sequence-Argumente.
+    # args_pointer = Pointer Ã¼ber die Argumente,
+    # rest_args_pointer = Pointer Ã¼ber die argcount Sequence-Argumente.
     # Stackaufbau: [args_pointer] typdescr2,
     #              [rest_args_pointer] {sequence}, result-type-len, [STACK].
-    # Brauche 2*argcount STACK-Einträge:
+    # Brauche 2*argcount STACK-EintrÃ¤ge:
     get_space_on_STACK(sizeof(object) * 2*(uintL)argcount);
    {var object* behind_args_pointer = args_end_pointer; # Pointer unter die Argumente
     # Stackaufbau: [args_pointer] typdescr2,
     #              [rest_args_pointer] {sequence}, result-type-len, [behind_args_pointer].
-    # Typdescriptoren und Längen bestimmen und im STACK ablegen:
+    # Typdescriptoren und LÃ¤ngen bestimmen und im STACK ablegen:
     if (argcount > 0)
       { var object* ptr = rest_args_pointer;
         var uintC count;
         dotimespC(count,argcount,
-          { var object seq = NEXT(ptr); # nächste Sequence
+          { var object seq = NEXT(ptr); # nÃ¤chste Sequence
             var object typdescr = get_valid_seq_type(seq);
             pushSTACK(typdescr); # Typdescriptor in den Stack
             pushSTACK(seq); funcall(seq_length(typdescr),1); # (SEQ-LENGTH seq)
-            pushSTACK(value1); # Länge in den Stack
+            pushSTACK(value1); # LÃ¤nge in den Stack
           });
       }
     # Stackaufbau: [args_pointer] typdescr2,
     #              [rest_args_pointer] {sequence}, result-type-len,
     #              [behind_args_pointer] {typdescr, len}, [STACK].
-    # Längen addieren:
+    # LÃ¤ngen addieren:
     { var object total_length = Fixnum_0;
       if (argcount > 0)
         { var object* ptr = behind_args_pointer;
           var uintC count;
           dotimespC(count,argcount,
-            { NEXT(ptr); # typdescr überspringen
-             {var object len = NEXT(ptr); # nächste Länge
+            { NEXT(ptr); # typdescr Ã¼berspringen
+             {var object len = NEXT(ptr); # nÃ¤chste LÃ¤nge
               if (!(posfixnump(len)))
                 { pushSTACK(len); pushSTACK(S(concatenate));
                   fehler(error,
@@ -1157,11 +1157,11 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
     #              [rest_args_pointer] {sequence}, result-type-len,
     #              [behind_args_pointer] {typdescr, len},
     #              NIL, NIL, seq2, typdescr2, NIL, NIL, pointer2, [STACK].
-    # Schleife über die argcount Sequences: in seq2 hineinkopieren
+    # Schleife Ã¼ber die argcount Sequences: in seq2 hineinkopieren
     dotimesC(argcount,argcount,
-      { STACK_6 = NEXT(rest_args_pointer); # seq1 = nächste Sequence
+      { STACK_6 = NEXT(rest_args_pointer); # seq1 = nÃ¤chste Sequence
         STACK_5 = NEXT(behind_args_pointer); # deren typdescr1
-        STACK_2 = NEXT(behind_args_pointer); # deren Länge
+        STACK_2 = NEXT(behind_args_pointer); # deren LÃ¤nge
         pushSTACK(STACK_6); funcall(seq_init(STACK_(5+1)),1); # (SEQ1-INIT seq1)
         STACK_1 = value1; # =: pointer1
         # Stackaufbau: [args_pointer] typdescr2,
@@ -1172,14 +1172,14 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
         copy_seqpart_into(); # ganze seq1 in die seq2 hineinkopieren
       });
     value1 = STACK_4; mv_count=1; # seq2 als Wert
-    set_args_end_pointer(args_pointer); # STACK aufräumen
+    set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen
   }}
 
-# UP: Läuft durch eine Sequence durch und ruft für jedes Element eine Funktion
+# UP: LÃ¤uft durch eine Sequence durch und ruft fÃ¼r jedes Element eine Funktion
 # auf.
 # map_sequence(obj,fun,arg);
 # > obj: Objekt, sollte eine Sequence sein
-# > fun: Funktion, fun(arg,element) darf GC auslösen
+# > fun: Funktion, fun(arg,element) darf GC auslÃ¶sen
 # > arg: beliebiges vorgegebenes Argument
 # can trigger GC
   global void map_sequence (object obj, map_sequence_function* fun, void* arg);
@@ -1208,16 +1208,16 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
       skipSTACK(3);
     }
 
-# UP: führt eine Boolesche Operation mit Prädikat wie SOME oder EVERY aus.
+# UP: fÃ¼hrt eine Boolesche Operation mit PrÃ¤dikat wie SOME oder EVERY aus.
 # > Stackaufbau: [args_pointer] ... predicate sequence,
 #                [rest_args_pointer] {sequence} [STACK].
 # > fun: Routine, die das predicate-Ergebnis abtestet und
-#        TRUE liefert (und in value1 ihr Ergebnis hinterlässt),
+#        TRUE liefert (und in value1 ihr Ergebnis hinterlÃ¤sst),
 #        falls vorzeitig herausgesprungen werden soll.
 # > argcount: Anzahl der Sequence-Argumente - 1
 # > default: Defaultwert am Schluss
 # < 1 Wert: wie von fun beim Hinausspringen vorgegeben, oder default.
-# < STACK: aufgeräumt (= args_pointer beim Einsprung)
+# < STACK: aufgerÃ¤umt (= args_pointer beim Einsprung)
 # can trigger GC
   typedef boolean seq_boolop_fun (object pred_ergebnis);
   local Values seq_boolop (seq_boolop_fun* boolop_fun,
@@ -1236,26 +1236,26 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
         if (!(symbolp(predicate)
               || subrp(predicate) || closurep(predicate) || ffunctionp(predicate)
            ) )
-          { pushSTACK(predicate); # Wert für Slot DATUM von TYPE-ERROR
-            pushSTACK(S(function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          { pushSTACK(predicate); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+            pushSTACK(S(function)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(predicate);
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,
                    GETTEXT("~: ~ is not a function")
                   );
       }   }
-      # rest_args_pointer zeigt jetzt über alle argcount+1 Sequence-Argumente
+      # rest_args_pointer zeigt jetzt Ã¼ber alle argcount+1 Sequence-Argumente
       pushSTACK(defolt); # Defaultwert retten
-      # 3*(argcount+1) Plätze auf dem STACK beanspruchen:
-      # (2mal für Typdescriptoren und Pointer, 1mal für Funktionsaufruf)
+      # 3*(argcount+1) PlÃ¤tze auf dem STACK beanspruchen:
+      # (2mal fÃ¼r Typdescriptoren und Pointer, 1mal fÃ¼r Funktionsaufruf)
       get_space_on_STACK(sizeof(object)*3*(uintL)(argcount+1));
-     {var object* typdescr_pointer = args_end_pointer; # Pointer über die Typdescriptoren
+     {var object* typdescr_pointer = args_end_pointer; # Pointer Ã¼ber die Typdescriptoren
       # Typdescriptoren und je einen Pointer zu jeder der argcount+1
       # Sequences bestimmen und im STACK ablegen:
       { var object* ptr = rest_args_pointer;
         var uintC count;
         dotimespC(count,argcount+1,
-          { var object seq = NEXT(ptr); # nächste Sequence
+          { var object seq = NEXT(ptr); # nÃ¤chste Sequence
             var object typdescr = get_valid_seq_type(seq);
             pushSTACK(typdescr); # Typdescriptor im STACK ablegen
             pushSTACK(seq); funcall(seq_init(typdescr),1); # (SEQ-INIT sequence)
@@ -1270,8 +1270,8 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
       loop
         { var object* ptr1 = rest_args_pointer;
           var object* ptr2 = typdescr_pointer;
-          # ptr1 läuft von oben durch die Sequences durch,
-          # ptr2 läuft von oben durch die Typdescr/Pointer durch.
+          # ptr1 lÃ¤uft von oben durch die Sequences durch,
+          # ptr2 lÃ¤uft von oben durch die Typdescr/Pointer durch.
           var uintC count;
           dotimespC(count,argcount+1,
             { var object* sequence_ = &NEXT(ptr1);
@@ -1279,7 +1279,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
               var object* pointer_ = &NEXT(ptr2);
               # (SEQ-ENDTEST sequence pointer) :
               pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_endtest(*typdescr_),2);
-              # eine der Sequences zu Ende -> große Schleife beenden:
+              # eine der Sequences zu Ende -> groÃŸe Schleife beenden:
               if (!(nullp(value1))) goto end_with_default;
               # (SEQ-ACCESS sequence pointer) :
               pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_access(*typdescr_),2);
@@ -1304,39 +1304,39 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
         }
       end_with_value1:
         mv_count=1; # 1 Wert
-        set_args_end_pointer(args_pointer); # STACK aufräumen
+        set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen
     }}
 
-# Hilfsfunktion für MAP:
+# Hilfsfunktion fÃ¼r MAP:
   local boolean boolop_nothing (object pred_ergebnis);
   local boolean boolop_nothing(pred_ergebnis)
     var object pred_ergebnis;
-    { return FALSE; } # nie vorzeitig zurückkehren
+    { return FALSE; } # nie vorzeitig zurÃ¼ckkehren
 
 LISPFUN(map,3,0,rest,nokey,0,NIL)
 # (MAP result-type function sequence {sequence}), CLTL S. 249
   { var object* args_pointer = rest_args_pointer STACKop 3;
-    # args_pointer = Pointer über die Argumente,
-    # rest_args_pointer = Pointer über die argcount weiteren Sequence-Argumente.
+    # args_pointer = Pointer Ã¼ber die Argumente,
+    # rest_args_pointer = Pointer Ã¼ber die argcount weiteren Sequence-Argumente.
     var object* result_type_ = &Next(args_pointer);
     # result_type_ zeigt in den STACK, auf result-type.
     if (!(nullp(*result_type_)))
       # allgemeines result-type
       { BEFORE(rest_args_pointer);
-        # rest_args_pointer zeigt jetzt über alle argcount+1 Sequence-Argumente
-        # 4*(argcount+1) Plätze auf dem STACK beanspruchen:
-        # (3mal für Typdescriptoren und Pointer, 1mal für Funktionsaufruf)
+        # rest_args_pointer zeigt jetzt Ã¼ber alle argcount+1 Sequence-Argumente
+        # 4*(argcount+1) PlÃ¤tze auf dem STACK beanspruchen:
+        # (3mal fÃ¼r Typdescriptoren und Pointer, 1mal fÃ¼r Funktionsaufruf)
         get_space_on_STACK(sizeof(object)*4*(uintL)(argcount+1));
-        # result-type überprüfen:
+        # result-type Ã¼berprÃ¼fen:
         *result_type_ = valid_type(*result_type_);
-       {var object* typdescr_pointer = args_end_pointer; # Pointer über die Typdescriptoren
+       {var object* typdescr_pointer = args_end_pointer; # Pointer Ã¼ber die Typdescriptoren
         # Typdescriptoren und je zwei Pointer zu jeder der argcount+1
         # Sequences bestimmen und im STACK ablegen:
         { var object* ptr = rest_args_pointer;
           var uintC count;
           dotimespC(count,argcount+1,
             { var object* sequence_ = &NEXT(ptr);
-              var object seq = *sequence_; # nächste Sequence
+              var object seq = *sequence_; # nÃ¤chste Sequence
               var object typdescr = get_valid_seq_type(seq);
               pushSTACK(typdescr); # Typdescriptor im STACK ablegen
               pushSTACK(seq); funcall(seq_init(typdescr),1); # (SEQ-INIT sequence)
@@ -1349,14 +1349,14 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
         #         [args_pointer] *result_type_ = typdescr2, function,
         #         [rest_args_pointer] {sequence}, result-type-len,
         #         [typdescr_pointer] {typdescr, pointer, pointer}, [STACK].
-        # Minimale Länge aller Sequences bestimmen, indem jeweils mit dem
+        # Minimale LÃ¤nge aller Sequences bestimmen, indem jeweils mit dem
         # zweiten Pointer durchgelaufen wird:
         pushSTACK(Fixnum_0); # minlength:=0
         loop
           { var object* ptr1 = rest_args_pointer;
             var object* ptr2 = typdescr_pointer;
-            # ptr1 läuft von oben durch die Sequences durch,
-            # ptr2 läuft von oben durch die Typdescr/Pointer durch.
+            # ptr1 lÃ¤uft von oben durch die Sequences durch,
+            # ptr2 lÃ¤uft von oben durch die Typdescr/Pointer durch.
             var uintC count;
             dotimespC(count,argcount+1,
               { var object* sequence_ = &NEXT(ptr1);
@@ -1365,7 +1365,7 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
                {var object* pointer_ = &NEXT(ptr2);
                 # (SEQ-ENDTEST sequence pointer) :
                 pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_endtest(*typdescr_),2);
-                # eine der Sequences zu Ende -> große Schleife beenden:
+                # eine der Sequences zu Ende -> groÃŸe Schleife beenden:
                 if (!(nullp(value1))) goto end_found;
                 # pointer := (SEQ-UPD sequence pointer) :
                 pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_upd(*typdescr_),2);
@@ -1375,7 +1375,7 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
             STACK_0 = fixnum_inc(STACK_0,1); # minlength := minlength+1
           }
         end_found:
-        # STACK_0 = minimale Länge der Sequences
+        # STACK_0 = minimale LÃ¤nge der Sequences
         # Stackaufbau:
         #         [args_pointer] *result_type_ = typdescr2, function,
         #         [rest_args_pointer] {sequence}, result-type-len,
@@ -1385,7 +1385,7 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
           if (!(eq(result_type_len,unbound) || eql(STACK_0,result_type_len)))
             { fehler_seqtype_length(result_type_len,STACK_0); }
         }
-        # Neue Sequence der Länge size allozieren:
+        # Neue Sequence der LÃ¤nge size allozieren:
         pushSTACK(STACK_0); funcall(seq_make(*result_type_),1); # (SEQ2-MAKE size)
         pushSTACK(value1); # seq2 im STACK ablegen
         pushSTACK(STACK_0); funcall(seq_init(*result_type_),1); # (SEQ2-INIT seq2)
@@ -1399,8 +1399,8 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
         until (eq(STACK_2,Fixnum_0)) # count (ein Integer) = 0 -> fertig
           { var object* ptr1 = rest_args_pointer;
             var object* ptr2 = typdescr_pointer;
-            # ptr1 läuft von oben durch die Sequences durch,
-            # ptr2 läuft von oben durch die Typdescr/Pointer durch.
+            # ptr1 lÃ¤uft von oben durch die Sequences durch,
+            # ptr2 lÃ¤uft von oben durch die Typdescr/Pointer durch.
             var uintC count;
             dotimespC(count,argcount+1,
               { var object* sequence_ = &NEXT(ptr1);
@@ -1418,7 +1418,7 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
             # Alle Sequences abgearbeitet.
             # (FUNCALL function (SEQ-ACCESS sequence pointer) ...) aufrufen:
             funcall(*(result_type_ STACKop -1),argcount+1);
-            # (SEQ2-ACCESS-SET seq2 pointer2 ...) ausführen:
+            # (SEQ2-ACCESS-SET seq2 pointer2 ...) ausfÃ¼hren:
             pushSTACK(STACK_(1+0)); pushSTACK(STACK_(0+1)); pushSTACK(value1);
             funcall(seq_access_set(*result_type_),3);
             # pointer2 := (SEQ2-UPD seq2 pointer2) :
@@ -1427,7 +1427,7 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
             STACK_2 = fixnum_inc(STACK_2,-1);
           }
         value1 = STACK_1; mv_count=1; # seq2 als Wert
-        set_args_end_pointer(args_pointer); # STACK aufräumen
+        set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen
       }}
       else
       # result-type = NIL -> viel einfacher:
@@ -1439,14 +1439,14 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
 LISPFUN(map_into,2,0,rest,nokey,0,NIL)
 # (MAP-INTO result-sequence function {sequence}), CLtL2 S. 395
   { var object* args_pointer = rest_args_pointer STACKop 2;
-    # args_pointer = Pointer über die Argumente,
-    # rest_args_pointer = Pointer über die argcount Sequence-Argumente.
-    # 3*argcount Plätze auf dem STACK beanspruchen:
-    # (2mal für Typdescriptoren und Pointer, 1mal für Funktionsaufruf)
+    # args_pointer = Pointer Ã¼ber die Argumente,
+    # rest_args_pointer = Pointer Ã¼ber die argcount Sequence-Argumente.
+    # 3*argcount PlÃ¤tze auf dem STACK beanspruchen:
+    # (2mal fÃ¼r Typdescriptoren und Pointer, 1mal fÃ¼r Funktionsaufruf)
     get_space_on_STACK(sizeof(object)*3*(uintL)argcount);
     # result-sequence der Einfachheit halber nochmal in den STACK:
     pushSTACK(Next(args_pointer));
-   {var object* typdescr_pointer = args_end_pointer; # Pointer über die Typdescriptoren
+   {var object* typdescr_pointer = args_end_pointer; # Pointer Ã¼ber die Typdescriptoren
     # Typdescriptoren und je einen Pointer zu jeder der argcount+1
     # Sequences bestimmen und im STACK ablegen:
     { var object* ptr = rest_args_pointer;
@@ -1464,13 +1464,13 @@ LISPFUN(map_into,2,0,rest,nokey,0,NIL)
     #         [rest_args_pointer] {sequence}, result-sequence,
     #         [typdescr_pointer] {typdescr, pointer},
     #         result-typdescr, result-pointer, [STACK].
-    # Sooft wie nötig, die Funktion aufrufen, Ergebnis in result-sequence eintragen:
+    # Sooft wie nÃ¶tig, die Funktion aufrufen, Ergebnis in result-sequence eintragen:
     loop
-      { # Test, ob eine weitere Iteration nötig:
+      { # Test, ob eine weitere Iteration nÃ¶tig:
         { var object* ptr1 = rest_args_pointer;
           var object* ptr2 = typdescr_pointer;
-          # ptr1 läuft von oben durch die Sequences durch,
-          # ptr2 läuft von oben durch die Typdescr/Pointer durch.
+          # ptr1 lÃ¤uft von oben durch die Sequences durch,
+          # ptr2 lÃ¤uft von oben durch die Typdescr/Pointer durch.
           var uintC count;
           dotimesC(count,argcount,
             { var object sequence = NEXT(ptr1);
@@ -1478,10 +1478,10 @@ LISPFUN(map_into,2,0,rest,nokey,0,NIL)
               var object pointer = NEXT(ptr2);
               # (SEQ-ENDTEST sequence pointer) :
               pushSTACK(sequence); pushSTACK(pointer); funcall(seq_endtest(typdescr),2);
-              # eine der Sequences zu Ende -> große Schleife beenden:
+              # eine der Sequences zu Ende -> groÃŸe Schleife beenden:
               if (!nullp(value1)) goto end_reached;
             });
-          # result-sequence zu Ende -> große Schleife beenden:
+          # result-sequence zu Ende -> groÃŸe Schleife beenden:
           { var object sequence = NEXT(ptr1);
             var object typdescr = NEXT(ptr2);
             var object pointer = NEXT(ptr2);
@@ -1500,8 +1500,8 @@ LISPFUN(map_into,2,0,rest,nokey,0,NIL)
         # Jetzt die Funktion aufrufen:
         { var object* ptr1 = rest_args_pointer;
           var object* ptr2 = typdescr_pointer;
-          # ptr1 läuft von oben durch die Sequences durch,
-          # ptr2 läuft von oben durch die Typdescr/Pointer durch.
+          # ptr1 lÃ¤uft von oben durch die Sequences durch,
+          # ptr2 lÃ¤uft von oben durch die Typdescr/Pointer durch.
           var uintC count;
           dotimesC(count,argcount,
             { var object* sequence_ = &NEXT(ptr1);
@@ -1518,7 +1518,7 @@ LISPFUN(map_into,2,0,rest,nokey,0,NIL)
           # Alle Sequences abgearbeitet.
           # (FUNCALL function (SEQ-ACCESS sequence pointer) ...) aufrufen:
           funcall(Before(rest_args_pointer),argcount);
-          # (SEQ-ACCESS-SET result-sequence result-pointer ...) ausführen:
+          # (SEQ-ACCESS-SET result-sequence result-pointer ...) ausfÃ¼hren:
           { var object* sequence_ = &NEXT(ptr1);
             var object* typdescr_ = &NEXT(ptr2);
             var object* pointer_ = &NEXT(ptr2);
@@ -1536,10 +1536,10 @@ LISPFUN(map_into,2,0,rest,nokey,0,NIL)
           pushSTACK(result); pushSTACK(STACK_(0+1)); funcall(L(set_fill_pointer),2);
     }   }
     value1 = Next(args_pointer); # result-sequence als Wert
-    set_args_end_pointer(args_pointer); # STACK aufräumen
+    set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen
   }}
 
-# Hilfsfunktion für SOME:
+# Hilfsfunktion fÃ¼r SOME:
   local boolean boolop_some (object pred_ergebnis);
   local boolean boolop_some(pred_ergebnis)
     var object pred_ergebnis;
@@ -1554,7 +1554,7 @@ LISPFUN(some,2,0,rest,nokey,0,NIL)
 # (SOME predicate sequence {sequence}), CLTL S. 250
   { return_Values seq_boolop(&boolop_some,rest_args_pointer STACKop 2,rest_args_pointer,argcount,NIL); }
 
-# Hilfsfunktion für EVERY:
+# Hilfsfunktion fÃ¼r EVERY:
   local boolean boolop_every (object pred_ergebnis);
   local boolean boolop_every(pred_ergebnis)
     var object pred_ergebnis;
@@ -1569,7 +1569,7 @@ LISPFUN(every,2,0,rest,nokey,0,NIL)
 # (EVERY predicate sequence {sequence}), CLTL S. 250
   { return_Values seq_boolop(&boolop_every,rest_args_pointer STACKop 2,rest_args_pointer,argcount,T); }
 
-# Hilfsfunktion für NOTANY:
+# Hilfsfunktion fÃ¼r NOTANY:
   local boolean boolop_notany (object pred_ergebnis);
   local boolean boolop_notany(pred_ergebnis)
     var object pred_ergebnis;
@@ -1584,7 +1584,7 @@ LISPFUN(notany,2,0,rest,nokey,0,NIL)
 # (NOTANY predicate sequence {sequence}), CLTL S. 250
   { return_Values seq_boolop(&boolop_notany,rest_args_pointer STACKop 2,rest_args_pointer,argcount,T); }
 
-# Hilfsfunktion für NOTEVERY:
+# Hilfsfunktion fÃ¼r NOTEVERY:
   local boolean boolop_notevery (object pred_ergebnis);
   local boolean boolop_notevery(pred_ergebnis)
     var object pred_ergebnis;
@@ -1599,7 +1599,7 @@ LISPFUN(notevery,2,0,rest,nokey,0,NIL)
 # (NOTEVERY predicate sequence {sequence}), CLTL S. 250
   { return_Values seq_boolop(&boolop_notevery,rest_args_pointer STACKop 2,rest_args_pointer,argcount,NIL); }
 
-# UP: Überprüft das :KEY-Argument
+# UP: ÃœberprÃ¼ft das :KEY-Argument
 # test_key_arg(stackptr)
 # > *(stackptr-4): optionales Argument
 # < *(stackptr-4): korrekte KEY-Funktion
@@ -1608,7 +1608,7 @@ LISPFUN(notevery,2,0,rest,nokey,0,NIL)
     var object* stackptr;
     { var object key_arg = *(stackptr STACKop -4);
       if (eq(key_arg,unbound) || nullp(key_arg))
-        *(stackptr STACKop -4) = L(identity); # #'IDENTITY als Default für :KEY
+        *(stackptr STACKop -4) = L(identity); # #'IDENTITY als Default fÃ¼r :KEY
     }
 
 # Anwenden eines :KEY-Arguments
@@ -1619,7 +1619,7 @@ LISPFUN(notevery,2,0,rest,nokey,0,NIL)
 # can trigger GC
   #define funcall_key(key)  \
     { var object _key = (key);                                                \
-      if (!eq(_key,L(identity))) # :KEY #'IDENTITY ist sehr häufig, Abkürzung \
+      if (!eq(_key,L(identity))) # :KEY #'IDENTITY ist sehr hÃ¤ufig, AbkÃ¼rzung \
         { pushSTACK(value1); funcall(_key,1); }                               \
     }
 
@@ -1628,17 +1628,17 @@ LISPFUN(reduce,2,0,norest,key,5,\
 # (REDUCE function sequence [:from-end] [:start] [:end] [:key] [:initial-value]),
 # CLTL S. 251, CLTL2 S. 397
   { # Stackaufbau: function, sequence, from-end, start, end, key, initial-value.
-    # sequence überprüfen:
+    # sequence Ã¼berprÃ¼fen:
     pushSTACK(get_valid_seq_type(STACK_5));
     # Stackaufbau: function, sequence, from-end, start, end, key, initial-value,
     #              typdescr.
-    # key überprüfen:
+    # key Ã¼berprÃ¼fen:
     test_key_arg(&STACK_(5+1));
-    # Defaultwert für start ist 0:
+    # Defaultwert fÃ¼r start ist 0:
     start_default_0(STACK_(3+1));
-    # Defaultwert für end ist die Länge der Sequence:
+    # Defaultwert fÃ¼r end ist die LÃ¤nge der Sequence:
     end_default_len(STACK_(2+1),STACK_(5+1),STACK_0);
-    # start- und end-Argumente überprüfen:
+    # start- und end-Argumente Ã¼berprÃ¼fen:
     test_start_end(&O(kwpair_start),&STACK_(2+1));
     # start- und end-Argumente subtrahieren und vergleichen:
     { var object count = I_I_minus_I(STACK_(2+1),STACK_(3+1));
@@ -1684,7 +1684,7 @@ LISPFUN(reduce,2,0,norest,key,5,\
           { pushSTACK(STACK_(0+3)); } # value := initial-value
         # Stackaufbau: function, seq, from-end, start, end, key, initial-value,
         #              typdescr, count, pointer, value.
-        do { # nächstes value berechnen:
+        do { # nÃ¤chstes value berechnen:
              pushSTACK(STACK_(5+4)); pushSTACK(STACK_(1+1));
              funcall(seq_access(STACK_(3+2)),2); # (SEQ-ACCESS seq pointer)
              funcall_key(STACK_(1+4)); # (FUNCALL key (SEQ-ACCESS seq pointer))
@@ -1692,7 +1692,7 @@ LISPFUN(reduce,2,0,norest,key,5,\
              funcall(STACK_(6+4+2),2); # (FUNCALL fun (FUNCALL key (SEQ-ACCESS seq pointer)) value)
              STACK_0 = value1; # =: value
              into_fromend_loop:
-             # pointer weiterrücken:
+             # pointer weiterrÃ¼cken:
              pointer_fe_update(STACK_1,STACK_(5+4),STACK_3);
              # count := (1- count) :
              decrement(STACK_2);
@@ -1723,7 +1723,7 @@ LISPFUN(reduce,2,0,norest,key,5,\
           { pushSTACK(STACK_(0+3)); } # value := initial-value
         # Stackaufbau: function, seq, from-end, start, end, key, initial-value,
         #              typdescr, count, pointer, value.
-        do { # nächstes value berechnen:
+        do { # nÃ¤chstes value berechnen:
              pushSTACK(STACK_(5+4)); pushSTACK(STACK_(1+1));
              funcall(seq_access(STACK_(3+2)),2); # (SEQ-ACCESS seq pointer)
              funcall_key(STACK_(1+4)); # (FUNCALL key (SEQ-ACCESS seq pointer))
@@ -1731,7 +1731,7 @@ LISPFUN(reduce,2,0,norest,key,5,\
              funcall(STACK_(6+4+2),2); # (FUNCALL fun value (FUNCALL key (SEQ-ACCESS seq pointer)))
              STACK_0 = value1; # =: value
              into_fromstart_loop:
-             # pointer weiterrücken:
+             # pointer weiterrÃ¼cken:
              pointer_update(STACK_1,STACK_(5+4),STACK_3);
              # count := (1- count) :
              decrement(STACK_2);
@@ -1745,14 +1745,14 @@ LISPFUN(reduce,2,0,norest,key,5,\
 LISPFUN(fill,2,0,norest,key,2, (kw(start),kw(end)) )
 # (FILL sequence item [:start] [:end]), CLTL S. 252
   { # Stackaufbau: sequence, item, start, end.
-    # sequence überprüfen:
+    # sequence Ã¼berprÃ¼fen:
     pushSTACK(get_valid_seq_type(STACK_3));
     # Stackaufbau: sequence, item, start, end, typdescr.
-    # Defaultwert für start ist 0:
+    # Defaultwert fÃ¼r start ist 0:
     start_default_0(STACK_2);
-    # Defaultwert für end ist die Länge der Sequence:
+    # Defaultwert fÃ¼r end ist die LÃ¤nge der Sequence:
     end_default_len(STACK_1,STACK_4,STACK_0);
-    # start- und end-Argumente überprüfen:
+    # start- und end-Argumente Ã¼berprÃ¼fen:
     test_start_end(&O(kwpair_start),&STACK_1);
     # start- und end-Argumente subtrahieren:
     STACK_1 = I_I_minus_I(STACK_1,STACK_2); # (- end start), ein Integer >=0
@@ -1792,39 +1792,39 @@ LISPFUN(replace,2,0,norest,key,4,\
 # (REPLACE sequence1 sequence2 [:start1] [:end1] [:start2] [:end2]),
 # CLTL S. 252
   { # Methode (schematisch):
-    # Argumente überprüfen.
+    # Argumente Ã¼berprÃ¼fen.
     # Anzahl der zu kopierenden Elemente bestimmen:
     #   count1 := (- end1 start1), count2 := (- end2 start2).
     #   count1 < count2  ->  count := count1, end2 := (+ start2 count).
     #   count1 > count2  ->  count := count2, #| end1 := (+ start1 count) |# .
     # Nun ist (= count #|(- end1 start1)|# (- end2 start2)).
     # Falls sequence1 und sequence2 EQ sind, die Indexbereiche sich
-    # überschneiden (also nicht (or (>= start2 end1) (>= start1 end2)) gilt)
+    # Ã¼berschneiden (also nicht (or (>= start2 end1) (>= start1 end2)) gilt)
     # und nach oben kopiert werden soll (also (< start2 start1) gilt):
-    #   Das Source-Stück aus sequence2 herauskopieren:
+    #   Das Source-StÃ¼ck aus sequence2 herauskopieren:
     #   (unless (or #|(>= start2 end1)|# (>= start1 end2) (>= start2 start1))
     #     (psetq sequence2 (subseq sequence2 start2 end2)
     #            start2    0
     #         #| end2      count |#
     #   ) )
-    # Dann elementweise kopieren: für i=0,1,...
+    # Dann elementweise kopieren: fÃ¼r i=0,1,...
     #   (setf (elt sequence1 (+ start1 i)) (elt sequence2 (+ start2 i))).
     # Stackaufbau: sequence1, sequence2, start1, end1, start2, end2.
-    # sequence1 überprüfen:
+    # sequence1 Ã¼berprÃ¼fen:
     pushSTACK(get_valid_seq_type(STACK_5));
-    # sequence1 überprüfen:
+    # sequence1 Ã¼berprÃ¼fen:
     pushSTACK(get_valid_seq_type(STACK_(4+1)));
     # Stackaufbau: sequence1, sequence2, start1, end1, start2, end2,
     #              typdescr1, typdescr2.
-    # Defaultwert für start1 ist 0:
+    # Defaultwert fÃ¼r start1 ist 0:
     start_default_0(STACK_(3+2));
-    # Defaultwert für end1 ist die Länge von sequence1:
+    # Defaultwert fÃ¼r end1 ist die LÃ¤nge von sequence1:
     end_default_len(STACK_(2+2),STACK_(5+2),STACK_1);
-    # Defaultwert für start2 ist 0:
+    # Defaultwert fÃ¼r start2 ist 0:
     start_default_0(STACK_(1+2));
-    # Defaultwert für end2 ist die Länge von sequence2:
+    # Defaultwert fÃ¼r end2 ist die LÃ¤nge von sequence2:
     end_default_len(STACK_(0+2),STACK_(4+2),STACK_0);
-    # start- und end-Argumente überprüfen:
+    # start- und end-Argumente Ã¼berprÃ¼fen:
     test_start_end(&O(kwpair_start1),&STACK_(2+2));
     test_start_end(&O(kwpair_start2),&STACK_(0+2));
     # count1 bestimmen:
@@ -1845,12 +1845,12 @@ LISPFUN(replace,2,0,norest,key,4,\
     # Stackaufbau: sequence1, sequence2, start1, count, start2, end2,
     #              typdescr1, typdescr2.
     # Falls beide Sequences dieselben sind und die Bereiche sich
-    # überschneiden, muss die Source erst herauskopiert werden:
+    # Ã¼berschneiden, muss die Source erst herauskopiert werden:
     if (eq(STACK_(5+2),STACK_(4+2)) # (eq sequence1 sequence2)
         && (I_I_comp(STACK_(1+2),STACK_(3+2))<0) # (< start2 start1)
         && (I_I_comp(STACK_(3+2),STACK_(0+2))<0) # (< start1 end2)
        )
-      { # Stück aus sequence2 herauskopieren:
+      { # StÃ¼ck aus sequence2 herauskopieren:
         pushSTACK(STACK_(4+2)); pushSTACK(STACK_(1+2+1)); pushSTACK(STACK_(0+2+2));
         pushSTACK(STACK_(0+3)); subseq(); # (SUBSEQ sequence2 start2 end2)
         STACK_(4+2) = value1; # =: sequence2
@@ -1859,7 +1859,7 @@ LISPFUN(replace,2,0,norest,key,4,\
       }
     # Stackaufbau: sequence1, sequence2, start1, count, start2, dummy,
     #              typdescr1, typdescr2.
-    # Argumente für copy_seqpart_into auf den Stack legen:
+    # Argumente fÃ¼r copy_seqpart_into auf den Stack legen:
     pushSTACK(STACK_(4+2+0)); pushSTACK(STACK_(0+1));
     pushSTACK(STACK_(5+2+2)); pushSTACK(STACK_(1+3));
     pushSTACK(STACK_(2+2+4));
@@ -1881,73 +1881,73 @@ LISPFUN(replace,2,0,norest,key,4,\
     value1 = popSTACK(); mv_count=1; # sequence1 als Wert
   }
 
-# Unterprogramm zum Ausführen des Tests :TEST
+# Unterprogramm zum AusfÃ¼hren des Tests :TEST
 # up_test(stackptr,x)
 # > *(stackptr-5): die Testfunktion
 # > *(stackptr+1): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: TRUE falls der Test erfÃ¼llt ist, FALSE sonst
 # can trigger GC
   local boolean up_test (const object* stackptr, object x);
   local boolean up_test(stackptr,x)
     var const object* stackptr;
     var object x;
-    { # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
+    { # nach CLTL S. 247 ein (funcall testfun item x) ausfÃ¼hren:
       pushSTACK(*(stackptr STACKop 1)); # item
       pushSTACK(x); # x
       funcall(*(stackptr STACKop -5),2);
       if (nullp(value1)) return FALSE; else return TRUE;
     }
 
-# Unterprogramm zum Ausführen des Tests :TEST-NOT
+# Unterprogramm zum AusfÃ¼hren des Tests :TEST-NOT
 # up_test_not(stackptr,x)
 # > *(stackptr-6): die Testfunktion
 # > *(stackptr+1): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: TRUE falls der Test erfÃ¼llt ist, FALSE sonst
 # can trigger GC
   local boolean up_test_not (const object* stackptr, object x);
   local boolean up_test_not(stackptr,x)
     var const object* stackptr;
     var object x;
-    { # nach CLTL S. 247 ein (not (funcall testfun item x)) ausführen:
+    { # nach CLTL S. 247 ein (not (funcall testfun item x)) ausfÃ¼hren:
       pushSTACK(*(stackptr STACKop 1)); # item
       pushSTACK(x); # x
       funcall(*(stackptr STACKop -6),2);
       if (nullp(value1)) return TRUE; else return FALSE;
     }
 
-# Unterprogramm zum Ausführen des Tests -IF
+# Unterprogramm zum AusfÃ¼hren des Tests -IF
 # up_if(stackptr,x)
-# > *(stackptr+1): das Testprädikat
+# > *(stackptr+1): das TestprÃ¤dikat
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: TRUE falls der Test erfÃ¼llt ist, FALSE sonst
 # can trigger GC
   local boolean up_if (const object* stackptr, object x);
   local boolean up_if(stackptr,x)
     var const object* stackptr;
     var object x;
-    { # nach CLTL S. 247 ein (funcall predicate x) ausführen:
+    { # nach CLTL S. 247 ein (funcall predicate x) ausfÃ¼hren:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
       if (nullp(value1)) return FALSE; else return TRUE;
     }
 
-# Unterprogramm zum Ausführen des Tests -IF-NOT
+# Unterprogramm zum AusfÃ¼hren des Tests -IF-NOT
 # up_if_not(stackptr,x)
-# > *(stackptr+1): das Testprädikat
+# > *(stackptr+1): das TestprÃ¤dikat
 # > x: Argument
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: TRUE falls der Test erfÃ¼llt ist, FALSE sonst
 # can trigger GC
   local boolean up_if_not (const object* stackptr, object x);
   local boolean up_if_not(stackptr,x)
     var const object* stackptr;
     var object x;
-    { # nach CLTL S. 247 ein (not (funcall predicate x)) ausführen:
+    { # nach CLTL S. 247 ein (not (funcall predicate x)) ausfÃ¼hren:
       pushSTACK(x); funcall(*(stackptr STACKop 1),1);
       if (nullp(value1)) return TRUE; else return FALSE;
     }
 
-# UP: Überprüft das :COUNT-Argument
+# UP: ÃœberprÃ¼ft das :COUNT-Argument
 # > STACK_1: optionales Argument
 # > subr_self: Aufrufer (ein SUBR)
 # < STACK_1: korrekter COUNT-Wert: NIL oder ein Integer >=0
@@ -1979,7 +1979,7 @@ LISPFUN(replace,2,0,norest,key,4,\
             );
     }
 
-# UP: Überprüft die :TEST, :TEST-NOT - Argumente
+# UP: ÃœberprÃ¼ft die :TEST, :TEST-NOT - Argumente
 # test_test_args(stackptr)
 # > stackptr: Pointer in den STACK
 # > *(stackptr-5): :TEST-Argument
@@ -1991,7 +1991,7 @@ LISPFUN(replace,2,0,norest,key,4,\
 #       > stackptr: derselbe Pointer in den Stack, *(stackptr+1) = item,
 #         *(stackptr-5) = :test-Argument, *(stackptr-6) = :test-not-Argument,
 #       > x: Argument
-#       < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       < TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
   # up_function sei der Typ der Adresse einer solchen Testfunktion:
   typedef boolean (*up_function) (const object* stackptr, object x);
   local up_function test_test_args (object* stackptr);
@@ -2006,7 +2006,7 @@ LISPFUN(replace,2,0,norest,key,4,\
       if (nullp(test_not_arg))
         # :TEST-NOT wurde nicht angegeben
         { if (nullp(test_arg))
-            *(stackptr STACKop -5) = L(eql); # #'EQL als Default für :TEST
+            *(stackptr STACKop -5) = L(eql); # #'EQL als Default fÃ¼r :TEST
           return(&up_test);
         }
         # :TEST-NOT wurde angegeben
@@ -2032,23 +2032,23 @@ LISPFUN(replace,2,0,norest,key,4,\
   local void seq_prepare_testop (object* stackptr);
   local void seq_prepare_testop(stackptr)
     var object* stackptr;
-    { # sequence überprüfen, typdescr auf den Stack:
+    { # sequence Ã¼berprÃ¼fen, typdescr auf den Stack:
       pushSTACK(get_valid_seq_type(*(stackptr STACKop 0)));
-      # key überprüfen:
+      # key Ã¼berprÃ¼fen:
       test_key_arg(stackptr);
-      # Defaultwert für from-end ist NIL:
+      # Defaultwert fÃ¼r from-end ist NIL:
       default_NIL(*(stackptr STACKop -1));
-      # Defaultwert für start ist 0:
+      # Defaultwert fÃ¼r start ist 0:
       start_default_0(*(stackptr STACKop -2));
-      # Defaultwert für end ist NIL:
+      # Defaultwert fÃ¼r end ist NIL:
       default_NIL(*(stackptr STACKop -3));
-      # start und end überprüfen:
+      # start und end Ã¼berprÃ¼fen:
       test_start_end_1(&O(kwpair_start),&*(stackptr STACKop -3));
     }
 
-# UP: führt eine Sequence-Filter-Operation aus.
+# UP: fÃ¼hrt eine Sequence-Filter-Operation aus.
 # Eine Sequence wird durchlaufen und dabei in einem Bit-Vektor abgespeichert,
-# welche Elemente dem Test genügen. Dann wird eine Routine aufgerufen, die
+# welche Elemente dem Test genÃ¼gen. Dann wird eine Routine aufgerufen, die
 # den Rest erledigt.
 # > Stackaufbau:
 #     ... sequence [stackptr] from-end start end key ... count typdescr [STACK]
@@ -2056,15 +2056,15 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
-#           < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#           < TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
 # > help_fun: Adresse einer Hilfsroutine, die den Rest erledigt.
 #   Spezifiziert durch:
 #       > stackptr: Pointer in den Stack,
 #         *(stackptr+0)=sequence, *(stackptr-2)=start, *(stackptr-3)=end,
 #       > STACK_2: typdescr,
-#       > STACK_1: Länge l der Sequence,
+#       > STACK_1: LÃ¤nge l der Sequence,
 #       > STACK_0: Bit-Vektor bv,
-#       > bvl: Länge des Bit-Vektors (= end - start),
+#       > bvl: LÃ¤nge des Bit-Vektors (= end - start),
 #       > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 #       < ergebnis: Ergebnis
 # > subr_self: Aufrufer (ein SUBR)
@@ -2079,24 +2079,24 @@ LISPFUN(replace,2,0,norest,key,4,\
     var help_function help_fun;
     { # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
       test_count_arg();
-     {var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
+     {var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefÃ¤hrdet!
       # l = (SEQ-LENGTH sequence) bestimmen:
       pushSTACK(*(stackptr STACKop 0)); # sequence
       funcall(seq_length(STACK_(0+1)),1); # (SEQ-LENGTH sequence)
       pushSTACK(value1); # l in den Stack
       subr_self = old_subr_self;
      }
-      # Defaultwert für END ist l:
+      # Defaultwert fÃ¼r END ist l:
       if (nullp(*(stackptr STACKop -3))) # end=NIL ?
         { *(stackptr STACKop -3) = STACK_0; # ja -> end:=l
-          # Dann nochmals start und end überprüfen:
+          # Dann nochmals start und end Ã¼berprÃ¼fen:
           test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
         }
-      # Nun sind alle Argumente überprüft.
+      # Nun sind alle Argumente Ã¼berprÃ¼ft.
       pushSTACK(*(stackptr STACKop 0)); # sequence
       pushSTACK(*(stackptr STACKop -4)); # key
       # (- end start) bestimmen und neuen Bitvektor allozieren:
-     {var uintL bvl; # Bitvektor-Länge
+     {var uintL bvl; # Bitvektor-LÃ¤nge
       var uintL dl = 0; # Anzahl der im Bitvektor gesetzten Bits
       { var object bvsize = I_I_minus_I(*(stackptr STACKop -3),*(stackptr STACKop -2));
         # bvsize = (- end start), ein Integer >=0
@@ -2107,7 +2107,7 @@ LISPFUN(replace,2,0,norest,key,4,\
                    GETTEXT("~: sequence ~ is too long")
                   );
           }
-        bvl = posfixnum_to_L(bvsize); # Länge des Bitvektors als Longword
+        bvl = posfixnum_to_L(bvsize); # LÃ¤nge des Bitvektors als Longword
       }
       pushSTACK(allocate_bit_vector_0(bvl)); # neuer Bitvektor bv
       # Stackaufbau: ... count, typdescr,
@@ -2128,19 +2128,19 @@ LISPFUN(replace,2,0,norest,key,4,\
               if (!(nullp(STACK_(1+4+2))) && eq(STACK_0,Fixnum_0))
                 # count/=NIL und countdown=0 -> Schleife kann abgebrochen werden
                 break;
-              # nächstes Element abtesten:
+              # nÃ¤chstes Element abtesten:
               pushSTACK(STACK_(2+2)); # sequence
               pushSTACK(STACK_(1+1)); # pointer
               funcall(seq_access(STACK_(0+4+2+2)),2); # (SEQ-ACCESS sequence pointer)
               funcall_key(STACK_(1+2)); # (FUNCALL key ...)
               if ((*up_fun)(stackptr,value1)) # Testroutine aufrufen
-                # Test erfüllt
+                # Test erfÃ¼llt
                 { sbvector_bset(STACK_(0+2),bvi); # (setf (sbit bv bvi) 1)
                   dl++; # dl := dl+1, ein gesetztes Bit mehr
                   if (!(nullp(STACK_(1+4+2)))) # falls count/=NIL:
                     { decrement(STACK_0); } # (decf countdown)
                 }
-              # pointer weiterrücken:
+              # pointer weiterrÃ¼cken:
               pointer_fe_update(STACK_1,STACK_(2+2),STACK_(0+4+2));
         }}  }
         else
@@ -2158,19 +2158,19 @@ LISPFUN(replace,2,0,norest,key,4,\
             { if (!(nullp(STACK_(1+4+2))) && eq(STACK_0,Fixnum_0))
                 # count/=NIL und countdown=0 -> Schleife kann abgebrochen werden
                 break;
-              # nächstes Element abtesten:
+              # nÃ¤chstes Element abtesten:
               pushSTACK(STACK_(2+2)); # sequence
               pushSTACK(STACK_(1+1)); # pointer
               funcall(seq_access(STACK_(0+4+2+2)),2); # (SEQ-ACCESS sequence pointer)
               funcall_key(STACK_(1+2)); # (FUNCALL key ...)
               if ((*up_fun)(stackptr,value1)) # Testroutine aufrufen
-                # Test erfüllt
+                # Test erfÃ¼llt
                 { sbvector_bset(STACK_(0+2),bvi); # (setf (sbit bv bvi) 1)
                   dl++; # dl := dl+1, ein gesetztes Bit mehr
                   if (!(nullp(STACK_(1+4+2)))) # falls count/=NIL:
                     { decrement(STACK_0); } # (decf countdown)
                 }
-              # pointer weiterrücken:
+              # pointer weiterrÃ¼cken:
               pointer_update(STACK_1,STACK_(2+2),STACK_(0+4+2));
               bvi++;
         }}  }
@@ -2179,20 +2179,20 @@ LISPFUN(replace,2,0,norest,key,4,\
       #              l, sequence, key, bv [STACK].
       STACK_2 = STACK_0; skipSTACK(2); # bv hochschieben
       # Stackaufbau: ... count, typdescr, l, bv [STACK].
-      value1 = (*help_fun)(stackptr,bvl,dl); # Rest durchführen
+      value1 = (*help_fun)(stackptr,bvl,dl); # Rest durchfÃ¼hren
       mv_count=1; # Ergebnis als Wert
       skipSTACK(2); # l und bv vergessen
     }}
 
-# UP: Hilfsroutine für REMOVE-Funktionen.
+# UP: Hilfsroutine fÃ¼r REMOVE-Funktionen.
 # Bildet zu einer Sequence eine neue Sequence, in der genau die Elemente
 # fehlen, die in einem Bitvektor markiert sind.
 # > stackptr: Pointer in den Stack,
 #   *(stackptr+0)=sequence, *(stackptr-2)=start, *(stackptr-3)=end,
 # > STACK_2: typdescr,
-# > STACK_1: Länge l der Sequence,
+# > STACK_1: LÃ¤nge l der Sequence,
 # > STACK_0: Bit-Vektor bv,
-# > bvl: Länge des Bit-Vektors (= end - start),
+# > bvl: LÃ¤nge des Bit-Vektors (= end - start),
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
@@ -2201,7 +2201,7 @@ LISPFUN(replace,2,0,norest,key,4,\
     var object* stackptr;
     var uintL bvl;
     var uintL dl;
-    { # dl=0 -> sequence unverändert zurückgeben:
+    { # dl=0 -> sequence unverÃ¤ndert zurÃ¼ckgeben:
       if (dl==0) { return *(stackptr STACKop 0); }
       # neue Sequence allozieren:
       pushSTACK(I_I_minus_I(STACK_1,fixnum(dl))); # (- l dl)
@@ -2222,16 +2222,16 @@ LISPFUN(replace,2,0,norest,key,4,\
       # Stackaufbau: typdescr, l, bv, sequence2,
       #              seq1, typdescr1, seq2, typdescr2, start,
       #              pointer1, pointer2.
-      { # Vorderes Teilstück:
+      { # Vorderes TeilstÃ¼ck:
         # Elemente mit Index <start von sequence1 nach sequence2
-        # unverändert übertragen:
+        # unverÃ¤ndert Ã¼bertragen:
         copy_seqpart_into();
       }
-      { # Mittleres Teilstück: sieben.
+      { # Mittleres TeilstÃ¼ck: sieben.
         var uintL bvi = 0;
         until (bvi==bvl)
           { if (!(sbvector_btst(STACK_(1+5+2),bvi))) # (sbit bv bvi) abfragen
-              # Bit ist nicht gesetzt, also Element übernehmen
+              # Bit ist nicht gesetzt, also Element Ã¼bernehmen
               { pushSTACK(STACK_(4+2)); pushSTACK(STACK_(1+1));
                 funcall(seq_access(STACK_(3+2+2)),2); # (SEQ-ACCESS seq1 pointer1)
                 pushSTACK(STACK_(2+2)); pushSTACK(STACK_(0+1)); pushSTACK(value1);
@@ -2243,9 +2243,9 @@ LISPFUN(replace,2,0,norest,key,4,\
             pointer_update(STACK_1,STACK_(4+2),STACK_(3+2));
             bvi++;
       }   }
-      { # Hinteres Teilstück:
+      { # Hinteres TeilstÃ¼ck:
         # Elemente mit Index >=end von sequence1 nach sequence2
-        # unverändert übertragen:
+        # unverÃ¤ndert Ã¼bertragen:
         STACK_(0+2) = I_I_minus_I(STACK_(2+5+2),*(stackptr STACKop -3)); # (- l end)
         copy_seqpart_into();
       }
@@ -2253,15 +2253,15 @@ LISPFUN(replace,2,0,norest,key,4,\
       return popSTACK(); # sequence2 als Ergebnis
     }
 
-# UP: Hilfsroutine für DELETE-Funktionen.
+# UP: Hilfsroutine fÃ¼r DELETE-Funktionen.
 # Entfernt aus einer Sequence genau die Elemente, die in einem Bitvektor
 # markiert sind.
 # > stackptr: Pointer in den Stack,
 #   *(stackptr+0)=sequence, *(stackptr-2)=start, *(stackptr-3)=end,
 # > STACK_2: typdescr,
-# > STACK_1: Länge l der Sequence,
+# > STACK_1: LÃ¤nge l der Sequence,
 # > STACK_0: Bit-Vektor bv,
-# > bvl: Länge des Bit-Vektors (= end - start),
+# > bvl: LÃ¤nge des Bit-Vektors (= end - start),
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
@@ -2270,11 +2270,11 @@ LISPFUN(replace,2,0,norest,key,4,\
     var object* stackptr;
     var uintL bvl;
     var uintL dl;
-    { # dl=0 -> sequence unverändert zurückgeben:
+    { # dl=0 -> sequence unverÃ¤ndert zurÃ¼ckgeben:
       if (dl==0) { return *(stackptr STACKop 0); }
      {var object type = seq_type(STACK_2);
       if (eq(type,S(list))) # Typ LIST ?
-        { # Noch überprüfen, ob sequence wirklich eine Liste ist.
+        { # Noch Ã¼berprÃ¼fen, ob sequence wirklich eine Liste ist.
           # Wegen l >= dl > 0 ist zu testen, ob sequence ein Cons ist.
           if (mconsp(*(stackptr STACKop 0)))
             { # Listen speziell behandeln:
@@ -2282,13 +2282,13 @@ LISPFUN(replace,2,0,norest,key,4,\
               var object* list_ = &whole_list;
               var object list = *list_;
               # Stets list = *list_.
-              # Vorderes Teilstück:
-              # start mal mit list:=Cdr(list) weiterrücken:
+              # Vorderes TeilstÃ¼ck:
+              # start mal mit list:=Cdr(list) weiterrÃ¼cken:
               { var uintL count;
                 dotimesL(count,posfixnum_to_L(*(stackptr STACKop -2)),
                   { list_ = &Cdr(list); list = *list_; });
               }
-              # Mittleres Teilstück:
+              # Mittleres TeilstÃ¼ck:
               # bvl mal ein Bit abfragen und evtl. ein Cons streichen:
               { var uintL bvi = 0;
                 until (bvi==bvl)
@@ -2296,7 +2296,7 @@ LISPFUN(replace,2,0,norest,key,4,\
                       # Bit ist =1 -> Cons bei list herausnehmen:
                       { *list_ = list = Cdr(list); }
                       else
-                      # Bit ist =0 -> nur weiterrücken:
+                      # Bit ist =0 -> nur weiterrÃ¼cken:
                       { list_ = &Cdr(list); list = *list_; }
                     bvi++;
               }   }
@@ -2307,7 +2307,7 @@ LISPFUN(replace,2,0,norest,key,4,\
         }
       elif (eq(type,S(vector)) || eq(type,S(string)) || eq(type,S(bit_vector)) || posfixnump(type))
         # Typ [GENERAL-]VECTOR, STRING, BIT-VECTOR, Byte-VECTOR
-        { # Noch überprüfen, ob sequence wirklich ein Vektor ist.
+        { # Noch Ã¼berprÃ¼fen, ob sequence wirklich ein Vektor ist.
           var object sequence = *(stackptr STACKop 0);
           if (!(vectorp(sequence))) { goto other; }
           # Bei Arrays ohne Fill-Pointer kann man nichts Spezielles machen:
@@ -2319,11 +2319,11 @@ LISPFUN(replace,2,0,norest,key,4,\
           pushSTACK(STACK_0); # j := i
           # Stackaufbau: typdescr, l, bv, sequence, i, j.
           # j = Source-Index, i = Destination-Index, start <= i <= j .
-          # Mittleres Teilstück:
+          # Mittleres TeilstÃ¼ck:
           { var uintL bvi = 0;
             until (bvi==bvl)
               { if (!(sbvector_btst(STACK_3,bvi))) # (sbit bv bvi) abfragen
-                  # Bit gelöscht -> Element übertragen:
+                  # Bit gelÃ¶scht -> Element Ã¼bertragen:
                   { # (setf (aref sequence i) (aref sequence j)) :
                     pushSTACK(STACK_2); pushSTACK(STACK_(0+1));
                     funcall(L(aref),2); # (AREF sequence j)
@@ -2336,9 +2336,9 @@ LISPFUN(replace,2,0,norest,key,4,\
                 STACK_0 = fixnum_inc(STACK_0,1);
                 bvi++;
           }   }
-          # Hinteres Teilstück:
+          # Hinteres TeilstÃ¼ck:
           { until (eq(STACK_0,STACK_4)) # solange bis j = l (beides Fixnums)
-              # Element übertragen:
+              # Element Ã¼bertragen:
               { # (setf (aref sequence i) (aref sequence j)) :
                 pushSTACK(STACK_2); pushSTACK(STACK_(0+1));
                 funcall(L(aref),2); # (AREF sequence j)
@@ -2422,43 +2422,43 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
     skipSTACK(2+5+1);
   }
 
-# Unterprogramm zum Ausführen des Tests :TEST
+# Unterprogramm zum AusfÃ¼hren des Tests :TEST
 # up2_test(stackptr,x,y)
 # > *(stackptr-5): die Testfunktion
 # > x,y: Argumente
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: TRUE falls der Test erfÃ¼llt ist, FALSE sonst
 # can trigger GC
   local boolean up2_test (const object* stackptr, object x, object y);
   local boolean up2_test(stackptr,x,y)
     var const object* stackptr;
     var object x;
     var object y;
-    { # ein (funcall testfun x y) ausführen:
+    { # ein (funcall testfun x y) ausfÃ¼hren:
       pushSTACK(x); # x
       pushSTACK(y); # y
       funcall(*(stackptr STACKop -5),2);
       if (nullp(value1)) return FALSE; else return TRUE;
     }
 
-# Unterprogramm zum Ausführen des Tests :TEST-NOT
+# Unterprogramm zum AusfÃ¼hren des Tests :TEST-NOT
 # up2_test_not(stackptr,x,y)
 # > *(stackptr-6): die Testfunktion
 # > x,y: Argumente
-# < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
+# < ergebnis: TRUE falls der Test erfÃ¼llt ist, FALSE sonst
 # can trigger GC
   local boolean up2_test_not (const object* stackptr, object x, object y);
   local boolean up2_test_not(stackptr,x,y)
     var const object* stackptr;
     var object x;
     var object y;
-    { # ein (not (funcall testfun x y)) ausführen:
+    { # ein (not (funcall testfun x y)) ausfÃ¼hren:
       pushSTACK(x); # x
       pushSTACK(y); # y
       funcall(*(stackptr STACKop -6),2);
       if (nullp(value1)) return TRUE; else return FALSE;
     }
 
-# UP: Überprüft die :TEST, :TEST-NOT - Argumente
+# UP: ÃœberprÃ¼ft die :TEST, :TEST-NOT - Argumente
 # test_test2_args(stackptr)
 # > stackptr: Pointer in den STACK
 # > *(stackptr-5): :TEST-Argument
@@ -2470,7 +2470,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
 #       > stackptr: derselbe Pointer in den Stack,
 #         *(stackptr-5) = :test-Argument, *(stackptr-6) = :test-not-Argument,
 #       > x,y: Argumente
-#       < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#       < TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
   # up2_function sei der Typ der Adresse einer solchen Testfunktion:
   typedef boolean (*up2_function) (const object* stackptr, object x, object y);
   local up2_function test_test2_args (object* stackptr);
@@ -2485,7 +2485,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
       if (nullp(test_not_arg))
         # :TEST-NOT wurde nicht angegeben
         { if (nullp(test_arg))
-            *(stackptr STACKop -5) = L(eql); # #'EQL als Default für :TEST
+            *(stackptr STACKop -5) = L(eql); # #'EQL als Default fÃ¼r :TEST
           return(&up2_test);
         }
         # :TEST-NOT wurde angegeben
@@ -2495,7 +2495,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
             fehler_both_tests();
     }}  }
 
-# UP: führt eine Sequence-Duplicates-Operation aus.
+# UP: fÃ¼hrt eine Sequence-Duplicates-Operation aus.
 # seq_duplicates(help_fun)
 # Eine Sequence wird durchlaufen und dabei in einem Bit-Vektor abgespeichert,
 # welche Elemente doppelt vorkommen. Dann wird eine Routine aufgerufen, die
@@ -2507,12 +2507,12 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
 #       > stackptr: Pointer in den Stack,
 #         *(stackptr+0)=sequence, *(stackptr-2)=start, *(stackptr-3)=end,
 #       > STACK_2: typdescr,
-#       > STACK_1: Länge der Sequence,
+#       > STACK_1: LÃ¤nge der Sequence,
 #       > STACK_0: Bit-Vektor bv,
-#       > bvl: Länge des Bit-Vektors (= end - start),
+#       > bvl: LÃ¤nge des Bit-Vektors (= end - start),
 #       > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 #       < ergebnis: Ergebnis
-#       kann GC auslösen
+#       kann GC auslÃ¶sen
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
@@ -2522,27 +2522,27 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
     { var object* stackptr = &STACK_6;
       # Stackaufbau:
       #   sequence [stackptr], from-end, start, end, key, test, test-not.
-      # sequence überprüfen:
+      # sequence Ã¼berprÃ¼fen:
       { var object sequence = *(stackptr STACKop 0);
         pushSTACK(get_valid_seq_type(sequence)); # typdescr auf den Stack
       }
       # Stackaufbau:
       #   sequence [stackptr], from-end, start, end, key, test, test-not,
       #   typdescr.
-      # :test und :test-not überprüfen:
+      # :test und :test-not Ã¼berprÃ¼fen:
      {var up2_function up2_fun = test_test2_args(stackptr);
-      # key überprüfen:
+      # key Ã¼berprÃ¼fen:
       test_key_arg(stackptr);
-      # Defaultwert für from-end ist NIL:
+      # Defaultwert fÃ¼r from-end ist NIL:
       default_NIL(*(stackptr STACKop -1));
-      # Defaultwert für start ist 0:
+      # Defaultwert fÃ¼r start ist 0:
       start_default_0(*(stackptr STACKop -2));
-      # Defaultwert für end ist nil:
+      # Defaultwert fÃ¼r end ist nil:
       default_NIL(*(stackptr STACKop -3));
-      # start und end überprüfen:
+      # start und end Ã¼berprÃ¼fen:
       test_start_end_1(&O(kwpair_start),&*(stackptr STACKop -3));
-      # Länge der Sequence bestimmen:
-      { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
+      # LÃ¤nge der Sequence bestimmen:
+      { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefÃ¤hrdet!
         pushSTACK(STACK_(6+1)); # sequence
         funcall(seq_length(STACK_(0+1)),1); # (SEQ-LENGTH sequence)
         pushSTACK(value1); # l
@@ -2551,14 +2551,14 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
       # Stackaufbau:
       #   sequence [stackptr], from-end, start, end, key, test, test-not,
       #   typdescr, l.
-      # Defaultwert für end ist l = (length sequence):
+      # Defaultwert fÃ¼r end ist l = (length sequence):
       if (nullp(*(stackptr STACKop -3)))
         { *(stackptr STACKop -3) = STACK_0; # end := l
-          # Dann nochmals start und end überprüfen:
+          # Dann nochmals start und end Ã¼berprÃ¼fen:
           test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
         }
-      # Nun sind alle Argumente überprüft.
-      { var uintL bvl; # Bitvektor-Länge
+      # Nun sind alle Argumente Ã¼berprÃ¼ft.
+      { var uintL bvl; # Bitvektor-LÃ¤nge
         var uintL dl; # Anzahl der im Bitvektor gesetzten Bits
         # (- end start) bestimmen und neuen Bitvektor allozieren:
         { var object size = I_I_minus_I(STACK_(3+2),STACK_(4+2));
@@ -2576,7 +2576,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
         #   sequence [stackptr], from-end, start, end, key, test, test-not,
         #   typdescr, l, bv.
         dl = 0; # dl := 0
-        # Bei :test #'eq/eql/equal und großer Länge verwende Hashtabelle:
+        # Bei :test #'eq/eql/equal und groÃŸer LÃ¤nge verwende Hashtabelle:
         if (bvl < 10) goto standard;
         if (!(up2_fun == &up2_test)) goto standard;
         { var object test = STACK_(1+3);
@@ -2598,7 +2598,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
                #   sequence [stackptr], from-end, start, end, key, test, test-not,
                #   typdescr, l, bv,
                #   pointer1.
-               # pointer1 läuft von links nach rechts (von start bis end).
+               # pointer1 lÃ¤uft von links nach rechts (von start bis end).
                {var uintL bvi1 = 0; # Schleife bvl mal durchlaufen
                 until (bvi1==bvl)
                   { if (!(sbvector_btst(STACK_(0+1),bvi1))) # (sbit bv bvi1) abfragen
@@ -2624,7 +2624,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
                         #   sequence [stackptr], from-end, start, end, key, test, test-not,
                         #   typdescr, l, bv,
                         #   pointer1, item1, pointer2.
-                        # pointer2 läuft von pointer1 nach rechts.
+                        # pointer2 lÃ¤uft von pointer1 nach rechts.
                        {var uintL bvi2 = bvi1+1; # bvi2 := bvi1+1
                         until (bvi2==bvl)
                           { if (!(sbvector_btst(STACK_(0+3),bvi2))) # (sbit bv bvi2) abfragen
@@ -2637,7 +2637,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
                                 # value1 =: item2
                                 # item1 und item2 vergleichen:
                                 if ((*up2_fun)(stackptr,STACK_1,value1)) # Testroutine aufrufen
-                                  # Test erfüllt -> vermerke, dass item2 zu streichen ist:
+                                  # Test erfÃ¼llt -> vermerke, dass item2 zu streichen ist:
                                   { sbvector_bset(STACK_(0+3),bvi2); # (setf (sbit bv bvi2) 1)
                                     dl = dl+1; # dl:=dl+1
                                   }
@@ -2649,7 +2649,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
                         skipSTACK(2); # item1 und pointer2 vergessen
                       }
                       else
-                      # falls Bit=1: dieses Element einfach übergehen
+                      # falls Bit=1: dieses Element einfach Ã¼bergehen
                       { # pointer1 := (SEQ-UPD sequence pointer1) :
                         pointer_update(STACK_0,STACK_(6+3+1),STACK_(2+1));
                       }
@@ -2676,7 +2676,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
                #   sequence [stackptr], from-end, start, end, key, test, test-not,
                #   typdescr, l, bv,
                #   pointer0, pointer2.
-               # pointer2 läuft von links nach rechts (von start bis end).
+               # pointer2 lÃ¤uft von links nach rechts (von start bis end).
                {var uintL bvi2 = 0; # Schleife bvl mal durchlaufen
                 until (bvi2==bvl)
                   { if (!(sbvector_btst(STACK_(0+2),bvi2))) # (sbit bv bvi2) abfragen
@@ -2700,7 +2700,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
                         #   sequence [stackptr], from-end, start, end, key, test, test-not,
                         #   typdescr, l, bv,
                         #   pointer0, pointer2, item2, pointer1.
-                        # pointer1 läuft von links bis pointer2.
+                        # pointer1 lÃ¤uft von links bis pointer2.
                        {var uintL bvi1 = 0; # bvi1 := 0
                         until (bvi1==bvi2)
                           { if (!(sbvector_btst(STACK_(0+4),bvi1))) # (sbit bv bvi1) abfragen
@@ -2713,7 +2713,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
                                 # value1 =: item1
                                 # item1 und item2 vergleichen:
                                 if ((*up2_fun)(stackptr,value1,STACK_1)) # Testroutine aufrufen
-                                  # Test erfüllt -> vermerke, dass item1 zu streichen ist:
+                                  # Test erfÃ¼llt -> vermerke, dass item1 zu streichen ist:
                                   { sbvector_bset(STACK_(0+4),bvi1); # (setf (sbit bv bvi1) 1)
                                     dl = dl+1; # dl:=dl+1
                                   }
@@ -2724,7 +2724,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
                        }  }
                         skipSTACK(2); # item2 und pointer1 vergessen
                       }
-                    # falls Bit=1: dieses Element einfach übergehen
+                    # falls Bit=1: dieses Element einfach Ã¼bergehen
                     # pointer2 := (SEQ-UPD sequence pointer2) :
                     pointer_update(STACK_0,STACK_(6+3+2),STACK_(2+2));
                     bvi2++; # bvi2 := bvi2+1
@@ -2748,7 +2748,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
             #   ht, pointer.
             if (!(nullp(STACK_(5+3+2)))) # from-end abfragen
               # from-end ist angegeben
-              { # pointer läuft von links nach rechts (von start bis end).
+              { # pointer lÃ¤uft von links nach rechts (von start bis end).
                 var uintL bvi = 0; # Schleife bvl mal durchlaufen
                 until (bvi==bvl)
                   {{pushSTACK(STACK_(6+3+2)); # sequence
@@ -2770,7 +2770,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
               }
               else
               # from-end ist nicht angegeben
-              { # pointer läuft von links nach rechts (von start bis end).
+              { # pointer lÃ¤uft von links nach rechts (von start bis end).
                 var uintL bvi = 0; # Schleife bvl mal durchlaufen
                 until (bvi==bvl)
                   {{pushSTACK(STACK_(6+3+2)); # sequence
@@ -2797,9 +2797,9 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
         # Stackaufbau:
         #   sequence [stackptr], from-end, start, end, key, test, test-not,
         #   typdescr, l, bv.
-        value1 = (*help_fun)(stackptr,bvl,dl); # Rest durchführen
+        value1 = (*help_fun)(stackptr,bvl,dl); # Rest durchfÃ¼hren
         mv_count=1; # Ergebnis als Wert
-        skipSTACK(7+3); # STACK aufräumen
+        skipSTACK(7+3); # STACK aufrÃ¤umen
     }}}
 
 LISPFUN(remove_duplicates,1,0,norest,key,6,\
@@ -2814,15 +2814,15 @@ LISPFUN(delete_duplicates,1,0,norest,key,6,\
 # CLTL S. 254
   { return_Values seq_duplicates(&delete_help); }
 
-# UP: Hilfsroutine für SUBSTITUTE-Funktionen.
+# UP: Hilfsroutine fÃ¼r SUBSTITUTE-Funktionen.
 # Bildet zu einer Sequence eine neue Sequence, in der genau die Elemente
 # ersetzt sind, die in einem Bitvektor markiert sind.
 # > stackptr: Pointer in den Stack, *(stackptr+2)=newitem,
 #   *(stackptr+0)=sequence, *(stackptr-2)=start, *(stackptr-3)=end,
 # > STACK_2: typdescr,
-# > STACK_1: Länge l der Sequence,
+# > STACK_1: LÃ¤nge l der Sequence,
 # > STACK_0: Bit-Vektor bv,
-# > bvl: Länge des Bit-Vektors (= end - start),
+# > bvl: LÃ¤nge des Bit-Vektors (= end - start),
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
@@ -2831,10 +2831,10 @@ LISPFUN(delete_duplicates,1,0,norest,key,6,\
     var object* stackptr;
     var uintL bvl;
     var uintL dl;
-    { # dl=0 -> sequence unverändert zurückgeben:
+    { # dl=0 -> sequence unverÃ¤ndert zurÃ¼ckgeben:
       if (dl==0) { return *(stackptr STACKop 0); }
       if (eq(seq_type(STACK_2),S(list))) # Typ LIST ?
-        # Noch überprüfen, ob sequence wirklich eine Liste ist.
+        # Noch Ã¼berprÃ¼fen, ob sequence wirklich eine Liste ist.
         # Wegen l >= dl > 0 ist zu testen, ob sequence ein Cons ist.
         if (mconsp(*(stackptr STACKop 0)))
           { # Listen speziell behandeln:
@@ -2853,14 +2853,14 @@ LISPFUN(delete_duplicates,1,0,norest,key,6,\
                   Cdr(new_cons) = STACK_1; STACK_1 = new_cons; # L1 := (cons ... L1)
                 });
             }
-            # bvl bis über die letzte Eins im Bit-Vector erniedrigen:
+            # bvl bis Ã¼ber die letzte Eins im Bit-Vector erniedrigen:
             # (Es gibt Einsen, da dl>0.)
             { var object bv = STACK_(0+2);
               loop { var uintL bvl_1 = bvl-1;
                      if (sbvector_btst(bv,bvl_1)) break; #  Bit bvl-1 abfragen
                      bvl = bvl_1; # Bit =0 -> bvl erniedrigen und weitersuchen
             }      }
-            # Teilabschnitt kopieren bzw. mit newitem füllen:
+            # Teilabschnitt kopieren bzw. mit newitem fÃ¼llen:
             { var uintL bvi = 0; # bvi := 0
               until (bvi==bvl) # Schleife bvl mal durchlaufen
                 { if (sbvector_btst(STACK_(0+2),bvi)) # (sbit bv bvi) abfragen
@@ -2878,7 +2878,7 @@ LISPFUN(delete_duplicates,1,0,norest,key,6,\
                   STACK_0 = Cdr(STACK_0); # L2 := (cdr L2)
                   bvi++; # bvi:=bvi+1
             }   }
-            # letzten Teilabschnitt unverändert dazunehmen:
+            # letzten Teilabschnitt unverÃ¤ndert dazunehmen:
             { var object L2 = popSTACK();
               var object L1 = popSTACK();
               return nreconc(L1,L2); # (nreconc L1 L2) als Ergebnis
@@ -2902,36 +2902,36 @@ LISPFUN(delete_duplicates,1,0,norest,key,6,\
       # Stackaufbau: ..., typdescr, l, bv, sequence2,
       #              seq1, typdescr1, seq2, typdescr2, start,
       #              pointer1, pointer2.
-      { # Vorderes Teilstück:
+      { # Vorderes TeilstÃ¼ck:
         # Elemente mit Index <start von sequence1 nach sequence2
-        # unverändert übertragen:
+        # unverÃ¤ndert Ã¼bertragen:
         copy_seqpart_into();
       }
-      { # Mittleres Teilstück:
+      { # Mittleres TeilstÃ¼ck:
         var uintL bvi = 0;
         until (bvi==bvl)
-          { var object item; # zu übernehmendes Element
+          { var object item; # zu Ã¼bernehmendes Element
             if (sbvector_btst(STACK_(1+5+2),bvi)) # (sbit bv bvi) abfragen
               # Bit =1 -> newitem nehmen:
               { item = *(stackptr STACKop 2); }
               else
-              # Bit =0 -> Element aus sequence übernehmen:
+              # Bit =0 -> Element aus sequence Ã¼bernehmen:
               { pushSTACK(STACK_(4+2)); pushSTACK(STACK_(1+1));
                 funcall(seq_access(STACK_(3+2+2)),2); # (SEQ-ACCESS seq1 pointer1)
                 item = value1;
               }
             pushSTACK(STACK_(2+2)); pushSTACK(STACK_(0+1)); pushSTACK(item);
             funcall(seq_access_set(STACK_(1+2+3)),3); # (SEQ-ACCESS-SET seq2 pointer2 ...)
-            # pointer1, pointer2, bvi weiterrücken:
+            # pointer1, pointer2, bvi weiterrÃ¼cken:
             # pointer1 := (SEQ-UPD seq1 pointer1) :
             pointer_update(STACK_1,STACK_(4+2),STACK_(3+2));
             # pointer2 := (SEQ-UPD seq2 pointer2) :
             pointer_update(STACK_0,STACK_(2+2),STACK_(1+2));
             bvi++;
       }   }
-      { # Hinteres Teilstück:
+      { # Hinteres TeilstÃ¼ck:
         # Elemente mit Index >=end von sequence1 nach sequence2
-        # unverändert übertragen:
+        # unverÃ¤ndert Ã¼bertragen:
         STACK_(0+2) = I_I_minus_I(STACK_(2+5+2),*(stackptr STACKop -3)); # (- l end)
         copy_seqpart_into();
       }
@@ -2970,15 +2970,15 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,\
     skipSTACK(3+5+1);
   }
 
-# UP: Hilfsroutine für NSUBSTITUTE-Funktionen im Fall FROM-END.
+# UP: Hilfsroutine fÃ¼r NSUBSTITUTE-Funktionen im Fall FROM-END.
 # Ersetzt in einer Sequence genau die Elemente, die in einem Bitvektor
 # markiert sind.
 # > stackptr: Pointer in den Stack, *(stackptr+2)=newitem,
 #   *(stackptr+0)=sequence, *(stackptr-2)=start, *(stackptr-3)=end,
 # > STACK_2: typdescr,
-# > STACK_1: Länge l der Sequence,
+# > STACK_1: LÃ¤nge l der Sequence,
 # > STACK_0: Bit-Vektor bv,
-# > bvl: Länge des Bit-Vektors (= end - start),
+# > bvl: LÃ¤nge des Bit-Vektors (= end - start),
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
 # can trigger GC
@@ -3030,14 +3030,14 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,\
         { decrement(endvar); } # ja -> endvar := (1- endvar) \
     }
 
-# UP: Führt eine NSUBSTITUTE-Operation durch.
+# UP: FÃ¼hrt eine NSUBSTITUTE-Operation durch.
 # > Stackaufbau:
 #     ... sequence [stackptr] from-end start end key ... count typdescr [STACK]
 # > stackptr: Pointer in den Stack, *(stackptr+2)=newitem
 # > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
-#           < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#           < TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
@@ -3052,7 +3052,7 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,\
         # from-end ist nicht angegeben
         { # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
           test_count_arg();
-          # Nun sind alle Argumente überprüft.
+          # Nun sind alle Argumente Ã¼berprÃ¼ft.
           pushSTACK(*(stackptr STACKop 0)); # sequence
           pushSTACK(*(stackptr STACKop -4)); # key
           init_endvar(&*(stackptr STACKop -3)); # endvar := (and end (- end start)) auf den Stack
@@ -3074,7 +3074,7 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,\
                 funcall(seq_endtest(STACK_(0+5+2)),2); # (SEQ-ENDTEST sequence pointer)
                 if (!(nullp(value1))) break; # Pointer am Ende -> fertig
                 if (eq(STACK_1,Fixnum_0)) # countdown=0 ?
-                  # (also count angegeben und erschöpft?)
+                  # (also count angegeben und erschÃ¶pft?)
                   break; # ja -> Schleife kann abgebrochen werden
                 # item herausgreifen:
                 pushSTACK(STACK_4); pushSTACK(STACK_(0+1));
@@ -3082,7 +3082,7 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,\
                 funcall_key(STACK_3); # (FUNCALL key (SEQ-ACCESS sequence pointer))
                 # value1 =: item
                 if ((*up_fun)(stackptr,value1)) # Testroutine aufrufen
-                  # Test ist erfüllt
+                  # Test ist erfÃ¼llt
                   { pushSTACK(STACK_4); pushSTACK(STACK_(0+1));
                     pushSTACK(*(stackptr STACKop 2)); # newitem
                     funcall(seq_access_set(STACK_(0+5+3)),3); # (SEQ-ACCESS-SET sequence pointer newitem)
@@ -3130,14 +3130,14 @@ LISPFUN(nsubstitute_if_not,3,0,norest,key,5,\
     skipSTACK(3+5+1);
   }
 
-# UP: Führt eine FIND-Operation durch.
+# UP: FÃ¼hrt eine FIND-Operation durch.
 # > Stackaufbau:
 #     ... sequence [stackptr] from-end start end key ... typdescr [STACK]
 # > stackptr: Pointer in den Stack
 # > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
-#           < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#           < TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
@@ -3149,14 +3149,14 @@ LISPFUN(nsubstitute_if_not,3,0,norest,key,5,\
       # Stackaufbau: ..., typdescr, sequence.
       if (!(nullp(*(stackptr STACKop -1)))) # from-end abfragen
         # from-end ist angegeben
-        { # Defaultwert für end ist die Länge der Sequence:
+        { # Defaultwert fÃ¼r end ist die LÃ¤nge der Sequence:
           if (nullp(*(stackptr STACKop -3)))
-            { { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
+            { { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefÃ¤hrdet!
                 pushSTACK(STACK_0); funcall(seq_length(STACK_(1+1)),1); # (SEQ-LENGTH sequence)
                 *(stackptr STACKop -3) = value1; # =: end
                 subr_self = old_subr_self;
               }
-              # Dann nochmals start und end überprüfen:
+              # Dann nochmals start und end Ã¼berprÃ¼fen:
               test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
             }
           {pushSTACK(STACK_0); pushSTACK(*(stackptr STACKop -3));
@@ -3174,10 +3174,10 @@ LISPFUN(nsubstitute_if_not,3,0,norest,key,5,\
                 pushSTACK(value1); # =: item
                 funcall_key(*(stackptr STACKop -4)); # (FUNCALL key item)
                 if ((*up_fun)(stackptr,value1)) # Testroutine aufrufen
-                  goto found; # Test erfüllt -> gefunden
-                # Test ist nicht erfüllt
+                  goto found; # Test erfÃ¼llt -> gefunden
+                # Test ist nicht erfÃ¼llt
                 skipSTACK(1); # item vergessen
-                # pointer weiterrücken und count decrementieren:
+                # pointer weiterrÃ¼cken und count decrementieren:
                 # pointer := (SEQ-FE-UPD sequence pointer) :
                 pointer_fe_update(STACK_1,STACK_2,STACK_3);
                 decrement(STACK_0); # count := (1- count)
@@ -3203,19 +3203,19 @@ LISPFUN(nsubstitute_if_not,3,0,norest,key,5,\
                 pushSTACK(value1); # =: item
                 funcall_key(*(stackptr STACKop -4)); # (FUNCALL key item)
                 if ((*up_fun)(stackptr,value1)) # Testroutine aufrufen
-                  goto found; # Test erfüllt -> gefunden
-                # Test ist nicht erfüllt
+                  goto found; # Test erfÃ¼llt -> gefunden
+                # Test ist nicht erfÃ¼llt
                 skipSTACK(1); # item vergessen
                 # pointer := (SEQ-UPD sequence pointer) :
                 pointer_update(STACK_0,STACK_2,STACK_3);
                 # endvar eventuell decrementieren:
                 decrement_endvar(STACK_1);
         } }   }
-      skipSTACK(3); # STACK aufräumen
+      skipSTACK(3); # STACK aufrÃ¤umen
       value1 = NIL; mv_count=1; return; # NIL als Wert
-      found: # item gefunden, das den Test erfüllt. STACK_0 = item.
+      found: # item gefunden, das den Test erfÃ¼llt. STACK_0 = item.
       value1 = popSTACK(); mv_count=1; # item als Wert
-      skipSTACK(3); # STACK aufräumen
+      skipSTACK(3); # STACK aufrÃ¤umen
     }
 
 LISPFUN(find,2,0,norest,key,6,\
@@ -3249,14 +3249,14 @@ LISPFUN(find_if_not,2,0,norest,key,4,\
     skipSTACK(2+4+1);
   }
 
-# UP: Führt eine POSITION-Operation durch.
+# UP: FÃ¼hrt eine POSITION-Operation durch.
 # > Stackaufbau:
 #     ... sequence [stackptr] from-end start end key ... typdescr [STACK]
 # > stackptr: Pointer in den Stack
 # > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
-#           < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#           < TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
@@ -3268,14 +3268,14 @@ LISPFUN(find_if_not,2,0,norest,key,4,\
       # Stackaufbau: ..., typdescr, sequence.
       if (!(nullp(*(stackptr STACKop -1)))) # from-end abfragen
         # from-end ist angegeben
-        { # Defaultwert für end ist die Länge der Sequence:
+        { # Defaultwert fÃ¼r end ist die LÃ¤nge der Sequence:
           if (nullp(*(stackptr STACKop -3)))
-            { { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
+            { { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefÃ¤hrdet!
                 pushSTACK(STACK_0); funcall(seq_length(STACK_(1+1)),1); # (SEQ-LENGTH sequence)
                 *(stackptr STACKop -3) = value1; # =: end
                 subr_self = old_subr_self;
               }
-              # Dann nochmals start und end überprüfen:
+              # Dann nochmals start und end Ã¼berprÃ¼fen:
               test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
             }
           pushSTACK(*(stackptr STACKop -3)); # index := end
@@ -3295,9 +3295,9 @@ LISPFUN(find_if_not,2,0,norest,key,4,\
                 funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS sequence pointer)
                 funcall_key(*(stackptr STACKop -4)); # (FUNCALL key (SEQ-ACCESS sequence pointer))
                 if ((*up_fun)(stackptr,value1)) # Testroutine aufrufen
-                  goto found; # Test erfüllt -> gefunden
-                # Test ist nicht erfüllt
-                # pointer weiterrücken und count decrementieren:
+                  goto found; # Test erfÃ¼llt -> gefunden
+                # Test ist nicht erfÃ¼llt
+                # pointer weiterrÃ¼cken und count decrementieren:
                 # pointer := (SEQ-FE-UPD sequence pointer) :
                 pointer_fe_update(STACK_1,STACK_3,STACK_4);
                 decrement(STACK_0); # count := (1- count)
@@ -3323,8 +3323,8 @@ LISPFUN(find_if_not,2,0,norest,key,4,\
                 funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS sequence pointer)
                 funcall_key(*(stackptr STACKop -4)); # (FUNCALL key (SEQ-ACCESS sequence pointer))
                 if ((*up_fun)(stackptr,value1)) # Testroutine aufrufen
-                  goto found; # Test erfüllt -> gefunden
-                # Test ist nicht erfüllt
+                  goto found; # Test erfÃ¼llt -> gefunden
+                # Test ist nicht erfÃ¼llt
                 # pointer := (SEQ-UPD sequence pointer) :
                 pointer_update(STACK_0,STACK_3,STACK_4);
                 # endvar eventuell decrementieren:
@@ -3332,11 +3332,11 @@ LISPFUN(find_if_not,2,0,norest,key,4,\
                 # index incrementieren:
                 increment(STACK_2);
         } }   }
-      skipSTACK(4); # STACK aufräumen
+      skipSTACK(4); # STACK aufrÃ¤umen
       value1 = NIL; mv_count=1; return; # NIL als Wert
-      found: # item gefunden, das den Test erfüllt. STACK_2 = index.
+      found: # item gefunden, das den Test erfÃ¼llt. STACK_2 = index.
       value1 = STACK_2; mv_count=1; # index als Wert
-      skipSTACK(4); # STACK aufräumen
+      skipSTACK(4); # STACK aufrÃ¤umen
     }
 
 LISPFUN(position,2,0,norest,key,6,\
@@ -3370,14 +3370,14 @@ LISPFUN(position_if_not,2,0,norest,key,4,\
     skipSTACK(2+4+1);
   }
 
-# UP: Führt eine COUNT-Operation durch.
+# UP: FÃ¼hrt eine COUNT-Operation durch.
 # > Stackaufbau:
 #     ... sequence [stackptr] from-end start end key ... typdescr [STACK]
 # > stackptr: Pointer in den Stack
 # > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
-#           < TRUE, falls der Test erfüllt ist, FALSE sonst.
+#           < TRUE, falls der Test erfÃ¼llt ist, FALSE sonst.
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
@@ -3390,14 +3390,14 @@ LISPFUN(position_if_not,2,0,norest,key,4,\
       # Stackaufbau: ..., typdescr, sequence, total.
       if (!(nullp(*(stackptr STACKop -1)))) # from-end abfragen
         # from-end ist angegeben
-        { # Defaultwert für end ist die Länge der Sequence:
+        { # Defaultwert fÃ¼r end ist die LÃ¤nge der Sequence:
           if (nullp(*(stackptr STACKop -3)))
-            { { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
+            { { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefÃ¤hrdet!
                 pushSTACK(STACK_1); funcall(seq_length(STACK_(2+1)),1); # (SEQ-LENGTH sequence)
                 *(stackptr STACKop -3) = value1; # =: end
                 subr_self = old_subr_self;
               }
-              # Dann nochmals start und end überprüfen:
+              # Dann nochmals start und end Ã¼berprÃ¼fen:
               test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
             }
           {pushSTACK(STACK_1); pushSTACK(*(stackptr STACKop -3));
@@ -3414,10 +3414,10 @@ LISPFUN(position_if_not,2,0,norest,key,4,\
                 funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS sequence pointer)
                 funcall_key(*(stackptr STACKop -4)); # (FUNCALL key (SEQ-ACCESS sequence pointer))
                 if ((*up_fun)(stackptr,value1)) # Testroutine aufrufen
-                  { # Test ist erfüllt -> total := total + 1 :
+                  { # Test ist erfÃ¼llt -> total := total + 1 :
                     STACK_2 = fixnum_inc(STACK_2,1);
                   }
-                # pointer weiterrücken und count decrementieren:
+                # pointer weiterrÃ¼cken und count decrementieren:
                 # pointer := (SEQ-FE-UPD sequence pointer) :
                 pointer_fe_update(STACK_1,STACK_3,STACK_4);
                 decrement(STACK_0); # count := (1- count)
@@ -3442,7 +3442,7 @@ LISPFUN(position_if_not,2,0,norest,key,4,\
                 funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS sequence pointer)
                 funcall_key(*(stackptr STACKop -4)); # (FUNCALL key (SEQ-ACCESS sequence pointer))
                 if ((*up_fun)(stackptr,value1)) # Testroutine aufrufen
-                  { # Test ist erfüllt -> total := total + 1 :
+                  { # Test ist erfÃ¼llt -> total := total + 1 :
                     STACK_2 = fixnum_inc(STACK_2,1);
                   }
                 # pointer := (SEQ-UPD sequence pointer) :
@@ -3493,21 +3493,21 @@ LISPFUN(mismatch,2,0,norest,key,8,\
   { # Stackaufbau: seq1, seq2, start1, end1, start2, end2, from-end,
     #              key, test, test-not.
     var object* stackptr = &STACK_6;
-    # key überprüfen:
+    # key Ã¼berprÃ¼fen:
     test_key_arg(stackptr);
-    # test, test-not überprüfen:
+    # test, test-not Ã¼berprÃ¼fen:
    {var up2_function up2_fun = test_test2_args(stackptr);
-    # sequence1 überprüfen:
+    # sequence1 Ã¼berprÃ¼fen:
     pushSTACK(get_valid_seq_type(STACK_(6+3)));
-    # sequence2 überprüfen:
+    # sequence2 Ã¼berprÃ¼fen:
     pushSTACK(get_valid_seq_type(STACK_(5+3+1)));
     # Stackaufbau: seq1, seq2, start1, end1, start2, end2, from-end,
     #              key, test, test-not, typdescr1, typdescr2.
-    default_NIL(STACK_(0+5)); # Defaultwert für from-end ist NIL
-    start_default_0(STACK_(4+5)); # Defaultwert für start1 ist 0
-    default_NIL(STACK_(3+5)); # Defaultwert für end1 ist NIL
-    start_default_0(STACK_(2+5)); # Defaultwert für start2 ist 0
-    default_NIL(STACK_(1+5)); # Defaultwert für end2 ist NIL
+    default_NIL(STACK_(0+5)); # Defaultwert fÃ¼r from-end ist NIL
+    start_default_0(STACK_(4+5)); # Defaultwert fÃ¼r start1 ist 0
+    default_NIL(STACK_(3+5)); # Defaultwert fÃ¼r end1 ist NIL
+    start_default_0(STACK_(2+5)); # Defaultwert fÃ¼r start2 ist 0
+    default_NIL(STACK_(1+5)); # Defaultwert fÃ¼r end2 ist NIL
     # from-end abfragen:
     if (!(nullp(STACK_(0+5))))
       # from-end ist angegeben
@@ -3515,7 +3515,7 @@ LISPFUN(mismatch,2,0,norest,key,8,\
         end_default_len(STACK_(3+5),STACK_(6+5),STACK_1);
         # Defaultwert von end2 ist (SEQ-LENGTH seq2):
         end_default_len(STACK_(1+5),STACK_(5+5),STACK_0);
-        # start- und end-Argumente überprüfen:
+        # start- und end-Argumente Ã¼berprÃ¼fen:
         subr_self = L(mismatch);
         test_start_end(&O(kwpair_start1),&STACK_(3+5));
         test_start_end(&O(kwpair_start2),&STACK_(1+5));
@@ -3555,7 +3555,7 @@ LISPFUN(mismatch,2,0,norest,key,8,\
              if (!((*up2_fun)(&STACK_(8+6),item1,item2))) # Testroutine anwenden
                goto fe_found;
             }
-            # Test erfüllt -> weitersuchen:
+            # Test erfÃ¼llt -> weitersuchen:
             # pointer1 := (SEQ-FE-UPD seq1 pointer1) :
             pointer_fe_update(STACK_5,STACK_(6+5+6),STACK_(1+6));
             # pointer2 := (SEQ-FE-UPD seq2 pointer2) :
@@ -3568,14 +3568,14 @@ LISPFUN(mismatch,2,0,norest,key,8,\
         # Schleife erfolgreich.
         # Bei len1=len2 Ergebnis NIL, sonst index:
         if (I_I_comp(STACK_2,STACK_1)==0) # len1=len2 (Integers) ?
-          # Beide Sequence-Stücke sind gleich -> NIL als Wert
+          # Beide Sequence-StÃ¼cke sind gleich -> NIL als Wert
           { value1 = NIL; mv_count=1; skipSTACK(7+5+6); return; }
         fe_found: # Es ist ein Unterschied gefunden -> index als Wert
         { value1 = STACK_3; mv_count=1; skipSTACK(7+5+6); return; }
       }
       else
       # from-end ist nicht angegeben
-      { # start- und end-Argumente überprüfen:
+      { # start- und end-Argumente Ã¼berprÃ¼fen:
         test_start_end_1(&O(kwpair_start1),&STACK_(3+5));
         test_start_end_1(&O(kwpair_start2),&STACK_(1+5));
         # pointer1 und pointer2 an den Anfang der Sequences setzen:
@@ -3593,10 +3593,10 @@ LISPFUN(mismatch,2,0,norest,key,8,\
         # Stackaufbau: seq1, seq2, start1, end1, start2, end2, from-end,
         #              key, test, test-not, typdescr1, typdescr2,
         #              pointer1, pointer2, index, endvar1, endvar2.
-        { var boolean seq1_ended; # Flag, ob seq1-Teilstück zu Ende
-          var boolean seq2_ended; # Flag, ob seq2-Teilstück zu Ende
+        { var boolean seq1_ended; # Flag, ob seq1-TeilstÃ¼ck zu Ende
+          var boolean seq2_ended; # Flag, ob seq2-TeilstÃ¼ck zu Ende
           loop
-            { # Teste, ob seq1-Teilstück zu Ende:
+            { # Teste, ob seq1-TeilstÃ¼ck zu Ende:
               if (eq(STACK_1,Fixnum_0)) # endvar1 = 0 (und damit end1 /= nil) ?
                 { seq1_ended = TRUE; }
                 else
@@ -3604,7 +3604,7 @@ LISPFUN(mismatch,2,0,norest,key,8,\
                   funcall(seq_endtest(STACK_(1+5+2)),2); # (SEQ-ENDTEST seq1 pointer1)
                   seq1_ended = !nullp(value1);
                 }
-              # Teste, ob seq2-Teilstück zu Ende:
+              # Teste, ob seq2-TeilstÃ¼ck zu Ende:
               if (eq(STACK_0,Fixnum_0)) # endvar2 = 0 (und damit end2 /= nil) ?
                 { seq2_ended = TRUE; }
                 else
@@ -3628,7 +3628,7 @@ LISPFUN(mismatch,2,0,norest,key,8,\
                if (!((*up2_fun)(&STACK_(8+5),item1,item2))) # Testroutine anwenden
                  goto fs_found;
               }
-              # Test erfüllt -> weitersuchen:
+              # Test erfÃ¼llt -> weitersuchen:
               # pointer1 := (SEQ-UPD seq1 pointer1) :
               pointer_update(STACK_4,STACK_(6+5+5),STACK_(1+5));
               # pointer2 := (SEQ-UPD seq2 pointer2) :
@@ -3642,7 +3642,7 @@ LISPFUN(mismatch,2,0,norest,key,8,\
             }
           # Falls beide Flags gesetzt sind, Ergebnis NIL, sonst index:
           if (seq1_ended && seq2_ended)
-            # Beide Sequence-Stücke sind gleich -> NIL als Wert
+            # Beide Sequence-StÃ¼cke sind gleich -> NIL als Wert
             { value1 = NIL; mv_count=1; skipSTACK(7+5+5); return; }
           fs_found: # Es ist ein Unterschied gefunden -> index als Wert
           { value1 = STACK_2; mv_count=1; skipSTACK(7+5+5); return; }
@@ -3656,28 +3656,28 @@ LISPFUN(search,2,0,norest,key,8,\
 #         [:start1] [:end1] [:start2] [:end2] [:from-end] [:key] [:test] [:test-not]),
 # CLTL S. 258
   # Primitiv-Algorithmus:
-  #   Rücke immer in sequence2 um 1 weiter und teste, ob dann sequence1 kommt.
+  #   RÃ¼cke immer in sequence2 um 1 weiter und teste, ob dann sequence1 kommt.
   # Knuth-Algorithmus:
   #   [Donald Ervin Knuth, James H. Morris, Vaughan R. Pratt:
   #    Fast pattern matching in string.
   #    SIAM J. Comput. 6(1977), 323-350.]
-  #   Kann hier nicht verwendet werden, weil er die Kommutativität der
+  #   Kann hier nicht verwendet werden, weil er die KommutativitÃ¤t der
   #   Testfunktion erfordert, die nach CLTL S. 247 nicht notwendig gegeben ist.
   { # Stackaufbau: seq1, seq2, start1, end1, start2, end2, from-end,
     #              key, test, test-not.
     var object* stackptr = &STACK_6;
-    # key überprüfen:
+    # key Ã¼berprÃ¼fen:
     test_key_arg(stackptr);
-    # test, test-not überprüfen:
+    # test, test-not Ã¼berprÃ¼fen:
    {var up2_function up2_fun = test_test2_args(stackptr);
-    # sequence1 überprüfen:
+    # sequence1 Ã¼berprÃ¼fen:
     pushSTACK(get_valid_seq_type(STACK_(6+3)));
-    # sequence2 überprüfen:
+    # sequence2 Ã¼berprÃ¼fen:
     pushSTACK(get_valid_seq_type(STACK_(5+3+1)));
     # Stackaufbau: seq1, seq2, start1, end1, start2, end2, from-end,
     #              key, test, test-not, typdescr1, typdescr2.
-    default_NIL(STACK_(0+5)); # Defaultwert für from-end ist NIL
-    # Sonderfall für Strings: schnellere Routine aufrufen
+    default_NIL(STACK_(0+5)); # Defaultwert fÃ¼r from-end ist NIL
+    # Sonderfall fÃ¼r Strings: schnellere Routine aufrufen
     if (eq(seq_type(STACK_1),S(string)) && eq(seq_type(STACK_0),S(string)) # beides STRINGs ?
         && nullp(STACK_(0+5)) # und kein from-end ?
         && eq(STACK_4,L(identity)) # und key = #'identity ?
@@ -3694,10 +3694,10 @@ LISPFUN(search,2,0,norest,key,8,\
             C_search_string_equal(); # SUBR sys::search-string-equal mit denselben Argumenten
             return;
       }   }
-    start_default_0(STACK_(4+5)); # Defaultwert für start1 ist 0
-    default_NIL(STACK_(3+5)); # Defaultwert für end1 ist NIL
-    start_default_0(STACK_(2+5)); # Defaultwert für start2 ist 0
-    default_NIL(STACK_(1+5)); # Defaultwert für end2 ist NIL
+    start_default_0(STACK_(4+5)); # Defaultwert fÃ¼r start1 ist 0
+    default_NIL(STACK_(3+5)); # Defaultwert fÃ¼r end1 ist NIL
+    start_default_0(STACK_(2+5)); # Defaultwert fÃ¼r start2 ist 0
+    default_NIL(STACK_(1+5)); # Defaultwert fÃ¼r end2 ist NIL
     # from-end abfragen:
     if (!(nullp(STACK_(0+5))))
       # from-end ist angegeben
@@ -3705,7 +3705,7 @@ LISPFUN(search,2,0,norest,key,8,\
         end_default_len(STACK_(3+5),STACK_(6+5),STACK_1);
         # Defaultwert von end2 ist (SEQ-LENGTH seq2):
         end_default_len(STACK_(1+5),STACK_(5+5),STACK_0);
-        # start- und end-Argumente überprüfen:
+        # start- und end-Argumente Ã¼berprÃ¼fen:
         subr_self = L(search);
         test_start_end(&O(kwpair_start1),&STACK_(3+5));
         test_start_end(&O(kwpair_start2),&STACK_(1+5));
@@ -3762,7 +3762,7 @@ LISPFUN(search,2,0,norest,key,8,\
                  if (!((*up2_fun)(&STACK_(8+5+4),item1,item2))) # Testroutine anwenden
                    break;
                 }
-                # Test erfüllt -> weitervergleichen:
+                # Test erfÃ¼llt -> weitervergleichen:
                 # pointer1 := (SEQ-FE-UPD seq1 pointer1) :
                 pointer_fe_update(STACK_3,STACK_(6+5+5+4),STACK_(1+5+4));
                 # pointer2 := (SEQ-FE-UPD seq2 pointer2) :
@@ -3772,16 +3772,16 @@ LISPFUN(search,2,0,norest,key,8,\
                 # count2 decrementieren:
                 decrement(STACK_0);
               }
-            # Test nicht erfüllt -> weitersuchen
+            # Test nicht erfÃ¼llt -> weitersuchen
             skipSTACK(4); # pointer1, pointer2, count1, count2 vergessen
-            # pointer20 weiterrücken, len2 und index decrementieren:
+            # pointer20 weiterrÃ¼cken, len2 und index decrementieren:
             pointer_fe_update(STACK_3,STACK_(6+5+5),STACK_(0+5));
             decrement(STACK_1); # len2 := (1- len2)
             decrement(STACK_0); # index := (1- index)
       }   }
       else
       # from-end ist nicht angegeben
-      { # start- und end-Argumente überprüfen:
+      { # start- und end-Argumente Ã¼berprÃ¼fen:
         test_start_end_1(&O(kwpair_start1),&STACK_(3+5));
         test_start_end_1(&O(kwpair_start2),&STACK_(1+5));
         # pointer10 und pointer20 an den Anfang der Sequences setzen:
@@ -3814,7 +3814,7 @@ LISPFUN(search,2,0,norest,key,8,\
             #              pointer10, pointer20, endvar10, endvar20, index,
             #              pointer1, pointer2, endvar1, endvar2.
             loop
-              { # Teste, ob seq1-Teilstück zu Ende. Wenn ja: gefunden.
+              { # Teste, ob seq1-TeilstÃ¼ck zu Ende. Wenn ja: gefunden.
                 if (eq(STACK_1,Fixnum_0)) # endvar1 = 0 (und damit end1 /= nil) ?
                   { goto found; }
                   else
@@ -3823,7 +3823,7 @@ LISPFUN(search,2,0,norest,key,8,\
                     if (!nullp(value1)) goto found;
                   }
                 # seq1 ist noch nicht am Ende.
-                # Teste, ob seq2-Teilstück zu Ende. Wenn ja: nicht gefunden.
+                # Teste, ob seq2-TeilstÃ¼ck zu Ende. Wenn ja: nicht gefunden.
                 if (eq(STACK_0,Fixnum_0)) # endvar2 = 0 (und damit end2 /= nil) ?
                   { goto notfound; }
                   else
@@ -3845,7 +3845,7 @@ LISPFUN(search,2,0,norest,key,8,\
                  if (!((*up2_fun)(&STACK_(8+5+4),item1,item2))) # Testroutine anwenden
                    break;
                 }
-                # Test erfüllt -> weitervergleichen:
+                # Test erfÃ¼llt -> weitervergleichen:
                 # pointer1 := (SEQ-UPD seq1 pointer1) :
                 pointer_update(STACK_3,STACK_(6+5+5+4),STACK_(1+5+4));
                 # pointer2 := (SEQ-UPD seq2 pointer2) :
@@ -3855,9 +3855,9 @@ LISPFUN(search,2,0,norest,key,8,\
                 # endvar2 eventuell decrementieren:
                 decrement_endvar(STACK_0);
               }
-            # Test nicht erfüllt -> weitersuchen
+            # Test nicht erfÃ¼llt -> weitersuchen
             skipSTACK(4); # pointer1, pointer2, endvar1, endvar2 vergessen
-            # pointer20 weiterrücken:
+            # pointer20 weiterrÃ¼cken:
             pointer_update(STACK_3,STACK_(6+5+5),STACK_(0+5));
             # endvar20 eventuell decrementieren:
             decrement_endvar(STACK_1);
@@ -3871,7 +3871,7 @@ LISPFUN(search,2,0,norest,key,8,\
       { value1 = NIL; mv_count=1; skipSTACK(7+5+5+4); return; }
   }}
 
-# UP für SORT, STABLE-SORT und MERGE:
+# UP fÃ¼r SORT, STABLE-SORT und MERGE:
 # merge(stackptr);
 # sortiert zwei sortierte Sequence-Teile in eine dritte Sequence zusammen.
 # > STACK_10: sequence1
@@ -3888,10 +3888,10 @@ LISPFUN(search,2,0,norest,key,8,\
 # > stackptr: Pointer in den Stack,
 #     *(stackptr+0) = predicate, *(stackptr-1) = key
 # count1+count2 Elemente aus sequence1 oder sequence2 werden nach sequence3
-# übertragen (im Zweifelsfall die aus sequence1 zuerst).
-# Dabei wird pointer1 genau  count1  mal weitergerückt (mit SEQ-UPD),
-#            pointer2 genau  count2  mal weitergerückt (mit SEQ-UPD),
-#            pointer3 genau  count1+count2  mal weitergerückt (mit SEQ-UPD).
+# Ã¼bertragen (im Zweifelsfall die aus sequence1 zuerst).
+# Dabei wird pointer1 genau  count1  mal weitergerÃ¼ckt (mit SEQ-UPD),
+#            pointer2 genau  count2  mal weitergerÃ¼ckt (mit SEQ-UPD),
+#            pointer3 genau  count1+count2  mal weitergerÃ¼ckt (mit SEQ-UPD).
 # count1 und count2 werden auf 0 gesetzt.
 # can trigger GC
   local void merge (object* stackptr);
@@ -3914,7 +3914,7 @@ LISPFUN(search,2,0,norest,key,8,\
           }
           funcall(*(stackptr STACKop 0),2); # (FUNCALL predicate item2 item1)
           if (nullp(value1))
-            # predicate lieferte NIL, item aus sequence1 übernehmen:
+            # predicate lieferte NIL, item aus sequence1 Ã¼bernehmen:
             { pushSTACK(STACK_(10)); pushSTACK(STACK_(2+1));
               funcall(seq_access(STACK_(9+2)),2); # (SEQ-ACCESS sequence1 pointer1)
               pushSTACK(value1); # auf den Stack
@@ -3924,7 +3924,7 @@ LISPFUN(search,2,0,norest,key,8,\
               decrement(STACK_(4+1));
             }
             else
-            # predicate war erfüllt, item aus sequence2 übernehmen:
+            # predicate war erfÃ¼llt, item aus sequence2 Ã¼bernehmen:
             { pushSTACK(STACK_(8)); pushSTACK(STACK_(1+1));
               funcall(seq_access(STACK_(7+2)),2); # (SEQ-ACCESS sequence2 pointer2)
               pushSTACK(value1); # auf den Stack
@@ -3933,7 +3933,7 @@ LISPFUN(search,2,0,norest,key,8,\
               # count2 := (1- count2) :
               decrement(STACK_(3+1));
             }
-          {var object item = popSTACK(); # zu übernehmendes item
+          {var object item = popSTACK(); # zu Ã¼bernehmendes item
            pushSTACK(STACK_6); pushSTACK(STACK_(0+1)); pushSTACK(item);
            funcall(seq_access_set(STACK_(5+3)),3); # (SEQ-ACCESS-SET sequence3 pointer3 item)
           }
@@ -3942,7 +3942,7 @@ LISPFUN(search,2,0,norest,key,8,\
         }
       /*NOTREACHED*/
       seq1_end:
-        # sequence1 zu Ende. Rest aus sequence2 übernehmen:
+        # sequence1 zu Ende. Rest aus sequence2 Ã¼bernehmen:
         # Falls sequence2 und sequence3 EQ sind, liegt ein Aufruf
         # von SORT oder STABLE-SORT aus vor. Dort sind dann auch die
         # Pointer pointer2 und pointer3 gleich, also braucht gar nicht
@@ -3982,7 +3982,7 @@ LISPFUN(search,2,0,norest,key,8,\
 # UP: Sortiert in sequence ab pointer_left genau k Elemente (k >= 1)
 # und liefert einen Pointer nach diesen k Elementen.
 # sort_part(pointer_left,k,stackptr)
-# pointer_left wird destruktiv verändert.
+# pointer_left wird destruktiv verÃ¤ndert.
 # > pointer_left
 # > k
 # > stackptr: Pointer in den Stack:
@@ -4008,21 +4008,21 @@ LISPFUN(search,2,0,norest,key,8,\
           STACK_1 = I_I_minus_I(STACK_1,STACK_0); # (- k (FLOOR k 2)) = (CEILING k 2) =: kr
           # Stackaufbau: pointer_left, kr, kl.
           # mit kl = (floor k 2) und kr = (ceiling k 2), also k = (+ kl kr).
-          # rekursiv die linke Hälfte sortieren:
+          # rekursiv die linke HÃ¤lfte sortieren:
           { pushSTACK(STACK_2); # pointer_left
             funcall(seq_copy(*(stackptr STACKop -4)),1); # (SEQ-COPY pointer_left)
            {var object pointer_mid = sort_part(value1,STACK_0,stackptr);
             pushSTACK(pointer_mid);
           }}
           # Stackaufbau: pointer_left, kr, kl, pointer_mid.
-          # rekursiv die rechte Hälfte sortieren:
+          # rekursiv die rechte HÃ¤lfte sortieren:
           { pushSTACK(STACK_0); # pointer_mid
             funcall(seq_copy(*(stackptr STACKop -4)),1); # (SEQ-COPY pointer_mid)
            {var object pointer_right = sort_part(value1,STACK_2,stackptr);
             pushSTACK(pointer_right);
           }}
           # Stackaufbau: pointer_left, kr, kl, pointer_mid, pointer_right.
-          # Linke Hälfte (sortiert) nach seq2 kopieren:
+          # Linke HÃ¤lfte (sortiert) nach seq2 kopieren:
           { var object typdescr = *(stackptr STACKop -4);
             pushSTACK(*(stackptr STACKop 1)); # sequence
             pushSTACK(typdescr); # typdescr
@@ -4064,7 +4064,7 @@ LISPFUN(search,2,0,norest,key,8,\
         } } }
     }
 
-# UP für SORT und STABLE-SORT: Sortiert einen Teil einer Sequence.
+# UP fÃ¼r SORT und STABLE-SORT: Sortiert einen Teil einer Sequence.
 # stable_sort();
 # > Stackaufbau: sequence, predicate, key, start, end
 # < mv_space/mv_count: Werte
@@ -4072,23 +4072,23 @@ LISPFUN(search,2,0,norest,key,8,\
   local Values stable_sort (void);
   local Values stable_sort()
     { # Stackaufbau: sequence, predicate, key, start, end.
-      # sequence überprüfen:
+      # sequence Ã¼berprÃ¼fen:
       pushSTACK(get_valid_seq_type(STACK_4)); # typdescr
       # Stackaufbau: sequence, predicate, key, start, end, typdescr.
-      # Defaultwert für start ist 0 :
+      # Defaultwert fÃ¼r start ist 0 :
       start_default_0(STACK_2);
-      # Defaultwert für end:
+      # Defaultwert fÃ¼r end:
       end_default_len(STACK_1,STACK_5,STACK_0);
-      # Argumente start und end überprüfen:
+      # Argumente start und end Ã¼berprÃ¼fen:
       test_start_end(&O(kwpair_start),&STACK_1);
-      # key überprüfen:
+      # key Ã¼berprÃ¼fen:
       test_key_arg(&STACK_7);
       # l := (- end start), ein Integer >=0
      {var object l = I_I_minus_I(STACK_1,STACK_2);
       pushSTACK(l);
       # Stackaufbau: sequence, predicate, key, start, end, typdescr, l.
       if (!(eq(l,Fixnum_0))) # Bei l=0 ist nichts zu tun
-        { # Hilfssequence der Länge (floor l 2) erzeugen:
+        { # Hilfssequence der LÃ¤nge (floor l 2) erzeugen:
           { pushSTACK(I_I_ash_I(l,Fixnum_minus1)); # (ASH l -1) = (FLOOR l 2)
             funcall(seq_make(STACK_(1+1)),1); # (SEQ-MAKE (FLOOR l 2))
             pushSTACK(value1); # =: seq2
@@ -4098,7 +4098,7 @@ LISPFUN(search,2,0,norest,key,8,\
           pushSTACK(STACK_(6+1)); pushSTACK(STACK_(3+1+1));
           funcall(seq_init_start(STACK_(1+1+2)),2); # (SEQ-INIT-START sequence start)
           l = STACK_(0+1); STACK_(0+1) = STACK_0; skipSTACK(1); # seq2 ersetzt l im Stack
-          sort_part(value1,l,&STACK_5); # Stück der Länge l ab start sortieren
+          sort_part(value1,l,&STACK_5); # StÃ¼ck der LÃ¤nge l ab start sortieren
         }
       skipSTACK(6); value1 = popSTACK(); mv_count=1; # sortierte sequence als Wert
     }}
@@ -4114,32 +4114,32 @@ LISPFUN(stable_sort,2,0,norest,key,3, (kw(key),kw(start),kw(end)) )
 LISPFUN(merge,4,0,norest,key,1, (kw(key)) )
 # (MERGE result-type sequence1 sequence2 predicate [:key]), CLTL S. 260
   { # Stackaufbau: result-type, sequence1, sequence2, predicate, key.
-    # key-Argument überprüfen:
+    # key-Argument Ã¼berprÃ¼fen:
     test_key_arg(&STACK_4);
-    # sequence1 überprüfen:
+    # sequence1 Ã¼berprÃ¼fen:
     {var object seq1 = STACK_3;
      pushSTACK(seq1);
      pushSTACK(get_valid_seq_type(seq1));
     }
-    # sequence2 überprüfen:
+    # sequence2 Ã¼berprÃ¼fen:
     {var object seq2 = STACK_(2+2);
      pushSTACK(seq2);
      pushSTACK(get_valid_seq_type(seq2));
     }
-    # result-type überprüfen:
+    # result-type Ã¼berprÃ¼fen:
     {var object typdescr3 = valid_type(STACK_(4+4));
      pushSTACK(typdescr3);
     }
     # Stackaufbau: result-type, sequence1, sequence2, predicate, key,
     #              sequence1, typdescr1, sequence2, typdescr2, result-type-len, typdescr3.
-    # Längen von sequence1 und sequence2 bestimmen:
+    # LÃ¤ngen von sequence1 und sequence2 bestimmen:
     { pushSTACK(STACK_5); funcall(seq_length(STACK_(4+1)),1); # (SEQ-LENGTH sequence1)
       pushSTACK(value1); # =: len1
     }
     { pushSTACK(STACK_(3+1)); funcall(seq_length(STACK_(2+1+1)),1); # (SEQ-LENGTH sequence2)
       pushSTACK(value1); # =: len2
     }
-    # beide Längen addieren und neue Sequence der Gesamtlänge bilden:
+    # beide LÃ¤ngen addieren und neue Sequence der GesamtlÃ¤nge bilden:
     { pushSTACK(I_I_plus_I(STACK_1,STACK_0)); # (+ len1 len2)
       if (!(eq(STACK_(1+3),unbound) || eql(STACK_0,STACK_(1+3))))
         { fehler_seqtype_length(STACK_(1+3),STACK_0); }
@@ -4162,7 +4162,7 @@ LISPFUN(merge,4,0,norest,key,1, (kw(key)) )
     # Stackaufbau: result-type, sequence1, sequence2, predicate, key,
     #              sequence1, typdescr1, sequence2, typdescr2, sequence3, typdescr3,
     #              len1, len2, pointer1, pointer2, pointer3.
-    # Merge-Operation durchführen:
+    # Merge-Operation durchfÃ¼hren:
     merge(&STACK_(1+6+5));
     value1 = STACK_(1+5); mv_count=1; # sequence3 als Wert
     skipSTACK(5+6+5);
@@ -4171,16 +4171,16 @@ LISPFUN(merge,4,0,norest,key,1, (kw(key)) )
 LISPFUN(read_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 # (READ-CHAR-SEQUENCE sequence stream [:start] [:end]), cf. dpANS S. 21-26
   { # Stackaufbau: sequence, stream, start, end.
-    # sequence überprüfen:
+    # sequence Ã¼berprÃ¼fen:
     pushSTACK(get_valid_seq_type(STACK_3));
     # Stackaufbau: sequence, stream, start, end, typdescr.
-    # Stream überprüfen:
+    # Stream Ã¼berprÃ¼fen:
     if (!streamp(STACK_3)) { fehler_stream(STACK_3); }
-    # Defaultwert für start ist 0:
+    # Defaultwert fÃ¼r start ist 0:
     start_default_0(STACK_2);
-    # Defaultwert für end ist die Länge der Sequence:
+    # Defaultwert fÃ¼r end ist die LÃ¤nge der Sequence:
     end_default_len(STACK_1,STACK_4,STACK_0);
-    # start- und end-Argumente überprüfen:
+    # start- und end-Argumente Ã¼berprÃ¼fen:
     test_start_end(&O(kwpair_start),&STACK_1);
     if (eq(seq_type(STACK_0),S(string))) # Typname = STRING ?
       {  var uintL start = posfixnum_to_L(STACK_2);
@@ -4217,16 +4217,16 @@ LISPFUN(read_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(write_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 # (WRITE-CHAR-SEQUENCE sequence stream [:start] [:end]), cf. dpANS S. 21-27
   { # Stackaufbau: sequence, stream, start, end.
-    # sequence überprüfen:
+    # sequence Ã¼berprÃ¼fen:
     pushSTACK(get_valid_seq_type(STACK_3));
     # Stackaufbau: sequence, stream, start, end, typdescr.
-    # Stream überprüfen:
+    # Stream Ã¼berprÃ¼fen:
     if (!streamp(STACK_3)) { fehler_stream(STACK_3); }
-    # Defaultwert für start ist 0:
+    # Defaultwert fÃ¼r start ist 0:
     start_default_0(STACK_2);
-    # Defaultwert für end ist die Länge der Sequence:
+    # Defaultwert fÃ¼r end ist die LÃ¤nge der Sequence:
     end_default_len(STACK_1,STACK_4,STACK_0);
-    # start- und end-Argumente überprüfen:
+    # start- und end-Argumente Ã¼berprÃ¼fen:
     test_start_end(&O(kwpair_start),&STACK_1);
     if (eq(seq_type(STACK_0),S(string))) # Typname = STRING ?
       { var uintL start = posfixnum_to_L(STACK_2);
@@ -4263,16 +4263,16 @@ LISPFUN(write_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 # (READ-BYTE-SEQUENCE sequence stream [:start] [:end]), cf. dpANS S. 21-26
   { # Stackaufbau: sequence, stream, start, end.
-    # sequence überprüfen:
+    # sequence Ã¼berprÃ¼fen:
     pushSTACK(get_valid_seq_type(STACK_3));
     # Stackaufbau: sequence, stream, start, end, typdescr.
-    # Stream überprüfen:
+    # Stream Ã¼berprÃ¼fen:
     if (!streamp(STACK_3)) { fehler_stream(STACK_3); }
-    # Defaultwert für start ist 0:
+    # Defaultwert fÃ¼r start ist 0:
     start_default_0(STACK_2);
-    # Defaultwert für end ist die Länge der Sequence:
+    # Defaultwert fÃ¼r end ist die LÃ¤nge der Sequence:
     end_default_len(STACK_1,STACK_4,STACK_0);
-    # start- und end-Argumente überprüfen:
+    # start- und end-Argumente Ã¼berprÃ¼fen:
     test_start_end(&O(kwpair_start),&STACK_1);
     if (eq(seq_type(STACK_0),fixnum(8))) # Typname = (VECTOR (UNSIGNED-BYTE 8)) ?
       { var uintL start = posfixnum_to_L(STACK_2);
@@ -4306,16 +4306,16 @@ LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 LISPFUN(write_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
 # (WRITE-BYTE-SEQUENCE sequence stream [:start] [:end]), cf. dpANS S. 21-27
   { # Stackaufbau: sequence, stream, start, end.
-    # sequence überprüfen:
+    # sequence Ã¼berprÃ¼fen:
     pushSTACK(get_valid_seq_type(STACK_3));
     # Stackaufbau: sequence, stream, start, end, typdescr.
-    # Stream überprüfen:
+    # Stream Ã¼berprÃ¼fen:
     if (!streamp(STACK_3)) { fehler_stream(STACK_3); }
-    # Defaultwert für start ist 0:
+    # Defaultwert fÃ¼r start ist 0:
     start_default_0(STACK_2);
-    # Defaultwert für end ist die Länge der Sequence:
+    # Defaultwert fÃ¼r end ist die LÃ¤nge der Sequence:
     end_default_len(STACK_1,STACK_4,STACK_0);
-    # start- und end-Argumente überprüfen:
+    # start- und end-Argumente Ã¼berprÃ¼fen:
     test_start_end(&O(kwpair_start),&STACK_1);
     if (eq(seq_type(STACK_0),fixnum(8))) # Typname = (VECTOR (UNSIGNED-BYTE 8)) ?
       { var uintL start = posfixnum_to_L(STACK_2);

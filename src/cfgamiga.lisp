@@ -1,6 +1,6 @@
 ;;; ENGLISH: Site specific definitions, to be modified on installation
-;;; DEUTSCH: Funktionen, die beim Transportieren zu ändern sind
-;;; FRANCAIS: Fonctions dépendantes de l'installation
+;;; DEUTSCH: Funktionen, die beim Transportieren zu Ã¤ndern sind
+;;; FRANCAIS: Fonctions dÃ©pendantes de l'installation
 
 (in-package "LISP")
 (mapcar #'fmakunbound '(machine-type machine-version machine-instance
@@ -16,21 +16,21 @@
 
 ;; ENGLISH: The name of the editor:
 ;; DEUTSCH: Der Name des Editors:
-;; FRANCAIS: Nom de l'éditeur :
+;; FRANCAIS: Nom de l'Ã©diteur :
 (defparameter *editor* "emacs")
 (defun editor-name () (or (sys::getenv "EDITOR") *editor*))
 
 ;; ENGLISH: The temporary file LISP creates for editing:
-;; DEUTSCH: Das temporäre File, das LISP beim Editieren anlegt:
-;; FRANCAIS: Fichier temporaire créé par LISP pour l'édition :
+;; DEUTSCH: Das temporÃ¤re File, das LISP beim Editieren anlegt:
+;; FRANCAIS: Fichier temporaire crÃ©Ã© par LISP pour l'Ã©dition :
 (defun editor-tempfile () "T:lisptemp.lisp")
 
 ;; ENGLISH: The list of directories where programs are searched on LOAD etc.
 ;;          if device and directory are unspecified:
 ;; DEUTSCH: Die Liste von Directories, in denen Programme bei LOAD etc. gesucht
 ;;          werden, wenn dabei Laufwerk und Directory nicht angegeben ist:
-;; FRANCAIS: Liste de répertoires où chercher un fichier lorsqu'un répertoire
-;;           particulier n'est pas indiqué :
+;; FRANCAIS: Liste de rÃ©pertoires oÃ¹ chercher un fichier lorsqu'un rÃ©pertoire
+;;           particulier n'est pas indiquÃ© :
 (defparameter *load-paths*
   '(#"**/"      ; erst in allen Directories unterhalb von hier
     #"LISP:**/" ; dann in allen Directories unterhalb von LISP:
@@ -39,15 +39,15 @@
 
 ;; ENGLISH: This makes screen output both faster and output prettier:
 ;; DEUTSCH: Dadurch sehen Bildschirmausgaben schneller und besser aus:
-;; FRANCAIS: Pour que les sorties sur l'écran soient plus rapides et plus lisibles:
+;; FRANCAIS: Pour que les sorties sur l'Ã©cran soient plus rapides et plus lisibles:
 (setq *print-pretty* t)
 
 ;; ENGLISH: Also set the variable *default-time-zone* in TIMEZONE.LISP according
 ;;          to your time zone.
 ;; DEUTSCH: Setzen Sie auch die Variable *default-time-zone* in TIMEZONE.LISP
-;;          auf die bei Ihnen gültige Zeitzone.
-;; FRANCAIS: Dans TIMEZONE.LISP, affectez à *default-time-zone* la valeur
-;;           correspondante à votre fuseau horaire.
+;;          auf die bei Ihnen gÃ¼ltige Zeitzone.
+;; FRANCAIS: Dans TIMEZONE.LISP, affectez Ã  *default-time-zone* la valeur
+;;           correspondante Ã  votre fuseau horaire.
 ;; (setq *default-time-zone* 0)
 
 ;; ENGLISH: Common Lisp HyperSpec access

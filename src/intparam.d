@@ -1,10 +1,10 @@
-# Bestimmung einiger Maschinen-Parameter und -Abh‰ngigkeiten
+# Bestimmung einiger Maschinen-Parameter und -Abh√§ngigkeiten
 # und Ausgabe in ein Include-File
 # Bruno Haible 10.9.1991, 12.10.1992, 6.12.1992, 24.10.1993
 
 # Auf einigen Systemen werden in <sys/types.h> die Typen uchar, ushort, uint,
 # ulong definiert. Normalerweise reicht _POSIX_SOURCE aus, dies zu verhindern,
-# bei AIX 3.2.5 (rs6000-ibm-aix3.2.5) jedoch nicht. Wir m¸ssen Gewalt anwenden.
+# bei AIX 3.2.5 (rs6000-ibm-aix3.2.5) jedoch nicht. Wir m√ºssen Gewalt anwenden.
 #define _POSIX_SOURCE
 #define uchar  os_uchar
 #define ushort os_ushort
@@ -42,7 +42,7 @@ typedef unsigned long long  ulonglong;
 #endif
 typedef int (function)();
 
-static int random_table[256] = # 2048 zuf‰llige Bits, hier von pi
+static int random_table[256] = # 2048 zuf√§llige Bits, hier von pi
   { 0xC9,0x0F,0xDA,0xA2,0x21,0x68,0xC2,0x34,0xC4,0xC6,0x62,0x8B,
     0x80,0xDC,0x1C,0xD1,0x29,0x02,0x4E,0x08,0x8A,0x67,0xCC,0x74,
     0x02,0x0B,0xBE,0xA6,0x3B,0x13,0x9B,0x22,0x51,0x4A,0x08,0x79,
@@ -346,7 +346,7 @@ void main5(void) {
       if (!sign_extends && !zero_extends)                                                                  \
         printf("#error \"Casts from %s to %s works in an unknown manner!!\"\n",typestr1,typestr2);         \
     }
-  # erst Casts zwischen Integers vermutlich gleicher Grˆﬂe:
+  # erst Casts zwischen Integers vermutlich gleicher Gr√∂√üe:
   test_integer_casts(schar,uchar,"char","unsigned char",char_bitsize,uchar_bitsize,0);
   test_integer_casts(short,ushort,"short","unsigned short",short_bitsize,ushort_bitsize,0);
   test_integer_casts(int,uint,"int","unsigned int",int_bitsize,uint_bitsize,0);
@@ -359,7 +359,7 @@ void main5(void) {
   test_integer_casts(longlong,ulonglong,"long long","unsigned long long",longlong_bitsize,ulonglong_bitsize,0);
   test_integer_casts(ulonglong,longlong,"unsigned long long","long long",ulonglong_bitsize,longlong_bitsize,0);
 #endif
-  # dann Casts zwischen Integers unterschiedlicher Grˆﬂe, aber gleichen Vorzeichens:
+  # dann Casts zwischen Integers unterschiedlicher Gr√∂√üe, aber gleichen Vorzeichens:
   test_integer_casts(uchar,ushort,"unsigned char","unsigned short",uchar_bitsize,ushort_bitsize,1);
   test_integer_casts(uchar,uint,"unsigned char","unsigned int",uchar_bitsize,uint_bitsize,1);
   test_integer_casts(uchar,ulong,"unsigned char","unsigned long",uchar_bitsize,ulong_bitsize,1);
@@ -384,7 +384,7 @@ void main5(void) {
   test_integer_casts(int,longlong,"int","long long",int_bitsize,longlong_bitsize,2);
   test_integer_casts(long,longlong,"long","long long",long_bitsize,longlong_bitsize,2);
 #endif
-  # dann Casts zwischen Integers unterschiedlicher Grˆﬂe und unterschiedlichen Vorzeichens:
+  # dann Casts zwischen Integers unterschiedlicher Gr√∂√üe und unterschiedlichen Vorzeichens:
   test_integer_casts(uchar,short,"unsigned char","short",uchar_bitsize,short_bitsize,1);
   test_integer_casts(uchar,int,"unsigned char","int",uchar_bitsize,int_bitsize,1);
   test_integer_casts(uchar,long,"unsigned char","long",uchar_bitsize,long_bitsize,1);

@@ -27,7 +27,7 @@
     {
       # SYS::*PRIN-LINELENGTH* := Breite des Terminal-Fensters - 1
       #if !defined(NEXTAPP)
-      # [vgl. 'term.c' in 'calc' von Hans-J. Bˆhm, Vernon Lee, Alan J. Demers]
+      # [vgl. 'term.c' in 'calc' von Hans-J. B√∂hm, Vernon Lee, Alan J. Demers]
       if (isatty(stdout_handle)) { # Standard-Output ein Terminal?
         /* var int lines = 0; */
         var int columns = 0;
@@ -45,7 +45,7 @@
           goto OK;
         #endif
         #if !defined(NO_TERMCAP_NCURSES)
-        # Nun probieren wir's ¸ber termcap:
+        # Nun probieren wir's √ºber termcap:
         {
           var const char* term_name = getenv("TERM");
           if (term_name==NULL)
@@ -57,18 +57,18 @@
           }
         }
         #endif
-        # Hoffentlich enth‰lt columns jetzt einen vern¸nftigen Wert.
+        # Hoffentlich enth√§lt columns jetzt einen vern√ºnftigen Wert.
         if (/* (lines > 0) && */ (columns > 0))
           goto OK;
         if (FALSE) {
          OK:
-          # Wert von SYS::*PRIN-LINELENGTH* ver‰ndern:
+          # Wert von SYS::*PRIN-LINELENGTH* ver√§ndern:
           Symbol_value(S(prin_linelength)) = fixnum(columns-1);
         }
       }
       #else # defined(NEXTAPP)
       if (nxterminal_line_length > 0) {
-        # Wert von SYS::*PRIN-LINELENGTH* ver‰ndern:
+        # Wert von SYS::*PRIN-LINELENGTH* ver√§ndern:
         Symbol_value(S(prin_linelength)) = fixnum(nxterminal_line_length-1);
       }
       #endif
@@ -78,7 +78,7 @@
 
 #if defined(HAVE_SIGNALS) && defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
 
-# Signal-Handler f¸r Signal SIGWINCH:
+# Signal-Handler f√ºr Signal SIGWINCH:
   local void sigwinch_handler (int sig);
   local void sigwinch_handler(sig)
     var int sig; # sig = SIGWINCH
@@ -95,8 +95,8 @@
 #endif
 
 #if defined(HAVE_SIGNALS) && defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
-  # Signal SIGWINCH blockieren, denn eine Ver‰nderung des Wertes von
-  # SYS::*PRIN-LINELENGTH* kˆnnen wir w‰hrend der GC nicht brauchen.
+  # Signal SIGWINCH blockieren, denn eine Ver√§nderung des Wertes von
+  # SYS::*PRIN-LINELENGTH* k√∂nnen wir w√§hrend der GC nicht brauchen.
   # Dann Signal SIGWINCH wieder freigeben.
   #define gc_signalblock_on()  signalblock_on(SIGWINCH)
   #define gc_signalblock_off()  signalblock_off(SIGWINCH)

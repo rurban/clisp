@@ -1,5 +1,5 @@
 ;;;; File DEFMACRO.LISP
-;;; Macro DEFMACRO und einige Hilfsfunktionen für komplizierte Macros.
+;;; Macro DEFMACRO und einige Hilfsfunktionen fÃ¼r komplizierte Macros.
 ;;; 1. 9. 1988
 ;;; Adaptiert an DEFTYPE am 10.6.1989
 
@@ -17,11 +17,11 @@
 |#
 #| (SYSTEM::KEYWORD-TEST arglist kwlist)
    testet, ob arglist (eine paarige Keyword/Value-Liste) nur Keywords
-   enthält, die auch in der Liste kwlist vorkommen, oder aber ein
-   Keyword/Value-Paar :ALLOW-OTHER-KEYS mit Value /= NIL enthält.
-   Wenn nein, wird ein Error ausgelöst.
+   enthÃ¤lt, die auch in der Liste kwlist vorkommen, oder aber ein
+   Keyword/Value-Paar :ALLOW-OTHER-KEYS mit Value /= NIL enthÃ¤lt.
+   Wenn nein, wird ein Error ausgelÃ¶st.
 |#
-#| (keyword-test arglist kwlist) überprüft, ob in arglist (eine Liste
+#| (keyword-test arglist kwlist) Ã¼berprÃ¼ft, ob in arglist (eine Liste
 von Keyword/Value-Paaren) nur Keywords vorkommen, die in kwlist vorkommen,
 oder ein Keyword/Value-Paar mit Keyword = :ALLOW-OTHER-KEYS und Value /= NIL
 vorkommt. Sollte dies nicht der Fall sein, wird eine Errormeldung ausgegeben.
@@ -57,20 +57,20 @@ vorkommt. Sollte dies nicht der Fall sein, wird eine Errormeldung ausgegeben.
 
 (proclaim '(special
         %restp ; gibt an, ob &REST/&BODY/&KEY angegeben wurde,
-               ; also ob die Argumentanzahl unbeschränkt ist.
+               ; also ob die Argumentanzahl unbeschrÃ¤nkt ist.
 
         %min-args ; gibt die Anzahl der notwendigen Argumente an
 
         %arg-count ; gibt die Anzahl der Einzelargumente an
-                   ; (notwendige und optionale Argumente, zusammengezählt)
+                   ; (notwendige und optionale Argumente, zusammengezÃ¤hlt)
 
         %let-list ; umgedrehte Liste der Bindungen, die mit LET* zu machen sind
 
         %keyword-tests ; Liste der KEYWORD-TEST - Aufrufe, die einzubinden sind
 
-        %default-form ; Default-Form für optionale und Keyword-Argumente,
+        %default-form ; Default-Form fÃ¼r optionale und Keyword-Argumente,
                    ; bei denen keine Default-Form angegeben ist.
-                   ; =NIL normalerweise, = (QUOTE *) für DEFTYPE.
+                   ; =NIL normalerweise, = (QUOTE *) fÃ¼r DEFTYPE.
 )          )
 #|
 (ANALYZE1 lambdalist accessexp name wholevar)
@@ -92,7 +92,7 @@ analysiert den Teil einer Macro-Lambdaliste, der nach &AUX kommt.
 
 (REMOVE-ENV-ARG lambdalist name)
 entfernt das Paar &ENVIRONMENT/Symbol aus einer Macro-Lambdaliste,
-liefert zwei Werte: die verkürzte Lambdaliste und das als Environment zu
+liefert zwei Werte: die verkÃ¼rzte Lambdaliste und das als Environment zu
 verwendende Symbol (oder die Lambdaliste selbst und NIL, falls &ENVIRONMENT
 nicht auftritt).
 
@@ -110,7 +110,7 @@ liefert zu einer Macrodefinition macrodef = (name lambdalist . body)
 
 (MAKE-MACRO-EXPANDER macrodef)
 liefert zu einer Macrodefinition macrodef = (name lambdalist . body)
-das fürs FENV bestimmte Objekt #<MACRO expander>.
+das fÃ¼rs FENV bestimmte Objekt #<MACRO expander>.
 |#
 
 (%proclaim-constant 'macro-missing-value (list 'macro-missing-value))
@@ -552,7 +552,7 @@ das fürs FENV bestimmte Objekt #<MACRO expander>.
                      (LAMBDA (<MACRO-FORM> &OPTIONAL ,(or envvar '<ENV-ARG>))
                        (DECLARE (CONS <MACRO-FORM>))
                        ,@(if envvar
-                           declarations ; enthält evtl. ein (declare (ignore envvar))
+                           declarations ; enthÃ¤lt evtl. ein (declare (ignore envvar))
                            '((DECLARE (IGNORE <ENV-ARG>)))
                          )
                        ,@(if docstring (list docstring))

@@ -1,6 +1,6 @@
 /* Tiny GCC Library
  * string.h
- * Jörg Höhle, 13-Jul-94
+ * JÃ¶rg HÃ¶hle, 13-Jul-94
  */
 
 #ifndef _STRING_H_

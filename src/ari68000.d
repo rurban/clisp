@@ -1,10 +1,10 @@
 # Externe Routinen zu ARILEV1.D
 # Compiler: CC oder GNU-C auf SUN3 oder AMIGA
-# Parameter-‹bergabe:
-#   auf dem Stack: sp@(4), sp@(8), ... (.W-Grˆﬂen belegen 4 Byte!),
-#   R¸ckgabewert in d0.
+# Parameter-√úbergabe:
+#   auf dem Stack: sp@(4), sp@(8), ... (.W-Gr√∂√üen belegen 4 Byte!),
+#   R√ºckgabewert in d0.
 # Register a0-a1,d0-d1 frei verwendbar,
-# Register a2-a4,d2-d7 m¸ssen gerettet werden.
+# Register a2-a4,d2-d7 m√ºssen gerettet werden.
 # Einstellungen: intCsize=16, intDsize=16.
 
 #ifdef INCLUDED_FROM_C
@@ -58,7 +58,7 @@ mulu32_:   ! Input in d0,d1, Output in d0,mulu32_high
            mulu d3,d2   ! d2.L = a*d
            mulu d0,d4   ! d4.L = b*c
            mulu d3,d0   ! d0.L = b*d
-           clrl d3      ! Hilfsregister f¸r Zero-Extend
+           clrl d3      ! Hilfsregister f√ºr Zero-Extend
            swap d2
            movew d2,d3
            addl d3,d1   ! high16(a*d) zu d1.L addieren
@@ -126,7 +126,7 @@ _fill_loop_down: | Input in a0,d0.W,d1.W, Output in d0
            rts
 
 | extern uintD* clear_loop_up (uintD* destptr, uintC count);
-_clear_loop_up: | Input in a0,d0.W, ver‰ndert d1, Output in d0
+_clear_loop_up: | Input in a0,d0.W, ver√§ndert d1, Output in d0
            movel sp@(4),a0
            movew sp@(8+2),d0
            moveq #0,d1
@@ -137,7 +137,7 @@ _clear_loop_up: | Input in a0,d0.W, ver‰ndert d1, Output in d0
            rts
 
 | extern uintD* clear_loop_down (uintD* destptr, uintC count);
-_clear_loop_down: | Input in a0,d0.W, ver‰ndert d1, Output in d0
+_clear_loop_down: | Input in a0,d0.W, ver√§ndert d1, Output in d0
            movel sp@(4),a0
            movew sp@(8+2),d0
            moveq #0,d1
@@ -148,7 +148,7 @@ _clear_loop_down: | Input in a0,d0.W, ver‰ndert d1, Output in d0
            rts
 
 | extern void or_loop_up (uintD* xptr, uintD* yptr, uintC count);
-_or_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
+_or_loop_up: | Input in a0,a1,d0.W, ver√§ndert d1
            movel sp@(4),a0
            movel sp@(8),a1
            movew sp@(12+2),d0
@@ -159,7 +159,7 @@ _or_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void xor_loop_up (uintD* xptr, uintD* yptr, uintC count);
-_xor_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
+_xor_loop_up: | Input in a0,a1,d0.W, ver√§ndert d1
            movel sp@(4),a0
            movel sp@(8),a1
            movew sp@(12+2),d0
@@ -170,7 +170,7 @@ _xor_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void and_loop_up (uintD* xptr, uintD* yptr, uintC count);
-_and_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
+_and_loop_up: | Input in a0,a1,d0.W, ver√§ndert d1
            movel sp@(4),a0
            movel sp@(8),a1
            movew sp@(12+2),d0
@@ -181,7 +181,7 @@ _and_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void eqv_loop_up (uintD* xptr, uintD* yptr, uintC count);
-_eqv_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
+_eqv_loop_up: | Input in a0,a1,d0.W, ver√§ndert d1
            movel sp@(4),a0
            movel sp@(8),a1
            movew sp@(12+2),d0
@@ -193,7 +193,7 @@ _eqv_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void nand_loop_up (uintD* xptr, uintD* yptr, uintC count);
-_nand_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
+_nand_loop_up: | Input in a0,a1,d0.W, ver√§ndert d1
            movel sp@(4),a0
            movel sp@(8),a1
            movew sp@(12+2),d0
@@ -205,7 +205,7 @@ _nand_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void nor_loop_up (uintD* xptr, uintD* yptr, uintC count);
-_nor_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
+_nor_loop_up: | Input in a0,a1,d0.W, ver√§ndert d1
            movel sp@(4),a0
            movel sp@(8),a1
            movew sp@(12+2),d0
@@ -217,7 +217,7 @@ _nor_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
-_andc2_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
+_andc2_loop_up: | Input in a0,a1,d0.W, ver√§ndert d1
            movel sp@(4),a0
            movel sp@(8),a1
            movew sp@(12+2),d0
@@ -229,7 +229,7 @@ _andc2_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
-_orc2_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1
+_orc2_loop_up: | Input in a0,a1,d0.W, ver√§ndert d1
            movel sp@(4),a0
            movel sp@(8),a1
            movew sp@(12+2),d0
@@ -250,7 +250,7 @@ _not_loop_up: | Input in a0,d0.W
            rts
 
 | extern boolean and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
-_and_test_loop_up: | Input in a0,a1,d0.W, ver‰ndert d1, Output in d0.W=d0.L
+_and_test_loop_up: | Input in a0,a1,d0.W, ver√§ndert d1, Output in d0.W=d0.L
            movel sp@(4),a0
            movel sp@(8),a1
            movew sp@(12+2),d0
@@ -295,20 +295,20 @@ _compare_loop_up: | Input in a0,a1,d0.W, Output in d0.W=d0.L
            rts
 
 | extern uintD add_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
-_add_loop_down: | Input in a0,a1,a2,d0.W, ver‰ndert d1,d2, Output in d0.W
+_add_loop_down: | Input in a0,a1,a2,d0.W, ver√§ndert d1,d2, Output in d0.W
            moveml a2/d2,sp@-
            movel sp@(8+4),a0
            movel sp@(8+8),a1
            movel sp@(8+12),a2
            movew sp@(8+16+2),d0
-           andb #0x0e,ccr   | X-Bit lˆschen
+           andb #0x0e,ccr   | X-Bit l√∂schen
            bras 2f
     1:       movew a0@-,d1
              movew a1@-,d2
              addxw d2,d1
              movew d1,a2@-
     2:       dbra d0,1b
-           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            moveml sp@+,a2/d2
            rts
 
@@ -317,11 +317,11 @@ _addto_loop_down: | Input in a0,a1,d0.W, Output in d0.W
            movel sp@(4),a0
            movel sp@(8),a1
            movew sp@(12+2),d0
-           andb #0x0e,ccr   | X-Bit lˆschen
+           andb #0x0e,ccr   | X-Bit l√∂schen
            bras 2f
     1:       addxw a0@-,a1@-
     2:       dbra d0,1b
-           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            rts
 
 | extern uintD inc_loop_down (uintD* ptr, uintC count);
@@ -329,33 +329,33 @@ _inc_loop_down: | Input in a0,d0.W, Output in d0.W
            movel sp@(4),a0
            movew sp@(8+2),d0
            dbra d0,1f          | simuliere gesetzten Carry
-                              | d0.W=-1 f¸r ‹bertrag
+                              | d0.W=-1 f√ºr √úbertrag
            rts
     1:       addqw #1,a0@-
              dbcc d0,1b       | kein Carry -> Schleife abbrechen
-           subxw d0,d0       | kein Carry -> d0.W=0, sonst d0.W=-1 f¸r ‹bertrag
+           subxw d0,d0       | kein Carry -> d0.W=0, sonst d0.W=-1 f√ºr √úbertrag
            rts
 
 | extern uintD sub_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
-_sub_loop_down: | Input in a0,a1,a2,d0.W, ver‰ndert d1,d2, Output in d0.W
+_sub_loop_down: | Input in a0,a1,a2,d0.W, ver√§ndert d1,d2, Output in d0.W
            moveml a2/d2,sp@-
            movel sp@(8+4),a0
            movel sp@(8+8),a1
            movel sp@(8+12),a2
            movew sp@(8+16+2),d0
-           andb #0x0e,ccr   | X-Bit lˆschen
+           andb #0x0e,ccr   | X-Bit l√∂schen
            bras 2f
     1:       movew a0@-,d1
              movew a1@-,d2
              subxw d2,d1
              movew d1,a2@-
     2:       dbra d0,1b
-           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            moveml sp@+,a2/d2
            rts
 
 | extern uintD subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
-_subx_loop_down: | Input in a0,a1,a2,d0.W,d1.W, ver‰ndert d2, Output in d0.W
+_subx_loop_down: | Input in a0,a1,a2,d0.W,d1.W, ver√§ndert d2, Output in d0.W
            moveml a2/d2,sp@-
            movel sp@(8+4),a0
            movel sp@(8+8),a1
@@ -369,7 +369,7 @@ _subx_loop_down: | Input in a0,a1,a2,d0.W,d1.W, ver‰ndert d2, Output in d0.W
              subxw d2,d1
              movew d1,a2@-
     2:       dbra d0,1b
-           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            moveml sp@+,a2/d2
            rts
 
@@ -378,11 +378,11 @@ _subfrom_loop_down: | Input in a0,a1,d0.W, Output in d0.W
            movel sp@(4),a0
            movel sp@(8),a1
            movew sp@(12+2),d0
-           andb #0x0e,ccr   | X-Bit lˆschen
+           andb #0x0e,ccr   | X-Bit l√∂schen
            bras 2f
     1:       subxw a0@-,a1@-
     2:       dbra d0,1b
-           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            rts
 
 | extern uintD dec_loop_down (uintD* ptr, uintC count);
@@ -390,33 +390,33 @@ _dec_loop_down: | Input in a0,d0.W, Output in d0.W
            movel sp@(4),a0
            movew sp@(8+2),d0
            dbra d0,1f          | simuliere gesetzten Carry
-                              | d0.W=-1 als ‹bertrag
+                              | d0.W=-1 als √úbertrag
            rts
     1:       subqw #1,a0@-
              dbcc d0,1b       | kein Carry -> Schleife abbrechen
-           subxw d0,d0       | kein Carry -> d0.W=0, sonst d0.W=-1 als ‹bertrag
+           subxw d0,d0       | kein Carry -> d0.W=0, sonst d0.W=-1 als √úbertrag
            rts
 
 | extern uintD neg_loop_down (uintD* ptr, uintC count);
 _neg_loop_down: | Input in a0,d0.W, Output in d0.W
            movel sp@(4),a0
            movew sp@(8+2),d0
-           andb #0x0e,ccr   | X-Bit lˆschen
+           andb #0x0e,ccr   | X-Bit l√∂schen
            bras 2f
     1:       negxw a0@-
     2:       dbra d0,1b
-           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            rts
 
 | extern uintD shift1left_loop_down (uintD* ptr, uintC count);
 _shift1left_loop_down: | Input in a0,d0.W, Output in d0.W
            movel sp@(4),a0
            movew sp@(8+2),d0
-           andb #0x0e,ccr   | X-Bit lˆschen
+           andb #0x0e,ccr   | X-Bit l√∂schen
            bras 2f
     1:       roxlw a0@-     | Digit a0@- um 1 Bit links schieben, X-Bit als Buffer
     2:       dbra d0,1b
-           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            rts
 
 | extern uintD shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry);
@@ -427,15 +427,15 @@ _shiftleft_loop_down: | Input in a0,d0.W,d1.W,d2.W, Output in d0.W
            movew sp@(8+12+2),d1
            movew sp@(8+16+2),d2
            | a0 = ptr, d0.W = count, d1.W = i,
-           | d2.W = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.W = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            bras 2f
     1:       clrl d3
              movew a0@-,d3  | d3.L = d3.W = neues Digit
              lsll d1,d3      | um i Bits nach links schieben
-             orw d2,d3       | d3 enth‰lt die letzten 16+i Bits
+             orw d2,d3       | d3 enth√§lt die letzten 16+i Bits
              movew d3,a0@   | 16 Bits ablegen
              swap d3
-             movew d3,d2     | neuen ‹bertrag bilden
+             movew d3,d2     | neuen √úbertrag bilden
     2:       dbra d0,1b        | Schleife d0.W mal durchlaufen
            movew d2,d0
            moveml sp@+,d2-d3
@@ -450,15 +450,15 @@ _shiftleftcopy_loop_down: | Input in a0,a1,d0.W,d1.W, Output in d0.W
            movew sp@(8+16+2),d1
            clrw d2
            | a0 = sourceptr, a1 = destptr, d0.W = count, d1.W = i,
-           | d2.W = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.W = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            bras 2f
     1:       clrl d3
              movew a0@-,d3  | d3.L = d3.W = neues Digit
              lsll d1,d3      | um i Bits nach links schieben
-             orw d2,d3       | d3 enth‰lt die letzten 16+i Bits
+             orw d2,d3       | d3 enth√§lt die letzten 16+i Bits
              movew d3,a1@-  | 16 Bits ablegen
              swap d3
-             movew d3,d2     | neuen ‹bertrag bilden
+             movew d3,d2     | neuen √úbertrag bilden
     2:       dbra d0,1b        | Schleife d0.W mal durchlaufen
            movew d2,d0
            moveml sp@+,d2-d3
@@ -469,11 +469,11 @@ _shift1right_loop_up: | Input in a0,d0.W,d1.W, Output in d0.W
            movel sp@(4),a0
            movew sp@(8+2),d0
            movew sp@(12+2),d1
-           roxrw #1,d1       | X-Bit lˆschen oder setzen, je nach d1.W
+           roxrw #1,d1       | X-Bit l√∂schen oder setzen, je nach d1.W
            bras 2f
     1:       roxrw a0@+     | Digit a0@+ um 1 Bit rechts schieben, X-Bit als Buffer
     2:       dbra d0,1b
-           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxw d0,d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            rts
 
 | extern uintD shiftright_loop_up (uintD* ptr, uintC count, uintC i);
@@ -483,20 +483,20 @@ _shiftright_loop_up: | Input in a0,d0.W,d1.W, Output in d0.W
            movew sp@(8+8+2),d0
            movew sp@(8+12+2),d1
            | a0 = ptr, d0.W = count, d1.W = i,
-           | d2.L = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
-           clrl d2           | ‹bertrag = 0
+           | d2.L = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
+           clrl d2           | √úbertrag = 0
            bras 2f
-    1:       | a0 = Aufw‰rtsz‰hler Adresse, d0.W = Herabz‰hler, d1.W = i,
-             | d2.L = Schiebe-‹bertrag (obere i Bits, restliche 32-i Bits sind 0)
+    1:       | a0 = Aufw√§rtsz√§hler Adresse, d0.W = Herabz√§hler, d1.W = i,
+             | d2.L = Schiebe-√úbertrag (obere i Bits, restliche 32-i Bits sind 0)
              | d3.L = Schiebe-Akku
              clrl d3
              movew a0@,d3   | neue Daten
              swap d3          | nach Bit 31..16(d3), d3.W = 0
              lsrl d1,d3      | Bits 31-i..16-i(d3) sind die neuen Daten
              orl d3,d2       | Bits 31..16-i(d3) sind die bisherigen Daten
-             swap d2          | untere 16 Bit ergeben neuen ‹bertrag,
+             swap d2          | untere 16 Bit ergeben neuen √úbertrag,
              movew d2,a0@+  | obere 16 Bit werden abgespeichert
-             clrw d2         | d2.L = neuer ‹bertrag
+             clrw d2         | d2.L = neuer √úbertrag
     2:       dbra d0,1b        | Schleife d0.W mal durchlaufen
            swap d2
            movew d2,d0
@@ -510,24 +510,24 @@ _shiftrightsigned_loop_up: | Input in a0,d0.W,d1.W, Output in d0.W
            movew sp@(8+8+2),d0
            movew sp@(8+12+2),d1
            | a0 = ptr, d0.W = count, d1.W = i,
-           | d2.L = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.L = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            movew a0@,d2     | erstes Digit
            extl d2           | Vorzeichenbit nach Bit 31..16(d2)
-           clrw d2           | Rest von d2.L lˆschen
-           lsrl d1,d2        | d2.W enth‰lt in seinen oberen i Bits das Vorzeichen
-           swap d2            | ‹bertrag mit i Vorzeichenbits initialisiert
+           clrw d2           | Rest von d2.L l√∂schen
+           lsrl d1,d2        | d2.W enth√§lt in seinen oberen i Bits das Vorzeichen
+           swap d2            | √úbertrag mit i Vorzeichenbits initialisiert
            bras 2f
-    1:       | a0 = Aufw‰rtsz‰hler Adresse, d0.W = Herabz‰hler, d1.W = i,
-             | d2.L = Schiebe-‹bertrag (obere i Bits, restliche 32-i Bits sind 0)
+    1:       | a0 = Aufw√§rtsz√§hler Adresse, d0.W = Herabz√§hler, d1.W = i,
+             | d2.L = Schiebe-√úbertrag (obere i Bits, restliche 32-i Bits sind 0)
              | d3.L = Schiebe-Akku
              clrl d3
              movew a0@,d3   | neue Daten
              swap d3          | nach Bit 31..16(d3), d3.W = 0
              lsrl d1,d3      | Bits 31-i..16-i(d3) sind die neuen Daten
              orl d3,d2       | Bits 31..16-i(d3) sind die bisherigen Daten
-             swap d2          | untere 16 Bit ergeben neuen ‹bertrag,
+             swap d2          | untere 16 Bit ergeben neuen √úbertrag,
              movew d2,a0@+  | obere 16 Bit werden abgespeichert
-    2:       clrw d2         | d2.L = neuer ‹bertrag
+    2:       clrw d2         | d2.L = neuer √úbertrag
              dbra d0,1b        | Schleife d0.W mal durchlaufen
            swap d2
            movew d2,d0
@@ -543,23 +543,23 @@ _shiftrightcopy_loop_up: | Input in a0,a1,d0.W,d1.W,d2.W, Output in d0.W
            movew sp@(8+16+2),d1
            movew sp@(8+20+2),d2
            | a0 = ptr, d0.W = count, d1.W = i,
-           | d2.L = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.L = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            swap d2            | carry nach d2.HW
-           clrw d2           | Rest von d2.L lˆschen
-           lsrl d1,d2        | d2.W enth‰lt in seinen oberen i Bits das Vorzeichen
-           swap d2            | ‹bertrag mit i Vorzeichenbits initialisiert
+           clrw d2           | Rest von d2.L l√∂schen
+           lsrl d1,d2        | d2.W enth√§lt in seinen oberen i Bits das Vorzeichen
+           swap d2            | √úbertrag mit i Vorzeichenbits initialisiert
            bras 2f
-    1:       | a0,a1 = Aufw‰rtsz‰hler Adresse, d0.W = Herabz‰hler, d1.W = i,
-             | d2.L = Schiebe-‹bertrag (obere i Bits, restliche 32-i Bits sind 0)
+    1:       | a0,a1 = Aufw√§rtsz√§hler Adresse, d0.W = Herabz√§hler, d1.W = i,
+             | d2.L = Schiebe-√úbertrag (obere i Bits, restliche 32-i Bits sind 0)
              | d3.L = Schiebe-Akku
              clrl d3
              movew a0@+,d3  | neue Daten
              swap d3          | nach Bit 31..16(d3), d3.W = 0
              lsrl d1,d3      | Bits 31-i..16-i(d3) sind die neuen Daten
              orl d3,d2       | Bits 31..16-i(d3) sind die bisherigen Daten
-             swap d2          | untere 16 Bit ergeben neuen ‹bertrag,
+             swap d2          | untere 16 Bit ergeben neuen √úbertrag,
              movew d2,a1@+  | obere 16 Bit werden abgespeichert
-    2:       clrw d2         | d2.L = neuer ‹bertrag
+    2:       clrw d2         | d2.L = neuer √úbertrag
              dbra d0,1b        | Schleife d0.W mal durchlaufen
            swap d2
            movew d2,d0
@@ -575,9 +575,9 @@ _mulusmall_loop_down: # Input in d0.W,a0,d1.W,d2.W, Output in d0.W
            movew sp@(8+16+2),d2
            extl d2           | carry
            bras 2f
-    1:       movew a0@-,d3  | n‰chstes Digit
+    1:       movew a0@-,d3  | n√§chstes Digit
              mulu d0,d3       | mit digit multiplizieren
-             addl d3,d2      | und zum bisherigen Carry addieren. Kein ‹berlauf!
+             addl d3,d2      | und zum bisherigen Carry addieren. Kein √úberlauf!
              movew d2,a0@   | Low-Digit ablegen
              clrw d2
              swap d2          | High-Digit gibt neuen Carry
@@ -595,7 +595,7 @@ _mulu_loop_down: | Input in d0.W,a0,a1,d1.W
            movew sp@(8+16+2),d1
            clrl d2           | carry
            bras 2f
-    1:       movew a0@-,d3  | n‰chstes Digit
+    1:       movew a0@-,d3  | n√§chstes Digit
              mulu d0,d3       | mit digit multiplizieren
              addl d3,d2      | und zum bisherigen Carry addieren
              movew d2,a1@-  | Low-Digit ablegen
@@ -614,12 +614,12 @@ _muluadd_loop_down: | Input in d0.W,a0,a1,d1.W, benutzt d2,d3,d4, Output in d0.W
            movel sp@(8+8),a0
            movel sp@(8+12),a1
            movew sp@(8+16+2),d1
-           subl d2,d2        | carry := 0, X-Bit lˆschen, d2.HW stets =0
+           subl d2,d2        | carry := 0, X-Bit l√∂schen, d2.HW stets =0
            bras 2f
-    1:       movew a0@-,d3  | n‰chstes Digit
+    1:       movew a0@-,d3  | n√§chstes Digit
              mulu d0,d3       | mit digit multiplizieren
              addxl d2,d3     | und bisherigen Carry und X-Bit addieren
-             addw d3,a1@-   | Low-Digit zum dest-Digit addieren, X als ‹bertrag
+             addw d3,a1@-   | Low-Digit zum dest-Digit addieren, X als √úbertrag
              swap d3
              movew d3,d2     | High-Digit gibt neuen Carry
     2:       dbra d1,1b
@@ -637,10 +637,10 @@ _muluadd_loop_down: | Input in d0.W,a0,a1,d1.W, benutzt d2,d3,d4, Output in d0.W
            clrl d2           | carry
            clrl d4           | d4.HW stets =0
            bras 2f
-    1:       movew a0@-,d3  | n‰chstes Digit
+    1:       movew a0@-,d3  | n√§chstes Digit
              mulu d0,d3       | mit digit multiplizieren
              addl d3,d2      | und zum bisherigen Carry addieren
-             movew a1@-,d4  | n‰chstes dest-Digit
+             movew a1@-,d4  | n√§chstes dest-Digit
              addl d4,d2      | dazuaddieren
              movew d2,a1@   | Low-Digit ablegen
              clrw d2
@@ -658,12 +658,12 @@ _mulusub_loop_down: | Input in d0.W,a0,a1,d1.W, benutzt d2,d3,d4, Output in d0.W
            movel sp@(8+8),a0
            movel sp@(8+12),a1
            movew sp@(8+16+2),d1
-           subl d2,d2        | carry := 0, X-Bit lˆschen, d2.HW stets =0
+           subl d2,d2        | carry := 0, X-Bit l√∂schen, d2.HW stets =0
            bras 2f
-    1:       movew a0@-,d3  | n‰chstes Digit
+    1:       movew a0@-,d3  | n√§chstes Digit
              mulu d0,d3       | mit digit multiplizieren
              addxl d2,d3     | und bisherigen Carry und X-Bit addieren
-             subw d3,a1@-   | Low-Digit vom dest-Digit subtrahieren, X als ‹bertrag
+             subw d3,a1@-   | Low-Digit vom dest-Digit subtrahieren, X als √úbertrag
              swap d3
              movew d3,d2     | High-Digit gibt neuen Carry
     2:       dbra d1,1b
@@ -680,7 +680,7 @@ _divu_loop_up: # Input in d0.W,a0,d1.W, Output in d0.W
            movew sp@(4+12+2),d1
            clrl d2           | Rest d2.HW := 0
            bras 2f
-    1:       movew a0@,d2   | n‰chst-niedriges Digit mit Rest kombinieren
+    1:       movew a0@,d2   | n√§chst-niedriges Digit mit Rest kombinieren
              divu d0,d2       | und durch digit dividieren
              movew d2,a0@+  | Quotient ablegen, Rest in d2.HW
     2:       dbra d1,1b
@@ -698,7 +698,7 @@ _divucopy_loop_up: # Input in d0.W,a0,a1,d1.W, Output in d0.W
            movew sp@(4+16+2),d1
            clrl d2           | Rest d2.HW := 0
            bras 2f
-    1:       movew a0@+,d2  | n‰chst-niedriges Digit mit Rest kombinieren
+    1:       movew a0@+,d2  | n√§chst-niedriges Digit mit Rest kombinieren
              divu d0,d2       | und durch digit dividieren
              movew d2,a1@+  | Quotient ablegen, Rest in d2.HW
     2:       dbra d1,1b

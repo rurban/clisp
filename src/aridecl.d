@@ -16,8 +16,8 @@
 #    Complex (C)
 
 # Anmerkungen:
-# - Complex dürfen aus zwei Real-Komponenten bestehen, die von verschiedenem
-#   Typ sind. Falls der Imaginärteil EQ zu 0 ist, wird ein Real draus gemacht.
+# - Complex dÃ¼rfen aus zwei Real-Komponenten bestehen, die von verschiedenem
+#   Typ sind. Falls der ImaginÃ¤rteil EQ zu 0 ist, wird ein Real draus gemacht.
 #   (Vgl. CLTL S. 195)
 #   Vorteil: Dann liefert (let ((x (sqrt -9.0))) (* x x))
 #     (statt x = #C(0.0 3.0)  -> Wert #C(-9.0 0.0) )
@@ -29,10 +29,10 @@
 #            (1.0 +- 1e-8) + (1.0 +- 1e-16) = (2.0 +- 1e-8),
 #            also ist (+ 1.0s0 1.0d0) ==> 2.0s0 gerechtfertigt.
 #     Kurz: Nicht vorhandene Genauigkeit (accuracy) soll nicht (durch precision)
-#           vorgetäuscht werden.
+#           vorgetÃ¤uscht werden.
 # - Bei Single und Double Float halte ich mich an den IEEE-Standard (1981),
 #     allerdings ohne solche Features wie +0,-0, +inf,-inf, gradual underflow,
-#     NAN, ...,  da COMMON LISP für sie sowieso keine Verwendung hat.
+#     NAN, ...,  da COMMON LISP fÃ¼r sie sowieso keine Verwendung hat.
 # - Die Genauigkeit der Long Floats wird durch die Place (LONG-FLOAT-DIGITS)
 #   gegeben.
 
@@ -43,12 +43,12 @@
 #             Bits 30..24: Typinfo und Vorzeichen.
 #             Bits 23..0: Wert (mit dem Vorzeichen zusammen eine
 #                               Zweierkomplementdarstellung)
-# Maske für den Wert:
+# Maske fÃ¼r den Wert:
   #define FN_value_mask  ((oint)wbitm(oint_data_len+oint_data_shift)-(oint)wbit(oint_data_shift))
-# Maske für Wert und Vorzeichen:
+# Maske fÃ¼r Wert und Vorzeichen:
   #define FN_value_vz_mask  (FN_value_mask|wbit(sign_bit_o))
-# Typinfo für FN >=0:  fixnum_type
-# Typinfo für FN <0:
+# Typinfo fÃ¼r FN >=0:  fixnum_type
+# Typinfo fÃ¼r FN <0:
   #define fixnum_vz_type  (fixnum_type|bit(sign_bit_t))
 # (defconstant most-positive-fixnum (- (expt 2 oint_data_len) 1))
 # (defconstant most-negative-fixnum (- (expt 2 oint_data_len)))
@@ -62,9 +62,9 @@
   #define Fixnum_mpos  type_data_object(fixnum_type,FN_value_mask>>oint_data_shift)
 # most-negative-fixnum:
   #define Fixnum_mneg  type_data_object(fixnum_vz_type,0)
-# maximal nötige Länge einer Digit sequence zu einem Fixnum:
+# maximal nÃ¶tige LÃ¤nge einer Digit sequence zu einem Fixnum:
   #define FN_maxlength  ceiling(oint_data_len+1,intDsize)
-# maximal nötige Länge (ohne Vorzeichen) einer Digit sequence zu einem Fixnum:
+# maximal nÃ¶tige LÃ¤nge (ohne Vorzeichen) einer Digit sequence zu einem Fixnum:
   #define pFN_maxlength  ceiling(oint_data_len,intDsize)
 # Es gilt pFN_maxlength <= FN_maxlength <= bn_minlength.
 
@@ -74,18 +74,18 @@
 # Bignum (BN) : 1 Langwort, indirekt:
 #             Bits 30..24: Typinfo und Vorzeichen
 #             Bits 23..0: Pointer X
-#             X^.length = Länge n (uintC), >= bn_minlength
+#             X^.length = LÃ¤nge n (uintC), >= bn_minlength
 #             X^.data = n Digits (als normalisierte Digit sequence)
   #define bn_minlength  ceiling(oint_data_len+2,intDsize)
   # denn Bignums mit n < ceiling((oint_data_len+2)/intDsize) Digits
-  # sind Integers mit höchstens intDsize*n < oint_data_len+2 Bits, also
-  # Integers mit höchstens oint_data_len+1 Bits (incl. Vorzeichen),
+  # sind Integers mit hÃ¶chstens intDsize*n < oint_data_len+2 Bits, also
+  # Integers mit hÃ¶chstens oint_data_len+1 Bits (incl. Vorzeichen),
   # und die passen in Fixnums. 1 <= bn_minlength <= 5.
 
 # Ratio (RT) = faktisch ein record aus zwei Komponenten:
-#              NUM = Zähler (Integer), DEN = Nenner (Integer > 0)
-#              mit teilerfremdem Zähler und Nenner.
-# (ausführlich: Bits 30..24 = Typinfo und Vorzeichen
+#              NUM = ZÃ¤hler (Integer), DEN = Nenner (Integer > 0)
+#              mit teilerfremdem ZÃ¤hler und Nenner.
+# (ausfÃ¼hrlich: Bits 30..24 = Typinfo und Vorzeichen
 #               Bits 23..0 = Pointer X
 #               X^.rt_num = NUM, X^.rt_den = DEN. )
 
@@ -95,8 +95,8 @@
 # Vorzeichen s, Exponent e, Mantisse mk-1,...,m0
 # bedeutet die Zahl (-1)^s * 2^(e-_EXP_MID) * [0 . 1 mk-1 ... m0]
 # e=0 bedeutet die Zahl 0, stets mit Vorzeichen s=0 (und Mantisse =0).
-# _exp_low und _exp_high sind Schranken (inklusive) für e.
-# Bitzahlen für   Vorzeichen s    Exponent e    Mantisse m (= k)
+# _exp_low und _exp_high sind Schranken (inklusive) fÃ¼r e.
+# Bitzahlen fÃ¼r   Vorzeichen s    Exponent e    Mantisse m (= k)
 # SF                   1              8             16
 # FF                   1              8             23
 # DF                   1              11            52
@@ -106,7 +106,7 @@
 #             Bits 30..24: Typinfo und Vorzeichen s.
 #             Bits 23..16: Exponent e (8 Bits)
 #             Bits 15..0: Mantisse m (16 Bits)
-#             Die Zahl 0.0 wird durch s=0, e=0, m=0 repräsentiert.
+#             Die Zahl 0.0 wird durch s=0, e=0, m=0 reprÃ¤sentiert.
   #define SF_exp_len    8  # Anzahl der Bits des Exponenten
   #define SF_mant_len  16  # Anzahl der Bits der Mantisse
   #define SF_exp_low   1                    # minimaler Exponent
@@ -114,9 +114,9 @@
   #define SF_exp_high  (bit(SF_exp_len)-1)  # maximaler Exponent
   #define SF_exp_shift  (SF_mant_len+SF_mant_shift) # unterstes Bit des Exponenten im oint
   #define SF_mant_shift  oint_data_shift            # unterstes Bit der Mantisse im oint
-# Typinfo-Byte für SF >=0 :
+# Typinfo-Byte fÃ¼r SF >=0 :
   #define SF_type     sfloat_type
-# Typinfo-Byte für SF <0, mit gesetztem Vorzeichen-Bit:
+# Typinfo-Byte fÃ¼r SF <0, mit gesetztem Vorzeichen-Bit:
   #define SF_vz_type  (sfloat_type|bit(sign_bit_t))
 # Baut ein Float aus Vorzeichen (0 oder -1), Exponent und Mantisse zusammen:
   #define make_SF(sign,exp,mant)  \
@@ -135,7 +135,7 @@
 #             Bits 23..0: Pointer X
 #             X^.float_value = 1 Langwort:
 #                  Bit 31 = s, Bits 30..23 = e, Bits 22..0 = m.
-#             Die Zahl 0.0 wird durch s=0, e=0, m=0 repräsentiert.
+#             Die Zahl 0.0 wird durch s=0, e=0, m=0 reprÃ¤sentiert.
   #define FF_exp_len    8  # Anzahl der Bits des Exponenten
   #define FF_mant_len  23  # Anzahl der Bits der Mantisse
   # On platforms with FAST_FLOAT we obey the IEEE 754 values. Choose the same
@@ -145,15 +145,15 @@
     #define FF_exp_low  1
     #define FF_exp_mid  126  # Warum das die "Mitte" sein soll, ist mir unklar...
     #define FF_exp_high 254  # Exponent 255 wird als NaN/Inf interpretiert!
-  #else # Ich wählte die Parameter damals schön symmetrisch
+  #else # Ich wÃ¤hlte die Parameter damals schÃ¶n symmetrisch
     #define FF_exp_low  1
     #define FF_exp_mid  128
     #define FF_exp_high 255
   #endif
 #ifdef TYPECODES
-  # Typinfo-Byte für FF >=0 :
+  # Typinfo-Byte fÃ¼r FF >=0 :
     #define FF_type     ffloat_type
-  # Typinfo-Byte für FF <0, mit gesetztem Vorzeichen-Bit:
+  # Typinfo-Byte fÃ¼r FF <0, mit gesetztem Vorzeichen-Bit:
     #define FF_vz_type  (ffloat_type|bit(vorz_bit_t))
 #endif
 #ifdef WIDE
@@ -184,7 +184,7 @@
 #             Bits 23..0: Pointer X
 #             X^.float_value = 2 Langworte:
 #                  Bit 63 = s, Bits 62..52 = e, Bits 51..0 = m.
-#             Die Zahl 0.0 wird durch s=0, e=0, m=0 repräsentiert.
+#             Die Zahl 0.0 wird durch s=0, e=0, m=0 reprÃ¤sentiert.
   #define DF_exp_len   11  # Anzahl der Bits des Exponenten
   #define DF_mant_len  52  # Anzahl der Bits der Mantisse
   # On platforms with FAST_FLOAT we obey the IEEE 754 values. Choose the same
@@ -194,15 +194,15 @@
     #define DF_exp_low  1
     #define DF_exp_mid  1022 # Warum das die "Mitte" sein soll, ist mir unklar...
     #define DF_exp_high 2046 # Exponent 2047 wird als NaN/Inf interpretiert!
-  #else # Ich wähle die Parameter liefer schön symmetrisch
+  #else # Ich wÃ¤hle die Parameter liefer schÃ¶n symmetrisch
     #define DF_exp_low  1
     #define DF_exp_mid  1024
     #define DF_exp_high 2047
   #endif
 #ifdef TYPECODES
-  # Typinfo-Byte für DF >=0 :
+  # Typinfo-Byte fÃ¼r DF >=0 :
     #define DF_type     dfloat_type
-  # Typinfo-Byte für DF <0, mit gesetztem Vorzeichen-Bit:
+  # Typinfo-Byte fÃ¼r DF <0, mit gesetztem Vorzeichen-Bit:
     #define DF_vz_type  (dfloat_type|bit(vorz_bit_t))
 #endif
 # Double Float 0.0 :
@@ -218,17 +218,17 @@
 #             X^.len = n = Anzahl der dahinter kommenden Mantissenworte, n>=ceiling(53/intDsize)
 #             X^.expo = e (32 Bits)
 #             X^.data[0] ... X^.data[n-1] = intDsize*n Mantissenbits (MSD ... LSD)
-#             Die Zahl 0.0 wird durch e=0, Mantisse=0 repräsentiert.
-#             Bei e /= 0 ist das höchstwertige Bit =1.
+#             Die Zahl 0.0 wird durch e=0, Mantisse=0 reprÃ¤sentiert.
+#             Bei e /= 0 ist das hÃ¶chstwertige Bit =1.
 #             n>=ceiling(53/intDsize), damit ein LF nicht weniger Mantissenbits hat als ein DF.
   #define LF_minlen  ceiling(53,intDsize)
   #define LF_exp_low  1
   #define LF_exp_mid  0x80000000UL
   #define LF_exp_high 0xFFFFFFFFUL
 #ifdef TYPECODES
-  # Typinfo-Byte für LF >=0 :
+  # Typinfo-Byte fÃ¼r LF >=0 :
     #define LF_type     lfloat_type
-  # Typinfo-Byte für LF <0, mit gesetztem Vorzeichen-Bit:
+  # Typinfo-Byte fÃ¼r LF <0, mit gesetztem Vorzeichen-Bit:
     #define LF_vz_type  (lfloat_type|bit(vorz_bit_t))
 #endif
 
@@ -267,7 +267,7 @@
 
 # num_stack_need_1(need, low_addr = , high_addr = );
 # wie num_stack_need, nur dass unterhalb von low_addr noch ein Digit Platz
-# zusätzlich belegt wird.
+# zusÃ¤tzlich belegt wird.
 
 #ifdef LISPARIT
 
@@ -339,7 +339,7 @@
             );
     }
 
-# Fehlermeldung wegen Floating-Point-Überlauf
+# Fehlermeldung wegen Floating-Point-Ãœberlauf
 # fehler_overflow();
   nonreturning_function(local, fehler_overflow, (void));
   local void fehler_overflow()

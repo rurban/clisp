@@ -4,22 +4,22 @@
 
 ;;-----------------------------------------------------------------------------
 
-; Vervollst‰ndigungs-Routine in Verbindung mit der GNU Readline-Library:
+; Vervollst√§ndigungs-Routine in Verbindung mit der GNU Readline-Library:
 ; Input: string die Eingabezeile, (subseq string start end) das zu vervoll-
-; st‰ndigende Textst¸ck.
+; st√§ndigende Textst√ºck.
 ; Output: eine Liste von Simple-Strings. Leer, falls keine sinnvolle Vervoll-
-; st‰ndigung. Sonst CDR = Liste aller sinnvollen Vervollst‰ndigungen, CAR =
+; st√§ndigung. Sonst CDR = Liste aller sinnvollen Vervollst√§ndigungen, CAR =
 ; sofortige Ersetzung.
 #+(or UNIX OS/2)
 (defun completion (string start end)
-  ; quotiert vervollst‰ndigen?
+  ; quotiert vervollst√§ndigen?
   (let ((start1 start) (quoted nil))
     (when (and (>= start 1) (member (char string (- start 1)) '(#\" #\|)))
       (decf start1) (setq quoted t)
     )
     (let (; Hilfsvariablen beim Sammeln der Symbole:
-          knownpart ; Anfangsst¸ck
-          knownlen  ; dessen L‰nge
+          knownpart ; Anfangsst√ºck
+          knownlen  ; dessen L√§nge
           (L '())   ; sammelnde Liste
          )
       (let* ((functionalp1
@@ -30,7 +30,7 @@
                (and (>= start1 2)
                     (equal (subseq string (- start1 2) start1) "#'")
              ) )
-             (functionalp ; Vervollst‰ndigung in funktionaler Position?
+             (functionalp ; Vervollst√§ndigung in funktionaler Position?
                (or functionalp1 functionalp2)
              )
              (gatherer
@@ -69,7 +69,7 @@
         (setq knownlen (length knownpart))
         (funcall mapfun gatherer package)
         (when (null L) (return-from completion nil))
-        ; Bei einer Funktion ohne Argumente erg‰nze die schlieﬂende Klammer:
+        ; Bei einer Funktion ohne Argumente erg√§nze die schlie√üende Klammer:
         (when (and functionalp1
                    (null (cdr L))
                    (let ((sym (find-symbol (car L) package)))
@@ -88,7 +88,7 @@
         )
         ; sortieren:
         (setq L (sort L #'string<))
-        ; grˆﬂtes gemeinsames Anfangsst¸ck suchen:
+        ; gr√∂√ütes gemeinsames Anfangsst√ºck suchen:
         (let ((imax ; (reduce #'min (mapcar #'length L))
                 (let ((i (length (first L))))
                   (dolist (s (rest L)) (setq i (min i (length s))))
@@ -101,7 +101,7 @@
                )   )
                (push (subseq (first L) 0 i) L)
         ) )   )
-        ; Pr‰fix wieder ankleben:
+        ; Pr√§fix wieder ankleben:
         (when prefix
           (mapl #'(lambda (l)
                     (setf (car l) (string-concat prefix (car l)))

@@ -1,4 +1,4 @@
-;;;; Common Lisp Object System für CLISP
+;;;; Common Lisp Object System fÃ¼r CLISP
 ;;;; Bruno Haible 21.8.1993
 
 ; Zur Benutzung reicht ein einfaches (USE-PACKAGE "CLOS").
@@ -8,7 +8,7 @@
 (pushnew ':clos *features*)
 
 
-(in-package "SYSTEM") ; Trotz DEFPACKAGE nötig!
+(in-package "SYSTEM") ; Trotz DEFPACKAGE nÃ¶tig!
 
 (defpackage "CLOS"
 
@@ -82,7 +82,7 @@
 
 ;;; Vorbemerkungen:
 
-;; Abkürzungen:
+;; AbkÃ¼rzungen:
 ;; std = standard
 ;; gf = generic function
 ;; <...> = (class ...), meist = (find-class '...)
@@ -138,7 +138,7 @@
 (defvar <vector>)                      ; <built-in-class>
 
 
-;;; Low-Level-Repräsentation:
+;;; Low-Level-ReprÃ¤sentation:
 
 ;; Im Runtime-System gibt es den Typ "CLOS-Instanz".
 ;; Erste Komponente ist die Klasse.
@@ -151,7 +151,7 @@
 ;; siehe RECORD.D :
 ; (STD-INSTANCE-P obj) testet, ob ein Objekt eine CLOS-Instanz ist.
 ; (ALLOCATE-STD-INSTANCE class n) liefert eine CLOS-Instanz mit Klasse class
-; und n-1 zusätzlichen Slots.
+; und n-1 zusÃ¤tzlichen Slots.
 ;; siehe IO.D :
 ; CLOS-Instanzen werden via (PRINT-OBJECT object stream) ausgegeben.
 
@@ -196,7 +196,7 @@
   ) )
   (let ((h (get symbol 'CLOSCLASS)))
     (when (class-p h)
-      (when (and (built-in-class-p h) (eq (class-name h) symbol)) ; auch Structure-Klassen schützen??
+      (when (and (built-in-class-p h) (eq (class-name h) symbol)) ; auch Structure-Klassen schÃ¼tzen??
         (error-of-type 'error
           (ENGLISH "~S: cannot redefine built-in class ~S")
           '(setf find-class) h
@@ -217,7 +217,7 @@
 ;;; Slots:
 
 #|
-;; So könnten die Zugriffsfunktionen aussehen, wenn man SLOT-VALUE-USING-CLASS
+;; So kÃ¶nnten die Zugriffsfunktionen aussehen, wenn man SLOT-VALUE-USING-CLASS
 ;; verwendet.
 
 ; Zugriff auf Slots von Objekten der Metaklasse <standard-class>:
@@ -300,7 +300,7 @@
 (defun slot-value (object slot-name)
   (let ((class (class-of object)))
     ; Metaklasse <standard-class> gesondert betrachten
-    ; aus Effizienzgründen und wegen Bootstrapping
+    ; aus EffizienzgrÃ¼nden und wegen Bootstrapping
     (if (eq (class-of class) <standard-class>)
       (std-slot-value object slot-name)
       (slot-value-using-class class object slot-name)
@@ -308,7 +308,7 @@
 (defun (setf slot-value) (new-value object slot-name)
   (let ((class (class-of object)))
     ; Metaklasse <standard-class> gesondert betrachten
-    ; aus Effizienzgründen und wegen Bootstrapping
+    ; aus EffizienzgrÃ¼nden und wegen Bootstrapping
     (if (eq (class-of class) <standard-class>)
       (std-setf-slot-value object slot-name new-value)
       (setf-slot-value-using-class new-value class object slot-name)
@@ -316,7 +316,7 @@
 (defun slot-boundp (object slot-name)
   (let ((class (class-of object)))
     ; Metaklasse <standard-class> gesondert betrachten
-    ; aus Effizienzgründen und wegen Bootstrapping
+    ; aus EffizienzgrÃ¼nden und wegen Bootstrapping
     (if (eq (class-of class) <standard-class>)
       (std-slot-boundp object slot-name)
       (slot-boundp-using-class class object slot-name)
@@ -324,7 +324,7 @@
 (defun slot-makunbound (object slot-name)
   (let ((class (class-of object)))
     ; Metaklasse <standard-class> gesondert betrachten
-    ; aus Effizienzgründen und wegen Bootstrapping
+    ; aus EffizienzgrÃ¼nden und wegen Bootstrapping
     (if (eq (class-of class) <standard-class>)
       (std-slot-makunbound object slot-name)
       (slot-makunbound-using-class class object slot-name)
@@ -332,7 +332,7 @@
 (defun slot-exists-p (object slot-name)
   (let ((class (class-of object)))
     ; Metaklasse <standard-class> gesondert betrachten
-    ; aus Effizienzgründen und wegen Bootstrapping
+    ; aus EffizienzgrÃ¼nden und wegen Bootstrapping
     (if (eq (class-of class) <standard-class>)
       (std-slot-exists-p object slot-name)
       (slot-exists-p-using-class class object slot-name)
@@ -365,7 +365,7 @@
 
 ;; Der Effizienz halber - wir wollen den Test auf <standard-class> umgehen -
 ;; bekommen alle Klassen (egal ob standard- oder built-in-) eine
-;; slot-location-table. Außerdem können wir hier mit unbound schlecht umgehen.
+;; slot-location-table. AuÃŸerdem kÃ¶nnen wir hier mit unbound schlecht umgehen.
 ;; Daher sind
 ;;   slot-value, set-slot-value, slot-boundp, slot-makunbound, slot-exists-p
 ;; nun bereits in RECORD.D enthalten.
@@ -463,10 +463,10 @@
 
 ; zum Bootstrappen
 (eval-when (compile load eval)
-  (defun define-structure-class (name) (declare (ignore name)) ) ; vorläufig
-  (defun defstruct-remove-print-object-method (name) (declare (ignore name)) ) ; vorläufig
+  (defun define-structure-class (name) (declare (ignore name)) ) ; vorlÃ¤ufig
+  (defun defstruct-remove-print-object-method (name) (declare (ignore name)) ) ; vorlÃ¤ufig
 )
-; alle Spuren eines früher geladenen CLOS ausmerzen
+; alle Spuren eines frÃ¼her geladenen CLOS ausmerzen
 (eval-when (load eval)
   (do-all-symbols (s) (remprop s 'CLOSCLASS))
 )
@@ -489,7 +489,7 @@
 (defstruct (slotted-class (:inherit class) (:predicate nil) (:copier nil) (:conc-name "CLASS-"))
   slots                    ; Liste aller Slots (als Slot-Definitionen)
   default-initargs         ; Default-Initargs (als Aliste Initarg -> Initer)
-  valid-initargs           ; Liste der gültigen Initargs
+  valid-initargs           ; Liste der gÃ¼ltigen Initargs
   instance-size            ; Anzahl der Slots der direkten Instanzen + 1
 )
 
@@ -508,9 +508,9 @@
 
 ; Weiter Bootstrapping
 (%defclos
-  ; Erkennungszeichen für CLASS-P
+  ; Erkennungszeichen fÃ¼r CLASS-P
   (svref (get 'class 'sys::defstruct-description) 0)
-  ; Built-In-Klassen für CLASS-OF
+  ; Built-In-Klassen fÃ¼r CLASS-OF
   (vector 'array 'bit-vector 'character 'complex 'cons 'float 'function
           'hash-table 'integer 'null 'package 'pathname
           #+LOGICAL-PATHNAMES 'logical-pathname
@@ -805,7 +805,7 @@
     `(CONS (FUNCTION (LAMBDA () ,form)) 'NIL)
 ) )
 
-; DEFCLASS-Ausführung:
+; DEFCLASS-AusfÃ¼hrung:
 
 ; Zur Laufzeit noch bedeutsame Information eines Slots:
 (defstruct (slot-definition
@@ -829,7 +829,7 @@
 )
 
 #| ; In defstruct.lisp ist im wesentlichen das Folgende enthalten.
-; In record.d und hier wird benutzt, dass die ersten 4 Attribute übereinstimmen!
+; In record.d und hier wird benutzt, dass die ersten 4 Attribute Ã¼bereinstimmen!
 (defstruct (structure-slot-definition (:include slot-definition)
             (:conc-name "DS-SLOT-")
             (:type vector) (:predicate nil)
@@ -855,9 +855,9 @@
   (let ((class (find-class name nil)))
     (when class
       ; Die einzige Modifikationen, die wir bei Klassen zulassen, sind die,
-      ; die bei doppeltem Laden desselben Codes auftreten können:
-      ; veränderte Slot-Optionen :initform, :documentation,
-      ; veränderte Klassen-Optionen :default-initargs, :documentation.
+      ; die bei doppeltem Laden desselben Codes auftreten kÃ¶nnen:
+      ; verÃ¤nderte Slot-Optionen :initform, :documentation,
+      ; verÃ¤nderte Klassen-Optionen :default-initargs, :documentation.
       (if (and (eq metaclass <standard-class>)
                (eq metaclass (class-of class))
                (equal direct-superclasses (class-direct-superclasses class))
@@ -872,7 +872,7 @@
             (let ((old (getf (car l-old) ':initer))
                   (new (getf (car l-new) ':initer)))
               (when old
-                ; Slot-Initer new destruktiv in den Slot-Initer old umfüllen:
+                ; Slot-Initer new destruktiv in den Slot-Initer old umfÃ¼llen:
                 (setf (car old) (car new))
                 (setf (cdr old) (cdr new))
           ) ) )
@@ -882,7 +882,7 @@
               ((null l-new))
             (let ((old (second l-old))
                   (new (second l-new)))
-              ; Initer new destruktiv in den Initer old umfüllen:
+              ; Initer new destruktiv in den Initer old umfÃ¼llen:
               (setf (car old) (car new))
               (setf (cdr old) (cdr new))
           ) )
@@ -1041,7 +1041,7 @@
 ; Die Menge aller Klassen bildet einen gerichteten Graphen: Klasse C sitzt
 ; unterhalb der direkten Oberklassen von C. Dieser Graph ist azyklisch, weil
 ; zum Zeitpunkt Definition der Klasse C alle direkten Oberklassen bereits
-; vorhanden sein müssen.
+; vorhanden sein mÃ¼ssen.
 ;
 ; Man kann daher noethersche Induktion (Induktion von oben nach unten im
 ; Klassengraphen) verwenden.
@@ -1050,7 +1050,7 @@
 ; Die Menge aller Oberklassen (inkl. C selbst) ist induktiv definiert als
 ; S(C) := {C} union union_{D in DS(C)} S(D).
 ;
-; Anders ausgedrückt:
+; Anders ausgedrÃ¼ckt:
 ; S(C) = { C_n : C_n in DS(C_{n-1}), ..., C_1 in DS(C_0), C_0 = C }
 ;
 ; Lemma 1: (a) C in S(C).
@@ -1060,28 +1060,28 @@
 ; Beweis: (a) Aus der Definition.
 ;         (b) Aus (a) und der Definition.
 ;         (c) Aus der Definition.
-;         (d) Aus (c) bei festem D mit Induktion über C.
+;         (d) Aus (c) bei festem D mit Induktion Ã¼ber C.
 ;
 ; Die CPL einer Klasse C ist eine Anordnung der Menge S(C).
-; Falls CPL(C) = (... D1 ... D2 ...), schreibt man D1 < D2. Die so eingeführte
+; Falls CPL(C) = (... D1 ... D2 ...), schreibt man D1 < D2. Die so eingefÃ¼hrte
 ; Relation ist eine Totalordnung auf S(C).
-; Dabei ist die folgende Menge von Restriktionen zu berücksichtigen:
+; Dabei ist die folgende Menge von Restriktionen zu berÃ¼cksichtigen:
 ; R(C) := union_{D in S(C)} DR(D)  mit
 ; DR(C) := { C < C1, C1 < C2, ..., C{n-1} < C_n } falls DS(C) = (C1, ..., Cn).
-; Falls R(C) einen Zyklus enthält, kann natürlich R(C) nicht zu einer
-; Totalordnung vervollständigt werden. Dann heißt R(C) inkonsistent.
-; CPL(C) wird folgendermaßen konstruiert:
+; Falls R(C) einen Zyklus enthÃ¤lt, kann natÃ¼rlich R(C) nicht zu einer
+; Totalordnung vervollstÃ¤ndigt werden. Dann heiÃŸt R(C) inkonsistent.
+; CPL(C) wird folgendermaÃŸen konstruiert:
 ;   L := (), R := R(C).
 ;   L := (L | C), entferne alle (C < ..) aus R.
 ;   Solange R /= {}, betrachte die Menge M aller minimalen Elemente von R
 ;     (das sind diejenigen Klassen, die man, ohne R(C) zu verletzen, zu L
-;     hinzufügen könnte). Ist M leer, so hat man einen Zyklus in R(C) und
-;     bricht den Algorithmus ab. Sonst wähle unter den Elementen E von M
-;     dasjenige aus, das ein möglichst weit rechts in L gelegenes D mit
+;     hinzufÃ¼gen kÃ¶nnte). Ist M leer, so hat man einen Zyklus in R(C) und
+;     bricht den Algorithmus ab. Sonst wÃ¤hle unter den Elementen E von M
+;     dasjenige aus, das ein mÃ¶glichst weit rechts in L gelegenes D mit
 ;     E in DS(D) besitzt.
 ;     L := (L | E), entferne alle (E < ..) aus R.
 ;   CPL(C) := L.
-; L wird schrittweise um ein Element verlängert, R wird schrittweise
+; L wird schrittweise um ein Element verlÃ¤ngert, R wird schrittweise
 ; verkleinert, und R besteht immer nur aus Relationen zwischen Elementen
 ; von S(C)\L.
 ;
@@ -1107,7 +1107,7 @@
 ;   b   c            CPL(c) = (c y e x z)
 ;    \ /             CPL(a) = (a b d c y e x z)
 ;     a
-;                    CPL(a) enthält CPL(b) nicht!
+;                    CPL(a) enthÃ¤lt CPL(b) nicht!
 ;
 #|
 (defclass z () ())
@@ -1135,7 +1135,7 @@
       ; L ist die umgedrehte bisher konstruierte CPL.
       ; R1 ist die Liste der bisher relevanten Restriktionen, in der Form
       ; R1 = (... (Dj ... Dn) ...) wenn aus DR(D) = (D1 ... Dn) nur noch
-      ; Dj,...,Dn übrig sind. Die Reihenfolge in R1 entspricht der in L.
+      ; Dj,...,Dn Ã¼brig sind. Die Reihenfolge in R1 entspricht der in L.
       ; R2 ist die Liste der bisher irrelevanten Restriktionen.
       (when (null R1)
         (return) ; R1 = R2 = () -> fertig
@@ -1182,7 +1182,7 @@
           (setq R1 (delete-if #'null R1))
     ) ) )
     (setq L (nreverse L))
-    ; Teste, ob L mit den CPL(D), D in direct-superclasses, verträglich ist:
+    ; Teste, ob L mit den CPL(D), D in direct-superclasses, vertrÃ¤glich ist:
     (mapc #'(lambda (D)
               (unless ; Ist (class-precedence-list D) Teil-Liste von L ?
                 (do ((CL L)
@@ -1225,7 +1225,7 @@
 ;; 28.1.3.2. Inheritance of Slots and Slot Options
 
 (defun std-compute-slots (class &optional (more-direct-slots '()))
-  ; Alle Slot-Specifier sammeln, geordnet nach Präzedenz:
+  ; Alle Slot-Specifier sammeln, geordnet nach PrÃ¤zedenz:
   (let ((all-slots
           (mapcan
             #'(lambda (c)
@@ -1604,9 +1604,9 @@
 
 ; Weiter Bootstrapping
 (%defclos
-  ; Erkennungszeichen für CLASS-P
+  ; Erkennungszeichen fÃ¼r CLASS-P
   (svref (get 'class 'sys::defstruct-description) 0)
-  ; Built-In-Klassen für CLASS-OF
+  ; Built-In-Klassen fÃ¼r CLASS-OF
   (vector <array> <bit-vector> <character> <complex> <cons> <float> <function>
           <hash-table> <integer> <null> <package> <pathname>
           #+LOGICAL-PATHNAMES <logical-pathname>
@@ -1656,23 +1656,23 @@
 (defstruct (standard-method (:include method) (:conc-name "STD-METHOD-")) ; (:print-object print-std-method)
   function               ; die Funktion
   wants-next-method-p    ; Flag, ob als erstes Argument die NEXT-METHOD (als
-                         ; Funktion mit allen Argumenten) bzw. NIL übergeben
+                         ; Funktion mit allen Argumenten) bzw. NIL Ã¼bergeben
                          ; werden soll (= NIL bei :BEFORE- und :AFTER-Methoden)
   parameter-specializers ; Liste ({class | (EQL object)}*)
   qualifiers             ; Liste von Symbolen, z.B. (:before)
   signature              ; Liste (reqanz optanz restp keyp keywords allowp)
   gf                     ; die generische Funktion, zu der diese Methode
-                         ; gehört (nur für den Bedarf von CALL-NEXT-METHOD und
+                         ; gehÃ¶rt (nur fÃ¼r den Bedarf von CALL-NEXT-METHOD und
                          ; NO-NEXT-METHOD)
   initfunction           ; liefert, wenn aufgerufen, die Funktion
-                         ; (nur für den Bedarf von ADD-METHOD)
+                         ; (nur fÃ¼r den Bedarf von ADD-METHOD)
 )
 
 ; Bei CALL-NEXT-METHOD und NO-NEXT-METHOD muss die generische Funktion bekannt
 ; sein. Da allerdings im Prinzip Methoden nicht bestimmten generischen
-; Funktionen zugehörig sind (wegen ADD-METHOD), müssen wir die Methode bei
-; ADD-METHOD kopieren. Die Identität zweier Kopien derselben Methode stellen
-; wir durch Blick auf std-method-initfunction fest. (Man könnte stattdessen
+; Funktionen zugehÃ¶rig sind (wegen ADD-METHOD), mÃ¼ssen wir die Methode bei
+; ADD-METHOD kopieren. Die IdentitÃ¤t zweier Kopien derselben Methode stellen
+; wir durch Blick auf std-method-initfunction fest. (Man kÃ¶nnte stattdessen
 ; auch die generische Funktion bei jedem Aufruf mitgeben, als erstes Argument
 ; an die effektive Methode, aber das ist sicher ineffizienter.)
 
@@ -1697,7 +1697,7 @@
   (memq x lambda-list-keywords)
 )
 
-;; Für DEFMETHOD, DEFGENERIC, GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS,
+;; FÃ¼r DEFMETHOD, DEFGENERIC, GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS,
 ;; WITH-ADDED-METHODS
   ; caller: Symbol
   ; funname: Funktionsname, Symbol oder (SETF symbol)
@@ -1807,7 +1807,7 @@
                                `((BLOCK ,(function-block-name funname) ,@body-rest))
                           )) )
                        (if wants-next-method-p
-                         (let ((cont (gensym)) ; Variable für die Continuation
+                         (let ((cont (gensym)) ; Variable fÃ¼r die Continuation
                                (req-dummies ; Liste von reqanz Dummies
                                  (n-gensyms reqanz)
                                )
@@ -1998,7 +1998,7 @@
           ) ) ) ) ) )
 ) )
 
-; Für STANDARD Methodenkombination: Aufspalten der Methoden nach Qualifiern
+; FÃ¼r STANDARD Methodenkombination: Aufspalten der Methoden nach Qualifiern
 (defun partition-method-list (methods)
   (let ((primary-methods '())
         (before-methods '())
@@ -2021,16 +2021,16 @@
 
 ;;; Generische Funktionen
 
-; Low-Level-Repräsentation:
+; Low-Level-ReprÃ¤sentation:
 ; Compilierte Funktionen (Cclosures), bei denen im Flag-Byte des Code-Vektors
-; ein bestimmtes Bit gesetzt ist. Hintendran zusätzlich:
+; ein bestimmtes Bit gesetzt ist. Hintendran zusÃ¤tzlich:
 ; - die Signatur, eine Liste (reqanz optanz restp keywords allowp),
 ; - die Argument-Precedence-Order, als Liste der Zahlen von 0 bis reqanz-1,
 ; - die Liste aller Methoden.
 
 ; Der Compiler benutzt (bei GENERIC-FLET, GENERIC-LABELS) und der Evaluator
 ; setzt ebenfalls voraus, dass eine generische Funktion ihre Aufrufkonvention
-; nicht ändert.
+; nicht Ã¤ndert.
 ; Eine generische Funktion mit Signatur (reqanz optanz restp keywords allowp)
 ; ist von Anfang an (!) eine compilierte Funktion mit
 ;         reqanz  required-Parametern
@@ -2063,15 +2063,15 @@
   (setf (sys::%record-ref gf 5) new)
 )
 
-; Der Dispatch-Code für generische Funktionen wird mit
+; Der Dispatch-Code fÃ¼r generische Funktionen wird mit
 ; `(%GENERIC-FUNCTION-LAMBDA ,@lambdabody)
-; - ähnlich zu `(FUNCTION (LAMBDA ,@lambdabody)) - gebildet.
-; Es dürfen darin nicht vorkommen:
+; - Ã¤hnlich zu `(FUNCTION (LAMBDA ,@lambdabody)) - gebildet.
+; Es dÃ¼rfen darin nicht vorkommen:
 ; - Zugriff auf dynamische Variablen, Binden von dynamischen Variablen,
 ; - nichttriviale BLOCK, RETURN-FROM, TAGBODY, GO Konstrukte,
 ; - Aufruf globaler Funktionen, die nicht inline sind,
 ; - Bildung von nicht-autonomen Funktionen (Closures).
-; Nötig ist also:
+; NÃ¶tig ist also:
 ;   (declare (inline case eql eq typep
 ;                    arrayp bit-vector-p characterp complexp consp floatp
 ;                    functionp clos::generic-function-p hash-table-p integerp
@@ -2264,7 +2264,7 @@
                                            (FUNCALL 'INITIAL-FUNCALL-GF GF)
                                        ) )
                              )) )
-                         ; (sys::%record-ref proto-gf 1) müssen wir aufbewahren.
+                         ; (sys::%record-ref proto-gf 1) mÃ¼ssen wir aufbewahren.
                          ; (sys::%record-ref proto-gf 2) = #(NIL INITIAL-FUNCALL-GF MAGIC)
                          (sys::%record-ref proto-gf 1)
           )) )   )     )
@@ -2309,7 +2309,7 @@
   gf
 )
 
-; Installiert den endgültigen Dispatch-Code in eine generische Funktion.
+; Installiert den endgÃ¼ltigen Dispatch-Code in eine generische Funktion.
 (defun install-dispatch (gf)
   (multiple-value-bind (bindings lambdabody) (compute-dispatch gf)
     (let ((preliminary
@@ -2328,7 +2328,7 @@
 ;   (DECLARE (INLINE ...)) ; alles inline wegen %GENERIC-FUNCTION-LAMBDA
 ;   If-Kaskaden, dabei werden EQL-Parameter-Specializer und die meisten
 ;   Builtin-Klassen per TYPEP inline abgefragt.
-;   Für die anderen required-Parameter wird CLASS-OF aufgerufen, die Ergebnisse
+;   FÃ¼r die anderen required-Parameter wird CLASS-OF aufgerufen, die Ergebnisse
 ;   gesammelt und als Index in eine Hash-Tabelle genommen. Dort steht die
 ;   effektive Methode:
 ;   (LET ((EM (GETHASH (CONS (CLASS-OF ...) ...) ht1)))
@@ -2352,7 +2352,7 @@
          (block-name (gensym))
          (maybe-no-applicable nil)
          (ht-vars '())) ; Liste von Hashtabellen-Variablen und ihren Inits
-    ; Wir machen eine Rekursion über die Argumente.
+    ; Wir machen eine Rekursion Ã¼ber die Argumente.
     (labels
        ((recursion (remaining-args ; ein nthcdr von arg-order
                     remaining-methods ; Teilliste von methods
@@ -2361,7 +2361,7 @@
           (if (null remaining-methods)
             (progn
               (setq maybe-no-applicable t)
-              'NIL ; nichts tun, später NO-APPLICABLE-METHOD aufrufen
+              'NIL ; nichts tun, spÃ¤ter NO-APPLICABLE-METHOD aufrufen
             )
             (if (null remaining-args)
               ; alle Argumente abgearbeitet
@@ -2399,7 +2399,7 @@
                           `(GETHASH ,tuple-var ,ht-var)
                           setf-em-expr
                           ; `(SETF (GETHASH ,tuple-var ,ht-var)) ginge auch;
-                          ; das Folgende spart aber zwei temporäre Variablen:
+                          ; das Folgende spart aber zwei temporÃ¤re Variablen:
                           `(SYSTEM::PUTHASH ,tuple-var ,ht-var)
                 ) ) )
                 (push (list ht-var ht-init) ht-vars)
@@ -2458,10 +2458,10 @@
                    )   )     )
                  )
               )
-              ; nächstes Argument abarbeiten:
+              ; nÃ¤chstes Argument abarbeiten:
               (let* ((arg-index (first remaining-args))
                      (arg-var (nth arg-index req-vars))
-                     (eql-cases ; alle EQL-Specializer für dieses Argument
+                     (eql-cases ; alle EQL-Specializer fÃ¼r dieses Argument
                        (remove-duplicates
                          (mapcar #'second
                            (remove-if-not #'consp
@@ -2473,7 +2473,7 @@
                          ) ) )
                          :test #'eql
                      ) )
-                     (eql-caselist ; Fall-Liste für CASE
+                     (eql-caselist ; Fall-Liste fÃ¼r CASE
                        (mapcar
                          #'(lambda (object)
                              `((,object)
@@ -2493,7 +2493,7 @@
                            )
                          eql-cases
                     )) )
-                ; Fürs weitere brauchen wir die EQL-Methoden nicht mehr zu
+                ; FÃ¼rs weitere brauchen wir die EQL-Methoden nicht mehr zu
                 ; betrachten.
                 (setq remaining-methods
                       (remove-if
@@ -2521,25 +2521,25 @@
                    ; Falls alle Klassen, auf die zu testen ist,
                    ; Built-In-Klassen sind, machen wir den Typ-Dispatch
                    ; inline. Denn in der Hierarchie der Built-In-Klassen
-                   ; (die außer NULL und VECTOR keine mehrfache Vererbung
+                   ; (die auÃŸer NULL und VECTOR keine mehrfache Vererbung
                    ; kennt) sind alle CPLs konsistent. Man kann daher mit
                    ; (subclassp (class-of obj) class) == (typep obj class)
                    ; arbeiten.
                    ; Im anderen Fall ist sowieso ein Hash-Tabellen-Zugriff
-                   ; nötig, dann sparen wir uns den Test auf die Built-In-
+                   ; nÃ¶tig, dann sparen wir uns den Test auf die Built-In-
                    ; Klassen und beziehen ihn in die Hash-Tabelle ein.
                    (if (and (every #'bc-p classes)
-                            (<= (length classes) 5) ; zu viele Fälle -> hashen
+                            (<= (length classes) 5) ; zu viele FÃ¤lle -> hashen
                        )
                      (labels
                         ((built-in-subtree (class remaining-classes remaining-methods)
-                           ; behandelt die Fälle, dass das Argument der Klasse
-                           ; class angehört und auf Zugehörigkeit zu einer der
-                           ; remaining-classes abgeprüft werden muss.
+                           ; behandelt die FÃ¤lle, dass das Argument der Klasse
+                           ; class angehÃ¶rt und auf ZugehÃ¶rigkeit zu einer der
+                           ; remaining-classes abgeprÃ¼ft werden muss.
                            ; (Man kann voraussetzen, dass (bc-and class x) /= nil
-                           ; für alle x aus remaining-classes.)
+                           ; fÃ¼r alle x aus remaining-classes.)
                            (if (null remaining-classes)
-                             ; Keine Fallunterscheidung mehr nötig
+                             ; Keine Fallunterscheidung mehr nÃ¶tig
                              (recursion
                                (cdr remaining-args)
                                (remove-if-not
@@ -2554,7 +2554,7 @@
                              )
                              ; Fallunterscheidung mittels TYPEP
                              (let ((test-class (first remaining-classes)))
-                               ; besser test-class maximal wählen:
+                               ; besser test-class maximal wÃ¤hlen:
                                (loop
                                  (let ((other-class
                                          (find-if
@@ -2619,7 +2619,7 @@
           ; lambdabody
           `((,@req-vars ,@(if restp `(&REST ,rest-var) '()))
             (DECLARE
-              (INLINE ; für die Fallunterscheidungen:
+              (INLINE ; fÃ¼r die Fallunterscheidungen:
                       CASE EQL EQ TYPEP
                       ; bei der Inline-Expansion von TYPEP auf Built-In-Klassen:
                       ARRAYP BIT-VECTOR-P CHARACTERP COMPLEXP CONSP FLOATP
@@ -2643,7 +2643,7 @@
            ))
 ) ) ) ) )
 
-; Unsere EQUAL-Hashfunktion schaut in Cons-Bäume nur bis Tiefe 4 hinein.
+; Unsere EQUAL-Hashfunktion schaut in Cons-BÃ¤ume nur bis Tiefe 4 hinein.
 ; Ein Tupel aus maximal 16 Elementen kann zu einem solchen Baum gemacht werden.
 (defun hash-tuple-function (n) ; n>0
   (case n
@@ -2680,8 +2680,8 @@
 
 ; Berechnet die effektive Methode zu gegebenen Argumenten.
 ; Es ist eigentlich die effektive Methode zu allen Argumenten, die dieselben
-; EQL- und Klassen-Einschränkungen haben wie die gegebenen Argumente, aber
-; darum hat sich compute-dispatch schon gekümmert.
+; EQL- und Klassen-EinschrÃ¤nkungen haben wie die gegebenen Argumente, aber
+; darum hat sich compute-dispatch schon gekÃ¼mmert.
 (defun compute-effective-method (gf &rest args)
   (tagbody restart-compute
     (return-from compute-effective-method
@@ -2721,7 +2721,7 @@
               ; "A method that has &rest but not &key does not affect the set of
               ;  acceptable keyword arguments."
               (setq signatures (delete-if-not #'fourth signatures))
-              ; Keine Methode mit &key -> keine Einschränkung der Argumente.
+              ; Keine Methode mit &key -> keine EinschrÃ¤nkung der Argumente.
               (unless (null signatures)
                 ; "If the lambda-list of any applicable method ... contains
                 ;  &allow-other-keys, all keyword arguments are accepted."
@@ -2844,7 +2844,7 @@
               (eval `(LET () (DECLARE (COMPILE) (INLINE FUNCALL APPLY)) ,ef-fun))
 ) ) ) ) ) ) )
 
-; Runtime-Support für CALL-NEXT-METHOD.
+; Runtime-Support fÃ¼r CALL-NEXT-METHOD.
 (defun %call-next-method (method next-methods original-args new-args)
   (let* ((gf (std-method-gf method))
          (emf (sys::generic-function-effective-method-function gf))
@@ -2871,7 +2871,7 @@
 (defvar |#'shared-initialize| nil)
 (defvar *gf-warn-on-replacing-method* t)
 
-; Hinzufügen einer Methode zu einer generischen Funktion:
+; HinzufÃ¼gen einer Methode zu einer generischen Funktion:
 (defun std-add-method (gf method)
   ; 28.1.6.4. congruent lambda lists
   (let ((gf-sign (gf-signature gf))             ; (reqanz optanz restp keywords allowp)
@@ -2900,7 +2900,7 @@
       ; ja -> Methode muss sie akzeptieren:
       (unless (if (fourth m-sign) ; Methode hat &key ?
                 (or (sixth m-sign) ; Methode muss &allow-other-keys haben oder
-                    (subsetp (fourth gf-sign) (fifth m-sign)) ; die Keywords aufzählen
+                    (subsetp (fourth gf-sign) (fifth m-sign)) ; die Keywords aufzÃ¤hlen
                 )
                 (third m-sign) ; Methode muss &rest haben!
               )
@@ -3040,7 +3040,7 @@
 ) )
 
 
-;; Für DEFGENERIC, GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS,
+;; FÃ¼r DEFGENERIC, GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS,
 ;; WITH-ADDED-METHODS
   ; caller: Symbol
   ; funname: Funktionsname, Symbol oder (SETF symbol)
@@ -3131,7 +3131,7 @@
                (ENGLISH "~S ~S: invalid syntax in ~S option: ~S")
                caller funname 'defstruct option
       ) ) )  )
-      ; :argument-precedence-order überprüfen:
+      ; :argument-precedence-order Ã¼berprÃ¼fen:
       (let ((argorder
               (if argorders
                 (let ((l (mapcar #'(lambda (x)
@@ -3143,7 +3143,7 @@
                                  (rest argorders)
                      ))  )
                   ; Ist (rest argorders) eine Permutation von req-vars ?
-                  ; Anders ausgedrückt: Ist die Abbildung
+                  ; Anders ausgedrÃ¼ckt: Ist die Abbildung
                   ;        (rest argorders)  -->  req-vars
                   ; bzw.   l --> {0, ..., reqanz-1}
                   ; bijektiv?
@@ -3326,7 +3326,7 @@
 
 
 #|
-;; Für GENERIC-FLET, GENERIC-LABELS
+;; FÃ¼r GENERIC-FLET, GENERIC-LABELS
 
 ; Wie make-generic-function, nur dass der Dispatch-Code gleich installiert wird.
 (defun make-generic-function-now (funname signature argorder &rest methods)
@@ -3338,7 +3338,7 @@
 |#
 
 
-;; Für GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS
+;; FÃ¼r GENERIC-FUNCTION, GENERIC-FLET, GENERIC-LABELS
 
 (defun make-generic-function-form (caller funname lambda-list options env)
   (multiple-value-bind (signature argorder method-forms docstring)
@@ -3355,7 +3355,7 @@
 )
 
 
-;; Für GENERIC-FLET, GENERIC-LABELS
+;; FÃ¼r GENERIC-FLET, GENERIC-LABELS
 (defun analyze-generic-fundefs (caller fundefs env)
   (let ((names '())
         (funforms '()))
@@ -3413,7 +3413,7 @@
 ; ist vermurkst und wird deshalb nicht implementiert.
 
 
-;;; Verschiedene generische Funktionen, die wir bis jetzt hinausgezögert haben:
+;;; Verschiedene generische Funktionen, die wir bis jetzt hinausgezÃ¶gert haben:
 
 (defgeneric class-name (class)
   (:method ((class class))
@@ -3638,12 +3638,12 @@
       ; Objekt muss Klasse sein, sonst wertlos
       (let ((specialized-object (second specializer)))
         (when (class-p specialized-object)
-          ; Entferne die Einträge von *make-instance-table*, für welche die
-          ; besagte Methode anwendbar wäre:
+          ; Entferne die EintrÃ¤ge von *make-instance-table*, fÃ¼r welche die
+          ; besagte Methode anwendbar wÃ¤re:
           (note-i-change specialized-object *make-instance-table*)
       ) )
-      ; Entferne die Einträge von *make-instance-table*, für welche die
-      ; besagte Methode anwendbar wäre:
+      ; Entferne die EintrÃ¤ge von *make-instance-table*, fÃ¼r welche die
+      ; besagte Methode anwendbar wÃ¤re:
       (note-i-meta-change specializer *make-instance-table*)
 ) ) )
 
@@ -3651,8 +3651,8 @@
   (let ((specializer (first (std-method-parameter-specializers method))))
     ; EQL-Methoden auf INITIALIZE-INSTANCE sind eh wertlos
     (unless (consp specializer)
-      ; Entferne die Einträge von *make-instance-table*, für welche die
-      ; besagte Methode anwendbar wäre:
+      ; Entferne die EintrÃ¤ge von *make-instance-table*, fÃ¼r welche die
+      ; besagte Methode anwendbar wÃ¤re:
       (note-i-change specializer *make-instance-table*)
 ) ) )
 
@@ -3660,8 +3660,8 @@
   (let ((specializer (first (std-method-parameter-specializers method))))
     ; EQL-Methoden auf REINITIALIZE-INSTANCE sind im wesentlichen wertlos
     (unless (consp specializer)
-      ; Entferne die Einträge von *reinitialize-instance-table*, für welche die
-      ; besagte Methode anwendbar wäre:
+      ; Entferne die EintrÃ¤ge von *reinitialize-instance-table*, fÃ¼r welche die
+      ; besagte Methode anwendbar wÃ¤re:
       (note-i-change specializer *reinitialize-instance-table*)
 ) ) )
 
@@ -3671,16 +3671,16 @@
          (specializer2 (second specializers)))
     ; EQL-Methoden auf SHARED-INITIALIZE sind im wesentlichen wertlos
     (unless (consp specializer1)
-      ; Als zweites Argument wird von INITIALIZE-INSTANCE immer nur T übergeben.
+      ; Als zweites Argument wird von INITIALIZE-INSTANCE immer nur T Ã¼bergeben.
       (when (typep 'T specializer2)
-        ; Entferne die Einträge von *make-instance-table*, für welche die
-        ; besagte Methode anwendbar wäre:
+        ; Entferne die EintrÃ¤ge von *make-instance-table*, fÃ¼r welche die
+        ; besagte Methode anwendbar wÃ¤re:
         (note-i-change specializer1 *make-instance-table*)
       )
-      ; Als zweites Argument wird von REINITIALIZE-INSTANCE nur NIL übergeben.
+      ; Als zweites Argument wird von REINITIALIZE-INSTANCE nur NIL Ã¼bergeben.
       (when (typep 'NIL specializer2)
-        ; Entferne die Einträge von *reinitialize-instance-table*, für welche die
-        ; besagte Methode anwendbar wäre:
+        ; Entferne die EintrÃ¤ge von *reinitialize-instance-table*, fÃ¼r welche die
+        ; besagte Methode anwendbar wÃ¤re:
         (note-i-change specializer1 *reinitialize-instance-table*)
       )
 ) ) )
@@ -3707,9 +3707,9 @@
 ; NB: Beim Berechnen einer effektiven Methode kommt es auf die restlichen
 ; Argumente nicht an.
 ; Beim ersten INITIALIZE-INSTANCE- oder MAKE-INSTANCE-Aufruf einer jeden Klasse
-; merkt man sich die benötigte Information in *make-instance-table*.
+; merkt man sich die benÃ¶tigte Information in *make-instance-table*.
 
-; Bei MAKE-INSTANCE sind als Keys gültig:
+; Bei MAKE-INSTANCE sind als Keys gÃ¼ltig:
 ; - die Initargs, die zur Initialisierung von Slots benutzt werden,
 ; - die Keywords von Methoden von SHARED-INITIALIZE,
 ; - die Keywords von Methoden von INITIALIZE-INSTANCE,
@@ -3823,7 +3823,7 @@
         (if (not (eq (cdr h) #'clos::%shared-initialize))
           ; effektive Methode von shared-initialize anwenden:
           (apply (cdr h) instance 'NIL initargs)
-          ; clos::%shared-initialize mit slot-names=NIL lässt sich vereinfachen:
+          ; clos::%shared-initialize mit slot-names=NIL lÃ¤sst sich vereinfachen:
           (progn
             (dolist (slot (class-slots (class-of instance)))
               (let ((slotname (slotdef-name slot)))
@@ -3860,7 +3860,7 @@
     :signature '(1 0 t () () ())
 ) )
 ; Beim ersten REINITIALIZE-INSTANCE-Aufruf einer jeden Klasse merkt man sich die
-; benötigte Information in *reinitialize-instance-table*.
+; benÃ¶tigte Information in *reinitialize-instance-table*.
 (defun initial-reinitialize-instance (instance &rest initargs)
   (let* ((class (class-of instance))
          (valid-keywords
@@ -3902,7 +3902,7 @@
       (if (not (eq (svref h 3) #'clos::%shared-initialize))
         ; effektive Methode von shared-initialize anwenden:
         (apply (svref h 3) instance 'T initargs)
-        ; clos::%shared-initialize mit slot-names=T lässt sich vereinfachen:
+        ; clos::%shared-initialize mit slot-names=T lÃ¤sst sich vereinfachen:
         (progn
           (dolist (slot (class-slots (class-of instance)))
             (let ((slotname (slotdef-name slot)))
@@ -4036,7 +4036,7 @@
           (if (not (eq (svref h 2) #'clos::%initialize-instance))
             ; effektive Methode von initialize-instance anwenden:
             (apply (svref h 2) instance initargs)
-            ; clos::%initialize-instance lässt sich vereinfachen (man braucht
+            ; clos::%initialize-instance lÃ¤sst sich vereinfachen (man braucht
             ; nicht nochmal in *make-instance-table* nachzusehen):
             (if (not (eq (svref h 3) #'clos::%shared-initialize))
               ; effektive Methode von shared-initialize anwenden:

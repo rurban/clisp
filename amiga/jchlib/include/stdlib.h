@@ -1,6 +1,6 @@
 /* Tiny GCC Library
  * stdlib.h
- * Jörg Höhle, 11-Jun-96
+ * JÃ¶rg HÃ¶hle, 11-Jun-96
  */
 
 #ifndef _STDLIB_H_

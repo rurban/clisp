@@ -1,5 +1,5 @@
 ;;;; Simple Foreign Function Interface support
-;;;; Jörg Höhle 7.8.1996
+;;;; JÃ¶rg HÃ¶hle 7.8.1996
 
 (in-package "SYSTEM")
 

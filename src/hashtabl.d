@@ -2,8 +2,8 @@
 # Bruno Haible 1990-2000
 
 #include "lispbibl.c"
-#include "arilev0.c" # für Hashcode-Berechnung
-#include "aridecl.c" # für Short-Floats
+#include "arilev0.c" # fÃ¼r Hashcode-Berechnung
+#include "aridecl.c" # fÃ¼r Short-Floats
 
 
 # Aufbau einer Hash-Tabelle:
@@ -11,16 +11,16 @@
 # In einem Vektor, der durch (hashcode Key) indiziert wird.
 # Damit ein laufendes MAPHASH von einer GC unbeeinflusst bleibt, wird dieser
 # Vektor bei GC nicht reorganisiert. Da aber bei GC jeder (hashcode Key)
-# sich ändern kann, bauen wir eine weitere Indizierungsstufe ein:
+# sich Ã¤ndern kann, bauen wir eine weitere Indizierungsstufe ein:
 # (hashcode Key) indiziert einen Index-Vektor; dort steht ein Index in
 # den Key-Value-Vektor, und dort befindet sich (Key . Value).
 # Um Speicherplatz zu sparen, legen wir nicht ein Cons (Key . Value)
 # im Vektor ab, sondern einfach Key und Value hintereinander.
-# Kollisionen [mehrere Keys haben denselben (hascode Key)] möchte man durch
+# Kollisionen [mehrere Keys haben denselben (hascode Key)] mÃ¶chte man durch
 # Listen beheben. Da aber der Key-Value-Vektor (wieder wegen MAPHASH) bei GC
-# unbeeinflusst bleiben soll und GC die Menge der Kollisionen verändert,
+# unbeeinflusst bleiben soll und GC die Menge der Kollisionen verÃ¤ndert,
 # brauchen wir einen weiteren Index-Vektor, genannt Next-Vektor, der
-# "parallel" zum Key-Value-Vektor liegt und eine "Listen"struktur enthält.
+# "parallel" zum Key-Value-Vektor liegt und eine "Listen"struktur enthÃ¤lt.
 # Skizze:
 #   Key --> (hashcode Key) als Index in Index-Vaktor.
 #   Key1 --> 3, Key2 --> 1, Key4 --> 3.
@@ -28,37 +28,37 @@
 #                   = #( nix 1 nix 0 nix ... )
 #   Next-Vektor       #(     3        nix       leer      nix      leer   )
 #   Key-Value-Vektor  #( Key1 Val1 Key2 Val2 leer leer Key4 Val4 leer leer)
-# Zugriff auf ein (Key . Value) - Paar geschieht also folgendermaßen:
+# Zugriff auf ein (Key . Value) - Paar geschieht also folgendermaÃŸen:
 #   index := (aref Index-Vektor (hashcode Key))
 #   until index = nix
 #     if (eql Key (aref KVVektor 2*index)) return (aref KVVektor 2*index+1)
 #     index := (aref Next-Vektor index) ; "CDR" der Liste nehmen
 #   return notfound.
-# Wird Index-Vektor vergrößert, müssen alle Hashcodes und der Inhalt von
+# Wird Index-Vektor vergrÃ¶ÃŸert, mÃ¼ssen alle Hashcodes und der Inhalt von
 # Index-Vektor und der Inhalt von Next-Vektor neu berechnet werden.
-# Werden Next-Vektor und Key-Value-Vektor vergrößert, so können die
-# restlichen Elemente mit "leer" gefüllt werden, ohne dass ein Hashcode neu
-# berechnet werden müsste.
+# Werden Next-Vektor und Key-Value-Vektor vergrÃ¶ÃŸert, so kÃ¶nnen die
+# restlichen Elemente mit "leer" gefÃ¼llt werden, ohne dass ein Hashcode neu
+# berechnet werden mÃ¼sste.
 # Damit nach CLRHASH oder vielfachem REMHASH, wenn eine Tabelle viel
-# weniger Elemente enthält als ihre Kapazität, ein MAPHASH schnell geht,
-# könnte man die Einträge im Key-Value-Vektor "links gepackt" halten, d.h.
+# weniger Elemente enthÃ¤lt als ihre KapazitÃ¤t, ein MAPHASH schnell geht,
+# kÃ¶nnte man die EintrÃ¤ge im Key-Value-Vektor "links gepackt" halten, d.h.
 # alle "leer" kommen rechts. Dann braucht man bei MAPHASH nur die Elemente
 # count-1,...,1,0 des Key-Value-Vektors abzugrasen. Aber REMHASH muss
-# - nachdem es eine Lücke gelassen hat - das hinterste Key-Value-Paar
-# (Nummer count-1) in die Lücke umfüllen.
-# Wir behandeln solche Fälle dadurch, dass wir bei CLRHASH und REMHASH
+# - nachdem es eine LÃ¼cke gelassen hat - das hinterste Key-Value-Paar
+# (Nummer count-1) in die LÃ¼cke umfÃ¼llen.
+# Wir behandeln solche FÃ¤lle dadurch, dass wir bei CLRHASH und REMHASH
 # eventuell den Key-Value-Vektor und den Next-Vektor verkleinern.
 # Damit PUTHASH einen freien Eintrag findet, halten wir die "leer" im
 # Next-Vektor in einer Frei"liste".
-# Die Längen von Index-Vektor und Next-Vektor sind unabhängig voneinander.
-# Wir wählen sie hier im Verhältnis 2:1.
-# Die Hash-Tabelle wird vergrößert, wenn die Freiliste leer ist, d.h.
+# Die LÃ¤ngen von Index-Vektor und Next-Vektor sind unabhÃ¤ngig voneinander.
+# Wir wÃ¤hlen sie hier im VerhÃ¤ltnis 2:1.
+# Die Hash-Tabelle wird vergrÃ¶ÃŸert, wenn die Freiliste leer ist, d.h.
 # COUNT > MAXCOUNT wird. Dabei werden MAXCOUNT und SIZE mit REHASH-SIZE (>1)
 # multipliziert.
 # Die Hash-Tabelle wird verkleinert, wenn COUNT < MINCOUNT wird. Dabei
 # werden MAXCOUNT und SIZE mit 1/REHASH-SIZE (<1) multipliziert. Damit nach
-# einer Vergrößerung der Tabelle COUNT gleichviel nach oben wie nach unten
-# variieren kann (auf einer logarithmischen Skala), wählen wir
+# einer VergrÃ¶ÃŸerung der Tabelle COUNT gleichviel nach oben wie nach unten
+# variieren kann (auf einer logarithmischen Skala), wÃ¤hlen wir
 # MINCOUNT = MAXCOUNT / REHASH-SIZE^2 .
 
 # Datenstruktur der Hash-Tabelle (siehe LISPBIBL.D):
@@ -69,18 +69,18 @@
 #   Bit 3 gesetzt, wenn EQUALP-Hashtabelle
 #   Bit 4-6 =0
 #   Bit 7 gesetzt, wenn Tabelle nach GC reorganisiert werden muss
-# ht_size                Fixnum>0 = Länge der ITABLE
-# ht_maxcount            Fixnum>0 = Länge der NTABLE
-# ht_itable              Index-Vektor der Länge SIZE, enthält Indizes
-# ht_ntable              Next-Vektor der Länge MAXCOUNT, enthält Indizes
-# ht_kvtable             Key-Value-Vektor, Vektor der Länge 2*MAXCOUNT
+# ht_size                Fixnum>0 = LÃ¤nge der ITABLE
+# ht_maxcount            Fixnum>0 = LÃ¤nge der NTABLE
+# ht_itable              Index-Vektor der LÃ¤nge SIZE, enthÃ¤lt Indizes
+# ht_ntable              Next-Vektor der LÃ¤nge MAXCOUNT, enthÃ¤lt Indizes
+# ht_kvtable             Key-Value-Vektor, Vektor der LÃ¤nge 2*MAXCOUNT
 # ht_freelist            Start-Index der Freiliste im Next-Vektor
-# ht_count               Anzahl der Einträge in der Table, Fixnum >=0, <=MAXCOUNT
+# ht_count               Anzahl der EintrÃ¤ge in der Table, Fixnum >=0, <=MAXCOUNT
 # ht_rehash_size         Wachstumsrate bei Reorganisation. Float >1.1
-# ht_mincount_threshold  Verhältnis MINCOUNT/MAXCOUNT = 1/rehash-size^2
-# ht_mincount            Fixnum>=0, untere Grenze für COUNT
+# ht_mincount_threshold  VerhÃ¤ltnis MINCOUNT/MAXCOUNT = 1/rehash-size^2
+# ht_mincount            Fixnum>=0, untere Grenze fÃ¼r COUNT
 # Eintrag "leer" im Key-Value-Vektor ist = #<UNBOUND>.
-# Eintrag "leer" im Next-Vektor ist durch die Freiliste gefüllt.
+# Eintrag "leer" im Next-Vektor ist durch die Freiliste gefÃ¼llt.
 # Eintrag "nix" im Index-Vektor und im Next-Vektor ist = #<UNBOUND>.
   #define leer  unbound
   #define nix   unbound
@@ -95,7 +95,7 @@
 
 # UP: Berechnet den EQ-Hashcode eines Objekts.
 # hashcode1(obj)
-# Er ist nur bis zur nächsten GC gültig.
+# Er ist nur bis zur nÃ¤chsten GC gÃ¼ltig.
 # Aus (eq X Y) folgt (= (hashcode1 X) (hashcode1 Y)).
 # > obj: ein Objekt
 # < ergebnis: Hashcode, eine 32-Bit-Zahl
@@ -108,7 +108,7 @@
 
 # UP: Berechnet den EQL-Hashcode eines Objekts.
 # hashcode2(obj)
-# Er ist nur bis zur nächsten GC gültig.
+# Er ist nur bis zur nÃ¤chsten GC gÃ¼ltig.
 # Aus (eql X Y) folgt (= (hashcode2 X) (hashcode2 Y)).
 # > obj: ein Objekt
 # < ergebnis: Hashcode, eine 32-Bit-Zahl
@@ -125,7 +125,7 @@
   #else
   #define hashcode_fixnum(obj)  hashcode1(obj)
   #endif
-  # Bignum: Länge*2 + (MSD*2^16 + LSD)
+  # Bignum: LÃ¤nge*2 + (MSD*2^16 + LSD)
   local uint32 hashcode_bignum (object obj);
   local uint32 hashcode_bignum(obj)
     var object obj;
@@ -145,9 +145,9 @@
            |((uint32)TheBignum(obj)->data[len-1])
           )
         #endif
-        + 2*len; # und Länge*2
+        + 2*len; # und LÃ¤nge*2
     }
-  # Short-Float: Interne Repräsentation
+  # Short-Float: Interne ReprÃ¤sentation
   local uint32 hashcode_sfloat (object obj);
   #if 0
   local uint32 hashcode_sfloat(obj)
@@ -165,7 +165,7 @@
     {
       return ffloat_value(obj);
     }
-  # Double-Float: führende 32 Bit
+  # Double-Float: fÃ¼hrende 32 Bit
   local uint32 hashcode_dfloat (object obj);
   local uint32 hashcode_dfloat(obj)
     var object obj;
@@ -176,7 +176,7 @@
       return TheDfloat(obj)->float_value.semhi;
       #endif
     }
-  # Long-Float: Mischung aus Exponent, Länge, erste 32 Bit
+  # Long-Float: Mischung aus Exponent, LÃ¤nge, erste 32 Bit
   extern uint32 hashcode_lfloat (object obj); # siehe LFLOAT.D
 # allgemein:
   local uint32 hashcode2(obj)
@@ -258,14 +258,14 @@
 
 # UP: Berechnet den EQUAL-Hashcode eines Objekts.
 # hashcode3(obj)
-# Er ist nur bis zur nächsten GC oder der nächsten Modifizierung des Objekts
-# gültig.
+# Er ist nur bis zur nÃ¤chsten GC oder der nÃ¤chsten Modifizierung des Objekts
+# gÃ¼ltig.
 # Aus (equal X Y) folgt (= (hashcode3 X) (hashcode3 Y)).
 # > obj: ein Objekt
 # < ergebnis: Hashcode, eine 32-Bit-Zahl
   local uint32 hashcode3 (object obj);
 # Hilfsfunktionen bei bekanntem Typ:
-  # String -> Länge, erste max. 31 Zeichen, letztes Zeichen verwerten
+  # String -> LÃ¤nge, erste max. 31 Zeichen, letztes Zeichen verwerten
   local uint32 hashcode_string (object obj);
   local uint32 hashcode_string(obj)
     var object obj;
@@ -273,7 +273,7 @@
       var uintL len;
       var uintL offset;
       var object string = unpack_string_ro(obj,&len,&offset);
-      var uint32 bish_code = 0x33DAE11FUL + len; # Länge verwerten
+      var uint32 bish_code = 0x33DAE11FUL + len; # LÃ¤nge verwerten
       if (len > 0) {
         SstringDispatch(string,
           {
@@ -281,7 +281,7 @@
             bish_code ^= (uint32)as_cint(ptr[len-1]); # letztes Zeichen dazu
             var uintC count = (len <= 31 ? len : 31); # min(len,31)
             dotimespC(count,count, {
-              var uint32 next_code = (uint32)as_cint(*ptr++); # nächstes Zeichen
+              var uint32 next_code = (uint32)as_cint(*ptr++); # nÃ¤chstes Zeichen
               bish_code = misch(bish_code,next_code); # dazunehmen
             });
           },
@@ -290,7 +290,7 @@
             bish_code ^= (uint32)(cint)(ptr[len-1]); # letztes Zeichen dazu
             var uintC count = (len <= 31 ? len : 31); # min(len,31)
             dotimespC(count,count, {
-              var uint32 next_code = (uint32)(cint)(*ptr++); # nächstes Zeichen
+              var uint32 next_code = (uint32)(cint)(*ptr++); # nÃ¤chstes Zeichen
               bish_code = misch(bish_code,next_code); # dazunehmen
             });
           }
@@ -298,12 +298,12 @@
       }
       return bish_code;
     }
-  # Bit-Vektor -> Länge, erste 16 Bits, letzte 16 Bits verwerten
+  # Bit-Vektor -> LÃ¤nge, erste 16 Bits, letzte 16 Bits verwerten
   local uint32 hashcode_bvector (object obj);
   local uint32 hashcode_bvector(obj)
     var object obj;
     {
-      var uintL len = vector_length(obj); # Länge
+      var uintL len = vector_length(obj); # LÃ¤nge
       var uintL index = 0;
       var object sbv = array_displace_check(obj,len,&index);
       # sbv der Datenvektor, index ist der Index in den Datenvektor.
@@ -325,7 +325,7 @@
           (uint_bitpack*)(&TheSbvector(sbv)->data[0]) + floor(index,bitpack);
       var uintL offset = index%bitpack; # Offset innerhalb des Word
       if (len <= 32) {
-        # Länge <= 32 -> alle Bits nehmen:
+        # LÃ¤nge <= 32 -> alle Bits nehmen:
         if (len == 0) {
           return 0x8FA1D564UL;
         } else {
@@ -338,7 +338,7 @@
           if (need > 0) {
             akku12 = highlow32_0(*ptr++); # erste 16 Bits
             if (need > 16) {
-              akku12 |= (uint32)(*ptr++); # nächste 16 Bits
+              akku12 |= (uint32)(*ptr++); # nÃ¤chste 16 Bits
               if (need > 32)
                 akku3 = (uint32)(*ptr++); # letzte 16 Bits
             }
@@ -348,13 +348,13 @@
           if (need > 0) {
             akku12 = (uint32)(*ptr++)<<24; # erste 8 Bits
             if (need > 8) {
-              akku12 |= (uint32)(*ptr++)<<16; # nächste 8 Bits
+              akku12 |= (uint32)(*ptr++)<<16; # nÃ¤chste 8 Bits
               if (need > 16) {
-                akku12 |= (uint32)(*ptr++)<<8; # nächste 8 Bits
+                akku12 |= (uint32)(*ptr++)<<8; # nÃ¤chste 8 Bits
                 if (need > 24) {
-                  akku12 |= (uint32)(*ptr++); # nächste 8 Bits
+                  akku12 |= (uint32)(*ptr++); # nÃ¤chste 8 Bits
                   if (need > 32) {
-                    akku3 = (uint32)(*ptr++)<<8; # nächste 8 Bits
+                    akku3 = (uint32)(*ptr++)<<8; # nÃ¤chste 8 Bits
                     if (need > 40)
                       akku3 |= (uint32)(*ptr++); # letzte 8 Bits
                   }
@@ -368,19 +368,19 @@
           # 32 Bits in akku12 fertig.
           # irrelevante Bits ausmaskieren:
           akku12 = akku12 & ~(bit(32-len)-1);
-          # Länge verwerten:
+          # LÃ¤nge verwerten:
           return akku12+len;
         }
       } else {
-        # Länge > 32 -> erste und letzte 16 Bits nehmen:
+        # LÃ¤nge > 32 -> erste und letzte 16 Bits nehmen:
         var uint32 akku12 = # 32-Bit-Akku
-          get32bits_at(ptr) << offset; # enthält mind. die ersten 16 Bits
+          get32bits_at(ptr) << offset; # enthÃ¤lt mind. die ersten 16 Bits
         offset += len; # End-Offset des Bitvektor
         ptr += floor(offset,bitpack); # zeigt aufs letzte benutzte Word
         offset = offset%bitpack; # End-Offset innerhalb des Word
         var uint32 akku34 = # 32-Bit-Akku
-          get32bits_at(ptr-(16/bitpack)) << offset; # enthält mind. die letzten 16 Bits
-        # erste 16, letzte 16 Bits herausgreifen und Länge verwerten:
+          get32bits_at(ptr-(16/bitpack)) << offset; # enthÃ¤lt mind. die letzten 16 Bits
+        # erste 16, letzte 16 Bits herausgreifen und LÃ¤nge verwerten:
         return highlow32(high16(akku12),high16(akku34)) + len;
       }
       #undef get32bits_at
@@ -419,7 +419,7 @@
           var object* ptr = &((Record)ThePathname(obj))->recdata[0];
           var uintC count;
           dotimespC(count,Xrecord_length(obj), {
-            var uint32 next_code = hashcode_pathcomp(*ptr++); # Hashcode der nächsten Komponente
+            var uint32 next_code = hashcode_pathcomp(*ptr++); # Hashcode der nÃ¤chsten Komponente
             bish_code = misch(bish_code,next_code); # dazunehmen
           });
           return bish_code;
@@ -451,7 +451,7 @@
               var object* ptr = &((Record)ThePathname(obj))->recdata[0];
               var uintC count;
               dotimespC(count,Xrecord_length(obj), {
-                var uint32 next_code = hashcode_pathcomp(*ptr++); # Hashcode der nächsten Komponente
+                var uint32 next_code = hashcode_pathcomp(*ptr++); # Hashcode der nÃ¤chsten Komponente
                 bish_code = misch(bish_code,next_code); # dazunehmen
               });
               return bish_code;
@@ -540,14 +540,14 @@
 
 # UP: Berechnet den EQUALP-Hashcode eines Objekts.
 # hashcode4(obj)
-# Er ist nur bis zur nächsten GC oder der nächsten Modifizierung des Objekts
-# gültig.
+# Er ist nur bis zur nÃ¤chsten GC oder der nÃ¤chsten Modifizierung des Objekts
+# gÃ¼ltig.
 # Aus (equalp X Y) folgt (= (hashcode4 X) (hashcode4 Y)).
   local uint32 hashcode4 (object obj);
 # Hilfsfunktionen bei bekanntem Typ:
   # Character -> case-insensitive.
   #define hashcode4_char(c)  (0xCAAEACEFUL + (uint32)as_cint(up_case(c)))
-  # Number: Mischung aus Exponent, Länge, erste 32 Bit
+  # Number: Mischung aus Exponent, LÃ¤nge, erste 32 Bit
   extern uint32 hashcode4_real (object obj); # siehe REALELEM.D
   extern uint32 hashcode4_uint32 (uint32 x); # siehe REALELEM.D
   extern uint32 hashcode4_uint4 [16]; # siehe REALELEM.D
@@ -571,7 +571,7 @@
         check_SP();
         var const object* ptr = &TheSvector(dv)->data[index];
         dotimespL(count,count, {
-          var uint32 next_code = hashcode4(*ptr++); # Hashcode der nächsten Komponente
+          var uint32 next_code = hashcode4(*ptr++); # Hashcode der nÃ¤chsten Komponente
           bish_code = misch(bish_code,next_code); # dazunehmen
         });
       }
@@ -588,14 +588,14 @@
           {
             var const chart* ptr = &TheSstring(dv)->data[index];
             dotimespL(count,count, {
-              var uint32 next_code = hashcode4_char(*ptr++); # nächstes Zeichen
+              var uint32 next_code = hashcode4_char(*ptr++); # nÃ¤chstes Zeichen
               bish_code = misch(bish_code,next_code); # dazunehmen
             });
           },
           {
             var const scint* ptr = &TheSmallSstring(dv)->data[index];
             dotimespL(count,count, {
-              var uint32 next_code = hashcode4_char(as_chart(*ptr++)); # nächstes Zeichen
+              var uint32 next_code = hashcode4_char(as_chart(*ptr++)); # nÃ¤chstes Zeichen
               bish_code = misch(bish_code,next_code); # dazunehmen
             });
           }
@@ -612,7 +612,7 @@
       if (count > 0) {
         var const uintB* ptr = &TheSbvector(dv)->data[index/8];
         dotimespL(count,count, {
-          var uint32 next_code = hashcode4_uint4[(*ptr >> ((~index)%8)) & (bit(1)-1)]; # nächstes Byte
+          var uint32 next_code = hashcode4_uint4[(*ptr >> ((~index)%8)) & (bit(1)-1)]; # nÃ¤chstes Byte
           bish_code = misch(bish_code,next_code); # dazunehmen
           index++;
           ptr += ((index%8)==0);
@@ -629,7 +629,7 @@
       if (count > 0) {
         var const uintB* ptr = &TheSbvector(dv)->data[index/4];
         dotimespL(count,count, {
-          var uint32 next_code = hashcode4_uint4[(*ptr >> ((~index)%4)) & (bit(2)-1)]; # nächstes Byte
+          var uint32 next_code = hashcode4_uint4[(*ptr >> ((~index)%4)) & (bit(2)-1)]; # nÃ¤chstes Byte
           bish_code = misch(bish_code,next_code); # dazunehmen
           index++;
           ptr += ((index%4)==0);
@@ -646,7 +646,7 @@
       if (count > 0) {
         var const uintB* ptr = &TheSbvector(dv)->data[index/2];
         dotimespL(count,count, {
-          var uint32 next_code = hashcode4_uint4[(*ptr >> ((~index)%2)) & (bit(4)-1)]; # nächstes Byte
+          var uint32 next_code = hashcode4_uint4[(*ptr >> ((~index)%2)) & (bit(4)-1)]; # nÃ¤chstes Byte
           bish_code = misch(bish_code,next_code); # dazunehmen
           index++;
           ptr += ((index%2)==0);
@@ -663,7 +663,7 @@
       if (count > 0) {
         var const uintB* ptr = &TheSbvector(dv)->data[index];
         dotimespL(count,count, {
-          var uint32 next_code = hashcode4_uint32(*ptr++); # nächstes Byte
+          var uint32 next_code = hashcode4_uint32(*ptr++); # nÃ¤chstes Byte
           bish_code = misch(bish_code,next_code); # dazunehmen
         });
       }
@@ -678,7 +678,7 @@
       if (count > 0) {
         var const uint16* ptr = &((uint16*)&TheSbvector(dv)->data[0])[index];
         dotimespL(count,count, {
-          var uint32 next_code = hashcode4_uint32(*ptr++); # nächstes Byte
+          var uint32 next_code = hashcode4_uint32(*ptr++); # nÃ¤chstes Byte
           bish_code = misch(bish_code,next_code); # dazunehmen
         });
       }
@@ -693,7 +693,7 @@
       if (count > 0) {
         var const uint32* ptr = &((uint32*)&TheSbvector(dv)->data[0])[index];
         dotimespL(count,count, {
-          var uint32 next_code = hashcode4_uint32(*ptr++); # nächstes Byte
+          var uint32 next_code = hashcode4_uint32(*ptr++); # nÃ¤chstes Byte
           bish_code = misch(bish_code,next_code); # dazunehmen
         });
       }
@@ -768,11 +768,11 @@
         case_vector: # (VECTOR T)
           # komponentenweise ansehen:
           {
-            var uintL len = vector_length(obj); # Länge
+            var uintL len = vector_length(obj); # LÃ¤nge
             var uintL index = 0;
             var object dv = array_displace_check(obj,len,&index);
             # dv der Datenvektor, index ist der Index in den Datenvektor.
-            var uint32 bish_code = 0x724BD24EUL + len; # Länge verwerten
+            var uint32 bish_code = 0x724BD24EUL + len; # LÃ¤nge verwerten
             return hashcode4_vector(dv,index,len,bish_code);
           }
         case_mdarray: # Array vom Rang /=1
@@ -841,7 +841,7 @@
               var const object* ptr = &TheRecord(obj)->recdata[0];
               var uintC count;
               dotimespC(count,len, {
-                var uint32 next_code = hashcode4(*ptr++); # Hashcode der nächsten Komponente
+                var uint32 next_code = hashcode4(*ptr++); # Hashcode der nÃ¤chsten Komponente
                 bish_code = misch(bish_code,next_code); # dazunehmen
               });
             }
@@ -850,7 +850,7 @@
               if (xlen > 0) {
                 var const uintB* ptr = (uintB*)&TheRecord(obj)->recdata[len];
                 dotimespC(xlen,xlen, {
-                  var uint32 next_code = *ptr++; # nächstes Byte
+                  var uint32 next_code = *ptr++; # nÃ¤chstes Byte
                   bish_code = misch(bish_code,next_code); # dazunehmen
                 });
               }
@@ -942,7 +942,7 @@
       }
     }
 
-# UP: Berechnet den Hashcode eines Objekts bezüglich einer Hashtabelle.
+# UP: Berechnet den Hashcode eines Objekts bezÃ¼glich einer Hashtabelle.
 # hashcode(ht,obj)
 # > ht: Hash-Table
 # > obj: Objekt
@@ -968,14 +968,14 @@
     }
 
 # UP: Reorganisiert eine Hash-Tabelle, nachdem durch eine GC die Hashcodes
-# der Keys verändert wurden.
+# der Keys verÃ¤ndert wurden.
 # rehash(ht);
 # > ht: Hash-Table
   local void rehash (object ht);
   local void rehash(ht)
     var object ht;
     {
-      # Index-Vektor mit "nix" füllen:
+      # Index-Vektor mit "nix" fÃ¼llen:
       var object Ivektor = TheHashtable(ht)->ht_itable; # Index-Vektor
       {
         var object* ptr = &TheSvector(Ivektor)->data[0];
@@ -992,28 +992,28 @@
       var object freelist = nix;
       var object count = Fixnum_0;
       loop {
-        # Schleife, läuft durch den Key-Value-Vektor und den Next-Vektor.
+        # Schleife, lÃ¤uft durch den Key-Value-Vektor und den Next-Vektor.
         # index = MAXCOUNT,...,0 (Fixnum),
         # Nptr = &TheSvector(Nptr)->data[index],
         # KVptr = &TheSvector(KVptr)->data[index],
         # freelist = bisherige Freiliste,
-        # count = Paare-Zähler als Fixnum.
+        # count = Paare-ZÃ¤hler als Fixnum.
         if (eq(index,Fixnum_0)) # index=0 -> Schleife fertig
           break;
         index = fixnum_inc(index,-1); # index decrementieren
         KVptr -= 2;
-        var object key = KVptr[0]; # nächster Key
+        var object key = KVptr[0]; # nÃ¤chster Key
         if (!eq(key,leer)) { # /= "leer" ?
           var uintL hashindex = hashcode(ht,key); # Hashcode dazu
-          # "Liste", die bei Eintrag hashindex anfängt, um index erweitern:
+          # "Liste", die bei Eintrag hashindex anfÃ¤ngt, um index erweitern:
           # Eintrag im Index-Vektor in den Next-Vektor kopieren
           # und durch index (ein Pointer auf diese Stelle) ersetzen:
           var object* Iptr = &TheSvector(Ivektor)->data[hashindex];
           *--Nptr = *Iptr; # Eintrag in den Next-Vektor kopieren
           *Iptr = index; # und durch Zeiger darauf ersetzen
-          count = fixnum_inc(count,1); # mitzählen
+          count = fixnum_inc(count,1); # mitzÃ¤hlen
         } else {
-          # Freiliste im Next-Vektor verlängern:
+          # Freiliste im Next-Vektor verlÃ¤ngern:
           *--Nptr = freelist; freelist = index;
         }
       }
@@ -1028,10 +1028,10 @@
 # > obj: Objekt
 # < falls gefunden: ergebnis=TRUE,
 #     KVptr[0], KVptr[1] : Key, Value im Key-Value-Vektor,
-#     *Nptr : zugehöriger Eintrag im Next-Vektor,
+#     *Nptr : zugehÃ¶riger Eintrag im Next-Vektor,
 #     *Iptr : auf *Nptr zeigender vorheriger Index
 # < falls nicht gefunden: ergebnis=FALSE,
-#     *Iptr : zum Key gehöriger Eintrag im Index-Vektor
+#     *Iptr : zum Key gehÃ¶riger Eintrag im Index-Vektor
 #             oder ein beliebiges Element der dort beginnenden "Liste"
   local boolean hash_lookup (object ht, object obj, object** KVptr_, object** Nptr_, object** Iptr_);
   local boolean hash_lookup(ht,obj,KVptr_,Nptr_,Iptr_)
@@ -1053,11 +1053,11 @@
         # "Liste" weiterverfolgen:
         if (eq(*Nptr,nix)) # "Liste" zu Ende -> nicht gefunden
           break;
-        var uintL index = posfixnum_to_L(*Nptr); # nächster Index
+        var uintL index = posfixnum_to_L(*Nptr); # nÃ¤chster Index
         var object* Iptr = Nptr;
         Nptr = # Pointer auf Eintrag im Next-Vektor
           &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];
-        var object* KVptr = # Pointer auf Einträge im Key-Value-Vektor
+        var object* KVptr = # Pointer auf EintrÃ¤ge im Key-Value-Vektor
           &TheSvector(TheHashtable(ht)->ht_kvtable)->data[2*index];
         var object key = KVptr[0];
         # key mit obj vergleichen:
@@ -1075,36 +1075,36 @@
       *Iptr_ = Nptr; return FALSE;
     }
 
-# Macro: Trägt ein Key-Value-Paar in einer Hash-Tabelle ein.
+# Macro: TrÃ¤gt ein Key-Value-Paar in einer Hash-Tabelle ein.
 # hash_store(key,value);
 # > object ht: Hash-Tabelle
 # > object freelist: Anfang der Freiliste im Next-Vektor, /= nix
 # > key: Key
 # > value: Value
-# > object* Iptr: beliebiges Element der "Liste", die zu Key gehört
+# > object* Iptr: beliebiges Element der "Liste", die zu Key gehÃ¶rt
   #define hash_store(key,value)  \
     { var uintL index = posfixnum_to_L(freelist); # freier Index             \
       var object* Nptr = # Adresse des freien Eintrags im Next-Vektor        \
         &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];               \
-      var object* KVptr = # Adresse der freien Einträge im Key-Value-Vektor  \
+      var object* KVptr = # Adresse der freien EintrÃ¤ge im Key-Value-Vektor  \
         &TheSvector(TheHashtable(ht)->ht_kvtable)->data[2*index];            \
-      set_break_sem_2(); # Vor Unterbrechungen schützen                      \
+      set_break_sem_2(); # Vor Unterbrechungen schÃ¼tzen                      \
       # COUNT incrementieren:                                                \
       TheHashtable(ht)->ht_count = fixnum_inc(TheHashtable(ht)->ht_count,1); \
-      # Freiliste verkürzen:                                                 \
+      # Freiliste verkÃ¼rzen:                                                 \
       TheHashtable(ht)->ht_freelist = *Nptr;                                 \
       # Key und Value abspeichern:                                           \
       *KVptr++ = key; *KVptr++ = value;                                      \
-      # freies Listenelement index in die "Liste" einfügen                   \
+      # freies Listenelement index in die "Liste" einfÃ¼gen                   \
       # (nach resize an den Listenanfang, da Iptr in den Index-Vektor zeigt, \
       # sonst ans Listenende, da hash_lookup mit *Iptr=nix beendet wurde):   \
       *Nptr = *Iptr; *Iptr = freelist;                                       \
       clr_break_sem_2(); # Unterbrechungen wieder zulassen                   \
     }
 
-# UP: Stellt die Zahlen und Vektoren für eine neue Hash-Tabelle bereit.
+# UP: Stellt die Zahlen und Vektoren fÃ¼r eine neue Hash-Tabelle bereit.
 # prepare_resize(maxcount,mincount_threshold)
-# > maxcount: gewünschte neue Größe MAXCOUNT
+# > maxcount: gewÃ¼nschte neue GrÃ¶ÃŸe MAXCOUNT
 # > mincount_threshold: Short-Float MINCOUNT-THRESHOLD
 # < ergebnis: maxcount
 # < Stackaufbau: MAXCOUNT, SIZE, MINCOUNT,
@@ -1116,7 +1116,7 @@
     var object maxcount;
     var object mincount_threshold;
     {
-      # Überprüfe, ob maxcount ein nicht zu großes Fixnum >0 ist:
+      # ÃœberprÃ¼fe, ob maxcount ein nicht zu groÃŸes Fixnum >0 ist:
       if (!posfixnump(maxcount))
         goto fehler_maxcount;
       {
@@ -1140,19 +1140,19 @@
         # fertig.
         return maxcountL;
       }
-     fehler_maxcount: # maxcount kein Fixnum oder zu groß
-      pushSTACK(maxcount); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_hashtable_size)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+     fehler_maxcount: # maxcount kein Fixnum oder zu groÃŸ
+      pushSTACK(maxcount); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_hashtable_size)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(maxcount);
       fehler(type_error,
              GETTEXT("Hash table size ~ too large")
             );
     }
 
-# UP: Vergrößert oder verkleinert eine Hash-Tabelle
+# UP: VergrÃ¶ÃŸert oder verkleinert eine Hash-Tabelle
 # resize(ht,maxcount)
 # > ht: Hash-Table
-# > maxcount: gewünschte neue Größe MAXCOUNT
+# > maxcount: gewÃ¼nschte neue GrÃ¶ÃŸe MAXCOUNT
 # < ergebnis: Hash-Table, EQ zur alten
 # can trigger GC
   local object resize (object ht, object maxcount);
@@ -1171,7 +1171,7 @@
       var object size = popSTACK(); # SIZE
       maxcount = popSTACK();
       ht = popSTACK();
-      # Neuen Key-Value-Vektor füllen:
+      # Neuen Key-Value-Vektor fÃ¼llen:
       # Durch den alten Key-Value-Vektor durchlaufen und
       # alle Key-Value-Paare mit Key /= "leer" kopieren:
       # Zum Durchlaufen des alten Key-Value-Vektors:
@@ -1180,13 +1180,13 @@
       # Zum Durchlaufen des neuen Key-Value-Vektors:
       var uintL count = maxcountL;
       var object* KVptr = &TheSvector(KVvektor)->data[0];
-      # Zum Mitzählen:
+      # Zum MitzÃ¤hlen:
       var object counter = Fixnum_0;
       dotimesL(oldcount,oldcount, {
-        var object nextkey = *oldKVptr++; # nächster Key
+        var object nextkey = *oldKVptr++; # nÃ¤chster Key
         var object nextvalue = *oldKVptr++; # und Value
         if (!eq(nextkey,leer)) {
-          # Eintrag in den neuen Key-Value-Vektor übernehmen:
+          # Eintrag in den neuen Key-Value-Vektor Ã¼bernehmen:
           if (count==0) { # Ist der neue Vektor schon voll?
             # Der Platz reicht nicht!!
             pushSTACK(ht); # Hash-Table
@@ -1196,13 +1196,13 @@
           }
           count--;
           *KVptr++ = nextkey; *KVptr++ = nextvalue; # im neuen Vektor ablegen
-          counter = fixnum_inc(counter,1); # und mitzählen
+          counter = fixnum_inc(counter,1); # und mitzÃ¤hlen
         }
       });
       # Noch count Paare des neuen Key-Value-Vektors als "leer" markieren:
       dotimesL(count,count, { *KVptr++ = leer; *KVptr++ = leer; } );
       # Hash-Tabelle modifizieren:
-      set_break_sem_2(); # Vor Unterbrechungen schützen
+      set_break_sem_2(); # Vor Unterbrechungen schÃ¼tzen
       mark_ht_invalid(TheHashtable(ht)); # Tabelle muss erst noch reorganisiert werden
       TheHashtable(ht)->ht_size = size; # neues SIZE eintragen
       TheHashtable(ht)->ht_itable = Ivektor; # neuen Index-Vektor eintragen
@@ -1216,19 +1216,19 @@
       return ht;
     }
 
-# Macro: Vergrößert eine Hash-Tabelle so lange, bis freelist /= nix
+# Macro: VergrÃ¶ÃŸert eine Hash-Tabelle so lange, bis freelist /= nix
 # hash_prepare_store();
 # > object key: Key (im Stack)
 # > object ht: Hash-Tabelle
 # < object ht: Hash-Tabelle
 # < object freelist: Anfang der Freiliste im Next-Vektor, /= nix
-# < object* Iptr: beliebiges Element der "Liste", die zu Key gehört
+# < object* Iptr: beliebiges Element der "Liste", die zu Key gehÃ¶rt
 # can trigger GC
   #define hash_prepare_store(key)  \
     { retry:                                                                    \
       freelist = TheHashtable(ht)->ht_freelist;                                 \
       if (eq(freelist,nix)) # Freiliste = leere "Liste" ?                       \
-        # ja -> muss die Hash-Tabelle vergrößern:                               \
+        # ja -> muss die Hash-Tabelle vergrÃ¶ÃŸern:                               \
         { pushSTACK(ht); # Hashtable retten                                     \
           # neues maxcount ausrechnen:                                          \
           pushSTACK(TheHashtable(ht)->ht_maxcount);                             \
@@ -1236,7 +1236,7 @@
           funcall(L(mal),2); # (* maxcount rehash-size), ist > maxcount         \
           pushSTACK(value1);                                                    \
           funcall(L(ceiling),1); # (ceiling ...), Integer > maxcount            \
-          ht = resize(popSTACK(),value1); # Tabelle vergrößern                  \
+          ht = resize(popSTACK(),value1); # Tabelle vergrÃ¶ÃŸern                  \
           rehash(ht); # und reorganisieren                                      \
           # Adresse des Eintrags im Index-Vektor neu ausrechnen:                \
          {var uintL hashindex = hashcode(ht,key); # Hashcode berechnen          \
@@ -1245,14 +1245,14 @@
         }}                                                                      \
     }
 
-# UP: Löscht den Inhalt einer Hash-Tabelle.
+# UP: LÃ¶scht den Inhalt einer Hash-Tabelle.
 # clrhash(ht);
 # > ht: Hash-Tabelle
   local void clrhash (object ht);
   local void clrhash(ht)
     var object ht;
     {
-      set_break_sem_2(); # Vor Unterbrechungen schützen
+      set_break_sem_2(); # Vor Unterbrechungen schÃ¼tzen
       {
         var uintL count = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
         if (count > 0) {
@@ -1263,7 +1263,7 @@
         }
       }
       TheHashtable(ht)->ht_count = Fixnum_0; # COUNT := 0
-      mark_ht_invalid(TheHashtable(ht)); # Hashtabelle später noch reorganisieren
+      mark_ht_invalid(TheHashtable(ht)); # Hashtabelle spÃ¤ter noch reorganisieren
       clr_break_sem_2(); # Unterbrechungen wieder zulassen
     }
 
@@ -1274,16 +1274,16 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
          kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
   {
     # Dem Rehash-Threshold entspricht in unserer Implementation das
-    # Verhältnis MAXCOUNT : SIZE = ca. 1 : 2.
-    # Wir ignorieren das rehash-threshold-Argument, da sowohl zu große als
-    # auch zu kleine Werte davon schädlich wären: 0.99 bewirkt im Durchschnitt
+    # VerhÃ¤ltnis MAXCOUNT : SIZE = ca. 1 : 2.
+    # Wir ignorieren das rehash-threshold-Argument, da sowohl zu groÃŸe als
+    # auch zu kleine Werte davon schÃ¤dlich wÃ¤ren: 0.99 bewirkt im Durchschnitt
     # zu lange Zugriffszeiten; 0.00001 bewirkt, dass SIZE = MAXCOUNT/threshold
-    # zu schnell ein Bignum werden könnte.
-    # Das zusätzliche initial-contents-Argument ist eine Aliste = Liste von
+    # zu schnell ein Bignum werden kÃ¶nnte.
+    # Das zusÃ¤tzliche initial-contents-Argument ist eine Aliste = Liste von
     # (Key . Value) - Paaren, mit denen die Tabelle initialisiert wird.
     # Stackaufbau: initial-contents, test, size, rehash-size, rehash-threshold.
     var uintB flags;
-    # test-Argument überprüfen:
+    # test-Argument Ã¼berprÃ¼fen:
     {
       var object test = STACK_3;
       if (eq(test,unbound))
@@ -1297,8 +1297,8 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
       elif (eq(test,S(equalp)) || eq(test,L(equalp)))
         flags = bit(3); # EQUALP
       else {
-        pushSTACK(test); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_hashtable_test)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(test); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_hashtable_test)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(test);
         pushSTACK(S(make_hash_table));
         fehler(type_error,
@@ -1306,16 +1306,16 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
               );
       }
     }
-    # flags enthält die Flags zum Test.
-    # size-Argument überprüfen:
+    # flags enthÃ¤lt die Flags zum Test.
+    # size-Argument Ã¼berprÃ¼fen:
     {
       var object size = STACK_2;
       if (eq(size,unbound)) {
         STACK_2 = Fixnum_1; # 1 als Default
       } else {
         if (!posfixnump(size)) {
-          pushSTACK(size); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_posfixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(size); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_posfixnum)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(size);
           pushSTACK(S(make_hash_table));
           fehler(type_error,
@@ -1328,7 +1328,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
       }
     }
     # size ist jetzt ein Fixnum >0.
-    # rehash-size überprüfen:
+    # rehash-size Ã¼berprÃ¼fen:
     {
       if (eq(STACK_1,unbound)) {
         # Default-Rehash-Size = 1.5s0
@@ -1337,8 +1337,8 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
         if (!floatp(STACK_1)) { # Float ist OK
           if (!posfixnump(STACK_1)) { # sonst sollte es ein Fixnum >=0 sein
            fehler_rehash_size:
-            pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-            pushSTACK(O(type_hashtable_rehash_size)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+            pushSTACK(STACK_1); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+            pushSTACK(O(type_hashtable_rehash_size)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(STACK_(1+2));
             pushSTACK(S(make_hash_table));
             fehler(type_error,
@@ -1346,7 +1346,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
                   );
           }
           # Da es sinnlos ist, eine Tabelle immer nur um eine feste
-          # Anzahl von Elementen größer zu machen (führt zu katastrophaler
+          # Anzahl von Elementen grÃ¶ÃŸer zu machen (fÃ¼hrt zu katastrophaler
           # Effizienz), wird rehash-size := min(1 + rehash-size/size , 2.0)
           # gesetzt.
           pushSTACK(STACK_1); # rehash-size
@@ -1359,7 +1359,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
           funcall(L(min),2); # (MIN ... 2.0s0)
           STACK_1 = value1; # =: rehash-size
         }
-        # (> rehash-size 1) überprüfen:
+        # (> rehash-size 1) Ã¼berprÃ¼fen:
         pushSTACK(STACK_1); # rehash-size
         pushSTACK(Fixnum_1); # 1
         funcall(L(groesser),2); # (> rehash-size 1)
@@ -1376,14 +1376,14 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
       }
     }
     # rehash-size ist ein Short-Float >= 1.125 .
-    # rehash-threshold überprüfen: sollte ein Float >=0, <=1 sein
+    # rehash-threshold Ã¼berprÃ¼fen: sollte ein Float >=0, <=1 sein
     {
       var object rehash_threshold = STACK_0;
       if (!eq(rehash_threshold,unbound)) { # nicht angegeben -> OK
         if (!floatp(rehash_threshold)) {
          fehler_rehash_threshold:
-          # Argument bereits in STACK_0, Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_hashtable_rehash_threshold)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          # Argument bereits in STACK_0, Wert fÃ¼r Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_hashtable_rehash_threshold)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(STACK_1);
           pushSTACK(S(make_hash_table));
           fehler(type_error,
@@ -1397,16 +1397,16 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
         if (nullp(value1)) goto fehler_rehash_threshold;
       }
     }
-    # Nun sind alle Argumente überprüft.
+    # Nun sind alle Argumente Ã¼berprÃ¼ft.
     # Ist das initial-contents-Argument angegeben, so wird
     # size := (max size (length initial-contents)) gesetzt, damit nachher beim
-    # Eintragen des initial-contents die Tabelle nicht vergrößert werden muss:
+    # Eintragen des initial-contents die Tabelle nicht vergrÃ¶ÃŸert werden muss:
     {
       var object initial_contents = STACK_4;
       if (!eq(initial_contents,unbound)) { # angegeben ?
-        var uintL initial_length = llength(initial_contents); # Länge der Aliste
+        var uintL initial_length = llength(initial_contents); # LÃ¤nge der Aliste
         if (initial_length > posfixnum_to_L(STACK_2)) # > size ?
-          STACK_2 = fixnum(initial_length); # ja -> size vergrößern
+          STACK_2 = fixnum(initial_length); # ja -> size vergrÃ¶ÃŸern
       }
     }
     # size ist ein Fixnum >0, >= (length initial-contents) .
@@ -1424,7 +1424,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
     # Vektoren beschaffen usw., mit size als MAXCOUNT:
     prepare_resize(STACK_2,STACK_0);
     var object ht = allocate_hash_table(); # neue Hash-Tabelle
-    # füllen:
+    # fÃ¼llen:
     TheHashtable(ht)->ht_kvtable = popSTACK(); # Key-Value-Vektor
     TheHashtable(ht)->ht_ntable = popSTACK(); # Next-Vektor
     TheHashtable(ht)->ht_itable = popSTACK(); # Index-Vektor
@@ -1444,7 +1444,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
       while (consp(alist)) { # Wenn es angegeben war, solange es ein Cons ist:
         var object next = Car(alist); # Alistenelement
         if (consp(next)) { # ein Cons (Key . Value) ?
-          # (SYSTEM::PUTHASH (car next) hashtable (cdr next)) ausführen,
+          # (SYSTEM::PUTHASH (car next) hashtable (cdr next)) ausfÃ¼hren,
           # wobei die Tabelle nicht wachsen kann:
           var object key = Car(next);
           var object* KVptr;
@@ -1478,7 +1478,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
 # gethash(obj,ht)
 # > obj: Objekt, als Key
 # > ht: Hash-Tabelle
-# < ergebnis: zugehöriger Value, falls gefunden, nullobj sonst
+# < ergebnis: zugehÃ¶riger Value, falls gefunden, nullobj sonst
   global object gethash (object obj, object ht);
   global object gethash(obj,ht)
     var object obj;
@@ -1501,8 +1501,8 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
   local void fehler_hashtable(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(hash_table)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(hash_table)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1514,7 +1514,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,\
 LISPFUN(gethash,2,1,norest,nokey,0,NIL)
   {
     var object ht = STACK_1; # hashtable-Argument
-    if (!hash_table_p(ht)) # überprüfen
+    if (!hash_table_p(ht)) # Ã¼berprÃ¼fen
       fehler_hashtable(ht);
     var object* KVptr;
     var object* Nptr;
@@ -1537,7 +1537,7 @@ LISPFUN(gethash,2,1,norest,nokey,0,NIL)
 LISPFUNN(puthash,3)
   {
     var object ht = STACK_1; # hashtable-Argument
-    if (!hash_table_p(ht)) # überprüfen
+    if (!hash_table_p(ht)) # Ã¼berprÃ¼fen
       fehler_hashtable(ht);
     var object* KVptr;
     var object* Nptr;
@@ -1585,7 +1585,7 @@ LISPFUNN(puthash,3)
         hash_prepare_store(STACK_1);
         hash_store(STACK_1,STACK_0); # Eintrag basteln
         skipSTACK(2);
-        return NIL; # Default für den alten Wert ist NIL
+        return NIL; # Default fÃ¼r den alten Wert ist NIL
       }
     }
 
@@ -1593,7 +1593,7 @@ LISPFUNN(puthash,3)
 LISPFUNN(remhash,2)
   {
     var object ht = popSTACK(); # hashtable-Argument
-    if (!hash_table_p(ht)) # überprüfen
+    if (!hash_table_p(ht)) # Ã¼berprÃ¼fen
       fehler_hashtable(ht);
     var object key = popSTACK(); # key-Argument
     var object* KVptr;
@@ -1605,10 +1605,10 @@ LISPFUNN(remhash,2)
       var object index = *Iptr; # Index im Next-Vektor
       # mit Nptr = &TheSvector(TheHashtable(ht)->ht_ntable)->data[index]
       # und KVptr = &TheSvector(TheHashtable(ht)->ht_kvtable)->data[2*index]
-      set_break_sem_2(); # Vor Unterbrechungen schützen
-      *Iptr = *Nptr; # "Liste" verkürzen
+      set_break_sem_2(); # Vor Unterbrechungen schÃ¼tzen
+      *Iptr = *Nptr; # "Liste" verkÃ¼rzen
       *KVptr++ = leer; *KVptr = leer; # Key und Value leeren
-      # Freiliste verlängern:
+      # Freiliste verlÃ¤ngern:
       *Nptr = TheHashtable(ht)->ht_freelist;
       TheHashtable(ht)->ht_freelist = index;
       # COUNT decrementieren:
@@ -1640,10 +1640,10 @@ LISPFUNN(remhash,2)
 LISPFUNN(maphash,2)
   {
     var object ht = STACK_0; # hashtable-Argument
-    if (!hash_table_p(ht)) # überprüfen
+    if (!hash_table_p(ht)) # Ã¼berprÃ¼fen
       fehler_hashtable(ht);
     # Durch den Key-Value-Vektor von hinten durchlaufen und
-    # für alle Key-Value-Paare mit Key /= "leer" die Funktion aufrufen:
+    # fÃ¼r alle Key-Value-Paare mit Key /= "leer" die Funktion aufrufen:
     var uintL index = 2*posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
     STACK_0 = TheHashtable(ht)->ht_kvtable; # Key-Value-Vektor
     # Stackaufbau: function, Key-Value-Vektor.
@@ -1666,7 +1666,7 @@ LISPFUNN(maphash,2)
 LISPFUNN(clrhash,1)
   {
     var object ht = popSTACK(); # hashtable-Argument
-    if (!hash_table_p(ht)) # überprüfen
+    if (!hash_table_p(ht)) # Ã¼berprÃ¼fen
       fehler_hashtable(ht);
     clrhash(ht); # Tabelle leeren
     # Bei MINCOUNT > 0 die Hash-Tabelle verkleinern:
@@ -1679,7 +1679,7 @@ LISPFUNN(clrhash,1)
 LISPFUNN(hash_table_count,1)
   {
     var object ht = popSTACK(); # hashtable-Argument
-    if (!hash_table_p(ht)) # überprüfen
+    if (!hash_table_p(ht)) # Ã¼berprÃ¼fen
       fehler_hashtable(ht);
     value1 = TheHashtable(ht)->ht_count; mv_count=1; # Fixnum COUNT als Wert
   }
@@ -1688,7 +1688,7 @@ LISPFUNN(hash_table_count,1)
 LISPFUNN(hash_table_rehash_size,1)
   {
     var object ht = popSTACK(); # hashtable-Argument
-    if (!hash_table_p(ht)) # überprüfen
+    if (!hash_table_p(ht)) # Ã¼berprÃ¼fen
       fehler_hashtable(ht);
     value1 = TheHashtable(ht)->ht_rehash_size; mv_count=1; # Short-Float REHASH-SIZE als Wert
   }
@@ -1697,10 +1697,10 @@ LISPFUNN(hash_table_rehash_size,1)
 LISPFUNN(hash_table_rehash_threshold,1)
   {
     var object ht = popSTACK(); # hashtable-Argument
-    if (!hash_table_p(ht)) # überprüfen
+    if (!hash_table_p(ht)) # Ã¼berprÃ¼fen
       fehler_hashtable(ht);
     # Da MAKE-HASH-TABLE das :REHASH-THRESHOLD Argument ignoriert, ist der
-    # Wert hier egal und willkürlich.
+    # Wert hier egal und willkÃ¼rlich.
     value1 = make_SF(0,SF_exp_mid+0,(bit(SF_mant_len)/2)*3); mv_count=1; # 0.75s0 als Wert
   }
 
@@ -1708,7 +1708,7 @@ LISPFUNN(hash_table_rehash_threshold,1)
 LISPFUNN(hash_table_size,1)
   {
     var object ht = popSTACK(); # hashtable-Argument
-    if (!hash_table_p(ht)) # überprüfen
+    if (!hash_table_p(ht)) # Ã¼berprÃ¼fen
       fehler_hashtable(ht);
     value1 = TheHashtable(ht)->ht_maxcount; mv_count=1; # Fixnum MAXCOUNT als Wert
   }
@@ -1717,7 +1717,7 @@ LISPFUNN(hash_table_size,1)
 LISPFUNN(hash_table_test,1)
   {
     var object ht = popSTACK(); # hashtable-Argument
-    if (!hash_table_p(ht)) # überprüfen
+    if (!hash_table_p(ht)) # Ã¼berprÃ¼fen
       fehler_hashtable(ht);
     var uintB flags = record_flags(TheHashtable(ht));
     value1 = (flags & bit(0) ? S(eq) : # EQ
@@ -1729,17 +1729,17 @@ LISPFUNN(hash_table_test,1)
     mv_count=1; # Symbol als Wert
   }
 
-# Hilfsfunktionen für WITH-HASH-TABLE-ITERATOR, CLTL2 S. 439:
+# Hilfsfunktionen fÃ¼r WITH-HASH-TABLE-ITERATOR, CLTL2 S. 439:
 # (SYSTEM::HASH-TABLE-ITERATOR hashtable) liefert einen internen Zustand
-# für das Iterieren durch eine Hash-Tabelle.
+# fÃ¼r das Iterieren durch eine Hash-Tabelle.
 # (SYSTEM::HASH-TABLE-ITERATE internal-state) iteriert durch eine Hash-Tabelle
-# um eins weiter, verändert dabei internal-state und liefert: 3 Werte
-# T, key, value des nächsten Hash-Tabellen-Eintrags bzw. 1 Wert NIL am Schluss.
+# um eins weiter, verÃ¤ndert dabei internal-state und liefert: 3 Werte
+# T, key, value des nÃ¤chsten Hash-Tabellen-Eintrags bzw. 1 Wert NIL am Schluss.
 
 LISPFUNN(hash_table_iterator,1)
   {
     var object ht = STACK_0; # hashtable-Argument
-    if (!hash_table_p(ht)) # überprüfen
+    if (!hash_table_p(ht)) # Ã¼berprÃ¼fen
       fehler_hashtable(ht);
     # Ein interner Zustand besteht aus dem Key-Value-Vektor und einem Index.
     STACK_0 = TheHashtable(ht)->ht_kvtable; # Key-Value-Vektor
@@ -1775,7 +1775,7 @@ LISPFUNN(hash_table_iterate,1)
 LISPFUNN(class_gethash,2)
   {
     var object ht = STACK_1; # hashtable-Argument
-    if (!hash_table_p(ht)) # überprüfen
+    if (!hash_table_p(ht)) # Ã¼berprÃ¼fen
       fehler_hashtable(ht);
     C_class_of(); # value1 := (CLASS-OF object)
     var object* KVptr;
@@ -1797,14 +1797,14 @@ LISPFUNN(class_gethash,2)
 # mit classi = (CLASS-OF objecti).
 # Dabei sei n>0, ht eine EQUAL-Hashtabelle und (hash-tuple-function n) wie in
 # clos.lisp definiert.
-# Diese Funktion ist der Kern des Dispatch für generische Funktionen. Sie soll
+# Diese Funktion ist der Kern des Dispatch fÃ¼r generische Funktionen. Sie soll
 # darum schnell sein und nicht consen.
-  # Für 1 < n <= 16 ist
+  # FÃ¼r 1 < n <= 16 ist
   #   (hash-tuple-function n ...) =
   #   (cons (hash-tuple-function n1 ...) (hash-tuple-function n2 ...))
     local const uintC tuple_half_1 [17] = {0,0,1,1,2,2,2,3,4,4,4,4,4,5,6,7,8};
     local const uintC tuple_half_2 [17] = {0,0,1,2,2,3,4,4,4,5,6,7,8,8,8,8,8};
-  # Hilfsfunktion: Hashcode einer Reihe von Atomen berechnen, so als wären
+  # Hilfsfunktion: Hashcode einer Reihe von Atomen berechnen, so als wÃ¤ren
   # sie per (hash-tuple-function n) zusammengeconst:
     local uint32 hashcode_tuple (uintC n, const object* args_pointer, uintC depth);
     local uint32 hashcode_tuple(n,args_pointer,depth)
@@ -1813,7 +1813,7 @@ LISPFUNN(class_gethash,2)
       var uintC depth;
       {
         if (n==1) {
-          return hashcode1(Next(args_pointer)); # hashcode3_atom für Klassen
+          return hashcode1(Next(args_pointer)); # hashcode3_atom fÃ¼r Klassen
         } elif (n<=16) {
           var uintC n1 = tuple_half_1[n];
           var uintC n2 = tuple_half_2[n]; # n1 + n2 = n
@@ -1842,7 +1842,7 @@ LISPFUNN(class_gethash,2)
         }
       }
   # Hilfsfunktion: Vergleich eines Objekts mit einer Reihe von Atomen, so als
-  # wären sie per (hash-tuple-function n) zusammengeconst:
+  # wÃ¤ren sie per (hash-tuple-function n) zusammengeconst:
     local boolean equal_tuple (object obj, uintC n, const object* args_pointer);
     local boolean equal_tuple(obj,n,args_pointer)
       var object obj;
@@ -1880,7 +1880,7 @@ LISPFUNN(class_gethash,2)
                   obj = Cdr(obj); args_pointer skipSTACKop -1;
                 });
                 if (nullp(obj))
-                  # Vergleich erfüllt
+                  # Vergleich erfÃ¼llt
                   return TRUE;
               }
             }
@@ -1902,7 +1902,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
     });
   }
   var object ht = Before(rest_args_pointer); # hashtable-Argument
-  if (!hash_table_p(ht)) # überprüfen
+  if (!hash_table_p(ht)) # Ã¼berprÃ¼fen
     fehler_hashtable(ht);
   if (!ht_validp(TheHashtable(ht))) {
     # Hash-Tabelle muss erst noch reorganisiert werden
@@ -1919,10 +1919,10 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
       # "Liste" weiterverfolgen:
       if (eq(*Nptr,nix)) # "Liste" zu Ende -> nicht gefunden
         break;
-      var uintL index = posfixnum_to_L(*Nptr); # nächster Index
+      var uintL index = posfixnum_to_L(*Nptr); # nÃ¤chster Index
       Nptr = # Pointer auf Eintrag im Next-Vektor
         &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];
-      var object* KVptr = # Pointer auf Einträge im Key-Value-Vektor
+      var object* KVptr = # Pointer auf EintrÃ¤ge im Key-Value-Vektor
         &TheSvector(TheHashtable(ht)->ht_kvtable)->data[2*index];
       if (equal_tuple(KVptr[0],argcount,rest_args_pointer)) { # Key vergleichen
         # gefunden
@@ -1934,12 +1934,12 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
   value1 = NIL;
   fertig:
   mv_count=1;
-  set_args_end_pointer(rest_args_pointer STACKop 1); # STACK aufräumen
+  set_args_end_pointer(rest_args_pointer STACKop 1); # STACK aufrÃ¤umen
 }
 
 # UP: Berechnet einen portablen EQUAL-Hashcode eines Objekts.
 # sxhash(obj)
-# Er ist nur bis zur nächsten Modifizierung des Objekts gültig.
+# Er ist nur bis zur nÃ¤chsten Modifizierung des Objekts gÃ¼ltig.
 # Aus (equal X Y) folgt (= (sxhash X) (sxhash Y)).
 # > obj: ein Objekt
 # < ergebnis: Hashcode, eine 32-Bit-Zahl
@@ -1974,7 +1974,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
       {
         case_symbol: # Symbol
           # Printname verwerten
-          # (nicht auch die Home-Package, da sie sich bei UNINTERN verändert)
+          # (nicht auch die Home-Package, da sie sich bei UNINTERN verÃ¤ndert)
           return hashcode_string(Symbol_name(obj))+0x339B0E4CUL;
         case_cons:
         default:
@@ -1996,7 +1996,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
           # String-Inhalt
           return hashcode_string(obj);
         case_svector: # Simple-Vector
-          # nur die Länge verwerten
+          # nur die LÃ¤nge verwerten
           return Svector_length(obj) + 0x4ECD0A9FUL;
         case_ovector: # (vector t)
         case_mdarray: # allgemeiner Array
@@ -2014,7 +2014,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
           # alle Elemente verwerten ??
           bish_code = 0xB0DD939EUL; goto record_all;
         case_orecord: # OtherRecord
-          # Record-Typ verwerten, außerdem:
+          # Record-Typ verwerten, auÃŸerdem:
           # Package: Package-Name verwerten (nicht ganz OK, da eine
           #          Package mit RENAME-PACKAGE umbenannt werden kann!)
           # Pathname, Byte, LoadTimeEval: alle Komponenten verwerten
@@ -2074,7 +2074,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL)
             var object* ptr = &TheRecord(obj)->recdata[0];
             var uintC count = Record_length(obj);
             dotimespC(count,count, {
-              # Hashcode der nächsten Komponente dazunehmen:
+              # Hashcode der nÃ¤chsten Komponente dazunehmen:
               var uint32 next_code = sxhash(*ptr++);
               bish_code = misch(bish_code,next_code);
             });

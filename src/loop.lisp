@@ -208,14 +208,14 @@
 
 ;; The bulk of the expander.
 (defun expand-loop (*whole* body)
-  (let ((body-rest body) ; alle Parse-Funktionen verkürzen body-rest
+  (let ((body-rest body) ; alle Parse-Funktionen verkÃ¼rzen body-rest
         (block-name 'NIL) ; Name des umgebenden BLOCKs
         (already-within-main nil) ; im zweiten Teil von {variables}* {main}* ?
         (*helpvars* (make-array 1 :fill-pointer 0 :adjustable t))
         (*last-it* nil)
-        (acculist-var nil) ; Akkumulationsvariable für collect, append etc.
+        (acculist-var nil) ; Akkumulationsvariable fÃ¼r collect, append etc.
         (accuvar-tailvar-alist nil) ; alist of (accu-var . tail-var)
-        (accunum-var nil) ; Akkumulationsvariable für count, sum etc.
+        (accunum-var nil) ; Akkumulationsvariable fÃ¼r count, sum etc.
         (accu-vars-nil nil) ; Akkumulationsvariablen mit Initialwert NIL
         (accu-vars-0 nil) ; Akkumulationsvariablen mit Initialwert 0
         (accu-declarations nil) ; Typdeklarationen (umgedrehte Liste von declspecs)
@@ -225,16 +225,16 @@
         (initially-code nil) ; initially-Code (umgedrehte Liste)
         (stepbefore-code nil) ; Code zum Abbruch vor dem Schleifendurchlauf (umgedrehte Liste)
         (main-code nil) ; Code im Hauptteil der Schleife (umgedrehte Liste)
-        (stepafter-code nil) ; Code zur Vorbereitung des nächsten Schleifendurchlaufs (umgedrehte Liste)
+        (stepafter-code nil) ; Code zur Vorbereitung des nÃ¤chsten Schleifendurchlaufs (umgedrehte Liste)
         (accu-vars-nreverse nil) ; Akkumulationsvariablen, die am Schluss umzudrehen sind
         (finally-code nil) ; finally-Code (umgedrehte Liste)
-        (results nil)) ; Liste von Ergebnisformen (höchstens eine!)
+        (results nil)) ; Liste von Ergebnisformen (hÃ¶chstens eine!)
     (labels
-      ((next-kw () ; Schaut, ob als nächstes ein Keyword kommt.
+      ((next-kw () ; Schaut, ob als nÃ¤chstes ein Keyword kommt.
                    ; Wenn ja, wird es geliefert. Wenn nein, Ergebnis NIL.
          (and (consp body-rest) (loop-keywordp (first body-rest))))
-       (parse-kw-p (kw) ; Schaut, ob als nächstes das Keyword kw kommt.
-                        ; Wenn ja, wird es übergangen. Wenn nein, Ergebnis NIL.
+       (parse-kw-p (kw) ; Schaut, ob als nÃ¤chstes das Keyword kw kommt.
+                        ; Wenn ja, wird es Ã¼bergangen. Wenn nein, Ergebnis NIL.
          (and (consp body-rest) (eq (loop-keywordp (first body-rest)) kw)
               (progn (pop body-rest) t)))
        (parse-form (kw) ; Nach kw: parst expr
@@ -426,20 +426,20 @@
                (push clause clauses))
              (unless (parse-kw-p 'and) (return))
              (setq kw 'and)
-             (setq *last-it* nil)) ; 'it' ist nur in der ersten Klausel gültig
+             (setq *last-it* nil)) ; 'it' ist nur in der ersten Klausel gÃ¼ltig
            `(PROGN ,@(nreverse clauses))))
        ; Binden und Initialisieren von Variablen:
        ; Nach ANSI-CL 6.1.1.4 gelten zwei Grundregeln:
-       ; - Beim Initialisieren von FOR-AS Variablen (außer FOR-AS-=) sind
+       ; - Beim Initialisieren von FOR-AS Variablen (auÃŸer FOR-AS-=) sind
        ;   mindestens alle vorherigen FOR-AS Variablen sichtbar.
        ; - Beim Initialisieren von FOR-AS-= Variablen sind alle FOR-AS Variablen
        ;   sichtbar.
-       ; Zusätzlich ist die folgende Grundregel wünschenswert:
+       ; ZusÃ¤tzlich ist die folgende Grundregel wÃ¼nschenswert:
        ; - Beim Initialisieren von FOR-AS-= Variablen sind mindestens alle
        ;   vorherigen FOR-AS Variablen initialisiert und deren Abbruch-
-       ;   bedingungen abgeprüft.
-       ; Man könnte erst alle Variablen binden und dann im initially-code
-       ; die Initialisierungen durchführen. Wir führen demgegenüber zwei
+       ;   bedingungen abgeprÃ¼ft.
+       ; Man kÃ¶nnte erst alle Variablen binden und dann im initially-code
+       ; die Initialisierungen durchfÃ¼hren. Wir fÃ¼hren demgegenÃ¼ber zwei
        ; Optimierungen durch:
        ; - Falls vor der FOR-AS Variablen keine FOR-AS-= Klausel kommt,
        ;   braucht die Variable zum Zeitpunkt ihrer Initialisierung nicht
@@ -448,7 +448,7 @@
        ;   keine FOR-AS Klausel mit Abbruchbedingung kommt.
        ; - Falls eine Variable gar nicht sichtbar zu sein braucht, weil keine
        ;   FOR-AS-= Klausel vorkommt und hinter ihr auch keine andere FOR-AS
-       ;   Klausel stört, können die Bindung und die Initialiserung der
+       ;   Klausel stÃ¶rt, kÃ¶nnen die Bindung und die Initialiserung der
        ;   Variablen ins Schleifeninnere verschoben werden.
        (note-initialisation (initialisation)
          (when (or (li-bindings initialisation)
@@ -811,11 +811,11 @@
                                      ;; Determine start, unless given:
                                      (unless step-start-p
                                        (when (eq step-direction 'down)
-                                         ; Abwärtsiteration ohne Startwert ist nicht erlaubt.
-                                         ; Die zweite optionale Klausel (d.h. preposition) muss abwärts zeigen.
+                                         ; AbwÃ¤rtsiteration ohne Startwert ist nicht erlaubt.
+                                         ; Die zweite optionale Klausel (d.h. preposition) muss abwÃ¤rts zeigen.
                                          (error (ENGLISH "~S: specifying ~A requires FROM or DOWNFROM")
                                                 'loop (symbol-name preposition)))
-                                       ; Aufwärtsiteration -> Startwert 0
+                                       ; AufwÃ¤rtsiteration -> Startwert 0
                                        (setq step-start-form '0)
                                        (push `(,pattern ,step-start-form) bindings))
                                      ; Determine step, unless given:
@@ -844,7 +844,7 @@
                           (case (next-kw) ((FOR AS) (pop body-rest)))))
                       (when (setq stepafter (apply #'append (nreverse stepafter)))
                         (push `(PSETQ ,@stepafter) stepafter-code))
-                      (push 'NIL stepafter-code) ; Markierung für spätere Initialisierungen
+                      (push 'NIL stepafter-code) ; Markierung fÃ¼r spÃ¤tere Initialisierungen
                       (note-initialisation ; outer `note-initialisation'!
                         (make-loop-init
                           :specform 'LET

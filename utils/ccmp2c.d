@@ -337,9 +337,9 @@ local void tokens_del (tokens)
   Tokens* tokens;
   { if (tokens->size > 0) free(tokens->data); }
 
-# Holt das nächste Token:
-# (Innerhalb von Präprozessor-Direktiven zählt Zeilenende als eigenes Token,
-# und '#' leitet keine verschachtelte Präprozessor-Direktive ein.)
+# Holt das nÃ¤chste Token:
+# (Innerhalb von PrÃ¤prozessor-Direktiven zÃ¤hlt Zeilenende als eigenes Token,
+# und '#' leitet keine verschachtelte PrÃ¤prozessor-Direktive ein.)
 local Token nexttoken (infile,tokens,within_comment,within_prep_directive)
   BUFFILE* infile;
   Tokens* tokens;
@@ -352,7 +352,7 @@ local Token nexttoken (infile,tokens,within_comment,within_prep_directive)
           );
         if (!tokens->data) { fprintf(stderr,"Out of memory.\n"); exit(1); }
       }
-   {var Token token = &tokens->data[tokens->index]; # Platz fürs nächste Token
+   {var Token token = &tokens->data[tokens->index]; # Platz fÃ¼rs nÃ¤chste Token
     var int c;
     if (within_comment) goto in_comment;
     restart:
@@ -364,17 +364,17 @@ local Token nexttoken (infile,tokens,within_comment,within_prep_directive)
             # EOF
             token->type = eof; goto fertig;
           case ' ': case '\v': case '\t':
-            # Whitespace. überlesen
+            # Whitespace. Ã¼berlesen
             goto restart;
           case '\n':
             # Zeilenende
             if (within_prep_directive)
-              { token->type = eol; goto fertig; } # als Token zurück
+              { token->type = eol; goto fertig; } # als Token zurÃ¼ck
               else
-              { goto restart; } # überlesen
+              { goto restart; } # Ã¼berlesen
           case '\\':
             if (peek_char(infile)=='\n')
-              # Zeilenende nach '\'. überlesen
+              # Zeilenende nach '\'. Ã¼berlesen
               { next_char(infile); goto restart; }
               else
               goto separator;
@@ -422,7 +422,7 @@ local Token nexttoken (infile,tokens,within_comment,within_prep_directive)
               }
               else
             #endif
-              { # Präprozessor-Anweisung.
+              { # PrÃ¤prozessor-Anweisung.
                 # Bis Zeilenende oder EOF lesen.
                 loop
                   { var Token subtoken = nexttoken(infile,tokens,FALSE,TRUE);
@@ -430,7 +430,7 @@ local Token nexttoken (infile,tokens,within_comment,within_prep_directive)
                         || (subtoken->type == eol))
                       break;
                   }
-                goto restart; # und überlesen
+                goto restart; # und Ã¼berlesen
               }
           case '.':
             c = peek_char(infile);
@@ -479,7 +479,7 @@ local Token nexttoken (infile,tokens,within_comment,within_prep_directive)
           case 's': case 't': case 'u': case 'v': case 'w': case 'x':
           case 'y': case 'z':
           case '_':
-            # Identifier. alles alphanumerische überlesen.
+            # Identifier. alles alphanumerische Ã¼berlesen.
             loop
               { c = peek_char(infile);
                 if (   ((c>='0') && (c<='9'))

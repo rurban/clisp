@@ -3,11 +3,11 @@
 # Umwandlungsroutinen Digit-Sequence-Teil <--> Longword:
 
 # get_32_Dptr(ptr)
-#   holt die nächsten 32 Bits aus den 32/intDsize Digits ab ptr.
+#   holt die nÃ¤chsten 32 Bits aus den 32/intDsize Digits ab ptr.
 # set_32_Dptr(ptr,wert);
 #   speichert den Wert wert (32 Bits) in die 32/intDsize Digits ab ptr.
 # get_max32_Dptr(count,ptr)
-#   holt die nächsten count Bits aus den ceiling(count/intDsize) Digits ab ptr.
+#   holt die nÃ¤chsten count Bits aus den ceiling(count/intDsize) Digits ab ptr.
 # set_max32_Dptr(count,ptr,wert)
 #   speichert wert (count Bits) in die ceiling(count/intDsize) Digits ab ptr.
 # Jeweils ptr eine Variable vom Typ uintD*,
@@ -122,10 +122,10 @@
       var object obj;
       {
         if (R_minusp(obj))
-          # negativ: mit 1-Bits füllen
+          # negativ: mit 1-Bits fÃ¼llen
           return (as_oint(obj) >> oint_data_shift) | ~ (FN_value_mask >> oint_data_shift);
         else
-          # >=0: mit 0-Bits füllen
+          # >=0: mit 0-Bits fÃ¼llen
           return (as_oint(obj) >> oint_data_shift) & (FN_value_mask >> oint_data_shift);
       }
   #endif
@@ -181,7 +181,7 @@
             var Bignum bn = TheBignum(obj);
             var uintC len = bignum_length(bn);
             #define IF_LENGTH(i)  \
-              if (bn_minlength <= i) # genau i Digits überhaupt möglich?       \
+              if (bn_minlength <= i) # genau i Digits Ã¼berhaupt mÃ¶glich?       \
                 if (len == i) # genau i Digits?                                \
                   # 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1)             \
                   if ( (i*intDsize-1 > 32)                                     \
@@ -204,8 +204,8 @@
           }
         default:
         bad: # unpassendes Objekt
-          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_uint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(obj); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_uint32)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(obj);
           fehler(type_error,
                  GETTEXT("not a 32-bit integer: ~")
@@ -249,7 +249,7 @@
             var Bignum bn = TheBignum(obj);
             var uintC len = bignum_length(bn);
             #define IF_LENGTH(i)  \
-              if (bn_minlength <= i) # genau i Digits überhaupt möglich?       \
+              if (bn_minlength <= i) # genau i Digits Ã¼berhaupt mÃ¶glich?       \
                 if (len == i) # genau i Digits?                                \
                   # 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1)             \
                   if ( (i*intDsize > 32)                                       \
@@ -280,7 +280,7 @@
             var Bignum bn = TheBignum(obj);
             var uintC len = bignum_length(bn);
             #define IF_LENGTH(i)  \
-              if (bn_minlength <= i) # genau i Digits überhaupt möglich?         \
+              if (bn_minlength <= i) # genau i Digits Ã¼berhaupt mÃ¶glich?         \
                 if (len == i) # genau i Digits?                                  \
                   # - 2^(i*intDsize-1) <= obj < - 2^((i-1)*intDsize-1)           \
                   if ( (i*intDsize > 32)                                         \
@@ -302,8 +302,8 @@
           }
         default:
         bad: # unpassendes Objekt
-          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_sint32)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(obj); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_sint32)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(obj);
           fehler(type_error,
                  GETTEXT("not a 32-bit integer: ~")
@@ -339,7 +339,7 @@
             var Bignum bn = TheBignum(obj);
             var uintC len = bignum_length(bn);
             #define IF_LENGTH(i)  \
-              if (bn_minlength <= i) # genau i Digits überhaupt möglich?       \
+              if (bn_minlength <= i) # genau i Digits Ã¼berhaupt mÃ¶glich?       \
                 if (len == i) # genau i Digits?                                \
                   # 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1)             \
                   if ( (i*intDsize-1 > 64)                                     \
@@ -392,8 +392,8 @@
           }
         default:
         bad: # unpassendes Objekt
-          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_uint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(obj); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_uint64)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(obj);
           fehler(type_error,
                  GETTEXT("not a 64-bit integer: ~")
@@ -437,7 +437,7 @@
             var Bignum bn = TheBignum(obj);
             var uintC len = bignum_length(bn);
             #define IF_LENGTH(i)  \
-              if (bn_minlength <= i) # genau i Digits überhaupt möglich?       \
+              if (bn_minlength <= i) # genau i Digits Ã¼berhaupt mÃ¶glich?       \
                 if (len == i) # genau i Digits?                                \
                   # 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1)             \
                   if ( (i*intDsize > 64)                                       \
@@ -490,7 +490,7 @@
             var Bignum bn = TheBignum(obj);
             var uintC len = bignum_length(bn);
             #define IF_LENGTH(i)  \
-              if (bn_minlength <= i) # genau i Digits überhaupt möglich?         \
+              if (bn_minlength <= i) # genau i Digits Ã¼berhaupt mÃ¶glich?         \
                 if (len == i) # genau i Digits?                                  \
                   # - 2^(i*intDsize-1) <= obj < - 2^((i-1)*intDsize-1)           \
                   if ( (i*intDsize > 64)                                         \
@@ -538,8 +538,8 @@
           }
         default:
         bad: # unpassendes Objekt
-          pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_sint64)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(obj); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_sint64)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(obj);
           fehler(type_error,
                  GETTEXT("not a 64-bit integer: ~")
@@ -558,18 +558,18 @@
   #if (oint_data_shift <= sign_bit_o)
     #define L_to_FN(wert)  \
       as_object((( (soint)(sint32)(wert)                                          \
-                   & (FN_value_vz_mask>>oint_data_shift) # Unnötiges wegmaskieren \
+                   & (FN_value_vz_mask>>oint_data_shift) # UnnÃ¶tiges wegmaskieren \
                  ) << oint_data_shift                                             \
                 )                                                                 \
-                | ((oint)fixnum_type<<oint_type_shift) # dafür Typinfo rein       \
+                | ((oint)fixnum_type<<oint_type_shift) # dafÃ¼r Typinfo rein       \
                )
   #else # (oint_data_shift > sign_bit_o)
     #define L_to_FN(wert)  \
       as_object((( (soint)(sint32)(wert) << oint_data_shift )                       \
-                 & FN_value_mask # Unnötiges wegmaskieren                           \
+                 & FN_value_mask # UnnÃ¶tiges wegmaskieren                           \
                 )                                                                   \
                 | ((soint)(sint32)sign_of_sint32((sint32)(wert)) & bit(sign_bit_o)) \
-                | ((oint)fixnum_type<<oint_type_shift) # dafür Typinfo rein         \
+                | ((oint)fixnum_type<<oint_type_shift) # dafÃ¼r Typinfo rein         \
                )
   #endif
 
@@ -592,7 +592,7 @@
     {
       {
         var uint32 test = wert & (uint32)(~(FN_value_mask >> oint_data_shift));
-        # test enthält die Bits, die nicht in den Fixnum-Wert reinpassen.
+        # test enthÃ¤lt die Bits, die nicht in den Fixnum-Wert reinpassen.
         if (test == (uint32)0) # alle =0 ?
           return as_object(((oint)fixnum_type<<oint_type_shift) | ((oint)wert<<oint_data_shift));
         if (test == (uint32)(~(FN_value_mask >> oint_data_shift))) # alle =1 ?
@@ -601,7 +601,7 @@
                           );
       }
       # Bignum erzeugen:
-      # (dessen Länge  bn_minlength <= n <= ceiling(32/intDsize)  erfüllt)
+      # (dessen LÃ¤nge  bn_minlength <= n <= ceiling(32/intDsize)  erfÃ¼llt)
       if (bn_minlength == ceiling(32,intDsize)) {
         #if (intDsize==8)
         if (wert >= 0) goto pos4; else goto neg4; # Bignum mit 32/intDsize = 4 Digits
@@ -716,7 +716,7 @@
         # alle Bits, die nicht in den Fixnum-Wert reinpassen, =0 ?
         return as_object(((oint)fixnum_type<<oint_type_shift) | (wert<<oint_data_shift));
       # Bignum erzeugen:
-      # (dessen Länge  bn_minlength <= n <= ceiling((32+1)/intDsize)  erfüllt)
+      # (dessen LÃ¤nge  bn_minlength <= n <= ceiling((32+1)/intDsize)  erfÃ¼llt)
       #define UL_maxlength  ceiling(32+1,intDsize)
       #if (bn_minlength <= 1) && (UL_maxlength >= 1)
       if ((1*intDsize-1 < 32)
@@ -831,7 +831,7 @@
           #endif
       }
       # Bignum erzeugen:
-      # (dessen Länge  bn_minlength <= n <= ceiling(64/intDsize)  erfüllt)
+      # (dessen LÃ¤nge  bn_minlength <= n <= ceiling(64/intDsize)  erfÃ¼llt)
       #define FILL_1_DIGIT(from)  \
         *ptr-- = (uintD)from;
       #define FILL_2_DIGITS(from)  \
@@ -968,7 +968,7 @@
          )   )
         return as_object(((oint)fixnum_type<<oint_type_shift) | ((oint)wert_lo<<oint_data_shift));
       # Bignum erzeugen:
-      # (dessen Länge  bn_minlength <= n <= ceiling((64+1)/intDsize)  erfüllt)
+      # (dessen LÃ¤nge  bn_minlength <= n <= ceiling((64+1)/intDsize)  erfÃ¼llt)
       #define UL2_maxlength  ceiling(64+1,intDsize)
       #define FILL_1_DIGIT(from)  \
         *ptr-- = (uintD)from;
@@ -1077,7 +1077,7 @@
     {
       {
         var uint64 test = wert & ~(uint64)(FN_value_mask >> oint_data_shift);
-        # test enthält die Bits, die nicht in den Fixnum-Wert reinpassen.
+        # test enthÃ¤lt die Bits, die nicht in den Fixnum-Wert reinpassen.
         if (test == (uint64)0) # alle =0 ?
           return as_object(((oint)fixnum_type<<oint_type_shift) | ((oint)wert<<oint_data_shift));
         if (test == ~(uint64)(FN_value_mask >> oint_data_shift)) # alle =1 ?
@@ -1086,7 +1086,7 @@
                           );
       }
       # Bignum erzeugen:
-      # (dessen Länge  bn_minlength <= n <= ceiling(64/intDsize) = 2  erfüllt)
+      # (dessen LÃ¤nge  bn_minlength <= n <= ceiling(64/intDsize) = 2  erfÃ¼llt)
       #define FILL_1_DIGIT(from)  \
         *ptr-- = (uintD)from;
       #define FILL_2_DIGITS(from)  \
@@ -1148,7 +1148,7 @@
         # alle Bits, die nicht in den Fixnum-Wert reinpassen, =0 ?
         return as_object(((oint)fixnum_type<<oint_type_shift) | (wert<<oint_data_shift));
       # Bignum erzeugen:
-      # (dessen Länge  bn_minlength <= n <= ceiling((64+1)/intDsize)  erfüllt)
+      # (dessen LÃ¤nge  bn_minlength <= n <= ceiling((64+1)/intDsize)  erfÃ¼llt)
       #define UQ_maxlength  ceiling(64+1,intDsize)
       #if (bn_minlength <= 1) && (UQ_maxlength >= 1)
       if ((1*intDsize-1 < 64)
@@ -1389,18 +1389,18 @@
         return
           #if (oint_data_shift <= sign_bit_o) && ((oint_data_len+1 <= intLsize) || defined(intQsize))
           as_object((( (soint)wert
-                      & (FN_value_vz_mask>>oint_data_shift) # Unnötiges wegmaskieren
+                      & (FN_value_vz_mask>>oint_data_shift) # UnnÃ¶tiges wegmaskieren
                      ) << oint_data_shift
                     )
-                    | ((oint)fixnum_type<<oint_type_shift) # dafür Typinfo rein
+                    | ((oint)fixnum_type<<oint_type_shift) # dafÃ¼r Typinfo rein
                    )
           #else # Falls (oint_data_shift > sign_bit_o)
                 # oder falls das Vorzeichenbit nicht in wert steckt
           as_object((( (soint)wert << oint_data_shift )
-                     & FN_value_mask # Unnötiges wegmaskieren
+                     & FN_value_mask # UnnÃ¶tiges wegmaskieren
                     )
                     | ((soint)(sint32)sign_of_sintD(MSDptr[0]) & wbit(sign_bit_o))
-                    | ((oint)fixnum_type<<oint_type_shift) # dafür Typinfo rein
+                    | ((oint)fixnum_type<<oint_type_shift) # dafÃ¼r Typinfo rein
                    )
           #endif
           ;
@@ -1408,7 +1408,7 @@
       if (len == bn_minlength) {
         # bn_minlength Digits, also (incl. Vorzeichen) zwischen
         # (bn_minlength-1)*intDsize+1 und bn_minlength*intDsize Bits.
-        # Höchstens oint_data_len+1 Bits -> passt in ein Fixnum:
+        # HÃ¶chstens oint_data_len+1 Bits -> passt in ein Fixnum:
         if (  (MSDptr[0] <= (uintD)(bit(oint_data_len-(bn_minlength-1)*intDsize)-1)) # Fixnum >=0 ?
             ||(MSDptr[0] >= (uintD)(-bit(oint_data_len-(bn_minlength-1)*intDsize))) # Fixnum <0 ?
            )
@@ -1430,12 +1430,12 @@
       }
       # mindestens bn_minlength Digits, mache ein Bignum
       var object newnum = allocate_bignum(len,sign_of_sintD(MSDptr[0]));
-      # neues Bignum mit dem Inhalt der NDS füllen:
+      # neues Bignum mit dem Inhalt der NDS fÃ¼llen:
       copy_loop_up(MSDptr,&TheBignum(newnum)->data[0],len);
       return newnum;
     }
 
-# Bignum-Überlauf melden:
+# Bignum-Ãœberlauf melden:
   nonreturning_function(local, BN_ueberlauf, (void));
   local void BN_ueberlauf()
     {
@@ -1455,11 +1455,11 @@
     var uintC len;
     {
       if ((!(len==0)) && ((sintD)MSDptr[0] < 0)) {
-        # Falls die Länge >0 und das Most significant Bit = 1 sind,
+        # Falls die LÃ¤nge >0 und das Most significant Bit = 1 sind,
         # die Digit Sequence um ein Nulldigit erweitern:
         *--MSDptr = 0;
         len++;
-        if (uintWCoverflow(len)) # Überlauf der Länge?
+        if (uintWCoverflow(len)) # Ãœberlauf der LÃ¤nge?
           BN_ueberlauf();
       }
       return NDS_to_I(MSDptr,len);
@@ -1480,11 +1480,11 @@
       }
       # Dann wie bei NUDS_to_I :
       if ((!(len==0)) && ((sintD)MSDptr[0] < 0)) {
-        # Falls die Länge >0 und das Most significant Bit = 1 sind,
+        # Falls die LÃ¤nge >0 und das Most significant Bit = 1 sind,
         # die Digit Sequence um ein Nulldigit erweitern:
         *--MSDptr = 0;
         len++;
-        if (uintWCoverflow(len)) # Überlauf der Länge?
+        if (uintWCoverflow(len)) # Ãœberlauf der LÃ¤nge?
           BN_ueberlauf();
       }
       return NDS_to_I(MSDptr,len);
@@ -1500,18 +1500,18 @@
     var uintC len;
     {
       # erst normalisieren.
-      # Dabei evtl. MSDptr erhöhen und len erniedrigen:
+      # Dabei evtl. MSDptr erhÃ¶hen und len erniedrigen:
       if (!(len==0)) { # leere DS ist normalisiert
         var uintC count = len-1;
         if ((sintD)MSDptr[0] >= 0) {
           # Zahl >= 0
-          # versuche maximal len-1 führende Nullen-Digits zu streichen:
+          # versuche maximal len-1 fÃ¼hrende Nullen-Digits zu streichen:
           while (!(count==0) && (MSDptr[0]==0) && ((sintD)MSDptr[1]>=0)) {
             MSDptr++; len--; count--; # Nulldigit streichen
           }
         } else {
           # Zahl < 0
-          # versuche maximal len-1 führende Einsen-Digits zu streichen:
+          # versuche maximal len-1 fÃ¼hrende Einsen-Digits zu streichen:
           while (!(count==0) && ((sintD)MSDptr[0]==-1) && ((sintD)MSDptr[1]<0)) {
             MSDptr++; len--; count--; # Einsen-digit streichen
           }
@@ -1528,7 +1528,7 @@
 # intDsize=8 -> MSD=LSD3,LSD2,LSD1,LSD0, sollte FN_maxlength=4 sein.
 # intDsize=16 -> MSD=LSD1,LSD0, sollte FN_maxlength=2 sein.
 # intDsize=32 -> MSD=LSD0, sollte FN_maxlength=1 sein.
-# WIDE -> ebenso, nur ist FN_maxlength noch eins größer.
+# WIDE -> ebenso, nur ist FN_maxlength noch eins grÃ¶ÃŸer.
 
 #if FN_maxlength>1
   #define FN_LSD0(obj)  ((uintD)(as_oint(obj)>>oint_data_shift))
@@ -1636,8 +1636,8 @@
     { var oint fix_from_FN_to_NDS = as_oint(obj);                                                   \
       var uintC len_from_FN_to_NDS;                                                                 \
       var uintD* ptr_from_FN_to_NDS;                                                                \
-      # Länge der NDS bestimmen:                                                                    \
-      if (eq(as_object(fix_from_FN_to_NDS),Fixnum_0)) # mindestens 1 Digit nötig?                   \
+      # LÃ¤nge der NDS bestimmen:                                                                    \
+      if (eq(as_object(fix_from_FN_to_NDS),Fixnum_0)) # mindestens 1 Digit nÃ¶tig?                   \
         { len_from_FN_to_NDS=0; }                                                                   \
         else                                                                                        \
         { var oint testMSD; # vordere Bits von fix_from_FN_to_NDS                                   \
@@ -1658,19 +1658,19 @@
                )                                                                                    \
             { len_from_FN_to_NDS=4; } # vier Digits abzulegen                                       \
           else                                                                                      \
-            { len_from_FN_to_NDS=5; } # fünf Digits abzulegen                                       \
+            { len_from_FN_to_NDS=5; } # fÃ¼nf Digits abzulegen                                       \
         }                                                                                           \
       len_zuweisung len_from_FN_to_NDS;                                                             \
       # Platz belegen:                                                                              \
       CONCAT(alloc_FNDS_,option)                                                                    \
         (len_from_FN_to_NDS, MSDptr_zuweisung ptr_from_FN_to_NDS =,_EMA_ LSDptr_zuweisung);         \
-      # Platz füllen:                                                                               \
+      # Platz fÃ¼llen:                                                                               \
       if (len_from_FN_to_NDS > 0)                                                                   \
         { if ((FN_maxlength>1) && (len_from_FN_to_NDS > 1))                                         \
             { if ((FN_maxlength>2) && (len_from_FN_to_NDS > 2))                                     \
                 { if ((FN_maxlength>3) && (len_from_FN_to_NDS > 3))                                 \
                     { if ((FN_maxlength>4) && (len_from_FN_to_NDS > 4))                             \
-                         # fünf Digits abzulegen:                                                   \
+                         # fÃ¼nf Digits abzulegen:                                                   \
                          { *ptr_from_FN_to_NDS++ = FN_LSD4(as_object(fix_from_FN_to_NDS)); }        \
                       # noch vier Digits abzulegen:                                                 \
                       *ptr_from_FN_to_NDS++ = FN_LSD3(as_object(fix_from_FN_to_NDS));               \
@@ -1688,8 +1688,8 @@
   #define FN_to_NDS_nocopy_(obj, room, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung)  \
     { var oint fix_from_FN_to_NDS = as_oint(obj);                                                             \
       var uintC len_from_FN_to_NDS;                                                                           \
-      # Länge der NDS bestimmen und Platz füllen:                                                             \
-      if (eq(as_object(fix_from_FN_to_NDS),Fixnum_0)) # mindestens 1 Digit nötig?                             \
+      # LÃ¤nge der NDS bestimmen und Platz fÃ¼llen:                                                             \
+      if (eq(as_object(fix_from_FN_to_NDS),Fixnum_0)) # mindestens 1 Digit nÃ¶tig?                             \
         { len_from_FN_to_NDS=0; }                                                                             \
         else                                                                                                  \
         { var oint testMSD; # vordere Bits von fix_from_FN_to_NDS                                             \
@@ -1714,7 +1714,7 @@
                          )                                                                                    \
                         { len_from_FN_to_NDS=4; } # vier Digits abzulegen                                     \
                         else                                                                                  \
-                        { len_from_FN_to_NDS=5; # fünf Digits abzulegen                                       \
+                        { len_from_FN_to_NDS=5; # fÃ¼nf Digits abzulegen                                       \
                           *ptr_from_FN_to_NDS++ = FN_LSD4(as_object(fix_from_FN_to_NDS));                     \
                         }                                                                                     \
                       *ptr_from_FN_to_NDS++ = FN_LSD3(as_object(fix_from_FN_to_NDS));                         \
@@ -1729,7 +1729,7 @@
       unused (LSDptr_zuweisung (MSDptr_zuweisung room) + len_from_FN_to_NDS);                                 \
     }
 
-# Bignum to Normalized Digit sequence, Kopieren unnötig
+# Bignum to Normalized Digit sequence, Kopieren unnÃ¶tig
 # BN_to_NDS_nocopy(obj, MSDptr=,len=,LSDptr=);
 # > obj: ein Bignum
 # < MSDptr/len/LSDptr: Normalized Digit sequence
@@ -1769,7 +1769,7 @@
       copy_loop_up(&TheBignum(obj_from_BN_to_NDS)->data[0],MSDptr_from_BN_to_NDS,len_from_BN_to_NDS); \
     }
 
-# Integer to Normalized Digit sequence, Kopieren unnötig.
+# Integer to Normalized Digit sequence, Kopieren unnÃ¶tig.
 # { I_to_NDS_nocopy(obj, MSDptr=,len=,LSDptr=); ... }
 # > obj: ein Integer
 # < MSDptr/len/LSDptr: Normalized Digit sequence
@@ -1809,7 +1809,7 @@
         { BN_to_NDS_1(obj_from_I_to_NDS,_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung); } \
     }
 
-# Holt die nächsten pFN_maxlength Digits in ein uint32:
+# Holt die nÃ¤chsten pFN_maxlength Digits in ein uint32:
 # _ptr ist vom Typ uintD*.
   #if (pFN_maxlength==1)
     #define pFN_maxlength_digits_at(_ptr)  \
@@ -1834,7 +1834,7 @@
             (uint32)(_ptr[3]))
   #endif
 
-# Schreibt ein uint32 in die nächsten pFN_maxlength Digits:
+# Schreibt ein uint32 in die nÃ¤chsten pFN_maxlength Digits:
 # _ptr ist vom Typ uintD*, _wert vom Typ uint32.
   #if (pFN_maxlength==1)
     #define set_pFN_maxlength_digits_at(_ptr,_wert)  \

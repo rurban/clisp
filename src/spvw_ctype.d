@@ -571,7 +571,7 @@
                 || asciz_equal(lang,"fo") || asciz_equal(lang,"faroese") || asciz_equal(lang,"faeroese")
                 || asciz_equal(lang,"fr") || asciz_equal(lang,"french")
                                           #ifndef ASCII_CHS
-                                          || asciz_equal(lang,"français")
+                                          || asciz_equal(lang,"franÃ§ais")
                                           #endif
                 || asciz_equal(lang,"ga") || asciz_equal(lang,"irish")
                 || asciz_equal(lang,"gd") || asciz_equal(lang,"scottish")

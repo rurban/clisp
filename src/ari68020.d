@@ -2,11 +2,11 @@
 # Prozessor: 680x0 mit x>=2
 # Assembler-Syntax: meist "$" streichen, auf A/UX "$" durch "%" ersetzen
 # Compiler: CC oder GNU-C auf SUN3 oder AMIGA oder A/UX
-# Parameter-‹bergabe:
-#   auf dem Stack: sp@(4), sp@(8), ... (.W-Grˆﬂen belegen 4 Byte!),
-#   R¸ckgabewert in d0.
+# Parameter-√úbergabe:
+#   auf dem Stack: sp@(4), sp@(8), ... (.W-Gr√∂√üen belegen 4 Byte!),
+#   R√ºckgabewert in d0.
 # Register a0-a1,d0-d1 frei verwendbar,
-# Register a2-a4,d2-d7 m¸ssen gerettet werden.
+# Register a2-a4,d2-d7 m√ºssen gerettet werden.
 # Einstellungen: intCsize=16, intDsize=32.
 
 #ifdef INCLUDED_FROM_C
@@ -29,7 +29,7 @@
     #define C(entrypoint) entrypoint
   #endif
 
-  # Befehl, der das X- und das C-Bit lˆscht (und evtl. d1 modifiziert):
+  # Befehl, der das X- und das C-Bit l√∂scht (und evtl. d1 modifiziert):
   #if defined(sun)
     # SUN-Assembler
     #define clrx   subw $d1,$d1
@@ -145,7 +145,7 @@ C(clear_loop_down:) | Input in a0,d0.W, Output in d0
            rts
 
 | extern void or_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(or_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
+C(or_loop_up:) | Input in a0,a1,d0.W, ver√§ndert d1
            movel $sp@(4),$a0
            movel $sp@(8),$a1
            movew $sp@(12+2),$d0
@@ -156,7 +156,7 @@ C(or_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void xor_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(xor_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
+C(xor_loop_up:) | Input in a0,a1,d0.W, ver√§ndert d1
            movel $sp@(4),$a0
            movel $sp@(8),$a1
            movew $sp@(12+2),$d0
@@ -167,7 +167,7 @@ C(xor_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void and_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(and_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
+C(and_loop_up:) | Input in a0,a1,d0.W, ver√§ndert d1
            movel $sp@(4),$a0
            movel $sp@(8),$a1
            movew $sp@(12+2),$d0
@@ -178,7 +178,7 @@ C(and_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void eqv_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(eqv_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
+C(eqv_loop_up:) | Input in a0,a1,d0.W, ver√§ndert d1
            movel $sp@(4),$a0
            movel $sp@(8),$a1
            movew $sp@(12+2),$d0
@@ -190,7 +190,7 @@ C(eqv_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void nand_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(nand_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
+C(nand_loop_up:) | Input in a0,a1,d0.W, ver√§ndert d1
            movel $sp@(4),$a0
            movel $sp@(8),$a1
            movew $sp@(12+2),$d0
@@ -202,7 +202,7 @@ C(nand_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void nor_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(nor_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
+C(nor_loop_up:) | Input in a0,a1,d0.W, ver√§ndert d1
            movel $sp@(4),$a0
            movel $sp@(8),$a1
            movew $sp@(12+2),$d0
@@ -214,7 +214,7 @@ C(nor_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(andc2_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
+C(andc2_loop_up:) | Input in a0,a1,d0.W, ver√§ndert d1
            movel $sp@(4),$a0
            movel $sp@(8),$a1
            movew $sp@(12+2),$d0
@@ -226,7 +226,7 @@ C(andc2_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
            rts
 
 | extern void orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(orc2_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1
+C(orc2_loop_up:) | Input in a0,a1,d0.W, ver√§ndert d1
            movel $sp@(4),$a0
            movel $sp@(8),$a1
            movew $sp@(12+2),$d0
@@ -247,7 +247,7 @@ C(not_loop_up:) | Input in a0,d0.W
            rts
 
 | extern boolean and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
-C(and_test_loop_up:) | Input in a0,a1,d0.W, ver‰ndert d1, Output in d0.W=d0.L
+C(and_test_loop_up:) | Input in a0,a1,d0.W, ver√§ndert d1, Output in d0.W=d0.L
            movel $sp@(4),$a0
            movel $sp@(8),$a1
            movew $sp@(12+2),$d0
@@ -292,20 +292,20 @@ C(compare_loop_up:) | Input in a0,a1,d0.W, Output in d0.W=d0.L
            rts
 
 | extern uintD add_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
-C(add_loop_down:) | Input in a0,a1,a2,d0.W, ver‰ndert d1,d2, Output in d0
+C(add_loop_down:) | Input in a0,a1,a2,d0.W, ver√§ndert d1,d2, Output in d0
            moveml $a2/$d2,$sp@-
            movel $sp@(8+4),$a0
            movel $sp@(8+8),$a1
            movel $sp@(8+12),$a2
            movew $sp@(8+16+2),$d0
-           clrx   | X-Bit lˆschen
+           clrx   | X-Bit l√∂schen
            bras 2f
     1:       movel $a0@-,$d1
              movel $a1@-,$d2
              addxl $d2,$d1
              movel $d1,$a2@-
     2:       dbra $d0,1b
-           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            moveml $sp@+,$a2/$d2
            rts
 
@@ -314,11 +314,11 @@ C(addto_loop_down:) | Input in a0,a1,d0.W, Output in d0
            movel $sp@(4),$a0
            movel $sp@(8),$a1
            movew $sp@(12+2),$d0
-           clrx   | X-Bit lˆschen
+           clrx   | X-Bit l√∂schen
            bras 2f
     1:       addxl $a0@-,$a1@-
     2:       dbra $d0,1b
-           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            rts
 
 | extern uintD inc_loop_down (uintD* ptr, uintC count);
@@ -326,33 +326,33 @@ C(inc_loop_down:) | Input in a0,d0.W, Output in d0
            movel $sp@(4),$a0
            movew $sp@(8+2),$d0
            dbra $d0,1f          | simuliere gesetzten Carry
-           moveq #-1,$d0     | d0.L=-1 f¸r ‹bertrag
+           moveq #-1,$d0     | d0.L=-1 f√ºr √úbertrag
            rts
     1:       addql #1,$a0@-
              dbcc $d0,1b
-           subxl $d0,$d0       | kein Carry -> d0.L=0, sonst d0.L=-1 f¸r ‹bertrag
+           subxl $d0,$d0       | kein Carry -> d0.L=0, sonst d0.L=-1 f√ºr √úbertrag
            rts
 
 | extern uintD sub_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
-C(sub_loop_down:) | Input in a0,a1,a2,d0.W, ver‰ndert d1,d2, Output in d0
+C(sub_loop_down:) | Input in a0,a1,a2,d0.W, ver√§ndert d1,d2, Output in d0
            moveml $a2/$d2,$sp@-
            movel $sp@(8+4),$a0
            movel $sp@(8+8),$a1
            movel $sp@(8+12),$a2
            movew $sp@(8+16+2),$d0
-           clrx   | X-Bit lˆschen
+           clrx   | X-Bit l√∂schen
            bras 2f
     1:       movel $a0@-,$d1
              movel $a1@-,$d2
              subxl $d2,$d1
              movel $d1,$a2@-
     2:       dbra $d0,1b
-           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            moveml $sp@+,$a2/$d2
            rts
 
 | extern uintD subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
-C(subx_loop_down:) | Input in a0,a1,a2,d0.W,d1, ver‰ndert d2, Output in d0
+C(subx_loop_down:) | Input in a0,a1,a2,d0.W,d1, ver√§ndert d2, Output in d0
            moveml $a2/$d2,$sp@-
            movel $sp@(8+4),$a0
            movel $sp@(8+8),$a1
@@ -366,7 +366,7 @@ C(subx_loop_down:) | Input in a0,a1,a2,d0.W,d1, ver‰ndert d2, Output in d0
              subxl $d2,$d1
              movel $d1,$a2@-
     2:       dbra $d0,1b
-           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            moveml $sp@+,$a2/$d2
            rts
 
@@ -375,11 +375,11 @@ C(subfrom_loop_down:) | Input in a0,a1,d0.W, Output in d0
            movel $sp@(4),$a0
            movel $sp@(8),$a1
            movew $sp@(12+2),$d0
-           clrx   | X-Bit lˆschen
+           clrx   | X-Bit l√∂schen
            bras 2f
     1:       subxl $a0@-,$a1@-
     2:       dbra $d0,1b
-           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            rts
 
 | extern uintD dec_loop_down (uintD* ptr, uintC count);
@@ -387,34 +387,34 @@ C(dec_loop_down:) | Input in a0,d0.W, Output in d0
            movel $sp@(4),$a0
            movew $sp@(8+2),$d0
            dbra $d0,1f          | simuliere gesetzten Carry
-           moveq #-1,$d0     | d0.L=-1 als ‹bertrag
+           moveq #-1,$d0     | d0.L=-1 als √úbertrag
            rts
     1:       subql #1,$a0@-
              dbcc $d0,1b       | kein Carry -> Schleife abbrechen
-           subxl $d0,$d0       | kein Carry -> d0.L=0, sonst d0.L=-1 als ‹bertrag
+           subxl $d0,$d0       | kein Carry -> d0.L=0, sonst d0.L=-1 als √úbertrag
            rts
 
 | extern uintD neg_loop_down (uintD* ptr, uintC count);
 C(neg_loop_down:) | Input in a0,d0.W, Output in d0
            movel $sp@(4),$a0
            movew $sp@(8+2),$d0
-           clrx   | X-Bit lˆschen
+           clrx   | X-Bit l√∂schen
            bras 2f
     1:       negxl $a0@-
     2:       dbra $d0,1b
-           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            rts
 
 | extern uintD shift1left_loop_down (uintD* ptr, uintC count);
 C(shift1left_loop_down:) | Input in a0,d0.W, Output in d0.L
            movel $sp@(4),$a0
            movew $sp@(8+2),$d0
-           clrx   | X-Bit lˆschen
+           clrx   | X-Bit l√∂schen
            bras 2f
     1:       roxlw $a0@-     | Digit a0@- um 1 Bit links schieben, X-Bit als Buffer
              roxlw $a0@-
     2:       dbra $d0,1b
-           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            rts
 
 | extern uintD shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry);
@@ -428,15 +428,15 @@ C(shiftleft_loop_down:) | Input in a0,d0.W,d1.W,d2, Output in d0
            moveq #32,$d5
            subw $d1,$d5
            | a0 = ptr, d0.W = count, d1.W = i, d5.W = 32-i,
-           | d2.L = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.L = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            bras 2f
     1:       movel $a0@-,$d3  | d3.L = neues Digit
              movel $d3,$d4
              lsll $d1,$d4      | um i Bits nach links schieben
-             orl $d2,$d4       | mit vorigem ‹bertrag kombinieren
+             orl $d2,$d4       | mit vorigem √úbertrag kombinieren
              movel $d4,$a0@   | 32 Bits ablegen
              movel $d3,$d2
-             lsrl $d5,$d2      | neuen ‹bertrag bilden
+             lsrl $d5,$d2      | neuen √úbertrag bilden
     2:       dbra $d0,1b        | Schleife d0.W mal durchlaufen
            movel $d2,$d0
            moveml $sp@+,$d2-$d5
@@ -451,16 +451,16 @@ C(shiftleft_loop_down:) | Input in a0,d0.W,d1.W,d2, Output in d0
            lsll $d1,$d5
            subql #1,$d5
            | a0 = ptr, d0.W = count, d1.W = i, d5.L = 2^i-1
-           | d2.L = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.L = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            bras 2f
     1:       movel $a0@-,$d3  | d3.L = neues Digit
              roll $d1,$d3      | um i Bits links rotieren
              movel $d3,$d4
              andl $d5,$d3      | untere i Bits in d3
              eorl $d3,$d4      | obere 32-i Bits in d4
-             orl $d2,$d4       | mit vorigem ¸bertrag kombinieren
+             orl $d2,$d4       | mit vorigem √ºbertrag kombinieren
              movel $d4,$a0@   | 32 Bits ablegen
-             movel $d3,$d2     | neuer ‹bertrag
+             movel $d3,$d2     | neuer √úbertrag
     2:       dbra $d0,1b        | Schleife d0.W mal durchlaufen
            movel $d2,$d0
            moveml $sp@+,$d2-$d5
@@ -479,15 +479,15 @@ C(shiftleftcopy_loop_down:) | Input in a0,a1,d0.W,d1.W, Output in d0
            subw $d1,$d5
            clrl $d2
            | a0 = sourceptr, a1 = destptr, d0.W = count, d1.W = i, d5.W = 32-i,
-           | d2.L = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.L = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            bras 2f
     1:       movel $a0@-,$d3  | d3.L = neues Digit
              movel $d3,$d4
              lsll $d1,$d4      | um i Bits nach links schieben
-             orl $d2,$d4       | mit vorigem ‹bertrag kombinieren
+             orl $d2,$d4       | mit vorigem √úbertrag kombinieren
              movel $d4,$a1@-  | 32 Bits ablegen
              movel $d3,$d2
-             lsrl $d5,$d2      | neuen ‹bertrag bilden
+             lsrl $d5,$d2      | neuen √úbertrag bilden
     2:       dbra $d0,1b        | Schleife d0.W mal durchlaufen
            movel $d2,$d0
            moveml $sp@+,$d2-$d5
@@ -502,16 +502,16 @@ C(shiftleftcopy_loop_down:) | Input in a0,a1,d0.W,d1.W, Output in d0
            lsll $d1,$d5
            subql #1,$d5
            | a0 = sourceptr, a1 = destptr, d0.W = count, d1.W = i, d5.L = 2^i-1
-           | d2.L = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.L = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            bras 2f
     1:       movel $a0@-,$d3  | d3.L = neues Digit
              roll $d1,$d3      | um i Bits links rotieren
              movel $d3,$d4
              andl $d5,$d3      | untere i Bits in d3
              eorl $d3,$d4      | obere 32-i Bits in d4
-             orl $d2,$d4       | mit vorigem ¸bertrag kombinieren
+             orl $d2,$d4       | mit vorigem √ºbertrag kombinieren
              movel $d4,$a1@-  | 32 Bits ablegen
-             movel $d3,$d2     | neuer ‹bertrag
+             movel $d3,$d2     | neuer √úbertrag
     2:       dbra $d0,1b        | Schleife d0.W mal durchlaufen
            movel $d2,$d0
            moveml $sp@+,$d2-$d5
@@ -523,12 +523,12 @@ C(shift1right_loop_up:) | Input in a0,d0.W,d1, Output in d0
            movel $sp@(4),$a0
            movew $sp@(8+2),$d0
            movel $sp@(12),$d1
-           roxrl #1,$d1       | X-Bit lˆschen oder setzen, je nach d1
+           roxrl #1,$d1       | X-Bit l√∂schen oder setzen, je nach d1
            bras 2f
     1:       roxrw $a0@+     | Digit a0@+ um 1 Bit rechts schieben, X-Bit als Buffer
              roxrw $a0@+
     2:       dbra $d0,1b
-           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gelˆscht
+           subxl $d0,$d0       | -1 falls X gesetzt, 0 falls X gel√∂scht
            rts
 
 | extern uintD shiftright_loop_up (uintD* ptr, uintC count, uintC i);
@@ -541,19 +541,19 @@ C(shiftright_loop_up:) | Input in a0,d0.W,d1.W, Output in d0
            moveq #32,$d5
            subw $d1,$d5
            | a0 = ptr, d0.W = count, d1.W = i, d5.W = 32-i,
-           | d2.L = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.L = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            clrl $d2
            bras 2f
-    1:       | a0 = Aufw‰rtsz‰hler Adresse, d0.W = Herabz‰hler, d1.W = i, d5.W = 32-i,
-             | d2.L = Schiebe-‹bertrag (obere i Bits, restliche 32-i Bits sind 0)
+    1:       | a0 = Aufw√§rtsz√§hler Adresse, d0.W = Herabz√§hler, d1.W = i, d5.W = 32-i,
+             | d2.L = Schiebe-√úbertrag (obere i Bits, restliche 32-i Bits sind 0)
              | d3.L = Schiebe-Akku
              movel $a0@,$d3   | neue Daten
              movel $d3,$d4
              lsrl $d1,$d3      | um i Bits rechts schieben
-             orl $d2,$d3       | und mit vorigem ‹bertrag kombinieren
+             orl $d2,$d3       | und mit vorigem √úbertrag kombinieren
              movel $d3,$a0@+  | ablegen
              lsll $d5,$d4      | um (32-i) Bits links geschoben
-             movel $d4,$d2     | liefert neuen ‹bertrag
+             movel $d4,$d2     | liefert neuen √úbertrag
     2:       dbra $d0,1b        | Schleife d0.W mal durchlaufen
            movel $d2,$d0
            moveml $sp@+,$d2-$d5
@@ -566,19 +566,19 @@ C(shiftright_loop_up:) | Input in a0,d0.W,d1.W, Output in d0
            moveq #-1,$d5
            lsrl $d1,$d5
            | a0 = ptr, d0.W = count, d1.W = i, d5.L = 2^(32-i)-1,
-           | d2.L = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.L = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            clrl $d2
            bras 2f
-    1:       | a0 = Aufw‰rtsz‰hler Adresse, d0.W = Herabz‰hler, d1.W = i, d5.L = 2^(32-i)-1,
-             | d2.L = Schiebe-‹bertrag (obere i Bits, restliche 32-i Bits sind 0)
+    1:       | a0 = Aufw√§rtsz√§hler Adresse, d0.W = Herabz√§hler, d1.W = i, d5.L = 2^(32-i)-1,
+             | d2.L = Schiebe-√úbertrag (obere i Bits, restliche 32-i Bits sind 0)
              | d3.L = Schiebe-Akku
              movel $a0@,$d3   | neue Daten
              rorl $d1,$d3      | um i Bits rechts rotieren
              movel $d3,$d4
              andl $d5,$d3      | untere 32-i Bits
              eorl $d3,$d4      | obere i Bits
-             orl $d2,$d3       | und mit vorigem ‹bertrag kombinieren
-             movel $d4,$d2     | neuer ‹bertrag
+             orl $d2,$d3       | und mit vorigem √úbertrag kombinieren
+             movel $d4,$d2     | neuer √úbertrag
              movel $d3,$a0@+  | ablegen
     2:       dbra $d0,1b        | Schleife d0.W mal durchlaufen
            movel $d2,$d0
@@ -596,22 +596,22 @@ C(shiftrightsigned_loop_up:) | Input in a0,d0.W,d1.W, Output in d0
            moveq #32,$d5
            subw $d1,$d5
            | a0 = ptr, d0.W = count, d1.W = i, d5.W = 32-i,
-           | d2.L = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.L = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            subqw #1,$d0
            movel $a0@,$d3     | erstes Digit
            movel $d3,$d4
            asrl $d1,$d3        | um i Bits rechts schieben
            bras 2f
-    1:       | a0 = Aufw‰rtsz‰hler Adresse, d0.W = Herabz‰hler, d1.W = i, d5.W = 32-i,
-             | d2.L = Schiebe-‹bertrag (obere i Bits, restliche 32-i Bits sind 0)
+    1:       | a0 = Aufw√§rtsz√§hler Adresse, d0.W = Herabz√§hler, d1.W = i, d5.W = 32-i,
+             | d2.L = Schiebe-√úbertrag (obere i Bits, restliche 32-i Bits sind 0)
              | d3.L = Schiebe-Akku
              movel $a0@,$d3   | neue Daten
              movel $d3,$d4
              lsrl $d1,$d3      | um i Bits rechts schieben
-             orl $d2,$d3       | und mit vorigem ‹bertrag kombinieren
+             orl $d2,$d3       | und mit vorigem √úbertrag kombinieren
     2:       movel $d3,$a0@+  | ablegen
              lsll $d5,$d4      | um (32-i) Bits links geschoben
-             movel $d4,$d2     | liefert neuen ‹bertrag
+             movel $d4,$d2     | liefert neuen √úbertrag
              dbra $d0,1b        | Schleife d0.W mal durchlaufen
            movel $d2,$d0
            moveml $sp@+,$d2-$d5
@@ -624,7 +624,7 @@ C(shiftrightsigned_loop_up:) | Input in a0,d0.W,d1.W, Output in d0
            moveq #-1,$d5
            lsrl $d1,$d5
            | a0 = ptr, d0.W = count, d1.W = i, d5.L = 2^(32-i)-1,
-           | d2.L = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.L = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            subqw #1,$d0
            movel $a0@,$d3     | erstes Digit
            movel $d3,$d4
@@ -634,16 +634,16 @@ C(shiftrightsigned_loop_up:) | Input in a0,d0.W,d1.W, Output in d0
            andl $d4,$d2        | obere 32-i Bits
            asrl $d1,$d3        | erstes Digit um i Bits rechts shiften
            bras 2f
-    1:       | a0 = Aufw‰rtsz‰hler Adresse, d0.W = Herabz‰hler, d1.W = i, d5.L = 2^(32-i)-1,
-             | d2.L = Schiebe-‹bertrag (obere i Bits, restliche 32-i Bits sind 0)
+    1:       | a0 = Aufw√§rtsz√§hler Adresse, d0.W = Herabz√§hler, d1.W = i, d5.L = 2^(32-i)-1,
+             | d2.L = Schiebe-√úbertrag (obere i Bits, restliche 32-i Bits sind 0)
              | d3.L = Schiebe-Akku
              movel $a0@,$d3   | neue Daten
              rorl $d1,$d3      | um i Bits rechts rotieren
              movel $d3,$d4
              andl $d5,$d3      | untere 32-i Bits
              eorl $d3,$d4      | obere i Bits
-             orl $d2,$d3       | und mit vorigem ‹bertrag kombinieren
-             movel $d4,$d2     | neuer ‹bertrag
+             orl $d2,$d3       | und mit vorigem √úbertrag kombinieren
+             movel $d4,$d2     | neuer √úbertrag
     2:       movel $d3,$a0@+  | ablegen
              dbra $d0,1b        | Schleife d0.W mal durchlaufen
            movel $d2,$d0
@@ -663,18 +663,18 @@ C(shiftrightcopy_loop_up:) | Input in a0,a1,d0.W,d1.W,d2, Output in d0
            moveq #32,$d5
            subw $d1,$d5
            | a0 = ptr, d0.W = count, d1.W = i, d5.W = 32-i
-           | d2.L = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.L = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            bras 2f
-    1:       | a0,a1 = Aufw‰rtsz‰hler Adresse, d0.W = Herabz‰hler, d1.W = i, d5.W = 32-i
-             | d2.L = Schiebe-‹bertrag (obere i Bits, restliche 32-i Bits sind 0)
+    1:       | a0,a1 = Aufw√§rtsz√§hler Adresse, d0.W = Herabz√§hler, d1.W = i, d5.W = 32-i
+             | d2.L = Schiebe-√úbertrag (obere i Bits, restliche 32-i Bits sind 0)
              | d3.L = Schiebe-Akku
              movel $a0@+,$d3  | neue Daten
              movel $d3,$d4
              lsrl $d1,$d3      | um i Bits rechts schieben
-             orl $d2,$d3       | und mit vorigem ‹bertrag kombinieren
+             orl $d2,$d3       | und mit vorigem √úbertrag kombinieren
              movel $d3,$a1@+  | ablegen
              movel $d4,$d2
-    2:       lsll $d5,$d2      | um (32-i) Bits links geschoben, gibt neuen ‹bertrag
+    2:       lsll $d5,$d2      | um (32-i) Bits links geschoben, gibt neuen √úbertrag
              dbra $d0,1b        | Schleife d0.W mal durchlaufen
            movel $d2,$d0
            moveml $sp@+,$d2-$d5
@@ -690,18 +690,18 @@ C(shiftrightcopy_loop_up:) | Input in a0,a1,d0.W,d1.W,d2, Output in d0
            lsrl $d1,$d5
            rorl $d1,$d2
            | a0 = ptr, d0.W = count, d1.W = i, d5.L = 2^(32-i)-1
-           | d2.L = Schiebe-‹bertrag (i Bits), d3.L = Schiebe-Akku
+           | d2.L = Schiebe-√úbertrag (i Bits), d3.L = Schiebe-Akku
            bras 2f
-    1:       | a0,a1 = Aufw‰rtsz‰hler Adresse, d0.W = Herabz‰hler, d1.W = i, d5.L = 2^(32-i)-1
-             | d2.L = Schiebe-‹bertrag (obere i Bits, restliche 32-i Bits sind 0)
+    1:       | a0,a1 = Aufw√§rtsz√§hler Adresse, d0.W = Herabz√§hler, d1.W = i, d5.L = 2^(32-i)-1
+             | d2.L = Schiebe-√úbertrag (obere i Bits, restliche 32-i Bits sind 0)
              | d3.L = Schiebe-Akku
              movel $a0@+,$d3  | neue Daten
              rorl $d1,$d3      | um i Bits rechts rotieren
              movel $d3,$d4
              andl $d5,$d3      | untere 32-i Bits
              eorl $d3,$d4      | obere i Bits
-             orl $d2,$d3       | und mit vorigem ‹bertrag kombinieren
-             movel $d4,$d2     | neuer ‹bertrag
+             orl $d2,$d3       | und mit vorigem √úbertrag kombinieren
+             movel $d4,$d2     | neuer √úbertrag
              movel $d3,$a1@+  | ablegen
     2:       dbra $d0,1b        | Schleife d0.W mal durchlaufen
            movel $d2,$d0
@@ -716,9 +716,9 @@ C(mulusmall_loop_down:) # Input in d0,a0,d1.W,d2, Output in d0
            movel $sp@(12+8),$a0
            movew $sp@(12+12+2),$d1
            movel $sp@(12+16),$d2
-           addw #0,$d1        | X-Bit lˆschen
+           addw #0,$d1        | X-Bit l√∂schen
            bras 2f
-    1:       movel $a0@-,$d3  | n‰chstes Digit
+    1:       movel $a0@-,$d3  | n√§chstes Digit
              mulul $d0,$d4:$d3  | mit digit multiplizieren
              addxl $d2,$d3     | und bisherigen Carry und X-Bit addieren
              movel $d3,$a0@   | Low-Digit ablegen
@@ -737,9 +737,9 @@ C(mulu_loop_down:) | Input in d0,a0,a1,d1.W
            movel $sp@(12+8),$a0
            movel $sp@(12+12),$a1
            movew $sp@(12+16+2),$d1
-           subl $d2,$d2        | carry := 0, X-Bit lˆschen
+           subl $d2,$d2        | carry := 0, X-Bit l√∂schen
            bras 2f
-    1:       movel $a0@-,$d3  | n‰chstes Digit
+    1:       movel $a0@-,$d3  | n√§chstes Digit
              mulul $d0,$d4:$d3  | mit digit multiplizieren
              addxl $d2,$d3     | und bisherigen Carry und X-Bit addieren
              movel $d3,$a1@-  | Low-Digit ablegen
@@ -759,7 +759,7 @@ C(mulu_loop_down:) | Input in d0,a0,a1,d1.W
            clrl $d5           | 0
            clrl $d2           | carry
            bras 2f
-    1:       movel $a0@-,$d3  | n‰chstes Digit
+    1:       movel $a0@-,$d3  | n√§chstes Digit
              mulul $d0,$d4:$d3  | mit digit multiplizieren
              addl $d2,$d3      | und bisherigen Carry addieren
              addxl $d5,$d4
@@ -779,13 +779,13 @@ C(muluadd_loop_down:) | Input in d0,a0,a1,d1.W, Output in d0
            movel $sp@(16+12),$a1
            movew $sp@(16+16+2),$d1
            clrl $d5           | 0
-           subl $d2,$d2        | carry := 0, X-Bit lˆschen
+           subl $d2,$d2        | carry := 0, X-Bit l√∂schen
            bras 2f
-    1:       movel $a0@-,$d3  | n‰chstes Digit
+    1:       movel $a0@-,$d3  | n√§chstes Digit
              mulul $d0,$d4:$d3  | mit digit multiplizieren
              addxl $d2,$d3     | und bisherigen Carry und X-Bit addieren
              addxl $d5,$d4
-             addl $d3,$a1@-   | Low-Digit zum dest-Digit addieren, X als ‹bertrag
+             addl $d3,$a1@-   | Low-Digit zum dest-Digit addieren, X als √úbertrag
              movel $d4,$d2     | High-Digit gibt neuen Carry
     2:       dbra $d1,1b
            addxl $d5,$d2       | letztes X-Bit addieren
@@ -801,13 +801,13 @@ C(mulusub_loop_down:) | Input in d0,a0,a1,d1.W, Output in d0
            movel $sp@(16+12),$a1
            movew $sp@(16+16+2),$d1
            clrl $d5           | 0
-           subl $d2,$d2        | carry := 0, X-Bit lˆschen
+           subl $d2,$d2        | carry := 0, X-Bit l√∂schen
            bras 2f
-    1:       movel $a0@-,$d3  | n‰chstes Digit
+    1:       movel $a0@-,$d3  | n√§chstes Digit
              mulul $d0,$d4:$d3  | mit digit multiplizieren
              addxl $d2,$d3     | und bisherigen Carry und X-Bit addieren
              addxl $d5,$d4
-             subl $d3,$a1@-   | Low-Digit vom dest-Digit subtrahieren, X als ‹bertrag
+             subl $d3,$a1@-   | Low-Digit vom dest-Digit subtrahieren, X als √úbertrag
              movel $d4,$d2     | High-Digit gibt neuen Carry
     2:       dbra $d1,1b
            clrl $d0
@@ -823,7 +823,7 @@ C(divu_loop_up:) # Input in d0,a0,d1.W, Output in d0
            movew $sp@(8+12+2),$d1
            clrl $d2           | Rest := 0
            bras 2f
-    1:       movel $a0@,$d3   | n‰chst-niedriges Digit
+    1:       movel $a0@,$d3   | n√§chst-niedriges Digit
              divul $d0,$d2:$d3  | mit Rest kombinieren und durch digit dividieren
              movel $d3,$a0@+  | Quotient ablegen, Rest in d2
     2:       dbra $d1,1b
@@ -840,7 +840,7 @@ C(divucopy_loop_up:) # Input in d0,a0,a1,d1.W, Output in d0
            movew $sp@(8+16+2),$d1
            clrl $d2           | Rest := 0
            bras 2f
-    1:       movel $a0@+,$d3  | n‰chst-niedriges Digit
+    1:       movel $a0@+,$d3  | n√§chst-niedriges Digit
              divul $d0,$d2:$d3  | mit Rest kombinieren und durch digit dividieren
              movel $d3,$a1@+  | Quotient ablegen, Rest in d2
     2:       dbra $d1,1b

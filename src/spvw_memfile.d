@@ -16,7 +16,7 @@
 
 # ------------------------------ Implementation --------------------------------
 
-# Flags, von denen das Format eines MEM-Files abhängt:
+# Flags, von denen das Format eines MEM-Files abhÃ¤ngt:
   local uint32 memflags =
     # Typcodeverteilung:
     #ifdef WIDE
@@ -121,7 +121,7 @@
   # dann fsubr_tab, pseudofun_tab, symbol_tab,
   # und zu jedem Modul subr_addr, subr_anz, object_anz, subr_tab, object_tab,
 #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-  # dann die Objekte variabler Länge (zwischen mem.varobjects.heap_start und mem.varobjects.heap_end),
+  # dann die Objekte variabler LÃ¤nge (zwischen mem.varobjects.heap_start und mem.varobjects.heap_end),
   # dann die Conses (zwischen mem.conses.heap_start und mem.conses.heap_end).
 #else
   #if defined(SPVW_PURE_BLOCKS) || defined(SPVW_MIXED_BLOCKS_STAGGERED)
@@ -136,7 +136,7 @@
     aint _page_end;
   } memdump_page;
   #if defined(SPVW_PURE_BLOCKS) && defined(GENERATIONAL_GC)
-    # dann zu jedem Heap die Länge von physpages,
+    # dann zu jedem Heap die LÃ¤nge von physpages,
     # dann zu jedem Heap den ganzen physpages-Array,
     typedef struct {
       object* continued_addr;
@@ -146,7 +146,7 @@
   #endif
   # dann der Inhalt der Pages in derselben Reihenfolge.
   #ifdef SPVW_PURE_BLOCKS
-    # Schließlich die Adressen aller von loadmem_update() zu
+    # SchlieÃŸlich die Adressen aller von loadmem_update() zu
     # aktualisierenden Objekte innerhalb der Heaps, die Adressen der
     # mit mark_ht_invalid() zu markierenden Hashtabellen, die Adressen
     # der mit mark_fp_invalid() zu markierenden Foreign-Pointer, die
@@ -162,13 +162,13 @@
   #endif
 #endif
 
-# page_alignment = Alignment für die Page-Inhalte im File.
+# page_alignment = Alignment fÃ¼r die Page-Inhalte im File.
 #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && (defined(HAVE_MMAP) || defined(SELFMADE_MMAP))
   #define page_alignment  map_pagesize
   #define WRITE_page_alignment(position)  \
     { var uintL aligncount = (uintL)(-position) % page_alignment; \
       if (aligncount > 0)                                         \
-        { # Ein Stück durchgenullten Speicher besorgen:           \
+        { # Ein StÃ¼ck durchgenullten Speicher besorgen:           \
           var DYNAMIC_ARRAY(zeroes,uintB,aligncount);             \
           var uintB* ptr = &zeroes[0];                            \
           var uintL count;                                        \
@@ -198,13 +198,13 @@
   global void savemem(stream)
     var object stream;
     {
-      # Wir brauchen den Stream nur wegen des für ihn bereitgestellten Handles.
-      # Wir müssen ihn aber im Fehlerfalle schließen (der Aufrufer macht kein
+      # Wir brauchen den Stream nur wegen des fÃ¼r ihn bereitgestellten Handles.
+      # Wir mÃ¼ssen ihn aber im Fehlerfalle schlieÃŸen (der Aufrufer macht kein
       # WITH-OPEN-FILE, sondern nur OPEN). Daher bekommen wir den ganzen
-      # Stream übergeben, um ihn schließen zu können.
+      # Stream Ã¼bergeben, um ihn schlieÃŸen zu kÃ¶nnen.
       var Handle handle = TheHandle(TheStream(stream)->strm_buffered_channel);
       pushSTACK(stream); # Stream retten
-      # Erst eine GC ausführen:
+      # Erst eine GC ausfÃ¼hren:
       gar_col();
       #define WRITE(buf,len)  \
         { begin_system_call();                                       \
@@ -213,7 +213,7 @@
             { end_system_call();                                     \
               builtin_stream_close(&STACK_0);                        \
               if (ergebnis<0) { OS_file_error(TheStream(STACK_0)->strm_file_truename); } # Fehler aufgetreten?  \
-              pushSTACK(TheStream(STACK_0)->strm_file_truename); # Wert für Slot PATHNAME von FILE-ERROR \
+              pushSTACK(TheStream(STACK_0)->strm_file_truename); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR \
               fehler(file_error,                                     \
                      GETTEXT("disk full")                            \
                     );                                               \
@@ -302,7 +302,7 @@
         });
       }
       #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-      # Objekte variabler Länge rausschreiben:
+      # Objekte variabler LÃ¤nge rausschreiben:
       {
         var uintL len = header._mem_varobjects_end - header._mem_varobjects_start;
         WRITE(header._mem_varobjects_start,len);
@@ -405,8 +405,8 @@
       }
       #ifdef SPVW_PURE_BLOCKS
       # Relozierungen rausschreiben:
-      # (Nur Frame-Pointer, Subr, Machine müssen reloziert werden, und
-      # Hashtabellen und Fpointer müssen markiert werden, siehe
+      # (Nur Frame-Pointer, Subr, Machine mÃ¼ssen reloziert werden, und
+      # Hashtabellen und Fpointer mÃ¼ssen markiert werden, siehe
       # update_varobjects(), update_record(), loadmem_update().)
       {
         var memdump_reloc_header rheader;
@@ -433,8 +433,8 @@
             var aint ptrend = mem.heaps[heapnr].heap_gen0_end;           \
             # alle Objekte mit Adresse >=ptr, <ptrend durchgehen:        \
             until (ptr==ptrend) # solange bis ptr am Ende angekommen ist \
-              { # nächstes Objekt mit Adresse ptr (< ptrend) durchgehen: \
-                updater(typecode_at(ptr)); # und weiterrücken            \
+              { # nÃ¤chstes Objekt mit Adresse ptr (< ptrend) durchgehen: \
+                updater(typecode_at(ptr)); # und weiterrÃ¼cken            \
           }   }
         #endif
         #ifdef FOREIGN
@@ -508,15 +508,15 @@
       #endif
       #endif
       #undef WRITE
-      # Stream schließen (Stream-Buffer ist unverändert, aber dadurch wird
+      # Stream schlieÃŸen (Stream-Buffer ist unverÃ¤ndert, aber dadurch wird
       # auch das Handle beim Betriebssystem geschlossen):
       builtin_stream_close(&STACK_0);
       skipSTACK(1);
     }
 
-# UP, lädt Speicherabbild von Diskette
+# UP, lÃ¤dt Speicherabbild von Diskette
 # loadmem(filename);
-# Zerstört alle LISP-Daten.
+# ZerstÃ¶rt alle LISP-Daten.
   local void loadmem_from_handle (Handle handle);
   # Aktualisierung eines Objektes im Speicher:
   #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
@@ -584,11 +584,11 @@
           if (as_oint(*objptr) - (oint)(&symbol_tab)
               < (sizeof(symbol_tab)<<(oint_addr_shift-addr_shift))
              ) {
-            # Symbol aus symbol_tab erfährt keine Verschiebung
+            # Symbol aus symbol_tab erfÃ¤hrt keine Verschiebung
             break;
           }
           #endif
-          # sonstige Symbole sind Objekte variabler Länge.
+          # sonstige Symbole sind Objekte variabler LÃ¤nge.
           #endif
         #endif
         case_record:
@@ -609,7 +609,7 @@
         case_dfloat:
         case_lfloat:
         #endif
-          # Objekt variabler Länge
+          # Objekt variabler LÃ¤nge
           #ifdef SPVW_MIXED_BLOCKS
           *objptr = as_object(as_oint(*objptr) + offset_varobjects_o); break;
           #endif
@@ -626,10 +626,10 @@
               #else
                 as_oint(*(object*)objptr);
               #endif
-            # Da Pages eine minimale Länge haben, also die Anfangsadressen
+            # Da Pages eine minimale LÃ¤nge haben, also die Anfangsadressen
             # unterschiedlicher Pages sich um mindestens min_page_size_brutto
             # unterscheiden, ist es ganz einfach, aus der Adresse auf die
-            # Page zurückzuschließen:
+            # Page zurÃ¼ckzuschlieÃŸen:
             var uintL pagenr = pagenr_of(addr & addr_mask);
             if (addr < offset_pages[pagenr].old_page_start) { pagenr--; }
             *objptr = as_object(as_oint(*objptr) + offset_pages[pagenr].offset_page_o);
@@ -640,7 +640,7 @@
           #ifdef SINGLEMAP_MEMORY_RELOCATE
           *objptr = as_object(as_oint(*objptr) + offset_heaps_o[mtypecode(*objptr)]); break;
           #else
-          break; # Alles Bisherige erfährt keine Verschiebung
+          break; # Alles Bisherige erfÃ¤hrt keine Verschiebung
           #endif
           #endif
         case_subr: # SUBR
@@ -714,7 +714,7 @@
   local void loadmem(filename)
     var const char* filename;
     {
-      # File zum Lesen öffnen:
+      # File zum Lesen Ã¶ffnen:
       begin_system_call();
       #ifdef AMIGAOS
       var Handle handle = Open(filename,MODE_OLDFILE);
@@ -749,7 +749,7 @@
       goto abbruch_quit;
      abbruch_quit:
       # Abbruch.
-      # Zuvor die Datei schließen, falls sie erfolgreich geöffnet worden war.
+      # Zuvor die Datei schlieÃŸen, falls sie erfolgreich geÃ¶ffnet worden war.
       # (Hierbei werden Fehler nun aber wirklich ignoriert!)
       #ifdef AMIGAOS
       if (!(handle==Handle_NULL)) {
@@ -801,10 +801,10 @@
           # Versuche, das File on the fly mit GZIP zu dekomprimieren.
           var uintB* file_header = (uintB*)&header; # benutze sizeof(header) >= 2
           if (file_header[0] == '#' && file_header[1] == '!') { # executable magic ?
-            # erste Textzeile überlesen
+            # erste Textzeile Ã¼berlesen
             var char c;
             begin_system_call();
-            if ( lseek(handle,-(long)sizeof(header),SEEK_CUR) <0) goto abbruch1; # im File zurück an den Anfang
+            if ( lseek(handle,-(long)sizeof(header),SEEK_CUR) <0) goto abbruch1; # im File zurÃ¼ck an den Anfang
             do { READ(&c,1); } until (c=='\n');
             end_system_call();
             #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && (defined(HAVE_MMAP) || defined(SELFMADE_MMAP))
@@ -817,7 +817,7 @@
             var int handles[2];
             var int child;
             begin_system_call();
-            if ( lseek(handle,-(long)sizeof(header),SEEK_CUR) <0) goto abbruch1; # im File zurück an den Anfang
+            if ( lseek(handle,-(long)sizeof(header),SEEK_CUR) <0) goto abbruch1; # im File zurÃ¼ck an den Anfang
             if (!( pipe(handles) ==0)) goto abbruch1;
             if ((child = vfork()) ==0) {
               if ( dup2(handles[1],stdout_handle) >=0)
@@ -873,9 +873,9 @@
         #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
         # Offsets berechnen (Offset = neue Adresse - alte Adresse):
         {
-          var sintL offset_varobjects = # Offset für Objekte variabler Länge
+          var sintL offset_varobjects = # Offset fÃ¼r Objekte variabler LÃ¤nge
             mem.varobjects.heap_start - header._mem_varobjects_start;
-          var sintL offset_conses = # Offset für Zwei-Pointer-Objekte
+          var sintL offset_conses = # Offset fÃ¼r Zwei-Pointer-Objekte
             mem.conses.heap_end - header._mem_conses_end;
           # neue Speicheraufteilung berechnen:
           mem.varobjects.heap_end = header._mem_varobjects_end + offset_varobjects;
@@ -1014,7 +1014,7 @@
               #endif
             }
           #else
-            # Start- und Endadressen jedes Heaps gleich in mem.heaps[] übernehmen:
+            # Start- und Endadressen jedes Heaps gleich in mem.heaps[] Ã¼bernehmen:
             {
               var uintL heapnr;
               var memdump_page old_pages[heapcount];
@@ -1032,8 +1032,8 @@
           #endif
         #endif
         #ifdef SPVW_MIXED_BLOCKS_STAGGERED
-          # Start- und Endadressen jedes Heaps lesen und die Größe in mem.heaps[]
-          # auf dieselbe Länge bringen:
+          # Start- und Endadressen jedes Heaps lesen und die GrÃ¶ÃŸe in mem.heaps[]
+          # auf dieselbe LÃ¤nge bringen:
           {
             var uintL heapnr;
             var memdump_page old_pages[heapcount];
@@ -1105,7 +1105,7 @@
                 offset_pages[pagenr].offset_page_o = 0;
               }
             }
-            # Adressen und Größen der Pages lesen und Pages allozieren:
+            # Adressen und GrÃ¶ÃŸen der Pages lesen und Pages allozieren:
             var DYNAMIC_ARRAY(old_pages,memdump_page,total_pagecount);
             READ(old_pages,total_pagecount*sizeof(memdump_page));
             var DYNAMIC_ARRAY(new_pages,aint,total_pagecount);
@@ -1180,7 +1180,7 @@
           #endif
           # Alignment verwirklichen:
           READ_page_alignment(file_offset);
-          # Inhalt der Blöcke lesen:
+          # Inhalt der BlÃ¶cke lesen:
           {
             var uintL heapnr;
             for (heapnr=0; heapnr<heapcount; heapnr++) {
@@ -1191,10 +1191,10 @@
               if (map_len > 0) {
                 if (heapptr->heap_limit-1 > heapptr->heap_hardlimit-1) goto abbruch3;
                 #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
-                # Wenn möglich, legen wir uns das Initialisierungsfile in den Speicher.
-                # Das sollte den Start beschleunigen und unnötiges Laden bis zur
-                # ersten GC verzögern.
-                # Hierzu ist das page_alignment nötig!
+                # Wenn mÃ¶glich, legen wir uns das Initialisierungsfile in den Speicher.
+                # Das sollte den Start beschleunigen und unnÃ¶tiges Laden bis zur
+                # ersten GC verzÃ¶gern.
+                # Hierzu ist das page_alignment nÃ¶tig!
                 if (use_mmap) {
                   #ifdef HAVE_MMAP
                   if (!( filemap((void*)(heapptr->heap_start),map_len,
@@ -1207,7 +1207,7 @@
                   if ( selfmade_mmap(heapptr,map_len,file_offset) >=0)
                   #endif
                   {
-                    #if 0 # unnötig, da mmap() kein lseek() braucht und danach nur noch CLOSE(handle) kommt.
+                    #if 0 # unnÃ¶tig, da mmap() kein lseek() braucht und danach nur noch CLOSE(handle) kommt.
                     if ( lseek(handle,map_len,SEEK_CUR) <0) goto abbruch1;
                     #endif
                     inc_file_offset(map_len);
@@ -1220,7 +1220,7 @@
                     asciz_out(NLstring);
                     #endif
                     use_mmap = FALSE;
-                    # Bevor es mit READ(handle) weitergeht, ist evtl. ein lseek() nötig.
+                    # Bevor es mit READ(handle) weitergeht, ist evtl. ein lseek() nÃ¶tig.
                     if ( lseek(handle,file_offset,SEEK_SET) <0) goto abbruch1;
                   }
                 }
@@ -1234,7 +1234,7 @@
           }
           #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
           if (use_mmap) {
-            # Länge des gemmapten Files überprüfen:
+            # LÃ¤nge des gemmapten Files Ã¼berprÃ¼fen:
             #ifdef UNIX
             var struct stat statbuf;
             if (fstat(handle,&statbuf) < 0) goto abbruch1;
@@ -1249,7 +1249,7 @@
           #endif
         #endif
         #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-          # Objekte variabler Länge lesen:
+          # Objekte variabler LÃ¤nge lesen:
           {
             var uintL len = header._mem_varobjects_end - header._mem_varobjects_start;
             #ifdef TRIVIALMAP_MEMORY
@@ -1271,7 +1271,7 @@
           }
         #endif
         #ifdef GENERATIONAL_GC
-          # Den SIGSEGV-Handler funktionsfähig machen.
+          # Den SIGSEGV-Handler funktionsfÃ¤hig machen.
           {
             var uintL heapnr;
             for (heapnr=0; heapnr<heapcount; heapnr++) {
@@ -1303,7 +1303,7 @@
               #define update_conspage  update_conspage_normal
               update_conses();
               #undef update_conspage
-            # Pointer in den Objekten variabler Länge aktualisieren:
+            # Pointer in den Objekten variabler LÃ¤nge aktualisieren:
               #define update_page  update_page_normal
               #ifdef FOREIGN
                 #define update_fpointer_invalid  TRUE
@@ -1328,7 +1328,7 @@
           #endif
           #ifdef SPVW_PURE_BLOCKS
           {
-            # Pointer in den Cons-Zellen und Objekten variabler Länge
+            # Pointer in den Cons-Zellen und Objekten variabler LÃ¤nge
             # aktualisieren. Es gibt nur sehr wenige solcher Pointer, und
             # sie wurden beim Abspeichern aufgelistet.
             #if defined(HAVE_MMAP) || defined(SELFMADE_MMAP)
@@ -1379,7 +1379,7 @@
           }
           #endif
           #undef update
-        # File schließen:
+        # File schlieÃŸen:
         #undef READ
         #ifdef SELFMADE_MMAP
           mem.memfile_still_being_read = FALSE;
@@ -1433,7 +1433,7 @@
           #endif
           {
             var uintL space = used_space();
-            set_total_room(space); # bis zur nächsten GC haben wir viel Zeit
+            set_total_room(space); # bis zur nÃ¤chsten GC haben wir viel Zeit
             #ifdef GENERATIONAL_GC
             mem.last_gcend_space0 = space;
             mem.last_gcend_space1 = 0;
@@ -1443,7 +1443,7 @@
         FREE_DYNAMIC_ARRAY(old_modules);
         begin_system_call(); free(offset_subrs); end_system_call();
       }
-      # offene Files für geschlossen erklären:
+      # offene Files fÃ¼r geschlossen erklÃ¤ren:
       closed_all_files();
       #ifdef GENERATIONAL_GC
       # bisher keine GCs:
@@ -1451,18 +1451,18 @@
       #endif
       #ifdef MACHINE_KNOWN
         # (MACHINE-TYPE), (MACHINE-VERSION), (MACHINE-INSTANCE)
-        # wieder für unbekannt erklären:
+        # wieder fÃ¼r unbekannt erklÃ¤ren:
         O(machine_type_string) = NIL;
         O(machine_version_string) = NIL;
         O(machine_instance_string) = NIL;
       #endif
       #ifndef LANGUAGE_STATIC
         #ifdef GNU_GETTEXT
-          # Cache von (SYS::CURRENT-LANGUAGE) löschen:
+          # Cache von (SYS::CURRENT-LANGUAGE) lÃ¶schen:
           O(current_language_cache) = NIL;
         #endif
-        # Cache von (LISP-IMPLEMENTATION-VERSION) löschen
-        # (hängt von (SYS::CURRENT-LANGUAGE) ab):
+        # Cache von (LISP-IMPLEMENTATION-VERSION) lÃ¶schen
+        # (hÃ¤ngt von (SYS::CURRENT-LANGUAGE) ab):
         O(lisp_implementation_version_string) = NIL;
         #if defined(GNU)
         O(software_version_string) = NIL;
@@ -1491,7 +1491,7 @@
       goto abbruch_quit;
      abbruch_quit:
       # Abbruch.
-      # Zuvor die Datei schließen.
+      # Zuvor die Datei schlieÃŸen.
       #ifdef AMIGAOS
       begin_system_call(); CLOSE(handle); end_system_call();
       #endif

@@ -44,7 +44,7 @@ New in 1.2:
 * Support for "stdcall" calling convention on i386.
 * Added support for Cygwin32 and MSVC4 on Win32.
 * Added support for EMX on OS/2.
-* Added support for m68k AmigaOS (Jörg Höhle).
+* Added support for m68k AmigaOS (JÃ¶rg HÃ¶hle).
 * Added support for m68k SunOS 4.0.3.
 * More reliable cache-flushing in trampoline.
 

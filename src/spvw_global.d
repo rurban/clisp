@@ -55,7 +55,7 @@
 
         # Statistical data, used for deciding when to start a GC.
         #if defined(SPVW_PURE_BLOCKS) || defined(TRIVIALMAP_MEMORY) || defined(GENERATIONAL_GC)
-          uintL total_room; # wieviel Platz belegt werden darf, ohne dass GC nötig wird
+          uintL total_room; # wieviel Platz belegt werden darf, ohne dass GC nÃ¶tig wird
           #ifdef GENERATIONAL_GC
             boolean last_gc_full; # ob die letzte GC eine volle war
             uintL last_gcend_space0; # wieviel Platz am Ende der letzten GC belegt war
@@ -63,12 +63,12 @@
           #endif
         #endif
         #ifdef SPVW_PAGES
-          Pages free_pages; # eine Liste freier normalgroßer Pages
-          uintL total_space; # wieviel Platz die belegten Pages überhaupt enthalten
+          Pages free_pages; # eine Liste freier normalgroÃŸer Pages
+          uintL total_space; # wieviel Platz die belegten Pages Ã¼berhaupt enthalten
           uintL used_space; # wieviel Platz gerade belegt ist
           uintL last_gcend_space; # wieviel Platz am Ende der letzten GC belegt war
           boolean last_gc_compacted; # ob die letzte GC schon kompaktiert hat
-          uintL gctrigger_space; # wieviel Platz belegt werden darf, bis die nächste GC nötig wird
+          uintL gctrigger_space; # wieviel Platz belegt werden darf, bis die nÃ¤chste GC nÃ¶tig wird
         #endif
 
         #ifdef SELFMADE_MMAP
@@ -82,11 +82,11 @@
   #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY) && !defined(GENERATIONAL_GC)
     #define RESERVE       0x00800L  # 2 KByte Speicherplatz als Reserve
   #else
-    #define RESERVE             0   # brauche keine präallozierte Reserve
+    #define RESERVE             0   # brauche keine prÃ¤allozierte Reserve
   #endif
-  #define MINIMUM_SPACE 0x10000L  # 64 KByte als minimaler Speicherplatz für LISP-Daten
+  #define MINIMUM_SPACE 0x10000L  # 64 KByte als minimaler Speicherplatz fÃ¼r LISP-Daten
   #ifdef TRIVIALMAP_MEMORY
-    #define RESERVE_FOR_MALLOC 0x100000L  # lasse 1 MByte Adressraum frei, für malloc
+    #define RESERVE_FOR_MALLOC 0x100000L  # lasse 1 MByte Adressraum frei, fÃ¼r malloc
   #endif
 
 # Iteration through all heaps.
@@ -140,25 +140,25 @@
 #ifdef SPVW_MIXED_BLOCKS
 # 4. LISP-Stack und LISP-Daten.
 #    4a. LISP-Stack. Unverschieblich.
-#    4b. Objekte variabler Länge. (Unverschieblich).
-#    4c. Conses u.ä. Verschieblich mit move_conses.
-#    Speicher hierfür wird vom Betriebssystem angefordert (hat den Vorteil,
-#    dass bei EXECUTE dem auszuführenden Fremdprogramm der ganze Speicher
-#    zur Verfügung gestellt werden kann, den LISP gerade nicht braucht).
+#    4b. Objekte variabler LÃ¤nge. (Unverschieblich).
+#    4c. Conses u.Ã¤. Verschieblich mit move_conses.
+#    Speicher hierfÃ¼r wird vom Betriebssystem angefordert (hat den Vorteil,
+#    dass bei EXECUTE dem auszufÃ¼hrenden Fremdprogramm der ganze Speicher
+#    zur VerfÃ¼gung gestellt werden kann, den LISP gerade nicht braucht).
 #    Auf eine Unterteilung in einzelne Pages wird hier verzichtet.
 #          || LISP-      |Objekte         |->    leer  <-|Conses| Reserve |
-#          || Stack      |variabler Länge !              ! u.ä. |         |
+#          || Stack      |variabler LÃ¤nge !              ! u.Ã¤. |         |
 #          |STACK_BOUND  |         objects.end     conses.start |         |
 #        MEMBOT   objects.start                           conses.end    MEMTOP
 #endif
 #ifdef SPVW_PURE_BLOCKS
 # 4. LISP-Stack. Unverschieblich.
-# 5. LISP-Daten. Für jeden Typ ein großer Block von Objekten.
+# 5. LISP-Daten. FÃ¼r jeden Typ ein groÃŸer Block von Objekten.
 #endif
 #ifdef SPVW_MIXED_PAGES
 # 4. LISP-Stack. Unverschieblich.
 # 5. LISP-Daten.
-#    Unterteilt in Pages für Objekte variabler Länge und Pages für Conses u.ä.
+#    Unterteilt in Pages fÃ¼r Objekte variabler LÃ¤nge und Pages fÃ¼r Conses u.Ã¤.
 #endif
 #ifdef SPVW_PURE_PAGES
 # 4. LISP-Stack. Unverschieblich.
@@ -256,9 +256,9 @@
 
 #endif
 
-# Überprüfung des Speicherinhalts auf GC-Festigkeit:
+# ÃœberprÃ¼fung des Speicherinhalts auf GC-Festigkeit:
   #if defined(SPVW_PAGES) && defined(DEBUG_SPVW)
-    # Überprüfen, ob die Verwaltung der Pages in Ordnung ist:
+    # ÃœberprÃ¼fen, ob die Verwaltung der Pages in Ordnung ist:
       #define CHECK_AVL_CONSISTENCY()  check_avl_consistency()
       local void check_avl_consistency (void);
       local void check_avl_consistency()
@@ -270,14 +270,14 @@
           }
           #endif
         }
-    # Überprüfen, ob die Grenzen der Pages in Ordnung sind:
+    # ÃœberprÃ¼fen, ob die Grenzen der Pages in Ordnung sind:
       #define CHECK_GC_CONSISTENCY()  check_gc_consistency()
       local void check_gc_consistency (void);
       local void check_gc_consistency()
         {
           for_each_page(page,
             if ((sintL)page->page_room < 0) {
-              asciz_out_1("\nPage bei Adresse 0x%x übergelaufen!!\n",page); abort();
+              asciz_out_1("\nPage bei Adresse 0x%x Ã¼bergelaufen!!\n",page); abort();
             }
             if (!(page->page_start == page_start0(page))) {
               asciz_out_1("\nPage bei Adresse 0x%x inkonsistent!!\n",page); abort();
@@ -289,7 +289,7 @@
             }
           );
         }
-    # Überprüfen, ob während der kompaktierenden GC
+    # ÃœberprÃ¼fen, ob wÃ¤hrend der kompaktierenden GC
     # die Grenzen der Pages in Ordnung sind:
       #define CHECK_GC_CONSISTENCY_2()  check_gc_consistency_2()
       local void check_gc_consistency_2 (void);
@@ -297,7 +297,7 @@
         {
           for_each_page(page,
             if ((sintL)page->page_room < 0) {
-              asciz_out_1("\nPage bei Adresse 0x%x übergelaufen!!\n",page); abort();
+              asciz_out_1("\nPage bei Adresse 0x%x Ã¼bergelaufen!!\n",page); abort();
             }
             if (!(page->page_end + page->page_room - (page->page_start - page_start0(page))
                   == round_down(page->m_start + page->m_length,varobject_alignment)
@@ -312,7 +312,7 @@
     #define CHECK_GC_CONSISTENCY_2()
   #endif
   #ifdef DEBUG_SPVW
-    # Überprüfen, ob die Tabellen der Packages halbwegs in Ordnung sind:
+    # ÃœberprÃ¼fen, ob die Tabellen der Packages halbwegs in Ordnung sind:
       #define CHECK_PACK_CONSISTENCY()  check_pack_consistency()
       global void check_pack_consistency (void);
       global void check_pack_consistency()

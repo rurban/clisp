@@ -684,7 +684,7 @@
         end_system_call(); # just in case
         begin_system_call();
         errcode = errno;
-        errno = 0; # Fehlercode löschen (fürs nächste Mal)
+        errno = 0; # Fehlercode lÃ¶schen (fÃ¼rs nÃ¤chste Mal)
         end_system_call();
         clr_break_sem_4(); # keine UNIX-Operation mehr aktiv
         begin_error(); # Fehlermeldung anfangen
@@ -699,10 +699,10 @@
         var uintC errcode; # positive Fehlernummer
         begin_system_call();
         errcode = errno;
-        errno = 0; # Fehlercode löschen (fürs nächste Mal)
+        errno = 0; # Fehlercode lÃ¶schen (fÃ¼rs nÃ¤chste Mal)
         end_system_call();
         clr_break_sem_4(); # keine UNIX-Operation mehr aktiv
-        pushSTACK(pathname); # Wert von PATHNAME für FILE-ERROR
+        pushSTACK(pathname); # Wert von PATHNAME fÃ¼r FILE-ERROR
         begin_error(); # Fehlermeldung anfangen
         if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
           STACK_3 = S(simple_file_error);
@@ -710,7 +710,7 @@
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
 
-  # Ausgabe eines Fehlers, direkt übers Betriebssystem
+  # Ausgabe eines Fehlers, direkt Ã¼bers Betriebssystem
   # errno_out(errorcode);
   # > int errorcode: Fehlercode
     global void errno_out (int errorcode);

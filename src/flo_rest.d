@@ -123,12 +123,12 @@
 
 
 # Generiert eine Float-Funktion mit zwei Argumenten.
-# Die Funktion wird erst ausgeführt, nachdem beide Argumente auf dasselbe
-# Float-Format (das längere von beiden) gebracht wurden; danach werden die
-# r (=0,1 oder 2) Ergebnisse auf das kürzere der beiden Float-Formate
+# Die Funktion wird erst ausgefÃ¼hrt, nachdem beide Argumente auf dasselbe
+# Float-Format (das lÃ¤ngere von beiden) gebracht wurden; danach werden die
+# r (=0,1 oder 2) Ergebnisse auf das kÃ¼rzere der beiden Float-Formate
 # gebracht.
-# s (=0 oder 1): Da LF_LF_comp Long-Floats verschiedener Längen verarbeitet,
-# braucht bei s=1 ein SF, FF oder DF nur zu einem LF der Länge LF_minlen
+# s (=0 oder 1): Da LF_LF_comp Long-Floats verschiedener LÃ¤ngen verarbeitet,
+# braucht bei s=1 ein SF, FF oder DF nur zu einem LF der LÃ¤nge LF_minlen
 # gemacht zu werden.
   #define GEN_F_op2(arg1,arg2,SF_op,FF_op,DF_op,LF_op,r,s,RETURN)  \
     { floatcase(arg1,                                                                                                  \
@@ -268,15 +268,15 @@
   #define GEN_LF_op2_0(arg1,arg2,LF_op,r,ergebnis_zuweisung)  \
     { var uintC len1 = Lfloat_length(arg1);                                      \
       var uintC len2 = Lfloat_length(arg2);                                      \
-      if (len1==len2) # gleich -> direkt ausführen                               \
+      if (len1==len2) # gleich -> direkt ausfÃ¼hren                               \
         { ergebnis_zuweisung LF_op(arg1,arg2); }                                 \
-      elif (len1>len2) # -> arg2 auf die Länge von arg1 bringen                  \
+      elif (len1>len2) # -> arg2 auf die LÃ¤nge von arg1 bringen                  \
         { pushSTACK(arg1); arg2 = LF_extend_LF(arg2,len1); arg1 = popSTACK();    \
            if (nullp(Symbol_value(S(floating_point_contagion_ansi))))            \
              { ergebnis_zuweisung CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_shorten_LF_2); } \
              else { ergebnis_zuweisung LF_op(arg1,arg2); }                       \
         }                                                                        \
-      else # (len1<len2) -> arg1 auf die Länge von arg2 bringen                  \
+      else # (len1<len2) -> arg1 auf die LÃ¤nge von arg2 bringen                  \
         { pushSTACK(arg2); arg1 = LF_extend_LF(arg1,len2); arg2 = popSTACK();    \
            if (nullp(Symbol_value(S(floating_point_contagion_ansi))))            \
              { ergebnis_zuweisung CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_shorten_LF_1); } \
@@ -287,14 +287,14 @@
     ergebnis_zuweisung LF_op(arg1,arg2);
   #define LF_shorten_LF_1(arg)  LF_shorten_LF(arg,len1)
   #define LF_shorten_LF_2(arg)  LF_shorten_LF(arg,len2)
-  # Hilfsmacro zum Besorgen der Ziel-Länge für Konversion SF,FF,DF -> LF :
+  # Hilfsmacro zum Besorgen der Ziel-LÃ¤nge fÃ¼r Konversion SF,FF,DF -> LF :
   #define LFlen0(arg)  Lfloat_length(arg)
   #define LFlen1(arg)  LF_minlen
-  # Hilfsmacro zur Konversion des Ergebnisses zurück zum kürzeren Format:
+  # Hilfsmacro zur Konversion des Ergebnisses zurÃ¼ck zum kÃ¼rzeren Format:
   #define TO_F_0(erg,to)  erg
   #define TO_F_1(erg,to)  to(erg)
   #define TO_F_2(erg,to)  \
-    erg; # Operation durchführen                 \
+    erg; # Operation durchfÃ¼hren                 \
     { STACK_1 = to(STACK_1); # 1. Wert umwandeln \
       STACK_0 = to(STACK_0); # 2. Wert umwandeln \
     }
@@ -684,7 +684,7 @@
     # < STACK_1: Quotient q, ein Integer       \
     # < STACK_0: Rest r, eine reelle Zahl      \
     # Erniedrigt STACK um 2                    \
-    # kann GC auslösen                         \
+    # kann GC auslÃ¶sen                         \
     # Methode:                                               \
     # F_rounding_I_F(x/y) -> (q,r). Liefere q und x-y*q=y*r. \
     local void CONCAT3(F_F_,rounding,_I_F) (var object x, var object y) \
@@ -764,7 +764,7 @@
 
 # F_to_LF(x,len) wandelt ein Float x in ein Long-Float mit len Digits um
 # und rundet dabei.
-# > uintC len: gewünschte Anzahl Digits, >=LF_minlen
+# > uintC len: gewÃ¼nschte Anzahl Digits, >=LF_minlen
 # can trigger GC
   local object F_to_LF (object x, uintC len);
   local object F_to_LF(x,len)
@@ -779,7 +779,7 @@
     }
 
 # F_F_float_F(x,y) wandelt ein Float x in das Float-Format des Floats y um
-# und rundet dabei nötigenfalls.
+# und rundet dabei nÃ¶tigenfalls.
 # > x,y: Floats
 # < ergebnis: (float x y)
 # can trigger GC
@@ -796,16 +796,16 @@
     }
 
 
-# Vergrößert eine Long-Float-Länge n, so dass aus d = intDsize*n
+# VergrÃ¶ÃŸert eine Long-Float-LÃ¤nge n, so dass aus d = intDsize*n
 # mindestens d+sqrt(d)+2 wird.
 # Methode bei intDsize=16:
-# n -> n+1 für n<=12 wegen 16n+sqrt(16n)+2 < 16(n+1)
-# n -> n+2 für n<=56 wegen 16n+sqrt(16n)+2 < 16(n+2)
-# n -> n+4 für n<=240
-# n -> n+8 für n<=992
-# n -> n+16 für n<=4032
-# n -> n+32 für n<=16256
-# n -> n+65 für n<=65535
+# n -> n+1 fÃ¼r n<=12 wegen 16n+sqrt(16n)+2 < 16(n+1)
+# n -> n+2 fÃ¼r n<=56 wegen 16n+sqrt(16n)+2 < 16(n+2)
+# n -> n+4 fÃ¼r n<=240
+# n -> n+8 fÃ¼r n<=992
+# n -> n+16 fÃ¼r n<=4032
+# n -> n+32 fÃ¼r n<=16256
+# n -> n+65 fÃ¼r n<=65535
 # Allgemein: intDsize*n + sqrt(intDsize*n) + 2 < intDsize*(n+inc)
 # <==>       sqrt(intDsize*n) + 2 < intDsize*inc
 # <==>       sqrt(intDsize*n) < intDsize*inc - 2
@@ -835,13 +835,13 @@
 # SF -> FF wegen 17+sqrt(17)+2 = 23.2 < 24
 # FF -> DF wegen 24+sqrt(24)+2 = 30.9 < 53
 # DF -> LF(4) wegen 53+sqrt(53)+2 = 62.3 < 64
-# LF(n) -> LF(n+1) für n<=12 wegen 16n+sqrt(16n)+2 < 16(n+1)
-# LF(n) -> LF(n+2) für n<=56 wegen 16n+sqrt(16n)+2 < 16(n+2)
-# LF(n) -> LF(n+4) für n<=240
-# LF(n) -> LF(n+8) für n<=992
-# LF(n) -> LF(n+16) für n<=4032
-# LF(n) -> LF(n+32) für n<=16256
-# LF(n) -> LF(n+65) für n<=65535
+# LF(n) -> LF(n+1) fÃ¼r n<=12 wegen 16n+sqrt(16n)+2 < 16(n+1)
+# LF(n) -> LF(n+2) fÃ¼r n<=56 wegen 16n+sqrt(16n)+2 < 16(n+2)
+# LF(n) -> LF(n+4) fÃ¼r n<=240
+# LF(n) -> LF(n+8) fÃ¼r n<=992
+# LF(n) -> LF(n+16) fÃ¼r n<=4032
+# LF(n) -> LF(n+32) fÃ¼r n<=16256
+# LF(n) -> LF(n+65) fÃ¼r n<=65535
 # can trigger GC
   local object F_extend_F (object x);
   local object F_extend_F(x)
@@ -966,8 +966,8 @@
   local object SF_I_scale_float_SF (object x, object delta);
   # Methode:
   # x=0.0 -> x als Ergebnis
-  # delta muss ein Fixnum betragsmäßig <= SF_exp_high-SF_exp_low sein.
-  # Neues SF mit um delta vergrößertem Exponenten bilden.
+  # delta muss ein Fixnum betragsmÃ¤ÃŸig <= SF_exp_high-SF_exp_low sein.
+  # Neues SF mit um delta vergrÃ¶ÃŸertem Exponenten bilden.
   local object SF_I_scale_float_SF(x,delta)
     var object x;
     var object delta;
@@ -1011,8 +1011,8 @@
   local object FF_I_scale_float_FF (object x, object delta);
   # Methode:
   # x=0.0 -> x als Ergebnis
-  # delta muss ein Fixnum betragsmäßig <= FF_exp_high-FF_exp_low sein.
-  # Neues FF mit um delta vergrößertem Exponenten bilden.
+  # delta muss ein Fixnum betragsmÃ¤ÃŸig <= FF_exp_high-FF_exp_low sein.
+  # Neues FF mit um delta vergrÃ¶ÃŸertem Exponenten bilden.
   local object FF_I_scale_float_FF(x,delta)
     var object x;
     var object delta;
@@ -1056,8 +1056,8 @@
   local object DF_I_scale_float_DF (object x, object delta);
   # Methode:
   # x=0.0 -> x als Ergebnis
-  # delta muss ein Fixnum betragsmäßig <= DF_exp_high-DF_exp_low sein.
-  # Neues DF mit um delta vergrößertem Exponenten bilden.
+  # delta muss ein Fixnum betragsmÃ¤ÃŸig <= DF_exp_high-DF_exp_low sein.
+  # Neues DF mit um delta vergrÃ¶ÃŸertem Exponenten bilden.
   local object DF_I_scale_float_DF(x,delta)
     var object x;
     var object delta;
@@ -1116,8 +1116,8 @@
   # Methode:
   # delta=0 -> x als Ergebnis
   # x=0.0 -> x als Ergebnis
-  # delta muss ein Fixnum betragsmäßig <= LF_exp_high-LF_exp_low sein.
-  # Neues LF mit um delta vergrößertem Exponenten bilden.
+  # delta muss ein Fixnum betragsmÃ¤ÃŸig <= LF_exp_high-LF_exp_low sein.
+  # Neues LF mit um delta vergrÃ¶ÃŸertem Exponenten bilden.
   local object LF_I_scale_float_LF(x,delta)
     var object x;
     var object delta;
@@ -1141,7 +1141,7 @@
             case_posbignum: # Bignum >0
               { var Bignum bn = TheBignum(delta);
                 #define IF_LENGTH(i)  \
-                  if (bn_minlength <= i) # genau i Digits überhaupt möglich?       \
+                  if (bn_minlength <= i) # genau i Digits Ã¼berhaupt mÃ¶glich?       \
                     if (bignum_length(bn) == i) # genau i Digits?                  \
                       # 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1)             \
                       if ( (i*intDsize-1 > 32)                                     \
@@ -1162,13 +1162,13 @@
                   { udelta = get_uint4D_Dptr(&bn->data[1]); goto pos; }
                 #undef IF_LENGTH
               }
-              goto overflow; # delta zu groß
+              goto overflow; # delta zu groÃŸ
             case_negfixnum: # Fixnum <0
               udelta = negfixnum_to_L(delta); goto neg;
             case_negbignum: # Bignum <0
               { var Bignum bn = TheBignum(delta);
                 #define IF_LENGTH(i)  \
-                  if (bn_minlength <= i) # genau i Digits überhaupt möglich?         \
+                  if (bn_minlength <= i) # genau i Digits Ã¼berhaupt mÃ¶glich?         \
                     if (bignum_length(bn) == i) # genau i Digits?                    \
                       # - 2^((i-1)*intDsize-1) > obj >= - 2^(i*intDsize-1)           \
                       if ( (i*intDsize-1 > 32)                                       \
@@ -1191,12 +1191,12 @@
               }
               goto underflow; # delta zu klein
             pos: # udelta = delta >=0
-              if (   ((uexp = uexp+udelta) < udelta) # Exponent-Überlauf?
+              if (   ((uexp = uexp+udelta) < udelta) # Exponent-Ãœberlauf?
                   #ifndef UNIX_DEC_ULTRIX_GCCBUG
-                  || (uexp > LF_exp_high) # oder Exponent zu groß?
+                  || (uexp > LF_exp_high) # oder Exponent zu groÃŸ?
                   #endif
                  )
-                { fehler_overflow(); } # ja -> Überlauf
+                { fehler_overflow(); } # ja -> Ãœberlauf
               break; # sonst OK
             neg: # delta <0, udelta = 2^32+delta
               if (   ((uexp = uexp+udelta) >= udelta) # oder Exponent-Unterlauf?
@@ -1206,7 +1206,7 @@
               break; # sonst OK
             default: # unpassender Integer
               if (!R_minusp(delta))
-                { overflow: fehler_overflow(); } # delta zu groß
+                { overflow: fehler_overflow(); } # delta zu groÃŸ
                 else
                 { underflow: # delta zu klein
                   if (underflow_allowed())
@@ -1218,7 +1218,7 @@
           }
        {var uintC mantlen = Lfloat_length(x);
         x = allocate_lfloat(mantlen,uexp,LF_sign(x)); # neues Long-Float
-        copy_loop_up(&TheLfloat(popSTACK())->data[0],&TheLfloat(x)->data[0],mantlen); # füllen
+        copy_loop_up(&TheLfloat(popSTACK())->data[0],&TheLfloat(x)->data[0],mantlen); # fÃ¼llen
         return x;
     }}}}
 
@@ -1344,7 +1344,7 @@
   local void F_integer_decode_float_I_I_I (object x);
   local void F_integer_decode_float_I_I_I(x)
     var object x;
-    { var object x_sign = (!R_minusp(x) ? Fixnum_1 : Fixnum_minus1); # Vorzeichen von x (nicht GC-gefährdet!)
+    { var object x_sign = (!R_minusp(x) ? Fixnum_1 : Fixnum_minus1); # Vorzeichen von x (nicht GC-gefÃ¤hrdet!)
       floatcase(x,
       /* x SF */ { # x entpacken:
                    var sintWL exp;
@@ -1385,7 +1385,7 @@
                    var uintC len1 = len+1; # brauche 1 Digit mehr
                    if (uintWCoverflow(len1)) { fehler_LF_toolong(); }
                    # intDsize*len >= 53 >= 33 >= oint_data_len+1, also len >= bn_minlength.
-                   {var object mant = allocate_bignum(len1,0); # Integer für Mantisse
+                   {var object mant = allocate_bignum(len1,0); # Integer fÃ¼r Mantisse
                     var uintD* mantptr = &TheBignum(mant)->data[0];
                     *mantptr++ = 0; # vorne 1 Nulldigit, damit es eine NDS wird
                     copy_loop_up(&TheLfloat(STACK_0)->data[0],mantptr,len); # NUDS kopieren

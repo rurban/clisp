@@ -1,4 +1,4 @@
-; Sources für DEFSTRUCT Macro.
+; Sources fÃ¼r DEFSTRUCT Macro.
 ; Bruno Haible 13.04.1988, 22.08.1988
 ; umgeschrieben am 02.09.1989 von Bruno Haible
 
@@ -6,14 +6,14 @@
 
 (defsetf %structure-ref %structure-store)
 
-#| Erklärung der auftretenden Datentypen:
+#| ErklÃ¤rung der auftretenden Datentypen:
 
    (get name 'DEFSTRUCT-DESCRIPTION) =
      #(names type keyword-constructor slotlist defaultfun0 defaultfun1 ...)
 
-   names ist eine Codierung der INCLUDE-Verschachtelung für Structure name:
+   names ist eine Codierung der INCLUDE-Verschachtelung fÃ¼r Structure name:
    names = (name_1 ... name_i-1 name_i) wobei name=name_1,
-     name_1 enthält name_2, ..., name_i-1 enthält name_i.
+     name_1 enthÃ¤lt name_2, ..., name_i-1 enthÃ¤lt name_i.
 
    type (wenn der Typ der ganzen Structure gemeint ist):
       = T                      Abspeicherung als normale Structure
@@ -27,18 +27,18 @@
    slotlist = ({slot}*)
    slot = #(name initargs offset initer default type readonly)
    wobei name der Slotname ist,
-              (NIL für den Slot, in dem der Structure-Name steht)
+              (NIL fÃ¼r den Slot, in dem der Structure-Name steht)
          default der Defaultwert ist:
               entweder eine Konstante, die zum Defaultwert evaluiert,
               oder eine Form (ein Symbol oder eine Liste (SVREF ...)), die
               bei Auswertung in einem beliebigen Environment eine Funktion
               liefert, die bei Aufruf den Defaultwert liefert.
-         type der deklarierte Type für diesen Slot ist,
+         type der deklarierte Type fÃ¼r diesen Slot ist,
          readonly = NIL oder = T angibt, ob dieser Slot readonly ist, d.h.
               nach dem Aufbau der Structure nicht mehr mit (setf ...)
-              verändert werden kann.
+              verÃ¤ndert werden kann.
    Bei type = T belegt der Structure-Name den Slot 0, wird aber nicht in der
-     slotlist aufgeführt, da zu seiner Initialisierung nichts zu tun ist.
+     slotlist aufgefÃ¼hrt, da zu seiner Initialisierung nichts zu tun ist.
 
 |#
 
@@ -64,10 +64,10 @@
       'defstruct x
 ) ) )
 
-#| Hilfsfunktion für beide Konstruktoren:
+#| Hilfsfunktion fÃ¼r beide Konstruktoren:
    (ds-arg-default arg slot)
    liefert zu einem Argument arg (Teil einer Argumentliste) den Teil der
-   Argumentliste, der dieses Argument mit dem Default für slot bindet.
+   Argumentliste, der dieses Argument mit dem Default fÃ¼r slot bindet.
 |#
 
 (defun ds-arg-default (arg slot)
@@ -81,10 +81,10 @@
       `(,arg (SYS::%FUNCALL ,default))
 ) ) )
 
-#| Hilfsfunktion für beide Konstruktoren:
+#| Hilfsfunktion fÃ¼r beide Konstruktoren:
    (ds-make-constructor-body type name names size slotlist)
    liefert den Ausdruck, der eine Structure vom vorgegebenen Typ
-   kreiert und füllt.
+   kreiert und fÃ¼llt.
 |#
 (defun ds-make-constructor-body (type name names size slotlist)
   (if (and (eq type 'VECTOR)
@@ -131,7 +131,7 @@
      )
 ) )
 
-#| Hilfsfunktion für ds-make-boa-constructor:
+#| Hilfsfunktion fÃ¼r ds-make-boa-constructor:
 
    (ds-arg-with-default arg slotlist)
    liefert zu einem Argument arg (Teil einer Argumentliste) den Teil der
@@ -255,12 +255,12 @@
 )  )
 
 #| (ds-make-pred predname type name name-offset)
-   liefert die Form, die das Typtestprädikat für die Structure name kreiert.
+   liefert die Form, die das TyptestprÃ¤dikat fÃ¼r die Structure name kreiert.
    Dabei ist:
    type         der Typ der Structure,
    name         der Name der Structure,
-   predname     der Name des Typtestprädikats,
-   name-offset  (nur bei type /= T maßgeblich)
+   predname     der Name des TyptestprÃ¤dikats,
+   name-offset  (nur bei type /= T maÃŸgeblich)
                 die Stelle, an der der Name abgespeichert wird.
 |#
 (defun ds-make-pred (predname type name name-offset)
@@ -381,11 +381,11 @@
     slotlist
 ) )
 
-; Zwei Hooks für CLOS
-(defun clos::define-structure-class (name) (declare (ignore name)) ; vorläufig
+; Zwei Hooks fÃ¼r CLOS
+(defun clos::define-structure-class (name) (declare (ignore name)) ; vorlÃ¤ufig
   (system::note-new-structure-class)
 )
-(defun clos::defstruct-remove-print-object-method (name) (declare (ignore name)) ; vorläufig
+(defun clos::defstruct-remove-print-object-method (name) (declare (ignore name)) ; vorlÃ¤ufig
   nil
 )
 
@@ -415,7 +415,7 @@
         (slotdefaultvars                   nil)
         (slotdefaultfuns                   nil)
          constructor-forms                      )
-    ;; name-and-options überprüfen:
+    ;; name-and-options Ã¼berprÃ¼fen:
     (when (listp name-and-options)
       (setq name (first name-and-options))
       (setq options (rest name-and-options))
@@ -508,12 +508,12 @@
     ; predicate-option ist entweder 0 oder das :PREDICATE-Argument.
     ; include-option ist entweder NIL oder die gesamte
     ;   :INCLUDE/:INHERIT-Option.
-    ; print-object-option ist NIL oder eine Form für den Body der PRINT-OBJECT
+    ; print-object-option ist NIL oder eine Form fÃ¼r den Body der PRINT-OBJECT
     ;   Methode.
     ; type-option ist entweder T oder das :TYPE-Argument.
     ; named-option ist entweder 0 oder T.
     ; initial-offset-option ist entweder 0 oder das :INITIAL-OFFSET-Argument.
-    ;; Überprüfung der Optionen:
+    ;; ÃœberprÃ¼fung der Optionen:
     (setq named-option (or (eq type-option 'T) (eq named-option 'T)))
     ; named-option (NIL oder T) gibt an, ob der Name in der Structure steckt.
     (if named-option
@@ -526,7 +526,7 @@
           'defstruct name
     ) ) )
     ; predicate-option ist
-    ;   bei named-option=T: entweder NIL oder der Name des Typtestprädikats,
+    ;   bei named-option=T: entweder NIL oder der Name des TyptestprÃ¤dikats,
     ;   bei named-option=NIL bedeutungslos.
     (if (eq conc-name-option 'T)
       (setq conc-name-option (string-concat (string name) "-"))
@@ -619,7 +619,7 @@
                 'defstruct name subname slotname
             ) )
             (if (atom slotarg)
-              (setf (ds-slot-default slot) 'NIL) ; Default auf NIL überschreiben
+              (setf (ds-slot-default slot) 'NIL) ; Default auf NIL Ã¼berschreiben
               (progn
                 (let ((default (second slotarg)))
                   (unless (constantp default)
@@ -688,7 +688,7 @@
     ; Accessoren zu ignorieren sind.
     (when (and named-option ; benannte Structure
                (consp type-option) ; vom Typ (VECTOR ...)
-               ; muss den/die Namen enthalten können:
+               ; muss den/die Namen enthalten kÃ¶nnen:
                (not (typep names (type-for-discrimination (second type-option))))
           )
       (error-of-type 'source-program-error
@@ -703,7 +703,7 @@
     (unless (eq type-option 'T)
       (when named-option
         (push
-          (make-ds-slot nil ; Kennzeichen für Typerkennungs-Slot
+          (make-ds-slot nil ; Kennzeichen fÃ¼r Typerkennungs-Slot
                         '()
                         (setq initial-offset-option initial-offset)
                         (cons 'NIL name) name ; "Defaultwert" = name
@@ -780,7 +780,7 @@
       )
       (setq size offset)
     )
-    ; size = Gesamtlänge der Structure
+    ; size = GesamtlÃ¤nge der Structure
     (setq slotlist (nreverse slotlist))
     (setq slotdefaultfuns (nreverse slotdefaultfuns))
     (setq slotdefaultvars (nreverse slotdefaultvars))
@@ -809,7 +809,7 @@
         )
         (incf index)
     ) )
-    ; slotlist enthält nun keine der slotdefaultvars mehr.
+    ; slotlist enthÃ¤lt nun keine der slotdefaultvars mehr.
     `(EVAL-WHEN (LOAD COMPILE EVAL)
        (LET ()
          (LET ,(append namesbinding (mapcar #'list slotdefaultvars slotdefaultfuns))

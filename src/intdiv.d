@@ -9,12 +9,12 @@
 # q = q_MSDptr/q_len/q_LSDptr, r = r_MSDptr/r_len/r_LSDptr beides
 # Normalized Unsigned Digit sequences.
 # Vorsicht: q_LSDptr <= r_MSDptr,
-#           Vorzeichenerweiterung von r kann q zerstören!
+#           Vorzeichenerweiterung von r kann q zerstÃ¶ren!
 #           Vorzeichenerweiterung von q ist erlaubt.
 # a und b werden nicht modifiziert.
 # num_stack wird erniedrigt.
   #define UDS_divide(a_MSDptr,a_len,a_LSDptr,b_MSDptr,b_len,b_LSDptr,q_,r_)  \
-    { # Platz fürs Ergebnis machen. Brauche maximal a_len+1 Digits.                \
+    { # Platz fÃ¼rs Ergebnis machen. Brauche maximal a_len+1 Digits.                \
       var uintC _a_len = (a_len);                                                  \
       var uintD* roomptr; num_stack_need_1(_a_len+1,roomptr=,);                    \
       UDS_divide_(a_MSDptr,_a_len,a_LSDptr,b_MSDptr,b_len,b_LSDptr,roomptr,q_,r_); \
@@ -35,19 +35,19 @@
 #   Normalisiere [q[m-1],...,q[0]], liefert q.
 # Falls m>=n>1, Multiple-Precision-Division:
 #   Es gilt a/b < beta^(m-n+1).
-#   s:=intDsize-1-(Nummer des höchsten Bits in b[n-1]), 0<=s<intDsize.
+#   s:=intDsize-1-(Nummer des hÃ¶chsten Bits in b[n-1]), 0<=s<intDsize.
 #   Schiebe a und b um s Bits nach links und kopiere sie dabei. r:=a.
 #   r=[r[m],...,r[0]], b=[b[n-1],...,b[0]] mit b[n-1]>=beta/2.
-#   Für j=m-n,...,0: {Hier 0 <= r < b*beta^(j+1).}
+#   FÃ¼r j=m-n,...,0: {Hier 0 <= r < b*beta^(j+1).}
 #     Berechne q* :
 #       q* := floor((r[j+n]*beta+r[j+n-1])/b[n-1]).
-#       Bei Überlauf (q* >= beta) setze q* := beta-1.
+#       Bei Ãœberlauf (q* >= beta) setze q* := beta-1.
 #       Berechne c2 := ((r[j+n]*beta+r[j+n-1]) - q* * b[n-1])*beta + r[j+n-2]
 #       und c3 := b[n-2] * q*.
 #       {Es ist 0 <= c2 < 2*beta^2, sogar 0 <= c2 < beta^2 falls kein
-#        Überlauf aufgetreten war. Ferner 0 <= c3 < beta^2.
-#        Bei Überlauf und r[j+n]*beta+r[j+n-1] - q* * b[n-1] >= beta,
-#        das heißt c2 >= beta^2, kann man die nächste Abfrage überspringen.}
+#        Ãœberlauf aufgetreten war. Ferner 0 <= c3 < beta^2.
+#        Bei Ãœberlauf und r[j+n]*beta+r[j+n-1] - q* * b[n-1] >= beta,
+#        das heiÃŸt c2 >= beta^2, kann man die nÃ¤chste Abfrage Ã¼berspringen.}
 #       Solange c3 > c2, {hier 0 <= c2 < c3 < beta^2} setze
 #         q* := q* - 1, c2 := c2 + b[n-1]*beta, c3 := c3 - b[n-2].
 #       Falls q* > 0:
@@ -59,8 +59,8 @@
 #                         u:=u div beta (+ 1, falls bei der Subtraktion Carry)
 #                 r[n+j]:=r[n+j]-u.
 #           {Da stets u = (q* * [b[i-1],...,b[0]] div beta^i) + 1
-#                       < q* + 1 <= beta, läuft der Übertrag u nicht über.}
-#         Tritt dabei ein negativer Übertrag auf, so setze q* := q* - 1
+#                       < q* + 1 <= beta, lÃ¤uft der Ãœbertrag u nicht Ã¼ber.}
+#         Tritt dabei ein negativer Ãœbertrag auf, so setze q* := q* - 1
 #           und [r[n+j],...,r[j]] := [r[n+j],...,r[j]] + [0,b[n-1],...,b[0]].
 #     Setze q[j] := q*.
 #   Normalisiere [q[m-n],..,q[0]] und erhalte den Quotienten q,
@@ -77,9 +77,9 @@
     var uintD* roomptr; # ab roomptr kommen a_len+1 freie Digits
     var DS* q_;
     var DS* r_;
-    { # a normalisieren (a_MSDptr erhöhen, a_len erniedrigen):
+    { # a normalisieren (a_MSDptr erhÃ¶hen, a_len erniedrigen):
       while ((a_len>0) && (a_MSDptr[0]==0)) { a_MSDptr++; a_len--; }
-      # b normalisieren (b_MSDptr erhöhen, b_len erniedrigen):
+      # b normalisieren (b_MSDptr erhÃ¶hen, b_len erniedrigen):
       loop
         { if (b_len==0) { divide_0(); }
           if (b_MSDptr[0]==0) { b_MSDptr++; b_len--; }
@@ -151,7 +151,7 @@
           var uintD* r_LSDptr = &roomptr[a_len+1];
           # Speicheraufbau:  r_MSDptr/          a_len+1           /r_LSDptr
           #                     |                  r                  |
-          # später:          q_MSDptr/a_len-b_len+1/r_MSDptr/b_len/r_LSDptr
+          # spÃ¤ter:          q_MSDptr/a_len-b_len+1/r_MSDptr/b_len/r_LSDptr
           #                     |           q          |       r      |
           if (s==0)
             { copy_loop_down(a_LSDptr,r_LSDptr,a_len); r_MSDptr[0] = 0; }
@@ -168,13 +168,13 @@
            var uintDD b_msdd = highlowDD(b_msd,b_2msd); # b[n-1]*beta+b[n-2]
            #endif
            # Divisions-Schleife: (wird m-n+1 mal durchlaufen)
-           # j = Herabzähler, b_MSDptr/b_len/b_LSDptr = [b[n-1],...,b[0]], b_len=n,
+           # j = HerabzÃ¤hler, b_MSDptr/b_len/b_LSDptr = [b[n-1],...,b[0]], b_len=n,
            # r_MSDptr = Pointer auf r[n+j] = Pointer auf q[j],
            # r_ptr = Pointer oberhalb von r[j].
            do { var uintD q_stern;
                 var uintD c1;
                 if (r_MSDptr[0] < b_msd) # r[j+n] < b[n-1] ?
-                  { # Dividiere r[j+n]*beta+r[j+n-1] durch b[n-1], ohne Überlauf:
+                  { # Dividiere r[j+n]*beta+r[j+n-1] durch b[n-1], ohne Ãœberlauf:
                     #if HAVE_DD
                       divuD(highlowDD(r_MSDptr[0],r_MSDptr[1]),b_msd, q_stern=,c1=);
                     #else
@@ -182,7 +182,7 @@
                     #endif
                   }
                   else
-                  { # Überlauf, also r[j+n]*beta+r[j+n-1] >= beta*b[n-1]
+                  { # Ãœberlauf, also r[j+n]*beta+r[j+n-1] >= beta*b[n-1]
                     q_stern = bitm(intDsize)-1; # q* = beta-1
                     # Teste ob r[j+n]*beta+r[j+n-1] - (beta-1)*b[n-1] >= beta
                     # <==> r[j+n]*beta+r[j+n-1] + b[n-1] >= beta*b[n-1]+beta
@@ -200,11 +200,11 @@
                 #if HAVE_DD
                   { var uintDD c2 = highlowDD(c1,r_MSDptr[2]); # c1*beta+r[j+n-2]
                     var uintDD c3 = muluD(b_2msd,q_stern); # b[n-2] * q*
-                    # Solange c2 < c3, c2 erhöhen, c3 erniedrigen:
+                    # Solange c2 < c3, c2 erhÃ¶hen, c3 erniedrigen:
                     # Rechne dabei mit c3-c2:
                     # solange >0, um b[n-1]*beta+b[n-2] erniedrigen.
                     # Dies kann wegen b[n-1]*beta+b[n-2] >= beta^2/2
-                    # höchstens zwei mal auftreten.
+                    # hÃ¶chstens zwei mal auftreten.
                     if (c3 > c2)
                       { q_stern = q_stern-1; # q* := q* - 1
                         if (c3-c2 > b_msdd)
@@ -230,9 +230,9 @@
                   { # Subtraktionsschleife: r := r - b * q* * beta^j
                     var uintD carry = mulusub_loop_down(q_stern,b_LSDptr,r_ptr,b_len);
                     # Noch r_ptr[-b_len-1] -= carry, d.h. r_MSDptr[0] -= carry
-                    # durchführen und danach r_MSDptr[0] vergessen:
+                    # durchfÃ¼hren und danach r_MSDptr[0] vergessen:
                     if (carry > r_MSDptr[0])
-                      # Subtraktion ergab Übertrag
+                      # Subtraktion ergab Ãœbertrag
                       { q_stern = q_stern-1; # q* := q* - 1
                         addto_loop_down(b_LSDptr,r_ptr,b_len); # Additionsschleife
                         # r[n+j] samt Carry kann vergessen werden...
@@ -254,7 +254,7 @@
            # r normalisieren und ablegen:
            while ((b_len>0) && (r_MSDptr[0]==0)) { r_MSDptr++; b_len--; }
            r_->MSDptr = r_MSDptr; r_->len = b_len; r_->LSDptr = r_LSDptr;
-           RESTORE_NUM_STACK # num_stack zurück
+           RESTORE_NUM_STACK # num_stack zurÃ¼ck
            return;
         }}}
     }
@@ -329,18 +329,18 @@
            pushSTACK(NUDS_to_I(q.MSDptr,q.len));
            # r in Integer umwandeln (jetzt erst, nachdem q verwertet ist!):
            pushSTACK(NUDS_to_I(r.MSDptr,r.len));
-           RESTORE_NUM_STACK # num_stack zurück
+           RESTORE_NUM_STACK # num_stack zurÃ¼ck
         }}}
     }
 
 # Fehler, wenn Quotient keine ganze Zahl ist
-# > STACK_1: Zähler x
+# > STACK_1: ZÃ¤hler x
 # > STACK_0: Nenner y
   nonreturning_function(local, fehler_exquo, (void));
   local void fehler_exquo()
-    { pushSTACK(S(exquo)); # Wert für Slot OPERATION von ARITHMETIC-ERROR
+    { pushSTACK(S(exquo)); # Wert fÃ¼r Slot OPERATION von ARITHMETIC-ERROR
       pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
-      { var object tmp = listof(2); pushSTACK(tmp); } # Wert für Slot OPERANDS von ARITHMETIC-ERROR
+      { var object tmp = listof(2); pushSTACK(tmp); } # Wert fÃ¼r Slot OPERANDS von ARITHMETIC-ERROR
       pushSTACK(STACK_(1+2)); # x
       pushSTACK(STACK_(0+3)); # y
       fehler(arithmetic_error,
@@ -509,7 +509,7 @@
         { if (R_minusp(STACK_4)) # y<0 ?
             negate_q: { STACK_1 = I_minus_I(STACK_1); } # q := (- q)
         }
-      STACK_4 = STACK_1; STACK_3 = STACK_0; skipSTACK(3); # Stack aufräumen
+      STACK_4 = STACK_1; STACK_3 = STACK_0; skipSTACK(3); # Stack aufrÃ¤umen
     }
 
 # Dividiert zwei Integers x,y und liefert Quotient und Rest
@@ -557,7 +557,7 @@
         { if (R_minusp(STACK_4)) # y<0 ?
             negate_q: { STACK_1 = I_minus_I(STACK_1); } # q := (- q)
         }
-      STACK_4 = STACK_1; STACK_3 = STACK_0; skipSTACK(3); # Stack aufräumen
+      STACK_4 = STACK_1; STACK_3 = STACK_0; skipSTACK(3); # Stack aufrÃ¤umen
     }
 
 # Dividiert zwei Integers x,y und liefert Quotient und Rest
@@ -596,7 +596,7 @@
         { if (R_minusp(STACK_3)) # y<0 ?
             negate_q: { STACK_1 = I_minus_I(STACK_1); } # q := (- q)
         }
-      STACK_3 = STACK_1; STACK_2 = STACK_0; skipSTACK(2); # Stack aufräumen
+      STACK_3 = STACK_1; STACK_2 = STACK_0; skipSTACK(2); # Stack aufrÃ¤umen
     }
 
 # Dividiert zwei Integers x,y und liefert Quotient und Rest
@@ -646,6 +646,6 @@
         { if (R_minusp(STACK_4)) # y<0 ?
             negate_q: { STACK_1 = I_minus_I(STACK_1); } # q := (- q)
         }
-      STACK_4 = STACK_1; STACK_3 = STACK_0; skipSTACK(3); # Stack aufräumen
+      STACK_4 = STACK_1; STACK_3 = STACK_0; skipSTACK(3); # Stack aufrÃ¤umen
     }}
 

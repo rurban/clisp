@@ -4,11 +4,11 @@
 
 # Aus LISPBIBL.D importiere:
 # intDsize        Anzahl Bits in einem Digit
-# uintD, sintD    Integer-Typen für ein Digit
+# uintD, sintD    Integer-Typen fÃ¼r ein Digit
 # log2_intDsize   log2(intDsize)
-# HAVE_DD         Flag, das anzeigt, ob ein Integertyp für Doppel-Digits da ist
+# HAVE_DD         Flag, das anzeigt, ob ein Integertyp fÃ¼r Doppel-Digits da ist
 # intDDsize       Anzahl Bits in einem Doppel-Digit
-# uintDD,sintDD   Integer-Typen für ein Doppel-Digit
+# uintDD,sintDD   Integer-Typen fÃ¼r ein Doppel-Digit
 
 #if !((32%intDsize)==0)
   #error "intDsize sollte ein Teiler von 32 sein!"
@@ -139,19 +139,19 @@
   #endif
 
 # Digit sequence (DS) - nur intern verwendet -
-# Zusammenhängender Speicherbereich mit n (ein uintC) Digits,
+# ZusammenhÃ¤ngender Speicherbereich mit n (ein uintC) Digits,
 # zwischen zwei Pointer MSDptr und LSDptr.
 #  MSDptr                  LSDptr
 # | MSD ............. LSW |
-# [abgekürzt: MSDptr/n/LSDptr ]
+# [abgekÃ¼rzt: MSDptr/n/LSDptr ]
 # In 68000-Manier (vgl. ADDX, SUBX) ist das Most significant Digit an der
-# untersten Adresse, nämlich MSDptr. LSDptr = MSDptr + n zeigt hinter die DS.
+# untersten Adresse, nÃ¤mlich MSDptr. LSDptr = MSDptr + n zeigt hinter die DS.
 # Falls n = 0, wird die Zahl 0 dargestellt.
-# Falls n > 0, ist das höchstwertige Bit (nämlich  Bit (intDsize-1) von
+# Falls n > 0, ist das hÃ¶chstwertige Bit (nÃ¤mlich  Bit (intDsize-1) von
 #              *MSDptr) das Vorzeichenbit. Schreibt man es noch unendlich
-#              oft an, so erhält man die "unendliche Bitfolge".
-# Normalisierte Digit sequence (NDS) ist eine solche, bei der das MSD nötig
-# ist, also n = 0 oder (n > 0 und nicht alle höchstwertigen intDsize+1 Bits
+#              oft an, so erhÃ¤lt man die "unendliche Bitfolge".
+# Normalisierte Digit sequence (NDS) ist eine solche, bei der das MSD nÃ¶tig
+# ist, also n = 0 oder (n > 0 und nicht alle hÃ¶chstwertigen intDsize+1 Bits
 # sind gleich).
 # In C:
 #   uintD* MSWptr und uintC len.
@@ -182,7 +182,7 @@
 typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
 
 
-# Es gibt für die innersten Schleifen vier Möglichkeiten:
+# Es gibt fÃ¼r die innersten Schleifen vier MÃ¶glichkeiten:
 # LOOP_EXTERN_C     Alle Schleifen als externe C-compilierte Routinen.
 #                   Portabel, aber evtl. ineffizient.
 # LOOP_INLINE_C     Schleifen ohne Wert (mit GNU-Compiler: alle Schleifen)
@@ -204,7 +204,7 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
     #define LOOP_EXTERN_ASM
   #endif
 #else
-  # sonst die portable Lösung
+  # sonst die portable LÃ¶sung
   #if (defined(DECALPHA) && defined(GNU) && (intDsize==32) && defined(HAVE_DD))
     # GCC-2.7.2-Bug umgehen
     #define LOOP_EXTERN_C
@@ -269,7 +269,7 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
 
 #ifdef LOOP_INLINE_C
   # Die Definitionen samt portablem C-Code und
-  # - für den GNU-Compiler - Inline-Deklarationen:
+  # - fÃ¼r den GNU-Compiler - Inline-Deklarationen:
   #include "arilev1i.c"
 #endif
 

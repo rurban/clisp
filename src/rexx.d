@@ -1,5 +1,5 @@
-# Rexx-Interface für CLISP
-# Jörg Höhle 15.4.1997
+# Rexx-Interface fÃ¼r CLISP
+# JÃ¶rg HÃ¶hle 15.4.1997
 
 
 #include "lispbibl.c"
@@ -24,7 +24,7 @@
 #endif
 
 
-# Fehlermeldung wenn kein Rexx möglich
+# Fehlermeldung wenn kein Rexx mÃ¶glich
 # fehler_norexx();
 # > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(local, fehler_norexx, (void));
@@ -52,7 +52,7 @@
   local uintC rexxNeededReplies = 0;
 
 # O(rexx_inmsg_list) ist eine Liste von Foreigns, die jeweils die ein-
-# gegangenen und auf Antwort (durch CLISP) wartenden Messages repräsentieren.
+# gegangenen und auf Antwort (durch CLISP) wartenden Messages reprÃ¤sentieren.
 
 # Sucht eine gegebene Message in O(rexx_inmsg_list):
   local object find_inmsg (FOREIGN pointer);
@@ -72,23 +72,23 @@
   local UBYTE rexxPortName[] = {'C','L','I','S','P','1','\0','\0'};
 # Position der Ziffer darin:
   #define NRPOSITION 5
-# Default-Extension für ARexx-Kommandofiles:
+# Default-Extension fÃ¼r ARexx-Kommandofiles:
   local UBYTE rexxExtension[] = "cl";
-# Signalnummer, mit der wir auf Ereignisse an diesem Port warten können:
+# Signalnummer, mit der wir auf Ereignisse an diesem Port warten kÃ¶nnen:
   local ULONG rexxPortBit = 0UL;
 
 LISPFUN(rexx_put,1,0,norest,key,5,\
         (kw(result),kw(string),kw(token),kw(host),kw(io)) )
   { # Stackaufbau: string/array, resultp, stringp, tokenp, host, iop.
-    # > string/array: String für Kommando inklusive Argumente oder
-    #                 Array von Strings für Funktion und Argumente
+    # > string/array: String fÃ¼r Kommando inklusive Argumente oder
+    #                 Array von Strings fÃ¼r Funktion und Argumente
     # > resultp: Flag: Antwort merken?
     # > stringp: Flag: ARexx Argument als Befehle oder
     #                  erstes Token als Dateiname verstehen?
     # > tokenp: Flag: Soll ARexx Tokens erzeugen?
     # > host: ARexx Portname, bzw. NIL ("REXX") oder T ("AREXX", asynchrone
     #         Bearbeitung)
-    # > iop: Flag: E/A Kanäle übernehmen?
+    # > iop: Flag: E/A KanÃ¤le Ã¼bernehmen?
     # Es sind nicht alle Kombinationen sinvoll.
     var uintL fargs; # 1 + Zahl Funktionsargumente
     var boolean functionp; # Funktions- statt Kommandoaufruf
@@ -109,8 +109,8 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
       # sollte (Simple-)Vector sein:
       # evtl.: STACK_(5+1) = coerce_sequence(STACK_(5+1),S(simple_vector));
       if (!simple_vector_p(STACK_(5+1))) {
-        pushSTACK(STACK_(5+1)); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(simple_vector)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(STACK_(5+1)); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(S(simple_vector)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_1);
         fehler(type_error,
                GETTEXT("~ must be a string for commands or a vector of strings for a function")
@@ -131,8 +131,8 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
       for (index = 0; index < fargs; index++) {
         var object arg = TheSvector(*vptr)->data[index];
         if (!stringp(arg)) {
-          pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(arg); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+          pushSTACK(S(string)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(arg);
           pushSTACK(S(rexx_put));
           fehler(type_error,
@@ -151,10 +151,10 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
       elif (eq(host,T))
         portname = RXADIR;
       elif (stringp(host))
-        portname = TheAsciz(string_to_asciz(host,O(misc_encoding))); # Ab hier für eine Weile keine GC mehr!
+        portname = TheAsciz(string_to_asciz(host,O(misc_encoding))); # Ab hier fÃ¼r eine Weile keine GC mehr!
       else {
-        pushSTACK(host); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_rexx_host)); # (OR STRING BOOLEAN), Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(host); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_rexx_host)); # (OR STRING BOOLEAN), Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(host);
         pushSTACK(S(Khost));
         fehler(type_error,
@@ -163,7 +163,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
       }
     }
     # Stackaufbau: ... string/vector ..(5 keyword-args).. foreign ..(fargs).. .
-    # Ab hier für eine Weile keine GC mehr
+    # Ab hier fÃ¼r eine Weile keine GC mehr
     {
       var struct RexxMsg * rexxmsg;
       debug_asciz_out("%REXX-PUT: ");
@@ -176,7 +176,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
         if (functionp) {
           # ARexx Funktionsaufruf
           debug_asciz_out("function ");
-          # Argumente einfüllen:
+          # Argumente einfÃ¼llen:
           {
             var uintL i;
             var object* argptr = fargs_pointer;
@@ -195,7 +195,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
               end_system_call();
             });
           }
-          setSTACK(STACK = fargs_pointer); # Stack aufräumen
+          setSTACK(STACK = fargs_pointer); # Stack aufrÃ¤umen
         } else {
           # ARexx Kommando
           debug_asciz_out("command ");
@@ -242,12 +242,12 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
           }
           #undef is_set
           if (success) {
-            # erfolgreich -> mitzählen:
+            # erfolgreich -> mitzÃ¤hlen:
             rexxNeededReplies++;
             TheFpointer(STACK_0)->fp_pointer = rexxmsg;
             debug_asciz_out_1("%x",rexxmsg);
           } else {
-            # nicht erfolgreich -> aufräumen:
+            # nicht erfolgreich -> aufrÃ¤umen:
             begin_system_call();
             if (functionp)
               ClearRexxMsg(rexxmsg,fargs);
@@ -259,14 +259,14 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
         if (success) {
           value1 = STACK_0; # Wert ist das Foreign zu rexxmsg
         } else {
-          # Nachricht konnte nicht erfolgreich abgeschickt werden, also löschen
+          # Nachricht konnte nicht erfolgreich abgeschickt werden, also lÃ¶schen
           begin_system_call();
           DeleteRexxMsg(rexxmsg);
           end_system_call();
           value1 = NIL;
         }
       } else {
-        setSTACK(STACK = fargs_pointer); # Stack aufräumen
+        setSTACK(STACK = fargs_pointer); # Stack aufrÃ¤umen
         value1 = NIL;
       }
       debug_asciz_out(NLstring);
@@ -283,7 +283,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
       begin_system_call();
       var LONG wait_erg = Wait(rexxPortBit | SIGBREAKF_CTRL_C);
       end_system_call();
-      #if 0 # spätere asynchrone DOS-Packet-Bearbeitung ??
+      #if 0 # spÃ¤tere asynchrone DOS-Packet-Bearbeitung ??
       if (wait_erg & ioPortBit)
         flush_io_queue();
       #endif
@@ -299,7 +299,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
         if (wait_erg & rexxPortBit)
           return TRUE;
         else
-          return FALSE; # eigentlich nicht möglich
+          return FALSE; # eigentlich nicht mÃ¶glich
       }
     }
 
@@ -318,11 +318,11 @@ LISPFUNN(rexx_wait_input,0)
 # deswegen keine neuen Nachrichten entgegennimmt:
   local boolean rexxShutdown = TRUE;
 
-# Empfängt ARexx Nachrichten.
+# EmpfÃ¤ngt ARexx Nachrichten.
 # Liefert eine Liste (MsgId ...) oder T, wenn eine Nachricht empfangen wurde.
 # Falls rexxShutdown gesetzt ist, werden keine neuen Nachrichten, nur noch
 # Antworten, angenommen.
-# Kann GC auslösen, falls nicht im rexxShutdown Modus.
+# Kann GC auslÃ¶sen, falls nicht im rexxShutdown Modus.
   local object rexx_getmsg(void);
   local object rexx_getmsg()
     {
@@ -330,9 +330,9 @@ LISPFUNN(rexx_wait_input,0)
         return NIL;
       } else {
         handle_lost_argstr();
-        # Resource-tracking für einkommende Nachrichten
+        # Resource-tracking fÃ¼r einkommende Nachrichten
         # (Benutzt eine globale Variable O(rexx_prefetch_inmsg),
-        # um nicht jedes Mal ein neues Cons erzeugen zu müssen.)
+        # um nicht jedes Mal ein neues Cons erzeugen zu mÃ¼ssen.)
         if (!rexxShutdown
             && matomp(O(rexx_prefetch_inmsg))) {
           pushSTACK(allocate_fpointer(NULL));
@@ -341,7 +341,7 @@ LISPFUNN(rexx_wait_input,0)
           O(rexx_prefetch_inmsg) = new_cons;
         }
         # O(rexx_prefetch_inmsg) ist nun garantiert ein brauchbares Cons.
-        # Bereich gegen GC geschützt.
+        # Bereich gegen GC geschÃ¼tzt.
         begin_system_call();
         var struct RexxMsg * rexxmsg = (struct RexxMsg *)GetMsg(rexxPort);
         end_system_call();
@@ -362,14 +362,14 @@ LISPFUNN(rexx_wait_input,0)
                 && rexxmsg->rm_Result2
                 && !rexxShutdown
                ) {
-              # DeleteArgstring(rexxmsg->rm_Result2); kommt später
+              # DeleteArgstring(rexxmsg->rm_Result2); kommt spÃ¤ter
               rexxLostArgstr = (UBYTE*)(rexxmsg->rm_Result2);
             }
             DeleteRexxMsg(rexxmsg);
             end_system_call();
             rexxNeededReplies--;
             debug_asciz_out(" a reply ");
-            # ab hier GC wieder möglich
+            # ab hier GC wieder mÃ¶glich
             if (rexxShutdown) {
               handle_lost_argstr(); return T;
             } else {
@@ -381,7 +381,7 @@ LISPFUNN(rexx_wait_input,0)
                 handle_lost_argstr();
                 return listof(3);
               } else {
-                /* handle_lost_argstr(); */ # hier unnötig
+                /* handle_lost_argstr(); */ # hier unnÃ¶tig
                 return listof(2);
               }
             }
@@ -390,7 +390,7 @@ LISPFUNN(rexx_wait_input,0)
             debug_asciz_out_s(" incoming is " NLstring "%s",rexxmsg->rm_Args[0]);
             # Eingehender Befehl
             if (rexxShutdown) {
-              # Schluss, nichts läuft mehr
+              # Schluss, nichts lÃ¤uft mehr
               rexxmsg->rm_Result1 = RXERRORIMGONE;
               begin_system_call();
               ReplyMsg((struct Message *)rexxmsg);
@@ -403,7 +403,7 @@ LISPFUNN(rexx_wait_input,0)
               Cdr(new_cons) = O(rexx_inmsg_list);
               O(rexx_inmsg_list) = new_cons;
               O(rexx_prefetch_inmsg) = NIL;
-              # Resource-tracking beendet, ab hier wieder GC möglich
+              # Resource-tracking beendet, ab hier wieder GC mÃ¶glich
               # Ergebnis ist 2/3-elementige Liste (Msg-ID "Msg-string" [:RESULT])
               pushSTACK(Car(new_cons));
               pushSTACK(n_char_to_string((char*)rexxmsg->rm_Args[0],LengthArgstring(rexxmsg->rm_Args[0]),O(misc_encoding)));
@@ -420,7 +420,7 @@ LISPFUNN(rexx_wait_input,0)
       }
     }
 
-# (SYSTEM::%REXX-GET) empfängt eine Nachricht und liefert sie im
+# (SYSTEM::%REXX-GET) empfÃ¤ngt eine Nachricht und liefert sie im
 # Format (MsgId ...). Ergebnis NIL falls keine Nachricht vorliegt.
 LISPFUNN(rexx_get,0)
   {
@@ -463,11 +463,11 @@ LISPFUNN(rexx_reply,3)
     # Stackaufbau: ..., message-id, return-code, return-string.
     if (rexxPort == NULL)
       fehler_norexx();
-    # Argumente überprüfen:
+    # Argumente Ã¼berprÃ¼fen:
     # return-code sollte ein Fixnum sein:
     if (!fixnump(STACK_1)) {
-      pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(fixnum)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_1); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(fixnum)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_(1+2));
       pushSTACK(S(rexx_reply));
       fehler(type_error,
@@ -523,7 +523,7 @@ LISPFUNN(rexx_reply,3)
           begin_system_call();
           Forbid();
           if (FindPort(rexxPortName) == NULL) {
-            # Port existiert noch nicht, wir machen einen (öffentlichen):
+            # Port existiert noch nicht, wir machen einen (Ã¶ffentlichen):
             rexxPort = CreatePort(rexxPortName,0L);
             existent = FALSE;
           } else {
@@ -549,7 +549,7 @@ LISPFUNN(rexx_reply,3)
       return TRUE;
     }
 
-# Schließt das REXX-Interface.
+# SchlieÃŸt das REXX-Interface.
 # Kann nur einmal aufgerufen werden.
   global void close_rexx(void)
     {
@@ -561,11 +561,11 @@ LISPFUNN(rexx_reply,3)
         RemPort(rexxPort);
         end_system_call();
         handle_lost_argstr();
-        # Ausstehende Nachrichten mit Fehler zurückschicken:
+        # Ausstehende Nachrichten mit Fehler zurÃ¼ckschicken:
         while (mconsp(O(rexx_inmsg_list))) {
           rexx_replymsg(Car(O(rexx_inmsg_list)),RXERRORIMGONE,NULL,0L);
         }
-        # Eingegangene Nachrichten mit Fehler zurückschicken:
+        # Eingegangene Nachrichten mit Fehler zurÃ¼ckschicken:
         loop {
           until (nullp(rexx_getmsg())) { /* loop until empty */ }
           if (rexxNeededReplies == 0)

@@ -87,7 +87,7 @@ There are some rules that govern working with Lisp objects. The C type of a
 Lisp object is always `object'.
 1. C variables may hold Lisp objects only as long as no garbage collection may
    be invoked. Those routines that may invoke a garbage collection are marked
-   in lispbibl.d as "kann GC auslösen"; they include allocate_cons(), funcall()
+   in lispbibl.d as "kann GC auslÃ¶sen"; they include allocate_cons(), funcall()
    and eval() and even equalp(). Only low level routines and macros such as
    type tests, eq() and accessing the slots of Lisp data types can't invoke
    a garbage collection.

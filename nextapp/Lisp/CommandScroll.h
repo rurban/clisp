@@ -8,7 +8,7 @@
         NeXT disclaims any warranty of any kind, expressed or implied, as to
         its fitness for any particular use.
 
-        Abgeändert für CLISP von Michael Stoll, November 1994
+        AbgeÃ¤ndert fÃ¼r CLISP von Michael Stoll, November 1994
 */
 
 #import <appkit/appkit.h>

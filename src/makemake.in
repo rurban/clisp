@@ -1,4 +1,4 @@
-# Konstruktion des Makefiles fürs Compilieren von CLISP
+# Konstruktion des Makefiles fÃ¼rs Compilieren von CLISP
 # Bruno Haible 2.9.1991, 14.7.1992, 13.9.1992, 12.10.1992, 27.11.1992
 # Sam Steingold 17.2.1999
 
@@ -783,14 +783,14 @@ if [ $XCC_GCC = true ] ; then
     # Frame-Pointer brauchen wir nicht. Da, wo wir ihn brauchen (in eval.d:
     # interpret_bytecode_()), erzwingen wir ihn durch Benutzung von alloca().
     # Unter Windows darf -fomit-frame-pointer i.a. nicht verwendet werden (da
-    # sonst gcc womöglich Daten-Pointer nach %ebp legt, was wegen inkompatibler
-    # Segmentregister nicht zulässig ist). Glücklicherweise ist das bei rsxw32
+    # sonst gcc womÃ¶glich Daten-Pointer nach %ebp legt, was wegen inkompatibler
+    # Segmentregister nicht zulÃ¤ssig ist). GlÃ¼cklicherweise ist das bei rsxw32
     # kein Problem, da dort %cs = 0x185F, %ds = %es = %fs = %gs = %ss = 0x1867,
     # insbesondere %ds = %ss.
     XCFLAGS=$XCFLAGS'-fomit-frame-pointer '
   fi
   if [ $TSYS = amiga ] ; then
-    # Register A4 enthält den Stack.
+    # Register A4 enthÃ¤lt den Stack.
     # Die GCC-Strength-Reduction ist auf dem 68000 nicht problemlos.
     XCFLAGS=$XCFLAGS'-ffixed-a4 -fno-strength-reduce '
   fi

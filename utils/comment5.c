@@ -7,18 +7,18 @@
 /*      text / * comment * / */
 /* Bruno Haible 9.7.1990, 6.8.1990, 15.8.1990, 22.9.1990, 17.1.1991, 31.8.1991 */
 
-/* Aufrufmöglichkeiten, um program.d in program.c umzuwandeln: */
+/* AufrufmÃ¶glichkeiten, um program.d in program.c umzuwandeln: */
 /*   comment program */
 /*   comment           und dann von Hand 'program' eingeben */
 /*   comment program.d program.c */
 /*   comment program.d > program.c */
 
 /* Methode: */
-/* Das Inputfile wird Zeile für Zeile umgewandelt. Ein '#', gefolgt von ' ', */
+/* Das Inputfile wird Zeile fÃ¼r Zeile umgewandelt. Ein '#', gefolgt von ' ', */
 /* leitet einen Kommentar ein, der bis Zeilenende geht. */
 /* '#'' ' wird durch '/''*'' ' ersetzt, und vors Zeilenende kommt ' ''*''/'. */
 /* Ein '\' unmittelbar am Ende einer Zeile wird dabei zum Zeilenende gerechnet. */
-/* Als erste Zeile wird  '#line 1 "sourcefile"' eingefügt. */
+/* Als erste Zeile wird  '#line 1 "sourcefile"' eingefÃ¼gt. */
 
 /* Syntax eines Inputfile:                                               # */
 /* -------> Char ----> '#' -> ' ' ----> Char ----> '\\' ---> '\n' -----> # */
@@ -81,14 +81,14 @@ int main (int argc, char* argv[])
         *p++ = '\0';
       }
     }
-  /* infile öffnen: */
+  /* infile Ã¶ffnen: */
   if ((infile = fopen(infilenamebuffer,fopen_read_ascii))==NULL) { exit(1); }
-  /* outfile öffnen: */
+  /* outfile Ã¶ffnen: */
   if ((outfile = fopen(outfilenamebuffer,fopen_write_ascii))==NULL)
     { fclose(infile); exit(1); }
   if (0)
     { to_stdout:
-      /* infile öffnen: */
+      /* infile Ã¶ffnen: */
       if ((infile = fopen(infilenamebuffer,fopen_read_ascii))==NULL) { exit(1); }
       outfile = stdout; /* outfile = Standard-Output */
     }
@@ -123,7 +123,7 @@ int main (int argc, char* argv[])
          goto L1;
     L3:  ; /* am File-Ende */
   }
-  /* Files schließen: */
+  /* Files schlieÃŸen: */
   if (ferror(infile) || fflush(outfile) || ferror(outfile))
     { fclose(infile); fclose(outfile); exit(1); }
   fclose(infile);

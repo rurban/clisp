@@ -2,7 +2,7 @@
 
 # Kopierschleife:
 # destptr = copy_loop_up(sourceptr,destptr,count);
-# kopiert count (uintC>=0) Digits aufw‰rts von sourceptr nach destptr
+# kopiert count (uintC>=0) Digits aufw√§rts von sourceptr nach destptr
 # und liefert das neue destptr.
   local uintD* copy_loop_up (const uintD* sourceptr, uintD* destptr, uintC count);
   local uintD* copy_loop_up(sourceptr,destptr,count)
@@ -18,7 +18,7 @@
 
 # Kopierschleife:
 # destptr = copy_loop_down(sourceptr,destptr,count);
-# kopiert count (uintC>=0) Digits abw‰rts von sourceptr nach destptr
+# kopiert count (uintC>=0) Digits abw√§rts von sourceptr nach destptr
 # und liefert das neue destptr.
   local uintD* copy_loop_down (const uintD* sourceptr, uintD* destptr, uintC count);
   local uintD* copy_loop_down(sourceptr,destptr,count)
@@ -32,9 +32,9 @@
       return destptr;
     }
 
-# F¸llschleife:
+# F√ºllschleife:
 # destptr = fill_loop_up(destptr,count,filler);
-# kopiert count (uintC>=0) mal das Digit filler aufw‰rts nach destptr
+# kopiert count (uintC>=0) mal das Digit filler aufw√§rts nach destptr
 # und liefert das neue destptr.
   local uintD* fill_loop_up (uintD* destptr, uintC count, uintD filler);
   local uintD* fill_loop_up(destptr,count,filler)
@@ -48,9 +48,9 @@
       return destptr;
     }
 
-# F¸llschleife:
+# F√ºllschleife:
 # destptr = fill_loop_down(destptr,count,filler);
-# kopiert count (uintC>=0) mal das Digit filler abw‰rts nach destptr
+# kopiert count (uintC>=0) mal das Digit filler abw√§rts nach destptr
 # und liefert das neue destptr.
   local uintD* fill_loop_down (uintD* destptr, uintC count, uintD filler);
   local uintD* fill_loop_down(destptr,count,filler)
@@ -64,9 +64,9 @@
       return destptr;
     }
 
-# Lˆsch-Schleife:
+# L√∂sch-Schleife:
 # destptr = clear_loop_up(destptr,count);
-# lˆscht count (uintC>=0) Digits aufw‰rts ab destptr
+# l√∂scht count (uintC>=0) Digits aufw√§rts ab destptr
 # und liefert das neue destptr.
   local uintD* clear_loop_up (uintD* destptr, uintC count);
   local uintD* clear_loop_up(destptr,count)
@@ -79,9 +79,9 @@
       return destptr;
     }
 
-# Lˆsch-Schleife:
+# L√∂sch-Schleife:
 # destptr = clear_loop_down(destptr,count);
-# lˆscht count (uintC>=0) Digits abw‰rts ab destptr
+# l√∂scht count (uintC>=0) Digits abw√§rts ab destptr
 # und liefert das neue destptr.
   local uintD* clear_loop_down (uintD* destptr, uintC count);
   local uintD* clear_loop_down(destptr,count)
@@ -96,7 +96,7 @@
 
 # OR-Schleife:
 # or_loop_up(xptr,yptr,count);
-# verkn¸pft count (uintC>=0) Digits aufw‰rts ab xptr und ab yptr
+# verkn√ºpft count (uintC>=0) Digits aufw√§rts ab xptr und ab yptr
 # mit Ziel ab xptr durch OR.
   local void or_loop_up (uintD* xptr, const uintD* yptr, uintC count);
   local void or_loop_up(xptr,yptr,count)
@@ -111,7 +111,7 @@
 
 # XOR-Schleife:
 # xor_loop_up(xptr,yptr,count);
-# verkn¸pft count (uintC>=0) Digits aufw‰rts ab xptr und ab yptr
+# verkn√ºpft count (uintC>=0) Digits aufw√§rts ab xptr und ab yptr
 # mit Ziel ab xptr durch XOR.
   local void xor_loop_up (uintD* xptr, const uintD* yptr, uintC count);
   local void xor_loop_up(xptr,yptr,count)
@@ -126,7 +126,7 @@
 
 # AND-Schleife:
 # and_loop_up(xptr,yptr,count);
-# verkn¸pft count (uintC>=0) Digits aufw‰rts ab xptr und ab yptr
+# verkn√ºpft count (uintC>=0) Digits aufw√§rts ab xptr und ab yptr
 # mit Ziel ab xptr durch AND.
   local void and_loop_up (uintD* xptr, const uintD* yptr, uintC count);
   local void and_loop_up(xptr,yptr,count)
@@ -141,7 +141,7 @@
 
 # EQV-Schleife:
 # eqv_loop_up(xptr,yptr,count);
-# verkn¸pft count (uintC>=0) Digits aufw‰rts ab xptr und ab yptr
+# verkn√ºpft count (uintC>=0) Digits aufw√§rts ab xptr und ab yptr
 # mit Ziel ab xptr durch EQV (NOT XOR).
   local void eqv_loop_up (uintD* xptr, const uintD* yptr, uintC count);
   local void eqv_loop_up(xptr,yptr,count)
@@ -158,7 +158,7 @@
 
 # NAND-Schleife:
 # nand_loop_up(xptr,yptr,count);
-# verkn¸pft count (uintC>=0) Digits aufw‰rts ab xptr und ab yptr
+# verkn√ºpft count (uintC>=0) Digits aufw√§rts ab xptr und ab yptr
 # mit Ziel ab xptr durch NAND (NOT AND).
   local void nand_loop_up (uintD* xptr, const uintD* yptr, uintC count);
   local void nand_loop_up(xptr,yptr,count)
@@ -175,7 +175,7 @@
 
 # NOR-Schleife:
 # nor_loop_up(xptr,yptr,count);
-# verkn¸pft count (uintC>=0) Digits aufw‰rts ab xptr und ab yptr
+# verkn√ºpft count (uintC>=0) Digits aufw√§rts ab xptr und ab yptr
 # mit Ziel ab xptr durch NOR (NOT OR).
   local void nor_loop_up (uintD* xptr, const uintD* yptr, uintC count);
   local void nor_loop_up(xptr,yptr,count)
@@ -192,7 +192,7 @@
 
 # ANDC2-Schleife:
 # andc2_loop_up(xptr,yptr,count);
-# verkn¸pft count (uintC>=0) Digits aufw‰rts ab xptr und ab yptr
+# verkn√ºpft count (uintC>=0) Digits aufw√§rts ab xptr und ab yptr
 # mit Ziel ab xptr durch ANDC2 (AND NOT).
   local void andc2_loop_up (uintD* xptr, const uintD* yptr, uintC count);
   local void andc2_loop_up(xptr,yptr,count)
@@ -207,7 +207,7 @@
 
 # ORC2-Schleife:
 # orc2_loop_up(xptr,yptr,count);
-# verkn¸pft count (uintC>=0) Digits aufw‰rts ab xptr und ab yptr
+# verkn√ºpft count (uintC>=0) Digits aufw√§rts ab xptr und ab yptr
 # mit Ziel ab xptr durch ORC2 (OR NOT).
   local void orc2_loop_up (uintD* xptr, const uintD* yptr, uintC count);
   local void orc2_loop_up(xptr,yptr,count)
@@ -222,7 +222,7 @@
 
 # NOT-Schleife:
 # not_loop_up(xptr,count);
-# verkn¸pft count (uintC>0) Digits aufw‰rts ab xptr mit Ziel ab xptr
+# verkn√ºpft count (uintC>0) Digits aufw√§rts ab xptr mit Ziel ab xptr
 # durch NOT.
   local void not_loop_up (uintD* xptr, uintC count);
   local void not_loop_up(xptr,count)
@@ -238,7 +238,7 @@
 
 # AND-Test-Schleife:
 # and_test_loop_up(xptr,yptr,count);
-# verkn¸pft count (uintC>=0) Digits aufw‰rts ab xptr und ab yptr durch AND
+# verkn√ºpft count (uintC>=0) Digits aufw√§rts ab xptr und ab yptr durch AND
 # und testet, ob sich dabei ein Digit /=0 ergibt. Ergebnis /=0, falls ja.
   local boolean and_test_loop_up (const uintD* xptr, const uintD* yptr, uintC count);
   local boolean and_test_loop_up(xptr,yptr,count)
@@ -256,7 +256,7 @@
 
 # Test-Schleife:
 # test_loop_up(ptr,count)
-# testet count (uintC>=0) Digits aufw‰rts ab ptr, ob darunter eines /=0 ist.
+# testet count (uintC>=0) Digits aufw√§rts ab ptr, ob darunter eines /=0 ist.
 # Ergebnis /=0, falls ja.
   local boolean test_loop_up (const uintD* ptr, uintC count);
   local boolean test_loop_up(ptr,count)
@@ -293,9 +293,9 @@
     }
 
 # Additionsschleife:
-# ¸bertrag = add_loop_down(sourceptr1,sourceptr2,destptr,count);
-# addiert count (uintC>=0) Digits abw‰rts von sourceptr1, von sourceptr2
-# abw‰rts nach destptr und liefert den ‹bertrag (0 oder /=0, was 1 bedeutet).
+# √ºbertrag = add_loop_down(sourceptr1,sourceptr2,destptr,count);
+# addiert count (uintC>=0) Digits abw√§rts von sourceptr1, von sourceptr2
+# abw√§rts nach destptr und liefert den √úbertrag (0 oder /=0, was 1 bedeutet).
   local uintD add_loop_down (const uintD* sourceptr1, const uintD* sourceptr2, uintD* destptr, uintC count);
   local uintD add_loop_down(sourceptr1,sourceptr2,destptr,count)
     var const uintD* sourceptr1;
@@ -325,9 +325,9 @@
     }
 
 # Additionsschleife:
-# ¸bertrag = addto_loop_down(sourceptr,destptr,count);
-# addiert count (uintC>=0) Digits abw‰rts von sourceptr, von destptr
-# abw‰rts nach destptr und liefert den ‹bertrag (0 oder /=0, was 1 bedeutet).
+# √ºbertrag = addto_loop_down(sourceptr,destptr,count);
+# addiert count (uintC>=0) Digits abw√§rts von sourceptr, von destptr
+# abw√§rts nach destptr und liefert den √úbertrag (0 oder /=0, was 1 bedeutet).
   local uintD addto_loop_down (const uintD* sourceptr, uintD* destptr, uintC count);
   local uintD addto_loop_down(sourceptr,destptr,count)
     var const uintD* sourceptr;
@@ -356,9 +356,9 @@
     }
 
 # Incrementierschleife:
-# ¸bertrag = inc_loop_down(ptr,count);
-# incrementiert count (uintC>=0) Digits abw‰rts von ptr, so lange bis kein
-# ‹bertrag mehr auftritt und liefert den ‹bertrag (0 oder /=0, was 1 bedeutet).
+# √ºbertrag = inc_loop_down(ptr,count);
+# incrementiert count (uintC>=0) Digits abw√§rts von ptr, so lange bis kein
+# √úbertrag mehr auftritt und liefert den √úbertrag (0 oder /=0, was 1 bedeutet).
   local uintD inc_loop_down (uintD* ptr, uintC count);
   local uintD inc_loop_down(ptr,count)
     var uintD* ptr;
@@ -366,16 +366,16 @@
     {
       until (count==0) {
         if (!( ++(*--ptr) == 0 ))
-          return 0; # kein weiterer ‹bertrag
+          return 0; # kein weiterer √úbertrag
         count--;
       }
-      return 1; # weiterer ‹bertrag
+      return 1; # weiterer √úbertrag
     }
 
 # Subtraktionsschleife:
-# ¸bertrag = sub_loop_down(sourceptr1,sourceptr2,destptr,count);
-# subtrahiert count (uintC>=0) Digits abw‰rts von sourceptr1, von sourceptr2
-# abw‰rts nach destptr und liefert den ‹bertrag (0 oder /=0, was -1 bedeutet).
+# √ºbertrag = sub_loop_down(sourceptr1,sourceptr2,destptr,count);
+# subtrahiert count (uintC>=0) Digits abw√§rts von sourceptr1, von sourceptr2
+# abw√§rts nach destptr und liefert den √úbertrag (0 oder /=0, was -1 bedeutet).
   local uintD sub_loop_down (const uintD* sourceptr1, const uintD* sourceptr2, uintD* destptr, uintC count);
   local uintD sub_loop_down(sourceptr1,sourceptr2,destptr,count)
     var const uintD* sourceptr1;
@@ -405,10 +405,10 @@
     }
 
 # Subtraktionsschleife:
-# ¸bertrag = subx_loop_down(sourceptr1,sourceptr2,destptr,count,carry);
-# subtrahiert count (uintC>=0) Digits abw‰rts von sourceptr1 und addiert
-# einen Carry (0 oder -1), von sourceptr2 abw‰rts nach destptr und
-# liefert den ‹bertrag (0 oder /=0, was -1 bedeutet).
+# √ºbertrag = subx_loop_down(sourceptr1,sourceptr2,destptr,count,carry);
+# subtrahiert count (uintC>=0) Digits abw√§rts von sourceptr1 und addiert
+# einen Carry (0 oder -1), von sourceptr2 abw√§rts nach destptr und
+# liefert den √úbertrag (0 oder /=0, was -1 bedeutet).
   local uintD subx_loop_down (const uintD* sourceptr1, const uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
   local uintD subx_loop_down(sourceptr1,sourceptr2,destptr,count,carry)
     var const uintD* sourceptr1;
@@ -438,10 +438,10 @@
     }
 
 # Subtraktionsschleife:
-# ¸bertrag = subfrom_loop_down(sourceptr,destptr,count);
-# subtrahiert count (uintC>=0) Digits abw‰rts von sourceptr, von destptr
-# abw‰rts nach destptr (dest := dest - source)
-# und liefert den ‹bertrag (0 oder /=0, was -1 bedeutet).
+# √ºbertrag = subfrom_loop_down(sourceptr,destptr,count);
+# subtrahiert count (uintC>=0) Digits abw√§rts von sourceptr, von destptr
+# abw√§rts nach destptr (dest := dest - source)
+# und liefert den √úbertrag (0 oder /=0, was -1 bedeutet).
   local uintD subfrom_loop_down (const uintD* sourceptr, uintD* destptr, uintC count);
   local uintD subfrom_loop_down(sourceptr,destptr,count)
     var const uintD* sourceptr;
@@ -470,9 +470,9 @@
     }
 
 # Decrementierschleife:
-# ¸bertrag = dec_loop_down(ptr,count);
-# decrementiert count (uintC>=0) Digits abw‰rts von ptr, so lange bis kein
-# ‹bertrag mehr auftritt und liefert den ‹bertrag (0 oder -1).
+# √ºbertrag = dec_loop_down(ptr,count);
+# decrementiert count (uintC>=0) Digits abw√§rts von ptr, so lange bis kein
+# √úbertrag mehr auftritt und liefert den √úbertrag (0 oder -1).
   local uintD dec_loop_down (uintD* ptr, uintC count);
   local uintD dec_loop_down(ptr,count)
     var uintD* ptr;
@@ -480,16 +480,16 @@
     {
       until (count==0) {
         if (!( (*--ptr)-- == 0 ))
-          return 0; # kein weiterer ‹bertrag
+          return 0; # kein weiterer √úbertrag
         count--;
       }
-      return -1; # weiterer ‹bertrag
+      return -1; # weiterer √úbertrag
     }
 
 # Negierschleife:
-# ¸bertrag = neg_loop_down(ptr,count);
-# negiert count (uintC>=0) Digits abw‰rts von ptr,
-# und liefert den ‹bertrag (0 oder -1).
+# √ºbertrag = neg_loop_down(ptr,count);
+# negiert count (uintC>=0) Digits abw√§rts von ptr,
+# und liefert den √úbertrag (0 oder -1).
   local uintD neg_loop_down (uintD* ptr, uintC count);
   local uintD neg_loop_down(ptr,count)
     var uintD* ptr;
@@ -513,9 +513,9 @@
     }
 
 # Schiebeschleife um 1 Bit nach links:
-# ¸bertrag = shift1left_loop_down(ptr,count);
-# schiebt count (uintC>=0) Digits abw‰rts von ptr um 1 Bit nach links,
-# und liefert den ‹bertrag (0 oder /=0, was 1 bedeutet).
+# √ºbertrag = shift1left_loop_down(ptr,count);
+# schiebt count (uintC>=0) Digits abw√§rts von ptr um 1 Bit nach links,
+# und liefert den √úbertrag (0 oder /=0, was 1 bedeutet).
   local uintD shift1left_loop_down (uintD* ptr, uintC count);
   #if HAVE_DD
   local uintD shift1left_loop_down(ptr,count)
@@ -547,10 +547,10 @@
   #endif
 
 # Schiebeschleife um i Bits nach links:
-# ¸bertrag = shiftleft_loop_down(ptr,count,i,¸bertrag_init);
-# schiebt count (uintC>=0) Digits abw‰rts von ptr um i Bits (0<i<intDsize)
-# nach links, schiebt dabei die i Bits aus ¸bertrag_init rechts rein,
-# und liefert den ‹bertrag (was links rauskommt, >=0, <2^i).
+# √ºbertrag = shiftleft_loop_down(ptr,count,i,√ºbertrag_init);
+# schiebt count (uintC>=0) Digits abw√§rts von ptr um i Bits (0<i<intDsize)
+# nach links, schiebt dabei die i Bits aus √ºbertrag_init rechts rein,
+# und liefert den √úbertrag (was links rauskommt, >=0, <2^i).
   local uintD shiftleft_loop_down (uintD* ptr, uintC count, uintC i, uintD carry);
   #if HAVE_DD
   local uintD shiftleft_loop_down(ptr,count,i,carry)
@@ -586,11 +586,11 @@
   #endif
 
 # Schiebe- und Kopierschleife um i Bits nach links:
-# ¸bertrag = shiftleftcopy_loop_down(sourceptr,destptr,count,i);
-# kopiert count (uintC>=0) Digits abw‰rts von sourceptr nach destptr
+# √ºbertrag = shiftleftcopy_loop_down(sourceptr,destptr,count,i);
+# kopiert count (uintC>=0) Digits abw√§rts von sourceptr nach destptr
 # und schiebt sie dabei um i Bits (0<i<intDsize) nach links,
-# wobei ganz rechts mit i Nullbits aufgef¸llt wird,
-# und liefert den ‹bertrag (was links rauskommt, >=0, <2^i).
+# wobei ganz rechts mit i Nullbits aufgef√ºllt wird,
+# und liefert den √úbertrag (was links rauskommt, >=0, <2^i).
   local uintD shiftleftcopy_loop_down (const uintD* sourceptr, uintD* destptr, uintC count, uintC i);
   #if HAVE_DD
   local uintD shiftleftcopy_loop_down(sourceptr,destptr,count,i)
@@ -627,10 +627,10 @@
   #endif
 
 # Schiebeschleife um 1 Bit nach rechts:
-# ¸bertrag = shift1right_loop_up(ptr,count,¸bertrag_init);
-# schiebt count (uintC>=0) Digits aufw‰rts von ptr um 1 Bit nach rechts,
-# wobei links das Bit ¸bertrag_init (sollte =0 oder =-1 sein) hineingeschoben
-# wird, und liefert den ‹bertrag (0 oder /=0, was 1 bedeutet).
+# √ºbertrag = shift1right_loop_up(ptr,count,√ºbertrag_init);
+# schiebt count (uintC>=0) Digits aufw√§rts von ptr um 1 Bit nach rechts,
+# wobei links das Bit √ºbertrag_init (sollte =0 oder =-1 sein) hineingeschoben
+# wird, und liefert den √úbertrag (0 oder /=0, was 1 bedeutet).
   local uintD shift1right_loop_up (uintD* ptr, uintC count, uintD carry);
   #if HAVE_DD
   local uintD shift1right_loop_up(ptr,count,carry)
@@ -664,10 +664,10 @@
   #endif
 
 # Schiebeschleife um i Bits nach rechts:
-# ¸bertrag = shiftright_loop_up(ptr,count,i);
-# schiebt count (uintC>=0) Digits aufw‰rts von ptr um i Bits (0<i<intDsize)
+# √ºbertrag = shiftright_loop_up(ptr,count,i);
+# schiebt count (uintC>=0) Digits aufw√§rts von ptr um i Bits (0<i<intDsize)
 # nach rechts, wobei links Nullen eingeschoben werden,
-# und liefert den ‹bertrag (was rechts rauskommt, als Bits intDsize-1..intDsize-i).
+# und liefert den √úbertrag (was rechts rauskommt, als Bits intDsize-1..intDsize-i).
   local uintD shiftright_loop_up (uintD* ptr, uintC count, uintC i);
   #if HAVE_DD
   local uintD shiftright_loop_up(ptr,count,i)
@@ -677,9 +677,9 @@
     {
       var uintDD accu = 0;
       until (count==0) {
-        # Die oberen i Bits von (uintD)accu bilden hier den ‹bertrag.
+        # Die oberen i Bits von (uintD)accu bilden hier den √úbertrag.
         accu = highlowDD_0(lowD(accu));
-        # Die oberen i Bits von (uintDD)accu bilden hier den ‹bertrag.
+        # Die oberen i Bits von (uintDD)accu bilden hier den √úbertrag.
         accu = (highlowDD_0(*ptr)>>i)+accu; *ptr++ = highD(accu);
         count--;
       }
@@ -704,10 +704,10 @@
   #endif
 
 # Schiebeschleife um i Bits nach rechts:
-# ¸bertrag = shiftrightsigned_loop_up(ptr,count,i);
-# schiebt count (uintC>0) Digits aufw‰rts von ptr um i Bits (0<i<intDsize)
+# √ºbertrag = shiftrightsigned_loop_up(ptr,count,i);
+# schiebt count (uintC>0) Digits aufw√§rts von ptr um i Bits (0<i<intDsize)
 # nach rechts, wobei links das MSBit ver-i-facht wird,
-# und liefert den ‹bertrag (was rechts rauskommt, als Bits intDsize-1..intDsize-i).
+# und liefert den √úbertrag (was rechts rauskommt, als Bits intDsize-1..intDsize-i).
   local uintD shiftrightsigned_loop_up (uintD* ptr, uintC count, uintC i);
   #if HAVE_DD
   local uintD shiftrightsigned_loop_up(ptr,count,i)
@@ -715,12 +715,12 @@
     var uintC count;
     var uintC i;
     {
-      var uintDD accu = # ‹bertrag mit i Vorzeichenbits initialisieren
+      var uintDD accu = # √úbertrag mit i Vorzeichenbits initialisieren
                            highlowDD_0(sign_of_sintD((sintD)(*ptr)))>>i;
       do {
-        # Die oberen i Bits von (uintD)accu bilden hier den ‹bertrag.
+        # Die oberen i Bits von (uintD)accu bilden hier den √úbertrag.
         accu = highlowDD_0(lowD(accu));
-        # Die oberen i Bits von (uintDD)accu bilden hier den ‹bertrag.
+        # Die oberen i Bits von (uintDD)accu bilden hier den √úbertrag.
         accu = (highlowDD_0(*ptr)>>i)+accu; *ptr++ = highD(accu);
         count--;
       } until (count==0);
@@ -751,11 +751,11 @@
   #endif
 
 # Schiebe- und Kopier-Schleife um i Bits nach rechts:
-# ¸bertrag = shiftrightcopy_loop_up(sourceptr,destptr,count,i,carry);
-# kopiert count (uintC>=0) Digits aufw‰rts von sourceptr nach destptr
+# √ºbertrag = shiftrightcopy_loop_up(sourceptr,destptr,count,i,carry);
+# kopiert count (uintC>=0) Digits aufw√§rts von sourceptr nach destptr
 # und schiebt sie dabei um i Bits (0<i<intDsize) nach rechts, wobei carry
 # (sozusagen als sourceptr[-1]) die i Bits ganz links bestimmt,
-# und liefert den ‹bertrag (was rechts rauskommt, als Bits intDsize-1..intDsize-i).
+# und liefert den √úbertrag (was rechts rauskommt, als Bits intDsize-1..intDsize-i).
   local uintD shiftrightcopy_loop_up (const uintD* sourceptr, uintD* destptr, uintC count, uintC i, uintD carry);
   #if HAVE_DD
   local uintD shiftrightcopy_loop_up(sourceptr,destptr,count,i,carry)
@@ -765,12 +765,12 @@
     var uintC i;
     var uintD carry;
     {
-      var uintDD accu = # ‹bertrag mit carry initialisieren
+      var uintDD accu = # √úbertrag mit carry initialisieren
                            highlowDD_0(carry)>>i;
       until (count==0) {
-        # Die oberen i Bits von (uintD)accu bilden hier den ‹bertrag.
+        # Die oberen i Bits von (uintD)accu bilden hier den √úbertrag.
         accu = highlowDD_0(lowD(accu));
-        # Die oberen i Bits von (uintDD)accu bilden hier den ‹bertrag.
+        # Die oberen i Bits von (uintDD)accu bilden hier den √úbertrag.
         accu = (highlowDD_0(*sourceptr++)>>i)+accu; *destptr++ = highD(accu);
         count--;
       }
@@ -899,7 +899,7 @@
 # muluadd_loop_down(digit,sourceptr,destptr,len);
 # multipliziert die UDS  sourceptr[-len..-1]  (len>0)
 # mit dem einzelnen digit, legt das Ergebnis in der UDS  destptr[-len..-1]
-# ab und liefert den weiteren ‹bertrag.
+# ab und liefert den weiteren √úbertrag.
   local uintD muluadd_loop_down (uintD digit, const uintD* sourceptr, uintD* destptr, uintC len);
   #if HAVE_DD
   local uintD muluadd_loop_down(digit,sourceptr,destptr,len)
@@ -954,7 +954,7 @@
 # mulusub_loop_down(digit,sourceptr,destptr,len);
 # multipliziert die UDS  sourceptr[-len..-1]  (len>0)  mit dem einzelnen
 # digit, subtrahiert das Ergebnis von der UDS  destptr[-len..-1]  und liefert
-# den weiteren ‹bertrag (>=0, evtl. von destptr[-len-1] zu subtrahieren).
+# den weiteren √úbertrag (>=0, evtl. von destptr[-len-1] zu subtrahieren).
   local uintD mulusub_loop_down (uintD digit, const uintD* sourceptr, uintD* destptr, uintC len);
   #if HAVE_DD
   local uintD mulusub_loop_down(digit,sourceptr,destptr,len)
@@ -976,7 +976,7 @@
         } until (len==0);
         return lowD(carry);
       } else
-        return 0; # nichts zu subtrahieren -> kein ‹bertrag
+        return 0; # nichts zu subtrahieren -> kein √úbertrag
     }
   #else
   local uintD mulusub_loop_down(digit,sourceptr,destptr,len)
@@ -1001,7 +1001,7 @@
         } until (len==0);
         return carry;
       } else
-        return 0; # nichts zu subtrahieren -> kein ‹bertrag
+        return 0; # nichts zu subtrahieren -> kein √úbertrag
     }
   #endif
 

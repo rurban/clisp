@@ -1,4 +1,4 @@
-# Elementare Funktionen für komplexe Zahlen
+# Elementare Funktionen fÃ¼r komplexe Zahlen
 
 # Liefert zu reellen Zahlen a und b /= Fixnum 0 die komplexe Zahl a+bi.
 # R_R_complex_C(a,b)
@@ -26,7 +26,7 @@
   #define N_realpart_R(x)  (N_realp(x) ? x : TheComplex(x)->c_real)
 #endif
 
-# N_imagpart_R(x) liefert den Imaginärteil der Zahl x.
+# N_imagpart_R(x) liefert den ImaginÃ¤rteil der Zahl x.
   local object N_imagpart_R (object x);
 #if 0
   local object N_imagpart_R(x)
@@ -46,7 +46,7 @@
         else
         { pushSTACK(TheComplex(x)->c_real);
          {var object b = TheComplex(x)->c_imag;
-          b = R_minus_R(b); # Vorzeichenwechsel beim Imaginärteil
+          b = R_minus_R(b); # Vorzeichenwechsel beim ImaginÃ¤rteil
           return R_R_complex_C(popSTACK(),b);
     }   }}
 
@@ -275,7 +275,7 @@
     { if (N_realp(x))
         { return R_zerop(x); }
         else
-        # x komplex, teste ob Real- und Imaginärteil beide = 0 sind.
+        # x komplex, teste ob Real- und ImaginÃ¤rteil beide = 0 sind.
         { return (R_zerop(TheComplex(x)->c_real) && R_zerop(TheComplex(x)->c_imag)); }
     }
 
@@ -290,18 +290,18 @@
 #      c:=a*a+b*b, c:=1/c, liefere a*c+(-b*c)i.
 #    Falls a oder b Floats sind:
 #      Falls einer von beiden rational ist, runde ihn zum selben Float-Typ
-#        wie der andere und führe das UP durch.
-#      Falls beide Floats sind, erweitere auf den genaueren, führe das UP
+#        wie der andere und fÃ¼hre das UP durch.
+#      Falls beide Floats sind, erweitere auf den genaueren, fÃ¼hre das UP
 #        durch und runde wieder auf den ungenaueren.
 #      Das Ergebnis ist eine komplexe Zahl, da beide Komponenten Floats sind.
 # UP: [a,b Floats vom selben Typ]
 #  a=0.0 -> liefere die Komponenten a=0.0 und -1/b.
 #  b=0.0 -> liefere die Komponenten 1/a und b=0.0.
 #  e:=max(exponent(a),exponent(b)).
-#  a':=a/2^e bzw. 0.0 bei Underflowmöglichkeit (beim Skalieren a':=a/2^e
+#  a':=a/2^e bzw. 0.0 bei UnderflowmÃ¶glichkeit (beim Skalieren a':=a/2^e
 #      oder beim Quadrieren a'*a':  2*(e-exponent(a))>exp_mid-exp_low-1
 #      d.h. exponent(b)-exponent(a)>floor((exp_mid-exp_low-1)/2) ).
-#  b':=b/2^e bzw. 0.0 bei Underflowmöglichkeit (beim Skalieren b':=b/2^e
+#  b':=b/2^e bzw. 0.0 bei UnderflowmÃ¶glichkeit (beim Skalieren b':=b/2^e
 #      oder beim Quadrieren b'*b':  2*(e-exponent(b))>exp_mid-exp_low-1
 #      d.h. exponent(a)-exponent(b)>floor((exp_mid-exp_low-1)/2) ).
 #  c':=a'*a'+b'*b',
@@ -500,7 +500,7 @@
                 # a,b Floats
                 GEN_F_op2(a,b,SFC_durch_SFC,FFC_durch_FFC,DFC_durch_DFC,LFC_durch_LFC,2,0,)
             }
-          # beide Komponenten zu einer komplexen Zahl zusammenfügen:
+          # beide Komponenten zu einer komplexen Zahl zusammenfÃ¼gen:
          {var object a = STACK_1;
           var object b = STACK_0;
           skipSTACK(2); return R_R_complex_C(a,b);
@@ -550,18 +550,18 @@
 #   c:=a*a+b*b, liefere (sqrt c).
 # Falls a oder b Floats sind:
 #   Falls einer von beiden rational ist, runde ihn zum selben Float-Typ
-#     wie der andere und führe das UP durch.
-#   Falls beide Floats sind, erweitere auf den genaueren, führe das UP
+#     wie der andere und fÃ¼hre das UP durch.
+#   Falls beide Floats sind, erweitere auf den genaueren, fÃ¼hre das UP
 #     durch und runde wieder auf den ungenaueren.
 #   Das Ergebnis ist ein Float >=0.
 # UP: [a,b Floats vom selben Typ]
 #  a=0.0 -> liefere abs(b).
 #  b=0.0 -> liefere abs(a).
 #  e:=max(exponent(a),exponent(b)).
-#  a':=a/2^e bzw. 0.0 bei Underflowmöglichkeit (beim Skalieren a':=a/2^e
+#  a':=a/2^e bzw. 0.0 bei UnderflowmÃ¶glichkeit (beim Skalieren a':=a/2^e
 #      oder beim Quadrieren a'*a':  2*(e-exponent(a))>exp_mid-exp_low-1
 #      d.h. exponent(b)-exponent(a)>floor((exp_mid-exp_low-1)/2) ).
-#  b':=b/2^e bzw. 0.0 bei Underflowmöglichkeit (beim Skalieren b':=b/2^e
+#  b':=b/2^e bzw. 0.0 bei UnderflowmÃ¶glichkeit (beim Skalieren b':=b/2^e
 #      oder beim Quadrieren b'*b':  2*(e-exponent(b))>exp_mid-exp_low-1
 #      d.h. exponent(a)-exponent(b)>floor((exp_mid-exp_low-1)/2) ).
 #  c':=a'*a'+b'*b', c':=sqrt(c'), liefere 2^e*c'.
@@ -789,7 +789,7 @@
 # can trigger GC
   local object N_sqrt_N (object x);
 # Methode:
-# x reell -> Für x>=0 klar, für x<0: sqrt(-x)*i.
+# x reell -> FÃ¼r x>=0 klar, fÃ¼r x<0: sqrt(-x)*i.
 # x=a+bi ->
 #   Bestimme r=abs(x)=sqrt(a*a+b*b).
 #   Falls a>=0: Setze c:=sqrt((r+a)/2), d:=(b/(2*c) falls c>0, c falls c=0).
@@ -845,7 +845,7 @@
 # Falls beide reell, klar.
 # Falls x reell, y komplex: (= x (realpart y)) und (zerop (imagpart y)).
 # Falls x komplex, y reell: analog
-# Falls beide komplex: Realteile und Imaginärteile jeweils gleich?
+# Falls beide komplex: Realteile und ImaginÃ¤rteile jeweils gleich?
   global /* local */ boolean N_N_gleich(x,y)
     var object x;
     var object y;
@@ -871,7 +871,7 @@
             # x,y beide komplex
             { if (!R_R_gleich(TheComplex(x)->c_real,TheComplex(y)->c_real)) # Realteile vergleichen
                 { return FALSE; }
-              if (!R_R_gleich(TheComplex(x)->c_imag,TheComplex(y)->c_imag)) # Imaginärteile vergleichen
+              if (!R_R_gleich(TheComplex(x)->c_imag,TheComplex(y)->c_imag)) # ImaginÃ¤rteile vergleichen
                 { return FALSE; }
               return TRUE;
             }

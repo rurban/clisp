@@ -393,7 +393,7 @@
 
 (loop-finish)
 
-(macrolet ((Monat->Jahrtag (Monat) ; 0 <= Monat < 12, 0=März,...,11=Februar
+(macrolet ((Monat->Jahrtag (Monat) ; 0 <= Monat < 12, 0=MÃ¤rz,...,11=Februar
              `(svref '#(0 31 61 92 122 153 184 214 245 275 306 337) ,Monat)))
   (form1))
 

@@ -1,11 +1,11 @@
-# Transzendente Funktionen für komplexe Zahlen
+# Transzendente Funktionen fÃ¼r komplexe Zahlen
 
 # N_phase_R(x) liefert (phase x), wo x eine Zahl ist.
 # Ergebnis rational nur wenn (= x 0) oder wenn x reell und >0.
 # can trigger GC
   local object N_phase_R (object x);
 # Methode:
-# (= x 0) -> willkürliches Ergebnis 0
+# (= x 0) -> willkÃ¼rliches Ergebnis 0
 # x reell -> Winkel von (x,0) in Polarkoordinaten
 # x komplex -> Winkel von ((realpart x),(imagpart x)) in Polarkoordinaten
   local object N_phase_R(x)
@@ -68,9 +68,9 @@
 #     falls (= a 0): Error
 #     sonst: (phase a) errechnen, ein Float.
 #            b (falls rational) ins selbe Float-Format umwandeln,
-#            Imaginärteil := (/ (phase a) (log dieses_b)).
+#            ImaginÃ¤rteil := (/ (phase a) (log dieses_b)).
 #            Falls a rational: (log (abs a) b).
-#            Falls a komplex mit rationalem Real- und Imaginärteil,
+#            Falls a komplex mit rationalem Real- und ImaginÃ¤rteil,
 #              Betragsquadrat  (expt (abs a) 2)  exakt ausrechnen als
 #              (+ (expt (realpart a) 2) (expt (imagpart a) 2)).
 #              Setze  Realteil := (/ (log Betragsquadrat b) 2).
@@ -91,16 +91,16 @@
             else
             # b ist reell und >0, a aber nicht
             { pushSTACK(a); pushSTACK(b); # a,b retten
-              # Imaginärteil (/ (phase a) (log b)) errechnen:
+              # ImaginÃ¤rteil (/ (phase a) (log b)) errechnen:
               {var object angle = N_phase_R(a); # (phase a)
                if (eq(angle,Fixnum_0)) # = Fixnum 0 <==> (= a 0) -> Error
                  { divide_0(); }
-               # durch (log b) dividieren, liefert den Imaginärteil:
+               # durch (log b) dividieren, liefert den ImaginÃ¤rteil:
                pushSTACK(angle);
                b = STACK_1; if (R_rationalp(b)) { b = RA_F_float_F(b,angle); }
                b = F_ln_F(b); STACK_0 = F_F_durch_F(STACK_0,b);
               }
-              # Stackaufbau: a, b, Imaginärteil.
+              # Stackaufbau: a, b, ImaginÃ¤rteil.
               # Realteil (/ (log (abs a)) (log b)) errechnen:
               a = STACK_2;
               if (N_realp(a))
@@ -114,7 +114,7 @@
                 { if (R_rationalp(TheComplex(a)->c_real)
                       && R_rationalp(TheComplex(a)->c_imag)
                      )
-                    # a komplex mit rationalem Real- und Imaginärteil a1,a2
+                    # a komplex mit rationalem Real- und ImaginÃ¤rteil a1,a2
                     { # Betragsquadrat a1^2+a2^2 errechnen:
                       pushSTACK(TheComplex(a)->c_imag);
                       {var object a1 = TheComplex(a)->c_real;
@@ -127,13 +127,13 @@
                       STACK_0 = R_R_durch_R(R_R_log_R(a,STACK_2),fixnum(2));
                       goto real_ok;
                 }   }
-              # Keine Chance für rationalen Realteil
+              # Keine Chance fÃ¼r rationalen Realteil
               pushSTACK(F_ln_F(N_abs_R(a))); # (log (abs a)), ein Float
               # durch (log b) dividieren, liefert den Realteil:
               b = STACK_2; if (R_rationalp(b)) { b = RA_F_float_F(b,STACK_0); }
               b = F_ln_F(b); STACK_0 = F_F_durch_F(STACK_0,b);
               real_ok:
-              # Stackaufbau: a, b, Imaginärteil, Realteil.
+              # Stackaufbau: a, b, ImaginÃ¤rteil, Realteil.
              {var object erg = R_R_complex_C(STACK_0,STACK_1);
               skipSTACK(4); return erg;
             }}
@@ -150,15 +150,15 @@
 # can trigger GC
   local object N_I_expt_N (object x, object y);
   # Methode:
-  # Für y>0:
+  # FÃ¼r y>0:
   #   a:=x, b:=y.
   #   Solange b gerade, setze a:=a*a, b:=b/2. [a^b bleibt invariant, = x^y.]
   #   c:=a.
   #   Solange b:=floor(b/2) >0 ist,
   #     setze a:=a*a, und falls b ungerade, setze c:=a*c.
   #   Ergebnis c.
-  # Für y=0: Ergebnis 1.
-  # Für y<0: (/ (expt x (- y))).
+  # FÃ¼r y=0: Ergebnis 1.
+  # FÃ¼r y<0: (/ (expt x (- y))).
   local object N_I_expt_N(x,y)
     var object x;
     var object y;
@@ -193,13 +193,13 @@
   # Falls y rational:
   #   Falls y Integer:
   #     Falls y=0: Ergebnis 1,
-  #       [Nach CLTL folgendermaßen:
+  #       [Nach CLTL folgendermaÃŸen:
   #         x reell:
   #           x rational -> Fixnum 1
   #           x Float -> (float 1 x)
   #         x komplex:
   #           x komplex rational -> Fixnum 1
-  #           sonst: #C(1.0 0.0) im Float-Format des Real- bzw. Imaginärteils von x
+  #           sonst: #C(1.0 0.0) im Float-Format des Real- bzw. ImaginÃ¤rteils von x
   #       ]
   #     Falls x rational oder komplex rational oder |y| klein:
   #       x^|y| durch wiederholtes Quadrieren und Multiplizieren und evtl.
@@ -229,7 +229,7 @@
   #     liefere 1.0 falls x und y reell, #C(1.0 0.0) sonst.
   #   Sonst: (exp (* (log x) y))
   # Das Ergebnis liegt in Q(i), falls x in Q(i) liegt und 4y ein Integer ist.??
-  # Genauigkeit erhöhen, log2(|y|) Bits mehr??
+  # Genauigkeit erhÃ¶hen, log2(|y|) Bits mehr??
   # Bei x oder y rational und der andere Long-Float: bitte kein Single-Float!??
   local object N_N_expt_N(x,y)
     var object x;
@@ -311,26 +311,26 @@
         { if (!R_plusp(N_realpart_R(y))) # Realteil von y <=0 ?
             { divide_0(); } # ja -> Error
           if (N_realp(x) && N_realp(y))
-            { x = R_R_contagion_R(x,y); # ein Float, da sonst x = Fixnum 0 gewesen wäre
+            { x = R_R_contagion_R(x,y); # ein Float, da sonst x = Fixnum 0 gewesen wÃ¤re
               return I_F_float_F(Fixnum_0,x); # 0.0
             }
             else
             { if (!N_realp(x)) { x = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag); }
               if (!N_realp(y)) { y = R_R_contagion_R(TheComplex(y)->c_real,TheComplex(y)->c_imag); }
-              x = R_R_contagion_R(x,y); # ein Float, da sonst x = Fixnum 0 gewesen wäre
+              x = R_R_contagion_R(x,y); # ein Float, da sonst x = Fixnum 0 gewesen wÃ¤re
               x = I_F_float_F(Fixnum_0,x); # 0.0
               return R_R_complex_C(x,x); # #C(0.0 0.0)
             }
         }
       if (N_zerop(y)) # y=0.0 ?
         { if (N_realp(x) && N_realp(y))
-            { x = R_R_contagion_R(x,y); # ein Float, da sonst y = Fixnum 0 gewesen wäre
+            { x = R_R_contagion_R(x,y); # ein Float, da sonst y = Fixnum 0 gewesen wÃ¤re
               return I_F_float_F(Fixnum_1,x); # 1.0
             }
             else
             { if (!N_realp(x)) { x = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag); }
               if (!N_realp(y)) { y = R_R_contagion_R(TheComplex(y)->c_real,TheComplex(y)->c_imag); }
-              x = R_R_contagion_R(x,y); # ein Float, da sonst y = Fixnum 0 gewesen wäre
+              x = R_R_contagion_R(x,y); # ein Float, da sonst y = Fixnum 0 gewesen wÃ¤re
               x = I_F_float_F(Fixnum_0,x); # 0.0
               pushSTACK(x);
               x = I_F_float_F(Fixnum_1,x); # 1.0
@@ -415,12 +415,12 @@
          {var object temp;
           STACK_4 = R_R_mal_R(STACK_0,STACK_3); # sin(a)*cosh(b)
           temp = R_R_mal_R(STACK_1,STACK_2); # cos(a)*sinh(b) /= Fixnum 0
-          STACK_4 = R_R_complex_C(STACK_4,temp); # Zähler
-          # Stackaufbau: Zähler, cosh(b), sinh(b), cos(a), sin(a).
+          STACK_4 = R_R_complex_C(STACK_4,temp); # ZÃ¤hler
+          # Stackaufbau: ZÃ¤hler, cosh(b), sinh(b), cos(a), sin(a).
           STACK_3 = R_R_mal_R(STACK_1,STACK_3); # cos(a)*cosh(b)
           temp = R_minus_R(R_R_mal_R(STACK_0,STACK_2)); # -sin(a)*sinh(b)
           temp = R_R_complex_N(STACK_3,temp); # Nenner
-          temp = N_N_durch_N(STACK_4,temp); # Zähler/Nenner
+          temp = N_N_durch_N(STACK_4,temp); # ZÃ¤hler/Nenner
           skipSTACK(5); return temp;
         }}
     }
@@ -525,12 +525,12 @@
          {var object temp;
           STACK_4 = R_R_mal_R(STACK_0,STACK_3); # sinh(a)*cos(b)
           temp = R_R_mal_R(STACK_1,STACK_2); # cosh(a)*sin(b) /= Fixnum 0
-          STACK_4 = R_R_complex_C(STACK_4,temp); # Zähler
-          # Stackaufbau: Zähler, cos(b), sin(b), cosh(a), sinh(a).
+          STACK_4 = R_R_complex_C(STACK_4,temp); # ZÃ¤hler
+          # Stackaufbau: ZÃ¤hler, cos(b), sin(b), cosh(a), sinh(a).
           STACK_3 = R_R_mal_R(STACK_1,STACK_3); # cosh(a)*cos(b)
           temp = R_R_mal_R(STACK_0,STACK_2); # sinh(a)*sin(b)
           temp = R_R_complex_N(STACK_3,temp); # Nenner
-          temp = N_N_durch_N(STACK_4,temp); # Zähler/Nenner
+          temp = N_N_durch_N(STACK_4,temp); # ZÃ¤hler/Nenner
           skipSTACK(5); return temp;
         }}
     }
@@ -551,20 +551,20 @@
 #             =0 -> Error,
 #             >0 (also |x|<1) -> u = 1/2 log((1+x)/(1-x)), v = 0.
 #             <0 (also |x|>1) -> u = 1/2 log(-(1+x)/(1-x)),
-#                                v = (-pi/2 für x>1, pi/2 für x<-1).
+#                                v = (-pi/2 fÃ¼r x>1, pi/2 fÃ¼r x<-1).
 # Sonst:
 #   1+x und 1-x errechnen.
 #   x und y in Floats umwandeln.
 #   |4x| und 1+x^2+y^2 errechnen,
 #   |4x| < 1+x^2+y^2 -> u = 1/2 atanh(2x/(1+x^2+y^2)),
 #   |4x| >= 1+x^2+y^2 -> u = 1/4 ln ((1+x^2+y^2)+2x)/((1+x^2+y^2)-2x)
-#                        oder besser (an der Singularität: |x|-1,|y| klein):
+#                        oder besser (an der SingularitÃ¤t: |x|-1,|y| klein):
 #                        u = 1/4 ln ((1+x)^2+y^2)/((1-x)^2+y^2).
 #   v = 1/2 atan(X=(1-x)(1+x)-y^2,Y=2y) * (-1 falls Y=0.0 und X<0.0 und x>=0.0,
 #                                          1 sonst)
 # Ergebnis ist reell nur, wenn z reell.
-# Real- und Imaginärteil des Ergebnisses sind Floats, außer wenn z reell oder
-# rein imaginär ist.
+# Real- und ImaginÃ¤rteil des Ergebnisses sind Floats, auÃŸer wenn z reell oder
+# rein imaginÃ¤r ist.
 
 # N_atan_N(z) liefert den Arctan einer Zahl z.
 # can trigger GC
@@ -573,10 +573,10 @@
 # Wert und Branch Cuts nach der Formel CLTL2, S. 307/312/313:
 #   arctan(z) = (log(1+iz)-log(1-iz)) / 2i
 # Sei z=x+iy, errechne u+iv = artanh(-y+ix) wie oben, Ergebnis v-iu.
-# Real- und Imaginärteil des Ergebnisses sind Floats, außer wenn z reell oder
-# rein imaginär ist.
+# Real- und ImaginÃ¤rteil des Ergebnisses sind Floats, auÃŸer wenn z reell oder
+# rein imaginÃ¤r ist.
 
-# Hilfsfunktion für beide: u+iv := artanh(x+iy), u,v beide auf den Stack.
+# Hilfsfunktion fÃ¼r beide: u+iv := artanh(x+iy), u,v beide auf den Stack.
   local void R_R_atanh_R_R (object x, object y);
   local void R_R_atanh_R_R(x,y)
     var object x;
@@ -599,17 +599,17 @@
            temp = R_R_plus_R(Fixnum_1,STACK_1); # 1+x
            temp = F_F_durch_F(temp,STACK_0); # (1+x)/(1-x)
            if (!R_minusp(temp))
-             { STACK_1 = temp; STACK_0 = Fixnum_0; # Imaginärteil:=0
+             { STACK_1 = temp; STACK_0 = Fixnum_0; # ImaginÃ¤rteil:=0
                if (R_zerop(temp)) { divide_0(); } # x = -1 -> Error
              }
              else
-             # (1+x)/(1-x) < 0 -> Betrag nehmen, Imaginärteil berechnen:
+             # (1+x)/(1-x) < 0 -> Betrag nehmen, ImaginÃ¤rteil berechnen:
              { STACK_1 = F_minus_F(temp);
                temp = F_I_scale_float_F(pi(),Fixnum_minus1); # (scale-float pi -1) = pi/2
                if (R_minusp(STACK_0)) { temp = F_minus_F(temp); } # 1-x<0 -> dann -pi/2
                STACK_0 = temp;
              }
-           # Stackaufbau: |(1+x)/(1-x)| (>0), Imaginärteil.
+           # Stackaufbau: |(1+x)/(1-x)| (>0), ImaginÃ¤rteil.
            STACK_1 = F_I_scale_float_F(R_ln_R(STACK_1),Fixnum_minus1); # ln bilden, durch 2
            return;
         } }
@@ -687,13 +687,13 @@
       skipSTACK(2); return z;
     }
 
-# Um für zwei Zahlen u,v mit u^2-v^2=1 und u,v beide in Bild(sqrt)
-# (d.h. Realteil>0.0 oder Realteil=0.0 und Imaginärteil>=0.0)
+# Um fÃ¼r zwei Zahlen u,v mit u^2-v^2=1 und u,v beide in Bild(sqrt)
+# (d.h. Realteil>0.0 oder Realteil=0.0 und ImaginÃ¤rteil>=0.0)
 # log(u+v) zu berechnen:
 #               log(u+v) = 2 artanh(v/(u+1))                            (!)
 # (Beweis: 2 artanh(v/(u+1)) = log(1+(v/(u+1))) - log(1-(v/(u+1)))
 #  = log((1+u+v)/(u+1)) - log((1+u-v)/(u+1)) == log((1+u+v)/(1+u-v))
-#  = log(u+v) mod 2 pi i, und beider Imaginärteil ist > -pi und <= pi.)
+#  = log(u+v) mod 2 pi i, und beider ImaginÃ¤rteil ist > -pi und <= pi.)
 
 # N_asinh_N(z) liefert den Arsinh einer Zahl z.
 # can trigger GC
@@ -732,11 +732,11 @@
 #     arsinh(z) = -arsinh(-z).
 #     (Denn arsinh(z)+arsinh(-z) == log((z+sqrt(1+z^2))(-z+sqrt(1+z^2)))
 #           = log((1+z^2)-z^2) = log(1) = 0 mod 2 pi i, und links ist
-#      der Imaginärteil betragsmäßig <=pi.)
+#      der ImaginÃ¤rteil betragsmÃ¤ÃŸig <=pi.)
 #     Also arsinh(z) = -arsinh(-z) = - 2 artanh(-z/(1+sqrt(1+z^2)))
 #          = (wegen -artanh(-w) = artanh(w)) = 2 artanh(z/(1+sqrt(1+z^2))).
-# Real- und Imaginärteil des Ergebnisses sind Floats, außer wenn z reell oder
-# rein imaginär ist.
+# Real- und ImaginÃ¤rteil des Ergebnisses sind Floats, auÃŸer wenn z reell oder
+# rein imaginÃ¤r ist.
 
 # N_asin_N(z) liefert den Arcsin einer Zahl z.
 # can trigger GC
@@ -745,10 +745,10 @@
 # Wert und Branch Cuts nach der Formel CLTL2, S. 311:
 #   arcsin(z) = log(iz+sqrt(1-z^2))/i
 # Sei z=x+iy, errechne u+iv = arsinh(-y+ix) wie oben, Ergebnis v-iu.
-# Real- und Imaginärteil des Ergebnisses sind Floats, außer wenn z reell oder
-# rein imaginär ist.
+# Real- und ImaginÃ¤rteil des Ergebnisses sind Floats, auÃŸer wenn z reell oder
+# rein imaginÃ¤r ist.
 
-# Hilfsfunktion für beide: u+iv := arsinh(x+iy), u,v beide auf den Stack.
+# Hilfsfunktion fÃ¼r beide: u+iv := arsinh(x+iy), u,v beide auf den Stack.
   local void R_R_asinh_R_R (object x, object y);
   local void R_R_asinh_R_R(x,y)
     var object x;
@@ -769,7 +769,7 @@
                 else
                 # y Ratio
                 { if (eq(TheRatio(y)->rt_den,fixnum(2))) # Nenner = 2 ?
-                    { var object temp = TheRatio(y)->rt_num; # Zähler
+                    { var object temp = TheRatio(y)->rt_num; # ZÃ¤hler
                       if (eq(temp,Fixnum_1)) # x=0, y=1/2 -> v = pi/6
                         { STACK_0 = R_R_durch_R(pi(),fixnum(6)); return; }
                       if (eq(temp,Fixnum_minus1)) # x=0, y=-1/2 -> v = -pi/6
@@ -832,15 +832,15 @@
       pushSTACK(z);
       z = N_1_plus_N(N_sqrt_N(N_1_plus_N(N_square_N(z)))); # 1+sqrt(1+z^2)
       z = N_N_durch_N(popSTACK(),z); # z/(1+sqrt(1+z^2))
-      # Da z=x+iy weder reell noch rein imaginär ist, ist auch
-      # w := z/(1+sqrt(1+z^2)) weder reell noch rein imaginär.
-      # (Beweis: Sollte sqrt(1+z^2) rationalen Real- und Imaginärteil haben,
+      # Da z=x+iy weder reell noch rein imaginÃ¤r ist, ist auch
+      # w := z/(1+sqrt(1+z^2)) weder reell noch rein imaginÃ¤r.
+      # (Beweis: Sollte sqrt(1+z^2) rationalen Real- und ImaginÃ¤rteil haben,
       # so auch z, also auch w, und die Formel z = 2w/(1-w^2) zeigt, dass dann
-      # z reell oder rein imaginär sein müsste. Also hat sqrt(1+z^2) ein
-      # Float als Real- oder Imaginärteil, das Betragsquadrat des Nenners
-      # ist also ein Float, und da Real- und Imaginärteil von z /=0 sind,
-      # sind Real- und Imaginärteil von w Floats.)
-      # Daher hat dann atanh(...) Floats als Realteil u und Imaginärteil v.
+      # z reell oder rein imaginÃ¤r sein mÃ¼sste. Also hat sqrt(1+z^2) ein
+      # Float als Real- oder ImaginÃ¤rteil, das Betragsquadrat des Nenners
+      # ist also ein Float, und da Real- und ImaginÃ¤rteil von z /=0 sind,
+      # sind Real- und ImaginÃ¤rteil von w Floats.)
+      # Daher hat dann atanh(...) Floats als Realteil u und ImaginÃ¤rteil v.
       R_R_atanh_R_R(TheComplex(z)->c_real,TheComplex(z)->c_imag); # atanh nehmen
       # u und v mit 2 multiplizieren:
       STACK_1 = F_I_scale_float_F(STACK_1,Fixnum_1); # u:=2*u
@@ -908,7 +908,7 @@
                 else
                 # z Ratio
                 { if (eq(TheRatio(z)->rt_den,fixnum(2))) # Nenner = 2 ?
-                    { var object temp = TheRatio(z)->rt_num; # Zähler
+                    { var object temp = TheRatio(z)->rt_num; # ZÃ¤hler
                       if (eq(temp,Fixnum_1)) # x=1/2 -> Ergebnis pi/3
                         { return R_R_durch_R(pi(),fixnum(3)); }
                       if (eq(temp,Fixnum_minus1)) # x=-1/2 -> Ergebnis 2pi/3
@@ -978,7 +978,7 @@
                 else
                 # z Ratio
                 { if (eq(TheRatio(z)->rt_den,fixnum(2))) # Nenner = 2 ?
-                    { var object temp = TheRatio(z)->rt_num; # Zähler
+                    { var object temp = TheRatio(z)->rt_num; # ZÃ¤hler
                       if (eq(temp,Fixnum_1)) # x=1/2 -> Ergebnis pi/3 i
                         { return R_R_complex_C(Fixnum_0,R_R_durch_R(pi(),fixnum(3))); }
                       if (eq(temp,Fixnum_minus1)) # x=-1/2 -> Ergebnis 2pi/3 i
@@ -992,14 +992,14 @@
               # z Float <= -1
               z = F_sqrt_F(R_R_minus_R(F_square_F(z),Fixnum_1)); # sqrt(z^2-1), ein Float >=0
               STACK_0 = R_ln_R(F_F_minus_F(z,STACK_0)); # log(sqrt(z^2-1)-z), ein Float >=0
-              z = pi(); # und Imaginärteil pi
+              z = pi(); # und ImaginÃ¤rteil pi
               return R_R_complex_C(popSTACK(),z);
             }
           z = popSTACK();
         }
       pushSTACK(z);
      {var object temp;
-      temp = N_sqrt_N(N_N_durch_N(N_minus1_plus_N(z),fixnum(2))); # Zähler
+      temp = N_sqrt_N(N_N_durch_N(N_minus1_plus_N(z),fixnum(2))); # ZÃ¤hler
       z = STACK_0; STACK_0 = temp;
       temp = N_1_plus_N(N_sqrt_N(N_N_durch_N(N_1_plus_N(z),fixnum(2)))); # Nenner
       return N_N_mal_N(fixnum(4),N_atanh_N(N_N_durch_N(popSTACK(),temp)));

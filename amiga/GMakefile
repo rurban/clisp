@@ -1,5 +1,5 @@
-# GNU-Makefile für CLISP mit GNU-ANSI-C-Compiler
-# Jörg Höhle 14.8.96
+# GNU-Makefile fÃ¼r CLISP mit GNU-ANSI-C-Compiler
+# JÃ¶rg HÃ¶hle 14.8.96
 # Optionen: ADE, C00, C20, WIDE, HIGH, FFI, KI, KA, LMEM
 #  Versionsauswahl
 #   HIGH => C20 -high version

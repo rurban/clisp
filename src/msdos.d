@@ -1,13 +1,13 @@
-# Include-File für OS/2-EMUNIX-Version von CLISP
+# Include-File fÃ¼r OS/2-EMUNIX-Version von CLISP
 # Bruno Haible 1992-2000
 
 
-# Konstanten für Steuerzeichen:
+# Konstanten fÃ¼r Steuerzeichen:
 
 #define BEL  7              # Ton ausgeben
 # define NL  10             # New line, siehe LISPBIBL.D
 #define RUBOUT 127          # Rubout = Delete
-#define CRLFstring  "\r\n"  # C-String, der BS-Newline enthält
+#define CRLFstring  "\r\n"  # C-String, der BS-Newline enthÃ¤lt
 
 #define stdin_handle  0  # File-Handle von Standard-Input
 #define stdout_handle  1  # File-Handle von Standard-Output
@@ -45,7 +45,7 @@
   # Ein Signal-Handler ist eine Funktion ohne Ergebnis.
   typedef SIGTY (*signal_handler) ();
   extern signal_handler signal (int sig, signal_handler handler); # siehe SIGNAL(3V)
-  # Ein Signal erst eine bestimmte Zeit später ausliefern:
+  # Ein Signal erst eine bestimmte Zeit spÃ¤ter ausliefern:
   extern unsigned int alarm (unsigned int seconds); # siehe ALARM(3V)
   # Die Ankunft eines Signals quittieren (aus dem Signal-Handler heraus):
   #define signal_acknowledge(sig,handler)  signal(sig,SIG_ACK)
@@ -69,7 +69,7 @@
 # wird verwendet von PATHNAME
 
 # Working Directory abfragen:
-  # Maximale Pfadlänge (incl. Nullbyte am Schluss), die von getwd geliefert wird:
+  # Maximale PfadlÃ¤nge (incl. Nullbyte am Schluss), die von getwd geliefert wird:
     #define MAXPATHLEN  1024  # siehe <sys/param.h>
   extern char _getdrive (void);
   extern int _chdrive (char drive);
@@ -87,15 +87,15 @@
   # Test auf Directory:
     #undef S_ISDIR
     #define S_ISDIR(m)  (((m)&S_IFMT) == S_IFDIR)
-  # Test auf reguläres File:
-    #undef S_ISREG # unser Macro hierfür ist effizienter
+  # Test auf regulÃ¤res File:
+    #undef S_ISREG # unser Macro hierfÃ¼r ist effizienter
     #define S_ISREG(m)  (((m)&(S_IFMT&~S_IFREG)) == 0)
   # Links gibt es keine:
     #define S_ISLNK(m)  FALSE
   # siehe auch PATHNAME:get_file_write_datetime()
 # wird verwendet von PATHNAME, STREAM
 
-# File löschen:
+# File lÃ¶schen:
   extern int unlink (const char* path); # siehe UNLINK(2V)
 # wird verwendet von PATHNAME
 
@@ -146,7 +146,7 @@
   extern int mkdir (const char* path, long attrib);
 # wird verwendet von PATHNAME
 
-# Directory löschen:
+# Directory lÃ¶schen:
   extern int rmdir (const char* path); # siehe RMDIR(2V)
 # wird verwendet von PATHNAME
 
@@ -156,12 +156,12 @@
   #include <io.h>
   extern int open (const char* path, int flags, ...); # siehe OPEN(2V)
   # EMX definiert creat(path,mode) == open(path,O_WRONLY|O_TRUNC|O_CREAT,mode),
-  # was wir wegen unserer Bufferung in STREAM nicht brauchen können.
+  # was wir wegen unserer Bufferung in STREAM nicht brauchen kÃ¶nnen.
   #define creat(path,mode)  open(path,O_RDWR|O_TRUNC|O_CREAT,mode)
   #define my_open_mask  0644
   extern int setmode (int fd, int mode); # mode = O_TEXT oder O_BINARY
   # File-Modus: i.a. unbestimmt. (Nur bei EMUNIX kann man bei open() O_TEXT
-  #   bzw. O_BINARY im 2. Argument angeben.) Daher ein setmode() nötig.
+  #   bzw. O_BINARY im 2. Argument angeben.) Daher ein setmode() nÃ¶tig.
   #define Handle  uintW  # Typ eines File-Deskriptors
   extern off_t lseek (int fd, off_t offset, int whence); # siehe LSEEK(2V)
   #define RW_BUF_T  void*
@@ -176,9 +176,9 @@
   # Wrapper um die System-Aufrufe, die Teilergebnisse und evtl. EINTR behandeln:
   extern int full_read (int fd, RW_BUF_T buf, size_t nbyte);
   extern int full_write (int fd, const RW_BUF_T buf, size_t nbyte);
-  #define RETRWTYPE int      # für unixaux.d
-  #define RW_SIZE_T size_t   # für unixaux.d
-  #define WRITE_CONST const  # für unixaux.d
+  #define RETRWTYPE int      # fÃ¼r unixaux.d
+  #define RW_SIZE_T size_t   # fÃ¼r unixaux.d
+  #define WRITE_CONST const  # fÃ¼r unixaux.d
   #define OPEN open
   #define CLOSE close
 # wird verwendet von STREAM, PATHNAME, SPVW, MISC
@@ -186,7 +186,7 @@
 # Terminal-Abfragen:
   extern int isatty (int fd); # siehe TTYNAME(3V)
   extern int ioctl (int fd, int request, ...); # siehe IOCTL(2)
-  extern int __ioctl1 (int fd, int code); # führt einen INT 21,44,code aus
+  extern int __ioctl1 (int fd, int code); # fÃ¼hrt einen INT 21,44,code aus
   #define CADDR_T  unsigned long
   #include <sys/ioctl.h>
   extern int eof (int fd); # meldet, ob EOF erreicht
@@ -236,8 +236,8 @@
   #include <process.h>
   extern int spawnv (int pmode, const char* path, char* const argv[]);
   extern int system (const char* command);
-  # system(NULL) stellt fest, ob ein Kommandoprozessor zur Verfügung steht.
-  # system(command) übergibt dem Kommandoprozessor einen Befehl.
+  # system(NULL) stellt fest, ob ein Kommandoprozessor zur VerfÃ¼gung steht.
+  # system(command) Ã¼bergibt dem Kommandoprozessor einen Befehl.
 # wird verwendet von PATHNAME
 
 # Programme aufrufen:
@@ -261,7 +261,7 @@
 # wird verwendet von SPVW, PATHNAME, STREAM, MISC
 
 
-# Umgehen eines lästigen ENAMETOOLONG Errors bei Benutzung von langen
+# Umgehen eines lÃ¤stigen ENAMETOOLONG Errors bei Benutzung von langen
 # Filenamen auf FAT-Drives unter OS/2:
   #define chdir  my_chdir
   #define access  my_access

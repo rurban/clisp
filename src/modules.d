@@ -1,7 +1,7 @@
-# Module für CLISP
+# Module fÃ¼r CLISP
 # Bruno Haible 1994-1999
 
-# Alle Abhängigkeiten von modules.h werden hier gesammelt!
+# Alle AbhÃ¤ngigkeiten von modules.h werden hier gesammelt!
 
 
 #ifdef NO_CLISP_H

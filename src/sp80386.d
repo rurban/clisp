@@ -1,4 +1,4 @@
-# Kleine Routine, die den Wert des Maschinenstacks zurückliefert.
+# Kleine Routine, die den Wert des Maschinenstacks zurÃ¼ckliefert.
 
   #ifdef _MSC_VER
     #include "asmi386.h"

@@ -1,9 +1,9 @@
-# Kleine Routine, die den Wert des Maschinenstacks zurückliefert.
+# Kleine Routine, die den Wert des Maschinenstacks zurÃ¼ckliefert.
 
-  # (diese werden VOR der vorigen Instruktion ausgeführt):
-  #define _             # Instruktion, die stets ausgeführt wird
-  #define __            # Instruktion, die nur im Sprung-Fall ausgeführt wird
-  # Abkürzungen für Anweisungen:
+  # (diese werden VOR der vorigen Instruktion ausgefÃ¼hrt):
+  #define _             # Instruktion, die stets ausgefÃ¼hrt wird
+  #define __            # Instruktion, die nur im Sprung-Fall ausgefÃ¼hrt wird
+  # AbkÃ¼rzungen fÃ¼r Anweisungen:
   #define ret   jmp %i7+8    # return from subroutine
   #define retl  jmp %o7+8    # return from leaf subroutine (no save/restore)
 

@@ -33,7 +33,7 @@
                  );
     }
 
-  # Signal-Handler für Signal SIGSEGV u.ä.:
+  # Signal-Handler fÃ¼r Signal SIGSEGV u.Ã¤.:
   local int sigsegv_handler (void* fault_address, int serious)
     {
       set_break_sem_0();
@@ -46,7 +46,7 @@
           # erfolglos
           if (serious)
             sigsegv_handler_failed(fault_address);
-          # Der Default-Handler wird uns in den Debugger führen.
+          # Der Default-Handler wird uns in den Debugger fÃ¼hren.
         default:
           clr_break_sem_0();
           return 0;

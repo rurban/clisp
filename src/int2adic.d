@@ -66,9 +66,9 @@
 # < ergebnis: Zahl c mod 2^intDsize mit b*c == a mod 2^intDsize
   local uintD D_D_durch2adic_D (uintD a, uintD b);
 # Methode:
-# Konstruiere c Bit f¸r Bit.
+# Konstruiere c Bit f√ºr Bit.
 # c := 0, d := a.
-# F¸r j=0,...,intDsize:
+# F√ºr j=0,...,intDsize:
 #   [Hier b*c == a mod 2^j und d = (a-b*c)/2^j.] j=intDsize -> fertig.
 #   Falls d ungerade, setze c:=c+2^j und d:=(d-b)/2, sonst d:=d/2.
 # Ergebnis c.
@@ -111,12 +111,12 @@
 # Methode: beta=2^intDsize. Schreibe jeweils x = x[0]*beta^0 + x[1]*beta^1 + ... .
 # Um b*c == a mod beta^m zu bestimmen:
 # Sei b' := (b mod beta)^(-1) = b[0]^(-1), d := a.
-# F¸r j=0,...,m:
+# F√ºr j=0,...,m:
 #   [Hier ist d = a - b*c == 0 mod beta^j, und c mod beta^j bekannt.]
 #   j=m -> fertig.
 #   Setze c[j] := b'*d[j] mod beta, also c := c + (b'*d[j] mod beta)*beta^j.
 #   Setze d := d - b * c[j] * beta^j.
-# Schlieﬂlich dest := c.
+# Schlie√ülich dest := c.
   local void UDS_UDS_durch2adic_UDS(len,a_LSDptr,b_LSDptr,dest_LSDptr)
     var uintC len;
     var const uintD* a_LSDptr;
@@ -124,16 +124,16 @@
     var uintD* dest_LSDptr;
     { var uintD b0inv = D_D_durch2adic_D(1,b_LSDptr[-1]); # b'
       copy_loop_down(a_LSDptr,dest_LSDptr,len); # d := a
-      do { var uintD digit = dest_LSDptr[-1]; # n‰chstes d[j]
+      do { var uintD digit = dest_LSDptr[-1]; # n√§chstes d[j]
            #if HAVE_DD
              digit = lowD(muluD(b0inv,digit));
            #else
              muluD(b0inv,digit, _EMA_,digit=);
            #endif
-           # digit = n‰chstes c[j]
+           # digit = n√§chstes c[j]
            mulusub_loop_down(digit,b_LSDptr,dest_LSDptr,len); # d := d - b * c[j] * beta^j
            # Nun ist dest_LSDptr[-1] = 0.
-           *--dest_LSDptr = digit; len--; # c[j] ablegen, n‰chstes j
+           *--dest_LSDptr = digit; len--; # c[j] ablegen, n√§chstes j
          }
          until (len==0);
     }

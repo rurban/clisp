@@ -1,6 +1,6 @@
 #APP
 | GCC Library
-| Jörg Höhle, 29-Nov-92
+| JÃ¶rg HÃ¶hle, 29-Nov-92
 | I wanted _exit() a fall-through of _main()
 | which is not possible in C, so I wrote it in assembly.
 .text

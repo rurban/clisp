@@ -1,13 +1,13 @@
-# Include-File für UNIX-Version von CLISP
+# Include-File fÃ¼r UNIX-Version von CLISP
 # Bruno Haible 1990-2000
 
 
-# Konstanten für Steuerzeichen:
+# Konstanten fÃ¼r Steuerzeichen:
 
 #define BEL  7              # Ton ausgeben
 # define NL  10             # New line, siehe LISPBIBL.D
 #define RUBOUT 127          # Rubout = Delete
-#define CRLFstring  "\n"    # C-String, der BS-Newline enthält
+#define CRLFstring  "\n"    # C-String, der BS-Newline enthÃ¤lt
 
 #define stdin_handle   0  # File-Handle von Standard-Input
 #define stdout_handle  1  # File-Handle von Standard-Output
@@ -24,9 +24,9 @@
 # Tabelle der System-Fehlermeldungen
   #include <errno.h>
   extern int errno; # letzter Fehlercode
-  # NB: errno kann ein Macro sein, der eine Funktion aufruft. Daher müssen
+  # NB: errno kann ein Macro sein, der eine Funktion aufruft. Daher mÃ¼ssen
   # Zugriff und Zuweisung auf errno durch begin_system_call()/end_system_call()
-  # geschützt sein.
+  # geschÃ¼tzt sein.
   #define OS_errno errno
   #ifdef HAVE_STRERROR
     #include <string.h>
@@ -81,10 +81,10 @@
       #define HAVE_MMAP_ANON
     #endif
     #if defined(UNIX_SUNOS4) || defined(UNIX_SUNOS5)
-      # Für SINGLEMAP_MEMORY:
+      # FÃ¼r SINGLEMAP_MEMORY:
         #if defined(HAVE_MMAP_DEVZERO_SUN4_29) && defined(SUN4_29) && !defined(HAVE_MMAP_DEVZERO)
           # Unter Annahme der SUN4_29-Typcodeverteilung ist
-          # HAVE_MMAP_DEVZERO_SUN4_29 ein hinreichender Ersatz für HAVE_MMAP_DEVZERO.
+          # HAVE_MMAP_DEVZERO_SUN4_29 ein hinreichender Ersatz fÃ¼r HAVE_MMAP_DEVZERO.
           #define HAVE_MMAP_DEVZERO
         #endif
     #endif
@@ -93,10 +93,10 @@
       # definiert. Ersteres, weil es MAP_ANON nicht gibt; letzteres, weil
       # das Testprogramm Adressen bis 0x4000000 belegt (SUN4_29 aber nur
       # Adressen bis 0x2000000 verkraftet - daher der spezielle Test
-      # HAVE_MMAP_DEVZERO_SUN4_29). Außerdem besteht ein Limit von 20 MB
+      # HAVE_MMAP_DEVZERO_SUN4_29). AuÃŸerdem besteht ein Limit von 20 MB
       # mmap()-Speicher (danach kommt ENOMEM).
-      # Wir können wahlweise MULTIMAP_MEMORY oder SINGLEMAP_MEMORY verwenden.
-      # Für MULTIMAP_MEMORY:
+      # Wir kÃ¶nnen wahlweise MULTIMAP_MEMORY oder SINGLEMAP_MEMORY verwenden.
+      # FÃ¼r MULTIMAP_MEMORY:
         #include <sys/vfs.h>
         extern_C int fstatfs (int fd, struct statfs * buf); # siehe STATFS(2)
     #endif
@@ -105,12 +105,12 @@
       # Dabei gibt es allerdings ein Limit von 25 MB mmap()-Speicher.
       # Da die Shared-Memory-Facility von UNIX_SUNOS5 sich weigert,
       # Speicher an Adressen >= 0x06000000 oder mehr als 6 Mal zu attachen,
-      # müssen wir SINGLEMAP_MEMORY verwenden.
+      # mÃ¼ssen wir SINGLEMAP_MEMORY verwenden.
     #endif
     #ifdef HAVE_MSYNC
       #ifdef MS_INVALIDATE
         # Getestet nur auf UNIX_LINUX, nicht UNIX_SUNOS4, nicht UNIX_SUNOS5. ??
-        # Für MULTIMAP_MEMORY_FILE:
+        # FÃ¼r MULTIMAP_MEMORY_FILE:
           extern_C int msync (MMAP_ADDR_T addr, MMAP_SIZE_T len, int flags);
       #else
         # NetBSD has a 2-argument msync(), unusable for our purposes.
@@ -119,7 +119,7 @@
     #endif
   #endif
   #ifdef HAVE_MACH_VM # Funktionen vm_allocate(), task_self(), ... vorhanden
-    # Die Header-Files von UNIX_NEXTSTEP müssen ja unbeschreiblich aussehen...
+    # Die Header-Files von UNIX_NEXTSTEP mÃ¼ssen ja unbeschreiblich aussehen...
     #include <sys/time.h> /* needed for <sys/resource.h> on UNIX_RHAPSODY */
     #include <sys/resource.h>
     #undef local
@@ -131,7 +131,7 @@
       #include <mach_init.h>
     #endif
     # include <mach/mach.h>
-    #include <mach/mach_traps.h> # für map_fd()
+    #include <mach/mach_traps.h> # fÃ¼r map_fd()
     #include <mach/machine/vm_param.h>
     #define local static
     # Damit kann man mmap(), munmap() und mprotect() selber schreiben. Siehe spvw.d.
@@ -156,7 +156,7 @@
   #ifdef HAVE_WORKING_MPROTECT
     extern_C int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot); # siehe MPROTECT(2)
   #endif
-  # Mögliche Werte von prot: PROT_NONE, PROT_READ, PROT_READ_WRITE.
+  # MÃ¶gliche Werte von prot: PROT_NONE, PROT_READ, PROT_READ_WRITE.
   #ifndef PROT_NONE
     #define PROT_NONE  0
   #endif
@@ -169,19 +169,19 @@
       #include <sys/sysmacros.h>
     #endif
     #ifdef UNIX_HPUX
-      #include <sys/vmmac.h> # für SHMLBA
+      #include <sys/vmmac.h> # fÃ¼r SHMLBA
     #endif
     #ifdef UNIX_AUX
-      #include <sys/mmu.h> # für SHMLBA
+      #include <sys/mmu.h> # fÃ¼r SHMLBA
     #endif
     #ifdef UNIX_LINUX
-      #include <asm/page.h> # für SHMLBA in Linux 2.0
+      #include <asm/page.h> # fÃ¼r SHMLBA in Linux 2.0
     #endif
     #if defined(UNIX_SUNOS4) || defined(UNIX_SUNOS5)
-      #define SHMMAX  0x100000 # maximale Shared-Memory-Segment-Größe = 1 MB
+      #define SHMMAX  0x100000 # maximale Shared-Memory-Segment-GrÃ¶ÃŸe = 1 MB
     #endif
     #ifndef SHMMAX
-      #define SHMMAX  0xFFFFFFFFUL # maximale Shared-Memory-Segment-Größe wird als unendlich angenommen
+      #define SHMMAX  0xFFFFFFFFUL # maximale Shared-Memory-Segment-GrÃ¶ÃŸe wird als unendlich angenommen
     #endif
     extern_C int shmget (key_t key, SHMGET_SIZE_T size, int shmflg); # siehe SHMGET(2)
     extern_C RETSHMATTYPE shmat (int shmid, SHMAT_CONST RETSHMATTYPE shmaddr, int shmflg); # siehe SHMOP(2)
@@ -202,7 +202,7 @@
   # madvise() verwenden??
 # wird verwendet von SPVW
 
-# Stack hinreichend groß machen
+# Stack hinreichend groÃŸ machen
   #ifdef UNIX_NEXTSTEP
     #include <sys/types.h>
     #include <sys/time.h>
@@ -233,12 +233,12 @@
   #else
     typedef RETSIGTYPE (*signal_handler) ();
   #endif
-  # Ein Signal möglichst sauber installieren:
+  # Ein Signal mÃ¶glichst sauber installieren:
   extern_C signal_handler signal (int sig, signal_handler handler); # siehe SIGNAL(3V)
   #if defined(SIGNAL_NEED_UNBLOCK_OTHERS) && defined(HAVE_SIGACTION)
     # Auf manchen BSD-Systemen (z.B. SunOS 4.1.3_U1) werden bei Aufruf eines
     # Signal-Handlers auch noch andere als das aktuelle Signal blockiert.
-    # Das können wir nicht brauchen und verwenden daher sigaction() statt
+    # Das kÃ¶nnen wir nicht brauchen und verwenden daher sigaction() statt
     # signal().
     #define USE_SIGACTION
   #endif
@@ -276,7 +276,7 @@
   #else
     #error "Wie blockiert man Signale?"
   #endif
-  # Ein Signal erst eine bestimmte Zeit später ausliefern:
+  # Ein Signal erst eine bestimmte Zeit spÃ¤ter ausliefern:
   # extern_C {unsigned|} int alarm ({unsigned|} int seconds); # siehe ALARM(3V)
   #ifdef UNIX_CYGWIN32
     #define HAVE_UALARM  # alarm() und ualarm() siehe unixaux.d
@@ -294,13 +294,13 @@
   #ifdef USE_SIGACTION
     #ifdef SIGACTION_NEED_REINSTALL
       #define signal_acknowledge(sig,handler)  install_signal_handler(sig,handler) # Handler bleibt weiter aktiv
-    #else # Signalverwaltung nach BSD hat das nicht nötig
+    #else # Signalverwaltung nach BSD hat das nicht nÃ¶tig
       #define signal_acknowledge(sig,handler)
     #endif
   #else
     #ifdef SIGNAL_NEED_REINSTALL # UNIX_SYSV || UNIX_LINUX || ...
       #define signal_acknowledge(sig,handler)  install_signal_handler(sig,handler) # Handler bleibt weiter aktiv
-    #else # Signalverwaltung nach BSD hat das nicht nötig
+    #else # Signalverwaltung nach BSD hat das nicht nÃ¶tig
       #define signal_acknowledge(sig,handler)
     #endif
   #endif
@@ -321,13 +321,13 @@
     #define siginterrupt(sig,flag)
   #endif
   # Zur Behebung von SIGSEGV-Signalen nach Schreibzugriff auf
-  # schreibgeschützte Bereiche. Siehe unix/sigsegv.c.
+  # schreibgeschÃ¼tzte Bereiche. Siehe unix/sigsegv.c.
   # Obacht: Hans-J. Boehm <boehm@parc.xerox.com> sagt, dass Schreibzugriffe
   # aus Betriebssystem-Aufrufen heraus (z.B. read()) auf vielen Systemen
-  # wider Erwarten kein Signal auslösen. (Unter Linux funktioniert's.)
+  # wider Erwarten kein Signal auslÃ¶sen. (Unter Linux funktioniert's.)
   #ifndef SPVW_MIXED_BLOCKS
-  # Wir haben das Glück, mit read() nur in den C-Stack und in Strings zu
-  # schreiben, nicht jedoch in eventuell mprotect-geschützte Bereiche.
+  # Wir haben das GlÃ¼ck, mit read() nur in den C-Stack und in Strings zu
+  # schreiben, nicht jedoch in eventuell mprotect-geschÃ¼tzte Bereiche.
   #endif
   # Ein Signal veranlassen.
   #ifdef HAVE_RAISE
@@ -347,7 +347,7 @@
   #endif
 # wird verwendet von SPVW
 
-# Anpassung an lokale Präferenzen:
+# Anpassung an lokale PrÃ¤ferenzen:
   #ifdef HAVE_LOCALE_H
     #include <locale.h>
     extern_C char* setlocale (int category, SETLOCALE_CONST char* locale);
@@ -369,7 +369,7 @@
 
 # Working Directory abfragen:
   #include <sys/param.h>
-  # Maximale Pfadlänge (incl. Nullbyte am Schluss), die von getwd geliefert wird:
+  # Maximale PfadlÃ¤nge (incl. Nullbyte am Schluss), die von getwd geliefert wird:
   #ifndef MAXPATHLEN
     #define MAXPATHLEN  1024  # siehe <sys/param.h>
   #endif
@@ -381,13 +381,13 @@
   #endif
 # wird verwendet von PATHNAME
 
-# Maximalzahl symbolischer Links, die nacheinander aufgelöst werden:
+# Maximalzahl symbolischer Links, die nacheinander aufgelÃ¶st werden:
   #ifndef MAXSYMLINKS
     #define MAXSYMLINKS  8  # siehe <sys/param.h>
   #endif
 # wird verwendet von PATHNAME
 
-# Auflösen symbolischer Links in Pfadnamen:
+# AuflÃ¶sen symbolischer Links in Pfadnamen:
   #ifdef HAVE_READLINK
     extern_C RETREADLINKTYPE readlink (READLINK_CONST char* path, READLINK_BUF_T buf, READLINK_SIZE_T bufsiz); # siehe READLINK(2)
   #endif
@@ -432,7 +432,7 @@
   #endif
 # wird verwendet von PATHNAME, STREAM, SPVW
 
-# File löschen:
+# File lÃ¶schen:
   extern_C int unlink (UNLINK_CONST char* path); # siehe UNLINK(2V)
 # wird verwendet von PATHNAME, UNIXAUX
 
@@ -474,7 +474,7 @@
   extern_C int mkdir (MKDIR_CONST char* path, mode_t mode); # siehe MKDIR(2V)
 # wird verwendet von PATHNAME
 
-# Directory löschen:
+# Directory lÃ¶schen:
   extern_C int rmdir (RMDIR_CONST char* path); # siehe RMDIR(2V)
 # wird verwendet von PATHNAME
 
@@ -576,7 +576,7 @@
   extern RETRWTYPE full_write (int fd, WRITE_CONST RW_BUF_T buf, RW_SIZE_T nbyte);
 # wird verwendet von STREAM, PATHNAME, SPVW, MISC, UNIXAUX
 
-# Terminal-Abfragen, Abfragen der Fenster-Größe:
+# Terminal-Abfragen, Abfragen der Fenster-GrÃ¶ÃŸe:
   extern_C int isatty (int fd); # siehe TTYNAME(3V)
   #if 0
     extern_C char* ttyname (int fd); # siehe TTYNAME(3V)
@@ -708,9 +708,9 @@
     #endif
     extern int gettimeofday (struct timeval * tp, struct timezone * tzp); # siehe unixaux.d
   #elif defined(HAVE_TIMES_CLOCK)
-    #include <time.h> # für CLK_TCK nötig
+    #include <time.h> # fÃ¼r CLK_TCK nÃ¶tig
     #ifndef CLK_TCK
-      #include <sys/time.h> # für CLK_TCK nötig, unter UNIX_SYSV_PTX
+      #include <sys/time.h> # fÃ¼r CLK_TCK nÃ¶tig, unter UNIX_SYSV_PTX
     #endif
     #include <sys/times.h>
     extern_C clock_t times (struct tms * buffer); # siehe TIMES(3V)
@@ -729,7 +729,7 @@
     # Prototyp wertlos, da 'struct rusage' /= 'struct rusage' - verkorxtes ANSI!
   #elif defined(HAVE_SYS_TIMES_H)
     #include <sys/types.h>
-    #include <sys/param.h> # definiert HZ, Maßeinheit ist 1/HZ Sekunden
+    #include <sys/param.h> # definiert HZ, MaÃŸeinheit ist 1/HZ Sekunden
     #include <sys/times.h>
     extern_C clock_t times (struct tms * buffer); # siehe TIMES(3V)
   #endif
@@ -746,7 +746,7 @@
 # wird verwendet von MISC
 
 # Programme aufrufen:
-  #define SHELL  "/bin/sh"  # Name der für Kommandos benutzten Shell
+  #define SHELL  "/bin/sh"  # Name der fÃ¼r Kommandos benutzten Shell
   extern_C int pipe (int fd[2]); # siehe PIPE(2V)
   #ifdef HAVE_VFORK_H
     #include <vfork.h>
@@ -776,7 +776,7 @@
   #endif
   # NB: Im Zeitraum zwischen vfork() und execv()/execl()/execlp() darf der
   # Child-Prozess nur auf Daten im Stack und konstante Daten zugreifen.
-  # Denn der Parent-Prozess läuft in dieser Zeit schon weiter und kann dabei
+  # Denn der Parent-Prozess lÃ¤uft in dieser Zeit schon weiter und kann dabei
   # Daten in STACK, malloc()-Bereich, Lisp-Daten-Bereich usw. modifizieren.
   #include <sys/wait.h>
   extern_C pid_t waitpid (PID_T pid, int* statusp, int options); # siehe WAIT(2V)
@@ -871,7 +871,7 @@
 
 # CLISP als NeXTstep-GUI-Applikation:
   #ifdef NEXTAPP
-    # Terminal-Stream, wie ihn nxterminal.m über die Klasse LispServer
+    # Terminal-Stream, wie ihn nxterminal.m Ã¼ber die Klasse LispServer
     # implementiert.
       extern void nxterminal_send_output (void);
       extern void nxterminal_write_char (unsigned char ch);
