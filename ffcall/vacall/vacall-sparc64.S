@@ -3,11 +3,11 @@
 	.version	"01.01"
 .section	".text"
 	.align 4
-	.global vacall
-	DECLARE_FUNCTION(vacall)
-	.type	 vacall,$function
+	.global __vacall
+	DECLARE_FUNCTION(__vacall)
+	.type	 __vacall,$function
 	.proc	020
-vacall:
+__vacall:
 	!$PROLOGUE$ 0
 	save	%sp, -448, %sp
 	!$PROLOGUE$ 1
@@ -756,5 +756,5 @@ vacall:
 	return	%i7+8
 	nop
 .LLfe1:
-	.size	 vacall,.LLfe1-vacall
+	.size	 __vacall,.LLfe1-__vacall
 	.ident	"GCC: (GNU) 2.95.2 19991024 (release)"

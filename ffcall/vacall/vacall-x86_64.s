@@ -1,9 +1,9 @@
 	.file	"vacall-x86_64.c"
 	.text
 	.p2align 4,,15
-.globl vacall
-	.type	vacall,@function
-vacall:
+.globl __vacall
+	.type	__vacall,@function
+__vacall:
 .LFB1:
 	pushq	%r12
 .LCFI0:
@@ -205,7 +205,7 @@ vacall:
 	jmp	.L1
 .LFE1:
 .Lfe1:
-	.size	vacall,.Lfe1-vacall
+	.size	__vacall,.Lfe1-__vacall
 	.section	.eh_frame,"aw",@progbits
 .Lframe1:
 	.long	.LECIE1-.LSCIE1

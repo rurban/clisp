@@ -2,9 +2,9 @@
 	.version	"01.01"
 .text
 	.align 16
-	.global vacall#
-	.proc vacall#
-vacall:
+	.global __vacall#
+	.proc __vacall#
+__vacall:
 	alloc r44 = ar.pfs, 8, 5, 1, 0
 	adds r12 = -208, r12
 	mov r43 = b0
@@ -550,5 +550,5 @@ vacall:
 	mov ar.pfs = r44
 	mov b0 = r43
 	br.ret.sptk.many b0
-	.endp vacall#
+	.endp __vacall#
 	.ident	"GCC: (GNU) 2.9-ia64-000216 snap-000324"

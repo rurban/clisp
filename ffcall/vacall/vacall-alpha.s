@@ -6,11 +6,11 @@ gcc2_compiled.:
 __gnu_compiled_c:
 .text
 	.align 3
-	.globl vacall
-	.ent vacall
-vacall:
+	.globl __vacall
+	.ent __vacall
+__vacall:
 	ldgp $29,0($27)
-vacall..ng:
+__vacall..ng:
 	lda $30,-176($30)
 	.frame $30,176,$26,0
 	stq $26,0($30)
@@ -175,4 +175,4 @@ $35:
 	ldq $26,0($30)
 	addq $30,176,$30
 	ret $31,($26),1
-	.end vacall
+	.end __vacall

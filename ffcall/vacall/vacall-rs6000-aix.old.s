@@ -9,13 +9,13 @@ LC..0:
 	.tc vacall_function[TC],vacall_function[RW]
 .csect .text[PR]
 	.align 2
-	.globl vacall
-	.globl .vacall
-.csect vacall[DS]
-vacall:
-	.long .vacall, TOC[tc0], 0
+	.globl __vacall
+	.globl .__vacall
+.csect __vacall[DS]
+__vacall:
+	.long .__vacall, TOC[tc0], 0
 .csect .text[PR]
-.vacall:
+.__vacall:
 	.extern __mulh
 	.extern __mull
 	.extern __divss
@@ -174,13 +174,13 @@ L..4:
 	l 30,-8(1)
 	l 31,-4(1)
 	br
-LT..vacall:
+LT..__vacall:
 	.long 0
 	.byte 0,0,32,65,128,5,8,0
 	.long 0
-	.long LT..vacall-.vacall
-	.short 6
-	.byte "vacall"
+	.long LT..__vacall-.__vacall
+	.short 8
+	.byte "__vacall"
 _section_.text:
 .csect .data[RW],3
 	.long _section_.text
