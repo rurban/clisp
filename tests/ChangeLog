@@ -1,4 +1,10 @@
-2005-02-31  Bruno Haible  <bruno@clisp.org>
+2005-04-02  Bruno Haible  <bruno@clisp.org>
+
+	* weakhash.tst: New file.
+	* weakhash2.tst: Renamed from hashweak.tst.
+	* tests.lisp (run-all-tests): Update.
+
+2005-03-31  Bruno Haible  <bruno@clisp.org>
 
 	* weakptr.tst: Portability to ACL 6.2 and LispWorks 4.3.
 	* hashweak.tst: Portability to LispWorks 4.3.
