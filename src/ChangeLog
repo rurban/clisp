@@ -1,3 +1,16 @@
+2002-10-22  Sam Steingold  <sds@gnu.org>
+
+	Make sure COMPILE-FILE-PATHNAME does not barf in SEARCH-FILE
+	* init.lisp (search-file): pass :IF-DOES-NOT-EXIST :IGNORE to DIRECTORY
+	* pathname.d (dir_search_if_none_t): added DIR_IF_NONE_IGNORE
+	(directory_search_hashcode): never signal error, just return nullobj
+	(directory_search_scandir): do not barf when DIR_IF_NONE_IGNORE,
+	otherwise treat DIR_IF_NONE_IGNORE just like DIR_IF_NONE_DISCARD
+	(directory_search): be more careful with subdirectories when
+	DIR_IF_NONE_IGNORE
+	(DIRECTORY): accept :IF-DOES-NOT-EXIST :IGNORE
+	* constobj.d (type_directory_not_exist): added :IGNORE
+
 2002-10-18  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-LABELS, c-GENERIC-LABELS): new macro ADD-FENV
