@@ -1,5 +1,21 @@
 1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        In the NO_TYPECODES model, add support for machine where the alignment
+        of C functions is less than 4.
+        * lispbibl.d (C_CODE_ALIGNMENT, log2_C_CODE_ALIGNMENT): New macros.
+          (NO_TYPECODES): Remove CPU constraint.
+          (make_machine_code): New macro.
+          (TheMachineCode): New macro.
+          (ThePseudofun): Use it.
+        * spvw.d (verify_code_alignment): New macro.
+          (fehler_code_alignment): New function.
+          (init_symbol_functions): Call verify_code_alignment.
+        * list.d (sublis_assoc): Use TheMachineCode instead of TheMachine.
+          (SUBLIS, NSUBLIS): Use make_machine_code instead of make_machine.
+        * stream.d (P): Likewise.
+
+1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (Fsubr): Move the C code address from the recdata[] part
           to the non-Lisp-object part.
           (fsubr_length): Reduce by 1.
