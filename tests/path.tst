@@ -723,3 +723,6 @@ t
   (setf (logical-pathname-translations "FOO") '(("**;*" "/foo/**/*")))
   (translate-logical-pathname "foo:bar;baz;zot.txt"))
 #P"/foo/bar/baz/zot.txt"
+
+(pathname "/foo/bar/../baz///zot//.././zoo")
+#P"/foo/baz/zoo"

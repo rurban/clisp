@@ -1655,7 +1655,7 @@ local object parse_logical_host_prefix (zustand* zp, object string) {
  < dir : the same list, destructively modified:
          ".." or :back         ==> :up
          ... x "foo" :up y ... ==> ... x y ...
-         ... x     "."   y ... ==> ... x y ...
+         ... x  ""/"."   y ... ==> ... x y ...
          :absolute :up   y ... ==> :absolute y ...
  can trigger GC */
 local object simplify_directory (object dir) {
@@ -1666,30 +1666,30 @@ local object simplify_directory (object dir) {
     var object curr = dir;
     while (consp(curr) && consp(Cdr(curr))) {
       var object next = Cdr(curr);
-      if (stringp(Car(next))) {
-        if (string_equal(Car(next),O(dot_string))) {
-          Cdr(curr) = Cdr(next); /* drop "." */
+      var object here = Car(next);
+      if (stringp(here)) {
+        if (vector_length(here)==0 || string_equal(here,O(dot_string))) {
+          Cdr(curr) = Cdr(next); /* drop "." and "" */
           continue;
-        } else if (string_equal(Car(next),O(wild_string))) {
+        } else if (string_equal(here,O(wild_string))) {
           Car(next) = S(Kwild);
           curr = next;
           continue;
-        } else if (string_equal(Car(next),O(wildwild_string))) {
+        } else if (string_equal(here,O(wildwild_string))) {
           Car(next) = S(Kwild_inferiors);
           curr = next;
           continue;
         } else if (!consp(next))
           break;
-        if (string_equal(Car(next),O(dotdot_string)))
+        if (string_equal(here,O(dotdot_string)))
           Car(next) = S(Kup); /* ".." --> :UP */
-        else {
-          /* coerce to normal */
+        else { /* coerce to normal */
           pushSTACK(next);
-          var object element = coerce_normal_ss(Car(next));
+          var object element = coerce_normal_ss(here);
           next = popSTACK();
           Car(next) = element;
         }
-      } else if (eq(Car(next),S(Kback)))
+      } else if (eq(here,S(Kback)))
         Car(next) = S(Kup); /* :BACK --> :UP (ANSI) */
       curr = next;
     }
