@@ -1,5 +1,10 @@
 1999-05-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+         * lispbibl.d (stream_fd): Move declaration.
+         * stream.d (stream_fd): Move function.
+
+1999-05-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Finish Sam's 1999-04-07 patch.
         * eval.d (check_for_illegal_keywords): Remove misplaced symbolp test.
         * defmacro.lsp (analyze-key): Use symbolp instead of keywordp.

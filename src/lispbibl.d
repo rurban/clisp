@@ -11158,13 +11158,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern object subsstring (object string, uintL start, uintL end);
 # wird verwendet von PATHNAME
 
-#ifdef EXPORT_SYSCALLS
-#ifdef UNIX
-# return the file descriptor of a stream
-extern object stream_fd (object stream);
-#endif # UNIX
-#endif # EXPORT_SYSCALLS
-
 # UP: bildet einen aus mehreren Strings zusammengehängten String.
 # string_concat(argcount)
 # > uintC argcount: Anzahl der Argumente
@@ -12173,6 +12166,13 @@ extern object stream_fd (object stream);
   extern void terminal_sane (void);
 # wird verwendet von SPVW
 #endif
+
+#ifdef EXPORT_SYSCALLS
+#ifdef UNIX
+# Returns the file descriptor of a stream.
+  extern object stream_fd (object stream);
+#endif # UNIX
+#endif # EXPORT_SYSCALLS
 
 # ####################### SYMBIBL zu SYMBOL.D ############################# #
 
