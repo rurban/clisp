@@ -1,6 +1,6 @@
 /*
  * Error-Handling for CLISP
- * Bruno Haible 1990-2002
+ * Bruno Haible 1990-2004
  * Marcus Daniels 8.4.1994
  * Sam Steingold 1998-2004
  * German comments translated into English: Stefan Kain 2002-09-11
@@ -983,6 +983,18 @@ nonreturning_function(global, fehler_string_integer, (object obj)) {
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,
          GETTEXT("~: argument ~ is neither a string nor an integer"));
+}
+
+/* Error message, if a string size is too big.
+ fehler_stringsize(size);
+ > size: the desired string length  */
+nonreturning_function(global, fehler_stringsize, (uintL size)) {
+  var object obj = UL_to_I(size);
+  pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_stringsize)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(obj);
+  fehler(type_error,
+         GETTEXT("string too long: desired length ~ exceeds the supported maximum length"));
 }
 
 /* error-message, if an argument is not a Stream:

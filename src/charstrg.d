@@ -546,6 +546,7 @@ global bool string_gleich (object string1, object string2) {
   var uintL len1;
   var uintL offset1;
   string1 = unpack_string_ro(string1,&len1,&offset1);
+  sstring_un_realloc(string2);
   if (len1 != Sstring_length(string2))
     return false;
   /* Now both strings have exactly len1 characters. Compare them. */
@@ -563,6 +564,7 @@ global bool string_equal (object string1, object string2) {
   var uintL len1;
   var uintL offset1;
   string1 = unpack_string_ro(string1,&len1,&offset1);
+  sstring_un_realloc(string2);
   if (len1 != Sstring_length(string2))
     return false;
   /* Now both strings have exactly len1 characters. Compare them. */
@@ -755,6 +757,7 @@ global object sstring_store_array (object string, uintL offset,
  increases STACK
  changes STACK, can trigger GC */
 global object stringof (uintL len) {
+  check_stringsize(len);
   var object new_string = allocate_string(len);
   if (len > 0) {
     var gcv_object_t* topargptr = STACK STACKop len;
@@ -819,6 +822,7 @@ global object coerce_ss (object obj) {
     {
       case_sstring:
         /* Simple-String, returned unchanged */
+        DBGREALLOC(obj);
         return obj;
       case_ostring:
         /* other string, copy it */
@@ -2749,6 +2753,7 @@ LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
            GETTEXT("~: the string length ~ should be nonnegative fixnum"));
   }
   size = posfixnum_to_L(STACK_2);
+  check_stringsize(size);
   /* check element-type: */
   if (boundp(STACK_0)) {
     var object eltype = STACK_0;
@@ -2808,6 +2813,7 @@ LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
      #endif
     }
   }
+  DBGREALLOC(new_string);
   VALUES1(new_string); skipSTACK(3);
 }
 
@@ -2933,6 +2939,7 @@ global object string_upcase (object string) {
   nstring_upcase(string,0,Sstring_length(string)); /* convert */
   string = popSTACK();
   sstring_un_realloc(string);
+  DBGREALLOC(string);
   return string;
 }
 
@@ -3005,6 +3012,7 @@ global object string_downcase (object string) {
   nstring_downcase(string,0,Sstring_length(string)); /* convert */
   string = popSTACK();
   sstring_un_realloc(string);
+  DBGREALLOC(string);
   return string;
 }
 
@@ -3187,6 +3195,7 @@ global object subsstring (object string, uintL start, uintL end) {
                    &TheS8string(new_string)->data[0],count);
    #endif
   }
+  DBGREALLOC(new_string);
   return new_string;
 }
 
@@ -3238,6 +3247,7 @@ LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
                    &TheS8string(new_string)->data[0],count);
    #endif
   }
+  DBGREALLOC(new_string);
   VALUES1(new_string);
 }
 
@@ -3263,6 +3273,7 @@ global object string_concat (uintC argcount) {
     } while (--count);
   }
   /* total_length is now the total length. */
+  check_stringsize(total_length);
   var object new_string = allocate_string(total_length); /* new string */
   if (argcount > 0) {
     var cint32* charptr2 = &TheS32string(new_string)->data[0];
@@ -3289,6 +3300,7 @@ global object string_concat (uintC argcount) {
     } while (--argcount > 0);
   }
   set_args_end_pointer(args_pointer); /* clean up STACK */
+  DBGREALLOC(new_string);
   return new_string;
 }
 
