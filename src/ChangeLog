@@ -1,6 +1,8 @@
 2003-08-06  Sam Steingold  <sds@gnu.org>
 
 	Unified modules postgresql632 and postgresql642 into postgresql
+	* Makefile.devel: use implicit rules for configure and config.h.in
+	(CONFIGURES, CONFIG_H_IN): added postgresql
 
 2003-08-06  Sam Steingold  <sds@gnu.org>
 

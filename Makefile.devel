@@ -127,10 +127,11 @@ makemake : src/makemake.in
 	(echo "#!/bin/sh" ; cat src/makemake.in) > makemake
 	chmod a+x makemake
 
+CURDIR=$(shell pwd)
 
 CONFIGURES = src/configure						 \
 	modules/wildcard/configure modules/regexp/configure 		 \
-	modules/clx/new-clx/configure					 \
+	modules/clx/new-clx/configure modules/postgresql/configure	 \
 	modules/dirkey/configure modules/syscalls/configure 		 \
 	modules/oracle/configure modules/fastcgi/configure		 \
 	ffcall/configure ffcall/avcall/configure ffcall/vacall/configure \
@@ -141,7 +142,7 @@ CONFIGURES = src/configure						 \
 	libcharset/configure
 CONFIG_H_IN = modules/wildcard/config.h.in modules/regexp/config.h.in	\
 	modules/dirkey/config.h.in modules/syscalls/config.h.in		\
-	src/unixconf.h.in
+	modules/postgresql/config.h.in src/unixconf.h.in
 
 configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN)
 
@@ -153,44 +154,14 @@ AUTOCONF = autoconf
 AUTOCONF_CACHE = autom4te.cache
 AUTOHEADER = autoheader
 
-src/configure : src/configure.in $(AUTOCONF_FILES)
-	cd src ; $(AUTOCONF) --include autoconf
+%/configure : %/configure.in $(AUTOCONF_FILES)
+	cd $*; $(AUTOCONF) --include $(CURDIR)/src/autoconf
+
+%/config.h.in : %/configure.in $(AUTOCONF_FILES)
+	cd $*; $(AUTOHEADER) --include $(CURDIR)/src/autoconf
 
 src/unixconf.h.in : src/configure.in $(AUTOCONF_FILES)
 	cd src ; $(AUTOHEADER) --include autoconf
-
-modules/wildcard/configure : modules/wildcard/configure.in $(AUTOCONF_FILES)
-	cd modules/wildcard ; $(AUTOCONF) --include ../../src/autoconf
-
-modules/wildcard/config.h.in : modules/wildcard/configure.in $(AUTOCONF_FILES)
-	cd modules/wildcard ; $(AUTOHEADER) --include ../../src/autoconf
-
-modules/regexp/configure : modules/regexp/configure.in $(AUTOCONF_FILES)
-	cd modules/regexp ; $(AUTOCONF) --include ../../src/autoconf
-
-modules/regexp/config.h.in : modules/regexp/configure.in $(AUTOCONF_FILES)
-	cd modules/regexp ; $(AUTOHEADER) --include ../../src/autoconf
-
-modules/clx/new-clx/configure : modules/clx/new-clx/configure.in $(AUTOCONF_FILES)
-	cd modules/clx/new-clx ; $(AUTOCONF) --include ../../../src/autoconf
-
-modules/oracle/configure : modules/oracle/configure.ac $(AUTOCONF_FILES)
-	cd modules/oracle ; $(AUTOCONF) --include ../../src/autoconf
-
-modules/fastcgi/configure : modules/fastcgi/configure.ac $(AUTOCONF_FILES)
-	cd modules/fastcgi ; $(AUTOCONF) --include ../../src/autoconf
-
-modules/dirkey/configure : modules/dirkey/configure.in $(AUTOCONF_FILES)
-	cd modules/dirkey ; $(AUTOCONF) --include ../../src/autoconf
-
-modules/dirkey/config.h.in : modules/dirkey/configure.in $(AUTOCONF_FILES)
-	cd modules/dirkey ; $(AUTOHEADER) --include ../../src/autoconf
-
-modules/syscalls/configure : modules/syscalls/configure.in $(AUTOCONF_FILES)
-	cd modules/syscalls ; $(AUTOCONF) --include ../../src/autoconf
-
-modules/syscalls/config.h.in : modules/syscalls/configure.in $(AUTOCONF_FILES)
-	cd modules/syscalls ; $(AUTOHEADER) --include ../../src/autoconf
 
 ffcall/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
 	cd ffcall ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
@@ -215,9 +186,6 @@ ffcall/callback/vacall_r/configure : ffcall/callback/vacall_r/configure.in ffcal
 
 ffcall/callback/trampoline_r/configure : ffcall/callback/trampoline_r/configure.in ffcall/autoconf/aclocal.m4 $(AUTOCONF_FILES)
 	cd ffcall ; $(MAKE) -f Makefile.devel callback/trampoline_r/configure
-
-utils/hln/configure : utils/hln/configure.in $(AUTOCONF_FILES)
-	cd utils/hln ; $(AUTOCONF) --include ../../src/autoconf
 
 libcharset/configure : libcharset/configure.in libcharset/autoconf/aclocal.m4 $(AUTOCONF_FILES)
 	cd libcharset ; $(MAKE) -f Makefile.devel configure
