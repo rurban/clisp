@@ -646,7 +646,7 @@ local uint32 hashcode4_vector (object dv, uintL index,
     default: NOTREACHED;
   }
 }
-/* atom -> fall differentiation by type */
+/* atom -> differentiation by type */
 local uint32 hashcode4_atom (object obj) {
  #ifdef TYPECODES
   if (symbolp(obj)) {           /* a symbol? */
@@ -665,14 +665,17 @@ local uint32 hashcode4_atom (object obj) {
   } else
     switch (typecode(obj))
  #else
-      if (orecordp(obj))
-        goto case_orecord;
-      else if (immediate_number_p(obj)) {
-      case_real: return hashcode4_real(obj);
-      } else if (charp(obj))
-        goto case_char;
-      else
-        return hashcode1(obj);
+  if (orecordp(obj)) {
+    if (Record_type(obj) < rectype_longlimit)
+      goto case_orecord;
+    else
+      goto case_lrecord;
+  } else if (immediate_number_p(obj)) {
+   case_real: return hashcode4_real(obj);
+  } else if (charp(obj))
+    goto case_char;
+  else
+    return hashcode1(obj);
   switch (0)
  #endif
   {
@@ -748,7 +751,7 @@ local uint32 hashcode4_atom (object obj) {
        default: ;
      }
     {                           /* look at flags, type, components: */
-      var uintC len = Record_nonweak_length(obj);
+      var uintC len = SXrecord_nonweak_length(obj);
       var uint32 bish_code = 0x03168B8D + (Record_flags(obj) << 24)
         + (Record_type(obj) << 16) + len;
       if (len > 0) {
@@ -779,6 +782,7 @@ local uint32 hashcode4_atom (object obj) {
    #endif
     case_closure:               /* closure */
     case_instance:              /* instance */
+    case_lrecord:
       /* take EQ-hashcode */
       return hashcode1(obj);
       default: NOTREACHED;
@@ -1906,9 +1910,12 @@ local uint32 sxhash_atom (object obj) {
   #ifdef TYPECODES
   switch (typecode(obj))        /* per type */
   #else
-  if (orecordp(obj))
-    goto case_orecord;
-  else if (consp(obj))
+  if (orecordp(obj)) {
+    if (Record_type(obj) < rectype_longlimit)
+      goto case_orecord;
+    else
+      goto case_lrecord;
+  } else if (consp(obj))
     goto case_cons;
   else if (charp(obj))
     goto case_char;
@@ -1948,8 +1955,6 @@ local uint32 sxhash_atom (object obj) {
     case_string:                /* string */
       /* string-content */
       return hashcode_string(obj);
-    case_weakkvt:     /* weak key-value table - length is always even */
-      return Weakkvt_length(obj)%2 + 0x4ECD0A9FUL; /* const same as svector */
     case_svector:                                  /* simple-vector */
       /* only utilize the length */
       return Svector_length(obj) + 0x4ECD0A9FUL;
@@ -1985,7 +1990,6 @@ local uint32 sxhash_atom (object obj) {
         case_Rectype_b32vector_above;
         case_Rectype_string_above;
         case_Rectype_Svector_above;
-        case_Rectype_WeakKVT_above;
         case_Rectype_ovector_above;
         case_Rectype_mdarray_above;
         case_Rectype_Structure_above;
@@ -2026,7 +2030,7 @@ local uint32 sxhash_atom (object obj) {
       check_SP();
       {
         var gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
-        var uintC count = Record_length(obj);
+        var uintC count = SXrecord_length(obj);
         dotimespC(count,count, {
           /* combine hashcode of the next component: */
           var uint32 next_code = sxhash(*ptr++);
@@ -2044,6 +2048,9 @@ local uint32 sxhash_atom (object obj) {
       var object objclass = TheClassVersion(cv)->cv_newest_class;
       return sxhash(objclass) + 0x61EFA249;
     }
+    case_lrecord:               /* Long-Record */
+      /* utilize record-type and length */
+      return 0x8CAA9057UL + (Record_type(obj) << 24) + Lrecord_length(obj);
     case_char:                  /* character */
       /* take EQ-hashcode (for characters EQUAL == EQL == EQ) */
       return hashcode1(obj);

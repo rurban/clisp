@@ -174,24 +174,40 @@ local void gc_mark (object obj)
   { dies = objectplus(vorg,-(soint)offsetofa(svector_,data)<<(oint_addr_shift-addr_shift)); /* Svector becomes current object */ \
     vorg = vorvorg; goto up; /* go further up */ \
   }
-#define down_weakkvt()                                            \
-  if (in_old_generation(dies,typecode(dies),0)) goto up;          \
-  { var gcv_object_t* dies_ = (gcv_object_t*)TheSvector(dies);    \
-    if (marked(dies_)) goto up;                                   \
-    mark(dies_);                                                  \
-  } goto up; /* no elements to "sub-mark" */
-#define up_weakkvt()                             \
-  { dies = objectplus(vorg,-(soint)offsetofa(svector_,data)<<(oint_addr_shift-addr_shift)); /* Svector becomes current object */ \
+#define down_lrecord()                                                  \
+  if (in_old_generation(dies,typecode(dies),0))                         \
+    goto up; /* do not mark older generation */                         \
+  { var gcv_object_t* dies_ = (gcv_object_t*)TheLrecord(dies);          \
+    if (marked(dies_)) goto up; /* marked -> up */                      \
+    mark(dies_); /* marked */                                           \
+  }                                                                     \
+  { var uintL len = Lrecord_nonweak_length(dies);                       \
+    if (len==0) goto up; /* Length 0: up again */                       \
+   {var object dies_ = objectplus(dies,((soint)offsetofa(record_,recdata) << (oint_addr_shift-addr_shift)) \
+    /* the "<< 1" and "/2" are a workaround against a gcc-2.7.2         \
+       missed optimization in WIDE_SOFT mode */                         \
+      + (((soint)len << 1) * (soint)(sizeof(gcv_object_t)/2) << (oint_addr_shift-addr_shift)) \
+      - ((soint)sizeof(gcv_object_t) << (oint_addr_shift-addr_shift)) ); \
+    /* start with the last pointer */                                   \
+    var object nachf = *(gcv_object_t*)TheLrecord(dies_); /* successor */ \
+    *(gcv_object_t*)TheLrecord(dies_) = vorg; /* store predecessor */   \
+    mark(&TheLrecord(dies)->recdata[0]); /* mark first pointer */       \
+    vorg = dies_; /* current object becomes new predecessor */          \
+    dies = nachf; /* predecessor becomes current object */              \
+    goto down; /* and descent */                                        \
+  }}
+#define up_lrecord()                             \
+  { dies = objectplus(vorg,-(soint)offsetofa(record_,recdata)<<(oint_addr_shift-addr_shift)); /* Lrecord becomes current object */ \
     vorg = vorvorg; goto up; /* go further up */ \
   }
-#define down_record()                                                   \
+#define down_sxrecord()                                                 \
   if (in_old_generation(dies,typecode(dies),0))                         \
     goto up; /* do not mark older generation */                         \
   { var gcv_object_t* dies_ = (gcv_object_t*)TheRecord(dies);           \
     if (marked(dies_)) goto up; /* marked -> up */                      \
     mark(dies_); /* marked */                                           \
   }                                                                     \
-  { var uintL len = Record_nonweak_length(dies);                        \
+  { var uintL len = SXrecord_nonweak_length(dies);                      \
     if (len==0) goto up; /* Length 0: up again */                       \
    {var object dies_ = objectplus(dies,((soint)offsetofa(record_,recdata) << (oint_addr_shift-addr_shift)) \
     /* the "<< 1" and "/2" are a workaround against a gcc-2.7.2         \
@@ -206,7 +222,7 @@ local void gc_mark (object obj)
     dies = nachf; /* predecessor becomes current object */              \
     goto down; /* and descent */                                        \
   }}
-#define up_record()                               \
+#define up_sxrecord()                             \
   { dies = objectplus(vorg,-(soint)offsetofa(record_,recdata)<<(oint_addr_shift-addr_shift)); /* record becomes current object */ \
     vorg = vorvorg; goto up; /* go further up */  \
   }
@@ -268,10 +284,10 @@ local void gc_mark (object obj)
       down_iarray();
     case_svector: /* simple-vector */
       down_svector();
-    case_weakkvt: /* weak-key-value-table */
-      down_weakkvt();
-    case_record: /* Srecord/Xrecord */
-      down_record();
+    case_lrecord: /* Lrecord */
+      down_lrecord();
+    case_sxrecord: /* Srecord/Xrecord */
+      down_sxrecord();
     case_machine: /* maschine address */
     case_char: /* character */
     case_system: /* frame-pointer, read-label, system */
@@ -311,8 +327,6 @@ local void gc_mark (object obj)
           down_nopointers(TheRecord);
         case Rectype_Svector:
           down_svector();
-        case Rectype_WeakKVT:
-          down_weakkvt();
         #ifdef HAVE_SMALL_SSTRING
         case Rectype_reallocstring:
           down_sistring();
@@ -327,8 +341,10 @@ local void gc_mark (object obj)
         case Rectype_string:
         case Rectype_vector:
           down_iarray();
+        case Rectype_WeakKVT: /* Lrecord */
+          down_lrecord();
         default: /* Srecord/Xrecord */
-          down_record();
+          down_sxrecord();
       }
     case subr_bias: /* SUBR */
       down_subr();
@@ -373,8 +389,6 @@ local void gc_mark (object obj)
         up_pair();
       case_symbol: /* Symbol */
         up_varobject(symbol_objects_offset);
-      case_weakkvt: /* weak-key-value-table */
-        up_weakkvt();
       case_svector: /* simple-vector with at least 1 component */
         up_svector();
       case_mdarray: case_obvector: case_ob2vector:
@@ -382,8 +396,10 @@ local void gc_mark (object obj)
       case_ob32vector: case_ostring: case_ovector:
         /* non-simple arrays: */
         up_iarray();
-      case_record: /* Srecord/Xrecord */
-        up_record();
+      case_lrecord: /* Lrecord */
+        up_lrecord();
+      case_sxrecord: /* Srecord/Xrecord */
+        up_sxrecord();
       case_subr: /* SUBR */
         up_subr();
       case_sstring: /* simple-string */
@@ -425,7 +441,7 @@ local void gc_mark (object obj)
       case varobject_bias:
         /* This works only because all varobjects have the same
            objects_offset! */
-        up_record();
+        up_sxrecord();
       default: /* these are no objects. */
         /*NOTREACHED*/ abort();
     }
@@ -433,12 +449,12 @@ local void gc_mark (object obj)
   }
 #undef up_subr
 #undef down_subr
-#undef up_record
-#undef down_record
+#undef up_sxrecord
+#undef down_sxrecord
 #undef up_svector
 #undef down_svector
-#undef up_weakkvt
-#undef down_weakkvt
+#undef up_lrecord
+#undef down_lrecord
 #undef up_iarray
 #undef down_iarray
 #undef down_nopointers

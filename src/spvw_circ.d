@@ -503,7 +503,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           goto m_schon_da;
         # so far unmarked
         goto m_record_components;
-      case_orecord: # mark other record:
+      case_orecord: case_lrecord: # mark other record:
         switch (Record_type(obj)) {
           #ifndef TYPECODES
           case_Rectype_Symbol_above;
@@ -811,7 +811,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         # so far unmarked
         mark(TheInstance(obj)); # mark
         goto m_record_components;
-      case_orecord: # mark other record:
+      case_orecord: case_lrecord: # mark other record:
         switch (Record_type(obj)) {
           #ifndef TYPECODES
           case_Rectype_Symbol_above;
@@ -999,7 +999,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           goto u_end;
         unmark(TheInstance(obj)); # unmark
         goto u_record_components;
-      case_orecord: # unmark other record:
+      case_orecord: case_lrecord: # unmark other record:
         switch (Record_type(obj)) {
           #ifndef TYPECODES
           case_Rectype_bvector_above;
@@ -1152,7 +1152,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           # traverse data-vector: end-recursive subst_circ_mark(data-vector)
           ptr = &TheIarray(obj)->data; goto enter_subst;
         case_instance: /* Record */
-        case_closure: _case_structure _case_stream case_orecord:
+        case_closure: _case_structure _case_stream case_orecord: case_lrecord:
           #ifndef TYPECODES
           switch (Record_type(obj)) {
             case_Rectype_Svector_above;
@@ -1338,7 +1338,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           # traverse data-vector: end-recursive subst(data-vector)
           ptr = &TheIarray(obj)->data; goto enter_subst;
         case_instance: /* Record */
-        case_closure: _case_structure _case_stream case_orecord:
+        case_closure: _case_structure _case_stream case_orecord: case_lrecord:
           #ifndef TYPECODES
           switch (Record_type(obj)) {
             case_Rectype_Svector_above;
@@ -1512,7 +1512,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           mark(TheIarray(obj)); # mark
           # traverse data-vector: end-recursive subst_circ_mark(data-vector)
           ptr = &TheIarray(obj)->data; goto enter_subst;
-        case_closure: _case_structure _case_stream case_orecord: case_instance: # Record
+        case_closure: _case_structure _case_stream case_orecord: case_instance: case_lrecord: # Record
           #ifndef TYPECODES
           switch (Record_type(obj)) {
             case_Rectype_Svector_above;
@@ -1651,7 +1651,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           # traverse data-vector: end-recursive subst_circ_unmark(data-vector)
           ptr = &TheIarray(obj)->data; goto enter_subst;
         case_instance: /* Record */
-        case_closure: _case_structure _case_stream case_orecord:
+        case_closure: _case_structure _case_stream case_orecord: case_lrecord:
           #ifndef TYPECODES
           switch (Record_type(obj)) {
             case_Rectype_Svector_above;

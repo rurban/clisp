@@ -164,21 +164,24 @@ local uintC generation;
           break;                                            \
       });                                                   \
     } while(0)
-  #define walk_area_record(objptr,physpage_end,walkfun)                     \
-    do {                                                                    \
-      var uintC count;                                                      \
-      var gcv_object_t* ptr = &((Record)objptr)->recdata[0];                \
-      objptr += (record_type((Record)objptr) < rectype_limit                \
-                 ? (count = srecord_length((Srecord)objptr),                \
-                    size_srecord(count))                                    \
-                 : (count = xrecord_length((Xrecord)objptr),                \
-                    size_xrecord(count,xrecord_xlength((Xrecord)objptr)))); \
-      dotimesC(count,count, {                                               \
-        if ((aint)ptr < physpage_end) {                                     \
-          walkfun(*ptr); ptr++;                                             \
-        } else                                                              \
-          break;                                                            \
-      });                                                                   \
+  #define walk_area_record(objptr,physpage_end,walkfun)                       \
+    do {                                                                      \
+      var uintC count;                                                        \
+      var gcv_object_t* ptr = &((Record)objptr)->recdata[0];                  \
+      objptr += (record_type((Record)objptr) < rectype_longlimit              \
+                 ? (record_type((Record)objptr) < rectype_limit               \
+                    ? (count = srecord_length((Srecord)objptr),               \
+                       size_srecord(count))                                   \
+                    : (count = xrecord_length((Xrecord)objptr),               \
+                       size_xrecord(count,xrecord_xlength((Xrecord)objptr)))) \
+                 : (count = lrecord_length((Lrecord)objptr),                  \
+                    size_lrecord(count)));                                    \
+      dotimesC(count,count, {                                                 \
+        if ((aint)ptr < physpage_end) {                                       \
+          walkfun(*ptr); ptr++;                                               \
+        } else                                                                \
+          break;                                                              \
+      });                                                                     \
     } while(0)
 
   #ifdef SPVW_PURE
@@ -206,7 +209,6 @@ local uintC generation;
               walk_area_sstring(objptr,physpage_end,walkfun);             \
             break;                                                        \
           )                                                               \
-          case_weakkvt: # weak-key-value-table                            \
           case_svector: # simple-vector                                   \
             while (objptr < physpage_end)                                 \
               walk_area_svector(objptr,physpage_end,walkfun);             \
@@ -243,7 +245,6 @@ local uintC generation;
                     walk_area_sstring(objptr,physpage_end,walkfun);          \
                     break;                                                   \
                   )                                                          \
-                  case_weakkvt: # weak-key-value-table                       \
                   case_svector: # simple-vector                              \
                     walk_area_svector(objptr,physpage_end,walkfun);          \
                     break;                                                   \
@@ -287,7 +288,6 @@ local uintC generation;
                     walk_area_sistring(objptr,physpage_end,walkfun);      \
                     break;                                                \
                   )                                                       \
-                  case Rectype_WeakKVT: # weak-key-value-table            \
                   case Rectype_Svector: # simple-vector                   \
                     walk_area_svector(objptr,physpage_end,walkfun);       \
                     break;                                                \
@@ -307,7 +307,7 @@ local uintC generation;
                     # simple-byte-vector, simple-string, bignum, float    \
                     objptr += objsize((Varobject)objptr);                 \
                     break;                                                \
-                  default: # Srecord/Xrecord                              \
+                  default: # Lrecord/Srecord/Xrecord                      \
                     walk_area_record(objptr,physpage_end,walkfun);        \
                     break;                                                \
               }}                                                          \
@@ -553,7 +553,6 @@ local uintC generation;
                 if (!(objptr == gen0_end)) abort();
                 break;
               #endif
-              case_weakkvt: # weak-key-value-table
               case_svector: # simple-vector
                 physpage->continued_addr = (gcv_object_t*)gen0_start; # irrelevant
                 physpage->continued_count = 0;
@@ -602,12 +601,17 @@ local uintC generation;
                 while (objptr < gen0_end) {
                   var uintC count;
                   var aint nextptr;
-                  if (record_type((Record)objptr) < rectype_limit) {
-                    count = srecord_length((Srecord)objptr);
-                    nextptr = objptr + size_srecord(count);
+                  if (record_type((Record)objptr) < rectype_longlimit) {
+                    if (record_type((Record)objptr) < rectype_limit) {
+                      count = srecord_length((Srecord)objptr);
+                      nextptr = objptr + size_srecord(count);
+                    } else {
+                      count = xrecord_length((Xrecord)objptr);
+                      nextptr = objptr + size_xrecord(count,xrecord_xlength((Xrecord)objptr));
+                    }
                   } else {
-                    count = xrecord_length((Xrecord)objptr);
-                    nextptr = objptr + size_xrecord(count,xrecord_xlength((Xrecord)objptr));
+                    count = lrecord_length((Lrecord)objptr);
+                    nextptr = objptr + size_lrecord(count);
                   }
                   if (nextptr >= gen0_start) {
                     var aint ptr = (aint)&((Record)objptr)->recdata[0];
@@ -741,7 +745,6 @@ local uintC generation;
                   }
                   break;
                 #endif
-                case_weakkvt: # weak-key-value-table
                 case_svector: # simple-vector
                   {
                     var uintL count = svector_length((Svector)objptr);
@@ -790,7 +793,6 @@ local uintC generation;
                     case_Rectype_ostring_above;
                     case_Rectype_ovector_above;
                     case_Rectype_Svector_above;
-                    case_Rectype_WeakKVT_above;
                     case Rectype_Sbvector:
                     case Rectype_Sb2vector:
                     case Rectype_Sb4vector:
@@ -813,12 +815,17 @@ local uintC generation;
                   {
                     var uintC count;
                     var aint nextptr;
-                    if (record_type((Record)objptr) < rectype_limit) {
-                      count = srecord_length((Srecord)objptr);
-                      nextptr = objptr + size_srecord(count);
+                    if (record_type((Record)objptr) < rectype_longlimit) {
+                      if (record_type((Record)objptr) < rectype_limit) {
+                        count = srecord_length((Srecord)objptr);
+                        nextptr = objptr + size_srecord(count);
+                      } else {
+                        count = xrecord_length((Xrecord)objptr);
+                        nextptr = objptr + size_xrecord(count,xrecord_xlength((Xrecord)objptr));
+                      }
                     } else {
-                      count = xrecord_length((Xrecord)objptr);
-                      nextptr = objptr + size_xrecord(count,xrecord_xlength((Xrecord)objptr));
+                      count = lrecord_length((Lrecord)objptr);
+                      nextptr = objptr + size_lrecord(count);
                     }
                     if (nextptr >= gen0_start) {
                       var aint ptr = (aint)&((Record)objptr)->recdata[0];
