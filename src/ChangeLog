@@ -1,5 +1,10 @@
 1999-03-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * encoding.d: Make UNICODE-16 an alias for UNICODE-16-BIG-ENDIAN.
+        * constsym.d: Rename the CPxxx-MS symbols to CPxxx.
+
+1999-03-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * encoding.d: Add the HP-ROMAN8 character set.
 
 1999-03-11  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
