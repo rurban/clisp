@@ -1,5 +1,9 @@
 2005-03-28  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (xlib_error_handler): use switch, not if
+
+2005-03-28  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (DEF-C-VAR, DEF-CALL-OUT): accept :DOCUMENTATION
 	Suggested by Yaroslav Kavenchuk <kavenchuk@jenty.by>
 
