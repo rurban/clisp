@@ -914,14 +914,22 @@ nonreturning_function(local, fehler_write, (object stream, object obj,
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~: cannot output ~ into ~, not of type ~"));
 }
-nonreturning_function(local, wr_ch_forbidden,
-                      (const gcv_object_t* stream_, object ch))
-{ fehler_write(*stream_,ch,NIL); }
-nonreturning_function(local, wr_ch_array_forbidden,
-                      (const gcv_object_t* stream_,
-                       const gcv_object_t* chararray_,
-                       uintL start, uintL len))
-{ unused start; unused len; fehler_write(*stream_,chararray_[0],NIL); }
+
+/* WRITE-CHAR pseudo-function for output streams of element type NIL */
+local void wr_ch_forbidden (const gcv_object_t* stream_, object ch)
+{
+  fehler_write(*stream_,ch,NIL);
+}
+
+/* WRITE-CHAR-ARRAY pseudo-function for output streams of element type NIL */
+local void wr_ch_array_forbidden (const gcv_object_t* stream_,
+                                  const gcv_object_t* chararray_,
+                                  uintL start, uintL len)
+{
+  unused start;
+  unused len;
+  fehler_write(*stream_,*chararray_,NIL);
+}
 
 #define check_wr_char(s,c)  if(!charp(c)) fehler_write(s,c,S(character))
 
