@@ -1,5 +1,11 @@
 2005-02-18  Bruno Haible  <bruno@clisp.org>
 
+	* utils/modprep.lisp (new-checker): Don't make the first enum element
+	the default.
+	* i18n/gettext.c (check_locale_category): Use LC_MESSAGES as default.
+
+2005-02-18  Bruno Haible  <bruno@clisp.org>
+
 	* utils/modprep.lisp (print-tables-1): For DEFCHECKER converter,
 	test for unbound before the loop, not inside.
 
