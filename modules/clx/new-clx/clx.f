@@ -2587,7 +2587,7 @@ DEFUN(XLIB:DRAWABLE-ROOT, window)
 
 /* can trigger GC */
 static object coerce_result_type (unsigned int stack_count,
-                                 gcv_object_t *result_type)
+                                  gcv_object_t *result_type)
 { /* there are stack_count objects on the STACK, which will be removed
      and collected into a sequence of type *result_type */
   if (eq(*result_type,S(list)) || missingp(*result_type))
@@ -7670,8 +7670,7 @@ DEFUN(XPM:READ-FILE-TO-PIXMAP, drawable filename &key SHAPE-MASK-P PIXMAP-P)
 
   pushSTACK(get_display_obj (STACK_3));
 
-  STACK_3 = funcall1(L(truename),STACK_3);
-  STACK_3 = funcall1(L(namestring),STACK_3);
+  STACK_3 = physical_namestring(STACK_3);
 
   with_string_0 (STACK_3, GLO(pathname_encoding), filename, {
       X_CALL(r = XpmReadFileToPixmap (dpy, da, filename,

@@ -1,3 +1,8 @@
+2005-03-15  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (XPM:READ-FILE-TO-PIXMAP): use
+	physical_namestring() instead of TRUENAME+NAMESTRING
+
 2005-03-15  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (pathname): Depend on execname.c also on Unix.
