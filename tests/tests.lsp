@@ -54,41 +54,68 @@
   (merge-pathnames (make-pathname :type (subseq (string type) 1)) filename)
 )
 
+(defun do-test (stream log &optional (ignore-errors t))
+  (let ((eof "EOF"))
+    (loop
+      (let ((form (read stream nil eof))
+            (result (read stream nil eof)))
+        (when (or (eq form eof) (eq result eof)) (return))
+        (print form)
+        (let ((my-result
+                (if ignore-errors
+                  (with-ignored-errors (eval form)) ; return ERROR on errors
+                  (eval form) ; don't disturb the condition system when testing it!
+             )) )
+          (cond ((eql result my-result)
+                 (format t "~%EQL-OK: ~S" result)
+                )
+                ((equal result my-result)
+                 (format t "~%EQUAL-OK: ~S" result)
+                )
+                ((equalp result my-result)
+                 (format t "~%EQUALP-OK: ~S" result)
+                )
+                (t
+                 (format t "~%FEHLER!! ~S sollte ~S sein!" my-result result)
+                 (format log "~%Form: ~S~%SOLL: ~S~%~A: ~S~%"
+                             form result
+                             #+CLISP "CLISP" #+AKCL "AKCL" #+ALLEGRO "ALLEGRO"
+                             my-result
+                ))
+) ) ) ) ) )
+
+(defun do-errcheck (stream log)
+  (let ((eof "EOF"))
+    (loop
+      (let ((form (read stream nil eof))
+            (errtype (read stream nil eof)))
+        (when (or (eq form eof) (eq errtype eof)) (return))
+        (print form)
+        (let ((my-result (nth-value 1 (ignore-errors (eval form)))))
+          (multiple-value-bind (typep-result typep-error)
+              (ignore-errors (typep my-result errtype))
+            (cond ((and (not typep-error) typep-result)
+                   (format t "~%OK: ~S" errtype)
+                  )
+                  (t
+                   (format t "~%FEHLER!! ~S statt ~S !" my-result errtype)
+                   (format log "~%Form: ~S~%SOLL: ~S~%~A: ~S~%"
+                               form errtype
+                               #+CLISP "CLISP" #+AKCL "AKCL" #+ALLEGRO "ALLEGRO"
+                               my-result
+                  ))
+) ) ) ) ) ) )
+
 (defun run-test (testname
-                 &aux (logname (merge-extension ".erg" testname)) log-empty-p)
+                 &optional (tester #'do-test)
+                 &aux (logname (merge-extension ".erg" testname))
+                      log-empty-p)
   (with-open-file (s (merge-extension ".tst" testname) :direction :input)
     (with-open-file (log logname :direction :output
                                  #+ANSI-CL :if-exists #+ANSI-CL :new-version)
       (let ((*package* *package*)
-            (*print-pretty* nil)
-            (eof "EOF"))
-        (loop
-          (let ((form (read s nil eof))
-                (result (read s nil eof)))
-            (when (or (eq form eof) (eq result eof)) (return))
-            (print form)
-            (let ((my-result
-                    (if (equal testname "conditions")
-                      (eval form) ; don't disturb the condition system when testing it!
-                      (with-ignored-errors (eval form)) ; return ERROR on errors
-                 )) )
-              (cond ((eql result my-result)
-                     (format t "~%EQL-OK: ~S" result)
-                    )
-                    ((equal result my-result)
-                     (format t "~%EQUAL-OK: ~S" result)
-                    )
-                    ((equalp result my-result)
-                     (format t "~%EQUALP-OK: ~S" result)
-                    )
-                    (t
-                     (format t "~%FEHLER!! ~S sollte ~S sein!" my-result result)
-                     (format log "~%Form: ~S~%SOLL: ~S~%~A: ~S~%"
-                                 form result
-                                 #+CLISP "CLISP" #+AKCL "AKCL" #+ALLEGRO "ALLEGRO"
-                                 my-result
-                    ))
-        ) ) ) )
+            (*print-pretty* nil))
+        (funcall tester s log)
       )
       (setq log-empty-p (zerop (file-length log)))
   ) )
@@ -103,7 +130,6 @@
                                 "backquot"
            #-AKCL               "characters"
            #+(or CLISP ALLEGRO) "clos"
-           #+(or CLISP ALLEGRO) "conditions"
                                 "eval20"
                                 "format"
            #+CLISP              "genstream"
@@ -137,6 +163,9 @@
            #+XCL                "tread"
                                 "type"
   )      )
+  #+(or CLISP ALLEGRO)
+  (run-test "conditions" #'(lambda (stream log) (do-test stream log nil)))
+  (run-test "excepsit" #'do-errcheck)
   t
 )
 
