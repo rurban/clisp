@@ -1,3 +1,11 @@
+2001-02-04  Bruno Haible  <haible@clisp.cons.org>
+
+        * stream.d (iconv_init): Remove macro, not needed any more since
+          libiconv-1.5.
+          (iconv): Define as macro, to cast second argument.
+          (iconv_mblen, iconv_mbstowcs, iconv_wcslen, iconv_wcstombs,
+           iconv_range, ChannelStream_init): Don't call iconv_init.
+
 2001-02-04  Sam Steingold  <sds@gnu.org>
             Bruno Haible  <haible@clisp.cons.org>
 

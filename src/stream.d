@@ -4104,14 +4104,14 @@ global object iconv_range (object encoding, uintL start, uintL end);
 # fehler_unencodable(encoding);
   nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
 
-# Initialize an iconv_t as we need it.
-# iconv_init(cd);
+# Avoid annoying warning caused by a wrongly standardized iconv() prototype.
   #ifdef GNU_LIBICONV
-    /* We want reversible conversion, no transliteration. */
-    #define iconv_init(cd)  \
-      { int zero = 0; iconvctl(cd,ICONV_SET_TRANSLITERATE,&zero); }
+    #undef iconv
+    #define iconv(cd,inbuf,inbytesleft,outbuf,outbytesleft) \
+      libiconv(cd,(ICONV_CONST char **)(inbuf),inbytesleft,outbuf,outbytesleft)
   #else
-    #define iconv_init(cd)
+    #define iconv(cd,inbuf,inbytesleft,outbuf,outbytesleft) \
+      (iconv)(cd,(ICONV_CONST char **)(inbuf),inbytesleft,outbuf,outbytesleft)
   #endif
 
 # Bytes to characters.
@@ -4131,7 +4131,6 @@ global uintL iconv_mblen(encoding,src,srcend)
         if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
         OS_error();
       }
-      iconv_init(cd);
       {
         var const char* inptr = (const char*)src;
         var size_t insize = srcend-src;
@@ -4191,7 +4190,6 @@ global void iconv_mbstowcs(encoding,stream,srcp,srcend,destp,destend)
           if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
           OS_error();
         }
-        iconv_init(cd);
         while (insize > 0 && outsize > 0) {
           var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
           if (res == (size_t)(-1)) {
@@ -4276,7 +4274,6 @@ global uintL iconv_wcslen(encoding,src,srcend)
         if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
         OS_error();
       }
-      iconv_init(cd);
       {
         var const char* inptr = (const char*)src;
         var size_t insize = (char*)srcend-(char*)src;
@@ -4367,7 +4364,6 @@ global void iconv_wcstombs(encoding,stream,srcp,srcend,destp,destend)
           if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
           OS_error();
         }
-        iconv_init(cd);
         while (insize > 0) {
           var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
           if (res == (size_t)(-1)) {
@@ -4497,7 +4493,6 @@ global object iconv_range(encoding,start,end)
         if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
         OS_error();
       }
-      iconv_init(cd);
       end_system_call();
       {
         var uintL i1;
@@ -4580,7 +4575,6 @@ global object iconv_range(encoding,start,end)
               if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
               OS_error();
             }
-            iconv_init(cd);
             ChannelStream_iconvdesc(stream) = cd;
           } else {
             ChannelStream_iconvdesc(stream) = (iconv_t)0;
@@ -4592,7 +4586,6 @@ global object iconv_range(encoding,start,end)
               if (errno == EINVAL) { end_system_call(); fehler_iconv_invalid_charset(encoding); }
               OS_error();
             }
-            iconv_init(cd);
             ChannelStream_oconvdesc(stream) = cd;
           } else {
             ChannelStream_oconvdesc(stream) = (iconv_t)0;
