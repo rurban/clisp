@@ -1094,306 +1094,192 @@
      no: return false;
     }
 
-LISPFUNN(eq,2)
-# (EQ obj1 obj2), CLTL S. 77
-  {
-    var object obj2 = popSTACK();
-    var object obj1 = popSTACK();
-    value1 = (eq(obj1,obj2) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(eq,2) { /* (EQ obj1 obj2), CLTL p. 77 */
+  VALUES_IF(eq(STACK_0,STACK_1)); skipSTACK(2);
+}
 
-LISPFUNN(eql,2)
-# (EQL obj1 obj2), CLTL S. 78
-  {
-    var object obj2 = popSTACK();
-    var object obj1 = popSTACK();
-    value1 = (eql(obj1,obj2) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(eql,2) { /* (EQL obj1 obj2), CLTL p. 78 */
+  VALUES_IF(eql(STACK_0,STACK_1)); skipSTACK(2);
+}
 
-LISPFUNN(equal,2)
-# (EQUAL obj1 obj2), CLTL S. 80
-  {
-    var object obj2 = popSTACK();
-    var object obj1 = popSTACK();
-    value1 = (equal(obj1,obj2) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(equal,2) { /* (EQUAL obj1 obj2), CLTL p. 80 */
+  VALUES_IF(equal(STACK_0,STACK_1)); skipSTACK(2);
+}
 
-LISPFUNN(equalp,2)
-# (EQUALP obj1 obj2), CLTL S. 81
-  {
-    var object obj2 = popSTACK();
-    var object obj1 = popSTACK();
-    value1 = (equalp(obj1,obj2) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(equalp,2) { /* (EQUALP obj1 obj2), CLTL p. 81 */
+  VALUES_IF(equalp(STACK_0,STACK_1)); skipSTACK(2);
+}
 
-LISPFUNN(consp,1)
-# (CONSP object), CLTL S. 74
-  {
-    value1 = (mconsp(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(consp,1) { /* (CONSP object), CLTL p. 74 */
+  VALUES_IF(mconsp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(atom,1)
-# (ATOM object), CLTL S. 73
-  {
-    value1 = (matomp(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(atom,1) { /* (ATOM object), CLTL p. 73 */
+  VALUES_IF(matomp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(symbolp,1)
-# (SYMBOLP object), CLTL S. 73
-  {
-    value1 = (symbolp(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(symbolp,1) { /* (SYMBOLP object), CLTL p. 73 */
+  VALUES_IF(symbolp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(stringp,1)
-# (STRINGP object), CLTL S. 75
-  {
-    value1 = (stringp(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(stringp,1) { /* (STRINGP object), CLTL p. 75 */
+  VALUES_IF(stringp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(numberp,1)
-# (NUMBERP object), CLTL S. 74
-  {
-    value1 = (numberp(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(numberp,1) { /* (NUMBERP object), CLTL p. 74 */
+  VALUES_IF(numberp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(compiled_function_p,1)
-# (COMPILED-FUNCTION-P object), CLTL S. 76
-  {
-    var object arg = popSTACK();
-    # Test auf SUBR oder compilierte Closure oder Foreign-Function:
-    value1 = (subrp(arg) || cclosurep(arg) || ffunctionp(arg) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(compiled_function_p,1) {
+  /* (COMPILED-FUNCTION-P object), CLTL p. 76 */
+  var object arg = popSTACK();
+  /* check for SUBR or compiled closure or foreign function: */
+  VALUES_IF(subrp(arg) || cclosurep(arg) || ffunctionp(arg));
+}
 
-LISPFUNN(null,1)
-# (NULL object), CLTL S. 73
-  {
-    value1 = (nullp(popSTACK()) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(null,1) { /* (NULL object), CLTL p. 73 */
+  VALUES_IF(nullp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(not,1)
-# (NOT object), CLTL S. 82
-  {
-    value1 = (nullp(popSTACK()) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(not,1) { /* (NOT object), CLTL p. 82 */
+  VALUES_IF(nullp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(closurep,1)
-# (SYS::CLOSUREP object)
-  {
-    value1 = (closurep(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(closurep,1) { /* (SYS::CLOSUREP object) */
+  VALUES_IF(closurep(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(listp,1)
-# (LISTP object), CLTL S. 74
-  {
-    var object arg = popSTACK();
-    value1 = (listp(arg) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(listp,1) { /* (LISTP object), CLTL p. 74 */
+  VALUES_IF(listp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(integerp,1)
-# (INTEGERP object), CLTL S. 74
-  {
-    value1 = (integerp(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(integerp,1) { /* (INTEGERP object), CLTL p. 74 */
+  VALUES_IF(integerp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(fixnump,1)
-# (SYS::FIXNUMP object)
-  {
-    value1 = (fixnump(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(fixnump,1) { /* (SYS::FIXNUMP object) */
+  VALUES_IF(fixnump(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(rationalp,1)
-# (RATIONALP object), CLTL S. 74
-  {
-    var object arg = popSTACK();
-    if_rationalp(arg, value1 = T; , value1 = NIL; ); mv_count=1;
-  }
+LISPFUNN(rationalp,1) { /* (RATIONALP object), CLTL p. 74 */
+  var object arg = popSTACK();
+  if_rationalp(arg, { VALUES1(T); }, { VALUES1(NIL); } );
+}
 
-LISPFUNN(floatp,1)
-# (FLOATP object), CLTL S. 75
-  {
-    value1 = (floatp(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(floatp,1) { /* (FLOATP object), CLTL p. 75 */
+  VALUES_IF(floatp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(short_float_p,1)
-# (SYS::SHORT-FLOAT-P object)
-  {
-    value1 = (short_float_p(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(short_float_p,1) { /* (SYS::SHORT-FLOAT-P object) */
+  VALUES_IF(short_float_p(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(single_float_p,1)
-# (SYS::SINGLE-FLOAT-P object)
-  {
-    value1 = (single_float_p(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(single_float_p,1) { /* (SYS::SINGLE-FLOAT-P object) */
+  VALUES_IF(single_float_p(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(double_float_p,1)
-# (SYS::DOUBLE-FLOAT-P object)
-  {
-    value1 = (double_float_p(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(double_float_p,1) { /* (SYS::DOUBLE-FLOAT-P object) */
+  VALUES_IF(double_float_p(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(long_float_p,1)
-# (SYS::LONG-FLOAT-P object)
-  {
-    value1 = (long_float_p(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(long_float_p,1) { /* (SYS::LONG-FLOAT-P object) */
+  VALUES_IF(long_float_p(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(realp,1)
-# (REALP object), CLTL2 S. 101
-  {
-    var object arg = popSTACK();
-    if_realp(arg, value1 = T; , value1 = NIL; ); mv_count=1;
-  }
+LISPFUNN(realp,1) { /* (REALP object), CLTL2 p. 101 */
+  var object arg = popSTACK();
+  if_realp(arg, { VALUES1(T); } , { VALUES1(NIL); } );
+}
 
-LISPFUNN(complexp,1)
-# (COMPLEXP object), CLTL S. 75
-  {
-    value1 = (complexp(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(complexp,1) { /* (COMPLEXP object), CLTL p. 75 */
+  VALUES_IF(complexp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(streamp,1)
-# (STREAMP object), CLTL S. 332
-  {
-    value1 = (streamp(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(streamp,1) { /* (STREAMP object), CLTL p. 332 */
+  VALUES_IF(streamp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(built_in_stream_p,1)
-# (SYS::BUILT-IN-STREAM-P object)
-  {
-    value1 = (builtin_stream_p(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(built_in_stream_p,1) { /* (SYS::BUILT-IN-STREAM-P object) */
+  VALUES_IF(builtin_stream_p(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(random_state_p,1)
-# (RANDOM-STATE-P object), CLTL S. 231
-  {
-    var object arg = popSTACK();
-    value1 = (random_state_p(arg) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(random_state_p,1) { /* (RANDOM-STATE-P object), CLTL p. 231 */
+  VALUES_IF(random_state_p(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(readtablep,1)
-# (READTABLEP object), CLTL S. 361
-  {
-    var object arg = popSTACK();
-    value1 = (readtablep(arg) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(readtablep,1) { /* (READTABLEP object), CLTL p. 361 */
+  VALUES_IF(readtablep(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(hash_table_p,1)
-# (HASH-TABLE-P object), CLTL S. 284
-  {
-    var object arg = popSTACK();
-    value1 = (hash_table_p(arg) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(hash_table_p,1) { /* (HASH-TABLE-P object), CLTL p. 284 */
+  VALUES_IF(hash_table_p(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(pathnamep,1)
-# (PATHNAMEP object), CLTL S. 416
-  {
-    var object arg = popSTACK();
-    value1 = (xpathnamep(arg) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(pathnamep,1) { /* (PATHNAMEP object), CLTL p. 416 */
+  VALUES_IF(xpathnamep(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(logical_pathname_p,1)
-# (SYS::LOGICAL-PATHNAME-P object)
-  {
-    var object arg = popSTACK();
-    value1 = (logpathnamep(arg) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(logical_pathname_p,1) { /* (SYS::LOGICAL-PATHNAME-P object) */
+  VALUES_IF(logpathnamep(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(characterp,1)
-# (CHARACTERP object), CLTL S. 75
-  {
-    value1 = (charp(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(characterp,1) { /* (CHARACTERP object), CLTL p. 75 */
+  VALUES_IF(charp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(functionp,1)
-# (FUNCTIONP object), CLTL S. 76, CLtL2 S. 102-103
-  {
-    var object arg = popSTACK();
-    # Test auf SUBR, Closure, Foreign-Function, [Symbol, Cons (LAMBDA . ...)]:
-    value1 = (subrp(arg) || closurep(arg) || ffunctionp(arg) ? T : NIL);
-    mv_count=1;
-  }
+LISPFUNN(functionp,1) { /* (FUNCTIONP object), CLTL p. 76, CLtL2 p. 102-103 */
+  var object arg = popSTACK();
+  /* SUBR, closure, foreign function, [Symbol, Cons (LAMBDA . ...)]: */
+  VALUES_IF(subrp(arg) || closurep(arg) || ffunctionp(arg));
+}
 
-LISPFUNN(generic_function_p,1)
-# (CLOS::GENERIC-FUNCTION-P object)
-  {
-    var object arg = popSTACK();
-    value1 = (genericfunctionp(arg) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(generic_function_p,1) { /* (CLOS::GENERIC-FUNCTION-P object) */
+  VALUES_IF(genericfunctionp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(packagep,1)
-# (PACKAGEP object), CLTL S. 76
-  {
-    var object arg = popSTACK();
-    value1 = (packagep(arg) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(packagep,1) { /* (PACKAGEP object), CLTL p. 76 */
+  VALUES_IF(packagep(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(arrayp,1)
-# (ARRAYP object), CLTL S. 76
-  {
-    var object arg = popSTACK();
-    value1 = (arrayp(arg) ? T : NIL); mv_count=1;
-  }
+LISPFUNN(arrayp,1) { /* (ARRAYP object), CLTL p. 76 */
+  VALUES_IF(arrayp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(simple_array_p,1)
-# (SYSTEM::SIMPLE-ARRAY-P object)
-  {
-    var object arg = popSTACK();
-    if (simplep(arg)) {
-      goto yes; # Simple eindimensionale Arrays -> ja
-    } else {
-      if (arrayp(arg)) { # sonstige Arrays, nur falls alle Flagbits =0 sind
-        if ((Iarray_flags(arg)
-             & (  bit(arrayflags_adjustable_bit)
-                | bit(arrayflags_fillp_bit)
-                | bit(arrayflags_displaced_bit)
-                | bit(arrayflags_dispoffset_bit)
-            )  )
-            == 0
-           ) {
-         yes:
-          value1 = T;
-        } else
-          goto no; # nicht-simple Arrays -> nein
-      } else {
-       no:
-        value1 = NIL; # sonstige Objekte -> nein
-      }
-    }
-    mv_count=1;
-  }
+LISPFUNN(simple_array_p,1) { /* (SYSTEM::SIMPLE-ARRAY-P object) */
+  var object arg = popSTACK();
+  VALUES_IF(simplep(arg) ||
+            (arrayp(arg) && /* other arrays, only if all flag bits = 0 */
+             ((Iarray_flags(arg)
+               & (bit(arrayflags_adjustable_bit)
+                  | bit(arrayflags_fillp_bit)
+                  | bit(arrayflags_displaced_bit)
+                  | bit(arrayflags_dispoffset_bit) ))
+              == 0)));
+}
 
-LISPFUNN(bit_vector_p,1)
-# (BIT-VECTOR-P object), CLTL S. 75
-  {
-    value1 = (bit_vector_p(Atype_Bit,STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(bit_vector_p,1) { /* (BIT-VECTOR-P object), CLTL p. 75 */
+  VALUES_IF(bit_vector_p(Atype_Bit,STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(vectorp,1)
-# (VECTORP object), CLTL S. 75
-  {
-    value1 = (vectorp(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(vectorp,1) { /* (VECTORP object), CLTL p. 75 */
+  VALUES_IF(vectorp(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(simple_vector_p,1)
-# (SIMPLE-VECTOR-P object), CLTL S. 75
-  {
-    value1 = (simple_vector_p(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(simple_vector_p,1) { /* (SIMPLE-VECTOR-P object), CLTL p. 75 */
+  VALUES_IF(simple_vector_p(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(simple_string_p,1)
-# (SIMPLE-STRING-P object), CLTL S. 75
-  {
-    value1 = (simple_string_p(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(simple_string_p,1) { /* (SIMPLE-STRING-P object), CLTL p. 75 */
+  VALUES_IF(simple_string_p(STACK_0)); skipSTACK(1);
+}
 
-LISPFUNN(simple_bit_vector_p,1)
-# (SIMPLE-BIT-VECTOR-P object), CLTL S. 76
-  {
-    value1 = (simple_bit_vector_p(Atype_Bit,STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
-  }
+LISPFUNN(simple_bit_vector_p,1) {
+  /* (SIMPLE-BIT-VECTOR-P object), CLTL p. 76 */
+  VALUES_IF(simple_bit_vector_p(Atype_Bit,STACK_0)); skipSTACK(1);
+}
 
 LISPFUNN(type_of,1)
-# (TYPE-OF object), CLTL S. 52
+# (TYPE-OF object), CLTL p. 52
   {
     var object arg = popSTACK();
     #ifdef TYPECODES
@@ -1951,7 +1837,7 @@ global object expand_deftype (object type_spec, bool once_p) {
   }
   if (symbolp(type_spec)) { # (GET type-spec 'DEFTYPE-EXPANDER)
     var object expander = get(type_spec,S(deftype_expander));
-    if (!eq(expander,unbound)) {
+    if (boundp(expander)) {
       pushSTACK(type_spec);
       pushSTACK(expander);
       var object new_cons = allocate_cons();
@@ -1964,7 +1850,7 @@ global object expand_deftype (object type_spec, bool once_p) {
   } else if (mconsp(type_spec) && symbolp(Car(type_spec))) {
     # (GET (CAR type-spec) 'DEFTYPE-EXPANDER)
     var object expander = get(Car(type_spec),S(deftype_expander));
-    if (!eq(expander,unbound)) {
+    if (boundp(expander)) {
       pushSTACK(type_spec); funcall(expander,1); # call expander
       type_spec = value1; # use the return value as the new type-spec
       if (!once_p) goto start;
@@ -1979,11 +1865,9 @@ LISPFUN(expand_deftype,1,1,norest,nokey,0,NIL)
 #   ==> expanded, user-defined-p
 {
   var object once_p = popSTACK();
-  value1 = expand_deftype(STACK_0,(eq(once_p,unbound) || eq(once_p,NIL) ?
-                                   false : true));
-  value2 = (eq(STACK_0,value1) ? NIL : T);
+  VALUES2(expand_deftype(STACK_0,!missingp(once_p)),
+          eq(STACK_0,value1) ? NIL : T);
   skipSTACK(1);
-  mv_count = 2;
 }
 
 # UP: coerce STACK_1 to result_type (a sequence).
@@ -2043,7 +1927,7 @@ LISPFUNN(coerce,2)
     pushSTACK(STACK_1); pushSTACK(STACK_(0+1)); funcall(S(typep),2);
     if (!nullp(value1)) { # object as the value
      return_object:
-      value1 = STACK_1; mv_count=1; skipSTACK(2); return;
+      VALUES1(STACK_1); skipSTACK(2); return;
     }
     STACK_0 = expand_deftype(STACK_0,false);
     # stack layout: object, result-type.
@@ -2065,7 +1949,7 @@ LISPFUNN(coerce,2)
           pushSTACK(O(type_designator_character)); # TYPE-ERROR slot EXPECTED-TYPE
           goto fehler_object;
         }
-        value1 = as_char; mv_count=1; skipSTACK(2); return;
+        VALUES1(as_char); skipSTACK(2); return;
       }
       #if (base_char_code_limit < char_code_limit)
       if (eq(result_type,S(base_char))) { # result-type = BASE-CHAR ?
@@ -2076,7 +1960,7 @@ LISPFUNN(coerce,2)
           pushSTACK(O(type_designator_base_char)); # TYPE-ERROR slot EXPECTED-TYPE
           goto fehler_object;
         }
-        value1 = as_char; mv_count=1; skipSTACK(2); return;
+        VALUES1(as_char); skipSTACK(2); return;
       }
       #endif
       if (   eq(result_type,S(float)) # FLOAT ?
@@ -2086,7 +1970,7 @@ LISPFUNN(coerce,2)
           || eq(result_type,S(long_float)) # LONG-FLOAT ?
          ) { # convert object to float:
         subr_self = L(coerce);
-        value1 = coerce_float(STACK_1,result_type); mv_count=1;
+        VALUES1(coerce_float(STACK_1,result_type));
         skipSTACK(2); return;
       }
       if (eq(result_type,S(complex))) { # COMPLEX ?
@@ -2101,14 +1985,13 @@ LISPFUNN(coerce,2)
         # viz. coerce_function()
         var object fun = STACK_1;
         if (funnamep(fun)) { # Symbol or (SETF symbol) ?
-          value1 = sym_function(fun,NIL); # global function definition
+          VALUES1(sym_function(fun,NIL)); /* global function definition */
           if (!functionp(value1)) {
             if (functionmacrop(value1))
-              value1 = TheFunctionMacro(value1)->functionmacro_function;
+              VALUES1(TheFunctionMacro(value1)->functionmacro_function);
             else
               fehler_undef_function(S(coerce),fun);
           }
-          mv_count=1;
           skipSTACK(2); return;
         }
         if (!(consp(fun) && eq(Car(fun),S(lambda)))) { # object must be a lambda expression
@@ -2120,7 +2003,7 @@ LISPFUNN(coerce,2)
         var environment_t* env;
         make_STACK_env(NIL,NIL,NIL,NIL,O(top_decl_env), env = );
         # build closure with lambdabody = (cdr fun), name = :LAMBDA :
-        value1 = get_closure(Cdr(fun),S(Klambda),false,env); mv_count=1;
+        VALUES1(get_closure(Cdr(fun),S(Klambda),false,env));
         skipSTACK(2+5); return;
       }
       if (   eq(result_type,S(array)) # ARRAY ?
@@ -2178,7 +2061,7 @@ LISPFUNN(coerce,2)
           pushSTACK(STACK_(0+1)); # TYPE-ERROR slot EXPECTED-TYPE
           goto fehler_object;
         } else {
-          value1 = STACK_0; mv_count=1; skipSTACK(3); return; # new-object
+          VALUES1(STACK_0); skipSTACK(3); return; /* new-object */
         }
       }
       if (   eq(type,S(float)) # FLOAT ?
@@ -2820,14 +2703,14 @@ LISPFUNN(heap_statistics,0)
     # Allocate and fill result vector.
     heap_statistics_result(&locals);
     # Done.
-    value1 = popSTACK(); mv_count=1;
+    VALUES1(popSTACK());
     skipSTACK(locals.structure_classes.count + locals.standard_classes.count);
     done_hs_locals(locals);
   }
 
 LISPFUNN(gc_statistics,0)
   {
-    value1 = O(gc_statistics_list); mv_count=1;
+    VALUES1(O(gc_statistics_list));
   }
 
 # UP: Führt eine Statistik über die Aktion einer GC.
@@ -2913,7 +2796,7 @@ local Values statistics_statistics(svector_instances,svector_bytes,cons_instance
       Cdr(Cdr(hsr)) = fixnum(cons_instances*sizeof(cons_));
       pushSTACK(hsr);
     }
-    value1 = vectorof(2); mv_count=1;
+    VALUES1(vectorof(2));
   }
 
 LISPFUNN(list_statistics,1)

@@ -1723,7 +1723,7 @@ local void gc_mark (object obj)
               var object* data = wt->data;
               for (; idx < len; idx += 2) {
                 var object key = data[idx];
-                if (!eq(unbound,key)) {
+                if (boundp(key)) {
                   if (alive(key)) # mark value
                     gc_mark(data[idx+1]);
                   else # drop both key and value from the table
@@ -2107,7 +2107,7 @@ local void gc_mark (object obj)
         { var object obj = O(pending_finalizers);
           O(pending_finalizers) = TheFinalizer(obj)->fin_cdr;
           pushSTACK(TheFinalizer(obj)->fin_trigger);
-          if (eq(TheFinalizer(obj)->fin_alive,unbound))
+          if (!boundp(TheFinalizer(obj)->fin_alive))
             { funcall(TheFinalizer(obj)->fin_function,1); } # (FUNCALL function trigger)
             else
             { pushSTACK(TheFinalizer(obj)->fin_alive);

@@ -1692,7 +1692,7 @@ LISPFUN(make_encoding,0,0,norest,key,5,
   # Check the :CHARSET argument.
   arg = STACK_3;
   # string -> symbol in CHARSET
-  if (eq(arg,unbound) || eq(arg,S(Kdefault))) {
+  if (!boundp(arg) || eq(arg,S(Kdefault))) {
     arg = O(default_file_encoding);
   } else if (encodingp(arg)) {
   }
@@ -1752,7 +1752,7 @@ LISPFUN(make_encoding,0,0,norest,key,5,
   STACK_3 = arg;
   # Check the :LINE-TERMINATOR argument.
   arg = STACK_2;
-  if (!(eq(arg,unbound)
+  if (!(!boundp(arg)
         || eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos)))) {
     pushSTACK(arg); # TYPE-ERROR slot DATUM
     pushSTACK(O(type_line_terminator)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -1762,7 +1762,7 @@ LISPFUN(make_encoding,0,0,norest,key,5,
   }
   # Check the :INPUT-ERROR-ACTION argument.
   arg = STACK_1;
-  if (!(eq(arg,unbound)
+  if (!(!boundp(arg)
         || eq(arg,S(Kerror)) || eq(arg,S(Kignore)) || charp(arg))) {
     pushSTACK(arg); # TYPE-ERROR slot DATUM
     pushSTACK(O(type_input_error_action)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -1772,7 +1772,7 @@ LISPFUN(make_encoding,0,0,norest,key,5,
   }
   # Check the :OUTPUT-ERROR-ACTION argument.
   arg = STACK_0;
-  if (!(eq(arg,unbound)
+  if (!(!boundp(arg)
         || eq(arg,S(Kerror)) || eq(arg,S(Kignore))
         || charp(arg) || uint8_p(arg))) {
     pushSTACK(arg); # TYPE-ERROR slot DATUM
@@ -1783,12 +1783,12 @@ LISPFUN(make_encoding,0,0,norest,key,5,
   }
   # Create a new encoding.
   if (nullp(STACK_3) /* illegal charset & :IF-DOES-NOT-EXIST NIL */
-      || ((eq(STACK_2,unbound) || eq(STACK_2,TheEncoding(STACK_3)->enc_eol))
-          && (eq(STACK_1,unbound)
+      || ((!boundp(STACK_2) || eq(STACK_2,TheEncoding(STACK_3)->enc_eol))
+          && (!boundp(STACK_1)
               || eq(STACK_1,TheEncoding(STACK_3)->enc_towcs_error))
-          && (eq(STACK_0,unbound)
+          && (!boundp(STACK_0)
               || eq(STACK_0,TheEncoding(STACK_3)->enc_tombs_error)))) {
-    value1 = STACK_3;
+    VALUES1(STACK_3);
   } else {
     var object encoding = allocate_encoding();
     var object old_encoding = STACK_3;
@@ -1799,22 +1799,21 @@ LISPFUN(make_encoding,0,0,norest,key,5,
       dotimesC(count,encoding_length, { *ptr2++ = *ptr1++; } );
       copy_mem_b(ptr2,ptr1,encoding_xlength);
     }
-    if (!eq(STACK_2,unbound))
+    if (boundp(STACK_2))
       TheEncoding(encoding)->enc_eol = STACK_2;
-    if (!eq(STACK_1,unbound))
+    if (boundp(STACK_1))
       TheEncoding(encoding)->enc_towcs_error = STACK_1;
-    if (!eq(STACK_0,unbound))
+    if (boundp(STACK_0))
       TheEncoding(encoding)->enc_tombs_error = STACK_0;
-    value1 = encoding;
+    VALUES1(encoding);
   }
-  mv_count=1;
   skipSTACK(4);
 }
 
 # (SYSTEM::ENCODINGP object)
 LISPFUNN(encodingp,1) {
   var object arg = popSTACK();
-  value1 = (encodingp(arg) ? T : NIL); mv_count=1;
+  VALUES_IF(encodingp(arg));
 }
 
 # Report an error when the argument is not an encoding:
@@ -1838,12 +1837,12 @@ LISPFUNN(charset_typep,2) {
    #ifdef UNICODE
     var uintL i = as_cint(char_code(obj));
     obj = Encoding_range(encoding)(encoding,i,i,1);
-    value1 = (Svector_length(obj) > 0 ? T : NIL); mv_count=1;
+    VALUES_IF(Svector_length(obj));
    #else
-    value1 = T; mv_count=1;
+    VALUES1(T);
    #endif
   } else {
-    value1 = NIL; mv_count=1;
+    VALUES1(NIL);
   }
   skipSTACK(2);
 }
@@ -1853,8 +1852,7 @@ LISPFUNN(encoding_charset,1) {
   var object encoding = popSTACK();
   if (!encodingp(encoding))
     fehler_encoding(encoding);
-  value1 = TheEncoding(encoding)->enc_charset;
-  mv_count = 1;
+  VALUES1(TheEncoding(encoding)->enc_charset);
 }
 
 #ifdef UNICODE
@@ -1872,17 +1870,15 @@ LISPFUN(charset_range,3,1,norest,nokey,0,NIL) {
   var uintL i1 = as_cint(char_code(STACK_2));
   var uintL i2 = as_cint(char_code(STACK_1));
   var uintL maxintervals;
-  if (eq(STACK_0,unbound) || nullp(STACK_0))
+  if (missingp(STACK_0))
     maxintervals = ~(uintL)0;
   else if (posfixnump(STACK_0))
     maxintervals = posfixnum_to_L(STACK_0);
   else
     fehler_posfixnum(STACK_0);
-  if (i1 <= i2)
-    value1 = Encoding_range(encoding)(encoding,i1,i2,maxintervals);
-  else
-    value1 = O(empty_string);
-  mv_count=1;
+  VALUES1(i1 <= i2 ?
+         Encoding_range(encoding)(encoding,i1,i2,maxintervals) :
+         O(empty_string));
   skipSTACK(4);
 }
 
@@ -2393,7 +2389,7 @@ global void init_dependent_encodings(void) {
 
 # (SYSTEM::DEFAULT-FILE-ENCODING)
 LISPFUNN(default_file_encoding,0) {
-  value1 = O(default_file_encoding); mv_count=1;
+  VALUES1(O(default_file_encoding));
 }
 
 # (SYSTEM::SET-DEFAULT-FILE-ENCODING encoding)
@@ -2401,14 +2397,14 @@ LISPFUNN(set_default_file_encoding,1) {
   var object encoding = popSTACK();
   if (!encodingp(encoding))
     fehler_encoding(encoding);
-  value1 = O(default_file_encoding) = encoding; mv_count=1;
+  VALUES1(O(default_file_encoding) = encoding);
 }
 
 #ifdef UNICODE
 
 # (SYSTEM::PATHNAME-ENCODING)
 LISPFUNN(pathname_encoding,0) {
-  value1 = O(pathname_encoding); mv_count=1;
+  VALUES1(O(pathname_encoding));
 }
 
 # (SYSTEM::SET-PATHNAME-ENCODING encoding)
@@ -2416,12 +2412,12 @@ LISPFUNN(set_pathname_encoding,1) {
   var object encoding = popSTACK();
   if (!encodingp(encoding))
     fehler_encoding(encoding);
-  value1 = O(pathname_encoding) = encoding; mv_count=1;
+  VALUES1(O(pathname_encoding) = encoding);
 }
 
 # (SYSTEM::TERMINAL-ENCODING)
 LISPFUNN(terminal_encoding,0) {
-  value1 = O(terminal_encoding); mv_count=1;
+  VALUES1(O(terminal_encoding));
 }
 
 # (SYSTEM::SET-TERMINAL-ENCODING encoding)
@@ -2432,14 +2428,14 @@ LISPFUNN(set_terminal_encoding,1) {
   # Ensure O(terminal_encoding) = (STREAM-EXTERNAL-FORMAT *TERMINAL-IO*).
   # But first modify (STREAM-EXTERNAL-FORMAT *TERMINAL-IO*):
   set_terminalstream_external_format(var_stream(S(terminal_io),0),encoding);
-  value1 = O(terminal_encoding) = popSTACK(); mv_count=1;
+  VALUES1(O(terminal_encoding) = popSTACK());
 }
 
 #if defined(HAVE_FFI) || defined(HAVE_AFFI)
 
 # (SYSTEM::FOREIGN-ENCODING)
 LISPFUNN(foreign_encoding,0) {
-  value1 = O(foreign_encoding); mv_count=1;
+  VALUES1(O(foreign_encoding));
 }
 
 # (SYSTEM::SET-FOREIGN-ENCODING encoding)
@@ -2451,14 +2447,14 @@ LISPFUNN(set_foreign_encoding,1) {
     pushSTACK(encoding); pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: ~ is not a 1:1 encoding"));
   }
-  value1 = O(foreign_encoding) = encoding; mv_count=1;
+  VALUES1(O(foreign_encoding) = encoding);
 }
 
 #endif # HAVE_FFI || HAVE_AFFI
 
 # (SYSTEM::MISC-ENCODING)
 LISPFUNN(misc_encoding,0) {
-  value1 = O(misc_encoding); mv_count=1;
+  VALUES1(O(misc_encoding));
 }
 
 # (SYSTEM::SET-MISC-ENCODING encoding)
@@ -2466,7 +2462,7 @@ LISPFUNN(set_misc_encoding,1) {
   var object encoding = popSTACK();
   if (!encodingp(encoding))
     fehler_encoding(encoding);
-  value1 = O(misc_encoding) = encoding; mv_count=1;
+  VALUES1(O(misc_encoding) = encoding);
 }
 
 #endif # UNICODE
@@ -2483,9 +2479,9 @@ LISPFUN(convert_string_from_bytes,2,0,norest,key,2, (kw(start),kw(end)) ) {
   # Check encoding:
   if (!encodingp(STACK_2)) fehler_encoding(STACK_2);
   # Check start:
-  if (eq(STACK_1,unbound)) STACK_1 = Fixnum_0;
+  if (!boundp(STACK_1)) STACK_1 = Fixnum_0;
   # Check end:
-  if (eq(STACK_0,unbound) || eq(STACK_0,NIL))
+  if (missingp(STACK_0))
     STACK_0 = fixnum(vector_length(array));
   # Convert array to a vector with element type (UNSIGNED-BYTE 8):
   if (!bit_vector_p(Atype_8Bit,array)) {
@@ -2528,7 +2524,7 @@ LISPFUN(convert_string_from_bytes,2,0,norest,key,2, (kw(start),kw(end)) ) {
     dotimespL(clen,clen, { *cptr++ = as_chart(*bptr++); } );
    #endif
   }
-  value1 = string; mv_count=1; skipSTACK(4);
+  VALUES1(string); skipSTACK(4);
 }
 
 # (CONVERT-STRING-TO-BYTES string encoding [:start] [:end])
@@ -2540,9 +2536,9 @@ LISPFUN(convert_string_to_bytes,2,0,norest,key,2, (kw(start),kw(end)) ) {
   # Check encoding:
   if (!encodingp(STACK_2)) fehler_encoding(STACK_2);
   # Check start:
-  if (eq(STACK_1,unbound)) STACK_1 = Fixnum_0;
+  if (!boundp(STACK_1)) STACK_1 = Fixnum_0;
   # Check end:
-  if (eq(STACK_0,unbound) || eq(STACK_0,NIL))
+  if (missingp(STACK_0))
     STACK_0 = fixnum(vector_length(string));
   # Determine size of result string:
   var uintL start = posfixnum_to_L(STACK_1);
@@ -2560,5 +2556,5 @@ LISPFUN(convert_string_to_bytes,2,0,norest,key,2, (kw(start),kw(end)) ) {
     unpack_sstring_alloca(string,clen,index+start, srcptr=);
     cstombs(STACK_2,srcptr,clen,&TheSbvector(array)->data[0],blen);
   }
-  value1 = array; mv_count=1; skipSTACK(4);
+  VALUES1(array); skipSTACK(4);
 }

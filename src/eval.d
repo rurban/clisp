@@ -329,7 +329,7 @@ LISPFUNN(subr_info,1)
     var object obj = popSTACK();
     if (!subrp(obj)) {
       if (!(symbolp(obj) && subrp(Symbol_function(obj)))) {
-        value1 = NIL; mv_count=0; return; # no SUBR -> no value
+        VALUES0; return; /* no SUBR -> no value */
       }
       obj = Symbol_function(obj);
     }
@@ -503,7 +503,7 @@ LISPFUNN(subr_info,1)
 # reset();
 nonreturning_function(global, reset, (void)) {
   # when unwinding UNWIND-PROTECT-frames, don't save values:
-  value1 = NIL; mv_count=0;
+  VALUES0;
   unwind_protect_to_save.fun = (restart)&reset;
   loop {
     # does STACK end here?
@@ -1372,7 +1372,7 @@ global Values eval_noenv (object form) {
             # fdef is a FSUBR, so the global function definition was valid.
             # loop up, if the property list contains a macro definition:
             var object expander = get(funname,S(macro)); # search for Property SYS::MACRO
-            if (!eq(expander,unbound)) {
+            if (boundp(expander)) {
               # found. Expand with th Expander from the property list:
               # execute (FUNCALL *MACROEXPAND-HOOK* expander form env) :
               pushSTACK(expander); # expander as first argument
@@ -1699,7 +1699,7 @@ local object lambdabody_source (object lambdabody) {
         # can be compiled more efficiently than their Macro-Expansion):
         {
           var object source = lambdabody_source(STACK_0);
-          if (eq(source,unbound)) {
+          if (!boundp(source)) {
             if (blockp)
               add_implicit_block();
           } else {
@@ -1728,7 +1728,7 @@ local object lambdabody_source (object lambdabody) {
       # build Interpreted Closure:
       {
         var object source = lambdabody_source(STACK_0);
-        if (eq(source,unbound)) {
+        if (!boundp(source)) {
           # no source specified -> expand Lambdabody:
           if (blockp)
             add_implicit_block();
@@ -2897,7 +2897,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
       if (TheCodevec(codevec)->ccv_flags & bit(0)) { # Rest-Flag?
         # Closure with Keywords and &REST-Flag:
         var object* rest_arg_ = &BEFORE(key_args_pointer); # Pointer to the REST-Parameter
-        if (eq(*rest_arg_,unbound)) {
+        if (!boundp(*rest_arg_)) {
           # must still be filed: handicraft list
           *rest_arg_ = closure; # save Closure
           var object rest_arg = NIL;
@@ -3034,7 +3034,7 @@ global Values eval_no_hooks (object form) {
         if (symbolp(form)) {
           # Form is a Symbol
           value1 = sym_value(form,aktenv.var_env); # value in the current Environment
-          if (eq(value1,unbound)) {
+          if (!boundp(value1)) {
             pushSTACK(form); # CELL-ERROR slot NAME
             pushSTACK(form);
             fehler(unbound_variable,GETTEXT("EVAL: variable ~ has no value"));
@@ -3051,7 +3051,7 @@ global Values eval_no_hooks (object form) {
           }
         } else {
           # self-evaluating form
-          value1 = form; mv_count=1; # form as value
+          VALUES1(form);
           skipSTACK(1);
           unwind(); # unwind EVAL-Frame
         }
@@ -6419,7 +6419,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         # ------------------- (1) Constants -----------------------
         CASE cod_nil:                    # (NIL)
           code_nil:
-          value1 = NIL; mv_count = 1;
+          VALUES1(NIL);
           goto next_byte;
         CASE cod_nil_push:               # (NIL&PUSH)
           pushSTACK(NIL);
@@ -6433,7 +6433,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           goto next_byte;
         CASE cod_t:                      # (T)
           code_t:
-          value1 = T; mv_count = 1;
+          VALUES1(T);
           goto next_byte;
         CASE cod_t_push:                 # (T&PUSH)
           pushSTACK(T);
@@ -6442,7 +6442,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var uintL n;
             U_operand(n);
-            value1 = TheCclosure(closure)->clos_consts[n]; mv_count=1;
+            VALUES1(TheCclosure(closure)->clos_consts[n]);
           }
           goto next_byte;
         CASE cod_const_push:             # (CONST&PUSH n)
@@ -6457,7 +6457,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           {
             var uintL n;
             U_operand(n);
-            value1 = STACK_(n); mv_count=1;
+            VALUES1(STACK_(n));
           }
           goto next_byte;
         CASE cod_load_push:              # (LOAD&PUSH n)
@@ -6476,7 +6476,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(k2);
             U_operand(n);
             var object* FRAME = (object*) SP_(k1+jmpbufsize*k2);
-            value1 = FRAME_(n); mv_count=1;
+            VALUES1(FRAME_(n));
           }
           goto next_byte;
         CASE cod_loadi_push:             # (LOADI&PUSH k1 k2 n)
@@ -6497,7 +6497,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL m;
             U_operand(n);
             U_operand(m);
-            value1 = TheSvector(STACK_(n))->data[1+m]; mv_count=1;
+            VALUES1(TheSvector(STACK_(n))->data[1+m]);
           }
           goto next_byte;
         CASE cod_loadc_push:             # (LOADC&PUSH n m)
@@ -6519,7 +6519,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             # take (svref ... 0) k times:
             dotimesC(k,k, { venv = TheSvector(venv)->data[0]; } );
             # fetch (svref ... m) :
-            value1 = TheSvector(venv)->data[m]; mv_count=1;
+            VALUES1(TheSvector(venv)->data[m]);
           }
           goto next_byte;
         CASE cod_loadv_push:             # (LOADV&PUSH k m)
@@ -6546,14 +6546,14 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(n);
             U_operand(m);
             var object* FRAME = (object*) SP_(k1+jmpbufsize*k2);
-            value1 = TheSvector(FRAME_(n))->data[1+m]; mv_count=1;
+            VALUES1(TheSvector(FRAME_(n))->data[1+m]);
           }
           goto next_byte;
         CASE cod_store: store:           # (STORE n)
           {
             var uintL n;
             U_operand(n);
-            STACK_(n) = value1; mv_count=1;
+            VALUES1(STACK_(n) = value1);
           }
           goto next_byte;
         CASE cod_pop_store:              # (POP&STORE n)
@@ -6561,7 +6561,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL n;
             U_operand(n);
             var object obj = popSTACK();
-            STACK_(n) = value1 = obj; mv_count=1;
+            VALUES1(STACK_(n) = obj);
           }
           goto next_byte;
         CASE cod_storei:                 # (STOREI k1 k2 n)
@@ -6573,7 +6573,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(k2);
             U_operand(n);
             var object* FRAME = (object*) SP_(k1+jmpbufsize*k2);
-            FRAME_(n) = value1; mv_count=1;
+            VALUES1(FRAME_(n) = value1);
           }
           goto next_byte;
         CASE cod_load_storec:            # (LOAD&STOREC k m n)
@@ -6625,12 +6625,12 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(n);
             var object symbol = TheCclosure(closure)->clos_consts[n];
             # The Compiler has already checked, that it's a Symbol.
-            if (eq(Symbol_value(symbol),unbound)) {
+            if (!boundp(Symbol_value(symbol))) {
               pushSTACK(symbol); # CELL-ERROR slot NAME
               pushSTACK(symbol);
               fehler(unbound_variable,GETTEXT("symbol ~ has no value"));
             }
-            value1 = Symbol_value(symbol); mv_count=1;
+            VALUES1(Symbol_value(symbol));
           }
           goto next_byte;
         CASE cod_getvalue_push:          # (GETVALUE&PUSH n)
@@ -6639,7 +6639,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             U_operand(n);
             var object symbol = TheCclosure(closure)->clos_consts[n];
             # The Compiler has already checked, that it's a Symbol.
-            if (eq(Symbol_value(symbol),unbound)) {
+            if (!boundp(Symbol_value(symbol))) {
               pushSTACK(symbol); # CELL-ERROR slot NAME
               pushSTACK(symbol);
               fehler(unbound_variable,GETTEXT("symbol ~ has no value"));
@@ -6726,7 +6726,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           pushSTACK(value1);
           goto next_byte;
         CASE cod_pop:                    # (POP)
-          value1 = popSTACK(); mv_count=1;
+          VALUES1(popSTACK());
           goto next_byte;
         CASE cod_skip:                   # (SKIP n)
           {
@@ -6896,7 +6896,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
         # ------------------- (6) Environments and Closures -----------------------
         CASE cod_venv:                   # (VENV)
           # fetch VenvConst from the closure:
-          value1 = TheCclosure(closure)->clos_venv; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_venv);
           goto next_byte;
         CASE cod_make_vector1_push:      # (MAKE-VECTOR1&PUSH n)
           {
@@ -6936,7 +6936,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
               var object* newptr = &TheCclosure(newclos)->clos_consts[n];
               dotimespL(n,n, { *--newptr = popSTACK(); } );
             }
-            value1 = newclos; mv_count=1;
+            VALUES1(newclos);
           }
           goto next_byte;
         CASE cod_copy_closure_push:      # (COPY-CLOSURE&PUSH m n)
@@ -7185,26 +7185,26 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var uintL n;
             U_operand(n);
             var object obj = STACK_(n);
-            if (eq(obj,unbound)) goto notjmp;
-            value1 = obj; mv_count=1; JMP();
+            if (!boundp(obj)) goto notjmp;
+            VALUES1(obj); JMP();
           }
         CASE cod_boundp:                 # (BOUNDP n)
           {
             var uintL n;
             U_operand(n);
             var object obj = STACK_(n);
-            if (eq(obj,unbound)) goto code_nil; else goto code_t;
+            if (!boundp(obj)) goto code_nil; else goto code_t;
           }
         CASE cod_unbound_nil:            # (UNBOUND->NIL n)
           {
             var uintL n;
             U_operand(n);
-            if (eq(STACK_(n),unbound)) { STACK_(n) = NIL; }
+            if (!boundp(STACK_(n))) { STACK_(n) = NIL; }
           }
           goto next_byte;
         # ------------------- (9) Treatment of multiple values -----------------------
         CASE cod_values0:                # (VALUES0)
-          value1 = NIL; mv_count = 0;
+          VALUES0;
           goto next_byte;
         CASE cod_values1:                # (VALUES1)
           mv_count = 1;
@@ -7253,7 +7253,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             # push values on Stack and handicraft list out of it:
             mv_to_list();
           );
-          value1 = popSTACK(); mv_count=1;
+          VALUES1(popSTACK());
           goto next_byte;
         CASE cod_list_to_mv:             # (LIST-TO-MV)
           list_to_mv(value1, { goto fehler_zuviele_werte; } );
@@ -7421,7 +7421,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           }
           goto next_byte; # continue interpretation at Label i
         CASE cod_tagbody_close_nil:      # (TAGBODY-CLOSE-NIL)
-          value1 = NIL; mv_count=1; # value of Tagbody is NIL
+          VALUES1(NIL); /* value of Tagbody is NIL */
         CASE cod_tagbody_close:          # (TAGBODY-CLOSE)
           # unwind CTAGBODY-Frame:
           #if STACKCHECKC
@@ -7456,10 +7456,9 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             # For CTAGBODY-Frames: 1+l as Fixnum,
             # For ITAGBODY-Frames: the form-list for Tag nr. l.
             var object* FRAME = uTheFramepointer(Cdr(tagbody_cons));
-            value1 = (framecode(FRAME_(0)) == CTAGBODY_frame_info
-                      ? fixnum(1+l)
-                      : FRAME_(frame_bindings+2*l+1));
-            mv_count=1;
+            VALUES1(framecode(FRAME_(0)) == CTAGBODY_frame_info
+                   ? fixnum(1+l)
+                   : FRAME_(frame_bindings+2*l+1));
             # unwind upto Tagbody-Frame, then jump to its Routine,
             # which then jumps to Label l:
             #ifndef FAST_SP
@@ -7490,7 +7489,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             # value passed to Tagbody:
             # For CTAGBODY-Frames 1+l as Fixnum.
             var object* FRAME = uTheFramepointer(Cdr(tagbody_cons));
-            value1 = fixnum(1+l); mv_count=1;
+            VALUES1(fixnum(1+l));
             # unwind upto Tagbody-Frame, then jump to its Routine,
             # which then jumps to Label l:
             #ifndef FAST_SP
@@ -7699,7 +7698,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             }
           }
           pushSP((aint)handler_args.stack); # Pointer above Handler-Frame
-          value1 = handler_args.condition; mv_count=1;
+          VALUES1(handler_args.condition);
           pushSTACK(value1);
           goto next_byte;
         # ------------------- (15) a few Functions -----------------------
@@ -7827,7 +7826,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             # fill Cons:
             Cdr(new_cons) = popSTACK();
             Car(new_cons) = popSTACK();
-            value1 = new_cons; mv_count=1;
+            VALUES1(new_cons);
           }
           goto next_byte;
         CASE cod_cons_push:              # (CONS&PUSH)
@@ -7853,15 +7852,15 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             Car(new_cons) = popSTACK();
             var object* arg_ = &STACK_(n);
             Cdr(new_cons) = *arg_;
-            value1 = *arg_ = new_cons; mv_count=1;
+            VALUES1(*arg_ = new_cons);
           }
           goto next_byte;
         {var object symbol;
         CASE cod_symbol_function:        # (SYMBOL-FUNCTION)
           symbol = value1;
           if (!symbolp(symbol)) goto csf_kein_symbol;
-          if (eq(Symbol_function(symbol),unbound)) goto csf_unbound;
-          value1 = Symbol_function(symbol); mv_count=1;
+          if (!boundp(Symbol_function(symbol))) goto csf_unbound;
+          VALUES1(Symbol_function(symbol));
           goto next_byte;
         CASE cod_const_symbol_function:  # (CONST&SYMBOL-FUNCTION n)
           {
@@ -7870,8 +7869,8 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             symbol = TheCclosure(closure)->clos_consts[n];
           }
           if (!symbolp(symbol)) goto csf_kein_symbol;
-          if (eq(Symbol_function(symbol),unbound)) goto csf_unbound;
-          value1 = Symbol_function(symbol); mv_count=1;
+          if (!boundp(Symbol_function(symbol))) goto csf_unbound;
+          VALUES1(Symbol_function(symbol));
           goto next_byte;
         CASE cod_const_symbol_function_push: # (CONST&SYMBOL-FUNCTION&PUSH n)
           {
@@ -7880,7 +7879,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             symbol = TheCclosure(closure)->clos_consts[n];
           }
           if (!symbolp(symbol)) goto csf_kein_symbol;
-          if (eq(Symbol_function(symbol),unbound)) goto csf_unbound;
+          if (!boundp(Symbol_function(symbol))) goto csf_unbound;
           pushSTACK(Symbol_function(symbol));
           goto next_byte;
         CASE cod_const_symbol_function_store: # (CONST&SYMBOL-FUNCTION&STORE n k)
@@ -7890,7 +7889,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             symbol = TheCclosure(closure)->clos_consts[n];
           }
           if (!symbolp(symbol)) goto csf_kein_symbol;
-          if (eq(Symbol_function(symbol),unbound)) goto csf_unbound;
+          if (!boundp(Symbol_function(symbol))) goto csf_unbound;
           {
             var uintL k;
             U_operand(k);
@@ -7917,8 +7916,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             if (!(posfixnump(index) &&
                   ((i = posfixnum_to_L(index)) < Svector_length(vec))))
               goto svref_kein_index;
-            value1 = TheSvector(vec)->data[i]; # indexed Element as value
-            mv_count = 1;
+            VALUES1(TheSvector(vec)->data[i]); # indexed Element as value
           }
           goto next_byte;
         CASE cod_svset:                  # (SVSET)
@@ -8160,71 +8158,71 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           }
         # ------------------- (17) short codes -----------------------
         CASE cod_load0:                  # (LOAD.S 0)
-          value1 = STACK_(0); mv_count=1;
+          VALUES1(STACK_(0));
           goto next_byte;
         CASE cod_load1:                  # (LOAD.S 1)
-          value1 = STACK_(1); mv_count=1;
+          VALUES1(STACK_(1));
           goto next_byte;
         CASE cod_load2:                  # (LOAD.S 2)
-          value1 = STACK_(2); mv_count=1;
+          VALUES1(STACK_(2));
           goto next_byte;
         CASE cod_load3:                  # (LOAD.S 3)
-          value1 = STACK_(3); mv_count=1;
+          VALUES1(STACK_(3));
           goto next_byte;
         CASE cod_load4:                  # (LOAD.S 4)
-          value1 = STACK_(4); mv_count=1;
+          VALUES1(STACK_(4));
           goto next_byte;
         CASE cod_load5:                  # (LOAD.S 5)
-          value1 = STACK_(5); mv_count=1;
+          VALUES1(STACK_(5));
           goto next_byte;
         CASE cod_load6:                  # (LOAD.S 6)
-          value1 = STACK_(6); mv_count=1;
+          VALUES1(STACK_(6));
           goto next_byte;
         CASE cod_load7:                  # (LOAD.S 7)
-          value1 = STACK_(7); mv_count=1;
+          VALUES1(STACK_(7));
           goto next_byte;
         CASE cod_load8:                  # (LOAD.S 8)
-          value1 = STACK_(8); mv_count=1;
+          VALUES1(STACK_(8));
           goto next_byte;
         CASE cod_load9:                  # (LOAD.S 9)
-          value1 = STACK_(9); mv_count=1;
+          VALUES1(STACK_(9));
           goto next_byte;
         CASE cod_load10:                 # (LOAD.S 10)
-          value1 = STACK_(10); mv_count=1;
+          VALUES1(STACK_(10));
           goto next_byte;
         CASE cod_load11:                 # (LOAD.S 11)
-          value1 = STACK_(11); mv_count=1;
+          VALUES1(STACK_(11));
           goto next_byte;
         CASE cod_load12:                 # (LOAD.S 12)
-          value1 = STACK_(12); mv_count=1;
+          VALUES1(STACK_(12));
           goto next_byte;
         CASE cod_load13:                 # (LOAD.S 13)
-          value1 = STACK_(13); mv_count=1;
+          VALUES1(STACK_(13));
           goto next_byte;
         CASE cod_load14:                 # (LOAD.S 14)
-          value1 = STACK_(14); mv_count=1;
+          VALUES1(STACK_(14));
           goto next_byte;
         #if 0
         CASE cod_load15:                 # (LOAD.S 15)
-          value1 = STACK_(15); mv_count=1;
+          VALUES1(STACK_(15));
           goto next_byte;
         CASE cod_load16:                 # (LOAD.S 16)
-          value1 = STACK_(16); mv_count=1;
+          VALUES1(STACK_(16));
           goto next_byte;
         CASE cod_load17:                 # (LOAD.S 17)
-          value1 = STACK_(17); mv_count=1;
+          VALUES1(STACK_(17));
           goto next_byte;
         CASE cod_load18:                 # (LOAD.S 18)
-          value1 = STACK_(18); mv_count=1;
+          VALUES1(STACK_(18));
           goto next_byte;
         CASE cod_load19:                 # (LOAD.S 19)
-          value1 = STACK_(19); mv_count=1;
+          VALUES1(STACK_(19));
           goto next_byte;
         CASE cod_load20:                 # (LOAD.S 20)
-          value1 = STACK_(20); mv_count=1;
+          VALUES1(STACK_(20));
           goto next_byte;
         CASE cod_load21:                 # (LOAD.S 21)
-          value1 = STACK_(21); mv_count=1;
+          VALUES1(STACK_(21));
           goto next_byte;
         #endif
         CASE cod_load_push0:             # (LOAD&PUSH.S 0)
@@ -8303,80 +8301,80 @@ local Values funcall_closure (object fun, uintC args_on_stack);
           pushSTACK(STACK_(24));
           goto next_byte;
         CASE cod_const0:                 # (CONST.S 0)
-          value1 = TheCclosure(closure)->clos_consts[0]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[0]);
           goto next_byte;
         CASE cod_const1:                 # (CONST.S 1)
-          value1 = TheCclosure(closure)->clos_consts[1]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[1]);
           goto next_byte;
         CASE cod_const2:                 # (CONST.S 2)
-          value1 = TheCclosure(closure)->clos_consts[2]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[2]);
           goto next_byte;
         CASE cod_const3:                 # (CONST.S 3)
-          value1 = TheCclosure(closure)->clos_consts[3]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[3]);
           goto next_byte;
         CASE cod_const4:                 # (CONST.S 4)
-          value1 = TheCclosure(closure)->clos_consts[4]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[4]);
           goto next_byte;
         CASE cod_const5:                 # (CONST.S 5)
-          value1 = TheCclosure(closure)->clos_consts[5]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[5]);
           goto next_byte;
         CASE cod_const6:                 # (CONST.S 6)
-          value1 = TheCclosure(closure)->clos_consts[6]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[6]);
           goto next_byte;
         CASE cod_const7:                 # (CONST.S 7)
-          value1 = TheCclosure(closure)->clos_consts[7]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[7]);
           goto next_byte;
         CASE cod_const8:                 # (CONST.S 8)
-          value1 = TheCclosure(closure)->clos_consts[8]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[8]);
           goto next_byte;
         CASE cod_const9:                 # (CONST.S 9)
-          value1 = TheCclosure(closure)->clos_consts[9]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[9]);
           goto next_byte;
         CASE cod_const10:                # (CONST.S 10)
-          value1 = TheCclosure(closure)->clos_consts[10]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[10]);
           goto next_byte;
         CASE cod_const11:                # (CONST.S 11)
-          value1 = TheCclosure(closure)->clos_consts[11]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[11]);
           goto next_byte;
         CASE cod_const12:                # (CONST.S 12)
-          value1 = TheCclosure(closure)->clos_consts[12]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[12]);
           goto next_byte;
         CASE cod_const13:                # (CONST.S 13)
-          value1 = TheCclosure(closure)->clos_consts[13]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[13]);
           goto next_byte;
         CASE cod_const14:                # (CONST.S 14)
-          value1 = TheCclosure(closure)->clos_consts[14]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[14]);
           goto next_byte;
         CASE cod_const15:                # (CONST.S 15)
-          value1 = TheCclosure(closure)->clos_consts[15]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[15]);
           goto next_byte;
         CASE cod_const16:                # (CONST.S 16)
-          value1 = TheCclosure(closure)->clos_consts[16]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[16]);
           goto next_byte;
         CASE cod_const17:                # (CONST.S 17)
-          value1 = TheCclosure(closure)->clos_consts[17]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[17]);
           goto next_byte;
         CASE cod_const18:                # (CONST.S 18)
-          value1 = TheCclosure(closure)->clos_consts[18]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[18]);
           goto next_byte;
         CASE cod_const19:                # (CONST.S 19)
-          value1 = TheCclosure(closure)->clos_consts[19]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[19]);
           goto next_byte;
         CASE cod_const20:                # (CONST.S 20)
-          value1 = TheCclosure(closure)->clos_consts[20]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[20]);
           goto next_byte;
         #if 0
         CASE cod_const21:                # (CONST.S 21)
-          value1 = TheCclosure(closure)->clos_consts[21]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[21]);
           goto next_byte;
         CASE cod_const22:                # (CONST.S 22)
-          value1 = TheCclosure(closure)->clos_consts[22]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[22]);
           goto next_byte;
         CASE cod_const23:                # (CONST.S 23)
-          value1 = TheCclosure(closure)->clos_consts[23]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[23]);
           goto next_byte;
         CASE cod_const24:                # (CONST.S 24)
-          value1 = TheCclosure(closure)->clos_consts[24]; mv_count=1;
+          VALUES1(TheCclosure(closure)->clos_consts[24]);
           goto next_byte;
         #endif
         CASE cod_const_push0:            # (CONST&PUSH.S 0)

@@ -104,7 +104,7 @@
             # doppelt in der Liste!
       {
         var object list = Symbol_value(S(key_bindings)); # bisherige Key-Bindings
-        if (!eq(STACK_2,unbound)) # command-list angegeben?
+        if (boundp(STACK_2)) /* command-list supplied? */
           list = nreconc(STACK_2,list); # ja -> davorhängen
         dynamic_bind(S(key_bindings),list); # SYS::*KEY-BINDINGS* binden
       }
@@ -112,7 +112,7 @@
       # statt        (nreconc command-list *key-bindings*)
       # doch lieber  (nreverse command-list)
       {
-        var object list = (eq(STACK_2,unbound) ? NIL : nreverse(STACK_2));
+        var object list = (!boundp(STACK_2) ? NIL : nreverse(STACK_2));
         dynamic_bind(S(key_bindings),list); # SYS::*KEY-BINDINGS* binden
       }
       #endif
@@ -199,7 +199,7 @@
               break;
           }
         }
-        value1 = popSTACK(); value2 = NIL; mv_count=2; # obj, NIL als Werte
+        VALUES2(popSTACK(), NIL); /* (values obj NIL) */
         skipSTACK(4); return;
       }
     }
@@ -208,7 +208,7 @@
     # (clear-input istream) ausführen (um bei interaktivem Stream das EOF zu
     # schlucken: das fortzusetzende Programm könnte das EOF missverstehen):
     clear_input(STACK_4);
-    value1 = value2 = T; mv_count=2; # T, T als Werte
+    VALUES2(T,T); /* (values T T) */
     skipSTACK(4); return;
   }
 
@@ -324,7 +324,7 @@ LISPFUN(read_eval_print,1,1,norest,nokey,0,NIL)
     }
     #endif
     skipSTACK(4);
-    value1 = NIL; mv_count=1; # NIL als Wert
+    VALUES1(NIL);
   }
 
 # Startet den normalen Driver (Read-Eval-Print-Loop)
@@ -448,7 +448,7 @@ LISPFUNN(load,1)
       }
     }
     builtin_stream_close(&STACK_0); # stream schließen
-    skipSTACK(1); value1 = T; mv_count=1; # Wert T
+    skipSTACK(1); VALUES1(T);
   }
 
 # ---------------------------------------------------------------------------- #
@@ -760,7 +760,7 @@ LISPFUNN(frame_up_1,2)
     var kletterfun frame_up_x = test_mode_arg(&frame_up_table[0]);
     var object* stackptr = test_framepointer_arg();
     stackptr = (*frame_up_x)(stackptr); # einmal hochsteigen
-    value1 = make_framepointer(stackptr); mv_count=1;
+    VALUES1(make_framepointer(stackptr));
   }
 
 LISPFUNN(frame_up,2)
@@ -775,7 +775,7 @@ LISPFUNN(frame_up,2)
         break;
       stackptr = next_stackptr;
     }
-    value1 = make_framepointer(stackptr); mv_count=1;
+    VALUES1(make_framepointer(stackptr));
   }
 
 LISPFUNN(frame_down_1,2)
@@ -784,7 +784,7 @@ LISPFUNN(frame_down_1,2)
     var kletterfun frame_down_x = test_mode_arg(&frame_down_table[0]);
     var object* stackptr = test_framepointer_arg();
     stackptr = (*frame_down_x)(stackptr); # einmal hinabsteigen
-    value1 = make_framepointer(stackptr); mv_count=1;
+    VALUES1(make_framepointer(stackptr));
   }
 
 LISPFUNN(frame_down,2)
@@ -799,7 +799,7 @@ LISPFUNN(frame_down,2)
         break;
       stackptr = next_stackptr;
     }
-    value1 = make_framepointer(stackptr); mv_count=1;
+    VALUES1(make_framepointer(stackptr));
   }
 
 LISPFUNN(the_frame,0)
@@ -807,7 +807,7 @@ LISPFUNN(the_frame,0)
   {
     var object* stackptr = STACK;
     stackptr = frame_up_2(stackptr); # bis zum nächsthöheren Frame hoch
-    value1 = make_framepointer(stackptr); mv_count=1;
+    VALUES1(make_framepointer(stackptr));
   }
 
 # UP: aktiviert dasselbe lexikalische Environment, das beim Framepointer
@@ -918,7 +918,7 @@ LISPFUNN(eval_frame_p,1)
 # gibt an, ob framepointer auf einen EVAL/APPLY-Frame zeigt.
   {
     var object* FRAME = test_framepointer_arg();
-    value1 = (evalapply_frame_p() ? T : NIL); mv_count=1;
+    VALUES_IF(evalapply_frame_p());
   }
 
 LISPFUNN(driver_frame_p,1)
@@ -926,7 +926,7 @@ LISPFUNN(driver_frame_p,1)
 # gibt an, ob framepointer auf einen Driver-Frame zeigt.
   {
     var object* FRAME = test_framepointer_arg();
-    value1 = (framecode(FRAME_(0)) == DRIVER_frame_info ? T : NIL); mv_count=1;
+    VALUES_IF(framecode(FRAME_(0)) == DRIVER_frame_info);
   }
 
 # Fehlermeldung, wenn kein EVAL/APPLY-Frame-Pointer vorliegt.
@@ -960,7 +960,7 @@ LISPFUNN(trap_eval_frame,2)
       # Breakpoint ausschalten
       *(oint*)(&FRAME_(0)) &= ~wbit(trapped_bit_o);
     }
-    value1 = frame; mv_count=1; # framepointer als Wert
+    VALUES1(frame);
   }
 
 LISPFUNN(redo_eval_frame,1)
@@ -974,7 +974,7 @@ LISPFUNN(redo_eval_frame,1)
     if (!evalapply_frame_p())
       fehler_evalframe(frame);
     # FRAME zeigt auf den EVAL/APPLY-Frame.
-    value1 = NIL; mv_count=0; # keine Werte zu retten
+    VALUES0;
     unwind_upto(FRAME); # bis zum EVAL/APPLY-Frame alles auflösen, dorthin springen
   }
 
@@ -991,7 +991,7 @@ LISPFUNN(return_from_eval_frame,2)
     if (!evalapply_frame_p())
       fehler_evalframe(frame);
     # FRAME zeigt auf den EVAL/APPLY-Frame.
-    value1 = form; mv_count=1; # form retten und übergeben
+    VALUES1(form);
     unwind_upto(FRAME); # bis zum EVAL/APPLY-Frame alles auflösen, dorthin springen
   }
 
@@ -1314,7 +1314,7 @@ LISPFUNN(describe_frame,2)
     if (!streamp(STACK_0))
       fehler_stream(STACK_0);
     print_stackitem(&STACK_0,FRAME); # Stack-Item ausgeben
-    skipSTACK(1); value1 = NIL; mv_count=0; # keine Werte
+    skipSTACK(1); VALUES0; /* no values */
   }
 
 LISPFUNN(show_stack,0)
@@ -1328,7 +1328,7 @@ LISPFUNN(show_stack,0)
       FRAME = print_stackitem(stream_,FRAME); # Stack-Item ausgeben
       count++;
     }
-    skipSTACK(1); value1 = UL_to_I(count); mv_count=1;
+    skipSTACK(1); VALUES1(UL_to_I(count));
   }
 
 LISPFUNN(debug,0)
@@ -1339,7 +1339,7 @@ LISPFUNN(debug,0)
     #else # AMIGAOS
       Debug(0);
     #endif
-    value1 = NIL; mv_count=0; # keine Werte
+    VALUES0; # keine Werte
   }
 
 LISPFUNN(proom,0)
@@ -1363,7 +1363,7 @@ LISPFUNN(gc,0)
 # und liefert den für LISP-Objekte freien Platz (in Bytes)
   {
     gar_col(); # GC ausführen
-    value1 = fixnum(free_space()); mv_count=1;
+    VALUES1(fixnum(free_space()));
   }
 
 # read-form neu schreiben, in Zusammenarbeit mit dem Terminal-Stream??

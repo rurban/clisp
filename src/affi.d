@@ -141,7 +141,7 @@ local aint convert_address(obj, offset)
              GETTEXT("~: ~ is not a valid address")
             );
     }
-    if (!eq(offset,unbound)) {
+    if (boundp(offset)) {
       address += I_to_L(offset);
     }
     return address;
@@ -232,7 +232,7 @@ local void affi_callit(address, ffinfo, args)
     # Ergebnis kann bei GC (wegen String oder Bignum) und RESET verloren gehen
     {
       var object rtype = TheSvector(ffinfo)->data[1];
-      if (eq(rtype,NIL)) {
+      if (nullp(rtype)) {
         mv_count=0; value1 = NIL;
       } else {
         if (fixnump(rtype)) {
@@ -663,7 +663,7 @@ LISPFUN(mem_write,3,1,norest,nokey,0,NIL)
      bad_arg:
       fehler_ffi_arg(wert);
     }
-    value1 = NIL; mv_count=0;
+    VALUES0;
   }
 
 # (SYSTEM::MEM-WRITE-VECTOR address vector [offset]) writes string to address.
@@ -709,7 +709,7 @@ LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
      fehler_type:
       fehler_ffi_type(from);
     }
-    value1 = NIL; mv_count=0;
+    VALUES0;
   }
 
 # (SYSTEM::NZERO-POINTER-P pointer) returns NIL for either NIL, 0 or NULL fpointer

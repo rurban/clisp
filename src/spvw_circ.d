@@ -415,7 +415,7 @@ global object subst_circ (object* ptr, object alist);
           }
         case_symbol:
           if (mlb_add(&env->bitmap,obj)) # marked?
-            if (eq(Symbol_package(obj),NIL)) # uninterned symbol?
+            if (nullp(Symbol_package(obj))) /* uninterned symbol? */
               goto m_schon_da; # yes -> was already there, memorize
             else
               goto m_end; # no -> was already there, but leave unconsidered
@@ -703,7 +703,7 @@ global object subst_circ (object* ptr, object alist);
           }
         case_symbol:
           if (marked(TheSymbol(obj))) { # marked?
-            if (eq(Symbol_package(obj),NIL)) # uninterned symbol?
+            if (nullp(Symbol_package(obj))) /* uninterned symbol? */
               goto m_schon_da; # yes -> was already there, memorize
             else
               goto m_end; # no -> was already there, but leave unconsidered

@@ -355,8 +355,7 @@
 
 # Stellt fest, ob Floating-Point-Unterlauf erlaubt ist
 # underflow_allowed()
-  #define underflow_allowed()  \
-    (nullp(Symbol_value(S(inhibit_floating_point_underflow))))
+  #define underflow_allowed() (nullpSv(inhibit_floating_point_underflow))
 
 #endif # LISPARIT
 

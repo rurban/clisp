@@ -159,28 +159,28 @@ local object registry_value_to_object (DWORD type, DWORD size,
 # return the type of the key (:win32 or :gnome or :ldap)
 LISPFUNN(dir_key_type,1) {
   var object dkey = test_dir_key(popSTACK(),false);
-  value1 = TheDirKey(dkey)->type; mv_count = 1;
+  VALUES1(TheDirKey(dkey)->type);
 }
 
 # (LDAP:DIR-KEY-PATH dkey)
 # return the path of the key (a string)
 LISPFUNN(dir_key_path,1) {
   var object dkey = test_dir_key(popSTACK(),false);
-  value1 = TheDirKey(dkey)->path; mv_count = 1;
+  VALUES1(TheDirKey(dkey)->path);
 }
 
 # (LDAP:DIR-KEY-DIRECTION dkey)
 # return the direction of this key - :input :output or :io
 LISPFUNN(dir_key_direction,1) {
   var object dkey = test_dir_key(popSTACK(),true);
-  value1 = TheDirKey(dkey)->direction; mv_count = 1;
+  VALUES1(TheDirKey(dkey)->direction);
 }
 
 # (LDAP:DIR-KEY-OPEN-P dkey)
 # return T if the key is open
 LISPFUNN(dir_key_open_p,1) {
   var object dkey = test_dir_key(popSTACK(),false);
-  value1 = (TheDirKey(dkey)->closed_p ? NIL : T); mv_count = 1;
+  VALUES_IF(!TheDirKey(dkey)->closed_p);
 }
 
 # (LDAP:DIR-KEY-CLOSE dkey)
@@ -218,7 +218,7 @@ LISPFUNN(dir_key_close,1) {
       TheDirKey(dkey)->closed_p = true;
     }
   }
-  value1 = NIL; mv_count = 1;
+  VALUES1(NIL);
 }
 
 #ifdef WIN32_REGISTRY
@@ -355,7 +355,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist))) {
   var object root = STACK_3;
   var void* ret_handle;
   var uintL status;
-  if (eq(unbound,direction_arg)) direction_arg=S(Kinput);
+  if (!boundp(direction_arg)) direction_arg=S(Kinput);
   var direction_t direction = check_direction(direction_arg);
   var if_does_not_exist_t if_not_exists =
     check_if_does_not_exist(if_not_exists_arg);
@@ -459,7 +459,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist))) {
   pushSTACK(L(dir_key_close));
   funcall(L(finalize),2);
   # Done.
-  value1 = STACK_0; mv_count = 1;
+  VALUES1(STACK_0);
   skipSTACK(5);
 }
 
@@ -547,7 +547,7 @@ LISPFUNN(dir_key_attributes,1) {
 local object itst_current (object state) {
   var object stack = ITST_STACK(state);
   var uintL depth = 0;
-  for (stack = nreverse(stack); !eq(stack,NIL); stack = Cdr(stack)) {
+  for (stack = nreverse(stack); !nullp(stack); stack = Cdr(stack)) {
     var object name = NODE_NAME(Car(stack));
     if (Sstring_length(name) > 0) {
       if (depth) {
@@ -623,7 +623,7 @@ local void init_iteration_node (object state, object subkey,
   # init node
   NODE_KEY(node) = fixnum(0);
   NODE_ATT(node) = fixnum(0);
-  NODE_NAME(node) = (eq(subkey,NIL) ? path : subkey);
+  NODE_NAME(node) = (nullp(subkey) ? path : subkey);
   # init handle
   NODE_HANDLE(node) = handle;
   pushSTACK(handle);
@@ -661,7 +661,7 @@ local void init_iteration_node (object state, object subkey,
 # can trigger GC
 local object state_next_key (object state) {
   var object stack = ITST_STACK(state);
-  if (!eq(stack,NIL)) {
+  if (!nullp(stack)) {
     var object node = ITST_NODE(state);
     var uintL keynum = posfixnum_to_L(NODE_KEY(node));
     var uintL keylen = posfixnum_to_L(NODE_KEY_S(node));
@@ -718,8 +718,8 @@ LISPFUNN(dkey_search_next_key,1) {
       else {                          # find the next node and return it
         pushSTACK(NIL); # STACK_0 == subkey; STACK_1 == state
         do STACK_0 = state_next_key(STACK_1); # subkey==NIL ==> stack popped
-        while (eq(STACK_0,NIL) && !eq(ITST_STACK(STACK_1),NIL));
-        if (eq(STACK_0,NIL)) value1 = NIL;
+        while (nullp(STACK_0) && !nullp(ITST_STACK(STACK_1)));
+        if (nullp(STACK_0)) value1 = NIL;
         else init_iteration_node(STACK_1,STACK_0,&value1,&value2);
         skipSTACK(1);
       }
@@ -798,7 +798,7 @@ LISPFUN(dir_key_value,2,1,norest,nokey,0,NIL) {
     status = RegQueryValueEx((HKEY)(TheDirKey(dkey)->handle),namez,
                              NULL,NULL,NULL,&size);
     if (status != ERROR_SUCCESS) {
-      if ((status == ERROR_FILE_NOT_FOUND) && !eq(default_value,unbound)) {
+      if ((status == ERROR_FILE_NOT_FOUND) && boundp(default_value)) {
         value1 = default_value;
         end_system_call();
         goto end;
