@@ -1052,7 +1052,7 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
   bool utb_a = false, utb_m = false;
   if (!missingp(STACK_0)) {     /* mtime */
     if (integerp(STACK_0))
-      utb.modtime = I_to_L(STACK_0) - UNIX_LISP_TIME_DIFF;
+      utb.modtime = I_to_UL(STACK_0) - UNIX_LISP_TIME_DIFF;
     else if (eq(STACK_0,T)) utb.modtime = time(&utb.modtime);
     else {
       object path = physical_namestring(STACK_0);
@@ -1066,7 +1066,7 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
   if (!missingp(STACK_1)) {     /* atime */
     if (eq(STACK_0,STACK_1)) utb.actime = utb.modtime;
     else if (integerp(STACK_1))
-      utb.actime = I_to_L(STACK_0) - UNIX_LISP_TIME_DIFF;
+      utb.actime = I_to_UL(STACK_0) - UNIX_LISP_TIME_DIFF;
     else if (eq(STACK_1,T)) utb.actime = time(&utb.actime);
     else {
       object path = physical_namestring(STACK_1);
