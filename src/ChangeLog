@@ -1,5 +1,10 @@
 2005-02-05  Sam Steingold  <sds@gnu.org>
 
+	* cfgwin32.lisp (*load-paths*): use the common "**" instead of
+	the CLISP-specific "..." for :WILD-INFERIORS
+
+2005-02-05  Sam Steingold  <sds@gnu.org>
+
 	free the mallocs!
 	* built.d (built_flags): return an object,
 	use alloca() instead of malloc()
