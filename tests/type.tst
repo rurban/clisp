@@ -706,3 +706,15 @@ nil
           (foo129b-slot7 a)
           (foo129b-slot8 a))))
 (nil t 3 -44 nil t 9 88)
+
+(let ((*break-on-signals* t) a)
+  (defstruct (foo130 (:predicate is-foo130)) p)
+  (setq a (make-foo130 :p 10))
+  (list (is-foo130 a) (foo130-p a)))
+(T 10)
+
+(let ((*break-on-signals* t) a)
+  (defstruct (foo131 (:predicate is-foo131) (:type vector) :named) p)
+  (setq a (make-foo131 :p 10))
+  (list (is-foo131 a) (foo131-p a)))
+(T 10)

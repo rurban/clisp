@@ -701,8 +701,8 @@
         (error-of-type 'source-program-error
           :form whole-form
           :detail predicate-option
-          (TEXT "~S ~S: There is no :PREDICATE for unnamed structures.")
-          'defstruct name)))
+          (TEXT "~S ~S: There is no ~S for unnamed structures.")
+          'defstruct name :predicate)))
     ;; predicate-option is
     ;;   if named-option=T: either NIL or the name of the type-test-predicate,
     ;;   if named-option=NIL meaningless.
@@ -955,10 +955,6 @@
               :detail slotname
               (TEXT "~S ~S: There may be only one slot with the name ~S.")
               'defstruct name slotname))
-          (when (string= "P" slotname)
-            (warn
-             (TEXT "~S ~S: Slot ~S accessor will shadow the predicate.")
-             'defstruct name slotname))
           (let ((type t) (read-only nil))
             (when (consp slotarg)
               (do ((slot-arglistr (cddr slotarg) (cddr slot-arglistr)))
@@ -987,7 +983,11 @@
             (let ((initer (cons initform initfunction))
                   (initargs (list (symbol-keyword slotname)))
                   (accessorname (ds-accessor-name slotname conc-name-option)))
-              (declare (ignore accessorname))
+              (when (eq predicate-option accessorname)
+                (warn
+                 (TEXT "~S ~S: Slot ~S accessor will shadow the predicate ~S.")
+                 'defstruct name slotname predicate-option)
+                (setq predicate-option nil))
               (push (cons
                       (clos::make-instance-<structure-direct-slot-definition>
                         clos::<structure-direct-slot-definition>
