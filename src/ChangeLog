@@ -17,6 +17,11 @@
 	* clos-genfun5.lisp (ensure-generic-function-using-class): Define using
 	allow-making-generic.
 
+2004-09-01  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* foreign1.lisp (parse-c-type): add define-compiler-macro
+	to inline primitive types.
+
 2004-08-31  Sam Steingold  <sds@gnu.org>
 
 	* describe.lisp (describe-object@integer): do not use TYPE-OF to
