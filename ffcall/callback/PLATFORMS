@@ -1,5 +1,5 @@
 Supported CPUs:  (Put the GNU config.guess values here.)
-     i386     i486-pc-linuxelf (gcc)
+     i386     i486-pc-linuxelf (gcc), i386-pc-solaris2.6 (gcc)
      m68k     m68k-unknown-linux (gcc)
      mips     mips-sgi-irix5.3 (gcc), mips-sgi-irix6.4 (cc -32, -n32, -64)
      sparc    sparc-sun-solaris2.4 (gcc), sparc-sun-sunos4.1.3_U1 (gcc)
