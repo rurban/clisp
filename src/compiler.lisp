@@ -2725,15 +2725,16 @@ for-value   NIL or T
     (when rest-p (return-from test-argument-syntax 'DYNAMIC-KEYS))
     (setq n (- n reqopt) args (nthcdr reqopt args))
     (unless (or (evenp n) applyargs)
-      (c-warn
-       (TEXT "keyword arguments to function ~S should occur pairwise: ~S")
-       fun args)
+      (c-warn (TEXT "keyword arguments to function ~S should occur pairwise: ~S")
+              fun args)
       (return-from test-argument-syntax 'NIL))
     (do ((keyargs args (cddr keyargs))
+         (allow-other-keys-seen nil)
          (allow-flag allow-p)
-         (wrong-key nil))
+         (wrong-key-p nil)
+         wrong-key)
         ((null keyargs)
-         (cond (wrong-key
+         (cond (wrong-key-p
                 (c-warn (TEXT "keyword ~S is not allowed for function ~S.~
                              ~%The only allowed keyword~[s are~; is~:;s are~] ~{~S~#[~; and ~S~:;, ~]~}.")
                         wrong-key fun (length keylist) keylist)
@@ -2747,11 +2748,13 @@ for-value   NIL or T
           (c-warn (TEXT "argument ~S to function ~S is not a symbol")
                   (first keyargs) fun)
           (return-from test-argument-syntax 'DYNAMIC-KEYS))
-        (when (eq key ':ALLOW-OTHER-KEYS)
+        (when (and (eq key ':ALLOW-OTHER-KEYS) (not allow-other-keys-seen))
+          (setq allow-other-keys-seen t)
           (unless (c-constantp (second keyargs))
             (return-from test-argument-syntax 'DYNAMIC-KEYS))
           (when (c-constant-value (second keyargs)) (setq allow-flag t)))
-        (unless (or allow-flag (memq key keylist))
+        (unless (or allow-flag (memq key keylist) wrong-key-p)
+          (setq wrong-key-p t)
           (setq wrong-key key))))))
 
 ;; try to evaluate FORM for side effects
