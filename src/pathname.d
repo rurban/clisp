@@ -5935,7 +5935,7 @@ local bool openp (object pathname) {
 nonreturning_function(local, fehler_delete_open, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname);
-  fehler(file_error,GETTEXT("cannot delete file ~S since there is file stream open to it"));
+  fehler(file_error,GETTEXT("cannot delete file ~S since there is a file stream open to it"));
 }
 #define check_delete_open(pathname)                                     \
  do { if (openp(pathname)) { fehler_delete_open(pathname); } } while(0)
@@ -5986,7 +5986,7 @@ LISPFUNN(delete_file,1) {
 nonreturning_function(local, fehler_rename_open, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname);
-  fehler(file_error,GETTEXT("cannot rename file ~S since there is file stream open to it"));
+  fehler(file_error,GETTEXT("cannot rename file ~S since there is a file stream open to it"));
 }
 
 /* UP: Renames a file.
