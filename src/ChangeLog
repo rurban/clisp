@@ -1,5 +1,11 @@
 2004-02-11  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: fixed cygwin package creation
+	(VERSION, CLISP_VERSION, CLISP_RELEASE): new make variables
+	(setup.hint): mention $(MODULES) and allow testing releases
+
+2004-02-11  Sam Steingold  <sds@gnu.org>
+
 	* modules/pcre/cpcre.c: <pcre.h> may be actually <pcre/pcre.h>
 
 2004-02-11  Sam Steingold  <sds@gnu.org>
