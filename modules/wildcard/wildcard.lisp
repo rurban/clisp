@@ -1,11 +1,10 @@
 ;; Module for wildcard matching in CLISP
 ;; Bruno Haible 18.4.1995
 
+(defpackage "WILDCARD"
+  (:use "FFI")
+  (:export "MATCH"))
 (in-package "WILDCARD")
-
-(export '(match))
-
-(use-package "FFI")
 
 (def-c-call-out fnmatch (:arguments (pattern c-string)
                                     (string c-string)
