@@ -1437,9 +1437,8 @@ N. Gray to X3J13.</para>
  called and its value is printed with &princ;.  Otherwise, the value
  itself is printed with &princ;.  The default value of
  <varname>CUSTOM:*PROMPT*</varname> prints
- <prompt>"package[n]&gt;&nbsp;"</prompt> where
- <replaceable>package</replaceable> is the shortest (nick)name of the
- current package &package-var; if it is <emphasis>not</emphasis> the
+ <prompt>"package[n]&gt;&nbsp;"</prompt> where &pack-r is the shortest
+ (nick)name of the current package &package-var; if it is &not-e; the
  same as it was in the beginning or if it does not contain symbol &t;
  (it is assumed that in the latter case you would want to keep in mind
  that your current package is something weird);
@@ -2459,8 +2458,7 @@ containing:</para>
 <section id="dffi-types"><title>(Foreign) &c-lang; types</title>
 
 <para>Foreign &c-lang; types are used in the &ffi-pac;.
-They are <emphasis>not</emphasis> regular &cl; types or &clos;
-classes.</para>
+They are &not-e; regular &cl; types or &clos; classes.</para>
 
 <para>A &ctype-r; is either a predefined &c-lang; type or the name of a
  type defined by &def-c-type;.</para>
@@ -3260,8 +3258,7 @@ module exit functions.]  Programmers, watch
 <section id="affi-types"><title>(Foreign) &c-lang; types</title>
 
 <para>The following foreign &c-lang; types are used in &affi-pac;.
-They are <emphasis>not</emphasis> regular &cl; types or &clos;
-classes.</para>
+They are &not-e; regular &cl; types or &clos; classes.</para>
 
 <table id="affi-types-tab" frame="all">
  <title>foreign &c-lang; types used in &affi-pac;</title>
@@ -3814,7 +3811,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    <listitem><simpara>a stream is an &input-k; stream
     (i.e., &input-stream-p; returns &t;)</simpara></listitem></itemizedlist>
    the stream can be read from (e.g., with &read-char; or &read-byte;).
-   This is <emphasis>not</emphasis> the case for a &socket-stream; which
+   This is &not-e; the case for a &socket-stream; which
    was shut down in the &input-k; direction: it is still open (for
    output) but it cannot be read from.</para></listitem></varlistentry>
  <varlistentry id="so-opt"><term><literal role="sexp">(&so-opt;

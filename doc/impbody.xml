@@ -270,7 +270,7 @@ executes a compiled version of form.</para>
 <section id="spec-decl"><title>Declaration &special-dec;</title>
 
 <para><literal role="sexp">(&proclaim; '(&special-dec;
- &var-r;))</literal> declarations may not be undone.  The same holds for
+ &var-r;))</literal> declarations cannot be undone.  The same holds for
  &defvar;, &defparameter; and &defconstant; declarations.</para>
 
 <para>It is an error if a &defconstant; variable is bound at the moment
@@ -311,7 +311,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 
 <para>Note that the situations <constant>LOAD</constant> and
  <constant>COMPILE</constant> are deprecated by the spec,
- and they are <emphasis>not</emphasis> equivalent to the new
+ and they are &not-e; equivalent to the new
  standard situations <constant>:LOAD-TOPLEVEL</constant>
  and <constant>:COMPILE-TOPLEVEL</constant>.</para>
 
@@ -575,6 +575,11 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 <para>These macros are implemented as special operators (as permitted by
  <ulink url="&clhs;/Body/sec_3-1-2-1-2-2.html">Section 3.1.2.1.2.2</ulink>)
  and, as such, are rather efficient.</para></formalpara>
+
+<formalpara><title>Macro &defconstant;</title>
+<para>The initial value is &not-e; evaluated at compile time,
+ just like with &defvar; and &defparameter;.
+ Use &eval-when; if you need the value at compile time.</para></formalpara>
 
 <section id="fcase"><title>Macro <function>EXT:FCASE</function></title>
 
@@ -993,10 +998,9 @@ is the same as
 When a package is locked, attempts to change its symbol table or
 redefine functions which its symbols name result in a continuable error
 (continuing overrides locking for this operation).
-Function <literal role="sexp" >(&package-lock;
- <replaceable>package</replaceable>)</literal> returns the
-generalized boolean indicating whether the package is locked.
-A package (or list thereof) can be locked using <literal role="sexp"
+Function <literal role="sexp" >(&package-lock; &pack-r;)</literal>
+returns the generalized boolean indicating whether the &pack-r; is locked.
+A package (or a list thereof) can be locked using <literal role="sexp"
 >(&setf; (&package-lock; <replaceable>package-or-list</replaceable>)
 &t;)</literal>.
 &clisp; locks its system packages (specified in the variable
@@ -4336,8 +4340,7 @@ functions are provided:
 <section id="clpp"><title>The Lisp Pretty Printer
    <ulink url="&clhs;/Body/sec_22-2.html">[CLHS-22.2]</ulink></title>
 
-<para>The Lisp Pretty Printer implementation is
- <emphasis>not</emphasis> perfect yet.
+<para>The Lisp Pretty Printer implementation is &not-e; perfect yet.
  &pprint-logical-block; does not respect &print-lines-var;.</para>
 
 <section id="pp-dispatch"><title>Pretty Print Dispatch Table
@@ -4704,11 +4707,10 @@ The &lib-file; is a <quote>header</quote> file which contains the
 constant, variable, inline and macro definitions necessary for
 compilation of the files that &require; this file, but not the function
 definitions and calls that are not necessary for that.
-Thus it is <emphasis>not</emphasis> necessary to either enclose
-&require; forms in &eval-when; or to load the required files in the
-makefiles: if you have two files, &foolisp-f;
-and <filename>#P"bar.lisp"</filename>, and the latter requires the
-former, you can write in your &make-file;:
+Thus it is &not-e; necessary to either enclose &require; forms in
+&eval-when; or to load the required files in the makefiles: if you have
+two files, &foolisp-f; and <filename>#P"bar.lisp"</filename>, and the
+latter requires the former, you can write in your &make-file;:
 <programlisting>
 all: foo.fas bar.fas
 
@@ -5353,7 +5355,7 @@ exhaust the available line length.</para></formalpara>
  enabled, a warning is printed, and the new dribbling request is
  ignored.</para>
 
-<para>Dribbling is implemented via a special (<emphasis>not</emphasis>
+<para>Dribbling is implemented via a special (&not-e;
  <ulink url="&clhs;/Body/glo_r.html#recognizable_subtype">recognizable</ulink>)
  subtype of &two-way-stream-t;, named &ds-t;.
  If you have a &source-r; &bidi-s; &x-r; and you want all transactions
