@@ -13,7 +13,7 @@ Usage: configure [options] [dirname]
 dirname: Name of directory in which to build CLISP. This allows you to build
          CLISP with different compilers on the same machine or for different
          architectures in the same filesystem, sharing the same source.
-         Default is `src'.
+         Default is "src".
 options: The following options are recognized:
          --help                print this message and exit
          --version             print the CLISP version and exit
@@ -45,10 +45,11 @@ Example:
          exit
 Specifying the C compiler:
          If you wish to specify the C compiler that will get used to build
-         CLISP, set the environment variables CC, CFLAGS, LIBS. Put compiler
-         flags that have to be passed to the preprocessor into the CC
-         variable, not the CFLAGS variable. For example, if you want to use
-         gcc in ANSI C mode, execute the following before calling `configure':
+         CLISP, set the environment variables CC, CFLAGS, LIBS.
+         Put compiler flags that have to be passed to the preprocessor
+         into the CC variable, not the CFLAGS variable.
+         For example, if you want to use gcc in ANSI C mode,
+         execute the following before calling `configure':
                setenv CC "gcc -ansi"                 if using csh
                export CC="gcc -ansi"                 if using bash or ksh
                CC="gcc -ansi"; export CC             if using sh
