@@ -1,3 +1,14 @@
+2001-01-27  Bruno Haible  <haible@clisp.cons.org>
+
+        * lispbibl.d: Add IA-64 support.
+          (object) [WIDE_HARD]: Use the 1-element struct or directly 'void *'.
+        * spvw_mmap.d (mmap_init_pagesize): On IA-64, always use 64 KB.
+        * spvw_page.d (oint_addr_relevant_len): Set to 32, to limit
+          std_page_size to 64 KB.
+
+        * predtype.d: Include arilev0.c, needed for R_sign when TYPECODES is
+          defined.
+
 2001-01-28  Bruno Haible  <haible@clisp.cons.org>
 
         * foreign.d (convert_function_to_foreign, free_foreign_callin,
