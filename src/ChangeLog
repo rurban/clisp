@@ -1,5 +1,9 @@
 2002-06-28  Sam Steingold  <sds@gnu.org>
 
+	* configure: work around the ulimit bug in cygwin /bin/sh
+
+2002-06-28  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (alloca) [UNIX_CYGWIN32]: already defined in <alloca.h>
 
 2002-06-27  Sam Steingold  <sds@gnu.org>
