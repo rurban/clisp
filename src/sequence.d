@@ -674,7 +674,7 @@ LISPFUNN(length,1)
   if (consp(arg)) { /* arg is a Cons */
     var object last;
     var uintL len = llength1(arg,&last);
-    if (!nullp(last)) fehler_proper_list(last,L(length));
+    if (!nullp(last)) fehler_proper_list(last,S(length));
     VALUES1(fixnum(len));
     return;
   } else if (symbolp(arg)) { /* arg is a symbol */
