@@ -4753,22 +4753,22 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL) {
 
 #if defined(PATHNAME_NOEXT) || defined(LOGICAL_PATHNAMES)
 
-  # UP: Matches a Wildcard-String ("Muster") with a "Beispiel".
-  # > muster (engl.: pattern) : Normal-Simple-String, with wildcards
+  # UP: Matches a Wildcard-String ("Pattern") with a "Sample".
+  # > pattern : Normal-Simple-String, with wildcards
   #           '?' for exactly 1 character
   #           '*' for arbitrary many characters
-  # > beispiel (engl.: example) : Normal-Simple-String, that has to be matched
+  # > sample  : Normal-Simple-String, that has to be matched
   # recursive implementation because of backtracking:
 local bool wildcard_match_ab (uintL m_count, const chart* m_ptr,
                               uintL b_count, const chart* b_ptr);
-local bool wildcard_match (object muster, object beispiel) {
-  ASSERT(sstring_normal_p(muster));
-  ASSERT(sstring_normal_p(beispiel));
+local bool wildcard_match (object pattern, object sample) {
+  ASSERT(sstring_normal_p(pattern));
+  ASSERT(sstring_normal_p(sample));
   return wildcard_match_ab(
-                           /* m_count = */ Sstring_length(muster),
-                           /* m_ptr   = */ &TheSstring(muster)->data[0],
-                           /* b_count = */ Sstring_length(beispiel),
-                           /* b_ptr   = */ &TheSstring(beispiel)->data[0]
+                           /* m_count = */ Sstring_length(pattern),
+                           /* m_ptr   = */ &TheSstring(pattern)->data[0],
+                           /* b_count = */ Sstring_length(sample),
+                           /* b_ptr   = */ &TheSstring(sample)->data[0]
                                            );
 }
 local bool wildcard_match_ab (uintL m_count, const chart* m_ptr,
@@ -4817,90 +4817,90 @@ local bool wildcard_match_ab (uintL m_count, const chart* m_ptr,
 
 #endif
 
-# UPs: matches a pathname-component ("Beispiel") and
-# a pathname-component ("Muster") at a time.
-local bool host_match (object muster, object beispiel, bool logical);
-local bool device_match (object muster, object beispiel, bool logical);
-local bool directory_match (object muster, object beispiel, bool logical);
-local bool nametype_match (object muster, object beispiel, bool logical);
-local bool version_match (object muster, object beispiel, bool logical);
-local bool host_match (object muster, object beispiel, bool logical) {
+# UPs: matches a pathname-component ("Sample") and
+# a pathname-component ("Pattern") at a time.
+local bool host_match (object pattern, object sample, bool logical);
+local bool device_match (object pattern, object sample, bool logical);
+local bool directory_match (object pattern, object sample, bool logical);
+local bool nametype_match (object pattern, object sample, bool logical);
+local bool version_match (object pattern, object sample, bool logical);
+local bool host_match (object pattern, object sample, bool logical) {
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
-    if (nullp(muster)) return true;
-    return equal(muster,beispiel);
+    if (nullp(pattern)) return true;
+    return equal(pattern,sample);
   }
  #endif
  #if HAS_HOST
-  if (nullp(muster)) return true;
-  return equal(muster,beispiel);
+  if (nullp(pattern)) return true;
+  return equal(pattern,sample);
  #else
   return true;
  #endif
 }
-local bool device_match (object muster, object beispiel, bool logical) {
+local bool device_match (object pattern, object sample, bool logical) {
  #if HAS_DEVICE
   #ifdef LOGICAL_PATHNAMES
   if (logical) {
     return true;
   }
   #endif
-  if (nullp(muster)) return true;
+  if (nullp(pattern)) return true;
   #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-  if (eq(muster,S(Kwild))) return true;
-  if (eq(beispiel,S(Kwild))) return false;
+  if (eq(pattern,S(Kwild))) return true;
+  if (eq(sample,S(Kwild))) return false;
   #endif
   #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-  return equalp(muster,beispiel);
+  return equalp(pattern,sample);
   #else
-  return equal(muster,beispiel);
+  return equal(pattern,sample);
   #endif
  #else
   return true;
  #endif
 }
-local bool nametype_match_aux (object muster, object beispiel, bool logical) {
+local bool nametype_match_aux (object pattern, object sample, bool logical) {
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
-    if (eq(muster,S(Kwild))) return true;
-    if (eq(beispiel,S(Kwild))) return false;
-    if (nullp(muster)) {
-      if (nullp(beispiel))
+    if (eq(pattern,S(Kwild))) return true;
+    if (eq(sample,S(Kwild))) return false;
+    if (nullp(pattern)) {
+      if (nullp(sample))
         return true;
       else
         return false;
     }
-    if (nullp(beispiel)) {
+    if (nullp(sample)) {
       return false;
     }
-    return wildcard_match(muster,beispiel);
+    return wildcard_match(pattern,sample);
   }
  #endif
  #ifdef PATHNAME_NOEXT
-  if (nullp(muster)) {
-    if (nullp(beispiel))
+  if (nullp(pattern)) {
+    if (nullp(sample))
       return true;
     else
       return false;
   }
-  if (nullp(beispiel)) {
+  if (nullp(sample)) {
     return false;
   }
-  return wildcard_match(muster,beispiel);
+  return wildcard_match(pattern,sample);
  #endif
 }
-local bool subdir_match (object muster, object beispiel, bool logical) {
-  if (eq(muster,beispiel)) return true;
+local bool subdir_match (object pattern, object sample, bool logical) {
+  if (eq(pattern,sample)) return true;
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
-    if (eq(muster,S(Kwild))) return true;
-    if (!simple_string_p(muster) || !simple_string_p(beispiel)) return false;
-    return wildcard_match(muster,beispiel);
+    if (eq(pattern,S(Kwild))) return true;
+    if (!simple_string_p(pattern) || !simple_string_p(sample)) return false;
+    return wildcard_match(pattern,sample);
   }
  #endif
  #ifdef PATHNAME_NOEXT
-  if (!simple_string_p(muster) || !simple_string_p(beispiel)) return false;
-  return wildcard_match(muster,beispiel);
+  if (!simple_string_p(pattern) || !simple_string_p(sample)) return false;
+  return wildcard_match(pattern,sample);
  #endif
 }
 # recursive implementation because of backtracking:
@@ -4931,37 +4931,37 @@ local bool directory_match_ab (object m_list, object b_list, bool logical) {
     }
   }
 }
-local bool directory_match (object muster, object beispiel, bool logical) {
-  # compare muster with O(directory_default):
-  if (eq(Car(muster),S(Krelative)) && nullp(Cdr(muster)))
+local bool directory_match (object pattern, object sample, bool logical) {
+  # compare pattern with O(directory_default):
+  if (eq(Car(pattern),S(Krelative)) && nullp(Cdr(pattern)))
     return true;
-  if (eq(unbound,beispiel)) return true;
+  if (eq(unbound,sample)) return true;
   # match startpoint:
-  if (!eq(Car(muster),Car(beispiel)))
+  if (!eq(Car(pattern),Car(sample)))
     return false;
-  muster = Cdr(muster); beispiel = Cdr(beispiel);
+  pattern = Cdr(pattern); sample = Cdr(sample);
   # match subdirs:
-  return directory_match_ab(muster,beispiel,logical);
+  return directory_match_ab(pattern,sample,logical);
 }
-local bool nametype_match (object muster, object beispiel, bool logical) {
-  if (nullp(muster)) return true;
-  if (eq(unbound,beispiel)) return true;
-  return nametype_match_aux(muster,beispiel,logical);
+local bool nametype_match (object pattern, object sample, bool logical) {
+  if (nullp(pattern)) return true;
+  if (eq(unbound,sample)) return true;
+  return nametype_match_aux(pattern,sample,logical);
 }
-local bool version_match (object muster, object beispiel, bool logical) {
-  SDOUT("version_match:",muster);
-  SDOUT("version_match:",beispiel);
-  if (eq(unbound,beispiel)) return true;
+local bool version_match (object pattern, object sample, bool logical) {
+  SDOUT("version_match:",pattern);
+  SDOUT("version_match:",sample);
+  if (eq(unbound,sample)) return true;
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
-    if (nullp(muster) || eq(muster,S(Kwild))) return true;
-    return eql(muster,beispiel);
+    if (nullp(pattern) || eq(pattern,S(Kwild))) return true;
+    return eql(pattern,sample);
   }
  #endif
  #if HAS_VERSION
-  if (nullp(muster) || eq(muster,S(Kwild))) return true;
-  if (eq(beispiel,S(Kwild))) return false;
-  return eql(muster,beispiel);
+  if (nullp(pattern) || eq(pattern,S(Kwild))) return true;
+  if (eq(sample,S(Kwild))) return false;
+  return eql(pattern,sample);
  #else
   return true;
  #endif
@@ -5015,19 +5015,19 @@ LISPFUNN(pathname_match_p,2) {
   value1 = NIL; mv_count=1; return;
 }
 
-# (TRANSLATE-PATHNAME beispiel muster1 muster2) implemented as follows:
-# 1. (PATHNAME-MATCH-P beispiel muster1) while checking, extract
+# (TRANSLATE-PATHNAME sample pattern1 pattern2) implemented as follows:
+# 1. (PATHNAME-MATCH-P sample pattern1) while checking, extract
 #    text items from the substitution pattern (:WILD -> "*").
-# 2. Put the text items into muster2 until muster2 is full or all the
+# 2. Put the text items into pattern2 until pattern2 is full or all the
 #    text items are used up
-# 3. finally, (MERGE-PATHNAMES modifiziertes_muster2 beispiel).
+# 3. finally, (MERGE-PATHNAMES modified_pattern2 sample).
 
-  # UP: Compare a wildcard string ("Muster") with "Beispiel".
-  # wildcard_diff(muster,beispiel,previous,solutions);
-  # > muster: normal simple string, with substitution characters
+  # UP: Compare a wildcard string ("Pattern") with "Sample".
+  # wildcard_diff(pattern,sample,previous,solutions);
+  # > pattern: normal simple string, with substitution characters
   #           '?' for exactly 1 character
   #           '*' for as many characters as desired
-  # > beispiel: normal simple string, to compare with
+  # > sample: normal simple string, to compare with
   # > previous: the already known result of comparison
   #             (reversed list of normal simple strings, NILs and lists)
   # > solutions: address of a list in the STACK, onto which the results of
@@ -5057,25 +5057,25 @@ LISPFUNN(pathname_match_p,2) {
 #if defined(PATHNAME_NOEXT) || defined(LOGICAL_PATHNAMES)
 
 # recursive implementation because of backtracking:
-local void wildcard_diff_ab (object muster, object beispiel,
+local void wildcard_diff_ab (object pattern, object sample,
                              uintL m_index, uintL b_index,
                              const object* previous, object* solutions) {
   var chart c;
   loop {
-    if (m_index == Sstring_length(muster)) {
-      if (b_index == Sstring_length(beispiel))
+    if (m_index == Sstring_length(pattern)) {
+      if (b_index == Sstring_length(sample))
         push_solution();
       return;
     }
-    c = TheSstring(muster)->data[m_index++];
+    c = TheSstring(pattern)->data[m_index++];
     if (chareq(c,ascii('*')))
       break;
-    if (b_index == Sstring_length(beispiel))
+    if (b_index == Sstring_length(sample))
       return;
     if (chareq(c,ascii('?'))) {
       # recursive call to wildcard_diff_ab(), with extended previous:
-      c = TheSstring(beispiel)->data[b_index++];
-      pushSTACK(muster); pushSTACK(beispiel);
+      c = TheSstring(sample)->data[b_index++];
+      pushSTACK(pattern); pushSTACK(sample);
       {
         var object new_string = allocate_string(1);
         TheSstring(new_string)->data[0] = c;
@@ -5090,41 +5090,41 @@ local void wildcard_diff_ab (object muster, object beispiel,
       skipSTACK(3);
       return;
     } else {
-      if (!equal_pathchar(TheSstring(beispiel)->data[b_index++],c))
+      if (!equal_pathchar(TheSstring(sample)->data[b_index++],c))
         return;
     }
   }
   var uintL b_start_index = b_index;
   loop {
     # to reduce consing, intercept cases when wildcard_diff_ab() does nothing
-    if (m_index == Sstring_length(muster)
-        ? b_index == Sstring_length(beispiel)
-        : (c = TheSstring(muster)->data[m_index],
+    if (m_index == Sstring_length(pattern)
+        ? b_index == Sstring_length(sample)
+        : (c = TheSstring(pattern)->data[m_index],
            chareq(c,ascii('*')) || chareq(c,ascii('?'))
-           || (b_index < Sstring_length(beispiel)
-               && equal_pathchar(TheSstring(beispiel)->data[b_index],c)))) {
+           || (b_index < Sstring_length(sample)
+               && equal_pathchar(TheSstring(sample)->data[b_index],c)))) {
       # wildcard_diff_ab() recursive call, with extended previous:
-      pushSTACK(muster); pushSTACK(beispiel);
-      # (SUBSTRING beispiel b_start_index b_index)
-      pushSTACK(subsstring(beispiel,b_start_index,b_index));
+      pushSTACK(pattern); pushSTACK(sample);
+      # (SUBSTRING sample b_start_index b_index)
+      pushSTACK(subsstring(sample,b_start_index,b_index));
       var object new_cons = allocate_cons();
       Car(new_cons) = STACK_0; Cdr(new_cons) = *previous;
       STACK_0 = new_cons; # (CONS ... previous)
       wildcard_diff_ab(STACK_2,STACK_1,m_index,b_index,&STACK_0,solutions);
       skipSTACK(1);
-      beispiel = popSTACK(); muster = popSTACK();
+      sample = popSTACK(); pattern = popSTACK();
     }
-    if (b_index == Sstring_length(beispiel))
+    if (b_index == Sstring_length(sample))
       break;
     b_index++;
   }
 }
 
-local void wildcard_diff (object muster, object beispiel,
+local void wildcard_diff (object pattern, object sample,
                           const object* previous, object* solutions) {
-  ASSERT(sstring_normal_p(muster));
-  ASSERT(sstring_normal_p(beispiel));
-  wildcard_diff_ab(muster,beispiel,0,0,previous,solutions);
+  ASSERT(sstring_normal_p(pattern));
+  ASSERT(sstring_normal_p(sample));
+  wildcard_diff_ab(pattern,sample,0,0,previous,solutions);
 }
 
 #endif
@@ -5133,40 +5133,40 @@ local void wildcard_diff (object muster, object beispiel,
 # all arguments to *_diff are on stack - this should be safe
 #define DEBUG_DIFF(f)                                         \
   printf("\n* " #f " [logical: %d]\n",logical);               \
-  DOUT("",muster); DOUT("",beispiel); DOUT0("",*previous); DOUT("",*solutions)
+  DOUT("",pattern); DOUT("",sample); DOUT0("",*previous); DOUT("",*solutions)
 #else
 #define DEBUG_DIFF(f)
 #endif
-# UPs: compares a pathname-component ("Beispiel") and
-# a pathname-component ("Muster") at a time.
+# UPs: compares a pathname-component ("Sample") and
+# a pathname-component ("Pattern") at a time.
 # can trigger GC
-local void host_diff      (object muster, object beispiel, bool logical,
+local void host_diff      (object pattern, object sample, bool logical,
                            const object* previous, object* solutions);
-local void device_diff    (object muster, object beispiel, bool logical,
+local void device_diff    (object pattern, object sample, bool logical,
                            const object* previous, object* solutions);
-local void directory_diff (object muster, object beispiel, bool logical,
+local void directory_diff (object pattern, object sample, bool logical,
                            const object* previous, object* solutions);
-local void nametype_diff  (object muster, object beispiel, bool logical,
+local void nametype_diff  (object pattern, object sample, bool logical,
                            const object* previous, object* solutions);
-local void version_diff   (object muster, object beispiel, bool logical,
+local void version_diff   (object pattern, object sample, bool logical,
                            const object* previous, object* solutions);
-local void host_diff (object muster, object beispiel, bool logical,
+local void host_diff (object pattern, object sample, bool logical,
                       const object* previous, object* solutions) {
   DEBUG_DIFF(host_diff);
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
-    if (nullp(muster)) {
-      push_solution_with(beispiel); return;
+    if (nullp(pattern)) {
+      push_solution_with(sample); return;
     }
-    if (!equal(muster,beispiel)) return;
+    if (!equal(pattern,sample)) return;
   } else
  #endif
   {
  #if HAS_HOST
-    if (nullp(muster)) {
-      push_solution_with(beispiel); return;
+    if (nullp(pattern)) {
+      push_solution_with(sample); return;
     }
-    if (!equal(muster,beispiel)) return;
+    if (!equal(pattern,sample)) return;
  #endif
   }
  #if HAS_HOST
@@ -5175,7 +5175,7 @@ local void host_diff (object muster, object beispiel, bool logical,
   push_solution();
  #endif
 }
-local void device_diff (object muster, object beispiel, bool logical,
+local void device_diff (object pattern, object sample, bool logical,
                         const object* previous, object* solutions) {
   DEBUG_DIFF(device_diff);
  #ifdef LOGICAL_PATHNAMES
@@ -5190,71 +5190,71 @@ local void device_diff (object muster, object beispiel, bool logical,
  #endif
  #if HAS_DEVICE
   #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-  if (nullp(muster) || eq(muster,S(Kwild))) {
-    var object string = wild2string(beispiel);
+  if (nullp(pattern) || eq(pattern,S(Kwild))) {
+    var object string = wild2string(sample);
     push_solution_with(string);
     return;
   }
-  if (eq(beispiel,S(Kwild))) return;
+  if (eq(sample,S(Kwild))) return;
   #endif
   #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-  if (nullp(muster)) {
+  if (nullp(pattern)) {
     var object string =
   #if defined(PATHNAME_AMIGAOS)
-      beispiel;
+      sample;
   #endif
   #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-    wild2string(beispiel);
+    wild2string(sample);
   #endif
     push_solution_with(string);
     return;
   }
-  if (!equalp(muster,beispiel)) return;
+  if (!equalp(pattern,sample)) return;
   #else
-  if (!equal(muster,beispiel)) return;
+  if (!equal(pattern,sample)) return;
   #endif
   push_solution_with(S(Kdevice));
  #else /* HAS_DEVICE */
   push_solution();
  #endif
 }
-local void nametype_diff_aux (object muster, object beispiel, bool logical,
+local void nametype_diff_aux (object pattern, object sample, bool logical,
                               const object* previous, object* solutions) {
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
-    if (eq(muster,S(Kwild))) {
-      var object string = wild2string(beispiel);
+    if (eq(pattern,S(Kwild))) {
+      var object string = wild2string(sample);
       push_solution_with(string);
       return;
     }
-    if (eq(beispiel,S(Kwild))) return;
-    if (nullp(muster)) {
-      if (nullp(beispiel))
+    if (eq(sample,S(Kwild))) return;
+    if (nullp(pattern)) {
+      if (nullp(sample))
         push_solution();
       return;
     }
-    if (nullp(beispiel))
+    if (nullp(sample))
       return;
-    wildcard_diff(muster,beispiel,previous,solutions);
+    wildcard_diff(pattern,sample,previous,solutions);
     return;
   }
  #endif
  #ifdef PATHNAME_NOEXT
-  if (nullp(muster)) {
-    if (nullp(beispiel))
+  if (nullp(pattern)) {
+    if (nullp(sample))
       push_solution();
     return;
   }
-  if (nullp(beispiel))
+  if (nullp(sample))
     return;
-  wildcard_diff(muster,beispiel,previous,solutions);
+  wildcard_diff(pattern,sample,previous,solutions);
  #endif
 }
-local void subdir_diff (object muster, object beispiel, bool logical,
+local void subdir_diff (object pattern, object sample, bool logical,
                         const object* previous, object* solutions) {
   DEBUG_DIFF(subdir_diff);
-  if (eq(muster,beispiel)) {
-    if (eq(beispiel,S(Kwild)))
+  if (eq(pattern,sample)) {
+    if (eq(sample,S(Kwild)))
       push_solution_with(O(wild_string));
     else
       push_solution();
@@ -5262,20 +5262,20 @@ local void subdir_diff (object muster, object beispiel, bool logical,
   }
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
-    if (eq(muster,S(Kwild))) {
-      var object string = wild2string(beispiel);
+    if (eq(pattern,S(Kwild))) {
+      var object string = wild2string(sample);
       push_solution_with(string);
       return;
     }
-    if (eq(beispiel,S(Kwild))) return;
-    if (!simple_string_p(muster) || !simple_string_p(beispiel)) return;
-    wildcard_diff(muster,beispiel,previous,solutions);
+    if (eq(sample,S(Kwild))) return;
+    if (!simple_string_p(pattern) || !simple_string_p(sample)) return;
+    wildcard_diff(pattern,sample,previous,solutions);
     return;
   }
  #endif
  #ifdef PATHNAME_NOEXT
-  if (!simple_string_p(muster) || !simple_string_p(beispiel)) return;
-  wildcard_diff(muster,beispiel,previous,solutions);
+  if (!simple_string_p(pattern) || !simple_string_p(sample)) return;
+  wildcard_diff(pattern,sample,previous,solutions);
  #endif
 }
 # recursive implementation because of backtracking:
@@ -5337,68 +5337,68 @@ local void directory_diff_ab (object m_list, object b_list, bool logical,
     skipSTACK(1);
   }
 }
-#define BEISPIEL_UNBOUND_CHECK \
-  if (eq(unbound,beispiel)) { push_solution_with(muster); return; }
-local void directory_diff (object muster, object beispiel, bool logical,
+#define SAMPLE_UNBOUND_CHECK \
+  if (eq(unbound,sample)) { push_solution_with(pattern); return; }
+local void directory_diff (object pattern, object sample, bool logical,
                            const object* previous, object* solutions) {
   DEBUG_DIFF(directory_diff);
-  BEISPIEL_UNBOUND_CHECK;
-  # compare muster with O(directory_default) :
-  if (eq(Car(muster),S(Krelative)) && nullp(Cdr(muster))) {
-    # Augment the solution with the beispiel list - starting
+  SAMPLE_UNBOUND_CHECK;
+  # compare pattern with O(directory_default) :
+  if (eq(Car(pattern),S(Krelative)) && nullp(Cdr(pattern))) {
+    # Augment the solution with the sample list - starting
     # with :ABSOLUTE or :RELATIVE, it will not fit for "**".
-    push_solution_with(beispiel);
+    push_solution_with(sample);
     return;
   }
   # compare startpoint:
-  if (!eq(Car(muster),Car(beispiel)))
+  if (!eq(Car(pattern),Car(sample)))
     return;
-  muster = Cdr(muster); beispiel = Cdr(beispiel);
+  pattern = Cdr(pattern); sample = Cdr(sample);
   # compare subdirs:
-  directory_diff_ab(muster,beispiel,logical,previous,solutions);
+  directory_diff_ab(pattern,sample,logical,previous,solutions);
 }
-local void nametype_diff (object muster, object beispiel, bool logical,
+local void nametype_diff (object pattern, object sample, bool logical,
                           const object* previous, object* solutions) {
   DEBUG_DIFF(nametype_diff);
-  BEISPIEL_UNBOUND_CHECK;
-  if (nullp(muster)) {
-    var object string = wild2string(beispiel);
+  SAMPLE_UNBOUND_CHECK;
+  if (nullp(pattern)) {
+    var object string = wild2string(sample);
     push_solution_with(string);
     return;
   }
-  nametype_diff_aux(muster,beispiel,logical,previous,solutions);
+  nametype_diff_aux(pattern,sample,logical,previous,solutions);
 }
-local void version_diff (object muster, object beispiel, bool logical,
+local void version_diff (object pattern, object sample, bool logical,
                          const object* previous, object* solutions) {
   DEBUG_DIFF(version_diff);
-  BEISPIEL_UNBOUND_CHECK;
+  SAMPLE_UNBOUND_CHECK;
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
-    if (nullp(muster) || eq(muster,S(Kwild))) {
+    if (nullp(pattern) || eq(pattern,S(Kwild))) {
       var object string =
-        (eq(beispiel,S(Kwild)) ? O(wild_string) :
-         integerp(beispiel) ? decimal_string(beispiel) # (SYS::DECIMAL-STRING beispiel)
+        (eq(sample,S(Kwild)) ? O(wild_string) :
+         integerp(sample) ? decimal_string(sample) # (SYS::DECIMAL-STRING sample)
          : NIL);
       push_solution_with(string);
       return;
     }
-    if (eq(beispiel,S(Kwild))) return;
-    if (!eql(muster,beispiel)) return;
+    if (eq(sample,S(Kwild))) return;
+    if (!eql(pattern,sample)) return;
     push_solution();
     return;
   }
  #endif
  #if HAS_VERSION
-  if (nullp(muster) || eq(muster,S(Kwild))) {
+  if (nullp(pattern) || eq(pattern,S(Kwild))) {
     var object string =
-      (eq(beispiel,S(Kwild)) ? O(wild_string) :
-       integerp(beispiel) ? decimal_string(beispiel) # (SYS::DECIMAL-STRING beispiel)
+      (eq(sample,S(Kwild)) ? O(wild_string) :
+       integerp(sample) ? decimal_string(sample) # (SYS::DECIMAL-STRING sample)
        : NIL);
     push_solution_with(string);
     return;
   }
-  if (eq(beispiel,S(Kwild))) return;
-  if (!eql(muster,beispiel)) return;
+  if (eq(sample,S(Kwild))) return;
+  if (!eql(pattern,sample)) return;
   push_solution();
  #else
   push_solution_with(NIL);
@@ -5408,7 +5408,7 @@ local void version_diff (object muster, object beispiel, bool logical,
 #undef push_solution_with
 #undef push_solution
 #undef DEBUG_DIFF
-#undef BEISPIEL_UNBOUND_CHECK
+#undef SAMPLE_UNBOUND_CHECK
 
 # Each substitution is a list of Normal-Simple-Strings or Lists.
 # (The Lists come into being with :WILD-INFERIORS in directory_diff().)
@@ -5463,9 +5463,9 @@ local object subst_customary_case (object obj) {
 
 #undef SUBST_RECURSE
 
-# Apply substitution SUBST to the MUSTER.
-# translate_pathname(&subst,muster)
-local object translate_pathname (object* subst, object muster);
+# Apply substitution SUBST to the PATTERN.
+# translate_pathname(&subst,pattern)
+local object translate_pathname (object* subst, object pattern);
 # Pop the CAR of *subst and return it.
 #define RET_POP(subst)  \
   { var object ret = Car(*subst); *subst = Cdr(*subst); return ret; }
@@ -5473,107 +5473,107 @@ local object translate_pathname (object* subst, object muster);
 #define TRIVIAL_P(val) (simple_string_p(val)||nullp(val))
 # is the value simple enough to ensure a simple action?
 #define SIMPLE_P(val) (TRIVIAL_P(val)||eq(val,S(Kwild)))
-# translate_host(&subst,muster,logical) etc.
+# translate_host(&subst,pattern,logical) etc.
 # returns the appropriate replacement for host etc.; shortens subst;
 # returns nullobj on failure
 # may trigger GC
-local object translate_host (object* subst, object muster, bool logical);
-local object translate_device (object* subst, object muster, bool logical);
-local object translate_subdir (object* subst, object muster, bool logical);
-local object translate_directory (object* subst, object muster, bool logical);
-local object translate_nametype (object* subst, object muster, bool logical);
-local object translate_version (object* subst, object muster, bool logical);
+local object translate_host (object* subst, object pattern, bool logical);
+local object translate_device (object* subst, object pattern, bool logical);
+local object translate_subdir (object* subst, object pattern, bool logical);
+local object translate_directory (object* subst, object pattern, bool logical);
+local object translate_nametype (object* subst, object pattern, bool logical);
+local object translate_version (object* subst, object pattern, bool logical);
 #if DEBUG_TRANSLATE_PATHNAME
 # all arguments to translate_* should be on stack - this should be safe
 #define DEBUG_TRAN(f)                                         \
   printf("\n* " #f " [logical: %d]\n",logical);               \
-  DOUT("",*subst); DOUT("",muster)
+  DOUT("",*subst); DOUT("",pattern)
 #else
 #define DEBUG_TRAN(f)
 #endif
-local object translate_host (object* subst, object muster, bool logical) {
+local object translate_host (object* subst, object pattern, bool logical) {
   DEBUG_TRAN(translate_host);
-#define TRAN_HOST(subst,muster)                         \
-        if (nullp(muster) && mconsp(*subst)) {          \
+#define TRAN_HOST(subst,pattern)                        \
+        if (nullp(pattern) && mconsp(*subst)) {         \
           if (TRIVIAL_P(Car(*subst))) {                 \
             RET_POP(subst);                             \
           } else if (eq(Car(*subst),S(Khost))) {        \
             *subst = Cdr(*subst);                       \
-            return muster;                              \
+            return pattern;                             \
           } else                                        \
             return nullobj;                             \
         }
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
-    TRAN_HOST(subst,muster);
+    TRAN_HOST(subst,pattern);
   } else
  #endif
   {
  #if HAS_HOST
-    TRAN_HOST(subst,muster);
+    TRAN_HOST(subst,pattern);
  #endif
   }
  #if HAS_HOST
   if (eq(Car(*subst),S(Khost)))
     *subst = Cdr(*subst);
  #endif
-  return muster;
+  return pattern;
  #undef TRAN_HOST
 }
-local object translate_device (object* subst, object muster, bool logical) {
+local object translate_device (object* subst, object pattern, bool logical) {
   DEBUG_TRAN(translate_device);
  #if HAS_DEVICE
   #ifdef LOGICAL_PATHNAMES
   if (logical) {
     if (eq(Car(*subst),S(Kdevice)))
       { *subst = Cdr(*subst); }
-    return muster;
+    return pattern;
   }
   #endif
   #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-  if (nullp(muster) && mconsp(*subst))
+  if (nullp(pattern) && mconsp(*subst))
   #else
-  if ((nullp(muster) || eq(muster,S(Kwild))) && mconsp(*subst))
+  if ((nullp(pattern) || eq(pattern,S(Kwild))) && mconsp(*subst))
   #endif
     {
       if (TRIVIAL_P(Car(*subst))) {
         RET_POP(subst);
       } else if (eq(Car(*subst),S(Kdevice))) {
         *subst = Cdr(*subst);
-        return muster;
+        return pattern;
       } else
         return nullobj;
     }
   if (eq(Car(*subst),S(Kdevice)))
     *subst = Cdr(*subst);
  #endif
-  return muster;
+  return pattern;
 }
-local object translate_nametype_aux (object* subst, object muster,
+local object translate_nametype_aux (object* subst, object pattern,
                                      bool logical) {
   DEBUG_TRAN(translate_nametype_aux);
-  if (eq(muster,S(Kwild)) && mconsp(*subst)) {
+  if (eq(pattern,S(Kwild)) && mconsp(*subst)) {
     if (TRIVIAL_P(Car(*subst))) {
       var object erg = Car(*subst); *subst = Cdr(*subst);
       return (nullp(erg) ? O(empty_string) : erg);
     } else
       return nullobj;
   }
-  if (simple_string_p(muster)) {
-    pushSTACK(muster); # save muster
-    var object* muster_ = &STACK_0;
-    var uintL len = Sstring_length(muster);
+  if (simple_string_p(pattern)) {
+    pushSTACK(pattern); # save pattern
+    var object* pattern_ = &STACK_0;
+    var uintL len = Sstring_length(pattern);
     var uintL index = 0;
     var uintL stringcount = 0; # number of strings on the stack
     loop {
       var uintL last_index = index;
       var chart c;
       # search next wildcard-character:
-      muster = *muster_;
+      pattern = *pattern_;
       loop {
         if (index == len)
           break;
-        c = TheSstring(muster)->data[index];
+        c = TheSstring(pattern)->data[index];
         if ((chareq(c,ascii('*')) # wildcard for arbitrary many characters
              || (!logical && singlewild_char_p(c))) # wildcard for exactly one character
             && mconsp(*subst))
@@ -5581,7 +5581,7 @@ local object translate_nametype_aux (object* subst, object muster,
         index++;
       }
       # Next substring on the stack:
-      pushSTACK(subsstring(muster,last_index,index)); # (SUBSTRING muster last_index index)
+      pushSTACK(subsstring(pattern,last_index,index)); # (SUBSTRING pattern last_index index)
       stringcount++;
       # finished?
       if (index == len)
@@ -5597,25 +5597,26 @@ local object translate_nametype_aux (object* subst, object muster,
       index++;
     }
     value1 = string_concat(stringcount);
-    skipSTACK(1); # skip muster
+    skipSTACK(1); # skip pattern
     return value1;
   }
-  return muster;
+  return pattern;
 }
-local object translate_subdir (object* subst, object muster, bool logical) {
+local object translate_subdir (object* subst, object pattern, bool logical) {
   DEBUG_TRAN(translate_subdir);
  #ifdef LOGICAL_PATHNAMES
   if (logical)
-    return translate_nametype_aux(subst,muster,logical);
+    return translate_nametype_aux(subst,pattern,logical);
  #endif
  #ifdef PATHNAME_NOEXT
-  return translate_nametype_aux(subst,muster,false);
+  return translate_nametype_aux(subst,pattern,false);
  #endif
 }
-local object translate_directory (object* subst, object muster, bool logical) {
+local object translate_directory (object* subst, object pattern,
+                                  bool logical) {
   DEBUG_TRAN(translate_directory);
-  # compare muster with O(directory_default):
-  if (eq(Car(muster),S(Krelative)) && nullp(Cdr(muster))
+  # compare pattern with O(directory_default):
+  if (eq(Car(pattern),S(Krelative)) && nullp(Cdr(pattern))
       && mconsp(*subst) && mconsp(Car(*subst))) {
     var object list = Car(*subst); *subst = Cdr(*subst);
     if (eq(Car(list),S(Kabsolute)) || eq(Car(list),S(Krelative)))
@@ -5623,19 +5624,19 @@ local object translate_directory (object* subst, object muster, bool logical) {
     else
       return nullobj;
   }
-  # if subst is :relative while muster is :absolute, nothing is to be done
-  if (eq(Car(muster),S(Kabsolute)) && mconsp(*subst)
+  # if subst is :relative while pattern is :absolute, nothing is to be done
+  if (eq(Car(pattern),S(Kabsolute)) && mconsp(*subst)
       && mconsp(Car(*subst)) && eq(Car(Car(*subst)),S(Krelative))) {
     *subst = Cdr(*subst);
-    return copy_list(muster);
+    return copy_list(pattern);
   }
   var uintL itemcount = 0; # number of items on the stack
   # Startpoint:
-  pushSTACK(Car(muster)); muster = Cdr(muster); itemcount++;
+  pushSTACK(Car(pattern)); pattern = Cdr(pattern); itemcount++;
   # subdirs:
-  while (consp(muster)) {
-    var object item = Car(muster);
-    muster = Cdr(muster);
+  while (consp(pattern)) {
+    var object item = Car(pattern);
+    pattern = Cdr(pattern);
     if (eq(item,S(Kwild_inferiors))) {
       if (mconsp(*subst)) {
         if (consp(Car(*subst)) && eq(Car(Car(*subst)),S(Kdirectory))) {
@@ -5650,29 +5651,29 @@ local object translate_directory (object* subst, object muster, bool logical) {
         pushSTACK(item); itemcount++;
       }
     } else {
-      pushSTACK(muster); # save muster
+      pushSTACK(pattern); # save pattern
       item = translate_subdir(subst,item,logical);
       if (eq(item,nullobj)) { skipSTACK(itemcount+1); return nullobj; }
-      muster = STACK_0; STACK_0 = item; itemcount++;
+      pattern = STACK_0; STACK_0 = item; itemcount++;
     }
   }
   return listof(itemcount);
 }
-local object translate_nametype (object* subst, object muster, bool logical) {
+local object translate_nametype (object* subst, object pattern, bool logical) {
   DEBUG_TRAN(translate_nametype);
-  if (nullp(muster) && mconsp(*subst)) {
+  if (nullp(pattern) && mconsp(*subst)) {
     if (SIMPLE_P(Car(*subst))) {
       RET_POP(subst);
     } else
       return nullobj;
   }
-  return translate_nametype_aux(subst,muster,logical);
+  return translate_nametype_aux(subst,pattern,logical);
 }
-local object translate_version (object* subst, object muster, bool logical) {
+local object translate_version (object* subst, object pattern, bool logical) {
   DEBUG_TRAN(translate_version);
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
-    if ((nullp(muster) || eq(muster,S(Kwild))) && mconsp(*subst)) {
+    if ((nullp(pattern) || eq(pattern,S(Kwild))) && mconsp(*subst)) {
       if (SIMPLE_P(Car(*subst))) {
         var object erg = Car(*subst); *subst = Cdr(*subst);
         if (nullp(erg))
@@ -5682,11 +5683,11 @@ local object translate_version (object* subst, object muster, bool logical) {
       } else
         return nullobj;
     }
-    return muster;
+    return pattern;
   }
  #endif
  #if HAS_VERSION
-  if ((nullp(muster) || eq(muster,S(Kwild))) && mconsp(*subst)) {
+  if ((nullp(pattern) || eq(pattern,S(Kwild))) && mconsp(*subst)) {
     if (SIMPLE_P(Car(*subst))) {
       var object erg = Car(*subst); *subst = Cdr(*subst);
       if (nullp(erg))
@@ -5696,7 +5697,7 @@ local object translate_version (object* subst, object muster, bool logical) {
     } else
       return nullobj;
       }
-  return muster;
+  return pattern;
  #else
   if (mconsp(*subst)) {
     if (SIMPLE_P(Car(*subst))) {
@@ -5711,13 +5712,13 @@ local object translate_version (object* subst, object muster, bool logical) {
 #undef TRIVIAL_P
 #undef RET_POP
 #undef DEBUG_TRAN
-local object translate_pathname (object* subst, object muster) {
+local object translate_pathname (object* subst, object pattern) {
   var bool logical = false;
   var object item;
   pushSTACK(*subst); # save subst for the error message
-  pushSTACK(muster);
+  pushSTACK(pattern);
  #ifdef LOGICAL_PATHNAMES
-  if (logpathnamep(muster))
+  if (logpathnamep(pattern))
     logical = true;
  #endif
 #define GET_ITEM(what,xwhat,where,skip)                                     \
@@ -5726,7 +5727,7 @@ local object translate_pathname (object* subst, object muster) {
    DOUT(#what " > ",item); pushSTACK(S(K##xwhat)); pushSTACK(item)
 #define GET_ITEM_S(y,x,w) GET_ITEM(y,x,STACK_(w),w)
   # build together arguments for MAKE-PATHNAME:
-  GET_ITEM(host,host,muster,0);
+  GET_ITEM(host,host,pattern,0);
  #if HAS_DEVICE
   GET_ITEM_S(device,device,2);
  #endif
@@ -5746,7 +5747,7 @@ local object translate_pathname (object* subst, object muster) {
   skipSTACK(2);
   return value1;
  subst_error: # Error because of nullobj.
-  # stack layout: subst, muster.
+  # stack layout: subst, pattern.
   pushSTACK(STACK_1);
   pushSTACK(S(translate_pathname));
   fehler(error,GETTEXT("~: replacement pieces ~ do not fit into ~"));
@@ -5754,14 +5755,14 @@ local object translate_pathname (object* subst, object muster) {
 #undef GET_ITEM
 #undef GET_ITEM_S
 
-# (TRANSLATE-PATHNAME beispiel muster1 muster2 [:all] [:merge]), CLtL2 p. 624
+# (TRANSLATE-PATHNAME sample pattern1 pattern2 [:all] [:merge]), CLtL2 p. 624
 # :all = T --> return a list of all fitting pathnames
 # :all = NIL --> Error, if more than one pathname fits
 # :merge = NIL --> skip last MERGE-PATHNAMES step
 LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge))) {
-  # stack layout: beispiel, muster1, muster2, all, merge.
-  var bool logical = false; # Flag, if beispiel and muster are logical pathnames
-  var bool logical2 = false; # Flag, if muster2 is a logical pathname
+  # stack layout: sample, pattern1, pattern2, all, merge.
+  var bool logical = false; # Flag, if sample and pattern are logical pathnames
+  var bool logical2 = false; # Flag, if pattern2 is a logical pathname
   STACK_4 = coerce_xpathname(STACK_4);
   STACK_3 = coerce_xpathname(STACK_3);
   STACK_2 = coerce_xpathname(STACK_2);
@@ -5835,7 +5836,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge))) {
     STACK_1 = Cdr(solutions);
     {
       var object solution = reverse(Car(solutions)); # reverse list solution
-      # 2. step: insert substitution in muster2.
+      # 2. step: insert substitution in pattern2.
      #ifdef LOGICAL_PATHNAMES
       # convert capital-/small letters suitably:
       if (!logical) {
@@ -5849,7 +5850,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge))) {
       pushSTACK(solution);
       STACK_0 = translate_pathname(&STACK_0,STACK_(2+1+2));
     }
-    # 3. step: (MERGE-PATHNAMES modifiziertes_muster2 beispiel :WILD T)
+    # 3. step: (MERGE-PATHNAMES modified_pattern2 sample :WILD T)
     if (!nullp(STACK_(0+1+2))) # query :MERGE-Argument
       if (has_some_wildcards(STACK_0)) { # MERGE-PATHNAMES may be unnecessary
         pushSTACK(STACK_(4+1+2)); pushSTACK(unbound);
