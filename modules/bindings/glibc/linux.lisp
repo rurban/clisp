@@ -4,9 +4,9 @@
 ;; Sam Steingold 2002-2003
 
 (defpackage "LINUX"
-  (:case-sensitive t) (:case-inverted t)
+  (:modern t)
   (:nicknames "UNIX" "GLIBC")
-  (:use "CS-COMMON-LISP" "FFI")
+  (:use "COMMON-LISP" "FFI")
   (:shadowing-import-from "EXPORTING"
            #:defconstant #:defun #:defmacro #:define-modify-macro
            #:define-symbol-macro #:defsetf

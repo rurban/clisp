@@ -4,8 +4,8 @@
 ;; This is free software, distributed under the GNU GPL
 
 (defpackage #:pari
-  (:case-sensitive t) (:case-inverted t)
-  (:use #:cs-cl #:ffi))
+  (:modern t)
+  (:use #:cl #:ffi))
 (in-package #:pari)
 
 (default-foreign-language :stdc)
