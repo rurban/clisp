@@ -224,43 +224,72 @@
 
 ;;; functions for lists (Chapter 15)
 
+;; convert the SET represented as a LIST to a SET represented as a HASH-TABLE
+(defun list-to-ht (list &key test test-not key)
+  (unless test-not
+    (let ((ht-test (case test
+                     (eq 'fasthash-eq)
+                     ((eql nil) 'fasthash-eql)
+                     (equal 'fasthash-equal)
+                     (equalp 'fasthash-equalp))))
+      (when ht-test
+        (let ((ht (make-hash-table :test ht-test)))
+          (unless key (setq key #'identity))
+          (do ((tail list (cdr tail)))
+              ((endp tail) ht)
+            (sys::puthash (funcall key (car tail)) ht tail)))))))
+
 ;; Auxiliary version of MEMBER, which applies the :KEY argument also to items
 (defun sys::member1 (item list &rest rest &key test test-not key)
   (declare (ignore test test-not))
   (apply #'member (if key (funcall key item) item) list rest))
 
+(macrolet ((sys::member2 (item table key)
+             ;; values are non-NIL tails, so first value is good enough
+             (let ((i (gensym "ITEM-")) (k (gensym "KEY-")))
+               `(let ((,i ,item) (,k ,key))
+                  (gethash (if ,k (funcall ,k ,i) ,i) ,table)))))
+
 (defun union (list1 list2 &rest rest &key test test-not key)
-  (declare (ignore test test-not key))
+  (declare (ignore test test-not))
   #| ; recursive (not suitable for long lists):
   (cond ((endp list1) list2)
         ((apply #'sys::member1 (car list1) list2 rest)
          (apply #'union (cdr list1) list2 rest))
         (t (cons (car list1) (apply #'union (cdr list1) list2 rest))))
   |# ; iterative
-  (let ((list1-filtered '()))
+  (let* ((list1-filtered '())
+         (ht2 (apply #'list-to-ht list2 rest))
+         (member? (if ht2
+                      (lambda (item) (sys::member2 item ht2 key))
+                      (lambda (item) (apply #'sys::member1 item list2 rest)))))
     (dolist (item list1)
-      (unless (apply #'sys::member1 item list2 rest)
+      (unless (funcall member? item)
         (setq list1-filtered (cons item list1-filtered))))
     (nreconc list1-filtered list2)))
 
 (defun nunion (list1 list2 &rest rest &key test test-not key)
-  (declare (ignore test test-not key))
+  (declare (ignore test test-not))
   #| ; recursive (not suitable for long lists):
   (cond ((endp list1) list2)
         ((apply #'sys::member1 (car list1) list2 rest)
          (apply #'nunion (cdr list1) list2 rest))
         (t (rplacd list1 (apply #'nunion (cdr list1) list2 rest))))
   |# ; iterative
-  (let ((first nil) (last nil))
+  (let* ((first nil) (last nil)
+         (ht2 (apply #'list-to-ht list2 rest))
+         (member? (if ht2
+                      (lambda (item) (sys::member2 item ht2 key))
+                      (lambda (item) (apply #'sys::member1 item list2 rest)))))
     (do ((l list1 (cdr l)))
         ((endp l))
-      (unless (apply #'sys::member1 (car l) list2 rest)
+      (unless (funcall member? (car l))
         (if last (rplacd last l) (setq first l))
         (setq last l)))
     (if last (progn (rplacd last list2) first) list2)))
 
 (defun intersection (list1 list2 &rest rest &key test test-not key)
-  (declare (ignore test test-not key))
+  (declare (ignore test test-not))
   #| ; recursive (not suitable for long lists):
   (cond ((endp list1) nil)
         ((apply #'sys::member1 (car list1) list2 rest)
@@ -268,30 +297,38 @@
                (apply #'intersection (cdr list1) list2 rest)))
         (t (apply #'intersection (cdr list1) list2 rest)))
   |# ; iterative
-  (let ((list1-filtered '()))
+  (let* ((list1-filtered '())
+         (ht2 (apply #'list-to-ht list2 rest))
+         (member? (if ht2
+                      (lambda (item) (sys::member2 item ht2 key))
+                      (lambda (item) (apply #'sys::member1 item list2 rest)))))
     (dolist (item list1)
-      (when (apply #'sys::member1 item list2 rest)
+      (when (funcall member? item)
         (setq list1-filtered (cons item list1-filtered))))
     (list-nreverse list1-filtered)))
 
 (defun nintersection (list1 list2 &rest rest &key test test-not key)
-  (declare (ignore test test-not key))
+  (declare (ignore test test-not))
   #| ; recursive (not suitable for long lists):
   (cond ((endp list1) nil)
         ((apply #'sys::member1 (car list1) list2 rest)
          (rplacd list1 (apply #'nintersection (cdr list1) list2 rest)))
         (t (apply #'nintersection (cdr list1) list2 rest)))
   |# ; iterative
-  (let ((first nil) (last nil))
+  (let* ((first nil) (last nil)
+         (ht2 (apply #'list-to-ht list2 rest))
+         (member? (if ht2
+                      (lambda (item) (sys::member2 item ht2 key))
+                      (lambda (item) (apply #'sys::member1 item list2 rest)))))
     (do ((l list1 (cdr l)))
         ((endp l))
-      (when (apply #'sys::member1 (car l) list2 rest)
+      (when (funcall member? (car l))
         (if last (rplacd last l) (setq first l))
         (setq last l)))
     (if last (progn (rplacd last nil) first) nil)))
 
 (defun set-difference (list1 list2 &rest rest &key test test-not key)
-  (declare (ignore test test-not key))
+  (declare (ignore test test-not))
   #| ; recursive (not suitable for long lists):
   (cond ((endp list1) nil)
         ((not (apply #'sys::member1 (car list1) list2 rest))
@@ -299,24 +336,32 @@
                (apply #'set-difference (cdr list1) list2 rest)))
         (t (apply #'set-difference (cdr list1) list2 rest)))
   |# ; iterative
-  (let ((list1-filtered '()))
+  (let* ((list1-filtered '())
+         (ht2 (apply #'list-to-ht list2 rest))
+         (member? (if ht2
+                      (lambda (item) (sys::member2 item ht2 key))
+                      (lambda (item) (apply #'sys::member1 item list2 rest)))))
     (dolist (item list1)
-      (unless (apply #'sys::member1 item list2 rest)
+      (unless (funcall member? item)
         (setq list1-filtered (cons item list1-filtered))))
     (list-nreverse list1-filtered)))
 
 (defun nset-difference (list1 list2 &rest rest &key test test-not key)
-  (declare (ignore test test-not key))
+  (declare (ignore test test-not))
   #| ; recursive (not suitable for long lists):
   (cond ((endp list1) nil)
         ((not (apply #'sys::member1 (car list1) list2 rest))
          (rplacd list1 (apply #'nset-difference (cdr list1) list2 rest)))
         (t (apply #'nset-difference (cdr list1) list2 rest)))
   |# ; iterative
-  (let ((first nil) (last nil))
+  (let* ((first nil) (last nil)
+         (ht2 (apply #'list-to-ht list2 rest))
+         (member? (if ht2
+                      (lambda (item) (sys::member2 item ht2 key))
+                      (lambda (item) (apply #'sys::member1 item list2 rest)))))
     (do ((l list1 (cdr l)))
         ((endp l))
-      (unless (apply #'sys::member1 (car l) list2 rest)
+      (unless (funcall member? (car l))
         (if last (rplacd last l) (setq first l))
         (setq last l)))
     (if last (progn (rplacd last nil) first) nil)))
@@ -343,10 +388,16 @@
 ) ; macrolet rev-arg
 
 (defun subsetp (list1 list2 &rest rest &key test test-not key)
-  (declare (ignore test test-not key))
-  (do ((l list1 (cdr l)))
-      ((endp l) t)
-    (if (not (apply #'sys::member1 (car l) list2 rest)) (return nil))))
+  (declare (ignore test test-not))
+  (do* ((l list1 (cdr l))
+        (ht2 (apply #'list-to-ht list2 rest))
+        (member? (if ht2
+                     (lambda (item) (sys::member2 item ht2 key))
+                     (lambda (item) (apply #'sys::member1 item list2 rest)))))
+       ((endp l) t)
+    (if (not (funcall member? (car l))) (return nil))))
+
+) ; macrolet sys::member2
 
 ;; Like SUBST-IF, only that the substitution element is
 ;; given by a function and must not be a constant
