@@ -13013,7 +13013,7 @@ extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
   # is used by the FFI
 #endif
 
-#if defined(intQsize) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4)
+#if defined(intQsize) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4) || (SIZEOF_INO_T > 4)
   # Converts an unsigned quadword into an Integer >=0.
   # UQ_to_I(wert)
   # > wert: value of the Integer, an unsigned 64-bit-Integer.

@@ -1272,7 +1272,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
      #ifdef UNIX
       var struct stat statbuf;
       if (fstat(handle,&statbuf) < 0) goto abort1;
-      if ((uintL)statbuf.st_size < file_offset) goto abort2;
+      if (statbuf.st_size < file_offset) goto abort2;
      #endif
      #ifdef WIN32_NATIVE
       var DWORD fsize = GetFileSize(handle,NULL);

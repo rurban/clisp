@@ -135,6 +135,8 @@ dnl DEFS SOCKLEN_T
 CL_SOCKLEN_T
 dnl DEFS SIZEOF_OFF_T
 AC_CHECK_SIZEOF([off_t])
+dnl DEFS SIZEOF_INO_T
+AC_CHECK_SIZEOF([ino_t])
 dnl
 AC_MSG_NOTICE([* checks for structure members])
 dnl
