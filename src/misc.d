@@ -55,23 +55,26 @@ LISPFUNN(lisp_implementation_version,0)
             ztime[11]=0;
             ye = atol(ztime+7);
           });
-          # YYYY-MM-DD HH:MM:SS
-          var char build_time[4+1+2+1+2 +1+ 2+1+2+1+2+1];
-          if (eq(unbound,Symbol_function(S(encode_universal_time)))) {
-            sprintf(build_time,"%04d-%02d-%02d %02d:%02d:%02d",
-                    ye,mo,da,ho,mi,se);
-          } else {
-            pushSTACK(fixnum(se));
-            pushSTACK(fixnum(mi));
-            pushSTACK(fixnum(ho));
-            pushSTACK(fixnum(da));
-            pushSTACK(fixnum(mo));
-            pushSTACK(fixnum(ye));
-            funcall(S(encode_universal_time),6);
-            sprintf(build_time,"%u",I_to_UL(value1));
+          # no month ==> l_i_v_b_s must have been converted already
+          if (mo != 0) {
+            # YYYY-MM-DD HH:MM:SS
+            var char build_time[4+1+2+1+2 +1+ 2+1+2+1+2+1];
+            if (eq(unbound,Symbol_function(S(encode_universal_time)))) {
+              sprintf(build_time,"%04d-%02d-%02d %02d:%02d:%02d",
+                      ye,mo,da,ho,mi,se);
+            } else {
+              pushSTACK(fixnum(se));
+              pushSTACK(fixnum(mi));
+              pushSTACK(fixnum(ho));
+              pushSTACK(fixnum(da));
+              pushSTACK(fixnum(mo));
+              pushSTACK(fixnum(ye));
+              funcall(S(encode_universal_time),6);
+              sprintf(build_time,"%u",I_to_UL(value1));
+            }
+            O(lisp_implementation_version_built_string) =
+              ascii_to_string(build_time);
           }
-          O(lisp_implementation_version_built_string) =
-            ascii_to_string(build_time);
           pushSTACK(ascii_to_string(") (built "));
           pushSTACK(O(lisp_implementation_version_built_string));
           count += 2;
