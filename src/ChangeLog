@@ -1,5 +1,9 @@
 1999-04-07  Sam Steingold  <sds@goems.com>
 
+	* control.d (constantp): arrays are constants too.
+
+1999-04-07  Sam Steingold  <sds@goems.com>
+
 	Implemented ANSI CL issue KEYWORD-ARGUMENT-NAME-PACKAGE:ANY.
 	* eval.d (get_closure, check_for_illegal_keywords): accept symbols
 	as keywords.

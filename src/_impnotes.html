@@ -385,16 +385,16 @@ functions written in C, compiled functions (both of type
 <h3><a href="CLHSROOT/Body/sec_3-1-1.html">
     3.1.1 Introduction to Environments</a></h3>
 
-<h4>the-environment</h4>
+<h4>lisp:the-environment</h4>
 
 <p>As in Scheme, the macro <code>(<strong>lisp:the-environment</strong>)</code>
 returns the current lexical environment. This works only in interpreted code
 and is not compilable!
 
-<h4>eval-env</h4>
+<h4>lisp:eval-env</h4>
 
 <p><code>(<strong>lisp:eval-env</strong> <var>form</var>
-          [<var>env</var>])</code>
+          &amp;optional <var>env</var>)</code>
 evaluates a form in a given lexical environment, just if the form had
 been part of the program text that environment came from.
 
@@ -406,7 +406,7 @@ been part of the program text that environment came from.
 <h3><a href="CLHSROOT/Body/sec_3-2-4-2-2.html">
     3.2.4.2.2 Definition of Similarity</a></h3>
 
-<p>Hash-tables are externalizable objects.
+<p>Hash tables are externalizable objects.
 
 <h3><a href="CLHSROOT/Body/sec_3-3.html">
     3.3 Declarations</a></h3>
@@ -604,10 +604,13 @@ type.
       <a href="CLHSROOT/Body/fun_bytecm_by_yte-position.html">
       <code>byte</code></a>
   <li><code>special-operator</code>, <code>load-time-eval</code>,
-      <code>symbol-macro</code>, <code>encoding</code>,
+      <code>symbol-macro</code>,
+      <a href="#encoding"><code>encoding</code></a>,
       <code>foreign-variable</code>, <code>foreign-function</code>
-  <li><code>weak-pointer</code>, <code>read-label</code>,
-      <code>frame-pointer</code>, <code>system-internal</code>
+  <li><a href="#weak"><code>weak-pointer</code></a>,
+      <a href="#reader"><code>read-label</code></a>,
+      <a href="#reader"><code>frame-pointer</code></a>,
+      <code>system-internal</code>
   <li><code>address</code> (should not occur)
   <li>any other symbol (structure types or CLOS classes)
   <li>a class (CLOS classes without proper name)
@@ -935,7 +938,7 @@ defined with <a href="CLHSROOT/Body/speope_symbol-macrolet.html">
 
 <p>The function <code><strong>lisp:symbol-macro-expand</strong></code>
 tests for a symbol macro: If <var>symbol</var> is defined as symbol
-macro, <code>(symbol-macro-expand <var>symbol</var>)</code> returns two
+macro, <code>(lisp:symbol-macro-expand <var>symbol</var>)</code> returns two
 values, <a href="CLHSROOT/Body/convar_t.html">
 <code>t</code></a> and the expansion, else it returns
 <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
@@ -1247,9 +1250,9 @@ like. The following rules must be obeyed:
   <code>*print-gensym*</code></a>,
   <a href="CLHSROOT/Body/var_stprint-arrayst.html">
   <code>*print-array*</code></a>,
-  <code>lisp:*print-closure*</code>,
-  <code>lisp:*print-rpars*</code>,
-  <code>lisp:*print-indent-lists*</code>.
+  <a href="#pr-closure"><code>lisp:*print-closure*</code></a>,
+  <a href="#pr-rpars"><code>lisp:*print-rpars*</code></a>,
+  <a href="#pr-indent"><code>lisp:*print-indent-lists*</code></a>.
 </ul>
 
 <p>The <code>:inherit</code> option is exactly like
@@ -1267,12 +1270,14 @@ one) lists the available <a href="#debugger">debugging commands</a>.
 <p>The macro <code>(<strong>lisp:muffle-cerrors</strong>
 {<var>form</var>}*)</code> executes the <var>form</var>s. When a
 continuable error occurs, no message is printed. Instead, the
-<code>continue</code> restart is invoked.
+<a href="CLHSROOT/Body/res_continue.html">
+<code>continue</code></a> restart is invoked.
 
 <p>The macro <code>(<strong>lisp:appease-cerrors</strong>
 {<var>form</var>}*)</code> executes the <var>form</var>s. When a
 continuable error occurs, the error is printed as a warning and the
-<code>continue</code> restart is invoked.
+<a href="CLHSROOT/Body/res_continue.html">
+<code>continue</code></a> restart is invoked.
 
 <p>The macro <code>(<strong>lisp:exit-on-error</strong>
 {<var>form</var>}*)</code> executes the <var>form</var>s. When a
@@ -1284,11 +1289,12 @@ and CLISP terminates with error status.
 <code>restart-case</code></a>, except that the forms are specified after
 the restart clauses instead of before them, and the restarts created are
 not implicitly associated to any condition.
-  <code>(with-restarts
+  <code>(lisp:with-restarts
   (</code>{<var>restart-clause</var>}*<code>)</code>
   {<var>form</var>}*<code>)</code>
-is therefore equivalent to <code>(restart-case (progn
-</code>{<var>form</var>}*<code>)</code>
+is therefore equivalent to <code>(<a
+href="CLHSROOT/Body/mac_restart-case.html">restart-case</a>
+(progn </code>{<var>form</var>}*<code>)</code>
 {<var>restart-clause</var>}*<code>)</code>.
 
 <h3><a href="CLHSROOT/Body/sec_9-1-3-1-3.html">
@@ -1337,14 +1343,14 @@ with
 <p><a href="CLHSROOT/Body/fun_compute-restarts.html">
 <code>compute-restarts</code></a> and
 <a href="CLHSROOT/Body/fun_find-restart.html">
-<code>find-restart</code></a> behave as
-specified in ANSI CL: If the optional condition argument is not
-<code>nil</code>, only restarts associated with that condition and
-restarts associated to no condition at all are considered.  Therefore
-the effect of associating a restart to a condition is not to activate
-it, but to hide it from other conditions. This makes the syntax
-dependent implicit association performed by
-<a href="CLHSROOT/Body/mac_restart-case.html">
+<code>find-restart</code></a> behave as specified in ANSI CL: If the
+optional condition argument is non-<a href="CLHSROOT/Body/typ_nil.html
+convar_nil.html"><code>nil</code></a>, only restarts associated with
+that condition and restarts associated to no condition at all are
+considered.  Therefore the effect of associating a restart to a
+condition is not to activate it, but to hide it from other
+conditions. This makes the syntax dependent implicit association
+performed by <a href="CLHSROOT/Body/mac_restart-case.html">
 <code>restart-case</code></a> nearly obsolete.
 
 <h4><a href="CLHSROOT/Body/fun_warn.html">
@@ -1515,7 +1521,9 @@ double-float and long-float:
 <p>The single and double float formats are those of the IEEE standard
 (1981), except that CLISP does not support features like +0, -0, +inf,
 -inf, gradual underflow, NaN, etc. (Common Lisp does not make use of
-these features.)
+these features.)  This is why <a
+href="#features"><code>*features*</code></a> does not contain the
+:IEEE-FLOATING-POINT.
 
 <p>Long floats have variable mantissa length, which is a multiple of 16
 (or 32, depending on the word size of the processor). The default length
@@ -1693,12 +1701,12 @@ signals an error if <var>base</var> = 1.
 <h4><a href="CLHSROOT/Body/convar_pi.html">pi</a></h4>
 
 <p>The value of <a href="CLHSROOT/Body/convar_pi.html">
-<code>pi</code></a> is a long float with the precision given
-by <a href="#lfd"><code>(long-float-digits)</code></a>. When this
+<code>pi</code></a> is a long float with the precision given by <a
+href="#lfd"><code>(lisp:long-float-digits)</code></a>.  When this
 precision is changed, the value of <a href="CLHSROOT/Body/convar_pi.html">
-<code>pi</code></a> is automatically
-recomputed. Therefore <a href="CLHSROOT/Body/convar_pi.html">
-<code>pi</code></a> is a variable, not a constant.
+<code>pi</code></a> is automatically recomputed.  Therefore <a
+href="CLHSROOT/Body/convar_pi.html"> <code>pi</code></a> is a variable, not
+a constant.
 
 <h4><a href="CLHSROOT/Body/fun_decode-fl_decode-float.html">
     float decoding</a></h4>
@@ -2360,11 +2368,11 @@ have names:
 
 <h3>obsolete constants</h3>
 
-<table>
- <tr><th align=left><code>lisp:char-control-bit</code> <td>= <td> 1
- <tr><th align=left><code>lisp:char-meta-bit</code>    <td>= <td> 2
- <tr><th align=left><code>lisp:char-super-bit</code>   <td>= <td> 4
- <tr><th align=left><code>lisp:char-hyper-bit</code>   <td>= <td> 8
+<table border=1>
+ <tr><th align=left><code>lisp:char-control-bit</code> <td> 1
+ <tr><th align=left><code>lisp:char-meta-bit</code>    <td> 2
+ <tr><th align=left><code>lisp:char-super-bit</code>   <td> 4
+ <tr><th align=left><code>lisp:char-hyper-bit</code>   <td> 8
 </table>
 
 
@@ -3604,7 +3612,8 @@ not replaced by corresponding pieces of <var>source</var>.
     parse-namestring</a></h4>
 
 <p><code>(<a href="CLHSROOT/Body/fun_parse-namestring.html">parse-namestring</a>
-          <var>string</var> [<var>host</var> [<var>defaults</var>]])</code>
+          <var>string</var> &amp;optional
+          <var>host</var> <var>defaults</var>)</code>
 returns a logical pathname only if host is a logical host or host is
 <a href="CLHSROOT/Body/convar_nil.html">
 <code>nil</code></a> and defaults is a logical pathname.  To construct a
@@ -3708,8 +3717,9 @@ of <var>pathname</var> doesn't exist.
 <h4><a href="CLHSROOT/Body/fun_directory.html">
     directory</a></h4>
 
-<p><code>(directory [<var>pathname</var> [:full] [:circle]])</code> can
-run in two modes:
+<p><code>(<a href="CLHSROOT/Body/fun_directory.html">directory</a>
+           &amp;optional <var>pathname</var> &amp;key :full :circle)</code>
+  can run in two modes:
 <ul>
  <li>If <var>pathname</var> contains no name or type component, a list
   of all matching directories is produced.
@@ -3731,9 +3741,11 @@ the function avoids endless loops that may result from symbolic links.
 </dl>
 <!-- #endif -->
 
-<p><code>(<strong>lisp:dir</strong> [<var>pathname</var>])</code> is
-like <code>directory</code>, but displays the pathnames instead of
-returning them. <code>(lisp:dir)</code> shows the contents of the current
+<p><code>(<strong>lisp:dir</strong> &amp;optional
+<var>pathname</var>)</code> is like <a
+href="CLHSROOT/Body/fun_directory.html"> <code>directory</code></a>, but
+displays the pathnames instead of returning
+them. <code>(lisp:dir)</code> shows the contents of the current
 directory.
 
 <p><dl>
@@ -3782,7 +3794,8 @@ prompt one might output.
  <dt><em>Platform dependent: UNIX, DOS, OS/2 platforms only, and only in
   clisp binaries built without compile-time flag
   <code>NO_READLINE</code>.</em>
- <dd>Input through <code>*terminal-io*</code> uses the GNU readline
+ <dd>Input through <a href="CLHSROOT/Body/var_stterminal-iost.html">
+  <code>*terminal-io*</code></a> uses the GNU readline
   library. Arrow keys can be used to move within the input history. The
   Tab key completes the symbol's name that is being typed.  See
   <a href="clreadline.html">clreadline.html</a> or
@@ -3903,28 +3916,28 @@ output to the printer.
 
 <p><a name="pipe"></a><dl>
 <dt><em>Platform dependent: UNIX, OS/2, Win32 platforms only.</em><dd>
-<dl><dt><code>(<strong>make-pipe-input-stream</strong>
-           &amp;key <var>command</var>
-           [<a href="#eltype">:element-type</a>]
-           [<a href="#extfmt">:external-format</a>]
-           [<a href="#buffered">:buffered</a>])</code>
+<dl><dt><code>(<strong>lisp:make-pipe-input-stream</strong>
+           <var>command</var> &amp;key
+           <a href="#eltype">:element-type</a>
+           <a href="#extfmt">:external-format</a>
+           <a href="#buffered">:buffered</a>)</code>
 <dd>returns an input stream that will supply the output from the
 execution of the given operating system command.
 
-<dt><code>(<strong>make-pipe-output-stream</strong>
-          &amp;key <var>command</var>
-          [<a href="#eltype">:element-type</a>]
-          [<a href="#extfmt">:external-format</a>]
-          [<a href="#buffered">:buffered</a>])</code>
+<dt><code>(<strong>lisp:make-pipe-output-stream</strong>
+          <var>command</var> &amp;key
+          <a href="#eltype">:element-type</a>
+          <a href="#extfmt">:external-format</a>
+          <a href="#buffered">:buffered</a>)</code>
 <dd>returns an output stream that will pass its output as input to
 the execution of the given operating system command.
 
 <!-- #ifdef PIPES2 -->
-<dt><code>(<strong>make-pipe-io-stream</strong>
-          &amp;key <var>command</var>
-          [<a href="#eltype">:element-type</a>]
-          [<a href="#extfmt">:external-format</a>]
-          [<a href="#buffered">:buffered</a>])</code>
+<dt><code>(<strong>lisp:make-pipe-io-stream</strong>
+          <var>command</var> &amp;key
+          <a href="#eltype">:element-type</a>
+          <a href="#extfmt">:external-format</a>
+          <a href="#buffered">:buffered</a>)</code>
 <dd>returns three values. The first value is a bidirectional stream that
 will simultaneously pass its output as input to the execution of the
 given operating system command and supply the output from this command
@@ -3956,8 +3969,12 @@ called command as well.
 <p>For all functions that accept these keywords, the acceptable values are:
 <dl>
  <dt><a name="eltype"><code>:element-type</code></a>
-  <dd>types equivalent to <code>character</code> or <code>(unsigned-byte
-   <var>n</var>)</code>, <code>(signed-byte <var>n</var>)</code>; if the
+  <dd>types equivalent to <a href="CLHSROOT/Body/syscla_character.html">
+   <code>character</code></a> or
+   <code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+   <var>n</var>)</code>,
+   <code>(<a href="CLHSROOT/Body/typ_signed-byte.html">signed-byte</a>
+   <var>n</var>)</code>; if the
    stream is to be unbuffered, <var>n</var> must be a multiple of 8.
  <dt><a name="extfmt"><code>:external-format</code></a>
   <dd>encodings, (constant) symbols in the <a
@@ -3966,7 +3983,7 @@ called command as well.
    <code>:default</code>, and the <a href="#newline">line terminator</a>
    keywords <code>:unix</code>, <code>:mac</code>, <code>:dos</code>.
    The default encoding is
-   <code><strong>lisp:*default-file-encoding*</strong></code>.
+   <a href="#def-file-enc"><code>lisp:*default-file-encoding*</code></a>.
  <dt><a name="buffered"><code>:buffered</code></a>
   <dd><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>,
       <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>,
@@ -3996,7 +4013,7 @@ Generic streams are user programmable streams. The programmer interface:
      <var>stream</var>)</code>
    <dd>returns a private object to which generic stream methods dispatch.
      The typical usage is to retrieve the object originally provided by the
-     user in <code>make-generic-stream</code>.
+     user in <code>lisp:make-generic-stream</code>.
 
   <dt><code>(<strong>lisp:generic-stream-p</strong>
     <var>stream</var>)</code>
@@ -4092,57 +4109,69 @@ functions <a href="CLHSROOT/Body/fun_open.html">
 <a href="#pipe"><code>lisp:make-pipe-io-stream</code></a>,
 <a href="#socket"><code>lisp:socket-accept</code></a>,
 <a href="#socket"><code>lisp:socket-connect</code></a> can be modified,
-if both the old and the new element type are either
+if the old and the new element type are either
 <ul>
-  <li>both equivalent to <code>character</code> or
-      <code>(unsigned-byte 8)</code> or <code>(signed-byte 8)</code>, or
-  <li>both equivalent to <code>(unsigned-byte <var>n</var>)</code> or
-      <code>(signed-byte <var>n</var>)</code>, with the same <var>n</var>.
+  <li>both equivalent to <a href="CLHSROOT/Body/syscla_character.html">
+      <code>character</code></a> or
+      <code>(<a
+      href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+      8)</code> or <code>(<a
+      href="CLHSROOT/Body/typ_signed-byte.html">signed-byte</a> 8)</code>,
+      or
+  <li>both equivalent to <code>(<a
+      href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+      <var>n</var>)</code> or
+      <code>(<a href="CLHSROOT/Body/typ_signed-byte.html">signed-byte</a>
+      <var>n</var>)</code>, with the same <var>n</var>.
 </ul>
 
-<h4>binary input,
-    <a href="CLHSROOT/Body/fun_read-byte.html">
+<h4>Binary input, <a href="CLHSROOT/Body/fun_read-byte.html">
     read-byte</a></h4>
 
 <p>The function
-<code>(<strong>read-integer</strong> <var>stream</var> <var>element-type</var>
-[<var>endianness</var> [<var>eof-error-p</var> [<var>eof-value</var>]]])</code>
-reads a multi-byte integer from <var>stream</var>.
-<var>stream</var> should be a stream with element-type
-<code>(unsigned-byte 8)</code>.
+<code>(<strong>lisp:read-integer</strong> <var>stream</var>
+       <var>element-type</var> &amp;optional <var>endianness</var>
+       <var>eof-error-p</var> <var>eof-value</var>)</code>
+reads a multi-byte integer from <var>stream</var>.  <var>stream</var>
+should be a stream with element-type <code>(<a
+href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a> 8)</code>.
 <var>element-type</var> should be a type equivalent to
-<code>(unsigned-byte <var>n</var>)</code>, where <var>n</var> is a multiple
-of 8.
-<code>(read-integer <var>stream</var> <var>element-type</var>)</code>
+<code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+<var>n</var>)</code>, where <var>n</var> is a multiple of 8.
+
+<p><code>(lisp:read-integer <var>stream</var> <var>element-type</var>)</code>
 is like <code>(<a href="CLHSROOT/Body/fun_read-byte.html">read-byte</a>
 <var>stream</var>)</code> if <var>stream</var>'s element type were set
-to <var>element-type</var>, except that <var>stream</var>'s
-<a href="CLHSROOT/Body/fun_file-position.html">file-position</a> will
-increase by <sup><var>n</var></sup>/<sub>8</sub> instead of 1.
+to <var>element-type</var>, except that <var>stream</var>'s <a
+href="CLHSROOT/Body/fun_file-position.html">file-position</a> will increase
+by <sup><var>n</var></sup>/<sub>8</sub> instead of 1.
 
 <p><var>endianness</var> can be <code>:little</code> or <code>:big</code>.
 The default is <code>:little</code>, which corresponds to the
 <a href="CLHSROOT/Body/fun_read-byte.html"><code>read-byte</code></a>
 behaviour in CLISP.
 
-<p>Together with <code>(setf stream-element-type)</code>, this function
-permits mixed character/binary input from a stream.
+<p>Together with <code>(setf <a
+href="CLHSROOT/Body/fun_stream-element-type.html">
+stream-element-type</a>)</code>, this function permits mixed
+character/binary input from a stream.
 
-<h4>binary output,
-    <a href="CLHSROOT/Body/fun_write-byte.html">
+<h4>Binary output, <a href="CLHSROOT/Body/fun_write-byte.html">
     write-byte</a></h4>
 
 <p>The function
-<code>(<strong>write-integer</strong> <var>integer</var> <var>stream</var>
-<var>element-type</var> [<var>endianness</var>])</code>
-writes a multi-byte integer to <var>stream</var>.
-<var>stream</var> should be a stream with element-type
-<code>(unsigned-byte 8)</code>.
+<code>(<strong>lisp:write-integer</strong> <var>integer</var>
+       <var>stream</var> <var>element-type</var>
+       &amp;optional <var>endianness</var>)</code>
+writes a multi-byte integer to <var>stream</var>.  <var>stream</var>
+should be a stream with element-type <code>(<a
+href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a> 8)</code>.
 <var>element-type</var> should be a type equivalent to
-<code>(unsigned-byte <var>n</var>)</code>, where <var>n</var> is a multiple
-of 8.
-<code>(write-integer <var>integer</var> <var>stream</var>
-<var>element-type</var>)</code>
+<code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+<var>n</var>)</code>, where <var>n</var> is a multiple of 8.
+
+<p><code>(lisp:write-integer <var>integer</var> <var>stream</var>
+          <var>element-type</var>)</code>
 is like <code>(<a href="CLHSROOT/Body/fun_write-byte.html">write-byte</a>
 <var>integer</var> <var>stream</var>)</code> if <var>stream</var>'s element
 type were set to <var>element-type</var>, except that <var>stream</var>'s
@@ -4154,14 +4183,103 @@ The default is <code>:little</code>, which corresponds to the
 <a href="CLHSROOT/Body/fun_write-byte.html"><code>write-byte</code></a>
 behaviour in CLISP.
 
-<p>Together with <code>(setf stream-element-type)</code>, this function
+<p>Together with <code>(setf <a href="CLHSROOT/Body/fun_stream-element-type.html">
+stream-element-type</a>)</code>, this function
 permits mixed character/binary output to a stream.
 
-<h4><a href="CLHSROOT/Body/fun_close.html">
-    close</a></h4>
+<h4><a href="CLHSROOT/Body/fun_read-sequence.html">
+    read-sequence</a></h4>
 
-<p><a href="CLHSROOT/Body/fun_close.html">
-<code>close</code></a> ignores its <code>:abort</code> argument.
+<p>In addition to <code>read-sequence</code>, the following two
+functions are provided:
+
+<dl>
+ <dt><code><strong>lisp:read-byte-sequence</strong></code>
+ performs multiple <a href="CLHSROOT/Body/fun_read-byte.html">
+ <code>read-byte</code></a> operations:
+
+ <dd><code>(lisp:read-byte-sequence <var>sequence</var> <var>stream</var>
+&amp;key :start :end)</code> fills the subsequence of <var>sequence</var>
+specified by <var><code>:start</code></var> and
+<var><code>:end</code></var> with integers consecutively read from
+<var>stream</var>. It returns the index of the first element of
+<var>sequence</var> that was not updated (= <var>end</var> or &lt;
+<var>end</var> if the stream reached its end).
+
+<p>This function is especially efficient if <var>sequence</var> is a
+<code>(<a href="CLHSROOT/Body/syscla_vector.html">vector</a> (<a
+href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a> 8))</code> and
+<var>stream</var> is a <a href="#open">file</a>/<a
+href="#pipe">pipe</a>/<a href="#socket">socket</a> stream with element
+type <code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+8)</code>.
+
+ <p><dt><code><strong>lisp:read-char-sequence</strong></code>
+ performs multiple <a href="CLHSROOT/Body/fun_read-char.html">
+ <code>read-char</code></a> operations:
+
+ <dd><code>(read-char-sequence <var>sequence</var> <var>stream</var>
+&amp;key :start :end)</code> fills the subsequence of <var>sequence</var>
+specified by <var><code>:start</code></var> and
+<var><code>:end</code></var> with characters consecutively read from
+<var>stream</var>. It returns the index of the first element of
+<var>sequence</var> that was not updated (= <var>end</var> or &lt;
+<var>end</var> if the stream reached its end).
+
+<p>This function is especially efficient if <var>sequence</var> is a
+<a href="CLHSROOT/Body/syscla_string.html">
+<code>string</code></a> and <var>stream</var> is a
+<a href="#open">file</a>/<a href="#pipe">pipe</a>/<a href="#socket">socket</a>
+with element type <a href="CLHSROOT/Body/syscla_character.html">
+<code>character</code></a> or an
+<a href="CLHSROOT/Body/glo_i.html#input">
+input</a> <a href="CLHSROOT/Body/glo_s.html#string_stream">
+string stream</a>.
+</dl>
+
+<h4><a href="CLHSROOT/Body/fun_write-sequence.html">
+    write-sequence</a></h4>
+
+<p>In addition to <a href="CLHSROOT/Body/fun_write-sequence.html">
+<code>write-sequence</code></a>, the following two
+functions are provided:
+
+<dl>
+ <dt><code><strong>lisp:write-byte-sequence</strong></code>
+ performs multiple <a href="CLHSROOT/Body/fun_write-byte.html">
+ <code>write-byte</code></a> operations:
+
+ <dd><code>(lisp:write-byte-sequence <var>sequence</var> <var>stream</var>
+&amp;key :start :end)</code> outputs the integers of the subsequence
+of <var>sequence</var> specified by <var><code>:start</code></var> and
+<var><code>:end</code></var> to <var>stream</var>. It returns
+<var>sequence</var>.
+
+<p>This function is especially efficient if <var>sequence</var> is a
+<code>(<a href="CLHSROOT/Body/syscla_vector.html">vector</a> (<a
+href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a> 8))</code> and
+<var>stream</var> is a <a href="#open">file</a>/<a
+href="#pipe">pipe</a>/<a href="#socket">socket</a> stream with element
+type <code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+8)</code>.
+
+ <p><dt><code><strong>lisp:write-char-sequence</strong></code>
+ performs multiple <a href="CLHSROOT/Body/fun_write-char.html">
+ <code>write-char</code></a> operations:
+
+ <dd><code>(lisp:write-char-sequence <var>sequence</var> <var>stream</var>
+&amp;key :start :end)</code> outputs the characters of the
+subsequence of <var>sequence</var> specified by
+<var><code>:start</code></var> and <var><code>:end</code></var> to
+<var>stream</var>.  It returns <var>sequence</var>.
+
+<p>This function is especially efficient if <var>sequence</var> is a
+<a href="CLHSROOT/Body/syscla_string.html">
+<code>string</code></a> and <var>stream</var> is a
+<a href="#open">file</a>/<a href="#pipe">pipe</a>/<a href="#socket">socket</a>
+stream with element type <a href="CLHSROOT/Body/syscla_character.html">
+<code>character</code></a>.
+</dl>
 
 <!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
 <h4><a href="CLHSROOT/Body/fun_file-position.html">
@@ -4188,6 +4306,12 @@ permits mixed character/binary output to a stream.
 <a href="#eltype"><code>:element-type</code></a>, and
 <a href="#buffered"><code>:buffered</code></a>.
 
+<h4><a href="CLHSROOT/Body/fun_close.html">
+    close</a></h4>
+
+<p><a href="CLHSROOT/Body/fun_close.html">
+<code>close</code></a> ignores its <code>:abort</code> argument.
+
 <h4><a href="CLHSROOT/Body/syscla_broadcast-stream.html">
     broadcast-stream</a></h4>
 
@@ -4203,30 +4327,33 @@ permits mixed character/binary output to a stream.
 <h3><a href="CLHSROOT/Body/sec_22-1-1-1.html">
     22.1.1.1 Multiple Possible Textual Representations</a></h3>
 
+<a name="pr-closure"></a>
 <p>An additional variable
 <code><strong>lisp:*print-closure*</strong></code> controls whether
 compiled and interpreted functions (closures) are output in detailed
-form.  If <code>*print-closure*</code> is
+form.  If <code>lisp:*print-closure*</code> is
 non-<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>, compiled
 closures are output in <code>#Y</code> syntax which the reader
-understands.  <code>*print-closure*</code> is initially set to
+understands.  <code>lisp:*print-closure*</code> is initially set to
 <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
 
+<a name="pr-rpars"></a>
 <p>An additional variable
 <code><strong>lisp:*print-rpars*</strong></code> controls the output of
-the right (closing) parentheses. If <code>*print-rpars*</code> is non-<a
-href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>, closing
+the right (closing) parentheses. If <code>lisp:*print-rpars*</code> is
+non-<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>, closing
 parentheses which don't fit onto the same line as the the corresponding
 opening parenthesis are output just below their corresponding opening
-parenthesis, in the same column.  <code>*print-rpars*</code> is
+parenthesis, in the same column.  <code>lisp:*print-rpars*</code> is
 initially set to <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
 
+<a name="pr-indent"></a>
 <p>An additional variable
 <code><strong>lisp:*print-indent-lists*</strong></code> controls the
 indentation of lists that span more than one line. It specifies by how
 many characters items within the list will be indented relative to the
-beginning of the list.  <code>*print-indent-lists*</code> is initially
-set to <code>2</code>.
+beginning of the list.  <code>lisp:*print-indent-lists*</code> is
+initially set to <code>2</code>.
 
 <h3><a href="CLHSROOT/Body/sec_22-1-3-7.html">
     22.1.3.7 Printing Other Vectors</a></h3>
@@ -4258,43 +4385,10 @@ the syntax <code>#A(<var>element-type</var> <var>dimensions</var>
 <a href="CLHSROOT/Body/fun_write-to-_nc-to-string.html">
 <code>write-to-string</code></a> have an additional keyword
 <code>:closure</code> that can be used to bind
-<code>*print-closure*</code>.
+<a href="#pr-closure"><code>lisp:*print-closure*</code><a>.
 
-<h3><a href="CLHSROOT/Body/fun_write-sequence.html">
-    write-sequence</a></h3>
-
-<p>In addition to <code>write-sequence</code>, the following two
-functions are provided:
-
-<dl>
- <dt><code><strong>lisp:write-byte-sequence</strong></code>
- performs multiple <code>write-byte</code> operations:
-
- <dd><code>(write-byte-sequence <var>sequence</var> <var>stream</var>
-&amp;key [:start] [:end])</code> outputs the integers of the subsequence
-of <var>sequence</var> specified by <var><code>:start</code></var> and
-<var><code>:end</code></var> to <var>stream</var>. It returns
-<var>sequence</var>.
-
-<p>This function is especially efficient if <var>sequence</var> is a
-<code>(vector (unsigned-byte 8))</code> and <var>stream</var> is a
-<a href="#open">file</a>/<a href="#pipe">pipe</a>/<a href="#socket">socket</a>
-stream with element type <code>(unsigned-byte 8)</code>.
-
- <p><dt><code><strong>lisp:write-char-sequence</strong></code>
- performs multiple <code>write-char</code> operations:
-
- <dd><code>(write-char-sequence <var>sequence</var> <var>stream</var>
-&amp;key [:start] [:end])</code> outputs the characters of the
-subsequence of <var>sequence</var> specified by
-<var><code>:start</code></var> and <var><code>:end</code></var> to
-<var>stream</var>.  It returns <var>sequence</var>.
-
-<p>This function is especially efficient if <var>sequence</var> is a
-string and <var>stream</var> is a
-<a href="#open">file</a>/<a href="#pipe">pipe</a>/<a href="#socket">socket</a>
-stream with element type <code>character</code>.
-</dl>
+<h2><a href="CLHSROOT/Body/sec_the_printer_dictionary.html">
+    22.4 The Printer Dictionary</a></h2>
 
 <h3><a href="CLHSROOT/Body/fun_format.html">
     format</a></h3>
@@ -4318,16 +4412,19 @@ but avoids putting a function name into a string.
 <var>function</var> <var>stream</var> <var>colon-modifier-p</var>
 <var>atsign-modifier-p</var> <var>object</var>)</code>.
 
-<p><code>format</code>
+<p><a href="CLHSROOT/Body/fun_format.html">
+<code>format</code></a>
 <a href="CLHSROOT/Body/sec_22-3-2-1.html"><code>~R</code></a>
-and <code>format</code>
+and <a href="CLHSROOT/Body/fun_format.html">
+<code>format</code></a>
 <a href="CLHSROOT/Body/sec_22-3-2-1.html"><code>~:R</code></a>
 can output only integers in the range |n| &lt; 10<sup>66</sup>.  The
 output is in English, according to the American conventions, and these
 conventions are identical to the British conventions only in the range
 |n| &lt; 10<sup>9</sup>.
 
-<p><code>format</code>
+<p><a href="CLHSROOT/Body/fun_format.html">
+<code>format</code></a>
 <a href="CLHSROOT/Body/sec_22-3-1-1.html"><code>~:@C</code></a>
 does not output the character itself, only
 the instruction how to type the character.
@@ -4432,7 +4529,8 @@ meaningfully read in:
        <var>name</var>&gt;</code>
        <td> special operator handler
   <tr> <td valign=top> <code>#&lt;COMPILED-CLOSURE <var>name</var>&gt;</code>
-       <td> compiled function, if <code>lisp:*print-closure*</code> =
+       <td> compiled function, if <a
+       href="#pr-closure"><code>lisp:*print-closure*</code></a> is
        <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
   <tr> <td valign=top> <code>#&lt;CLOSURE <var>name</var> ...&gt;</code>
        <td> interpreted function
@@ -4477,12 +4575,14 @@ meaningfully read in:
   <tr> <td valign=top> <code>#&lt;SPECIAL REFERENCE&gt;</code>
        <td> environment marker for variables declared <code>special</code>
   <tr> <td valign=top> <code>#&lt;DOT&gt;</code>
-       <td> internal <code>read</code> result for "."
+       <td> internal <a href="CLHSROOT/Body/fun_readcm_re_g-whitespace.html">
+            <code>read</code></a> result for "."
   <tr> <td valign=top> <code>#&lt;END OF FILE&gt;</code>
-       <td> internal <code>read</code> result, when the end of file
-            is reached
+       <td> internal <a href="CLHSROOT/Body/fun_readcm_re_g-whitespace.html">
+            <code>read</code></a> result, when the end of file is reached
   <tr> <td valign=top> <code>#&lt;READ-LABEL ...&gt;</code>
-       <td> intermediate <code>read</code> result for #n#
+       <td> intermediate <a href="CLHSROOT/Body/fun_readcm_re_g-whitespace.html">
+            <code>read</code></a> result for #n#
   <tr> <td valign=top> <code>#&lt;ADDRESS #x...&gt;</code>
        <td> machine address, should not occur
   <tr> <td valign=top> <code>#&lt;SYSTEM-POINTER #x...&gt;</code>
@@ -4532,54 +4632,16 @@ alternative to the use of <code>readtable-case</code> is the use of the
 <a href="CLHSROOT/Body/mac_defpackage.html">
 <code>defpackage</code></a>.
 
-<h3><a href="CLHSROOT/Body/fun_read-sequence.html">
-    read-sequence</a></h3>
-
-<p>In addition to <code>read-sequence</code>, the following two
-functions are provided:
-
-<dl>
- <dt><code><strong>lisp:read-byte-sequence</strong></code>
- performs multiple <code>read-byte</code> operations:
-
- <dd><code>(read-byte-sequence <var>sequence</var> <var>stream</var>
-[:start] [:end])</code> fills the subsequence of <var>sequence</var>
-specified by <var><code>:start</code></var> and
-<var><code>:end</code></var> with integers consecutively read from
-<var>stream</var>. It returns the index of the first element of
-<var>sequence</var> that was not updated (= <var>end</var> or &lt;
-<var>end</var> if the stream reached its end).
-
-<p>This function is especially efficient if <var>sequence</var> is a
-<code>(vector (unsigned-byte 8))</code> and <var>stream</var> is a
-<a href="#open">file</a>/<a href="#pipe">pipe</a>/<a href="#socket">socket</a>
-stream with element type <code>(unsigned-byte 8)</code>.
-
- <p><dt><code><strong>lisp:read-char-sequence</strong></code>
- performs multiple <code>read-char</code> operations:
-
- <dd><code>(read-char-sequence <var>sequence</var> <var>stream</var>
-[:start] [:end])</code> fills the subsequence of <var>sequence</var>
-specified by <var><code>:start</code></var> and
-<var><code>:end</code></var> with characters consecutively read from
-<var>stream</var>. It returns the index of the first element of
-<var>sequence</var> that was not updated (= <var>end</var> or &lt;
-<var>end</var> if the stream reached its end).
-
-<p>This function is especially efficient if <var>sequence</var> is a
-string and <var>stream</var> is a
-<a href="#open">file</a>/<a href="#pipe">pipe</a>/<a href="#socket">socket</a>
-with element type <code>character</code> or a string input stream.
-</dl>
-
-<h4><a href="CLHSROOT/Body/fun_listen.html">listen</a>,
-    <a href="CLHSROOT/Body/fun_read-char-no-hang.html">read-char-no-hang</a></h4>
+<h4><a href="CLHSROOT/Body/fun_listen.html">
+    listen</a>, <a href="CLHSROOT/Body/fun_read-char-no-hang.html">
+    read-char-no-hang</a></h4>
 
 <dl>
   <dt> <a name="real-listen"></a>
-    <code>(system::<strong>real-listen</strong> <var>stream</var>)</code>
+    <code>(<strong>system::real-listen</strong> <var>stream</var>)</code>
   <dd> <code>sys::real-listen</code> is a variant of the standard
-    <code>listen</code> function, which returns more detailed information
+    <a href="CLHSROOT/Body/fun_listen.html">
+    <code>listen</code></a> function, which returns more detailed information
     about the stream's input status. The return value is one of:
     <dl compact>
       <dt><code>:eof</code>             <dd>means EOF
@@ -4610,8 +4672,8 @@ with element type <code>character</code> or a string input stream.
 <a name="compilefile"></a><h4><a href="CLHSROOT/Body/fun_compile-file.html">
     compile-file</a></h4>
 
-<p><code>(compile-file <var>input-file</var> &amp;key [:output-file]
-          [:listing] [:warnings] [:verbose] [:print])</code>
+<p><code>(compile-file <var>input-file</var> &amp;key :output-file
+          :listing :warnings :verbose :print)</code>
 compiles a file to platform-independent bytecode.
 
 <dl>
@@ -4704,7 +4766,9 @@ required module is not already in memory.
 <dl>
  <dt><code>:verbose t</code>
   <dd>causes <code>load</code> to emit a short message that a file is
-  being loaded. The default is <code>*load-verbose*</code>, which is
+  being loaded. The default is
+  <a href="CLHSROOT/Body/var_stload-pr_ad-verbosest.html">
+  <code>*load-verbose*</code></a>, which is
   initially <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
  <dt><code>:print t</code>
   <dd>causes <a href="CLHSROOT/Body/fun_load.html">
@@ -5048,11 +5112,11 @@ as an add-on from the <a
 href="http://ftp2.cons.org/pub/lisp/clisp/contrib/">contrib</a>
 directory.)
 
-<a name="space"></a><h4>space</h4>
+<a name="space"></a><h4>lisp:space</h4>
 
 <p>The macro <code><strong>lisp:space</strong></code> is like the macro
 <a href="CLHSROOT/Body/mac_time.html">
-<code>time</code></a>: <code>(space <var>form</var>)</code> evaluates
+<code>time</code></a>: <code>(lisp:space <var>form</var>)</code> evaluates
 the <var>form</var>, and, as a side effect, outputs information about
 the memory allocations caused by this evaluation.
 
@@ -5076,8 +5140,9 @@ second value of <a href="CLHSROOT/Body/fun_room.html">
 <p>The timing data printed by the macro <a
 href="CLHSROOT/Body/mac_time.html"> <code>time</code></a> includes: The real
 time (elapsed time), the run time (processor time for this process), the
-number of bytes allocated (use the <a href="#space"><code>space</code></a>
-macro for more detailed analysis), and the number of GCs performed, if any.
+number of bytes allocated (use the <a
+href="#space"><code>lisp:space</code></a> macro for more detailed
+analysis), and the number of GCs performed, if any.
 
 <h4><a href="CLHSROOT/Body/fun_ed.html">
     ed</a></h4>
@@ -5216,8 +5281,9 @@ specified by the vote.
      ARGUMENT-MISMATCH-ERROR-MOON:FIX</a>          <dd>yes
  <dt><a href="CLHSROOT/Issues/iss012.html">
      ARGUMENT-MISMATCH-ERROR:MORE-CLARIFICATIONS</a>
-     <dd>yes, except for argument list checking in CALL-NEXT-METHOD in
-         compiled code (items 11,12)
+     <dd>yes, except for argument list checking in
+     <a href="CLHSROOT/Body/locfun_call-next-method.html">
+     <code>call-next-method</code></a> in compiled code (items 11,12)
  <dt><a href="CLHSROOT/Issues/iss013.html">
      ARGUMENTS-UNDERSPECIFIED:SPECIFY</a>          <dd>yes
  <dt><a href="CLHSROOT/Issues/iss014.html">
@@ -5303,8 +5369,9 @@ specified by the vote.
      CLOSED-STREAM-OPERATIONS:ALLOW-INQUIRY</a>    <dd>yes
  <dt><a href="CLHSROOT/Issues/iss054.html">
      COERCING-SETF-NAME-TO-FUNCTION:ALL-FUNCTION-NAMES</a>
-     <dd>yes, but set-macro-character must be changed to accept function
-         names (e.g. symbols) too
+     <dd>yes, but <a href="CLHSROOT/Body/fun_set-macro_ro-character.html">
+         <code>set-macro-character</code></a> must be changed to accept
+         function names (e.g. symbols) too
  <dt><a href="CLHSROOT/Issues/iss055.html">
      COLON-NUMBER</a>                              <dd>yes
  <dt><a href="CLHSROOT/Issues/iss056.html">
@@ -5364,8 +5431,7 @@ specified by the vote.
  <dt><a href="CLHSROOT/Issues/iss083.html">
      CONSTANT-MODIFICATION:DISALLOW</a>            <dd>yes
  <dt><a href="CLHSROOT/Issues/iss084.html">
-     CONSTANTP-DEFINITION:INTENTIONAL</a>
-     <dd>yes, except for arrays as self-evaluating forms
+     CONSTANTP-DEFINITION:INTENTIONAL</a>          <dd>yes
  <dt><a href="CLHSROOT/Issues/iss085.html">
      CONSTANTP-ENVIRONMENT:ADD-ARG</a>             <dd>no
  <dt><a href="CLHSROOT/Issues/iss086.html">
@@ -5376,8 +5442,12 @@ specified by the vote.
      COPY-SYMBOL-PRINT-NAME:EQUAL</a>              <dd>yes
  <dt><a href="CLHSROOT/Issues/iss089.html">
      DATA-IO:ADD-SUPPORT</a>
-     <dd>yes for *print-readably* and *read-eval* and
-     with-standard-io-syntax, no for anything else
+     <dd>yes for <a href="CLHSROOT/Body/var_stprint-readablyst.html">
+         <code>*print-readably*</code></a>,
+         <a href="CLHSROOT/Body/var_stread-evalst.html">
+         <code>*read-eval*</code></a> and
+         <a href="CLHSROOT/Body/mac_with-stan_rd-io-syntax.html">
+         <code>with-standard-io-syntax</code></a>, no for everything else
  <dt><a href="CLHSROOT/Issues/iss090.html">
      DATA-TYPES-HIERARCHY-UNDERSPECIFIED</a>       <dd>yes
  <dt><a href="CLHSROOT/Issues/iss091.html">
@@ -5422,7 +5492,9 @@ specified by the vote.
      DEFSTRUCT-CONSTRUCTOR-OPTIONS:EXPLICIT</a>    <dd>yes
  <dt><a href="CLHSROOT/Issues/iss111.html">
      DEFSTRUCT-CONSTRUCTOR-SLOT-VARIABLES:NOT-BOUND</a>
-     <dd>no (furthermore it gets hairy when applied to BOA constructors)
+     <dd>no (furthermore it gets hairy when applied to
+     <a href="CLHSROOT/Body/mac_defstruct.html">
+     BOA constructors</a>)
  <dt><a href="CLHSROOT/Issues/iss112.html">
      DEFSTRUCT-COPIER-ARGUMENT-TYPE:RESTRICT</a>   <dd>yes
  <dt><a href="CLHSROOT/Issues/iss113.html">
@@ -5487,14 +5559,19 @@ specified by the vote.
      DYNAMIC-EXTENT:NEW-DECLARATION</a>            <dd>yes
  <dt><a href="CLHSROOT/Issues/iss143.html">
      EQUAL-STRUCTURE:MAYBE-STATUS-QUO</a>
-     <dd>no for equalp on hashtables, yes for anything else
+     <dd>no for <a href="CLHSROOT/Body/fun_equalp.html">
+     <code>equalp</code></a> on <a href="#hash">hash tables</a>,
+     yes for everything else
  <dt><a href="CLHSROOT/Issues/iss144.html">
      ERROR-TERMINOLOGY-WARNING:MIGHT</a>           <dd>yes
  <dt><a href="CLHSROOT/Issues/iss145.html">
      EVAL-OTHER:SELF-EVALUATE</a>                  <dd>yes
  <dt><a href="CLHSROOT/Issues/iss146.html">
      EVAL-TOP-LEVEL:LOAD-LIKE-COMPILE-FILE</a>
-     <dd>yes, except maybe if LOAD :compiling t
+     <dd>yes, except maybe if <a href="CLHSROOT/Body/fun_load.html">
+     <code>load</code></a> <a href="#loadfile">:compiling</a>
+     <a href="CLHSROOT/Body/convar_t.html">
+     <code>t</code></a>
  <dt><a href="CLHSROOT/Issues/iss147.html">
      EVAL-WHEN-NON-TOP-LEVEL:GENERALIZE-EVAL-NEW-KEYWORDS</a> <dd>no
  <dt><a href="CLHSROOT/Issues/iss148.html">
@@ -5549,7 +5626,9 @@ specified by the vote.
      also bind <a href="CLHSROOT/Body/var_stprint-b_rint-radixst.html">
      <code>*print-base*</code></a> to 10
      and <a href="CLHSROOT/Body/var_stprint-b_rint-radixst.html">
-     <code>*print-radix*</code></a> to NIL
+     <code>*print-radix*</code></a> to
+     <a href="CLHSROOT/Body/convar_nil.html">
+     <code>nil</code></a>
  <dt><a href="CLHSROOT/Issues/iss170.html">
      FORMAT-STRING-ARGUMENTS:SPECIFY</a>           <dd>yes
  <dt><a href="CLHSROOT/Issues/iss171.html">
@@ -5618,7 +5697,10 @@ specified by the vote.
      JUN90-TRIVIAL-ISSUES:25</a>                   <dd>yes
  <dt><a href="CLHSROOT/Issues/iss203.html">
      JUN90-TRIVIAL-ISSUES:27</a>
-     <dd>yes for THE, no for APPLY (spec not clear)
+     <dd>yes for <a href="CLHSROOT/Body/speope_the.html">
+     <code>the</code></a>, no for
+     <a href="CLHSROOT/Body/fun_apply.html">
+     <code>apply</code></a> (spec not clear)
  <dt><a href="CLHSROOT/Issues/iss204.html">
      JUN90-TRIVIAL-ISSUES:3</a>                    <dd>yes
  <dt><a href="CLHSROOT/Issues/iss205.html">
@@ -5791,7 +5873,8 @@ specified by the vote.
      READ-MODIFY-WRITE-EVALUATION-ORDER:DELAYED-ACCESS-STORES</a> <dd>no
  <dt><a href="CLHSROOT/Issues/iss288.html">
      READ-SUPPRESS-CONFUSING:GENERALIZE</a>
-     <dd>yes, except that READ-DELIMITED-LIST still constructs a list
+     <dd>yes, except that <a href="CLHSROOT/Body/fun_read-delimited-list.html">
+     <code>read-delimited-list</code></a> still constructs a list
  <dt><a href="CLHSROOT/Issues/iss289.html">
      READER-ERROR:NEW-TYPE</a>                     <dd>yes
  <dt><a href="CLHSROOT/Issues/iss290.html">
@@ -5802,16 +5885,18 @@ specified by the vote.
      REDUCE-ARGUMENT-EXTRACTION</a>                <dd>yes
  <dt><a href="CLHSROOT/Issues/iss293.html">
      REMF-DESTRUCTION-UNSPECIFIED:X3J13-MAR-89</a>
-     <dd>no for NRECONC, yes for everything else
+     <dd>no for <a href="CLHSROOT/Body/fun_revappendcm_nreconc.html">
+     <code>nreconc</code></a>, yes for everything else
  <dt><a href="CLHSROOT/Issues/iss294.html">
      REQUIRE-PATHNAME-DEFAULTS-AGAIN:X3J13-DEC-91</a> <dd>yes
  <dt><a href="CLHSROOT/Issues/iss295.html">
      REQUIRE-PATHNAME-DEFAULTS-YET-AGAIN:RESTORE-ARGUMENT</a>
-     <dd>yes, except that REQUIRE wants a pathname, not a list of
-         pathnames
+     <dd>yes, except that <a href="CLHSROOT/Body/fun_providecm_require.html">
+     <code>require</code></a> wants a pathname, not a list of pathnames
  <dt><a href="CLHSROOT/Issues/iss296.html">
      REQUIRE-PATHNAME-DEFAULTS:ELIMINATE</a>
-     <dd>superseded by REQUIRE-PATHNAME-DEFAULTS-AGAIN:X3J13-DEC-91
+     <dd>superseded by <a href="CLHSROOT/Issues/iss294.html">
+     REQUIRE-PATHNAME-DEFAULTS-AGAIN:X3J13-DEC-91</a>
  <dt><a href="CLHSROOT/Issues/iss297.html">
      REST-LIST-ALLOCATION:MAY-SHARE</a>            <dd>yes
  <dt><a href="CLHSROOT/Issues/iss298.html">
@@ -5924,7 +6009,9 @@ specified by the vote.
      TYPE-OF-AND-PREDEFINED-CLASSES:TYPE-OF-HANDLES-FLOATS</a> <dd>yes
  <dt><a href="CLHSROOT/Issues/iss352.html">
      TYPE-OF-AND-PREDEFINED-CLASSES:UNIFY-AND-EXTEND</a>
-     <dd>yes, except for class METHOD-COMBINATION
+     <dd>yes, except for class
+      <a href="CLHSROOT/Body/syscla_method-combination.html">
+      <code>method-combination</code></a>
  <dt><a href="CLHSROOT/Issues/iss353.html">
      TYPE-OF-UNDERCONSTRAINED:ADD-CONSTRAINTS</a>  <dd>yes
  <dt><a href="CLHSROOT/Issues/iss354.html">
@@ -5963,16 +6050,16 @@ specified by the vote.
 
 <a name="image"></a><h3>Extensions-1.1. Saving an Image</h3>
 
-<p>The function <code>(<strong>saveinitmem</strong> [<var>filename</var>
-[:quiet] [:init-function]])</code> saves the running CLISP's memory to a
-file. The <var>filename</var> defaults to
-<code>"lispinit.mem"</code>.  If the <code>:quiet</code>
+<p>The function <code>(<strong>lisp:saveinitmem</strong>
+                       &amp;optional (<var>filename</var> "lispinit.mem")
+                       &amp;key :quiet :init-function)</code>
+saves the running CLISP's memory to a file.  If the <code>:quiet</code>
 argument is not <a href="CLHSROOT/Body/convar_nil.html">
-<code>nil</code></a>, the startup banner and the good-bye
-message will be suppressed. The <code>:init-function</code> argument
-specifies a function that will be executed at startup of the saved
-image.  The starting package of the new image is the one in which you
-were when you invoked <code>saveinitmem</code>.
+<code>nil</code></a>, the startup banner and the good-bye message will
+be suppressed. The <code>:init-function</code> argument specifies a
+function that will be executed at startup of the saved image.  The
+starting package of the new image is the one in which you were when you
+invoked <code>lisp:saveinitmem</code>.
 
 <a name="quit"></a><h3>Extensions-1.2. Quitting Lisp</h3>
 
@@ -5990,7 +6077,7 @@ environment is informed that the CLISP session didn't succeed.
 <code>ENGLISH</code> or <code>DEUTSCH</code> (i.e. german) or
 <code>FRANCAIS</code> (i.e. french) or <code>ESPA&Ntilde;OL</code> (i.e.
 spanish). More languages can be defined through the macro
-<code><strong>lisp:deflanguage</strong></code>: <code>(deflanguage
+<code><strong>lisp:deflanguage</strong></code>: <code>(lisp:deflanguage
 <var>lang</var>)</code> For such an additional language to take effect,
 you must install the corresponding message catalog, or translate the
 messages yourself, by use of GNU gettext and Emacs po-mode.
@@ -6008,15 +6095,15 @@ three or not.
 <p>This works only for strings. For arbitrary language-dependent Lisp objects,
 you define one through the macro
 <code><strong>lisp:definternational</strong></code>:
-<pre><code>(definternational <var>symbol</var> [(t <var>default-language</var>)])</code></pre>
+<pre><code>(lisp:definternational <var>symbol</var> &amp;optional (t <var>default-language</var>))</code></pre>
 and add language-dependent values through the macro
 <code><strong>lisp:deflocalized</strong></code>:
-<pre><code>(deflocalized <var>symbol</var> <var>language</var> <var>value-form</var>)</code></pre>
+<pre><code>(lisp:deflocalized <var>symbol</var> <var>language</var> <var>value-form</var>)</code></pre>
 
 (One such form for each language. Languages without an assigned
 value will be treated like the default-language.) You can then access
 the localized value through the function call
-<pre><code>(<strong>lisp:localized</strong> <var>symbol</var> [<var>language</var>])</code></pre>
+<pre><code>(<strong>lisp:localized</strong> <var>symbol</var> &amp;optional <var>language</var>)</code></pre>
 
 <a name="encoding"></a><h3>Extensions-1.4. Encodings</h3>
 
@@ -6321,6 +6408,7 @@ be used on encodings.
 href="#socket">socket</a> stream containing an encoding, the following
 symbol-macro places contain global encodings.
 
+<a name="def-file-enc"></a>
 <p><code><strong>lisp:*default-file-encoding*</strong></code> is the
 encoding used for new <a href="#open">file</a>/<a
 href="#pipe">pipe</a>/<a href="#socket">socket</a> streams, when no
@@ -6374,10 +6462,11 @@ else <a href="CLHSROOT/Body/convar_nil.html">
 object is being garbage collected, <code>(funcall <var>function</var>
 <var>object</var>)</code> will be executed.
 
-<p>Calling <code>(finalize <var>object</var> <var>function</var>
+<p>Calling <code>(lisp:finalize <var>object</var> <var>function</var>
 <var>guardian</var>)</code> has a similar effect, but only as long as
 the "guardian" has not been garbage collected: When
-<var>object</var> is being garbage collected, <code>(funcall
+<var>object</var> is being garbage collected,
+<code>(<a href="CLHSROOT/Body/fun_funcall.html">funcall</a>
 <var>function</var> <var>object</var> <var>guardian</var>)</code> will
 be executed.  If the guardian is garbage collected before
 <var>object</var> is, nothing happens.
@@ -7829,18 +7918,23 @@ structure references) and returns the given type.
 
 <p><code>mem-write</code> writes an arbitrary
 address. <code>mem-write-vector</code> copies the content of a Lisp
-string or unsigned-byte vector into memory.
+<a href="CLHSROOT/Body/syscla_string.html">
+<code>string</code></a> or <a href="CLHSROOT/Body/typ_unsigned-byte.html">
+<code>unsigned-byte</code></a> <a href="CLHSROOT/Body/syscla_vector.html">
+<code>vector</code></a> into memory.
 
 <p><code>nzero-pointer-p</code> tests for non-<code>NULL</code> pointers
-in all recognized representations (<code>null</code>,
-<code>unsigned-byte</code> and <code>foreign-pointer</code>).
+in all recognized representations (<a href="CLHSROOT/Body/syscla_null.html">
+<code>null</code></a>, <a href="CLHSROOT/Body/typ_unsigned-byte.html">
+<code>unsigned-byte</code></a> and <code>foreign-pointer</code>).
 
 
 <h4>Foreign Libraries</h4>
 
 <p><code>declare-library-base</code> ought to be wrapped in an
-<code>eval-when (compile eval load)</code> form and come before any
-function is referenced, because the library base symbol must be known.
+<code>(<a href="CLHSROOT/Body/speope_eval-when.html">eval-when
+(compile eval load) ...)</code> form and come before any function is
+referenced, because the library base symbol must be known.
 
 <p><code>open-library</code> tries to open the library referenced by the
 base symbol.  Therefore it must have been preceeded with
