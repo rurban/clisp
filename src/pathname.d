@@ -11,6 +11,10 @@
   #endif
 #endif
 
+#ifdef UNIX_LINUX
+  #include <stdio.h> # declares sprintf()
+#endif
+
 
 # ==============================================================================
 #                       Low level functions
