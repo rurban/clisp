@@ -1,5 +1,11 @@
 1999-07-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * win32aux.d (interruptible_active): New variable.
+          (temp_interrupt_handler): Query it and set it to FALSE.
+          (DoInterruptible): Set it to TRUE only while the thread is running.
+
+1999-07-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * misc.d (MACHINE-VERSION) [WIN32]: Use the info.wProcessorLevel field
           only on WinNT.
 
