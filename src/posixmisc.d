@@ -1,6 +1,8 @@
 # various exported syscalls
 # Sam Steingold 1999-2000
 
+#if defined(EXPORT_SYSCALLS) && !defined(_MSC_VER)
+
 #include "lispbibl.c"
 
 # =============================================================================
@@ -164,3 +166,5 @@ LISPFUN(resource_usage_limits_,0,0,norest,nokey,0,NIL)
 
   funcall(L(values),count);
 }
+
+#endif

@@ -610,14 +610,12 @@ LISPSYM(dynload_modules,"DYNLOAD-MODULES",system)
 LISPSYM(program_name,"PROGRAM-NAME",system)
 #endif
 LISPSYM(lib_directory,"LIB-DIRECTORY",system)
-#ifdef EXPORT_SYSCALLS
-#ifdef UNIX
+#if defined(EXPORT_SYSCALLS) && defined(UNIX)
 LISPSYM(user_data_,"USER-DATA-INTERNAL",posix)
 LISPSYM(file_stat_,"FILE-STAT-INTERNAL",posix)
 #endif
-#endif
 # ---------- POSIXMISC ----------
-#ifdef EXPORT_SYSCALLS
+#if defined(EXPORT_SYSCALLS) && defined(UNIX)
 LISPSYM(sysinfo_,"SYSINFO-INTERNAL",posix)
 LISPSYM(resource_usage_limits_,"RESOURCE-USAGE-LIMITS-INTERNAL",posix)
 #endif
@@ -1010,16 +1008,20 @@ LISPSYM(set_long_float_digits,"%SET-LONG-FLOAT-DIGITS",system)
 LISPSYM(log2,"LOG2",system)
 LISPSYM(log10,"LOG10",system)
 #ifdef EXPORT_SYSCALLS
+#ifndef _MSC_VER
 LISPSYM(erf,"ERF",posix)
 LISPSYM(erfc,"ERFC",posix)
+#endif
 LISPSYM(j0,"J0",posix)
 LISPSYM(j1,"J1",posix)
 LISPSYM(jn,"JN",posix)
 LISPSYM(y0,"Y0",posix)
 LISPSYM(y1,"Y1",posix)
 LISPSYM(yn,"YN",posix)
+#ifndef _MSC_VER
 LISPSYM(gamma,"GAMMA",posix)
 LISPSYM(lgamma,"LGAMMA",posix)
+#endif
 LISPSYM(bogomips,"BOGOMIPS",posix)
 #endif # EXPORT_SYSCALLS
 # ---------- REXX ----------

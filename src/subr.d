@@ -668,14 +668,12 @@ LISPFUNN(dynload_modules,2)
 LISPFUNN(program_name,0)
 #endif
 LISPFUNN(lib_directory,0)
-#ifdef EXPORT_SYSCALLS
-#ifdef UNIX
+#if defined(EXPORT_SYSCALLS) && defined(UNIX)
 LISPFUNN(user_data_,1)
 LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
 #endif
-#endif
 # ---------- POSIXMISC ----------
-#ifdef EXPORT_SYSCALLS
+#if defined(EXPORT_SYSCALLS) && defined(UNIX)
 LISPFUNN(sysinfo_,0)
 LISPFUNN(resource_usage_limits_,0)
 #endif
@@ -1101,16 +1099,20 @@ LISPFUNN(set_long_float_digits,1)
 LISPFUNN(log2,1)
 LISPFUNN(log10,1)
 #ifdef EXPORT_SYSCALLS
+#ifndef _MSC_VER
 LISPFUNN(erf,1)
 LISPFUNN(erfc,1)
+#endif
 LISPFUNN(j0,1)
 LISPFUNN(j1,1)
 LISPFUNN(jn,2)
 LISPFUNN(y0,1)
 LISPFUNN(y1,1)
 LISPFUNN(yn,2)
+#ifndef _MSC_VER
 LISPFUNN(gamma,1)
 LISPFUNN(lgamma,1)
+#endif
 LISPFUNN(bogomips,0)
 #endif # EXPORT_SYSCALLS
 # ---------- REXX ----------
