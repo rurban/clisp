@@ -755,6 +755,8 @@
 (defmacro with-condition-restarts (condition-form restarts-form &body body)
   `(LET ((*CONDITION-RESTARTS* *CONDITION-RESTARTS*))
      (ADD-CONDITION-RESTARTS ,condition-form ,restarts-form)
+     ;; ANSI CL does not allow declarations at the beginning of the body, but
+     ;; we do, as an extension.
      (LET () ,@body)))
 
 ;;; 29.4.8. Finding and Manipulating Restarts

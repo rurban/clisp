@@ -86,6 +86,8 @@
 (defconstant *common-lisp-user-package* (find-package "COMMON-LISP-USER")) ; ABI
 
 (defmacro with-standard-io-syntax (&body body)
+  ;; ANSI CL does not allow declarations at the beginning of the body, but
+  ;; we do, as an extension.
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     ;; It would be possible to put all these bindings into a single function,
     ;; but this would force variables into closures.
