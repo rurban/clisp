@@ -1,10 +1,13 @@
+New in 1.8:
+
+* Added support for IA-64 Linux.
+
 New in 1.7:
 
 * Struct types containing elements other than int, long, long long, pointer
   are not supported any more. Passing them as arguments and results is too
   hairy.
 * Added support for PowerPC Linux.
-* Added support for IA-64 Linux.
 
 New in 1.6:
 
