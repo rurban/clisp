@@ -1,11 +1,12 @@
 #
 # Makefile.in for FastCGI CLISP module
 #
-# $Id
+# $Id$
 
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
+CLISP = clisp -q -norc
 
 LN = ln
 

@@ -1,12 +1,12 @@
 # Makefile for CLISP module set netica
 # <http://norsys.com/netica_c_api.htm>
 
-CC =
+CC = gcc
 CPPFLAGS =
-CFLAGS =
-INCLUDES =
+CFLAGS = -Wall -O2
+INCLUDES = ../
 NETICA = /usr/local/netica
-CLISP =
+CLISP = clisp -q -norc
 
 LN = ln
 

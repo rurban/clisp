@@ -1,3 +1,11 @@
+2004-08-12  Sam Steingold  <sds@gnu.org>
+
+	* modules/bindings/glibc/Makefile, modules/bindings/win32/Makefile:
+	* modules/fastcgi/Makefile.in, modules/matlab/Makefile:
+	* modules/netica/Makefile, modules/oracle/Makefile.in:
+	* modules/postgresql/Makefile.in: init CLISP and other make variables
+	Reported by "Steve Eichblatt" <steve@eichblatt.us>
+
 2004-08-11  Sam Steingold  <sds@gnu.org>
 
 	* reploop.lisp (make-xterm-io-stream): use :DIRECTION :IO

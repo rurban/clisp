@@ -1,13 +1,13 @@
 # Makefile for CLISP module set matlab
 # <http://www.mathworks.com/access/helpdesk/help/techdoc/apiref/apiref.shtml>
 
-CC =
+CC = gcc
 CPPFLAGS =
-CFLAGS =
-INCLUDES =
+CFLAGS = -Wall -O2
+INCLUDES = ../
 # MATLAB = /usr/local/matlab/extern/include
 MATLAB = c:/MATLAB6p5/extern/include
-CLISP =
+CLISP = clisp -q -norc
 
 LN = ln
 

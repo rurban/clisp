@@ -1,11 +1,11 @@
 # Makefile for CLISP module set win32
 
-CC =
+CC = gcc
 CPPFLAGS =
-CFLAGS =
-INCLUDES=
+CFLAGS = -Wall -O2
+INCLUDES= ../../
 
-CLISP =
+CLISP = clisp -q -norc
 
 LN = ln
 
