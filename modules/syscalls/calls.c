@@ -63,6 +63,9 @@
 #if defined(HAVE_WCHAR_H)
 # include <wchar.h>
 #endif
+#if defined(HAVE_LIMITS_H)
+# include <limits.h>
+#endif
 
 #include <stdio.h>             /* for BUFSIZ */
 
@@ -164,12 +167,20 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
 #endif  /* fcntl | WIN32_NATIVE */
 
 /* process priority */
-#if defined(WIN32_NATIVE)
-DEFCHECKER(check_priority_value,suffix=PRIORITY_CLASS,default=0,        \
-           ABOVE-NORMAL BELOW-NORMAL HIGH IDLE NORMAL REALTIME)
-#else
-#define check_priority_value(x) posfixnum_to_L(check_posfixnum(x))
+#if !defined(WIN32_NATIVE)
+#  if !defined(NZERO)
+#    define NZERO 20
+#  endif
+#  define REALTIME_PRIORITY_CLASS       -NZERO
+#  define HIGH_PRIORITY_CLASS           (-NZERO/2)
+#  define ABOVE_NORMAL_PRIORITY_CLASS   (-NZERO/4)
+#  define NORMAL_PRIORITY_CLASS         0
+#  define BELOW_NORMAL_PRIORITY_CLASS   (NZERO/4)
+#  define LOW_PRIORITY_CLASS            (NZERO/2)
+#  define IDLE_PRIORITY_CLASS           NZERO
 #endif
+DEFCHECKER(check_priority_value,suffix=PRIORITY_CLASS,default=0,        \
+           REALTIME HIGH ABOVE-NORMAL NORMAL BELOW-NORMAL LOW IDLE)
 DEFCHECKER(check_priority_which,prefix=PRIO,default=0, PROCESS PGRP USER)
 DEFUN(OS:PRIORITY, pid &optional which) {
   int which = check_priority_which(popSTACK());
