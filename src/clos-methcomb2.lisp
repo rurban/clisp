@@ -181,7 +181,7 @@
 
 (defun call-method-duplicates-error (gf method+groupname)
   (let ((*method-combination-generic-function* gf)
-        (*method-combination* (std-gf-method-combination gf)))
+        (*method-combination* (safe-gf-method-combination gf)))
     (method-combination-error
       (TEXT "Method ~S has the same specializers and different qualifiers than other methods in method group ~S, and is actually used in the effective method.")
             (car method+groupname) (cdr method+groupname))))
