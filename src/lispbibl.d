@@ -12795,13 +12795,6 @@ static inline object check_char (object obj) {
 #endif
 /* used by CHARSTRG, ENCODING, IO */
 
-# Error message, if an argument isn't a string:
-# fehler_string(obj);
-# > obj: the possibly faulty argument
-# < a string
-nonreturning_function(extern, fehler_string, (object obj));
-/* used by PACKAGE */
-
 /* check_string(obj)
  > obj: an object
  < result: a string, either the same as obj or a replacement

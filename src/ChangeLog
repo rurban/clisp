@@ -1,9 +1,14 @@
+2004-06-22  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (fehler_string): removed again
+	* package.d ((SETF PACKAGE-DOCUMENTATION)): use check_string()
+
 2004-06-22  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (Package): Add pack_docstring field.
 	* genclisph.d (main): Update.
 	* package.d (make_package): Initialize pack_docstring to NIL.
-	(SYS::PACKAGE-DOCUMENTATION, (SETF SYS::PACKAGE-DOCUMENTATION)): New
+	(SYS::PACKAGE-DOCUMENTATION, (SETF PACKAGE-DOCUMENTATION)): New
 	functions.
 	* error.d (fehler_string): Revived function.
 	* places.lisp (PACKAGE-DOCUMENTATION): New setter definition.
