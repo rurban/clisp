@@ -4,6 +4,9 @@ User visible changes
 * Implemented ANSI CL function INSPECT,
   and a function LISP:CLHS for access of Common Lisp HyperSpec.
 
+* Fixed a bug: A garbage collection during the execution of a foreign function
+  callback caused a crash.
+
 
 2000-03-06
 ==========

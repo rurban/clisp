@@ -8969,17 +8969,13 @@ typedef struct {
                                 # Bit ist gelöscht bei DYNBIND-Frames.
     # zur näheren Identifikation innerhalb der ENV-Frames:
       #define envbind_case_mask_t  (bit(FB3)|bit(FB2)|bit(FB1))
-    # zur Unterscheidung in DYNBIND/CALLBACK:
-      #define callback_bit_t  FB3  # Bit ist gesetzt bei CALLBACK-Frames.
-                                   # Bit ist gelöscht bei DYNBIND-Frames.
   # zur näheren Unterscheidung innerhalb der Frames mit skip2-Bit=0:
     #define entrypoint_bit_t  FB4  # Bit ist gesetzt, wenn FRAME einen
                                    # nicht-lokalen Einsprung enthält, mit Offset SP_ ist SP im STACK.
-                                   # Bit ist gelöscht bei VAR-Frame und FUN-Frame.
+                                   # Bit ist gelöscht bei VAR/FUN-Frame und CALLBACK-Frame.
     # zur näheren Unterscheidung in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
       #define blockgo_bit_t    FB3  # Bit gesetzt bei BLOCK- und TAGBODY-FRAME
       # zur näheren Unterscheidung in BLOCK/TAGBODY:
-        # Bit FB2 gesetzt bei TAGBODY, gelöscht bei BLOCK,
         #define cframe_bit_t     FB1  # gesetzt bei compilierten, gelöscht bei
                                     # interpretierten BLOCK/TAGBODY-Frames
         #define nested_bit_t unwind_bit_t # für IBLOCK und ITAGBODY, gesetzt,
@@ -8997,8 +8993,11 @@ typedef struct {
                                       # gelöscht bei UNWIND_PROTECT-Frames
         #define handler_bit_t  FB1    # gesetzt bei HANDLER-Frames,
                                       # gelöscht bei CATCH-Frames
-    # zur näheren Unterscheidung in VAR/FUN:
-      #define fun_bit_t        FB3  # gesetzt bei FUNCTION-FRAME, gelöscht bei VAR-FRAME
+    # zur näheren Unterscheidung in VAR/FUN/CALLBACK:
+      #define callback_bit_t   FB3    # Bit ist gelöscht bei CALLBACK-Frames.
+                                      # Bit ist gesetzt bei VAR/FUN-Frames.
+      # zur näheren Unterscheidung in VAR/FUN:
+        #define fun_bit_t      FB2    # gesetzt bei FUN-Frame, gelöscht bei VAR-Frame
 # in Objekten auf dem STACK (oint):
   #define frame_bit_o  (frame_bit_t+oint_type_shift)
   #define skip2_bit_o  (skip2_bit_t+oint_type_shift)
@@ -9016,10 +9015,7 @@ typedef struct {
         #define handler_bit_o  (handler_bit_t+oint_type_shift)
       #define fun_bit_o  (fun_bit_t+oint_type_shift)
 # einzelne Frame-Info-Bytes:
-  #define DYNBIND_frame_info          /* %11100.. */ (bit(FB7)|bit(FB6)|bit(FB5))
-  #ifdef HAVE_SAVED_REGISTERS
-  #define CALLBACK_frame_info         /* %11101.. */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB3))
-  #endif
+  #define DYNBIND_frame_info          /* %1110... */ (bit(FB7)|bit(FB6)|bit(FB5))
   #define ENV1V_frame_info            /* %1111000 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4))
   #define ENV1F_frame_info            /* %1111001 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4)|bit(FB1))
   #define ENV1B_frame_info            /* %1111010 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4)|bit(FB2))
@@ -9027,14 +9023,16 @@ typedef struct {
   #define ENV1D_frame_info            /* %1111100 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4)|bit(FB3))
   #define ENV2VD_frame_info           /* %1111101 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB1))
   #define ENV5_frame_info             /* %1111110 */ (bit(FB7)|bit(FB6)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB2))
-  #define VAR_frame_info              /* %10100.. */ (bit(FB7)|bit(FB5))
-  #define FUN_frame_info              /* %10101.. */ (bit(FB7)|bit(FB5)|bit(FB3))
+  #ifdef HAVE_SAVED_REGISTERS
+  #define CALLBACK_frame_info         /* %10100.. */ (bit(FB7)|bit(FB5))
+  #endif
+  #define VAR_frame_info              /* %101010. */ (bit(FB7)|bit(FB5)|bit(FB3))
+  #define FUN_frame_info              /* %101011. */ (bit(FB7)|bit(FB5)|bit(FB3)|bit(FB2))
   #define IBLOCK_frame_info           /* %1001100 */ (bit(FB7)|bit(FB4)|bit(FB3))
   #define NESTED_IBLOCK_frame_info    /* %1011100 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3))
-  #define CBLOCK_frame_info           /* %1011101 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB1))
   #define ITAGBODY_frame_info         /* %1001110 */ (bit(FB7)|bit(FB4)|bit(FB3)|bit(FB2))
   #define NESTED_ITAGBODY_frame_info  /* %1011110 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB2))
-  #define CTAGBODY_frame_info         /* %1011111 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB2)|bit(FB1))
+  #define CBLOCK_CTAGBODY_frame_info  /* %1011101 */ (bit(FB7)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB1))
   #define APPLY_frame_info            /* %1001000 */ (bit(FB7)|bit(FB4))
   #define TRAPPED_APPLY_frame_info    /* %1011000 */ (bit(FB7)|bit(FB5)|bit(FB4))
   #define EVAL_frame_info             /* %1001001 */ (bit(FB7)|bit(FB4)|bit(FB1))
@@ -9073,21 +9071,17 @@ typedef struct {
                                 # Bit ist gelöscht bei DYNBIND-Frames.
     # zur näheren Identifikation innerhalb der ENV-Frames:
       #define envbind_case_mask_t  (bit(FB3)|bit(FB2)|bit(FB1))
-    # zur Unterscheidung in DYNBIND/CALLBACK:
-      #define callback_bit_t  FB3  # Bit ist gesetzt bei CALLBACK-Frames.
-                                   # Bit ist gelöscht bei DYNBIND-Frames.
   # zur näheren Unterscheidung innerhalb der Frames mit skip2-Bit=0:
     # define entrypoint_limit_t  ...  # darunter:
                                    # wenn FRAME einen nicht-lokalen Einsprung enthält,
                                    # mit Offset SP_ ist SP im STACK.
-                                   # darüber: bei VAR-Frame und FUN-Frame.
+                                   # darüber: bei VAR/FUN-Frame und CALLBACK-Frame.
     # zur näheren Unterscheidung in BLOCK/TAGBODY/APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
       #define blockgo_bit_t    FB3  # Bit gesetzt bei BLOCK- und TAGBODY-FRAME
       # zur näheren Unterscheidung in BLOCK/TAGBODY:
-        # Bit FB1 gesetzt bei TAGBODY, gelöscht bei BLOCK,
-        #define cframe_bit_t   FB2  # gesetzt bei compilierten, gelöscht bei
+        #define cframe_bit_t   FB4  # gesetzt bei compilierten, gelöscht bei
                                     # interpretierten BLOCK/TAGBODY-Frames
-        #define nested_bit_t   FB4  # für IBLOCK und ITAGBODY, gesetzt,
+        #define nested_bit_t   FB2  # für IBLOCK und ITAGBODY, gesetzt,
                                     # wenn Exitpoint bzw. Tags genestet wurden
       # zur näheren Unterscheidung in APPLY/EVAL/CATCH/UNWIND_PROTECT/HANDLER/DRIVER:
         #define dynjump_bit_t  FB2  # gelöscht bei APPLY und EVAL, gesetzt
@@ -9102,8 +9096,11 @@ typedef struct {
                                     # gelöscht bei UNWIND_PROTECT-Frames
         #define handler_bit_t  FB1  # gesetzt bei HANDLER-Frames,
                                     # gelöscht bei CATCH-Frames
-    # zur näheren Unterscheidung in VAR/FUN:
-      #define fun_bit_t        FB1  # gesetzt bei FUNCTION-FRAME, gelöscht bei VAR-FRAME
+    # zur näheren Unterscheidung in VAR/FUN/CALLBACK:
+      #define callback_bit_t   FB2  # Bit ist gelöscht bei CALLBACK-Frames.
+                                    # Bit ist gesetzt bei VAR/FUN-Frames.
+      # zur näheren Unterscheidung in VAR/FUN:
+        #define fun_bit_t      FB1  # gesetzt bei FUN-Frame, gelöscht bei VAR-Frame
 # in Objekten auf dem STACK (oint):
   #define frame_bit_o  (frame_bit_t+oint_type_shift)
   #define skip2_bit_o  (skip2_bit_t+oint_type_shift)
@@ -9126,21 +9123,20 @@ typedef struct {
   #define IBLOCK_frame_info           /* %100100 */ (bit(FB6)|bit(FB3))
   #define ITAGBODY_frame_info         /* %100101 */ (bit(FB6)|bit(FB3)|bit(FB1))
   #define unwind_limit_t                            (bit(FB6)|bit(FB3)|bit(FB2))
-  #define CBLOCK_frame_info           /* %100110 */ (bit(FB6)|bit(FB3)|bit(FB2))
-  #define CTAGBODY_frame_info         /* %100111 */ (bit(FB6)|bit(FB3)|bit(FB2)|bit(FB1))
+  #define NESTED_IBLOCK_frame_info    /* %100110 */ (bit(FB6)|bit(FB3)|bit(FB2))
+  #define NESTED_ITAGBODY_frame_info  /* %100111 */ (bit(FB6)|bit(FB3)|bit(FB2)|bit(FB1))
   #define TRAPPED_APPLY_frame_info    /* %101000 */ (bit(FB6)|bit(FB4))
   #define TRAPPED_EVAL_frame_info     /* %101001 */ (bit(FB6)|bit(FB4)|bit(FB1))
   #define UNWIND_PROTECT_frame_info   /* %101010 */ (bit(FB6)|bit(FB4)|bit(FB2))
   #define DRIVER_frame_info           /* %101011 */ (bit(FB6)|bit(FB4)|bit(FB2)|bit(FB1))
-  #define NESTED_IBLOCK_frame_info    /* %101100 */ (bit(FB6)|bit(FB4)|bit(FB3))
-  #define NESTED_ITAGBODY_frame_info  /* %101101 */ (bit(FB6)|bit(FB4)|bit(FB3)|bit(FB1))
-  #define entrypoint_limit_t                        (bit(FB6)|bit(FB4)|bit(FB3)|bit(FB2))
+  #define CBLOCK_CTAGBODY_frame_info  /* %101100 */ (bit(FB6)|bit(FB4)|bit(FB3))
+  #define entrypoint_limit_t                        (bit(FB6)|bit(FB4)|bit(FB3)|bit(FB1))
+  #ifdef HAVE_SAVED_REGISTERS
+  #define CALLBACK_frame_info         /* %101101 */ (bit(FB6)|bit(FB4)|bit(FB3)|bit(FB1))
+  #endif
   #define VAR_frame_info              /* %101110 */ (bit(FB6)|bit(FB4)|bit(FB3)|bit(FB2))
   #define FUN_frame_info              /* %101111 */ (bit(FB6)|bit(FB4)|bit(FB3)|bit(FB2)|bit(FB1))
-  #define DYNBIND_frame_info          /* %1100.. */ (bit(FB6)|bit(FB5))
-  #ifdef HAVE_SAVED_REGISTERS
-  #define CALLBACK_frame_info         /* %1101.. */ (bit(FB6)|bit(FB5)|bit(FB3))
-  #endif
+  #define DYNBIND_frame_info          /* %110... */ (bit(FB6)|bit(FB5))
   #define ENV1V_frame_info            /* %111000 */ (bit(FB6)|bit(FB5)|bit(FB4))
   #define ENV1F_frame_info            /* %111001 */ (bit(FB6)|bit(FB5)|bit(FB4)|bit(FB1))
   #define ENV1B_frame_info            /* %111010 */ (bit(FB6)|bit(FB5)|bit(FB4)|bit(FB2))
@@ -9149,6 +9145,8 @@ typedef struct {
   #define ENV2VD_frame_info           /* %111101 */ (bit(FB6)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB1))
   #define ENV5_frame_info             /* %111110 */ (bit(FB6)|bit(FB5)|bit(FB4)|bit(FB3)|bit(FB2))
 #endif
+#define CBLOCK_frame_info  CBLOCK_CTAGBODY_frame_info
+#define CTAGBODY_frame_info  CBLOCK_CTAGBODY_frame_info
 
 # Bits für Symbole in VAR-Frames:
   # bit(active_bit),bit(dynam_bit),bit(svar_bit) müssen in ein uintB passen:
