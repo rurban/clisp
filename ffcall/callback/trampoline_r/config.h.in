@@ -110,10 +110,6 @@
 /* Define as the type of `size' in shmget() declaration. */
 #undef SHMGET_SIZE_T
 
-/* CL_SHMCTL */
-/* Define if the declaration of shmctl() needs dots. */
-#undef SHMCTL_DOTS
-
 /* CL_SHM */
 /* Define if you have <sys/shm.h> and <sys/ipc.h> and shared memory works. */
 #undef HAVE_SHM
