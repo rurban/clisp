@@ -9163,6 +9163,10 @@ global char** lisp_completion (char* text, int start, int end) {
   if (nullp(mlist)) {
     end_callback();
     return NULL;
+  } else if (eq(mlist,Fixnum_0)) { # complete called describe => redraw
+    rl_refresh_line(0,0);
+    end_callback();
+    return NULL;
   } else if (!consp(mlist)) {
     # This error message is self-defense against people who fiddle
     # around with sys::completion.
