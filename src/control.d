@@ -1575,10 +1575,10 @@ LISPSPECFORM(tagbody, 0,0,body)
       while (consp(body_rest))
         { var object item = Car(body_rest);
           body_rest = Cdr(body_rest);
-          # Als Tags werden Symbole /=NIL sowie Zahlen angesehen
+          # Als Tags werden Symbole sowie Zahlen angesehen
           # (wie im Compiler), Conses sind Statements.
           if (atomp(item))
-            { if (numberp(item) || (symbolp(item) && (!nullp(item))))
+            { if (numberp(item) || symbolp(item))
                 # Marke im Stack ablegen:
                 { check_STACK();
                   pushSTACK(body_rest); # Body-Rest nach der Marke
@@ -1630,7 +1630,7 @@ LISPSPECFORM(tagbody, 0,0,body)
 LISPSPECFORM(go, 1,0,nobody)
 # (GO tag), CLTL S. 133
   { var object tag = popSTACK();
-    if (!(numberp(tag) || (symbolp(tag) && (!nullp(tag)))))
+    if (!(numberp(tag) || symbolp(tag)))
       { pushSTACK(tag);
         pushSTACK(S(go));
         fehler(source_program_error,
