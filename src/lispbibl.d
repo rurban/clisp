@@ -11618,7 +11618,8 @@ extern object name_char (object string);
  > STACK_0: optional :end-Argument
  < stringarg arg: description of the argument
  < result: String-Argument
- increases STACK by 3 */
+ increases STACK by 3
+ can trigger GC */
 typedef struct stringarg {
   object string; # data vector, a simple-string
   uintL offset;  # offset into this string
@@ -12028,6 +12029,7 @@ typedef enum {
 #   instead of the tilde.
 # > on the STACK: initial values for the Condition, depending on error-type
 nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));
+extern void check_value (condition_t errortype, const char * errorstringvoid);
 # used by all modules
 
 # Just like OS_error, but signal a FILE-ERROR.
@@ -12098,12 +12100,6 @@ nonreturning_function(extern, fehler_proper_list, (object caller, object obj));
 nonreturning_function(extern, fehler_kein_symbol, (object caller, object obj));
 # is used by EVAL, CONTROL
 
-# Error message, if an object isn't a symbol.
-# fehler_symbol(obj);
-# > obj: non-symbol
-nonreturning_function(extern, fehler_symbol, (object obj));
-# is used by SYMBOL, CONTROL
-
 /* UP: signal an error if OBJ is not a non-constant symbol and
  return OBJ otherwise
  > caller: the caller (function name)
@@ -12141,12 +12137,14 @@ nonreturning_function(extern, fehler_posfixnum, (object obj));
 # fehler_char(obj);
 # > obj: the faulty argument
 nonreturning_function(extern, fehler_char, (object obj));
+extern object check_char (object obj);
 # is used by CHARSTRG
 
 # Error message, if an argument isn't a string:
 # fehler_string(obj);
 # > obj: the faulty argument
 nonreturning_function(extern, fehler_string, (object obj));
+extern object check_string (object obj);
 # is used by CHARSTRG, FOREIGN
 
 # Error message, if an argument isn't a Simple-String:
@@ -12239,8 +12237,6 @@ nonreturning_function(global, fehler_too_few_args,
 # > obj: Argument
 # obj should be a variable
 #ifdef HAVE_FFI
-  #define check_char(obj)  \
-    if (!charp(obj)) { fehler_char(obj); }
   #define check_uint8(obj)  \
     if (!uint8_p(obj)) { fehler_uint8(obj); }
   #define check_sint8(obj)  \
@@ -12916,11 +12912,9 @@ extern object Symbol_function_checked (object symbol);
 extern object get (object symbol, object key);
 # is used by IO, CONTROL, EVAL, PREDTYPE, SEQUENCE
 
-/* UP: check whether the argument is a symbol and return it */
-static inline object test_symbol (object sy) {
-  if (!symbolp(sy)) fehler_symbol(sy);
-  return sy;
-}
+/* UP: check whether the argument is a symbol and return it
+ can trigger GC */
+extern object check_symbol (object sy);
 /* used by CONTROL, EVAL, I18N, RECORD, STREAM, SYMBOL */
 
 # ##################### ARITBIBL for LISTARIT.D ############################ #

@@ -10678,7 +10678,7 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   # We choose to restore the initial signal state to avoid a double
   # interruption, even though that implies that signals sent to us
   # explicitly (Break command) in this time will be ignored.
-  if (!boundp(command)) {
+  if (missingp(command)) {
     # call command interpreter:
     run_time_stop();
     begin_system_call();
@@ -10703,7 +10703,7 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
     VALUES_IF(ergebnis);
   } else {
     # execute single command:
-    if (!stringp(command)) fehler_string(command);
+    command = check_string(command);
     with_string_0(command,O(misc_encoding),command_asciz, {
       # execute command:
       run_time_stop();
@@ -10739,9 +10739,9 @@ LISPFUNN(shell_name,0) {
 
 LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   var object command = popSTACK();
-  if (!boundp(command))
+  if (missingp(command))
     command = O(command_shell);
-  if (!stringp(command)) fehler_string(command);
+  command = check_string(command);
   var HANDLE prochandle;
   with_string_0(command,O(misc_encoding),command_asciz, {
     # Start new process.
@@ -10833,13 +10833,13 @@ local inline object allocate_cons_v (object carobj, object cdrobj) {
 # returns: exit code (zero when (nullp wait))
 LISPFUN(launch,seclass_default,1,0,norest,key,6,
         (kw(arguments),kw(wait),kw(input),kw(output),kw(error),kw(priority))) {
+  var object command_arg = check_string(STACK_6);
   var object priority_arg = STACK_0;
   var object error_arg = STACK_1;
   var object output_arg = STACK_2;
-  var object input_arg = STACK_(3);
-  var object wait_arg = STACK_(4);
-  var object arg_arg = STACK_(5);
-  var object command_arg = STACK_(6);
+  var object input_arg = STACK_3;
+  var object wait_arg = STACK_4;
+  var object arg_arg = STACK_5;
   var int handletype; # todo: check it
   var DWORD pry = NORMAL_PRIORITY_CLASS;
   if (boundp(priority_arg))
@@ -10858,8 +10858,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
     }
   if (!boundp(wait_arg)) wait_arg = S(t);
   if (!boundp(arg_arg)) arg_arg = S(nil);
-    else if (!consp(arg_arg)) fehler_list(arg_arg);
-  if (!stringp(command_arg)) fehler_string(command_arg);
+  else if (!consp(arg_arg)) fehler_list(arg_arg);
   var Handle hinput = MyDupHandle((boundp(input_arg) && !eq(input_arg,S(Kterminal)))?
     stream_lend_handle(input_arg,true,&handletype):stdin_handle);
   var Handle houtput = MyDupHandle((boundp(output_arg) && !eq(output_arg,S(Kterminal)))?
@@ -10907,7 +10906,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
     }
     FREE_DYNAMIC_ARRAY(command_data);
   }
-      
+
   var DWORD exitcode = 0;
   if (!nullp(wait_arg)) {
     /* Wait until it terminates, get its exit status code. */
@@ -10938,7 +10937,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
 
 LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   var object command = popSTACK();
-  if (!boundp(command)) {
+  if (missingp(command)) {
     # execute (EXECUTE shell) :
    #ifdef UNIX
     pushSTACK(O(user_shell)); # Shell-Name
@@ -10951,7 +10950,7 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
     # the command has to be passed already split into single parts at
     # the white spaces to the DOS command-interpreter. The function
     # system() does this job for us, fortunately.
-    if (!stringp(command)) fehler_string(command);
+    command = check_string(command);
     with_string_0(command,O(misc_encoding),command_asciz, {
       begin_system_call();
       # call program:
@@ -11034,7 +11033,7 @@ LISPFUNN(dynload_modules,2) {
   {
     var uintL count;
     dotimesL(count,stringcount, {
-      if (!stringp(Car(*arg_))) fehler_string(Car(*arg_));
+      Car(*arg_) = check_string(Car(*arg_));
       pushSTACK(string_to_asciz(Car(*arg_),Symbol_value(S(ascii))));
       *arg_ = Cdr(*arg_);
     });

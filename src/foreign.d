@@ -3760,56 +3760,52 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
 # (FFI::FOREIGN-LIBRARY name [required-version])
 # returns a foreign library specifier.
 LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
+{
+  var object name = check_string(STACK_1);
+  var uintL v;
   {
-    var object name = STACK_1;
-    if (!stringp(name))
-      fehler_string(name);
-    var uintL v;
-    {
-      var object version = STACK_0;
-      if (!boundp(STACK_0)) {
-        v = 0;
-      } else {
-        check_uint32(version); v = I_to_uint32(version);
-      }
+    var object version = STACK_0;
+    if (!boundp(STACK_0)) {
+      v = 0;
+    } else {
+      check_uint32(version); v = I_to_uint32(version);
     }
-    # Check whether the library is on the alist or has already been opened.
-    {
-      var object alist = O(foreign_libraries);
-      while (consp(alist)) {
-        if (equal(name,Car(Car(alist)))) {
-          var object lib = Cdr(Car(alist));
-          if (!fp_validp(TheFpointer(lib))) {
-            # Library already existed in a previous Lisp session.
-            # Update the address, and make it valid.
-            var struct Library * libaddr = open_library(name,v);
-            TheFpointer(lib)->fp_pointer = libaddr;
-            mark_fp_valid(TheFpointer(lib));
-          }
-          value1 = lib;
-          goto done;
-        }
-        alist = Cdr(alist);
-      }
-    }
-    # Pre-allocate room:
-    pushSTACK(allocate_cons()); pushSTACK(allocate_cons());
-    pushSTACK(allocate_fpointer((void*)0));
-    # Open the library:
-    {
-      var struct Library * libaddr = open_library(STACK_(1+3),v);
-      var object lib = popSTACK();
-      TheFpointer(lib)->fp_pointer = libaddr;
-      value1 = lib;
-      var object acons = popSTACK();
-      var object new_cons = popSTACK();
-      Car(acons) = STACK_1; Cdr(acons) = lib;
-      Car(new_cons) = acons; Cdr(new_cons) = O(foreign_libraries);
-      O(foreign_libraries) = new_cons;
-    }
-   done:
-    mv_count=1; skipSTACK(2);
   }
+  {/* Check whether the library is on the alist or has already been opened. */
+    var object alist = O(foreign_libraries);
+    while (consp(alist)) {
+      if (equal(name,Car(Car(alist)))) {
+        var object lib = Cdr(Car(alist));
+        if (!fp_validp(TheFpointer(lib))) {
+          # Library already existed in a previous Lisp session.
+          # Update the address, and make it valid.
+          var struct Library * libaddr = open_library(name,v);
+          TheFpointer(lib)->fp_pointer = libaddr;
+          mark_fp_valid(TheFpointer(lib));
+        }
+        value1 = lib;
+        goto done;
+      }
+      alist = Cdr(alist);
+    }
+  }
+  # Pre-allocate room:
+  pushSTACK(allocate_cons()); pushSTACK(allocate_cons());
+  pushSTACK(allocate_fpointer((void*)0));
+  { /* Open the library: */
+    var struct Library * libaddr = open_library(STACK_(1+3),v);
+    var object lib = popSTACK();
+    TheFpointer(lib)->fp_pointer = libaddr;
+    value1 = lib;
+    var object acons = popSTACK();
+    var object new_cons = popSTACK();
+    Car(acons) = STACK_1; Cdr(acons) = lib;
+    Car(new_cons) = acons; Cdr(new_cons) = O(foreign_libraries);
+    O(foreign_libraries) = new_cons;
+  }
+ done:
+  mv_count=1; skipSTACK(2);
+}
 
 # Try to make a Foreign-Pointer valid again.
 # validate_fpointer(obj);
@@ -3854,61 +3850,56 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
 # (FFI::FOREIGN-LIBRARY-VARIABLE name library offset c-type)
 # returns a foreign variable.
 LISPFUNN(foreign_library_variable,4)
-  {
-    if (!stringp(STACK_3))
-      fehler_string(STACK_3);
-    STACK_3 = coerce_ss(STACK_3);
-    test_library(STACK_2);
-    check_sint32(STACK_1);
-    foreign_layout(STACK_0);
-    var uintL size = data_size;
-    var uintL alignment = data_alignment;
-    pushSTACK(make_faddress(STACK_2,(sintP)I_to_sint32(STACK_1)));
-    var object fvar = allocate_fvariable();
-    TheFvariable(fvar)->fv_name = STACK_(3+1);
-    TheFvariable(fvar)->fv_address = STACK_0;
-    TheFvariable(fvar)->fv_size = fixnum(size);
-    TheFvariable(fvar)->fv_type = STACK_(0+1);
-    if (!(((uintP)Faddress_value(TheFvariable(fvar)->fv_address) & (alignment-1)) == 0)) {
-      pushSTACK(fvar);
-      pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
-    }
-    VALUES1(fvar); skipSTACK(4+1);
+{
+  STACK_3 = coerce_ss(STACK_3);
+  test_library(STACK_2);
+  check_sint32(STACK_1);
+  foreign_layout(STACK_0);
+  var uintL size = data_size;
+  var uintL alignment = data_alignment;
+  pushSTACK(make_faddress(STACK_2,(sintP)I_to_sint32(STACK_1)));
+  var object fvar = allocate_fvariable();
+  TheFvariable(fvar)->fv_name = STACK_(3+1);
+  TheFvariable(fvar)->fv_address = STACK_0;
+  TheFvariable(fvar)->fv_size = fixnum(size);
+  TheFvariable(fvar)->fv_type = STACK_(0+1);
+  if (!(((uintP)Faddress_value(TheFvariable(fvar)->fv_address) & (alignment-1)) == 0)) {
+    pushSTACK(fvar);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
   }
+  VALUES1(fvar); skipSTACK(4+1);
+}
 
 # (FFI::FOREIGN-LIBRARY-FUNCTION name library offset c-function-type)
 # returns a foreign function.
 LISPFUNN(foreign_library_function,4)
+{
+  STACK_3 = coerce_ss(STACK_3);
+  test_library(STACK_2);
+  check_sint32(STACK_1);
   {
-    if (!stringp(STACK_3))
-      fehler_string(STACK_3);
-    STACK_3 = coerce_ss(STACK_3);
-    test_library(STACK_2);
-    check_sint32(STACK_1);
-    {
-      var object fvd = STACK_0;
-      if (!(simple_vector_p(fvd)
-            && (Svector_length(fvd) == 4)
-            && eq(TheSvector(fvd)->data[0],S(c_function))
-            && simple_vector_p(TheSvector(fvd)->data[2])
-         ) ) {
-        dynamic_bind(S(print_circle),T); # *PRINT-CIRCLE* an T binden
-        pushSTACK(fvd);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,GETTEXT("~: illegal foreign function type ~"));
-      }
+    var object fvd = STACK_0;
+    if (!(simple_vector_p(fvd)
+          && (Svector_length(fvd) == 4)
+          && eq(TheSvector(fvd)->data[0],S(c_function))
+          && simple_vector_p(TheSvector(fvd)->data[2]))) {
+      dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
+      pushSTACK(fvd);
+      pushSTACK(TheSubr(subr_self)->name);
+      fehler(error,GETTEXT("~: illegal foreign function type ~"));
     }
-    pushSTACK(make_faddress(STACK_2,(sintP)I_to_sint32(STACK_1)));
-    var object ffun = allocate_ffunction();
-    var object fvd = STACK_(0+1);
-    TheFfunction(ffun)->ff_name = STACK_(3+1);
-    TheFfunction(ffun)->ff_address = STACK_0;
-    TheFfunction(ffun)->ff_resulttype = TheSvector(fvd)->data[1];
-    TheFfunction(ffun)->ff_argtypes = TheSvector(fvd)->data[2];
-    TheFfunction(ffun)->ff_flags = TheSvector(fvd)->data[3];
-    VALUES1(ffun); skipSTACK(4+1);
   }
+  pushSTACK(make_faddress(STACK_2,(sintP)I_to_sint32(STACK_1)));
+  var object ffun = allocate_ffunction();
+  var object fvd = STACK_(0+1);
+  TheFfunction(ffun)->ff_name = STACK_(3+1);
+  TheFfunction(ffun)->ff_address = STACK_0;
+  TheFfunction(ffun)->ff_resulttype = TheSvector(fvd)->data[1];
+  TheFfunction(ffun)->ff_argtypes = TheSvector(fvd)->data[2];
+  TheFfunction(ffun)->ff_flags = TheSvector(fvd)->data[3];
+  VALUES1(ffun); skipSTACK(4+1);
+}
 
 #else # UNIX
 

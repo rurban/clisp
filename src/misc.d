@@ -263,8 +263,7 @@ LISPFUN(get_env,seclass_default,0,1,norest,nokey,0,NIL) {
     VALUES1(listof(count));
     return;
   }
-  if (!stringp(arg))
-    fehler_string(arg);
+  arg = check_string(arg);
   var const char* found;
   with_string_0(arg,O(misc_encoding),envvar, {
     begin_system_call();
@@ -366,11 +365,10 @@ global int clisp_setenv (const char * name, const char * value) {
 }
 
 LISPFUNN(set_env,2)
-# (SYS::SETENV name value)
-# define the OS Environment variable NAME to have VALUE (string or NIL)
-{
-  if (!stringp(STACK_1)) fehler_string(STACK_1);
-  if (!stringp(STACK_0) && !nullp(STACK_0)) fehler_string(STACK_0);
+{ /* (SYS::SETENV name value)
+ define the OS Environment variable NAME to have VALUE (string or NIL) */
+  STACK_1 = check_string(STACK_1);
+  if (!nullp(STACK_0)) STACK_0 = check_string(STACK_0);
   var object value = popSTACK();
   var object name = popSTACK();
   var int ret;
@@ -403,66 +401,58 @@ LISPFUNN(set_env,2)
 #ifdef WIN32_NATIVE
 
 LISPFUNN(registry,2)
-# (SYSTEM::REGISTRY path name) returns the value of path\\name in the registry.
-# Used to implement SHORT-SITE-NAME and LONG-SITE-NAME.
-  {
-    if (!stringp(STACK_1))
-      fehler_string(STACK_1);
-    if (!stringp(STACK_0))
-      fehler_string(STACK_0);
-    with_string_0(STACK_1,O(misc_encoding),pathz, {
-      with_string_0(STACK_0,O(misc_encoding),namez, {
-        LONG err;
-        HKEY key;
-        DWORD type;
-        DWORD size;
-        begin_system_call();
-        err = RegOpenKeyEx(HKEY_LOCAL_MACHINE,pathz,0,KEY_READ, &key);
-        if (!(err == ERROR_SUCCESS)) {
-          if (err == ERROR_FILE_NOT_FOUND) {
-            VALUES1(NIL);
-            goto none;
-          }
-          SetLastError(err); OS_error();
+{ /* (SYSTEM::REGISTRY path name) => the value of path\\name in the registry.
+ Used to implement SHORT-SITE-NAME and LONG-SITE-NAME. */
+  STACK_1 = check_string(STACK_1);
+  STACK_0 = check_string(STACK_0);
+  with_string_0(STACK_1,O(misc_encoding),pathz, {
+    with_string_0(STACK_0,O(misc_encoding),namez, {
+      LONG err;
+      HKEY key;
+      DWORD type;
+      DWORD size;
+      begin_system_call();
+      err = RegOpenKeyEx(HKEY_LOCAL_MACHINE,pathz,0,KEY_READ, &key);
+      if (!(err == ERROR_SUCCESS)) {
+        if (err == ERROR_FILE_NOT_FOUND) {
+          VALUES1(NIL);
+          goto none;
         }
-        err = RegQueryValueEx(key,namez,NULL,&type, NULL,&size);
-        if (!(err == ERROR_SUCCESS)) {
-          if (err == ERROR_FILE_NOT_FOUND) {
-            RegCloseKey(key);
-            VALUES1(NIL);
-            goto none;
-          }
-          SetLastError(err); OS_error();
+        SetLastError(err); OS_error();
+      }
+      err = RegQueryValueEx(key,namez,NULL,&type, NULL,&size);
+      if (!(err == ERROR_SUCCESS)) {
+        if (err == ERROR_FILE_NOT_FOUND) {
+          RegCloseKey(key);
+          VALUES1(NIL);
+          goto none;
         }
-        switch (type) {
-          case REG_SZ:
-            {
-              var char* buf = (char*)alloca(size);
-              err = RegQueryValueEx(key,namez,NULL,&type, buf,&size);
-              if (!(err == ERROR_SUCCESS)) { SetLastError(err); OS_error(); }
-              err = RegCloseKey(key);
-              if (!(err == ERROR_SUCCESS)) { SetLastError(err); OS_error(); }
-              end_system_call();
-              VALUES1(asciz_to_string(buf,O(misc_encoding)));
-            }
-            break;
-          default:
-            {
-              var object path_name;
-              pushSTACK(STACK_1); pushSTACK(O(backslash_string)); pushSTACK(STACK_(0+2));
-              path_name = string_concat(3);
-              pushSTACK(path_name);
-              pushSTACK(TheSubr(subr_self)->name);
-              fehler(error,
-                     GETTEXT("~: type of attribute ~ is unsupported")
-                    );
-            }
+        SetLastError(err); OS_error();
+      }
+      switch (type) {
+        case REG_SZ: {
+          var char* buf = (char*)alloca(size);
+          err = RegQueryValueEx(key,namez,NULL,&type, buf,&size);
+          if (!(err == ERROR_SUCCESS)) { SetLastError(err); OS_error(); }
+          err = RegCloseKey(key);
+          if (!(err == ERROR_SUCCESS)) { SetLastError(err); OS_error(); }
+          end_system_call();
+          VALUES1(asciz_to_string(buf,O(misc_encoding)));
         }
-      });
-    none:;
+          break;
+        default: {
+          var object path_name;
+          pushSTACK(STACK_1); pushSTACK(O(backslash_string)); pushSTACK(STACK_(0+2));
+          path_name = string_concat(3);
+          pushSTACK(path_name);
+          pushSTACK(TheSubr(subr_self)->name);
+          fehler(error,GETTEXT("~: type of attribute ~ is unsupported"));
+        }
+      }
     });
-    skipSTACK(2);
-  }
+                 none:;});
+  skipSTACK(2);
+}
 
 #endif
 
@@ -574,7 +564,8 @@ LISPFUN(module_info,seclass_no_se,0,2,norest,nokey,0,NIL)
   var object arg = popSTACK();
   if (missingp(arg)) {
     VALUES1(listof(modules_names_to_stack()));
-  } else if (stringp(arg)) {
+  } else {
+    arg = check_string(arg);
     var module_t *mod;
     with_string_0(arg,O(misc_encoding),mod_namez,
                   { mod = find_module(mod_namez); });
@@ -593,5 +584,5 @@ LISPFUN(module_info,seclass_no_se,0,2,norest,nokey,0,NIL)
       mv_count = 5;
     } else
       VALUES3(arg,fixnum(*(mod->stab_size)),fixnum(*(mod->otab_size)));
-  } else fehler_string(arg);
+  }
 }

@@ -463,3 +463,33 @@ good
   (foo () :test (lambda (c) (declare (ignore c)) nil) 'bad)
   (foo () 'good))
 good
+
+;; restarts
+(defmacro check-use-value (fun good bad &key (type 'type-error) (test 'eql))
+  `(handler-bind ((,type (lambda (c)
+                           (princ c) (terpri)
+                           (use-value ',good))))
+     (,test (,fun ',good) (,fun ',bad))))
+check-use-value
+
+(check-use-value char-code #\1 12 :test =) t
+(check-use-value symbol-name good "bad" :test string=) t
+(check-use-value intern "BAR" bar :test eq) t
+
+(progn (makunbound 'bar)
+(handler-bind ((unbound-variable
+                (lambda (c) (declare (ignore c)) (store-value 41))))
+  (1+ bar)))
+42
+
+bar 41
+
+(progn
+ (defclass zot () (zot-foo))
+ (setq bar (make-instance 'zot))
+ (handler-bind ((unbound-slot
+                 (lambda (c) (declare (ignore c)) (store-value 41))))
+   (1+ (slot-value bar 'zot-foo))))
+42
+
+(slot-value bar 'zot-foo) 41

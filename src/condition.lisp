@@ -1025,17 +1025,21 @@
 
 ;; These macros supersede the corresponding ones from macros2.lisp.
 
-(defun report-new-value (stream)
-  (write-string (report-one-new-value-string) stream))
-
-(defun prompt-for-new-value (place)
+(defun prompt-for-new-value (place &optional instead-p)
   (let ((nn (length (nth-value 2 (get-setf-expansion place)))))
     (cond ((= nn 1)
-           (format *debug-io* (prompt-for-new-value-string) place)
+           (format *debug-io*
+                   (if instead-p
+                       (TEXT "~%Use instead~@[ of ~S~]: ")
+                       (prompt-for-new-value-string))
+                   place)
            (list (read *debug-io*)))
           ((do ((ii 1 (1+ ii)) res)
                ((> ii nn) (nreverse res))
-             (format *debug-io* (TEXT "~%New ~S [value ~D of ~D]: ")
+             (format *debug-io*
+                     (if instead-p
+                         (TEXT "~%Use instead of ~S [value ~D of ~D]: ")
+                         (TEXT "~%New ~S [value ~D of ~D]: "))
                      place ii nn)
              (push (read *debug-io*) res))))))
 
@@ -1043,7 +1047,9 @@
 (defmacro check-type (place typespec &optional (string nil))
   (let ((tag1 (gensym))
         (tag2 (gensym))
-        (var (gensym)))
+        (var (gensym))
+        (reporter `(lambda (stream)
+                     (format stream (report-one-new-value-string) ',place))))
     `(TAGBODY
        ,tag1
        (LET ((,var ,place))
@@ -1054,19 +1060,13 @@
              (TYPE-ERROR-STRING)
              (CHECK-TYPE-ERROR-STRING ',place ,string ',typespec)
              ,var)
-           ;; only one restart, will "continue" invoke it?
+           ;; only one restart, will "continue" invoke it? - no!
            (STORE-VALUE
-             :REPORT REPORT-NEW-VALUE
+             :REPORT ,reporter
              :INTERACTIVE (LAMBDA () (PROMPT-FOR-NEW-VALUE ',place))
              (NEW-VALUE) (SETF ,place NEW-VALUE))))
        (GO ,tag1)
        ,tag2)))
-
-(defun report-no-new-value (stream)
-  (write-string (report-no-new-value-string) stream))
-
-(defun report-new-values (stream)
-  (write-string (report-new-values-string) stream))
 
 ;; this is the same as `default-restart-interactive' but it must
 ;; be kept a separate object for the benefit of `appease-cerrors'
@@ -1075,7 +1075,14 @@
 ;; ASSERT, CLtL2 p. 891
 (defmacro assert (test-form &optional (place-list nil) (datum nil) &rest args)
   (let ((tag1 (gensym))
-        (tag2 (gensym)))
+        (tag2 (gensym))
+        (reporter `(lambda (stream)
+                     (format stream
+                             (,(case (length place-list)
+                                     (0 'REPORT-NO-NEW-VALUE-STRING)
+                                     (1 'REPORT-ONE-NEW-VALUE-STRING)
+                                     (t 'REPORT-NEW-VALUES-STRING)))
+                             ',place-list))))
     `(TAGBODY
        ,tag1
        (WHEN ,test-form (GO ,tag2))
@@ -1087,10 +1094,7 @@
                 `("~A" (ASSERT-ERROR-STRING ',test-form))))
          ;; only one restart: CONTINUE
          (CONTINUE
-             :REPORT ,(case (length place-list)
-                            (0 'REPORT-NO-NEW-VALUE)
-                            (1 'REPORT-NEW-VALUE)
-                            (t 'REPORT-NEW-VALUES))
+             :REPORT ,reporter
              :INTERACTIVE
                ,(let ((prompts (mapcar #'(lambda (place)
                                            `(PROMPT-FOR-NEW-VALUE ',place))
@@ -1114,6 +1118,29 @@
                              all-setter-forms)))))
        (GO ,tag1)
        ,tag2)))
+
+(defun check-value (place condition)
+  ;; 2 values: new-value, store-p
+  (if place
+      (restart-case (error condition)
+        (store-value (val)
+          :report (lambda (stream)
+                    (format stream (report-one-new-value-string) place))
+          :interactive (lambda () (prompt-for-new-value place))
+          (return-from check-value (values val t)))
+        (use-value (val)
+          :report (lambda (stream)
+                    (format stream (report-one-new-value-string-instead)
+                            place))
+          :interactive (lambda () (prompt-for-new-value place t))
+          (return-from check-value (values val nil))))
+      (restart-case (error condition)
+        (use-value (val)
+          :report (lambda (stream)
+                    (format stream (report-one-new-value-string-instead)
+                            place))
+          :interactive (lambda () (prompt-for-new-value place t))
+          (return-from check-value (values val nil))))))
 
 ;;; 29.4.3. Exhaustive Case Analysis
 
@@ -1161,7 +1188,10 @@
                      ,errorstring ,var))))))
          (retry-loop (casename place clauselist errorstring expected-type)
            (let ((g (gensym))
-                 (h (gensym)))
+                 (h (gensym))
+                 (reporter `(lambda (stream)
+                              (format stream (report-one-new-value-string)
+                                      ',place))))
              `(BLOCK ,g
                 (TAGBODY
                   ,h
@@ -1177,9 +1207,9 @@
                               (TYPE-ERROR-STRING)
                               ,errorstring
                               ,place))
-                          ;; only one restart, will "continue" invoke it?
+                          ;; only one restart, will "continue" invoke it? - NO
                           (STORE-VALUE
-                            :REPORT REPORT-NEW-VALUE
+                            :REPORT ,reporter
                             :INTERACTIVE (LAMBDA () (PROMPT-FOR-NEW-VALUE ',place))
                             (NEW-VALUE) (SETF ,place NEW-VALUE)))
                         (GO ,h)))))))))

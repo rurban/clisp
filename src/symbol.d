@@ -3,31 +3,6 @@
 
 #include "lispbibl.c"
 
-
-#if 0 # unbenutzt
-# UP: Liefert die globale Funktionsdefinition eines Symbols,
-# mit Test, ob das Symbol eine globale Funktion darstellt.
-# Symbol_function_checked(symbol)
-# > symbol: Symbol
-# < ergebnis: seine globale Funktionsdefinition
-  global object Symbol_function_checked (object symbol);
-  global object Symbol_function_checked(symbol)
-    var object symbol;
-    {
-      var object fun = Symbol_function(symbol);
-      if (! boundp(fun))
-        fehler_undef_function(S(symbol_function),symbol);
-      if (consp(fun)) {
-        pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
-        pushSTACK(symbol);
-        pushSTACK(S(function));
-        fehler(undefined_function,
-               GETTEXT("~: ~ is a macro, not a function"));
-      }
-      return fun;
-    }
-#endif
-
 /* Error when the symbol's property list has odd length.
  fehler_sym_plist_odd(symbol);
  > symbol: Symbol */
@@ -89,7 +64,7 @@ global object get (object symbol, object key) {
 LISPFUNN(putd,2)
 # (SYS::%PUTD symbol function)
   {
-    var object symbol = test_symbol(STACK_1);
+    var object symbol = check_symbol(STACK_1);
     var object fun = STACK_0;
     # fun muss SUBR, FSUBR, Closure oder #<MACRO expander> sein,
     # Lambda-Ausdruck ist nicht mehr gültig.
@@ -113,7 +88,7 @@ LISPFUNN(find_subr,1)
 #   (or (get symbol 'sys::traced-definition) (symbol-function symbol))
 # )
   {
-    var object symbol = test_symbol(popSTACK());
+    var object symbol = check_symbol(popSTACK());
     var object result = get(symbol,S(traced_definition));
     if (! boundp(result))
       result = Symbol_function(symbol);
@@ -129,8 +104,8 @@ LISPFUNN(proclaim_constant,2)
 # (SYS::%PROCLAIM-CONSTANT symbol value) erklärt ein Symbol zu einer Konstanten
 # und ihm einen Wert zu.
   {
-    var object val = popSTACK();
-    var object symbol = test_symbol(popSTACK());
+    var object symbol = check_symbol(STACK_1);
+    var object val = STACK_0; skipSTACK(2);
     set_const_flag(TheSymbol(symbol)); # symbol zu einer Konstanten machen
     Symbol_value(symbol) = val; # ihren Wert setzen
     VALUES1(symbol); /* return symbol */
@@ -138,7 +113,7 @@ LISPFUNN(proclaim_constant,2)
 
 LISPFUN(get,seclass_read,2,1,norest,nokey,0,NIL)
 { /* (GET symbol key [not-found]), CLTL p. 164 */
-  var object symbol = test_symbol(STACK_2);
+  var object symbol = check_symbol(STACK_2);
   var object result = get(symbol,STACK_1); # suchen
   if (! boundp(result)) { /* not found? */
     result = STACK_0; # Defaultwert ist not-found
@@ -258,14 +233,14 @@ LISPFUNNR(get_properties,2)
 LISPFUNN(putplist,2)
 # (SYS::%PUTPLIST symbol list) == (SETF (SYMBOL-PLIST symbol) list)
   {
-    var object list = popSTACK();
-    var object symbol = test_symbol(popSTACK());
+    var object symbol = check_symbol(STACK_1);
+    var object list = STACK_0; skipSTACK(2);
     VALUES1(Symbol_plist(symbol) = list);
   }
 
 LISPFUNN(put,3)
 { /* (SYS::%PUT symbol key value) == (SETF (GET symbol key) value) */
-  var object symbol = test_symbol(STACK_2);
+  var object symbol = check_symbol(STACK_2);
   var gcv_object_t *tail = plist_find(&Symbol_plist(symbol),STACK_1);
   if (tail == NULL) /* property list has odd length */
     fehler_sym_plist_odd(symbol);
@@ -290,8 +265,8 @@ LISPFUNN(put,3)
 
 LISPFUNN(remprop,2)
 { /* (REMPROP symbol indicator), CLTL p. 166 */
-  var object key = popSTACK();
-  var object symbol = test_symbol(popSTACK());
+  var object symbol = check_symbol(STACK_1);
+  var object key = STACK_0; skipSTACK(2);
   var gcv_object_t *tail = plist_find(&Symbol_plist(symbol),key);
   if (tail == NULL) fehler_sym_plist_odd(symbol);
   var object plistr = *tail;
@@ -307,19 +282,19 @@ LISPFUNN(remprop,2)
 
 LISPFUNNR(symbol_package,1)
 { /* (SYMBOL-PACKAGE symbol), CLTL p. 170 */
-  var object symbol = test_symbol(popSTACK());
+  var object symbol = check_symbol(popSTACK());
   VALUES1(Symbol_package(symbol));
 }
 
 LISPFUNNR(symbol_plist,1)
 { /* (SYMBOL-PLIST symbol), CLTL p. 166 */
-  var object symbol = test_symbol(popSTACK());
+  var object symbol = check_symbol(popSTACK());
   VALUES1(Symbol_plist(symbol));
 }
 
 LISPFUN(symbol_name,seclass_no_se,1,0,norest,nokey,0,NIL)
 { /* (SYMBOL-NAME symbol), CLTL S. 168 */
-  var object symbol = test_symbol(popSTACK());
+  var object symbol = check_symbol(popSTACK());
   VALUES1(Symbol_name(symbol));
 }
 

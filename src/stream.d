@@ -824,8 +824,8 @@ global object var_stream (object sym, uintB strmflags) {
 # returns the Stream, that is the value of the Symbol, and checks, if it is an
 # open Stream with Direction direction (:PROBE, :INPUT, :OUTPUT or :IO) .
 LISPFUN(symbol_stream,seclass_read,1,1,norest,nokey,0,NIL) {
-  var object direction = popSTACK();
-  var object symbol = test_symbol(popSTACK());
+  var object symbol = check_symbol(STACK_1);
+  var object direction = STACK_0; skipSTACK(2);
   VALUES1(var_stream(symbol,(uintB)(
        eq(direction,S(Kinput)) ? strmflags_rd_ch_B : /* :INPUT */
        eq(direction,S(Koutput)) ? strmflags_wr_ch_B : /* :OUTPUT */
@@ -892,10 +892,10 @@ nonreturning_function(local, fehler_bad_integer, (object stream, object obj)) {
 # > args_pointer: Pointer to the Arguments
 # > argcount: number of Arguments
 local void test_stream_args (gcv_object_t* args_pointer, uintC argcount) {
-  dotimesC(argcount,argcount, {
+  while (argcount--) {
     var object next_arg = NEXT(args_pointer);
     check_stream(next_arg);
-  });
+  };
 }
 
 # Function: Tests whether an object is an input-stream.
@@ -14820,10 +14820,9 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
 
   if (missingp(STACK_3))
     hostname = "localhost";
-  else if (stringp(STACK_3))
-    hostname = TheAsciz(string_to_asciz(STACK_3,O(misc_encoding)));
   else
-    fehler_string(STACK_3);
+    hostname = TheAsciz(string_to_asciz(check_string(STACK_3),
+                                        O(misc_encoding)));
 
   begin_system_call();
   handle = create_client_socket(hostname,posfixnum_to_L(STACK_4),tvp);

@@ -73,20 +73,24 @@
 #endif
 #endif
 
-# check whether the OBJ is a DIR-KEY
+/* check whether the OBJ is a DIR-KEY
+ can trigger GC */
 local object test_dir_key (object obj, bool check_open) {
+ start:
   if (!dir_key_p(obj)) {
-    pushSTACK(obj);        # slot DATUM         of TYPE-ERROR
-    pushSTACK(S(dir_key)); # slot EXPECTED-TYPE of TYPE-ERROR
-    pushSTACK(S(dir_key));
-    pushSTACK(obj);
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);        /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(dir_key)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(dir_key)); pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~: ~ is not a ~"));
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    obj = value1; goto start;
   }
   if (check_open && TheDirKey(obj)->closed_p) {
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~ on ~ is illegal"));
+    check_value(error,GETTEXT("~ on ~ is illegal"));
+    obj = value1; goto start;
   }
   return obj;
 }
@@ -194,7 +198,7 @@ LISPFUNN(dir_key_close,1) {
   } else
   #endif
   {
-    test_dir_key(dkey,false);
+    dkey = test_dir_key(dkey,false);
     if (!TheDirKey(dkey)->closed_p) {
       #ifdef WIN32_REGISTRY
       if (eq(TheDirKey(dkey)->type,S(Kwin32))) {
@@ -352,7 +356,7 @@ LISPFUN(dir_key_open,seclass_default,2,0,norest,key,2,
         (kw(direction),kw(if_does_not_exist))) {
   var object if_not_exists_arg = STACK_0;
   var object direction_arg = STACK_1;
-  var object path = STACK_2;
+  var object path = check_string(STACK_2);
   var object root = STACK_3;
   var void* ret_handle;
   var uintL status;
@@ -363,13 +367,12 @@ LISPFUN(dir_key_open,seclass_default,2,0,norest,key,2,
   if (if_not_exists == IF_DOES_NOT_EXIST_UNBOUND)
     if_not_exists = (direction == DIRECTION_INPUT ?
                      IF_DOES_NOT_EXIST_ERROR : IF_DOES_NOT_EXIST_CREATE);
-  if (!stringp(path)) fehler_string(path);
   # create the key handle
   var object type = (dir_key_p(root) ? TheDirKey(root)->type : root);
   #ifdef WIN32_REGISTRY
   if (eq(type,S(Kwin32))) {
     if (dir_key_p(root)) {
-      test_dir_key(root,true);
+      root = test_dir_key(root,true);
       with_string_0(path,O(misc_encoding),pathz,{
         open_reg_key((HKEY)(TheDirKey(root)->handle),pathz,direction,
                      if_not_exists,(HKEY*)&ret_handle);
@@ -386,7 +389,7 @@ LISPFUN(dir_key_open,seclass_default,2,0,norest,key,2,
   #ifdef ACCESS_LDAP
   if (eq(type,S(Kldap))) {
     if (dir_key_p(root)) {
-      test_dir_key(root,true);
+      root = test_dir_key(root,true);
       begin_system_call();
       with_string_0(path,O(misc_encoding),pathz,{
         status = ldap_simple_bind_s((LDAP*)ret_handle,pathz,NULL);
@@ -585,15 +588,15 @@ local int parse_scope (object scope) {
 # < dkey path scope
 # > #(dkey init-path scope (node ...))
 LISPFUNN(dkey_search_iterator,3) {
-  if (!stringp(STACK_1)) fehler_string(STACK_1);
+  STACK_1 = check_string(STACK_1);
   parse_scope(STACK_0);
-  value1 = allocate_vector(4);
-  ITST_DKEY(value1)  = test_dir_key(STACK_2,true);
-  ITST_PATH(value1)  = STACK_1;
-  ITST_SCOPE(value1) = STACK_0;
-  ITST_STACK(value1) = T;
-  mv_count = 1;
-  skipSTACK(3);
+  pushSTACK(allocate_vector(4)); /* return value */
+  ITST_DKEY(STACK_0)  = test_dir_key(STACK_3,true);
+  ITST_PATH(STACK_0)  = STACK_2;
+  ITST_SCOPE(STACK_0) = STACK_1;
+  ITST_STACK(STACK_0) = T;
+  VALUES1(STACK_0);
+  skipSTACK(4);
 }
 
 # open HANDLE to point to DKEY\\PATH
@@ -605,6 +608,7 @@ local void init_iteration_node (object state, object subkey,
                                 object *new_path, object *failed_p) {
   pushSTACK(state);
   pushSTACK(subkey);
+  ITST_PATH(STACK_1/*state*/) = check_string(ITST_PATH(STACK_1));
   pushSTACK(allocate_cons());         # stack
   pushSTACK(allocate_vector(7));      # node
   pushSTACK(allocate_fpointer(NULL)); # handle
@@ -614,7 +618,6 @@ local void init_iteration_node (object state, object subkey,
   subkey = STACK_3;
   state  = STACK_4;
   var object path = ITST_PATH(state);
-  if (!stringp(path)) fehler_string(path);
   # (push node stack)
   if (eq(T,ITST_STACK(state)))
     ITST_STACK(state) = NIL;
@@ -631,6 +634,7 @@ local void init_iteration_node (object state, object subkey,
   pushSTACK(L(dir_key_close));
   funcall(L(finalize),2); # (FINALIZE handle #'dir-key-close)
   *new_path = itst_current(STACK_4); # state
+  test_dir_key(ITST_DKEY(STACK_4),true);
   var Dir_Key dk = TheDirKey(test_dir_key(ITST_DKEY(STACK_4),true)); # state
   var Fpointer fp = TheFpointer(STACK_0); # handle
   with_string_0(*new_path,O(misc_encoding),pathz,{
@@ -787,10 +791,9 @@ LISPFUNN(dkey_search_next_att,1) {
 # if the name does not exists, return the DEFAULT (or signal an error)
 # setf-able
 LISPFUN(dir_key_value,seclass_default,2,1,norest,nokey,0,NIL) {
+  var object name = check_string(STACK_1);
   var object default_value = popSTACK();
-  var object name = popSTACK();
   var object dkey = test_dir_key(popSTACK(),true);
-  if (!stringp(name)) fehler_string(name);
   with_string_0(name,O(misc_encoding),namez,{
     var DWORD status;
     var DWORD type;
@@ -821,9 +824,10 @@ LISPFUN(dir_key_value,seclass_default,2,1,norest,nokey,0,NIL) {
 # (LDAP::SET-DKEY-VALUE key name value)
 # set the given NAME in the KEY to the VALUE
 LISPFUNN(set_dkey_value,3) {
-  var object value = popSTACK();
-  var object name = popSTACK();
-  var object dkey = test_dir_key(popSTACK(),true);
+  STACK_1 = check_string(STACK_1);
+  var object dkey = test_dir_key(STACK_2,true);
+  var object name = STACK_1;
+  var object value = STACK_0;
   if (!stringp(name)) fehler_string(name);
   with_string_0(name,O(misc_encoding),namez, {
     if (stringp(value)) {
@@ -849,19 +853,19 @@ LISPFUNN(set_dkey_value,3) {
       fehler(error,GETTEXT("~ on ~ is illegal"));
     }
   });
-  value1 = value;
-  mv_count = 1;
+  VALUES1(value);
+  skipSTACK(3);
 }
 
-#define REG_KEY_DEL(call)                                               \
-  var object name = popSTACK();                                         \
-  var object dkey = test_dir_key(popSTACK(),true);                      \
-  if (!stringp(name)) fehler_string(name);                              \
-  with_string_0(name,O(misc_encoding),namez,{                           \
-    SYSCALL_WIN32(call((HKEY)(TheDirKey(dkey)->handle),namez));         \
-  });                                                                   \
-  value1 = NIL;                                                         \
-  mv_count = 1
+#define REG_KEY_DEL(call)                                       \
+  STACK_0 = check_string(STACK_0);                              \
+ {var object dkey = test_dir_key(STACK_1,true);                 \
+  var object name = STACK_0; skipSTACK(2);                      \
+  if (!stringp(name)) fehler_string(name);                      \
+  with_string_0(name,O(misc_encoding),namez,{                   \
+    SYSCALL_WIN32(call((HKEY)(TheDirKey(dkey)->handle),namez)); \
+  });}                                                          \
+  VALUES1(NIL)
 
 # (LDAP:DIR-KEY-SUBKEY-DELETE key name)
 # delete the specified subkey (and all its subkeys)

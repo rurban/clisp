@@ -3135,11 +3135,13 @@
 (defgeneric slot-unbound (class instance slot-name)
   (:method ((class t) instance slot-name)
     (declare (ignore class))
-    (error-of-type 'unbound-slot
-      :name slot-name
-      :instance instance
-      (TEXT "~S: The slot ~S of ~S has no value")
-      'slot-value slot-name instance)))
+    (multiple-value-bind (new-value store-p)
+        (sys::check-value `(slot-value ,instance ,slot-name)
+                          (make-condition 'unbound-slot :name slot-name
+                                          :instance instance))
+      (when store-p
+        (setf (slot-value instance slot-name) new-value))
+      new-value)))
 
 (defgeneric print-object (object stream)
   (:method ((object standard-object) stream)
