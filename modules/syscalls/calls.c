@@ -1903,7 +1903,7 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
   new_handle = handle_dup(old_handle,new_handle);
   end_system_call();
   VALUES1(fixnum(new_handle));
-}}
+}
 
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #include <shlobj.h>
