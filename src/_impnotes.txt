@@ -1367,11 +1367,11 @@ In absence of SYS::WRITE-FLOAT, floating point numbers are output in radix 2.
 If *PRINT-READABLY* is true, *READ-DEFAULT-FLOAT-FORMAT* has no influence on
 the way floating point numbers are printed.
 
-Pathnames are printed as follows: if (eq *print-escape* nil), only the
+Pathnames are printed as follows: If *PRINT-ESCAPE* is NIL, only the
 namestring is printed; otherwise it is printed with #P"" syntax, as per
-ANSI CL <PRINT-READABLY-BEHAVIOR:CLARIFY>.  But, is (eq *print-readably*
-t), we are in trouble as #P"" is ambiguous (which is verbotten when
-*print-readably* is t), while being mandated by the ANSI.  Therefore, in
+ANSI CL <PRINT-READABLY-BEHAVIOR:CLARIFY>.  But, if *PRINT-READABLY* is true,
+we are in trouble as #P"" is ambiguous (which is verboten when
+*PRINT-READABLY* is true), while being mandated by the ANSI.  Therefore, in
 this case, we print it like this:
         #-CLISP #P"..." #+CLISP #S(PATHNAME ...)
 

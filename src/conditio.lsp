@@ -1289,13 +1289,13 @@ muffle-cerrors appease-cerrors exit-on-error
 (flet ((parenthesize-keys (clauses)
          ;; PARENTHESIZE-KEYS is necessary to avoid confusing
          ;; the symbols OTHERWISE and T used as keys, with the same
-         ;; symbols used in the syntax of the non exhaustive case.
+         ;; symbols used in the syntax of the non exhaustive CASE.
          (mapcar #'(lambda (c)
                      (cond ((or (eq (car c) 't)
                                 (eq (car c) 'otherwise))
-                            (warn (DEUTSCH "***" ; FIXME!
+                            (warn (DEUTSCH "Schlüssel ~S in Fallunterscheidung sollte lieber in Klammern gesetzt werden: ~S"
                                    ENGLISH "~S used as a key in ~S, it would be better to use parentheses."
-                                   FRANCAIS "***") ; FIXME!
+                                   FRANCAIS "La clé ~S dans ~S devrait être mise entre parenthèses.")
                                   (car c) c)
                             (cons (list (car c)) (cdr c)))
                            (t c)))

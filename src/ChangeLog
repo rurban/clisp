@@ -134,6 +134,14 @@
 
 1998-06-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * io.d (pr_orecord): Reindent.
+        * constobj.d (fpcontagion_warn_string): Translate.
+        * macros1.lsp (do/do*-expand): Likewise.
+        * macros2.lsp (parenthesize-keys et al.): Likewise.
+        * conditio.lsp (parenthesize-keys et al.): Likewise.
+
+1998-06-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * arilev1c.d (eqv_loop_up, nand_loop_up): Fix typo in declaration.
 
 1998-06-20  Gilbert Baumann  <unk6@rz.uni-karlsruhe.de>
