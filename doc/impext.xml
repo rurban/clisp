@@ -2998,6 +2998,9 @@ only.</subtitle>
    &name-r; (&symbol-r; &ctype-r;)*)</literal></term>
  <listitem><para>This form defines &name-r; to be both a
   &structure-class; and a foreign &c-lang; type with the given slots.
+  If this class representation overhead is not needed one should consider
+  writing <literal role="sexp">(&def-c-type; &name-r; (&c-struct;
+  {&list-t; | &vector-t;} (&symbol-r; &ctype-r;)*))</literal> instead.
   &name-r; is a &symbol-t; (structure name) or a &list-t; whose &first;
   element is the structure name and the &rest; is options.
   Two options are supported at this time:
@@ -3070,8 +3073,9 @@ only.</subtitle>
                 &cplace-r;)</literal></term>
 <listitem><simpara>Dereference pointer: If
   &cplace-r; is of foreign type
-  <literal role="type">(&c-ptr; &ctype-r;)</literal> or
-  <literal role="type">(&c-ptr-null; &ctype-r;)</literal>,
+  <literal role="type">(&c-ptr; &ctype-r;)</literal>,
+  <literal role="type">(&c-ptr-null; &ctype-r;)</literal> or
+  <literal role="type">(&c-pointer; &ctype-r;)</literal>,
   this will be the &place; the pointer points to.
   It is a &place; of type &ctype-r;.
   For <literal role="type">(&c-ptr-null; &ctype-r;)</literal>,
@@ -3177,6 +3181,32 @@ only.</subtitle>
    It does not construct addresses out of &number-t;s,
    &unsigned-foreign-address; must be used for that purpose.
 </simpara></listitem></varlistentry>
+
+<varlistentry>
+ <term><literal role="sexp">(&foreign-variable; &f-ent; &ctypei-r;
+  &key-amp; &name-r;)</literal></term>
+ <listitem><simpara> This constructor creates a new &foreign-variable;
+  from the given &foreign-address; or &foreign-variable; and the
+  internal c-type (as obtained from &parse-c-type;). &name-r;, a
+  &string-t;, is mostly useful for documentation and interactive
+  debugging since it appears in the printed representation of the
+  &foreign-variable; object, as in <literal
+  role="data">#&lt;FOREIGN-VARIABLE "foo" #x0ADD4E55&gt;</literal>.
+  In effect, this is similar to &cast; (or rather (&offset; 0) for
+  places, except that it works with &foreign-address; objects and allows
+  caching of the internal c-type.</simpara></listitem></varlistentry>
+
+<varlistentry>
+ <term><literal role="sexp">(&foreign-function; &f-ent; &ctypei-r;
+  &key-amp; &name-r;)</literal></term>
+ <listitem><simpara>This constructor creates a &foreign-function;
+  from the given &foreign-address; or &foreign-function; and the
+  internal c-type (as obtained from <literal role="sexp">(&parse-c-type;
+  '(&c-function; ...))</literal>). &name-r;, a &string-t;, is useful for
+  documentation and interactive debugging since it appears in the
+  printed representation of the &foreign-function; object. It is
+  inherited from the given &foreign-function; object when
+  available.</simpara></listitem></varlistentry>
 
 <varlistentry id="validp">
   <term><literal role="sexp">(&validp; &f-ent;)</literal></term>
@@ -3436,6 +3466,17 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
    &c-pointer;, it actually returns &nil;.
 </simpara></listitem></varlistentry>
 
+<varlistentry><term><literal role="type">(&c-pointer;
+  &ctype-r;)</literal></term> 
+ <listitem><simpara>This type is equivalent to what &c-lang; calls
+  <type>&ctype-r; *</type>: a pointer to a single item of the given
+  &ctype-r;. It differs from <literal role="type">(&c-ptr-null;
+  &ctype-r;)</literal> (see below) in that no conversion to and from
+  Lisp will occur (beyond the usual one of the &c-lang; &c-NULL; pointer
+  to or from Lisp &nil;). Instead, an object of type &foreign-variable;
+  is used to represent the foreign place. It is assimilable to a typed
+  pointer.</simpara></listitem></varlistentry>
+
 <varlistentry id="c-string"><term>&c-string;</term>
  <listitem><simpara>This type corresponds to what &c-lang; calls
   <type>char*</type>, a zero-terminated string.  Its Lisp equivalent is
@@ -3598,8 +3639,9 @@ unit</ulink> (usually a file), a warning is issued and
  <emphasis>"call-in"</emphasis> function is a Lisp function called from
  the foreign language: control flow temporary enters Lisp.</para>
 
-<para>The following forms define foreign functions: &def-call-in;,
- &def-call-out;, &def-c-call-in;, &def-c-call-out;.</para>
+<para>The following operators define foreign functions: &def-call-in;,
+ &def-call-out;, &def-c-call-in;, &def-c-call-out;,
+ <function>&foreign-function;</function>.</para>
 
 </section>
 
