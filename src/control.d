@@ -727,33 +727,34 @@ LISPSPECFORM(let, 1,0,body)
        {var object* bind_ptr;
         var uintC bind_count;
         make_variable_frame(S(let),popSTACK(),&bind_ptr,&bind_count);
-        # Dann die Initialisierungsformen auswerten:
-        { var object* frame_pointer = bind_ptr;
-          var uintC count;
-          dotimesC(count,bind_count,
-            { var object* initptr = &NEXT(frame_pointer);
-              var object init = *initptr; # nächstes Init
-              *initptr = (eq(init,unbound) ? NIL : (eval(init),value1)); # auswerten, NIL als Default
-              frame_pointer skipSTACKop -(varframe_binding_size-1);
-            });
-        }
-        # Dann die Bindungen aktivieren:
-        { var object* frame_pointer = bind_ptr;
-          var uintC count;
-          dotimesC(count,bind_count,
-            { frame_pointer skipSTACKop -varframe_binding_size;
-             {var object* markptr = &Before(frame_pointer);
-              if (*(oint*)(markptr) & wbit(dynam_bit_o)) # Bindung dynamisch?
-                { var object symbol = *(markptr STACKop varframe_binding_sym); # Variable
-                  var object newval = *(markptr STACKop varframe_binding_value); # neuer Wert
-                  *(markptr STACKop varframe_binding_value) = TheSymbolflagged(symbol)->symvalue; # alten Wert im Frame sichern
-                  *(oint*)(markptr) |= wbit(active_bit_o); # Bindung aktivieren
-                  TheSymbolflagged(symbol)->symvalue = newval; # neuer Wert
-                }
-                else
-                { *(oint*)(markptr) |= wbit(active_bit_o); } # Bindung aktivieren
-            }});
-        }
+        if (bind_count > 0)
+          { # Dann die Initialisierungsformen auswerten:
+            { var object* frame_pointer = bind_ptr;
+              var uintC count;
+              dotimespC(count,bind_count,
+                { var object* initptr = &NEXT(frame_pointer);
+                  var object init = *initptr; # nächstes Init
+                  *initptr = (eq(init,unbound) ? NIL : (eval(init),value1)); # auswerten, NIL als Default
+                  frame_pointer skipSTACKop -(varframe_binding_size-1);
+                });
+            }
+            # Dann die Bindungen aktivieren:
+            { var object* frame_pointer = bind_ptr;
+              var uintC count;
+              dotimespC(count,bind_count,
+                { frame_pointer skipSTACKop -varframe_binding_size;
+                 {var object* markptr = &Before(frame_pointer);
+                  if (*(oint*)(markptr) & wbit(dynam_bit_o)) # Bindung dynamisch?
+                    { var object symbol = *(markptr STACKop varframe_binding_sym); # Variable
+                      var object newval = *(markptr STACKop varframe_binding_value); # neuer Wert
+                      *(markptr STACKop varframe_binding_value) = TheSymbolflagged(symbol)->symvalue; # alten Wert im Frame sichern
+                      *(oint*)(markptr) |= wbit(active_bit_o); # Bindung aktivieren
+                      TheSymbolflagged(symbol)->symvalue = newval; # neuer Wert
+                    }
+                    else
+                    { *(oint*)(markptr) |= wbit(active_bit_o); } # Bindung aktivieren
+                }});
+          } }
         # Body abinterpretieren:
         implicit_progn(popSTACK(),NIL);
         # Frames auflösen:
@@ -777,26 +778,27 @@ LISPSPECFORM(letstern, 1,0,body)
         var uintC bind_count;
         make_variable_frame(S(letstern),popSTACK(),&bind_ptr,&bind_count);
         # Dann die Initialisierungsformen auswerten und die Bindungen aktivieren:
-        { var object* frame_pointer = bind_ptr;
-          var uintC count;
-          dotimesC(count,bind_count,
-            { var object* initptr = &Next(frame_pointer);
-              frame_pointer skipSTACKop -varframe_binding_size;
-             {var object* markptr = &Before(frame_pointer);
-              var object init = *initptr; # nächstes Init
-              var object newval = (eq(init,unbound) ? NIL : (eval(init),value1)); # auswerten, NIL als Default
-              if (*(oint*)(markptr) & wbit(dynam_bit_o)) # Bindung dynamisch?
-                { var object symbol = *(markptr STACKop varframe_binding_sym); # Variable
-                  *initptr = TheSymbolflagged(symbol)->symvalue; # alten Wert im Frame sichern
-                  *(oint*)(markptr) |= wbit(active_bit_o); # Bindung aktivieren
-                  TheSymbolflagged(symbol)->symvalue = newval; # neuer Wert
-                }
-                else
-                { *initptr = newval; # neuen Wert in den Frame
-                  *(oint*)(markptr) |= wbit(active_bit_o); # Bindung aktivieren
-                }
-            }});
-        }
+        if (bind_count > 0)
+          { var object* frame_pointer = bind_ptr;
+            var uintC count;
+            dotimespC(count,bind_count,
+              { var object* initptr = &Next(frame_pointer);
+                frame_pointer skipSTACKop -varframe_binding_size;
+               {var object* markptr = &Before(frame_pointer);
+                var object init = *initptr; # nächstes Init
+                var object newval = (eq(init,unbound) ? NIL : (eval(init),value1)); # auswerten, NIL als Default
+                if (*(oint*)(markptr) & wbit(dynam_bit_o)) # Bindung dynamisch?
+                  { var object symbol = *(markptr STACKop varframe_binding_sym); # Variable
+                    *initptr = TheSymbolflagged(symbol)->symvalue; # alten Wert im Frame sichern
+                    *(oint*)(markptr) |= wbit(active_bit_o); # Bindung aktivieren
+                    TheSymbolflagged(symbol)->symvalue = newval; # neuer Wert
+                  }
+                  else
+                  { *initptr = newval; # neuen Wert in den Frame
+                    *(oint*)(markptr) |= wbit(active_bit_o); # Bindung aktivieren
+                  }
+              }});
+          }
         # Body abinterpretieren:
         implicit_progn(popSTACK(),NIL);
         # Frames auflösen:
@@ -1126,17 +1128,18 @@ LISPSPECFORM(symbol_macrolet, 1,0,body)
         var uintC bind_count;
         make_variable_frame(S(symbol_macrolet),popSTACK(),&bind_ptr,&bind_count);
         # Dann die Symbol-Macros bilden und die Bindungen aktivieren:
-        { var object* frame_pointer = bind_ptr;
-          var uintC count;
-          dotimesC(count,bind_count,
-            { var object* initptr = &NEXT(frame_pointer);
-              var object sm = allocate_symbolmacro();
-              TheSymbolmacro(sm)->symbolmacro_expansion = *initptr;
-              *initptr = sm;
-              frame_pointer skipSTACKop -(varframe_binding_size-1);
-              *(oint*)(&Before(frame_pointer)) |= wbit(active_bit_o);
-            });
-        }
+        if (bind_count > 0)
+          { var object* frame_pointer = bind_ptr;
+            var uintC count;
+            dotimespC(count,bind_count,
+              { var object* initptr = &NEXT(frame_pointer);
+                var object sm = allocate_symbolmacro();
+                TheSymbolmacro(sm)->symbolmacro_expansion = *initptr;
+                *initptr = sm;
+                frame_pointer skipSTACKop -(varframe_binding_size-1);
+                *(oint*)(&Before(frame_pointer)) |= wbit(active_bit_o);
+              });
+          }
         # Body abinterpretieren:
         implicit_progn(popSTACK(),NIL);
         # Frames auflösen:

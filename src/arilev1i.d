@@ -516,12 +516,14 @@
     var uintC count;
     var uintC i;
     var uintD carry;
-    { var uintC j = intDsize-i;
-      dotimesC(count,count,
-        { var uintD accu = *--ptr;
-          *ptr = (accu<<i) | carry;
-          carry = accu>>j;
-        });
+    { if (count > 0)
+        { var uintC j = intDsize-i;
+          dotimespC(count,count,
+            { var uintD accu = *--ptr;
+              *ptr = (accu<<i) | carry;
+              carry = accu>>j;
+            });
+        }
       return carry;
     }
   #endif
@@ -552,13 +554,15 @@
     var uintD* destptr;
     var uintC count;
     var uintC i;
-    { var uintC j = intDsize-i;
-      var uintD carry = 0;
-      dotimesC(count,count,
-        { var uintD accu = *--sourceptr;
-          *--destptr = (accu<<i) | carry;
-          carry = accu>>j;
-        });
+    { var uintD carry = 0;
+      if (count > 0)
+        { var uintC j = intDsize-i;
+          dotimespC(count,count,
+            { var uintD accu = *--sourceptr;
+              *--destptr = (accu<<i) | carry;
+              carry = accu>>j;
+            });
+        }
       return carry;
     }
   #endif
@@ -621,13 +625,15 @@
     var uintD* ptr;
     var uintC count;
     var uintC i;
-    { var uintC j = intDsize-i;
-      var uintD carry = 0;
-      dotimesC(count,count,
-        { var uintD accu = *ptr;
-          *ptr++ = (accu >> i) | carry;
-          carry = accu << j;
-        });
+    { var uintD carry = 0;
+      if (count > 0)
+        { var uintC j = intDsize-i;
+          dotimespC(count,count,
+            { var uintD accu = *ptr;
+              *ptr++ = (accu >> i) | carry;
+              carry = accu << j;
+            });
+        }
       return carry;
     }
   #endif

@@ -1,3 +1,31 @@
+1999-02-21  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Convert dotimesC with loop variables into dotimespC.
+        * affi.d (affi_call_argsa): Use dotimespC instead of dotimesC.
+        * arilev1i.d (shiftleft_loop_down, shiftleftcopy_loop_down,
+           shiftright_loop_up): Likewise.
+        * array.d (array_dimensions, array_dims_sizes, ARRAY-IN-BOUNDS-P,
+           bit_up): Likewise.
+        * eval.d (get_closure, funcall_iclosure, match_subr_key,
+           match_cclosure_key, apply_closure, funcall_subr, funcall_closure):
+          Likewise.
+        * charstrg.d (string_concat): Likewise.
+        * misc.d (MACHINE-INSTANCE): Likewise.
+        * control.d (LET, LET*, SYMBOL-MACROLET): Likewise.
+        * foreign.d (FFI::%ELEMENT): Likewise.
+        * hashtabl.d (hashcode4_atom): Likewise.
+        * lisparit.d (=, /=, <, >, <=, >=): Likewise.
+        * record.d (CLOS::%SHARED-INITIALIZE, CLOS::%REINITIALIZE-INSTANCE,
+           do_initialize_instance, CLOS::%MAKE-INSTANCE): Likewise.
+        * predtype.d (equalp): Likewise.
+        * sequence.d (CONCATENATE): Likewise.
+        * spvw.d (for_all_subrs, for_all_constobjs, init_subr_tab_1,
+           init_object_tab_1, init_other_modules_1, init_module_2, main,
+           dynload_modules): Likewise.
+        * spvw_typealloc.d (allocate_xrecord_): Likewise.
+        * stream.d (test_input_stream_args, test_output_stream_args,
+           clear_linepart, save_line_old): Likewise.
+
 1999-02-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Introduce immutable strings.

@@ -201,17 +201,19 @@ LISPFUNN(machine_instance,0)
                 && (h->h_length > 0)
                )
               { pushSTACK(ascii_to_string(" ["));
-               {var uintB* ptr = (uintB*)h->h_addr;
-                var uintC count;
-                dotimesC(count,h->h_length,
-                  pushSTACK(fixnum(*ptr++));
-                  funcall(L(decimal_string),1); # nächstes Byte in dezimal
-                  pushSTACK(value1);
-                  pushSTACK(ascii_to_string(".")); # und ein Punkt als Trennung
-                  );
+                if (h->h_length > 0)
+                  { var const uintB* ptr = (const uintB*) h->h_addr;
+                    var uintC count;
+                    dotimespC(count,h->h_length,
+                      pushSTACK(fixnum(*ptr++));
+                      funcall(L(decimal_string),1); # nächstes Byte in dezimal
+                      pushSTACK(value1);
+                      pushSTACK(ascii_to_string(".")); # und ein Punkt als Trennung
+                      );
+                  }
                 STACK_0 = ascii_to_string("]"); # kein Punkt am Schluss
                 stringcount += (2*h->h_length + 1);
-              }}
+              }
             # Strings zusammenhängen:
             erg = string_concat(stringcount);
           }

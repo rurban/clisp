@@ -994,38 +994,40 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
     # Stackaufbau: [args_pointer] typdescr2,
     #              [rest_args_pointer] {sequence}, result-type-len, [behind_args_pointer].
     # Typdescriptoren und Längen bestimmen und im STACK ablegen:
-    { var object* ptr = rest_args_pointer;
-      var uintC count;
-      dotimesC(count,argcount,
-        { var object seq = NEXT(ptr); # nächste Sequence
-          var object typdescr = get_valid_seq_type(seq);
-          pushSTACK(typdescr); # Typdescriptor in den Stack
-          pushSTACK(seq); funcall(seq_length(typdescr),1); # (SEQ-LENGTH seq)
-          pushSTACK(value1); # Länge in den Stack
-        });
-    }
+    if (argcount > 0)
+      { var object* ptr = rest_args_pointer;
+        var uintC count;
+        dotimespC(count,argcount,
+          { var object seq = NEXT(ptr); # nächste Sequence
+            var object typdescr = get_valid_seq_type(seq);
+            pushSTACK(typdescr); # Typdescriptor in den Stack
+            pushSTACK(seq); funcall(seq_length(typdescr),1); # (SEQ-LENGTH seq)
+            pushSTACK(value1); # Länge in den Stack
+          });
+      }
     # Stackaufbau: [args_pointer] typdescr2,
     #              [rest_args_pointer] {sequence}, result-type-len,
     #              [behind_args_pointer] {typdescr, len}, [STACK].
     # Längen addieren:
     { var object total_length = Fixnum_0;
-      {var object* ptr = behind_args_pointer;
-       var uintC count;
-       dotimesC(count,argcount,
-         { NEXT(ptr); # typdescr überspringen
-          {var object len = NEXT(ptr); # nächste Länge
-           if (!(posfixnump(len)))
-             { pushSTACK(len); pushSTACK(S(concatenate));
-               fehler(error,
-                      DEUTSCH ? "~: Fehlerhafte Länge aufgetreten: ~" :
-                      ENGLISH ? "~: bad length ~" :
-                      FRANCAIS ? "~ : occurence d'une mauvaise longueur: ~" :
-                      ""
-                     );
-             }
-           total_length = I_I_plus_I(total_length,len); # total_length = total_length + len
-         }});
-      }
+      if (argcount > 0)
+        { var object* ptr = behind_args_pointer;
+          var uintC count;
+          dotimespC(count,argcount,
+            { NEXT(ptr); # typdescr überspringen
+             {var object len = NEXT(ptr); # nächste Länge
+              if (!(posfixnump(len)))
+                { pushSTACK(len); pushSTACK(S(concatenate));
+                  fehler(error,
+                         DEUTSCH ? "~: Fehlerhafte Länge aufgetreten: ~" :
+                         ENGLISH ? "~: bad length ~" :
+                         FRANCAIS ? "~ : occurence d'une mauvaise longueur: ~" :
+                         ""
+                        );
+                }
+              total_length = I_I_plus_I(total_length,len); # total_length = total_length + len
+            }});
+        }
       { var object result_type_len = Before(behind_args_pointer);
         if (!(eq(result_type_len,unbound) || eql(total_length,result_type_len)))
           { fehler_seqtype_length(result_type_len,total_length); }
