@@ -62,6 +62,9 @@
 /* Define to 1 if you have the `getlogin' function. */
 #undef HAVE_GETLOGIN
 
+/* Define to 1 if you have the `getpriority' function. */
+#undef HAVE_GETPRIORITY
+
 /* Define to 1 if you have the `getpwent' function. */
 #undef HAVE_GETPWENT
 
@@ -90,6 +93,9 @@
 /* Define to 1 if you have the `lgamma' function. */
 #undef HAVE_LGAMMA
 
+/* Define to 1 if you have the <limits.h> header file. */
+#undef HAVE_LIMITS_H
+
 /* Define to 1 if you have the `link' function. */
 #undef HAVE_LINK
 
@@ -114,6 +120,9 @@
 
 /* Define to 1 if you have the `setkey' function. */
 #undef HAVE_SETKEY
+
+/* Define to 1 if you have the `setpriority' function. */
+#undef HAVE_SETPRIORITY
 
 /* Define to 1 if you have the `setrlimit' function. */
 #undef HAVE_SETRLIMIT
