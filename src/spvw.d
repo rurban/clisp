@@ -1662,6 +1662,7 @@ local void usage (int exit_code)
             " -p package  - start in the package" NLstring
             " -a          - more ANSI CL compliance" NLstring
             " -x sexp     - execute the expression and exit" NLstring
+            " -w          - wait for keypress after program termination" NLstring
             " --license   - print the licensing information" NLstring
             " --version   - print the version information" NLstring
             " -q, --quiet, --silent - do not print the banner" NLstring);
@@ -1759,6 +1760,7 @@ local void print_banner ()
   #endif
   global int main (argc_t argc, char* argv[]);
   local boolean argv_quiet = FALSE; # ob beim Start Quiet-Option angegeben
+  local boolean argv_wait_keypress = FALSE;
   local boolean argv_license = FALSE;
   global int main(argc,argv)
     var argc_t argc;
@@ -1890,6 +1892,7 @@ local void print_banner ()
       #   -p package      set *PACKAGE*
       #   -a              more ANSI CL Compliance
       #   -x expr         LISP-Expressions ausführen, dann LISP verlassen
+      #   -w              wait for keypress after termination
       #   --help          print usage and exit (should be the only option)
       #   --version       print version and exit (should be the only option)
       #   file [arg ...]  LISP-File im Batch-Modus laden und ausführen,
@@ -2062,6 +2065,10 @@ local void print_banner ()
                     OPTION_ARG
                     if (!(argv_expr == NULL)) usage (1);
                     argv_expr = arg;
+                    break;
+                  case 'w': # wait for keypress after termination
+                    argv_wait_keypress = TRUE;
+                    if (!(arg[2] == '\0')) usage (1);
                     break;
                   case '-': # -- GNU-style long options
                     if (asciz_equal(&arg[2],"help"))
@@ -3016,6 +3023,13 @@ local void print_banner ()
             }
           pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B)); # Stream *ERROR-OUTPUT*
           funcall(L(fresh_line),1); # (FRESH-LINE *error-output*)
+        }
+      # Then wait for a keypress:
+      if (argv_wait_keypress)
+        { argv_wait_keypress = FALSE; # If this fails, don't retry it. For robustness.
+          # (WRITE-LINE "Press a key." [*standard-output*]) :
+          pushSTACK(OLS(keypress_string)); funcall(L(write_line),1);
+          funcall(S(wait_keypress),0); # (SYS::WAIT-KEYPRESS)
         }
       close_all_files(); # alle Files schließen
       #ifdef DYNAMIC_FFI
