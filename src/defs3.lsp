@@ -16,14 +16,14 @@
 ;; Nur in ANSI Common Lisp (CLtL2 bzw. ANSI-CL) explizit erwähnte Symbole!
 (export '(
 ;; Typen:
-array atom bignum bit bit-vector boolean character common compiled-function
-complex cons double-float fixnum float function hash-table integer keyword
-list #+LOGICAL-PATHNAMES logical-pathname long-float nil null number package
+array atom bignum bit bit-vector boolean character compiled-function complex
+cons double-float fixnum float function hash-table integer keyword list
+#+LOGICAL-PATHNAMES logical-pathname long-float nil null number package
 pathname random-state ratio rational readtable real sequence short-float
 simple-array simple-bit-vector simple-string simple-vector single-float
 standard-char stream file-stream synonym-stream broadcast-stream
-concatenated-stream two-way-stream echo-stream string-stream string
-string-char symbol t vector satisfies values mod signed-byte unsigned-byte
+concatenated-stream two-way-stream echo-stream string-stream string symbol t
+vector satisfies values mod signed-byte unsigned-byte
 restart condition warning serious-condition error simple-condition
 simple-warning simple-error storage-condition type-error simple-type-error
 program-error control-error package-error print-not-readable parse-error
@@ -53,9 +53,9 @@ least-positive-normalized-long-float least-negative-normalized-long-float
 short-float-epsilon single-float-epsilon double-float-epsilon
 long-float-epsilon short-float-negative-epsilon single-float-negative-epsilon
 double-float-negative-epsilon long-float-negative-epsilon
-char-code-limit char-font-limit char-bits-limit char-control-bit char-meta-bit
-char-super-bit char-hyper-bit array-rank-limit array-dimension-limit
-array-total-size-limit internal-time-units-per-second
+char-code-limit
+array-rank-limit array-dimension-limit array-total-size-limit
+internal-time-units-per-second
 ;; Variablen:
 *macroexpand-hook* *gensym-counter* *package* *modules* *random-state*
 + ++ +++ - * ** *** / // /// *standard-input*
@@ -92,12 +92,11 @@ integer-decode-float complex realpart imagpart logior logxor logand logeqv
 lognand lognor logandc1 logandc2 logorc1 logorc2 boole lognot logtest logbitp
 ash logcount integer-length byte byte-size byte-position ldb ldb-test mask-field
 dpb deposit-field random make-random-state random-state-p standard-char-p
-graphic-char-p string-char-p alpha-char-p upper-case-p lower-case-p
-both-case-p digit-char-p alphanumericp char= char/= char< char> char<= char>=
-char-equal char-not-equal char-lessp char-greaterp char-not-greaterp
-char-not-lessp char-code char-bits char-font code-char make-char character
-char-upcase char-downcase digit-char char-int int-char char-name name-char
-char-bit set-char-bit complement constantly elt subseq copy-seq length reverse
+graphic-char-p alpha-char-p upper-case-p lower-case-p both-case-p digit-char-p
+alphanumericp char= char/= char< char> char<= char>= char-equal char-not-equal
+char-lessp char-greaterp char-not-greaterp char-not-lessp char-code code-char
+character char-upcase char-downcase digit-char char-int char-name name-char
+complement constantly elt subseq copy-seq length reverse
 nreverse make-sequence concatenate map map-into some every notany notevery
 reduce fill replace remove remove-if remove-if-not delete delete-if
 delete-if-not remove-duplicates delete-duplicates substitute substitute-if

@@ -78,7 +78,7 @@ LISPFUNN(copy_simple_vector,1)
 # > element_type: Type-Specifier
 # < ergebnis: Elementtyp-Code Atype_xxx
 # Standard-Typen sind die möglichen Ergebnisse von ARRAY-ELEMENT-TYPE
-# (Symbole T, BIT, STRING-CHAR und Listen (UNSIGNED-BYTE n)).
+# (Symbole T, BIT, CHARACTER/STRING-CHAR und Listen (UNSIGNED-BYTE n)).
 # Das Ergebnis ist ein Obertyp von element-type.
 # kann GC auslösen
   global uintB eltype_code (object element_type);
@@ -86,19 +86,8 @@ LISPFUNN(copy_simple_vector,1)
     var object obj;
     # Bei jeder Modifikation auch upgraded-array-element-type in type.lsp anpassen!
     {
-      #if 0
-      # Vorläufige Methode:
-      # obj mit den Symbolen BIT, STRING-CHAR vergleichen.
-      # Default ist T (garantiert ein Obertyp von allem).
-      # Besser wäre:
-      # (subtypep obj 'BIT) und (subtypep obj 'STRING-CHAR) abfragen.
-      if (eq(obj,S(bit))) { return Atype_Bit; } # Symbol BIT ?
-      elif (eq(obj,S(string_char))) { return Atype_String_Char; } # Symbol STRING-CHAR ?
-      else # alles andere wird als T interpretiert
-        { STACK_5 = S(t); return Atype_T; }
-      #else
       # (cond ((eq obj 'BIT) Atype_Bit)
-      #       ((eq obj 'STRING-CHAR) Atype_String_Char)
+      #       ((member obj '(CHARACTER STRING-CHAR)) Atype_String_Char)
       #       ((eq obj 'T) Atype_T)
       #       (t (multiple-value-bind (low high) (sys::subtype-integer obj))
       #            ; Es gilt (or (null low) (subtypep obj `(INTEGER ,low ,high)))
@@ -118,7 +107,8 @@ LISPFUNN(copy_simple_vector,1)
       #                Atype_T
       # )     )  ) ) )
       if (eq(obj,S(bit))) { return Atype_Bit; } # Symbol BIT ?
-      elif (eq(obj,S(string_char))) { return Atype_String_Char; } # Symbol STRING-CHAR ?
+      elif (eq(obj,S(character)) || eq(obj,S(string_char))) # Symbol CHARACTER/STRING-CHAR ?
+        { return Atype_String_Char; }
       elif (eq(obj,S(t))) { return Atype_T; } # Symbol T ?
       pushSTACK(obj); pushSTACK(subr_self); # obj und subr_self retten
       pushSTACK(obj); funcall(S(subtype_integer),1); # (SYS::SUBTYPE-INTEGER obj)
@@ -135,7 +125,6 @@ LISPFUNN(copy_simple_vector,1)
       pushSTACK(obj); pushSTACK(S(string_char)); funcall(S(subtypep),2);
       if (!nullp(value1)) { return Atype_String_Char; }
       return Atype_T;
-      #endif
     }
 
 # UP: erzeugt einen Bytevektor

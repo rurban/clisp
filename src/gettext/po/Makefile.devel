@@ -25,7 +25,7 @@ LINGUAS = $(PREDEF_LINGUAS) $(OTHER_LINGUAS)
 
 DSOURCES = lispbibl fsubr subr pseudofun constsym constobj constpack avl sort subrkw bytecode unix amiga amiga2 acorn msdos win32 xthread spvw spvw_module spvw_debug spvw_alloca spvw_mmap spvw_multimap spvw_singlemap spvw_page spvw_heap spvw_global spvw_gcstat spvw_space spvw_mark spvw_objsize spvw_update spvw_fault spvw_sigsegv spvw_sigcld spvw_sigint spvw_sigwinch spvw_garcol spvw_genera1 spvw_genera2 spvw_genera3 spvw_allocate spvw_typealloc spvw_circ spvw_walk spvw_language spvw_memfile spvwtabf spvwtabs spvwtabo eval control pathname stream socket io array hashtabl list package record sequence charstrg debug error erramiga errdjgpp errunix errwin32 misc time predtype symbol lisparit aridecl arilev0 arilev1 arilev1c arilev1e arilev1i intelem intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt intprint intread rational sfloat ffloat dfloat lfloat flo_konv flo_rest realelem realrand realtran compelem comptran rexx affi graph foreign unixaux win32aux acornaux acornsig
 
-LSPSOURCES = init defseq backquot defmacro macros1 macros2 defs1 timezone places floatpri type defstruc format user1 user2 trace macros3 compiler disassem defs2 loop clos conditio defs3 gstream foreign1 screen rexx1 affi1
+LSPSOURCES = init defseq backquot defmacro macros1 macros2 defs1 timezone places floatpri type defstruc format user1 user2 trace macros3 compiler disassem defs2 loop clos conditio defs3 gstream xcharin foreign1 screen rexx1 affi1
 
 SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lsp,$(LSPSOURCES))
 

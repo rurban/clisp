@@ -151,10 +151,7 @@ LISPSYM(char_greaterp,"CHAR-GREATERP",lisp)
 LISPSYM(char_not_greaterp,"CHAR-NOT-GREATERP",lisp)
 LISPSYM(char_not_lessp,"CHAR-NOT-LESSP",lisp)
 LISPSYM(char_code,"CHAR-CODE",lisp)
-LISPSYM(char_bits,"CHAR-BITS",lisp)
-LISPSYM(char_font,"CHAR-FONT",lisp)
 LISPSYM(code_char,"CODE-CHAR",lisp)
-LISPSYM(make_char,"MAKE-CHAR",lisp)
 LISPSYM(character,"CHARACTER",lisp)
 LISPSYM(char_upcase,"CHAR-UPCASE",lisp)
 LISPSYM(char_downcase,"CHAR-DOWNCASE",lisp)
@@ -162,8 +159,6 @@ LISPSYM(digit_char,"DIGIT-CHAR",lisp)
 LISPSYM(char_int,"CHAR-INT",lisp)
 LISPSYM(int_char,"INT-CHAR",lisp)
 LISPSYM(char_name,"CHAR-NAME",lisp)
-LISPSYM(char_bit,"CHAR-BIT",lisp)
-LISPSYM(set_char_bit,"SET-CHAR-BIT",lisp)
 LISPSYM(char,"CHAR",lisp)
 LISPSYM(schar,"SCHAR",lisp)
 LISPSYM(store_char,"STORE-CHAR",system)
@@ -1124,6 +1119,10 @@ LISPSYM(break_on_signals,"*BREAK-ON-SIGNALS*",lisp) # als Variable für ERROR
 LISPSYM(safe_typep,"SAFE-TYPEP",system) # als Funktion für ERROR
 LISPSYM(completion,"COMPLETION",system) # als Funktion in STREAM, für den Fall, daß GNU_READLINE benutzt wird
 #ifdef KEYBOARD
+LISPSYM(Kchar,"CHAR",keyword) # als make-input-character-Argument für STREAM
+LISPSYM(Kbits,"BITS",keyword) # als make-input-character-Argument für STREAM
+LISPSYM(make_input_character,"MAKE-INPUT-CHARACTER",system) # als Funktion für STREAM
+LISPSYM(make_char,"MAKE-CHAR",lisp) # als Funktion für STREAM
 LISPSYM(keyboard_input,"*KEYBOARD-INPUT*",lisp) # als Variable in STREAM
 #endif
 LISPSYM(terminal_io,"*TERMINAL-IO*",lisp) # als Variable in STREAM

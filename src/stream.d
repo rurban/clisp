@@ -1758,6 +1758,41 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
   #define strm_keyboard_len  0
 #endif
 
+# The keyboard events are instances of INPUT-CHARACTER. We create them by
+# calling MAKE-INPUT-CHARACTER or MAKE-CHAR. The following structure describes
+# the arguments to MAKE-INPUT-CHARACTER.
+typedef struct {
+  const char * key;
+  uintB code;
+  uintB bits;
+} key_event;
+
+# Creates a keyboard event.
+local object make_key_event (const key_event* event);
+local object make_key_event(event)
+  var const key_event* event;
+  { if ((event->key == NULL) && (event->bits == 0))
+      { pushSTACK(S(Kchar)); pushSTACK(code_char(event->code));
+        funcall(S(make_input_character),2);
+      }
+      else
+      { pushSTACK(S(Kkey));
+        if (event->key == NULL)
+          { pushSTACK(code_char(event->code)); }
+          else
+          { pushSTACK(intern_keyword(asciz_to_string(event->key))); }
+        pushSTACK(S(Kbits)); pushSTACK(fixnum(event->bits));
+        funcall(S(make_input_character),4);
+      }
+    return value1;
+  }
+
+# Values for the bits, must agree with xcharin.lsp.
+  #define char_control_c  1
+  #define char_meta_c     2
+  #define char_super_c    4
+  #define char_hyper_c    8
+
 #ifdef MSDOS
 
 # Für Tastaturabfrage unter DOS:
@@ -1873,174 +1908,174 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 
   # Tabelle der Characters, die den Scan-Codes 0..166 (als Sondertasten)
   # entsprechen:
-  local cint scancode_table [167] =
-    { 0,
-      ESC | char_meta_c, # 1 -> Alt-Escape
-      '1' | char_control_c, # [2 = Ctrl-1 -> #\CONTROL-1]
-      '2' | char_control_c, # 3 = Ctrl-2 -> #\CONTROL-2
-      '3' | char_control_c, # [4 = Ctrl-3 -> #\CONTROL-3]
-      '4' | char_control_c, # [5 = Ctrl-4 -> #\CONTROL-4]
-      '5' | char_control_c, # [6 = Ctrl-5 -> #\CONTROL-5]
-      '6' | char_control_c, # 7 = Ctrl-6 -> #\CONTROL-6
-      '7' | char_control_c, # [8 = Ctrl-7 -> #\CONTROL-7]
-      '8' | char_control_c, # [9 = Ctrl-8 -> #\CONTROL-8]
-      '9' | char_control_c, # [10 = Ctrl-9 -> #\CONTROL-9]
-      '0' | char_control_c, # [11 = Ctrl-0 -> #\CONTROL-0]
-      '-' | char_meta_c, # [12 = Ctrl-- -> #\CONTROL-- # nicht international portabel]
-      '=' | char_meta_c, # [13 = Ctrl-= -> #\CONTROL-= # nicht international portabel]
-       BS | char_meta_c, # 14 -> Alt-Backspace
-        9 | char_super_c, # 15 -> Shift-Tab
-      'Q' | char_meta_c, # 16 -> Alt-Q
-      'W' | char_meta_c, # 17 -> Alt-W
-      'E' | char_meta_c, # 18 -> Alt-E
-      'R' | char_meta_c, # 19 -> Alt-R
-      'T' | char_meta_c, # 20 -> Alt-T
-      'Y' | char_meta_c, # 21 -> Alt-Y
-      'U' | char_meta_c, # 22 -> Alt-U
-      'I' | char_meta_c, # 23 -> Alt-I
-      'O' | char_meta_c, # 24 -> Alt-O
-      'P' | char_meta_c, # 25 -> Alt-P
-      '[' | char_meta_c, # 26 -> Alt-[ # nicht international portabel
-      ']' | char_meta_c, # 27 -> Alt-] # nicht international portabel
-       CR | char_meta_c, # 28 = Alt-Return -> #\META-Return
-      0,
-      'A' | char_meta_c, # 30 -> Alt-A
-      'S' | char_meta_c, # 31 -> Alt-S
-      'D' | char_meta_c, # 32 -> Alt-D
-      'F' | char_meta_c, # 33 -> Alt-F
-      'G' | char_meta_c, # 34 -> Alt-G
-      'H' | char_meta_c, # 35 -> Alt-H
-      'J' | char_meta_c, # 36 -> Alt-J
-      'K' | char_meta_c, # 37 -> Alt-K
-      'L' | char_meta_c, # 38 -> Alt-L oder Alt-\ ??
-      ';' | char_meta_c, # 39 -> Alt-; # nicht international portabel
-      '\''| char_meta_c, # 40 -> Alt-' # nicht international portabel
-      '`' | char_meta_c, # 41 -> Alt-` # nicht international portabel
-      0,
-      '\\'| char_meta_c, # 43 -> Alt-\ # nicht international portabel
-      'Z' | char_meta_c, # 44 -> Alt-Z
-      'X' | char_meta_c, # 45 -> Alt-X
-      'C' | char_meta_c, # 46 -> Alt-C
-      'V' | char_meta_c, # 47 -> Alt-V
-      'B' | char_meta_c, # 48 -> Alt-B
-      'N' | char_meta_c, # 49 -> Alt-N
-      'M' | char_meta_c, # 50 -> Alt-M
-      ',' | char_meta_c, # 51 = Alt-, -> #\META-',' # nicht international portabel
-      '.' | char_meta_c, # 52 = Alt-. -> #\META-'.' # nicht international portabel
-      '/' | char_meta_c, # 53 = Alt-/ -> #\META-'/' # nicht international portabel
-      0,
-      '*' | char_meta_c | char_hyper_c, # 55 = Alt-* -> #\META-HYPER-'*'
-      0,
-      ' ' | char_meta_c, # 57 = Alt-Space -> #\META-Space
-      0,
-      'A' | char_hyper_c, #  59 = F1 -> #\F1 = #\HYPER-A
-      'B' | char_hyper_c, #  60 = F2 -> #\F2 = #\HYPER-B
-      'C' | char_hyper_c, #  61 = F3 -> #\F3 = #\HYPER-C
-      'D' | char_hyper_c, #  62 = F4 -> #\F4 = #\HYPER-D
-      'E' | char_hyper_c, #  63 = F5 -> #\F5 = #\HYPER-E
-      'F' | char_hyper_c, #  64 = F6 -> #\F6 = #\HYPER-F
-      'G' | char_hyper_c, #  65 = F7 -> #\F7 = #\HYPER-G
-      'H' | char_hyper_c, #  66 = F8 -> #\F8 = #\HYPER-H
-      'I' | char_hyper_c, #  67 = F9 -> #\F9 = #\HYPER-I
-      'J' | char_hyper_c, #  68 = F10 -> #\F10 = #\HYPER-J
-      'K' | char_hyper_c, # [69 = F11 -> #\F11 = #\HYPER-K]
-      'L' | char_hyper_c, # [70 = F12 -> #\F12 = #\HYPER-L]
-       23 | char_hyper_c, #  71 = Home -> #\Home = #\HYPER-Code23
-       24 | char_hyper_c, #  72 = Up -> #\Up = #\HYPER-Code24
-       25 | char_hyper_c, #  73 = PgUp -> #\PgUp = #\HYPER-Code25
-      '-' | char_meta_c | char_hyper_c, #  74 = Alt-- -> #\META-HYPER--
-       20 | char_hyper_c, #  75 = Left -> #\Left = #\HYPER-Code20
-       21 | char_hyper_c, # [76 -> #\HYPER-Code21]
-       22 | char_hyper_c, #  77 = Right -> #\Right = #\HYPER-Code22
-      '+' | char_meta_c | char_hyper_c, #  78 = Alt-+ -> #\META-HYPER-+
-       17 | char_hyper_c, #  79 = End -> #\End = #\HYPER-Code17
-       18 | char_hyper_c, #  80 = Down -> #\Down = #\HYPER-Code18
-       19 | char_hyper_c, #  81 = PgDn -> #\PgDn = #\HYPER-Code19
-       16 | char_hyper_c, #  82 = Insert -> #\Insert = #\HYPER-Code16
-      127 | char_hyper_c, #  83 = Delete -> #\Delete = #\HYPER-Code127
-      'A' | char_super_c | char_hyper_c, #  84 = Shift-F1 -> #\S-F1 = #\SUPER-HYPER-A
-      'B' | char_super_c | char_hyper_c, #  85 = Shift-F2 -> #\S-F2 = #\SUPER-HYPER-B
-      'C' | char_super_c | char_hyper_c, #  86 = Shift-F3 -> #\S-F3 = #\SUPER-HYPER-C
-      'D' | char_super_c | char_hyper_c, #  87 = Shift-F4 -> #\S-F4 = #\SUPER-HYPER-D
-      'E' | char_super_c | char_hyper_c, #  88 = Shift-F5 -> #\S-F5 = #\SUPER-HYPER-E
-      'F' | char_super_c | char_hyper_c, #  89 = Shift-F6 -> #\S-F6 = #\SUPER-HYPER-F
-      'G' | char_super_c | char_hyper_c, #  90 = Shift-F7 -> #\S-F7 = #\SUPER-HYPER-G
-      'H' | char_super_c | char_hyper_c, #  91 = Shift-F8 -> #\S-F8 = #\SUPER-HYPER-H
-      'I' | char_super_c | char_hyper_c, #  92 = Shift-F9 -> #\S-F9 = #\SUPER-HYPER-I
-      'J' | char_super_c | char_hyper_c, #  93 = Shift-F10 -> #\S-F10 = #\SUPER-HYPER-J
-      'A' | char_control_c | char_hyper_c, #  94 = Control-F1 -> #\C-F1 = #\CONTROL-HYPER-A
-      'B' | char_control_c | char_hyper_c, #  95 = Control-F2 -> #\C-F2 = #\CONTROL-HYPER-B
-      'C' | char_control_c | char_hyper_c, #  96 = Control-F3 -> #\C-F3 = #\CONTROL-HYPER-C
-      'D' | char_control_c | char_hyper_c, #  97 = Control-F4 -> #\C-F4 = #\CONTROL-HYPER-D
-      'E' | char_control_c | char_hyper_c, #  98 = Control-F5 -> #\C-F5 = #\CONTROL-HYPER-E
-      'F' | char_control_c | char_hyper_c, #  99 = Control-F6 -> #\C-F6 = #\CONTROL-HYPER-F
-      'G' | char_control_c | char_hyper_c, #  100 = Control-F7 -> #\C-F7 = #\CONTROL-HYPER-G
-      'H' | char_control_c | char_hyper_c, #  101 = Control-F8 -> #\C-F8 = #\CONTROL-HYPER-H
-      'I' | char_control_c | char_hyper_c, #  102 = Control-F9 -> #\C-F9 = #\CONTROL-HYPER-I
-      'J' | char_control_c | char_hyper_c, #  103 = Control-F10 -> #\C-F10 = #\CONTROL-HYPER-J
-      'A' | char_meta_c | char_hyper_c, #  104 = Alt-F1 -> #\M-F1 = #\META-HYPER-A
-      'B' | char_meta_c | char_hyper_c, #  105 = Alt-F2 -> #\M-F2 = #\META-HYPER-B
-      'C' | char_meta_c | char_hyper_c, #  106 = Alt-F3 -> #\M-F3 = #\META-HYPER-C
-      'D' | char_meta_c | char_hyper_c, #  107 = Alt-F4 -> #\M-F4 = #\META-HYPER-D
-      'E' | char_meta_c | char_hyper_c, #  108 = Alt-F5 -> #\M-F5 = #\META-HYPER-E
-      'F' | char_meta_c | char_hyper_c, #  109 = Alt-F6 -> #\M-F6 = #\META-HYPER-F
-      'G' | char_meta_c | char_hyper_c, #  110 = Alt-F7 -> #\M-F7 = #\META-HYPER-G
-      'H' | char_meta_c | char_hyper_c, #  111 = Alt-F8 -> #\M-F8 = #\META-HYPER-H
-      'I' | char_meta_c | char_hyper_c, #  112 = Alt-F9 -> #\M-F9 = #\META-HYPER-I
-      'J' | char_meta_c | char_hyper_c, #  113 = Alt-F10 -> #\M-F10 = #\META-HYPER-J
-       29 | char_control_c | char_hyper_c, # 114 = Control-PrtScr -> #\CONTROL-HYPER-Code29
-       20 | char_control_c | char_hyper_c, # 115 = Control-Left -> #\C-Left = #\CONTROL-HYPER-Code20
-       22 | char_control_c | char_hyper_c, # 116 = Control-Right -> #\C-Right = #\CONTROL-HYPER-Code22
-       17 | char_control_c | char_hyper_c, # 117 = Control-End -> #\C-End = #\CONTROL-HYPER-Code17
-       19 | char_control_c | char_hyper_c, # 118 = Control-PgDn -> #\C-PgDn = #\CONTROL-HYPER-Code19
-       23 | char_control_c | char_hyper_c, # 119 = Control-Home -> #\C-Home = #\CONTROL-HYPER-Code23
-      '1' | char_meta_c, #  120 = Alt-1 -> #\META-1
-      '2' | char_meta_c, #  121 = Alt-2 -> #\META-2
-      '3' | char_meta_c, #  122 = Alt-3 -> #\META-3
-      '4' | char_meta_c, #  123 = Alt-4 -> #\META-4
-      '5' | char_meta_c, #  124 = Alt-5 -> #\META-5
-      '6' | char_meta_c, #  125 = Alt-6 -> #\META-6
-      '7' | char_meta_c, #  126 = Alt-7 -> #\META-7
-      '8' | char_meta_c, #  127 = Alt-8 -> #\META-8
-      '9' | char_meta_c, #  128 = Alt-9 -> #\META-9
-      '0' | char_meta_c, #  129 = Alt-0 -> #\META-0
-      '-' | char_meta_c, #  130 = Alt-- -> #\META-- # nicht international portabel
-      '=' | char_meta_c, #  131 = Alt-= -> #\META-= # nicht international portabel
-       25 | char_control_c | char_hyper_c, # 132 = Control-PgUp -> #\C-PgUp = #\CONTROL-HYPER-Code25
-      'K' | char_hyper_c, #  133 = F11 -> #\F11 = #\HYPER-K
-      'L' | char_hyper_c, #  134 = F12 -> #\F12 = #\HYPER-L
-      'K' | char_super_c | char_hyper_c, #  135 = Shift-F11 -> #\S-F11 = #\SUPER-HYPER-K
-      'L' | char_super_c | char_hyper_c, #  136 = Shift-F12 -> #\S-F12 = #\SUPER-HYPER-L
-      'K' | char_control_c | char_hyper_c, #  137 = Control-F11 -> #\C-F11 = #\CONTROL-HYPER-K
-      'L' | char_control_c | char_hyper_c, #  138 = Control-F12 -> #\C-F12 = #\CONTROL-HYPER-L
-      'K' | char_meta_c | char_hyper_c, #  139 = Alt-F1 -> #\M-F11 = #\META-HYPER-K
-      'L' | char_meta_c | char_hyper_c, #  140 = Alt-F2 -> #\M-F12 = #\META-HYPER-L
-       24 | char_control_c | char_hyper_c, # 141 = Control-Up -> #\C-Up = #\CONTROL-HYPER-Code24
-      '-' | char_control_c | char_hyper_c, # 142 = Control-- -> #\CONTROL-HYPER--
-       21 | char_control_c | char_hyper_c, # 143 = Control-Keypad5 -> #\CONTROL-HYPER-Code21
-      '+' | char_control_c | char_hyper_c, # 142 = Control-+ -> #\CONTROL-HYPER-+
-       18 | char_control_c | char_hyper_c, # 145 = Control-Down -> #\C-Down = #\CONTROL-HYPER-Code18
-       16 | char_control_c | char_hyper_c, # 146 = Control-Insert -> #\C-Insert = #\CONTROL-HYPER-Code16
-      127 | char_control_c | char_hyper_c, # 147 = Control-Delete -> #\CONTROL-HYPER-Delete
-        9 | char_control_c, # 148 = Control-Tab -> #\CONTROL-Tab
-      '/' | char_control_c | char_hyper_c, # 149 = Control-/ -> #\CONTROL-HYPER-'/'
-      '*' | char_control_c | char_hyper_c, # 150 = Control-* -> #\CONTROL-HYPER-'*'
-       23 | char_meta_c | char_hyper_c, # 151 = Alt-Home -> #\M-Home = #\META-HYPER-Code23
-       24 | char_meta_c | char_hyper_c, # 152 = Alt-Up -> #\M-Up = #\META-HYPER-Code24
-       25 | char_meta_c | char_hyper_c, # 153 = Alt-PgUp -> #\M-PgUp = #\META-HYPER-Code25
-      0,
-       20 | char_meta_c | char_hyper_c, # 155 = Alt-Left -> #\M-Left = #\META-HYPER-Code20
-       21 | char_meta_c | char_hyper_c, # [156 -> #\META-HYPER-Code21]
-       22 | char_meta_c | char_hyper_c, # 157 = Alt-Right -> #\M-Right = #\META-HYPER-Code22
-      0,
-       17 | char_meta_c | char_hyper_c, # 159 = Alt-End -> #\M-End = #\META-HYPER-Code17
-       18 | char_meta_c | char_hyper_c, # 160 = Alt-Down -> #\M-Down = #\META-HYPER-Code18
-       19 | char_meta_c | char_hyper_c, # 161 = Alt-PgDn -> #\M-PgDn = #\META-HYPER-Code19
-       16 | char_meta_c | char_hyper_c, # 162 = Alt-Insert -> #\M-Insert = #\META-HYPER-Code16
-      127 | char_meta_c | char_hyper_c, # 163 = Alt-Delete -> #\META-HYPER-Delete
-      '/' | char_meta_c | char_hyper_c, # 164 = Alt-/ -> #\META-HYPER-'/'
-        9 | char_meta_c, # 165 = Alt-Tab -> #\META-Tab
-       CR | char_meta_c | char_hyper_c, # 166 = Alt-Enter -> #\META-HYPER-Return
+  local const key_event scancode_table [167] =
+    { { NULL, 0, 0, },
+      { NULL, ESC, char_meta_c }, # 1 -> Alt-Escape
+      { NULL, '1', char_control_c }, # [2 = Ctrl-1 -> #\CONTROL-1]
+      { NULL, '2', char_control_c }, # 3 = Ctrl-2 -> #\CONTROL-2
+      { NULL, '3', char_control_c }, # [4 = Ctrl-3 -> #\CONTROL-3]
+      { NULL, '4', char_control_c }, # [5 = Ctrl-4 -> #\CONTROL-4]
+      { NULL, '5', char_control_c }, # [6 = Ctrl-5 -> #\CONTROL-5]
+      { NULL, '6', char_control_c }, # 7 = Ctrl-6 -> #\CONTROL-6
+      { NULL, '7', char_control_c }, # [8 = Ctrl-7 -> #\CONTROL-7]
+      { NULL, '8', char_control_c }, # [9 = Ctrl-8 -> #\CONTROL-8]
+      { NULL, '9', char_control_c }, # [10 = Ctrl-9 -> #\CONTROL-9]
+      { NULL, '0', char_control_c }, # [11 = Ctrl-0 -> #\CONTROL-0]
+      { NULL, '-', char_meta_c }, # [12 = Ctrl-- -> #\CONTROL-- # nicht international portabel]
+      { NULL, '=', char_meta_c }, # [13 = Ctrl-= -> #\CONTROL-= # nicht international portabel]
+      { NULL,  BS, char_meta_c }, # 14 -> Alt-Backspace
+      { NULL,   9, char_super_c }, # 15 -> Shift-Tab
+      { NULL, 'Q', char_meta_c }, # 16 -> Alt-Q
+      { NULL, 'W', char_meta_c }, # 17 -> Alt-W
+      { NULL, 'E', char_meta_c }, # 18 -> Alt-E
+      { NULL, 'R', char_meta_c }, # 19 -> Alt-R
+      { NULL, 'T', char_meta_c }, # 20 -> Alt-T
+      { NULL, 'Y', char_meta_c }, # 21 -> Alt-Y
+      { NULL, 'U', char_meta_c }, # 22 -> Alt-U
+      { NULL, 'I', char_meta_c }, # 23 -> Alt-I
+      { NULL, 'O', char_meta_c }, # 24 -> Alt-O
+      { NULL, 'P', char_meta_c }, # 25 -> Alt-P
+      { NULL, '[', char_meta_c }, # 26 -> Alt-[ # nicht international portabel
+      { NULL, ']', char_meta_c }, # 27 -> Alt-] # nicht international portabel
+      { NULL,  CR, char_meta_c }, # 28 = Alt-Return -> #\META-Return
+      { NULL, 0, 0 },
+      { NULL, 'A', char_meta_c }, # 30 -> Alt-A
+      { NULL, 'S', char_meta_c }, # 31 -> Alt-S
+      { NULL, 'D', char_meta_c }, # 32 -> Alt-D
+      { NULL, 'F', char_meta_c }, # 33 -> Alt-F
+      { NULL, 'G', char_meta_c }, # 34 -> Alt-G
+      { NULL, 'H', char_meta_c }, # 35 -> Alt-H
+      { NULL, 'J', char_meta_c }, # 36 -> Alt-J
+      { NULL, 'K', char_meta_c }, # 37 -> Alt-K
+      { NULL, 'L', char_meta_c }, # 38 -> Alt-L oder Alt-\ ??
+      { NULL, ';', char_meta_c }, # 39 -> Alt-; # nicht international portabel
+      { NULL, '\'', char_meta_c }, # 40 -> Alt-' # nicht international portabel
+      { NULL, '`', char_meta_c }, # 41 -> Alt-` # nicht international portabel
+      { NULL, 0, 0 },
+      { NULL, '\\', char_meta_c }, # 43 -> Alt-\ # nicht international portabel
+      { NULL, 'Z', char_meta_c }, # 44 -> Alt-Z
+      { NULL, 'X', char_meta_c }, # 45 -> Alt-X
+      { NULL, 'C', char_meta_c }, # 46 -> Alt-C
+      { NULL, 'V', char_meta_c }, # 47 -> Alt-V
+      { NULL, 'B', char_meta_c }, # 48 -> Alt-B
+      { NULL, 'N', char_meta_c }, # 49 -> Alt-N
+      { NULL, 'M', char_meta_c }, # 50 -> Alt-M
+      { NULL, ',', char_meta_c }, # 51 = Alt-, -> #\META-',' # nicht international portabel
+      { NULL, '.', char_meta_c }, # 52 = Alt-. -> #\META-'.' # nicht international portabel
+      { NULL, '/', char_meta_c }, # 53 = Alt-/ -> #\META-'/' # nicht international portabel
+      { NULL, 0, 0 },
+      { NULL, '*', char_meta_c | char_hyper_c }, # 55 = Alt-* -> #\META-HYPER-'*'
+      { NULL, 0, 0 },
+      { NULL, ' ', char_meta_c }, # 57 = Alt-Space -> #\META-Space
+      { NULL, 0, 0 },
+      { "F1", 0, char_hyper_c }, #  59 = F1 -> #\F1
+      { "F2", 0, char_hyper_c }, #  60 = F2 -> #\F2
+      { "F3", 0, char_hyper_c }, #  61 = F3 -> #\F3
+      { "F4", 0, char_hyper_c }, #  62 = F4 -> #\F4
+      { "F5", 0, char_hyper_c }, #  63 = F5 -> #\F5
+      { "F6", 0, char_hyper_c }, #  64 = F6 -> #\F6
+      { "F7", 0, char_hyper_c }, #  65 = F7 -> #\F7
+      { "F8", 0, char_hyper_c }, #  66 = F8 -> #\F8
+      { "F9", 0, char_hyper_c }, #  67 = F9 -> #\F9
+      { "F10", 0, char_hyper_c }, #  68 = F10 -> #\F10
+      { "F11", 0, char_hyper_c }, # [69 = F11 -> #\F11
+      { "F12", 0, char_hyper_c }, # [70 = F12 -> #\F12
+      { "HOME", 0, char_hyper_c }, #  71 = Home -> #\Home
+      { "UP", 0, char_hyper_c }, #  72 = Up -> #\Up
+      { "PGUP", 0, char_hyper_c }, #  73 = PgUp -> #\PgUp
+      { NULL, '-', char_meta_c | char_hyper_c }, #  74 = Alt-- -> #\META-HYPER--
+      { "LEFT", 0, char_hyper_c }, #  75 = Left -> #\Left
+      { "CENTER", 0, char_hyper_c }, # [76 -> #\HYPER-Code21]
+      { "RIGHT", 0, char_hyper_c }, #  77 = Right -> #\Right
+      { NULL, '+', char_meta_c | char_hyper_c }, #  78 = Alt-+ -> #\META-HYPER-+
+      { "END", 0, char_hyper_c }, #  79 = End -> #\End
+      { "DOWN", 0, char_hyper_c }, #  80 = Down -> #\Down
+      { "PGDN", 0, char_hyper_c }, #  81 = PgDn -> #\PgDn
+      { "INSERT", 0, char_hyper_c }, #  82 = Insert -> #\Insert
+      { "DELETE", 0, char_hyper_c }, #  83 = Delete -> #\Delete
+      { "F1", 0, char_super_c | char_hyper_c }, #  84 = Shift-F1 -> #\S-F1
+      { "F2", 0, char_super_c | char_hyper_c }, #  85 = Shift-F2 -> #\S-F2
+      { "F3", 0, char_super_c | char_hyper_c }, #  86 = Shift-F3 -> #\S-F3
+      { "F4", 0, char_super_c | char_hyper_c }, #  87 = Shift-F4 -> #\S-F4
+      { "F5", 0, char_super_c | char_hyper_c }, #  88 = Shift-F5 -> #\S-F5
+      { "F6", 0, char_super_c | char_hyper_c }, #  89 = Shift-F6 -> #\S-F6
+      { "F7", 0, char_super_c | char_hyper_c }, #  90 = Shift-F7 -> #\S-F7
+      { "F8", 0, char_super_c | char_hyper_c }, #  91 = Shift-F8 -> #\S-F8
+      { "F9", 0, char_super_c | char_hyper_c }, #  92 = Shift-F9 -> #\S-F9
+      { "F10", 0, char_super_c | char_hyper_c }, #  93 = Shift-F10 -> #\S-F10
+      { "F1", 0, char_control_c | char_hyper_c }, #  94 = Control-F1 -> #\C-F1
+      { "F2", 0, char_control_c | char_hyper_c }, #  95 = Control-F2 -> #\C-F2
+      { "F3", 0, char_control_c | char_hyper_c }, #  96 = Control-F3 -> #\C-F3
+      { "F4", 0, char_control_c | char_hyper_c }, #  97 = Control-F4 -> #\C-F4
+      { "F5", 0, char_control_c | char_hyper_c }, #  98 = Control-F5 -> #\C-F5
+      { "F6", 0, char_control_c | char_hyper_c }, #  99 = Control-F6 -> #\C-F6
+      { "F7", 0, char_control_c | char_hyper_c }, #  100 = Control-F7 -> #\C-F7
+      { "F8", 0, char_control_c | char_hyper_c }, #  101 = Control-F8 -> #\C-F8
+      { "F9", 0, char_control_c | char_hyper_c }, #  102 = Control-F9 -> #\C-F9
+      { "F10", 0, char_control_c | char_hyper_c }, #  103 = Control-F10 -> #\C-F10
+      { "F1", 0, char_meta_c | char_hyper_c }, #  104 = Alt-F1 -> #\M-F1
+      { "F2", 0, char_meta_c | char_hyper_c }, #  105 = Alt-F2 -> #\M-F2
+      { "F3", 0, char_meta_c | char_hyper_c }, #  106 = Alt-F3 -> #\M-F3
+      { "F4", 0, char_meta_c | char_hyper_c }, #  107 = Alt-F4 -> #\M-F4
+      { "F5", 0, char_meta_c | char_hyper_c }, #  108 = Alt-F5 -> #\M-F5
+      { "F6", 0, char_meta_c | char_hyper_c }, #  109 = Alt-F6 -> #\M-F6
+      { "F7", 0, char_meta_c | char_hyper_c }, #  110 = Alt-F7 -> #\M-F7
+      { "F8", 0, char_meta_c | char_hyper_c }, #  111 = Alt-F8 -> #\M-F8
+      { "F9", 0, char_meta_c | char_hyper_c }, #  112 = Alt-F9 -> #\M-F9
+      { "F10", 0, char_meta_c | char_hyper_c }, #  113 = Alt-F10 -> #\M-F10
+      { "PRTSCR", 0, char_control_c | char_hyper_c }, # 114 = Control-PrtScr -> #\C-PrtScr
+      { "LEFT", 0, char_control_c | char_hyper_c }, # 115 = Control-Left -> #\C-Left
+      { "RIGHT", 0, char_control_c | char_hyper_c }, # 116 = Control-Right -> #\C-Right
+      { "END", 0, char_control_c | char_hyper_c }, # 117 = Control-End -> #\C-End
+      { "PGDN", 0, char_control_c | char_hyper_c }, # 118 = Control-PgDn -> #\C-PgDn
+      { "HOME", 0, char_control_c | char_hyper_c }, # 119 = Control-Home -> #\C-Home
+      { NULL, '1', char_meta_c }, #  120 = Alt-1 -> #\META-1
+      { NULL, '2', char_meta_c }, #  121 = Alt-2 -> #\META-2
+      { NULL, '3', char_meta_c }, #  122 = Alt-3 -> #\META-3
+      { NULL, '4', char_meta_c }, #  123 = Alt-4 -> #\META-4
+      { NULL, '5', char_meta_c }, #  124 = Alt-5 -> #\META-5
+      { NULL, '6', char_meta_c }, #  125 = Alt-6 -> #\META-6
+      { NULL, '7', char_meta_c }, #  126 = Alt-7 -> #\META-7
+      { NULL, '8', char_meta_c }, #  127 = Alt-8 -> #\META-8
+      { NULL, '9', char_meta_c }, #  128 = Alt-9 -> #\META-9
+      { NULL, '0', char_meta_c }, #  129 = Alt-0 -> #\META-0
+      { NULL, '-', char_meta_c }, #  130 = Alt-- -> #\META-- # nicht international portabel
+      { NULL, '=', char_meta_c }, #  131 = Alt-= -> #\META-= # nicht international portabel
+      { "PGUP", 0, char_control_c | char_hyper_c }, # 132 = Control-PgUp -> #\C-PgUp
+      { "F11", 0, char_hyper_c }, #  133 = F11 -> #\F11
+      { "F12", 0, char_hyper_c }, #  134 = F12 -> #\F12
+      { "F11", 0, char_super_c | char_hyper_c }, #  135 = Shift-F11 -> #\S-F11
+      { "F12", 0, char_super_c | char_hyper_c }, #  136 = Shift-F12 -> #\S-F12
+      { "F11", 0, char_control_c | char_hyper_c }, #  137 = Control-F11 -> #\C-F11
+      { "F12", 0, char_control_c | char_hyper_c }, #  138 = Control-F12 -> #\C-F12
+      { "F11", 0, char_meta_c | char_hyper_c }, #  139 = Alt-F1 -> #\M-F11
+      { "F12", 0, char_meta_c | char_hyper_c }, #  140 = Alt-F2 -> #\M-F12
+      { "UP", 0, char_control_c | char_hyper_c }, # 141 = Control-Up -> #\C-Up
+      { NULL, '-', char_control_c | char_hyper_c }, # 142 = Control-- -> #\CONTROL-HYPER--
+      { "CENTER", 0, char_control_c | char_hyper_c }, # 143 = Control-Keypad5 -> #\C-Center
+      { NULL, '+', char_control_c | char_hyper_c }, # 142 = Control-+ -> #\CONTROL-HYPER-+
+      { "DOWN", 0, char_control_c | char_hyper_c }, # 145 = Control-Down -> #\C-Down
+      { "INSERT", 0, char_control_c | char_hyper_c }, # 146 = Control-Insert -> #\C-Insert
+      { "DELETE", 0, char_control_c | char_hyper_c }, # 147 = Control-Delete -> #\C-Delete
+      { NULL,   9, char_control_c }, # 148 = Control-Tab -> #\CONTROL-Tab
+      { NULL, '/', char_control_c | char_hyper_c }, # 149 = Control-/ -> #\CONTROL-HYPER-'/'
+      { NULL, '*', char_control_c | char_hyper_c }, # 150 = Control-* -> #\CONTROL-HYPER-'*'
+      { "HOME", 0, char_meta_c | char_hyper_c }, # 151 = Alt-Home -> #\M-Home
+      { "UP", 0, char_meta_c | char_hyper_c }, # 152 = Alt-Up -> #\M-Up
+      { "PGUP", 0, char_meta_c | char_hyper_c }, # 153 = Alt-PgUp -> #\M-PgUp
+      { NULL, 0, 0 },
+      { "LEFT", 0, char_meta_c | char_hyper_c }, # 155 = Alt-Left -> #\M-Left
+      { "CENTER", 0, char_meta_c | char_hyper_c }, # [156 -> #\META-Center]
+      { "RIGHT", 0, char_meta_c | char_hyper_c }, # 157 = Alt-Right -> #\M-Right
+      { NULL, 0, 0 },
+      { "END", 0, char_meta_c | char_hyper_c }, # 159 = Alt-End -> #\M-End
+      { "DOWN", 0, char_meta_c | char_hyper_c }, # 160 = Alt-Down -> #\M-Down
+      { "PGDN", 0, char_meta_c | char_hyper_c }, # 161 = Alt-PgDn -> #\M-PgDn
+      { "INSERT", 0, char_meta_c | char_hyper_c }, # 162 = Alt-Insert -> #\M-Insert
+      { "DELETE", 0, char_meta_c | char_hyper_c }, # 163 = Alt-Delete -> #\M-Delete
+      { NULL, '/', char_meta_c | char_hyper_c }, # 164 = Alt-/ -> #\META-HYPER-'/'
+      { NULL,   9, char_meta_c }, # 165 = Alt-Tab -> #\META-Tab
+      { NULL,  CR, char_meta_c | char_hyper_c }, # 166 = Alt-Enter -> #\META-HYPER-Return
     };
 
 #ifdef EMUNIX_PORTABEL
@@ -2074,15 +2109,22 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
         # OS/2
         { var int ch = _read_kbd(FALSE,FALSE,FALSE);
           if (ch < 0) { return signean_plus; } # nein
-         {var cint c =
-            (ch==0 ? scancode_table[(uintB)_read_kbd(FALSE,TRUE,FALSE)]
-                   : (ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB)
-                     ? # Ctrl-A bis Ctrl-Z -> Buchstabe mit CONTROL-Bit draus machen:
-                       ((cint)(ch==LF ? CR : (ch | bit(6))) << char_code_shift_c) | char_control_c
-                     : (cint)(uintB)ch << char_code_shift_c
-            );
-          /* asciz_out_1("{%x}",ch); _sleep2(500); */ # Test
-          TheStream(stream)->strm_rd_ch_last = int_char(c);
+          pushSTACK(stream);
+         {var object c;
+          if (ch==0)
+            { c = make_key_event(&scancode_table[(uintB)_read_kbd(FALSE,TRUE,FALSE)]); }
+          elif ((ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB))
+            { # Ctrl-A bis Ctrl-Z -> Buchstabe mit CONTROL-Bit draus machen:
+              var key_event event;
+              event.key = NULL;
+              event.code = (ch==LF ? CR : (ch | bit(6)));
+              event.bits = char_control_c;
+              c = make_key_event(&event);
+            }
+          else
+            { pushSTACK(code_char(ch)); funcall(S(make_char),1); c = value1; }
+          stream = popSTACK();
+          TheStream(stream)->strm_rd_ch_last = c;
           TheStream(stream)->strmflags |= strmflags_unread_B;
           return signean_null;
         }}
@@ -2183,70 +2225,91 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       if (!(_osmode == DOS_MODE))
         # OS/2
         { run_time_stop(); # Run-Time-Stoppuhr anhalten
-         {var int ch = _read_kbd(FALSE,TRUE,FALSE);
-          var cint c =
-            (ch==0 ? scancode_table[(uintB)_read_kbd(FALSE,TRUE,FALSE)]
-                   : (ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB)
-                     ? # Ctrl-A bis Ctrl-Z -> Buchstabe mit CONTROL-Bit draus machen:
-                       ((cint)(ch==LF ? CR : (ch | bit(6))) << char_code_shift_c) | char_control_c
-                     : (cint)(uintB)ch << char_code_shift_c
-            );
+         {var object c;
+          var int ch = _read_kbd(FALSE,TRUE,FALSE);
+          if (ch==0)
+            { c = make_key_event(&scancode_table[(uintB)_read_kbd(FALSE,TRUE,FALSE)]); }
+          elif ((ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB))
+            { # Ctrl-A bis Ctrl-Z -> Buchstabe mit CONTROL-Bit draus machen:
+              var key_event event;
+              event.key = NULL;
+              event.code = (ch==LF ? CR : (ch | bit(6)));
+              event.bits = char_control_c;
+              c = make_key_event(&event);
+            }
+          else
+            { pushSTACK(code_char(ch)); funcall(S(make_char),1); c = value1; }
           # noch zu behandeln: ??
           # Ctrl-2 -> #\Control-2, Ctrl-6 -> #\Code30, Ctrl-ß -> #\Code28,
           # Ctrl-+ -> #\Code29, Ctrl-ü -> #\Code27 = #\Escape
-          /* asciz_out_1("{%x}",ch); _sleep2(500); */ # Test
           run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
-          return int_char(c);
+          return c;
         }}
         else
       #endif
       # DOS
-     {var object ch;
+     {var object c;
       run_time_stop(); # Run-Time-Stoppuhr anhalten
       { # Tastendruck abwarten, nichts ausgeben:
         var uintW erg = getch();
         var uintB code = (uintB)erg; # Ascii-Code
         var uintB scancode = (uintB)(erg>>8); # Scan-Code
-        var cint c = 0; # neues Character
         if (scancode == 0)
           # Multikey-Event, z.B. accent+space oder Alt xyz
-          { c = (cint)code << char_code_shift_c; }
+          { pushSTACK(code_char(code)); funcall(S(make_char),1); c = value1; }
         else
           { if ((code == 0) || (code == 0xE0))
               # Sondertaste
-              { c = (scancode < 167 ? scancode_table[scancode] : 0); }
+              { if (scancode < 167)
+                  { c = make_key_event(&scancode_table[scancode]); }
+                  else
+                  { var key_event event = { NULL, 0, 0 };
+                    c = make_key_event(&event);
+              }   }
               else
               { if (((scancode >= 71) && (scancode < 84)) || (scancode == 55)
                     || ((scancode == 0xE0) && (code >= 32))
                    )
                   # Ziffernblocktaste außer Enter (auch nicht F1 bis F12 !)
-                  { c = ((cint)code << char_code_shift_c) | char_hyper_c; }
+                  { var key_event event;
+                    event.key = NULL;
+                    event.code = code;
+                    event.bits = char_hyper_c;
+                    c = make_key_event(&event);
+                  }
                 elif ((scancode == 14) || (scancode == 28)
                       || ((scancode == 0xE0) && (code < 32))
                      )
                   # Backspace-Taste, Return-Taste, Enter-Taste
                   { var uintB defaultcode = (scancode==14 ? BS : CR);
-                    c = (cint)defaultcode << char_code_shift_c;
-                    if (scancode == 0xE0) { c |= char_hyper_c; }
-                    if (!(code == defaultcode)) { c |= char_control_c; }
+                    var key_event event;
+                    event.key = NULL;
+                    event.code = defaultcode;
+                    event.bits = (scancode == 0xE0 ? char_hyper_c : 0)
+                                 | (!(code == defaultcode) ? char_control_c : 0);
+                    c = make_key_event(&event);
                   }
                 else
                   { if ((code < 32) && ((scancode >= 16) && (scancode <= 53)))
-                      # Ctrl-A bis Ctrl-Z -> Buchstabe mit CONTROL-Bit draus machen:
-                      { c = ((cint)(code | bit(6)) << char_code_shift_c) | char_control_c; }
+                      { # Ctrl-A bis Ctrl-Z -> Buchstabe mit CONTROL-Bit draus machen:
+                        var key_event event;
+                        event.key = NULL;
+                        event.code = code | bit(6);
+                        event.bits = char_control_c;
+                        c = make_key_event(&event);
+                      }
                     else
                       # normales Zeichen
-                      { c = (cint)code << char_code_shift_c; }
+                      { pushSTACK(code_char(code)); funcall(S(make_char),1); c = value1; }
           }   }   }
         # noch zu behandeln: ??
         # Ctrl-2          0300
         # Ctrl-6          071E
         # Ctrl-ß          0C1C
         # Ctrl--          0C1F
-        ch = int_char(c);
       }
       run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
-      return ch;
+      return c;
     }}
   #endif
 
@@ -2271,7 +2334,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
           ASSERT(nevents_read==1);
           if (event.EventType == KEY_EVENT
               && event.Event.KeyEvent.bKeyDown)
-            { var cint c = 0; # neues Character
+            { var key_event ev;
               if (event.Event.KeyEvent.wRepeatCount > 1)
                 { var DWORD nevents_written;
                   event.Event.KeyEvent.wRepeatCount--;
@@ -2280,91 +2343,91 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
                 }
               if (event.Event.KeyEvent.uAsciiChar <= ' ')
                 { # Translate Virtual Keycode.
-                  local struct { WORD vkcode; cint mycode; } vktable[] =
-                    { VK_BACK,     BS,                # #\Backspace
-                      VK_TAB,     TAB,                # #\Tab
-                      VK_RETURN,   CR,                # #\Return
-                      VK_ESCAPE,  ESC,                # #\Escape
-                      VK_LEFT,     20 | char_hyper_c, # #\Left = #\HYPER-Code20
-                      VK_RIGHT,    22 | char_hyper_c, # #\Right = #\HYPER-Code22
-                      VK_UP,       24 | char_hyper_c, # #\Up = #\HYPER-Code24
-                      VK_DOWN,     18 | char_hyper_c, # #\Down = #\HYPER-Code18
-                      VK_PRIOR,    25 | char_hyper_c, # #\PgUp = #\HYPER-Code25
-                      VK_NEXT,     19 | char_hyper_c, # #\PgDn = #\HYPER-Code19
-                      VK_HOME,     23 | char_hyper_c, # #\Home = #\HYPER-Code23
-                      VK_END,      17 | char_hyper_c, # #\End = #\HYPER-Code17
-                      VK_INSERT,   16 | char_hyper_c, # #\Insert = #\HYPER-Code16
-                      VK_DELETE,  127 | char_hyper_c, # #\Delete = #\HYPER-Code127
-                      12,          21 | char_hyper_c, # #\Center = #\HYPER-Code21
-                      VK_F1,      'A' | char_hyper_c, # #\F1 = #\HYPER-A
-                      VK_F2,      'B' | char_hyper_c, # #\F2 = #\HYPER-B
-                      VK_F3,      'C' | char_hyper_c, # #\F3 = #\HYPER-C
-                      VK_F4,      'D' | char_hyper_c, # #\F4 = #\HYPER-D
-                      VK_F5,      'E' | char_hyper_c, # #\F5 = #\HYPER-E
-                      VK_F6,      'F' | char_hyper_c, # #\F6 = #\HYPER-F
-                      VK_F7,      'G' | char_hyper_c, # #\F7 = #\HYPER-G
-                      VK_F8,      'H' | char_hyper_c, # #\F8 = #\HYPER-H
-                      VK_F9,      'I' | char_hyper_c, # #\F9 = #\HYPER-I
-                      VK_F10,     'J' | char_hyper_c, # #\F10 = #\HYPER-J
-                      VK_F11,     'K' | char_hyper_c, # #\F11 = #\HYPER-K
-                      VK_F12,     'L' | char_hyper_c, # #\F12 = #\HYPER-L
-                      ' ',        ' ',                # #\Space
-                      '0',        '0',                # #\0
-                      '1',        '1',                # #\1
-                      '2',        '2',                # #\2
-                      '3',        '3',                # #\3
-                      '4',        '4',                # #\4
-                      '5',        '5',                # #\5
-                      '6',        '6',                # #\6
-                      '7',        '7',                # #\7
-                      '8',        '8',                # #\8
-                      '9',        '9',                # #\9
-                      'A',        'A',                # #\A
-                      'B',        'B',                # #\B
-                      'C',        'C',                # #\C
-                      'D',        'D',                # #\D
-                      'E',        'E',                # #\E
-                      'F',        'F',                # #\F
-                      'G',        'G',                # #\G
-                      'H',        'H',                # #\H
-                      'I',        'I',                # #\I
-                      'J',        'J',                # #\J
-                      'K',        'K',                # #\K
-                      'L',        'L',                # #\L
-                      'M',        'M',                # #\M
-                      'N',        'N',                # #\N
-                      'O',        'O',                # #\O
-                      'P',        'P',                # #\P
-                      'Q',        'Q',                # #\Q
-                      'R',        'R',                # #\R
-                      'S',        'S',                # #\S
-                      'T',        'T',                # #\T
-                      'U',        'U',                # #\U
-                      'V',        'V',                # #\V
-                      'W',        'W',                # #\W
-                      'X',        'X',                # #\X
-                      'Y',        'Y',                # #\Y
-                      'Z',        'Z',                # #\Z
-                      107,        '+' | char_hyper_c, # #\HYPER-+
-                      109,        '-' | char_hyper_c, # #\HYPER--
-                      106,        '*' | char_hyper_c, # #\HYPER-*
-                      111,        '/' | char_hyper_c, # #\HYPER-/
-                      186,        ';',                # #\;
-                      187,        '=',                # #\=
-                      188,        ',',                # #\,
-                      189,        '-',                # #\-
-                      190,        '.',                # #\.
-                      191,        '/',                # #\/
-                      192,        '`',                # #\`
-                      219,        '[',                # #\[
-                      220,        '\\',               # #\\
-                      221,        ']',                # #\]
-                      222,        '\'',               # #\'
+                  local struct { WORD vkcode; key_event myevent; } vktable[] =
+                    { VK_BACK,    { NULL,  BS, 0 },               # #\Backspace
+                      VK_TAB,     { NULL, TAB, 0 },               # #\Tab
+                      VK_RETURN,  { NULL,  CR, 0 },               # #\Return
+                      VK_ESCAPE,  { NULL, ESC, 0 },               # #\Escape
+                      VK_LEFT,    { "LEFT", 0, char_hyper_c },    # #\Left
+                      VK_RIGHT,   { "RIGHT", 0, char_hyper_c },   # #\Right
+                      VK_UP,      { "UP", 0, char_hyper_c },      # #\Up
+                      VK_DOWN,    { "DOWN", 0, char_hyper_c },    # #\Down
+                      VK_PRIOR,   { "PGUP", 0, char_hyper_c },    # #\PgUp
+                      VK_NEXT,    { "PGDN", 0, char_hyper_c },    # #\PgDn
+                      VK_HOME,    { "HOME", 0, char_hyper_c },    # #\Home
+                      VK_END,     { "END", 0, char_hyper_c },     # #\End
+                      VK_INSERT,  { "INSERT", 0, char_hyper_c },  # #\Insert
+                      VK_DELETE,  { "DELETE", 0, char_hyper_c },  # #\Delete
+                      12,         { "CENTER", 0, char_hyper_c },  # #\Center
+                      VK_F1,      { "F1", 0, char_hyper_c },      # #\F1
+                      VK_F2,      { "F2", 0, char_hyper_c },      # #\F2
+                      VK_F3,      { "F3", 0, char_hyper_c },      # #\F3
+                      VK_F4,      { "F4", 0, char_hyper_c },      # #\F4
+                      VK_F5,      { "F5", 0, char_hyper_c },      # #\F5
+                      VK_F6,      { "F6", 0, char_hyper_c },      # #\F6
+                      VK_F7,      { "F7", 0, char_hyper_c },      # #\F7
+                      VK_F8,      { "F8", 0, char_hyper_c },      # #\F8
+                      VK_F9,      { "F9", 0, char_hyper_c },      # #\F9
+                      VK_F10,     { "F10", 0, char_hyper_c },     # #\F10
+                      VK_F11,     { "F11", 0, char_hyper_c },     # #\F11
+                      VK_F12,     { "F12", 0, char_hyper_c },     # #\F12
+                      ' ',        { NULL, ' ', 0 },               # #\Space
+                      '0',        { NULL, '0', 0 },               # #\0
+                      '1',        { NULL, '1', 0 },               # #\1
+                      '2',        { NULL, '2', 0 },               # #\2
+                      '3',        { NULL, '3', 0 },               # #\3
+                      '4',        { NULL, '4', 0 },               # #\4
+                      '5',        { NULL, '5', 0 },               # #\5
+                      '6',        { NULL, '6', 0 },               # #\6
+                      '7',        { NULL, '7', 0 },               # #\7
+                      '8',        { NULL, '8', 0 },               # #\8
+                      '9',        { NULL, '9', 0 },               # #\9
+                      'A',        { NULL, 'A', 0 },               # #\A
+                      'B',        { NULL, 'B', 0 },               # #\B
+                      'C',        { NULL, 'C', 0 },               # #\C
+                      'D',        { NULL, 'D', 0 },               # #\D
+                      'E',        { NULL, 'E', 0 },               # #\E
+                      'F',        { NULL, 'F', 0 },               # #\F
+                      'G',        { NULL, 'G', 0 },               # #\G
+                      'H',        { NULL, 'H', 0 },               # #\H
+                      'I',        { NULL, 'I', 0 },               # #\I
+                      'J',        { NULL, 'J', 0 },               # #\J
+                      'K',        { NULL, 'K', 0 },               # #\K
+                      'L',        { NULL, 'L', 0 },               # #\L
+                      'M',        { NULL, 'M', 0 },               # #\M
+                      'N',        { NULL, 'N', 0 },               # #\N
+                      'O',        { NULL, 'O', 0 },               # #\O
+                      'P',        { NULL, 'P', 0 },               # #\P
+                      'Q',        { NULL, 'Q', 0 },               # #\Q
+                      'R',        { NULL, 'R', 0 },               # #\R
+                      'S',        { NULL, 'S', 0 },               # #\S
+                      'T',        { NULL, 'T', 0 },               # #\T
+                      'U',        { NULL, 'U', 0 },               # #\U
+                      'V',        { NULL, 'V', 0 },               # #\V
+                      'W',        { NULL, 'W', 0 },               # #\W
+                      'X',        { NULL, 'X', 0 },               # #\X
+                      'Y',        { NULL, 'Y', 0 },               # #\Y
+                      'Z',        { NULL, 'Z', 0 },               # #\Z
+                      107,        { NULL, '+', char_hyper_c },    # #\HYPER-+
+                      109,        { NULL, '-', char_hyper_c },    # #\HYPER--
+                      106,        { NULL, '*', char_hyper_c },    # #\HYPER-*
+                      111,        { NULL, '/', char_hyper_c },    # #\HYPER-/
+                      186,        { NULL, ';', 0 },               # #\;
+                      187,        { NULL, '=', 0 },               # #\=
+                      188,        { NULL, ',', 0 },               # #\,
+                      189,        { NULL, '-', 0 },               # #\-
+                      190,        { NULL, '.', 0 },               # #\.
+                      191,        { NULL, '/', 0 },               # #\/
+                      192,        { NULL, '`', 0 },               # #\`
+                      219,        { NULL, '[', 0 },               # #\[
+                      220,        { NULL, '\\', 0 },              # #\\
+                      221,        { NULL, ']', 0 },               # #\]
+                      222,        { NULL, '\'', 0 },              # #\'
                     };
                   var int i;
                   for (i = 0; i < sizeof(vktable)/sizeof(vktable[0]); i++)
                     { if (event.Event.KeyEvent.wVirtualKeyCode == vktable[i].vkcode)
-                        { c = vktable[i].mycode; goto found_keycode; }
+                        { ev = vktable[i].myevent; goto found_keycode; }
                     }
                   switch (event.Event.KeyEvent.wVirtualKeyCode)
                     { case VK_SHIFT:
@@ -2377,27 +2440,29 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
                   continue;
                   found_keycode:
                   if (event.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
-                    { c |= char_super_c; }
+                    { ev.bits |= char_super_c; }
                   if (event.Event.KeyEvent.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED))
-                    { c |= char_control_c; }
+                    { ev.bits |= char_control_c; }
                   if (event.Event.KeyEvent.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
-                    { c |= char_meta_c; }
+                    { ev.bits |= char_meta_c; }
                 }
                 else
-                { c = (uintB)event.Event.KeyEvent.uAsciiChar;
+                { ev.key = NULL;
+                  ev.code = (uintB)event.Event.KeyEvent.uAsciiChar;
+                  ev.bits = 0;
                   if (event.Event.KeyEvent.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
                     { # c = 'a'..'z' -> translate to 'A'..'Z'
                       # c = 'A'..'Z' -> add "Shift"
                       # c = '<','>' etc. -> don't add "Shift"
-                      c = up_case(c);
-                      if (!(c == down_case(c)))
+                      ev.code = up_case(ev.code);
+                      if (!(ev.code == down_case(ev.code)))
                         { if (event.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
-                            { c |= char_super_c; }
+                            { ev.bits |= char_super_c; }
                         }
-                      c |= char_meta_c;
+                      ev.bits |= char_meta_c;
                 }   }
               end_system_call();
-              return int_char(c);
+              return make_key_event(&ev);
             }
           # Other events are silently thrown away.
         }
@@ -2573,32 +2638,39 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
         TheStream(stream)->strm_keyboard_buffer = Cdr(l);
        {var uintB c = char_code(Car(l));
         if ((c >= ' ') || (c == ESC) || (c == TAB) || (c == CR) || (c == BS))
-          { return code_char(c); }
+          { pushSTACK(code_char(c)); funcall(S(make_char),1); return value1; }
           else
           # Taste vermutlich mit Ctrl getippt
-          { return int_char(((64 | c) << char_code_shift_c) | char_control_c); }
+          { var key_event event;
+            event.key = NULL;
+            event.code = (c == 0 ? ' ' : (c | bit(6)));
+            event.bits = char_control_c;
+            return make_key_event(&event);
+          }
       }}
     }}
 
   # UP: Erweitert die Liste STACK_0 um eine Tastenzuordnung.
   # kann GC auslösen
-    local void keybinding (const char* cap, cint key);
-    local void keybinding(cap,key)
+    local void add_keybinding (const char* cap, const key_event* event);
+    local void add_keybinding(cap,event)
       var const char* cap;
-      var cint key;
+      var const key_event* event;
       { var const uintB* ptr = (const uintB*)cap;
         if (*ptr=='\0') return; # leere Tastenfolge vermeiden
         pushSTACK(allocate_cons());
         # Liste (char1 ... charn . key) bilden:
         {var uintC count = 0;
          do { pushSTACK(code_char(*ptr)); ptr++; count++; } until (*ptr=='\0');
-         pushSTACK(int_char(key)); count++;
+         pushSTACK(make_key_event(event)); count++;
          funcall(L(liststern),count);
         }
         # und auf STACK_0 pushen:
         {var object l = popSTACK();
          Car(l) = value1; Cdr(l) = STACK_0; STACK_0 = l;
       } }
+  #define keybinding(cap,ev1,ev2,ev3)  \
+    { var key_event event = ev1,ev2,ev3; add_keybinding(cap,&event); }
 
   #endif
 
@@ -2631,71 +2703,71 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
               end_system_call();
               # Backspace:
               begin_system_call(); cap = tgetstr("kb",&tp); end_system_call();
-              if (cap) { keybinding(cap,BS); } # #\Backspace
+              if (cap) { keybinding(cap, { NULL, BS, 0 } ); } # #\Backspace
               # Insert, Delete:
               begin_system_call(); cap = tgetstr("kI",&tp); end_system_call();
-              if (cap) { keybinding(cap,16 | char_hyper_c); } # #\Insert
+              if (cap) { keybinding(cap, { "INSERT", 0, char_hyper_c } ); } # #\Insert
               begin_system_call(); cap = tgetstr("kD",&tp); end_system_call();
-              if (cap) { keybinding(cap,127); } # #\Delete
+              if (cap) { keybinding(cap, { "DELETE", 0, char_hyper_c } ); } # #\Delete
               # Pfeiltasten:
               begin_system_call(); cap = tgetstr("ku",&tp); end_system_call();
-              if (cap) { keybinding(cap,24 | char_hyper_c); } # #\Up
+              if (cap) { keybinding(cap, { "UP", 0, char_hyper_c } ); } # #\Up
               if (cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'A') && (cap[3] == '\0'))
-                { keybinding(ESCstring"[A",24 | char_hyper_c); } # #\Up
+                { keybinding(ESCstring"[A", { "UP", 0, char_hyper_c } ); } # #\Up
               begin_system_call(); cap = tgetstr("kd",&tp); end_system_call();
-              if (cap) { keybinding(cap,18 | char_hyper_c); } # #\Down
+              if (cap) { keybinding(cap, { "DOWN", 0, char_hyper_c } ); } # #\Down
               if (cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'B') && (cap[3] == '\0'))
-                { keybinding(ESCstring"[B",18 | char_hyper_c); } # #\Down
+                { keybinding(ESCstring"[B", { "DOWN", 0, char_hyper_c } ); } # #\Down
               begin_system_call(); cap = tgetstr("kr",&tp); end_system_call();
-              if (cap) { keybinding(cap,22 | char_hyper_c); } # #\Right
+              if (cap) { keybinding(cap, { "RIGHT", 0, char_hyper_c } ); } # #\Right
               if (cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'C') && (cap[3] == '\0'))
-                { keybinding(ESCstring"[C",22 | char_hyper_c); } # #\Right
+                { keybinding(ESCstring"[C", { "RIGHT", 0, char_hyper_c } ); } # #\Right
               begin_system_call(); cap = tgetstr("kl",&tp); end_system_call();
-              if (cap) { keybinding(cap,20 | char_hyper_c); } # #\Left
+              if (cap) { keybinding(cap, { "LEFT", 0, char_hyper_c } ); } # #\Left
               if (cap && (cap[0] == ESC) && (cap[1] == 'O') && (cap[2] == 'D') && (cap[3] == '\0'))
-                { keybinding(ESCstring"[D",20 | char_hyper_c); } # #\Left
+                { keybinding(ESCstring"[D", { "LEFT", 0, char_hyper_c } ); } # #\Left
               # sonstige Cursorblock-Tasten:
               begin_system_call(); cap = tgetstr("kh",&tp); end_system_call();
-              if (cap) { keybinding(cap,23 | char_hyper_c); } # #\Home
+              if (cap) { keybinding(cap, { "HOME", 0, char_hyper_c } ); } # #\Home
               begin_system_call(); cap = tgetstr("K1",&tp); end_system_call();
-              if (cap) { keybinding(cap,23 | char_hyper_c); } # #\Home
+              if (cap) { keybinding(cap, { "HOME", 0, char_hyper_c } ); } # #\Home
               begin_system_call(); cap = tgetstr("KH",&tp); end_system_call();
-              if (cap) { keybinding(cap,17 | char_hyper_c); } # #\End
+              if (cap) { keybinding(cap, { "END", 0, char_hyper_c } ); } # #\End
               begin_system_call(); cap = tgetstr("K4",&tp); end_system_call();
-              if (cap) { keybinding(cap,17 | char_hyper_c); } # #\End
+              if (cap) { keybinding(cap, { "END", 0, char_hyper_c } ); } # #\End
               begin_system_call(); cap = tgetstr("kP",&tp); end_system_call();
-              if (cap) { keybinding(cap,25 | char_hyper_c); } # #\PgUp
+              if (cap) { keybinding(cap, { "PGUP", 0, char_hyper_c } ); } # #\PgUp
               begin_system_call(); cap = tgetstr("K3",&tp); end_system_call();
-              if (cap) { keybinding(cap,25 | char_hyper_c); } # #\PgUp
+              if (cap) { keybinding(cap, { "PGUP", 0, char_hyper_c } ); } # #\PgUp
               begin_system_call(); cap = tgetstr("kN",&tp); end_system_call();
-              if (cap) { keybinding(cap,19 | char_hyper_c); } # #\PgDn
+              if (cap) { keybinding(cap, { "PGDN", 0, char_hyper_c } ); } # #\PgDn
               begin_system_call(); cap = tgetstr("K5",&tp); end_system_call();
-              if (cap) { keybinding(cap,19 | char_hyper_c); } # #\PgDn
+              if (cap) { keybinding(cap, { "PGDN", 0, char_hyper_c } ); } # #\PgDn
               begin_system_call(); cap = tgetstr("K2",&tp); end_system_call();
-              if (cap) { keybinding(cap,21 | char_hyper_c); } # #\Center
+              if (cap) { keybinding(cap, { "CENTER", 0, char_hyper_c } ); } # #\Center
               # Funktionstasten:
-              { typedef struct { const char* capname; cint key; } funkey;
-                local var funkey funkey_tab[] = {
-                  { "k1", 'A' | char_hyper_c }, # #\F1
-                  { "k2", 'B' | char_hyper_c }, # #\F2
-                  { "k3", 'C' | char_hyper_c }, # #\F3
-                  { "k4", 'D' | char_hyper_c }, # #\F4
-                  { "k5", 'E' | char_hyper_c }, # #\F5
-                  { "k6", 'F' | char_hyper_c }, # #\F6
-                  { "k7", 'G' | char_hyper_c }, # #\F7
-                  { "k8", 'H' | char_hyper_c }, # #\F8
-                  { "k9", 'I' | char_hyper_c }, # #\F9
-                  { "k0", 'J' | char_hyper_c }, # #\F10
-                  { "k;", 'J' | char_hyper_c }, # #\F10
-                  { "F1", 'K' | char_hyper_c }, # #\F11
-                  { "F2", 'L' | char_hyper_c }, # #\F12
+              { typedef struct { const char* capname; key_event key; } funkey;
+                local var const funkey funkey_tab[] = {
+                  { "k1", { "F1", 0, char_hyper_c } }, # #\F1
+                  { "k2", { "F2", 0, char_hyper_c } }, # #\F2
+                  { "k3", { "F3", 0, char_hyper_c } }, # #\F3
+                  { "k4", { "F4", 0, char_hyper_c } }, # #\F4
+                  { "k5", { "F5", 0, char_hyper_c } }, # #\F5
+                  { "k6", { "F6", 0, char_hyper_c } }, # #\F6
+                  { "k7", { "F7", 0, char_hyper_c } }, # #\F7
+                  { "k8", { "F8", 0, char_hyper_c } }, # #\F8
+                  { "k9", { "F9", 0, char_hyper_c } }, # #\F9
+                  { "k0", { "F10", 0, char_hyper_c } }, # #\F10
+                  { "k;", { "F10", 0, char_hyper_c } }, # #\F10
+                  { "F1", { "F11", 0, char_hyper_c } }, # #\F11
+                  { "F2", { "F12", 0, char_hyper_c } }, # #\F12
                   };
                 var uintL i;
                 for (i=0; i < sizeof(funkey_tab)/sizeof(funkey); i++)
                   { begin_system_call();
                     cap = tgetstr(funkey_tab[i].capname,&tp);
                     end_system_call();
-                    if (cap) { keybinding(cap,funkey_tab[i].key); }
+                    if (cap) { add_keybinding(cap,&funkey_tab[i].key); }
               }   }
               # Special Linux console handling:
               begin_system_call();
@@ -2709,7 +2781,7 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
               if (!(cap && (cap[0] == ESC) && (cap[1] == '[') && (cap[2] == '3') && (cap[3] == '~') && (cap[4] == '\0')))
                 goto not_linux;
               end_system_call();
-              keybinding(ESCstring"[4~",17 | char_hyper_c); # #\End
+              keybinding(ESCstring"[4~", { "END", 0, char_hyper_c } ); # #\End
               if (FALSE)
                 not_linux:
                 { end_system_call(); }
@@ -2729,8 +2801,8 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
                 goto not_xterm;
               end_system_call();
               { # Insert, Delete:
-                keybinding(ESCstring"[2~",16 | char_hyper_c); # #\Insert
-                keybinding(ESCstring"[3~",127); # #\Delete
+                keybinding(ESCstring"[2~", { "INSERT", 0, char_hyper_c } ); # #\Insert
+                keybinding(ESCstring"[3~", { "DELETE", 0, char_hyper_c } ); # #\Delete
               }
               { # Application Keypad: ESC O M -> Return,
                 # ESC O k -> +, ESC O m -> -, ESC O j -> *, ESC O o -> /
@@ -2740,45 +2812,45 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
                 # ESC O p -> Insert, ESC O l -> Delete.
                 var char cap[4];
                 cap[0] = ESC; cap[1] = 'O'; cap[3] = '\0';
-                cap[2] = 'M'; keybinding(&!cap,'M'-64);
-                cap[2] = '+'+64; keybinding(&!cap,'+');
-                cap[2] = '-'+64; keybinding(&!cap,'-');
-                cap[2] = '*'+64; keybinding(&!cap,'*');
-                cap[2] = '/'+64; keybinding(&!cap,'/');
-                cap[2] = '8'+64; keybinding(&!cap,24 | char_hyper_c); # #\Up
-                cap[2] = '2'+64; keybinding(&!cap,18 | char_hyper_c); # #\Down
-                cap[2] = '6'+64; keybinding(&!cap,22 | char_hyper_c); # #\Right
-                cap[2] = '4'+64; keybinding(&!cap,20 | char_hyper_c); # #\Left
-                cap[2] = '0'+64; keybinding(&!cap,16 | char_hyper_c); # #\Insert
-                cap[2] = '.'+64; keybinding(&!cap,127); # #\Delete
-                cap[2] = ','+64; keybinding(&!cap,127); # #\Delete
+                cap[2] = 'M'; keybinding(&!cap, { NULL, 'M'-64, 0 } );
+                cap[2] = '+'+64; keybinding(&!cap, { NULL, '+', 0 } );
+                cap[2] = '-'+64; keybinding(&!cap, { NULL, '-', 0 } );
+                cap[2] = '*'+64; keybinding(&!cap, { NULL, '*', 0 } );
+                cap[2] = '/'+64; keybinding(&!cap, { NULL, '/', 0 } );
+                cap[2] = '8'+64; keybinding(&!cap, { "UP", 0, char_hyper_c } ); # #\Up
+                cap[2] = '2'+64; keybinding(&!cap, { "DOWN", 0, char_hyper_c } ); # #\Down
+                cap[2] = '6'+64; keybinding(&!cap, { "RIGHT", 0, char_hyper_c } ); # #\Right
+                cap[2] = '4'+64; keybinding(&!cap, { "LEFT", 0, char_hyper_c } ); # #\Left
+                cap[2] = '0'+64; keybinding(&!cap, { "INSERT", 0, char_hyper_c } ); # #\Insert
+                cap[2] = '.'+64; keybinding(&!cap, { "DELETE", 0, char_hyper_c } ); # #\Delete
+                cap[2] = ','+64; keybinding(&!cap, { "DELETE", 0, char_hyper_c } ); # #\Delete
                 # "7" -> #\Home, "1" -> #\End, "9" -> #\PgUp, "3" -> #\PgDn,
                 # "5" -> #\Center are already handled above.
               }
               xterm:
               { # Pfeiltasten s.o.
                 # sonstige Cursorblock-Tasten:
-                keybinding(ESCstring"[5~",25 | char_hyper_c); # #\PgUp
-                keybinding(ESCstring"[6~",19 | char_hyper_c); # #\PgDn
-                keybinding(ESCstring"[7~",23 | char_hyper_c); # #\Home
-                keybinding(ESCstring"[8~",17 | char_hyper_c); # #\End
-                keybinding(ESCstring"OH",23 | char_hyper_c); # #\Home
-                keybinding(ESCstring"[H",23 | char_hyper_c); # #\Home
-                keybinding(ESCstring"OF",17 | char_hyper_c); # #\End
-                keybinding(ESCstring"[F",17 | char_hyper_c); # #\End
+                keybinding(ESCstring"[5~", { "PGUP", 0, char_hyper_c } ); # #\PgUp
+                keybinding(ESCstring"[6~", { "PGDN", 0, char_hyper_c } ); # #\PgDn
+                keybinding(ESCstring"[7~", { "HOME", 0, char_hyper_c } ); # #\Home
+                keybinding(ESCstring"[8~", { "END", 0, char_hyper_c } ); # #\End
+                keybinding(ESCstring"OH", { "HOME", 0, char_hyper_c } ); # #\Home
+                keybinding(ESCstring"[H", { "HOME", 0, char_hyper_c } ); # #\Home
+                keybinding(ESCstring"OF", { "END", 0, char_hyper_c } ); # #\End
+                keybinding(ESCstring"[F", { "END", 0, char_hyper_c } ); # #\End
                 # Funktionstasten:
-                keybinding(ESCstring"[11~",'A' | char_hyper_c); # #\F1
-                keybinding(ESCstring"[12~",'B' | char_hyper_c); # #\F2
-                keybinding(ESCstring"[13~",'C' | char_hyper_c); # #\F3
-                keybinding(ESCstring"[14~",'D' | char_hyper_c); # #\F4
-                keybinding(ESCstring"[15~",'E' | char_hyper_c); # #\F5
-                keybinding(ESCstring"[17~",'F' | char_hyper_c); # #\F6
-                keybinding(ESCstring"[18~",'G' | char_hyper_c); # #\F7
-                keybinding(ESCstring"[19~",'H' | char_hyper_c); # #\F8
-                keybinding(ESCstring"[20~",'I' | char_hyper_c); # #\F9
-                keybinding(ESCstring"[21~",'J' | char_hyper_c); # #\F10
-                keybinding(ESCstring"[23~",'K' | char_hyper_c); # #\F11
-                keybinding(ESCstring"[24~",'L' | char_hyper_c); # #\F12
+                keybinding(ESCstring"[11~", { "F1", 0, char_hyper_c } ); # #\F1
+                keybinding(ESCstring"[12~", { "F2", 0, char_hyper_c } ); # #\F2
+                keybinding(ESCstring"[13~", { "F3", 0, char_hyper_c } ); # #\F3
+                keybinding(ESCstring"[14~", { "F4", 0, char_hyper_c } ); # #\F4
+                keybinding(ESCstring"[15~", { "F5", 0, char_hyper_c } ); # #\F5
+                keybinding(ESCstring"[17~", { "F6", 0, char_hyper_c } ); # #\F6
+                keybinding(ESCstring"[18~", { "F7", 0, char_hyper_c } ); # #\F7
+                keybinding(ESCstring"[19~", { "F8", 0, char_hyper_c } ); # #\F8
+                keybinding(ESCstring"[20~", { "F9", 0, char_hyper_c } ); # #\F9
+                keybinding(ESCstring"[21~", { "F10", 0, char_hyper_c } ); # #\F10
+                keybinding(ESCstring"[23~", { "F11", 0, char_hyper_c } ); # #\F11
+                keybinding(ESCstring"[24~", { "F12", 0, char_hyper_c } ); # #\F12
               }
               if (FALSE)
                 not_xterm:
@@ -3166,6 +3238,7 @@ LISPFUNN(make_keyboard_stream,0)
     var const object* stream_;
     var object ch;
     { # ch sollte ein Character mit höchstens Font, aber ohne Bits sein:
+      #error "FIXME character fonts don't exist in this form any more"
       if (!((as_oint(ch) & ~(((oint)char_code_mask_c|(oint)char_font_mask_c)<<oint_data_shift)) == as_oint(type_data_object(char_type,0))))
         { pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
           pushSTACK(*stream_);

@@ -117,22 +117,6 @@
     LISPOBJ(charname_127bis,"\"Del\"")
     LISPOBJ(charname_127tris,"\"Rubout\"")
     LISPOBJ(charname_155,"\"Csi\"")
-    # Namen von Characters mit Hyper-Bit:
-    LISPOBJ(charname_hyper_18,"\"Down\"") # #\Hyper-Code18
-    LISPOBJ(charname_hyper_20,"\"Left\"") # #\Hyper-Code20
-    LISPOBJ(charname_hyper_22,"\"Right\"") # #\Hyper-Code22
-    LISPOBJ(charname_hyper_24,"\"Up\"") # #\Hyper-Code24
-    LISPOBJ(charname_hyper_28,"\"Help\"") # #\Hyper-Code28
-    LISPOBJ(charname_hyper_a,"\"F1\"") # #\Hyper-A
-    LISPOBJ(charname_hyper_b,"\"F2\"") # #\Hyper-B
-    LISPOBJ(charname_hyper_c,"\"F3\"") # #\Hyper-C
-    LISPOBJ(charname_hyper_d,"\"F4\"") # #\Hyper-D
-    LISPOBJ(charname_hyper_e,"\"F5\"") # #\Hyper-E
-    LISPOBJ(charname_hyper_f,"\"F6\"") # #\Hyper-F
-    LISPOBJ(charname_hyper_g,"\"F7\"") # #\Hyper-G
-    LISPOBJ(charname_hyper_h,"\"F8\"") # #\Hyper-H
-    LISPOBJ(charname_hyper_i,"\"F9\"") # #\Hyper-I
-    LISPOBJ(charname_hyper_j,"\"F10\"") # #\Hyper-J
   #endif
   #ifdef MSDOS_CHARNAMES
     # Namen von Characters mit Codes 0,7,...,13,26,27,32,8,10:
@@ -149,31 +133,6 @@
     LISPOBJ(charname_32,"\"Space\"")
     LISPOBJ(charname_8bis,"\"Rubout\"")
     LISPOBJ(charname_10bis,"\"Linefeed\"")
-    # Namen von Characters mit Hyper-Bit:
-    LISPOBJ(charname_hyper_13,"\"Enter\"") # #\Hyper-Return
-    LISPOBJ(charname_hyper_16,"\"Insert\"") # #\Hyper-Code16
-    LISPOBJ(charname_hyper_17,"\"End\"") # #\Hyper-Code17
-    LISPOBJ(charname_hyper_18,"\"Down\"") # #\Hyper-Code18
-    LISPOBJ(charname_hyper_19,"\"PgDn\"") # #\Hyper-Code19
-    LISPOBJ(charname_hyper_20,"\"Left\"") # #\Hyper-Code20
-    LISPOBJ(charname_hyper_22,"\"Right\"") # #\Hyper-Code22
-    LISPOBJ(charname_hyper_23,"\"Home\"") # #\Hyper-Code23
-    LISPOBJ(charname_hyper_24,"\"Up\"") # #\Hyper-Code24
-    LISPOBJ(charname_hyper_25,"\"PgUp\"") # #\Hyper-Code25
-    LISPOBJ(charname_hyper_29,"\"Prtscr\"") # #\Hyper-Code29
-    LISPOBJ(charname_hyper_127,"\"Delete\"") # #\Hyper-Code127
-    LISPOBJ(charname_hyper_a,"\"F1\"") # #\Hyper-A
-    LISPOBJ(charname_hyper_b,"\"F2\"") # #\Hyper-B
-    LISPOBJ(charname_hyper_c,"\"F3\"") # #\Hyper-C
-    LISPOBJ(charname_hyper_d,"\"F4\"") # #\Hyper-D
-    LISPOBJ(charname_hyper_e,"\"F5\"") # #\Hyper-E
-    LISPOBJ(charname_hyper_f,"\"F6\"") # #\Hyper-F
-    LISPOBJ(charname_hyper_g,"\"F7\"") # #\Hyper-G
-    LISPOBJ(charname_hyper_h,"\"F8\"") # #\Hyper-H
-    LISPOBJ(charname_hyper_i,"\"F9\"") # #\Hyper-I
-    LISPOBJ(charname_hyper_j,"\"F10\"") # #\Hyper-J
-    LISPOBJ(charname_hyper_k,"\"F11\"") # #\Hyper-K
-    LISPOBJ(charname_hyper_l,"\"F12\"") # #\Hyper-L
   #endif
   #ifdef WIN32_CHARNAMES
     # Namen von Characters mit Codes 0,7,...,13,26,27,32,8,10:
@@ -190,31 +149,6 @@
     LISPOBJ(charname_32,"\"Space\"")
     LISPOBJ(charname_8bis,"\"Rubout\"")
     LISPOBJ(charname_10bis,"\"Linefeed\"")
-    # Namen von Characters mit Hyper-Bit:
-    LISPOBJ(charname_hyper_13,"\"Enter\"") # #\Hyper-Return
-    LISPOBJ(charname_hyper_16,"\"Insert\"") # #\Hyper-Code16
-    LISPOBJ(charname_hyper_17,"\"End\"") # #\Hyper-Code17
-    LISPOBJ(charname_hyper_18,"\"Down\"") # #\Hyper-Code18
-    LISPOBJ(charname_hyper_19,"\"PgDn\"") # #\Hyper-Code19
-    LISPOBJ(charname_hyper_20,"\"Left\"") # #\Hyper-Code20
-    LISPOBJ(charname_hyper_21,"\"Center\"") # #\Hyper-Code21
-    LISPOBJ(charname_hyper_22,"\"Right\"") # #\Hyper-Code22
-    LISPOBJ(charname_hyper_23,"\"Home\"") # #\Hyper-Code23
-    LISPOBJ(charname_hyper_24,"\"Up\"") # #\Hyper-Code24
-    LISPOBJ(charname_hyper_25,"\"PgUp\"") # #\Hyper-Code25
-    LISPOBJ(charname_hyper_127,"\"Delete\"") # #\Hyper-Code127
-    LISPOBJ(charname_hyper_a,"\"F1\"") # #\Hyper-A
-    LISPOBJ(charname_hyper_b,"\"F2\"") # #\Hyper-B
-    LISPOBJ(charname_hyper_c,"\"F3\"") # #\Hyper-C
-    LISPOBJ(charname_hyper_d,"\"F4\"") # #\Hyper-D
-    LISPOBJ(charname_hyper_e,"\"F5\"") # #\Hyper-E
-    LISPOBJ(charname_hyper_f,"\"F6\"") # #\Hyper-F
-    LISPOBJ(charname_hyper_g,"\"F7\"") # #\Hyper-G
-    LISPOBJ(charname_hyper_h,"\"F8\"") # #\Hyper-H
-    LISPOBJ(charname_hyper_i,"\"F9\"") # #\Hyper-I
-    LISPOBJ(charname_hyper_j,"\"F10\"") # #\Hyper-J
-    LISPOBJ(charname_hyper_k,"\"F11\"") # #\Hyper-K
-    LISPOBJ(charname_hyper_l,"\"F12\"") # #\Hyper-L
   #endif
   #ifdef UNIX_CHARNAMES
     LISPOBJ(charname_0bis,"\"Null\"")
@@ -267,35 +201,7 @@
     #  LISPOBJ(charname_0tris,"\"Erik\"") # special "honour" for Mr. Nutgum
     # has been rejected because of a seriousness attack.
     LISPOBJ(charname_127,"\"Del\"")
-    # Namen von Characters mit Hyper-Bit:
-    LISPOBJ(charname_hyper_16,"\"Insert\"") # #\Hyper-Code16
-    LISPOBJ(charname_hyper_17,"\"End\"") # #\Hyper-Code17
-    LISPOBJ(charname_hyper_18,"\"Down\"") # #\Hyper-Code18
-    LISPOBJ(charname_hyper_19,"\"PgDn\"") # #\Hyper-Code19
-    LISPOBJ(charname_hyper_20,"\"Left\"") # #\Hyper-Code20
-    LISPOBJ(charname_hyper_21,"\"Center\"") # #\Hyper-Code21
-    LISPOBJ(charname_hyper_22,"\"Right\"") # #\Hyper-Code22
-    LISPOBJ(charname_hyper_23,"\"Home\"") # #\Hyper-Code23
-    LISPOBJ(charname_hyper_24,"\"Up\"") # #\Hyper-Code24
-    LISPOBJ(charname_hyper_25,"\"PgUp\"") # #\Hyper-Code25
-    LISPOBJ(charname_hyper_a,"\"F1\"") # #\Hyper-A
-    LISPOBJ(charname_hyper_b,"\"F2\"") # #\Hyper-B
-    LISPOBJ(charname_hyper_c,"\"F3\"") # #\Hyper-C
-    LISPOBJ(charname_hyper_d,"\"F4\"") # #\Hyper-D
-    LISPOBJ(charname_hyper_e,"\"F5\"") # #\Hyper-E
-    LISPOBJ(charname_hyper_f,"\"F6\"") # #\Hyper-F
-    LISPOBJ(charname_hyper_g,"\"F7\"") # #\Hyper-G
-    LISPOBJ(charname_hyper_h,"\"F8\"") # #\Hyper-H
-    LISPOBJ(charname_hyper_i,"\"F9\"") # #\Hyper-I
-    LISPOBJ(charname_hyper_j,"\"F10\"") # #\Hyper-J
-    LISPOBJ(charname_hyper_k,"\"F11\"") # #\Hyper-K
-    LISPOBJ(charname_hyper_l,"\"F12\"") # #\Hyper-L
   #endif
-  # Tabelle der Bitnamen:
-  LISPOBJ(bitnamekw_0,":CONTROL")
-  LISPOBJ(bitnamekw_1,":META")
-  LISPOBJ(bitnamekw_2,":SUPER")
-  LISPOBJ(bitnamekw_3,":HYPER")
 # zu ARRAY.D:
   LISPOBJ(type_vector_with_fill_pointer,"(AND VECTOR (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # Typ für Fehlermeldung
 # zu HASHTABL.D:
@@ -719,7 +625,6 @@
   LISPOBJ(type_posfixnum1,"(INTEGER (0) #.MOST-POSITIVE-FIXNUM)")
   LISPOBJ(type_array_rank,"(INTEGER 0 (#.ARRAY-RANK-LIMIT))")
   LISPOBJ(type_radix,"(INTEGER 2 36)")
-  LISPOBJ(type_bitname,"(MEMBER :CONTROL :META :SUPER :HYPER)")
   LISPOBJ(type_end_index,"(OR NULL INTEGER)")
   LISPOBJ(type_posinteger,"(INTEGER 0 *)")
   LISPOBJ(type_stringsymchar,"(OR STRING SYMBOL STRING-CHAR)")
@@ -870,11 +775,6 @@
   LISPOBJ(type_string_with_fill_pointer,"(AND STRING (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # Typ für Fehlermeldung
   LISPOBJ(type_open_file_stream,"(AND FILE-STREAM (SATISFIES OPEN-STREAM-P))") # Typ für Fehlermeldung
 # zu IO.D:
-  # 4 Bitnamen:
-  LISPOBJ(bitname_0,"\"CONTROL\"")
-  LISPOBJ(bitname_1,"\"META\"")
-  LISPOBJ(bitname_2,"\"SUPER\"")
-  LISPOBJ(bitname_3,"\"HYPER\"")
   # 4 Readtable-Case-Werte:
   LISPOBJ(rtcase_0,":UPCASE")
   LISPOBJ(rtcase_1,":DOWNCASE")

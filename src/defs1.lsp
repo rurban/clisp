@@ -152,17 +152,6 @@
 ;;; Konstanten für Zeichen (Kapitel 13)
 
 (defconstant char-code-limit 256)
-(defconstant char-font-limit 16)
-(defconstant char-bits-limit 16)
-                   ;; Common LISP, S. 233, 234
-(defconstant char-int-limit (* char-code-limit char-font-limit char-bits-limit))
-                   ;; CLISP specific
-
-(defconstant char-control-bit 1)
-(defconstant char-meta-bit 2)
-(defconstant char-super-bit 4)
-(defconstant char-hyper-bit 8)
-                   ;; Common LISP, S. 243
 
 
 ;;; Funktionen für Sequences (Kapitel 14)
