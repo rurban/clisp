@@ -61,6 +61,10 @@
 #  define SIGHANDLER_RETURN return (0)
 #endif
 
+/* This typedef is equivalant to the one for Function; it allows us
+   to say SigHandler *foo = signal (SIGKILL, SIG_IGN); */
+typedef RETSIGTYPE SigHandler ();
+
 #if defined (HAVE_POSIX_SIGNALS)
 typedef struct sigaction sighandler_cxt;
 #  define rl_sigaction(s, nh, oh)	sigaction(s, nh, oh)
@@ -68,10 +72,6 @@ typedef struct sigaction sighandler_cxt;
 typedef struct { SigHandler *sa_handler; int sa_mask, sa_flags; } sighandler_cxt;
 #  define sigemptyset(m)
 #endif /* !HAVE_POSIX_SIGNALS */
-
-/* This typedef is equivalant to the one for Function; it allows us
-   to say SigHandler *foo = signal (SIGKILL, SIG_IGN); */
-typedef RETSIGTYPE SigHandler ();
 
 static SigHandler *rl_set_sighandler _PROTO((int sig, SigHandler *handler, sighandler_cxt *ohandler));
 

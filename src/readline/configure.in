@@ -5,7 +5,7 @@ dnl report bugs to chet@po.cwru.edu
 dnl
 dnl Process this file with autoconf to produce a configure script.
 AC_REVISION([for Readline 4.1, version 2.22, from autoconf version] AC_ACVERSION)
-LIBVERSION=4.1-beta3
+LIBVERSION=4.1
 
 AC_INIT(readline.h)
 AC_CONFIG_HEADER(config.h)
