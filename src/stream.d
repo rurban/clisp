@@ -13895,16 +13895,25 @@ LISPFUNN(file_string_length,2)
       { value1 = NIL; mv_count=1; return; }
   }
 
+# UP: Returns the line current number of a stream.
+# stream_line_number(stream)
+# > stream: a stream
+# < result: an integer or NIL
+  global object stream_line_number (object stream);
+  global object stream_line_number(stream)
+    var object stream;
+    { return (TheStream(stream)->strmtype == strmtype_ch_file
+              ? UL_to_I(FileStream_lineno(stream)) # aktuelle Zeilennummer
+              : NIL                                # NIL falls unbekannt
+             );
+    }
+
 LISPFUNN(line_number,1)
 # (SYS::LINE-NUMBER stream) liefert die aktuelle Zeilennummer (falls stream
 # ein Character-File-Input-Stream ist, von dem nur gelesen wurde).
   { var object stream = popSTACK();
     if (!streamp(stream)) { fehler_stream(stream); } # stream überprüfen
-    value1 = (TheStream(stream)->strmtype == strmtype_ch_file
-              ? UL_to_I(FileStream_lineno(stream)) # aktuelle Zeilennummer
-              : NIL                                # NIL falls unbekannt
-             );
-    mv_count=1;
+    value1 = stream_line_number(stream); mv_count=1;
   }
 
 LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
