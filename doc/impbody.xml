@@ -5271,13 +5271,13 @@ and you can leave the function call with specified values by using
 
 </section>
 
-<section id="gc"><title>Function &room;</title>
+<section id="room"><title>Function &room;</title>
 
 <para>The function &room; returns two values: the number of bytes
  currently occupied by Lisp objects, and the number of bytes that can be
  allocated before the next regular &gc;ion occurs.</para>
 
-<para>The function <emphasis
+ <para>The function <emphasis
  role="strong"><function>ext:gc</function></emphasis> starts a
  global &gc;ion and its return value has the same meaning as the
  second value of &room;.</para>
