@@ -964,12 +964,12 @@ LISPFUNN(socket_server_close,1)
 LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
 LISPFUNN(socket_server_port,1)
 LISPFUNN(socket_server_host,1)
-LISPFUN(socket_accept,1,0,norest,key,3,\
-        (kw(element_type),kw(external_format),kw(buffered)) )
+LISPFUN(socket_accept,1,0,norest,key,4,\
+        (kw(element_type),kw(external_format),kw(buffered),kw(timeout)) )
 LISPFUN(socket_wait,1,2,norest,nokey,0,NIL)
 LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
-LISPFUN(socket_connect,1,1,norest,key,3,\
-        (kw(element_type),kw(external_format),kw(buffered)) )
+LISPFUN(socket_connect,1,1,norest,key,4,\
+        (kw(element_type),kw(external_format),kw(buffered),kw(timeout)) )
 LISPFUNN(socket_stream_port,1)
 LISPFUNN(socket_stream_host,1)
 LISPFUN(socket_stream_peer,1,1,norest,nokey,0,NIL)

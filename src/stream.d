@@ -14730,15 +14730,80 @@ LISPFUNN(socket_server_host,1) {
   skipSTACK(1);
 }
 
+# parse timeout argument
+# sec = posfixnum or (SEC . USEC) or (SEC USEC) or float or ratio
+#       or nil/unbound
+# usec = posfixnum or nil/unbound
+# can trigger GC
+local struct timeval * sec_usec (object sec, object usec, struct timeval *tv) {
+  if (eq(sec,unbound) || eq(sec,NIL)) {
+    return NULL;
+  } else if (consp(sec)) {
+    if (!nullp(Cdr(sec)) && eq(usec,unbound))
+      usec = (consp(Cdr(sec)) ? Car(Cdr(sec)) : Cdr(sec));
+    sec = Car(sec);
+  } else if (floatp(sec) || ratiop(sec)) { # sec = sec mod 1
+    pushSTACK(sec); funcall(L(floor),1);
+    sec = value1;
+    if (eq(usec,unbound)) { # usec = round(sec*1000000)
+      pushSTACK(subr_self); # save subr_self
+      pushSTACK(value2); pushSTACK(fixnum(1000000)); funcall(L(mal),2);
+      pushSTACK(value1); funcall(L(round),1);
+      subr_self = popSTACK(); # restore subr_self
+      usec = value1;
+    }
+  }
+  if (!posfixnump(sec))
+    fehler_posfixnum(sec);
+  tv->tv_sec = posfixnum_to_L(sec);
+  if (eq(usec,unbound) || eq(usec,NIL)) {
+    tv->tv_usec = 0;
+  } else {
+    if (!posfixnump(usec))
+      fehler_posfixnum(usec);
+    tv->tv_usec = posfixnum_to_L(usec);
+  }
+  return tv;
+}
+
+#if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
+# wait for the socket server to have a connection ready
+# returns true iff socket_accept will return immediately
+local bool socket_server_wait (object sose, struct timeval *tvp) {
+  var SOCKET handle = TheSocket(TheSocketServer(sose)->socket_handle);
+ #if defined(WIN32_NATIVE)
+  return interruptible_wait(handle,tvp);
+ #else
+ restart_select:
+  begin_system_call();
+  var int ret;
+  var fd_set handle_set;
+  FD_ZERO(&handle_set); FD_SET(handle,&handle_set);
+  ret = select(FD_SETSIZE,&handle_set,NULL,NULL,tvp);
+  if (ret < 0) {
+    if (sock_errno_is(EINTR)) {
+      end_system_call(); goto restart_select;
+    }
+    SOCK_error();
+  }
+  end_system_call();
+  return (ret != 0);
+ #endif # WIN32_NATIVE
+}
+#endif
+
 extern SOCKET accept_connection (SOCKET socket_handle);
 
-# (SOCKET-ACCEPT socket-server [:element-type] [:external-format] [:buffered])
-LISPFUN(socket_accept,1,0,norest,key,3,
-        (kw(element_type),kw(external_format),kw(buffered)) ) {
+# (SOCKET-ACCEPT socket-server [:element-type] [:external-format] [:buffered]
+#                [:timeout])
+LISPFUN(socket_accept,1,0,norest,key,4,
+        (kw(element_type),kw(external_format),kw(buffered),kw(timeout)) ) {
   var SOCKET sock;
   var decoded_el_t eltype;
   var signean buffered;
   var SOCKET handle;
+  var struct timeval tv;
+  var struct timeval *tvp = sec_usec(popSTACK(),unbound,&tv);
 
   test_socket_server(STACK_3,true);
 
@@ -14753,6 +14818,12 @@ LISPFUN(socket_accept,1,0,norest,key,3,
   # Check and canonicalize the :EXTERNAL-FORMAT argument:
   STACK_1 = test_external_format_arg(STACK_1);
 
+ #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
+  if (tvp && !socket_server_wait(STACK_3,tvp)) { # handle :TIMEOUT
+    skipSTACK(4); sock_set_errno(ETIMEDOUT); OS_error();
+  }
+ #endif
+
   sock = TheSocket(TheSocketServer(STACK_3)->socket_handle);
   begin_system_call();
   handle = accept_connection (sock);
@@ -14766,52 +14837,13 @@ LISPFUN(socket_accept,1,0,norest,key,3,
   skipSTACK(4);
 }
 
-local struct timeval * sec_usec (object sec, object usec, struct timeval *tv) {
-  if (eq(sec,unbound) || eq(sec,NIL)) {
-    return NULL;
-  } else {
-    if (!posfixnump(sec))
-      fehler_posfixnum(sec);
-    tv->tv_sec = posfixnum_to_L(sec);
-    if (eq(usec,unbound) || eq(usec,NIL)) {
-      tv->tv_usec = 0;
-    } else {
-      if (!posfixnump(usec))
-        fehler_posfixnum(usec);
-      tv->tv_usec = posfixnum_to_L(usec);
-    }
-    return tv;
-  }
-}
-
 # (SOCKET-WAIT socket-server [seconds [microseconds]])
 LISPFUN(socket_wait,1,2,norest,nokey,0,NIL) {
+  test_socket_server(STACK_2,true);
  #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
-  var SOCKET handle;
   var struct timeval timeout;
   var struct timeval * timeout_ptr = sec_usec(STACK_1,STACK_0,&timeout);
-  test_socket_server(STACK_2,true);
-  handle = TheSocket(TheSocketServer(STACK_2)->socket_handle);
- #if defined(WIN32_NATIVE)
-  value1 = interruptible_wait(handle,timeout_ptr) ? T : NIL;
- #else
- restart_select:
-  begin_system_call();
-  {
-    var int ret;
-    var fd_set handle_set;
-    FD_ZERO(&handle_set); FD_SET(handle,&handle_set);
-    ret = select(FD_SETSIZE,&handle_set,NULL,NULL,timeout_ptr);
-    if (ret < 0) {
-      if (sock_errno_is(EINTR)) {
-        end_system_call(); goto restart_select;
-      }
-      SOCK_error();
-    }
-    end_system_call();
-    value1 = (ret == 0) ? NIL : T;
-  }
- #endif # WIN32_NATIVE
+  value1 = socket_server_wait(STACK_2,timeout_ptr) ? T : NIL;
  #else
   value1 = NIL;
  #endif
@@ -14819,15 +14851,19 @@ LISPFUN(socket_wait,1,2,norest,nokey,0,NIL) {
   skipSTACK(3);
 }
 
-extern SOCKET create_client_socket (const char* host, unsigned int port);
+extern SOCKET create_client_socket (const char* host, unsigned int port,
+                                    void* timeout);
 
-# (SOCKET-CONNECT port [host] [:element-type] [:external-format] [:buffered])
-LISPFUN(socket_connect,1,1,norest,key,3,
-        (kw(element_type),kw(external_format),kw(buffered)) ) {
+# (SOCKET-CONNECT port [host] [:element-type] [:external-format] [:buffered]
+#                 [:timeout])
+LISPFUN(socket_connect,1,1,norest,key,4,
+        (kw(element_type),kw(external_format),kw(buffered),kw(timeout)) ) {
   var char *hostname;
   var decoded_el_t eltype;
   var signean buffered;
   var SOCKET handle;
+  var struct timeval tv;
+  var struct timeval *tvp = sec_usec(popSTACK(),unbound,&tv);
 
   if (!posfixnump(STACK_4))
     fehler_posfixnum(STACK_4);
@@ -14851,7 +14887,7 @@ LISPFUN(socket_connect,1,1,norest,key,3,
     fehler_string(STACK_3);
 
   begin_system_call();
-  handle = create_client_socket(hostname,posfixnum_to_L(STACK_4));
+  handle = create_client_socket(hostname,posfixnum_to_L(STACK_4),tvp);
   if (handle == INVALID_SOCKET) { SOCK_error(); }
   end_system_call();
   value1 = make_socket_stream(handle,&eltype,buffered,
@@ -15027,42 +15063,42 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL) {
  restart_select:
   begin_system_call();
   { var fd_set readfds, writefds, errorfds;
-  var object all = STACK_2;
-  FD_ZERO(&readfds); FD_ZERO(&writefds); FD_ZERO(&errorfds);
-  var bool many_sockets_p =
-    (consp(all) && !(symbolp(Cdr(all)) && keywordp(Cdr(all))));
-  if (many_sockets_p) {
-    var object list = all;
-    var int index = 0;
-    for(; !nullp(list); list = Cdr(list)) {
-      if (!listp(list)) fehler_list(list);
-      index += handle_set(Car(list),&readfds,&writefds,&errorfds);
-      if (index > FD_SETSIZE) {
-        pushSTACK(fixnum(FD_SETSIZE));
-        pushSTACK(all);
-        pushSTACK(S(socket_status));
-        fehler(error,GETTEXT("~: list ~ is too long (~ maximum)"));
+    var object all = STACK_2;
+    FD_ZERO(&readfds); FD_ZERO(&writefds); FD_ZERO(&errorfds);
+    var bool many_sockets_p =
+      (consp(all) && !(symbolp(Cdr(all)) && keywordp(Cdr(all))));
+    if (many_sockets_p) {
+      var object list = all;
+      var int index = 0;
+      for(; !nullp(list); list = Cdr(list)) {
+        if (!listp(list)) fehler_list(list);
+        index += handle_set(Car(list),&readfds,&writefds,&errorfds);
+        if (index > FD_SETSIZE) {
+          pushSTACK(fixnum(FD_SETSIZE));
+          pushSTACK(all);
+          pushSTACK(S(socket_status));
+          fehler(error,GETTEXT("~: list ~ is too long (~ maximum)"));
+        }
       }
+    } else
+        handle_set(all,&readfds,&writefds,&errorfds);
+    if (select(FD_SETSIZE,&readfds,&writefds,&errorfds,timeout_ptr) < 0) {
+      if (sock_errno_is(EINTR)) { end_system_call(); goto restart_select; }
+      if (!sock_errno_is(EBADF)) { SOCK_error(); }
     }
-  } else
-    handle_set(all,&readfds,&writefds,&errorfds);
-  if (select(FD_SETSIZE,&readfds,&writefds,&errorfds,timeout_ptr) < 0) {
-    if (sock_errno_is(EINTR)) { end_system_call(); goto restart_select; }
-    if (!sock_errno_is(EBADF)) { SOCK_error(); }
-  }
-  if (many_sockets_p) {
-    var object list = all;
-    var int index = 0;
-    while(!nullp(list)) {
-      index++; pushSTACK(list); # save list
-      var object tmp = handle_isset(Car(list),&readfds,&writefds,&errorfds);
-      list = Cdr(STACK_0); # (POP list)
-      STACK_0 = tmp;
-    }
-    value1 = listof(index);
-  } else
-    value1 = handle_isset(all,&readfds,&writefds,&errorfds);
-  end_system_call();
+    if (many_sockets_p) {
+      var object list = all;
+      var int index = 0;
+      while(!nullp(list)) {
+        index++; pushSTACK(list); # save list
+        var object tmp = handle_isset(Car(list),&readfds,&writefds,&errorfds);
+        list = Cdr(STACK_0); # (POP list)
+        STACK_0 = tmp;
+      }
+      value1 = listof(index);
+    } else
+        value1 = handle_isset(all,&readfds,&writefds,&errorfds);
+    end_system_call();
   }
  #else
   value1 = NIL;
