@@ -216,17 +216,19 @@
                                ENGLISH ", names "
                                FRANCAIS ", le nom "))
                (cond ((special-operator-p obj)
-                      (format stream (DEUTSCH "eine Special-Form"
-                                      ENGLISH "a special form"
-                                      FRANCAIS "d'une forme spéciale"))
+                      (format stream (DEUTSCH "eine Special-Operator"
+                                      ENGLISH "a special operator"
+                                      FRANCAIS "d'une operateur spéciale"))
                       (when (macro-function obj)
                         (format stream (DEUTSCH " mit Macro-Definition"
                                         ENGLISH " with macro definition"
                                         FRANCAIS ", aussi d'un macro"))))
                      ((functionp (symbol-function obj))
-                      (format stream (DEUTSCH "eine Funktion"
-                                      ENGLISH "a function"
-                                      FRANCAIS "d'une fonction")))
+                      (format stream (DEUTSCH "eine~:[~; abgeraten~] Funktion"
+                                      ENGLISH "a~:[~; deprecated~] function"
+                                      FRANCAIS "d'une fonction~:[~; découragées~]")
+                              (member obj sys::*deprecated-functions-list*
+                                      :test #'eq)))
                      (t ; (macro-function obj)
                       (format stream (DEUTSCH "einen Macro"
                                       ENGLISH "a macro"

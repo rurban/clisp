@@ -1682,10 +1682,12 @@ LISPFUNN(class_of,1)
               case Rectype_Random_State: # Random-State
                 value1 = O(class_random_state); break;
               case Rectype_Byte: # Byte -> <t>
-              case Rectype_Fsubr: # Fsubr -> <t>
               case Rectype_Loadtimeeval: # Load-Time-Eval -> <t>
               case Rectype_Symbolmacro: # Symbol-Macro -> <t>
               case Rectype_Encoding: # Encoding -> <t>
+              #ifdef YET_ANOTHER_RECORD
+              case Rectype_Yetanother: # Yetanother -> <t>
+              #endif
               #ifdef FOREIGN
               case Rectype_Fpointer: # Foreign-Pointer-Verpackung -> <t>
               #endif
@@ -1701,12 +1703,9 @@ LISPFUNN(class_of,1)
                 value1 = O(class_t); break;
               #ifdef DYNAMIC_FFI
               case Rectype_Ffunction: # Foreign-Function -> <function>
+              #endif
+              case Rectype_Fsubr: # Fsubr -> <function>
                 value1 = O(class_function); break;
-              #endif
-              #ifdef YET_ANOTHER_RECORD
-              case Rectype_Yetanother: # Yetanother -> <t>
-                value1 = O(class_t); break;
-              #endif
               default: goto unknown;
             }
           break;
@@ -2185,7 +2184,7 @@ enum { # The values of this enumeration are 0,1,2,...
   #endif
   enum_hs_random_state,
   enum_hs_byte,
-  enum_hs_special_form,
+  enum_hs_special_oper,
   enum_hs_load_time_eval,
   enum_hs_symbol_macro,
   enum_hs_encoding,
@@ -2439,7 +2438,7 @@ local void heap_statistics_mapper(arg,obj,bytelen)
               case Rectype_Byte: # Byte
                 pighole = &locals->builtins[(int)enum_hs_byte]; break;
               case Rectype_Fsubr: # Fsubr
-                pighole = &locals->builtins[(int)enum_hs_special_form]; break;
+                pighole = &locals->builtins[(int)enum_hs_special_oper]; break;
               case Rectype_Loadtimeeval: # Load-Time-Eval
                 pighole = &locals->builtins[(int)enum_hs_load_time_eval]; break;
               case Rectype_Symbolmacro: # Symbol-Macro

@@ -320,7 +320,7 @@
   #endif
   LISPOBJ(hs_random_state,"RANDOM-STATE")
   LISPOBJ(hs_byte,"BYTE")
-  LISPOBJ(hs_special_form,"SPECIAL-FORM")
+  LISPOBJ(hs_special_oper,"SPECIAL-OPERATOR")
   LISPOBJ(hs_load_time_eval,"LOAD-TIME-EVAL")
   LISPOBJ(hs_symbol_macro,"SYMBOL-MACRO")
   LISPOBJ(hs_encoding,"ENCODING")
@@ -870,7 +870,7 @@
   LISPOBJ_S(printstring_compiled_closure,"COMPILED-CLOSURE")
   LISPOBJ_S(printstring_subr,"SYSTEM-FUNCTION")
   LISPOBJ_S(printstring_addon_subr,"ADD-ON-SYSTEM-FUNCTION")
-  LISPOBJ_S(printstring_fsubr,"SPECIAL-FORM")
+  LISPOBJ_S(printstring_fsubr,"SPECIAL-OPERATOR")
   LISPOBJ_S(printstring_closed,"CLOSED ")
   LISPOBJ_S(printstring_buffered,"BUFFERED ")
   LISPOBJ_S(printstring_unbuffered,"UNBUFFERED ")
