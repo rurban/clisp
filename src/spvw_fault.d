@@ -27,11 +27,11 @@ local handle_fault_result_t handle_fault (aint address, int verbose);
 
 # Does the same as mprotect.
 # Aborts if unsuccessful.
-local void xmprotect (aint addr, uintL len, int prot);
+local void xmprotect (aint addr, uintM len, int prot);
 
 # Applies mprotect to all (multi-)mappings of an address range.
 # Aborts if unsuccessful.
-local void xmmprotect (Heap* heap, aint addr, uintL len, int prot);
+local void xmmprotect (Heap* heap, aint addr, uintM len, int prot);
 
 #endif
 
@@ -262,7 +262,7 @@ global bool handle_fault_range (int prot, aint start_address, aint end_address)
 
 #ifdef GENERATIONAL_GC
 
-local void xmprotect (aint addr, uintL len, int prot) {
+local void xmprotect (aint addr, uintM len, int prot) {
   if (mprotect((void*)addr,len,prot) < 0) {
     fprintf(stderr,GETTEXTL("mprotect(0x%lx,%d,%d) failed."),addr,len,prot);
     errno_out(OS_errno);
@@ -271,7 +271,7 @@ local void xmprotect (aint addr, uintL len, int prot) {
 }
 
 #ifdef MULTIMAP_MEMORY
-  local void xmmprotect (Heap* heap, aint addr, uintL len, int prot)
+  local void xmmprotect (Heap* heap, aint addr, uintM len, int prot)
   {
     unused heap;
     var uintL type;

@@ -27,7 +27,7 @@
 # Fill a memory range [map_addr,map_addr+map_len-1] with pages mapped in from
 # file fd starting at position offset.
 # map_addr and map_len must be multiples of mmap_pagesize.
-  local void* filemap (void* map_addr, uintL map_len, int fd, off_t offset)
+  local void* filemap (void* map_addr, uintM map_len, int fd, off_t offset)
 ;
 #endif
 

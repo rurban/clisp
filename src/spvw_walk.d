@@ -58,7 +58,7 @@ global void map_heap_objects (map_heap_function_t* fun, void* arg) {
       var aint p_end = heap->heap_gen0_end;
       while (p != p_end) {
         varobject_typecode_at(type,p);
-        var uintL laenge = objsize((Varobject)p);
+        var uintM laenge = objsize((Varobject)p);
         fun(arg,with_typecode(p),laenge);
         p += laenge;
       }
@@ -68,7 +68,7 @@ global void map_heap_objects (map_heap_function_t* fun, void* arg) {
       var aint p_end = heap->heap_end;
       while (p != p_end) {
         varobject_typecode_at(type,p);
-        var uintL laenge = objsize((Varobject)p);
+        var uintM laenge = objsize((Varobject)p);
         fun(arg,with_typecode(p),laenge);
         p += laenge;
       }
@@ -126,7 +126,7 @@ global void map_heap_objects (map_heap_function_t* fun, void* arg) {
     var_prepare_objsize;
     while (p != p_end) {
       varobject_typecode_at(type,p);
-      var uintL laenge = objsize((Varobject)p);
+      var uintM laenge = objsize((Varobject)p);
       fun(arg,with_typecode(p),laenge);
       p += laenge;
     }

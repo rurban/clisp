@@ -13,9 +13,9 @@ typedef struct markwatch_t {
 } markwatch_t;
 local markwatch_t* markwatchset;
 /* Its allocated size. */
-local uintL markwatchset_allocated;
+local uintM markwatchset_allocated;
 /* Its public size. */
-local uintL markwatchset_size;
+local uintM markwatchset_size;
 /* Number of entries currently used. */
 local uintL markwatchset_count;
 /* Tail of the queue. */
@@ -1031,10 +1031,10 @@ global void activate_weak (object obj) {
   if (weak_must_activate(obj)) {
     /* Ensure that markwatchset has enough room for the next GC. */
     var uintL need = 1 + max_watchset_count(obj);
-    var uintL new_markwatchset_size = markwatchset_size + need;
+    var uintM new_markwatchset_size = markwatchset_size + need;
     if (new_markwatchset_size > markwatchset_allocated) {
       /* Increment markwatchset_allocated by a proportional factor 1.5. */
-      var uintL new_markwatchset_allocated = markwatchset_allocated + markwatchset_allocated/2;
+      var uintM new_markwatchset_allocated = markwatchset_allocated + markwatchset_allocated/2;
       if (new_markwatchset_allocated < new_markwatchset_size)
         new_markwatchset_allocated = new_markwatchset_size;
       var markwatch_t* new_markwatchset = (markwatch_t*)my_malloc(new_markwatchset_allocated*sizeof(markwatch_t));

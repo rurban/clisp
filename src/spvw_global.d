@@ -55,20 +55,20 @@
 
         # Statistical data, used for deciding when to start a GC.
         #if defined(SPVW_PURE_BLOCKS) || defined(TRIVIALMAP_MEMORY) || defined(GENERATIONAL_GC)
-          uintL total_room; # the space that may be occupied without triggering GC
+          uintM total_room; # the space that may be occupied without triggering GC
           #ifdef GENERATIONAL_GC
             bool last_gc_full; # if the last GC was a full one
-            uintL last_gcend_space0; # how much space was occupied after the last GC
-            uintL last_gcend_space1; # (from generation 0 resp. generation 1)
+            uintM last_gcend_space0; # how much space was occupied after the last GC
+            uintM last_gcend_space1; # (from generation 0 resp. generation 1)
           #endif
         #endif
         #ifdef SPVW_PAGES
           Pages free_pages; # a list of free, normal-sized pages
-          uintL total_space; # how much space do the occupied pages contain at all
-          uintL used_space; # how much space is occupied just now
-          uintL last_gcend_space; # how much space was occupied after the last GC
+          uintM total_space; # how much space do the occupied pages contain at all
+          uintM used_space; # how much space is occupied just now
+          uintM last_gcend_space; # how much space was occupied after the last GC
           bool last_gc_compacted; # if the last GC has already compacted
-          uintL gctrigger_space; # how much space may be occupied, until the next GC becomes necessary
+          uintM gctrigger_space; # how much space may be occupied, until the next GC becomes necessary
         #endif
 
       }
@@ -284,7 +284,7 @@
       local void check_gc_consistency (void)
       {
         for_each_page(page,
-          if ((sintL)page->page_room < 0) {
+          if ((sintM)page->page_room < 0) {
             fprintf(stderr,"\npage overrun at address 0x%lx\n",page); abort();
           }
           if (page->page_start != page_start0(page) + mem.heaps[heapnr].misaligned) {
@@ -305,7 +305,7 @@
       local void check_gc_consistency_2 (void)
       {
         for_each_page(page,
-          if ((sintL)page->page_room < 0) {
+          if ((sintM)page->page_room < 0) {
             fprintf(stderr,"\npage overrun at address 0x%lx\n",page); abort();
           }
           if (page->page_end + page->page_room -

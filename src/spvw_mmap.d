@@ -27,13 +27,13 @@
 # Fill a memory range [map_addr,map_addr+map_len-1] with empty pages.
 # mmap_zeromap(map_addr,map_len)
 # map_addr and map_len must be multiples of mmap_pagesize.
-  local int mmap_zeromap (void* map_addr, uintL map_len);
+  local int mmap_zeromap (void* map_addr, uintM map_len);
 
 #ifdef HAVE_MMAP
 # Fill a memory range [map_addr,map_addr+map_len-1] with pages mapped in from
 # file fd starting at position offset.
 # map_addr and map_len must be multiples of mmap_pagesize.
-  local void* mmap_filemap (void* map_addr, uintL map_len, int fd, off_t offset);
+  local void* mmap_filemap (void* map_addr, uintM map_len, int fd, off_t offset);
 #endif
 
 # Unmaps a memory range.
@@ -59,7 +59,7 @@
 
   #define mmap_prepare(map_addr,map_endaddr,shrinkp)  0
 
-  local int mmap_zeromap (void* map_addr, uintL map_len)
+  local int mmap_zeromap (void* map_addr, uintM map_len)
   {
     if (vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, false)
         != KERN_SUCCESS) {
@@ -71,7 +71,7 @@
     return 0;
   }
 
-  local void* mmap_filemap (void* map_addr, uintL map_len, int fd, off_t offset)
+  local void* mmap_filemap (void* map_addr, uintM map_len, int fd, off_t offset)
   {
     switch (vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, false)) {
       case KERN_SUCCESS:
@@ -145,7 +145,7 @@
   # reduced as necessary.
   local int mmap_prepare (aint* map_addr, aint* map_endaddr, bool shrinkp)
   {
-    var uintL map_len = *map_endaddr - *map_addr;
+    var uintM map_len = *map_endaddr - *map_addr;
     var aint start_addr = round_down(*map_addr,0x10000);
     var aint end_addr = round_up(*map_addr+map_len,0x10000);
     if (shrinkp) {
@@ -153,12 +153,12 @@
       # [start_addr,end_addr).
       var MEMORY_BASIC_INFORMATION info;
       var aint largest_start_addr = start_addr;
-      var uintL largest_len = 0;
+      var uintM largest_len = 0;
       var aint addr = start_addr;
       while (VirtualQuery((void*)addr,&info,sizeof(info)) == sizeof(info)) {
         # Always info.BaseAddress = addr.
         addr = (aint)info.BaseAddress;
-        var uintL len = (info.RegionSize >= end_addr-addr ? end_addr-addr : info.RegionSize);
+        var uintM len = (info.RegionSize >= end_addr-addr ? end_addr-addr : info.RegionSize);
         if ((info.State == MEM_FREE) && (len > largest_len)) {
           largest_start_addr = addr; largest_len = len;
         }
@@ -190,7 +190,7 @@
     return 0;
   }
 
-  local int mmap_zeromap (void* map_addr, uintL map_len)
+  local int mmap_zeromap (void* map_addr, uintM map_len)
   {
     if (!VirtualAlloc(map_addr,map_len,MEM_COMMIT,PAGE_READWRITE)) {
       var DWORD errcode = GetLastError();
@@ -215,7 +215,7 @@
   #   munmap() below wouldn't work.
   # - It doesn't work on Win95: MapViewOfFileEx() on Win95 cannot guarantee
   #   that it will be able to map at the desired address.
-  local void* mmap_filemap (void* map_addr, uintL map_len, Handle fd,
+  local void* mmap_filemap (void* map_addr, uintM map_len, Handle fd,
                             off_t offset)
   {
     if (map_len==0)
@@ -347,7 +347,7 @@
 
   #define mmap_prepare(map_addr,map_endaddr,shrinkp)  0
 
-  local int mmap_zeromap (void* map_addr, uintL map_len)
+  local int mmap_zeromap (void* map_addr, uintM map_len)
   {
     if ( (void*) mmap((void*)map_addr, /* wished address */
                       map_len, /* length */
@@ -365,7 +365,7 @@
   }
 
   #ifdef HAVE_MMAP
-  local void* mmap_filemap (void* map_addr, uintL map_len, int fd, off_t offset)
+  local void* mmap_filemap (void* map_addr, uintM map_len, int fd, off_t offset)
   {
     return (void*) mmap((void*)map_addr,
                         map_len,
