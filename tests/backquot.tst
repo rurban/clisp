@@ -109,3 +109,8 @@ X
 
 (format nil "~a" '``,(,.alpha ,`,`(,@42) . ,omega))
 "``,(,.ALPHA ,`,`(,@42) . ,OMEGA)"
+
+;; Common extension: if the backquote form is based on an improper list,
+;; allow unquotes in the terminating atom.
+`(2 3 . #(,(+ 2 2) ,@(list 5)))
+(2 3 . #(4 5))
