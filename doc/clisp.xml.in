@@ -17,7 +17,6 @@
   <!ENTITY exprs "<replaceable>expressions</replaceable>">
   <!ENTITY opt-c "<option><link linkend='opt-compile'>-c</link></option>">
   <!ENTITY opt-x "<option><link linkend='opt-exec-expr'>-x</link></option>">
-  <!ENTITY config-lisp "<link linkend='config-lisp'><filename>config.lisp</filename></link>">
 ]>
 
 <refentry id="clisp">
@@ -340,10 +339,9 @@ compiles the specified lisp files to a platform-independent
    &ansi-opt; in the saved &mem-image;.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-modern"><term><option>-modern</option></term>
- <listitem><simpara>Provides a modern view of symbols: At startup the
-  &package-var; variable will be set to the
-  <quote role='package'>CS-COMMON-LISP-USER</quote> package, and the
-  &print-base-var; will be set to <term><constant>:downcase</constant></term>.
+ <listitem><simpara>Provides a modern view of symbols: at startup the
+  &package-var; variable will be set to the &cs-clu; package, and the
+  &print-base-var; will be set to <constant>:DOWNCASE</constant>.
   This has the effect that symbol lookup is case-sensitive (except for
   keywords and old-style packages) and that keywords and uninterned symbols
   are printed with lower-case preferrence.</simpara></listitem></varlistentry>
