@@ -7,7 +7,7 @@
  "CUSTOM")
 (ext:re-export "CUSTOM" "EXT")
 (export
- '(*command-index* prompt-new-package package-short-name
+ '(*command-index* prompt-new-package
    #+unix make-xterm-io-stream
    break-level step-level)
  "EXT")
@@ -29,21 +29,6 @@
 
 ;; Counter to avoid infinite recursion due to *debug-io*
 (defvar *recurse-count-debug-io* 0)
-
-
-;; Returns the shortest (nick)name of the package.
-(defun package-short-name (pkg)
-  (declare (type package pkg))
-  (let ((name (reduce (lambda (st0 st1)
-                        (declare (simple-string st0 st1))
-                        (if (> (length st0) (length st1)) st1 st0))
-                      (package-nicknames pkg) :initial-value
-                      (package-name pkg))))
-    (case *print-case*
-      (:upcase (string-upcase name))
-      (:downcase (string-downcase name))
-      (:capitalize (string-capitalize name))
-      (t name))))
 
 ; The number of commands received so far.
 (defvar *command-index* 0)
@@ -87,7 +72,8 @@
         (format nil "~@[~a~][~:d]"
                 (if (or (not (find-symbol "T" *package*))
                         (prompt-new-package))
-                    (package-short-name *package*))
+                    ;; use symbol so that ~A will respect *PRINT-CASE*
+                    (make-symbol (package-shortest-name *package*)))
                 (incf *command-index*))
         (TEXT "[*package* invalid]")))
   "The main top level prompt.")

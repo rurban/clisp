@@ -3734,6 +3734,17 @@ functions are provided:
 
 </section>
 
+<section id="sym-pack-prefix"><title>Package Prefixes for Symbols
+  <ulink url="&clhs;/Body/sec_22-1-3-3-1.html">[CLHS-22.1.3.3.1]</ulink></title>
+
+<formalpara id="pr-sym-pack-prefix"><title>Variable &pr-sym-pack-prefix;</title>
+ <para>When &pr-sym-pack-prefix; is non-&nil;, the package
+  prefix is not the &package-name; but the shortest (nick)name as
+  returned by &package-shortest-name;.  This variable is ignored when
+  &print-readably-var; is non-&nil;.</para></formalpara>
+
+</section>
+
 <section id="print-vector"><title>Printing Other Vectors
    <ulink url="&clhs;/Body/sec_22-1-3-7.html">[CLHS-22.1.3.7]</ulink></title>
 
