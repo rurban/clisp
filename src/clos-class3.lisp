@@ -631,14 +631,30 @@
                 ;; to be used.
                 ((ERROR #'(lambda (condition)
                             (declare (ignore condition))
-                            ;; Restore the class using the backup copy.
-                            (let ((new-version (class-current-version class)))
-                              (dotimes (i (sys::%record-length class))
-                                (setf (sys::%record-ref class i) (sys::%record-ref old-class i)))
-                              (setf (class-current-version class) new-version))
-                            ;; Restore the accessor methods.
-                            (add-accessor-methods old-direct-accessors)
-                            (setf (class-direct-accessors class) old-direct-accessors))))
+                            (let ((tmp-direct-superclasses (class-direct-superclasses class)))
+                              ;; Restore the class using the backup copy.
+                              (let ((new-version (class-current-version class)))
+                                (dotimes (i (sys::%record-length class))
+                                  (setf (sys::%record-ref class i) (sys::%record-ref old-class i)))
+                                (setf (class-current-version class) new-version))
+                              ;; Restore the direct-subclasses pointers.
+                              (dolist (super tmp-direct-superclasses)
+                                (unless (symbolp super)
+                                  (remove-direct-subclass-internal super class)))
+                              (dolist (super old-direct-superclasses)
+                                (unless (symbolp super)
+                                  (add-direct-subclass-internal super class)))
+                              ;; Restore the finalized-direct-subclasses pointers.
+                              (dolist (super tmp-direct-superclasses)
+                                (when (semi-standard-class-p super)
+                                  (remove-finalized-direct-subclass super class)))
+                              (when (>= (class-initialized class) 6)
+                                (dolist (super old-direct-superclasses)
+                                  (when (semi-standard-class-p super)
+                                    (add-finalized-direct-subclass super class))))
+                              ;; Restore the accessor methods.
+                              (add-accessor-methods old-direct-accessors)
+                              (setf (class-direct-accessors class) old-direct-accessors)))))
               (apply #'shared-initialize ; => #'shared-initialize-<built-in-class>
                                          ;    #'shared-initialize-<standard-class>
                                          ;    #'shared-initialize-<structure-class>
