@@ -178,7 +178,8 @@
       ;; value [for the :lambda-list argument] is congruent with the lambda
       ;; lists of all existing methods or there are no methods, the value is
       ;; changed; otherwise an error is signaled.
-      (unless (equalp signature (safe-gf-signature gf))
+      (unless (or (safe-gf-undeterminedp gf)
+                  (equalp signature (safe-gf-signature gf)))
         (dolist (method (safe-gf-methods gf))
           (check-signature-congruence gf method signature)))))
   (when (or (eq situation 't) method-class-p)
@@ -335,7 +336,7 @@
 
 ;; Add a method to a generic function.
 (defun std-add-method (gf method)
-  (if (eq (std-gf-signature gf) (sys::%unbound))
+  (if (safe-gf-undeterminedp gf)
     ;; The first added method determines the generic-function's signature.
     (shared-initialize-<standard-generic-function> gf nil
       :lambda-list (gf-lambdalist-from-first-method (method-lambda-list method)
@@ -439,7 +440,7 @@
     (error-of-type 'error
       (TEXT "~S: the specializers argument is not a list: ~S")
       'find-method specializers))
-  (if (eq (std-gf-signature gf) (sys::%unbound))
+  (if (safe-gf-undeterminedp gf)
     ;; Signature not known yet, hence no methods installed.
     (assert (null (safe-gf-methods gf)))
     (progn
@@ -670,7 +671,7 @@
                      (FUNCALL 'NO-METHOD-CALLER 'NO-APPLICABLE-METHOD GF))))))
   (defun finalize-fast-gf (gf)
     (let ((prototype-factory
-            (if (eq (std-gf-signature gf) (sys::%unbound))
+            (if (safe-gf-undeterminedp gf)
               ;; gf has uninitialized lambda-list, hence no methods.
               uninitialized-prototype-factory
               (let* ((signature (safe-gf-signature gf))
@@ -693,7 +694,7 @@
                                     (sys::closure-codevec (funcall prototype-factory 'dummy)))))))))))
       (set-funcallable-instance-function gf (funcall prototype-factory gf))))
   (defun gf-never-called-p (gf)
-    (or (eq (std-gf-signature gf) (sys::%unbound))
+    (or (safe-gf-undeterminedp gf)
         (let* ((signature (safe-gf-signature gf))
                (reqnum (sig-req-num signature))
                (restp (gf-sig-restp signature))
@@ -802,7 +803,7 @@
 ;; One does not need to write (APPLY ... Arguments),
 ;; it is done by %GENERIC-FUNCTION-LAMBDA automatically.
 (defun compute-dispatch (gf)
-  (when (eq (std-gf-signature gf) (sys::%unbound))
+  (when (safe-gf-undeterminedp gf)
     ;; gf has uninitialized lambda-list, hence no methods.
     (return-from compute-dispatch
       (values
@@ -1120,7 +1121,7 @@
 ;;; for the same EQL and class restrictions as the given arguments,
 ;;; therefore compute dispatch is already taken care of.
 (defun compute-applicable-methods-effective-method (gf &rest args)
-  (when (eq (std-gf-signature gf) (sys::%unbound))
+  (when (safe-gf-undeterminedp gf)
     ;; gf has uninitialized lambda-list, hence no methods.
     (return-from compute-applicable-methods-effective-method
       (no-method-caller 'no-applicable-method gf)))
@@ -1173,7 +1174,7 @@
   (compute-applicable-methods-<standard-generic-function> gf args))
 
 (defun compute-applicable-methods-<standard-generic-function> (gf args)
-  (if (eq (std-gf-signature gf) (sys::%unbound))
+  (if (safe-gf-undeterminedp gf)
     ;; gf has uninitialized lambda-list, hence no methods.
     '()
     (let ((req-num (sig-req-num (safe-gf-signature gf))))
@@ -1207,7 +1208,7 @@
   (unless (and (proper-list-p req-arg-classes) (every #'class-p req-arg-classes))
     (error (TEXT "~S: argument should be a proper list of classes, not ~S")
            'compute-applicable-methods-using-classes req-arg-classes))
-  (if (eq (std-gf-signature gf) (sys::%unbound))
+  (if (safe-gf-undeterminedp gf)
     ;; gf has uninitialized lambda-list, hence no methods.
     '()
     (let ((req-num (sig-req-num (safe-gf-signature gf))))
@@ -1259,7 +1260,7 @@
 ;;   (EQL object)           [covers the given object only].
 ;; Returns either the best possible effective-method, the gf itself otherwise.
 (defun compute-applicable-methods-effective-method-for-set (gf req-arg-specs tentative-args)
-  (when (eq (std-gf-signature gf) (sys::%unbound))
+  (when (safe-gf-undeterminedp gf)
     ;; gf has uninitialized lambda-list, hence no methods.
     (return-from compute-applicable-methods-effective-method-for-set
       (no-method-caller 'no-applicable-method gf)))
@@ -1297,7 +1298,7 @@
                       req-arg-specs))
     (error (TEXT "~S: argument should be a proper list of specifiers, not ~S")
            'compute-applicable-methods-for-set req-arg-specs))
-  (if (eq (std-gf-signature gf) (sys::%unbound))
+  (if (safe-gf-undeterminedp gf)
     ;; gf has uninitialized lambda-list, hence no methods.
     '()
     (let ((req-num (sig-req-num (safe-gf-signature gf))))

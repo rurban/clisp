@@ -119,7 +119,7 @@
             ;; do not warn about redefinition when no method was defined
             (and (fboundp 'find-method) (fboundp funname)
                  (typep-class (fdefinition funname) <generic-function>)
-                 (not (eq (std-gf-signature (fdefinition funname)) (sys::%unbound)))
+                 (not (safe-gf-undeterminedp (fdefinition funname)))
                  (eql (sig-req-num (safe-gf-signature (fdefinition funname))) (length spec-list))
                  (find-method (fdefinition funname) qualifiers spec-list nil)
                  "method"))
