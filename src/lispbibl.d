@@ -4883,6 +4883,8 @@ typedef struct {
   #define strm_pphelp_offset   strm_other[3] # initial line offset (indent)
   #define strm_buff_in_fun     strm_other[0] # read function
   #define strm_buff_out_fun    strm_other[0] # output function
+  #define strm_twoway_input    strm_other[0] # stream for input
+  #define strm_twoway_output   strm_other[1] # stream for output
   #ifdef PIPES
   #define strm_pipe_pid        strm_other[6] # process-Id, a Fixnum >=0
   #endif
