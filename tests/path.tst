@@ -588,7 +588,7 @@ FIXME
 (compile-file-pathname (logical-pathname "clocc:clocc.lisp"))
 #+CLISP
 #S(logical-pathname :host "CLOCC" :device nil :directory (:absolute)
-                    :name "CLOCC" :type "FAS" :version nil)
+                    :name "CLOCC" :type "FAS" :version :newest)
 #-CLISP
 FIXME
 
