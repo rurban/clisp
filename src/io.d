@@ -9996,6 +9996,17 @@ LISPFUNN(print_structure,2)
       # if Stream is closed, print "CLOSED " :
       if ((TheStream(*obj_)->strmflags & strmflags_open_B) == 0)
         write_sstring_case(stream_,O(printstring_closed));
+      else { # INPUT/OUTPUT/IO
+        var bool input_p = input_stream_p(*obj_);
+        var bool output_p = output_stream_p(*obj_);
+        if (input_p) {
+          if (output_p) write_sstring_case(stream_,O(printstring_io));
+          else write_sstring_case(stream_,O(printstring_input));
+        } else {
+          if (output_p) write_sstring_case(stream_,O(printstring_output));
+          else write_sstring_case(stream_,O(printstring_invalid));
+        }
+      }
       # if a channel or socket stream, print "BUFFERED " or "UNBUFFERED ":
       var uintL type = TheStream(*obj_)->strmtype;
       switch (type) {
