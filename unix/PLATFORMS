@@ -15,6 +15,7 @@ This file presents
     AIX
     DEC Alpha AXP running OSF/1 3.2
     DEC Alpha AXP running OSF/1 4.0b
+    PC 386 under BeOS 5.0
     IA-64 running Linux, emulated by HP NUE
 * hints for porting to new platforms.
 
@@ -556,6 +557,13 @@ install GNU gcc (version 2.5.5 or newer).
 The bug should be gone in OSF/1 4.0c. But on OSF/1 4.0d, the preprocessor
 has another bug which occurs in pathname.d. So get and install GNU gcc
 for real.
+
+
+On PC 386 under BeOS 5.0:
+
+gcc miscompiles something with the default flags. Changing the CFLAGS in
+the Makefile, replacing "-fomit-frame-pointer -O2 -fexpensive-optimizations"
+with "-O", avoids this.
 
 
 On IA-64 running Linux, emulated by HP NUE:
