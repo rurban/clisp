@@ -1,3 +1,9 @@
+2002-11-04  Sam Steingold  <sds@gnu.org>
+
+	* macros1.lisp (declare): added a defmacro-special that expands to
+	NIL: since DECLARE is not enumerated in the Figure 3-2, and it is
+	a special operator in CLISP, a macro expander have to be provided
+
 2002-11-03  Sam Steingold  <sds@gnu.org>
 
 	* defs2.lisp (defpackage): accept characters as symbol and
