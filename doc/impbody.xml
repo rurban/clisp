@@ -4686,6 +4686,9 @@ effects when being loaded, this is important as well.
  <row><entry><command>Unwind</command></entry>
    <entry><command>:uw</command></entry>
    <entry>abort to the next most recent &repl;</entry></row>
+ <row><entry><command>Quit</command></entry>
+   <entry><command>:q</command></entry>
+   <entry>quit to the top &repl;</entry></row>
 </tbody></tgroup></table>
 
 <para>The stack is organized into frames and other stack elements.

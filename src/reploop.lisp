@@ -119,6 +119,7 @@ If anything else, printed.")
 
 (defun debug-help () (help) (throw 'debug 'continue))
 (defun debug-unwind () (throw 'debug 'unwind))
+(defun debug-quit () (throw 'debug 'abort-to-top))
 (defun debug-mode-1 () (setq *debug-mode* 1) (throw 'debug 'continue))
 (defun debug-mode-2 () (setq *debug-mode* 2) (throw 'debug 'continue))
 (defun debug-mode-3 () (setq *debug-mode* 3) (throw 'debug 'continue))
@@ -203,8 +204,7 @@ Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
   (throw 'debug 'continue))
 
 (defun debug-return ()
-  (return-from-eval-frame *debug-frame*
-                          (read-form (TEXT "Values: ")))
+  (return-from-eval-frame *debug-frame* (read-form (TEXT "Values: ")))
   (throw 'debug 'continue))
 (defun debug-continue () (throw 'debug 'quit))
 
@@ -241,6 +241,7 @@ Abort          :a               abort to the next recent input loop
 Unwind         :uw              abort to the next recent input loop
 Reset          :re              toggle *PACKAGE* and *READTABLE* between the
                                 local bindings and the sane values
+Quit           :q               quit to the top-level input loop
 Mode-1         :m1              inspect all the stack elements
 Mode-2         :m2              inspect all the frames
 Mode-3         :m3              inspect only lexical frames
@@ -276,6 +277,8 @@ Return         :rt              leave EVAL frame, prescribing the return values"
    (cons ":uw"          #'debug-unwind)
    (cons "Reset"        #'debug-reset-io)
    (cons ":re"          #'debug-reset-io)
+   (cons "Quit"         #'debug-quit)
+   (cons ":q"           #'debug-quit)
    (cons "Mode-1"       #'debug-mode-1)
    (cons ":m1"          #'debug-mode-1)
    (cons "Mode-2"       #'debug-mode-2)
@@ -508,6 +511,7 @@ Continue       :c       switch off single step mode, continue evaluation
                           ))))
               (print-error (print-error condition)) ; print the recent error-message
               (unwind (go unwind))
+              (abort-to-top (go abort-to-top))
               (quit                       ; reached only, if may-continue is T
                 (if continuable
                   (go quit)
@@ -515,6 +519,7 @@ Continue       :c       switch off single step mode, continue evaluation
               (t )                        ; other cases, especially continue
               ))))
     unwind (unwind-to-driver)
+    abort-to-top (unwind-to-top)
     quit))
 
 (setq *break-driver* #'break-loop)
@@ -606,6 +611,7 @@ Continue       :c       switch off single step mode, continue evaluation
                                     #|(throw 'debug 'continue)|#
                                     ))))
                         (unwind (go unwind))
+                        (abort-to-top (go abort-to-top))
                         (t )		; other cases, especially continue
                         ))))
             (when watchp
@@ -619,8 +625,8 @@ Continue       :c       switch off single step mode, continue evaluation
               (over (go over))
               (over-this-level (go over-this-level))
               (continue (go continue))))))
-      unwind
-        (unwind-to-driver)
+      unwind (unwind-to-driver)
+      abort-to-top (unwind-to-top)
       into
         (return-from step-hook-fn
           (step-values
