@@ -2,7 +2,7 @@
 # (c) 2000-2002 Sam Steingold
 
 DTDVER=4.1.2
-IMPNOTES=impnotes.xml cl-ent.xml clhs-ent.xml impbody.xml impent.xml \
+IMPNOTES=impnotes.dsl cl-ent.xml clhs-ent.xml impbody.xml impent.xml \
 	impext.xml impissue.xml impbyte.xml ../modules/regexp/regexp.xml
 RM=/bin/rm -f
 # DOC=$(shell pwd)
@@ -19,7 +19,7 @@ else
 XMLHOME=/usr/local/src/xml
 NSGMLS=nsgmls
 # XMLSOC=/usr/local/src/sp/pubtext/xml.soc
-XMLSOC=/usr/share/doc/openjade-1.3/pubtext/xml.soc
+XMLSOC=/usr/share/sgml/xml.soc
 JAVAXML=/usr/local/src/xml
 JAVA=java
 SEP=:
@@ -33,7 +33,10 @@ CLASSPATH=$(XALAN)/bin/xerces.jar$(SEP)$(XALAN)/bin/xalan.jar$(SEP)$(SAXON)/saxo
 TEXI2HTML=../src/readline/doc/texi2html
 
 # this is the original DTD
-# DBHOME="http://www.oasis-open.org/docbook/xml/$(DTDVER)"
+# when processing with a tool which can get the DTD from the net,
+# e.g., (open)jade, you can use this definition,
+# otherwise you have to stick with the local DTDs
+DTD=http://www.oasis-open.org/docbook/xml/$(DTDVER)/docbookx.dtd
 
 # to generate HTML, you will need:
 # http://xml.apache.org/xalan-j
@@ -60,7 +63,7 @@ impnotes.texi: impnotes.xml $(IMPNOTES)
 	time docbook2texi $<
 
 impnotes.html: impnotes.xml $(IMPNOTES) # tidy.conf
-	time docbook2html -u $<
+	time docbook2html --dsl impnotes.dsl -u $<
 #	$(JAVA) -classpath "$(CLASSPATH)" com.icl.saxon.StyleSheet \
 #		-t -dt -o $@ $< $(XMLHOME)/docbook.xsl/xhtml/docbook.xsl \
 #		process.source.toc=1 html.stylesheet=impnotes.css
@@ -73,10 +76,11 @@ impnotes.html: impnotes.xml $(IMPNOTES) # tidy.conf
 
 impnotes.pdf: impnotes.xml $(IMPNOTES)
 	time docbook2pdf $<
+	$(RM) impnotes.out
 
 html: impnotes.xml $(IMPNOTES)
 	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../gnu/clisp/impnotes $@; fi
-	time docbook2html -o $@ $<
+	time docbook2html --dsl impnotes.dsl -o $@ $<
 
 regexp.html: ../modules/regexp/regexp.texinfo $(TEXI2HTML)
 	perl $(TEXI2HTML) -monolithic -verbose $<
