@@ -30,7 +30,8 @@
 	* foreign1.lisp (to-c-typedecl): c-pointer --> void*, not char*
 	* bindings/linuxlibc6/linux.lisp (flock): new call-out
 	(fcntl2, fcntl3l, fcntl3f): 3 forms of fcntl()
-	(ioctl-set, ioctl-get, ioctl): 3 forms of ioctl()
+	(ioctl-set-int, ioctl-get-int): 2 basic forms of ioctl()
+	[there are many many more!]
 	* bindings/linuxlibc6/wrap.lisp (check-res): new macro
 	(real-path, get-host-name, get-domain-name): use it
 	* modules/clx/new-clx/clx.f: NOTREACHED and thus NOTIMPLEMENTED
