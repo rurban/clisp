@@ -191,6 +191,7 @@
 <!ENTITY proper-name-glo "<ulink url='&clhs;/Body/glo_p.html#proper_name'>proper name</ulink>">
 <!ENTITY exec-time "<ulink url='&clhs;/Body/glo_e.html#execution_time'>execution time</ulink>">
 <!ENTITY compile-time "<ulink url='&clhs;/Body/glo_c.html#compile_time'>compile time</ulink>">
+<!ENTITY top-level-form "<ulink url='&clhs;/Body/sec_3-2-3-1.html'>top-level form</ulink>">
 
 <!-- *** variables, bindings etc *** -->
 <!ENTITY environment "<ulink url='&clhs;/Body/sec_3-1-1.html'>environment</ulink>">

@@ -280,7 +280,7 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
  standard situations <constant>:EXECUTE</constant>,
  <constant>:LOAD-TOPLEVEL</constant>
  and <constant>:COMPILE-TOPLEVEL</constant> in that they ignore the
- top-level versus non-top-level distinction.</para></warning>
+ &top-level-form; versus non-&top-level-form; distinction.</para></warning>
 
 </section>
 
