@@ -136,7 +136,7 @@ LISPFUNNR(symbol_function,1)
  can trigger GC */
 local object funname_to_symbol (object symbol) {
   if (!funnamep(symbol))
-    symbol = check_funname(type_error,TheSubr(subr_self)->name,symbol);
+    symbol = check_funname_replacement(type_error,TheSubr(subr_self)->name,symbol);
   if (!symbolp(symbol)) /* (get ... 'SYS::SETF-FUNCTION) */
     symbol = get(Car(Cdr(symbol)),S(setf_function));
   return symbol;
@@ -904,7 +904,7 @@ LISPSPECFORM(flet, 1,0,body)
     var object name = Car(funspecs);
     if (!funnamep(name)) {
       pushSTACK(funspecs);
-      name = check_funname(source_program_error,S(flet),name);
+      name = check_funname_replacement(source_program_error,S(flet),name);
       funspecs = popSTACK();
     }
     var object lambdabody = Cdr(funspecs);
@@ -944,7 +944,7 @@ LISPSPECFORM(labels, 1,0,body)
       var object name = Car(funspec);
       if (!funnamep(name)) {
         pushSTACK(funspec);
-        name = check_funname(source_program_error,S(labels),name);
+        name = check_funname_replacement(source_program_error,S(labels),name);
         funspec = popSTACK();
       }
       var object lambdabody = Cdr(funspec);

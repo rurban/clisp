@@ -322,11 +322,22 @@ nonreturning_function(local, fehler_digits, (object obj)) {
   fehler(type_error,GETTEXT("~S: argument should be a positive fixnum, not ~S"));
 }
 
-/* check_number(obj) checks, if obj is a number.
- < number
+/* check_number(obj)
+ > obj: an object
+ < result: a number, either the same as obj or a replacement
  can trigger GC */
-local inline object check_number (object obj) {
-  while (!numberp(obj)) {
+local object check_number_replacement (object obj);
+static inline object check_number (object obj) {
+  if (!numberp(obj))
+    obj = check_number_replacement(obj);
+  return obj;
+}
+/* check_number_replacement(obj)
+ > obj: not a number
+ < result: a number, a replacement
+ can trigger GC */
+local object check_number_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
     pushSTACK(S(number)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -334,16 +345,16 @@ local inline object check_number (object obj) {
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a number"));
     obj = value1;
-  }
+  } while (!numberp(obj));
   return obj;
 }
 
-/* check_real(obj) checks, if obj is a real number.
- < real number
+/* check_real_replacement(obj)
+ > obj: not a real number
+ < result: a real number, a replacement
  can trigger GC */
-global object check_real (object obj) {
- restart:
-  if_realp(obj, ; , {
+global object check_real_replacement (object obj) {
+  for (;;) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
     pushSTACK(S(real)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -351,16 +362,27 @@ global object check_real (object obj) {
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a real number"));
     obj = value1;
-    goto restart;
-  });
+    if_realp(obj, break; , continue; );
+  }
   return obj;
 }
 
-/* check_float(obj) checks, if obj is a floating-point number.
- < floating-point number
+/* check_float(obj)
+ > obj: an object
+ < result: a floating-point number, either the same as obj or a replacement
  can trigger GC */
-local inline object check_float (object obj) {
-  while (!floatp(obj)) {
+local object check_float_replacement (object obj);
+static inline object check_float (object obj) {
+  if (!floatp(obj))
+    obj = check_float_replacement(obj);
+  return obj;
+}
+/* check_float_replacement(obj)
+ > obj: not a floating-point number
+ < result: a floating-point number, a replacement
+ can trigger GC */
+local object check_float_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);      /* TYPE-ERROR slot DATUM */
     pushSTACK(S(float)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -368,16 +390,25 @@ local inline object check_float (object obj) {
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a floating-point number"));
     obj = value1;
-  }
+  } while (!floatp(obj));
   return obj;
 }
 
-/* check_rational(obj) checks, if obj is a rational number.
- < rational number
+/* check_rational(obj)
+ > obj: an object
+ < result: a rational number, either the same as obj or a replacement
  can trigger GC */
-local inline object check_rational (object obj) {
- restart:
-  if_rationalp(obj, ; , {
+local object check_rational_replacement (object obj);
+static inline object check_rational (object obj) {
+  if_rationalp(obj, ; , { obj = check_rational_replacement(obj); });
+  return obj;
+}
+/* check_rational_replacement(obj)
+ > obj: not a rational number
+ < result: a rational number, a replacement
+ can trigger GC */
+local object check_rational_replacement (object obj) {
+  for (;;) {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
     pushSTACK(S(rational)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -385,12 +416,12 @@ local inline object check_rational (object obj) {
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a rational number"));
     obj = value1;
-    goto restart;
-  });
+    if_rationalp(obj, break; , continue; );
+  }
   return obj;
 }
 
-/* coersions - used in modules
+/* coercions - used in modules
  can trigger GC */
 global double to_double (object x) {
   double ret;

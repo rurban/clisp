@@ -5149,10 +5149,6 @@ typedef Srecord  Structure;
   #define structure_types   recdata[0]
 #define structure_length(ptr)  srecord_length(ptr)
 #define Structure_length(obj)  structure_length(TheStructure(obj))
-/* ensure that OBJ is a structure object and return it
- can trigger GC */
-extern object check_structure (object obj);
-/* used by RECORD, IO */
 
 # CLOS-Classes (= instances of <class>), see clos.lisp
 typedef struct {
@@ -11298,9 +11294,11 @@ extern uintBWL smallest_string_flavour32 (const uint32* src, uintL len);
 # > chart* src: source
 # > uintL len: number of characters at src
 # < result: Sstringtype_8Bit or Sstringtype_16Bit or Sstringtype_32Bit
+#ifndef COMPILE_STANDALONE
 static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
   return smallest_string_flavour32((const uint32*)src,len);
 }
+#endif
 
 #endif
 
@@ -12064,15 +12062,19 @@ extern void tast_break (void);
 # is used by EVAL, IO, SPVW, STREAM
 
 #ifdef FOREIGN
-/* check that the argument is a valid foreign pointer.
- check_fpointer(obj);
- > obj: object
- > restart_p: allow entering a new value
- < a valid foreign pointer
- this is used by foreign.d and also by some modules
- that rely on fpointer but not FFI, e.g., regexp
+/* check_fpointer(obj,restart_p)
+ > obj: an object
+ > restart_p: flag whether to allow entering a replacement
+ < result: a valid foreign pointer, either the same as obj or a replacement
  can trigger GC */
-extern object check_fpointer (object obj, bool restart_p);
+extern object check_fpointer_replacement (object obj, bool restart_p);
+#ifndef COMPILE_STANDALONE
+static inline object check_fpointer (object obj, bool restart_p) {
+  if (!(fpointerp(obj) && fp_validp(TheFpointer(obj))))
+    obj = check_fpointer_replacement(obj,restart_p);
+  return obj;
+}
+#endif
 /* used by FOREIGN and REGEXP (amd maybe other non-FFI modules) */
 #endif
 
@@ -12080,10 +12082,21 @@ extern object check_fpointer (object obj, bool restart_p);
 # fehler_list(obj);
 # > obj: non-list
 nonreturning_function(extern, fehler_list, (object obj));
-/* ditto - recoverable
+/* used by LIST, EVAL, STREAM */
+
+/* check_list(obj)
+ > obj: an object
+ < result: a list, either the same as obj or a replacement
  can trigger GC */
-extern object check_list (object obj);
-/* used by LIST, EVAL, PATHNAME, STREAM */
+extern object check_list_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_list (object obj) {
+  if (!listp(obj))
+    obj = check_list_replacement(obj);
+  return obj;
+}
+#endif
+/* used by PATHNAME */
 
 # Error message, if an object isn't a proper list.
 # fehler_proper_list(caller,obj);
@@ -12092,17 +12105,33 @@ extern object check_list (object obj);
 nonreturning_function(extern, fehler_proper_list, (object caller, object obj));
 # is used by LIST
 
-/* UP: check whether the argument is a symbol and return it
+/* check_symbol(obj)
+ > obj: an object
+ < result: a symbol, either the same as obj or a replacement
  can trigger GC */
-extern object check_symbol (object sy);
-/* used by CONTROL, EVAL, I18N, RECORD, STREAM, SYMBOL */
+extern object check_symbol_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_symbol (object obj) {
+  if (!symbolp(obj))
+    obj = check_symbol_replacement(obj);
+  return obj;
+}
+#endif
+/* used by CONTROL, EVAL, I18N, PACKAGE, PREDTYPE, RECORD, STREAM, SYMBOL */
 
-/* UP: signal an error if OBJ is not a non-constant symbol and
- return OBJ otherwise
- > obj: a potential symbol
+/* check_symbol_non_constant(obj)
+ > obj: an object
  > caller: a symbol
- < obj: a non-constant symbol */
-extern object check_symbol_non_constant (object obj, object caller);
+ < result: a non-constant symbol, either the same as obj or a replacement
+ can trigger GC */
+extern object check_symbol_non_constant_replacement (object obj, object caller);
+#ifndef COMPILE_STANDALONE
+static inline object check_symbol_non_constant (object obj, object caller) {
+  if (!(symbolp(obj) && !constantp(TheSymbol(obj))))
+    obj = check_symbol_non_constant_replacement(obj,caller);
+  return obj;
+}
+#endif
 /* used by EVAL, CONTROL */
 
 /* UP: signal an error if a non-symbol was declared special
@@ -12133,30 +12162,90 @@ nonreturning_function(extern, fehler_environment, (object obj));
 /* Error message, if an argument isn't a Fixnum >=0:
  > obj: the faulty argument */
 nonreturning_function(extern, fehler_posfixnum, (object obj));
-extern object check_posfixnum (object obj);
+/* used by DEBUG, ENCODING, FOREIGN, IO, STREAM, TIME */
+
+/* check_posfixnum(obj)
+ > obj: an object
+ < result: a fixnum >= 0, either the same as obj or a replacement
+ can trigger GC */
+extern object check_posfixnum_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_posfixnum (object obj) {
+  if (!posfixnump(obj))
+    obj = check_posfixnum_replacement(obj);
+  return obj;
+}
+#endif
 /* used by STREAM, LISPARIT */
 
-/* make sure the argument is an integer */
-extern object check_integer (object obj);
-extern object check_pos_integer (object obj);
+/* check_integer(obj)
+ > obj: an object
+ < result: an integer, either the same as obj or a replacement
+ can trigger GC */
+extern object check_integer_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_integer (object obj) {
+  if (!integerp(obj))
+    obj = check_integer_replacement(obj);
+  return obj;
+}
+#endif
+/* used by LISPARIT */
+
+/* check_pos_integer(obj)
+ > obj: an object
+ < result: an integer >= 0, either the same as obj or a replacement
+ can trigger GC */
+extern object check_pos_integer_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_pos_integer (object obj) {
+  if (!(integerp(obj) && !R_minusp(obj)))
+    obj = check_pos_integer_replacement(obj);
+  return obj;
+}
+#endif
 /* used by LISPARIT, LIST */
 
 # Error message, if an argument isn't a Character:
 # fehler_char(obj);
 # > obj: the faulty argument
 nonreturning_function(extern, fehler_char, (object obj));
-/* can trigger GC */
-extern object check_char (object obj);
-# is used by CHARSTRG
+/* used by IO, STREAM */
+
+/* check_char(obj)
+ > obj: an object
+ < result: a character, either the same as obj or a replacement
+ can trigger GC */
+extern object check_char_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_char (object obj) {
+  if (!charp(obj))
+    obj = check_char_replacement(obj);
+  return obj;
+}
+#endif
+/* used by CHARSTRG, ENCODING, IO */
 
 # Error message, if an argument isn't a string:
 # checj_string(obj);
 # > obj: the possibly faulty argument
 # < a string
 nonreturning_function(extern, fehler_string, (object obj));
-/* can trigger GC */
-extern object check_string (object obj);
-# is used by CHARSTRG, FOREIGN, MISC, PATHNAME, STREAM, SOCKET, I18N
+/* used by */
+
+/* check_string(obj)
+ > obj: an object
+ < result: a string, either the same as obj or a replacement
+ can trigger GC */
+extern object check_string_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_string (object obj) {
+  if (!stringp(obj))
+    obj = check_string_replacement(obj);
+  return obj;
+}
+#endif
+/* used by CHARSTRG, FOREIGN, MISC, PACKAGE, PATHNAME, STREAM, SOCKET, I18N */
 
 # Error message, if an argument isn't a Simple-String:
 # fehler_sstring(obj);
@@ -12202,6 +12291,17 @@ nonreturning_function(extern, fehler_stream, (object obj));
 nonreturning_function(extern, fehler_streamtype, (object obj, object type));
 # is used by STREAM
 
+/* Report an error when the argument is not an encoding:
+ check_encoding(obj,&default,keyword_p)
+ > obj: the (possibly) bad argument
+ > default: what to return for :DEFAULT
+ > keyword_p: true if the object comes from the :EXTERNAL-FORMAT argument
+ < result: an encoding
+ can trigger GC */
+extern object check_encoding (object obj, const gcv_object_t* e_default,
+                              bool keyword_p);
+/* used by ENCODING, FOREIGN */
+
 /* error-message for non-paired keyword-arguments
  fehler_key_odd(argcount,caller);
  > argcount: the number of arguments on the STACK
@@ -12223,35 +12323,45 @@ nonreturning_function(extern, fehler_key_notkw, (object key, object caller));
 nonreturning_function(extern, fehler_key_badkw,
                       (object fun, object key, object val, object kwlist));
 
-/* error-message, if an argument isn't a function:
- check_function(obj);
- obj: the faulty argument */
-extern object check_function (object obj);
-/* used by RECORD, EVAL, SEQUENCE, SYMBOL */
+/* check_function(obj)
+ > obj: an object
+ < result: a function, either the same as obj or a replacement
+ can trigger GC */
+extern object check_function_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_function (object obj) {
+  if (!functionp(obj))
+    obj = check_function_replacement(obj);
+  return obj;
+}
+#endif
+/* used by RECORD, EVAL, SEQUENCE, SYMBOL, FOREIGN */
 
 /* error if funname does not have a function definition
+ check_fdefinition(funname,caller)
  > funname: symbol or (setf symbol)
  > caller: symbol
- < a function object
+ < a function object, possibly also installed as (FDEFINITION funname)
  can trigger GC */
 extern object check_fdefinition (object funname, object caller);
-/* used by CONTROL */
+/* used by EVAL, CONTROL */
 
-/* Report an error when the argument is not an encoding:
- > obj: the (possibly) bad argument
- > e_default: what to return for :DEFAULT
- > keyword_p: true if the object comes from the :EXTERNAL-FORMAT argument
- < encoding
+/* check_funname(obj)
+ > errtype: type of condition to signal if obj is not a function name,
+            either type_error or source_program_error
+ > caller: a symbol
+ > obj: an object
+ < result: a function name, either the same as obj or a replacement
  can trigger GC */
-extern object check_encoding (object obj, const gcv_object_t* e_default,
-                              bool keyword_p);
-/* used by ENCODING, FOREIGN */
-
-/* report errors if the argument is not a function name
- obj - bad object; caller - the calling function (a symbol)
- errtype - type_error or source_program_error
- can trigger GC */
-extern object check_funname (condition_t errtype, object caller, object obj);
+extern object check_funname_replacement (condition_t errtype, object caller, object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_funname (condition_t errtype, object caller, object obj) {
+  if (!funnamep(obj))
+    obj = check_funname_replacement(errtype,caller,obj);
+  return obj;
+}
+#endif
+/* used by EVAL, CONTROL */
 
 # Error message, if an argument is a lambda-expression instead of a function:
 # fehler_lambda_expression(caller,obj);
@@ -12273,25 +12383,124 @@ nonreturning_function(extern, fehler_too_few_args,
 
 # used by EVAL, FOREIGN
 
-/* Checking of an argument
- check_...(obj);
- > obj: an object of a possibly incorrect type
- < obj: an object of the correct type
+/* Check whether an object can be converted to an elementary C type.
+ check_<ctype>(obj)
+ > obj: an object
+ < result: an object that can be converted to the C type, either the same
+           as obj or a replacement
  can trigger GC */
-extern object check_uint8 (object obj);
-extern object check_sint8 (object obj);
-extern object check_uint16 (object obj);
-extern object check_sint16 (object obj);
-extern object check_uint32 (object obj);
-extern object check_sint32 (object obj);
-extern object check_uint64 (object obj);
-extern object check_sint64 (object obj);
-extern object check_uint (object obj);
-extern object check_sint (object obj);
-extern object check_ulong (object obj);
-extern object check_slong (object obj);
-extern object check_ffloat (object obj);
-extern object check_dfloat (object obj);
+extern object check_uint8_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_uint8 (object obj) {
+  if (!uint8_p(obj))
+    obj = check_uint8_replacement(obj);
+  return obj;
+}
+#endif
+extern object check_sint8_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_sint8 (object obj) {
+  if (!sint8_p(obj))
+    obj = check_sint8_replacement(obj);
+  return obj;
+}
+#endif
+extern object check_uint16_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_uint16 (object obj) {
+  if (!uint16_p(obj))
+    obj = check_uint16_replacement(obj);
+  return obj;
+}
+#endif
+extern object check_sint16_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_sint16 (object obj) {
+  if (!sint16_p(obj))
+    obj = check_sint16_replacement(obj);
+  return obj;
+}
+#endif
+extern object check_uint32_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_uint32 (object obj) {
+  if (!uint32_p(obj))
+    obj = check_uint32_replacement(obj);
+  return obj;
+}
+#endif
+extern object check_sint32_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_sint32 (object obj) {
+  if (!sint32_p(obj))
+    obj = check_sint32_replacement(obj);
+  return obj;
+}
+#endif
+extern object check_uint64_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_uint64 (object obj) {
+  if (!uint64_p(obj))
+    obj = check_uint64_replacement(obj);
+  return obj;
+}
+#endif
+extern object check_sint64_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_sint64 (object obj) {
+  if (!sint64_p(obj))
+    obj = check_sint64_replacement(obj);
+  return obj;
+}
+#endif
+extern object check_uint_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_uint (object obj) {
+  if (!uint_p(obj))
+    obj = check_uint_replacement(obj);
+  return obj;
+}
+#endif
+extern object check_sint_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_sint (object obj) {
+  if (!sint_p(obj))
+    obj = check_sint_replacement(obj);
+  return obj;
+}
+#endif
+extern object check_ulong_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_ulong (object obj) {
+  if (!ulong_p(obj))
+    obj = check_ulong_replacement(obj);
+  return obj;
+}
+#endif
+extern object check_slong_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_slong (object obj) {
+  if (!slong_p(obj))
+    obj = check_slong_replacement(obj);
+  return obj;
+}
+#endif
+extern object check_ffloat_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_ffloat (object obj) {
+  if (!single_float_p(obj))
+    obj = check_ffloat_replacement(obj);
+  return obj;
+}
+#endif
+extern object check_dfloat_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_dfloat (object obj) {
+  if (!double_float_p(obj))
+    obj = check_dfloat_replacement(obj);
+  return obj;
+}
+#endif
 # is used by STREAM, FFI
 
 # ##################### PACKBIBL for PACKAGE.D ############################# #
@@ -12539,6 +12748,20 @@ extern void with_gc_statistics (gc_function_t* fun);
 # is used by SPVW
 
 # ####################### RECBIBL for RECORD.D ############################# #
+
+/* check_structure(obj)
+ > obj: an object
+ < result: a structure object, either the same as obj or a replacement
+ can trigger GC */
+extern object check_structure_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_structure (object obj) {
+  if (!structurep(obj))
+    obj = check_structure_replacement(obj);
+  return obj;
+}
+#endif
+/* used by IO */
 
 # instance_un_realloc(obj);
 # walks over forward pointers left by instance reallocation (CHANGE-CLASS).
@@ -13013,10 +13236,17 @@ extern object get (object symbol, object key);
 
 # ##################### ARITBIBL for LISTARIT.D ############################ #
 
-/* check_real(obj) checks, if obj is a real number.
- < real number
+/* check_real(obj)
+ > obj: an object
+ < result: a real number, either the same as obj or a replacement
  can trigger GC */
-extern object check_real (object obj);
+extern object check_real_replacement (object obj);
+#ifndef COMPILE_STANDALONE
+static inline object check_real (object obj) {
+  if_realp(obj, ; , { obj = check_real_replacement(obj); });
+  return obj;
+}
+#endif
 /* used by IO */
 
 # UP: Initializes the arithmetics.
