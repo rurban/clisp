@@ -1,3 +1,12 @@
+2003-03-26  Sam Steingold  <sds@gnu.org>
+
+	* condition.lisp (restart): use CLOS:PRINT-OBJECT
+	(print-restart): removed
+	(applicable-restart-p): CONDITION may be NIL
+	(compute-restarts, find-restart): even when CONDITION is NIL,
+	APPLICABLE-RESTART-P has to be called
+	(with-simple-restart): fixed the optimized case
+
 2003-03-25  Sam Steingold  <sds@gnu.org>
 
 	* defmacro.lisp (get-supplied-p): new function
