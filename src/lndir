@@ -7,9 +7,9 @@
 # Abort in case something fails.
 set -e
 
-fail(){
-    echo "$*" 1>&2
-    exit 1
+fail () {
+  echo "$*" 1>&2
+  exit 1
 }
 
 if test $# != 2; then
@@ -24,7 +24,7 @@ DST="$2"
 # system supports that, else file copy.
 link () {
 # Note: With some versions of "ln" this does not work if FILE2 is a symlink.
-rm -f "$2";
+rm -f "$2"
 if ln "$1" "$2" 2>/dev/null; then
   :
 else
@@ -46,7 +46,7 @@ fi
 mkdirparent () {
 DIR="$1"
 DIR=`echo "$DIR" | sed -e 's,/*$,,'`
-defaultIFS='
+defaultIFS=' 	
 '
 IFS="${IFS-${defaultIFS}}"
 oIFS="${IFS}"
@@ -76,7 +76,7 @@ mkdirparent "$DST"
 
 for f in `cd "$SRC" ; find . -type d -print`; do
   dir="$DST"`echo "$f" | sed -e 's,^\.,,'`;
-  test -d ${dir} || mkdir ${dir};
+  test -d "${dir}" || mkdir "${dir}"
 done
 
 for f in `cd "$SRC" ; find . -type f -print`; do

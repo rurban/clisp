@@ -1,5 +1,7 @@
 2000-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lndir: Fix defaultIFS, broken by Sam's previous patch 1999-12-23.
+
         * nls_iso8859_8.c: Regenerate using newest unicode.org table.
 
         * cc_sparc.il: Remove obsolete file.
