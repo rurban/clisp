@@ -1,5 +1,11 @@
 2004-07-10  Bruno Haible  <bruno@clisp.org>
 
+	* clos-genfun2.lisp (make-fast-gf): Remove function.
+	* clos-genfun3.lisp (make-generic-function, do-defmethod): Use
+	make-generic-function-instance instead of make-fast-gf.
+
+2004-07-10  Bruno Haible  <bruno@clisp.org>
+
 	* clos-genfun2.lisp (%make-gf): Remove function.
 	(make-fast-gf): Inline its previous definition.
 
