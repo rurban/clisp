@@ -1,16 +1,16 @@
-# list of all objects known to the C-program ("program-constants")
-# Bruno Haible 1990-2002
-# Sam Steingold 1998-2002
-# German comments translated into English: Stefan Kain 2002-02-20
+/*
+ * list of all objects known to the C-program ("program-constants")
+ * Bruno Haible 1990-2002
+ * Sam Steingold 1998-2004
+ * German comments translated into English: Stefan Kain 2002-02-20
 
-# The symbols are already treated specially.
-# A table of all other objects known to the C-program
-# is maintained.
+ The symbols are already treated specially in CONSTSYM.
+ A table of all other objects known to the C-program is maintained here.
 
-# The macro LISPOBJ declares a LISP object.
-# LISPOBJ(name,initstring)
-# > name: object is addressable as object_tab.name or as O(name)
-# > initstring: initialization-string in LISP syntax
+ The macro LISPOBJ declares a LISP object.
+ LISPOBJ(name,initstring)
+ > name: object is addressable as object_tab.name or as O(name)
+ > initstring: initialization-string in LISP syntax */
 
 # expander for the declaration of the object-table:
   #define LISPOBJ_A(name,initstring)  \

@@ -1,5 +1,6 @@
-;;; CLtL2-kompatible Definitionen
+;;; ANSI-compatible definitions
 ;;; Bruno Haible 21.7.1994
+;;; Sam Steingold 1999-2004
 
 ;; ============================================================================
 

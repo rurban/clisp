@@ -1,7 +1,7 @@
 /*
  * PCRE - Perl Compatible Regular Expressions
  * <http://www.pcre.org/>
- * Copyright (C) 2003 Sam Steingold
+ * Copyright (C) 2003-2004 Sam Steingold
  * GPL2
  */
 

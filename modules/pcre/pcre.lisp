@@ -1,6 +1,6 @@
 ;; Module for PCRE / CLISP
 ;; <http://www.pcre.org/>
-;; Sam Steingold 2003
+;; Sam Steingold 2003-2004
 
 (defpackage "PCRE"
   (:documentation

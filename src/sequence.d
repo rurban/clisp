@@ -1,7 +1,7 @@
 /*
  * Sequences for CLISP
  * Bruno Haible 1987-2004
- * Sam Steingold 1998-2003
+ * Sam Steingold 1998-2004
  */
 #include "lispbibl.c"
 
