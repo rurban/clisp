@@ -441,7 +441,6 @@ config.fas
 TXTFILES = \
 LISP-tutorial.txt \
 CLOS-guide.txt \
-cltl2.txt \
 editors.txt
 
 TESTLSPFILES = \
@@ -1609,9 +1608,6 @@ LISP-tutorial.txt : ../doc/LISP-tutorial.txt
 
 CLOS-guide.txt : ../doc/CLOS-guide.txt
 	-$(LN) ..\doc\CLOS-guide.txt CLOS-guide.txt
-
-cltl2.txt : ../doc/cltl2.txt
-	-$(LN) ..\doc\cltl2.txt cltl2.txt
 
 editors.txt : ../doc/editors.txt
 	-$(LN) ..\doc\editors.txt editors.txt
