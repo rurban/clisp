@@ -1,3 +1,8 @@
+2002-02-23  Sam Steingold  <sds@gnu.org>
+
+	* record.d (%REINITIALIZE-INSTANCE): fixed a crash in repeated
+	REINITIALIZE-INSTANCE calls
+
 2002-02-22  Sam Steingold  <sds@gnu.org>
 
 	UI language can now be changed at run time
