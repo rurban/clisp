@@ -12,6 +12,8 @@
 	* cfgwin32.lisp (*device-prefix*): set to "cygdrive"
 	* constsym.lisp (*device-prefix*): added
 	* spvw.d (*device-prefix*): defined
+	* spvw_memfile.d (loadmem): check the path for "cygdrive" prefix
+	and modify it if necessary in place
 
 2001-07-25  Sam Steingold  <sds@gnu.org>
 
