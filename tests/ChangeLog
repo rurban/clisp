@@ -1,11 +1,5 @@
 2001-05-01  Sam Steingold  <sds@gnu.org>
 
-	* excepsit.tst, clos.tst: moved the FOO041 generic function from
-	excepsit to clos since it is not an error to change the effective
-	method before CALL-NEXT-METHOD
-
-2001-05-01  Sam Steingold  <sds@gnu.org>
-
 	* conditions.tst (handler-case): :NO-ERROR does not have to be the
 	last clause
 
