@@ -2215,8 +2215,12 @@ global void init_encodings_2 (void) {
     });
   }
   /* Now some aliases. */
-  define_constant(S(windows_1255),Symbol_value(S(cp1255)));
-  define_constant(S(windows_1258),Symbol_value(S(cp1258)));
+  if (!boundp(Symbol_value(S(cp1255)))) { /* remove */
+    pushSTACK(S(windows_1255)); pushSTACK(O(charset_package)); C_unintern();
+  } else define_constant(S(windows_1255),Symbol_value(S(cp1255)));
+  if (!boundp(Symbol_value(S(cp1258)))) { /* remove */
+    pushSTACK(S(windows_1258)); pushSTACK(O(charset_package)); C_unintern();
+  } else define_constant(S(windows_1258),Symbol_value(S(cp1258)));
  #endif
   /* Initialize O(internal_encoding): */
   pushSTACK(Symbol_value(S(utf_8))); /* :charset */
