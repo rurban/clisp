@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host laplace.ilog.fr as the output of the command:
+# This file was created on host david as the output of the command:
 # ./makemake dosdjgpp gcc
 
 # -------------- Start of configurable section --------------------
@@ -401,6 +401,7 @@ macros3.lsp \
 posix.lsp \
 foreign1.lsp \
 defs3.lsp \
+clhs.lsp \
 german.lsp \
 french.lsp \
 spanish.lsp \
@@ -445,6 +446,7 @@ macros3.fas \
 posix.fas \
 foreign1.fas \
 defs3.fas \
+clhs.fas \
 german.fas \
 french.fas \
 spanish.fas \
@@ -494,6 +496,7 @@ stage\macros3.lsp \
 stage\posix.lsp \
 stage\foreign1.lsp \
 stage\defs3.lsp \
+stage\clhs.lsp \
 stage\german.lsp \
 stage\french.lsp \
 stage\spanish.lsp \
@@ -538,6 +541,7 @@ stage\macros3.fas \
 stage\posix.fas \
 stage\foreign1.fas \
 stage\defs3.fas \
+stage\clhs.fas \
 stage\german.fas \
 stage\french.fas \
 stage\spanish.fas \
@@ -1159,7 +1163,10 @@ ari80386.o : ari80386.s
 
 UnicodeData.txt :
 	$(LN) ..\utils\unicode\ftp.unicode.org\UnicodeData.txt UnicodeData.txt
-lisp.exe : $(OBJECTS) modules.o  readline/libreadline.a    UnicodeData.txt
+
+clhs.txt :
+	$(LN) ..\src\clhs.txt clhs.txt
+lisp.exe : $(OBJECTS) modules.o  readline/libreadline.a    UnicodeData.txt clhs.txt
 	$(RM) lisp
 	$(RM) lisp.exe
 	$(CC) -o lisp @gcclink.in $(CLFLAGS) $(LIBS)
@@ -1287,6 +1294,9 @@ foreign1.fas : foreign1.lsp lisp.exe interpreted.mem
 
 defs3.fas : defs3.lsp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile ISO-8859-1 -norc -q -c defs3.lsp
+
+clhs.fas : clhs.lsp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile ISO-8859-1 -norc -q -c clhs.lsp
 
 german.fas : german.lsp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile ISO-8859-1 -norc -q -c german.lsp
@@ -1439,6 +1449,9 @@ stage\foreign1.lsp : foreign1.lsp
 stage\defs3.lsp : defs3.lsp
 	$(LN) defs3.lsp stage
 
+stage\clhs.lsp : clhs.lsp
+	$(LN) clhs.lsp stage
+
 stage\german.lsp : german.lsp
 	$(LN) german.lsp stage
 
@@ -1565,6 +1578,9 @@ stage\foreign1.fas : stage\foreign1.lsp lisp.exe lispinit.mem
 stage\defs3.fas : stage\defs3.lsp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile ISO-8859-1 -norc -q -c stage/defs3.lsp
 
+stage\clhs.fas : stage\clhs.lsp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -Efile ISO-8859-1 -norc -q -c stage/clhs.lsp
+
 stage\german.fas : stage\german.lsp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile ISO-8859-1 -norc -q -c stage/german.lsp
 
@@ -1590,7 +1606,7 @@ READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 MANUALS = clisp.1 clisp.html $(TXTFILES) impnotes.html clisp.gif clreadline.3 clreadline.html clreadline.dvi readline.dvi
 
 impnotes.html : _impnotes.html
-	sed -e 's,href="CLHSROOT/,href="http://www.harlequin.com/education/books/HyperSpec/,' _impnotes.html > impnotes.html
+	sed -e 's,href="CLHSROOT/,href="http://www.xanalys.com/software_tools/reference/HyperSpec/,' _impnotes.html > impnotes.html
 
 manual : $(READMES) $(MANUALS)
 
@@ -1649,7 +1665,7 @@ clisp.html : _clisp.html lispbibl.c fsubr.c subr.c pseudofun.c constsym.c consto
 	$(CC) $(CFLAGS) $(CLFLAGS) -O0 txt.c -o txt
 	$(COFF2EXE) txt txt.exe
 	$(RM) txt
-	txt | sed -e 's,HREF="CLHSROOT/,HREF="http://www.harlequin.com/education/books/HyperSpec/,' > clisp.html
+	txt | sed -e 's,HREF="CLHSROOT/,HREF="http://www.xanalys.com/software_tools/reference/HyperSpec/,' > clisp.html
 	$(RM) txt.c
 	$(RM) txt.exe
 
@@ -1698,6 +1714,7 @@ install-bin : lisp.exe lispinit.mem force
 	-mkdir $(install_root)$(libdir)
 	-mkdir $(install_root)$(lisplibdir)
 	$(INSTALL_DATA) UnicodeData.txt $(install_root)$(lisplibdir)\UnicodeData.txt
+	$(INSTALL_DATA) clhs.txt $(install_root)$(lisplibdir)\clhs.txt
 	$(INSTALL_PROGRAM) lisp.exe $(install_root)$(lisplibdir)\lisp.exe
 	$(INSTALL_DATA) lispinit.mem $(install_root)$(lisplibdir)\lispinit.mem
 	-mkdir $(install_root)$(bindir)
@@ -1707,6 +1724,7 @@ uninstall : uninstall-bin
 
 uninstall-bin : force
 	$(RM) $(install_root)$(lisplibdir)/UnicodeData.txt
+	$(RM) $(install_root)$(lisplibdir)/clhs.txt
 	$(RM) $(install_root)$(lisplibdir)/lisp.exe
 	$(RM) $(install_root)$(lisplibdir)/lispinit.mem
 	$(RM) $(install_root)$(bindir)/clisp.bat

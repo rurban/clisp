@@ -30,7 +30,7 @@ and can be viewed through WWW under
 
 For experts: This standard text has emerged into an ANSI standard, which
 you can exceptionally get free of charge from
-  http://www.harlequin.com/books/HyperSpec/
+  http://www.xanalys.com/software_tools/reference/hyperspec.html
 
 LISP is run in an interactive environment. You input forms, and they will be
 evaluated at once. Thus you can inspect variables, call functions with given
