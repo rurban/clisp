@@ -8,4 +8,4 @@ make clisp-module CC="${CC}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir"
 NEW_FILES="$file_list"
 NEW_LIBS="$file_list -lm"
 NEW_MODULES="$mod_list"
-TO_LOAD='linux'
+TO_LOAD='linux wrap'
