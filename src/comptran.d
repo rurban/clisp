@@ -91,7 +91,7 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
   pushSTACK(N_abs_R(x)); /* (abs x) */
   if (R_zerop(STACK_0)) /* (abs x) = 0 -> Error */
     divide_0();
-  STACK_0 = R_ln_R(STACK_0,true,end_p); /* (log (abs x)) */
+  STACK_0 = R_ln_R(STACK_0,end_p); /* (log (abs x)) */
   /* Increase precision: */
   if (floatp(STACK_1))
     STACK_1 = F_extend_F(STACK_1);
@@ -160,7 +160,7 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
           b = STACK_1;
           if (R_rationalp(b))
             b = RA_F_float_F(b,angle,true);
-          b = F_ln_F(b,true,&STACK_1); STACK_0 = F_F_durch_F(STACK_0,b);
+          b = F_ln_F(b,&STACK_1); STACK_0 = F_F_durch_F(STACK_0,b);
         }
         /* Stackaufbau: a, b, Imaginärteil.
            Realteil (/ (log (abs a)) (log b)) errechnen: */
@@ -190,12 +190,12 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
           }
         }
         /* Keine Chance für rationalen Realteil */
-        pushSTACK(F_ln_F(N_abs_R(a),true,&STACK_3)); /* (log (abs a)), a float */
+        pushSTACK(F_ln_F(N_abs_R(a),&STACK_3)); /* (log (abs a)), a float */
         /* durch (log b) dividieren, liefert den Realteil: */
         b = STACK_2;
         if (R_rationalp(b))
           b = RA_F_float_F(b,STACK_0,true);
-        b = F_ln_F(b,true,&STACK_2); STACK_0 = F_F_durch_F(STACK_0,b);
+        b = F_ln_F(b,&STACK_2); STACK_0 = F_F_durch_F(STACK_0,b);
        real_ok:
         /* stack layout: a, b, imagpart, realpart. */
         {
@@ -877,7 +877,7 @@ local maygc void R_R_atanh_R_R (object x, object y)
       STACK_0 = temp;
     }
     /* stack layout: |(1+x)/(1-x)| (>0), Im. */
-    STACK_1 = F_I_scale_float_F(R_ln_R(STACK_1,true,&STACK_1),Fixnum_minus1); /* ln / 2 */
+    STACK_1 = F_I_scale_float_F(R_ln_R(STACK_1,&STACK_1),Fixnum_minus1); /* ln / 2 */
     return;
   }
   pushSTACK(x); pushSTACK(y);
@@ -916,7 +916,7 @@ local maygc void R_R_atanh_R_R (object x, object y)
       temp = F_F_durch_F(STACK_0,temp); /* ((1+x)^2+y^2)/((1-x)^2+y^2), a float >=0 */
       if (R_zerop(temp)) /* should be >0 */
         divide_0();
-      temp = R_ln_R(temp,true,NULL); /* ln(temp), a float */
+      temp = R_ln_R(temp,NULL); /* ln(temp), a float */
       STACK_6 = F_I_scale_float_F(temp,sfixnum(-2)); /* .../4 =: u */
     }
   }
@@ -1075,7 +1075,7 @@ local maygc object N_atan_N (object z)
         else
           temp = F_F_plus_F(temp,y);
         /* temp = sqrt(y^2-1)+|y|, ein Float >1 */
-        STACK_1 = R_ln_R(temp,true,&STACK_0); /* ln(|y|+sqrt(y^2-1)), Float >0 */
+        STACK_1 = R_ln_R(temp,&STACK_0); /* ln(|y|+sqrt(y^2-1)), Float >0 */
         temp = F_I_scale_float_F(pi(STACK_1),Fixnum_minus1); /* (scale-float pi -1) = pi/2 */
         if (!R_minusp(STACK_0)) { /* Vorzeichen von y */
           /* y>1 -> v = pi/2 */
@@ -1102,9 +1102,9 @@ local maygc object N_atan_N (object z)
         STACK_1 = F_atanhx_F(F_F_durch_F(x,temp)); /* u = atanh(x/sqrt(1+x^2)) */
       } else { /* |x| >= 1/2 */
         if (!R_minusp(x)) /* x >= 1/2 */
-          STACK_1 = R_ln_R(F_F_plus_F(temp,x),true,&STACK_1); /* u = ln(x+sqrt(1+x^2)) */
+          STACK_1 = R_ln_R(F_F_plus_F(temp,x),&STACK_1); /* u = ln(x+sqrt(1+x^2)) */
         else /* x <= -1/2 */
-          STACK_1 = F_minus_F(R_ln_R(F_F_minus_F(temp,x),true,&STACK_1)); /* u = -ln(-x+sqrt(1+x^2)) */
+          STACK_1 = F_minus_F(R_ln_R(F_F_minus_F(temp,x),&STACK_1)); /* u = -ln(-x+sqrt(1+x^2)) */
       }
       return;
     }
@@ -1203,7 +1203,7 @@ local maygc object N_atan_N (object z)
         temp = R_R_minus_R(F_square_F(temp),Fixnum_1); /* z^2-1, ein Float >=0 */
         temp = F_sqrt_F(temp); /* sqrt(z^2-1), ein Float >=0 */
         temp = F_F_plus_F(STACK_0,temp); /* z+sqrt(z^2-1), float >1 */
-        temp = R_ln_R(temp,true,&STACK_0); /* ln(z+sqrt(z^2-1)), float >=0 */
+        temp = R_ln_R(temp,&STACK_0); /* ln(z+sqrt(z^2-1)), float >=0 */
         skipSTACK(1);
         return R_R_complex_C(Fixnum_0,temp);
       }
@@ -1272,7 +1272,7 @@ local maygc object N_atan_N (object z)
           STACK_0 = z = RA_float_F(z);
         /* z Float <= -1 */
         z = F_sqrt_F(R_R_minus_R(F_square_F(z),Fixnum_1)); /* sqrt(z^2-1), ein Float >=0 */
-        STACK_0 = R_ln_R(F_F_minus_F(z,STACK_0),true,&STACK_0); /* log(sqrt(z^2-1)-z), ein Float >=0 */
+        STACK_0 = R_ln_R(F_F_minus_F(z,STACK_0),&STACK_0); /* log(sqrt(z^2-1)-z), ein Float >=0 */
         z = pi(STACK_0); /* and imaginary part == pi */
         return R_R_complex_C(popSTACK(),z);
       }

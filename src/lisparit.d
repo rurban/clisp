@@ -1807,7 +1807,7 @@ local maygc object log_digits (object x, object digits, gcv_object_t* objptr) {
        > 1 , so that it is not recalculated to often: */
     oldlen += floor(oldlen,2); /* oldlen * 3/2 */
     var uintC newlen = (d < oldlen ? oldlen : d);
-    ln_x = *objptr = LF_shorten_LF(R_ln_R(I_to_LF(x,newlen,true),true,NULL),
+    ln_x = *objptr = LF_shorten_LF(R_ln_R(I_to_LF(x,newlen,true),NULL),
                                    newlen); /* (ln x) - LF of len newlen */
     return (d < newlen ? LF_shorten_LF(ln_x,d) : ln_x);
   } else if (d > FF_mant_len+1) /* a double-float is sufficient */
