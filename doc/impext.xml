@@ -939,23 +939,20 @@ their corresponding byte vector representation according to that encoding.
 <variablelist>
 
 <varlistentry><term><literal role="sexp">
- (<function>ext:convert-string-from-bytes</function>
-  <replaceable>byte-vector</replaceable> <replaceable>encoding</replaceable>
+ (<function>EXT:CONVERT-STRING-FROM-BYTES</function>
+  <replaceable>byte-vector</replaceable> &encoding-r;
   &key-amp; &start-k; &end-k;)</literal></term>
  <listitem><simpara>converts the subsequence of
-  <replaceable>byte-vector</replaceable> from &start-r;
-  to &end-r; to a string, according to the given
-  <replaceable>encoding</replaceable>, and returns the resulting string.
-  </simpara></listitem></varlistentry>
+  <replaceable>byte-vector</replaceable> from &start-r; to &end-r; to a
+  string, according to the given &encoding-r;, and returns the resulting
+  string.</simpara></listitem></varlistentry>
 
 <varlistentry><term><literal role="sexp">
- (<function>ext:convert-string-to-bytes</function>
-  &string-r; <replaceable>encoding</replaceable>
-  &key-amp; &start-k; &end-k;)</literal></term>
- <listitem><simpara>converts the subsequence of
-  &string-r; from &start-r; to &end-r; to a &vector-class; of
-  <literal role="sexp">(&unsigned-byte-type; 8)</literal>, according to the
-  given <replaceable>encoding</replaceable>, and returns the resulting byte
+ (<function>EXT:CONVERT-STRING-TO-BYTES</function>
+  &string-r; &encoding-r; &key-amp; &start-k; &end-k;)</literal></term>
+ <listitem><simpara>converts the subsequence of &string-r; from
+  &start-r; to &end-r; to a &unsigned-byte-vec;,
+  according to the given &encoding-r;, and returns the resulting byte
   vector.</simpara></listitem></varlistentry>
 
 </variablelist>
@@ -1160,24 +1157,20 @@ N. Gray to X3J13.</para>
    <function>gray:stream-unread-char</function>; this is sufficient for
    streams whose <function>gray:stream-read-char</function> method has no
    side-effects.
-   </simpara><simpara>This function is a &clisp; extension.
+   </simpara><simpara>This function is a &clisp; extension (see &rcwhp;)
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
      role="sexp">(<function>gray:stream-read-char-sequence</function>
-                  &stream-r; &sequence-r;
-                  &optional-amp; [&start-r; [&end-r;]])</literal></term>
-  <listitem><simpara>Fills the subsequence of
-   &sequence-r; specified by &start-k; and &end-k;
-   with characters consecutively read from &stream-r;.
-   Returns the index of the first
-   element of &sequence-r; that was not updated (=
-   &end-r; or &lt; &end-r;
-   if the stream reached its end).
-   </simpara><simpara>&sequence-r; is an array of
-   characters, i.e. a string.  &start-r; is a
-   nonnegative integer and default to 0.  &end-r;
-   is a nonnegative integer or &nil; and defaults to &nil;, which stands
-   for <literal role="sexp">(&length;
+                  &stream-r; &sequence-r; &optional-amp;
+                  [&start-r; [&end-r;]])</literal></term>
+  <listitem><simpara>Fills the subsequence of &sequence-r; specified by
+   &start-k; and &end-k; with characters consecutively read from &stream-r;.
+   Returns the index of the first element of &sequence-r; that was not
+   updated (= &end-r; or &lt; &end-r; if the stream reached its end).
+   </simpara><simpara>&sequence-r; is an array of characters, i.e. a
+   string.  &start-r; is a nonnegative integer and default to 0.
+   &end-r; is a nonnegative integer or &nil; and defaults to &nil;,
+   which stands for <literal role="sexp">(&length;
    &sequence-r;)</literal>.
    </simpara><simpara>The default method repeatedly calls
    <function>gray:stream-read-char</function>;
@@ -1326,9 +1319,8 @@ N. Gray to X3J13.</para>
  <varlistentry><term><literal
     role="sexp">(<function>stream-read-byte-lookahead</function>
                  &stream-r;)</literal></term>
-  <listitem><simpara>To be called only if &stream-r;'s &stream-element-type; is
-   <literal role="sexp">(&unsigned-byte-type; 8)</literal> or
-   <literal role="sexp">(&signed-byte-type; 8)</literal>.
+  <listitem><simpara>To be called only if &stream-r;'s
+   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns &t; if <function>gray:stream-read-byte</function> would
    return immediately with an &integer-class; result.
    Returns &eof-k; if the &eos; is already known to be reached.
@@ -1339,9 +1331,8 @@ N. Gray to X3J13.</para>
  <varlistentry><term><literal
     role="sexp">(<function>stream-read-byte-will-hang-p</function>
                  &stream-r;)</literal></term>
-  <listitem><simpara>To be called only if &stream-r;'s &stream-element-type; is
-   <literal role="sexp">(&unsigned-byte-type; 8)</literal> or
-   <literal role="sexp">(&signed-byte-type; 8)</literal>.
+  <listitem><simpara>To be called only if &stream-r;'s
+   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns &nil; if <function>gray:stream-read-byte</function> will
    return immediately. Otherwise it returns true.
    </simpara><simpara>The default method calls
@@ -1351,9 +1342,8 @@ N. Gray to X3J13.</para>
  <varlistentry><term><literal
     role="sexp">(<function>stream-read-byte-no-hang</function>
                  &stream-r;)</literal></term>
-  <listitem><simpara>To be called only if &stream-r;'s &stream-element-type; is
-   <literal role="sexp">(&unsigned-byte-type; 8)</literal> or
-   <literal role="sexp">(&signed-byte-type; 8)</literal>.
+  <listitem><simpara>To be called only if &stream-r;'s
+   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns an &integer-class; or &eof-k;, like
    <function>gray:stream-read-byte</function>, if that would return
    immediately.
@@ -2297,8 +2287,7 @@ within Lisp (using &setq; or similar).</simpara>
 <varlistentry id="slot"><term><literal role="sexp">(<function>slot</function>
        &cplace-r; <replaceable>slot-name</replaceable>)</literal></term>
 <listitem><simpara>Struct or union component: If &cplace-r; is of
-  foreign type <literal role="sexp">(&c-struct;
-  <replaceable>class</replaceable>
+  foreign type <literal role="sexp">(&c-struct; &class-r;
   ... (<replaceable>slot-name</replaceable> &ctype-r;) ...)</literal> or
   of type <literal role="sexp">(&c-union;
   ... (<replaceable>slot-name</replaceable> &ctype-r;) ...)</literal>,
@@ -2390,25 +2379,19 @@ within Lisp (using &setq; or similar).</simpara>
    <entry><type>long</type></entry></row>
 <row><entry><type>ulong</type></entry><entry>&integer-class;</entry>
    <entry><type>unsigned long</type></entry></row>
-<row><entry><type>uint8</type></entry>
-   <entry><literal role="sexp">(&unsigned-byte-type; 8)</literal></entry>
+<row><entry><type>uint8</type></entry><entry>&unsigned-byte-8;</entry>
    <entry><type>uint8</type></entry><entry><type>BYTE</type></entry></row>
-<row><entry><type>sint8</type></entry>
-   <entry><literal role="sexp">(&signed-byte-type; 8)</literal></entry>
+<row><entry><type>sint8</type></entry><entry>&signed-byte-8;</entry>
    <entry><type>sint8</type></entry></row>
-<row><entry><type>uint16</type></entry>
-   <entry><literal role="sexp">(&unsigned-byte-type; 16)</literal></entry>
+<row><entry><type>uint16</type></entry><entry>&unsigned-byte-16;</entry>
    <entry><type>uint16</type></entry>
    <entry><type>SHORT CARDINAL</type></entry></row>
-<row><entry><type>sint16</type></entry>
-   <entry><literal role="sexp">(&signed-byte-type; 16)</literal></entry>
+<row><entry><type>sint16</type></entry><entry>&signed-byte-16;</entry>
    <entry><type>sint16</type></entry>
    <entry><type>SHORT INTEGER</type></entry></row>
-<row><entry><type>uint32</type></entry>
-   <entry><literal role="sexp">(&unsigned-byte-type; 32)</literal></entry>
+<row><entry><type>uint32</type></entry><entry>&unsigned-byte-32;</entry>
    <entry><type>uint32</type></entry><entry><type>CARDINAL</type></entry></row>
-<row><entry><type>sint32</type></entry>
-   <entry><literal role="sexp">(&signed-byte-type; 32)</literal></entry>
+<row><entry><type>sint32</type></entry><entry>&signed-byte-32;</entry>
    <entry><type>sint32</type></entry><entry><type>INTEGER</type></entry></row>
 <row><entry><type>uint64</type></entry>
    <entry><literal role="sexp">(&unsigned-byte-type; 64)</literal></entry>
@@ -2435,8 +2418,8 @@ within Lisp (using &setq; or similar).</simpara>
   a string, without the trailing zero character.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="c-struct"><term><literal role="sexp">(<type>c-struct</type>
-     <replaceable>class</replaceable>
+<varlistentry id="c-struct"><term><literal
+     role="sexp">(<type>c-struct</type> &class-r;
   (<replaceable>ident&sub-1;</replaceable>
    <replaceable>c-type&sub-1;</replaceable>) ...
   (<replaceable>ident&sub-n;</replaceable>
@@ -2446,12 +2429,10 @@ within Lisp (using &setq; or similar).</simpara>
  <replaceable>ident&sub-1;</replaceable>; ...;
  <replaceable>c-type&sub-n;</replaceable>
  <replaceable>ident&sub-n;</replaceable>; }</type>.
- Its Lisp equivalent is: if <replaceable>class</replaceable> is
- &vector-class;, a &simple-vector-type;; if
- <replaceable>class</replaceable> is &list-class;, a list; if
- <replaceable>class</replaceable> is a symbol naming a structure or
- &clos; class, an instance of this class, with slots of names
- <replaceable>ident&sub-1;</replaceable>,
+ Its Lisp equivalent is: if &class-r; is &vector-class;, a
+ &simple-vector-type;; if &class-r; is &list-class;, a list; if
+ &class-r; is a symbol naming a structure or &clos; class, an instance
+ of this class, with slots of names <replaceable>ident&sub-1;</replaceable>,
  ... ,<replaceable>ident&sub-n;</replaceable>.
  </simpara></listitem></varlistentry>
 
@@ -3112,8 +3093,7 @@ offset for structure references) and returns the given type.</para>
 
 <para><function>mem-write</function> writes an arbitrary
 address. <function>mem-write-vector</function> copies the content of a
-Lisp &string-class; or &unsigned-byte-type; &vector-class; into
-memory.</para>
+Lisp &string-class; or &unsigned-byte-vec; into memory.</para>
 
 <para><function>nzero-pointer-p</function> tests for
 non-&c-NULL; pointers in all recognized representations
@@ -3157,23 +3137,17 @@ classes.</para>
  <entry>&c-lang; equivalent</entry><entry>Comment</entry></row></thead><tbody>
 <row><entry>&nil;</entry><entry>&nil;</entry><entry><type>void</type></entry>
   <entry>as a result type for functions only</entry></row>
-<row><entry><type>4</type></entry>
-  <entry><literal role="sexp">(&unsigned-byte-type; 32)</literal></entry>
+<row><entry><type>4</type></entry><entry>&unsigned-byte-32;</entry>
   <entry><type>unsigned long</type></entry><entry/></row>
-<row><entry><type>2</type></entry>
-  <entry><literal role="sexp">(&unsigned-byte-type; 16)</literal></entry>
+<row><entry><type>2</type></entry><entry>&unsigned-byte-16;</entry>
   <entry><type>unsigned short</type></entry><entry/></row>
-<row><entry><type>1</type></entry>
-  <entry><literal role="sexp">(&unsigned-byte-type; 8)</literal></entry>
+<row><entry><type>1</type></entry><entry>&unsigned-byte-8;</entry>
   <entry><type>unsigned char</type></entry><entry/></row>
-<row><entry><type>-4</type></entry>
-  <entry><literal role="sexp">(&signed-byte-type; 32)</literal></entry>
+<row><entry><type>-4</type></entry><entry>&signed-byte-32;</entry>
   <entry><type>long</type></entry><entry/></row>
-<row><entry><type>-2</type></entry>
-  <entry><literal role="sexp">(&signed-byte-type; 16)</literal></entry>
+<row><entry><type>-2</type></entry><entry>&signed-byte-16;</entry>
   <entry><type>short</type></entry><entry/></row>
-<row><entry><type>-1</type></entry>
-  <entry><literal role="sexp">(&signed-byte-type; 8)</literal></entry>
+<row><entry><type>-1</type></entry><entry>&signed-byte-8;</entry>
   <entry><type>signed char</type></entry><entry/></row>
 <row><entry><type>0</type></entry><entry>&boolean-type;</entry>
   <entry><type>BOOL</type></entry>
@@ -3233,15 +3207,15 @@ argument register numbers, where d0 has number <function>1</function>
 and a6 number <function>#xF</function>.  A &nil; mask is reserved for
 stack-based calls (unimplemented).</para>
 
-<para>The &affi-pac; type <function>0</function> is only acceptable as a
+<para>The &affi-pac; type <literal>0</literal> is only acceptable as a
 function result type and yields either &t; or &nil;. The difference
 between <function>*</function> and &external-k; is the following:
 <function>*</function> uses integers, &external-k; uses
 &foreign-pointer; as function result-type (except from &nil; for a
 &c-NULL; pointer) and refuses objects of type &string-class; or
-&unsigned-byte-type; &vector-class; as input.  Thus &external-k;
-provides some security on the input and the ability to use &finalize;
-for resource-tracking on the output side.</para>
+&unsigned-byte-vec; as input.  Thus &external-k; provides some security
+on the input and the ability to use &finalize; for resource-tracking on
+the output side.</para>
 
 <para><literal role="sexp">(declare-library-function &name-r;
  <replaceable>library-name</replaceable> {&option-r;}*)</literal>
@@ -3281,9 +3255,9 @@ inlined.</para>
 <replaceable>offset</replaceable>)</literal> can read 8, 16 and 32 bit
 signed or unsigned integers (&affi-pac; types <type>-4</type>,
 <type>-2</type>, <type>-1</type>, <type>1</type>, <type>2</type>,
-<type>4</type>), a pointer (<type>*</type>), a &c-NULL;-terminated string
-(<type>string</type>) or, if the type argument is of type &string-class;
-or &unsigned-byte-type; &vector-class;, it can fill this vector.
+<type>4</type>), a pointer (<type>*</type>), a &c-NULL;-terminated
+string (<type>string</type>) or, if the type argument is of type
+&string-class; or &unsigned-byte-vec;, it can fill this vector.
 &external-k; is not an acceptable type as no object can be created by
 using <function>affi:mem-read</function>.</para>
 
@@ -3297,8 +3271,7 @@ type <type>-4</type>, <type>-2</type>, <type>-1</type>, <type>1</type>,
 <para><literal role="sexp">(affi:mem-write-vector
 <replaceable>address</replaceable> <replaceable>vector</replaceable>
 [<replaceable>offset</replaceable>])</literal> can write memory from the
-given vector (of type &string-class; or &unsigned-byte-type;
-&vector-class;).</para>
+given vector (of type &string-class; or &unsigned-byte-vec;).</para>
 
 </section>
 

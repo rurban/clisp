@@ -127,6 +127,7 @@
 <!ENTITY pr-closure "<link linkend='pr-closure'><varname>CUSTOM:*PRINT-CLOSURE*</varname></link>">
 <!ENTITY pr-indent "<link linkend='pr-indent'><varname>CUSTOM:*PRINT-INDENT-LISTS*</varname></link>">
 <!ENTITY pr-rpars "<link linkend='pr-rpars'><varname>CUSTOM:*PRINT-RPARS*</varname></link>">
+<!ENTITY rcwhp "<link linkend='rcwhp'><function>EXT:READ-CHAR-WILL-HANG-P</function></link>">
 <!ENTITY re-export "<link linkend='re-export'><function>EXT:RE-EXPORT</function></link>">
 <!ENTITY re-match "<link linkend='re-match'><function>REGEXP:MATCH</function></link>">
 <!ENTITY re-match-start "<link linkend='re-match-start'><function>REGEXP:MATCH-START</function></link>">
@@ -212,6 +213,7 @@
 <!ENTITY body-r "<replaceable>body</replaceable>">
 <!ENTITY c-r "<replaceable>c</replaceable>">
 <!ENTITY case-sensitive-r "<replaceable>case-sensitive</replaceable>">
+<!ENTITY class-r "<replaceable>class</replaceable>">
 <!ENTITY cname-r "<replaceable>c-name</replaceable>">
 <!ENTITY cplace-r "<replaceable>c-place</replaceable>">
 <!ENTITY ctype-r "<replaceable>c-type</replaceable>">
@@ -219,8 +221,11 @@
 <!ENTITY declaration-r "<replaceable>declaration</replaceable>">
 <!ENTITY digits-r "<replaceable>digits</replaceable>">
 <!ENTITY eltype-r "<replaceable>element-type</replaceable>">
+<!ENTITY encoding-r "<replaceable>encoding</replaceable>">
 <!ENTITY end-r "<replaceable>end</replaceable>">
 <!ENTITY env-r "<replaceable>env</replaceable>">
+<!ENTITY eof-ep "<replaceable>eof-error-p</replaceable>">
+<!ENTITY eof-v "<replaceable>eof-value</replaceable>">
 <!ENTITY f-r "<replaceable>f</replaceable>">
 <!ENTITY filename-r "<replaceable>filename</replaceable>">
 <!ENTITY func-r "<replaceable>function</replaceable>">
@@ -282,3 +287,14 @@
 <!ENTITY fasl-file "<filename>fas</filename>">
 <!ENTITY lisp-file "<filename>lisp</filename>">
 <!ENTITY mem-file "<filename>mem</filename>">
+
+<!-- *** shortcuts *** -->
+<!ENTITY signed-byte-8 "<literal role='type'>(&signed-byte-type; 8)</literal>">
+<!ENTITY unsigned-byte-8 "<literal role='type'>(&unsigned-byte-type; 8)</literal>">
+<!ENTITY signed-byte-16 "<literal role='type'>(&signed-byte-type; 16)</literal>">
+<!ENTITY unsigned-byte-16 "<literal role='type'>(&unsigned-byte-type; 16)</literal>">
+<!ENTITY signed-byte-32 "<literal role='type'>(&signed-byte-type; 32)</literal>">
+<!ENTITY unsigned-byte-32 "<literal role='type'>(&unsigned-byte-type; 32)</literal>">
+<!ENTITY signed-byte-n "<literal role='type'>(&signed-byte-type; &n-r;)</literal>">
+<!ENTITY unsigned-byte-n "<literal role='type'>(&unsigned-byte-type; &n-r;)</literal>">
+<!ENTITY unsigned-byte-vec "<literal role='type'>(&vector-class; (&unsigned-byte-type; 8))</literal>">
