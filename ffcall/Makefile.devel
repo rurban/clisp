@@ -46,25 +46,25 @@ AUTOCONF_FILES = autoconf/aclocal.m4
 AUTOCONF = autoconf
 
 configure : configure.in $(AUTOCONF_FILES)
-	$(AUTOCONF) --include autoconf
+	$(AUTOCONF) --include=autoconf
 
 avcall/configure : avcall/configure.in $(AUTOCONF_FILES)
-	cd avcall ; $(AUTOCONF) --include ../autoconf
+	cd avcall ; $(AUTOCONF) --include=../autoconf
 
 vacall/configure : vacall/configure.in $(AUTOCONF_FILES)
-	cd vacall ; $(AUTOCONF) --include ../autoconf
+	cd vacall ; $(AUTOCONF) --include=../autoconf
 
 trampoline/configure : trampoline/configure.in $(AUTOCONF_FILES)
-	cd trampoline ; $(AUTOCONF) --include ../autoconf
+	cd trampoline ; $(AUTOCONF) --include=../autoconf
 
 callback/configure : callback/configure.in $(AUTOCONF_FILES)
-	cd callback ; $(AUTOCONF) --include ../autoconf
+	cd callback ; $(AUTOCONF) --include=../autoconf
 
 callback/vacall_r/configure : callback/vacall_r/configure.in $(AUTOCONF_FILES)
-	cd callback/vacall_r ; $(AUTOCONF) --include ../../autoconf
+	cd callback/vacall_r ; $(AUTOCONF) --include=../../autoconf
 
 callback/trampoline_r/configure : callback/trampoline_r/configure.in $(AUTOCONF_FILES)
-	cd callback/trampoline_r ; $(AUTOCONF) --include ../../autoconf
+	cd callback/trampoline_r ; $(AUTOCONF) --include=../../autoconf
 
 check-configures : $(CONFIGURES)
 	set -e; for f in $(CONFIGURES); do bash -x -n $$f; done

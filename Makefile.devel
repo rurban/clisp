@@ -156,13 +156,13 @@ AUTOCONF_CACHE = autom4te.cache
 AUTOHEADER = autoheader
 
 %/configure : %/configure.in $(AUTOCONF_FILES)
-	cd $*; $(AUTOCONF) --include $(CURDIR)/src/autoconf
+	cd $*; $(AUTOCONF) --include=$(CURDIR)/src/autoconf
 
 %/config.h.in : %/configure.in $(AUTOCONF_FILES)
-	cd $*; $(AUTOHEADER) --include $(CURDIR)/src/autoconf
+	cd $*; $(AUTOHEADER) --include=$(CURDIR)/src/autoconf
 
 src/unixconf.h.in : src/configure.in $(AUTOCONF_FILES)
-	cd src ; $(AUTOHEADER) --include autoconf
+	cd src ; $(AUTOHEADER) --include=autoconf
 
 ffcall/autoconf/aclocal.m4 : src/autoconf/aclocal.m4
 	cd ffcall ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
