@@ -812,8 +812,24 @@ is the same as
 
 
 <chapter id="iteration"><title>Iteration
-   <ulink url="&clhs;/Body/chap-6.html">[CLHS-6]</ulink></title>
-<para>No notes.</para>
+  <ulink url="&clhs;/Body/chap-6.html">[CLHS-6]</ulink></title>
+
+<section id="loop"><title>The LOOP Facility
+  <ulink url="&clhs;/Body/sec_6-1.html">[CLHS-6.1]</ulink></title>
+
+<section id="loop-inter-var-finally">
+ <title>Iteration variables in the loop epilogue.</title>
+
+<para>The standard is unambiguous in that the iteration variables do
+ still exist in the &finally; clause, but &not-e; as to what values
+ these variables might have.
+ Therefore the code which relies on the values of such variables, e.g
+ <programlisting>(loop for x on y finally (return x))</programlisting>
+ is inherrently non-portable across &cl; implementations,
+ and should be avoided.</para>
+
+</section>
+</section>
 </chapter>
 
 <chapter id="objects"><title>Objects
