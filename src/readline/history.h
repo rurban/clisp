@@ -23,9 +23,15 @@
 #define _HISTORY_H_
 
 #if defined (READLINE_LIBRARY)
-#  include "ansi_proto.h"
+#  include "rlstdc.h"
 #else
-#  include <readline/ansi_proto.h>
+#  include <readline/rlstdc.h>
+#endif
+
+#if defined READLINE_LIBRARY
+#  include "rlstdc.h"
+#else
+#  include <readline/rlstdc.h>
 #endif
 
 #if !defined (_FUNCTION_DEF)
@@ -36,10 +42,16 @@ typedef char *CPFunction ();
 typedef char **CPPFunction ();
 #endif
 
+#ifdef __STDC__
+typedef void *histdata_t;
+#else
+typedef char *histdata_t;
+#endif
+
 /* The structure used to store a history entry. */
 typedef struct _hist_entry {
   char *line;
-  void *data;
+  histdata_t data;
 } HIST_ENTRY;
 
 /* A structure used to pass the current state of the history stuff around. */
@@ -80,7 +92,7 @@ extern HIST_ENTRY *remove_history _PROTO((int which));
 /* Make the history entry at WHICH have LINE and DATA.  This returns
    the old entry so you can dispose of the data.  In the case of an
    invalid WHICH, a NULL pointer is returned. */
-extern HIST_ENTRY *replace_history_entry _PROTO((int which, char *line, void *data));
+extern HIST_ENTRY *replace_history_entry _PROTO((int which, char *line, histdata_t data));
 
 /* Clear the history list and start over. */
 extern void clear_history _PROTO((void));
@@ -145,7 +157,8 @@ extern HIST_ENTRY *next_history _PROTO((void));
 extern int history_search _PROTO((char *string, int direction));
 
 /* Search the history for STRING, starting at history_offset.
-   The search is anchored: matching lines must begin with string. */
+   The search is anchored: matching lines must begin with string.
+   DIRECTION is as in history_search(). */
 extern int history_search_prefix _PROTO((char *string, int direction));
 
 /* Search for STRING in the history list, starting at POS, an
@@ -203,7 +216,11 @@ extern int history_expand _PROTO((char *hstring, char **output));
 extern char *history_arg_extract _PROTO((int first, int last, char *string));
 
 /* Return the text of the history event beginning at the current
-   offset into STRING. */
+   offset into STRING.  Pass STRING with *INDEX equal to the
+   history_expansion_char that begins this specification.
+   DELIMITING_QUOTE is a character that is allowed to end the string
+   specification for what to search for in addition to the normal
+   characters `:', ` ', `\t', `\n', and sometimes `?'. */
 extern char *get_history_event _PROTO((char *string, int *caller_index, int delimiting_quote));
 
 /* Return an array of tokens, much as the shell might.  The tokens are

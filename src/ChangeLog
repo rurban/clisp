@@ -1,3 +1,8 @@
+1999-03-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * readline/: Upgrade to readline-4.0.
+        * configure: Also copy readline/shlib/.
+
 1999-03-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * genclisph.d (main): Modify immediate_number_p, charp, integerp,

@@ -58,9 +58,8 @@
 #include "readline.h"
 #include "history.h"
 
-#ifndef RL_LIBRARY_VERSION
-#  define RL_LIBRARY_VERSION "2.2-clisp"
-#endif
+#undef RL_LIBRARY_VERSION
+#define RL_LIBRARY_VERSION "4.0-clisp"
 
 /* Evaluates its arguments multiple times. */
 #define SWAP(s, e)  do { int t; t = s; s = e; e = t; } while (0)
@@ -167,8 +166,13 @@ int rl_already_prompted = 0;
 int rl_key_sequence_length = 0;
 
 /* If non-zero, then this is the address of a function to call just
-   before readline_internal () prints the first prompt. */
+   before readline_internal_setup () prints the first prompt. */
 Function *rl_startup_hook = (Function *)NULL;
+
+/* If non-zero, this is the address of a function to call just before
+   readline_internal_setup () returns and readline_internal starts
+   reading input characters. */
+Function *rl_pre_input_hook = (Function *)NULL;
 
 /* What we use internally.  You should always refer to RL_LINE_BUFFER. */
 static char *the_line;
@@ -199,6 +203,9 @@ char *_rl_comment_begin;
 
 /* Keymap holding the function currently being executed. */
 Keymap rl_executing_keymap;
+
+/* Non-zero means to erase entire line, including prompt, on empty input lines. */
+int rl_erase_empty_line = 0;
 
 /* Line buffer and maintenence. */
 char *rl_line_buffer = (char *)NULL;
@@ -312,6 +319,9 @@ readline_internal_setup ()
 	rl_vi_insertion_mode (1, 0);
 #endif /* VI_MODE */
     }
+
+  if (rl_pre_input_hook)
+    (*rl_pre_input_hook) ();
 }
 
 STATIC_CALLBACK char *
@@ -329,7 +339,7 @@ readline_internal_teardown (eof)
     {
       temp = savestring (the_line);
       rl_revert_line (1, 0);
-      entry = replace_history_entry (where_history (), the_line, (HIST_ENTRY *)NULL);
+      entry = replace_history_entry (where_history (), the_line, (histdata_t)NULL);
       _rl_free_history_entry (entry);
 
       strcpy (the_line, temp);
@@ -412,6 +422,12 @@ readline_internal_charloop ()
       if (rl_done == 0)
 	(*rl_redisplay_function) ();
 
+      /* If the application writer has told us to erase the entire line if
+	  the only character typed was something bound to rl_newline, do so. */
+      if (rl_erase_empty_line && rl_done && rl_last_func == rl_newline &&
+	  rl_point == 0 && rl_end == 0)
+	_rl_erase_entire_line ();
+
 #if defined (READLINE_CALLBACKS)
       return 0;
 #else
@@ -440,7 +456,7 @@ readline_internal_charloop ()
 static char *
 readline_internal ()
 {
-  int eof;
+  int eof = 1;
 
   readline_internal_setup ();
   eof = readline_internal_charloop ();
@@ -733,11 +749,19 @@ rl_digit_loop ()
 {
   int key, c, sawminus, sawdigits;
 
-  _rl_save_prompt ();
+  rl_save_prompt ();
 
   sawminus = sawdigits = 0;
   while (1)
     {
+      if (rl_numeric_arg > 1000000)
+	{
+	  sawdigits = rl_explicit_arg = rl_numeric_arg = 0;
+	  ding ();
+	  rl_restore_prompt ();
+	  rl_clear_message ();
+	  return 1;
+	}
       rl_message ("(arg: %d) ", rl_arg_sign * rl_numeric_arg);
       key = c = rl_read_key ();
 
@@ -754,7 +778,7 @@ rl_digit_loop ()
 	  else
 	    {
 	      key = rl_read_key ();
-	      _rl_restore_prompt ();
+	      rl_restore_prompt ();
 	      rl_clear_message ();
 	      return (_rl_dispatch (key, _rl_keymap));
 	    }
@@ -777,7 +801,7 @@ rl_digit_loop ()
 	  /* Make M-- command equivalent to M--1 command. */
 	  if (sawminus && rl_numeric_arg == 1 && rl_explicit_arg == 0)
 	    rl_explicit_arg = 1;
-	  _rl_restore_prompt ();
+	  rl_restore_prompt ();
 	  rl_clear_message ();
 	  return (_rl_dispatch (key, _rl_keymap));
 	}
@@ -1127,7 +1151,8 @@ rl_backward_word (count, key)
 
 /* Clear the current line.  Numeric argument to C-l does this. */
 int
-rl_refresh_line ()
+rl_refresh_line (ignore1, ignore2)
+     int ignore1, ignore2;
 {
   int curr_line, nleft;
 
@@ -1174,7 +1199,7 @@ rl_clear_screen (count, key)
 {
   if (rl_explicit_arg)
     {
-      rl_refresh_line ();
+      rl_refresh_line (count, key);
       return 0;
     }
 
@@ -1324,6 +1349,11 @@ rl_newline (count, key)
     }
 #endif /* VI_MODE */
 
+  /* If we've been asked to erase empty lines, suppress the final update,
+     since _rl_update_final calls crlf(). */
+  if (rl_erase_empty_line && rl_point == 0 && rl_end == 0)
+    return 0;
+
   if (readline_echoing_p)
     _rl_update_final ();
   return 0;
@@ -1403,8 +1433,21 @@ rl_delete (count, key)
     }
   else
     return (rl_delete_text (rl_point, rl_point + 1));
-  
 }
+
+/* Delete the character under the cursor, unless the insertion
+   point is at the end of the line, in which case the character
+   behind the cursor is deleted.  COUNT is obeyed and may be used
+   to delete forward or backward that many characters. */      
+int
+rl_rubout_or_delete (count, key)
+     int count, key;
+{
+  if (rl_end != 0 && rl_point == rl_end)
+    return (rl_rubout (count, key));
+  else
+    return (rl_delete (count, key));
+}  
 
 /* Delete all spaces and tabs around point. */
 int
@@ -1427,6 +1470,19 @@ rl_delete_horizontal_space (count, ignore)
       rl_point = start;
     }
   return 0;
+}
+
+/* Like the tcsh editing function delete-char-or-list.  The eof character
+   is caught before this is invoked, so this really does the same thing as
+   delete-char-or-list-or-eof, as long as it's bound to the eof character. */
+int
+rl_delete_or_show_completions (count, key)
+     int count, key;
+{
+  if (rl_end != 0 && rl_point == rl_end)
+    return (rl_possible_completions (count, key));
+  else
+    return (rl_delete (count, key));
 }
 
 #ifndef RL_COMMENT_BEGIN_DEFAULT
@@ -1753,7 +1809,7 @@ maybe_replace_line ()
   /* If the current line has changed, save the changes. */
   if (temp && ((UNDO_LIST *)(temp->data) != rl_undo_list))
     {
-      temp = replace_history_entry (where_history (), the_line, rl_undo_list);
+      temp = replace_history_entry (where_history (), the_line, (histdata_t)rl_undo_list);
       free (temp->line);
       free (temp);
     }

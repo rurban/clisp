@@ -24,9 +24,9 @@
 #define _XMALLOC_H_
 
 #if defined (READLINE_LIBRARY)
-#  include "ansi_proto.h"
+#  include "rlstdc.h"
 #else
-#  include <readline/ansi_proto.h>
+#  include <readline/rlstdc.h>
 #endif
 
 extern char *xmalloc _PROTO((int bytes));

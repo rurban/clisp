@@ -1,3 +1,7 @@
+1999-03-06  Bruno Haible  <linuix.math.u-bordeaux.fr>
+
+        Upgrade to readline-4.0.
+
 1999-02-25  Bruno Haible  <linuix.math.u-bordeaux.fr>
 
         * readline.h (rl_completion_entry_function): Change type to
