@@ -3,6 +3,7 @@
 	* spvw.d (main): reset `argv_for' to `for_exec' after processing
 	the non-option argument so that "-i" will not disable scripting
 	Reported by VAUCHER L Ext SIRES <lvaucher.ext@francetelecom.com>
+	* clisp-link.in: properly intersperse "-i" in TO_LOAD and TO_PRELOAD
 
 2004-06-28  Sam Steingold  <sds@gnu.org>
 
