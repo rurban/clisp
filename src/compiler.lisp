@@ -8583,20 +8583,22 @@ der Docstring (oder NIL).
   ; Give a warning for the common error of forgotten destination.
   (let ((destination (second *form*)))
     (when (c-constantp destination)
-      (let ((destination (c-constant-value destination)))
-        (unless (or (null destination) (eq destination 'T)
-                    (streamp destination)
-                    (and (stringp destination)
-                         (array-has-fill-pointer-p destination)))
-          (c-error (ENGLISH "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S")
-                   (car *form*) destination)))))
-  (if (and (stringp (third *form*)) (not (fenv-search 'FORMATTER)))
-    ; Format-String zur Compile-Zeit vorkompilieren.
-    (c-GLOBAL-FUNCTION-CALL-form
-      `(FORMAT ,(second *form*) (FORMATTER ,(third *form*)) ,@(cdddr *form*))
-    )
-    (c-GLOBAL-FUNCTION-CALL 'FORMAT)
-) )
+      (setq destination (c-constant-value destination))
+      (unless (or (null destination) (eq destination 'T)
+                  (streamp destination)
+                  (and (stringp destination)
+                       (array-has-fill-pointer-p destination)))
+        (c-error (ENGLISH "The ~S destination is invalid (not NIL or T or a stream or a string with fill-pointer): ~S")
+                 (car *form*) destination)))
+    (if (and (stringp (third *form*)) (not (fenv-search 'FORMATTER)))
+      ;; precompile the format-string at compile-time.
+      (if (eq destination t)    ; avoid calling FORMAT altogether
+        (c-global-function-call-form
+         `(funcall (FORMATTER ,(third *form*)) nil ,@(cdddr *form*)))
+        (c-GLOBAL-FUNCTION-CALL-form
+         `(FORMAT ,(second *form*) (FORMATTER ,(third *form*))
+           ,@(cdddr *form*))))
+      (c-GLOBAL-FUNCTION-CALL 'FORMAT))))
 
 ;; c-REMOVE-IF, c-REMOVE-IF-NOT usw.
 (macrolet ((c-seqop (op n)
