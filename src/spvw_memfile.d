@@ -1478,6 +1478,21 @@ local void loadmem_from_handle (Handle handle, const char* filename)
  #ifdef GENERATIONAL_GC
   O(gc_count) = Fixnum_0;  /* so far no GCs: */
  #endif
+  { # Initialize markwatchset:
+    var uintL need = 0;
+    var object L;
+    for (L = O(all_weakpointers);
+         !eq(L,Fixnum_0);
+         L = ((Weakpointer)TheRecord(L))->wp_cdr)
+      need += 1 + max_watchset_count(L);
+    if (need > 0) {
+      markwatchset_allocated = markwatchset_size = need;
+      begin_system_call();
+      markwatchset = (markwatch_t*)malloc(markwatchset_allocated*sizeof(markwatch_t));
+      end_system_call();
+      if (markwatchset==NULL) goto abort3;
+    }
+  }
  #ifdef MACHINE_KNOWN
   /* declare (MACHINE-TYPE), (MACHINE-VERSION), (MACHINE-INSTANCE)
      as unknown again: */

@@ -3981,6 +3981,9 @@ typedef xrecord_ *  Xrecord;
          Rectype_Ffunction,
          #endif
          Rectype_Weakpointer,
+         Rectype_MutableWeakList,
+         Rectype_MutableWeakAlist,
+         Rectype_Weakmapping,
          Rectype_Finalizer,
          #ifdef SOCKET_STREAMS
          Rectype_Socket_Server,
@@ -3989,6 +3992,15 @@ typedef xrecord_ *  Xrecord;
          Rectype_Yetanother,
          #endif
            rectype_longlimit, # Here is the limit between Srecord/Xrecord and Lrecord.
+         Rectype_WeakList,
+         Rectype_WeakAnd,
+         Rectype_WeakOr,
+         Rectype_WeakAndMapping,
+         Rectype_WeakOrMapping,
+         Rectype_WeakAlist_Key,
+         Rectype_WeakAlist_Value,
+         Rectype_WeakAlist_Either,
+         Rectype_WeakAlist_Both,
          Rectype_WeakKVT,
          rectype_for_broken_compilers_that_dont_like_trailing_commas
        };
@@ -4970,6 +4982,79 @@ typedef struct {
 #define weakpointer_length  ((sizeof(*(Weakpointer)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 #define weakpointer_broken_p(wp) (!boundp(TheWeakpointer(wp)->wp_value))
 
+# weak list
+typedef struct {
+  LRECORD_HEADER
+  gcv_object_t wp_cdr                   _attribute_aligned_object_; # active weak-pointers form a chained list
+  gcv_object_t wl_count                 _attribute_aligned_object_; # remaining objects
+  gcv_object_t wl_elements[unspecified] _attribute_aligned_object_; # the referenced objects
+} * WeakList;
+
+# mutable weak list
+typedef struct {
+  XRECORD_HEADER
+  gcv_object_t mwl_list _attribute_aligned_object_;
+} * MutableWeakList;
+#define mutableweaklist_length  ((sizeof(*(MutableWeakList)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
+
+# weak "and" relation
+typedef struct {
+  LRECORD_HEADER
+  gcv_object_t wp_cdr                _attribute_aligned_object_; # active weak-pointers form a chained list
+  gcv_object_t war_keys_list         _attribute_aligned_object_; # list to copy the keys into
+  gcv_object_t war_keys[unspecified] _attribute_aligned_object_; # the referenced objects
+} * WeakAnd;
+
+# weak "or" relation
+typedef struct {
+  LRECORD_HEADER
+  gcv_object_t wp_cdr                _attribute_aligned_object_; # active weak-pointers form a chained list
+  gcv_object_t wor_keys_list         _attribute_aligned_object_; # list to copy the keys into
+  gcv_object_t wor_keys[unspecified] _attribute_aligned_object_; # the referenced objects
+} * WeakOr;
+
+# weak mapping
+typedef struct {
+  XRECORD_HEADER
+  gcv_object_t wp_cdr   _attribute_aligned_object_; # active weak-pointers form a chained list
+  gcv_object_t wm_value _attribute_aligned_object_; # the dependent referenced object
+  gcv_object_t wm_key   _attribute_aligned_object_; # the weak referenced object
+} * Weakmapping;
+#define weakmapping_length  ((sizeof(*(Weakmapping)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
+
+# weak "and" mapping
+typedef struct {
+  LRECORD_HEADER
+  gcv_object_t wp_cdr                _attribute_aligned_object_; # active weak-pointers form a chained list
+  gcv_object_t wam_value             _attribute_aligned_object_; # the dependent referenced object
+  gcv_object_t wam_keys_list         _attribute_aligned_object_; # list to copy the keys into
+  gcv_object_t wam_keys[unspecified] _attribute_aligned_object_; # the referenced objects
+} * WeakAndMapping;
+
+# weak "or" mapping
+typedef struct {
+  LRECORD_HEADER
+  gcv_object_t wp_cdr                _attribute_aligned_object_; # active weak-pointers form a chained list
+  gcv_object_t wom_value             _attribute_aligned_object_; # the dependent referenced object
+  gcv_object_t wom_keys_list         _attribute_aligned_object_; # list to copy the keys into
+  gcv_object_t wom_keys[unspecified] _attribute_aligned_object_; # the referenced objects
+} * WeakOrMapping;
+
+# weak alist (rectype = Rectype_WeakAlist_{Key,Value,Either,Both})
+typedef struct {
+  LRECORD_HEADER
+  gcv_object_t wp_cdr                _attribute_aligned_object_; # active weak-pointers form a chained list
+  gcv_object_t wal_count             _attribute_aligned_object_; # remaining pairs
+  gcv_object_t wal_data[unspecified] _attribute_aligned_object_; # key, value alternating
+} * WeakAlist;
+
+# mutable weak alist
+typedef struct {
+  XRECORD_HEADER
+  gcv_object_t mwal_list _attribute_aligned_object_;
+} * MutableWeakAlist;
+#define mutableweakalist_length  ((sizeof(*(MutableWeakAlist)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
+
 # weak key-value table for weak hashtables
 typedef struct {
   VRECORD_HEADER
@@ -5662,6 +5747,15 @@ typedef enum {
   #define TheFfunction(obj)  ((Ffunction)(type_pointable(orecord_type,obj)))
   #endif
   #define TheWeakpointer(obj)  ((Weakpointer)(type_pointable(orecord_type,obj)))
+  #define TheMutableWeakList(obj)  ((MutableWeakList)(type_pointable(orecord_type,obj)))
+  #define TheWeakList(obj)  ((WeakList)(type_pointable(lrecord_type,obj)))
+  #define TheWeakAnd(obj)  ((WeakAnd)(type_pointable(lrecord_type,obj)))
+  #define TheWeakOr(obj)  ((WeakOr)(type_pointable(lrecord_type,obj)))
+  #define TheWeakmapping(obj)  ((Weakmapping)(type_pointable(orecord_type,obj)))
+  #define TheWeakAndMapping(obj)  ((WeakAndMapping)(type_pointable(lrecord_type,obj)))
+  #define TheWeakOrMapping(obj)  ((WeakOrMapping)(type_pointable(lrecord_type,obj)))
+  #define TheMutableWeakAlist(obj)  ((MutableWeakAlist)(type_pointable(orecord_type,obj)))
+  #define TheWeakAlist(obj)  ((WeakAlist)(type_pointable(lrecord_type,obj)))
   #define TheFinalizer(obj)  ((Finalizer)(type_pointable(orecord_type,obj)))
   #ifdef SOCKET_STREAMS
   #define TheSocketServer(obj) ((Socket_server)(type_pointable(orecord_type,obj)))
@@ -5808,6 +5902,15 @@ typedef enum {
   #define TheFfunction(obj)  ((Ffunction)(ngci_pointable(obj)-varobject_bias))
   #endif
   #define TheWeakpointer(obj)  ((Weakpointer)(ngci_pointable(obj)-varobject_bias))
+  #define TheMutableWeakList(obj)  ((MutableWeakList)(ngci_pointable(obj)-varobject_bias))
+  #define TheWeakList(obj)  ((WeakList)(ngci_pointable(obj)-varobject_bias))
+  #define TheWeakAnd(obj)  ((WeakAnd)(ngci_pointable(obj)-varobject_bias))
+  #define TheWeakOr(obj)  ((WeakOr)(ngci_pointable(obj)-varobject_bias))
+  #define TheWeakmapping(obj)  ((Weakmapping)(ngci_pointable(obj)-varobject_bias))
+  #define TheWeakAndMapping(obj)  ((WeakAndMapping)(ngci_pointable(obj)-varobject_bias))
+  #define TheWeakOrMapping(obj)  ((WeakOrMapping)(ngci_pointable(obj)-varobject_bias))
+  #define TheMutableWeakAlist(obj)  ((MutableWeakAlist)(ngci_pointable(obj)-varobject_bias))
+  #define TheWeakAlist(obj)  ((WeakAlist)(ngci_pointable(obj)-varobject_bias))
   #define TheFinalizer(obj)  ((Finalizer)(ngci_pointable(obj)-varobject_bias))
   #ifdef SOCKET_STREAMS
   #define TheSocketServer(obj) ((Socket_server)(ngci_pointable(obj)-varobject_bias))
@@ -5863,14 +5966,18 @@ typedef enum {
   (Record_type(obj) < rectype_limit ? Srecord_length(obj) : Xrecord_length(obj))
 # Likewise, but ignoring weak pointers:
 #define SXrecord_nonweak_length(obj)  \
-  (Record_type(obj) < rectype_limit         \
-   ? Srecord_length(obj)                    \
-   : (Record_type(obj)==Rectype_Weakpointer \
-      ? 0                                   \
+  (Record_type(obj) < rectype_limit              \
+   ? Srecord_length(obj)                         \
+   : ((Record_type(obj)==Rectype_Weakpointer     \
+       || Record_type(obj)==Rectype_Weakmapping) \
+      ? 0                                        \
       : Xrecord_length(obj)))
 # Length of an Lrecord, ignoring weak pointers:
 #define Lrecord_nonweak_length(obj)  \
-  (Record_type(obj)==Rectype_WeakKVT ? 0 : Lrecord_length(obj))
+  ((Record_type(obj) >= Rectype_WeakList    \
+    && Record_type(obj) <= Rectype_WeakKVT) \
+   ? 0                                      \
+   : Lrecord_length(obj))
 # Length (number of objects) of a record, obj has to be a Record:
 #define Record_length(obj)  \
   (Record_type(obj) >= rectype_longlimit \
@@ -8558,6 +8665,12 @@ extern object make_ratio (object num, object den);
 # can trigger GC
 extern object make_complex (object real, object imag);
 # is used by LISPARIT
+
+/* Adds a freshly allocated object to the list of weak pointers.
+ activate_weak(obj);
+ > obj: A fresh but filled object of type Rectype_Weak* */
+extern void activate_weak (object obj);
+# is used by WEAK
 
 # UP: return the length of the ASCIZ-String
 # asciz_length(asciz)
@@ -13024,7 +13137,7 @@ extern void map_sequence (object obj, map_sequence_function_t* fun, void* arg);
 # Error, if both :TEST, :TEST-NOT - argumente have been given.
 # fehler_both_tests();
 nonreturning_function(extern, fehler_both_tests, (void));
-# is used by LIST
+# is used by LIST, SEQUENCE, WEAK
 
 # ###################### STRMBIBL for STREAM.D ############################# #
 

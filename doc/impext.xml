@@ -1438,32 +1438,492 @@ N. Gray to X3J13.</para>
 
 <section id="weak"><title>Extensions-1.6. Weak Pointers</title>
 
+<para>Recall two terms: An object is called "alive" as long as it can be
+ retrieved by the user or program, through any kind of references,
+ starting from global and local variables. (Objects that consume no heap
+ storage, also known as "immediate objects", such as characters, fixnums,
+ and short-floats, are alive indefinitely.) An object is said to be
+ &gc;ed when its storage is reclaimed, at some moment after it becomes
+ "dead".</para>
+
+<section><title>Weak Pointers</title>
+
 <para>A weak pointer is an object holding a reference to a given object,
  without keeping the latter from being &gc;ed.</para>
 
 <variablelist>
-<varlistentry><term><literal
-   role="sexp">(<function>EXT:MAKE-WEAK-POINTER</function>
-   &value-r;)</literal></term>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:MAKE-WEAK-POINTER</function>
+                             &value-r;)</literal></term>
  <listitem><simpara>returns a &fresh; weak pointer referring to
   &value-r;.</simpara></listitem></varlistentry>
-<varlistentry><term><literal
-   role="sexp">(<function>EXT:WEAK-POINTER-P</function>
-   &object-r;)</literal></term>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-POINTER-P</function>
+                             &object-r;)</literal></term>
  <listitem><simpara>returns true if the &object-r; is of type
    &weak-pointer;.</simpara></listitem></varlistentry>
-<varlistentry><term><literal
-    role="sexp">(<function>EXT:WEAK-POINTER-VALUE</function>
-   <replaceable>weak-pointer</replaceable>)</literal></term>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-POINTER-VALUE</function>
+                             <replaceable>weak-pointer</replaceable>)</literal></term>
  <listitem><simpara>returns two values: The original value and &t;,
    if the value has not yet been &gc;ed, else &nil; and &nil;.
    It is &setf;-able: you can change the value that the weak pointer
    points to.</simpara></listitem></varlistentry>
 </variablelist>
 
-<para>&clisp; also has <link linkend="make-hash">weak</link>
- &hash-table-t;.</para>
+<para>Weak pointers are useful for notification based communication protocols
+ between software modules, e.g. when a change to an object A requires a
+ notification to an object B, as long as B is alive.</para>
 
+</section>
+
+<section><title>Weak Lists</title>
+
+<para>A weak list is an ordered collection of references to objects, that
+ doesn't keep the objects from being &gc;ed. It is semantically equivalent
+ to a list of weak pointers, however with a more efficient in-memory
+ representation than a plain list of weak pointers would be.</para>
+
+<variablelist>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:MAKE-WEAK-LIST</function>
+                             <replaceable>list</replaceable>)</literal></term>
+ <listitem><simpara>creates a weak list pointing to each of the elements in
+   the given <replaceable>list</replaceable>.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-LIST-P</function>
+                             &object-r;)</literal></term>
+ <listitem><simpara>returns true if the &object-r; is of type
+   &weak-list;.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-LIST-LIST</function>
+                             <replaceable>weak-list</replaceable>)</literal></term>
+ <listitem><simpara>returns a list of those objects from the
+   <replaceable>weak-list</replaceable> that are still
+   alive.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(setf (<function>EXT:WEAK-LIST-LIST</function>
+                                   <replaceable>weak-list</replaceable>)
+                             <replaceable>list</replaceable>)</literal></term>
+ <listitem><simpara>replaces the list of objects stored by the
+   <replaceable>weak-list</replaceable>.</simpara></listitem></varlistentry>
+</variablelist>
+
+<para>Weak lists are useful for notification based communication protocols
+ between software modules, e.g. when a change to an object A requires a
+ notification to objects B1, B2, ..., as long as such a particular Bi is
+ alive.</para>
+
+<para>A weak list with a single element is semantically equivalent to a single
+ weak pointer.</para>
+
+</section>
+
+<section><title>Weak And-Relations</title>
+
+<para>A weak "and" relation is an ordered collection of references to objects,
+ that doesn't keep the objects from being &gc;ed, and which allows access to
+ all the objects as long as all of them are still alive. As soon as one of
+ them is &gc;ed, the entire collection of objects becomes empty.</para>
+
+<variablelist>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:MAKE-WEAK-AND-RELATION</function>
+                             <replaceable>list</replaceable>)</literal></term>
+ <listitem><simpara>creates a weak "and" relation between the objects in the
+   given <replaceable>list</replaceable>.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-AND-RELATION-P</function>
+                             &object-r;)</literal></term>
+ <listitem><simpara>returns true if the &object-r; is of type
+   &weak-and-relation;.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-AND-RELATION-LIST</function>
+                             <replaceable>weak-and-relation</replaceable>)</literal></term>
+ <listitem><simpara>returns the list of objects stored in the
+   <replaceable>weak-and-relation</replaceable>. The returned list must not
+   be destructively modified.</simpara></listitem></varlistentry>
+</variablelist>
+
+<para>Weak "and" relations are useful to model relations between objects that
+ become worthless when one of the objects dies.</para>
+
+<para>A weak "and" relation with a single element is semantically equivalent
+ to a weak pointer.</para>
+
+</section>
+
+<section><title>Weak Or-Relations</title>
+
+<para>A weak "or" relation is an ordered collection of references to objects,
+ that keeps all objects from being &gc;ed as long as one of them is still
+ alive. In other words, each of them keeps all others among them from being
+ &gc;ed. When all of them are unreferenced, the collection of objects becomes
+ empty.</para>
+
+<variablelist>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:MAKE-WEAK-OR-RELATION</function>
+                             <replaceable>list</replaceable>)</literal></term>
+ <listitem><simpara>creates a weak "or" relation between the objects in the
+   given <replaceable>list</replaceable>.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-OR-RELATION-P</function>
+                             &object-r;)</literal></term>
+ <listitem><simpara>returns true if the &object-r; is of type
+   &weak-or-relation;.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-OR-RELATION-LIST</function>
+                             <replaceable>weak-or-relation</replaceable>)</literal></term>
+ <listitem><simpara>returns the list of objects stored in the
+   <replaceable>weak-or-relation</replaceable>. The returned list must not
+   be destructively modified.</simpara></listitem></varlistentry>
+</variablelist>
+
+<para>Weak "or" relations are useful to model relations between objects that
+ don't become worthless when one of the objects dies.</para>
+
+<para>A weak "or" relation with a single element is semantically equivalent
+ to a weak pointer.</para>
+
+</section>
+
+<section><title>Weak Associations</title>
+
+<para>A weak association is a mapping from an object called "key" to an object
+ called "value", that exists as long as the key is alive. In other words,
+ as long as the key is alive, it keeps the value from being &gc;ed.</para>
+
+<variablelist>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:MAKE-WEAK-MAPPING</function>
+                             <replaceable>key</replaceable> &value-r;)</literal></term>
+ <listitem><simpara>creates a weak
+   association.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-MAPPING-P</function>
+                             &object-r;)</literal></term>
+ <listitem><simpara>returns true if the object is of type
+   &weak-mapping;.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-MAPPING-PAIR</function>
+                             <replaceable>weak-mapping</replaceable>)</literal></term>
+ <listitem><simpara>returns three values: the original key, the original
+   value, and &t;, if the key has not yet been &gc;ed, else &nil;, &nil;,
+   &nil;.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-MAPPING-VALUE</function>
+                             <replaceable>weak-mapping</replaceable>)</literal></term>
+ <listitem><simpara>returns the value, if the key has not yet been &gc;ed,
+   else &nil;.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(setf (<function>EXT:WEAK-MAPPING-VALUE</function>
+                                   <replaceable>weak-mapping</replaceable>)
+                             &value-r;)</literal></term>
+ <listitem><simpara>replaces the value stored in the
+   <replaceable>weak-mapping</replaceable>. It has no effect when the key has
+   already been &gc;ed.</simpara></listitem></varlistentry>
+</variablelist>
+
+<para>Weak associations are useful to supplement objects with additional
+ information that is stored outside of the object.</para>
+
+</section>
+
+<section><title>Weak And-Mappings</title>
+
+<para>A weak "and" mapping is a mapping from a tuple of objects called "keys"
+ to an object called "value", that doesn't keep the keys from being &gc;ed
+ and that exists as long as all keys are alive. As soon as one of the keys is
+ &gc;ed, the entire mapping goes away.</para>
+
+<variablelist>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:MAKE-WEAK-AND-MAPPING</function>
+                             <replaceable>keys</replaceable>
+                             &value-r;)</literal></term>
+ <listitem><simpara>creates a weak "and" mapping between the
+   <replaceable>keys</replaceable> objects in the given list and the given
+   &value-r;. The <replaceable>keys</replaceable> list must be
+   non-empty.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-AND-MAPPING-P</function>
+                             &object-r;)</literal></term>
+ <listitem><simpara>returns true if the &object-r; is of type
+   &weak-and-mapping;.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-AND-MAPPING-PAIR</function>
+                             <replaceable>weak-and-mapping</replaceable>)</literal></term>
+ <listitem><simpara>returns three values: the list of keys, the value, and &t;,
+   if none of the keys have been &gc;ed, else &nil;, &nil;, &nil;. The
+   returned keys list must not be destructively
+   modified.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-AND-MAPPING-VALUE</function>
+                             <replaceable>weak-and-mapping</replaceable>)</literal></term>
+ <listitem><simpara>returns the value, if none of the keys have been &gc;ed,
+   else &nil;.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(setf (<function>EXT:WEAK-AND-MAPPING-VALUE</function>
+                                   <replaceable>weak-and-mapping</replaceable>)
+                             &value-r;)</literal></term>
+ <listitem><simpara>replaces the value stored in the
+   <replaceable>weak-and-mapping</replaceable>. It has no effect when some key
+   has already been &gc;ed.</simpara></listitem></varlistentry>
+</variablelist>
+
+<para>Weak "and" mappings are useful to model properties of sets of objects
+ that become worthless when one of the objects dies.</para>
+
+<para>A weak "and" mapping with a single key is semantically equivalent to a
+ weak association.</para>
+
+</section>
+
+<section><title>Weak Or-Mappings</title>
+
+<para>A weak "or" mapping is a mapping from a tuple of objects called "keys"
+ to an object called "value", that keeps all keys and the value from being
+ &gc;ed as long as one of the keys is still alive. In other words, each of
+ the keys keeps all others among them and the value from being &gc;ed.
+ When all of them are unreferenced, the entire mapping goes away.</para>
+
+<variablelist>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:MAKE-WEAK-OR-MAPPING</function>
+                             <replaceable>keys</replaceable>
+                             &value-r;)</literal></term>
+ <listitem><simpara> creates a weak "or" mapping between the
+   <replaceable>keys</replaceable> objects in the given list and the given
+   &value-r;. The <replaceable>keys</replaceable> list must be
+   non-empty.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-OR-MAPPING-P</function>
+                             &object-r;)</literal></term>
+ <listitem><simpara>returns true if the &object-r; is of type
+   &weak-or-mapping;.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-OR-MAPPING-PAIR</function>
+                             <replaceable>weak-or-mapping</replaceable>)</literal></term>
+ <listitem><simpara>returns three values: the list of keys, the value, and &t;,
+   if the keys have not yet been &gc;ed, else &nil;, &nil;, &nil;. The
+   returned keys list must not be destructively
+   modified.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-OR-MAPPING-VALUE</function>
+                             <replaceable>weak-or-mapping</replaceable>)</literal></term>
+ <listitem><simpara>returns the value, if the keys have not yet been &gc;ed,
+   else &nil;.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(setf (<function>EXT:WEAK-OR-MAPPING-VALUE</function>
+                                   <replaceable>weak-or-mapping</replaceable>)
+                             &value-r;)</literal></term>
+ <listitem><simpara>replaces the value stored in the
+   <replaceable>weak-or-mapping</replaceable>. It has no effect when the keys
+   have already been &gc;ed.</simpara></listitem></varlistentry>
+</variablelist>
+
+<para>Weak "or" mappings are useful to model properties of sets of objects
+ that don't become worthless when one of the objects dies.</para>
+
+<para>A weak "or" mapping with a single key is semantically equivalent to a
+ weak association.</para>
+
+</section>
+
+<section><title>Weak Association Lists</title>
+
+<para>A weak association list is an ordered collection of pairs, each pair
+ being built from an object called "key" and an object called "value". The
+ lifetime of each pair depends on the type of the weak alist:
+ <variablelist>
+  <varlistentry>
+   <term><constant>:KEY</constant></term>
+   <listitem>The pair exists as long as the key is not &gc;ed. As long as
+     the key is alive, it prevents the value from being
+     &gc;ed.</listitem></varlistentry>
+  <varlistentry>
+   <term><constant>:VALUE</constant></term>
+   <listitem>The pair exists as long as the value is not &gc;ed. As long as
+     the value is alive, it prevents the key from being
+     &gc;ed.</listitem></varlistentry>
+  <varlistentry>
+   <term><constant>:EITHER</constant></term>
+   <listitem>The pair exists as long as the key and the value are
+     alive.</listitem></varlistentry>
+  <varlistentry>
+   <term><constant>:BOTH</constant></term>
+   <listitem>The pair exists as long as the key or the value are alive. As
+     long as the key is alive, it prevents the key from being &gc;ed, and
+     as long as the value is alive, it prevents the key from being
+     &gc;ed.</listitem></varlistentry>
+ </variablelist>
+In other words, each pair is:
+ <variablelist>
+  <varlistentry>
+   <term><constant>:KEY</constant></term>
+   <listitem>a &weak-mapping; from the key to the
+     value,</listitem></varlistentry>
+  <varlistentry>
+   <term><constant>:VALUE</constant></term>
+   <listitem>a &weak-mapping from the value to the
+     key,</listitem></varlistentry>
+  <varlistentry>
+   <term><constant>:EITHER</constant></term>
+   <listitem>a &weak-and-relation; of the key and the
+     value,</listitem></varlistentry>
+  <varlistentry>
+   <term><constant>:BOTH</constant></term>
+   <listitem>a &weak-or-relation; of the key and the
+     value.</listitem></varlistentry>
+ </variablelist>
+</para>
+
+<variablelist>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:MAKE-WEAK-ALIST</function>
+                             :type :initial-contents)</literal></term>
+ <listitem><simpara>creates a weak association. The
+   <replaceable>type</replaceable> argument must be one of the four mentioned
+   types; the default is <term><constant>:KEY</constant></term>. The
+   <replaceable>initial-contents</replaceable> argument must be an
+   alist.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-ALIST-P</function>
+                             &object-r;)</literal></term>
+ <listitem><simpara>returns true if the &object-r; is of type
+   &weak-alist;.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-ALIST-TYPE</function>
+                             <replaceable>weak-alist</replaceable>)</literal></term>
+ <listitem><simpara>returns the type of the
+   <replaceable>weak-alist</replaceable>.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-ALIST-CONTENTS</function>
+                             <replaceable>weak-alist</replaceable>)</literal></term>
+ <listitem><simpara>returns an alist that corresponds to the current contents
+   of the
+   <replaceable>weak-alist</replaceable>.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(setf (<function>EXT:WEAK-ALIST-CONTENTS</function>
+                                   <replaceable>weak-alist</replaceable>)
+                             <replaceable>contents</replaceable>)</literal></term>
+ <listitem><simpara>replaces the contents of a
+   <replaceable>weak-alist</replaceable>. The
+   <replaceable>contents</replaceable> argument must be an
+   alist.</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-ALIST-ASSOC</function>
+                             <replaceable>item</replaceable>
+                             <replaceable>weak-alist</replaceable>
+                             [:test] [:test-not] [:key])</literal></term>
+ <listitem><simpara>is equivalent to
+   <term><literal role="sexp">(&assoc; <replaceable>item</replaceable>
+                                (<function>EXT:WEAK-ALIST-CONTENTS</function>
+                                 <replaceable>weak-alist</replaceable>)
+                                [:test] [:test-not] [:key])</literal></term>.
+   </simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-ALIST-RASSOC</function>
+                             <replaceable>item</replaceable>
+                             <replaceable>weak-alist</replaceable>
+                             [:test] [:test-not] [:key])</literal></term>
+ <listitem><simpara>is equivalent to
+   <term><literal role="sexp">(&rassoc; <replaceable>item</replaceable>
+                                (<function>EXT:WEAK-ALIST-CONTENTS</function>
+                                 <replaceable>weak-alist</replaceable>)
+                                [:test] [:test-not] [:key])</literal></term>.
+   </simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(<function>EXT:WEAK-ALIST-VALUE</function>
+                             <replaceable>item</replaceable>
+                             <replaceable>weak-alist</replaceable>
+                             [:test] [:test-not])</literal></term>
+ <listitem><simpara>is equivalent to
+   <term><literal role="sexp">(&cdr;
+                               (<function>EXT:WEAK-LIST-ASSOC</function>
+                                <replaceable>item</replaceable>
+                                <replaceable>weak-alist</replaceable>
+                                [:test] [:test-not])</literal></term>.
+   </simpara></listitem></varlistentry>
+<varlistentry>
+ <term><literal role="sexp">(setf (<function>EXT:WEAK-ALIST-VALUE</function>
+                                   <replaceable>item</replaceable>
+                                   <replaceable>weak-alist</replaceable>
+                                   [:test] [:test-not])
+                             &value-r;)</literal></term>
+ <listitem><simpara>replaces the value stored for
+   <replaceable>item</replaceable> in a <replaceable>weak-alist</replaceable>.
+   When a pair with the given <replaceable>item</replaceable> as key does not
+   exist or has already been &gc;ed, a new pair is added to the
+   alist.</simpara></listitem></varlistentry>
+</variablelist>
+
+<para>Weak associations lists are useful to supplement objects with additional
+ information that is stored outside of the object, when the number of such
+ objects is known to be small.</para>
+
+</section>
+
+<section><title>Weak Hash Tables</title>
+
+<para>A weak hash table is an unordered collection of pairs, each pair being
+ built from an object called "key" and an object called "value". There can
+ be only one pair with a given key in a weak hash table. The lifetime
+ of each pair depends on the type of the weak alist:
+ <variablelist>
+  <varlistentry>
+   <term><constant>:KEY</constant></term>
+   <listitem>The pair exists as long as the key is not &gc;ed. As long as
+     the key is alive, it prevents the value from being
+     &gc;ed.</listitem></varlistentry>
+  <varlistentry>
+   <term><constant>:VALUE</constant></term>
+   <listitem>The pair exists as long as the value is not &gc;ed. As long as
+     the value is alive, it prevents the key from being
+     &gc;ed.</listitem></varlistentry>
+  <varlistentry>
+   <term><constant>:EITHER</constant></term>
+   <listitem>The pair exists as long as the key and the value are
+     alive.</listitem></varlistentry>
+  <varlistentry>
+   <term><constant>:BOTH</constant></term>
+   <listitem>The pair exists as long as the key or the value are alive. As
+     long as the key is alive, it prevents the key from being &gc;ed, and
+     as long as the value is alive, it prevents the key from being
+     &gc;ed.</listitem></varlistentry>
+ </variablelist>
+In other words, each pair is:
+ <variablelist>
+  <varlistentry>
+   <term><constant>:KEY</constant></term>
+   <listitem>a &weak-mapping; from the key to the
+     value,</listitem></varlistentry>
+  <varlistentry>
+   <term><constant>:VALUE</constant></term>
+   <listitem>a &weak-mapping; from the value to the
+     key,</listitem></varlistentry>
+  <varlistentry>
+   <term><constant>:EITHER</constant></term>
+   <listitem>a &weak-and-relation; of the key and the
+     value,</listitem></varlistentry>
+  <varlistentry>
+   <term><constant>:BOTH</constant></term>
+   <listitem>a &weak-or-relation; of the key and the
+     value.</listitem></varlistentry>
+ </variablelist>
+</para>
+
+<para>See also <link linkend="make-hash">here</link>.</para>
+
+<para>Weak hash tables are useful to supplement objects with additional
+ information that is stored outside of the object. This data structure scales
+ up without performance degradation when the number of pairs is big.</para>
+
+<para>Weak hash tables are also useful to implement canonicalization
+ tables.</para>
+
+</section>
 </section>
 
 

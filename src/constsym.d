@@ -748,10 +748,6 @@ LISPSYM(make_function_macro,"MAKE-FUNCTION-MACRO",system)
 LISPSYM(function_macro_p,"FUNCTION-MACRO-P",system)
 LISPSYM(function_macro_function,"FUNCTION-MACRO-FUNCTION",system)
 LISPSYM(function_macro_expander,"FUNCTION-MACRO-EXPANDER",system)
-LISPSYM(make_weak_pointer,"MAKE-WEAK-POINTER",ext)
-LISPSYM(weak_pointer_p,"WEAK-POINTER-P",ext)
-LISPSYM(weak_pointer_value,"WEAK-POINTER-VALUE",ext)
-LISPSYM(set_weak_pointer_value,"%SET-WEAK-POINTER-VALUE",system)
 LISPSYM(finalize,"FINALIZE",ext)
 LISPSYM(structure_object_p,"STRUCTURE-OBJECT-P",clos)
 LISPSYM(std_instance_p,"STD-INSTANCE-P",clos)
@@ -768,6 +764,45 @@ LISPSYM(preinitialize_instance,"%REINITIALIZE-INSTANCE",clos)
 LISPSYM(pinitialize_instance,"%INITIALIZE-INSTANCE",clos)
 LISPSYM(pmake_instance,"%MAKE-INSTANCE",clos)
 LISPSYM(pchange_class,"%CHANGE-CLASS",clos)
+/* ---------- WEAK ---------- */
+LISPSYM(make_weak_pointer,"MAKE-WEAK-POINTER",ext)
+LISPSYM(weak_pointer_p,"WEAK-POINTER-P",ext)
+LISPSYM(weak_pointer_value,"WEAK-POINTER-VALUE",ext)
+LISPSYM(set_weak_pointer_value,"(SETF WEAK-POINTER-VALUE)",system)
+LISPSYM(make_weak_list,"MAKE-WEAK-LIST",ext)
+LISPSYM(weak_list_p,"WEAK-LIST-P",ext)
+LISPSYM(weak_list_list,"WEAK-LIST-LIST",ext)
+LISPSYM(set_weak_list_list,"(SETF WEAK-LIST-LIST)",system)
+LISPSYM(make_weak_and_relation,"MAKE-WEAK-AND-RELATION",ext)
+LISPSYM(weak_and_relation_p,"WEAK-AND-RELATION-P",ext)
+LISPSYM(weak_and_relation_list,"WEAK-AND-RELATION-LIST",ext)
+LISPSYM(make_weak_or_relation,"MAKE-WEAK-OR-RELATION",ext)
+LISPSYM(weak_or_relation_p,"WEAK-OR-RELATION-P",ext)
+LISPSYM(weak_or_relation_list,"WEAK-OR-RELATION-LIST",ext)
+LISPSYM(make_weak_mapping,"MAKE-WEAK-MAPPING",ext)
+LISPSYM(weak_mapping_p,"WEAK-MAPPING-P",ext)
+LISPSYM(weak_mapping_pair,"WEAK-MAPPING-PAIR",ext)
+LISPSYM(weak_mapping_value,"WEAK-MAPPING-VALUE",ext)
+LISPSYM(set_weak_mapping_value,"(SETF WEAK-MAPPING-VALUE)",system)
+LISPSYM(make_weak_and_mapping,"MAKE-WEAK-AND-MAPPING",ext)
+LISPSYM(weak_and_mapping_p,"WEAK-AND-MAPPING-P",ext)
+LISPSYM(weak_and_mapping_pair,"WEAK-AND-MAPPING-PAIR",ext)
+LISPSYM(weak_and_mapping_value,"WEAK-AND-MAPPING-VALUE",ext)
+LISPSYM(set_weak_and_mapping_value,"(SETF WEAK-AND-MAPPING-VALUE)",system)
+LISPSYM(make_weak_or_mapping,"MAKE-WEAK-OR-MAPPING",ext)
+LISPSYM(weak_or_mapping_p,"WEAK-OR-MAPPING-P",ext)
+LISPSYM(weak_or_mapping_pair,"WEAK-OR-MAPPING-PAIR",ext)
+LISPSYM(weak_or_mapping_value,"WEAK-OR-MAPPING-VALUE",ext)
+LISPSYM(set_weak_or_mapping_value,"(SETF WEAK-OR-MAPPING-VALUE)",system)
+LISPSYM(make_weak_alist,"MAKE-WEAK-ALIST",ext)
+LISPSYM(weak_alist_p,"WEAK-ALIST-P",ext)
+LISPSYM(weak_alist_type,"WEAK-ALIST-TYPE",ext)
+LISPSYM(weak_alist_contents,"WEAK-ALIST-CONTENTS",ext)
+LISPSYM(set_weak_alist_contents,"(SETF WEAK-ALIST-CONTENTS)",system)
+LISPSYM(weak_alist_assoc,"WEAK-ALIST-ASSOC",ext)
+LISPSYM(weak_alist_rassoc,"WEAK-ALIST-RASSOC",ext)
+LISPSYM(weak_alist_value,"WEAK-ALIST-VALUE",ext)
+LISPSYM(set_weak_alist_value,"(SETF WEAK-ALIST-VALUE)",system)
 /* ---------- SEQUENCE ---------- */
 LISPSYM(sequencep,"SEQUENCEP",system)
 LISPSYM(defseq,"%DEFSEQ",system)
@@ -1605,11 +1640,20 @@ LISPSYM(foreign_variable,"FOREIGN-VARIABLE",ffi) /* type in PREDTYPE */
 LISPSYM(foreign_function,"FOREIGN-FUNCTION",ffi) /* type in PREDTYPE */
 #endif
 LISPSYM(weak_pointer,"WEAK-POINTER",ext) /* type in PREDTYPE */
-LISPSYM(weak_kvtable,"WEAK-KEY-VALUE-TABLE",ext) /* type in PREDTYPE */
+LISPSYM(weak_list,"WEAK-LIST",ext) /* type in PREDTYPE */
+LISPSYM(weak_alist,"WEAK-ALIST",ext) /* type in PREDTYPE */
+LISPSYM(weak_mapping,"WEAK-MAPPING",ext) /* type in PREDTYPE */
 LISPSYM(finalizer,"FINALIZER",ext) /* type in PREDTYPE */
 #ifdef YET_ANOTHER_RECORD
 LISPSYM(yet_another,"YET-ANOTHER",ext) /* type in PREDTYPE */
 #endif
+LISPSYM(internal_weak_list,"INTERNAL-WEAK-LIST",system) /* type in PREDTYPE */
+LISPSYM(weak_and_relation,"WEAK-AND-RELATION",ext) /* type in PREDTYPE */
+LISPSYM(weak_or_relation,"WEAK-OR-RELATION",ext) /* type in PREDTYPE */
+LISPSYM(weak_and_mapping,"WEAK-AND-MAPPING",ext) /* type in PREDTYPE */
+LISPSYM(weak_or_mapping,"WEAK-OR-MAPPING",ext) /* type in PREDTYPE */
+LISPSYM(internal_weak_alist,"INTERNAL-WEAK-ALIST",system) /* type in PREDTYPE */
+LISPSYM(weak_kvtable,"WEAK-KEY-VALUE-TABLE",ext) /* type in PREDTYPE */
 LISPSYM(compiled_function,"COMPILED-FUNCTION",lisp) /* type in PREDTYPE */
 LISPSYM(frame_pointer,"FRAME-POINTER",system) /* type in PREDTYPE */
 LISPSYM(read_label,"READ-LABEL",system) /* type in PREDTYPE */
