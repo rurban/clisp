@@ -173,7 +173,7 @@ LISPFUNN(symbol_function,1)
       fehler_symbol(symbol);
     var object val = Symbol_function(symbol);
     if (eq(val,unbound))
-      fehler_undef_function(S(symbol_value),symbol);
+      fehler_undef_function(S(symbol_function),symbol);
     value1 = val; mv_count=1;
   }
 
