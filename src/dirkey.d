@@ -29,22 +29,24 @@
 #define IDNE_CREATE 2
 
 #ifdef WIN32_NATIVE
-#define SYSCALL_WIN32(call)                                             \
-  do { uintL status;                                                    \
-   begin_system_call();                                                 \
-   status = call;                                                       \
-   if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }   \
-   end_system_call();                                                   \
+#define SYSCALL_WIN32(call)                                            \
+  do {                                                                 \
+    var uintL status;                                                  \
+    begin_system_call();                                               \
+    status = call;                                                     \
+    if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); } \
+    end_system_call();                                                 \
   } while(0)
 #endif
 
 #ifdef LDAP
-#define SYSCALL_LDAP(call)                                              \
-  do { uintL status;                                                    \
-   begin_system_call();                                                 \
-   status = call;                                                       \
-   if (status != LDAP_SUCCESS) { SetLastError(status); OS_error(); }    \
-   end_system_call();                                                   \
+#define SYSCALL_LDAP(call)                                             \
+  do {                                                                 \
+    var uintL status;                                                  \
+    begin_system_call();                                               \
+    status = call;                                                     \
+    if (status != LDAP_SUCCESS) { SetLastError(status); OS_error(); }  \
+    end_system_call();                                                 \
   } while(0)
 #endif
 
@@ -72,6 +74,7 @@ local object test_dir_key (object obj, boolean check_open)
 }
 
 # convert an array of char to a (VECTOR (UNSIGNED-BYTE 8))
+# can trigger GC
 local object reg_val_to_vector (uintL size, const char* buffer)
 {
   var object vec = allocate_bit_vector(Atype_8Bit,size);
@@ -82,6 +85,7 @@ local object reg_val_to_vector (uintL size, const char* buffer)
 
 #ifdef WIN32_NATIVE
 # convert a registry value [type;size;buffer] to the appropriate Lisp object
+# can trigger GC
 local object registry_value_to_object (DWORD type, DWORD size,
                                        const char* buffer)
 {
@@ -96,26 +100,33 @@ local object registry_value_to_object (DWORD type, DWORD size,
                        ((unsigned char)buffer[2] << 16)+
                        ((unsigned char)buffer[1] <<  8)+
                        ((unsigned char)buffer[0]));
-      else return UL_to_I(*(DWORD*)buffer);
+      else
+        return UL_to_I(*(DWORD*)buffer);
     case REG_DWORD_BIG_ENDIAN:
       if (REG_DWORD_BIG_ENDIAN != REG_DWORD)
         return UL_to_I(((unsigned char)buffer[0] << 24)+
                        ((unsigned char)buffer[1] << 16)+
                        ((unsigned char)buffer[2] <<  8)+
                        ((unsigned char)buffer[3]));
-      else return UL_to_I(*(DWORD*)buffer);
+      else
+        return UL_to_I(*(DWORD*)buffer);
     case REG_MULTI_SZ: {
-      var object ret = NIL, tail = NIL;
-      var unsigned int ii, len;
-      for (ii=0; (ii<size) && buffer[ii]; ii+= len+1) {
-        len = strlen(buffer+ii); # FIXME: possible buffer overrun
-        if (len >= size) len = size;
-        if (eq(tail,NIL)) tail = ret = allocate_cons();
-        else tail = Cdr(tail) = allocate_cons();
-        Car(tail) = n_char_to_string(buffer+ii,len,O(misc_encoding));
-        Cdr(tail) = NIL;
+      # multiple strings, separated by '\0'.
+      pushSTACK(NIL);
+      var uintL i;
+      for (i = 0; i < size; ) {
+        var uintL j;
+        for (j = i; j < size; j++)
+          if (buffer[j] == '\0')
+            break;
+        var object new_cons = allocate_cons();
+        Cdr(new_cons) = STACK_0;
+        STACK_0 = new_cons;
+        var object string = n_char_to_string(buffer+i,j-i,O(misc_encoding));
+        Car(STACK_0) = string;
+        i += j + 1;
       }
-      return ret;
+      return nreverse(popSTACK());
     }
     # case REG_RESOURCE_LIST:
     # case REG_FULL_RESOURCE_DESCRIPTOR:
@@ -203,9 +214,10 @@ LISPFUNN(dir_key_close,1)
 #ifdef WIN32_NATIVE
 struct root {
   const char *name;
+  unsigned int namelen;
   HKEY hkey;
 };
-#define MKKEY(key)  {#key,key}
+#define MKKEY(key)  { #key, sizeof(#key)-1, key }
 static struct root roots[] = {
 #ifdef  HKEY_CLASSES_ROOT
   MKKEY(HKEY_CLASSES_ROOT),
@@ -231,29 +243,42 @@ static struct root roots[] = {
 };
 #undef MKKEY
 
-local HKEY parse_registry_path (char* path, char** base_ret)
+local HKEY parse_registry_path (const char* path, const char** base_ret)
 {
-  unsigned int ii, len;
-  HKEY hkey = NULL;
-  char *base = strstr(path,"\\\\"), *host = NULL;
-  if (base != NULL) { # remote registry access
+  var unsigned int ii;
+  var unsigned int len;
+  var HKEY hkey = NULL;
+  var const char* base;
+  var const char* host;
+  # Path syntax HOSTNAME\\... denotes a remote registry access.
+  host = NULL;
+  base = strstr(path,"\\\\");
+  if (base != NULL) {
     len = base-path;
-    host = (char*)alloca(1+len);
+    host = (char*)alloca(len+1);
     strncpy(host,path,len);
     host[len] = 0;
     path = base + 2;
   }
+  # Now look for the topmost directory component.
   base = strchr(path,'\\');
-  if (base==NULL) len = strlen(path);
-  else { len=base-path; base++; }
+  if (base==NULL)
+    len = strlen(path);
+  else {
+    len = base-path;
+    base++;
+  }
+  # Return the remainder.
   *base_ret = base;
-  for (ii=0; ii<sizeof(roots)/sizeof(*roots); ii++)
-    if (0 == strncmp(roots[ii].name,path,len)) { # equal?
+  # Get the key for the topmost directory component.
+  for (ii = 0; ii < sizeof(roots)/sizeof(*roots); ii++)
+    if (roots[ii].namelen == len && memcmp(roots[ii].name,path,len) == 0) {
       hkey = roots[ii].hkey;
       break;
     }
   if (hkey == NULL) { SetLastError(ERROR_PATH_NOT_FOUND); OS_error(); }
-  if (host == NULL) return hkey;
+  if (host == NULL)
+    return hkey;
   else {
     HKEY res;
     SYSCALL_WIN32(RegConnectRegistry(host,hkey,&res));
@@ -261,8 +286,8 @@ local HKEY parse_registry_path (char* path, char** base_ret)
   }
 }
 
-local void open_reg_key (HKEY hkey,char* path,REGSAM perms,
-                         int if_not_exists,HKEY* p_hkey)
+local void open_reg_key (HKEY hkey, char* path, REGSAM perms,
+                         int if_not_exists, HKEY* p_hkey)
 {
   var DWORD status;
   begin_system_call();
@@ -284,16 +309,16 @@ local void open_reg_key (HKEY hkey,char* path,REGSAM perms,
 }
 #endif
 
-local uintL parse_if_not_exists (object if_not_exists_arg,uintL direction)
+local uintL parse_if_not_exists (object if_not_exists_arg, uintL direction)
 {
   var uintL res = IDNE_ERROR;
-  if ((eq(if_not_exists_arg,unbound) && (direction == DIR_KEY_INPUT)) ||
-      eq(if_not_exists_arg,S(Kerror))) {
+  if ((eq(if_not_exists_arg,unbound) && (direction == DIR_KEY_INPUT))
+      || eq(if_not_exists_arg,S(Kerror))) {
     res = IDNE_ERROR;
   } else if (eq(if_not_exists_arg,NIL)) {
     res = IDNE_NIL;
-  } else if (eq(if_not_exists_arg,S(Kcreate)) ||
-             eq(if_not_exists_arg,unbound)) {
+  } else if (eq(if_not_exists_arg,S(Kcreate))
+             || eq(if_not_exists_arg,unbound)) {
     res = IDNE_CREATE;
   } else {
     pushSTACK(if_not_exists_arg);         # slot DATUM of         TYPE-ERROR
@@ -308,7 +333,7 @@ local uintL parse_if_not_exists (object if_not_exists_arg,uintL direction)
   return res;
 }
 
-local uintL parse_direction (object *direction_arg)
+local uintL parse_direction (object* direction_arg)
 {
   var uintL res = DIR_KEY_INPUT;
   if (eq(*direction_arg,unbound) || eq(*direction_arg,S(Kinput))) {
@@ -360,7 +385,7 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
       });
     } else {
       with_string_0(path,O(misc_encoding),pathz,{
-        char* base;
+        var const char* base;
         HKEY hkey = parse_registry_path(pathz,&base);
         open_reg_key(hkey,base,direction,if_not_exists,(HKEY*)&ret_handle);
       });
@@ -388,62 +413,73 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
            );
   }
   # create the DIR-KEY
-  var object dkey = NIL;
-  dkey = allocate_dir_key();
-  TheDirKey(dkey)->type = S(Kwin32);
-  TheDirKey(dkey)->closed_p = FALSE;
-  TheDirKey(dkey)->direction = direction_arg;
-  TheDirKey(dkey)->handle = ret_handle;
+  pushSTACK(ret_handle);
+  pushSTACK(direction_arg);
   if (dir_key_p(root)) {
     pushSTACK(TheDirKey(root)->path);
     #ifdef WIN32_NATIVE
-    if (eq(TheDirKey(root)->type,S(Kwin32))) pushSTACK(O(backslash_string));
+    if (eq(TheDirKey(root)->type,S(Kwin32)))
+      pushSTACK(O(backslash_string));
     else
     #endif
       pushSTACK(O(slash_string));
     pushSTACK(path);
-    TheDirKey(dkey)->path = string_concat(3);
+    var object totalpath = string_concat(3);
+    pushSTACK(totalpath);
   } else
-    TheDirKey(dkey)->path = path;
+    pushSTACK(path);
+  var object dkey = allocate_dir_key();
+  TheDirKey(dkey)->type = S(Kwin32);
+  TheDirKey(dkey)->closed_p = FALSE;
+  TheDirKey(dkey)->path = popSTACK();
+  TheDirKey(dkey)->direction = popSTACK();
+  TheDirKey(dkey)->handle = popSTACK();
+  pushSTACK(dkey);
+  # Call (FINALIZE dir-key #'dir-key-close).
   pushSTACK(dkey);
   pushSTACK(L(dir_key_close));
-  funcall(L(finalize),2); # (FINALIZE dir-key #'dir-key-close)
+  funcall(L(finalize),2);
+  # Done.
+  value1 = popSTACK(); mv_count = 1;
   skipSTACK(4);
-  value1 = dkey;
-  mv_count = 1;
 }
 
 # The common code in DIR-KEY-SUBKEYS & DIR-KEY-ATTRIBUTES
-#define MAKE_OBJECT_LIST(count,get_obj)                                   \
+#define MAKE_OBJECT_LIST(COUNT_EXPR,GET_NEXT_OBJ_EXPR)                    \
   var object dkey = test_dir_key(popSTACK(),TRUE);                        \
-  var object ret = NIL;                                                   \
   var LONG status;                                                        \
   var DWORD n_obj;                                                        \
   var DWORD maxlen;                                                       \
-  var HKEY hkey;                                                          \
-  hkey = (HKEY)TheDirKey(dkey)->handle;                                   \
+  var HKEY hkey = (HKEY)TheDirKey(dkey)->handle;                          \
   begin_system_call();                                                    \
-  status = count;                                                         \
+  status = (COUNT_EXPR);                                                  \
   if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }      \
-  if (n_obj>0) {                                                          \
-    unsigned int ii;                                                      \
-    char * buf = (char*)alloca(++maxlen); /* one extra char for #\Null */ \
-    object tail = NIL;                                                    \
-    for (ii=0; ii<n_obj; ii++) {                                          \
-      var DWORD len = maxlen;                                             \
-      var DWORD status = get_obj;                                         \
-      if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }  \
-      if (nullp(tail))                                                    \
-        tail = ret = allocate_cons();                                     \
-      else                                                                \
-        tail = Cdr(tail) = allocate_cons();                               \
-      Cdr(tail) = NIL;                                                    \
-      Car(tail) = asciz_to_string(buf,O(misc_encoding));                  \
-    }                                                                     \
-  }                                                                       \
   end_system_call();                                                      \
-  value1 = ret;                                                           \
-  mv_count = 1
+  if (n_obj > 0) {                                                        \
+    var unsigned int ii;                                                  \
+    var char* buf = (char*)alloca(maxlen+1); /* one extra byte for '\0' */\
+    pushSTACK(NIL);                                                       \
+    for (ii = 0; ii < n_obj; ii++) {                                      \
+      var DWORD len = maxlen; /* or maxlen+1 ?? */                        \
+      var DWORD status;                                                   \
+      begin_system_call();                                                \
+      status = (GET_NEXT_OBJ_EXPR);                                       \
+      if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }  \
+      end_system_call();                                                  \
+      {                                                                   \
+        var object new_cons = allocate_cons();                            \
+        Cdr(new_cons) = STACK_0;                                          \
+        STACK_0 = new_cons;                                               \
+      }                                                                   \
+      {                                                                   \
+        var object string = asciz_to_string(buf,O(misc_encoding));        \
+        Car(STACK_0) = string;                                            \
+      }                                                                   \
+    }                                                                     \
+    value1 = nreverse(popSTACK());                                        \
+  } else                                                                  \
+    value1 = NIL;                                                         \
+  mv_count = 1;
 
 LISPFUNN(dir_key_subkeys,1)
 # (LISP:DIR-KEY-SUBKEYS key)
@@ -519,7 +555,7 @@ local void scope_error (object scope) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,
          GETTEXT("~: ~ is not a ~")
-         );
+        );
 }
 
 LISPFUNN(dkey_search_iterator,3)
