@@ -2722,17 +2722,31 @@ for-value   NIL or T
 ;; returns a function name, that is composed by the package and the printname
 ;; of a given function name, a hyphen and a suffix.
 (defun symbol-suffix (funname suffix)
-  (if (and (symbolp funname) (not (and funname (symbol-package funname))))
-    (if (function-name-p suffix) suffix (make-symbol (princ-to-string suffix)))
-    (multiple-value-bind (name pack) (get-funname-string+pack funname)
+  ;; We have 8 cases:
+  ;;
+  ;;        \ suffix   |  function name      number
+  ;; funname \         |
+  ;; --------------------------------------------------------------------
+  ;; nil               |  suffix             suffix as uninterned symbol
+  ;; #:symbol          |  suffix             concatenate
+  ;; pack::symbol      |  concatenate        concatenate
+  ;; list              |  concatenate        concatenate
+  ;; --------------------------------------------------------------------
+  (if (and (symbolp funname) (not (and funname (symbol-package funname)))
+           (function-name-p suffix))
+    suffix
+    (progn
       ;; convert suffix to a string:
       (cond ((symbolp suffix) (setq suffix (symbol-name suffix)))
             ((not (stringp suffix))
              (setq suffix (write-to-string suffix :escape nil :base 10
                                            :radix nil :readably nil))))
-      ;; build new symbol:
-      (let ((new-name (concatenate 'string name "-" suffix)))
-        (if pack (intern new-name pack) (make-symbol new-name))))))
+      (if funname
+        (multiple-value-bind (name pack) (get-funname-string+pack funname)
+          ;; build new symbol:
+          (let ((new-name (concatenate 'string name "-" suffix)))
+            (if pack (intern new-name pack) (make-symbol new-name))))
+        (make-symbol suffix)))))
 
 ;; (C-COMMENT controlstring . args)
 ;; issue additional information from the compiler (via FORMAT).
