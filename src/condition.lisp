@@ -1140,28 +1140,28 @@
          ,tag2))))
 
 (defun correctable-error (options condition)
-  (let ((*active-restarts*
-         (nconc
-          (mapcar (lambda (option)
-                    (destructuring-bind (name report . return) option
-                      (make-restart
-                       :name (etypecase name
-                               (string (intern name *keyword-package*))
-                               (symbol name))
-                       :report (lambda (s) (princ report s))
-                       :interactive (if (consp return)
-                                      (lambda ()
-                                        (apply (car return) (cdr return)))
-                                      #'default-restart-interactive)
-                       :invoke-function
-                         (if (consp return)
-                           (lambda (value) ; get `value' from :INTERACTIVE
-                             (return-from correctable-error value))
-                           (lambda ()
-                             (return-from correctable-error return))))))
-                  options)
-          *active-restarts*)))
-    (error condition)))
+  (let ((restarts
+         (mapcar (lambda (option)
+                   (destructuring-bind (name report . return) option
+                     (make-restart
+                      :name (etypecase name
+                              (string (intern name *keyword-package*))
+                              (symbol name))
+                      :report (lambda (s) (princ report s))
+                      :interactive (if (consp return)
+                                     (lambda ()
+                                       (apply (car return) (cdr return)))
+                                     #'default-restart-interactive)
+                      :invoke-function
+                        (if (consp return)
+                          (lambda (value) ; get `value' from :INTERACTIVE
+                            (return-from correctable-error value))
+                          (lambda ()
+                            (return-from correctable-error return))))))
+                 options)))
+    (with-condition-restarts condition restarts
+      (let ((*active-restarts* (nconc restarts *active-restarts*)))
+        (error condition)))))
 
 (defun check-value (place condition)
   ;; 2 values: new-value, store-p (0 for check_fdefinition())
