@@ -65,21 +65,19 @@ DEFUN(REGEXP::REGEXP-FREE, compiled)
   } else VALUES1(NIL);
 }
 
+DEFFLAGSET(regexp_exec_flags, REG_NOTBOL REG_NOTEOL)
 DEFUN(REGEXP::REGEXP-EXEC, pattern string &key BOOLEAN START END NOTBOL NOTEOL)
 { /* match the compiled pattern against the string */
-  object string = (STACK_5 = check_string(STACK_5));
+  int eflags = regexp_exec_flags();
+  object string = (STACK_3 = check_string(STACK_3));
   unsigned int length = vector_length(string);
-  unsigned int start = missingp(STACK_3) ? 0
-    : posfixnum_to_L(STACK_3 = check_posfixnum(STACK_3));
-  unsigned int end = missingp(STACK_2) ? length
-    : posfixnum_to_L(STACK_2 = check_posfixnum(STACK_2));
-  int eflags = ((missingp(STACK_0) ? 0 : REG_NOTEOL) |
-                (missingp(STACK_1) ? 0 : REG_NOTBOL));
+  unsigned int start = posfixnum_default2(STACK_1,0);
+  unsigned int end = posfixnum_default2(STACK_0,length);
   int status;
-  bool bool_p = !missingp(STACK_4);
+  bool bool_p = !missingp(STACK_2);
   regex_t *re;
   regmatch_t *ret;
-  skipSTACK(5);                 /* drop all options */
+  skipSTACK(3);                 /* drop all options */
   for (;;) {
     STACK_1 = check_fpointer(STACK_1,true);
     re = (regex_t*)TheFpointer(STACK_1)->fp_pointer;

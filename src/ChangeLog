@@ -1,3 +1,8 @@
+2005-02-16  Sam Steingold  <sds@gnu.org>
+
+	* modules/regexp/regexi.c (regexp_exec_flags): new DEFFLAGSET
+	(REGEXP-EXEC): use it and posfixnum_default2()
+
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (c-DEPOSIT-FIELD): Fix bug introduced on 2004-04-04.
