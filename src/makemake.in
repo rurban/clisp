@@ -2909,7 +2909,8 @@ if [ $HOS = unix ] && [ $CROSS = false ] ; then
   echol
   echol
   echol "linkkit : modules.d modules.c clisp.h"
-  echotab "test -d linkkit || mkdir linkkit"
+  echotab "\$(RM) -r linkkit"
+  echotab "mkdir linkkit"
   echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.d modules.d"
   echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.c modules.c"
   echotab "cd linkkit && \$(LN_S) ${PARENT_}clisp.h clisp.h"
