@@ -238,18 +238,18 @@
    If &error-k; is &nil; and the record is not found, no &err-sig;,
    instead <constant>:NOTFOUND</constant> is returned.
    <constant>:ACTION</constant> should be one of
-   <simplelist columns="2"><member><constant>:DB_CONSUME</constant></member>
-    <member><constant>:DB_CONSUME_WAIT</constant></member>
-    <member><constant>:DB_GET_BOTH</constant></member>
-    <member><constant>:DB_SET_RECNO</constant></member></simplelist>
+   <simplelist columns="2"><member><constant>:CONSUME</constant></member>
+    <member><constant>:CONSUME_WAIT</constant></member>
+    <member><constant>:GET_BOTH</constant></member>
+    <member><constant>:SET_RECNO</constant></member></simplelist>
 </para></listitem></varlistentry>
 <varlistentry><term><code>(BDB:DB-PUT db key val
    &key-amp; AUTO_COMMIT ACTION TRANSACTION)</code></term>
 <listitem><para>Store items into a database (&DB_put;).
   <constant>:ACTION</constant> should be one of
-  <simplelist columns="3"><member><constant>:DB_APPEND</constant></member>
-   <member><constant>:DB_NODUPDATA</constant></member>
-   <member><constant>:DB_NOOVERWRITE</constant></member></simplelist>
+  <simplelist columns="3"><member><constant>:APPEND</constant></member>
+   <member><constant>:NODUPDATA</constant></member>
+   <member><constant>:NOOVERWRITE</constant></member></simplelist>
 </para></listitem></varlistentry>
 <varlistentry><term><code>(BDB:DB-STAT db &key-amp; FAST_STAT)</code></term>
  <listitem><simpara>Return database statistics (&DB_get_byteswapped;,
@@ -456,21 +456,21 @@
    <constant>:NOTFOUND</constant> or <constant>:KEYEMPTY</constant>
    is returned instead, as appropriate.
    <replaceable>action</replaceable> should be one of
-   <simplelist columns="4"><member><constant>:DB_CURRENT</constant></member>
-    <member><constant>:DB_FIRST</constant></member>
-    <member><constant>:DB_GET_BOTH</constant></member>
-    <member><constant>:DB_GET_BOTH_RANGE</constant></member>
-    <member><constant>:DB_GET_RECNO</constant></member>
-    <member><constant>:DB_JOIN_ITEM</constant></member>
-    <member><constant>:DB_LAST</constant></member>
-    <member><constant>:DB_NEXT</constant></member>
-    <member><constant>:DB_NEXT_DUP</constant></member>
-    <member><constant>:DB_NEXT_NODUP</constant></member>
-    <member><constant>:DB_PREV</constant></member>
-    <member><constant>:DB_PREV_NODUP</constant></member>
-    <member><constant>:DB_SET</constant></member>
-    <member><constant>:DB_SET_RANGE</constant></member>
-    <member><constant>:DB_SET_RECNO</constant></member></simplelist>
+   <simplelist columns="4"><member><constant>:CURRENT</constant></member>
+    <member><constant>:FIRST</constant></member>
+    <member><constant>:GET_BOTH</constant></member>
+    <member><constant>:GET_BOTH_RANGE</constant></member>
+    <member><constant>:GET_RECNO</constant></member>
+    <member><constant>:JOIN_ITEM</constant></member>
+    <member><constant>:LAST</constant></member>
+    <member><constant>:NEXT</constant></member>
+    <member><constant>:NEXT_DUP</constant></member>
+    <member><constant>:NEXT_NODUP</constant></member>
+    <member><constant>:PREV</constant></member>
+    <member><constant>:PREV_NODUP</constant></member>
+    <member><constant>:SET</constant></member>
+    <member><constant>:SET_RANGE</constant></member>
+    <member><constant>:SET_RECNO</constant></member></simplelist>
 </para></listitem></varlistentry>
 <varlistentry><term><code>(BDB:DBC-PUT cursor key data
    flag)</code></term>
@@ -556,11 +556,11 @@
    If &error-k; is &nil; and the record is not found, no &err-sig;,
    <constant>:NOTFOUND</constant> is returned instead.
    <variablelist><title>Valid <replaceable>action</replaceable>s</title>
-    <varlistentry><term><constant>:DB_CURRENT</constant></term>
-     <term><constant>:DB_FIRST</constant></term>
-     <term><constant>:DB_LAST</constant></term>
-     <term><constant>:DB_NEXT</constant></term>
-     <term><constant>:DB_PREV</constant></term>
+    <varlistentry><term><constant>:CURRENT</constant></term>
+     <term><constant>:FIRST</constant></term>
+     <term><constant>:LAST</constant></term>
+     <term><constant>:NEXT</constant></term>
+     <term><constant>:PREV</constant></term>
      <listitem><simpara>Retrieve the appropriate record.
     </simpara></listitem></varlistentry>
     <varlistentry><term><type>DB:LSN</type></term>
