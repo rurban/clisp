@@ -2845,10 +2845,20 @@ local void print_banner ()
         }}
       if (argv_ansi)
         # Maximum ANSI CL compliance, even where it hurts.
-        { Symbol_value(S(ansi)) = T;                          # (SETQ *ANSI* T)
-          Symbol_value(S(floating_point_contagion_ansi)) = T; # (SETQ *FLOATING-POINT-CONTAGION-ANSI* T)
-          pushSTACK(O(ansi_user_package_name)); funcall(L(in_package),1); # (IN-PACKAGE "COMMON-LISP-USER")
-        }
+        { # (SETQ *ANSI* T)
+          Symbol_value(S(ansi)) = T;
+          # (SETQ *FLOATING-POINT-CONTAGION-ANSI* T)
+          Symbol_value(S(floating_point_contagion_ansi)) = T;
+          # (IN-PACKAGE "COMMON-LISP-USER")
+          pushSTACK(O(ansi_user_package_name)); funcall(L(in_package),1);
+          # (PUSH :ANSI-CL *FEATURES*) (PUSH :IEEE-FLOATING-POINT *FEATURES*)
+          { var const char * str = "(:ANSI-CL :IEEE-FLOATING-POINT)";
+            pushSTACK(asciz_to_string(str));
+            { var object list = (funcall(L(read_from_string),1), value1);
+              pushSTACK(list); pushSTACK(Symbol_value(S(features)));
+              funcall(L(nconc),2);
+              Symbol_value(S(features)) = value1;
+        } } }
       if (!(argv_package == NULL))
         # (IN-PACKAGE packagename) ausführen:
         { var object packname = asciz_to_string(argv_package);
