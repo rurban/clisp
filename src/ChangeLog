@@ -3,6 +3,7 @@
 	* case-sensitive.lisp: add CS-COMMON-LISP to *SYSTEM-PACKAGE-LIST*
 	* exporting.lisp: add EXPORTING to *SYSTEM-PACKAGE-LIST*
 	* modules/bindings/win32/win32.lisp: add WIN32 to *SYSTEM-PACKAGE-LIST*
+	* modules/clx/mit-clx/package.lisp: add XLIB to *SYSTEM-PACKAGE-LIST*
 
 2005-04-05  Sam Steingold  <sds@gnu.org>
 
