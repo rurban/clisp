@@ -1,5 +1,9 @@
 2004-04-12  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (restartf_t): Define as nonreturning. Avoids gcc warnings.
+
+2004-04-12  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (popSP, finish_entry_frame): Rename macro parameter.
 
 2004-04-12  Bruno Haible  <bruno@clisp.org>
