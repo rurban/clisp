@@ -66,6 +66,7 @@
 <!ENTITY regex-h "<ulink url='&unix-b;/regex.h.html'><filename>regex.h</filename></ulink>">
 <!ENTITY stdlib-h "<ulink url='&unix-b;/stdlib.h.html'><filename>stdlib.h</filename></ulink>">
 <!ENTITY stdio-h "<ulink url='&unix-b;/stdio.h.html'><filename>stdio.h</filename></ulink>">
+<!ENTITY socket-h "<ulink url='&unix-b;/syssocket.h.html'><filename>sys/socket.h</filename></ulink>">
 <!ENTITY fcntl-h "<ulink url='&unix-b;/fcntl.h.html'><filename>fcntl.h</filename></ulink>">
 <!ENTITY env-var "<ulink url='&unix-b;/xbd_chap08.html'>environment variable</ulink>">
 <!ENTITY file-des "<ulink url='&unix-b;/xbd_chap03.html#tag_03_165'>file descriptor</ulink>">

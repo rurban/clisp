@@ -8,6 +8,11 @@ User visible changes
   and allows complicated matrix computations.
   See <http://clisp.cons.org/impnotes.html#matlab> for details.
 
+* New module rawsock offers low-level socket access.
+  Thanks to Fred and Don Cohens.
+  See <http://clisp.cons.org/impnotes.html#rawsock> for details.
+
+
 
 2.33 (2004-03-17)
 =================

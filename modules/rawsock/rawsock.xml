@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<section id="rawsock"><title>Raw Socket Access.</title>
+
+<para>This is the raw socket interface, as described in &socket-h;.
+ This interface is very low-level, and you probably do not need it.
+ If you are interested in TCP/IP (Internet) socket streams,
+ you should use &socket-stream;s, &not-e; this package.</para>
+
+</section>

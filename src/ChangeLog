@@ -1,3 +1,9 @@
+2004-04-21  Don & Fred Cohens  <fc@all.net, don-sourceforge@isis.cs3-inc.com>
+	    Sam Steingold  <sds@gnu.org>
+
+	new module for low-level socket access
+	* modules/rawsock: new directory
+
 2004-04-21  Sam Steingold  <sds@gnu.org>
 
 	* disassem.lisp (disassemble): do not signal an error when cannot
