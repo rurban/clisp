@@ -3840,3 +3840,27 @@ T
     nil))
 #+CLISP WARNING
 #-CLISP NIL
+
+;; Test against bug in clos::%call-next-method and FUNCALL&SKIP&RETGF.
+(progn
+  (defclass foo129 ()
+    (x :initarg :x))
+  (defparameter *foo129-counter* 0)
+  (defmethod initialize-instance ((instance foo129) &rest initargs &key (x '()))
+    (incf *foo129-counter*) ; (format t "~&Initializing ~S  ~:S~%" instance x)
+    (apply #'call-next-method instance :x (cons 'a x) initargs))
+  (make-instance 'foo129)
+  *foo129-counter*)
+1
+
+(progn
+  (defclass foo130 ()
+    (x :initarg :x))
+  (defparameter *foo130-counter* 0)
+  (locally (declare (compile))
+    (defmethod initialize-instance ((instance foo130) &rest initargs &key (x '()))
+      (incf *foo130-counter*) ; (format t "~&Initializing ~S  ~:S~%" instance x)
+      (apply #'call-next-method instance :x (cons 'a x) initargs)))
+  (make-instance 'foo130)
+  *foo130-counter*)
+1

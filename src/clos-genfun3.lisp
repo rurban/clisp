@@ -10,17 +10,36 @@
 
 ;; Runtime support for CALL-NEXT-METHOD.
 (defun %call-next-method (method next-methods original-args new-args) ; ABI
-  (let* ((gf (method-generic-function method))
-         (emf (sys::generic-function-effective-method-function gf))
-         (original-em (apply emf original-args))
-         (new-em (apply emf new-args)))
-    (if (eq original-em new-em)
-      (if next-methods
-        (apply next-methods new-args)
-        (apply #'%no-next-method method new-args))
-      (error-of-type 'error
-        (TEXT "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S")
-        'call-next-method gf new-args original-args))))
+  (let ((gf (method-generic-function method)))
+    (when (gf-never-called-p gf)
+      ;; Oops, gf still contains a prototype dispatch which only calls
+      ;; initial-funcall-gf. This can really happen, because make-instance
+      ;; can call initial-make-instance, which calls initialize-instance's
+      ;; effective method without going through initialize-instance itself.
+      ;; Similarly for initial-initialize-instance and
+      ;; initial-reinitialize-instance, which call shared-initialize's
+      ;; effective method without going through shared-initialize's dispatch.
+      ;; Similarly for slot-value, which call slot-value-using-class's
+      ;; effective method without going through slot-value-using-class.
+      ;; Remedy by calling the prototype dispatch once.
+      (apply (sys::generic-function-effective-method-function gf) original-args))
+    ;; Now we can assume that the real dispatch is installed.
+    (let* ((emf (sys::generic-function-effective-method-function gf))
+           (original-em (apply emf original-args))
+           (new-em (apply emf new-args)))
+      ;; Protect against the case that emf is a prototype dispatch which only
+      ;; calls initial-funcall-gf.
+      (when (or (eq original-em gf) (eq new-em gf))
+        (error-of-type 'error
+          (TEXT "~S in ~S: bug in determination of effective methods")
+          'call-next-method gf))
+      (if (eq original-em new-em)
+        (if next-methods
+          (apply next-methods new-args)
+          (apply #'%no-next-method method new-args))
+        (error-of-type 'error
+          (TEXT "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S")
+          'call-next-method gf new-args original-args)))))
 
 
 ;; =================== Initialization and Reinitialization ===================

@@ -8004,6 +8004,11 @@ global Values funcall (object fun, uintC args_on_stack)
           var uintB flags = ((Codevec)codeptr)->ccv_flags;
           with_saved_context({
             funcall(fun,n); # call Function
+            if (flags & bit(3)) { # call inhibition?
+              skipSTACK(k+1);
+              mv_count=1;
+              goto finished; # return (jump) to caller
+            }
             k -= r;
             if (flags & bit(0)) {
               skipSTACK(k); apply(value1,r,popSTACK());

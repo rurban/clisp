@@ -1,3 +1,11 @@
+2004-10-26  Bruno Haible  <bruno@clisp.org>
+
+	Fix two long-standing bugs whose combination leads to curious effects.
+	* eval.d (interpret_bytecode_): Respect the inhibition flag in the
+	FUNCALL&SKIP&RETGF instruction.
+	* clos-genfun3.lisp (%call-next-method): Ensure the dispatch function
+	is a real one before calling twice. Add safety check.
+
 2004-10-16  Bruno Haible  <bruno@clisp.org>
 
 	* clos-class3.lisp (define-structure-class): Remove redundant code.
