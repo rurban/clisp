@@ -185,6 +185,7 @@ global void init_language (const char* argv_language,
     # not NULL and a valid directory. But since we may call chdir()
     # before the gettext library opens the catalog file, we have to
     # convert argv_localedir to be an absolute pathname, if possible.
+    var bool must_free_argv_localedir = false;
     #ifdef UNIX
     if (argv_localedir != NULL)
       if (argv_localedir[0] != '\0' && argv_localedir[0] != '/') {
@@ -195,6 +196,7 @@ global void init_language (const char* argv_language,
             var uintL len = currdirlen + 1 + asciz_length(argv_localedir) + 1;
             var char* abs_localedir = (char*)malloc(len*sizeof(char));
             if (!(abs_localedir == NULL)) {
+              must_free_argv_localedir = true;
               # Append currdir, maybe '/', and argv_localedir into abs_localedir:
               var char* ptr = abs_localedir;
               {
@@ -216,6 +218,7 @@ global void init_language (const char* argv_language,
     #endif
     bindtextdomain("clisp",argv_localedir);
     bindtextdomain("clisplow",argv_localedir);
+    if (must_free_argv_localedir) free((void*)argv_localedir);
    #ifdef UNICODE
     bind_textdomain_codeset("clisp","UTF-8");
    #endif
