@@ -1,3 +1,9 @@
+1998-09-09  Sam Steingold  <sds@goems.com>
+
+	* user1.lsp: replaced `*prompt-with-package*' with `*prompt*' with
+	CMUCL's semantics.  Added `prompt-new-package', `prompt-index' and
+	`package-short-name'.
+
 1998-09-03  Sam Steingold  <sds@goems.com>
 
 	* places.lsp (shiftf): fixed the return values, as well as the
