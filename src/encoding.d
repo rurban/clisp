@@ -33,7 +33,7 @@
 local char const hex_table[] = "0123456789ABCDEF";
 
 /* Error, when a character cannot be converted to an encoding.
- fehler_unencodable(encoding); */
+ fehler_unencodable(encoding,ch); */
 nonreturning_function(global, fehler_unencodable,
                       (object encoding, chart ch)) {
   pushSTACK(code_char(ch)); /* CHARSET-TYPE-ERROR slot DATUM */
@@ -198,10 +198,8 @@ global uintL uni16_wcslen (object encoding, const chart* src,
         var chart c = char_code(action);
         if (as_cint(c) < 0x10000)
           result += 2;
-      } else {
-        /* Increment result, so that it doesn't come out as 0. */
-        result++;
-      }
+      } else
+        fehler_unencodable(encoding,ch);
     }
   }
   return result;
@@ -1521,10 +1519,8 @@ global uintL nls_wcslen (object encoding, const chart* src,
               && (cvtable[as_cint(c)>>8][as_cint(c)&0xFF] != 0
                   || chareq(c,ascii(0))))
             result++;
-        } else {
-          /* Increment result, so that it doesn't come out as 0. */
-          result++;
-        }
+        } else
+          fehler_unencodable(encoding,ch);
       }
      });
   }
@@ -1598,10 +1594,8 @@ global uintL nls_asciiext_wcslen (object encoding, const chart* src,
               && (cvtable[as_cint(c)>>8][as_cint(c)&0xFF] != 0
                   || chareq(c,ascii(0))))
             result++;
-        } else {
-          /* Increment result, so that it doesn't come out as 0. */
-          result++;
-        }
+        } else
+          fehler_unencodable(encoding,ch);
       }
     });
   }
