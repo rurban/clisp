@@ -15162,6 +15162,9 @@ LISPFUNN(socket_stream_handle,1)
        { rl_bind_key(CTRL('I'),rl_named_function("self-insert")); }
      rl_attempted_completion_function = &lisp_completion_matches;
      rl_completion_entry_function = &lisp_completion_more;
+     #ifdef NO_MATCH  # readline-2.2-clisp or newer
+     _rl_comment_begin = ";";
+     #endif
      end_call();
      #endif
      {var object stream = make_terminal_io();
