@@ -339,28 +339,25 @@
     #else
       #ifdef LISPARIT
       global uint32 mulu32_high;
-      global uint32 mulu32_(x,y)
-        var uint32 x;
-        var uint32 y;
+      global uint32 mulu32_ (uint32 x, uint32 y) {
+        var uint16 x1 = high16(x);
+        var uint16 x0 = low16(x);
+        var uint16 y1 = high16(y);
+        var uint16 y0 = low16(y);
+        var uint32 hi = mulu16(x1,y1); # obere Portion
+        var uint32 lo = mulu16(x0,y0); # untere Portion
         {
-          var uint16 x1 = high16(x);
-          var uint16 x0 = low16(x);
-          var uint16 y1 = high16(y);
-          var uint16 y0 = low16(y);
-          var uint32 hi = mulu16(x1,y1); # obere Portion
-          var uint32 lo = mulu16(x0,y0); # untere Portion
-          {
-            var uint32 mid = mulu16(x0,y1); # 1. mittlere Portion
-            hi += high16(mid); mid = highlow32_0(low16(mid));
-            lo += mid; if (lo < mid) { hi += 1; } # 64-Bit-Addition
-          }
-          {
-            var uint32 mid = mulu16(x1,y0); # 2. mittlere Portion
-            hi += high16(mid); mid = highlow32_0(low16(mid));
-            lo += mid; if (lo < mid) { hi += 1; } # 64-Bit-Addition
-          }
-          mulu32_high = hi; return lo;
+          var uint32 mid = mulu16(x0,y1); # 1. mittlere Portion
+          hi += high16(mid); mid = highlow32_0(low16(mid));
+          lo += mid; if (lo < mid) { hi += 1; } # 64-Bit-Addition
         }
+        {
+          var uint32 mid = mulu16(x1,y0); # 2. mittlere Portion
+          hi += high16(mid); mid = highlow32_0(low16(mid));
+          lo += mid; if (lo < mid) { hi += 1; } # 64-Bit-Addition
+        }
+        mulu32_high = hi; return lo;
+      }
       #endif
     #endif
   #endif
@@ -373,27 +370,24 @@
   #if (defined(GNU) && defined(MC680X0) && !defined(MC680Y0))
     extern uint32 mulu32_unchecked (uint32 x, uint32 y);
     #ifdef LISPARIT
-    global uint32 mulu32_unchecked(x,y)
-      var uint32 x;
-      var uint32 y;
-      {
-        # Methode:
-        # Falls x>=2^16 und y>=2^16 wäre, wäre das Produkt zu groß.
-        # Falls x<2^16 : y = y1*2^16+y0 schreiben, (x*y1)*2^16 + (x*y0) bilden.
-        # Falls y<2^16 : x = x1*2^16+x0 schreiben, (x1*y)*2^16 + (x0*y) bilden.
-        # Falls sogar x<2^16 und y<2^16: nur x*y bilden.
-        var uint16 x1 = high16(x);
-        var uint16 y1 = high16(y);
-        if (x1==0)
-          if (y1==0)
-            return mulu16((uint16)(x),(uint16)(y));
-          else
-            return highlow32_0(mulu16((uint16)(x),y1))
-                   + mulu16((uint16)(x),low16(y));
+    global uint32 mulu32_unchecked (uint32 x, uint32 y) {
+      # Methode:
+      # Falls x>=2^16 und y>=2^16 wäre, wäre das Produkt zu groß.
+      # Falls x<2^16 : y = y1*2^16+y0 schreiben, (x*y1)*2^16 + (x*y0) bilden.
+      # Falls y<2^16 : x = x1*2^16+x0 schreiben, (x1*y)*2^16 + (x0*y) bilden.
+      # Falls sogar x<2^16 und y<2^16: nur x*y bilden.
+      var uint16 x1 = high16(x);
+      var uint16 y1 = high16(y);
+      if (x1==0)
+        if (y1==0)
+          return mulu16((uint16)(x),(uint16)(y));
         else
-          return highlow32_0(mulu16(x1,(uint16)(y)))
-                 + mulu16(low16(x),(uint16)(y));
-      }
+          return highlow32_0(mulu16((uint16)(x),y1))
+                 + mulu16((uint16)(x),low16(y));
+      else
+        return highlow32_0(mulu16(x1,(uint16)(y)))
+               + mulu16(low16(x),(uint16)(y));
+    }
     #endif
   #elif defined(GNU) && defined(SPARC64) && !defined(NO_ASM)
     #define mulu32_unchecked(arg1,arg2)  \
@@ -528,12 +522,11 @@
         { q_zuweisung divu_3216_1616_(x,y); r_zuweisung divu_16_rest; }
       #ifdef LISPARIT
       global uint16 divu_16_rest;
-      global uint16 divu_3216_1616_ (uint32 x, uint16 y)
-        {
-          var uint16 q = floor(x,(uint32)y);
-          divu_16_rest = x - (uint32)q * (uint32)y;
-          return q;
-        }
+      global uint16 divu_3216_1616_ (uint32 x, uint16 y) {
+        var uint16 q = floor(x,(uint32)y);
+        divu_16_rest = x - (uint32)q * (uint32)y;
+        return q;
+      }
       #endif
     #endif
   #endif
@@ -631,15 +624,14 @@
       # divu_3216_3216_ extern in Assembler
     #else
       #ifdef LISPARIT
-      global uint32 divu_3216_3216_ (uint32 x, uint16 y)
-        {
-          var uint16 q1;
-          var uint16 q0;
-          var uint16 r1;
-          divu_3216_1616(high16(x),y, q1 = , r1 = );
-          divu_3216_1616(highlow32(r1,low16(x)),y, q0 = , divu_16_rest =);
-          return highlow32(q1,q0);
-        }
+      global uint32 divu_3216_3216_ (uint32 x, uint16 y) {
+        var uint16 q1;
+        var uint16 q0;
+        var uint16 r1;
+        divu_3216_1616(high16(x),y, q1 = , r1 = );
+        divu_3216_1616(highlow32(r1,low16(x)),y, q0 = , divu_16_rest =);
+        return highlow32(q1,q0);
+      }
       #endif
     #endif
   #endif
@@ -751,14 +743,11 @@
     #ifdef LISPARIT
     # Dies dient nur noch als Hilfsfunktion für arilev1.d.
     # Die Rückgabe des Restes in divu_32_rest ist also hier nicht nötig.
-    global uint32 divu_3232_3232_(x,y)
-      var uint32 x;
-      var uint32 y;
-      {
-        var uint32 q;
-        divu_3232_3232(x,y,q=,);
-        return q;
-      }
+    global uint32 divu_3232_3232_ (uint32 x, uint32 y) {
+      var uint32 q;
+      divu_3232_3232(x,y,q=,);
+      return q;
+    }
     #endif
   #else
     #define divu_3232_3232(x,y,q_zuweisung,r_zuweisung)  \
@@ -767,14 +756,11 @@
       # divu_3232_3232_ extern in Assembler
     #else
       #ifdef LISPARIT
-      global uint32 divu_3232_3232_(x,y)
-        var uint32 x;
-        var uint32 y;
-        {
-          var uint32 q = floor(x,y);
-          divu_32_rest = x - q*y;
-          return q;
-        }
+      global uint32 divu_3232_3232_ (uint32 x, uint32 y) {
+        var uint32 q = floor(x,y);
+        divu_32_rest = x - q*y;
+        return q;
+      }
       #endif
     #endif
   #endif
@@ -880,114 +866,110 @@
       # Methode:
       # Wie UDS_divide mit intDsize=16, a_len=4, b_len=2.
       global uint32 divu_32_rest;
-      global uint32 divu_6432_3232_(xhi,xlo,y)
-        var uint32 xhi;
-        var uint32 xlo;
-        var uint32 y;
-        {
-          if (y <= (uint32)(bit(16)-1)) {
-            # 48-durch-16-Bit-Division,
-            # aufgebaut aus zwei 32-durch-16-Bit-Divisionen:
-            var uint16 q1;
-            var uint16 q0;
-            var uint16 r1;
-            divu_3216_1616(highlow32(low16(xhi),high16(xlo)),y, q1=,r1=);
-            divu_3216_1616(highlow32(r1,low16(xlo)),y, q0=, divu_32_rest=(uint32) );
-            return highlow32(q1,q0);
-          }
-          # y>=2^16
-          # y shiften:
-          var uintL s = 0;
-          while ((sint32)y >= 0) {
-            y = y<<1; s++;
-          }
-          # x entsprechend shiften:
-          if (!(s==0)) {
-            xhi = (xhi << s) | (xlo >> (32-s)); xlo = xlo << s;
-          }
-          # 64-durch-32-Bit-Division,
-          # aufgebaut aus zwei 48-durch-32-Bit-Divisionen.
-          # Methode für eine 48-durch-32-Bit-Division x/y mit 0 <= x < 2^16*y :
-          # (beta = 2^n = 2^16, n = 16)
-          # Wir wissen beta^2/2 <= y < beta^2, Quotient  q = floor(x/y) < beta.
-          # Schreibe  x = beta*x1 + x0  mit  x1 := floor(x/beta)
-          # und       y = beta*y1 + y0  mit  y1 := floor(y/beta)
-          # und bilde den Näherungs-Quotienten floor(x1/y1)
-          # oder (noch besser) floor(x1/(y1+1)).
-          # Wegen 0 <= x1 < 2^(2n) und 0 < 2^(n-1) <= y1 < 2^n
-          # und  x1/(y1+1) <= x/y < x1/(y1+1) + 2
-          # (denn x1/(y1+1) = (x1*beta)/((y1+1)*beta) <= (x1*beta)/y <= x/y
-          # und x/y - x1/(y1+1) = (x+x*y1-x1*y)/(y*(y1+1))
-          # = (x+x0*y1-x1*y0)/(y*(y1+1)) <= (x+x0*y1)/(y*(y1+1))
-          # <= x/(y*(y1+1)) + x0/y = (x/y)/(y1+1) + x0/y
-          # <= 2^n/(2^(n-1)+1) + 2^n/2^(2n-1) = 2^n/(2^(n-1)+1) + 2^(1-n) < 2 )
-          # gilt  floor(x1/(y1+1)) <= floor(x/y) <= floor(x1/(y1+1)) + 2  .
-          # Man bildet also  q:=floor(x1/(y1+1))  (ein Shift um n Bit oder
-          # eine (2n)-durch-n-Bit-Division, mit Ergebnis q <= floor(x/y) < beta)
-          # und x-q*y und muss hiervon noch höchstens 2 mal y abziehen und q
-          # incrementieren, um den Quotienten  q = floor(x/y)  und den Rest
-          # x-floor(x/y)*y  der Division zu bekommen.
-          var uint16 y1_1 = high16(y)+1; # y1+1
+      global uint32 divu_6432_3232_ (uint32 xhi, uint32 xlo, uint32 y) {
+        if (y <= (uint32)(bit(16)-1)) {
+          # 48-durch-16-Bit-Division,
+          # aufgebaut aus zwei 32-durch-16-Bit-Divisionen:
           var uint16 q1;
           var uint16 q0;
-          var uint32 r;
-          # 2^16*xhi+high16(xlo) durch y dividieren:
-          {
-            var uint16 r16;
-            var uint32 r2;
-            if (y1_1==0) {
-              q1 = high16(xhi); r16 = low16(xhi);
-            } else {
-              divu_3216_1616(xhi,y1_1, q1=,r16=);
-            }
-            # q1 = floor(xhi/(y1+1)), r16 = xhi - (y1+1)*q1 (>=0, <=y1)
-            # Bilde r := (2^16*xhi+high16(xlo)) - y*q1
-            #          = 2^16*(xhi-y1*q1) + high16(xlo) - y0*q1
-            #          = 2^16*r16 + 2^16*q1 + high16(xlo) - y0*q1 (>=0)
-            # Dies ist < 2^16*y1 + 2^32 <= y + 2^32 <= 3*y, kann überlaufen!
-            r = highlow32(r16,high16(xlo)); # 2^16*r16 + high16(xlo) < 2^32
-            r2 = highlow32_0(q1) - mulu16(low16(y),q1); # 2^16*q1 - y0*q1 < 2^32
-            # 0 <= r+r2 < 3*y. Bei der Addition auf Carry testen!
-            # Carry -> jedenfalls y <= r+r2 < y + 2^32 <= 3*y.
-            # kein Carry -> jedenfalls 0 <= r+r2 < 2^32 <= 2*y.
-            if ((r += r2) < r2) { # addieren, r >= 2^32 ?
-              q1 += 1; r -= y;
-            }
-            # jetzt noch 0 <= r < 2^32 <= 2*y
-            if (r >= y) {
-              q1 += 1; r -= y;
-            }
-          } # Quotient q1, Rest r fertig.
-          # 2^16*r+low16(xlo) durch y dividieren:
-          {
-            var uint16 r16;
-            var uint32 r2;
-            if (y1_1==0) {
-              q0 = high16(r); r16 = low16(r);
-            } else {
-              divu_3216_1616(r,y1_1, q0=,r16=);
-            }
-            # q0 = floor(r/(y1+1)), r16 = r - (y1+1)*q0 (>=0, <=y1)
-            # Bilde r := (2^16*r+low16(xlo)) - y*q0
-            #          = 2^16*(r-y1*q0) + low16(xlo) - y0*q0
-            #          = 2^16*r16 + 2^16*q0 + low16(xlo) - y0*q0 (>=0)
-            # Dies ist < 2^16*y1 + 2^32 <= y + 2^32 <= 3*y, kann überlaufen!
-            r = highlow32(r16,low16(xlo)); # 2^16*r16 + low16(xlo) < 2^32
-            r2 = highlow32_0(q0) - mulu16(low16(y),q0); # 2^16*q0 - y0*q0 < 2^32
-            # 0 <= r+r2 < 3*y. Bei der Addition auf Carry testen!
-            # Carry -> jedenfalls y <= r+r2 < y + 2^32 <= 3*y.
-            # kein Carry -> jedenfalls 0 <= r+r2 < 2^32 <= 2*y.
-            if ((r += r2) < r2) { # addieren, r >= 2^32 ?
-              q0 += 1; r -= y;
-            }
-            # jetzt noch 0 <= r < 2^32 <= 2*y
-            if (r >= y) {
-              q0 += 1; r -= y;
-            }
-          } # Quotient q0, Rest r fertig.
-          divu_32_rest = r >> s; # Rest
-          return highlow32(q1,q0); # Quotient
+          var uint16 r1;
+          divu_3216_1616(highlow32(low16(xhi),high16(xlo)),y, q1=,r1=);
+          divu_3216_1616(highlow32(r1,low16(xlo)),y, q0=, divu_32_rest=(uint32) );
+          return highlow32(q1,q0);
         }
+        # y>=2^16
+        # y shiften:
+        var uintL s = 0;
+        while ((sint32)y >= 0) {
+          y = y<<1; s++;
+        }
+        # x entsprechend shiften:
+        if (!(s==0)) {
+          xhi = (xhi << s) | (xlo >> (32-s)); xlo = xlo << s;
+        }
+        # 64-durch-32-Bit-Division,
+        # aufgebaut aus zwei 48-durch-32-Bit-Divisionen.
+        # Methode für eine 48-durch-32-Bit-Division x/y mit 0 <= x < 2^16*y :
+        # (beta = 2^n = 2^16, n = 16)
+        # Wir wissen beta^2/2 <= y < beta^2, Quotient  q = floor(x/y) < beta.
+        # Schreibe  x = beta*x1 + x0  mit  x1 := floor(x/beta)
+        # und       y = beta*y1 + y0  mit  y1 := floor(y/beta)
+        # und bilde den Näherungs-Quotienten floor(x1/y1)
+        # oder (noch besser) floor(x1/(y1+1)).
+        # Wegen 0 <= x1 < 2^(2n) und 0 < 2^(n-1) <= y1 < 2^n
+        # und  x1/(y1+1) <= x/y < x1/(y1+1) + 2
+        # (denn x1/(y1+1) = (x1*beta)/((y1+1)*beta) <= (x1*beta)/y <= x/y
+        # und x/y - x1/(y1+1) = (x+x*y1-x1*y)/(y*(y1+1))
+        # = (x+x0*y1-x1*y0)/(y*(y1+1)) <= (x+x0*y1)/(y*(y1+1))
+        # <= x/(y*(y1+1)) + x0/y = (x/y)/(y1+1) + x0/y
+        # <= 2^n/(2^(n-1)+1) + 2^n/2^(2n-1) = 2^n/(2^(n-1)+1) + 2^(1-n) < 2 )
+        # gilt  floor(x1/(y1+1)) <= floor(x/y) <= floor(x1/(y1+1)) + 2  .
+        # Man bildet also  q:=floor(x1/(y1+1))  (ein Shift um n Bit oder
+        # eine (2n)-durch-n-Bit-Division, mit Ergebnis q <= floor(x/y) < beta)
+        # und x-q*y und muss hiervon noch höchstens 2 mal y abziehen und q
+        # incrementieren, um den Quotienten  q = floor(x/y)  und den Rest
+        # x-floor(x/y)*y  der Division zu bekommen.
+        var uint16 y1_1 = high16(y)+1; # y1+1
+        var uint16 q1;
+        var uint16 q0;
+        var uint32 r;
+        # 2^16*xhi+high16(xlo) durch y dividieren:
+        {
+          var uint16 r16;
+          var uint32 r2;
+          if (y1_1==0) {
+            q1 = high16(xhi); r16 = low16(xhi);
+          } else {
+            divu_3216_1616(xhi,y1_1, q1=,r16=);
+          }
+          # q1 = floor(xhi/(y1+1)), r16 = xhi - (y1+1)*q1 (>=0, <=y1)
+          # Bilde r := (2^16*xhi+high16(xlo)) - y*q1
+          #          = 2^16*(xhi-y1*q1) + high16(xlo) - y0*q1
+          #          = 2^16*r16 + 2^16*q1 + high16(xlo) - y0*q1 (>=0)
+          # Dies ist < 2^16*y1 + 2^32 <= y + 2^32 <= 3*y, kann überlaufen!
+          r = highlow32(r16,high16(xlo)); # 2^16*r16 + high16(xlo) < 2^32
+          r2 = highlow32_0(q1) - mulu16(low16(y),q1); # 2^16*q1 - y0*q1 < 2^32
+          # 0 <= r+r2 < 3*y. Bei der Addition auf Carry testen!
+          # Carry -> jedenfalls y <= r+r2 < y + 2^32 <= 3*y.
+          # kein Carry -> jedenfalls 0 <= r+r2 < 2^32 <= 2*y.
+          if ((r += r2) < r2) { # addieren, r >= 2^32 ?
+            q1 += 1; r -= y;
+          }
+          # jetzt noch 0 <= r < 2^32 <= 2*y
+          if (r >= y) {
+            q1 += 1; r -= y;
+          }
+        } # Quotient q1, Rest r fertig.
+        # 2^16*r+low16(xlo) durch y dividieren:
+        {
+          var uint16 r16;
+          var uint32 r2;
+          if (y1_1==0) {
+            q0 = high16(r); r16 = low16(r);
+          } else {
+            divu_3216_1616(r,y1_1, q0=,r16=);
+          }
+          # q0 = floor(r/(y1+1)), r16 = r - (y1+1)*q0 (>=0, <=y1)
+          # Bilde r := (2^16*r+low16(xlo)) - y*q0
+          #          = 2^16*(r-y1*q0) + low16(xlo) - y0*q0
+          #          = 2^16*r16 + 2^16*q0 + low16(xlo) - y0*q0 (>=0)
+          # Dies ist < 2^16*y1 + 2^32 <= y + 2^32 <= 3*y, kann überlaufen!
+          r = highlow32(r16,low16(xlo)); # 2^16*r16 + low16(xlo) < 2^32
+          r2 = highlow32_0(q0) - mulu16(low16(y),q0); # 2^16*q0 - y0*q0 < 2^32
+          # 0 <= r+r2 < 3*y. Bei der Addition auf Carry testen!
+          # Carry -> jedenfalls y <= r+r2 < y + 2^32 <= 3*y.
+          # kein Carry -> jedenfalls 0 <= r+r2 < 2^32 <= 2*y.
+          if ((r += r2) < r2) { # addieren, r >= 2^32 ?
+            q0 += 1; r -= y;
+          }
+          # jetzt noch 0 <= r < 2^32 <= 2*y
+          if (r >= y) {
+            q0 += 1; r -= y;
+          }
+        } # Quotient q0, Rest r fertig.
+        divu_32_rest = r >> s; # Rest
+        return highlow32(q1,q0); # Quotient
+      }
       #endif
     #endif
   #endif
