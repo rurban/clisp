@@ -1,5 +1,11 @@
 1999-06-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * makemake.in (READLINELIB): Don't pass option "-r" to $(MAKE) for
+          building in subdirectory. It doesn't work with Irix 6.5 `make'
+          because readline/Makefile.in uses implicit rules.
+
+1999-06-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (Encoding): Add enc_towcs_error, enc_tombs_error slots.
           (encoding_length): Update.
         * encoding.d (uni32_mblen, uni32be_mbstowcs, uni32le_mbstowcs,
