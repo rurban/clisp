@@ -13,7 +13,8 @@
   #+cmu (cdr (assoc (string var) *environment-list* :test #'equalp
                     :key #'string))
   #-cmu
-  (#+(or allegro clisp) system::getenv #+lispworks lw:environment-variable
+  (#+allegro system::getenv #+clisp ext:getenv
+   #+lispworks lw:environment-variable
    #+lucid lcl:environment-variable #+gcl si:getenv (string var)))
 
 (defun x-host-display (&optional (disp (getenv "DISPLAY")))
