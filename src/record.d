@@ -99,6 +99,16 @@ nonreturning_function(local, fehler_record_length, (void)) {
   fehler(type_error,GETTEXT("~: length ~ is illegal, should be of type ~"));
 }
 
+# UP: find OBJ in LIS
+local inline bool obj_in_list (const object obj, const object lis) {
+  var object l = lis;
+  while (consp(l)) {
+    if (eq(Car(l),obj)) return true;
+    l = Cdr(l);
+  }
+  return false;
+}
+
 # ===========================================================================
 # Structures:
 
@@ -137,14 +147,9 @@ nonreturning_function(local, fehler_record_length, (void)) {
               );
       }
       var object structure = STACK_1;
-      var object namelist = TheStructure(structure)->structure_types; # erste Komponente
-      var object type = STACK_2; # type-Argument
       # Teste, ob in namelist = (name_1 ... name_i-1 name_i) type vorkommt:
-      while (consp(namelist)) {
-        if (eq(Car(namelist),type))
-          goto yes;
-        namelist = Cdr(namelist);
-      }
+      if (obj_in_list(STACK_2,TheStructure(structure)->structure_types))
+        goto yes;
       # type kam nicht vor -> Error:
       goto fehler_bad_structure;
       # type kam vor:
@@ -252,11 +257,8 @@ LISPFUNN(structure_type_p,2)
       var object namelist = TheStructure(popSTACK())->structure_types;
       var object type = popSTACK();
       # Teste, ob in namelist = (name_1 ... name_i-1 name_i) type vorkommt:
-      while (consp(namelist)) {
-        if (eq(Car(namelist),type))
-          goto yes;
-        namelist = Cdr(namelist);
-      }
+      if (obj_in_list(type,namelist))
+        goto yes;
     }
     # type kam nicht vor:
    no:
@@ -1004,12 +1006,8 @@ LISPFUNN(slot_exists_p,2)
         var uintC count;
         dotimespC(count,argcount, {
           var object key = NEXT(ptr);
-          var object kwlistr = valid_keywords;
-          while (consp(kwlistr)) {
-            if (eq(Car(kwlistr),key))
-              goto kw_found;
-            kwlistr = Cdr(kwlistr);
-          }
+          if (obj_in_list(key,valid_keywords))
+            goto kw_found;
           # nicht gefunden
           pushSTACK(key); # Wert für Slot DATUM von KEYWORD-ERROR
           pushSTACK(valid_keywords);
@@ -1030,6 +1028,21 @@ LISPFUNN(slot_exists_p,2)
         });
       }
     }
+
+# UP: find initarg of the slot in the arglist
+local inline object* slot_in_arglist (const object slot, uintC argcount,
+                                      object* rest_args_pointer) {
+  var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
+  var object* ptr = rest_args_pointer;
+  var uintC count;
+  dotimespC(count,argcount, {
+    var object initarg = NEXT(ptr);
+    if (obj_in_list(initarg,l))
+      return ptr;
+    NEXT(ptr);
+  });
+  return NULL;
+}
 
 LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL)
 # (CLOS::%SHARED-INITIALIZE instance slot-names &rest initargs)
@@ -1073,22 +1086,9 @@ LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL)
         slots = Cdr(slots);
         # Suche ob der Slot durch die Initargs initialisiert wird:
         if (argcount > 0) {
-          var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
-          var object* ptr = rest_args_pointer;
-          var uintC count;
-          dotimespC(count,argcount, {
-            var object initarg = NEXT(ptr);
-            # Suche initarg in l
-            var object lr = l;
-            while (consp(lr)) {
-              if (eq(initarg,Car(lr)))
-                goto initarg_found;
-              lr = Cdr(lr);
-            }
-            NEXT(ptr);
-          });
-          goto initarg_not_found;
-         initarg_found:
+          var object* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
+          if (NULL == ptr)
+            goto initarg_not_found;
           value1 = NEXT(ptr);
           goto fill_slot;
         }
@@ -1110,11 +1110,8 @@ LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL)
             if (eq(slotnames,T))
               goto eval_init;
             var object slotname = TheSvector(slot)->data[0]; # (slotdef-name slot)
-            while (consp(slotnames)) {
-              if (eq(Car(slotnames),slotname))
-                goto eval_init;
-              slotnames = Cdr(slotnames);
-            }
+            if (obj_in_list(slotname,slotnames))
+              goto eval_init;
             goto slot_done;
           }
          eval_init:
@@ -1217,30 +1214,14 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
         slots = Cdr(slots);
         # Suche ob der Slot durch die Initargs initialisiert wird:
         if (argcount > 0) {
-          var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
-          var object* ptr = rest_args_pointer;
-          var uintC count;
-          dotimespC(count,argcount, {
-            var object initarg = NEXT(ptr);
-            # Suche initarg in l
-            var object lr = l;
-            while (consp(lr)) {
-              if (eq(initarg,Car(lr)))
-                goto initarg_found;
-              lr = Cdr(lr);
-            }
-            NEXT(ptr);
-          });
-          goto slot_done;
-         initarg_found:
-          {
+          var object* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
+          if (NULL != ptr) {
             var object value = NEXT(ptr);
             # Slot mit value initialisieren:
             var object slotinfo = TheSvector(slot)->data[2]; # (slotdef-location slot)
             *ptr_to_slot(Before(rest_args_pointer),slotinfo) = value;
           }
         }
-       slot_done: ;
       }
     }
     value1 = Before(rest_args_pointer); mv_count=1; # Instanz als Wert
@@ -1334,22 +1315,9 @@ local Values do_initialize_instance(info,rest_args_pointer,argcount)
         slots = Cdr(slots);
         # Suche ob der Slot durch die Initargs initialisiert wird:
         if (argcount > 0) {
-          var object l = TheSvector(slot)->data[1]; # (slotdef-initargs slot)
-          var object* ptr = rest_args_pointer;
-          var uintC count;
-          dotimespC(count,argcount, {
-            var object initarg = NEXT(ptr);
-            # Suche initarg in l
-            var object lr = l;
-            while (consp(lr)) {
-              if (eq(initarg,Car(lr)))
-                goto initarg_found;
-              lr = Cdr(lr);
-            }
-            NEXT(ptr);
-          });
-          goto initarg_not_found;
-         initarg_found:
+          var object* ptr = slot_in_arglist(slot,argcount,rest_args_pointer);
+          if (NULL == ptr)
+            goto initarg_not_found;
           value1 = NEXT(ptr);
           goto fill_slot;
         }
