@@ -33,6 +33,9 @@ User visible changes
   instead of `--with-export-syscalls' when configuring.
   See <http://clisp.cons.org/impnotes.html#syscalls> for details.
 
+* New module netica interfaces to <http://norsys.com/netica_c_api.htm>
+  and allows working with Bayesian belief networks and influence diagrams.
+
 * READ-BYTE-SEQUENCE now accepts :NO-HANG keyword argument.
 
 * LOAD now takes an additional keyword argument :OBSOLETE-ACTION which
