@@ -82,10 +82,10 @@ install-data-yes: all force
 	  lang=`echo $$cat | sed 's/\.gmo$$//'`; \
 	  dir="$$destdir/$$lang/LC_MESSAGES"; \
 	  datadir=`echo "$$destdir" | sed -e 's,/[^/]*$$,,'`; \
-	  if [ ! -d "$$datadir" ] ; then mkdir "$$datadir" ; fi; \
-	  if [ ! -d "$$destdir" ] ; then mkdir "$$destdir" ; fi; \
-	  if [ ! -d "$$destdir/$$lang" ] ; then mkdir "$$destdir/$$lang" ; fi; \
-	  if [ ! -d "$$dir" ] ; then mkdir "$$dir" ; fi; \
+	  test -d "$$datadir" || mkdir "$$datadir" ; \
+	  test -d "$$destdir" || mkdir "$$destdir" ; \
+	  test -d "$$destdir/$$lang" || mkdir "$$destdir/$$lang" ; \
+	  test -d "$$dir" || mkdir "$$dir" ; \
 	  if test -r $$cat; then \
 	    echo "installing $$cat as $$dir/$(PACKAGE).mo"; \
 	    $(INSTALL_DATA) $$cat "$$dir/$(PACKAGE).mo"; \
@@ -110,11 +110,10 @@ installdirs: force
 	  lang=`echo $$cat | sed 's/\.gmo$$//'`; \
 	  dir="$$destdir/$$lang/LC_MESSAGES"; \
 	  datadir=`echo "$$destdir" | sed -e 's,/[^/]*,,'`; \
-	  if [ ! -d "$$datadir" ] ; then mkdir "$$datadir" ; fi; \
-	  if [ ! -d "$$destdir" ] ; then mkdir "$$destdir" ; fi; \
-	  if [ ! -d "$$destdir/$$lang" ] ; then mkdir "$$destdir/$$lang" ; fi; \
-	  if [ ! -d "$$dir" ] ; then mkdir "$$dir" ; fi; \
-	  fi; \
+	  test -d "$$datadir" || mkdir "$$datadir" ; \
+	  test -d "$$destdir" || mkdir "$$destdir" ; \
+	  test -d "$$destdir/$$lang" || mkdir "$$destdir/$$lang" ; \
+	  test -d "$$dir" || mkdir "$$dir" ; \
 	done
 
 uninstall:
