@@ -86,11 +86,6 @@ some platforms can be found in file unix/PLATFORMS.
    a list), you may choose to build clisp with them. Just add the module
    directories to the line defining MODULES in the makefile.
 
-   On Linux (0.99.11 or newer) or SunOS 4, you may also choose to enable
-   support for immutable objects (checking that program text and quoted
-   constants loaded from files are never destructively modified) by
-   adding -DIMMUTABLE to the line defining CFLAGS in the makefile.
-
    For platform specific adjustment of the makefile, take a look at the
    PLATFORMS file.
 

@@ -1613,10 +1613,9 @@
 #if !(defined(TYPECODES) || defined(NO_TYPECODES))
   # Choose typecodes on 64-bit machines (because there's enough room for type
   # bits), but not on 32-bit machines (because a 16 MB limit is ridiculous
-  # today), except if support for immutable objects is requested, or if the
-  # CPU cannot address more than 16 MB anyway.
+  # today), except if the CPU cannot address more than 16 MB anyway.
   # NO_TYPECODES will normally not work if alignof(subr_) = alignof(long) < 4.
-  #if defined(WIDE) || defined(IMMUTABLE) || defined(MC68000) || (alignment_long < 4)
+  #if defined(WIDE) || defined(MC68000) || (alignment_long < 4)
     #define TYPECODES
   #else
     #define NO_TYPECODES
@@ -1714,10 +1713,6 @@
   #undef DS
 # 386BSD macht "#define CBLOCK 64". Grr...
   #undef CBLOCK
-# BSDI 1.1 macht "#define IMMUTABLE". Grr...
-  #ifdef __bsdi__
-    #undef IMMUTABLE
-  #endif
 
 #endif # UNIX || DJUNIX || EMUNIX || WATCOM || WIN32
 
@@ -2904,7 +2899,7 @@ Ratio and Complex (only if SPVW_MIXED).
 # Falls die Adressbits die unteren sind und nicht WIDE_SOFT,
 # ist evtl. Memory-Mapping möglich.
 
-  #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !(defined(MULTIMAP_MEMORY) || defined(IMMUTABLE)) && !(defined(UNIX_SINIX) || defined(UNIX_AIX)) && !defined(NO_SINGLEMAP)
+  #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MULTIMAP_MEMORY) && !(defined(UNIX_SINIX) || defined(UNIX_AIX)) && !defined(NO_SINGLEMAP)
     # Zugriff auf Lisp-Objekte wird vereinfacht dadurch, daß jedes Lisp-Objekt
     # an eine Adresse gelegt wird, das seine Typinformation bereits enthält.
     # Funktioniert aber nicht auf SINIX und AIX.
@@ -2930,36 +2925,6 @@ Ratio and Complex (only if SPVW_MIXED).
     # seite ist unter mehreren Adressen zugreifbar.
       #define MULTIMAP_MEMORY
       #define MULTIMAP_MEMORY_VIA_FILE
-  #endif
-
-  #ifdef IMMUTABLE
-    #ifdef SUN4_29
-      #error "Immutable objects don't work on this SUN4 architecture!"
-    #endif
-    #ifndef MULTIMAP_MEMORY
-      #error "Immutable objects require working shared memory!"
-    #endif
-    # Welche Typen immutabler Objekte gibt es?
-    #define IMMUTABLE_CONS   # Conses
-    #define IMMUTABLE_ARRAY  # alle Arten Arrays
-  #endif
-
-#else
-
-  #ifdef IMMUTABLE
-    #ifdef WIDE_SOFT
-      #if defined(HAVE_SHM) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_SHM)
-        # Zugriff auf Lisp-Objekte geschieht mittels Memory-Mapping: Jede Speicher-
-        # seite ist unter zwei Adressen zugreifbar.
-          #define MULTIMAP_MEMORY
-          #define MULTIMAP_MEMORY_VIA_SHM
-      #endif
-    #else
-      #error "Immutable objects don't work on this architecture!"
-    #endif
-    # Welche Typen immutabler Objekte gibt es?
-    #define IMMUTABLE_CONS   # Conses
-    #define IMMUTABLE_ARRAY  # alle Arten Arrays
   #endif
 
 #endif
@@ -2996,28 +2961,6 @@ Ratio and Complex (only if SPVW_MIXED).
   #define GENERATIONAL_GC
 #endif
 
-
-#ifdef MULTIMAP_MEMORY
-  #if defined(IMMUTABLE) && (defined(GENERATIONAL_GC) || defined(WIDE_SOFT))
-    # Es belastet das Betriebssystem weniger, wenn wir den Speicher nur
-    # 2x mappen: 1x bei 0x00 read-write, 1x bei 0x40 read-only.
-    # Beim Zugriff auf ein Objekt werden alle Typbits ausgeblendet
-    # außer immutable_bit_t.
-    # Timings (PC 486/33 16 MHz, Linux 2.0.29, 29.3.1997, "time make test"):
-    #   IMMUTABLE                             720 s user + 30 s system
-    #   IMMUTABLE, MINIMAL_MULTIMAP_MEMORY    736 s user + 25 s system
-    #   IMMUTABLE, ..., GENERATIONAL_GC       732 s user + 29 s system
-    # We see that MINIMAL_MULTIMAP_MEMORY is worth it only for GENERATIONAL_GC,
-    # but not by itself.
-    # Also, MINIMAL_MULTIMAP_MEMORY is necessary if WIDE_SOFT.
-    #define MINIMAL_MULTIMAP_MEMORY
-  #endif
-  #ifndef MINIMAL_MULTIMAP_MEMORY
-    # Normalerweise hat man ca. 42 read-write und bei IMMUTABLE 8 read-only
-    # Mappings.
-    #define NORMAL_MULTIMAP_MEMORY
-  #endif
-#endif
 
 #ifdef MAP_MEMORY
   # Evtl. sind einige Typbit-Kombinationen nicht erlaubt.
@@ -3314,8 +3257,6 @@ Ratio and Complex (only if SPVW_MIXED).
     #define PACKED_TYPECODES
   #elif defined(DECALPHA) && defined(UNIX_OSF) && defined(MAP_MEMORY)
     #define PACKED_TYPECODES
-  #elif defined(MINIMAL_MULTIMAP_MEMORY) && !defined(WIDE_SOFT)
-    #define PACKED_TYPECODES
   #else
     #define STANDARD_TYPECODES
   #endif
@@ -3325,8 +3266,6 @@ Ratio and Complex (only if SPVW_MIXED).
     #define SIXBIT_TYPECODES
   #elif defined(DECALPHA) && defined(UNIX_OSF) && defined(MAP_MEMORY)
     #define PACKED_TYPECODES
-  #elif defined(MINIMAL_MULTIMAP_MEMORY) && !defined(WIDE_SOFT)
-    #define PACKED_SEVENBIT_TYPECODES
   #else
     #define SEVENBIT_TYPECODES
   #endif
@@ -3336,12 +3275,6 @@ Ratio and Complex (only if SPVW_MIXED).
 #endif
 #if (oint_type_len==6)
   #define SIXBIT_TYPECODES
-#endif
-
-#if (defined(IMMUTABLE_CONS) || defined(IMMUTABLE_ARRAY)) && !(defined(STANDARD_TYPECODES) || defined(PACKED_TYPECODES) || defined(SEVENBIT_TYPECODES) || defined(PACKED_SEVENBIT_TYPECODES))
-  # Currently only STANDARD_TYPECODES, PACKED_TYPECODES, SEVENBIT_TYPECODES, PACKED_SEVENBIT_TYPECODES
-  # have support for immutable objects.
-  #error "Not enough type bits to support IMMUTABLE !"
 #endif
 
 #ifdef STANDARD_TYPECODES
@@ -3420,7 +3353,6 @@ Ratio and Complex (only if SPVW_MIXED).
   #define dfloat_type    0x1A  # %00011010  ; Double-float
   #define complex_type   0x1C  # %00011100  ; Complex
   #define lfloat_type    0x1E  # %00011110  ; Long-Float
-  #if !(defined(IMMUTABLE_ARRAY) && !defined(WIDE_SOFT))
   #define symbol_type    0x20  # %00100000  ; Symbol
           # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
           #define active_bit  1  # gesetzt: Bindung ist aktiv
@@ -3430,36 +3362,10 @@ Ratio and Complex (only if SPVW_MIXED).
           # Bits für Symbole im Selbstpointer:
           #define constant_bit_t  1  # zeigt an, ob das Symbol eine Konstante ist
           #define special_bit_t   2  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-  #else
-  #define imm_array_mask     0x20  # Maske, die immutable von normalen Arrays unterscheidet
-  #define imm_sbvector_type  0x21  # %00100001  ; immutabler Simple-Bit-Vector
-  #define imm_sstring_type   0x22  # %00100010  ; immutabler Simple-String
-  #define imm_svector_type   0x23  # %00100011  ; immutabler Simple-Vector
-  #define imm_mdarray_type   0x24  # %00100100  ; immutabler sonstiger Array (Rang /=1 oder
-                                   #            ; - später vielleicht - anderer Elementtyp)
-  #define imm_bvector_type   0x25  # %00100101  ; immutabler sonstiger Bit-Vector oder Byte-Vector
-  #define imm_string_type    0x26  # %00100110  ; immutabler sonstiger String
-  #define imm_vector_type    0x27  # %00100111  ; immutabler sonstiger (VECTOR T)
-  #define symbol_type    0x28  # %00101000  ; Symbol
-          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
-          #define active_bit  0  # gesetzt: Bindung ist aktiv
-          #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
-          #define svar_bit    2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
-          #define oint_symbolflags_shift  oint_type_shift
-          # Bits für Symbole im Selbstpointer:
-          #define constant_bit_t  0  # zeigt an, ob das Symbol eine Konstante ist
-          #define special_bit_t   1  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-  #undef symbol_bit_t
-  #undef symbol_bit_o
-  #endif
   #if defined(I80386) && defined(UNIX_LINUX)
   #define cons_type      0x44  # %01000100  ; Cons
   #else
   #define cons_type      0x40  # %01000000  ; Cons
-  #endif
-  #if defined(IMMUTABLE_CONS) && !defined(WIDE_SOFT)
-  #define imm_cons_mask  0x01  # Maske, die immutable von normalen Conses unterscheidet
-  #define imm_cons_type  (imm_cons_mask|cons_type)  # immutable Cons
   #endif
 
 #ifndef WIDE
@@ -3509,10 +3415,6 @@ Ratio and Complex (only if SPVW_MIXED).
   #define float2_bit_o     (float2_bit_t+oint_type_shift)
   #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
   #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
-#ifdef IMMUTABLE
-  #define immutable_bit_t  TB6
-  #define immutable_bit_o  (immutable_bit_t+oint_type_shift)
-#endif
 
 # konstante Typcodes:
   #define machine_type   (0)                                            # 0x00  # %00000000  ; Maschinenpointer
@@ -3560,40 +3462,20 @@ Ratio and Complex (only if SPVW_MIXED).
   #define lfloat_type    (bit(TB4)|bit(TB3)|bit(TB2)|bit(TB1)         ) # 0x1E  # %00011110  ; Long-Float
   #define system_type    (bit(TB5)                                    ) # 0x20  # %00100000  ; Frame-Pointer, Read-Label, SYSTEM
   #define char_type      (bit(TB5)|bit(TB0)                           ) # 0x21  # %00100001  ; Character
-#ifdef IMMUTABLE
-  #define imm_type  bit(immutable_bit_t)
- #ifdef IMMUTABLE_ARRAY
-  #define imm_array_mask     imm_type  # Maske, die immutable von normalen Arrays unterscheidet
-  #define imm_sbvector_type  (imm_array_mask|sbvector_type)  # immutabler Simple-Bit-Vector
-  #define imm_sstring_type   (imm_array_mask|sstring_type)   # immutabler Simple-String
-  #define imm_svector_type   (imm_array_mask|svector_type)   # immutabler Simple-Vector
-  #define imm_mdarray_type   (imm_array_mask|mdarray_type)   # immutabler sonstiger Array (Rang /=1 oder
-                                                             # - später vielleicht - anderer Elementtyp)
-  #define imm_bvector_type   (imm_array_mask|bvector_type)   # immutabler sonstiger Bit-Vector oder Byte-Vector
-  #define imm_string_type    (imm_array_mask|string_type)    # immutabler sonstiger String
-  #define imm_vector_type    (imm_array_mask|vector_type)    # immutabler sonstiger (VECTOR T)
- #endif
- #ifdef IMMUTABLE_CONS
-  #define imm_cons_mask  imm_type  # Maske, die immutable von normalen Conses unterscheidet
-  #define imm_cons_type  (imm_cons_mask|cons_type)  # immutable Cons
- #endif
-#else
-  #define imm_type  0
-#endif
 
 # Typ ist GC-invariant, wenn
   #if (TB5==5)&&(TB4==4)&&(TB3==3)&&(TB2==2)&&(TB1==1)&&(TB0==0) && !defined(WIDE)
     # Typinfobyte eines von 0x00,0x0F,0x10,0x11,0x12,0x13,0x20,0x21 ist.
     #define gcinvariant_type_p(type)  \
-      ((((type)&~imm_type)>=32) || ((bit((type)&~imm_type) & 0xFFF07FFEUL) == 0))
+      (((type)>=32) || ((bit(type) & 0xFFF07FFEUL) == 0))
   #elif (TB5==6)&&(TB4==5)&&(TB3==4)&&(TB2==3)&&(TB1==2)&&(TB0==1) && defined(WIDE)
     # Typinfobyte/2 eines von 0x00,0x0F,0x10,0x11,0x12,0x13,0x16,0x17,0x20,0x21 ist.
     #define gcinvariant_type_p(type)  \
-      ((((type)&~imm_type)>=64) || ((bit(((type)&~imm_type)>>1) & 0xFF307FFEUL) == 0))
+      (((type)>=64) || ((bit((type)>>1) & 0xFF307FFEUL) == 0))
   #elif !defined(WIDE)
     # Typinfobyte = 0 oder subr_type <= Typinfobyte < bignum_type oder Typinfobyte >= system_type ist.
     #define gcinvariant_type_p(type)  \
-      (((type) == 0) || ((subr_type <= ((type)&~imm_type)) && (((type)&~imm_type) < bignum_type)) || (system_type <= ((type)&~imm_type)))
+      (((type) == 0) || ((subr_type <= (type)) && ((type) < bignum_type)) || (system_type <= (type)))
   #else
     #error "gcinvariant_type_p() implementieren!"
   #endif
@@ -3707,7 +3589,6 @@ Ratio and Complex (only if SPVW_MIXED).
   #define dfloat_type    (bit(TB4)|bit(TB3)         |bit(TB1)         )  # %011010  ; Double-float
   #define complex_type   (bit(TB4)|bit(TB3)|bit(TB2)                  )  # %011100  ; Complex
   #define lfloat_type    (bit(TB4)|bit(TB3)|bit(TB2)|bit(TB1)         )  # %011110  ; Long-Float
-  #ifndef IMMUTABLE_ARRAY
   #define symbol_type    (bit(TB5)                                    )  # %100000  ; Symbol
           # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
           #define active_bit  TB0  # gesetzt: Bindung ist aktiv
@@ -3717,35 +3598,7 @@ Ratio and Complex (only if SPVW_MIXED).
           # Bits für Symbole im Selbstpointer:
           #define constant_bit_t  TB0  # zeigt an, ob das Symbol eine Konstante ist
           #define special_bit_t   TB1  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-  #else
-  #define imm_array_mask     (bit(TB5)                                    )  # Maske, die immutable von normalen Arrays unterscheidet
-  #define imm_sbvector_type  (bit(TB5)                           |bit(TB0))  # %100001  ; immutabler Simple-Bit-Vector
-  #define imm_sstring_type   (bit(TB5)                  |bit(TB1)         )  # %100010  ; immutabler Simple-String
-  #define imm_svector_type   (bit(TB5)                  |bit(TB1)|bit(TB0))  # %100011  ; immutabler Simple-Vector
-  #define imm_mdarray_type   (bit(TB5)         |bit(TB2)                  )  # %100100  ; immutabler sonstiger Array (Rang /=1 oder
-                                                                             #          ; - später vielleicht - anderer Elementtyp)
-  #define imm_bvector_type   (bit(TB5)         |bit(TB2)         |bit(TB0))  # %100101  ; immutabler sonstiger Bit-Vector oder Byte-Vector
-  #define imm_string_type    (bit(TB5)         |bit(TB2)|bit(TB1)         )  # %100110  ; immutabler sonstiger String
-  #define imm_vector_type    (bit(TB5)         |bit(TB2)|bit(TB1)|bit(TB0))  # %100111  ; immutabler sonstiger (VECTOR T)
-  #define symbol_type    (bit(TB5)|bit(TB3)                           )  # %101000  ; Symbol
-          # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
-          # sitzen nicht im oint_type-Teil, sondern im oint_addr-Teil.
-          #define active_bit  0  # gesetzt: Bindung ist aktiv
-          #define dynam_bit   1  # gesetzt: Bindung ist dynamisch
-          #define svar_bit    2  # gesetzt: nächster Parameter ist supplied-p-Parameter für diesen
-          #if (varobject_alignment >= bit(3))
-            #define oint_symbolflags_shift  oint_addr_shift
-          #else
-            #define NO_symbolflags # active_bit, dynam_bit, svar_bit haben im Symbol keinen Platz
-          #endif
-          #define constant_bit_t  TB0  # zeigt an, ob das Symbol eine Konstante ist
-          #define special_bit_t   TB1  # zeigt an, ob das Symbol SPECIAL-proklamiert ist
-  #endif
   #define cons_type      (bit(TB5)|bit(TB3)|bit(TB2)                  )  # %101000  ; Cons
-  #ifdef IMMUTABLE_CONS
-  #define imm_cons_mask  (                                    bit(TB0))  # Maske, die immutable von normalen Conses unterscheidet
-  #define imm_cons_type  (imm_cons_mask|cons_type)                       # %101101  ; immutable Cons
-  #endif
 
 #ifndef WIDE
   # Typ ist GC-invariant, wenn
@@ -3755,7 +3608,7 @@ Ratio and Complex (only if SPVW_MIXED).
 #elif (TB5==6)&&(TB4==5)&&(TB3==4)&&(TB2==3)&&(TB1==2)&&(TB0==1) && defined(WIDE)
   # Typinfobyte/2 eines von 0x00,0x0D,0x0E,0x0F,0x10,0x11,0x12,0x13,0x16,0x17 ist.
   #define gcinvariant_type_p(type)  \
-    ((((type)&~imm_type)<64) && ((bit(((type)&~imm_type)>>1) & 0xFF301FFEUL) == 0))
+    (((type)<64) && ((bit((type)>>1) & 0xFF301FFEUL) == 0))
 #else
   #error "gcinvariant_type_p() implementieren!"
 #endif
@@ -3785,10 +3638,6 @@ Ratio and Complex (only if SPVW_MIXED).
   #define float2_bit_o     (float2_bit_t+oint_type_shift)
   #define ratio_bit_o      (ratio_bit_t+oint_type_shift)
   #define bignum_bit_o     (bignum_bit_t+oint_type_shift)
-#ifdef IMMUTABLE
-  #define immutable_bit_t  TB5
-  #define immutable_bit_o  (immutable_bit_t+oint_type_shift)
-#endif
 
 # konstante Typcodes:
   #define machine_type   (0)                                             # %000000  ; Maschinenpointer
@@ -3828,26 +3677,6 @@ Ratio and Complex (only if SPVW_MIXED).
   #define dfloat_type    (bit(TB4)|bit(TB3)         |bit(TB1)         )  # %011010  ; Double-float
   #define complex_type   (bit(TB4)|bit(TB3)|bit(TB2)                  )  # %011100  ; Complex
   #define lfloat_type    (bit(TB4)|bit(TB3)|bit(TB2)|bit(TB1)         )  # %011110  ; Long-Float
-#ifdef IMMUTABLE
-  #define imm_type  bit(immutable_bit_t)
- #ifdef IMMUTABLE_ARRAY
-  #define imm_array_mask     imm_type  # Maske, die immutable von normalen Arrays unterscheidet
-  #define imm_sbvector_type  (imm_array_mask|sbvector_type)  # %100001  ; immutabler Simple-Bit-Vector
-  #define imm_sstring_type   (imm_array_mask|sstring_type)   # %100010  ; immutabler Simple-String
-  #define imm_svector_type   (imm_array_mask|svector_type)   # %100011  ; immutabler Simple-Vector
-  #define imm_mdarray_type   (imm_array_mask|mdarray_type)   # %100100  ; immutabler sonstiger Array (Rang /=1 oder
-                                                             #          ; - später vielleicht - anderer Elementtyp)
-  #define imm_bvector_type   (imm_array_mask|bvector_type)   # %100101  ; immutabler sonstiger Bit-Vector oder Byte-Vector
-  #define imm_string_type    (imm_array_mask|string_type)    # %100110  ; immutabler sonstiger String
-  #define imm_vector_type    (imm_array_mask|vector_type)    # %100111  ; immutabler sonstiger (VECTOR T)
- #endif
- #ifdef IMMUTABLE_CONS
-  #define imm_cons_mask  imm_type  # Maske, die immutable von normalen Conses unterscheidet
-  #define imm_cons_type  (imm_cons_mask|cons_type)  # %101001  ; immutable Cons
- #endif
-#else
-  #define imm_type  0
-#endif
   #define char_type      (bit(TB5)|bit(TB3)         |bit(TB1)         )  # %101010  ; Character
 
 #ifndef WIDE
@@ -4096,26 +3925,6 @@ Ratio and Complex (only if SPVW_MIXED).
   #error "gcinvariant_type_p() fehlerhaft implementiert!"
 #endif
 
-#ifdef IMMUTABLE
-  #ifdef WIDE_SOFT
-    # Für Immutable ist ein Bit in der Adresse zuständig, nicht im Typ.
-    #ifdef SUN4_29
-      #define immutable_bit  28
-    #else
-      #define immutable_bit  (oint_addr_len-1)
-    #endif
-    #define imm_addr_mask  (1UL<<immutable_bit)
-    # In einem Objekt ist es dieses Bit.
-    #define immutable_bit_o  (immutable_bit+oint_addr_shift)
-    #define imm_array_mask_o  wbit(immutable_bit_o)
-    #define imm_cons_mask_o   wbit(immutable_bit_o)
-  #else
-    # Hier ist das Immutable-Bit im Typ verpackt.
-    #define imm_array_mask_o  type_zero_oint(imm_array_mask)
-    #define imm_cons_mask_o   type_zero_oint(imm_cons_mask)
-  #endif
-#endif
-
 #else # no TYPECODES
 
 # Bits für Symbole in VAR/FUN-Frames (im LISP-Stack):
@@ -4144,26 +3953,18 @@ Ratio and Complex (only if SPVW_MIXED).
 # nicht mehr auszumaskieren, bevor man auf die Adresse zugreift:
 #define addressbus_mask  hardware_addressbus_mask
 #ifdef MAP_MEMORY
-  #ifdef MINIMAL_MULTIMAP_MEMORY
-    # Durchs Memory-Mapping ist jetzt das Immutable-Bit einer Adresse redundant
-    # und braucht (darf!) beim Zugriff auf ein Objekt nicht wegmaskiert werden.
+  #if defined(SUN4_29_1)
+    # Durchs Memory-Mapping sind jetzt die Bits 28..24 einer Adresse redundant.
     #undef addressbus_mask
-    #define addressbus_mask  \
-      (hardware_addressbus_mask & ~(1UL<<(immutable_bit_o-oint_addr_shift)))
-  #else
-    #if defined(SUN4_29_1)
-      # Durchs Memory-Mapping sind jetzt die Bits 28..24 einer Adresse redundant.
-      #undef addressbus_mask
-      #define addressbus_mask  0xE0FFFFFFUL
-    #elif defined(DECALPHA) && defined(UNIX_OSF)
-      # Durchs Memory-Mapping sind jetzt die Bits 37..33 einer Adresse redundant.
-      #undef addressbus_mask
-      #define addressbus_mask  0xFFFFFFC1FFFFFFFFUL
-    #elif !defined(WIDE_SOFT)
-      # Durchs Memory-Mapping sind jetzt die Bits 31..24 einer Adresse redundant.
-      #undef addressbus_mask
-      #define addressbus_mask  oint_addr_mask  # meist = 0x00FFFFFFUL
-    #endif
+    #define addressbus_mask  0xE0FFFFFFUL
+  #elif defined(DECALPHA) && defined(UNIX_OSF)
+    # Durchs Memory-Mapping sind jetzt die Bits 37..33 einer Adresse redundant.
+    #undef addressbus_mask
+    #define addressbus_mask  0xFFFFFFC1FFFFFFFFUL
+  #elif !defined(WIDE_SOFT)
+    # Durchs Memory-Mapping sind jetzt die Bits 31..24 einer Adresse redundant.
+    #undef addressbus_mask
+    #define addressbus_mask  oint_addr_mask  # meist = 0x00FFFFFFUL
   #endif
 #endif
 
@@ -4248,9 +4049,8 @@ Ratio and Complex (only if SPVW_MIXED).
 
 # Algorithmus nach Morris, der die Conses kompaktiert, ohne sie dabei
 # durcheinanderzuwürfeln:
-#if defined(SPVW_BLOCKS) && defined(VIRTUAL_MEMORY) && !(defined(IMMUTABLE) && defined(WIDE_SOFT)) && !defined(NO_MORRIS_GC)
+#if defined(SPVW_BLOCKS) && defined(VIRTUAL_MEMORY) && !defined(NO_MORRIS_GC)
   # Morris-GC ist zu empfehlen, weil es die Lokalität erhält.
-  # Nicht korrekt implementiert bei IMMUTABLE & WIDE_SOFT.
   #define MORRIS_GC
 #endif
 
@@ -4270,15 +4070,6 @@ Ratio and Complex (only if SPVW_MIXED).
 # switch-Anweisung beliebig viele case-Labels.
 # Beispiel:  switch (typecode(arg)) { case_string: ...; break; ... }
   #define case_machine    case machine_type   # Maschinenpointer
-  #if defined(IMMUTABLE_ARRAY) && !defined(WIDE_SOFT)
-  #define case_sstring    case imm_sstring_type: case sstring_type    # Simple-String
-  #define case_ostring    case imm_string_type: case string_type      # Other String
-  #define case_sbvector   case imm_sbvector_type: case sbvector_type  # Simple-Bit-Vector
-  #define case_obvector   case imm_bvector_type: case bvector_type    # Other Bit/Byte-Vector
-  #define case_svector    case imm_svector_type: case svector_type    # Simple-(General-)Vector
-  #define case_ovector    case imm_vector_type: case vector_type      # Other (General-)Vector
-  #define case_mdarray    case imm_mdarray_type: case mdarray_type    # sonstiger Array
-  #else
   #define case_sstring    case sstring_type   # Simple-String
   #define case_ostring    case string_type    # Other String
   #define case_sbvector   case sbvector_type  # Simple-Bit-Vector
@@ -4286,25 +4077,6 @@ Ratio and Complex (only if SPVW_MIXED).
   #define case_svector    case svector_type   # Simple-(General-)Vector
   #define case_ovector    case vector_type    # Other (General-)Vector
   #define case_mdarray    case mdarray_type   # sonstiger Array
-  #define imm_array_mask     0
-  #define imm_sbvector_type  sbvector_type
-  #define imm_sstring_type   sstring_type
-  #define imm_svector_type   svector_type
-  #define imm_mdarray_type   mdarray_type
-  #define imm_bvector_type   bvector_type
-  #define imm_string_type    string_type
-  #define imm_vector_type    vector_type
-  #endif
-  #define case_mut_sstring  case sstring_type # mutabler Simple-String
-  #define case_mut_sbvector case sbvector_type # mutabler Simple-Bit-Vector
-  #define case_mut_svector  case svector_type # mutabler Simple-Vector
-  #define case_mut_ostring  case string_type # mutabler String
-  #define case_mut_obvector case bvector_type # mutabler Bit-Vector
-  #define case_mut_ovector  case vector_type # mutabler (General-)Vector
-  #define case_mut_mdarray  case mdarray_type # mutabler sonstiger Array
-  #define case_mut_string   case sstring_type: case string_type # mutabler String
-  #define case_mut_bvector  case sbvector_type: case bvector_type # mutabler Bit-Vector
-  #define case_mut_vector   case svector_type: case vector_type # mutabler (General-)Vector
   #define case_string     case_sstring: case_ostring # String allgemein
   #define case_bvector    case_sbvector: case_obvector # Bit-Vector allgemein
   #define case_vector     case_svector: case_ovector # (General-)Vector allgemein
@@ -4371,14 +4143,7 @@ Ratio and Complex (only if SPVW_MIXED).
   #else
   #define case_symbolflagged  case_symbol # Symbol mit Flags
   #endif
-  #define case_mut_cons   case cons_type # mutables Cons
-  #if defined(IMMUTABLE_CONS) && !defined(WIDE_SOFT)
-  #define case_cons       case imm_cons_type: case cons_type # Cons
-  #else
-  #define imm_cons_mask   0
   #define case_cons       case cons_type # Cons
-  #define imm_cons_type   cons_type
-  #endif
 
 #else
 
@@ -4675,14 +4440,6 @@ typedef struct { object cdr; # CDR
                }
         cons_;
 typedef cons_ *  Cons;
-
-# liefert das immutable Pendant zu einem Cons
-# make_imm_cons(obj)
-#if defined(IMMUTABLE_CONS)
-  #define make_imm_cons(obj)  as_object(as_oint(obj)|imm_cons_mask_o)
-#else
-  #define make_imm_cons(obj)  obj
-#endif
 
 # Ratio
 typedef struct {
@@ -5150,17 +4907,9 @@ typedef iarray_ *  Iarray;
   #define Atype_T            6         # arrayflags_notbytep_bit gesetzt!
   #define Atype_String_Char  7         # arrayflags_notbytep_bit gesetzt!
 
-# liefert das immutable Pendant zu einem Array
-# make_imm_array(obj)
-#if defined(IMMUTABLE_ARRAY)
-  #define make_imm_array(obj)  as_object(as_oint(obj)|imm_array_mask_o)
-#else
-  #define make_imm_array(obj)  obj
-#endif
-
 # Typ von Arrays:
   #ifdef TYPECODES
-    #define Array_type(obj)  (typecode(obj) & ~imm_array_mask)
+    #define Array_type(obj)  typecode(obj)
     #define Array_type_bvector   bvector_type      # Iarray
     #define Array_type_string    string_type       # Iarray
     #define Array_type_vector    vector_type       # Iarray
@@ -5434,9 +5183,6 @@ typedef struct {
   #define strmflags_wr_ch_bit_B  7  # gesetzt, falls WRITE-CHAR möglich ist
   #define strmflags_rd_ch_B  bit(strmflags_rd_ch_bit_B)
   #define strmflags_wr_ch_B  bit(strmflags_wr_ch_bit_B)
-  #ifdef IMMUTABLE
-  #define strmflags_immut_B  0x08  # gibt an, ob gelesene Objekte immutabel sind
-  #endif
 # Nähere Typinfo:
   enum { # Die Werte dieser Aufzählung sind der Reihe nach 0,1,2,...
                               enum_strmtype_sch_file,
@@ -5850,7 +5596,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Die Information, daß es Cons darstellt, muß hineingesteckt werden.
 # Analog die anderen Typumwandlungen.
 #ifdef TYPECODES
-  #define TheCons(obj)  ((Cons)(types_pointable(cons_type|imm_cons_type,obj)))
+  #define TheCons(obj)  ((Cons)(types_pointable(cons_type,obj)))
   #define TheRatio(obj)  ((Ratio)(types_pointable(ratio_type|bit(sign_bit_t),obj)))
   #define TheComplex(obj)  ((Complex)(type_pointable(complex_type,obj)))
   #define TheSymbol(obj)  ((Symbol)(type_pointable(symbol_type,obj)))
@@ -5865,12 +5611,12 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #endif
   #define TheDfloat(obj)  ((Dfloat)(types_pointable(dfloat_type|bit(sign_bit_t),obj)))
   #define TheLfloat(obj)  ((Lfloat)(types_pointable(lfloat_type|bit(sign_bit_t),obj)))
-  #define TheSarray(obj)  ((Sarray)(types_pointable(sbvector_type|imm_sbvector_type|sstring_type|imm_sstring_type|svector_type|imm_svector_type,obj)))
-  #define TheSbvector(obj)  ((Sbvector)(types_pointable(sbvector_type|imm_sbvector_type,obj)))
+  #define TheSarray(obj)  ((Sarray)(types_pointable(sbvector_type|sstring_type|svector_type,obj)))
+  #define TheSbvector(obj)  ((Sbvector)(types_pointable(sbvector_type,obj)))
   #define TheCodevec(obj)  ((Codevec)TheSbvector(obj))
-  #define TheSstring(obj)  ((Sstring)(types_pointable(sstring_type|imm_sstring_type,obj)))
-  #define TheSvector(obj)  ((Svector)(types_pointable(svector_type|imm_svector_type,obj)))
-  #define TheIarray(obj)  ((Iarray)(types_pointable(mdarray_type|imm_mdarray_type|bvector_type|imm_bvector_type|string_type|imm_string_type|vector_type|imm_vector_type,obj)))
+  #define TheSstring(obj)  ((Sstring)(types_pointable(sstring_type,obj)))
+  #define TheSvector(obj)  ((Svector)(types_pointable(svector_type,obj)))
+  #define TheIarray(obj)  ((Iarray)(types_pointable(mdarray_type|bvector_type|string_type|vector_type,obj)))
   #define TheRecord(obj)  ((Record)(types_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type,obj)))
   #define TheSrecord(obj)  ((Srecord)(types_pointable(closure_type|structure_type|orecord_type|instance_type,obj)))
   #define TheXrecord(obj)  ((Xrecord)(types_pointable(stream_type|orecord_type,obj)))
@@ -5920,37 +5666,11 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   # Handle in Fixnum>=0 verpackt
   #define TheHandle(obj)  ((Handle)posfixnum_to_L(obj))
   #endif
-  #ifdef IMMUTABLE
-  # Read-Write-Zugriff auf immutable Objekte:
-  #ifdef WIDE_SOFT
-  # UnImm(addr) entfernt das immutable_bit aus einer Adresse.
-  #define UnImm(addr)  ((aint)(addr)&~imm_addr_mask)
-  #else
-  # UnImm(addr) braucht hier nichts zu tun, weil immutable Objekte andere Typcodes haben.
-  #define UnImm(addr)  (addr)
-  #ifdef IMMUTABLE_ARRAY
-  #define TheImmSvector(obj)  \
-    ((Svector)(type_pointable(imm_svector_type, \
-               objectplus(obj,-type_zero_oint(imm_array_mask)))))
-  #define TheImmArray(obj)  \
-    ((Iarray)(types_pointable(imm_sbvector_type|imm_sstring_type|imm_mdarray_type|imm_bvector_type|imm_string_type|imm_vector_type, \
-              objectplus(obj,-type_zero_oint(imm_array_mask)))))
-  #endif
-  #ifdef IMMUTABLE_CONS
-  #define TheImmCons(obj)  \
-    ((Cons)type_pointable(cons_type,objectplus(obj,type_zero_oint(cons_type)-type_zero_oint(imm_cons_type))))
-  #endif
-  #endif
-  #else
-  # UnImm(addr) braucht hier sowieso nichts zu tun.
-  #define UnImm(addr)  (addr)
-  #endif
   # Objekt variabler Länge:
   #define TheVarobject(obj)  \
     ((Varobject)                                                                                 \
      (types_pointable                                                                            \
       (sbvector_type|sstring_type|svector_type|mdarray_type|bvector_type|string_type|vector_type \
-       |imm_sbvector_type|imm_sstring_type|imm_svector_type|imm_mdarray_type|imm_bvector_type|imm_string_type|imm_vector_type \
        |closure_type|structure_type|stream_type|orecord_type|symbol_type                         \
        |bignum_type|ffloat_type|dfloat_type|lfloat_type|bit(sign_bit_t),                         \
        obj                                                                                       \
@@ -5959,8 +5679,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   #define ThePointer(obj)  \
     (types_pointable                                                                            \
      (sbvector_type|sstring_type|svector_type|mdarray_type|bvector_type|string_type|vector_type \
-      |imm_sbvector_type|imm_sstring_type|imm_svector_type|imm_mdarray_type|imm_bvector_type|imm_string_type|imm_vector_type \
-      |closure_type|structure_type|stream_type|orecord_type|symbol_type|cons_type|imm_cons_type \
+      |closure_type|structure_type|stream_type|orecord_type|symbol_type|cons_type               \
       |bignum_type|ffloat_type|dfloat_type|lfloat_type|ratio_type|complex_type|bit(sign_bit_t), \
       obj                                                                                       \
     ))
@@ -6035,7 +5754,6 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
   # Handle in Fixnum>=0 verpackt
   #define TheHandle(obj)  ((Handle)posfixnum_to_L(obj))
   #endif
-  #define UnImm(addr)  (addr)
   # Objekt variabler Länge:
   #define TheVarobject(obj)  ((Varobject)(as_oint(obj)-varobject_bias))
   # Objekt, das einen Pointer in den Speicher darstellt:
@@ -6080,7 +5798,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 
 # Test auf Cons
   #ifdef TYPECODES
-    #if defined(cons_bit_o) /* || defined(IMMUTABLE_CONS) */
+    #if defined(cons_bit_o)
       # define consp(obj)  (as_oint(obj) & wbit(cons_bit_o))
       #define consp(obj)  (wbit_test(as_oint(obj),cons_bit_o))
       #ifdef fast_mtypecode
@@ -6093,8 +5811,8 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
         #define mconsp(obj)  consp(obj)
       #endif
     #else
-      #define consp(obj)  ((typecode(obj) & ~imm_cons_mask) == cons_type)
-      #define mconsp(obj)  ((mtypecode(obj) & ~imm_cons_mask) == cons_type)
+      #define consp(obj)  (typecode(obj) == cons_type)
+      #define mconsp(obj)  (mtypecode(obj) == cons_type)
     #endif
   #else
     #define consp(obj)  ((as_oint(obj) & 7) == cons_bias)
@@ -6103,7 +5821,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 
 # Test auf Atom
   #ifdef TYPECODES
-    #if defined(cons_bit_o) /* || defined(IMMUTABLE_CONS) */
+    #if defined(cons_bit_o)
       # define atomp(obj)  ((as_oint(obj) & wbit(cons_bit_o))==0)
       #define atomp(obj)  (!wbit_test(as_oint(obj),cons_bit_o))
       #ifdef fast_mtypecode
@@ -6116,8 +5834,8 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
         #define matomp(obj)  atomp(obj)
       #endif
     #else
-      #define atomp(obj)  (!((typecode(obj) & ~imm_cons_mask) == cons_type))
-      #define matomp(obj)  (!((mtypecode(obj) & ~imm_cons_mask) == cons_type))
+      #define atomp(obj)  (!(typecode(obj) == cons_type))
+      #define matomp(obj)  (!(mtypecode(obj) == cons_type))
     #endif
   #else
     #define atomp(obj)  (!consp(obj))
@@ -6175,7 +5893,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test auf Vector (Typbytes %001,%010,%011,%101,%110,%111)
   #ifdef TYPECODES
     #define vectorp(obj)  \
-      ((tint)((typecode(obj) & ~imm_array_mask & ~bit(notsimple_bit_t))-1) <= (tint)(svector_type-1))
+      ((tint)((typecode(obj) & ~bit(notsimple_bit_t))-1) <= (tint)(svector_type-1))
   #else
     #define vectorp(obj)  \
       (varobjectp(obj) && ((uintB)((Record_type(obj) & ~4) - 1) <= 2))
@@ -6184,7 +5902,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test auf simple-vector oder simple-bit-vector oder simple-string
   #ifdef TYPECODES
     #define simplep(obj)  \
-      ((tint)((typecode(obj) & ~imm_array_mask) - 1) <= (tint)(svector_type-1))
+      ((tint)(typecode(obj) - 1) <= (tint)(svector_type-1))
   #else
     #define simplep(obj)  \
       (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= 2))
@@ -6193,7 +5911,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test eines Array auf simple-vector oder simple-bit-vector oder simple-string
   #ifdef TYPECODES
     #define array_simplep(obj)  \
-      ((typecode(obj) & ~imm_array_mask) <= svector_type)
+      (typecode(obj) <= svector_type)
   #else
     #define array_simplep(obj)  \
       ((uintB)Record_type(obj) < 4)
@@ -6202,7 +5920,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test auf simple-vector
   #ifdef TYPECODES
     #define simple_vector_p(obj)  \
-      ((typecode(obj) & ~imm_array_mask) == svector_type)
+      (typecode(obj) == svector_type)
   #else
     #define simple_vector_p(obj)  \
       (varobjectp(obj) && (Record_type(obj) == Rectype_Svector))
@@ -6211,7 +5929,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test auf general-vector=(vector t)
   #ifdef TYPECODES
     #define general_vector_p(obj)  \
-      ((typecode(obj) & ~imm_array_mask & ~bit(notsimple_bit_t)) == svector_type)
+      ((typecode(obj) & ~bit(notsimple_bit_t)) == svector_type)
   #else
     #define general_vector_p(obj)  \
       (varobjectp(obj) && ((Record_type(obj) & ~4) == Rectype_Svector))
@@ -6220,7 +5938,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test auf simple-string
   #ifdef TYPECODES
     #define simple_string_p(obj)  \
-      ((typecode(obj) & ~imm_array_mask) == sstring_type)
+      (typecode(obj) == sstring_type)
   #else
     #define simple_string_p(obj)  \
       (varobjectp(obj) && (Record_type(obj) == Rectype_Sstring))
@@ -6229,7 +5947,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test auf string
   #ifdef TYPECODES
     #define stringp(obj)  \
-      ((typecode(obj) & ~imm_array_mask & ~bit(notsimple_bit_t)) == sstring_type)
+      ((typecode(obj) & ~bit(notsimple_bit_t)) == sstring_type)
   #else
     #define stringp(obj)  \
       (varobjectp(obj) && ((Record_type(obj) & ~4) == Rectype_Sstring))
@@ -6238,7 +5956,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test auf simple-bit-vector
   #ifdef TYPECODES
     #define simple_bit_vector_p(obj)  \
-      ((typecode(obj) & ~imm_array_mask) == sbvector_type)
+      (typecode(obj) == sbvector_type)
   #else
     #define simple_bit_vector_p(obj)  \
       (varobjectp(obj) && (Record_type(obj) == Rectype_Sbvector))
@@ -6247,8 +5965,8 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test auf bit-vector
   #ifdef TYPECODES
     #define bit_vector_p(obj)  \
-      (((typecode(obj) & ~imm_array_mask) == sbvector_type)              \
-       || (((typecode(obj) & ~imm_array_mask) == bvector_type)           \
+      ((typecode(obj) == sbvector_type)                                  \
+       || ((typecode(obj) == bvector_type)                               \
            && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_Bit) \
       )   )
   #else
@@ -6263,7 +5981,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test auf byte-vector
   #ifdef TYPECODES
     #define byte_vector_p(obj)  \
-      ((typecode(obj) & ~imm_array_mask & ~bit(notsimple_bit_t)) == sbvector_type)
+      ((typecode(obj) & ~bit(notsimple_bit_t)) == sbvector_type)
   #else
     #define byte_vector_p(obj)  \
       (varobjectp(obj) && ((Record_type(obj) & ~4) == Rectype_Sbvector))
@@ -6272,7 +5990,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test auf byte-vector, ausgenommen simple-bit-vector
   #ifdef TYPECODES
     #define general_byte_vector_p(obj)  \
-      ((typecode(obj) & ~imm_array_mask) == bvector_type)
+      (typecode(obj) == bvector_type)
   #else
     #define general_byte_vector_p(obj)  \
       (varobjectp(obj) && (Record_type(obj) == Rectype_bvector))
@@ -6281,7 +5999,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test auf Array allgemein
   #ifdef TYPECODES
     #define arrayp(obj)  \
-      ((tint)((typecode(obj) & ~imm_array_mask) - 1) <= (tint)(vector_type-1))
+      ((tint)(typecode(obj) - 1) <= (tint)(vector_type-1))
   #else
     #define arrayp(obj)  \
       (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= 7-1))
@@ -6290,7 +6008,7 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
 # Test auf Array, der kein Vector ist (Typbyte %100)
   #ifdef TYPECODES
     #define mdarrayp(obj)  \
-      ((typecode(obj) & ~imm_array_mask) == mdarray_type)
+      (typecode(obj) == mdarray_type)
   #else
     #define mdarrayp(obj)  \
       (varobjectp(obj) && (Record_type(obj) == Rectype_mdarray))
@@ -10785,19 +10503,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # < ergebnis: Simple-String mit denselben Zeichen
 # kann GC auslösen
   extern object coerce_ss (object obj);
-# wird verwendet von STREAM, PATHNAME, Macro coerce_imm_ss
-
-# UP: wandelt einen String in einen immutablen Simple-String um.
-# coerce_imm_ss(obj)
-# > obj: Lisp-Objekt, sollte ein String sein.
-# < ergebnis: immutabler Simple-String mit denselben Zeichen
-# kann GC auslösen
-  #ifdef IMMUTABLE_ARRAY
-    #define coerce_imm_ss(obj)  make_imm_array(copy_string(obj))
-  #else
-    #define coerce_imm_ss(obj)  coerce_ss(obj)
-  #endif
-# wird verwendet von PACKAGE
+# wird verwendet von STREAM, PATHNAME, PACKAGE
 
 # UP: Konversion eines Objekts zu einem Character
 # coerce_char(obj)
