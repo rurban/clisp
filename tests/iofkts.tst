@@ -232,7 +232,7 @@ NIL
 (GET-OUTPUT-STREAM-STRING A)
 #+XCL ""
 #-XCL "
-\"yyy\" 
+\"yyy\"
 \"zzz\" "
 
 (GET-OUTPUT-STREAM-STRING B)
@@ -326,7 +326,7 @@ T
 ERROR
 
 (MULTIPLE-VALUE-LIST (READ-LINE B NIL "EOF"))
-#+(or XCL ANSI-CL) ("EOF" T) #-(or XCL ANSI-CL) ("EOF")
+("EOF" T)
 
 (PEEK-CHAR NIL A)
 #\1
