@@ -6263,7 +6263,7 @@ LISPFUNN(subr_info,1)
                     "bne 1f"          "\n\t" \
                     "addql #4,%1"     "\n"   \
                     "1:"                     \
-                    "=d" (where), "=a" (byteptr) : "1" (byteptr) ); \
+                    : "=d" (where), "=a" (byteptr) : "1" (byteptr) ); \
                 }
             #endif
             #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
