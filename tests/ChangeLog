@@ -1,3 +1,7 @@
+1999-01-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * number2.tst: Add two more XGCD tests.
+
 1999-01-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * excepsit.tst: Delete some garbage "foo" files after creating them.
