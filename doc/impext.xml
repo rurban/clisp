@@ -3184,31 +3184,32 @@ only.</subtitle>
 
 <varlistentry id="dffi-make-var">
  <term><literal role="sexp">(&foreign-variable; &f-ent; &ctypei-r;
-  &key-amp; &name-r;)</literal></term>
+   &key-amp; &name-r;)</literal></term>
  <listitem><simpara> This constructor creates a new &foreign-variable-t;
-  from the given &foreign-address-t; or &foreign-variable-t; and the
-  internal &c-lang; type descriptor (as obtained from &parse-c-type;).
-  &name-r;, a &string-t;, is mostly useful for documentation and
-  interactive debugging since it appears in the printed representation
-  of the &foreign-variable-t; object, as in <literal
-  role="data">#&lt;&foreign-variable-t; "foo" #x0ADD4E55&gt;</literal>.
-  In effect, this is similar to &cast; (or rather (&offset; 0) for
-  places, except that it works with &foreign-address; objects and allows
-  caching of the internal &c-lang; types.</simpara></listitem></varlistentry>
+   from the given &foreign-address-t; or &foreign-variable-t; and the
+   internal &c-lang; type descriptor (as obtained from &parse-c-type;).
+   &name-r;, a &string-t;, is mostly useful for documentation and
+   interactive debugging since it appears in the printed representation
+   of the &foreign-variable-t; object, as in <literal
+    role="data">#&lt;&foreign-variable-t; "foo" #x0ADD4E55&gt;</literal>.
+   In effect, this is similar to &cast; (or rather
+   <literal role="sexp">(&offset; ... 0 ...)</literal> for places),
+   except that it works with &foreign-address; objects and allows
+   caching of the internal &c-lang; types.</simpara></listitem></varlistentry>
 
 <varlistentry id="dffi-make-func">
  <term><literal role="sexp">(&foreign-function; &f-ent; &ctypei-r;
-  &key-amp; &name-r;)</literal></term>
+   &key-amp; &name-r;)</literal></term>
  <listitem><simpara>This constructor creates a &foreign-function-t;
-  from the given &foreign-address-t; or &foreign-function-t; and the
-  internal &c-lang; type descriptor (as obtained from
-  <literal role="sexp">(&parse-c-type; '(&c-function; ...))</literal>).
-  &name-r;, a &string-t;, is mostly useful for documentation and
-  interactive debugging since it appears in the printed representation
-  of the &foreign-function-t; object, as in <literal
-  role="data">#&lt;&foreign-function-t; "foo" #x0052B060&gt;</literal>.
-  It is inherited from the given &foreign-function-t; object when
-  available.</simpara></listitem></varlistentry>
+   from the given &foreign-address-t; or &foreign-function-t; and the
+   internal &c-lang; type descriptor (as obtained from
+   <literal role="sexp">(&parse-c-type; '(&c-function; ...))</literal>).
+   &name-r;, a &string-t;, is mostly useful for documentation and
+   interactive debugging since it appears in the printed representation
+   of the &foreign-function-t; object, as in <literal
+    role="data">#&lt;&foreign-function-t; "foo" #x0052B060&gt;</literal>.
+   It is inherited from the given &foreign-function-t; object when
+   available.</simpara></listitem></varlistentry>
 
 <varlistentry id="validp">
   <term><literal role="sexp">(&validp; &f-ent;)</literal></term>
