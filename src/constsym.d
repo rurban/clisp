@@ -1264,6 +1264,7 @@ LISPSYM(standard_input,"*STANDARD-INPUT*",lisp) # als Variable in STREAM
 LISPSYM(standard_output,"*STANDARD-OUTPUT*",lisp) # als Variable in STREAM
 LISPSYM(error_output,"*ERROR-OUTPUT*",lisp) # als Variable in STREAM
 LISPSYM(trace_output,"*TRACE-OUTPUT*",lisp) # als Variable in STREAM
+LISPSYM(stream_element_type,"STREAM-ELEMENT-TYPE",lisp) # als Funktion in STREAM
 LISPSYM(reval,"$REVAL",system) # als Slotname in STREAM
 LISPSYM(default_pathname_defaults,"*DEFAULT-PATHNAME-DEFAULTS*",lisp) # als Variable in PATHNAME
 LISPSYM(merge_pathnames_ansi,"*MERGE-PATHNAMES-ANSI*",lisp) # als Variable in PATHNAME
