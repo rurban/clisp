@@ -426,7 +426,7 @@
     (concat-pnames concname slotname)
     slotname))
 
-(defun ds-make-accessors (name names type concname slotlist)
+(defun ds-make-readers (name names type concname slotlist)
   (mapcap
     #'(lambda (slot)
         (if (ds-real-slot-p slot)
@@ -455,7 +455,7 @@
           '()))
     slotlist))
 
-(defun ds-make-defsetfs (name names type concname slotlist)
+(defun ds-make-writers (name names type concname slotlist)
   (mapcap
     #'(lambda (slot)
         (if (and (ds-real-slot-p slot) (not (clos::structure-effective-slot-definition-readonly slot)))
@@ -466,26 +466,27 @@
             ;; of the compilation environment, but it doesn't hurt because
             ;; the included structure's definition must already be
             ;; present in the compilation environment anyway. We don't expect
-            ;; people to re-DEFSETF defstruct accessors.
+            ;; people to re-DEFUN or re-DEFSETF defstruct accessors.
             (if (memq (get accessorname 'SYSTEM::DEFSTRUCT-WRITER name)
                       (cdr names))
               '()
-              `((DEFSETF ,accessorname (STRUCT) (VALUE)
+              `((PROCLAIM '(FUNCTION (SETF ,accessorname) (,slottype ,name) ,slottype))
+                (PROCLAIM '(INLINE (SETF ,accessorname)))
+                (DEFUN (SETF ,accessorname) (VALUE OBJECT)
                   ,(if (eq type 'T)
-                     `(LIST '%STRUCTURE-STORE '',name
-                        STRUCT
+                     `(%STRUCTURE-STORE ',name
+                        OBJECT
                         ,offset
                         ,(if (eq 'T slottype)
                            `VALUE
-                           `(LIST 'THE ',slottype VALUE)))
+                           `(THE ,slottype VALUE)))
                      (if (eq type 'LIST)
-                       `(LIST 'SETF (LIST 'NTH ,offset STRUCT) VALUE)
+                       `(SETF (NTH ,offset OBJECT) VALUE)
                        (if (consp type)
-                         `(LIST 'SETF (LIST 'AREF STRUCT ,offset) VALUE)
-                         `(LIST 'SETF (LIST 'SVREF STRUCT ,offset) VALUE)))))
-                (eval-when (compile eval load)
-                  (SYSTEM::%PUT ',accessorname 'SYSTEM::DEFSTRUCT-WRITER
-                                ',name)))))))
+                         `(SETF (AREF OBJECT ,offset) VALUE)
+                         `(SETF (SVREF OBJECT ,offset) VALUE)))))
+                (SYSTEM::%PUT ',accessorname 'SYSTEM::DEFSTRUCT-WRITER
+                              ',name))))))
     slotlist))
 
 ;; Two hooks for CLOS
@@ -904,10 +905,10 @@
              (ds-make-pred predicate-option type-option name slotlist size))
          ,@(if copier-option (ds-make-copier copier-option name type-option))
          ,@(let ((directslotlist (nthcdr inherited-slot-count slotlist)))
-             `(,@(ds-make-accessors name names type-option conc-name-option
-                                    directslotlist)
-               ,@(ds-make-defsetfs name names type-option conc-name-option
-                                   directslotlist)))
+             `(,@(ds-make-readers name names type-option conc-name-option
+                                  directslotlist)
+               ,@(ds-make-writers name names type-option conc-name-option
+                                  directslotlist)))
          ;; see documentation.lisp: we map STRUCTURE to TYPE
          (sys::%set-documentation ',name 'TYPE ,docstring)
          ,@(when (eq type-option 'T)
