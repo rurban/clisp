@@ -3716,6 +3716,7 @@ cat > conftest.$ac_ext <<EOF
 #include <unistd.h>
 #endif
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/resource.h>
 
 extern
@@ -3733,7 +3734,7 @@ int main() {
 
 ; return 0; }
 EOF
-if { (eval echo configure:3737: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:3738: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   cl_cv_proto_getrlimit_arg1="enum __rlimit_resource"
 else
@@ -3757,13 +3758,13 @@ cat >> confdefs.h <<EOF
 EOF
 
 echo $ac_n "checking for setrlimit declaration""... $ac_c" 1>&6
-echo "configure:3761: checking for setrlimit declaration" >&5
+echo "configure:3762: checking for setrlimit declaration" >&5
 if eval "test \"`echo '$''{'cl_cv_proto_setrlimit'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   
 cat > conftest.$ac_ext <<EOF
-#line 3767 "configure"
+#line 3768 "configure"
 #include "confdefs.h"
 
 #if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
@@ -3773,6 +3774,7 @@ cat > conftest.$ac_ext <<EOF
 #include <unistd.h>
 #endif
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/resource.h>
 
 extern
@@ -3790,7 +3792,7 @@ int main() {
 
 ; return 0; }
 EOF
-if { (eval echo configure:3794: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:3796: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   cl_cv_proto_setrlimit_arg2=""
 else
