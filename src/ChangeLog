@@ -1,3 +1,10 @@
+2001-07-20  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (SUBST_RECURSE): new macro
+	(subst_coerce_normal_ss, subst_common_case, subst_logical_case,
+	subst_customary_case): use it
+	(make-pathname): logical arguments do not override :CASE :COMMON
+
 2001-07-19  Sam Steingold  <sds@gnu.org>
 
 	* list.d (ldiff): handle dotted lists correctly [bug #442739]

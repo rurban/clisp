@@ -22,7 +22,7 @@
 # define DEBUG_TRANSLATE_PATHNAME 1
 #if DEBUG_TRANSLATE_PATHNAME
 #include <stdio.h>
-local object debug_output (const char*label,object obj,const int pos) {
+local object debug_output (const char* label,object obj,const int pos) {
   fprintf(stdout,"[%d] %s: ",pos,label);fflush(stdout);
   pushSTACK(obj);pushSTACK(subr_self);
   # gar_col();fprintf(stdout,"[gc] ");fflush(stdout);
@@ -991,36 +991,33 @@ local inline void rename_file_to_nonexisting (char* old_pathstring,
 # Externe Notation: siehe CLtl2 S. 628-629.
 #endif
 
+#define SUBST_RECURSE(atom_form,self_call)                      \
+  if (atomp(obj)) return atom_form;                             \
+  check_STACK(); check_SP();                                    \
+  pushSTACK(obj);                                               \
+  { /* recursive call for CAR: */                               \
+    object new_car = self_call(Car(obj));                       \
+    pushSTACK(new_car);                                         \
+  }                                                             \
+  { /* recursive call for CDR: */                               \
+    object new_cdr = self_call(Cdr(STACK_1));                   \
+    if (eq(new_cdr,Cdr(STACK_1)) && eq(STACK_0,Car(STACK_1))) { \
+      obj = STACK_1; skipSTACK(2); return obj;                  \
+    } else { /* (CONS new_car new_cdr) */                       \
+      STACK_1 = new_cdr;                                        \
+     {object new_cons = allocate_cons();                        \
+      Car(new_cons) = popSTACK(); Cdr(new_cons) = popSTACK();   \
+      return new_cons;                                          \
+    }}                                                          \
+  }
+
 # Wandelt Strings in Normal-Simple-Strings um.
 # subst_coerce_normal_ss(obj)
 # can trigger GC
+local object subst_coerce_normal_ss (object obj);
 local object subst_coerce_normal_ss (object obj) {
-  if (atomp(obj)) {
-    if (stringp(obj))
-      return coerce_normal_ss(obj);
-    else
-      return obj;
-  }
-  check_STACK(); check_SP();
-  pushSTACK(obj);
-  # rekursiv für den CAR aufrufen:
-  {
-    var object new_car = subst_coerce_normal_ss(Car(obj));
-    pushSTACK(new_car);
-  }
-  # rekursiv für den CDR aufrufen:
-  {
-    var object new_cdr = subst_coerce_normal_ss(Cdr(STACK_1));
-    if (eq(new_cdr,Cdr(STACK_1)) && eq(STACK_0,Car(STACK_1))) {
-      obj = STACK_1; skipSTACK(2); return obj;
-    } else {
-      # (CONS new_car new_cdr)
-      STACK_1 = new_cdr;
-      var object new_cons = allocate_cons();
-      Car(new_cons) = popSTACK(); Cdr(new_cons) = popSTACK();
-      return new_cons;
-    }
-  }
+  SUBST_RECURSE((stringp(obj) ? coerce_normal_ss(obj) : obj),
+                subst_coerce_normal_ss);
 }
 
 # Wandelt Groß-/Klein-Schreibung zwischen :LOCAL und :COMMON um.
@@ -1061,29 +1058,9 @@ local object common_case (object string) {
     return string_upcase(string);
 }
 # Dasselbe, rekursiv wie mit SUBST:
+local object subst_common_case (object obj);
 local object subst_common_case (object obj) {
-  if (atomp(obj))
-    return common_case(obj);
-  check_STACK(); check_SP();
-  pushSTACK(obj);
-# rekursiv für den CAR aufrufen:
-  {
-    var object new_car = subst_common_case(Car(obj));
-    pushSTACK(new_car);
-  }
-# rekursiv für den CDR aufrufen:
-  {
-    var object new_cdr = subst_common_case(Cdr(STACK_1));
-    if (eq(new_cdr,Cdr(STACK_1)) && eq(STACK_0,Car(STACK_1))) {
-      obj = STACK_1; skipSTACK(2); return obj;
-    } else {
-# (CONS new_car new_cdr)
-      STACK_1 = new_cdr;
-      var object new_cons = allocate_cons();
-      Car(new_cons) = popSTACK(); Cdr(new_cons) = popSTACK();
-      return new_cons;
-    }
-  }
+  SUBST_RECURSE(common_case(obj),subst_common_case);
 }
 
 #ifdef LOGICAL_PATHNAMES
@@ -3984,6 +3961,8 @@ local bool legal_name (object obj) {
 
 #endif # PATHNAME_NOEXT || PATHNAME_RISCOS
 
+local object copy_pathname (object pathname);
+
 LISPFUN(make_pathname,0,0,norest,key,8,\
         (kw(defaults),kw(case),kw(host),kw(device),kw(directory),kw(name),kw(type),kw(version)) )
 # (MAKE-PATHNAME [:host] [:device] [:directory] [:name] [:type] [:version]
@@ -3998,7 +3977,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     # Damit TRANSLATE-PATHNAMES logische Pathnames erzeugen kann:
     if (logpathnamep(STACK_5)) {
       STACK_5 = TheLogpathname(STACK_5)->pathname_host;
-      logical = true; convert = false;
+      logical = true;
     }
     #endif
     #if HAS_HOST
@@ -4008,7 +3987,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     #endif
     #ifdef LOGICAL_PATHNAMES
     if (!nullp(STACK_5) && logical_host_p(STACK_5)) {
-      logical = true; convert = false; STACK_5 = string_upcase(STACK_5);
+      logical = true; STACK_5 = string_upcase(STACK_5);
     }
     #endif
     DOUT("make-pathname:[version]",STACK_0);
@@ -4336,6 +4315,28 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       } else {
         # (MERGE-PATHNAMES pathname defaults [nil] :wild #'make-pathname)
         pushSTACK(pathname); pushSTACK(defaults);
+        if (convert && pathnamep(defaults)
+            #ifdef LOGICAL_PATHNAMES
+            && !logpathnamep(defaults)
+            #endif
+            ) { /* convert the components of default */
+          STACK_0 = copy_pathname(STACK_0);
+          #define FIXA(x) x=(stringp(x)?common_case(coerce_normal_ss(x)):x)
+          #define FIXC(x) x=subst_common_case(subst_coerce_normal_ss(x))
+         #if HAS_HOST
+          FIXA(ThePathname(STACK_0)->pathname_host);
+         #endif
+         #if HAS_DEVICE
+          FIXA(ThePathname(STACK_0)->pathname_device);
+         #endif
+          FIXA(ThePathname(STACK_0)->pathname_name);
+          FIXA(ThePathname(STACK_0)->pathname_type);
+          FIXC(ThePathname(STACK_0)->pathname_directory);
+          #undef FIXA
+          #undef FIXC
+          DOUT("make-pathname:[default - converted]",STACK_0);
+          defaults = STACK_0;
+        }
         #ifdef LOGICAL_PATHNAMES
         if (logpathnamep(pathname) && stringp(defaults) &&
             looks_logical_p(defaults))
@@ -4828,6 +4829,7 @@ local bool subdir_match (object muster, object beispiel, bool logical) {
 #endif
 }
 # rekursive Implementation wegen Backtracking:
+local bool directory_match_ab (object m_list, object b_list, bool logical);
 local bool directory_match_ab (object m_list, object b_list, bool logical) {
   # Algorithmus analog zu wildcard_match_ab.
   var object item;
@@ -5104,39 +5106,39 @@ local void device_diff (object muster, object beispiel, bool logical,
   DEBUG_DIFF(device_diff);
 #ifdef LOGICAL_PATHNAMES
   if (logical) {
-#if HAS_DEVICE
+   #if HAS_DEVICE
     push_solution_with(S(Kdevice));
-#else
+   #else
     push_solution();
-#endif
+   #endif
     return;
   }
 #endif
 #if HAS_DEVICE
-#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
   if (nullp(muster) || eq(muster,S(Kwild))) {
     var object string = wild2string(beispiel);
     push_solution_with(string);
     return;
   }
   if (eq(beispiel,S(Kwild))) return;
-#endif
-#if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #endif
+ #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
   if (nullp(muster)) {
     var object string =
-#if defined(PATHNAME_AMIGAOS)
+ #if defined(PATHNAME_AMIGAOS)
       beispiel;
-#endif
-#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #endif
+ #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
     wild2string(beispiel);
-#endif
+ #endif
     push_solution_with(string);
     return;
   }
   if (!equalp(muster,beispiel)) return;
-#else
+ #else
   if (!equal(muster,beispiel)) return;
-#endif
+ #endif
       push_solution_with(S(Kdevice));
 #else # if HAS_DEVICE
       push_solution();
@@ -5204,6 +5206,8 @@ local void subdir_diff (object muster, object beispiel, bool logical,
 #endif
 }
 # rekursive Implementation wegen Backtracking:
+local void directory_diff_ab (object m_list, object b_list, bool logical,
+                              const object* previous, object* solutions);
 local void directory_diff_ab (object m_list, object b_list, bool logical,
                               const object* previous, object* solutions) {
   # Algorithmus analog zu wildcard_diff_ab.
@@ -5352,26 +5356,9 @@ local object logical_case (object string) {
   return string_upcase(string);
 }
 # Dasselbe, rekursiv wie mit SUBST:
+local object subst_logical_case (object obj);
 local object subst_logical_case (object obj) {
-  if (atomp(obj))
-    return logical_case(obj);
-  check_STACK(); check_SP();
-  pushSTACK(obj);
-  { # rekursiv für den CAR aufrufen:
-    var object new_car = subst_logical_case(Car(obj));
-    pushSTACK(new_car);
-  }
-  { # rekursiv für den CDR aufrufen:
-    var object new_cdr = subst_logical_case(Cdr(STACK_1));
-    if (eq(new_cdr,Cdr(STACK_1)) && eq(STACK_0,Car(STACK_1))) {
-      obj = STACK_1; skipSTACK(2); return obj;
-    } else { # (CONS new_car new_cdr)
-      STACK_1 = new_cdr;
-      var object new_cons = allocate_cons();
-      Car(new_cons) = popSTACK(); Cdr(new_cons) = popSTACK();
-      return new_cons;
-    }
-  }
+  SUBST_RECURSE(logical_case(obj),subst_logical_case);
 }
 
 # Beim Einsetzen von Stücken logischer Pathnames in normale Pathnames:
@@ -5395,29 +5382,14 @@ local object customary_case (object string) {
 #endif
 }
 # Dasselbe, rekursiv wie mit SUBST:
+local object subst_customary_case (object obj);
 local object subst_customary_case (object obj) {
-  if (atomp(obj))
-    return customary_case(obj);
-  check_STACK(); check_SP();
-  pushSTACK(obj);
-  { # rekursiv für den CAR aufrufen:
-    var object new_car = subst_customary_case(Car(obj));
-    pushSTACK(new_car);
-  }
-  { # rekursiv für den CDR aufrufen:
-    var object new_cdr = subst_customary_case(Cdr(STACK_1));
-    if (eq(new_cdr,Cdr(STACK_1)) && eq(STACK_0,Car(STACK_1))) {
-      obj = STACK_1; skipSTACK(2); return obj;
-    } else { # (CONS new_car new_cdr)
-      STACK_1 = new_cdr;
-      var object new_cons = allocate_cons();
-      Car(new_cons) = popSTACK(); Cdr(new_cons) = popSTACK();
-      return new_cons;
-    }
-  }
+  SUBST_RECURSE(customary_case(obj),subst_customary_case);
 }
 
 #endif
+
+#undef SUBST_RECURSE
 
 # Apply substitution SUBST to the MUSTER.
 # translate_pathname(&subst,muster)
@@ -10752,164 +10724,133 @@ LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
 #undef spawnv
 
 # path2 := verkürzte Kopie von path1
-local void shorten_path (const char* path1, char* path2)
-  {
-    var const uintB* p1 = path1;
-    var uintB* p2 = path2;
-    var uintB c;
-    var uintC wordlength = 0; # bisherige Länge in Name oder Typ
-    var uintC maxwordlength = 8; # = 8 im Namen, = 3 im Typ
-    loop {
-      c = *p1++;
-      if (c=='\0') {
-        *p2++ = c; break;
-      }
-      if ((c=='\\') || (c=='/') || (c==':')) {
-        *p2++ = c; wordlength = 0; maxwordlength = 8;
-      } elif (c=='.') {
-        *p2++ = c; wordlength = 0; maxwordlength = 3;
-      } else {
-        if (++wordlength <= maxwordlength)
-          *p2++ = c;
-      }
+local void shorten_path (const char* path1, char* path2) {
+  var const uintB* p1 = path1;
+  var uintB* p2 = path2;
+  var uintB c;
+  var uintC wordlength = 0; # bisherige Länge in Name oder Typ
+  var uintC maxwordlength = 8; # = 8 im Namen, = 3 im Typ
+  loop {
+    c = *p1++;
+    if (c=='\0') {
+      *p2++ = c; break;
+    }
+    if ((c=='\\') || (c=='/') || (c==':')) {
+      *p2++ = c; wordlength = 0; maxwordlength = 8;
+    } else if (c=='.') {
+      *p2++ = c; wordlength = 0; maxwordlength = 3;
+    } else {
+      if (++wordlength <= maxwordlength)
+        *p2++ = c;
     }
   }
+}
 
-global int my_chdir(path)
-  var CONST char* path;
-  {
-    var int erg = chdir(path);
-    if ((erg<0) && (errno==ENAMETOOLONG)) {
-      var char* shorter_path = alloca(asciz_length(path)+1);
-      shorten_path(path,shorter_path);
-      erg = chdir(shorter_path);
-    }
-    return erg;
+global int my_chdir (const char* path) {
+  var int erg = chdir(path);
+  if ((erg<0) && (errno==ENAMETOOLONG)) {
+    var char* shorter_path = alloca(asciz_length(path)+1);
+    shorten_path(path,shorter_path);
+    erg = chdir(shorter_path);
   }
+  return erg;
+}
 
-global int my_access(path,amode)
-  var CONST char* path;
-  var int amode;
-  {
-    var int erg = access(path,amode);
-    if ((erg<0) && (errno==ENAMETOOLONG)) {
-      var char* shorter_path = alloca(asciz_length(path)+1);
-      shorten_path(path,shorter_path);
-      erg = access(shorter_path,amode);
-    }
-    return erg;
+global int my_access (const char* path,int amode) {
+  var int erg = access(path,amode);
+  if ((erg<0) && (errno==ENAMETOOLONG)) {
+    var char* shorter_path = alloca(asciz_length(path)+1);
+    shorten_path(path,shorter_path);
+    erg = access(shorter_path,amode);
   }
+  return erg;
+}
 
-global int my_stat(path,buf)
-  var CONST char* path;
-  var struct stat * buf;
-  {
-    var int erg = stat(path,buf);
-    if ((erg<0) && (errno==ENAMETOOLONG)) {
-      var char* shorter_path = alloca(asciz_length(path)+1);
-      shorten_path(path,shorter_path);
-      erg = stat(shorter_path,buf);
-    }
-    return erg;
+global int my_stat (const char* path,struct stat* buf) {
+  var int erg = stat(path,buf);
+  if ((erg<0) && (errno==ENAMETOOLONG)) {
+    var char* shorter_path = alloca(asciz_length(path)+1);
+    shorten_path(path,shorter_path);
+    erg = stat(shorter_path,buf);
   }
+  return erg;
+}
 
-global int my_unlink(path)
-  var CONST char* path;
-  {
-    var int erg = unlink(path);
-    if ((erg<0) && (errno==ENAMETOOLONG)) {
-      var char* shorter_path = alloca(asciz_length(path)+1);
-      shorten_path(path,shorter_path);
-      erg = unlink(shorter_path);
-    }
-    return erg;
+global int my_unlink (const char* path) {
+  var int erg = unlink(path);
+  if ((erg<0) && (errno==ENAMETOOLONG)) {
+    var char* shorter_path = alloca(asciz_length(path)+1);
+    shorten_path(path,shorter_path);
+    erg = unlink(shorter_path);
   }
+  return erg;
+}
 
-global int my_rename(oldpath,newpath)
-  var CONST char* oldpath;
-  var CONST char* newpath;
-  {
-    var int erg = rename(oldpath,newpath);
+global int my_rename (const char* oldpath,const char* newpath) {
+  var int erg = rename(oldpath,newpath);
+  if ((erg<0) && (errno==ENAMETOOLONG)) {
+    var char* shorter_oldpath = alloca(asciz_length(oldpath)+1);
+    shorten_path(oldpath,shorter_oldpath);
+    erg = rename(shorter_oldpath,newpath);
     if ((erg<0) && (errno==ENAMETOOLONG)) {
-      var char* shorter_oldpath = alloca(asciz_length(oldpath)+1);
-      shorten_path(oldpath,shorter_oldpath);
-      erg = rename(shorter_oldpath,newpath);
-      if ((erg<0) && (errno==ENAMETOOLONG)) {
-        var char* shorter_newpath = alloca(asciz_length(newpath)+1);
-        shorten_path(newpath,shorter_newpath);
-        erg = rename(shorter_oldpath,shorter_newpath);
-      }
+      var char* shorter_newpath = alloca(asciz_length(newpath)+1);
+      shorten_path(newpath,shorter_newpath);
+      erg = rename(shorter_oldpath,shorter_newpath);
     }
-    return erg;
   }
+  return erg;
+}
 
-global int my___findfirst(path,attrib,ffblk)
-  var const char* path;
-  var int attrib;
-  var struct ffblk * ffblk;
-  {
-    var int erg = __findfirst(path,attrib,ffblk);
-    if ((erg<0) && (errno==ENAMETOOLONG)) {
-      var char* shorter_path = alloca(asciz_length(path)+1);
-      shorten_path(path,shorter_path);
-      erg = __findfirst(shorter_path,attrib,ffblk);
-    }
-    return erg;
+global int my___findfirst (const char* path,int attrib,struct ffblk* ffblk) {
+  var int erg = __findfirst(path,attrib,ffblk);
+  if ((erg<0) && (errno==ENAMETOOLONG)) {
+    var char* shorter_path = alloca(asciz_length(path)+1);
+    shorten_path(path,shorter_path);
+    erg = __findfirst(shorter_path,attrib,ffblk);
   }
+  return erg;
+}
 
-global int my_mkdir(path,attrib)
-  var CONST char* path;
-  var long attrib;
-  {
-    var int erg = mkdir(path,attrib);
-    if ((erg<0) && (errno==ENAMETOOLONG)) {
-      var char* shorter_path = alloca(asciz_length(path)+1);
-      shorten_path(path,shorter_path);
-      erg = mkdir(shorter_path,attrib);
-    }
-    return erg;
+global int my_mkdir (const char* path,long attrib) {
+  var int erg = mkdir(path,attrib);
+  if ((erg<0) && (errno==ENAMETOOLONG)) {
+    var char* shorter_path = alloca(asciz_length(path)+1);
+    shorten_path(path,shorter_path);
+    erg = mkdir(shorter_path,attrib);
   }
+  return erg;
+}
 
-global int my_open(path,flags)
-  var CONST char* path;
-  var int flags;
-  {
-    var int erg = open(path,flags);
-    if ((erg<0) && (errno==ENAMETOOLONG)) {
-      var char* shorter_path = alloca(asciz_length(path)+1);
-      shorten_path(path,shorter_path);
-      erg = open(shorter_path,flags);
-    }
-    return erg;
+global int my_open (const char* path,int flags) {
+  var int erg = open(path,flags);
+  if ((erg<0) && (errno==ENAMETOOLONG)) {
+    var char* shorter_path = alloca(asciz_length(path)+1);
+    shorten_path(path,shorter_path);
+    erg = open(shorter_path,flags);
   }
+  return erg;
+}
 
 #define creat(path,mode)  open(path,O_RDWR|O_TRUNC|O_CREAT,mode)
-global int my_creat(path,pmode)
-  var CONST char* path;
-  var int pmode;
-  {
-    var int erg = creat(path,pmode);
-    if ((erg<0) && (errno==ENAMETOOLONG)) {
-      var char* shorter_path = alloca(asciz_length(path)+1);
-      shorten_path(path,shorter_path);
-      erg = creat(shorter_path,pmode);
-    }
-    return erg;
+global int my_creat (const char* path,int pmode) {
+  var int erg = creat(path,pmode);
+  if ((erg<0) && (errno==ENAMETOOLONG)) {
+    var char* shorter_path = alloca(asciz_length(path)+1);
+    shorten_path(path,shorter_path);
+    erg = creat(shorter_path,pmode);
   }
+  return erg;
+}
 
-global int my_spawnv(pmode,path,argv)
-  var int pmode;
-  var CONST char* path;
-  var CONST char* CONST * argv;
-  {
-    var int erg = spawnv(pmode,path,argv);
-    if ((erg<0) && (errno==ENAMETOOLONG)) {
-      var char* shorter_path = alloca(asciz_length(path)+1);
-      shorten_path(path,shorter_path);
-      erg = spawnv(pmode,shorter_path,argv);
-    }
-    return erg;
+global int my_spawnv (int pmode,CONST char* path,const char* const * argv) {
+  var int erg = spawnv(pmode,path,argv);
+  if ((erg<0) && (errno==ENAMETOOLONG)) {
+    var char* shorter_path = alloca(asciz_length(path)+1);
+    shorten_path(path,shorter_path);
+    erg = spawnv(pmode,shorter_path,argv);
   }
+  return erg;
+}
 
 #endif
 
