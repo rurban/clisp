@@ -573,7 +573,7 @@ to print the corresponding values, or T for all of them.")
         (loop
           (let ((line (read-line f nil nil)))
             (unless line (return nil))
-            (let ((c (parse-integer line :end 4 :radix 16)))
+            (let ((c (parse-integer line :end (position #\; line) :radix 16)))
               ; Treat the range start/end lines specially.
               (when (eql (char line 4) #\;)
                 (when (eql (char line 5) #\<)
