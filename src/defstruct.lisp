@@ -479,6 +479,21 @@
                               ',name))))))
     slotlist))
 
+(defun find-structure-class-slot-initfunction (classname slotname) ; ABI
+  (let ((class (find-class classname)))
+    (unless (clos::structure-class-p class)
+      (error (TEXT "The class ~S is not a structure class: ~S")
+             classname class))
+    (let* ((slots (clos:class-slots class))
+           (slot
+             ; (find slotname (the list) slots :test #'clos:slot-definition-name)
+             (dolist (s slots)
+               (when (eql (clos:slot-definition-name s) slotname) (return s)))))
+      (unless slot
+        (error (TEXT "The class ~S has no slot named ~S.")
+               classname slotname))
+      (clos:slot-definition-initfunction slot))))
+
 ;; A hook for CLOS
 (defun clos::defstruct-remove-print-object-method (name) ; preliminary
   (declare (ignore name))
@@ -935,7 +950,10 @@
     (let ((index 4))
       (mapc #'(lambda (slot directslot)
                 (let ((initfunctionform
-                        `(SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) ,index)))
+                        (if (eq type-option 'T)
+                          `(FIND-STRUCTURE-CLASS-SLOT-INITFUNCTION
+                             ',name ',(clos:slot-definition-name slot))
+                          `(SVREF (GET ',name 'DEFSTRUCT-DESCRIPTION) ,index))))
                   (setf (clos::structure-effective-slot-definition-initff slot)
                         initfunctionform)
                   (when directslot
