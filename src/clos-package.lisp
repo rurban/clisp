@@ -121,6 +121,8 @@
           ;; MOP for classes
           class-prototype class-finalized-p finalize-inheritance
           ;; MOP for specializers
+          specializer-direct-generic-functions specializer-direct-methods
+          eql-specializer-object intern-eql-specializer
           ;; MOP for methods
           ;; MOP for method combinations
           ;; MOP for generic functions

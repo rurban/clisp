@@ -34,9 +34,11 @@
 (load "clos-class5")
 (load "clos-slotdef2")
 (load "clos-stablehash2")
+(load "clos-specializer2")
 ; Now instance creation works. Instances can be passed to generic functions.
 (setq *classes-finished* t)
 (load "clos-slotdef3")
+(load "clos-specializer3")
 (load "clos-print")
 (load "documentation")
 

@@ -48,10 +48,11 @@ DSOURCES = \
 LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
               timezone lambdalist places floatprint defpackage type subtypep \
               clos-package clos-macros clos-class0 clos-slotdef1 \
-              clos-stablehash1 defstruct format \
+              clos-stablehash1 clos-specializer1 defstruct format \
               international savemem functions trace cmacros compiler \
               defs2 loop clos \
               clos-stablehash2 \
+              clos-specializer2 clos-specializer3 \
               clos-class1 clos-class2 clos-class3 clos-class5 \
               clos-slotdef2 clos-slotdef3 clos-slots1 clos-slots2 \
               clos-method1 clos-method2 clos-method3 \
