@@ -101,7 +101,10 @@ CL_VOID
 dnl DEFS HAVE_BUILTIN_STRLEN
 CL_BUILTIN_STRLEN
 dnl DEFS HAVE_LONGLONG
-CL_LONGLONG
+gl_AC_TYPE_LONG_LONG
+if test $ac_cv_type_long_long = yes; then
+  AC_DEFINE(HAVE_LONGLONG,,[Define if the compiler supports the 'long long' type])
+fi
 dnl
 AC_MSG_NOTICE([* checks for header files])
 dnl

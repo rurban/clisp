@@ -29,6 +29,7 @@
 	* m4/wint_t.m4, m4/xsize.m4:
 	Upgrade to gettext-0.14.3.
 	* configure.in: Use gt_LC_MESSAGES instead of AM_LC_MESSAGES.
+	Invoke gl_AC_TYPE_LONG_LONG instead of CL_LONGLONG.
 	* m4/fenv_default.m4: Update for changed m4/longdouble.m4.
 	* floatparam.c: Test HAVE_LONG_DOUBLE instead of HAVE_LONGDOUBLE.
 
