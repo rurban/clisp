@@ -53,6 +53,8 @@
 /* #define HAVE_STACK_OVERFLOW_RECOVERY ifdef HAVE_SIGALTSTACK in config.h */
 #endif
 
+/* #undef HAVE_STACK_OVERFLOW_RECOVERY here if test3 crashes */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
