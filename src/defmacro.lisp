@@ -129,7 +129,7 @@ the actual object #<MACRO expander> for the FENV.
 (defun kwd-arg-form (restvar kw svar default &aux (dummy '#.(cons nil nil)))
   ;; the default value should not be evaluated unless it is actually used
   (let ((arg (gensym "KWD-ARG-")))
-    `(let ((,arg (GETF ,restvar ,kw ',dummy)))
+    `(let ((,arg (GETF ,restvar ',kw ',dummy)))
        (if (eq ,arg ',dummy)
            (progn ,@(when svar `((setq ,svar nil))) ,default)
            ,arg))))
@@ -163,7 +163,7 @@ the actual object #<MACRO expander> for the FENV.
            (cond ((symbolp next)  ; foo
                   (setq kw (intern (symbol-name next) *keyword-package*))
                   (setq %let-list
-                        (cons `(,next (GETF ,restvar ,kw NIL)) %let-list))
+                        (cons `(,next (GETF ,restvar ',kw NIL)) %let-list))
                   (setq kwlist (cons kw kwlist)))
                  ((atom next)
                   (cerror (TEXT "It will be ignored.")
