@@ -5,7 +5,7 @@
 <para>This is an interface to <ulink url="http://www.pcre.org/">Perl
   Compatible Regular Expressions</ulink>.</para>
 
-<variablelist id="pcre-api">
+<variablelist id="pcre-api"><title>PCRE module API</title>
  <varlistentry id="pcre-version">
   <term><literal role="sexp">(PCRE:PCRE-VERSION)</literal></term>
   <listitem><simpara>Return version information as 3 values: descriptive
