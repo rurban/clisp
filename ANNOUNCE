@@ -52,6 +52,10 @@ WWW resources
   Binaries for i386-linux also at
   ftp://sunsite.unc.edu/pub/Linux/devel/lang/lisp/
 
+  RedHat 5.2 RPMs (source and i386 binary) are at
+  ftp://cellar.goems.com/pub/clisp/
+  [Sam Steingold]
+
   Survey about possible use of CLISP together with Emacs (see also
   the file doc/editors.txt)
   http://sayre.sysc.pdx.edu:8001/clisp_and_emacs/
