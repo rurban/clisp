@@ -1,5 +1,25 @@
 1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Make read_byte_array recurse through any kind of stream.
+        * lispbibl.d (read_byte_array): Change calling convention.
+        * stream.d (rd_by_array_Pseudofun): Change type definition.
+          (rd_by_array_error): Change calling convention.
+          (rd_by_array_dummy): Likewise. Loop, calling read_byte.
+          (read_byte_array): Change calling convention.
+          (rd_by_array_synonym): Likewise.
+          (rd_by_array_concat): Likewise. Treat general case.
+          (rd_by_array_twoway): Change calling convention.
+          (rd_by_array_echo): New function.
+          (make_echo_stream): Use it.
+          (rd_by_array_iau8_unbuffered, rd_by_array_iau8_buffered): Change
+          calling convention.
+          (SYS::READ-N-BYTES): Update.
+          (READ-INTEGER): Use DYNAMIC_BIT_VECTOR. Update.
+        * sequence.d (READ-BYTE-SEQUENCE): Update.
+        * pseudofun.d: Update.
+
+1999-04-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * aclocal.m4 (CL_ADDRESS_RANGE): Also determine the stack address
           range.
         * unixconf.h.in (STACK_ADDRESS_RANGE): New macro.
