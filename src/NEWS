@@ -31,6 +31,12 @@ User visible changes
   You can get the old behavior by doing (DELETE-FILE (TRUENAME path)).
   See <http://clisp.cons.org/impnotes.html#del-file> for details.
 
+* ANSI CL compliance issues:
+    MAPC, MAPCAR, MAPCAN, MAPL, MAPLIST, MAPCON now require their list
+      arguments to be proper lists;
+    TAILP uses EQL, not EQ, to compare the sublists;
+    a character is now accepted as a package designator.
+
 * Fixed a bug in PEEK-CHAR with non-NIL peek-type on ECHO-STREAMS.
 
 
