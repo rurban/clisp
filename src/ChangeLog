@@ -1,3 +1,7 @@
+2002-10-13  Sam Steingold  <sds@gnu.org>
+
+	* list.d (TAILP): use EQL to compare the sublist, not EQ
+
 2002-10-12  Sam Steingold  <sds@gnu.org>
 
 	* type.lisp (canonicalize-type): recognize typed structures;

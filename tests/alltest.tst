@@ -1981,6 +1981,9 @@ NIL
                    list object (ldiff list object) (aref l-r j))))))))
 nil
 
+(TAILP 10203040506070 (LIST* 'A 'B (1- 10203040506071)))
+T
+
 ;RPLACA, RPLACD
 
 (NSUBST (QUOTE A) (QUOTE B) (QUOTE (U B (B) C)) :TEST-NOT
