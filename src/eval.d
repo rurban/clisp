@@ -2909,7 +2909,7 @@ local Values eval1 (object form)
        #ifdef TYPECODES
         switch (typecode(fun))
        #else
-        if (subrp(fun))
+        if (immsubrp(fun))
           goto case_subr;
         else if (orecordp(fun))
           goto case_orecord;
@@ -2936,6 +2936,7 @@ local Values eval1 (object form)
          case_orecord:
           switch (Record_type(fun)) {
             case_Rectype_Closure_above;
+            case_Rectype_Subr_above;
             case Rectype_Fsubr: /* Fsubr */
               eval_fsubr(fun,Cdr(form));
               break;
