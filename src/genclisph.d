@@ -1,6 +1,6 @@
 # Ausgabe aller Definitionen aus lispbibl.d, die an externe Module
 # exportiert werden.
-# Bruno Haible 1994-2001
+# Bruno Haible 1994-2002
 
 #include "lispbibl.c"
 
@@ -768,7 +768,11 @@ global int main()
 # printf("typedef sarray_ *  Sarray;\n");
 # printf("typedef struct { LRECORD_HEADER uintL  length; uint8  data[unspecified]; } sbvector_;\n");
 # printf("typedef sbvector_ *  Sbvector;\n");
-# printf("typedef struct { LRECORD_HEADER uintL  length; chart  data[unspecified]; } sstring_;\n");
+# #ifdef UNICODE
+#   printf("typedef struct { LRECORD_HEADER uintL  length; uint32  data[unspecified]; } sstring_;\n");
+# #else
+#   printf("typedef struct { LRECORD_HEADER uintL  length; uint8  data[unspecified]; } sstring_;\n");
+# #endif
 # printf("typedef sstring_ *  Sstring;\n");
 # printf("typedef struct { LRECORD_HEADER uintL  length; object data[unspecified]; } svector_;\n");
 # printf("typedef svector_ *  Svector;\n");
@@ -937,7 +941,7 @@ global int main()
 # #ifdef TYPECODES
 #   printf2("#define vectorp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)sbvector_type,(tint)(vector_type-sbvector_type));
 # #else
-#   printf1("#define vectorp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= %d))\n",21-1);
+#   printf1("#define vectorp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 1) <= %d))\n",23-1);
 # #endif
 # #ifdef TYPECODES
 #   printf2("#define simple_vector_p(obj)  (typecode(obj) == %d)\n",(tint)svector_type);
@@ -952,12 +956,12 @@ global int main()
 # #ifdef TYPECODES
 #   printf2("#define simple_string_p(obj)  (typecode(obj) == %d)\n",(tint)sstring_type);
 # #else
-#   printf1("#define simple_string_p(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= %d))\n",20-16);
+#   printf1("#define simple_string_p(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) <= %d))\n",22-16);
 # #endif
 # #ifdef TYPECODES
 #   printf2("#define stringp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)sstring_type);
 # #else
-#   printf1("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) == %d))\n",20-16);
+#   printf1("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) == %d))\n",23-16);
 # #endif
 # #ifdef TYPECODES
 #   printf1("#define simple_bit_vector_p(atype,obj)  (typecode(obj) == Array_type_simple_bit_vector(atype))\n");
@@ -972,7 +976,7 @@ global int main()
 # #ifdef TYPECODES
 #   printf2("#define arrayp(obj)  ((tint)(typecode(obj) - %d) <= (tint)%d)\n",(tint)mdarray_type,(tint)(vector_type-mdarray_type));
 # #else
-#   printf1("#define arrayp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= %d))\n",22-1);
+#   printf1("#define arrayp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= %d))\n",24-1);
 # #endif
 # #ifdef TYPECODES
 #   printf1("#define instancep(obj)  (typecode(obj)==%d)\n",(tint)instance_type);
@@ -1242,7 +1246,13 @@ global int main()
 # printf("extern object make_symbol (object string);\n");
 # printf("extern object allocate_vector (uintL len);\n");
 # printf("extern object allocate_bit_vector (uintB atype, uintL len);\n");
-# printf("extern object allocate_string (uintL len);\n");
+# #ifdef UNICODE
+#   printf("extern object allocate_s32string (uintL len);\n");
+#   printf("#define allocate_string(len)  allocate_s32string(len)\n");
+# #else
+#   printf("extern object allocate_s8string (uintL len);\n");
+#   printf("#define allocate_string(len)  allocate_s8string(len)\n");
+# #endif
 # #ifdef asciz_length
 #   #if defined(GNU) && (SAFETY < 2) && (__GNUC__ >= 2)
 #     printf("#define asciz_length(a)  ((uintL)__builtin_strlen(a))\n");

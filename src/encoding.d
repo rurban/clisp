@@ -28,7 +28,7 @@
 # most one byte in the buffer. stream.d (rd_ch_buffered, rd_ch_array_buffered)
 # heavily depend on this.
 
-local char hex_table[] = "0123456789ABCDEF";
+local char const hex_table[] = "0123456789ABCDEF";
 
 # Error, when a character cannot be converted to an encoding.
 # fehler_unencodable(encoding);
@@ -41,14 +41,33 @@ nonreturning_function(global, fehler_unencodable,
   pushSTACK(ascii_char(hex_table[(as_cint(ch)>>4)&0x0F]));
   pushSTACK(ascii_char(hex_table[(as_cint(ch)>>8)&0x0F]));
   pushSTACK(ascii_char(hex_table[(as_cint(ch)>>12)&0x0F]));
-  fehler(charset_type_error,
-         GETTEXT("Character #\\u$$$$ cannot be represented in the character set ~"));
+  if (as_cint(ch) < 0x10000)
+    fehler(charset_type_error,
+           GETTEXT("Character #\\u$$$$ cannot be represented in the character set ~"));
+  else {
+    pushSTACK(ascii_char(hex_table[(as_cint(ch)>>16)&0x0F]));
+    pushSTACK(ascii_char(hex_table[(as_cint(ch)>>20)&0x0F]));
+    fehler(charset_type_error,
+           GETTEXT("Character #\\u00$$$$$$ cannot be represented in the character set ~"));
+  }
 }
 
 # The range function for an encoding covering all of Unicode.
 global object all_range (object encoding, uintL start, uintL end) {
   pushSTACK(code_char(as_chart(start))); pushSTACK(code_char(as_chart(end)));
   return stringof(2);
+}
+
+# The range function for an encoding covering the BMP of Unicode.
+global object bmp_range (object encoding, uintL start, uintL end) {
+  var uintL count = 0;
+  if (start < 0x10000) {
+    if (end >= 0x10000)
+      end = 0xFFFF;
+    pushSTACK(code_char(as_chart(start))); pushSTACK(code_char(as_chart(end)));
+    count = 2;
+  }
+  return stringof(count);
 }
 
 # -----------------------------------------------------------------------------
@@ -125,7 +144,27 @@ global void uni16le_mbstowcs (object encoding, object stream,
 
 global uintL uni16_wcslen (object encoding, const chart* src,
                            const chart* srcend) {
-  return (srcend-src)*2;
+  var uintL count = srcend-src;
+  var uintL result = 0;
+  if (count > 0) {
+    dotimespL(count,count, {
+      var chart ch = *src++;
+      if (as_cint(ch) < 0x10000)
+        result += 2;
+      else {
+        var object action = TheEncoding(encoding)->enc_tombs_error;
+        if (eq(action,S(Kignore))) {
+        } else if (uint8_p(action)) {
+          result++;
+        } else if (!eq(action,S(Kerror))) {
+          var chart c = char_code(action);
+          if (as_cint(c) < 0x10000)
+            result += 2;
+        }
+      }
+    });
+  }
+  return result;
 }
 
 global void uni16be_wcstombs (object encoding, object stream,
@@ -133,15 +172,32 @@ global void uni16be_wcstombs (object encoding, object stream,
                               uintB* *destp, uintB* destend) {
   var const chart* src = *srcp;
   var uintB* dest = *destp;
-  var uintL count = floor(destend-dest,2);
-  if (count > srcend-src)
-    count = srcend-src;
-  if (count > 0) {
-    dotimespL(count,count, {
-      var cint ch = as_cint(*src++);
-      dest[0] = (uintB)(ch>>8); dest[1] = (uintB)ch;
-      dest += 2;
-    });
+  var uintL scount = srcend-src;
+  var uintL dcount = destend-dest;
+  if (scount > 0 && dcount > 0) {
+    do {
+      var cint ch = as_cint(*src++); scount--;
+      if (ch < 0x10000) {
+        if (dcount < 2) break;
+        dest[0] = (uintB)(ch>>8); dest[1] = (uintB)ch;
+        dest += 2; dcount -= 2;
+      } else {
+        var object action = TheEncoding(encoding)->enc_tombs_error;
+        if (eq(action,S(Kignore))) {
+        } else if (uint8_p(action)) {
+          *dest++ = I_to_uint8(action); dcount--;
+        } else if (!eq(action,S(Kerror))) {
+          var cint c = char_int(action);
+          if (c < 0x10000) {
+            if (dcount < 2) break;
+            dest[0] = (uintB)(c>>8); dest[1] = (uintB)c;
+            dest += 2; dcount -= 2;
+          } else
+            fehler_unencodable(encoding,as_chart(ch));
+        } else
+          fehler_unencodable(encoding,as_chart(ch));
+      }
+    } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
   }
@@ -152,15 +208,32 @@ global void uni16le_wcstombs (object encoding, object stream,
                               uintB* *destp, uintB* destend) {
   var const chart* src = *srcp;
   var uintB* dest = *destp;
-  var uintL count = floor(destend-dest,2);
-  if (count > srcend-src)
-    count = srcend-src;
-  if (count > 0) {
-    dotimespL(count,count, {
-      var cint ch = as_cint(*src++);
-      dest[0] = (uintB)ch; dest[1] = (uintB)(ch>>8);
-      dest += 2;
-    });
+  var uintL scount = srcend-src;
+  var uintL dcount = destend-dest;
+  if (scount > 0 && dcount > 0) {
+    do {
+      var cint ch = as_cint(*src++); scount--;
+      if (ch < 0x10000) {
+        if (dcount < 2) break;
+        dest[0] = (uintB)ch; dest[1] = (uintB)(ch>>8);
+        dest += 2; dcount -= 2;
+      } else {
+        var object action = TheEncoding(encoding)->enc_tombs_error;
+        if (eq(action,S(Kignore))) {
+        } else if (uint8_p(action)) {
+          *dest++ = I_to_uint8(action); dcount--;
+        } else if (!eq(action,S(Kerror))) {
+          var cint c = char_int(action);
+          if (c < 0x10000) {
+            if (dcount < 2) break;
+            dest[0] = (uintB)c; dest[1] = (uintB)(c>>8);
+            dest += 2; dcount -= 2;
+          } else
+            fehler_unencodable(encoding,as_chart(ch));
+        } else
+          fehler_unencodable(encoding,as_chart(ch));
+      }
+    } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
   }
@@ -176,8 +249,10 @@ global void uni16le_wcstombs (object encoding, object stream,
 # min. bytes per character = 4
 # max. bytes per character = 4
 
-global uintL uni32_mblen (object encoding, const uintB* src,
-                          const uintB* srcend);
+global uintL uni32be_mblen (object encoding, const uintB* src,
+                            const uintB* srcend);
+global uintL uni32le_mblen (object encoding, const uintB* src,
+                            const uintB* srcend);
 global void uni32be_mbstowcs (object encoding, object stream,
                               const uintB* *srcp, const uintB* srcend,
                               chart* *destp, chart* destend);
@@ -195,7 +270,7 @@ global void uni32le_wcstombs (object encoding, object stream,
 
 # Bytes to characters.
 
-# Error when a non-Unicode16 character was encountered.
+# Error when an invalid character was encountered.
 # fehler_uni32_invalid(encoding,code);
 nonreturning_function(local, fehler_uni32_invalid,
                       (object encoding, uint32 code)) {
@@ -206,22 +281,42 @@ nonreturning_function(local, fehler_uni32_invalid,
     code = code>>4;
   });
   fehler(error,
-         GETTEXT("character #x$$$$$$$$ in ~ conversion, not a Unicode-16, sorry"));
+         GETTEXT("character #x$$$$$$$$ in ~ conversion, not an UTF-32 character"));
 }
 
-global uintL uni32_mblen (object encoding, const uintB* src,
-                          const uintB* srcend) {
+global uintL uni32be_mblen (object encoding, const uintB* src,
+                            const uintB* srcend) {
   if (!eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore)))
     return floor(srcend-src,4);
   else {
     var uintL count = floor(srcend-src,4);
     var uintL result = 0;
     dotimesL(count,count, {
-      var uint32 ch = ((uint32)src[0] << 24) | ((uint32)src[1] << 16)
+      var uint32 ch =
+        ((uint32)src[0] << 24) | ((uint32)src[1] << 16)
         | ((uint32)src[2] << 8) | (uint32)src[3];
-        if (ch <= char_code_limit-1)
-          result++;
-        src += 4;
+      if (ch < char_code_limit)
+        result++;
+      src += 4;
+    });
+    return result;
+  }
+}
+
+global uintL uni32le_mblen (object encoding, const uintB* src,
+                            const uintB* srcend) {
+  if (!eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore)))
+    return floor(srcend-src,4);
+  else {
+    var uintL count = floor(srcend-src,4);
+    var uintL result = 0;
+    dotimesL(count,count, {
+      var uint32 ch =
+        (uint32)src[0] | ((uint32)src[1] << 8)
+        | ((uint32)src[2] << 16) | ((uint32)src[3] << 24);
+      if (ch < char_code_limit)
+        result++;
+      src += 4;
     });
     return result;
   }
@@ -232,26 +327,26 @@ global void uni32be_mbstowcs (object encoding, object stream,
                               chart* *destp, chart* destend) {
   var const uintB* src = *srcp;
   var chart* dest = *destp;
-  var uintL count = floor(srcend-src,4);
-  if (count > destend-dest)
-    count = destend-dest;
-  if (count > 0) {
-    dotimespL(count,count, {
-      var uint32 ch = ((uint32)src[0] << 24) | ((uint32)src[1] << 16)
+  var uintL scount = floor(srcend-src,4);
+  var uintL dcount = destend-dest;
+  if (scount > 0 && dcount > 0) {
+    do {
+      var uint32 ch =
+        ((uint32)src[0] << 24) | ((uint32)src[1] << 16)
         | ((uint32)src[2] << 8) | (uint32)src[3];
-      if (ch <= char_code_limit-1) {
-        *dest++ = as_chart(ch);
+      if (ch < char_code_limit) {
+        *dest++ = as_chart(ch); dcount--;
       } else {
         var object action = TheEncoding(encoding)->enc_towcs_error;
         if (eq(action,S(Kignore))) {
         } else if (eq(action,S(Kerror))) {
           fehler_uni32_invalid(encoding,ch);
         } else {
-          *dest++ = char_code(action);
+          *dest++ = char_code(action); dcount--;
         }
       }
-      src += 4;
-    });
+      src += 4; scount--;
+    } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
   }
@@ -262,26 +357,26 @@ global void uni32le_mbstowcs (object encoding, object stream,
                               chart* *destp, chart* destend) {
   var const uintB* src = *srcp;
   var chart* dest = *destp;
-  var uintL count = floor(srcend-src,4);
-  if (count > destend-dest)
-    count = destend-dest;
-  if (count > 0) {
-    dotimespL(count,count, {
-      var uint32 ch = (uint32)src[0] | ((uint32)src[1] << 8)
+  var uintL scount = floor(srcend-src,4);
+  var uintL dcount = destend-dest;
+  if (scount > 0 && dcount > 0) {
+    do {
+      var uint32 ch =
+        (uint32)src[0] | ((uint32)src[1] << 8)
         | ((uint32)src[2] << 16) | ((uint32)src[3] << 24);
-      if (ch <= char_code_limit-1) {
-        *dest++ = as_chart(ch);
+      if (ch < char_code_limit) {
+        *dest++ = as_chart(ch); dcount--;
       } else {
         var object action = TheEncoding(encoding)->enc_towcs_error;
         if (eq(action,S(Kignore))) {
         } else if (eq(action,S(Kerror))) {
           fehler_uni32_invalid(encoding,ch);
         } else {
-          *dest++ = char_code(action);
+          *dest++ = char_code(action); dcount--;
         }
       }
-      src += 4;
-    });
+      src += 4; scount--;
+    } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
   }
@@ -305,7 +400,7 @@ global void uni32be_wcstombs (object encoding, object stream,
   if (count > 0) {
     dotimespL(count,count, {
       var cint ch = as_cint(*src++);
-      dest[0] = 0; dest[1] = 0;
+      dest[0] = 0; dest[1] = (uintB)(ch>>16);
       dest[2] = (uintB)(ch>>8); dest[3] = (uintB)ch;
       dest += 4;
     });
@@ -326,7 +421,7 @@ global void uni32le_wcstombs (object encoding, object stream,
     dotimespL(count,count, {
       var cint ch = as_cint(*src++);
       dest[0] = (uintB)ch; dest[1] = (uintB)(ch>>8);
-      dest[2] = 0; dest[3] = 0;
+      dest[2] = (uintB)(ch>>16); dest[3] = 0;
       dest += 4;
     });
     *srcp = src;
@@ -347,13 +442,13 @@ global void uni32le_wcstombs (object encoding, object stream,
 #  5 byte sequence   0xFC  0xF8   4*6    0x3FFFFFF  111110XX 10XXXXXX 10XXXXXX 10XXXXXX 10XXXXXX
 #  6 byte sequence   0xFE  0xFC   5*6   0x7FFFFFFF  1111110X 10XXXXXX 10XXXXXX 10XXXXXX 10XXXXXX 10XXXXXX
 #
-# We support only 16-bit Unicode characters, i.e. those which can be encoded
-# with at most 3 bytes. Characters outside this range give an error.
+# We support only 21-bit Unicode characters, i.e. those which can be encoded
+# with at most 4 bytes. Characters outside this range give an error.
 # Spurious bytes of the form 10XXXXXX are ignored. (This resync feature is one
 # of the benefits of the UTF encoding.)
 
 # min. bytes per character = 1
-# max. bytes per character = 3
+# max. bytes per character = 4
 
 global uintL utf8_mblen (object encoding, const uintB* src,
                          const uintB* srcend);
@@ -403,6 +498,23 @@ nonreturning_function(local, fehler_utf8_invalid3,
          GETTEXT("invalid byte sequence #x$$ #x$$ #x$$ in ~ conversion"));
 }
 
+# Error when an invalid 4-byte sequence was encountered.
+# fehler_utf8_invalid4(encoding,b1,b2,b3,b4);
+nonreturning_function(local, fehler_utf8_invalid4,
+                      (object encoding, uintB b1, uintB b2, uintB b3, uintB b4)) {
+  pushSTACK(TheEncoding(encoding)->enc_charset);
+  pushSTACK(ascii_char(hex_table[b4&0x0F]));
+  pushSTACK(ascii_char(hex_table[(b4>>4)&0x0F]));
+  pushSTACK(ascii_char(hex_table[b3&0x0F]));
+  pushSTACK(ascii_char(hex_table[(b3>>4)&0x0F]));
+  pushSTACK(ascii_char(hex_table[b2&0x0F]));
+  pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
+  pushSTACK(ascii_char(hex_table[b1&0x0F]));
+  pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
+  fehler(error,
+         GETTEXT("invalid byte sequence #x$$ #x$$ #x$$ #x$$ in ~ conversion"));
+}
+
 global uintL utf8_mblen (object encoding, const uintB* src,
                          const uintB* srcend) {
   var uintL count = 0;
@@ -438,7 +550,8 @@ global uintL utf8_mblen (object encoding, const uintB* src,
     if (c < 0xF0) { # 3 byte sequence
       if (src+3 > srcend) break;
       if (((src[1] ^ 0x80) < 0x40) && ((src[2] ^ 0x80) < 0x40)
-          && (c >= 0xE1 || src[1] >= 0xA0)) {
+          && (c >= 0xE1 || src[1] >= 0xA0)
+          && (c != 0xED || src[1] < 0xA0)) {
         src += 3;
         count++;
         continue;
@@ -451,6 +564,26 @@ global uintL utf8_mblen (object encoding, const uintB* src,
           fehler_utf8_invalid3(encoding,c,src[1],src[2]);
         } else {
           src += 3; count++; continue;
+        }
+      }
+    }
+    if (c < 0xF8) { # 4 byte sequence
+      if (src+4 > srcend) break;
+      if (((src[1] ^ 0x80) < 0x40) && ((src[2] ^ 0x80) < 0x40)
+          && ((src[3] ^ 0x80) < 0x40)
+          && (c >= 0xF1 || src[1] >= 0x90)) {
+        src += 4;
+        count++;
+        continue;
+      }
+      {
+        var object action = TheEncoding(encoding)->enc_towcs_error;
+        if (eq(action,S(Kignore))) {
+          src += 4; continue;
+        } else if (eq(action,S(Kerror))) {
+          fehler_utf8_invalid4(encoding,c,src[1],src[2],src[3]);
+        } else {
+          src += 4; count++; continue;
         }
       }
     }
@@ -507,7 +640,8 @@ global void utf8_mbstowcs (object encoding, object stream, const uintB* *srcp,
     if (c < 0xF0) { # 3 byte sequence
       if (src+3 > srcend) break;
       if (((src[1] ^ 0x80) < 0x40) && ((src[2] ^ 0x80) < 0x40)
-          && (c >= 0xE1 || src[1] >= 0xA0)) {
+          && (c >= 0xE1 || src[1] >= 0xA0)
+          && (c != 0xED || src[1] < 0xA0)) {
         *dest++ = as_chart(((cint)(c & 0x0F) << 12) |
                            ((cint)(src[1] ^ 0x80) << 6) |
                            (cint)(src[2] ^ 0x80));
@@ -522,6 +656,29 @@ global void utf8_mbstowcs (object encoding, object stream, const uintB* *srcp,
           fehler_utf8_invalid3(encoding,c,src[1],src[2]);
         } else {
           src += 3; *dest++ = char_code(action); continue;
+        }
+      }
+    }
+    if (c < 0xF8) { # 4 byte sequence
+      if (src+4 > srcend) break;
+      if (((src[1] ^ 0x80) < 0x40) && ((src[2] ^ 0x80) < 0x40)
+          && ((src[3] ^ 0x80) < 0x40)
+          && (c >= 0xF1 || src[1] >= 0x90)) {
+        *dest++ = as_chart(((cint)(c & 0x07) << 18) |
+                           ((cint)(src[1] ^ 0x80) << 12) |
+                           ((cint)(src[2] ^ 0x80) << 6) |
+                           (cint)(src[3] ^ 0x80));
+        src += 4;
+        continue;
+      }
+      {
+        var object action = TheEncoding(encoding)->enc_towcs_error;
+        if (eq(action,S(Kignore))) {
+          src += 4; continue;
+        } else if (eq(action,S(Kerror))) {
+          fehler_utf8_invalid4(encoding,c,src[1],src[2],src[3]);
+        } else {
+          src += 4; *dest++ = char_code(action); continue;
         }
       }
     }
@@ -567,8 +724,13 @@ global void utf8_wcstombs (object encoding, object stream, const chart* *srcp,
     } else if (ch < 0x800) { # 2 byte sequence
       *dest++ = 0xC0 | (ch >> 6);
       *dest++ = 0x80 | (ch & 0x3F);
-    } else { # ch < 0x10000, 3 byte sequence
+    } else if (ch < 0x10000) { # 3 byte sequence
       *dest++ = 0xE0 | (ch >> 12);
+      *dest++ = 0x80 | ((ch >> 6) & 0x3F);
+      *dest++ = 0x80 | (ch & 0x3F);
+    } else { # ch < 0x110000, 4 byte sequence
+      *dest++ = 0xF0 | (ch >> 18);
+      *dest++ = 0x80 | ((ch >> 12) & 0x3F);
       *dest++ = 0x80 | ((ch >> 6) & 0x3F);
       *dest++ = 0x80 | (ch & 0x3F);
     }
@@ -582,11 +744,16 @@ global void utf8_wcstombs (object encoding, object stream, const chart* *srcp,
 
 # This is ISO 8859-1 with \uXXXX escape sequences, denoting Unicode characters.
 # See the Java Language Specification.
+# Characters outside the BMP are represented by two consecutive \uXXXX escape
+# sequences, like UTF-16. Example:
+#   $ printf '\U00102345\n' | native2ascii -encoding UTF-8
+#   \udbc8\udf45
+#
 # Thick is quick&dirty: The text is supposed not to contain \u except as part
 # of \uXXXX escape sequences.
 
 # min. bytes per character = 1
-# max. bytes per character = 6
+# max. bytes per character = 12
 
 global uintL java_mblen (object encoding, const uintB* src,
                          const uintB* srcend);
@@ -604,6 +771,7 @@ global uintL java_mblen (object encoding, const uintB* src,
   var uintL count = 0;
   while (src < srcend) {
     var uintB c;
+    var cint ch;
     if (src[0] != '\\') {
       src += 1;
       count++;
@@ -617,34 +785,113 @@ global uintL java_mblen (object encoding, const uintB* src,
     }
     if (src+3 > srcend) break;
     c = src[2];
-    if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') ||
-          (c >= 'a' && c <= 'f'))) {
+    if (c >= '0' && c <= '9') { c -= '0'; }
+    else if (c >= 'A' && c <= 'F') { c -= 'A'-10; }
+    else if (c >= 'a' && c <= 'f') { c -= 'a'-10; }
+    else {
       src += 2; # skip incomplete \u sequence
       continue;
     }
+    ch = (cint)c << 12;
     if (src+4 > srcend) break;
     c = src[3];
-    if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') ||
-          (c >= 'a' && c <= 'f'))) {
+    if (c >= '0' && c <= '9') { c -= '0'; }
+    else if (c >= 'A' && c <= 'F') { c -= 'A'-10; }
+    else if (c >= 'a' && c <= 'f') { c -= 'a'-10; }
+    else {
       src += 3; # skip incomplete \u sequence
       continue;
     }
+    ch |= (cint)c << 8;
     if (src+5 > srcend) break;
     c = src[4];
-    if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') ||
-          (c >= 'a' && c <= 'f'))) {
+    if (c >= '0' && c <= '9') { c -= '0'; }
+    else if (c >= 'A' && c <= 'F') { c -= 'A'-10; }
+    else if (c >= 'a' && c <= 'f') { c -= 'a'-10; }
+    else {
       src += 4; # skip incomplete \u sequence
       continue;
     }
+    ch |= (cint)c << 4;
     if (src+6 > srcend) break;
     c = src[5];
-    if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') ||
-          (c >= 'a' && c <= 'f'))) {
+    if (c >= '0' && c <= '9') { c -= '0'; }
+    else if (c >= 'A' && c <= 'F') { c -= 'A'-10; }
+    else if (c >= 'a' && c <= 'f') { c -= 'a'-10; }
+    else {
       src += 5; # skip incomplete \u sequence
       continue;
     }
-    src += 6; # complete \u sequence
-    count++;
+    ch |= (cint)c;
+    if (ch < char_code_limit && !(ch >= 0xd800 && ch < 0xe000)) {
+      src += 6; # complete \u sequence
+      count++;
+      continue;
+    }
+    if (!(ch >= 0xd800 && ch < 0xdc00)) {
+      src += 6; # skip invalid \u sequence
+      continue;
+    }
+    var cint ch1 = ch;
+    if (src+7 > srcend) break;
+    if (src[6] != '\\') {
+      src += 6; # skip incomplete \u sequence
+      continue;
+    }
+    if (src+8 > srcend) break;
+    if (src[7] != 'u') {
+      src += 6; # skip incomplete \u sequence
+      continue;
+    }
+    if (src+9 > srcend) break;
+    c = src[8];
+    if (c >= '0' && c <= '9') { c -= '0'; }
+    else if (c >= 'A' && c <= 'F') { c -= 'A'-10; }
+    else if (c >= 'a' && c <= 'f') { c -= 'a'-10; }
+    else {
+      src += 8; # skip incomplete \u sequence
+      continue;
+    }
+    ch = (cint)c << 12;
+    if (src+10 > srcend) break;
+    c = src[9];
+    if (c >= '0' && c <= '9') { c -= '0'; }
+    else if (c >= 'A' && c <= 'F') { c -= 'A'-10; }
+    else if (c >= 'a' && c <= 'f') { c -= 'a'-10; }
+    else {
+      src += 9; # skip incomplete \u sequence
+      continue;
+    }
+    ch |= (cint)c << 8;
+    if (src+11 > srcend) break;
+    c = src[10];
+    if (c >= '0' && c <= '9') { c -= '0'; }
+    else if (c >= 'A' && c <= 'F') { c -= 'A'-10; }
+    else if (c >= 'a' && c <= 'f') { c -= 'a'-10; }
+    else {
+      src += 10; # skip incomplete \u sequence
+      continue;
+    }
+    ch |= (cint)c << 4;
+    if (src+12 > srcend) break;
+    c = src[11];
+    if (c >= '0' && c <= '9') { c -= '0'; }
+    else if (c >= 'A' && c <= 'F') { c -= 'A'-10; }
+    else if (c >= 'a' && c <= 'f') { c -= 'a'-10; }
+    else {
+      src += 11; # skip incomplete \u sequence
+      continue;
+    }
+    ch |= (cint)c;
+    if (ch >= 0xdc00 && ch < 0xe000) {
+      ch = 0x10000 + ((ch1 - 0xd800) << 10) + (ch - 0xdc00);
+      if (ch < char_code_limit) {
+        src += 12; # complete \u sequence
+        count++;
+        continue;
+      }
+    }
+    src += 6; # skip invalid \u sequence
     continue;
   }
   return count;
@@ -712,9 +959,77 @@ global void java_mbstowcs (object encoding, object stream, const uintB* *srcp,
       continue;
     }
     ch |= (cint)c;
-    if (dest==destend) break;
-    *dest++ = as_chart(ch);
-    src += 6; # complete \u sequence
+    if (ch < char_code_limit && !(ch >= 0xd800 && ch < 0xe000)) {
+      if (dest==destend) break;
+      *dest++ = as_chart(ch);
+      src += 6; # complete \u sequence
+      continue;
+    }
+    if (!(ch >= 0xd800 && ch < 0xdc00)) {
+      src += 6; # skip invalid \u sequence
+      continue;
+    }
+    var cint ch1 = ch;
+    if (src+7 > srcend) break;
+    if (src[6] != '\\') {
+      src += 6; # skip incomplete \u sequence
+      continue;
+    }
+    if (src+8 > srcend) break;
+    if (src[7] != 'u') {
+      src += 6; # skip incomplete \u sequence
+      continue;
+    }
+    if (src+9 > srcend) break;
+    c = src[8];
+    if (c >= '0' && c <= '9') { c -= '0'; }
+    else if (c >= 'A' && c <= 'F') { c -= 'A'-10; }
+    else if (c >= 'a' && c <= 'f') { c -= 'a'-10; }
+    else {
+      src += 8; # skip incomplete \u sequence
+      continue;
+    }
+    ch = (cint)c << 12;
+    if (src+10 > srcend) break;
+    c = src[9];
+    if (c >= '0' && c <= '9') { c -= '0'; }
+    else if (c >= 'A' && c <= 'F') { c -= 'A'-10; }
+    else if (c >= 'a' && c <= 'f') { c -= 'a'-10; }
+    else {
+      src += 9; # skip incomplete \u sequence
+      continue;
+    }
+    ch |= (cint)c << 8;
+    if (src+11 > srcend) break;
+    c = src[10];
+    if (c >= '0' && c <= '9') { c -= '0'; }
+    else if (c >= 'A' && c <= 'F') { c -= 'A'-10; }
+    else if (c >= 'a' && c <= 'f') { c -= 'a'-10; }
+    else {
+      src += 10; # skip incomplete \u sequence
+      continue;
+    }
+    ch |= (cint)c << 4;
+    if (src+12 > srcend) break;
+    c = src[11];
+    if (c >= '0' && c <= '9') { c -= '0'; }
+    else if (c >= 'A' && c <= 'F') { c -= 'A'-10; }
+    else if (c >= 'a' && c <= 'f') { c -= 'a'-10; }
+    else {
+      src += 11; # skip incomplete \u sequence
+      continue;
+    }
+    ch |= (cint)c;
+    if (ch >= 0xdc00 && ch < 0xe000) {
+      ch = 0x10000 + ((ch1 - 0xd800) << 10) + (ch - 0xdc00);
+      if (ch < char_code_limit) {
+        if (dest==destend) break;
+        *dest++ = as_chart(ch);
+        src += 12; # complete \u sequence
+        continue;
+      }
+    }
+    src += 6; # skip invalid \u sequence
     continue;
   }
   *srcp = src;
@@ -728,7 +1043,7 @@ global uintL java_wcslen (object encoding, const chart* src,
   var uintL destlen = 0;
   while (src < srcend) {
     var cint ch = as_cint(*src++);
-    destlen += (ch < 0x80 ? 1 : 6);
+    destlen += (ch < 0x80 ? 1 : ch < 0x10000 ? 6 : 12);
   }
   return destlen;
 }
@@ -739,20 +1054,35 @@ global void java_wcstombs (object encoding, object stream, const chart* *srcp,
   var const chart* src = *srcp;
   var uintB* dest = *destp;
   while (src < srcend) {
+    local char const hex_table[] = "0123456789abcdef"; # lowercase!
     var cint ch = as_cint(*src);
-    var uintL count = (ch < 0x80 ? 1 : 6);
+    var uintL count = (ch < 0x80 ? 1 : ch < 0x10000 ? 6 : 12);
     if (dest+count > destend) break;
     src++;
     if (ch < 0x80) { # 1 byte sequence
       *dest++ = ch;
-    } else { # 6 byte sequence
-      local char hex_table[] = "0123456789abcdef";
+    } else if (ch < 0x10000) { # 6 byte sequence
       *dest++ = '\\';
       *dest++ = 'u';
       *dest++ = hex_table[(ch>>12)&0x0F];
       *dest++ = hex_table[(ch>>8)&0x0F];
       *dest++ = hex_table[(ch>>4)&0x0F];
       *dest++ = hex_table[ch&0x0F];
+    } else { # 12 byte sequence
+      var cint ch1 = 0xD800 + ((ch - 0x10000) >> 10);
+      var cint ch2 = 0xDC00 + ((ch - 0x10000) & 0x3FF);
+      *dest++ = '\\';
+      *dest++ = 'u';
+      *dest++ = hex_table[(ch1>>12)&0x0F];
+      *dest++ = hex_table[(ch1>>8)&0x0F];
+      *dest++ = hex_table[(ch1>>4)&0x0F];
+      *dest++ = hex_table[ch1&0x0F];
+      *dest++ = '\\';
+      *dest++ = 'u';
+      *dest++ = hex_table[(ch2>>12)&0x0F];
+      *dest++ = hex_table[(ch2>>8)&0x0F];
+      *dest++ = hex_table[(ch2>>4)&0x0F];
+      *dest++ = hex_table[ch2&0x0F];
     }
   }
   *srcp = src;
@@ -767,8 +1097,8 @@ global void java_wcstombs (object encoding, object stream, const chart* *srcp,
 
 typedef struct nls_table {
   const char* charset;
-  const unsigned char* const* page_uni2charset;
-  const unsigned short* charset2uni;
+  const unsigned char* const* page_uni2charset;  # UCS-2 to 8-bit table
+  const unsigned short* charset2uni;             # 8-bit to UCS-2 table
   int is_ascii_extension;
 }
   #if defined(NO_TYPECODES) && (alignment_long < 4) && defined(GNU)
@@ -1112,8 +1442,9 @@ global uintL nls_wcslen (object encoding, const chart* src,
     var const unsigned char* const* cvtable = table->page_uni2charset;
     dotimespL(count,count, {
       var chart ch = *src++;
-      if (cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0
-          || chareq(ch,ascii(0)))
+      if (as_cint(ch) < 0x10000
+          && (cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0
+              || chareq(ch,ascii(0))))
         result++;
       else {
         var object action = TheEncoding(encoding)->enc_tombs_error;
@@ -1122,8 +1453,9 @@ global uintL nls_wcslen (object encoding, const chart* src,
           result++;
         } else if (!eq(action,S(Kerror))) {
           var chart c = char_code(action);
-          var uintB b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
-          if (b != 0 || chareq(c,ascii(0)))
+          if (as_cint(c) < 0x10000
+              && (cvtable[as_cint(c)>>8][as_cint(c)&0xFF] != 0
+                  || chareq(c,ascii(0))))
             result++;
         }
       }
@@ -1139,14 +1471,16 @@ global void nls_wcstombs (object encoding, object stream,
   var uintB* dest = *destp;
   var uintL scount = srcend-src;
   var uintL dcount = destend-dest;
-  if ((scount > 0) && (dcount > 0)) {
+  if (scount > 0 && dcount > 0) {
     var const nls_table* table = (const nls_table*)
       TheMachine(TheEncoding(encoding)->enc_table);
     var const unsigned char* const* cvtable = table->page_uni2charset;
-    while (scount && dcount) {
+    do {
       var chart ch = *src++; scount--;
-      var uintB b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
-      if (b != 0 || chareq(ch,ascii(0))) {
+      var uintB b;
+      if (as_cint(ch) < 0x10000
+          && (b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF],
+              b != 0 || chareq(ch,ascii(0)))) {
         *dest++ = b; dcount--;
       } else {
         var object action = TheEncoding(encoding)->enc_tombs_error;
@@ -1155,15 +1489,16 @@ global void nls_wcstombs (object encoding, object stream,
           *dest++ = I_to_uint8(action); dcount--;
         } else if (!eq(action,S(Kerror))) {
           var chart c = char_code(action);
-          b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
-          if (b != 0 || chareq(c,ascii(0))) {
+          if (as_cint(c) < 0x10000
+              && (b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF],
+                  b != 0 || chareq(c,ascii(0)))) {
             *dest++ = b; dcount--;
           } else
             fehler_unencodable(encoding,ch);
         } else
           fehler_unencodable(encoding,ch);
       }
-    };
+    } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
   }
@@ -1181,23 +1516,21 @@ global uintL nls_asciiext_wcslen (object encoding, const chart* src,
     var const unsigned char* const* cvtable = table->page_uni2charset;
     dotimespL(count,count, {
       var chart ch = *src++;
-      if (as_cint(ch) < 0x80 || cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0)
+      if (as_cint(ch) < 0x80
+          || (as_cint(ch) < 0x10000
+              && cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0))
         result++;
       else {
-        var uintB b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
-        if (b != 0)
+        var object action = TheEncoding(encoding)->enc_tombs_error;
+        if (eq(action,S(Kignore))) {
+        } else if (uint8_p(action)) {
           result++;
-        else {
-          var object action = TheEncoding(encoding)->enc_tombs_error;
-          if (eq(action,S(Kignore))) {
-          } else if (uint8_p(action)) {
+        } else if (!eq(action,S(Kerror))) {
+          var chart c = char_code(action);
+          if (as_cint(c) < 0x10000
+              && (cvtable[as_cint(c)>>8][as_cint(c)&0xFF] != 0
+                  || chareq(c,ascii(0))))
             result++;
-          } else if (!eq(action,S(Kerror))) {
-            var chart c = char_code(action);
-            b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
-            if (b != 0 || chareq(c,ascii(0)))
-              result++;
-          }
         }
       }
     });
@@ -1212,18 +1545,20 @@ global void nls_asciiext_wcstombs (object encoding, object stream,
   var uintB* dest = *destp;
   var uintL scount = srcend-src;
   var uintL dcount = destend-dest;
-  if ((scount > 0) && (dcount > 0)) {
+  if (scount > 0 && dcount > 0) {
     var const nls_table* table = (const nls_table*)
       TheMachine(TheEncoding(encoding)->enc_table);
     var const unsigned char* const* cvtable = table->page_uni2charset;
-    while (scount && dcount) {
+    do {
       var chart ch = *src++; scount--;
       if (as_cint(ch) < 0x80) {
         *dest++ = (uintB)as_cint(ch); # avoid memory reference (big speedup!)
         dcount--;
       } else {
-        var uintB b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF];
-        if (b != 0) {
+        var uintB b;
+        if (as_cint(ch) < 0x10000
+            && (b = cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF],
+                b != 0)) {
           *dest++ = b; dcount--;
         } else {
           var object action = TheEncoding(encoding)->enc_tombs_error;
@@ -1232,8 +1567,9 @@ global void nls_asciiext_wcstombs (object encoding, object stream,
             *dest++ = I_to_uint8(action); dcount--;
           } else if (!eq(action,S(Kerror))) {
             var chart c = char_code(action);
-            b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF];
-            if (b != 0 || chareq(c,ascii(0))) {
+            if (as_cint(c) < 0x10000
+                && (b = cvtable[as_cint(c)>>8][as_cint(c)&0xFF],
+                    b != 0 || chareq(c,ascii(0)))) {
               *dest++ = b; dcount--;
             } else
               fehler_unencodable(encoding,ch);
@@ -1241,7 +1577,7 @@ global void nls_asciiext_wcstombs (object encoding, object stream,
             fehler_unencodable(encoding,ch);
         }
       }
-    };
+    } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
   }
@@ -1250,35 +1586,43 @@ global void nls_asciiext_wcstombs (object encoding, object stream,
 # Determining the range of encodable characters.
 global object nls_range (object encoding, uintL start, uintL end) {
   var uintL count = 0; # number of intervals already on the STACK
-  var const nls_table* table =
-    (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
-  var const unsigned char* const* cvtable = table->page_uni2charset;
-  var uintL i1;
-  var uintL i2;
-  var bool have_i1_i2 = false; # [i1,i2] = interval being built
-  var uintL i;
-  for (i = start;;) {
-    var chart ch = as_chart(i);
-    if (cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] == 0
-        && !chareq(ch,ascii(0))) { # ch not encodable -> finish the interval
-      if (have_i1_i2) {
-        pushSTACK(code_char(as_chart(i1))); pushSTACK(code_char(as_chart(i2)));
-        check_STACK(); count++;
+  # The range lies in the BMP; no need to look beyond U+FFFF.
+  if (start < 0x10000) {
+    if (end >= 0x10000)
+      end = 0xFFFF;
+    var const nls_table* table =
+      (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
+    var const unsigned char* const* cvtable = table->page_uni2charset;
+    var uintL i1;
+    var uintL i2;
+    var bool have_i1_i2 = false; # [i1,i2] = interval being built
+    var uintL i;
+    for (i = start;;) {
+      # Here i < 0x10000.
+      var chart ch = as_chart(i);
+      if (cvtable[as_cint(ch)>>8][as_cint(ch)&0xFF] != 0
+          || chareq(ch,ascii(0))) {
+        # ch encodable -> extend the interval
+        if (!have_i1_i2) {
+          have_i1_i2 = true; i1 = i;
+        }
+        i2 = i;
+      } else {
+        # ch not encodable -> finish the interval
+        if (have_i1_i2) {
+          pushSTACK(code_char(as_chart(i1))); pushSTACK(code_char(as_chart(i2)));
+          check_STACK(); count++;
+        }
+        have_i1_i2 = false;
       }
-      have_i1_i2 = false;
-    } else { # ch encodable -> extend the interval
-      if (!have_i1_i2) {
-        have_i1_i2 = true; i1 = i;
-      }
-      i2 = i;
+      if (i == end)
+        break;
+      i++;
     }
-    if (i == end)
-      break;
-    i++;
-  }
-  if (have_i1_i2) {
-    pushSTACK(code_char(as_chart(i1))); pushSTACK(code_char(as_chart(i2)));
-    check_STACK(); count++;
+    if (have_i1_i2) {
+      pushSTACK(code_char(as_chart(i1))); pushSTACK(code_char(as_chart(i2)));
+      check_STACK(); count++;
+    }
   }
   return stringof(2*count);
 }
@@ -1563,29 +1907,16 @@ global object asciz_to_string_ (const char * asciz) {
 global object ascii_to_string (const char * asciz) {
   var const uintB* bptr = (const uintB*)asciz;
   var uintL len = asciz_length(asciz);
-  #ifdef HAVE_SMALL_SSTRING
-  var object obj = allocate_small_string(len); # String allozieren
+  var object obj = allocate_s8string(len); # String allozieren
   if (len > 0) {
-    var scint* ptr = &TheSmallSstring(obj)->data[0];
-    # Zeichenfolge von bptr nach ptr kopieren:
-    dotimespL(len,len, {
-      var uintB b = *bptr++;
-      ASSERT(b < 0x80);
-      *ptr++ = (scint)b;
-    });
-  }
-  #else
-  var object obj = allocate_string(len);
-  if (len > 0) {
-    var chart* ptr = &TheSstring(obj)->data[0];
+    var cint8* ptr = &TheS8string(obj)->data[0];
     # copy as characters bptr --> ptr:
     dotimespL(len,len, {
       var uintB b = *bptr++;
       ASSERT(b < 0x80);
-      *ptr++ = as_chart(b);
+      *ptr++ = (cint8)b;
     });
   }
-  #endif
   return obj;
 }
 
@@ -1658,7 +1989,7 @@ global void init_encodings_1 (void) {
     TheEncoding(encoding)->enc_mbstowcs = P(uni16be_mbstowcs);
     TheEncoding(encoding)->enc_wcslen   = P(uni16_wcslen);
     TheEncoding(encoding)->enc_wcstombs = P(uni16be_wcstombs);
-    TheEncoding(encoding)->enc_range    = P(all_range);
+    TheEncoding(encoding)->enc_range    = P(bmp_range);
     TheEncoding(encoding)->min_bytes_per_char = 2;
     TheEncoding(encoding)->max_bytes_per_char = 2;
     define_constant(symbol,encoding);
@@ -1674,7 +2005,7 @@ global void init_encodings_1 (void) {
     TheEncoding(encoding)->enc_mbstowcs = P(uni16le_mbstowcs);
     TheEncoding(encoding)->enc_wcslen   = P(uni16_wcslen);
     TheEncoding(encoding)->enc_wcstombs = P(uni16le_wcstombs);
-    TheEncoding(encoding)->enc_range    = P(all_range);
+    TheEncoding(encoding)->enc_range    = P(bmp_range);
     TheEncoding(encoding)->min_bytes_per_char = 2;
     TheEncoding(encoding)->max_bytes_per_char = 2;
     define_constant(symbol,encoding);
@@ -1686,7 +2017,7 @@ global void init_encodings_1 (void) {
     TheEncoding(encoding)->enc_towcs_error = S(Kerror);
     TheEncoding(encoding)->enc_tombs_error = S(Kerror);
     TheEncoding(encoding)->enc_charset = symbol;
-    TheEncoding(encoding)->enc_mblen    = P(uni32_mblen);
+    TheEncoding(encoding)->enc_mblen    = P(uni32be_mblen);
     TheEncoding(encoding)->enc_mbstowcs = P(uni32be_mbstowcs);
     TheEncoding(encoding)->enc_wcslen   = P(uni32_wcslen);
     TheEncoding(encoding)->enc_wcstombs = P(uni32be_wcstombs);
@@ -1702,7 +2033,7 @@ global void init_encodings_1 (void) {
     TheEncoding(encoding)->enc_towcs_error = S(Kerror);
     TheEncoding(encoding)->enc_tombs_error = S(Kerror);
     TheEncoding(encoding)->enc_charset = symbol;
-    TheEncoding(encoding)->enc_mblen    = P(uni32_mblen);
+    TheEncoding(encoding)->enc_mblen    = P(uni32le_mblen);
     TheEncoding(encoding)->enc_mbstowcs = P(uni32le_mbstowcs);
     TheEncoding(encoding)->enc_wcslen   = P(uni32_wcslen);
     TheEncoding(encoding)->enc_wcstombs = P(uni32le_wcstombs);
@@ -1724,7 +2055,7 @@ global void init_encodings_1 (void) {
     TheEncoding(encoding)->enc_wcstombs = P(utf8_wcstombs);
     TheEncoding(encoding)->enc_range    = P(all_range);
     TheEncoding(encoding)->min_bytes_per_char = 1;
-    TheEncoding(encoding)->max_bytes_per_char = 3;
+    TheEncoding(encoding)->max_bytes_per_char = 4;
     define_constant(symbol,encoding);
   }
   {
@@ -1740,7 +2071,7 @@ global void init_encodings_1 (void) {
     TheEncoding(encoding)->enc_wcstombs = P(java_wcstombs);
     TheEncoding(encoding)->enc_range    = P(all_range);
     TheEncoding(encoding)->min_bytes_per_char = 1;
-    TheEncoding(encoding)->max_bytes_per_char = 6;
+    TheEncoding(encoding)->max_bytes_per_char = 12;
     define_constant(symbol,encoding);
   }
  #endif

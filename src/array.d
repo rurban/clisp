@@ -1,5 +1,5 @@
 # Array functions
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2002
 
 #include "lispbibl.c"
 #include "arilev0.c" # for bit_op, also defines mulu24 and mulu32_unchecked
@@ -556,10 +556,9 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
         case Array_type_sb32vector:
           return UL_to_I(((uint32*)&TheSbvector(datenvektor)->data[0])[index]);
         case Array_type_sstring: # Simple-String
-          SstringDispatch(datenvektor,
-            { return code_char(TheSstring(datenvektor)->data[index]); },
-            { return code_char(as_chart(TheSmallSstring(datenvektor)->data[index])); }
-            );
+          SstringDispatch(datenvektor,X, {
+            return code_char(as_chart(((SstringX)TheVarobject(datenvektor))->data[index]));
+          });
         default: NOTREACHED;
       }
     }
@@ -655,23 +654,46 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
           ((uint32*)&TheSbvector(datenvektor)->data[0])[index] = I_to_UL(element); # evtl. Fehlermeldung macht I_to_UL
           return datenvektor;
         #ifndef TYPECODES
-        case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: # immutable Simple-String
+        case Rectype_Imm_S8string:
+        case Rectype_Imm_S16string:
+        case Rectype_Imm_S32string: # immutable Simple-String
           fehler_sstring_immutable(datenvektor);
         #ifdef HAVE_SMALL_SSTRING
-        case Rectype_SmallSstring: # mutable Simple-String
+        case Rectype_S8string: # mutable Simple-String
           if (charp(element)) {
-            if (as_cint(char_code(element)) < small_char_int_limit)
-              TheSmallSstring(datenvektor)->data[index] = as_cint(char_code(element));
+            if (char_int(element) < cint8_limit)
+              TheS8string(datenvektor)->data[index] = char_int(element);
             else if (maygc) {
-              datenvektor = reallocate_small_string(datenvektor);
-              TheSstring(TheIarray(datenvektor)->data)->data[index] = char_code(element);
+              if (char_int(element) < cint16_limit) {
+                datenvektor = reallocate_small_string(datenvektor,Rectype_S16string);
+                TheS16string(TheSiarray(datenvektor)->data)->data[index] = char_int(element);
+              } else {
+                datenvektor = reallocate_small_string(datenvektor,Rectype_S32string);
+                TheS32string(TheSiarray(datenvektor)->data)->data[index] = char_int(element);
+              }
+            } else
+              abort();
+            return datenvektor;
+          }
+          break;
+        case Rectype_S16string: # mutable Simple-String
+          if (charp(element)) {
+            if (char_int(element) < cint16_limit)
+              TheS16string(datenvektor)->data[index] = char_int(element);
+            else if (maygc) {
+              datenvektor = reallocate_small_string(datenvektor,Rectype_S32string);
+              TheS32string(TheSiarray(datenvektor)->data)->data[index] = char_int(element);
             } else
               abort();
             return datenvektor;
           }
           break;
         #endif
-        case Rectype_Sstring: # mutable Simple-String
+        #ifdef UNICODE
+        case Rectype_S32string: # mutable Simple-String
+        #else
+        case Rectype_S8string: # mutable Simple-String
+        #endif
         #else
         case Array_type_sstring: # Simple-String
         #endif
@@ -2222,20 +2244,12 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     var uintL count;
     {
       var object* ptr2 = &TheSvector(dv2)->data[index2];
-      SstringDispatch(dv1,
-        {
-          var const chart* ptr1 = &TheSstring(dv1)->data[index1];
-          dotimespL(count,count, {
-            *ptr2++ = code_char(*ptr1); ptr1++;
-          });
-        },
-        {
-          var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
-          dotimespL(count,count, {
-            *ptr2++ = code_char(as_chart(*ptr1)); ptr1++;
-          });
-        }
-        );
+      SstringDispatch(dv1,X1, {
+        var const cintX1* ptr1 = &((SstringX1)TheVarobject(dv1))->data[index1];
+        dotimespL(count,count, {
+          *ptr2++ = code_char(as_chart(*ptr1)); ptr1++;
+        });
+      });
     }
   local void elt_copy_Bit_T(dv1,index1,dv2,index2,count)
     var object dv1;
@@ -2340,16 +2354,20 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     var uintL count;
     {
       check_sstring_mutable(dv2);
-     restart:
-      SstringDispatch(dv2,
+     restart_it:
+      SstringCase(dv2,
         {
-          var const object* ptr1 = &TheSvector(dv1)->data[index1];
-          var chart* ptr2 = &TheSstring(dv2)->data[index2];
-          dotimespL(count,count, {
-            var object value = *ptr1++;
+          for (;;) {
+            var object value = TheSvector(dv1)->data[index1++];
             if (!charp(value)) fehler_store(dv2,value);
-            *ptr2++ = char_code(value);
-          });
+            dv2 = sstring_store(dv2,index2++,char_code(value));
+            if (--count == 0)
+              break;
+            if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
+              dv2 = TheSiarray(dv2)->data;
+              goto restart_it;
+            }
+          }
         },
         {
           for (;;) {
@@ -2360,11 +2378,20 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
               break;
             if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
               dv2 = TheSiarray(dv2)->data;
-              goto restart;
+              goto restart_it;
             }
           }
+        },
+        {
+          var const object* ptr1 = &TheSvector(dv1)->data[index1];
+          var cint32* ptr2 = &TheS32string(dv2)->data[index2];
+          dotimespL(count,count, {
+            var object value = *ptr1++;
+            if (!charp(value)) fehler_store(dv2,value);
+            *ptr2++ = char_code(value);
+          });
         }
-        )
+        );
     }
   local void elt_copy_Char_Char(dv1,index1,dv2,index2,count)
     var object dv1;
@@ -2374,54 +2401,113 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     var uintL count;
     {
       check_sstring_mutable(dv2);
-     restart:
-      SstringDispatch(dv2,
+      SstringCase(dv1,
         {
-          var chart* ptr2 = &TheSstring(dv2)->data[index2];
-          SstringDispatch(dv1,
+          var const cint8* ptr1 = &TheS8string(dv1)->data[index1];
+          SstringCase(dv2,
             {
-              # Equivalent to chartcopy, but we inline it here.
-              var const chart* ptr1 = &TheSstring(dv1)->data[index1];
+              # Equivalent to copy_8bit_8bit, but we inline it here.
+              var cint8* ptr2 = &TheS8string(dv2)->data[index2];
               dotimespL(count,count, {
                 *ptr2++ = *ptr1++;
               });
             },
             {
-              # Equivalent to scintcopy, but we inline it here.
-              var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+              # Equivalent to copy_8bit_16bit, but we inline it here.
+              var cint16* ptr2 = &TheS16string(dv2)->data[index2];
               dotimespL(count,count, {
-                *ptr2++ = as_chart(*ptr1++);
+                *ptr2++ = *ptr1++;
+              });
+            },
+            {
+              # Equivalent to copy_8bit_32bit, but we inline it here.
+              var cint32* ptr2 = &TheS32string(dv2)->data[index2];
+              dotimespL(count,count, {
+                *ptr2++ = *ptr1++;
               });
             }
             );
         },
         {
-          SstringDispatch(dv1,
+         restart16:
+          SstringCase(dv2,
             {
               pushSTACK(dv1);
               for (;;) {
-                var chart ch = TheSstring(dv1)->data[index1++];
+                var chart ch = as_chart(TheS16string(dv1)->data[index1++]);
                 dv2 = sstring_store(dv2,index2++,ch);
                 if (--count == 0)
                   break;
                 if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
                   dv2 = TheSiarray(dv2)->data;
                   dv1 = popSTACK();
-                  goto restart;
+                  goto restart16;
                 }
               }
               skipSTACK(1);
             },
             {
-              var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
-              var scint* ptr2 = &TheSmallSstring(dv2)->data[index2];
+              # Equivalent to copy_16bit_16bit, but we inline it here.
+              var const cint16* ptr1 = &TheS16string(dv1)->data[index1];
+              var cint16* ptr2 = &TheS16string(dv2)->data[index2];
+              dotimespL(count,count, {
+                *ptr2++ = *ptr1++;
+              });
+            },
+            {
+              # Equivalent to copy_16bit_32bit, but we inline it here.
+              var const cint16* ptr1 = &TheS16string(dv1)->data[index1];
+              var cint32* ptr2 = &TheS32string(dv2)->data[index2];
+              dotimespL(count,count, {
+                *ptr2++ = *ptr1++;
+              });
+            }
+            );
+        },
+        {
+         restart32:
+          SstringCase(dv2,
+            {
+              pushSTACK(dv1);
+              for (;;) {
+                var chart ch = as_chart(TheS32string(dv1)->data[index1++]);
+                dv2 = sstring_store(dv2,index2++,ch);
+                if (--count == 0)
+                  break;
+                if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
+                  dv2 = TheSiarray(dv2)->data;
+                  dv1 = popSTACK();
+                  goto restart32;
+                }
+              }
+              skipSTACK(1);
+            },
+            {
+              pushSTACK(dv1);
+              for (;;) {
+                var chart ch = as_chart(TheS32string(dv1)->data[index1++]);
+                dv2 = sstring_store(dv2,index2++,ch);
+                if (--count == 0)
+                  break;
+                if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
+                  dv2 = TheSiarray(dv2)->data;
+                  dv1 = popSTACK();
+                  goto restart32;
+                }
+              }
+              skipSTACK(1);
+            },
+            {
+              # Equivalent to copy_32bit_32bit, but we inline it here.
+              var const cint32* ptr1 = &TheS32string(dv1)->data[index1];
+              var cint32* ptr2 = &TheS32string(dv2)->data[index2];
               dotimespL(count,count, {
                 *ptr2++ = *ptr1++;
               });
             }
             );
         }
-        )
+        );
     }
   local void elt_copy_T_Bit(dv1,index1,dv2,index2,count)
     var object dv1;
@@ -3293,50 +3379,16 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
     {
       check_sstring_mutable(dv2);
       if (eq(dv1,dv2) && index1 < index2 && index2 < index1+count) {
-        SstringDispatch(dv1,{
-          var const chart* ptr1 = &TheSstring(dv1)->data[index1+count];
-          var chart* ptr2 = &TheSstring(dv2)->data[index2+count];
-          dotimespL(count,count, { *--ptr2 = *--ptr1; });
-        },{
-          var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1+count];
-          var scint* ptr2 = &TheSmallSstring(dv2)->data[index2+count];
-          dotimespL(count,count, { *--ptr2 = *--ptr1; });
+        SstringDispatch(dv1,X, {
+          var const cintX* ptr1 = &((SstringX)TheVarobject(dv1))->data[index1+count];
+          var cintX* ptr2 = &((SstringX)TheVarobject(dv2))->data[index2+count];
+          dotimespL(count,count, {
+            *--ptr2 = *--ptr1;
+          });
         });
       } else {
-        # elt_copy_Char_Char(dv1,index1,dv2,index2,count) inlined:
-       restart_it:
-        SstringDispatch(dv2,{
-          var chart* ptr2 = &TheSstring(dv2)->data[index2];
-          SstringDispatch(dv1,{
-            # Equivalent to chartcopy, but we inline it here.
-            var const chart* ptr1 = &TheSstring(dv1)->data[index1];
-            dotimespL(count,count, { *ptr2++ = *ptr1++; });
-          },{
-            # Equivalent to scintcopy, but we inline it here.
-            var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
-            dotimespL(count,count, { *ptr2++ = as_chart(*ptr1++); });
-          });
-        },{
-          SstringDispatch(dv1,{
-            pushSTACK(dv1);
-            for (;;) {
-              var chart ch = TheSstring(dv1)->data[index1++];
-              dv2 = sstring_store(dv2,index2++,ch);
-              if (--count == 0)
-                break;
-              if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
-                dv2 = TheSiarray(dv2)->data;
-                dv1 = popSTACK();
-                goto restart_it;
-              }
-            }
-            skipSTACK(1);
-          },{
-            var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
-            var scint* ptr2 = &TheSmallSstring(dv2)->data[index2];
-            dotimespL(count,count, { *ptr2++ = *ptr1++; });
-          });
-        });
+        # Too large to inline.
+        elt_copy_Char_Char(dv1,index1,dv2,index2,count);
       }
     }
   local void elt_move_Bit(dv1,index1,dv2,index2,count)
@@ -3754,16 +3806,10 @@ global bool elt_fill (object dv, uintL index, uintL count, object element) {
         dv = sstring_store(dv,index++,c);
         simple_array_to_storage1(dv); # reallocated?
         if (--count > 0) {
-          SstringDispatch(dv,
-            {
-              var chart* ptr = &TheSstring(dv)->data[index];
-              SIMPLE_FILL(ptr,count,c);
-            },
-            {
-              var scint* ptr = &TheSmallSstring(dv)->data[index];
-              SIMPLE_FILL(ptr,count,(scint)as_cint(c));
-            }
-            );
+          SstringDispatch(dv,X, {
+            var cintX* ptr = &((SstringX)TheVarobject(dv))->data[index];
+            SIMPLE_FILL(ptr,count,as_cint(c));
+          });
         }
       }
       break;
@@ -3852,52 +3898,107 @@ global void elt_reverse (object dv1, uintL index1, object dv2,
       break;
     case Array_type_sstring: { # Simple-String
       check_sstring_mutable(dv2);
-     restart:
-      SstringDispatch(dv2,
+      SstringCase(dv1,
         {
-          var chart* ptr2 = &TheSstring(dv2)->data[index2];
-          SstringDispatch(dv1,
+          var const cint8* ptr1 = &TheS8string(dv1)->data[index1];
+          SstringCase(dv2,
             {
-              var const chart* ptr1 = &TheSstring(dv1)->data[index1];
+              var cint8* ptr2 = &TheS8string(dv2)->data[index2];
               dotimespL(count,count, {
                 *ptr2-- = *ptr1++;
               });
             },
             {
-              var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
+              var cint16* ptr2 = &TheS16string(dv2)->data[index2];
               dotimespL(count,count, {
-                *ptr2-- = as_chart(*ptr1++);
+                *ptr2-- = *ptr1++;
+              });
+            },
+            {
+              var cint32* ptr2 = &TheS32string(dv2)->data[index2];
+              dotimespL(count,count, {
+                *ptr2-- = *ptr1++;
               });
             }
             );
         },
         {
-          SstringDispatch(dv1,
+         restart16:
+          SstringCase(dv2,
             {
               pushSTACK(dv1);
               for (;;) {
-                var chart ch = TheSstring(dv1)->data[index1++];
+                var chart ch = as_chart(TheS16string(dv1)->data[index1++]);
                 dv2 = sstring_store(dv2,index2--,ch);
                 if (--count == 0)
                   break;
                 if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
                   dv2 = TheSiarray(dv2)->data;
                   dv1 = popSTACK();
-                  goto restart;
+                  goto restart16;
                 }
               }
               skipSTACK(1);
             },
             {
-              var const scint* ptr1 = &TheSmallSstring(dv1)->data[index1];
-              var scint* ptr2 = &TheSmallSstring(dv2)->data[index2];
+              var const cint16* ptr1 = &TheS16string(dv1)->data[index1];
+              var cint16* ptr2 = &TheS16string(dv2)->data[index2];
+              dotimespL(count,count, {
+                *ptr2-- = *ptr1++;
+              });
+            },
+            {
+              var const cint16* ptr1 = &TheS16string(dv1)->data[index1];
+              var cint32* ptr2 = &TheS32string(dv2)->data[index2];
+              dotimespL(count,count, {
+                *ptr2-- = *ptr1++;
+              });
+            }
+            );
+        },
+        {
+         restart32:
+          SstringCase(dv2,
+            {
+              pushSTACK(dv1);
+              for (;;) {
+                var chart ch = as_chart(TheS32string(dv1)->data[index1++]);
+                dv2 = sstring_store(dv2,index2--,ch);
+                if (--count == 0)
+                  break;
+                if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
+                  dv2 = TheSiarray(dv2)->data;
+                  dv1 = popSTACK();
+                  goto restart32;
+                }
+              }
+              skipSTACK(1);
+            },
+            {
+              pushSTACK(dv1);
+              for (;;) {
+                var chart ch = as_chart(TheS32string(dv1)->data[index1++]);
+                dv2 = sstring_store(dv2,index2--,ch);
+                if (--count == 0)
+                  break;
+                if (Record_type(dv2) == Rectype_reallocstring) { # reallocated?
+                  dv2 = TheSiarray(dv2)->data;
+                  dv1 = popSTACK();
+                  goto restart32;
+                }
+              }
+              skipSTACK(1);
+            },
+            {
+              var const cint32* ptr1 = &TheS32string(dv1)->data[index1];
+              var cint32* ptr2 = &TheS32string(dv2)->data[index2];
               dotimespL(count,count, {
                 *ptr2-- = *ptr1++;
               });
             }
             );
         }
-        )
+        );
     }
       break;
     default: NOTREACHED;
@@ -3986,22 +4087,13 @@ global void elt_nreverse (object dv, uintL index, uintL count) {
     case Array_type_sstring: # Simple-String
       check_sstring_mutable(dv);
       if (count > 0) {
-        SstringDispatch(dv,
-          {
-            var chart* ptr1 = &TheSstring(dv)->data[index1];
-            var chart* ptr2 = &TheSstring(dv)->data[index2];
-            dotimespL(count,count, {
-              chart tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;
-            });
-          },
-          {
-            var scint* ptr1 = &TheSmallSstring(dv)->data[index1];
-            var scint* ptr2 = &TheSmallSstring(dv)->data[index2];
-            dotimespL(count,count, {
-              scint tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;
-            });
-          }
-          );
+        SstringDispatch(dv,X, {
+          var cintX* ptr1 = &((SstringX)TheVarobject(dv))->data[index1];
+          var cintX* ptr2 = &((SstringX)TheVarobject(dv))->data[index2];
+          dotimespL(count,count, {
+            cintX tmp = *ptr1; *ptr1++ = *ptr2; *ptr2-- = tmp;
+          });
+        });
       }
       break;
     default: NOTREACHED;
@@ -4379,9 +4471,15 @@ local object ssstring_extend_low (object ssstring, uintL size) {
   pushSTACK(ssstring);
   var object new_data = allocate_string(size);
   ssstring = popSTACK();
-  if (TheIarray(ssstring)->dims[1] > 0)
-    chartcopy(TheSstring(TheIarray(ssstring)->data)->data,
-              TheSstring(new_data)->data,TheIarray(ssstring)->dims[1]);
+  if (TheIarray(ssstring)->dims[1] > 0) {
+    #ifdef UNICODE
+    copy_32bit_32bit
+    #else
+    copy_8bit_8bit
+    #endif
+      (TheSstring(TheIarray(ssstring)->data)->data,
+       TheSstring(new_data)->data,TheIarray(ssstring)->dims[1]);
+  }
   set_break_sem_1(); # forbid interrupts
   TheIarray(ssstring)->data = new_data;
   TheIarray(ssstring)->totalsize = TheIarray(ssstring)->dims[0] = size;
@@ -4457,10 +4555,15 @@ global object ssstring_append_extend (object ssstring, object srcstring,
     srcstring = popSTACK();
   }
   { # push the characters in:
-    var chart* ptr = &TheSstring(TheIarray(ssstring)->data)->data[old_len];
-    SstringDispatch(srcstring,
-      { chartcopy(&TheSstring(srcstring)->data[start],ptr,len); },
-      { scintcopy(&TheSmallSstring(srcstring)->data[start],ptr,len); });
+    var cint32* ptr = &TheS32string(TheIarray(ssstring)->data)->data[old_len];
+    #ifdef UNICODE
+    SstringCase(srcstring,
+      { copy_8bit_32bit(&TheS8string(srcstring)->data[start],ptr,len); },
+      { copy_16bit_32bit(&TheS16string(srcstring)->data[start],ptr,len); },
+      { copy_32bit_32bit(&TheS32string(srcstring)->data[start],ptr,len); });
+    #else
+    copy_8bit_8bit(&TheSstring(srcstring)->data[start],ptr,len);
+    #endif
   }
   # increase the fill-pointer:
   TheIarray(ssstring)->dims[1] += len;
@@ -4763,8 +4866,10 @@ local void initial_contents_aux(arg,obj)
       pushSTACK(obj);
       pushSTACK(datenvektor);
       datenvektor = storagevector_store(datenvektor,locals->index,STACK_1,true);
-      simple_array_to_storage1(datenvektor), # has it been reallocated?
-        *(localptr STACKop -1) = datenvektor;
+      #ifdef HAVE_SMALL_SSTRING
+      if (Record_type(datenvektor) == Rectype_reallocstring) # has it been reallocated?
+        *(localptr STACKop -1) = datenvektor = TheSiarray(datenvektor)->data;
+      #endif
       locals->index++;
       skipSTACK(2); # Stack aufräumen
     } else {
@@ -5268,11 +5373,14 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
         if (eltype == Atype_Char) {
           var uintL oldoffset = 0;
           #ifdef HAVE_SMALL_SSTRING
-          if (!sstring_normal_p(iarray_displace(STACK_6,&oldoffset)))
-            datenvektor = allocate_small_string(totalsize);
-          else
+          datenvektor = iarray_displace(STACK_6,&oldoffset);
+          SstringCase(datenvektor,
+            { datenvektor = allocate_s8string(totalsize); },
+            { datenvektor = allocate_s16string(totalsize); },
+            { datenvektor = allocate_s32string(totalsize); });
+          #else
+          datenvektor = allocate_string(totalsize);
           #endif
-            datenvektor = allocate_string(totalsize);
         } else
           datenvektor = make_storagevector(totalsize,eltype);
         # mit dem ursprünglichen Inhalt von array füllen:

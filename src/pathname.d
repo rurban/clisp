@@ -1612,20 +1612,13 @@ local bool all_digits (object string) {
 local bool looks_logical_p (object string) {
   var uintL len = Sstring_length(string);
   if (len > 0) {
-    SstringDispatch(string,{
-      var const chart* charptr = TheSstring(string)->data;
-      while (len-- > 0) {
-        var chart ch = *charptr++;
+    SstringDispatch(string,X, {
+      var const cintX* charptr = &((SstringX)TheVarobject(string))->data[0];
+      dotimespL(len,len, {
+        var chart ch = as_chart(*charptr++);
         if (semicolonp(ch))
           return true;
-      }
-    },{
-      var const scint* charptr = TheSmallSstring(string)->data;
-      while (len-- > 0) {
-        var scint ch = *charptr++;
-        if (semicolonp(as_chart(ch)))
-          return true;
-      }
+      });
     });
   }
   return false;
@@ -2006,7 +1999,9 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
       # starts with a logical hostname.
       if (!nullp(Symbol_value(S(parse_namestring_ansi)))) {
         # Coerce string to be a normal-simple-string.
-        SstringDispatch(string,{},{ Z_SUB(z,string); });
+        #ifdef HAVE_SMALL_SSTRING
+        SstringCase(string,{ Z_SUB(z,string); },{ Z_SUB(z,string); },{});
+        #endif
         var zustand tmp = z;
         var object host = parse_logical_host_prefix(&tmp,string);
         DOUT("parse-namestring:",string);
@@ -2043,7 +2038,9 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
      #endif
     }
     # Coerce string to be a normal-simple-string.
-    SstringDispatch(string,{},{ Z_SUB(z,string); });
+    #ifdef HAVE_SMALL_SSTRING
+    SstringCase(string,{ Z_SUB(z,string); },{ Z_SUB(z,string); },{});
+    #endif
     pushSTACK(string);
   }
  #ifdef LOGICAL_PATHNAMES
@@ -4026,14 +4023,12 @@ local bool legal_name (object obj) {
   var uintL len, offset;
   obj = unpack_string_ro(obj,&len,&offset);
   if (len > 0) {
-    SstringDispatch(obj, {
-      var const chart* charptr = &TheSstring(obj)->data[offset];
-      dotimespL(len,len,
-        { if (!legal_namechar(*charptr++)) return false; });
-    },{
-      var const scint* charptr = &TheSmallSstring(obj)->data[offset];
-      dotimespL(len,len,
-        { if (!legal_namechar(as_chart(*charptr++))) return false; });
+    SstringDispatch(obj,X, {
+      var const cintX* charptr = &((SstringX)TheVarobject(obj))->data[offset];
+      dotimespL(len,len, {
+        if (!legal_namechar(as_chart(*charptr++)))
+          return false;
+      });
     });
   }
   return true;
@@ -9547,9 +9542,8 @@ local object ensure_last_slash (object dir_string) {
   var uintL len, offset;
   var object str = unpack_string_ro(dir_string,&len,&offset);
   var chart ch;
-  SstringDispatch(str,
-    { ch = TheSstring(str)->data[len+offset-1]; },
-    { ch = as_chart(TheSmallSstring(str)->data[len+offset-1]); });
+  SstringDispatch(str,X,
+    { ch = as_chart(((SstringX)TheVarobject(str))->data[len+offset-1]); });
   if (!slashp(ch)) {
     var char sl = (looks_logical_p(dir_string) ? ';' : slash);
     with_sstring_0(str,O(pathname_encoding),asciz, {

@@ -249,20 +249,12 @@ local uint32 hashcode_string (object obj) {
   var object string = unpack_string_ro(obj,&len,&offset);
   var uint32 bish_code = 0x33DAE11FUL + len; # utilize length
   if (len > 0) {
-    SstringDispatch(string,{
-      var const chart* ptr = &TheSstring(string)->data[offset];
-      bish_code ^= (uint32)as_cint(ptr[len-1]); # add last character
+    SstringDispatch(string,X, {
+      var const cintX* ptr = &((SstringX)TheVarobject(string))->data[offset];
+      bish_code ^= (uint32)(ptr[len-1]); # add last character
       var uintC count = (len <= 31 ? len : 31); # min(len,31)
       dotimespC(count,count, {
-        var uint32 next_code = (uint32)as_cint(*ptr++); # next character
-        bish_code = misch(bish_code,next_code); # add
-      });
-    },{
-      var const scint* ptr = &TheSmallSstring(string)->data[offset];
-      bish_code ^= (uint32)(cint)(ptr[len-1]); # add last character
-      var uintC count = (len <= 31 ? len : 31); # min(len,31)
-      dotimespC(count,count, {
-        var uint32 next_code = (uint32)(cint)(*ptr++); # next character
+        var uint32 next_code = (uint32)(*ptr++); # next character
         bish_code = misch(bish_code,next_code); # add
       });
     });
@@ -403,7 +395,10 @@ local uint32 hashcode3_atom (object obj) {
       case Rectype_Sb16vector: case Rectype_b16vector:
       case Rectype_Sb32vector: case Rectype_b32vector:
         return hashcode_bvector(obj);
-      case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_SmallSstring: case Rectype_Imm_SmallSstring: case Rectype_reallocstring: case Rectype_string:
+      case Rectype_S8string: case Rectype_Imm_S8string:
+      case Rectype_S16string: case Rectype_Imm_S16string:
+      case Rectype_S32string: case Rectype_Imm_S32string:
+      case Rectype_reallocstring: case Rectype_string:
         return hashcode_string(obj);
      #ifdef LOGICAL_PATHNAMES
       case Rectype_Logpathname:
@@ -529,14 +524,8 @@ local uint32 hashcode4_vector_T (object dv, uintL index,
 local uint32 hashcode4_vector_Char (object dv, uintL index,
                                     uintL count, uint32 bish_code) {
   if (count > 0) {
-    SstringDispatch(dv,{
-      var const chart* ptr = &TheSstring(dv)->data[index];
-      dotimespL(count,count, {
-        var uint32 next_code = hashcode4_char(*ptr++); # next char
-        bish_code = misch(bish_code,next_code); # add
-      });
-    },{
-      var const scint* ptr = &TheSmallSstring(dv)->data[index];
+    SstringDispatch(dv,X, {
+      var const cintX* ptr = &((SstringX)TheVarobject(dv))->data[index];
       dotimespL(count,count, {
         var uint32 next_code = hashcode4_char(as_chart(*ptr++)); # next char
         bish_code = misch(bish_code,next_code); # add

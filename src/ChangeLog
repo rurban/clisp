@@ -1,3 +1,224 @@
+2002-05-26  Bruno Haible  <bruno@clisp.org>
+
+	Implement UCS-4 strings.
+	* lispbibl.d: Accept new flag NO_SMALL_SSTRING.
+	(Rectype_S8string, Rectype_Imm_S8string, Rectype_S16string,
+	Rectype_Imm_S16string, Rectype_S32string, Rectype_Imm_S32string): New
+	enumeration values.
+	(Rectype_Sstring, Rectype_Imm_Sstring, Rectype_SmallSstring,
+	Rectype_Imm_SmallSstring): Remove enumeration values.
+	(char_int_len): Define to 24 instead of 16.
+	(char_int_limit): Define to 0x110000 instead of 0x10000.
+	(HAVE_SMALL_SSTRING): Don't define if NO_SMALL_SSTRING is specified.
+	(small_char_int_len, small_char_int_limit, small_char_code_limit):
+	Remove macros.
+	(scint): Remove type.
+	(cint8, cint16, cint32): New types.
+	(cint8_limit, cint16_limit, cint32_limit): New macros.
+	(STRUCT_SSTRING): New macro.
+	(small_sstring_, SmallSstring): Remove types.
+	(s8string_, S8string, s16string_, S16string, s32string_, S32string):
+	New types.
+	(Array_type_sstring): Handle 3 different simple-string types.
+	(TheSmallSstring): Remove macro.
+	(TheS8string, TheS16string, TheS32string): New macros.
+	(vectorp, simplep, array_simplep, simple_string_p, stringp, arrayp):
+	Update.
+	(if_recordp): Handle 3 different simple-string types.
+	(small_char_p): Remove macro.
+	(case_Rectype_Sstring_above): Handle 3 different simple-string types.
+	(case_Rectype_string_above): Likewise.
+	(case_Rectype_array_above): Likewise.
+	(allocate_s8string, allocate_imm_s8string, allocate_s16string,
+	allocate_imm_s16string, allocate_s32string, allocate_imm_s32string):
+	New declarations.
+	(allocate_string): Change to a macro.
+	(allocate_imm_string): Likewise.
+	(allocate_small_string, allocate_imm_small_string): Remove
+	declarations.
+	(reallocate_small_string): Add an argument 'newtype'.
+	(copy_8bit_8bit, copy_8bit_16bit, copy_8bit_32bit, copy_16bit_8bit,
+	copy_16bit_16bit, copy_16bit_32bit, copy_32bit_8bit, copy_32bit_16bit,
+	copy_32bit_32bit): New declarations.
+	(chartcopy): Remove macro.
+	(scintcopy): Remove declaration.
+	(SstringCase): Renamed from SstringDispatch. Add one more case.
+	(SstringDispatch): New macro.
+	(sstring_normal_p): Update.
+	(unpack_sstring_alloca): Update. Call copy_16bit_32bit or
+	copy_8bit_32bit instead of scintcopy.
+	(check_sstring_mutable): Handle 3 different simple-string types.
+	* array.d (storagevector_aref): Update SstringDispatch invocation.
+	(storagevector_store): Handle 3 different simple-string types.
+	(elt_copy_Char_T): Update SstringDispatch invocation.
+	(elt_copy_T_Char): Handle 3 different simple-string types.
+	(elt_copy_Char_Char): Likewise.
+	(elt_move_Char): Update SstringDispatch invocation. Don't inline
+	elt_copy_Char_Char.
+	(elt_fill): Update SstringDispatch invocation.
+	(elt_reverse): Handle 3 different simple-string types.
+	(elt_nreverse): Update SstringDispatch invocation.
+	(ssstring_extend_low): Call copy_32bit_32bit/copy_8bit_8bit instead of
+	chartcopy.
+	(ssstring_append_extend): Handle 3 different simple-string types.
+	(initial_contents_aux): Make it compile if TYPECODES.
+	(ADJUST-ARRAY): Replace allocate_small_string call by one of
+	allocate_s[8|16|32]string.
+	* charstrg.d (nop_page): Change element type to uint16.
+	(copy_8bit_8bit, copy_8bit_16bit, copy_8bit_32bit, copy_16bit_8bit,
+	copy_16bit_16bit, copy_16bit_32bit, copy_32bit_8bit, copy_32bit_16bit,
+	copy_32bit_32bit): New functions.
+	(scintcopy): Remove function.
+	(string_gleich): Update SstringDispatch invocations.
+	(string_equal): Likewise.
+	(sstring_store): Handle 3 different simple-string types.
+	(sstring_store_array): Likewise.
+	(copy_string): Likewise.
+	(coerce_imm_ss): Likewise.
+	(coerce_normal_ss): Likewise.
+	(coerce_char): Update SstringDispatch invocation.
+	(char_name): Update allocate_small_string invocation. Return a string
+	of length 9 for characters with code >= 0x10000.
+	(name_char): Accept names of the form "Uxxxxxxxx" of length 9.
+	(CHAR): Update SstringDispatch invocation.
+	(SCHAR): Likewise.
+	(test_string_limits_rw): Handle 3 different simple-string types.
+	(string_eqcomp): Update SstringDispatch invocations.
+	(string_comp): Likewise.
+	(string_eqcomp_ci): Likewise.
+	(string_comp_ci): Likewise.
+	(string_width): Update SstringDispatch invocation.
+	(nstring_upcase): Handle 3 different simple-string types.
+	(nstring_downcase): Likewise.
+	(nstring_capitalize): Likewise.
+	(subsstring): Likewise.
+	(SUBSTRING): Likewise.
+	(string_concat): Likewise.
+	* debug.d (read_form): Update SstringDispatch invocation.
+	* encoding.d (hex_table): Make read-only.
+	(fehler_unencodable): Display character codes >= 0x10000 correctly.
+	(bmp_range): New function.
+	(uni16_wcslen): Handle the case of characters >= 0x10000 in the source
+	string.
+	(uni16be_wcstombs): Likewise.
+	(uni16le_wcstombs): Likewise.
+	(fehler_uni32_invalid): Update error message.
+	(uni32be_mblen): Renamed from uni32_mblen.
+	(uni32le_mblen): New function.
+	(uni32be_mbstowcs): Correct counting in case the error action is
+	:IGNORE.
+	(uni32le_mbstowcs): Likewise.
+	(uni32be_wcstombs): Output characters outside the BMP correctly.
+	(uni32le_wcstombs): Likewise.
+	(fehler_utf8_invalid4): New function.
+	(utf8_mblen): Reject UTF-8 encoded surrogates. Accept 4-byte sequences.
+	(utf8_mbstowcs): Likewise.
+	(utf8_wcstombs): Emit 4-byte sequence for characters outside the BMP.
+	(java_mblen): Accept 12-byte sequences.
+	(java_mbstowcs): Likewise.
+	(java_wcslen): Characters outside the BMP generate 12 bytes of output.
+	(java_wcstombs): Likewise.
+	(nls_wcslen): Handle characters outside the BMP.
+	(nls_wcstombs): Likewise.
+	(nls_asciiext_wcslen): Handle characters outside the BMP. Remove a
+	piece of dead code.
+	(nls_asciiext_wcstombs): Handle characters outside the BMP.
+	(nls_range): Speed up the case when end >= 0x10000.
+	(ascii_to_string): Simplify.
+	(init_encodings_1): Use bmp_range instead of all_range for
+	UNICODE-16-BIG-ENDIAN and UNICODE-16-LITTLE-ENDIAN. Use uni32le_mblen
+	for UNICODE-32-LITTLE-ENDIAN. Change max_bytes_per_char of UTF-8 to 4.
+	Change max_bytes_per_char of JAVA to 12.
+	* hashtabl.d (hashcode_string): Update SstringDispatch invocation.
+	(hashcode3_atom): Handle 3 different simple-string types.
+	(hashcode4_vector_Char): Update SstringDispatch invocation.
+	* io.d (sstring_printf): Update SstringDispatch invocation.
+	(small_char_code_limit): New macro.
+	(write_sstring_case): Update SstringDispatch invocations.
+	(pr_symbol_part): Likewise.
+	(pr_sstring_ab): Likewise.
+	(pr_orecord): Handle 3 different simple-string types.
+	* lisparit.d (decimal_string): Inline the copying loop, instead of
+	calling chartcopy.
+	* misc.d (MACHINE-VERSION): Use TheS8string instead of TheSmallSstring.
+	* package.d (string_hashcode): Update SstringDispatch invocation.
+	* pathname.d (looks_logical_p): Update SstringDispatch invocation.
+	(PARSE-NAMESTRING): Use SstringCase instead of SstringDispatch.
+	(legal_name): Update SstringDispatch invocation.
+	(ensure_last_slash): Likewise.
+	* predtype.d (elt_compare_T_Char): Update SstringDispatch invocation.
+	* pseudofun.d (uni32be_mblen, uni32le_mblen): New entries.
+	(uni32_mblen): Remove entry.
+	* spvw_garcol.d (gc_mark): Handle 3 different simple-string types.
+	* spvw_genera1.d (walk_area, build_old_generation_cache): Likewise.
+	* spvw_objsize.d (size_s8string, size_s16string, size_s32string): New
+	macros.
+	(size_sstring): Define as alias of size_s32string or size_s8string.
+	(objsize): Handle 3 different simple-string types.
+	* spvw_typealloc.d (allocate_string, allocate_imm_string,
+	allocate_small_string, allocate_imm_small_string): Remove functions.
+	(allocate_s8string, allocate_imm_s8string, allocate_s16string,
+	allocate_imm_s16string, allocate_s32string, allocate_imm_s32string):
+	New functions.
+	(reallocate_small_string): Add 'newtype' argument.
+	* spvw_update.d (update_varobject): Handle 3 different simple-string
+	types.
+	* stream.d (wr_ch_array_dummy): Update SstringDispatch invocation.
+	(read_char_array): Likewise.
+	(rd_ch_str_in): Likewise.
+	(wr_ch_array_pphelp): Likewise.
+	(rd_ch_buff_in): Likewise.
+	(CLISP_INTERNAL_CHARSET): Change to UCS-4-INTERNAL.
+	(rd_ch_array_buffered): Update SstringDispatch invocation.
+	(wr_ch_array_terminal3): Likewise.
+	(wr_ch_array_window): Likewise.
+	(FILE-STRING-LENGTH): Likewise.
+
+	Upgrade Unicode character data tables from 2.0.14 to 3.2.0.
+	* utils/unicode/gen-ctype.c: New file.
+	* utils/unicode/attribute_table.java: Remove file.
+	* utils/unicode/upcase_table.java: Remove file.
+	* utils/unicode/downcase_table.java: Remove file.
+	* utils/unicode/uni_bothcase.java: Remove file.
+	* utils/unicode/Makefile (JAVA, JAVAC): Remove variables.
+	(uni_upcase.c, upcase_table.class, uni_downcase.c,
+	downcase_table.class, uni_attribute.c, attribute_table.class): Remove
+	rules.
+	* uni_attribute.c: Regenerated for Unicode 3.2.0 by gen-ctype.c.
+	* uni_upcase.c: Likewise.
+	* uni_downcase.c: Likewise.
+	* charstrg.d (up_case): up_case_table is now shorter than
+	char_code_limit. Sign-extend the table entry.
+	(down_case): Likewise.
+	(unicode_attribute): unicode_attribute_table is now shorter than
+	char_code_limit.
+
+	Upgrade Unicode name tables to 3.2.0.
+	* uniname.c: New file, from libunistring-0.0.
+	* uniname.h: New file, from libunistring-0.0.
+	* utils/gen-uninames: Update from libunistring-0.0.
+	* uninames.h: New file, from libunistring-0.0, replaces uninames.c.
+	* uninames.c: Remove file.
+	* unitypes.h: New file, from libunistring-0.0.
+	* charstrg.d: Include uniname.h and uniname.c instead of uninames.c.
+	(unicode_name_word, unicode_name_word_lookup): Remove functions, now
+	contained in uniname.c.
+	(jamo_initial_short_name, jamo_medial_short_name,
+	jamo_final_short_name): Remove arrays, now contained in uniname.c.
+	(char_name): Use unicode_character_name function from uniname.c.
+	(name_char): Use unicode_name_character function from uniname.c.
+	* makemake.in (UNICODE_INCLUDES): Remove uninames, add uniname.
+	Treat unitypes.h uniname.h uninames.h like the UNICODE_INCLUDES.
+	charstrg depends on them only if with_unicode is enabled.
+
+	Substitute for <stdint.h>.
+	* stdint.h.in: New file, from libunistring-0.0.
+	* m4/stdint.m4: New file, from libunistring-0.0.
+	* configure.in: Invoke gt_STDINT_H.
+	* makemake.in (EVERY_INCLUDES_H): Add stdint.h.
+	(stdint.h): New rule.
+	(clean4): Remove stdint.h.
+
 2002-05-24  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (fehler_code_alignment): Give a useful advice for GCC 3.
