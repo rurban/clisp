@@ -5454,6 +5454,9 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
       STACK_0 = coerce_pathname(resolved_string);
       nnullp = namenullp(STACK_0);
     }
+    /* merge in *DEFAULT-PATHNAME-DEFAULTS* & :VERSION :NEWEST:
+       for cross-platform consistency, either all or no versions of
+       assure_dir_exists() must call MERGE-PATHNAMES  */
     funcall(L(merge_pathnames),1); pushSTACK(value1);
     { var object dns = directory_namestring(STACK_0);
       return nnullp ? dns : OSnamestring(dns); }
