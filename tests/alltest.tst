@@ -578,6 +578,9 @@ NIL
 (QUOTE (U I V)))
 (A 1 U B 2 I C 3 V)
 
+(funcall (compile nil (lambda (x) (flet ((foo (y) (+ y 1))) (foo (* 2 x))))) 3)
+7
+
 ;TAGBODY, GO, MULTIPLE-VALUE-LIST, MULTIPLE-VALUE-CALL, MULTIPLE-VALUE-PROG1,
 ;MULTIPLE-VALUE-BIND, MULTIPLE-VALUE-SETQ, VALUES, VALUES-LIST, CATCH,
 
