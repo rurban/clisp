@@ -1046,7 +1046,7 @@ global object convert_from_foreign(fvd,data)
         } elif (eq(fvdtype,S(c_array)) && (fvdlen > 1)) {
           pushSTACK(fvd);
           # Allocate the resulting array: (MAKE-ARRAY dims :element-type ...)
-          var object dims = Cdr(Cdr((coerce_sequence(fvd,S(list)),value1)));
+          var object dims = Cdr(Cdr((coerce_sequence(fvd,S(list),true),value1)));
           var object array = convert_from_foreign_array_alloc(dims,TheSvector(STACK_0)->data[1]);
           # Fill the resulting array.
           # Only a single loop is needed since C and Lisp both store the

@@ -11498,12 +11498,15 @@ extern void with_gc_statistics (gc_function* fun);
 # ###################### SEQBIBL for SEQUENCE.D ############################ #
 
 # UP: Converts an object into a sequence of a given type.
-# coerce_sequence(obj,result_type)
+# coerce_sequence(obj, result_type, error_p)
 # > obj: Object, should be a sequence
-# > result_type: Identifier  (symbol) of the sequence-type
+# > result_type: identifier (symbol) of the sequence-type
+# > error_p: when result_type does not name a sequence:
+#              when true, signal an error; when false, return nullobj
 # < value: Sequence of type result_type
 # can trigger GC
-extern Values coerce_sequence (object sequence, object result_type);
+extern Values coerce_sequence (object sequence, object result_type,
+                               bool error_p);
 # is used by PREDTYPE, EVAL
 
 # UP:  Traverses a sequence and calls a function for every element.
