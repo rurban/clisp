@@ -8561,16 +8561,16 @@ local void pr_record_descr (const object* stream_, object obj,
 # the table is printed as an alist: a sequence of (key . value)
 # can trigger GC
 local void pr_kvtable (const object* stream_, object* kvt,
-                       uint index, uint count) {
+                       uintL index, uintL count) {
   var uintL length = 0;
   var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
-  var object cons = allocate_cons(); # the cons (key . value)
+  pushSTACK(allocate_cons()); # save the cons (key . value)
   loop {
     length++; # increase previous length
     # search for next to be printed Key-Value-Pair:
     loop {
       if (index==0) # finished kvtable?
-        return;
+        goto kvt_finish;
       index -= 2; # decrease index
       if (!eq(TheSvector(*kvt)->data[index+0],unbound)) # Key /= "empty" ?
         break;
@@ -8584,10 +8584,11 @@ local void pr_kvtable (const object* stream_, object* kvt,
     JUSTIFY_LAST(count==0);
     # create Cons (Key . Value) and print:
     var object* ptr = &TheSvector(*kvt)->data[index];
-    Car(cons) = ptr[0]; # Key
-    Cdr(cons) = ptr[1]; # Value
-    prin_object(stream_,cons);
+    Car(STACK_0) = ptr[0]; # Key
+    Cdr(STACK_0) = ptr[1]; # Value
+    prin_object(stream_,STACK_0);
   }
+ kvt_finish: skipSTACK(1); # drop the cons
 }
 
 # UP: prints an OtherRecord to stream.
