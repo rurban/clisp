@@ -1353,9 +1353,9 @@ local object LF_to_I (object x)
   return I_I_ash_I(popSTACK(),shiftcount);
 }
 
-/* I_to_LF(x,len) converts an Integer x into a Long-Float with len digits
- and rounds.
- can trigger GC *
+/* I_to_LF(x,len,signal_overflow) converts an integer x to a long-float with
+ len digits, and rounds thereby.
+ can trigger GC
  method:
  x=0 -> result 0.0
  Memorize sign of x.
@@ -1370,7 +1370,7 @@ local object LF_to_I (object x)
    next bit bit = 1 and rest >0 -> round up.
  When rounding up: rounding overflow -> shift mantissa by 1 bit to the right
    and increment exponent. */
-local object I_to_LF (object x, uintC len)
+local object I_to_LF (object x, uintC len, bool signal_overflow)
 {
   if (eq(x,Fixnum_0)) {
     encode_LF0(len, return); /* x=0 -> result 0.0 */
@@ -1385,8 +1385,9 @@ local object I_to_LF (object x, uintC len)
           (uintL)(LF_exp_high-LF_exp_mid))) {
     /* guarantees exp <= intDsize*2^intWCsize-1 <= LF_exp_high-LF_exp_mid */
   } else {
-    if (!(exp <= (uintL)(LF_exp_high-LF_exp_mid)))
-      fehler_overflow();
+    if (!(exp <= (uintL)(LF_exp_high-LF_exp_mid))) {
+      if (signal_overflow) fehler_overflow(); else return nullobj;
+    }
   }
   /* build Long-Float: */
   pushSTACK(x);
@@ -1439,8 +1440,9 @@ local object I_to_LF (object x, uintC len)
         /* guarantees exp < intDsize*2^intWCsize-1 <= LF_exp_high-LF_exp_mid */
         (TheLfloat(y)->expo)++; /* now, exp <= LF_exp_high-LF_exp_mid */
       } else {
-        if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1))
-          fehler_overflow();
+        if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1)) {
+          if (signal_overflow) fehler_overflow(); else return nullobj;
+        }
       }
     }
    ab: /* round off */
@@ -1462,8 +1464,8 @@ local object I_to_LF (object x, uintC len)
   return y;
 }
 
-/* RA_to_LF(x,len) converts a rational number x into a Long-Float
- with len digits and rounds.
+/* RA_to_LF(x,len,signal_overflow) converts a rational number x to a long-float
+ with len digits and rounds thereby.
  can trigger GC
  method:
  x integer -> obvious.
@@ -1483,10 +1485,10 @@ local object I_to_LF (object x, uintC len)
        round 2 bits away and shift by 2 bits to the right;
      if it is <2^(16n+1) ,
        round 1 bit away and shift by 1 bit to the right. */
-local object RA_to_LF (object x, uintC len)
+local object RA_to_LF (object x, uintC len, bool signal_overflow)
 {
   if (RA_integerp(x))
-    return I_to_LF(x,len);
+    return I_to_LF(x,len,signal_overflow);
   /* x Ratio */
   pushSTACK(TheRatio(x)->rt_den); /* b */
   var signean sign = RT_sign(x); /* sign */

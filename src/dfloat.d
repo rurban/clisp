@@ -1363,9 +1363,10 @@ local object DF_to_I (object x) {
 }
 #endif
 
-/* I_to_DF(x) converts an Integer x into a Double-Float and rounds thereby.
+/* I_to_DF(x,signal_overflow) converts an integer x to a double-float, and
+ rounds thereby.
  can trigger GC */
-local object I_to_DF (object x);
+local object I_to_DF (object x, bool signal_overflow);
 /* method:
  x=0 -> result 0.0
  memorize sign of x.
@@ -1379,7 +1380,7 @@ local object I_to_DF (object x);
    Shift by one bit to the right.
    On rounding up to 2^53 (rounding overflow) shift mantissa by 1 bit
      to the right and increment exponent. */
-local object I_to_DF (object x) {
+local object I_to_DF (object x, bool signal_overflow) {
   if (eq(x,Fixnum_0))
     return DF_0;
   var signean sign = R_sign(x); /* sign */
@@ -1414,6 +1415,8 @@ local object I_to_DF (object x) {
        the highest set bit in 2^64*msd+2^32*msdd+msddf is bit number
        63 + (exp mod intDsize). */
     var uintL shiftcount = exp % intDsize;
+    #define fehler_overflow() \
+      if (signal_overflow) (fehler_overflow)(); else return nullobj;
    #ifdef intQsize
     var uint64 mant = /* leading 64 bits */
       (shiftcount==0
@@ -1467,13 +1470,14 @@ local object I_to_DF (object x) {
     }
     encode2_DF(sign,(sintL)exp,manthi,mantlo, return);
    #endif
+    #undef fehler_overflow
   }
 }
 
-/* RA_to_DF(x) converts a rational number x into a Double-Float
- and rounds.
+/* RA_to_DF(x,signal_overflow) converts a rational number x to a double-float,
+ and rounds thereby.
  can trigger GC */
-local object RA_to_DF (object x);
+local object RA_to_DF (object x, bool signal_overflow);
 /* method:
  x integer -> obvious.
  x = +/- a/b with Integers a,b>0:
@@ -1487,10 +1491,12 @@ local object RA_to_DF (object x);
    The first value is >=2^53, <2^55.
    If it is >=2^54 , round 2 bits away,
    if it is <2^54 , round 1 bit away. */
-local object RA_to_DF (object x) {
+local object RA_to_DF (object x, bool signal_overflow) {
   if (RA_integerp(x))
-    return I_to_DF(x);
+    return I_to_DF(x,signal_overflow);
   /* x ratio */
+  #define fehler_overflow() \
+    if (signal_overflow) (fehler_overflow)(); else return nullobj;
   pushSTACK(TheRatio(x)->rt_den); /* b */
   var signean sign = RT_sign(x); /* sign */
   x = TheRatio(x)->rt_num; /* +/- a */
@@ -1602,4 +1608,5 @@ local object RA_to_DF (object x) {
   /* done. */
   encode2_DF(sign,lendiff,manthi,mantlo, return);
  #endif
+  #undef fehler_overflow
 }
