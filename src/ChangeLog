@@ -1,3 +1,7 @@
+2001-12-20  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (version): updated (19071996 --> 20010726)
+
 2001-12-20  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
 	* lispbibl.d (OS_error): use asciz_out_s(), not asciz_out_1(),
