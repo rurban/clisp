@@ -1,5 +1,9 @@
 1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * screen.lsp (generic-stream-listen): Adapt return value.
+
+1998-06-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * defs1.lsp (load-logical-pathname-translations): Signal an error if
           no translations were found.
 
