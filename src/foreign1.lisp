@@ -543,7 +543,13 @@
              ((c-ptr c-ptr-null c-array-ptr)
               (to-c-typedecl (svref c-type 1) (format nil "* ~A" name)))
              (c-function
-              (to-c-typedecl (svref c-type 1) (format nil "~A ()" name)))
+              (to-c-typedecl (svref c-type 1)
+                             (format nil "(~A) (~{~A~^,~})" name
+                                     (mapcar (lambda (c-t)
+                                               (to-c-typedecl
+                                                c-t (gensym "arg")))
+                                             (split-c-fun-arglist
+                                              (svref c-type 2) 0)))))
              (t (error (ENGLISH "illegal foreign data type ~S")
                        c-type))))))))
 
