@@ -90,10 +90,12 @@ z               #C(1d-1 0d0)
 (= (tan z) (tan (realpart z)))   T
 (tanh z)     #C(0.09966799462495582d0 0d0)
 (= (tanh z) (tanh (realpart z))) T
-(atan #c(1 2))  #C(1.3389726 0.4023595)
-(tan  #c(1 2))  #C(0.033812825 1.0147936)
-(tanh #c(20 2)) #C(1.0 0.0)
-(cosh #c(1 2))  #C(-0.64214814 1.0686074)
+(atan #c(1 2))  #C(1.3389726f0 0.4023595f0)
+(tan  #c(1 2))  #C(0.033812825f0 1.0147936f0)
+(tanh #c(20 2)) #C(1f0 0f0)
+(cosh #c(1 2))     #C(-0.64214814f0       1.0686074f0)
+(cosh #c(1d0 2d0)) #C(-0.64214812471552d0 1.0686074213827783d0)
+(log -3/4)      #C(-0.2876821f0 3.1415927f0)
 
 (tan 0)  0
 (tanh 0) 0
@@ -214,11 +216,24 @@ check-sqrt
 NIL
 
 ;; based on pfd's gcl suite
-(loop :for func :in '(exp log sin asin cos acos tan atan cosh acosh sinh asinh
-                      tanh atanh)
-  :nconc (loop :for type :in '(short-float single-float double-float long-float)
-           :nconc (loop :for x = (- (random (coerce 20 type)) 10)
-                    :for r = (funcall func x) :repeat 1000
-                    :unless (or (typep r type) (typep r `(complex ,type)))
-                    :collect (list x r func type))))
+(defun test-function (func max min &key (repeat 1000) (except ()))
+  (loop :for type :in '(short-float single-float double-float long-float)
+    :for bad = (mapcar (lambda (x) (coerce x type)) except)
+    :nconc (loop :for x = (+ (random (coerce (- max min) type)) min)
+             :for x-bad = (member x bad :test #'=)
+             :for r = (or x-bad (funcall func x))
+             :repeat repeat
+             :unless (or x-bad (typep r type) (typep r `(complex ,type)))
+             :collect (list x bad r func type))))
+TEST-FUNCTION
+
+(loop :for f :in '(exp sin asin cos acos atan cosh acosh sinh asinh tanh atanh)
+  :nconc (test-function f 10 -10))
+NIL
+(test-function 'log 10 -10 :except '(0))
+NIL
+(test-function
+ 'tan 10 -10
+ :except (nconc (loop :for x :from (/ pi 2) :by pi :to 10 :collect x)
+                (loop :for x :from (/ pi -2) :by pi :downto -10 :collect x)))
 NIL
