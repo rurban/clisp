@@ -1,3 +1,7 @@
+1999-03-11  Sam Steingold  <sds@goems.com>
+
+	* loop.lsp (expand-loop): do not nreverse for collect/nconc/append.
+
 1999-03-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Remove the graphics stuff.

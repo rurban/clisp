@@ -1,6 +1,7 @@
 ;; LOOP-Facility nach CLTL2
 ;; (LOOP {loop-clause}*), CLTL2 S. 163,709-747
 ;; Bruno Haible 19.10.1991-20.10.1991, 22.10.1991, 6.6.1993, 28.6.1994, 16.6.1996
+;; Sam Steingold 1999-03-11
 
 (in-package "LISP")
 (export '(loop loop-finish))
@@ -214,6 +215,8 @@
                                    ; mit Hilfsvariablen fürs Destructuring
         (*last-it* nil) ; Variable, die das letzte Test-Ergebnis ("it") enthält
         (acculist-var nil) ; Akkumulationsvariable für collect, append etc.
+        (taillist-var nil) ; Akkumulationsvariable für collect, append etc.
+        (accu-tails nil)        ; alist of (accu-var . tail-var)
         (accunum-var nil) ; Akkumulationsvariable für count, sum etc.
         (accu-vars-nil nil) ; Akkumulationsvariablen mit Initialwert NIL
         (accu-vars-0 nil) ; Akkumulationsvariablen mit Initialwert 0
@@ -225,7 +228,6 @@
         (stepbefore-code nil) ; Code zum Abbruch vor dem Schleifendurchlauf (umgedrehte Liste)
         (main-code nil) ; Code im Hauptteil der Schleife (umgedrehte Liste)
         (stepafter-code nil) ; Code zur Vorbereitung des nächsten Schleifendurchlaufs (umgedrehte Liste)
-        (accu-vars-nreverse nil) ; Akkumulationsvariablen, die am Schluss umzudrehen sind
         (finally-code nil) ; finally-Code (umgedrehte Liste)
         (results nil) ; Liste von Ergebnisformen (höchstens eine!)
        )
@@ -329,33 +331,47 @@
                  ((COLLECT COLLECTING APPEND APPENDING NCONC NCONCING)
                   (pop body-rest)
                   (let ((form (parse-form-or-it kw))
-                        (accuvar nil))
+                        (accuvar nil) (tailvar nil)
+                        (com (case kw
+                               ((COLLECT COLLECTING) 'CONS)
+                               ((APPEND APPENDING) 'APPEND)
+                               ((NCONC NCONCING) 'NCONC))))
                     (when (parse-kw-p 'into)
                       (unless (and (consp body-rest)
-                                   (symbolp (setq accuvar (pop body-rest)))
-                              )
-                        (loop-syntax-error 'into)
-                    ) )
+                                   (symbolp (setq accuvar (pop body-rest))))
+                        (loop-syntax-error 'into)))
                     (if accuvar
-                      (pushnew accuvar accu-vars-nreverse)
-                      (progn
+                        (setq tailvar
+                              (cdr (or (assoc accuvar accu-tails)
+                                       (car (setq accu-tails
+                                                  (acons accuvar
+                                                         (gensym (symbol-name
+                                                                  accuvar))
+                                                         accu-tails))))))
                         (setq accuvar
                           (or acculist-var (setq acculist-var (gensym)))
-                        )
-                        (push `(SYS::LIST-NREVERSE ,accuvar) results)
-                    ) )
-                    (push accuvar accu-vars-nil)
-                    `(SETQ ,accuvar
-                       (,(case kw
-                           ((COLLECT COLLECTING) 'CONS)
-                           ((APPEND APPENDING) 'REVAPPEND)
-                           ((NCONC NCONCING) 'NRECONC)
-                         )
-                        ,form
-                        ,accuvar
-                     ) )
-                 ))
-                 ((COUNT COUNTING SUM SUMMING MAXIMIZE MAXIMIZING MINIMIZE MINIMIZING)
+                              tailvar
+                              (or taillist-var (setq taillist-var
+                                                     (gensym (symbol-name
+                                                              accuvar))))
+                              results (cons accuvar results)))
+                    (pushnew accuvar accu-vars-nil)
+                    (case com
+                      (cons `(if ,accuvar
+                              (setf (cdr ,tailvar) (list ,form)
+                               ,tailvar (cdr ,tailvar))
+                              (setq ,tailvar (list ,form) ,accuvar ,tailvar)))
+                      (nconc `(if ,accuvar
+                               (setf (cdr ,tailvar) ,form
+                                ,tailvar (last ,tailvar))
+                               (setq ,accuvar ,form ,tailvar (last ,accuvar))))
+                      (append `(if ,accuvar
+                                (setf (cdr ,tailvar) (copy-list ,form)
+                                 ,tailvar (last ,tailvar))
+                                (setq ,accuvar (copy-list ,form)
+                                 ,tailvar (last ,accuvar)))))))
+                 ((COUNT COUNTING SUM SUMMING MAXIMIZE MAXIMIZING
+                   MINIMIZE MINIMIZING)
                   (pop body-rest)
                   (let ((form (parse-form-or-it kw))
                         (accuvar nil))
@@ -386,11 +402,9 @@
                     ) ) ) )
                     (case kw
                       ((MAXIMIZE MAXIMIZING MINIMIZE MINIMIZING)
-                       (push accuvar accu-vars-nil)
-                      )
+                       (pushnew accuvar accu-vars-nil))
                       ((COUNT COUNTING SUM SUMMING)
-                       (push accuvar accu-vars-0)
-                    ) )
+                       (pushnew accuvar accu-vars-0)))
                     (case kw
                       ((COUNT COUNTING) `(WHEN ,form (INCF ,accuvar)))
                       ((SUM SUMMING) `(SETQ ,accuvar (+ ,accuvar ,form)))
@@ -1091,9 +1105,8 @@
             :specform 'LET
             :bindings
               `(,@(map 'list #'(lambda (var) `(,var NIL)) *helpvars*)
-                ,@(mapcar #'(lambda (var) `(,var NIL)) (delete-duplicates accu-vars-nil))
-                ,@(mapcar #'(lambda (var) `(,var 0)) (delete-duplicates accu-vars-0))
-               )
+                ,@(mapcar #'(lambda (var) `(,var NIL)) accu-vars-nil)
+                ,@(mapcar #'(lambda (var) `(,var 0)) accu-vars-0))
             :declspecs
               (nreverse accu-declarations)
           )
@@ -1138,9 +1151,6 @@
                      ,@(if stepafter-code `((PROGN ,@(nreverse stepafter-code))))
                      (GO BEGIN-LOOP)
                      END-LOOP
-                     ,@(mapcar #'(lambda (var) `(SETQ ,var (SYS::LIST-NREVERSE ,var)))
-                               accu-vars-nreverse
-                       )
                      (MACROLET ((LOOP-FINISH () (LOOP-FINISH-WARN) '(GO END-LOOP)))
                        ,@(nreverse finally-code)
                  ) ) )
