@@ -1,5 +1,9 @@
 2003-08-14  Sam Steingold  <sds@gnu.org>
 
+	* defmacro.lisp (analyze1): match lambda-list to argument strictly
+
+2003-08-14  Sam Steingold  <sds@gnu.org>
+
 	ANSI compliance: macro definitions respects the lexical environment
 	* defmacro.lisp (make-macro-expander): accept the second argument
 	- the current lexical environment

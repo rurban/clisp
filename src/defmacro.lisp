@@ -271,7 +271,7 @@ the actual object #<MACRO expander> for the FENV.
   (do ((listr lambdalist (cdr listr))
        (within-optional nil)
        (item)
-       (g))
+       (g) (g1) (test))
       ((atom listr)
        (when listr
          (unless (symbolp listr)
@@ -363,9 +363,19 @@ the actual object #<MACRO expander> for the FENV.
                  ((atom item)
                   #1#) ; (error-of-type ... name item), s.o.
                  (t
+                  (setq g (gensym) g1 (gensym)
+                        %let-list (list* `(,g1 ,g) `(,g ,(cons-car accessexp))
+                                         %let-list))
                   (let ((%min-args 0) (%arg-count 0) (%restp nil))
-                    (analyze1 item (cons-car accessexp) name
-                              (cons-car accessexp)))))
+                    (analyze1 item g1 name g1)
+                    (setq test (make-length-test g 0)))
+                  (if test
+                    (rplaca (cdr (assoc g1 %let-list))
+                            `(if ,test
+                                 (error-of-type 'source-program-error
+                                   (TEXT "~S: ~S does not match lambda list element ~S")
+                                   ',name ,g ',item)
+                                 ,g)))))
            (setq accessexp (cons-cdr accessexp))))))
 
 (defun remove-env-arg (lambdalist name)
