@@ -154,8 +154,11 @@
     &uname;.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
    role="sexp">(<function>POSIX:SYSCONF</function>)</literal></term>
+  <term><literal
+   role="sexp">(<function>POSIX:CONFSTR</function>)</literal></term>
   <listitem><simpara>Return a structure describing the system
-    configuration, derived from &sysconf;.</simpara></listitem></varlistentry>
+    configuration, derived from &sysconf; and &confstr; respectively.
+ </simpara></listitem></varlistentry>
  <varlistentry><term><literal
    role="sexp">(<function>POSIX:LIMITS</function>)</literal></term>
   <listitem><simpara>Return a structure describing the resource limits,
@@ -163,7 +166,7 @@
  <varlistentry><term><literal
    role="sexp">(<function>POSIX:USAGE</function>)</literal></term>
   <listitem><simpara>Return 2 structures describing the resource usage by
-    the lisp process its children, derived from &getrusage;.
+    the lisp process and its children, derived from &getrusage;.
   </simpara></listitem></varlistentry>
  <varlistentry>
    <term><literal role="sexp">(<function>POSIX:ERF</function>
