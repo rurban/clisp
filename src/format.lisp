@@ -244,9 +244,9 @@
             (#\<
              (multiple-value-setq (index csdl)
                (format-parse-cs control-string index csdl #\>))
-	     ;; (assert (eq (csd-data (car csdl)) 'FORMAT-JUSTIFICATION-END))
-	     (when (csd-colon-p (car csdl))
-	       (setf (csd-data newcsd) 'FORMAT-LOGICAL-BLOCK)))
+             ;; (assert (eq (csd-data (car csdl)) 'FORMAT-JUSTIFICATION-END))
+             (when (csd-colon-p (car csdl))
+               (setf (csd-data newcsd) 'FORMAT-LOGICAL-BLOCK)))
             (( #\) #\] #\} #\> )
              (unless stop-at
                (format-error control-string index
@@ -1678,7 +1678,7 @@
                                   (csd-data (car temp))))
              (pop temp))))
     (unless (and (eql (csd-type (car temp)) 2)
-		 (eq (csd-data (car temp)) 'FORMAT-JUSTIFICATION-END))
+                 (eq (csd-data (car temp)) 'FORMAT-JUSTIFICATION-END))
       (format-error *FORMAT-CS* (csd-cs-index (car temp))
         (TEXT "Logical block suffix must be constant")))
     (setq add-fill-p (csd-atsign-p (car temp)))
@@ -1875,7 +1875,7 @@
 
 (defmacro formatter-bind-block (&body body)
   `(let ((*args* (gensym "ARGS")) ; not used inside the pprint-logical-block
-	 (*format-terminate* (formatter-block "TERMINATE-"))
+         (*format-terminate* (formatter-block "TERMINATE-"))
          (*formatter-linear-args* nil)
          (*formatter-whole-args* nil))
      (formatter-bind-block-1 (progn ,@body))))
@@ -1885,44 +1885,44 @@
   ;; rather than try to find and fix all the places
   ;; that use *args* in various ways.
   (setf forms
-	(subst-if-then #'(lambda (x) ; x = `(POP OBJ)
-			   (declare (ignore x))
-			   `(PPRINT-POP))
-		       #'(lambda (x) ; x = `(POP OBJ)
-			   (and (consp x) (eq (car x) 'POP)
+        (subst-if-then #'(lambda (x) ; x = `(POP OBJ)
+                           (declare (ignore x))
+                           `(PPRINT-POP))
+                       #'(lambda (x) ; x = `(POP OBJ)
+                           (and (consp x) (eq (car x) 'POP)
                                 (consp (cdr x)) (eq 'OBJ (cadr x))
-				(null (cddr x))))
-		       forms))
+                                (null (cddr x))))
+                       forms))
   (when *formatter-whole-args*
     (setq forms
-	  (subst-if-then #'(lambda (x) ; x = `(WHOLE-ARGS ,i)
-			     `(NTHCDR ,(second x) WHOLE-ARGS))
-			 #'(lambda (x) ; x = `(WHOLE-ARGS ,i) ?
-			     (and (consp x) (eq (car x) 'WHOLE-ARGS)
-				  (consp (cdr x)) (numberp (cadr x))
-				  (null (cddr x))))
-			 forms)))
+          (subst-if-then #'(lambda (x) ; x = `(WHOLE-ARGS ,i)
+                             `(NTHCDR ,(second x) WHOLE-ARGS))
+                         #'(lambda (x) ; x = `(WHOLE-ARGS ,i) ?
+                             (and (consp x) (eq (car x) 'WHOLE-ARGS)
+                                  (consp (cdr x)) (numberp (cadr x))
+                                  (null (cddr x))))
+                         forms)))
   (setf forms
-	(subst-if-then #'(lambda (x) ; x = `(IF (ENDP OBJ)
-			             ;        (RETURN-FROM ,*format-terminate*))
-			   (declare (ignore x))
-			   `(PPRINT-EXIT-IF-LIST-EXHAUSTED))
-		       #'(lambda (x) ; x = `(IF (ENDP OBJ) (RETURN-FROM ,*format-terminate*))
-			   (and (consp x)
-				(eq (car x) 'IF)
+        (subst-if-then #'(lambda (x) ; x = `(IF (ENDP OBJ)
+                                     ;        (RETURN-FROM ,*format-terminate*))
+                           (declare (ignore x))
+                           `(PPRINT-EXIT-IF-LIST-EXHAUSTED))
+                       #'(lambda (x) ; x = `(IF (ENDP OBJ) (RETURN-FROM ,*format-terminate*))
+                           (and (consp x)
+                                (eq (car x) 'IF)
                                 (consp (cdr x)) (consp (cadr x))
-				(eq (caadr x) 'ENDP) (consp (cdadr x))
-				(eq 'OBJ (cadadr x)) (null (cddadr x))
-				(consp (cddr x)) (consp (caddr x))
-				(eq (caaddr x) 'RETURN-FROM)
-				(eq (car (cdaddr x)) *format-terminate*)
-				(null (cdr (cdaddr x)))
-				(null (cdddr x))))
-		       forms))
+                                (eq (caadr x) 'ENDP) (consp (cdadr x))
+                                (eq 'OBJ (cadadr x)) (null (cddadr x))
+                                (consp (cddr x)) (consp (caddr x))
+                                (eq (caaddr x) 'RETURN-FROM)
+                                (eq (car (cdaddr x)) *format-terminate*)
+                                (null (cdr (cdaddr x)))
+                                (null (cdddr x))))
+                       forms))
   ;; the terminate won't be used (I think....)
   (values `(,*args* ,@(and *formatter-whole-args*
-			   `(&aux (WHOLE-ARGS ,*args*))))
-	  `((DECLARE (IGNORABLE ,*args*)) ,@forms)))
+                           `(&aux (WHOLE-ARGS ,*args*))))
+          `((DECLARE (IGNORABLE ,*args*)) ,@forms)))
 
 ;; terminates the linear mode.
 ;; Hence the argument-list can be accessed as ARGS.
@@ -2424,41 +2424,41 @@
                                              `(PROGN ,@piece-forms (GET-OUTPUT-STREAM-STRING STREAM)))
                                          pieces-forms)))))
                         forms)))
-		    (FORMAT-LOGICAL-BLOCK          ; #\< ending with ~:>
-		     (simple-arglist 0)
-		     (multiple-value-bind
-		        (prefix suffix per-line-p body-csdl add-fill
-				last-csdl)
-		        (format-logical-block-parse *FORMAT-CSDL*)
-		      (when add-fill
-			(format-error *FORMAT-CS* (csd-cs-index (car *FORMAT-CSDL*))
-				      (TEXT "Error: ~~:@> not implemented")))
-		      (setq *FORMAT-CSDL* body-csdl)
-		      (labels ((compute-inner ()
-			        `((PPRINT-LOGICAL-BLOCK
-				   ;; *args refers to things *after*
-				   ;; anything used in the body.
-				   ;; I need some way to refer to
-				   ;; all the list.
-				   (STREAM ,*args*
-				    ,@(and prefix
-					   (if per-line-p
-					       `(:per-line-prefix ,prefix)
-					     `(:prefix ,prefix)))
-				    ,@(and suffix `(:suffix ,suffix)))
-				   ,@(let ((*args* 'OBJ))
-				       (formatter-main
-					'FORMAT-JUSTIFICATION-END)))))
-			       (compute-outer ()
-				  (multiple-value-bind (lambdalist inner)
-				      (formatter-bind-block (compute-inner))
-				    `(((LAMBDA ,lambdalist ,@inner)
-				       ,(if atsign-p
-					    (formatter-whole-args*)
-					  (formatter-next-arg)))))))
-			    (let ((body (compute-outer)))
-			      (setq *format-csdl* last-csdl)
-			      (setq forms (append body forms))))))
+                    (FORMAT-LOGICAL-BLOCK          ; #\< ending with ~:>
+                     (simple-arglist 0)
+                     (multiple-value-bind
+                        (prefix suffix per-line-p body-csdl add-fill
+                                last-csdl)
+                        (format-logical-block-parse *FORMAT-CSDL*)
+                      (when add-fill
+                        (format-error *FORMAT-CS* (csd-cs-index (car *FORMAT-CSDL*))
+                                      (TEXT "Error: ~~:@> not implemented")))
+                      (setq *FORMAT-CSDL* body-csdl)
+                      (labels ((compute-inner ()
+                                `((PPRINT-LOGICAL-BLOCK
+                                   ;; *args refers to things *after*
+                                   ;; anything used in the body.
+                                   ;; I need some way to refer to
+                                   ;; all the list.
+                                   (STREAM ,*args*
+                                    ,@(and prefix
+                                           (if per-line-p
+                                               `(:per-line-prefix ,prefix)
+                                             `(:prefix ,prefix)))
+                                    ,@(and suffix `(:suffix ,suffix)))
+                                   ,@(let ((*args* 'OBJ))
+                                       (formatter-main
+                                        'FORMAT-JUSTIFICATION-END)))))
+                               (compute-outer ()
+                                  (multiple-value-bind (lambdalist inner)
+                                      (formatter-bind-block (compute-inner))
+                                    `(((LAMBDA ,lambdalist ,@inner)
+                                       ,(if atsign-p
+                                            (formatter-whole-args*)
+                                          (formatter-next-arg)))))))
+                            (let ((body (compute-outer)))
+                              (setq *format-csdl* last-csdl)
+                              (setq forms (append body forms))))))
                     (FORMAT-UP-AND-OUT             ; #\^
                      (simple-arglist 3)
                      (formatter-stop-linear)
