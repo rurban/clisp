@@ -1269,6 +1269,57 @@ N. Gray to X3J13.</para>
    &wr-by-seq;).</simpara></listitem></varlistentry>
 </variablelist>
 
+<section id="fill-stream"><title>Class &fill-stream;.</title>
+<para>As an example of the use of &gray-pac; &stream-t;s, &clisp;
+ offers an additional class, &fill-stream;.  An instance of this class
+ is a <quote>formatting</quote> &stream-t;, which makes the final
+ output to the underlying stream look neat: indented and filled.
+ An instance of &fill-stream; is created like this:
+<literal role="sexp">(make-instance '&fill-stream; :stream &stream-r;
+ [:indent symbol-or-number])</literal> where &stream-r; is the target
+ stream where the output actually goes
+ and <replaceable>symbol-or-number</replaceable> is the variable whose
+ value is the integer indentation or the indentation itself.</para>
+
+<para>Note that, due to buffering, one must call &force-output; when
+ done with the &fill-stream; (and before changing the indent variable).
+ The former is done automatically by the macro
+<literal role="sexp">(with-fill-stream (fill stream [:indent
+ symbol-or-number]) ...)</literal>.</para>
+
+<example><title>Example of &fill-stream; usage</title>
+ <programlisting>
+(defvar *my-indent-level*)
+(with-output-to-string (out)
+  (let ((*print-right-margin* 20)
+        (*my-indent-level* 2))
+    (with-fill-stream (fill out :indent '*my-indent-level*)
+      (format fill "~%this is     some long sentence which will be broken at spaces")
+      (force-output fill)
+      (let ((*my-indent-level* 5))
+        (format fill "~%and   properly    indented to the level specified by the ~S argument which can be a sybol or an integer." :INDENT))
+      (format fill "~%Don't forget   to call ~S on it, and/or use ~S" 'force-output 'with-fill-stream))))
+"
+  this is some long
+  sentence which
+  will be broken at
+  spaces
+     and properly
+     indented to
+     the level
+     specified by
+     the :INDENT
+     argument which
+     can be a sybol
+     or an integer.
+  Don't forget to
+  call FORCE-OUTPUT
+  on it, and/or use
+  WITH-FILL-STREAM"
+ </programlisting>
+</example>
+</section>
+
 </section>
 
 <!-- #ifdef GENERIC_STREAMS -->

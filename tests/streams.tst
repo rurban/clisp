@@ -734,7 +734,7 @@ T)   T
 T
 
 #+clisp (progn
-(setq s1 (make-instance 'sys::fill-stream :stream *standard-output* )
+(setq s1 (make-instance 'fill-stream :stream *standard-output*)
       s2 (make-synonym-stream 's1)
       s3 (make-broadcast-stream s1 s2))
 (list (stream-element-type s1)
@@ -742,6 +742,35 @@ T
       (stream-element-type s3)))
 #+clisp
 (CHARACTER CHARACTER CHARACTER)
+
+#+clisp (progn
+(defvar *my-indent-level*)
+(with-output-to-string (out)
+  (let ((*print-right-margin* 20)
+        (*my-indent-level* 2))
+    (with-fill-stream (fill out :indent '*my-indent-level*)
+      (format fill "~%this is some long sentence which will      be broken at spaces")
+      (force-output fill)
+      (let ((*my-indent-level* 5))
+        (format fill "~%and    properly indented to the level specified by the ~S argument which can be a sybol or an integer." :INDENT))
+      (format fill "~%Don't forget  to call ~S on it, and/or use ~S" 'force-output 'with-fill-stream))))
+)"
+  this is some long
+  sentence which
+  will be broken at
+  spaces
+     and properly
+     indented to
+     the level
+     specified by
+     the :INDENT
+     argument which
+     can be a sybol
+     or an integer.
+  Don't forget to
+  call FORCE-OUTPUT
+  on it, and/or use
+  WITH-FILL-STREAM"
 
 (let ((f "foo.bar") fwd1)
   (unwind-protect
