@@ -1510,8 +1510,8 @@ performance considerations.
 <variablelist>
 <varlistentry><term>Platform dependent: only in &clisp; built
   &with; the compile-time flag &unicode;.</term>
-<listitem><simpara>More precisely, &clisp; uses the 16-bit &unicode;
- character set (ISO 10646, also known as UCS-2).
+<listitem><simpara>More precisely, &clisp; uses the 21-bit &unicode; 3.2
+ character set (ISO 10646, also known as UCS-4).
 </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
