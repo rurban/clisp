@@ -113,14 +113,16 @@ LISPFUNN(copy_simple_vector,1)
       #                      ((<= l 32) Atype_32Bit)
       #                      (t Atype_T)
       #              ) )
-      #              Atype_T
-      # )     )  ) )
+      #              (if (subtypep type 'STRING-CHAR)
+      #                Atype_String_Char
+      #                Atype_T
+      # )     )  ) ) )
       if (eq(obj,S(bit))) { return Atype_Bit; } # Symbol BIT ?
       elif (eq(obj,S(string_char))) { return Atype_String_Char; } # Symbol STRING-CHAR ?
       elif (eq(obj,S(t))) { return Atype_T; } # Symbol T ?
-      pushSTACK(subr_self); # subr_self retten
+      pushSTACK(obj); pushSTACK(subr_self); # obj und subr_self retten
       pushSTACK(obj); funcall(S(subtype_integer),1); # (SYS::SUBTYPE-INTEGER obj)
-      subr_self = popSTACK(); # subr_self zurück
+      subr_self = popSTACK(); obj = popSTACK(); # obj und subr_self zurück
       if ((mv_count>1) && integerp(value1) && positivep(value1) && integerp(value2))
         { var uintL l = I_integer_length(value2); # (INTEGER-LENGTH high)
           if (l<=1) return Atype_Bit;
@@ -130,6 +132,8 @@ LISPFUNN(copy_simple_vector,1)
           if (l<=16) return Atype_16Bit;
           if (l<=32) return Atype_32Bit;
         }
+      pushSTACK(obj); pushSTACK(S(string_char)); funcall(S(subtypep),2);
+      if (!nullp(value1)) { return Atype_String_Char; }
       return Atype_T;
       #endif
     }

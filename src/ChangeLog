@@ -1,5 +1,11 @@
 1998-10-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * type.lsp (upgraded-array-element-type): Fix so that for
+          STANDARD-CHAR it returns STRING-CHAR.
+        * array.d (eltype_code): Likewise.
+
+1998-10-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (nonreturning): Remove definition.
           (nonreturning_function): Use __attribute__((__noreturn__)).
         * genclisph.d (main): Likewise.
