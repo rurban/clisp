@@ -2,7 +2,7 @@
 
 /*
  * Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
- * Copyright 1995-1998 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -20,7 +20,7 @@ FILE* out;
  * - foo(x) float x; { ... } passes x as a double & converts it to a float internally.
  * - foo(float x) { ... } passes x as a float.
  */
-#if defined(__STDC__) || defined(__GNUC__)
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 #define _ ,
 #define _P(ARGS,TYPES) (TYPES)
 #define FTYPE(RETTYPE,ARGTYPES) (RETTYPE (*) ARGTYPES)
@@ -373,8 +373,7 @@ X X_BcdB _P((a,b,c,d), B a _ char b _ double c _ B d)
 void* current_function;
 
 /* This function simulates the behaviour of current_function. */
-void simulator (alist)
-  va_alist alist;
+void simulator _P((alist), va_alist alist)
 {
   /* void tests */
   if (current_function == (void*)&v_v)

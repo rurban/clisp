@@ -5,6 +5,9 @@
         * intparam.d (main7): Use %lX instead of %X for a `long'.
           (main8): Adapt for C++.
 
+        * configure: Don't configure in readline subdir if compiling
+          in C++ mode.
+
 1999-03-14  Sam Steingold  <sds@gnu.org>
 
 	* stream.d: removed `stream_fd';

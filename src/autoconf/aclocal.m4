@@ -120,10 +120,13 @@ AC_EGREP_CPP(yes,[#ifdef __GNUC__
 ])
 if test $cl_cv_prog_cc_gcc = yes; then
   CC_GCC=true
+  GCC_X_NONE='-x none'
 else
   CC_GCC=false
+  GCC_X_NONE=''
 fi
 AC_SUBST(CC_GCC)dnl
+AC_SUBST(GCC_X_NONE)dnl
 ])dnl
 dnl
 AC_DEFUN(CL_CC_CPLUSPLUS,
