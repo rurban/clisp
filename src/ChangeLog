@@ -1,5 +1,10 @@
 2003-05-12  Sam Steingold  <sds@gnu.org>
 
+	* type.lisp (built-in-class-p): eval only when loading source
+	* clos.lisp (built-in-class-p): do not proclaim notinline
+
+2003-05-12  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (MERGE-PATHNAMES): fixed a crash: the address
 	of the LHS may be computed before a GC in merge_dirs()
 	[this is a GC-safety bug not detected by DEBUG_GCSAFETY]
