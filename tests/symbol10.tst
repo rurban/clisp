@@ -15,7 +15,7 @@ NIL
          #+ECL (and (sys::specialp var) (not (constantp var))) ; specvar
          (and (fboundp var) t)                       ; funktion. Eigenschaft
          (and (fboundp var) (macro-function var) t)  ; Macro?
-         (and (fboundp var) (#-CMU special-form-p #+CMU special-operator-p var) t)  ; Spezialform?
+         (and (fboundp var) (special-operator-p var) t)  ; Spezialform?
          #-(or CLISP ECL) (and (symbol-plist var) t)          ; p-Liste?
          #+(or CLISP ECL) (and (or (get var 'i1) (get var 'i2) (get var 'i3)) t) ; p-Liste?
          (get var 'i1)                               ; i1
