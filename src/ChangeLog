@@ -1,3 +1,10 @@
+2004-03-25  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (DEBUG_CHECK_BYTEPTR): do not compare pointers with ints
+	(interpret_bytecode_): fixed initialization of byteptr_min &
+	byteptr_max, fixed error messages for fehler_byteptr and
+	fehler_STACK_putt
+
 2004-03-25  Bruno Haible  <bruno@clisp.org>
 
 	* eval.d (interpret_bytecode_): Fix initialization of byteptr_min.
