@@ -3,6 +3,8 @@
 	Export struct slot accessors
 	* linux.lisp (exporting-slots): new local macro, used for def-c-struct
 	Suggested by Pascal Bourguignon <pjb@informatimago.com>
+	(stdin, stdout, stderr): simple foreign variables (def-c-var)
+	Reported by Jörg Höhle
 
 2003-03-31  Bruno Haible  <bruno@clisp.org>
 
