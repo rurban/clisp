@@ -886,7 +886,7 @@ typedef __va_alist* va_alist;
    __va_arg_adjusted(LIST,TYPE_SIZE,TYPE_ALIGN)				\
   )
 #endif
-#if defined(__mips__) || defined(__mipsn32__) || defined(__mips64__)
+#if defined(__mips__) && !defined(__mipsn32__)
 /* small structures < 1 word are adjusted depending on compiler */
 #define __va_arg_struct(LIST,TYPE_SIZE,TYPE_ALIGN)  \
   (__va_align_struct(LIST,TYPE_SIZE,TYPE_ALIGN)				\
@@ -901,6 +901,17 @@ typedef __va_alist* va_alist;
        ? __va_arg_leftadjusted(LIST,TYPE_SIZE,TYPE_ALIGN)		\
        : __va_arg_rightadjusted(LIST,TYPE_SIZE,TYPE_ALIGN)		\
   ))  )
+#endif
+#if defined(__mipsn32__) || defined(__mips64__)
+/* small structures < 1 word are adjusted depending on compiler */
+#define __va_arg_struct(LIST,TYPE_SIZE,TYPE_ALIGN)  \
+  (__va_align_struct(LIST,TYPE_SIZE,TYPE_ALIGN)				\
+   ((LIST)->flags & __VA_SGICC_STRUCT_ARGS				\
+    ? /* SGI MIPS cc passes small structures left-adjusted, although big-endian! */\
+      __va_arg_leftadjusted(LIST,TYPE_SIZE,TYPE_ALIGN)			\
+    : /* SGI MIPS gcc passes small structures right-adjusted. */	\
+      __va_arg_rightadjusted(LIST,TYPE_SIZE,TYPE_ALIGN)			\
+  ))
 #endif
 #if defined(__rs6000__)
 /* small structures < 1 word are adjusted depending on compiler */

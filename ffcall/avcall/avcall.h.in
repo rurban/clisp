@@ -960,13 +960,8 @@ typedef struct
   ((LIST).flags & __AV_SGICC_STRUCT_ARGS				\
    ? /* SGI MIPS cc passes small structures left-adjusted, although big-endian! */\
      __av_struct_leftadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL) \
-   : /* SGI MIPS gcc passes small structures within the first four words left-	  \
-      * adjusted, for compatibility with cc. But structures in memory are passed  \
-      * right-adjusted!! See gcc-2.6.3/config/mips/mips.c:function_arg().	  \
-      */									  \
-     ((LIST).aptr < &(LIST).args[4]						\
-      ? __av_struct_leftadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)	\
-      : __av_struct_rightadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)))
+   : /* SGI MIPS gcc passes small structures right-adjusted. */		\
+     __av_struct_rightadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL))
 #endif
 #if defined(__rs6000__)
 #define __av_struct_leftadjusted(LIST,TYPE,TYPE_SIZE,TYPE_ALIGN,ASSIGN,VAL)\
