@@ -7,4 +7,36 @@
  If you are interested in TCP/IP (Internet) socket streams,
  you should use &socket-stream;s, &not-e; this package.</para>
 
+<para>We implement access to
+ <simplelist columns="2">
+  <member>&accept;</member><member>&bind;</member><member>&connect;</member>
+  <member>&getpeername;</member><member>&getsockname;</member>
+  <member>&listen;</member><member>&shutdown;</member>
+  <member>&recv;</member><member>&recvfrom;</member><member>&recvmsg;</member>
+  <member>&send;</member><member>&sendmsg;</member><member>&sendto;</member>
+  <member>&socket;</member><member>&socketpair;</member>
+  <member>&read-c;</member><member>&write-c;</member>
+ </simplelist>
+ using same-named lisp functions.
+ <function>RAWSOCK:CLOSESOCK</function> calls &c-close;.</para>
+
+<para>We do not implement &getsockopt; and &setsockopt;,
+ they are available through &so-opt;.</para>
+
+<para>We do not implement &select;, it is available through &so-status;.</para>
+
+<para>We do not implement &poll;, patches are welcome.</para>
+
+<variablelist><title>Additional Functions</title>
+ <varlistentry><term><literal role="sexp">(RAWSOCK:MAKE-SOCKADDR
+    <replaceable>family</replaceable>
+    <replaceable>data</replaceable>)</literal></term>
+  <listitem><simpara>create a <type>sockaddr</type> object.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal role="sexp">(RAWSOCK:OPEN-UNIX-SOCKET
+    &path-r; &optional-amp; &type-r;)</literal></term>
+  <listitem><simpara>open a &unix; socket special file.
+ </simpara></listitem></varlistentry>
+</variablelist>
+
 </section>
