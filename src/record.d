@@ -1198,7 +1198,8 @@ local inline void call_init_fun (object fun, object last,
  initargs as list of pairs.
  This is the primary method of CLOS:REINITIALIZE-INSTANCE.
  cf. clos.lisp
- (defmethod reinitialize-instance ((instance standard-object) &rest initargs)
+ (defmethod reinitialize-instance ((instance standard-object) &rest initargs
+                                   &key &allow-other-keys)
    (let ((h (gethash (class-of instance) *reinitialize-instance-table*)))
      (if h
        (progn
@@ -1232,7 +1233,8 @@ LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
     }
     check_keywords(argcount,S(reinitialize_instance));
     argcount = argcount/2; /* number of Initarg/Value-pairs */
-    keyword_test(S(reinitialize_instance),rest_args_pointer,argcount,Car(info));
+    keyword_test(S(reinitialize_instance),rest_args_pointer,
+                 argcount,Car(info));
     /* stack layout: instance, slot-names, argcount Initarg/Value-pairs. */
     var object fun = Cdr(info);
     if (!eq(fun,L(pshared_initialize))) {
@@ -1268,7 +1270,8 @@ LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
  initargs is a list of pairs.
  This is the primary method of CLOS:INITIALIZE-INSTANCE.
  cf. clos.lisp
- (defmethod initialize-instance ((instance standard-object) &rest initargs)
+ (defmethod initialize-instance ((instance standard-object) &rest initargs
+                                 &key &allow-other-keys)
    (let ((h (gethash class *make-instance-table*)))
      (if h
        (if (not (eq (svref h 3) #'clos::%shared-initialize))
@@ -1370,7 +1373,7 @@ local Values do_initialize_instance (object info,
  class is an Instance of <standard-class> or <structure-class>,
  initargs is a list (of pairs, hopefully).
  cf. clos.lisp
- (defun %make-instance (class &rest initargs)
+ (defun %make-instance (class &rest initargs &key &allow-other-keys)
    ; take note of 28.1.9.3., 28.1.9.4. default-initargs:
    (dolist (default-initarg (class-default-initargs class))
      (let ((nothing default-initarg))
