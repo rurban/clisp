@@ -58,10 +58,6 @@
    <stdlib.h>, <stdarg.h>, <string.h>, <float.h>, <limits.h>. */
 #undef STDC_HEADERS
 
-/* CL_STDLIB_H */
-/* Define if you have <stdlib.h>. */
-#undef HAVE_STDLIB_H
-
 /* CL_UNISTD_H */
 /* Define if you have <unistd.h>. */
 #undef HAVE_UNISTD_H

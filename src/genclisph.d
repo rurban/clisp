@@ -321,11 +321,7 @@ global int main()
 #   printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype* arrayvar = (arrayeltype*)alloca((arraysize)*sizeof(arrayeltype))\n");
 #   printf("#define FREE_DYNAMIC_ARRAY(arrayvar)\n");
 # #else
-#   #ifdef HAVE_STDLIB_H
-#     printf("#include <stdlib.h>\n");
-#   #else
-#     printf("#include <sys/types.h>\n");
-#   #endif
+#   printf("#include <stdlib.h>\n");
 #   printf("extern void* malloca (size_t size);\n");
 #   printf("extern void freea (void* ptr);\n");
 #   printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype* arrayvar = (arrayeltype*)malloca((arraysize)*sizeof(arrayeltype))\n");

@@ -1,5 +1,23 @@
 1999-08-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Assume <stdlib.h> exists.
+        * aclocal.m4 (CL_ACCESSFLAGS, CL_OPENFLAGS, RL_TERM, CL_MEMSET,
+           CL_MALLOC, CL_FREE, CL_SIGPROCMASK, CL_SIGNAL_REINSTALL,
+           CL_SIGNAL_UNBLOCK, CL_SIGNAL_BLOCK_OTHERS, CL_SIGACTION_REINSTALL,
+           CL_SIGACTION_UNBLOCK, CL_ABORT, CL_GETENV, CL_PUTENV, CL_SETLOCALE,
+           CL_RLIMIT, CL_VFORK, CL_EXECV, CL_EXECL, CL_WAITPID, CL_RUSAGE,
+           CL_GETCWD, CL_CHDIR, CL_MKDIR, CL_RMDIR, CL_FSTAT, CL_STAT,
+           CL_LSTAT, CL_READLINK, CL_ELOOP, CL_OPENDIR, CL_CLOSEDIR, CL_OPEN,
+           CL_READ_WRITE, CL_WRITE, CL_CHMOD, CL_RENAME, CL_UNLINK, CL_IOCTL,
+           CL_SELECT, CL_SETITIMER, CL_LOCALTIME, CL_GETPWNAM, CL_GETPWUID,
+           CL_GETHOSTNAME, CL_GETHOSTBYNAME, CL_ADDRESS_RANGE, CL_MMAP,
+           CL_MPROTECT, CL_CODEEXEC, CL_SHMGET, CL_SHMAT, CL_SHMCTL,
+           CL_SHM_RMID, CL_DYNLOAD, CL_ICONV, CL_FILECHARSET):
+          Assume <stdlib.h> exists.
+          (CL_STDLIB_H): Remove.
+        * configure.in: Don't call CL_STDLIB_H.
+        * unixconf.h.in: Don't define HAVE_STDLIB_H.
+
         Assume <stddef.h> exists.
         * aclocal.m4 (CL_STDDEF_H): Remove.
         * configure.in: Don't call CL_STDDEF_H.
