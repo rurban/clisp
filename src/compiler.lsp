@@ -12325,7 +12325,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                 (c-comment (ENGLISH "~&~%Compilation of file ~A is finished.")
                            file)
                 (c-comment (ENGLISH "~%~D error~:P, ~D warning~:P")
-                           *error-count* *warning-count* (eql *warning-count* 1))
+                           *error-count* *warning-count*)
                 (when *c-top-call*
                   (c-report-problems))
                 (c-comment "~%")
