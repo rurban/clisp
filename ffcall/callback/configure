@@ -1208,6 +1208,40 @@ if test $cl_cv_host_mipsn32 = yes; then
 fi
 fi
     ;;
+  sparc | sparc64 )
+    echo $ac_n "checking for 64-bit SPARC""... $ac_c" 1>&6
+echo "configure:1214: checking for 64-bit SPARC" >&5
+if eval "test \"`echo '$''{'cl_cv_host_sparc64'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  
+cat > conftest.$ac_ext <<EOF
+#line 1220 "configure"
+#include "confdefs.h"
+#if defined(__arch64__)
+  yes
+#endif
+
+EOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  egrep "yes" >/dev/null 2>&1; then
+  rm -rf conftest*
+  cl_cv_host_sparc64=yes
+else
+  rm -rf conftest*
+  cl_cv_host_sparc64=no
+fi
+rm -f conftest*
+
+
+fi
+echo "$ac_t""$cl_cv_host_sparc64" 1>&6
+if test $cl_cv_host_sparc64 = yes; then
+  host_cpu=sparc64
+else
+  host_cpu=sparc
+fi
+    ;;
 esac
 cat >> confdefs.h <<EOF
 #ifndef __${host_cpu}__
@@ -1275,7 +1309,7 @@ ac_prog=ld
 if test "$ac_cv_prog_gcc" = yes; then
   # Check if gcc -print-prog-name=ld gives a path.
   echo $ac_n "checking for ld used by GCC""... $ac_c" 1>&6
-echo "configure:1279: checking for ld used by GCC" >&5
+echo "configure:1313: checking for ld used by GCC" >&5
   ac_prog=`($CC -print-prog-name=ld) 2>&5`
   case "$ac_prog" in
   # Accept absolute paths.
@@ -1293,10 +1327,10 @@ echo "configure:1279: checking for ld used by GCC" >&5
   esac
 elif test "$with_gnu_ld" = yes; then
   echo $ac_n "checking for GNU ld""... $ac_c" 1>&6
-echo "configure:1297: checking for GNU ld" >&5
+echo "configure:1331: checking for GNU ld" >&5
 else
   echo $ac_n "checking for non-GNU ld""... $ac_c" 1>&6
-echo "configure:1300: checking for non-GNU ld" >&5
+echo "configure:1334: checking for non-GNU ld" >&5
 fi
 if eval "test \"`echo '$''{'ac_cv_path_LD'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -1332,7 +1366,7 @@ fi
 test -z "$LD" && { echo "configure: error: no acceptable ld found in \$PATH" 1>&2; exit 1; }
 
 echo $ac_n "checking if the linker ($LD) is GNU ld""... $ac_c" 1>&6
-echo "configure:1336: checking if the linker ($LD) is GNU ld" >&5
+echo "configure:1370: checking if the linker ($LD) is GNU ld" >&5
 if eval "test \"`echo '$''{'ac_cv_prog_gnu_ld'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1347,7 +1381,7 @@ echo "$ac_t""$ac_cv_prog_gnu_ld" 1>&6
 
 
 echo $ac_n "checking for BSD-compatible nm""... $ac_c" 1>&6
-echo "configure:1351: checking for BSD-compatible nm" >&5
+echo "configure:1385: checking for BSD-compatible nm" >&5
 if eval "test \"`echo '$''{'ac_cv_path_NM'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -1399,8 +1433,8 @@ test "$ac_cv_prog_gnu_ld" = yes && libtool_flags="$libtool_flags --with-gnu-ld"
 case "$host" in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 1403 "configure"' > conftest.$ac_ext
-  if { (eval echo configure:1404: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+  echo '#line 1437 "configure"' > conftest.$ac_ext
+  if { (eval echo configure:1438: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
     case "`/usr/bin/file conftest.o`" in
     *32-bit*)
       LD="${LD-ld} -32"
