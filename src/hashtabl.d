@@ -975,16 +975,16 @@ local bool hash_lookup (object ht, object obj, gcv_object_t** KVptr_,
        clr_break_sem_2(); # allow breaks again                                \
     } while(0)
 
-# UP: Provides the numbers and vectors for a new hash-table.
-# prepare_resize(maxcount,mincount_threshold)
-# > maxcount: wished new size MAXCOUNT
-# > mincount_threshold: short-float MINCOUNT-THRESHOLD
-# > weak: ???
-# < result: maxcount
-# < stack-layout: MAXCOUNT, SIZE, MINCOUNT,
-#                index-vector, next-vector, key-value-vector.
-# decreases STACK by 6
-# can trigger GC
+/* UP: Provides the numbers and vectors for a new hash-table.
+ prepare_resize(maxcount,mincount_threshold)
+ > maxcount: wished new size MAXCOUNT
+ > mincount_threshold: short-float MINCOUNT-THRESHOLD
+ > weak: :KEY or :VALUE or :EITHER or :BOTH
+ < result: maxcount
+ < stack-layout: MAXCOUNT, SIZE, MINCOUNT,
+                index-vector, next-vector, key-value-vector.
+ decreases STACK by 6
+ can trigger GC */
 local uintL prepare_resize (object maxcount, object mincount_threshold,
                             object weak) {
   # check, if maxcount is not a too big fixnum >0 :
