@@ -7,7 +7,7 @@
  * This is needed for Unix only. On other platforms, a shell script or
  * batch file or whatever does the job as well.
  *
- * Since we are at it, this driver program also implements the "-W" option.
+ * Since we are at it, this driver program also implements the "-K" option.
  * All other options are passed to the main program.
  *
  * Bruno Haible 31.3.1997
@@ -76,8 +76,8 @@ int main (int argc, char* argv[])
   char* program_name;
 
   /*
-   * To determine whether -W was given, we go through the options.
-   * Because when "clisp foo.lisp -W" is invoked, the "-W" is an argument
+   * To determine whether -K was given, we go through the options.
+   * Because when "clisp foo.lisp -K" is invoked, the "-K" is an argument
    * for foo.lisp, not for clisp. Therefore we have to stop when we encounter
    * the first non-option, non-option-argument. Unfortunately, we have to
    * know about all of clisp's options.
@@ -110,18 +110,18 @@ int main (int argc, char* argv[])
    * mutually exclusive).
    * As a workaround against the Solaris/HP-UX problem, we split not
    * only at normal spaces, but also at hard spaces.
-   * See <impnotes.html#script>.
+   * See <impnotes.html#quickstart>.
    */
   if (argc > 1) {
     int wordcount = 0; /* number of pieces in argv[1] */
     { char* arg = argv[1];
-        int inword = 0;
-        while (*arg != '\0') {
-          int spacep = (*arg == '\t' || *arg == ' ' || *arg == (char)0xA0);
-          if (!inword && !spacep) wordcount++;
-          inword = !spacep;
-          arg++;
-        }
+      int inword = 0;
+      while (*arg != '\0') {
+        int spacep = (*arg == '\t' || *arg == ' ' || *arg == (char)0xA0);
+        if (!inword && !spacep) wordcount++;
+        inword = !spacep;
+        arg++;
+      }
     }
     {int old_argc = argc;
      char** old_argv = argv;
@@ -196,7 +196,6 @@ int main (int argc, char* argv[])
           case '-':
             break;
           /* Skippable options with arguments. */
-          case 'W':
           case 'm':
           case 's':
           case 't':
