@@ -436,7 +436,7 @@ the actual object #<MACRO expander> for the FENV.
                        ,mainform)))
             (values
              `(FUNCTION ,name
-                (LAMBDA (<MACRO-FORM> &OPTIONAL ,(or envvar '<ENV-ARG>))
+                (LAMBDA (<MACRO-FORM> ,(or envvar '<ENV-ARG>))
                 (DECLARE (CONS <MACRO-FORM>))
                 ,@(if envvar
                     declarations ;; possibly contains a (declare (ignore envvar))
