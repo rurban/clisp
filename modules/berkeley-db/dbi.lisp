@@ -10,7 +10,8 @@
            "ENV-REMOVE" "ENV-SET-OPTIONS" "ENV-GET-OPTIONS"
            "DB-CREATE" "DB-CLOSE" "DB-DEL" "DB-FD" "DB-GET" "DB-STAT"
            "DB-OPEN" "DB-SYNC" "DB-TRUNCATE" "DB-UPGRADE" "DB-REMOVE"
-           "DB-RENAME" "DB-PUT"
+           "DB-RENAME" "DB-PUT" "DB-JOIN" "DB-KEY-RANGE" "DB-VERIFY"
+           "DB-SET-OPTIONS" "DB-GET-OPTIONS"
            "MAKE-CURSOR" "CURSOR-CLOSE" "CURSOR-COUNT" "CURSOR-DEL"
            "CURSOR-DUP" "CURSOR-GET" "CURSOR-PUT"
            "TXN-BEGIN" "TXN-ABORT" "TXN-COMMIT" "TXN-DISCARD" "TXN-ID"
@@ -184,6 +185,7 @@
  (setq db (bdb:db-create nil))
  (bdb:db-open db "d:/sds/work/eeld/Test BDBs/35_teth_db/admin.db" :rdonly t)
  (bdb:db-open db "d:/sds/work/eeld/Test BDBs/35_teth_db/index.db" :rdonly t)
+ (bdb:db-get-options db)
  (bdb:db-stat db)
  (bdb:db-fd db)
 
