@@ -584,6 +584,7 @@
 <!ENTITY mode-r "<replaceable>mode</replaceable>">
 <!ENTITY n-r "<replaceable>n</replaceable>">
 <!ENTITY name-r "<replaceable>name</replaceable>">
+<!ENTITY next-r "<replaceable>next</replaceable>">
 <!ENTITY nname-r "<replaceable>new-name</replaceable>">
 <!ENTITY no-hang "<replaceable>no-hang</replaceable>">
 <!ENTITY number-r "<replaceable>number</replaceable>">
