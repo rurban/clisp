@@ -28,6 +28,8 @@ User visible changes
 
 * ANSI CL compliance: CHAR does not check for FILL-POINTER, while ELT does.
 
+* ANSI CL compliance: FUNCTION-KEYWORDS returns 2 values.
+
 * RUN-SHELL-COMMAND and RUN-PROGRAM now accept a :WAIT argument.
 
 * The compiler now checks the signature of function calls
