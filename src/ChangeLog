@@ -1,3 +1,8 @@
+2004-08-08  Bruno Haible  <bruno@clisp.org>
+
+	* spvw.d (init_symbol_values): Initialize
+	*DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST* to NIL.
+
 2004-08-07  Bruno Haible  <bruno@clisp.org>
 
 	* io.d (pr_array_recursion): Check *PRINT-LEVEL* before calling
