@@ -1,3 +1,45 @@
+2004-06-04  Bruno Haible  <bruno@clisp.org>
+
+	Use specializers in methods.
+	* clos-specializer1.lisp (eql-specializer-p, specializer-pretty): New
+	functions.
+	* clos-method1.lisp (standard-method): Renamed slot
+	parameter-specializers to specializers.
+	(std-method-specializers): Renamed from
+	std-method-parameter-specializers.
+	(initialize-instance-<standard-method>): Accept :specializers argument,
+	instead of :parameter-specializers argument.
+	(print-object-<standard-method>): Update.
+	* clos-method2.lisp (analyze-method-description): Generate calls to
+	INTERN-EQL-SPECIALIZER. Pass :specializers argument, instead of
+	:parameter-specializers argument.
+	* clos-method3.lisp (method-specializers): New function.
+	* clos-class3.lisp (install-class-direct-accessors): Pass :specializers
+	argument, instead of :parameter-specializers argument.
+	* clos-class5.lisp (note-ai-change, note-ii-change, note-ri-change,
+	note-uirc-change, note-uidc-change, note-si-change): Update.
+	(valid-make-instance-keywords,
+	valid-update-instance-for-redefined-class-keywords,
+	valid-update-instance-for-different-class-keywords): Update.
+	(shared-initialize, reinitialize-instance, initialize-instance,
+	allocate-instance, make-instance): Pass :specializers argument, instead
+	of :parameter-specializers argument.
+	* clos-class6.lisp (class-name): Don't undefine temporarily.
+	* clos-methcomb2.lisp (method-applicable-p, sort-applicable-methods):
+	Update.
+	(same-specializers-p): Just compare with EQ.
+	* clos-genfun2.lisp (compute-dispatch): Update. Use eql-specializer-p,
+	eql-specializer-object.
+	* clos-genfun3.lisp (methods-agree-p): Update.
+	(std-find-method): Update. Convert (EQL object) lists to specializers.
+	* clos-genfun4.lisp (*allow-making-generic*): New variable.
+	(do-defgeneric): Don't signal an error if *allow-making-generic* is
+	true.
+	* clos-genfun5.lisp (dispatching-arg-p): Update.
+	(dispatching-arg-type): Update.
+	* describe.lisp (describe-object@generic-function): Update. Show a
+	name instead of a class only if the class has a proper name.
+
 2004-07-27  Sam Steingold  <sds@gnu.org>
 
 	* control.d (FUNCTION-SIDE-EFFECT): fixed G++ compilation

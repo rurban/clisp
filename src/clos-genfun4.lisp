@@ -15,6 +15,10 @@
     (finalize-fast-gf gf)
     gf))
 
+;; When this is true, it is possible to replace a non-generic function with
+;; a generic function through DEFGENERIC.
+(defparameter *allow-making-generic* nil)
+
 (defun do-defgeneric (funname signature argorder method-combo &rest methods)
   (if (fboundp funname)
     (let ((gf (fdefinition funname)))
@@ -44,9 +48,13 @@
           (dolist (method methods) (std-add-method gf method))
           (finalize-fast-gf gf)
           gf)
-        (error-of-type 'program-error
-          (TEXT "~S: ~S does not name a generic function")
-          'defgeneric funname)))
+        (if (not *allow-making-generic*)
+          (error-of-type 'program-error
+            (TEXT "~S: ~S does not name a generic function")
+            'defgeneric funname)
+          (setf (fdefinition funname)
+                (apply #'make-generic-function funname signature argorder
+                       method-combo methods)))))
     (setf (fdefinition funname)
           (apply #'make-generic-function funname signature argorder
                  method-combo methods))))

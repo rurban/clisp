@@ -49,11 +49,11 @@
   (accessor-typecheck class 'class '(setf class-classname))
   (setf (sys::%record-ref class *<class>-classname-location*) new-value))
 ;; MOP p. 76
-(fmakunbound 'class-name)
-(defgeneric class-name (class)
-  (:method ((class class))
-    (check-class-initialized class)
-    (class-classname class)))
+(let ((*allow-making-generic* t))
+  (defgeneric class-name (class)
+    (:method ((class class))
+      (check-class-initialized class)
+      (class-classname class))))
 ;; MOP p. 92
 (defgeneric (setf class-name) (new-value class)
   (:method (new-value (class class))

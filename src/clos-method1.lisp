@@ -24,9 +24,10 @@
                            ; argument (= NIL for :BEFORE- and :AFTER-methods)
        :type boolean
        :accessor std-method-wants-next-method-p)
-     (parameter-specializers ; list ({class | (EQL object)}*)
+     (specializers         ; list of specializers, e.g. classes or
+                           ; eql-specializers
        :type list
-       :accessor std-method-parameter-specializers)
+       :accessor std-method-specializers)
      (qualifiers           ; list of non-NIL atoms, e.g. (:before)
        :type list
        :accessor std-method-qualifiers)
@@ -74,12 +75,11 @@
 (defun initialize-instance-<standard-method> (method &rest args
                                               &key (qualifiers '())
                                                    (lambda-list nil lambda-list-p)
-                                                   ;(specializers nil specializers-p)
+                                                   (specializers nil specializers-p)
                                                    (function nil function-p)
                                                    ;(documentation nil)
                                                    initfunction
                                                    wants-next-method-p
-                                                   parameter-specializers
                                                    ((signature signature) nil signature-p)
                                                    gf
                                                    origin
@@ -119,10 +119,25 @@
           (error (TEXT "(~S ~S): Lambda-list ~S and signature ~S are inconsistent.")
                  'initialize-instance 'standard-method lambda-list signature))
         (setq signature sig))))
+  ; Check the specializers.
+  (unless specializers-p
+    (error (TEXT "(~S ~S): Missing ~S argument.")
+           'initialize-instance 'standard-method ':specializers))
+  (unless (proper-list-p specializers)
+    (error (TEXT "(~S ~S): The ~S argument should be a proper list, not ~S")
+           'initialize-instance 'standard-method ':specializers specializers))
+  (dolist (x specializers)
+    (unless (typep x 'specializer)
+      (error (TEXT "(~S ~S): The element ~S of the ~S argument is not of type ~S.")
+             'initialize-instance 'standard-method x ':specializers 'specializer)))
+  (unless (= (length specializers) (sig-req-num signature))
+    (error (TEXT "(~S ~S): The lambda list ~S has ~S required arguments, but the specializers list ~S has length ~S.")
+           'initialize-instance 'standard-method lambda-list (sig-req-num signature)
+           specializers (length specializers)))
   ; Fill the slots.
   (setf (std-method-function method) function)
   (setf (std-method-wants-next-method-p method) wants-next-method-p)
-  (setf (std-method-parameter-specializers method) parameter-specializers)
+  (setf (std-method-specializers method) specializers)
   (setf (std-method-qualifiers method) qualifiers)
   (setf (std-method-lambda-list method) lambda-list)
   (setf (std-method-signature method) signature)
@@ -145,7 +160,8 @@
     (dolist (q (std-method-qualifiers method))
       (write q :stream stream)
       (write-char #\Space stream))
-    (write (std-method-parameter-specializers method) :stream stream)))
+    (write (mapcar #'specializer-pretty (std-method-specializers method))
+           :stream stream)))
 
 ;;; ---------------------------------------------------------------------------
 
