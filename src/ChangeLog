@@ -1,3 +1,11 @@
+2004-06-10  Bruno Haible  <bruno@clisp.org>
+
+	* defs2.lisp (simple-destructuring-bind): New macro.
+	* clos-methcomb2.lisp (short-form-method-combination-expander): Inline
+	compute-short-form-effective-method-form. Remove redundant qualifiers
+	check. Use simple-destructuring-bind.
+	(compute-short-form-effective-method-form): Remove function.
+
 2004-05-29  Bruno Haible  <bruno@clisp.org>
 
 	Make the class-default-initargs computation customizable.
