@@ -3442,10 +3442,10 @@ for-value   NIL or T
     (if (memq sym *ignores*)
       ;; var ignore-declared
       (if (var-specialp var)
-        (c-warn (TEXT "Binding variable ~S can cause side effects despite of IGNORE declaration~%since it is declared SPECIAL.")
+        (c-warn (TEXT "Binding variable ~S can cause side effects despite IGNORE declaration~%since it is declared SPECIAL.")
                 sym)
         (if (var-for-value-usedp var)
-          (c-style-warn (TEXT "variable ~S is used despite of IGNORE declaration.")
+          (c-style-warn (TEXT "variable ~S is used despite IGNORE declaration.")
                         sym)))
       ;; var not ignore-declared
       (unless (memq sym *ignorables*)
@@ -3460,7 +3460,7 @@ for-value   NIL or T
     (when (memq sym *readonlys*)
       (unless (var-specialp var)
         (when (var-assignedp var)
-          (c-warn (TEXT "The variable ~S is assigned to, despite of READ-ONLY declaration.")
+          (c-warn (TEXT "The variable ~S is assigned to, despite READ-ONLY declaration.")
                   sym))))))
 
 ;; returns the Code, that is necessary for the new construction of a
