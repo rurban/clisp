@@ -1,3 +1,6 @@
+2003-09-24  John Hinsdale  <hin@alma.com>
+	* modules/oracle/oracle.lisp: connection retry logic
+
 2003-09-24  Sam Steingold  <sds@gnu.org>
 
 	readline is now used on Cygwin/X11
