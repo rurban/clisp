@@ -2660,7 +2660,7 @@ global int main (argc_t argc, char* argv[]) {
   aktenv.go_env    = NIL;
   aktenv.decl_env  = O(top_decl_env);
   { /* init ARGV */
-    uintL count;
+    var uintL count;
     O(argv) = allocate_vector(argc);
     for (count=0; count<argc; count++)
       TheSvector(O(argv))->data[count] =
