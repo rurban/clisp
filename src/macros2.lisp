@@ -523,14 +523,12 @@
 (defun make-printer-stream (&key (external-format :default))
   (open "prn" :direction :output :external-format external-format)
 )
-;-------------------------------------------------------------------------------
+;------------------------------------------------------------------------------
 (in-package "LISP")
 (export 'without-floating-point-underflow)
 (in-package "SYSTEM")
 (defmacro without-floating-point-underflow (&body body)
   `(LET ((SYS::*INHIBIT-FLOATING-POINT-UNDERFLOW* T))
-     (PROGN ,@body)
-   )
-)
-;-------------------------------------------------------------------------------
+    ,@body))
+;------------------------------------------------------------------------------
 
