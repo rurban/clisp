@@ -563,7 +563,6 @@
 	* makemake.in (LPARTS): ditto
 	* gettext/po/Makefile.devel (LISPSOURCES): ditto
 	* dirkey1.lisp: renamed from dirkey.lisp
-	do the actual coding in package SYSTEM
 
 2002-03-08  Sam Steingold  <sds@gnu.org>
 
