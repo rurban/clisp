@@ -1,3 +1,8 @@
+2003-02-27  Sam Steingold  <sds@gnu.org>
+
+	* describe.lisp (describe-object): print additional information
+	for strings (using STRING-INFO)
+
 2003-02-25  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (*.mem): do not dump images if LOAD "init" failed
