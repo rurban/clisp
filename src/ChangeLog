@@ -1,3 +1,8 @@
+2000-05-21  Bruno Haible  <haible@clisp.cons.org>
+
+        * init.lisp (LOAD): Add :external-format argument and conditionally
+          pass it to OPEN.
+
 2000-05-20  Bruno Haible  <haible@clisp.cons.org>
 
         * type.lisp (canonicalize-type): Recognize the encodings UTF-16 and
