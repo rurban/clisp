@@ -1217,6 +1217,7 @@ LISPFUNN(rexx_reply,3)
 /* ---------- FOREIGN ---------- */
 #ifdef DYNAMIC_FFI
 LISPFUNNR(validp,1)
+LISPFUNN(set_validp,2)
 LISPFUNNR(foreign_pointer,1)
 LISPFUNN(set_foreign_pointer,2)
 LISPFUNNR(unsigned_foreign_address,1)

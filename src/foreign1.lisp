@@ -732,6 +732,8 @@
 
 (defsetf foreign-value set-foreign-value)
 (defsetf foreign-pointer set-foreign-pointer)
+(defsetf foreign-pointer set-foreign-pointer)
+(defsetf validp set-validp)
 
 (defun foreign-address-null (fadr)
   (zerop (foreign-address-unsigned fadr)))
