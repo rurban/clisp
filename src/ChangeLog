@@ -1,3 +1,8 @@
+2005-02-10  Bruno Haible  <bruno@clisp.org>
+
+	* compiler.lisp (declared-declaration): New function.
+	(process-declarations): Use it.
+
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp (c-GLOBAL-FUNCTION-CALL): Fix bug introduced on

@@ -1315,64 +1315,6 @@ for-value   NIL or T
 ;;                       processing form instead.
 ;; Additional Declaration (INLINING symbol) against recursive Inlining.
 
-;; (process-declarations declspeclist) analyzes the declarations (as they come
-;; from PARSE-BODY) and returns:
-;; a fresh list of the Special-declared symbols,
-;; a fresh list of the Ignore-declared symbols,
-;; a fresh list of the Ignorable-declared symbols,
-;; a fresh list of the Read-Only-declared symbols,
-;; a fresh list of other declaration specifiers.
-(defun process-declarations (declspeclist)
-  (setq declspeclist (nreverse declspeclist))
-  (let ((specials '())
-        (ignores '())
-        (ignorables '())
-        (readonlys '())
-        (other '()))
-    (dolist (declspec declspeclist)
-      (if (or (atom declspec) (cdr (last declspec)))
-        (c-warn (TEXT "Bad declaration syntax: ~S~%Will be ignored.")
-                declspec)
-        (let ((declspectype (car declspec)))
-          (if (and (symbolp declspectype)
-                   (or (memq declspectype *declaration-types*)
-                       (do ((L *denv* (cdr L)))
-                           ((null L) nil)
-                         (if (and (eq (first (car L)) 'DECLARATION)
-                                  (memq declspectype (rest (car L))))
-                           (return t)))
-                       (and *compiling-from-file*
-                            (memq declspectype *user-declaration-types*))))
-            (cond ((eq declspectype 'SPECIAL)
-                   (dolist (x (cdr declspec))
-                     (if (symbolp x)
-                       (push x specials)
-                       (c-warn (TEXT "Non-symbol ~S may not be declared SPECIAL.")
-                               x))))
-                  ((eq declspectype 'IGNORE)
-                   (dolist (x (cdr declspec))
-                     (if (symbolp x)
-                       (push x ignores)
-                       (c-warn (TEXT "Non-symbol ~S may not be declared IGNORE.")
-                               x))))
-                  ((eq declspectype 'IGNORABLE)
-                   (dolist (x (cdr declspec))
-                     (if (symbolp x)
-                       (push x ignorables)
-                       (c-warn (TEXT "Non-symbol ~S may not be declared IGNORABLE.")
-                               x))))
-                  ((eq declspectype 'SYS::READ-ONLY)
-                   (dolist (x (cdr declspec))
-                     (if (symbolp x)
-                       (push x readonlys)
-                       (c-warn (TEXT "Non-symbol ~S may not be declared READ-ONLY.")
-                               x))))
-                  (t
-                   (push declspec other)))
-            (c-warn (TEXT "Unknown declaration ~S.~%The whole declaration will be ignored.")
-                    declspectype declspec)))))
-    (values specials ignores ignorables readonlys other)))
-
 ;; (declared-notinline fun denv) determines, if fun - a Symbol pointing to a
 ;; global function, which is not shadowed by a local function-definition -
 ;; is declared as NOTINLINE in denv.
@@ -1395,6 +1337,7 @@ for-value   NIL or T
                  (member fun (cdr declspec) :test #'equal))
         (return t)))
     (setq denv (cdr denv))))
+
 ;; (declared-constant-notinline sym denv) determines,
 ;; if sym - a symbol pointing to a global constant,
 ;; that is not shadowed by a local variable-definition -
@@ -1415,10 +1358,16 @@ for-value   NIL or T
         (return t)))
     (setq denv (cdr denv))))
 
-;; (push-*denv* declspecs) extends *denv* by the declspecs.
-;; declspecs must be a freshly consed list.
-(defun push-*denv* (declspecs)
-  (setq *denv* (nreconc declspecs *denv*)))
+;; (declared-declaration sym denv) determines whether sym is a valid
+;; declaration specifier in denv.
+(defun declared-declaration (sym &optional (denv *denv*))
+  (loop
+    (when (atom denv)
+      (return nil))
+    (let ((declspec (car denv)))
+      (when (and (eq (first declspec) 'DECLARATION) (memq sym (rest declspec)))
+        (return t)))
+    (setq denv (cdr denv))))
 
 ;; (declared-optimize quality) returns the optimization level for the given
 ;; quality, as an integer between 0 and 3 (inclusive).
@@ -1459,6 +1408,65 @@ for-value   NIL or T
                          3)
                        0))))))))
     (setq denv (cdr denv))))
+
+;; (process-declarations declspeclist) analyzes the declarations (as they come
+;; from PARSE-BODY) and returns:
+;; a fresh list of the Special-declared symbols,
+;; a fresh list of the Ignore-declared symbols,
+;; a fresh list of the Ignorable-declared symbols,
+;; a fresh list of the Read-Only-declared symbols,
+;; a fresh list of other declaration specifiers.
+(defun process-declarations (declspeclist)
+  (setq declspeclist (nreverse declspeclist))
+  (let ((specials '())
+        (ignores '())
+        (ignorables '())
+        (readonlys '())
+        (other '()))
+    (dolist (declspec declspeclist)
+      (if (or (atom declspec) (cdr (last declspec)))
+        (c-warn (TEXT "Bad declaration syntax: ~S~%Will be ignored.")
+                declspec)
+        (let ((declspectype (car declspec)))
+          (if (and (symbolp declspectype)
+                   (or (memq declspectype *declaration-types*)
+                       (declared-declaration declspectype)
+                       (and *compiling-from-file*
+                            (memq declspectype *user-declaration-types*))))
+            (cond ((eq declspectype 'SPECIAL)
+                   (dolist (x (cdr declspec))
+                     (if (symbolp x)
+                       (push x specials)
+                       (c-warn (TEXT "Non-symbol ~S may not be declared SPECIAL.")
+                               x))))
+                  ((eq declspectype 'IGNORE)
+                   (dolist (x (cdr declspec))
+                     (if (symbolp x)
+                       (push x ignores)
+                       (c-warn (TEXT "Non-symbol ~S may not be declared IGNORE.")
+                               x))))
+                  ((eq declspectype 'IGNORABLE)
+                   (dolist (x (cdr declspec))
+                     (if (symbolp x)
+                       (push x ignorables)
+                       (c-warn (TEXT "Non-symbol ~S may not be declared IGNORABLE.")
+                               x))))
+                  ((eq declspectype 'SYS::READ-ONLY)
+                   (dolist (x (cdr declspec))
+                     (if (symbolp x)
+                       (push x readonlys)
+                       (c-warn (TEXT "Non-symbol ~S may not be declared READ-ONLY.")
+                               x))))
+                  (t
+                   (push declspec other)))
+            (c-warn (TEXT "Unknown declaration ~S.~%The whole declaration will be ignored.")
+                    declspectype declspec)))))
+    (values specials ignores ignorables readonlys other)))
+
+;; (push-*denv* declspecs) extends *denv* by the declspecs.
+;; declspecs must be a freshly consed list.
+(defun push-*denv* (declspecs)
+  (setq *denv* (nreconc declspecs *denv*)))
 
 
 ;;;;****             FUNCTION   MANAGEMENT
