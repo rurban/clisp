@@ -73,7 +73,7 @@
 #if defined(__TURBOC__) || defined(__GO32__) || defined(__WATCOMC__)
 #define STDC_HEADERS 1
 #else
-#if defined(unix) || defined(__unix) || defined(_AIX) || defined(sinix) || defined(__POSIX__)
+#if defined(unix) || defined(__unix) || defined(__unix__) || defined(_AIX) || defined(sinix) || defined(__MACH__) || defined(__POSIX__) || defined(__NetBSD__) || defined(__BEOS__)
 #include "unixconf.h"
 #endif
 #endif
