@@ -1633,10 +1633,6 @@ in the generic function instance."
                 `(,@(subseq lambda-list 0 index) &ALLOW-OTHER-KEYS
                   ,@(subseq lambda-list index)))))
           (let* ((self (gensym))
-                 (wants-next-method-p
-                  (or (method-combination-object (car qualifiers)
-                                                 :if-does-not-exist nil)
-                      (equal qualifiers '()) (equal qualifiers '(:around))))
                  (compile nil)
                  (lambdabody
                    (multiple-value-bind (body-rest declarations docstring)
@@ -1655,97 +1651,74 @@ in the generic function instance."
                                ;; implicit block
                                `((BLOCK ,(function-block-name funname)
                                    ,@body-rest)))))
-                       (if wants-next-method-p
-                         (let ((cont (gensym)) ; variable for the continuation
-                               (req-dummies ; list of reqanz dummies (engl. reqanz =required number)
-                                (gensym-list reqanz))
-                               (rest-dummy (if (or restp (> optanz 0)) (gensym)))
-                               (lambda-expr `(LAMBDA ,@lambdabody-part1 ,@lambdabody-part2)))
-                           `(; new lambda-list:
-                             (,cont
-                              ,@req-dummies
-                              ,@(if rest-dummy `(&REST ,rest-dummy) '()))
-                             (SYSTEM::FUNCTION-MACRO-LET
-                               ((CALL-NEXT-METHOD
-                                  ((&REST NEW-ARGS)
-                                   (IF NEW-ARGS
-                                     ;; Let's do argument checking in the interpreter only
-                                     (IF (EVAL-WHEN (EVAL) T)
-                                       (%CALL-NEXT-METHOD
-                                         ,self
-                                         ,cont
-                                         ,(if rest-dummy
-                                            `(LIST* ,@req-dummies ,rest-dummy)
-                                            `(LIST ,@req-dummies))
-                                         NEW-ARGS)
-                                       (IF ,cont
-                                         (APPLY ,cont NEW-ARGS)
-                                         (APPLY (FUNCTION %NO-NEXT-METHOD) ,self NEW-ARGS)))
-                                     ,(if rest-dummy
-                                        `(IF ,cont
-                                           (APPLY ,cont ,@req-dummies ,rest-dummy)
-                                           (APPLY (FUNCTION %NO-NEXT-METHOD) ,self ,@req-dummies ,rest-dummy))
-                                        `(IF ,cont
-                                           (FUNCALL ,cont ,@req-dummies)
-                                           (%NO-NEXT-METHOD ,self ,@req-dummies)))))
-                                  ((&REST NEW-ARG-EXPRS)
-                                   (IF NEW-ARG-EXPRS
-                                     ;; Let's do argument checking in the interpreter only
-                                     (LIST 'IF '(EVAL-WHEN (EVAL) T)
-                                       (LIST '%CALL-NEXT-METHOD
+                       (let ((cont (gensym)) ; variable for the continuation
+                             (req-dummies (gensym-list reqanz))
+                             (rest-dummy (if (or restp (> optanz 0)) (gensym)))
+                             (lambda-expr `(LAMBDA ,@lambdabody-part1 ,@lambdabody-part2)))
+                         `(; new lambda-list:
+                           (,cont
+                            ,@req-dummies
+                            ,@(if rest-dummy `(&REST ,rest-dummy) '()))
+                           (SYSTEM::FUNCTION-MACRO-LET
+                            ((CALL-NEXT-METHOD
+                              ((&REST NEW-ARGS)
+                               (IF NEW-ARGS
+                                 ;; argument checking in the interpreter only
+                                 (IF (EVAL-WHEN (EVAL) T)
+                                   (%CALL-NEXT-METHOD
+                                    ,self ,cont
+                                    ,(if rest-dummy
+                                       `(LIST* ,@req-dummies ,rest-dummy)
+                                       `(LIST ,@req-dummies))
+                                    NEW-ARGS)
+                                   (IF ,cont
+                                     (APPLY ,cont NEW-ARGS)
+                                     (APPLY (FUNCTION %NO-NEXT-METHOD)
+                                            ,self NEW-ARGS)))
+                                 ,(if rest-dummy
+                                    `(IF ,cont
+                                       (APPLY ,cont ,@req-dummies ,rest-dummy)
+                                       (APPLY (FUNCTION %NO-NEXT-METHOD) ,self
+                                              ,@req-dummies ,rest-dummy))
+                                    `(IF ,cont
+                                       (FUNCALL ,cont ,@req-dummies)
+                                       (%NO-NEXT-METHOD ,self ,@req-dummies)))))
+                              ((&REST NEW-ARG-EXPRS)
+                               (IF NEW-ARG-EXPRS
+                                 ;; argument checking in the interpreter only
+                                 (LIST 'IF '(EVAL-WHEN (EVAL) T)
+                                   (LIST '%CALL-NEXT-METHOD
+                                     ',self ',cont
+                                     (LIST ',(if rest-dummy 'LIST* 'LIST)
+                                       ,@(mapcar #'(lambda (x) `',x) req-dummies)
+                                       ,@(if rest-dummy `(',rest-dummy) '()))
+                                     (CONS 'LIST NEW-ARG-EXPRS))
+                                   (LIST 'IF ',cont
+                                     (LIST* 'FUNCALL ',cont NEW-ARG-EXPRS)
+                                     (LIST* '%NO-NEXT-METHOD ',self NEW-ARG-EXPRS)))
+                                 ,(if rest-dummy
+                                    `(LIST 'IF ',cont
+                                       (LIST 'APPLY ',cont
+                                         ,@(mapcar #'(lambda (x) `',x) req-dummies)
+                                         ',rest-dummy)
+                                       (LIST 'APPLY '(FUNCTION %NO-NEXT-METHOD)
                                          ',self
-                                         ',cont
-                                         (LIST ',(if rest-dummy 'LIST* 'LIST)
-                                           ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                                           ,@(if rest-dummy `(',rest-dummy) '()))
-                                         (CONS 'LIST NEW-ARG-EXPRS))
-                                       (LIST 'IF ',cont
-                                         (LIST* 'FUNCALL ',cont NEW-ARG-EXPRS)
-                                         (LIST* '%NO-NEXT-METHOD ',self NEW-ARG-EXPRS)))
-                                     ,(if rest-dummy
-                                        `(LIST 'IF ',cont
-                                           (LIST 'APPLY ',cont
-                                             ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                                             ',rest-dummy)
-                                           (LIST 'APPLY '(FUNCTION %NO-NEXT-METHOD)
-                                             ',self
-                                             ,@(mapcar #'(lambda (x) `',x) req-dummies)
-                                             ',rest-dummy))
-                                        `(LIST 'IF ',cont
-                                           (LIST 'FUNCALL ',cont
-                                             ,@(mapcar #'(lambda (x) `',x) req-dummies))
-                                           (LIST '%NO-NEXT-METHOD
-                                             ',self
-                                             ,@(mapcar #'(lambda (x) `',x) req-dummies)))))))
-                                (NEXT-METHOD-P
-                                  (() ,cont)
-                                  (() ',cont)))
-                               ;; new body:
-                               ,(if rest-dummy
-                                  `(APPLY (FUNCTION ,lambda-expr)
-                                          ,@req-dummies ,rest-dummy)
-                                  `(,lambda-expr ,@req-dummies)))))
-                         (let ((errorform1
-                                `(ERROR-OF-TYPE 'PROGRAM-ERROR
-                                   (TEXT "~S ~S: ~S is invalid within ~S methods")
-                                   ',caller ',funname 'CALL-NEXT-METHOD ',(first qualifiers)))
-                               (errorform2
-                                `(ERROR-OF-TYPE 'PROGRAM-ERROR
-                                   (TEXT "~S ~S: ~S is invalid within ~S methods")
-                                   ',caller ',funname 'NEXT-METHOD-P ',(first qualifiers))))
-                           `(,@lambdabody-part1
-                             (SYSTEM::FUNCTION-MACRO-LET
-                              ((CALL-NEXT-METHOD
-                                ((&REST NEW-ARGS)
-                                 (DECLARE (IGNORE NEW-ARGS))
-                                 ,errorform1) ; error at run time
-                                ((&REST NEW-ARG-EXPRS)
-                                 (DECLARE (IGNORE NEW-ARG-EXPRS))
-                                 ,errorform1)) ; error at macroexpansion time
-                               (NEXT-METHOD-P
-                                (() ,errorform2) ; error at run time
-                                (() ,errorform2))) ; error at macroexpansion time
-                              ,@lambdabody-part2)))))))
+                                         ,@(mapcar #'(lambda (x) `',x) req-dummies)
+                                         ',rest-dummy))
+                                    `(LIST 'IF ',cont
+                                       (LIST 'FUNCALL ',cont
+                                         ,@(mapcar #'(lambda (x) `',x) req-dummies))
+                                       (LIST '%NO-NEXT-METHOD
+                                         ',self
+                                         ,@(mapcar #'(lambda (x) `',x) req-dummies)))))))
+                             (NEXT-METHOD-P
+                              (() ,cont)
+                              (() ',cont)))
+                            ;; new body:
+                            ,(if rest-dummy
+                               `(APPLY (FUNCTION ,lambda-expr)
+                                       ,@req-dummies ,rest-dummy)
+                               `(,lambda-expr ,@req-dummies))))))))
                  (sig (make-signature :req-num reqanz :opt-num optanz
                                       :rest-p restp :keys-p keyp
                                       :keywords keywords :allow-p allowp)))
@@ -1754,10 +1727,8 @@ in the generic function instance."
                :INITFUNCTION
                  #'(LAMBDA (,self)
                      ,@(if compile '((DECLARE (COMPILE))))
-                     (%OPTIMIZE-FUNCTION-LAMBDA
-                       ,(if wants-next-method-p `(T) `())
-                       ,@lambdabody))
-               :WANTS-NEXT-METHOD-P ',wants-next-method-p
+                     (%OPTIMIZE-FUNCTION-LAMBDA `(T) ,@lambdabody))
+               :WANTS-NEXT-METHOD-P T
                :PARAMETER-SPECIALIZERS
                (LIST ,@(nreverse req-specializer-forms))
                :QUALIFIERS ',qualifiers
@@ -2530,27 +2501,27 @@ in the generic function instance."
                                       #'(LAMBDA ,lambdalist ,next-ef)
                                       ,@apply-args))
                        `(,apply-fun ',1function ,@apply-args)))))
+               (apply-forms (methods)
+                 (mapcar #'(lambda (method)
+                             (if (std-method-wants-next-method-p method)
+                               `(,apply-fun ',(std-method-function method)
+                                            nil ,@apply-args)
+                               `(,apply-fun ',(std-method-function method)
+                                            ,@apply-args)))
+                         methods))
                (ef-2 (primary-methods before-methods after-methods)
                  (let ((next-ef (ef-3 primary-methods after-methods)))
                    (if (null before-methods)
                      next-ef
-                     `(PROGN
-                        ,@(mapcar
-                           #'(lambda (method)
-                               `(,apply-fun ',(std-method-function method)
-                                            ,@apply-args))
-                           before-methods) ; most-specific-first
+                     `(PROGN ; most-specific-first:
+                        ,@(apply-forms before-methods)
                         ,next-ef))))
                (ef-3 (primary-methods after-methods)
                  (let ((next-ef (ef-4 primary-methods)))
                    (if (null after-methods)
                        next-ef
-                       `(MULTIPLE-VALUE-PROG1 ,next-ef
-                          ,@(mapcar
-                             #'(lambda (method)
-                                 `(,apply-fun ',(std-method-function method)
-                                              ,@apply-args))
-                             (reverse after-methods)))))) ; most-specific-last
+                       `(MULTIPLE-VALUE-PROG1 ,next-ef ; most-specific-last:
+                          ,@(apply-forms (reverse after-methods))))))
                (ef-4 (primary-methods)
                  (let* ((1method (first primary-methods))
                         (1function (std-method-function 1method)))
