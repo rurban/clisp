@@ -1,3 +1,9 @@
+2003-03-31  Bruno Haible  <bruno@clisp.org>
+
+	* runprog.lisp (shell-quote) [UNIX]: Handle empty argument correctly.
+	(shell-quote) [WIN32]: Handle argument containing spaces and ending in
+	a backslash correctly.
+
 2003-03-30  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (init_symbol_values): define_variable's
