@@ -188,8 +188,6 @@
                       ; so that these values
                       ; must be computed no later than in the initially-code.
 
-#+CLISP (remprop 'loop-initialization 'sys::defstruct-description)
-
 (proclaim '(inline li-vars))
 (defun li-vars (li)
   (case (li-specform li)
