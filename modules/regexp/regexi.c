@@ -22,12 +22,12 @@ DEFMODULE(regexp,"REGEXP");
 DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
 { /* compile the pattern into a regular expression */
   object pattern = check_string(STACK_4);
-  int cflags = 0, status;
+  int cflags = (missingp(STACK_0) ? 0 : REG_NOSUB) |
+    (missingp(STACK_1) ? 0 : REG_NEWLINE) |
+    (missingp(STACK_2) ? 0 : REG_ICASE) |
+    (missingp(STACK_3) ? 0 : REG_EXTENDED);
+  int status;
   regex_t* re;
-  if (!missingp(STACK_0)) cflags |= REG_NOSUB;
-  if (!missingp(STACK_1)) cflags |= REG_NEWLINE;
-  if (!missingp(STACK_2)) cflags |= REG_ICASE;
-  if (!missingp(STACK_3)) cflags |= REG_EXTENDED;
  restart_regcomp:
   begin_system_call();
   re = (regex_t*)malloc(sizeof(regex_t));
