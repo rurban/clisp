@@ -1,3 +1,10 @@
+1999-02-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * makemake.in: Fix bug in parsing of --hyperspec argument.
+
+        * makemake.in (XCC_DLOPENABLE_EXE_FLAG): Pass -export-dynamic to
+          the linker only if the linker is GNU ld.
+
 1999-02-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * clos.lsp, init.lsp: Do export GENERIC-LABELS and GENERIC-FLET here.
