@@ -1463,9 +1463,19 @@ take a controller and some number of arguments.
   <DD>   These generic functions should return <CODE>nil</CODE> at end of file.
          Takes one argument, the controller object.
   </DD>
-  <DT><CODE>(generic-stream-listen       <VAR>controller</VAR>)</CODE></DT>
-  <DD>   Returns -1 for EOF, 0 for character pending, and 1 for none.
-         Takes one argument, the controller object.
+  <DT><A name=generic-stream-listen></A>
+      <CODE>(generic-stream-listen       <VAR>controller</VAR>)</CODE></DT>
+  <DD>
+    <P>
+    This generic function is used to query the stream's input status.
+    The possible return values are the same as for the
+    <CODE><A HREF="#real-listen">sys::real-listen</CODE></A> function.
+    </P>
+    <DL COMPACT>
+      <DT><CODE>:eof</CODE></DT>             <DD>means EOF</DD>
+      <DT><CODE>:input-available</CODE></DT> <DD>means a character (or byte) pending</DD>
+      <DT><CODE>:wait</CODE></DT>            <DD>means no input available.</DD>
+    </DL>
   </DD>
   <DT><CODE>(generic-stream-write-char   <VAR>controller</VAR> <VAR>ch</VAR>)</CODE></DT>
   <DD>   First argument is the controller object.
@@ -1633,6 +1643,31 @@ end).
 This function is especially efficient if <VAR>sequence</VAR> is a string and <VAR>stream</VAR> is
 a file stream with element type <VAR>string-char</VAR>, a pipe stream or a string input
 stream.
+
+<DL>
+  <DT>
+    <A NAME=real-listen></A>
+    <CODE>(system::<STRONG>real-listen</STRONG> <VAR>stream</VAR>)</CODE>
+  </DT>
+  <DD>
+    <P>
+    <CODE>sys::real-listen</CODE> is a variant of the standard
+    <CODE>listen</CODE> function, which returns more detailed information 
+    about the stream's input status. The return value is one of:
+    </P>
+    <DL COMPACT>
+      <DT><CODE>:eof</CODE></DT>             <DD>means EOF</DD>
+      <DT><CODE>:input-available</CODE></DT> <DD>means a character (or byte) pending</DD>
+      <DT><CODE>:wait</CODE></DT>            <DD>means no input available.</DD>
+    </DL>
+    <P>
+    The return values are the same as for the 
+    <CODE><A HREF="#generic-stream-listen">generic-stream-listen</A></CODE> 
+    method, so this function is a good fit to define some generic streams
+    based upon other CLISP streams.
+    </P>
+  </DD>
+</DL>
 
 <H3>22.2.2.</H3>
 
