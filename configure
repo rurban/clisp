@@ -369,9 +369,26 @@ if test -n "$do_config"; then
       link ffcall/$f $ABS_DIRNAME/$f
     fi
   done
+  # Similarly for sigsegv.
+  for subdir in sigsegv
+  do
+    if [ -d $subdir ] ; then
+      if [ ! -d $ABS_DIRNAME/$subdir ] ; then
+        mkdir $ABS_DIRNAME/$subdir
+      fi
+    fi
+  done
+  for subdir in sigsegv
+  do
+    f=$subdir/configure
+    if [ -f $f ] ; then
+      rm -f $ABS_DIRNAME/$f
+      link $f $ABS_DIRNAME/$f
+    fi
+  done
   # Prepare the configure files.
   chmod a+x $ABS_DIRNAME/configure
-  for subdir in readline newreadline avcall callback; do
+  for subdir in readline newreadline avcall callback sigsegv; do
     if test -d $ABS_DIRNAME/$subdir; then
       chmod a+x $ABS_DIRNAME/$subdir/configure
     fi
@@ -406,6 +423,15 @@ if test -n "$do_config"; then
       echo "executing $DIRNAME/$subdir/configure ..."
       cd $subdir
       ${CONFIG_SHELL-/bin/sh} configure --srcdir="$RREL_SRCDIR/ffcall/$subdir" \
+          $subdir_configure_args
+    cd ..
+    fi
+  done
+  for subdir in sigsegv; do
+    if test -d $subdir; then
+      echo "executing $DIRNAME/$subdir/configure ..."
+      cd $subdir
+      ${CONFIG_SHELL-/bin/sh} configure --srcdir="$RREL_SRCDIR/$subdir" \
           $subdir_configure_args
     cd ..
     fi
