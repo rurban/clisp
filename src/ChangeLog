@@ -1,5 +1,11 @@
 2005-01-30  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (SET_BIT, CLR_BIT): moved here from ...
+	* control.d: here
+	* eval.d: use SET_BIT & CLR_BIT
+
+2005-01-30  Sam Steingold  <sds@gnu.org>
+
 	activate SPECDECL bindings
 	* control.d (specdecled_): extracted from make_variable_frame()
 	(specdecled_p, activate_specdecl): new macros
