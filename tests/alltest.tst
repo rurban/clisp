@@ -2165,8 +2165,8 @@ T
 
 ;STRING-DOWNCASE, NSTRING-CAPITALIZE, NSTRING-DOWNCASE, NSTRING-UPCASE, STRING,
 
-;Kap 19 Strukturen
-;-------------------------------------------------------------------------------
+;;Kap 19 Structures
+;;-----------------------------------------------------------------------------
 
 ;DEFSTRUCT,
 
@@ -2180,19 +2180,16 @@ T
                        ((hawaii) '(pineapple macadamia guava))
                        ((massachusetts) '(lobster baked-bean))
                        ((california) '(ginger lotus avocado bean-sprout garlic))
-                       ((texas) '(jalapeno barbecue))
-                    ))
+                       ((texas) '(jalapeno barbecue))))
                     (flavors
                      (subseq (append local-flavors
                                      '(vanilla chocolate strawberry pistachio
-                                       maple-walnut peppermint
-                             )        )
-                             0 capacity
-                    ))
-           )) )
+                                       maple-walnut peppermint))
+                             0 capacity))
+                    ((:own owner)))))
   (capacity 3)
   (flavors '(vanilla chocolate strawberry mango))
-)
+  (owner 'me))
 ICE-CREAM-FACTORY
 
 (let ((houston (fabricate-factory :capacity 4 :location 'texas)))
