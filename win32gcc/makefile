@@ -28,10 +28,10 @@ MODULES =
 
 # Programs used by "make":
 CC = gcc
-CFLAGS = -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -O2 -fexpensive-optimizations -D_NO_OLDNAMES -DUNICODE -DDIR_KEY -DNO_GETTEXT
+CFLAGS = -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -O2 -fexpensive-optimizations -D_NO_OLDNAMES -D_WIN32 -D__MINGW32__ -DUNICODE -DDIR_KEY -DNO_GETTEXT
 CPP = gcc -E
 CLFLAGS =  -x none
-LIBS = sigsegv.lib iconv.lib  -luser32 -lwsock32 -lole32 -lwldap32
+LIBS = sigsegv.lib iconv.lib  -luser32 -lwsock32 -lole32
 X_LIBS = 
 
 MAKE = make
@@ -396,6 +396,7 @@ loop.lisp \
 clos.lisp \
 disassem.lisp \
 condition.lisp \
+loadform.lisp \
 threads.lisp \
 gstream.lisp \
 xcharin.lisp \
@@ -444,6 +445,7 @@ loop.fas \
 clos.fas \
 disassem.fas \
 condition.fas \
+loadform.fas \
 threads.fas \
 gstream.fas \
 xcharin.fas \
@@ -497,6 +499,7 @@ stage/loop.lisp \
 stage/clos.lisp \
 stage/disassem.lisp \
 stage/condition.lisp \
+stage/loadform.lisp \
 stage/threads.lisp \
 stage/gstream.lisp \
 stage/xcharin.lisp \
@@ -545,6 +548,7 @@ stage/loop.fas \
 stage/clos.fas \
 stage/disassem.fas \
 stage/condition.fas \
+stage/loadform.fas \
 stage/threads.fas \
 stage/gstream.fas \
 stage/xcharin.fas \
@@ -1319,6 +1323,9 @@ disassem.fas : disassem.lisp lisp.exe halfcompiled.mem
 condition.fas : condition.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c condition.lisp
 
+loadform.fas : loadform.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1000KW -M halfcompiled.mem -q -c loadform.lisp
+
 threads.fas : threads.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c threads.lisp
 
@@ -1479,6 +1486,9 @@ stage/disassem.lisp : disassem.lisp
 stage/condition.lisp : condition.lisp
 	$(LN_S) condition.lisp stage
 
+stage/loadform.lisp : loadform.lisp
+	$(LN_S) loadform.lisp stage
+
 stage/threads.lisp : threads.lisp
 	$(LN_S) threads.lisp stage
 
@@ -1619,6 +1629,9 @@ stage/disassem.fas : stage/disassem.lisp lisp.exe stage/testinit.mem
 
 stage/condition.fas : stage/condition.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/condition.lisp
+
+stage/loadform.fas : stage/loadform.lisp lisp.exe stage/testinit.mem
+	$(RUN) -M stage/testinit.mem -q -c stage/loadform.lisp
 
 stage/threads.fas : stage/threads.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/threads.lisp
