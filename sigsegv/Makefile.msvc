@@ -2,6 +2,34 @@
 
 #### Start of system configuration section. ####
 
+# Flags that can be set on the nmake command line:
+#   MFLAGS={-ML|-MT|-MD} for defining the compilation model
+#     MFLAGS=-ML (the default)  Single-threaded, statically linked - libc.lib
+#     MFLAGS=-MT                Multi-threaded, statically linked  - libcmt.lib
+#     MFLAGS=-MD                Multi-threaded, dynamically linked - msvcrt.lib
+#   DEBUG=1   for compiling with debugging information
+# Note that nmake command line flags are automatically passed to subdirectory
+# Makefiles. Therefore we don't need to pass them explicitly to subdirectory
+# Makefiles, but the subdirectory Makefiles need to have the same defaults.
+# Building as a DLL not supported yet.
+STATIC=1
+!if !defined(DEBUG)
+DEBUG=0
+!endif
+!if !defined(MFLAGS)
+!if $(STATIC)
+MFLAGS=
+!else
+MFLAGS=-MD
+!endif
+!endif
+
+!if $(DEBUG)
+OPTIMFLAGS = -Od -Z7
+!else
+OPTIMFLAGS = -D_NDEBUG -O1
+!endif
+
 # Directories used by "make":
 srcdir = .
 
@@ -15,7 +43,7 @@ mandir = $(exec_prefix)/man
 
 # Programs used by "make":
 CC = cl
-CFLAGS = -O1
+CFLAGS = $(MFLAGS) $(OPTIMFLAGS)
 CPP = cl -E
 INCLUDES = -I. -I$(srcdir)
 AR = lib
@@ -47,9 +75,15 @@ handler.obj : $(srcdir)/handler.c sigsegv.h
 dispatcher.obj : $(srcdir)/dispatcher.c sigsegv.h
 	$(CC) $(CFLAGS) -c $(srcdir)/dispatcher.c
 
+!if $(STATIC)
 sigsegv.lib : $(OBJECTS)
 	$(RM) sigsegv.lib
 	$(AR) $(AR_FLAGS)sigsegv.lib $(OBJECTS)
+!else
+# sigsegv.dll and sigsegv.lib are created together.
+sigsegv.lib : $(OBJECTS)
+	$(CC) $(MFLAGS) -LD $(OBJECTS) -Fesigsegv.dll
+!endif
 
 test1.exe : $(srcdir)/test1.c sigsegv.h sigsegv.lib
 	$(CC) $(CFLAGS) $(srcdir)/test1.c sigsegv.lib /Fetest1
@@ -68,7 +102,7 @@ check : all test1.exe test2.exe test3.exe
 mostlyclean : clean
 
 clean : force
-	$(RM) sigsegv.h *.obj *.lib core
+	$(RM) sigsegv.h *.obj *.lib *.exp *.dll core
 	$(RM) test1.exe test2.exe test3.exe
 
 distclean : clean
