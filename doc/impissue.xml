@@ -402,7 +402,7 @@
  <varlistentry id="iss350"><term><ulink url="&clhs;/Issues/iss350.html">TYPE-DECLARATION-ABBREVIATION:ALLOW-ALL</ulink></term>&no;</varlistentry>
  <varlistentry id="iss351"><term><ulink url="&clhs;/Issues/iss351.html">TYPE-OF-AND-PREDEFINED-CLASSES:TYPE-OF-HANDLES-FLOATS</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss352"><term><ulink url="&clhs;/Issues/iss352.html">TYPE-OF-AND-PREDEFINED-CLASSES:UNIFY-AND-EXTEND</ulink></term>
-     <listitem><simpara>yes, except for class &method-combination-class;
+     <listitem><simpara>yes, except for class &method-combination-t;
      </simpara></listitem></varlistentry>
  <varlistentry id="iss353"><term><ulink url="&clhs;/Issues/iss353.html">TYPE-OF-UNDERCONSTRAINED:ADD-CONSTRAINTS</ulink></term>&yes;</varlistentry>
  <varlistentry id="iss354"><term><ulink url="&clhs;/Issues/iss354.html">TYPE-SPECIFIER-ABBREVIATION:X3J13-JUN90-GUESS</ulink></term>&yes;</varlistentry>
