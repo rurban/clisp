@@ -914,6 +914,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                       case 3:
                         switch (req_anz)
                           { case 0: return(subr_argtype_0_3);
+                            case 1: return(subr_argtype_1_3);
+                            case 2: return(subr_argtype_2_3);
                             default: goto illegal;
                           }
                       case 4:

@@ -5612,6 +5612,8 @@ typedef struct { LRECORD_HEADER # Selbstpointer für GC, Länge in Bits
                 subr_argtype_1_2,
                 subr_argtype_2_2,
                 subr_argtype_0_3,
+                subr_argtype_1_3,
+                subr_argtype_2_3,
                 subr_argtype_0_4,
                 subr_argtype_0_5,
                 subr_argtype_0_0_rest,

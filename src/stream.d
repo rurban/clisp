@@ -15140,25 +15140,35 @@ LISPFUNN(set_stream_element_type,2)
         #endif
           if (!equal(STACK_0,TheStream(stream)->strm_eltype)) # nothing to change?
             { # Check eltype.
-              if (ChannelStream_buffered(stream))
-                { if (!(((ChannelStream_bitsize(stream) % 8) == 0)
-                        &&
-                        ((eltype.size % 8) == 0)
-                     ) )
-                    { # canon-element-type in STACK_0.
-                      pushSTACK(TheStream(stream)->strm_eltype);
-                      pushSTACK(stream);
-                      pushSTACK(S(Kelement_type));
-                      pushSTACK(S(set_stream_element_type));
-                      fehler(error,
-                             DEUTSCH ? "~: Der ~ von ~ kann nicht von ~ auf ~ geändert werden." :
-                             ENGLISH ? "~: The ~ of ~ cannot be changed from ~ to ~." :
-                             FRANCAIS ? "~ : Le ~ de ~ ne peux pas être changé de ~ en ~." :
-                             ""
-                            );
-                }   }
-                else
+              if (!ChannelStream_buffered(stream))
                 { check_unbuffered_eltype(&eltype); }
+              # The FILE-POSITION return value is constrained by CLHS to
+              #   - be an integer,
+              #   - represent a position into the file (and therefore be
+              #     independent of the stream's current element type),
+              #   - increment by 1 when READ-BYTE or WRITE-BYTE is called.
+              # In order to achieve these constraints altogether, we allow
+              # switching only (UNSIGNED-BYTE n) and (SIGNED-BYTE n) with
+              # the same n, and between ([UN]SIGNED-BYTE 8) and CHARACTER.
+              # Reading (UNSIGNED-BYTE 8) and (UNSIGNED-BYTE 16) and
+              # (UNSIGNED-BYTE 32) values from the same stream in succession
+              # can be achieved through READ-INTEGER and WRITE-INTEGER.
+              if (!((ChannelStream_bitsize(stream) > 0 ? ChannelStream_bitsize(stream) : 8)
+                    ==
+                    (eltype.size > 0 ? eltype.size : 8)
+                 ) )
+                { # canon-element-type in STACK_0.
+                  pushSTACK(TheStream(stream)->strm_eltype);
+                  pushSTACK(stream);
+                  pushSTACK(S(Kelement_type));
+                  pushSTACK(S(set_stream_element_type));
+                  fehler(error,
+                         DEUTSCH ? "~: Der ~ von ~ kann nicht von ~ auf ~ geändert werden." :
+                         ENGLISH ? "~: The ~ of ~ cannot be changed from ~ to ~." :
+                         FRANCAIS ? "~ : Le ~ de ~ ne peux pas être changé de ~ en ~." :
+                         ""
+                        );
+                }
               # Transform the lastchar back, if possible.
               if (TheStream(stream)->strmflags & strmflags_open_B) # stream open?
                 if (eltype.size > 0)
@@ -16020,6 +16030,47 @@ LISPFUN(close,1,0,norest,key,1, (kw(abort)) )
             return TheStream(stream)->strm_wr_ch_lpos;
     }   }
 
+# UP: Check an element-type for READ-INTEGER/WRITE-INTEGER.
+# check_multiple8_eltype(&eltype);
+# > eltype: Element-Type in decoded form
+  local void check_multiple8_eltype (const decoded_eltype* eltype);
+  local void check_multiple8_eltype(eltype)
+    var const decoded_eltype* eltype;
+    { if (!((eltype->size > 0) && ((eltype->size % 8) == 0)))
+        { pushSTACK(canon_eltype(eltype));
+          pushSTACK(S(Kelement_type));
+          pushSTACK(TheSubr(subr_self)->name);
+          fehler(error,
+                 DEUTSCH ? "~ benötigt ein ~ mit durch 8 teilbarer Bitzahl, nicht ~" :
+                 ENGLISH ? "~ needs an ~ with a bit size being a multiple of 8, not ~" :
+                 FRANCAIS ? "~ nécessite un ~ avec un taille (en bits) divisible par 8, et non ~" :
+                 ""
+                );
+    }   }
+
+# UP: Check an endianness argument.
+# test_endianness_arg(arg)
+# > arg: the argument
+# > subr_self: calling function
+# < boolean result: endianness (BIG = TRUE, LITTLE = FALSE)
+  local boolean test_endianness_arg (object arg);
+  local boolean test_endianness_arg(arg)
+    var object arg;
+    { if (eq(arg,unbound) || eq(arg,S(Klittle)) || eq(arg,S(Kdefault)))
+        return FALSE;
+      if (eq(arg,S(Kbig)))
+        return TRUE;
+      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_endianness)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             DEUTSCH ? "~: Als Endianness-Argument ist ~ unzulässig." :
+             ENGLISH ? "~: illegal endianness argument ~" :
+             FRANCAIS ? "~ : ~ n'est pas permis comme argument pour «endianness»." :
+             ""
+            );
+    }
+
 LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
 # (READ-BYTE stream [eof-error-p [eof-value]]), CLTL S. 382
   { # Stream überprüfen:
@@ -16052,6 +16103,227 @@ LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
       { value1 = obj; mv_count=1; skipSTACK(3); } # obj als Wert
   }}
 
+LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
+# (READ-INTEGER stream element-type [endianness [eof-error-p [eof-value]]])
+# is a generalized READ-BYTE.
+  {   # Stream überprüfen:
+      var object stream = STACK_4;
+      if (!streamp(stream)) { fehler_stream(stream); }
+      # Element-Type überprüfen:
+   {  var decoded_eltype eltype;
+      test_eltype_arg(&STACK_3,&eltype);
+      check_multiple8_eltype(&eltype);
+      # Endianness überprüfen:
+    { var boolean endianness = test_endianness_arg(STACK_2);
+      var uintL bitsize = eltype.size;
+      var uintL bytesize = bitsize/8;
+      var DYNAMIC_ARRAY(bitbuffer,uintB,bytesize);
+      stream = STACK_4;
+      # Read the data.
+      { var uintB* ptr = read_byte_array(stream,&bitbuffer[0],bytesize);
+        if (!(ptr == NULL))
+          { if (!(ptr == &bitbuffer[bytesize])) goto eof; }
+          else
+          { var uintL count;
+            ptr = &bitbuffer[0];
+            dotimespL(count,bytesize,
+              { var object obj = read_byte(STACK_4);
+                if (eq(obj,eof_value)) goto eof;
+                if (!uint8_p(obj)) { fehler_uint8(obj); }
+                *ptr++ = (uintB)(as_oint(obj) >> oint_data_shift);
+              });
+      }   }
+      if (endianness)
+        # Byte-Swap the data.
+        { var uintL count = floor(bytesize,2);
+          if (count > 0)
+            { var uintB* ptr1 = &bitbuffer[0];
+              var uintB* ptr2 = &bitbuffer[bytesize-1];
+              dotimespL(count,count,
+                { var uintB x1 = *ptr1;
+                  var uintB x2 = *ptr2;
+                  *ptr1 = x2; *ptr2 = x1;
+                  ptr1++; ptr2--;
+                });
+        }   }
+      # The data is now in little-endian order. Convert it to an integer.
+     {var object result;
+      switch (eltype.kind)
+        { case eltype_iu:
+            # cf. rd_by_iu_I
+            { # Zahl im bitbuffer normalisieren:
+              var uintB* bitbufferptr = &bitbuffer[bytesize-1];
+              var uintL count = bytesize;
+              while ((!(count==0)) && (*bitbufferptr==0)) { count--; bitbufferptr--; }
+              # Zahl bilden:
+              if # höchstens oint_data_len Bits ?
+                 ((count <= floor(oint_data_len,8))
+                  || ((count == floor(oint_data_len,8)+1)
+                      && (*bitbufferptr < bit(oint_data_len%8))
+                 )   )
+                # ja -> Fixnum >=0 bilden:
+                { var uintL wert = 0;
+                  until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
+                  result = fixnum(wert);
+                }
+                else
+                # nein -> Bignum >0 bilden:
+                { var uintL digitcount = floor(count,(intDsize/8));
+                  if (((count%(intDsize/8)) > 0) || (*bitbufferptr & bit(7)))
+                    { digitcount++; }
+                  # Da bitsize < intDsize*uintWC_max, ist
+                  # digitcount <= ceiling((bitsize+1)/intDsize) <= uintWC_max .
+                  { var object big = allocate_bignum(digitcount,0); # neues Bignum >0
+                    TheBignum(big)->data[0] = 0; # höchstes Digit auf 0 setzen
+                    # restliche Digits von rechts füllen, dabei Folge von Bytes in
+                    # Folge von uintD übersetzen:
+                    bitbufferptr = &bitbuffer[0];
+                    #if BIG_ENDIAN_P
+                    {var uintB* bigptr = (uintB*)(&TheBignum(big)->data[digitcount]);
+                     dotimespL(count,count, { *--bigptr = *bitbufferptr++; } );
+                    }
+                    #else
+                    {var uintD* bigptr = &TheBignum(big)->data[digitcount];
+                     var uintL count2;
+                     #define GET_NEXT_BYTE(i)  \
+                       digit |= ((uintD)(*bitbufferptr++) << (8*i));
+                     dotimespL(count2,floor(count,intDsize/8),
+                       { var uintD digit = 0;
+                         DOCONSTTIMES(intDsize/8,GET_NEXT_BYTE); # GET_NEXT_BYTE(0..intDsize/8-1)
+                         *--bigptr = digit;
+                       });
+                     #undef GET_NEXT_BYTE
+                     count2 = count % (intDsize/8);
+                     if (count2>0)
+                       { var uintL shiftcount = 0;
+                         var uintD digit = (uintD)(*bitbufferptr++);
+                         dotimesL(count2,count2-1,
+                           { shiftcount += 8;
+                             digit |= ((uintD)(*bitbufferptr++) << shiftcount);
+                           });
+                         *--bigptr = digit;
+                       }
+                    }
+                    #endif
+                    # Wegen (intDsize/8)*(digitcount-1) <= count <= (intDsize/8)*digitcount
+                    # ist alles gefüllt.
+                    result = big;
+            }   } }
+            break;
+          case eltype_is:
+            # cf. rd_by_is_I
+            { # Zahl im bitbuffer normalisieren:
+              var uintB* bitbufferptr = &bitbuffer[bytesize-1];
+              var sintD sign;
+              var uintL count = bytesize;
+              if (!(*bitbufferptr & bit(7)))
+                { sign = 0;
+                  # normalisieren, höchstes Bit muss 0 bleiben:
+                  while ((count>=2) && (*bitbufferptr==0) && !(*(bitbufferptr-1) & bit(7)))
+                    { count--; bitbufferptr--; }
+                  # Zahl bilden:
+                  if # höchstens oint_data_len+1 Bits, Zahl <2^oint_data_len ?
+                     ((count <= floor(oint_data_len,8))
+                      || ((count == floor(oint_data_len,8)+1)
+                          && (*bitbufferptr < bit(oint_data_len%8))
+                     )   )
+                    # ja -> Fixnum >=0 bilden:
+                    { var uintL wert = 0;
+                      until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
+                      result = posfixnum(wert);
+                      break;
+                    }
+                }
+                else
+                { sign = -1;
+                  # normalisieren, höchstes Bit muss 1 bleiben:
+                  while ((count>=2) && (*bitbufferptr==(uintB)(-1)) && (*(bitbufferptr-1) & bit(7)))
+                    { count--; bitbufferptr--; }
+                  # Zahl bilden:
+                  if # höchstens oint_data_len+1 Bits, Zahl >=-2^oint_data_len ?
+                     ((count <= floor(oint_data_len,8))
+                      || ((count == floor(oint_data_len,8)+1)
+                          && (*bitbufferptr >= (uintB)(-bit(oint_data_len%8)))
+                     )   )
+                    # ja -> Fixnum <0 bilden:
+                    { var uintL wert = (uintL)(-1);
+                      until (count==0) { wert = (wert<<8) | *bitbufferptr--; count--; }
+                      result = negfixnum(wbitm(intLsize)+(oint)wert);
+                      break;
+                    }
+                }
+              # Bignum bilden:
+              { var uintL digitcount = ceiling(count,(intDsize/8));
+                # Da bitsize < intDsize*uintWC_max, ist
+                # digitcount <= ceiling(bitsize/intDsize) <= uintWC_max .
+                var object big = allocate_bignum(digitcount,sign); # neues Bignum
+                TheBignum(big)->data[0] = sign; # höchstes Word auf sign setzen
+                # restliche Digits von rechts füllen, dabei Folge von Bytes in
+                # Folge von uintD übersetzen:
+                bitbufferptr = &bitbuffer[0];
+                #if BIG_ENDIAN_P
+                {var uintB* bigptr = (uintB*)(&TheBignum(big)->data[digitcount]);
+                 dotimespL(count,count, { *--bigptr = *bitbufferptr++; } );
+                }
+                #else
+                {var uintD* bigptr = &TheBignum(big)->data[digitcount];
+                 var uintL count2;
+                 #define GET_NEXT_BYTE(i)  \
+                   digit |= ((uintD)(*bitbufferptr++) << (8*i));
+                 dotimespL(count2,floor(count,intDsize/8),
+                   { var uintD digit = 0;
+                     DOCONSTTIMES(intDsize/8,GET_NEXT_BYTE); # GET_NEXT_BYTE(0..intDsize/8-1)
+                     *--bigptr = digit;
+                   });
+                 #undef GET_NEXT_BYTE
+                 count2 = count % (intDsize/8);
+                 if (count2>0)
+                   { var uintL shiftcount = 0;
+                     var uintD digit = (uintD)(*bitbufferptr++);
+                     dotimesL(count2,count2-1,
+                       { shiftcount += 8;
+                         digit |= ((uintD)(*bitbufferptr++) << shiftcount);
+                       });
+                     *--bigptr = digit;
+                   }
+                }
+                #endif
+                # Wegen (intDsize/8)*(digitcount-1) < count <= (intDsize/8)*digitcount
+                # ist alles gefüllt.
+                result = big;
+              }
+            }
+            break;
+          default: NOTREACHED
+        }
+      FREE_DYNAMIC_ARRAY(bitdata);
+      value1 = result; mv_count=1;
+      skipSTACK(5);
+      return;
+     }
+      # EOF-Behandlung
+      eof:
+      { if (!nullp(STACK_1)) # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
+          # Error melden:
+          { pushSTACK(STACK_4); # Wert für Slot STREAM von STREAM-ERROR
+            pushSTACK(STACK_(4+1)); # Stream
+            pushSTACK(S(read_integer));
+            fehler(end_of_file,
+                   DEUTSCH ? "~: Eingabestream ~ ist zu Ende." :
+                   ENGLISH ? "~: input stream ~ has reached its end" :
+                   FRANCAIS ? "~ : Le «stream» d'entrée ~ est épuisé." :
+                   ""
+                  );
+          }
+          else
+          # EOF verarzten:
+          { var object eofval = STACK_0;
+            if (eq(eofval,unbound)) { eofval = eof_value; } # Default ist #<EOF>
+            value1 = eofval; mv_count=1; skipSTACK(5); # eofval als Wert
+          }
+      }
+  }}}
+
 LISPFUNN(write_byte,2)
 # (WRITE-BYTE integer stream), CLTL S. 385
   { # Stream überprüfen:
@@ -16064,6 +16336,190 @@ LISPFUNN(write_byte,2)
     write_byte(stream,obj);
     value1 = STACK_1; mv_count=1; skipSTACK(2); # obj als Wert
   }}
+
+LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
+# (WRITE-INTEGER integer stream element-type [endianness])
+# is a generalized WRITE-BYTE.
+  {   # Stream überprüfen:
+      var object stream = STACK_2;
+      if (!streamp(stream)) { fehler_stream(stream); }
+      # Element-Type überprüfen:
+   {  var decoded_eltype eltype;
+      test_eltype_arg(&STACK_1,&eltype);
+      check_multiple8_eltype(&eltype);
+      stream = STACK_2;
+      # Endianness überprüfen:
+    { var boolean endianness = test_endianness_arg(STACK_0);
+      # Integer überprüfen:
+      var object obj = STACK_3;
+      if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
+     {var uintL bitsize = eltype.size;
+      var uintL bytesize = bitsize/8;
+      var DYNAMIC_ARRAY(bitbuffer,uintB,bytesize);
+      # Copy the integer's data into the buffer.
+      switch (eltype.kind)
+        { case eltype_iu:
+            # cf. wr_by_ixu_sub
+            { # obj überprüfen:
+              if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
+              if (!positivep(obj)) { fehler_bad_integer(stream,obj); }
+              # obj ist jetzt ein Integer >=0
+              # obj in den Bitbuffer übertragen:
+              { var uintB* bitbufferptr = &bitbuffer[0];
+                var uintL count = bytesize;
+                if (posfixnump(obj))
+                  # obj ist ein Fixnum >=0
+                  { var uintL wert = posfixnum_to_L(obj);
+                    # wert < 2^bitsize überprüfen:
+                    if (!((bitsize>=oint_data_len) || (wert < bit(bitsize))))
+                      { fehler_bad_integer(stream,obj); }
+                    # wert im Bitbuffer ablegen:
+                    until (wert==0)
+                      { *bitbufferptr++ = (uint8)wert; wert = wert>>8; count--; }
+                  }
+                  else
+                  # obj ist ein Bignum >0
+                  { var uintL len = (uintL)Bignum_length(obj);
+                    # obj < 2^bitsize überprüfen:
+                    if (!((floor(bitsize,intDsize) >= len)
+                          || ((floor(bitsize,intDsize) == len-1)
+                              && (TheBignum(obj)->data[0] < bit(bitsize%intDsize))
+                       ) )   )
+                      { fehler_bad_integer(stream,obj); }
+                    #if BIG_ENDIAN_P
+                    {var uintB* ptr = (uintB*)&TheBignum(obj)->data[len];
+                     # Digit-Länge in Byte-Länge umrechnen:
+                     len = (intDsize/8)*len;
+                     #define CHECK_NEXT_BYTE(i)  \
+                       if (!( ((uintB*)(&TheBignum(obj)->data[0]))[i] ==0)) goto u_len_ok; \
+                       len--;
+                     DOCONSTTIMES(intDsize/8,CHECK_NEXT_BYTE); # CHECK_NEXT_BYTE(0..intDsize/8-1)
+                     #undef CHECK_NEXT_BYTE
+                     u_len_ok:
+                     # obj im Bitbuffer ablegen:
+                     count = count - len;
+                     dotimespL(len,len, { *bitbufferptr++ = *--ptr; } );
+                    }
+                    #else
+                    {var uintD* ptr = &TheBignum(obj)->data[len];
+                     len--;
+                     count -= (intDsize/8)*len;
+                     dotimesL(len,len,
+                       { var uintD digit = *--ptr;
+                         doconsttimes(intDsize/8,
+                           { *bitbufferptr++ = (uintB)digit; digit = digit >> 8; }
+                           );
+                       });
+                     {var uintD digit = *--ptr;
+                      doconsttimes(intDsize/8,
+                        { if (digit==0) goto u_ok;
+                          *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
+                          count--;
+                        });
+                      u_ok: ;
+                    }}
+                    #endif
+                  }
+                dotimesL(count,count, { *bitbufferptr++ = 0; } );
+            } }
+            break;
+          case eltype_is:
+            # cf. wr_by_ixs_sub
+            { # obj überprüfen:
+              if (!integerp(obj)) { fehler_wr_integer(stream,obj); }
+              # obj ist jetzt ein Integer
+              # obj in den Bitbuffer übertragen:
+              { var uintB* bitbufferptr = &bitbuffer[0];
+                var uintL count = bytesize;
+                var uintL sign = (sintL)R_sign(obj);
+                if (fixnump(obj))
+                  # obj ist ein Fixnum
+                  { var uintL wert = fixnum_to_L(obj); # >=0 oder <0, je nach sign
+                    # 0 <= wert < 2^(bitsize-1) bzw. -2^(bitsize-1) <= wert < 0 überprüfen:
+                    wert = wert^sign;
+                    if (!((bitsize>oint_data_len) || (wert < bit(bitsize-1))))
+                      { fehler_bad_integer(stream,obj); }
+                    # wert^sign im Bitbuffer ablegen:
+                    until (wert == 0)
+                      { *bitbufferptr++ = (uint8)(wert^sign); wert = wert>>8; count--; }
+                    dotimesL(count,count, { *bitbufferptr++ = (uint8)sign; } );
+                  }
+                  else
+                  # obj ist ein Bignum
+                  { var uintL len = (uintL)Bignum_length(obj);
+                    # -2^(bitsize-1) <= obj < 2^(bitsize-1) überprüfen:
+                    if (!((floor(bitsize,intDsize) >= len)
+                          || ((bitsize > intDsize*(len-1))
+                              && ((TheBignum(obj)->data[0] ^ (uintD)sign) < bit((bitsize%intDsize)-1))
+                       ) )   )
+                      { fehler_bad_integer(stream,obj); }
+                    #if BIG_ENDIAN_P
+                    {var uintB* ptr = (uintB*)&TheBignum(obj)->data[len];
+                     # Digit-Länge in Byte-Länge umrechnen:
+                     len = (intDsize/8)*len;
+                     #define CHECK_NEXT_BYTE(i)  \
+                       if (!( ((uintB*)(&TheBignum(obj)->data[0]))[i] == (uintB)sign)) goto s_len_ok; \
+                       len--;
+                     DOCONSTTIMES(intDsize/8,CHECK_NEXT_BYTE); # CHECK_NEXT_BYTE(0..intDsize/8-1)
+                     #undef CHECK_NEXT_BYTE
+                     s_len_ok:
+                     # obj im Bitbuffer ablegen:
+                     count = count - len;
+                     dotimespL(len,len, { *bitbufferptr++ = *--ptr; } );
+                    }
+                    #else
+                    {var uintD* ptr = &TheBignum(obj)->data[len];
+                     len--;
+                     count -= (intDsize/8)*len;
+                     dotimesL(len,len,
+                       { var uintD digit = *--ptr;
+                         doconsttimes(intDsize/8,
+                           { *bitbufferptr++ = (uintB)digit; digit = digit >> 8; }
+                           );
+                       });
+                     {var sintD digit = *--ptr;
+                      doconsttimes(intDsize/8,
+                        { if (digit == (sintD)sign) goto s_ok;
+                          *bitbufferptr++ = (uintB)digit; digit = digit >> 8;
+                          count--;
+                        });
+                      s_ok: ;
+                    }}
+                    #endif
+                    dotimesL(count,count, { *bitbufferptr++ = (uintB)sign; } );
+                  }
+            } }
+            break;
+          default: NOTREACHED
+        }
+      # The data is now in little-endian order.
+      if (endianness)
+        # Byte-Swap the data.
+        { var uintL count = floor(bytesize,2);
+          if (count > 0)
+            { var uintB* ptr1 = &bitbuffer[0];
+              var uintB* ptr2 = &bitbuffer[bytesize-1];
+              dotimespL(count,count,
+                { var uintB x1 = *ptr1;
+                  var uintB x2 = *ptr2;
+                  *ptr1 = x2; *ptr2 = x1;
+                  ptr1++; ptr2--;
+                });
+        }   }
+      # Write the data.
+      { var const uintB* ptr = write_byte_array(stream,&bitbuffer[0],bytesize);
+        if (!(ptr == NULL))
+          { ASSERT(ptr == &bitbuffer[bytesize]); }
+          else
+          { var uintL count;
+            ptr = &bitbuffer[0];
+            dotimespL(count,bytesize,
+              { write_byte(STACK_2,posfixnum(*ptr++)); }
+              );
+      }   }
+      value1 = STACK_3; mv_count=1; # obj als Wert
+      skipSTACK(4);
+  }}}}
 
 # UP: Überprüft, ob ein Argument ein offener File-Stream ist.
 # check_open_file_stream(obj);
