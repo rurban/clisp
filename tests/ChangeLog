@@ -1,3 +1,8 @@
+2004-05-11  Sam Steingold  <sds@gnu.org>
+
+	* number2.tst (test-function): be careful with transcendental
+	functions: do not call LOG on 0 &c.
+
 2004-04-30  Bruno Haible  <bruno@clisp.org>
 
 	* lists153.tst: Skip memory intensive test on 32-bit SPVW_PURE_BLOCKS
