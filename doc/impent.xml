@@ -94,8 +94,9 @@
 <!ENTITY unix-k "<constant>:UNIX</constant>">
 
 <!-- *** characters *** -->
-<!ENTITY nl-c "<keysym>#\Newline</keysym>">
-<!ENTITY ret-c "<keysym>#\Return</keysym>">
+<!ENTITY nl-s "<keysym>#\Newline</keysym>">
+<!ENTITY cr-s "<keysym>#\Return</keysym>">
+<!ENTITY lf-s "<keysym>#\Linefeed</keysym>">
 <!ENTITY cr-c "<keycode>CR</keycode>">
 <!ENTITY lf-c "<keycode>LF</keycode>">
 
