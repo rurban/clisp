@@ -361,7 +361,7 @@ local uint32 hashcode_bvector (object obj) {
   #undef bitpack
 }
 /* EQUALP-hashcode of a pathname-component. */
-#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+#ifdef PATHNAME_WIN32
 local uint32 hashcode4 (object obj);
 #define hashcode_pathcomp(obj)  hashcode4(obj)
 #else

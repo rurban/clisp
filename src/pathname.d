@@ -258,7 +258,7 @@ local char* realpath (const char* path, char* resolved_path) {
  > pathstring: result of shorter_directory(...)
  > STACK_0: pathname */
 local inline void make_directory (char* pathstring) {
- #if defined(UNIX) || defined(EMUNIX)
+ #ifdef UNIX
   begin_system_call();
   if (mkdir(pathstring,0777)) { /* create sub-directory */
     end_system_call(); OS_file_error(STACK_0);
@@ -279,7 +279,7 @@ local inline void make_directory (char* pathstring) {
  > pathstring: result of shorter_directory(...)
  > STACK_0: pathname */
 local inline void delete_directory (char* pathstring) {
- #if defined(UNIX) || defined(EMUNIX)
+ #ifdef UNIX
   begin_system_call();
   if (rmdir(pathstring)) { /* delete sub-directory */
     end_system_call(); OS_file_error(STACK_0);
@@ -295,23 +295,16 @@ local inline void delete_directory (char* pathstring) {
  #endif
 }
 
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#ifdef WIN32_NATIVE
 /* Changes the operating system's current directory.
  change_directory(pathstring);
  > pathstring: directory, ASCIZ-String
  > STACK_0: pathname */
 local inline void change_current_directory (char* pathstring) {
   begin_system_call();
- #ifdef MSDOS
-  if (!( chdir(pathstring) ==0)) {
-    end_system_call(); OS_file_error(STACK_0);
-  }
- #endif
- #ifdef WIN32_NATIVE
   if (!SetCurrentDirectory(pathstring)) {
     end_system_call(); OS_file_error(STACK_0);
   }
- #endif
   end_system_call();
 }
 #endif
@@ -322,7 +315,7 @@ local inline void change_current_directory (char* pathstring) {
  > pathstring: file name, ASCIZ-String
  > STACK_0: pathname */
 local inline void delete_existing_file (char* pathstring) {
- #if defined(UNIX) || defined(EMUNIX)
+ #ifdef UNIX
   begin_system_call();
   if (!( unlink(pathstring) ==0)) {
     end_system_call(); OS_file_error(STACK_0);
@@ -350,7 +343,7 @@ local inline void delete_existing_file (char* pathstring) {
  < result: whether the file existed */
 local inline bool delete_file_if_exists (char* pathstring) {
   var bool exists = true;
- #if defined(UNIX) || defined(EMUNIX)
+ #ifdef UNIX
   begin_system_call();
   if (!( unlink(pathstring) ==0)) {
     if (!(errno==ENOENT)) { /* not found -> OK */
@@ -393,7 +386,7 @@ local inline void delete_file_before_rename (char* pathstring) {
  > STACK_0: pathname */
 local inline void rename_existing_file (char* old_pathstring,
                                         char* new_pathstring) {
- #if defined(UNIX) || defined(EMUNIX)
+ #ifdef UNIX
   begin_system_call();
   if ( rename(old_pathstring,new_pathstring) <0) { /* rename file */
     end_system_call(); OS_file_error(STACK_0); /* report error */
@@ -418,17 +411,6 @@ local inline void rename_existing_file (char* old_pathstring,
  > STACK_1: new pathname */
 local inline void rename_file_to_nonexisting (char* old_pathstring,
                                               char* new_pathstring) {
- #if defined(UNIX) || defined(EMUNIX)
-  begin_system_call();
-  if ( rename(old_pathstring,new_pathstring) <0) { /* rename file */
-    if (errno==ENOENT) {
-      end_system_call(); OS_file_error(STACK_3);
-    } else {
-      end_system_call(); OS_file_error(STACK_1);
-    }
-  }
-  end_system_call();
- #endif
  #ifdef WIN32_NATIVE
   begin_system_call();
   if (! MoveFile(old_pathstring,new_pathstring) ) {
@@ -477,36 +459,6 @@ local inline void rename_file_to_nonexisting (char* old_pathstring,
  or similar.
  If NAME starts with a dot, (parse-namestring (namestring pathname)) will not
  be the same as pathname. */
-#endif
-
-#ifdef PATHNAME_OS2
-/* Components:
- HOST          always NIL
- DEVICE        NIL or :WILD or "A"|...|"Z"
- DIRECTORY     (Startpoint . Subdirs) whereas
-                Startpoint = :RELATIVE | :ABSOLUTE
-                Subdirs = () | (subdir . Subdirs)
-                subdir = :WILD-INFERIORS (means "**" or "...", all Subdirectories) or
-                subdir = Simple-String, poss. with Wildcard-Characters ? and *
- NAME          NIL or
-               Simple-String, poss. with Wildcard-Character ? and *
-               (also :WILD on input)
- TYPE          NIL or
-               Simple-String, poss. with Wildcard-Character ? and *
-               (also :WILD on input)
- VERSION       always NIL (also :WILD or :NEWEST on input)
- An OS/2-Filename is split into Name and Type as follows:
-   if there is no '.' in filename: Name = everything, Type = NIL,
-   if there is a '.' in filename: Name = everything in front of, Type = everything behind the last '.' .
- If a Pathname must be completely specified (no Wildcards),
- then :WILD, :WILD-INFERIORS are not allowed, no Wildcard-Characters in the
- Strings, at NAME poss. also not NIL.
- External notation:       A:\sub1.typ\sub2.typ\name.typ
- with Defaults:             \sub1.typ\sub2.typ\name.typ
- or                                            name.typ
- or                       *:\sub1.typ\**\sub3.typ\x*.lisp
- or similar.
- Instead of '\'  - traditionally on DOS - also '/' is allowed. */
 #endif
 
 #ifdef PATHNAME_WIN32
@@ -837,9 +789,9 @@ local object test_optional_host (object host) {
  equal_pathchar(ch1,ch2)
  > chart ch1,ch2: Character-Codes
  < result: true if equal, else false */
-  #if !(defined(PATHNAME_OS2) || defined(PATHNAME_WIN32))
+  #if !defined(PATHNAME_WIN32)
     #define equal_pathchar(ch1,ch2)  chareq(ch1,ch2)
-  #else /* defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) */
+  #else /* defined(PATHNAME_WIN32) */
     /* Case-insensitive, but normally without conversion */
     #define equal_pathchar(ch1,ch2)  chareq(up_case(ch1),up_case(ch2))
   #endif
@@ -865,9 +817,6 @@ local bool legal_namechar (chart ch) {
  #else
   #ifdef PATHNAME_UNIX
   return ((c>=' ') && (c<='~') && !(c=='/'));
-  #endif
-  #ifdef PATHNAME_OS2
-  return (graphic_char_p(ch) && !(c=='\\') && !(c=='/') && !(c==':'));
   #endif
   #ifdef PATHNAME_WIN32
   return ((c >= 1) && (c <= 127)
@@ -963,16 +912,16 @@ nonreturning_function(local, fehler_file_stream_unnamed, (object stream)) {
   fehler(file_error,GETTEXT("~: filename for ~ is unknown"));
 }
 
-#if defined(UNIX) || defined(MSDOS) || defined(WIN32_NATIVE)
+#if defined(UNIX) || defined(WIN32_NATIVE)
 
-#if defined(UNIX) || defined(MSDOS)
+#ifdef UNIX
   #define slash  '/'
 #endif
 #ifdef WIN32_NATIVE
   #define slash  '\\'
 #endif
 /* physical slash */
-#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+#ifdef PATHNAME_WIN32
  #define pslashp(c)  (chareq(c,ascii('\\')) || chareq(c,ascii('/')))
  #define cpslashp(c) ((c) == '\\' || (c) == '/')
 #else /* PATHNAME_UNIX */
@@ -1563,7 +1512,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
     }
    #endif
     if (thing_symbol && !parse_logical) {
-     #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+     #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
       /* operating system with preference for small letters */
       Z_SUB(z,string); /* yes -> convert with STRING-DOWNCASE */
       pushSTACK(string);
@@ -1589,7 +1538,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
   {
     pushSTACK(allocate_pathname());
     /* stack layout: ..., data-vector, pathname.
-     separator between subdirs is on MSDOS both '\' and '/': */
+     separator between subdirs is on WIN32 both '\' and '/': */
    #if HAS_HOST
     { /* parse Host-Specification: */
       var object host;
@@ -1648,7 +1597,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
     }
    #endif /* HAS_HOST */
    #if HAS_DEVICE
-    #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+    #ifdef PATHNAME_WIN32
     { /* parse one-letter Device-Specification: */
       var object device = NIL; /* Device := NIL */
       /* parse Drive-Specification:
@@ -1691,7 +1640,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
     drivespec_ok: /* enter Device */
       ThePathname(STACK_0)->pathname_device = device;
     }
-    #endif /* PATHNAME_OS2 || PATHNAME_WIN32 */
+    #endif /* PATHNAME_WIN32 */
    #endif /* HAS_DEVICE */
     /* enter Directory-Start: */
     {
@@ -1823,7 +1772,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
           Z_SHIFT(z,1);
         } else
      #endif /* PATHNAME_UNIX & 0 */
-     #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+     #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
       #if defined(UNIX_CYGWIN32)
         if (z.count > 1 && !nullpSv(device_prefix)
             && chareq(schar(STACK_2,z.index+1),ascii(':'))) {
@@ -2285,7 +2234,7 @@ local object coerce_pathname (object obj) {
 
 local uintC subdir_namestring_parts (object path,bool logp) {
   var object subdir = Car(path);
- #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
   SUBDIR_PUSHSTACK(subdir); return 1;
  #endif
 }
@@ -2328,7 +2277,7 @@ local uintC host_namestring_parts (object pathname) {
 local uintC directory_namestring_parts (object pathname) {
   var uintC stringcount = 0; /* number of strings so far = 0 */
   var bool logp = logpathnamep(pathname);
- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #if defined(PATHNAME_WIN32)
   { /* Device: */
     var object device = xpathname_device(logp,pathname);
     if (!(nullp(device))) { /* NIL -> no string */
@@ -2359,7 +2308,7 @@ local uintC directory_namestring_parts (object pathname) {
     if (!mconsp(directory)) return stringcount; /* just in case */
     /* is the first subdir = :ABSOLUTE or = :RELATIVE ? */
     if (eq(Car(directory),S(Kabsolute))) {
-     #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+     #ifdef PATHNAME_WIN32
       pushSTACK(O(backslash_string)); stringcount++; /* "\\" */
      #endif
      #ifdef PATHNAME_UNIX
@@ -2376,7 +2325,7 @@ local uintC directory_namestring_parts (object pathname) {
       } else
      #endif
       {
-       #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+       #ifdef PATHNAME_WIN32
         pushSTACK(O(backslash_string)); stringcount++; /* "\\" */
        #endif
        #ifdef PATHNAME_UNIX
@@ -2571,7 +2520,7 @@ local void test_optional_version_ (void) {
 }
 #endif
 
-#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+#ifdef PATHNAME_WIN32
 
 /* the operating system manages a default-drive.
  the operating system manages a default-directory on each drive. This
@@ -2586,7 +2535,7 @@ local void test_optional_version_ (void) {
  initialization the current device (in terms of DOS), on
  change of DEFAULT_DRIVE via CD. */
 
-#endif /* PATHNAME_OS2 || PATHNAME_WIN32 */
+#endif /* PATHNAME_WIN32 */
 
 #ifdef PATHNAME_UNIX
 
@@ -2605,14 +2554,14 @@ local void test_optional_version_ (void) {
 #endif
 
 /* UP: Re-calculation of *DEFAULT-PATHNAME-DEFAULTS* */
-#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+#ifdef PATHNAME_WIN32
 /* from DEFAULT_DRIVE */
 #endif
 /* recalc_defaults_pathname();
  < result: value of *DEFAULT-PATHNAME-DEFAULTS*, a pathname
  can trigger GC */
 local object recalc_defaults_pathname (void) {
- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #ifdef PATHNAME_WIN32
   /* execute (MAKE-PATHNAME :DEVICE default-drive) : */
   pushSTACK(S(Kdevice)); pushSTACK(O(default_drive));
   funcall(L(make_pathname),2);
@@ -3228,7 +3177,7 @@ local bool directory_list_valid_p (bool logical, object dirlist) {
    #endif
     {
      #ifdef PATHNAME_NOEXT
-      #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+      #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
       if (!(eq(subdir,S(Kwild_inferiors)) || eq(subdir,S(Kwild))
             || legal_name(subdir) || eq(subdir,S(Kup))))
         return false;
@@ -3319,7 +3268,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
         }
       }
      #endif
-     #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+     #ifdef PATHNAME_WIN32
       else if (eq(device,S(Kwild))) /* = :WILD ? */
         goto device_ok;
       else if (simple_string_p(device)) { /* Simple-String ? */
@@ -3695,7 +3644,7 @@ local bool has_host_wildcards (object pathname);
  > pathname: pathname
  < result: true if (PATHNAME-DEVICE pathname) contains wildcards. */
 local bool has_device_wildcards (object pathname) {
- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #ifdef PATHNAME_WIN32
  #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname))
     return false;
@@ -3942,11 +3891,11 @@ local bool device_match (object pattern, object sample, bool logical) {
   }
   #endif
   if (nullp(pattern)) return true;
-  #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+  #ifdef PATHNAME_WIN32
   if (eq(pattern,S(Kwild))) return true;
   if (eq(sample,S(Kwild))) return false;
   #endif
-  #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+  #ifdef PATHNAME_WIN32
   return equalp(pattern,sample);
   #else
   return equal(pattern,sample);
@@ -4273,7 +4222,7 @@ local void device_diff (object pattern, object sample, bool logical,
   }
  #endif
  #if HAS_DEVICE
-  #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+  #ifdef PATHNAME_WIN32
   if (nullp(pattern) || eq(pattern,S(Kwild))) {
     var object string = wild2string(sample);
     push_solution_with(string);
@@ -4281,7 +4230,7 @@ local void device_diff (object pattern, object sample, bool logical,
   }
   if (eq(sample,S(Kwild))) return;
   #endif
-  #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+  #ifdef PATHNAME_WIN32
   if (nullp(pattern)) {
     var object string = wild2string(sample);
     push_solution_with(string);
@@ -4491,7 +4440,7 @@ local object subst_logical_case (object obj) {
 local object customary_case (object string) {
   if (!simple_string_p(string))
     return string;
- #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
   /* operating system with preference for lowercase letters */
   return string_downcase(string);
  #endif
@@ -4580,7 +4529,7 @@ local object translate_device (gcv_object_t* subst, object pattern,
     return pattern;
   }
   #endif
-  #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+  #ifdef PATHNAME_WIN32
   if (nullp(pattern) && mconsp(*subst))
   #else
   if ((nullp(pattern) || eq(pattern,S(Kwild))) && mconsp(*subst))
@@ -4949,7 +4898,7 @@ nonreturning_function(local, fehler_file_exists, (void)) {
  with further restrictions. */
 #endif
 
-#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+#ifdef PATHNAME_WIN32
 
 /* An "absolute pathname" is a pathname, whose device is a checked
  String and directory does not contain :RELATIVE, :CURRENT, :PARENT. */
@@ -4967,61 +4916,10 @@ local object OSnamestring (object dir_namestring) {
   return string_concat(1+stringcount); /* concatenate */
 }
 
-#ifdef EMUNIX
-
-/* query working directory on a given drive:
- getwdof(&buf,drive)
- > uintB* &buf: addresse of a path-buffer
- > uintB drive: drive (0=A, 1=B, ...)
- < result: <0 if error */
-#define getwdof(buf,drive)  _getcwd(buf,drive)
-
-/* returns the current directory of a drive.
- getwd_of(path,drive)
- > uintB drive: drive-(capital-)letter
- > uintB* path: room for the current directory
- < path: path of the current directory, with '/' as separator and as beginning
- < result: <0 if error */
-#define getwd_of(path,drive)  _getcwd1(path,drive)
-
-#endif /* EMUNIX */
-
 /* UP: tests, if a drive exists.
  > uintB drive: drive-(capital-)letter
  < bool result: if this drive exists and is responsive */
 local bool good_drive (uintB drive);
-#ifdef EMUNIX
-local bool good_drive (uintB drive) {
-  /* Method (see HELPPC/misc.txt):
-   1. save current drive  (INT 0x21,0x19)
-   2. set current drive  (INT 0x21,0xE)
-   3. get current drive  (INT 0x21,0x19)
-   4. if current drive == drive requested
-         then drive exists
-         else drive does not exist
-   5. reset original drive  (INT 0x21,0xE) */
-  var bool result;
-  begin_system_call();
-  {
-    var uintB orig_drive = _getdrive();
-    _chdrive(drive);
-    result = (_getdrive() == drive);
-    _chdrive(orig_drive);
-  }
-  end_system_call();
-  return result;
-  /* Alternative:
-   {
-     var uintB drv[3];
-     var uintB fsys[16];
-     drv[0] = drive; drv[1] = ':'; drv[2] = '\0';
-     begin_system_call();
-     var int result = _filesys(drv,&fsys,sizeof(fsys));
-     end_system_call();
-     return (result==0);
-   } */
-}
-#endif
 #ifdef WIN32_NATIVE
 local bool good_drive (uintB drive) {
   var char rootpath[4];
@@ -5056,22 +4954,12 @@ local bool good_drive_notsogood (uintB drive) {
   return ((drives_bitmask & ((DWORD)1 << (drive-'A'))) != 0);
 }
 #endif
-#endif /* EMUNIX */
+#endif /* WIN32_NATIVE */
 
 /* UP: returns the current drive.
  < char drive: drive-(capital-)letter */
-local char default_drive (void);
-#ifdef EMUNIX
 local char default_drive (void) {
-  var uintB result;
-  begin_system_call();
-  result = _getdrive();
-  end_system_call();
-  return result;
-}
-#endif
 #ifdef WIN32_NATIVE
-local char default_drive (void) {
   var DWORD path_buflen = _MAX_PATH;
   var char* path_buffer = (char*)alloca(path_buflen);
   var DWORD result;
@@ -5087,8 +4975,8 @@ local char default_drive (void) {
   ASSERT(path_buffer[1]==':');
   ASSERT(path_buffer[2]=='\\');
   return as_cint(up_case(as_chart(path_buffer[0])));
-}
 #endif
+}
 
 /* UP: returns the current directory on the given drive.
  > uintB drive: drive-(capital-)letter
@@ -5282,49 +5170,6 @@ bool FullName (LPCSTR shortname, LPSTR fullname) {
      if Name/=NIL: Namestring (for DOS)
      if tolerantp, maybe: nullobj
  can trigger GC */
-#ifdef MSDOS
-local object assure_dir_exists (bool links_resolved, bool tolerantp) {
-  var object dir_namestring = directory_namestring(STACK_0);
-  if (!links_resolved) { /* test for existence: */
-    /* 1. subdir-list empty -> OK
-        (must be intercepted, because stat() on rootdir returns error.)
-       2. OS/2: subdir-list = ("PIPE") -> OK
-        (this special directory "\\PIPE\\" is none, actually.)
-       3. Elso try stat() . */
-    if (!(nullp(Cdr(ThePathname(STACK_0)->pathname_directory))
-         #ifdef PATHNAME_OS2
-          || equal(Cdr(ThePathname(STACK_0)->pathname_directory),O(pipe_subdirs))
-         #endif
-          ) ) {
-      var struct stat statbuf;
-      with_sstring(dir_namestring,O(pathname_encoding),path,len, {
-        ASSERT((len > 0) && (path[len-1] == '\\'));
-        path[len-1] = '\0'; /* replace '\' at the end with nullbyte */
-        begin_system_call();
-        if (stat(path,&statbuf) < 0) {
-          if (!(tolerantp && (errno==ENOENT))) {
-            end_system_call(); OS_file_error(STACK_0);
-          }
-          end_system_call();
-          FREE_DYNAMIC_ARRAY(path);
-          return nullobj;
-        }
-        end_system_call();
-      });
-      if (!S_ISDIR(statbuf.st_mode)) { /* found file no subdirectory ? */
-        if (tolerantp) return nullobj;
-        fehler_dir_not_exists(dir_namestring);
-      }
-    }
-  }
-  if (namenullp(STACK_0))
-    return dir_namestring;
-  else
-    return OSnamestring(dir_namestring);
-}
-#endif
-
-
 #ifdef WIN32_NATIVE
 local object assure_dir_exists (bool links_resolved, bool tolerantp) {
   var bool nnullp = namenullp(STACK_0);
@@ -5627,7 +5472,7 @@ global object assume_dir_exists (void) {
 
 #endif
 
-#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+#ifdef PATHNAME_WIN32
 #if 0 /* unused */
 /* UP: Turns a directory-namestring into one, that is suitably for DOS.
  OSdirnamestring(namestring)
@@ -5743,29 +5588,19 @@ nonreturning_function(local, fehler_notdir, (object pathname)) {
  > led the way: assure_dir_exists()
  > STACK_0: pathname, the same as after execution of assure_dir_exists(), Name/=NIL
  > namestring: its namestring for the operating system */
-#if defined(MSDOS) || defined(WIN32_NATIVE)
-  #ifdef MSDOS
-    local inline int access0 (CONST char* path) {
-      begin_system_call();
-      var int erg = access(path,0);
-      end_system_call();
-      return erg;
-    }
-  #endif
-  #ifdef WIN32_NATIVE
-    local inline int access0 (const char* path) {
-      begin_system_call();
-      var DWORD fileattr = GetFileAttributes(path);
-      if (fileattr == 0xFFFFFFFF) {
-        if (WIN32_ERROR_NOT_FOUND) {
-          end_system_call(); return -1;
-        }
-        end_system_call(); OS_file_error(STACK_0);
+#ifdef WIN32_NATIVE
+  local inline int access0 (const char* path) {
+    begin_system_call();
+    var DWORD fileattr = GetFileAttributes(path);
+    if (fileattr == 0xFFFFFFFF) {
+      if (WIN32_ERROR_NOT_FOUND) {
+        end_system_call(); return -1;
       }
-      end_system_call();
-      return 0;
+      end_system_call(); OS_file_error(STACK_0);
     }
-  #endif
+    end_system_call();
+    return 0;
+  }
   local bool file_exists (object namestring) {
     var bool exists;
     with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
@@ -5874,28 +5709,6 @@ local bool directory_exists (object pathname) {
   var object dir_namestring = directory_namestring(pathname);
   /* existence test, see assure_dir_exists(): */
   var bool exists = true;
- #ifdef MSDOS
-  if (!(nullp(Cdr(ThePathname(STACK_0)->pathname_directory))
-       #ifdef PATHNAME_OS2
-        || equal(Cdr(ThePathname(STACK_0)->pathname_directory),O(pipe_subdirs))
-       #endif
-        ) ) {
-    with_sstring(dir_namestring,O(pathname_encoding),dir_namestring_asciz,len, {
-      ASSERT((len > 0) && (dir_namestring_asciz[len-1] == '\\'));
-      dir_namestring_asciz[len-1] = '\0'; /* replace '\' at the end with nullbyte */
-      var struct stat statbuf;
-      begin_system_call();
-      if (stat(dir_namestring_asciz,&statbuf) < 0) {
-        if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
-        exists = false;
-      } else {
-        if (!S_ISDIR(statbuf.st_mode)) /* found file is no subdirectory ? */
-          exists = false;
-      }
-      end_system_call();
-    });
-  }
- #endif
  #ifdef WIN32_NATIVE
   with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
     if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory))) {
@@ -5965,16 +5778,6 @@ global object pathname_to_OSdir (object pathname, bool use_default) {
     string_to_asciz(dir_namestring,O(pathname_encoding));
   var char* asciz = TheAsciz(dir_namestring_asciz);
   var uintL len = asciz_length(asciz);
-  #ifdef MSDOS
-    if (!(nullp(Cdr(ThePathname(STACK_0)->pathname_directory))
-          #ifdef PATHNAME_OS2
-          || equal(Cdr(ThePathname(STACK_0)->pathname_directory),O(pipe_subdirs))
-          #endif
-       ) ) {
-      ASSERT((len > 0) && (asciz[len-1] == '\\'));
-      asciz[len-1] = '\0';
-    }
-  #endif
   #if defined(WIN32_NATIVE) || defined(UNIX)
     if (!nullp(Cdr(ThePathname(STACK_0)->pathname_directory))) {
       ASSERT((len > 0) && cpslashp(asciz[len-1]));
@@ -5995,7 +5798,7 @@ global object OSdir_to_pathname (const char* path) {
 
 /* UP: determines, if a file is opened.
  openp(pathname) */
-#if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+#ifdef PATHNAME_WIN32
 /* > pathname: absolute pathname, without wildcards. */
 #endif
 #ifdef PATHNAME_UNIX
@@ -6165,16 +5968,6 @@ local inline void create_new_file (char* pathstring) {
   if (!CloseHandle(handle)) { end_system_call(); OS_file_error(STACK_0); }
   end_system_call();
  #endif
- #ifdef EMUNIX
-  begin_system_call();
-  var int result = creat(pathstring,my_open_mask);
-  if (result<0) { end_system_call(); OS_file_error(STACK_0); } /* report error */
-  setmode(ergebnis,O_BINARY);
-  /* file was created, result is the Handle.
-   close file again: */
-  if (!(CLOSE(result)==0)) { end_system_call(); OS_file_error(STACK_0); } /* report error */
-  end_system_call();
- #endif
  #ifdef UNIX
   begin_system_call();
   var int result = OPEN(pathstring, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, my_open_mask);
@@ -6196,42 +5989,6 @@ local inline void create_new_file (char* pathstring) {
  < result: whether the file could be opened (necessarily true if create_if_not_exists) */
 local inline bool open_input_file (char* pathstring, bool create_if_not_exists,
                                    Handle* handle_) {
- #ifdef EMUNIX
-  var sintW result;
-  /* try to open file: */
-  #ifdef FILE_EXISTS_TRIVIAL
-  if (file_exists(_EMA_)) {
-    begin_system_call();
-    result = open(pathstring,O_RDONLY);
-  } else { /* file does not exist */
-    if (!create_if_not_exists) return false;
-    /* create file with creat: */
-    begin_system_call();
-    result = creat(pathstring,my_open_mask);
-  }
-  if (result<0) {
-    end_system_call(); OS_file_error(STACK_0);
-  }
-  #else
-  /* first find out with open, if the file exists: */
-  begin_system_call();
-  result = open(pathstring,O_RDONLY);
-  if (result<0) {
-    if (errno == ENOENT) { /* not found? */
-      /* file does not exist */
-      if (!create_if_not_exists) { end_system_call(); return false; }
-      /* create file with creat: */
-      result = creat(pathstring,my_open_mask);
-      if (result<0) { end_system_call(); OS_file_error(STACK_0); }
-    } else {
-      end_system_call(); OS_file_error(STACK_0); /* report error */
-    }
-  }
-  #endif
-  setmode(result,O_BINARY);
-  end_system_call();
-  *handle_ = result; return true;
- #endif
  #ifdef UNIX
   var int result;
   #ifdef FILE_EXISTS_TRIVIAL
@@ -6341,16 +6098,6 @@ local inline void create_backup_file (char* pathstring,
   if (openp(filename))
     fehler_rename_open(filename); /* do not rename open files! */
   var object new_namestring;
- #ifdef EMUNIX
-  /* extend truename with ".bak" :
-   filename := (merge-pathnames ".bak" filename) : */
-  filename = copy_pathname(filename); /* copy */
-  ThePathname(filename)->pathname_type = O(backuptype_string); /* with Extension "BAK" */
-  check_delete_open(filename);
-  pushSTACK(filename);
-  /* directory already exists. */
-  new_namestring = assume_dir_exists(); /* filename for the operating system */
- #endif
  #if defined(UNIX) || defined(WIN32_NATIVE)
   /* extend truename with "%" resp. ".bak" resp. "~" :
    filename := (parse-namestring (concatenate 'string (namestring filename) "%")) : */
@@ -6541,81 +6288,6 @@ local object open_file (object filename, direction_t direction,
       /* default for if_exists is :SUPERSEDE (= :NEW-VERSION) : */
       if (if_exists==IF_EXISTS_UNBOUND)
         if_exists = IF_EXISTS_SUPERSEDE;
-      #ifdef EMUNIX
-      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-        /* when if_exists=IF_EXISTS_SUPERSEDE and
-         if_not_exists=IF_DOES_NOT_EXIST_CREATE we can go for
-         CREATE right away, otherwise must first try OPEN: */
-        if (!((if_exists==IF_EXISTS_SUPERSEDE)
-              && (if_not_exists==IF_DOES_NOT_EXIST_CREATE))) {
-          begin_system_call(); /* try to open file */
-          var sintW ergebnis = open(namestring_asciz,O_RDWR);
-          if (ergebnis<0) {
-            if (errno == ENOENT) { /* not found? */
-              /* file does not exist */
-              end_system_call();
-              /* :IF-DOES-NOT-EXIST decides: */
-              if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND
-                  || if_not_exists==IF_DOES_NOT_EXIST_ERROR)
-                goto fehler_notfound;
-              if (if_not_exists==IF_DOES_NOT_EXIST_NIL)
-                goto ergebnis_NIL;
-              /* :CREATE */
-            } else { /* report error */
-              end_system_call(); OS_file_error(STACK_0);
-            }
-          } else {
-            /* file exists, return the handle
-             :IF-EXISTS decides: */
-            switch (if_exists) {
-              case IF_EXISTS_ERROR: /* close and error */
-                if (CLOSE(ergebnis) < 0) {
-                  end_system_call(); OS_file_error(STACK_0);
-                }
-                end_system_call();
-                goto fehler_exists;
-              case IF_EXISTS_NIL: /* close and NIL */
-                if (CLOSE(ergebnis) < 0) {
-                  end_system_call(); OS_file_error(STACK_0);
-                }
-                end_system_call();
-                goto ergebnis_NIL;
-              case IF_EXISTS_APPEND:
-                append_flag = true; /* position at the end */
-              case IF_EXISTS_OVERWRITE: /* use the existing file */
-                setmode(ergebnis,O_BINARY);
-                end_system_call();
-                handle = allocate_handle(ergebnis);
-                goto handle_ok;
-              default: ;
-                /* :RENAME :RENAME-AND-DELETE -> rename file; open again
-                 :NEW-VERSION, :SUPERSEDE -> truncate file to 0 length */
-            }
-            /* in both cases - close the file */
-            if (CLOSE(ergebnis) < 0) {
-              end_system_call(); OS_file_error(STACK_0);
-            }
-            end_system_call();
-            if ((if_exists==IF_EXISTS_RENAME)
-                || (if_exists==IF_EXISTS_RENAME_AND_DELETE)) {
-              /* :RENAME or :RENAME-AND-DELETE -> rename: */
-              create_backup_file(namestring_asciz,
-                                 if_exists==IF_EXISTS_RENAME_AND_DELETE);
-            }
-          }
-        }
-        /* create file */
-        begin_system_call();
-        var sintW ergebnis = creat(namestring_asciz,my_open_mask);
-        if (ergebnis<0) {
-          end_system_call(); OS_file_error(STACK_0);
-        }
-        setmode(ergebnis,O_BINARY);
-        end_system_call();
-        /* new file created, return the handle */
-        handle = allocate_handle(ergebnis);
-      });
-      #endif
       #if defined(UNIX) || defined(WIN32_NATIVE)
       with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
         if (file_exists(namestring)) {
@@ -6743,64 +6415,35 @@ typedef struct {
 } dir_search_param_t;
 local object directory_search (object pathname, dir_search_param_t *dsp);
 
-#if defined(MSDOS) || defined(WIN32_NATIVE)
-  /* Common set of macros for directory search. */
-  #ifdef MSDOS
-    #define READDIR_wildnametype_suffix  O(wild_wild_string) /* "*.*" */
-    #define READDIR_var_declarations  \
-      var struct ffblk DTA_buffer; \
-      set_break_sem_4(); /* impede breaks because of DTA-Buffer */
-    #define READDIR_end_declarations  \
-      clr_break_sem_4();
-    #define READDIR_findfirst(pathstring,error_statement,done_statement)  \
-      if (findfirst(pathstring,&DTA_buffer,FA_DIREC|FA_ARCH|FA_RDONLY) <0) \
-        { if (!((errno==ENOENT) || (errno==ENOMORE)))                      \
-            { error_statement }                                            \
-          else                                                             \
-            { done_statement }                                             \
-        }
-    #define READDIR_findnext(error_statement,done_statement)  \
-      if (findnext(&DTA_buffer) <0)                                        \
-        { if (!((errno==ENOENT) || (errno==ENOMORE)))                      \
-            { error_statement }                                            \
-          else                                                             \
-            { done_statement }                                             \
-        }
-    #define READDIR_entry_name()  (&DTA_buffer.ff_name[0])
-    #define READDIR_entry_ISDIR()  (DTA_buffer.ff_attrib & FA_DIREC)
-    #define READDIR_entry_timedate(timepointp)  \
-      convert_timedate((uintW)DTA_buffer.ff_ftime,(uintW)DTA_buffer.ff_fdate,timepointp);
-    #define READDIR_entry_size()  (*(uintL*)(&DTA_buffer.ff_fsize))
-  #endif
-  #ifdef WIN32_NATIVE
-    #define READDIR_wildnametype_suffix  O(wild_string) /* "*" */
-    #define READDIR_var_declarations  \
-      var WIN32_FIND_DATA filedata; \
-      var HANDLE search_handle;
-    #define READDIR_end_declarations
-    #define READDIR_findfirst(pathstring,error_statement,done_statement) \
-      if ((search_handle = FindFirstFile(pathstring,&filedata))          \
-          == INVALID_HANDLE_VALUE) {                                     \
-        if (!WIN32_ERROR_NOT_FOUND) { error_statement }                  \
-        else { done_statement }                                          \
-      }
-    #define READDIR_findnext(error_statement,done_statement)    \
-      if (!FindNextFile(search_handle,&filedata)) {             \
-        if (!(GetLastError()==ERROR_NO_MORE_FILES)              \
-              || !FindClose(search_handle))                     \
-            { error_statement }                                 \
-          else { done_statement }                               \
-      }
-    #define READDIR_entry_name()  (&filedata.cFileName[0])
-    #define READDIR_entry_ISDIR()  (filedata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-    #define READDIR_entry_timedate(timepointp)  \
-      { var FILETIME* pftimepoint = &filedata.ftLastWriteTime;               \
-        if (pftimepoint->dwLowDateTime==0 && pftimepoint->dwHighDateTime==0) \
-          pftimepoint = &filedata.ftCreationTime;                            \
-        convert_time(pftimepoint,timepointp);                                \
-      }
-    #define READDIR_entry_size()  filedata.nFileSizeLow
-  #endif
+#ifdef WIN32_NATIVE
+  /* Set of macros for directory search. */
+  #define READDIR_wildnametype_suffix  O(wild_string) /* "*" */
+  #define READDIR_var_declarations  \
+    var WIN32_FIND_DATA filedata; \
+    var HANDLE search_handle;
+  #define READDIR_end_declarations
+  #define READDIR_findfirst(pathstring,error_statement,done_statement) \
+    if ((search_handle = FindFirstFile(pathstring,&filedata))          \
+        == INVALID_HANDLE_VALUE) {                                     \
+      if (!WIN32_ERROR_NOT_FOUND) { error_statement }                  \
+      else { done_statement }                                          \
+    }
+  #define READDIR_findnext(error_statement,done_statement)    \
+    if (!FindNextFile(search_handle,&filedata)) {             \
+      if (!(GetLastError()==ERROR_NO_MORE_FILES)              \
+            || !FindClose(search_handle))                     \
+          { error_statement }                                 \
+        else { done_statement }                               \
+    }
+  #define READDIR_entry_name()  (&filedata.cFileName[0])
+  #define READDIR_entry_ISDIR()  (filedata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+  #define READDIR_entry_timedate(timepointp)  \
+    { var FILETIME* pftimepoint = &filedata.ftLastWriteTime;               \
+      if (pftimepoint->dwLowDateTime==0 && pftimepoint->dwHighDateTime==0) \
+        pftimepoint = &filedata.ftCreationTime;                            \
+      convert_time(pftimepoint,timepointp);                                \
+    }
+  #define READDIR_entry_size()  filedata.nFileSizeLow
 #endif
 
 #ifdef UNIX
@@ -6912,7 +6555,6 @@ local void with_stat_info (void) {
     }}
 #endif
 
-#if !defined(MSDOS)
 /* Search for a subdirectory with a given name.
  directory_search_1subdir(subdir,namestring);
  > STACK_0 = pathname
@@ -6963,7 +6605,6 @@ local void directory_search_1subdir (object subdir, object namestring) {
     }
   });
 }
-#endif
 #endif
 
 #if defined(UNIX) || defined(WIN32_NATIVE)
@@ -7245,7 +6886,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
     clr_break_sem_4();
   }
  #endif
- #if defined(MSDOS) || defined(WIN32_NATIVE)
+ #ifdef WIN32_NATIVE
   {
     SUBDIR_PUSHSTACK(STACK_0); /* Directory-Name */
     pushSTACK(READDIR_wildnametype_suffix); /* and concatenate */
@@ -7372,7 +7013,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
                      test Full-Flag and poss. get more information: */
 
                     if (dsp->full_p      /* :FULL wanted? */
-                         && rresolved != shell_shortcut_notexists) { /* treat nonexisting as :FULL NIL */
+                        && rresolved != shell_shortcut_notexists) { /* treat nonexisting as :FULL NIL */
                       var decoded_time_t timepoint;
                       var uintL entry_size = 0;
                       /* get file attributes into these vars */
@@ -7493,7 +7134,7 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
       var object nametype = STACK_2;
       if (nullp(nametype)) /* name=NIL and type=NIL -> do not search files */
         next_task = 0;
-     #if !(defined(MSDOS) || defined(WIN32_NATIVE))
+     #if !defined(WIN32_NATIVE)
       else if (!wild_p(nametype,false) && (dsp->if_none != DIR_IF_NONE_IGNORE))
         /* === !(wild_p(name) || ((!nullp(type)) && wild_p(type))) */
         next_task = 1; /* search file */
@@ -7506,11 +7147,9 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
         /* will be treated at the next run */
         recursively = true; goto passed_subdir;
       }
-     #ifndef MSDOS
       if (!wild_p(next_subdir,false))
         next_task = -1; /* search subdir */
       else
-     #endif
         next_task = -2; /* search subdirs with wildcards */
     }
     /* traverse pathname-list and construct new list: */
@@ -7552,7 +7191,7 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
                 STACK_(4+4) = new_cons;
               }
               goto next_pathname;
-           #if !(defined(MSDOS) || defined(WIN32_NATIVE))
+           #if !defined(WIN32_NATIVE)
             case 1: /* look in this pathname for a file */
               ThePathname(pathname)->pathname_name = /* insert name (/=NIL) */
                 ThePathname(STACK_(3+4+1))->pathname_name;
@@ -7574,7 +7213,6 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
               skipSTACK(2);
               goto next_pathname;
            #endif
-           #ifndef MSDOS
             case -1: /* search for a subdirectory in this pathname */
               {
                 var object namestring = assure_dir_exists(true,false); /* resolve links, directory-namestring */
@@ -7595,7 +7233,6 @@ local object directory_search (object pathname, dir_search_param_t *dsp) {
               }
               skipSTACK(1);
               goto next_pathname;
-           #endif
           }
         }
         /* in order to finish the task, all entries in this directory
@@ -7693,7 +7330,7 @@ LISPFUN(directory,seclass_read,0,1,norest,key,3,
   }
   pathname = coerce_pathname(pathname); /* turn into a pathname */
   /* let's go: */
- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #ifdef PATHNAME_WIN32
   if (eq(ThePathname(pathname)->pathname_device,S(Kwild))) {
     /* Device = :WILD ? ==> scan all devices */
     STACK_0 = pathname;
@@ -7773,7 +7410,7 @@ LISPFUN(cd,seclass_default,0,1,norest,nokey,0,NIL) {
  > pathname : Pathname-Argument
  > resolve_links : flag, if links have to be resolved (usually yes)
  < -(STACK) : absolute pathname */
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#ifdef WIN32_NATIVE
 /* < result: Directory-Namestring (for the OS, without '\' at the end, Normal-Simple-String) */
 #endif
 #ifdef UNIX
@@ -7941,7 +7578,7 @@ local struct passwd * unix_user_pwd (void) {
  init_pathnames();
  can trigger GC */
 global void init_pathnames (void) {
- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #ifdef PATHNAME_WIN32
   { /* initialize default-drive: */
     var char drive = default_drive();
     O(default_drive) = n_char_to_string(&drive,1,O(pathname_encoding));
@@ -8021,17 +7658,6 @@ global void init_pathnames (void) {
     /* else O(user_shell) remains on the default value "/bin/csh". */
   }
   #endif
-  #ifdef MSDOS
-  { /* search the environment for variable COMSPEC: */
-    begin_system_call();
-    var const char* shell = getenv("COMSPEC");
-    end_system_call();
-    if (!(shell==NULL)) { /* found? ==> enter  */
-      O(command_shell) = asciz_to_string(shell,O(misc_encoding));
-    }
-    /* else O(command_shell) remains on the default value "\\COMMAND.COM". */
-  }
-  #endif
   #ifdef WIN32_NATIVE
   { /* search in the environment for variable COMSPEC: */
     begin_system_call();
@@ -8058,7 +7684,7 @@ global void init_pathnames (void) {
 
 LISPFUNNR(file_write_date,1)
 { /* (FILE-WRITE-DATE file), CLTL p. 424 */
- #if defined(UNIX) || defined(EMUNIX)
+ #ifdef UNIX
   var time_t file_datetime; /* buffer for date/time of a file */
  #endif
  #ifdef WIN32_NATIVE
@@ -8073,7 +7699,7 @@ LISPFUNNR(file_write_date,1)
         && (!nullp(TheStream(pathname)->strm_buffered_channel))) {
       /* open file-stream
        work with the handle directly: */
-     #if defined(UNIX) || defined(EMUNIX)
+     #ifdef UNIX
       var struct stat status;
       begin_system_call();
       if (!( fstat(TheHandle(TheStream(pathname)->strm_buffered_channel),&status) ==0)) {
@@ -8108,18 +7734,6 @@ LISPFUNNR(file_write_date,1)
     pathname = coerce_pathname(pathname); /* turn into a pathname */
    is_pathname: { /* pathname is now really a pathname */
       var object namestring = true_namestring(pathname,true,false);
-     #ifdef EMUNIX
-      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-        var struct stat statbuf;
-        begin_system_call();
-        if (stat(namestring_asciz,&statbuf) < 0) {
-          end_system_call(); OS_file_error(STACK_0);
-        }
-        end_system_call();
-        if (!S_ISREG(statbuf.st_mode)) { fehler_file_not_exists(); } /* file must exist */
-        file_datetime = statbuf.st_mtime;
-      });
-     #endif
      #ifdef UNIX
       if (!file_exists(namestring)) { fehler_file_not_exists(); } /* file must exist */
       file_datetime = filestatus->st_mtime;
@@ -8146,7 +7760,7 @@ LISPFUNNR(file_write_date,1)
   }
   /* date/time no is in the buffer file_datetime.
    convert into Universal-Time-Format: */
- #if defined(UNIX) || defined(EMUNIX)
+ #ifdef UNIX
   VALUES1(convert_time_to_universal(&file_datetime));
  #endif
  #ifdef WIN32_NATIVE
@@ -8175,34 +7789,6 @@ LISPFUNNR(file_author,1)
     pathname = coerce_pathname(pathname); /* turn into a pathname */
    is_pathname: { /* pathname is now really a pathname */
       var object namestring = true_namestring(pathname,true,false);
-    #ifdef MSDOS
-     #if 1
-      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-        /* open file: */
-        begin_system_call();
-        var sintW result = /* try to open file */
-          open(namestring_asciz,O_RDONLY);
-        if (result < 0) {
-          end_system_call(); OS_file_error(STACK_0); /* report error */
-        }
-        /* now result contains the handle of the opened files. */
-        if (CLOSE(result) < 0) { /* close file instantly again */
-          end_system_call(); OS_file_error(STACK_0);
-        }
-        end_system_call();
-      });
-     #else
-      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-        var struct stat statbuf;
-        begin_system_call();
-        if (stat(namestring_asciz,&statbuf) < 0) {
-          end_system_call(); OS_file_error(STACK_0);
-        }
-        end_system_call();
-        if (!S_ISREG(statbuf.st_mode)) { fehler_file_not_exists(); } /* file must exist */
-      });
-     #endif
-    #endif
      #if defined(UNIX) || defined(WIN32_NATIVE)
       if (!file_exists(namestring)) { fehler_file_not_exists(); } /* file must exist */
      #endif
@@ -8213,7 +7799,7 @@ LISPFUNNR(file_author,1)
   VALUES1(NIL);
 }
 
-#if defined(UNIX) || defined(MSDOS)
+#ifdef UNIX
 
 LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
 { /* (EXECUTE file arg1 arg2 ...) calls a file with the given arguments. */
@@ -8238,45 +7824,6 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
       });
     }
   }
- #ifdef EMUNIX
-  /* (On OS/2 system() seems to be safer than spawnv(). Why?)
-   concatenate all arguments (now ASCIZ-strings) , with spaces in between: */
-  {
-    var uintL argvdata_length = 0;
-    {
-      var gcv_object_t* argptr = args_pointer;
-      var uintC count;
-      dotimespC(count,argcount+1, {
-        var object arg = NEXT(argptr); /* next argument, ASCIZ-string */
-        argvdata_length += Sbvector_length(arg);
-      });
-    }
-    var DYNAMIC_ARRAY(argvdata,char,argvdata_length);
-    {
-      var gcv_object_t* argptr = args_pointer;
-      var char* argvdataptr = &argvdata[0];
-      var uintC count;
-      dotimespC(count,argcount+1, {
-        var object arg = NEXT(argptr); /* next argument, ASCIZ-string */
-        var char* ptr = TheAsciz(arg);
-        var uintL len = Sbvector_length(arg);
-        dotimesL(len,len-1, { *argvdataptr++ = *ptr++; } ); /* and copy */
-        *argvdataptr++ = ' ';
-      });
-      argvdataptr[-1] = '\0';
-    }
-    /* call program: */
-    begin_system_call();
-    var int ergebnis = system(&argvdata[0]);
-    end_system_call();
-    /* finished. */
-    set_args_end_pointer(args_pointer); /* clean up STACK */
-    /* utilize return value: =0 (OK) -> T, >0 (nicht OK) -> NIL : */
-    VALUES_IF(ergebnis==0);
-    FREE_DYNAMIC_ARRAY(argvdata);
-  }
- #endif
- #ifdef UNIX
   { /* build up argv-Array in stack and copy strings in the stack: */
     var uintL argvdata_length = 0;
     {
@@ -8334,7 +7881,6 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
     FREE_DYNAMIC_ARRAY(argvdata);
     FREE_DYNAMIC_ARRAY(argv);
   }
- #endif
 }
 
 #endif
@@ -8409,47 +7955,20 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   VALUES_IF(exitcode == 0);
 }
 
-#else /* UNIX || MSDOS || ... */
+#else /* UNIX || ... */
 
 LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   var object command = popSTACK();
   if (missingp(command)) {
     /* execute (EXECUTE shell) : */
-   #ifdef UNIX
     pushSTACK(O(user_shell)); /* Shell-Name */
-   #else /* MSDOS */
-    pushSTACK(O(command_shell)); /* Shell-Name */
-   #endif
     funcall(L(execute),1);
   } else {
-   #ifdef MSDOS
-    /* the command has to be passed already split into single parts at
-     the white spaces to the DOS command-interpreter. The function
-     system() does this job for us, fortunately. */
-    command = check_string(command);
-    with_string_0(command,O(misc_encoding),command_asciz, {
-      begin_system_call();
-      /* call program: */
-      var int ergebnis = system(command_asciz);
-      end_system_call();
-      /* utilize return value: =0 (OK) -> T, >0 (not OK) -> NIL : */
-      VALUES_IF(ergebnis == 0);
-    });
-   #else
     /* call (EXECUTE shell "-c" command): */
     pushSTACK(O(command_shell)); /* shell name */
     pushSTACK(O(command_shell_option)); /* shell option "-c" */
-    #ifdef EMUNIX
-    /* On DOS 2.x, 3.x the options-character can be a different one! */
-    if ((_osmode == DOS_MODE) && (_osmajor < 4)) {
-      var uintB swchar = _swchar();
-      if (swchar) /* pss. replace "/C" with something else */
-        sstring_store(STACK_0,0,ascii(swchar)); /* (destructive) */
-    }
-    #endif
     pushSTACK(command);
     funcall(L(execute),3);
-   #endif
   }
 }
 
@@ -9183,155 +8702,6 @@ LISPFUNN(set_lib_directory,1)
   if (stringp(path)) path = ensure_last_slash(path);
   VALUES1(O(lib_dir) = coerce_xpathname(path));
 }
-
-/* ===================================================================== */
-
-#ifdef EMUNIX
-
-/* Bypass an annoying ENAMETOOLONG Error when using long
- filenames on FAT-Drives on OS/2: */
-
-#undef chdir
-#undef access
-#undef stat
-#undef unlink
-#undef rename
-#undef __findfirst
-#undef mkdir
-#undef open
-#undef creat
-#undef spawnv
-
-/* path2 := shortened copy of path1 */
-local void shorten_path (const char* path1, char* path2) {
-  var const uintB* p1 = path1;
-  var uintB* p2 = path2;
-  var uintB c;
-  var uintC wordlength = 0; /* former length in name or type */
-  var uintC maxwordlength = 8; /* = 8 in name, = 3 in type */
-  loop {
-    c = *p1++;
-    if (c=='\0') {
-      *p2++ = c; break;
-    }
-    if ((c=='\\') || (c=='/') || (c==':')) {
-      *p2++ = c; wordlength = 0; maxwordlength = 8;
-    } else if (c=='.') {
-      *p2++ = c; wordlength = 0; maxwordlength = 3;
-    } else {
-      if (++wordlength <= maxwordlength)
-        *p2++ = c;
-    }
-  }
-}
-
-global int my_chdir (const char* path) {
-  var int erg = chdir(path);
-  if ((erg<0) && (errno==ENAMETOOLONG)) {
-    var char* shorter_path = alloca(asciz_length(path)+1);
-    shorten_path(path,shorter_path);
-    erg = chdir(shorter_path);
-  }
-  return erg;
-}
-
-global int my_access (const char* path, int amode) {
-  var int erg = access(path,amode);
-  if ((erg<0) && (errno==ENAMETOOLONG)) {
-    var char* shorter_path = alloca(asciz_length(path)+1);
-    shorten_path(path,shorter_path);
-    erg = access(shorter_path,amode);
-  }
-  return erg;
-}
-
-global int my_stat (const char* path, struct stat* buf) {
-  var int erg = stat(path,buf);
-  if ((erg<0) && (errno==ENAMETOOLONG)) {
-    var char* shorter_path = alloca(asciz_length(path)+1);
-    shorten_path(path,shorter_path);
-    erg = stat(shorter_path,buf);
-  }
-  return erg;
-}
-
-global int my_unlink (const char* path) {
-  var int erg = unlink(path);
-  if ((erg<0) && (errno==ENAMETOOLONG)) {
-    var char* shorter_path = alloca(asciz_length(path)+1);
-    shorten_path(path,shorter_path);
-    erg = unlink(shorter_path);
-  }
-  return erg;
-}
-
-global int my_rename (const char* oldpath, const char* newpath) {
-  var int erg = rename(oldpath,newpath);
-  if ((erg<0) && (errno==ENAMETOOLONG)) {
-    var char* shorter_oldpath = alloca(asciz_length(oldpath)+1);
-    shorten_path(oldpath,shorter_oldpath);
-    erg = rename(shorter_oldpath,newpath);
-    if ((erg<0) && (errno==ENAMETOOLONG)) {
-      var char* shorter_newpath = alloca(asciz_length(newpath)+1);
-      shorten_path(newpath,shorter_newpath);
-      erg = rename(shorter_oldpath,shorter_newpath);
-    }
-  }
-  return erg;
-}
-
-global int my___findfirst (const char* path, int attrib, struct ffblk* ffblk) {
-  var int erg = __findfirst(path,attrib,ffblk);
-  if ((erg<0) && (errno==ENAMETOOLONG)) {
-    var char* shorter_path = alloca(asciz_length(path)+1);
-    shorten_path(path,shorter_path);
-    erg = __findfirst(shorter_path,attrib,ffblk);
-  }
-  return erg;
-}
-
-global int my_mkdir (const char* path, long attrib) {
-  var int erg = mkdir(path,attrib);
-  if ((erg<0) && (errno==ENAMETOOLONG)) {
-    var char* shorter_path = alloca(asciz_length(path)+1);
-    shorten_path(path,shorter_path);
-    erg = mkdir(shorter_path,attrib);
-  }
-  return erg;
-}
-
-global int my_open (const char* path, int flags) {
-  var int erg = open(path,flags);
-  if ((erg<0) && (errno==ENAMETOOLONG)) {
-    var char* shorter_path = alloca(asciz_length(path)+1);
-    shorten_path(path,shorter_path);
-    erg = open(shorter_path,flags);
-  }
-  return erg;
-}
-
-#define creat(path,mode)  open(path,O_RDWR|O_TRUNC|O_CREAT,mode)
-global int my_creat (const char* path, int pmode) {
-  var int erg = creat(path,pmode);
-  if ((erg<0) && (errno==ENAMETOOLONG)) {
-    var char* shorter_path = alloca(asciz_length(path)+1);
-    shorten_path(path,shorter_path);
-    erg = creat(shorter_path,pmode);
-  }
-  return erg;
-}
-
-global int my_spawnv (int pmode, CONST char* path, const char* const * argv) {
-  var int erg = spawnv(pmode,path,argv);
-  if ((erg<0) && (errno==ENAMETOOLONG)) {
-    var char* shorter_path = alloca(asciz_length(path)+1);
-    shorten_path(path,shorter_path);
-    erg = spawnv(pmode,shorter_path,argv);
-  }
-  return erg;
-}
-
-#endif
 
 /* ===================================================================== */
 

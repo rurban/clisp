@@ -628,7 +628,7 @@ LISPSYM(delete_dir,"DELETE-DIR",ext)
 LISPSYM(ensure_directories_exist,"ENSURE-DIRECTORIES-EXIST",lisp)
 LISPSYM(file_write_date,"FILE-WRITE-DATE",lisp)
 LISPSYM(file_author,"FILE-AUTHOR",lisp)
-#if defined(UNIX) || defined(MSDOS)
+#ifdef UNIX
 LISPSYM(execute,"EXECUTE",ext)
 #endif
 #ifdef HAVE_SHELL

@@ -1745,7 +1745,7 @@ int main(int argc, char* argv[])
   emit_typedef("enum { IF_EXISTS_UNBOUND, IF_EXISTS_ERROR, IF_EXISTS_NIL, IF_EXISTS_RENAME, IF_EXISTS_RENAME_AND_DELETE, IF_EXISTS_SUPERSEDE, IF_EXISTS_APPEND, IF_EXISTS_OVERWRITE }","if_exists_t");
   printf("extern if_exists_t check_if_exists (object if_exists);\n");
   printf("extern object if_exists_symbol (if_exists_t if_exists);\n");
-#if defined(UNIX) || defined(MSDOS)
+#if defined(UNIX)
   printf("#include <time.h>\n");
   printf("extern object convert_time_to_universal (const time_t* time);\n");
 #endif

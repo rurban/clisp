@@ -355,9 +355,9 @@ global void check_value (condition_t errortype, const char* errorstring)
 #undef OS_file_error
 #undef OS_filestream_error
 
-#if defined(UNIX) || defined(EMUNIX)
+#ifdef UNIX
 #include "errunix.c"
-#endif /* UNIX || EMUNIX */
+#endif /* UNIX */
 
 #ifdef WIN32_NATIVE
 #include "errwin32.c"

@@ -34,7 +34,6 @@ Installation:
       src/*.in           auxiliary files
       utils/*            auxiliary programs
       unix/              installing on Unix (including Mac OS/X)
-      os2/               installing on OS/2
       win32msvc/         installing on Win32, using MSVC
 
 Other:
@@ -54,8 +53,7 @@ Installation:
 
 For instruction on how to install CLISP
 * on Unix: see file unix/INSTALL.
-* on OS/2: see file os2/INSTALL,
-* on Win32 (WinNT, Win95): see file win32msvc/INSTALL.
+* on Win32 (Windows NT/2000/XP, Windows 95/98/ME): see file win32msvc/INSTALL.
 
 
 Authors:

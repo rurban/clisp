@@ -3124,7 +3124,7 @@ local object canon_eltype (const decoded_el_t* decoded) {
 #define test_external_format_arg(arg)                   \
   check_encoding(arg,&O(default_file_encoding),true)
 
-#if defined(UNIX) || defined(EMUNIX)
+#ifdef UNIX
 
 # UP: Deletes already entered interactive Input from a Handle.
   local void clear_tty_input (Handle handle)
@@ -3167,12 +3167,6 @@ local object canon_eltype (const decoded_el_t* decoded) {
       }
       #endif
     #endif
-    #ifdef EMUNIX
-      # Eberhard Mattes says, this works only, if IDEFAULT is not set. ??
-      if (!( ioctl(handle,TCFLSH,0) ==0)) {
-        if (!(errno==ENOTTY)) { OS_error(); } # no TTY: OK, other Error
-      }
-    #endif
     end_system_call();
   }
 
@@ -3188,7 +3182,7 @@ local object canon_eltype (const decoded_el_t* decoded) {
     #if !(defined(UNIX) && !defined(HAVE_FSYNC))
       if (!( fsync(handle) ==0)) {
         #ifndef UNIX_BEOS # BeOS 5 apparently does not set errno
-          #if defined(UNIX_IRIX) || defined(EMUNIX)
+          #ifdef UNIX_IRIX
           if (!(errno==ENOSYS))
           #endif
           #ifdef UNIX_CYGWIN32 /* for win95 and xterm/rxvt */
@@ -3220,15 +3214,6 @@ local object canon_eltype (const decoded_el_t* decoded) {
         }
       }
     #endif
-    #ifdef EMUNIX
-      {
-        var struct termio term_parameters;
-        if (!(   ( ioctl(handle,TCGETA,&term_parameters) ==0)
-              && ( ioctl(handle,TCSETAW,&term_parameters) ==0))) {
-          if (!(errno==ENOTTY)) { OS_error(); }
-        }
-      }
-    #endif
     #if 0 # Caution: This should cause FINISH-OUTPUT and CLEAR-INPUT!
       {
         var struct sgttyb tty_parameters;
@@ -3250,7 +3235,7 @@ local object canon_eltype (const decoded_el_t* decoded) {
     begin_system_call();
     if (!( fsync(handle) ==0)) {
       #ifndef UNIX_BEOS # BeOS 5 apparently does not set errno
-        #if defined(UNIX_IRIX) || defined(EMUNIX)
+        #ifdef UNIX_IRIX
         if (!(errno==ENOSYS))
         #endif
         #ifdef UNIX_CYGWIN32 /* for win95 and xterm/rxvt */
@@ -3267,8 +3252,6 @@ local object canon_eltype (const decoded_el_t* decoded) {
 #endif
 
 # UP: Deletes the pending Output of a Handle.
-  local void clear_tty_output (Handle handle);
-#if !defined(EMUNIX)
   local void clear_tty_output (Handle handle)
   {
     # Method 1: tcflush TCOFLUSH, see TERMIOS(3V)
@@ -3303,11 +3286,8 @@ local object canon_eltype (const decoded_el_t* decoded) {
     #endif
     end_system_call();
   }
-#else
-  #define clear_tty_output(handle)
-#endif
 
-#endif # defined(UNIX) || defined(EMUNIX)
+#endif # UNIX
 
 #if defined(WIN32_NATIVE)
 
@@ -3362,13 +3342,6 @@ local bool regular_handle_p (Handle handle) {
   if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
   end_system_call();
   return (S_ISREG(statbuf.st_mode) || S_ISBLK(statbuf.st_mode));
- #endif
- #if defined(MSDOS)
-  var struct stat statbuf;
-  begin_system_call();
-  if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
-  end_system_call();
-  return (S_ISREG(statbuf.st_mode));
  #endif
  #ifdef WIN32_NATIVE
   var DWORD filetype;
@@ -4076,7 +4049,7 @@ local void ChannelStream_fini (object stream) {
 # Closes a handle.
 local void low_close_handle (object stream, object handle) {
   begin_system_call();
- #if defined(UNIX) || defined(MSDOS)
+ #ifdef UNIX
   if (!( CLOSE(TheHandle(handle)) ==0))
     { end_system_call(); OS_filestream_error(stream); }
  #endif
@@ -4578,53 +4551,7 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
   # Method 3: switch temporarily to non-blocking I/O and try read(),
   #           see READ(2V), FILIO(4), or
   #           see READ(2V), FCNTL(2V), FCNTL(5)
-  #if defined(EMUNIX)
-  {
-    var struct termio oldtermio;
-    var struct termio newtermio;
-    begin_system_call();
-    if (!( ioctl(handle,TCGETA,&oldtermio) ==0)) {
-      if (!((errno==ENOTTY)||(errno==EINVAL))) {
-        OS_error();
-      }
-    }
-    newtermio = oldtermio;
-    newtermio.c_lflag &= ~IDEFAULT & ~ICANON;
-    if (!( ioctl(handle,TCSETA,&newtermio) ==0)) {
-      if (!((errno==ENOTTY)||(errno==EINVAL))) {
-        OS_error();
-      }
-    }
-    var unsigned long bytes_ready = 0;
-    var int result = ioctl(handle,FIONREAD,&bytes_ready); # enquire
-    # (Starting with emx 0.8f this could also be done using select().)
-    if (!( ioctl(handle,TCSETA,&oldtermio) ==0)) {
-      if (!((errno==ENOTTY)||(errno==EINVAL))) {
-        OS_error();
-      }
-    }
-    end_system_call();
-    if (result == 0) { # Enquiry succeeded.
-      if (bytes_ready > 0)
-        return ls_avail;
-    }
-    begin_system_call();
-    if (!isatty(handle)) {
-      result = eof(handle);
-      if (result<0) {
-        if (!(errno==ESPIPE)) { OS_error(); } # "Illegal seek error" is OK
-      } else {
-        end_system_call();
-        if (result>0) # EOF reached?
-          return ls_eof;
-        else
-          return ls_avail;
-      }
-    }
-    end_system_call();
-    return ls_wait;
-  }
-  #elif !defined(WIN32_NATIVE)
+  #if !defined(WIN32_NATIVE)
   #if defined(HAVE_SELECT) && !defined(UNIX_BEOS)
   {
     # Use select() with readfds = singleton set {handle}
@@ -5876,7 +5803,7 @@ typedef struct strm_i_buffered_extrafields_t {
 global object file_stream_truename (object s)
 { return FileStream_truename(s); }
 
-#if defined(UNIX) || defined(EMUNIX)
+#ifdef UNIX
 # Assumption: All File-Descriptors delivered by OPEN(2)  (called Handles
 # here) fit in an uintW.
 # Substantiation: as is generally known: 0 <= fd < getdtablesize() .
@@ -5897,7 +5824,7 @@ global object file_stream_truename (object s)
 #         SEEK_CUR  "relative"
 #         SEEK_END  "at the end"
 # < result: new Position
-#if defined(UNIX) || defined(EMUNIX)
+#ifdef UNIX
   #define handle_lseek(stream,handle,offset,mode,result_assignment)     \
     { var off_t result = lseek(TheHandle(handle),offset,mode);          \
       if (result<0) /* error occurred? */                               \
@@ -5960,7 +5887,7 @@ local void low_flush_buffered_handle (object stream, uintL bufflen) {
   if (result==bufflen) { # everything written correctly
     end_system_call(); BufferedStream_modified(stream) = false;
   } else { # not everything written
-    #if defined(UNIX) || defined(EMUNIX)
+    #ifdef UNIX
     if (result<0) # error occurred?
       #ifdef ENOSPC
       if (!(errno == ENOSPC))
@@ -7719,16 +7646,7 @@ local void finish_output_buffered (object stream) {
     #endif
    #else
     if (!nullp(TheStream(stream)->strm_file_truename)) { # avoid closing stdout_handle
-    #ifdef MSDOS
-     # duplicate File-Handle and close:
-      var uintW handle = TheHandle(BufferedStream_channel(stream));
-      begin_system_call();
-      var sintW handle2 = dup(handle);
-      if (handle2 < 0) { end_system_call(); OS_filestream_error(stream); }
-      if (CLOSE(handle2)<0) { end_system_call(); OS_filestream_error(stream); }
-      end_system_call();
-    #endif
-    #if 0 # || MSDOS, if we hadn't something better already
+    #if 0
      # close File (DOS writes physically):
       begin_system_call();
       if ( CLOSE(TheHandle(BufferedStream_channel(stream))) <0) {
@@ -7747,11 +7665,6 @@ local void finish_output_buffered (object stream) {
         if (handle < 0) { end_system_call(); OS_filestream_error(STACK_1); }
         end_system_call();
       });
-     #ifdef MSDOS
-      begin_system_call();
-      setmode(handle,O_BINARY);
-      end_system_call();
-     #endif
       # Now handle contains the Handle of the opened File.
       var object handlobj = allocate_handle(handle);
       skipSTACK(1);
@@ -7846,15 +7759,7 @@ LISPFUNNF(file_stream_p,1)
 # Returns a Character with Font=0 and following Bits:
 #   HYPER      if special key.
 #              Among the special keys are the Non-Standard-Tasten.
-#              MSDOS:
-#                Function keys, Cursor blocks, number block.
 #   CHAR-CODE  For normal keys the Ascii-Code,
-#              for special keys:
-#              MSDOS:
-#                F1 -> #\F1, ..., F10 -> #\F10, F11 -> #\F11, F12 -> #\F12,
-#                Insert -> #\Insert, Delete -> #\Delete,
-#                Home -> #\Home, End -> #\End, PgUp -> #\PgUp, PgDn -> #\PgDn,
-#                Arrow keys -> #\Up, #\Down, #\Left, #\Right.
 #   SUPER      if pressed with Shift-Key(s) and another Code had been the result
 #                without Shift,
 #   CONTROL    if pressed with Control-Key,
@@ -7917,326 +7822,12 @@ local object make_key_event (const key_event_t* event) {
   #define char_super_c    4
   #define char_hyper_c    8
 
-#ifdef MSDOS
-
-# For keyboard request on DOS:
-
-# INT 16 documentation:
-#   INT 16,00 - Wait for keystroke and read
-#   INT 16,01 - Get keystroke status
-#   INT 16,02 - Get shift status
-#   INT 16,03 - Set keyboard typematic rate (AT+)
-#   INT 16,04 - Keyboard click adjustment (AT+)
-#   INT 16,05 - Keyboard buffer write  (AT,PS/2 enhanced keyboards)
-#   INT 16,10 - Wait for keystroke and read  (AT,PS/2 enhanced keyboards)
-#   INT 16,11 - Get keystroke status  (AT,PS/2 enhanced keyboards)
-#   INT 16,12 - Get shift status  (AT,PS/2 enhanced keyboards)
-#
-# INT 16,00 - Wait for Keypress and Read Character
-#     AH = 00
-#     on return:
-#     AH = keyboard scan code
-#     AL = ASCII character or zero if special function key
-#     - halts program until key with a scancode is pressed
-#     - see  SCAN CODES
-
-# INT 16,01 - Get Keyboard Status
-#     AH = 01
-#     on return:
-#     ZF = 0 if a key pressed (even Ctrl-Break)
-#     AX = 0 if no scan code is available
-#     AH = scan code
-#     AL = ASCII character or zero if special function key
-#     - data code is not removed from buffer
-#     - Ctrl-Break places a zero word in the keyboard buffer but does
-#       register a keypress.
-
-# INT 16,10 - Extended Wait for Keypress and Read Character  (AT+)
-#     AH = 10h
-#     on return:
-#     AH = scan code
-#     AL = ASCII character or zero if special function key
-#     - available on AT and PS/2 machines with extended keyboard support
-#     - similar to INT 16,00
-
-# INT 16,11 - Extended Get Keyboard Status  (AT+)
-#       AH = 11h
-#       on return:
-#       ZF = 0 if key pressed (data waiting)
-#       AX = 0 if no scan code is available
-#       AH = scan code
-#       AL = ASCII character or zero if special function key
-#       - available on AT and PS/2 machines with extended keyboard support
-#       - data is not removed from buffer
-#       - similar to INT 16,01
-
-
-#ifdef EMUNIX
-
-  # On DOS:
-  #   Until emx 0.8e  INT 16,10 is obviously obstructed for us.
-  #   We do not receive any Extended-Keystrokes, but we can distinguish
-  #   the Return-Key from the Enter-Key, after all.
-  # On OS/2:
-  #   INT 16 does not work. Instead _read_kbd() works more precise than on DOS.
-
-  # Returns on DOS the next keystroke incl. Scan-Code:
-  # high byte = Scan-Code or 0, low byte = Ascii-Code or 0 or 0xE0.
-  # (Note: Must push/pop %ebx because this is the STACK_register.)
-  local bool kbhit()
-    {
-      var bool result;
-      __asm__ __volatile__ ("pushl %%ebx ; "
-                            "movb $0x11,%%ah ; .byte 0xcd ; .byte 0x16 ; "
-                            "movl $0,%%eax ; jz 1f ; incl %%eax ; 1: "
-                            "popl %%ebx"
-                            : "=a" /* %eax */ (result) /* OUT */
-                            :                          /* IN */
-                            : "cx","dx","si","di" /* %ecx,%edx,%esi,%edi */ /* CLOBBER */
-                           );
-      return result;
-    }
-  local uintW getch()
-    {
-      var uintW ch;
-      __asm__ __volatile__ ("pushl %%ebx ; "
-                            "movb $0x10,%%ah ; .byte 0xcd ; .byte 0x16 ; "
-                            "popl %%ebx"
-                            : "=a" /* %ax */ (ch)      /* OUT */
-                            :                          /* IN */
-                            : "cx","dx","si","di" /* %ecx,%edx,%esi,%edi */ /* CLOBBER */
-                           );
-      return ch;
-    }
-
-#endif
-
-  # Table of Characters, that correspond to the Scan-Codes 0..166
-  #  (as special keys):
-  local const key_event_t scancode_table [167] = {
-    { NULL, 0, 0, },
-    { NULL, ESC, char_meta_c }, # 1 -> Alt-Escape
-    { NULL, '1', char_control_c }, # [2 = Ctrl-1 -> #\CONTROL-1]
-    { NULL, '2', char_control_c }, # 3 = Ctrl-2 -> #\CONTROL-2
-    { NULL, '3', char_control_c }, # [4 = Ctrl-3 -> #\CONTROL-3]
-    { NULL, '4', char_control_c }, # [5 = Ctrl-4 -> #\CONTROL-4]
-    { NULL, '5', char_control_c }, # [6 = Ctrl-5 -> #\CONTROL-5]
-    { NULL, '6', char_control_c }, # 7 = Ctrl-6 -> #\CONTROL-6
-    { NULL, '7', char_control_c }, # [8 = Ctrl-7 -> #\CONTROL-7]
-    { NULL, '8', char_control_c }, # [9 = Ctrl-8 -> #\CONTROL-8]
-    { NULL, '9', char_control_c }, # [10 = Ctrl-9 -> #\CONTROL-9]
-    { NULL, '0', char_control_c }, # [11 = Ctrl-0 -> #\CONTROL-0]
-    { NULL, '-', char_meta_c }, # [12 = Ctrl-- -> #\CONTROL-- # not internationally portable]
-    { NULL, '=', char_meta_c }, # [13 = Ctrl-= -> #\CONTROL-= # not internationally portable]
-    { NULL,  BS, char_meta_c }, # 14 -> Alt-Backspace
-    { NULL,   9, char_super_c }, # 15 -> Shift-Tab
-    { NULL, 'Q', char_meta_c }, # 16 -> Alt-Q
-    { NULL, 'W', char_meta_c }, # 17 -> Alt-W
-    { NULL, 'E', char_meta_c }, # 18 -> Alt-E
-    { NULL, 'R', char_meta_c }, # 19 -> Alt-R
-    { NULL, 'T', char_meta_c }, # 20 -> Alt-T
-    { NULL, 'Y', char_meta_c }, # 21 -> Alt-Y
-    { NULL, 'U', char_meta_c }, # 22 -> Alt-U
-    { NULL, 'I', char_meta_c }, # 23 -> Alt-I
-    { NULL, 'O', char_meta_c }, # 24 -> Alt-O
-    { NULL, 'P', char_meta_c }, # 25 -> Alt-P
-    { NULL, '[', char_meta_c }, # 26 -> Alt-[ # not internationally portable
-    { NULL, ']', char_meta_c }, # 27 -> Alt-] # not internationally portable
-    { NULL,  CR, char_meta_c }, # 28 = Alt-Return -> #\META-Return
-    { NULL, 0, 0 },
-    { NULL, 'A', char_meta_c }, # 30 -> Alt-A
-    { NULL, 'S', char_meta_c }, # 31 -> Alt-S
-    { NULL, 'D', char_meta_c }, # 32 -> Alt-D
-    { NULL, 'F', char_meta_c }, # 33 -> Alt-F
-    { NULL, 'G', char_meta_c }, # 34 -> Alt-G
-    { NULL, 'H', char_meta_c }, # 35 -> Alt-H
-    { NULL, 'J', char_meta_c }, # 36 -> Alt-J
-    { NULL, 'K', char_meta_c }, # 37 -> Alt-K
-    { NULL, 'L', char_meta_c }, # 38 -> Alt-L or Alt-\ ??
-    { NULL, ';', char_meta_c }, # 39 -> Alt-; # not internationally portable
-    { NULL, '\'', char_meta_c }, # 40 -> Alt-' # not internationally portable
-    { NULL, '`', char_meta_c }, # 41 -> Alt-` # not internationally portable
-    { NULL, 0, 0 },
-    { NULL, '\\', char_meta_c }, # 43 -> Alt-\ # not internationally portable
-    { NULL, 'Z', char_meta_c }, # 44 -> Alt-Z
-    { NULL, 'X', char_meta_c }, # 45 -> Alt-X
-    { NULL, 'C', char_meta_c }, # 46 -> Alt-C
-    { NULL, 'V', char_meta_c }, # 47 -> Alt-V
-    { NULL, 'B', char_meta_c }, # 48 -> Alt-B
-    { NULL, 'N', char_meta_c }, # 49 -> Alt-N
-    { NULL, 'M', char_meta_c }, # 50 -> Alt-M
-    { NULL, ',', char_meta_c }, # 51 = Alt-, -> #\META-',' # not internationally portable
-    { NULL, '.', char_meta_c }, # 52 = Alt-. -> #\META-'.' # not internationally portable
-    { NULL, '/', char_meta_c }, # 53 = Alt-/ -> #\META-'/' # not internationally portable
-    { NULL, 0, 0 },
-    { NULL, '*', char_meta_c | char_hyper_c }, # 55 = Alt-* -> #\META-HYPER-'*'
-    { NULL, 0, 0 },
-    { NULL, ' ', char_meta_c }, # 57 = Alt-Space -> #\META-Space
-    { NULL, 0, 0 },
-    { "F1", 0, char_hyper_c }, #  59 = F1 -> #\F1
-    { "F2", 0, char_hyper_c }, #  60 = F2 -> #\F2
-    { "F3", 0, char_hyper_c }, #  61 = F3 -> #\F3
-    { "F4", 0, char_hyper_c }, #  62 = F4 -> #\F4
-    { "F5", 0, char_hyper_c }, #  63 = F5 -> #\F5
-    { "F6", 0, char_hyper_c }, #  64 = F6 -> #\F6
-    { "F7", 0, char_hyper_c }, #  65 = F7 -> #\F7
-    { "F8", 0, char_hyper_c }, #  66 = F8 -> #\F8
-    { "F9", 0, char_hyper_c }, #  67 = F9 -> #\F9
-    { "F10", 0, char_hyper_c }, #  68 = F10 -> #\F10
-    { "F11", 0, char_hyper_c }, # [69 = F11 -> #\F11
-    { "F12", 0, char_hyper_c }, # [70 = F12 -> #\F12
-    { "HOME", 0, char_hyper_c }, #  71 = Home -> #\Home
-    { "UP", 0, char_hyper_c }, #  72 = Up -> #\Up
-    { "PGUP", 0, char_hyper_c }, #  73 = PgUp -> #\PgUp
-    { NULL, '-', char_meta_c | char_hyper_c }, #  74 = Alt-- -> #\META-HYPER--
-    { "LEFT", 0, char_hyper_c }, #  75 = Left -> #\Left
-    { "CENTER", 0, char_hyper_c }, # [76 -> #\HYPER-Code21]
-    { "RIGHT", 0, char_hyper_c }, #  77 = Right -> #\Right
-    { NULL, '+', char_meta_c | char_hyper_c }, #  78 = Alt-+ -> #\META-HYPER-+
-    { "END", 0, char_hyper_c }, #  79 = End -> #\End
-    { "DOWN", 0, char_hyper_c }, #  80 = Down -> #\Down
-    { "PGDN", 0, char_hyper_c }, #  81 = PgDn -> #\PgDn
-    { "INSERT", 0, char_hyper_c }, #  82 = Insert -> #\Insert
-    { "DELETE", 0, char_hyper_c }, #  83 = Delete -> #\Delete
-    { "F1", 0, char_super_c | char_hyper_c }, #  84 = Shift-F1 -> #\S-F1
-    { "F2", 0, char_super_c | char_hyper_c }, #  85 = Shift-F2 -> #\S-F2
-    { "F3", 0, char_super_c | char_hyper_c }, #  86 = Shift-F3 -> #\S-F3
-    { "F4", 0, char_super_c | char_hyper_c }, #  87 = Shift-F4 -> #\S-F4
-    { "F5", 0, char_super_c | char_hyper_c }, #  88 = Shift-F5 -> #\S-F5
-    { "F6", 0, char_super_c | char_hyper_c }, #  89 = Shift-F6 -> #\S-F6
-    { "F7", 0, char_super_c | char_hyper_c }, #  90 = Shift-F7 -> #\S-F7
-    { "F8", 0, char_super_c | char_hyper_c }, #  91 = Shift-F8 -> #\S-F8
-    { "F9", 0, char_super_c | char_hyper_c }, #  92 = Shift-F9 -> #\S-F9
-    { "F10", 0, char_super_c | char_hyper_c }, #  93 = Shift-F10 -> #\S-F10
-    { "F1", 0, char_control_c | char_hyper_c }, #  94 = Control-F1 -> #\C-F1
-    { "F2", 0, char_control_c | char_hyper_c }, #  95 = Control-F2 -> #\C-F2
-    { "F3", 0, char_control_c | char_hyper_c }, #  96 = Control-F3 -> #\C-F3
-    { "F4", 0, char_control_c | char_hyper_c }, #  97 = Control-F4 -> #\C-F4
-    { "F5", 0, char_control_c | char_hyper_c }, #  98 = Control-F5 -> #\C-F5
-    { "F6", 0, char_control_c | char_hyper_c }, #  99 = Control-F6 -> #\C-F6
-    { "F7", 0, char_control_c | char_hyper_c }, #  100 = Control-F7 -> #\C-F7
-    { "F8", 0, char_control_c | char_hyper_c }, #  101 = Control-F8 -> #\C-F8
-    { "F9", 0, char_control_c | char_hyper_c }, #  102 = Control-F9 -> #\C-F9
-    { "F10", 0, char_control_c | char_hyper_c }, #  103 = Control-F10 -> #\C-F10
-    { "F1", 0, char_meta_c | char_hyper_c }, #  104 = Alt-F1 -> #\M-F1
-    { "F2", 0, char_meta_c | char_hyper_c }, #  105 = Alt-F2 -> #\M-F2
-    { "F3", 0, char_meta_c | char_hyper_c }, #  106 = Alt-F3 -> #\M-F3
-    { "F4", 0, char_meta_c | char_hyper_c }, #  107 = Alt-F4 -> #\M-F4
-    { "F5", 0, char_meta_c | char_hyper_c }, #  108 = Alt-F5 -> #\M-F5
-    { "F6", 0, char_meta_c | char_hyper_c }, #  109 = Alt-F6 -> #\M-F6
-    { "F7", 0, char_meta_c | char_hyper_c }, #  110 = Alt-F7 -> #\M-F7
-    { "F8", 0, char_meta_c | char_hyper_c }, #  111 = Alt-F8 -> #\M-F8
-    { "F9", 0, char_meta_c | char_hyper_c }, #  112 = Alt-F9 -> #\M-F9
-    { "F10", 0, char_meta_c | char_hyper_c }, #  113 = Alt-F10 -> #\M-F10
-    { "PRTSCR", 0, char_control_c | char_hyper_c }, # 114 = Control-PrtScr -> #\C-PrtScr
-    { "LEFT", 0, char_control_c | char_hyper_c }, # 115 = Control-Left -> #\C-Left
-    { "RIGHT", 0, char_control_c | char_hyper_c }, # 116 = Control-Right -> #\C-Right
-    { "END", 0, char_control_c | char_hyper_c }, # 117 = Control-End -> #\C-End
-    { "PGDN", 0, char_control_c | char_hyper_c }, # 118 = Control-PgDn -> #\C-PgDn
-    { "HOME", 0, char_control_c | char_hyper_c }, # 119 = Control-Home -> #\C-Home
-    { NULL, '1', char_meta_c }, #  120 = Alt-1 -> #\META-1
-    { NULL, '2', char_meta_c }, #  121 = Alt-2 -> #\META-2
-    { NULL, '3', char_meta_c }, #  122 = Alt-3 -> #\META-3
-    { NULL, '4', char_meta_c }, #  123 = Alt-4 -> #\META-4
-    { NULL, '5', char_meta_c }, #  124 = Alt-5 -> #\META-5
-    { NULL, '6', char_meta_c }, #  125 = Alt-6 -> #\META-6
-    { NULL, '7', char_meta_c }, #  126 = Alt-7 -> #\META-7
-    { NULL, '8', char_meta_c }, #  127 = Alt-8 -> #\META-8
-    { NULL, '9', char_meta_c }, #  128 = Alt-9 -> #\META-9
-    { NULL, '0', char_meta_c }, #  129 = Alt-0 -> #\META-0
-    { NULL, '-', char_meta_c }, #  130 = Alt-- -> #\META-- # not internationally portable
-    { NULL, '=', char_meta_c }, #  131 = Alt-= -> #\META-= # not internationally portable
-    { "PGUP", 0, char_control_c | char_hyper_c }, # 132 = Control-PgUp -> #\C-PgUp
-    { "F11", 0, char_hyper_c }, #  133 = F11 -> #\F11
-    { "F12", 0, char_hyper_c }, #  134 = F12 -> #\F12
-    { "F11", 0, char_super_c | char_hyper_c }, #  135 = Shift-F11 -> #\S-F11
-    { "F12", 0, char_super_c | char_hyper_c }, #  136 = Shift-F12 -> #\S-F12
-    { "F11", 0, char_control_c | char_hyper_c }, #  137 = Control-F11 -> #\C-F11
-    { "F12", 0, char_control_c | char_hyper_c }, #  138 = Control-F12 -> #\C-F12
-    { "F11", 0, char_meta_c | char_hyper_c }, #  139 = Alt-F1 -> #\M-F11
-    { "F12", 0, char_meta_c | char_hyper_c }, #  140 = Alt-F2 -> #\M-F12
-    { "UP", 0, char_control_c | char_hyper_c }, # 141 = Control-Up -> #\C-Up
-    { NULL, '-', char_control_c | char_hyper_c }, # 142 = Control-- -> #\CONTROL-HYPER--
-    { "CENTER", 0, char_control_c | char_hyper_c }, # 143 = Control-Keypad5 -> #\C-Center
-    { NULL, '+', char_control_c | char_hyper_c }, # 142 = Control-+ -> #\CONTROL-HYPER-+
-    { "DOWN", 0, char_control_c | char_hyper_c }, # 145 = Control-Down -> #\C-Down
-    { "INSERT", 0, char_control_c | char_hyper_c }, # 146 = Control-Insert -> #\C-Insert
-    { "DELETE", 0, char_control_c | char_hyper_c }, # 147 = Control-Delete -> #\C-Delete
-    { NULL,   9, char_control_c }, # 148 = Control-Tab -> #\CONTROL-Tab
-    { NULL, '/', char_control_c | char_hyper_c }, # 149 = Control-/ -> #\CONTROL-HYPER-'/'
-    { NULL, '*', char_control_c | char_hyper_c }, # 150 = Control-* -> #\CONTROL-HYPER-'*'
-    { "HOME", 0, char_meta_c | char_hyper_c }, # 151 = Alt-Home -> #\M-Home
-    { "UP", 0, char_meta_c | char_hyper_c }, # 152 = Alt-Up -> #\M-Up
-    { "PGUP", 0, char_meta_c | char_hyper_c }, # 153 = Alt-PgUp -> #\M-PgUp
-    { NULL, 0, 0 },
-    { "LEFT", 0, char_meta_c | char_hyper_c }, # 155 = Alt-Left -> #\M-Left
-    { "CENTER", 0, char_meta_c | char_hyper_c }, # [156 -> #\META-Center]
-    { "RIGHT", 0, char_meta_c | char_hyper_c }, # 157 = Alt-Right -> #\M-Right
-    { NULL, 0, 0 },
-    { "END", 0, char_meta_c | char_hyper_c }, # 159 = Alt-End -> #\M-End
-    { "DOWN", 0, char_meta_c | char_hyper_c }, # 160 = Alt-Down -> #\M-Down
-    { "PGDN", 0, char_meta_c | char_hyper_c }, # 161 = Alt-PgDn -> #\M-PgDn
-    { "INSERT", 0, char_meta_c | char_hyper_c }, # 162 = Alt-Insert -> #\M-Insert
-    { "DELETE", 0, char_meta_c | char_hyper_c }, # 163 = Alt-Delete -> #\M-Delete
-    { NULL, '/', char_meta_c | char_hyper_c }, # 164 = Alt-/ -> #\META-HYPER-'/'
-    { NULL,   9, char_meta_c }, # 165 = Alt-Tab -> #\META-Tab
-    { NULL,  CR, char_meta_c | char_hyper_c }, # 166 = Alt-Enter -> #\META-HYPER-Return
-    };
-
-#ifdef EMUNIX
-
-# We have, in order to remain portable, only the Function _read_kbd at our disposal.
-# On DOS this function recognizes only few special keys: only the ones with
-# Scan-Codes 3, 7, 15-25, 30-38, 44-50, 59-131 (approximately).
-# In particular F11, F12, Ctrl-Up, Ctrl-Down are missing, and one cannot
-# distinguish Enter from Return, Tab from Ctrl-I, Backspace from Ctrl-H.
-# Anyhow!
-# As INT 16,10 on DOS finally works satisfactory since emx 0.8f,
-# we use it. At runtime _osmode is checked.
-
-#endif # EMUNIX
-
-#endif # MSDOS
-
 # Determines, if a Character is available on the Keyboard-Stream.
 # listen_char_keyboard(stream)
 # > stream: Stream
 # < result:   ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-#ifdef EMUNIX
-local signean listen_char_keyboard (object stream) {
-  if (_osmode != DOS_MODE) { # OS/2
-    var int ch = _read_kbd(false,false,false);
-    if (ch < 0)
-      return ls_wait; # no
-    pushSTACK(stream);
-    var object c;
-    if (ch==0) {
-      c = make_key_event(&scancode_table[(uintB)_read_kbd(false,true,false)]);
-    } else if ((ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB)) {
-      # from Ctrl-A to Ctrl-Z -> make a letter with CONTROL-Bit out of it:
-      var key_event_t event;
-      event.key = NULL;
-      event.code = ascii(ch==LF ? CR : (ch | bit(6)));
-      event.bits = char_control_c;
-      c = make_key_event(&event);
-    } else {
-      pushSTACK(code_char(ch)); funcall(S(make_char),1); c = value1;
-    }
-    stream = popSTACK();
-    TheStream(stream)->strm_rd_ch_last = c;
-    TheStream(stream)->strmflags |= strmflags_unread_B;
-    return ls_avail;
-  } else { # DOS
-    if (kbhit()) { # key pressed in the meantime?
-      return ls_avail; # yes
-    } else {
-      return ls_wait; # no
-    }
-  }
-}
-#endif
 #ifdef WIN32_NATIVE
 local signean listen_char_keyboard (object stream) {
   var Handle handle = TheHandle(TheStream(stream)->strm_keyboard_handle);
@@ -8285,15 +7876,6 @@ local signean listen_char_keyboard (object stream) {
 # > stream: Stream
 # < result: true if Input was deleted, else false
 local bool clear_input_keyboard (object stream) {
- #ifdef EMUNIX
-  if (_osmode != DOS_MODE) { # OS/2
-    while (listen_char_keyboard(stream)) {
-      # the character has already been fetched!
-    }
-  } else { # DOS
-    while (kbhit()) { getch(); }
-  }
- #endif
  #ifdef WIN32_NATIVE
   clear_tty_input(TheHandle(TheStream(stream)->strm_keyboard_handle));
   pushSTACK(stream);
@@ -8318,98 +7900,6 @@ local bool clear_input_keyboard (object stream) {
 }
 
 # Read a character from Keyboard:
-#ifdef EMUNIX
-local object rd_ch_keyboard (const gcv_object_t* stream_) {
-  if (_osmode != DOS_MODE) { # OS/2
-    run_time_stop(); # hold run time clock
-    var object c;
-    var int ch = _read_kbd(false,true,false);
-    if (ch==0) {
-      c = make_key_event(&scancode_table[(uintB)_read_kbd(false,true,false)]);
-    } else if ((ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB)) {
-      # from Ctrl-A to Ctrl-Z -> make a letter with CONTROL-Bit out of it:
-      var key_event_t event;
-      event.key = NULL;
-      event.code = ascii(ch==LF ? CR : (ch | bit(6)));
-      event.bits = char_control_c;
-      c = make_key_event(&event);
-    } else {
-      pushSTACK(code_char(ch)); funcall(S(make_char),1); c = value1;
-    }
-    # still to handle: ??
-    # Ctrl-2 -> #\Control-2, Ctrl-6 -> #\Code30, Ctrl-ß -> #\Code28,
-    # Ctrl-+ -> #\Code29, Ctrl-ü -> #\Code27 = #\Escape
-    run_time_restart(); # resume run time clock
-    return c;
-  } else { # DOS
-    var object c;
-    run_time_stop(); # hold run time clock
-    {
-      # wait for keystroke, no output:
-      var uintW erg = getch();
-      var uintB code = (uintB)erg; # Ascii-Code
-      var uintB scancode = (uintB)(erg>>8); # Scan-Code
-      if (scancode == 0) {
-        # Multikey-Event, e.g. accent+space or Alt xyz
-        # FIXME: This should take into account the encoding.
-        pushSTACK(code_char(as_chart(code))); funcall(S(make_char),1);
-        c = value1;
-      } else {
-        if ((code == 0) || (code == 0xE0)) {
-          # special key
-          if (scancode < 167) {
-            c = make_key_event(&scancode_table[scancode]);
-          } else {
-            var key_event_t event = { NULL, 0, 0 };
-            c = make_key_event(&event);
-          }
-        } else {
-          if (((scancode >= 71) && (scancode < 84)) || (scancode == 55)
-              || ((scancode == 0xE0) && (code >= 32))) {
-            # key on the numerical pad except Enter (also excluding F1 to F12!)
-            var key_event_t event;
-            event.key = NULL;
-            event.code = as_chart(code);
-            event.bits = char_hyper_c;
-            c = make_key_event(&event);
-          } else if ((scancode == 14) || (scancode == 28)
-                     || ((scancode == 0xE0) && (code < 32))) {
-            # Backspace-Key, Return-Key, Enter-Key
-            var uintB defaultcode = (scancode==14 ? BS : CR);
-            var key_event_t event;
-            event.key = NULL;
-            event.code = as_chart(defaultcode);
-            event.bits = (scancode == 0xE0 ? char_hyper_c : 0)
-              | (!(code == defaultcode) ? char_control_c : 0);
-            c = make_key_event(&event);
-          } else {
-            if ((code < 32) && ((scancode >= 16) && (scancode <= 53))) {
-              # from Ctrl-A to Ctrl-Z -> make letter with CONTROL-Bit out of it
-              var key_event_t event;
-              event.key = NULL;
-              event.code = ascii(code | bit(6));
-              event.bits = char_control_c;
-              c = make_key_event(&event);
-            } else {
-              # normal character
-              # FIXME: This should take into account the encoding.
-              pushSTACK(code_char(as_chart(code))); funcall(S(make_char),1); c = value1;
-            }
-          }
-        }
-      }
-      # still to handle: ??
-      # Ctrl-2          0300
-      # Ctrl-6          071E
-      # Ctrl-ß          0C1C
-      # Ctrl--          0C1F
-    }
-    run_time_restart(); # resume run time clock
-    return c;
-  }
-}
-#endif
-
 #ifdef WIN32_NATIVE
 local object rd_ch_keyboard (const gcv_object_t* stream_) {
   var INPUT_RECORD event;
@@ -9242,7 +8732,7 @@ local object make_terminal_stream_ (void) {
 
 #endif # NEXTAPP
 
-#if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(WIN32_NATIVE)
+#if (defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)
 
 # Functionality:
 # Standard-Input and Standard-Output are accessed.
@@ -9266,19 +8756,6 @@ local object make_terminal_stream_ (void) {
 #define HAVE_TERMINAL1
   # define TERMINAL_LINEBUFFERED  0
   # define TERMINAL_OUTBUFFERED   0
-
-#ifdef MSDOS
-  # On input of a line by keyboard, the <Enter> is written at the end of the
-  # line as CR/LF. However: The CR is written immediately, the LF later, when the
-  # <Enter> is read with read() - Sometimes this occurs with a long delay.
-  # [The guy that has programmed this idiocy - presumably in DOS -
-  # should be subjected to martial law! :-(]
-  # Due to this reason we have to buffer the Terminal-Stream line-by-line
-  # on the Input-Side.
-#define HAVE_TERMINAL2
-  # define TERMINAL_LINEBUFFERED  1
-  # define TERMINAL_OUTBUFFERED   0
-#endif
 
 #ifdef GNU_READLINE
   # We use the GNU Readline-Library. It returns the Input line-by-line,
@@ -9331,15 +8808,6 @@ local object make_terminal_stream_ (void) {
     else { statement3 }
 #else
   #define terminalcase(stream,statement1,statement2,statement3) statement1
-#endif
-
-#ifdef EMUNIX
-
-  # get_handle_info(handle)
-  # > handle
-  # < result: Handle-Info (INT 21,44,00)
-    #define get_handle_info(handle)  __ioctl1(handle,0x00)
-
 #endif
 
 #ifdef HAVE_TERMINAL1
@@ -9851,12 +9319,6 @@ local bool stdio_same_tty_p (void)
     && (stdin_stat.st_ino == stdout_stat.st_ino);
  #endif
 #endif
-#ifdef MSDOS
-  return ((get_handle_info(stdin_handle) & (bit(7)|bit(0)))
-          == (bit(7)|bit(0))) /* stdin == console_input ? */
-    && ((get_handle_info(stdout_handle) & (bit(7)|bit(1)))
-        == (bit(7)|bit(1))); /* stdout == console_output ? */
-#endif
 #ifdef WIN32_NATIVE
   DWORD console_mode;
   return GetConsoleMode(stdin_handle,&console_mode)
@@ -10039,7 +9501,7 @@ local void term_unraw() {
 # define nonl()      (_tty.c_iflag &=~ICRNL,_tty.c_oflag &=~ONLCR,tcsetattr(_tty_ch, TCSAFLUSH, &_tty))
 # define savetty()   (tcgetattr(_tty_ch, &_oldtty),tcgetattr(_tty_ch, &_tty))
 # define resetty()   (tcsetattr(_tty_ch, TCSAFLUSH, &_oldtty))
-#elif defined(UNIX_TERM_TERMIO) || defined(EMUNIX)
+#elif defined(UNIX_TERM_TERMIO)
   local struct termio oldtermio; # original TTY-Mode
 local void term_raw() {
   if (!oldterm_initialized) {
@@ -10197,7 +9659,7 @@ LISPFUN(terminal_raw,seclass_default,2,1,norest,nokey,0,NIL) {
 
 #endif # UNIX
 
-#endif # (UNIX && !NEXTAPP) || MSDOS || WIN32_NATIVE
+#endif # (UNIX && !NEXTAPP) || WIN32_NATIVE
 
 #if !(defined(UNIX) && !defined(NEXTAPP))
 
@@ -10220,8 +9682,6 @@ local object make_terminal_stream (void) {
 #ifdef SCREEN
 
 # Editor-Support:
-# MSDOS: via BIOS.
-# OS/2: With the Video-Library by Eberhard Mattes.
 # CURSES: A Window-Stream is essentially a Curses-WINDOW.
 
 # (SCREEN:MAKE-WINDOW)
@@ -10280,179 +9740,6 @@ local object check_window_stream (object stream) {
   }
   return stream;
 }
-
-#ifdef EMUNIX
-
-# Use the Video-Library by Eberhard Mattes.
-# Advantages:
-# - simple interface,
-# - On OS/2 it calls the Vio-Functions, on DOS the screen-memory
-#   is addressed directly (fast!), if one of the Standard-Textmodes
-#   is used, else the BIOS is used (portable!).
-
-local uintL screentype; # 0 = monochrome, 1 = color
-
-local const uintB attr_table[2][5] = {
-  # monochrome:
-  { /* no standout   */  BW_NORMAL,
-    /* standout      */  BW_REVERSE,
-    /* visible bell  */  BW_NORMAL | INTENSITY,
-    /* underline     */  BW_UNDERLINE,
-    /* alt. char set */  BW_NORMAL | INTENSITY,
-  },
-  # color:
-  { /* no standout   */  B_BLUE | F_WHITE | INTENSITY,
-    /* standout      */  B_BLUE | F_MAGENTA | INTENSITY,
-    /* visible bell  */  B_BLUE | F_BROWN | INTENSITY,
-    /* underline     */  B_BLUE | F_GREEN | INTENSITY,
-    /* alt. char set */  B_BLUE | F_RED | INTENSITY,
-  },
-};
-
-local int cursor_scanlines_start;
-local int cursor_scanlines_end;
-
-local int LINES; # number of lines
-local int COLS;  # number of columns, number of characters per line
-
-# UP: write a character to a Window-Stream.
-# wr_ch_window(&stream,ch);
-# > stream: Window-Stream
-# > ch: character to be written
-local void wr_ch_window (const gcv_object_t* stream_, object ch) {
-  check_wr_char(*stream_,ch);
-  var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
-  # write Code c via the Video-Library to the screen:
-  if (c==NL) {
-    v_putc(c);
-  } else {
-    var int current_x;
-    var int current_y;
-    v_getxy(&current_x,&current_y); # get current cursor position
-    if ((current_x==COLS-1) && (current_y==LINES-1))
-      v_putn(c,1); # do not scroll at right bottom corner!!
-    else
-      v_putc(c);
-  }
-}
-
-LISPFUNN(make_window,0) {
-  var object stream = # Flags: only WRITE-CHAR allowed
-    allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+0,0);
-  # and fill:
-  stream_dummy_fill(stream);
-  var Stream s = TheStream(stream);
-  s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunction
-  s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunction
-  v_init(); # initialize
- #if 1
-  screentype = (v_hardware()==V_MONOCHROME ? 0 : 1); # query screen-type
- #else
-  videomode abfragen wie in vinit.c, dann
-    screentype = (((videomode==0) || (videomode==7))
-                  ? 0   # monochrome
-                  : 1); # color
- #endif
-  v_dimen(&COLS,&LINES); # query screen-size
-  v_getctype(&cursor_scanlines_start,&cursor_scanlines_end); # query cursor-shape
-  v_attrib(attr_table[screentype][0]); # Highlight off
-  v_ctype(cursor_scanlines_end-1,cursor_scanlines_end); # cursor small
-  VALUES1(stream);
-}
-
-# Closes a Window-Stream.
-local void close_window (object stream) {
-  v_gotoxy(0,0); # Cursor home
-  v_attrib(screentype==0 ? BW_NORMAL : (B_BLACK | F_WHITE));
-  v_putn(' ',LINES*COLS); # delete screen
-  v_ctype(cursor_scanlines_start,cursor_scanlines_end); # restore cursor-shape
-}
-
-LISPFUNN(window_size,1) {
-  check_window_stream(popSTACK());
-  VALUES2(fixnum((uintW)LINES),
-          fixnum((uintW)COLS));
-}
-
-LISPFUNN(window_cursor_position,1) {
-  check_window_stream(popSTACK());
-  var int current_x;
-  var int current_y;
-  v_getxy(&current_x,&current_y); # get current cursor position
-  VALUES2(fixnum((uintW)current_y),
-          fixnum((uintW)current_x));
-}
-
-LISPFUNN(set_window_cursor_position,3) {
-  check_window_stream(STACK_2);
-  var uintL line = posfixnum_to_L(STACK_1);
-  var uintL column = posfixnum_to_L(STACK_0);
-  if ((line < (uintL)LINES) && (column < (uintL)COLS))
-    v_gotoxy((int)column,(int)line);
-  VALUES2(STACK_1,STACK_0); skipSTACK(3);
-}
-
-LISPFUNN(clear_window,1) {
-  check_window_stream(popSTACK());
-  v_gotoxy(0,0);
-  v_clear();
-  VALUES0;
-}
-
-LISPFUNN(clear_window_to_eot,1) {
-  check_window_stream(popSTACK());
-  var int current_x;
-  var int current_y;
-  v_getxy(&current_x,&current_y); # get current cursor position
-  v_putn(' ',COLS*(LINES-current_y)-current_x);
-  VALUES0;
-}
-
-LISPFUNN(clear_window_to_eol,1) {
-  check_window_stream(popSTACK());
-  v_clreol();
-  VALUES0;
-}
-
-LISPFUNN(delete_window_line,1) {
-  check_window_stream(popSTACK());
-  v_delline(1);
-  VALUES0;
-}
-
-LISPFUNN(insert_window_line,1) {
-  check_window_stream(popSTACK());
-  v_insline(1);
-  VALUES0;
-}
-
-LISPFUNN(highlight_on,1) {
-  check_window_stream(popSTACK());
-  v_attrib(attr_table[screentype][1]);
-  VALUES0;
-}
-
-LISPFUNN(highlight_off,1) {
-  check_window_stream(popSTACK());
-  v_attrib(attr_table[screentype][0]);
-  VALUES0;
-}
-
-LISPFUNN(window_cursor_on,1) {
-  check_window_stream(popSTACK());
-  # cursor big: set begin scan to end scan - 4
-  v_ctype(cursor_scanlines_end-4,cursor_scanlines_end);
-  VALUES0;
-}
-
-LISPFUNN(window_cursor_off,1) {
-  check_window_stream(popSTACK());
-  # cursor small: set begin scan to end scan - 1
-  v_ctype(cursor_scanlines_end-1,cursor_scanlines_end);
-  VALUES0;
-}
-
-#endif # EMUNIX
 
 #ifdef WIN32_NATIVE
 
@@ -12205,18 +11492,6 @@ local const char * init_term (void) {
     var int i = tgetnum("li");
     rows = (i>0 ? i : 24);
   }
- #ifdef EMUNIX
-  # Although this is actually unclean, we fetch the current
-  # screen-size with _scrsize().
-  {
-    var int scrsize[2];
-    _scrsize(scrsize);
-    if (scrsize[0] > 0)
-      cols = scrsize[0];
-    if (scrsize[1] > 0)
-      rows = scrsize[1];
-  }
- #endif
   if (tgetflag("hc")) {
     end_system_call();
     return GETTEXT("insufficient terminal: hardcopy terminal");
@@ -12410,7 +11685,7 @@ local void term_nlunraw() {
     }
   }
 }
-#elif defined(UNIX_TERM_TERMIO) || defined(EMUNIX)
+#elif defined(UNIX_TERM_TERMIO)
   static unsigned long old_c_oflag = 0;
 local void term_nlraw() {
   var struct termio oldtermio;
@@ -12478,7 +11753,7 @@ local void start_term (void) {
 local void end_term (void) {
   out_capstring (TEcap);
   out_capstring (IScap);
- #ifdef MSDOS # how to test for Color-ANSI-Terminal??
+ #if 0
   # On ANSI-Terminals with several colors: TEcap resets the colors.
   out_capstring(CLcap); # delete screen, this time with the normal color
  #endif
@@ -12928,32 +12203,7 @@ LISPFUNN(window_cursor_off,1) {
 
 # Additional Components:
   # define strm_pipe_pid  strm_field1   # Process-Id, a Fixnum >=0
-#if defined(EMUNIX) && defined(PIPES2)
-  #define strm_pipe_other strm_field2   # Pipe-Stream in opposite direction
-#endif
 
-#ifdef EMUNIX
-local void low_close_pipe (object stream, object handlobj) {
-  var Handle handle = TheHandle(handlobj);
- #ifdef PIPES2
-  if (builtin_stream_p(TheStream(stream)->strm_pipe_other)) {
-    # The other Pipe-Stream is still open. We must not call
-    # pclose(), because it executes waitpid().
-    TheStream(TheStream(stream)->strm_pipe_other)->strm_pipe_other = NIL;
-    TheStream(stream)->strm_pipe_other = NIL;
-    begin_system_call();
-    if ( fclose(&_streamv[handle]) != 0) { OS_error(); }
-    end_system_call();
-    # The pipes are now separated. On closing the other
-    # pipe, pclose() will be executed.
-    return;
-  }
- #endif
-  begin_system_call();
-  if ( pclose(&_streamv[handle]) == -1) { OS_error(); }
-  end_system_call();
-}
-#endif
 #if defined(UNIX) || defined(WIN32_NATIVE)
   #define low_close_pipe  low_close_handle
 #endif
@@ -13001,17 +12251,6 @@ local void low_flush_buffered_pipe (object stream, uintL bufflen) {
 
 local inline void create_input_pipe (const char* command) {
   var int child;
- #ifdef EMUNIX
-  var int handles[2];
-  {
-    begin_system_call();
-    var FILE* f = popen(command,"r");
-    if (f==NULL) { OS_error(); }
-    child = f->_pid;
-    handles[0] = fileno(f);
-    end_system_call();
-  }
- #endif
  #ifdef UNIX
   var int handles[2]; # two Handles for the pipe
   {
@@ -13219,17 +12458,6 @@ local void low_clear_output_unbuffered_pipe (object stream) {}; # do nothing
 
 local inline void create_output_pipe (const char* command) {
   var int child;
- #ifdef EMUNIX
-  var int handles[2];
-  {
-    begin_system_call();
-    var FILE* f = popen(command,"w");
-    if (f==NULL) { OS_error(); }
-    child = f->_pid;
-    handles[1] = fileno(f);
-    end_system_call();
-  }
- #endif
  #ifdef UNIX
   var int handles[2]; # two Handles for the pipe
   {
@@ -13441,19 +12669,6 @@ void mkips_from_handles (Handle ipipe, int process_id) {
 
 local inline void create_io_pipe (const char* command) {
   var int child;
- #ifdef EMUNIX
-  var int in_handles[2];
-  var int out_handles[2];
-  { # stack layout: command.
-    var FILE* f_in;
-    var FILE* f_out;
-    begin_system_call();
-    if (popenrw(command,&f_in,&f_out) <0) { OS_error(); }
-    child = f_in->_pid; # = f_out->_pid;
-    in_handles[0] = fileno(f_in);
-    out_handles[1] = fileno(f_out);
-  }
- #endif
  #ifdef UNIX
   var int in_handles[2]; # two Handles for the Pipe to the Input-Stream
   var int out_handles[2]; # two Handles for the Pipe to the Output-Stream
@@ -13644,11 +12859,6 @@ LISPFUN(make_pipe_io_stream,seclass_default,1,0,norest,key,3,
     TheStream(stream)->strm_pipe_pid = STACK_2; # Child-Pid
     STACK_0 = add_to_open_streams(stream);
   }
- #ifdef EMUNIX
-  # combine both pipes, for frictionless close:
-  TheStream(STACK_1)->strm_pipe_other = STACK_0;
-  TheStream(STACK_0)->strm_pipe_other = STACK_1;
- #endif
   # 3 values:
   # (make-two-way-stream input-stream output-stream), input-stream, output-stream.
   STACK_2 = make_twoway_stream(STACK_1,STACK_0);
@@ -16173,7 +15383,7 @@ global signean listen_char (object stream) {
         #if defined(NEXTAPP)
           return listen_char_terminal(stream);
         #endif
-        #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(WIN32_NATIVE)
+        #if (defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)
           terminalcase(stream,
           { return listen_char_terminal1(stream); },
           { return listen_char_terminal2(stream); },
@@ -16271,7 +15481,7 @@ global bool clear_input (object stream) {
       #if defined(NEXTAPP)
         result = clear_input_terminal(stream);
       #endif
-      #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(WIN32_NATIVE)
+      #if (defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)
         terminalcase(stream,
         { result = clear_input_terminal1(stream); },
         { result = clear_input_terminal2(stream); },
@@ -16529,7 +15739,7 @@ global void clear_output (object stream) {
           }
           break;
         case strmtype_terminal:
-          #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(WIN32_NATIVE)
+          #if (defined(UNIX) && !defined(NEXTAPP)) || defined(WIN32_NATIVE)
           terminalcase(stream,
           { clear_output_terminal1(stream); },
           { clear_output_terminal2(stream); },
@@ -17442,17 +16652,6 @@ global struct pseudodata_tab_ pseudodata_tab = {
    (Pseudofun) NULL
   #endif
 };
-
-# =============================================================================
-
-#ifdef EMUNIX
-
-# An auxiliary function for bidirectional Pipes: popenrw()
-#undef stdin_handle
-#undef stdout_handle
-#include "../os2/popenrw.c"
-
-#endif
 
 # =============================================================================
 

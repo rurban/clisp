@@ -8,7 +8,7 @@
 
 <para>The final delimiter of an interactive stream: On &unix;, the user
  has to type <keycombo>&ctrl;<keysym>D</keysym></keycombo> at the
- beginning of a line. On &dos; or &win32;, the user has to type
+ beginning of a line. On &win32;, the user has to type
  <keycombo>&ctrl;<keysym>Z</keysym></keycombo>, followed
  by <keycap>Return</keycap>.  This final delimiter is never actually
  seen by programs; no need to test for <keysym>#\^D</keysym> or
@@ -1616,74 +1616,6 @@ performance considerations.
 </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
-<!-- #if defined(IBMPC_CHS) && !defined(UNICODE) -->
-<variablelist>
-<varlistentry><term>Platform dependent: &dos;, &os2; platforms only, and
-   only in &clisp; built &without; compile-time flag &unicode;.</term>
-<listitem><para>More precisely, &clisp; uses the IBM PC character set
- (code page 437):
-<informaltable id="ibmpc-charset-table" frame="all">
- <tgroup cols="17" colsep="1" rowsep="1" align="center">
-  &char-table-header;<tbody>
-  <row><entry>#x00</entry>&cc;<entry/><entry/><entry/><entry/><entry/><entry/>
-   &cc;&cc;&cc;&cc;&cc;&cc;&cc;<entry>&para;</entry><entry>&sect;</entry></row>
-  <row><entry>#x10</entry><entry/><entry/><entry/>
-   <entry/><entry/><entry/><entry/><entry/>
-   <entry/><entry/>&cc;&cc;<entry/><entry/><entry/><entry/></row>
-  &ascii-printable;
-  <row><entry>#x80</entry><entry>&Ccedil;</entry><entry>&uuml;</entry>
-   <entry>&eacute;</entry><entry>&acirc;</entry><entry>&auml;</entry>
-   <entry>&agrave;</entry><entry>&aring;</entry><entry>&ccedil;</entry>
-   <entry>&ecirc;</entry><entry>&euml;</entry><entry>&egrave;</entry>
-   <entry>&iuml;</entry><entry>&icirc;</entry><entry>&igrave;</entry>
-   <entry>&Auml;</entry><entry>&Aring;</entry></row>
-  <row><entry>#x90</entry><entry>&Eacute;</entry><entry>&aelig;</entry>
-   <entry>&AElig;</entry><entry>&ocirc;</entry><entry>&ouml;</entry>
-   <entry>&ograve;</entry><entry>&ucirc;</entry><entry>&ugrave;</entry>
-   <entry>&yuml;</entry><entry>&Ouml;</entry><entry>&Uuml;</entry>
-   <entry>&cent;</entry><entry>&pound;</entry><entry>&yen;</entry>
-   <entry>&#8359;</entry><entry>&#402;</entry></row>
-  <row><entry>#xA0</entry><entry>&aacute;</entry><entry>&iacute;</entry>
-   <entry>&oacute;</entry><entry>&uacute;</entry><entry>&ntilde;</entry>
-   <entry>&Ntilde;</entry><entry>&ordf;</entry><entry>&ordm;</entry>
-   <entry>&iquest;</entry><entry>&#8976;</entry><entry>&not;</entry>
-   <entry>&frac12;</entry><entry>&frac14;</entry><entry>&iexcl;</entry>
-   <entry>&laquo;</entry><entry>&raquo;</entry></row>
-  <row><entry>#xB0</entry><entry>&#9617;</entry><entry>&#9618;</entry>
-   <entry>&#9619;</entry><entry>&#9474;</entry><entry>&#9508;</entry>
-   <entry>&#9569;</entry><entry>&#9570;</entry><entry>&#9558;</entry>
-   <entry>&#9557;</entry><entry>&#9571;</entry><entry>&#9553;</entry>
-   <entry>&#9559;</entry><entry>&#9565;</entry><entry>&#9564;</entry>
-   <entry>&#9563;</entry><entry>&#9488;</entry></row>
-  <row><entry>#xC0</entry><entry>&#9492;</entry><entry>&#9524;</entry>
-   <entry>&#9516;</entry><entry>&#9500;</entry><entry>&#9472;</entry>
-   <entry>&#9532;</entry><entry>&#9566;</entry><entry>&#9567;</entry>
-   <entry>&#9562;</entry><entry>&#9556;</entry><entry>&#9577;</entry>
-   <entry>&#9574;</entry><entry>&#9568;</entry><entry>&#9552;</entry>
-   <entry>&#9580;</entry><entry>&#9575;</entry></row>
-  <row><entry>#xD0</entry><entry>&#9576;</entry><entry>&#9572;</entry>
-   <entry>&#9573;</entry><entry>&#9561;</entry><entry>&#9560;</entry>
-   <entry>&#9554;</entry><entry>&#9555;</entry><entry>&#9563;</entry>
-   <entry>&#9562;</entry><entry>&#9496;</entry><entry>&#9484;</entry>
-   <entry>&#9608;</entry><entry>&#9604;</entry><entry>&#9612;</entry>
-   <entry>&#9616;</entry><entry>&#9600;</entry></row>
-  <row><entry>#xE0</entry><entry>&alpha;</entry><entry>&szlig;</entry>
-   <entry>&Gamma;</entry><entry>&pi;</entry><entry>&Sigma;</entry>
-   <entry>&sigma;</entry><entry>&micro;</entry><entry>&tau;</entry>
-   <entry>&Phi;</entry><entry>&Theta;</entry><entry>&Omega;</entry>
-   <entry>&delta;</entry><entry>&infin;</entry><entry>&phgr;</entry>
-   <entry>&epsi;</entry><entry>&cap;</entry></row>
-  <row><entry>#xF0</entry><entry>&equiv;</entry><entry>&plusmn;</entry>
-   <entry>&ge;</entry><entry>&le;</entry><entry>&#8992;</entry>
-   <entry>&#8993;</entry><entry>&divide;</entry><entry>&asymp;</entry>
-   <entry>&deg;</entry><entry>&#8729;</entry><entry>&middot;</entry>
-   <entry>&radic;</entry><entry>&#8319;</entry><entry>&sup2;</entry>
-   <entry>&#9632;</entry><entry>&nbsp;</entry></row>
-</tbody></tgroup></informaltable>
- &char-table-legend;
-</para></listitem></varlistentry></variablelist>
-<!-- #endif -->
-
 <!-- #if defined(ISOLATIN_CHS) && !defined(UNICODE) -->
 <variablelist>
 <varlistentry><term>Platform dependent: &unix; (except &nextstep;),
@@ -1932,7 +1864,7 @@ performance considerations.
 
 <!-- #ifdef KEYBOARD -->
 <variablelist>
-<varlistentry><term>Platform dependent: &unix;, &dos;, &os2;, &win32;
+<varlistentry><term>Platform dependent: &unix;, &win32;
    platforms only.</term>
 <listitem><simpara>The system itself uses this &input-char; type only to
  mention special keys and &ctrl;/&alt;/&shift; key status on return from
@@ -2020,9 +1952,9 @@ are simple characters.</para>
  in particular, &line-term;s.
  The default behavior is as follows:</para>
 
-<!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
+<!-- #if defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
 <variablelist>
-<varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
+<varlistentry><term>Platform dependent: &win32;
    platforms only.</term>
 <listitem><simpara>When writing to a file, &nl-c; is converted to
  &cr-c;/&lf-c;. (This is the usual convention on &dos;.)
@@ -2114,9 +2046,9 @@ and the international alphabetic characters from the character set:
 <para>The characters that are not graphic chars and the space character
  have names:</para>
 
-<!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
+<!-- #ifdef WIN32_CHARNAMES -->
 <table id="dos-win32-chars-table" frame="all">
- <title>Platform dependent characters: &dos;, &os2;, &win32; platforms.</title>
+ <title>Platform dependent characters: &win32; platforms.</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
   &code-char-header;<tbody>
  <row><entry><literal role="sexp">(&code-char; #x00)</literal></entry>
@@ -2566,9 +2498,8 @@ printed readably.</para>
 </simpara></listitem></varlistentry>
 <!-- #endif -->
 
-<!-- #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
-<varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
-   platforms only.</term>
+<!-- #ifdef PATHNAME_WIN32 -->
+<varlistentry><term>Platform dependent: &win32;  platforms only.</term>
 <listitem><simpara>For example, <filename>#P"foo\\bar"</filename>
  denotes the file &bar-f; in the directory &foo-f;,
  while <filename>#P"foo\\bar\\"</filename> denotes the subdirectory
@@ -2683,44 +2614,6 @@ printed readably.</para>
 </listitem></varlistentry></variablelist>
 <!-- #endif -->
 
-<!-- #if defined(PATHNAME_OS2) -->
-<variablelist>
-<varlistentry><term>Platform dependent: &os2; platforms only.</term>
-<listitem><variablelist>&path-comps;
-<varlistentry><term>&host-r;</term>&always-nil;</varlistentry>
-<varlistentry><term>&device-r;</term>
- <listitem><simpara>&nil; or &wild-k; or &file-letter-uc;
- </simpara></listitem></varlistentry>
-<varlistentry>&dir-term;
- <listitem><informaltable id="os2-dir-table" frame="all">
- <tgroup cols="2" colsep="1" rowsep="1" align="center">
-  &elt-val-meaning-header;<tbody>
- &startp-rel-abs; &subdirs-def; &subdir-string-or-wild;
- </tbody></tgroup></informaltable></listitem></varlistentry>
-<varlistentry><term>&name-r;</term>&wild-string-or-nil;</varlistentry>
-<varlistentry><term>&type-r;</term>&wild-string-or-nil;</varlistentry>
-&version-nil;
-</variablelist>
-
-<para>An &os2; &name-type-split;</para>
-
-<informaltable id="os2-filename-table" frame="all">
- <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
- <row><entry>External notation:</entry>
-  <entry><filename>"A:\sub1.typ\sub2.typ\name.typ"</filename></entry></row>
- <row><entry>using defaults:</entry>
-  <entry><filename>  "\sub1.typ\sub2.typ\name.typ"</filename></entry></row>
- <row><entry>or</entry>
-  <entry><filename>                     "name.typ"</filename></entry></row>
- <row><entry>or</entry>
-  <entry><filename>"*:\sub1.typ\**\sub3.typ\x*.lisp"</filename></entry></row>
- <row><entry>or similar.</entry><entry/></row>
-</tbody></tgroup></informaltable>
-
-<para>Instead of &file-bsla; one may use &file-slash;, as usual for
- &dos; calls.</para></listitem></varlistentry></variablelist>
-<!-- #endif -->
-
 <!-- #if defined(PATHNAME_WIN32) -->
 <variablelist>
 <varlistentry><term>Platform dependent: &win32; platforms only.</term>
@@ -2771,7 +2664,7 @@ printed readably.</para>
 
 <!-- #ifdef PATHNAME_NOEXT -->
 <variablelist>
-<varlistentry><term>Platform dependent: &unix;, &os2;, &win32;
+<varlistentry><term>Platform dependent: &unix;, &win32;
     platforms only.</term>
 <listitem><simpara>The wildcard characters: &file-star; matches any
  sequence of characters, &file-ques; matches any one character.
@@ -2782,7 +2675,7 @@ printed readably.</para>
 <!-- #ifdef PATHNAME_NOEXT -->
 <formalpara id="name-type-split"><title>Name/type namestring split.</title>
 <para><variablelist>
-<varlistentry><term>Platform dependent:  &unix;, &os2;, &win32;
+<varlistentry><term>Platform dependent:  &unix;, &win32;
    platforms only.</term>
 <listitem><para>A filename is split into name and type according to the
  following rule: <itemizedlist>
@@ -2828,27 +2721,6 @@ printed readably.</para>
  &namestring;), of course without spaces, [,],{,}:</para>
 
 <variablelist>
-<!-- #ifdef PATHNAME_MSDOS -->
-<varlistentry><term>Platform dependent: &dos; platforms only.</term>
-<listitem><informaltable id="dos-path-external-table" frame="all">
- <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
-  <row><entry>[ [drivespec] : ]</entry>
-   <entry>a letter &file-star;|&file-letter-lc;|&file-letter-uc;</entry></row>
-  <row><entry>{ name [. type] \ }</entry>
-   <entry>each one a subdirectory, &file-bsla; may be replaced by
-    &file-slash;</entry></row>
-  <row><entry>[ name [. type] ]</entry>
-   <entry>filename with type (extension)</entry></row>
-</tbody></tgroup></informaltable>
-
-<para>Name and type may be &string-t;s of any &length;
- (consisting of alphanumeric characters and &file-dash;,
- <filename>"_"</filename>).  They are shortened to 8 (respectively 3)
- characters and converted to upper case.  A single &file-star; is
- allowed for &wild-k;.</para>
-</listitem></varlistentry>
-<!-- #endif -->
-
 <!-- #ifdef PATHNAME_UNIX -->
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><informaltable id="unix-path-external-table" frame="all">
@@ -2866,8 +2738,8 @@ printed readably.</para>
 </listitem></varlistentry>
 <!-- #endif -->
 
-<!-- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
-<varlistentry><term>Platform dependent: &os2;, &win32; platforms only.</term>
+<!-- #ifdef PATHNAME_WIN32 -->
+<varlistentry><term>Platform dependent: &win32; platforms only.</term>
 <listitem><informaltable id="win32-path-external-table" frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
   <row><entry>[ [<replaceable>drivespec</replaceable>] : ]</entry>
@@ -2893,21 +2765,9 @@ printed readably.</para>
 
 <!-- #if !defined(USER_HOMEDIR) -->
 <variablelist>
-<varlistentry><term>Platform dependent:  &dos;, &os2;
-   platforms only.</term>
+<varlistentry><term>Platform dependent: unknown platforms only.</term>
 <listitem><simpara>The function &user-homedir-pathname; is not implemented.
 </simpara></listitem></varlistentry>
-<!-- #if defined(MSDOS) -->
-<varlistentry><term>Platform dependent: &dos;, &os2; platforms only.</term>
-<listitem><para>If you really need that function, you can define it
-    like this:
-<programlisting>
-(defun user-homedir-pathname (&optional-amp; host)
-  (declare (ignore host))
-  (or (&getenv; "HOME") "\\"))
-</programlisting></para></listitem></varlistentry>
-<!-- #endif -->
-
 </variablelist>
 <!-- #endif -->
 
@@ -3176,7 +3036,7 @@ pointing to non-existent files and can take the following values:
  <listitem><simpara><literal role="sexp">(&cd; [&path-r;])</literal>
    manages the current directory.</simpara></listitem></varlistentry>
 <!-- #else -->
-<varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
+<varlistentry><term>Platform dependent: &win32;
    platforms only.</term>
  <listitem><simpara><literal role="sexp">(&cd; [&path-r;])</literal>
    manages the current device and the current directory.
@@ -3222,7 +3082,7 @@ pointing to non-existent files and can take the following values:
 
 <!-- #ifdef GNU_READLINE -->
 <variablelist><title>&readline;</title>
- <varlistentry><term>Platform dependent: &unix;, &dos;, &os2; platforms
+ <varlistentry><term>Platform dependent: &unix; platforms
     only, and only in &clisp; built &without; compile-time flag &noreadline;
     (and when &readline; is installed on your machine already).</term>
  <listitem><simpara>Input through &terminal-io-var; uses the &readline;
@@ -3240,8 +3100,7 @@ pointing to non-existent files and can take the following values:
 
 <!-- #if defined(KEYBOARD) -->
 <variablelist><title>Macro &with-kbd;</title>
-<varlistentry><term>Platform dependent: &unix;, &dos;,
-  &os2;, &win32; platforms only.</term>
+<varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
 <listitem><para>&terminal-io-var; is not the only stream that
  communicates directly with the user: During execution of the body of a
  <literal role="sexp">(&with-kbd; . &body-r;)</literal> form,
@@ -3250,13 +3109,13 @@ pointing to non-existent files and can take the following values:
  It returns every keystroke in detail, as &character-t; or
  &input-char; with the following bits:
 <variablelist>
-<!-- #if defined(MSDOS) || defined(WIN32) -->
+<!-- #ifdef WIN32 -->
  <varlistentry><term><constant>:hyper</constant></term>
-  <listitem><simpara><emphasis>(Platform dependent: &dos;, &os2;,
+  <listitem><simpara><emphasis>(Platform dependent:
    &win32; platforms only.)</emphasis>
    if a non-standard key.  These keys are:
-<!-- #if defined(MSDOS) || defined(WIN32) -->
-   <emphasis>[&dos;, &os2;, &win32;]:</emphasis>
+<!-- #ifdef WIN32 -->
+   <emphasis>[&win32;]:</emphasis>
    Function keys, cursor keypads, numeric keypad.
 <!-- #endif -->
    </simpara></listitem></varlistentry>
@@ -3264,33 +3123,6 @@ pointing to non-existent files and can take the following values:
   <varlistentry><term>slot <replaceable>key</replaceable></term>
     <listitem><para>the key name, for non-standard keys:
       <variablelist>
-<!-- #ifdef MSDOS -->
-       <varlistentry><term>Platform dependent: &dos;, &os2;
-          platforms only.</term>
-      <listitem><informaltable id="dos-kbd-keys" frame="all">
-      <tgroup cols="2" colsep="1" rowsep="1" align="center">
-       &key-value-header;<tbody>
-       <row><entry><keycode>F1</keycode>..<keycode>F12</keycode></entry>
-         <entry><constant>:F1</constant>..<constant>:F12</constant>
-         </entry></row>
-       <row><entry><keycode>Insert</keycode></entry>
-         <entry><constant>:Insert</constant></entry></row>
-       <row><entry><keycode>Delete</keycode></entry>
-         <entry><constant>:Delete</constant></entry></row>
-       <row><entry><keycode>Home</keycode></entry>
-         <entry><constant>:Home</constant></entry></row>
-       <row><entry><keycode>End</keycode></entry>
-         <entry><constant>:End</constant></entry></row>
-       <row><entry><keycode>PgUp</keycode></entry>
-         <entry><constant>:PgUp</constant></entry></row>
-       <row><entry><keycode>PgDn</keycode></entry>
-         <entry><constant>:PgDn</constant></entry></row>
-       <row><entry>Arrow keys</entry>
-         <entry><constant>:Left</constant><constant>:Right</constant>
-         <constant>:Up</constant><constant>:Down</constant></entry></row>
-      </tbody></tgroup></informaltable></listitem></varlistentry>
-<!-- #endif -->
-
 <!-- #if defined(UNIX) || defined(WIN32) -->
       <varlistentry><term>Platform dependent: &unix;, &win32;
          platforms only.</term>
@@ -3325,9 +3157,9 @@ pointing to non-existent files and can take the following values:
     <listitem><simpara>the &ascii; code for standard keys
     </simpara></listitem></varlistentry>
 
-<!-- #if defined(MSDOS) || defined(WIN32) -->
+<!-- #ifdef WIN32 -->
   <varlistentry><term><constant>:super</constant></term>
-   <listitem><simpara><emphasis>(Platform dependent: &dos;, &os2;,
+   <listitem><simpara><emphasis>(Platform dependent:
      &win32; platforms only.)</emphasis>
   if pressed together with &shift; key(s) and if the keystroke would
   have been an other without &shift;.</simpara></listitem></varlistentry>
@@ -3335,9 +3167,9 @@ pointing to non-existent files and can take the following values:
   <varlistentry><term><constant>:control</constant></term>
    <listitem><simpara>if pressed together with the &ctrl; key.
    </simpara></listitem></varlistentry>
-<!-- #if defined(MSDOS) || defined(WIN32) -->
+<!-- #ifdef WIN32 -->
   <varlistentry><term><constant>:meta</constant></term>
-  <listitem><simpara><emphasis>(Platform dependent: &dos;, &os2;, &win32;
+  <listitem><simpara><emphasis>(Platform dependent: &win32;
     platforms only.)</emphasis> if pressed together with the &alt; key.
   </simpara></listitem></varlistentry>
 <!-- #endif -->
@@ -3629,11 +3461,11 @@ functions are provided:
 
 </section>
 
-<!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY!= 0)) -->
+<!-- #if defined(WIN32) || (defined(UNIX) && (O_BINARY!= 0)) -->
 <section id="file-pos"><title>Function &file-position;</title>
 
 <variablelist>
- <varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
+ <varlistentry><term>Platform dependent: &win32;
     platforms only.</term>
 <listitem><simpara>&file-position; works on any &buffered; &file-stream-t;.
   When a &nl-c; is output to (respectively input from) a file stream,
@@ -3951,7 +3783,7 @@ functions are provided:
  has no influence on the way floating point numbers are printed.</para>
 
 <variablelist>
-<varlistentry><term>Platform dependent: &unix;, &dos;, &os2;, &win32;
+<varlistentry><term>Platform dependent: &unix;, &win32;
    platforms only.</term>
 <listitem><simpara>&print-pretty-var; is initially &nil; but set to &t;
  in &config-file;.  This makes screen output prettier.
@@ -4063,8 +3895,8 @@ functions are provided:
   <filename>#"test.lisp"</filename> is the value of <literal
   role="sexp">(&pathname; "test.lisp")</literal></simpara>
 <variablelist>
-<!-- #if defined(MSDOS) -->
-<varlistentry><term>Platform dependent: &dos;, &os2;, &win32;
+<!-- #if defined(WIN32) -->
+<varlistentry><term>Platform dependent: &win32;
    platforms only.</term>
 <listitem><simpara>As in all strings, backslashes must be written twice
   here: <filename>#"A:\\programs\\test.lisp"</filename>
@@ -4344,10 +4176,6 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <!-- #endif -->
 <row><entry><constant>:LOOP</constant></entry><entry/></row>
 <row><entry><constant>:CLOS</constant></entry><entry/></row>
-<row><entry><constant>:DOS</constant></entry>
- <entry>if &hw; = PC (clone) and &os; = DOS</entry></row>
-<row><entry><constant>:OS/2</constant></entry>
- <entry>if &hw; = PC (clone) and &os; = OS/2</entry></row>
 <row><entry><constant>:WIN32</constant></entry>
  <entry>if &hw; = PC (clone) and
   &os; = Win32 (Windows 95/98/NT/Me/2000/XP)</entry></row>
@@ -4771,8 +4599,7 @@ exhaust the available line length.</para></formalpara>
 
 <!-- #if !(defined(UNIX) || defined(WIN32)) -->
 <variablelist id="default-tz">
-<varlistentry><term>Platform dependent: &dos;, &os2;
-  platforms only.</term>
+<varlistentry><term>Platform dependent: unknown platforms only.</term>
  <listitem><simpara>The variable <firstterm>&default-tz;</firstterm>
    contains the default time zone used by &encode-universal-time; and
    &decode-universal-time;.  It is initially set to -1
@@ -4788,9 +4615,9 @@ exhaust the available line length.</para></formalpara>
 <table id="internal-time-units-table" frame="all">
  <title>Time granularity</title>
  <tgroup cols="5" colsep="1" rowsep="1" align="center">
- <thead><row><entry>platform</entry><entry>&dos;, &os2;</entry>
+ <thead><row><entry>platform</entry>
         <entry>&unix;</entry><entry>&win32;</entry></row></thead><tbody>
- <row><entry>&internal-time-units-per-second;</entry><entry>100</entry>
+ <row><entry>&internal-time-units-per-second;</entry>
   <entry>50</entry><entry>1,000,000</entry><entry>10,000,000</entry></row>
 </tbody></tgroup></table>
 
@@ -4814,8 +4641,7 @@ exhaust the available line length.</para></formalpara>
    The default implementations try to read the registry.
 </simpara></listitem></varlistentry>
 <!-- #else -->
-<varlistentry><term>Platform dependent: &dos;, &os2;
-  platforms only.</term>
+<varlistentry><term>Platform dependent: unknown platforms only.</term>
  <listitem><simpara>The functions &machine-type;, &machine-version;,
    &machine-instance; and &short-site-name;, &long-site-name; should be
    defined by every user in his user-specific &config-file; file.

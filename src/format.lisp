@@ -319,9 +319,7 @@
         (setq arguments
           (nconc arguments (list (substring control-string pos1 pos2))))
         (when (<= pos1 errorpos pos2)
-          (setq errorstring
-            (string-concat errorstring "~%~VT"
-                           #+OS/2 "" #-OS/2 "|"))
+          (setq errorstring (string-concat errorstring "~%~VT" "|"))
           (setq arguments (nconc arguments (list (+ (- errorpos pos1) 2)))))
         (when (= pos2 (length control-string)) (return))
         (setq pos1 (+ pos2 1)))))

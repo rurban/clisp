@@ -95,39 +95,6 @@ global unsigned int ualarm (unsigned int value, unsigned int interval) {
 
 #ifdef EINTR
 
-#ifdef UNIX # EMUNIX braucht das nicht
-
-# Ein Wrapper um die open-Funktion.
-global int nonintr_open (const char* path, int flags, mode_t mode)
-{
-  var int retval;
-  do {
-    retval = open(path,flags,mode);
-  } while ((retval < 0) && (errno == EINTR));
-  return retval;
-}
-
-# Ein Wrapper um die close-Funktion.
-  global int nonintr_close (int fd) {
-    var int retval;
-    do {
-      retval = close(fd);
-    } while ((retval < 0) && (errno == EINTR));
-    return retval;
-  }
-
-# Ein Wrapper um die ioctl-Funktion.
-  #undef ioctl
-  global int nonintr_ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg) {
-    var int retval;
-    do {
-      retval = ioctl(fd,request,arg);
-    } while ((retval != 0) && (errno == EINTR));
-    return retval;
-  }
-
-#endif
-
 #ifdef UNIX_TERM_TERMIOS
 
 # Ein Wrapper um die tcsetattr-Funktion.

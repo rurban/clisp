@@ -2374,7 +2374,7 @@ local object encoding_from_name (const char* name, const char* context) {
   unused name; unused context;
   pushSTACK(unbound);           /* :charset */
  #endif /* UNICODE */
- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
+ #if defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
   pushSTACK(S(Kdos));           /* :line-terminator */
  #else
   pushSTACK(S(Kunix));          /* :line-terminator */

@@ -97,9 +97,7 @@ o
    base/libnoreadline.a   sustituto ficticio de la librería GNU readline
 #endif
 #else /* !defined(UNIX) */
-#ifdef OS2
       lisp.exe           programa principal
-#endif
       lispinit.mem       imagen de memoria necesaria para la inicialización
 #ifdef GNU_GETTEXT
       locale/*/LC_MESSAGES/clisp.mo  <<<localized messages databases>>>
@@ -107,29 +105,15 @@ o
       clisp.1            manual en formato `man' de Unix
       clisp.man          manual
       clisp.html         manual en format HTML
-#ifdef OS2
-      clisp.dvi          manual en formato DVI
-#endif
       impnotes.html      notas de la implementación
 #ifdef GNU_READLINE
       clreadline.3       manual de edición de línea en formato `man' de Unix
       clreadline.man     manual de edición de línea
       clreadline.html    manual de edición de línea en format HTML
-#ifdef OS2
-      clreadline.dvi     manual de edición de línea en formato DVI
-#endif
 #endif
       LISP-tutorial.txt  tutorial de LISP para aprendices
       CLOS-guide.txt     breve guía de CLOS
       editors.txt        <<<some words about text editors for Lisp>>>
-#ifdef EMUNIX
-      emx.exe            extensor DOS rsx para ejecutar clisp bajo DOS o OS/2
-      emx-user.doc       guía del usuario de aplicaciones emx
-      emx-faq.doc        preguntas frecuentes sobre las aplicaciones emx
-      emx.dll            librería de enlazamiento dinámico de OS/2 que contiene emx
-      emxlibc.dll        librería de enlazamiento dinámico de OS/2 que contiene emx libc
-      termcap.dat        base de datos del terminal
-#endif
       README             este texto
       SUMMARY            pequeña descripción de CLISP
       ANNOUNCE           declaración
@@ -147,22 +131,9 @@ o
 y - cuando le apetezca, si le gusta leer código fuente -
 
       *.lisp             el código fuente de lispinit.mem
-#if !defined(OS2)
       *.fas              los mismos ficheros, una vez compilados
 #endif
-#endif
 
-#ifdef OS2
-
-Requisitos Hardware:
---------------------
-
-La versión para OS/2 de CLISP necesita una CPU 80386 (SX o DX) o un 80486,
-ejecutando OS/2 2.0.
-También se ejecuta en un Pentium; los resultados que produce CLISP no
-están afectados por el error de división del Pentium de Intel.
-
-#endif
 #if defined(SINGLEMAP_MEMORY) && (defined(UNIX_LINUX) || !defined(HAVE_MMAP_ANON))
 
 Requisitos Software:
@@ -189,30 +160,6 @@ comando "chmod a+r /dev/zero".
 Instalación:
 ------------
 
-#ifdef OS2
-Antes que nada, instale emx.dll y emxlibc.dll en un directorio aparte,
-por ejemplo c:\emx\dll. Añada c:\emx\dll (asegúrese de colocar la
-unidad de disco correcta) a la sentencia LIBPATH de su fichero
-config.sys. Reinicie su ordenador, de modo que se active la nueva
-instrucción LIBPATH y las nuevas variables de entorno.
-
-#endif
-#ifdef EMUNIX
-
-Para que las líneas de entrada demasiado largas puedan mostrarse de
-una manera elegante, es necesario que tenga una linea del tipo:
-
-    DEVICE=ANSI.SYS
-
-en su fichero CONFIG.SYS. Más aún, la variable de entorno TERM debe
-estar definida, y la variable de entorno TERMCAP debe contener el
-nombre del fichero (con la ruta completa) de la base de datos
-TERMCAP.DAT, con la definición de las capacidades del terminal. Es una
-buena idea, añadir estas instrucciones en el fichero CLISP.BAT que se
-construye más adelante. Si lo desea, puede instalar el fichero
-TERMCAP.DAT en un directorio aparte, por ejemplo c:\emx\etc.
-
-#endif
 #if defined(UNIX) || defined(WIN32)
 #if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
 Teclee
@@ -236,7 +183,7 @@ de la zona horaria al final del fichero TIMEZONE.LISP.
 #endif
 Luego ejecute
 
-#if defined(OS2) || defined(WIN32_NATIVE)
+#ifdef WIN32_NATIVE
          lisp.exe -M lispinit.mem
 #endif
 #ifdef UNIX
@@ -294,7 +241,7 @@ Le recomiendo /usr/local/lib/lisp :
    mv base/lisp.run /usr/local/lib/lisp
    mv base/lispinit.mem /usr/local/lib/lisp
 #endif
-#if defined(OS2) || defined(WIN32_NATIVE)
+#ifdef WIN32_NATIVE
 Suponiendo D:\LIB\LISP :
 
    mkdir d:\lib\lisp
@@ -302,18 +249,10 @@ Suponiendo D:\LIB\LISP :
    copy lispinit.mem d:\lib\lisp
 #endif
 
-#if defined(MSDOS) || defined(WIN32_NATIVE)
+#ifdef WIN32_NATIVE
 Y cree un fichero de ejecución por lotes que ejecute lisp:
 
-#ifndef OS2
    copy con c:\bat\clisp.bat
-#else
-   copy con c:\cmd\clisp.cmd
-#endif
-#ifdef EMUNIX
-   set TERM=ansi
-   set TERMCAP=c:/emx/etc/termcap.dat
-#endif
    d:\lib\lisp\lisp.exe -M d:\lib\lisp\lispinit.mem -B d:\lib\lisp\ %1 %2 %3 %4 %5 %6 %7 %8 %9
    [Ctrl-Z]
 #endif
@@ -353,12 +292,6 @@ and try
 Cuando encuentre problemas:
 ---------------------------
 
-#ifdef EMUNIX
-Si clisp no se ejecuta de ninguna manera, consulte
-EMX-USER.DOC. LISP.EXE es una aplicación EMX, de modo que todo lo que
-se menciona ahí, se aplica a LISP.EXE.
-
-#endif
 Después de un error, se encontrará en el depurador:
 
      1. Break> _
@@ -378,9 +311,6 @@ produjo el error.
 
 #ifdef UNIX
 Cuando los problemas sean mayores, por ejemplo `core dumps', por favor
-#endif
-#ifdef OS2
-Cuando los problemas sean mayor, por ejemplo "register dumps", por favor
 #endif
 envíe una descripción del error y una descripción de cómo reproducir
 el error a los autores o al "mantenedor". Por favor, acompañe su mensaje
@@ -431,9 +361,6 @@ Estamos muy agradecidos a
   * El proyecto GNU de Richard Stallman para el GCC.
 #endif
 #endif
-#endif
-#ifdef EMUNIX
-  * Eberhard Mattes por EMX.
 #endif
 
 

@@ -492,7 +492,7 @@
               old-space1 old-space2 old-gccount)
   (macrolet ((diff4 (val1-n val2-n val1-o val2-o)
                (if (< internal-time-units-per-second 1000000)
-                 ;; TIME_1: OS/2, UNIX_TIMES
+                 ;; TIME_1: UNIX_TIMES
                  `(delta4 ,val1-n ,val2-n ,val1-o ,val2-o 16)
                  ;; TIME_2: other UNIX, WIN32
                  `(+ (* (- ,val1-n ,val1-o) internal-time-units-per-second)
@@ -527,19 +527,12 @@
   (if (and (realp time) (not (minusp time)))
     (progn
       ; Diese Fallunterscheidung hängt von sys::%sleep in time.d ab.
-      #+OS/2 ; SLEEP_1
-      (if (> time '#,(floor (expt 2 31) internal-time-units-per-second))
-        ; Mehr als 248 bzw. 994 bzw. 497 Tage? (Denn sys::%sleep akzeptiert nur
-        ; Argumente < 2^32, bei #+OS/2 sogar nur Argumente < 2^31.)
-        (loop ; ja -> Endlosschleife
-          (sys::%sleep '#,(* 86400 internal-time-units-per-second)))
-        (sys::%sleep (round (* time internal-time-units-per-second))))
-      #+UNIX ; SLEEP_2
+      #+UNIX
       (if (> time 16700000) ; mehr als 193 Tage?
         (loop (sys::%sleep 86400 0)) ; ja -> Endlosschleife
         (multiple-value-bind (seconds rest) (floor time)
           (sys::%sleep seconds (round (* rest 1000000)))))
-      #+WIN32 ; SLEEP_2
+      #+WIN32
       (if (> time 4250000) ; mehr als 49 Tage?
         (loop (sys::%sleep 86400 0)) ; ja -> Endlosschleife
         (multiple-value-bind (seconds rest) (floor time)

@@ -616,12 +616,7 @@ LISPFUNNR(get_universal_time,0)
 #if defined(UNIX) || defined(WIN32)
 LISPFUN(default_time_zone,seclass_default,0,1,norest,nokey,0,NIL)
 #endif
-#ifdef SLEEP_1
-LISPFUNN(sleep,1)
-#endif
-#ifdef SLEEP_2
 LISPFUNN(sleep,2)
-#endif
 LISPFUNNR(time,0)
 LISPFUNNF(delta4,5)
 /* ---------- PACKAGE ---------- */
@@ -714,7 +709,7 @@ LISPFUN(ensure_directories_exist,seclass_default,1,0,norest,key,1,
         (kw(verbose)))
 LISPFUNNR(file_write_date,1)
 LISPFUNNR(file_author,1)
-#if defined(UNIX) || defined(MSDOS)
+#ifdef UNIX
 LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
 #endif
 #ifdef HAVE_SHELL

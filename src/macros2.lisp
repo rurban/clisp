@@ -320,7 +320,7 @@
 #+UNIX
 (defun make-printer-stream (&key (external-format :default))
   (make-pipe-output-stream "lpr" :external-format external-format))
-#+(or OS/2 WIN32)
+#+WIN32
 (defun make-printer-stream (&key (external-format :default))
   (open "prn" :direction :output :external-format external-format))
 ;; ----------------------------------------------------------------------------

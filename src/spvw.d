@@ -1360,13 +1360,6 @@ local void init_object_tab (void) {
      #ifdef PC386
       " :PC386"
      #endif
-     #ifdef MSDOS
-      #ifdef OS2
-      " :OS/2"
-      #else
-      " :DOS"
-      #endif
-     #endif
      #ifdef UNIX
       " :UNIX"
      #endif
@@ -1736,18 +1729,6 @@ global int main (argc_t argc, char* argv[]) {
   # build up interrupt-handler.
   # print banner.
   # jump into the driver.
- #ifdef EMUNIX
-  # expand wildcards and response-files int the command line:
-  _response(&argc,&argv);
-  _wildcard(&argc,&argv);
- #endif
- #if defined(MSDOS) && 0 # usually unnecessary
-  # access stdin and stdout in text-mode:
-  begin_system_call();
-  setmode(stdin_handle,O_TEXT);
-  setmode(stdout_handle,O_TEXT);
-  end_system_call();
- #endif
  #ifdef WIN32_NATIVE
   init_win32();
  #endif
@@ -2658,19 +2639,7 @@ global int main (argc_t argc, char* argv[]) {
  #if defined(HAVE_SIGNALS)
   update_linelength();
  #endif
- #if defined(MSDOS)
-  # the width of the screen in current screen-mode
-  # query now on program start:
-  if (isatty(stdout_handle)) { # standard-output a terminal?
-    extern uintW v_cols(); # see STREAM.D
-    var int scrsize[2];
-    var uintL columns;
-    columns = (_scrsize(scrsize), scrsize[0]);
-    if (columns > 0) { # change value of SYS::*PRIN-LINELENGTH* :
-      Symbol_value(S(prin_linelength)) = fixnum(columns-1);
-    }
-  }
- #elif defined(WIN32_NATIVE)
+ #if defined(WIN32_NATIVE)
  # cannot do it in init_win32 - too early
  if (isatty(stdout_handle)) {
    var HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -2681,7 +2650,7 @@ global int main (argc_t argc, char* argv[]) {
    }
  }
  #endif
- #if (defined(HAVE_SIGNALS) && (defined(UNIX) || defined(EMUNIX))) || defined(WIN32_NATIVE)
+ #if (defined(HAVE_SIGNALS) && defined(UNIX)) || defined(WIN32_NATIVE)
   # install Ctrl-C-Handler:
   install_sigint_handler();
  #endif
@@ -2816,7 +2785,7 @@ global int main (argc_t argc, char* argv[]) {
    #ifdef PATHNAME_UNIX
     pushSTACK(ascii_to_string(".clisprc"));
    #endif
-   #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+   #ifdef PATHNAME_WIN32
     pushSTACK(ascii_to_string("_clisprc"));
    #endif
     pushSTACK(S(Kdefaults));
@@ -3014,7 +2983,7 @@ global int main (argc_t argc, char* argv[]) {
  #ifdef UNIX
   exit(exitcode); # Calling exit(), not _exit(), allows profiling to work.
  #endif
- #if defined(MSDOS) || defined(WIN32_NATIVE)
+ #ifdef WIN32_NATIVE
   _exit(exitcode);
  #endif
   # if that did not help:
