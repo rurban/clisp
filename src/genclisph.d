@@ -225,6 +225,9 @@ global int main()
       printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
       printf("  storclass void funname arguments\n");
     #endif
+  #elif defined(MICROSOFT)
+    printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
+    printf("  __declspec(noreturn) storclass void funname arguments\n");
   #else
     printf("#define nonreturning_function(storclass,funname,arguments)  \\\n");
     printf("  storclass void funname arguments\n");
@@ -272,6 +275,11 @@ global int main()
   #if (long_bitsize==64)
     printf("typedef long           SLONGLONG;\n");
     printf("typedef unsigned long  ULONGLONG;\n");
+  #elif defined(MICROSOFT)
+    # lispbibl.d defines HAVE_LONGLONG for MICROSOFT,
+    # so MICROSOFT has to come before HAVE_LONGLONG here
+    printf("typedef __int64           SLONGLONG;\n");
+    printf("typedef unsigned __int64  ULONGLONG;\n");
   #elif defined(HAVE_LONGLONG)
     printf("typedef long long           SLONGLONG;\n");
     printf("typedef unsigned long long  ULONGLONG;\n");
