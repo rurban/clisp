@@ -797,7 +797,8 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_MPROTECT,
-[AC_REQUIRE([CL_GETPAGESIZE])dnl
+[AC_REQUIRE([CL_MALLOC])dnl
+AC_REQUIRE([CL_GETPAGESIZE])dnl
 AC_REQUIRE([CL_MMAP])dnl
 AC_CHECK_FUNCS(mprotect)dnl
 if test $ac_cv_func_mprotect = yes; then
@@ -916,7 +917,8 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_CODEEXEC,
-[AC_CACHE_CHECK([whether code in malloc'ed memory is executable], cl_cv_codeexec, [
+[AC_REQUIRE([CL_MALLOC])dnl
+AC_CACHE_CHECK([whether code in malloc'ed memory is executable], cl_cv_codeexec, [
 dnl The test below does not work on host=hppa*-hp-hpux* because on this system
 dnl function pointers are actually pointers into(!) a two-pointer struct.
 dnl The test below does not work on host=rs6000-*-* because on this system
