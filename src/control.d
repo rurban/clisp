@@ -2153,7 +2153,7 @@ LISPFUN(macro_function,1,1,norest,nokey,0,NIL)
     if (fsubrp(fundef)) {
       # ein FSUBR -> Propertyliste absuchen: (GET symbol 'SYS::MACRO)
       var object got = get(symbol,S(macro)); # suchen
-      if (!bound(got)) /* not found? */
+      if (!boundp(got)) /* not found? */
         goto nil;
       value1 = got;
     } else if (macrop(fundef)) { # #<MACRO expander> ?
