@@ -1,3 +1,7 @@
+2004-03-08  Sam Steingold  <sds@gnu.org>
+
+	* number2.tst (check-mult): new test for FP multiplication
+
 2004-01-07  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (with-ignored-errors) [CLISP]: return the error

@@ -183,3 +183,33 @@ check-sqrt
 (check-sqrt   LEAST-POSITIVE-LONG-FLOAT LONG-FLOAT-EPSILON)   T
 (check-sqrt   LEAST-NEGATIVE-LONG-FLOAT LONG-FLOAT-EPSILON)   T
 (check-sqrt    MOST-NEGATIVE-LONG-FLOAT LONG-FLOAT-EPSILON)   T
+
+(defun check-mult (num) (= num (* 1 num) (/ num 1))) check-mult
+
+(check-mult   MOST-POSITIVE-SHORT-FLOAT) T
+(check-mult  LEAST-POSITIVE-SHORT-FLOAT) T
+(check-mult  LEAST-NEGATIVE-SHORT-FLOAT) T
+(check-mult   MOST-NEGATIVE-SHORT-FLOAT) T
+(check-mult  MOST-POSITIVE-SINGLE-FLOAT) T
+(check-mult LEAST-POSITIVE-SINGLE-FLOAT) T
+(check-mult LEAST-NEGATIVE-SINGLE-FLOAT) T
+(check-mult  MOST-NEGATIVE-SINGLE-FLOAT) T
+(check-mult  MOST-POSITIVE-DOUBLE-FLOAT) T
+(check-mult LEAST-POSITIVE-DOUBLE-FLOAT) T
+(check-mult LEAST-NEGATIVE-DOUBLE-FLOAT) T
+(check-mult  MOST-NEGATIVE-DOUBLE-FLOAT) T
+(check-mult    MOST-POSITIVE-LONG-FLOAT) T
+(check-mult   LEAST-POSITIVE-LONG-FLOAT) T
+(check-mult   LEAST-NEGATIVE-LONG-FLOAT) T
+(check-mult    MOST-NEGATIVE-LONG-FLOAT) T
+
+(loop :for x :in '(1.0s0 1.0f0 1.0d0 1.0l0) :for eps :in
+  (list short-float-epsilon single-float-epsilon double-float-epsilon
+        long-float-epsilon)
+  :for eps2 = (* eps 9/10) :unless
+  (equal
+   (funcall (compile nil `(lambda nil (list (+ (+ ,x ,eps2) ,eps2)
+                                            (+ ,eps2 (+ ,eps2 ,x))))))
+   (list x x))
+  :collect (list x eps eps2))
+NIL
