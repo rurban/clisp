@@ -4,9 +4,6 @@ See also <https://sourceforge.net/tracker/?group_id=1355&atid=351355>
 MUST-FIX BEFORE NEXT RELEASE
 ============================
 
-Finish MOP. (Bruno)
-<https://sourceforge.net/tracker/index.php?func=detail&aid=454398&group_id=1355&atid=351355>
-
 Contagion warnings emitted by many floating-point operations. (Bruno)
 
 Fix modules/exporting.lisp :
