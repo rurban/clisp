@@ -2162,7 +2162,7 @@ else
 fi
 if [ $XCC_NEED_DEEMA = true ] ; then
   if [ $HOS = unix ] ; then
-    echol "DEEMA = sed -e 's/,)/,_EMA_)/g' -e 's/,,/,_EMA_,/g'"
+    echol "DEEMA = sed -e 's/, *)/,_EMA_)/g' -e 's/, *,/,_EMA_,/g'"
   else
     echol "DEEMA = deema"
     XDECL_DEPENDENCIES="${XDECL_DEPENDENCIES} deema${HEXE}"
