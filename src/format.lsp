@@ -1395,26 +1395,24 @@
        FRANCAIS "La directive ~~C requiert un caractère et non ~S")
       arg
   ) )
-  (flet ((write-charname (arg)
-           (let ((name (char-name arg)))
-             (if name
-               (write-string (string-capitalize name) stream)
-               (write-char arg stream)
-        )) ) )
+  (if (not colon-modifier)
     (if (not atsign-modifier)
-      ; ~C oder ~:C
-      (if (not colon-modifier)
-        ; ~C
-        (write-char arg stream)
-        ; ~:C
-        (write-charname arg)
-      )
-      (if (not colon-modifier)
-        ; ~@C
-        (prin1 arg stream)
-        ; ~:@C -- hier NUR die Anweisung, wie's zu tippen ist.
-        (write-charname arg)
-) ) ) )
+      ; ~C
+      (write-char arg stream)
+      ; ~@C
+      (prin1 arg stream)
+    )
+    ; ~:C prints the name of non-printing characters.
+    ; ~:@C prints instructions how to type the character.
+    ; Since characters don't have attributes any more, both do the same.
+    (if (and (graphic-char-p arg) (not (eql arg #\Space)))
+      (write-char arg stream)
+      (let ((name (char-name arg)))
+        (if name
+          (write-string (string-capitalize name) stream)
+          (write-char arg stream)
+    ) ) )
+) )
 
 ; ~F, CLTL S.390-392, CLtL2 S. 588-590
 (defformat-simple format-fixed-float (stream colon-modifier atsign-modifier
