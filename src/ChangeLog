@@ -4,6 +4,10 @@
 	WRITE-CHAR-SEQUENCE instead of WRITE-SEQUENCE for the benefit of
 	dribbling when the output streams are reset so that it is not
 	clear that they are character streams
+	* savemem.lisp (saveinitmem): new option :verbose;
+	reset *DRIBBLE-STREAM* in the temporary *DRIVER*:
+	this fixes a bug in images saved after DRIBBLE
+	Reported by Peter Wood <peter.wood@worldonline.dk>
 
 2002-03-16  Joerg-Cyril Hoehle  <Joerg-Cyril.Hoehle@t-systems.com>
 
