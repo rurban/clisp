@@ -326,6 +326,9 @@ AC_DEFUN([CL_AS_UNDERSCORE],
 m4_pattern_allow([^AS_UNDERSCORE$])
 AC_CACHE_CHECK(for underscore in external names, cl_cv_prog_as_underscore, [
 cat > conftest.c <<EOF
+#ifdef __cplusplus
+extern "C"
+#endif
 int foo() { return 0; }
 EOF
 # look for the assembly language name in the .s file
