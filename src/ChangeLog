@@ -1,3 +1,10 @@
+2001-08-15  Sam Steingold  <sds@gnu.org>
+
+	MT-safety: remove a static variable
+	* io.d (circle_p): return a boolean and take a circle_info_t* arg
+	(pr_circle): info is not a pointer now; pass it to circle_p()
+	(pr_cons): pass NULL to circle_p()
+
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
 	* sequence.d (seq_check_index): Remove typdescr argument. Use index,
