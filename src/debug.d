@@ -285,6 +285,7 @@ local Values read_form(void)
       if (streamp(old_trs)) {
         /* maybe need to process something from the first line? */
         var object strm_list = TheStream(old_trs)->strm_concat_list;
+        pushSTACK(obj); /* save before PEEK-CHAR */
         pushSTACK(old_trs); /* save before PEEK-CHAR */
         Symbol_value(S(terminal_read_stream)) =
           (consp(strm_list) && !nullp(Cdr(strm_list))
@@ -294,6 +295,7 @@ local Values read_form(void)
                funcall(L(peek_char),4), !eq(value1,eof_value)))
           ? STACK_0 : (gcv_object_t)unbound;
         skipSTACK(1); /* drop old_trs */
+        obj = popSTACK();
       }
     }
    #endif

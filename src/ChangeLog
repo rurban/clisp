@@ -1,5 +1,9 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* debug.d (read_form): Fix GC-safety bug introduced on 2003-01-21.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* io.d (pretty_print_call): Fix GC-safety bug introduced on 2001-08-17.
 	Avoid goto.
 
