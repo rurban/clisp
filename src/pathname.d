@@ -5116,7 +5116,7 @@ local void wildcard_diff_ab (object pattern, object sample,
       {
         var object new_string = allocate_string(1);
         SstringDispatch(new_string,X, {
-          ((SstringX)TheVarobject(new_string))->data[0] = as_cint(c);
+          ((SstringX)TheVarobject(new_string))->data[0] = cc;
         });
         pushSTACK(new_string);
       }
