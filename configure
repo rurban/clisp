@@ -218,9 +218,9 @@ fi
 }
 
 # Note that we would need to call `/bin/pwd` if we wanted to compare two
-# directories for equality. But he we only need to get _some_ absolute
+# directories for equality. But here we only need to get _some_ absolute
 # pathnames, hence `pwd` is enough.
-# Note also that /bin/pwd doesn't exist on Cygwin32.
+# Note also that /bin/pwd does exist on the recent Cygwin32.
 
 if test -f /bin/pwd ; then
   ABSPATHPWD=/bin/pwd
