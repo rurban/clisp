@@ -643,7 +643,7 @@ static const cint nop_page[256] = {
 # copy_string(string)
 # > string: String
 # < ergebnis: mutable Normal-Simple-String mit denselben Zeichen
-# kann GC auslösen
+# can trigger GC
   global object copy_string (object string);
   global object copy_string(string)
     var object string;
@@ -667,7 +667,7 @@ static const cint nop_page[256] = {
 # coerce_ss(obj)
 # > obj: Lisp-Objekt, sollte ein String sein.
 # < ergebnis: Simple-String mit denselben Zeichen
-# kann GC auslösen
+# can trigger GC
   global object coerce_ss (object obj);
   global object coerce_ss(obj)
     var object obj;
@@ -703,7 +703,7 @@ static const cint nop_page[256] = {
 # coerce_imm_ss(obj)
 # > obj: Lisp-Objekt, sollte ein String sein.
 # < ergebnis: immutabler Simple-String mit denselben Zeichen
-# kann GC auslösen
+# can trigger GC
   global object coerce_imm_ss (object obj);
   global object coerce_imm_ss(obj)
     var object obj;
@@ -783,7 +783,7 @@ static const cint nop_page[256] = {
 # coerce_normal_ss(obj)
 # > obj: Lisp-Objekt, sollte ein String sein.
 # < ergebnis: Normal-Simple-String mit denselben Zeichen
-# kann GC auslösen
+# can trigger GC
   global object coerce_normal_ss (object obj);
   global object coerce_normal_ss(obj)
     var object obj;
@@ -814,7 +814,7 @@ static const cint nop_page[256] = {
 # coerce_imm_normal_ss(obj)
 # > obj: Lisp-Objekt, sollte ein String sein.
 # < ergebnis: immutabler Normal-Simple-String mit denselben Zeichen
-# kann GC auslösen
+# can trigger GC
   global object coerce_imm_normal_ss (object obj);
   global object coerce_imm_normal_ss(obj)
     var object obj;
@@ -1889,7 +1889,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
 # > obj: Argument
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: Argument als String
-# kann GC auslösen
+# can trigger GC
   local object test_stringsymchar_arg (object obj);
   local object test_stringsymchar_arg(obj)
     var object obj;
@@ -1918,7 +1918,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
 # < uintL len: Anzahl der angesprochenen Characters
 # < chart* ergebnis: Ab hier kommen die angesprochenen Characters
 # erhöht STACK um 3
-# kann GC auslösen
+# can trigger GC
   local chart* test_1_stringsym_limits (object* string_, uintL* len_);
   local chart* test_1_stringsym_limits(string_,len_)
     var object* string_;
@@ -2672,7 +2672,7 @@ LISPFUNN(string_both_trim,3)
 # string_upcase(string)
 # > string: String
 # < ergebnis: neuer Normal-Simple-String, in Großbuchstaben
-# kann GC auslösen
+# can trigger GC
   global object string_upcase (object string);
   global object string_upcase(string)
     var object string;
@@ -2712,7 +2712,7 @@ LISPFUN(string_upcase,1,0,norest,key,2, (kw(start),kw(end)) )
 # string_downcase(string)
 # > string: String
 # < ergebnis: neuer Normal-Simple-String, in Kleinbuchstaben
-# kann GC auslösen
+# can trigger GC
   global object string_downcase (object string);
   global object string_downcase(string)
     var object string;
@@ -2874,7 +2874,7 @@ LISPFUN(substring,2,1,norest,nokey,0,NIL)
 # > subr_self: Aufrufer (ein SUBR) (unnötig, falls alle Argumente Strings sind)
 # < ergebnis: Gesamtstring, neu erzeugt
 # < STACK: aufgeräumt
-# kann GC auslösen
+# can trigger GC
   global object string_concat (uintC argcount);
   global object string_concat(argcount)
     var uintC argcount;

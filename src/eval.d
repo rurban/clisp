@@ -348,7 +348,7 @@ LISPFUNN(subr_info,1)
 #   rettet die Werte, klettert STACK und SP hoch
 #   und springt dann unwind_protect_to_save.fun an.
 # verändert STACK
-# kann GC auslösen
+# can trigger GC
   global void unwind (void);
   global void unwind()
     { var fcint frame_info = framecode(STACK_0);
@@ -575,7 +575,7 @@ LISPFUNN(subr_info,1)
 # > upto: Pointer auf einen Frame (in den Stack, ohne Typinfo).
 # Rettet die Werte mv_count/mv_space.
 # verändert STACK,SP
-# kann GC auslösen
+# can trigger GC
 # Springt dann den gefundenen Frame an.
   nonreturning_function(global, unwind_upto, (object* upto_frame));
   global void unwind_upto(upto_frame)
@@ -624,7 +624,7 @@ LISPFUNN(subr_info,1)
 # UP: Ruft alle Handler zur Condition cond auf. Kommt nur zurück, wenn keiner
 # dieser Handler sich zuständig fühlt (d.h. wenn jeder Handler zurückkehrt).
 # invoke_handlers(cond);
-# kann GC auslösen
+# can trigger GC
   global void invoke_handlers (object cond);
 # Dies deaktiviert den Handler, der gerade aufgerufen wird,
 # und alle neueren Handler.
@@ -960,7 +960,7 @@ LISPFUNN(subr_info,1)
 # > decl_env: Wert für DECL_ENV
 # > form: Form
 # < mv_count/mv_space: Werte
-# kann GC auslösen
+# can trigger GC
   global Values eval_5env (object form, object var_env, object fun_env, object block_env, object go_env, object decl_env);
   global Values eval_5env(form,var_env,fun_env,block_env,go_env,decl_env)
     var object form;
@@ -988,7 +988,7 @@ LISPFUNN(subr_info,1)
 # eval_noenv(form);
 # > form: Form
 # < mv_count/mv_space: Werte
-# kann GC auslösen
+# can trigger GC
   global Values eval_noenv (object form);
   global Values eval_noenv(form)
     var object form;
@@ -999,7 +999,7 @@ LISPFUNN(subr_info,1)
 # nest_fun(env)
 # > env: FUN-Env
 # < ergebnis: selbes Environment, kein Pointer in den Stack
-# kann GC auslösen
+# can trigger GC
   global object nest_fun (object env);
   global object nest_fun(env)
     var object env;
@@ -1050,7 +1050,7 @@ LISPFUNN(subr_info,1)
 # nest_var(env)
 # > env: VAR-Env
 # < ergebnis: selbes Environment, kein Pointer in den Stack
-# kann GC auslösen
+# can trigger GC
   local object nest_var (object env);
   local object nest_var(env)
     var object env;
@@ -1254,7 +1254,7 @@ LISPFUNN(subr_info,1)
 # > declspec: Deklarations-Specifier, ein Cons
 # > env: Deklarations-Environment
 # < ergebnis: neues (evtl. augmentiertes) Deklarations-Environment
-# kann GC auslösen
+# can trigger GC
   global object augment_decl_env (object new_declspec, object env);
   global object augment_decl_env(new_declspec,env)
     var object new_declspec;
@@ -1297,7 +1297,7 @@ LISPFUNN(subr_info,1)
 # < value1: die Expansion
 # < value2: NIL, wenn nicht expandiert,
 #           T, wenn expandiert wurde
-# kann GC auslösen
+# can trigger GC
   global void macroexp (object form, object venv, object fenv);
   global void macroexp(form,venv,fenv)
     var object form;
@@ -1337,7 +1337,7 @@ LISPFUNN(subr_info,1)
 # < value1: die Expansion
 # < value2: NIL, wenn nicht expandiert,
 #           T, wenn expandiert wurde
-# kann GC auslösen
+# can trigger GC
   global void macroexp0 (object form, object env);
   global void macroexp0(form,env)
     var object form;
@@ -1417,7 +1417,7 @@ LISPFUNN(subr_info,1)
 # < value2: Liste der decl-specs
 # < value3: Doc-String oder NIL
 # < ergebnis: TRUE falls eine (COMPILE)-Deklaration vorkam, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   global boolean parse_dd (object formlist, object venv, object fenv);
   global boolean parse_dd(formlist,venv,fenv)
     var object formlist;
@@ -1566,7 +1566,7 @@ LISPFUNN(subr_info,1)
 # > value2: Liste der decl-specs
 # > value3: Doc-String oder NIL
 # < STACK_0: neuer Lambdabody
-# kann GC auslösen
+# can trigger GC
   local void add_implicit_block (void);
   local void add_implicit_block()
     { # Ersetze lambdabody durch
@@ -1629,7 +1629,7 @@ LISPFUNN(subr_info,1)
 #        env->block_env = BENV, env->go_env = GENV,
 #        end->decl_env = DENV.
 # < ergebnis: Closure
-# kann GC auslösen
+# can trigger GC
   global object get_closure (object lambdabody, object name, boolean blockp, environment* env);
   global object get_closure(lambdabody,name,blockp,env)
     var object lambdabody;
@@ -2180,7 +2180,7 @@ LISPFUNN(subr_info,1)
 # > obj: Objekt
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: Objekt als Funktion (SUBR oder Closure)
-# kann GC auslösen
+# can trigger GC
   global object coerce_function (object obj);
   global object coerce_function(obj)
     var object obj;
@@ -2236,7 +2236,7 @@ LISPFUNN(subr_info,1)
 # > uintB type_of_call: 'A' for apply, 'F' for funcall, 'B' for bytecode
 # > uintB caller_type: 'F' for fsubr, 'S' for subr,
 #                      'C' for cclosure, 'I' for iclosure
-# kann GC auslösen
+# can trigger GC
   local void trace_call (object fun, uintB type_of_call, uintB caller_type);
   local void trace_call(fun,type_of_call,caller_type)
     var object fun;
@@ -2414,7 +2414,7 @@ LISPFUNN(subr_info,1)
 # > argcount: Anzahl der Argumente
 # < mv_count/mv_space: Werte
 # < STACK: aufgeräumt, = args_pointer
-# kann GC auslösen
+# can trigger GC
   local Values funcall_iclosure (object closure, object* args_pointer, uintC argcount);
   local Values funcall_iclosure(closure,args_pointer,argcount)
     var object closure;
@@ -2783,7 +2783,7 @@ LISPFUNN(subr_info,1)
 # < STACK: korrekt gesetzt
 # < ergebnis: closure
 # verändert STACK
-# kann GC auslösen
+# can trigger GC
   local object match_cclosure_key (object closure, uintL argcount, object* key_args_pointer, object* rest_args_pointer);
   local object match_cclosure_key(closure,argcount,key_args_pointer,rest_args_pointer)
     var object closure;
@@ -2888,7 +2888,7 @@ LISPFUNN(subr_info,1)
 # eval(form);
 # > form: Form
 # < mv_count/mv_space: Werte
-# kann GC auslösen
+# can trigger GC
   global Values eval (object form);
   global Values eval(form)
     var object form;
@@ -2941,7 +2941,7 @@ LISPFUNN(subr_info,1)
 # eval_no_hooks(form);
 # > form: Form
 # < mv_count/mv_space: Werte
-# kann GC auslösen
+# can trigger GC
   global Values eval_no_hooks (object form);
   global Values eval_no_hooks(form)
     var object form;
@@ -2984,7 +2984,7 @@ LISPFUNN(subr_info,1)
 # > STACK_0: Wert von *APPLYHOOK*
 # < mv_count/mv_space: Werte
 # verändert STACK
-# kann GC auslösen
+# can trigger GC
   local Values eval1(form)
     var object form;
     { if (atomp(form))
@@ -3115,7 +3115,7 @@ LISPFUNN(subr_info,1)
 # < STACK: aufgeräumt
 # < mv_count/mv_space: Werte
 # verändert STACK
-# kann GC auslösen
+# can trigger GC
   local Values eval_fsubr(fun,args)
     var object fun;
     var object args;
@@ -3220,7 +3220,7 @@ LISPFUNN(subr_info,1)
 # < STACK: aufgeräumt
 # < mv_count/mv_space: Werte
 # verändert STACK
-# kann GC auslösen
+# can trigger GC
   local Values eval_applyhook(fun)
     var object fun;
     { var object args = popSTACK(); # Argumentliste
@@ -3297,7 +3297,7 @@ LISPFUNN(subr_info,1)
 # < STACK: aufgeräumt
 # < mv_count/mv_space: Werte
 # verändert STACK
-# kann GC auslösen
+# can trigger GC
   local Values eval_subr(fun)
     var object fun;
     { var object args = popSTACK(); # Argumentliste
@@ -3605,7 +3605,7 @@ LISPFUNN(subr_info,1)
 # < STACK: aufgeräumt
 # < mv_count/mv_space: Werte
 # verändert STACK
-# kann GC auslösen
+# can trigger GC
   local Values eval_closure(closure)
     var object closure;
     { var object args = popSTACK(); # Argumentliste
@@ -3980,7 +3980,7 @@ LISPFUNN(subr_info,1)
 # < STACK: aufgeräumt
 # < mv_count/mv_space: Werte
 # verändert STACK
-# kann GC auslösen
+# can trigger GC
   local Values eval_ffunction(ffun)
     var object ffun;
     { var object args = popSTACK(); # Argumentliste

@@ -587,7 +587,7 @@
 
 # SF_to_I(x) wandelt ein Short-Float x, das eine ganze Zahl darstellt,
 # in ein Integer um.
-# kann GC auslösen
+# can trigger GC
   local object SF_to_I (object x);
 # Methode:
 # Falls x=0.0, Ergebnis 0.
@@ -609,7 +609,7 @@
     }
 
 # I_to_SF(x) wandelt ein Integer x in ein Short-Float um und rundet dabei.
-# kann GC auslösen
+# can trigger GC
   local object I_to_SF (object x);
 # Methode:
 # x=0 -> Ergebnis 0.0
@@ -678,7 +678,7 @@
 
 # RA_to_SF(x) wandelt eine rationale Zahl x in ein Short-Float um
 # und rundet dabei.
-# kann GC auslösen
+# can trigger GC
   local object RA_to_SF (object x);
 # Methode:
 # x ganz -> klar.

@@ -8,7 +8,7 @@
 # copy_list(list)
 # > list: Liste
 # < ergebnis: Kopie der Liste
-# kann GC auslösen
+# can trigger GC
   global object copy_list (object list);
   global object copy_list(old_list)
     var object old_list;
@@ -45,7 +45,7 @@
 # reverse(list)
 # > list: Liste (x1 ... xm)
 # < ergebnis: umgedrehte Liste (xm ... x1)
-# kann GC auslösen
+# can trigger GC
   global object reverse (object list);
   global object reverse(list)
     var object list;
@@ -104,7 +104,7 @@
 # > (STACK): Initialisierungswert für die Elemente
 # > uintL len: gewünschte Listenlänge
 # < ergebnis: Liste mit D1.L Elementen
-# kann GC auslösen
+# can trigger GC
   global object make_list (uintL len);
   global object make_list(len)
     var uintL len;
@@ -334,7 +334,7 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
 # > *(stackptr+1): die Testfunktion
 # > arg1,arg2: Argumente
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   local boolean up2_test (const object* stackptr, object arg1, object arg2);
   local boolean up2_test(stackptr,arg1,arg2)
     var const object* stackptr;
@@ -349,7 +349,7 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
 # > *(stackptr+0): die Testfunktion
 # > arg1,arg2: Argumente
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   local boolean up2_test_not (const object* stackptr, object arg1, object arg2);
   local boolean up2_test_not(stackptr,arg1,arg2)
     var const object* stackptr;
@@ -402,7 +402,7 @@ LISPFUNN(cons,2) # (CONS obj1 obj2), CLTL S. 264
 #       die :TEST/:TEST-NOT-Argumente in *(stackptr+1).L bzw.
 #       *(stackprt+0).L zugreifen kann.
 # < ergebnis: TRUE, falls gleich, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   local boolean tree_equal (const object* stackptr, up2_function up2_fun, object arg1, object arg2);
   local boolean tree_equal(stackptr,up2_fun,arg1,arg2)
     var const object* stackptr;
@@ -754,7 +754,7 @@ LISPFUNN(copy_list,1) # (COPY-LIST list), CLTL S. 268
 # copy_alist(alist)
 # > alist: Aliste
 # < ergebnis: Kopie der Aliste
-# kann GC auslösen
+# can trigger GC
   local object copy_alist (object alist);
 # Methode:
 # Statt
@@ -1009,7 +1009,7 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 # > *(stackptr+3): das zu vergleichende Item
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   local boolean up_test (const object* stackptr, object x);
   local boolean up_test(stackptr,x)
     var const object* stackptr;
@@ -1027,7 +1027,7 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 # > *(stackptr+3): das zu vergleichende Item
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   local boolean up_test_not (const object* stackptr, object x);
   local boolean up_test_not(stackptr,x)
     var const object* stackptr;
@@ -1044,7 +1044,7 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 # > *(stackptr+1): das Testprädikat
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   local boolean up_if (const object* stackptr, object x);
   local boolean up_if(stackptr,x)
     var const object* stackptr;
@@ -1059,7 +1059,7 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 # > *(stackptr+1): das Testprädikat
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   local boolean up_if_not (const object* stackptr, object x);
   local boolean up_if_not(stackptr,x)
     var const object* stackptr;
@@ -1125,7 +1125,7 @@ LISPFUNN(prplacd,2) # (SYS::%RPLACD cons object)
 #       wird selbem stackptr und mit (KEY x) als Argument angesprungen.
 #       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
 # < ergebnis: (evtl. neuer) Baum
-# kann GC auslösen
+# can trigger GC
   local object subst (object tree, object* stackptr, up_function up_fun);
   local object subst(tree,stackptr,up_fun)
     var object tree;
@@ -1202,7 +1202,7 @@ LISPFUN(subst_if_not,3,0,norest,key,1, (kw(key)) )
 #       wird selbem stackptr und mit (KEY x) als Argument angesprungen.
 #       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
 # < ergebnis: Baum
-# kann GC auslösen
+# can trigger GC
   local object nsubst (object tree, object* stackptr, up_function up_fun);
   local object nsubst(tree,stackptr,up_fun)
     var object tree;
@@ -1269,7 +1269,7 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
 #       (u . v) mit selbem stackptr und mit (KEY x) und u als Argumenten angesprungen.
 #       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
 # < ergebnis: Listenelement (ein Cons) oder NIL
-# kann GC auslösen
+# can trigger GC
   local object sublis_assoc (object* stackptr);
   local object sublis_assoc(stackptr)
     var object* stackptr;
@@ -1317,7 +1317,7 @@ LISPFUN(nsubst_if_not,3,0,norest,key,1, (kw(key)) )
 # > stackptr: *(stackptr-1) = KEY, *(stackptr+3) = ALIST,
 #             *(stackptr-2) ist frei für (KEY x)
 # < ergebnis: (evtl. neuer) Baum
-# kann GC auslösen
+# can trigger GC
   local object sublis (object tree, object* stackptr);
   local object sublis(tree,stackptr)
     var object tree;
@@ -1383,7 +1383,7 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
 # > stackptr: *(stackptr-1) = KEY, *(stackptr+3) = ALIST,
 #             *(stackptr-2) ist frei für (KEY x)
 # < ergebnis: Baum
-# kann GC auslösen
+# can trigger GC
   local object nsublis (object tree, object* stackptr);
   local object nsublis(tree,stackptr)
     var object tree;
@@ -1442,7 +1442,7 @@ LISPFUN(nsublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
 #       wird selbem stackptr und mit (KEY x) als Argument angesprungen.
 #       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
 # < ergebnis: Listenrest
-# kann GC auslösen
+# can trigger GC
   local object member (object list, object* stackptr, up_function up_fun);
   local object member(list,stackptr,up_fun)
     var object list;
@@ -1617,7 +1617,7 @@ LISPFUN(pairlis,2,1,norest,nokey,0,NIL)
 #       (u . v) mit selbem stackptr und mit (KEY u) als Argument angesprungen.
 #       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
 # < ergebnis: Listenelement (ein Cons) oder NIL
-# kann GC auslösen
+# can trigger GC
   local object assoc (object alist, object* stackptr, up_function up_fun);
   local object assoc(alist,stackptr,up_fun)
     var object alist;
@@ -1675,7 +1675,7 @@ LISPFUN(assoc_if_not,2,0,norest,key,1, (kw(key)) )
 #       (u . v) mit selbem stackptr und mit (KEY v) als Argument angesprungen.
 #       Sie liefert TRUE, falls der Test erfüllt ist, FALSE sonst.
 # < ergebnis: Listenelement (ein Cons) oder NIL
-# kann GC auslösen
+# can trigger GC
   local object rassoc (object alist, object* stackptr, up_function up_fun);
   local object rassoc(alist,stackptr,up_fun)
     var object alist;

@@ -41,7 +41,7 @@
 # UP, beschafft ein Cons
 # allocate_cons()
 # < ergebnis: Pointer auf neues CONS, mit CAR und CDR =NIL
-# kann GC auslösen
+# can trigger GC
   global object allocate_cons (void);
   global object allocate_cons()
     { allocate(cons_type,FALSE,sizeof(cons_),Cons,ptr,
@@ -53,7 +53,7 @@
 # make_symbol(string)
 # > string: immutable Simple-String
 # < ergebnis: neues Symbol mit diesem Namen, mit Home-Package=NIL.
-# kann GC auslösen
+# can trigger GC
   global object make_symbol (object string);
   global object make_symbol(string)
     var object string;
@@ -81,7 +81,7 @@
 # allocate_vector(len)
 # > len: Länge des Vektors
 # < ergebnis: neuer Vektor (Elemente werden mit NIL initialisiert)
-# kann GC auslösen
+# can trigger GC
   global object allocate_vector (uintL len);
   global object allocate_vector (len)
     var uintL len;
@@ -105,7 +105,7 @@
 # allocate_bit_vector(len)
 # > len: Länge des Bitvektors (in Bits)
 # < ergebnis: neuer Bitvektor (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   global object allocate_bit_vector (uintL len);
   global object allocate_bit_vector (len)
     var uintL len;
@@ -125,7 +125,7 @@
 # allocate_string(len)
 # > len: Länge des Strings (in Characters)
 # < ergebnis: neuer Normal-Simple-String (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   global object allocate_string (uintL len);
   global object allocate_string (len)
     var uintL len;
@@ -146,7 +146,7 @@
 # allocate_imm_string(len)
 # > len: Länge des Strings (in Characters)
 # < ergebnis: neuer immutabler Normal-Simple-String (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   global object allocate_imm_string (uintL len);
   global object allocate_imm_string (len)
     var uintL len;
@@ -164,7 +164,7 @@
 # allocate_imm_small_string(len)
 # > len: Länge des Strings (in Characters)
 # < ergebnis: neuer immutabler Small-Simple-String (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   global object allocate_imm_small_string (uintL len);
   global object allocate_imm_small_string (len)
     var uintL len;
@@ -183,7 +183,7 @@
 # > uintC (eigentlich uintWC) rank: Rang
 # > tint type: Typinfo
 # < ergebnis: LISP-Objekt Array
-# kann GC auslösen
+# can trigger GC
   global object allocate_iarray (uintB flags, uintC rank, tint type);
   global object allocate_iarray(flags,rank,type)
     var uintB flags;
@@ -212,7 +212,7 @@
 # > uintC reclen: Länge
 # > tint type: Typinfo
 # < ergebnis: LISP-Objekt Record (Elemente werden mit NIL initialisiert)
-# kann GC auslösen
+# can trigger GC
   #ifdef TYPECODES
   global object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint type);
   global object allocate_srecord_(flags_rectype,reclen,type)
@@ -251,7 +251,7 @@
 # > uintC recxlen: Extra-Länge
 # > tint type: Typinfo
 # < ergebnis: LISP-Objekt Record (Elemente werden mit NIL bzw. 0 initialisiert)
-# kann GC auslösen
+# can trigger GC
   #ifdef TYPECODES
   global object allocate_xrecord_ (uintW flags_rectype, uintC reclen, uintC recxlen, tint type);
   global object allocate_xrecord_(flags_rectype,reclen,recxlen,type)
@@ -300,7 +300,7 @@
 # > uintC reclen: Länge in Objekten
 # > uintC recxlen: Extra-Länge in Bytes
 # < ergebnis: LISP-Objekt Stream (Elemente werden mit NIL initialisiert)
-# kann GC auslösen
+# can trigger GC
   global object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
   global object allocate_stream(strmflags,strmtype,reclen,recxlen)
     var uintB strmflags;
@@ -321,7 +321,7 @@
 # allocate_fpointer(foreign)
 # > foreign: vom Typ FOREIGN
 # < ergebnis: LISP-Objekt, das foreign enthält
-# kann GC auslösen
+# can trigger GC
   global object allocate_fpointer (FOREIGN foreign);
   global object allocate_fpointer(foreign)
     var FOREIGN foreign;
@@ -337,7 +337,7 @@
 # UP, beschafft Handle-Verpackung
 # allocate_handle(handle)
 # < ergebnis: LISP-Objekt, das handle enthält
-# kann GC auslösen
+# can trigger GC
   global object allocate_handle (Handle handle);
   global object allocate_handle(handle)
     var Handle handle;
@@ -353,7 +353,7 @@
 # > uintC (eigentlich uintWC) len: Länge der Zahl (in Digits)
 # > sintB sign: Flag für Vorzeichen (0 = +, -1 = -)
 # < ergebnis: neues Bignum (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   global object allocate_bignum (uintC len, sintB sign);
   global object allocate_bignum(len,sign)
     var uintC len;
@@ -374,7 +374,7 @@
 # allocate_ffloat(value)
 # > ffloat value: Zahlwert (Bit 31 = Vorzeichen)
 # < ergebnis: neues Single-Float (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   global object allocate_ffloat (ffloat value);
   #ifndef WIDE
   global object allocate_ffloat(value)
@@ -406,7 +406,7 @@
 # allocate_dfloat(value)
 # > dfloat value: Zahlwert (Bit 63 = Vorzeichen)
 # < ergebnis: neues Double-Float (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   global object allocate_dfloat (dfloat value);
   global object allocate_dfloat(value)
     var dfloat value;
@@ -426,7 +426,7 @@
 # allocate_dfloat(semhi,mlo)
 # > semhi,mlo: Zahlwert (Bit 31 von semhi = Vorzeichen)
 # < ergebnis: neues Double-Float (LISP-Objekt)
-# kann GC auslösen
+# can trigger GC
   global object allocate_dfloat (uint32 semhi, uint32 mlo);
   global object allocate_dfloat(semhi,mlo)
     var uint32 semhi;
@@ -452,7 +452,7 @@
 # > signean sign: Vorzeichen (0 = +, -1 = -)
 # < ergebnis: neues Long-Float, noch ohne Mantisse
 # Ein LISP-Objekt liegt erst dann vor, wenn die Mantisse eingetragen ist!
-# kann GC auslösen
+# can trigger GC
   global object allocate_lfloat (uintC len, uintL expo, signean sign);
   global object allocate_lfloat(len,expo,sign)
     var uintC len;
@@ -476,7 +476,7 @@
 # > object num: Zähler (muss Integer /= 0 sein, relativ prim zu den)
 # > object den: Nenner (muss Integer > 1 sein)
 # < ergebnis: Bruch
-# kann GC auslösen
+# can trigger GC
   global object make_ratio (object num, object den);
   global object make_ratio(num,den)
     var object num;
@@ -523,7 +523,7 @@
 # > real: Realteil (muss reelle Zahl sein)
 # > imag: Imaginärteil (muss reelle Zahl /= Fixnum 0 sein)
 # < ergebnis: komplexe Zahl
-# kann GC auslösen
+# can trigger GC
   global object make_complex (object real, object imag);
   global object make_complex(real,imag)
     var object real;

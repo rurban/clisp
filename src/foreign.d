@@ -77,7 +77,7 @@ LISPFUNN(validp,1)
 # > name: its name
 # > flags: fv_readonly for read-only variables
 # > size: its size in bytes
-# kann GC auslösen
+# can trigger GC
   global void register_foreign_variable (void* address, const char * name, uintBWL flags, uintL size);
   global void register_foreign_variable(address,name_asciz,flags,size)
     var void* address;
@@ -117,7 +117,7 @@ LISPFUNN(validp,1)
 # > address: address of the function in memory
 # > name: its name
 # > flags: its language and parameter passing convention
-# kann GC auslösen
+# can trigger GC
   global void register_foreign_function (void* address, const char * name, uintWL flags);
   global void register_foreign_function(address,name_asciz,flags)
     var void* address;
@@ -317,7 +317,7 @@ local void callback (void* data, va_alist args);
 # Convert a Lisp function to a C function.
 # convert_function_to_foreign(address,resulttype,argtypes,flags)
 # The real C function address is Faddress_value(TheFfunction(result)->ff_address).
-# kann GC auslösen
+# can trigger GC
   local object convert_function_to_foreign (object fun, object resulttype, object argtypes, object flags);
   local object convert_function_to_foreign(fun,resulttype,argtypes,flags)
     var object fun;
@@ -780,7 +780,7 @@ local boolean blockzerop(ptr,size)
   }
 
 # Convert foreign data to Lisp data.
-# kann GC auslösen
+# can trigger GC
 global object convert_from_foreign (object fvd, const void* data);
   # Allocate an array corresponding to a foreign array.
   # kann GC auslösen
@@ -1374,7 +1374,7 @@ global void free_foreign(fvd,data)
   }
 
 # Walk Lisp data, giving special attention to the pointers.
-# kann GC auslösen
+# can trigger GC
 local void walk_lisp_pointers (object fvd, object obj);
 # Some flags and hooks that direct the walk:
 local boolean walk_lisp_nil_terminates;
@@ -1543,7 +1543,7 @@ local void walk_lisp_pointers(fvd,obj)
   }
 
 # Determine amount of additional storage needed to convert Lisp data to foreign data.
-# kann GC auslösen
+# can trigger GC
 local void convert_to_foreign_needs (object fvd, object obj);
 local uintL walk_counter;
 local uintL walk_alignment;
@@ -1583,7 +1583,7 @@ local void convert_to_foreign_needs(fvd,obj)
 
 # Convert Lisp data to foreign data. Storage is allocated through converter_malloc().
 # Only the toplevel storage must already exist; its address is given.
-# kann GC auslösen
+# can trigger GC
 local void convert_to_foreign (object fvd, object obj, void* data);
 local void* (*converter_malloc) (void* old_data, uintL size, uintL alignment);
 local void convert_to_foreign(fvd,obj,data)

@@ -58,7 +58,7 @@
 # I_random_I(randomstate,n) liefert zu einem Integer n>0 ein zufälliges
 # Integer x mit 0 <= x < n.
 # > randomstate: ein Random-State, wird verändert
-# kann GC auslösen
+# can trigger GC
   local object I_random_I (object randomstate, object n);
   local object I_random_I(randomstate,n)
     var object randomstate;
@@ -88,7 +88,7 @@
 # F_random_F(randomstate,n) liefert zu einem Float n>0 ein zufälliges
 # Float x mit 0 <= x < n.
 # > randomstate: ein Random-State, wird verändert
-# kann GC auslösen
+# can trigger GC
   local object F_random_F (object randomstate, object n);
   local object F_random_F(randomstate,n)
     var object randomstate;

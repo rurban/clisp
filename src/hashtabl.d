@@ -1029,7 +1029,7 @@
 # < Stackaufbau: MAXCOUNT, SIZE, MINCOUNT,
 #                Index-Vektor, Next-Vektor, Key-Value-Vektor.
 # Erniedrigt STACK um 6
-# kann GC auslösen
+# can trigger GC
   local uintL prepare_resize (object maxcount, object mincount_threshold);
   local uintL prepare_resize(maxcount,mincount_threshold)
     var object maxcount;
@@ -1071,7 +1071,7 @@
 # > ht: Hash-Table
 # > maxcount: gewünschte neue Größe MAXCOUNT
 # < ergebnis: Hash-Table, EQ zur alten
-# kann GC auslösen
+# can trigger GC
   local object resize (object ht, object maxcount);
   local object resize(ht,maxcount)
     var object ht;
@@ -1139,7 +1139,7 @@
 # < object ht: Hash-Tabelle
 # < object freelist: Anfang der Freiliste im Next-Vektor, /= nix
 # < object* Iptr: beliebiges Element der "Liste", die zu Key gehört
-# kann GC auslösen
+# can trigger GC
   #define hash_prepare_store(key)  \
     { retry:                                                                    \
       freelist = TheHashtable(ht)->ht_freelist;                                 \
@@ -1456,7 +1456,7 @@ LISPFUNN(puthash,3)
 # > obj: Objekt
 # > value: neuer Wert
 # < ergebnis: alter Wert
-# kann GC auslösen
+# can trigger GC
   global object shifthash (object ht, object obj, object value);
   global object shifthash(ht,obj,value)
     var object ht;

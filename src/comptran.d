@@ -2,7 +2,7 @@
 
 # N_phase_R(x) liefert (phase x), wo x eine Zahl ist.
 # Ergebnis rational nur wenn (= x 0) oder wenn x reell und >0.
-# kann GC auslösen
+# can trigger GC
   local object N_phase_R (object x);
 # Methode:
 # (= x 0) -> willkürliches Ergebnis 0
@@ -16,7 +16,7 @@
     }
 
 # N_exp_N(x) liefert (exp x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_exp_N (object x);
 # Methode:
 # x reell -> klar.
@@ -42,7 +42,7 @@
     }
 
 # N_log_N(x) liefert (log x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_log_N (object x);
 # Methode:
 # (complex (log (abs x)) (phase x))
@@ -58,7 +58,7 @@
     }}
 
 # N_N_log_N(a,b) liefert (log a b), wo a und b Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object N_N_log_N (object a, object b);
 # Methode:
 # (log a b) =
@@ -147,7 +147,7 @@
     }
 
 # N_I_expt_N(x,y) = (expt x y), wo x eine Zahl und y ein Integer ist.
-# kann GC auslösen
+# can trigger GC
   local object N_I_expt_N (object x, object y);
   # Methode:
   # Für y>0:
@@ -187,7 +187,7 @@
     }}
 
 # N_N_expt_N(x,y) = (expt x y), wo x und y Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object N_N_expt_N (object x, object y);
   # Methode:
   # Falls y rational:
@@ -344,7 +344,7 @@
     }}
 
 # N_sin_N(x) liefert (sin x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_sin_N (object x);
 # Methode:
 # x reell -> klar
@@ -368,7 +368,7 @@
     }
 
 # N_cos_N(x) liefert (cos x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_cos_N (object x);
 # Methode:
 # x reell -> klar
@@ -391,7 +391,7 @@
     }
 
 # N_tan_N(x) liefert (tan x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_tan_N (object x);
 # Methode:
 # x reell -> (/ (sin x) (cos x))
@@ -426,7 +426,7 @@
     }
 
 # N_cis_N(x) liefert (cis x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_cis_N (object x);
 # Methode:
 # x reell -> (complex (cos x) (sin x))
@@ -454,7 +454,7 @@
     }
 
 # N_sinh_N(x) liefert (sinh x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_sinh_N (object x);
 # Methode:
 # x reell -> klar
@@ -478,7 +478,7 @@
     }
 
 # N_cosh_N(x) liefert (cosh x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_cosh_N (object x);
 # Methode:
 # x reell -> klar
@@ -501,7 +501,7 @@
     }
 
 # N_tanh_N(x) liefert (tanh x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_tanh_N (object x);
 # Methode:
 # x reell -> (/ (sinh x) (cosh x))
@@ -536,7 +536,7 @@
     }
 
 # N_atanh_N(z) liefert den Artanh einer Zahl z.
-# kann GC auslösen
+# can trigger GC
   local object N_atanh_N (object z);
 # Methode:
 # Wert und Branch Cuts nach der Formel CLTL2, S. 315:
@@ -567,7 +567,7 @@
 # rein imaginär ist.
 
 # N_atan_N(z) liefert den Arctan einer Zahl z.
-# kann GC auslösen
+# can trigger GC
   local object N_atan_N (object z);
 # Methode:
 # Wert und Branch Cuts nach der Formel CLTL2, S. 307/312/313:
@@ -696,7 +696,7 @@
 #  = log(u+v) mod 2 pi i, und beider Imaginärteil ist > -pi und <= pi.)
 
 # N_asinh_N(z) liefert den Arsinh einer Zahl z.
-# kann GC auslösen
+# can trigger GC
   local object N_asinh_N (object z);
 # Methode:
 # Wert und Branch Cuts nach der Formel CLTL2, S. 313:
@@ -739,7 +739,7 @@
 # rein imaginär ist.
 
 # N_asin_N(z) liefert den Arcsin einer Zahl z.
-# kann GC auslösen
+# can trigger GC
   local object N_asin_N (object z);
 # Methode:
 # Wert und Branch Cuts nach der Formel CLTL2, S. 311:
@@ -874,7 +874,7 @@
     }
 
 # N_acos_N(z) liefert den Arccos einer Zahl z.
-# kann GC auslösen
+# can trigger GC
   local object N_acos_N (object z);
 # Methode:
 # Wert und Branch Cuts nach der Formel CLTL2, S. 312:
@@ -944,7 +944,7 @@
     }
 
 # N_acosh_N(z) liefert den Arcosh einer Zahl z.
-# kann GC auslösen
+# can trigger GC
   local object N_acosh_N (object z);
 # Methode:
 # Wert und Branch Cuts nach der Formel CLTL2, S. 314:

@@ -6,7 +6,7 @@
 # > MSBptr/len/..: Ziffernfolge, bestehend aus Punkten (werden überlesen)
 #     und Ziffern/Buchstaben mit Wert < base.
 # < ergebnis: der dargestellte Integer >=0
-# kann GC auslösen
+# can trigger GC
   local object DIGITS_to_I (const chart* MSBptr, uintL len, uintD base);
   local object DIGITS_to_I(MSBptr,len,base)
     var const chart* MSBptr;

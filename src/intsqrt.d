@@ -377,7 +377,7 @@
 # < STACK_0: (isqrt x)
 # < ergebnis: TRUE falls x Quadratzahl, FALSE sonst
 # erniedrigt STACK um 1
-# kann GC auslösen
+# can trigger GC
   local boolean I_isqrt_I (object x);
   local boolean I_isqrt_I(x)
     var object x;
@@ -407,7 +407,7 @@
 # I_sqrtp(x)
 # > x: ein Integer >=0
 # < ergebnis: Integer (sqrt x) falls x Quadratzahl, nullobj sonst
-# kann GC auslösen
+# can trigger GC
   local object I_sqrtp (object x);
 # Methode:
 # Damit x eine Quadratzahl ist, muss es ==0,1 mod 4 sein, und
@@ -436,7 +436,7 @@
 # > x: ein Integer >=0
 # > n: ein Integer >0
 # < ergebnis: Integer (expt x (/ n)) falls x eine n-te Potenz, nullobj sonst
-# kann GC auslösen
+# can trigger GC
   local object I_rootp (object x, object n);
 # Methode:
 # Falls x=0 oder x=1: x = x^n -> JA, x als Ergebnis.

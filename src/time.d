@@ -649,7 +649,7 @@
 # calc_start_UT(&timepoint)
 # > decoded_time timepoint: Zeit beim LISP-System-Start
 # < ergebnis: Universal Time
-# kann GC auslösen
+# can trigger GC
   local object calc_start_UT (const decoded_time* timepoint);
   local object calc_start_UT(timepoint)
     var const decoded_time* timepoint;
@@ -675,7 +675,7 @@
 # >   timepoint.Monat in {1,...,12},
 # >   timepoint.Jahr in {1980,...,2999},
 # >   jeweils als Fixnums.
-# kann GC auslösen
+# can trigger GC
   global void set_start_time (const decoded_time* timepoint);
   global void set_start_time(timepoint)
     var const decoded_time* timepoint;
