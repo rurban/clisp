@@ -1,3 +1,11 @@
+2002-06-05  Sam Steingold  <sds@gnu.org>
+
+	tweaked the last Arseny's patch
+	* socket.d (lingerize_socket) [WIN32]: removed (not used)
+	(ioctl) [WIN32]: moved to win32.d
+	* win32.d (ioctl): define here, just like ioctl for UNIX is
+	defined in unix.d
+
 2002-06-04  Peter Burwood  <clisp@peterb.org.uk>
 
 	* m4/address.m4 (CL_ADDRESS_RANGE): Remove cl_cv_prog_cc_ansi test
@@ -14,14 +22,14 @@
 	in thread.
 	(do_socket_wait): renamed from do_wait, takes struct
 	as Joerg likes, now tests for given event, not only for read.
-        (interruptible_socket_wait): parameters changed to struct.
-        * socket.d [WIN32] (ioctl): define on win32 as ioctlsocket.
-        (bindlisten_via_ip): don't lingerize socket (seems working,
-        need to test).
-        (connect_via_ip): don't lingerize. Fixed for win32 (may affect
-        UNIX behavior too).
-        * stream.d (socket_server_wait): use renamed
-        interruptible_socket_wait.
+	(interruptible_socket_wait): parameters changed to struct.
+	* socket.d (ioctl) [WIN32]: define on win32 as ioctlsocket.
+	(bindlisten_via_ip): don't lingerize socket (seems working,
+	need to test).
+	(connect_via_ip): don't lingerize. Fixed for win32 (may affect
+	UNIX behavior too).
+	* stream.d (socket_server_wait): use renamed
+	interruptible_socket_wait.
 
 2002-06-04  Peter Burwood  <clisp@peterb.org.uk>
 
@@ -5040,7 +5048,7 @@
 	  errors. Skip symbols that are not convertible to *terminal-encoding*.
 
 2001-02-28  Bruno Haible  <haible@clisp.cons.org>
-            Sam Steingold  <sds@gnu.org>
+	    Sam Steingold  <sds@gnu.org>
 
 	* defmacro.lisp (analyze-rest): Allow destructuring for the
 	  &REST/&BODY variable.
@@ -5050,7 +5058,7 @@
 	* places.lisp (PROGN, LOCALLY, IF): New defsetf expanders.
 
 2001-02-17  Arseny Slobodjuck  <ampy@crosswinds.net>
-            Bruno Haible  <haible@clisp.cons.org>
+	    Bruno Haible  <haible@clisp.cons.org>
 
 	* lispbibl.d (SCREEN): Also define on WIN32_NATIVE.
 	* stream.d [WIN32_NATIVE]: Implement window streams for SCREEN package.
@@ -5758,7 +5766,7 @@
 	two-way and echo streams.
 
 2000-06-16  Thomas Klausner  <wiz@danbala.ifoer.tuwien.ac.at>
-            Bruno Haible  <haible@clisp.cons.org>
+	    Bruno Haible  <haible@clisp.cons.org>
 
 	* lispbibl.d (unix): Define on NetBSD.
 	* modules/clx/new-clx/e2d.c: Treat __MACH__, __NetBSD__, __BeOS__ as
@@ -13450,7 +13458,7 @@
 
 1998-08-01  Bruno Haible  <haible@ilog.fr>
 
-       * makemake.in (DEEMA): Add _EMA_ in more places.
+	* makemake.in (DEEMA): Add _EMA_ in more places.
 
 1998-08-01  Bruno Haible  <haible@ilog.fr>
 

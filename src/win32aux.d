@@ -675,7 +675,7 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
       }
     }
 
-  # interruptible win32 socket wait thread function 
+  # interruptible win32 socket wait thread function
 
   struct socket_wait_params {
     socket_wait_event  event;
@@ -693,10 +693,10 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
       var fd_set handle_set;
       FD_ZERO(&handle_set); FD_SET(params->handle,&handle_set);
       ret = select(FD_SETSIZE, # 1st parameter doesnt really matters in winsock
-             params->event==socket_wait_read?&handle_set:NULL,
-             params->event==socket_wait_write?&handle_set:NULL,
-             params->event==socket_wait_except?&handle_set:NULL,
-             params->timeout);
+                   params->event==socket_wait_read?&handle_set:NULL,
+                   params->event==socket_wait_write?&handle_set:NULL,
+                   params->event==socket_wait_except?&handle_set:NULL,
+                   params->timeout);
       if (ret < 0) {
         if (sock_errno_is(EINTR)) {
           end_system_call(); goto restart_select;
@@ -713,8 +713,8 @@ global int read_helper (HANDLE fd, void* buf, int nbyte, bool partial_p) {
   # actual interface. return true on successfull wait, false when timeout
   # expires or Ctrl-C or Ctrl-Break pressed
   global int interruptible_socket_wait (SOCKET socket_handle,
-                               socket_wait_event waitwhat,
-                               struct timeval * timeout_ptr) {
+                                        socket_wait_event waitwhat,
+                                        struct timeval * timeout_ptr) {
     var struct socket_wait_params params;   # parameters for interruptible function
     params.event = waitwhat;                # see select() description
     params.handle = socket_handle;
