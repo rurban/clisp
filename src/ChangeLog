@@ -1,3 +1,7 @@
+2001-04-09  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (sys::*home-package*): set to NIL at the end
+
 2001-04-06  Sam Steingold  <sds@gnu.org>
 
 	The grand repackaging: USER+CL-USER; LISP+CL
