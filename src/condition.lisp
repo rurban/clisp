@@ -888,7 +888,9 @@
            ;; notice if its body is signalling a condition, and, if so,
            ;; associate the restarts with the condition.
            (and (consp form)
-                (case (first form) ((SIGNAL ERROR CERROR WARN) t) (t nil))
+                (case (first form)
+                  ((SIGNAL ERROR CERROR WARN ERROR-OF-TYPE) t)
+                  (t nil))
                 (gensym))))
       `(BLOCK ,blockname
          (LET (,arglistvar) ; arglistvar is IGNORABLE since it is a gensym
