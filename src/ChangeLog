@@ -1,5 +1,11 @@
 2004-11-07  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (p_backtrace_t): Define as a struct only if
+	DEBUG_BACKTRACE. Remove operator bool, because it leads to warnings
+	when comparing a p_backtrace_t with NULL. Tweak operator=.
+
+2004-11-07  Bruno Haible  <bruno@clisp.org>
+
 	* m4/putenv.m4 (CL_PUTENV): Include stdlib.h before attempting to
 	call putenv. Needed in C++ mode.
 
