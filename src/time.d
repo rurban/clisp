@@ -1139,7 +1139,7 @@ LISPFUNN(time,0)
 # as positional numbers with SHIFT digits, i.e.,
 # (- (+ (ash n1 shift) n2) (+ (ash o1 shift) o2))
 # the difference must be positive
-# all numbers must be fixnums; the result is (UNSIGNED-BYTE 32)
+# all numbers must be fixnums; the result is (UNSIGNED-BYTE 64)
 LISPFUNN(delta4,5) {
   if (!posfixnump(STACK_0)) fehler_posfixnum(STACK_0);
   var uintL shift = posfixnum_to_L(STACK_0);
@@ -1151,16 +1151,20 @@ LISPFUNN(delta4,5) {
   var uintL n2 = posfixnum_to_L(STACK_3);
   if (!posfixnump(STACK_4)) fehler_posfixnum(STACK_4);
   var uintL n1 = posfixnum_to_L(STACK_4);
-  if (shift + I_integer_length(STACK_4) > intLsize) {
-    pushSTACK(STACK_0); pushSTACK(S(ash));
-    fehler(arithmetic_error,GETTEXT("~: too large shift amount ~"));
-  }
   if ((o1 > n1) # use the arguments on the stack for error reporting
       || ((o1 == n1) && (o2 > n2))) {
     skipSTACK(1); pushSTACK(S(delta4));
     fehler(arithmetic_error,"~: negative difference: [~ ~] > [~ ~]");
   }
-  var uintL res = ((n1 << shift) + n2) - ((o1 << shift) + o2);
-  value1 = UL_to_I(res); mv_count = 1;
-  skipSTACK(5);
+  var uintL del = n1 - o1;
+  if (shift + I_integer_length(fixnum(del)) > 64) {
+    pushSTACK(STACK_0); pushSTACK(S(ash));
+    fehler(arithmetic_error,GETTEXT("~: too large shift amount ~"));
+  }
+ #ifdef intQsize
+  value1 = UQ_to_I((del << shift) + n2 - o2);
+ #else
+  value1 = UL2_to_I(del >> 32-shift,(del << shift) + n2 - o2);
+ #endif
+  mv_count = 1; skipSTACK(5);
 }
