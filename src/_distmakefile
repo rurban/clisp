@@ -122,5 +122,13 @@ install-doc : force
 	if [ ! -d $(lispdocdir) ] ; then mkdir $(lispdocdir) ; fi
 	tar cf - ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add doc | (cd $(lispdocdir) && tar xf -)
 
+uninstall : force
+	rm -rf $(lispdocdir) $(lisplibdir)
+	rm -f $(mandir)/man1/clisp.1 $(htmldir)/clisp.html \
+		$(dvidir)/clisp.dvi $(psdir)/clisp.ps $(bindir)/clisp
+#ifdef GNU_GETTEXT
+	(files=`find locale -type f`; cd $(localedir); rm -f $${files})
+#endif
+
 force:
 
