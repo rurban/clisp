@@ -11628,7 +11628,6 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 
 #endif
 
-#if defined(HAVE_FFI) || defined(HAVE_AFFI)
 # Wandelt ein Integer in ein C-Integer gegebenen Typs um.
 # I_to_xintyy(obj) setzt voraus, dass xintyy_p(obj) schon abgeprüft wurde.
   #define I_to_uint8(obj)  (uint8)(as_oint(obj) >> oint_data_shift)
@@ -11645,8 +11644,11 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   #else
     #define I_to_sint32(obj)  I_to_L(obj)
   #endif
+#if defined(HAVE_FFI) || defined(HAVE_AFFI)
+ #ifdef HAVE_LONGLONG
   #define I_to_uint64(obj)  I_to_UQ(obj)
   #define I_to_sint64(obj)  I_to_Q(obj)
+ #endif
   #if (int_bitsize==16)
     #define I_to_uint  I_to_uint16
     #define I_to_sint  I_to_sint16
@@ -11661,8 +11663,8 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
     #define I_to_ulong  I_to_uint64
     #define I_to_slong  I_to_sint64
   #endif
-# wird verwendet vom FFI
 #endif
+# wird verwendet vom FFI
 
 # I_I_comp(x,y) vergleicht zwei Integers x und y.
 # Ergebnis: 0 falls x=y, +1 falls x>y, -1 falls x<y.
