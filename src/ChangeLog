@@ -1,3 +1,9 @@
+1999-12-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (iconv_mbstowcs, iconv_wcstombs): When called from a
+          stream, and when valid data is followed by invalid data (EILSEQ),
+          return the converted valid data and don't signal an error yet.
+
 1999-11-30  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (init_object_tab): add :SYSCALLS to *FEATURES* when
