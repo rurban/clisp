@@ -75,7 +75,7 @@ impnotes.pdf: impnotes.xml $(IMPNOTES)
 	time docbook2pdf $<
 
 html: impnotes.xml $(IMPNOTES)
-	ln -s ../../gnu/clisp/impnotes-split $@
+	ln -s ../../gnu/clisp/impnotes $@
 	time docbook2html -o $@ $<
 
 regexp.html: ../modules/regexp/regexp.texinfo $(TEXI2HTML)
