@@ -1,5 +1,13 @@
 1999-03-14  Sam Steingold  <sds@gnu.org>
 
+	* stream.d: removed `stream_fd';
+	moved `file_stat' and `user_data' here.
+	* pathname.d: renamed `fehler_thing' to `fehler_pathname_descriptor'.
+	export it, `as_file_stream', `fehler_file_stream_unnamed'.
+	* socket.d (resolve_host_ipaddr): handle IPv6 addresses.
+
+1999-03-14  Sam Steingold  <sds@gnu.org>
+
 	OS_error() generates an error of type `os-error'.
 	* erramiga.d, errdjgpp.d, errunix.d, errwin32.d (OS_error): use
 	`simple_os_error'.
