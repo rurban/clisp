@@ -83,3 +83,17 @@ clisp-test-bin-i/o
   (clisp-test-bin-i/o :endianness e))
 #+clisp
 nil
+
+#+clisp
+(let ((vec (make-array 8 :element-type '(unsigned-byte 8)
+                       :initial-contents '(#x3f #xf0 0 0 0 0 0 0))))
+  (with-open-file (foo "./foocl" :direction :output
+                       :element-type '(unsigned-byte 8))
+    (write-sequence vec foo))
+  (prog1
+      (with-open-file (foo "./foocl" :direction :input
+                           :element-type '(unsigned-byte 8))
+        (read-float foo 'double-float :big))
+    (delete-file "./foocl")))
+#+clisp
+1d0
