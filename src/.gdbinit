@@ -145,4 +145,5 @@ handle SIGBUS noprint nostop
 watch byteptr
 commands
         output byteptr-byteptr_in
+        echo \n
 end
