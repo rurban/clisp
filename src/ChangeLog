@@ -1,3 +1,7 @@
+1999-07-31  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * spvw_ctype.d (init_ctype): Accept "he" as a new name for "iw".
+
 1999-07-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * makemake.in (BINARY_DISTRIB): Also define on HP-UX 10.
