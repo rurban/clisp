@@ -167,6 +167,7 @@ global void print_file (const char* fname) {
 
 global int main()
 {
+  printf("#define SAFETY %d\n",SAFETY);
   # Was hier ausgegeben wird, kann voraussetzen, dass unixconf.h und intparam.h
   # schon includet wurden. (intparam.h z.Zt. nicht nötig, aber was soll's.)
 # #ifdef LANGUAGE_STATIC
@@ -689,7 +690,7 @@ global int main()
       printf("#define type_zero_oint(type)  ((oint)(tint)(type) << %d)\n",oint_type_shift);
     #endif
   #else
-    printf("#define type_data_object(type,data)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(data) << %d)))\n",oint_type_shift,oint_addr_shift);
+    printf("#define type_data_object(type,data)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(data) << %d)))\n",oint_type_shift,oint_data_shift);
     printf("#define type_zero_oint(type)  ((oint)(tint)(type) << %d)\n",oint_type_shift);
     printf("#define immediate_object_p(obj)  ((7 & ~as_oint(obj)) == 0)\n");
     printf("#define gcinvariant_object_p(obj)  (((as_oint(obj) & 1) == 0) || immediate_object_p(obj))\n");
@@ -751,20 +752,20 @@ global int main()
  #else
    printf("#define XRECORD_HEADER  VAROBJECT_HEADER\n");
  #endif
-# printf("typedef struct { XRECORD_HEADER object recdata[unspecified]; } xrecord_;\n");
+# printf("typedef struct { XRECORD_HEADER gcv_object_t recdata[unspecified]; } xrecord_;\n");
 # printf("typedef xrecord_ *  Xrecord;\n");
- printf("typedef struct { object cdr; object car; } cons_;\n");
+ printf("typedef struct { gcv_object_t cdr; gcv_object_t car; } cons_;\n");
  printf("typedef cons_ *  Cons;\n");
 # #ifdef SPVW_MIXED
-#   printf("typedef struct { XRECORD_HEADER object rt_num; object rt_den; } ratio_;\n");
+#   printf("typedef struct { XRECORD_HEADER gcv_object_t rt_num; gcv_object_t rt_den; } ratio_;\n");
 # #else
-#   printf("typedef struct { object rt_num; object rt_den; } ratio_;\n");
+#   printf("typedef struct { gcv_object_t rt_num; gcv_object_t rt_den; } ratio_;\n");
 # #endif
 # printf("typedef ratio_ *  Ratio;\n");
 # #ifdef SPVW_MIXED
-#   printf("typedef struct { XRECORD_HEADER object c_real; object c_imag; } complex_;\n");
+#   printf("typedef struct { XRECORD_HEADER gcv_object_t c_real; gcv_object_t c_imag; } complex_;\n");
 # #else
-#   printf("typedef struct { object c_real; object c_imag; } complex_;\n");
+#   printf("typedef struct { gcv_object_t c_real; gcv_object_t c_imag; } complex_;\n");
 # #endif
 # printf("typedef complex_ *  Complex;\n");
   printf("typedef struct { VAROBJECT_HEADER gcv_object_t symvalue; gcv_object_t symfunction; gcv_object_t proplist; gcv_object_t pname; gcv_object_t homepackage; } symbol_;\n");
@@ -791,7 +792,7 @@ global int main()
   #endif
   printf("#define code_char(ch)  int_char(as_cint(ch))\n");
   printf("#define char_code(obj)  as_chart(char_int(obj))\n");
-  printf1("#define fixnum(x)  type_data_object(%d,x)\n",(tint)fixnum_type);
+  printf("#define fixnum(x)  type_data_object(%d,x)\n",fixnum_type);
   printf("#define Fixnum_0  fixnum(0)\n");
 # printf("#define Fixnum_1  fixnum(1)\n");
 # printf2("#define Fixnum_minus1  type_data_object(%d,%x)\n",(tint)(fixnum_type | bit(sign_bit_t)),(aint)(bitm(oint_data_len)-1));
@@ -850,7 +851,7 @@ global int main()
    printf("typedef struct { LRECORD_HEADER uintL  length; uint8  data[unspecified]; } sstring_;\n");
  #endif
  printf("typedef sstring_ *  Sstring;\n");
- printf("typedef struct { LRECORD_HEADER uintL  length; object data[unspecified]; } svector_;\n");
+ printf("typedef struct { LRECORD_HEADER gcv_object_t data[unspecified]; } svector_;\n");
  printf("typedef svector_ *  Svector;\n");
 #ifdef TYPECODES
   printf("#define lrecord_length(ptr)  ((ptr)->length)\n");
@@ -870,10 +871,10 @@ global int main()
 #   if (TB1+1 != TB2) printf("+((atype)&%d)",bit(TB1+1)-bit(TB2));
 #   printf(");\n");
 # #endif
-# printf("typedef struct { XRECORD_HEADER object pack_external_symbols; object pack_internal_symbols; object pack_shadowing_symbols; object pack_use_list; object pack_used_by_list; object pack_name; object pack_nicknames; } *  Package;\n");
+# printf("typedef struct { XRECORD_HEADER gcv_object_t pack_external_symbols; gcv_object_t pack_internal_symbols; gcv_object_t pack_shadowing_symbols; gcv_object_t pack_use_list; gcv_object_t pack_used_by_list; gcv_object_t pack_name; gcv_object_t pack_nicknames; } *  Package;\n");
   printf("typedef Srecord  Structure;\n");
   printf("#define structure_types   recdata[0]\n");
-# printf("typedef struct { SRECORD_HEADER object class; object other[unspecified]; } *  Instance;\n");
+# printf("typedef struct { SRECORD_HEADER gcv_object_t class; gcv_object_t inst_cl_id; gcv_object_t other[unspecified]; } *  Instance;\n");
   printf("typedef void Values;\n");
   printf("typedef Values (*lisp_function_t)();\n");
   printf("typedef struct { lisp_function_t function; gcv_object_t name; gcv_object_t keywords; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; uintW seclass; } subr_t");
@@ -1037,19 +1038,19 @@ global int main()
  #ifndef TYPECODES
   printf2("#define varobjectp(obj)  ((as_oint(obj) & %d) == %d)\n",3,varobject_bias);
  #endif
-# #ifdef TYPECODES
-#   #if defined(symbol_bit_o)
-#     #ifdef WIDE_STRUCT
-#       printf("#define symbolp(obj)  (typecode(obj) & bit(%d))\n",symbol_bit_t);
-#     #else
-#       printf("#define symbolp(obj)  (wbit_test(as_oint(obj),%d))\n",symbol_bit_o);
-#     #endif
-#   #else
-#     printf1("#define symbolp(obj)  (typecode(obj) == %d)\n",(tint)symbol_type);
-#   #endif
-# #else
-#   printf1("#define symbolp(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Symbol);
-# #endif
+ #ifdef TYPECODES
+   #if defined(symbol_bit_o)
+     #ifdef WIDE_STRUCT
+       printf("#define symbolp(obj)  (typecode(obj) & bit(%d))\n",symbol_bit_t);
+     #else
+       printf("#define symbolp(obj)  (wbit_test(as_oint(obj),%d))\n",symbol_bit_o);
+     #endif
+   #else
+     printf1("#define symbolp(obj)  (typecode(obj) == %d)\n",(tint)symbol_type);
+   #endif
+ #else
+   printf1("#define symbolp(obj)  (varobjectp(obj) && (Record_type(obj) == %d))\n",Rectype_Symbol);
+ #endif
 # #ifdef TYPECODES
 #   #ifdef WIDE_STRUCT
 #     printf("#define numberp(obj)  (typecode(obj) & bit(%d))\n",number_bit_t);
@@ -1082,7 +1083,7 @@ global int main()
  #ifdef TYPECODES
    printf2("#define stringp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)bit(notsimple_bit_t),(tint)sstring_type);
  #else
-   printf1("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - 16) == %d))\n",23-16);
+   printf("#define stringp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj) - %d) <= %d))\n",Rectype_S8string,Rectype_reallocstring - Rectype_S8string);
  #endif
 # #ifdef TYPECODES
 #   printf1("#define simple_bit_vector_p(atype,obj)  (typecode(obj) == Array_type_simple_bit_vector(atype))\n");
@@ -1099,7 +1100,7 @@ global int main()
 # #else
 #   printf1("#define arrayp(obj)  (varobjectp(obj) && ((uintB)(Record_type(obj)-1) <= %d))\n",24-1);
 # #endif
-   printf("extern object iarray_displace_check (object array, uintL size, uintL* index);\n");
+   printf("extern object array_displace_check (object array, uintL size, uintL* index);\n");
    printf("extern uintL vector_length (object vector);\n");
 # #ifdef TYPECODES
 #   printf1("#define instancep(obj)  (typecode(obj)==%d)\n",(tint)instance_type);
@@ -1278,7 +1279,7 @@ global int main()
            printf(" back_trace = saved_back_trace;");
          #endif
          #ifdef HAVE_SAVED_STACK
-           printf(" saved_STACK = (object*)NULL;");
+           printf(" saved_STACK = (gcv_object_t*)NULL;");
          #endif
          printf("\n");
   printf("#define begin_callback()  ");
