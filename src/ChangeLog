@@ -12,6 +12,7 @@
 	* stdbool.h.in: Upgrade to gettext-0.11.3.
 	* m4/stdbool.m4: Upgrade to gettext-0.11.3.
 	* configure.in: Use gt_STDBOOL_H instead of CL_STDBOOL_H.
+	* makemake.in (stdbool.h): Create using sed.
 
 2002-05-16  Sam Steingold  <sds@gnu.org>
 
