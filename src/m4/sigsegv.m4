@@ -37,7 +37,7 @@ AC_DEFUN([CL_SIGSEGV],
     AC_DEFINE(HAVE_SIGSEGV, 1, [Define if you have the libsigsegv library.])
   fi
   if test "$cl_cv_lib_sigsegv" = yes; then
-    AC_MSG_CHECKING([how to link with libiconv])
+    AC_MSG_CHECKING([how to link with libsigsegv])
     AC_MSG_RESULT([$LIBSIGSEGV])
   else
     dnl If $LIBSIGSEGV didn't lead to a usable library, we don't need
