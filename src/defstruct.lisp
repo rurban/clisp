@@ -421,14 +421,16 @@
                   (SETF (AREF OBJECT I) (AREF STRUCTURE I))))
              '(%COPY-SIMPLE-VECTOR STRUCTURE)))))))
 
+(defun ds-accessor-name (slotname concname)
+  (if concname
+    (concat-pnames concname slotname)
+    slotname))
+
 (defun ds-make-accessors (name names type concname slotlist)
   (mapcap
     #'(lambda (slot)
         (if (ds-real-slot-p slot)
-          (let ((accessorname
-                  (if concname
-                    (concat-pnames concname (clos::slot-definition-name slot))
-                    (clos::slot-definition-name slot)))
+          (let ((accessorname (ds-accessor-name (clos::slot-definition-name slot) concname))
                 (offset (clos::slot-definition-location slot))
                 (slottype (clos::slot-definition-type slot)))
             ;; This makes the macroexpansion depend on the current state
@@ -457,10 +459,7 @@
   (mapcap
     #'(lambda (slot)
         (if (and (ds-real-slot-p slot) (not (clos::structure-effective-slot-definition-readonly slot)))
-          (let ((accessorname
-                  (if concname
-                    (concat-pnames concname (clos::slot-definition-name slot))
-                    (clos::slot-definition-name slot)))
+          (let ((accessorname (ds-accessor-name (clos::slot-definition-name slot) concname))
                 (offset (clos::slot-definition-location slot))
                 (slottype (clos::slot-definition-type slot)))
             ;; This makes the macroexpansion depend on the current state
