@@ -1132,23 +1132,35 @@
   (let ((req-num (sig-req-num (std-gf-signature gf))))
     (if (>= (length args) req-num)
       (let ((req-args (subseq args 0 req-num)))
-        (let ((methods
-                ;; compute-applicable-methods would be sufficient, but the MOP
-                ;; specifies a two-step process.
-                (multiple-value-bind (methods certain)
-                    (funcall (cond ((eq gf #'compute-applicable-methods-using-classes)
-                                    #'compute-applicable-methods-using-classes-<standard-generic-function>)
-                                   (t #'compute-applicable-methods-using-classes))
-                             gf (mapcar #'class-of req-args))
-                  (if certain
-                    methods
-                    (funcall (cond ((or (eq gf #'compute-applicable-methods) (eq gf #'compute-effective-method))
-                                    #'compute-applicable-methods-<standard-generic-function>)
-                                   (t #'compute-applicable-methods))
-                             gf args)))))
+        (multiple-value-bind (methods originator)
+            ;; compute-applicable-methods would be sufficient, but the MOP p. 40
+            ;; specifies a two-step process.
+            (multiple-value-bind (methods certain)
+                (funcall (cond ((eq gf #'compute-applicable-methods-using-classes)
+                                #'compute-applicable-methods-using-classes-<standard-generic-function>)
+                               (t #'compute-applicable-methods-using-classes))
+                         gf (mapcar #'class-of req-args))
+              (if certain
+                (values methods 'compute-applicable-methods-using-classes)
+                (values
+                  (funcall (cond ((or (eq gf #'compute-applicable-methods) (eq gf #'compute-effective-method))
+                                  #'compute-applicable-methods-<standard-generic-function>)
+                                 (t #'compute-applicable-methods))
+                           gf args)
+                  'compute-applicable-methods)))
           (when (null methods)
             (return-from compute-applicable-methods-effective-method
               (no-method-caller 'no-applicable-method gf)))
+          ; Some checks, to guarantee that user-defined methods on
+          ; compute-applicable-methods or compute-applicable-methods-using-classes
+          ; don't break our CLOS.
+          (unless (proper-list-p methods)
+            (error (TEXT "Wrong ~S result for generic function ~S: not a proper list: ~S")
+                   originator gf methods))
+          (dolist (m methods)
+            (unless (typep-class m <method>)
+              (error (TEXT "Wrong ~S result for generic function ~S: list element is not a method: ~S")
+                     originator gf m)))
           ;; Combine the methods to an effective method:
           (or (cdr (assoc methods (std-gf-effective-method-cache gf) :test #'equal))
               (let ((effective-method
