@@ -52,7 +52,7 @@ extern object nobject_out (FILE* stream, object obj);
 
 #include <db.h>
 
-DEFMODULE(bdb,"BDB");
+DEFMODULE(bdb,"BDB")
 
 DEFUN(BDB:DB-VERSION,)
 { /* Berkeley-DB version */
