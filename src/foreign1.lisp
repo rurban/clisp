@@ -81,12 +81,12 @@
        (not (gethash name
                      (load-time-value
                       (let* ((reserved-list
-                              '("auto" "break" "case" "char" "continue"
-                                "default" "do" "double" "else" "enum" "extern"
-                                "float" "for" "goto" "if" "int" "long"
-                                "register" "return" "short" "sizeof" "static"
-                                "struct" "switch" "typedef" "union" "unsigned"
-                                "void" "while"))
+                               '("auto" "break" "case" "char" "continue"
+                                 "default" "do" "double" "else" "enum" "extern"
+                                 "float" "for" "goto" "if" "int" "long"
+                                 "register" "return" "short" "sizeof" "static"
+                                 "struct" "switch" "typedef" "union" "unsigned"
+                                 "void" "while"))
                              (reserved-table
                                (make-hash-table :key-type 'string :value-type '(eql t)
                                                 :test #'equal)))
@@ -128,9 +128,9 @@
 (defun parse-components (typespec)
   (let* ((form-type (first typespec))
          (spec-list
-          (ecase form-type
-            (C-STRUCT (cddr typEspec))
-            (C-UNION (cdr typespec)))))
+           (ecase form-type
+             (C-STRUCT (cddr typEspec))
+             (C-UNION (cdr typespec)))))
     (mapcar (lambda (subspec)
               (unless (and (consp subspec)
                            (eql (length subspec) 2)
@@ -148,8 +148,7 @@
       (VECTOR #'vector)
       (LIST #'list)
       (t (let* ((slots (mapcar #'first (cddr typespec)))
-                (vars (mapcar #'(lambda (x) (gensym (symbol-name x)))
-                              slots))
+                (vars (mapcar #'(lambda (x) (gensym (symbol-name x))) slots))
                 h)
            (eval `(FUNCTION
                    (LAMBDA ,vars
@@ -157,20 +156,20 @@
                     ,(if (and (setq h (get class 'clos::closclass))
                               (typep h clos::<structure-class>)
                               (setq h (clos::class-kconstructor h)))
-                         ;; h is the keyword constructor for the structure
-                         `(,h ,@(mapcan #'(lambda (s v)
-                                            (list (intern (symbol-name s) compiler::*keyword-package*)
-                                                  v))
-                                        slots vars))
-                         ;; no keyword constructor found ->
-                         ;; use CLOS:SLOT-VALUE instead
-                         (let ((ivar (gensym)))
-                           `(LET ((,ivar (CLOS:MAKE-INSTANCE ',class)))
-                             ,@(mapcar #'(lambda (s v)
-                                           `(SETF (CLOS:SLOT-VALUE ,ivar ', s)
-                                             ,v))
-                                       slots vars)
-                             ,ivar)))))))))))
+                       ;; h is the keyword constructor for the structure
+                       `(,h ,@(mapcan #'(lambda (s v)
+                                          (list (intern (symbol-name s) compiler::*keyword-package*)
+                                                v))
+                                      slots vars))
+                       ;; no keyword constructor found ->
+                       ;; use CLOS:SLOT-VALUE instead
+                       (let ((ivar (gensym)))
+                         `(LET ((,ivar (CLOS:MAKE-INSTANCE ',class)))
+                           ,@(mapcar #'(lambda (s v)
+                                         `(SETF (CLOS:SLOT-VALUE ,ivar ', s)
+                                           ,v))
+                                     slots vars)
+                           ,ivar)))))))))))
 
 (defmacro with-name/options ((name options name+options) &body body)
   (let ((no (gensym "NAME+OPTIONS-")))
@@ -241,11 +240,12 @@
               (setf (svref c-type 1) (parse-c-type (second typespec)))
               (setf (svref c-type 2) maxdim))))
         (C-FUNCTION
-         (let ((c-type (parse-c-function
-                        (parse-options (rest typespec)
-                                       '(:arguments :return-type :language)
-                                       typespec)
-                        typespec)))
+         (let ((c-type
+                 (parse-c-function
+                   (parse-options (rest typespec)
+                                  '(:arguments :return-type :language)
+                                  typespec)
+                   typespec)))
             (when name (setf (gethash name *c-type-table*) c-type))
             c-type))
         (C-PTR
@@ -326,8 +326,8 @@
   (append (if (flag-set-p flag ff-language-c) '(:C) '())
           (if (flag-set-p flag ff-language-ansi-c)
               (if (flag-set-p flag ff-language-stdcall)
-                  '(:STDC-STDCALL)
-                  '(:STDC))
+                '(:STDC-STDCALL)
+                '(:STDC))
               '())))
 
 (defun language-to-flag (lang)
@@ -367,8 +367,8 @@
                                          (if (or (eq argtype 'C-STRING)
                                                  (case (ctype-type argtype) ((C-PTR C-PTR-NULL C-ARRAY-PTR) t))
                                                  (eq argmode ':OUT))
-                                             ':ALLOCA
-                                             ':NONE))))
+                                           ':ALLOCA
+                                           ':NONE))))
                         ;; see FOREIGN-CALL-OUT in foreign.d
                         (when (and (or (eq argmode :OUT) (eq argmode :IN-OUT))
                                    (not (eq (ctype-type argtype) 'C-PTR)))
@@ -461,8 +461,8 @@
                                 (list (deparse (svref ctype 1))
                                       (let ((dimensions (subseq ctype 2)))
                                         (if (eql (length dimensions) 1)
-                                            (elt dimensions 0)
-                                            (coerce dimensions 'list)))))
+                                          (elt dimensions 0)
+                                          (coerce dimensions 'list)))))
                                ;; #(c-array-max <c-type> number)
                                (C-ARRAY-MAX
                                 (list (deparse (svref ctype 1))
@@ -488,14 +488,14 @@
                                                         #+AFFI
                                                         ,@(let ((h (logand (ash argflags -8) #xF)))
                                                             (if (not (zerop h))
-                                                               (list (svref *registers* (- h 1)))
-                                                               '())))
+                                                              (list (svref *registers* (- h 1)))
+                                                              '())))
                                                       argspecs))))
                                       (list ':return-type
                                             (deparse (svref ctype 1))
                                             (if (flag-set-p (svref ctype 3) ff-flag-malloc-free) ':MALLOC-FREE ':NONE))
-                                      (cons ':language (flag-to-language
-                                                        (svref ctype 3)))))
+                                      (cons ':language
+                                            (flag-to-language (svref ctype 3)))))
                                ;; #(c-ptr <c-type>), #(c-ptr-null <c-type>)
                                ;; #(c-array-ptr <c-type>), #(c-pointer <c-type>)
                                ((C-PTR C-PTR-NULL C-POINTER C-ARRAY-PTR)
@@ -577,7 +577,7 @@
 (defun prepare-c-typedecl (c-type)
   (unless (gethash c-type *type-table*)
     (case (ctype-type c-type)
-      ((c-struct c-union c-array c-array-max)
+      ((C-STRUCT C-UNION C-ARRAY C-ARRAY-MAX)
        (let ((new-typename (symbol-name (gensym "g"))))
          (format *coutput-stream* "~%typedef ~A;~%"
                  (to-c-typedecl c-type new-typename))
@@ -786,8 +786,7 @@
 (defmacro DEF-C-VAR (&whole whole-form
                      name &rest options)
   (setq name (check-symbol name (first whole-form)))
-  (let* ((alist (parse-options options '(:name :type :read-only
-                                         :alloc :library)
+  (let* ((alist (parse-options options '(:name :type :read-only :alloc :library)
                                whole-form))
          (c-name (foreign-name name (assoc ':name alist)))
          (type (second (or (assoc ':type alist)
@@ -878,27 +877,26 @@
       (PARSE-C-TYPE ,c-type)
       . ,(if init-p (list init)))))
 
-; ABI
-(defun exec-with-foreign-string (thunk string
+(defun exec-with-foreign-string (thunk string ; ABI
                                  &key (encoding #+UNICODE custom:*foreign-encoding*
                                                 #-UNICODE custom:*default-file-encoding*)
                                       (null-terminated-p t) (start 0) (end nil))
-  (call-with-foreign-string
-   thunk encoding string start end
-   (if null-terminated-p
-       #-UNICODE 1
-       #+UNICODE (sys::encoding-zeroes encoding) 0)))
+  (call-with-foreign-string thunk encoding string start end
+                            (if null-terminated-p
+                              #-UNICODE 1
+                              #+UNICODE (sys::encoding-zeroes encoding)
+                              0)))
 
 (defmacro with-foreign-string ((foreign-variable char-count byte-count string
                                 &rest keywords
                                 &key encoding null-terminated-p start end)
                                &body body)
   (declare (ignore encoding null-terminated-p start end)) ; get them via keywords
-  `(exec-with-foreign-string
-    (lambda (,foreign-variable ,char-count ,byte-count) ,@body)
-    ,string .,keywords))
+  `(EXEC-WITH-FOREIGN-STRING
+     #'(LAMBDA (,foreign-variable ,char-count ,byte-count) ,@body)
+     ,string .,keywords))
 
-;; ============================ heep allocation ============================
+;; ============================ heap allocation ============================
 
 (defmacro allocate-deep (ffi-type initval &rest keywords &key count read-only)
   (declare (ignore count read-only)) ; to be accessed via keywords
@@ -919,9 +917,11 @@
 
 (defmacro DEF-CALL-OUT (&whole whole-form name &rest options)
   (setq name (check-symbol name (first whole-form)))
-  (let* ((alist (parse-options options '(:name :arguments :return-type
-                                         :language :built-in :library)
-                               whole-form))
+  (let* ((alist
+           (parse-options
+             options
+             '(:name :arguments :return-type :language :built-in :library)
+             whole-form))
          (parsed-function (parse-c-function alist whole-form))
          (signature (argvector-to-signature (svref parsed-function 2)))
          (library (second (assoc :library alist)))
@@ -952,9 +952,11 @@
 #+AFFI
 (defmacro DEF-LIB-CALL-OUT (&whole whole-form name library &rest options)
   (setq name (check-symbol name (first whole-form)))
-  (let* ((alist (parse-options options '(:name :offset :arguments :return-type) whole-form))
+  (let* ((alist (parse-options options
+                               '(:name :offset :arguments :return-type)
+                               whole-form))
          (parsed-function
-          (parse-c-function (remove (assoc ':name alist) alist) whole-form))
+           (parse-c-function (remove (assoc ':name alist) alist) whole-form))
          (signature (argvector-to-signature (svref parsed-function 2)))
          (c-name (foreign-name name (assoc ':name alist)))
          (offset (second (assoc ':offset alist))))
@@ -975,8 +977,9 @@
 
 (defmacro DEF-CALL-IN (&whole whole-form name &rest options)
   (setq name (check-symbol name (first whole-form)))
-  (let* ((alist (parse-options
-                 options '(:name :arguments :return-type :language) whole-form))
+  (let* ((alist (parse-options options
+                               '(:name :arguments :return-type :language)
+                               whole-form))
          (c-name (foreign-name name (assoc ':name alist))))
     (setq alist (remove (assoc ':name alist) alist))
     `(PROGN
@@ -1045,8 +1048,8 @@
   ~A(~A,value1,&retval);~%"
                   (to-c-typedecl rettype "retval")
                   (if (flag-set-p flags ff-flag-malloc-free)
-                      "convert_to_foreign_mallocing"
-                      "convert_to_foreign_nomalloc")
+                    "convert_to_foreign_mallocing"
+                    "convert_to_foreign_nomalloc")
                   (object-to-c-value (pass-object rettype))))
         (let ((outargcount (if (eq rettype 'NIL) 0 1)))
           (mapc #'(lambda (argtype argflag argname)
@@ -1056,15 +1059,16 @@
                                'DEF-CALL-IN argtype))
                       (format *coutput-stream* "  ~A~A(~A,~A,~A);~%"
                               (if (eql outargcount 0) ""
-                                  (format nil "if (mv_count >= ~D) "
-                                          (+ outargcount 1)))
+                                (format nil "if (mv_count >= ~D) "
+                                        (+ outargcount 1)))
                               (if (flag-set-p argflag ff-flag-malloc-free)
-                                  "convert_to_foreign_mallocing"
-                                  "convert_to_foreign_nomalloc")
+                                "convert_to_foreign_mallocing"
+                                "convert_to_foreign_nomalloc")
                               (object-to-c-value
-                               (pass-object (svref argtype 1)))
-                              (if (eql outargcount 0) "value1"
-                                  (format nil "mv_space[~D]" outargcount))
+                                (pass-object (svref argtype 1)))
+                              (if (eql outargcount 0)
+                                "value1"
+                                (format nil "mv_space[~D]" outargcount))
                               argname)
                       (incf outargcount)))
                 argtypes argflags argnames))
