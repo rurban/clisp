@@ -1,5 +1,13 @@
 2004-05-21  Sam Steingold  <sds@gnu.org>
 
+	* io.d (pr_array): respect CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI*
+	* constsym.d (print_empty_arrays_ansi): added
+	* misc.d (SET-ANSI): set CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI*
+	* spvw.d (init_symbol_values): defvar CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI*
+	* places.lisp (*ansi*): mention in documentation
+
+2004-05-21  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (SOCKET-STREAM-SHUTDOWN): avoid a GCC warning
 
 2004-05-21  Sam Steingold  <sds@gnu.org>

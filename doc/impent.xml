@@ -142,7 +142,6 @@
 <!ENTITY ch-super "<link linkend='char-bits'><constant>EXT:CHAR-SUPER-BIT</constant></link>">
 <!ENTITY char-width "<link linkend='char-width'><function>EXT:CHAR-WIDTH</function></link>">
 <!ENTITY class-proto "<link linkend='class-proto'><function>CLOS:CLASS-PROTOTYPE</function></link>">
-
 <!ENTITY no-prim "<link linkend='no-prim'><function>CLOS:NO-PRIMARY-METHOD</function></link>">
 <!ENTITY meth-call-err "<link linkend='meth-call-err'><classname>CLOS:METHOD-CALL-ERROR</classname></link>">
 <!ENTITY meth-call-type-err "<link linkend='meth-call-type-err'><classname>CLOS:METHOD-CALL-TYPE-ERROR</classname></link>">
@@ -151,7 +150,6 @@
 <!ENTITY class-fin-p "<link linkend='class-fin-p'><function>CLOS:CLASS-FINALIZED-P</function></link>">
 <!ENTITY fin-inher "<link linkend='fin-inher'><function>CLOS:FINALIZE-INHERITANCE</function></link>">
 <!ENTITY symbol-mex "<link linkend='symbol-mex'><function>EXT:SYMBOL-MACRO-EXPAND</function></link>">
-
 <!ENTITY compile-decl "<link linkend='compile-decl'><literal role='sexp'>(compile)</literal></link>">
 <!ENTITY compile-warn "<link linkend='compilefile'><varname>CUSTOM:*COMPILE-WARNINGS*</varname></link>">
 <!ENTITY compiled-types "<link linkend='loadfile'><varname>CUSTOM:*COMPILED-FILE-TYPES*</varname></link>">
@@ -336,6 +334,7 @@
 <!ENTITY wr-ch-seq "<link linkend='wr-ch-seq'><function>EXT:WRITE-CHAR-SEQUENCE</function></link>">
 <!ENTITY wr-float "<link linkend='bin-output'><function>EXT:WRITE-FLOAT</function></link>">
 <!ENTITY wr-integer "<link linkend='bin-output'><function>EXT:WRITE-INTEGER</function></link>">
+<!ENTITY pr-empty-arr-ansi "<link linkend='pr-empty-arr-ansi'><varname>CUSTOM:*PRINT-EMPTY-ARRAYS-ANSI*</varname></link>">
 
 <!-- *** netica *** -->
 <!ENTITY netica-c-api "http://norsys.com/onLineAPIManual/functions/">

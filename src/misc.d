@@ -570,31 +570,32 @@ LISPFUNNF(ansi,0)
 }
 
 LISPFUNN(set_ansi,1)
-# (SYS::SET-ANSI ansi-p)
-  {
-    var object val = (nullp(popSTACK()) ? NIL : T);
-    # (SETQ *ANSI* val)
-    O(ansi) = val;
-    # (SETQ *FLOATING-POINT-CONTAGION-ANSI* val)
-    Symbol_value(S(floating_point_contagion_ansi)) = val;
-    # (SETQ *FLOATING-POINT-RATIONAL-CONTAGION-ANSI* val)
-    Symbol_value(S(floating_point_rational_contagion_ansi)) = val;
-    # (SETQ *PHASE-ANSI* val)
-    Symbol_value(S(phase_ansi)) = val;
-    # (SETQ *MERGE-PATHNAMES-ANSI* val)
-    Symbol_value(S(merge_pathnames_ansi)) = val;
-    # (SETQ *PRINT-PATHNAMES-ANSI* val)
-    Symbol_value(S(print_pathnames_ansi)) = val;
-    # (SETQ *PRINT-SPACE-CHAR-ANSI* val)
-    Symbol_value(S(print_space_char_ansi)) = val;
-    # (SETQ *PARSE-NAMESTRING-ANSI* val)
-    Symbol_value(S(parse_namestring_ansi)) = val;
-    # (SETQ *SEQUENCE-COUNT-ANSI* val)
-    Symbol_value(S(sequence_count_ansi)) = val;
-    # (SETQ *COERCE-FIXNUM-CHAR-ANSI* val)
-    Symbol_value(S(coerce_fixnum_char_ansi)) = val;
-    VALUES1(val);
-  }
+{ /* (SYS::SET-ANSI ansi-p) */
+  var object val = (nullp(popSTACK()) ? NIL : T);
+  /* (SETQ *ANSI* val) */
+  O(ansi) = val;
+  /* (SETQ *FLOATING-POINT-CONTAGION-ANSI* val) */
+  Symbol_value(S(floating_point_contagion_ansi)) = val;
+  /* (SETQ *FLOATING-POINT-RATIONAL-CONTAGION-ANSI* val) */
+  Symbol_value(S(floating_point_rational_contagion_ansi)) = val;
+  /* (SETQ *PHASE-ANSI* val) */
+  Symbol_value(S(phase_ansi)) = val;
+  /* (SETQ *MERGE-PATHNAMES-ANSI* val) */
+  Symbol_value(S(merge_pathnames_ansi)) = val;
+  /* (SETQ *PRINT-PATHNAMES-ANSI* val) */
+  Symbol_value(S(print_pathnames_ansi)) = val;
+  /* (SETQ *PRINT-SPACE-CHAR-ANSI* val) */
+  Symbol_value(S(print_space_char_ansi)) = val;
+  /* (SETQ *PARSE-NAMESTRING-ANSI* val) */
+  Symbol_value(S(parse_namestring_ansi)) = val;
+  /* (SETQ *SEQUENCE-COUNT-ANSI* val) */
+  Symbol_value(S(sequence_count_ansi)) = val;
+  /* (SETQ *COERCE-FIXNUM-CHAR-ANSI* val) */
+  Symbol_value(S(coerce_fixnum_char_ansi)) = val;
+  /* (SETQ *PRINT-EMPTY-ARRAYS-ANSI* val) */
+  Symbol_value(S(print_empty_arrays_ansi)) = val;
+  VALUES1(val);
+}
 
 LISPFUN(module_info,seclass_no_se,0,2,norest,nokey,0,NIL)
 { /* (EXT:MODULE-INFO)       ==> list of all module names
