@@ -482,6 +482,7 @@ case $# in
      INSTALL_PROGRAM='@INSTALL_PROGRAM@' # either 'install -c' or 'cp'
      INSTALL_DATA='@INSTALL_DATA@'       # either 'install -c -m 644' or 'cp'
      GROFF='@GROFF@'                     # either 'groff' or ''
+     DVIPDF='@DVIPDF@'                   # either 'dvipdf' or ''
      GMALLOC='@GMALLOC@'                 # either 'gmalloc' or ''
      LIBS='@LIBS@'                       # list of system libraries
      LIBTERMCAP='@LIBTERMCAP@'           # either '-ltermcap' or '-lncurses'
@@ -556,6 +557,7 @@ case $# in
        CC_NEED_DEEMA=false
      fi
      GROFF='groff'
+     DVIPDF='dvipdf'
      GMALLOC=''
      LIBS=''
      LIBICONV=''
@@ -2031,6 +2033,9 @@ echol "ROFF_MAN = ${ROFF_MAN}"' # try "groff -Tascii -mandoc" or "nroff -man"'
 if test -n "$GROFF"; then
   echol "ROFF_DVI = ${ROFF_DVI}"' # try "groff -Tdvi -mandoc"'
   echol "ROFF_PS  = ${ROFF_PS}"' # try "groff -Tps -mandoc"'
+  if test -n "$DVIPDF"; then
+    echol "DVIPDF = ${DVIPDF}"
+  fi
 fi
 echol
 echol '# -------------- End of configurable section --------------------'
@@ -3237,7 +3242,10 @@ echol
 OBSOLETE=$OBSOLETE" genclisph${HEXE}"
 
 if test -n "$GROFF"; then
-  manual_dvi='clisp.dvi clisp.ps clisp.pdf'
+  manual_dvi='clisp.dvi clisp.ps'
+  if test -n "$DVIPDF"; then
+    manual_dvi="$manual_dvi clisp.pdf"
+  fi
 else
   manual_dvi=''
 fi
@@ -3359,9 +3367,11 @@ if test -n "$GROFF"; then
   # Use dvipdf, not ps2pdf, to generate clisp.pdf, because ps2pdf generates
   # bad quality output: It puts an undesired space after "fi", such as in
   # "file".
-  echol "clisp.pdf : clisp.dvi"
-  echotab "dvipdf clisp.dvi clisp.pdf"
-  echol
+  if test -n "$DVIPDF"; then
+    echol "clisp.pdf : clisp.dvi"
+    echotab "\$(DVIPDF) clisp.dvi clisp.pdf"
+    echol
+  fi
 fi
 
 echol "clisp.man : clisp.1"
@@ -3484,7 +3494,9 @@ if [ $CROSS = false ] ; then
         if test -n "$GROFF"; then
           echotab "\$(INSTALL_DATA) clisp.dvi \$(DESTDIR)\$(dvidir)/clisp.dvi"
           echotab "\$(INSTALL_DATA) clisp.ps  \$(DESTDIR)\$(psdir)/clisp.ps"
-          echotab "\$(INSTALL_DATA) clisp.pdf \$(DESTDIR)\$(pdfdir)/clisp.pdf"
+          if test -n "$DVIPDF"; then
+            echotab "\$(INSTALL_DATA) clisp.pdf \$(DESTDIR)\$(pdfdir)/clisp.pdf"
+          fi
         fi
         ;;
       *bsd)

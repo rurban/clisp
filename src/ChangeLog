@@ -1,5 +1,11 @@
 2005-01-24  Bruno Haible  <bruno@clisp.org>
 
+	* configure.in: Add check for dvipdf.
+	* makemake.in: Generate and install clisp.pdf only if DVIPDF is
+	nonempty.
+
+2005-01-24  Bruno Haible  <bruno@clisp.org>
+
 	* syscalls/configure.in: Check whether lgamma_r is declared, assuming
 	that it is defined in this case.
 	* syscalls/calls.c (POSIX:LGAMMA): Use lgamma_r only if it's declared.
