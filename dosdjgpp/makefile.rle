@@ -1,9 +1,0 @@
-CC=gcc
-CFLAGS=-O -g
-
-fileman.exe : fileman.o
-	$(CC) $(CFLAGS) fileman.o -L.. -lreadline -lpc -o fileman
-	aout2exe fileman
-
-fileman.o : fileman.c
-	$(CC) $(CFLAGS) -c fileman.c -I../..
