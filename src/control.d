@@ -579,7 +579,7 @@ LISPSPECFORM(prog2, 2,0,body)
                           (nullp(varspec) && !eq(caller,S(symbol_macrolet))
                            && (init = NIL, TRUE))
                    )   ))
-                { init = Car(varspec); }
+                {} # now init = Car(varspec) or = NIL
               else
                 { pushSTACK(Car(varspecs));
                   pushSTACK(caller);
