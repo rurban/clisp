@@ -3769,6 +3769,7 @@ DEF-USER-METHOD
 
 
 ;; Check that changing the class of a generic function works.
+;; MOP p. 61 doesn't allow this, but CLISP supports it as an extension.
 
 (progn
   (defclass my-gf-class (standard-generic-function)
