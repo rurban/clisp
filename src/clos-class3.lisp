@@ -1695,10 +1695,16 @@
                                  #'(lambda (slot) (member (slot-definition-name slot) slotnames)))
                                (compute-slots-<class>-primary c))))))
       (setf (class-instance-size class) (max size (compute-instance-size class)))
-      (let ((ht (class-slot-location-table class)))
-        (dolist (slot (class-slots class))
-          (setf (gethash (slot-definition-name slot) ht)
-                (slot-definition-location slot))))
+      (when (class-slots class)
+        (let ((ht (class-slot-location-table class)))
+          (when (eq ht empty-ht) ; avoid clobbering empty-ht!
+            (setq ht (setf (class-slot-location-table class)
+                           (make-hash-table
+                             :key-type 'symbol :value-type 't
+                             :test 'ext:stablehash-eq :warn-if-needs-rehash-after-gc t))))
+          (dolist (slot (class-slots class))
+            (setf (gethash (slot-definition-name slot) ht)
+                  (slot-definition-location slot)))))
       (when (plusp (compute-shared-size class))
         (error-of-type 'error
           (TEXT "(~S ~S): metaclass ~S does not support shared slots")

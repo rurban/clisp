@@ -1,3 +1,8 @@
+2004-10-14  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class3.lisp (shared-initialize-<structure-class>): Don't make
+	side-effects on empty-ht and on all other structure-class instances.
+
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
 	* clos-genfun2.lisp (*dynamically-modifiable-generic-function-names*):
