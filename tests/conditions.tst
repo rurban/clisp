@@ -647,7 +647,6 @@ bar 41
     ((f1 :accessor my-f1 :initarg :f1-is))
     (:report (lambda (c s)
                (format s "~1Txyzzy: My f1 is ~A" (my-f1 c)))))
-  (with-output-to-string (s)
-    (princ (make-condition 'xyzzy :f1-is "a silly string") s)))
+  (princ-to-string (make-condition 'xyzzy :f1-is "a silly string")))
 #+:enable-risky-tests
 " xyzzy: My f1 is a silly string"
