@@ -4076,7 +4076,7 @@ msgstr "Sie dürfen einen neuen Wert für ~S eingeben."
 #: macros2.lisp:31
 #, lisp-format
 msgid "You may input a value to be used instead~@[ of ~S~]."
-msgstr "Sie dürfen einen Ersatzwert~@[für ~S~] eingeben."
+msgstr "Sie dürfen einen Ersatzwert~@[ für ~S~] eingeben."
 
 #: macros2.lisp:33
 #, lisp-format
