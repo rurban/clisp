@@ -213,6 +213,12 @@ User visible changes
 * New function ABSOLUTE-PATHNAME.
   See <http://clisp.cons.org/impnotes.html#absolute-pathname> for details.
 
+* New function ELASTIC-NEWLINE and new FORMAT directive "~.".
+  See <http://clisp.cons.org/impnotes.html#elastic-newline>
+  and <http://clisp.cons.org/impnotes.html#format-dot> for details.
+  Through this function, CLISP no longer produces spurious blank lines when
+  a program uses the convention of printing a #\Newline before each line.
+
 * TRACE has a new option :MAX-DEPTH, that is useful to avoid infinite
   recursions in the tracer.
   See <http://clisp.cons.org/impnotes.html#trace> for details.
@@ -246,6 +252,9 @@ User visible changes
 * FFI macro C-LINES can now be used to fine-tune
   initialization and finalization.
   See <http://clisp.cons.org/impnotes.html#c-lines> for details.
+
+* Buffered streams now are suitable for interactive streams. It is no longer
+  necessary to use :BUFFERED NIL to avoid blocking in various situations.
 
 * Function READ-BYTE-SEQUENCE takes a new keyword argument :INTERACTIVE.
   See <http://clisp.cons.org/impnotes.html#rd-by-seq> for details.
