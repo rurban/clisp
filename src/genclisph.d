@@ -465,8 +465,8 @@ int main(int argc, char* argv[])
 #else
   printf("#error \"what is Handle on your platform?!\"\n");
 #endif
-  printf("extern ssize_t read_helper (Handle fd, void* buf, size_t nbyte, perseverance_t persev);\n");
-  printf("extern ssize_t write_helper (Handle fd, const void* buf, size_t nbyte, perseverance_t persev);\n");
+  printf("extern ssize_t fd_read (Handle fd, void* buf, size_t nbyte, perseverance_t persev);\n");
+  printf("extern ssize_t fd_write (Handle fd, const void* buf, size_t nbyte, perseverance_t persev);\n");
 #if notused
  #ifdef WIDE_HARD
    printf("#define WIDE_HARD\n");

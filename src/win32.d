@@ -210,12 +210,12 @@ extern_C char *setlocale (int category, const char *locale);
 /* Like ReadConsoleInput with Length==1, but is interruptible by Ctrl-C. */
 extern BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer, LPDWORD NumberOfEventsRead);
 /* The following functions deal with all kinds of file/pipe/console handles */
-extern ssize_t read_helper (HANDLE fd, void* buf, size_t nbyte, perseverance_t persev);
-extern ssize_t write_helper (HANDLE fd, const void* buf, size_t nbyte, perseverance_t persev);
-#define safe_read(fd,buf,nbyte)  read_helper(fd,buf,nbyte,persev_partial)
-#define full_read(fd,buf,nbyte)  read_helper(fd,buf,nbyte,persev_full)
-#define safe_write(fd,buf,nbyte)  write_helper(fd,buf,nbyte,persev_partial)
-#define full_write(fd,buf,nbyte)  write_helper(fd,buf,nbyte,persev_full)
+extern ssize_t fd_read (HANDLE fd, void* buf, size_t nbyte, perseverance_t persev);
+extern ssize_t fd_write (HANDLE fd, const void* buf, size_t nbyte, perseverance_t persev);
+#define safe_read(fd,buf,nbyte)  fd_read(fd,buf,nbyte,persev_partial)
+#define full_read(fd,buf,nbyte)  fd_read(fd,buf,nbyte,persev_full)
+#define safe_write(fd,buf,nbyte)  fd_write(fd,buf,nbyte,persev_partial)
+#define full_write(fd,buf,nbyte)  fd_write(fd,buf,nbyte,persev_full)
 /* Changing the position within a file. */
 #define lseek(handle,offset,mode)  ((int)SetFilePointer(handle,offset,NULL,mode))
 #undef SEEK_SET

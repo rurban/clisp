@@ -4923,7 +4923,7 @@ local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr,
     var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
     run_time_stop(); /* hold run time clock */
     begin_system_call();
-    var sintL result = read_helper(handle,byteptr,len,persev);
+    var sintL result = fd_read(handle,byteptr,len,persev);
     end_system_call();
     run_time_restart(); /* resume run time clock */
     if (result<0) {
@@ -5318,7 +5318,7 @@ local const uintB* low_write_array_unbuffered_handle (object stream,
                                                       perseverance_t persev) {
   var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
   begin_system_call();
-  var sintL result = write_helper(handle,byteptr,len,persev);
+  var sintL result = fd_write(handle,byteptr,len,persev);
   if (result<0) { OS_error(); }
   end_system_call();
   /* Safety check whether persev argument was respected or EOWF was reached: */
@@ -5971,11 +5971,10 @@ local uintL low_fill_buffered_handle (object stream, perseverance_t persev) {
     begin_system_call();
     if (byte != -1) {
       buff[0] = byte;
-      result = read_helper(handle,buff+1,strm_buffered_bufflen-1,
-                           persev == persev_partial ? persev_bonus : persev);
+      result = fd_read(handle,buff+1,strm_buffered_bufflen-1,
+                       persev == persev_partial ? persev_bonus : persev);
     } else
-      result = read_helper(handle,buff,strm_buffered_bufflen,
-                           persev);
+      result = fd_read(handle,buff,strm_buffered_bufflen,persev);
     end_system_call();
     if (result<0)               /* error occurred? */
       OS_filestream_error(stream);
@@ -12677,7 +12676,7 @@ local const uintB* low_write_array_unbuffered_pipe (object stream,
   var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
   begin_system_call();
   writing_to_subprocess = true;
-  var sintL result = write_helper(handle,byteptr,len,persev);
+  var sintL result = fd_write(handle,byteptr,len,persev);
   writing_to_subprocess = false;
   if (result<0) { OS_error(); }
   end_system_call();
