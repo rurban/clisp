@@ -216,9 +216,8 @@ LISPFUNN(copy_structure,1) {
   }
   var uintC length = Structure_length(STACK_0);
   var object new_structure = allocate_structure(length);
-  memcpy(&TheStructure(new_structure)->structure_types,
-         &TheStructure(popSTACK())->structure_types,
-         length*sizeof(object));
+  copy_mem_o(&TheStructure(new_structure)->structure_types,
+             &TheStructure(popSTACK())->structure_types,length);
   value1 = new_structure; mv_count=1;
 }
 

@@ -1,5 +1,19 @@
 2002-06-25  Sam Steingold  <sds@gnu.org>
 
+	memcpy() & begin/end_system_call() cleanup
+	* lispbibl.d (copy_mem_b, copy_mem_o): new macros
+	(do_cclosure_copy): use copy_mem_o()
+	* hashtabl.d (%SET-HASH-TABLE-WEAK-P): use copy_mem_o()
+	instead of memcpy()
+	* record.d (COPY-STRUCTURE): ditto
+	* stream.d (read_byte_array_buffered, write_byte_array_buffered)
+	(READ-FLOAT, WRITE-FLOAT): use copy_mem_b() instead of memcpy()
+	(%DEFGRAY): use copy_mem_o() instead of memcpy()
+	(create_input_pipe, create_output_pipe, create_io_pipe):
+	move the memcpy() call inside the begin/end_system_call()
+
+2002-06-25  Sam Steingold  <sds@gnu.org>
+
 	fixed the spurious "fatal error in the fatal error handler" message:
 	break_driver() lost the stack location of its `continuable' argument
 	* debug.d (break_driver): accept a boolean argument instead of an

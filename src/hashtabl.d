@@ -1605,16 +1605,14 @@ LISPFUNN(set_hash_table_weak_p,2) {
   if (nullp(val) && ht_weak_p(ht)) {
     var uintL len = Weakkvt_length(TheHashtable(ht)->ht_kvtable);
     var object vec = allocate_vector(len);
-    memcpy(TheSvector(vec)->data,
-           TheWeakKVT(TheHashtable(STACK_0)->ht_kvtable)->data,
-           len*sizeof(object));
+    copy_mem_o(TheSvector(vec)->data,
+               TheWeakKVT(TheHashtable(STACK_0)->ht_kvtable)->data,len);
     TheHashtable(STACK_0)->ht_kvtable = vec;
   } else if (!nullp(val) && !ht_weak_p(ht)) {
     var uintL len = Svector_length(TheHashtable(ht)->ht_kvtable);
     var object wkvt = allocate_weakkvt(len);
-    memcpy(TheWeakKVT(wkvt)->data,
-           TheSvector(TheHashtable(STACK_0)->ht_kvtable)->data,
-           len*sizeof(object));
+    copy_mem_o(TheWeakKVT(wkvt)->data,
+               TheSvector(TheHashtable(STACK_0)->ht_kvtable)->data,len);
     TheHashtable(STACK_0)->ht_kvtable = wkvt;
   }
   value1 = (ht_weak_p(STACK_0) ? T : NIL); skipSTACK(1);
