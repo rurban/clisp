@@ -49,8 +49,9 @@
 2001-09-21  Sam Steingold  <sds@gnu.org>
 
 	binary i/o on True64
-	* stream.d (bitbuff_is_I): do not add wbitm(intLsize) to wert
-	before calling negfixnum (why was it there in the first place?)
+	* stream.d (bitbuff_is_I): subtract, not add wbitm(intLsize) to
+	wert before calling negfixnum
+	Suggested by Kalman Reti <reti@ai.mit.edu>
 
 2001-09-21  Sam Steingold  <sds@gnu.org>
 
