@@ -1090,8 +1090,6 @@ nonreturning_function(global, fehler_uint8, (object obj)) {
   fehler(type_error,GETTEXT("~: ~ is not an 8-bit number"));
 }
 
-#ifdef HAVE_FFI
-
 /* error, if argument is not an integer of type `sint8' .
  fehler_sint8(obj);
  > obj: erroneous argument */
@@ -1237,5 +1235,3 @@ nonreturning_function(global, fehler_dfloat, (object obj)) {
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~: ~ is not a double-float"));
 }
-
-#endif
