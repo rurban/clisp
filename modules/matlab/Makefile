@@ -4,7 +4,7 @@
 CC = gcc
 CPPFLAGS =
 CFLAGS = -Wall -O2
-INCLUDES = ../
+INCLUDES = ..
 # MATLAB = /usr/local/matlab/extern/include
 MATLAB = c:/MATLAB6p5/extern/include
 CLISP = clisp -q -norc

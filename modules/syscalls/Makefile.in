@@ -5,7 +5,7 @@ CC = @CC@
 # _REENTRANT is necessary so that the Solaris headers declare lgamma_r().
 CPPFLAGS = @CPPFLAGS@ -D__EXTENSIONS__ -D_REENTRANT
 CFLAGS = @CFLAGS@
-INCLUDES= ../
+INCLUDES= ..
 MODPREP = ../modprep.fas
 CLISP = clisp -q -norc
 

@@ -1,3 +1,14 @@
+2005-03-14  Doug Currie  <e@flavors.com>
+	    Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: work around the woe32 stat(".../") bug: make sure
+	that the -I argument does not end with a slash
+	* berkeley-db/Makefile.in, bindings/win32/Makefile, dirkey/Makefile.in:
+	* i18n/Makefile.in, matlab/Makefile, netica/Makefile, pcre/Makefile.in:
+	* postgresql/Makefile.in, rawsock/Makefile.in, regexp/Makefile.in:
+	* syscalls/Makefile.in, wildcard/Makefile.in, zlib/Makefile.in:
+	(INCLUDES): removed the trailing slash
+
 2005-03-14  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (NZERO) [!NZERO]: define in the

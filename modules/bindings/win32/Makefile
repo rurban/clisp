@@ -3,7 +3,7 @@
 CC = gcc
 CPPFLAGS =
 CFLAGS = -Wall -O2
-INCLUDES= ../../
+INCLUDES= ../..
 
 CLISP = clisp -q -norc
 
