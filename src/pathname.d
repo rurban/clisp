@@ -6253,8 +6253,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var boolean links_resolved;
     var boolean tolerantp;
     {
-      var uintC stringcount = directory_namestring_parts(STACK_0); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount); # zusammenhängen
+      var object dir_namestring = directory_namestring(STACK_0);
       if (!links_resolved) {
         # Existenztest:
         #ifdef MSDOS
@@ -6508,11 +6507,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       if (!links_resolved) {
         # Zur Auflösung von :PARENTs, die über Root hinaussteigen,
         # müssen wir das Betriebssystem bemühen. Daher:
-        var object dir_namestring;
-        {
-          var uintC stringcount = directory_namestring_parts(STACK_0); # Strings fürs Directory
-          dir_namestring = string_concat(stringcount);
-        }
+        var object dir_namestring = directory_namestring(STACK_0);
         pushSTACK(dir_namestring);
         dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
         with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
@@ -7313,9 +7308,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                              # (das gehört nicht uns, nicht freigeben!)
   local void change_default()
     {
-      var uintC stringcount =
-        directory_namestring_parts(STACK_0); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount);
+      var object dir_namestring = directory_namestring(STACK_0);
       dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
       with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
         # Default-Directory ändern:
@@ -7585,8 +7578,7 @@ LISPFUNN(probe_file,1)
     var object pathname;
     {
       pushSTACK(pathname); # Pathname retten
-      var uintC stringcount = directory_namestring_parts(pathname); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount); # zusammenhängen
+      var object dir_namestring = directory_namestring(pathname);
       # Existenztest, siehe auch assure_dir_exists():
       var boolean exists = TRUE;
       #ifdef MSDOS
