@@ -3,6 +3,10 @@ Installation on Win32 (WinNT, Win95) using the MSVC4.0 or MSVC5.0 or MSVC6.0
 development environment, using native system calls
 ==================================================
 
+0. Build a few recommended libraries: libiconv and libsigsegv.
+   - GNU libsigsegv (highly recommended for C stack overflow detection),
+   - GNU libiconv (for more character set conversions).
+
 1. On a Unix NFS server, unpack the source.
 
 2. On a Win32 NFS client, start a console with a shell (ksh for example).
@@ -13,8 +17,6 @@ development environment, using native system calls
         set Include=%MSDEVDIR%\VC98\include
         set Lib=%MSDEVDIR%\VC98\lib
         set PATH=%MSDEVDIR%\VC98\bin;%MSDEVDIR%\Common\MSDev98\Bin;%PATH%
-
-   Build a few recommended libraries: libiconv and libsigsegv.
 
    Then build a few tools and libraries:
 
