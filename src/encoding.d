@@ -1,7 +1,9 @@
 # Encodings (character sets and conversions) for CLISP
-# Bruno Haible 1998-1999
+# Bruno Haible 1998-2000
 
 #include "lispbibl.c"
+
+#include <string.h> # declares memcpy()
 
 # =============================================================================
 #                             Individual encodings
@@ -1543,6 +1545,8 @@ LISPFUNN(charset_typep,2)
     skipSTACK(2);
   }
 
+#ifdef UNICODE
+
 LISPFUNN(charset_range,3)
 # (SYSTEM::CHARSET-RANGE encoding char1 char2)
 # returns the range of characters in [char1,char2] encodable in the encoding.
@@ -1563,6 +1567,8 @@ LISPFUNN(charset_range,3)
     mv_count=1;
     skipSTACK(3);
   }
+
+#endif
 
 # -----------------------------------------------------------------------------
 #                          Elementary string functions
@@ -1878,18 +1884,14 @@ LISPFUNN(charset_range,3)
         });
       }
       #endif
-      #endif
       # Initialize O(internal_encoding):
-        #ifdef UNICODE
         pushSTACK(Symbol_value(S(iso8859_1)));
-        #else
-        pushSTACK(unbound);
-        #endif
         pushSTACK(S(Kunix));
         pushSTACK(unbound);
         pushSTACK(unbound);
         C_make_encoding();
         O(internal_encoding) = value1;
+      #endif
       # Initialize locale dependent encodings:
       init_dependent_encodings();
     }

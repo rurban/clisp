@@ -124,7 +124,7 @@ Availability
 
 This CLX lives in:
 
-ftp://ftp2.cons.org/pub/lisp/clisp/packages/nclx-1997-06-12.tar.gz
+ftp://clisp.cons.org/pub/lisp/clisp/packages/nclx-1997-06-12.tar.gz
 
 There may be additional binary distributions. I'll call them
   nclx-<date1>+clisp-<date2>.<platform>.bin.tar.gz

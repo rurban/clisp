@@ -2,7 +2,9 @@
 # Prozessor: MIPS
 # Endianness: irrelevant
 # Compiler: GNU-C oder ...
-# Parameter-Übergabe: in Registern $4,$5,$6,$7, und auf dem Stack 16($sp),...
+# Parameter-Übergabe:
+#   o32: in Registern $4,$5,$6,$7, und auf dem Stack 16($sp),...
+#   n32: in Registern $4,$5,$6,$7,$8,$9,$10,$11, und auf dem Stack 4($sp),...
 # Rückgabewert: in Register $2
 # Einstellungen: intCsize=32, intDsize=32.
 # Besonderheiten: Nach jedem Ladebefehl ein Wartetakt nötig, bevor der
@@ -18,6 +20,15 @@
   #define ADDSUB_LOOPS
 
 #else
+
+# Strictly speaking, the MIPS ABI (-32 or -n32) is independent from the CPU
+# identification (-mips[12] or -mips[34]). But -n32 is commonly used together
+# with -mips3, and it's easier to test the CPU identification.
+#if __mips >= 3
+  #define ABI_N32 1
+#else
+  #define ABI_O32 1
+#endif
 
         .text
 
@@ -461,9 +472,13 @@ sld4:     subu $12,$13          # dest = source1 - source2
 
 # extern uintD subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
         .align 2
-        .ent subx_loop_down # Input in $4,$5,$6,$7, Output in $2
+        .ent subx_loop_down # Input in $4,$5,$6,$7,$8, Output in $2
 subx_loop_down:
+#if ABI_N32
+        move $12,$8             # carry
+#else
         lw $12,16($sp)          # carry
+#endif
         bnez $12,sxld5          # !(carry==0) ?
         b sxld2
 sxld1:    # kein Carry

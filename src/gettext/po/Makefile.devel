@@ -18,7 +18,7 @@ all : tmp pot gmo
 PREDEF_LINGUAS = en
 # Other languages must be translated by hand. They must also be added
 # to the variable ALL_LINGUAS in ../configure.in.
-OTHER_LINGUAS = de fr es
+OTHER_LINGUAS = de fr es nl
 
 LINGUAS = $(PREDEF_LINGUAS) $(OTHER_LINGUAS)
 

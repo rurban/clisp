@@ -5,7 +5,7 @@ Basically CLX comes as a module, which should make things easy.
 
 1. Fetch the clx distribution 
 
-    ftp://ftp2.cons.org/pub/lisp/clisp/packages/nclx-1997-06-12.tar.gz
+    ftp://clisp.cons.org/pub/lisp/clisp/packages/nclx-1997-06-12.tar.gz
 
    You probably had done this already, since you are reading this file!
 
