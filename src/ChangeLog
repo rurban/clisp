@@ -1,3 +1,7 @@
+2001-05-07  Sam Steingold  <sds@gnu.org>
+
+	* hashtabl.d (sxhash): return a fixnum, as per ANSI CL
+
 2001-05-06  Bruno Haible  <haible@clisp.cons.org>
 
 	* makemake.in: Move USE_GETTEXT treatment after USE_LIBICONV treatment,
