@@ -275,6 +275,7 @@
             )
             `(EVAL-WHEN (LOAD COMPILE EVAL)
                (LET ()
+                 (REMPROP ',accessfn 'SYSTEM::DEFSTRUCT-WRITER)
                  (DEFUN ,name (SYSTEM::%LAMBDA-LIST ,(or envvar 'SYSTEM::ENV))
                    ,@(if envvar '() '((DECLARE (IGNORE SYSTEM::ENV))))
                    ,mainform
@@ -294,6 +295,7 @@
   (cond ((and (consp args) (not (listp (first args))) (symbolp (first args)))
          `(EVAL-WHEN (LOAD COMPILE EVAL)
             (LET ()
+              (REMPROP ',accessfn 'SYSTEM::DEFSTRUCT-WRITER)
               (SYSTEM::%PUT ',accessfn 'SYSTEM::SETF-EXPANDER ',(first args))
               (SYSTEM::%SET-DOCUMENTATION ',accessfn 'SETF
                 ,(if (and (null (cddr args))
@@ -353,6 +355,7 @@
                  )) )
              `(EVAL-WHEN (LOAD COMPILE EVAL)
                 (LET ()
+                  (REMPROP ',accessfn 'SYSTEM::DEFSTRUCT-WRITER)
                   (SYSTEM::%PUT ',accessfn 'SYSTEM::SETF-EXPANDER
                     (LIST* ,arg-count ,(length storevars)
                            (FUNCTION ,(concat-pnames "SETF-" accessfn) ,setter)
