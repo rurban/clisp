@@ -10,13 +10,14 @@ AC_CONFIG_HEADERS(config.h)
 AC_MSG_NOTICE([ * Regexp (Checks)])
 AC_PROG_CC
 AC_PROG_CPP
-AC_PROG_GCC_TRADITIONAL
 AC_AIX
 RL_VOID
 AC_HEADER_STDC
 CL_STDC_HEADERS
 AC_CHECK_HEADERS(string.h)
 AC_FUNC_ALLOCA
+AC_CHECK_HEADERS(regex.h sys/types.h)
+AC_CHECK_FUNCS(regcomp regexec regfree regerror)
 
 AC_MSG_NOTICE([ * Regexp (Output)])
 AC_CONFIG_FILES(Makefile)
