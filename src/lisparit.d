@@ -403,6 +403,18 @@ local inline object check_integer (object obj) {
   }
   return obj;
 }
+local inline object check_pos_integer (object obj) {
+  while (!integerp(obj) || R_minusp(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);      /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(integer)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a non-negatve ~"));
+    obj = value1;
+  }
+  return obj;
+}
 
 /* coersions - used in modules
  can trigger GC */
@@ -948,7 +960,7 @@ LISPFUNNR(sqrt,1)
 
 LISPFUNNF(isqrt,1)
 { /* (ISQRT integer), CLTL p. 205 */
-  var object x = check_integer(popSTACK());
+  var object x = check_pos_integer(popSTACK());
   VALUES1((I_isqrt_I(x), popSTACK()));
 }
 
@@ -1671,6 +1683,13 @@ LISPFUNNF(exquo,2)
   (EXQUO x y) == (THE INTEGER (/ (THE INTEGER x) (THE INTEGER y))) */
   STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
   VALUES1(I_I_exquo_I(STACK_1,STACK_0)); skipSTACK(2);
+}
+
+LISPFUNNF(mod_expt,3)
+{ /*(EXT:MOD-EXPT base exponent modulo) = (MOD (EXPT base exponent) modulus)*/
+  STACK_0 = check_integer(STACK_0); STACK_2 = check_integer(STACK_2);
+  STACK_1 = check_pos_integer(STACK_1);
+  VALUES1(I_I_I_mod_expt_I(STACK_2,STACK_1,STACK_0)); skipSTACK(3);
 }
 
 LISPFUNN(long_float_digits,0)

@@ -9,6 +9,10 @@ User visible changes
   make APROPOS more flexible in search and output.
   See <http://clisp.cons.org/impnotes.html#apropos> for details.
 
+* New function EXT:MOD-EXPT efficiently computes the composition of MOD
+  and EXPT on integers.
+  See <http://clisp.cons.org/impnotes.html#int-func-ext> for details.
+
 Portability
 -----------
 
