@@ -838,7 +838,7 @@ local uintL get_base (object symbol) {
     pushSTACK(value);
     pushSTACK(symbol);
     fehler(type_error,
-           GETTEXT("The value of ~ should be an integer between 2 and 36, not ~." NLstring
+           GETTEXT("The value of ~ should be an integer between 2 and 36, not ~.\n"
                    "It has been reset to 10."));
   }
 }
@@ -4928,7 +4928,7 @@ nonreturning_function(local, fehler_print_case, (void)) {
   pushSTACK(S(print));
   Symbol_value(print_case) = S(Kupcase); # (setq *PRINT-CASE* ':UPCASE)
   fehler(type_error,
-         GETTEXT("~: the value ~ of ~ is neither ~ nor ~ nor ~." NLstring
+         GETTEXT("~: the value ~ of ~ is neither ~ nor ~ nor ~.\n"
                  "It is reset to ~."));
 }
 
