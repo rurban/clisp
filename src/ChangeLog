@@ -1,5 +1,12 @@
 2003-06-13  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in [win32gcc]: build lisp.a on mingw and do stage
+	comparison (make check) unix-style, not dos-style
+	* configure [cygwin/mingw]: work around the _WinMain@16 libcharset
+	problem with --enable-shared=no;  this is a FIXME for Bruno
+
+2003-06-13  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (TrueName) [WIN32_NATIVE]: return bool; made global;
 	fixed a bug with overwriting "nameout" string with "resolved"
 	* spvw_memfile.d (loadmem) [WIN32_NATIVE]: use TrueName() to
