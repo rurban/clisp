@@ -4603,45 +4603,42 @@ functions are provided:
   be meaningfully read in:
 <table id="unreadable-objects-table" frame="all">
   <title>Unreadable objects</title>
- <tgroup cols="2" colsep="1" rowsep="1" align="center">
-  <thead><row><entry>format</entry><entry>meaning</entry></row></thead><tbody>
+<tgroup cols="2" colsep="1" rowsep="1" align="center">
+<thead><row><entry>format</entry><entry>meaning</entry></row></thead><tbody>
  <row><entry><literal>#&lt;&type-r; ...&gt;</literal></entry>
-    <entry>all &structure-object-t;s lacking a keyword constructor</entry></row>
+  <entry>all &structure-object-t;s lacking a keyword constructor</entry></row>
  <row><entry><literal>#&lt;ARRAY &type-r; &dimensions-r;&gt;</literal></entry>
-    <entry>all &array-t;s except &string-t;s, if &print-array-var; is
-       &nil;</entry></row>
- <row><entry><literal>#&lt;SYSTEM-FUNCTION
-       &name-r;&gt;</literal></entry>
-    <entry>built-in function written in &c-lang;</entry></row>
+  <entry>all &array-t;s except &string-t;s, if &print-array-var; is
+   &nil;</entry></row>
+ <row><entry><literal>#&lt;SYSTEM-FUNCTION &name-r;&gt;</literal></entry>
+  <entry>built-in function written in &c-lang;</entry></row>
  <row><entry><literal>#&lt;ADD-ON-SYSTEM-FUNCTION
-       &name-r;&gt;</literal></entry>
-    <entry>other function written in &c-lang;</entry></row>
- <row><entry><literal>#&lt;SPECIAL-OPERATOR
-       &name-r;&gt;</literal></entry>
-    <entry>special operator handler</entry></row>
- <row><entry><literal>#&lt;COMPILED-CLOSURE
-       &name-r;&gt;</literal></entry>
-    <entry>compiled function, if &pr-closure; is &nil;</entry></row>
- <row><entry><literal>#&lt;CLOSURE &name-r;
-       ...&gt;</literal></entry>
-    <entry>interpreted function</entry></row>
+    &name-r;&gt;</literal></entry>
+  <entry>other function written in &c-lang;</entry></row>
+ <row><entry><literal>#&lt;SPECIAL-OPERATOR &name-r;&gt;</literal></entry>
+  <entry>special operator handler</entry></row>
+ <row><entry><literal>#&lt;COMPILED-CLOSURE &name-r;&gt;</literal></entry>
+  <entry>compiled function, if &pr-closure; is &nil;</entry></row>
+ <row><entry><literal>#&lt;CLOSURE &name-r; ...&gt;</literal></entry>
+  <entry>interpreted function</entry></row>
  <row><entry><literal>#&lt;FRAME-POINTER #x...&gt;</literal></entry>
-    <entry>pointer to a stack frame</entry></row>
+  <entry>pointer to a stack frame</entry></row>
  <row><entry><literal>#&lt;DISABLED POINTER&gt;</literal></entry>
-    <entry>frame pointer which has become invalid on exit from the
-       corresponding &block; or &tagbody;</entry></row>
- <row><entry><literal>#&lt;...-STREAM ...&gt;</literal></entry>
-    <entry>&stream-t;</entry></row>
- <row><entry><literal>#&lt;PACKAGE
-       &name-r;&gt;</literal></entry>
-    <entry>&package-t;</entry></row>
+  <entry>frame pointer which has become invalid on exit from the
+   corresponding &block; or &tagbody;</entry></row>
+ <row><entry><literal>#&lt;...STREAM...&gt;</literal></entry>
+  <entry>&stream-t;</entry></row>
+ <row><entry><literal>#&lt;PACKAGE &name-r;&gt;</literal></entry>
+  <entry>&package-t;</entry></row>
  <row><entry><literal>#&lt;HASH-TABLE #x...&gt;</literal></entry>
-    <entry>&hash-table-t;, if &print-array-var; is &nil;</entry></row>
+  <entry>&hash-table-t;, if &print-array-var; is &nil;</entry></row>
  <row><entry><literal>#&lt;READTABLE #x...&gt;</literal></entry>
-    <entry>&readtable-t;</entry></row>
+  <entry>&readtable-t;</entry></row>
  <row><entry><literal>#&lt;SYMBOL-MACRO &form-r;&gt;</literal></entry>
-    <entry>&symbol-macro; handler</entry></row>
-<!-- #ifdef FOREIGN -->
+  <entry>&symbol-macro; handler</entry></row>
+ <row><entry><literal>#&lt;MACRO &fun-r;&gt;</literal></entry>
+  <entry>macro expander (defined by &defmacro; and friends)</entry></row>
+ <!-- #ifdef FOREIGN -->
  <row><entry><literal>#&lt;&foreign-pointer-t; #x...&gt;</literal></entry>
   <entry>foreign pointer <emphasis>(Platform dependent: &unix;,
     &win32;, &amiga; platforms only.)</emphasis>
@@ -4661,23 +4658,23 @@ functions are provided:
     &win32;, &amiga; platforms only.)</emphasis></entry></row>
 <!-- #endif -->
  <row><entry><literal>#&lt;UNBOUND&gt;</literal></entry>
-    <entry>"value" of a symbol without value, "value" of an unsupplied
-      optional or keyword argument</entry></row>
+  <entry>"value" of a symbol without value, "value" of an unsupplied
+   optional or keyword argument</entry></row>
  <row><entry><literal>#&lt;SPECIAL REFERENCE&gt;</literal></entry>
-    <entry>environment marker for variables declared &special-dec;
-      </entry></row>
+  <entry>environment marker for variables declared &special-dec;
+ </entry></row>
  <row><entry><literal>#&lt;DOT&gt;</literal></entry>
-    <entry>internal &read; result for "."</entry></row>
+  <entry>internal &read; result for "."</entry></row>
  <row><entry><literal>#&lt;END OF FILE&gt;</literal></entry>
-    <entry>internal &read; result, when the end of file is reached
-      </entry></row>
+  <entry>internal &read; result, when the end of file is reached
+ </entry></row>
  <row><entry><literal>#&lt;READ-LABEL ...&gt;</literal></entry>
-    <entry>intermediate &read; result for <literal>#n#</literal>
-      </entry></row>
+  <entry>intermediate &read; result for <literal>#n#</literal>
+ </entry></row>
  <row><entry><literal>#&lt;ADDRESS #x...&gt;</literal></entry>
-    <entry>machine address, should not occur</entry></row>
+  <entry>machine address, should not occur</entry></row>
  <row><entry><literal>#&lt;SYSTEM-POINTER #x...&gt;</literal></entry>
-    <entry>should not occur</entry></row>
+  <entry>should not occur</entry></row>
 </tbody></tgroup></table></para>
 
 <section id="chario"><title>characters</title>
