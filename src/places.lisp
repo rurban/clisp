@@ -480,8 +480,8 @@
 ;;;----------------------------------------------------------------------------
 (export 'ext::remove-plist "EXT")
 (defun remove-plist (plist &rest keys)
-  "Remove the keys from the plist.
-Useful for re-using the &REST arg after removing some options."
+  ;; Remove the keys from the plist.
+  ;; Useful for re-using the &REST arg after removing some options.
   (do (copy rest)
       ((null (setq rest (nth-value 2 (get-properties plist keys))))
        (nreconc copy plist))
