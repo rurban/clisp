@@ -770,7 +770,7 @@
 ; Liefert den Typ eines Symbols sym mit (fboundp sym).
 (defun fbound-string (sym)
   (cond ((special-operator-p sym)
-         (ENGLISH "special form")
+         (ENGLISH "special operator")
         )
         ((functionp (symbol-function sym))
          (ENGLISH "function")

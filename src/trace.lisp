@@ -98,7 +98,7 @@
          (return nil)
        )
        (when (special-operator-p ,symbolform) ; Special-Form: nicht tracebar
-         (warn (ENGLISH "~S: cannot trace special form ~S")
+         (warn (ENGLISH "~S: cannot trace special operator ~S")
                'trace ',funname
          )
          (return nil)
