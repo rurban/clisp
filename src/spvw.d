@@ -12466,7 +12466,7 @@ local uintC generation;
           #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
            #if defined(SUN4_29)
            var aint end = bitm(oint_addr_len+addr_shift < 29 ? oint_addr_len+addr_shift : 29);
-           mem.heaps[0].heap_limit = start;
+           mem.heaps[0].heap_limit = start + round_down(floor(end-start,5),map_pagesize);
            mem.heaps[1].heap_limit = round_down(end,map_pagesize);
            #elif defined(UNIX_LINUX) && defined(WIDE_SOFT) && !defined(SPARC)
            mem.heaps[0].heap_limit = 0x2E000000; # room until at least 0x40000000
@@ -12485,9 +12485,9 @@ local uintC generation;
           #else # SPVW_MIXED_BLOCKS_STAGGERED
            #if defined(SUN4_29)
            var aint end = bitm(oint_addr_len+addr_shift < 29 ? oint_addr_len+addr_shift : 29);
-           mem.heaps[0].heap_limit = start;
+           mem.heaps[0].heap_limit = start + round_down(floor(end-start,5),map_pagesize);
            mem.heaps[0].heap_hardlimit =
-           mem.heaps[1].heap_limit = start + round_down(floor(end-start,2),map_pagesize);
+           mem.heaps[1].heap_limit = start + round_down(floor((end-start)*3,5),map_pagesize);
            mem.heaps[1].heap_hardlimit = end;
            #elif defined(UNIX_LINUX) && defined(WIDE_SOFT) && !defined(SPARC)
            mem.heaps[0].heap_limit = 0x2E000000; # room until at least 0x40000000
