@@ -32,6 +32,9 @@ Inefficiency of class redefinition when old or new class is unfinalizable
 support perseverances also on write side
 change wr_by_array_iau8_buffered to use persev instead of persev_full
 
+binary stdio
+<http://article.gmane.org/gmane.lisp.clisp.devel:12268>
+
 
 URGENT PROBLEMS
 ===============
