@@ -235,6 +235,11 @@
                 { pushSTACK(S(Kpathname)); pushSTACK(BEFORE(stackptr)); # :pathname ...
                   argcount += 2;
                 }
+              # os-error -->
+              if (eq(type,S(simple_os_error)))
+                { pushSTACK(S(Kobject)); pushSTACK(BEFORE(stackptr)); # :object ...
+                  argcount += 2;
+                }
               funcall(S(coerce_to_condition),argcount); # (SYS::COERCE-TO-CONDITION ...)
               # set_args_end_pointer(stackptr); # wozu? macht das Debuggen nur schwieriger!
               pushSTACK(value1); # condition retten
