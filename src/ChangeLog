@@ -1,3 +1,8 @@
+2000-07-20  Sam Steingold  <sds@gnu.org>
+
+	* inspect.lisp (insp-check): `warn' instead of `assert'
+	(inspect-frontend :http): hardcode host 127.0.0.1
+
 2000-07-19  Sam Steingold  <sds@gnu.org>
 
 	* socket.d (create_server_socket): use "0.0.0.0" instead of the
