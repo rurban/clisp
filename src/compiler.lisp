@@ -5773,6 +5773,11 @@ for-value   NIL or T
                 (return (third case)))))
           (let ((default-label (make-label 'NIL))
                 (end-label (make-label *for-value*)))
+            (when (and (eq test 'EQL) (every #'EQL=EQ allkeys))
+              (setq test 'EQ))
+            (cond ((eq test 'EQ) (setq test 'FASTHASH-EQ))
+                  ((eq test 'EQL) (setq test 'FASTHASH-EQL))
+                  ((eq test 'EQUAL) (setq test 'FASTHASH-EQUAL)))
             (make-anode
               :type 'CASE
               :sub-anodes `(,keyform-anode ,@(mapcar #'third cases)
@@ -5783,8 +5788,7 @@ for-value   NIL or T
               :code
                 `(,keyform-anode
                   (JMPHASH
-                    ,(if (and (eq test 'eql) (every #'EQL=EQ allkeys))
-                         'EQ test)
+                    ,test
                     ,(mapcap ; alist (obji -> labeli)
                        #'(lambda (case)
                            (let ((label (second case)))

@@ -1,3 +1,11 @@
+2004-05-13  Bruno Haible  <bruno@clisp.org>
+
+	* sequence.d (seq_duplicates): Use a hash table test FASTHASH-EQ
+	instead of EQ, FASTHASH-EQL instead of EQL, FASTHASH-EQUAL instead of
+	EQUAL.
+	* compiler.lisp (c-CASE): Likewise.
+	* room.lisp (%space): Likewise.
+
 2004-05-14  Bruno Haible  <bruno@clisp.org>
 
 	* hashtabl.d (hashcode_tuple): Use inlined hashcode3stable_atom.
