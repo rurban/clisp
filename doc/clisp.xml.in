@@ -77,7 +77,7 @@
 <group><arg><option><link linkend="opt-verbose">-q</link></option></arg>
  <arg><option><link linkend="opt-verbose">--quiet</link></option></arg>
  <arg><option><link linkend="opt-verbose">--silent</link></option></arg>
- <arg><option><link linkend="opt-verbose">-v</link></option></arg>
+ <arg>&opt-v;</arg>
  <arg><option><link linkend="opt-verbose">--verbose</link></option></arg></group>
 <arg><option><link linkend="opt-interactive-debug"
                    >-interactive-debug</link></option></arg>
@@ -87,7 +87,7 @@
 <group><arg><option><link linkend="opt-ansi">-ansi</link></option></arg>
  <arg><option><link linkend="opt-traditional" >-traditional</link></option></arg></group>
 <arg><option><link linkend="opt-pack">-p &pack-r;</link></option></arg>
-<arg><option><link linkend="opt-load-comp">-C</link></option></arg>
+<arg>&opt-C;</arg>
 <arg><option><link linkend="opt-norc">-norc</link></option></arg>
 <arg rep="repeat"><option><link linkend="opt-init">-i
    <replaceable>init-file</replaceable></link></option></arg>
@@ -396,8 +396,7 @@ that can be executed more efficiently.</para>
  <listitem><simpara>Normally &clisp; loads the user
    <ulink url="http://www.faqs.org/docs/artu/ch10s03.html"><quote>run
      control</quote> (RC)</ulink> file on startup (this happens after the
-   <option><link linkend="opt-load-comp">-C</link></option> option is
-   processed).
+   &opt-C; option is processed).
    The file loaded is
 <!-- #if defined(PATHNAME_WIN32) -->
    <filename>_clisprc.lisp</filename> or <filename>_clisprc.fas</filename>
@@ -556,7 +555,7 @@ that can be executed more efficiently.</para>
 
 <varlistentry id="runtime">
 <!-- #if defined(UNIX) && !defined(UNIX_CYGWIN32) -->
-<term><filename>lisp.run</filename></term>
+<term>&lisp-run;</term>
 <!-- #endif -->
 <!-- #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32) -->
 <term><filename>lisp.exe</filename></term>

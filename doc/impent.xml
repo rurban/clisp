@@ -221,6 +221,10 @@
 <!ENTITY muffle-cerrors "<link linkend='muffle-cerrors'><function>EXT:MUFFLE-CERRORS</function></link>">
 <!ENTITY need-defmethod "<simpara>You must define a method for this function.</simpara>">
 <!ENTITY no-underflow "<link linkend='no-underflow'><function>EXT:WITHOUT-FLOATING-POINT-UNDERFLOW</function></link>">
+<!ENTITY opt-C "<option><olink targetdoc='man' targetptr='opt-load-comp'>-C</olink></option>">
+<!ENTITY opt-K "<option><olink targetdoc='man' targetptr='opt-link-set'>-K</olink></option>">
+<!ENTITY opt-M "<option><olink targetdoc='man' targetptr='opt-memfile'>-M</olink></option>">
+<!ENTITY opt-v "<option><olink targetdoc='man' targetptr='opt-verbose'>-v</olink></option>">
 <!ENTITY package-lock "<link linkend='pack-lock'><function>EXT:PACKAGE-LOCK</function></link>">
 <!ENTITY without-package-lock "<link linkend='without-pack-lock'><function>EXT:WITHOUT-PACKAGE-LOCK</function></link>">
 <!ENTITY parsedot "<link linkend='name-type-split'><varname>CUSTOM:*PARSE-NAMESTRING-DOT-FILE*</varname></link>">
@@ -601,6 +605,7 @@
 <!ENTITY config-file "<link linkend='customize'><filename>#P&quot;config.lisp&quot;</filename></link>">
 <!ENTITY make-file "<filename>#P&quot;Makefile&quot;</filename>">
 <!ENTITY lispinit "<link linkend='image'><filename>#P&quot;lispinit.mem&quot;</filename></link>">
+<!ENTITY lisp-run "<filename>lisp.run</filename>">
 <!ENTITY clisp-h "<link linkend='clisp-h'><filename>#P&quot;clisp.h&quot;</filename></link>">
 
 <!-- *** pathnames *** -->
