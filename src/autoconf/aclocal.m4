@@ -2124,9 +2124,7 @@ fi
 ])dnl
 dnl
 AC_DEFUN(CL_WAITPID,
-[AC_CHECK_FUNCS(waitpid)
-if test $ac_cv_func_waitpid = yes; then
-CL_PROTO([waitpid], [
+[CL_PROTO([waitpid], [
 CL_PROTO_TRY([
 #if defined(STDC_HEADERS) || defined(HAVE_STDLIB_H)
 #include <stdlib.h>
@@ -2140,9 +2138,6 @@ CL_PROTO_TRY([
 cl_cv_proto_waitpid_arg1="pid_t", cl_cv_proto_waitpid_arg1="int")
 ], [extern pid_t waitpid ($cl_cv_proto_waitpid_arg1, int*, int);])
 AC_DEFINE_UNQUOTED(PID_T,$cl_cv_proto_waitpid_arg1)
-else
-AC_CHECK_HEADERS(sys/wait.h)dnl
-fi
 ])dnl
 dnl
 AC_DEFUN(CL_RUSAGE,

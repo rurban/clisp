@@ -330,7 +330,6 @@
       # vgl. WAIT(2V) und #include <sys/wait.h> :
       #   WIFSTOPPED(status)  ==  ((status & 0xFF) == 0177)
       #   WEXITSTATUS(status)  == ((status & 0xFF00) >> 8)
-      #ifdef HAVE_WAITPID
       loop
         { var int ergebnis = waitpid(child,&status,0);
           if (!(ergebnis == child))
@@ -345,20 +344,6 @@
             }
           if (!((status & 0xFF) == 0177)) break; # Child-Prozess beendet?
         }
-      #else
-      loop
-        { var int ergebnis = wait(&status);
-          if (ergebnis < 0)
-            { if (errno==EINTR) continue;
-              #ifdef ECHILD
-              if (errno==ECHILD) # Wenn der Child-Prozess nicht mehr da ist,
-                { status = 0; break; } # ist er wohl korrekt beendet worden.
-              #endif
-              OS_error();
-            }
-          if ((ergebnis == child) && !((status & 0xFF) == 0177)) break; # Child-Prozess beendet?
-        }
-      #endif
       return status;
     }
 
