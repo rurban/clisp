@@ -730,3 +730,7 @@ t
 (listp (directory (make-pathname :version :wild
                                  :defaults (logical-pathname "FOO:"))))
 T
+
+;; <http://www.lisp.org/HyperSpec/Body/sec_19-3-2-1.html>
+(pathname-device (logical-pathname "FOO:"))
+:UNSPECIFIC
