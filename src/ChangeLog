@@ -1,5 +1,10 @@
 2004-04-10  Bruno Haible  <bruno@clisp.org>
 
+	* type.lisp (BASE-STRING, SIMPLE-BASE-STRING): Change the type test
+	so that it excludes vectors of element type NIL.
+
+2004-04-10  Bruno Haible  <bruno@clisp.org>
+
 	* condition.lisp (warn): Let the indentation depend on the width of the
 	translation of "WARNING: ".
 
