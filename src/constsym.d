@@ -1,5 +1,5 @@
 # Liste aller dem C-Programm bekannten Symbole ("Programmkonstanten")
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 # Der Macro LISPSYM deklariert ein LISP-Symbol.
 # LISPSYM(name,printname,package)
@@ -1261,10 +1261,7 @@ LISPSYM(Kwild,"WILD",keyword) # als Pathname-Komponente in PATHNAME
 LISPSYM(Kwild_inferiors,"WILD-INFERIORS",keyword) # als Pathname-Komponente in PATHNAME
 LISPSYM(Krelative,"RELATIVE",keyword) # als Pathname-Komponente in PATHNAME
 LISPSYM(Kabsolute,"ABSOLUTE",keyword) # als Pathname-Komponente in PATHNAME
-#if defined(PATHNAME_MSDOS)
-LISPSYM(Kcurrent,"CURRENT",keyword) # als Pathname-Komponente in PATHNAME
-#endif
-#if defined(PATHNAME_MSDOS) || defined(PATHNAME_AMIGAOS) || defined(PATHNAME_RISCOS)
+#if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_RISCOS)
 LISPSYM(Kparent,"PARENT",keyword) # als Pathname-Komponente in PATHNAME
 #endif
 #ifdef PATHNAME_RISCOS

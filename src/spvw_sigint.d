@@ -115,10 +115,8 @@
       signal_acknowledge(SIGALRM,&alarm_handler);
       dec_break_sem_5();
       react_on_sigint(sig);
-      #ifndef WATCOM
       #ifndef HAVE_UALARM
       alarm(1); # Probieren wir's in einer Sekunde nochmal
-      #endif
       #endif
       return; # Nach kurzer Zeit wird wieder ein SIGALRM ausgelöst.
     }

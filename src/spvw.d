@@ -1,5 +1,5 @@
 # Speicherverwaltung für CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 # Inhalt:
 # Modulverwaltung
@@ -1743,10 +1743,6 @@ local void print_banner ()
   var const char * banner2 =
     GETTEXT("                    RISCOS port: Peter Burwood, Bruno Haible" NLstring);
   #endif
-  #ifdef DJUNIX
-  var const char * banner2 =
-    GETTEXT("                    DOS port: Jürgen Weber, Bruno Haible" NLstring);
-  #endif
   var const char * banner3 = NLstring ;
   var uintL offset = (posfixnum_to_L(Symbol_value(S(prin_linelength))) >= 65 ? 0 : 20);
   var const char * const * ptr = banner0;
@@ -1757,7 +1753,7 @@ local void print_banner ()
   ptr = banner1;
   dotimesC(count,sizeof(banner1)/sizeof(banner1[0]),
            { write_sstring(&STACK_0,asciz_to_string(*ptr++,O(internal_encoding))); });
-  #if defined(AMIGA) || defined(RISCOS) || defined(DJUNIX)
+  #if defined(AMIGA) || defined(RISCOS)
   write_sstring(&STACK_0,asciz_to_string(&banner2[offset],O(internal_encoding)));
   #endif
   write_sstring(&STACK_0,asciz_to_string(&banner3[offset],O(internal_encoding)));
@@ -1801,14 +1797,6 @@ local void print_banner ()
       # Wildcards und Response-Files in der Kommandozeile expandieren:
       _response(&argc,&argv);
       _wildcard(&argc,&argv);
-      #endif
-      #ifdef DJUNIX
-      # Ctrl-Break verbieten, so weit es geht:
-      local var int cbrk;
-      cbrk = getcbrk();
-      if (cbrk) { setcbrk(0); }
-      # Ctrl-Break wollen wir abfangen:
-      _go32_want_ctrl_break(1);
       #endif
       #if defined(MSDOS) && 0 # normalerweise unnötig
       # Auf stdin und stdout im Text-Modus zugreifen:
@@ -2690,13 +2678,9 @@ local void print_banner ()
         # jetzt beim Programmstart erfragen:
         if (isatty(stdout_handle)) # Standard-Output ein Terminal?
           { extern uintW v_cols(); # siehe STREAM.D
-            #ifdef EMUNIX_PORTABEL
             var int scrsize[2];
             var uintL columns;
             columns = (_scrsize(&!scrsize), scrsize[0]);
-            #else
-            var uintL columns = v_cols();
-            #endif
             if (columns > 0)
               { # Wert von SYS::*PRIN-LINELENGTH* verändern:
                 Symbol_value(S(prin_linelength)) = fixnum(columns-1);
@@ -2832,9 +2816,6 @@ local void print_banner ()
          #endif
          #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
            pushSTACK(ascii_to_string("_clisprc"));
-         #endif
-         #if defined(PATHNAME_MSDOS)
-           pushSTACK(ascii_to_string("_CLISPRC"));
          #endif
          funcall(L(make_pathname),2);
          pushSTACK(value1);
@@ -2985,10 +2966,6 @@ local void print_banner ()
       FREE_DYNAMIC_ARRAY(argv_init_files); }
       #if (defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS) || defined(RISCOS)
       terminal_sane(); # Terminal wieder in Normalzustand schalten
-      #endif
-      #ifdef DJUNIX
-      if (cbrk) { setcbrk(cbrk); } # Ctrl-Break wieder zulassen
-      _go32_want_ctrl_break(0); # Ctrl-Break wieder normal
       #endif
       #if defined(UNIX) || defined(RISCOS)
         exit(exitcode); # Calling exit(), not _exit(), allows profiling to work.

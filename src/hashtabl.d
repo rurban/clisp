@@ -87,11 +87,7 @@
 
 # Rotiert einen Hashcode x um n Bits nach links (0<n<32).
 # rotate_left(n,x)
-  #if !(defined(WATCOM) && defined(__INLINE_FUNCTIONS__))
-    #define rotate_left(n,x)  (((x) << (n)) | ((x) >> (32-(n))))
-  #else
-    #define rotate_left(n,x)  _lrotl(x,n)
-  #endif
+  #define rotate_left(n,x)  (((x) << (n)) | ((x) >> (32-(n))))
 
 # Mischt zwei Hashcodes.
 # Der eine wird um 5 Bit rotiert, dann der andere draufgeXORt.

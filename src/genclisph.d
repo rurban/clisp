@@ -1,6 +1,6 @@
 # Ausgabe aller Definitionen aus lispbibl.d, die an externe Module
 # exportiert werden.
-# Bruno Haible 1994-1999
+# Bruno Haible 1994-2000
 
 #include "lispbibl.c"
 
@@ -252,8 +252,6 @@ global int main()
 #   #endif
 # #elif defined(_AIX)
 #   printf("#pragma alloca\n");
-# #elif defined(WATCOM)
-#   printf("#include <malloc.h>\n");
 # #elif !defined(NO_ALLOCA)
 #   printf("extern void* alloca (int size);\n");
 # #endif
@@ -322,7 +320,7 @@ global int main()
 #     printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype arrayvar[arraysize]\n");
 #   #endif
 #   printf("#define FREE_DYNAMIC_ARRAY(arrayvar)\n");
-# #elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(WATCOM) || defined(MICROSOFT) || defined(RISCOS)
+# #elif (defined(UNIX) && (defined(HAVE_ALLOCA_H) || defined(_AIX) || !defined(NO_ALLOCA))) || defined(MICROSOFT) || defined(RISCOS)
 #   printf("#define DYNAMIC_ARRAY(arrayvar,arrayeltype,arraysize)  arrayeltype* arrayvar = (arrayeltype*)alloca((arraysize)*sizeof(arrayeltype))\n");
 #   printf("#define FREE_DYNAMIC_ARRAY(arrayvar)\n");
 # #else

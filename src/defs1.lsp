@@ -457,7 +457,7 @@
                  host
   ) ) ) ) )
   (set-logical-pathname-translations "SYS"
-    '((";*.LISP" #+DOS "*.LSP" #-DOS "*.lsp") ("*.*" "*.*") ("*" "*"))
+    '((";*.LISP" "*.lsp") ("*.*" "*.*") ("*" "*"))
   )
 )
 
@@ -471,7 +471,7 @@
               old-space1 old-space2 old-gccount)
   (macrolet ((merge-2-values (val1 val2)
                (if (< internal-time-units-per-second 1000000)
-                 `(dpb ,val1 (byte 16 16) ,val2) ; TIME_1: AMIGA, DOS, OS/2, UNIX_TIMES
+                 `(dpb ,val1 (byte 16 16) ,val2) ; TIME_1: AMIGA, OS/2, UNIX_TIMES
                  `(+ (* ,val1 internal-time-units-per-second) ,val2) ; TIME_2: UNIX sonst, WIN32
             )) )
     (let ((Real-Time (- (merge-2-values new-real1 new-real2)
@@ -515,10 +515,10 @@
   (if (and (realp time) (not (minusp time)))
     (progn
       ; Diese Fallunterscheidung hängt von sys::%sleep in time.d ab.
-      #+(or AMIGA DOS OS/2 ACORN-RISCOS) ; SLEEP_1
+      #+(or AMIGA OS/2 ACORN-RISCOS) ; SLEEP_1
       (if (> time '#,(floor (expt 2 31) internal-time-units-per-second))
         ; Mehr als 248 bzw. 994 bzw. 497 Tage? (Denn sys::%sleep akzeptiert nur
-        ; Argumente < 2^32, bei #+(or DOS OS/2) sogar nur Argumente < 2^31.)
+        ; Argumente < 2^32, bei #+OS/2 sogar nur Argumente < 2^31.)
         (loop ; ja -> Endlosschleife
           (sys::%sleep '#,(* 86400 internal-time-units-per-second))
         )

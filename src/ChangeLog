@@ -1,3 +1,26 @@
+2000-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Remove DOS (EMUNIX && !EMUNIX_PORTABEL, DJUNIX, WATCOM) ports.
+        * errdjgpp.d: Remove file.
+        * lispbibl.d: Remove support for DOS ports.
+          (OS2): Renamed from DOSPC.
+          (EMUNIX_PORTABEL): Remove macro, assume it defined whenever EMUNIX
+          is defined.
+          (DJUNIX, WATCOM): Remove macros.
+          (PATHNAME_MSDOS, PATHNAME_EXT83): Remove macro.
+        * msdos.d: Likewise.
+        * aridecl.d, arilev0.d, arilev1.d, constobj.d, constsym.d, error.d,
+          errunix.d, genclisph.d, hashtabl.d, pathname.d, spvw.d,
+          spvw_memfile.d, spvw_sigint.d, spvw_sigwinch.d, stream.d, time.d:
+          Update.
+        * cfgdos.lsp, complete.lsp, defs1.lsp, describe.lsp, edit.lsp,
+          format.lsp, init.lsp, keyboard.lsp, macros2.lsp, runprog.lsp:
+          Remove DOS feature dependencies.
+        * makemake.in: Remove support for dos, dosdjgpp, doswatcom.
+          (INCLUDEDIR): Remove variable.
+        * gettext/po/Makefile.devel (DSOURCES): Remove errdjgpp.
+        * FILES.1: Update.
+
 2000-03-08  Martin Atzmueller  <marty@cs.utexas.edu>
 
 	* posix.lsp (resolve-host-ipaddr):

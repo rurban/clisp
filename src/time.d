@@ -1,5 +1,5 @@
 # Zeitmessungsfunktionen für CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 #include "lispbibl.c"
 #include "arilev0.c"  # für high16, low16 in %%TIME,
@@ -61,81 +61,7 @@
  #ifdef TIME_MSDOS
 # < uintL ergebnis : aktueller Stand des 100Hz-Zählers
   global uintL get_time(void);
-  #if defined(DJUNIX) && 0 # Vorsicht: das geht eine Stunde nach!!
-    global uintL get_time()
-      {
-        var struct timeval real_time;
-        begin_system_call();
-        gettimeofday(&real_time,NULL);
-        end_system_call();
-        return (uintL)(real_time.tv_sec) * 100
-               + (uintL)((uintW)((uintL)(real_time.tv_usec) / 16) / 625); # tv_usec/10000
-      }
-  #endif
-  #if defined(DJUNIX) || defined(WATCOM)
-    typedef struct {
-      uintW year;  # Jahr (1980..2099)
-      uintB month; # Monat (1..12)
-      uintB day;   # Tag (1..31)
-      uintB hour;  # Stunde (0..23)
-      uintB min;   # Minute (0..59)
-      uintB sec;   # Sekunde (0..59)
-      uintB hsec;  # Hundertstel Sekunde (0..59)
-    } internal_decoded_time;
-    local void get_decoded_time (internal_decoded_time* timepoint);
-    local void get_decoded_time(timepoint)
-      var internal_decoded_time* timepoint;
-      {
-        var union REGS in;
-        var union REGS out;
-        begin_system_call();
-        loop {
-          # Datum-Teil holen:
-          in.regB.ah = 0x2A; # DOS Get Date
-          intdos(&in,&out);
-          timepoint->year = out.regW.cx;
-          timepoint->month = out.regB.dh;
-          timepoint->day = out.regB.dl;
-          # Uhrzeit-Teil holen:
-          in.regB.ah = 0x2C; # DOS Get Time
-          intdos(&in,&out);
-          timepoint->hour = out.regB.ch;
-          timepoint->min = out.regB.cl;
-          timepoint->sec = out.regB.dh;
-          timepoint->hsec = out.regB.dl;
-          # und auf Tageswechsel überprüfen:
-          if (!(timepoint->sec == 0)) break;
-          if (!(timepoint->min == 0)) break;
-          if (!(timepoint->hour == 0)) break;
-          in.regB.ah = 0x2A; # DOS Get Date
-          intdos(&in,&out);
-          if (timepoint->day == out.regB.dl) break;
-          # Datum hat sich zwischenzeitlich verändert -> wiederholen
-        }
-        end_system_call();
-      }
-    global uintL get_time()
-      {
-        var internal_decoded_time timepoint;
-        get_decoded_time(&timepoint);
-        var local uintW monthoffsets[12] = { # Jahrtag ab dem letzten 1. März
-          # Monat  1   2   3  4  5  6  7   8   9   10  11  12
-                  306,337, 0,31,61,92,122,153,184,214,245,275,
-          };
-        var uintL UTTag;
-        timepoint.year -= 1980;
-        if (timepoint.month >= 3)
-          timepoint.year += 1;
-        UTTag = (uintL)timepoint.year * 365 + (uintL)ceiling(timepoint.year,4)
-                + (uintL)monthoffsets[timepoint.month-1] + (uintL)timepoint.day + 3345;
-        # Zeitzone mitberücksichtigen??
-        return (((UTTag * 24 + (uintL)timepoint.hour)
-                        * 60 + (uintL)timepoint.min)
-                        * 60 + (uintL)timepoint.sec)
-                        * 100 + (uintL)timepoint.hsec;
-      }
-  #endif
-  #if defined(EMUNIX)
+  #ifdef EMUNIX
     global uintL get_time()
       {
         var struct timeb real_time;
@@ -567,28 +493,7 @@
           convert_time(&datestamp,&timepoint); # in Decoded-Time umwandeln
         }
         #endif
-        #if defined(DJUNIX) && 0 # das geht eine Stunde nach!!
-        {
-          var struct timeval real_time;
-          begin_system_call();
-          gettimeofday(&real_time,NULL); # aktuelle Uhrzeit
-          end_system_call();
-          convert_time(&real_time.tv_sec,&timepoint); # in Decoded-Time umwandeln
-        }
-        #endif
-        #if defined(DJUNIX) || defined(WATCOM)
-        {
-          var internal_decoded_time idt;
-          get_decoded_time(&idt);
-          timepoint.Sekunden = fixnum(idt.sec);
-          timepoint.Minuten  = fixnum(idt.min);
-          timepoint.Stunden  = fixnum(idt.hour);
-          timepoint.Tag      = fixnum(idt.day);
-          timepoint.Monat    = fixnum(idt.month);
-          timepoint.Jahr     = fixnum(idt.year);
-        }
-        #endif
-        #if defined(EMUNIX)
+        #ifdef EMUNIX
         {
           var struct timeb real_time;
           begin_system_call();
@@ -927,7 +832,7 @@ LISPFUNN(sleep,1)
 # Argument delay muss ein Integer >=0, <2^32 (TIME_MSDOS: sogar <2^31) sein.
   {
     var uintL delay = I_to_UL(popSTACK()); # Pausenlänge
-    #ifdef EMUNIX_PORTABEL
+    #ifdef EMUNIX
     if (TRUE) {
       # Unter OS/2 (Multitasking!) nicht CPU-Zeit verbraten!
       # select erlaubt eine wunderschöne Implementation von usleep():
