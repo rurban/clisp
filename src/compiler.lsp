@@ -245,6 +245,7 @@
 (defvar *compiling* nil) ; gibt an, ob gerade beim Compilieren
 ; (defvar *error-count*) ; Anzahl der aufgetretenen Errors
 ; (defvar *warning-count*) ; Anzahl der aufgetretenen Warnungen
+; (defvar *style-warning-count*) ; Anzahl der aufgetretenen Stil-Warnungen
 (defvar *compile-warnings* t) ; ob Compiler-Warnungen ausgegeben werden
 (defvar *compile-verbose* t) ; ob Compiler-Kommentare ausgegeben werden
 (defvar *compile-print* nil) ; ob der Compiler ausgibt, wo er gerade ist
@@ -2844,6 +2845,14 @@ der Docstring (oder NIL).
              args
 ) ) ) )
 
+(defvar *style-warning-count*)
+; (C-STYLE-WARN controlstring . args)
+; gibt eine Stil-Warnung aus (mittels FORMAT).
+(defun c-style-warn (cstring &rest args)
+  (incf *style-warning-count*)
+  (apply #'c-warn cstring args)
+)
+
 (defvar *error-count*)
 ; (C-ERROR controlstring . args)
 ; gibt einen Compiler-Error aus (mittels FORMAT) und beendet das laufende C-FORM.
@@ -4778,10 +4787,10 @@ der Docstring (oder NIL).
                 sym
         )
         (if (var-for-value-usedp var)
-          (c-warn (DEUTSCH "Variable ~S wird trotz IGNORE-Deklaration benutzt."
-                   ENGLISH "variable ~S is used despite of IGNORE declaration."
-                   FRANCAIS "La variable ~S est utilisée malgré la déclaration IGNORE.")
-                  sym
+          (c-style-warn (DEUTSCH "Variable ~S wird trotz IGNORE-Deklaration benutzt."
+                         ENGLISH "variable ~S is used despite of IGNORE declaration."
+                         FRANCAIS "La variable ~S est utilisée malgré la déclaration IGNORE.")
+                        sym
       ) ) )
       ; var nicht ignore-deklariert
       (unless (member sym *ignorables* :test #'eq)
@@ -4791,10 +4800,10 @@ der Docstring (oder NIL).
           (unless (null (symbol-package sym)) ; sym ein (gensym) ?
             ; (Symbole ohne Home-Package kommen nicht vom Benutzer, die Warnung
             ; würde nur verwirren).
-            (c-warn (DEUTSCH "Variable ~S wird nicht benutzt.~%Schreibfehler oder fehlende IGNORE-Deklaration?"
-                     ENGLISH "variable ~S is not used.~%Misspelled or missing IGNORE declaration?"
-                     FRANCAIS "La variable ~S n'est pas utilisée.~%Mauvaise orthographe ou déclaration IGNORE manquante?")
-                    sym
+            (c-style-warn (DEUTSCH "Variable ~S wird nicht benutzt.~%Schreibfehler oder fehlende IGNORE-Deklaration?"
+                           ENGLISH "variable ~S is not used.~%Misspelled or missing IGNORE declaration?"
+                           FRANCAIS "La variable ~S n'est pas utilisée.~%Mauvaise orthographe ou déclaration IGNORE manquante?")
+                          sym
     ) ) ) ) )
     (when (member sym *readonlys* :test #'eq)
       (unless (var-specialp var)
@@ -7309,10 +7318,10 @@ der Docstring (oder NIL).
                     (dolist (key (if (listp keys) keys (list keys)))
                       (if (not (member key allkeys :test #'eql)) ; remove-duplicates
                         (progn (push key allkeys) (push key newkeys))
-                        (c-warn (DEUTSCH "Doppelt aufgeführter ~S-Fall ~S : ~S"
-                                 ENGLISH "Duplicate ~S label ~S : ~S"
-                                 FRANCAIS "~S : Le choix ~S se répète: ~S")
-                                'case key *form*
+                        (c-style-warn (DEUTSCH "Doppelt aufgeführter ~S-Fall ~S : ~S"
+                                       ENGLISH "Duplicate ~S label ~S : ~S"
+                                       FRANCAIS "~S : Le choix ~S se répète: ~S")
+                                      'case key *form*
                     ) ) )
                     (setq keys (nreverse newkeys))
               ) ) )
@@ -12052,7 +12061,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
         (*venv* %venv%)
         (*venvc* nil)
         (*denv* %denv%)
-        (*error-count* 0) (*warning-count* 0)
+        (*error-count* 0) (*warning-count* 0) (*style-warning-count* 0)
         (*no-code* nil)
        )
     (let ((funobj (compile-lambdabody name lambdabody)))
@@ -12158,6 +12167,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
     (let ((*compiling* t)
           (*error-count* 0)
           (*warning-count* 0)
+          (*style-warning-count* 0)
           (*compiling-from-file* nil)
           (*c-listing-output* nil)
           (*c-error-output* *error-output*)
@@ -12191,20 +12201,30 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                           (cdr definition)
            ))           )
         (let ((funobj (compile-lambdabody name lambdabody)))
-          (unless (zerop *error-count*) (return-from compile nil))
-          (if name
-            (progn
-              (when macro-flag (setq funobj (cons 'system::macro funobj)))
-              (if trace-flag
-                (setf (get symbol 'sys::traced-definition) funobj)
-                (setf (symbol-function symbol) funobj)
+          (values
+            (if (zerop *error-count*)
+              (if name
+                (progn
+                  (when macro-flag (setq funobj (cons 'system::macro funobj)))
+                  (if trace-flag
+                    (setf (get symbol 'sys::traced-definition) funobj)
+                    (setf (symbol-function symbol) funobj)
+                  )
+                  (when save-flag
+                    (setf (get symbol 'sys::definition) save-flag)
+                  )
+                  name
+                )
+                funobj
               )
-              (when save-flag
-                (setf (get symbol 'sys::definition) save-flag)
-              )
-              name
+              nil
             )
-            funobj
+            (let ((count (+ *error-count* *warning-count*)))
+              (if (zerop count) nil count)
+            )
+            (let ((count (+ *error-count* (- *warning-count* *style-warning-count*))))
+              (if (zerop count) nil count)
+            )
 ) ) ) ) ) )
 
 ; Top-Level-Formen müssen einzeln aufs .fas-File rausgeschrieben werden,
@@ -12410,7 +12430,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                     (*venv* nil)
                     (*venvc* nil)
                     (*denv* *toplevel-denv*)
-                    (*error-count* 0) (*warning-count* 0)
+                    (*error-count* 0) (*warning-count* 0) (*style-warning-count* 0)
                     (*no-code* (and (null *fasoutput-stream*) (null listing-stream)))
                     (*toplevel-for-value* t)
                     (eof-value "EOF")
@@ -12490,9 +12510,13 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                 (c-comment "~%")
                 (setq compilation-successful (zerop *error-count*))
                 (values (if compilation-successful output-file nil)
-                        (if (zerop *warning-count*) nil *warning-count*)
-                        (if (zerop *error-count*) nil *error-count*))
-            ) )
+                        (let ((count (+ *error-count* *warning-count*)))
+                          (if (zerop count) nil count)
+                        )
+                        (let ((count (+ *error-count* (- *warning-count* *style-warning-count*))))
+                          (if (zerop count) nil count)
+                        )
+            ) ) )
             (when new-output-stream
               (terpri *fasoutput-stream*) (close *fasoutput-stream*)
               (close *liboutput-stream*)
