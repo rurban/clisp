@@ -7589,7 +7589,11 @@ typedef const struct backtrace_t* p_backtrace_t;
 #if defined(STACKCHECKS) || defined(STACKCHECKC)
 #define with_saved_back_trace(fun,num_arg,statement)           do {     \
     p_backtrace_t bt_save = back_trace;                                 \
-    struct backtrace_t bt_here = { back_trace, fun, STACK, num_arg };   \
+    struct backtrace_t bt_here;                                         \
+    bt_here.bt_next = back_trace;                                       \
+    bt_here.bt_caller = fun;                                            \
+    bt_here.bt_stack = STACK;                                           \
+    bt_here.bt_num_arg = num_arg;                                       \
     BT_CHECK1("w/s/b/t: before");                                       \
     back_trace = &bt_here;                                              \
     statement;                                                          \
@@ -7599,7 +7603,11 @@ typedef const struct backtrace_t* p_backtrace_t;
   } while(0)
 #else
 #define with_saved_back_trace(fun,num_arg,statement)           do {     \
-    struct backtrace_t bt_here = { back_trace, fun, STACK, num_arg };   \
+    struct backtrace_t bt_here;                                         \
+    bt_here.bt_next = back_trace;                                       \
+    bt_here.bt_caller = fun;                                            \
+    bt_here.bt_stack = STACK;                                           \
+    bt_here.bt_num_arg = num_arg;                                       \
     back_trace = &bt_here;                                              \
     statement;                                                          \
     back_trace = back_trace->bt_next;                                   \
