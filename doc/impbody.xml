@@ -180,9 +180,7 @@ ignored by the interpreter.</para>
 <section id="similarity"><title>Definition of Similarity
   <ulink url="&clhs;/Body/sec_3-2-4-2-2.html">[CLHS-3.2.4.2.2]</ulink></title>
 
-<para>Hash tables are <ulink
- url="&clhs;/Body/glo_e.html#externalizable_object">externalizable
- object</ulink>s.</para>
+<para>Hash tables are &ext-obj;s.</para>
 
 </section>
 </section>
