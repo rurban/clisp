@@ -193,6 +193,11 @@
    database)</literal></term>
  <listitem><simpara>Remove a database (&DB_remove;).
 </simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:DB-JOIN db cursor-sequence
+   &key-amp; JOIN_NOSORT)</literal></term>
+ <listitem><simpara>create a specialized join cursor for use in
+   performing equality or natural joins on secondary indices (&DB_join;).
+</simpara></listitem></varlistentry>
 </variablelist>
 </section>
 
