@@ -1,5 +1,20 @@
 1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * pathname.d (make_directory): Move function, make inline.
+          (delete_directory, change_current_directory, delete_existing_file,
+           delete_file_if_exists, delete_file_before_rename,
+           rename_existing_file, rename_file_to_nonexisting): New functions.
+          (change_default): Use change_current_directory.
+          (access0): Make inline.
+          (FILE_EXISTS_TRIVIAL): New macro.
+          (DELETE-FILE): Use FILE_EXISTS_TRIVIAL and delete_file_if_exists.
+          (rename_file): Use rename_file_to_nonexisting.
+          (open_file): Use delete_file_before_rename, rename_existing_file,
+          delete_existing_file.
+          (DELETE-DIR): Use delete_directory.
+
+1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         allocate_handle can call GC!
         * stream.d (make_keyboard_stream, make_terminal_stream_,
            finish_output_file): Call allocate_handle() at GC-safe moments.
