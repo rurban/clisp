@@ -1289,7 +1289,7 @@ for f in $EVERY_INCLUDES ; do
   EVERY_INCLUDES_C=$EVERY_INCLUDES_C' '$f'.c'
 done
 
-EVERY_INCLUDES_H=' cflags.h'
+EVERY_INCLUDES_H=''
 if [ $TOS = unix ] ; then
   if [ -n '@STDBOOL_H@' -o -n '@STDINT_H@' ]; then
     EVERY_INCLUDES_H=${EVERY_INCLUDES_H}' @STDBOOL_H@ @STDINT_H@'
@@ -2236,6 +2236,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   fi
   if [ $f = spvw ] ; then
     depends=$depends''$SPVW_INCLUDES' sort subrkw spvw_calendar'
+    dependsc=${dependsc}' cflags.h'
   fi
   if [ $f = eval ] ; then
     depends=$depends' bytecode'

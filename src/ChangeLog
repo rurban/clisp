@@ -1,5 +1,11 @@
 2004-05-22  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (init_object_tab): init O(system_type) here...
+	* constobj.d (system_type): ...not here
+	* makemake.in: only spvw.d depends on cflags.h, not everything
+
+2004-05-22  Sam Steingold  <sds@gnu.org>
+
 	* defstruct.lisp (defstruct): avoid a compiler warning
 
 2004-05-22  Sam Steingold  <sds@gnu.org>
