@@ -165,8 +165,8 @@ LISPFUN(rexx_put,1,0,norest,key,5,\
           pushSTACK(S(Khost));
           fehler(type_error,
                  DEUTSCH ? "Für ~ sind nur NIL, T oder Strings erlaubt: ~" :
-                 ENGLISH ? "Only NIL, T and strings are accepted for ~S : ~" :
-                 FRANCAIS ? "Seul NIL, T ou bien une chaîne sont permis pour ~S : ~" :
+                 ENGLISH ? "Only NIL, T and strings are accepted for ~ : ~" :
+                 FRANCAIS ? "Seul NIL, T ou bien une chaîne sont permis pour ~ : ~" :
                  ""
                 );
     }   }

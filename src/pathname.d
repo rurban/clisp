@@ -10224,7 +10224,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
             ergebnis = Execute("",terminal,Handle_NULL);
             # Restore state of break signals
             SetSignal(signals,(SIGBREAKF_CTRL_C|SIGBREAKF_CTRL_D|SIGBREAKF_CTRL_E|SIGBREAKF_CTRL_F));
-            Write(terminal,CRLFstring,1);
+            Write(terminal,NLstring,1);
             Close(terminal);
           }
         #endif
