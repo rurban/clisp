@@ -1,6 +1,6 @@
 /*
  * List functions for CLISP
- * Bruno Haible 1990-2003
+ * Bruno Haible 1990-2004
  * Marcus Daniels 8.4.1994
  * Sam Steingold 1999-2004
  */
@@ -681,6 +681,33 @@ LISPFUNNR(nthcdr,2)
       fehler_list(list);
   });
   VALUES1(list);
+  skipSTACK(2);
+}
+
+/* (SYS::CONSES-P n object) determines whether the object is a list
+   consisting of length n at least. Similar to
+   (if (= n 0) t (consp (nthcdr (- n 1) object)))
+   except that it is robust against dotted lists, or to
+   (if (= n 0) t (and (listp object) (>= (length object) n)))
+   except that it is robust against circular and dotted lists. */
+LISPFUNNR(conses_p,2)
+{
+  var uintL count = get_integer_truncate(STACK_1);
+  var object list = STACK_0;
+  value1 = T;
+  if (count > 0) {
+    if (atomp(list))
+      value1 = NIL;
+    else
+      for (; --count > 0;) {
+        list = Cdr(list);
+        if (atomp(list)) {
+          value1 = NIL;
+          break;
+        }
+      }
+  }
+  mv_count=1;
   skipSTACK(2);
 }
 
