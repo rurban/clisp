@@ -1819,39 +1819,56 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
 LISPSPECFORM(multiple_value_setq, 2,0,nobody)
 { /* (MULTIPLE-VALUE-SETQ ({var}) form), CLTL p. 136 */
   /* check variable list: */
-  pushSTACK(STACK_1); /* variable list */
-  while (consp(STACK_0)) {
-    Car(STACK_0) = /* next variable */
-      check_symbol_non_constant(Car(STACK_0),S(multiple_value_setq));
-    if (sym_macrop(Car(STACK_0))) { /* symbol-macro */
-      /* turn MULTIPLE-VALUE-SETQ into MULTIPLE-VALUE-SETF */
-      STACK_0 = STACK_1; STACK_1 = STACK_2; STACK_2 = S(multiple_value_setf);
+  var gcv_object_t* firstvarptr = args_end_pointer;
+  var uintL varcount = 0;
+  {
+    var gcv_object_t* varlistr_ = &STACK_1;
+    while (consp(*varlistr_)) {
+      var object symbol =   /* next variable */
+        check_symbol_non_constant(Car(*varlistr_),S(multiple_value_setq));
+      *varlistr_ = Cdr(*varlistr_);
+      varcount++;
+      pushSTACK(symbol);
+      check_STACK();
+      if (sym_macrop(symbol)) /* and not a symbol-macro */
+        goto expand;
+    }
+    if (false) {
+     expand: /* turn MULTIPLE-VALUE-SETQ into MULTIPLE-VALUE-SETF */
+      dotimespL(varcount,varcount, {
+        var object new_cons = allocate_cons();
+        Car(new_cons) = popSTACK(); Cdr(new_cons) = *varlistr_;
+        *varlistr_ = new_cons;
+      });
+      /* stack layout: varlist, form. */
+      pushSTACK(STACK_0); STACK_1 = STACK_2; STACK_2 = S(multiple_value_setf);
       var object newform = listof(3);
       eval(newform);
       return;
     }
-    STACK_0 = Cdr(STACK_0);
   }
-  skipSTACK(1); /* drop variable list tail */
-  eval(popSTACK()); /* evaluate form */
-  var object varlist = popSTACK();
-  var gcv_object_t* args_end = args_end_pointer;
-  mv_to_STACK(); /* write values into the stack (eases access) */
-  /* peruse variable-list: */
-  var gcv_object_t* mvptr = args_end;
-  var uintC count = mv_count; /* number of values that are still available */
-  while (consp(varlist)) {
-    var object value;
-    if (count>0) {
-      value = NEXT(mvptr); count--; /* next value */
-    } else {
-      value = NIL; /* NIL, if all values are consumed */
-    }
-    setq(Car(varlist),value); /* assign to the next variable */
-    varlist = Cdr(varlist);
+  eval(Before(firstvarptr)); /* evaluate form */
+  /* Write values into the stack (needed because setq() can trigger GC): */
+  var gcv_object_t* mvptr = args_end_pointer;
+  mv_to_STACK();
+  /* Perform the assignments: */
+  var uintL valcount = mv_count; /* number of values */
+  {
+    var uintL remaining = valcount; /* number of values that are still available */
+    var gcv_object_t* varptr = firstvarptr;
+    dotimesL(varcount,varcount, {
+      var object value;
+      if (remaining>0) {
+        value = NEXT(mvptr); remaining--; /* next value */
+      } else {
+        value = NIL; /* NIL, if all values are consumed */
+      }
+      setq(NEXT(varptr),value); /* assign to the next variable */
+    });
   }
-  set_args_end_pointer(args_end); /* clean up STACK */
-  mv_count=1; /* last value1 as the only value */
+  /* Return the first among the multiple values as the only value: */
+  value1 = (valcount > 0 ? STACK_(valcount-1) : NIL); mv_count=1;
+  set_args_end_pointer(firstvarptr STACKop 2); /* clean up STACK */
 }
 
 LISPSPECFORM(catch, 1,0,body)
