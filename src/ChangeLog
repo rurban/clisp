@@ -1,3 +1,10 @@
+2001-10-24  Sam Steingold  <sds@gnu.org>
+
+	fixed --without-unicode on msvc
+	* lispbibl.d (pseudodata_tab) [MS !UNICODE]: add a dummy member
+	* spvw.d (pseudocode_anz) [MS !UNICODE]: define to 0
+	* stream.d (pseudodata_tab) [MS !UNICODE]: init the dummy member
+
 2001-10-24  Bruno Haible  <haible@clisp.cons.org>
 
 	* clhs.lisp (*browsers*): Add an entry for :konqueror.

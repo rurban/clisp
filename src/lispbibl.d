@@ -8166,6 +8166,9 @@ extern struct pseudocode_tab_ {
 #define PSEUDO  PSEUDO_B
 extern struct pseudodata_tab_ {
   #include "pseudofun.c"
+  #if defined(MICROSOFT) && !defined(UNICODE)
+  Pseudofun dummy_pseudofun;
+  #endif
 } pseudodata_tab;
 #undef PSEUDO
 # is used by STREAM, SPVW
