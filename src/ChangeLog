@@ -1,5 +1,12 @@
 2004-10-25  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (cflags.h): do not touch cflags.h when the changes
+	to Makefile do not modify it.
+	Cost: maybe a few extra "echo"s on each make
+	Benefit: lispinit.mem is not re-dumped when we add something to MODULES
+
+2004-10-25  Sam Steingold  <sds@gnu.org>
+
 	* modules/i18n/i18n.lisp (locale-conv): new defstruct
 	* modules/i18n/gettext.c (locale-conv): new function
 
