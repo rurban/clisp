@@ -158,7 +158,15 @@ phase-5:
 # need it during builds and it's slow so we don't do it all the time.
 # This should be run after all the patches have been applied.
 
-phase-omega: convert-makefiles
+phase-omega: convert-makefiles clean-up
 
 convert-makefiles:
 	cd ../..; $(MAKE) -f Makefile.devel makefiles
+
+clean-up:
+	cd ../../src;
+	rm -f *.c~
+	rm -f *.d.ORIG
+	rm -f *.d.PHASE-1
+	rm -f *.d.PHASE-2
+	rm -f *.d.PHASE-3
