@@ -13,23 +13,22 @@ vacall:
 	.extern __quous
 	stwu 1,-176(1)
 	mflr 0
-	stw 27,156(1)
 	stw 28,160(1)
 	stw 29,164(1)
 	stw 30,168(1)
 	stw 31,172(1)
 	stw 0,180(1)
-	addis 11,0,vacall_function@ha
+	lis 11,vacall_function@ha
 	addi 29,1,184
 	lwz 12,vacall_function@l(11)
 	stw 3,-32(29)
-	stw 10,-4(29)
+	stw 9,-8(29)
 	mtlr 12
+	stw 10,-4(29)
 	stw 5,-24(29)
 	stw 6,-20(29)
 	stw 7,-16(29)
 	stw 8,-12(29)
-	stw 9,-8(29)
 	li 0,0
 	addi 11,1,152
 	addi 28,1,48
@@ -56,102 +55,101 @@ vacall:
 	blrl
 	lwz 9,20(1)
 	cmpwi 0,9,0
-	mr 11,9
-	bc 12,2,.L3
+	bc 12,2,.L4
 	cmpwi 0,9,1
-	bc 12,2,.L41
+	bc 12,2,.L42
 	cmpwi 0,9,2
-	bc 4,2,.L6
+	bc 4,2,.L7
 	lbz 0,32(1)
 	slwi 0,0,24
 	srawi 3,0,24
-	b .L3
-.L6:
+	b .L4
+.L7:
 	cmpwi 0,9,3
-	bc 4,2,.L8
-.L41:
+	bc 4,2,.L9
+.L42:
 	lbz 3,32(1)
-	b .L3
-.L8:
+	b .L4
+.L9:
 	cmpwi 0,9,4
-	bc 4,2,.L10
+	bc 4,2,.L11
 	lha 3,32(1)
-	b .L3
-.L10:
+	b .L4
+.L11:
 	cmpwi 0,9,5
-	bc 4,2,.L12
+	bc 4,2,.L13
 	lhz 3,32(1)
-	b .L3
-.L12:
+	b .L4
+.L13:
 	cmpwi 0,9,6
-	bc 12,2,.L42
+	bc 12,2,.L43
 	cmpwi 0,9,7
-	bc 12,2,.L42
+	bc 12,2,.L43
 	cmpwi 0,9,8
-	bc 12,2,.L42
+	bc 12,2,.L43
 	cmpwi 0,9,9
-	bc 12,2,.L42
+	bc 12,2,.L43
 	addi 0,9,-10
 	cmplwi 0,0,1
-	bc 12,1,.L22
+	bc 12,1,.L23
 	lwz 3,32(1)
 	lwz 4,36(1)
-	b .L3
-.L22:
-	cmpwi 0,11,12
-	bc 4,2,.L24
+	b .L4
+.L23:
+	lwz 0,20(1)
+	cmpwi 0,0,12
+	bc 4,2,.L25
 	lfs 1,32(1)
-	b .L3
-.L24:
-	cmpwi 0,9,13
-	bc 4,2,.L26
+	b .L4
+.L25:
+	cmpwi 0,0,13
+	bc 4,2,.L27
 	lfd 1,32(1)
-	b .L3
-.L26:
-	cmpwi 0,9,14
-	bc 4,2,.L28
-.L42:
+	b .L4
+.L27:
+	cmpwi 0,0,14
+	bc 4,2,.L29
+.L43:
 	lwz 3,32(1)
-	b .L3
-.L28:
-	cmpwi 0,9,15
-	bc 4,2,.L3
+	b .L4
+.L29:
+	cmpwi 0,0,15
+	bc 4,2,.L4
 	lwz 0,8(1)
-	andi. 27,0,1
-	bc 12,2,.L31
+	andi. 9,0,1
+	bc 12,2,.L32
 	lwz 3,16(1)
-	b .L3
-.L31:
-	andi. 27,0,1024
-	bc 12,2,.L3
+	b .L4
+.L32:
+	andi. 9,0,1024
+	bc 12,2,.L4
 	lwz 0,24(1)
 	cmpwi 0,0,1
-	bc 4,2,.L34
+	bc 4,2,.L35
 	lwz 9,16(1)
 	lbz 3,0(9)
-	b .L3
-.L34:
+	b .L4
+.L35:
 	cmpwi 0,0,2
-	bc 4,2,.L36
+	bc 4,2,.L37
 	lwz 9,16(1)
 	lhz 3,0(9)
-	b .L3
-.L36:
+	b .L4
+.L37:
 	cmpwi 0,0,4
-	bc 4,2,.L38
+	bc 4,2,.L39
 	lwz 9,16(1)
-	b .L43
-.L38:
+	b .L44
+.L39:
 	cmpwi 0,0,8
-	bc 4,2,.L3
+	bc 4,2,.L4
 	lwz 9,16(1)
 	lwz 4,4(9)
-.L43:
+.L44:
 	lwz 3,0(9)
-.L3:
+.L4:
 	lwz 0,180(1)
 	mtlr 0
-	lwz 27,156(1)
 	lwz 28,160(1)
 	lwz 29,164(1)
 	lwz 30,168(1)
@@ -160,4 +158,4 @@ vacall:
 	blr
 .Lfe1:
 	.size	 vacall,.Lfe1-vacall
-	.ident	"GCC: (GNU) egcs-2.91.66 19990314 (egcs-1.1.2 release)"
+	.ident	"GCC: (GNU) 2.95.2 19991024 (release)"

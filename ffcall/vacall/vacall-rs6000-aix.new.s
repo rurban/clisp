@@ -23,7 +23,6 @@ vacall:
 	.extern __quoss
 	.extern __quous
 	mflr 0
-	stw 26,-24(1)
 	stw 27,-20(1)
 	stw 28,-16(1)
 	stw 29,-12(1)
@@ -35,12 +34,12 @@ vacall:
 	addi 11,1,280
 	lwz 27,0(29)
 	stw 3,-32(11)
+	stw 9,-8(11)
 	stw 10,-4(11)
 	stw 5,-24(11)
 	stw 6,-20(11)
 	stw 7,-16(11)
 	stw 8,-12(11)
-	stw 9,-8(11)
 	li 0,0
 	addi 29,1,248
 	addi 28,1,92
@@ -65,111 +64,110 @@ vacall:
 	stw 0,64(1)
 	addi 3,1,56
 	stw 2,20(1)
-	lwz 26,0(27)
+	lwz 0,0(27)
 	lwz 2,4(27)
-	mtlr 26
+	mtlr 0
 	lwz 11,8(27)
 	blrl
 	lwz 2,20(1)
 	lwz 9,68(1)
 	cmpwi 0,9,0
-	mr 11,9
-	bc 12,2,L..3
+	bc 12,2,L..4
 	cmpwi 0,9,1
-	bc 12,2,L..41
+	bc 12,2,L..42
 	cmpwi 0,9,2
-	bc 4,2,L..6
+	bc 4,2,L..7
 	lbz 0,80(1)
 	slwi 0,0,24
 	srawi 3,0,24
-	b L..3
-L..6:
+	b L..4
+L..7:
 	cmpwi 0,9,3
-	bc 4,2,L..8
-L..41:
+	bc 4,2,L..9
+L..42:
 	lbz 3,80(1)
-	b L..3
-L..8:
+	b L..4
+L..9:
 	cmpwi 0,9,4
-	bc 4,2,L..10
+	bc 4,2,L..11
 	lha 3,80(1)
-	b L..3
-L..10:
+	b L..4
+L..11:
 	cmpwi 0,9,5
-	bc 4,2,L..12
+	bc 4,2,L..13
 	lhz 3,80(1)
-	b L..3
-L..12:
+	b L..4
+L..13:
 	cmpwi 0,9,6
-	bc 12,2,L..42
+	bc 12,2,L..43
 	cmpwi 0,9,7
-	bc 12,2,L..42
+	bc 12,2,L..43
 	cmpwi 0,9,8
-	bc 12,2,L..42
+	bc 12,2,L..43
 	cmpwi 0,9,9
-	bc 12,2,L..42
+	bc 12,2,L..43
 	addi 0,9,-10
 	cmplwi 0,0,1
-	bc 12,1,L..22
+	bc 12,1,L..23
 	lwz 3,80(1)
 	lwz 4,84(1)
-	b L..3
-L..22:
-	cmpwi 0,11,12
-	bc 4,2,L..24
+	b L..4
+L..23:
+	lwz 0,68(1)
+	cmpwi 0,0,12
+	bc 4,2,L..25
 	lfs 1,80(1)
-	b L..3
-L..24:
-	cmpwi 0,9,13
-	bc 4,2,L..26
+	b L..4
+L..25:
+	cmpwi 0,0,13
+	bc 4,2,L..27
 	lfd 1,80(1)
-	b L..3
-L..26:
-	cmpwi 0,9,14
-	bc 4,2,L..28
-L..42:
+	b L..4
+L..27:
+	cmpwi 0,0,14
+	bc 4,2,L..29
+L..43:
 	lwz 3,80(1)
-	b L..3
-L..28:
-	cmpwi 0,9,15
-	bc 4,2,L..3
+	b L..4
+L..29:
+	cmpwi 0,0,15
+	bc 4,2,L..4
 	lwz 0,56(1)
-	andi. 26,0,1
-	bc 12,2,L..31
+	andi. 9,0,1
+	bc 12,2,L..32
 	lwz 3,64(1)
-	b L..3
-L..31:
-	andi. 26,0,1024
-	bc 12,2,L..3
+	b L..4
+L..32:
+	andi. 9,0,1024
+	bc 12,2,L..4
 	lwz 0,72(1)
 	cmpwi 0,0,1
-	bc 4,2,L..34
+	bc 4,2,L..35
 	lwz 9,64(1)
 	lbz 3,0(9)
-	b L..3
-L..34:
+	b L..4
+L..35:
 	cmpwi 0,0,2
-	bc 4,2,L..36
+	bc 4,2,L..37
 	lwz 9,64(1)
 	lhz 3,0(9)
-	b L..3
-L..36:
+	b L..4
+L..37:
 	cmpwi 0,0,4
-	bc 4,2,L..38
+	bc 4,2,L..39
 	lwz 9,64(1)
-	b L..43
-L..38:
+	b L..44
+L..39:
 	cmpwi 0,0,8
-	bc 4,2,L..3
+	bc 4,2,L..4
 	lwz 9,64(1)
 	lwz 4,4(9)
-L..43:
+L..44:
 	lwz 3,0(9)
-L..3:
+L..4:
 	la 1,224(1)
 	lwz 0,8(1)
 	mtlr 0
-	lwz 26,-24(1)
 	lwz 27,-20(1)
 	lwz 28,-16(1)
 	lwz 29,-12(1)
@@ -178,11 +176,11 @@ L..3:
 	blr
 LT..vacall:
 	.long 0
-	.byte 0,0,32,65,128,6,8,0
+	.byte 0,0,32,65,128,5,8,0
 	.long 0
 	.long LT..vacall-.vacall
 	.short 6
 	.byte "vacall"
 _section_.text:
-.csect .data[RW]
+.csect .data[RW],3
 	.long _section_.text
