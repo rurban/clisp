@@ -19043,60 +19043,8 @@ LISPFUNN(file_string_length,2)
       return;
     }
     #endif
-    if (TheEncoding(encoding)->min_bytes_per_char == TheEncoding(encoding)->max_bytes_per_char) {
-      # Easy case: a fixed number of bytes per character.
-      var uintL bytes_per_char = TheEncoding(encoding)->min_bytes_per_char;
-      if (eq(TheEncoding(encoding)->enc_eol,S(Kunix))
-          || eq(TheEncoding(encoding)->enc_eol,S(Kmac))
-         ) {
-        if (stringp(obj)) {
-          var uintL result = vector_length(obj);
-          value1 = UL_to_I(result*bytes_per_char); mv_count=1; return;
-        } elif (charp(obj)) {
-          value1 = fixnum(bytes_per_char); mv_count=1; return;
-        } else {
-          fehler_wr_char(stream,obj);
-        }
-      }
-      if (eq(TheEncoding(encoding)->enc_eol,S(Kdos))) {
-        # Take into account the NL -> CR/LF translation.
-        if (stringp(obj)) {
-          var uintL len;
-          var uintL offset;
-          var object string = unpack_string_ro(obj,&len,&offset);
-          var uintL result = len;
-          if (len > 0) {
-            SstringDispatch(string,
-              {
-                var const chart* charptr = &TheSstring(string)->data[offset];
-                var uintL count;
-                dotimespL(count,len, {
-                  if (chareq(*charptr++,ascii(NL)))
-                    result++;
-                });
-              },
-              {
-                var const scint* charptr = &TheSmallSstring(string)->data[offset];
-                var uintL count;
-                dotimespL(count,len, {
-                  if (chareq(as_chart(*charptr++),ascii(NL)))
-                    result++;
-                });
-              }
-              );
-          }
-          value1 = UL_to_I(result*bytes_per_char); mv_count=1; return;
-        } elif (charp(obj)) {
-          var uintL result = 1;
-          if (chareq(char_code(obj),ascii(NL)))
-            result++;
-          value1 = fixnum(result*bytes_per_char); mv_count=1; return;
-        } else {
-          fehler_wr_char(stream,obj);
-        }
-      }
-      NOTREACHED
-    } else {
+    #ifdef UNICODE
+    if (!(TheEncoding(encoding)->min_bytes_per_char == TheEncoding(encoding)->max_bytes_per_char)) {
       # Have to look at each character individually.
       var const chart* charptr;
       var uintL len;
@@ -19151,6 +19099,64 @@ LISPFUNN(file_string_length,2)
         value1 = UL_to_I(result); mv_count=1; return;
       }
     }
+    #endif
+    # Now the easy case: a fixed number of bytes per character.
+    #ifdef UNICODE
+    var uintL bytes_per_char = TheEncoding(encoding)->min_bytes_per_char;
+    #else
+    #define bytes_per_char  1
+    #endif
+    if (eq(TheEncoding(encoding)->enc_eol,S(Kunix))
+        || eq(TheEncoding(encoding)->enc_eol,S(Kmac))
+       ) {
+      if (stringp(obj)) {
+        var uintL result = vector_length(obj);
+        value1 = UL_to_I(result*bytes_per_char); mv_count=1; return;
+      } elif (charp(obj)) {
+        value1 = fixnum(bytes_per_char); mv_count=1; return;
+      } else {
+        fehler_wr_char(stream,obj);
+      }
+    }
+    if (eq(TheEncoding(encoding)->enc_eol,S(Kdos))) {
+      # Take into account the NL -> CR/LF translation.
+      if (stringp(obj)) {
+        var uintL len;
+        var uintL offset;
+        var object string = unpack_string_ro(obj,&len,&offset);
+        var uintL result = len;
+        if (len > 0) {
+          SstringDispatch(string,
+            {
+              var const chart* charptr = &TheSstring(string)->data[offset];
+              var uintL count;
+              dotimespL(count,len, {
+                if (chareq(*charptr++,ascii(NL)))
+                  result++;
+              });
+            },
+            {
+              var const scint* charptr = &TheSmallSstring(string)->data[offset];
+              var uintL count;
+              dotimespL(count,len, {
+                if (chareq(as_chart(*charptr++),ascii(NL)))
+                  result++;
+              });
+            }
+            );
+        }
+        value1 = UL_to_I(result*bytes_per_char); mv_count=1; return;
+      } elif (charp(obj)) {
+        var uintL result = 1;
+        if (chareq(char_code(obj),ascii(NL)))
+          result++;
+        value1 = fixnum(result*bytes_per_char); mv_count=1; return;
+      } else {
+        fehler_wr_char(stream,obj);
+      }
+    }
+    NOTREACHED
+    #undef bytes_per_char
   }
 
 # UP: Tells whether a stream is buffered.

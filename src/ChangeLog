@@ -1,5 +1,13 @@
 2000-03-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * encoding.d (charset_range): Define only if #ifdef UNICODE.
+          (init_encodings): Initialize O(internal_encoding) only if #ifdef
+          UNICODE.
+        * stream.d (FILE-STRING-LENGTH): If UNICODE is not defined, assume
+          min_bytes_per_char and max_bytes_per_char to be 1.
+
+2000-03-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (SOCKET-SERVER): In the error message, output the argument,
           not the symbol STREAM.
 
