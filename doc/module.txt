@@ -1,0 +1,134 @@
+                   Managing external modules for CLISP
+                   ===================================
+
+CLISP has a facility for adding external modules (written in C, for example).
+It is invoked through clisp-link.
+
+A module is a piece of external code which defines extra Lisp objects, symbols
+and functions. A module name must consist of the characters A-Z,a-z,_,0-9. The
+module name "clisp" is reserved. Normally a module name is derived from the
+corresponding file name.
+
+clisp-link needs a directory containing:
+    modules.d
+    modules.c
+    clisp.h
+clisp-link expects to find these files in a subdirectory linkkit/ of the
+current directory. This can be overridden by the environment variable
+CLISP_LINKKIT.
+
+clisp-link operates on CLISP linking sets and on module sets.
+
+A linking set is a directory containing:
+    makevars          some /bin/sh commands, setting the variables
+                        CC       the C compiler
+                        CFLAGS   flags for the C compiler, when compiling
+                        CLFLAGS  flags for the C compiler, when linking
+                        LIBS     libraries to use when linking
+                        WLIBS    libraries to use when linking in wide mode
+                        X_LIBS   additional X window system libraries to use
+                        RANLIB   the ranlib command
+                        FILES    the list of files needed when linking
+    modules.h         the list of modules contained in this linking set
+    all the FILES listed in makevars
+    lisp.run          the executable
+    lispinit.mem      the memory image
+    and maybe
+    wlisp.run         the executable in wide mode
+    wlispinit.mem     the corresponding memory image
+To run a clisp contained in some linking set <dir>, call
+"<dir>/lisp.run -M <dir>/lispinit.mem".
+
+A module set is a directory containing:
+    link.sh          some /bin/sh commands, which prepare the directory
+                     before linking, and set the variables NEW_FILES, NEW_LIBS,
+                     NEW_WLIBS, NEW_MODULES, TO_LOAD and optionally TO_PRELOAD
+and any other files needed by link.sh .
+Note that in link.sh the module set directory is referred to as "$modulename"/.
+Note also that link.sh must test the variable "$with_wide" and generate both
+standard mode and wide mode object files if "$with_wide" is non-empty.
+
+  The NEW_FILES variable shall contain a space-separated list of files that
+  belong to the module set and will belong to every new linking set.
+
+  The NEW_LIBS variable shall contain a space-separated list of files or C
+  compiler switches that need to be passed to the C compiler when linking the
+  lisp.run belonging to a new linking set.
+
+  The NEW_WLIBS variable shall contain a space-separated list of files or C
+  compiler switches that need to be passed to the C compiler when linking the
+  wlisp.run belonging to a new linking set. By convention, this is the same
+  as NEW_LIBS, with xxx.o replaced by wxxx.o if xxx.o depends on
+  sizeof(object).
+
+  The NEW_MODULES variable shall contain a space-separated list of the module
+  names belonging to the module set. Normally, every .c file in the module set
+  defines a module of its own. The module name is derived from the file name.
+
+  The TO_LOAD variable shall contain a space-separated list of Lisp files to
+  load before building the lispinit.mem belonging to a new linking set.
+
+  The TO_PRELOAD variable, if defined, shall contain a space-separated list
+  of Lisp files to load into an intermediate lispinit.mem file, before
+  building the lispinit.mem belonging to a new linking set. This variable
+  is usually used for defining Lisp packages which must be present when
+  the new .c files are initialized.
+
+The command
+"clisp-link create-module-set <module-dir> <file1.c> ..."
+creates a module set in <module-dir> which refers (via symbolic links) to
+file1.c etc. The files are expected to be modules of their own.
+
+The command
+"clisp-link add-module-set <module-dir> <source-dir> <destination-dir>"
+combines a linking set in <source-dir> and a module in <module-dir> to a new
+linking set, in a directory <destination-dir> which is newly created.
+
+The command
+"clisp-link run <source-dir> <module-dir> ..."
+runs the linking set in <source-dir>, with the module in <module-dir> loaded.
+More than one module can be specified. If CLISP has been built with the
+configuration option --with-dynamic-modules, the loading will be performed
+through dynamic loading. Otherwise -- this is much slower -- a temporary
+linking set will be created and deleted afterwards. Note that dynamic loading
+does not work on all operating systems, and that --with-dynamic-modules
+precludes some efficiency optimizations which are on by default.
+
+                              Example
+                              -------
+
+To link in the FFI bindings for the Linux operating system, the following
+steps are needed. (Step 1 and step 2 need not be executed in this order.)
+
+1. Create a new module set:
+
+   $ clisp-link create-module-set linux /somewhere/bindings/linux.c
+
+   Modify the newly created linux/link.sh to add "-lm" to the libraries:
+
+   NEW_LIBS="$file_list"
+   NEW_WLIBS="$file_list"
+   -->
+   NEW_LIBS="$file_list -lm"
+   NEW_WLIBS="$file_list -lm"
+
+   Modify the newly created linux/link.sh to load linux.fas before saving
+   the memory image:
+
+   TO_LOAD=''
+   -->
+   TO_LOAD='/somewhere/bindings/linux.fas'
+
+2. Compile linux.lsp, creating linux.c:
+
+   $ clisp -c /somewhere/bindings/linux.lsp
+
+3. Create a new linking set:
+
+   $ clisp-link add-module-set linux base base+linux
+
+4. Run and try it:
+
+   $ base+linux/lisp.run -M base+linux/lispinit.mem
+   > (linux::stat "/tmp")
+

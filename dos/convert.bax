@@ -1,0 +1,22 @@
+REM converts all the sources from ISO Latin-1 to IBM PC character set
+ren conv_one.bat conv_one.bax
+cv_lt_pc < conv_one.bax > conv_one.bat
+call conv_one forall.bat
+call conv_one copyx.bat
+call conv_one delx.bat
+for %%f in (*. makefile.r* *.c *.1 *.doc *.txt *.in) do call conv_one %%f
+for %%f in (..\dosdjgpp\*. ..\dosdjgpp\makefile.r* ..\dosdjgpp\*.1 ..\dosdjgpp\*.txt ..\dosdjgpp\*.bat) do call conv_one %%f
+for %%f in (..\doswatcom\*. ..\doswatcom\*.1 ..\doswatcom\*.txt ..\doswatcom\*.bat ..\doswatcom\*.in) do call conv_one %%f
+for %%f in (..\windows\*. ..\windows\*.1 ..\windows\*.txt ..\windows\*.in) do call conv_one %%f
+for %%f in (..\windowswatcom\*. ..\windowswatcom\*.1 ..\windowswatcom\*.txt ..\windowswatcom\*.in) do call conv_one %%f
+for %%f in (..\*.*) do call conv_one %%f
+for %%f in (..\src\*.c ..\src\*.d ..\src\*.h) do call conv_one %%f
+for %%f in (..\src\*.hh ..\src\*.in ..\src\*.lsp ..\src\*.rc ..\src\*.sh) do call conv_one %%f
+for %%f in (..\src\*. ..\src\*.1 ..\src\*.htm ..\src\*.log ..\src\*.txt) do call conv_one %%f
+for %%f in (..\src\*.de ..\src\*.en ..\src\*.es ..\src\*.fr) do call conv_one %%f
+for %%f in (..\src\readline\*.*) do call conv_one %%f
+for %%f in (..\src\readline\examples\*.*) do call conv_one %%f
+for %%f in (..\src\newreadline\*.*) do call conv_one %%f
+for %%f in (..\src\newreadline\examples\*.*) do call conv_one %%f
+for %%f in (..\utils\*.*) do call conv_one %%f
+for %%f in (..\doc\*.*) do call conv_one %%f

@@ -1,0 +1,4 @@
+1998-05-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+	
+	Support DEC Alpha running Linux (libc6):
+	* basename.c, backupfile.c, ln.c: Don't define basename().

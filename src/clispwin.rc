@@ -1,0 +1,43 @@
+
+#include <windows.h>
+#include "clispwin.h"
+
+
+CURSOR_1 CURSOR "clispwin.cur"
+
+
+MENU_1 MENU
+BEGIN
+        POPUP "&File"
+        BEGIN
+                MENUITEM "E&xit", M_EXIT
+        END
+
+        POPUP "&Edit"
+        BEGIN
+                MENUITEM "&Copy\tShift+Ins", M_COPY, GRAYED
+                MENUITEM "&Paste\tCtrl+Ins", M_PASTE, GRAYED
+        END
+
+        POPUP "&Misc"
+        BEGIN
+                MENUITEM "&Room display", M_STATUS, GRAYED
+        END
+
+        POPUP "&Help"
+        BEGIN
+                MENUITEM "&About ...", M_ABOUT
+                MENUITEM "&Copyright ...", M_COPYRIGHT
+        END
+END
+
+
+ACCELERATORS_1 ACCELERATORS
+BEGIN
+        VK_INSERT, M_PASTE, VIRTKEY, CONTROL
+        VK_INSERT, M_COPY, VIRTKEY, SHIFT
+END
+
+
+ICON_1 ICON "clispwin.ico"
+

@@ -1,0 +1,45 @@
+Installation on Win32 (WinNT, Win95) using the MSVC4.0 or MSVC5.0 development
+=============================================================================
+environment, using native system calls
+======================================
+
+1. On a Unix NFS server, unpack the source.
+
+2. On a Win32 NFS client, start a console with a shell (ksh for example).
+   Make sure that the MSVC4.0 or MSVC5.0 utilities ("cl" etc.) are found in
+   PATH.
+
+        cd utils
+        cd gcc-cccp
+        nmake -f Makefile.msvc
+        cd ..
+        cd ..
+
+        cd ffcall
+        cd avcall
+        nmake -f Makefile.msvc check
+        cd ..
+        cd vacall
+        nmake -f Makefile.msvc check
+        cd ..
+        cd trampoline
+        nmake -f Makefile.msvc check
+        cd ..
+        cd ..
+
+   Copy the appropriate makefile to src/makefile:
+
+        cp win32msvc/makefile.msvc4 src/makefile
+   or
+        cp win32msvc/makefile.msvc5 src/makefile
+
+   Modify the value of MSVCDIR in src/makefile to match your site. Then
+
+        cd src
+        nmake
+
+3. On the Unix NFS server:
+
+        cd src
+        make distrib
+

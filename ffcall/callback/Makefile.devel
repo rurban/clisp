@@ -1,0 +1,7 @@
+ROFF_MAN = groff -Tascii -mandoc
+
+all : callback.man
+
+callback.man : callback.3
+	$(ROFF_MAN) callback.3 > callback.man
+

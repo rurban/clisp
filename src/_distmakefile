@@ -1,0 +1,138 @@
+# Makefile for installing CLISP
+
+# -------------- Start of configurable section --------------------
+
+# Subdirectory containing lispinit.mem:
+#ifndef UNIX_BINARY_DISTRIB
+# Replace `base' by `full' to get a full-fledged CLISP.
+#endif
+fromdir = base
+
+# Directories used by "make install":
+# Common base directory for not architecture dependent files.
+prefix = /usr/local
+# Common base directory for architecture dependent files.
+exec_prefix = $(prefix)
+# Directory where executables are installed.
+bindir = $(exec_prefix)/bin
+mandir = $(exec_prefix)/man
+libdir = $(exec_prefix)/lib
+lisplibdir = $(libdir)/lisp
+#ifdef GNU_GETTEXT
+# If you have $(exec_prefix) different from $(prefix), and indend to use
+# different versions of CLISP on different architectures, replace the
+# following line by:  datadir = $(exec_prefix)/@DATADIRNAME@
+datadir = $(prefix)/@DATADIRNAME@
+localedir = $(datadir)/locale
+#endif
+
+#ifndef UNIX_BINARY_DISTRIB
+# Programs used by "make":
+#ifdef UNIX_AIX
+CC = xlc
+#else
+#ifdef UNIX_CYGWIN32
+CC = gcc
+#else
+CC = cc
+#endif
+#endif
+CFLAGS = -O
+
+#endif
+# Programs used by "make install":
+INSTALL = cp
+INSTALL_PROGRAM = $(INSTALL)
+INSTALL_DATA = $(INSTALL)
+
+# -------------- End of configurable section --------------------
+
+SHELL = /bin/sh
+
+#ifdef WITH_WIDE
+all : $(fromdir)/lisp.run $(fromdir)/wlisp.run
+#else
+all : $(fromdir)/lisp.run
+#endif
+
+#ifndef UNIX_BINARY_DISTRIB
+base/lisp.run : @@BASE_FILES@@
+	$(CC) $(CFLAGS) @@BASE_LIBS@@ -o base/lisp.run
+
+#ifdef WITH_WIDE
+base/wlisp.run : @@BASE_FILES@@
+	$(CC) $(CFLAGS) @@BASE_WLIBS@@ -o base/wlisp.run
+
+#endif
+full/lisp.run : @@FULL_FILES@@
+	$(CC) $(CFLAGS) @@FULL_LIBS@@ -o full/lisp.run
+
+#ifdef WITH_WIDE
+full/wlisp.run : @@FULL_FILES@@
+	$(CC) $(CFLAGS) @@FULL_WLIBS@@ -o full/wlisp.run
+
+#endif
+#endif
+install : install-bin install-man
+
+install-bin : $(fromdir)/lisp.run $(fromdir)/lispinit.mem force
+	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
+	if [ ! -d $(lisplibdir) ] ; then mkdir $(lisplibdir) ; fi
+	$(INSTALL_PROGRAM) $(fromdir)/lisp.run $(lisplibdir)/lisp.run
+	rm -f $(lisplibdir)/lispinit.mem
+	$(INSTALL_DATA) $(fromdir)/lispinit.mem $(lisplibdir)/lispinit.mem
+#ifdef WITH_WIDE
+	$(INSTALL_PROGRAM) $(fromdir)/wlisp.run $(lisplibdir)/wlisp.run
+	rm -f $(lisplibdir)/wlispinit.mem
+	$(INSTALL_DATA) $(fromdir)/wlispinit.mem $(lisplibdir)/wlispinit.mem
+#endif
+#ifdef GNU_GETTEXT
+	if [ ! -d $(datadir) ] ; then mkdir $(datadir) ; fi
+	if [ ! -d $(localedir) ] ; then mkdir $(localedir) ; fi
+	(cd locale && tar cf - .) | (cd $(localedir) && tar xf -)
+#endif
+	if [ ! -d $(bindir) ] ; then mkdir $(bindir) ; fi
+#ifdef UNIX_BINARY_DISTRIB /* old shell script */
+#ifdef GNU_GETTEXT
+#ifndef UNIX_BROKEN_SH
+#ifdef UNIX_USE_KSH
+	(echo '#!/bin/ksh' ; echo 'exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem -N $(localedir) "$$@"') > $(bindir)/clisp
+#else
+	(echo '#!/bin/sh' ; echo 'exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem -N $(localedir) "$$@"') > $(bindir)/clisp
+#endif
+#else
+	(echo '#!/bin/sh' ; echo 'if test $$# = 0; then' ; echo '  exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem -N $(localedir)' ; echo 'else' ; echo '  exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem -N $(localedir) "$$@"' ; echo 'fi') > $(bindir)/clisp
+#endif
+#else
+#ifndef UNIX_BROKEN_SH
+#ifdef UNIX_USE_KSH
+	(echo '#!/bin/ksh' ; echo 'exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem "$$@"') > $(bindir)/clisp
+#else
+	(echo '#!/bin/sh' ; echo 'exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem "$$@"') > $(bindir)/clisp
+#endif
+#else
+	(echo '#!/bin/sh' ; echo 'if test $$# = 0; then' ; echo '  exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem' ; echo 'else' ; echo '  exec $(lisplibdir)/lisp.run -M $(lisplibdir)/lispinit.mem "$$@"' ; echo 'fi') > $(bindir)/clisp
+#endif
+#endif
+	chmod a+x $(bindir)/clisp
+#else /* new executable */
+	$(CC) $(CFLAGS) -DLISPLIBDIR='"$(lisplibdir)"' -DLOCALEDIR='"$(localedir)"' src/clisp.c -o $(bindir)/clisp
+#endif
+
+#ifdef GNU_READLINE
+install-man : doc/clisp.1 doc/clreadline.3 force
+#else
+install-man : doc/clisp.1 force
+#endif
+	if [ ! -d $(mandir) ] ; then mkdir $(mandir) ; fi
+	if [ ! -d $(mandir)/man1 ] ; then mkdir $(mandir)/man1 ; fi
+	sed -e 's,/usr/local/bin/,$(bindir)/,g' < doc/clisp.1 > /tmp/clisp.1.inst \
+	  && $(INSTALL_DATA) /tmp/clisp.1.inst $(mandir)/man1/clisp.1 \
+	  && rm -f /tmp/clisp.1.inst
+#ifdef GNU_READLINE
+	if [ ! -d $(mandir)/man3 ] ; then mkdir $(mandir)/man3 ; fi
+	$(INSTALL_DATA) doc/clreadline.3 $(mandir)/man3/clreadline.3
+#endif
+
+force:
+

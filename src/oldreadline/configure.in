@@ -1,0 +1,52 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(readline.h)
+AC_CONFIG_HEADER(config.h)
+AC_REVISION(Configure for Readline 2.0)
+
+# We want these before the checks, so the checks can modify their values.
+test -z "$CFLAGS" && CFLAGS=-g auto_cflags=1
+
+AC_PROG_CC
+
+# If we're using gcc and the user hasn't specified CFLAGS, add -O to CFLAGS.
+test -n "$GCC" && test -n "$auto_cflags" && CFLAGS="$CFLAGS -O"
+
+AC_SUBST(CFLAGS)dnl
+AC_SUBST(LDFLAGS)dnl
+
+AC_PROG_GCC_TRADITIONAL
+CL_PROG_INSTALL
+AC_PROG_RANLIB
+
+RL_VOID
+
+AC_CHECK_FUNCS(strcasecmp select strpbrk)
+
+AC_CHECK_HEADERS(unistd.h stdlib.h varargs.h string.h alloca.h dirent.h sys/ptem.h sys/pte.h sys/stream.h termcap.h sys/select.h)
+
+CL_OPENFLAGS
+
+CL_DIR_HEADER
+
+RL_TERM
+
+if test -z "$have_tiocgwinsz"; then
+CL_COMPILE_CHECK(TIOCGWINSZ in sys/ioctl.h, rl_cv_decl_TIOCGWINSZ_sys_ioctl_h,
+[#include <sys/types.h>
+#include <sys/ioctl.h>], [int x = TIOCGWINSZ;],
+AC_DEFINE(GWINSZ_IN_SYS_IOCTL))
+fi
+
+CL_COMPILE_CHECK(programs able to redeclare getpw functions, rl_cv_decl_getpw,
+[#include <sys/types.h>
+#include <pwd.h>
+extern struct passwd *getpwuid();], [struct passwd *z; z = getpwuid(0);], ,
+AC_DEFINE(HAVE_GETPW_DECLS))
+
+AC_FUNC_ALLOCA
+
+CL_SIGNALBLOCK
+
+AC_OUTPUT(Makefile, [
+# Makefile uses this timestamp file to record whether config.h is up to date.
+touch stamp-config])

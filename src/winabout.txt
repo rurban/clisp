@@ -1,0 +1,34 @@
+This is CLISP, a Common Lisp implementation.
+
+Authors: Bruno Haible, Michael Stoll.
+Features: Interpreter, compiler, CLOS.
+
+Language Reference:
+  Guy L. Steele Jr.:
+  Common Lisp - The Language.
+  Digital Press.
+  CLtL1 : 1. edition 1984, 465 pages.
+  CLtL2 : 2. edition 1990, 1032 pages.
+also available in HTML form from
+  ftp ftp.cs.cmu.edu:
+      /user/ai/lang/lisp/doc/cltl/cltl_ht.tgz
+
+CLISP implements CLtL1 and parts of CLtL2.
+
+The newest versions will always be available
+via anonymous ftp from
+ftp2.cons.org,
+directory /pub/lisp/clisp/.
+Another ftp site carrying old CLISP versions is
+ftp.cs.cmu.edu [128.2.206.173],
+directory user/ai/lang/lisp/impl/clisp/.
+
+There is a mailing list for users of CLISP. It is
+the proper forum for questions about CLISP, installation
+problems, bug reports, application packages etc.
+For information about the list and how to subscribe
+it, send mail to listproc@clisp.cons.org,
+with the two lines
+          help
+          information clisp-list
+in the message body.

@@ -1,0 +1,47 @@
+prefix = /usr/local
+exec_prefix = $(prefix)
+bindir = $(exec_prefix)/bin
+libdir = $(exec_prefix)/lib
+lisplibdir = $(libdir)/gcl-1.0
+
+LISP = gcl
+
+ALLLSP = attributes.lsp buffer.lsp bufmac.lsp clx.lsp depdefs.lsp \
+         dependent.lsp describe.lsp display.lsp fonts.lsp gcontext.lsp \
+         graphics.lsp image.lsp input.lsp keysyms.lsp macros.lsp manager.lsp \
+         package.lsp requests.lsp resource.lsp text.lsp trace.lsp
+
+ALLO =   attributes.o buffer.o bufmac.o clx.o depdefs.o \
+         dependent.o describe.o display.o fonts.o gcontext.o \
+         graphics.o image.o input.o keysyms.o macros.o manager.o \
+         package.o requests.o resource.o text.o trace.o
+
+# Standard Unix packer. Requires GNU tar.
+PACK = tar
+PACKOPT = cvfhz
+PACKEXT = .tar.gz
+
+all: defsystem.o stamp.o $(ALLO) gclx
+
+defsystem.o : defsystem.lsp
+	echo '(compile-file "defsystem")' | $(LISP)
+
+$(ALLO) : stamp.o
+
+stamp.o : $(ALLLSP) defsystem.o
+	echo '(load "defsystem") (compile-clx)' | $(LISP)
+	touch stamp.o
+
+gclx : defsystem.o $(ALLO)
+	echo '(load "defsystem") (load-clx "" :macrosp t) (si::save-system "gclx")' | $(LISP)
+
+install : gclx
+	cp gclx $(lisplibdir)/unixport/gclx
+	(echo '#!/bin/sh' ; echo 'exec $(lisplibdir)/unixport/gclx -dir $(lisplibdir)/unixport/ -libdir $(lisplibdir)/') > $(bindir)/clx
+	chmod a+x $(bindir)/clx
+
+clean: force
+	-rm -f *.o *.data gclx
+
+force:
+

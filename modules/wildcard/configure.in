@@ -1,0 +1,17 @@
+dnl  AUTOCONF configuration for wildcard
+dnl  Bruno Haible 12.4.1997
+dnl
+AC_INIT(wildcard.lsp)
+AC_CONFIG_HEADER(config.h)
+
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_GCC_TRADITIONAL
+AC_AIX
+AC_ISC_POSIX
+AC_MINIX
+AC_C_CONST
+AC_HEADER_STDC
+
+AC_OUTPUT(Makefile)
+
