@@ -4215,8 +4215,10 @@ typedef struct {
   #endif
 } symbol_;
 typedef symbol_ *  Symbol;
-# Compile-time check: sizeof(symbol_) is a multiple of varobject_alignment.
-typedef int symbol_size_check[1 - 2 * (int)(sizeof(symbol_) % varobject_alignment)];
+#ifdef LINUX_NOEXEC_HEAPCODES
+  # Compile-time check: sizeof(symbol_) is a multiple of varobject_alignment.
+  typedef int symbol_size_check[1 - 2 * (int)(sizeof(symbol_) % varobject_alignment)];
+#endif
 #define symbol_objects_offset  offsetof(symbol_,symvalue)
 
 # Every keyword is a constant.
