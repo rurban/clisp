@@ -7559,18 +7559,19 @@ local void pr_vector (const gcv_object_t* stream_, object v) {
 # print a key-value table (for a hash table) kvt (on the stack)
 # the table is printed as an alist: a sequence of (key . value)
 # can trigger GC
-local void pr_kvtable (const gcv_object_t* stream_, gcv_object_t* kvt,
+local void pr_kvtable (const gcv_object_t* stream_, gcv_object_t* kvt_,
                        uintL index, uintL count) {
   var uintL length = 0;
   var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
   loop {
     length++; # increase previous length
     # search for next to be printed Key-Value-Pair:
+    var object kvt = *kvt_;
     loop {
       if (index==0) # finished kvtable?
         goto kvt_finish;
       index -= 3; # decrease index
-      if (boundp(kvtable_data(*kvt)[index+0])) /* Key /= "empty" ? */
+      if (boundp(TheHashedAlist(kvt)->hal_data[index+0])) /* Key /= "empty" ? */
         break;
     }
     JUSTIFY_SPACE; # print Space
@@ -7581,7 +7582,7 @@ local void pr_kvtable (const gcv_object_t* stream_, gcv_object_t* kvt,
     count--;
     JUSTIFY_LAST(count==0);
     # Print fake cons (Key . Value):
-    var gcv_object_t* ptr = kvtable_data(*kvt)+index;
+    var gcv_object_t* ptr = &TheHashedAlist(*kvt_)->hal_data[index];
     pr_pair(stream_,ptr[0],ptr[1]);
   }
  kvt_finish: ;

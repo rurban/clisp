@@ -918,15 +918,26 @@ local bool hash_table_equalp (object ht1, object ht2)
   if (!eq(hash_table_weak_type(ht1),hash_table_weak_type(ht2)))
     return false;
   /* have to traverse keys */
-  var uintL index = posfixnum_to_L(TheHashtable(ht1)->ht_maxcount);
-  var gcv_object_t* KVptr = ht_kvt_data(ht1);
-  for (; index ; KVptr += 3, index--)
-    if (!eq(KVptr[0],unbound) && !equalp(KVptr[1],gethash(KVptr[0],ht2)))
-      return false;
-  for (index = posfixnum_to_L(TheHashtable(ht2)->ht_maxcount),
-         KVptr = ht_kvt_data(ht2); index; KVptr += 3, index--)
-    if (!eq(KVptr[0],unbound) && !equalp(KVptr[1],gethash(KVptr[0],ht1)))
-      return false;
+  { # Look whether ht1 is contained in ht2.
+    var uintL index = posfixnum_to_L(TheHashtable(ht1)->ht_maxcount);
+    var gcv_object_t* KVptr = TheHashedAlist(TheHashtable(ht1)->ht_kvtable)->hal_data;
+    for (; index > 0; KVptr += 3, index--)
+      if (!eq(KVptr[0],unbound)) {
+        var object value_in_ht2 = gethash(KVptr[0],ht2);
+        if (eq(value_in_ht2,nullobj) || !equalp(KVptr[1],value_in_ht2))
+          return false;
+      }
+  }
+  { # Look whether ht2 is contained in ht1.
+    var uintL index = posfixnum_to_L(TheHashtable(ht2)->ht_maxcount);
+    var gcv_object_t* KVptr = TheHashedAlist(TheHashtable(ht2)->ht_kvtable)->hal_data;
+    for (; index > 0; KVptr += 3, index--)
+      if (!eq(KVptr[0],unbound)) {
+        var object value_in_ht1 = gethash(KVptr[0],ht1);
+        if (eq(value_in_ht1,nullobj) || !equalp(KVptr[1],value_in_ht1))
+          return false;
+      }
+  }
   return true;
 }
 /* Now EQUALP itself. */
