@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 1998-06-19\n"
-"POT-Creation-Date: 1998-06-19 07:58:11 MET DST\n"
-"PO-Revision-Date: 1998-06-19 07:59:24 MET DST\n"
-"Last-Translator: Automatically generated <pierpa@eraora>\n"
+"Project-Id-Version: clisp 1998-07-30\n"
+"POT-Creation-Date: 1998-08-09 13:42:25 EDT\n"
+"PO-Revision-Date: 1998-08-09 13:45:08 EDT\n"
+"Last-Translator: Automatically generated <haible@mescaline.gnu.org>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-1\n"
@@ -205,15 +205,15 @@ msgstr "Compilateur C"
 msgid "ENGLISH"
 msgstr "FRANCAIS"
 
-#: constobj.d:847
+#: constobj.d:843
 msgid "The value of ~S was not a pathname. ~:*~S is being reset."
 msgstr "La valeur de ~S n'était pas de type PATHNAME. ~:*~S est réinitialisé."
 
-#: constobj.d:854
+#: constobj.d:850
 msgid "Creating directory: "
 msgstr "Création du répertoire : "
 
-#: constobj.d:992
+#: constobj.d:988
 msgid ""
 "The variable ~S had an illegal value.\n"
 "~S has been reset to ~S."
@@ -221,7 +221,7 @@ msgstr ""
 "Une valeur invalide fut trouvée dans la variable ~S,\n"
 "~S fut réinitialisé à ~S."
 
-#: constobj.d:996
+#: constobj.d:992
 msgid ""
 "Floating point operation combines numbers of different precision.\n"
 "See ANSI CL 12.1.4.4 and the CLISP impnotes for details.\n"
@@ -235,11 +235,11 @@ msgstr ""
 "~S.\n"
 "Pour éviter cet avertissement, mettre ~S à ~S."
 
-#: constobj.d:1013
+#: constobj.d:1009
 msgid "Bye."
 msgstr "À bientôt!"
 
-#: constobj.d:1020
+#: constobj.d:1016
 msgid ""
 "\n"
 "  Next environment: "
@@ -247,7 +247,7 @@ msgstr ""
 "\n"
 "  prochain environnement : "
 
-#: constobj.d:1024
+#: constobj.d:1020
 msgid ""
 "\n"
 "APPLY frame with breakpoint for call "
@@ -255,7 +255,7 @@ msgstr ""
 "\n"
 "«frame» APPLY avec point d'interception pour l'application "
 
-#: constobj.d:1028
+#: constobj.d:1024
 msgid ""
 "\n"
 "APPLY frame for call "
@@ -263,7 +263,7 @@ msgstr ""
 "\n"
 "«frame» APPLY pour l'application "
 
-#: constobj.d:1032
+#: constobj.d:1028
 msgid ""
 "\n"
 "EVAL frame with breakpoint for form "
@@ -271,7 +271,7 @@ msgstr ""
 "\n"
 "«frame» EVAL avec point d'interception pour la forme "
 
-#: constobj.d:1036
+#: constobj.d:1032
 msgid ""
 "\n"
 "EVAL frame for form "
@@ -279,7 +279,7 @@ msgstr ""
 "\n"
 "«frame» EVAL pour la forme "
 
-#: constobj.d:1040
+#: constobj.d:1036
 msgid ""
 "\n"
 "frame binding variables (~ = dynamically):"
@@ -287,7 +287,7 @@ msgstr ""
 "\n"
 "Le «frame» de liaison de variables (~ signifiant dynamique) lie :"
 
-#: constobj.d:1045
+#: constobj.d:1041
 msgid ""
 "\n"
 "CALLBACK frame"
@@ -295,7 +295,7 @@ msgstr ""
 "\n"
 "«frame» CALLBACK"
 
-#: constobj.d:1050
+#: constobj.d:1046
 msgid ""
 "\n"
 "frame binding variables "
@@ -303,7 +303,7 @@ msgstr ""
 "\n"
 "«frame» de liaison de variables "
 
-#: constobj.d:1054
+#: constobj.d:1050
 msgid ""
 "\n"
 "frame binding functions "
@@ -311,11 +311,11 @@ msgstr ""
 "\n"
 "«frame» de liaison de fonctions "
 
-#: constobj.d:1058
+#: constobj.d:1054
 msgid " binds (~ = dynamically):"
 msgstr " lie (~ signifiant dynamiquement) :"
 
-#: constobj.d:1063
+#: constobj.d:1059
 msgid ""
 "\n"
 "block frame "
@@ -323,7 +323,7 @@ msgstr ""
 "\n"
 "«frame» BLOCK "
 
-#: constobj.d:1067
+#: constobj.d:1063
 msgid ""
 "\n"
 "nested block frame "
@@ -331,11 +331,11 @@ msgstr ""
 "\n"
 "«frame» BLOCK dépilé "
 
-#: constobj.d:1071
+#: constobj.d:1067
 msgid " for "
 msgstr " pour "
 
-#: constobj.d:1075
+#: constobj.d:1071
 msgid ""
 "\n"
 "compiled block frame for "
@@ -343,7 +343,7 @@ msgstr ""
 "\n"
 "«frame» BLOCK compilé pour "
 
-#: constobj.d:1079
+#: constobj.d:1075
 msgid ""
 "\n"
 "tagbody frame "
@@ -351,7 +351,7 @@ msgstr ""
 "\n"
 "«frame» TAGBODY "
 
-#: constobj.d:1083
+#: constobj.d:1079
 msgid ""
 "\n"
 "nested tagbody frame "
@@ -359,11 +359,11 @@ msgstr ""
 "\n"
 "«frame» TAGBODY dépilé "
 
-#: constobj.d:1087
+#: constobj.d:1083
 msgid " for"
 msgstr " pour"
 
-#: constobj.d:1092
+#: constobj.d:1088
 msgid ""
 "\n"
 "compiled tagbody frame for "
@@ -371,7 +371,7 @@ msgstr ""
 "\n"
 "«frame» TAGBODY compilé pour "
 
-#: constobj.d:1096
+#: constobj.d:1092
 msgid ""
 "\n"
 "catch frame for tag "
@@ -379,7 +379,7 @@ msgstr ""
 "\n"
 "«frame» CATCH pour l'étiquette "
 
-#: constobj.d:1100
+#: constobj.d:1096
 msgid ""
 "\n"
 "handler frame for conditions"
@@ -387,7 +387,7 @@ msgstr ""
 "\n"
 "«frame» HANDLER pour les conditions"
 
-#: constobj.d:1104
+#: constobj.d:1100
 msgid ""
 "\n"
 "unwind-protect frame"
@@ -395,7 +395,7 @@ msgstr ""
 "\n"
 "«frame» UNWIND-PROTECT"
 
-#: constobj.d:1108
+#: constobj.d:1104
 msgid ""
 "\n"
 "\n"
@@ -405,7 +405,7 @@ msgstr ""
 "\n"
 "«driver frame»"
 
-#: constobj.d:1112
+#: constobj.d:1108
 msgid ""
 "\n"
 "frame binding environments"
@@ -413,7 +413,7 @@ msgstr ""
 "\n"
 "«frame» de liaison d'environnements"
 
-#: spvw.d:960
+#: spvw.d:920
 msgid ""
 "\n"
 "*** - Virtual memory exhausted. RESET"
@@ -421,7 +421,7 @@ msgstr ""
 "\n"
 "*** - La mémoire virtuelle est épuisée : RAZ"
 
-#: spvw.d:966
+#: spvw.d:926
 msgid ""
 "\n"
 "*** - Memory exhausted. RESET"
@@ -429,103 +429,103 @@ msgstr ""
 "\n"
 "*** - La mémoire est épuisée : RAZ"
 
-#: spvw.d:1041
+#: spvw.d:1001
 msgid "Attempt to modify read-only data"
 msgstr "Tentative de modification d'un objet non modifiable."
 
-#: spvw.d:1161 spvw.d:2107
+#: spvw.d:1121 spvw.d:2067
 msgid "Cannot open /dev/zero ."
 msgstr "Ne peux pas ouvrir /dev/zero ."
 
-#: spvw.d:1191
+#: spvw.d:1151
 msgid "msync(0x%x,0x%x,MS_INVALIDATE) fails."
 msgstr "msync(0x%x,0x%x,MS_INVALIDATE) - erreur."
 
-#: spvw.d:1222 spvw.d:1825 spvw.d:1969 spvw.d:2135
+#: spvw.d:1182 spvw.d:1785 spvw.d:1929 spvw.d:2095
 msgid "Cannot map memory to address 0x%x ."
 msgstr "Ne peux pas placer de la mémoire à l'adresse 0x%x ."
 
-#: spvw.d:1256
+#: spvw.d:1216
 msgid "Cannot open %s ."
 msgstr "Ne peux pas ouvrir %s ."
 
-#: spvw.d:1270
+#: spvw.d:1230
 msgid "Cannot delete %s ."
 msgstr "Ne peux pas effacer %s ."
 
-#: spvw.d:1287
+#: spvw.d:1247
 msgid "** WARNING: ** Too few free disk space for %s .\n"
 msgstr "** AVERTISSEMENT : ** Trop peu de place disque restante sur %s .\n"
 
-#: spvw.d:1293
+#: spvw.d:1253
 msgid "Please restart LISP with fewer memory (option -m).\n"
 msgstr "Prière de relancer LISP avec moins de mémoire (option -m).\n"
 
-#: spvw.d:1302
+#: spvw.d:1262
 msgid "Cannot make %s long enough."
 msgstr "Ne peux pas agrandir %s ."
 
-#: spvw.d:1322
+#: spvw.d:1282
 msgid "Cannot fill %s ."
 msgstr "Ne peux pas remplir %s ."
 
-#: spvw.d:1341
+#: spvw.d:1301
 msgid "Cannot close %s ."
 msgstr "Ne peux pas fermer %s ."
 
-#: spvw.d:1491
+#: spvw.d:1451
 msgid "Recompile your operating system with SYSV IPC support.\n"
 msgstr "Recompilez votre système opérationnel tel qu'il comprenne IPC SYSV.\n"
 
-#: spvw.d:1507
+#: spvw.d:1467
 msgid "Cannot allocate private shared memory segment."
 msgstr "Ne peux pas allouer de segment privé de mémoire partagée."
 
-#: spvw.d:1532
+#: spvw.d:1492
 msgid "Cannot map shared memory to address 0x%x."
 msgstr "Ne peux pas placer de la mémoire partagée à l'adresse 0x%x."
 
-#: spvw.d:1557
+#: spvw.d:1517
 msgid "Cannot fill shared memory."
 msgstr "Ne peux pas remplir la mémoire partagée."
 
-#: spvw.d:1567
+#: spvw.d:1527
 msgid "Could not fill shared memory."
 msgstr "Ne pouvais pas remplir la mémoire partagée."
 
-#: spvw.d:1585
+#: spvw.d:1545
 msgid "Cannot remove shared memory segment."
 msgstr "Ne peux pas retirer un segment de mémoire partagée."
 
-#: spvw.d:1933
+#: spvw.d:1893
 msgid "Cannot reserve address range at 0x%x ."
 msgstr "Ne peux pas réserver les adresses à partir de 0x%x ."
 
-#: spvw.d:1947
+#: spvw.d:1907
 msgid "Cannot reserve address range 0x%x-0x%x ."
 msgstr "Ne peux pas réserver les adresses 0x%x-0x%x ."
 
-#: spvw.d:2007
+#: spvw.d:1967
 msgid "CreateFileMapping() failed."
 msgstr "CreateFileMapping() a échoué."
 
-#: spvw.d:2018
+#: spvw.d:1978
 msgid "MapViewOfFileEx(addr=0x%x,off=0x%x) failed."
 msgstr "MapViewOfFileEx(addr=0x%x,off=0x%x) a échoué."
 
-#: spvw.d:2028
+#: spvw.d:1988
 msgid "MapViewOfFileEx() returned 0x%x instead of 0x%x.\n"
 msgstr "MapViewOfFileEx() rend 0x%x au lieu de 0x%x.\n"
 
-#: spvw.d:2048
+#: spvw.d:2008
 msgid "VirtualFree() failed."
 msgstr "VirtualFree() a échoué."
 
-#: spvw.d:2068
+#: spvw.d:2028
 msgid "VirtualProtect() failed."
 msgstr "VirtualProtect() a échoué."
 
-#: spvw.d:2587
+#: spvw.d:2544
 msgid ""
 "\n"
 "*** - Program stack overflow. RESET"
@@ -533,7 +533,7 @@ msgstr ""
 "\n"
 "*** - Débordement de pile de programme : RAZ"
 
-#: spvw.d:2596
+#: spvw.d:2553
 msgid ""
 "\n"
 "*** - Lisp stack overflow. RESET"
@@ -541,19 +541,19 @@ msgstr ""
 "\n"
 "*** - Débordement de pile Lisp : RAZ"
 
-#: spvw.d:3507
+#: spvw.d:3464
 msgid "mprotect() fails."
 msgstr "mprotect() ne fonctionne pas."
 
-#: spvw.d:6944
+#: spvw.d:6904
 msgid "munmap() fails."
 msgstr "munmap() ne fonctionne pas."
 
-#: spvw.d:7494
+#: spvw.d:7453
 msgid "No more room for LISP objects"
 msgstr "Il n'y a plus de place pour des objets LISP."
 
-#: spvw.d:7517
+#: spvw.d:7476
 msgid ""
 "\n"
 "*** - No more room for LISP objects: RESET"
@@ -561,11 +561,11 @@ msgstr ""
 "\n"
 "*** - Il n'y a plus de place pour des objets LISP : RAZ"
 
-#: spvw.d:7724 spvw.d:7787 spvw.d:7866
+#: spvw.d:7683 spvw.d:7746 spvw.d:7825
 msgid "Trying to make room through a GC...\n"
 msgstr "Essayons de faire de la place par un GC...\n"
 
-#: spvw.d:9875
+#: spvw.d:9835
 msgid ""
 "internal error: statement in file ~, line ~ has been reached!!\n"
 "Please send the authors of the program a description how you produced this error!"
@@ -573,11 +573,11 @@ msgstr ""
 "Erreur interne : Dans le fichier ~, la ligne ~ fut exécutée!\n"
 "Veuillez signaler aux auteurs du programme comment vous avez pu faire apparaître cette erreur, s.v.p.!"
 
-#: spvw.d:10482 spvw.d:10933
+#: spvw.d:10442 spvw.d:10893
 msgid "Ctrl-C: User break"
 msgstr "Ctrl-C : Interruption clavier"
 
-#: spvw.d:10612
+#: spvw.d:10572
 msgid ""
 "\n"
 "SIGSEGV cannot be cured. Fault address = 0x%x.\n"
@@ -585,71 +585,71 @@ msgstr ""
 "\n"
 "SIGSEGV ne peut être relevé. Adresse fautive = 0x%x.\n"
 
-#: spvw.d:10839
+#: spvw.d:10799
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!\n"
 msgstr "Scénario Apollo 13 : Réparation de débordement de pile a échoué. Au prochain débordement de pile, ça cassera!!!\n"
 
-#: spvw.d:10979
+#: spvw.d:10939
 msgid "Unknown signature of an FSUBR\n"
 msgstr "Type d'argument inconnu pour FSUBR\n"
 
-#: spvw.d:11090
+#: spvw.d:11050
 msgid "Unknown signature of a SUBR\n"
 msgstr "Type d'argument inconnu pour SUBR\n"
 
-#: spvw.d:11656
+#: spvw.d:11639
 msgid "module `%s' requires package %s.\n"
 msgstr "Pas de module «%s» sans le paquetage %s.\n"
 
-#: spvw.d:11733
+#: spvw.d:11716
 msgid "This version of CLISP runs only in low address memory.\n"
 msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
-#: spvw.d:11986
+#: spvw.d:11965
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB\n"
 msgstr "syntaxe pour %s: nnnnnnn ou nnnnKB ou nMB\n"
 
-#: spvw.d:11993
+#: spvw.d:11972
 msgid "%s out of range\n"
 msgstr "%s n'est pas entre les bornes\n"
 
-#: spvw.d:12008
+#: spvw.d:11987
 msgid "memory size"
 msgstr "taille mémoire"
 
-#: spvw.d:12021
+#: spvw.d:12000
 msgid "stack size"
 msgstr "taille de pile"
 
-#: spvw.d:12350
+#: spvw.d:12329
 msgid "Return value of malloc() = %x is not compatible with type code distribution.\n"
 msgstr "La valeur de malloc() = %x n'est pas compatible avec le codage des types.\n"
 
-#: spvw.d:12360
+#: spvw.d:12339
 msgid "Only %d bytes available.\n"
 msgstr "Seuls %d octets libres.\n"
 
-#: spvw.d:12427
+#: spvw.d:12406
 msgid "Cannot close /dev/zero ."
 msgstr "Ne peux pas fermer /dev/zero ."
 
-#: spvw.d:12645
+#: spvw.d:12624
 msgid "Couldn't determine the end of the SP stack!\n"
 msgstr "Impossible de savoir où se termine la pile SP!\n"
 
-#: spvw.d:12923
+#: spvw.d:12890
 msgid "                    Amiga version: Jörg Höhle                     \n"
 msgstr "                    version Amiga: Jörg Höhle                     \n"
 
-#: spvw.d:12933
+#: spvw.d:12900
 msgid "                    RISCOS port: Peter Burwood, Bruno Haible      \n"
 msgstr "                    portage RISCOS: Peter Burwood et Bruno Haible \n"
 
-#: spvw.d:12943
+#: spvw.d:12910
 msgid "                    DOS port: Jürgen Weber, Bruno Haible          \n"
 msgstr "                    adapté à DOS par Jürgen Weber et Bruno Haible \n"
 
-#: spvw.d:12970
+#: spvw.d:12937
 msgid ""
 "\n"
 "WARNING: No initialisation file specified.\n"
@@ -657,35 +657,35 @@ msgstr ""
 "\n"
 "AVERTISSEMENT : Pas de fichier d'initialisation.\n"
 
-#: spvw.d:12976
+#: spvw.d:12943
 msgid "Please try: "
 msgstr "Essayez: "
 
-#: spvw.d:13129
+#: spvw.d:13096
 msgid "Not enough memory for Lisp.\n"
 msgstr "Il n'y a pas assez de mémoire pour LISP.\n"
 
-#: spvw.d:13401
+#: spvw.d:13370
 msgid "disk full"
 msgstr "Disque plein."
 
-#: spvw.d:13891
+#: spvw.d:13874
 msgid "operating system error during load of initialisation file `%s'\n"
 msgstr "Erreur système pendant le chargement du fichier d'initialisation `%s'.\n"
 
-#: spvw.d:14339
+#: spvw.d:14322
 msgid "Cannot map the initialisation file into memory."
 msgstr "Ne peux placer le fichier d'initialisation en mémoire."
 
-#: spvw.d:14590
+#: spvw.d:14586
 msgid "operating system error during load of initialisation file\n"
 msgstr "Erreur système pendant le chargement du fichier d'initialisation.\n"
 
-#: spvw.d:14601
+#: spvw.d:14597
 msgid "initialisation file was not created by this version of LISP\n"
 msgstr "Le fichier d'initialisation ne provient pas de cette version de LISP.\n"
 
-#: spvw.d:14610
+#: spvw.d:14606
 msgid "not enough memory for initialisation\n"
 msgstr "Il n'y a pas assez de mémoire pour l'initialisation.\n"
 
@@ -1157,95 +1157,95 @@ msgstr "Le répertoire ~ n'existe pas."
 msgid "~: File ~ already exists"
 msgstr "~ : Le fichier ~ existe déjà."
 
-#: pathname.d:5862 pathname.d:6669
+#: pathname.d:5838 pathname.d:6645
 msgid "no directory ~ above ~"
 msgstr "Il n'y a pas de répertoire ~ au delà de ~."
 
-#: pathname.d:5873
+#: pathname.d:5849
 msgid "\"..\\\\\" after \"...\\\\\" is invalid: ~"
 msgstr "\"..\\\\\" après \"...\\\\\" n'est pas permis : ~"
 
-#: pathname.d:6060
+#: pathname.d:6036
 msgid "Couldn't access current directory"
 msgstr "Le répertoire courant n'est pas accessible."
 
-#: pathname.d:6205
+#: pathname.d:6181
 msgid "~: ~ names a file, not a directory"
 msgstr "~ : ~ est un fichier et non un répertoire."
 
-#: pathname.d:6252 pathname.d:6444 pathname.d:6786
+#: pathname.d:6228 pathname.d:6420 pathname.d:6762
 msgid "~: ~ names a directory, not a file"
 msgstr "~ : ~ désigne un répertoire et non un fichier."
 
-#: pathname.d:6299
+#: pathname.d:6275
 msgid "UNIX error while GETWD: ~"
 msgstr "Erreur UNIX pendant GETWD : ~"
 
-#: pathname.d:6311
+#: pathname.d:6287
 msgid "UNIX GETWD returned ~"
 msgstr "GETWD d'UNIX a retourné ~"
 
-#: pathname.d:6399
+#: pathname.d:6375
 msgid "UNIX REALPATH returned ~"
 msgstr "REALPATH d'UNIX a retourné ~"
 
-#: pathname.d:6599
+#: pathname.d:6575
 msgid "~: If a device is specified, the directory must begin with ~: ~"
 msgstr "~ : Quand un composant DEVICE est spécifié, le répertoire doit commencer par ~: ~"
 
-#: pathname.d:6991
+#: pathname.d:6967
 msgid "no file name given: ~"
 msgstr "Un nom de fichier doit être fourni : ~"
 
-#: pathname.d:7007
+#: pathname.d:6983
 msgid "not a directory: ~"
 msgstr "Ceci ne désigne pas un répertoire : ~"
 
-#: pathname.d:7065
+#: pathname.d:7041
 msgid "~: file ~ does not exist"
 msgstr "~ : Le fichier ~ n'existe pas."
 
-#: pathname.d:7097
+#: pathname.d:7073
 msgid "~: pathname with type but without name makes no sense: ~"
 msgstr "~ : Un PATHNAME avec TYPE mais sans NAME est insensé: ~"
 
-#: pathname.d:7324
+#: pathname.d:7300
 msgid "cannot delete file ~ since there is file stream open to it"
 msgstr "Le fichier ~ ne peut pas être effacé car il est encore ouvert comme «stream»."
 
-#: pathname.d:7390
+#: pathname.d:7366
 msgid "cannot rename file ~ since there is file stream open to it"
 msgstr "Le fichier ~ ne peut pas être renommé car il est encore ouvert comme «stream»."
 
-#: pathname.d:7960
+#: pathname.d:7936
 msgid "file ~ does not exist"
 msgstr "Un fichier de nom ~ n'existe pas."
 
-#: pathname.d:7969
+#: pathname.d:7945
 msgid "a file named ~ already exists"
 msgstr "Un fichier de nom ~ existe déjà."
 
-#: pathname.d:8013
+#: pathname.d:7989
 msgid "~: illegal :DIRECTION argument ~"
 msgstr "~ : ~ n'est pas permis comme argument pour :DIRECTION."
 
-#: pathname.d:8103
+#: pathname.d:8079
 msgid "~: illegal :ELEMENT-TYPE argument ~"
 msgstr "~ : ~ n'est pas permis comme argument pour :ELEMENT-TYPE."
 
-#: pathname.d:8133
+#: pathname.d:8109
 msgid "~: illegal :IF-EXISTS argument ~"
 msgstr "~ : ~ n'est pas permis comme argument pour :IF-EXISTS."
 
-#: pathname.d:8150
+#: pathname.d:8126
 msgid "~: illegal :IF-DOES-NOT-EXIST argument ~"
 msgstr "~ : ~ n'est pas permis comme argument pour :IF-DOES-NOT-EXIST."
 
-#: pathname.d:9523
+#: pathname.d:9499
 msgid "root directory not allowed here: ~"
 msgstr "Le répertoire racine n'est pas permis ici : ~"
 
-#: pathname.d:10259 pathname.d:10293 pathname.d:10356
+#: pathname.d:10235 pathname.d:10269 pathname.d:10332
 msgid "~: the command should be a string, not ~"
 msgstr "~ : La commande doit être de type STRING et non ~."
 
@@ -1281,155 +1281,151 @@ msgstr "~, n'étant pas un entier, ne peut pas être écrit dans ~."
 msgid "integer ~ is out of range, cannot be output onto ~"
 msgstr "L'entier ~, n'étant pas dans l'intervalle souhaité, ne peut pas être écrit dans ~."
 
-#: stream.d:3145
+#: stream.d:3043
 msgid "character ~ contains bits, cannot be output onto ~"
 msgstr "Le caractère ~ contient des «bits» et ne peut pas être écrit dans ~."
 
-#: stream.d:3806
+#: stream.d:3704
 msgid "RAW mode not supported on ~"
 msgstr "Le mode «RAW» n'est pas supporté par ~."
 
-#: stream.d:4183
+#: stream.d:4081
 msgid "~: argument ~ should be a window stream"
 msgstr "~ : L'argument ~ devrait être un WINDOW-STREAM."
 
-#: stream.d:4960
-msgid "~: cannot create a window stream"
-msgstr "~ : Ne peux pas établir un WINDOW-STREAM."
-
-#: stream.d:5177
+#: stream.d:4888
 msgid "cannot output to standard output"
 msgstr "Ne peut rien écrire sur la sortie principale."
 
-#: stream.d:6431
+#: stream.d:6142
 msgid "environment has no TERM variable"
 msgstr "L'environnment ne contient pas de variable TERM."
 
-#: stream.d:6440
+#: stream.d:6151
 msgid "terminal type ~ unknown to termcap"
 msgstr "TERMCAP ne connait pas le type d'écran ~."
 
-#: stream.d:6464
+#: stream.d:6175
 msgid "insufficient terminal: hardcopy terminal"
 msgstr "Terminal insuffisant : imprimante au lieu d'écran."
 
-#: stream.d:6472
+#: stream.d:6183
 msgid "insufficient terminal: overstrikes, cannot clear output"
 msgstr "Terminal insuffisant : ne peut rien effacer."
 
-#: stream.d:6480
+#: stream.d:6191
 msgid "insufficient terminal: cannot scroll"
 msgstr "Terminal insuffisant : pas de défilement."
 
-#: stream.d:6489
+#: stream.d:6200
 msgid "insufficient terminal: cannot clear screen"
 msgstr "Terminal insuffisant : ne peut pas effacer l'écran."
 
-#: stream.d:6497
+#: stream.d:6208
 msgid "insufficient terminal: cannot position cursor randomly"
 msgstr "Terminal insuffisant : ne peut pas placer le curseur n'importe où."
 
-#: stream.d:6955
+#: stream.d:6666
 msgid "~: package SCREEN is not implemented"
 msgstr "~ : Le paquet SCREEN n'est pas implémenté."
 
-#: stream.d:7511
+#: stream.d:7222
 msgid "Closed ~ because disk is full."
 msgstr "Ai fermé ~, parce que le disque est sans doute plein."
 
-#: stream.d:7690
+#: stream.d:7401
 msgid "cannot position ~ beyond EOF"
 msgstr "Ne peux pas positionner ~ au-delà de la fin du fichier."
 
-#: stream.d:8995
+#: stream.d:8706
 msgid "~: ~ is not a regular file."
 msgstr "~: ~ n'est pas un fichier régulier."
 
-#: stream.d:9169
+#: stream.d:8880
 msgid "file ~ is not an integer file"
 msgstr "Le fichier ~ n'a pas le format d'un fichier d'entiers."
 
-#: stream.d:9577
+#: stream.d:9288
 msgid "~: argument should be a symbol, not ~"
 msgstr "~ : L'argument doit être un symbole et non ~"
 
-#: stream.d:10286 stream.d:10732
+#: stream.d:9997 stream.d:10443
 msgid "~ is beyond the end because the string ~ has been adjusted"
 msgstr "~ est arrivé après la fin de la chaîne, parce que la chaîne ~ a été ajustée."
 
-#: stream.d:10377
+#: stream.d:10088
 msgid "~: ~ is not a string input stream"
 msgstr "~ : ~ n'est pas un «stream» lisant d'une chaîne."
 
-#: stream.d:10497
+#: stream.d:10208
 msgid "~: ~ is not a string output stream"
 msgstr "~ : ~ n'est pas un «stream» écrivant dans une chaîne."
 
-#: stream.d:10537
+#: stream.d:10248
 msgid "~: argument ~ should be a string with fill pointer"
 msgstr "~ : L'argument doit être une chaîne munie d'un pointeur de remplissage et non ~."
 
-#: stream.d:10834
+#: stream.d:10545
 msgid "~: ~ is not a buffered input stream"
 msgstr "~ : ~ n'est pas un «stream» d'entrée bufferisé."
 
-#: stream.d:11868
+#: stream.d:11579
 msgid "host should be string, not ~"
 msgstr "L'hôte devrait être un chaîne et non ~"
 
-#: stream.d:11879
+#: stream.d:11590
 msgid "display should be a nonnegative fixnum, not ~"
 msgstr "Le «display» doit être de type FIXNUM >= 0 et non ~"
 
-#: stream.d:11953
+#: stream.d:11664
 msgid "~: stream must be a socket-stream, not ~"
 msgstr "~ : Le stream doit être un «socket-stream» et non ~"
 
-#: stream.d:11968
+#: stream.d:11679
 msgid "~: argument ~ should be a vector of type (ARRAY (UNSIGNED-BYTE 8) (*))"
 msgstr "~ : l'argument ~ doit être un vecteur de type (ARRAY (UNSIGNED-BYTE 8) (*))."
 
-#: stream.d:12077
+#: stream.d:11788
 msgid "~: ~ is not a SOCKET-SERVER"
 msgstr "~ : ~ n'est pas un SOCKET-SERVER"
 
-#: stream.d:12252
+#: stream.d:11963
 msgid "~: argument ~ is not a SOCKET-STREAM"
 msgstr "~ : L'argument n'est pas un SOCKET-STREAM"
 
-#: stream.d:12460
+#: stream.d:12190
 msgid "~: stream must be a generic-stream, not ~"
 msgstr "~ : Le stream doit être un «generic-stream» et non ~"
 
-#: stream.d:12638
+#: stream.d:12368
 msgid "The value of ~ is not a stream: ~"
 msgstr "La valeur de ~ n'est pas de type STREAM : ~"
 
-#: stream.d:12646
+#: stream.d:12376
 msgid "The value of ~ is not an appropriate stream: ~"
 msgstr "La valeur de ~ n'est pas un STREAM acceptable : ~"
 
-#: stream.d:12662
+#: stream.d:12392
 msgid "The value of ~ was not a stream: ~. It has been changed to ~."
 msgstr "La valeur de ~ n'était pas de type STREAM : ~. Changé en ~."
 
-#: stream.d:12683
+#: stream.d:12413
 msgid "readline library: out of memory."
 msgstr "Bibliothèque readline: mémoire épuisée."
 
-#: stream.d:13479 stream.d:13660 stream.d:13699
+#: stream.d:13209 stream.d:13390 stream.d:13429
 msgid "~: Ctrl-C: User break"
 msgstr "~ : Ctrl-C : Interruption clavier"
 
-#: stream.d:13826 io.d:846
+#: stream.d:13556 io.d:846
 msgid "~: input stream ~ has reached its end"
 msgstr "~ : Le «stream» d'entrée ~ est épuisé."
 
-#: stream.d:13872
+#: stream.d:13602
 msgid "~: argument ~ is not an open file stream"
 msgstr "~ : L'argument ~ doit être un «stream» ouvert sur un fichier."
 
-#: stream.d:13904
+#: stream.d:13634
 msgid "~: position argument should be ~ or ~ or a nonnegative fixnum, not ~"
 msgstr "~ : L'argument position doit être ~, ~ ou de type FIXNUM positif ou zéro, mais non ~."
 
@@ -1529,7 +1525,7 @@ msgstr "~ de ~ : ~ ne comprend pas de symbole externe de nom ~."
 msgid "~ from ~: token \".\" not allowed here"
 msgstr "~ de ~ : Le lexème \".\" n'est pas permis ici."
 
-#: io.d:2200 io.d:6172
+#: io.d:2200 io.d:6195
 msgid "~: the value of ~ has been arbitrarily altered"
 msgstr "~ : La valeur de ~ fut modifiée extérieurement."
 
@@ -1713,7 +1709,7 @@ msgstr "~ de ~ : L'objet #Y~ n'a pas la syntaxe d'une «closure» compilée."
 msgid "~ from ~: bad syntax for pathname: #P~"
 msgstr "~ de ~ : Syntaxe inadmissible pour un pathname: #P~"
 
-#: io.d:4706 io.d:9457
+#: io.d:4706 io.d:9483
 msgid "~: ~ is not a character"
 msgstr "~ : ~ n'est pas un caractère."
 
@@ -1721,19 +1717,19 @@ msgstr "~ : ~ n'est pas un caractère."
 msgid "~: peek type should be NIL or T or a character, not ~"
 msgstr "~ : Le mode de PEEK doit être NIL ou T ou un caractère et non ~"
 
-#: io.d:4892
+#: io.d:4905
 msgid "~: ~ argument should be an integer between 2 and 36, not ~"
 msgstr "~ : L'argument ~ doit être un entier entre 2 et 36, pas ~"
 
-#: io.d:4985
+#: io.d:4998
 msgid "~: string ~ does not have integer syntax"
 msgstr "~ : La chaîne ~ n'a pas la syntaxe d'un nombre entier."
 
-#: io.d:5151
+#: io.d:5164
 msgid "~: Despite of ~, ~ cannot be printed readably."
 msgstr "~ : Malgré ~, ~ ne peut pas être imprimé de façon lisible."
 
-#: io.d:5179
+#: io.d:5192
 msgid ""
 "~: the value ~ of ~ is neither ~ nor ~ nor ~.\n"
 "It is reset to ~."
@@ -1741,19 +1737,23 @@ msgstr ""
 "~ : La valeur ~ de ~ n'est ni ~ ni ~ ni ~.\n"
 "Elle est remplacée par ~."
 
-#: io.d:6379
+#: io.d:5554
+msgid "~: must be a positive integer or NIL, not ~"
+msgstr "~: ~"
+
+#: io.d:6402
 msgid "~: not enough stack space for carrying out circularity analysis"
 msgstr "~ : La pile n'est pas suffisante pour analyser les liaisons circulaires."
 
-#: io.d:7937
+#: io.d:7960
 msgid "~: bad ~"
 msgstr "~ : Mauvaise ~"
 
-#: io.d:8054 record.d:230
+#: io.d:8077 record.d:230
 msgid "~: ~ is not a structure"
 msgstr "~ : ~ n'est pas une structure."
 
-#: io.d:8791
+#: io.d:8814
 msgid "~: an unknown record type has been generated!"
 msgstr "~ : Un objet composé de type inconnu a été rencontré!"
 
@@ -1854,7 +1854,7 @@ msgid "~: the initial-element ~ is not of type ~"
 msgstr "~: L'élément initial ~ n'est pas de type ~."
 
 #: array.d:2397
-msgid "~: ~ has not the correct length"
+msgid "~: ~ is of incorrect length"
 msgstr "~: ~ n'est pas de longueur convenable."
 
 #: array.d:2430
@@ -1862,7 +1862,7 @@ msgid "~: ~-argument ~ is not an array"
 msgstr "~: Le ~ argument ~ n'est pas une matrice."
 
 #: array.d:2460
-msgid "~: ~-argument ~ has not element type ~"
+msgid "~: ~-argument ~ does not have element type ~"
 msgstr "~: Le ~ argument ~ n'a pas ~ comme type d'élément."
 
 #: array.d:2478
@@ -1898,7 +1898,7 @@ msgid "~: rank ~ of array ~ cannot be altered: ~"
 msgstr "~: Le rang ~ de la matrice ~ ne peut pas être modifié."
 
 #: array.d:2850
-msgid "~: array ~ has not element-type ~"
+msgid "~: array ~ does not have element-type ~"
 msgstr "~: La matrice ~ n'as pas ~ comme type d'élément."
 
 #: array.d:2908
@@ -4905,7 +4905,7 @@ msgstr "~S: ~S est redéfinie, alors qu'elle était tracée!"
 msgid "~S is already compiled."
 msgstr "~S est déjà compilée."
 
-#: compiler.lsp:12610 compiler.lsp:13205
+#: compiler.lsp:12610 compiler.lsp:13207
 msgid "Undefined function ~S"
 msgstr "Fonction non définie ~S."
 
@@ -4949,67 +4949,67 @@ msgstr "~%Les variables déclarées SPECIAL sont définies trop tard :~%~{~<~%~:; ~
 msgid "~%The following functions were used but are deprecated:~%~{~<~%~:; ~S~>~^~}"
 msgstr "~%Les fonctions suivantes sont utilisées mais sont découragées :~%~{~<~%~:; ~S~>~^~}"
 
-#: compiler.lsp:13023
+#: compiler.lsp:13025
 msgid "~%~%Disassembly of function ~S"
 msgstr "~%~%Déassemblage de la fonction ~S"
 
-#: compiler.lsp:13036
+#: compiler.lsp:13038
 msgid "~%~S required arguments"
 msgstr "~%~S arguments nécessaires"
 
-#: compiler.lsp:13041
+#: compiler.lsp:13043
 msgid "~%~S optional arguments"
 msgstr "~%~S arguments facultatifs"
 
-#: compiler.lsp:13046
+#: compiler.lsp:13048
 msgid "~%~:[No rest parameter~;Rest parameter~]"
 msgstr "~%~:[Pas de paramètre &REST~;Paramètre &REST~]"
 
-#: compiler.lsp:13053
+#: compiler.lsp:13055
 msgid "~%~S keyword parameter~:P: ~{~S~^, ~}."
 msgstr "~%~S mot~:P-clé : ~{~S~^, ~}."
 
-#: compiler.lsp:13059
+#: compiler.lsp:13061
 msgid "~%Other keywords are allowed."
 msgstr "~%D'autres mots-clé sont permis."
 
-#: compiler.lsp:13063
+#: compiler.lsp:13065
 msgid "~%No keyword parameters"
 msgstr "~%Pas de mot-clé"
 
-#: compiler.lsp:13082
+#: compiler.lsp:13084
 msgid "Disassembly of function "
 msgstr "Déassemblage de la fonction "
 
-#: compiler.lsp:13102
+#: compiler.lsp:13104
 msgid " required arguments"
 msgstr " arguments nécessaires"
 
-#: compiler.lsp:13109
+#: compiler.lsp:13111
 msgid " optional arguments"
 msgstr " arguments facultatifs"
 
-#: compiler.lsp:13116
+#: compiler.lsp:13118
 msgid "Rest parameter"
 msgstr "Paramètre &REST"
 
-#: compiler.lsp:13121
+#: compiler.lsp:13123
 msgid "No rest parameter"
 msgstr "Pas de paramètre &REST"
 
-#: compiler.lsp:13130
+#: compiler.lsp:13132
 msgid " keyword parameter~P: "
 msgstr " mot~P-clé : "
 
-#: compiler.lsp:13142
+#: compiler.lsp:13144
 msgid "Other keywords are allowed."
 msgstr "D'autres mots-clé sont permis."
 
-#: compiler.lsp:13149
+#: compiler.lsp:13151
 msgid "No keyword parameters"
 msgstr "Pas de mot-clé"
 
-#: compiler.lsp:13230
+#: compiler.lsp:13232
 msgid "Cannot disassemble ~S"
 msgstr "Impossible de déassembler ~S"
 
