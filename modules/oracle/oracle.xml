@@ -481,7 +481,8 @@ inside the <function>WITH-TRANSACTION</function> macro.
 Below is a simple example script which uses &oracle-link;'s demo database
 schema, <literal>SCOTT</literal>.
 
-<programlisting>(setf server "orcl") ; Change this to your server's SID
+<programlisting language="lisp">
+(setf server "orcl") <lineannotation>; Change this to your server's SID</lineannotation>
 (oracle:connect "scott" "tiger" server)
 
 (oracle:run-sql "SELECT deptno, dname, loc FROM dept ORDER BY DNAME")
