@@ -241,6 +241,9 @@
   #ifdef __FreeBSD__
     #define UNIX_FREEBSD
   #endif
+  #ifdef __OpenBSD__
+    #define UNIX_OPENBSD
+  #endif
   #if defined(hpux) || defined(__hpux)
     #define UNIX_HPUX  # HP-UX
   #endif
