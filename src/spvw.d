@@ -2075,6 +2075,10 @@ local void usage (int exit_code)
                 { *ptr = '\0'; }
         }   }
       #endif
+      if (argv_memfile == NULL)
+        # If no memfile is given, LOAD cannot be called with 3 arguments.
+        # So disable the loading of ~/.clisprc.
+        { argv_norc = TRUE; }
       #ifndef LANGUAGE_STATIC
       init_language(argv_language,argv_localedir);
       #endif
