@@ -15590,7 +15590,8 @@ LISPFUNN(set_stream_element_type,2)
                       if (charp(TheStream(stream)->strm_rd_ch_last)
                           && (TheStream(stream)->strmflags & strmflags_unread_B)
                          )
-                        { var uintB b = as_cint(char_code(TheStream(stream)->strm_rd_ch_last));
+                        { # FIXME: This should take into account the encoding.
+                          var uintB b = as_cint(char_code(TheStream(stream)->strm_rd_ch_last));
                           if (ChannelStream_buffered(stream))
                             { if ((BufferedStream_index(stream) > 0)
                                   && (BufferedStream_position(stream) > 0)
@@ -17035,50 +17036,121 @@ LISPFUNN(file_string_length,2)
     skipSTACK(2);
     if (!(TheStream(stream)->strmflags & strmflags_wr_ch_B))
       { fehler_illegal_streamop(S(file_string_length),stream); }
-    if (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_buffered_unix))
-        || eq(TheStream(stream)->strm_wr_ch,P(wr_ch_buffered_mac))
-       )
+   {var object encoding = TheStream(stream)->strm_encoding;
+    #if defined(UNICODE) && defined(HAVE_ICONV)
+    if (simple_string_p(TheEncoding(encoding)->enc_charset))
+      # iconv-based encodings have state. Since we cannot duplicate an iconv_t
+      # we have no way to know for sure how many bytes the string will span.
       { if (stringp(obj))
-          { var uintL result = vector_length(obj);
-            value1 = fixnum(result); mv_count=1; return;
-          }
+          { value1 = (vector_length(obj) == 0 ? Fixnum_0 : NIL); mv_count=1; }
         elif (charp(obj))
-          { value1 = fixnum(1); mv_count=1; return; }
+          { value1 = NIL; mv_count=1; }
         else
           { fehler_wr_char(stream,obj); }
+        return;
       }
-    elif (eq(TheStream(stream)->strm_wr_ch,P(wr_ch_buffered_dos)))
-      { # Take into account the NL -> CR/LF translation.
-        if (stringp(obj))
-          { var uintL len;
-            var uintL offset;
-            var object string = unpack_string_ro(obj,&len,&offset);
-            var uintL result = len;
-            if (len > 0)
-              { SstringDispatch(string,
-                  { var const chart* charptr = &TheSstring(string)->data[offset];
-                    var uintL count;
-                    dotimespL(count,len, { if (chareq(*charptr++,ascii(NL))) result++; } );
-                  },
-                  { var const scint* charptr = &TheSmallSstring(string)->data[offset];
-                    var uintL count;
-                    dotimespL(count,len, { if (chareq(as_chart(*charptr++),ascii(NL))) result++; } );
-                  }
-                  );
+    #endif
+    if (TheEncoding(encoding)->min_bytes_per_char == TheEncoding(encoding)->max_bytes_per_char)
+      { # Easy case: a fixed number of bytes per character.
+        var uintL bytes_per_char = TheEncoding(encoding)->min_bytes_per_char;
+        if (eq(TheEncoding(encoding)->enc_eol,S(Kunix))
+            || eq(TheEncoding(encoding)->enc_eol,S(Kmac))
+           )
+          { if (stringp(obj))
+              { var uintL result = vector_length(obj);
+                value1 = UL_to_I(result*bytes_per_char); mv_count=1; return;
               }
+            elif (charp(obj))
+              { value1 = fixnum(bytes_per_char); mv_count=1; return; }
+            else
+              { fehler_wr_char(stream,obj); }
+          }
+        if (eq(TheEncoding(encoding)->enc_eol,S(Kdos)))
+          { # Take into account the NL -> CR/LF translation.
+            if (stringp(obj))
+              { var uintL len;
+                var uintL offset;
+                var object string = unpack_string_ro(obj,&len,&offset);
+                var uintL result = len;
+                if (len > 0)
+                  { SstringDispatch(string,
+                      { var const chart* charptr = &TheSstring(string)->data[offset];
+                        var uintL count;
+                        dotimespL(count,len, { if (chareq(*charptr++,ascii(NL))) result++; } );
+                      },
+                      { var const scint* charptr = &TheSmallSstring(string)->data[offset];
+                        var uintL count;
+                        dotimespL(count,len, { if (chareq(as_chart(*charptr++),ascii(NL))) result++; } );
+                      }
+                      );
+                  }
+                value1 = UL_to_I(result*bytes_per_char); mv_count=1; return;
+              }
+            elif (charp(obj))
+              { var uintL result = 1;
+                if (chareq(char_code(obj),ascii(NL))) result++;
+                value1 = fixnum(result*bytes_per_char); mv_count=1; return;
+              }
+            else
+              { fehler_wr_char(stream,obj); }
+          }
+        NOTREACHED
+      }
+      else
+      { # Have to look at each character individually.
+        var const chart* charptr;
+        var uintL len;
+        var chart auxch;
+        if (stringp(obj))
+          { var uintL offset;
+            var object string = unpack_string_ro(obj,&len,&offset);
+            unpack_sstring_alloca(string,len,offset, charptr=);
+          }
+        elif (charp(obj))
+          { auxch = char_code(obj); charptr = &auxch; len = 1; }
+        else
+          { fehler_wr_char(stream,obj); }
+        if (eq(TheEncoding(encoding)->enc_eol,S(Kunix)))
+          { # Treat all the characters all at once.
+            var uintL result = cslen(encoding,charptr,len);
             value1 = UL_to_I(result); mv_count=1; return;
           }
-        elif (charp(obj))
-          { var uintL result = 1;
-            if (chareq(char_code(obj),ascii(NL))) result++;
-            value1 = fixnum(result); mv_count=1; return;
-          }
-        else
-          { fehler_wr_char(stream,obj); }
+          else
+          { # Treat line-by-line.
+            var const chart* eol_charptr;
+            var uintL eol_len;
+            if (eq(TheEncoding(encoding)->enc_eol,S(Kmac)))
+              { static const chart eol_mac[1] = { ascii(CR) };
+                eol_charptr = &eol_mac[0]; eol_len = 1;
+              }
+            elif (eq(TheEncoding(encoding)->enc_eol,S(Kdos)))
+              { static const chart eol_dos[2] = { ascii(CR), ascii(LF) };
+                eol_charptr = &eol_dos[0]; eol_len = 2;
+              }
+            else
+              { NOTREACHED }
+           {var const chart* endptr = charptr+len;
+            var uintL result = 0;
+            while (charptr < endptr)
+              { # Search the next NL.
+                var const chart* ptr = charptr;
+                while (!chareq(*ptr,ascii(NL)))
+                  { ptr++; if (ptr == endptr) break; }
+                # Count the bytes needed for the characters before the NL.
+                if (!(ptr == charptr))
+                  result += cslen(encoding,charptr,ptr-charptr);
+                charptr = ptr;
+                # Count the bytes needed for the NL.
+                if (charptr < endptr)
+                  { # *charptr is ascii(NL).
+                    result += cslen(encoding,eol_charptr,eol_len);
+                    charptr++;
+                  }
+              }
+            value1 = UL_to_I(result); mv_count=1; return;
+          }}
       }
-    else # Shouldn't happen, since all cases have been covered.
-      { value1 = NIL; mv_count=1; return; }
-  }
+  }}
 
 # UP: Tells whether a stream is buffered.
 # stream_isbuffered(stream)
