@@ -178,6 +178,7 @@
    do-external-symbols do-all-symbols with-package-iterator incf decf
    push pushnew pop defstruct
    with-open-stream with-input-from-string with-output-to-string
+   print-unreadable-object
    with-standard-io-syntax with-open-file define-symbol-macro
    check-type assert etypecase ctypecase ecase ccase trace untrace step time
    formatter
