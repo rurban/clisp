@@ -4392,39 +4392,6 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       } else {
         # (MERGE-PATHNAMES pathname defaults [nil] :wild #'make-pathname)
         pushSTACK(pathname); pushSTACK(defaults);
-        # From: Kent M Pitman <pitman@world.std.com>
-        # CC: clisp-list@lists.sourceforge.net
-        # Date: Mon, 12 Nov 2001 19:23:21 -0500
-        # :case does not apply to any pathname. :case is about a translation
-        # mode when storing or retrieving individual components as strings.
-        # http://www.geocrawler.com/lists/3/SourceForge/1124/0/7064923/
-
-        # if we agree with him, we should define KMP_IS_RIGHT, otherwise...
-       #ifndef KMP_IS_RIGHT
-        if (convert && pathnamep(defaults)
-            #ifdef LOGICAL_PATHNAMES
-            && !logpathnamep(defaults)
-            #endif
-            ) { /* convert the components of default */
-          STACK_0 = copy_pathname(STACK_0);
-          #define FIXA(x) x=(stringp(x)?common_case(coerce_normal_ss(x)):x)
-          #define FIXC(x) x=subst_common_case(subst_coerce_normal_ss(x))
-         #if HAS_HOST
-          FIXA(ThePathname(STACK_0)->pathname_host);
-         #endif
-         #if HAS_DEVICE
-          FIXA(ThePathname(STACK_0)->pathname_device);
-         #endif
-          FIXA(ThePathname(STACK_0)->pathname_name);
-          FIXA(ThePathname(STACK_0)->pathname_type);
-          FIXC(ThePathname(STACK_0)->pathname_directory);
-          #undef FIXA
-          #undef FIXC
-          DOUT("make-pathname:[default - converted]",STACK_0);
-          # defaults = STACK_0;
-          # pathname = STACK_1;
-        }
-       #endif
         pushSTACK(unbound); pushSTACK(S(Kwild)); pushSTACK(L(make_pathname));
         funcall(L(merge_pathnames),5);
       }
