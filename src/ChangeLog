@@ -1,5 +1,30 @@
 2002-05-26  Bruno Haible  <bruno@clisp.org>
 
+	* utils/unicode/Makefile (ALL): Remove nls_cp1255.c, nls_cp1258.c.
+	(nls_cp1255.c, nls_cp1258.c): Remove rules.
+	* nls_cp1255.c: Remove file.
+	* nls_cp1258.c: Remove file.
+	* constsym.d (CP1255, CP1258, WINDOWS-1255, WINDOWS-1258):
+	Conditionalize on GNU_LIBICONV || glibc-2.2.
+	(BIG5-HKSCS): Renamed from BIG5HKSCS.
+	(KOI8-RU, EUC-JP, SHIFT-JIS, CP932, ISO-2022-JP, EUC-CN, GBK, CP936,
+	GB18030, EUC-TW, BIG5, CP950, BIG5-HKSCS, ISO-2022-CN,
+	ISO-2022-CN-EXT, EUC-KR, CP949, ISO-2022-KR, JOHAB, ARMSCII-8,
+	GEORGIAN-ACADEMY, GEORGIAN-PS, TIS-620, CP1133, VISCII, TCVN, UTF-16,
+	UTF-7): Also enable on glibc-2.2.
+	(ISO-2022-JP-2): Also enable on glibc-2.3.
+	* encoding.d: Don't include nls_cp1255.c and nls_cp1258.c.
+	(nls_tables): Remove nls_cp1255_table, nls_cp1258_table.
+	(iconv_first_sym, iconv_last_sym, iconv_num_encodings): Also define
+	on glibc-2.2.
+	(init_encodings_2): Update according to changes in constsym.d.
+	(encoding_from_name): Handle CP1255 in the libiconv specific part.
+	Use same code on glibc-2.2 as with libiconv. Use BIG5-HKSCS, not
+	BIG5HKSCS.
+	* pseudofun.d (nls_cp1255_table, nls_cp1258_table): Remove entries.
+
+2002-05-26  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (HAVE_GOOD_ICONV): Define if good iconv available.
 	(HAVE_ICONV): Don't undefine this.
 	* encoding.d: Test HAVE_GOOD_ICONV instead of GNU_LIBICONV ||
