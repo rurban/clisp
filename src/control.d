@@ -2267,7 +2267,7 @@ LISPFUNNR(function_name_p,1)
 }
 
 LISPFUNN(check_function_name,2)
-{ /* (SYS::%CHECK-FUNCTION-NAME funname caller)
+{ /* (SYS::CHECK-FUNCTION-NAME funname caller)
  checks whether the funname argument is a function name, giving the user the
  opportunity to correct it if it is not. Returns the corrected function name. */
   VALUES1(check_funname(source_program_error,STACK_0,STACK_1));
@@ -2275,7 +2275,7 @@ LISPFUNN(check_function_name,2)
 }
 
 LISPFUNN(check_symbol,2)
-{ /* (SYS::%CHECK-SYMBOL symbol caller)
+{ /* (SYS::CHECK-SYMBOL symbol caller)
  checks whether the symbol argument is a symbol, giving the user the
  opportunity to correct it if it is not. Returns the corrected symbol. */
   var gcv_object_t *sym_ = &STACK_1;

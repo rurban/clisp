@@ -1,5 +1,24 @@
 2004-08-21  Bruno Haible  <bruno@clisp.org>
 
+	* constsym.d (sys::check-symbol): Renamed from sys::%check-symbol.
+	(sys::check-function-name): Renamed from sys::%check-function-name.
+	* control.d: Likewise.
+	* init.lisp (check-symbol, check-function-name): Remove macros.
+	(defun): Use an explicit assignment instead of a macro with implicit
+	side-effect.
+	* defstruct.lisp (defstruct): Likewise.
+	* compiler.lisp (compile): Likewise.
+	* cmacros.lisp (compiler-macro-function, (setf compiler-macro-function)):
+	Likewise.
+	* trace.lisp (check-traceable): Likewise.
+	* clos-genfun3.lisp (defmethod, declaim-method, analyze-defgeneric):
+	Likewise.
+	* documentation.lisp (documentation, (setf documentation)): Likewise.
+	* foreign1.lisp (DEF-C-TYPE, DEF-C-VAR, DEF-CALL-OUT, DEF-LIB-CALL-OUT,
+	DEF-CALL-IN, def-c-enum): Likewise.
+
+2004-08-21  Bruno Haible  <bruno@clisp.org>
+
 	* compiler.lisp (insert-combined-LAPs): Use assert instead of
 	check-type.
 

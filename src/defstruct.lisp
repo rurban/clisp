@@ -543,7 +543,7 @@
                  ;; default-keyword-constructor
                  (push (concat-pnames "MAKE-" name) constructor-option-list)
                  (let ((arg (second option)))
-                   (check-symbol arg 'defstruct)
+                   (setq arg (check-symbol arg 'defstruct))
                    (push
                      (if (atom (cddr option))
                        arg ; keyword-constructor
@@ -557,12 +557,12 @@
             (:COPIER
                (when (consp (cdr option))
                  (let ((arg (second option)))
-                   (check-symbol arg 'defstruct)
+                   (setq arg (check-symbol arg 'defstruct))
                    (setq copier-option arg))))
             (:PREDICATE
                (when (consp (cdr option))
                  (let ((arg (second option)))
-                   (check-symbol arg 'defstruct)
+                   (setq arg (check-symbol arg 'defstruct))
                    (setq predicate-option arg))))
             ((:INCLUDE :INHERIT)
                (if (null include-option)

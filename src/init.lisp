@@ -1524,21 +1524,6 @@
       (format t (TEXT "Loaded file ~A") filename))
     t))
 
-(sys::%putd 'check-symbol
- (sys::make-macro
-  (function check-symbol (lambda (form env)
-    (declare (ignore env))
-    (let ((name (second form)) (caller (third form)))
-      (list 'unless (list 'symbolp name)
-            (list 'setq name (list '%check-symbol name caller))))))))
-(sys::%putd 'check-function-name
- (sys::make-macro
-  (function check-function-name (lambda (form env)
-    (declare (ignore env))
-    (let ((name (second form)) (caller (third form)))
-      (list 'unless (list 'function-name-p name)
-            (list 'setq name (list '%check-function-name name caller))))))))
-
 (sys::%putd 'defun              ; preliminary:
   (sys::make-macro
     (function defun (lambda (form env)
@@ -1551,7 +1536,7 @@
       (let ((name (cadr form))
             (lambdalist (caddr form))
             (body (cdddr form)))
-        (check-symbol name 'defun)
+        (setq name (check-symbol name 'defun))
         (when (special-operator-p name)
           (error-of-type 'source-program-error
             :form name
