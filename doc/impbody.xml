@@ -1264,7 +1264,7 @@ performance considerations.
     Since &clisp; has the means to cope with this - &long-float-t;s of
     <link linkend="lfd">variable precision</link> - it does not
     need unnormalized floats.</simpara></listitem></itemizedlist>
- This is why &features-var; does not contain the
+ This is why &features-my; does not contain the
  <constant>:IEEE-FLOATING-POINT</constant> keyword.</para>
 
 <formalpara id="lfd"><title>Arbitrary Precision Floats</title>
