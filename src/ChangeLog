@@ -1,5 +1,10 @@
 2002-01-10  Sam Steingold  <sds@gnu.org>
 
+	fixed a bug in the 2001-11-09 patch
+	* pathname.d (CD): slashp expects a chart, not cint
+
+2002-01-10  Sam Steingold  <sds@gnu.org>
+
 	fixed (format nil "~2f" 1234567.1234) => "1234567."
 	* format.lisp (format-float-for-f): pass 0 as DMIN to
 	FORMAT-FLOAT-TO-STRING
