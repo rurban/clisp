@@ -74,6 +74,7 @@ impnotes.html: impnotes.xml $(IMPNOTES) # tidy.conf
 #		-xsl "file://$(XMLHOME)/docbook.xsl/xhtml/docbook.xsl"
 #	cp impnotes.html impnotes-saved.html
 #	tidy -config tidy.conf -f tidy.err impnotes.html || true
+	egrep -Hn 'NAME="[A-Z0-9]*"' $@ || true
 
 impnotes.pdf: impnotes.xml $(IMPNOTES)
 	time docbook2pdf $<
@@ -83,6 +84,11 @@ html: impnotes.xml $(IMPNOTES)
 	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../gnu/clisp/impnotes $@; fi
 	cd html && sed 's/^/ln -vfs /' .symlinks | sh -
 	time docbook2html --dsl impnotes.dsl -o $@ $<
+	egrep -Hnr 'NAME="[A-Z0-9]*"' $@ || true
+
+up: impnotes.html html
+	scp impnotes.html sf:/home/groups/c/cl/clisp/www/impnotes-new.html
+	scp -r html/* sf:/home/groups/c/cl/clisp/www/impnotes-new/
 
 regexp.html: ../modules/regexp/regexp.texinfo
 	$(TEXI2HTML) -monolithic -verbose $<
