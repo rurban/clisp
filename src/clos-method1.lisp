@@ -66,11 +66,7 @@
                            ; (only for the purpose of CALL-NEXT-METHOD and
                            ; NO-NEXT-METHOD)
        :type (or null generic-function)
-       :accessor std-method-generic-function)
-     ($initfunction        ; returns - if called - the fast-function
-                           ; (only for the purpose of ADD-METHOD)
-       :type function
-       :accessor std-method-initfunction))
+       :accessor std-method-generic-function))
     (:fixed-slot-locations t)
     (:generic-accessors nil)))
 
@@ -196,7 +192,6 @@
   (setf (std-method-signature method) signature)
   (setf (std-method-documentation method) documentation)
   (setf (std-method-generic-function method) gf)
-  (setf (std-method-initfunction method) initfunction)
   method)
 
 (defun make-instance-<standard-method> (class &rest args

@@ -330,7 +330,6 @@
       :specializers        (list (intern-eql-specializer gf) <t> <t>)
       :documentation       (std-method-documentation *extended-method-check-method*)
       'fast-function       (std-method-fast-function *extended-method-check-method*)
-      'initfunction        (std-method-initfunction *extended-method-check-method*)
       'wants-next-method-p (std-method-wants-next-method-p *extended-method-check-method*)
       'signature           (std-method-signature *extended-method-check-method*))))
 

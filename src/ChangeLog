@@ -1,5 +1,10 @@
 2004-10-10  Bruno Haible  <bruno@clisp.org>
 
+	* clos-method1.lisp (standard-method): Remove initfunction slot.
+	(initialize-instance-<standard-method>): Update.
+	* clos-genfun4.lisp (initialize-extended-method-check): Update.
+	* disassem.lisp (disassemble@standard-method): Update.
+
 	Now that methods are never copied, move the initfunction invocation
 	to the initializer.
 	* clos-method1.lisp (initialize-instance-<standard-method>): Invoke
