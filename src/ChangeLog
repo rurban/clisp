@@ -1,3 +1,8 @@
+2004-03-15  Bruno Haible  <bruno@clisp.org>
+
+	* po/de.po: Fix 3 format strings that had the wrong number of ~.
+	* po/fr.po: Fix 1 such format string.
+
 2004-03-14  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (LIBICONV, LIBINTL, LIBSIGSEGV, LIBTERMCAP): On OSF/1,
