@@ -17,13 +17,16 @@ dd p { margin: 0pt; }
 { background-color: lightgray; color: darkblue; }
 
 /* mark methods with color - same background as type! */
-.method { background-color: lightcyan; color: darkblue; }
+.method
+{ background-color: lightcyan; color: darkblue; }
 
 /* literal data */
-.data { background-color: lightblue; color: darkred; }
+.data, .returnvalue
+{ background-color: lightblue; color: darkred; }
 
 /* bytecode instructions */
-.byte { background-color: lightgray; color: darkred; }
+.byte
+{ background-color: lightgray; color: darkred; }
 
 /* mark types with color - same background as method! */
 .type, .classname, .superclass
@@ -34,7 +37,13 @@ dd p { margin: 0pt; }
 { background-color: lightgreen; color: navy; }
 
 /* no border for images */
-img { border-width: 0; }
+img
+{ border-width: 0; }
 
 /* epigraph: flush right, large left margin */
-.epigraph { text-align: right; margin-left: 50%; }
+.epigraph
+{ text-align: right; margin-left: 50%; }
+
+/* larger headings */
+h1, h2, h3, h4, h5
+{ font-size: 150%; }
