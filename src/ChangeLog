@@ -1,5 +1,11 @@
 2003-12-19  Sam Steingold  <sds@gnu.org>
 
+	* trace.lisp (trace1): evaluate :STEP-IF at run time, not at
+	compile time, so that STEP is invoked when :STEP-IF evaluates to
+	non-NIL, not just when it is present
+
+2003-12-19  Sam Steingold  <sds@gnu.org>
+
 	repeated "-q" sets *LOAD-VERBOSE* and *COMPILE-VERBOSE* to NIL
 	* constsym.d (*COMPILE-VERBOSE*): added
 	* spvw.d (argv_quiet): integer, not boolean
