@@ -473,6 +473,7 @@ Continue       :c       switch off single step mode, continue evaluation
 
   (tagbody
     (makunbound '*terminal-read-stream*)
+    (makunbound '*terminal-read-open-object*)
     (clear-input *debug-io*) ; because the user did not expect a break loop
     (let* ((*break-count* (1+ *break-count*))
            (stream (make-synonym-stream '*debug-io*))

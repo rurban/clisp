@@ -1,5 +1,11 @@
 2003-02-09  Sam Steingold  <sds@gnu.org>
 
+	* debug.d (break_driver): unbind *TERMINAL-READ-OPEN-OBJECT*,
+	just like *TERMINAL-READ-STREAM*
+	* reploop.lisp (break-loop): ditto
+
+2003-02-09  Sam Steingold  <sds@gnu.org>
+
 	* modules/bindings/linuxlibc6/linux.lisp (__ctype_get_mb_cur_max):
 	returns size_t
 	(errno): commented out (neither method works)
