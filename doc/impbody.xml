@@ -1035,12 +1035,9 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
   <listitem><simpara>with the nicknames <quote role="package">CL-USER</quote>
     and <quote role="package">USER</quote></simpara></listitem></varlistentry>
  <varlistentry><term>&kwd-pac;</term>
-  <listitem><simpara>with the nickname <quote role="package"></quote>
-  </simpara></listitem></varlistentry>
+  <listitem><simpara>with no nicknames
+ </simpara></listitem></varlistentry>
 </variablelist>
-
-<para>The package &cl-pac; &export;s only those symbols
- from the &ansi-cl; that are actually implemented.</para>
 
 <section id="pack-lock"><title>Constraints on the &cl-pac; Package
   for Conforming Programs - package locking
