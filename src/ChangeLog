@@ -1,3 +1,12 @@
+2002-06-01  Arseny Slobodjuck <ampy@ich.dvo.ru>
+
+	Win32 build fixes
+	* win32.d: include <locale.h>
+	(EINPROGRESS, ETIMEDOUT): define to use instead
+	of WSAE*.
+	* spvw_ctype (init_ctype): LC_MESSAGES is not
+	defined in win32, ifdef it.
+
 2002-05-31  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
 	* win32.d (stderr_handle): new global variable.
