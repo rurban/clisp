@@ -1,4 +1,4 @@
-;;; Copyright (C) 2001-2002 by Sam Steingold
+;;; Copyright (C) 2001-2004 by Sam Steingold
 ;;; released under the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
 ;;; as a part of CLISP <http://clisp.cons.org>
 ;;;
@@ -292,5 +292,57 @@ Beware - this will modify the original C-mode too!"
 
 ;; some keybindings
 (define-key d-mode-map (kbd "<f5>") 'd-mode-convert-next-comment)
+
+;; update the dates in headers
+(defvar clisp-home-dir "d:/gnu/clisp/sf/clisp/"
+  "*the location of clisp sources for `clisp-update-dates'")
+(defvar clisp-update-dates-user user-full-name
+  "*default argument for `clisp-update-dates'")
+(defun clisp-update-dates (&optional user)
+  "Update the dates in file header for the user.
+Look at the files that are mentioned in `clisp-home-dir'/src/ChangeLog
+as changed bye the `user' and check that this date is in that file's header."
+  (interactive (list (read-from-minibuffer "User: " clisp-update-dates-user)))
+  (setq clisp-update-dates-user user)
+  (message "clisp-update-dates: %s" user)
+  (let* ((c-l (find-file-noselect (expand-file-name "src/ChangeLog"
+                                                    clisp-home-dir)))
+         (year (format-time-string "%Y")) start all bad
+         (re (concat "^" year "-.*" user)))
+    (with-current-buffer c-l
+      (save-excursion
+        (goto-char 0)
+        (while (setq start (re-search-forward re nil t))
+          (setq end (re-search-forward "^[0-9]"))
+          (goto-char start)
+          (while (re-search-forward "^\t\\* " end t)
+            (setq all (nconc (split-string
+                              (buffer-substring-no-properties
+                               (point) (re-search-forward
+                                        "[:()]" (line-end-position) t))
+                              "[ ,():]+" t)
+                             all))))))
+    (setq all (delete-dups all))
+    (message "clisp-update-dates: %d files: %s" (length all) all)
+    (dolist (file all)
+      (let ((buf (find-file-noselect
+                  (expand-file-name
+                   (if (string-match "/" file) file (concat "src/" file))
+                   clisp-home-dir))))
+        (with-current-buffer buf
+          (save-excursion
+            (goto-char 0)
+            (cond ((null (search-forward user nil t))
+                   (message "clisp-update-dates: %s does not mention %s"
+                            file user)
+                   (push file bad))
+                  ((progn (beginning-of-line)
+                          (search-forward year (line-end-position) t))
+                   (message "clisp-update-dates: %s is good!" file)
+                   (kill-buffer buf))
+                  (t (message "clisp-update-dates: %s needs updating" file)
+                     (push file bad)))))))
+    (message "clisp-update-dates: %d files need updating: %s" (length bad) bad)
+    (values bad all)))
 
 (provide 'd-mode)
