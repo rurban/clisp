@@ -96,6 +96,10 @@
 <!ENTITY traditional-opt "<ulink url='clisp.html#opt-traditional'><option>-traditional</option></ulink>">
 <!ENTITY buffered "<link linkend='buffered'><constant>:BUFFERED</constant></link>">
 <!ENTITY browser "<link linkend='browser'><constant>:BROWSER</constant></link>">
+<!ENTITY char-width "<link linkend='char-width'><function>EXT:CHAR-WIDTH</function></link>">
+<!ENTITY string-width "<link linkend='string-width'><function>EXT:STRING-WIDTH</function></link>">
+<!ENTITY doseq "<link linkend='doseq'><function>EXT:DOSEQ</function></link>">
+<!ENTITY dohash "<link linkend='dohash'><function>EXT:DOHASH</function></link>">
 <!ENTITY eltype "<link linkend='eltype'><constant>:ELEMENT-TYPE</constant></link>">
 <!ENTITY encoding "<link linkend='encoding'><classname>EXT:ENCODING</classname></link>">
 <!ENTITY make-encoding "<link linkend='make-encoding'><function>EXT:MAKE-ENCODING</function></link>">
@@ -254,6 +258,7 @@
 <!ENTITY stream-r "<replaceable>stream</replaceable>">
 <!ENTITY string-r "<replaceable>string</replaceable>">
 <!ENTITY symbol-r "<replaceable>symbol</replaceable>">
+<!ENTITY tag-r "<replaceable>tag</replaceable>">
 <!ENTITY tbc-r "<replaceable>tagbody-cons</replaceable>">
 <!ENTITY type-r "<replaceable>type</replaceable>">
 <!ENTITY v-r "<replaceable>v</replaceable>">

@@ -2086,15 +2086,13 @@ and the international alphabetic characters from the character set:
 
 <section id="char-width"><title>Functions on characters</title>
 
-<formalpara><title><literal
-   role="sexp">(<function>ext:char-width</function>
-   &ch-r;)</literal></title>
-<para>returns the number of screen columns occupied by
- &ch-r;.  This is 0 for non-spacing characters
- (such as control characters and many combining characters), 2 for
- double-width East Asian characters, and 1 for all other characters.
- See also function <link
- linkend="string-width"><function>string-width</function></link>.
+<formalpara><title><literal role="sexp">(&char-width; &ch-r;)</literal></title>
+<para>returns the number of screen columns occupied by &ch-r;.
+ This is 0 for non-spacing characters
+  (such as control characters and many combining characters),
+ 2 for double-width East Asian characters,
+ and 1 for all other characters.
+ See also function &string-width;.
 </para></formalpara>
 
 </section>
@@ -2405,8 +2403,8 @@ and the international alphabetic characters from the character set:
 </tbody></tgroup></table>
 
 <para>Note that these constants are not fixnums, contrary to the &ansi-cl;
- Issue <ulink url="&clhs;/Issues/iss014.html">
- ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</ulink>.</para>
+ Issue <ulink url="&clhs;/Issues/iss014.html"
+ >ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</ulink>.</para>
 
 </section>
 
@@ -2436,11 +2434,10 @@ and the international alphabetic characters from the character set:
 
 <section id="string-width"><title>Functions on strings</title>
 
-<formalpara><title><literal role="sexp">(<function>ext:string-width</function>
+<formalpara><title><literal role="sexp">(&string-width;
  &string-r;)</literal></title>
  <para>returns the number of screen columns occupied by &string-r;.
- This is computed as the sum of all <link
- linkend="char-width"><function>ext:char-width</function></link>s
+ This is computed as the sum of all &char-width;s
  of all of the &string-r;'s characters.</para></formalpara></section>
 
 </section>
@@ -2455,18 +2452,20 @@ and the international alphabetic characters from the character set:
 
 <section id="seq-macro-ext"><title>Additional Macros</title>
 
-<para>For iteration through a sequence, a macro
- <emphasis role="strong"><function>ext:doseq</function></emphasis>,
+<section id="doseq"><title>Macro &doseq;</title>
+
+<para>For iteration through a sequence, a macro &doseq;,
  similar to &dolist;, may be used instead of &map;:</para>
 
 <programlisting>
-(<function>ext:doseq</function> (&var-r; <replaceable>seqform</replaceable> [<replaceable>resultform</replaceable>])
+(&doseq; (&var-r; <replaceable>seqform</replaceable> [<replaceable>resultform</replaceable>])
   {&declaration-r;}*
-  {<replaceable>tag</replaceable>|<replaceable>statement</replaceable>}*)
+  {&tag-r;|&form-r;}*)
 </programlisting>
 
-<para><function>ext:doseq</function> forms are &iter-forms;.</para>
+<para>&doseq; forms are &iter-forms;.</para>
 
+</section>
 </section>
 
 <section id="nreverse-nreconc">
@@ -2550,18 +2549,20 @@ and &end-k;:</para>
 
 <section id="hash-ext"><title>Additional Macros</title>
 
-<para>For iteration through a hash table, a macro
- <emphasis role="strong"><function>ext:dohash</function></emphasis>,
+<section id="dohash"><title>Macro &dohash;</title>
+
+<para>For iteration through a hash table, a macro &dohash;
  similar to &dolist;, can be used instead of &maphash;:</para>
 
 <programlisting>
-(ext:dohash (<replaceable>key-var</replaceable> <replaceable>value-var</replaceable> <replaceable>hash-table-form</replaceable> [<replaceable>resultform</replaceable>])
+(&dohash; (<replaceable>key-var</replaceable> <replaceable>value-var</replaceable> <replaceable>hash-table-form</replaceable> [<replaceable>resultform</replaceable>])
   {&declaration-r;}*
-  {<replaceable>tag</replaceable>|<replaceable>statement</replaceable>}*)
+  {&tag-r;|&form-r;}*)
 </programlisting>
 
-<para><function>ext:dohash</function> forms are &iter-forms;.</para>
+<para>&dohash; forms are &iter-forms;.</para>
 
+</section>
 </section>
 </section>
 </chapter>
@@ -2637,9 +2638,8 @@ and &end-k;:</para>
 
 <para>When a pathname is to be fully specified (no wildcards), that
  means that no &wild-k;, &wild-inferiors-k; is allowed, no wildcard
- characters are allowed in the strings, and
- &name-r; &eq; &nil; may not be allowed
- either.</para>
+ characters are allowed in the strings, and &name-r; &eq; &nil; may not
+ be allowed either.</para>
 
 <!-- #ifdef PATHNAME_AMIGAOS -->
 <variablelist>
