@@ -186,9 +186,17 @@
     (:generic-accessors nil)))
 
 (defun initialize-instance-<standard-accessor-method> (method &rest args
-                                                       &key slot-definition
+                                                       &key (slot-definition nil slot-definition-p)
                                                        &allow-other-keys)
   (apply #'initialize-instance-<standard-method> method args) ; == (call-next-method)
+  ; Check the slot-definition.
+  (unless slot-definition-p
+    (error (TEXT "(~S ~S): Missing ~S argument.")
+           'initialize-instance 'standard-accessor-method ':slot-definition))
+  (unless (typep slot-definition 'direct-slot-definition)
+    (error (TEXT "(~S ~S): The slot-definition argument is not of type ~S.")
+           'initialize-instance 'standard-accessor-method 'direct-slot-definition))
+  ; Fill the slots.
   (setf (%accessor-method-slot-definition method) slot-definition)
   method)
 
