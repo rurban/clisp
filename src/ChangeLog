@@ -1,3 +1,10 @@
+2003-08-13  Sam Steingold  <sds@gnu.org>
+
+	do FUNCTION-CODES lookup at load time: a change in FUNCTION-CODES
+	means a change in FUNTAB, i.e., all FAS recompilation anyway
+	* compiler.lisp (CALLS-code-fun): new macro
+	(c-FNODE-FUNCTION, c-FUNCTION, insert-combined-LAPs): use it
+
 2003-08-13  Bruno Haible  <bruno@clisp.org>
 
 	* arilev1e.d (and_test_loop_up, test_loop_up): Change return type from
