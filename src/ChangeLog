@@ -1,5 +1,21 @@
 1999-06-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Determine the initial encoding by examining the user's locale.
+        * lispbibl.d (init_dependent_encodings): New declaration.
+        * spvw_ctype.d: New file.
+        * spvw.d: Include <string.h> always.
+          Include spvw_ctype.d.
+          (main): Remove LC_CTYPE code, instead call `init_ctype'. Later, call
+          `init_dependent_encodings'.
+        * encoding.d (init_dependent_encodings): New function, moved out of
+          init_encodings. default-file-encoding and the others depend on
+          locale_charset.
+          (init_encodings): Call init_dependent_encodings.
+        * makemake.in (SPVW_INCLUDES): Add spvw_ctype.
+        * gettext/po/Makefile.devel (DSOURCES): Add spvw_ctype.
+
+1999-06-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Use Unicode API on Win32.
         * lispbibl.d (wchar, WLITERAL): New macros.
           (wgetenv): New macro.

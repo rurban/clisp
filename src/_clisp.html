@@ -484,13 +484,31 @@ the environment variable <CODE>CLISP_LANGUAGE</CODE> or the
 <P>
 #endif
 
+#ifdef UNICODE
+<DT> <CODE>LC_CTYPE</CODE>
+<DD>specifies the locale which determines the character set in use.  The
+value can be of the form <CODE><VAR>language</VAR></CODE> or
+<CODE><VAR>language</VAR>_<VAR>country</VAR></CODE> or
+<CODE><VAR>language</VAR>_<VAR>country</VAR>.<VAR>charset</VAR></CODE>,
+where <VAR>language</VAR> is a two-letter ISO 639 language code (lower case),
+<VAR>country</VAR> is a two-letter ISO 3166 country code (upper case).
+<VAR>charset</VAR> is an optional character set specification, and needs
+normally not be given because the character set can be inferred from the
+language and country.
+<P>
+#endif
+
 <DT> <CODE>LANG</CODE>
 <DD> specifies the language
 <CODE>clisp</CODE>
 uses to communicate with the user, unless it is already specified through
 the environment variable <CODE>CLISP_LANGUAGE</CODE> or the
-<A HREF="#Option -L"><CODE>-L</CODE></A> option. The value may begin with
-a two-letter ISO 639 language code, for example
+<A HREF="#Option -L"><CODE>-L</CODE></A> option.
+#ifdef UNICODE
+It also specifies the locale determining the character set in use, unless
+already specified through the environment variable <CODE>LC_CTYPE</CODE>.
+#endif
+The value may begin with a two-letter ISO 639 language code, for example
 <CODE>en</CODE>, <CODE>de</CODE>, <CODE>fr</CODE>.
 <P>
 
@@ -607,7 +625,7 @@ and Michael Stoll.
 Bruno Haible &lt;haible@clisp.cons.org&gt;
 </ADDRESS>
 <P>
-Last modified: 20 May 1999.
+Last modified: 20 June 1999.
 
 </BODY>
 
