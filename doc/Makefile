@@ -83,13 +83,13 @@ all: check impnotes.html regexp.html wildcard.html man
 MAKE_TDB=xsltproc --timing --stringparam collect.xref.targets "only" \
 	--stringparam targets.filename
 
-tdb-man.xml: clisp.xml
+tdb-man.xml: clisp.xml pile.xsl common.xsl
 	$(MAKE_TDB) "$@" pile.xsl $<
 
-tdb-pile.xml: impnotes.xml $(IMPNOTES)
+tdb-pile.xml: impnotes.xml $(IMPNOTES) pile.xsl common.xsl
 	$(MAKE_TDB) "$@" pile.xsl $<
 
-tdb-chunk.xml: impnotes.xml $(IMPNOTES)
+tdb-chunk.xml: impnotes.xml $(IMPNOTES) chunk.xsl common.xsl
 	$(MAKE_TDB) "$@" chunk.xsl $<
 
 clisp.xml: clisp.xml.in ../src/VERSION Makefile
