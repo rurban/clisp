@@ -34,8 +34,10 @@
 
 2002-09-30  Sam Steingold  <sds@gnu.org>
 
-	* init.lisp (defun): use GET-FUNNAME-SYMBOL instead of GET-SETF-SYMBOL
+	* init.lisp (get-funname-symbol): moved here
+	(defun): use GET-FUNNAME-SYMBOL instead of GET-SETF-SYMBOL
 	* trace.lisp (check-traceable): ditto
+	* places.lisp (get-setf-symbol): moved to init.lisp
 
 2002-09-29  Sam Steingold  <sds@gnu.org>
 
