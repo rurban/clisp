@@ -1,3 +1,8 @@
+1999-03-01  Sam Steingold  <sds@goems.com>
+
+	* spvw.d: removed :IEEE-FLOATING-POINT from *features*.  Use
+	`pushnew' instead of `nconc'.
+
 1999-02-28  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * lispbibl.d (subr_argtype_t): New enumeration items subr_argtype_1_3,
