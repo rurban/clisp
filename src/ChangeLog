@@ -1,5 +1,12 @@
 1999-08-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        No compiler expands __builtin_strcmp inline.
+        * aclocal.m4 (CL_BUILTIN_STRCMP): Remove.
+        * configure.in: Don't call CL_BUILTIN_STRCMP.
+        * unixconf.h.in: Don't define HAVE_BUILTIN_STRCMP.
+        * lispbibl.d (asciz_equal): Don't define as a macro.
+        * spvw.d (asciz_equal): Define as a function always.
+
         Assume clock_t is defined.
         * aclocal.m4 (CL_CLOCK_T): Remove.
         * configure.in: Don't call CL_CLOCK_T.
