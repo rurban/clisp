@@ -87,6 +87,11 @@ User visible changes
   + APPEND, COPY-ALIST, REVAPPEND, NRECONC, PAIRLIS, GET, GETF,
     REMPROP, GET-PROPERTIES no longer accept dotted lists;
   + implemented arrays with ARRAY-ELEMENT-TYPE NIL;
+  + implemented ANSI CL Issues <CONDITION-RESTARTS:PERMIT-ASSOCIATION>,
+    <DEBUGGER-HOOK-VS-BREAK:CLARIFY>, <DOCUMENTATION-FUNCTION-BUGS:FIX>,
+    <EXTERNAL-FORMAT-FOR-EVERY-FILE-CONNECTION:MINIMUM>,
+    <IMPORT-SETF-SYMBOL-PACKAGE>, <SETF-FIND-CLASS:ALLOW-NIL>,
+    <SUBTYPEP-ENVIRONMENT:ADD-ARG>;
   + a character is now accepted as a package designator.
   Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance suite.
 
