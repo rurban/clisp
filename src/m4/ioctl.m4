@@ -14,6 +14,8 @@ AC_DEFUN([CL_IOCTL],
 [AC_REQUIRE([CL_TERM])dnl
 AC_REQUIRE([CL_OPENFLAGS])dnl
 AC_REQUIRE([CL_CADDR_T])dnl
+AC_CHECK_FUNCS(ioctl)
+if test $ac_cv_func_ioctl = yes; then
 ioctl_decl1='
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
@@ -150,5 +152,6 @@ case "$cl_cv_decl_FIONREAD_reliable" in
   *yes) AC_DEFINE(HAVE_RELIABLE_FIONREAD,,[have the FIONREAD ioctl() and it works reliably on files]) ;;
   *no) ;;
 esac
+fi
 fi
 ])
