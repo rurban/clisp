@@ -1146,6 +1146,9 @@ if [ "$DEBUGGING" = debug ] ; then
     XCFLAGS=$XCFLAGS' -g'
   fi
   XCFLAGS=$XCFLAGS' -DDEBUG_OS_ERROR -DDEBUG_SPVW -DSAFETY=3';
+  if [ "$CC" = "g++" ]; then
+    XCFLAGS=$XCFLAGS' -DDEBUG_GCSAFETY -DNO_TYPECODES';
+  fi
 fi
 
 if [ $HSYS = acorn ] ; then
