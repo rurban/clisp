@@ -2,6 +2,7 @@
 # Bruno Haible 1990-2000
 # Marcus Daniels 11.11.1994
 
+
 # Flags intended to be set through CFLAGS:
 #   Readline library:
 #     NO_READLINE
@@ -4608,7 +4609,7 @@ typedef struct {
   void* handle;
 } * Dir_Key;
 # this is the number if OBJECTS inside Dir_Key that the GC must track
-#define dir_key_length 2
+#define dir_key_length 3
 #define dir_key_xlength (sizeof(*(Dir_Key)0)-offsetofa(record_,recdata)-dir_key_length*sizeof(object))
 #endif
 
