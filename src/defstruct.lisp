@@ -699,7 +699,8 @@
     (if named-option
       (when (eql predicate-option 0)
         (setq predicate-option (concat-pnames name "-P"))) ; defaultname
-      (unless (or (eql predicate-option 0) (eq predicate-option 'NIL))
+      (if (or (eql predicate-option 0) (eq predicate-option 'NIL))
+        (setq predicate-option 'NIL)
         (error-of-type 'source-program-error
           :form whole-form
           :detail predicate-option
@@ -1070,8 +1071,6 @@
               `(REMPROP ',name 'DEFSTRUCT-DESCRIPTION)
               `(%PUT ',name 'DEFSTRUCT-DESCRIPTION
                      (VECTOR ',type-option ,size ',keyword-constructor
-                             ',boa-constructors ',copier-option
-                             ',predicate-option
                              (LIST
                                ,@(mapcar #'(lambda (slot+initff)
                                              (let ((slot (car slot+initff)))
@@ -1079,7 +1078,9 @@
                                                  slot
                                                  (let ((i (position slot+initff slotdefaultslots)))
                                                    (if i (nth i slotdefaultvars) (cdr slot+initff))))))
-                                         slotlist)))))
+                                         slotlist))
+                             ',boa-constructors ',copier-option
+                             ',predicate-option)))
            ,(if (eq type-option 'T)
               `(CLOS::DEFINE-STRUCTURE-CLASS ',name
                  ,namesform ',keyword-constructor ',boa-constructors
