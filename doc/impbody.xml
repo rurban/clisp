@@ -1259,7 +1259,7 @@ and allow enforcing modularity.
    <ulink url="&clhs;/Body/sec_12-1-5.html">[CLHS-12.1.5]</ulink></title>
 
 <para>Complex numbers can have a real part and an imaginary part of
- different types. For example, <literal role="sexp">(sqrt
+ different types. For example, <literal role="sexp">(&sqrt;
  -9.0)</literal> evaluates to the number <literal>#C(0 3.0)</literal>,
  which has a real part of exactly <literal>0</literal>, not only
  <literal>0.0</literal> (which would mean "approximately 0").</para>
@@ -3373,10 +3373,20 @@ printed readably.</para>
    <ulink url="&clhs;/Body/sec_the_filen_s_dictionary.html"
           >[CLHS-19.4]</ulink></title>
 
-<para>&pathname; always returns a physical pathname.</para>
+<formalpara><title>Pathname Designators</title>
+ <para>When &parsename; is &nil;, &symbol-t; is also treated as a
+  <ulink url="&clhs;/Body/glo_p.html#pathname_designator">pathname
+   designator</ulink>, namely its &symbol-name; is converted to the
+  operating system's preferred pathname case.</para></formalpara>
 
-<para>&pathname-match-p; does not interpret missing components as
- wild.</para>
+<formalpara><title>&pathname;</title>
+ <para>&pathname; always returns a physical pathname.</para></formalpara>
+
+<formalpara><title>&pathname-match-p;</title>
+ <para>&pathname-match-p; does not interpret missing components as
+  wild.</para></formalpara>
+
+<section id="translate-pathname"><title>Function &translate-pathname;</title>
 
 <para>&translate-pathname; has two additional keywords: <literal
  role="sexp">(&translate-pathname; <replaceable>source</replaceable>
@@ -3392,6 +3402,8 @@ printed readably.</para>
  <replaceable>to-pathname</replaceable> are not replaced by
  corresponding pieces of <replaceable>source</replaceable>.</para>
 
+</section>
+
 <section id="parsename"><title>Function &parse-namestring;</title>
 
 <para><literal role="sexp">(&parse-namestring; &string-r; &optional-amp;
@@ -3403,14 +3415,15 @@ printed readably.</para>
  To construct a logical pathname from a string, the function
  &logical-pathname; can be used.</para>
 
-<para>The ANSI-mandated behavior of recognizing logical pathnames when
-the &string-r; begins with some alphanumeric characters followed by a
-colon (<keysym>#\:</keysym>) is very confusing (cf.
-<literal>"c:/autoexec.bat"</literal>, <literal>"home:.clisprc"</literal>
-and <literal>"prep:/pub/gnu"</literal>) and therefore disabled by default.
-To enable the ANSI standard behavior, you should set &parsename; to
-non-&nil;.</para>
-
+<para>The &ansi-cl; behavior of recognizing logical pathnames when
+ the &string-r; begins with some alphanumeric characters followed by a
+ colon (<keysym>#\:</keysym>) can be very confusing
+ (cf. <filename>"c:/autoexec.bat"</filename>,
+ <filename>"home:.clisprc"</filename> and
+ <filename>"prep:/pub/gnu"</filename>)
+ and therefore is disabled by default.
+ To enable the &ansi-cl; behavior, you should set &parsename; to
+ non-&nil;.</para>
 </section>
 
 <section id="pathmerge"><title>Function &merge-pathnames;</title>
@@ -3418,8 +3431,8 @@ non-&nil;.</para>
 <para><literal role="sexp">(&merge-pathnames; &path-r;
    [<replaceable>default-pathname</replaceable>])</literal> returns a
    logical pathname only if
- <replaceable>default-pathname</replaceable> is a logical pathname.  To
- construct a logical pathname from a string, the function
+ <replaceable>default-pathname</replaceable> is a logical pathname.
+ To construct a logical pathname from a string, the function
  &logical-pathname; can be used.</para>
 
 <para>When both &path-r; and <replaceable>default-pathname</replaceable>
@@ -3428,16 +3441,16 @@ non-&nil;.</para>
  <literal role="sexp">(&merge-pathnames; #P"x/" #P"y/")</literal>
  evaluates to <filename>#P"x/"</filename></para>
 
-<para><emphasis>Rationale</emphasis>: &merge-pathnames; is used to
- specify default components for pathnames, so there is some analogy
- between <literal role="sexp">(&merge-pathnames; a b)</literal> and
- <literal role="sexp">(or a b)</literal>.  Obviously putting in the same
- default a second time should do the same as putting it in once:
- <literal role="sexp">(or a b b)</literal> is the same as <literal
- role="sexp">(or a b)</literal>, so <literal
- role="sexp">(&merge-pathnames; (&merge-pathnames; a b) b)</literal>
- should be the same as <literal role="sexp">(&merge-pathnames; a
- b)</literal>.</para>
+<para><emphasis role="strong">Rationale</emphasis>: &merge-pathnames; is
+ used to specify default components for pathnames, so there is some
+ analogy between <literal role="sexp">(&merge-pathnames; a b)</literal>
+ and <literal role="sexp">(or a b)</literal>.  Obviously putting in the
+ same default a second time should do the same as putting it in once:
+ <literal role="sexp">(or a b b)</literal> is the same as
+ <literal role="sexp">(or a b)</literal>, so
+ <literal role="sexp">(&merge-pathnames; (&merge-pathnames; a b) b)</literal>
+ should be the same as
+ <literal role="sexp">(&merge-pathnames; a b)</literal>.</para>
 
 <para>(This question actually matters because in &cl; there is no
  distinction between <quote>pathnames with defaults merged-in</quote> and
@@ -3450,14 +3463,13 @@ non-&nil;.</para>
  strictly follow the &ansi-cl; spec.  In fact, the above twice-default =
  once-default rule holds for all pathnames in &clisp;.</para>
 
-<para>When &pathmerge; is non-&nil;, the normal
- &ansi-cl; behavior is exhibited:
+<para>Reversely, when &pathmerge; is non-&nil;,
+ the normal &ansi-cl; behavior is exhibited:
  <literal role="sexp">(&merge-pathnames; #P"x/" #P"y/")</literal>
-  evaluates to <filename>#P"y/x/"</filename></para>
+ evaluates to <filename>#P"y/x/"</filename>.</para>
 
-<para>The rationale is that <quote>merge</quote> is
- <emphasis>merge</emphasis> and not <emphasis>or</emphasis>.</para>
-
+<para><emphasis role="strong">Rationale</emphasis>: <quote>merge</quote>
+is <emphasis>merge</emphasis> and not <emphasis>or</emphasis>.</para>
 </section>
 
 <section id="load-lpt">
