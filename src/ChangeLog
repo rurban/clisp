@@ -1,5 +1,12 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * stream.d (strm_concat_list2): Remove macro.
+          (strm_concat_totallist): New macro.
+          (rd_by_concat, rd_ch_concat, pk_ch_concat, listen_concat): Simplify.
+          (make_concatenated_stream, CONCATENATED-STREAM-STREAMS): Simplify.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * debug.d (read_form): After EOF, call clear_input on istream, not on
           the concatenated-stream. This fixes a strange REP loop behaviour on
           Win32.

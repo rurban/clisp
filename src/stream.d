@@ -1115,8 +1115,8 @@ LISPFUNN(broadcast_stream_streams,1)
 # ===================
 
 # Zusätzliche Komponenten:
-  # define strm_concat_list   strm_other[0]  # Liste von Streams
-  #define strm_concat_list2  strm_other[1]  # Liste der verbrauchten Streams
+  # define strm_concat_list      strm_other[0]  # list of not exhausted streams
+  #define strm_concat_totallist  strm_other[1]  # list of all streams
 
 # READ-BYTE - Pseudofunktion für Concatenated-Streams:
   local object rd_by_concat (object stream);
@@ -1129,15 +1129,11 @@ LISPFUNN(broadcast_stream_streams,1)
       while (consp(streamlist))
         { ergebnis = read_byte(Car(streamlist)); # Integer lesen
           if (!eq(ergebnis,eof_value)) { goto OK; } # nicht EOF ?
-          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen
-          # und in die zweite Liste stecken:
+          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
           stream = STACK_0;
-         {var object first_cons = TheStream(stream)->strm_concat_list;
-          streamlist = Cdr(first_cons);
-          Cdr(first_cons) = TheStream(stream)->strm_concat_list2;
-          TheStream(stream)->strm_concat_list2 = first_cons;
-          TheStream(stream)->strm_concat_list = streamlist;
-        }}
+          streamlist =
+          TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
+        }
       # alle Streams verbraucht -> liefere EOF:
       ergebnis = eof_value;
       OK: # ergebnis fertig
@@ -1156,14 +1152,10 @@ LISPFUNN(broadcast_stream_streams,1)
          {var object ergebnis = read_char(&STACK_0); # Character lesen
           skipSTACK(1);
           if (!eq(ergebnis,eof_value)) { return ergebnis; }
-          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen
-          # und in die zweite Liste stecken:
+          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
           {var object stream = *stream_;
-           var object first_cons = TheStream(stream)->strm_concat_list;
-           streamlist = Cdr(first_cons);
-           Cdr(first_cons) = TheStream(stream)->strm_concat_list2;
-           TheStream(stream)->strm_concat_list2 = first_cons;
-           TheStream(stream)->strm_concat_list = streamlist;
+           streamlist =
+           TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
         }}}
       # alle Streams verbraucht -> liefere EOF:
       return eof_value;
@@ -1180,14 +1172,10 @@ LISPFUNN(broadcast_stream_streams,1)
          {var object ergebnis = peek_char(&STACK_0); # Character lesen
           skipSTACK(1);
           if (!eq(ergebnis,eof_value)) { return ergebnis; }
-          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen
-          # und in die zweite Liste stecken:
+          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
           {var object stream = *stream_;
-           var object first_cons = TheStream(stream)->strm_concat_list;
-           streamlist = Cdr(first_cons);
-           Cdr(first_cons) = TheStream(stream)->strm_concat_list2;
-           TheStream(stream)->strm_concat_list2 = first_cons;
-           TheStream(stream)->strm_concat_list = streamlist;
+           streamlist =
+           TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
         }}}
       # alle Streams verbraucht -> liefere EOF:
       return eof_value;
@@ -1209,15 +1197,11 @@ LISPFUNN(broadcast_stream_streams,1)
       while (consp(streamlist))
         { ergebnis = stream_listen(Car(streamlist));
           if (ergebnis>=0) { goto OK; } # nicht EOF ?
-          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen
-          # und in die zweite Liste stecken:
+          # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
           stream = STACK_0;
-         {var object first_cons = TheStream(stream)->strm_concat_list;
-          streamlist = Cdr(first_cons);
-          Cdr(first_cons) = TheStream(stream)->strm_concat_list2;
-          TheStream(stream)->strm_concat_list2 = first_cons;
-          TheStream(stream)->strm_concat_list = streamlist;
-        }}
+          streamlist =
+          TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
+        }
       # alle Streams verbraucht -> liefere EOF:
       ergebnis = signean_minus;
       OK: # ergebnis fertig
@@ -1265,8 +1249,8 @@ LISPFUNN(broadcast_stream_streams,1)
       TheStream(stream)->strm_wr_ch = P(wr_ch_dummy);
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0;
       TheStream(stream)->strm_wr_ss = P(wr_ss_dummy);
-      TheStream(stream)->strm_concat_list = popSTACK();
-      TheStream(stream)->strm_concat_list2 = NIL;
+      TheStream(stream)->strm_concat_list =
+      TheStream(stream)->strm_concat_totallist = popSTACK();
       return stream;
     }}
 
@@ -1297,10 +1281,7 @@ LISPFUNN(concatenated_stream_streams,1)
     if (!(TheStream(stream)->strmtype == strmtype_concat))
       { fehler_streamtype(stream,S(concatenated_stream)); }
     # Liste der Streams sicherheitshalber kopieren:
-    # (revappend list2 (copy-list list))
-    pushSTACK(TheStream(stream)->strm_concat_list);
-    pushSTACK(copy_list(TheStream(stream)->strm_concat_list2));
-    funcall(L(revappend),2);
+    value1 = copy_list(TheStream(stream)->strm_concat_totallist); mv_count=1;
   }
 
 
