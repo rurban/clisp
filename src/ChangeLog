@@ -1,3 +1,13 @@
+2002-06-12  Bruno Haible  <bruno@clisp.org>
+
+	* m4/lcmessage.m4 (AM_LC_MESSAGES): Don't test ac_cv_header_locale_h
+	here.
+	* m4/gettext.m4 (AM_INTL_SUBDIR): Test it here.
+	* configure.in: Call AM_LC_MESSAGES.
+	* unixconf.h.in (HAVE_LC_MESSAGES): New macro.
+	* win32.d (HAVE_LC_MESSAGES): New macro.
+	* spvw_ctype.d (init_ctype): Use HAVE_LC_MESSAGES.
+
 2002-06-12  Eduard Haritonov <hed@iis.nsk.su>
 	    Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
