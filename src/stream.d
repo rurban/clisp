@@ -15265,11 +15265,14 @@ LISPFUNN(stream_external_format,1)
     mv_count=1;
   }
 
-LISPFUNN(set_stream_external_format,1)
-# (SYSTEM::SET-STREAM-EXTERNAL-FORMAT stream external-format)
-  { var object stream = STACK_1;
+LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
+# (SYSTEM::SET-STREAM-EXTERNAL-FORMAT stream external-format [direction])
+# direction can be :INPUT or :OUTPUT or NIL.
+# If no direction is given, the operation is nonrecursive.
+  { var object stream = STACK_2;
     if (!streamp(stream)) { fehler_stream(stream); }
-   {var object encoding = test_external_format_arg(STACK_0);
+   {var object encoding = test_external_format_arg(STACK_1);
+    var object direction = STACK_0;
     start:
     switch (TheStream(stream)->strmtype)
       { case strmtype_synonym:
@@ -15278,6 +15281,61 @@ LISPFUNN(set_stream_external_format,1)
             stream = get_synonym_stream(symbol);
             goto start;
           }
+        case strmtype_broad:
+          if (eq(direction,S(Kinput)))
+            goto done;
+          if (eq(direction,S(Koutput)))
+            { # Recurse.
+              check_SP(); check_STACK();
+              pushSTACK(TheStream(stream)->strm_broad_list);
+              while (consp(STACK_0))
+                { pushSTACK(Car(STACK_0)); pushSTACK(STACK_(1+2)); pushSTACK(STACK_(0+3));
+                  C_set_stream_external_format();
+                  STACK_0 = Cdr(STACK_0);
+                }
+              skipSTACK(1);
+              encoding = STACK_1;
+              goto done;
+            }
+          goto unchangeable_external_format;
+        case strmtype_concat:
+          if (eq(direction,S(Kinput)))
+            { # Recurse.
+              check_SP(); check_STACK();
+              pushSTACK(TheStream(stream)->strm_concat_totallist);
+              while (consp(STACK_0))
+                { pushSTACK(Car(STACK_0)); pushSTACK(STACK_(1+2)); pushSTACK(STACK_(0+3));
+                  C_set_stream_external_format();
+                  STACK_0 = Cdr(STACK_0);
+                }
+              skipSTACK(1);
+              encoding = STACK_1;
+              goto done;
+            }
+          if (eq(direction,S(Koutput)))
+            goto done;
+          goto unchangeable_external_format;
+        case strmtype_twoway:
+        case strmtype_echo:
+          if (eq(direction,S(Kinput)))
+            # Recurse.
+            { stream = TheStream(stream)->strm_twoway_input; goto start; }
+          if (eq(direction,S(Koutput)))
+            # Recurse.
+            { stream = TheStream(stream)->strm_twoway_output; goto start; }
+          goto unchangeable_external_format;
+        case strmtype_str_in:
+        case strmtype_str_out:
+        case strmtype_str_push:
+        case strmtype_pphelp:
+        case strmtype_buff_in:
+        case strmtype_buff_out:
+        #ifdef GENERIC_STREAMS
+        case strmtype_generic:
+        #endif
+          if (eq(direction,S(Kinput)) || eq(direction,S(Koutput)))
+            goto done;
+          goto unchangeable_external_format;
         case strmtype_file:
         #ifdef PIPES
         case strmtype_pipe_in:
@@ -15300,13 +15358,37 @@ LISPFUNN(set_stream_external_format,1)
               }
           }
           break;
+        #ifdef SOCKET_STREAMS
+        case strmtype_twoway_socket:
+          if (eq(direction,S(Kinput)))
+            # Recurse.
+            { stream = TheStream(stream)->strm_twoway_input; goto start; }
+          if (eq(direction,S(Koutput)))
+            # Recurse.
+            { stream = TheStream(stream)->strm_twoway_output; goto start; }
+          # Recurse twice.
+          pushSTACK(TheStream(stream)->strm_twoway_output); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
+          pushSTACK(TheStream(stream)->strm_twoway_input); pushSTACK(STACK_(1+4)); pushSTACK(STACK_(0+5));
+          C_set_stream_external_format();
+          C_set_stream_external_format();
+          encoding = STACK_1;
+          goto done;
+        #endif
         default:
+          if (eq(direction,S(Kinput)))
+            if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
+              goto done;
+          if (eq(direction,S(Koutput)))
+            if ((TheStream(stream)->strmflags & strmflags_wr_B) == 0)
+              goto done;
+        unchangeable_external_format:
           if (!eq(encoding,S(Kdefault)))
             { fehler_illegal_streamop(S(set_stream_external_format),stream); }
+        done:
           value1 = encoding; break;
       }
     mv_count=1;
-    skipSTACK(2);
+    skipSTACK(3);
   }}
 
 # UP: Stellt fest, ob ein Stream "interaktiv" ist, d.h. ob Input vom Stream
