@@ -54,7 +54,8 @@ local object perchar_table_get (object table, chart c) {
     return TheSvector(table)->data[as_cint(c)];
   } else {
     var object value = gethash(code_char(c),
-                               TheSvector(table)->data[small_char_code_limit]);
+                               TheSvector(table)->data[small_char_code_limit],
+                               false);
     return (eq(value,nullobj) ? NIL : value);
   }
 }
@@ -158,7 +159,7 @@ local object allocate_syntax_table (void) {
        ? TheSbvector(Car(table))->data[as_cint(c)] \
        : syntax_table_get_notinline(table,c))
 local uintB syntax_table_get_notinline (object table, chart c) {
-  var object val = gethash(code_char(c),Cdr(table));
+  var object val = gethash(code_char(c),Cdr(table),false);
   if (!eq(val,nullobj))
     return posfixnum_to_L(val);
   else

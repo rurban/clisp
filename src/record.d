@@ -1042,7 +1042,7 @@ LISPFUNN(slot_value,2) {
   /* stack layout: instance, slot-name. */
   var object clas = class_of(STACK_1); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
-    gethash(STACK_0,TheClass(clas)->slot_location_table);
+    gethash(STACK_0,TheClass(clas)->slot_location_table,false);
   if (!eq(slotinfo,nullobj)) { /* found? */
     if (regular_instance_p(slotinfo)) {
       if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_svuc,L(pslot_value_using_class))) {
@@ -1079,7 +1079,7 @@ LISPFUNN(set_slot_value,3) {
   /* stack layout: instance, slot-name, new-value. */
   var object clas = class_of(STACK_2); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
-    gethash(STACK_1,TheClass(clas)->slot_location_table);
+    gethash(STACK_1,TheClass(clas)->slot_location_table,false);
   if (!eq(slotinfo,nullobj)) { /* found? */
     if (regular_instance_p(slotinfo)) {
       if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc,L(pset_slot_value_using_class))) {
@@ -1114,7 +1114,7 @@ LISPFUNN(slot_boundp,2) {
   /* stack layout: instance, slot-name. */
   var object clas = class_of(STACK_1); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
-    gethash(STACK_0,TheClass(clas)->slot_location_table);
+    gethash(STACK_0,TheClass(clas)->slot_location_table,false);
   if (!eq(slotinfo,nullobj)) { /* found? */
     if (regular_instance_p(slotinfo)) {
       if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_sbuc,L(pslot_boundp_using_class))) {
@@ -1144,7 +1144,7 @@ LISPFUNN(slot_makunbound,2) {
   /* stack layout: instance, slot-name. */
   var object clas = class_of(STACK_1); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
-    gethash(STACK_0,TheClass(clas)->slot_location_table);
+    gethash(STACK_0,TheClass(clas)->slot_location_table,false);
   if (!eq(slotinfo,nullobj)) { /* found? */
     if (regular_instance_p(slotinfo)) {
       if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_smuc,L(pslot_makunbound_using_class))) {
@@ -1173,7 +1173,7 @@ LISPFUNN(slot_makunbound,2) {
 LISPFUNNR(slot_exists_p,2) {
   var object clas = class_of(STACK_1); /* determine (CLASS-OF instance) */
   var object slotinfo = /* (GETHASH slot-name (class-slot-location-table class)) */
-    gethash(STACK_0,TheClass(clas)->slot_location_table);
+    gethash(STACK_0,TheClass(clas)->slot_location_table,false);
   VALUES_IF(! eq(slotinfo,nullobj)); skipSTACK(2);
 }
 
@@ -1631,7 +1631,7 @@ LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
   var object clas = class_of(instance); /* instance var is now invalid */
   { /* search (GETHASH class *REINITIALIZE-INSTANCE-TABLE*): */
     var object info =
-      gethash(clas,Symbol_value(S(reinitialize_instance_table)));
+      gethash(clas,Symbol_value(S(reinitialize_instance_table)),false);
     if (eq(info,nullobj)) {
       /* calculate hash-table-entry freshly. See clos.lisp. */
       funcall(S(initial_reinitialize_instance),argcount+1); return;
@@ -1719,7 +1719,7 @@ LISPFUN(pinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
   /* instance of <standard-class> or <structure-class>: */
   var object clas = class_of(instance); /* instance var is not invalid */
   { /* search (GETHASH class *MAKE-INSTANCE-TABLE*): */
-    var object info = gethash(clas,Symbol_value(S(make_instance_table)));
+    var object info = gethash(clas,Symbol_value(S(make_instance_table)),true);
     if (eq(info,nullobj)) {
       /* calculate hash-table-entry freshly. See clos.lisp. */
       funcall(S(initial_initialize_instance),argcount+1); return;
@@ -1894,7 +1894,7 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
   }
   { /* search (GETHASH class *MAKE-INSTANCE-TABLE*): */
     var object clas = Before(rest_args_pointer);
-    var object info = gethash(clas,Symbol_value(S(make_instance_table)));
+    var object info = gethash(clas,Symbol_value(S(make_instance_table)),false);
     if (eq(info,nullobj)) {
       /* calculate hash-table-entry freshly. See clos.lisp. */
       return_Values funcall(S(initial_make_instance),2*argcount+1);

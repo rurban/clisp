@@ -1787,7 +1787,7 @@ int main(int argc, char* argv[])
   printf("#define n_char_to_string(charptr,len,encoding)  n_char_to_string_(charptr,len)\n");
   printf("extern object n_char_to_string_ (const char* charptr, uintL len);\n");
 #endif
-  printf("extern object gethash (object obj, object ht);\n");
+  printf("extern object gethash (object obj, object ht, bool allowgc);\n");
 #ifdef UNICODE
   printf("extern object asciz_to_string (const char * asciz, object encoding);\n");
 #else

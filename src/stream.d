@@ -17180,7 +17180,7 @@ global bool stream_get_read_eval (object stream) {
     instance_update(stream,stream_forwarded);
     var object cv = TheInstance(stream_forwarded)->inst_class_version;
     var object clas = TheClassVersion(cv)->cv_class;
-    var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table);
+    var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table,false);
     var object value = TheSrecord(stream)->recdata[posfixnum_to_L(slotinfo)];
     return !nullp(value);
   }
@@ -17203,7 +17203,7 @@ global void stream_set_read_eval (object stream, bool value) {
     instance_update(stream,stream_forwarded);
     var object cv = TheInstance(stream_forwarded)->inst_class_version;
     var object clas = TheClassVersion(cv)->cv_class;
-    var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table);
+    var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table,false);
     TheSrecord(stream)->recdata[posfixnum_to_L(slotinfo)] = (value ? T : NIL);
   }
 }

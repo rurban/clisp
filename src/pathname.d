@@ -1367,7 +1367,7 @@ local uintL parse_logical_pathnamestring (zustand z) {
 local bool logical_host_p (object host) {
   return (simple_string_p(host)
           /* No need to string-upcase host, because it's tested via EQUALP. */
-          && !eq(gethash(host,Symbol_value(S(logpathname_translations))),
+          && !eq(gethash(host,Symbol_value(S(logpathname_translations)),false),
                  nullobj));
 }
 
@@ -2252,8 +2252,8 @@ LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,1,
       }
       var object host = TheLogpathname(STACK_1)->pathname_host;
       DOUT("translate-logical-pathname:",host);
-      var object translations
-        = gethash(host,Symbol_value(S(logpathname_translations)));
+      var object translations =
+        gethash(host,Symbol_value(S(logpathname_translations)),false);
       if (eq(translations,nullobj)) {
         /* STACK_1 = pathname; -- FILE-ERROR slot PATHNAME */
         STACK_0 = STACK_1;
