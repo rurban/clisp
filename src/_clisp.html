@@ -84,11 +84,11 @@ more efficiently.
 
 <DL>
 
-<DT> <A NAME="Option -h"> <CODE>-h</CODE> </A>
+<DT> <A NAME="Option -h"> <B><CODE>-h</CODE></B> </A>
 <DD> Displays a help message on how to use <CODE>clisp</CODE>.
 <P>
 
-<DT> <A NAME="Option -m"> <CODE>-m</CODE> <EM>memsize</EM> </A>
+<DT> <A NAME="Option -m"> <B><CODE>-m</CODE> <EM>memsize</EM></B> </A>
 <DD> Sets the amount of memory <CODE>clisp</CODE> tries to grab
 on startup. The amount may be given as <EM>nnnnnnn</EM> (measured in bytes),
 <EM>nnnn</EM> <CODE>K</CODE> or <EM>nnnn</EM> <CODE>KB</CODE> (measured in kilobytes) or
@@ -123,7 +123,7 @@ allocates memory dynamically.
 <P>
 
 #ifndef NO_SP_MALLOC
-<DT> <A NAME="Option -s"> <CODE>-s</CODE> <EM>stacksize</EM> </A>
+<DT> <A NAME="Option -s"> <B><CODE>-s</CODE> <EM>stacksize</EM></B> </A>
 <DD> Sets the size of the stack <CODE>clisp</CODE>
 allocates for itself. The syntax is the same as for <EM>memsize</EM>.
 Default is one eighth of <EM>memsize</EM>.
@@ -132,14 +132,14 @@ The argument is constrained between 40 KB and 8 MB.
 #endif
 
 #ifdef MULTIMAP_MEMORY_VIA_FILE
-<DT> <A NAME="Option -t"> <CODE>-t</CODE> <EM>tempdir</EM> </A>
+<DT> <A NAME="Option -t"> <B><CODE>-t</CODE> <EM>tempdir</EM></B> </A>
 <DD> Specifies the directory where the temporary core file is to be held.
 This option takes precedence over the environment variable
 <CODE>TMPDIR</CODE>.
 <P>
 #endif
 
-<DT> <A NAME="Option -B"> <CODE>-B</CODE> <EM>lisplibdir</EM> </A>
+<DT> <A NAME="Option -B"> <B><CODE>-B</CODE> <EM>lisplibdir</EM></B> </A>
 <DD> Specifies the installation directory. This is the directory containing
 the linking sets and other data files.
 #ifdef UNIX
@@ -149,14 +149,14 @@ is already built-in in the <CODE>clisp</CODE> executable.
 <P>
 
 #ifdef UNIX
-<DT> <A NAME="Option -K"> <CODE>-K</CODE> <EM>linking-set</EM> </A>
+<DT> <A NAME="Option -K"> <B><CODE>-K</CODE> <EM>linking-set</EM></B> </A>
 <DD> Specifies the linking set to be run. This is a directory containing
 at least a main executable and an initial memory image. Possible values are
 <CODE>base</CODE>, <CODE>full</CODE>. The default is <CODE>base</CODE>.
 <P>
 #endif
 
-<DT> <A NAME="Option -M"> <CODE>-M</CODE> <EM>memfile</EM> </A>
+<DT> <A NAME="Option -M"> <B><CODE>-M</CODE> <EM>memfile</EM></B> </A>
 <DD> Specifies the initial memory image.
 This must be a memory dump produced by the <EM>saveinitmem</EM> function.
 #ifdef UNIX
@@ -164,7 +164,7 @@ It may have been compressed using GNU gzip.
 #endif
 <P>
 
-<DT> <A NAME="Option -norc"> <CODE>-norc</CODE> </A>
+<DT> <A NAME="Option -norc"> <B><CODE>-norc</CODE></B> </A>
 <DD> Normally <CODE>clisp</CODE> loads a user run control (RC) file on
 startup (this happens after the <CODE>-C</CODE> option is processed).
 The file loaded is
@@ -183,7 +183,7 @@ whichever is newest. This option, <CODE>-norc</CODE>, prevents loading of
 the RC file.
 <P>
 
-<DT> <A NAME="Option -L"> <CODE>-L</CODE> <EM>language</EM> </A>
+<DT> <A NAME="Option -L"> <B><CODE>-L</CODE> <EM>language</EM></B> </A>
 <DD> Specifies the language <CODE>clisp</CODE>
 uses to communicate with the user. This may be
 #ifndef GNU_GETTEXT
@@ -198,13 +198,13 @@ provided the corresponding message catalog is installed.
 #endif
 <P>
 
-<DT> <A NAME="Option -N"> <CODE>-N</CODE> <EM>localedir</EM> </A>
+<DT> <A NAME="Option -N"> <B><CODE>-N</CODE> <EM>localedir</EM></B> </A>
 <DD> Specifies the base directory of locale files. <CODE>clisp</CODE>
 will search its message catalogs in
 <EM>localedir</EM><CODE>/</CODE><EM>language</EM><CODE>/LC_MESSAGES/clisp.</CODE><EM>ext</EM>.
 <P>
 
-<DT> <A NAME="Option -E"> <CODE>-E</CODE><EM>domain</EM> <EM>encoding</EM> </A>
+<DT> <A NAME="Option -E"> <B><CODE>-E</CODE><EM>domain</EM> <EM>encoding</EM></B> </A>
 <DD> Specifies the encoding used for a given domain, overriding the default
 which depends on the environment variables <CODE>LC_ALL</CODE>,
 <CODE>LC_CTYPE</CODE>, <CODE>LANG</CODE>. <EM>domain</EM> can be
@@ -214,16 +214,16 @@ which depends on the environment variables <CODE>LC_ALL</CODE>,
 <CODE>foreign</CODE>, affecting <CODE>*foreign-encoding*</CODE>, or
 <CODE>misc</CODE>, affecting <CODE>*misc-encoding*</CODE>.
 
-<DT> <A NAME="Option -q"> <CODE>-q</CODE> </A>
+<DT> <A NAME="Option -q"> <B><CODE>-q</CODE></B> </A>
 <DD> Quiet: <CODE>clisp</CODE>
 displays no banner at startup and no good-bye message when quitting.
 <P>
 
-<DT> <A NAME="Option -w"> <CODE>-w</CODE> </A>
+<DT> <A NAME="Option -w"> <B><CODE>-w</CODE></B> </A>
 <DD> Wait for keypress after program termination.
 <P>
 
-<DT> <A NAME="Option -I"> <CODE>-I</CODE> </A>
+<DT> <A NAME="Option -I"> <B><CODE>-I</CODE></B> </A>
 <DD> ILISP friendly: <CODE>clisp</CODE>
 interacts in a way that ILISP (a popular Emacs LISP interface) can deal with.
 Currently the only effect of this is that unnecessary prompts are not
@@ -234,45 +234,45 @@ character.
 #endif
 <P>
 
-<DT> <A NAME="Option -C"> <CODE>-C</CODE> </A>
+<DT> <A NAME="Option -C"> <B><CODE>-C</CODE></B> </A>
 <DD> Compile when load: At startup the value of the variable
 <CODE>*load-compiling*</CODE> will be set to <CODE>t</CODE>.
 Code being <CODE>load</CODE>ed will then be compiled on the fly. This results
 in slower loading, but faster execution.
 <P>
 
-<DT> <A NAME="Option -i"> <CODE>-i</CODE> <EM>initfile</EM> ... </A>
+<DT> <A NAME="Option -i"> <B><CODE>-i</CODE> <EM>initfile</EM> ...</B> </A>
 <DD> Specifies initialization files to be <CODE>load</CODE>ed
 at startup. These should be lisp files (source or compiled).
 <P>
 
-<DT> <A NAME="Option -c"> <CODE>-c</CODE> <EM>lispfile</EM> ... </A>
+<DT> <A NAME="Option -c"> <B><CODE>-c</CODE> <EM>lispfile</EM> ...</B> </A>
 <DD> Compiles the specified <EM>lispfile</EM>s to bytecode. The compiled files
 can then be <CODE>load</CODE>ed instead of the sources to gain efficiency.
 <P>
 
-<DT> <A NAME="Option -o"> <CODE>-o</CODE> <EM>outputfile</EM> </A>
+<DT> <A NAME="Option -o"> <B><CODE>-o</CODE> <EM>outputfile</EM></B> </A>
 <DD> Specifies the output file or directory for the compilation of the last
 specified <EM>lispfile</EM>.
 <P>
 
-<DT> <A NAME="Option -l"> <CODE>-l</CODE> </A>
+<DT> <A NAME="Option -l"> <B><CODE>-l</CODE></B> </A>
 <DD> A bytecode listing of the files being compiled will be produced.
 Useful only for debugging purposes.
 <P>
 
-<DT> <A NAME="Option -p"> <CODE>-p</CODE> <EM>packagename</EM> </A>
+<DT> <A NAME="Option -p"> <B><CODE>-p</CODE> <EM>packagename</EM></B> </A>
 <DD> At startup the value of the variable <CODE>*package*</CODE> will
 be set to the package named <EM>packagename</EM>.
 <P>
 
-<DT> <A NAME="Option -a"> <CODE>-a</CODE> </A>
+<DT> <A NAME="Option -a"> <B><CODE>-a</CODE></B> </A>
 <DD> ANSI CL compliant: Comply with the ANSI CL specification even on
 those issues where ANSI CL is broken. This option is provided for maximum
 portability of Lisp programs. It is not useful for actual everyday work.
 <P>
 
-<DT> <A NAME="Option -x"> <CODE>-x</CODE> <EM>expressions</EM> </A>
+<DT> <A NAME="Option -x"> <B><CODE>-x</CODE> <EM>expressions</EM></B> </A>
 <DD> Executes a series of arbitrary expressions instead of a read-eval-print loop.
 The values of the expressions will be output to standard output.
 Due to the argument processing done by the shell, the <EM>expressions</EM>
@@ -280,7 +280,7 @@ must be enclosed in double quotes, and double quotes and backslashes must
 be preceded by backslashes.
 <P>
 
-<DT> <A NAME="Option exec"> <EM>lispfile</EM> [ <EM>argument</EM> ... ]</A>
+<DT> <A NAME="Option exec"> <B><EM>lispfile</EM> [ <EM>argument</EM> ... ]</B> </A>
 <DD> Loads and executes a <EM>lispfile</EM>. There will be no read-eval-print
 loop. Before <EM>lispfile</EM> is loaded, the variable <CODE>*args*</CODE>
 will be bound to a list of strings, representing the <EM>argument</EM>s.
