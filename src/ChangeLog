@@ -1,7 +1,7 @@
 2004-04-19  Sam Steingold  <sds@gnu.org>
 
-	* eval.d (CHECK_FDEF): save the return value of
-	check_fdefinition() in Symbol_function(symbol)
+	* eval.d (CHECK_FDEF): use the return value of
+	check_fdefinition() instead of Symbol_function(symbol)
 
 2004-04-11  Bruno Haible  <bruno@clisp.org>
 
