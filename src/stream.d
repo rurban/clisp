@@ -7883,7 +7883,8 @@ local void close_buffered (object stream) {
 LISPFUNNF(file_stream_p,1)
 { /* (SYS::FILE-STREAM-P stream) == (TYPEP stream 'FILE-STREAM) */
   var object arg = popSTACK();
-  VALUES_IF(builtin_stream_p(arg) && (TheStream(arg)->strmtype == strmtype_file));
+  VALUES_IF(builtin_stream_p(arg) &&
+            (TheStream(arg)->strmtype == strmtype_file));
 }
 
 
@@ -16986,18 +16987,20 @@ local bool test_endianness_arg (object arg) {
 }
 
 
-# UP: give away corresponding underlying handle
-# making sure buffers were flushed. One can then use the
-# handle outside of stream object as far as the latter
-# is not used and not GCed.
-# stream_lend_handle(stream, inputp, handletype)
-# > stream: stream for handle to extract
-# > inputp: whether it input or output side is requested.
-# < int * handletype 0:reserved, 1:file, 2:socket
-# < Handle result - extracted handle
-# can trigger GC
-global Handle stream_lend_handle (object stream, bool inputp, int * handletype) {
-  # TODO: use finish-output ?
+/* UP: give away corresponding underlying handle
+ making sure buffers were flushed. One can then use the
+ handle outside of stream object as far as the latter
+ is not used and not GCed.
+ stream_lend_handle(stream, inputp, handletype)
+ > stream: stream for handle to extract
+ > inputp: whether its input or output side is requested.
+ < int * handletype 0:reserved, 1:file, 2:socket
+ < Handle result - extracted handle
+ can trigger GC */
+global Handle stream_lend_handle (object stream, bool inputp, int * handletype)
+{
+ restart_stream_lend_handle:
+  /* TODO: use finish-output ? */
   if (builtin_stream_p(stream)) {
     switch (TheStream(stream)->strmtype) {
       case strmtype_file:
@@ -17010,7 +17013,8 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype) 
           return TheHandle(TheStream(stream)->strm_ichannel);
         } else if (!inputp && TheStream(stream)->strmflags & strmflags_wr_B) {
           *handletype = 1;
-          if (ChannelStream_buffered(stream)) {# reposition index back to not yet read position
+          if (ChannelStream_buffered(stream)) {
+            /* reposition index back to not yet read position */
             sync_file_buffered(stream);
             return TheHandle(TheStream(stream)->strm_buffered_channel);
           }
@@ -17018,33 +17022,38 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype) 
         }
       case strmtype_twoway:
       case strmtype_echo:
-        return stream_lend_handle(TheStream(stream)->strm_twoway_input,inputp,handletype);
+        return stream_lend_handle(TheStream(stream)->strm_twoway_input,
+                                  inputp,handletype);
       case strmtype_synonym:
-        return stream_lend_handle(resolve_synonym_stream(stream),inputp,handletype);
+        return stream_lend_handle(resolve_synonym_stream(stream),
+                                  inputp,handletype);
       #ifdef KEYBOARD
       case strmtype_keyboard:
-#if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS) || defined(WIN32_NATIVE)
+       #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS) || defined(WIN32_NATIVE)
         if (inputp) {
           *handletype = 1;
           return TheHandle(TheStream(stream)->strm_keyboard_handle);
         }
-#endif
+       #endif
         break;
       #endif
       case strmtype_terminal:
-        # fixme: no actual need to flush
+        /* FIXME: no actual need to flush */
         *handletype = 1;
         return TheHandle(inputp?TheStream(stream)->strm_terminal_ihandle:
-          TheStream(stream)->strm_terminal_ohandle);
+                         TheStream(stream)->strm_terminal_ohandle);
       default:
         break;
     }
   }
-  pushSTACK(stream);                      # TYPE-ERROR slot DATUM
-  pushSTACK(O(type_open_file_stream));    # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(NIL);                      /* no PLACE */
+  pushSTACK(stream);                   /* TYPE-ERROR slot DATUM */
+  pushSTACK(O(type_open_file_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(stream);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: argument ~ does not contain a valid OS stream handle"));
+  check_value(type_error,GETTEXT("~: argument ~ does not contain a valid OS stream handle"));
+  stream = value1;
+  goto restart_stream_lend_handle;
 }
 
 # (READ-BYTE stream [eof-error-p [eof-value]]), CLTL p. 382
