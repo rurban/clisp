@@ -1164,14 +1164,7 @@
 ;; ASSERT, CLtL2 p. 891
 (defmacro assert (test-form &optional (place-list nil) (datum nil) &rest args)
   (let ((tag1 (gensym))
-        (tag2 (gensym))
-        (reporter `(lambda (stream)
-                     (format stream
-                             (,(case (length place-list)
-                                     (0 'REPORT-NO-NEW-VALUE-STRING)
-                                     (1 'REPORT-ONE-NEW-VALUE-STRING)
-                                     (t 'REPORT-NEW-VALUES-STRING)))
-                             ',place-list))))
+        (tag2 (gensym)))
     `(flet ((assert-restart-prompt ()
               (nconc
                ,@(mapcar #'(lambda (place)
@@ -1191,7 +1184,13 @@
                   `("~A" (ASSERT-ERROR-STRING ',test-form))))
            ;; only one restart: CONTINUE
            (CONTINUE
-             :REPORT ,reporter
+             :REPORT (LAMBDA (STREAM)
+                       (FORMAT STREAM
+                               (,(case (length place-list)
+                                   (0 'REPORT-NO-NEW-VALUE-STRING)
+                                   (1 'REPORT-ONE-NEW-VALUE-STRING)
+                                   (t 'REPORT-NEW-VALUES-STRING)))
+                               ',place-list))
              :INTERACTIVE ,(if place-list
                              'assert-restart-prompt
                              'assert-restart-no-prompts)
@@ -1235,8 +1234,11 @@
       (let ((*active-restarts* (nconc restarts *active-restarts*)))
         (error condition)))))
 
+;; Report an error and try to recover by asking the user to supply a value.
+;; Returns
+;; 1. value supplied by the user,
+;; 2. a boolean indicating whether PLACE should be filled, or 0 for FDEFINITION
 (defun check-value (place condition)
-  ;; 2 values: new-value, store-p (0 for check_fdefinition())
   (let ((restarts
          (nconc
           (list (make-restart

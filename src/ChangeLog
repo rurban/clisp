@@ -1,3 +1,8 @@
+2005-01-01  Bruno Haible  <bruno@clisp.org>
+
+	* condition.lisp (assert): Simplify.
+	(check-value): Comments.
+
 2004-12-24  Bruno Haible  <bruno@clisp.org>
 
 	* foreign.d (convert_to_foreign): When converting to
