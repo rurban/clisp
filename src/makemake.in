@@ -41,13 +41,14 @@ options:
        --with-threads=FLAVOR   MT [_experimental_!]
                                FLAVOR: POSIX_THREADS POSIXOLD_THREADS
                                        SOLARIS_THREADS C_THREADS WIN32_THREADS
-       --with-module=wildcard
-       --with-module=regexp
-       --with-module=postgresql632
-       --with-module=postgresql642
+       --with-module=bindings/amigaos
        --with-module=bindings/linuxlibc5
        --with-module=bindings/linuxlibc6
-       --with-module=bindings/amigaos
+       --with-module=dirkey
+       --with-module=postgresql
+       --with-module=regexp
+       --with-module=syscalls
+       --with-module=wildcard
 debug: Specify this if you expect that you will need to debug the sources.
 Example:
        ./makemake --with-dynamic-ffi > Makefile
@@ -1702,10 +1703,12 @@ echol "DESTDIR ="
 echol
 echol     "# List of add-on modules:"
 echol     "# queens               the queens function as a separate module"
+echol     "# dirkey               the directory access (LDAP, win32 registry)"
+echol     "# syscalls             export some POSIX (and other) system calls"
 if test -n "$with_dynamic_ffi"; then
   echol   "# wildcard             wildcard matching"
   echol   "# regexp               Unix-style regular expression matching and searching"
-  echol   "# postgresql           PostgreSQL interface"
+  echol   "# postgresql           interface to PostgreSQL ODBMS"
   if [ "$cpu" = i386 -a "$TSYSOS" = linux ] ; then
     echol "# bindings/linuxlibc5  Linux libc/libm bindings (lib[cm]4, lib[cm]5 only)"
     echol "# bindings/linuxlibc6  Linux libc/libm bindings (lib[cm]6 only)"
