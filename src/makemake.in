@@ -1643,6 +1643,10 @@ if [ $TSYS = win32msvc ] ; then
   echol '!endif'
   echol
 fi
+if p ${TSYS} = win32gcc ]; then
+  echol "PATH=/bin:."
+  echol
+fi
 echol '# Directories used by "make install":'
 echol "prefix = ${PREFIX}"
 echol "exec_prefix = ${EXEC_PREFIX}"
@@ -3037,11 +3041,13 @@ else
   manualx_readline=''
 fi
 echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi`
-echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}"
+echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) impnotes.html clisp.png${manual_readline}"
 echol
-echol "impnotes.html : ${DOCDIR_M}impnotes.html"
-echotab "\$(CP) ${DOCDIR_M}impnotes.html impnotes.html"
-echol
+for f in impnotes.html clisp.png ; do
+  echol "${f} : ${DOCDIR_M}${f}"
+  echotab "\$(CP) ${DOCDIR_M}${f} ${f}"
+  echol
+done
 # On Unix, clisp.dvi must be built by "make all", because "make install" needs
 # it and "make install" must not create files in the current directory, for
 # compliance with the GNU standards. On other OSes, clisp.dvi must be built
@@ -3068,7 +3074,7 @@ for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY ; do
   echol
 done
 
-for f in NEWS clisp.gif .clisp .gdbinit ; do
+for f in NEWS clisp.png .clisp .gdbinit ; do
   if [ -n "${SRCDIR}" ] ; then
     echol "${f} : ${SRCDIR}${f}"
     echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
@@ -3493,7 +3499,7 @@ fi
 echotab "mkdir \$(TOPDIR)/data"
 echotab "${HLN} data/* \$(TOPDIR)/data"
 echotab "mkdir \$(TOPDIR)/doc"
-echotab "${HLN} clisp.1 clisp.man${manual_dvi} clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
+echotab "${HLN} clisp.1 clisp.man${manual_dvi} clisp.html \$(TXTFILES) impnotes.html clisp.png${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
 echotab "mkdir \$(TOPDIR)/src"
 echotab "${HLN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src"
 echotab "${HLN} clisp-link \$(TOPDIR)"
@@ -3572,7 +3578,7 @@ if [ $HOS = win32 ] ; then
   echotab "  cp -p \$\$f \$\$distdir/\$\$f ; \\"
   echotab "done ; \\"
   echotab "mkdir \$\$distdir/doc ; \\"
-  echotab "for f in clisp.1 clisp.man clisp.html \$(TXTFILES) impnotes.html clisp.gif ; do \\"
+  echotab "for f in clisp.1 clisp.man clisp.html \$(TXTFILES) impnotes.html clisp.png ; do \\"
   echotab "  if test -f \$\$f ; then cp -p \$\$f \$\$distdir/doc/\$\$f ; else cp -p \`echo \$\$f | tr '[A-Z]' '[a-z]'\` \$\$distdir/doc/\$\$f ; fi ; \\"
   echotab "done ; \\"
   echotab "mkdir \$\$distdir/src ; \\"
@@ -3672,7 +3678,7 @@ cat <<!!
 echol "clean5 : clean4"
 echotab "-\$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY"
 if [ -n "${SRCDIR}" ] ; then
-  echotab "-\$(RM) \$(DFILES) modules.h \$(LISPFILES) version.h NEWS clisp.gif"
+  echotab "-\$(RM) \$(DFILES) modules.h \$(LISPFILES) version.h NEWS clisp.png"
   if [ $HOS = unix -a $CROSS = false ] ; then
     echotab "-\$(RM) .clisp .gdbinit"
   fi
