@@ -2685,6 +2685,7 @@ local void usage (int exit_code)
       if (!argv_quiet)
         { local const char * const banner[] = { # einige Zeilen à 66 Zeichen
           #  |Spalte 0           |Spalte 20                                    |Spalte 66
+          # "012345678901234567890123456789012345678901234567890123456789012345678901"
             "  i i i i i i i       ooooo    o        ooooooo   ooooo   ooooo   " NLstring,
             "  I I I I I I I      8     8   8           8     8     o  8    8  " NLstring,
             "  I I I I I I I      8         8           8     8        8    8  " NLstring,
