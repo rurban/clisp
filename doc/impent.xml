@@ -79,6 +79,7 @@
 <!ENTITY custom-pac "<link linkend='customize'><quote>CUSTOM</quote></link>">
 <!ENTITY charset-pac "<link linkend='encoding'><quote>CHARSET</quote></link>">
 <!ENTITY ffi-pac "<link linkend='dffi'><quote>FFI</quote></link>">
+<!ENTITY affi-pac "<link linkend='affi'><quote>AFFI</quote></link>">
 <!ENTITY screen-pac "<link linkend='screen'><quote>SCREEN</quote></link>">
 <!-- * redefines the entity in cl-ent.xml * -->
 <!ENTITY clu-pac "<link linkend='clupack'><quote>COMMON-LISP-USER</quote></link>">
