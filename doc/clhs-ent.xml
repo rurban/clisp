@@ -308,7 +308,6 @@
 <!ENTITY decf "<ulink url='&clhs;/Body/mac_incfcm_decf.html'><function>DECF</function></ulink>">
 <!ENTITY declaim "<ulink url='&clhs;/Body/mac_declaim.html'><function>DECLAIM</function></ulink>">
 <!ENTITY declaration-dec "<ulink url='&clhs;/Body/dec_declaration.html'><literal>DECLARATION</literal></ulink>">
-<!ENTITY declaration-specifier-glo "<ulink url='&clhs;/Body/glo_d.html#declaration_specifier'>declaration specifier</ulink>">
 <!ENTITY declare "<ulink url='&clhs;/Body/sym_declare.html'><function>DECLARE</function></ulink>">
 <!ENTITY decode-float "<ulink url='&clhs;/Body/fun_decode-fl_decode-float.html'><function>DECODE-FLOAT</function></ulink>">
 <!ENTITY decode-universal-time "<ulink url='&clhs;/Body/fun_decode-universal-time.html'><function>DECODE-UNIVERSAL-TIME</function></ulink>">
@@ -776,8 +775,6 @@
 <!ENTITY progn "<ulink url='&clhs;/Body/speope_progn.html'><function>PROGN</function></ulink>">
 <!ENTITY program-error-t "<ulink url='&clhs;/Body/contyp_program-error.html'><classname>PROGRAM-ERROR</classname></ulink>">
 <!ENTITY progv "<ulink url='&clhs;/Body/speope_progv.html'><function>PROGV</function></ulink>">
-<!ENTITY proper-list-glo "<ulink url='&clhs;/Body/glo_p.html#proper_list'>proper list</ulink>">
-<!ENTITY proper-name-glo "<ulink url='&clhs;/Body/glo_p.html#proper_name'>proper name</ulink>">
 <!ENTITY provide "<ulink url='&clhs;/Body/fun_providecm_require.html'><function>PROVIDE</function></ulink>">
 <!ENTITY psetf "<ulink url='&clhs;/Body/mac_setfcm_psetf.html'><function>PSETF</function></ulink>">
 <!ENTITY psetq "<ulink url='&clhs;/Body/mac_psetq.html'><function>PSETQ</function></ulink>">
