@@ -127,3 +127,8 @@ NIL
   (bar zz 12)
   zz)
 (12 . 2)
+
+
+; Clean up.
+(unintern 'x)
+T

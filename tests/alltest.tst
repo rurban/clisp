@@ -2534,3 +2534,8 @@ T ;?
 ;case-every, comment, cond-every, displace, return, return-from, ACCESS, BOOLE,
 ;call-arguments-limit, DEFUN, errset, *errset*, *macroexpand-hook*, *package*,
 ;*random-state*, *SAVE-OLD-DEFINITION-WHEN-REDEFINED*,
+
+
+; Clean up.
+(UNINTERN 'X)
+T

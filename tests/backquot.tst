@@ -329,3 +329,8 @@ X
 
 (let ((a 12)) (macrolet ((b () (let ((c 19)) ``(,a ,@',@(list c))))) (b)))
 (12 . 19)
+
+
+; Clean up.
+(unintern 'x)
+T

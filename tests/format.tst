@@ -1188,6 +1188,11 @@ def"
 
 def")
 
+
+; Cleanup.
+(unintern 'x)
+T
+
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
 ;; eval: (remove-hook 'write-file-functions 'delete-trailing-whitespace t)
