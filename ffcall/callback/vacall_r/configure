@@ -7340,7 +7340,12 @@ extern
 #ifdef __cplusplus
 "C"
 #endif
+
+#if defined(__STDC__) || defined(__cplusplus)
 int abort();
+#else
+int abort();
+#endif
 
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus
@@ -7389,7 +7394,12 @@ extern
 #ifdef __cplusplus
 "C"
 #endif
+
+#if defined(__STDC__) || defined(__cplusplus)
 $cl_cv_proto_abort_ret abort();
+#else
+$cl_cv_proto_abort_ret abort();
+#endif
 
 #ifdef F77_DUMMY_MAIN
 #  ifdef __cplusplus

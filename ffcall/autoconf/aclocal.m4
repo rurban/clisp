@@ -4330,13 +4330,14 @@ CL_PROTO_RET([
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [int abort();], cl_cv_proto_abort_ret, int, void)
+], [int abort();], [int abort();], cl_cv_proto_abort_ret, int, void)
 CL_PROTO_RET([
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [$cl_cv_proto_abort_ret abort();], cl_cv_proto_abort_vol, [], [__volatile__])
+], [$cl_cv_proto_abort_ret abort();], [$cl_cv_proto_abort_ret abort();],
+cl_cv_proto_abort_vol, [], [__volatile__])
 ], [extern $cl_cv_proto_abort_vol $cl_cv_proto_abort_ret abort (void);])
 AC_DEFINE_UNQUOTED(RETABORTTYPE,$cl_cv_proto_abort_ret)
 AC_DEFINE_UNQUOTED(ABORT_VOLATILE,$cl_cv_proto_abort_vol)
@@ -4363,11 +4364,16 @@ AC_MSG_RESULT([$]{ac_t:-
          }[$]cl_cv_proto_$1)
 ])
 
-dnl CL_PROTO_RET(INCLUDES, DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
+dnl CL_PROTO_RET(INCLUDES, ANSI-DECL, TRAD-DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
 AC_DEFUN([CL_PROTO_RET],
 [AC_TRY_COMPILE([$1]
-AC_LANG_EXTERN[$2
-], [], $3="$4", $3="$5")
+AC_LANG_EXTERN
+[#if defined(__STDC__) || defined(__cplusplus)
+$2
+#else
+$3
+#endif
+], [], $4="$5", $4="$6")
 ])
 
 dnl CL_PROTO_TRY(INCLUDES, ANSI-DECL, TRAD-DECL, ACTION-IF-OK, ACTION-IF-FAILS)
@@ -4559,7 +4565,8 @@ CL_PROTO_RET([
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [int free();], cl_cv_proto_free_ret, int, void)],
+], [int free($cl_cv_proto_malloc_ret);], [int free();],
+cl_cv_proto_free_ret, int, void)],
 [extern $cl_cv_proto_free_ret free ($cl_cv_proto_malloc_ret);])
 AC_DEFINE_UNQUOTED(RETFREETYPE,$cl_cv_proto_free_ret)
 ])
@@ -4646,7 +4653,8 @@ CL_PROTO_RET([
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [int getpagesize();], cl_cv_proto_getpagesize_ret, int, size_t)
+], [int getpagesize();], [int getpagesize();],
+cl_cv_proto_getpagesize_ret, int, size_t)
 ], [extern $cl_cv_proto_getpagesize_ret getpagesize (void);])
 AC_DEFINE_UNQUOTED(RETGETPAGESIZETYPE,$cl_cv_proto_getpagesize_ret)
 else
@@ -5153,6 +5161,12 @@ CL_PROTO_RET([
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+], [
+#ifdef __cplusplus
+void* shmat(int, const void *, int);
+#else
+void* shmat();
+#endif
 ], [void* shmat();],
 cl_cv_proto_shmat_ret, [void*], [char*])
 CL_PROTO_CONST([
