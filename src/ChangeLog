@@ -1,5 +1,13 @@
 1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
+        * record.d (SLOT-VALUE): Return only the first return value of
+          SLOT-UNBOUND.
+          (SYS::SET-SLOT-VALUE): Ignore the return values of SLOT-MISSING.
+          (SLOT-BOUNDP, SLOT-MAKUNBOUND): Return only the first return value
+          of SLOT-MISSING.
+
+1998-05-17  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
         * lfloat.d (LF_decode): Declare a subexpression as possibly unused.
 
 1998-08-14  Jörg Höhle  <hoehle@tzd.telekom.de>
