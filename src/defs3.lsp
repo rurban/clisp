@@ -7,10 +7,10 @@
 (defpackage "COMMON-LISP"
   (:nicknames "CL")
   (:use "LISP" "CLOS")
-  (:shadow "MAKE-PACKAGE" "FLET" "LABELS" "MACROLET")
+  (:shadow "MAKE-PACKAGE" "IN-PACKAGE" "FLET" "LABELS" "MACROLET")
 )
 
-(in-package "COMMON-LISP")
+(lisp:in-package "COMMON-LISP")
 
 ;;; Exportierungen:
 ;; Nur in ANSI Common Lisp (CLtL2 bzw. ANSI-CL) explizit erwähnte Symbole!
@@ -214,10 +214,26 @@ standard
 
 ;===============================================================================
 
-(in-package "SYSTEM")
+(lisp:in-package "SYSTEM")
 
 (defun common-lisp:make-package (package-name &key (nicknames '()) (use '("COMMON-LISP")))
   (lisp:make-package package-name :nicknames nicknames :use use)
+)
+
+(defmacro common-lisp:in-package (package-name)
+  (cond ((stringp package-name))
+        ((symbolp package-name) (setq package-name (symbol-name package-name)))
+        (t (error-of-type 'source-program-error
+             (DEUTSCH "~S: Argument muß ein String oder Symbol sein, nicht ~S."
+              ENGLISH "~S: argument ~S should be a string or a symbol"
+              FRANCAIS "~S : L'argument doit être un symbole ou une chaîne et non ~S.")
+             'common-lisp:in-package package-name
+  )     )  )
+  ; package-name is now a string.
+  `(EVAL-WHEN (COMPILE LOAD EVAL)
+     (SYS::%FIND-PACKAGE ,package-name)
+     (LISP:IN-PACKAGE ,package-name)
+   )
 )
 
 ;; These definitions conform to CLtL2.
