@@ -241,6 +241,10 @@
 <!ENTITY st-uc "<link linkend='st-uc'><function>GRAY:STREAM-UNREAD-CHAR</function></link>">
 <!ENTITY need-defmethod "<simpara>You must define a method for this function.</simpara>">
 <!ENTITY weak-pointer "<link linkend='weak'><classname>EXT:WEAK-POINTER</classname></link>">
+<!ENTITY muffle-cerrors "<link linkend='muffle-cerrors'>EXT:MUFFLE-CERRORS</link>">
+<!ENTITY appease-cerrors "<link linkend='appease-cerrors'>EXT:APPEASE-CERRORS</link>">
+<!ENTITY exit-on-error "<link linkend='exit-on-error'>EXT:EXIT-ON-ERROR</link>">
+<!ENTITY with-restarts "<link linkend='with-restarts'>EXT:WITH-RESTARTS</link>">
 
 <!-- *** gettext *** -->
 <!ENTITY ggettext "&gnu; <ulink url='http://www.gnu.org/software/gettext/gettext.html'>gettext</ulink>">
@@ -403,6 +407,7 @@
 <!ENTITY interp-r "<replaceable>interpreter</replaceable>">
 <!ENTITY interp-args "<replaceable>interpreter-arguments</replaceable>">
 <!ENTITY clisp-cmd "<command>clisp</command>">
+<!ENTITY args "<link linkend='script-exec'><varname>EXT:*ARGS*</varname></link>">
 
 <!ENTITY cpu-type-header "<colspec colname='vars'/><colspec colname='b16'/>
  <colspec colname='b32'/><colspec colname='b64'/>

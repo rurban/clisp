@@ -883,38 +883,31 @@ is the same as
  there is one) lists the available <link linkend="debugger">debugging
  commands</link>.</para>
 
-<formalpara><title>Macro <function>EXT:MUFFLE-CERRORS</function></title>
-<para>The macro <literal
- role="sexp">(<function>EXT:MUFFLE-CERRORS</function>
- {&form-r;}*)</literal> executes the &form-r;s.  When a continuable
- error occurs, no message is printed.  Instead, the &continue; restart
- is invoked.</para></formalpara>
+<formalpara id="muffle-cerrors"><title>Macro &muffle-cerrors;</title>
+<para>The macro <literal role="sexp">(&muffle-cerrors; {&form-r;}*)</literal>
+ executes the &form-r;s.  When a continuable error occurs, no message is
+ printed, instead, the &continue; &restart-t; is invoked.</para></formalpara>
 
-<formalpara><title>Macro <function>EXT:APPEASE-CERRORS</function></title>
-<para>The macro <literal
- role="sexp">(<function>EXT:APPEASE-CERRORS</function>
- {&form-r;}*)</literal> executes the &form-r;s.  When a continuable
- error occurs, the error is printed as a warning and the &continue;
- restart is invoked.</para></formalpara>
+<formalpara id="appease-cerrors"><title>Macro &appease-cerrors;</title>
+<para>The macro <literal role="sexp">(&appease-cerrors; {&form-r;}*)</literal>
+ executes the &form-r;s.  Continuable errors are reported as warnings
+ and the &continue; &restart-t; is invoked.</para></formalpara>
 
-<formalpara><title>Macro <function>EXT:EXIT-ON-ERROR</function></title>
-<para>The macro <literal
- role="sexp">(<function>EXT:EXIT-ON-ERROR</function>
- {&form-r;}*)</literal> executes the &form-r;s.  When a non-continuable
- error or a <keycombo>&ctrl;<keysym>C</keysym></keycombo>
- interrupt occurs, the error is printed and &clisp; terminates with an
- error status.</para></formalpara>
+<formalpara id="exit-on-error"><title>Macro &exit-on-error;</title>
+<para>The macro <literal role="sexp">(&exit-on-error; {&form-r;}*)</literal>
+ executes the &form-r;s.  When a non-continuable error or
+ a <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupt occurs, the
+ error message is printed and &clisp; terminates with an error
+ status.</para></formalpara>
 
-<formalpara><title>Macro <function>EXT:WITH-RESTARTS</function></title>
-<para>The macro <function>EXT:WITH-RESTARTS</function> is like
- &restart-case;, except that the forms are specified after the restart
- clauses instead of before them, and the restarts created are not
- implicitly associated to any &condition-t;.
- <literal role="sexp">(<function>EXT:WITH-RESTARTS</function>
- ({<varname>restart-clause</varname>}*) {&form-r;}*)</literal> is
- therefore equivalent to <literal role="sexp">(&restart-case; (&progn;
- {&form-r;}*) {<varname>restart-clause</varname>}*)</literal>.
-</para></formalpara>
+<formalpara id="with-restarts"><title>Macro &with-restarts;</title>
+<para>The macro &with-restarts; is like &restart-case;, except that the
+ forms are specified after the restart clauses instead of before them,
+ and the restarts created are not implicitly associated with any &condition-t;.
+ <literal role="sexp">(&with-restarts; ({<varname>restart-clause</varname>}*)
+ {&form-r;}*)</literal> is therefore equivalent to
+ <literal role="sexp">(&restart-case; (&progn; {&form-r;}*)
+ {<varname>restart-clause</varname>}*)</literal>.</para></formalpara>
 
 <section id="cond-nl"><title>Embedded Newlines in Condition Reports
    <ulink url="&clhs;/Body/sec_9-1-3-1-3.html">[CLHS-9.1.3.1.3]</ulink></title>
