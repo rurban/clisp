@@ -605,11 +605,11 @@
     (let (h)
       (if (and (symbolp form)
                (symbol-macro-p (setq h (venv-assoc form *venv*))))
-        (values (sys::%record-ref h 0) t)
+        (values (%expand-form (sys::%record-ref h 0)) t)
         (values form nil)))
     #-COMPILER
     (if (and (symbolp form) (symbol-macro-p (venv-assoc form *venv*)))
-      (values (sys::%record-ref (venv-assoc form *venv*) 0) t)
+      (values (%expand-form (sys::%record-ref (venv-assoc form *venv*) 0)) t)
       (values form nil))
     ;; form is a CONS
     (let ((f (first form)))
