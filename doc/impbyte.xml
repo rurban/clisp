@@ -97,7 +97,7 @@ It does not survive a function call, not even a garbage collection.</para>
 
 <para>The interpretation of some bytecode instructions depends on a
 constant, &jbs;.  This is a CPU-dependent number, the value of
-<varname>system::*jmpbuf-size*</varname>.  In C, it is defined as
+<varname>system::*jmpbuf-size*</varname>.  In &c-lang;, it is defined as
 <literal>ceiling(sizeof(jmp_buf),sizeof(void*))</literal>.</para>
 
 </chapter>
