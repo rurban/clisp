@@ -1,5 +1,11 @@
 2004-08-26  Bruno Haible  <bruno@clisp.org>
 
+	* init.lisp (format): Allow the control-string to be a function. Needed
+	for bootstrapping halfcompiled.mem: when the .fas files are loaded, the
+	compiler has already transformed control-strings to functions.
+
+2004-08-26  Bruno Haible  <bruno@clisp.org>
+
 	Avoid a crash when using a hash-table as hash-table key in TYPECODES
 	mode.
 	* hashtabl.d (hashcode4_atom): Handle case_machine, case_subr,
