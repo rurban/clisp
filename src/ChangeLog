@@ -1,3 +1,8 @@
+2002-02-02  Sam Steingold  <sds@gnu.org>
+
+	* trace.lisp (force-cclosure): take FDEFINITION when compiling
+	(%local-set): COMPILE NEW-DEF and take its FDEFINITION
+
 2002-02-28   Barry Fishman  <bfishman@users.sf.net>
 
 	* clx.f (CONVERT-SELECTION): clean up the stack
