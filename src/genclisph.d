@@ -1483,7 +1483,7 @@ int main()
   }
   printf("#define VALUES0 do{ value1 = NIL; mv_count = 0; }while(0)\n");
   printf("#define VALUES1(A) do{ value1 = (A); mv_count = 1; }while(0)\n");
-  printf("#define VALUES2(A,B) do{ value1 = (A); value2 = (B); mv_count = 3;}while(0)\n");
+  printf("#define VALUES2(A,B) do{ value1 = (A); value2 = (B); mv_count = 2;}while(0)\n");
   printf("#define VALUES3(A,B,C) do{ value1 = (A); value2 = (B); value3 = (C); mv_count = 3;}while(0)\n");
   printf("#define VALUES_IF(C) do{ value1 = (C) ? T : NIL; mv_count = 1; }while(0)\n");
   printf("#define args_end_pointer  STACK\n");
