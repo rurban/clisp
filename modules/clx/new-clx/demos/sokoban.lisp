@@ -363,7 +363,7 @@ If you quit sokoban using 'q' the current state will be saved in
 (defvar *sokoban-debug* t)
 
 (defun sokoban ()
-  (unless *display*
+  (when (or (null *display*) (closed-display-p *display*))
     (init-sokoban)
     (usage))
   (block event-loop
@@ -461,3 +461,5 @@ If you quit sokoban using 'q' the current state will be saved in
 ;; '(mapcar #'compile '(init-field ready-p update find-outers field find-target walk-to))
 
 (format t "~& Call (clx-demos:sokoban).~%")
+
+(provide "sokoban")
