@@ -1,3 +1,8 @@
+1999-01-15  Sam Steingold  <sds@goems.com>
+
+        * clos.lsp (*gf-warn-on-replacing-method*): new variable.
+        (std-add-method): use it.
+
 1999-01-13  Sam Steingold  <sds@goems.com>
 
 	* clos.lsp (*gf-warn-on-removing-all-methods*): new variable.

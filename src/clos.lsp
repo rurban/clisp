@@ -2352,13 +2352,14 @@
   )  )
   (defvar *warn-if-gf-already-called* t)
   (defun warn-if-gf-already-called (gf)
-    (when (and *warn-if-gf-already-called* (not (gf-never-called-p gf)))
-      (unless (member (sys::%record-ref gf 0) *dynamically-modifiable-generic-function-names* :test #'eq)
+    (when (and *warn-if-gf-already-called* (not (gf-never-called-p gf))
+               (not (member (sys::%record-ref gf 0)
+                            *dynamically-modifiable-generic-function-names*
+                            :test #'eq)))
         (warn (DEUTSCH "Die generische Funktion ~S wird modifiziert, wurde aber bereits aufgerufen."
                ENGLISH "The generic function ~S is being modified, but has already been called."
                FRANCAIS "On change la fonction générique ~S qui a déjà été appelée.")
-              gf
-  ) ) ) )
+            gf)))
 )
 
 ; Der eigentliche Dispatch-Code wird erst beim ersten Aufruf der Funktion
@@ -2934,6 +2935,7 @@
 (defvar |#'initialize-instance| nil)
 (defvar |#'reinitialize-instance| nil)
 (defvar |#'shared-initialize| nil)
+(defvar *gf-warn-on-replacing-method* t)
 
 ; Hinzufügen einer Methode zu einer generischen Funktion:
 (defun std-add-method (gf method)
@@ -3007,13 +3009,12 @@
           (cons method
                 (if old-method
                   (progn
+                    (when *gf-warn-on-replacing-method*
                     (warn (DEUTSCH "Methode ~S in ~S wird ersetzt."
                            ENGLISH "Replacing method ~S in ~S"
                            FRANCAIS "On remplace la méthode ~S dans ~S.")
-                          old-method gf
-                    )
-                    (remove old-method (gf-methods gf))
-                  )
+                            old-method gf))
+                    (remove old-method (gf-methods gf)))
                   (gf-methods gf)
     )     )     )
     (finalize-fast-gf gf)
