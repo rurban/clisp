@@ -409,7 +409,7 @@ global void unwind (void);
                                           TRAPPED_EVAL_frame_info
                                           ? S(eval)
                                           : S(apply)););
-              dynamic_unbind(); /* unbind */
+              dynamic_unbind(S(trace_values)); /* unbind */
             }
           }
         else {
