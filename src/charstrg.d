@@ -2390,10 +2390,6 @@ local void test_2_stringsym_limits (stringarg* arg1, stringarg* arg2) {
     string1 = popSTACK(); /* restore string1 */
     arg1->string = unpack_string_ro(string1,&len1,&arg1->offset);
     /* now, len1 is the length (<2^oint_data_len) of string1. */
-    if (arg1->len > 0 && simple_nilarray_p(arg1->string))
-      fehler_nilarray_retrieve();
-    if (arg2->len > 0 && simple_nilarray_p(arg2->string))
-      fehler_nilarray_retrieve();
   }
   { /* check :START1 and :END1: */
     var uintL start1;
@@ -2415,6 +2411,8 @@ local void test_2_stringsym_limits (stringarg* arg1, stringarg* arg2) {
     }
     /* issue the results for string1: */
     arg1->index = start1; arg1->len = end1-start1;
+    if (arg1->len > 0 && simple_nilarray_p(arg1->string))
+      fehler_nilarray_retrieve();
   }
   { /* check :START2 and :END2: */
     var uintL start2;
@@ -2436,9 +2434,11 @@ local void test_2_stringsym_limits (stringarg* arg1, stringarg* arg2) {
     }
     /* issue the results for string2: */
     arg2->index = start2; arg2->len = end2-start2;
-    /* done. */
-    skipSTACK(6);
+    if (arg2->len > 0 && simple_nilarray_p(arg2->string))
+      fehler_nilarray_retrieve();
   }
+  /* done. */
+  skipSTACK(6);
 }
 
 /* UP: compares two strings of equal length for equality
