@@ -5,6 +5,7 @@
 	* modules/bindings/win32/win32.lisp: add WIN32 to *SYSTEM-PACKAGE-LIST*
 	* modules/clx/mit-clx/package.lisp: add XLIB to *SYSTEM-PACKAGE-LIST*
 	* modules/clx/new-clx/clx.lisp: add XLIB & XPM to *SYSTEM-PACKAGE-LIST*
+	* modules/pari/pari.lisp: add PARI to *SYSTEM-PACKAGE-LIST*
 
 2005-04-05  Sam Steingold  <sds@gnu.org>
 
