@@ -1873,13 +1873,13 @@ int main(int argc, char* argv[])
   printf("nonreturning_function(extern, OS_filestream_error, (object stream));\n");
 #if notused
   printf("nonreturning_function(extern, fehler_list, (object obj));\n");
+#endif
   printf("extern object check_list_replacement (object obj);\n");
   printf("static inline object check_list (object obj) {"
           " if (!listp(obj))"
             " obj = check_list_replacement(obj);"
           " return obj;"
         " }\n");
-#endif
   printf("nonreturning_function(extern, fehler_proper_list, (object caller, object obj));\n");
 #if notused
   printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
