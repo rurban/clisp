@@ -1,3 +1,15 @@
+1999-10-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (low_finish_output_unbuffered_socket,
+           low_force_output_unbuffered_socket,
+           low_clear_output_unbuffered_socket): Remove functions.
+          (UnbufferedSocketStream_output_init): Use the equivalent pipe
+          functions instead. Use low_write_unbuffered_pipe instead of
+          low_write_unbuffered_handle.
+          (low_flush_buffered_socket): Use low_flush_buffered_pipe instead of
+          low_flush_buffered_handle.
+        * errunix.d (init_errormsg_table): Change message for EPIPE.
+
 1999-10-05  Sam Shteingold  <sds@ksp.com>
 
 	* socket.d (ADDR_TO_STRING): new macro

@@ -15835,38 +15835,25 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
 
 #endif
 
-  local void low_finish_output_unbuffered_socket (object stream);
-  local void low_finish_output_unbuffered_socket(stream)
-    var object stream;
-    { } # cannot do anything
-
-  local void low_force_output_unbuffered_socket (object stream);
-  local void low_force_output_unbuffered_socket(stream)
-    var object stream;
-    { } # cannot do anything
-
-  local void low_clear_output_unbuffered_socket (object stream);
-  local void low_clear_output_unbuffered_socket(stream)
-    var object stream;
-    { } # impossible to clear past output
-
 # Initializes the output side fields of a socket stream.
 # UnbufferedSocketStream_output_init(stream);
 #ifdef WIN32_NATIVE
   #define UnbufferedSocketStream_output_init(stream)  \
-    { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_socket;                 \
-      UnbufferedStreamLow_write_array(stream) = &low_write_array_unbuffered_socket;     \
-      UnbufferedStreamLow_finish_output(stream) = &low_finish_output_unbuffered_socket; \
-      UnbufferedStreamLow_force_output(stream) = &low_force_output_unbuffered_socket;   \
-      UnbufferedStreamLow_clear_output(stream) = &low_clear_output_unbuffered_socket;   \
+    { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_socket;               \
+      UnbufferedStreamLow_write_array(stream) = &low_write_array_unbuffered_socket;   \
+      UnbufferedStreamLow_finish_output(stream) = &low_finish_output_unbuffered_pipe; \
+      UnbufferedStreamLow_force_output(stream) = &low_force_output_unbuffered_pipe;   \
+      UnbufferedStreamLow_clear_output(stream) = &low_clear_output_unbuffered_pipe;   \
     }
 #else
+  # Use low_write_unbuffered_pipe, not low_write_unbuffered_handle, here because
+  # writing to a closed socket generates a SIGPIPE signal, just like for pipes.
   #define UnbufferedSocketStream_output_init(stream)  \
-    { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_handle;                 \
-      UnbufferedStreamLow_write_array(stream) = &low_write_array_unbuffered_handle;     \
-      UnbufferedStreamLow_finish_output(stream) = &low_finish_output_unbuffered_socket; \
-      UnbufferedStreamLow_force_output(stream) = &low_force_output_unbuffered_socket;   \
-      UnbufferedStreamLow_clear_output(stream) = &low_clear_output_unbuffered_socket;   \
+    { UnbufferedStreamLow_write(stream) = &low_write_unbuffered_pipe;                 \
+      UnbufferedStreamLow_write_array(stream) = &low_write_array_unbuffered_pipe;     \
+      UnbufferedStreamLow_finish_output(stream) = &low_finish_output_unbuffered_pipe; \
+      UnbufferedStreamLow_force_output(stream) = &low_force_output_unbuffered_pipe;   \
+      UnbufferedStreamLow_clear_output(stream) = &low_clear_output_unbuffered_pipe;   \
     }
 #endif
 
@@ -16132,8 +16119,10 @@ LISPFUNN(write_n_bytes,4)
 
 #else
 
+# Use low_flush_buffered_pipe, not low_flush_buffered_handle, here because
+# writing to a closed socket generates a SIGPIPE signal, just like for pipes.
   #define low_fill_buffered_socket  low_fill_buffered_handle
-  #define low_flush_buffered_socket  low_flush_buffered_handle
+  #define low_flush_buffered_socket  low_flush_buffered_pipe
 
 #endif
 
