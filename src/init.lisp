@@ -437,13 +437,15 @@
         (error-of-type 'error
           (ENGLISH "~S is a special operator and may not be redefined.")
           symbol))
-      (if (and (or (fboundp symbol) (macro-function symbol))
-               (sys::exported-lisp-symbol-p symbol))
-        (cerror (ENGLISH "The old definition will be lost")
-                (ENGLISH "Redefining the COMMON LISP ~A ~S")
-                (fbound-string symbol) ; "Function" resp. "Macro"
-                symbol
-                (macro-function symbol)))
+      (when (sys::exported-lisp-symbol-p symbol)
+        (if (or (fboundp symbol) (macro-function symbol))
+          (cerror (ENGLISH "The old definition will be lost")
+                  (ENGLISH "Redefining the COMMON LISP ~A ~S")
+                  (fbound-string symbol) ; "Function" resp. "Macro"
+                  symbol)
+          (cerror (ENGLISH "Define anyway")
+                  (ENGLISH "Adding a definition to the COMMON LISP symbol ~S")
+                  symbol)))
       (fmakunbound symbol) ; discard function & macro definition
       ;; Property sys::definition is not discarded, because it is
       ;; soon reset, anyway.
@@ -1885,4 +1887,4 @@
 (LOAD "config")    ; configuration parameters to be adjusted by the user
 
 (in-package "CL-USER")        ; make the default package the current one
-(setq sys::*home-package* nil)
+(setq sys::*home-package* nil ext:*command-index* 0)
