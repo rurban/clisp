@@ -764,7 +764,7 @@ local void loadmem (const char* filename)
   var char resolved[MAX_PATH];
   var Handle handle =
     /* try to resolve shell shortcuts in the filename */
-    CreateFile(TrueName(filename,resolved) ? filename : resolved,
+    CreateFile(TrueName(filename,resolved) ? resolved : filename,
                GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
                NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
   if (handle==INVALID_HANDLE_VALUE) goto abort1;
