@@ -483,7 +483,7 @@ global int main()
     printf("typedef  uint64  oint;\n");
 #   printf("typedef  sint64  soint;\n");
     #ifdef WIDE_STRUCT
-      printf("typedef  union {\n");
+      printf("typedef  struct { union {\n");
       #if BIG_ENDIAN_P==WIDE_ENDIANNESS
         printf("  struct { /* tint */ uintL type; /* aint */ uintL addr; } both;\n");
       #else
@@ -493,7 +493,7 @@ global int main()
       #ifdef GENERATIONAL_GC
         printf(" __attribute__ ((aligned(8)))");
       #endif
-      printf("; }\n");
+      printf("; } u; }\n");
       printf("  object;\n");
     #else
       printf("typedef  oint  object;\n");
@@ -501,7 +501,7 @@ global int main()
   #endif
   #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
     printf("#define as_oint(expr)  ((expr).one)\n");
-    printf("#define as_object(o)  ((object){one:(o)})\n");
+    printf("#define as_object(o)  ((object){u:{one:(o)}})\n");
   #else
     printf("#define as_oint(expr)  (oint)(expr)\n");
     printf("#define as_object(o)  (object)(o)\n");
@@ -547,7 +547,7 @@ global int main()
       #elif defined(SPARC) && !defined(WIDE)
         printf("#define typecode(expr)  ((as_oint(expr) << %d) >> %d)\n",32-oint_type_len-oint_type_shift,32-oint_type_len);
       #elif defined(WIDE) && defined(WIDE_STRUCT)
-        printf("#define typecode(expr)  ((expr).both.type)\n");
+        printf("#define typecode(expr)  ((expr).u.both.type)\n");
       #else
         printf("#define typecode(expr)  ((tint)(as_oint(expr) >> %d))\n",oint_type_shift);
       #endif
@@ -557,7 +557,7 @@ global int main()
         #endif
         #ifdef WIDE
           #ifdef WIDE_STRUCT
-            printf("#define mtypecode(expr)  ((expr).both.type)\n");
+            printf("#define mtypecode(expr)  ((expr).u.both.type)\n");
           #elif (oint_type_len==16)
             printf("#define mtypecode(expr)  (*((tint*)&(expr)+%d))\n",3*((oint_type_shift==0)==BIG_ENDIAN_P));
           #elif (oint_type_len==32)
@@ -569,7 +569,7 @@ global int main()
       #endif
     #endif
 #   #if defined(WIDE) && defined(WIDE_STRUCT)
-#     printf("#define untype(expr)  ((expr).both.addr)\n");
+#     printf("#define untype(expr)  ((expr).u.both.addr)\n");
 #   #elif !(defined(SPARC) && (oint_addr_len+oint_addr_shift<32))
 #     printf2("#define untype(expr)  ((aint)(as_oint(expr) >> %d) & %x)\n",oint_addr_shift,(oint)(oint_addr_mask >> oint_addr_shift));
 #   #else
@@ -817,7 +817,7 @@ global int main()
       #endif
     #endif
     #if defined(WIDE_STRUCT)
-      #define printf_type_pointable(type)  printf("((void*)((obj).both.addr))");
+      #define printf_type_pointable(type)  printf("((void*)((obj).u.both.addr))");
     #elif !((oint_addr_shift==0) && (addr_shift==0) && (((tint_type_mask<<oint_type_shift) & addressbus_mask) == 0))
       #if (addr_shift==0)
         #define printf_type_pointable(type)  \
