@@ -1,3 +1,13 @@
+1999-05-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Make --with-unicode the default.
+        * makemake.in (info_help): Mention --without-unicode instead of
+          --with-unicode.
+          (XCFLAGS, UNICODE_INCLUDES, NLS_INCLUDES): Test $with_nounicode
+          instead of $with_unicode.
+        * configure: Don't pass --with-unicode to makemake.
+        * Makefile.devel (*/makefile*): Create without --with-unicode.
+
 1999-05-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * type.lsp: (def-atomic-type, def-compound-type): New macros.

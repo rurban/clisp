@@ -460,7 +460,6 @@ if test -n "$do_config"; then
 fi
 
 # Determine recommended makemake arguments.
-makemake_args="$makemake_args --with-unicode"
 if grep 'ac_cv_func_tgetent.*no' $ABS_DIRNAME/config.cache > /dev/null \
    && grep 'ac_cv_lib_termcap_tgetent.*no' $ABS_DIRNAME/config.cache > /dev/null \
    && grep 'ac_cv_lib_ncurses_tgetent.*no' $ABS_DIRNAME/config.cache > /dev/null ; then
