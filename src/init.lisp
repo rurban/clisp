@@ -575,7 +575,7 @@
 (sys::%putd 'sys::remove-old-definitions
   (function sys::remove-old-definitions (lambda (symbol)
     ;; removes the old function-definitions of a symbol
-    (if (special-operator-p symbol)
+    (when (special-operator-p symbol)
       (error-of-type 'error
         (TEXT "~S is a special operator and may not be redefined.")
         symbol))
@@ -1439,24 +1439,26 @@
     (tagbody proceed
       (when (and stream
                  (if (compiledp stream)
-                     (check-compiled-file
-                      stream (or (eq *load-obsolete-action* :error)
-                                 (eq present-files t)
-                                 (cdr present-files))
-                      (setq obj (read stream)))
-                     #+compiler
-                     (if (and bad-file (eq *load-obsolete-action* :compile))
-                         ;; assume that BAD-FILE was compiled from STREAM
-                         (let ((compiled-file ; try to compile
-                                (compile-file stream :output-file bad-file)))
-                           (if compiled-file ; ==> compiled-file == bad-file
-                               (progn (sys::built-in-stream-close stream)
-                                      (setq stream (my-open compiled-file)
-                                            path compiled-file))
-                               ;; compilation failed - try to load the source
-                               stream))
-                         stream)
-                     #-compiler stream))
+                   (check-compiled-file
+                     stream
+                     (or (eq *load-obsolete-action* :error)
+                         (eq present-files t)
+                     (cdr present-files))
+                   (setq obj (read stream)))
+                 #+compiler
+                 (if (and bad-file (eq *load-obsolete-action* :compile))
+                   ;; assume that BAD-FILE was compiled from STREAM
+                   (let ((compiled-file ; try to compile
+                           (compile-file stream :output-file bad-file)))
+                     (if compiled-file ; ==> compiled-file == bad-file
+                       (progn
+                         (sys::built-in-stream-close stream)
+                         (setq stream (my-open compiled-file)
+                               path compiled-file))
+                       ;; compilation failed - try to load the source
+                       stream))
+                   stream)
+                 #-compiler stream))
         (return-from open-for-load (values stream path)))
       (when (eq present-files t)
         ;; File with precisely this name not present OR bad
@@ -1739,17 +1741,17 @@
                 spelalist (clos::program-error-reporter caller))
         #-clos (copy-list spelalist) ; pacify "make check-recompile"
       (values
-       lalist ; MAPCAN needs a LAMBDA which leads to infinite recursion
-       (let (arg spec decls)
-         (block spelalist-to-ordinary
-           (tagbody start
-             (if (null lalist) (return-from spelalist-to-ordinary decls))
-             (if (null speclist) (return-from spelalist-to-ordinary decls))
-             (setq arg (car lalist) spec (car speclist)
-                   lalist (cdr lalist) speclist (cdr speclist))
-             (if (not (eq 'T spec))
-                 (setq decls (cons (list spec arg) decls)))
-             (go start)))))))))
+        lalist ; MAPCAN needs a LAMBDA which leads to infinite recursion
+        (let ((decls '()))
+          (block spelalist-to-ordinary
+            (tagbody start
+              (when (null lalist) (return-from spelalist-to-ordinary decls))
+              (when (null speclist) (return-from spelalist-to-ordinary decls))
+              (let ((arg (car lalist)) (spec (car speclist)))
+                (if (not (eq spec 'T))
+                  (setq decls (cons (list spec arg) decls))))
+              (setq lalist (cdr lalist) speclist (cdr speclist))
+              (go start)))))))))
 
 (sys::%putd 'defun
   (sys::make-macro
@@ -1777,7 +1779,7 @@
             (body (cdddr form)))
         (multiple-value-bind (body-rest declarations docstring)
             (sys::parse-body body t)
-          (if *defun-accept-specialized-lambda-list*
+          (when *defun-accept-specialized-lambda-list*
             (multiple-value-bind (lalist decl-list)
                 (sys::specialized-lambda-list-to-ordinary lambdalist 'defun)
               (setq lambdalist lalist
