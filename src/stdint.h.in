@@ -33,17 +33,19 @@
 #if defined(__FreeBSD__)
 # include <sys/inttypes.h>
 #endif
-#if defined(__sun)
+#if defined(__sun) && defined(HAVE_SYS_INTTYPES_H)
 # include <sys/int_types.h>
+# define SKIP_LOCAL_DEFINITIONS
 #endif
 #if (defined(__hpux) || defined(_AIX)) && HAVE_INTTYPES_H
 # include <inttypes.h>
+# define SKIP_LOCAL_DEFINITIONS
 #endif
 #if !(defined(UNIX_CYGWIN32) && defined(__BIT_TYPES_DEFINED__))
 # define NEED_SIGNED_INT_TYPES
 #endif
 
-#if !(defined(__sun) || ((defined(__hpux) || defined(_AIX)) && HAVE_INTTYPES_H))
+#if defined(SKIP_LOCAL_DEFINITIONS)
 
 /* 7.18.1.1. Exact-width integer types */
 
@@ -253,6 +255,6 @@ typedef uint32_t uintmax_t;
 
 #endif
 
-#endif  /* !(__sun || ((__hpux || _AIX) && HAVE_INTTYPES_H)) */
+#endif  /* SKIP_LOCAL_DEFINITIONS */
 
 #endif /* _STDINT_H */
