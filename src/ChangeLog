@@ -1,5 +1,10 @@
 2004-12-05  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (mv_to_list, implicit_progn): Cosmetics.
+	* io.d (LINES_INC): Likewise.
+
+2004-12-05  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (init_packages, unread_char, write_byte_array,
 	write_char_array): Mark as "can trigger GC".
 	(convert_to_foreign_mallocing, convert_to_foreign_nomalloc): Likewise.
