@@ -1529,7 +1529,7 @@ N. Gray to X3J13.</para>
 
 <formalpara id="letf"><title>Macros &letf; &amp; &letf-star;</title>
 <para>These macros are similar to &let; and &let-star;, respectively,
- except that they can bind places, even places with multiple values.
+ except that they can bind &place;s, even &place;s with &mul-val;.
  Example:
 
 <programlisting>
@@ -1564,7 +1564,7 @@ is approximately equivalent to
  construct, except that it is looks more "Lispy" and can appear
  arbitrarily deep.  It defines local macros (with &macrolet;) which
  collect objects given to it into lists, which are then returned as
- multiple values.  E.g.,
+ &mul-val;.  E.g.,
 
 <programlisting>
  (ext:with-collect (c0 c1)
@@ -1572,7 +1572,7 @@ is approximately equivalent to
 </programlisting>
 
 returns two lists <literal role="sexp">(1 3 5 7 9)</literal> and
-<literal role="sexp">(0 2 4 6 8)</literal> as multiple values.
+<literal role="sexp">(0 2 4 6 8)</literal> as &mul-val;.
 </para></formalpara>
 
 <formalpara id="with-gensyms">
@@ -3401,7 +3401,7 @@ F
 
 (defun myhostname ()
   (multiple-value-bind (success name)
-      ;; &out-k; and &in-out-k; parameters are returned as multiple values
+      ;; &out-k; and &in-out-k; parameters are returned as &mul-val;
       (gethostname 256)
     (if (zerop success) name
 	(error ...)))) ;; &strerror;(&errno;)
@@ -4094,7 +4094,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
                  &optional-amp; <replaceable>service-name</replaceable>
                  (<replaceable>protocol</replaceable> "tcp"))</literal></term>
   <listitem><simpara>A convenience function for looking up a port given
-   the service name.  It returns the servent struct as multiple values
+   the service name.  It returns the servent struct as &mul-val;
    (name, list of aliases, port, protocol) for the given
    <replaceable>service-name</replaceable> and
    <replaceable>protocol</replaceable>, or all services as the list of

@@ -623,9 +623,7 @@ is the same as
 <section id="xor"><title>Function <function>EXT:XOR</function></title>
 <para>This function checks that exactly one of its arguments is non-&nil;
  and, if this is the case, returns its value and index in the argument
- list as multiple values, otherwise returns &nil;.
-</para>
-</section>
+ list as &mul-val;, otherwise returns &nil;.</para></section>
 
 <section id="eq"><title>Function &eq;</title>
 
