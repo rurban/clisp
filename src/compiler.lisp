@@ -1652,8 +1652,8 @@ for-value   NIL or T
 (defun get-funname-string+pack (funname)
   (if (atom funname)
     (values (symbol-name funname) (symbol-package funname))
-    (values (concatenate 'string "(" (symbol-name (first funname)) " "
-                                     (symbol-name (second funname)) ")")
+    (values (string-concat "(" (symbol-name (first funname)) " "
+                               (symbol-name (second funname)) ")")
             (symbol-package (second funname)))))
 
 ;; returns a function name, that is composed by the package and the
@@ -1681,7 +1681,7 @@ for-value   NIL or T
       (if funname
         (multiple-value-bind (name pack) (get-funname-string+pack funname)
           ;; build new symbol:
-          (let ((new-name (concatenate 'string name "-" suffix)))
+          (let ((new-name (string-concat name "-" suffix)))
             (if pack (intern new-name pack) (make-symbol new-name))))
         (make-symbol suffix)))))
 
@@ -1739,7 +1739,7 @@ for-value   NIL or T
 (defun c-warn (cstring &rest args)
   (incf *warning-count*)
   (apply #'c-comment
-         (concatenate 'string (TEXT "WARNING~@[ in ~A~]~A :") "~%" cstring)
+         (string-concat (TEXT "WARNING~@[ in ~A~]~A :") "~%" cstring)
          (current-function) (c-source-location)
          args))
 
@@ -3093,8 +3093,8 @@ for-value   NIL or T
     (when deprecation-info
       (if *compiling-from-file*
         (pushnew name *deprecated-functions* :test #'eq)
-        (apply #'c-warn (concatenate 'string
-                          (TEXT "Function ~S is deprecated.") " ~@?")
+        (apply #'c-warn (string-concat
+                         (TEXT "Function ~S is deprecated.") " ~@?")
                         deprecation-info)))))
 
 ;; auxiliary function: PROCLAIM on file-compilation, cf. function PROCLAIM
@@ -7326,15 +7326,13 @@ for-value   NIL or T
 
 ;; c-SUBST-IF, c-SUBST-IF-NOT etc.
 (macrolet ((c-seqop (op n)
-             (let ((op-if (intern (concatenate 'string (string op) "-IF")
+             (let ((op-if (intern (string-concat (string op) "-IF")
                                   *lisp-package*))
-                   (op-if-not (intern (concatenate 'string (string op)
-                                                   "-IF-NOT")
+                   (op-if-not (intern (string-concat (string op) "-IF-NOT")
                                       *lisp-package*))
-                   (c-op-if (intern (concatenate 'string "C-" (string op)
-                                                 "-IF")))
-                   (c-op-if-not (intern (concatenate 'string "C-" (string op)
-                                                     "-IF-NOT"))))
+                   (c-op-if (intern (string-concat "C-" (string op) "-IF")))
+                   (c-op-if-not (intern (string-concat "C-" (string op)
+                                                       "-IF-NOT"))))
                `(progn
                   (defun ,c-op-if ()
                     (test-list *form* ,(+ 1 n))
@@ -10151,8 +10149,7 @@ freshly rebuilt as list of bytes.
     ; label-alist is a list of Conses (PC . label), in which the PCs are in
     ; strictly decreasing order.
     (flet ((PC->label-a (PC)
-             (cons PC (make-symbol
-                        (concatenate 'string "L" (prin1-to-string PC)))))
+             (cons PC (make-symbol (string-concat "L" (prin1-to-string PC)))))
            (next-byte () (incf PC) (pop byte-list)))
       (flet ((num-operand ()
                (let ((a (next-byte)))
