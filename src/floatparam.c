@@ -4,7 +4,6 @@
 /* This program expects to be compiled by an ANSI C or C++ compiler. */
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #if !(defined(__STDC__) || defined(__cplusplus))
 /* Only for use in function parameter lists and as function return type. */
@@ -128,6 +127,6 @@ int main()
   main_ldouble();
 #endif
 
-  if (ferror(stdout) || fclose(stdout)) exit(1);
-  exit(0);
+  if (ferror(stdout) || fclose(stdout)) return 1;
+  return 0;
 }

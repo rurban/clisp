@@ -1,3 +1,11 @@
+2004-12-12  Bruno Haible  <bruno@clisp.org>
+
+	Avoid warnings on glibc systems.
+	* intparam.c: Don't include stdlib.h.
+	(main): Provide the exit code through return, not exit.
+	* floatparam.c: Don't include stdlib.h.
+	(main): Provide the exit code through return, not exit.
+
 2004-12-09  Bruno Haible  <bruno@clisp.org>
 
 	More invariant checking for generational GC.
