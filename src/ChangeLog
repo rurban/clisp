@@ -1,5 +1,10 @@
 2004-10-07  Bruno Haible  <bruno@clisp.org>
 
+	* clos-class1.lisp (shared-initialize-<class>): A clos::direct-slots
+	argument overrides the :direct-slots argument.
+
+2004-10-07  Bruno Haible  <bruno@clisp.org>
+
 	* debug.d (read_form): Don't use ls_avail_p to test whether the
 	input stream is interactive, since the clear_input call has been
 	removed on 2003-01-21.

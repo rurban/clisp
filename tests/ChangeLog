@@ -1,5 +1,9 @@
 2004-10-07  Bruno Haible  <bruno@clisp.org>
 
+	* mop.tst: Test behaviour of class redefinition w.r.t. direct slots.
+
+2004-10-07  Bruno Haible  <bruno@clisp.org>
+
 	* conditions.tst: Add a few tests for use-value in array functions.
 
 2004-10-07  Jörg Höhle  <hoehle@users.sourceforge.net>

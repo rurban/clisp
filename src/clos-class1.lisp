@@ -270,8 +270,9 @@
     (update-subclasses-sets class old-direct-superclasses direct-superclasses))
   (when (or (eq situation 't) direct-slots-as-lists-p direct-slots-as-metaobjects-p)
     (setf (class-direct-slots class)
-          (append direct-slots-as-metaobjects
-                  (convert-direct-slots class direct-slots-as-lists))))
+          (if direct-slots-as-metaobjects-p
+            direct-slots-as-metaobjects
+            (convert-direct-slots class direct-slots-as-lists))))
   (when (or (eq situation 't) direct-default-initargs-p)
     (setf (class-direct-default-initargs class) direct-default-initargs))
   (when (or (eq situation 't) documentation-p)
