@@ -940,17 +940,32 @@ static const cint nop_page[256] = {
   global object char_name(code)
     var chart code;
     { var cint c = as_cint(code);
-      var const uintB* codes_ptr = &charname_table_codes[0];
-      var object* strings_ptr = &charname_table[0];
-      var uintC count;
-      dotimesC(count,charname_table_length,
-        { if (c == *codes_ptr++) goto found; # code mit charname_table_codes[i] vergleichen
-          strings_ptr++;
-        });
+      { var const uintB* codes_ptr = &charname_table_codes[0];
+        var object* strings_ptr = &charname_table[0];
+        var uintC count;
+        dotimesC(count,charname_table_length,
+          { if (c == *codes_ptr++) # code mit charname_table_codes[i] vergleichen
+              return *strings_ptr; # String charname_table[i] aus der Tabelle holen
+            strings_ptr++;
+          });
+      }
       # nicht gefunden
+      #ifdef UNICODE
+      # CLHS (glossary "name" 5) specifies that all non-graphic characters have
+      # a name. Let's give a name to all of them, it's more uniform (and avoids
+      # printer errors).
+      /* if (!graphic_char_p(code)) */
+      { var object name = allocate_string(5);
+        local char hex_table[] = "0123456789ABCDEF";
+        TheSstring(name)->data[0] = ascii('U');
+        TheSstring(name)->data[1] = ascii(hex_table[(c>>12)&0x0F]);
+        TheSstring(name)->data[2] = ascii(hex_table[(c>>8)&0x0F]);
+        TheSstring(name)->data[3] = ascii(hex_table[(c>>4)&0x0F]);
+        TheSstring(name)->data[4] = ascii(hex_table[c&0x0F]);
+        return name;
+      }
+      #endif
       return NIL;
-      found: # gefunden
-        return *strings_ptr; # String charname_table[i] aus der Tabelle holen
     }
 
 # UP: Bestimmt das Character mit einem gegebenen Namen
@@ -960,17 +975,50 @@ static const cint nop_page[256] = {
   global object name_char (object string);
   global object name_char(string)
     var object string;
-    { var const uintB* codes_ptr = &charname_table_codes[0];
-      var object* strings_ptr = &charname_table[0];
-      var uintC count;
-      dotimesC(count,charname_table_length,
-        { if (string_equal(string,*strings_ptr++)) goto found; # string mit charname_table[i] vergleichen
-          codes_ptr++;
-        });
+    { { var const uintB* codes_ptr = &charname_table_codes[0];
+        var object* strings_ptr = &charname_table[0];
+        var uintC count;
+        dotimesC(count,charname_table_length,
+          { if (string_equal(string,*strings_ptr++)) # string mit charname_table[i] vergleichen
+              return code_char(as_chart(*codes_ptr)); # Code charname_table_codes[i] aus der Tabelle holen
+            codes_ptr++;
+          });
+      }
       # kein Character mit diesem Namen gefunden
+      #ifdef UNICODE
+      { var uintL len;
+        var uintL offset;
+        string = unpack_string_ro(string,&len,&offset);
+        if (len == 5)
+          { var const chart* charptr;
+            unpack_sstring_alloca(string,len,offset, charptr=);
+            if (chareq(charptr[0],ascii('U')) || chareq(charptr[0],ascii('u')))
+              # Hexadezimalzahl entziffern:
+              { var uintL code = 0;
+                var uintL index = 1;
+                charptr++;
+                loop
+                  { var cint c = as_cint(*charptr++); # nächstes Character
+                    # soll Hexadezimalziffer sein:
+                    if (c > 'f') break;
+                    if (c >= 'a') { c -= 'a'-'A'; }
+                    if (c < '0') break;
+                    if (c <= '9') { c = c - '0'; }
+                    else if ((c >= 'A') && (c <= 'F')) { c = c - 'A' + 10; }
+                    else break;
+                    code = 16*code + c; # Ziffer dazunehmen
+                    # code soll < char_code_limit bleiben:
+                    if (code >= char_code_limit) break; # sollte nicht passieren
+                    index++;
+                    if (index == len)
+                      # Charactername war vom Typ "Uxxxx" mit code = xxxx < char_code_limit
+                      # Don't test for graphic_char_p - see comment in char_name().
+                      # This also avoids us special-casing the #\Uxxxx syntax in io.d.
+                      /* if (!graphic_char_p(as_chart(code))) */
+                      { return code_char(as_chart(code)); }
+      }   }   }   }
+      #endif
       return NIL;
-      found: # gefunden
-        return code_char(as_chart(*codes_ptr)); # Code charname_table_codes[i] aus der Tabelle holen
     }
 
 LISPFUNN(standard_char_p,1) # (STANDARD-CHAR-P char), CLTL S. 234
