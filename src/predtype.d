@@ -1665,6 +1665,10 @@ LISPFUNN(type_of,1)
           case Rectype_Socket_Server: # Socket-Server
             value1 = S(socket_server); break;
           #endif
+          #ifdef WIN32_NATIVE
+          case Rectype_Dir_Key: # Dir-Key
+            value1 = S(dir_key); break;
+          #endif
           #ifdef YET_ANOTHER_RECORD
           case Rectype_Yetanother: # Yetanother -> YET-ANOTHER
             value1 = S(yet_another); break;
@@ -1899,6 +1903,9 @@ LISPFUNN(class_of,1)
           case Rectype_Finalizer: # Finalisierer -> <t>
           #ifdef SOCKET_STREAMS
           case Rectype_Socket_Server: # Socket-Server -> <t>
+          #endif
+          #ifdef WIN32_NATIVE
+          case Rectype_Dir_Key: # Dir-Key -> <t>
           #endif
             value1 = O(class_t); break;
           #ifdef DYNAMIC_FFI
@@ -2411,6 +2418,9 @@ enum { # The values of this enumeration are 0,1,2,...
   #ifdef SOCKET_STREAMS
   enum_hs_socket_server,
   #endif
+  #ifdef WIN32_NATIVE
+  enum_hs_dir_key,
+  #endif
   #ifdef YET_ANOTHER_RECORD
   enum_hs_yetanother,
   #endif
@@ -2731,6 +2741,10 @@ local void heap_statistics_mapper(arg,obj,bytelen)
           #ifdef SOCKET_STREAMS
           case Rectype_Socket_Server: # Socket-Server
             pighole = &locals->builtins[(int)enum_hs_socket_server]; break;
+          #endif
+          #ifdef WIN32_NATIVE
+          case Rectype_Dir_Key: # Dir-Key
+            pighole = &locals->builtins[(int)enum_hs_dir_key]; break;
           #endif
           #ifdef YET_ANOTHER_RECORD
           case Rectype_Yetanother: # Yetanother

@@ -39,6 +39,7 @@ options:
        --with-dynamic-ffi      a foreign language interface
        --with-dynamic-modules  dynamic loading of foreign language modules
        --with-export-syscalls  export some POSIX functionality to Lisp
+       --with-dir-key          dir-key access (win32 registry, LDAP, Gnome)
        --with-module=wildcard
        --with-module=regexp
        --with-module=postgresql632
@@ -1149,6 +1150,10 @@ if test -n "$with_export_syscalls"; then
   LIBS=$LIBS' -lm'
 fi
 
+if test -n "$with_dir_key"; then
+  XCFLAGS="$XCFLAGS -DDIR_KEY"
+fi
+
 if test -n "$with_dynamic_ffi"; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
   if [ $HOS = win32 ] ; then
@@ -1311,6 +1316,9 @@ if [ $TSYS = master -o $TOS = acorn ] ; then
 fi
 if test -n "$with_export_syscalls"; then
   CPARTS=$CPARTS' posixmisc';
+fi
+if test -n "$with_dir_key"; then
+  CPARTS=$CPARTS' dirkey';
 fi
 
 EVERY_INCLUDES='lispbibl fsubr subr pseudofun constsym constobj '$OS_INCLUDES
@@ -1702,6 +1710,7 @@ if [ $HSYS = win32msvc ] ; then
   fi
   if [ $COMPILER = msvc5 ] ; then
     echol "#MSVCDIR = d:/devstudio/vc"
+    echol "#MSVCDIR = c:/msvs/vc98"
     echol "MSVCDIR = \"C:/Program Files/Microsoft Visual Studio/VC98\""
   fi
 fi
