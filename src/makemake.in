@@ -3049,7 +3049,7 @@ if [ $CROSS = false ] ; then
     echol "install-bin : lisp${LEXE} lispinit.mem clisp.c force"
     echotab "if [ ! -d \$(install_root)\$(prefix) ] ; then mkdir \$(install_root)\$(prefix) ; fi"
     echotab "if [ ! -d \$(install_root)\$(exec_prefix) ] ; then mkdir \$(install_root)\$(exec_prefix) ; fi"
-    echotab "if [ ! -d \$(install_root)\$(libdir) ] ; then mkdir \$(install_root)\$(install_root)\$(libdir) ; fi"
+    echotab "if [ ! -d \$(install_root)\$(libdir) ] ; then mkdir \$(install_root)\$(libdir) ; fi"
     echotab "if [ ! -d \$(install_root)\$(lisplibdir) ] ; then mkdir \$(install_root)\$(lisplibdir) ; fi"
     echotab "if [ ! -d \$(install_root)\$(lisplibdir)/data ] ; then mkdir \$(install_root)\$(lisplibdir)/data ; fi"
     echotab "\$(INSTALL_DATA) data/UnicodeData.txt \$(install_root)\$(lisplibdir)/data/UnicodeData.txt"

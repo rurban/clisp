@@ -1,3 +1,7 @@
+2000-05-03  Guilherme Manika  <gwm@conectiva.com.br>
+
+	* makemake.in (install-bin): Fix duplicate \$(install_root).
+
 2000-04-25  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
         * spvw.d (print_license): Add paragraph pointing to copyright.html.
