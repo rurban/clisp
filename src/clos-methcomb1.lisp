@@ -32,10 +32,7 @@ and pairing the method-combination definition object with the option list
 in the generic function instance."
 
   name                          ; a symbol naming the method combination
-  (identity-with-one-argument nil) ; true if the short should be so generated
   (documentation nil)           ; an optional documentation string
-  (declarations nil)            ; list to be prepended to the effective method
-                                ; body
   (check-options nil)           ; A function of 3 arguments
                                 ; (function-name method-combination options)
                                 ; that checks the syntax of arguments to the
@@ -51,6 +48,8 @@ in the generic function instance."
                                 ; (function method-combination method)
                                 ; telling whether call-next-method is allowed
                                 ; in the particular method.
+  (declarations nil)            ; list to be prepended to the effective method
+                                ; body
   (arguments-lambda-list nil)   ; The :arguments option of the defined method
                                 ; combination for inclusion in the effective
                                 ; method function.
@@ -61,6 +60,8 @@ in the generic function instance."
 
   ;; The following slots apply only to short form method-combination.
   (operator nil)                ; a symbol
+  (identity-with-one-argument nil) ; true if `(operator ,x) should be replaced
+                                ; with x
 
   ;; The following slots depend on the particular generic function.
   (options nil))                ; arguments for the method combination
