@@ -1,3 +1,9 @@
+2004-05-29  Bruno Haible  <bruno@clisp.org>
+
+	Move the definition of accessor methods from DEFCLASS to ENSURE-CLASS.
+	* clos-class3.lisp (defclass): Don't generate accessor-def-forms.
+	(ensure-class): Generate accessors here, for all direct slots.
+
 2004-07-14  John Hinsdale <hin@alma.com>
 
 	* modules/oracle/orafns.c: On SQL error, truncate echoed bind

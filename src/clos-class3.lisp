@@ -59,9 +59,7 @@
                              'defclass name superclass))
                          `',superclass)
                        superclass-specs)))
-         (classvar (gensym))
          (accessor-decl-forms '())
-         (accessor-def-forms '())
          (slot-forms
            (let ((slot-names '()))
              (unless (listp slot-specs)
@@ -160,54 +158,10 @@
                              (setq writers (nreverse writers))
                              (dolist (funname readers)
                                (push `(DECLAIM-METHOD ,funname ((OBJECT ,name)))
-                                     accessor-decl-forms)
-                               (push `(SETF (CLASS-DIRECT-ACCESSORS ,classvar)
-                                            (LIST* ',funname
-                                                   #|
-                                                   (DEFMETHOD ,funname ((OBJECT ,name))
-                                                     ; (:METHOD-CLASS STANDARD-READER-METHOD)
-                                                     (DECLARE (COMPILE))
-                                                     (SLOT-VALUE OBJECT ',slot-name))
-                                                   |#
-                                                   (DO-DEFMETHOD ',funname
-                                                     (MAKE-STANDARD-READER-METHOD
-                                                       :INITFUNCTION
-                                                         #'(LAMBDA (#:SELF)
-                                                             (DECLARE (COMPILE))
-                                                             (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
-                                                               (DECLARE (COMPILE))
-                                                               (SLOT-VALUE OBJECT ',slot-name)))
-                                                       :WANTS-NEXT-METHOD-P T
-                                                       :PARAMETER-SPECIALIZERS (LIST (FIND-CLASS ',name))
-                                                       :QUALIFIERS 'NIL
-                                                       :SIGNATURE ,(make-signature :req-num 1)))
-                                                   (CLASS-DIRECT-ACCESSORS ,classvar)))
-                                     accessor-def-forms))
+                                     accessor-decl-forms))
                              (dolist (funname writers)
                                (push `(DECLAIM-METHOD ,funname (NEW-VALUE (OBJECT ,name)))
-                                     accessor-decl-forms)
-                               (push `(SETF (CLASS-DIRECT-ACCESSORS ,classvar)
-                                            (LIST* ',funname
-                                                   #|
-                                                   (DEFMETHOD ,funname (NEW-VALUE (OBJECT ,name))
-                                                     ; (:METHOD-CLASS STANDARD-WRITER-METHOD)
-                                                     (DECLARE (COMPILE))
-                                                     (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))
-                                                   |#
-                                                   (DO-DEFMETHOD ',funname
-                                                     (MAKE-STANDARD-WRITER-METHOD
-                                                       :INITFUNCTION
-                                                         #'(LAMBDA (#:SELF)
-                                                             (DECLARE (COMPILE))
-                                                             (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
-                                                               (DECLARE (COMPILE))
-                                                               (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE)))
-                                                       :WANTS-NEXT-METHOD-P T
-                                                       :PARAMETER-SPECIALIZERS (LIST (FIND-CLASS 'T) (FIND-CLASS ',name))
-                                                       :QUALIFIERS 'NIL
-                                                       :SIGNATURE ,(make-signature :req-num 2)))
-                                                   (CLASS-DIRECT-ACCESSORS ,classvar)))
-                                     accessor-def-forms))
+                                     accessor-decl-forms))
                              `(LIST
                                 :NAME ',slot-name
                                 ,@(when readers `(:READERS ',readers))
@@ -297,9 +251,7 @@
                      'defclass name option)))
                `(,@metaclass ,@direct-default-initargs ,@documentation ,@fixed-slot-locations))))
        ,@(nreverse accessor-decl-forms) ; the DECLAIM-METHODs
-       (LET ((,classvar (FIND-CLASS ',name)))
-         ,@(nreverse accessor-def-forms) ; the DEFMETHODs
-         ,classvar))))
+       (FIND-CLASS ',name))))
 
 ;; DEFCLASS execution:
 
@@ -336,6 +288,7 @@
                         (or (find-class c (not a-standard-class-p)) c)))
                   direct-superclasses))
     (if class
+      ;; Modify the class and return the modified class.
       (progn
         (if (and (%class-precedence-list class) ; already finalized?
                  (subclassp class <metaobject>))
@@ -450,21 +403,73 @@
                            all-keys)
                     ;; FIXME: Need to handle changes of shared slots here?
                     (update-subclasses-for-redefined-class class
-                      was-finalized must-be-finalized old-direct-superclasses)))))))
-        ;; Modified class as value:
-        class)
+                      was-finalized must-be-finalized old-direct-superclasses))))))))
       (setf (find-class name)
-            (apply (cond ((eq metaclass <standard-class>)
-                          #'make-instance-<standard-class>)
-                         ((eq metaclass <built-in-class>)
-                          #'make-instance-<built-in-class>)
-                         ((eq metaclass <structure-class>)
-                          #'make-instance-<structure-class>)
-                         (t #'make-instance))
-                   metaclass
-                   :name name
-                   :direct-superclasses direct-superclasses
-                   all-keys)))))
+            (setq class
+              (apply (cond ((eq metaclass <standard-class>)
+                            #'make-instance-<standard-class>)
+                           ((eq metaclass <built-in-class>)
+                            #'make-instance-<built-in-class>)
+                           ((eq metaclass <structure-class>)
+                            #'make-instance-<structure-class>)
+                           (t #'make-instance))
+                     metaclass
+                     :name name
+                     :direct-superclasses direct-superclasses
+                     all-keys))))
+    (dolist (slot (class-direct-slots class))
+      (let ((slot-name (slot-definition-name slot))
+            (readers (slot-definition-readers slot))
+            (writers (slot-definition-writers slot)))
+        (dolist (funname readers)
+          (setf (class-direct-accessors class)
+                (list* funname
+                       #|
+                       (eval
+                         `(DEFMETHOD ,funname ((OBJECT ,name))
+                            ; (:METHOD-CLASS STANDARD-READER-METHOD)
+                            (DECLARE (COMPILE))
+                            (SLOT-VALUE OBJECT ',slot-name)))
+                       |#
+                       (do-defmethod funname
+                         (make-standard-reader-method
+                           :initfunction
+                             (eval
+                               `#'(LAMBDA (#:SELF)
+                                    (DECLARE (COMPILE))
+                                    (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
+                                      (DECLARE (COMPILE))
+                                      (SLOT-VALUE OBJECT ',slot-name))))
+                           :wants-next-method-p t
+                           :parameter-specializers (list class)
+                           :qualifiers nil
+                           :signature (make-signature :req-num 1)))
+                       (class-direct-accessors class))))
+        (dolist (funname writers)
+          (setf (class-direct-accessors class)
+                (list* funname
+                       #|
+                       (eval
+                         `(DEFMETHOD ,funname (NEW-VALUE (OBJECT ,name))
+                            ; (:METHOD-CLASS STANDARD-WRITER-METHOD)
+                            (DECLARE (COMPILE))
+                            (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE)))
+                       |#
+                       (do-defmethod funname
+                         (make-standard-writer-method
+                           :initfunction
+                             (eval
+                               `#'(LAMBDA (#:SELF)
+                                    (DECLARE (COMPILE))
+                                    (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
+                                      (DECLARE (COMPILE))
+                                      (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))))
+                           :wants-next-method-p t
+                           :parameter-specializers (list <t> class)
+                           :qualifiers nil
+                           :signature (make-signature :req-num 2)))
+                       (class-direct-accessors class))))))
+    class))
 (defun equal-direct-slots (slots1 slots2)
   (or (and (null slots1) (null slots2))
       (and (consp slots1) (consp slots2)
