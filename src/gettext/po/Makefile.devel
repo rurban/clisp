@@ -38,9 +38,9 @@ DSOURCES = \
  foreign \
  unixaux win32aux acornaux acornsig amigaaux
 
-LSPSOURCES = init defseq backquot defmacro macros1 macros2 defs1 timezone places floatpri type defstruc format savemem trace compiler disassem defs2 loop clos conditio gstream xcharin keyboard screen amigasock runprog query reploop dribble complete describe room edit macros3 foreign1 affi1 rexx1 defs3
+LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 timezone places floatprint type defstruct format savemem trace compiler disassem defs2 loop clos condition gstream xcharin keyboard screen amigasock runprog query reploop dribble complete describe room edit macros3 foreign1 affi1 rexx1 defs3
 
-SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lsp,$(LSPSOURCES))
+SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lisp,$(LISPSOURCES))
 
 # Lots of small catalog pieces. This will help reduce the building time
 # for the catalogs, since most often only a few source files change.

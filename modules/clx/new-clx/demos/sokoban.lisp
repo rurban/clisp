@@ -57,7 +57,7 @@
 (defvar *said-proceed-p* nil)
 (defvar *findmap* nil)
 
-(defvar *sokoban-state-file* '#"~/.sokoban-state.lsp") ;Change if you want
+(defvar *sokoban-state-file* '#"~/.sokoban-state.lisp") ;Change if you want
 (defvar *state-vars*
   '(*man-x* *man-y* *undos* *field* *level* *n-objects*))
 

@@ -12,13 +12,13 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = regexp.o regexi.o regex.o link.sh Makefile README regexp.lsp regexp.texinfo regexp.dvi
+DISTRIBFILES = regexp.o regexi.o regex.o link.sh Makefile README regexp.lisp regexp.texinfo regexp.dvi
 distribdir =
 
 all : regexp.o regexi.o regex.o
 
-regexp.c : regexp.lsp
-	$(CLISP) -c regexp.lsp
+regexp.c : regexp.lisp
+	$(CLISP) -c regexp.lisp
 
 regexp.o : regexp.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -c regexp.c

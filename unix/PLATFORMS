@@ -479,7 +479,7 @@ After configuring, change unixconf.h to contain the lines
   #undef HAVE_MMAP_DEVZERO
   #undef HAVE_MMAP_DEVZERO_SUN4_29
 Otherwise, the poor Sparc1 will freeze up about half way through the compile
-of compiler.lsp. Looks like a kernel problem.
+of compiler.lisp. Looks like a kernel problem.
 
 
 On a Sun4 (Sparc) under SunOS 4:
@@ -804,7 +804,7 @@ On OSF/1 3.0, mmap() works.
 
 On DEC Alpha AXP running OSF/1 3.2:
 
-The build process crashes during bootstrap, right after loading backquot.lsp.
+The build process crashes during bootstrap, right after loading backquote.lisp.
 You'd better try with gcc.
 
 

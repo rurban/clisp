@@ -11,7 +11,7 @@
 LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
 # (POSIX::SYSINFO-INTERNAL)
 # if you modify this function wrt it's return values,
-# you should modify POSIX:SYSINFO in posix.lsp accordingly
+# you should modify POSIX:SYSINFO in posix.lisp accordingly
 {
   var long res;
   var long count = 0;
@@ -102,7 +102,7 @@ LISPFUN(sysinfo_,0,0,norest,nokey,0,NIL)
 LISPFUN(resource_usage_limits_,0,0,norest,nokey,0,NIL)
 # (POSIX::RESOURCE-USAGE-LIMITS-INTERNAL)
 # if you modify this function wrt its return values,
-# you should modify POSIX:RESOURCE-USAGE-LIMITS in posix.lsp accordingly
+# you should modify POSIX:RESOURCE-USAGE-LIMITS in posix.lisp accordingly
 {
   var long count = 0;
   var struct rlimit rl;

@@ -194,7 +194,7 @@ Looks at GCL CLCS (debugger.lsp top-patches.lsp condition-definitions.lsp)
 whether it contains something clisp could profit from.
 
 
-Debugger (user1.lsp, debug.d): Implement backtrace-? commands with a limit,
+Debugger (user1.lisp, debug.d): Implement backtrace-? commands with a limit,
 such that  BACKTRACE-1 20  will show the 20 newest frames. Good for people
 without a "cmdtool" or an xterm with logging.
 
@@ -209,30 +209,30 @@ More CLtL2 compliance:
 ; Number Title                               Status          Files affected
 ;
 ;   <3>  ADJUST-ARRAY not adjustable         no              array.d
-;   <8>  array type/element type semantics   yes for arrays  type.lsp
+;   <8>  array type/element type semantics   yes for arrays  type.lisp
 ;                                            no for complex numbers
-;  <24>  compiler diagnostics                no              compiler.lsp
-;  <49>  DEFINE-COMPILER-MACRO               no              defs2.lsp
+;  <24>  compiler diagnostics                no              compiler.lisp
+;  <49>  DEFINE-COMPILER-MACRO               no              defs2.lisp
 ;  <55>  DEFSTRUCT :PRINT-FUNCTION inheritance
-;                                            no              defstruc.lsp
-;  <73>  EVAL-WHEN non top-level             no              control.d, init.lsp, compiler.lsp
+;                                            no              defstruct.lisp
+;  <73>  EVAL-WHEN non top-level             no              control.d, init.lisp, compiler.lisp
 ;  <76>  FIXNUM non-portable                 no              array.d
-;  <85>  FORMAT & pretty print               yes             format.lsp
+;  <85>  FORMAT & pretty print               yes             format.lisp
 ;                                            no: ~E, ~F, ~G, ~$ also bind *PRINT-BASE* to 10 and *PRINT-RADIX* to NIL
-;  <98>  hash-table & package generators     no              hashtabl.d, package.d, defs2.lsp
+;  <98>  hash-table & package generators     no              hashtabl.d, package.d, defs2.lisp
 ; <102>  IMPORT & SETF SYMBOL-PACKAGE        no              package.d
 ; <105>  keyword argument name package       no
 ; <110>  LOAD & objects                      no
-; <118>  MACRO-FUNCTION environment          no              control.d, compiler.lsp
+; <118>  MACRO-FUNCTION environment          no              control.d, compiler.lisp
 ; <122>  more character proposal             no              charstrg.d, stream.d
-; <125>  package clutter                     no              init.lsp
+; <125>  package clutter                     no              init.lisp
 ; <127>  package function consistency        no              package.d
 ; <129>  pathname: component value           no              pathname.d
 ; <131>  pathname: print & read              no              io.d
 ; <133>  pathname: subdirectory list         no              pathname.d
 ; <134>  pathname: symbol                    no              pathname.d, stream.d
 ; <136>  pathname: unspecific component      no              pathname.d
-; <139>  pretty-print interface              no              xp.lsp
+; <139>  pretty-print interface              no              xp.lisp
 ; <141>  *PRINT-CASE* / *PRINT-ESCAPE* interaction
 ;                                            no              io.d
 ; <148>  range of :COUNT keyword             no              sequence.d
@@ -240,13 +240,13 @@ More CLtL2 compliance:
 ; <153>  REMF & destruction: unspecified     no for NRECONC  list.d
 ;                                            yes for anything else
 ; <158>  sequence type & length              no              sequence.d, predtype.d
-; <159>  SETF & multiple store variables     yes for SETF    places.lsp
+; <159>  SETF & multiple store variables     yes for SETF    places.lisp
 ;                                            no for SHIFTF, ROTATEF, ASSERT
 ; <162>  sharp-comma confusion               no              io.d
-; <163>  sharpsign-plus/minus package        no              io.d, spvw.d, init.lsp, compiler.lsp
+; <163>  sharpsign-plus/minus package        no              io.d, spvw.d, init.lisp, compiler.lisp
 ; <174>  syntactic environment access        no
 ; <176>  :TEST-NOT, -IF-NOT                  no              sequence.d, list.d
-; <183>  WITH-COMPILATION-UNIT               no              compiler.lsp
+; <183>  WITH-COMPILATION-UNIT               no              compiler.lisp
 
 The general rule:
 If it hurts CLtL1 programs, don't do it. Or put a CLtL1 symbol into
@@ -259,7 +259,7 @@ If it doesn't hurt CLtL1 programs:
   If noone bothers, why?
 
 
-The completion in user2.lsp does bad things with respect to upper case and
+The completion in user2.lisp does bad things with respect to upper case and
 lower case of symbols. Assume the symbols |TMP|, |TMP structure class|
 are interned. Then type a tab in the following situations:
 > (symbol-plist '\tmp
@@ -268,7 +268,7 @@ are interned. Then type a tab in the following situations:
 > '"tm
 
 
-user1.lsp: provide a hook to extend commands1.
+user1.lisp: provide a hook to extend commands1.
 Rick Taube does the following in his Common Music package:
     (setf (symbol-function '.oldcommands1.)
        (symbol-function 'sys::commands1))

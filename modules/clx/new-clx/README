@@ -156,13 +156,13 @@ lauch CLISP. Example
 
 [then it barks something like this:]
 
-;; Loading file /usr/gilbert/lisp/clisp-1996-07-22/src/clx-1996-10-11/demos/sokoban.lsp ...
+;; Loading file /usr/gilbert/lisp/clisp-1996-07-22/src/clx-1996-10-11/demos/sokoban.lisp ...
  Call (sokoban:sokoban).
-;; Loading of file /usr/gilbert/lisp/clisp-1996-07-22/src/clx-1996-10-11/demos/sokoban.lsp is finished.
-;; Loading file /usr/gilbert/lisp/clisp-1996-07-22/src/clx-1996-10-11/demos/qix.lsp ...
+;; Loading of file /usr/gilbert/lisp/clisp-1996-07-22/src/clx-1996-10-11/demos/sokoban.lisp is finished.
+;; Loading file /usr/gilbert/lisp/clisp-1996-07-22/src/clx-1996-10-11/demos/qix.lisp ...
  CLX-DEMOS:QIX :host :width :height :delay
    The famous swirling vectors.
-;; Loading of file /usr/gilbert/lisp/clisp-1996-07-22/src/clx-1996-10-11/demos/qix.lsp is finished.
+;; Loading of file /usr/gilbert/lisp/clisp-1996-07-22/src/clx-1996-10-11/demos/qix.lisp is finished.
 > 
 
 Now you may try
@@ -249,12 +249,12 @@ A word on copyright
 I am affraid that some of the files lack a proper copyright statement. So I
 state it here again: 
 
-All files in this distribution expect image.lsp are copyrighted
+All files in this distribution expect image.lisp are copyrighted
 
  "Copyright (c) 1996 by Gilbert Baumann, distributed under GPL"
  (GPL = The GNU Public Licence).
 
-image.lsp and parts of clx.lsp are copyrighted 
+image.lisp and parts of clx.lisp are copyrighted 
  "Copyright (C) 1987 Texas Instruments Incorporated."
 
 Hope that is suffient and nobody will hinder me from improving, using,

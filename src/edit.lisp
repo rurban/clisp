@@ -7,7 +7,7 @@
 ;;-----------------------------------------------------------------------------
 ;; ED
 
-;; *editor*, editor-name und editor-tempfile sind in CONFIG.LSP definiert.
+;; *editor*, editor-name und editor-tempfile sind in CONFIG.LISP definiert.
 ;; Hier stehen nur die Defaults.
 
 ;; Der Name des Editors:
@@ -18,9 +18,9 @@
 
 ;; Das temporäre File, das LISP beim Editieren anlegt:
 (defun editor-tempfile ()
-  #+OS/2 "lisptemp.lsp"
-  #+AMIGA "T:lisptemp.lsp"
-  #+(or UNIX WIN32) (merge-pathnames "lisptemp.lsp" (user-homedir-pathname))
+  #+OS/2 "lisptemp.lisp"
+  #+AMIGA "T:lisptemp.lisp"
+  #+(or UNIX WIN32) (merge-pathnames "lisptemp.lisp" (user-homedir-pathname))
 )
 
 ;; (edit-file file) editiert ein File.

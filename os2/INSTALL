@@ -58,9 +58,9 @@ Installation on OS/2:
 
 7. Type
 
-         make config.lsp
+         make config.lisp
 
-   and edit the contents of config.lsp appropriately for your site,
+   and edit the contents of config.lisp appropriately for your site,
    especially the definitions of short-site-name and long-site-name.
 
 8. Type

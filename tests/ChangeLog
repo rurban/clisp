@@ -1,3 +1,8 @@
+2000-03-31  Bruno Haible  <haible@clisp.cons.org>
+
+        Renamed all *.lsp files to *.lisp.
+        * Makefile: Update.
+
 2000-03-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Add support for ECL.

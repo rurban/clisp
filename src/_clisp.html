@@ -263,15 +263,15 @@ in slower loading, but faster execution.
 startup (this happens after the <A HREF="#Option -C"><CODE>-C</CODE></A>
 option is processed). The file loaded is
 #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
-<CODE>_clisprc.lsp</CODE> or <CODE>_clisprc.fas</CODE> in the home directory
+<CODE>_clisprc.lisp</CODE> or <CODE>_clisprc.fas</CODE> in the home directory
 <CODE>(user-homedir-pathname)</CODE>,
 #endif
 #if defined(PATHNAME_AMIGAOS)
-<CODE>.clisprc.lsp</CODE> or <CODE>.clisprc.fas</CODE> in the home directory
+<CODE>.clisprc.lisp</CODE> or <CODE>.clisprc.fas</CODE> in the home directory
 <CODE>(user-homedir-pathname)</CODE>,
 #endif
 #if defined(PATHNAME_UNIX)
-<CODE>${HOME}/.clisprc.lsp</CODE> or <CODE>${HOME}/.clisprc.fas</CODE>,
+<CODE>${HOME}/.clisprc.lisp</CODE> or <CODE>${HOME}/.clisprc.fas</CODE>,
 #endif
 whichever is newest. This option, <CODE>-norc</CODE>, prevents loading of
 the RC file.
@@ -472,12 +472,12 @@ EOF (Ctrl-\e)
 <P>
 
 <DT>
-<CODE>config.lsp</CODE>
+<CODE>config.lisp</CODE>
 <DD> site-dependent configuration
 <P>
 
 <DT>
-<CODE>*.lsp</CODE>
+<CODE>*.lisp</CODE>
 <DD> lisp source
 <P>
 
@@ -663,7 +663,7 @@ and Michael Stoll.
 Bruno Haible &lt;haible@clisp.cons.org&gt;
 </ADDRESS>
 <P>
-Last modified: 15 March 2000.
+Last modified: 31 March 2000.
 
 </BODY>
 

@@ -47,9 +47,9 @@
 )
 (proclaim '(inline ds-slot-name))
 (defun ds-slot-name (slot) (svref slot 0))
-;(defun ds-slot-initargs (slot) (svref slot 1)) ; only used in clos.lsp
+;(defun ds-slot-initargs (slot) (svref slot 1)) ; only used in clos.lisp
 (defmacro ds-slot-offset (slot) `(svref ,slot 2))
-(defmacro ds-slot-initer (slot) `(svref ,slot 3)) ; used in clos.lsp
+(defmacro ds-slot-initer (slot) `(svref ,slot 3)) ; used in clos.lisp
 (defmacro ds-slot-default (slot) `(svref ,slot 4))
 (defmacro ds-slot-type (slot) `(svref ,slot 5))
 (defmacro ds-slot-readonly (slot) `(svref ,slot 6))

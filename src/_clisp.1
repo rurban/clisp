@@ -1,4 +1,4 @@
-.TH CLISP 1 "15 March 2000"
+.TH CLISP 1 "31 March 2000"
 
 
 .SH NAME
@@ -361,21 +361,21 @@ loads a user run control (RC) file on startup (this happens after the
 .BI \-C
 option is processed).  The file loaded is
 #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
-.B _clisprc.lsp
+.B _clisprc.lisp
 or
 .B _clisprc.fas
 in the home directory
 .IR "(user-homedir-pathname)" ,
 #endif
 #if defined(PATHNAME_AMIGAOS)
-.B .clisprc.lsp
+.B .clisprc.lisp
 or
 .B .clisprc.fas
 in the home directory
 .IR "(user-homedir-pathname)" ,
 #endif
 #if defined(PATHNAME_UNIX)
-.B ${HOME}/.clisprc.lsp
+.B ${HOME}/.clisprc.lisp
 or
 .BR ${HOME}/.clisprc.fas ,
 #endif
@@ -581,11 +581,11 @@ main executable
 initial memory image
 
 .TP
-.I config.lsp
+.I config.lisp
 site-dependent configuration
 
 .TP
-.I *.lsp
+.I *.lisp
 lisp source
 
 .TP

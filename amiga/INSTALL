@@ -20,7 +20,7 @@ Installation on Amiga (AmigaOS):
 
 3. Make directory trees
 
-   Leave source in src/ (only *.d, *.h and *.lsp files are needed) and
+   Leave source in src/ (only *.d, *.h and *.lisp files are needed) and
    utilities in utils/ (only comment5, ansidecl and cvtmsgs are needed).
    Choose the version you want to build (see README.Amiga or README) and
    create directories like make.typ2/ at the same level as src/.
@@ -108,10 +108,10 @@ Installation on Amiga (AmigaOS):
 
 9. Edit
 
-        src/config.lsp
-        src/timezone.lsp
+        src/config.lisp
+        src/timezone.lisp
 
-   See README for the one line to modify in timezone.lsp. In config.lsp,
+   See README for the one line to modify in timezone.lisp. In config.lisp,
    you may wish to set your favourite editor or restrict the *load-paths*.
 
 10. Remove

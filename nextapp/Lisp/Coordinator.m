@@ -247,7 +247,7 @@
 - findStartFile:sender
 {
     // Bring up an Open Panel to choose a startup file from
-    const char *types[3] = {"lsp", "fas", NULL};
+    const char *types[3] = {"lisp", "fas", NULL};
 
     if(openPanel == nil)
     {
@@ -605,7 +605,7 @@
 
 - loadFile:sender
 {
-    const char *types[3] = {"lsp", "fas", NULL};
+    const char *types[3] = {"lisp", "fas", NULL};
 
     if(openPanel == nil)
     {
@@ -627,7 +627,7 @@
 
 - compileFile:sender
 {
-    const char *types[2] = {"lsp", NULL};
+    const char *types[2] = {"lisp", NULL};
 
     if(openPanel == nil)
     {

@@ -513,8 +513,8 @@ if test -z "$do_build"; then
     echo "    cd $DIRNAME"
   fi
   echo "    ./makemake $makemake_args > Makefile"
-  echo "    make config.lsp"
-  echo "    ${EDITOR:-vi} config.lsp"
+  echo "    make config.lisp"
+  echo "    ${EDITOR:-vi} config.lisp"
   echo "    make"
   echo "    make check"
 

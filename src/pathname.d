@@ -585,7 +585,7 @@
 # Externe Notation:  device:sub1.typ/sub2.typ/name.typ
 # mit Defaults:             sub1.typ/sub2.typ/name.typ
 # oder                                        name.typ
-# oder                      sub1.typ/ ** /sub3.typ/x*.lsp  (ohne Spaces!)
+# oder                      sub1.typ/ ** /sub3.typ/x*.lisp  (ohne Spaces!)
 # oder Ähnliches.
 # Formal:
 #   ch ::= beliebgiges Character außer ':','/' und '*','?'
@@ -644,7 +644,7 @@
 # Externe Notation:  server:/sub1.typ/sub2.typ/name.typ
 # mit Defaults:             /sub1.typ/sub2.typ/name.typ
 # oder                                         name.typ
-# oder                      /sub1.typ/ ** /sub3.typ/x*.lsp  (ohne Spaces!)
+# oder                      /sub1.typ/ ** /sub3.typ/x*.lisp  (ohne Spaces!)
 # oder Ähnliches.
 #endif
 
@@ -673,7 +673,7 @@
 # Externe Notation:       A:\sub1.typ\sub2.typ\name.typ
 # mit Defaults:             \sub1.typ\sub2.typ\name.typ
 # oder                                         name.typ
-# oder                    *:\sub1.typ\**\sub3.typ\x*.lsp
+# oder                    *:\sub1.typ\**\sub3.typ\x*.lisp
 # oder Ähnliches.
 # Statt '\' ist - wie unter DOS üblich - auch '/' erlaubt.
 #endif
@@ -809,7 +809,7 @@
 #
 # from Lisp-string notation to internal representation
 # ----------------------------------------------------
-# NO swapping. "foo.lsp" means file type "lsp" and file name "foo".
+# NO swapping. "foo.lisp" means file type "lisp" and file name "foo".
 # This is pseudo-BNF:
 #
 # legal character ::= any ISO latin-1 graphic character >= ' ' except
@@ -10772,7 +10772,7 @@ LISPFUNN(lib_directory,0)
 LISPFUN(user_data_,1,0,norest,nokey,0,NIL)
 # (POSIX::USER-DATA-INTERNAL user)
 # if you modify this function wrt its return values,
-# you should modify POSIX:USER-DATA in posix.lsp accordingly
+# you should modify POSIX:USER-DATA in posix.lisp accordingly
   {
     var object user = popSTACK();
     struct passwd *pwd = NULL;
@@ -10819,7 +10819,7 @@ LISPFUN(user_data_,1,0,norest,nokey,0,NIL)
 LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
 # (POSIX::FILE-STAT-INTERNAL file &optional link-p)
 # if you modify this function wrt its return values,
-# you should modify POSIX:FILE-STAT in posix.lsp accordingly
+# you should modify POSIX:FILE-STAT in posix.lisp accordingly
   {
     var object link = popSTACK();
     var object file = popSTACK();

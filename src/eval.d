@@ -6935,7 +6935,7 @@ LISPFUNN(subr_info,1)
               mv_count=1;
               goto finished; # Rücksprung zum Aufrufer
             }
-            # Es ist bekannt (siehe clos.lsp), dass diese Funktion
+            # Es ist bekannt (siehe clos.lisp), dass diese Funktion
             # keine optionalen Parameter hat, aber evtl. Rest-Parameter.
             # Falls kein Rest-Parameter: (FUNCALL value1 arg1 ... argr)
             # Falls mit Rest-Parameter: (APPLY value1 arg1 ... argr restarg)

@@ -230,7 +230,7 @@
 //
 // - errors should be reported in a much more meaningful way.
 //
-// - the big export list in clx.lsp seems to export some superfluous symbols.
+// - the big export list in clx.lisp seems to export some superfluous symbols.
 //
 // - put also ptr objects into the hashtable.
 //   Is there any way to get 'em anyhow back?
@@ -700,7 +700,7 @@ local uint32 get_aint32 (object obj)
 // ----------------------------------------------------------------------------------------------------
 //
 // Objects of type DISPLAY are currently represented as structure; here are the slots:
-// The actual defstruct definition in clx.lsp must match. There is a warning in the code.
+// The actual defstruct definition in clx.lisp must match. There is a warning in the code.
 //
 #define slot_DISPLAY_FOREIGN_POINTER 1
 #define slot_DISPLAY_HASH_TABLE      2
@@ -2702,7 +2702,7 @@ defun XLIB:DISPLAY-TRACE (0, 0, rest, nokey, 0, NIL)
      // I do not think I will support this function, since
      //   - traceing seems not to be possible using the libX11
      //   - It may even not be wanted by anybody...?!
-     // BTW in the source of MIT-CLX (trace.lsp) I found a mark that display-trace is an obsolete name.
+     // BTW in the source of MIT-CLX (trace.lisp) I found a mark that display-trace is an obsolete name.
      {UNDEFINED}
 
 
@@ -8565,7 +8565,7 @@ defun XLIB:KEYCODE->KEYSYM (3)
   keysym = XKeycodeToKeysym (dpy, keycode, index);
   end_call ();
 
-  // There is a comment in MIT-CLX, translate.lsp, which I want to quote here:
+  // There is a comment in MIT-CLX, translate.lisp, which I want to quote here:
   //
   //    The keysym-mapping is brain dammaged.
   //    Mappings for both-case alphabetic characters have the
@@ -9319,7 +9319,7 @@ defun XLIB:NO-OPERATION (1) {UNDEFINED}
 
 // [ MOVED TO LISP
 ##if 0
-// All these are defined in manager.lsp and are simply droped in ...
+// All these are defined in manager.lisp and are simply droped in ...
 defun XLIB:ICON-SIZES (1) {UNDEFINED}
 defun XLIB:SET-WM-CLASS (3) {UNDEFINED}
 defun XLIB:SET-WM-PROPERTIES (0, 0, rest, nokey, 0, NIL) {UNDEFINED}//LISPFUN  (xlib_set_wm_properties, 1, 0, rest, key, 36, (:NAME :ICON-NAME :RESOURCE-NAME :RESOURCE-CLASS :COMMAND :CLIENT-MACHINE :HINTS :NORMAL-HINTS :ZOOM-HINTS :USER-SPECIFIED-POSITION-P :USER-SPECIFIED-SIZE-P :PROGRAM-SPECIFIED-POSITION-P :PROGRAM-SPECIFIED-SIZE-P :X :Y :WIDTH :HEIGHT :MIN-WIDTH :MIN-HEIGHT :MAX-WIDTH :MAX-HEIGHT :WIDTH-INC :HEIGHT-INC :MIN-ASPECT :MAX-ASPECT :BASE-WIDTH :BASE-HEIGHT :WIN-GRAVITY :INPUT :INITIAL-STATE :ICON-PIXMAP :ICON-WINDOW :ICON-X :ICON-Y :ICON-MASK :WINDOW-GROUP))

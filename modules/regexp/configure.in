@@ -1,7 +1,7 @@
 dnl  AUTOCONF configuration for regex
 dnl  Bruno Haible 18.4.1995
 dnl
-AC_INIT(regexp.lsp)
+AC_INIT(regexp.lisp)
 AC_CONFIG_HEADER(config.h)
 
 AC_PROG_CC

@@ -22,7 +22,7 @@ Source:
       src/_impnotes.html implementation documentation master
       src/*.d            C source files
       src/*.il           auxiliary file
-      src/*.lsp          Lisp source files
+      src/*.lisp         Lisp source files
       doc/*              documentation
 
 Installation:

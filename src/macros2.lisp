@@ -240,7 +240,7 @@
 
 ;;; Exhaustive Case Analysis
 
-;; These macros are superseded by the corresponding ones from conditio.lsp
+;; These macros are superseded by the corresponding ones from condition.lisp
 ;; when the condition system is available.
 
 (flet ((parenthesize-keys (clauses)
