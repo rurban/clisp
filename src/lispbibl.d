@@ -9331,8 +9331,8 @@ struct backtrace_t {
 /* evaluate statement augmenting back_trace */
 #if defined(STACKCHECKS) || defined(STACKCHECKC)
 #define with_saved_back_trace(fun,num_arg,statement)           do {     \
-    struct backtrace_t *bt_save=back_trace;                             \
-    struct backtrace_t bt_here = { back_trace, fun, STACK, num_arg };   \
+    struct backtrace_t *bt_save = back_trace;                           \
+    struct backtrace_t  bt_here = { back_trace, fun, STACK, num_arg };  \
     back_trace = &bt_here;                                              \
     statement;                                                          \
     if (back_trace->next != bt_save) abort();                           \
@@ -10195,13 +10195,13 @@ extern object coerce_function (object obj);
   } while(0)
 # is used by EVAL, CONTROL
 
-# Highest number of parameters in a lambda-list
+# Highest number of parameters in a lambda-list (< bitm(intCsize))
 # (= value of LAMBDA-PARAMETERS-LIMIT - 1)
-#define lp_limit_1  ((uintL)(bitm(intCsize)-1))
+#define lp_limit_1  ((uintL)(bitm(12)-1))
 
 # Highest number of arguments for a function call
 # (= value of CALL-ARGUMENTS-LIMIT - 1)
-#define ca_limit_1  ((uintL)(bitm(intCsize)-1))
+#define ca_limit_1  lp_limit_1
 
 # The macro LISPSPECFORM initiates the declaration of a LISP-Special-Form.
 # LISPSPECFORM(name,req_anz,opt_anz,body_flag)

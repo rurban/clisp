@@ -2520,6 +2520,19 @@ global int main (argc_t argc, char* argv[]) {
       }
     }
   }
+ #ifdef DEBUG_SPVW
+  { /* STACK & SP are settled - check that we have enough STACK */
+    var uintL stack_depth =
+      STACK_diff((object*)STACK_bound,STACK)/sizeof(*STACK);
+    fprintf(stderr,"STACK depth: %d\nSP depth: %d\n",stack_depth,
+            STACK_diff((SPint*)SP_bound,(SPint*)SP())/sizeof(SPint));
+    if (stack_depth < ca_limit_1) {
+      fprintf(stderr,"STACK depth is less than CALL-ARGUMENTS-LIMIT (%d)\n",
+              ca_limit_1);
+      abort();
+    }
+  }
+ #endif
   init_subr_tab_1(); # initialize subr_tab
   if (argv_memfile==NULL) # manual initialization:
     initmem();
