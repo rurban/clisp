@@ -113,7 +113,7 @@
       {
         var int fd = OPEN("/dev/zero",O_RDONLY,my_open_mask);
         if (fd<0) {
-          asciz_out(GETTEXTL("Cannot open /dev/zero ."));
+          fprintf(stderr,GETTEXTL("Cannot open <%s>."),"/dev/zero");
           errno_out(errno);
           return -1; # error
         }
@@ -140,8 +140,8 @@
       var mmap_interval* ptr = &mmap_intervals[0];
       while (ptr != mmap_intervals_ptr) {
         if (msync((MMAP_ADDR_T)ptr->mm_addr,ptr->mm_len,MS_INVALIDATE) < 0) {
-          asciz_out_2(GETTEXTL("msync(0x%x,0x%x,MS_INVALIDATE) failed."),
-                      ptr->mm_addr, ptr->mm_len);
+          fprintf(stderr,GETTEXTL("msync(0x%x,0x%x,MS_INVALIDATE) failed."),
+                  ptr->mm_addr, ptr->mm_len);
           errno_out(errno);
         }
         ptr++;
@@ -169,9 +169,8 @@
                        )
            == (void*)(-1)
          ) {
-        asciz_out_1(GETTEXTL("Cannot map memory to address 0x%x ."),
-                    map_addr
-                   );
+        fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),
+                map_addr);
         errno_out(errno);
         return -1; # error
       }
@@ -204,9 +203,7 @@
       fd = OPEN(tempfilename,O_RDWR|O_CREAT,my_open_mask);
       #endif
       if (fd<0) {
-        asciz_out_s(GETTEXTL("Cannot open %s ."),
-                    tempfilename
-                   );
+        fprintf(stderr,GETTEXTL("Cannot open <%s>."),tempfilename);
         errno_out(errno);
         return -1; # error
       }
@@ -215,9 +212,7 @@
       # (the operating system will delete the file only when at the end of
       # this process in _exit() a close(fd) is performed.)
       if ( unlink(tempfilename) <0) {
-        asciz_out_s(GETTEXTL("Cannot delete %s ."),
-                    tempfilename
-                   );
+        fprintf(stderr,GETTEXTL("Cannot delete <%s>."),tempfilename);
         errno_out(errno);
         return -1; # error
       }
@@ -230,10 +225,8 @@
             var uintL available = (uintL)(statbuf.f_bsize) * (uintL)(statbuf.f_bavail);
             if (available < map_len) {
               # there is likely too few disk space
-              asciz_out_s(GETTEXTL("** WARNING: ** Too few free disk space for %s ." NLstring),
-                          tempfilename
-                         );
-              asciz_out(GETTEXTL("Please restart LISP with fewer memory (option -m)." NLstring));
+              fprintf(stderr,GETTEXTL("** WARNING: ** Too little free disk space for <%s>." NLstring),tempfilename);
+              fprintf(stderr,GETTEXTL("Please restart LISP with less memory (option -m)." NLstring));
             }
           }
       }
@@ -241,9 +234,8 @@
       {
         var uintB dummy = 0;
         if (( lseek(fd,map_len-1,SEEK_SET) <0) || (!( full_write(fd,&dummy,1) ==1))) {
-          asciz_out_s(GETTEXTL("Cannot make %s long enough."),
-                      tempfilename
-                     );
+          fprintf(stderr,GETTEXTL("Cannot make <%s> long enough."),
+                  tempfilename);
           errno_out(errno);
           return -1; # error
         }
@@ -260,9 +252,7 @@
       var uintL map_len;
       {
         if (( lseek(fd,0,SEEK_SET) <0) || (!( full_write(fd,map_addr,map_len) == map_len))) {
-          asciz_out_s(GETTEXTL("Cannot fill %s ."),
-                      tempfilename
-                     );
+          fprintf(stderr,GETTEXTL("Cannot fill <%s>."),tempfilename);
           errno_out(errno);
           return -1; # error
         }
@@ -277,9 +267,7 @@
     var int fd;
     {
       if ( CLOSE(fd) <0) {
-        asciz_out_s(GETTEXTL("Cannot close %s ."),
-                    tempfilename
-                   );
+        fprintf(stderr,GETTEXTL("Cannot close <%s>."),tempfilename);
         errno_out(errno);
         return -1; # error
       }
@@ -311,10 +299,10 @@
   #define exitmap()  \
     msync_mmap_intervals();                                \
     if (zero_fd >= 0)                                      \
-      if ( CLOSE(zero_fd) <0)                              \
-        { asciz_out(GETTEXTL("Cannot close /dev/zero .")); \
-          errno_out(errno);                                \
-        }
+      if ( CLOSE(zero_fd) <0) {                                         \
+        fprintf(stderr,GETTEXTL("Cannot close <%s>."),"/dev/zero");     \
+        errno_out(errno);                                       \
+      }
 
   #define multimap(typecases,map_addr,map_len,save_flag)  \
     { # open temporary file:                                  \
@@ -348,7 +336,7 @@
         var struct shminfo shminfo;
         if ( shmctl(0,IPC_INFO,(struct shmid_ds *)&shminfo) <0)
           if (errno==ENOSYS) {
-            asciz_out(GETTEXTL("Recompile your operating system with SYSV IPC support." NLstring));
+            fprintf(stderr,GETTEXTL("Recompile your operating system with SYSV IPC support." NLstring));
             return -1; # error
           }
       }
@@ -362,7 +350,7 @@
     {
       var int shmid = shmget(IPC_PRIVATE,map_len,0700|IPC_CREAT); # 0700 = 'Read/Write/Execute only for me'
       if (shmid<0) {
-        asciz_out(GETTEXTL("Cannot allocate private shared memory segment."));
+        fprintf(stderr,GETTEXTL("Cannot allocate private shared memory segment of size %d."),map_len);
         errno_out(errno);
         return -1; # error
       }
@@ -382,11 +370,9 @@
                  map_addr, # address
                  shmflags # flags (default: read/write)
                 )
-           == (void*)(-1)
-         ) {
-        asciz_out_1(GETTEXTL("Cannot map shared memory to address 0x%x."),
-                    map_addr
-                   );
+           == (void*)(-1)) {
+        fprintf(stderr,GETTEXTL("Cannot map shared memory to address 0x%x."),
+                map_addr);
         errno_out(errno);
         return -1; # error
       }
@@ -407,13 +393,13 @@
                                          0 # flags: need none
                                         );
         if (temp_addr == (void*)(-1)) {
-          asciz_out(GETTEXTL("Cannot fill shared memory."));
+          fprintf(stderr,GETTEXTL("%s: Cannot fill shared memory."),"shmat");
           errno_out(errno);
           return -1; # error
         }
         memcpy(temp_addr,map_addr,map_len);
         if (shmdt(temp_addr) < 0) {
-          asciz_out(GETTEXTL("Could not fill shared memory."));
+          fprintf(stderr,GETTEXTL("%s: Cannot fill shared memory."),"shmdt");
           errno_out(errno);
           return -1; # error
         }
@@ -428,7 +414,7 @@
     var int shmid;
     {
       if ( shmctl(shmid,IPC_RMID,NULL) <0) {
-        asciz_out(GETTEXTL("Cannot remove shared memory segment."));
+        fprintf(stderr,GETTEXTL("Cannot remove shared memory segment."));
         errno_out(errno);
         return -1; # error
       }

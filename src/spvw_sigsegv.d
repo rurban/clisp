@@ -26,8 +26,8 @@
 
 # Put a breakpoint here if you want to catch CLISP just before it dies.
 global void sigsegv_handler_failed (void* address) {
-  asciz_out_1(GETTEXTL(NLstring "SIGSEGV cannot be cured. Fault address = 0x%x." NLstring),
-              address);
+  fprintf(stderr,GETTEXTL(NLstring "SIGSEGV cannot be cured. Fault address = 0x%x." NLstring),
+          address);
 }
 
 # Signal-Handler for signal SIGSEGV or similar:
@@ -60,7 +60,7 @@ local void install_segv_handler (void) {
 
 local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
   if (emergency) {
-    asciz_out(GETTEXTL("Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!" NLstring));
+    fprintf(stderr,GETTEXTL("Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!" NLstring));
   }
   sigsegv_leave_handler();
  #ifdef HAVE_SAVED_STACK

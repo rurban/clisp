@@ -14,13 +14,11 @@
 
 
 #ifdef DEBUG_REXX
-  #define debug_asciz_out  asciz_out
-  #define debug_asciz_out_s  asciz_out_s
-  #define debug_asciz_out_1  asciz_out_1
+  #define debug_out  printf
+  #define debug_out_1  printf
 #else
-  #define debug_asciz_out(x)
-  #define debug_asciz_out_s(x,y)
-  #define debug_asciz_out_1(x,y)
+  #define debug_out(x)
+  #define debug_out_1(x,y)
 #endif
 
 
@@ -163,7 +161,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,
     # Ab hier für eine Weile keine GC mehr
     {
       var struct RexxMsg * rexxmsg;
-      debug_asciz_out("%REXX-PUT: ");
+      debug_out("%REXX-PUT: ");
       begin_system_call();
       rexxmsg = CreateRexxMsg(rexxPort,rexxExtension,rexxPortName);
       end_system_call();
@@ -172,7 +170,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,
         var bool success;
         if (functionp) {
           # ARexx Funktionsaufruf
-          debug_asciz_out("function ");
+          debug_out("function ");
           # Argumente einfüllen:
           {
             var uintL i;
@@ -195,7 +193,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,
           setSTACK(STACK = fargs_pointer); # Stack aufräumen
         } else {
           # ARexx Kommando
-          debug_asciz_out("command ");
+          debug_out("command ");
           with_sstring(STACK_(5+1),O(misc_encoding),asciz,len, {
             begin_system_call();
             if (rexxmsg->rm_Args[0] = CreateArgstring(asciz,len))
@@ -242,7 +240,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,
             # erfolgreich -> mitzählen:
             rexxNeededReplies++;
             TheFpointer(STACK_0)->fp_pointer = rexxmsg;
-            debug_asciz_out_1("%x",rexxmsg);
+            debug_out_1("%x",rexxmsg);
           } else {
             # nicht erfolgreich -> aufräumen:
             begin_system_call();
@@ -266,7 +264,7 @@ LISPFUN(rexx_put,1,0,norest,key,5,
         setSTACK(STACK = fargs_pointer); # Stack aufräumen
         value1 = NIL;
       }
-      debug_asciz_out(NLstring);
+      debug_out(NLstring);
     }
     mv_count=1; skipSTACK(1+5+1);
   }
@@ -345,7 +343,7 @@ LISPFUNN(rexx_wait_input,0)
         if (rexxmsg == NULL) { # keine Nachricht vorhanden?
           return NIL;
         } else {
-          debug_asciz_out_1("rexx_getmsg: %x",rexxmsg->rm_Action);
+          debug_out_1("rexx_getmsg: %x",rexxmsg->rm_Action);
           if (rexxmsg->rm_Node.mn_Node.ln_Type == NT_REPLYMSG) {
             # Antwort auf eine von uns geschickte Message
             var LONG result1 = rexxmsg->rm_Result1;
@@ -365,7 +363,7 @@ LISPFUNN(rexx_wait_input,0)
             DeleteRexxMsg(rexxmsg);
             end_system_call();
             rexxNeededReplies--;
-            debug_asciz_out(" a reply ");
+            debug_out(" a reply ");
             # ab hier GC wieder möglich
             if (rexxShutdown) {
               handle_lost_argstr(); return T;
@@ -384,7 +382,7 @@ LISPFUNN(rexx_wait_input,0)
             }
           } else {
             rexxmsg->rm_Result2 = 0;
-            debug_asciz_out_s(" incoming is " NLstring "%s",rexxmsg->rm_Args[0]);
+            debug_out_1(" incoming is " NLstring "%s",rexxmsg->rm_Args[0]);
             # Eingehender Befehl
             if (rexxShutdown) {
               # Schluss, nichts läuft mehr
@@ -437,7 +435,7 @@ LISPFUNN(rexx_get,0)
     var ULONG result_length;
     {
       var struct RexxMsg* rexxmsg = TheFpointer(foreign)->fp_pointer;
-      debug_asciz_out_1("rexx_replymsg: %x",rexxmsg);
+      debug_out_1("rexx_replymsg: %x",rexxmsg);
       rexxmsg->rm_Result1 = rc;
       begin_system_call();
       rexxmsg->rm_Result2 = (ULONG)
@@ -450,7 +448,7 @@ LISPFUNN(rexx_get,0)
       # Die Message foreign ist nun beantwortet.
       O(rexx_inmsg_list) = deleteq(O(rexx_inmsg_list),foreign);
       mark_fp_invalid(TheFpointer(foreign)); # prohibit further use
-      debug_asciz_out(NLstring);
+      debug_out(NLstring);
     }
 
 # (SYS::%REXX-REPLY message-id return-code return-string)
@@ -551,7 +549,7 @@ LISPFUNN(rexx_reply,3)
   global void close_rexx(void)
     {
       rexxShutdown = true;
-      debug_asciz_out_1("close_rexx: %d messages waiting." NLstring,rexxNeededReplies);
+      debug_out_1("close_rexx: %d messages waiting." NLstring,rexxNeededReplies);
       if (!(rexxPort == NULL)) {
         # Port unbekannt machen (abmelden):
         begin_system_call();
@@ -570,7 +568,7 @@ LISPFUNN(rexx_reply,3)
           begin_system_call();
           Wait(rexxPortBit);
           end_system_call();
-          debug_asciz_out("Looping" NLstring);
+          debug_out("Looping" NLstring);
         }
         begin_system_call();
         rexxPort->mp_Node.ln_Name = NULL;

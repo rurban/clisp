@@ -60,7 +60,7 @@ global long full_write(handle,bufarea,nbyte)
         # considère pas qu'une sortie de programme soit sûre puisque la mémoire
         # peut se trouver dans un mauvais état, il peut y avoir des fichiers
         # non fermés, des «Lock» alloués, etc.                    Jörg 7.1.1993
-        asciz_out(NLstring "CLISP panic! (halting)" NLstring);
+        fprintf(stderr,"\nCLISP panic! (halting)\n");
         Wait(0L);
       #endif
     }
@@ -206,8 +206,8 @@ global long full_write(handle,bufarea,nbyte)
         if (!(pointable_usable_test((aint)&init_amiga) # Code-Segment überprüfen
               && pointable_usable_test((aint)&symbol_tab) # Daten-Segment überprüfen
            ) ) {
-          asciz_out(GETTEXTL("This version of CLISP runs only in low address memory." NLstring));
-          asciz_out_2("CODE: %x, DATA: %x." NLstring, (aint)&init_amiga, (aint)&symbol_tab);
+          fprintf(stderr,GETTEXTL("This version of CLISP runs only in low address memory."));
+          fprintf(stderr,"\nCODE: %x, DATA: %x.\n", (aint)&init_amiga, (aint)&symbol_tab);
           exit(RETURN_FAIL);
         }
         #undef pointable_usable_test

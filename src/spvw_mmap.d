@@ -56,22 +56,16 @@
 
   #define mmap_prepare(map_addr,map_endaddr,shrinkp)  0
 
-  local int mmap_zeromap (void* map_addr, uintL map_len);
-  local int mmap_zeromap(map_addr,map_len)
-    var void* map_addr;
-    var uintL map_len;
-    {
-      if (!(vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, false)
-            == KERN_SUCCESS
-         ) ) {
-        asciz_out_1(GETTEXTL("Cannot map memory to address 0x%x ."),
-                    map_addr
-                   );
-        asciz_out(NLstring);
-        return -1; # error
-      }
-      return 0;
-    }
+local int mmap_zeromap (void* map_addr, uintL map_len);
+{
+  if (vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, false)
+      != KERN_SUCCESS) {
+    fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x .\n"),
+            map_addr);
+    return -1; /* error */
+  }
+  return 0;
+}
 
   local void* mmap_filemap (void* map_addr, uintL map_len, int fd, off_t offset);
   local void* mmap_filemap(map_addr,map_len,fd,offset)
@@ -185,9 +179,8 @@
           addr += info.RegionSize;
         }
         if (largest_len < 0x10000) {
-          asciz_out_1(GETTEXTL("Cannot reserve address range at 0x%x ."),
-                      *map_addr
-                     );
+          fprintf(stderr,GETTEXTL("Cannot reserve address range at 0x%x ."),
+                  *map_addr);
           # DumpProcessMemoryMap();
           return -1;
         }
@@ -196,34 +189,29 @@
       }
       if (!VirtualAlloc((void*)start_addr,end_addr-start_addr,MEM_RESERVE,PAGE_NOACCESS/*dummy*/)) {
         var DWORD errcode = GetLastError();
-        asciz_out_2(GETTEXTL("Cannot reserve address range 0x%x-0x%x ."),
-                    start_addr,end_addr-1
-                   );
+        fprintf(stderr,GETTEXTL("Cannot reserve address range 0x%x-0x%x ."),
+                start_addr,end_addr-1);
         errno_out(errcode);
         # DumpProcessMemoryMap();
         return -1;
       }
       #ifdef DEBUG_SPVW
-      asciz_out_2("Reserved address range 0x%x-0x%x ." NLstring, start_addr,end_addr-1);
+      fprintf(stderr,"Reserved address range 0x%x-0x%x .\n",
+              start_addr,end_addr-1);
       #endif
       return 0;
     }
 
-  local int mmap_zeromap (void* map_addr, uintL map_len);
-  local int mmap_zeromap(map_addr,map_len)
-    var void* map_addr;
-    var uintL map_len;
-    {
-      if (!VirtualAlloc(map_addr,map_len,MEM_COMMIT,PAGE_READWRITE)) {
-        var DWORD errcode = GetLastError();
-        asciz_out_1(GETTEXTL("Cannot map memory to address 0x%x ."),
-                    map_addr
-                   );
-        errno_out(errcode);
-        return -1; # error
-      }
-      return 0;
-    }
+local int mmap_zeromap (void* map_addr, uintL map_len);
+{
+  if (!VirtualAlloc(map_addr,map_len,MEM_COMMIT,PAGE_READWRITE)) {
+    var DWORD errcode = GetLastError();
+    fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),map_addr);
+    errno_out(errcode);
+    return -1; /* error */
+  }
+  return 0;
+}
 
   #if 0
   # This implementation, on top of MapViewOfFileEx(), has three severe flaws:
@@ -237,40 +225,35 @@
   #   munmap() below wouldn't work.
   # - It doesn't work on Win95: MapViewOfFileEx() on Win95 cannot guarantee
   #   that it will be able to map at the desired address.
-  local void* mmap_filemap (void* map_addr, uintL map_len, Handle fd, off_t offset);
-  local void* mmap_filemap(map_addr,map_len,fd,offset)
-    var void* map_addr;
-    var uintL map_len;
-    var Handle fd;
-    var off_t offset;
-    {
-      if (map_len==0)
-        return map_addr;
-      var HANDLE maphandle = CreateFileMapping(fd,NULL,PAGE_WRITECOPY,0,0,NULL);
-      if (maphandle == NULL) {
-        var DWORD errcode = GetLastError();
-        asciz_out(GETTEXTL("CreateFileMapping() failed."));
-        errno_out(errcode);
-        return (void*)(-1);
-      }
-      var void* resultaddr = MapViewOfFileEx(maphandle,FILE_MAP_COPY,0,(DWORD)offset,map_len,map_addr);
-      if (resultaddr == NULL) {
-        var DWORD errcode = GetLastError();
-        asciz_out_2(GETTEXTL("MapViewOfFileEx(addr=0x%x,off=0x%x) failed."),
-                    map_addr,offset
-                   );
-        errno_out(errcode);
-        return (void*)(-1);
-      }
-      if (!(resultaddr == map_addr)) {
-        asciz_out_2(GETTEXTL("MapViewOfFileEx() returned 0x%x instead of 0x%x." NLstring),
-                    resultaddr, map_addr
-                   );
-        UnmapViewOfFile(resultaddr);
-        return (void*)(-1);
-      }
-      return map_addr;
-    }
+local void* mmap_filemap (void* map_addr, uintL map_len, Handle fd,
+                          off_t offset)
+{
+  if (map_len==0)
+    return map_addr;
+  var HANDLE maphandle = CreateFileMapping(fd,NULL,PAGE_WRITECOPY,0,0,NULL);
+  if (maphandle == NULL) {
+    var DWORD errcode = GetLastError();
+    fprintf(stderr,GETTEXTL("CreateFileMapping() failed."));
+    errno_out(errcode);
+    return (void*)(-1);
+  }
+  var void* resultaddr = MapViewOfFileEx(maphandle,FILE_MAP_COPY,0,
+                                         (DWORD)offset,map_len,map_addr);
+  if (resultaddr == NULL) {
+    var DWORD errcode = GetLastError();
+    fprintf(stderr,GETTEXTL("MapViewOfFileEx(addr=0x%x,off=0x%x) failed."),
+            map_addr,offset);
+    errno_out(errcode);
+    return (void*)(-1);
+  }
+  if (resultaddr != map_addr) {
+    fprintf(stderr,GETTEXTL("MapViewOfFileEx() returned 0x%x instead of 0x%x." NLstring),
+            resultaddr,map_addr);
+    UnmapViewOfFile(resultaddr);
+    return (void*)(-1);
+  }
+  return map_addr;
+}
   #endif
 
   # We need to implement munmap() ourselves.
@@ -280,7 +263,7 @@
     {
       if (!VirtualFree(addr,len,MEM_DECOMMIT)) {
         var DWORD errcode = GetLastError();
-        asciz_out(GETTEXTL("VirtualFree() failed."));
+        fprintf(stderr,GETTEXTL("VirtualFree() failed."));
         errno_out(errcode);
         return -1;
       }
@@ -296,7 +279,7 @@
       var DWORD oldprot;
       if (!VirtualProtect(addr,len,prot,&oldprot)) {
         var DWORD errcode = GetLastError();
-        asciz_out(GETTEXTL("VirtualProtect() failed."));
+        fprintf(stderr,GETTEXTL("VirtualProtect() failed."));
         errno_out(errcode);
         return -1;
       }
@@ -368,9 +351,9 @@
       {
         var int fd = OPEN("/dev/zero",O_RDONLY,my_open_mask);
         if (fd<0) {
-          asciz_out(GETTEXTL("Cannot open /dev/zero ."));
+          fprintf(stderr,GETTEXTL("Cannot open <%s>."),"/dev/zero");
           errno_out(errno);
-          return -1; # error
+          return -1; /* error */
         }
         mmap_zero_fd = fd;
       }
@@ -380,27 +363,20 @@
 
   #define mmap_prepare(map_addr,map_endaddr,shrinkp)  0
 
-  local int mmap_zeromap (void* map_addr, uintL map_len);
-  local int mmap_zeromap(map_addr,map_len)
-    var void* map_addr;
-    var uintL map_len;
-    {
-      if ( (void*) mmap((MMAP_ADDR_T)map_addr, # wished address
-                        map_len, # length
-                        PROT_READ_WRITE, # access rights
-                        map_flags | MAP_FIXED, # exactly at this address!
-                        mmap_zero_fd, 0 # put empty pages
-                       )
-           == (void*)(-1)
-         ) {
-        asciz_out_1(GETTEXTL("Cannot map memory to address 0x%x ."),
-                    map_addr
-                   );
-        errno_out(errno);
-        return -1; # error
-      }
-      return 0;
-    }
+local int mmap_zeromap (void* map_addr, uintL map_len)
+{
+  if ( (void*) mmap((MMAP_ADDR_T)map_addr, /* wished address */
+                    map_len, /* length */
+                    PROT_READ_WRITE, /* access rights */
+                    map_flags | MAP_FIXED, /* exactly at this address! */
+                    mmap_zero_fd, 0) /* put empty pages */
+       == (void*)(-1)) {
+    fprintf(stderr,GETTEXTL("Cannot map memory to address 0x%x ."),map_addr);
+    errno_out(errno);
+    return -1; /* error */
+  }
+  return 0;
+}
 
   #ifdef HAVE_MMAP
   local void* mmap_filemap (void* map_addr, uintL map_len, int fd, off_t offset);

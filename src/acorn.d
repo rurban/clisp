@@ -160,7 +160,6 @@
 
 # File umbenennen:
   extern_C int rename (const char* oldpath, const char* newpath); # siehe RENAME(2V)
-  # siehe <stdio.h>
 # wird verwendet von PATHNAME
 
 # Directory-Suche:
@@ -203,7 +202,6 @@
   #define my_open_mask  0644
   #define Handle  uintW  # Typ eines File-Deskriptors
   extern_C long lseek (int fd, long offset, int whence); # siehe LSEEK(2V)
-  #include <stdio.h> # definiert SEEK_SET, SEEK_CUR, SEEK_END
   #define RETRWTYPE ssize_t
   #define RW_BUF_T  void*
   #define RW_SIZE_T size_t

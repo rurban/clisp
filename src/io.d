@@ -10,7 +10,6 @@
 # IO_DEBUG must be undefined in the code comitted to CVS
 # define IO_DEBUG 0
 #ifdef IO_DEBUG
-#include <stdio.h>
 global object car (object o) { return Car(o); }
 global object cdr (object o) { return Cdr(o); }
 global object pph_str (object o) { return TheStream(o)->strm_pphelp_strings; }

@@ -1147,8 +1147,7 @@
   #error "No 64 bit integer type? -- Which Integer-type has 64 Bit?"
 #endif
 
-# boolean values:
-#include <stdbool.h>
+#include <stdbool.h>  /* boolean values */
 
 # Type for signed values, results of comparisons, tertiary enums
 # with values +1, 0, -1
@@ -1163,6 +1162,8 @@ typedef signed int  signean;
 #elif !defined(INTEL)
   #define NULL  ((void*) 0L)
 #endif
+
+#include <stdio.h>    /* libc i/o */
 
 # Determine the offset of a component 'ident' in a struct of the type 'type':
 # See 0 as pointer to 'type', put a struct 'type' there and determine the
@@ -1822,7 +1823,7 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #if defined(DEBUG_OS_ERROR)
   # Show the file and line number of the caller of OS_error(). For debugging.
   #define OS_error()  \
-   (asciz_out_s("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_error)())
+    (fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__), (OS_error)())
 #endif
 
 #ifdef MULTITHREAD
@@ -7472,41 +7473,6 @@ extern object CLSTEXT (const char*);
 # can trigger GC
 extern object CLOTEXT (const char*);
 
-
-# Prints a constant ASCIZ-String, directly through the operating-system:
-# asciz_out(string);
-extern void asciz_out (const char * asciz);
-# Same for up to two embedded %s-arguments:
-extern void asciz_out_s (const char * asciz, const char * arg1);
-extern void asciz_out_ss (const char * asciz, const char * arg1, const char * arg2);
-# Same for up to three embedded %d/%x-arguments:
-#define asciz_out_1(asciz,arg1)  asciz_out_1_((asciz),(unsigned long)(arg1))
-#define asciz_out_2(asciz,arg1,arg2)  asciz_out_2_((asciz),(unsigned long)(arg1),(unsigned long)(arg2))
-#define asciz_out_3(asciz,arg1,arg2,arg3)  asciz_out_3_((asciz),(unsigned long)(arg1),(unsigned long)(arg2),(unsigned long)(arg3))
-extern void asciz_out_1_ (const char * asciz, unsigned long arg1);
-extern void asciz_out_2_ (const char * asciz, unsigned long arg1, unsigned long arg2);
-extern void asciz_out_3_ (const char * asciz, unsigned long arg1, unsigned long arg2, unsigned long arg3);
-# is used by SPVW
-
-# Print uintL in decimal notation directly through the operating system:
-# dez_out(num);
-#define dez_out(x)  dez_out_((uintL)(x))
-extern void dez_out_ (uintL num);
-# used for debugging purposes
-
-# Print unsigned long in hexadecimal notation directly
-# through the operating system:
-# hex_out(num);
-#define hex_out(x)  hex_out_((unsigned long)(x))
-extern void hex_out_ (unsigned long num);
-# used for debugging purposes
-
-# Print a memory range in hexadecimal notation directly
-# through the operating system:
-# mem_hex_out(buf,count);
-extern void mem_hex_out (const void* buf, uintL count);
-# used for debugging purposes
-
 # Print a Lisp object in Lisp notation relatively directly
 # through the operating system:
 # object_out(obj);
@@ -7516,8 +7482,11 @@ extern object object_out (object obj);
 # print the object with label, file name and line number
 # this can trigger GC, but will save and restore OBJ
 #define OBJECT_OUT(obj,label)                                           \
-  (asciz_out_s("[%s:",__FILE__), asciz_out_1("%d] ",__LINE__),          \
-   asciz_out_ss("%s: %s:\n",STRING(obj),label), obj=object_out(obj))
+  (printf("[%s:%d] %s: %s:\n",__FILE__,__LINE__,STRING(obj),label),     \
+   obj=object_out(obj))
+/* print the object to a C stream - not all objects can be handled yet!
+ non-consing, STACK non-modifying */
+extern void nobject_out (FILE* out, object obj);
 # used for debugging purposes
 
 # After allocating memory for an object, add the type infos.
@@ -9075,6 +9044,7 @@ re-enters the corresponding top-level loop.
   #define STACKop      +
   #define cmpSTACKop   <
   #define STACKblock_(type,n)  (((type*)STACK)[(sintP)(n)])
+  #define STACK_diff(s1,s2)   ((s2)-(s1))
 #endif
 #ifdef STACK_UP
   #define STACK_(n)  (STACK[-1-(sintP)(n)])
@@ -9083,6 +9053,7 @@ re-enters the corresponding top-level loop.
   #define STACKop      -
   #define cmpSTACKop   >
   #define STACKblock_(type,n)  (((type*)STACK)[-1-(sintP)(n)])
+  #define STACK_diff(s1,s2)   ((s1)-(s2))
 #endif
 #define pushSTACK(obj)  (STACK_(-1) = (obj), STACK skipSTACKop -1)
   # Almost equivalent with *--STACK = obj  resp.  *STACK++ = obj  , but
@@ -9353,11 +9324,7 @@ struct backtrace_t {
   object *stack;
   int num_arg;
 };
-#ifdef STACK_DOWN
-#define bt_beyond_stack_p(bt,st)  (bt && ((aint)(bt->stack) < (aint)st))
-#else
-#define bt_beyond_stack_p(bt,st)  (bt && ((aint)(bt->stack) > (aint)st))
-#endif
+#define bt_beyond_stack_p(bt,st) (bt&&((aint)(bt->stack) cmpSTACKop (aint)st))
 /* unwind backtrace to the stack lockation */
 #define unwind_back_trace(bt,st) while (bt_beyond_stack_p(bt,st)) bt=bt->next
 
@@ -11556,7 +11523,7 @@ nonreturning_function(extern, OS_file_error, (object pathname));
   # Show the file and line number of the caller of OS_file_error().
   # For debugging.
   #define OS_file_error(pathname)  \
-    (asciz_out_s("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_file_error)(pathname))
+    (fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__), (OS_file_error)(pathname))
 #endif
 
 # Just like OS_error, but takes a channel stream and signals a FILE-ERROR.
@@ -11567,7 +11534,7 @@ nonreturning_function(extern, OS_filestream_error, (object stream));
 #if defined(DEBUG_OS_ERROR)
   # Show the file and line number of the caller of OS_filestream_error(). For debugging.
   #define OS_filestream_error(stream)  \
-    (asciz_out_s("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_filestream_error)(stream))
+    (fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__), (OS_filestream_error)(stream))
 #endif
 
 #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)

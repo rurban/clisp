@@ -4134,29 +4134,18 @@
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
 
-  # Ausgabe eines Fehlers, direkt übers Betriebssystem
-  # errno_out(errorcode);
-  # > DWORD errorcode: Fehlercode
-    global void errno_out (DWORD errorcode);
-    local void errno_out_body (const char* name, const char* msg);
-    local void errno_out_body(name,msg)
-      var const char* name;
-      var const char* msg;
-      {
-        if (!(name == NULL)) {
-          asciz_out_s(" (%s)",name);
-        }
-        if (!(msg == NULL)) {
-          asciz_out_s(": %s",msg);
-        } else {
-          asciz_out(".");
-        }
-      }
-    global void errno_out(errorcode)
-      var DWORD errorcode;
-      {
-        asciz_out(" GetLastError() = 0x"); hex_out(errorcode);
-        get_OS_error_info(errorcode,&errno_out_body);
-        asciz_out(NLstring);
-      }
-
+/* print an error
+ > DWORD errorcode: error code (errno) */
+local void errno_out_body (const char* name, const char* msg) {
+  if (name != NULL)
+    fprintf(stderr," (%s)",name);
+  if (msg != NULL)
+    fprintf(stderr,": %s",msg);
+  else
+    fprintf(stderr,".");
+}
+global void errno_out (DWORD errorcode) {
+  fprintf(stderr," GetLastError() = 0x%x",errorcode);
+  get_OS_error_info(errorcode,&errno_out_body);
+  fprintf(stderr,NLstring);
+}

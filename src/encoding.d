@@ -7,9 +7,6 @@
 #include "lispbibl.c"
 
 #include <string.h> /* declares memcpy() */
-#ifdef __MINGW32__
-#include <stdio.h> /* declares sprintf() */
-#endif
 
 #ifdef UNICODE
 #include "libcharset.h"
