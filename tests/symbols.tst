@@ -1,3 +1,4 @@
+;; -*- Lisp -*-
 
 (SYMBOL-NAME (QUOTE XYZ))
 "XYZ"
@@ -259,6 +260,10 @@
           missing (length missing) missing)
   (format t "~:[~;~d extra symbol~:p: ~s~%~]"
           extra (length extra) extra)
+  (dolist (sy cl-symbols-actual)
+    (loop :for ip :in (symbol-plist sy) :by #'cddr
+      :when (eq ip (find-symbol (symbol-name ip) "COMMON-LISP-USER"))
+      :do (error "~s has an ilegal property ~s" sy ip)))
   (list (set-difference missing known-missing)
         (set-difference known-missing missing)
         (set-difference extra known-extra)
