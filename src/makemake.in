@@ -2266,9 +2266,6 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
       flags=$flags" ${INCLUDEDIR}${SRCTOPDIR}ffcall"
     fi
   fi
-  if [ $f = graph ] ; then
-    flags=$flags' '$X_INCLUDES
-  fi
   if [ $f = modules ] ; then
     if [ $HOS = unix ] && [ $CROSS = false ] ; then
       dependsc=$dependsc' clisp.h'
@@ -2526,9 +2523,9 @@ if [ $HOS != dos -a $HOS != os2 -a $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.
     LIBGCC_DIR='`'"${XCC} -print-libgcc-file-name"' | sed -e '"'"'s,[^/]*$$,,'"'"'`'
-    echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} ${X_LIBS} -o lisp${LEXE} || /usr/ccs/bin/ld -V -dy -Bdynamic -Y P,/usr/ccs/lib:/usr/lib -Qy -o lisp${LEXE} ${LIBGCC_DIR}crt1.o ${LIBGCC_DIR}crti.o /usr/ccs/lib/values-Xa.o ${LIBGCC_DIR}crtbegin.o \$(OBJECTS) modules${TOBJ} -L${LIBGCC_DIR} -L/usr/ccs/bin ${LIBS} ${X_LIBS} -lgcc -lc ${LIBGCC_DIR}crtend.o ${LIBGCC_DIR}crtn.o -lgcc"
+    echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} -o lisp${LEXE} || /usr/ccs/bin/ld -V -dy -Bdynamic -Y P,/usr/ccs/lib:/usr/lib -Qy -o lisp${LEXE} ${LIBGCC_DIR}crt1.o ${LIBGCC_DIR}crti.o /usr/ccs/lib/values-Xa.o ${LIBGCC_DIR}crtbegin.o \$(OBJECTS) modules${TOBJ} -L${LIBGCC_DIR} -L/usr/ccs/bin ${LIBS} -lgcc -lc ${LIBGCC_DIR}crtend.o ${LIBGCC_DIR}crtn.o -lgcc"
   else
-    echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} ${X_LIBS} -o lisp${LEXE}"
+    echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} -o lisp${LEXE}"
   fi
   if [ $HOS = unix ] ; then
     echotab "-sync"
@@ -2537,18 +2534,18 @@ if [ $HOS != dos -a $HOS != os2 -a $HOS != win32 ] ; then
 else
   if [ $HSYS = win32gcc -o $HSYS = win32msvc -o $HSYS = win32bc ] ; then
     if [ $HSYS = win32gcc ] ; then
-      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} ${X_LIBS} -o lisp${LEXE}"
+      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} \$(OBJECTS) modules${TOBJ} ${LIBS} -o lisp${LEXE}"
     fi
     if [ $HSYS = win32msvc ] ; then
       # MSVC's incremental linking is buggy, avoid it.
       echotab "\$(RM) lisp.ilk"
-      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} /MD \$(OBJECTS) modules${TOBJ} ${LIBS} ${X_LIBS} /link /out:lisp${LEXE}"
+      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} /MD \$(OBJECTS) modules${TOBJ} ${LIBS} /link /out:lisp${LEXE}"
       # Need at least 1200 KB stack for creating the first interpreted.mem,
       # but the default stack size is only 1 MB.
       echotab "editbin /stack:2097152 lisp${LEXE}"
     fi
     if [ $HSYS = win32bc ] ; then
-      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} -elisp${LEXE} \$(OBJECTS) modules${TOBJ} ${LIBS} ${X_LIBS}"
+      echotab "${XCC} ${XCFLAGS} ${XCLFLAGS} -elisp${LEXE} \$(OBJECTS) modules${TOBJ} ${LIBS}"
     fi
   else
     # DOS has a very limited command line length
