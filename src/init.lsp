@@ -46,7 +46,8 @@ array-total-size-limit internal-time-units-per-second
 *trace-output* *read-base* *read-suppress* *read-eval* *readtable*
 *print-readably* *print-escape* *print-pretty* *print-circle* *print-base*
 *print-radix* *print-case* *print-gensym* *print-level* *print-length*
-*print-array* *read-default-float-format* *default-pathname-defaults*
+*print-array* *print-right-margin*
+*read-default-float-format* *default-pathname-defaults*
 *load-paths* *load-verbose* *load-print* *load-echo* *load-compiling*
 *load-pathname* *load-truename* *break-on-warnings* *compile-warnings*
 *compile-verbose* *compile-print* *compile-file-pathname*
