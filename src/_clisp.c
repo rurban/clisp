@@ -34,7 +34,8 @@
 #ifdef STDC_HEADERS
 # include <stdlib.h>
 #endif
-#ifdef HAVE_UNISTD_H
+/* Declare exec() */
+#if defined(HAVE_UNISTD_H)
 # include <unistd.h>
 #endif
 
