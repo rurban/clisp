@@ -471,6 +471,9 @@
 # for PATHNAME.D:
   LISPOBJ(lib_dir,"NIL") # must be set via a command line option
   LISPOBJ(type_designator_pathname,"(OR STRING FILE-STREAM PATHNAME)")
+ #ifdef WIN32_NATIVE
+  LISPOBJ(type_priority,"(MEMBER :HIGH :NORMAL :LOW)")
+ #endif
  #ifdef LOGICAL_PATHNAMES
   LISPOBJ(empty_logical_pathname,".") # (already initialized)
   LISPOBJ(default_logical_pathname_host,"\"SYS\"")

@@ -10821,13 +10821,6 @@ local int shell_quote (char * dest, const char * source,
 
 Handle stream_lend_handle (object stream, bool inputp, int * handletype);
 
-local inline object allocate_cons_v (object carobj, object cdrobj) {
-  var object consobj = allocate_cons();
-  Car(consobj) = carobj;
-  Cdr(consobj) = cdrobj;
-  return consobj;
-}
-
 # (LAUNCH executable [:arguments] [:wait] [:input] [:output] [:error])
 # Launches a program.
 # :arguments : a list of strings
@@ -10851,11 +10844,8 @@ LISPFUN(launch,seclass_default,1,0,norest,key,6,
     if (eq(priority_arg,S(Khigh))) pry = HIGH_PRIORITY_CLASS;
     else if (eq(priority_arg,S(Klow))) pry = IDLE_PRIORITY_CLASS;
     else if (!eq(priority_arg,S(Knormal))) {
-      pushSTACK(priority_arg);                    # TYPE-ERROR slot DATUM
-      pushSTACK(allocate_cons_v(S(member),
-                allocate_cons_v(S(Khigh),
-                allocate_cons_v(S(Knormal),
-                allocate_cons_v(S(Klow),NIL))))); # TYPE-ERROR slot EXPECTED-TYPE
+      pushSTACK(priority_arg);     /* TYPE-ERROR slot DATUM */
+      pushSTACK(O(type_priority)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(priority_arg);
       pushSTACK(S(Kpriority));
       pushSTACK(TheSubr(subr_self)->name);
