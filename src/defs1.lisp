@@ -117,14 +117,16 @@
     #+ffi "FFI" #+(or) "AFFI" #+screen "SCREEN"))
 
 ;; Unlock the specified packages, execute the BODY, then lock them again.
-(defmacro without-package-lock (packages &body body)
+(defmacro with-no-package-lock-internal (packages &body body)
   (let ((locked-packages (gensym "WOPL-")))
     `(let ((,locked-packages
             (remove-if-not #'package-lock
-                           (or ',packages *system-package-list*))))
+                           (or ,packages *system-package-list*))))
        (unwind-protect (progn (setf (package-lock ,locked-packages) nil)
                               ,@body)
          (setf (package-lock ,locked-packages) t)))))
+(defmacro without-package-lock (packages &body body)
+  `(with-no-package-lock-internal ',packages ,@body))
 
 ;;; module administration (Chapter 11.8), CLTL p. 188
 

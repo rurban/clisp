@@ -1,5 +1,14 @@
 2004-05-15  Sam Steingold  <sds@gnu.org>
 
+	* defs1.lisp (with-no-package-lock-internal): new macro:
+	evaluates the package list
+	(without-package-lock): use WITH-NO-PACKAGE-LOCK-INTERNAL
+	* compiler.lisp (c-WITHOUT-PACKAGE-LOCK): wrap c-FORM call in
+	WITH-NO-PACKAGE-LOCK-INTERNAL so that it works during
+	macroexpansion too (e.g., with DEFMETHOD)
+
+2004-05-15  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/sock.lisp (open-unix-socket): pass second
 	argument to NAMESTRING (CLISP extension, to be removed)
 	(close): define a method which calls SOCK-CLOSE

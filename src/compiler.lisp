@@ -5884,10 +5884,12 @@ for-value   NIL or T
 ;; compile (without-package-lock (packages) ...)
 (defun c-WITHOUT-PACKAGE-LOCK  (&optional (c #'c-form))
   (test-list *form* 1)
-  (let ((*compiler-unlocked-packages*
-         (nconc (mapcar #'find-package (second *form*))
-                *compiler-unlocked-packages*)))
-    (funcall c (macroexpand *form*))))
+  (let* ((pack-list (second *form*))
+         (*compiler-unlocked-packages*
+          (nconc (mapcar #'find-package (or pack-list *system-package-list*))
+                 *compiler-unlocked-packages*)))
+    (with-no-package-lock-internal pack-list
+      (funcall c (macroexpand *form*)))))
 
 
 ;;;;****   FIRST PASS :   INLINE   FUNCTIONS   (PRIMOPS)
