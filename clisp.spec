@@ -1,4 +1,4 @@
-# File: <clisp.spec - 1998-12-17 Thu 15:37:47 EST sds@eho.eaglets.com>
+# File: <clisp.spec - 1999-01-07 Thu 12:31:17 EST sds@eho.eaglets.com>
 # $Id$
 # Copyright (C) 1998 by Sam Steingold
 # GNU General Public License v.2 (GPL2) is applicable:
@@ -13,7 +13,7 @@
 
 %define name clisp
 %define version 1998.10.31
-%define release 1
+%define release 3
 %define clisp_build build
 
 Summary:   Common Lisp (ANSI CL) implementation
@@ -50,10 +50,17 @@ The latest and greatest i386 binary RPM is on
 %prep
 %setup -T -D -n /usr/src/%{name}
 %build
-./configure --prefix=/usr --fsstnd=redhat --with-module=wildcard --with-module=regexp --with-module=bindings/linuxlibc6 --with-module=clx/new-clx --build %{clisp_build}
+make -f Makefile.devel configures
+./configure --prefix=/usr --fsstnd=redhat --with-module=wildcard \
+    --with-module=regexp --with-module=bindings/linuxlibc6 \
+    --with-module=clx/new-clx --build %{clisp_build}
 %install
 cd %{clisp_build}
 make install
+test -d doc || mkdir doc
+cp impnotes.txt CLOS-guide.txt clisp.html cltl2.txt readline.dvi \
+    LISP-tutorial.txt clreadline.3 editors.txt clisp.1 clreadline.dvi \
+    impnotes.html clisp.gif clreadline.html doc
 %files
 %dir /usr/lib/clisp/
 %docdir /usr/doc/%{name}-%{version}
@@ -67,27 +74,14 @@ make install
 %doc build/NEWS
 %doc build/README.de
 %doc build/README.es
-%docdir /usr/doc/%{name}-%{version}/doc
-%doc build/impnotes.txt
-%doc build/CLOS-guide.txt
-%doc build/clisp.html
-%doc build/cltl2.txt
-%doc build/readline.dvi
-%doc build/LISP-tutorial.txt
-%doc build/clreadline.3
-%doc build/editors.txt
-%doc build/clisp.1
-%doc build/clreadline.dvi
-%doc build/impnotes.html
-%doc build/clisp.gif
-%doc build/clreadline.html
+%doc build/doc
 /usr/man/man3/clreadline.3
 /usr/man/man1/clisp.1
 /usr/bin/clisp
 /usr/lib/clisp/lisp.run
 /usr/lib/clisp/lispinit.mem
-/usr/lib/clisp/full/lisp.mem
-/usr/lib/clisp/full/lispinit.run
+/usr/lib/clisp/full/lisp.run
+/usr/lib/clisp/full/lispinit.mem
 /usr/share/locale/de/LC_MESSAGES/clisp.mo
 /usr/share/locale/en/LC_MESSAGES/clisp.mo
 /usr/share/locale/es/LC_MESSAGES/clisp.mo

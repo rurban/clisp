@@ -1,3 +1,8 @@
+1999-01-07  Sam Steingold  <sds@goems.com>
+
+        * clisp.spec: this is the first truly working version. (fixed
+	doc files and full version installation).
+
 1999-01-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * unix.d: Don't declare memset if it's a macro.
