@@ -629,19 +629,20 @@
       (format *coutput-stream* "extern ~A;~%"
               (to-c-typedecl (svref (second function) 1)
                              (format nil "(~A)()" (first function)))))
-    (format *coutput-stream* "~%void module__~A__init_function_1(module)
-  var module_t* module;~%{ }~%"
+    (format *coutput-stream*
+            "~%void module__~A__init_function_1 (module_t* module)~%{ }~%"
             *c-name*)
-    (format *coutput-stream* "~%void module__~A__init_function_2(module)
-  var module_t* module;~%{~%"
+    (format *coutput-stream*
+            "~%void module__~A__init_function_2 (module_t* module)~%{~%"
             *c-name*)
     (dolist (variable *variable-list*)
       (format *coutput-stream*
-              "  register_foreign_variable(&~A,~A,~D,sizeof(~A));~%"
+              "  register_foreign_variable((void*)&~A,~A,~D,sizeof(~A));~%"
               (first variable) (to-c-string (first variable))
               (third variable) (first variable)))
     (dolist (function *function-list*)
-      (format *coutput-stream* "  register_foreign_function(&~A,~A,~D);~%"
+      (format *coutput-stream*
+              "  register_foreign_function((void*)&~A,~A,~D);~%"
               (first function) (to-c-string (first function))
               (svref (second function) 3)))
     (format *coutput-stream* "}~%")))
