@@ -4132,40 +4132,39 @@ global void iconv_wcstombs (object encoding, object stream,
       while (insize > 0) {
         var size_t res = iconv(cd,&inptr,&insize,&outptr,&outsize);
         if (res == (size_t)(-1)) {
-          switch (OS_errno) {
-            case EILSEQ : /* invalid input? */
-              ASSERT(insize >= sizeof(chart));
-              var object action = TheEncoding(encoding)->enc_tombs_error;
-              if (eq(action,S(Kignore))) {
+          var int my_errno = OS_errno;
+          if (my_errno == EILSEQ) { /* invalid input? */
+            ASSERT(insize >= sizeof(chart));
+            var object action = TheEncoding(encoding)->enc_tombs_error;
+            if (eq(action,S(Kignore))) {
+              inptr += sizeof(chart); insize -= sizeof(chart);
+            } else if (uint8_p(action)) {
+              *outptr++ = I_to_uint8(action); outsize--;
+              inptr += sizeof(chart); insize -= sizeof(chart);
+            } else if (!eq(action,S(Kerror))) {
+              var chart c = char_code(action);
+              var const char* inptr1 = (const char*)&c;
+              var size_t insize1 = sizeof(c);
+              if (iconv(cd,&inptr1,&insize1,&outptr,&outsize) != (size_t)(-1)) {
                 inptr += sizeof(chart); insize -= sizeof(chart);
-              } else if (uint8_p(action)) {
-                *outptr++ = I_to_uint8(action); outsize--;
-                inptr += sizeof(chart); insize -= sizeof(chart);
-              } else if (!eq(action,S(Kerror))) {
-                var chart c = char_code(action);
-                var const char* inptr1 = (const char*)&c;
-                var size_t insize1 = sizeof(c);
-                if (iconv(cd,&inptr1,&insize1,&outptr,&outsize)
-                    != (size_t)(-1)) {
-                  inptr += sizeof(chart); insize -= sizeof(chart);
-                } else {
-                  if (OS_errno != EILSEQ) {
-                    OS_error();
-                  } else {
-                    end_system_call();
-                    fehler_unencodable(encoding,*(const chart*)inptr);
-                  }
-                }
               } else {
-                end_system_call();
-                fehler_unencodable(encoding,*(const chart*)inptr);
+                if (OS_errno != EILSEQ) {
+                  OS_error();
+                } else {
+                  end_system_call();
+                  fehler_unencodable(encoding,*(const chart*)inptr);
+                }
               }
-            case EINVAL:        /* incomplete input? */
-            case E2BIG:         /* output buffer too small? */
-              NOTREACHED;
-            default:
-              OS_error_saving_errno({ iconv_close(cd); });
-          }
+            } else {
+              end_system_call();
+              fehler_unencodable(encoding,*(const chart*)inptr);
+            }
+          } else if (my_errno == EINVAL) { /* incomplete input? */
+            NOTREACHED;
+          } else if (my_errno == E2BIG) { /* output buffer too small? */
+            NOTREACHED;
+          } else
+            OS_error_saving_errno({ iconv_close(cd); });
         }
       }
       {
