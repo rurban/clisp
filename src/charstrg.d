@@ -638,68 +638,34 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
 # > string1: String
 # > string2: simple-string
 # < ergebnis: /=0, wenn gleich
-  global bool string_gleich (object string1, object string2);
-  global bool string_gleich(string1,string2)
-    var object string1;
-    var object string2;
-    {
-      var uintL len1;
-      var uintL offset1;
-      string1 = unpack_string_ro(string1,&len1,&offset1);
-      # Längenvergleich:
-      if (!(len1 == Sstring_length(string2)))
-        goto no;
-      # Now both strings have exactly len1 characters. Compare them.
-      if (len1 > 0) {
-        SstringDispatch(string1,X1, {
-          var const cintX1* ptr1 = &((SstringX1)TheVarobject(string1))->data[offset1];
-          SstringDispatch(string2,X2, {
-            var const cintX2* ptr2 = &((SstringX2)TheVarobject(string2))->data[0];
-            var uintL count;
-            dotimespL(count,len1, {
-              if (!chareq(as_chart(*ptr1++),as_chart(*ptr2++)))
-                goto no;
-            });
-          });
-        });
-      }
-      return true;
-     no: return false;
-    }
+global bool string_gleich (object string1, object string2) {
+  var uintL len1;
+  var uintL offset1;
+  string1 = unpack_string_ro(string1,&len1,&offset1);
+  if (len1 != Sstring_length(string2))
+    return false;
+  /* Now both strings have exactly len1 characters. Compare them. */
+  if (len1 > 0)
+    return string_eqcomp(string1,offset1,string2,0,len);
+  return true;
+}
 
 # UP: vergleicht zwei Strings auf Gleichheit, case-insensitive
 # string_equal(string1,string2)
 # > string1: String
 # > string2: simple-string
 # < ergebnis: /=0, wenn gleich
-  global bool string_equal (object string1, object string2);
-  global bool string_equal(string1,string2)
-    var object string1;
-    var object string2;
-    {
-      var uintL len1;
-      var uintL offset1;
-      string1 = unpack_string_ro(string1,&len1,&offset1);
-      # Längenvergleich:
-      if (!(len1 == Sstring_length(string2)))
-        goto no;
-      # Now both strings have exactly len1 characters. Compare them.
-      if (len1 > 0) {
-        SstringDispatch(string1,X1, {
-          var const cintX1* ptr1 = &((SstringX1)TheVarobject(string1))->data[offset1];
-          SstringDispatch(string2,X2, {
-            var const cintX2* ptr2 = &((SstringX2)TheVarobject(string2))->data[0];
-            var uintL count;
-            dotimespL(count,len1, {
-              if (!chareq(up_case(as_chart(*ptr1++)),up_case(as_chart(*ptr2++))))
-                goto no;
-            });
-          });
-        });
-      }
-      return true;
-     no: return false;
-    }
+global bool string_equal (object string1, object string2) {
+  var uintL len1;
+  var uintL offset1;
+  string1 = unpack_string_ro(string1,&len1,&offset1);
+  if (len1 != Sstring_length(string2))
+    return false;
+  /* Now both strings have exactly len1 characters. Compare them. */
+  if (len1 > 0)
+    return string_eqcomp_ci(string1,offset1,string2,0,len1);
+  return true;
+}
 
 # UP: Stores a character in a string.
 # > string: a mutable string that is or was simple

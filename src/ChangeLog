@@ -1,6 +1,11 @@
 2002-06-10  Sam Steingold  <sds@gnu.org>
 
-	make string element access slighly easier: use schar()
+	* charstrg.d (string_gleich): use string_eqcomp()
+	(string_equal): use string_eqcomp_ci()
+
+2002-06-10  Sam Steingold  <sds@gnu.org>
+
+	make string element access slightly easier: use schar()
 	* lispbibl.d (schar): define
 	* charstrg.d (schar) [HAVE_SMALL_SSTRING]: implement
 	(coerce_char, CHAR, SCHAR): use schar()
