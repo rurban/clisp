@@ -5,7 +5,8 @@
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
 
-hyperspec=${CLHSROOT:-"http://www.xanalys.com/software_tools/reference/HyperSpec"}
+HSDEFAULT="http://www.lisp.org/HyperSpec";
+hyperspec=${CLHSROOT:-${HSDEFAULT}}
 
 info_help () {
 cat << EOP
@@ -24,8 +25,7 @@ options:
                                redhat - RedHat
                                debian - Debian, Slackware.
        --hyperspec=URL         the path to the Common Lisp HyperSpec
-           (the default is
-            http://www.xanalys.com/software_tools/reference/HyperSpec
+           (the default is ${HSDEFAULT}
             or the value of the environment variable CLHSROOT, if set).
     The following options add support for specific separate packages. See the
     main INSTALL file for how to get them.

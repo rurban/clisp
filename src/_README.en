@@ -29,8 +29,9 @@ and can be viewed through WWW under
   http://www.cs.cmu.edu:8001/afs/cs/project/ai-repository/ai/html/cltl/cltl2.html .
 
 For experts: This standard text has emerged into an ANSI standard, which
-you can exceptionally get free of charge from
-  http://www.xanalys.com/software_tools/reference/hyperspec.html
+you can get free of charge from
+
+  http://www.lisp.org/HyperSpec/FrontMatter/
 
 LISP is run in an interactive environment. You input forms, and they will be
 evaluated at once. Thus you can inspect variables, call functions with given
