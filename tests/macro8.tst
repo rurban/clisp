@@ -197,22 +197,20 @@ test11
 (test11)
 2
 
+(defun test-compiler (lambda-expression &rest args)
+  (let ((ret-i (apply lambda-expression args))
+        (ret-c (apply (compile nil lambda-expression) args)))
+    (list (equal ret-i ret-c) ret-i ret-c)))
+TEST-COMPILER
+
 ;; http://sf.net/tracker/index.php?func=detail&aid=550864&group_id=1355&atid=101355
-(defun test12 ()
-  (flet ((test12-o ()
-           (flet ((test12-i () (return-from test12 nil)))
-             (test12-i))))
-    (test12-o)))
-test12
-
-(test12)
-nil
-
-(compile 'test12)
-test12
-
-(test12)
-nil
+(test-compiler (lambda ()
+                 (block test12
+                   (flet ((test12-o ()
+                            (flet ((test12-i () (return-from test12 nil)))
+                              (test12-i))))
+                     (test12-o)))))
+(T NIL NIL)
 
 ;; a crash compiling sbcl, reported by Christophe Rhodes
 ;; (Corrupted STACK in #<COMPILED-CLOSURE STEM> at byte 45)
@@ -538,29 +536,26 @@ dm2b
 ;; the following 3 tests are generated
 ;; by the random tester in the GCL ANSI CL testsuite
 ;; <https://sourceforge.net/tracker/?func=detail&atid=101355&aid=813119&group_id=1355>
-(funcall
- (compile nil '(lambda (a)
-                (if (and (if a t nil) nil) a (min (block b5 -1) a))))
- 123)
--1
+(test-compiler (lambda (a)
+                 (if (and (if a t nil) nil) a (min (block b5 -1) a)))
+               123)
+(T -1 -1)
 
-(funcall
- (compile nil '(lambda (a b c)
-                (if (or (not (and a nil))
-                        (and (or b (ldb-test (byte 26 31) c)) t))
-                    b b)))
- 123 144 532)
-144
+(test-compiler (lambda (a b c)
+                 (if (or (not (and a nil))
+                         (and (or b (ldb-test (byte 26 31) c)) t))
+                     b b))
+               123 144 532)
+(T 144 144)
 
-(funcall
- (compile nil '(lambda (c)
-		(if (or (not (if c nil nil))
-			(and (and (ldb-test (byte 13 25) -707966251)
-				  (logbitp 5 c))
-			     (ldb-test (byte 13 26) -396394270089)))
-		    513972305 19641756)))
- 125)
-513972305
+(test-compiler (lambda (c)
+                 (if (or (not (if c nil nil))
+                         (and (and (ldb-test (byte 13 25) -707966251)
+                                   (logbitp 5 c))
+                              (ldb-test (byte 13 26) -396394270089)))
+                     513972305 19641756))
+               125)
+(T 513972305 513972305)
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel/10566>
 (let ((file "tmp.lisp"))
@@ -582,101 +577,92 @@ nil
 77759
 
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=860052&group_id=1355&atid=101355>
-(funcall
- (compile
-  nil
-  (lambda ()
-    (labels ((%f17 (f17-1 f17-2)
-               (multiple-value-prog1 f17-1 f17-2 100 (return-from %f17 12))))
-      (%f17 1 2)))))
-12
+(test-compiler
+ (lambda ()
+   (labels ((%f17 (f17-1 f17-2)
+              (multiple-value-prog1 f17-1 f17-2 100 (return-from %f17 12))))
+     (%f17 1 2))))
+(T 12 12)
 
-(funcall (compile nil (lambda (a)
-                        (block b6
-                          (multiple-value-prog1 a (return-from b6 100)))))
-         :wrong)
-100
+(test-compiler (lambda (a)
+                 (block b6 (multiple-value-prog1 a (return-from b6 100))))
+               :wrong)
+(T 100 100)
 
-(funcall (compile nil (lambda ()
-                        (block b3
-                          (return-from b3 (multiple-value-prog1 10
-                                            (return-from b3 100)))))))
-100
+(test-compiler (lambda ()
+                 (block b3
+                   (return-from b3 (multiple-value-prog1 10
+                                     (return-from b3 100))))))
+(T 100 100)
 
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=842912&group_id=1355&atid=101355>
-(FUNCALL
- (COMPILE NIL
-          (LAMBDA (A B)
-            (UNWIND-PROTECT
-                 (BLOCK B2
-                   (FLET ((%F1 NIL B))
-                     (LOGIOR (IF A (IF (LDB-TEST (BYTE 23 1) 253966182)
-                                       (RETURN-FROM B2 A) -103275090)
-                                 62410)
-                             (IF (NOT (NOT (IF (NOT NIL) T
-                                               (LDB-TEST (BYTE 2 27)
-                                                         253671809))))
-                                 (RETURN-FROM B2 -22)
-                                 (%F1)))))
-              (setq a (+ a b)))))
+(test-compiler
+ (LAMBDA (A B)
+   (UNWIND-PROTECT
+        (BLOCK B2
+          (FLET ((%F1 NIL B))
+            (LOGIOR (IF A (IF (LDB-TEST (BYTE 23 1) 253966182)
+                              (RETURN-FROM B2 A) -103275090)
+                        62410)
+                    (IF (NOT (NOT (IF (NOT NIL) T
+                                      (LDB-TEST (BYTE 2 27)
+                                                253671809))))
+                        (RETURN-FROM B2 -22)
+                        (%F1)))))
+     (setq a (+ a b))))
  777595384624 -1510893868)
-777595384624
+(T 777595384624 777595384624)
 
 ;;<https://sourceforge.net/tracker/index.php?func=detail&aid=842913&group_id=1355&atid=101355>
-(FUNCALL
- (COMPILE NIL
-          (LAMBDA (A C)
-            (FLET ((%F10 () 10))
-              (FLET ((%F4 (&OPTIONAL
-                           (F4-1 (SETQ C (%F10)))
-                           (F4-2 (SETQ A 0)))
-                       (+ F4-1 F4-2)
-                       123))
-                (%F4 -5)))))
+(test-compiler
+ (LAMBDA (A C)
+   (FLET ((%F10 () 10))
+     (FLET ((%F4 (&OPTIONAL
+                  (F4-1 (SETQ C (%F10)))
+                  (F4-2 (SETQ A 0)))
+              (+ F4-1 F4-2)
+              123))
+       (%F4 -5))))
  13 17)
-123
+(T 123 123)
 
 ;;<https://sourceforge.net/tracker/index.php?func=detail&aid=842910&group_id=1355&atid=101355>
-(funcall
- (COMPILE NIL
-          (LAMBDA (A C)
-            (IF (OR (LDB-TEST (BYTE 12 18) A)
-                    (NOT (AND T (NOT (IF (NOT (AND C T)) NIL NIL)))))
-                170
-                -110730)))
+(test-compiler
+ (LAMBDA (A C)
+   (IF (OR (LDB-TEST (BYTE 12 18) A)
+           (NOT (AND T (NOT (IF (NOT (AND C T)) NIL NIL)))))
+       170
+       -110730))
  123 456)
--110730
+(T -110730 -110730)
 
 ;;<https://sourceforge.net/tracker/?func=detail&aid=864220&group_id=1355&atid=101355>
-(funcall (compile nil (lambda () (tagbody (flet ((f6 () (go 18))) (f6)) 18))))
-nil
+(test-compiler (lambda () (tagbody (flet ((f6 () (go 18))) (f6)) 18)))
+(T NIL NIL)
 
 ;; <https://sourceforge.net/tracker/index.php?func=detail&aid=864479&group_id=1355&atid=101355>
-(funcall
- (compile
-  nil
-  (lambda ()
-    (tagbody (flet ((%f1 (f1-1)
-                      (flet ((%f9 (&optional (f9-1 b) (f9-2 (go tag2))
-                                             (f9-3 0)) 0))
-                        (%f9 0 0 0))))
-               (%f1 0))
-     tag2))))
-nil
+(test-compiler
+ (lambda ()
+   (tagbody (flet ((%f1 (f1-1)
+                     (flet ((%f9 (&optional (f9-1 b) (f9-2 (go tag2))
+                                            (f9-3 0)) 0))
+                       (%f9 0 0 0))))
+              (%f1 0))
+    tag2)))
+(T NIL NIL)
 
-(funcall
- (compile nil
-  (lambda (x)
-    (tagbody
-      (flet ((foo-1 ()
-               (flet ((foo-2 ()
-                        (flet ((foo-3 ()
-                                 (incf x)
-                                 (go foo-tag)))
-                          (foo-3))))
-                 (foo-2))))
-        (foo-1))
-     foo-tag)
-    x))
+(test-compiler
+ (lambda (x)
+   (tagbody
+     (flet ((foo-1 ()
+              (flet ((foo-2 ()
+                       (flet ((foo-3 ()
+                                (incf x)
+                                (go foo-tag)))
+                         (foo-3))))
+                (foo-2))))
+       (foo-1))
+    foo-tag)
+   x)
  12)
-13
+(T 13 13)
