@@ -1,7 +1,7 @@
 /* Instruction cache flushing for rs6000, not on AIX */
 
 /*
- * Copyright 1997-1999 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1997-1999 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this

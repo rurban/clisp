@@ -2,7 +2,7 @@
 #define _avcall_arm_c
 /**
   Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
-  Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
+  Copyright 1995-1999 Bruno Haible, <bruno@clisp.org>
 
   This is free software distributed under the GNU General Public
   Licence described in the file COPYING. Contact the author if
