@@ -35,8 +35,7 @@
   )
   #+WIN32
     (execute (editor-name) ; das ist der Name des Editors
-             (namestring (translate-pathname
-                          file #p"" #p"" :absolute t))) ; file as String
+             (namestring (absolute-pathname file))) ; file as String
   #+UNIX
     (shell (format nil "~A ~A" (editor-name) (truename file)))
 )

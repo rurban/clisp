@@ -2922,11 +2922,12 @@ checks whether the &hash-table-t; is weak.</para>
  corresponding pieces of &source-r;.</para>
 
 <para>If &absolute-k; is specified and non-&nil;, the returned
- pathnames are converted to absolute by merging in the current process
+ pathnames are converted to absolute by merging in the current process'
  directory, therefore rendering pathnames suitable for the OS and
  external programs.  So, to pass a pathname to an external program, you
  do <literal role="sexp">(&namestring; (&translate-pathname; &path-r;
- #p"" #p"" &absolute-k; &t;))</literal>.</para>
+ #p"" #p"" &absolute-k; &t;))</literal> or <literal role="sexp">(&namestring;
+ (&absolute-pathname; &path-r))</literal>.</para>
 
 </section>
 
@@ -3036,6 +3037,20 @@ is not a defined logical host yet, we proceed as follows:
   the object read being the
   &logical-pathname-translations; of the &host-r;.</simpara></listitem>
 </orderedlist></para>
+</section>
+
+<section id="absolute-pathname"><title>Function &absolute-pathname;</title>
+<para><term><literal role="sexp">(<function>EXT:ABSOLUTE-PATHNAME</function>
+ <replaceable>pathname</replaceable>)</literal></term>
+ converts the <replaceable>pathname</replaceable> to a physical pathname,
+ verifies that is has no wildcards, and then - if its directory component
+ is not absolute - converts it to an absolute pathname, by merging in the
+ current process' directory. This is like &truename;, except that it
+ doesn't verify that a file named by the <replaceable>pathname</replaceable>
+ exists, not even that its directory exists. It does no filesystem accesses,
+ except to determine the current directory. This function is useful when
+ you want to save a pathname over time, or pass a pathname to an external
+ program.</para>
 </section>
 
 </section>
