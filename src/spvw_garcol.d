@@ -25,10 +25,10 @@
 
 # Gesamtstrategie:
 # 1. Pseudorekursives Markieren durch Setzen von garcol_bit.
-# 2. Verschieben der Objekte fester L‰nge (Conses u.‰.),
-#    Durchrechnen der Verschiebungen der Objekte variabler L‰nge.
+# 2. Verschieben der Objekte fester L√§nge (Conses u.√§.),
+#    Durchrechnen der Verschiebungen der Objekte variabler L√§nge.
 # 3. Aktualisieren der Pointer.
-# 4. Durchf¸hren der Verschiebungen der Objekte variabler L‰nge.
+# 4. Durchf√ºhren der Verschiebungen der Objekte variabler L√§nge.
 
 #include "spvw_genera1.c"
 
@@ -36,9 +36,9 @@
   # Verfahren: Markierungsroutine ohne Stackbenutzung (d.h.
   #  nicht "rekursiv") durch Abstieg in die zu markierende
   #  Struktur mit Pointermodifikation (Pointer werden umgedreht,
-  #  damit sie als "Ariadnefaden" zur¸ck dienen kˆnnen)
+  #  damit sie als "Ariadnefaden" zur√ºck dienen k√∂nnen)
   # Konvention: ein Objekt X gilt als markiert, wenn
-  #  - ein Objekt variabler L‰nge: Bit garcol_bit,(X) gesetzt
+  #  - ein Objekt variabler L√§nge: Bit garcol_bit,(X) gesetzt
   #  - ein Zwei-Pointer-Objekt: Bit garcol_bit,(X) gesetzt
   #  - ein SUBR/FSUBR: Bit garcol_bit,(X+const_offset) gesetzt
   #  - Character, Short-Float, Fixnum etc.: stets.
@@ -46,11 +46,11 @@
   local void gc_mark(obj)
     var object obj;
     { var object dies = obj; # aktuelles Objekt
-      var object vorg = nullobj; # Vorg‰nger-Objekt
+      var object vorg = nullobj; # Vorg√§nger-Objekt
 
       #define down_pair()  \
         if (in_old_generation(dies,typecode(dies),1))           \
-          goto up; # ‰ltere Generation nicht markieren          \
+          goto up; # √§ltere Generation nicht markieren          \
         { var object* dies_ = (object*)ThePointer(dies);        \
           if (marked(dies_)) goto up; # markiert -> hoch        \
           mark(dies_); # markieren                              \
@@ -58,8 +58,8 @@
         { var object dies_ = objectplus(dies,(soint)(sizeof(cons_)-sizeof(object))<<(oint_addr_shift-addr_shift)); \
                            # mit dem letzten Pointer anfangen   \
           var object nachf = *(object*)ThePointer(dies_); # Nachfolger \
-          *(object*)ThePointer(dies_) = vorg; # Vorg‰nger eintragen \
-          vorg = dies_; # aktuelles Objekt wird neuer Vorg‰nger \
+          *(object*)ThePointer(dies_) = vorg; # Vorg√§nger eintragen \
+          vorg = dies_; # aktuelles Objekt wird neuer Vorg√§nger \
           dies = nachf; # Nachfolger wird aktuelles Objekt      \
           goto down; # und absteigen                            \
         }
@@ -70,7 +70,7 @@
         }
       #define down_varobject(The,first_offset,last_offset)  \
         if (in_old_generation(dies,typecode(dies),0))           \
-          goto up; # ‰ltere Generation nicht markieren          \
+          goto up; # √§ltere Generation nicht markieren          \
         { var object* dies_ = (object*)The(dies);               \
           if (marked(dies_)) goto up; # markiert -> hoch        \
           mark(dies_); # markieren                              \
@@ -79,8 +79,8 @@
         { var object dies_ = objectplus(dies,(soint)(last_offset)<<(oint_addr_shift-addr_shift)); \
                            # mit dem letzten Pointer anfangen   \
           var object nachf = *(object*)The(dies_); # Nachfolger \
-          *(object*)The(dies_) = vorg; # Vorg‰nger eintragen    \
-          vorg = dies_; # aktuelles Objekt wird neuer Vorg‰nger \
+          *(object*)The(dies_) = vorg; # Vorg√§nger eintragen    \
+          vorg = dies_; # aktuelles Objekt wird neuer Vorg√§nger \
           dies = nachf; # Nachfolger wird aktuelles Objekt      \
           goto down; # und absteigen                            \
         }
@@ -90,12 +90,12 @@
         }
       #define down_nopointers(The)  \
         if (in_old_generation(dies,typecode(dies),0))           \
-          goto up; # ‰ltere Generation nicht markieren          \
+          goto up; # √§ltere Generation nicht markieren          \
         mark(The(dies)); # markieren                            \
         goto up; # und hoch
       #define down_iarray()  \
         if (in_old_generation(dies,typecode(dies),0))           \
-          goto up; # ‰ltere Generation nicht markieren          \
+          goto up; # √§ltere Generation nicht markieren          \
         { var object* dies_ = (object*)TheIarray(dies);         \
           if (marked(dies_)) goto up; # markiert -> hoch        \
           mark(dies_); # markieren                              \
@@ -103,9 +103,9 @@
         { var object dies_ = objectplus(dies,(soint)(iarray_data_offset)<<(oint_addr_shift-addr_shift)); \
                            # Datenvektor ist der erste und einzige Pointer \
           var object nachf = *(object*)TheIarray(dies_); # Nachfolger \
-          *(object*)TheIarray(dies_) = vorg; # Vorg‰nger eintragen \
+          *(object*)TheIarray(dies_) = vorg; # Vorg√§nger eintragen \
           mark(TheIarray(dies_)); # ersten und einzigen Pointer markieren \
-          vorg = dies_; # aktuelles Objekt wird neuer Vorg‰nger \
+          vorg = dies_; # aktuelles Objekt wird neuer Vorg√§nger \
           dies = nachf; # Nachfolger wird aktuelles Objekt      \
           goto down; # und absteigen                            \
         }
@@ -115,13 +115,13 @@
         }
       #define down_svector()  \
         if (in_old_generation(dies,typecode(dies),0))           \
-          goto up; # ‰ltere Generation nicht markieren          \
+          goto up; # √§ltere Generation nicht markieren          \
         { var object* dies_ = (object*)TheSvector(dies);        \
           if (marked(dies_)) goto up; # markiert -> hoch        \
           mark(dies_); # markieren                              \
         }                                                       \
         { var uintL len = Svector_length(dies);                 \
-          if (len==0) goto up; # L‰nge 0: wieder hoch           \
+          if (len==0) goto up; # L√§nge 0: wieder hoch           \
          {var object dies_ = objectplus(dies,                   \
                                ((soint)offsetofa(svector_,data) << (oint_addr_shift-addr_shift)) \
                                # the "<< 1" and "/2" are a workaround against a gcc-2.7.2 missed optimization in WIDE_SOFT mode \
@@ -129,9 +129,9 @@
                                - ((soint)sizeof(object) << (oint_addr_shift-addr_shift)) ); \
                                # mit dem letzten Pointer anfangen \
           var object nachf = *(object*)TheSvector(dies_); # Nachfolger \
-          *(object*)TheSvector(dies_) = vorg; # Vorg‰nger eintragen \
+          *(object*)TheSvector(dies_) = vorg; # Vorg√§nger eintragen \
           mark(&TheSvector(dies)->data[0]); # ersten Pointer markieren \
-          vorg = dies_; # aktuelles Objekt wird neuer Vorg‰nger \
+          vorg = dies_; # aktuelles Objekt wird neuer Vorg√§nger \
           dies = nachf; # Nachfolger wird aktuelles Objekt      \
           goto down; # und absteigen                            \
         }}
@@ -141,13 +141,13 @@
         }
       #define down_record()  \
         if (in_old_generation(dies,typecode(dies),0))           \
-          goto up; # ‰ltere Generation nicht markieren          \
+          goto up; # √§ltere Generation nicht markieren          \
         { var object* dies_ = (object*)TheRecord(dies);         \
           if (marked(dies_)) goto up; # markiert -> hoch        \
           mark(dies_); # markieren                              \
         }                                                       \
         { var uintL len = Record_length(dies);                  \
-          if (len==0) goto up; # L‰nge 0: wieder hoch           \
+          if (len==0) goto up; # L√§nge 0: wieder hoch           \
          {var object dies_ = objectplus(dies,                   \
                                ((soint)offsetofa(record_,recdata) << (oint_addr_shift-addr_shift)) \
                                # the "<< 1" and "/2" are a workaround against a gcc-2.7.2 missed optimization in WIDE_SOFT mode \
@@ -155,9 +155,9 @@
                                - ((soint)sizeof(object) << (oint_addr_shift-addr_shift)) ); \
                                # mit dem letzten Pointer anfangen \
           var object nachf = *(object*)TheRecord(dies_); # Nachfolger \
-          *(object*)TheRecord(dies_) = vorg; # Vorg‰nger eintragen \
+          *(object*)TheRecord(dies_) = vorg; # Vorg√§nger eintragen \
           mark(&TheRecord(dies)->recdata[0]); # ersten Pointer markieren \
-          vorg = dies_; # aktuelles Objekt wird neuer Vorg‰nger \
+          vorg = dies_; # aktuelles Objekt wird neuer Vorg√§nger \
           dies = nachf; # Nachfolger wird aktuelles Objekt      \
           goto down; # und absteigen                            \
         }}
@@ -168,16 +168,16 @@
       #define down_subr()  \
         { var object* dies_ = (object*)pointerplus(TheSubr(dies),subr_const_offset); \
           if (marked(dies_)) goto up; # markiert -> hoch        \
-          # markieren sp‰ter                                    \
+          # markieren sp√§ter                                    \
         }                                                       \
         { var object dies_ = objectplus(dies,                   \
                                (soint)(subr_const_offset+(subr_const_anz-1)*sizeof(object))<<(oint_addr_shift-addr_shift)); \
                                # mit dem letzten Pointer anfangen \
           var object nachf = *(object*)TheSubr(dies_); # Nachfolger \
-          *(object*)TheSubr(dies_) = vorg; # Vorg‰nger eintragen \
+          *(object*)TheSubr(dies_) = vorg; # Vorg√§nger eintragen \
           # ersten Pointer (und damit das SUBR selbst) markieren: \
           mark(pointerplus(TheSubr(dies),subr_const_offset));   \
-          vorg = dies_; # aktuelles Objekt wird neuer Vorg‰nger \
+          vorg = dies_; # aktuelles Objekt wird neuer Vorg√§nger \
           dies = nachf; # Nachfolger wird aktuelles Objekt      \
           goto down; # und absteigen                            \
         }
@@ -187,12 +187,12 @@
           vorg = vorvorg; goto up; # weiter aufsteigen          \
         }
 
-      down: # Einsprung f¸r Abstieg.
-            # dies = zu markierendes Objekt, vorg = sein Vorg‰nger
+      down: # Einsprung f√ºr Abstieg.
+            # dies = zu markierendes Objekt, vorg = sein Vorg√§nger
             #ifdef TYPECODES
             switch (typecode(dies))
               { case_pair:
-                  # Objekt mit genau 2 Pointern (Cons u.‰.)
+                  # Objekt mit genau 2 Pointern (Cons u.√§.)
                   down_pair();
                 case_symbol: # Symbol
                   down_varobject(TheSymbol,symbol_objects_offset,sizeof(symbol_)-sizeof(object));
@@ -209,7 +209,7 @@
                 #endif
                 case_dfloat: # Double-Float
                 case_lfloat: # Long-Float
-                  # Objekte variabler L‰nge, die keine Pointer enthalten:
+                  # Objekte variabler L√§nge, die keine Pointer enthalten:
                   down_nopointers(TheVarobject);
                 case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector:
                   # Arrays, die nicht simple sind:
@@ -280,36 +280,36 @@
               }
             #endif
       up:   # Einsprung zum Aufstieg.
-            # dies = gerade markiertes Objekt, vorg = sein Vorg‰nger
+            # dies = gerade markiertes Objekt, vorg = sein Vorg√§nger
             if (eq(vorg,nullobj)) # Endekennzeichen erreicht?
               return; # ja -> fertig
             if (!marked(ThePointer(vorg))) # schon durch?
               # nein ->
-              # n‰chstes Element weiter links (Komme von up, gehe nach down)
+              # n√§chstes Element weiter links (Komme von up, gehe nach down)
               # dies = gerade markiertes Objekt, in *vorg einzutragen
-              { var object vorvorg = *(object*)ThePointer(vorg); # alter Vorg‰nger
-                *(object*)ThePointer(vorg) = dies; # Komponente zur¸ckschreiben
-                vorg = objectplus(vorg,-(soint)(sizeof(object))<<(oint_addr_shift-addr_shift)); # zur n‰chsten Komponente
+              { var object vorvorg = *(object*)ThePointer(vorg); # alter Vorg√§nger
+                *(object*)ThePointer(vorg) = dies; # Komponente zur√ºckschreiben
+                vorg = objectplus(vorg,-(soint)(sizeof(object))<<(oint_addr_shift-addr_shift)); # zur n√§chsten Komponente
                 if (marked(ThePointer(vorg))) # dort schon markiert?
-                  { dies = # n‰chste Komponente, ohne Markierung
+                  { dies = # n√§chste Komponente, ohne Markierung
                            without_mark_bit(*(object*)ThePointer(vorg));
-                    *(object*)ThePointer(vorg) = # alten Vorg‰nger weiterschieben, dabei Markierung erneuern
+                    *(object*)ThePointer(vorg) = # alten Vorg√§nger weiterschieben, dabei Markierung erneuern
                            with_mark_bit(vorvorg);
                   }
                   else
-                  { dies = *(object*)ThePointer(vorg); # n‰chste Komponente, ohne Markierung
-                    *(object*)ThePointer(vorg) = vorvorg; # alten Vorg‰nger weiterschieben
+                  { dies = *(object*)ThePointer(vorg); # n√§chste Komponente, ohne Markierung
+                    *(object*)ThePointer(vorg) = vorvorg; # alten Vorg√§nger weiterschieben
                   }
                 goto down;
               }
             # schon durch -> wieder aufsteigen
-            { var object vorvorg = # alten Vorg‰nger holen, ohne Markierungsbit
+            { var object vorvorg = # alten Vorg√§nger holen, ohne Markierungsbit
                                    without_mark_bit(*(object*)ThePointer(vorg));
-              *(object*)ThePointer(vorg) = dies; # erste Komponente zur¸ckschreiben
+              *(object*)ThePointer(vorg) = dies; # erste Komponente zur√ºckschreiben
               #ifdef TYPECODES
               switch (typecode(vorg))
                 { case_pair:
-                    # Objekt mit genau 2 Pointern (Cons u.‰.)
+                    # Objekt mit genau 2 Pointern (Cons u.√§.)
                     up_pair();
                   case_symbol: # Symbol
                     up_varobject(symbol_objects_offset);
@@ -345,7 +345,7 @@
                   #endif
                   case_dfloat: # Double-Float
                   case_lfloat: # Long-Float
-                    # Objekte variabler L‰nge, die keine Pointer enthalten.
+                    # Objekte variabler L√§nge, die keine Pointer enthalten.
                   default:
                     # Das sind keine Objekte.
                     /*NOTREACHED*/ abort();
@@ -397,16 +397,16 @@
   # Aktiv ist alles, was erreichbar ist
   # - vom LISP-Stack aus  oder
   # - bei Generational-GC: von der alten Generation aus  oder
-  # - als Programmkonstanten (dazu gehˆrt auch die Liste aller Packages).
+  # - als Programmkonstanten (dazu geh√∂rt auch die Liste aller Packages).
     local void gc_mark_stack (object* objptr);
     local void gc_mark_stack(objptr)
       var object* objptr;
       { until (eq(*objptr,nullobj)) # bis STACK zu Ende ist:
           { if ( as_oint(*objptr) & wbit(frame_bit_o) ) # Beginnt hier ein Frame?
              { if (( as_oint(*objptr) & wbit(skip2_bit_o) ) == 0) # Ohne skip2-Bit?
-                objptr skipSTACKop 2; # ja -> um 2 weiterr¸cken
+                objptr skipSTACKop 2; # ja -> um 2 weiterr√ºcken
                 else
-                objptr skipSTACKop 1; # nein -> um 1 weiterr¸cken
+                objptr skipSTACKop 1; # nein -> um 1 weiterr√ºcken
              }
              else
              { # normales Objekt, markieren:
@@ -419,7 +419,7 @@
                  }
                #endif
                gc_mark(obj);
-               objptr skipSTACKop 1; # weiterr¸cken
+               objptr skipSTACKop 1; # weiterr√ºcken
       }   }  }
 
   #include "spvw_genera2.c"
@@ -430,7 +430,7 @@
       # Mark all the STACKs
       for_all_STACKs(gc_mark_stack(objptr));
       #ifdef GENERATIONAL_GC
-      # Alte Generation markieren, wobei man sie sehr sparsam durchl‰uft:
+      # Alte Generation markieren, wobei man sie sehr sparsam durchl√§uft:
       if (generation > 0) { gc_mark_old_generation(); }
       #endif
       # Alle Programmkonstanten markieren:
@@ -439,7 +439,7 @@
       for_all_constsyms( gc_mark(symbol_tab_ptr_as_object(ptr)); ); # symbol_tab durchgehen
       #else
       # gc_mark() betrachtet wegen des Macros in_old_generation() alle konstanten
-      # Symbole als zur alten Generation zugehˆrig und durchl‰uft sie nicht.
+      # Symbole als zur alten Generation zugeh√∂rig und durchl√§uft sie nicht.
       for_all_constsyms( # symbol_tab durchgehen
         { gc_mark(ptr->symvalue);
           gc_mark(ptr->symfunction);
@@ -531,24 +531,24 @@
     var Page* page;
     # Dabei wandert der Pointer p1 von unten und der Pointer p2 von
     # oben durch den Speicherbereich, bis sie kollidieren. Es
-    # werden dabei markierte Strukturen ¸ber unmarkierte geschoben.
+    # werden dabei markierte Strukturen √ºber unmarkierte geschoben.
     { var aint p1 = page->page_start; # untere Grenze
       var aint p2 = page->page_end; # obere Grenze
       sweeploop:
-        # Suche n‰chstobere unmarkierte Zelle <p2 und demarkiere dabei alle:
+        # Suche n√§chstobere unmarkierte Zelle <p2 und demarkiere dabei alle:
         sweeploop1:
           if (p1==p2) goto sweepok2; # Grenzen gleich geworden -> fertig
-          p2 -= sizeof(cons_); # n‰chste Zelle von oben erfassen
+          p2 -= sizeof(cons_); # n√§chste Zelle von oben erfassen
           if (marked(p2)) # markiert?
             { unmark(p2); # demarkieren
               goto sweeploop1;
             }
         # p1 <= p2, p2 zeigt auf eine unmarkierte Zelle.
-        # Suche n‰chstuntere markierte Zelle >=p1:
+        # Suche n√§chstuntere markierte Zelle >=p1:
         sweeploop2:
           if (p1==p2) goto sweepok1; # Grenzen gleich geworden -> fertig
           if (!marked(p1)) # unmarkiert?
-            { p1 += sizeof(cons_); # bei der n‰chstunteren Zelle
+            { p1 += sizeof(cons_); # bei der n√§chstunteren Zelle
               goto sweeploop2; # weitersuchen
             }
         # p1 < p2, p1 zeigt auf eine markierte Zelle.
@@ -557,10 +557,10 @@
         ((object*)p2)[0] = ((object*)p1)[0];
         ((object*)p2)[1] = ((object*)p1)[1];
         *(object*)p1 = pointer_as_object(p2); # neue Adresse hinterlassen
-        mark(p1); # und markieren (als Erkennung f¸rs Aktualisieren)
+        mark(p1); # und markieren (als Erkennung f√ºrs Aktualisieren)
         p1 += sizeof(cons_); # Diese Zelle ist fertig.
         goto sweeploop; # weiter
-      sweepok1: p1 += sizeof(cons_); # letztes unmarkiertes Cons ¸bergehen
+      sweepok1: p1 += sizeof(cons_); # letztes unmarkiertes Cons √ºbergehen
       sweepok2:
       # p1 = neue untere Grenze des Cons-Bereiches
       page->page_start = p1;
@@ -575,23 +575,23 @@
     var Page* page;
     # Dabei wandert der Pointer p1 von unten und der Pointer p2 von
     # oben durch den Speicherbereich, bis sie kollidieren. Es
-    # werden dabei markierte Strukturen ¸ber unmarkierte geschoben.
+    # werden dabei markierte Strukturen √ºber unmarkierte geschoben.
     { var aint p1 = page->page_start; # untere Grenze
       var aint p2 = page->page_end; # obere Grenze
       sweeploop:
-        # Suche n‰chstobere markierte Zelle <p2:
+        # Suche n√§chstobere markierte Zelle <p2:
         sweeploop1:
           if (p1==p2) goto sweepok2; # Grenzen gleich geworden -> fertig
-          p2 -= sizeof(cons_); # n‰chste Zelle von oben erfassen
+          p2 -= sizeof(cons_); # n√§chste Zelle von oben erfassen
           if (!marked(p2)) goto sweeploop1; # unmarkiert?
         # p1 <= p2, p2 zeigt auf eine markierte Zelle.
         unmark(p2); # demarkieren
-        # Suche n‰chstuntere unmarkierte Zelle >=p1 und demarkiere dabei alle:
+        # Suche n√§chstuntere unmarkierte Zelle >=p1 und demarkiere dabei alle:
         sweeploop2:
           if (p1==p2) goto sweepok1; # Grenzen gleich geworden -> fertig
           if (marked(p1)) # markiert?
             { unmark(p1); # demarkieren
-              p1 += sizeof(cons_); # bei der n‰chstoberen Zelle
+              p1 += sizeof(cons_); # bei der n√§chstoberen Zelle
               goto sweeploop2; # weitersuchen
             }
         # p1 < p2, p1 zeigt auf eine unmarkierte Zelle.
@@ -599,10 +599,10 @@
         ((object*)p1)[0] = ((object*)p2)[0];
         ((object*)p1)[1] = ((object*)p2)[1];
         *(object*)p2 = pointer_as_object(p1); # neue Adresse hinterlassen
-        mark(p2); # und markieren (als Erkennung f¸rs Aktualisieren)
+        mark(p2); # und markieren (als Erkennung f√ºrs Aktualisieren)
         p1 += sizeof(cons_); # Diese Zelle ist fertig.
         goto sweeploop; # weiter
-      sweepok1: p1 += sizeof(cons_); # letztes markiertes Cons ¸bergehen
+      sweepok1: p1 += sizeof(cons_); # letztes markiertes Cons √ºbergehen
       sweepok2:
       # p1 = neue obere Grenze des Cons-Bereiches
       page->page_end = p1;
@@ -616,14 +616,14 @@
 # [F. Lockwood Morris: A time- and space-efficient garbage collection algorithm.
 #  CACM 21,8 (August 1978), 662-665.]
 
-  # Alle unmarkierten CONS-Zellen lˆschen und die markierten CONS-Zellen demarkieren,
-  # damit das Markierungsbit f¸r die R¸ckw‰rtspointer zur Verf¸gung steht.
+  # Alle unmarkierten CONS-Zellen l√∂schen und die markierten CONS-Zellen demarkieren,
+  # damit das Markierungsbit f√ºr die R√ºckw√§rtspointer zur Verf√ºgung steht.
   local void gc_morris1 (Page* page);
   local void gc_morris1(page)
     var Page* page;
     { var aint p1 = page->page_start; # untere Grenze
       var aint p2 = page->page_end; # obere Grenze
-      var aint d = 0; # freien Speicher mitz‰hlen
+      var aint d = 0; # freien Speicher mitz√§hlen
       until (p1==p2)
         { if (!marked(p1))
             { ((object*)p1)[0] = nullobj;
@@ -649,17 +649,17 @@
   local void gc_morris2 (Page* page);
   local void gc_morris2(page)
     var Page* page;
-    { # Jede Zelle innerhalb eines Cons enth‰lt nun eine Liste aller
+    { # Jede Zelle innerhalb eines Cons enth√§lt nun eine Liste aller
       # Adressen von Pointern auf diese Zelle, die aus einer Wurzel heraus
       # oder aus einem Varobject heraus auf diese Zelle zeigen.
       #
-      # Die nicht gelˆschten Conses von links nach rechts durchlaufen:
-      # (Zwischendurch enth‰lt jede Zelle eine Liste aller Adressen
+      # Die nicht gel√∂schten Conses von links nach rechts durchlaufen:
+      # (Zwischendurch enth√§lt jede Zelle eine Liste aller Adressen
       # von Pointern auf diese Zelle, die aus einer Wurzel heraus,
       # aus einem Varobject heraus oder aus einem weiter links liegenden
       # Cons auf diese Zelle zeigen.)
       var aint p1 = page->page_start; # untere Grenze
-      var aint p2 = p1 + page->page_gcpriv.d; # sp‰tere untere Grenze
+      var aint p2 = p1 + page->page_gcpriv.d; # sp√§tere untere Grenze
       var aint p1limit = page->page_end; # obere Grenze
       until (p1==p1limit) # stets p1 <= p2 <= p1limit
         { # Beide Zellen eines Cons werden genau gleich behandelt.
@@ -675,14 +675,14 @@
                     *(object*)p = type_pointer_object(typecode(obj),p2);
                     obj = next_obj;
                   }}
-                # Falls die Zelle einen Pointer "nach rechts" enth‰lt, wird er umgedreht.
+                # Falls die Zelle einen Pointer "nach rechts" enth√§lt, wird er umgedreht.
                 { var tint type = typecode(obj);
                   switch (type)
                     { case_pair:
                         { var aint p = upointer(obj);
                           if (!in_old_generation(obj,type,1) && (p > p1))
-                            { # F¸r sp‰tere Aktualisierung
-                              # p1 in die Liste der Pointer auf p einh‰ngen:
+                            { # F√ºr sp√§tere Aktualisierung
+                              # p1 in die Liste der Pointer auf p einh√§ngen:
                               *(object*)p1 = *(object*)p;
                               *(object*)p = with_mark_bit(type_pointer_object(type,p1));
                               break;
@@ -699,12 +699,12 @@
                     *(object*)p = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2);
                     obj = next_obj;
                   }}
-                # Falls die Zelle einen Pointer "nach rechts" enth‰lt, wird er umgedreht.
+                # Falls die Zelle einen Pointer "nach rechts" enth√§lt, wird er umgedreht.
                 if (consp(obj))
                   { var aint p = (aint)ThePointer(obj);
                     if (!in_old_generation(obj,,1) && (p > p1))
-                      { # F¸r sp‰tere Aktualisierung
-                        # p1 in die Liste der Pointer auf p einh‰ngen:
+                      { # F√ºr sp√§tere Aktualisierung
+                        # p1 in die Liste der Pointer auf p einh√§ngen:
                         *(object*)p1 = *(object*)p;
                         *(object*)p = with_mark_bit(as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p1));
                       }
@@ -723,12 +723,12 @@
   local void gc_morris3 (Page* page);
   local void gc_morris3(page)
     var Page* page;
-    { # Jede Zelle innerhalb eines Cons enth‰lt nun wieder den urspr¸nglichen
+    { # Jede Zelle innerhalb eines Cons enth√§lt nun wieder den urspr√ºnglichen
       # Inhalt.
       #
-      # Die nicht gelˆschten Conses von rechts nach links durchlaufen
+      # Die nicht gel√∂schten Conses von rechts nach links durchlaufen
       # und dabei rechts kompaktieren:
-      # (Zwischendurch enth‰lt jede Zelle eine Liste aller Adressen
+      # (Zwischendurch enth√§lt jede Zelle eine Liste aller Adressen
       # von Pointern auf diese Zelle, die aus einem weiter rechts liegenden
       # Cons auf diese Zelle zeigen.)
       var aint p1limit = page->page_start; # untere Grenze
@@ -776,8 +776,8 @@
                       { case_pair: # Zwei-Pointer-Objekt
                           { var aint p = upointer(obj);
                             if (p < p1) # Pointer nach links?
-                              { # F¸r sp‰tere Aktualisierung
-                                # p2 in die Liste der Pointer auf p einh‰ngen:
+                              { # F√ºr sp√§tere Aktualisierung
+                                # p2 in die Liste der Pointer auf p einh√§ngen:
                                 #ifdef DEBUG_SPVW
                                 if (eq(*(object*)p,nullobj)) abort();
                                 #endif
@@ -788,7 +788,7 @@
                               { *(object*)p2 = type_pointer_object(type,p2); }
                           }
                           break;
-                        default: # Objekt variabler L‰nge
+                        default: # Objekt variabler L√§nge
                           if (marked(ThePointer(obj))) # markiert?
                             *(object*)p2 = type_untype_object(type,untype(*(object*)ThePointer(obj)));
                           break;
@@ -811,8 +811,8 @@
                       # Zwei-Pointer-Objekt
                       { var aint p = (aint)ThePointer(obj);
                         if (p < p1) # Pointer nach links?
-                          { # F¸r sp‰tere Aktualisierung
-                            # p2 in die Liste der Pointer auf p einh‰ngen:
+                          { # F√ºr sp√§tere Aktualisierung
+                            # p2 in die Liste der Pointer auf p einh√§ngen:
                             #ifdef DEBUG_SPVW
                             if (eq(*(object*)p,nullobj)) abort();
                             #endif
@@ -823,7 +823,7 @@
                           { *(object*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2); }
                       }
                       else
-                        # Objekt variabler L‰nge
+                        # Objekt variabler L√§nge
                         { if (marked(ThePointer(obj))) # markiert?
                             *(object*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(object*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask));
                         }
@@ -841,17 +841,17 @@
   local void gc_morris2 (Page* page);
   local void gc_morris2(page)
     var Page* page;
-    { # Jede Zelle innerhalb eines Cons enth‰lt nun eine Liste aller
+    { # Jede Zelle innerhalb eines Cons enth√§lt nun eine Liste aller
       # Adressen von Pointern auf diese Zelle, die aus einer Wurzel heraus
       # oder aus einem Varobject heraus auf diese Zelle zeigen.
       #
-      # Die nicht gelˆschten Conses von rechts nach links durchlaufen:
-      # (Zwischendurch enth‰lt jede Zelle eine Liste aller Adressen
+      # Die nicht gel√∂schten Conses von rechts nach links durchlaufen:
+      # (Zwischendurch enth√§lt jede Zelle eine Liste aller Adressen
       # von Pointern auf diese Zelle, die aus einer Wurzel heraus,
       # aus einem Varobject heraus oder aus einem weiter rechts liegenden
       # Cons auf diese Zelle zeigen.)
       var aint p1 = page->page_end; # obere Grenze
-      var aint p2 = p1 - page->page_gcpriv.d; # sp‰tere obere Grenze
+      var aint p2 = p1 - page->page_gcpriv.d; # sp√§tere obere Grenze
       var aint p1limit = page->page_start; # untere Grenze
       #ifdef DEBUG_SPVW
       until (p1==p1limit)
@@ -881,18 +881,18 @@
                     *(object*)p = type_pointer_object(typecode(obj),p2);
                     obj = next_obj;
                   }}
-                # obj = urspr¸nglicher Inhalt der Zelle p1.
+                # obj = urspr√ºnglicher Inhalt der Zelle p1.
                 #ifdef DEBUG_SPVW
                 if (eq(obj,nullobj)) abort();
                 #endif
-                # Falls die Zelle einen Pointer "nach links" enth‰lt, wird er umgedreht.
+                # Falls die Zelle einen Pointer "nach links" enth√§lt, wird er umgedreht.
                 { var tint type = typecode(obj);
                   switch (type)
                     { case_pair:
                         { var aint p = upointer(obj);
                           if (!in_old_generation(obj,type,1) && (p < p1))
-                            { # F¸r sp‰tere Aktualisierung
-                              # p1 in die Liste der Pointer auf p einh‰ngen:
+                            { # F√ºr sp√§tere Aktualisierung
+                              # p1 in die Liste der Pointer auf p einh√§ngen:
                               *(object*)p1 = *(object*)p;
                               *(object*)p = with_mark_bit(type_pointer_object(type,p1));
                               break;
@@ -909,16 +909,16 @@
                     *(object*)p = as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p2);
                     obj = next_obj;
                   }}
-                # obj = urspr¸nglicher Inhalt der Zelle p1.
+                # obj = urspr√ºnglicher Inhalt der Zelle p1.
                 #ifdef DEBUG_SPVW
                 if (eq(obj,nullobj)) abort();
                 #endif
-                # Falls die Zelle einen Pointer "nach links" enth‰lt, wird er umgedreht.
+                # Falls die Zelle einen Pointer "nach links" enth√§lt, wird er umgedreht.
                 if (consp(obj))
                   { var aint p = (aint)ThePointer(obj);
                     if (!in_old_generation(obj,,1) && (p < p1))
-                      { # F¸r sp‰tere Aktualisierung
-                        # p1 in die Liste der Pointer auf p einh‰ngen:
+                      { # F√ºr sp√§tere Aktualisierung
+                        # p1 in die Liste der Pointer auf p einh√§ngen:
                         *(object*)p1 = *(object*)p;
                         *(object*)p = with_mark_bit(as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)p1));
                       }
@@ -935,12 +935,12 @@
   local void gc_morris3 (Page* page);
   local void gc_morris3(page)
     var Page* page;
-    { # Jede Zelle innerhalb eines Cons enth‰lt nun wieder den urspr¸nglichen
+    { # Jede Zelle innerhalb eines Cons enth√§lt nun wieder den urspr√ºnglichen
       # Inhalt.
       #
-      # Die nicht gelˆschten Conses von links nach rechts durchlaufen
+      # Die nicht gel√∂schten Conses von links nach rechts durchlaufen
       # und dabei links kompaktieren:
-      # (Zwischendurch enth‰lt jede Zelle eine Liste aller Adressen
+      # (Zwischendurch enth√§lt jede Zelle eine Liste aller Adressen
       # von Pointern auf diese Zelle, die aus einem weiter links liegenden
       # Cons auf diese Zelle zeigen.)
       var aint p1limit = page->page_end; # obere Grenze
@@ -967,8 +967,8 @@
                       { case_pair: # Zwei-Pointer-Objekt
                           { var aint p = upointer(obj);
                             if (p > p1) # Pointer nach rechts?
-                              { # F¸r sp‰tere Aktualisierung
-                                # p2 in die Liste der Pointer auf p einh‰ngen:
+                              { # F√ºr sp√§tere Aktualisierung
+                                # p2 in die Liste der Pointer auf p einh√§ngen:
                                 #ifdef DEBUG_SPVW
                                 if (eq(*(object*)p,nullobj)) abort();
                                 #endif
@@ -981,7 +981,7 @@
                               { *(object*)p2 = obj; }
                           }
                           break;
-                        default: # Objekt variabler L‰nge
+                        default: # Objekt variabler L√§nge
                           if (marked(ThePointer(obj))) # markiert?
                             *(object*)p2 = type_untype_object(type,untype(*(object*)ThePointer(obj)));
                             else
@@ -1006,8 +1006,8 @@
                       # Zwei-Pointer-Objekt
                       { var aint p = (aint)ThePointer(obj);
                         if (p > p1) # Pointer nach rechts?
-                          { # F¸r sp‰tere Aktualisierung
-                            # p2 in die Liste der Pointer auf p einh‰ngen:
+                          { # F√ºr sp√§tere Aktualisierung
+                            # p2 in die Liste der Pointer auf p einh√§ngen:
                             #ifdef DEBUG_SPVW
                             if (eq(*(object*)p,nullobj)) abort();
                             #endif
@@ -1020,7 +1020,7 @@
                           { *(object*)p2 = obj; }
                       }
                       else
-                      # Objekt variabler L‰nge
+                      # Objekt variabler L√§nge
                       { if (marked(ThePointer(obj))) # markiert?
                           *(object*)p2 = as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(object*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask));
                           else
@@ -1041,24 +1041,24 @@
 
  #else # SPVW_PURE_BLOCKS <==> SINGLEMAP_MEMORY
 
-  # gc_morris2 und gc_morris3 m¸ssen je einmal f¸r jede Page aufgerufen werden,
+  # gc_morris2 und gc_morris3 m√ºssen je einmal f√ºr jede Page aufgerufen werden,
   # und zwar gc_morris2 von rechts nach links, dann gc_morris3 von links nach rechts
   # (im Sinne der Anordnung der Adressen)!
 
   local void gc_morris2 (Page* page);
   local void gc_morris2(page)
     var Page* page;
-    { # Jede Zelle innerhalb eines Cons enth‰lt nun eine Liste aller
+    { # Jede Zelle innerhalb eines Cons enth√§lt nun eine Liste aller
       # Adressen von Pointern auf diese Zelle, die aus einer Wurzel heraus
       # oder aus einem Varobject heraus auf diese Zelle zeigen.
       #
-      # Die nicht gelˆschten Conses von rechts nach links durchlaufen:
-      # (Zwischendurch enth‰lt jede Zelle eine Liste aller Adressen
+      # Die nicht gel√∂schten Conses von rechts nach links durchlaufen:
+      # (Zwischendurch enth√§lt jede Zelle eine Liste aller Adressen
       # von Pointern auf diese Zelle, die aus einer Wurzel heraus,
       # aus einem Varobject heraus oder aus einem weiter rechts liegenden
       # Cons auf diese Zelle zeigen.)
       var aint p1 = page->page_end; # obere Grenze
-      var aint p2 = p1 - page->page_gcpriv.d; # sp‰tere obere Grenze
+      var aint p2 = p1 - page->page_gcpriv.d; # sp√§tere obere Grenze
       var aint p1limit = page->page_start; # untere Grenze
       until (p1==p1limit) # stets p1limit <= p2 <= p1
         { # Beide Zellen eines Cons werden genau gleich behandelt.
@@ -1074,14 +1074,14 @@
                   *(object*)pointable(obj) = as_object(p2);
                   obj = next_obj;
                 }}
-              # obj = urspr¸nglicher Inhalt der Zelle p1.
-              # Falls die Zelle einen Pointer "nach links" enth‰lt, wird er umgedreht.
+              # obj = urspr√ºnglicher Inhalt der Zelle p1.
+              # Falls die Zelle einen Pointer "nach links" enth√§lt, wird er umgedreht.
               if (is_cons_heap(typecode(obj))
                   && !in_old_generation(obj,typecode(obj),1)
                   && ((aint)pointable(obj) < p1)
                  )
-                { # F¸r sp‰tere Aktualisierung
-                  # p1 in die Liste der Pointer auf obj einh‰ngen:
+                { # F√ºr sp√§tere Aktualisierung
+                  # p1 in die Liste der Pointer auf obj einh√§ngen:
                   *(object*)p1 = *(object*)pointable(obj);
                   *(object*)pointable(obj) = with_mark_bit(as_object(p1));
                 }
@@ -1094,12 +1094,12 @@
   local void gc_morris3 (Page* page);
   local void gc_morris3(page)
     var Page* page;
-    { # Jede Zelle innerhalb eines Cons enth‰lt nun wieder den urspr¸nglichen
+    { # Jede Zelle innerhalb eines Cons enth√§lt nun wieder den urspr√ºnglichen
       # Inhalt.
       #
-      # Die nicht gelˆschten Conses von links nach rechts durchlaufen
+      # Die nicht gel√∂schten Conses von links nach rechts durchlaufen
       # und dabei links kompaktieren:
-      # (Zwischendurch enth‰lt jede Zelle eine Liste aller Adressen
+      # (Zwischendurch enth√§lt jede Zelle eine Liste aller Adressen
       # von Pointern auf diese Zelle, die aus einem weiter links liegenden
       # Cons auf diese Zelle zeigen.)
       var aint p1limit = page->page_end; # obere Grenze
@@ -1123,8 +1123,8 @@
                   if (is_cons_heap(type))
                     # Zwei-Pointer-Objekt
                     { if ((aint)pointable(obj) > p1) # Pointer nach rechts?
-                        { # F¸r sp‰tere Aktualisierung
-                          # p2 in die Liste der Pointer auf obj einh‰ngen:
+                        { # F√ºr sp√§tere Aktualisierung
+                          # p2 in die Liste der Pointer auf obj einh√§ngen:
                           *(object*)p2 = *(object*)pointable(obj);
                           *(object*)pointable(obj) = with_mark_bit(as_object(p2));
                         }
@@ -1134,7 +1134,7 @@
                         { *(object*)p2 = obj; }
                     }
                     else
-                    # Objekt variabler L‰nge
+                    # Objekt variabler L√§nge
                     { if (marked(ThePointer(obj))) # markiert?
                         *(object*)p2 = type_untype_object(type,untype(*(object*)ThePointer(obj)));
                         else
@@ -1156,17 +1156,17 @@
 
 #endif
 
-# Den Selbstpointer eines Objekts variabler L‰nge modifizieren:
+# Den Selbstpointer eines Objekts variabler L√§nge modifizieren:
 # set_GCself(p,type,addr);
 # setzt p->GCself auf type_pointer_object(type,addr).
   #ifdef TYPECODES
     #if !(exact_uint_size_p(oint_type_len) && ((oint_type_shift%hfintsize)==0) && (tint_type_mask == bit(oint_type_len)-1))
       #ifdef MAP_MEMORY
-        # addr enth‰lt Typinfo
+        # addr enth√§lt Typinfo
         #define set_GCself(p,type,addr)  \
           ((Varobject)(p))->GCself = type_pointer_object((type)&(tint_type_mask),(addr)&(oint_addr_mask))
       #else
-        # addr enth‰lt keine Typinfo
+        # addr enth√§lt keine Typinfo
         #define set_GCself(p,type,addr)  \
           ((Varobject)(p))->GCself = type_pointer_object((type)&(tint_type_mask),addr)
       #endif
@@ -1180,12 +1180,12 @@
       ((Varobject)(p))->GCself = as_object((oint)(addr))
   #endif
 
-# Objekte variabler L‰nge zwischen page->page_start und page->page_end zur
+# Objekte variabler L√§nge zwischen page->page_start und page->page_end zur
 # Zusammenschiebung nach unten vorbereiten. Dabei wird in jedes markierte
 # Objekt vorne der Pointer auf die Stelle eingetragen, wo das
-# Objekt sp‰ter stehen wird (samt Typinfo). Ist das darauffolgende
+# Objekt sp√§ter stehen wird (samt Typinfo). Ist das darauffolgende
 # Objekt unmarkiert, so wird in dessen erstem Pointer die Adresse
-# des n‰chsten markierten Objekts eingetragen.
+# des n√§chsten markierten Objekts eingetragen.
   #ifdef SPVW_PURE
   local aint gc_sweep1_varobject_page (uintL heapnr, aint start, aint end, object* firstmarked, aint dest);
   local aint gc_sweep1_varobject_page (
@@ -1214,9 +1214,9 @@
       var aint p1 = dest; # Ziel-Pointer
       #else
       var object* last_open_ptr = &page->page_gcpriv.firstmarked;
-        # In *last_open_ptr ist stets die Adresse des n‰chsten markierten
+        # In *last_open_ptr ist stets die Adresse des n√§chsten markierten
         # Objekts (als oint) einzutragen.
-        # Durch verkettete-Liste-Mechanismus: Am Schluss enth‰lt
+        # Durch verkettete-Liste-Mechanismus: Am Schluss enth√§lt
         # page->page_gcpriv.firstmarked die Adresse des 1. markierten Objekts
       var aint p2 = page->page_start; # Source-Pointer
       var aint p2end = page->page_end; # obere Grenze des Source-Bereiches
@@ -1225,17 +1225,17 @@
       # start <= p1 <= p2 <= end, p1 und p2 wachsen, p2 schneller als p1.
       var_prepare_objsize;
       sweeploop1:
-        # N‰chstes markiertes Objekt suchen.
-        # Adresse des n‰chsten markierten Objekts in *last_open_ptr eintragen.
+        # N√§chstes markiertes Objekt suchen.
+        # Adresse des n√§chsten markierten Objekts in *last_open_ptr eintragen.
         if (p2==p2end) goto sweepok1; # obere Grenze erreicht -> fertig
         {
           #ifdef TYPECODES
           var tint flags = mtypecode(((Varobject)p2)->GCself);
           # Typinfo (und Flags bei Symbolen) retten
           #endif
-          var uintL laenge = objsize((Varobject)p2); # Byte-L‰nge bestimmen
+          var uintL laenge = objsize((Varobject)p2); # Byte-L√§nge bestimmen
           if (!marked(p2)) # Objekt unmarkiert?
-            { p2 += laenge; goto sweeploop1; } # ja -> zum n‰chsten Objekt
+            { p2 += laenge; goto sweeploop1; } # ja -> zum n√§chsten Objekt
           # Objekt markiert
           *last_open_ptr = pointer_as_object(p2); # Adresse ablegen
           set_GCself(p2, flags,p1); # neue Adresse eintragen, mit alter
@@ -1243,21 +1243,21 @@
           #ifndef TYPECODES
           mark(p2);
           #endif
-          p2 += laenge; # Sourceadresse f¸r n‰chstes Objekt
-          p1 += laenge; # Zieladresse f¸r n‰chstes Objekt
+          p2 += laenge; # Sourceadresse f√ºr n√§chstes Objekt
+          p1 += laenge; # Zieladresse f√ºr n√§chstes Objekt
         }
       sweeploop2:
-        # N‰chstes unmarkiertes Objekt suchen.
+        # N√§chstes unmarkiertes Objekt suchen.
         if (p2==p2end) goto sweepok2; # obere Grenze erreicht -> fertig
         {
           #ifdef TYPECODES
           var tint flags = mtypecode(((Varobject)p2)->GCself);
           # Typinfo (und Flags bei Symbolen) retten
           #endif
-          var uintL laenge = objsize((Varobject)p2); # Byte-L‰nge bestimmen
+          var uintL laenge = objsize((Varobject)p2); # Byte-L√§nge bestimmen
           if (!marked(p2)) # Objekt unmarkiert?
-            { last_open_ptr = (object*)p2; # ja -> Hier den n‰chsten Pointer ablegen
-              p2 += laenge; goto sweeploop1; # und zum n‰chsten Objekt
+            { last_open_ptr = (object*)p2; # ja -> Hier den n√§chsten Pointer ablegen
+              p2 += laenge; goto sweeploop1; # und zum n√§chsten Objekt
             }
           # Objekt markiert
           set_GCself(p2, flags,p1); # neue Adresse eintragen, mit alter
@@ -1265,8 +1265,8 @@
           #ifndef TYPECODES
           mark(p2);
           #endif
-          p2 += laenge; # Sourceadresse f¸r n‰chstes Objekt
-          p1 += laenge; # Zieladresse f¸r n‰chstes Objekt
+          p2 += laenge; # Sourceadresse f√ºr n√§chstes Objekt
+          p1 += laenge; # Zieladresse f√ºr n√§chstes Objekt
           goto sweeploop2;
         }
       sweepok1: *last_open_ptr = pointer_as_object(p2);
@@ -1287,11 +1287,11 @@
             if (!gcinvariant_type_p(type)) # unverschieblich -> nichts tun        \
               { var object obj = *(object*)objptr; # fragliches Objekt            \
                 if (!in_old_generation(obj,type,mem.heapnr_from_type[type]))      \
-                  # ‰ltere Generation -> nichts zu tun (Objekt blieb stehen)      \
+                  # √§ltere Generation -> nichts zu tun (Objekt blieb stehen)      \
                   if (marked(ThePointer(obj))) # markiert?                        \
                     # nein -> nichts zu tun (Objekt blieb stehen)                 \
                     # ja -> neue Adresse eintragen und Typinfobyte (incl.         \
-                    #       evtl. Symbol-Bindungsflags) zur¸ckschreiben           \
+                    #       evtl. Symbol-Bindungsflags) zur√ºckschreiben           \
                     *(object*)objptr =                                            \
                       type_untype_object(type,untype(*(object*)ThePointer(obj))); \
           }   }
@@ -1300,7 +1300,7 @@
           { var object obj = *(object*)objptr; # fragliches Objekt          \
             if (!gcinvariant_object_p(obj)) # unverschieblich -> nichts tun \
               if (!in_old_generation(obj,,))                                \
-                # ‰ltere Generation -> nichts zu tun (Objekt blieb stehen)  \
+                # √§ltere Generation -> nichts zu tun (Objekt blieb stehen)  \
                 if (marked(ThePointer(obj))) # markiert?                    \
                   # nein -> nichts zu tun (Objekt blieb stehen)             \
                   # ja -> neue Adresse eintragen                            \
@@ -1315,7 +1315,7 @@
             { var tint type = mtypecode(*(object*)objptr);                          \
               if (!gcinvariant_type_p(type)) # unverschieblich -> nichts tun        \
                 switch (type)                                                       \
-                  { default: # Objekt variabler L‰nge                               \
+                  { default: # Objekt variabler L√§nge                               \
                       { var object obj = *(object*)objptr; # fragliches Objekt      \
                         if (!in_old_generation(obj,type,0))                         \
                           if (marked(ThePointer(obj))) # markiert?                  \
@@ -1325,7 +1325,7 @@
                     case_pair: # Zwei-Pointer-Objekt                                \
                       { var object obj = *(object*)objptr; # fragliches Objekt      \
                         if (!in_old_generation(obj,type,1))                         \
-                          { # F¸r sp‰tere Aktualisierung in dessen Liste einh‰ngen: \
+                          { # F√ºr sp√§tere Aktualisierung in dessen Liste einh√§ngen: \
                             *(object*)objptr = *(object*)ThePointer(obj);           \
                             *(object*)ThePointer(obj) = with_mark_bit(type_pointer_object(type,objptr)); \
                       }   }                                                         \
@@ -1338,12 +1338,12 @@
                 { if (consp(obj))                                                 \
                     # Zwei-Pointer-Objekt                                         \
                     { if (!in_old_generation(obj,,1))                             \
-                        { # F¸r sp‰tere Aktualisierung in dessen Liste einh‰ngen: \
+                        { # F√ºr sp√§tere Aktualisierung in dessen Liste einh√§ngen: \
                           *(object*)objptr = *(object*)ThePointer(obj);           \
                           *(object*)ThePointer(obj) = with_mark_bit(as_object((as_oint(obj) & nonimmediate_bias_mask) | (oint)objptr)); \
                     }   }                                                         \
                     else                                                          \
-                    # Objekt variabler L‰nge                                      \
+                    # Objekt variabler L√§nge                                      \
                     { if (!in_old_generation(obj,,0))                             \
                         { if (marked(ThePointer(obj))) # markiert?                \
                             *(object*)objptr = as_object((as_oint(obj) & nonimmediate_bias_mask) | (as_oint(*(object*)ThePointer(obj)) & ~wbit(garcol_bit_o) & ~(oint)nonimmediate_bias_mask)); \
@@ -1356,15 +1356,15 @@
             if (!is_unused_heap(type)) # unverschieblich -> nichts tun          \
               { var object obj = *(object*)objptr; # fragliches Objekt          \
                 if (!in_old_generation(obj,type,?))                             \
-                  # ‰ltere Generation -> nichts zu tun (Objekt blieb stehen)    \
+                  # √§ltere Generation -> nichts zu tun (Objekt blieb stehen)    \
                   { if (is_varobject_heap(type))                                \
-                      # Objekt variabler L‰nge                                  \
+                      # Objekt variabler L√§nge                                  \
                       { if (marked(ThePointer(obj))) # markiert?                \
                           *(object*)objptr = type_untype_object(type,untype(*(object*)ThePointer(obj))); \
                       }                                                         \
                       else                                                      \
                       # Zwei-Pointer-Objekt                                     \
-                      { # F¸r sp‰tere Aktualisierung in dessen Liste einh‰ngen: \
+                      { # F√ºr sp√§tere Aktualisierung in dessen Liste einh√§ngen: \
                         *(object*)objptr = *(object*)ThePointer(obj);           \
                         *(object*)ThePointer(obj) = with_mark_bit(pointer_as_object(objptr)); \
                   }   }                                                         \
@@ -1378,7 +1378,7 @@
               { var object obj1 = *objptr;                        \
                 var object obj2 = symbol_without_flags(obj1);     \
                 var oint flags = as_oint(obj1) ^ as_oint(obj2);   \
-                *objptr = obj2; # vorerst Flags lˆschen           \
+                *objptr = obj2; # vorerst Flags l√∂schen           \
                 update(objptr); # dann aktualisieren              \
                 *objptr = as_object(as_oint(*objptr) | flags); # dann Flags wieder rein \
                 break;                                            \
@@ -1393,7 +1393,7 @@
     #include "spvw_genera3.c"
 
 # Zweite SWEEP-Phase:
-  # Verschiebung eines Objekts variabler L‰nge, p1 und p2 weiterr¸cken:
+  # Verschiebung eines Objekts variabler L√§nge, p1 und p2 weiterr√ºcken:
   # move_aligned_p1_p2(count);
   #if (varobject_alignment==1)
     #define uintV  uintB
@@ -1406,7 +1406,7 @@
   #else
     #error "Unbekannter Wert von 'varobject_alignment'!"
   #endif
-  #ifdef GNU # so l‰sst sich's besser optimieren
+  #ifdef GNU # so l√§sst sich's besser optimieren
     #ifdef fast_dotimesL
       #define move_aligned_p1_p2(count)  \
         dotimespL(count,count/varobject_alignment, *((uintV*)p2)++ = *((uintV*)p1)++; )
@@ -1423,8 +1423,8 @@
          }                                                                              \
          until (count==0)
   #endif
-  # Die Objekte variabler L‰nge werden an die vorher berechneten
-  # neuen Pl‰tze geschoben.
+  # Die Objekte variabler L√§nge werden an die vorher berechneten
+  # neuen Pl√§tze geschoben.
   #ifdef SPVW_PURE
   local void gc_sweep2_varobject_page (Page* page, uintL heapnr);
   local void gc_sweep2_varobject_page (
@@ -1441,20 +1441,20 @@
       var aint p2 = page->page_start; # Ziel-Pointer
       var_prepare_objsize;
       until (p1==p1end) # obere Grenze erreicht -> fertig
-        { # n‰chstes Objekt hat Adresse p1
+        { # n√§chstes Objekt hat Adresse p1
           if (marked(p1)) # markiert?
-            { unmark(p1); # Markierung lˆschen
+            { unmark(p1); # Markierung l√∂schen
               # Objekt behalten und verschieben:
-             {var uintL count = objsize((Varobject)p1); # L‰nge (durch varobject_alignment teilbar, >0)
-              if (!(p1==p2)) # falls Verschiebung nˆtig
-                { move_aligned_p1_p2(count); } # verschieben und weiterr¸cken
-                else # sonst nur weiterr¸cken:
+             {var uintL count = objsize((Varobject)p1); # L√§nge (durch varobject_alignment teilbar, >0)
+              if (!(p1==p2)) # falls Verschiebung n√∂tig
+                { move_aligned_p1_p2(count); } # verschieben und weiterr√ºcken
+                else # sonst nur weiterr√ºcken:
                 { p1 += count; p2 += count; }
             }}
             else
-            { p1 = (aint)pointer_was_object(*(object*)p1); } # mit Pointer (Typinfo=0) zum n‰chsten markierten Objekt
+            { p1 = (aint)pointer_was_object(*(object*)p1); } # mit Pointer (Typinfo=0) zum n√§chsten markierten Objekt
         }
-      page->page_end = p2; # obere Grenze der Objekte variabler L‰nge neu setzen
+      page->page_end = p2; # obere Grenze der Objekte variabler L√§nge neu setzen
     }
 
 #if defined(DEBUG_SPVW) && !defined(GENERATIONAL_GC)
@@ -1468,7 +1468,7 @@
           var aint p1end = page->page_end;
           var_prepare_objsize;
           until (p1==p1end) # obere Grenze erreicht -> fertig
-            { # n‰chstes Objekt hat Adresse p1
+            { # n√§chstes Objekt hat Adresse p1
               if (marked(p1)) # markiert?
                 { asciz_out_1("\nObjekt 0x%x markiert!!\n",p1);
                   abort();
@@ -1481,7 +1481,7 @@
         { var aint p1 = page->page_start;
           var aint p1end = page->page_end;
           until (p1==p1end) # obere Grenze erreicht -> fertig
-            { # n‰chstes Objekt hat Adresse p1
+            { # n√§chstes Objekt hat Adresse p1
               if (marked(p1)) # markiert?
                 { asciz_out_1("\nObjekt 0x%x markiert!!\n",p1);
                   abort();
@@ -1504,7 +1504,7 @@
     var aint p1end;
     var boolean in_gc;
     { until (p1==p1end) # obere Grenze erreicht -> fertig
-        { # n‰chstes Objekt hat Adresse p1
+        { # n√§chstes Objekt hat Adresse p1
           if (eq(((Cons)p1)->cdr,nullobj) || eq(((Cons)p1)->car,nullobj))
             if (!(in_gc && eq(((Cons)p1)->cdr,nullobj) && eq(((Cons)p1)->car,nullobj)))
               abort();
@@ -1535,10 +1535,10 @@
 #endif
 
 #ifdef SPVW_PAGES
-  # ‹berfl¸ssige Pages freigeben:
-  # Falls nach einer GC der Platz, der uns in mem.free_pages zur Verf¸gung
+  # √úberfl√ºssige Pages freigeben:
+  # Falls nach einer GC der Platz, der uns in mem.free_pages zur Verf√ºgung
   # steht, mehr als 25% dessen ausmacht, was wir momentan brauchen, wird der
-  # Rest ans Betriebssystem zur¸ckgegeben.
+  # Rest ans Betriebssystem zur√ºckgegeben.
   local void free_some_unused_pages (void);
   local void free_some_unused_pages()
     { var uintL needed_space = floor(mem.last_gcend_space,4); # 25%
@@ -1558,7 +1558,7 @@
     }   }
 #endif
 
-# Normale Garbage Collection durchf¸hren:
+# Normale Garbage Collection durchf√ºhren:
   local void gar_col_normal(void);
   local void gar_col_normal()
     { var uintL gcstart_space; # belegter Speicher bei GC-Start
@@ -1566,15 +1566,15 @@
       var object all_weakpointers; # Liste der aktiven Weak-Pointer
       var object all_finalizers; # Liste der Finalisierer
       #ifdef GC_CLOSES_FILES
-      var object files_to_close; # Liste der zu schlieﬂenden Files
+      var object files_to_close; # Liste der zu schlie√üenden Files
       #endif
-      set_break_sem_1(); # BREAK w‰hrend Garbage Collection sperren
-      gc_signalblock_on(); # Signale w‰hrend Garbage Collection sperren
+      set_break_sem_1(); # BREAK w√§hrend Garbage Collection sperren
+      gc_signalblock_on(); # Signale w√§hrend Garbage Collection sperren
       gc_timer_on();
       gcstart_space = used_space(); # belegten Speicherplatz ermitteln
       #ifdef HAVE_VADVISE
         begin_system_call();
-        vadvise(VA_ANOM); # Paging-Verhalten wird jetzt etwas ungewˆhnlich
+        vadvise(VA_ANOM); # Paging-Verhalten wird jetzt etwas ungew√∂hnlich
         end_system_call();
       #endif
       CHECK_GC_UNMARKED(); CHECK_NULLOBJ(); CHECK_GC_CACHE(); CHECK_GC_GENERATIONAL(); SAVE_GC_DATA();
@@ -1620,16 +1620,16 @@
             { L2 = &TheFinalizer(*L2)->fin_cdr; }
           until (eq(Lu,Fixnum_0))
             { # Wenn fin_alive tot ist, wird der Finalisierer weggeworfen,
-              # ohne ausgef¸hrt zu werden:
+              # ohne ausgef√ºhrt zu werden:
               if (!alive(TheFinalizer(Lu)->fin_alive))
                 { Lu = TheFinalizer(Lu)->fin_cdr; }
                 else
-                { # Wenn fin_trigger stirbt, wird der Finalisierer ausgef¸hrt:
+                { # Wenn fin_trigger stirbt, wird der Finalisierer ausgef√ºhrt:
                   if (alive(TheFinalizer(Lu)->fin_trigger)) # Lebt fin_trigger noch?
-                    # ja -> in O(all_finalizers) ¸bernehmen:
+                    # ja -> in O(all_finalizers) √ºbernehmen:
                     { *L1 = Lu; L1 = &TheFinalizer(Lu)->fin_cdr; Lu = *L1; }
                     else
-                    # nein -> in O(pending_finalizers) ¸bernehmen:
+                    # nein -> in O(pending_finalizers) √ºbernehmen:
                     { *L2 = Lu; L2 = &TheFinalizer(Lu)->fin_cdr; Lu = *L2; }
                 }
             }
@@ -1645,17 +1645,17 @@
             { if (in_old_generation(Car(Lu),stream_type,0)
                   || marked(TheStream(Car(Lu))) # (car Lu) markiert?
                  )
-                # ja -> in O(open_files) ¸bernehmen:
+                # ja -> in O(open_files) √ºbernehmen:
                 { *L1 = Lu; L1 = &Cdr(Lu); Lu = *L1; }
                 else
-                # nein -> in O(files_to_close) ¸bernehmen:
+                # nein -> in O(files_to_close) √ºbernehmen:
                 { *L2 = Lu; L2 = &Cdr(Lu); Lu = *L2; }
             }
           *L1 = NIL; *L2 = NIL;
         }
         gc_mark(O(open_files)); gc_mark(O(files_to_close)); # Beide Listen jetzt markieren
         #endif
-        # (noch unmarkierte) Liste all_weakpointers verk¸rzen:
+        # (noch unmarkierte) Liste all_weakpointers verk√ºrzen:
         { var object Lu = all_weakpointers;
           var object* L1 = &O(all_weakpointers);
           until (eq(Lu,Fixnum_0))
@@ -1685,13 +1685,13 @@
             { gc_mark(L); L = TheWeakpointer(L)->wp_cdr; }
         }
       # Jetzt sind alle aktiven Objekte markiert:
-      # Aktive Objekte variabler L‰nge wie auch aktive Zwei-Pointer-Objekte tragen
+      # Aktive Objekte variabler L√§nge wie auch aktive Zwei-Pointer-Objekte tragen
       # in ihrem ersten Byte ein gesetztes Markierungsbit, aktive SUBRs tragen
       # in ihrem ersten Konstantenpointer ein gesetztes Markierungsbit, sonst sind
-      # alle Markierungsbits gelˆscht.
+      # alle Markierungsbits gel√∂scht.
       # "Sweep"-Phase:
-        # Die CONSes u.‰. (Objekte mit 2 Pointern) werden kompaktiert.
-        # Von den Objekten variabler L‰nge werden die Zielpl‰tze f¸r die
+        # Die CONSes u.√§. (Objekte mit 2 Pointern) werden kompaktiert.
+        # Von den Objekten variabler L√§nge werden die Zielpl√§tze f√ºr die
         # Phase 4 errechnet und abgespeichert.
         # SUBRs und feste Symbole (sie sind alle aktiv) werden als erstes demarkiert:
           unmark_fixed_varobjects();
@@ -1699,13 +1699,13 @@
         # CONS-Zellen kompaktieren:
           for_each_cons_page(page, { gc_compact_cons_page(page); } );
         #endif
-        # Objekte variabler L‰nge zur Zusammenschiebung nach unten vorbereiten:
+        # Objekte variabler L√§nge zur Zusammenschiebung nach unten vorbereiten:
           #ifdef SPVW_PURE
           #ifdef GENERATIONAL_GC
           if (generation == 0)
             { for_each_varobject_heap(heap,
                 { if (heap->heap_gen0_end < heap->heap_gen1_start)
-                    # L¸cke durch einen Pointer ¸berspringen
+                    # L√ºcke durch einen Pointer √ºberspringen
                     { var aint tmp =
                         gc_sweep1_varobject_page(heapnr,
                                                  heap->heap_gen0_start,heap->heap_gen0_end,
@@ -1720,7 +1720,7 @@
                       heap->heap_gen0_end = gen0_end; # temporary - end
                     }
                     else
-                    # keine L¸cke
+                    # keine L√ºcke
                     { gc_sweep1_varobject_page(heapnr,
                                                heap->heap_gen0_start,heap->heap_end,
                                                &heap->pages.page_gcpriv.firstmarked,
@@ -1741,7 +1741,7 @@
           if (generation == 0)
             { for_each_varobject_heap(heap,
                 { if (heap->heap_gen0_end < heap->heap_gen1_start)
-                    # L¸cke durch einen Pointer ¸berspringen
+                    # L√ºcke durch einen Pointer √ºberspringen
                     { var aint tmp =
                         gc_sweep1_varobject_page(heap->heap_gen0_start,heap->heap_gen0_end,
                                                  &heap->pages.page_gcpriv.firstmarked,
@@ -1751,7 +1751,7 @@
                                                tmp);
                     }
                     else
-                    # keine L¸cke
+                    # keine L√ºcke
                     { gc_sweep1_varobject_page(heap->heap_gen0_start,heap->heap_end,
                                                &heap->pages.page_gcpriv.firstmarked,
                                                heap->heap_gen0_start);
@@ -1768,11 +1768,11 @@
           for_each_varobject_page(page, { gc_sweep1_varobject_page(page); } );
           #endif
           #endif
-      # Jetzt sind alle aktiven Objekte f¸r die Aktualisierung vorbereitet:
-      # Bei aktiven Objekten variabler L‰nge A2 ist (A2).L die Adresse, wo das
+      # Jetzt sind alle aktiven Objekte f√ºr die Aktualisierung vorbereitet:
+      # Bei aktiven Objekten variabler L√§nge A2 ist (A2).L die Adresse, wo das
       # Objekt nach der GC stehen wird (incl. Typinfo und Markierungsbit und evtl.
       # Symbol-Flags). Bei aktiven Zwei-Pointer-Objekten A2 bleibt entweder A2
-      # stehen (dann ist das Markierungsbit in (A2) gelˆscht), oder A2 wird
+      # stehen (dann ist das Markierungsbit in (A2) gel√∂scht), oder A2 wird
       # verschoben (dann ist (A2).L die neue Adresse, ohne Typinfo, aber incl.
       # Markierungsbit).
       # Aktualisierungsphase:
@@ -1794,18 +1794,18 @@
             update_conses();
             #undef update_conspage
           #endif
-          # Pointer in den Objekten variabler L‰nge aktualisieren:
+          # Pointer in den Objekten variabler L√§nge aktualisieren:
             #define update_page(page,updater)  \
               { var aint ptr = (aint)pointer_was_object(page->page_gcpriv.firstmarked); \
                 var aint ptrend = page->page_end;                              \
                 # alle Objekte mit Adresse >=ptr, <ptrend durchgehen:          \
                 until (ptr==ptrend) # solange bis ptr am Ende angekommen ist   \
-                  { # n‰chstes Objekt mit Adresse ptr (< ptrend) durchgehen:   \
+                  { # n√§chstes Objekt mit Adresse ptr (< ptrend) durchgehen:   \
                     if (marked(ptr)) # markiert?                               \
                       # Typinfo ohne Markierungsbit nehmen!                    \
                       { updater(typecode_at(ptr) & ~bit(garcol_bit_t)); }      \
                       else                                                     \
-                      # mit Pointer (Typinfo=0) zum n‰chsten markierten Objekt \
+                      # mit Pointer (Typinfo=0) zum n√§chsten markierten Objekt \
                       { ptr = (aint)pointer_was_object(*(object*)ptr); }       \
               }   }
             #define update_fpointer_invalid  FALSE
@@ -1827,18 +1827,18 @@
           #endif
         #ifdef MORRIS_GC
         # Zum Schluss werden die Conses verschoben und gleichzeitig alle
-        # Pointer auf sie (z.Zt. in Listen gef¸hrt!) aktualisiert.
+        # Pointer auf sie (z.Zt. in Listen gef√ºhrt!) aktualisiert.
         for_each_cons_page_reversed(page, { gc_morris2(page); } );
         for_each_cons_page(page, { gc_morris3(page); } );
         #endif
       # Jetzt sind alle aktiven Objekte mit korrektem Inhalt versehen (alle darin
       # vorkommenden Pointer zeigen auf die nach der GC korrekten Adressen).
       # Die aktiven Zwei-Pointer-Objekte sind bereits am richtigen Ort und
-      # unmarkiert; die Objekte variabler L‰nge sind noch am alten Ort und
+      # unmarkiert; die Objekte variabler L√§nge sind noch am alten Ort und
       # markiert, falls aktiv.
       # Zweite SWEEP-Phase:
-        # Die Objekte variabler L‰nge werden an die vorher berechneten
-        # neuen Pl‰tze geschoben.
+        # Die Objekte variabler L√§nge werden an die vorher berechneten
+        # neuen Pl√§tze geschoben.
         #if !defined(GENERATIONAL_GC)
         #ifdef SPVW_MIXED
         for_each_varobject_page(page, { gc_sweep2_varobject_page(page); } );
@@ -1859,7 +1859,7 @@
                       #endif
                     }
                   if (generation == 0)
-                    { # Alles ‹briggebliebene bildet die neue Generation 0.
+                    { # Alles √úbriggebliebene bildet die neue Generation 0.
                       #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
                       if (is_cons_heap(heapnr))
                         { var aint start = heap->heap_start;
@@ -1896,8 +1896,8 @@
               AVL_map(*heapptr,page,
                       page->page_room -= page->page_end;
                      );
-              # In page_room steht jetzt jeweils wieder der verf¸gbare Platz.
-              # Pages wieder nach dem verf¸gbaren Platz sortieren:
+              # In page_room steht jetzt jeweils wieder der verf√ºgbare Platz.
+              # Pages wieder nach dem verf√ºgbaren Platz sortieren:
               *heapptr = AVL(AVLID,sort)(*heapptr);
         }   }
         for_each_cons_heap(heap, { heap->lastused = dummy_lastused; } );
@@ -1913,7 +1913,7 @@
         vadvise(VA_NORM); # Paging-Verhalten wird ab jetzt wieder normal
         end_system_call();
       #endif
-      inc_gc_count(); # GCs mitz‰hlen
+      inc_gc_count(); # GCs mitz√§hlen
       # belegten Speicherplatz ermitteln:
       #ifdef SPVW_PAGES
       recalc_space(FALSE);
@@ -1922,14 +1922,14 @@
       #ifdef SPVW_PAGES
       mem.last_gcend_space = gcend_space;
       # Um bis zu 25% lassen wir den benutzten Platz anwachsen, dann erst
-      # kommt die n‰chste GC:
+      # kommt die n√§chste GC:
       { var uintL total_room = floor(mem.last_gcend_space,4);
         if (total_room < 512*1024) { total_room = 512*1024; } # mindestens 512 KB
         mem.gctrigger_space = mem.last_gcend_space + total_room;
       }
       #endif
       #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-      # make_space() erwartet, dass mem.total_room <= L‰nge der groﬂen L¸cke.
+      # make_space() erwartet, dass mem.total_room <= L√§nge der gro√üen L√ºcke.
       #define set_total_room(space_used_now)  \
         { set_total_room_(space_used_now);                                      \
           if (mem.total_room > mem.conses.heap_start-mem.varobjects.heap_end)   \
@@ -1940,7 +1940,7 @@
       #endif
       #if (defined(SPVW_PURE_BLOCKS) || defined(TRIVIALMAP_MEMORY)) && !defined(GENERATIONAL_GC)
       # Um bis zu 50% lassen wir den benutzten Platz anwachsen, dann erst
-      # kommt die n‰chste GC:
+      # kommt die n√§chste GC:
       #define set_total_room_(space_used_now)  \
         { mem.total_room = floor(space_used_now,2); # 50% des jetzt benutzten Platzes       \
           if (mem.total_room < 512*1024) { mem.total_room = 512*1024; } # mindestens 512 KB \
@@ -1949,13 +1949,13 @@
       #endif
       #if defined(GENERATIONAL_GC)
       # Um bis zu 25% lassen wir den benutzten Platz anwachsen, dann erst
-      # kommt die n‰chste GC:
+      # kommt die n√§chste GC:
       #define set_total_room_(space_used_now)  \
         { mem.total_room = floor(space_used_now,4); # 25% des jetzt benutzten Platzes       \
           if (mem.total_room < 512*1024) { mem.total_room = 512*1024; } # mindestens 512 KB \
         }
-      { var uintL gen0_sum = 0; # momentane Grˆﬂe der alten Generation
-        var uintL gen1_sum = 0; # momentane Grˆﬂe der neuen Generation
+      { var uintL gen0_sum = 0; # momentane Gr√∂√üe der alten Generation
+        var uintL gen1_sum = 0; # momentane Gr√∂√üe der neuen Generation
         for_each_heap(heap,
           { gen0_sum += heap->heap_gen0_end - heap->heap_gen0_start; });
         #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
@@ -1980,7 +1980,7 @@
       #endif
       #if (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)) && defined(VIRTUAL_MEMORY) && defined(HAVE_MUNMAP)
       # Ungebrauchte, leere Seiten freigeben, damit sie vom Betriebssystem
-      # nicht irgendwann auf den Swapspace verbracht werden m¸ssen:
+      # nicht irgendwann auf den Swapspace verbracht werden m√ºssen:
         begin_system_call();
         #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
         for_each_heap(heap,
@@ -2023,21 +2023,21 @@
           }
         end_system_call();
       #endif
-      # von dieser GC benˆtigte Zeit zur GC-Gesamtzeit addieren:
+      # von dieser GC ben√∂tigte Zeit zur GC-Gesamtzeit addieren:
       gc_timer_off();
       #ifdef GC_CLOSES_FILES
-      close_some_files(O(files_to_close)); # vorher unmarkierte Files schlieﬂen
+      close_some_files(O(files_to_close)); # vorher unmarkierte Files schlie√üen
       O(files_to_close) = NIL;
       #endif
       #ifdef GENERATIONAL_GC
-      O(gc_count) = fixnum_inc(O(gc_count),1); # GCs mitz‰hlen
+      O(gc_count) = fixnum_inc(O(gc_count),1); # GCs mitz√§hlen
       #endif
       gc_signalblock_off(); # Signale wieder freigeben
-      clr_break_sem_1(); # BREAK wieder ermˆglichen
+      clr_break_sem_1(); # BREAK wieder erm√∂glichen
     }
 
 # Ende einer Garbage Collection.
-# kann GC auslˆsen!
+# kann GC ausl√∂sen!
   local void gar_col_done (void);
   local void gar_col_done()
     { # Finalisierer-Funktionen abarbeiten:
@@ -2067,7 +2067,7 @@
 # Liste von Pages, die freizugeben sind, sobald die Aktualisierung
 # abgeschlossen ist:
   local var Page* delayed_pages = NULL;
-# Einf¸gen einer Page in diese Liste:
+# Einf√ºgen einer Page in diese Liste:
   #define free_page_later(page)  \
     { (page)->page_gcpriv.next = delayed_pages; delayed_pages = page; }
 # Freigeben aller Pages in der Liste:
@@ -2081,7 +2081,7 @@
       delayed_pages = NULL;                               \
     }
 
-# Kompaktierung einer Page durch Umf¸llen in andere Pages derselben Art:
+# Kompaktierung einer Page durch Umf√ºllen in andere Pages derselben Art:
   #ifdef SPVW_PURE
   local void gc_compact_from_varobject_page (Heap* heapptr, Page* page, uintL heapnr);
   local void gc_compact_from_varobject_page(heapptr,page,heapnr)
@@ -2097,14 +2097,14 @@
     { var aint p1 = page->page_start;
       var aint p1end = page->page_end;
       var_prepare_objsize;
-     {var Pages new_page = EMPTY; # Page, in die gef¸llt wird
+     {var Pages new_page = EMPTY; # Page, in die gef√ºllt wird
       var AVL(AVLID,stack) stack; # Weg von der Wurzel bis zu ihr
       var aint p2; # Cache von new_page->page_end
       var uintL l2; # Cache von new_page->page_room
       # Versuche alle Objekte zwischen p1 und p1end zu kopieren:
       loop
         { if (p1==p1end) break; # obere Grenze erreicht -> fertig
-         {var uintL laenge = objsize((Varobject)p1); # Byte-L‰nge bestimmen
+         {var uintL laenge = objsize((Varobject)p1); # Byte-L√§nge bestimmen
           # Suche eine Page, die noch mindestens laenge Bytes frei hat:
           if ((new_page == EMPTY) || (l2 < laenge))
             { if (!(new_page == EMPTY)) # Cache leeren?
@@ -2114,7 +2114,7 @@
                 }
               new_page = AVL(AVLID,least)(laenge,&heapptr->inuse,&stack);
               if (new_page==EMPTY) break;
-              new_page->page_gcpriv.d = -1L; # new_page als "zu f¸llend" kennzeichnen
+              new_page->page_gcpriv.d = -1L; # new_page als "zu f√ºllend" kennzeichnen
               p2 = new_page->page_end;
               l2 = new_page->page_room;
             }
@@ -2124,7 +2124,7 @@
            l2 -= laenge; move_aligned_p1_p2(laenge);
            # Hinterlasse einen Pointer auf die neue Position:
            *(object*)old_p1 = with_mark_bit(pointer_as_object(old_p2));
-           # p1 = Sourceadresse f¸r n‰chstes Objekt
+           # p1 = Sourceadresse f√ºr n√§chstes Objekt
         }}}
       if (!(new_page == EMPTY)) # Cache leeren?
         { new_page->page_end = p2;
@@ -2136,9 +2136,9 @@
      {var aint p2 = page->page_start;
       page->page_gcpriv.d = p1 - p2; # Verschiebung
       page->page_start = p1; # jetziger Anfang der Page
-      if (!(p1==p2)) # falls Verschiebung nˆtig
+      if (!(p1==p2)) # falls Verschiebung n√∂tig
         until (p1==p1end) # obere Grenze erreicht -> fertig
-          { var uintL laenge = objsize((Varobject)p1); # Byte-L‰nge bestimmen
+          { var uintL laenge = objsize((Varobject)p1); # Byte-L√§nge bestimmen
             #ifdef TYPECODES
             var tint flags = mtypecode(((Varobject)p1)->GCself); # Typinfo (und Flags bei Symbolen) retten
             #endif
@@ -2153,7 +2153,7 @@
     var Page* page;
     { var aint p1 = page->page_end;
       var aint p1start = page->page_start;
-     {var Pages new_page = EMPTY; # Page, in die gef¸llt wird
+     {var Pages new_page = EMPTY; # Page, in die gef√ºllt wird
       var AVL(AVLID,stack) stack; # Weg von der Wurzel bis zu ihr
       var aint p2; # Cache von new_page->page_end
       var uintL l2; # Cache von new_page->page_room
@@ -2169,11 +2169,11 @@
                 }
               new_page = AVL(AVLID,least)(sizeof(cons_),&heapptr->inuse,&stack);
               if (new_page==EMPTY) break;
-              new_page->page_gcpriv.d = -1L; # new_page als "zu f¸llend" kennzeichnen
+              new_page->page_gcpriv.d = -1L; # new_page als "zu f√ºllend" kennzeichnen
               p2 = new_page->page_end;
               l2 = new_page->page_room;
             }
-          p1 -= sizeof(cons_); # p1 = Sourceadresse f¸r n‰chstes Objekt
+          p1 -= sizeof(cons_); # p1 = Sourceadresse f√ºr n√§chstes Objekt
           # Kopiere das Objekt:
           ((object*)p2)[0] = ((object*)p1)[0];
           ((object*)p2)[1] = ((object*)p1)[1];
@@ -2223,14 +2223,14 @@
       # pages_sorted = Array der Pages, sortiert nach der Anzahl der belegten Bytes.
       # In jeder Page bedeutet page_gcpriv.d die Verschiebung nach unten,
       # die der Page in Phase 3 zuteil werden muss (>=0).
-      # page_gcpriv.d = -1L f¸r die zu f¸llenden Pages.
-      # page_gcpriv.d = -2L f¸r die noch unbehandelten Pages.
+      # page_gcpriv.d = -1L f√ºr die zu f√ºllenden Pages.
+      # page_gcpriv.d = -2L f√ºr die noch unbehandelten Pages.
       map_heap(*heapptr,page, { page->page_gcpriv.d = -2L; } ); # alle Pages noch unbehandelt
       {var uintL index;
        for (index=0; index<pagecount; index++) # Durch alle Pages durchlaufen
-         { var Pages page = pages_sorted[index]; # n‰chste Page
+         { var Pages page = pages_sorted[index]; # n√§chste Page
            if (page->page_gcpriv.d == -2L) # noch unbehandelt und
-                                           # noch nicht als "zu f¸llend" markiert?
+                                           # noch nicht als "zu f√ºllend" markiert?
              { # page wird geleert.
                heapptr->inuse = AVL(AVLID,delete1)(page,heapptr->inuse); # page herausnehmen
                # page leeren:
@@ -2247,20 +2247,20 @@
       CHECK_GC_CONSISTENCY_2();
       {var uintL index;
        for (index=0; index<pagecount; index++) # Durch alle Pages durchlaufen
-         { var Pages page = pages_sorted[index]; # n‰chste Page
+         { var Pages page = pages_sorted[index]; # n√§chste Page
            if (!(page->page_gcpriv.d == -1L)) # eine zu leerende Page
              { page->page_room += page->page_gcpriv.d; # So viel Platz haben wir nun gemacht
                if (page->page_start == page->page_end)
                  # Page ganz geleert
                  { # Page freigeben:
                    if (page->m_length > min_page_size_brutto)
-                     # ‹bergroﬂe Page
-                     { free_page_later(page); } # sp‰ter ans Betriebssystem zur¸ckgeben
+                     # √úbergro√üe Page
+                     { free_page_later(page); } # sp√§ter ans Betriebssystem zur√ºckgeben
                      else
-                     # Normalgroﬂe Page
+                     # Normalgro√üe Page
                      { # wieder initialisieren (page->page_room bleibt gleich!):
                        page->page_start = page->page_end = page_start0(page);
-                       # in den Pool mem.free_pages einh‰ngen:
+                       # in den Pool mem.free_pages einh√§ngen:
                        page->page_gcpriv.next = mem.free_pages;
                        mem.free_pages = page;
                  }   }
@@ -2273,8 +2273,8 @@
       CHECK_GC_CONSISTENCY_2();
     }}
 
-# Kompaktierende Garbage Collection durchf¸hren.
-# Wird aufgerufen, nachdem gar_col_simple() nicht gen¸gend Platz am St¸ck
+# Kompaktierende Garbage Collection durchf√ºhren.
+# Wird aufgerufen, nachdem gar_col_simple() nicht gen√ºgend Platz am St√ºck
 # besorgen konnte.
 # Note: This function does not garbage collect anything; it only reorganizes
 # the existing objects in fewer pages. Therefore it does not need to be
@@ -2282,18 +2282,18 @@
   local void gar_col_compact (void);
   local void gar_col_compact()
     { # Es werden Lisp-Objekte von fast leeren Pages in andere Pages
-      # umgef¸llt, um die ganz leer machen und zur¸ckgeben zu kˆnnen.
-      # 1. F¸r jede Page-Art:
-      #    Pages unterteilen in zu leerende und zu f¸llende Pages und dabei
-      #    soviel Daten wie mˆglich von den zu leerenden in die zu f¸llenden
+      # umgef√ºllt, um die ganz leer machen und zur√ºckgeben zu k√∂nnen.
+      # 1. F√ºr jede Page-Art:
+      #    Pages unterteilen in zu leerende und zu f√ºllende Pages und dabei
+      #    soviel Daten wie m√∂glich von den zu leerenden in die zu f√ºllenden
       #    Pages umkopieren. Kann eine Page nicht ganz geleert werden, so
       #    wird sie so gelassen, wie sie ist, und in ihr werden dann nachher
-      #    die ¸brigen Daten nur nach unten geschoben.
-      #    R¸ckgabe der ganz geleerten Pages.
+      #    die √ºbrigen Daten nur nach unten geschoben.
+      #    R√ºckgabe der ganz geleerten Pages.
       # 2. Aktualisierung der Pointer.
-      # 3. Durchf¸hrung der Verschiebungen in den nicht ganz geleerten Pages.
-      set_break_sem_1(); # BREAK w‰hrend Garbage Collection sperren
-      gc_signalblock_on(); # Signale w‰hrend Garbage Collection sperren
+      # 3. Durchf√ºhrung der Verschiebungen in den nicht ganz geleerten Pages.
+      set_break_sem_1(); # BREAK w√§hrend Garbage Collection sperren
+      gc_signalblock_on(); # Signale w√§hrend Garbage Collection sperren
       gc_timer_on();
       CHECK_GC_UNMARKED(); CHECK_NULLOBJ();
       { var uintL heapnr;
@@ -2320,14 +2320,14 @@
             #define update_conspage  update_conspage_normal
             update_conses();
             #undef update_conspage
-          # Pointer in den Objekten variabler L‰nge aktualisieren:
+          # Pointer in den Objekten variabler L√§nge aktualisieren:
             #define update_page(page,updater)  \
               { var aint ptr = page->page_start;                             \
                 var aint ptrend = page->page_end;                            \
                 # alle Objekte mit Adresse >=ptr, <ptrend durchgehen:        \
                 until (ptr==ptrend) # solange bis ptr am Ende angekommen ist \
-                  { # n‰chstes Objekt mit Adresse ptr (< ptrend) durchgehen: \
-                    updater(typecode_at(ptr) & ~bit(garcol_bit_t)); # und weiterr¸cken \
+                  { # n√§chstes Objekt mit Adresse ptr (< ptrend) durchgehen: \
+                    updater(typecode_at(ptr) & ~bit(garcol_bit_t)); # und weiterr√ºcken \
               }   }
             #define update_fpointer_invalid  FALSE
             #define update_fsubr_function FALSE
@@ -2341,21 +2341,21 @@
             #undef update_fsubr_function
             #undef update_fpointer_invalid
             #undef update_page
-      # Durchf¸hrung der Verschiebungen in den nicht ganz geleerten Pages:
+      # Durchf√ºhrung der Verschiebungen in den nicht ganz geleerten Pages:
         for_each_varobject_page(page,
           { if (!(page->page_gcpriv.d == -1L))
               { var aint p1 = page->page_start;
                 var aint p1end = page->page_end;
                 var aint p2 = p1 - page->page_gcpriv.d;
-                if (!(p1==p2)) # falls Verschiebung nˆtig
+                if (!(p1==p2)) # falls Verschiebung n√∂tig
                   { var_prepare_objsize;
                     page->page_start = p2;
                     until (p1==p1end) # obere Grenze erreicht -> fertig
-                      { # n‰chstes Objekt hat Adresse p1, ist markiert
-                        unmark(p1); # Markierung lˆschen
+                      { # n√§chstes Objekt hat Adresse p1, ist markiert
+                        unmark(p1); # Markierung l√∂schen
                         # Objekt behalten und verschieben:
-                       {var uintL count = objsize((Varobject)p1); # L‰nge (durch varobject_alignment teilbar, >0)
-                        move_aligned_p1_p2(count); # verschieben und weiterr¸cken
+                       {var uintL count = objsize((Varobject)p1); # L√§nge (durch varobject_alignment teilbar, >0)
+                        move_aligned_p1_p2(count); # verschieben und weiterr√ºcken
                       }}
                     page->page_end = p2;
           }   }   }
@@ -2370,12 +2370,12 @@
       CHECK_PACK_CONSISTENCY();
       gc_timer_off();
       gc_signalblock_off(); # Signale wieder freigeben
-      clr_break_sem_1(); # BREAK wieder ermˆglichen
+      clr_break_sem_1(); # BREAK wieder erm√∂glichen
     }
 
 #endif
 
-# Garbage Collection durchf¸hren:
+# Garbage Collection durchf√ºhren:
   local void gar_col_simple (void);
   local void do_gar_col_simple (void);
   local void do_gar_col_simple()
@@ -2391,7 +2391,7 @@
       #if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32)
       # Wenn der in Pages allozierte, aber unbelegte Speicherplatz
       # mehr als 25% dessen ausmacht, was belegt ist, lohnt sich wohl eine
-      # Kompaktierung, denn f¸rs Betriebssystem kostet eine halbleere Page
+      # Kompaktierung, denn f√ºrs Betriebssystem kostet eine halbleere Page
       # genausoviel wie eine volle Page:
       if (free_space() > floor(mem.last_gcend_space,4))
         { gar_col_compact(); mem.last_gc_compacted = TRUE; }
@@ -2415,11 +2415,11 @@
     { var uintC saved_mv_count = mv_count; # mv_count retten
       pushSTACK(subr_self); # subr_self retten
       with_gc_statistics(&do_gar_col_simple); # GC und Statistik
-      subr_self = popSTACK(); # subr_self zur¸ck
-      mv_count = saved_mv_count; # mv_count zur¸ck
+      subr_self = popSTACK(); # subr_self zur√ºck
+      mv_count = saved_mv_count; # mv_count zur√ºck
     }
 
-# Volle Garbage Collection durchf¸hren:
+# Volle Garbage Collection durchf√ºhren:
   global void gar_col (void);
   local void do_gar_col (void);
   local void do_gar_col()
@@ -2443,11 +2443,11 @@
     { var uintC saved_mv_count = mv_count; # mv_count retten
       pushSTACK(subr_self); # subr_self retten
       with_gc_statistics(&do_gar_col); # GC und Statistik
-      subr_self = popSTACK(); # subr_self zur¸ck
-      mv_count = saved_mv_count; # mv_count zur¸ck
+      subr_self = popSTACK(); # subr_self zur√ºck
+      mv_count = saved_mv_count; # mv_count zur√ºck
     }
 
-# Macro update jetzt unnˆtig:
+# Macro update jetzt unn√∂tig:
   #undef update_stackobj
   #undef update
 
@@ -2461,12 +2461,12 @@
   local void move_conses (sintL delta);
   local void move_conses (delta)
     var sintL delta;
-    { if (delta==0) return; # keine Verschiebung nˆtig?
-      set_break_sem_1(); # BREAK w‰hrenddessen sperren
-      gc_signalblock_on(); # Signale w‰hrenddessen sperren
+    { if (delta==0) return; # keine Verschiebung n√∂tig?
+      set_break_sem_1(); # BREAK w√§hrenddessen sperren
+      gc_signalblock_on(); # Signale w√§hrenddessen sperren
       gc_timer_on();
       if (delta>0)
-        # aufw‰rts schieben, von oben nach unten
+        # aufw√§rts schieben, von oben nach unten
         { var object* source = (object*) mem.conses.heap_end;
           var object* source_end = (object*) mem.conses.heap_start;
           #if !(defined(MIPS) && !defined(GNU))
@@ -2480,7 +2480,7 @@
               *--dest = *--source;
         }   }
         else # delta<0
-        # abw‰rts schieben, von unten nach oben
+        # abw√§rts schieben, von unten nach oben
         { var object* source = (object*) mem.conses.heap_start;
           var object* source_end = (object*) mem.conses.heap_end;
           #if !(defined(MIPS) && !defined(GNU))
@@ -2493,7 +2493,7 @@
             { *dest++ = *source++; # ein ganzes Cons nach oben kopieren
               *dest++ = *source++;
         }   }
-      # Pointer auf Conses u.‰. aktualisieren:
+      # Pointer auf Conses u.√§. aktualisieren:
       { var soint odelta = (soint)delta<<(oint_addr_shift-addr_shift); # Offset im oint
         # Der gesamte LISP-Speicher wird durchgegangen und dabei alte durch
         # neue Adressen ersetzt.
@@ -2525,7 +2525,7 @@
             #define update_conspage  update_conspage_normal
             update_conses();
             #undef update_conspage
-          # Pointer in den Objekten variabler L‰nge aktualisieren:
+          # Pointer in den Objekten variabler L√§nge aktualisieren:
             #define update_page  update_page_normal
             #define update_fpointer_invalid  FALSE
             #define update_fsubr_function  FALSE
@@ -2539,14 +2539,14 @@
             #undef update_fsubr_function
             #undef update_fpointer_invalid
             #undef update_page
-        # Macro update jetzt unnˆtig:
+        # Macro update jetzt unn√∂tig:
           #undef update
       }
       # Ende des Verschiebens und Aktualisierens.
-      # benˆtigte Zeit zur GC-Gesamtzeit addieren:
+      # ben√∂tigte Zeit zur GC-Gesamtzeit addieren:
       gc_timer_off();
       gc_signalblock_off(); # Signale wieder freigeben
-      clr_break_sem_1(); # BREAK wieder ermˆglichen
+      clr_break_sem_1(); # BREAK wieder erm√∂glichen
     }
 
 #endif

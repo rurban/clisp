@@ -53,10 +53,10 @@
       #endif
       #if (defined(USE_SIGACTION) ? defined(SIGACTION_NEED_UNBLOCK) : defined(SIGNAL_NEED_UNBLOCK)) || (defined(GNU_READLINE) && (defined(SIGNALBLOCK_BSD) || defined(SIGNALBLOCK_POSIX)))
       # Falls entweder [SIGNAL_NEED_UNBLOCK] mit signal() installierte Handler
-      # sowieso mit blockiertem Signal aufgerufen werden - das sind üblicherweise
+      # sowieso mit blockiertem Signal aufgerufen werden - das sind Ã¼blicherweise
       # BSD-Systeme -, oder falls andere unsichere Komponenten [GNU_READLINE]
-      # per sigaction() o.ä. das Blockieren des Signals beim Aufruf veranlassen
-      # können, müssen wir das gerade blockierte Signal entblockieren:
+      # per sigaction() o.Ã¤. das Blockieren des Signals beim Aufruf veranlassen
+      # kÃ¶nnen, mÃ¼ssen wir das gerade blockierte Signal entblockieren:
         #if defined(SIGNALBLOCK_POSIX)
           {
             var sigset_t sigblock_mask;
@@ -71,7 +71,7 @@
       # STACK auf einen sinnvollen Wert setzen:
       if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }
       #endif
-      # Über 'fehler' in eine Break-Schleife springen:
+      # Ãœber 'fehler' in eine Break-Schleife springen:
       fehler(serious_condition,
              GETTEXT("Ctrl-C: User break")
             );
@@ -82,7 +82,7 @@
 # wird eine Sekunde lang aufgehoben. In dieser Zeit kann sie mittels
 # 'interruptp' auf fortsetzbare Art behandelt werden. Nach Ablauf dieser
 # Zeit wird das Programm nichtfortsetzbar unterbrochen.
-# Signal-Handler für Signal SIGINT:
+# Signal-Handler fÃ¼r Signal SIGINT:
 #ifdef PENDING_INTERRUPTS
   local void interrupt_handler (int sig);
   local void interrupt_handler(sig)
@@ -91,7 +91,7 @@
       inc_break_sem_5();
       signal_acknowledge(SIGINT,&interrupt_handler);
       if (!interrupt_pending) { # Liegt schon ein Interrupt an -> nichts zu tun
-        interrupt_pending = TRUE; # Flag für 'interruptp' setzen
+        interrupt_pending = TRUE; # Flag fÃ¼r 'interruptp' setzen
         #ifdef HAVE_UALARM
         # eine halbe Sekunde warten, dann jede 1/20 sec probieren
         ualarm(ticks_per_second/2,ticks_per_second/20);
@@ -118,7 +118,7 @@
       #ifndef HAVE_UALARM
       alarm(1); # Probieren wir's in einer Sekunde nochmal
       #endif
-      return; # Nach kurzer Zeit wird wieder ein SIGALRM ausgelöst.
+      return; # Nach kurzer Zeit wird wieder ein SIGALRM ausgelÃ¶st.
     }
   #define install_sigint_handler()  \
     SIGNAL(SIGINT,&interrupt_handler); \
@@ -152,7 +152,7 @@
       # STACK auf einen sinnvollen Wert setzen:
       if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }
       #endif
-      # Über 'fehler' in eine Break-Schleife springen:
+      # Ãœber 'fehler' in eine Break-Schleife springen:
       fehler(serious_condition,
              GETTEXT("Ctrl-C: User break")
             );

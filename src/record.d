@@ -1,4 +1,4 @@
-# Funktionen für Records und Structures von CLISP
+# Funktionen fÃ¼r Records und Structures von CLISP
 # Bruno Haible 1990-2000
 
 #include "lispbibl.c"
@@ -10,23 +10,23 @@
 # (SYS::%RECORD-REF record index) liefert den Eintrag index in einem record.
 # (SYS::%RECORD-STORE record index value) speichert value als Eintrag index
 #   in record ab und liefert value.
-# (SYS::%RECORD-LENGTH record) liefert die Länge eines record.
+# (SYS::%RECORD-LENGTH record) liefert die LÃ¤nge eines record.
 
 # Fehlermeldung
 # > STACK_1: Record
 # > STACK_0: (fehlerhafter) Index
-# > limit: exklusive Obergrenze für den Index
+# > limit: exklusive Obergrenze fÃ¼r den Index
 # > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(local, fehler_index, (uintL limit));
   local void fehler_index(limit)
     var uintL limit;
     {
-      pushSTACK(STACK_0); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(STACK_0); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
       {
         var object tmp;
         pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(limit));
         tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-        pushSTACK(tmp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(tmp); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       }
       pushSTACK(STACK_(1+2)); # Record
       pushSTACK(STACK_(0+3)); # Index
@@ -48,11 +48,11 @@
             );
     }
 
-# Unterprogramm für Record-Zugriffsfunktionen:
+# Unterprogramm fÃ¼r Record-Zugriffsfunktionen:
 # > STACK_1: record-Argument
 # > STACK_0: index-Argument
 # > subr_self: Aufrufer (ein SUBR)
-# < STACK: aufgeräumt
+# < STACK: aufgerÃ¤umt
 # < ergebnis: Adresse des angesprochenen Record-Elements
   local object* record_up (void);
   local object* record_up ()
@@ -62,9 +62,9 @@
       var object record = STACK_1;
       var uintL length = Record_length(record);
       var uintL index;
-      if (!(posfixnump(STACK_0) && ((index = posfixnum_to_L(STACK_0)) < length))) # Index holen und prüfen
+      if (!(posfixnump(STACK_0) && ((index = posfixnum_to_L(STACK_0)) < length))) # Index holen und prÃ¼fen
         fehler_index(length);
-      skipSTACK(2); # Stack aufräumen
+      skipSTACK(2); # Stack aufrÃ¤umen
       return &TheRecord(record)->recdata[index]; # Record-Element adressieren
     }
 
@@ -83,19 +83,19 @@ LISPFUNN(record_store,3)
   }
 
 LISPFUNN(record_length,1)
-# (SYS::%RECORD-LENGTH record) liefert die Länge eines record.
+# (SYS::%RECORD-LENGTH record) liefert die LÃ¤nge eines record.
   {
     # record muss vom Typ Closure/Structure/Stream/OtherRecord sein:
     if_recordp(STACK_0, ; , { fehler_record(); } );
     var object record = popSTACK();
     var uintL length = Record_length(record);
-    value1 = fixnum(length); mv_count=1; # Länge als Fixnum
+    value1 = fixnum(length); mv_count=1; # LÃ¤nge als Fixnum
   }
 
-# Überprüfung einer Länge auf Typ (INTEGER (0) (65536))
-# > STACK_0: gewünschte Länge
+# ÃœberprÃ¼fung einer LÃ¤nge auf Typ (INTEGER (0) (65536))
+# > STACK_0: gewÃ¼nschte LÃ¤nge
 # > subr_self: Aufrufer (ein SUBR)
-# < uintL length: Länge, überprüft
+# < uintL length: LÃ¤nge, Ã¼berprÃ¼ft
   #define test_record_length(length)  \
     if (!(posfixnump(STACK_0)                                                  \
           && ((length = posfixnum_to_L(STACK_0)) <= (uintL)(bitm(intWsize)-1)) \
@@ -105,8 +105,8 @@ LISPFUNN(record_length,1)
   nonreturning_function(local, fehler_record_length, (void));
   local void fehler_record_length()
     {
-      # STACK_0 = length, Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posint16)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      # STACK_0 = length, Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_posint16)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_1); # length
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
@@ -125,12 +125,12 @@ LISPFUNN(record_length,1)
 #   Elementen, vom Typ type.
 # (COPY-STRUCTURE structure) liefert eine Kopie der Structure structure,
 #   vom selben Typ.
-# (SYS::%STRUCTURE-TYPE-P type object) überprüft, ob object eine
+# (SYS::%STRUCTURE-TYPE-P type object) Ã¼berprÃ¼ft, ob object eine
 #   Structure ist, die vom Typ type ist, was daran erkennbar ist, dass in
 #   der Komponente 0 ein Objekt (name_1 ... name_i-1 name_i) steht, wobei
 #   einer der Namen EQ zu type ist.
 
-# Unterprogramm für Structure-Zugriffsfunktionen:
+# Unterprogramm fÃ¼r Structure-Zugriffsfunktionen:
 # > STACK_2: type-Argument
 # > STACK_1: structure-Argument
 # > STACK_0: index-Argument
@@ -142,8 +142,8 @@ LISPFUNN(record_length,1)
       # structure muss vom Typ Structure sein:
       if (!structurep(STACK_1)) {
         fehler_bad_structure: # STACK_2 = type, STACK_1 = structure
-        pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(STACK_(2+1)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(STACK_1); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(STACK_(2+1)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(2+2));
         pushSTACK(STACK_(1+3));
         pushSTACK(TheSubr(subr_self)->name); # Funktionsname
@@ -167,7 +167,7 @@ LISPFUNN(record_length,1)
       {
         var uintL length = (uintL)Structure_length(structure);
         var uintL index;
-        if (!(posfixnump(STACK_0) && ((index = posfixnum_to_L(STACK_0)) < length))) # Index holen und prüfen
+        if (!(posfixnump(STACK_0) && ((index = posfixnum_to_L(STACK_0)) < length))) # Index holen und prÃ¼fen
           fehler_index(length);
         return &TheStructure(structure)->recdata[index]; # Structure-Komponente adressieren
       }
@@ -176,10 +176,10 @@ LISPFUNN(record_length,1)
 LISPFUNN(pstructure_ref,3)
 # (SYS::%%STRUCTURE-REF type structure index) liefert zu einer Structure vom
 #   gegebenen Typ type (ein Symbol) den Eintrag index>=1.
-# #<UNBOUND> ist möglich.
+# #<UNBOUND> ist mÃ¶glich.
   {
     value1 = *(structure_up()); mv_count=1; # Structure-Element als Wert
-    skipSTACK(3); # Stack aufräumen
+    skipSTACK(3); # Stack aufrÃ¤umen
   }
 
 LISPFUNN(structure_ref,3)
@@ -187,15 +187,15 @@ LISPFUNN(structure_ref,3)
 #   gegebenen Typ type (ein Symbol) den Eintrag index>=1.
   {
     value1 = *(structure_up()); # Structure-Element als Wert
-    if (eq(value1,unbound)) { # Könnte = #<UNBOUND> sein, nach Gebrauch von SLOT-MAKUNBOUND oder nach unvollständigem INITIALIZE-INSTANCE
+    if (eq(value1,unbound)) { # KÃ¶nnte = #<UNBOUND> sein, nach Gebrauch von SLOT-MAKUNBOUND oder nach unvollstÃ¤ndigem INITIALIZE-INSTANCE
       dynamic_bind(S(print_length),Fixnum_0); # *PRINT-LENGTH* an 0 binden
-      pushSTACK(STACK_(1+3)); # Wert für Slot INSTANCE von UNBOUND-SLOT
+      pushSTACK(STACK_(1+3)); # Wert fÃ¼r Slot INSTANCE von UNBOUND-SLOT
       # (clos::slotdef-name (find index (clos::class-slots (find-class type)) :key #'clos::slotdef-location))
       pushSTACK(STACK_(2+3+1)); funcall(L(find_class),1);
       pushSTACK(value1); funcall(S(class_slots),1);
       pushSTACK(STACK_(0+3+1)); pushSTACK(value1); pushSTACK(S(Kkey)); pushSTACK(Symbol_function(S(slotdef_location))); funcall(L(find),4);
       pushSTACK(value1); funcall(S(slotdef_name),1);
-      pushSTACK(value1); # Wert für Slot NAME von UNBOUND-SLOT
+      pushSTACK(value1); # Wert fÃ¼r Slot NAME von UNBOUND-SLOT
       pushSTACK(STACK_(1+3+2));
       pushSTACK(value1);
       pushSTACK(S(structure_ref));
@@ -204,7 +204,7 @@ LISPFUNN(structure_ref,3)
             );
     }
     mv_count=1;
-    skipSTACK(3); # Stack aufräumen
+    skipSTACK(3); # Stack aufrÃ¤umen
   }
 
 LISPFUNN(structure_store,4)
@@ -213,19 +213,19 @@ LISPFUNN(structure_store,4)
   {
     var object value = popSTACK();
     value1 = *(structure_up()) = value; mv_count=1; # Structure-Element eintragen
-    skipSTACK(3); # Stack aufräumen
+    skipSTACK(3); # Stack aufrÃ¤umen
   }
 
 LISPFUNN(make_structure,2)
 # (SYS::%MAKE-STRUCTURE type length) erzeugt eine Structure mit length>=1
 #   Elementen, vom Typ type.
   {
-    # Länge überprüfen, sollte ein Fixnum /=0 sein, das in ein uintW passt:
+    # LÃ¤nge Ã¼berprÃ¼fen, sollte ein Fixnum /=0 sein, das in ein uintW passt:
     var uintL length;
     test_record_length(length);
     skipSTACK(1);
     var object structure = allocate_structure(length);
-    # neue Structure, mit NILs gefüllt
+    # neue Structure, mit NILs gefÃ¼llt
     TheStructure(structure)->structure_types = popSTACK(); # Typ-Komponente eintragen
     value1 = structure; mv_count=1; # structure als Wert
   }
@@ -235,8 +235,8 @@ LISPFUNN(copy_structure,1)
 #   vom selben Typ.
   {
     if (!structurep(STACK_0)) {
-      # STACK_0 = Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(structure_object)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      # STACK_0 = Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(structure_object)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_1); # structure
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
@@ -245,18 +245,18 @@ LISPFUNN(copy_structure,1)
     }
     var uintC length = Structure_length(STACK_0);
     var object new_structure = allocate_structure(length); # neue Structure
-    # und füllen:
+    # und fÃ¼llen:
     {
       var object* old_ptr = &TheStructure(popSTACK())->structure_types;
       var object* new_ptr = &TheStructure(new_structure)->structure_types;
       dotimespC(length,length, { *new_ptr++ = *old_ptr++; });
     }
-    # und als Wert zurück:
+    # und als Wert zurÃ¼ck:
     value1 = new_structure; mv_count=1;
   }
 
 LISPFUNN(structure_type_p,2)
-# (SYS::%STRUCTURE-TYPE-P type object) überprüft, ob object eine
+# (SYS::%STRUCTURE-TYPE-P type object) Ã¼berprÃ¼ft, ob object eine
 #   Structure ist, die vom Typ type ist, was daran erkennbar ist, dass in
 #   der Komponente 0 ein Objekt (name_1 ... name_i-1 name_i) steht, wobei
 #   einer der Namen EQ zu type ist.
@@ -290,8 +290,8 @@ LISPFUNN(structure_type_p,2)
 # (SYS::CLOSURE-CONSTS closure) liefert eine Liste aller Konstanten einer
 #   compilierten Closure.
 # (SYS::MAKE-CODE-VECTOR list) liefert zu einer Liste von Fixnums >=0, <256
-#   einen Simple-Bit-Vector der 8-fachen Länge, der diese Zahlen als Bytes
-#   enthält.
+#   einen Simple-Bit-Vector der 8-fachen LÃ¤nge, der diese Zahlen als Bytes
+#   enthÃ¤lt.
 # (SYS::%MAKE-CLOSURE name codevec consts) liefert eine Closure mit gegebenem
 #   Namen (einem Symbol), gegebenem Code-Vektor (einem Simple-Bit-Vector) und
 #   gegebenen weiteren Konstanten.
@@ -300,7 +300,7 @@ LISPFUNN(structure_type_p,2)
 # (SYS::GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION generic-function)
 #   liefert eine Funktion, die die effektiven Methoden liefert, d.h. so dass
 #   (APPLY generic-function arguments)
-#   == (APPLY (APPLY ergebnis arguments) arguments)  wäre.
+#   == (APPLY (APPLY ergebnis arguments) arguments)  wÃ¤re.
 
 LISPFUNN(closure_name,1)
 # (SYS::CLOSURE-NAME closure) liefert den Namen einer Closure.
@@ -335,7 +335,7 @@ LISPFUNN(closure_codevec,1)
     var object closure = popSTACK();
     if (!(cclosurep(closure))) fehler_cclosure(closure);
     var object codevec = TheCclosure(closure)->clos_codevec;
-    var uintL index = Sbvector_length(codevec); # index := Länge in Bytes
+    var uintL index = Sbvector_length(codevec); # index := LÃ¤nge in Bytes
     # Codevektor codevec von hinten durchgehen und Bytes auf eine Liste pushen:
     pushSTACK(codevec); # Codevektor
     pushSTACK(NIL); # Liste := ()
@@ -357,7 +357,7 @@ LISPFUNN(closure_consts,1)
     var object closure = popSTACK();
     if (!(cclosurep(closure))) fehler_cclosure(closure);
     # Elemente 2,3,... zu einer Liste zusammenfassen:
-    var uintC index = Cclosure_length(closure)-2; # index := Länge
+    var uintC index = Cclosure_length(closure)-2; # index := LÃ¤nge
     # Closure von hinten durchgehen und Konstanten auf eine Liste pushen:
     pushSTACK(closure); # Closure
     pushSTACK(NIL); # Liste := ()
@@ -374,13 +374,13 @@ LISPFUNN(closure_consts,1)
 
 LISPFUNN(make_code_vector,1)
 # (SYS::MAKE-CODE-VECTOR list) liefert zu einer Liste von Fixnums >=0, <256
-#   einen Simple-Bit-Vector der 8-fachen Länge, der diese Zahlen als Bytes
-#   enthält.
+#   einen Simple-Bit-Vector der 8-fachen LÃ¤nge, der diese Zahlen als Bytes
+#   enthÃ¤lt.
   {
     var object bv = allocate_bit_vector(Atype_8Bit,llength(STACK_0)); # Simple-8Bit-Vektor
-    # füllen:
+    # fÃ¼llen:
     var object listr = popSTACK(); # Liste
-    var uintB* ptr = &TheSbvector(bv)->data[0]; # läuft durch den Bit-Vektor
+    var uintB* ptr = &TheSbvector(bv)->data[0]; # lÃ¤uft durch den Bit-Vektor
     while (consp(listr)) {
       var uintL byte;
       # Listenelement muss ein Fixnum >=0, <256 sein:
@@ -394,8 +394,8 @@ LISPFUNN(make_code_vector,1)
     }
     value1 = bv; mv_count=1; return; # bv als Wert
    bad_byte:
-    pushSTACK(Car(listr)); # Wert für Slot DATUM von TYPE-ERROR
-    pushSTACK(O(type_uint8)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+    pushSTACK(Car(listr)); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+    pushSTACK(O(type_uint8)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(STACK_1);
     fehler(type_error,
            GETTEXT("~ is not a valid code-vector byte")
@@ -410,15 +410,15 @@ LISPFUNN(make_closure,3)
     # codevec muss ein Simple-Bit-Vector sein:
     if (!simple_bit_vector_p(Atype_8Bit,STACK_1)) {
       # STACK_1 = codevec
-      pushSTACK(STACK_1); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(simple_bit_vector)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_1); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(simple_bit_vector)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_(1+2));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: invalid code-vector ~")
             );
     }
-    # neue Closure der Länge (+ 2 (length consts)) erzeugen:
+    # neue Closure der LÃ¤nge (+ 2 (length consts)) erzeugen:
     var uintL length = 2+llength(STACK_0);
     if (!(length <= (uintL)(bitm(intWsize)-1))) { # sollte in ein uintW passen
       # STACK_0 = consts
@@ -429,9 +429,9 @@ LISPFUNN(make_closure,3)
             );
     }
     var object closure = allocate_closure(length);
-    TheCclosure(closure)->clos_name = STACK_2; # Namen einfüllen
-    TheCclosure(closure)->clos_codevec = STACK_1; # Codevektor einfüllen
-    # Konstanten einfüllen:
+    TheCclosure(closure)->clos_name = STACK_2; # Namen einfÃ¼llen
+    TheCclosure(closure)->clos_codevec = STACK_1; # Codevektor einfÃ¼llen
+    # Konstanten einfÃ¼llen:
     {
       var object constsr = popSTACK();
       var object* ptr = &TheCclosure(closure)->clos_consts[0];
@@ -451,8 +451,8 @@ LISPFUNN(copy_generic_function,2)
     # with the passed venv.
     var object oldclos = STACK_0;
     if (!genericfunctionp(oldclos)) {
-      pushSTACK(oldclos); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(standard_generic_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(oldclos); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(standard_generic_function)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(oldclos);
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
@@ -486,23 +486,23 @@ LISPFUNN(generic_function_effective_method_function,1)
 # (SYS::GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION generic-function)
 #   liefert eine Funktion, die die effektiven Methoden liefert, d.h. so dass
 #   (APPLY generic-function arguments)
-#   == (APPLY (APPLY ergebnis arguments) arguments)  wäre.
-#   Verwendet für CALL-NEXT-METHOD; kann deswegen voraussetzen, dass die
+#   == (APPLY (APPLY ergebnis arguments) arguments)  wÃ¤re.
+#   Verwendet fÃ¼r CALL-NEXT-METHOD; kann deswegen voraussetzen, dass die
 #   generic-function schon aufgerufen wurde, d.h. dass der Dispatch schon
 #   installiert ist.
   {
     var object oldclos = STACK_0;
     var object newclos;
     if (!genericfunctionp(oldclos)) {
-      pushSTACK(oldclos); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(standard_generic_function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(oldclos); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(standard_generic_function)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(oldclos);
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
              GETTEXT("~: This is not a generic function: ~")
             );
     }
-    # Closure gleicher Länge allozieren:
+    # Closure gleicher LÃ¤nge allozieren:
     newclos = allocate_cclosure_copy(oldclos);
     oldclos = STACK_0;
     do_cclosure_copy(newclos,oldclos);
@@ -535,20 +535,20 @@ LISPFUNN(make_load_time_eval,1)
 # Symbol-Macro:
 
 # (SYS::MAKE-SYMBOL-MACRO expansion) liefert ein Symbol-Macro-Objekt,
-#   das die gegebene Expansion repräsentiert.
+#   das die gegebene Expansion reprÃ¤sentiert.
 # (SYS::SYMBOL-MACRO-P object) testet auf Symbol-Macro.
 
 # Wegen ihrer besonderen Bedeutung im Interpreter sind Symbol-Macro-Objekte
 # - genauso wie #<UNBOUND> und #<SPECDECL> - keine Objekte erster Klasse.
-# Sie können nur als Werte durchgereicht, nicht aber an Variablen zugewiesen
+# Sie kÃ¶nnen nur als Werte durchgereicht, nicht aber an Variablen zugewiesen
 # werden.
 
 # (SYMBOL-MACRO-EXPAND symbol) testet, ob ein Symbol ein Symbol-Macro
-# repräsentiert, und liefert T und die Expansion wenn ja, NIL wenn nein.
+# reprÃ¤sentiert, und liefert T und die Expansion wenn ja, NIL wenn nein.
 
 LISPFUNN(make_symbol_macro,1)
 # (SYS::MAKE-SYMBOL-MACRO expansion) liefert ein Symbol-Macro-Objekt,
-#   das die gegebene Expansion repräsentiert.
+#   das die gegebene Expansion reprÃ¤sentiert.
   {
     var object sm = allocate_symbolmacro();
     TheSymbolmacro(sm)->symbolmacro_expansion = popSTACK();
@@ -564,7 +564,7 @@ LISPFUNN(symbol_macro_p,1)
 
 LISPFUNN(symbol_macro_expand,1)
 # (SYMBOL-MACRO-EXPAND symbol) testet, ob ein Symbol ein Symbol-Macro
-# repräsentiert, und liefert T und die Expansion wenn ja, NIL wenn nein.
+# reprÃ¤sentiert, und liefert T und die Expansion wenn ja, NIL wenn nein.
 # (defun symbol-macro-expand (v)
 #   (unless (symbolp v) (error ...))
 #   (and (boundp v) (symbol-macro-p (%symbol-value v))
@@ -718,8 +718,8 @@ LISPFUNN(weak_pointer_value,1)
   {
     var object wp = popSTACK();
     if (!weakpointerp(wp)) {
-      pushSTACK(wp); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-      pushSTACK(S(weak_pointer)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(wp); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(S(weak_pointer)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(wp);
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
@@ -759,7 +759,7 @@ LISPFUN(finalize,2,1,norest,nokey,0,NIL)
 # CLOS-Objekte:
 
 LISPFUNN(structure_object_p,1)
-# (CLOS::STRUCTURE-OBJECT-P object) überprüft, ob object eine Structure ist.
+# (CLOS::STRUCTURE-OBJECT-P object) Ã¼berprÃ¼ft, ob object eine Structure ist.
   {
     var object obj = popSTACK();
     value1 = (structurep(obj) ? T : NIL); mv_count=1;
@@ -772,7 +772,7 @@ LISPFUNN(std_instance_p,1)
     value1 = (instancep(obj) ? T : NIL); mv_count=1;
   }
 
-# Liefert (CLOS:CLASS-OF object), aber besonders effizient für CLOS-Objekte.
+# Liefert (CLOS:CLASS-OF object), aber besonders effizient fÃ¼r CLOS-Objekte.
   #define class_of(obj)  \
     (instancep(obj) ? TheInstance(obj)->inst_class           \
                     : (pushSTACK(obj), C_class_of(), value1) \
@@ -786,8 +786,8 @@ LISPFUNN(std_instance_p,1)
   local void fehler_keine_klasse(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(class)); # CLOS:CLASS, Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(class)); # CLOS:CLASS, Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name); # Funktionsname
       fehler(type_error,
@@ -796,10 +796,10 @@ LISPFUNN(std_instance_p,1)
     }
 
 LISPFUNN(allocate_std_instance,2)
-# (CLOS::ALLOCATE-STD-INSTANCE class n) liefert eine CLOS-Instanz der Länge n,
-# mit Klasse class und n-1 zusätzlichen Slots.
+# (CLOS::ALLOCATE-STD-INSTANCE class n) liefert eine CLOS-Instanz der LÃ¤nge n,
+# mit Klasse class und n-1 zusÃ¤tzlichen Slots.
   {
-    # Länge überprüfen, sollte ein Fixnum >0 sein, das in ein uintW passt:
+    # LÃ¤nge Ã¼berprÃ¼fen, sollte ein Fixnum >0 sein, das in ein uintW passt:
     var uintL length;
     test_record_length(length);
     skipSTACK(1);
@@ -807,7 +807,7 @@ LISPFUNN(allocate_std_instance,2)
     var object clas = popSTACK();
     if_classp(clas, ; , fehler_keine_klasse(clas); );
     TheInstance(instance)->inst_class = clas;
-    # Slots der Instanz mit #<UNBOUND> füllen:
+    # Slots der Instanz mit #<UNBOUND> fÃ¼llen:
     if (--length > 0) {
       var object* ptr = &TheInstance(instance)->other[0];
       dotimespL(length,length, { *ptr++ = unbound; } );
@@ -827,13 +827,13 @@ LISPFUN(pallocate_instance,1,0,rest,nokey,0,NIL)
            GETTEXT("ALLOCATE-INSTANCE: keyword argument list ~ has an odd length")
           );
   }
-  set_args_end_pointer(rest_args_pointer); # STACK aufräumen
+  set_args_end_pointer(rest_args_pointer); # STACK aufrÃ¤umen
   return_Values do_allocate_instance(popSTACK());
 }
 local Values do_allocate_instance(clas)
   var object clas;
   {
-    # Für allocate-instance zwischen <standard-class> und <structure-class>
+    # FÃ¼r allocate-instance zwischen <standard-class> und <structure-class>
     # unterscheiden: (class-shared-slots class) ein Vektor oder NIL, oder
     # (class-names class) ein Cons?
     if (matomp(TheClass(clas)->shared_slots)) {
@@ -846,8 +846,8 @@ local Values do_allocate_instance(clas)
       # (SYS::%MAKE-STRUCTURE (class-names class) (class-instance-size class))
       pushSTACK(TheClass(clas)->shared_slots); pushSTACK(TheClass(clas)->instance_size);
       C_make_structure();
-      # Slots der Structure mit #<UNBOUND> füllen, damit nachher
-      # INITIALIZE-INSTANCE die Default-Werte einträgt:
+      # Slots der Structure mit #<UNBOUND> fÃ¼llen, damit nachher
+      # INITIALIZE-INSTANCE die Default-Werte eintrÃ¤gt:
       var uintL count = Structure_length(value1)-1;
       if (count > 0) {
         var object* ptr = &TheStructure(value1)->recdata[1];
@@ -979,12 +979,12 @@ LISPFUNN(slot_exists_p,2)
   #pragma -z1
 #endif
 
-# UP: Keywords überprüfen, vgl. SYSTEM::KEYWORD-TEST
+# UP: Keywords Ã¼berprÃ¼fen, vgl. SYSTEM::KEYWORD-TEST
 # keyword_test(caller,rest_args_pointer,argcount,valid_keywords);
 # > caller: Aufrufer (ein Symbol)
-# > rest_args_pointer: Pointer über die Argumente
+# > rest_args_pointer: Pointer Ã¼ber die Argumente
 # > argcount: Anzahl der Argumente / 2
-# > valid_keywords: Liste der gültigen Keywords, oder T wenn alle gültig sind
+# > valid_keywords: Liste der gÃ¼ltigen Keywords, oder T wenn alle gÃ¼ltig sind
   local void keyword_test (object caller, object* rest_args_pointer, uintC argcount, object valid_keywords);
   local void keyword_test(caller,rest_args_pointer,argcount,valid_keywords)
     var object caller;
@@ -1020,7 +1020,7 @@ LISPFUNN(slot_exists_p,2)
             kwlistr = Cdr(kwlistr);
           }
           # nicht gefunden
-          pushSTACK(key); # Wert für Slot DATUM von KEYWORD-ERROR
+          pushSTACK(key); # Wert fÃ¼r Slot DATUM von KEYWORD-ERROR
           pushSTACK(valid_keywords);
           pushSTACK(valid_keywords);
           pushSTACK(Next(ptr));
@@ -1029,7 +1029,7 @@ LISPFUNN(slot_exists_p,2)
           {
             var object type = allocate_cons();
             Car(type) = S(member); Cdr(type) = STACK_4;
-            STACK_4 = type; # `(MEMBER ,@valid_keywords) = Wert für Slot EXPECTED-TYPE von KEYWORD-ERROR
+            STACK_4 = type; # `(MEMBER ,@valid_keywords) = Wert fÃ¼r Slot EXPECTED-TYPE von KEYWORD-ERROR
           }
           fehler(keyword_error,
                  GETTEXT("~: illegal keyword/value pair ~, ~ in argument list." NLstring "The allowed keywords are ~")
@@ -1044,7 +1044,7 @@ LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL)
 # (CLOS::%SHARED-INITIALIZE instance slot-names &rest initargs)
 # instance ist eine Instanz von <standard-object> oder <structure-object>,
 # initargs eine paarige Liste.
-# Das ist die primäre Methode von CLOS:SHARED-INITIALIZE.
+# Das ist die primÃ¤re Methode von CLOS:SHARED-INITIALIZE.
 # vgl. clos.lisp
 # (defmethod shared-initialize ((instance standard-object) slot-names &rest initargs)
 #   (dolist (slot (class-slots (class-of instance)))
@@ -1146,14 +1146,14 @@ LISPFUN(shared_initialize,2,0,rest,nokey,0,NIL)
       }
     }
     value1 = Before(rest_args_pointer STACKop 1); mv_count=1; # Instanz als Wert
-    set_args_end_pointer(rest_args_pointer STACKop 2); # STACK aufräumen
+    set_args_end_pointer(rest_args_pointer STACKop 2); # STACK aufrÃ¤umen
   }
 
 LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
 # (CLOS::%REINITIALIZE-INSTANCE instance &rest initargs)
 # instance ist eine Instanz von <standard-object> oder <structure-object>,
 # initargs eine paarige Liste.
-# Das ist die primäre Methode von CLOS:REINITIALIZE-INSTANCE.
+# Das ist die primÃ¤re Methode von CLOS:REINITIALIZE-INSTANCE.
 # vgl. clos.lisp
 # (defmethod reinitialize-instance ((instance standard-object) &rest initargs)
 #   (let ((h (gethash (class-of instance) *reinitialize-instance-table*)))
@@ -1166,7 +1166,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
 #         (if (not (eq (cdr h) #'clos::%shared-initialize))
 #           ; effektive Methode von shared-initialize anwenden:
 #           (apply (cdr h) instance 'NIL initargs)
-#           ; clos::%shared-initialize mit slot-names=NIL lässt sich vereinfachen:
+#           ; clos::%shared-initialize mit slot-names=NIL lÃ¤sst sich vereinfachen:
 #           (progn
 #             (dolist (slot (class-slots (class-of instance)))
 #               (let ((slotname (slotdef-name slot)))
@@ -1190,7 +1190,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
         # Hash-Tabellen-Eintrag neu berechnen. Siehe clos.lisp.
         funcall(S(initial_reinitialize_instance),argcount+1); return;
       }
-      # Keywords überprüfen:
+      # Keywords Ã¼berprÃ¼fen:
       if (!((argcount%2) == 0)) {
         var object arglist = listof(argcount);
         pushSTACK(arglist);
@@ -1218,7 +1218,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
         return;
       }
     }
-    # CLOS::%SHARED-INITIALIZE mit slot-names=NIL lässt sich vereinfachen:
+    # CLOS::%SHARED-INITIALIZE mit slot-names=NIL lÃ¤sst sich vereinfachen:
     {
       var object slots = TheClass(clas)->slots; # Liste aller Slots (als Slot-Definitionen)
       while (consp(slots)) {
@@ -1253,13 +1253,13 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
       }
     }
     value1 = Before(rest_args_pointer); mv_count=1; # Instanz als Wert
-    set_args_end_pointer(rest_args_pointer STACKop 1); # STACK aufräumen
+    set_args_end_pointer(rest_args_pointer STACKop 1); # STACK aufrÃ¤umen
   }
 
 # (CLOS::%INITIALIZE-INSTANCE instance &rest initargs)
 # instance ist eine Instanz von <standard-object> oder <structure-object>,
 # initargs eine paarige Liste.
-# Das ist die primäre Methode von CLOS:INITIALIZE-INSTANCE.
+# Das ist die primÃ¤re Methode von CLOS:INITIALIZE-INSTANCE.
 # vgl. clos.lisp
 # (defmethod initialize-instance ((instance standard-object) &rest initargs)
 #   (let ((h (gethash class *make-instance-table*)))
@@ -1267,7 +1267,7 @@ LISPFUN(reinitialize_instance,1,0,rest,nokey,0,NIL)
 #       (if (not (eq (svref h 3) #'clos::%shared-initialize))
 #         ; effektive Methode von shared-initialize anwenden:
 #         (apply (svref h 3) instance 'T initargs)
-#         ; clos::%shared-initialize mit slot-names=T lässt sich vereinfachen:
+#         ; clos::%shared-initialize mit slot-names=T lÃ¤sst sich vereinfachen:
 #         (progn
 #           (dolist (slot (class-slots (class-of instance)))
 #             (let ((slotname (slotdef-name slot)))
@@ -1333,7 +1333,7 @@ local Values do_initialize_instance(info,rest_args_pointer,argcount)
         return;
       }
     }
-    # CLOS::%SHARED-INITIALIZE mit slot-names=T lässt sich vereinfachen:
+    # CLOS::%SHARED-INITIALIZE mit slot-names=T lÃ¤sst sich vereinfachen:
     {
       var object instance = Before(rest_args_pointer);
       var object clas = class_of(instance); # Instanz der <standard-class> oder <structure-class>
@@ -1392,7 +1392,7 @@ local Values do_initialize_instance(info,rest_args_pointer,argcount)
       }
     }
     value1 = Before(rest_args_pointer); mv_count=1; # Instanz als Wert
-    set_args_end_pointer(rest_args_pointer STACKop 1); # STACK aufräumen
+    set_args_end_pointer(rest_args_pointer STACKop 1); # STACK aufrÃ¤umen
   }
 
 #ifdef RISCOS_CCBUG
@@ -1425,7 +1425,7 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
 #           (if (not (eq (svref h 2) #'clos::%initialize-instance))
 #             ; effektive Methode von initialize-instance anwenden:
 #             (apply (svref h 2) instance initargs)
-#             ; clos::%initialize-instance lässt sich vereinfachen (man braucht
+#             ; clos::%initialize-instance lÃ¤sst sich vereinfachen (man braucht
 #             ; nicht nochmal in *make-instance-table* nachzusehen):
 #             (if (not (eq (svref h 3) #'clos::%shared-initialize))
 #               ; effektive Methode von shared-initialize anwenden:
@@ -1445,7 +1445,7 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
     }
     argcount = argcount/2; # Anzahl der Initarg/Wert-Paare
     # Stackaufbau: class, argcount Initarg/Wert-Paare.
-    # Default-Initargs anfügen:
+    # Default-Initargs anfÃ¼gen:
     {
       var object clas = Before(rest_args_pointer);
       var object l = TheClass(clas)->default_initargs;
@@ -1488,7 +1488,7 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
         # Hash-Tabellen-Eintrag neu berechnen. Siehe clos.lisp.
         return_Values funcall(S(initial_make_instance),2*argcount+1);
       } else {
-        # Keywords überprüfen:
+        # Keywords Ã¼berprÃ¼fen:
         keyword_test(S(make_instance),rest_args_pointer,argcount,TheSvector(info)->data[0]);
         # Effektive Methode von ALLOCATE-INSTANCE anwenden:
         pushSTACK(info);
@@ -1521,7 +1521,7 @@ LISPFUN(make_instance,1,0,rest,nokey,0,NIL)
         if (!eq(fun,L(initialize_instance))) {
           return_Values funcall(fun,2*argcount+1);
         } else {
-          # CLOS::%INITIALIZE-INSTANCE lässt sich vereinfachen (man braucht
+          # CLOS::%INITIALIZE-INSTANCE lÃ¤sst sich vereinfachen (man braucht
           # nicht nochmal in *make-instance-table* nachzusehen):
           return_Values do_initialize_instance(info,rest_args_pointer,argcount);
         }

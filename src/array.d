@@ -412,11 +412,11 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             );
     }
 
-# ‹berpr¸ft Subscripts f¸r einen AREF/STORE-Zugriff, entfernt sie vom STACK
+# √úberpr√ºft Subscripts f√ºr einen AREF/STORE-Zugriff, entfernt sie vom STACK
 # und liefert den Row-Major-Index (>=0, <arraysize_limit).
 # test_subscripts(array,argptr,argcount)
 # > array : nicht-simpler Array
-# > argptr : Pointer ¸ber die Subscripts
+# > argptr : Pointer √ºber die Subscripts
 # > argcount : Anzahl der Subscripts
 # < ergebnis : row-major-index
   local uintL test_subscripts (object array, object* argptr, uintC argcount);
@@ -425,15 +425,15 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
     var object* argptr;
     var uintC argcount;
     {
-      var object* args_pointer = argptr; # argptr retten f¸r sp‰ter
-      # Anzahl der Subscripts ¸berpr¸fen:
+      var object* args_pointer = argptr; # argptr retten f√ºr sp√§ter
+      # Anzahl der Subscripts √ºberpr√ºfen:
       if (!(argcount == Iarray_rank(array))) # sollte = Rang sein
         fehler_subscript_anz(array,argcount);
-      # Subscripts selbst ¸berpr¸fen:
+      # Subscripts selbst √ºberpr√ºfen:
       var uintL row_major_index = 0;
       var const uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
       if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
-        dimptr++; # evtl. Displaced-Offset ¸berspringen
+        dimptr++; # evtl. Displaced-Offset √ºberspringen
       {
         var uintC count;
         dotimesC(count,argcount, {
@@ -447,10 +447,10 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
           # Bilde row_major_index := row_major_index*dim+subscript:
           row_major_index =
             mulu32_unchecked(row_major_index,dim)+subscript;
-          # Das gibt keinen ‹berlauf, weil dies
+          # Das gibt keinen √úberlauf, weil dies
           # < Produkt der bisherigen Dimensionen
           # <= Produkt aller Dimensionen < arraysize_limit <= 2^32
-          # ist. (Ausnahme: Falls eine sp‰tere Dimension =0 ist.
+          # ist. (Ausnahme: Falls eine sp√§tere Dimension =0 ist.
           # Aber dann gibt's nachher sowieso eine Fehlermeldung.)
         });
       }
@@ -465,8 +465,8 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
   nonreturning_function(local, fehler_index_type, (void));
   local void fehler_index_type()
     {
-      pushSTACK(STACK_0); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_array_index)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_0); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_array_index)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_(1+2));
       pushSTACK(STACK_(0+3));
       pushSTACK(TheSubr(subr_self)->name);
@@ -484,10 +484,10 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
     var uintL bound;
     {
       var object tmp;
-      pushSTACK(STACK_0); # Wert f¸r Slot DATUM von TYPE-ERROR
+      pushSTACK(STACK_0); # Wert f√ºr Slot DATUM von TYPE-ERROR
       pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(bound));
       tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-      pushSTACK(tmp); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(tmp); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_(1+2));
       pushSTACK(STACK_(0+3));
       pushSTACK(TheSubr(subr_self)->name);
@@ -496,7 +496,7 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             );
     }
 
-# ‹berpr¸ft einen Index f¸r einen AREF/STORE-Zugriff in einen simplen Vektor.
+# √úberpr√ºft einen Index f√ºr einen AREF/STORE-Zugriff in einen simplen Vektor.
 # test_index()
 # > STACK_1: simpler Vektor
 # > STACK_0: Index
@@ -507,16 +507,16 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
       if (!posfixnump(STACK_0)) # Index muss Fixnum>=0 sein.
         fehler_index_type();
       var uintL index = posfixnum_to_L(STACK_0); # Index als uintL
-      if (!(index < Sarray_length(STACK_1))) # Index muss kleiner als L‰nge sein
+      if (!(index < Sarray_length(STACK_1))) # Index muss kleiner als L√§nge sein
         fehler_index_range(Sarray_length(STACK_1));
       return index;
     }
 
-# ‹berpr¸ft Subscripts f¸r einen AREF/STORE-Zugriff, entfernt sie vom STACK
+# √úberpr√ºft Subscripts f√ºr einen AREF/STORE-Zugriff, entfernt sie vom STACK
 # und liefert den Row-Major-Index (>=0, <arraysize_limit) und den Datenvektor.
 # subscripts_to_index(array,argptr,argcount, &index)
 # > array : nicht-simpler Array
-# > argptr : Pointer ¸ber die Subscripts
+# > argptr : Pointer √ºber die Subscripts
 # > argcount : Anzahl der Subscripts
 # < index : Index in den Datenvektor
 # < ergebnis : der Datenvektor
@@ -527,18 +527,18 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
     var uintC argcount;
     var uintL* index_;
     {
-      test_array(array); # Array ¸berpr¸fen
+      test_array(array); # Array √ºberpr√ºfen
       if (array_simplep(array)) {
         # simpler Vektor, wird getrennt behandelt:
-        # Anzahl der Subscripts ¸berpr¸fen:
+        # Anzahl der Subscripts √ºberpr√ºfen:
         if (!(argcount == 1)) # sollte = 1 sein
           fehler_subscript_anz(array,argcount);
-        # Subscript selbst ¸berpr¸fen:
+        # Subscript selbst √ºberpr√ºfen:
         *index_ = test_index(); # Index = Row-Major-Index = Subscript
         skipSTACK(1); return array;
       } else {
         # nicht-simpler Array
-        # Subscripts ¸berpr¸fen, Row-Major-Index errechnen, STACK aufr‰umen:
+        # Subscripts √ºberpr√ºfen, Row-Major-Index errechnen, STACK aufr√§umen:
         *index_ = test_subscripts(array,argptr,argcount);
         # Datenvektor und absoluten Index holen:
         return iarray_displace(array,&(*index_));
@@ -589,8 +589,8 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
     var object value;
     {
       pushSTACK(array);
-      pushSTACK(value); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(array_element_type(array)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(value); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(array_element_type(array)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_(0+2)); # array
       pushSTACK(STACK_2); # value
       pushSTACK(TheSubr(subr_self)->name);
@@ -599,12 +599,12 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
             );
     }
 
-# F¸hrt einen STORE-Zugriff aus.
+# F√ºhrt einen STORE-Zugriff aus.
 # storagevector_store(datenvektor,index,element)
 # > datenvektor : ein Datenvektor (simpler Vektor oder semi-simpler Byte-Vektor)
-# > index : (gepr¸fter) Index in den Datenvektor
-# > element : (ungepr¸ftes) einzutragendes Objekt
-# > STACK_0 : array (f¸r Fehlermeldung)
+# > index : (gepr√ºfter) Index in den Datenvektor
+# > element : (ungepr√ºftes) einzutragendes Objekt
+# > STACK_0 : array (f√ºr Fehlermeldung)
 # > subr_self: Aufrufer (ein SUBR)
   local void storagevector_store (object datenvektor, uintL index, object element);
   local void storagevector_store(datenvektor,index,element)
@@ -702,7 +702,7 @@ LISPFUN(aref,1,0,rest,nokey,0,NIL) # (AREF array {subscript}), CLTL S. 290
 LISPFUN(store,2,0,rest,nokey,0,NIL) # (SYS::STORE array {subscript} object)
                      # = (SETF (AREF array {subscript}) object), CLTL S. 291
   {
-    rest_args_pointer skipSTACKop 1; # Pointer ¸ber ersten Subscript
+    rest_args_pointer skipSTACKop 1; # Pointer √ºber ersten Subscript
     var object element = popSTACK();
     var object array = Before(rest_args_pointer); # Array holen
     # Subscripts verarbeiten und Datenvektor und Index holen:
@@ -725,10 +725,10 @@ LISPFUN(store,2,0,rest,nokey,0,NIL) # (SYS::STORE array {subscript} object)
 
 LISPFUNN(svref,2) # (SVREF simple-vector index), CLTL S. 291
   {
-    # simple-vector ¸berpr¸fen:
+    # simple-vector √ºberpr√ºfen:
     if (!simple_vector_p(STACK_1))
       fehler_svector();
-    # index ¸berpr¸fen:
+    # index √ºberpr√ºfen:
     var uintL index = test_index();
     # Element holen:
     value1 = TheSvector(STACK_1)->data[index]; mv_count=1;
@@ -739,10 +739,10 @@ LISPFUNN(svstore,3) # (SYS::SVSTORE simple-vector index element)
                     # = (SETF (SVREF simple-vector index) element), CLTL S. 291
   {
     var object element = popSTACK();
-    # simple-vector ¸berpr¸fen:
+    # simple-vector √ºberpr√ºfen:
     if (!simple_vector_p(STACK_1))
       fehler_svector();
-    # index ¸berpr¸fen:
+    # index √ºberpr√ºfen:
     var uintL index = test_index();
     # Element ablegen:
     TheSvector(STACK_1)->data[index] = element;
@@ -753,10 +753,10 @@ LISPFUNN(svstore,3) # (SYS::SVSTORE simple-vector index element)
 LISPFUNN(psvstore,3) # (SYS::%SVSTORE element simple-vector index)
                      # = (SETF (SVREF simple-vector index) element)
   {
-    # simple-vector ¸berpr¸fen:
+    # simple-vector √ºberpr√ºfen:
     if (!simple_vector_p(STACK_1))
       fehler_svector();
-    # index ¸berpr¸fen:
+    # index √ºberpr√ºfen:
     var uintL index = test_index();
     # Element ablegen:
     value1 = TheSvector(STACK_1)->data[index] = STACK_2; mv_count=1;
@@ -767,13 +767,13 @@ LISPFUNN(row_major_aref,2)
 # (ROW-MAJOR-AREF array index), CLtL2 S. 450
   {
     var object array = STACK_1;
-    # Array ¸berpr¸fen:
+    # Array √ºberpr√ºfen:
     test_array(array);
-    # index ¸berpr¸fen:
+    # index √ºberpr√ºfen:
     if (!posfixnump(STACK_0))
       fehler_index_type();
     var uintL index = posfixnum_to_L(STACK_0);
-    if (!(index < array_total_size(array))) # Index muss kleiner als Grˆﬂe sein
+    if (!(index < array_total_size(array))) # Index muss kleiner als Gr√∂√üe sein
       fehler_index_range(array_total_size(array));
     if (!array_simplep(array))
       { array = iarray_displace(array,&index); }
@@ -787,13 +787,13 @@ LISPFUNN(row_major_store,3)
   {
     var object element = popSTACK();
     var object array = STACK_1;
-    # Array ¸berpr¸fen:
+    # Array √ºberpr√ºfen:
     test_array(array);
-    # index ¸berpr¸fen:
+    # index √ºberpr√ºfen:
     if (!posfixnump(STACK_0))
       fehler_index_type();
     var uintL index = posfixnum_to_L(STACK_0);
-    if (!(index < array_total_size(array))) # Index muss kleiner als Grˆﬂe sein
+    if (!(index < array_total_size(array))) # Index muss kleiner als Gr√∂√üe sein
       fehler_index_range(array_total_size(array));
     if (!array_simplep(array))
       { array = iarray_displace(array,&index); }
@@ -881,7 +881,7 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
     var object array = popSTACK();
     test_array(array);
     if (array_simplep(array)) {
-      # simpler Vektor: axis-number muss =0 sein, Wert ist dann die L‰nge.
+      # simpler Vektor: axis-number muss =0 sein, Wert ist dann die L√§nge.
       if (eq(axis_number,Fixnum_0)) {
         value1 = fixnum(Sarray_length(array));
         mv_count=1; return;
@@ -894,7 +894,7 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
         if (axis < (uintL)Iarray_rank(array)) { # und <rank sein
           var uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
           if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
-            dimptr++; # evtl. Displaced-Offset ¸berspringen
+            dimptr++; # evtl. Displaced-Offset √ºberspringen
           value1 = fixnum(dimptr[axis]);
           mv_count=1; return;
         } else
@@ -904,11 +904,11 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
     }
    fehler_axis:
     pushSTACK(array);
-    pushSTACK(axis_number); # Wert f¸r Slot DATUM von TYPE-ERROR
+    pushSTACK(axis_number); # Wert f√ºr Slot DATUM von TYPE-ERROR
     {
       var object tmp;
       pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(arrayrank(array));
-      tmp = listof(1); pushSTACK(tmp); tmp = listof(3); pushSTACK(tmp); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      tmp = listof(1); pushSTACK(tmp); tmp = listof(3); pushSTACK(tmp); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
     }
     pushSTACK(STACK_2); # array
     pushSTACK(STACK_2); # axis_number
@@ -929,7 +929,7 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
     {
       if (array_simplep(array)) {
         # simpler Vektor, bilde (LIST length)
-        var object len # L‰nge als Fixnum (nicht GC-gef‰hrdet)
+        var object len # L√§nge als Fixnum (nicht GC-gef√§hrdet)
           = fixnum(Sarray_length(array));
         var object new_cons = allocate_cons();
         Car(new_cons) = len; Cdr(new_cons) = NIL;
@@ -941,12 +941,12 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
         if (rank > 0) {
           var uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
           if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
-            dimptr++; # evtl. Displaced-Offset ¸berspringen
-          get_space_on_STACK(sizeof(object)*(uintL)rank); # STACK ¸berpr¸fen
+            dimptr++; # evtl. Displaced-Offset √ºberspringen
+          get_space_on_STACK(sizeof(object)*(uintL)rank); # STACK √ºberpr√ºfen
           {
             var uintC count;
             dotimespC(count,rank, {
-              # n‰chste Dimension als Fixnum in den Stack:
+              # n√§chste Dimension als Fixnum in den Stack:
               pushSTACK(fixnum(*dimptr++));
             });
           }
@@ -976,18 +976,18 @@ LISPFUNN(array_dimensions,1) # (ARRAY-DIMENSIONS array), CLTL S. 292
       if (r > 0) {
         var const uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
         if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
-          dimptr++; # evtl. Displaced-Offset ¸berspringen
+          dimptr++; # evtl. Displaced-Offset √ºberspringen
         dimptr = &dimptr[(uintL)r]; # Zeiger hinter die Dimensionen
         var uintL produkt = 1;
-        dotimespC(r,r, { # Schleife ¸ber die r Dimensionen von hinten
-          var uintL dim = *--dimptr; # n‰chste Dimension
+        dotimespC(r,r, { # Schleife √ºber die r Dimensionen von hinten
+          var uintL dim = *--dimptr; # n√§chste Dimension
           produkt = mulu32_unchecked(produkt,dim); # aufs Produkt multiplizieren
-          # Das gibt keinen ‹berlauf, weil dies
+          # Das gibt keinen √úberlauf, weil dies
           # < Produkt der bisherigen Dimensionen
           # <= Produkt aller Dimensionen < arraysize_limit <= 2^32 ist.
           # (Ausnahme: Falls eine Dimension kleinerer Nummer =0 ist.
           # Aber dann ist das jetzige Produkt sowieso irrelevant, da
-          # jede Schleife ¸ber diese Dimension eine Leerschleife ist.)
+          # jede Schleife √ºber diese Dimension eine Leerschleife ist.)
           dims_sizes->dim = dim; dims_sizes->dimprod = produkt;
           dims_sizes++;
         });
@@ -1007,32 +1007,32 @@ LISPFUN(array_in_bounds_p,1,0,rest,nokey,0,NIL)
   {
     var object* argptr = rest_args_pointer;
     var object array = BEFORE(rest_args_pointer); # Array holen
-    test_array(array); # Array ¸berpr¸fen
+    test_array(array); # Array √ºberpr√ºfen
     if (array_simplep(array)) {
       # simpler Vektor, wird getrennt behandelt:
-      # Anzahl der Subscripts ¸berpr¸fen:
+      # Anzahl der Subscripts √ºberpr√ºfen:
       if (!(argcount == 1)) # sollte = 1 sein
         fehler_subscript_anz(array,argcount);
-      # Subscript selbst ¸berpr¸fen:
+      # Subscript selbst √ºberpr√ºfen:
       var object subscriptobj = STACK_0; # Subscript als Objekt
       if (!integerp(subscriptobj)) # muss Integer sein
          fehler_index_type();
       # Subscript muss Fixnum>=0 sein,
-      # Subscript als uintL muss kleiner als L‰nge sein:
+      # Subscript als uintL muss kleiner als L√§nge sein:
       if (!( posfixnump(subscriptobj)
              && (posfixnum_to_L(subscriptobj) < Sarray_length(array)) ))
         goto no;
       goto yes;
     } else {
       # nicht-simpler Array
-      # Anzahl der Subscripts ¸berpr¸fen:
+      # Anzahl der Subscripts √ºberpr√ºfen:
       if (!(argcount == Iarray_rank(array))) # sollte = Rang sein
         fehler_subscript_anz(array,argcount);
-      # Subscripts selbst ¸berpr¸fen:
+      # Subscripts selbst √ºberpr√ºfen:
       if (argcount > 0) {
         var uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
         if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
-          dimptr++; # evtl. Displaced-Offset ¸berspringen
+          dimptr++; # evtl. Displaced-Offset √ºberspringen
         var uintC count;
         dotimespC(count,argcount, {
           var object subscriptobj = NEXT(argptr); # Subscript als Objekt
@@ -1058,21 +1058,21 @@ LISPFUN(array_row_major_index,1,0,rest,nokey,0,NIL)
   {
     var object array = Before(rest_args_pointer); # Array holen
     var uintL index;
-    test_array(array); # Array ¸berpr¸fen
+    test_array(array); # Array √ºberpr√ºfen
     if (array_simplep(array)) {
       # simpler Vektor, wird getrennt behandelt:
-      # Anzahl der Subscripts ¸berpr¸fen:
+      # Anzahl der Subscripts √ºberpr√ºfen:
       if (!(argcount == 1)) # sollte = 1 sein
         fehler_subscript_anz(array,argcount);
-      # Subscript selbst ¸berpr¸fen:
+      # Subscript selbst √ºberpr√ºfen:
       test_index();
       value1 = popSTACK(); mv_count=1; # Index = Row-Major-Index = Subscript
       skipSTACK(1);
     } else {
       # nicht-simpler Array
-      # Subscripts ¸berpr¸fen, Row-Major-Index errechnen, STACK aufr‰umen:
+      # Subscripts √ºberpr√ºfen, Row-Major-Index errechnen, STACK aufr√§umen:
       index = test_subscripts(array,rest_args_pointer,argcount);
-      # Index als Fixnum zur¸ck:
+      # Index als Fixnum zur√ºck:
       value1 = fixnum(index); mv_count=1;
       skipSTACK(1);
     }
@@ -1081,7 +1081,7 @@ LISPFUN(array_row_major_index,1,0,rest,nokey,0,NIL)
 LISPFUNN(adjustable_array_p,1) # (ADJUSTABLE-ARRAY-P array), CLTL S. 293
   {
     var object array = popSTACK(); # Argument holen
-    test_array(array); # Array ¸berpr¸fen
+    test_array(array); # Array √ºberpr√ºfen
     if (array_simplep(array))
       goto no; # simpler Vektor, ist nicht adjustable
     else
@@ -1098,11 +1098,11 @@ LISPFUNN(adjustable_array_p,1) # (ADJUSTABLE-ARRAY-P array), CLTL S. 293
 LISPFUNN(array_displacement,1) # (ARRAY-DISPLACEMENT array), CLHS
   {
     var object array = popSTACK(); # Argument holen
-    test_array(array); # Array ¸berpr¸fen
+    test_array(array); # Array √ºberpr√ºfen
     if (!array_simplep(array)
         && (Iarray_flags(array) & bit(arrayflags_displaced_bit))
        ) {
-      value1 = TheIarray(array)->data; # n‰chster Array
+      value1 = TheIarray(array)->data; # n√§chster Array
       value2 = fixnum(TheIarray(array)->dims[0]); # displaced-Offset
     } else {
       value1 = NIL;
@@ -1120,8 +1120,8 @@ LISPFUNN(array_displacement,1) # (ARRAY-DISPLACEMENT array), CLHS
   nonreturning_function(local, fehler_bit_array, (void));
   local void fehler_bit_array()
     {
-      pushSTACK(STACK_0); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_array_bit)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_0); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_array_bit)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_(0+2));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1155,14 +1155,14 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
     skipSTACK(1);
   }
 
-# F¸r Unterprogramme f¸r Bitvektoren:
-  # Man arbeitet mit Bit-Blˆcken ‡ bitpack Bits.
+# F√ºr Unterprogramme f√ºr Bitvektoren:
+  # Man arbeitet mit Bit-Bl√∂cken √† bitpack Bits.
   # uint_bitpack ist ein unsigned Integer mit bitpack Bits.
   # uint_2bitpack ist ein unsigned Integer mit 2*bitpack Bits.
-  # R_bitpack(x) liefert die rechte (untere) H‰lfte eines uint_2bitpack.
-  # L_bitpack(x) liefert die linke (obere) H‰lfte eines uint_2bitpack.
-  # LR_2bitpack(x,y) liefert zu x,y das aus der linken H‰lfte x und der
-  #                  rechten H‰lfte y zusammengesetzte uint_2bitpack.
+  # R_bitpack(x) liefert die rechte (untere) H√§lfte eines uint_2bitpack.
+  # L_bitpack(x) liefert die linke (obere) H√§lfte eines uint_2bitpack.
+  # LR_2bitpack(x,y) liefert zu x,y das aus der linken H√§lfte x und der
+  #                  rechten H√§lfte y zusammengesetzte uint_2bitpack.
   # Verwende LR_0_bitpack(y) falls x=0, LR_bitpack_0(x) falls y=0.
   #if defined(WIDE_HARD) && BIG_ENDIAN_P && (varobject_alignment%4 == 0)
     # Bei Big-Endian-64-bit-Maschinen kann man gleich mit 32 Bit auf einmal
@@ -1244,7 +1244,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         var uintL bitpackcount = bitcount / bitpack;
         # bitpackcount = Anzahl der ganzen Words
         var uintL bitcount_rest = bitcount % bitpack;
-        # bitcount_rest = Anzahl der ¸brigbleibenden Bits
+        # bitcount_rest = Anzahl der √ºbrigbleibenden Bits
         # einfache Schleife, da alle Bit-Offsets im Word =0 sind:
         dotimesL(bitpackcount,bitpackcount, {
           if (!(*ptr1++ == *ptr2++))
@@ -1266,7 +1266,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         var uintL bitpackcount = bitcount / bitpack;
         # bitpackcount = Anzahl der ganzen Words
         var uintL bitcount_rest = bitcount % bitpack;
-        # bitcount_rest = Anzahl der ¸brigbleibenden Bits
+        # bitcount_rest = Anzahl der √ºbrigbleibenden Bits
         # We distinguish three cases in order to avoid a memory overrun bug.
         # The tighter loops are just an added benefit for speed.
         if (index1 == 0) {
@@ -1276,17 +1276,17 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
           # die betroffenen Bits des 1. Words des 2. Arrays, sonst Nullen.
           dotimesL(bitpackcount,bitpackcount, {
             # Vergleichsschleife (jeweils wortweise):
-            # Nach n>=0 Schleifendurchl‰ufen ist
-            # ptr1 um n, und ptr2 um n+1 Words weiterger¸ckt, also Pointer aufs
-            # n‰chste zu lesende Word des 1. bzw. 2. Arrays,
-            # bitpackcount = Zahl zu verkn¸pfender ganzer Words - n,
-            # carry2 = ‹bertrag vom 2. Array
+            # Nach n>=0 Schleifendurchl√§ufen ist
+            # ptr1 um n, und ptr2 um n+1 Words weiterger√ºckt, also Pointer aufs
+            # n√§chste zu lesende Word des 1. bzw. 2. Arrays,
+            # bitpackcount = Zahl zu verkn√ºpfender ganzer Words - n,
+            # carry2 = √úbertrag vom 2. Array
             #          (in den bitpack-index2 oberen Bits, sonst Null).
             if (!(
                   *ptr1++
                   ==
                   ( carry2 |=
-                      LR_0_bitpack(*ptr2++) # n‰chstes Word des 2. Arrays lesen
+                      LR_0_bitpack(*ptr2++) # n√§chstes Word des 2. Arrays lesen
                       << index2, # zum carry2 dazunehmen
                     L_bitpack(carry2) # und davon das linke Word verwenden
                   )
@@ -1301,7 +1301,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                      *ptr1++
                      ^
                      ( carry2 |=
-                         LR_0_bitpack(*ptr2++) # n‰chstes Word des 2. Arrays lesen
+                         LR_0_bitpack(*ptr2++) # n√§chstes Word des 2. Arrays lesen
                          << index2, # zum carry2 dazunehmen
                        L_bitpack(carry2) # und davon das linke Word verwenden
                      )
@@ -1320,15 +1320,15 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
           # die betroffenen Bits des 1. Words des 1. Arrays, sonst Nullen.
           dotimesL(bitpackcount,bitpackcount, {
             # Vergleichsschleife (jeweils wortweise):
-            # Nach n>=0 Schleifendurchl‰ufen ist
-            # ptr1 um n+1, und ptr2 um n Words weiterger¸ckt, also Pointer aufs
-            # n‰chste zu lesende Word des 1. bzw. 2. Arrays,
-            # bitpackcount = Zahl zu verkn¸pfender ganzer Words - n,
-            # carry1 = ‹bertrag vom 1. Array
+            # Nach n>=0 Schleifendurchl√§ufen ist
+            # ptr1 um n+1, und ptr2 um n Words weiterger√ºckt, also Pointer aufs
+            # n√§chste zu lesende Word des 1. bzw. 2. Arrays,
+            # bitpackcount = Zahl zu verkn√ºpfender ganzer Words - n,
+            # carry1 = √úbertrag vom 1. Array
             #          (in den bitpack-index1 oberen Bits, sonst Null),
             if (!(
                   ( carry1 |=
-                      LR_0_bitpack(*ptr1++) # n‰chstes Word des 1. Arrays lesen
+                      LR_0_bitpack(*ptr1++) # n√§chstes Word des 1. Arrays lesen
                       << index1, # zum carry1 dazunehmen
                     L_bitpack(carry1) # und davon das linke Word verwenden
                   )
@@ -1343,7 +1343,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
             # letztes Word vergleichen:
             if (!(( (
                      ( carry1 |=
-                         LR_0_bitpack(*ptr1++) # n‰chstes Word des 1. Arrays lesen
+                         LR_0_bitpack(*ptr1++) # n√§chstes Word des 1. Arrays lesen
                          << index1, # zum carry1 dazunehmen
                        L_bitpack(carry1) # und davon das linke Word verwenden
                      )
@@ -1366,23 +1366,23 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
           # die betroffenen Bits des 1. Words des 2. Arrays, sonst Nullen.
           dotimesL(bitpackcount,bitpackcount, {
             # Vergleichsschleife (jeweils wortweise):
-            # Nach n>=0 Schleifendurchl‰ufen ist
-            # ptr1 und ptr2 um n+1 Words weiterger¸ckt, also Pointer aufs
-            # n‰chste zu lesende Word des 1. bzw. 2. Arrays,
-            # bitpackcount = Zahl zu verkn¸pfender ganzer Words - n,
-            # carry1 = ‹bertrag vom 1. Array
+            # Nach n>=0 Schleifendurchl√§ufen ist
+            # ptr1 und ptr2 um n+1 Words weiterger√ºckt, also Pointer aufs
+            # n√§chste zu lesende Word des 1. bzw. 2. Arrays,
+            # bitpackcount = Zahl zu verkn√ºpfender ganzer Words - n,
+            # carry1 = √úbertrag vom 1. Array
             #          (in den bitpack-index1 oberen Bits, sonst Null),
-            # carry2 = ‹bertrag vom 2. Array
+            # carry2 = √úbertrag vom 2. Array
             #          (in den bitpack-index2 oberen Bits, sonst Null).
             if (!(
                   ( carry1 |=
-                      LR_0_bitpack(*ptr1++) # n‰chstes Word des 1. Arrays lesen
+                      LR_0_bitpack(*ptr1++) # n√§chstes Word des 1. Arrays lesen
                       << index1, # zum carry1 dazunehmen
                     L_bitpack(carry1) # und davon das linke Word verwenden
                   )
                   ==
                   ( carry2 |=
-                      LR_0_bitpack(*ptr2++) # n‰chstes Word des 2. Arrays lesen
+                      LR_0_bitpack(*ptr2++) # n√§chstes Word des 2. Arrays lesen
                       << index2, # zum carry2 dazunehmen
                     L_bitpack(carry2) # und davon das linke Word verwenden
                   )
@@ -1396,13 +1396,13 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
             # letztes Word vergleichen:
             if (!(( (
                      ( carry1 |=
-                         LR_0_bitpack(*ptr1++) # n‰chstes Word des 1. Arrays lesen
+                         LR_0_bitpack(*ptr1++) # n√§chstes Word des 1. Arrays lesen
                          << index1, # zum carry1 dazunehmen
                        L_bitpack(carry1) # und davon das linke Word verwenden
                      )
                      ^
                      ( carry2 |=
-                         LR_0_bitpack(*ptr2++) # n‰chstes Word des 2. Arrays lesen
+                         LR_0_bitpack(*ptr2++) # n√§chstes Word des 2. Arrays lesen
                          << index2, # zum carry2 dazunehmen
                        L_bitpack(carry2) # und davon das linke Word verwenden
                      )
@@ -1531,7 +1531,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
       }
     }
 
-# Unterprogramm f¸r Bitvektor-Operationen:
+# Unterprogramm f√ºr Bitvektor-Operationen:
 # bit_op(array1,index1,array2,index2,array3,index3,op,count);
 # > array1: erster Bit-Array,
 # > index1: absoluter Index in array1
@@ -1540,8 +1540,8 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
 # > array3: dritter Bit-Array,
 # > index3: absoluter Index in array3
 # > op: Adresse der Operationsroutine
-# > count: Anzahl der zu verkn¸pfenden Bits, > 0
-  # bit_op_fun ist eine Funktion, die zwei bitpack-Bit-Wˆrter verkn¸pft:
+# > count: Anzahl der zu verkn√ºpfenden Bits, > 0
+  # bit_op_fun ist eine Funktion, die zwei bitpack-Bit-W√∂rter verkn√ºpft:
   typedef uint_bitpack bit_op_fun (uint_bitpack x, uint_bitpack y);
   local void bit_op (object array1, uintL index1,
                      object array2, uintL index2,
@@ -1566,7 +1566,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
       var uintL bitpackcount = bitcount / bitpack;
       # bitpackcount = Anzahl der ganzen Words
       var uintL bitcount_rest = bitcount % bitpack;
-      # bitcount_rest = Anzahl der ¸brigbleibenden Bits
+      # bitcount_rest = Anzahl der √ºbrigbleibenden Bits
       index1 = index1 % bitpack; # Bit-Offset im 1. Bit-Array
       index2 = index2 % bitpack; # Bit-Offset im 2. Bit-Array
       index3 = index3 % bitpack; # Bit-Offset im 3. Bit-Array
@@ -1586,7 +1586,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
               # Bitmaske mit Bits bitpack-1..bitpack-bitcount_rest gesetzt
              &
              (*ptr3 ^ temp)
-            ) # zu ‰ndernde Bits
+            ) # zu √§ndernde Bits
             ^ *ptr3
             ;
         }
@@ -1601,33 +1601,33 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                        & (*ptr3)
                       );
         # carry3 hat in seinen obersten index3 Bits (Bits 2*bitpack-1..2*bitpack-index3)
-        # genau die Bits von *ptr3, die nicht ver‰ndert werden d¸rfen.
+        # genau die Bits von *ptr3, die nicht ver√§ndert werden d√ºrfen.
         # We distinguish four cases in order to avoid a memory overrun bug.
         # The tighter loops are just an added benefit for speed.
         if (index1 == 0) {
           if (index2 == 0) {
             # index1 = 0, index2 = 0.
             loop {
-              # Verkn¸pfungsschleife (jeweils wortweise):
-              # Nach n>=0 Schleifendurchl‰ufen ist
-              # ptr1 und ptr2 um n Words weiterger¸ckt, also Pointer aufs
-              # n‰chste zu lesende Word des 1. bzw. 2. Arrays,
-              # ptr3 um n Words weiterger¸ckt, also Pointer aufs
-              # n‰chste zu schreibende Word des 3. Arrays,
-              # bitpackcount = Zahl zu verkn¸pfender ganzer Words - n,
-              # carry3 = ‹bertrag noch abzuspeichernder Bits
+              # Verkn√ºpfungsschleife (jeweils wortweise):
+              # Nach n>=0 Schleifendurchl√§ufen ist
+              # ptr1 und ptr2 um n Words weiterger√ºckt, also Pointer aufs
+              # n√§chste zu lesende Word des 1. bzw. 2. Arrays,
+              # ptr3 um n Words weiterger√ºckt, also Pointer aufs
+              # n√§chste zu schreibende Word des 3. Arrays,
+              # bitpackcount = Zahl zu verkn√ºpfender ganzer Words - n,
+              # carry3 = √úbertrag noch abzuspeichernder Bits
               #          (in den index3 oberen Bits, sonst Null).
               var uint_bitpack temp =
                 (*op)(
                       *ptr1++,
                       *ptr2++
-                     ) ; # beide durch *op verkn¸pfen
+                     ) ; # beide durch *op verkn√ºpfen
               carry3 |= LR_bitpack_0(temp) >> index3;
               # Die oberen bitpack+index3 Bits von carry3 sind abzulegen.
               if (bitpackcount==0)
                 break;
               *ptr3++ = L_bitpack(carry3); # bitpack Bits davon ablegen
-              carry3 = LR_bitpack_0(R_bitpack(carry3)); # und index3 Bits f¸r sp‰ter behalten.
+              carry3 = LR_bitpack_0(R_bitpack(carry3)); # und index3 Bits f√ºr sp√§ter behalten.
               bitpackcount--;
             }
           } else {
@@ -1636,33 +1636,33 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
             # carry2 hat in seinen oberen bitpack-index2 Bits (Bits 2*bitpack-1..bitpack+index2)
             # die betroffenen Bits des 1. Words des 2. Arrays, sonst Nullen.
             loop {
-              # Verkn¸pfungsschleife (jeweils wortweise):
-              # Nach n>=0 Schleifendurchl‰ufen ist
-              # ptr1 um n, und ptr2 um n+1 Words weiterger¸ckt, also Pointer aufs
-              # n‰chste zu lesende Word des 1. bzw. 2. Arrays,
-              # ptr3 um n Words weiterger¸ckt, also Pointer aufs
-              # n‰chste zu schreibende Word des 3. Arrays,
-              # bitpackcount = Zahl zu verkn¸pfender ganzer Words - n,
-              # carry2 = ‹bertrag vom 2. Array
+              # Verkn√ºpfungsschleife (jeweils wortweise):
+              # Nach n>=0 Schleifendurchl√§ufen ist
+              # ptr1 um n, und ptr2 um n+1 Words weiterger√ºckt, also Pointer aufs
+              # n√§chste zu lesende Word des 1. bzw. 2. Arrays,
+              # ptr3 um n Words weiterger√ºckt, also Pointer aufs
+              # n√§chste zu schreibende Word des 3. Arrays,
+              # bitpackcount = Zahl zu verkn√ºpfender ganzer Words - n,
+              # carry2 = √úbertrag vom 2. Array
               #          (in den bitpack-index2 oberen Bits, sonst Null),
-              # carry3 = ‹bertrag noch abzuspeichernder Bits
+              # carry3 = √úbertrag noch abzuspeichernder Bits
               #          (in den index3 oberen Bits, sonst Null).
               var uint_bitpack temp =
                 (*op)(
                       *ptr1++,
                       ( carry2 |=
-                          LR_0_bitpack(*ptr2++) # n‰chstes Word des 2. Arrays lesen
+                          LR_0_bitpack(*ptr2++) # n√§chstes Word des 2. Arrays lesen
                           << index2, # zum carry2 dazunehmen
                         L_bitpack(carry2) # und davon das linke Word verwenden
                       )
-                     ) ; # beide durch *op verkn¸pfen
+                     ) ; # beide durch *op verkn√ºpfen
               carry2 = LR_bitpack_0(R_bitpack(carry2)); # carry2 := rechtes Word von carry2
               carry3 |= LR_bitpack_0(temp) >> index3;
               # Die oberen bitpack+index3 Bits von carry3 sind abzulegen.
               if (bitpackcount==0)
                 break;
               *ptr3++ = L_bitpack(carry3); # bitpack Bits davon ablegen
-              carry3 = LR_bitpack_0(R_bitpack(carry3)); # und index3 Bits f¸r sp‰ter behalten.
+              carry3 = LR_bitpack_0(R_bitpack(carry3)); # und index3 Bits f√ºr sp√§ter behalten.
               bitpackcount--;
             }
           }
@@ -1673,33 +1673,33 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
             # carry1 hat in seinen oberen bitpack-index1 Bits (Bits 2*bitpack-1..bitpack+index1)
             # die betroffenen Bits des 1. Words des 1. Arrays, sonst Nullen.
             loop {
-              # Verkn¸pfungsschleife (jeweils wortweise):
-              # Nach n>=0 Schleifendurchl‰ufen ist
-              # ptr1 um n+1, und ptr2 um n Words weiterger¸ckt, also Pointer aufs
-              # n‰chste zu lesende Word des 1. bzw. 2. Arrays,
-              # ptr3 um n Words weiterger¸ckt, also Pointer aufs
-              # n‰chste zu schreibende Word des 3. Arrays,
-              # bitpackcount = Zahl zu verkn¸pfender ganzer Words - n,
-              # carry1 = ‹bertrag vom 1. Array
+              # Verkn√ºpfungsschleife (jeweils wortweise):
+              # Nach n>=0 Schleifendurchl√§ufen ist
+              # ptr1 um n+1, und ptr2 um n Words weiterger√ºckt, also Pointer aufs
+              # n√§chste zu lesende Word des 1. bzw. 2. Arrays,
+              # ptr3 um n Words weiterger√ºckt, also Pointer aufs
+              # n√§chste zu schreibende Word des 3. Arrays,
+              # bitpackcount = Zahl zu verkn√ºpfender ganzer Words - n,
+              # carry1 = √úbertrag vom 1. Array
               #          (in den bitpack-index1 oberen Bits, sonst Null),
-              # carry3 = ‹bertrag noch abzuspeichernder Bits
+              # carry3 = √úbertrag noch abzuspeichernder Bits
               #          (in den index3 oberen Bits, sonst Null).
               var uint_bitpack temp =
                 (*op)(
                       ( carry1 |=
-                          LR_0_bitpack(*ptr1++) # n‰chstes Word des 1. Arrays lesen
+                          LR_0_bitpack(*ptr1++) # n√§chstes Word des 1. Arrays lesen
                           << index1, # zum carry1 dazunehmen
                         L_bitpack(carry1) # und davon das linke Word verwenden
                       ),
                       *ptr2++
-                     ) ; # beide durch *op verkn¸pfen
+                     ) ; # beide durch *op verkn√ºpfen
               carry1 = LR_bitpack_0(R_bitpack(carry1)); # carry1 := rechtes Word von carry1
               carry3 |= LR_bitpack_0(temp) >> index3;
               # Die oberen bitpack+index3 Bits von carry3 sind abzulegen.
               if (bitpackcount==0)
                 break;
               *ptr3++ = L_bitpack(carry3); # bitpack Bits davon ablegen
-              carry3 = LR_bitpack_0(R_bitpack(carry3)); # und index3 Bits f¸r sp‰ter behalten.
+              carry3 = LR_bitpack_0(R_bitpack(carry3)); # und index3 Bits f√ºr sp√§ter behalten.
               bitpackcount--;
             }
           } else {
@@ -1711,32 +1711,32 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
             # carry2 hat in seinen oberen bitpack-index2 Bits (Bits 2*bitpack-1..bitpack+index2)
             # die betroffenen Bits des 1. Words des 2. Arrays, sonst Nullen.
             loop {
-              # Verkn¸pfungsschleife (jeweils wortweise):
-              # Nach n>=0 Schleifendurchl‰ufen ist
-              # ptr1 und ptr2 um n+1 Words weiterger¸ckt, also Pointer aufs
-              # n‰chste zu lesende Word des 1. bzw. 2. Arrays,
-              # ptr3 um n Words weiterger¸ckt, also Pointer aufs
-              # n‰chste zu schreibende Word des 3. Arrays,
-              # bitpackcount = Zahl zu verkn¸pfender ganzer Words - n,
-              # carry1 = ‹bertrag vom 1. Array
+              # Verkn√ºpfungsschleife (jeweils wortweise):
+              # Nach n>=0 Schleifendurchl√§ufen ist
+              # ptr1 und ptr2 um n+1 Words weiterger√ºckt, also Pointer aufs
+              # n√§chste zu lesende Word des 1. bzw. 2. Arrays,
+              # ptr3 um n Words weiterger√ºckt, also Pointer aufs
+              # n√§chste zu schreibende Word des 3. Arrays,
+              # bitpackcount = Zahl zu verkn√ºpfender ganzer Words - n,
+              # carry1 = √úbertrag vom 1. Array
               #          (in den bitpack-index1 oberen Bits, sonst Null),
-              # carry2 = ‹bertrag vom 2. Array
+              # carry2 = √úbertrag vom 2. Array
               #          (in den bitpack-index2 oberen Bits, sonst Null),
-              # carry3 = ‹bertrag noch abzuspeichernder Bits
+              # carry3 = √úbertrag noch abzuspeichernder Bits
               #          (in den index3 oberen Bits, sonst Null).
               var uint_bitpack temp =
                 (*op)(
                       ( carry1 |=
-                          LR_0_bitpack(*ptr1++) # n‰chstes Word des 1. Arrays lesen
+                          LR_0_bitpack(*ptr1++) # n√§chstes Word des 1. Arrays lesen
                           << index1, # zum carry1 dazunehmen
                         L_bitpack(carry1) # und davon das linke Word verwenden
                       ),
                       ( carry2 |=
-                          LR_0_bitpack(*ptr2++) # n‰chstes Word des 2. Arrays lesen
+                          LR_0_bitpack(*ptr2++) # n√§chstes Word des 2. Arrays lesen
                           << index2, # zum carry2 dazunehmen
                         L_bitpack(carry2) # und davon das linke Word verwenden
                       )
-                     ) ; # beide durch *op verkn¸pfen
+                     ) ; # beide durch *op verkn√ºpfen
               carry1 = LR_bitpack_0(R_bitpack(carry1)); # carry1 := rechtes Word von carry1
               carry2 = LR_bitpack_0(R_bitpack(carry2)); # carry2 := rechtes Word von carry2
               carry3 |= LR_bitpack_0(temp) >> index3;
@@ -1744,7 +1744,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
               if (bitpackcount==0)
                 break;
               *ptr3++ = L_bitpack(carry3); # bitpack Bits davon ablegen
-              carry3 = LR_bitpack_0(R_bitpack(carry3)); # und index3 Bits f¸r sp‰ter behalten.
+              carry3 = LR_bitpack_0(R_bitpack(carry3)); # und index3 Bits f√ºr sp√§ter behalten.
               bitpackcount--;
             }
           }
@@ -1752,7 +1752,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         # letztes (halbes) Datenword speziell behandeln:
         # Vom letzten Word (nun in den Bits
         # 2*bitpack-index3-1..bitpack-index3 von carry3)
-        # d¸rfen nur bitcount_rest Bits im 3. Array abgelegt werden.
+        # d√ºrfen nur bitcount_rest Bits im 3. Array abgelegt werden.
         bitcount_rest = index3+bitcount_rest;
         var uint_bitpack last_carry;
         # Die oberen bitcount_rest Bits ablegen:
@@ -1763,7 +1763,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         } else {
           last_carry = L_bitpack(carry3);
         }
-        # Die noch ¸brigen bitcount_rest Bits von last_carry ablegen:
+        # Die noch √ºbrigen bitcount_rest Bits von last_carry ablegen:
         if (!(bitcount_rest==0))
           *ptr3 ^=
             (*ptr3 ^ last_carry)
@@ -1772,20 +1772,20 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
       }
     }
 
-# Unterprogramm f¸r Bit-Verkn¸pfung mit 2 Operanden
+# Unterprogramm f√ºr Bit-Verkn√ºpfung mit 2 Operanden
 # bit_up(op)
 # > STACK_2: bit-array1
 # > STACK_1: bit-array2
 # > STACK_0: result-bit-array oder #<UNBOUND>
-# > op: Adresse der Verkn¸pfungsroutine
+# > op: Adresse der Verkn√ºpfungsroutine
 # < value1/mv_count: Funktionswert
-# Testet Argumente, r‰umt STACK auf.
+# Testet Argumente, r√§umt STACK auf.
   local Values bit_up (bit_op_fun* op);
   local Values bit_up(op)
     var bit_op_fun* op;
     {
       # Hauptunterscheidung: Vektor / mehrdimensionaler Array
-      var uintL len; # L‰nge (des 1. Arrays), falls Vektoren
+      var uintL len; # L√§nge (des 1. Arrays), falls Vektoren
       var uintC rank; # Rang und
       var uintL* dimptr; # Pointer auf Dimensionen, falls mehrdimensional
       # Typ von bit-array1 untersuchen und danach verzweigen:
@@ -1810,16 +1810,16 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
             dimptr = &array1->dims[0];
             if (iarray_flags(array1) & bit(arrayflags_dispoffset_bit))
               dimptr++;
-            # die Anzahl der zu verkn¸pfenden Bits ist die Totalsize:
+            # die Anzahl der zu verkn√ºpfenden Bits ist die Totalsize:
             len = array1->totalsize;
             goto array;
           }
         default:
           goto fehler2;
       }
-     vector: # Das erste Argument ist ein Bit-Vektor, mit L‰nge len.
+     vector: # Das erste Argument ist ein Bit-Vektor, mit L√§nge len.
       # Teste, ob dies auch auf den/die anderen zutrifft:
-      # bit-array2 ¸berpr¸fen:
+      # bit-array2 √ºberpr√ºfen:
       #ifndef TYPECODES
       if (!orecordp(STACK_1))
         goto fehler2;
@@ -1836,7 +1836,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         default:
           goto fehler2;
       }
-      # bit-array3 ¸berpr¸fen:
+      # bit-array3 √ºberpr√ºfen:
       {
         var object array3 = STACK_0;
         if (eq(array3,unbound) || eq(array3,NIL)) { # nicht angegeben oder NIL?
@@ -1866,7 +1866,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
       goto weiter;
      array: # erstes Argument war ein mehrdimensionaler Bit-Array
       # mit Rang rank, Dimensionen ab dimptr und Totalsize len.
-      # bit-array2 ¸berpr¸fen:
+      # bit-array2 √ºberpr√ºfen:
       #ifndef TYPECODES
       if (!orecordp(STACK_1))
         goto fehler2;
@@ -1899,7 +1899,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         default:
           goto fehler2;
       }
-      # bit-array3 ¸berpr¸fen:
+      # bit-array3 √ºberpr√ºfen:
       {
         var object array3 = STACK_0;
         if (eq(array3,unbound) || eq(array3,NIL)) { # nicht angegeben oder NIL?
@@ -2006,7 +2006,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
       }
     }
 
-# Die einzelnen Operatoren f¸r BIT-AND usw.:
+# Die einzelnen Operatoren f√ºr BIT-AND usw.:
   local uint_bitpack bitpack_and (uint_bitpack x, uint_bitpack y);
   local uint_bitpack bitpack_and(x,y) var uint_bitpack x; var uint_bitpack y;
     {
@@ -3962,10 +3962,10 @@ LISPFUNN(array_has_fill_pointer_p,1) # (ARRAY-HAS-FILL-POINTER-P array), CLTL S.
     value1 = (array_has_fill_pointer_p(array) ? T : NIL); mv_count=1;
   }
 
-# ‹berpr¸ft, ob ein Objekt ein Vektor mit Fill-Pointer ist, und liefert
+# √úberpr√ºft, ob ein Objekt ein Vektor mit Fill-Pointer ist, und liefert
 # die Adresse des Fill-Pointers.
 # *get_fill_pointer(obj) ist dann der Fill-Pointer selbst.
-# get_fill_pointer(obj)[-1] ist dann die L‰nge (Dimension 0) des Vektors.
+# get_fill_pointer(obj)[-1] ist dann die L√§nge (Dimension 0) des Vektors.
 # > subr_self: Aufrufer (ein SUBR)
   local uintL* get_fill_pointer (object obj);
   local uintL* get_fill_pointer(obj)
@@ -3987,8 +3987,8 @@ LISPFUNN(array_has_fill_pointer_p,1) # (ARRAY-HAS-FILL-POINTER-P array), CLTL S.
              );
      fehler_fillp:
       # Fehlermeldung:
-      pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_vector_with_fill_pointer)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_vector_with_fill_pointer)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: vector ~ has no fill pointer")
@@ -4009,10 +4009,10 @@ LISPFUNN(set_fill_pointer,2) # (SYS::SET-FILL-POINTER vector index)
     if (!posfixnump(STACK_0)) # neuer Fill-Pointer muss Fixnum>=0 sein.
       fehler_index_type();
     var uintL newfillp = posfixnum_to_L(STACK_0); # als uintL
-    if (!(newfillp <= fillp[-1])) # muss kleinergleich der L‰nge sein
+    if (!(newfillp <= fillp[-1])) # muss kleinergleich der L√§nge sein
       fehler_index_range(fillp[-1]+1);
     *fillp = newfillp; # neuen Fill-Pointer eintragen
-    value1 = STACK_0; mv_count=1; # neuen Fillpointer zur¸ck
+    value1 = STACK_0; mv_count=1; # neuen Fillpointer zur√ºck
     skipSTACK(2);
   }
 
@@ -4021,12 +4021,12 @@ LISPFUNN(vector_push,2) # (VECTOR-PUSH new-element vector), CLTL S. 296
     var uintL* fillp = get_fill_pointer(STACK_0); # Fillpointer-Adresse
     var uintL oldfillp = *fillp; # alter Wert des Fillpointers
     if (oldfillp >= fillp[-1]) { # Fill-Pointer am Ende?
-      value1 = NIL; mv_count=1; # NIL zur¸ck
+      value1 = NIL; mv_count=1; # NIL zur√ºck
     } else {
       var uintL index = oldfillp;
       var object datenvektor = iarray_displace(STACK_0,&index);
       storagevector_store(datenvektor,index,STACK_1); # new-element eintragen
-      (*fillp)++; # Fill-Pointer erhˆhen
+      (*fillp)++; # Fill-Pointer erh√∂hen
       value1 = fixnum(oldfillp); mv_count=1;
       # alter Fill-Pointer als Wert
     }
@@ -4046,23 +4046,23 @@ LISPFUNN(vector_pop,1) # (VECTOR-POP vector), CLTL S. 296
     } else {
       var uintL index = --(*fillp); # Fill-Pointer erniedrigen
       var object datenvektor = iarray_displace(array,&index);
-      value1 = storagevector_aref(datenvektor,index); mv_count=1; # Element zur¸ck
+      value1 = storagevector_aref(datenvektor,index); mv_count=1; # Element zur√ºck
     }
   }
 
 LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
 # (VECTOR-PUSH-EXTEND new-element vector [extension]), CLTL S. 296
   {
-    var object extension = popSTACK(); # Extension (ungepr¸ft)
+    var object extension = popSTACK(); # Extension (ungepr√ºft)
     var uintL* fillp = get_fill_pointer(STACK_0); # Fillpointer-Adresse
     var uintL oldfillp = *fillp; # alter Wert des Fillpointers
     if (oldfillp < fillp[-1]) { # Fill-Pointer noch nicht am Ende?
       var uintL index = oldfillp;
       var object datenvektor = iarray_displace(STACK_0,&index);
       storagevector_store(datenvektor,index,STACK_1); # new-element eintragen
-      (*fillp)++; # Fill-Pointer erhˆhen
+      (*fillp)++; # Fill-Pointer erh√∂hen
     } else {
-      # Fill-Pointer am Ende -> Versuche, den Vektor zu verl‰ngern:
+      # Fill-Pointer am Ende -> Versuche, den Vektor zu verl√§ngern:
       var object array = STACK_0;
       if (!(Iarray_flags(array) & bit(arrayflags_adjustable_bit))) {
         # Vektor nicht adjustable -> Fehlermeldung:
@@ -4073,8 +4073,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
               );
       }
       var uintB atype = Iarray_flags(array) & arrayflags_atype_mask;
-      var uintL len = fillp[-1]; # bisherige L‰nge (Dimension 0)
-      var uintL inc; # gew¸nschter Increment der L‰nge
+      var uintL len = fillp[-1]; # bisherige L√§nge (Dimension 0)
+      var uintL inc; # gew√ºnschter Increment der L√§nge
       if (!eq(extension,unbound)) {
         # extension sollte ein Fixnum >0, <arraysize_limit sein:
         if ( !posfixnump(extension)
@@ -4083,15 +4083,15 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
              || (inc > arraysize_limit_1)
              #endif
            ) {
-          pushSTACK(extension); # Wert f¸r Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_posfixnum1)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(extension); # Wert f√ºr Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_posfixnum1)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(extension); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
                  GETTEXT("~: extension ~ should be a positive fixnum")
                 );
         }
       } else {
-        # Default-Verl‰ngerung:
+        # Default-Verl√§ngerung:
         switch (atype) {
           case Atype_T:    inc =  16; break; # bei general-Vektoren: 16 Objekte
           case Atype_Char: inc =  64; break; # bei Strings: 64 Zeichen
@@ -4101,14 +4101,14 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
                            inc = bit(floor(14-atype,2)); break;
           default: NOTREACHED
         }
-        # mindestens jedoch die bisherige L‰nge:
+        # mindestens jedoch die bisherige L√§nge:
         if (inc<len)
           inc = len;
       }
-      var uintL newlen = len + inc; # neue L‰nge
+      var uintL newlen = len + inc; # neue L√§nge
       #ifndef UNIX_DEC_ULTRIX_GCCBUG
       if (newlen > arraysize_limit_1) {
-        # Vektor w¸rde zu lang -> Fehlermeldung
+        # Vektor w√ºrde zu lang -> Fehlermeldung
         pushSTACK(extension); pushSTACK(TheSubr(subr_self)->name);
         fehler(error,
                GETTEXT("~: extending the vector by ~ elements makes it too long")
@@ -4127,7 +4127,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
             var object datenvektor = iarray_displace_check(array,len,&index);
             elt_copy_T_T(datenvektor,index,neuer_datenvektor,0,len);
           }
-          # dann new_element anf¸gen:
+          # dann new_element anf√ºgen:
           TheSvector(neuer_datenvektor)->data[len] = STACK_1;
           break;
         case Atype_Char: # array ist ein String
@@ -4139,7 +4139,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
             var object datenvektor = iarray_displace_check(array,len,&index);
             elt_copy_Char_Char(datenvektor,index,neuer_datenvektor,0,len);
           }
-          # dann new_element anf¸gen:
+          # dann new_element anf√ºgen:
           if (!charp(STACK_1))
             goto fehler_type;
           TheSstring(neuer_datenvektor)->data[len] = char_code(STACK_1);
@@ -4178,8 +4178,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         fehler_type:
           {
             # Stackaufbau: new-element, vector.
-            pushSTACK(STACK_1); # Wert f¸r Slot DATUM von TYPE-ERROR
-            pushSTACK(array_element_type(STACK_(0+1))); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+            pushSTACK(STACK_1); # Wert f√ºr Slot DATUM von TYPE-ERROR
+            pushSTACK(array_element_type(STACK_(0+1))); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(STACK_(0+2)); pushSTACK(STACK_(1+3));
             pushSTACK(TheSubr(subr_self)->name);
             fehler(type_error,
@@ -4189,9 +4189,9 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       }
       set_break_sem_1(); # Unterbrechungen verbieten
       TheIarray(array)->data = neuer_datenvektor; # neuen Vektor als Datenvektor eintragen
-      iarray_flags_clr(TheIarray(array),bit(arrayflags_displaced_bit)); # Displaced-Bit lˆschen
-      TheIarray(array)->dims[2] += 1; # Fillpointer um 1 erhˆhen
-      TheIarray(array)->dims[1] = newlen; # neue L‰nge eintragen
+      iarray_flags_clr(TheIarray(array),bit(arrayflags_displaced_bit)); # Displaced-Bit l√∂schen
+      TheIarray(array)->dims[2] += 1; # Fillpointer um 1 erh√∂hen
+      TheIarray(array)->dims[1] = newlen; # neue L√§nge eintragen
       TheIarray(array)->totalsize = newlen; # ist auch neue totalsize
       clr_break_sem_1(); # Unterbrechungen wieder zulassen
     }
@@ -4213,7 +4213,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     var uintL len;
     {
       var object newvec = allocate_bit_vector(Atype_Bit,len); # neuer Bit-Vektor
-      var uintL count = ceiling(len,bitpack); # ceiling(len/bitpack) Worte mit Nullen f¸llen
+      var uintL count = ceiling(len,bitpack); # ceiling(len/bitpack) Worte mit Nullen f√ºllen
       if (!(count==0)) {
         var uint_bitpack* ptr = (uint_bitpack*)(&TheSbvector(newvec)->data[0]);
         dotimespL(count,count, {
@@ -4223,9 +4223,9 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       return newvec;
     }
 
-#if 0 # nur als Reserve, f¸r den Fall, dass wir wieder auf ein GCC-Bug stoﬂen
+#if 0 # nur als Reserve, f√ºr den Fall, dass wir wieder auf ein GCC-Bug sto√üen
 
-# UP: lˆscht ein Bit in einem Simple-Bit-Vector
+# UP: l√∂scht ein Bit in einem Simple-Bit-Vector
 # sbvector_bclr(sbvector,index);
 # > sbvector: ein Simple-Bit-Vector
 # > index: Index (Variable, sollte < (length sbvector) sein)
@@ -4234,7 +4234,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     var object sbvector;
     var uintL index;
     {
-      # im Byte (index div 8) das Bit 7 - (index mod 8) lˆschen:
+      # im Byte (index div 8) das Bit 7 - (index mod 8) l√∂schen:
       TheSbvector(sbvector)->data[index/8] &= ~bit((~index) % 8);
     }
 
@@ -4273,14 +4273,14 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     var uintL len;
     {
       var object new_string = allocate_string(len);
-      # neuer Normal-Simple-String dieser L‰nge
+      # neuer Normal-Simple-String dieser L√§nge
       pushSTACK(new_string); # retten
       var object new_array =
         allocate_iarray(bit(arrayflags_fillp_bit)|Atype_Char,1,Array_type_string);
         # Flags: nur FILL_POINTER_BIT, Elementtyp CHARACTER, Rang=1
       TheIarray(new_array)->dims[1] = 0; # Fill-Pointer := 0
       TheIarray(new_array)->totalsize =
-        TheIarray(new_array)->dims[0] = len; # L‰nge und Total-Size eintragen
+        TheIarray(new_array)->dims[0] = len; # L√§nge und Total-Size eintragen
       TheIarray(new_array)->data = popSTACK(); # Datenvektor eintragen
       return new_array;
     }
@@ -4299,26 +4299,26 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     {
       var object sstring = TheIarray(ssstring)->data; # Datenvektor (ein Normal-Simple-String)
       if (TheIarray(ssstring)->dims[1] # Fill-Pointer
-          >= Sstring_length(sstring) ) { # >= L‰nge ?
-        # ja -> String wird um den Faktor 2 l‰nger gemacht
+          >= Sstring_length(sstring) ) { # >= L√§nge ?
+        # ja -> String wird um den Faktor 2 l√§nger gemacht
         pushSTACK(ssstring); # ssstring retten
         pushSTACK(sstring); # Datenvektor ebenfalls retten
         var object neuer_sstring = allocate_string(2 * Sstring_length(sstring));
-        # neuer Normal-Simple-String der doppelten L‰nge
-        sstring = popSTACK(); # sstring zur¸ck
+        # neuer Normal-Simple-String der doppelten L√§nge
+        sstring = popSTACK(); # sstring zur√ºck
         # Stringinhalt von String sstring nach String neuer_sstring kopieren:
         chartcopy(&TheSstring(sstring)->data[0],&TheSstring(neuer_sstring)->data[0],Sstring_length(sstring));
-        ssstring = popSTACK(); # ssstring zur¸ck
+        ssstring = popSTACK(); # ssstring zur√ºck
         set_break_sem_1(); # Unterbrechungen verbieten
         TheIarray(ssstring)->data = neuer_sstring; # neuen String als Datenvektor abspeichern
         TheIarray(ssstring)->totalsize =
-          TheIarray(ssstring)->dims[0] = Sstring_length(neuer_sstring); # neue L‰nge eintragen
+          TheIarray(ssstring)->dims[0] = Sstring_length(neuer_sstring); # neue L√§nge eintragen
         clr_break_sem_1(); # Unterbrechungen wieder zulassen
         sstring = neuer_sstring;
       }
       # Nun ist wieder sstring der Datenvektor, und es gilt
-      # Fill-Pointer < L‰nge(Datenvektor).
-      # Character hineinschieben und Fill-Pointer erhˆhen:
+      # Fill-Pointer < L√§nge(Datenvektor).
+      # Character hineinschieben und Fill-Pointer erh√∂hen:
       TheSstring(sstring)->data[ TheIarray(ssstring)->dims[1]++ ] = ch;
       return ssstring;
     }
@@ -4336,24 +4336,24 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     var uintL needed_len;
     {
       var object sstring = TheIarray(ssstring)->data; # Datenvektor (ein Normal-Simple-String)
-      var uintL now_len = Sstring_length(sstring); # jetzige Maximal-L‰nge
+      var uintL now_len = Sstring_length(sstring); # jetzige Maximal-L√§nge
       if (needed_len > now_len) {
-        # ja -> String wird l‰nger gemacht, mindestens um den Faktor 2:
+        # ja -> String wird l√§nger gemacht, mindestens um den Faktor 2:
         pushSTACK(ssstring); # ssstring retten
         pushSTACK(sstring); # Datenvektor ebenfalls retten
         now_len = now_len * 2;
         if (needed_len > now_len)
-          now_len = needed_len; # now_len vergrˆﬂern
+          now_len = needed_len; # now_len vergr√∂√üern
         var object neuer_sstring = allocate_string(now_len);
-        # neuer Normal-Simple-String mindestens der gew¸nschten und der doppelten L‰nge
-        sstring = popSTACK(); # sstring zur¸ck
+        # neuer Normal-Simple-String mindestens der gew√ºnschten und der doppelten L√§nge
+        sstring = popSTACK(); # sstring zur√ºck
         # Stringinhalt von String sstring nach String neuer_sstring kopieren:
         chartcopy(&TheSstring(sstring)->data[0],&TheSstring(neuer_sstring)->data[0],Sstring_length(sstring));
-        ssstring = popSTACK(); # ssstring zur¸ck
+        ssstring = popSTACK(); # ssstring zur√ºck
         set_break_sem_1(); # Unterbrechungen verbieten
         TheIarray(ssstring)->data = neuer_sstring; # neuen String als Datenvektor abspeichern
         TheIarray(ssstring)->totalsize =
-          TheIarray(ssstring)->dims[0] = now_len; # neue L‰nge eintragen
+          TheIarray(ssstring)->dims[0] = now_len; # neue L√§nge eintragen
         clr_break_sem_1(); # Unterbrechungen wieder zulassen
       }
       return ssstring;
@@ -4375,10 +4375,10 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     var uintL start;
     var uintL len;
     {
-      var uintL old_len = TheIarray(ssstring)->dims[1]; # jetzige L‰nge = Fill-Pointer
+      var uintL old_len = TheIarray(ssstring)->dims[1]; # jetzige L√§nge = Fill-Pointer
       if (old_len + len > TheIarray(ssstring)->dims[0]) { # passen keine len Bytes mehr hinein
         pushSTACK(srcstring);
-        ssstring = ssstring_extend(ssstring,old_len+len); # dann l‰nger machen
+        ssstring = ssstring_extend(ssstring,old_len+len); # dann l√§nger machen
         srcstring = popSTACK();
       }
       # Zeichen hineinschieben:
@@ -4387,7 +4387,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         { chartcopy(&TheSstring(srcstring)->data[start],ptr,len); },
         { scintcopy(&TheSmallSstring(srcstring)->data[start],ptr,len); }
         );
-      # und Fill-Pointer erhˆhen:
+      # und Fill-Pointer erh√∂hen:
       TheIarray(ssstring)->dims[1] = old_len + len;
       return ssstring;
     }
@@ -4417,7 +4417,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         # Flags: nur FILL_POINTER_BIT, Elementtyp BIT, Rang=1
       TheIarray(new_array)->dims[1] = 0; # Fill-Pointer := 0
       TheIarray(new_array)->totalsize =
-        TheIarray(new_array)->dims[0] = len; # L‰nge und Total-Size eintragen
+        TheIarray(new_array)->dims[0] = len; # L√§nge und Total-Size eintragen
       TheIarray(new_array)->data = popSTACK(); # Datenvektor eintragen
       return new_array;
     }
@@ -4436,26 +4436,26 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
     {
       var object sbvector = TheIarray(ssbvector)->data; # Datenvektor (ein Simple-8Bit-Vektor)
       if (TheIarray(ssbvector)->dims[1] # Fill-Pointer
-          >= Sbvector_length(sbvector) ) { # >= L‰nge ?
-        # ja -> Bit-Vektor wird um den Faktor 2 l‰nger gemacht
+          >= Sbvector_length(sbvector) ) { # >= L√§nge ?
+        # ja -> Bit-Vektor wird um den Faktor 2 l√§nger gemacht
         pushSTACK(ssbvector); # ssbvector retten
         pushSTACK(sbvector); # Datenvektor ebenfalls retten
         var object neuer_sbvector = allocate_bit_vector(Atype_8Bit,2*Sbvector_length(sbvector));
-        # neuer Simple-8Bit-Vektor der doppelten L‰nge
-        sbvector = popSTACK(); # sbvector zur¸ck
+        # neuer Simple-8Bit-Vektor der doppelten L√§nge
+        sbvector = popSTACK(); # sbvector zur√ºck
         # Inhalt von sbvector nach neuer_sbvector kopieren:
         elt_copy_8Bit_8Bit(sbvector,0,neuer_sbvector,0,Sbvector_length(sbvector));
-        ssbvector = popSTACK(); # ssbvector zur¸ck
+        ssbvector = popSTACK(); # ssbvector zur√ºck
         set_break_sem_1(); # Unterbrechungen verbieten
         TheIarray(ssbvector)->data = neuer_sbvector; # neuen Bit-Vektor als Datenvektor abspeichern
         TheIarray(ssbvector)->totalsize =
-          TheIarray(ssbvector)->dims[0] = Sbvector_length(neuer_sbvector); # neue L‰nge eintragen
+          TheIarray(ssbvector)->dims[0] = Sbvector_length(neuer_sbvector); # neue L√§nge eintragen
         clr_break_sem_1(); # Unterbrechungen wieder zulassen
         sbvector = neuer_sbvector;
       }
       # Nun ist wieder sbvector der Datenvektor, und es gilt
-      # Fill-Pointer < L‰nge(Datenvektor).
-      # Character hineinschieben und Fill-Pointer erhˆhen:
+      # Fill-Pointer < L√§nge(Datenvektor).
+      # Character hineinschieben und Fill-Pointer erh√∂hen:
       TheSbvector(sbvector)->data[ TheIarray(ssbvector)->dims[1]++ ] = b;
       return ssbvector;
     }
@@ -4477,8 +4477,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
   local void fehler_dim_type(dim)
     var object dim;
     {
-      pushSTACK(dim); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_array_index)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(dim); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_array_index)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(dim);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -4486,12 +4486,12 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
             );
     }
 
-# Hilfsroutine f¸r MAKE-ARRAY und ADJUST-ARRAY:
-# ‹berpr¸ft die Dimensionen und liefert den Rang und die Gesamtgrˆﬂe.
+# Hilfsroutine f√ºr MAKE-ARRAY und ADJUST-ARRAY:
+# √úberpr√ºft die Dimensionen und liefert den Rang und die Gesamtgr√∂√üe.
 # test_dims(&totalsize)
 # > STACK_7: Dimension oder Dimensionenliste
 # > subr_self: Aufrufer (ein SUBR)
-# < totalsize: Gesamtgrˆﬂe = Produkt der Dimensionen
+# < totalsize: Gesamtgr√∂√üe = Produkt der Dimensionen
 # < ergebnis: Rang = Anzahl der Dimensionen
   local uintL test_dims (uintL* totalsize_);
   local uintL test_dims(totalsize_)
@@ -4503,7 +4503,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         var uintL totalsize = 1; # bisheriges Produkt der Dimensionen,
                                  # bleibt < arraysize_limit
         while (consp(dims)) {
-          var object dim = Car(dims); # n‰chste Dimension
+          var object dim = Car(dims); # n√§chste Dimension
           # if (!integerp(dim)) fehler_dim_type(dim); # muss Integer sein
           if (!posfixnump(dim)) fehler_dim_type(dim); # muss Fixnum >=0 sein
           # totalsize * dim bilden:
@@ -4521,7 +4521,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
           #endif
             {
               # nein -> (sofern nicht noch eine Dimension=0 kommt)
-              # Total-Size zu groﬂ
+              # Total-Size zu gro√ü
               pushSTACK(STACK_7); # dims
               pushSTACK(TheSubr(subr_self)->name);
               fehler(error,
@@ -4543,8 +4543,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       }
     }
 
-# Hilfsroutine f¸r MAKE-ARRAY und ADJUST-ARRAY:
-# ‹berpr¸ft einige der Keywords.
+# Hilfsroutine f√ºr MAKE-ARRAY und ADJUST-ARRAY:
+# √úberpr√ºft einige der Keywords.
   local void test_otherkeys (void);
   local void test_otherkeys()
     {
@@ -4557,7 +4557,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       # Testen, ob mehr als eine Initialisierung
       # (:initial-element, :initial-contents, :displaced-to) angegeben wurde:
       {
-        var uintC initcount = 0; # Z‰hler
+        var uintC initcount = 0; # Z√§hler
         if (!(eq(STACK_4,unbound))) # initial-element angegeben?
           initcount++;
         if (!(eq(STACK_3,unbound))) # initial-contents angegeben?
@@ -4584,14 +4584,14 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       }
     }
 
-# Hilfsroutine f¸r MAKE-ARRAY und ADJUST-ARRAY:
-# erzeugt einen Datenvektor gegebener L‰nge
-# und f¸llt ihn mit initial-element, falls angegeben.
+# Hilfsroutine f√ºr MAKE-ARRAY und ADJUST-ARRAY:
+# erzeugt einen Datenvektor gegebener L√§nge
+# und f√ºllt ihn mit initial-element, falls angegeben.
 # make_storagevector(len,eltype)
-# > len: L‰nge
+# > len: L√§nge
 # > eltype: Elementtyp-Code
 # > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: einfacher Vektor des gegebenen Typs, evtl. gef¸llt.
+# < ergebnis: einfacher Vektor des gegebenen Typs, evtl. gef√ºllt.
 # can trigger GC
   local object make_storagevector (uintL len, uintB eltype);
   local object make_storagevector(len,eltype)
@@ -4617,11 +4617,11 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         default: NOTREACHED
       }
       if (!eq(STACK_4,unbound)) # initial-element angegeben?
-        if (!(len==0)) { # und L‰nge > 0 ?
+        if (!(len==0)) { # und L√§nge > 0 ?
           # Fill vector with initial-element:
           if (elt_fill(vector,0,len,STACK_4)) {
-            pushSTACK(STACK_4); # Wert f¸r Slot DATUM von TYPE-ERROR
-            pushSTACK(STACK_(5+1)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+            pushSTACK(STACK_4); # Wert f√ºr Slot DATUM von TYPE-ERROR
+            pushSTACK(STACK_(5+1)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(STACK_(5+2)); # element-type
             pushSTACK(STACK_(4+3)); # initial-element
             pushSTACK(TheSubr(subr_self)->name);
@@ -4633,14 +4633,14 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       return vector;
     }
 
-# Hilfsroutine f¸r MAKE-ARRAY und ADJUST-ARRAY:
-# F¸llt einen Vektor lexikographisch mit dem Inhalt einer verschachtelten
+# Hilfsroutine f√ºr MAKE-ARRAY und ADJUST-ARRAY:
+# F√ºllt einen Vektor lexikographisch mit dem Inhalt einer verschachtelten
 # Sequence-Struktur, wie sie als Argument zum Keyword :initial-contents
 # bei MAKE-ARRAY und ADJUST-ARRAY anzugeben ist.
 # initial_contents(datenvektor,dims,rank,contents)
 # > datenvektor: ein simpler Vektor
 # > dims: Dimension oder Dimensionenliste, alle Dimensionen Fixnums,
-#         L‰nge(datenvektor) = Produkt der Dimensionen
+#         L√§nge(datenvektor) = Produkt der Dimensionen
 # > rank: Anzahl der Dimensionen
 # > contents: verschachtelte Sequence-Struktur
 # < ergebnis: derselbe Datenvektor
@@ -4675,13 +4675,13 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       pushSTACK(datenvektor); # Datenvektor in den Stack
       pushSTACK(subr_self); # aktuelles SUBR retten
       initial_contents_aux(&locals,contents); # initial_contents_aux aufrufen
-      subr_self = popSTACK(); # aktuelles SUBR zur¸ck
-      datenvektor = popSTACK(); # Datenvektor zur¸ck
-      skipSTACK(rank); # STACK aufr‰umen
+      subr_self = popSTACK(); # aktuelles SUBR zur√ºck
+      datenvektor = popSTACK(); # Datenvektor zur√ºck
+      skipSTACK(rank); # STACK aufr√§umen
       return datenvektor;
     }
 
-# Hilfsfunktion f¸r initial_contents:
+# Hilfsfunktion f√ºr initial_contents:
 # Arbeitet die Sequence-Struktur rekursiv ab.
 local void initial_contents_aux (void* arg, object obj);
 local void initial_contents_aux(arg,obj)
@@ -4689,11 +4689,11 @@ local void initial_contents_aux(arg,obj)
   var object obj;
   {
     var initial_contents_locals* locals = (initial_contents_locals*)arg;
-    # ‹bergeben wird:
+    # √úbergeben wird:
     # locals->depth = Rekursionstiefe,
     # locals->index = Index in den Datenvektor,
     # locals->localptr = Pointer auf die Dimensionen,
-    #   bei Tiefe depth>0 ist maﬂgeblich
+    #   bei Tiefe depth>0 ist ma√ügeblich
     #   Dimension (rank-depth) = *(localptr+depth-1),
     #   Datenvektor = *(localptr-1), Aufrufer = *(localptr-2).
     var object* localptr = locals->localptr;
@@ -4705,13 +4705,13 @@ local void initial_contents_aux(arg,obj)
       pushSTACK(datenvektor);
       storagevector_store(datenvektor,locals->index,STACK_1);
       locals->index++;
-      skipSTACK(2); # Stack aufr‰umen
+      skipSTACK(2); # Stack aufr√§umen
     } else {
       # Tiefe >0 -> rekursiv aufrufen:
       locals->depth--;
       pushSTACK(obj);
-      # obj = STACK_0 muss eine Sequence korrekter L‰nge sein:
-      pushSTACK(STACK_0); funcall(L(length),1); # L‰nge bestimmen
+      # obj = STACK_0 muss eine Sequence korrekter L√§nge sein:
+      pushSTACK(STACK_0); funcall(L(length),1); # L√§nge bestimmen
       # muss EQL (also EQ) zur Dimension *(localptr+depth) sein:
       if (!(eq(value1,*(localptr STACKop locals->depth)))) {
         # fehlerhafte Sequence seq noch in STACK_0.
@@ -4720,18 +4720,18 @@ local void initial_contents_aux(arg,obj)
                GETTEXT("~: ~ is of incorrect length")
               );
       }
-      # L‰nge stimmt, nun (MAP NIL #'INITIAL-CONTENTS-AUX seq) ausf¸hren:
+      # L√§nge stimmt, nun (MAP NIL #'INITIAL-CONTENTS-AUX seq) ausf√ºhren:
       map_sequence(STACK_0,&initial_contents_aux,locals);
       locals->depth++;
-      skipSTACK(1); # Stack aufr‰umen
+      skipSTACK(1); # Stack aufr√§umen
     }
   }
 
-# Hilfsroutine f¸r MAKE-ARRAY und ADJUST-ARRAY:
-# ‹berpr¸fe ein displaced-to-Argument und den dazugehˆrigen Offset.
+# Hilfsroutine f√ºr MAKE-ARRAY und ADJUST-ARRAY:
+# √úberpr√ºfe ein displaced-to-Argument und den dazugeh√∂rigen Offset.
 # test_displaced(eltype,totalsize)
 # > eltype: Elementtyp-Code des zu erzeugenden Arrays
-# > totalsize: Gesamtgrˆﬂe des zu erzeugenden Arrays
+# > totalsize: Gesamtgr√∂√üe des zu erzeugenden Arrays
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: Wert des displaced-index-offset
   local uintL test_displaced (uintB eltype, uintL totalsize);
@@ -4739,11 +4739,11 @@ local void initial_contents_aux(arg,obj)
     var uintB eltype;
     var uintL totalsize;
     {
-      # displaced-to ¸berpr¸fen, muss ein Array sein:
+      # displaced-to √ºberpr√ºfen, muss ein Array sein:
       var object displaced_to = STACK_1;
       if (!arrayp(displaced_to)) {
-        pushSTACK(displaced_to); # Wert f¸r Slot DATUM von TYPE-ERROR
-        pushSTACK(S(array)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(displaced_to); # Wert f√ºr Slot DATUM von TYPE-ERROR
+        pushSTACK(S(array)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(displaced_to);
         pushSTACK(S(Kdisplaced_to));
         pushSTACK(TheSubr(subr_self)->name);
@@ -4784,8 +4784,8 @@ local void initial_contents_aux(arg,obj)
         # displaced_eltype ist der ATYPE des :displaced-to-Arguments.
         # Gegebenen Elementtyp damit vergleichen:
         if (!(eltype == displaced_eltype)) {
-          pushSTACK(displaced_to); # Wert f¸r Slot DATUM von TYPE-ERROR
-          pushSTACK(S(array)); pushSTACK(STACK_(5+2)); pushSTACK(listof(2)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(displaced_to); # Wert f√ºr Slot DATUM von TYPE-ERROR
+          pushSTACK(S(array)); pushSTACK(STACK_(5+2)); pushSTACK(listof(2)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(STACK_(5+2)); # element-type
           pushSTACK(STACK_2); # displaced_to
           pushSTACK(S(Kdisplaced_to));
@@ -4795,15 +4795,15 @@ local void initial_contents_aux(arg,obj)
                 );
         }
       }
-      # Displaced-Index-Offset ¸berpr¸fen:
+      # Displaced-Index-Offset √ºberpr√ºfen:
       var uintL displaced_index_offset;
       if (eq(STACK_0,unbound))
         displaced_index_offset = 0; # Default ist 0
       elif (posfixnump(STACK_0))
         displaced_index_offset = posfixnum_to_L(STACK_0);
       else {
-        pushSTACK(STACK_0); # Wert f¸r Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_array_index)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(STACK_0); # Wert f√ºr Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_array_index)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(0+2));
         pushSTACK(S(Kdisplaced_index_offset));
         pushSTACK(TheSubr(subr_self)->name);
@@ -4812,7 +4812,7 @@ local void initial_contents_aux(arg,obj)
               );
       }
       {
-        # ‹berpr¸fen, ob angesprochenes Teilst¸ck ganz in displaced-to passt:
+        # √úberpr√ºfen, ob angesprochenes Teilst√ºck ganz in displaced-to passt:
         var uintL displaced_totalsize = array_total_size(displaced_to);
         if (!(displaced_index_offset+totalsize <= displaced_totalsize)) {
           pushSTACK(S(Kdisplaced_to));
@@ -4827,8 +4827,8 @@ local void initial_contents_aux(arg,obj)
       return displaced_index_offset;
     }
 
-# Hilfsroutine f¸r MAKE-ARRAY und ADJUST-ARRAY:
-# ‹berpr¸fe ein fill-pointer-Argument /=NIL.
+# Hilfsroutine f√ºr MAKE-ARRAY und ADJUST-ARRAY:
+# √úberpr√ºfe ein fill-pointer-Argument /=NIL.
 # test_fillpointer(len)
 # > totalsize: Maximalwert von fill-pointer
 # > subr_self: Aufrufer (ein SUBR)
@@ -4839,10 +4839,10 @@ local void initial_contents_aux(arg,obj)
     {
       # fill-pointer war angegeben und /=NIL
       if (eq(STACK_2,S(t))) { # T angegeben ->
-        return totalsize; # Fill-Pointer := L‰nge = Gesamtgrˆﬂe
+        return totalsize; # Fill-Pointer := L√§nge = Gesamtgr√∂√üe
       } elif (!posfixnump(STACK_2)) { # kein Fixnum >=0 -> Fehler
-        pushSTACK(STACK_2); # Wert f¸r Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_posfixnum)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(STACK_2); # Wert f√ºr Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_posfixnum)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(2+2));
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -4850,7 +4850,7 @@ local void initial_contents_aux(arg,obj)
               );
       } else {
         var uintL fillpointer = posfixnum_to_L(STACK_2);
-        if (!(fillpointer <= totalsize)) { # mit L‰nge vergleichen
+        if (!(fillpointer <= totalsize)) { # mit L√§nge vergleichen
           pushSTACK(fixnum(totalsize));
           pushSTACK(STACK_(2+1));
           pushSTACK(TheSubr(subr_self)->name);
@@ -4873,7 +4873,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
   #   dims, adjustable, element-type, initial-element, initial-contents,
   #   fill-pointer, displaced-to, displaced-index-offset.
   {
-    # Dimensionen ¸berpr¸fen und Rang und Total-Size berechnen:
+    # Dimensionen √ºberpr√ºfen und Rang und Total-Size berechnen:
     var uintL totalsize;
     var uintL rank = test_dims(&totalsize);
     # adjustable hat Defaultwert NIL:
@@ -4887,16 +4887,16 @@ LISPFUN(make_array,1,0,norest,key,7,\
       # Defaultwert ist T.
       STACK_5 = S(t); eltype = Atype_T;
     }
-    test_otherkeys(); # einiges ¸berpr¸fen
+    test_otherkeys(); # einiges √ºberpr√ºfen
     var uintB flags = eltype;
     var uintL displaced_index_offset;
     var uintL fillpointer;
-    # Falls nicht displaced, Datenvektor bilden und evtl. f¸llen:
+    # Falls nicht displaced, Datenvektor bilden und evtl. f√ºllen:
     if (nullp(STACK_1)) { # displaced-to nicht angegeben?
       # Datenvektor bilden:
       var object datenvektor = make_storagevector(totalsize,eltype);
       if (!eq(STACK_3,unbound)) # und falls initial-contents angegeben:
-        datenvektor = initial_contents(datenvektor,STACK_7,rank,STACK_3); # f¸llen
+        datenvektor = initial_contents(datenvektor,STACK_7,rank,STACK_3); # f√ºllen
       # Falls displaced-to nicht angegeben ist
       # und fill-pointer nicht angegeben ist
       # und adjustable nicht angegeben ist
@@ -4917,11 +4917,11 @@ LISPFUN(make_array,1,0,norest,key,7,\
       flags |= bit(arrayflags_displaced_bit)|bit(arrayflags_dispoffset_bit);
     }
     # Erzeuge einen allgemeinen Array.
-    # Rang ¸berpr¸fen:
+    # Rang √ºberpr√ºfen:
     #ifndef UNIX_DEC_ULTRIX_GCCBUG
     if (rank > arrayrank_limit_1) {
-      pushSTACK(fixnum(rank)); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_array_rank)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(fixnum(rank)); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_array_rank)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(fixnum(rank));
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -4929,8 +4929,8 @@ LISPFUN(make_array,1,0,norest,key,7,\
             );
     }
     #endif
-    # Flags f¸r allocate_iarray zusammensetzen:
-    # flags enth‰lt schon eltype und evtl. Displacement-Bit.
+    # Flags f√ºr allocate_iarray zusammensetzen:
+    # flags enth√§lt schon eltype und evtl. Displacement-Bit.
     if (!nullp(STACK_6)) # adjustable angegeben?
       flags |= bit(arrayflags_adjustable_bit)|bit(arrayflags_dispoffset_bit);
     if (!nullp(STACK_2)) { # fill-pointer angegeben?
@@ -4945,13 +4945,13 @@ LISPFUN(make_array,1,0,norest,key,7,\
       flags |= bit(arrayflags_fillp_bit);
       fillpointer = test_fillpointer(totalsize); # Fill-Pointer-Wert
     }
-    # Typinfo f¸r das zu erzeugende Objekt bestimmen:
+    # Typinfo f√ºr das zu erzeugende Objekt bestimmen:
     var tint type;
     if (rank==1) {
       # Vektor: Typinfo aus Tabelle bestimmen
       local const tint type_table[8] =
         {
-          # Tabelle f¸r Zuordnung  ATYPE-Byte -> Vektor-Typinfo
+          # Tabelle f√ºr Zuordnung  ATYPE-Byte -> Vektor-Typinfo
           Array_type_bvector,   # Atype_Bit   -> Array_type_bvector
           Array_type_b2vector,  # Atype_2Bit  -> Array_type_b2vector
           Array_type_b4vector,  # Atype_4Bit  -> Array_type_b4vector
@@ -4999,15 +4999,15 @@ LISPFUN(make_array,1,0,norest,key,7,\
 # ============================================================================
 #                            ADJUST-ARRAY
 
-# Hilfsfunktion f¸r die Umf¸llaufgabe bei ADJUST-ARRAY:
-# F¸llt den Datenvektor eines Arrays teilweise mit dem Inhalt eines anderen
-# Datenvektors, und zwar so, dass die Elemente zu Indextupeln, die f¸r beide
-# Arrays g¸ltig sind, ¸bereinstimmen.
+# Hilfsfunktion f√ºr die Umf√ºllaufgabe bei ADJUST-ARRAY:
+# F√ºllt den Datenvektor eines Arrays teilweise mit dem Inhalt eines anderen
+# Datenvektors, und zwar so, dass die Elemente zu Indextupeln, die f√ºr beide
+# Arrays g√ºltig sind, √ºbereinstimmen.
 # reshape(newvec,newdims,oldvec,olddims,offset,rank,eltype);
-# > newvec: simpler Vektor, in den zu f¸llen ist.
+# > newvec: simpler Vektor, in den zu f√ºllen ist.
 # > newdims: Dimension(en) des Arrays,
 #            in dem newvec Datenvektor ist (mit Offset 0).
-# > oldvec: simpler Vektor, aus dem zu f¸llen ist.
+# > oldvec: simpler Vektor, aus dem zu f√ºllen ist.
 # > olddims: Pointer auf die Dimensionen des Arrays,
 #            in dem oldvec Datenvektor ist (mit Offset offset).
 # > rank: Dimensionszahl von newdims = Dimensionenzahl von olddims.
@@ -5018,7 +5018,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
     uintL olddim; # Dimension aus olddims
     uintL newdim; # Dimension aus newdims
     uintL mindim; # minimale dieser Dimensionen
-    uintL subscript; # Subscript, l‰uft von 0 bis mindim-1
+    uintL subscript; # Subscript, l√§uft von 0 bis mindim-1
     uintL oldindex; # Row-Major-Index in oldvec
     uintL newindex; # Row-Major-Index in newvec
     uintL olddelta; # Increment von oldindex bei subscript++
@@ -5033,15 +5033,15 @@ LISPFUN(make_array,1,0,norest,key,7,\
     var uintL rank;
     var uintB eltype;
     {
-      # Platz f¸r den Pseudo-Stack reservieren:
+      # Platz f√ºr den Pseudo-Stack reservieren:
       get_space_on_STACK(rank*sizeof(reshape_data));
       # Startpunkt:
       var reshape_data* reshape_stack = &STACKblock_(reshape_data,-1);
-      # Pseudo-Stack f¸llen:
+      # Pseudo-Stack f√ºllen:
       if (!(rank==0)) {
         var reshape_data* ptr;
         var uintC count;
-        # jeweils newdim einf¸llen:
+        # jeweils newdim einf√ºllen:
         ptr = reshape_stack;
         if (consp(newdims)) {
           dotimespC(count,rank, {
@@ -5051,7 +5051,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
         } else {
           ptr->newdim = posfixnum_to_L(newdims);
         }
-        # jeweils olddim und mindim einf¸llen:
+        # jeweils olddim und mindim einf√ºllen:
         ptr = reshape_stack;
         dotimespC(count,rank, {
           var uintL olddim;
@@ -5061,7 +5061,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
           ptr->mindim = (olddim<newdim ? olddim : newdim);
           ptr = ptr STACKop -1;
         });
-        # jeweils olddelta und newdelta einf¸llen:
+        # jeweils olddelta und newdelta einf√ºllen:
         {
           var uintL olddelta = 1;
           var uintL newdelta = 1;
@@ -5083,7 +5083,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
       if (depth==0) {
         # Element kopieren:
         # (setf (aref newvec newindex) (aref oldvec oldindex))
-        # so kopieren, dass keine GC ausgelˆst werden kann:
+        # so kopieren, dass keine GC ausgel√∂st werden kann:
         if (eltype == Atype_32Bit) {
           ((uint32*)&TheSbvector(newvec)->data[0])[newindex]
             = ((uint32*)&TheSbvector(oldvec)->data[0])[oldindex];
@@ -5096,7 +5096,7 @@ LISPFUN(make_array,1,0,norest,key,7,\
         if (ptr->mindim > 0)
           elt_copy(oldvec,oldindex,newvec,newindex,ptr->mindim);
       } else {
-        # Schleife ¸ber alle gemeinsamen Indizes:
+        # Schleife √ºber alle gemeinsamen Indizes:
         ptr->oldindex = oldindex; ptr->newindex = newindex;
         if (ptr->mindim > 0) {
           depth--;
@@ -5125,7 +5125,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
 #   :initial-contents :fill-pointer :displaced-to :displaced-index-offset),
 #   CLTL S. 297
   {
-    # array ¸berpr¸fen:
+    # array √ºberpr√ºfen:
     {
       var object array = STACK_7;
       if (!arrayp(array))
@@ -5149,10 +5149,10 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
     # Stackaufbau:
     #   dims, array, element-type, initial-element, initial-contents,
     #   fill-pointer, displaced-to, displaced-index-offset.
-    # Dimensionen ¸berpr¸fen und Rang und Total-Size berechnen:
+    # Dimensionen √ºberpr√ºfen und Rang und Total-Size berechnen:
     var uintL totalsize;
     var uintL rank = test_dims(&totalsize);
-    # Rang ¸berpr¸fen, muss = (array-rank array) sein:
+    # Rang √ºberpr√ºfen, muss = (array-rank array) sein:
     {
       var uintL oldrank = (uintL)Iarray_rank(STACK_6);
       if (!(rank==oldrank)) {
@@ -5165,14 +5165,14 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
               );
       }
     }
-    # element-type in einen Code umwandeln und ¸berpr¸fen:
+    # element-type in einen Code umwandeln und √ºberpr√ºfen:
     var uintB eltype;
     if (!(eq(STACK_5,unbound))) {
       eltype = eltype_code(STACK_5);
       # mit dem Elementtyp des Array-Arguments vergleichen:
       if (!(eltype == (Iarray_flags(STACK_6) & arrayflags_atype_mask))) {
-        pushSTACK(STACK_6); # Wert f¸r Slot DATUM von TYPE-ERROR
-        pushSTACK(S(array)); pushSTACK(STACK_(5+2)); pushSTACK(listof(2)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(STACK_6); # Wert f√ºr Slot DATUM von TYPE-ERROR
+        pushSTACK(S(array)); pushSTACK(STACK_(5+2)); pushSTACK(listof(2)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(5+2)); # element-type
         pushSTACK(STACK_(6+3)); # array
         pushSTACK(TheSubr(subr_self)->name);
@@ -5185,24 +5185,24 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
       eltype = (Iarray_flags(STACK_6) & arrayflags_atype_mask);
       STACK_5 = array_element_type(STACK_6);
     }
-    test_otherkeys(); # einiges ¸berpr¸fen
+    test_otherkeys(); # einiges √ºberpr√ºfen
     var uintB flags = Iarray_flags(STACK_6);
     # Die Flags enthalten genau eltype als Atype und
     # arrayflags_adjustable_bit und daher auch
     # arrayflags_dispoffset_bit und vielleicht auch arrayflags_fillp_bit
-    # (diese werden nicht ver‰ndert) und vielleicht auch
-    # arrayflags_displaced_bit (dieses kann ge‰ndert werden).
+    # (diese werden nicht ver√§ndert) und vielleicht auch
+    # arrayflags_displaced_bit (dieses kann ge√§ndert werden).
     var uintL displaced_index_offset;
     var uintL fillpointer;
-    # Falls nicht displaced, Datenvektor bilden und evtl. f¸llen:
+    # Falls nicht displaced, Datenvektor bilden und evtl. f√ºllen:
     if (nullp(STACK_1)) { # displaced-to nicht angegeben?
       # Datenvektor bilden:
       var object datenvektor = make_storagevector(totalsize,eltype);
       if (!eq(STACK_3,unbound)) { # und falls initial-contents angegeben:
-        # mit dem initial-contents-Argument f¸llen:
+        # mit dem initial-contents-Argument f√ºllen:
         datenvektor = initial_contents(datenvektor,STACK_7,rank,STACK_3);
       } else {
-        # mit dem urspr¸nglichen Inhalt von array f¸llen:
+        # mit dem urspr√ºnglichen Inhalt von array f√ºllen:
         var object oldarray = STACK_6; # array
         var uintL oldoffset = 0;
         var object oldvec = iarray_displace_check(oldarray,TheIarray(oldarray)->totalsize,&oldoffset);
@@ -5211,7 +5211,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
         # Ab olddimptr kommen die alten Dimensionen von array
         # (beachte: Da arrayflags_adjustable_bit gesetzt ist, ist auch
         # arrayflags_dispoffset_bit gesetzt, also ist
-        # TheIarray(array)->data[0] f¸r den Displaced-Offset reserviert.)
+        # TheIarray(array)->data[0] f√ºr den Displaced-Offset reserviert.)
         reshape(datenvektor,STACK_7,oldvec,olddimptr,oldoffset,rank,eltype);
       }
       STACK_1 = datenvektor; # datenvektor als "displaced-to" ablegen
@@ -5250,8 +5250,8 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
     if (!nullp(STACK_2)) { # fill-pointer angegeben?
       # array muss Fill-Pointer haben:
       if (!(Iarray_flags(STACK_6) & bit(arrayflags_fillp_bit))) {
-        pushSTACK(STACK_6); # Wert f¸r Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_vector_with_fill_pointer)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(STACK_6); # Wert f√ºr Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_vector_with_fill_pointer)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(STACK_(6+2));
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -5264,7 +5264,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,\
       var object array = STACK_6;
       if (Iarray_flags(array) & bit(arrayflags_fillp_bit))
         if (!(TheIarray(array)->dims[2] <= totalsize)) {
-               # dims[0] = displaced-offset, dims[1] = L‰nge, dims[2] = Fill-Pointer
+               # dims[0] = displaced-offset, dims[1] = L√§nge, dims[2] = Fill-Pointer
           pushSTACK(fixnum(totalsize));
           pushSTACK(fixnum(TheIarray(array)->dims[2]));
           pushSTACK(array);
@@ -5324,7 +5324,7 @@ LISPFUNN(vector_upd,2)
 # #'(lambda (seq pointer) (1+ pointer))
   {
     if (posfixnump(STACK_0)) {
-      var object newpointer = fixnum_inc(STACK_0,1); # Fixnum >=0 um 1 erhˆhen
+      var object newpointer = fixnum_inc(STACK_0,1); # Fixnum >=0 um 1 erh√∂hen
       if (posfixnump(newpointer)) {
         # ist ein Fixnum >=0 geblieben
         skipSTACK(2);
@@ -5332,7 +5332,7 @@ LISPFUNN(vector_upd,2)
         return;
       }
     }
-    # Pointer ist vor oder nach dem Erhˆhen kein Fixnum >=0
+    # Pointer ist vor oder nach dem Erh√∂hen kein Fixnum >=0
     funcall(L(einsplus),1); # (1+ pointer) als Wert
     skipSTACK(1);
   }
@@ -5400,7 +5400,7 @@ LISPFUNN(vector_init_start,2)
 # #'(lambda (seq index)
 #     (if (<= 0 index (vector-length seq))
 #       index
-#       (error "Unzul‰ssiger :START - Index : ~S" index)
+#       (error "Unzul√§ssiger :START - Index : ~S" index)
 #   ) )
   {
     var object seq = STACK_1;
@@ -5412,11 +5412,11 @@ LISPFUNN(vector_init_start,2)
       value1 = STACK_0; mv_count=1; skipSTACK(2); # index als Wert
     } else {
       # Stackaufbau: seq, index.
-      pushSTACK(STACK_0); # Wert f¸r Slot DATUM von TYPE-ERROR
+      pushSTACK(STACK_0); # Wert f√ºr Slot DATUM von TYPE-ERROR
       {
         var object tmp;
         pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(len));
-        tmp = listof(3); pushSTACK(tmp); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+        tmp = listof(3); pushSTACK(tmp); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       }
       pushSTACK(STACK_3); # seq
       pushSTACK(STACK_3); # index
@@ -5430,7 +5430,7 @@ LISPFUNN(vector_fe_init_end,2)
 # #'(lambda (seq index)
 #     (if (<= 0 index (vector-length seq))
 #       (1- index)
-#       (error "Unzul‰ssiger :END - Index : ~S" index)
+#       (error "Unzul√§ssiger :END - Index : ~S" index)
 #   ) )
   {
     var object seq = STACK_1;
@@ -5448,11 +5448,11 @@ LISPFUNN(vector_fe_init_end,2)
       mv_count=1;
     } else {
       # Stackaufbau: seq, index.
-      pushSTACK(STACK_0); # Wert f¸r Slot DATUM von TYPE-ERROR
+      pushSTACK(STACK_0); # Wert f√ºr Slot DATUM von TYPE-ERROR
       {
         var object tmp;
         pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(len));
-        tmp = listof(3); pushSTACK(tmp); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+        tmp = listof(3); pushSTACK(tmp); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       }
       pushSTACK(STACK_3); # seq
       pushSTACK(STACK_3); # index
@@ -5466,15 +5466,15 @@ LISPFUNN(make_bit_vector,1)
 # (SYS::MAKE-BIT-VECTOR size) liefert einen Bit-Vector mit size Bits.
   {
     if (!posfixnump(STACK_0)) {
-      # STACK_0 = size, Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posfixnum)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      # STACK_0 = size, Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_posfixnum)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_1); # size
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: invalid bit-vector length ~")
             );
     }
-    var uintL size = posfixnum_to_L(popSTACK()); # L‰nge
+    var uintL size = posfixnum_to_L(popSTACK()); # L√§nge
     value1 = allocate_bit_vector(Atype_Bit,size); # euen Bit-Vektor beschaffen
     mv_count=1;
   }

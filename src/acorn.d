@@ -1,12 +1,12 @@
-# Include-File für Acorn RISC OS - Version von CLISP
+# Include-File fÃ¼r Acorn RISC OS - Version von CLISP
 # Bruno Haible, Peter Burwood 20.12.1994, 11.4.1997
 
-# Konstanten für Steuerzeichen:
+# Konstanten fÃ¼r Steuerzeichen:
 
 #define BEL  7              # Ton ausgeben
 # define NL  10             # New line, siehe LISPBIBL.D
 #define RUBOUT 127          # Rubout = Delete
-#define CRLFstring  "\n"    # C-String, der BS-Newline enthält
+#define CRLFstring  "\n"    # C-String, der BS-Newline enthÃ¤lt
 
 #define stdin_handle   0  # File-Handle von Standard-Input
 #define stdout_handle  1  # File-Handle von Standard-Output
@@ -71,7 +71,7 @@
   #if defined(SIGNAL_NEED_UNBLOCK_OTHERS) && defined(HAVE_SIGACTION)
     # Auf manchen BSD-Systemen (z.B. SunOS 4.1.3_U1) werden bei Aufruf eines
     # Signal-Handlers auch noch andere als das aktuelle Signal blockiert.
-    # Das können wir nicht brauchen und verwenden daher sigaction() statt
+    # Das kÃ¶nnen wir nicht brauchen und verwenden daher sigaction() statt
     # signal().
     #define USE_SIGACTION
   #endif
@@ -152,7 +152,7 @@
   #define ELOOP_VALUE  ELOOP  # can't actually occur
 # wird verwendet von PATHNAME, STREAM, SPVW
 
-# File löschen:
+# File lÃ¶schen:
   extern_C int unlink (char* path); # siehe UNLINK(2V)
   # siehe <unistd.h>
 # wird verwendet von PATHNAME
@@ -186,8 +186,8 @@
   extern_C int mkdir (const char* path, mode_t mode);
 # wird verwendet von PATHNAME
 
-# Directory löschen:
-  #if 0 # löscht auch nichtleere Directories, viel zu gefährlich!
+# Directory lÃ¶schen:
+  #if 0 # lÃ¶scht auch nichtleere Directories, viel zu gefÃ¤hrlich!
     extern_C int rmdir (char* path); # siehe RMDIR(2V)
     # siehe <unistd.h>
   #endif
@@ -218,7 +218,7 @@
   extern_C RETRWTYPE full_write (int fd, WRITE_CONST RW_BUF_T buf, RW_SIZE_T nbyte);
 # wird verwendet von STREAM, PATHNAME, SPVW, MISC
 
-# Terminal-Abfragen, Abfragen der Fenster-Größe:
+# Terminal-Abfragen, Abfragen der Fenster-GrÃ¶ÃŸe:
   extern_C int isatty (int fd); # siehe TTYNAME(3V)
   extern_C int ioctl (int fd, int request, void* arg); # siehe IOCTL(2)
   # siehe <unistd.h>
@@ -244,7 +244,7 @@
 # wird verwendet von SPVW, MISC
 
 # Datum/Uhrzeit abfragen:
-  #include <time.h> # für CLK_TCK nötig
+  #include <time.h> # fÃ¼r CLK_TCK nÃ¶tig
   #include <sys/times.h>
   extern_C clock_t times (struct tms * buffer); # siehe TIMES(3V)
   extern_C time_t time (time_t* tloc); # siehe TIME(3V)
@@ -261,7 +261,7 @@
   extern_C int execlp (const char* path, const char *arg, ...); # siehe EXECL(3V)
   extern_C pid_t wait (int* statusp);
   # siehe <unistd.h>
-  #define PID_T  pid_t  # für unixaux.d
+  #define PID_T  pid_t  # fÃ¼r unixaux.d
 # extern_C int wait2 (PID_T pid); # siehe unixaux.d
 # wird verwendet von STREAM, PATHNAME, SPVW
 

@@ -150,7 +150,7 @@ User visible changes
 
 * Added AmigaOS support for the socket functions. It's not perfect, but
   sufficient for writing socket clients.
-  Thanks to Jörg Höhle.
+  Thanks to JÃ¶rg HÃ¶hle.
 
 * X3J13 writeup <ENSURE-DIRECTORIES-EXIST> is implemented:
   New function ENSURE-DIRECTORIES-EXIST.
@@ -208,7 +208,7 @@ User visible changes
 
 * Reduced the number of conses allocated by calling APPLY on a function with
   both &KEY and &REST.
-  Thanks to Jörg Höhle.
+  Thanks to JÃ¶rg HÃ¶hle.
 
 * (DRIBBLE filename) now appends to the given file instead of overwriting it.
 
@@ -242,7 +242,7 @@ User visible changes
 * Fixed bugs in DEFSTRUCT, LOOP, CLOS and many other places.
 
 * The read-eval-print loop now calls FORCE-OUTPUT after outputting the prompt.
-  Thanks to Jörg Höhle <Joerg.Hoehle@gmd.de>.
+  Thanks to JÃ¶rg HÃ¶hle <Joerg.Hoehle@gmd.de>.
 
 * X3J13 vote <72> is conditionally implemented: Objects other than symbols,
   lists, numbers, characters, string, bit-vectors are now self-evaluating if
@@ -278,6 +278,6 @@ Enjoy and send me all sorts of comments, bug reports and suggestions. Please
 mention your (LISP-IMPLEMENTATION-VERSION) and system (especially memory
 location) configuration when doing so.
 
-      Jörg Höhle.
+      JÃ¶rg HÃ¶hle.
 hoehle@tzd.telekom.de
 

@@ -209,11 +209,11 @@ LISPFUNN(machine_instance,0)
               stringcount += 3;
             }
           }
-          # Strings zusammenh‰ngen:
+          # Strings zusammenh√§ngen:
           result = string_concat(stringcount);
         }
       #endif
-      # Das Ergebnis merken wir uns f¸r's n‰chste Mal:
+      # Das Ergebnis merken wir uns f√ºr's n√§chste Mal:
       O(machine_instance_string) = result;
     }
     value1 = result; mv_count=1;

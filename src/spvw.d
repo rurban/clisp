@@ -1,15 +1,15 @@
-# Speicherverwaltung für CLISP
+# Speicherverwaltung fÃ¼r CLISP
 # Bruno Haible 1990-2000
 
 # Inhalt:
 # Modulverwaltung
 # Debug-Hilfen
-# Speichergröße
-# Speicherlängenbestimmung
+# SpeichergrÃ¶ÃŸe
+# SpeicherlÃ¤ngenbestimmung
 # Page Fault and Protection handling
 # Garbage Collection
 # Speicherbereitstellungsfunktionen
-# Zirkularitätenfeststellung
+# ZirkularitÃ¤tenfeststellung
 # Speicher durchlaufen
 # elementare Stringfunktionen
 # andere globale Hilfsfunktionen
@@ -20,7 +20,7 @@
 
 #include "lispbibl.c"
 
-#include "version.h" # für O(lisp_implementation_version_{month,year}_string)
+#include "version.h" # fÃ¼r O(lisp_implementation_version_{month,year}_string)
 
 #if defined(UNIX_LINUX) && (defined(FAST_FLOAT) || defined(FAST_DOUBLE)) && defined(HAVE_SETFPUCW)
   #include <fpu_control.h>
@@ -42,15 +42,15 @@
   #undef LISPOBJ
 
 # Tabelle aller SUBRs: ausgelagert nach SPVWTABF
-# Größe dieser Tabelle:
+# GrÃ¶ÃŸe dieser Tabelle:
   #define subr_anz  (sizeof(subr_tab)/sizeof(subr_))
 
 # Tabelle aller FSUBRs: ausgelagert nach CONTROL
-# Größe dieser Tabelle:
+# GrÃ¶ÃŸe dieser Tabelle:
   #define fsubr_anz  (sizeof(fsubr_tab)/sizeof(fsubr_))
 
 # Tabellen aller relozierbarer Pointer: ausgelagert nach STREAM
-# Größe dieser Tabellen:
+# GrÃ¶ÃŸe dieser Tabellen:
   #define pseudocode_anz  (sizeof(pseudocode_tab)/sizeof(Pseudofun))
   #define pseudodata_anz  (sizeof(pseudodata_tab)/sizeof(Pseudofun))
 # Gesamt-Tabelle:
@@ -58,11 +58,11 @@
   local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
 
 # Tabelle aller festen Symbole: ausgelagert nach SPVWTABS
-# Größe dieser Tabelle:
+# GrÃ¶ÃŸe dieser Tabelle:
   #define symbol_anz  (sizeof(symbol_tab)/sizeof(symbol_))
 
 # Tabelle aller sonstigen festen Objekte: ausgelagert nach SPVWTABO
-# Größe dieser Tabelle:
+# GrÃ¶ÃŸe dieser Tabelle:
   #define object_anz  (sizeof(object_tab)/sizeof(object))
 
 # Durchlaufen durch subr_tab:
@@ -120,7 +120,7 @@
 
 # Semaphoren: entscheiden, ob eine Unterbrechung unwirksam (/=0) oder
 # wirksam (alle = 0) ist.
-# Werden mit set_break_sem_x gesetzt und mit clr_break_sem_x wieder gelöscht.
+# Werden mit set_break_sem_x gesetzt und mit clr_break_sem_x wieder gelÃ¶scht.
   global break_sems_ break_sems;
   # break_sem_0 == break_sems.einzeln[0]
   #   gesetzt, solange eine Page-Fault-Behandlung im Gange ist
@@ -128,9 +128,9 @@
   #   gesetzt, solange die Speicherverwaltung eine Unterbrechung verbietet
   #   (damit leerer Speicher nicht von der GC durchlaufen werden kann)
   # break_sem_2 == break_sems.einzeln[2]
-  #   für Package-Verwaltung auf unterem Niveau und Hashtable-Verwaltung
+  #   fÃ¼r Package-Verwaltung auf unterem Niveau und Hashtable-Verwaltung
   # break_sem_3 == break_sems.einzeln[3]
-  #   für Package-Verwaltung auf höherem Niveau
+  #   fÃ¼r Package-Verwaltung auf hÃ¶herem Niveau
   # break_sem_4 == break_sems.einzeln[4]
   #   gesetzt, solange (AMIGAOS) DOS oder externe Funktionen aufgerufen werden.
   # break_sem_5 == break_sems.einzeln[5]
@@ -154,16 +154,16 @@
 # -----------------------------------------------------------------------------
 #                         Schnelles Programm-Ende
 
-# jmp_buf zur Rückkehr zum Original-Wert des SP beim Programmstart:
+# jmp_buf zur RÃ¼ckkehr zum Original-Wert des SP beim Programmstart:
   local jmp_buf original_context;
 
 # LISP sofort verlassen:
 # quit_sofort(exitcode);
 # > exitcode: 0 bei normalem, 1 bei abnormalem Programmende
-  # Wir müssen den SP auf den ursprünglichen Wert setzen.
+  # Wir mÃ¼ssen den SP auf den ursprÃ¼nglichen Wert setzen.
   # (Bei manchen Betriebssystemen wird erst der vom Programm belegte
-  # Speicher mit free() zurückgegeben, bevor ihm die Kontrolle entzogen
-  # wird. Für diese kurze Zeit muss man den SP vernünftig setzen.)
+  # Speicher mit free() zurÃ¼ckgegeben, bevor ihm die Kontrolle entzogen
+  # wird. FÃ¼r diese kurze Zeit muss man den SP vernÃ¼nftig setzen.)
   local int exitcode;
   #define quit_sofort(xcode)  exitcode = xcode; longjmp(&!original_context,1)
 
@@ -324,7 +324,7 @@ SPVW_MIXED_PAGES                        | X |   |   |
 
 The burden of GC upon the rest of CLISP:
 
-Every subroutine marked with "kann GC auslösen" may invoke GC. GC moves
+Every subroutine marked with "kann GC auslÃ¶sen" may invoke GC. GC moves
 all the Lisp objects and updates the pointers. But the GC looks only
 on the STACK and not in the C variables. (Anything else wouldn't be portable.)
 Therefore at every "unsafe" point - i.e. every call to such a subroutine -
@@ -379,9 +379,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 #endif
 
 # Kanonische Adressen:
-# Bei MULTIMAP_MEMORY kann man über verschiedene Pointer auf dieselbe Speicher-
-# stelle zugreifen. Die Verwaltung der Heaps benötigt einen "kanonischen"
-# Pointer. Über diesen kann zugegriffen werden, und er kann mit >=, <=
+# Bei MULTIMAP_MEMORY kann man Ã¼ber verschiedene Pointer auf dieselbe Speicher-
+# stelle zugreifen. Die Verwaltung der Heaps benÃ¶tigt einen "kanonischen"
+# Pointer. Ãœber diesen kann zugegriffen werden, und er kann mit >=, <=
 # verglichen werden. heap_start und heap_end sind kanonische Adressen.
   #ifdef MULTIMAP_MEMORY
     #define canonaddr(obj)  upointer(obj)
@@ -457,7 +457,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       global object saved_value1;
     #endif
 
-  # Während der Ausführung eines SUBR, FSUBR: das aktuelle SUBR bzw. FSUBR
+  # WÃ¤hrend der AusfÃ¼hrung eines SUBR, FSUBR: das aktuelle SUBR bzw. FSUBR
     #if !defined(subr_self_register)
       global object subr_self;
     #endif
@@ -465,7 +465,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       global object saved_subr_self;
     #endif
 
-  # Während Callbacks die geretteten Register:
+  # WÃ¤hrend Callbacks die geretteten Register:
     #if defined(HAVE_SAVED_REGISTERS)
       global struct registers * callback_saved_registers = NULL;
     #endif
@@ -481,15 +481,15 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 
   global unwind_protect_caller unwind_protect_to_save;
 
-  # Variablen zur Übergabe von Information an den Beginn des Handlers:
+  # Variablen zur Ãœbergabe von Information an den Beginn des Handlers:
   global handler_args_t handler_args;
 
   # Da immer nur ganze Bereiche von Handlers deaktiviert und wieder aktiviert
   # werden, behandeln wir die Handler beim Deaktivieren nicht einzeln, sondern
-  # führen eine Liste der STACK-Bereiche, in denen die Handler deaktiviert sind.
+  # fÃ¼hren eine Liste der STACK-Bereiche, in denen die Handler deaktiviert sind.
   global stack_range* inactive_handlers = NULL;
-  # Ein Handler gilt genau dann als inaktiv, wenn für einen der in
-  # inactive_handlers aufgeführten Bereiche gilt:
+  # Ein Handler gilt genau dann als inaktiv, wenn fÃ¼r einen der in
+  # inactive_handlers aufgefÃ¼hrten Bereiche gilt:
   # low_limit <= handler < high_limit.
 
   #define for_all_threadobjs(statement)  \
@@ -619,7 +619,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 
 #ifdef SPVW_PAGES
 
-# Eine Dummy-Page für lastused:
+# Eine Dummy-Page fÃ¼r lastused:
   local NODE dummy_NODE;
   #define dummy_lastused  (&dummy_NODE)
 
@@ -651,7 +651,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     }
 #endif
 
-# Bei Überlauf eines der Stacks:
+# Bei Ãœberlauf eines der Stacks:
   nonreturning_function(global, SP_ueber, (void));
   global void SP_ueber()
     { asciz_out(GETTEXT(NLstring "*** - " "Program stack overflow. RESET"));
@@ -669,7 +669,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 #include "spvw_gcstat.c"
 
 # -----------------------------------------------------------------------------
-#                       Speichergröße
+#                       SpeichergrÃ¶ÃŸe
 
 #include "spvw_space.c"
 
@@ -679,7 +679,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 #include "spvw_mark.c"
 
 # -----------------------------------------------------------------------------
-#                   Speicherlängenbestimmung
+#                   SpeicherlÃ¤ngenbestimmung
 
 #include "spvw_objsize.c"
 
@@ -718,7 +718,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 #include "spvw_typealloc.c"
 
 # -----------------------------------------------------------------------------
-#                   Zirkularitätenfeststellung
+#                   ZirkularitÃ¤tenfeststellung
 
 #include "spvw_circ.c"
 
@@ -731,17 +731,17 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 #                  Elementare Stringfunktionen
 
 #ifndef asciz_length
-# UP: Liefert die Länge eines ASCIZ-Strings.
+# UP: Liefert die LÃ¤nge eines ASCIZ-Strings.
 # asciz_length(asciz)
 # > char* asciz: ASCIZ-String
 #       (Adresse einer durch ein Nullbyte abgeschlossenen Zeichenfolge)
-# < ergebnis: Länge der Zeichenfolge (ohne Nullbyte)
+# < ergebnis: LÃ¤nge der Zeichenfolge (ohne Nullbyte)
   global uintL asciz_length (const char * asciz);
   global uintL asciz_length(asciz)
     var const char* asciz;
     { var const char* ptr = asciz;
       var uintL len = 0;
-      # Nullbyte suchen und dabei Länge hochzählen:
+      # Nullbyte suchen und dabei LÃ¤nge hochzÃ¤hlen:
       while (!( *ptr++ == 0 )) { len++; }
       return len;
     }
@@ -770,7 +770,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 #                  Andere globale Hilfsfunktionen
 
 #if (int_bitsize < long_bitsize)
-# Übergabewert an setjmpl() von longjmpl():
+# Ãœbergabewert an setjmpl() von longjmpl():
   global long jmpl_value;
 #endif
 
@@ -784,9 +784,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 #endif
 
 # Fehlermeldung wegen Erreichen einer unerreichbaren Programmstelle.
-# Kehrt nicht zurück.
+# Kehrt nicht zurÃ¼ck.
 # fehler_notreached(file,line);
-# > file: Filename (mit Anführungszeichen) als konstanter ASCIZ-String
+# > file: Filename (mit AnfÃ¼hrungszeichen) als konstanter ASCIZ-String
 # > line: Zeilennummer
   nonreturning_function(global, fehler_notreached, (const char * file, uintL line));
   global void fehler_notreached(file,line)
@@ -808,7 +808,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 # -----------------------------------------------------------------------------
 #                        Initialisierung
 
-# Name des Programms (für Fehlermeldungszwecke)
+# Name des Programms (fÃ¼r Fehlermeldungszwecke)
   local char* program_name;
 
 # Flag, ob SYS::READ-FORM sich ILISP-kompatibel verhalten soll:
@@ -991,8 +991,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     }
 #endif
 
-# Initialisierungs-Routinen für die Tabellen
-# während des 1. Teils der Initialisierungsphase:
+# Initialisierungs-Routinen fÃ¼r die Tabellen
+# wÃ¤hrend des 1. Teils der Initialisierungsphase:
   # subr_tab initialisieren:
     local void init_subr_tab_1 (void);
     local void init_subr_tab_1()
@@ -1019,13 +1019,13 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             #include "subr.c"
             #undef LISPFUN
           }
-          # und den keywords-Slot vorläufig initialisieren:
+          # und den keywords-Slot vorlÃ¤ufig initialisieren:
           { var subr_* ptr = (subr_*)&subr_tab; # subr_tab durchgehen
             var uintC count = subr_anz;
             dotimesC(count,subr_anz, { ptr->keywords = NIL; ptr++; });
           }
           #endif
-          # Durch SPVWTABF sind schon alle Slots außer keywords und argtype
+          # Durch SPVWTABF sind schon alle Slots auÃŸer keywords und argtype
           # initialisiert.
           # Nun den argtype-Slot initialisieren:
           { var subr_* ptr = (subr_*)&subr_tab; # subr_tab durchgehen
@@ -1037,7 +1037,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
               });
           }
         #else
-          # Alle Slots außer keywords initialisieren:
+          # Alle Slots auÃŸer keywords initialisieren:
           { var subr_* ptr = (subr_*)&subr_tab; # subr_tab durchgehen
             #define LISPFUN  LISPFUN_D
             #include "subr.c"
@@ -1130,7 +1130,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     local void init_other_modules_1()
       { var module_* module;
         for_modules(all_other_modules,
-          { # Pointer in der Subr-Tabelle mit NIL füllen, damit GC möglich wird:
+          { # Pointer in der Subr-Tabelle mit NIL fÃ¼llen, damit GC mÃ¶glich wird:
             if (*module->stab_size > 0)
               { var subr_* ptr = module->stab;
                 var uintC count;
@@ -1142,13 +1142,13 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           });
       }
 
-# Initialisierungs-Routinen für die Tabellen
-# während des 2. Teils der Initialisierungsphase:
+# Initialisierungs-Routinen fÃ¼r die Tabellen
+# wÃ¤hrend des 2. Teils der Initialisierungsphase:
   # subr_tab fertig initialisieren: Keyword-Vektoren eintragen.
     local void init_subr_tab_2 (void);
     local void init_subr_tab_2()
       #if 0
-        # Ich hätt's gern so einfach, aber
+        # Ich hÃ¤tt's gern so einfach, aber
         # bei TURBO-C reicht der Speicher zum Compilieren nicht!
         { # subr_tab durchgehen
           var object vec;
@@ -1163,7 +1163,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         { # Keyword-Vektoren einzeln erzeugen:
           var object vec;
           var object* vecptr;
-          # füllt ein einzelnes Keyword mehr in den Vektor ein:
+          # fÃ¼llt ein einzelnes Keyword mehr in den Vektor ein:
             #define kw(name)  *vecptr++ = S(K##name)
           # bildet Vektor mit gegebenen Keywords:
             #define v(key_anz,keywords)  \
@@ -1189,7 +1189,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             #undef LISPSYM
           };
         # Tabelle der Packages:
-        enum { # Die Werte dieser Aufzählung sind der Reihe nach 0,1,2,...
+        enum { # Die Werte dieser AufzÃ¤hlung sind der Reihe nach 0,1,2,...
                enum_lisp_index,
                enum_system_index,
                enum_keyword_index,
@@ -1298,7 +1298,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         define_constant_UL1(S(call_arguments_limit),ca_limit_1); # CALL-ARGUMENTS-LIMIT := ca_limit_1 + 1
         define_constant(S(multiple_values_limit),       # MULTIPLE-VALUES-LIMIT
           fixnum(mv_limit));      # := mv_limit
-        define_constant(S(jmpbuf_size),                 # SYS::*JMPBUF-SIZE* := Größe eines jmp_buf
+        define_constant(S(jmpbuf_size),                 # SYS::*JMPBUF-SIZE* := GrÃ¶ÃŸe eines jmp_buf
           fixnum(jmpbufsize));
         define_constant(S(big_endian),(BIG_ENDIAN_P ? T : NIL)); # SYS::*BIG-ENDIAN* := NIL bzw. T
         define_variable(S(macroexpand_hook),L(pfuncall)); # *MACROEXPAND-HOOK* := #'SYS::%FUNCALL
@@ -1370,7 +1370,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         define_variable(S(recurse_count_standard_output),Fixnum_0); # SYS::*RECURSE-COUNT-STANDARD-OUTPUT* := 0
         define_variable(S(recurse_count_debug_io),Fixnum_0); # SYS::*RECURSE-COUNT-DEBUG-IO* := 0
         # zu STREAM:
-        # später: init_streamvars(); # definiert folgende:
+        # spÃ¤ter: init_streamvars(); # definiert folgende:
         # define_variable(S(standard_input),);          # *STANDARD-INPUT*
         # define_variable(S(standard_output),);         # *STANDARD-OUTPUT*
         # define_variable(S(error_output),);            # *ERROR-OUTPUT*
@@ -1409,7 +1409,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         define_variable(S(print_circle_table),unbound); # SYS::*PRINT-CIRCLE-TABLE*
         define_variable(S(prin_level),unbound);         # SYS::*PRIN-LEVEL*
         define_variable(S(prin_stream),unbound);        # SYS::*PRIN-STREAM*
-        define_variable(S(prin_linelength),fixnum(79)); # SYS::*PRIN-LINELENGTH* := 79 (vorläufig)
+        define_variable(S(prin_linelength),fixnum(79)); # SYS::*PRIN-LINELENGTH* := 79 (vorlÃ¤ufig)
         define_variable(S(prin_l1),unbound);            # SYS::*PRIN-L1*
         define_variable(S(prin_lm),unbound);            # SYS::*PRIN-LM*
         define_variable(S(prin_rpar),unbound);          # SYS::*PRIN-RPAR*
@@ -1456,11 +1456,11 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         }
         O(empty_logical_pathname) = allocate_logpathname();
         #endif
-        # *DEFAULT-PATHNAME-DEFAULTS* vorläufig initialisieren:
+        # *DEFAULT-PATHNAME-DEFAULTS* vorlÃ¤ufig initialisieren:
         define_variable(S(default_pathname_defaults),allocate_pathname());
         #undef define_constant_UL1
       }
-  # sonstige Objekte kreieren und Objekttabelle füllen:
+  # sonstige Objekte kreieren und Objekttabelle fÃ¼llen:
     local void init_object_tab (void);
     local void init_object_tab()
       { # Tabelle mit Initialisierungsstrings:
@@ -1529,7 +1529,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           dotimesC(count,object_anz,
             { var const char * string = *stringptr++;
               if (*string == '@')
-                # Kein READ-FROM-STRING für LISPOBJ_L && GNU_GETTEXT
+                # Kein READ-FROM-STRING fÃ¼r LISPOBJ_L && GNU_GETTEXT
                 { *objptr = asciz_to_string(&string[1],O(internal_encoding)); }
                 else
                 { pushSTACK(asciz_to_string(string,O(internal_encoding))); # String
@@ -1537,14 +1537,14 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                   pushSTACK(value1);
                  {var object obj = stream_read(&STACK_0,NIL,NIL); # Objekt lesen
                   skipSTACK(1);
-                  if (!eq(obj,dot_value)) { *objptr = obj; } # und eintragen (außer ".")
+                  if (!eq(obj,dot_value)) { *objptr = obj; } # und eintragen (auÃŸer ".")
                 }}
               objptr++;
             });
         }
         Car(O(top_decl_env)) = O(declaration_types); # Toplevel-Deklarations-Environment bauen
       }
-  # Zu-Fuß-Initialisierung aller LISP-Daten:
+  # Zu-FuÃŸ-Initialisierung aller LISP-Daten:
     local void initmem (void);
     local void initmem()
       { init_symbol_tab_1(); # symbol_tab initialisieren
@@ -1577,7 +1577,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     local void init_module_2 (module_* module);
     local void init_module_2(module)
       var module_* module;
-      { # subr_tab, object_tab vorinitialisieren, damit GC möglich wird:
+      { # subr_tab, object_tab vorinitialisieren, damit GC mÃ¶glich wird:
         if (*module->stab_size > 0)
           { var subr_* ptr = module->stab; # subr_tab durchgehen
             var uintC count;
@@ -1725,7 +1725,7 @@ local void print_license (void)
 
 # print the banner
 local void print_banner ()
-{ const char * const banner0[] = { # einige Zeilen à 66 Zeichen
+{ const char * const banner0[] = { # einige Zeilen Ã  66 Zeichen
  #  |Column 0           |Column 20                                    |Col 66
  # "012345678901234567890123456789012345678901234567890123456789012345678901"
    "  i i i i i i i       ooooo    o        ooooooo   ooooo   ooooo " NLstring,
@@ -1745,7 +1745,7 @@ local void print_banner ()
   };
   #ifdef AMIGA
   var const char * banner2 =
-    GETTEXT("                    Amiga version: Jörg Höhle" NLstring);
+    GETTEXT("                    Amiga version: JÃ¶rg HÃ¶hle" NLstring);
   #endif
   #ifdef RISCOS
   var const char * banner2 =
@@ -1768,7 +1768,7 @@ local void print_banner ()
   skipSTACK(1);
 }
 
-# Hauptprogramm trägt den Namen 'main'.
+# Hauptprogramm trÃ¤gt den Namen 'main'.
   #ifdef NEXTAPP
     # main() existiert schon in Lisp_main.m
     #define main  clisp_main
@@ -1793,9 +1793,9 @@ local void print_banner ()
       # Command-Line-Argumente verarbeiten.
       # Speicheraufteilung bestimmen.
       # Commandstring anschauen und entweder LISP-Daten vom .MEM-File
-      #   laden oder zu Fuß erzeugen und statische LISP-Daten initialisieren.
+      #   laden oder zu FuÃŸ erzeugen und statische LISP-Daten initialisieren.
       # Interrupt-Handler aufbauen.
-      # Begrüßung ausgeben.
+      # BegrÃ¼ÃŸung ausgeben.
       # In den Driver springen.
       #
       #ifdef AMIGAOS
@@ -1806,7 +1806,7 @@ local void print_banner ()
       _response(&argc,&argv);
       _wildcard(&argc,&argv);
       #endif
-      #if defined(MSDOS) && 0 # normalerweise unnötig
+      #if defined(MSDOS) && 0 # normalerweise unnÃ¶tig
       # Auf stdin und stdout im Text-Modus zugreifen:
       begin_system_call();
       setmode(stdin_handle,O_TEXT);
@@ -1890,9 +1890,9 @@ local void print_banner ()
       #   -h              Help
       #   -m size         Memory size (size = xxxxxxxB oder xxxxKB oder xMB)
       #   -s size         Stack size (size = xxxxxxxB oder xxxxKB oder xMB)
-      #   -t directory    temporäres Directory
+      #   -t directory    temporÃ¤res Directory
       #   -B directory    set lisplibdir
-      #   -W              WIDE-Version wählen
+      #   -W              WIDE-Version wÃ¤hlen
       #   -K linkingset   specify executable and mem file
       #   -M file         MEM-File laden
       #   -L language     set the user language
@@ -1907,14 +1907,14 @@ local void print_banner ()
       #   -l              Beim Compilieren: Listings anlegen
       #   -p package      set *PACKAGE*
       #   -a              more ANSI CL Compliance
-      #   -x expr         LISP-Expressions ausführen, dann LISP verlassen
+      #   -x expr         LISP-Expressions ausfÃ¼hren, dann LISP verlassen
       #   -w              wait for keypress after termination
       #   --help          print usage and exit (should be the only option)
       #   --version       print version and exit (should be the only option)
-      #   file [arg ...]  LISP-File im Batch-Modus laden und ausführen,
+      #   file [arg ...]  LISP-File im Batch-Modus laden und ausfÃ¼hren,
       #                   dann LISP verlassen
       #
-      # Neu hinzukommende Optionen müssen aufgeführt werden:
+      # Neu hinzukommende Optionen mÃ¼ssen aufgefÃ¼hrt werden:
       # - in obiger Tabelle,
       # - in der usage-Meldung hier,
       # - im Optionsparser hier,
@@ -1928,19 +1928,19 @@ local void print_banner ()
       # Durchlaufen und Optionen abarbeiten, alles Abgearbeitete durch NULL
       # ersetzen:
       while (argptr < argptr_limit)
-        { var char* arg = *argptr++; # nächstes Argument
+        { var char* arg = *argptr++; # nÃ¤chstes Argument
           if ((arg[0] == '-') && !(arg[1] == '\0'))
             { switch (arg[1])
                 { case 'h': # Help
                     usage ((arg[2] != 0));
-                  # Liefert nach einem einbuchstabigen Kürzel den Rest der
-                  # Option in arg. Evtl. Space wird übergangen.
+                  # Liefert nach einem einbuchstabigen KÃ¼rzel den Rest der
+                  # Option in arg. Evtl. Space wird Ã¼bergangen.
                   #define OPTION_ARG  \
                     if (arg[2] == '\0') \
                       { if (argptr < argptr_limit) arg = *argptr++; else usage (1); } \
                       else { arg = &arg[2]; }
-                  # Parst den Rest einer Option, die eine Byte-Größe angibt.
-                  # Überprüft auch, ob gewisse Grenzen eingehalten werden.
+                  # Parst den Rest einer Option, die eine Byte-GrÃ¶ÃŸe angibt.
+                  # ÃœberprÃ¼ft auch, ob gewisse Grenzen eingehalten werden.
                   #define SIZE_ARG(docstring,sizevar,limit_low,limit_high)  \
                     # arg sollte aus einigen Dezimalstellen, dann   \
                     # evtl. K oder M, dann evtl. B oder W bestehen. \
@@ -1967,7 +1967,7 @@ local void print_banner ()
                        { asciz_out_s(GETTEXT("%s out of range" NLstring), docstring); \
                          usage (1);                                 \
                        }                                            \
-                     # Bei mehreren -m bzw. -s Argumenten zählt nur das letzte. \
+                     # Bei mehreren -m bzw. -s Argumenten zÃ¤hlt nur das letzte. \
                      sizevar = val;                                 \
                     }
                   case 'm': # Memory size
@@ -1980,7 +1980,7 @@ local void print_banner ()
                              argv_memneed,100000,
                              (oint_addr_len+addr_shift < intLsize-1 # memory size begrenzt durch
                               ? bitm(oint_addr_len+addr_shift)      # Adressraum in oint_addr_len+addr_shift Bits
-                              : (uintL)bit(intLsize-1)-1            # (bzw. große Dummy-Grenze)
+                              : (uintL)bit(intLsize-1)-1            # (bzw. groÃŸe Dummy-Grenze)
                             ))
                     break;
                   #ifndef NO_SP_MALLOC
@@ -1991,7 +1991,7 @@ local void print_banner ()
                     break;
                   #endif
                   #ifdef MULTIMAP_MEMORY_VIA_FILE
-                  case 't': # temporäres Directory
+                  case 't': # temporÃ¤res Directory
                     OPTION_ARG
                     if (!(argv_tmpdir == NULL)) usage (1);
                     argv_tmpdir = arg;
@@ -2002,7 +2002,7 @@ local void print_banner ()
                     if (!(argv_lisplibdir == NULL)) usage (1);
                     argv_lisplibdir = arg;
                     break;
-                  case 'W': # WIDE-Version wählen, for backward compatibility
+                  case 'W': # WIDE-Version wÃ¤hlen, for backward compatibility
                     argv_wide = TRUE;
                     if (!(arg[2] == '\0')) usage (1);
                     break;
@@ -2021,17 +2021,17 @@ local void print_banner ()
                   #endif
                   case 'M': # MEM-File
                     OPTION_ARG
-                    # Bei mehreren -M Argumenten zählt nur das letzte.
+                    # Bei mehreren -M Argumenten zÃ¤hlt nur das letzte.
                     argv_memfile = arg;
                     break;
                   case 'L': # Language
                     OPTION_ARG
-                    # Bei mehreren -L Argumenten zählt nur das letzte.
+                    # Bei mehreren -L Argumenten zÃ¤hlt nur das letzte.
                     argv_language = arg;
                     break;
                   case 'N': # NLS-Directory
                     OPTION_ARG
-                    # Bei mehreren -N Argumenten zählt nur das letzte.
+                    # Bei mehreren -N Argumenten zÃ¤hlt nur das letzte.
                     argv_localedir = arg;
                     break;
                   case 'E': # encoding
@@ -2079,7 +2079,7 @@ local void print_banner ()
                     argv_compile_listing = TRUE;
                     if (!(arg[2] == '\0')) usage (1);
                     break;
-                  case 'o': # Ziel für zu compilierendes File
+                  case 'o': # Ziel fÃ¼r zu compilierendes File
                     if (!(arg[2] == '\0')) usage (1);
                     OPTION_ARG
                     if (!((argv_compile_filecount > 0) && (argv_compile_files[argv_compile_filecount-1].output_file==NULL))) usage (1);
@@ -2087,14 +2087,14 @@ local void print_banner ()
                     break;
                   case 'p': # Package
                     OPTION_ARG
-                    # Bei mehreren -p Argumenten zählt nur das letzte.
+                    # Bei mehreren -p Argumenten zÃ¤hlt nur das letzte.
                     argv_package = arg;
                     break;
                   case 'a': # ANSI CL Compliance
                     argv_ansi = TRUE;
                     if (!(arg[2] == '\0')) usage (1);
                     break;
-                  case 'x': # LISP-Expression ausführen
+                  case 'x': # LISP-Expression ausfÃ¼hren
                     OPTION_ARG
                     if (!(argv_expr == NULL)) usage (1);
                     argv_expr = arg;
@@ -2126,7 +2126,7 @@ local void print_banner ()
             }   }
             else
             # keine Option,
-            # wird als zu ladendes / zu compilierendes / auszuführendes File
+            # wird als zu ladendes / zu compilierendes / auszufÃ¼hrendes File
             # interpretiert.
             { switch (argv_for)
                 { case for_init:
@@ -2151,10 +2151,10 @@ local void print_banner ()
                     NOTREACHED;
             }   }
         }
-      # Optionen semantisch überprüfen und Defaults eintragen:
+      # Optionen semantisch Ã¼berprÃ¼fen und Defaults eintragen:
       if (argv_memneed == 0)
         #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && defined(GENERATIONAL_GC)
-        # Wegen GENERATIONAL_GC wird der Speicherbereich kaum ausgeschöpft.
+        # Wegen GENERATIONAL_GC wird der Speicherbereich kaum ausgeschÃ¶pft.
         { argv_memneed = 3584*1024*sizeof(object); } # 3584 KW = 14 MB Default
         #else
         # normalerweise
@@ -2256,26 +2256,26 @@ local void print_banner ()
         #else
         #define teile_objects    0
         #endif
-      var uintL pagesize = # Länge einer Speicherseite
+      var uintL pagesize = # LÃ¤nge einer Speicherseite
         #if defined(MULTIMAP_MEMORY)
         map_pagesize
         #elif defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
         mmap_pagesize
-        #else # wenn die System-Speicherseiten-Länge keine Rolle spielt
+        #else # wenn die System-Speicherseiten-LÃ¤nge keine Rolle spielt
         teile*varobject_alignment
         #endif
         ;
-      var uintL memneed = argv_memneed; # benötigter Speicher
+      var uintL memneed = argv_memneed; # benÃ¶tigter Speicher
       var aint memblock; # untere Adresse des bereitgestellten Speicherblocks
       #if !(defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY))
-      memneed = teile_stacks*floor(memneed,teile); # noch keinen Speicher für objects berechnen
+      memneed = teile_stacks*floor(memneed,teile); # noch keinen Speicher fÃ¼r objects berechnen
       #undef teile
       #define teile  teile_stacks
       #endif
       #ifndef NO_SP_MALLOC
       if (!(argv_stackneed==0))
         { memneed = memneed*(teile-teile_SP)/teile;
-          # Die mit Option -s angegebene SP-Größe ist noch nicht in memneed inbegriffen.
+          # Die mit Option -s angegebene SP-GrÃ¶ÃŸe ist noch nicht in memneed inbegriffen.
           memneed = memneed + argv_stackneed;
         }
       #endif
@@ -2290,8 +2290,8 @@ local void print_banner ()
       # errno = EINVAL. Auch das Umgekehrte, erst shmat() zu machen und dann
       # mit sbrk() oder brk() den belegten Bereich dem Datensegment einzu-
       # verleiben, scheitert mit errno = ENOMEM.
-      # Der einzige Ausweg ist, sich den benötigten Speicher von weit weg,
-      # möglichst außer Reichweite von malloc(), zu holen.
+      # Der einzige Ausweg ist, sich den benÃ¶tigten Speicher von weit weg,
+      # mÃ¶glichst auÃŸer Reichweite von malloc(), zu holen.
       { var uintL memhave = round_down(bit(oint_addr_len) - (aint)sbrk(0),SHMLBA);
         if (memhave < memneed) { memneed = memhave; }
         memblock = round_down(bit(oint_addr_len) - memneed,SHMLBA);
@@ -2321,10 +2321,10 @@ local void print_banner ()
         }
       #endif
       #ifdef MULTIMAP_MEMORY
-      # Wir brauchen zwar nur diesen Adressraum und nicht seinen Inhalt, dürfen
+      # Wir brauchen zwar nur diesen Adressraum und nicht seinen Inhalt, dÃ¼rfen
       # ihn aber nicht freigeben, da er in unserer Kontrolle bleiben soll.
       #endif
-      # Aufrunden zur nächsten Speicherseitengrenze:
+      # Aufrunden zur nÃ¤chsten Speicherseitengrenze:
       {var uintL unaligned = (uintL)(-memblock) % pagesize;
        memblock += unaligned; memneed -= unaligned;
       }
@@ -2343,7 +2343,7 @@ local void print_banner ()
         multimap(case_machine: MM_TYPECASES, memblock, memneed, FALSE);
         #ifdef MAP_MEMORY_TABLES
         # Dazu noch symbol_tab an die Adresse 0 legen:
-        {var uintL memneed = round_up(sizeof(symbol_tab),pagesize); # Länge aufrunden
+        {var uintL memneed = round_up(sizeof(symbol_tab),pagesize); # LÃ¤nge aufrunden
          multimap(case_symbolflagged: , 0, memneed, FALSE);
         }
         # Dazu noch subr_tab an die Adresse 0 legen:
@@ -2352,7 +2352,7 @@ local void print_banner ()
         # Dazu noch symbol_tab und subr_tab multimappen:
         # Die symbol_tab und subr_tab behalten dabei ihre Adresse. Der Bereich,
         # in dem sie liegen (im Datensegment des Programms!!), wird zu Shared
-        # Memory bzw. Shared-mmap-Attach gemacht. Was für ein Hack!
+        # Memory bzw. Shared-mmap-Attach gemacht. Was fÃ¼r ein Hack!
         # Dies ist mit der Existenz externer Module (DYNAMIC_MODULES) unvereinbar! ??
         {var aint symbol_tab_start = round_down((aint)&symbol_tab,pagesize);
          var aint symbol_tab_end = round_up((aint)&symbol_tab+sizeof(symbol_tab),pagesize);
@@ -2364,7 +2364,7 @@ local void print_banner ()
              multimap(case_machine: case_subr: , subr_tab_start, subr_tab_end-subr_tab_start, TRUE);
            }
            else
-           # die Tabellen überlappen sich!
+           # die Tabellen Ã¼berlappen sich!
            { var aint tab_start = (symbol_tab_start < subr_tab_start ? symbol_tab_start : subr_tab_start);
              var aint tab_end = (symbol_tab_end > subr_tab_end ? symbol_tab_end : subr_tab_end);
              multimap(case_machine: case_symbolflagged: case_subr: , tab_start, tab_end-tab_start, TRUE);
@@ -2385,7 +2385,7 @@ local void print_banner ()
                 if ( prepare_zeromap(&heapptr->heap_limit,&heapptr->heap_hardlimit,TRUE) <0) goto no_mem;
         }   }
         # Dazu noch symbol_tab, subr_tab an die Adresse 0 legen:
-        # (Hierzu muss case_symbolflagged mit case_symbol äquivalent sein!)
+        # (Hierzu muss case_symbolflagged mit case_symbol Ã¤quivalent sein!)
         #define map_tab(tab,size)  \
           { var uintL map_len = round_up(size,map_pagesize); \
             if ( zeromap(&tab,map_len) <0) goto no_mem;      \
@@ -2396,12 +2396,12 @@ local void print_banner ()
         #endif
         #ifdef TRIVIALMAP_MEMORY
         # Alle Heaps als leer initialisieren.
-        # Dabei den gesamten zur Verfügung stehenden Platz im Verhältnis
+        # Dabei den gesamten zur VerfÃ¼gung stehenden Platz im VerhÃ¤ltnis
         # 1:1 aufteilen, falls er knapp ist. Sonst die beiden Heaps bei
         # 1/5 bzw. 2/5 des Adressbereiches ansetzen. (Ein "krummer" Nenner,
         # um diversen Shared-Library-Regionen aus dem Weg zu gehen.)
         { var void* malloc_addr = malloc(1);
-          var aint start = round_up((aint)malloc_addr+RESERVE_FOR_MALLOC,map_pagesize); # Reserve für malloc()
+          var aint start = round_up((aint)malloc_addr+RESERVE_FOR_MALLOC,map_pagesize); # Reserve fÃ¼r malloc()
           #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
            #if defined(SUN4_29)
            var aint end = bitm(oint_addr_len+addr_shift < 29 ? oint_addr_len+addr_shift : 29);
@@ -2483,7 +2483,7 @@ local void print_banner ()
           #endif
         }
         #undef teile_STACK
-        #define teile_STACK 0  # brauche keinen Platz mehr für den STACK
+        #define teile_STACK 0  # brauche keinen Platz mehr fÃ¼r den STACK
         #if (teile==0)
           #undef teile
           #define teile 1  # Division durch 0 vermeiden
@@ -2496,19 +2496,19 @@ local void print_banner ()
       # Speicherblock aufteilen:
       { var uintL free_reserved; # Anzahl reservierter Bytes
         #ifndef NO_SP_MALLOC
-        var void* initial_SP; # Initialwert für SP-Stackpointer
-        var uintL for_SP = 0; # Anzahl Bytes für SP-Stack
-        #define min_for_SP  40000 # minimale SP-Stack-Größe
+        var void* initial_SP; # Initialwert fÃ¼r SP-Stackpointer
+        var uintL for_SP = 0; # Anzahl Bytes fÃ¼r SP-Stack
+        #define min_for_SP  40000 # minimale SP-Stack-GrÃ¶ÃŸe
         #endif
-        var uintL for_STACK; # Anzahl Bytes für Lisp-STACK
-        var uintL for_objects; # Anzahl Bytes für Lisp-Objekte
+        var uintL for_STACK; # Anzahl Bytes fÃ¼r Lisp-STACK
+        var uintL for_objects; # Anzahl Bytes fÃ¼r Lisp-Objekte
         # Der STACK braucht Alignment, da bei Frame-Pointern das letzte Bit =0 sein muss:
         #define STACK_alignment  bit(addr_shift+1)
         #define alignment  (varobject_alignment>STACK_alignment ? varobject_alignment : STACK_alignment)
         free_reserved = memneed;
         #ifndef NO_SP_MALLOC
         if (!(argv_stackneed==0))
-          if (2*argv_stackneed <= free_reserved) # nicht zu viel für den SP-Stack reservieren
+          if (2*argv_stackneed <= free_reserved) # nicht zu viel fÃ¼r den SP-Stack reservieren
             { for_SP = round_down(argv_stackneed,varobject_alignment);
               free_reserved -= argv_stackneed;
             }
@@ -2536,7 +2536,7 @@ local void print_banner ()
           #ifdef AMIGAOS
           { var struct Process * myprocess = (struct Process *)FindTask(NULL);
             var aint original_SP = process->pr_ReturnAddr; # SP beim Programmstart
-            # Die Shell legt die Stackgröße vor dem Start auf den SP.
+            # Die Shell legt die StackgrÃ¶ÃŸe vor dem Start auf den SP.
             var aint SP_bottom = original_SP - *(ULONG*)original_SP;
             SP_bound = SP_bottom + 0x1000; # 1024 Pointer Sicherheitsmarge
           }
@@ -2559,9 +2559,9 @@ local void print_banner ()
         #else
           # SP allozieren:
           if (for_SP==0)
-            { for_SP = teile_SP*teil; } # 2/16 für Programmstack
+            { for_SP = teile_SP*teil; } # 2/16 fÃ¼r Programmstack
             else
-            # Platz für SP ist schon abgezwackt.
+            # Platz fÃ¼r SP ist schon abgezwackt.
             { # teile := teile-teile_SP; # geht nicht mehr, stattdessen:
               teil = round_down(free_reserved/(teile-teile_SP),alignment);
             }
@@ -2583,12 +2583,12 @@ local void print_banner ()
         #else
         #ifdef STACK_DOWN
           STACK_bound = (object*)ptr + 0x40; # 64 Pointer Sicherheitsmarge
-          ptr += for_STACK = teile_STACK*teil; # 2/16 für Lisp-STACK
+          ptr += for_STACK = teile_STACK*teil; # 2/16 fÃ¼r Lisp-STACK
           setSTACK(STACK = (object*)ptr); # STACK initialisieren
         #endif
         #ifdef STACK_UP
           setSTACK(STACK = (object*)ptr); # STACK initialisieren
-          ptr += for_STACK = teile_STACK*teil; # 2/16 für Lisp-STACK
+          ptr += for_STACK = teile_STACK*teil; # 2/16 fÃ¼r Lisp-STACK
           STACK_bound = (object*)ptr - 0x40; # 64 Pointer Sicherheitsmarge
         #endif
         #endif
@@ -2601,8 +2601,8 @@ local void print_banner ()
         #else
         mem.varobjects.heap_start = ptr;
         #endif
-        mem.varobjects.heap_end = mem.varobjects.heap_start; # Noch gibt es keine Objekte variabler Länge
-        # Rest (14/16 oder etwas weniger) für Lisp-Objekte:
+        mem.varobjects.heap_end = mem.varobjects.heap_start; # Noch gibt es keine Objekte variabler LÃ¤nge
+        # Rest (14/16 oder etwas weniger) fÃ¼r Lisp-Objekte:
         for_objects = memblock+free_reserved - ptr; # etwa = teile_objects*teil
         ptr += for_objects;
         #ifdef GENERATIONAL_GC
@@ -2618,7 +2618,7 @@ local void print_banner ()
         ptr += RESERVE;
         # oberes Speicherende erreicht.
         mem.MEMTOP = ptr;
-        # Darüber (weit weg) der Maschinenstack.
+        # DarÃ¼ber (weit weg) der Maschinenstack.
         #endif
         #if defined(SPVW_PURE_BLOCKS) || defined(TRIVIALMAP_MEMORY) || defined(GENERATIONAL_GC)
         mem.total_room = 0;
@@ -2640,8 +2640,8 @@ local void print_banner ()
         # Stacks initialisieren:
         #ifndef NO_SP_MALLOC
           #ifdef GNU
-            # eine kleine Dummy-Aktion, die ein hinausgezögertes Aufräumen des SP
-            # zu einem späteren Zeitpunkt verhindert:
+            # eine kleine Dummy-Aktion, die ein hinausgezÃ¶gertes AufrÃ¤umen des SP
+            # zu einem spÃ¤teren Zeitpunkt verhindert:
             if (mem.MEMBOT) { asciz_out(""); }
           #endif
           setSP(initial_SP); # SP setzen! Dabei gehen alle lokalen Variablen verloren!
@@ -2653,7 +2653,7 @@ local void print_banner ()
      }}}
       init_subr_tab_1(); # subr_tab initialisieren
       if (argv_memfile==NULL)
-        # Zu-Fuß-Initialisierung:
+        # Zu-FuÃŸ-Initialisierung:
         { initmem(); }
         else
         # Speicherfile laden:
@@ -2666,13 +2666,13 @@ local void print_banner ()
       aktenv.go_env    = NIL;
       aktenv.decl_env  = O(top_decl_env);
       # Alles fertig initialisiert.
-      subr_self = NIL; # irgendein gültiges Lisp-Objekt
+      subr_self = NIL; # irgendein gÃ¼ltiges Lisp-Objekt
       clear_break_sems(); set_break_sem_1();
       # Interrupt-Handler einrichten:
       #if defined(HAVE_SIGNALS) && defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
         install_sigwinch_handler();
       #endif
-      # Die Größe des Terminal-Fensters auch jetzt beim Programmstart erfragen:
+      # Die GrÃ¶ÃŸe des Terminal-Fensters auch jetzt beim Programmstart erfragen:
       #if defined(HAVE_SIGNALS)
         begin_system_call();
         update_linelength();
@@ -2687,7 +2687,7 @@ local void print_banner ()
             var uintL columns;
             columns = (_scrsize(&!scrsize), scrsize[0]);
             if (columns > 0)
-              { # Wert von SYS::*PRIN-LINELENGTH* verändern:
+              { # Wert von SYS::*PRIN-LINELENGTH* verÃ¤ndern:
                 Symbol_value(S(prin_linelength)) = fixnum(columns-1);
           }   }
       #endif
@@ -2723,11 +2723,11 @@ local void print_banner ()
       # Stream-Variablen initialisieren:
       init_streamvars(!(argv_execute_file == NULL));
       #ifdef NEXTAPP
-      # nxterminal-Stream funktionsfähig machen:
+      # nxterminal-Stream funktionsfÃ¤hig machen:
       if (nxterminal_init())
         { final_exitcode = 17; quit(); }
       #endif
-      # Break ermöglichen:
+      # Break ermÃ¶glichen:
       end_system_call();
       clr_break_sem_1();
       # Pathnames initialisieren:
@@ -2758,11 +2758,11 @@ local void print_banner ()
           }
         skipSTACK(1);
       }
-      # Begrüßung ausgeben:
+      # BegrÃ¼ÃŸung ausgeben:
       if (!nullp(Symbol_value(S(quiet)))) # SYS::*QUIET* /= NIL ?
-        { argv_quiet = TRUE; } # verhindert die Begrüßung
+        { argv_quiet = TRUE; } # verhindert die BegrÃ¼ÃŸung
       if (!(argv_execute_file == NULL)) # Batch-Modus ?
-        { argv_quiet = TRUE; } # verhindert die Begrüßung
+        { argv_quiet = TRUE; } # verhindert die BegrÃ¼ÃŸung
       if (!argv_quiet || argv_license) print_banner();
       if (argv_license) print_license();
       if ((argv_memfile == NULL) && (argv_expr == NULL))
@@ -2794,7 +2794,7 @@ local void print_banner ()
         skipSTACK(1);
       }
       if (argv_compile || !(argv_expr == NULL) || !(argv_execute_file == NULL))
-        # '-c' oder '-x' oder file angegeben -> LISP läuft im Batch-Modus:
+        # '-c' oder '-x' oder file angegeben -> LISP lÃ¤uft im Batch-Modus:
         { # (setq *debug-io*
           #   (make-two-way-stream (make-string-input-stream "") *query-io*)
           # )
@@ -2810,12 +2810,12 @@ local void print_banner ()
         pushSTACK(O(ansi_user_package_name)); funcall(L(in_package),1);
       }
       if (!(argv_package == NULL))
-        # (IN-PACKAGE packagename) ausführen:
+        # (IN-PACKAGE packagename) ausfÃ¼hren:
         { var object packname = asciz_to_string(argv_package,O(misc_encoding));
           pushSTACK(packname); funcall(L(in_package),1);
         }
       if (argv_load_compiling)
-        # (SETQ *LOAD-COMPILING* T) ausführen:
+        # (SETQ *LOAD-COMPILING* T) ausfÃ¼hren:
         { Symbol_value(S(load_compiling)) = T; }
       # load RC file ~/.clisprc
       if (!argv_norc) {
@@ -2841,7 +2841,7 @@ local void print_banner ()
          pushSTACK(S(nil));
          funcall(S(load),3);
       }
-      # für jedes initfile (LOAD initfile) ausführen:
+      # fÃ¼r jedes initfile (LOAD initfile) ausfÃ¼hren:
       if (argv_init_filecount > 0)
         { var char** fileptr = &argv_init_files[0];
           var uintL count;
@@ -2851,14 +2851,14 @@ local void print_banner ()
             });
         }
       if (argv_compile)
-        # für jedes File
+        # fÃ¼r jedes File
         #   (EXIT-ON-ERROR
         #     (APPEASE-CERRORS
         #       (COMPILE-FILE (setq file (MERGE-PATHNAMES file (MERGE-PATHNAMES '#".lisp" (CD))))
         #                     [:OUTPUT-FILE (setq output-file (MERGE-PATHNAMES (MERGE-PATHNAMES output-file (MERGE-PATHNAMES '#".fas" (CD))) file))]
         #                     [:LISTING (MERGE-PATHNAMES '#".lis" (or output-file file))]
         #   ) ) )
-        # durchführen:
+        # durchfÃ¼hren:
         { if (argv_compile_filecount > 0)
             { var argv_compile_file* fileptr = &argv_compile_files[0];
               var uintL count;
@@ -2909,7 +2909,7 @@ local void print_banner ()
                   pushSTACK(S(batchmode_errors));
                   pushSTACK(form);
                   form = listof(2); # `(SYS::BATCHMODE-ERRORS (COMPILE-FILE ',...))
-                  eval_noenv(form); # ausführen
+                  eval_noenv(form); # ausfÃ¼hren
                   fileptr++;
                 }});
             }
@@ -2924,7 +2924,7 @@ local void print_banner ()
         #   (EXIT-ON-ERROR (APPEASE-CERRORS (LOAD argv_execute_file)))
         #   (EXIT)
         # )
-        # durchführen:
+        # durchfÃ¼hren:
         {
           #ifdef UNIX
           # Make clisp ignore the leading #! line.
@@ -2950,7 +2950,7 @@ local void print_banner ()
             form = listof(2);
             pushSTACK(S(batchmode_errors)); pushSTACK(form);
             form = listof(2); # `(SYS::BATCHMODE-ERRORS (LOAD "..."))
-            eval_noenv(form); # ausführen
+            eval_noenv(form); # ausfÃ¼hren
           }
           quit();
         }
@@ -3004,13 +3004,13 @@ local void print_banner ()
       value1 = NIL; mv_count=0; # Bei UNWIND-PROTECT-Frames keine Werte retten
       unwind_protect_to_save.fun = (restart)&quit;
       loop
-        { # Hört der STACK hier auf?
+        { # HÃ¶rt der STACK hier auf?
           if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) break;
           if (framecode(STACK_0) & bit(frame_bit_t))
             # Bei STACK_0 beginnt ein Frame
-            { unwind(); } # Frame auflösen
+            { unwind(); } # Frame auflÃ¶sen
             else
-            # STACK_0 enthält ein normales LISP-Objekt
+            # STACK_0 enthÃ¤lt ein normales LISP-Objekt
             { skipSTACK(1); }
         }
       # Dann eine Abschiedsmeldung:
@@ -3031,7 +3031,7 @@ local void print_banner ()
           pushSTACK(OLS(keypress_string)); funcall(L(write_line),1);
           funcall(S(wait_keypress),0); # (SYS::WAIT-KEYPRESS)
         }
-      close_all_files(); # alle Files schließen
+      close_all_files(); # alle Files schlieÃŸen
       #ifdef DYNAMIC_FFI
       exit_ffi(); # FFI herunterfahren
       #endif
@@ -3190,7 +3190,7 @@ local void print_banner ()
                         module->stab = newptr;
                         dotimespC(count,count,
                           { *newptr = *oldptr++;
-                            newptr->name = NIL; newptr->keywords = NIL; # damit GC möglich bleibt
+                            newptr->name = NIL; newptr->keywords = NIL; # damit GC mÃ¶glich bleibt
                             newptr++;
                           });
                       }
@@ -3199,7 +3199,7 @@ local void print_banner ()
                 #elif defined(MULTIMAP_MEMORY)
                 if (*module->stab_size > 0)
                   # Die subr_tab des geladenen Moduls multimappen.
-                  # Die zu mappenden Pages gehören zum Datensegment der neu
+                  # Die zu mappenden Pages gehÃ¶ren zum Datensegment der neu
                   # geladenen Shared-Library, sind also sicher noch nicht gemultimappt.
                   { var aint subr_tab_start = round_down((aint)module->stab,pagesize);
                     var aint subr_tab_end = round_up((aint)module->stab+(*module->stab_size)*sizeof(subr_),pagesize);

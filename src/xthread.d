@@ -308,7 +308,7 @@ typedef DWORD              xthread_key_t;
 #   acquired while a spin-lock is held.
 # - Therefore spin-locks can be assumed to be unlocked "soon", without any
 #   particular action to be performed. When trying to acquire a spin-lock which
-#   is currently locked, all you can do is sit down and spin ("Däumchen drehen"
+#   is currently locked, all you can do is sit down and spin ("DÃ¤umchen drehen"
 #   in German).
 # - Acquiring a lock which is previously unlocked, and releasing a lock are
 #   fast operations.

@@ -710,7 +710,7 @@ to print the corresponding values, or T for all of them.")
 ;; DOCUMENTATION mit abfragen und ausgeben??
 ;; function, variable, type, structure, setf
 
-; Gibt object in einen String aus, der nach Mˆglichkeit hˆchstens max Spalten
+; Gibt object in einen String aus, der nach M√∂glichkeit h√∂chstens max Spalten
 ; lang sein soll.
 (defun write-to-short-string (object max)
   ; Methode: probiere
@@ -718,30 +718,30 @@ to print the corresponding values, or T for all of them.")
   ; level = 1: length = 1,2,3,4
   ; level = 2: length = 2,...,6
   ; usw. bis maximal level = 16.
-  ; Dabei level mˆglichst groﬂ, und bei festem level length mˆglichst groﬂ.
+  ; Dabei level m√∂glichst gro√ü, und bei festem level length m√∂glichst gro√ü.
   (if (or (numberp object) (symbolp object)) ; von length und level unbeeinflusst?
     (write-to-string object)
     (macrolet ((minlength (level) `,level)
                (maxlength (level) `(* 2 (+ ,level 1))))
-      ; Um level mˆglist groﬂ zu bekommen, dabei length = minlength w‰hlen.
-      (let* ((level ; Bin‰rsuche nach dem richtigen level
+      ; Um level m√∂glist gro√ü zu bekommen, dabei length = minlength w√§hlen.
+      (let* ((level ; Bin√§rsuche nach dem richtigen level
                (let ((level1 0) (level2 16))
                  (loop
                    (when (= (- level2 level1) 1) (return))
                    (let ((levelm (floor (+ level1 level2) 2)))
                      (if (<= (string-width (write-to-string object :level levelm :length (minlength levelm))) max)
-                       (setq level1 levelm) ; levelm passt, probiere grˆﬂere
+                       (setq level1 levelm) ; levelm passt, probiere gr√∂√üere
                        (setq level2 levelm) ; levelm passt nicht, probiere kleinere
                  ) ) )
                  level1
              ) )
-             (length ; Bin‰rsuche nach dem richtigen length
+             (length ; Bin√§rsuche nach dem richtigen length
                (let ((length1 (minlength level)) (length2 (maxlength level)))
                  (loop
                    (when (= (- length2 length1) 1) (return))
                    (let ((lengthm (floor (+ length1 length2) 2)))
                      (if (<= (string-width (write-to-string object :level level :length lengthm)) max)
-                       (setq length1 lengthm) ; lengthm passt, probiere grˆﬂere
+                       (setq length1 lengthm) ; lengthm passt, probiere gr√∂√üere
                        (setq length2 lengthm) ; lengthm passt nicht, probiere kleinere
                  ) ) )
                  length1

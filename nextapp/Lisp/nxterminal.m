@@ -13,8 +13,8 @@ int nxterminal_line_length = 80;
 
 void nxterminal_send_output(void)
 {
-    /* Wenn wir etwas mit dem Stream machen wollen, während wir mit
-       Eingabevervollständigung beschäftigt sind, müssen wir die zuerst
+    /* Wenn wir etwas mit dem Stream machen wollen, wÃ¤hrend wir mit
+       EingabevervollstÃ¤ndigung beschÃ¤ftigt sind, mÃ¼ssen wir die zuerst
        sauber beenden.
     */
     if(doingCompletion)
@@ -23,7 +23,7 @@ void nxterminal_send_output(void)
       message.t2.msg_type_number = 0;
       msg_send((msg_header_t *)&message, MSG_OPTION_NONE, 0);
       doingCompletion = NO;
-      buffer_count = 0; // muß eigentlich sowieso Null sein.
+      buffer_count = 0; // muÃŸ eigentlich sowieso Null sein.
     }
     /* Jetzt schicken wir ab, was sich bisher angesammelt hat. */
     if(buffer_count > 0)
@@ -87,7 +87,7 @@ char nxterminal_read_char(int *linepos)
       switch(message.h.msg_id)
       {
         case COMPLETION_MSG:
-        { /* Eingabevervollständigung gewünscht */
+        { /* EingabevervollstÃ¤ndigung gewÃ¼nscht */
           int len = message.t2.msg_type_number;
           char *buffer = malloc((len + 1)*sizeof(char));
           int i;
@@ -95,7 +95,7 @@ char nxterminal_read_char(int *linepos)
           doingCompletion = YES;
           for(i = 0; i < len; i++) buffer[i] = message.ch[i];
           buffer[len] = '\0';
-          // Erfrage die möglichen Fortsetzungen
+          // Erfrage die mÃ¶glichen Fortsetzungen
           array = lisp_completion(buffer, message.i, len);
           array_len = 0;
           array_pointer = 0;
@@ -129,7 +129,7 @@ char nxterminal_read_char(int *linepos)
         {
           int i;
 
-          /* Hören die Vervollständigungsanfragen auf, geben wir den
+          /* HÃ¶ren die VervollstÃ¤ndigungsanfragen auf, geben wir den
              array wieder frei.
           */
           if(array != NULL)
@@ -191,7 +191,7 @@ int nxterminal_init(void)
       message.t1.msg_type_deallocate = FALSE;
       message.t2.msg_type_name = MSG_TYPE_CHAR;
       message.t2.msg_type_size = 8;
-      message.t2.msg_type_number = 0; // vorläufig
+      message.t2.msg_type_number = 0; // vorlÃ¤ufig
       message.t2.msg_type_inline = TRUE;
       message.t2.msg_type_longform = FALSE;
       message.t2.msg_type_deallocate = FALSE;

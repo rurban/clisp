@@ -1,4 +1,4 @@
-# Elementare Funktionen für reelle Zahlen
+# Elementare Funktionen fÃ¼r reelle Zahlen
 
 # R_zerop(x) stellt fest, ob (= x 0), wo x eine reelle Zahl ist.
   local boolean R_zerop (object x);
@@ -32,7 +32,7 @@
 # (Macro in LISPBIBL.D)
 
 # I_F_float_F(x,y) wandelt ein Integer x in das Float-Format des Floats y um
-# und rundet dabei nötigenfalls.
+# und rundet dabei nÃ¶tigenfalls.
 # > x: ein Integer
 # > y: ein Float
 # < ergebnis: (float x y)
@@ -50,7 +50,7 @@
     }
 
 # RA_F_float_F(x,y) wandelt eine rationale Zahl x in das Float-Format des
-# Floats y um und rundet dabei nötigenfalls.
+# Floats y um und rundet dabei nÃ¶tigenfalls.
 # > x: eine rationale Zahl
 # > y: ein Float
 # < ergebnis: (float x y)
@@ -68,7 +68,7 @@
     }
 
 # R_F_float_F(x,y) wandelt eine reelle Zahl x in das Float-Format des Floats
-# y um und rundet dabei nötigenfalls.
+# y um und rundet dabei nÃ¶tigenfalls.
 # > x: eine reelle Zahl
 # > y: ein Float
 # < ergebnis: (float x y)
@@ -104,7 +104,7 @@
     { return (R_rationalp(x) ? RA_to_DF(x) : F_to_DF(x)); }
 
 # R_to_LF(x,len) wandelt eine reelle Zahl x in ein Long-Float mit len Digits um.
-# > uintC len: gewünschte Anzahl Digits, >=LF_minlen
+# > uintC len: gewÃ¼nschte Anzahl Digits, >=LF_minlen
 # < ergebnis: (coerce x `(long-float ,len))
 # can trigger GC
   local object R_to_LF (object x, uintC len);
@@ -156,7 +156,7 @@
 # symbol sollte ein S(..)-Symbol sein. Dessen Wert sollte SHORT-FLOAT oder
 # SINGLE-FLOAT oder DOUBLE-FLOAT oder LONG-FLOAT sein. Sollte es das nicht
 # sein, wird der Wert auf SINGLE-FLOAT gesetzt und eine Warnung ausgegeben.
-# kann GC auslösen, aber nur zwischen save_statement und restore_statement.
+# kann GC auslÃ¶sen, aber nur zwischen save_statement und restore_statement.
   #define defaultfloatcase(symbol, SF_statement,FF_statement,DF_statement,LF_statement, save_statement,restore_statement) \
     {var object def = Symbol_value(symbol); # Wert holen            \
      if (eq(def,S(short_float))) { SF_statement }                   \
@@ -168,7 +168,7 @@
          save_statement                                             \
          # Warnung ausgeben:                                        \
          # (WARN "In ~S wurde ein illegaler Wert vorgefunden,       \
-         #        ~S wird auf ~S zurückgesetzt."                    \
+         #        ~S wird auf ~S zurÃ¼ckgesetzt."                    \
          #       symbol symbol (symbol-value symbol)                \
          # )                                                        \
          pushSTACK(NIL);                                            \
@@ -214,7 +214,7 @@
     }
 
 # R_float_F(x) wandelt eine reelle Zahl x in ein Float um
-# und rundet dabei nötigenfalls.
+# und rundet dabei nÃ¶tigenfalls.
 # > x: eine reelle Zahl
 # < ergebnis: (float x)
 # can trigger GC
@@ -232,7 +232,7 @@
     # < STACK_1: Quotient q, ein Integer                              \
     # < STACK_0: Rest r, eine reelle Zahl                             \
     # Erniedrigt STACK um 2                                           \
-    # kann GC auslösen                                                \
+    # kann GC auslÃ¶sen                                                \
     # Methode:                                          \
     # x rational -> RA_rounding_I_RA(x)                 \
     # x Float -> F_rounding_I_F(x)                      \
@@ -276,7 +276,7 @@
     # < STACK_1: Quotient q, ein integer-wertiges Float               \
     # < STACK_0: Rest r, eine reelle Zahl                             \
     # Erniedrigt STACK um 2                                           \
-    # kann GC auslösen                                                \
+    # kann GC auslÃ¶sen                                                \
     # Methode:                                                          \
     # x rational -> RA_rounding_I_RA(x), Quotienten in Float umwandeln. \
     # x Float -> F_frounding_F_F(x).                                    \
@@ -408,7 +408,7 @@
     var object x;
     var object y;
     { if (eq(x,Fixnum_0))
-        # 0 / y = exakte 0, außer wenn y=0
+        # 0 / y = exakte 0, auÃŸer wenn y=0
         { if (R_zerop(y)) { divide_0(); } else { return x; } }
       else
         GEN_R_op21(x,y,durch,return)
@@ -424,7 +424,7 @@
     # < STACK_1: Quotient q, ein Integer       \
     # < STACK_0: Rest r, eine reelle Zahl      \
     # Erniedrigt STACK um 2                    \
-    # kann GC auslösen                         \
+    # kann GC auslÃ¶sen                         \
     # Methode:                                                      \
     # Beides Integers -> I_I_rounding_I_I(x,y).                     \
     # Sonst: R_rounding_I_R(x/y) -> (q,r). Liefere q und x-y*q=y*r. \
@@ -471,7 +471,7 @@
     # R_R_remainder_R(x,y)                                 \
     # > x,y: reelle Zahlen                                 \
     # < ergebnis: Rest r, eine reelle Zahl                 \
-    # kann GC auslösen                                     \
+    # kann GC auslÃ¶sen                                     \
     # Methode:                                                \
     # Beides Integers -> I_I_remainder_I(x,y).                \
     # Sonst: R_rounding_I_R(x/y) -> (q,r). Liefere x-y*q=y*r. \
@@ -505,7 +505,7 @@
     # < STACK_1: Quotient q, ein integer-wertiges Float    \
     # < STACK_0: Rest r, eine reelle Zahl                  \
     # Erniedrigt STACK um 2                                \
-    # kann GC auslösen                                     \
+    # kann GC auslÃ¶sen                                     \
     # Methode:                                                            \
     # x,y beide rational:                                                 \
     #   R_R_rounding_I_R(x,y), Quotienten in Float umwandeln.             \
@@ -643,18 +643,18 @@
   # Methode:
   # Wann sind x und y gleich? Nach CLTL, 2nd ed., S. 290 sind die exakten
   # mathematischen Werte zu vergleichen.
-  # x,y beide rational: (da x,y als gekürzte Brüche mit positivem Nenner
-  #   vorliegen) genau dann, wenn die Nenner und die Zähler übereinstimmen.
+  # x,y beide rational: (da x,y als gekÃ¼rzte BrÃ¼che mit positivem Nenner
+  #   vorliegen) genau dann, wenn die Nenner und die ZÃ¤hler Ã¼bereinstimmen.
   # x,y beide Floats: genau dann, wenn die Vorzeichen und die Exponenten
-  #   übereinstimmen und die Mantisse des längeren aus der Mantisse des
-  #   kürzeren und sonst lauter Nullen besteht.
+  #   Ã¼bereinstimmen und die Mantisse des lÃ¤ngeren aus der Mantisse des
+  #   kÃ¼rzeren und sonst lauter Nullen besteht.
   # x rational, y Float: (da der exakte Wert von y ein Integer * 2^Exponent
-  #   ist) genau dann, wenn die Vorzeichen übereinstimmen, der Nenner von x
+  #   ist) genau dann, wenn die Vorzeichen Ã¼bereinstimmen, der Nenner von x
   #   eine Zweierpotenz ist und zwischen y = (-1)^s * m * 2^e und x = a / 2^c
   #   die Gleichung m * 2^(e+c) = |a| besteht.
   #
   # Test von zwei Integers auf Gleichheit: entweder beide EQ oder beide
-  # Bignums, derselben Länge und mit denselben Digits (Vorzeichen inbegriffen).
+  # Bignums, derselben LÃ¤nge und mit denselben Digits (Vorzeichen inbegriffen).
   # Springt mit false_statement weg, falls nicht gleich.
   # define I_I_gleich(x,y) (eq(x,y) || (I_bignump(x) && I_bignump(y) && (x_len==y_len) && (compare_loop_up(x_data,y_data)==0)))
   #define I_I_gleich(x_,y_,false_statement)  \
@@ -685,7 +685,7 @@
                   # x,y beide Ratio
                   # Nenner vergleichen:
                   I_I_gleich(TheRatio(x)->rt_den,TheRatio(y)->rt_den, { return FALSE; } );
-                  # Zähler vergleichen:
+                  # ZÃ¤hler vergleichen:
                   I_I_gleich(TheRatio(x)->rt_num,TheRatio(y)->rt_num, { return FALSE; } );
                   return TRUE;
             }   }
@@ -695,7 +695,7 @@
         }
       # x Float, y Float oder rational.
       # x und y auspacken, liefert jeweils ein Vorzeichen, eine Mantisse
-      # (NUDS mit gesetztem höchstem Bit) und einen Exponenten.
+      # (NUDS mit gesetztem hÃ¶chstem Bit) und einen Exponenten.
      {SAVE_NUM_STACK # num_stack retten
       var signean x_sign;
       var uintD* x_MSDptr;
@@ -794,16 +794,16 @@
             }
           I_to_NDS(y,y_MSDptr=,y_len=,y_LSDptr=); # NDS holen
           if (y_len == 0) { goto y_zero; }
-          # Nicht alle führenden intDsize+1 Bits sind gleich.
+          # Nicht alle fÃ¼hrenden intDsize+1 Bits sind gleich.
           if ((sintD)y_MSDptr[0] < 0) # falls <0, negieren
             { y_sign = -1; neg_loop_down(y_LSDptr,y_len); }
             else
             { y_sign = 0; }
-          # Nicht alle führenden intDsize+1 Bits sind =0.
+          # Nicht alle fÃ¼hrenden intDsize+1 Bits sind =0.
           if (y_MSDptr[0] == 0) # normalisieren (max. 1 Nulldigit entfernen)
             { y_MSDptr++; y_len--; }
           # Nun ist y_MSDptr[0]/=0 und y_len>0.
-          # Führendes Bit auf 1 normalisieren:
+          # FÃ¼hrendes Bit auf 1 normalisieren:
           integerlengthD(y_MSDptr[0], s = intDsize - );
           if (s > 0)
             { begin_arith_call();
@@ -822,20 +822,20 @@
       else if (y_len > x_len)
         { if (test_loop_up(&y_MSDptr[x_len],y_len-x_len)) goto no; }
       if (compare_loop_up(x_MSDptr,y_MSDptr,x_len)) goto no;
-      # Vergleich erfüllt.
-      RESTORE_NUM_STACK # num_stack zurück
+      # Vergleich erfÃ¼llt.
+      RESTORE_NUM_STACK # num_stack zurÃ¼ck
       return TRUE;
       x_zero:
-        RESTORE_NUM_STACK # num_stack zurück
+        RESTORE_NUM_STACK # num_stack zurÃ¼ck
         if (R_zerop(y)) { return TRUE; } else { return FALSE; }
       y_zero:
       no:
-        RESTORE_NUM_STACK # num_stack zurück
+        RESTORE_NUM_STACK # num_stack zurÃ¼ck
         return FALSE;
     }}
 
 # EQUALP-Hash-Code einer reellen Zahl:
-# Mischung aus Exponent, Länge, erste 32 Bit,
+# Mischung aus Exponent, LÃ¤nge, erste 32 Bit,
 # aber so gemacht, dass (hashcode (rational x)) = (hashcode x)
 # und (hashcode 0.0) = 0 (wichtig wegen "complex canonicalization").
   global uint32 hashcode4_real (object obj);
@@ -863,7 +863,7 @@
           var uintC len;
           var uint32 msd2;
           I_to_NDS_nocopy(obj,MSDptr=,len=,);
-          # Nicht alle führenden intDsize+1 Bits sind gleich.
+          # Nicht alle fÃ¼hrenden intDsize+1 Bits sind gleich.
           if (len >= 64/intDsize)
             { msd = get_32_Dptr(&MSDptr[0]);
               msd2 = get_32_Dptr(&MSDptr[32/intDsize]);
@@ -896,12 +896,12 @@
             else
             { sign = 0; }
           exp = (uintL)len * intDsize;
-          # Nicht alle führenden intDsize+1 Bits sind =0.
-          # Wegen intDsize<=32: Nicht alle führenden 33 Bits sind =0.
+          # Nicht alle fÃ¼hrenden intDsize+1 Bits sind =0.
+          # Wegen intDsize<=32: Nicht alle fÃ¼hrenden 33 Bits sind =0.
           if (msd==0)
             { msd = msd2; msd2 = 0; exp -= 32; }
-          # Nicht alle führenden 32 Bits sind =0.
-          # Führendes Bit auf 1 normalisieren:
+          # Nicht alle fÃ¼hrenden 32 Bits sind =0.
+          # FÃ¼hrendes Bit auf 1 normalisieren:
             else
             { var uintL s;
               integerlength32(msd, s = 32 - );
@@ -937,16 +937,16 @@
                    }
                    );
         }
-      RESTORE_NUM_STACK # num_stack zurück
+      RESTORE_NUM_STACK # num_stack zurÃ¼ck
       return hashcode4_(msd,exp,sign);
       zero:
-        RESTORE_NUM_STACK # num_stack zurück
+        RESTORE_NUM_STACK # num_stack zurÃ¼ck
         return 0;
     }}
   global uint32 hashcode4_uint32(x)
     var uint32 x;
     { if (x == 0) return 0;
-      # Führendes Bit auf 1 normalisieren:
+      # FÃ¼hrendes Bit auf 1 normalisieren:
      {var uintL exp;
       integerlength32(x, exp = );
       {var uint32 msd = x << (32-exp);
@@ -1059,15 +1059,15 @@
 # can trigger GC
   local object R_I_expt_R (object x, object y);
   # Methode:
-  # Für y>0:
+  # FÃ¼r y>0:
   #   a:=x, b:=y.
   #   Solange b gerade, setze a:=a*a, b:=b/2. [a^b bleibt invariant, = x^y.]
   #   c:=a.
   #   Solange b:=floor(b/2) >0 ist,
   #     setze a:=a*a, und falls b ungerade, setze c:=a*c.
   #   Ergebnis c.
-  # Für y=0: Ergebnis 1.
-  # Für y<0: (/ (expt x (- y))).
+  # FÃ¼r y=0: Ergebnis 1.
+  # FÃ¼r y<0: (/ (expt x (- y))).
   local object R_I_expt_R(x,y)
     var object x;
     var object y;
@@ -1076,7 +1076,7 @@
      {var boolean y_negative = FALSE;
       if (R_minusp(y)) { y = I_minus_I(y); y_negative = TRUE; } # Betrag von y nehmen
       # Nun ist y>0.
-      if (R_rationalp(x)) # x rational (Abfrage nicht GC-gefährdet!) ?
+      if (R_rationalp(x)) # x rational (Abfrage nicht GC-gefÃ¤hrdet!) ?
         { x = RA_I_expt_RA(popSTACK(),y); } # ja -> schnellere Routine
         else
         { pushSTACK(y);
@@ -1210,7 +1210,7 @@
        # Ergebnis ist (s*p[i])/q[i]:
        if (R_minusp(STACK_(6+2))) { p = I_minus_I(p); } # bei s<0: (- p[i]) statt p[i]
       {var object q = STACK_(0+2);
-       skipSTACK(9+2); # Stack aufräumen
+       skipSTACK(9+2); # Stack aufrÃ¤umen
        return I_I_to_RA(p,q); # (/ +-p[i] q[i]) bilden
     }}}
 

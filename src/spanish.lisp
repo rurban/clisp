@@ -3,12 +3,12 @@
 
 (in-package "LISP")
 
-(export 'ESPAﾑOL)
+(export 'ESPAﾃ前L)
 
-(deflanguage ESPAﾑOL)
+(deflanguage ESPAﾃ前L)
 
 (in-package "SYSTEM")
 
-(deflocalized y-or-n ESPAﾑOL '((#\N) . (#\S #\Y)))
-(deflocalized yes-or-no ESPAﾑOL '(("no") . ("si")))
+(deflocalized y-or-n ESPAﾃ前L '((#\N) . (#\S #\Y)))
+(deflocalized yes-or-no ESPAﾃ前L '(("no") . ("si")))
 

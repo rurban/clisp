@@ -1,7 +1,7 @@
-; FORMAT - und was dazugehört.
+; FORMAT - und was dazugehÃ¶rt.
 ; Bruno Haible 22.06.1988
 ; CLISP-Version 16.08.1988, 03.09.1988, 04.08.1989
-; Groß umgearbeitet von Bruno Haible am 14.02.1990-15.02.1990
+; GroÃŸ umgearbeitet von Bruno Haible am 14.02.1990-15.02.1990
 ; Weiter umgearbeitet und FORMATTER geschrieben am 9.4.1995-11.4.1995
 
 ; FORMAT is a mechanism for producing string output conveniently by, basically,
@@ -33,13 +33,13 @@
   (clause-chain nil)
 )
 #+CLISP (remprop 'control-string-directive 'sys::defstruct-description)
-; Erläuterung:
+; ErlÃ¤uterung:
 ; type=0 : Direktive ~<Newline>, nichts auszugeben.
 ;          Weitere Komponenten bedeutungslos
 ; type=1 : String auszugeben,
 ;          von *FORMAT-CS* die Portion :START cs-index :END data.
 ;          Weitere Komponenten bedeutungslos
-; type=2 : Formatier-Direktive auszuführen.
+; type=2 : Formatier-Direktive auszufÃ¼hren.
 ;          data = Name der Direktive (Symbol),
 ;          colon-p gibt an, ob ein ':' da war,
 ;          atsign-p gibt an, ob ein '@' da war,
@@ -47,8 +47,8 @@
 ;          v-or-#-p gibt an, ob parm-list vor dem Aufruf noch zu behandeln ist.
 ;          clause-chain ist eine Verzeigerung: z.B. bei ~[...~;...~;...~]
 ;          von der ~[-Direktive auf die Liste ab der ersten ~;-Direktive,
-;          von da auf die Liste ab der nächsten ~;-Direktive usw.
-;          bis schließlich auf die Liste ab der ~]-Direktive.
+;          von da auf die Liste ab der nÃ¤chsten ~;-Direktive usw.
+;          bis schlieÃŸlich auf die Liste ab der ~]-Direktive.
 
 ; Zeigt an, ob ein Character ein Whitespace-Character ist.
 (defun whitespacep (char)
@@ -59,17 +59,17 @@
 ; parst einen Kontrollstring (genauer: (subseq control-string startindex))
 ; und legt die sich ergebende Control-String-Directive-Liste in (cdr csdl) ab.
 ; Das Parsen muss mit der Direktive stop-at enden (ein Character, oder NIL
-; für Stringende).
+; fÃ¼r Stringende).
 ; Falls stop-at /= NIL, ist in (csd-clause-chain (car csdl)) ein Pointer auf
-; die Teilliste ab dem nächsten Separator einzutragen. Diese Pointer bilden
+; die Teilliste ab dem nÃ¤chsten Separator einzutragen. Diese Pointer bilden
 ; eine einfach verkettete Liste innerhalb csdl: von einem Separator zum
-; nächsten, zum Schluss zum Ende der Clause.
+; nÃ¤chsten, zum Schluss zum Ende der Clause.
 (defun format-parse-cs (control-string startindex csdl stop-at)
   (declare (fixnum startindex))
   (macrolet ((errorstring ()
                (ENGLISH "The control string terminates within a directive.")
             ))
-    (prog* ((index startindex) ; cs-index des nächsten Zeichens
+    (prog* ((index startindex) ; cs-index des nÃ¤chsten Zeichens
             ch ; current character
             intparam ; Integer-Parameter
             newcsd ; aktuelle CSD
@@ -83,7 +83,7 @@
           )
           (setq ch (schar control-string index))
           (unless (eql ch #\~)
-            ; eventuell noch Stringstück zu einer eingenen Direktive machen
+            ; eventuell noch StringstÃ¼ck zu einer eingenen Direktive machen
             (setq csdl (setf (cdr csdl) (list (setq newcsd (make-csd)))))
             (setf (csd-type     newcsd) 1)
             (setf (csd-cs-index newcsd) index)
@@ -290,7 +290,7 @@
                )
                (progn
                  (when (csd-atsign-p newcsd)
-                   ; ~@<newline> -> Stringstück mit Newline zum Ausgeben
+                   ; ~@<newline> -> StringstÃ¼ck mit Newline zum Ausgeben
                    (setf (csd-type newcsd) 1)
                    (setf (csd-cs-index newcsd) (1- index))
                    (setf (csd-data newcsd) index)
@@ -422,7 +422,7 @@
 
 ;-------------------------------------------------------------------------------
 
-; (next-arg) liefert (und verbraucht) das nächste Argument aus der Argument-
+; (next-arg) liefert (und verbraucht) das nÃ¤chste Argument aus der Argument-
 ; liste *FORMAT-NEXT-ARG*.
 (defun next-arg ()
   (if (atom *FORMAT-NEXT-ARG*)
@@ -466,7 +466,7 @@
 ) )
 
 ; liefert die korrekte Argumentliste einer CSD, evtl. mit eingesetzten
-; Parametern: V (als :NEXT-ARG) und # (als :ARG-COUNT) werden aufgelöst.
+; Parametern: V (als :NEXT-ARG) und # (als :ARG-COUNT) werden aufgelÃ¶st.
 (defun format-resolve-parms (csd)
   (let ((arglist (csd-parm-list csd)))
     (if (csd-v-or-#-p csd)
@@ -511,17 +511,17 @@
 ; Bewegt den Stand des "Pointers in die Argumentliste" in eine Richtung.
 (defun format-goto-new-arg (backwardp index)
   (if backwardp
-    ; rückwärts
+    ; rÃ¼ckwÃ¤rts
     (setq *FORMAT-NEXT-ARG*
       (nthcdr
         (max (- (list-length *FORMAT-ARG-LIST*) (list-length *FORMAT-NEXT-ARG*) index) 0)
         *FORMAT-ARG-LIST*
     ) )
-    ; vorwärts ist einfacher:
+    ; vorwÃ¤rts ist einfacher:
     (setq *FORMAT-NEXT-ARG* (nthcdr index *FORMAT-NEXT-ARG*))
 ) )
 
-; gibt arg als römische Zahl auf stream aus, z.B. 4 als IIII.
+; gibt arg als rÃ¶mische Zahl auf stream aus, z.B. 4 als IIII.
 (defun format-old-roman (arg stream)
   (unless (and (integerp arg) (<= 1 arg 4999))
     (format-error *FORMAT-CS* nil
@@ -540,7 +540,7 @@
       ((zerop value))
 ) )
 
-; gibt arg als römische Zahl auf stream aus, z.B. 4 als IV.
+; gibt arg als rÃ¶mische Zahl auf stream aus, z.B. 4 als IV.
 (defun format-new-roman (arg stream)
   (unless (and (integerp arg) (<= 1 arg 3999))
     (format-error *FORMAT-CS* nil
@@ -605,7 +605,7 @@
     (progn
       (when (minusp arg) (write-string "minus " stream) (setq arg (- arg)))
       (labels
-        ((blocks1000 (illions-list arg) ; Zerlegung in 1000er-Blöcke
+        ((blocks1000 (illions-list arg) ; Zerlegung in 1000er-BlÃ¶cke
            (when (null illions-list)
              (format-error *FORMAT-CS* nil
                (ENGLISH "The argument for the ~~R directive is too large.")
@@ -633,7 +633,7 @@
      "fifteenth" "sixteenth" "seventeenth" "eighteenth" "nineteenth"
 )   )
 
-; (format-ordinal arg stream) gibt eine ganze Zahl arg als Abzählnummer im
+; (format-ordinal arg stream) gibt eine ganze Zahl arg als AbzÃ¤hlnummer im
 ; Klartext auf englisch auf den stream aus.
 (defun format-ordinal (arg stream) ; arg Integer
   (if (zerop arg)
@@ -669,10 +669,10 @@
 )
 
 ; gibt auf den Stream stream aus:
-; den String str, eventuell aufgefüllt mit Padding characters padchar.
+; den String str, eventuell aufgefÃ¼llt mit Padding characters padchar.
 ; Und zwar so, dass die Breite mindestens mincol ist. Um das zu erreichen,
-; werden mindestens minpad Zeichen eingefügt, eventuelle weitere dann in
-; Blöcken à colinc Zeichen. Falls padleftflag, werden sie links eingefügt,
+; werden mindestens minpad Zeichen eingefÃ¼gt, eventuelle weitere dann in
+; BlÃ¶cken Ã  colinc Zeichen. Falls padleftflag, werden sie links eingefÃ¼gt,
 ; sonst rechts vom String.
 (defun format-padded-string
        (mincol colinc minpad padchar padleftflag str stream)
@@ -680,7 +680,7 @@
          (auxpad (if (< need mincol)
                    (* (ceiling (- mincol need) colinc) colinc)
                    0
-        ))       ) ; so viele Zeichen zusätzlich
+        ))       ) ; so viele Zeichen zusÃ¤tzlich
     (unless padleftflag (write-string str stream))
     (format-padding (+ minpad auxpad) padchar stream)
     (when padleftflag (write-string str stream))
@@ -689,7 +689,7 @@
 ; gibt den Integer arg auf den Stream aus:
 ; in Zahlenbasis base, mit Vorzeichen (+ nur falls >=0 und positive-sign-flag),
 ; bei commaflag alle drei Stellen unterbrochen durch ein Zeichen commachar.
-; Das Ganze links aufgefüllt mit padchar's, so dass die Gesamtbreite mindestens
+; Das Ganze links aufgefÃ¼llt mit padchar's, so dass die Gesamtbreite mindestens
 ; mincol ist.
 (defun format-integer (base
                        mincol
@@ -720,7 +720,7 @@
              (newstring (make-string newstring-length)) )
         ; Erst Vorzeichen +:
         (when positive-sign (setf (schar newstring 0) #\+))
-        ; Dann oldstring in newstring übertragen, dabei Kommata überspringen:
+        ; Dann oldstring in newstring Ã¼bertragen, dabei Kommata Ã¼berspringen:
         (let ((oldpos oldstring-length) (newpos newstring-length))
           (loop
             (decf oldpos)
@@ -729,7 +729,7 @@
             (setf (schar newstring newpos) (schar oldstring oldpos))
             (when (and (plusp number-of-commas)
                        (zerop (mod (- oldstring-length oldpos) commainterval))
-                  ) ; noch ein Komma einzufügen?
+                  ) ; noch ein Komma einzufÃ¼gen?
               (decf newpos)
               (setf (schar newstring newpos) commachar)
               (decf number-of-commas)
@@ -747,7 +747,7 @@
     (princ arg stream)
 ) )
 
-; Unterprogramm für ~D, ~B, ~O, ~X:
+; Unterprogramm fÃ¼r ~D, ~B, ~O, ~X:
 (defun format-base (base stream colon-modifier atsign-modifier
                     mincol padchar commachar commainterval
                     arg)
@@ -776,7 +776,7 @@
     (declare (ignore significand))
     (if (zerop arg)
       (values null 0)
-      (let* ((expon10a (truncate (* expon lg2))) ; nicht round, um Überlauf zu vermeiden
+      (let* ((expon10a (truncate (* expon lg2))) ; nicht round, um Ãœberlauf zu vermeiden
              (signif10a (/ arg (expt zehn expon10a))))
         (do ((zehnpot zehn (* zehnpot zehn))
              (signif10b signif10a (/ signif10a zehnpot))
@@ -815,7 +815,7 @@
 ; (format-float-to-string arg width d k dmin)
 ; ergibt einen String zum Floating-point arg:
 ; er hat den Wert von (* (abs arg) (expt 10 k)), dabei mind. d Nachkommastellen
-; und höchstens die Länge width (width=nil -> keine Einschränkung).
+; und hÃ¶chstens die LÃ¤nge width (width=nil -> keine EinschrÃ¤nkung).
 ; Trotzdem wird nicht auf weniger als dmin Stellen gerundet.
 (let ((digit-string
         (make-array 20 :element-type 'character :adjustable t :fill-pointer t)
@@ -841,12 +841,12 @@
 ; expon : Integer
 ; mantprec : Anzahl der echten Mantissenbits von significand
 ; (also 2^mantprec <= significand < 2^(mantprec+1))
-; width : Anzahl Stellen, die die Zahl (inklusive Punkt) nicht überschreiten
+; width : Anzahl Stellen, die die Zahl (inklusive Punkt) nicht Ã¼berschreiten
 ;         soll, oder NIL
 ; d : Mindestanzahl Nachkommastellen oder NIL
 ; k : Skalierungsfaktor (siehe CLTL S.394)
 ; dmin : Mindestanzahl von Dezimaltellen, die (trotz Angabe von width oder d)
-;        nicht gerundet werden dürfen.
+;        nicht gerundet werden dÃ¼rfen.
 ;        (Nur interessant, falls d <= dmin <= (precision der Zahl).)
 ; wandelt die Zahl significand*2^expon um in einen Dezimalstring um.
 ; Es ist kein Exponent dabei.
@@ -858,16 +858,16 @@
                ; einer Erniedrigung von numerator um abrund-einh.
              (aufrund-einh 1) ; Aufrundungseinheit:
                ; Aufrunden um 1 in der letzten aufrundbaren Stelle entspricht
-               ; einer Erhöhung von numerator um aufrund-einh.
+               ; einer ErhÃ¶hung von numerator um aufrund-einh.
              ; Stellen: 0 = 1. Stelle vor dem Punkt, -1 = 1. Stelle nach dem Punkt.
-             (stelle 0) ; Stelle der als nächstes auszugebenden Ziffer
+             (stelle 0) ; Stelle der als nÃ¤chstes auszugebenden Ziffer
              (digit-count 0) ; Zahl der bisher in digit-string ausgegebenen
                              ; Ziffern (exklusive den Punkt)
-             (point-pos 0) ; Punkt-Position = Zahl führender Stellen
+             (point-pos 0) ; Punkt-Position = Zahl fÃ¼hrender Stellen
                            ; = Zahl der Ziffern vor dem Punkt
              (letzte-stelle nil) ; NIL oder (falls d oder width angegeben waren)
                            ; Stelle der letzten signifikanten Ziffer
-             (halbzahlig nil) ; zeigt an, ob hinten genau ein 0.500000 wegfällt
+             (halbzahlig nil) ; zeigt an, ob hinten genau ein 0.500000 wegfÃ¤llt
              digit ; die laufende Ziffer, >=0, <10
              (abrunden nil) ; T falls letzte Ziffer abzurunden ist
              (aufrunden nil) ; T falls letzte Ziffer aufzurunden ist
@@ -884,18 +884,18 @@
         ; Zahl = numerator/denominator
         (when (= significand (ash 1 mantprec))
           ; Ist der Significand=2^mantprec, so ist abrund-einh zu halbieren.
-          ; Man kann stattdessen auch alle 3 anderen Grössen verdoppeln:
+          ; Man kann stattdessen auch alle 3 anderen GrÃ¶ssen verdoppeln:
           (setq aufrund-einh (ash aufrund-einh 1))
           (setq numerator (ash numerator 1))
           (setq denominator (ash denominator 1))
         )
-        ; Defaultmäßig: Auf-/Abrunde-Einheit = eine Einheit in der letzten
-        ; BINÄRstelle.
+        ; DefaultmÃ¤ÃŸig: Auf-/Abrunde-Einheit = eine Einheit in der letzten
+        ; BINÃ„Rstelle.
         ; Zahl = numerator/denominator
         ; Skalierungsfaktor k in die Zahl mit einbeziehen (vgl. CLTL S.394)
         ; k<0 -> Mantisse durch 10^(abs k) dividieren
         ; k>0 -> Mantisse mit 10^k multiplizieren
-        ; Dabei aufrund-einh, abrund-einh im Verhältnis zu numerator beibehalten.
+        ; Dabei aufrund-einh, abrund-einh im VerhÃ¤ltnis zu numerator beibehalten.
         (when k
           (if (< k 0)
             (let ((skal-faktor (expt 10 (- k))))
@@ -908,7 +908,7 @@
             )
         ) )
         ; auf >= 1/10 adjustieren:
-        ; (jeweils numerator mit 10 multiplizieren, eine führende 0 mehr vorsehen)
+        ; (jeweils numerator mit 10 multiplizieren, eine fÃ¼hrende 0 mehr vorsehen)
         (do ()
             ((>= (* numerator 10) denominator))
           (setq stelle (1- stelle))
@@ -916,10 +916,10 @@
           (setq abrund-einh (* abrund-einh 10))
           (setq aufrund-einh (* aufrund-einh 10))
         )
-        ; stelle = Stelle der letzten führenden 0
+        ; stelle = Stelle der letzten fÃ¼hrenden 0
         ;        = 1 + Stelle der 1. signifikanten Ziffer
         ;        oder =0, falls k>=0
-        ; Ausführung der Rundung:
+        ; AusfÃ¼hrung der Rundung:
         (loop
           ; Solange das Ergebnis auch nach Aufrundung >= 1 bliebe,
           ; eine Vorkommastelle mehr einplanen:
@@ -941,14 +941,14 @@
             ; Falls nicht d, nur width angegeben:
             (when width
               (if (< stelle 0)
-                ; Es kommen führende Nullen nach dem Punkt -> d:=(1- width)
+                ; Es kommen fÃ¼hrende Nullen nach dem Punkt -> d:=(1- width)
                 (setq letzte-stelle (- 1 width))
-                ; Es kommen keine führenden Nullen nach dem Punkt ->
+                ; Es kommen keine fÃ¼hrenden Nullen nach dem Punkt ->
                 ; Es wird stelle Vorkommaziffern geben, d:=(- (1- width) stelle)
                 (setq letzte-stelle (1+ (- stelle width)))
               )
               ; also letzte-stelle = (- (- (1- width) (max stelle 0)))
-              ; wieder dmin berücksichtigen:
+              ; wieder dmin berÃ¼cksichtigen:
               (when (and dmin (> letzte-stelle (- dmin)))
                 (setq letzte-stelle (- dmin))
           ) ) )
@@ -965,9 +965,9 @@
                   (setq dezimal-einh (ceiling dezimal-einh 10))
                 )
               )
-              ; dezimal-einh = Um wieviel numerator erhöht bzw. erniedigt werden
-              ; müsste, damit sich die Dezimaldarstellung um genau 1 an der
-              ; Position letzte-stelle verändert.
+              ; dezimal-einh = Um wieviel numerator erhÃ¶ht bzw. erniedigt werden
+              ; mÃ¼sste, damit sich die Dezimaldarstellung um genau 1 an der
+              ; Position letzte-stelle verÃ¤ndert.
               (setq abrund-einh (max dezimal-einh abrund-einh))
               (setq aufrund-einh (max dezimal-einh aufrund-einh))
               ; Jetzt darf auch um eine (halbe) DEZIMAL-Einheit gerundet werden.
@@ -977,7 +977,7 @@
             (return)
         ) )
         ; stelle = Position der ersten signifikanten Stelle + 1
-        ; Führenden Punkt und nachfolgende Nullen ausgeben:
+        ; FÃ¼hrenden Punkt und nachfolgende Nullen ausgeben:
         (when (< stelle 0)
           (setq point-pos digit-count)
           (vector-push-extend #\. digit-string)
@@ -1056,7 +1056,7 @@
 ; gibt die Floating-Point-Zahl arg in Festkommadarstellung auf stream aus.
 (defun format-float-for-f (w d k overflowchar padchar plus-sign-flag arg stream)
   (let ((width (if w (if (or plus-sign-flag (minusp arg)) (1- w) w) nil)))
-    ; width = zur Verfügung stehende Zeichen ohne Vorzeichen
+    ; width = zur VerfÃ¼gung stehende Zeichen ohne Vorzeichen
     (multiple-value-bind (digits digitslength leadingpoint trailingpoint)
         (format-float-to-string arg width d k nil)
       (when (eql d 0) (setq trailingpoint nil)) ; d=0 -> keine Zusatz-Null hinten
@@ -1069,7 +1069,7 @@
           (if (> width 0) (setq width (1- width)) (setq trailingpoint nil))
         )
       )
-      ; Es bleiben noch width Zeichen übrig.
+      ; Es bleiben noch width Zeichen Ã¼brig.
       (if (and overflowchar w (minusp width))
         (format-padding w overflowchar stream) ; Zu wenig Platz -> overflow
         (progn
@@ -1098,11 +1098,11 @@
 ;   (Der Defaultwert in FORMAT-EXPONENTIAL-FLOAT ist k=1.)
 ; Vor der Mantisse das Vorzeichen (ein + nur falls arg>=0 und plus-sign-flag).
 ; Dann der Exponent, eingeleitet durch exponentchar, dann Vorzeichen des
-; Exponenten (stets + oder -), dann e Stellen für den Exponenten.
-; Dann wird das Ganze mit padchars auf w Zeichen Breite aufgefüllt.
-; Sollte das (auch nach evtl. Unterdrückung einer führenden Null) mehr als
+; Exponenten (stets + oder -), dann e Stellen fÃ¼r den Exponenten.
+; Dann wird das Ganze mit padchars auf w Zeichen Breite aufgefÃ¼llt.
+; Sollte das (auch nach evtl. UnterdrÃ¼ckung einer fÃ¼hrenden Null) mehr als
 ; w Zeichen ergeben, so werden statt dessen w overflowchars ausgegeben, oder
-; (falls overflowchar = nil) die Zahl mit so vielen Stellen wie nötig
+; (falls overflowchar = nil) die Zahl mit so vielen Stellen wie nÃ¶tig
 ; ausgegeben.
 (defun format-float-for-e (w d e k
        overflowchar padchar exponentchar plus-sign-flag arg stream)
@@ -1110,15 +1110,15 @@
     (let* ((exponent (if (zerop arg) 0 (- oldexponent k))) ; auszugebender Exponent
            (expdigits (write-to-string (abs exponent) :base 10. :radix nil :readably nil))
            (expdigitsneed (if e (max (length expdigits) e) (length expdigits)))
-           ; expdigitsneed = Anzahl der Stellen, die für die Ziffern des
-           ; Exponenten nötig sind.
+           ; expdigitsneed = Anzahl der Stellen, die fÃ¼r die Ziffern des
+           ; Exponenten nÃ¶tig sind.
            (mantd (if d (if (> k 0) (1+ (- d k)) d) nil))
            ; mantd = Anzahl der Mantissenstellen hinter dem Punkt
            (dmin (if (minusp k) (- 1 k) nil)) ; nachher: fordere, dass
            ; nicht in die ersten (+ 1 (abs k)) Stellen hineingerundet wird.
            (mantwidth (if w (- w 2 expdigitsneed) nil))
-           ; mantwidth = Anzahl der für die Mantisse (inkl. Vorzeichen, Punkt)
-           ; zur Verfügung stehenden Zeichen (oder nil)
+           ; mantwidth = Anzahl der fÃ¼r die Mantisse (inkl. Vorzeichen, Punkt)
+           ; zur VerfÃ¼gung stehenden Zeichen (oder nil)
           )
       (declare (simple-string expdigits) (fixnum exponent expdigitsneed))
       (if (and overflowchar w e (> expdigitsneed e))
@@ -1128,8 +1128,8 @@
           (if w
             (if (or plus-sign-flag (minusp arg)) (setq mantwidth (1- mantwidth)))
           )
-          ; mantwidth = Anzahl der für die Mantisse (ohne Vorzeichen,
-          ; inklusive Punkt) zur Verfügung stehenden Zeichen (oder nil)
+          ; mantwidth = Anzahl der fÃ¼r die Mantisse (ohne Vorzeichen,
+          ; inklusive Punkt) zur VerfÃ¼gung stehenden Zeichen (oder nil)
           (multiple-value-bind (mantdigits mantdigitslength
                                 leadingpoint trailingpoint)
               (format-float-to-string mantissa mantwidth mantd k dmin)
@@ -1146,7 +1146,7 @@
                   (setq leadingpoint nil)
               ) )
             )
-            ; Es bleiben noch mantwidth Zeichen übrig.
+            ; Es bleiben noch mantwidth Zeichen Ã¼brig.
             (if (and overflowchar w (minusp mantwidth))
               (format-padding w overflowchar stream) ; Zu wenig Platz -> overflow
               (progn
@@ -1183,7 +1183,7 @@
     ) ) )
 ) )
 
-; Rückt *FORMAT-CSDL* vor bis zum Ende des momentanen ~[ bzw. ~{ bzw. ~< .
+; RÃ¼ckt *FORMAT-CSDL* vor bis zum Ende des momentanen ~[ bzw. ~{ bzw. ~< .
 (defun format-skip-to-end ()
   (do ()
       ((null (csd-clause-chain (car *FORMAT-CSDL*))))
@@ -1195,13 +1195,13 @@
 ; piecelist wieviele Leerstellen zu setzen sind.
 ; Zwischen die einzelnen Strings aus piecelist (auch vorher, falls justify-left;
 ; auch nachher, falls justify-right) werden mindestens minpad padding-characters
-; eingefügt. Dann werden nochmals weitere padding-characters dazugenommen,
+; eingefÃ¼gt. Dann werden nochmals weitere padding-characters dazugenommen,
 ; damit die Gesamtbreite >= mincol wird. Ist die Breite > mincol, werden weitere
 ; padding-characters dazugenommen, so dass die Breite von der Form
 ; mincol + k * colinc wird. Diese padding-characters werden auf die einzelnen
-; Stellen gleichmäßig verteilt.
+; Stellen gleichmÃ¤ÃŸig verteilt.
 ; 1. Wert: Ein Vektor, der zu jeder Stelle angibt, wieviele padding-characters
-; einzufügen sind (NIL = keine).
+; einzufÃ¼gen sind (NIL = keine).
 ; Erstes Element: ganz links, zweites: nach 1. String, ..., letztes: rechts.
 ; 2. Wert: Die sich ergebende Gesamtbreite.
 (defun format-justified-segments
@@ -1216,7 +1216,7 @@
     )
     (let* ((new-justify-left
              (or justify-left (and (= piecesnumber 1) (not justify-right))))
-           (padblocks (+ piecesnumber -1       ; Anzahl der Einfüge-Stellen
+           (padblocks (+ piecesnumber -1       ; Anzahl der EinfÃ¼ge-Stellen
                          (if new-justify-left 1 0) (if justify-right 1 0)
            )          )
            (width-need (+ pieceswidth (* padblocks minpad)))
@@ -1658,7 +1658,7 @@
         )
         (format-interpret stream 'FORMAT-CONDITIONAL-END)
   ) ) )
-  (format-skip-to-end) ; Weiterrücken bis ans Ende der ~[...~]-Direktive
+  (format-skip-to-end) ; WeiterrÃ¼cken bis ans Ende der ~[...~]-Direktive
 )
 (defun format-conditional-error ()
   (format-error *FORMAT-CS* nil
@@ -1670,7 +1670,7 @@
                          &optional (prefix nil))
   (let* ((total-csdl *FORMAT-CSDL*)
          (max-iteration-count prefix))
-    (format-skip-to-end) ; Weiterrücken bis ans Ende der ~{...~}-Direktive
+    (format-skip-to-end) ; WeiterrÃ¼cken bis ans Ende der ~{...~}-Direktive
     (let* ((min-1-iteration (csd-colon-p (car *FORMAT-CSDL*)))
            (inner-cs (if (eq (cdr total-csdl) *FORMAT-CSDL*)
                        (next-arg)
@@ -1710,7 +1710,7 @@
             (let* ((*FORMAT-ARG-LIST*
                      (if atsign-modifier (next-arg) (pop arg-list-rest))
                    )
-                   (*FORMAT-NEXT-ARGLIST* ; für ~:^
+                   (*FORMAT-NEXT-ARGLIST* ; fÃ¼r ~:^
                      (if atsign-modifier *FORMAT-NEXT-ARG* arg-list-rest)
                    )
                    (*FORMAT-NEXT-ARG* *FORMAT-ARG-LIST*)
@@ -1723,7 +1723,7 @@
             (if atsign-modifier
               (let* (; CLtL2 S. 598: "When within a ~{ construct, the "goto" is
                      ; relative to the list of arguments being processed by the
-                     ; iteration." Soll das heißen, dass man bei ~@{ zu Beginn
+                     ; iteration." Soll das heiÃŸen, dass man bei ~@{ zu Beginn
                      ; jeder Iteration *FORMAT-ARG-LIST* neu binden muss ??
                      ; (*FORMAT-ARG-LIST* *FORMAT-NEXT-ARG*) ??
                      (*FORMAT-CS* inner-cs)
@@ -1873,17 +1873,17 @@
 )
 
 
-; Block für ~^
+; Block fÃ¼r ~^
 (defvar *format-terminate*)
-; Block für ~:^
+; Block fÃ¼r ~:^
 (defvar *format-terminate-all*)
 
 ; Der Block wird nur bei Bedarf bereitgestellt.
-; Um unnötige UNWIND-PROTECTs zu vermeiden, wird eine Liste der anhängigen
-; UNWIND-PROTECTs geführt. Jeder Blockname (ein Gensym) enthält einen Verweis
+; Um unnÃ¶tige UNWIND-PROTECTs zu vermeiden, wird eine Liste der anhÃ¤ngigen
+; UNWIND-PROTECTs gefÃ¼hrt. Jeder Blockname (ein Gensym) enthÃ¤lt einen Verweis
 ; auf diese Liste zum Zeitpunkt seiner Bildung.
 
-; Liste der anhängigen UNWIND-PROTECTs
+; Liste der anhÃ¤ngigen UNWIND-PROTECTs
 (defvar *format-uwps*)
 
 (defun formatter-block (prefix)
@@ -1895,7 +1895,7 @@
 (flet ((mark-used (blockname)
          ; Markiere den Block, so dass er nicht wegoptimiert wird.
          (setf (get blockname 'used) t)
-         ; Markiere alle übersprungenen UNWIND-PROTECTs, so dass sie nicht
+         ; Markiere alle Ã¼bersprungenen UNWIND-PROTECTs, so dass sie nicht
          ; wegoptimiert werden.
          (do ((L1 *format-uwps* (cdr L1))
               (L2 (get blockname 'uwps)))
@@ -1949,29 +1949,29 @@
 ; Ihr Name.
 (defvar *args*)
 
-; Name der Argumentliste der umschließenden ~:{ Iteration.
+; Name der Argumentliste der umschlieÃŸenden ~:{ Iteration.
 (defvar *iterargs*)
 
 
 ; Zugriff auf die normale Argumentliste:
 ; Normalfall:
 ;   Argumentliste &REST ARGS,
-;   Zugriff auf das nächste Element ist (POP ARGS),
+;   Zugriff auf das nÃ¤chste Element ist (POP ARGS),
 ;   ~# ist (LENGTH ARGS),
-;   Gesamtliste für ~:* ist WHOLE-ARGS.
-; Optimiert, falls kein (LENGTH ARGS) und kein WHOLE-ARGS nötig ist:
+;   Gesamtliste fÃ¼r ~:* ist WHOLE-ARGS.
+; Optimiert, falls kein (LENGTH ARGS) und kein WHOLE-ARGS nÃ¶tig ist:
 ;   Argumentliste #:ARG1 #:ARG2 ... &REST ARGS
-;   Zugriff auf das nächste Element ist #:ARGi oder (POP ARGS).
+;   Zugriff auf das nÃ¤chste Element ist #:ARGi oder (POP ARGS).
 
 ; Flag, das anzeigt, ob man sich noch in der linearen Abarbeitungsphase der
 ; Argumente befindet (jedes genau einmal, bekannte Position).
 (defvar *formatter-linear-args*)
 
-; Anzahl der Argumente, die bisher zur linearen Abarbeitungsphase gehören.
+; Anzahl der Argumente, die bisher zur linearen Abarbeitungsphase gehÃ¶ren.
 ; Wichtig: Diese kann hinterher erniedrigt werden!!
 (defvar *formatter-linear-argcount*)
 
-; Position in der Argumentliste während der linearen Abarbeitungsphase.
+; Position in der Argumentliste wÃ¤hrend der linearen Abarbeitungsphase.
 ; Stets <= *formatter-linear-argcount*.
 (defvar *formatter-linear-position*)
 
@@ -2064,13 +2064,13 @@
     (setq *formatter-linear-args* nil)
 ) )
 
-; Holt eine Form, die die Länge der Argumentliste liefert.
+; Holt eine Form, die die LÃ¤nge der Argumentliste liefert.
 (defun formatter-length-args ()
   (formatter-stop-linear)
   `(LENGTH ,*args*)
 )
 
-; Holt eine Form für das nächste Argument.
+; Holt eine Form fÃ¼r das nÃ¤chste Argument.
 ; Diese Form muss nachher mit SUBST ersetzt werden.
 (defun formatter-next-arg ()
   (if *formatter-linear-args*
@@ -2091,7 +2091,7 @@
   `(WHOLE-ARGS ,n)
 )
 
-; Holt eine Formenliste zum Überspringen (vor/zurück) von Argumenten.
+; Holt eine Formenliste zum Ãœberspringen (vor/zurÃ¼ck) von Argumenten.
 (defun formatter-goto-arg (absolute-p backward-p n)
   (if absolute-p
     ; im einfachsten Fall: (setq args (nthcdr n whole-args))
@@ -2155,7 +2155,7 @@
 
 
 ; Haupt-Compilier-Funktion. Liefert eine Formenliste.
-; Fluid übergeben: *format-cs* und *format-csdl* (wird weitergerückt).
+; Fluid Ã¼bergeben: *format-cs* und *format-csdl* (wird weitergerÃ¼ckt).
 (defun formatter-main-1 (&optional (endmarker nil))
   (let ((forms '()))
     (loop
@@ -2497,7 +2497,7 @@
                                       (let ((*iterargs* nil))
                                         ; CLtL2 S. 598: "When within a ~{ construct, the "goto" is
                                         ; relative to the list of arguments being processed by the
-                                        ; iteration." Soll das heißen, dass man bei ~@{ zu Beginn
+                                        ; iteration." Soll das heiÃŸen, dass man bei ~@{ zu Beginn
                                         ; jeder Iteration WHOLE-ARGS neu an ARGS binden muss ??
                                         ; (if atsign-p
                                         ;   (progn (formatter-stop-linear)

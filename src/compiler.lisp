@@ -1,42 +1,42 @@
 ; CLISP - Compiler
 ; Bruno Haible 20.-30.09.1988, 05.-07.10.1988, 10.10.1988, 16.12.1988
-;   Version für KCL 27.06.1989, 05.-07.07.1989
+;   Version fÃ¼r KCL 27.06.1989, 05.-07.07.1989
 ;   c-VALUES erweitert am 14.07.1989
 ;   label-operand in assemble-LAP korrigiert am 14.07.1989
 ;   ANODE-Komponenten SOURCE, STACKZ eliminiert am 14.07.1989
-;     (konditionell von #+COMPILER-DEBUG abhängig)
-;   Peephole-Optimierung-Protokoll konditionell von #+PEEPHOLE-DEBUG abhängig
-;   Version für CLISP 28.07.1989-11.08.1989
+;     (konditionell von #+COMPILER-DEBUG abhÃ¤ngig)
+;   Peephole-Optimierung-Protokoll konditionell von #+PEEPHOLE-DEBUG abhÃ¤ngig
+;   Version fÃ¼r CLISP 28.07.1989-11.08.1989
 ;   Variablen-Optimierungen 10.03.1991
 ; Michael Stoll, September-Dezember 1991:
-;   - Bytecode überarbeitet
-;   - Code-Optimierung bzgl. Labels/Sprüngen verbessert
+;   - Bytecode Ã¼berarbeitet
+;   - Code-Optimierung bzgl. Labels/SprÃ¼ngen verbessert
 ;   - kleine Verbesserung bei c-plus/c-minus,
 ;     Compilation von CxxxR in Folge von (CAR) und (CDR)
 ;   - SUBR-Aufrufe ohne Argument-Check zur Laufzeit,
 ;     SUBRs als Konstanten (via #.#'name)
 ;   - Aufrufe lokaler Funktionen ohne Argument-Check zur Laufzeit
 ;   - Rekursive Aufrufe durch Unterprogrammaufruf JSR, bei Endrekursion
-;     JMPTAIL (entspricht PSETQ mit anschließendem Sprung)
+;     JMPTAIL (entspricht PSETQ mit anschlieÃŸendem Sprung)
 ;   - Verbesserung bei Aufruf einer Funktion mit Rest-Parametern via APPLY
-; Bruno Haible, Februar-März 1992:
+; Bruno Haible, Februar-MÃ¤rz 1992:
 ;   - detailliertere seclass, besseres PSETQ
 ;   - besseres Constant Folding
 ;   - Cross-Compilation
 ; Bruno Haible, 03.06.1992:
 ;   - Inline-Compilation von Aufrufen globaler Funktionen
 ; Bruno Haible, August 1993:
-;   - Unterstützung für CLOS: generische Funktionen %GENERIC-FUNCTION-LAMBDA,
+;   - UnterstÃ¼tzung fÃ¼r CLOS: generische Funktionen %GENERIC-FUNCTION-LAMBDA,
 ;     Optimierung unbenutzter Required-Parameter %OPTIMIZE-FUNCTION-LAMBDA
 ;   - GENERIC-FLET, GENERIC-LABELS
 ;   - Inline-Compilation von (APPLY (FUNCTION ...) ...)
 ; Bruno Haible, 09.06.1996:
-;   - Bytecode plattform-unabhängig
+;   - Bytecode plattform-unabhÃ¤ngig
 ; Bruno Haible, 04.12.1998:
 ;   - Optimierung generischer Funktionen durch RETGF
 ; Weitere Vorhaben:
-;   - Variablen-Environments so verändern, dass Aufruf von lokalen Funktionen
-;     mittels JSR/JMPTAIL möglich wird (d.h. nachträgliche Entscheidung, ob
+;   - Variablen-Environments so verÃ¤ndern, dass Aufruf von lokalen Funktionen
+;     mittels JSR/JMPTAIL mÃ¶glich wird (d.h. nachtrÃ¤gliche Entscheidung, ob
 ;     Aufruf durch CALLC oder JSR)
 ;   - evtl. bessere Optimierung durch Datenflussanalyse
 ;   - Inline-Compilation von Aufrufen lokaler Funktionen
@@ -57,7 +57,7 @@
 #-CROSS (in-package "COMPILER")
 #+CROSS (in-package "CROSS" :nicknames '("CLISP"))
 #-CLISP (defmacro ENGLISH (x) x)
-;; Konvention: Schreibe SYSTEM::PNAME für ein Symbol, das "zufällig" in
+;; Konvention: Schreibe SYSTEM::PNAME fÃ¼r ein Symbol, das "zufÃ¤llig" in
 ;; #<PACKAGE SYSTEM> sitzt, wir das Symbol aber nicht weiter benutzen.
 ;; Schreibe SYS::PNAME, wenn wir von dem Symbol irgendwelche Eigenschaften
 ;; voraussetzen. Schreibe COMPILER::PNAME, wenn der Compiler das Symbol
@@ -179,7 +179,7 @@
   (defun search-file (filename extensions
                       &aux (use-extensions (null (pathname-type filename))) )
     (when use-extensions
-      (setq extensions ; Case-Konversionen auf den Extensions durchführen
+      (setq extensions ; Case-Konversionen auf den Extensions durchfÃ¼hren
         (mapcar #'pathname-type extensions)
     ) )
     ; Defaults einmergen:
@@ -203,7 +203,7 @@
                     xpathnames
               ) ) )
               (when xpathnames
-                ; nach Datum sortiert, zurückgeben:
+                ; nach Datum sortiert, zurÃ¼ckgeben:
                 (dolist (xpathname xpathnames)
                   (setf (rest xpathname)
                         (apply #'encode-universal-time (third xpathname))
@@ -248,7 +248,7 @@
 (defconstant *keyword-package* (find-package "KEYWORD"))
 (defconstant *lisp-package* (find-package "LISP"))
 
-; Variablen für Top-Level-Aufruf:
+; Variablen fÃ¼r Top-Level-Aufruf:
 (defvar *compiling* nil) ; gibt an, ob gerade beim Compilieren
 ; (defvar *error-count*) ; Anzahl der aufgetretenen Errors
 ; (defvar *warning-count*) ; Anzahl der aufgetretenen Warnungen
@@ -315,19 +315,19 @@ The compiler's target is the virtual machine described in bytecode.html.
 1. Pass des Compilers:
 Macro-Expansion, Codegenerierung (symbolisch), Allokation von Variablen auf
 dem STACK oder in Closures, Optimierung auf LISP-Ebene.
-Danach steht für jede beteiligte Funktion das Stack-Layout fest.
+Danach steht fÃ¼r jede beteiligte Funktion das Stack-Layout fest.
 Die Information steckt in einem Netz von ANODEs.
 2. Pass des Compilers:
-Auflösung der Variablenbezüge, Optimierung auf Code-Ebene
+AuflÃ¶sung der VariablenbezÃ¼ge, Optimierung auf Code-Ebene
 (Peephole-Optimierung), Kreation compilierter funktionaler Objekte.
 3. Pass des Compilers:
-Auflösung von Bezügen zwischen den einzelnen funktionalen Objekten.
+AuflÃ¶sung von BezÃ¼gen zwischen den einzelnen funktionalen Objekten.
 
 |#
 
-; externe Repräsentation einer Closure:
+; externe ReprÃ¤sentation einer Closure:
 ; #Y(name
-;    #LängeY(Byte in Hex ... Byte in Hex)
+;    #LÃ¤ngeY(Byte in Hex ... Byte in Hex)
 ;    weitere Konstanten
 ;   )
 
@@ -421,7 +421,7 @@ Auflösung von Bezügen zwischen den einzelnen funktionalen Objekten.
      (GETVALUE N) (SETVALUE N) (BIND N) (UNBIND1 O) (UNBIND N) (PROGV O)
      ; (4) Stackoperationen
      (PUSH O) (POP O) (SKIP N) (SKIPI NNN) (SKIPSP NN)
-     ; (5) Programmfluss und Sprünge
+     ; (5) Programmfluss und SprÃ¼nge
      (SKIP&RET N) (SKIP&RETGF N)
      (JMP L) (JMPIF L) (JMPIFNOT L) (JMPIF1 L) (JMPIFNOT1 L)
      (JMPIFATOM L) (JMPIFCONSP L) (JMPIFEQ L) (JMPIFNOTEQ L)
@@ -543,7 +543,7 @@ Zwischensprache nach dem 1. Pass:
 (BIND const)                     bindet const (ein Symbol) dynamisch an A0.
                                  Undefinierte Werte.
 
-(UNBIND1)                        löst einen Bindungsframe auf
+(UNBIND1)                        lÃ¶st einen Bindungsframe auf
 
 (PROGV)                          bindet dynamisch die Symbole in der Liste
                                  (STACK)+ an die Werte in der Liste A0 und
@@ -556,18 +556,18 @@ Zwischensprache nach dem 1. Pass:
 
 (POP)                            A0 := (STACK)+, 1 Wert
 
-(UNWIND stackz1 stackz2 for-value) Führt ein Unwind binnen einer Funktion aus:
+(UNWIND stackz1 stackz2 for-value) FÃ¼hrt ein Unwind binnen einer Funktion aus:
                                  Bereinigt den Stack, um vom Stackzustand
                                  stackz1 zum Stackzustand stackz2 zu kommen.
-                                 Löst dazwischen liegende Frames auf. for-value
+                                 LÃ¶st dazwischen liegende Frames auf. for-value
                                  gibt an, ob dabei die Werte A0/... gerettet
-                                 werden müssen.
+                                 werden mÃ¼ssen.
 
 (UNWINDSP stackz1 stackz2)       modifiziert den SP, um vom Stackzustand
                                  stackz1 zum Stackzustand stackz2 zu kommen.
-                                 STACK und die Werte A0/... bleiben unverändert.
+                                 STACK und die Werte A0/... bleiben unverÃ¤ndert.
 
-5. Programmfluss und Sprünge:
+5. Programmfluss und SprÃ¼nge:
 
 (RET)                            beendet die Funktion mit den Werten A0/...
 
@@ -593,7 +593,7 @@ Zwischensprache nach dem 1. Pass:
 (JSR m label)                    ruft den Code ab label als Unterprogramm auf,
                                  mit m Argumenten auf dem Stack
 
-(BARRIER)                        wird nie erreicht, zählt als Wegsprung
+(BARRIER)                        wird nie erreicht, zÃ¤hlt als Wegsprung
 
 6. Environments und Closures:
 
@@ -609,7 +609,7 @@ Zwischensprache nach dem 1. Pass:
                                  Undefinierte Werte.
 
 (COPY-CLOSURE fnode n)           kopiert die Closure, die dem fnode entspricht
-                                 und ersetzt in der Kopie für i=0,...,n-1 (n>0)
+                                 und ersetzt in der Kopie fÃ¼r i=0,...,n-1 (n>0)
                                  die Komponente (CONST i) durch (STACK+4*(n-1-i)).
                                  STACK := STACK+4*n. A0 := Closure-Kopie, 1 Wert
 
@@ -640,7 +640,7 @@ Zwischensprache nach dem 1. Pass:
 
 (CALLSR m n)                     ruft die Funktion (FUNTABR n)
                                  (ein SUBR mit Rest-Parameter) auf,
-                                 mit der korrekten Argumentezahl und zusätzlich
+                                 mit der korrekten Argumentezahl und zusÃ¤tzlich
                                  m restlichen Argumenten auf dem STACK.
                                  STACK wird bereinigt, Ergebnis kommt nach A0/...
 
@@ -654,16 +654,16 @@ Zwischensprache nach dem 1. Pass:
                                  sind schon im richtigen Format auf dem STACK,
                                  STACK wird bereinigt, Ergebnis kommt nach A0/...
 
-(FUNCALLP)                       fängt den Aufbau eines FUNCALL-Frames an,
-                                 auszuführende Funktion ist in A0
+(FUNCALLP)                       fÃ¤ngt den Aufbau eines FUNCALL-Frames an,
+                                 auszufÃ¼hrende Funktion ist in A0
 
 (FUNCALL n)                      ruft die angegebene Funktion mit n (n>=0)
                                  Argumenten (alle auf dem Stack) auf,
                                  beseitigt den FUNCALL-Frame,
                                  Ergebnis kommt nach A0/...
 
-(APPLYP)                         fängt den Aufbau eines APPLY-Frames an,
-                                 auszuführende Funktion ist in A0
+(APPLYP)                         fÃ¤ngt den Aufbau eines APPLY-Frames an,
+                                 auszufÃ¼hrende Funktion ist in A0
 
 (APPLY n)                        ruft die angegebene Funktion mit n (n>=0)
                                  Argumenten (alle auf dem Stack) und weiteren
@@ -675,13 +675,13 @@ Zwischensprache nach dem 1. Pass:
 
 (PUSH-UNBOUND n)                 n-mal: -(STACK) := #<UNBOUND>, undefinierte Werte
 
-(UNLIST n m)                     Liste A0 n mal verkürzen: -(STACK) := (car A0),
+(UNLIST n m)                     Liste A0 n mal verkÃ¼rzen: -(STACK) := (car A0),
                                  A0 := (cdr A0). Bei den letzten m Mal darf A0
                                  schon zu Ende sein, dann -(STACK) := #<UNBOUND>
                                  stattdessen. Am Schluss muss A0 = NIL sein,
                                  undefinierte Werte. 0 <= m <= n.
 
-(UNLIST* n m)                    Liste A0 n mal verkürzen: -(STACK) := (car A0),
+(UNLIST* n m)                    Liste A0 n mal verkÃ¼rzen: -(STACK) := (car A0),
                                  A0 := (cdr A0). Bei den letzten m Mal darf A0
                                  schon zu Ende sein, dann -(STACK) := #<UNBOUND>.
                                  stattdessen. Dann -(STACK) := (nthcdr n A0),
@@ -722,7 +722,7 @@ Zwischensprache nach dem 1. Pass:
 (MVCALLP)                        bereitet einen MULTIPLE-VALUE-CALL auf die
                                  Funktion in A0 vor
 
-(MVCALL)                         führt einen MULTIPLE-VALUE-CALL mit den im
+(MVCALL)                         fÃ¼hrt einen MULTIPLE-VALUE-CALL mit den im
                                  Stack liegenden Argumenten aus
 
 10. BLOCK:
@@ -773,9 +773,9 @@ Zwischensprache nach dem 1. Pass:
                                  bei einem THROW auf dieses Tag wird zu label
                                  gesprungen
 
-(CATCH-CLOSE)                    löst einen CATCH-Frame auf
+(CATCH-CLOSE)                    lÃ¶st einen CATCH-Frame auf
 
-(THROW)                          führt ein THROW auf den Catch-Tag (STACK)+
+(THROW)                          fÃ¼hrt ein THROW auf den Catch-Tag (STACK)+
                                  aus, mit den Werten A0/...
 
 13. UNWIND-PROTECT:
@@ -784,30 +784,30 @@ Zwischensprache nach dem 1. Pass:
                                  Unwind wird unter Rettung der Werte zu label
                                  gesprungen
 
-(UNWIND-PROTECT-NORMAL-EXIT)     löst einen Unwind-Protect-Frame auf, schreibt
+(UNWIND-PROTECT-NORMAL-EXIT)     lÃ¶st einen Unwind-Protect-Frame auf, schreibt
                                  eine Weitermach-Adresse auf SP, rettet die
-                                 Werte und fängt an, den folgenden Cleanup-Code
-                                 auszuführen
+                                 Werte und fÃ¤ngt an, den folgenden Cleanup-Code
+                                 auszufÃ¼hren
 
 (UNWIND-PROTECT-CLOSE label)     beendet den Cleanup-Code: schreibt die
-                                 geretteten Werte zurück, führt ein RTS aus.
-                                 Der Cleanup-Code fängt bei label an.
+                                 geretteten Werte zurÃ¼ck, fÃ¼hrt ein RTS aus.
+                                 Der Cleanup-Code fÃ¤ngt bei label an.
 
-(UNWIND-PROTECT-CLEANUP)         löst einen Unwind-Protect-Frame auf, schreibt
+(UNWIND-PROTECT-CLEANUP)         lÃ¶st einen Unwind-Protect-Frame auf, schreibt
                                  eine Weitermach-Adresse und den PC auf SP,
-                                 rettet die Werte und fängt an, den Cleanup-
-                                 Code auszuführen
+                                 rettet die Werte und fÃ¤ngt an, den Cleanup-
+                                 Code auszufÃ¼hren
 
 14. HANDLER:
 
 (HANDLER-OPEN const stackz label1 ... labelm)
-                                 baut einen HANDLER-Frame auf; const enthält
+                                 baut einen HANDLER-Frame auf; const enthÃ¤lt
                                  die Condition-Typen; die entsprechenden
                                  Handler beginnen bei labeli
 
 (HANDLER-BEGIN)                  beginnt einen Handler: stellt den SP-Zustand
                                  wie beim HANDLER-OPEN her,
-                                 A0 := dem Handler übergebene Condition, 1 Wert
+                                 A0 := dem Handler Ã¼bergebene Condition, 1 Wert
 
 15. einige Funktionen:
 
@@ -1002,8 +1002,8 @@ for-value   NIL oder T
       (assoc sym
         '(; Das ist die Tabelle aller SUBRs, wie in SUBR.D.
           ; SUBRs, die in verschiedenen Implementationen verschiedene
-          ; Signaturen haben und/oder deren Spezifikation sich noch ändern
-          ; könnte, sind dabei allerdings auskommentiert.
+          ; Signaturen haben und/oder deren Spezifikation sich noch Ã¤ndern
+          ; kÃ¶nnte, sind dabei allerdings auskommentiert.
           (! 1 0 nil nil nil)
           (system::%%time 0 0 nil nil nil)
           (system::%defseq 1 0 nil nil nil)
@@ -1794,40 +1794,40 @@ for-value   NIL oder T
 ; (item1 ... itemk . fun)
 ; Das ist im Speicher in Wirklichkeit eine Baumstruktur!
 ; Es bedeuten hierbei:
-;  fun = FNODE der Funktion, in der gezählt wird.
+;  fun = FNODE der Funktion, in der gezÃ¤hlt wird.
 ;  item = eines der folgenden:
 ;    n (Integer >=0) : n Lisp-Objekte auf dem STACK
-;                      belegt n STACK-Einträge
-;    (BIND n)        : einen Bindungsframe für n Variablen,
-;                      belegt 1+2*n STACK-Einträge und 0 SP-Einträge
-;                      Muss bei Unwind explizit aufgelöst werden
-;    PROGV           : ein Bindungsframe für beliebig viele Variablen,
-;                      belegt ? STACK-Einträge und 1 SP-Eintrag (Pointer über
+;                      belegt n STACK-EintrÃ¤ge
+;    (BIND n)        : einen Bindungsframe fÃ¼r n Variablen,
+;                      belegt 1+2*n STACK-EintrÃ¤ge und 0 SP-EintrÃ¤ge
+;                      Muss bei Unwind explizit aufgelÃ¶st werden
+;    PROGV           : ein Bindungsframe fÃ¼r beliebig viele Variablen,
+;                      belegt ? STACK-EintrÃ¤ge und 1 SP-Eintrag (Pointer Ã¼ber
 ;                      den Frame = alter STACK)
-;                      Muss bei Unwind explizit aufgelöst werden
+;                      Muss bei Unwind explizit aufgelÃ¶st werden
 ;    CATCH           : ein CATCH-Frame
-;                      belegt 3 STACK-Einträge und 2+jmpbufsize SP-Einträge
+;                      belegt 3 STACK-EintrÃ¤ge und 2+jmpbufsize SP-EintrÃ¤ge
 ;    UNWIND-PROTECT  : ein Unwind-Protect-Frame
-;                      belegt 2 STACK-Einträge und 2+jmpbufsize SP-Einträge
-;                      Muss bei Unwind aufgelöst und der Cleanup ausgeführt
+;                      belegt 2 STACK-EintrÃ¤ge und 2+jmpbufsize SP-EintrÃ¤ge
+;                      Muss bei Unwind aufgelÃ¶st und der Cleanup ausgefÃ¼hrt
 ;                      werden
-;    CLEANUP         : während der Cleanup-Phase eines UNWIND-PROTECT
-;                      belegt ? STACK-Einträge und 3 SP-Einträge
-;                      (der untere ist Pointer über den Frame = alter STACK)
+;    CLEANUP         : wÃ¤hrend der Cleanup-Phase eines UNWIND-PROTECT
+;                      belegt ? STACK-EintrÃ¤ge und 3 SP-EintrÃ¤ge
+;                      (der untere ist Pointer Ã¼ber den Frame = alter STACK)
 ;    BLOCK           : ein BLOCK-Frame
-;                      belegt 3 STACK-Einträge und 2+jmpbufsize SP-Einträge
-;                      Muss bei Unwind explizit aufgelöst werden
+;                      belegt 3 STACK-EintrÃ¤ge und 2+jmpbufsize SP-EintrÃ¤ge
+;                      Muss bei Unwind explizit aufgelÃ¶st werden
 ;    (TAGBODY n)     : ein TAGBODY-Frame, der n Tags aufhebt
-;                      belegt 3+n STACK-Einträge und 1+jmpbufsize SP-Einträge
-;                      Muss bei Unwind explizit aufgelöst werden
-;    MVCALLP         : Vorbereitung für MVCALL
-;                      belegt 1 STACK-Eintrag und 1 SP-Eintrag (Pointer über
+;                      belegt 3+n STACK-EintrÃ¤ge und 1+jmpbufsize SP-EintrÃ¤ge
+;                      Muss bei Unwind explizit aufgelÃ¶st werden
+;    MVCALLP         : Vorbereitung fÃ¼r MVCALL
+;                      belegt 1 STACK-Eintrag und 1 SP-Eintrag (Pointer Ã¼ber
 ;                      FRAME = STACK)
 ;    MVCALL          : viele Lisp-Objekte
-;                      belegt ? STACK-Einträge und 1 SP-Eintrag (Pointer über
+;                      belegt ? STACK-EintrÃ¤ge und 1 SP-Eintrag (Pointer Ã¼ber
 ;                      Frame = alter STACK)
 ;    ANYTHING        : viele Lisp-Objekte und Frames
-;                      belegt ? STACK-Einträge und 1 SP-Eintrag (Pointer über
+;                      belegt ? STACK-EintrÃ¤ge und 1 SP-Eintrag (Pointer Ã¼ber
 ;                      Frame = alter STACK)
 
 (defvar *stackz*)    ; der aktuelle Stackzustand
@@ -1867,20 +1867,20 @@ for-value   NIL oder T
   stackz
 )
 |#
-; äquivalent, aber schneller:
+; Ã¤quivalent, aber schneller:
 (defun stackz-fun (stackz)
   (if (atom stackz) stackz (cdr (last stackz)))
 )
 
-; (in-same-function-p stackz1 stackz2) stellt fest, ob in beiden Stackzuständen
+; (in-same-function-p stackz1 stackz2) stellt fest, ob in beiden StackzustÃ¤nden
 ; in derselben Funktion gearbeitet wird.
 (defun in-same-function-p (stackz1 stackz2)
   (eq (stackz-fun stackz1) (stackz-fun stackz2))
 )
 
 ; (zugriff-in-stack stackz1 stackz2)
-; Für den Zugriff auf lokale Variablen im Stack:
-; ergibt zu zwei Stackzuständen stackz1 und stackz2, die beide innerhalb
+; FÃ¼r den Zugriff auf lokale Variablen im Stack:
+; ergibt zu zwei StackzustÃ¤nden stackz1 und stackz2, die beide innerhalb
 ; derselben Funktion liegen und wo stackz1 "tiefer" ist als stackz2:
 ; 2 Werte: NIL und n, falls (stackz2) = (STACK+4*n) von stackz1 aus,
 ;          k und n, falls (stackz2) = ((SP+4*k)+4*n) von stackz1 aus.
@@ -1920,15 +1920,15 @@ for-value   NIL oder T
              (or (eq (car stackz2) 'BLOCK)
                  (and (consp (car stackz2)) (eq (first (car stackz2)) 'TAGBODY))
         )    )
-    (setq n (+ n 2)) ; consvar liegt genau 2 Einträge höher als Frameanfang
+    (setq n (+ n 2)) ; consvar liegt genau 2 EintrÃ¤ge hÃ¶her als Frameanfang
   )
   (values k n)
 )
 
 ; (may-UNWIND stackz1 stackz2)
 ; stellt fest, ob (UNWIND stackz1 stackz2 for-value) legal ist. Dazu ist
-; notwendig, dass der Compiler über die Frames zwischen stackz1 und stackz2
-; genau Bescheid weiß.
+; notwendig, dass der Compiler Ã¼ber die Frames zwischen stackz1 und stackz2
+; genau Bescheid weiÃŸ.
 (defun may-UNWIND (stackz1 stackz2)
   (loop
     (when (eq stackz1 stackz2) (return t))
@@ -1938,12 +1938,12 @@ for-value   NIL oder T
 ) )
 
 ; (expand-UNWIND stackz1 stackz2 for-value)
-; liefert ein zu (UNWIND stackz1 stackz2 for-value) äquivalentes Codestück,
+; liefert ein zu (UNWIND stackz1 stackz2 for-value) Ã¤quivalentes CodestÃ¼ck,
 ; bestehend aus
 ; (SKIP n), (SKIPI k1 k2 n), (SKIPSP k1 k2), (VALUES0),
 ; (UNWIND-PROTECT-CLEANUP), (UNBIND1), (BLOCK-CLOSE), (TAGBODY-CLOSE).
 ; Es muss - ausgehend von stackz1 - den Stack so bereinigen, dass danach der
-; Stackzustand stackz2 vorliegt. Bei for-value=NIL können die Werte dabei
+; Stackzustand stackz2 vorliegt. Bei for-value=NIL kÃ¶nnen die Werte dabei
 ; weggeworfen werden.
 (defun expand-UNWIND (stackz1 stackz2 for-value
                       &aux (k nil) (n 0) (kd (spd 0 0)) (codelist nil))
@@ -1983,7 +1983,7 @@ for-value   NIL oder T
                    (here)
                    (unless for-value
                       ; bei for-value=NIL wird beim ersten auftretenden
-                      ; UNWIND-PROTECT-Frame ein '(VALUES0) eingefügt.
+                      ; UNWIND-PROTECT-Frame ein '(VALUES0) eingefÃ¼gt.
                      (setq for-value t)
                      (push '(VALUES0) codelist)
                    )
@@ -2043,19 +2043,19 @@ for-value   NIL oder T
 
 ; neu konstruiert:
 (defvar *fenv*)
-; enthält die neuen lexikalischen Funktionsbindungen.
+; enthÃ¤lt die neuen lexikalischen Funktionsbindungen.
 ; *fenv* hat dieselbe Gestalt wie %fenv% und endet mit %fenv%:
 ; #(f1 def1 ... fn defn NEXT-ENV), was eine Abbildung fi --> defi
 ; realisiert.
 ; defi = #<MACRO expander>         bedeutet einen lokalen Makro.
 ; defi = (fdescr . var)            bedeutet, dass die lokale Funktionsdefinition
 ;           von fi zur Laufzeit in der lexikalischen Variablen var steckt.
-;           fnode ist der zu fi gehörige fnode, anfangs noch NIL.
+;           fnode ist der zu fi gehÃ¶rige fnode, anfangs noch NIL.
 ; defi = (fdescr . const)          bedeutet, dass die lokale Funktionsdefinition
 ;           von fi autonom ist und in der Konstanten const steckt.
-;           fnode ist der zu fi gehörige fnode, anfangs noch NIL.
+;           fnode ist der zu fi gehÃ¶rige fnode, anfangs noch NIL.
 ; Dabei ist fdescr ein Cons (fnode . lambdadescr),
-;           fnode der zu fi gehörige fnode oder NIL,
+;           fnode der zu fi gehÃ¶rige fnode oder NIL,
 ;           lambdadescr = (LABELS . Liste der Werte von analyze-lambdalist)
 ;           oder lambdadescr = (GENERIC . Signature) oder NIL.
 ; defi = (#<MACRO expander> fdescr . {var|const})
@@ -2117,9 +2117,9 @@ for-value   NIL oder T
 
 ; Mit einem Vektor aus
 ; - einem solchen Variablen-Environment (verkettete Vektoren, mit
-;   defi = #<SYMBOL-MACRO expansion> für Symbol-Macro-Definitionen),
+;   defi = #<SYMBOL-MACRO expansion> fÃ¼r Symbol-Macro-Definitionen),
 ; - einem solchen Funktions-Environment (verkettete Vektoren, mit
-;   defi = (SYSTEM::MACRO . expander) für Macro-Definitionen zu fi)
+;   defi = (SYSTEM::MACRO . expander) fÃ¼r Macro-Definitionen zu fi)
 ; arbeiten die Funktionen
 ; MACROEXPAND-1, MACROEXPAND, PARSE-BODY:
 #|
@@ -2128,12 +2128,12 @@ Environment env und liefert die 1 mal expandierte Form und T
 (oder form und NIL, falls nicht expandierbar).
 
 (MACROEXPAND form env) expandiert die gegebene Form im Macroexpansions-
-Environment env und liefert die sooft wie möglich expandierte Form und T
+Environment env und liefert die sooft wie mÃ¶glich expandierte Form und T
 (oder form und NIL, falls nicht expandierbar).
 
 (PARSE-BODY body docstring-allowed env) analysiert den body und spaltet von
 ihm die Deklarationen und den Docstring (falls erlaubt und vorhanden) ab.
-3 Werte: der übrige body-rest, eine Liste der vorgekommenen declspecs,
+3 Werte: der Ã¼brige body-rest, eine Liste der vorgekommenen declspecs,
 der Docstring (oder NIL).
 |#
 
@@ -2146,7 +2146,7 @@ der Docstring (oder NIL).
 ; %benv% = ((name1 . status1) ... (namen . statusn))
 ; wobei namei ein Symbol und statusi der Status dieses lexikalisch umfassenden
 ; Blocks ist: #<DISABLED> falls der Block bereits verlassen wurde, sonst ein
-; Pointer in den Stack auf den zugehörigen Block-Frame.
+; Pointer in den Stack auf den zugehÃ¶rigen Block-Frame.
 
 ; neu konstruiert:
 (defvar *benv*)
@@ -2159,12 +2159,12 @@ der Docstring (oder NIL).
   label                 ; label, an dem dieser Block zu Ende ist
   stackz                ; Stackzustand nach dem Aufbau des Block-Frames
   consvar               ; Variable, die im Stack im Block-Frame liegt und den
-                        ; Block-Cons enthält (dessen CDR beim Verlassen des
+                        ; Block-Cons enthÃ¤lt (dessen CDR beim Verlassen des
                         ; Blockes auf #<DISABLED> gesetzt wird)
   used-far              ; Flag, gibt an, ob dieser Block aus einer anderen
                         ; Funktion heraus mit RETURN-FROM verlassen wird.
   for-value             ; gibt an, ob das gesamte Block-Konstrukt Werte
-                        ; zurückliefern soll.
+                        ; zurÃ¼ckliefern soll.
 )
 #+CLISP (remprop 'block 'sys::defstruct-description)
 
@@ -2190,10 +2190,10 @@ der Docstring (oder NIL).
 
 ; Interpreter-Tagbody-Environment hat die Gestalt
 ; %genv% = ((Tagvektor1 . status1) ... (Tagvektorn . statusn))
-; wobei Tagvektori ein simple-vector ist, der die anspringbaren Tags enthält,
+; wobei Tagvektori ein simple-vector ist, der die anspringbaren Tags enthÃ¤lt,
 ; statusi der Status dieses lexikalisch umfassenden Tagbodys
 ; ist: #<DISABLED> falls der Tagbody bereits verlassen wurde, sonst ein
-; Pointer in den Stack auf den zugehörigen Tagbody-Frame.
+; Pointer in den Stack auf den zugehÃ¶rigen Tagbody-Frame.
 
 ; neu konstruiert:
 (defvar *genv*)
@@ -2206,9 +2206,9 @@ der Docstring (oder NIL).
   labellist           ; Liste der Labels, parallel zum Tagvektor
   stackz              ; Stackzustand nach dem Aufbau des Tagbody-Frames
   consvar             ; Variable, die im Stack im Tagbody-Frame liegt und den
-                      ; Tagbody-Cons enthält (dessen CDR beim Verlassen des
+                      ; Tagbody-Cons enthÃ¤lt (dessen CDR beim Verlassen des
                       ; Tagbodys auf #<DISABLED> gesetzt wird)
-  used-far            ; Vektor mit Fill-Pointer, enthält all die Tags, die
+  used-far            ; Vektor mit Fill-Pointer, enthÃ¤lt all die Tags, die
                       ; aus einer anderen Funktion heraus mit GO angesprungen
                       ; werden.
 )
@@ -2245,7 +2245,7 @@ der Docstring (oder NIL).
             '(let ((*evalhook*
                      #'(lambda (form env) (declare (ignore form))
                          (svref (svref env 0) 1)
-                         ; Der Evalhook-Mechanismus übergibt das Environment.
+                         ; Der Evalhook-Mechanismus Ã¼bergibt das Environment.
                          ; (svref...0) davon ist das Variablen-Environment,
                          ; (svref...1) davon ist von der *evalhook*-Bindung
                          ; der assoziierte "Wert" #<SPECIAL REFERENCE>.
@@ -2319,7 +2319,7 @@ der Docstring (oder NIL).
   (modified-list '())         ; falls lexikalisch: zu jedem SET auf die Variable
                               ;   eine Liste (value-anode set-anode . for-value)
   (replaceable-list '())      ; falls lexikalisch:
-                              ;   zu jeder movable-Variablen, die während ihrer
+                              ;   zu jeder movable-Variablen, die wÃ¤hrend ihrer
                               ;   gesamten Existenz denselben Wert wie diese
                               ;   hat und deswegen ersetzbar ist, jeweils eine
                               ;   Liste (var init-anode . bind-anode)
@@ -2398,8 +2398,8 @@ der Docstring (oder NIL).
     (when (eq venvc (var-venvc var)) (return))
     (let ((item (car venvc)))
       (if (null k)
-        (when (not (listp item)) (setq k 0)) ; Zählanfang, (not (listp item)) == (fnode-p item)
-        (when (consp item) (incf k)) ; zählen
+        (when (not (listp item)) (setq k 0)) ; ZÃ¤hlanfang, (not (listp item)) == (fnode-p item)
+        (when (consp item) (incf k)) ; zÃ¤hlen
     ) )
     (setq venvc (cdr venvc))
   )
@@ -2421,12 +2421,12 @@ der Docstring (oder NIL).
 (defstruct (const (:copier nil))
   value               ; Wert der Konstanten
   form                ; Form, die bei Auswertung value ergibt
-  horizont            ; Gültigkeitsbereich von value und form:
-                      ; :VALUE  -  nur value ist gültig
+  horizont            ; GÃ¼ltigkeitsbereich von value und form:
+                      ; :VALUE  -  nur value ist gÃ¼ltig
                       ;            (dann ist implizit form = `(QUOTE ,value) )
-                      ; :ALL    -  value und form beide gültig
-                      ; :FORM   -  nur form gültig
-    ; Bei *compiling-from-file* = nil ist nur :VALUE und :ALL möglich.
+                      ; :ALL    -  value und form beide gÃ¼ltig
+                      ; :FORM   -  nur form gÃ¼ltig
+    ; Bei *compiling-from-file* = nil ist nur :VALUE und :ALL mÃ¶glich.
     ; Was im 3. Pass in den Fnode eingetragen wird, ist:
     ;   Bei *compiling-from-file* = nil: nur value.
     ;   Bei *compiling-from-file* /= nil:
@@ -2452,10 +2452,10 @@ der Docstring (oder NIL).
     short-float simple-array simple-base-string simple-bit-vector
     simple-string simple-vector single-float standard-char stream string
     string-char symbol t vector
-    ; zusätzliche Deklarationen:
+    ; zusÃ¤tzliche Deklarationen:
     compile ; Anweisung, dass die Form bzw. Funktion zu compilieren ist
     sys::source ; der Source-Lambdabody (unexpandiert) innerhalb eines Lambdabody
-    sys::in-defun ; zeigt an, zu welcher globalen Funktion der Code gehört
+    sys::in-defun ; zeigt an, zu welcher globalen Funktion der Code gehÃ¶rt
     ignorable ; markiert Variablen als vielleicht ignorierbar
               ; (NB: Gensym-Variablen sind immer automatisch ignorable.)
     sys::read-only ; markiert Variablen als nicht zugewiesen
@@ -2472,7 +2472,7 @@ der Docstring (oder NIL).
 ;   SPECIAL : wird weggelassen, stattdessen in *venv* notiert.
 ;   IGNORE, IGNORABLE : wird weggelassen, stattdessen bei der
 ;                       verarbeitenden Form selber verarbeitet.
-; Zusätzliche Deklaration (INLINING symbol) gegen rekursives Inlining.
+; ZusÃ¤tzliche Deklaration (INLINING symbol) gegen rekursives Inlining.
 
 ; (process-declarations declspeclist) pusht die Deklarationen (wie sie von
 ; PARSE-BODY kommen) auf *denv* und liefert:
@@ -2587,22 +2587,22 @@ der Docstring (oder NIL).
 
 ;             F U N K T I O N E N - V E R W A L T U N G
 
-; Ein FNODE enthält die nötige Information für eine Funktion:
+; Ein FNODE enthÃ¤lt die nÃ¶tige Information fÃ¼r eine Funktion:
 (defstruct (fnode (:copier nil))
   name            ; Name, ein Symbol oder (SETF symbol)
   code            ; Code dieser Funktion (zuerst nichts, dann ein ANODE,
                   ; dann eine Closure)
-  ; Ab hier Beschreibungen für die kommende Closure:
+  ; Ab hier Beschreibungen fÃ¼r die kommende Closure:
   venvconst       ; Flag, ob das Venv dieser Funktion explizit beim Aufbau
                   ; mitgegeben werden muss (oder immer NIL ist)
   venvc           ; Aussehen des Venv, das dieser Funktion beim Aufbau
-                  ; mitgegeben werden muss (wenn überhaupt)
+                  ; mitgegeben werden muss (wenn Ã¼berhaupt)
   Blocks-Offset   ; Anzahl der Konstanten bis hierher
   (Blocks nil)    ; Liste der Block-Konstrukte, die dieser Funktion beim Aufbau
-                  ; mitgegeben werden müssen
+                  ; mitgegeben werden mÃ¼ssen
   Tagbodys-Offset ; Anzahl der Konstanten bis hierher
   (Tagbodys nil)  ; Liste der Tagbody-Konstrukte, die dieser Funktion beim
-                  ; Aufbau mitgegeben werden müssen
+                  ; Aufbau mitgegeben werden mÃ¼ssen
   Keyword-Offset  ; Anzahl der lokalen Konstanten bis hierher
                   ; = Anfangsoffset der Keywords in FUNC
                   ; (also =0 genau dann, wenn die Funktion autonom ist)
@@ -2616,7 +2616,7 @@ der Docstring (oder NIL).
   (consts nil)    ; Liste der sonstigen Konstanten dieser Funktion
                   ; Diese Liste wird erst im 2. Pass aufgebaut.
   (consts-forms nil) ; Liste der evtl. Formen, die diese Konstanten ergeben
-  enclosing       ; lexikalisch nächste darüberliegende Funktion (oder NIL)
+  enclosing       ; lexikalisch nÃ¤chste darÃ¼berliegende Funktion (oder NIL)
   gf-p            ; Flag, ob eine generische Funktion produziert wird
                   ; (impliziert Blocks-Offset = Tagbodys-Offset = Keyword-Offset = 0 oder 1)
 )
@@ -2628,13 +2628,13 @@ der Docstring (oder NIL).
 (defvar *func-start-label*)
 
 ; Anzahl der bisher in der aktuellen Funktion aufgetretenen anonymen
-; Funktionen (Lambda-Ausdrücke):
+; Funktionen (Lambda-AusdrÃ¼cke):
 (defvar *anonymous-count*)
 
 ; *no-code* = T besagt, dass kein Code produziert werden soll:
 (defvar *no-code*)
-; Dies verhindert, dass Variablen unnötigerweise in die Closure gesteckt oder
-; Optimierungen unnötigerweise unterlassen werden.
+; Dies verhindert, dass Variablen unnÃ¶tigerweise in die Closure gesteckt oder
+; Optimierungen unnÃ¶tigerweise unterlassen werden.
 
 
 ;                 F O R M E N - V E R W A L T U N G
@@ -2659,7 +2659,7 @@ der Docstring (oder NIL).
             (:copier nil)
            )
   #+COMPILER-DEBUG
-  source              ; die zu dieser Form gehörige Source, meist eine Form
+  source              ; die zu dieser Form gehÃ¶rige Source, meist eine Form
                       ; (nur zu Debugzwecken erforderlich)
   type                ; Typ des ANODE (CALL, PRIMOP, VAR, LET, SETQ, ...)
   #+COMPILER-DEBUG
@@ -2668,13 +2668,13 @@ der Docstring (oder NIL).
   code                ; erzeuger LAP-Code, eine Liste aus LAP-Anweisungen
                       ; und ANODEs
   #+COMPILER-DEBUG
-  stackz              ; Zustand der Stacks beim Eintritt in den zugehörigen
+  stackz              ; Zustand der Stacks beim Eintritt in den zugehÃ¶rigen
                       ; LAP-Code
 )
 #+CLISP (remprop 'anode 'sys::defstruct-description)
 ; (make-anode ...) ist dasselbe wie mk-anode, nur dass dabei die Argumente
-; mit Keywords markiert werden und wegen #+COMPILER-DEBUG unnötige
-; Komponenten trotzdem dastehen dürfen.
+; mit Keywords markiert werden und wegen #+COMPILER-DEBUG unnÃ¶tige
+; Komponenten trotzdem dastehen dÃ¼rfen.
 (eval-when (compile eval)
   (defmacro make-anode (&key
                         (source `*form*)
@@ -2703,10 +2703,10 @@ der Docstring (oder NIL).
 ; Somit:
 ;   Falls der Wert uninteressant ist, kann ein ANODE mit SECLASS = NIL/VAL
 ;   weggelassen werden.
-;   In der Reihenfolge der Auswertung dürfen vertauscht werden ANODEs mit
+;   In der Reihenfolge der Auswertung dÃ¼rfen vertauscht werden ANODEs mit
 ;   SECLASS     NIL-NIL, NIL-VAL, NIL-T, VAL-VAL.
 
-; (seclass-or class1 ... classk) bestimmt die Gesamtklasse der Ausführung
+; (seclass-or class1 ... classk) bestimmt die Gesamtklasse der AusfÃ¼hrung
 ; aller Klassen.
 (defun seclass-or (&rest args)
   (cond ((member 'T args :test #'eq) 'T)
@@ -2718,7 +2718,7 @@ der Docstring (oder NIL).
   (or (eq seclass1 'T) seclass2 seclass1)
 )
 ; Damit die Liste der sub-anodes nicht gebildet werden muss, aber dennoch
-; der zu dieser Liste gehörige Seiteneffektklasse berechnet werden kann:
+; der zu dieser Liste gehÃ¶rige Seiteneffektklasse berechnet werden kann:
 (eval-when (compile eval)
   (defmacro anodes-seclass-or (&rest anodeforms)
     (reduce #'(lambda (form1 form2) `(SECLASS-OR-2 ,form1 ,form2))
@@ -2735,7 +2735,7 @@ der Docstring (oder NIL).
 )
 
 ; Stellt fest, ob zwei Anodes in der Reihenfolge ihrer Auswertung vertauscht
-; werden können - vorausgesetzt, die Stackzustände lassen das zu.
+; werden kÃ¶nnen - vorausgesetzt, die StackzustÃ¤nde lassen das zu.
 (defun anodes-commute (anode1 anode2)
   (let ((seclass1 (anode-seclass anode1))
         (seclass2 (anode-seclass anode2)))
@@ -2746,21 +2746,21 @@ der Docstring (oder NIL).
 
 ; Eine Seiteneffekt-Klasse (SECLASS) ist ein Indikator (uses . modifies):
 ; uses = NIL : dieses Anode ist nicht von Seiteneffekten beeinflussbar,
-;        Liste : dieses Anode ist vom Wert der Variablen in der Liste abhängig,
-;        T : dieses Anode ist möglicherweise von jedem Seiteneffekt beeinflussbar.
+;        Liste : dieses Anode ist vom Wert der Variablen in der Liste abhÃ¤ngig,
+;        T : dieses Anode ist mÃ¶glicherweise von jedem Seiteneffekt beeinflussbar.
 ; modifies = NIL : dieses Anode produziert keine Seiteneffekte
 ;            Liste : ... produziert Seiteneffekte nur auf die Werte der
 ;                    Variablen in der Liste
-;            T : ... produziert Seiteneffekte unbekannten Ausmaßes.
-; (Variablen sind hier VAR-Structures für lexikalische und Symbole für
+;            T : ... produziert Seiteneffekte unbekannten AusmaÃŸes.
+; (Variablen sind hier VAR-Structures fÃ¼r lexikalische und Symbole fÃ¼r
 ; dynamische Variablen.)
 ; Somit:
 ;   Falls der Wert uninteressant ist, kann ein ANODE mit SECLASS-modifies=NIL
 ;   weggelassen werden.
-;   In der Reihenfolge der Auswertung dürfen vertauscht werden ANODEs mit
-;   SECLASS, deren uses- und modifies-Teil über Kreuz disjunkt sind.
+;   In der Reihenfolge der Auswertung dÃ¼rfen vertauscht werden ANODEs mit
+;   SECLASS, deren uses- und modifies-Teil Ã¼ber Kreuz disjunkt sind.
 
-; (seclass-or class1 ... classk) bestimmt die Gesamtklasse der Ausführung
+; (seclass-or class1 ... classk) bestimmt die Gesamtklasse der AusfÃ¼hrung
 ; aller Klassen.
 (defun seclass-or (&rest args)
   (if (null args) '(NIL . NIL) (reduce #'seclass-or-2 args))
@@ -2777,7 +2777,7 @@ der Docstring (oder NIL).
 ) )     )
 
 ; Damit die Liste der sub-anodes nicht gebildet werden muss, aber dennoch
-; der zu dieser Liste gehörige Seiteneffektklasse berechnet werden kann:
+; der zu dieser Liste gehÃ¶rige Seiteneffektklasse berechnet werden kann:
 (eval-when (compile eval)
   (defmacro anodes-seclass-or (&rest anodeforms)
     (reduce #'(lambda (form1 form2) `(SECLASS-OR-2 ,form1 ,form2))
@@ -2793,7 +2793,7 @@ der Docstring (oder NIL).
   (apply #'seclass-or (mapcar #'anode-seclass anodelist))
 )
 
-; Seiteneffekte auf weiter innen gebundene lexikalische Variablen zählen
+; Seiteneffekte auf weiter innen gebundene lexikalische Variablen zÃ¤hlen
 ; nicht und werden deshalb eliminiert:
 (defun seclass-without (seclass varlist)
   (flet ((bound (var) (member var varlist))) ; testet, ob var gebunden wird
@@ -2804,7 +2804,7 @@ der Docstring (oder NIL).
 ) ) )
 
 ; Stellt fest, ob zwei Anodes in der Reihenfolge ihrer Auswertung vertauscht
-; werden können - vorausgesetzt, die Stackzustände lassen das zu.
+; werden kÃ¶nnen - vorausgesetzt, die StackzustÃ¤nde lassen das zu.
 (defun anodes-commute (anode1 anode2)
   (seclasses-commute (anode-seclass anode1) (anode-seclass anode2))
 )
@@ -2919,7 +2919,7 @@ der Docstring (oder NIL).
                 :code '((NIL))
 ) ) )
 
-; (c-eval-when-compile form) führt eine Form zur Compile-Zeit aus.
+; (c-eval-when-compile form) fÃ¼hrt eine Form zur Compile-Zeit aus.
 (defun c-eval-when-compile (form)
   (when (and *compiling-from-file* *liboutput-stream*)
     ; Form auf den Liboutput-Stream schreiben:
@@ -2991,9 +2991,9 @@ der Docstring (oder NIL).
 ; zur Compile-Zeit bekannten) Wert liefert.
 (defun anode-constantp (anode)
   ; Anode liefert konstanten Wert jedenfalls dann, wenn sein Code
-  ; (nach TRAVERSE-ANODE) genau aus ((CONST ...)) bestehen würde.
+  ; (nach TRAVERSE-ANODE) genau aus ((CONST ...)) bestehen wÃ¼rde.
   (let ((code (anode-code anode)))
-    (and (consp code) (null (cdr code)) ; Liste der Länge 1
+    (and (consp code) (null (cdr code)) ; Liste der LÃ¤nge 1
          (let ((item (car code)))
             (cond ((consp item)
                    (and (eq (first item) 'CONST)
@@ -3022,7 +3022,7 @@ der Docstring (oder NIL).
 ; gibt an, welche der Werte nach dem Label gebraucht werden.
 (defun make-label (for-value)
   (let ((label (gensym)))
-    (setf (symbol-value label) '()) ; Referenzliste für 2. Pass := leer
+    (setf (symbol-value label) '()) ; Referenzliste fÃ¼r 2. Pass := leer
     (setf (get label 'for-value) for-value)
     label
 ) )
@@ -3045,7 +3045,7 @@ der Docstring (oder NIL).
 ;                     E R S T E R   P A S S
 
 ; (test-list L) stellt fest, ob L eine echte Liste ist, die mit NIL endet
-; und mindestens l1, höchstens aber l2 Elemente hat. Sonst Error.
+; und mindestens l1, hÃ¶chstens aber l2 Elemente hat. Sonst Error.
 (defun test-list (L &optional (l1 0) (l2 nil))
   (unless (and (listp L) (null (cdr (last L))))
     (c-error (ENGLISH "Code contains dotted list ~S")
@@ -3062,8 +3062,8 @@ der Docstring (oder NIL).
   ) ) )
 )
 
-; c-form-table enthält zu allen Funktionen/Specialforms/Macros, die speziell
-; behandelt werden müssen, die Behandlungsfunktion (ohne Argumente aufzurufen).
+; c-form-table enthÃ¤lt zu allen Funktionen/Specialforms/Macros, die speziell
+; behandelt werden mÃ¼ssen, die Behandlungsfunktion (ohne Argumente aufzurufen).
 (defconstant c-form-table
   (let ((hashtable (make-hash-table :test #'eq)))
     (mapc
@@ -3254,7 +3254,7 @@ der Docstring (oder NIL).
   ))
   #+COMPILER-DEBUG (setf (anode-source anode) *form*)
   ; Falls keine Werte gebraucht werden und keine Seiteneffekte produziert
-  ; werden, kann der dazugehörige Code ganz gestrichen werden:
+  ; werden, kann der dazugehÃ¶rige Code ganz gestrichen werden:
   (when (and (null *for-value*) (null (cdr (anode-seclass anode))))
     (setf (anode-code anode) '())
     (setf (anode-seclass anode) '(NIL . NIL))
@@ -3263,11 +3263,11 @@ der Docstring (oder NIL).
 ))
 
 ; macroexpandiere eine Form.
-; Das ist genau das, was c-form später sowieso macht.
+; Das ist genau das, was c-form spÃ¤ter sowieso macht.
 ; (c-form (macroexpand-form form)) == (c-form form).
 (defun macroexpand-form (form)
   ; Der Unterschied zu (values (macroexpand form (vector *venv* *fenv*)))
-  ; ist, dass wir hier Macros, die in c-form-table aufgeführt sind, nicht
+  ; ist, dass wir hier Macros, die in c-form-table aufgefÃ¼hrt sind, nicht
   ; als Macros expandieren.
   (tagbody
     reexpand
@@ -3467,7 +3467,7 @@ der Docstring (oder NIL).
                   (setf (fnode-Venvconst (car venvc)) t)
             ) ) )
             ; Das Ersetzen einer Variablen innervar durch var ist dann
-            ; nicht erlaubt, wenn während der Existenzdauer von innervar
+            ; nicht erlaubt, wenn wÃ¤hrend der Existenzdauer von innervar
             ; an var ein Wert zugewiesen wird.
             (setf (var-replaceable-list var)
               (delete-if #'(lambda (innervar-info) ; innervar gerade aktiv?
@@ -3551,9 +3551,9 @@ der Docstring (oder NIL).
 ) ) ) )
 
 ; (test-argument-syntax args applyargs fun req opt rest-p key-p keylist allow-p)
-; überprüft, ob die Argumentliste args (und evtl. weitere Argumente applyargs)
+; Ã¼berprÃ¼ft, ob die Argumentliste args (und evtl. weitere Argumente applyargs)
 ; als Argumentliste zu fun (Symbol) geeignet ist, d.h. ob sie der gegebenen
-; Spezifikation, gegeben durch req,opt,rest-p,keylist,allow-p, genügt.
+; Spezifikation, gegeben durch req,opt,rest-p,keylist,allow-p, genÃ¼gt.
 ; Gegebenenfalls wird eine Warnung ausgegeben.
 ; Liefert:
 ;   NO-KEYS           bei korrekter Syntax, ohne Keywords,
@@ -3561,7 +3561,7 @@ der Docstring (oder NIL).
 ;   DYNAMIC-KEYS      bei (vermutlich) korrekter Syntax,
 ;                       mit nicht-konstanten Keywords.
 ;   NIL               bei fehlerhafter Syntax,
-; In den ersten beiden Fällen ist
+; In den ersten beiden FÃ¤llen ist
 ; falls (not applyargs):
 ;   req <= (length args) <= (req+opt oder, falls rest-p oder key-p, unendlich)
 ; bzw. falls applyargs:
@@ -3628,18 +3628,18 @@ der Docstring (oder NIL).
 
 ; (c-DIRECT-FUNCTION-CALL args applyargs fun req opt rest-p key-p keylist
 ;                         subr-flag call-code-producer)
-; compiliert die Abarbeitung der Argumente für den Direktaufruf einer
+; compiliert die Abarbeitung der Argumente fÃ¼r den Direktaufruf einer
 ; Funktion (d.h. ohne Argument-Check zur Laufzeit).
 ; (test-argument-syntax ...) muss die Argumente bereits erfolgreich (d.h.
-; mit Ergebnis NO-KEYS oder STATIC-KEYS) überprüft haben.
+; mit Ergebnis NO-KEYS oder STATIC-KEYS) Ã¼berprÃ¼ft haben.
 ; args : Liste der Argumentformen,
-; applyargs : falls angegeben, Liste einer Form für die weiteren Argumente,
+; applyargs : falls angegeben, Liste einer Form fÃ¼r die weiteren Argumente,
 ; fun : Name der aufzurufenden Funktion (Symbol),
-; req,opt,rest-p,key-p,keylist,allow-p : Information über die Lambdaliste von fun
+; req,opt,rest-p,key-p,keylist,allow-p : Information Ã¼ber die Lambdaliste von fun
 ; subr-flag : Flag, ob fun ein SUBR oder aber eine compilierte Closure ist,
 ;             (Obacht: applyargs nur bei compilierten Closures verwenden!),
-; call-code-producer : Funktion, die den Code liefert, der am Ende anzufügen
-;                      ist und den Aufruf ausführt.
+; call-code-producer : Funktion, die den Code liefert, der am Ende anzufÃ¼gen
+;                      ist und den Aufruf ausfÃ¼hrt.
 (defun c-DIRECT-FUNCTION-CALL (args applyargs fun req opt rest-p key-p keylist
                                subr-flag call-code-producer)
   (let* ((foldable nil)
@@ -3649,12 +3649,12 @@ der Docstring (oder NIL).
              (case fun ; fun ein SUBR
                (; Seiteneffektklasse (NIL . NIL) haben diejenigen Funktionen,
                 ; die ihre Argumente nur anschauen (Pointer, Inhalt nur bei
-                ; Zahlen oder ähnlichen unmodifizierbaren Datenstrukturen)
+                ; Zahlen oder Ã¤hnlichen unmodifizierbaren Datenstrukturen)
                 ; und auf keine globalen Variablen zugreifen.
                 ; Eine Funktion, die, zweimal mit denselben Argumenten auf-
                 ; gerufen, stets dasselbe Ergebnis liefert (im EQL-Sinne),
                 ; erlaubt Constant-Folding: Sind alle Argumente Konstanten
-                ; und der Funktionsaufruf durchführbar, so darf der Funktions-
+                ; und der Funktionsaufruf durchfÃ¼hrbar, so darf der Funktions-
                 ; aufruf durch das konstante Funktionsergebnis ersetzt werden.
                 ;
                 ; This is the list of SUBRs which have no side effects,
@@ -3821,7 +3821,7 @@ der Docstring (oder NIL).
                   (push anode2 codelist)
                 )
                 ; n > reqopt, impliziert rest-p.
-                ; Übergabe von restlichen Argumenten an eine compilierte Closure:
+                ; Ãœbergabe von restlichen Argumenten an eine compilierte Closure:
                 ; als Liste.
                 ; Liste aus allen weiteren Argumenten:
                 (progn
@@ -3855,7 +3855,7 @@ der Docstring (oder NIL).
               ; &rest-Parameter:
               (when rest-p
                 (if subr-flag
-                  ; Übergabe von restlichen Argumenten an ein SUBR: einzeln
+                  ; Ãœbergabe von restlichen Argumenten an ein SUBR: einzeln
                   (loop
                     (when (null args) (return))
                     (let ((anode (c-form (pop args) 'ONE)))
@@ -3865,7 +3865,7 @@ der Docstring (oder NIL).
                     (push '(PUSH) codelist)
                     (push 1 *stackz*)
                   )
-                  ; Übergabe von restlichen Argumenten an eine compilierte Closure:
+                  ; Ãœbergabe von restlichen Argumenten an eine compilierte Closure:
                   ; als Liste
                   (if (null args)
                     ; leere Liste
@@ -3902,14 +3902,14 @@ der Docstring (oder NIL).
               ; Erst alle Keys mit #<UNBOUND> vorbelegen, dann die Argumente
               ; in der angegebenen Reihenfolge auswerten und zuordnen?
               ; Das ist uns zu einfach. Wir lassen die Argumente kommutieren,
-              ; damit möglichst viele der (STORE ...) durch (PUSH) ersetzt
-              ; werden können: Die Argumente zu den ersten Keys werden nach
-              ; Möglichkeit zuerst ausgewertet, die zu den letzten Keys
+              ; damit mÃ¶glichst viele der (STORE ...) durch (PUSH) ersetzt
+              ; werden kÃ¶nnen: Die Argumente zu den ersten Keys werden nach
+              ; MÃ¶glichkeit zuerst ausgewertet, die zu den letzten Keys
               ; zuletzt. Wir lassen es allerdings bei einem einzigen
               ; (PUSH-UNBOUND ...).
               (let* ((key-positions ; Liste von Tripeln (key stack-depth free-p),
-                                    ; wobei stack-depth = keyanz-1...0 läuft und
-                                    ; free-p angibt, ob der Slot schon gefüllt ist.
+                                    ; wobei stack-depth = keyanz-1...0 lÃ¤uft und
+                                    ; free-p angibt, ob der Slot schon gefÃ¼llt ist.
                        (let ((i keyanz))
                          (mapcar #'(lambda (key) (list key (decf i) t)) keylist)
                      ) )
@@ -3929,8 +3929,8 @@ der Docstring (oder NIL).
                                   (for-value (third tripel))
                                   (arg (pop args)))
                              ; for-value /= NIL: Existentes Keyword, und der Slot ist noch leer
-                             ; for-value = NIL: ALLOW-erlaubtes Keyword oder Slot schon gefüllt
-                             (let* ((*stackz* (cons 0 *stackz*)) ; 0 wird später ersetzt
+                             ; for-value = NIL: ALLOW-erlaubtes Keyword oder Slot schon gefÃ¼llt
+                             (let* ((*stackz* (cons 0 *stackz*)) ; 0 wird spÃ¤ter ersetzt
                                     (anode (c-form arg (if for-value 'ONE 'NIL))))
                                (seclass-or-f seclass anode)
                                (push (list t (second tripel) anode *stackz*) L)
@@ -3942,13 +3942,13 @@ der Docstring (oder NIL).
                 (let ((depth1 0)
                       (depth2 0)
                       (codelist-from-end '()))
-                  ; Möglichst viel nach vorne ziehen:
+                  ; MÃ¶glichst viel nach vorne ziehen:
                   (do ((anodesr anodes (cdr anodesr)))
                       ((null anodesr))
-                    (let ((anodeetc (car anodesr))) ; nächstes Quadrupel
+                    (let ((anodeetc (car anodesr))) ; nÃ¤chstes Quadrupel
                       (when (first anodeetc) ; noch was zu tun?
                         (if (and
-                              (or ; kein Keyword, d.h. kein (STORE ...) nötig?
+                              (or ; kein Keyword, d.h. kein (STORE ...) nÃ¶tig?
                                   (null (second anodeetc))
                                   ; oberstes Keyword?
                                   (= (second anodeetc) (- keyanz depth1 1))
@@ -3973,19 +3973,19 @@ der Docstring (oder NIL).
                           )
                           ; sonst machen wir nichts.
                   ) ) ) )
-                  ; Möglichst viel nach hinten ziehen:
+                  ; MÃ¶glichst viel nach hinten ziehen:
                   (setq anodes (nreverse anodes))
                   (do ((anodesr anodes (cdr anodesr)))
                       ((null anodesr))
-                    (let ((anodeetc (car anodesr))) ; nächstes Quadrupel
+                    (let ((anodeetc (car anodesr))) ; nÃ¤chstes Quadrupel
                       (when (first anodeetc) ; noch was zu tun?
                         (if (and
-                              (or ; kein Keyword, d.h. kein (STORE ...) nötig?
+                              (or ; kein Keyword, d.h. kein (STORE ...) nÃ¶tig?
                                   (null (second anodeetc))
                                   ; unterstes Keyword?
                                   (= (second anodeetc) depth2)
                               )
-                              ; kommutiert anodeetc mit allen späteren anodes?
+                              ; kommutiert anodeetc mit allen spÃ¤teren anodes?
                               (let ((anode (third anodeetc)))
                                 (do ((anodesr2 anodes (cdr anodesr2)))
                                     ((eq anodesr2 anodesr) t)
@@ -4027,7 +4027,7 @@ der Docstring (oder NIL).
           (setq codelist (nreconc codelist (funcall call-code-producer)))
         )
         ; Constant-Folding: Ist fun foldable (also subr-flag = T und
-        ; key-flag = NIL) und besteht codelist außer den (PUSH)s und dem
+        ; key-flag = NIL) und besteht codelist auÃŸer den (PUSH)s und dem
         ; Call-Code am Schluss nur aus Anodes mit code = ((CONST ...)) ?
         (when (and foldable
                    (every #'(lambda (code)
@@ -4055,7 +4055,7 @@ der Docstring (oder NIL).
                     ) )
                     t
                   )
-              ; Funktion erfolgreich aufgerufen, Constant-Folding durchführen:
+              ; Funktion erfolgreich aufgerufen, Constant-Folding durchfÃ¼hren:
               (return-from c-DIRECT-FUNCTION-CALL
                 (c-GLOBAL-FUNCTION-CALL-form
                   `(VALUES ,@(mapcar #'(lambda (x) `(QUOTE ,x)) resulting-values))
@@ -4089,7 +4089,7 @@ der Docstring (oder NIL).
   (if (eq fnode *func*)
     ; rekursiver Aufruf der eigenen Funktion
     (let ((call-code
-            `((JSR ,(+ req opt (if rest-flag 1 0) (length keylist)) ; Zahl der Stack-Einträge
+            `((JSR ,(+ req opt (if rest-flag 1 0) (length keylist)) ; Zahl der Stack-EintrÃ¤ge
                    ,*func-start-label*
              ))
          ))
@@ -4162,7 +4162,7 @@ der Docstring (oder NIL).
         ; Ist fun ein SUBR, so sollte name = fun sein, und das SUBR hat die
         ; Spezifikation req, opt, rest-p, key-p = (not (null keylist)), allow-p.
         ; Sonst ist name = NIL.
-        (if (and name (eq fun name)) ; beschreibt fun ein gültiges SUBR?
+        (if (and name (eq fun name)) ; beschreibt fun ein gÃ¼ltiges SUBR?
           (case fun
             ((CAR CDR FIRST REST NOT NULL CONS SVREF VALUES
               CAAR CADR CDAR CDDR CAAAR CAADR CADAR CADDR CDAAR CDADR
@@ -4175,7 +4175,7 @@ der Docstring (oder NIL).
              ; (was aber nicht verwendet wird) opt=0.
              (if (and (<= req n) (or rest-p (<= n (+ req opt))))
                ; Wir machen den Aufruf INLINE.
-               (let ((sideeffects ; Seiteneffektklasse der Funktionsausführung
+               (let ((sideeffects ; Seiteneffektklasse der FunktionsausfÃ¼hrung
                        (case fun
                          ((NOT NULL CONS VALUES ATOM CONSP EQ LIST LIST*)
                            '(NIL . NIL)
@@ -4308,7 +4308,7 @@ der Docstring (oder NIL).
                                    )
                                 )
                                 (case fun
-                                  (; Funktionen, die nicht zurückkehren:
+                                  (; Funktionen, die nicht zurÃ¼ckkehren:
                                    (; control.d:
                                     SYS::DRIVER SYS::UNWIND-TO-DRIVER
                                     ; debug.d:
@@ -4336,7 +4336,7 @@ der Docstring (oder NIL).
                      (consp inline-lambdabody)
                      (inline-callable-function-lambda-p `(FUNCTION (LAMBDA ,@inline-lambdabody)) n)
                 )
-              ; Aufruf einer globalen Funktion INLINE möglich
+              ; Aufruf einer globalen Funktion INLINE mÃ¶glich
               (c-FUNCALL-INLINE fun args nil inline-lambdabody nil)
               (c-NORMAL-FUNCTION-CALL fun)
       ) ) ) )
@@ -4438,7 +4438,7 @@ der Docstring (oder NIL).
       (if (atom pathname) (load-lib pathname) (mapcar #'load-lib pathname))
 ) ) )
 
-;;; Hilfsfunktionen für
+;;; Hilfsfunktionen fÃ¼r
 ;;; LET/LET*/MULTIPLE-VALUE-BIND/Lambda-Ausdruck/FLET/LABELS:
 
 ;; Syntaxanalyse:
@@ -4468,13 +4468,13 @@ der Docstring (oder NIL).
 ; 1. Liste der required Parameter
 ; 2. Liste der optionalen Parameter
 ; 3. Liste der Initformen der optionalen Parameter
-; 4. Liste der Svars zu den optionalen Parametern (0 für die fehlenden)
+; 4. Liste der Svars zu den optionalen Parametern (0 fÃ¼r die fehlenden)
 ; 5. Rest-Parameter oder 0
 ; 6. Flag, ob Keywords erlaubt sind
 ; 7. Liste der Keywords
 ; 8. Liste der Keyword-Parameter
 ; 9. Liste der Initformen der Keyword-Parameter
-; 10. Liste der Svars zu den Keyword-Parametern (0 für die fehlenden)
+; 10. Liste der Svars zu den Keyword-Parametern (0 fÃ¼r die fehlenden)
 ; 11. Flag, ob andere Keywords erlaubt sind
 ; 12. Liste der Aux-Variablen
 ; 13. Liste der Initformen der Aux-Variablen
@@ -4575,7 +4575,7 @@ der Docstring (oder NIL).
             )
             (setq L (cdr L))
       ) ) )
-      ; Vorrücken bis zum nächsten &key oder &aux :
+      ; VorrÃ¼cken bis zum nÃ¤chsten &key oder &aux :
       (loop
         (when (atom L) (return))
         (let ((item (car L)))
@@ -4644,7 +4644,7 @@ der Docstring (oder NIL).
           (setq allow-other-keys t)
           (setq L (cdr L))
       ) )
-      ; Vorrücken bis zum nächsten &AUX :
+      ; VorrÃ¼cken bis zum nÃ¤chsten &AUX :
       (loop
         (when (atom L) (return))
         (let ((item (car L)))
@@ -4716,10 +4716,10 @@ der Docstring (oder NIL).
          ; funname muss von der Bauart (LAMBDA lambdalist ...) sein
          (and (consp funname) (eq (first funname) 'LAMBDA) (consp (cdr funname))
               (let ((lambdalist (second funname)))
-                ; lambdalist muss eine Liste sein, die kein &KEY enthält
+                ; lambdalist muss eine Liste sein, die kein &KEY enthÃ¤lt
                 ; (Funktionen mit &KEY werden nicht INLINE-expandiert, weil die
                 ; Zuordnung von den Argumenten zu den Variablen nur dynamisch,
-                ; mit GETF, möglich ist, und das kann die in Assembler
+                ; mit GETF, mÃ¶glich ist, und das kann die in Assembler
                 ; geschriebene APPLY-Routine schneller.)
                 (and (listp lambdalist)
                      (not (position '&KEY lambdalist))
@@ -4748,7 +4748,7 @@ der Docstring (oder NIL).
            (consp (cdr form)) (null (cddr form))
            (let ((fun (second form)))
              ; fun muss ein Funktionsname mit Inline-Definition sein,
-             ; dann wird (FUNCALL form ...) später zu (fun ...)
+             ; dann wird (FUNCALL form ...) spÃ¤ter zu (fun ...)
              ; umgewandelt und inline compiliert werden.
              ; Siehe c-FUNCALL, c-FUNCTION-CALL, c-GLOBAL-FUNCTION-CALL.
              (and (function-name-p fun)
@@ -4789,7 +4789,7 @@ der Docstring (oder NIL).
   (apply #'push-*venv* (mapcar #'make-special-var *specials*))
 )
 
-; Überprüft eine Variable, ob sie zu Recht ignore-deklariert ist oder nicht...
+; ÃœberprÃ¼ft eine Variable, ob sie zu Recht ignore-deklariert ist oder nicht...
 (defun ignore-check (var)
   (let ((sym (var-name var)))
     (if (member sym *ignores* :test #'eq)
@@ -4809,7 +4809,7 @@ der Docstring (oder NIL).
           ; var lexikalisch und unbenutzt
           (unless (null (symbol-package sym)) ; sym ein (gensym) ?
             ; (Symbole ohne Home-Package kommen nicht vom Benutzer, die Warnung
-            ; würde nur verwirren).
+            ; wÃ¼rde nur verwirren).
             (c-style-warn (ENGLISH "variable ~S is not used.~%Misspelled or missing IGNORE declaration?")
                           sym
     ) ) ) ) )
@@ -4822,10 +4822,10 @@ der Docstring (oder NIL).
 ) )
 
 ; liefert den Code, der zum neuen Aufbau einer Closure und ihrer Unterbringung
-; im Stack nötig ist:
+; im Stack nÃ¶tig ist:
 ; Dieser Code erweitert das von (cdr venvc) beschriebene Venv um closurevars,
 ; (cdr stackz) ist der aktuelle Stackzustand.
-; Nach Aufbau der Closure sind venvc bzw. stackz die aktuellen Zustände.
+; Nach Aufbau der Closure sind venvc bzw. stackz die aktuellen ZustÃ¤nde.
 (defun c-MAKE-CLOSURE (closurevars venvc stackz)
   (if closurevars
     `((VENV ,(cdr venvc) ,(cdr stackz))
@@ -4837,7 +4837,7 @@ der Docstring (oder NIL).
 ;; Es gibt zwei Arten von Variablen-Bindungs-Vorgehensweisen:
 ; 1. fixed-var: die Variable hat eine Position im Stack, darf nicht wegoptimiert
 ;               werden. Ist die Variable dann doch in der Closure, so muss ihr
-;               Wert dorthin übertragen werden; ist die Variable dynamisch, so
+;               Wert dorthin Ã¼bertragen werden; ist die Variable dynamisch, so
 ;               muss ein Bindungsframe aufgemacht werden.
 ;               Auftreten: MULTIPLE-VALUE-BIND, Lambda-Ausdruck (required,
 ;               optional, rest, keyword - Parameter)
@@ -4852,7 +4852,7 @@ der Docstring (oder NIL).
 
 ; Bindung einer fixed-var:
 ; symbol --> Variable
-; Lässt *stackz* unverändert.
+; LÃ¤sst *stackz* unverÃ¤ndert.
 (defun bind-fixed-var-1 (symbol)
   (if (or (constantp symbol)
           (proclaimed-special-p symbol)
@@ -4928,7 +4928,7 @@ der Docstring (oder NIL).
       )
       ; Wert der Zuweisung wird nicht gebraucht
       (progn
-        (let ((value-anode (first modified))) ; Anode für zugewiesenen Wert
+        (let ((value-anode (first modified))) ; Anode fÃ¼r zugewiesenen Wert
           (when (null (cdr (anode-seclass value-anode)))
             (setf (anode-code value-anode) '()) ; evtl. Wert-Form entfernen
         ) )
@@ -4936,17 +4936,17 @@ der Docstring (oder NIL).
           (setf (anode-code set-anode) '()) ; Zuweisung entfernen
 ) ) ) ) )
 
-; Überprüft und optimiert die Variablen
+; ÃœberprÃ¼ft und optimiert die Variablen
 ; und liefert die Liste der Closure-Variablen (in der richtigen Reihenfolge).
 (defun checking-fixed-var-list (varlist &optional optimflaglist)
   (let ((closurevarlist '()))
     (dolist (var varlist (nreverse closurevarlist))
       ; 1. Schritt: eventuelle Warnungen ausgeben
       (ignore-check var)
-      ; 2. Schritt: Variablen-Ort (Stack oder Closure) endgültig bestimmen,
+      ; 2. Schritt: Variablen-Ort (Stack oder Closure) endgÃ¼ltig bestimmen,
       ; evtl. optimieren
       (unless (var-specialp var)
-        ; nur lexikalische Variablen können in der Closure liegen,
+        ; nur lexikalische Variablen kÃ¶nnen in der Closure liegen,
         ; nur bei lexikalischen Variablen kann optimiert werden
         (if (not (var-really-usedp var))
           ; Variable lexikalisch und unbenutzt
@@ -5010,7 +5010,7 @@ der Docstring (oder NIL).
     ; muss symbol lexikalisch binden:
     (let ((var
             (progn
-              (push 1 *stackz*) ; vorläufig: 1 Platz auf dem Stack
+              (push 1 *stackz*) ; vorlÃ¤ufig: 1 Platz auf dem Stack
               (make-var :name symbol :specialp nil
                 :constantp (anode-constantp form-anode) ; wird bei Zuweisungen auf NIL gesetzt
                 :constant (if (anode-constantp form-anode) (anode-constant form-anode))
@@ -5020,7 +5020,7 @@ der Docstring (oder NIL).
          )) ) )
       (let ((outervar (bound-to-var-p var form-anode)))
         (when outervar ; Wird var an eine Variable outervar gebunden, so
-                       ; darf später evtl. jede Referenz zu var in eine
+                       ; darf spÃ¤ter evtl. jede Referenz zu var in eine
                        ; Referenz zu outervar umgewandelt werden.
           (push (list var form-anode) (var-replaceable-list outervar))
       ) )
@@ -5031,7 +5031,7 @@ der Docstring (oder NIL).
 (defun c-bind-movable-var (var)
   (if (var-specialp var)
     (if (var-constantp var)
-      '() ; dynamische Konstanten können nicht gebunden werden
+      '() ; dynamische Konstanten kÃ¶nnen nicht gebunden werden
       `((BIND ,(new-const (var-name var))))
     )
     (if (var-closurep var)
@@ -5041,7 +5041,7 @@ der Docstring (oder NIL).
       ; lexikalische Variable: wurde eventuell aus dem Stack eliminiert
       (if (zerop (first (var-stackz var)))
         '()
-        `((PUSH)) ; im Stack: in die nächstuntere Stacklocation schreiben
+        `((PUSH)) ; im Stack: in die nÃ¤chstuntere Stacklocation schreiben
 ) ) ) )
 
 ; liefert den Code, der die Variable var an das Ergebnis des ANODEs anode bindet
@@ -5054,7 +5054,7 @@ der Docstring (oder NIL).
        )) )
     (let ((outervar (bound-to-var-p var anode)))
       (when outervar ; Wird var an eine Variable outervar gebunden, so
-                     ; darf später evtl. jede Referenz zu var in eine
+                     ; darf spÃ¤ter evtl. jede Referenz zu var in eine
                      ; Referenz zu outervar umgewandelt werden.
         (dolist (innervar-info (var-replaceable-list outervar))
           (when (eq (first innervar-info) var)
@@ -5065,11 +5065,11 @@ der Docstring (oder NIL).
 
 ; (process-movable-var-list symbols initforms *-flag) compiliert die initforms
 ; (wie bei LET/LET*) und assoziiert sie mit den Variablen zu symbols.
-; Verändert *venv* (bei *-flag : incrementell, sonst auf einmal).
+; VerÃ¤ndert *venv* (bei *-flag : incrementell, sonst auf einmal).
 ; Liefert drei Werte:
 ; 1. Liste der Variablen,
 ; 2. Liste der ANODEs zu den initforms,
-; 3. Liste der Stackzustände nach dem Binden der Variablen.
+; 3. Liste der StackzustÃ¤nde nach dem Binden der Variablen.
 (defun process-movable-var-list (symbols initforms *-flag)
   (do ((symbolsr symbols (cdr symbolsr))
        (initformsr initforms (cdr initformsr))
@@ -5089,7 +5089,7 @@ der Docstring (oder NIL).
       (when *-flag (push-*venv* var)) ; Binden bei LET*
 ) ) )
 
-; Überprüft und optimiert die Variablen (wie bei LET/LET*)
+; ÃœberprÃ¼ft und optimiert die Variablen (wie bei LET/LET*)
 ; und liefert die Liste der Closure-Variablen (in der richtigen Reihenfolge).
 (defun checking-movable-var-list (varlist anodelist)
   (do ((varlistr varlist (cdr varlistr))
@@ -5101,7 +5101,7 @@ der Docstring (oder NIL).
         ; 1. Schritt: eventuelle Warnungen ausgeben
         (ignore-check var)
         ; 2. Schritt: Variablen-Ort (Stack oder Closure oder eliminiert)
-        ; endgültig bestimmen
+        ; endgÃ¼ltig bestimmen
         (unless (var-specialp var)
           ; nur bei lexikalischen Variablen kann optimiert werden
           (if (var-constantp var)
@@ -5124,32 +5124,32 @@ der Docstring (oder NIL).
               )
               (when (var-closurep var)
                 ; Variable muss in der Closure liegen
-                (setf (first (var-stackz var)) 0) ; belegt 0 Stack-Einträge
+                (setf (first (var-stackz var)) 0) ; belegt 0 Stack-EintrÃ¤ge
                 (push var closurevarlist)
         ) ) ) )
 ) ) ) )
 
 ; Optimiert eine Liste von Variablen.
-; (In der Liste müssen die lexikalisch inneren Variablen zuletzt kommen.)
+; (In der Liste mÃ¼ssen die lexikalisch inneren Variablen zuletzt kommen.)
 (defun optimize-var-list (vars)
   (unless *no-code*
     (dolist (var (reverse vars))
       (when var
         ; Optimierung (innere Variablen zuerst):
         ; Wird eine Variable innervar an den Wert von var gebunden, wird
-        ; während der Lebensdauer von innervar weder innervar noch var verändert
-        ; (um dies sicherstellen zu können, müssen beide lexikalisch und im Stack
+        ; wÃ¤hrend der Lebensdauer von innervar weder innervar noch var verÃ¤ndert
+        ; (um dies sicherstellen zu kÃ¶nnen, mÃ¼ssen beide lexikalisch und im Stack
         ; sein), so kann innervar durch var ersetzt werden.
         (unless (or (var-specialp var) (var-closurep var))
           ; var ist lexikalisch und im Stack
           (dolist (innervar-info (var-replaceable-list var))
             (let ((innervar (first innervar-info)))
               ; innervar ist eine movable-var, die mit var initialisiert wird.
-              ; Während der Lebensdauer von innervar wird var nichts zugewiesen.
+              ; WÃ¤hrend der Lebensdauer von innervar wird var nichts zugewiesen.
               (unless (or (var-specialp innervar) (var-closurep innervar))
                 ; innervar ist lexikalisch und im Stack
                 (when (null (var-modified-list innervar))
-                  ; Während der Lebensdauer von innervar wird auch innervar
+                  ; WÃ¤hrend der Lebensdauer von innervar wird auch innervar
                   ; nichts zugewiesen.
                   (unless (eql (first (var-stackz innervar)) 0) ; innervar noch nicht wegoptimiert?
                     (when (cddr innervar-info) ; und innervar-info korrekt dreigliedrig?
@@ -5259,7 +5259,7 @@ der Docstring (oder NIL).
             (fnode-keywords *func*) keyword
             (fnode-allow-other-keys-flag *func*) allow-other-keys
       )
-      (when fenv-cons (setf (caar fenv-cons) *func*)) ; Fixup für c-LABELS
+      (when fenv-cons (setf (caar fenv-cons) *func*)) ; Fixup fÃ¼r c-LABELS
       (multiple-value-bind (body-rest declarations)
           (parse-body (cdr lambdabody) t (vector *venv* *fenv*))
         (let ((oldstackz *stackz*)
@@ -5283,7 +5283,7 @@ der Docstring (oder NIL).
           ; Sichtbarkeit von Closure-Dummyvar:
           (push nil *venvc*)
           (setq closuredummy-venvc *venvc*)
-          ; Stack-Dummy-Variable für die reqvar,optvar,restvar,keyvar bilden:
+          ; Stack-Dummy-Variable fÃ¼r die reqvar,optvar,restvar,keyvar bilden:
           (multiple-value-setq (req-vars req-dummys)
             (process-fixed-var-list reqvar reqoptimflags)
           )
@@ -5298,9 +5298,9 @@ der Docstring (oder NIL).
           (multiple-value-setq (key-vars key-dummys)
             (process-fixed-var-list keyvar)
           )
-          ; Platz für die Funktion selbst (unter den Argumenten):
+          ; Platz fÃ¼r die Funktion selbst (unter den Argumenten):
           (push 1 *stackz*)
-          ; Platz für Closure-Dummyvar:
+          ; Platz fÃ¼r Closure-Dummyvar:
           (push 0 *stackz*)
           (setq closuredummy-stackz *stackz*)
           ; Bindungen der required-Parameter aktivieren:
@@ -5322,7 +5322,7 @@ der Docstring (oder NIL).
             (bind-aux-vars auxvar auxinit)
           )
           (let* ((body-anode (c-form `(PROGN ,@body-rest) (if gf-p 'ONE 'ALL)))
-                 ; Überprüfen der Variablen:
+                 ; ÃœberprÃ¼fen der Variablen:
                  (closurevars
                    (append
                      (checking-fixed-var-list req-vars reqoptimflags)
@@ -5358,7 +5358,7 @@ der Docstring (oder NIL).
                      :code codelist
                 )) )
             (when closurevars
-              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz fÃ¼r Dummy
               (setf (first closuredummy-venvc)
                 (cons closurevars closuredummy-stackz)
             ) )
@@ -5451,7 +5451,7 @@ der Docstring (oder NIL).
     (push-*venv* (car rest-vars))
     (push *stackz* rest-stackzs)
     (bind-fixed-var-2 (car rest-vars))
-    rest-stackzs ; (nreverse rest-stackzs) unnötig
+    rest-stackzs ; (nreverse rest-stackzs) unnÃ¶tig
 ) )
 (defun bind-aux-vars (auxvar auxinit)
   (let ((aux-vars '())
@@ -5470,7 +5470,7 @@ der Docstring (oder NIL).
 ) )
 
 ; liefert den ANODE, der (bei gegebenem aktuellem Stackzustand)
-; die zu einem FNODE gehörende Funktion als Wert liefert.
+; die zu einem FNODE gehÃ¶rende Funktion als Wert liefert.
 (defun c-FNODE-FUNCTION (fnode &optional (*stackz* *stackz*))
   (make-anode
     :type 'FUNCTION
@@ -5664,7 +5664,7 @@ der Docstring (oder NIL).
                #+COMPILER-DEBUG (push anodei anodelist)
                (seclass-or-f seclass anodei)
                (if (null Lr)
-                 ; letzte Form -> direkt übernehmen
+                 ; letzte Form -> direkt Ã¼bernehmen
                  (push anodei codelist)
                  ; nicht letzte Form -> Test kreieren
                  (if (anode-constantp anodei)
@@ -5710,7 +5710,7 @@ der Docstring (oder NIL).
                #+COMPILER-DEBUG (push anodei anodelist)
                (seclass-or-f seclass anodei)
                (if (null Lr)
-                 ; letzte Form -> direkt übernehmen
+                 ; letzte Form -> direkt Ã¼bernehmen
                  (push anodei codelist)
                  ; nicht letzte Form -> Test kreieren
                  (if (anode-constantp anodei)
@@ -5843,7 +5843,7 @@ der Docstring (oder NIL).
                        (c-form `(PROGN ,@(cdddr *form*)))
              )       )
              (flag t))
-        ; falls anode3 von keinen Seiteneffekten abhängig ist, kann man sich das
+        ; falls anode3 von keinen Seiteneffekten abhÃ¤ngig ist, kann man sich das
         ; Binden sparen:
         (when (null (car (anode-seclass anode3)))
           (setf (first stackz2) 0)
@@ -5954,7 +5954,7 @@ der Docstring (oder NIL).
 ) ) )
 
 ; compiliere (SETQ {symbol form}*)
-; alle Zuweisungen nacheinander durchführen
+; alle Zuweisungen nacheinander durchfÃ¼hren
 (defun c-SETQ ()
   (test-list *form* 1)
   (when (evenp (length *form*))
@@ -6035,8 +6035,8 @@ der Docstring (oder NIL).
                 (c-error (ENGLISH "Cannot assign to non-symbol ~S.")
                          symboli
         ) ) ) ) )
-        ; Versuche, sie so zu reorganisieren, dass möglichst wenige (PUSH)
-        ; und (POP) nötig werden:
+        ; Versuche, sie so zu reorganisieren, dass mÃ¶glichst wenige (PUSH)
+        ; und (POP) nÃ¶tig werden:
         (let ((codelist1 '())
               (codelist2 '())
               ; baue codelist = (nconc codelist1 (nreverse codelist2)) zusammen
@@ -6046,8 +6046,8 @@ der Docstring (oder NIL).
               ((null anodelistr))
             (let ((anode (car anodelistr))
                   (setter (car setterlistr)))
-              ; Normalerweise wäre vor codelist der anode und ein (PUSH)
-              ; und nach codelist ein (POP) und der setter anzuhängen.
+              ; Normalerweise wÃ¤re vor codelist der anode und ein (PUSH)
+              ; und nach codelist ein (POP) und der setter anzuhÃ¤ngen.
               ; Dies versuchen wir zu vereinfachen:
               (cond ((seclasses-commute (anode-seclass setter) seclass)
                      ; Ziehe den setter nach vorne:
@@ -6059,7 +6059,7 @@ der Docstring (oder NIL).
                      (push anode codelist2)
                      (push setter codelist2)
                     )
-                    (t ; keine Vereinfachung möglich
+                    (t ; keine Vereinfachung mÃ¶glich
                      (push '(PUSH) codelist1)
                      (push anode codelist1)
                      (push '(POP) codelist2)
@@ -6082,7 +6082,7 @@ der Docstring (oder NIL).
 ) ) ) ) ) )
 
 ; compiliere (MULTIPLE-VALUE-SETQ ({symbol}*) form)
-; alle gewünschten Werte auf den Stack, dann einzeln herunternehmen und
+; alle gewÃ¼nschten Werte auf den Stack, dann einzeln herunternehmen und
 ; zuweisen.
 (defun c-MULTIPLE-VALUE-SETQ ()
   (test-list *form* 3 3)
@@ -6137,13 +6137,13 @@ der Docstring (oder NIL).
           (push 1 *stackz*)
 ) ) ) ) )
 
-; Liefert den Code für das parallele Binden von Variablen.
+; Liefert den Code fÃ¼r das parallele Binden von Variablen.
 ; (car *stackz*) sollte = 0 sein, (cdr *stackz*) wird evtl. erweitert.
 (defun c-parallel-bind-movable-var-anode (varlist anodelist stackzlist
                                           &optional (other-anodes '())
                                          )
   ; Variable darf erst am Schluss gebunden werden, falls sie SPECIAL ist
-  ; und nachfolgende Anodes von ihrem Wert abhängen können.
+  ; und nachfolgende Anodes von ihrem Wert abhÃ¤ngen kÃ¶nnen.
   (let ((bind-afterwards nil))
     (append
       (maplap
@@ -6154,7 +6154,7 @@ der Docstring (oder NIL).
                        (let ((symbol (var-name var)))
                          (some
                            #'(lambda (other-anode)
-                               ; hängt der Wert von other-anode möglicherweise
+                               ; hÃ¤ngt der Wert von other-anode mÃ¶glicherweise
                                ; vom Wert von var ab?
                                (let ((uses (car (anode-seclass other-anode))))
                                  (or (eq uses 'T) (member symbol uses))
@@ -6167,8 +6167,8 @@ der Docstring (oder NIL).
                                    :closurep nil :stackz stackz
                       )) )
                   (push (list dummyvar var (cdr *stackz*)) bind-afterwards)
-                  (push (car stackz) (cdr *stackz*)) ; Platz für 1 Schluss-Bindung mehr
-                  (setf (car stackz) 1) ; Platz für Hilfsvariable im Stack merken
+                  (push (car stackz) (cdr *stackz*)) ; Platz fÃ¼r 1 Schluss-Bindung mehr
+                  (setf (car stackz) 1) ; Platz fÃ¼r Hilfsvariable im Stack merken
                   (c-bind-movable-var-anode dummyvar anode)
                 )
                 (c-bind-movable-var-anode var anode)
@@ -6207,14 +6207,14 @@ der Docstring (oder NIL).
         (push-specials)
         ; Syntaxtest der Parameterliste:
         (multiple-value-bind (symbols initforms) (analyze-letlist (second *form*))
-          (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+          (push 0 *stackz*) (push nil *venvc*) ; Platz fÃ¼r Closure-Dummyvar
           (let ((closuredummy-stackz *stackz*)
                 (closuredummy-venvc *venvc*))
             (multiple-value-bind (varlist anodelist stackzlist)
                 (process-movable-var-list symbols initforms *-flag)
-              (unless *-flag (push 0 *stackz*)) ; Platz für Schluss-Bindungen
+              (unless *-flag (push 0 *stackz*)) ; Platz fÃ¼r Schluss-Bindungen
               (let ((body-anode (c-form `(PROGN ,@body-rest)))) ; Body compilieren
-                ; Überprüfen der Variablen:
+                ; ÃœberprÃ¼fen der Variablen:
                 (let* ((closurevars (checking-movable-var-list varlist anodelist))
                        (codelist
                          `(,@(c-make-closure closurevars closuredummy-venvc closuredummy-stackz)
@@ -6239,7 +6239,7 @@ der Docstring (oder NIL).
                            :code codelist
                       )) )
                   (when closurevars
-                    (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+                    (setf (first closuredummy-stackz) 1) ; 1 Stackplatz fÃ¼r Dummy
                     (setf (first closuredummy-venvc)
                       (cons closurevars closuredummy-stackz)
                   ) )
@@ -6296,7 +6296,7 @@ der Docstring (oder NIL).
                 (push nil *venvc*) ; Sichtbarkeit von Closure-Dummyvar
                 (multiple-value-bind (varlist stackvarlist)
                     (process-fixed-var-list symbols)
-                  (push 0 *stackz*) ; Platz für Closure-Dummyvar
+                  (push 0 *stackz*) ; Platz fÃ¼r Closure-Dummyvar
                   (let* ((closuredummy-stackz *stackz*)
                          (closuredummy-venvc *venvc*)
                          (stackzlist
@@ -6310,7 +6310,7 @@ der Docstring (oder NIL).
                          (body-anode ; Body compilieren
                            (c-form `(PROGN ,@body-rest))
                          )
-                         ; Überprüfen der Variablen:
+                         ; ÃœberprÃ¼fen der Variablen:
                          (closurevars (checking-fixed-var-list varlist))
                          (codelist ; Code generieren
                            `(,anode1
@@ -6347,7 +6347,7 @@ der Docstring (oder NIL).
                              :code codelist
                         )) )
                     (when closurevars
-                      (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+                      (setf (first closuredummy-stackz) 1) ; 1 Stackplatz fÃ¼r Dummy
                       (setf (first closuredummy-venvc)
                         (cons closurevars closuredummy-stackz)
                     ) )
@@ -6495,7 +6495,7 @@ der Docstring (oder NIL).
             ; Symbol NIL wird zugelassen, weil es in ANSI CL nicht mehr
             ; zweideutig ist.
             ; Andere Zahlen werden zugelassen, damit - ebenso wie 3.3.2 - auch
-            ; 3.3 ein zulässiges Sprungziel ist.
+            ; 3.3 ein zulÃ¤ssiges Sprungziel ist.
             (progn
               (push item taglist)
               (push (make-label 'NIL) labellist)
@@ -6708,16 +6708,16 @@ der Docstring (oder NIL).
         (symbol-suffix (fnode-name *func*) (incf *anonymous-count*))
         (cdr *form*)
         nil
-        t ; gf-p = T, Code für generische Funktion bauen
+        t ; gf-p = T, Code fÃ¼r generische Funktion bauen
 ) ) ) )
 
 ; compiliere (%OPTIMIZE-FUNCTION-LAMBDA reqoptimflags . lambdabody)
 ; reqoptimflags ist eine Liste von Flags, welche Required-Parameter des
-; lambdabody wegoptimiert werden dürfen. Zu jedem Required-Parameter:
+; lambdabody wegoptimiert werden dÃ¼rfen. Zu jedem Required-Parameter:
 ; NIL: normal,
 ; T: darf wegoptimiert werden, dann wird daraus GONE gemacht.
-; NILs am Schluss der Liste dürfen weggelassen werden.
-; Die Ausgabe enthält zusätzlich zur Funktion die Liste der Wegoptimierten.
+; NILs am Schluss der Liste dÃ¼rfen weggelassen werden.
+; Die Ausgabe enthÃ¤lt zusÃ¤tzlich zur Funktion die Liste der Wegoptimierten.
 (defmacro %OPTIMIZE-FUNCTION-LAMBDA (reqoptimflags &rest lambdabody)
   (declare (ignore reqoptimflags))
   `(CONS (FUNCTION (LAMBDA ,@lambdabody)) NIL) ; ohne Compiler: nicht optimieren
@@ -6778,7 +6778,7 @@ der Docstring (oder NIL).
           (*stackz* *stackz*)
           (*venvc* *venvc*)
           (*venv* *venv*))
-      (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+      (push 0 *stackz*) (push nil *venvc*) ; Platz fÃ¼r Closure-Dummyvar
       (let ((closuredummy-stackz *stackz*)
             (closuredummy-venvc *venvc*))
         (multiple-value-bind (varlist anodelist *fenv*)
@@ -6802,7 +6802,7 @@ der Docstring (oder NIL).
                     (let ((var (make-var :name (gensym) :specialp nil
                                  :constantp nil
                                  :usedp t :for-value-usedp t :really-usedp nil
-                                 :closurep nil ; später evtl. auf T gesetzt
+                                 :closurep nil ; spÃ¤ter evtl. auf T gesetzt
                                  :stackz *stackz* :venvc *venvc*
                          ))    )
                       (push (cons (list fnode) var) fenv)
@@ -6828,7 +6828,7 @@ der Docstring (oder NIL).
                    )        )
                 ))
             (when closurevars
-              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz fÃ¼r Dummy
               (setf (first closuredummy-venvc)
                 (cons closurevars closuredummy-stackz)
             ) )
@@ -6844,7 +6844,7 @@ der Docstring (oder NIL).
         (*stackz* *stackz*)
         (*venvc* *venvc*)
         (*venv* *venv*))
-    (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+    (push 0 *stackz*) (push nil *venvc*) ; Platz fÃ¼r Closure-Dummyvar
     (let ((closuredummy-stackz *stackz*)
           (closuredummy-venvc *venvc*))
       (multiple-value-bind (namelist varlist lambdanamelist lambdabodylist fenvconslist)
@@ -6865,7 +6865,7 @@ der Docstring (oder NIL).
                   (push (make-var :name (gensym) :specialp nil
                                   :constantp nil
                                   :usedp t :for-value-usedp t :really-usedp nil
-                                  :closurep nil ; später evtl. auf T gesetzt
+                                  :closurep nil ; spÃ¤ter evtl. auf T gesetzt
                                   :stackz *stackz* :venvc *venvc*
                         )
                         L2
@@ -6875,7 +6875,7 @@ der Docstring (oder NIL).
                   (push
                     (cons
                       ; fdescr, bestehend aus:
-                      (cons nil ; Platz für den FNODE
+                      (cons nil ; Platz fÃ¼r den FNODE
                         (cons 'LABELS
                           (multiple-value-list ; Werten von analyze-lambdalist
                             (analyze-lambdalist (cadr fdef))
@@ -6890,8 +6890,8 @@ der Docstring (oder NIL).
         ; namelist = Liste der Namen, varlist = Liste der Variablen,
         ; lambdanamelist = Liste der Dummynamen der Funktionen,
         ; lambdabodylist = Liste der Lambdabodys der Funktionen,
-        ; fenvconslist = Liste der Conses (fdescr . var) für *fenv*
-        ; (jeweils fdescr noch ohne den fnode, der kommt erst später hinein).
+        ; fenvconslist = Liste der Conses (fdescr . var) fÃ¼r *fenv*
+        ; (jeweils fdescr noch ohne den fnode, der kommt erst spÃ¤ter hinein).
         (let ((*fenv* ; Funktionsnamen aktivieren
                 (do ((namelistr namelist (cdr namelistr))
                      (fenvconslistr fenvconslist (cdr fenvconslistr))
@@ -6925,7 +6925,7 @@ der Docstring (oder NIL).
                    (c-form `(PROGN ,@(cddr *form*)))
                 ))
             ; die Variablen, zu denen die Funktion autonom war, werden nach-
-            ; träglich zu Konstanten erklärt:
+            ; trÃ¤glich zu Konstanten erklÃ¤rt:
             (do ((varlistr varlist (cdr varlistr))
                  (fnodelistr fnodelist (cdr fnodelistr)))
                 ((null varlistr))
@@ -6952,7 +6952,7 @@ der Docstring (oder NIL).
                      )        )
                   ))
               (when closurevars
-                (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+                (setf (first closuredummy-stackz) 1) ; 1 Stackplatz fÃ¼r Dummy
                 (setf (first closuredummy-venvc)
                   (cons closurevars closuredummy-stackz)
               ) )
@@ -6995,7 +6995,7 @@ der Docstring (oder NIL).
           (*stackz* *stackz*)
           (*venvc* *venvc*)
           (*venv* *venv*))
-      (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+      (push 0 *stackz*) (push nil *venvc*) ; Platz fÃ¼r Closure-Dummyvar
       (let ((closuredummy-stackz *stackz*)
             (closuredummy-venvc *venvc*))
         (multiple-value-bind (varlist anodelist *fenv*)
@@ -7021,7 +7021,7 @@ der Docstring (oder NIL).
                     (let ((var (make-var :name (gensym) :specialp nil
                                  :constantp nil
                                  :usedp t :for-value-usedp t :really-usedp nil
-                                 :closurep nil ; später evtl. auf T gesetzt
+                                 :closurep nil ; spÃ¤ter evtl. auf T gesetzt
                                  :stackz *stackz* :venvc *venvc*
                          ))    )
                       (push (cons macro (cons (list fnode) var)) fenv)
@@ -7047,7 +7047,7 @@ der Docstring (oder NIL).
                    )        )
                 ))
             (when closurevars
-              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz fÃ¼r Dummy
               (setf (first closuredummy-venvc)
                 (cons closurevars closuredummy-stackz)
             ) )
@@ -7086,7 +7086,7 @@ der Docstring (oder NIL).
           (*stackz* *stackz*)
           (*venvc* *venvc*)
           (*venv* *venv*))
-      (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+      (push 0 *stackz*) (push nil *venvc*) ; Platz fÃ¼r Closure-Dummyvar
       (let ((closuredummy-stackz *stackz*)
             (closuredummy-venvc *venvc*))
         (multiple-value-bind (varlist anodelist *fenv*)
@@ -7106,7 +7106,7 @@ der Docstring (oder NIL).
               (let ((var (make-var :name (gensym) :specialp nil
                            :constantp nil
                            :usedp t :for-value-usedp t :really-usedp nil
-                           :closurep nil ; später evtl. auf T gesetzt
+                           :closurep nil ; spÃ¤ter evtl. auf T gesetzt
                            :stackz *stackz* :venvc *venvc*
                    ))    )
                 (push (cons (list* nil 'GENERIC (car signlistr)) var) fenv)
@@ -7132,7 +7132,7 @@ der Docstring (oder NIL).
                    )        )
                 ))
             (when closurevars
-              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz fÃ¼r Dummy
               (setf (first closuredummy-venvc)
                 (cons closurevars closuredummy-stackz)
             ) )
@@ -7148,7 +7148,7 @@ der Docstring (oder NIL).
         (*stackz* *stackz*)
         (*venvc* *venvc*)
         (*venv* *venv*))
-    (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+    (push 0 *stackz*) (push nil *venvc*) ; Platz fÃ¼r Closure-Dummyvar
     (let ((closuredummy-stackz *stackz*)
           (closuredummy-venvc *venvc*))
       (multiple-value-bind (namelist varlist fenvconslist formlist)
@@ -7168,7 +7168,7 @@ der Docstring (oder NIL).
                   (push (make-var :name (gensym) :specialp nil
                                   :constantp nil
                                   :usedp t :for-value-usedp t :really-usedp nil
-                                  :closurep nil ; später evtl. auf T gesetzt
+                                  :closurep nil ; spÃ¤ter evtl. auf T gesetzt
                                   :stackz *stackz* :venvc *venvc*
                         )
                         L2
@@ -7191,7 +7191,7 @@ der Docstring (oder NIL).
                 (err-syntax 'CLOS:GENERIC-LABELS fdef)
           ) ) )
         ; namelist = Liste der Namen, varlist = Liste der Variablen,
-        ; fenvconslist = Liste der Conses (fdescr . var) für *fenv*,
+        ; fenvconslist = Liste der Conses (fdescr . var) fÃ¼r *fenv*,
         ; formlist = Liste der Konstruktor-Formen der generischen Funktionen.
         (let ((*fenv* ; Funktionsnamen aktivieren
                 (do ((namelistr namelist (cdr namelistr))
@@ -7227,7 +7227,7 @@ der Docstring (oder NIL).
                    )        )
                 ))
             (when closurevars
-              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+              (setf (first closuredummy-stackz) 1) ; 1 Stackplatz fÃ¼r Dummy
               (setf (first closuredummy-venvc)
                 (cons closurevars closuredummy-stackz)
             ) )
@@ -7325,9 +7325,9 @@ der Docstring (oder NIL).
     ) ) )  )     )  )
     (let ((form `(PROGN ,@(cddr *form*))))
       (if compile-flag
-        (c-eval-when-compile form) ; ausführen und ins Lib-File schreiben
+        (c-eval-when-compile form) ; ausfÃ¼hren und ins Lib-File schreiben
         (if compile-once-only
-          (eval form) ; nur jetzt ausführen, nicht ins Lib-File schreiben
+          (eval form) ; nur jetzt ausfÃ¼hren, nicht ins Lib-File schreiben
       ) )
       (funcall c (if load-flag form 'NIL))
 ) ) )
@@ -7394,7 +7394,7 @@ der Docstring (oder NIL).
       (setq newclauses (nreverse newclauses))
       (setq allkeys (nreverse allkeys))
     )
-    ; newclauses enthält jetzt keine doppelten keys, genau einmal T als keys,
+    ; newclauses enthÃ¤lt jetzt keine doppelten keys, genau einmal T als keys,
     ; und allkeys ist die Menge aller Keys.
     (if (<= (length allkeys) 2) ; wenige Keys -> direkt EQL verwenden
       (let ((keyvar (gensym)))
@@ -7500,7 +7500,7 @@ der Docstring (oder NIL).
                    ))   )
                 (subtypep type `(OR ,@types))
             ) )
-          ; Brauche diesen Handler nicht zu berücksichtigen
+          ; Brauche diesen Handler nicht zu berÃ¼cksichtigen
           (let ((*no-code* t) (*for-value* 'NIL)) (c-form handler))
           ; Der Handler ist eine Funktion mit dynamischem Extent.
           (let ((label (make-label 'ONE)))
@@ -7510,7 +7510,7 @@ der Docstring (oder NIL).
               (let* ((*stackz* (cons 'ANYTHING *stackz*))
                      (oldstackz *stackz*)
                      (*venv* *venv*))
-                ; Platz für die Funktion selbst:
+                ; Platz fÃ¼r die Funktion selbst:
                 (push 1 *stackz*)
                 (let* ((condition-sym (gensym))
                        (condition-anode
@@ -7524,7 +7524,7 @@ der Docstring (oder NIL).
                   (let ((body-anode
                           (c-form `(SYS::%FUNCALL ,handler ,condition-sym) 'NIL)
                        ))
-                    ; Überprüfen der Variablen (muss nicht in die Closure):
+                    ; ÃœberprÃ¼fen der Variablen (muss nicht in die Closure):
                     (checking-movable-var-list (list condition-var) (list condition-anode))
                     (let* ((codelist
                              `(,label
@@ -7598,7 +7598,7 @@ der Docstring (oder NIL).
 
 ; (c-FUNCALL-NOTINLINE funform args) compiliert einen Funktionsaufruf
 ; (SYS::%FUNCALL funform . args),
-; für den das STACK-Layout der Argumente nicht zur Compile-Zeit bestimmt
+; fÃ¼r den das STACK-Layout der Argumente nicht zur Compile-Zeit bestimmt
 ; werden kann.
 (defun c-FUNCALL-NOTINLINE (funform args)
   (test-list args 0)
@@ -7626,7 +7626,7 @@ der Docstring (oder NIL).
 ; (c-FUNCALL-INLINE funform args applyargs lambdabody sameenv) compiliert einen
 ; Funktionsaufruf (SYS::%FUNCALL funform . args) bzw.
 ; (APPLY funform . args applyargs) [applyargs eine Liste aus einer Form],
-; für den das STACK-Layout der Argumente zur Compile-Zeit bestimmt werden kann.
+; fÃ¼r den das STACK-Layout der Argumente zur Compile-Zeit bestimmt werden kann.
 ; sameenv gibt an, ob lambdabody im selben Environment oder im
 ; Top-Level-Environment zu betrachten ist.
 (defun c-FUNCALL-INLINE (funform arglist applyarglist lambdabody sameenv)
@@ -7642,8 +7642,8 @@ der Docstring (oder NIL).
           (s (length optvar)) ; Anzahl der optionalen Argumente
           (|t| (length arglist))) ; Anzahl der angegebenen Argumente
       (when (and (null restvar) (> |t| (+ r s)))
-        ; zu viele Argumente angegeben. Wird beseitigt durch Einführung
-        ; mehrerer zusätzlicher optionaler Argumente:
+        ; zu viele Argumente angegeben. Wird beseitigt durch EinfÃ¼hrung
+        ; mehrerer zusÃ¤tzlicher optionaler Argumente:
         (catch 'c-error
           (c-error (ENGLISH "Too many arguments to ~S")
                    funform
@@ -7657,8 +7657,8 @@ der Docstring (oder NIL).
             (push `(DECLARE (IGNORE ,var)) lambdabody)
       ) ) )
       (when (and (null applyarglist) (< |t| r))
-        ; zu wenige Argumente angegeben. Wird beseitigt durch Einführung
-        ; zusätzlicher Argumente:
+        ; zu wenige Argumente angegeben. Wird beseitigt durch EinfÃ¼hrung
+        ; zusÃ¤tzlicher Argumente:
         (catch 'c-error
           (c-error (ENGLISH "Too few arguments to ~S")
                    funform
@@ -7708,11 +7708,11 @@ der Docstring (oder NIL).
             )
             ; Special-Variable auf *venv* pushen:
             (push-specials)
-            (push 0 *stackz*) (push nil *venvc*) ; Platz für Closure-Dummyvar
+            (push 0 *stackz*) (push nil *venvc*) ; Platz fÃ¼r Closure-Dummyvar
             (setq closuredummy-stackz *stackz* closuredummy-venvc *venvc*)
             (flet ((finish-using-applyarg (reqvar optvar optinit optsvar restvar)
                      ; reqvar und optvar/optinit/optsvar sowie arglist sind schon
-                     ; teilweise verkürzt. Zerlegen der weiteren Argumentliste
+                     ; teilweise verkÃ¼rzt. Zerlegen der weiteren Argumentliste
                      ; mittels UNLIST bzw. UNLIST*. Daher ein Stackaufbau mit
                      ; festem Aussehen, vgl. c-LAMBDABODY.
                      (setq fixed-anodes
@@ -7734,7 +7734,7 @@ der Docstring (oder NIL).
                                  :seclass (anodes-seclass-or anode1 anode2)
                                  :code `(,anode1 ,anode2)
                      )     ) ) )
-                     ; Stack-Dummy-Variable für die reqvar,optvar,restvar bilden:
+                     ; Stack-Dummy-Variable fÃ¼r die reqvar,optvar,restvar bilden:
                      (multiple-value-setq (reqfixed-vars reqfixed-dummys)
                        (process-fixed-var-list reqvar)
                      )
@@ -7855,7 +7855,7 @@ der Docstring (oder NIL).
               (bind-aux-vars auxvar auxinit)
             )
             (let* ((body-anode (c-form `(PROGN ,@body-rest)))
-                   ; Überprüfen der Variablen:
+                   ; ÃœberprÃ¼fen der Variablen:
                    (varlist
                      (append req-vars opt-vars rest-vars
                              reqfixed-vars optfixed-vars optsfixed-vars restfixed-vars
@@ -7909,7 +7909,7 @@ der Docstring (oder NIL).
                        :code codelist
                   )) )
               (when closurevars
-                (setf (first closuredummy-stackz) 1) ; 1 Stackplatz für Dummy
+                (setf (first closuredummy-stackz) 1) ; 1 Stackplatz fÃ¼r Dummy
                 (setf (first closuredummy-venvc)
                   (cons closurevars closuredummy-stackz)
               ) )
@@ -7918,7 +7918,7 @@ der Docstring (oder NIL).
 ) ) ) ) ) ) )
 
 ; compiliert (fun {form}*), wobei fun eine lokale Funktion ist.
-; fdescr die zugehörige Information aus *fenv*.
+; fdescr die zugehÃ¶rige Information aus *fenv*.
 (defun c-LOCAL-FUNCTION-CALL (fun fdescr args)
   ; (test-list args 0) ; das erledigt gleich (test-argument-syntax ...)
   ; Aufruf-Spezifikation holen:
@@ -7942,7 +7942,7 @@ der Docstring (oder NIL).
 (defun c-FUNCTION-CALL (funform arglist)
   (setq funform (macroexpand-form funform))
   (when (inline-callable-function-lambda-p funform (length arglist))
-    ; Aufruf eines Lambda-Ausdrucks INLINE möglich
+    ; Aufruf eines Lambda-Ausdrucks INLINE mÃ¶glich
     (return-from c-FUNCTION-CALL
       (c-FUNCALL-INLINE funform arglist nil (cdr (second funform)) t)
   ) )
@@ -7964,16 +7964,16 @@ der Docstring (oder NIL).
       (c-form `(PROG1 ,(second funform) ,@arglist))
   ) )
   (when (and (consp funform) (eq (first funform) 'FUNCTION)
-             ; Ausdrücke der Form (FUNCTION ...) dürfen zu beliebigem
+             ; AusdrÃ¼cke der Form (FUNCTION ...) dÃ¼rfen zu beliebigem
              ; Zeitpunkt ausgewertet werden, also ist
-             ; (SYS::%FUNCALL (FUNCTION fun) . arglist)  äquivalent zu
+             ; (SYS::%FUNCALL (FUNCTION fun) . arglist)  Ã¤quivalent zu
              ; (fun . arglist).
              (consp (rest funform)) (function-name-p (second funform)) ; vorerst nur #'sym, sonst Endlosschleife!
         )
     (return-from c-FUNCTION-CALL
       (progn
         (test-list funform 2 2)
-        (c-form `(,(second funform) ,@arglist)) ; genauer aufschlüsseln, vgl. c-FUNCTION ??
+        (c-form `(,(second funform) ,@arglist)) ; genauer aufschlÃ¼sseln, vgl. c-FUNCTION ??
   ) ) )
   ; Aufruf NOTINLINE
   (c-FUNCALL-NOTINLINE funform arglist)
@@ -7991,7 +7991,7 @@ der Docstring (oder NIL).
          (n (1- (length arglist)))) ; Mindestanzahl Argumente
     (setq funform (macroexpand-form funform))
     (when (inline-callable-function-lambda-p funform n t)
-      ; Aufruf eines Lambda-Ausdrucks INLINE möglich
+      ; Aufruf eines Lambda-Ausdrucks INLINE mÃ¶glich
       (return-from c-APPLY
         (c-FUNCALL-INLINE funform (butlast arglist) (last arglist) (cdr (second funform)) t)
     ) )
@@ -8013,7 +8013,7 @@ der Docstring (oder NIL).
         (c-form `(PROG1 ,(second funform) ,@arglist))
     ) )
     (when (and (consp funform) (eq (first funform) 'FUNCTION)
-               ; Ausdrücke der Form (FUNCTION ...) dürfen zu beliebigem
+               ; AusdrÃ¼cke der Form (FUNCTION ...) dÃ¼rfen zu beliebigem
                ; Zeitpunkt ausgewertet werden.
                (consp (rest funform)) (function-name-p (second funform))
           )
@@ -8059,7 +8059,7 @@ der Docstring (oder NIL).
                              (consp inline-lambdabody)
                              (inline-callable-function-lambda-p `(FUNCTION (LAMBDA ,@inline-lambdabody)) n t)
                         )
-                      ; Aufruf einer globalen Funktion INLINE möglich
+                      ; Aufruf einer globalen Funktion INLINE mÃ¶glich
                       (return-from c-APPLY
                         (c-FUNCALL-INLINE fun (butlast arglist) (last arglist) inline-lambdabody nil)
                 ) ) ) )
@@ -8067,7 +8067,7 @@ der Docstring (oder NIL).
                   ; lokale Funktion
                   (c-LOCAL-APPLY f3)
     ) ) ) ) ) ) )
-    ; Wenn keine der Optimierungen möglich war:
+    ; Wenn keine der Optimierungen mÃ¶glich war:
     (let* ((anode1 (c-form funform 'ONE))
            (*stackz* (cons 1 *stackz*)))
       (do ((formlistr arglist (cdr formlistr))
@@ -8108,7 +8108,7 @@ der Docstring (oder NIL).
       )
       (1 ; nur ein variabler Summand
          (case const-sum
-           (0 (c-form (first other-parts))) ; keine Addition nötig
+           (0 (c-form (first other-parts))) ; keine Addition nÃ¶tig
            (+1 (c-form `(1+ ,(first other-parts))))
            (-1 (c-form `(1- ,(first other-parts))))
            (t (c-GLOBAL-FUNCTION-CALL-form `(+ ,const-sum ,@other-parts)))
@@ -8120,7 +8120,7 @@ der Docstring (oder NIL).
 
 (defun c-MINUS ()
   (test-list *form* 2)
-  (let ((unary-p (= (length *form*) 2)) ; unäres Minus oder nicht?
+  (let ((unary-p (= (length *form*) 2)) ; unÃ¤res Minus oder nicht?
         (const-sum 0) ; Summe der konstanten Teile
         (first-part 0) ; zu addierende Form
         (other-parts '()) ; abzuziehende Formen
@@ -8737,13 +8737,13 @@ der Docstring (oder NIL).
 
 ; macht aus dem ANODE-Baum zum fnode *func* ein funktionales Objekt:
 (defun pass2 (*func*)
-  (when (anode-p (fnode-code *func*)) ; falls 2. Pass noch nicht durchgeführt:
+  (when (anode-p (fnode-code *func*)) ; falls 2. Pass noch nicht durchgefÃ¼hrt:
     ; erst den Code flachklopfen, optimieren und assemblieren:
-    (let ((code-list (compile-to-LAP))) ; Code flachklopfen und in Stücke zerteilen,
+    (let ((code-list (compile-to-LAP))) ; Code flachklopfen und in StÃ¼cke zerteilen,
                                         ; optimieren und zu einer Liste machen
       (when (fnode-gf-p *func*) (setq code-list (CONST-to-LOADV code-list))) ; evtl. CONSTs umwandeln
       (let ((SPdepth (SP-depth code-list))) ; Stackbedarf bestimmen
-        (setq code-list (insert-combined-LAPs code-list)) ; kombinierte Operationen einführen
+        (setq code-list (insert-combined-LAPs code-list)) ; kombinierte Operationen einfÃ¼hren
         (create-fun-obj *func* (assemble-LAP code-list) SPdepth) ; assemblieren und funkt. Objekt
     ) )
     ; dann die Sub-Funktionen durch den 2. Pass jagen
@@ -8754,19 +8754,19 @@ der Docstring (oder NIL).
 
 pass2 ruft den 1. Schritt auf.
 
-Nach dem 1. Schritt ist der Code in kleine Stücke aufgeteilt, jeweils von
+Nach dem 1. Schritt ist der Code in kleine StÃ¼cke aufgeteilt, jeweils von
 einem Label bis zu einem Wegsprung (JMP, JMPCASE, JMPCASE1-TRUE, JMPCASE1-FALSE,
 JMPHASH, RETURN-FROM, GO, RET, RETGF, THROW, BARRIER). Die Teile stecken
 (jeweils als Liste in umgekehrter Reihenfolge, mit dem Label als letztem CDR)
 im Vektor *code-parts*.
-(symbol-value label) enthält eine Liste der Referenzen von label, und zwar in
+(symbol-value label) enthÃ¤lt eine Liste der Referenzen von label, und zwar in
 der Form:
  - Index in *code-parts*, wenn die Referenz der entsprechende Wegsprung ist;
  - opcode sonst, wobei opcode der Befehl ist, in dem label auftritt.
-Nach dem 1. Schritt enthält der Code nur noch Tags (Symbole) und Listen aus
+Nach dem 1. Schritt enthÃ¤lt der Code nur noch Tags (Symbole) und Listen aus
 Symbolen und Zahlen. Es darf daher mit SUBST und EQUAL gearbeitet werden.
 
-Der 1. Schritt ruft, sobald er mit einem Stück fertig ist, den 2. Schritt
+Der 1. Schritt ruft, sobald er mit einem StÃ¼ck fertig ist, den 2. Schritt
 auf.
 
 Dann ruft pass2 den 3. Schritt auf. Es handelt sich hier um Optimierungen,
@@ -8776,14 +8776,14 @@ die, wenn sie erfolgreich waren, weitere dieser Optimierungen aufrufen.
 
 #|
                              1. Schritt:
-          Expansion von Code-Teilen, Aufteilen des Codes in Stücke
+          Expansion von Code-Teilen, Aufteilen des Codes in StÃ¼cke
 
-Verändert werden:
+VerÃ¤ndert werden:
 
 vorher                           nachher
 
 (CONST const)                    (CONST n const)
-(FCONST fnode)                   (CONST n), Fixup für 3. Pass merken
+(FCONST fnode)                   (CONST n), Fixup fÃ¼r 3. Pass merken
 (BCONST block)                   (CONST n)
 (GCONST tagbody)                 (CONST n)
 (GET var venvc stackz)           (LOAD n) oder (LOADI k1 k2 n)
@@ -8810,7 +8810,7 @@ vorher                           nachher
                                  wobei ht = Hash-Tabelle (obji -> labeli) ist
 (VENV venvc stackz)              (VENV) oder (NIL)
                                  oder (LOAD n) oder (LOADI k1 k2 n)
-(COPY-CLOSURE fnode n)           (COPY-CLOSURE m n), Fixup für 3. Pass merken
+(COPY-CLOSURE fnode n)           (COPY-CLOSURE m n), Fixup fÃ¼r 3. Pass merken
 (CALLP)                          gestrichen
 (CALL k fun)                     (CALL k n)
 (CALL0 fun)                      (CALL0 n)
@@ -8834,7 +8834,7 @@ vorher                           nachher
                                  (HANDLER-OPEN n v k label1 ... labelm)
 
 
-unverändert bleiben:
+unverÃ¤ndert bleiben:
 (NIL)
 (PUSH-NIL n)
 (T)
@@ -8912,15 +8912,15 @@ Neue Operationen:
 
 |#
 
-; Ein Vektor mit Fill-Pointer, der die Codestücke enthält:
+; Ein Vektor mit Fill-Pointer, der die CodestÃ¼cke enthÃ¤lt:
 (defvar *code-parts*)
 
-; Ein gleichlanger Vektor mit Fill-Pointer, der zu jedem Codestück eine
-; "Position" enthält, wo das Stück am Ende landen soll (0 = ganz am Anfang,
-; je höher, desto weiter hinten).
+; Ein gleichlanger Vektor mit Fill-Pointer, der zu jedem CodestÃ¼ck eine
+; "Position" enthÃ¤lt, wo das StÃ¼ck am Ende landen soll (0 = ganz am Anfang,
+; je hÃ¶her, desto weiter hinten).
 (defvar *code-positions*)
 
-; Trägt eine Konstante in (fnode-consts *func*) ein und liefert deren Index n.
+; TrÃ¤gt eine Konstante in (fnode-consts *func*) ein und liefert deren Index n.
 ; value ist der Wert der Konstanten,
 ; form eine Form mit diesem Wert oder NIL,
 ; horizont = :value (dann ist form = NIL) oder :all oder :form.
@@ -8956,9 +8956,9 @@ Neue Operationen:
 )
 
 ; sucht eine Konstante in (fnode-Keywords *func*) und in (fnode-Consts *func*),
-; trägt sie eventuell in (fnode-Consts *func*) ein. Liefert ihren Index n.
+; trÃ¤gt sie eventuell in (fnode-Consts *func*) ein. Liefert ihren Index n.
 (defun kvalue-form-index (value form horizont &optional (func *func*))
-  (when (and (not (eq horizont ':form)) (symbolp value)) ; nur bei Symbolen (früher: Keywords) lohnt sich die Suche
+  (when (and (not (eq horizont ':form)) (symbolp value)) ; nur bei Symbolen (frÃ¼her: Keywords) lohnt sich die Suche
     (do ((n (fnode-Keyword-Offset func) (1+ n))
          (L (fnode-Keywords func) (cdr L)))
         ((null L))
@@ -9007,7 +9007,7 @@ Neue Operationen:
 ) )
 
 ; (fconst-index fnode) liefert den Index in FUNC, an dem dieser fnode in den
-; Konstanten steht. Wenn nötig, wird er eingefügt und in *fnode-fixup-table*
+; Konstanten steht. Wenn nÃ¶tig, wird er eingefÃ¼gt und in *fnode-fixup-table*
 ; vermerkt.
 (defun fconst-index (fnode &optional (func *func*))
   (if (member fnode (fnode-Consts func))
@@ -9019,7 +9019,7 @@ Neue Operationen:
 
 ; Hilfsvariablen beim rekursiven Aufruf von traverse-anode:
 
-; Das aktuelle Codestück, eine umgedrehte Liste von Instruktionen, die
+; Das aktuelle CodestÃ¼ck, eine umgedrehte Liste von Instruktionen, die
 ; mit dem Start-Label als letztem nthcdr endet.
 (defvar *code-part*)
 
@@ -9029,16 +9029,16 @@ Neue Operationen:
 ; Flag, ob "toter Code" (d.h. Code, der nicht erreichbar ist) vorliegt
 (defvar *dead-code*)
 
-; Für Sprungkettenverkürzung in traverse-anode: Liste aller bereits
-; durchgeführten Label-Substitutionen ((old-label . new-label) ...)
+; FÃ¼r SprungkettenverkÃ¼rzung in traverse-anode: Liste aller bereits
+; durchgefÃ¼hrten Label-Substitutionen ((old-label . new-label) ...)
 (defvar *label-subst*)
 
 ; Der aktuelle Wert, interpretiert als boolescher Wert:
 ; FALSE falls =NIL, TRUE falls /=NIL, NIL falls unbekannt.
-; (Keine Einschränkung an die Anzahl der Werte!)
+; (Keine EinschrÃ¤nkung an die Anzahl der Werte!)
 (defvar *current-value*)
 
-; Liste der Variablen/Konstanten, deren Wert mit dem aktuellen übereinstimmt
+; Liste der Variablen/Konstanten, deren Wert mit dem aktuellen Ã¼bereinstimmt
 ; (lexikalische Variablen als VARIABLE-Structures, dynamische Variablen als
 ; Symbole, Konstanten als CONST-Structures mit horizont = :value oder :all).
 ; Ist diese Liste nichtleer, so liegt auch genau 1 Wert vor.
@@ -9047,16 +9047,16 @@ Neue Operationen:
 ; Jedes Label (ein Gensym-Symbol) hat als Wert eine Liste aller Referenzen
 ; auf label, und zwar jeweils entweder als Index i in *code-parts*, wenn es
 ; sich um den Wegsprung (das Ende) von (aref *code-parts* i) handelt, oder
-; als Instruktion (einer Liste) in allen anderen Fällen. Falls das Label
-; ein Codestück beginnt, steht unter (get label 'code-part) der Index in
-; *code-part* des Codestücks, das mit diesem Label anfängt. Unter
-; (get label 'for-value) steht, wieviele Werte bei einem möglichen Sprung
+; als Instruktion (einer Liste) in allen anderen FÃ¤llen. Falls das Label
+; ein CodestÃ¼ck beginnt, steht unter (get label 'code-part) der Index in
+; *code-part* des CodestÃ¼cks, das mit diesem Label anfÃ¤ngt. Unter
+; (get label 'for-value) steht, wieviele Werte bei einem mÃ¶glichen Sprung
 ; auf das Label von Bedeutung sind (NIL/ONE/ALL).
 ; Eine Ausnahme stellt das "Label" NIL dar, das den Einsprungpunkt darstellt.
 
 ; Ersetzt alle Referenzen auf old-label durch Referenzen auf new-label.
 (defun label-subst (old-label new-label)
-  ; alle Referenzen auf old-label verändern:
+  ; alle Referenzen auf old-label verÃ¤ndern:
   (dolist (ref (symbol-value old-label))
     (nsubst new-label old-label
             (rest (if (integerp ref) (first (aref *code-parts* ref)) ref))
@@ -9066,13 +9066,13 @@ Neue Operationen:
     (nconc (symbol-value old-label) (symbol-value new-label))
   )
   (setf (symbol-value old-label) '())
-  ; Mit old-label fängt kein Codestück mehr an:
+  ; Mit old-label fÃ¤ngt kein CodestÃ¼ck mehr an:
   (remprop old-label 'code-part)
 )
 
-; Aktuelles Codestück beenden und ein neues Codestück anfangen:
+; Aktuelles CodestÃ¼ck beenden und ein neues CodestÃ¼ck anfangen:
 (defun finish-code-part ()
-  ; das aktuelle Codestück vereinfachen:
+  ; das aktuelle CodestÃ¼ck vereinfachen:
   (simplify *code-part*)
   ; *code-part* in *code-parts* unterbringen:
   (vector-push-extend *code-part* *code-parts*)
@@ -9080,7 +9080,7 @@ Neue Operationen:
 )
 
 ; Einen Wegsprung auf Label label emittieren.
-; Dadurch wird ein neues Codestück angefangen.
+; Dadurch wird ein neues CodestÃ¼ck angefangen.
 (defun emit-jmp (label)
   ; mit einem Wegsprung:
   (push `(JMP ,label ,*current-value*) *code-part*)
@@ -9088,7 +9088,7 @@ Neue Operationen:
   (finish-code-part)
 )
 
-; Läuft durch den Code eines Anode durch, expandiert den Code und baut dabei
+; LÃ¤uft durch den Code eines Anode durch, expandiert den Code und baut dabei
 ; *code-part* weiter. Adjustiert die Variablen *current-value* usw. passend.
 (defun traverse-anode (code)
   (dolist (item code)
@@ -9099,7 +9099,7 @@ Neue Operationen:
                (setq *dead-code* nil)
                (if (symbolp *code-part*)
                  ; Label item sofort nach Label *code-part*
-                 ; -> können identifiziert werden
+                 ; -> kÃ¶nnen identifiziert werden
                  (let ((old-label *code-part*) (new-label item))
                    ; substituiere *code-parts* -> item
                    (label-subst old-label new-label)
@@ -9107,15 +9107,15 @@ Neue Operationen:
                      (acons old-label new-label
                        (nsubst new-label old-label *label-subst*)
                  ) ) )
-                 ; Label mitten im Codestück -> aktuelles Codestück beenden
+                 ; Label mitten im CodestÃ¼ck -> aktuelles CodestÃ¼ck beenden
                  (emit-jmp item)
              ) )
-             ; jetzt geht das aktuelle Codestück erst richtig los,
+             ; jetzt geht das aktuelle CodestÃ¼ck erst richtig los,
              ; mit dem Label item:
              (setq *code-part* item)
              (setf (get item 'code-part) (fill-pointer *code-parts*))
-             ; Da noch Sprünge auf dieses Label kommen können, wissen wir
-             ; nicht, was A0 enthält:
+             ; Da noch SprÃ¼nge auf dieses Label kommen kÃ¶nnen, wissen wir
+             ; nicht, was A0 enthÃ¤lt:
              (setq *current-value* nil *current-vars* '())
             )
             ((anode-p item) (traverse-anode (anode-code item))) ; Anode -> rekursiv
@@ -9123,7 +9123,7 @@ Neue Operationen:
       )
       ; item ist eine normale Instruktion
       (unless *dead-code* ; nur erreichbarer Code braucht verarbeitet zu werden
-        (nsublis *label-subst* (rest item)) ; bisherige Substitutionen durchführen
+        (nsublis *label-subst* (rest item)) ; bisherige Substitutionen durchfÃ¼hren
         (case (first item)
           (CONST
             (let ((const (second item)))
@@ -9164,7 +9164,7 @@ Neue Operationen:
                            (val (const-value const)))
                       (setq *current-value* (if (null val) 'FALSE 'TRUE))
                       (if (fnode-p val)
-                        ; FNODEs als Werte können (fast) nur von LABELS stammen
+                        ; FNODEs als Werte kÃ¶nnen (fast) nur von LABELS stammen
                         `(CONST ,(fconst-index val))
                         (make-const-code const)
                     ) )
@@ -9210,7 +9210,7 @@ Neue Operationen:
                   ) ) )
                   *code-part*
                 )
-                (push var *current-vars*) ; *current-value* bleibt unverändert
+                (push var *current-vars*) ; *current-value* bleibt unverÃ¤ndert
           ) ) )
           (GETVALUE
             (let ((symbol (second item)))
@@ -9222,7 +9222,7 @@ Neue Operationen:
             (let ((symbol (second item)))
               (unless (member symbol *current-vars* :test #'eq)
                 (push `(SETVALUE ,(kconstvalue-index symbol)) *code-part*)
-                (push symbol *current-vars*) ; *current-value* bleibt unverändert
+                (push symbol *current-vars*) ; *current-value* bleibt unverÃ¤ndert
           ) ) )
           (BIND
             (push `(BIND ,(const-index (second item))) *code-part*)
@@ -9255,7 +9255,7 @@ Neue Operationen:
                 (finish-code-part)
                 (setf (get new-label 'code-part) (fill-pointer *code-parts*))
                 (setq *code-part* new-label)
-                ; *current-value* und *current-vars* bleiben unverändert.
+                ; *current-value* und *current-vars* bleiben unverÃ¤ndert.
               )
               ; boolescher Wert beim Wegsprung bekannt
               (if (if (eq *current-value* 'FALSE)
@@ -9294,7 +9294,7 @@ Neue Operationen:
           (VENV
             (let ((venvc (second item))
                   (stackz (third item)))
-              (loop ; in venvc die NILs übergehen
+              (loop ; in venvc die NILs Ã¼bergehen
                 (when (car venvc) (return))
                 (setq venvc (cdr venvc))
               )
@@ -9466,23 +9466,23 @@ Neue Operationen:
           )
           ((UNWIND-PROTECT-CLEANUP)
             (push item *code-part*)
-            (setq *current-vars* '()) ; Kann Variablenwerte zerstören
+            (setq *current-vars* '()) ; Kann Variablenwerte zerstÃ¶ren
           )
           ((UNBIND1)
             (push item *code-part*)
-            (setq *current-vars* (delete-if #'symbolp *current-vars*)) ; Kann Werte dynamischer Variablen zerstören
+            (setq *current-vars* (delete-if #'symbolp *current-vars*)) ; Kann Werte dynamischer Variablen zerstÃ¶ren
           )
           (t (compiler-error 'traverse-anode "LISTITEM"))
 ) ) ) ) )
 
 ; Hilfsfunktionen nach dem 1. Schritt:
 
-; Kommt eine Instruktion item dazu, die vielleicht Label-Referenzen enthält,
+; Kommt eine Instruktion item dazu, die vielleicht Label-Referenzen enthÃ¤lt,
 ; so ist note-references aufzurufen. Dieses notiert die Label-Referenzen in
-; item. item gehöre zu (aref *code-parts* index).
-; Wird eine Instruktion item entfernt, die vielleicht Label-Referenzen enthält,
+; item. item gehÃ¶re zu (aref *code-parts* index).
+; Wird eine Instruktion item entfernt, die vielleicht Label-Referenzen enthÃ¤lt,
 ; so ist remove-references aufzurufen. Dieses notiert das Wegfallen der
-; Label-Referenzen in item. item gehöre zu (aref *code-parts* index).
+; Label-Referenzen in item. item gehÃ¶re zu (aref *code-parts* index).
 ; Liefert auch die Liste der in item enthaltenen Labels.
 (macrolet ((references ()
              `(case (first item)
@@ -9529,10 +9529,10 @@ Neue Operationen:
                               2. Schritt
                 Vereinfachung von Folgen von Operationen
 
-Dieses spielt sich auf umgedrehten Codestücken ab; sie werden dabei destruktiv
-verändert.
+Dieses spielt sich auf umgedrehten CodestÃ¼cken ab; sie werden dabei destruktiv
+verÃ¤ndert.
 
-Vereinfachungsregeln für Operationen:
+Vereinfachungsregeln fÃ¼r Operationen:
 
 1. (VALUES1) darf nach allen Instruktionen gestrichen werden, die sowieso nur
    einen Wert produzieren, und vor allen, die sowieso nur einen verwenden.
@@ -9548,26 +9548,26 @@ Vereinfachungsregeln für Operationen:
    (ATOM) (NOT)                      --> (CONSP)
    (CONSP) (NOT)                     --> (ATOM)
 
-4. (LOAD 0) (SKIP n)                 --> (POP) (SKIP n-1)  für n>1
-   (LOAD 0) (SKIP 1)                 --> (POP)             für n=1
-   (PUSH) (SKIP n)                   --> (SKIP n-1)  für n>1
-   (PUSH) (SKIP 1)                   -->             für n=1
+4. (LOAD 0) (SKIP n)                 --> (POP) (SKIP n-1)  fÃ¼r n>1
+   (LOAD 0) (SKIP 1)                 --> (POP)             fÃ¼r n=1
+   (PUSH) (SKIP n)                   --> (SKIP n-1)  fÃ¼r n>1
+   (PUSH) (SKIP 1)                   -->             fÃ¼r n=1
    (NV-TO-STACK n) (SKIP n)          -->
    (NV-TO-STACK n+m) (SKIP n)        --> (NV-TO-STACK m)
    (NV-TO-STACK n) (SKIP n+m)        --> (SKIP m)
-   (STORE m) (SKIP n)                --> (VALUES1) (SKIP n) für n>m
+   (STORE m) (SKIP n)                --> (VALUES1) (SKIP n) fÃ¼r n>m
    (STORE 0) (POP)                   --> (VALUES1) (SKIP 1)
    (PUSH) (POP)                      --> (VALUES1)
    (POP) (PUSH)                      -->
-   (SKIP n) (PUSH)                   --> (SKIP n-1) (STORE 0) für n>1
-   (SKIP 1) (PUSH)                   --> (STORE 0)            für n=1
+   (SKIP n) (PUSH)                   --> (SKIP n-1) (STORE 0) fÃ¼r n>1
+   (SKIP 1) (PUSH)                   --> (STORE 0)            fÃ¼r n=1
 
 5. (VALUES1)/... (MV-TO-STACK)       --> (VALUES1)/... (PUSH)
    (VALUES0) (MV-TO-STACK)           -->
    (STACK-TO-MV n) (MV-TO-STACK)     -->
-   (STACK-TO-MV m) (NV-TO-STACK n)   --> (PUSH-NIL n-m)  für m<n
-                                     -->                 für m=n
-                                     --> (SKIP m-n)      für m>n
+   (STACK-TO-MV m) (NV-TO-STACK n)   --> (PUSH-NIL n-m)  fÃ¼r m<n
+                                     -->                 fÃ¼r m=n
+                                     --> (SKIP m-n)      fÃ¼r m>n
    (NIL)/(VALUES0) (NV-TO-STACK n)   --> (PUSH-NIL n)
    (VALUES1)/... (NV-TO-STACK n)     --> (VALUES1)/... (PUSH) (PUSH-NIL n-1)
 
@@ -9577,7 +9577,7 @@ Vereinfachungsregeln für Operationen:
 
 |#
 
-; Die Hash-Tabelle one-value-ops enthält diejenigen Befehle,
+; Die Hash-Tabelle one-value-ops enthÃ¤lt diejenigen Befehle,
 ; die genau einen Wert erzeugen.
 (defconstant one-value-ops
   (let ((ht (make-hash-table :test #'eq)))
@@ -9593,13 +9593,13 @@ Vereinfachungsregeln für Operationen:
 ) )
 
 ; Der Wert zu einem Key in dieser Hash-Tabelle gibt an, wieviele Werte bei
-; der Ausführung der entsprechenden Operation benötigt werden
+; der AusfÃ¼hrung der entsprechenden Operation benÃ¶tigt werden
 ; (vgl. *for-value*):
 ; NIL : Werte werden weggeworfen.
-; ONE : Ein Wert wird verwendet, die übrigen weggeworfen.
+; ONE : Ein Wert wird verwendet, die Ã¼brigen weggeworfen.
 ; ALL : Alle Werte werden verwendet.
-; Operationen, die ihre Werte nicht verändern, werden hierin nicht
-; aufgeführt.
+; Operationen, die ihre Werte nicht verÃ¤ndern, werden hierin nicht
+; aufgefÃ¼hrt.
 (defconstant for-value-table
   (let ((ht (make-hash-table :test #'eq)))
     (dolist (op '(NIL PUSH-NIL T CONST LOAD LOADI LOADC LOADV LOADIC
@@ -9626,21 +9626,21 @@ Vereinfachungsregeln für Operationen:
             )    )
       (setf (gethash op ht) 'ALL)
     )
-    ; Nicht in der Tabelle, weil sie die Werte unverändert lassen:
+    ; Nicht in der Tabelle, weil sie die Werte unverÃ¤ndert lassen:
     ;           '(UNBIND1 SKIP SKIPI SKIPSP BLOCK-CLOSE TAGBODY-CLOSE
     ;             CATCH-CLOSE UNWIND-PROTECT-CLEANUP
     ;            )
-    ; Nicht in der Tabelle, weil es Wegsprünge sind:
+    ; Nicht in der Tabelle, weil es WegsprÃ¼nge sind:
     ;   ONE:    '(RETGF JMPHASH)
     ;   ALL:    '(RET JMP JMPCASE JMPCASE1-TRUE JMPCASE1-FALSE)
     ht
 ) )
 
-; Vereinfacht ein Codestück (in umgedrehter Reihenfolge!).
-; Obige Vereinfachungsregeln werden durchgeführt, solange es geht.
+; Vereinfacht ein CodestÃ¼ck (in umgedrehter Reihenfolge!).
+; Obige Vereinfachungsregeln werden durchgefÃ¼hrt, solange es geht.
 ; Ergebnis ist meist NIL, oder aber (um anzuzeigen, dass weitere Optimierungen
-; möglich sind) das Anfangslabel, falls sich dessen Property for-value
-; abgeschwächt hat.
+; mÃ¶glich sind) das Anfangslabel, falls sich dessen Property for-value
+; abgeschwÃ¤cht hat.
 (defun simplify (codelist)
   (let ((for-value-at-end
           (let ((item (car codelist)))
@@ -9662,13 +9662,13 @@ Vereinfachungsregeln für Operationen:
               (t (compiler-error 'simplify "AT-END"))
         ) ) )
         (result nil)) ; evtl. das Anfangslabel
-    ; for-value-at-end zeigt an, welche Werte vor dem Wegsprung benötigt werden.
+    ; for-value-at-end zeigt an, welche Werte vor dem Wegsprung benÃ¶tigt werden.
     (loop
       (let ((modified nil))
         (let* ((links codelist) (mitte (cdr links)) rechts (for-value for-value-at-end))
           ; Es wandern drei Pointer durch die Codeliste: ...links.mitte.rechts...
-          ; for-value zeigt an, was für Werte nach Ausführung von (car mitte),
-          ; vor Ausführung von (car links), gebraucht werden.
+          ; for-value zeigt an, was fÃ¼r Werte nach AusfÃ¼hrung von (car mitte),
+          ; vor AusfÃ¼hrung von (car links), gebraucht werden.
           (loop
             nochmal
             (when (atom mitte) (return))
@@ -9729,7 +9729,7 @@ Vereinfachungsregeln für Operationen:
                   (VALUES1 (streiche1))
                   (VALUES0 (ersetze1 '(NIL)))
                   (LIST-TO-MV (ersetze1 '(CAR)))
-                  (STACK-TO-MV ; (STACK-TO-MV n) --> (SKIP n-1) (POP) für n>1
+                  (STACK-TO-MV ; (STACK-TO-MV n) --> (SKIP n-1) (POP) fÃ¼r n>1
                     (let ((n (second (car mitte))))
                       (erweitere2 '(POP) `(SKIP ,(- n 1)))
               ) ) ) )
@@ -9786,7 +9786,7 @@ Vereinfachungsregeln für Operationen:
                                   ((< n1 n2) (ersetze2 `(SKIP ,(- n2 n1))))
                                   (t (streiche2))
                         ) ) )
-                        (STORE ; (STORE m) (SKIP n) --> (VALUES1) (SKIP n) für n>m
+                        (STORE ; (STORE m) (SKIP n) --> (VALUES1) (SKIP n) fÃ¼r n>m
                           (let ((m (second (car rechts))))
                             (when (> n2 m)
                               (setf (car rechts) '(VALUES1))
@@ -9880,14 +9880,14 @@ Vereinfachungsregeln für Operationen:
                   ) )
             ) ) )
             (when (atom mitte) (return))
-            ; Neues for-value berechnen, in Abhängigkeit von (car mitte):
+            ; Neues for-value berechnen, in AbhÃ¤ngigkeit von (car mitte):
             (setq for-value
               (gethash (first (car mitte)) for-value-table for-value)
             )
-            ; weiterrücken:
+            ; weiterrÃ¼cken:
             (setq links mitte mitte rechts)
           )
-          ; Codestück zu Ende: (atom mitte)
+          ; CodestÃ¼ck zu Ende: (atom mitte)
           (when mitte
             ; mitte ist das Anfangslabel
             (let ((old-for-value (get mitte 'for-value)))
@@ -9916,7 +9916,7 @@ Vereinfachungsregeln für Operationen:
           (setf (first codelist) `(JMPTAIL ,n ,(+ n m) ,label))
         )
         (remove-references (first codelistr)) ; (JSR ...) wird gestrichen
-        (note-references (first codelist)) ; (JMPTAIL ...) wird eingefügt
+        (note-references (first codelist)) ; (JMPTAIL ...) wird eingefÃ¼gt
         (setf (cdr codelist) (cdr codelistr)) ; ein bzw. zwei Listenelemente streichen
         (setq for-value-at-end 'NIL) ; JMPTAIL braucht keine Werte
     ) )
@@ -9927,29 +9927,29 @@ Vereinfachungsregeln für Operationen:
                             3. Schritt:
                       Allgemeine Optimierungen
 
-Wird eine Optimierung erfolgreich durchgeführt, so werden alle weiteren
-Optimierungen nochmal probiert, die sich deswegen ergeben könnten.
+Wird eine Optimierung erfolgreich durchgefÃ¼hrt, so werden alle weiteren
+Optimierungen nochmal probiert, die sich deswegen ergeben kÃ¶nnten.
 
 optimize-part    - ruft den 2. Schritt auf:
                    Peephole-Optimierung normaler Operationen.
 
-optimize-label   - Codestücke zu Labels, die nicht (mehr) referenziert werden,
+optimize-label   - CodestÃ¼cke zu Labels, die nicht (mehr) referenziert werden,
                    werden entfernt.
                  - Wird ein Label nur von einem einzigen JMP referenziert,
-                   der nicht vom selben Codestück kommt, können die beiden
-                   betroffenen Stücke aneinandergehängt werden.
+                   der nicht vom selben CodestÃ¼ck kommt, kÃ¶nnen die beiden
+                   betroffenen StÃ¼cke aneinandergehÃ¤ngt werden.
 
-optimize-short   - Liegt ein Codestück vor, wo auf das Anfangslabel label1
+optimize-short   - Liegt ein CodestÃ¼ck vor, wo auf das Anfangslabel label1
                    sofort ein (JMP label2) folgt, so werden alle Referenzen
-                   von label1 durch label2 ersetzt und das Codestück entfernt.
-                 - Liegt ein Codestück vor, wo auf das Anfangslabel label
+                   von label1 durch label2 ersetzt und das CodestÃ¼ck entfernt.
+                 - Liegt ein CodestÃ¼ck vor, wo auf das Anfangslabel label
                    sofort ein
                    (JMPCASE/JMPCASE1-TRUE/JMPCASE1-FALSE label_true label_false)
-                   folgt, so können Referenzen (JMPCASE1-TRUE label l) und
+                   folgt, so kÃ¶nnen Referenzen (JMPCASE1-TRUE label l) und
                    (JMPCASE1-FALSE l label) vereinfacht werden.
-                 - Ein kurzes Codestück wird direkt an zugehörige JMPs auf
-                   sein Anfangslabel angehängt. (Ein Codestück heißt "kurz",
-                   wenn es höchstens 2 Befehle umfasst und nicht mit einem
+                 - Ein kurzes CodestÃ¼ck wird direkt an zugehÃ¶rige JMPs auf
+                   sein Anfangslabel angehÃ¤ngt. (Ein CodestÃ¼ck heiÃŸt "kurz",
+                   wenn es hÃ¶chstens 2 Befehle umfasst und nicht mit einem
                    JMPHASH (den man nicht duplizieren sollte) abgeschlossen
                    ist. Auch HANDLER-OPEN sollte man nicht duplizieren.)
 
@@ -9957,7 +9957,7 @@ optimize-jmpcase - (JMPCASE label label) wird vereinfacht zu (JMP label).
                  - (NOT) [...] (JMPCASE label_true label_false) wird
                    vereinfacht zu [...] (JMPCASE label_false label_true),
                    wobei [...] nur Befehle enthalten darf, die den 1. Wert
-                   nicht verändern, und bei label_true und label_false keine
+                   nicht verÃ¤ndern, und bei label_true und label_false keine
                    Werte gebraucht werden.
 
 optimize-value   - Ein Wegsprung JMPCASE1-TRUE/JMPCASE1-FALSE kann durch
@@ -9992,8 +9992,8 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
     ; code = (aref *code-parts* index), und es ist lastc = (last code).
     (let ((refs (symbol-value label))) ; Liste der Referenzen darauf
       (cond ((null refs)
-              ; nicht referenziertes Label: Codestück entfernen,
-              ; Referenzen aus diesem Codestück heraus eliminieren.
+              ; nicht referenziertes Label: CodestÃ¼ck entfernen,
+              ; Referenzen aus diesem CodestÃ¼ck heraus eliminieren.
               (let ((labellist '())) ; Liste von Labels, die Referenzen
                                      ; verloren haben
                 (loop
@@ -10001,9 +10001,9 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                   (setq labellist
                     (nreconc labellist (remove-references (pop code) index))
                 ) )
-                (setf (aref *code-parts* index) nil) ; Codestück entfernen
+                (setf (aref *code-parts* index) nil) ; CodestÃ¼ck entfernen
                 ; Bei Labels mit weniger Referenzen weiteroptimieren:
-                ; (Vorsicht: Hierdurch kann sich *code-parts* verändern.)
+                ; (Vorsicht: Hierdurch kann sich *code-parts* verÃ¤ndern.)
                 (dolist (olabel labellist)
                   (let* ((oindex (get olabel 'code-part))
                          (ocode (aref *code-parts* oindex)))
@@ -10016,9 +10016,9 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
               (let ((ref (first refs)))
                 (when (and (integerp ref) ; Ein JMP ist ein Wegsprung
                            (eq (first (car (aref *code-parts* ref))) 'JMP)
-                           (not (eql index ref)) ; aus anderem Codestück
+                           (not (eql index ref)) ; aus anderem CodestÃ¼ck
                       )
-                  ; Anhängen:
+                  ; AnhÃ¤ngen:
                   ; (aref *code-parts* ref) wird in die Schublade
                   ; (aref *code-parts* index) gesteckt.
                   (setf (cdr lastc) (rest (aref *code-parts* ref)))
@@ -10028,7 +10028,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                       (setf (get new-startlabel 'code-part) index)
                   ) )
                   (setf (symbol-value label) '()) ; altes Startlabel von (aref *code-parts* index) deaktivieren
-                  ; neues Codestück vereinfachen:
+                  ; neues CodestÃ¼ck vereinfachen:
                   (optimize-part code)
 ) ) ) )     ) ) )
 
@@ -10047,11 +10047,11 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
             (let ((to-label (second item)))
               (unless (eq label to-label)
                 (label-subst label to-label) ; Referenzen umbiegen
-                (setf (aref *code-parts* index) nil) ; Codestück entfernen
+                (setf (aref *code-parts* index) nil) ; CodestÃ¼ck entfernen
                 (setf (symbol-value to-label)
-                      (delete index (symbol-value to-label)) ; Referenz fällt weg
+                      (delete index (symbol-value to-label)) ; Referenz fÃ¤llt weg
                 )
-                (optimize-label to-label) ; mögliche Optimierung
+                (optimize-label to-label) ; mÃ¶gliche Optimierung
                 (dolist (refindex (symbol-value to-label))
                   (when (integerp refindex)
                     (let* ((refcode (aref *code-parts* refindex))
@@ -10071,7 +10071,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
               (unless (or (eq label true-label) (eq label false-label))
                 (macrolet ((err () `(compiler-error 'optimize-short)))
                   ; JMPCASE1-Referenzen auf label vereinfachen:
-                  (let ((modified-indices '())) ; Indizes von modifizierten Codestücken
+                  (let ((modified-indices '())) ; Indizes von modifizierten CodestÃ¼cken
                     (dolist (refindex (symbol-value label))
                       (when (integerp refindex)
                         (let* ((refcode (aref *code-parts* refindex))
@@ -10132,15 +10132,15 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                             ) ) )
                             (JMPHASH (err)) ; JMPHASH hat undefinierte Werte
                         ) )
-                        ; später:
+                        ; spÃ¤ter:
                         ; (setf (symbol-value label) (delete refindex (symbol-value label)))
                     ) )
                     (setf (symbol-value label)
                           (delete-if #'integerp (symbol-value label))
                     )
-                    ; evtl. Optimierung wegen verringerter Referenzen möglich:
+                    ; evtl. Optimierung wegen verringerter Referenzen mÃ¶glich:
                     (optimize-label label)
-                    ; evtl. weitere Optimierung in veränderten Codeteilen:
+                    ; evtl. weitere Optimierung in verÃ¤nderten Codeteilen:
                     (dolist (refindex modified-indices)
                       (simplify (aref *code-parts* refindex))
                       (optimize-value refindex)
@@ -10148,18 +10148,18 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                     )
           ) ) ) ) )
     ) ) )
-    ; Sonstige "kurze" Codestücke, maximal 2 Operationen lang:
+    ; Sonstige "kurze" CodestÃ¼cke, maximal 2 Operationen lang:
     (when (and (or (eq code lastc) (eq (cdr code) lastc))
                (not (eq (first (car code)) 'JMPHASH))
                (or (eq code lastc) (not (eq (first (cadr code)) 'HANDLER-OPEN)))
           )
-      (let ((indices '())) ; Liste der Indizes der Codestücke, an die wir code anhängen
-        (setf (cdr lastc) '()) ; code vorläufig ohne das Label am Schluss
+      (let ((indices '())) ; Liste der Indizes der CodestÃ¼cke, an die wir code anhÃ¤ngen
+        (setf (cdr lastc) '()) ; code vorlÃ¤ufig ohne das Label am Schluss
         (dolist (refindex (symbol-value label))
           (when (and (integerp refindex) (not (eql refindex index)))
             (let ((refcode (aref *code-parts* refindex)))
               (when (eq (first (car refcode)) 'JMP)
-                ; anhängen:
+                ; anhÃ¤ngen:
                 (let ((new-code (mapcar #'copy-list code)))
                   (dolist (op new-code) (note-references op refindex))
                   (setf (aref *code-parts* refindex) (nconc new-code (cdr refcode)))
@@ -10169,7 +10169,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
         ) ) ) )
         (setf (cdr lastc) label) ; wieder das Label ans Listenende setzen
         (when indices
-          ; mögliche weitere Optimierungen:
+          ; mÃ¶gliche weitere Optimierungen:
           (dolist (refindex indices)
             (optimize-part (aref *code-parts* refindex))
           )
@@ -10177,9 +10177,9 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
     ) ) )
 ) )
 
-; get-boolean-value versucht zu einem Anfangsstück eines Codestücks
+; get-boolean-value versucht zu einem AnfangsstÃ¼ck eines CodestÃ¼cks
 ; (einem (nthcdr n codelist) mit n>=1) zu bestimmen, welcher boolesche Wert
-; nach seiner Ausführung vorliegt:
+; nach seiner AusfÃ¼hrung vorliegt:
 ; FALSE     sicher A0 = NIL,
 ; TRUE      sicher A0 /= NIL,
 ; NIL       keine Aussage.
@@ -10196,36 +10196,36 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
            (when (atom code) (return))
            (case (first (car code))
              ((NIL VALUES0 TAGBODY-CLOSE-NIL) ; produzieren Wert NIL
-               (return-from value 'FALSE) ; Damit können wir die Schleife abbrechen
+               (return-from value 'FALSE) ; Damit kÃ¶nnen wir die Schleife abbrechen
              )
              ((T CONS LIST LIST*) ; produzieren Wert /= NIL
                ; (LIST n) und (LIST* n) wegen n>0.
-               (return-from value 'TRUE) ; Damit können wir die Schleife abbrechen
+               (return-from value 'TRUE) ; Damit kÃ¶nnen wir die Schleife abbrechen
              )
              (CONST
                (unless (and (cddr (car code)) (eq (const-horizont (third (car code))) ':form))
                  ; (CONST n) produziert Wert /= NIL, weil der Wert schon zur
                  ; Compile-Zeit bekannt ist und die Konstante NIL in make-const-code
                  ; bereits speziell behandelt wurde.
-                 (return-from value 'TRUE) ; Damit können wir die Schleife abbrechen
+                 (return-from value 'TRUE) ; Damit kÃ¶nnen wir die Schleife abbrechen
                )
                (return-from value nil)
              )
-             (NOT (setq invert (not invert))) ; invertiere später den booleschen Wert
+             (NOT (setq invert (not invert))) ; invertiere spÃ¤ter den booleschen Wert
              ((UNBIND1 SKIP SKIPI SKIPSP STORE STOREI STOREV STOREC STOREIC SETVALUE
                VALUES1 BLOCK-CLOSE TAGBODY-CLOSE CATCH-CLOSE UNWIND-PROTECT-CLEANUP
-             )) ; keine Änderung des 1. Werts -> weiter in der Codeliste
+             )) ; keine Ã„nderung des 1. Werts -> weiter in der Codeliste
              (t (return-from value nil))
            )
            (setq code (cdr code))
          )
          (when code
            ; code ist das Anfangslabel.
-           ; Inspiziere alle Sprünge auf das Label code:
+           ; Inspiziere alle SprÃ¼nge auf das Label code:
            (let ((bisher nil))
-             ; bisher = FALSE, falls bisher alle Sprünge den booleschen Wert
+             ; bisher = FALSE, falls bisher alle SprÃ¼nge den booleschen Wert
              ;                 FALSE mitbringen,
-             ; bisher = TRUE, falls bisher alle Sprünge den booleschen Wert
+             ; bisher = TRUE, falls bisher alle SprÃ¼nge den booleschen Wert
              ;                TRUE mitbringen,
              ; bisher = NIL am Anfang.
              ; Falls ein Sprung einen unbekannten booleschen Wert mitbringt,
@@ -10251,11 +10251,11 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                          (when (eq code (third refcode)) (neu 'FALSE))
                        )
                        (t (err)) ; JMPHASH hat undefinierte Werte, und die
-                                 ; anderen Wegsprünge enthalten keine Labels.
+                                 ; anderen WegsprÃ¼nge enthalten keine Labels.
                    ) )
                    (case (first ref)
                      ((JMPIFBOUNDP BLOCK-OPEN CATCH-OPEN)
-                       (return-from value nil) ; Da können wir nichts aussagen
+                       (return-from value nil) ; Da kÃ¶nnen wir nichts aussagen
                      )
                      (t (err)) ; An den Labels in TAGBODY-OPEN, JSR,
                                ; UNWIND-PROTECT-OPEN, UNWIND-PROTECT-CLOSE
@@ -10295,7 +10295,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                 ((UNBIND1 SKIP SKIPI SKIPSP VALUES1 BLOCK-CLOSE TAGBODY-CLOSE
                   CATCH-CLOSE UNWIND-PROTECT-CLEANUP
                  ) ; diese Operationen brauchen keine Werte und lassen
-                   ; den 1. Wert unverändert
+                   ; den 1. Wert unverÃ¤ndert
                  (shiftf cr1 cr2 (cdr cr2))
                 )
                 (NOT
@@ -10334,7 +10334,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                          ; (JMPCASE1-FALSE ...) --> (JMPCASE ...)
                 )   )
             (setq item (setf (car code) `(JMPCASE ,@(rest item))))
-            ; Weitere mögliche Optimierungen:
+            ; Weitere mÃ¶gliche Optimierungen:
             (optimize-jmpcase index code)
           )
           ; Versuche, den booleschen Wert an dieser Stelle zu ermitteln
@@ -10350,8 +10350,8 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                 (push '(VALUES1) (cdr code))
                 (simplify code)
               )
-              (optimize-part code) ; weitere mögliche Optimierung
-              ; weitere mögliche Optimierungen:
+              (optimize-part code) ; weitere mÃ¶gliche Optimierung
+              ; weitere mÃ¶gliche Optimierungen:
               (optimize-label false-label) ; wegen verringerter Referenzen
               (optimize-short index) ; wegen obigem optimize-part
             )
@@ -10365,42 +10365,42 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                 (push '(VALUES1) (cdr code))
                 (simplify code)
               )
-              (optimize-part code) ; weitere mögliche Optimierung
-              ; weitere mögliche Optimierungen:
+              (optimize-part code) ; weitere mÃ¶gliche Optimierung
+              ; weitere mÃ¶gliche Optimierungen:
               (optimize-label true-label) ; wegen verringerter Referenzen
               (optimize-short index) ; wegen obigem optimize-part
       ) ) ) )
       (JMP
         (let ((label (second item)))
           (when (get label 'for-value)
-            ; Wert wird benötigt
+            ; Wert wird benÃ¶tigt
             (when (null (third item))
               ; aber er ist unbekannt.
-              ; Vielleicht lässt sich der Wert herausbekommen ?
+              ; Vielleicht lÃ¤sst sich der Wert herausbekommen ?
               (let ((value (get-boolean-value (cdr code))))
                 (when value
                   (setf (car code) `(JMP ,label ,value))
-                  ; Wert jetzt bekannt, lässt sich vielleicht verwenden:
+                  ; Wert jetzt bekannt, lÃ¤sst sich vielleicht verwenden:
                   (optimize-value (get label 'code-part))
 ) ) ) ) ) ) ) ) )
 
-; coalesce legt gleiche Codeteile in den gegebenen Codestücken soweit wie
-; möglich zusammen und liefert als Ergebnis ein Flag, ob etwas geändert wurde.
+; coalesce legt gleiche Codeteile in den gegebenen CodestÃ¼cken soweit wie
+; mÃ¶glich zusammen und liefert als Ergebnis ein Flag, ob etwas geÃ¤ndert wurde.
 (defun coalesce (&optional (indexlist
-                             ; Liste aller möglichen Indizes
+                             ; Liste aller mÃ¶glichen Indizes
                              (let ((L '()))
                                (dotimes (i (fill-pointer *code-parts*)) (push i L))
                                (nreverse L)
                 )          ) )
   (let ((parts-ht ; Eine Hashtabelle, die eine Abbildung realisiert:
-                  ; Codeende --> Liste aller Indizes von Codestücken,
+                  ; Codeende --> Liste aller Indizes von CodestÃ¼cken,
                   ;              die damit enden
           (let ((ht (make-hash-table :test #'equal :size (length indexlist))))
             (dolist (index indexlist)
-              (let ((code (aref *code-parts* index))) ; ein Codestück
-                ; Wegen der Vereinfachungsregel für "kurze" Codestücke werden
+              (let ((code (aref *code-parts* index))) ; ein CodestÃ¼ck
+                ; Wegen der Vereinfachungsregel fÃ¼r "kurze" CodestÃ¼cke werden
                 ; nur Teile zusammengelegt, die in mindestens den letzten 3
-                ; Operationen übereinstimmen.
+                ; Operationen Ã¼bereinstimmen.
                 (when (and (consp code) (consp (cdr code)) (consp (cddr code)))
                   (push index
                     (gethash (list* (first code) (second code) (third code))
@@ -10410,48 +10410,48 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
             ht
         ) )
         (modified nil))
-    ; Dann über die möglichen Codeenden iterieren:
+    ; Dann Ã¼ber die mÃ¶glichen Codeenden iterieren:
     (maphash
       #'(lambda (code-beginning indices)
           (declare (ignore code-beginning))
           (when (cdr indices) ; mindestens zwei Indizes mit diesem Codeende?
-            ; Versuche, möglichst langes Codestück zusammenzulegen:
-            (let ((codes ; Liste der zusammenzulegenden Codestücke
+            ; Versuche, mÃ¶glichst langes CodestÃ¼ck zusammenzulegen:
+            (let ((codes ; Liste der zusammenzulegenden CodestÃ¼cke
                     (mapcar #'(lambda (i) (aref *code-parts* i)) indices)
                   )
                   (new-code '()) ; hier wird der gemeinsame Code gesammelt
-                  (new-index (fill-pointer *code-parts*)) ; Index dafür
-                  (new-order ; das gemeinsame Stück wird beim letzten Teil einzusortiert
+                  (new-index (fill-pointer *code-parts*)) ; Index dafÃ¼r
+                  (new-order ; das gemeinsame StÃ¼ck wird beim letzten Teil einzusortiert
                     (reduce #'max (mapcar #'(lambda (i) (aref *code-positions* i)) indices))
                  ))
               (loop
-                ; stimmen noch alle überein?
+                ; stimmen noch alle Ã¼berein?
                 (unless (every #'consp codes) (return))
-                (let* ((code1 (first codes)) ; ein beliebiges der Codestücke
+                (let* ((code1 (first codes)) ; ein beliebiges der CodestÃ¼cke
                        (code11 (car code1))) ; dessen letzte Operation
                   (unless (every #'(lambda (code) (equal (car code) code11))
                                  (rest codes)
                           )
                     (return)
                   )
-                  ; ja. Alle Codestücke aus codes um eine Operation verkürzen:
-                  (mapc #'(lambda (code index) ; Referenzen löschen
+                  ; ja. Alle CodestÃ¼cke aus codes um eine Operation verkÃ¼rzen:
+                  (mapc #'(lambda (code index) ; Referenzen lÃ¶schen
                             (remove-references (car code) index)
                           )
                         codes indices
                   )
-                  ; verkürzen: (setq codes (mapcar #'cdr codes)), oder:
+                  ; verkÃ¼rzen: (setq codes (mapcar #'cdr codes)), oder:
                   (mapl #'(lambda (codesr)
                             (setf (car codesr) (cdr (car codesr)))
                           )
                         codes
                   )
-                  (push code11 new-code) ; new-code verlängern
+                  (push code11 new-code) ; new-code verlÃ¤ngern
                   (note-references code11 new-index)
               ) )
               (let* ((new-label (make-label 'ALL))
-                     ; Alle Codestücke aus codes wurden verkürzt, sie werden
-                     ; jetzt verlängert um ein (JMP new-label NIL).
+                     ; Alle CodestÃ¼cke aus codes wurden verkÃ¼rzt, sie werden
+                     ; jetzt verlÃ¤ngert um ein (JMP new-label NIL).
                      (jmpop `(JMP ,new-label NIL)))
                 (mapc #'(lambda (code index)
                           (setf (aref *code-parts* index) (cons jmpop code))
@@ -10463,10 +10463,10 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                 (vector-push-extend (nreconc new-code new-label) *code-parts*)
                 (vector-push-extend new-order *code-positions*)
               )
-              ; weitere mögliche Optimierungen:
+              ; weitere mÃ¶gliche Optimierungen:
               (optimize-part (aref *code-parts* new-index))
               (coalesce indices)
-              (setq modified t) ; Veränderung hat stattgefunden
+              (setq modified t) ; VerÃ¤nderung hat stattgefunden
         ) ) )
       parts-ht
     )
@@ -10474,17 +10474,17 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
 ) )
 
 ; Die Hauptfunktion des 3. Schritts:
-; Führt alle Optimierungen durch, und fasst dann alle Codestücke wieder zu
+; FÃ¼hrt alle Optimierungen durch, und fasst dann alle CodestÃ¼cke wieder zu
 ; einer einzigen Codeliste zusammen und liefert diese.
 (defun optimize-all ()
   ; Optimierungen:
   (loop
     ; Optimierungen aufrufen:
-    ; Wird eine fündig, so ruft sie auch gleich die Optimierungs-
-    ; schritte auf, die sich dadurch ergeben könnten. Daher brauchen
-    ; sie hier nur einmal aufgeführt zu werden.
-    ; Vorsicht hier: durch die Optimierungen können *code-parts* und sein
-    ; Inhalt sich völlig verändern.
+    ; Wird eine fÃ¼ndig, so ruft sie auch gleich die Optimierungs-
+    ; schritte auf, die sich dadurch ergeben kÃ¶nnten. Daher brauchen
+    ; sie hier nur einmal aufgefÃ¼hrt zu werden.
+    ; Vorsicht hier: durch die Optimierungen kÃ¶nnen *code-parts* und sein
+    ; Inhalt sich vÃ¶llig verÃ¤ndern.
     (do ((index 0 (1+ index)))
         ((eql index (fill-pointer *code-parts*)))
       (let ((code (aref *code-parts* index)))
@@ -10513,16 +10513,16 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
   )
   ; Zu einer einzigen Codeliste zusammenfassen:
   ; (Dabei werden die Labels nun Listenelemente im Code statt nur NTHCDRs.)
-  (let ((start-index 0)) ; Start-"Label" NIL beginnt Codestück Nr. 0
-    ; Erst jeweils ein Codestück, das mit label anfängt, wenn möglich an ein
-    ; Codestück anhängen, das mit einem JMP oder JMPCASE/... zu label endet.
+  (let ((start-index 0)) ; Start-"Label" NIL beginnt CodestÃ¼ck Nr. 0
+    ; Erst jeweils ein CodestÃ¼ck, das mit label anfÃ¤ngt, wenn mÃ¶glich an ein
+    ; CodestÃ¼ck anhÃ¤ngen, das mit einem JMP oder JMPCASE/... zu label endet.
     (do ((index (fill-pointer *code-parts*)))
-        ((eql (decf index) 0)) ; index durchläuft die Indizes von *code-parts*
+        ((eql (decf index) 0)) ; index durchlÃ¤uft die Indizes von *code-parts*
                                ; von oben nach unten, ausgenommen start-index=0.
       (let ((code (aref *code-parts* index)))
         (when code
           (loop
-            ; Betrachte das Label am Ende von code, im Codestück Nr. index:
+            ; Betrachte das Label am Ende von code, im CodestÃ¼ck Nr. index:
             (let* ((lastc (last code)) ; letztes Cons von code
                    (label (cdr lastc)) ; Label am Ende von code
                    (refs (symbol-value label)) ; Referenzen darauf
@@ -10531,26 +10531,26 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                    (jmpcase-ref nil) ; bisher beste gefundene JMPCASE-Referenz auf label
                    (jmpcase1-ref nil)) ; bisher beste gefundene JMPCASE1-...-Referenz auf label
               (if (null label)
-                ; Das Start-Code-Stück wurde umgehängt!
+                ; Das Start-Code-StÃ¼ck wurde umgehÃ¤ngt!
                 (progn
                   (setq start-index index)
-                  (return) ; zum nächsten Index
+                  (return) ; zum nÃ¤chsten Index
                 )
                 (flet ((better (new-ref old-ref)
                          ; Eine Referenz new-ref ist "besser" als eine andere
-                         ; old-ref, wenn sie näher dran ist. Dabei haben
-                         ; Vorwärtsreferenzen generell Priorität gegenüber
-                         ; Rückwärtsreferenzen.
+                         ; old-ref, wenn sie nÃ¤her dran ist. Dabei haben
+                         ; VorwÃ¤rtsreferenzen generell PrioritÃ¤t gegenÃ¼ber
+                         ; RÃ¼ckwÃ¤rtsreferenzen.
                          (or (null old-ref) ; noch gar kein old-ref?
                              (let ((old-pos (aref *code-positions* old-ref))
                                    (new-pos (aref *code-positions* new-ref)))
-                               (if (> old-pos pos) ; Habe bisher nur Rückwärtssprung?
+                               (if (> old-pos pos) ; Habe bisher nur RÃ¼ckwÃ¤rtssprung?
                                  ; ja: new-pos ist besser, falls es
-                                 ; < pos (Vorwärtssprung) oder
-                                 ; >=pos, <=old-pos (kürzerer Rückwärtssprung) ist.
+                                 ; < pos (VorwÃ¤rtssprung) oder
+                                 ; >=pos, <=old-pos (kÃ¼rzerer RÃ¼ckwÃ¤rtssprung) ist.
                                  (<= new-pos old-pos)
                                  ; nein: new-pos ist besser, falls es
-                                 ; <=pos, >=old-pos (kürzerer Vorwärtssprung) ist.
+                                 ; <=pos, >=old-pos (kÃ¼rzerer VorwÃ¤rtssprung) ist.
                                  (<= old-pos new-pos pos)
                       )) )   ) )
                   (macrolet ((update (old-ref new-ref) ; zur Bestimmung des bisher Besten
@@ -10558,30 +10558,30 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                                   (setq ,old-ref ,new-ref)
                                 )
                             ))
-                    ; Bestimme die beste Referenz, an die das Codestück
-                    ; gehängt werden kann:
+                    ; Bestimme die beste Referenz, an die das CodestÃ¼ck
+                    ; gehÃ¤ngt werden kann:
                     (dolist (refindex refs)
                       (when (and (integerp refindex)
-                                 (not (eql refindex index)) ; nicht an sich selber hängen!
+                                 (not (eql refindex index)) ; nicht an sich selber hÃ¤ngen!
                             )
                         (let ((refcode1 (car (aref *code-parts* refindex))))
                           (case (first refcode1)
-                            (JMP ; mögliches Anhängen an (JMP label ...)
+                            (JMP ; mÃ¶gliches AnhÃ¤ngen an (JMP label ...)
                               (update jmp-ref refindex)
                             )
-                            (JMPCASE ; mögliches Anhängen an (JMPCASE ... label ...)
+                            (JMPCASE ; mÃ¶gliches AnhÃ¤ngen an (JMPCASE ... label ...)
                               (update jmpcase-ref refindex)
                             )
-                            (JMPCASE1-TRUE ; mögliches Anhängen an (JMPCASE1-TRUE ... label)
+                            (JMPCASE1-TRUE ; mÃ¶gliches AnhÃ¤ngen an (JMPCASE1-TRUE ... label)
                               (when (eq label (third refcode1))
                                 (update jmpcase1-ref refindex)
                             ) )
-                            (JMPCASE1-FALSE ; mögliches Anhängen an (JMPCASE1-FALSE label ...)
+                            (JMPCASE1-FALSE ; mÃ¶gliches AnhÃ¤ngen an (JMPCASE1-FALSE label ...)
                               (when (eq label (second refcode1))
                                 (update jmpcase1-ref refindex)
                             ) )
                     ) ) ) )
-                    (cond (jmp-ref ; an (JMP label) anhängen
+                    (cond (jmp-ref ; an (JMP label) anhÃ¤ngen
                             (setf (cdr lastc)
                                   (cons label (cdr (aref *code-parts* jmp-ref)))
                             )
@@ -10615,14 +10615,14 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                               (setf (aref *code-parts* jmpcase-ref) nil)
                               (setq code lastc)
                           ) )
-                          (t ; kein Anhängen möglich
-                            (return) ; zum nächsten Index
+                          (t ; kein AnhÃ¤ngen mÃ¶glich
+                            (return) ; zum nÃ¤chsten Index
           ) ) ) ) ) )     )
     ) ) )
-    ; Sicherstellen, dass das Anfangs-Stück auch an den Anfang kommt:
-    ; (Das würde auch gehen, indem bei jeder der obigen Anhängungen
+    ; Sicherstellen, dass das Anfangs-StÃ¼ck auch an den Anfang kommt:
+    ; (Das wÃ¼rde auch gehen, indem bei jeder der obigen AnhÃ¤ngungen
     ; ein (setf (aref *code-positions* index) (aref *code-positions* jmp..-ref))
-    ; gemacht würde. Wieso tun wir das nicht??)
+    ; gemacht wÃ¼rde. Wieso tun wir das nicht??)
     (setf (aref *code-positions* start-index) 0)
     ; Codeliste zusammensetzen:
     (let ((code-parts (map 'list #'cons *code-parts* *code-positions*)))
@@ -10632,7 +10632,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
       (let ((codelist '()))
         (dolist (code-part code-parts)
           (let ((code (car code-part)))
-            ; code an codelist anhängen, dabei aber den Wegsprung umwandeln:
+            ; code an codelist anhÃ¤ngen, dabei aber den Wegsprung umwandeln:
             (let ((item (car code)))
               (case (first item)
                 (JMP (setf (car code) `(JMP ,(second item))))
@@ -10666,7 +10666,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
               (when (cdr lastc)
                 (setf (cdr lastc) (list (cdr lastc)))
             ) )
-            ; Umdrehen und vor codelist hängen (deswegen wurde vorhin
+            ; Umdrehen und vor codelist hÃ¤ngen (deswegen wurde vorhin
             ; mit #'> statt #'< sortiert):
             (setq codelist (nreconc code codelist))
         ) )
@@ -10713,13 +10713,13 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
 )
 |#
 
-#| Was ist mit den folgenden möglichen Optimierungen??
+#| Was ist mit den folgenden mÃ¶glichen Optimierungen??
 
 10. Kommt vor einem (JMP label) ein (UNWIND-PROTECT-CLEANUP) und vor dem
    label ein (UNWIND-PROTECT-3 cleanup-label), so muss es sich um denselben
    UNWIND-PROTECT-Frame handeln, und man kann (UNWIND-PROTECT-CLEANUP)
    streichen und (JMP label) durch (JMP newlabel) ersetzen, wobei newlabel
-   ein neues Label ist, das vor dem (evtl. zu ergänzenden) (UNWIND-PROTECT-2)
+   ein neues Label ist, das vor dem (evtl. zu ergÃ¤nzenden) (UNWIND-PROTECT-2)
    vor cleanup-label sitzt:
    (UNWIND-PROTECT-CLEANUP) (JMP label) ...
    ... [(UNWIND-PROTECT-2)] cleanup-label ... (UNWIND-PROTECT-3 cleanup-label) label
@@ -10735,12 +10735,12 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
 
 |#
 
-; Führt den 1. und 2.,3. Schritt aus:
+; FÃ¼hrt den 1. und 2.,3. Schritt aus:
 (defun compile-to-LAP ()
   (let ((*code-parts* (make-array 10 :adjustable t :fill-pointer 0))
         (*code-positions* (make-array 10 :adjustable t :fill-pointer 0)))
-    ; Expandiert den Code des Fnode *func* und teilt ihn in Stücke auf.
-    ; Hinterlässt seine Werte in *code-parts* und *code-positions*.
+    ; Expandiert den Code des Fnode *func* und teilt ihn in StÃ¼cke auf.
+    ; HinterlÃ¤sst seine Werte in *code-parts* und *code-positions*.
     (let ((*code-part* (list '(START))) ; NIL als Start-"Label"
           (*code-index* 0)
           (*dead-code* nil)
@@ -10763,7 +10763,7 @@ coalesce         - Lege Codeteile mit gleichem Ende (mind. 3 Befehle) zusammen.
                             4. Schritt:
                       Eliminieren von (CONST n)
 
-Generische Funktionen haben eine feste Länge. Die Konstanten werden im
+Generische Funktionen haben eine feste LÃ¤nge. Die Konstanten werden im
 VENV-Const aufbewahrt. In diesem Schritt werden umgewandelt:
   (LOADV k m)    -->  (LOADV k+1 m)
   (STOREV k m)   -->  (STOREV k+1 m)
@@ -10816,7 +10816,7 @@ VENV-Const aufbewahrt. In diesem Schritt werden umgewandelt:
                             5. Schritt:
                    Bestimmung des Stackbedarfs
 
-Dieser Schritt bestimmt, wieviel SP-Einträge die Funktion maximal braucht.
+Dieser Schritt bestimmt, wieviel SP-EintrÃ¤ge die Funktion maximal braucht.
 |#
 
 (defun SP-depth (code-list)
@@ -10832,26 +10832,26 @@ Dieser Schritt bestimmt, wieviel SP-Einträge die Funktion maximal braucht.
         (unseen-label-alist '()) ; Labels, ab denen noch verfolgt werden muss
         (seen-label-alist '()) ; Labels, die schon verfolgt wurden
           ; beides Alisten ((label . depth) ...)
-          ; Es ist durchaus möglich, dass dasselbe Codestück mit unterschied-
-          ; lichen SP-Tiefen durchgeführt werden kann (nämlich dann, wenn es
+          ; Es ist durchaus mÃ¶glich, dass dasselbe CodestÃ¼ck mit unterschied-
+          ; lichen SP-Tiefen durchgefÃ¼hrt werden kann (nÃ¤mlich dann, wenn es
           ; mit einem Wegsprung THROW, RETURN-FROM, RETURN-FROM-I, GO, GO-I
           ; oder BARRIER endet)!
-          ; seen-label-alist enthält zu jedem Label die maximale Tiefe, mit
+          ; seen-label-alist enthÃ¤lt zu jedem Label die maximale Tiefe, mit
           ; der ab diesem Label schon verfolgt wurde.
-          ; unseen-label-alist enthält zu jedem Label die maximale bisher
+          ; unseen-label-alist enthÃ¤lt zu jedem Label die maximale bisher
           ; notierte Tiefe, mit der ab diesem Label noch verfolgt werden muss.
         (mitte code-list) ; restliche Codeliste
         (depth (spd 0 0)) ; aktuelle Tiefe
        )
     (macrolet ((check-depth (wanted-depth)
-                 ; überprüft, ob depth gleich der Tiefe wanted-depth ist
+                 ; Ã¼berprÃ¼ft, ob depth gleich der Tiefe wanted-depth ist
                  `(unless (equal depth ,wanted-depth)
                     (compiler-error 'SP-depth)
                   )
               ))
       (loop
-        ; mitte läuft durch die Codeliste, von der aktuellen Position
-        ; bis zum nächsten Wegsprung, und zählt die Tiefe mit.
+        ; mitte lÃ¤uft durch die Codeliste, von der aktuellen Position
+        ; bis zum nÃ¤chsten Wegsprung, und zÃ¤hlt die Tiefe mit.
         (loop
           (when (null mitte) (return))
           (let ((item (car mitte)))
@@ -10882,7 +10882,7 @@ Dieser Schritt bestimmt, wieviel SP-Einträge die Funktion maximal braucht.
                               ) ) ) )
                          ) )
                          (note-inc (amount)
-                           ; notiere, dass depth um amount erhöht wird
+                           ; notiere, dass depth um amount erhÃ¶ht wird
                            `(progn
                               (setq depth (spd+ depth ,amount))
                               (setq max-depth-1 (max max-depth-1 (car depth)))
@@ -10983,13 +10983,13 @@ Dieser Schritt bestimmt, wieviel SP-Einträge die Funktion maximal braucht.
           ) )
           (setq mitte (cdr mitte))
         )
-        ; Nächstes zu verfolgendes Label suchen:
+        ; NÃ¤chstes zu verfolgendes Label suchen:
         (loop
           (when (null unseen-label-alist) ; fertig ?
             (return-from SP-depth (spd max-depth-1 max-depth-2))
           )
           (let* ((unseen (pop unseen-label-alist))
-                 (label (car unseen))) ; nächstes zu verfolgendes Label
+                 (label (car unseen))) ; nÃ¤chstes zu verfolgendes Label
             (setq depth (cdr unseen))
             (let ((h (assoc label seen-label-alist)))
               (unless (and h (spd<= depth (cdr h)))
@@ -11005,9 +11005,9 @@ Dieser Schritt bestimmt, wieviel SP-Einträge die Funktion maximal braucht.
 
 #|
                             6. Schritt:
-                 Einführung von Kurz-Operationen
+                 EinfÃ¼hrung von Kurz-Operationen
 
-Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
+Dieser Schritt arbeitet auf der Codeliste und verÃ¤ndert sie dabei destruktiv.
 
 1. (ATOM) (JMPIF label NIL)             --> (JMPIFATOM label)
    (ATOM) (JMPIFNOT label NIL)          --> (JMPIFCONSP label)
@@ -11123,7 +11123,7 @@ Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
       (CALLS-atom (CALLS-code (gethash 'atom function-codes)))
       (CALLS-consp (CALLS-code (gethash 'consp function-codes))))
   (defun insert-combined-LAPs (code-list)
-    ; Zunächst die ATOM/CONSP-Umwandlung, weil diese PUSHs einführen kann:
+    ; ZunÃ¤chst die ATOM/CONSP-Umwandlung, weil diese PUSHs einfÃ¼hren kann:
     (do ((crest code-list (cdr crest)))
         ((null crest))
       (let ((item (car crest)))
@@ -11161,7 +11161,7 @@ Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
           (rechts (cdr mitte) (cdr rechts)))
          ((null mitte))
       (macrolet ((ersetze (length new-code)
-                   ; ersetzt die nächsten length Elemente
+                   ; ersetzt die nÃ¤chsten length Elemente
                    ; (nth 0 mitte) ... (nth (- length 1) mitte)
                    ; durch ein einziges Element new-code.
                    (assert (typep length '(INTEGER 0 4)))
@@ -11186,7 +11186,7 @@ Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
           (when (consp item)
             ; Untersuchung des Befehls item und der nachfolgenden:
             (when (and #| (consp rechts) |# (consp (car rechts)))
-              ; normale Umwandlungen, mit Aneinanderhängen der Argumente:
+              ; normale Umwandlungen, mit AneinanderhÃ¤ngen der Argumente:
               (let ((new-op
                       (cdr (assoc (first item)
                                   (case (first (car rechts))
@@ -11477,15 +11477,15 @@ Dieser Schritt arbeitet auf der Codeliste und verändert sie dabei destruktiv.
                 Umwandlung der Instruktionen in eine Byte-Folge
 
 Erster Teilschritt: jeder Instruktion wird eine Klassifikation der Instruktion
-und die Länge der Instruktion (Label-Operanden nicht mitgezählt)
+und die LÃ¤nge der Instruktion (Label-Operanden nicht mitgezÃ¤hlt)
 vorangestellt, jedem Label wird sein PC als Wert zugewiesen.
-Dabei werden die Operandenlängen - soweit möglich - bestimmt, in Instruktionen
-auftretende Labels werden durch (vermutliche Verweislänge . label) ersetzt.
+Dabei werden die OperandenlÃ¤ngen - soweit mÃ¶glich - bestimmt, in Instruktionen
+auftretende Labels werden durch (vermutliche VerweislÃ¤nge . label) ersetzt.
 So wird aus (BLOCK-OPEN 2 #:G7) --> (NL 2 . (67 2 (1 . #:G7))) .
 Weitere Teilschritte:
 Immer wieder wird die Codeliste durchlaufen, dabei werden Sprungverweise
-eventuell von 1 auf 2 oder 6 Byte verlängert. Dadurch kann der Code insgesamt
-nur länger werden.
+eventuell von 1 auf 2 oder 6 Byte verlÃ¤ngert. Dadurch kann der Code insgesamt
+nur lÃ¤nger werden.
 Letzter Teilschritt:
 Die Sprungverweise werden in Distanzen umgesetzt, und die Codeliste wird
 als Liste von Bytes neu aufgebaut.
@@ -11585,30 +11585,30 @@ als Liste von Bytes neu aufgebaut.
                           )  )
                     (incf PC (car x))
                     (let ((new-dist (- (symbol-value (cdr x)) PC)))
-                      ; bisher angenommene Sprunglänge und neu errechnete abgleichen:
+                      ; bisher angenommene SprunglÃ¤nge und neu errechnete abgleichen:
                       (if (<= -64 new-dist 63) ; 7 Bits in 1 Byte
-                        () ; Sprunglänge bleibt 1
+                        () ; SprunglÃ¤nge bleibt 1
                         (if (<= -16384 new-dist 16383) ; 15 Bits in 2 Bytes
                           (case (car x)
-                            (1 (setf (car x) 2) ; neue Sprunglänge=2
-                               (incf PC 1) ; gibt 2-1=1 Bytes Verlängerung
+                            (1 (setf (car x) 2) ; neue SprunglÃ¤nge=2
+                               (incf PC 1) ; gibt 2-1=1 Bytes VerlÃ¤ngerung
                                (setq modified t)
                           ) )
                           ; 32 Bits in 6 Bytes
                           (case (car x)
-                            (1 (setf (car x) 6) ; neue Sprunglänge=6
-                               (incf PC 5) ; gibt 6-1=5 Bytes Verlängerung
+                            (1 (setf (car x) 6) ; neue SprunglÃ¤nge=6
+                               (incf PC 5) ; gibt 6-1=5 Bytes VerlÃ¤ngerung
                                (setq modified t)
                             )
-                            (2 (setf (car x) 6) ; neue Sprunglänge=6
-                               (incf PC 4) ; gibt 6-2=4 Bytes Verlängerung
+                            (2 (setf (car x) 6) ; neue SprunglÃ¤nge=6
+                               (incf PC 4) ; gibt 6-2=4 Bytes VerlÃ¤ngerung
                                (setq modified t)
                       ) ) ) )
               ) ) ) )
         ) ) )
         modified
       )
-      (return) ; nichts mehr verändert -> alle Sprunglängen optimal
+      (return) ; nichts mehr verÃ¤ndert -> alle SprunglÃ¤ngen optimal
   ) )
   ; letzter Teilschritt:
   (let ((byte-list '()) (PC 0))
@@ -11696,7 +11696,7 @@ als Liste von Bytes neu aufgebaut.
 ) )
 
 ; die Umkehrung zu assemble-LAP : liefert zu einer Bytecode-Liste die dazu
-; gehörige Codeliste. In dieser steht allerdings vor jedem Item noch der PC.
+; gehÃ¶rige Codeliste. In dieser steht allerdings vor jedem Item noch der PC.
 (defun disassemble-LAP (byte-list const-list)
   (let ((code-list '()) (PC 0) instr-PC (label-alist '()))
     ; label-alist ist eine Liste von Conses (PC . label), in der die PCs streng
@@ -11736,7 +11736,7 @@ als Liste von Bytes neu aufgebaut.
                (do* ((L1 nil L2)
                      (L2 label-alist (cdr L2))) ; L1 = nil oder L2 = (cdr L1)
                     ((cond
-                       ((or (null L2) (> label-PC (caar L2))) ; einfügen
+                       ((or (null L2) (> label-PC (caar L2))) ; einfÃ¼gen
                         (setq L2 (cons (PC->label-a label-PC) L2))
                         (if L1 (setf (cdr L1) L2) (setq label-alist L2))
                         t)
@@ -11808,7 +11808,7 @@ als Liste von Bytes neu aufgebaut.
         ) )
     ) )
     ; (setq label-alist (sort label-alist #'> :key #'car))
-    ; code-list umdrehen und dabei die Labels einfügen:
+    ; code-list umdrehen und dabei die Labels einfÃ¼gen:
     (let ((new-code-list '()))
       (loop
         (when (and new-code-list label-alist
@@ -11818,7 +11818,7 @@ als Liste von Bytes neu aufgebaut.
           (setq label-alist (cdr label-alist))
         )
         (when (null code-list) (return))
-        ; eine Instruktion von code-list in new-code-list übernehmen:
+        ; eine Instruktion von code-list in new-code-list Ã¼bernehmen:
         (psetq code-list (cdr code-list)
                new-code-list (rplacd code-list new-code-list)
       ) )
@@ -11832,7 +11832,7 @@ als Liste von Bytes neu aufgebaut.
 
 Die Funktion make-closure wird dazu vorausgesetzt.
 |#
-; trägt eine Byteliste als Code in fnode ein.
+; trÃ¤gt eine Byteliste als Code in fnode ein.
 (defun create-fun-obj (fnode byte-list SPdepth)
   (setf (fnode-code fnode)
     (make-closure
@@ -11856,7 +11856,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                  (+ 128 (if (fnode-allow-other-keys-flag fnode) 64 0))
                  0
             )  )
-            (values ; Argumenttyp-Kürzel
+            (values ; Argumenttyp-KÃ¼rzel
               (let ((req-anz (fnode-req-anz fnode))
                     (opt-anz (fnode-opt-anz fnode))
                     (rest (fnode-rest-flag fnode))
@@ -11909,7 +11909,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 ; 4. key-p
 ; 5. keyword-list
 ; 6. allow-other-keys-p
-; und zusätzlich
+; und zusÃ¤tzlich
 ; 7. byte-list
 ; 8. const-list
 (defun signature (closure)
@@ -11976,7 +11976,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 ) ) )
 
 ; wird bei (lambda (...) (declare (compile)) ...) aufgerufen und liefert ein
-; zu diesem Lambda-Ausdruck äquivalentes funktionales Objekt.
+; zu diesem Lambda-Ausdruck Ã¤quivalentes funktionales Objekt.
 (defun compile-lambda (name lambdabody %venv% %fenv% %benv% %genv% %denv%)
   (let ((*compiling* t)
         (*compiling-from-file* nil)
@@ -12003,7 +12003,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 
 ; wird bei (let/let*/multiple-value-bind ... (declare (compile)) ...) aufgerufen
 ; und liefert ein funktionales Objekt, das - mit 0 Argumenten aufgerufen - diese
-; Form ausführt.
+; Form ausfÃ¼hrt.
 (let ((form-count 0))
   (defun compile-form (form %venv% %fenv% %benv% %genv% %denv%)
     (compile-lambda (symbol-suffix '#:COMPILED-FORM (incf form-count))
@@ -12162,14 +12162,14 @@ Die Funktion make-closure wird dazu vorausgesetzt.
             )
 ) ) ) ) ) )
 
-; Top-Level-Formen müssen einzeln aufs .fas-File rausgeschrieben werden,
+; Top-Level-Formen mÃ¼ssen einzeln aufs .fas-File rausgeschrieben werden,
 ; wegen der Semantik von EVAL-WHEN und LOAD-TIME-VALUE.
 ; Da Top-Level-Formen bei EVAL-WHEN, PROGN und LOCALLY auseinandergebrochen
-; werden können, muss man LET () verwenden, wenn man dies umgehen will.
+; werden kÃ¶nnen, muss man LET () verwenden, wenn man dies umgehen will.
 
-; Compiliert eine Top-Level-Form für COMPILE-FILE. Der *toplevel-name* wird
-; meist unverändert durchgereicht. *toplevel-for-value* gibt an, ob der Wert
-; gebraucht wird (für LOAD :PRINT T) oder nicht.
+; Compiliert eine Top-Level-Form fÃ¼r COMPILE-FILE. Der *toplevel-name* wird
+; meist unverÃ¤ndert durchgereicht. *toplevel-for-value* gibt an, ob der Wert
+; gebraucht wird (fÃ¼r LOAD :PRINT T) oder nicht.
 (defvar *toplevel-for-value*)
 (defun compile-toplevel-form (form &optional (*toplevel-name* *toplevel-name*))
   (declare (special *toplevel-name*))
@@ -12248,7 +12248,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
       )
 ) ) )
 
-; C-Output-File öffnen, falls noch nicht offen:
+; C-Output-File Ã¶ffnen, falls noch nicht offen:
 (defun prepare-coutput-file ()
   (if (and *compiling-from-file* *coutput-file*)
     (progn
@@ -12260,7 +12260,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
     )
     nil
 ) )
-; Hook fürs FFI:
+; Hook fÃ¼rs FFI:
 (defun finalize-coutput-file ())
 
 (defun c-reset-globals ()
@@ -12514,7 +12514,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
 
 (defun disassemble-closures (closure stream)
   (let ((closures '()))
-    (labels ((mark (cl) ; trägt eine Closure cl (rekursiv) in closures ein.
+    (labels ((mark (cl) ; trÃ¤gt eine Closure cl (rekursiv) in closures ein.
                (push cl closures) ; cl markieren
                (dolist (c (closure-consts cl)) ; und alle Teil-Closures
                  (when #+CLISP (and (sys::closurep c) (compiled-function-p c))

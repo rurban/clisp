@@ -1,6 +1,6 @@
 # Logische Operationen auf Integers
 
-# Liefert die Anzahl Digits, die ein Integer als DS bräuchte.
+# Liefert die Anzahl Digits, die ein Integer als DS brÃ¤uchte.
 # (Leicht aufgerundet.)
   local uintC I_to_DS_need (object obj);
   local uintC I_to_DS_need(obj)
@@ -29,7 +29,7 @@
     var uintC n;
     var uintD* destptr;
     { # Nun sind unterhalb von destptr n Digits Platz.
-      # oberen Teil der DS aus obj füllen, dabei destptr erniedrigen:
+      # oberen Teil der DS aus obj fÃ¼llen, dabei destptr erniedrigen:
       if (I_fixnump(obj))
         # Fixnum:
         { var uint32 wert = FN_to_L(obj);
@@ -57,7 +57,7 @@
           n -= len;
           destptr = copy_loop_down(ptr,destptr,len); # DS kopieren
         }
-      # unteren Teil mit Fülldigits, gebildet aus dem Vorzeichen, füllen:
+      # unteren Teil mit FÃ¼lldigits, gebildet aus dem Vorzeichen, fÃ¼llen:
       if (!(n==0))
         { destptr = fill_loop_down(destptr,n,sign_of_sintD(destptr[0])); }
       # destptr zeigt nun aufs untere Ende der DS.
@@ -65,21 +65,21 @@
     }
 
 # Logische Operationen auf Integers:
-# Methode: aus den Längen der beiden Argumente eine obere Schranke für
-# die Länge des Ergebnisses berechnen (das Maximum der beiden Längen und
-# FN_maxlength), so dass das MSD für unendlich viele Bits steht.
-# Dann beide Argumente in gleichgroße Digit sequences umwandeln, Operation
-# mit einer einfachen Schleife durchführen.
+# Methode: aus den LÃ¤ngen der beiden Argumente eine obere Schranke fÃ¼r
+# die LÃ¤nge des Ergebnisses berechnen (das Maximum der beiden LÃ¤ngen und
+# FN_maxlength), so dass das MSD fÃ¼r unendlich viele Bits steht.
+# Dann beide Argumente in gleichgroÃŸe Digit sequences umwandeln, Operation
+# mit einer einfachen Schleife durchfÃ¼hren.
 
 # (LOGIOR x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# kann GC auslösen.
+# kann GC auslÃ¶sen.
   local object I_I_logior_I (object x, object y);
   local object I_I_logior_I(x,y)
     var object x;
     var object y;
     { if (I_fixnump(x) && I_fixnump(y)) # Beides Fixnums -> ganz einfach:
-        { return as_object # bitweise als Fixnum zurück
+        { return as_object # bitweise als Fixnum zurÃ¼ck
                  (as_oint(x) | as_oint(y));
         }
         else
@@ -92,21 +92,21 @@
          {  var uintD* xptr; I_to_DS_n(x,n,xptr=); # Pointer in DS zu x
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
-            or_loop_up(xptr,yptr,n); # mit OR verknüpfen
+            or_loop_up(xptr,yptr,n); # mit OR verknÃ¼pfen
             {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
-             RESTORE_NUM_STACK # num_stack zurück
+             RESTORE_NUM_STACK # num_stack zurÃ¼ck
              return result;
     }   }}}}}
 
 # (LOGXOR x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# kann GC auslösen.
+# kann GC auslÃ¶sen.
   local object I_I_logxor_I (object x, object y);
   local object I_I_logxor_I(x,y)
     var object x;
     var object y;
     { if (I_fixnump(x) && I_fixnump(y)) # Beides Fixnums -> ganz einfach:
-        { return as_object # bitweise als Fixnum zurück
+        { return as_object # bitweise als Fixnum zurÃ¼ck
                  ((as_oint(x) ^ as_oint(y)) | ((oint)fixnum_type << oint_type_shift));
         }
         else
@@ -119,21 +119,21 @@
          {  var uintD* xptr; I_to_DS_n(x,n,xptr=); # Pointer in DS zu x
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
-            xor_loop_up(xptr,yptr,n); # mit XOR verknüpfen
+            xor_loop_up(xptr,yptr,n); # mit XOR verknÃ¼pfen
             {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
-             RESTORE_NUM_STACK # num_stack zurück
+             RESTORE_NUM_STACK # num_stack zurÃ¼ck
              return result;
     }   }}}}}
 
 # (LOGAND x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# kann GC auslösen.
+# kann GC auslÃ¶sen.
   local object I_I_logand_I (object x, object y);
   local object I_I_logand_I(x,y)
     var object x;
     var object y;
     { if (I_fixnump(x) && I_fixnump(y)) # Beides Fixnums -> ganz einfach:
-        { return as_object # bitweise als Fixnum zurück
+        { return as_object # bitweise als Fixnum zurÃ¼ck
                  (as_oint(x) & as_oint(y));
         }
       elif (posfixnump(x))
@@ -160,21 +160,21 @@
          {  var uintD* xptr; I_to_DS_n(x,n,xptr=); # Pointer in DS zu x
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
-            and_loop_up(xptr,yptr,n); # mit AND verknüpfen
+            and_loop_up(xptr,yptr,n); # mit AND verknÃ¼pfen
             {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
-             RESTORE_NUM_STACK # num_stack zurück
+             RESTORE_NUM_STACK # num_stack zurÃ¼ck
              return result;
     }   }}}}}
 
 # (LOGEQV x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# kann GC auslösen.
+# kann GC auslÃ¶sen.
   local object I_I_logeqv_I (object x, object y);
   local object I_I_logeqv_I(x,y)
     var object x;
     var object y;
     { if (I_fixnump(x) && I_fixnump(y)) # Beides Fixnums -> ganz einfach:
-        { return as_object # bitweise als Fixnum zurück
+        { return as_object # bitweise als Fixnum zurÃ¼ck
                  ( ~(as_oint(x) ^ as_oint(y))
                    & (((oint)fixnum_type << oint_type_shift) | FN_value_vz_mask)
                  );
@@ -189,21 +189,21 @@
          {  var uintD* xptr; I_to_DS_n(x,n,xptr=); # Pointer in DS zu x
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
-            eqv_loop_up(xptr,yptr,n); # mit NOT XOR verknüpfen
+            eqv_loop_up(xptr,yptr,n); # mit NOT XOR verknÃ¼pfen
             {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
-             RESTORE_NUM_STACK # num_stack zurück
+             RESTORE_NUM_STACK # num_stack zurÃ¼ck
              return result;
     }   }}}}}
 
 # (LOGNAND x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# kann GC auslösen.
+# kann GC auslÃ¶sen.
   local object I_I_lognand_I (object x, object y);
   local object I_I_lognand_I(x,y)
     var object x;
     var object y;
     { if (I_fixnump(x) && I_fixnump(y)) # Beides Fixnums -> ganz einfach:
-        { return as_object # bitweise als Fixnum zurück
+        { return as_object # bitweise als Fixnum zurÃ¼ck
                  ((as_oint(x) & as_oint(y)) ^ FN_value_vz_mask);
         }
       elif (posfixnump(x))
@@ -230,21 +230,21 @@
          {  var uintD* xptr; I_to_DS_n(x,n,xptr=); # Pointer in DS zu x
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
-            nand_loop_up(xptr,yptr,n); # mit NOT AND verknüpfen
+            nand_loop_up(xptr,yptr,n); # mit NOT AND verknÃ¼pfen
             {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
-             RESTORE_NUM_STACK # num_stack zurück
+             RESTORE_NUM_STACK # num_stack zurÃ¼ck
              return result;
     }   }}}}}
 
 # (LOGNOR x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# kann GC auslösen.
+# kann GC auslÃ¶sen.
   local object I_I_lognor_I (object x, object y);
   local object I_I_lognor_I(x,y)
     var object x;
     var object y;
     { if (I_fixnump(x) && I_fixnump(y)) # Beides Fixnums -> ganz einfach:
-        { return as_object # bitweise als Fixnum zurück
+        { return as_object # bitweise als Fixnum zurÃ¼ck
                  ((as_oint(x) | as_oint(y)) ^ FN_value_vz_mask);
         }
         else
@@ -257,21 +257,21 @@
          {  var uintD* xptr; I_to_DS_n(x,n,xptr=); # Pointer in DS zu x
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
-            nor_loop_up(xptr,yptr,n); # mit NOT OR verknüpfen
+            nor_loop_up(xptr,yptr,n); # mit NOT OR verknÃ¼pfen
             {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
-             RESTORE_NUM_STACK # num_stack zurück
+             RESTORE_NUM_STACK # num_stack zurÃ¼ck
              return result;
     }   }}}}}
 
 # (LOGANDC2 x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# kann GC auslösen.
+# kann GC auslÃ¶sen.
   local object I_I_logandc2_I (object x, object y);
   local object I_I_logandc2_I(x,y)
     var object x;
     var object y;
     { if (I_fixnump(x) && I_fixnump(y)) # Beides Fixnums -> ganz einfach:
-        { return as_object # bitweise als Fixnum zurück
+        { return as_object # bitweise als Fixnum zurÃ¼ck
                  ((as_oint(x) & ~as_oint(y)) | ((oint)fixnum_type << oint_type_shift));
         }
       elif (posfixnump(x))
@@ -291,15 +291,15 @@
          {  var uintD* xptr; I_to_DS_n(x,n,xptr=); # Pointer in DS zu x
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
-            andc2_loop_up(xptr,yptr,n); # mit AND NOT verknüpfen
+            andc2_loop_up(xptr,yptr,n); # mit AND NOT verknÃ¼pfen
             {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
-             RESTORE_NUM_STACK # num_stack zurück
+             RESTORE_NUM_STACK # num_stack zurÃ¼ck
              return result;
     }   }}}}}
 
 # (LOGANDC1 x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# kann GC auslösen.
+# kann GC auslÃ¶sen.
 #if 1 # Macro spart Code
   #define I_I_logandc1_I(x,y)  I_I_logandc2_I(y,x)
 #else
@@ -312,13 +312,13 @@
 
 # (LOGORC2 x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# kann GC auslösen.
+# kann GC auslÃ¶sen.
   local object I_I_logorc2_I (object x, object y);
   local object I_I_logorc2_I(x,y)
     var object x;
     var object y;
     { if (I_fixnump(x) && I_fixnump(y)) # Beides Fixnums -> ganz einfach:
-        { return as_object # bitweise als Fixnum zurück
+        { return as_object # bitweise als Fixnum zurÃ¼ck
                  ( (as_oint(x) | ~as_oint(y))
                    & (((oint)fixnum_type << oint_type_shift) | FN_value_vz_mask)
                  );
@@ -333,15 +333,15 @@
          {  var uintD* xptr; I_to_DS_n(x,n,xptr=); # Pointer in DS zu x
           { var uintD* yptr; I_to_DS_n(y,n,yptr=); # Pointer in DS zu y
            {var uintD* zptr = xptr; # Pointer aufs Ergebnis
-            orc2_loop_up(xptr,yptr,n); # mit OR NOT verknüpfen
+            orc2_loop_up(xptr,yptr,n); # mit OR NOT verknÃ¼pfen
             {var object result = DS_to_I(zptr,n); # Ergebnis als Integer
-             RESTORE_NUM_STACK # num_stack zurück
+             RESTORE_NUM_STACK # num_stack zurÃ¼ck
              return result;
     }   }}}}}
 
 # (LOGORC1 x y), wenn x, y Integers sind.
 # Ergebnis Integer.
-# kann GC auslösen.
+# kann GC auslÃ¶sen.
 #if 1 # Macro spart Code
   #define I_I_logorc1_I(x,y)  I_I_logorc2_I(y,x)
 #else
@@ -354,12 +354,12 @@
 
 # (LOGNOT x), wenn x ein Integer sind.
 # Ergebnis Integer.
-# kann GC auslösen.
+# kann GC auslÃ¶sen.
   local object I_lognot_I (object x);
   local object I_lognot_I(x)
     var object x;
     { if (I_fixnump(x)) # Fixnum -> ganz einfach:
-        { return as_object # bitweise als Fixnum zurück
+        { return as_object # bitweise als Fixnum zurÃ¼ck
                  (as_oint(x) ^ FN_value_vz_mask);
         }
         else
@@ -375,11 +375,11 @@
           # MSDptr/n/LSDptr ist immer noch eine NDS, da n>=bn_minlength
           # und die ersten intDsize+1 Bit nicht alle gleich sind.
          {var object result = NDS_to_I(MSDptr,n); # Ergebnis als Integer
-          RESTORE_NUM_STACK # num_stack zurück
+          RESTORE_NUM_STACK # num_stack zurÃ¼ck
           return result;
     }   }}
 
-# Konstanten für BOOLE:
+# Konstanten fÃ¼r BOOLE:
 # Bit-wert in 'integer1' + 2 * Bit-wert in 'integer2' = k
 # Fixnum mit 4 Bits: Bit k gibt an, was bei diesen zwei Bit-werten kommt.
 #           Name             k=0 k=1 k=2 k=3 (Bitwerte: [00] [10] [01] [11])
@@ -443,15 +443,15 @@
           case (oint)( boole_orc2 )<<oint_data_shift:
             return I_I_logorc2_I(x,y);
           default: # falscher Operator
-            pushSTACK(op); # Wert für Slot DATUM von TYPE-ERROR
-            pushSTACK(O(type_boole)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+            pushSTACK(op); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+            pushSTACK(O(type_boole)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
             pushSTACK(op); pushSTACK(S(boole));
             fehler(type_error,
                    GETTEXT("~: ~ is not a valid boolean operation")
                   );
     }   }
 
-# Prüft, ob (LOGTEST x y), wo x und y Integers sind.
+# PrÃ¼ft, ob (LOGTEST x y), wo x und y Integers sind.
 # (LOGTEST x y) = (NOT (ZEROP (LOGAND x y))).
 # I_I_logtest(x,y)
 # < ergebnis: /=0, falls ja; =0, falls nein.
@@ -461,8 +461,8 @@
     var object y;
     # Methode:
     #  Fixnums separat behandeln.
-    #  Sei oBdA x die kürzere der beiden Zahlen (in Digits).
-    #  x echt kürzer und x<0 -> [eines der most signif. intDsize+1 Bits von y ist 1] Ja.
+    #  Sei oBdA x die kÃ¼rzere der beiden Zahlen (in Digits).
+    #  x echt kÃ¼rzer und x<0 -> [eines der most signif. intDsize+1 Bits von y ist 1] Ja.
     #  Beide gleich lang oder x>=0 ->
     #   Kann mich auf die untersten length(x) Digits beschraenken.
     #   Mit AND durchlaufen, abbrechen (mit "Ja") falls /=0. Am Ende: Nein.
@@ -475,7 +475,7 @@
               return TRUE;
           }
           else
-          # x Fixnum, y Bignum, also ist x echt kürzer
+          # x Fixnum, y Bignum, also ist x echt kÃ¼rzer
           { xFN_yBN:
             if (R_minusp(x)) return TRUE; # x<0 -> ja.
             # x>=0. Kombiniere x mit den pFN_maxlength letzten Digits von y.
@@ -509,17 +509,17 @@
             if (!(xlen==ylen))
               # beide verschieden lang
               { if (xlen<ylen)
-                  { # x ist die echt kürzere DS.
-                    if ((sintD)xMSDptr[0]<0) # der echt kürzere ist negativ?
+                  { # x ist die echt kÃ¼rzere DS.
+                    if ((sintD)xMSDptr[0]<0) # der echt kÃ¼rzere ist negativ?
                       return TRUE;
-                    # Der echt kürzere ist positiv.
+                    # Der echt kÃ¼rzere ist positiv.
                     yMSDptr += ylen-xlen;
                   }
                   else
-                  { # y ist die echt kürzere DS.
-                    if ((sintD)yMSDptr[0]<0) # der echt kürzere ist negativ?
+                  { # y ist die echt kÃ¼rzere DS.
+                    if ((sintD)yMSDptr[0]<0) # der echt kÃ¼rzere ist negativ?
                       return TRUE;
-                    # Der echt kürzere ist positiv.
+                    # Der echt kÃ¼rzere ist positiv.
                     xMSDptr += xlen-ylen;
                     xlen = ylen;
               }   }
@@ -528,7 +528,7 @@
             return and_test_loop_up(xMSDptr,yMSDptr,xlen);
     }     }
 
-# Prüft, ob (LOGBITP x y), wo x und y Integers sind.
+# PrÃ¼ft, ob (LOGBITP x y), wo x und y Integers sind.
 # I_I_logbitp(x,y)
 # Ergebnis: /=0, wenn ja; =0, wenn nein.
   local boolean I_I_logbitp (object x, object y);
@@ -537,7 +537,7 @@
     var object y;
     # Methode:
     # Falls x<0, Error.
-    # Falls x>=0: Falls x>=intDsize*Länge(y), teste Vorzeichen von y.
+    # Falls x>=0: Falls x>=intDsize*LÃ¤nge(y), teste Vorzeichen von y.
     #             Sonst x=intDsize*k+i, Teste Bit i vom Worte Nr. k+1 (von oben herab).
     { if (!R_minusp(x)) # x>=0 ?
         { if (I_fixnump(x))
@@ -560,29 +560,29 @@
         }
         else
         # x<0
-        { pushSTACK(x); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_posinteger)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        { pushSTACK(x); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_posinteger)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(x); pushSTACK(S(logbitp));
           fehler(type_error,
                  GETTEXT("~: index ~ is negative")
                 );
     }   }
 
-# Prüft, ob (ODDP x), wo x ein Integer ist.
+# PrÃ¼ft, ob (ODDP x), wo x ein Integer ist.
 # I_oddp(x)
 # Ergebnis: /=0, falls ja; =0, falls nein.
   local boolean I_oddp (object x);
   local boolean I_oddp(x)
     var object x;
     { if (I_fixnump(x))
-        # Fixnum: Bit 0 abprüfen
+        # Fixnum: Bit 0 abprÃ¼fen
         { if (as_oint(x) & wbit(0+oint_data_shift))
             return TRUE;
             else
             return FALSE;
         }
         else
-        # Bignum: Bit 0 im letzten Digit abprüfen
+        # Bignum: Bit 0 im letzten Digit abprÃ¼fen
         { var Bignum x_ = TheBignum(x);
           if (x_->data[(uintP)bignum_length(x_)-1] & bit(0))
             return TRUE;
@@ -601,11 +601,11 @@
     # x = 0 -> 0 als Ergebnis
     # y = 0 -> x als Ergebnis
     # y > 0 -> y = intDsize*k + i, j=k+(1 falls i>0, 0 falls i=0).
-    #          j Wörter mehr reservieren, k Nullwörter, dann übertragen,
+    #          j WÃ¶rter mehr reservieren, k NullwÃ¶rter, dann Ã¼bertragen,
     #          bei i>0: um i Bits links schieben (i=1 geht einfacher).
-    # y < 0 -> y <= - intDsize * (Länge(A0) in Digits) -> Ergebnis = 0 oder -1.
-    #          Sonst: -y = intDsize*k + i mit k<Länge(A0).
-    #                  Übertrage die (Länge(A0)-k) MSDigits,
+    # y < 0 -> y <= - intDsize * (LÃ¤nge(A0) in Digits) -> Ergebnis = 0 oder -1.
+    #          Sonst: -y = intDsize*k + i mit k<LÃ¤nge(A0).
+    #                  Ãœbertrage die (LÃ¤nge(A0)-k) MSDigits,
     #                  falls i>0: schiebe sie um i Bits nach rechts (i=1 geht einfacher).
     { if (eq(x,Fixnum_0)) return x; # x=0 -> 0 als Ergebnis
       else
@@ -616,9 +616,9 @@
         # y>0
         if (I_bignump(y) # y ein Bignum
             || ((log2_intDsize+intWCsize < oint_data_len) # intDsize*2^intWCsize < 2^oint_data_len ?
-                && (as_oint(y) >= as_oint(fixnum(intDsize*bitc(intWCsize)))) # ein Fixnum > Bitlänge aller Integers
+                && (as_oint(y) >= as_oint(fixnum(intDsize*bitc(intWCsize)))) # ein Fixnum > BitlÃ¤nge aller Integers
            )   )
-          # y so groß, dass selbst (ASH 1 y) einen Überlauf gäbe.
+          # y so groÃŸ, dass selbst (ASH 1 y) einen Ãœberlauf gÃ¤be.
           goto badamount;
           else
           { var uintL y_ = (as_oint(y)-as_oint(Fixnum_0))>>oint_data_shift; # Wert von y, >=0, <intDsize*2^intWCsize
@@ -628,7 +628,7 @@
             var uintC len;
             var uintD* x_LSDptr;
             I_to_NDS_nocopy(x, _EMA_,len=,x_LSDptr=); # DS zu x bilden.
-            if (len >= (uintWC)(~(uintWC)k)) # kann len+k+1 Überlauf geben?
+            if (len >= (uintWC)(~(uintWC)k)) # kann len+k+1 Ãœberlauf geben?
               goto badamount; # ja -> Fehler
             num_stack_need_1(len+(uintC)k,_EMA_,LSDptr=);
             LSDptr = clear_loop_down(LSDptr,k); # k Nulldigits
@@ -655,7 +655,7 @@
           }}
         else
         # y<0
-        if (I_bignump(y)) goto sign; # y ein Bignum -> Vorzeichen von x zurück
+        if (I_bignump(y)) goto sign; # y ein Bignum -> Vorzeichen von x zurÃ¼ck
           else
           { var uintL y_ = ((as_oint(Fixnum_minus1)-as_oint(y))>>oint_data_shift)+1; # Wert von -y, >0
             var uintL i = y_%intDsize; # i = (-y) mod intDsize, >=0, <intDsize
@@ -664,7 +664,7 @@
             var uintD* MSDptr;
             var uintC len;
             I_to_NDS(x, MSDptr=,len=,); # DS zu x bilden.
-            if (k>=len) goto sign; # -y >= intDsize*len -> Vorzeichen von x zurück
+            if (k>=len) goto sign; # -y >= intDsize*len -> Vorzeichen von x zurÃ¼ck
             len -= k; # rechte k Digits einfach streichen
             # Noch ist len>0. Um i Bits nach rechts schieben:
             if (!(i==0)) # Bei i>0:
@@ -681,10 +681,10 @@
       if (FALSE)
         sign: # Ergebnis ist 0, falls x>=0, und -1, falls x<0:
         { x = (R_minusp(x) ? Fixnum_minus1 : Fixnum_0 ); }
-      RESTORE_NUM_STACK # num_stack zurück
+      RESTORE_NUM_STACK # num_stack zurÃ¼ck
       return x;
       badamount:
-        RESTORE_NUM_STACK # num_stack zurück
+        RESTORE_NUM_STACK # num_stack zurÃ¼ck
         pushSTACK(y); pushSTACK(S(ash));
         fehler(arithmetic_error,
                GETTEXT("~: too large shift amount ~")
@@ -695,41 +695,41 @@
 # I_logcount_I(x)
 # can trigger GC
   local object I_logcount_I (object x);
-  # Bits von x8 zählen: (Input x8, Output x8)
+  # Bits von x8 zÃ¤hlen: (Input x8, Output x8)
   #define logcount_8()  \
-    ( # x8 besteht aus 8 1-Bit-Zählern (0,1).       \
+    ( # x8 besteht aus 8 1-Bit-ZÃ¤hlern (0,1).       \
       x8 = (x8 & 0x55U) + ((x8 & 0xAAU) >> 1),      \
-      # x8 besteht aus 4 2-Bit-Zählern (0,1,2).     \
+      # x8 besteht aus 4 2-Bit-ZÃ¤hlern (0,1,2).     \
       x8 = (x8 & 0x33U) + ((x8 & 0xCCU) >> 2),      \
-      # x8 besteht aus 2 4-Bit-Zählern (0,1,2,3,4). \
+      # x8 besteht aus 2 4-Bit-ZÃ¤hlern (0,1,2,3,4). \
       x8 = (x8 & 0x0FU) + (x8 >> 4)                 \
-      # x8 besteht aus 1 8-Bit-Zähler (0,...,8).    \
+      # x8 besteht aus 1 8-Bit-ZÃ¤hler (0,...,8).    \
     )
-  # Bits von x16 zählen: (Input x16, Output x16)
+  # Bits von x16 zÃ¤hlen: (Input x16, Output x16)
   #define logcount_16()  \
-    ( # x16 besteht aus 16 1-Bit-Zählern (0,1).       \
+    ( # x16 besteht aus 16 1-Bit-ZÃ¤hlern (0,1).       \
       x16 = (x16 & 0x5555U) + ((x16 & 0xAAAAU) >> 1), \
-      # x16 besteht aus 8 2-Bit-Zählern (0,1,2).      \
+      # x16 besteht aus 8 2-Bit-ZÃ¤hlern (0,1,2).      \
       x16 = (x16 & 0x3333U) + ((x16 & 0xCCCCU) >> 2), \
-      # x16 besteht aus 4 4-Bit-Zählern (0,1,2,3,4).  \
+      # x16 besteht aus 4 4-Bit-ZÃ¤hlern (0,1,2,3,4).  \
       x16 = (x16 & 0x0F0FU) + ((x16 & 0xF0F0U) >> 4), \
-      # x16 besteht aus 2 8-Bit-Zählern (0,...,8).    \
+      # x16 besteht aus 2 8-Bit-ZÃ¤hlern (0,...,8).    \
       x16 = (x16 & 0x00FFU) + (x16 >> 8)              \
-      # x16 besteht aus 1 16-Bit-Zähler (0,...,16).   \
+      # x16 besteht aus 1 16-Bit-ZÃ¤hler (0,...,16).   \
     )
-  # Bits von x32 zählen: (Input x32, Output x16)
+  # Bits von x32 zÃ¤hlen: (Input x32, Output x16)
   #define logcount_32()  \
-    ( # x32 besteht aus 32 1-Bit-Zählern (0,1).                 \
+    ( # x32 besteht aus 32 1-Bit-ZÃ¤hlern (0,1).                 \
       x32 = (x32 & 0x55555555UL) + ((x32 & 0xAAAAAAAAUL) >> 1), \
-      # x32 besteht aus 16 2-Bit-Zählern (0,1,2).               \
+      # x32 besteht aus 16 2-Bit-ZÃ¤hlern (0,1,2).               \
       x32 = (x32 & 0x33333333UL) + ((x32 & 0xCCCCCCCCUL) >> 2), \
-      # x32 besteht aus 8 4-Bit-Zählern (0,1,2,3,4).            \
+      # x32 besteht aus 8 4-Bit-ZÃ¤hlern (0,1,2,3,4).            \
       x16 = high16(x32)+low16(x32),                             \
-      # x16 besteht aus 4 4-Bit-Zählern (0,...,8).              \
+      # x16 besteht aus 4 4-Bit-ZÃ¤hlern (0,...,8).              \
       x16 = (x16 & 0x0F0FU) + ((x16 & 0xF0F0U) >> 4),           \
-      # x16 besteht aus 2 8-Bit-Zählern (0,...,16).             \
+      # x16 besteht aus 2 8-Bit-ZÃ¤hlern (0,...,16).             \
       x16 = (x16 & 0x00FFU) + (x16 >> 8)                        \
-      # x16 besteht aus 1 16-Bit-Zähler (0,...,32).             \
+      # x16 besteht aus 1 16-Bit-ZÃ¤hler (0,...,32).             \
     )
   #if (intWLsize==intLsize)
     #define x16  x32
@@ -740,38 +740,38 @@
         { var uint16 x16; # Hilfsvariable
          {var uint32 x32 = FN_to_L(x); # x als 32-Bit-Zahl
           if (FN_L_minusp(x,(sint32)x32)) { x32 = ~ x32; } # falls <0, komplementieren
-          logcount_32(); # Bits von x32 zählen
+          logcount_32(); # Bits von x32 zÃ¤hlen
           return fixnum((uintL)x16);
         }}
         else
         { var uintD* MSDptr;
           var uintC len;
           BN_to_NDS_nocopy(x, MSDptr=,len=,); # DS zu x bilden, len>0.
-         {var uintL bitcount = 0; # Bitzähler
-          var uintD* ptr = MSDptr; # läuft durch die Digits durch
+         {var uintL bitcount = 0; # BitzÃ¤hler
+          var uintD* ptr = MSDptr; # lÃ¤uft durch die Digits durch
           var uintD sign = sign_of_sintD(ptr[0]); # Vorzeichen
           #if (intDsize==8)
           dotimespC(len,len,
-            { var uintD x8 = (*ptr++) ^ sign; # nächstes intDsize-Bit-Paket,
+            { var uintD x8 = (*ptr++) ^ sign; # nÃ¤chstes intDsize-Bit-Paket,
                                     # bei negativen Zahlen komplementiert
-              # Bits von x8 zählen, Gesamtzähler erhöhen:
+              # Bits von x8 zÃ¤hlen, GesamtzÃ¤hler erhÃ¶hen:
               bitcount += (uintL)(logcount_8(), x8);
             });
           #endif
           #if (intDsize==16)
           dotimespC(len,len,
-            { var uintD x16 = (*ptr++) ^ sign; # nächstes intDsize-Bit-Paket,
+            { var uintD x16 = (*ptr++) ^ sign; # nÃ¤chstes intDsize-Bit-Paket,
                                     # bei negativen Zahlen komplementiert
-              # Bits von x16 zählen, Gesamtzähler erhöhen:
+              # Bits von x16 zÃ¤hlen, GesamtzÃ¤hler erhÃ¶hen:
               bitcount += (uintL)(logcount_16(), x16);
             });
           #endif
           #if (intDsize==32)
           dotimespC(len,len,
             { var uint16 x16; # Hilfsvariable
-             {var uintD x32 = (*ptr++) ^ sign; # nächstes intDsize-Bit-Paket,
+             {var uintD x32 = (*ptr++) ^ sign; # nÃ¤chstes intDsize-Bit-Paket,
                                     # bei negativen Zahlen komplementiert
-              # Bits von x32 zählen, Gesamtzähler erhöhen:
+              # Bits von x32 zÃ¤hlen, GesamtzÃ¤hler erhÃ¶hen:
               bitcount += (uintL)(logcount_32(), x16);
             }});
           #endif
@@ -786,14 +786,14 @@
   #undef logcount_16
   #undef logcount_8
 
-# Bits eines Digit zählen:
+# Bits eines Digit zÃ¤hlen:
 # integerlengthD(digit,size=);
-# setzt size auf die höchste in digit vorkommende Bitnummer.
+# setzt size auf die hÃ¶chste in digit vorkommende Bitnummer.
 # > digit: ein uintD >0
 # < size: >0, <=intDsize, mit 2^(size-1) <= digit < 2^size
 #if defined(GNU) && defined(MC680Y0) && !defined(NO_ASM)
   #define integerlength8(digit,size_zuweisung)  \
-    { var uintL zero_counter; # zählt die führenden Nullbits in digit               \
+    { var uintL zero_counter; # zÃ¤hlt die fÃ¼hrenden Nullbits in digit               \
       __asm__("bfffo %1{#0:#8},%0" : "=d" (zero_counter) : "dm" ((uint8)(digit)) ); \
       size_zuweisung (8-zero_counter);                                              \
     }
@@ -807,19 +807,19 @@
   #define integerlength8(digit,size_zuweisung)  \
     { var uintC bitsize = 1;                                  \
       var uintBWL x8 = (uint8)(digit);                        \
-      # x8 hat höchstens 8 Bits.                              \
+      # x8 hat hÃ¶chstens 8 Bits.                              \
       if (x8 >= bit(4)) { x8 = x8>>4; bitsize += 4; }         \
-      # x8 hat höchstens 4 Bits.                              \
+      # x8 hat hÃ¶chstens 4 Bits.                              \
       if (x8 >= bit(2)) { x8 = x8>>2; bitsize += 2; }         \
-      # x8 hat höchstens 2 Bits.                              \
+      # x8 hat hÃ¶chstens 2 Bits.                              \
       if (x8 >= bit(1)) { /* x8 = x8>>1; */ bitsize += 1; }   \
-      # x8 hat höchstens 1 Bit. Dieses Bit muss gesetzt sein. \
+      # x8 hat hÃ¶chstens 1 Bit. Dieses Bit muss gesetzt sein. \
       size_zuweisung bitsize;                                 \
     }
 #endif
 #if defined(GNU) && defined(MC680Y0) && !defined(NO_ASM)
   #define integerlength16(digit,size_zuweisung)  \
-    { var uintL zero_counter; # zählt die führenden Nullbits in digit                 \
+    { var uintL zero_counter; # zÃ¤hlt die fÃ¼hrenden Nullbits in digit                 \
       __asm__("bfffo %1{#0:#16},%0" : "=d" (zero_counter) : "dm" ((uint16)(digit)) ); \
       size_zuweisung (16-zero_counter);                                               \
     }
@@ -828,14 +828,14 @@
     integerlength32((uint32)(digit),size_zuweisung) # siehe unten
 #elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
   #define integerlength16(digit,size_zuweisung)  \
-    { var uintW one_position; # Position der führenden 1                    \
+    { var uintW one_position; # Position der fÃ¼hrenden 1                    \
       __asm__("bsrw %1,%0" : "=r" (one_position) : "r" ((uint16)(digit)) ); \
       size_zuweisung (1+one_position);                                      \
     }
 # Die weiteren kommen von gcc/longlong.h :
 #elif defined(GNU) && defined(__ibm032__) && !defined(NO_ASM) # RT/ROMP
   #define integerlength16(digit,size_zuweisung)  \
-    { var uintL zero_counter; # zählt die führenden Nullbits in digit      \
+    { var uintL zero_counter; # zÃ¤hlt die fÃ¼hrenden Nullbits in digit      \
       __asm__("clz %0,%1" : "=r" (zero_counter) : "r" ((uint32)(digit)) ); \
       size_zuweisung (16-zero_counter);                                    \
     }
@@ -843,21 +843,21 @@
   #define integerlength16(digit,size_zuweisung)  \
     { var uintC bitsize = 1;                                    \
       var uintWL x16 = (uint16)(digit);                         \
-      # x16 hat höchstens 16 Bits.                              \
+      # x16 hat hÃ¶chstens 16 Bits.                              \
       if (x16 >= bit(8)) { x16 = x16>>8; bitsize += 8; }        \
-      # x16 hat höchstens 8 Bits.                               \
+      # x16 hat hÃ¶chstens 8 Bits.                               \
       if (x16 >= bit(4)) { x16 = x16>>4; bitsize += 4; }        \
-      # x16 hat höchstens 4 Bits.                               \
+      # x16 hat hÃ¶chstens 4 Bits.                               \
       if (x16 >= bit(2)) { x16 = x16>>2; bitsize += 2; }        \
-      # x16 hat höchstens 2 Bits.                               \
+      # x16 hat hÃ¶chstens 2 Bits.                               \
       if (x16 >= bit(1)) { /* x16 = x16>>1; */ bitsize += 1; }  \
-      # x16 hat höchstens 1 Bit. Dieses Bit muss gesetzt sein.  \
+      # x16 hat hÃ¶chstens 1 Bit. Dieses Bit muss gesetzt sein.  \
       size_zuweisung bitsize;                                   \
     }
 #endif
 #if defined(GNU) && defined(MC680Y0) && !defined(NO_ASM)
   #define integerlength32(digit,size_zuweisung)  \
-    { var uintL zero_counter; # zählt die führenden Nullbits in digit                 \
+    { var uintL zero_counter; # zÃ¤hlt die fÃ¼hrenden Nullbits in digit                 \
       __asm__("bfffo %1{#0:#32},%0" : "=d" (zero_counter) : "dm" ((uint32)(digit)) ); \
       size_zuweisung (32-zero_counter);                                               \
     }
@@ -874,7 +874,7 @@
     }
 #elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
   #define integerlength32(digit,size_zuweisung)  \
-    { var uintL one_position; # Position der führenden 1                     \
+    { var uintL one_position; # Position der fÃ¼hrenden 1                     \
       __asm__("bsrl %1,%0" : "=r" (one_position) : "rm" ((uint32)(digit)) ); \
       size_zuweisung (1+one_position);                                       \
     }
@@ -885,13 +885,13 @@
 # Die weiteren kommen von gcc/longlong.h :
 #elif defined(GNU) && (defined(__a29k__) || defined(___AM29K__)) && !defined(NO_ASM)
   #define integerlength32(digit,size_zuweisung)  \
-    { var uintL zero_counter; # zählt die führenden Nullbits in digit      \
+    { var uintL zero_counter; # zÃ¤hlt die fÃ¼hrenden Nullbits in digit      \
       __asm__("clz %0,%1" : "=r" (zero_counter) : "r" ((uint32)(digit)) ); \
       size_zuweisung (32-zero_counter);                                    \
     }
 #elif defined(GNU) && defined(__gmicro__) && !defined(NO_ASM)
   #define integerlength32(digit,size_zuweisung)  \
-    { var uintL zero_counter; # zählt die führenden Nullbits in digit         \
+    { var uintL zero_counter; # zÃ¤hlt die fÃ¼hrenden Nullbits in digit         \
       __asm__("bsch/1 %1,%0" : "=g" (zero_counter) : "g" ((uint32)(digit)) ); \
       size_zuweisung (32-zero_counter);                                       \
     }
@@ -899,21 +899,21 @@
  #ifdef _AIX
   # old assembler syntax
   #define integerlength32(digit,size_zuweisung)  \
-    { var uintL zero_counter; # zählt die führenden Nullbits in digit        \
+    { var uintL zero_counter; # zÃ¤hlt die fÃ¼hrenden Nullbits in digit        \
       __asm__("cntlz %0,%1" : "=r" (zero_counter) : "r" ((uint32)(digit)) ); \
       size_zuweisung (32-zero_counter);                                      \
     }
  #else
   # new assembler syntax
   #define integerlength32(digit,size_zuweisung)  \
-    { var uintL zero_counter; # zählt die führenden Nullbits in digit         \
+    { var uintL zero_counter; # zÃ¤hlt die fÃ¼hrenden Nullbits in digit         \
       __asm__("cntlzw %0,%1" : "=r" (zero_counter) : "r" ((uint32)(digit)) ); \
       size_zuweisung (32-zero_counter);                                       \
     }
  #endif
 #elif defined(GNU) && defined(M88000) && !defined(NO_ASM)
   #define integerlength32(digit,size_zuweisung)  \
-    { var uintL one_position; # Position der führenden 1                   \
+    { var uintL one_position; # Position der fÃ¼hrenden 1                   \
       __asm__("ff1 %0,%1" : "=r" (one_position) : "r" ((uint32)(digit)) ); \
       size_zuweisung (1+one_position);                                     \
     }
@@ -930,17 +930,17 @@
     #define integerlength32(digit,size_zuweisung)  \
       { var uintC bitsize = 1;                                   \
         var uintL x32 = (uint32)(digit);                         \
-        # x32 hat höchstens 32 Bits.                             \
+        # x32 hat hÃ¶chstens 32 Bits.                             \
         if (x32 >= bit(16)) { x32 = x32>>16; bitsize += 16; }    \
-        # x32 hat höchstens 16 Bits.                             \
+        # x32 hat hÃ¶chstens 16 Bits.                             \
         if (x32 >= bit(8)) { x32 = x32>>8; bitsize += 8; }       \
-        # x32 hat höchstens 8 Bits.                              \
+        # x32 hat hÃ¶chstens 8 Bits.                              \
         if (x32 >= bit(4)) { x32 = x32>>4; bitsize += 4; }       \
-        # x32 hat höchstens 4 Bits.                              \
+        # x32 hat hÃ¶chstens 4 Bits.                              \
         if (x32 >= bit(2)) { x32 = x32>>2; bitsize += 2; }       \
-        # x32 hat höchstens 2 Bits.                              \
+        # x32 hat hÃ¶chstens 2 Bits.                              \
         if (x32 >= bit(1)) { /* x32 = x32>>1; */ bitsize += 1; } \
-        # x32 hat höchstens 1 Bit. Dieses Bit muss gesetzt sein. \
+        # x32 hat hÃ¶chstens 1 Bit. Dieses Bit muss gesetzt sein. \
         size_zuweisung bitsize;                                  \
       }
   #else
@@ -948,17 +948,17 @@
       { var uintC bitsize = 1;                                   \
         var uintL x32 = (digit);                                 \
         var uintWL x16;                                          \
-        # x32 hat höchstens 32 Bits.                             \
+        # x32 hat hÃ¶chstens 32 Bits.                             \
         if (x32 >= bit(16)) { x16 = x32>>16; bitsize += 16; } else { x16 = x32; } \
-        # x16 hat höchstens 16 Bits.                             \
+        # x16 hat hÃ¶chstens 16 Bits.                             \
         if (x16 >= bit(8)) { x16 = x16>>8; bitsize += 8; }       \
-        # x16 hat höchstens 8 Bits.                              \
+        # x16 hat hÃ¶chstens 8 Bits.                              \
         if (x16 >= bit(4)) { x16 = x16>>4; bitsize += 4; }       \
-        # x16 hat höchstens 4 Bits.                              \
+        # x16 hat hÃ¶chstens 4 Bits.                              \
         if (x16 >= bit(2)) { x16 = x16>>2; bitsize += 2; }       \
-        # x16 hat höchstens 2 Bits.                              \
+        # x16 hat hÃ¶chstens 2 Bits.                              \
         if (x16 >= bit(1)) { /* x16 = x16>>1; */ bitsize += 1; } \
-        # x16 hat höchstens 1 Bit. Dieses Bit muss gesetzt sein. \
+        # x16 hat hÃ¶chstens 1 Bit. Dieses Bit muss gesetzt sein. \
         size_zuweisung bitsize;                                  \
       }
   #endif
@@ -990,12 +990,12 @@
           var uintC len;
           BN_to_NDS_nocopy(x, MSDptr=,len=,); # normalisierte DS zu x bilden.
          {var uintL bitcount = intDsize*(uintL)(len-1); # Anzahl Digits mal intDsize
-          # MSDigit nehmen, testen, welches das höchste Bit ist, das vom
+          # MSDigit nehmen, testen, welches das hÃ¶chste Bit ist, das vom
           # Vorzeichenbit abweicht:
           var uintD msd = MSDptr[0]; # MSDigit
           if ((sintD)msd < 0) { msd = ~msd; } # falls negativ, invertieren
-          # Position des höchsten Bits in msd suchen und entsprechend bit_count
-          # erhöhen (um höchstens intDsize-1):
+          # Position des hÃ¶chsten Bits in msd suchen und entsprechend bit_count
+          # erhÃ¶hen (um hÃ¶chstens intDsize-1):
           if (!(msd == 0)) { integerlengthD(msd, bitcount += ); }
           return bitcount; # 0 <= bitcount < intDsize*2^intWCsize.
     }   }}
@@ -1019,12 +1019,12 @@
           var uintC len;
           BN_to_NDS_nocopy(x, MSDptr=,len=,); # normalisierte DS zu x bilden.
          {var uintL bitcount = intDsize*(uintL)(len-1); # Anzahl Digits mal intDsize
-          # MSDigit nehmen, testen, welches das höchste Bit ist, das vom
+          # MSDigit nehmen, testen, welches das hÃ¶chste Bit ist, das vom
           # Vorzeichenbit abweicht:
           var uintD msd = MSDptr[0]; # MSDigit
           if ((sintD)msd < 0) { msd = ~msd; } # falls negativ, invertieren
-          # Position des höchsten Bits in msd suchen und entsprechend bit_count
-          # erhöhen (um höchstens intDsize-1):
+          # Position des hÃ¶chsten Bits in msd suchen und entsprechend bit_count
+          # erhÃ¶hen (um hÃ¶chstens intDsize-1):
           if (!(msd == 0)) { integerlengthD(msd, bitcount += ); }
           # 0 <= bitcount < intDsize*2^intWCsize, passt evtl. in ein Fixnum.
           if (log2_intDsize+intWCsize<=oint_data_len) # intDsize*2^intWCsize <= 2^oint_data_len ?
@@ -1033,7 +1033,7 @@
             return UL_to_I(bitcount);
     }   }}
 
-# Hintere Nullbits eines 32-Bit-Wortes zählen:
+# Hintere Nullbits eines 32-Bit-Wortes zÃ¤hlen:
 # ord2_32(digit,count=);
 # setzt size auf die kleinste in digit vorkommende Bitnummer.
 # > digit: ein uint32 >0
@@ -1057,7 +1057,7 @@
       }
   #endif
 
-# Hintere Nullbits eines Digits zählen:
+# Hintere Nullbits eines Digits zÃ¤hlen:
 # ord2_D(digit,count=);
 # setzt size auf die kleinste in digit vorkommende Bitnummer.
 # > digit: ein uintD >0
@@ -1080,17 +1080,17 @@
 #   Sei n = ord2(x). Dann ist lognot(logior(x,-x)) = 2^n-1.
 #   Also  (ord2 x) = (integer-length (lognot (logior x (- x)))) .
 # Methode 2:
-#   Nullbits am Schluss von x abzählen:
+#   Nullbits am Schluss von x abzÃ¤hlen:
 #   (ord2 x) = intDsize * Anzahl der Nulldigits am Schluss
 #              + Anzahl der Nullbits am Ende des letzten Digits /=0.
   #ifndef ord2_32
-    # Hier muss digit eine Variable sein. digit wird verändert!
+    # Hier muss digit eine Variable sein. digit wird verÃ¤ndert!
     #define ord2_32(digit,count_zuweisung)  \
       digit = digit ^ (digit - 1); # Methode 1a \
       integerlength32(digit,count_zuweisung -1 + )
   #endif
   #ifndef ord2_D
-    # Hier muss digit eine Variable sein. digit wird verändert!
+    # Hier muss digit eine Variable sein. digit wird verÃ¤ndert!
     #define ord2_D(digit,count_zuweisung)  \
       digit = digit ^ (digit - 1); # Methode 1a \
       integerlengthD(digit,count_zuweisung -1 + )
@@ -1111,9 +1111,9 @@
         { var uintL bitcount = 0;
           var uintD* ptr;
           BN_to_NDS_nocopy(x, _EMA_,_EMA_,ptr=); # normalisierte DS zu x bilden.
-          while (*--ptr == 0) { bitcount += intDsize; } # Nulldigits abzählen
+          while (*--ptr == 0) { bitcount += intDsize; } # Nulldigits abzÃ¤hlen
          {var uintD lsd = *ptr; # letztes Digit /=0
-          ord2_D(lsd,bitcount +=); # dessen Nullbits abzählen
+          ord2_D(lsd,bitcount +=); # dessen Nullbits abzÃ¤hlen
           return bitcount;
         }}
     }

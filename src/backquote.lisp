@@ -2,7 +2,7 @@
 ;;;; Michael Stoll
 ;;;; umgeschrieben im Juli/August von Bruno Haible
 ;;;; rekursives Backquote 16.-17.8.1989
-;;;; an die übliche Semantik für rekursives Backquote angepasst am 24.5.1992
+;;;; an die Ã¼bliche Semantik fÃ¼r rekursives Backquote angepasst am 24.5.1992
 
 (in-package "SYSTEM")
 
@@ -11,13 +11,13 @@
 ; Wird beim Top-Level-Einsprung in den Reader an NIL gebunden.
 
 (proclaim '(special *nsplice-fun*))
-(setq *nsplice-fun* 'NCONC) ; Funktion, die ein NSPLICE ausführt
-; (Wird an 'APPEND gebunden für die Produktion der Ausgabe-Form in
+(setq *nsplice-fun* 'NCONC) ; Funktion, die ein NSPLICE ausfÃ¼hrt
+; (Wird an 'APPEND gebunden fÃ¼r die Produktion der Ausgabe-Form in
 ; verschachtelten Backquotes.)
 
 ; Bug: Bei verschachtelten Backquotes werden manche Teilformen mehrfach
-; ausgewertet (nämlich z.B. in der ersten Evaluation Formen, die fürs
-; Ausgeben vor der zweiten Evaluation nötig sind) und sollten deshalb
+; ausgewertet (nÃ¤mlich z.B. in der ersten Evaluation Formen, die fÃ¼rs
+; Ausgeben vor der zweiten Evaluation nÃ¶tig sind) und sollten deshalb
 ; seiteneffektfrei sein.
 
 (defun \`-reader (stream char)
@@ -59,7 +59,7 @@
 ;(set-macro-character #\` #'\`-reader)
 ;(set-macro-character #\, #'\,-reader)
 
-; Hilfsfunktionen für Macros, die in Backquote-Formen expandieren.
+; Hilfsfunktionen fÃ¼r Macros, die in Backquote-Formen expandieren.
 ; (Funktioniert nur mit einfach verschachtelten Backquote-Formen.)
 (defun add-backquote (skel)
   (list 'BACKQUOTE
@@ -158,7 +158,7 @@
                (stringp skel)
                (bit-vector-p skel)
            )
-           ; Konstanten, die zu sich selbst evaluieren, bleiben unverändert
+           ; Konstanten, die zu sich selbst evaluieren, bleiben unverÃ¤ndert
            skel
           )
           ((simple-vector-p skel)
@@ -176,7 +176,7 @@
                                         (eq (first (second subskel)) 'UNQUOTE-VALUE)
                                    )
                                  (list 'VALUES-LIST (backquote-1 (second subskel)))
-                                 ; SPLICE bzw. NSPLICE für später aufheben
+                                 ; SPLICE bzw. NSPLICE fÃ¼r spÃ¤ter aufheben
                                  (backquote-cons (backquote-1 (first subskel))
                                                  (backquote-1 (rest subskel))
                                ) )
@@ -228,7 +228,7 @@
              (backquote-append (backquote-1 (second (first skel)))
                                (backquote-1 (rest skel))
              )
-             ; SPLICE für später aufheben
+             ; SPLICE fÃ¼r spÃ¤ter aufheben
              (backquote-cons
                (backquote-cons (backquote-1 (first (first skel)))
                                (backquote-1 (rest (first skel)))
@@ -256,7 +256,7 @@
                       (list* *nsplice-fun* erstes (rest weiteres)) )
                      (t (list *nsplice-fun* erstes weiteres))
              ) )
-             ; NSPLICE für später aufheben
+             ; NSPLICE fÃ¼r spÃ¤ter aufheben
              (backquote-cons
                (backquote-cons (backquote-1 (first (first skel)))
                                (backquote-1 (rest (first skel)))

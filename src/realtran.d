@@ -1,4 +1,4 @@
-# Transzendente Funktionen f¸r reelle Zahlen
+# Transzendente Funktionen f√ºr reelle Zahlen
 
 # pi_F_float_F(f) liefert die Zahl pi im selben Float-Format wie f.
 # can trigger GC
@@ -12,16 +12,16 @@
                 ;
                );
      {var object pi = O(LF_pi);
-      var uintC f_len = Lfloat_length(f); # gew¸nschte L‰nge von Pi
-      var uintC oldlen = Lfloat_length(pi); # vorhandene L‰nge
+      var uintC f_len = Lfloat_length(f); # gew√ºnschte L√§nge von Pi
+      var uintC oldlen = Lfloat_length(pi); # vorhandene L√§nge
       var uintC newlen;
       if (f_len < oldlen) { return LF_shorten_LF(pi,f_len); }
       if (f_len == oldlen) { return pi; }
       # Lfloat_length(O(LF_pi)) um mindestens einen konstanten Faktor
-      # > 1 wachsen lassen, damit es nicht zu h‰ufig nachberechnet wird:
+      # > 1 wachsen lassen, damit es nicht zu h√§ufig nachberechnet wird:
       oldlen += floor(oldlen,2); # oldlen * 3/2
       newlen = (f_len < oldlen ? oldlen : f_len);
-      # gew¸nschte > vorhandene L‰nge -> muss nachberechnen:
+      # gew√ºnschte > vorhandene L√§nge -> muss nachberechnen:
       # Methode:
       # [Richard P. Brent: Fast multiple-precision evaluation of elementary
       #  functions. J. ACM 23(1976), 242-251.]
@@ -46,7 +46,7 @@
       {var uintC len = newlen + 1; # Arbeite mit Long-Floats mit len Digits
        if (uintWCoverflow(len)) { fehler_LF_toolong(); }
        {var uintL uexp_limit = LF_exp_mid - intDsize*(uintL)newlen; # LF_exp_mid - n
-        # Ein Long-Float ist genau dann betragsm‰ﬂig <2^-n, wenn
+        # Ein Long-Float ist genau dann betragsm√§√üig <2^-n, wenn
         # sein Exponent < LF_exp_mid-n = uexp_limit ist.
         {var object temp = I_to_LF(Fixnum_1,len); # 1 als Long-Float
          pushSTACK(temp); # =: a
@@ -80,7 +80,7 @@
          temp = LF_LF_durch_LF(temp,STACK_0); # durch t dividieren
          skipSTACK(4);
          # temp = Pi ist fertig.
-         temp = O(LF_pi) = LF_shorten_LF(temp,newlen); # wieder verk¸rzen, als LF_pi abspeichern
+         temp = O(LF_pi) = LF_shorten_LF(temp,newlen); # wieder verk√ºrzen, als LF_pi abspeichern
          return (f_len < newlen ? LF_shorten_LF(temp,f_len) : temp);
     }}}}}
 
@@ -92,11 +92,11 @@
                        return O(SF_pi); , # pi als SF
                        return O(FF_pi); , # pi als FF
                        return O(DF_pi); , # pi als DF
-                       return O(pi); , # pi als LF der Defaultl‰nge
+                       return O(pi); , # pi als LF der Defaultl√§nge
                        ,); # nichts zu retten
     }
 
-# F_atanhx_F(x) liefert zu einem Float x (betragsm‰ﬂig <1/2) atanh(x) als Float.
+# F_atanhx_F(x) liefert zu einem Float x (betragsm√§√üig <1/2) atanh(x) als Float.
 # can trigger GC
   local object F_atanhx_F (object x);
 # Methode:
@@ -117,7 +117,7 @@
 #   setzt also x := 1/|x|, dann k mal x := x+sqrt(x^2-1), dann x := +- 1/x.
 # Aufwand: asymptotisch d^2.5 .
 
-# F_atanx_F(x) liefert zu einem Float x (betragsm‰ﬂig <=1) atan(x) als Float.
+# F_atanx_F(x) liefert zu einem Float x (betragsm√§√üig <=1) atan(x) als Float.
 # can trigger GC
   local object F_atanx_F (object x);
 # Methode:
@@ -148,7 +148,7 @@
           { return x; } # ja -> x als Ergebnis                                       \
         pushSTACK(x);                                                                \
         # Stackaufbau: x.                                                            \
-        {var object k = Fixnum_0; # Rekursionsz‰hler k:=0                            \
+        {var object k = Fixnum_0; # Rekursionsz√§hler k:=0                            \
          var uintL sqrt_d = UL_sqrt_UW(d); # floor(sqrt(d))                          \
          # Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.         \
          if (e >= (sintL)(-sqrt_d))                                                  \
@@ -157,7 +157,7 @@
              pushSTACK(x = F_durch_F(F_abs_F(x))); # 1/|x|                           \
              # Stackaufbau: originales x, neues x.                                   \
              loop                                                                    \
-               { # n‰chstes x nach der Formel x := x+sqrt(x^2 +- 1) berechnen:       \
+               { # n√§chstes x nach der Formel x := x+sqrt(x^2 +- 1) berechnen:       \
                  x = F_sqrt_F(R_R_plus_R(F_square_F(x),Fixnum_plusminus1));          \
                  STACK_0 = x = F_F_plus_F(STACK_0,x);                                \
                  k = fixnum_inc(k,1); # k:=k+1                                       \
@@ -211,7 +211,7 @@
 # 0 <= |y| <= x  ->  atan(y/x)
 # 0 <= |x| <= y  ->  pi/2 - atan(x/y)
 # 0 <= |x| <= -y  ->  -pi/2 - atan(x/y)
-# 0 <= |y| <= -x  ->  f¸r y>=0: pi + atan(y/x), f¸r y<0: -pi + atan(y/x)
+# 0 <= |y| <= -x  ->  f√ºr y>=0: pi + atan(y/x), f√ºr y<0: -pi + atan(y/x)
   local object R_R_atan_R(x,y)
     var object x;
     var object y;
@@ -280,7 +280,7 @@
   #define R_atan_R(x)  R_R_atan_R(Fixnum_1,x)
 #endif
 
-# F_sinx_F(x) liefert zu einem Float x (betragsm‰ﬂig <2) (sin(x)/x)^2 als Float.
+# F_sinx_F(x) liefert zu einem Float x (betragsm√§√üig <2) (sin(x)/x)^2 als Float.
 # can trigger GC
   local object F_sinx_F (object x);
 # Methode:
@@ -298,14 +298,14 @@
 #   berechne rekursiv z:=(sin(y)/y)^2 und liefere z*(1-y^2*z).
 # [Die Grenze sqrt(d) ergibt sich so:
 #  Man braucht bei der Potenzreihe mit x=2^-k etwa j Glieder, mit
-#  k*j*ln 2 + j*(ln j - 1) = d, und der Aufwand betr‰gt etwa 2.8*(j/2)
+#  k*j*ln 2 + j*(ln j - 1) = d, und der Aufwand betr√§gt etwa 2.8*(j/2)
 #  Multiplikationen von d-Bit-Zahlen. Bei Halbierungen bis x=2^-k ist der
 #  Gesamtaufwand etwa 2*(k+e)+1.4*j(k). Dieses minimieren nach k: Soll sein
 #  -1.4 = d/dk j(k) = (d/dj k(j))^-1 = - j^2/(d+j)*ln 2, also j^2=2(d+j),
 #  grob j=sqrt(2d) und damit k=sqrt(d).]
 # Aufwand: asymptotisch d^2.5 .
 
-# F_sinhx_F(x) liefert zu einem Float x (betragsm‰ﬂig <2) (sinh(x)/x)^2 als Float.
+# F_sinhx_F(x) liefert zu einem Float x (betragsm√§√üig <2) (sinh(x)/x)^2 als Float.
 # can trigger GC
   local object F_sinhx_F (object x);
 # Methode:
@@ -323,7 +323,7 @@
 #   berechne rekursiv z:=(sinh(y)/y)^2 und liefere z*(1+y^2*z).
 # [Die Grenze sqrt(d) ergibt sich so:
 #  Man braucht bei der Potenzreihe mit x=2^-k etwa j Glieder, mit
-#  k*j*ln 2 + j*(ln j - 1) = d, und der Aufwand betr‰gt etwa 2.8*(j/2)
+#  k*j*ln 2 + j*(ln j - 1) = d, und der Aufwand betr√§gt etwa 2.8*(j/2)
 #  Multiplikationen von d-Bit-Zahlen. Bei Halbierungen bis x=2^-k ist der
 #  Gesamtaufwand etwa 2*(k+e)+1.4*j(k). Dieses minimieren nach k: Soll sein
 #  -1.4 = d/dk j(k) = (d/dj k(j))^-1 = - j^2/(d+j)*ln 2, also j^2=2(d+j),
@@ -368,7 +368,7 @@
          }  }                                                                       \
          {var object z = F_square_F(STACK_0); # sum^2 als Ergebnis                  \
           # Stackaufbau: x, x^2, -, -, -.                                           \
-          # Wegen Rekursion noch max(e-e_limit,0) mal z ver‰ndern:                  \
+          # Wegen Rekursion noch max(e-e_limit,0) mal z ver√§ndern:                  \
           if (e > e_limit)                                                          \
             { STACK_4 = z; # z retten                                               \
               do { z = R_R_plusminus_R(Fixnum_1,F_F_mal_F(STACK_3,z)); # 1 +- x^2*z \
@@ -393,7 +393,7 @@
   local void F_pi_round_I_F(x)
     var object x;
     { if (F_exponent_L(x) <= 0)
-        # Exponent <=0 -> |x|<1 -> |x/pi| < 1/2, also Division unnˆtig
+        # Exponent <=0 -> |x|<1 -> |x/pi| < 1/2, also Division unn√∂tig
         { pushSTACK(Fixnum_0); pushSTACK(x); } # Quotient 0, Rest x
         else
         { pushSTACK(x); # x retten
@@ -409,7 +409,7 @@
   local void F_pi2_round_I_F(x)
     var object x;
     { if (F_exponent_L(x) < 0)
-        # Exponent <0 -> |x|<1/2 -> |x/(pi/2)| < 1/2, also Division unnˆtig
+        # Exponent <0 -> |x|<1/2 -> |x/(pi/2)| < 1/2, also Division unn√∂tig
         { pushSTACK(Fixnum_0); pushSTACK(x); } # Quotient 0, Rest x
         else
         { pushSTACK(x); # x retten
@@ -424,7 +424,7 @@
   local object R_sin_R (object x);
 # Methode:
 # x rational -> bei x=0 0 als Ergebnis, sonst x in Float umwandeln.
-# x Float -> Genauigkeit erhˆhen,
+# x Float -> Genauigkeit erh√∂hen,
 #   (q,r) := (round x (float pi x)), so dass |r|<=pi/2.
 #   (sin(r)/r)^2 errechnen, Wurzel ziehen, mit r multiplizieren
 #   und - falls q ungerade - Vorzeichenwechsel.
@@ -436,7 +436,7 @@
         }
       # x Float
       pushSTACK(x); # x retten
-      x = F_extend_F(x); # Rechengenauigkeit erhˆhen
+      x = F_extend_F(x); # Rechengenauigkeit erh√∂hen
       F_pi_round_I_F(x); # durch pi dividieren
       # Stackaufbau: Argument, q, r.
      {var object x;
@@ -453,7 +453,7 @@
   local object R_cos_R (object x);
 # Methode:
 # x rational -> bei x=0 1 als Ergebnis, sonst x in Float umwandeln.
-# x Float -> Genauigkeit erhˆhen,
+# x Float -> Genauigkeit erh√∂hen,
 #   (q,r) := (round x (float pi x)), so dass |r|<=pi/2.
 #   e := Exponent aus (decode-float r), d := (float-digits r)
 #   Bei r=0.0 oder e<=-d/2 liefere 1.0
@@ -471,7 +471,7 @@
         }
       # x Float
       pushSTACK(x); # x retten
-      x = F_extend_F(x); # Rechengenauigkeit erhˆhen
+      x = F_extend_F(x); # Rechengenauigkeit erh√∂hen
       F_pi_round_I_F(x); # durch pi dividieren
       # Stackaufbau: Argument, q, r.
      {var object x;
@@ -499,7 +499,7 @@
   local void R_cos_sin_R_R (object x);
 # Methode:
 # x rational -> bei x=0 (1,0) als Ergebnis, sonst x in Float umwandeln.
-# x Float -> Genauigkeit erhˆhen,
+# x Float -> Genauigkeit erh√∂hen,
 #   (q,r) := (round x (float pi/2 x)), so dass |r|<=pi/4.
 #   y:=(sin(r)/r)^2 errechnen.
 #   (cos r) berechnen:
@@ -524,7 +524,7 @@
         }
       # x Float
       pushSTACK(x); # x retten
-      x = F_extend_F(x); # Rechengenauigkeit erhˆhen
+      x = F_extend_F(x); # Rechengenauigkeit erh√∂hen
       F_pi2_round_I_F(x); # durch pi/2 dividieren
       # Stackaufbau: Argument, q, r.
       pushSTACK(F_sinx_F(STACK_0)); # y := (sin(r)/r)^2
@@ -596,7 +596,7 @@
       var sintL e = F_exponent_L(x);
        if (e <= (sintL)(-d)) # e <= -d ?
          { x = STACK_0; skipSTACK(2); return x; } # ja -> y als Ergebnis
-      { var object k = Fixnum_0; # Rekursionsz‰hler k:=0
+      { var object k = Fixnum_0; # Rekursionsz√§hler k:=0
        {# Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.
         var sintL e_limit = -1-UL_sqrt_UW(d); # -1-floor(sqrt(d))
         while (e > e_limit)
@@ -639,19 +639,19 @@
                 { return LF_to_DF(ln2); },
                 ;
                );
-     {var uintC f_len = Lfloat_length(f); # gew¸nschte L‰nge von ln(2)
-      {var uintC len = Lfloat_length(ln2); # vorhandene L‰nge
+     {var uintC f_len = Lfloat_length(f); # gew√ºnschte L√§nge von ln(2)
+      {var uintC len = Lfloat_length(ln2); # vorhandene L√§nge
        if (f_len < len) { return LF_shorten_LF(ln2,f_len); }
        if (f_len == len) { return ln2; }
       }
-      # gew¸nschte > vorhandene L‰nge -> muss nachberechnen:
+      # gew√ºnschte > vorhandene L√§nge -> muss nachberechnen:
       {var uintC len = lf_len_extend(f_len); # einige Digits mehr verlangen
        var object temp = F_lnx_F(I_to_LF(fixnum(2),len)); # (ln 2.0)
        # temp = ln(2) ist fertig.
-       return O(LF_ln2) = LF_shorten_LF(temp,f_len); # wieder verk¸rzen, als LF_ln2 abspeichern
+       return O(LF_ln2) = LF_shorten_LF(temp,f_len); # wieder verk√ºrzen, als LF_ln2 abspeichern
     }}}
 
-# Vergrˆﬂert eine Long-Float-L‰nge n, so dass aus d = intDsize*n
+# Vergr√∂√üert eine Long-Float-L√§nge n, so dass aus d = intDsize*n
 # mindestens d+sqrt(d)+2+(LF_exp_len-1) wird.
 # Allgemein: intDsize*n + sqrt(intDsize*n) + 2 + 31 < intDsize*(n+inc)
 # <==>       sqrt(intDsize*n) + 33 < intDsize*inc
@@ -703,7 +703,7 @@
 # x rational -> bei x=1 0 als Ergebnis, sonst x in Float umwandeln.
 # x Float ->
 #   d := (float-digits x),
-#   Genauigkeit um sqrt(d)+max(integer-length(e)) Bits erhˆhen,
+#   Genauigkeit um sqrt(d)+max(integer-length(e)) Bits erh√∂hen,
 #   (m,e) := (decode-float x), so dass 1/2 <= m < 1.
 #   m<2/3 -> m:=2m, e:=e-1, so dass 2/3 <= m <= 4/3.
 #   ln(m) errechnen, ln(x)=ln(m)+e*ln(2) als Ergebnis.
@@ -715,7 +715,7 @@
         }
       # x Float
       pushSTACK(x); # x retten
-      x = F_extend2_F(x); # Rechengenauigkeit erhˆhen
+      x = F_extend2_F(x); # Rechengenauigkeit erh√∂hen
       F_decode_float_F_I_F(x); # m,e,s bestimmen
       # Stackaufbau: x, m, e, s.
       if (F_F_comp(STACK_2,
@@ -753,23 +753,23 @@
 # Wegen a>=2^c, b>=2^d sind c,d < (integer-length a,b) < intDsize*2^intWCsize.
 # In Matrizenschreibweise:
 #   Wenn eine Folge von Divisionsschritten D und Vertauschungsschritten V
-#   ausgef¸hrt werden muss, z.B. (a,b) V D D = (1,*), so ist
+#   ausgef√ºhrt werden muss, z.B. (a,b) V D D = (1,*), so ist
 #     ( c )           ( 0 )             ( 1 1 )           ( 0 1 )
 #     ( d )  =  V D D ( 1 )  wobei  D = ( 0 1 )  und  V = ( 1 0 ).
 #   Man baut diese Matrizen nun von links nach rechts auf, zum Schluss von
 #              ( 0 )
 #   rechts mit ( 1 ) multiplizieren.
 # Entrekursiviert:
-#   Wir werden (a,b) und damit auch c/d = log(a/b) ver‰ndern.
-#   Invariante: Statt (c,d) wollen wir (uc*c+ud*d,vc*c+vd*d) zur¸ckliefern.
+#   Wir werden (a,b) und damit auch c/d = log(a/b) ver√§ndern.
+#   Invariante: Statt (c,d) wollen wir (uc*c+ud*d,vc*c+vd*d) zur√ºckliefern.
 #                                           ( uc ud )
 #   D.h. die bisherige Matrix von links ist ( vc vd ).
 #   uc:=1, ud:=0, vc:=0, vd:=1.
 #   Solange a>1,
 #     a>=b -> Dividiere a durch b. Rest da -> geht nicht.
-#             Sonst a:=a/b, und (f¸r sp‰ter c:=c+d) ud:=uc+ud, vd:=vc+vd.
+#             Sonst a:=a/b, und (f√ºr sp√§ter c:=c+d) ud:=uc+ud, vd:=vc+vd.
 #     1<a<b -> vertausche a und b, uc und ud, vc und vd.
-#   Liefere (ud,vd), der Bruch ud/vd ist gek¸rzt.
+#   Liefere (ud,vd), der Bruch ud/vd ist gek√ºrzt.
   local object I_I_log_RA(a,b)
     var object a;
     var object b;
@@ -906,7 +906,7 @@
       return F_F_durch_F(popSTACK(),lnb); # (/ (ln a) (ln b)) als Ergebnis
     }}
 
-# F_expx_F(x) liefert zu einem Float x (betragsm‰ﬂig <1) exp(x) als Float.
+# F_expx_F(x) liefert zu einem Float x (betragsm√§√üig <1) exp(x) als Float.
 # can trigger GC
   local object F_expx_F (object x);
 # Methode:
@@ -931,7 +931,7 @@
         { return I_F_float_F(Fixnum_1,x); } # ja -> 1.0 als Ergebnis
       pushSTACK(x);
       # Stackaufbau: x.
-      {var uintL k = 0; # Rekursionsz‰hler k:=0
+      {var uintL k = 0; # Rekursionsz√§hler k:=0
        {# Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.
         var sintL e_limit = -1-UL_sqrt_UW(d); # -1-floor(sqrt(d))
         if (e > e_limit)
@@ -970,7 +970,7 @@
 # x rational -> bei x=0 1 als Ergebnis, sonst x in Float umwandeln.
 # x Float ->
 #   d := (float-digits x),
-#   Genauigkeit um sqrt(d)+max(integer-length(e)) Bits erhˆhen,
+#   Genauigkeit um sqrt(d)+max(integer-length(e)) Bits erh√∂hen,
 #   (q,r) := (floor x ln(2))
 #   Ergebnis ist exp(q*ln(2)+r) = (scale-float exp(r) q).
   local object R_exp_R(x)
@@ -982,10 +982,10 @@
         }
       # x Float
       pushSTACK(x); # x retten
-      x = F_extend2_F(x); # Genauigkeit vergrˆﬂern
+      x = F_extend2_F(x); # Genauigkeit vergr√∂√üern
       # durch ln(2) dividieren (bei 0<=x<1/2 kann man sofort q:=0 setzen)
       if ((!R_minusp(x)) && (F_exponent_L(x)<0))
-        { pushSTACK(Fixnum_0); pushSTACK(x); } # x>=0, Exponent <0 -> 0<=x<1/2 -> Division unnˆtig
+        { pushSTACK(Fixnum_0); pushSTACK(x); } # x>=0, Exponent <0 -> 0<=x<1/2 -> Division unn√∂tig
         else
         { pushSTACK(x);
          {var object ln2 = ln2_F_float_F(x); # ln(2) mit hinreichender Genauigkeit
@@ -1005,7 +1005,7 @@
   local object R_sinh_R (object x);
 # Methode:
 # x rational -> bei x=0 0 als Ergebnis, sonst x in Float umwandeln.
-# x Float -> Genauigkeit erhˆhen,
+# x Float -> Genauigkeit erh√∂hen,
 #   e := Exponent aus (decode-float x)
 #   falls e<=0: (sinh(x)/x)^2 errechnen, Wurzel ziehen, mit x multiplizieren.
 #   falls e>0: y:=exp(x) errechnen, (scale-float (- y (/ y)) -1) bilden.
@@ -1021,7 +1021,7 @@
         # e<=0
         { var object temp;
           pushSTACK(x);
-          pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erhˆhen
+          pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erh√∂hen
           temp = F_sqrt_F(F_sinhx_F(x)); # Wurzel aus (sinh(x)/x)^2
           temp = F_F_mal_F(temp,STACK_0); # mit genauerem x multiplizieren
           temp = F_F_float_F(temp,STACK_1); # und wieder runden
@@ -1042,7 +1042,7 @@
   local object R_cosh_R (object x);
 # Methode:
 # x rational -> bei x=0 1 als Ergebnis, sonst x in Float umwandeln.
-# x Float -> Genauigkeit erhˆhen,
+# x Float -> Genauigkeit erh√∂hen,
 #   e := Exponent aus (decode-float x), d := (float-digits x)
 #   falls x=0.0 oder e<=(1-d)/2 liefere 1.0
 #     (denn bei e<=(1-d)/2 ist 1 <= cosh(x) = 1+x^2/2+... < 1+2^(-d),
@@ -1077,7 +1077,7 @@
           }
           {var object temp;
            pushSTACK(x);
-           pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erhˆhen
+           pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erh√∂hen
            pushSTACK(temp = F_I_scale_float_F(temp,Fixnum_minus1)); # y=(scale-float x -1)
            temp = F_sinhx_F(temp); # (sinh(y)/y)^2
            temp = F_F_mal_F(STACK_0,temp); # mit y multiplizieren
@@ -1094,7 +1094,7 @@
   local void R_cosh_sinh_R_R (object x);
 # Methode:
 # x rational -> bei x=0 (1,0) als Ergebnis, sonst x in Float umwandeln.
-# x Float -> Genauigkeit erhˆhen,
+# x Float -> Genauigkeit erh√∂hen,
 #   e := Exponent aus (decode-float x), d := (float-digits x)
 #   falls x=0.0 oder e<=(1-d)/2 liefere (1.0,x)
 #     (denn bei e<=(1-d)/2 ist
@@ -1138,7 +1138,7 @@
              { pushSTACK(x); pushSTACK(x); STACK_1 = I_F_float_F(Fixnum_1,x); return; }
           {var object temp;
            pushSTACK(x);
-           pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erhˆhen
+           pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erh√∂hen
            pushSTACK(F_square_F(temp)); # x*x
            pushSTACK(temp = F_sinhx_F(STACK_1)); # y:=(sinh(x)/x)^2
            # Stackaufbau: originales x, x, x^2, y.

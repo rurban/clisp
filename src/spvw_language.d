@@ -164,7 +164,7 @@
         }
         if (asciz_equal(langname,"FRANCAIS") || asciz_equal(langname,"francais")
             #ifndef ASCII_CHS
-            || asciz_equal(langname,"FRANÇAIS") || asciz_equal(langname,"français")
+            || asciz_equal(langname,"FRANÃ‡AIS") || asciz_equal(langname,"franÃ§ais")
             #endif
             || asciz_equal(langname,"FRENCH") || asciz_equal(langname,"french")
            ) {
@@ -172,7 +172,7 @@
         }
         if (asciz_equal(langname,"ESPANOL") || asciz_equal(langname,"espanol")
             #ifndef ASCII_CHS
-            || asciz_equal(langname,"ESPAÑOL") || asciz_equal(langname,"español")
+            || asciz_equal(langname,"ESPAÃ‘OL") || asciz_equal(langname,"espaÃ±ol")
             #endif
             || asciz_equal(langname,"SPANISH") || asciz_equal(langname,"spanish")
            ) {
@@ -192,7 +192,7 @@
     local void init_language(argv_language,argv_localedir)
       var const char* argv_language;
       var const char* argv_localedir;
-      { # Sprache wird so festgelegt, mit Prioritäten in dieser Reihenfolge:
+      { # Sprache wird so festgelegt, mit PrioritÃ¤ten in dieser Reihenfolge:
         #   1. Fest eingebaut, LANGUAGE_STATIC
         #   2. -L Kommandozeilen-Argument
         #   3. Environment-Variable CLISP_LANGUAGE
@@ -470,7 +470,7 @@
         obj = asciz_to_string(clgettext(asciz),Symbol_value(S(iso8859_1)));
       });
       dynamic_bind(S(packagestern),O(default_package)); # *PACKAGE* binden
-      pushSTACK(obj); funcall(L(read_from_string),1); # READ-FROM-STRING ausführen
+      pushSTACK(obj); funcall(L(read_from_string),1); # READ-FROM-STRING ausfÃ¼hren
       dynamic_unbind();
       return value1;
     }

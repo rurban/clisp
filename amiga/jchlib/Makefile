@@ -1,5 +1,5 @@
 # GNU-Makefile for tiny GCC library
-# Jörg Höhle, 6-Aug-96
+# JÃ¶rg HÃ¶hle, 6-Aug-96
 
 # 24.7.96: removed gnulib files from LIBFILES, use -lgcc instead
 #        lib/gnuarith.o lib/_ashldi3.o lib/_ucmpdi2.o lib/_negdi2.o\

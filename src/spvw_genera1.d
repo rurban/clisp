@@ -158,7 +158,7 @@ local uintC generation;
       { var aint objptr = physpage_start;                            \
         switch (heapnr)                                              \
           { case_pair:                                               \
-              # Objekt mit genau 2 Pointern (Cons u.ä.)              \
+              # Objekt mit genau 2 Pointern (Cons u.Ã¤.)              \
               walk_area_cons(objptr,physpage_end,walkfun);           \
               break;                                                 \
             case_symbol: # Symbol                                    \
@@ -188,9 +188,9 @@ local uintC generation;
       #define walk_area(heapnr,physpage_start,physpage_end,walkfun)  \
         { var aint objptr = physpage_start;                                        \
           switch (heapnr)                                                          \
-            { case 0: # Objekte variabler Länge                                    \
+            { case 0: # Objekte variabler LÃ¤nge                                    \
                 while (objptr < physpage_end)                                      \
-                  { switch (typecode_at(objptr)) # Typ des nächsten Objekts        \
+                  { switch (typecode_at(objptr)) # Typ des nÃ¤chsten Objekts        \
                       { case_symbolwithflags: # Symbol                             \
                           walk_area_symbol(objptr,physpage_end,walkfun);           \
                           break;                                                   \
@@ -218,9 +218,9 @@ local uintC generation;
       #define walk_area(heapnr,physpage_start,physpage_end,walkfun)  \
         { var aint objptr = physpage_start;                                         \
           switch (heapnr)                                                           \
-            { case 0: # Objekte variabler Länge                                     \
+            { case 0: # Objekte variabler LÃ¤nge                                     \
                 while (objptr < physpage_end)                                       \
-                  { switch (record_type((Record)objptr)) # Typ des nächsten Objekts \
+                  { switch (record_type((Record)objptr)) # Typ des nÃ¤chsten Objekts \
                       { case Rectype_mdarray:                                       \
                         case Rectype_bvector:                                       \
                         case Rectype_b2vector:                                      \
@@ -327,8 +327,8 @@ local uintC generation;
           heap->physpages = (physpage_state*) xrealloc(heap->physpages,(physpage_count+(gen0_end==gen0_end_pa))*sizeof(physpage_state));
           if (!(heap->physpages==NULL)) {
             #if defined(SELFMADE_MMAP) && !defined(SPVW_PURE_BLOCKS)
-            # Spätestens jetzt muss man den Speicherinhalt vom mem-File holen.
-            # (Die Conses könnte man noch weiter verzögern, aber bringt das viel?)
+            # SpÃ¤testens jetzt muss man den Speicherinhalt vom mem-File holen.
+            # (Die Conses kÃ¶nnte man noch weiter verzÃ¶gern, aber bringt das viel?)
             {
               var uintL pageno;
               for (pageno = 0; pageno < heap->memfile_numpages; pageno++)
@@ -340,9 +340,9 @@ local uintC generation;
             }
             #endif
             # Wenn wir fertig sind, wird sowohl Cache als auch Speicherinhalt
-            # gültig sein:
+            # gÃ¼ltig sein:
             xmmprotect(heap, gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ);
-            # heap->physpages[0..physpage_count-1] füllen:
+            # heap->physpages[0..physpage_count-1] fÃ¼llen:
             {
               var physpage_state* physpage = heap->physpages;
               var uintL count;
@@ -353,14 +353,14 @@ local uintC generation;
               });
             }
             if (is_cons_heap(heapnr)) {
-              # Conses u.ä.
+              # Conses u.Ã¤.
               # Von gen0_start bis gen0_end sind alles Pointer.
               var physpage_state* physpage = heap->physpages;
               var uintL count;
               #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
               # Alle Seiten bis auf die letzte voll, die letzte teilweise voll.
               dotimesL(count,physpage_count-1, {
-                # für i=0,1,...:
+                # fÃ¼r i=0,1,...:
                 #   gen0_start = heap->heap_gen0_start + i*physpagesize
                 #   physpage = &heap->physpages[i]
                 physpage->continued_addr = (object*)gen0_start;
@@ -379,7 +379,7 @@ local uintC generation;
               physpage->firstobject = gen0_start = gen0_start_pa+physpagesize;
               dotimesL(count,physpage_count-1, {
                 physpage++;
-                # für i=1,...:
+                # fÃ¼r i=1,...:
                 #   gen0_start = (heap->heap_gen0_start & -physpagesize) + i*physpagesize
                 #   physpage = &heap->physpages[i]
                 physpage->continued_addr = (object*)gen0_start;
@@ -389,17 +389,17 @@ local uintC generation;
               });
               #endif
             } else {
-              # is_varobject_heap(heapnr), Objekte variabler Länge
+              # is_varobject_heap(heapnr), Objekte variabler LÃ¤nge
               var physpage_state* physpage = heap->physpages;
               var aint objptr = gen0_start;
-              # Für i=0,1,... ist
+              # FÃ¼r i=0,1,... ist
               #   gen0_start = heap->heap_gen0_start + i*physpagesize
               #   physpage = &heap->physpages[i]
-              # Mit wachsendem i geht man von einer Seite zur nächsten.
-              # Gleichzeitig geht man von einem Objekt zum nächsten und markiert
+              # Mit wachsendem i geht man von einer Seite zur nÃ¤chsten.
+              # Gleichzeitig geht man von einem Objekt zum nÃ¤chsten und markiert
               # alle Pointer zwischen objptr (Pointer auf das aktuelle Objekt)
-              # und nextptr (Pointer auf das nächste Objekt). Glücklicherweise
-              # kommen in allen unseren Objekten die Pointer am Stück:
+              # und nextptr (Pointer auf das nÃ¤chste Objekt). GlÃ¼cklicherweise
+              # kommen in allen unseren Objekten die Pointer am StÃ¼ck:
               # ab ptr kommen count Pointer.
               # Das Intervall ptr...ptr+count*sizeof(object) wird nun zerlegt.
               #ifdef SPVW_PURE
@@ -423,7 +423,7 @@ local uintC generation;
                         physpage->continued_count = count;
                       }
                       physpage->firstobject = nextptr;
-                      # Man überquert höchstens eine Seitengrenze auf einmal.
+                      # Man Ã¼berquert hÃ¶chstens eine Seitengrenze auf einmal.
                       gen0_start += physpagesize; physpage++;
                     }
                     objptr = nextptr;
@@ -448,7 +448,7 @@ local uintC generation;
                         physpage->continued_addr = (object*)ptr;
                         physpage->continued_count = 1;
                       }
-                      # Man überquerte höchstens eine Seitengrenze.
+                      # Man Ã¼berquerte hÃ¶chstens eine Seitengrenze.
                       # Danach kommen (bis nextptr) keine Pointer mehr.
                       loop {
                         physpage->firstobject = nextptr;
@@ -557,7 +557,7 @@ local uintC generation;
               gen0_start += physpagesize; physpage++;
               while (objptr < gen0_end) {
                 #ifdef TYPECODES
-                switch (typecode_at(objptr)) # Typ des nächsten Objekts
+                switch (typecode_at(objptr)) # Typ des nÃ¤chsten Objekts
                 #else
                 goto case_record;
                 switch (0)
@@ -579,7 +579,7 @@ local uintC generation;
                           physpage->continued_count = count;
                         }
                         physpage->firstobject = nextptr;
-                        # Man überquert höchstens eine Seitengrenze auf einmal.
+                        # Man Ã¼berquert hÃ¶chstens eine Seitengrenze auf einmal.
                         gen0_start += physpagesize; physpage++;
                       }
                       objptr = nextptr;
@@ -600,7 +600,7 @@ local uintC generation;
                           physpage->continued_addr = (object*)ptr;
                           physpage->continued_count = 1;
                         }
-                        # Man überquerte höchstens eine Seitengrenze.
+                        # Man Ã¼berquerte hÃ¶chstens eine Seitengrenze.
                         # Danach kommen (bis nextptr) keine Pointer mehr.
                         loop {
                           physpage->firstobject = nextptr;
@@ -854,8 +854,8 @@ local uintC generation;
               });
               /* xfree(heap->physpages); heap->physpages = NULL; */
             }
-            # Dann die Lücke zwischen der alten und der neuen Generation so
-            # füllen, dass die Kompaktierungs-Algorithmen funktionieren:
+            # Dann die LÃ¼cke zwischen der alten und der neuen Generation so
+            # fÃ¼llen, dass die Kompaktierungs-Algorithmen funktionieren:
             if (is_cons_heap(heapnr)) {
               var object* ptr;
               var uintL count;
@@ -917,7 +917,7 @@ local uintC generation;
           }
         }
     }
-  # Kontrolle, ob alle Pointer im Cache aufgeführt sind und nicht in den Wald zeigen.
+  # Kontrolle, ob alle Pointer im Cache aufgefÃ¼hrt sind und nicht in den Wald zeigen.
   #define CHECK_GC_GENERATIONAL()  gc_overall_check()
   local void gc_overall_check (void);
     # Kontrolle eines einzelnen Pointers:
@@ -976,7 +976,7 @@ local uintC generation;
               gen0_start &= -physpagesize;
               do {
                 if (physpage->protection == PROT_READ) {
-                  # Stimmen die Pointer im Cache und in der Seite überein?
+                  # Stimmen die Pointer im Cache und in der Seite Ã¼berein?
                   var uintL count = physpage->cache_size;
                   if (count > 0) {
                     var old_new_pointer* ptr = physpage->cache;

@@ -48,8 +48,8 @@
       {
         #if !defined(GENERATIONAL_GC)
           #define Heap_used_space(h)  ((uintL)((h).pages.end - (h).pages.start))
-          return Heap_used_space(mem.varobjects) # Platz für Objekte variabler Länge
-                 + Heap_used_space(mem.conses); # Platz für Conses
+          return Heap_used_space(mem.varobjects) # Platz fÃ¼r Objekte variabler LÃ¤nge
+                 + Heap_used_space(mem.conses); # Platz fÃ¼r Conses
         #else # defined(GENERATIONAL_GC)
           return (uintL)(mem.varobjects.heap_gen0_end - mem.varobjects.heap_gen0_start)
                  + (uintL)(mem.varobjects.heap_end - mem.varobjects.heap_gen1_start)
@@ -100,12 +100,12 @@
    #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY) && !defined(GENERATIONAL_GC)
     global uintL free_space()
       {
-        return (mem.conses.heap_start-mem.varobjects.heap_end); # Platz in der großen Lücke
+        return (mem.conses.heap_start-mem.varobjects.heap_end); # Platz in der groÃŸen LÃ¼cke
       }
    #else
     global uintL free_space()
       {
-        return mem.total_room; # Platz, der bis zur nächsten GC verbraucht werden darf
+        return mem.total_room; # Platz, der bis zur nÃ¤chsten GC verbraucht werden darf
       }
    #endif
   #endif

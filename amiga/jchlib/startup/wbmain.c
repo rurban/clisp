@@ -1,5 +1,5 @@
 /* Tiny GCC Library
- * Jörg Höhle, 9-Jul-96
+ * JÃ¶rg HÃ¶hle, 9-Jul-96
  */
 
 #include "defs.h"

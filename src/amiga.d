@@ -1,13 +1,13 @@
-# Include-File für AMIGA-Version von CLISP
-# Bruno Haible, Jörg Höhle 19.12.1994
+# Include-File fÃ¼r AMIGA-Version von CLISP
+# Bruno Haible, JÃ¶rg HÃ¶hle 19.12.1994
 
 
-# Konstanten für Steuerzeichen:
+# Konstanten fÃ¼r Steuerzeichen:
 
 #define BEL  7              # Ton ausgeben
 #define CSI  (0x9B)         # Control-Sequence-Introducer (Meta-Escape)
 #define RUBOUT 127          # Rubout = Delete
-#define CRLFstring  "\n"    # C-String, der BS-Newline enthält
+#define CRLFstring  "\n"    # C-String, der BS-Newline enthÃ¤lt
 
 
 # Macros, um Longword-aligned Strukturen (z.B. im Stack) zu erzeugen:
@@ -37,11 +37,11 @@
 #undef UWORD
 #undef UBYTE
 
-#include <exec/memory.h>         # für Allocate()-Deklaration, MEMF_24BITDMA
-#include <exec/execbase.h>       # für SysBase, AFF_680x0
+#include <exec/memory.h>         # fÃ¼r Allocate()-Deklaration, MEMF_24BITDMA
+#include <exec/execbase.h>       # fÃ¼r SysBase, AFF_680x0
 #include <dos/dos.h>
 #include <dos/dosextens.h>
-# #include <dos/dostags.h>       # für SystemTags()
+# #include <dos/dostags.h>       # fÃ¼r SystemTags()
 
 #include <stdlib.h>
 
@@ -64,8 +64,8 @@
 
 # BCPL-Pointer (hier BCPL* genannt, Typ BPTR) sind durch 4 teilbare Adressen,
 # die durch 4 dividiert wurden.
-  #define BPTR_NULL  ((BPTR)0)     # das ist ein spezieller, aber gültiger BPTR
-  #define BPTR_NONE  ((BPTR)(-1))  # das ist ein ungültiger BPTR, Erkennungszeichen
+  #define BPTR_NULL  ((BPTR)0)     # das ist ein spezieller, aber gÃ¼ltiger BPTR
+  #define BPTR_NONE  ((BPTR)(-1))  # das ist ein ungÃ¼ltiger BPTR, Erkennungszeichen
 
 
 # Typ eines Handle:
@@ -75,12 +75,12 @@
 # wird verwendet von PATHNAME, SPVW
 
 
-# Für asciz_out() und *terminal-io*, initialisiert von SPVW:
+# FÃ¼r asciz_out() und *terminal-io*, initialisiert von SPVW:
   extern Handle stdin_handle;     # low-level stdin Eingabekanal
   extern Handle stdout_handle;    # low-level stdout Ausgabekanal
 
 
-# Information über die eigene Task.
+# Information Ã¼ber die eigene Task.
   extern struct ExecBase * const SysBase;
 # wird verwendet von SPVW
 
@@ -96,13 +96,13 @@
 
 # Programm verlassen und beenden.
 # exit(returncode);
-# > LONG returncode: Rückgabewert an den Aufrufer des Programms
+# > LONG returncode: RÃ¼ckgabewert an den Aufrufer des Programms
 #                    (z.B. RETURN_OK, RETURN_WARN, RETURN_ERROR, RETURN_FAIL)
   nonreturning_function(extern, exit, (int returncode));
 # wird verwendet von SPVW
 
 
-# Die Inlines sind jetzt Macros, also können Funktionen nicht mehr deklariert werden
+# Die Inlines sind jetzt Macros, also kÃ¶nnen Funktionen nicht mehr deklariert werden
 #if !defined(GNU_INLINES)
 
 # Holt das aktuelle Datum und die aktuelle Uhrzeit.
@@ -126,13 +126,13 @@
   extern LONG IoErr (void);
 # wird verwendet von ERROR, PATHNAME
 
-# Setzt die nächste Fehlernummer.
+# Setzt die nÃ¤chste Fehlernummer.
 # olderrno = SetIoErr(errno);
   extern LONG SetIoErr (LONG);
 # wird verwendet von ERROR
 
 
-# Öffnet eine Datei.
+# Ã–ffnet eine Datei.
 # handle = Open(filename,mode)
 # > filename: Name eines Files oder Device (ASCIZ-String)
 # > mode: Zugriffsmodus, z.B. MODE_OLDFILE oder MODE_NEWFILE oder MODE_READWRITE
@@ -141,7 +141,7 @@
   #define Open(filename,mode)  (Open)((CONST ASTRING)(filename),mode)
 # wird verwendet von SPVW, PATHNAME, STREAM
 
-# Schließt eine Datei.
+# SchlieÃŸt eine Datei.
 # ergebnis = Close(handle)
 # > handle: Handle eines offenen Files
 # < ergebnis: NULL bei Fehler.
@@ -199,7 +199,7 @@
   #define Lock(name,mode)  (Lock)((CONST ASTRING)(name),mode)
 # wird verwendet von PATHNAME
 
-# Lässt eine Datei oder ein Directory wieder los.
+# LÃ¤sst eine Datei oder ein Directory wieder los.
 # UnLock(lock);
 # > struct FileLock BCPL* lock: Lock oder NULL.
   extern void UnLock (BPTR lock); # siehe dos.library/UnLock
@@ -208,10 +208,10 @@
 # Holt Informationen zu einer Datei oder einem Directory.
 # ergebnis = Examine(lock,&fib);
 # > struct FileLock BCPL* lock: Lock.
-# > struct FileInfoBlock fib: Platz für die Informationen, LONGALIGNED,
+# > struct FileInfoBlock fib: Platz fÃ¼r die Informationen, LONGALIGNED,
 #     LONG fib.fib_DirEntryType     : >=0 bei Directory, <0 bei normaler Datei
 #     char fib.fib_Filename []      : Filename, ein ASCIZ-String
-#     LONG fib.fib_Size             : Größe des Files in Bytes
+#     LONG fib.fib_Size             : GrÃ¶ÃŸe des Files in Bytes
 #     struct DateStamp fib.fib_Date : Datum der letzten Modifikation
 #     char fib.fib_Comment []       : Kommentar
 # < ergebnis: NULL bei Fehler
@@ -221,16 +221,16 @@
 # Holt Informationen zu einem Directory-Eintrag.
 # ergebnis = ExNext(lock,&fib);
 # > struct FileLock BCPL* lock: Lock auf ein Directory.
-# > struct FileInfoBlock fib: Platz für die Informationen, wie bei Examine()
+# > struct FileInfoBlock fib: Platz fÃ¼r die Informationen, wie bei Examine()
 # < ergebnis: NULL bei Fehler, und IoErr()=ERROR_NO_MORE_ENTRIES am Schluss.
   extern LONG ExNext (BPTR lock, struct FileInfoBlock * fib); # siehe dos.library/ExNext
 # wird verwendet von PATHNAME
 
 # Durchsuchen von Directories nach Dateien:
-# 1. Lock fürs Directory besorgen: Lock().
+# 1. Lock fÃ¼rs Directory besorgen: Lock().
 # 2. Examine() dieses Lock in einen FIB.
 # 3. ExNext() dieses Lock und denselben FIB solange bis ERROR_NO_MORE_ENTRIES.
-# 4. Lock zurückgeben: UnLock().
+# 4. Lock zurÃ¼ckgeben: UnLock().
 
 # Besorgt das Parent Directory zu einem Lock auf ein Directory.
 # parentlock = ParentDir(lock);
@@ -241,7 +241,7 @@
 # wird verwendet von PATHNAME
 
 
-# Datei löschen.
+# Datei lÃ¶schen.
 # DeleteFile(filename)
 # > filename : Filename, ein ASCIZ-String
 # < ergebnis : NULL bei Fehler.
@@ -266,7 +266,7 @@
   #define CreateDir(name)  (CreateDir)((CONST ASTRING)(name))
 # wird verwendet von PATHNAME
 
-# Subdirectory löschen.
+# Subdirectory lÃ¶schen.
 # DeleteFile(name)
 # > name : Pfadname, ein ASCIZ-String
 # < ergebnis : NULL bei Fehler.
@@ -283,7 +283,7 @@
 # wird verwendet von PATHNAME, SPVW
 
 
-# Stellt fest, ob ein File interaktiv (ein Terminal o.ä.) ist.
+# Stellt fest, ob ein File interaktiv (ein Terminal o.Ã¤.) ist.
 # IsInteractive(handle)
 # > handle: Handle eines (offenen) Files
 # < ergebnis: gibt an, ob das File interaktiv ist
@@ -301,24 +301,24 @@
 # Umschalten CON/RAW (line/single-character mode).
 # SetMode(handle,mode)
 # > handle: Handle eines (offenen) interaktiven Files
-# > mode: 1 für RAW, 0 für CON
-# < ergebnis: 0 falls nicht erfolgreich (Modus ließ sich nicht umsetzen)
+# > mode: 1 fÃ¼r RAW, 0 fÃ¼r CON
+# < ergebnis: 0 falls nicht erfolgreich (Modus lieÃŸ sich nicht umsetzen)
   extern LONG SetMode (BPTR handle, long mode); # siehe dos.library/SetMode
 # wird verwendet von STREAM
 
 
-# Fordert ein Stück Speicher beim Betriebssystem an.
+# Fordert ein StÃ¼ck Speicher beim Betriebssystem an.
 # AllocMem(size,preference)
-# > size: angeforderte Größe in Bytes
+# > size: angeforderte GrÃ¶ÃŸe in Bytes
 # > preference: MEMF_ANY oder MEMF_24BITDMA
 # < ergebnis: Anfangsadresse des allozierten Bereichs, oder NULL
   extern APTR AllocMem (unsigned long size, unsigned long flags); # siehe exec.library/AllocMem
 # wird verwendet von SPVW
 
-# Gibt dem Betriebssystem ein Stück Speicher zurück.
+# Gibt dem Betriebssystem ein StÃ¼ck Speicher zurÃ¼ck.
 # FreeMem(address,size);
 # > address: Anfangsadresse des allozierten Bereichs
-# > size: Größe dieses Bereichs in Bytes
+# > size: GrÃ¶ÃŸe dieses Bereichs in Bytes
   extern void FreeMem (APTR address, unsigned long size); # siehe exec.library/FreeMem
 # wird verwendet von SPVW
 
@@ -332,7 +332,7 @@
 # Fragt die aktuelle Signal-Maske ab und modifiziert sie.
 # (Die Signal-Maske gibt an, welche Signale bei der eigenen Task angekommen
 # sind, aber noch nicht verarbeitet wurden. Wird vom Betriebssystem
-# asynchron verändert.)
+# asynchron verÃ¤ndert.)
 # SetSignal(signals_to_set,signals_to_change)
 # < ergebnis: ehemalige Signal-Maske signals
 # < neue Signal-Maske
@@ -352,10 +352,10 @@
 # Programme aufrufen.
 # Execute(command,ihandle,ohandle)
 # > command: Kommandozeile, wie man sie im Kommandozeilen-Interpreter eintippt
-#            oder "" für Subshell (bei interaktivem ihandle).
-# > ihandle: Handle für weitere Kommandos, nachdem command abgearbeitet ist,
-#            bei ihandle = 0 werden keine weiteren Kommandos ausgeführt.
-# > ohandle: Handle für Ausgaben der Kommandos,
+#            oder "" fÃ¼r Subshell (bei interaktivem ihandle).
+# > ihandle: Handle fÃ¼r weitere Kommandos, nachdem command abgearbeitet ist,
+#            bei ihandle = 0 werden keine weiteren Kommandos ausgefÃ¼hrt.
+# > ohandle: Handle fÃ¼r Ausgaben der Kommandos,
 #            bei ohandle = 0 gehen Ausgaben ins aktuelle Fenster.
 # < ergebnis: Flag, ob erfolgreich aufgerufen.
   extern LONG Execute (CONST ASTRING command, BPTR ihandle, BPTR ohandle); # siehe dos.library/Execute
@@ -366,10 +366,10 @@
 # SystemTags(command,tags...)
 # > command: Kommandozeile, wie man sie im Kommandozeilen-Interpreter eintippt
 # > tags: Array von ULONG (vgl. dostags.h), am Schluss TAG_DONE
-#         SYS_Input: Handle für Eingabestrom, Default Input()
-#         SYS_Output: Handle für Ausgabestrom, Default Output()
+#         SYS_Input: Handle fÃ¼r Eingabestrom, Default Input()
+#         SYS_Output: Handle fÃ¼r Ausgabestrom, Default Output()
 #                     wenn 0 und Input interaktiv ist, wird es geklont
-#         SYS_UserShell: günstig, wenn command vom Anwender stammt
+#         SYS_UserShell: gÃ¼nstig, wenn command vom Anwender stammt
 # < ergebnis: Returncode, -1 bei Fehler
   extern LONG SystemTaglist (CONST ASTRING command, CONST struct TagItem *tags);
   extern LONG SystemTags (CONST ASTRING command, CONST struct TagItem *tags, ...);
@@ -395,10 +395,10 @@
   extern long full_write (Handle handle, const RW_BUF_T buf, long nbyte);
 # wird verwendet von SPVW, STREAM, AMIGAAUX
 
-# ignoriere Ergebnis, was sollen wir tun können?
+# ignoriere Ergebnis, was sollen wir tun kÃ¶nnen?
   #define CLOSE(handle)  (Close(handle),0)
 
-# Stellt fest, ob ein File interaktiv (ein Terminal o.ä.) ist.
+# Stellt fest, ob ein File interaktiv (ein Terminal o.Ã¤.) ist.
   #define isatty(h)  IsInteractive(h)
 
 

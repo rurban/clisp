@@ -2,10 +2,10 @@
 # Prozessor: VAX
 # Compiler: GNU-C oder VAX C
 # Assembler: Unix "as"
-# Parameter-Übergabe: auf dem Stack 4(ap),8(ap),...
-# Rückgabewert: in Register r0
+# Parameter-Ãœbergabe: auf dem Stack 4(ap),8(ap),...
+# RÃ¼ckgabewert: in Register r0
 # Register r0-r5 frei verwendbar, zu rettende Register ab r6 sind
-#   in der .word-Anweisung anzugeben (Bitmaske: Bit i für Register ri)
+#   in der .word-Anweisung anzugeben (Bitmaske: Bit i fÃ¼r Register ri)
 # Einstellungen: intCsize=32, intDsize=32.
 
 #ifdef INCLUDED_FROM_C
@@ -278,7 +278,7 @@ nolu1:       bisl2 (r1)+,(r0)
 
            .align 1
 # extern void andc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
-_andc2_loop_up: # Input in r0,r1,r2, verändert r3
+_andc2_loop_up: # Input in r0,r1,r2, verÃ¤ndert r3
            .word 0
            movl 4(ap),r0
            movl 8(ap),r1
@@ -291,7 +291,7 @@ alu2:        bicl2 (r1)+,(r0)+
 
            .align 1
 # extern void orc2_loop_up (uintD* xptr, uintD* yptr, uintC count);
-_orc2_loop_up: # Input in r0,r1,r2, verändert r3
+_orc2_loop_up: # Input in r0,r1,r2, verÃ¤ndert r3
            .word 0
            movl 4(ap),r0
            movl 8(ap),r1
@@ -317,7 +317,7 @@ nlu1:        mcoml (r0),(r0)+
 
            .align 1
 # extern boolean and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
-_and_test_loop_up: # Input in r0,r1,r2, verändert r3, Output in r0
+_and_test_loop_up: # Input in r0,r1,r2, verÃ¤ndert r3, Output in r0
            .word 0
            movl 4(ap),r0
            movl 8(ap),r1

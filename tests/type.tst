@@ -140,7 +140,7 @@ T
 (TYPEP '#(A B C D) (QUOTE (VECTOR * 4)))
 T
 
-#| ; h‰ngt von (upgraded-array-element-type 'SYMBOL) ab!
+#| ; h√§ngt von (upgraded-array-element-type 'SYMBOL) ab!
 (TYPEP '#(A B C D) (QUOTE (VECTOR SYMBOL 4)))
 NIL
 |#

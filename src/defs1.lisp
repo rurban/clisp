@@ -6,7 +6,7 @@
 (in-package "SYSTEM")
 
 
-;;; Funktionen für Symbole (Kapitel 10)
+;;; Funktionen fÃ¼r Symbole (Kapitel 10)
 
 (defun copy-symbol (symbol &optional flag)
                    ;; Common LISP, S. 169
@@ -35,7 +35,7 @@
 ) ) ) )
 
 
-;;; Macros für Packages (Kapitel 11), S. 187-188
+;;; Macros fÃ¼r Packages (Kapitel 11), S. 187-188
 
 (defmacro do-symbols ((var &optional (packageform '*package*) (resultform nil))
                       &body body &environment env)
@@ -147,7 +147,7 @@
 ) )
 
 
-;;; Konstanten für Zahlen (Kapitel 12)
+;;; Konstanten fÃ¼r Zahlen (Kapitel 12)
 
 ; vgl. File INTLOG.TXT
 (defconstant boole-clr 0)
@@ -188,7 +188,7 @@
 )  )
 
 
-;;; Funktionen für Sequences (Kapitel 14)
+;;; Funktionen fÃ¼r Sequences (Kapitel 14)
 
 (defmacro doseq ((var seqform &optional resultform) &body body &environment env)
   (multiple-value-bind (body-rest declarations) (system::parse-body body nil env)
@@ -209,7 +209,7 @@
 ) ) )
 
 
-;;; Funktionen für Listen (Kapitel 15)
+;;; Funktionen fÃ¼r Listen (Kapitel 15)
 
 ; Hilfsversion von MEMBER, die das :KEY-Argument auch auf item anwendet:
 (defun sys::member1 (item list &rest rest &key test test-not key)
@@ -373,7 +373,7 @@
 ) )
 
 
-;;; Funktionen für Hash-Tabellen (Kapitel 16)
+;;; Funktionen fÃ¼r Hash-Tabellen (Kapitel 16)
 
 (defmacro dohash ((keyvar valuevar HTform &optional resultform) &body body &environment env)
   (multiple-value-bind (body-rest declarations) (system::parse-body body nil env)
@@ -394,7 +394,7 @@
 ) ) )
 
 
-;;; Funktionen für Strings (Kapitel 18)
+;;; Funktionen fÃ¼r Strings (Kapitel 18)
 
 (defun string-trim (character-bag string)
   (sys::string-both-trim character-bag character-bag string)
@@ -409,7 +409,7 @@
 )
 
 
-;;; Funktionen für Pathnames (Kapitel 23.1.5)
+;;; Funktionen fÃ¼r Pathnames (Kapitel 23.1.5)
 #+LOGICAL-PATHNAMES
 (progn
   (defun logical-pathname-translations (host)
@@ -462,9 +462,9 @@
 )
 
 
-;;; Funktionen für Zeit (Kapitel 25.4.1)
+;;; Funktionen fÃ¼r Zeit (Kapitel 25.4.1)
 
-; Hilfsfunktion für Macro TIME
+; Hilfsfunktion fÃ¼r Macro TIME
 (defun %time (new-real1 new-real2 new-run1 new-run2 new-gc1 new-gc2
               new-space1 new-space2 new-gccount
               old-real1 old-real2 old-run1 old-run2 old-gc1 old-gc2
@@ -514,7 +514,7 @@
 (defun sleep (time)
   (if (and (realp time) (not (minusp time)))
     (progn
-      ; Diese Fallunterscheidung hängt von sys::%sleep in time.d ab.
+      ; Diese Fallunterscheidung hÃ¤ngt von sys::%sleep in time.d ab.
       #+(or AMIGA OS/2 ACORN-RISCOS) ; SLEEP_1
       (if (> time '#,(floor (expt 2 31) internal-time-units-per-second))
         ; Mehr als 248 bzw. 994 bzw. 497 Tage? (Denn sys::%sleep akzeptiert nur
@@ -544,10 +544,10 @@
 ) ) )
 
 
-;; Funktionen für Zeit-Umrechnung und Zeitzonen (CLTL Kapitel 25.4.1)
-;; Version 2, beinhaltet mehr Mathematik und basiert auf März-Jahren
+;; Funktionen fÃ¼r Zeit-Umrechnung und Zeitzonen (CLTL Kapitel 25.4.1)
+;; Version 2, beinhaltet mehr Mathematik und basiert auf MÃ¤rz-Jahren
 
-; Ein März-Jahr sei die Periode vom 1.3. bis 28/29.2.
+; Ein MÃ¤rz-Jahr sei die Periode vom 1.3. bis 28/29.2.
 ; Vorteil: Umrechnung Monat/Tag <--> Jahrtag wird einfacher.
 ; Skizze:
 ;   1.1.1900            1.1.1901            1.1.1902
@@ -555,12 +555,12 @@
 ;   |-------------------|-------------------|-------------------|
 ;   |     Jahr 1900     |     Jahr 1901     |     Jahr 1902     |
 ;   |--|----------------|--|----------------|--|----------------|--|
-;      |  März-Jahr 1900   |  März-Jahr 1901   |  März-Jahr 1902   |
+;      |  MÃ¤rz-Jahr 1900   |  MÃ¤rz-Jahr 1901   |  MÃ¤rz-Jahr 1902   |
 ;      |-------------------|-------------------|-------------------|
 ;                                            
 ;      1.3.1900            1.3.1901            1.3.1902
 
-; (UTag Jahr) = Nummer des Tages 1.3.Jahr (gegenüber 1.1.1900)
+; (UTag Jahr) = Nummer des Tages 1.3.Jahr (gegenÃ¼ber 1.1.1900)
 ; UTag(J) = 365*J + floor(J/4) - floor(J/100) + floor(J/400) - 693901
 ; damit  UTag(J) - UTag(J-1) = 365 + [1 falls J Schaltjahr]
 ; und    UTag(1899) = -306
@@ -569,18 +569,18 @@
   (+ (* 365 Jahr) (floor Jahr 4) (- (floor Jahr 100)) (floor Jahr 400) -693901)
 )
 
-; Näherungwert:
+; NÃ¤herungwert:
 ; 365+1/4-1/100+1/400 = 365.2425 = 146097/400 .
 ; Durch Betrachtung einer Wertetabelle der 400-periodischen Funktion
 ; (J -> UTag(J)-146097/400*J) sieht man:
 ;   146097/400*J - 693902.4775 <= UTag(J) <= 146097/400*J - 693900.28
 
-; Bestimmt zu einem Tag (0 = 1.1.1900) das März-Jahr und den Tag im März-Jahr.
+; Bestimmt zu einem Tag (0 = 1.1.1900) das MÃ¤rz-Jahr und den Tag im MÃ¤rz-Jahr.
 ; (Jahr&Tag UTTag) ==> Jahr, Jahrtag
 ; mit (= UTTag (+ (UTag Jahr) Jahrtag))
 (defun Jahr&Tag (UTTag)
-  ; Gesucht ist das größte Jahr mit UTag(Jahr) <= UTTag.
-  ; Für dieses Jahr J gilt
+  ; Gesucht ist das grÃ¶ÃŸte Jahr mit UTag(Jahr) <= UTTag.
+  ; FÃ¼r dieses Jahr J gilt
   ; 146097/400*J - 693902.4775 <= UTag(J) <= UTTag < UTag(J+1) <= 146097/400*J - 693535.0375,
   ; also 146097*J - 277560991 <= 400*UTTag < 146097*J - 277414015,
   ; also 146097*(J-1900) + 23309 <= 400*UTTag < 146097*(J-1900) + 170285,
@@ -589,9 +589,9 @@
          (Jahresanfang (UTag Jahr)))
     ; Wegen 146097*(J-1900) + 109 <= 400*(UTTag-58) < 146097*(J-1900) + 147084,
     ; also J <= 1900 + (UTTag-58)/(146097/400) < J+1.006755...,
-    ; ist die Schätzung  Jahr := floor(1900 + (UTTag-58)/(146097/400))
-    ; meist richtig und jedenfalls nicht zu klein und um höchstens 1 zu groß.
-    (when (< UTTag Jahresanfang) ; zu groß?
+    ; ist die SchÃ¤tzung  Jahr := floor(1900 + (UTTag-58)/(146097/400))
+    ; meist richtig und jedenfalls nicht zu klein und um hÃ¶chstens 1 zu groÃŸ.
+    (when (< UTTag Jahresanfang) ; zu groÃŸ?
       (decf Jahr)
       (setq Jahresanfang (UTag Jahr))
     )
@@ -604,24 +604,24 @@
 
 #-(or UNIX WIN32)
 ; lokale Zeitzone
-(defvar *default-time-zone* -1) ; Default: 1 h östlich GMT = MEZ
+(defvar *default-time-zone* -1) ; Default: 1 h Ã¶stlich GMT = MEZ
 ; NB: Zeitzone muss nicht ganzzahlig sein, sollte aber Vielfaches
 ; einer Sekunde sein.
 
 #-(or UNIX WIN32)
-; Funktion, die feststellt, ob bei gegebenem März-Jahr und Tag und Stunde
+; Funktion, die feststellt, ob bei gegebenem MÃ¤rz-Jahr und Tag und Stunde
 ; Sommerzeit gilt.
 (defvar *default-dst-check* ; Default: Sommerzeit nicht explizit bekannt
   #'(lambda (Jahr Jahrtag Stunde) (declare (ignore Jahr Jahrtag Stunde)) nil)
 )
 
-; andere Abbildung  Jahrtag -> Monat  für decode-universal-time:
-; Seien Monat und Jahrtag auf den 1. März bezogen
-; (d.h. Jahrtag = 0 am 1. März, = 364 am 28. Februar, usw.,
-;  und März=0,...,Dezember=9,Januar=10,Februar=11).
+; andere Abbildung  Jahrtag -> Monat  fÃ¼r decode-universal-time:
+; Seien Monat und Jahrtag auf den 1. MÃ¤rz bezogen
+; (d.h. Jahrtag = 0 am 1. MÃ¤rz, = 364 am 28. Februar, usw.,
+;  und MÃ¤rz=0,...,Dezember=9,Januar=10,Februar=11).
 ; Dann ist
 ;                Monat = floor(a*Jahrtag+b)
-; sofern a und b so gewählt sind, dass die Ungleichungen
+; sofern a und b so gewÃ¤hlt sind, dass die Ungleichungen
 ;   122*a+b >= 4, 275*a+b >= 9, 30*a+b < 1, 336*a+b < 11
 ; gelten. Dies ist ein Viereck im Bereich
 ; 0.032653... = 8/245 <= a <= 7/214 = 0.032710...,
@@ -630,16 +630,16 @@
 ;                Monat = floor((5*Jahrtag+2)/153).
 
 ; andere Abbildung  Monat -> Jahrtag
-; für encode-universal-time und decode-universal-time:
-; Seien Monat und Jahrtag auf den 1. März bezogen
-; (d.h. Jahrtag = 0 am 1. März, = 364 am 28. Februar, usw.,
-;  und März=0,...,Dezember=9,Januar=10,Februar=11).
+; fÃ¼r encode-universal-time und decode-universal-time:
+; Seien Monat und Jahrtag auf den 1. MÃ¤rz bezogen
+; (d.h. Jahrtag = 0 am 1. MÃ¤rz, = 364 am 28. Februar, usw.,
+;  und MÃ¤rz=0,...,Dezember=9,Januar=10,Februar=11).
 ; Die Abbildung
 ;      Monat   0  1  2  3  4   5   6   7   8   9   10  11
 ;      Jahrtag 0 31 61 92 122 153 184 214 245 275 306 337
 ; kann man schreiben
 ;                Jahrtag = floor(a*Monat+b)
-; sofern a und b so gewählt sind, dass die Ungleichungen
+; sofern a und b so gewÃ¤hlt sind, dass die Ungleichungen
 ;   a+b >= 31, 11*a+b >= 337, 4*a+b < 123, 9*a+b < 276
 ; gelten. Dies ist ein Viereck im Bereich
 ; 30.5714... = 214/7 <= a <= 245/8 = 30.625,
@@ -648,7 +648,7 @@
 ;                Jahrtag = floor((153*Monat+2)/5).
 ; Dies ist allerdings langsamer als ein Tabellenzugriff.
 
-(macrolet ((Monat->Jahrtag (Monat) ; 0 <= Monat < 12, 0=März,...,11=Februar
+(macrolet ((Monat->Jahrtag (Monat) ; 0 <= Monat < 12, 0=MÃ¤rz,...,11=Februar
              `(svref '#(0 31 61 92 122 153 184 214 245 275 306 337) ,Monat)
           ))
 
@@ -731,8 +731,8 @@
       (setq time-zone (+ Zeitzone (if Sommerzeit 1 0)))
     )
   )
-  ; time-zone = Zeitzone ohne Sommerzeitberücksichtigung,
-  ; Zeitzone = Zeitzone mit Sommerzeitberücksichtigung.
+  ; time-zone = Zeitzone ohne SommerzeitberÃ¼cksichtigung,
+  ; Zeitzone = Zeitzone mit SommerzeitberÃ¼cksichtigung.
   (let ((UTSekunden (- UT (round (* 3600 Zeitzone)))))
     (multiple-value-bind (UTMinuten Sekunde) (floor UTSekunden 60)
       (multiple-value-bind (UTStunden Minute) (floor UTMinuten 60)
@@ -740,7 +740,7 @@
           (multiple-value-bind (Jahr Jahrtag) (Jahr&Tag UTTage)
             (let* ((Monat (floor (+ (* 5 Jahrtag) 2) 153))
                    (Tag (1+ (- Jahrtag (Monat->Jahrtag Monat)))))
-              (if (< Monat 10) ; Monat März..Dezember?
+              (if (< Monat 10) ; Monat MÃ¤rz..Dezember?
                 (setq Monat (+ Monat 3)) ; Monat 3..12
                 (setq Monat (- Monat 9) Jahr (+ Jahr 1)) ; Monat 1..2
               )

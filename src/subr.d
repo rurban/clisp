@@ -14,35 +14,35 @@
 #             (NIL falls nokey)
 
 # Eine C-compilierte LISP-Funktion mit einer festen Anzahl Argumente
-# wird definiert durch die akk¸rzende Deklaration
+# wird definiert durch die akk√ºrzende Deklaration
 #   LISPFUNN(name,req_anz)
 # > name: der Funktionsname (ein C-Identifier)
 # > req_anz: die (feste) Anzahl der Argumente (eine Zahl)
   #define LISPFUNN(name,req_anz)  \
     LISPFUN(name,req_anz,0,norest,nokey,0,NIL)
 
-# Zus‰tzlich muss in einem C-File dieselbe Deklaration samt C-Body stehen.
+# Zus√§tzlich muss in einem C-File dieselbe Deklaration samt C-Body stehen.
 
 
-# Expander f¸r die Konstruktion der extern-Deklarationen:
+# Expander f√ºr die Konstruktion der extern-Deklarationen:
   #define LISPFUN_A(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
     extern subr_##rest_flag##_function C_##name;
 
-# Expander f¸r die Konstruktion der Deklaration der C-Funktion:
+# Expander f√ºr die Konstruktion der Deklaration der C-Funktion:
   #define LISPFUN_B(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
     global Values C_##name subr_##rest_flag##_function_args
   #define subr_norest_function_args  (void)
   #define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)
 
-# Expander f¸r die Deklaration der SUBR-Tabelle:
+# Expander f√ºr die Deklaration der SUBR-Tabelle:
   #define LISPFUN_C(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
     subr_ D_##name;
 
-# Expander f¸r die Initialisierung der SUBR-Tabelle:
+# Expander f√ºr die Initialisierung der SUBR-Tabelle:
   #define LISPFUN_D(name_,req_anz_,opt_anz_,rest_flag_,key_flag_,key_anz_,keywords_)  \
     ptr->function = (lisp_function)(&C_##name_);  \
     ptr->name = S_help_(S_##name_);               \
-    ptr->keywords = NIL; # vorl‰ufig              \
+    ptr->keywords = NIL; # vorl√§ufig              \
     ptr->argtype = (uintW)subr_argtype(req_anz_,opt_anz_,subr_##rest_flag_,subr_##key_flag_); \
     ptr->req_anz = req_anz_;                      \
     ptr->opt_anz = opt_anz_;                      \
@@ -55,9 +55,9 @@
     ptr++;
   #define LISPFUN_F(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
     { (lisp_function)(&C_##name), \
-      nullobj, # vorl‰ufig        \
-      nullobj, # vorl‰ufig        \
-      0, # vorl‰ufig              \
+      nullobj, # vorl√§ufig        \
+      nullobj, # vorl√§ufig        \
+      0, # vorl√§ufig              \
       req_anz,                    \
       opt_anz,                    \
       (uintB)subr_##rest_flag,    \
@@ -67,8 +67,8 @@
   #define LISPFUN_G(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  \
     { (lisp_function)(&C_##name), \
       S_help_(S_##name),          \
-      NIL, # vorl‰ufig            \
-      0, # vorl‰ufig              \
+      NIL, # vorl√§ufig            \
+      0, # vorl√§ufig              \
       req_anz,                    \
       opt_anz,                    \
       (uintB)subr_##rest_flag,    \
@@ -76,7 +76,7 @@
       key_anz,                    \
     },
 
-# Expander f¸r die zweite Initialisierung der SUBR-Tabelle:
+# Expander f√ºr die zweite Initialisierung der SUBR-Tabelle:
   #define LISPFUN_H(name,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords_)  \
     (subr_##key_flag==subr_key) ?            \
       subr_tab.D_##name.keywords =           \

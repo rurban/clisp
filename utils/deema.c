@@ -1,6 +1,6 @@
-/* C-Programm-Präprozessor-Hilfe:
-   Fügt _EMA_ in leere Macro-Argumente ein.
-   Äquivalent zu  sed -e 's/,)/,_EMA_)/g'
+/* C-Programm-PrÃ¤prozessor-Hilfe:
+   FÃ¼gt _EMA_ in leere Macro-Argumente ein.
+   Ã„quivalent zu  sed -e 's/,)/,_EMA_)/g'
    Bruno Haible 29.12.1993
 */
 

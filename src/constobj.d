@@ -10,11 +10,11 @@
 # > name: Objekt ist als object_tab.name oder als O(name) ansprechbar
 # > initstring: Initialisierungsstring in LISP-Syntax
 
-# Expander für die Deklaration der Objekt-Tabelle:
+# Expander fÃ¼r die Deklaration der Objekt-Tabelle:
   #define LISPOBJ_A(name,initstring)  \
     object name;
 
-# Expander für die Initialisierung der Objekt-Tabelle:
+# Expander fÃ¼r die Initialisierung der Objekt-Tabelle:
   #define LISPOBJ_B(name,initstring)  \
     NIL,
   #define LISPOBJ_C(name,initstring)  \
@@ -29,10 +29,10 @@
   #define LISPOBJ_S(name,initstring)  \
     LISPOBJ(name,"\"" initstring "\"")
 
-# Der Macro LISPOBJ_L deklariert ein von language abhängiges LISP-Objekt.
+# Der Macro LISPOBJ_L deklariert ein von language abhÃ¤ngiges LISP-Objekt.
 # LISPOBJ_L(name,english_initstring)
 # > name: Objekt ist als OL(name) ansprechbar
-# > english_initstring: Initialisierungsstring für ENGLISH
+# > english_initstring: Initialisierungsstring fÃ¼r ENGLISH
   #ifdef LANGUAGE_STATIC
     #define LISPOBJ_L(name,english)  \
       LISPOBJ(name,english)
@@ -46,10 +46,10 @@
     #endif
   #endif
 
-# Der Macro LISPOBJ_LS deklariert einen von language abhängigen LISP-String.
+# Der Macro LISPOBJ_LS deklariert einen von language abhÃ¤ngigen LISP-String.
 # LISPOBJ_LS(name,english_initstring)
 # > name: Objekt ist als OLS(name) ansprechbar
-# > english_initstring: Initialisierungsstring für ENGLISH
+# > english_initstring: Initialisierungsstring fÃ¼r ENGLISH
 # Der Initstring in C-Syntax, darf keine Backslashs enthalten.
   #ifndef GNU_GETTEXT
     #define LISPOBJ_LS(name,english)  \
@@ -64,7 +64,7 @@
   LISPOBJ(all_weakpointers,"0")
   # Liste aller Finalisierer:
   LISPOBJ(all_finalizers,"0")
-  # Während der GC: die Liste der nach der GC zu bearbeitenden Finalisierer:
+  # WÃ¤hrend der GC: die Liste der nach der GC zu bearbeitenden Finalisierer:
   LISPOBJ(pending_finalizers,"0")
 # zu ENCODING.D:
   # Encodings for which both the charset and the line-terminator matter:
@@ -91,7 +91,7 @@
   LISPOBJ(type_input_error_action,"(OR (MEMBER :ERROR :IGNORE) CHARACTER)")
   LISPOBJ(type_output_error_action,"(OR (MEMBER :ERROR :IGNORE) CHARACTER (UNSIGNED-BYTE 8))")
 # zu CHARSTRG.D:
-  # Bei Änderung der Character-Namen außer CONSTOBJ.D auch
+  # Bei Ã„nderung der Character-Namen auÃŸer CONSTOBJ.D auch
   # CHARSTRG.D, FORMAT.LISP, IMPNOTES.HTML anpassen!
   #ifdef AMIGA_CHARNAMES
     LISPOBJ(charname_0,"\"Null\"")
@@ -225,7 +225,7 @@
     LISPOBJ(charname_127,"\"Del\"")
   #endif
 # zu ARRAY.D:
-  LISPOBJ(type_vector_with_fill_pointer,"(AND VECTOR (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # Typ für Fehlermeldung
+  LISPOBJ(type_vector_with_fill_pointer,"(AND VECTOR (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # Typ fÃ¼r Fehlermeldung
 # zu HASHTABL.D:
  #ifdef GENERATIONAL_GC
   LISPOBJ(gc_count,"0")
@@ -233,8 +233,8 @@
 # zu SEQUENCE.D:
   # interne Liste aller definierten Sequence-Typen:
   LISPOBJ(seq_types,"NIL")
-  LISPOBJ(type_recognizable_sequence_type,"(SATISFIES SYSTEM::RECOGNIZABLE-SEQUENCE-TYPE-P)") # Typ für Fehlermeldung
-  # Keywordpaare für test_start_end (Paare nicht trennen!):
+  LISPOBJ(type_recognizable_sequence_type,"(SATISFIES SYSTEM::RECOGNIZABLE-SEQUENCE-TYPE-P)") # Typ fÃ¼r Fehlermeldung
+  # Keywordpaare fÃ¼r test_start_end (Paare nicht trennen!):
   LISPOBJ(kwpair_start,":START")
   LISPOBJ(kwpair_end,":END")
   LISPOBJ(kwpair_start1,":START1")
@@ -242,9 +242,9 @@
   LISPOBJ(kwpair_start2,":START2")
   LISPOBJ(kwpair_end2,":END2")
 # zu PREDTYPE.D:
-  # Erkennungszeichen für Klassen, wird von CLOS::%DEFCLOS gefüllt
+  # Erkennungszeichen fÃ¼r Klassen, wird von CLOS::%DEFCLOS gefÃ¼llt
   LISPOBJ(class_structure_types,"(CLOS::CLASS STRUCTURE-OBJECT)")
-  # einige Built-In-Klassen, werden von CLOS::%DEFCLOS gefüllt
+  # einige Built-In-Klassen, werden von CLOS::%DEFCLOS gefÃ¼llt
   LISPOBJ(class_array,"ARRAY")             # ---+
   LISPOBJ(class_bit_vector,"BIT-VECTOR")   #    |   Reihenfolge
   LISPOBJ(class_character,"CHARACTER")     #    |   mit clos.lisp
@@ -285,7 +285,7 @@
   LISPOBJ(structure_class_count_max,"0")
   # Upper bound for the number of standard classes present in the system:
   LISPOBJ(standard_class_count_max,"0")
-  # Built-in-Typen für HEAP-STATISTICS
+  # Built-in-Typen fÃ¼r HEAP-STATISTICS
   LISPOBJ(hs_t,"T")                                 # ---+
   LISPOBJ(hs_cons,"CONS")                           #    |  Reihenfolge
   LISPOBJ(hs_null,"NULL")                           #    |  mit enum_hs_...
@@ -366,9 +366,9 @@
   LISPOBJ(keyword_package,".")
   # die Charset-Package:
   LISPOBJ(charset_package,".")
-  # die Default-Package für *PACKAGE*:
+  # die Default-Package fÃ¼r *PACKAGE*:
   LISPOBJ(default_package,".")
-  # verschiedene Strings und Listen für interaktive Konfliktbehebung:
+  # verschiedene Strings und Listen fÃ¼r interaktive Konfliktbehebung:
   LISPOBJ_LS(query_string1,
     /* ENGLISH */ "Please choose:")
   LISPOBJ_S(query_string2,"          ")
@@ -444,7 +444,7 @@
   # Default-Package bei ANSI-CL-Compliance:
   LISPOBJ(ansi_user_package_name,"\"COMMON-LISP-USER\"")
 # zu SYMBOL.D:
-  LISPOBJ(gensym_prefix,"\"G\"") # Präfix für gensym, ein String
+  LISPOBJ(gensym_prefix,"\"G\"") # PrÃ¤fix fÃ¼r gensym, ein String
 # zu MISC.D:
   # Eigenwissen:
   LISPOBJ_S(lisp_implementation_type_string,"CLISP")
@@ -546,7 +546,7 @@
   LISPOBJ_S(error_string1,"*** - ")
   # Vektor mit Conditions und Simple-Conditions:
   LISPOBJ(error_types,"#()")
-  # für Errors vom Typ TYPE-ERROR:
+  # fÃ¼r Errors vom Typ TYPE-ERROR:
   LISPOBJ(type_uint8,"(INTEGER 0 255)") # oder "(UNSIGNED-BYTE 8)"
   LISPOBJ(type_sint8,"(INTEGER -128 127)") # oder "(SIGNED-BYTE 8)"
   LISPOBJ(type_uint16,"(INTEGER 0 65535)") # oder "(UNSIGNED-BYTE 16)"
@@ -647,7 +647,7 @@
   LISPOBJ_S(backupprepend_string,"~") # Namenserweiterung von Backupfiles
  #endif
  #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-  # Default-Drive (als String der Länge 1):
+  # Default-Drive (als String der LÃ¤nge 1):
   LISPOBJ(default_drive,"NIL")
  #endif
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
@@ -664,12 +664,12 @@
  #ifdef HAVE_SHELL
  #ifdef UNIX
   LISPOBJ(command_shell,"\""SHELL"\"") # Kommando-Shell als String
-  LISPOBJ(command_shell_option,"\"-c\"") # Kommando-Shell-Option für Kommando
+  LISPOBJ(command_shell_option,"\"-c\"") # Kommando-Shell-Option fÃ¼r Kommando
   LISPOBJ(user_shell,"\"/bin/csh\"") # User-Shell als String
  #endif
  #ifdef MSDOS
   LISPOBJ(command_shell,"\"\\\\COMMAND.COM\"") # Kommandointerpreter als String
-  LISPOBJ(command_shell_option,"\"/C\"") # Kommandointerpreter-Option für Kommando
+  LISPOBJ(command_shell_option,"\"/C\"") # Kommandointerpreter-Option fÃ¼r Kommando
  #endif
  #ifdef WIN32_NATIVE
   LISPOBJ(command_shell,"NIL") # Kommandointerpreter als String
@@ -681,20 +681,20 @@
   # Liste aller offenen Channel-Streams, Terminal-Streams:
   LISPOBJ(open_files,"NIL")
  #ifdef GC_CLOSES_FILES
-  # Während der GC: die Liste der nach der GC zu schließenden File-Streams:
+  # WÃ¤hrend der GC: die Liste der nach der GC zu schlieÃŸenden File-Streams:
   LISPOBJ(files_to_close,"NIL")
  #endif
-  # Argumentliste für WRITE-TO-STRING :
+  # Argumentliste fÃ¼r WRITE-TO-STRING :
   LISPOBJ(base10_radixnil,"(:BASE 10 :RADIX NIL)")
   # Defaults-Warnungs-String:
   LISPOBJ_LS(defaults_warn_string,
     /* ENGLISH */ "The value of ~S was not a pathname. ~:*~S is being reset.")
-  # Defaultwert für :DIRECTORY-Argument:
+  # Defaultwert fÃ¼r :DIRECTORY-Argument:
   LISPOBJ(directory_default,"(:RELATIVE)")
   # Message-String:
   LISPOBJ_LS(mkdirp_string,
     /* ENGLISH */ "Creating directory: ")
-  # Defaults für COMPILE-FILE-Aufruf in SPVW:
+  # Defaults fÃ¼r COMPILE-FILE-Aufruf in SPVW:
   LISPOBJ(source_file_type,"#\".lisp\"")
   LISPOBJ(compiled_file_type,"#\".fas\"")
   LISPOBJ(listing_file_type,"#\".lis\"")
@@ -706,12 +706,12 @@
   LISPOBJ(class_fundamental_stream,"NIL") # #<STANDARD-CLASS FUNDAMENTAL-STREAM>
   LISPOBJ(class_fundamental_input_stream,"NIL") # #<STANDARD-CLASS FUNDAMENTAL-INPUT-STREAM>
   LISPOBJ(class_fundamental_output_stream,"NIL") # #<STANDARD-CLASS FUNDAMENTAL-OUTPUT-STREAM>
-  LISPOBJ(type_input_stream,"(SATISFIES INPUT-STREAM-P)") # Typ für Fehlermeldung
-  LISPOBJ(type_output_stream,"(SATISFIES OUTPUT-STREAM-P)") # Typ für Fehlermeldung
-  LISPOBJ(type_string_with_fill_pointer,"(AND STRING (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # Typ für Fehlermeldung
+  LISPOBJ(type_input_stream,"(SATISFIES INPUT-STREAM-P)") # Typ fÃ¼r Fehlermeldung
+  LISPOBJ(type_output_stream,"(SATISFIES OUTPUT-STREAM-P)") # Typ fÃ¼r Fehlermeldung
+  LISPOBJ(type_string_with_fill_pointer,"(AND STRING (SATISFIES ARRAY-HAS-FILL-POINTER-P))") # Typ fÃ¼r Fehlermeldung
   LISPOBJ(setf_stream_element_type,"(SETF STREAM-ELEMENT-TYPE)")
-  LISPOBJ(type_endianness,"(MEMBER :LITTLE :BIG)") # Typ für Fehlermeldung
-  LISPOBJ(type_open_file_stream,"(AND FILE-STREAM (SATISFIES OPEN-STREAM-P))") # Typ für Fehlermeldung
+  LISPOBJ(type_endianness,"(MEMBER :LITTLE :BIG)") # Typ fÃ¼r Fehlermeldung
+  LISPOBJ(type_open_file_stream,"(AND FILE-STREAM (SATISFIES OPEN-STREAM-P))") # Typ fÃ¼r Fehlermeldung
   LISPOBJ(strmtype_ubyte8,"(UNSIGNED-BYTE 8)") # als Stream-Element-Type
 # zu IO.D:
   # 4 Readtable-Case-Werte:
@@ -725,7 +725,7 @@
   # Prototyp der Dispatch-Reader-Funktionen
   LISPOBJ(dispatch_reader,"NIL")
   LISPOBJ(dispatch_reader_index,"0")
-  # Präfix für Character-Namen:
+  # PrÃ¤fix fÃ¼r Character-Namen:
   LISPOBJ(charname_prefix,"\"Code\"")
   # interne Variablen des Readers:
   LISPOBJ(token_buff_1,".")
@@ -832,13 +832,13 @@
   LISPOBJ(DF_zero,"0.0D0")
   LISPOBJ(DF_one,"1.0D0")
   LISPOBJ(DF_minusone,"-1.0D0")
-  # Defaultlänge beim Einlesen von Long-Floats (Integer >=LF_minlen, <2^intWCsize):
+  # DefaultlÃ¤nge beim Einlesen von Long-Floats (Integer >=LF_minlen, <2^intWCsize):
   LISPOBJ(LF_digits,".") # (schon initialisiert)
   # variable Long-Floats: (schon initialisiert)
   LISPOBJ(SF_pi,".")   # Wert von pi als Short-Float
   LISPOBJ(FF_pi,".")   # Wert von pi als Single-Float
   LISPOBJ(DF_pi,".")   # Wert von pi als Double-Float
-  LISPOBJ(pi,".")      # Wert von pi, Long-Float der Defaultlänge
+  LISPOBJ(pi,".")      # Wert von pi, Long-Float der DefaultlÃ¤nge
   LISPOBJ(LF_pi,".")   # Wert von pi, so genau wie bekannt
   LISPOBJ(LF_ln2,".")  # Wert von ln 2, so genau wie bekannt
   LISPOBJ(LF_ln10,".") # Wert von ln 10, so genau wie bekannt

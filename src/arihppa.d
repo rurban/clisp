@@ -1,14 +1,14 @@
 # Externe Routinen zu ARILEV1.D
 # Prozessor: HPPA, wegen XMPYU nur auf HPPA 1.1 (etwa HP9000/720)
 # Compiler: GNU-C oder HP-C
-# Parameter-Übergabe: in Registern %arg0,%arg1,%arg2, Rückgabewert in %ret0.
+# Parameter-Ãœbergabe: in Registern %arg0,%arg1,%arg2, RÃ¼ckgabewert in %ret0.
 # Einstellungen: intCsize=32, intDsize=32.
 
 #ifdef INCLUDED_FROM_C
 
 #else
 
-# Großenteils abgeschrieben von hppa.s aus der PARI/GP-Distribution.
+# GroÃŸenteils abgeschrieben von hppa.s aus der PARI/GP-Distribution.
 
                 .SHORTDATA
                 .IMPORT $global$,DATA
@@ -17,7 +17,7 @@
 #if 0 # brauchen wir nicht
                 .CODE
                 .EXPORT bfffo
-# Liefert die Anzahl der führenden Nullbits von x.
+# Liefert die Anzahl der fÃ¼hrenden Nullbits von x.
 bfffo           .PROC
                 .CALLINFO
                 .ENTER
@@ -115,7 +115,7 @@ mulu32_         .PROC
 
 #if 0 # Das funktioniert noch nicht.
       # Wenn das mal geht (insbes. UDS_to_DIGITS testen!), dann
-      # in arilev0.d HPPA_DIV_WORKS -> HPPA ändern.
+      # in arilev0.d HPPA_DIV_WORKS -> HPPA Ã¤ndern.
 
                 .CODE
                 .EXPORT divu_6432_3232_
@@ -141,23 +141,23 @@ temp3           .REG    %r22
 #if 0 # so steht's dokumentiert
 # Schiebt hirem um 1 Bit nach links, wobei der Carry rechts hineingeschoben
 # wird. Dann wird div addiert bzw. - falls V gesetzt - (-div) addiert.
-# Der Übertrag dieser Addition kommt sowohl in den Carry als auch ins V-Bit
+# Der Ãœbertrag dieser Addition kommt sowohl in den Carry als auch ins V-Bit
 # (ins V-Bit invertiert, falls div >= 2^31).
 #else # so scheint's aber zu stimmen
 # Schiebt hirem um 1 Bit nach links, wobei der Carry rechts hineingeschoben
-# wird. Dann wird div subtrahiert bzw. - falls V gelöscht - (-div) subtrahiert.
-# Der Übertrag dieser Subtraktion kommt sowohl in den Carry als auch
+# wird. Dann wird div subtrahiert bzw. - falls V gelÃ¶scht - (-div) subtrahiert.
+# Der Ãœbertrag dieser Subtraktion kommt sowohl in den Carry als auch
 # invertiert ins V-Bit (nicht invertiert, falls div >= 2^31).
 #endif
 
 # Der Algorithmus ist wie der von meinem arisparc.s:_divu_3216_1616_ :
 # Wenn man y zu Unrecht subtrahiert hat, so gleicht man dies dadurch aus,
-# dass man nach dem nächsten 1-Bit-Shift - statt y zu subtrahieren -
+# dass man nach dem nÃ¤chsten 1-Bit-Shift - statt y zu subtrahieren -
 # 2*y addiert und y subtrahiert, d.h. y addiert.
 
 # 1 Divisions-Einzelschritt:
 # hirem|lorem um 1 Bit nach links schieben und (falls V gesetzt)
-# div = y subtrahieren bzw. (falls V gelöscht) div = y addieren.
+# div = y subtrahieren bzw. (falls V gelÃ¶scht) div = y addieren.
 DS1             .MACRO
                 ADDC    lorem,lorem,lorem
                 DS      hirem,div,hirem
@@ -186,11 +186,11 @@ DS32            .MACRO
                 COMB,<          div,0,L$50              # y>=0(signed), d.h. y < 2^31 ?
                 # ja -> "kleine" Division
                 SUB             0,div,temp1             # temp1 = -y > 2^31
-                DS              0,temp1,0               # V-Bit setzen (erfolgreiche Subtraktion vortäuschen)
+                DS              0,temp1,0               # V-Bit setzen (erfolgreiche Subtraktion vortÃ¤uschen)
                 DS32                                    # 32 mal hirem|lorem shiften,
                                                         # jeweils den Carry in lorem hineinshiften
                 ADDC            lorem,lorem,lorem       # letzten Carry in lorem hineinshiften
-                # Nun enthält hirem den Rest r oder r-y, lorem den Quotienten q.
+                # Nun enthÃ¤lt hirem den Rest r oder r-y, lorem den Quotienten q.
                 ADD,>=          0,hirem,0               # hirem < 0 (signed) ?
                 ADD             hirem,div,hirem         # ja -> muss noch y addieren
                 ADDIL           L'divu_32_rest-$global$,%dp
@@ -211,7 +211,7 @@ L$50            # y >= 2^31. Reduktion durch Halbieren von x und y.
                 EXTRU           div,30,31,div           # div := floor(y/2) = Bits 31..1 von div
                 ADDB,NSV        temp2,div,L$52          # div := div+1 = y'
                 EXTRU           lorem,31,1,temp3        # s.u. (delay slot)
-                # Spezialfall: signed-Überlauf bei der Addition, d.h. y' = 2^31.
+                # Spezialfall: signed-Ãœberlauf bei der Addition, d.h. y' = 2^31.
                 # Division durch 2*y' ist hier besonders einfach:
                 COPY            hirem,quo               # Quotient := hirem
                 B               L$53
@@ -238,12 +238,12 @@ L$53            # Es war y gerade, nun ist quo = floor(x / 2*y').
                 # x = quo * 2*y' + hirem = quo * (2*y'-1) + (quo+hirem)
                 # Also Quotient = quo, Rest = quo+hirem.
                 # Noch maximal 2 mal: Quotient += 1, Rest -= y.
-                ADDB,NUV,N      quo,hirem,L$54          # Additions-Überlauf -> Quotient erhöhen
+                ADDB,NUV,N      quo,hirem,L$54          # Additions-Ãœberlauf -> Quotient erhÃ¶hen
                                                         # kein delay-slot wegen ,N !
                 SUB             hirem,origdiv,hirem     # Rest -= y
                 ADDI            1,quo,quo               # Quotient += 1
-L$54            # Wegen y>=2^31 muss der Quotient noch höchstens 1 mal erhöht werden:
-                COMB,<<,N       hirem,origdiv,L$55      # hirem < y -> Quotient erhöhen
+L$54            # Wegen y>=2^31 muss der Quotient noch hÃ¶chstens 1 mal erhÃ¶ht werden:
+                COMB,<<,N       hirem,origdiv,L$55      # hirem < y -> Quotient erhÃ¶hen
                                                         # kein delay-slot wegen ,N !
                 SUB             hirem,origdiv,hirem     # Rest -= y
                 ADDI            1,quo,quo               # Quotient += 1

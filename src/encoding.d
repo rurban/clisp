@@ -32,8 +32,8 @@ local char hex_table[] = "0123456789ABCDEF";
     var object encoding;
     var chart ch;
     {
-      pushSTACK(code_char(ch)); # Wert für Slot DATUM von CHARSET-TYPE-ERROR
-      pushSTACK(encoding); # Wert für Slot EXPECTED-TYPE von CHARSET-TYPE-ERROR
+      pushSTACK(code_char(ch)); # Wert fÃ¼r Slot DATUM von CHARSET-TYPE-ERROR
+      pushSTACK(encoding); # Wert fÃ¼r Slot EXPECTED-TYPE von CHARSET-TYPE-ERROR
       pushSTACK(TheEncoding(encoding)->enc_charset);
       pushSTACK(ascii_char(hex_table[as_cint(ch)&0x0F]));
       pushSTACK(ascii_char(hex_table[(as_cint(ch)>>4)&0x0F]));
@@ -1435,8 +1435,8 @@ LISPFUN(make_encoding,0,0,norest,key,4,
     #endif
     #endif
     else {
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(encoding)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(encoding)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(arg); pushSTACK(S(make_encoding));
       fehler(type_error,
              GETTEXT("~: illegal :CHARSET argument ~")
@@ -1448,8 +1448,8 @@ LISPFUN(make_encoding,0,0,norest,key,4,
     if (!(eq(arg,unbound)
           || eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos))
        ) ) {
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_line_terminator)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_line_terminator)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(arg); pushSTACK(S(make_encoding));
       fehler(type_error,
              GETTEXT("~: illegal :LINE-TERMINATOR argument ~")
@@ -1460,8 +1460,8 @@ LISPFUN(make_encoding,0,0,norest,key,4,
     if (!(eq(arg,unbound)
           || eq(arg,S(Kerror)) || eq(arg,S(Kignore)) || charp(arg)
        ) ) {
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_input_error_action)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_input_error_action)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(arg); pushSTACK(S(make_encoding));
       fehler(type_error,
              GETTEXT("~: illegal :INPUT-ERROR-ACTION argument ~")
@@ -1472,8 +1472,8 @@ LISPFUN(make_encoding,0,0,norest,key,4,
     if (!(eq(arg,unbound)
           || eq(arg,S(Kerror)) || eq(arg,S(Kignore)) || charp(arg) || uint8_p(arg)
        ) ) {
-      pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_output_error_action)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(arg); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_output_error_action)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(arg); pushSTACK(S(make_encoding));
       fehler(type_error,
              GETTEXT("~: illegal :OUTPUT-ERROR-ACTION argument ~")
@@ -1521,8 +1521,8 @@ LISPFUNN(encodingp,1)
   local void fehler_encoding(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(encoding)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(encoding)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
              GETTEXT("~: argument ~ is not a character set")
@@ -1582,7 +1582,7 @@ LISPFUNN(charset_range,3)
 # UP: Liefert einen LISP-String mit vorgegebenem Inhalt.
 # n_char_to_string(charptr,len,encoding)
 # > char* charptr: Adresse einer Zeichenfolge
-# > uintL len: Länge der Zeichenfolge
+# > uintL len: LÃ¤nge der Zeichenfolge
 # > object encoding: Encoding
 # < ergebnis: Normal-Simple-String mit den len Zeichen ab charptr als Inhalt
 # can trigger GC
@@ -1704,20 +1704,20 @@ LISPFUNN(charset_range,3)
       {
         pushSTACK(obj); # String retten
         var object newasciz = allocate_bit_vector(Atype_8Bit,vector_length(obj)+1);
-        obj = popSTACK(); # String zurück
+        obj = popSTACK(); # String zurÃ¼ck
         {
           var uintL len;
           var uintL offset;
           var object string = unpack_string_ro(obj,&len,&offset);
           var const chart* sourceptr = &TheSstring(string)->data[offset];
-          # Source-String: Länge in len, Bytes ab sourceptr
+          # Source-String: LÃ¤nge in len, Bytes ab sourceptr
           var uintB* destptr = &TheSbvector(newasciz)->data[0];
           # Destination-String: Bytes ab destptr
           {
             # Kopierschleife:
             var uintL count;
             dotimesL(count,len, { *destptr++ = as_cint(*sourceptr++); } );
-            *destptr++ = '\0'; # Nullbyte anfügen
+            *destptr++ = '\0'; # Nullbyte anfÃ¼gen
           }
         }
         return newasciz;

@@ -3880,7 +3880,7 @@
         write_errorstring(GETTEXT("Win32 error "));
         # Fehlernummer ausgeben:
         write_errorobject(UL_to_I(errcode));
-        # nach Möglichkeit noch ausführlicher:
+        # nach MÃ¶glichkeit noch ausfÃ¼hrlicher:
         get_OS_error_info(errcode,&OS_error_internal_body);
       }
     global void OS_error()
@@ -3905,7 +3905,7 @@
         errcode = GetLastError();
         end_system_call();
         clr_break_sem_4(); # keine Win32-Operation mehr aktiv
-        pushSTACK(pathname); # Wert von PATHNAME für FILE-ERROR
+        pushSTACK(pathname); # Wert von PATHNAME fÃ¼r FILE-ERROR
         begin_error(); # Fehlermeldung anfangen
         if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
           STACK_3 = S(simple_file_error);
@@ -3929,7 +3929,7 @@
         write_errorstring(GETTEXT("Winsock error "));
         # Fehlernummer ausgeben:
         write_errorobject(L_to_I(errcode));
-        # nach Möglichkeit noch ausführlicher:
+        # nach MÃ¶glichkeit noch ausfÃ¼hrlicher:
         var const char* errorname = NULL;
         var const char* errormsg = NULL;
         switch (errcode) {
@@ -4136,7 +4136,7 @@
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
 
-  # Ausgabe eines Fehlers, direkt übers Betriebssystem
+  # Ausgabe eines Fehlers, direkt Ã¼bers Betriebssystem
   # errno_out(errorcode);
   # > DWORD errorcode: Fehlercode
     global void errno_out (DWORD errorcode);

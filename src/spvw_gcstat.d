@@ -39,7 +39,7 @@
   #else
     #define inc_gc_space(freed)  \
       { gc_space.lo += (uintL)(freed);                \
-        if (gc_space.lo < (uintL)(freed)) # Übertrag? \
+        if (gc_space.lo < (uintL)(freed)) # Ãœbertrag? \
           gc_space.hi += 1;                           \
       }
   #endif

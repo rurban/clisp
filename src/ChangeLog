@@ -1672,7 +1672,7 @@
           calling convention for GetVersionInfoEx.
         * misc.d (MACHINE-VERSION) [WIN32_NATIVE]: Likewise.
 
-1999-07-26  Jörg Höhle  <hoehle@tzd.telekom.de>
+1999-07-26  JÃ¶rg HÃ¶hle  <hoehle@tzd.telekom.de>
 
         * screen.lsp (generic-stream-read-char-will-hang-p,
            generic-stream-clear-input): Define the methods on
@@ -1784,7 +1784,7 @@
         * arisparc.d (compare_loop_up) [COUNTER_LOOPS]: Bug fix.
           (shiftright_loop_up): Save 1 cycle if count==0.
 
-1999-07-15  Jörg Höhle  <Joerg.Hoehle@gmd.de>
+1999-07-15  JÃ¶rg HÃ¶hle  <Joerg.Hoehle@gmd.de>
 
         * affi.d (SYSTEM::MEM-WRITE): No need to check for integerp(wert),
           it is done later during conversion.
@@ -1796,7 +1796,7 @@
 
         * record.d (FINALIZE): Call coerce_function.
 
-1999-07-09  Jörg Höhle  <hoehle@tzd.telekom.de>
+1999-07-09  JÃ¶rg HÃ¶hle  <hoehle@tzd.telekom.de>
 
         * stream.d (SOCKET-STREAM-HANDLE): Use TheSocket(), not TheHandle().
 
@@ -3509,7 +3509,7 @@
 
         * clisp.spec: Remove the "--with-unicode=no" hint. It is a bad idea.
 
-1999-03-30  Jörg Höhle  <hoehle@tzd.telekom.de>
+1999-03-30  JÃ¶rg HÃ¶hle  <hoehle@tzd.telekom.de>
 
         * rexx.d (rexx_getmsg): return (handle command :RESULT)
           if ARexx OPTIONS RESULTS requested on incoming command.
@@ -6715,7 +6715,7 @@
           (add_keybinding): Renamed from keybinding.
           (keybinding): New macro.
           (make_keyboard_stream): Use key_event data.
-          (wr_ch_terminal1): Leave a #error for Jörg to fix.
+          (wr_ch_terminal1): Leave a #error for JÃ¶rg to fix.
 
         * type.lsp (upgraded-array-element-type): Treat CHARACTER as synonym
           of STRING-CHAR.
@@ -7811,7 +7811,7 @@
 
         * lfloat.d (LF_decode): Declare a subexpression as possibly unused.
 
-1998-08-14  Jörg Höhle  <hoehle@tzd.telekom.de>
+1998-08-14  JÃ¶rg HÃ¶hle  <hoehle@tzd.telekom.de>
 
         * affi.d (C_mem_write): accept Foreign-Pointer as address.
         * rexx.d (C_rexx_put): fixed ~S/~ typo.
@@ -7822,16 +7822,16 @@
         * init.lsp: Export *PRINT-RIGHT-MARGIN*.
         * defs3.lsp: Likewise.
 
-1998-08-14  Jörg Höhle  <hoehle@tzd.telekom.de>
+1998-08-14  JÃ¶rg HÃ¶hle  <hoehle@tzd.telekom.de>
 
         * rexx.d (C_rexx_put): :host argument stack arithmetic was
           broken, renamed variables to hopefully avoid confusion.
 
-1998-08-14  Jörg Höhle  <hoehle@tzd.telekom.de>
+1998-08-14  JÃ¶rg HÃ¶hle  <hoehle@tzd.telekom.de>
 
         * spvw.d (mymalloc): retry case not needed with !TYPECODES.
 
-1998-08-05  Jörg Höhle  <hoehle@tzd.telekom.de>
+1998-08-05  JÃ¶rg HÃ¶hle  <hoehle@tzd.telekom.de>
 
         * pathname.d, amiga.d (C_shell): return command exit code,
           better signal handling under AmigaOS using SystemTags().
@@ -7844,7 +7844,7 @@
 
         * spvw.d (copyright_notice): Bump date to 1998.
 
-1998-08-09  Jörg Höhle  <hoehle@zeus.gmd.de>
+1998-08-09  JÃ¶rg HÃ¶hle  <hoehle@zeus.gmd.de>
             Bruno Haible  <haible@ilog.fr>
 
         * lispbibl.d (S_help_): Change definition in the case of NO_TYPECODES
@@ -7852,13 +7852,13 @@
           gcc-2.5.8.
         * genclisph.d (main): Likewise.
 
-1998-08-08  Jörg Höhle  <hoehle@tzd.telekom.de>
+1998-08-08  JÃ¶rg HÃ¶hle  <hoehle@tzd.telekom.de>
 
         * lispbibl.d (define) TYPECODES is default for MC68000.
         * spvw.d (version_string) added !TYPECODES recognition.
           (retry_allocmemflag) not needed with !TYPECODES.
 
-1998-08-05  Jörg Höhle  <hoehle@zeus.gmd.de>
+1998-08-05  JÃ¶rg HÃ¶hle  <hoehle@zeus.gmd.de>
 
         * lispbibl.d (SIXBIT_TYPECODES): Fix a collision between
           case_symbolwithflags and other typecodes, introduced by the
@@ -7875,7 +7875,7 @@
         * debug.d (SYS::%ROOM): Don't assume that the byte counts fit into
           fixnums.
 
-1998-08-05  Jörg Höhle  <hoehle@zeus.gmd.de>
+1998-08-05  JÃ¶rg HÃ¶hle  <hoehle@zeus.gmd.de>
 
         * affi.d (affi_nonzerop): Fix typo: BN_positivep.
 
@@ -8953,7 +8953,7 @@
 
 	* io.d (princ_up): Bind *PRINT-READABLY* to NIL.
 
-1998-03-23  Jörg Höhle  <Joerg.Hoehle@gmd.de>
+1998-03-23  JÃ¶rg HÃ¶hle  <Joerg.Hoehle@gmd.de>
 
 	* compiler.lsp (c-IF): No extra JMP if no else part.
 
@@ -9370,15 +9370,15 @@
 	* conditio.lsp: Conditionalize upon feature ANSI-CL, not dpANS.
 	* defs2.lsp, defs3.lsp, init.lsp, loop.lsp: Likewise.
 
-1997-10-12  Jörg Höhle  <Joerg.Hoehle@zeus.gmd.de>
+1997-10-12  JÃ¶rg HÃ¶hle  <Joerg.Hoehle@zeus.gmd.de>
 
 	* amigasock.lsp: New file.
 
-1997-10-08  Jörg Höhle  <Joerg.Hoehle@zeus.gmd.de>
+1997-10-08  JÃ¶rg HÃ¶hle  <Joerg.Hoehle@zeus.gmd.de>
 
 	* eval.d (interpret_bytecode (cod_throw)): Tweak message.
 
-1997-10-06  Jörg Höhle  <Joerg.Hoehle@zeus.gmd.de>
+1997-10-06  JÃ¶rg HÃ¶hle  <Joerg.Hoehle@zeus.gmd.de>
 
 	* cfgamiga.lsp (machine-instance): Prefix with "localhost".
 	* erramiga.d (error200_msg_table): Add some translations.

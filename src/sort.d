@@ -1,11 +1,11 @@
-# n log(n) - Sortierroutine für CLISP
+# n log(n) - Sortierroutine fÃ¼r CLISP
 # Bruno Haible 1992-1999
 
 # Ziel: Eine feste Anzahl n von Elementen zu sortieren,
 # mit maximalem Zeitaufwand von O(n log(n)),
 # und dies, ohne allzu aufwendige Datenstrukturen aufzubauen.
 
-# Von außen ist einzustellen:
+# Von auÃŸen ist einzustellen:
 # Identifier SORTID :
 #   Identifier, der die Inkarnation dieser Package identifiziert
 # Typ SORT_ELEMENT :
@@ -41,13 +41,13 @@
     {
       var SORT_ELEMENT* w = &v[-1];
       # w[1]..w[n] ist dasselbe wie v[0]..v[n-1] .
-      # Man fasst die Zahlen 1,...,n so zu einem balancierten Binärbaum
-      # zusammen, dass k die Söhne 2*k und 2*k+1 habe.
-      # Ein Teilstück w[r]..w[s] heißt sortiert, wenn für alle
+      # Man fasst die Zahlen 1,...,n so zu einem balancierten BinÃ¤rbaum
+      # zusammen, dass k die SÃ¶hne 2*k und 2*k+1 habe.
+      # Ein TeilstÃ¼ck w[r]..w[s] heiÃŸt sortiert, wenn fÃ¼r alle
       # k mit r <= k <= s gilt:
       #   Falls 2*k <= s, gilt w[k] >= w[2*k], und
       #   falls 2*k+1 <= s, gilt w[k] >= w[2*k+1],
-      # d.h. wenn jedes Element einen Wert >= dem Wert seiner Söhne hat.
+      # d.h. wenn jedes Element einen Wert >= dem Wert seiner SÃ¶hne hat.
       # Teilaufgabe:
       #   Sei 0<r<=s und w[r+1]..w[s] bereits sortiert.
       #   Sortiere w[r]..w[s].
@@ -58,12 +58,12 @@
               { var uintL j = 2*i; # ein Sohn von i                               \
                 if (j > s) break; # 2*i und 2*i+1 nicht mehr vorhanden -> fertig  \
                 if ((j < s) && less(w[j],w[j+1])) { j++; } # evtl. j = 2*i+1, der andere Sohn von i \
-                # j ist der Sohn von i mit dem größeren Wert.                     \
+                # j ist der Sohn von i mit dem grÃ¶ÃŸeren Wert.                     \
                 if (less(w[i],w[j])) # Falls w[i] < w[j],                         \
                   { swap(SORT_ELEMENT, w[i], w[j]); } # w[i] und w[j] vertauschen \
-                # w[i] ist nun der größere der drei Werte w[i],w[2*i],w[2*i+1].   \
+                # w[i] ist nun der grÃ¶ÃŸere der drei Werte w[i],w[2*i],w[2*i+1].   \
                 # Jetzt haben wir aber w[j] verkleinert, so dass ein              \
-                # tail-rekursives adjust(j,s) nötig wird:                         \
+                # tail-rekursives adjust(j,s) nÃ¶tig wird:                         \
                 i = j;                                                            \
           }   }
       if (n<=1) # nichts zu tun?
@@ -78,18 +78,18 @@
         }
       }
       # Nun ist w[1]..w[n] ein sortierter Baum.
-      # Jeweils das höchste Element w[1] entnehmen und ans Ende setzen:
+      # Jeweils das hÃ¶chste Element w[1] entnehmen und ans Ende setzen:
       {
         var uintL s;
         for (s = n-1; s>0; s--) {
           # Hier ist w[1]..w[s+1] ein sortierter Baum, und
-          # w[s+2]..w[n] die höchsten Elemente, aufsteigend sortiert.
+          # w[s+2]..w[n] die hÃ¶chsten Elemente, aufsteigend sortiert.
           swap(SORT_ELEMENT, v[0], v[s]); # w[1] und w[s+1] vertauschen
           # Hier ist w[2]..w[s] ein sortierter Baum, und
-          # w[s+1]..w[n] die höchsten Elemente, aufsteigend sortiert.
+          # w[s+1]..w[n] die hÃ¶chsten Elemente, aufsteigend sortiert.
           adjust(1,s); # w[1] in den Baum hineinsortieren
           # Hier ist w[1]..w[s] ein sortierter Baum, und
-          # w[s+1]..w[n] die höchsten Elemente, aufsteigend sortiert.
+          # w[s+1]..w[n] die hÃ¶chsten Elemente, aufsteigend sortiert.
         }
       }
     }

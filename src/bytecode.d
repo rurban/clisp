@@ -1,4 +1,4 @@
-# Werte der Bytecodes (256 Stück):
+# Werte der Bytecodes (256 StÃ¼ck):
 
 # (1) Konstanten
 BYTECODE(cod_nil)
@@ -29,7 +29,7 @@ BYTECODE(cod_pop)
 BYTECODE(cod_skip)
 BYTECODE(cod_skipi)
 BYTECODE(cod_skipsp)
-# (5) Programmfluss und Sprünge
+# (5) Programmfluss und SprÃ¼nge
 BYTECODE(cod_skip_ret)
 BYTECODE(cod_skip_retgf)
 BYTECODE(cod_jmp)

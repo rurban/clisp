@@ -16,7 +16,7 @@
 ;; Liefert den Namen des Editors:
 (defun editor-name () *editor*)
 
-;; Das tempor‰re File, das LISP beim Editieren anlegt:
+;; Das tempor√§re File, das LISP beim Editieren anlegt:
 (defun editor-tempfile ()
   #+OS/2 "lisptemp.lisp"
   #+AMIGA "T:lisptemp.lisp"

@@ -3,7 +3,7 @@
 # Bruno Haible 1995-2000
 
 #include "lispbibl.c"
-#include "arilev0.c" # für mulu32_unchecked
+#include "arilev0.c" # fÃ¼r mulu32_unchecked
 #undef valid
 
 #ifdef DYNAMIC_FFI
@@ -801,7 +801,7 @@ local boolean blockzerop(ptr,size)
 # can trigger GC
 global object convert_from_foreign (object fvd, const void* data);
   # Allocate an array corresponding to a foreign array.
-  # kann GC auslösen
+  # kann GC auslÃ¶sen
   local object convert_from_foreign_array_alloc (object dims, object eltype);
   local object convert_from_foreign_array_alloc(dims,eltype)
     var object dims;
@@ -3067,7 +3067,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
       FREE_DYNAMIC_ARRAY(total_room);
       FREE_DYNAMIC_ARRAY(results);
     }
-    set_args_end_pointer(rest_args_pointer STACKop 1); # STACK aufräumen
+    set_args_end_pointer(rest_args_pointer STACKop 1); # STACK aufrÃ¤umen
   }
 
 # Here is the point where we use the VACALL package.

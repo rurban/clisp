@@ -81,14 +81,14 @@
 
 # UP, beschafft Vektor
 # allocate_vector(len)
-# > len: L‰nge des Vektors
+# > len: L√§nge des Vektors
 # < ergebnis: neuer Vektor (Elemente werden mit NIL initialisiert)
 # can trigger GC
   global object allocate_vector (uintL len);
   global object allocate_vector (len)
     var uintL len;
     {
-      var uintL need = size_svector(len); # benˆtigter Speicherplatz
+      var uintL need = size_svector(len); # ben√∂tigter Speicherplatz
       #ifdef TYPECODES
         #define SETTFL  ptr->length = len;
       #else
@@ -115,7 +115,7 @@
     var uintB atype;
     var uintL len;
     {
-      var uintL need = size_sbvector(len<<atype); # benˆtigter Speicherplatz in Bytes
+      var uintL need = size_sbvector(len<<atype); # ben√∂tigter Speicherplatz in Bytes
       #ifdef TYPECODES
         #define SETTFL  ptr->length = len;
       #else
@@ -129,14 +129,14 @@
 
 # UP, beschafft String
 # allocate_string(len)
-# > len: L‰nge des Strings (in Characters)
+# > len: L√§nge des Strings (in Characters)
 # < ergebnis: neuer Normal-Simple-String (LISP-Objekt)
 # can trigger GC
   global object allocate_string (uintL len);
   global object allocate_string (len)
     var uintL len;
     {
-      var uintL need = size_sstring(len); # benˆtigter Speicherplatz in Bytes
+      var uintL need = size_sstring(len); # ben√∂tigter Speicherplatz in Bytes
       #ifdef TYPECODES
         #define SETTFL  ptr->length = len;
       #else
@@ -151,14 +151,14 @@
 #ifndef TYPECODES
 # UP, beschafft immutablen String
 # allocate_imm_string(len)
-# > len: L‰nge des Strings (in Characters)
+# > len: L√§nge des Strings (in Characters)
 # < ergebnis: neuer immutabler Normal-Simple-String (LISP-Objekt)
 # can trigger GC
   global object allocate_imm_string (uintL len);
   global object allocate_imm_string (len)
     var uintL len;
     {
-      var uintL need = size_sstring(len); # benˆtigter Speicherplatz in Bytes
+      var uintL need = size_sstring(len); # ben√∂tigter Speicherplatz in Bytes
       #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Imm_Sstring,len);
       allocate(sstring_type,TRUE,need,Sstring,ptr,
                { SETTFL } # Keine weitere Initialisierung
@@ -170,14 +170,14 @@
 #ifdef HAVE_SMALL_SSTRING
 # UP, beschafft immutablen Small-String
 # allocate_imm_small_string(len)
-# > len: L‰nge des Strings (in Characters)
+# > len: L√§nge des Strings (in Characters)
 # < ergebnis: neuer immutabler Small-Simple-String (LISP-Objekt)
 # can trigger GC
   global object allocate_imm_small_string (uintL len);
   global object allocate_imm_small_string (len)
     var uintL len;
     {
-      var uintL need = size_small_sstring(len); # benˆtigter Speicherplatz in Bytes
+      var uintL need = size_small_sstring(len); # ben√∂tigter Speicherplatz in Bytes
       #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Imm_SmallSstring,len);
       allocate(sstring_type,TRUE,need,SmallSstring,ptr,
                { SETTFL } # Keine weitere Initialisierung
@@ -220,8 +220,8 @@
 
 # UP, beschafft Simple-Record
 # allocate_srecord_(flags_rectype,reclen,type)
-# > uintW flags_rectype: Flags, n‰here Typinfo
-# > uintC reclen: L‰nge
+# > uintW flags_rectype: Flags, n√§here Typinfo
+# > uintC reclen: L√§nge
 # > tint type: Typinfo
 # < ergebnis: LISP-Objekt Record (Elemente werden mit NIL initialisiert)
 # can trigger GC
@@ -236,7 +236,7 @@
       var uintL need = size_srecord(reclen);
       allocate(type,TRUE,need,Srecord,ptr,
                { *(uintW*)pointerplus(ptr,offsetof(record_,recflags)) = flags_rectype; # Flags, Typ eintragen
-                 ptr->reclength = reclen; # L‰nge eintragen
+                 ptr->reclength = reclen; # L√§nge eintragen
                  var object* p = &ptr->recdata[0];
                  dotimespC(reclen,reclen, { *p++ = NIL; } ); # Elemente mit NIL vollschreiben
                }
@@ -260,9 +260,9 @@
 
 # UP, beschafft Extended-Record
 # allocate_xrecord_(flags_rectype,reclen,recxlen,type)
-# > uintW flags_rectype: Flags, n‰here Typinfo
-# > uintC reclen: L‰nge
-# > uintC recxlen: Extra-L‰nge
+# > uintW flags_rectype: Flags, n√§here Typinfo
+# > uintC reclen: L√§nge
+# > uintC recxlen: Extra-L√§nge
 # > tint type: Typinfo
 # < ergebnis: LISP-Objekt Record (Elemente werden mit NIL bzw. 0 initialisiert)
 # can trigger GC
@@ -278,7 +278,7 @@
       var uintL need = size_xrecord(reclen,recxlen);
       allocate(type,TRUE,need,Xrecord,ptr,
                { *(uintW*)pointerplus(ptr,offsetof(record_,recflags)) = flags_rectype; # Flags, Typ eintragen
-                 ptr->reclength = reclen; ptr->recxlength = recxlen; # L‰ngen eintragen
+                 ptr->reclength = reclen; ptr->recxlength = recxlen; # L√§ngen eintragen
                  var object* p = &ptr->recdata[0];
                  dotimesC(reclen,reclen, { *p++ = NIL; } ); # Elemente mit NIL vollschreiben
                  if (recxlen > 0) {
@@ -297,7 +297,7 @@
     {
       var uintL need = size_xrecord(reclen,recxlen);
       allocate(type,TRUE,need,Xrecord,ptr,
-               { ptr->tfl = (uintL)flags_rectype + ((uintL)reclen << 16) + ((uintL)recxlen << 24); # Flags, Typ, L‰ngen eintragen
+               { ptr->tfl = (uintL)flags_rectype + ((uintL)reclen << 16) + ((uintL)recxlen << 24); # Flags, Typ, L√§ngen eintragen
                  var object* p = &ptr->recdata[0];
                  dotimesC(reclen,reclen, { *p++ = NIL; } ); # Elemente mit NIL vollschreiben
                  if (recxlen > 0) {
@@ -314,9 +314,9 @@
 # UP, beschafft Stream
 # allocate_stream(strmflags,strmtype,reclen)
 # > uintB strmflags: Flags
-# > uintB strmtype: n‰here Typinfo
-# > uintC reclen: L‰nge in Objekten
-# > uintC recxlen: Extra-L‰nge in Bytes
+# > uintB strmtype: n√§here Typinfo
+# > uintC reclen: L√§nge in Objekten
+# > uintC recxlen: Extra-L√§nge in Bytes
 # < ergebnis: LISP-Objekt Stream (Elemente werden mit NIL initialisiert)
 # can trigger GC
   global object allocate_stream (uintB strmflags, uintB strmtype, uintC reclen, uintC recxlen);
@@ -327,7 +327,7 @@
     var uintC recxlen;
     {
       var object obj = allocate_xrecord(0,Rectype_Stream,reclen,recxlen,orecord_type);
-      TheRecord(obj)->recdata[0] = Fixnum_0; # Fixnum als Platz f¸r strmflags und strmtype
+      TheRecord(obj)->recdata[0] = Fixnum_0; # Fixnum als Platz f√ºr strmflags und strmtype
       TheStream(obj)->strmflags = strmflags; TheStream(obj)->strmtype = strmtype;
       return obj;
     }
@@ -339,7 +339,7 @@
 # UP, beschafft Foreign-Pointer-Verpackung
 # allocate_fpointer(foreign)
 # > foreign: vom Typ FOREIGN
-# < ergebnis: LISP-Objekt, das foreign enth‰lt
+# < ergebnis: LISP-Objekt, das foreign enth√§lt
 # can trigger GC
   global object allocate_fpointer (FOREIGN foreign);
   global object allocate_fpointer(foreign)
@@ -356,7 +356,7 @@
 
 # UP, beschafft Handle-Verpackung
 # allocate_handle(handle)
-# < ergebnis: LISP-Objekt, das handle enth‰lt
+# < ergebnis: LISP-Objekt, das handle enth√§lt
 # can trigger GC
   global object allocate_handle (Handle handle);
   global object allocate_handle(handle)
@@ -371,8 +371,8 @@
 
 # UP, beschafft Bignum
 # allocate_bignum(len,sign)
-# > uintC (eigentlich uintWC) len: L‰nge der Zahl (in Digits)
-# > sintB sign: Flag f¸r Vorzeichen (0 = +, -1 = -)
+# > uintC (eigentlich uintWC) len: L√§nge der Zahl (in Digits)
+# > sintB sign: Flag f√ºr Vorzeichen (0 = +, -1 = -)
 # < ergebnis: neues Bignum (LISP-Objekt)
 # can trigger GC
   global object allocate_bignum (uintC len, sintB sign);
@@ -380,7 +380,7 @@
     var uintC len;
     var sintB sign;
     {
-      var uintL need = size_bignum(len); # benˆtigter Speicherplatz in Bytes
+      var uintL need = size_bignum(len); # ben√∂tigter Speicherplatz in Bytes
       #ifdef TYPECODES
         #define SETTFL  ptr->length = len;
       #else
@@ -470,7 +470,7 @@
 
 # UP, beschafft Long-Float
 # allocate_lfloat(len,expo,sign)
-# > uintC (eigentlich uintWC) len: L‰nge der Mantisse (in Digits)
+# > uintC (eigentlich uintWC) len: L√§nge der Mantisse (in Digits)
 # > uintL expo: Exponent
 # > signean sign: Vorzeichen (0 = +, -1 = -)
 # < ergebnis: neues Long-Float, noch ohne Mantisse
@@ -482,7 +482,7 @@
     var uintL expo;
     var signean sign;
     {
-      var uintL need = size_lfloat(len); # benˆtigter Speicherplatz in Bytes
+      var uintL need = size_lfloat(len); # ben√∂tigter Speicherplatz in Bytes
       #ifdef TYPECODES
         #define SETTFL  ptr->len = len;
       #else
@@ -497,7 +497,7 @@
 
 # UP, erzeugt Bruch
 # make_ratio(num,den)
-# > object num: Z‰hler (muss Integer /= 0 sein, relativ prim zu den)
+# > object num: Z√§hler (muss Integer /= 0 sein, relativ prim zu den)
 # > object den: Nenner (muss Integer > 1 sein)
 # < ergebnis: Bruch
 # can trigger GC
@@ -508,7 +508,7 @@
     {
       pushSTACK(den); pushSTACK(num); # Argumente sichern
       #ifdef TYPECODES
-      var tint type = # Vorzeichen von num ¸bernehmen
+      var tint type = # Vorzeichen von num √ºbernehmen
         #ifdef fast_mtypecode
         ratio_type | (mtypecode(STACK_0) & bit(sign_bit_t))
         #else
@@ -517,7 +517,7 @@
         ;
       #endif
       #define FILL  \
-         ptr->rt_num = popSTACK(); # Z‰hler eintragen \
+         ptr->rt_num = popSTACK(); # Z√§hler eintragen \
          ptr->rt_den = popSTACK(); # Nenner eintragen
       #ifdef SPVW_MIXED
         # see allocate_xrecord
@@ -545,7 +545,7 @@
 # UP, erzeugt komplexe Zahl
 # make_complex(real,imag)
 # > real: Realteil (muss reelle Zahl sein)
-# > imag: Imagin‰rteil (muss reelle Zahl /= Fixnum 0 sein)
+# > imag: Imagin√§rteil (muss reelle Zahl /= Fixnum 0 sein)
 # < ergebnis: komplexe Zahl
 # can trigger GC
   global object make_complex (object real, object imag);
@@ -556,7 +556,7 @@
       pushSTACK(imag); pushSTACK(real);
       #define FILL  \
         ptr->c_real = popSTACK(); # Realteil eintragen \
-        ptr->c_imag = popSTACK(); # Imagin‰rteil eintragen
+        ptr->c_imag = popSTACK(); # Imagin√§rteil eintragen
       #ifdef SPVW_MIXED
         # see allocate_xrecord
         #ifdef TYPECODES

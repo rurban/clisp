@@ -1,5 +1,5 @@
 ;;; French translations of DEFINTERNATIONALed values.
-;;; Bruno Haible, Jörg Höhle
+;;; Bruno Haible, JÃ¶rg HÃ¶hle
 
 (in-package "LISP")
 

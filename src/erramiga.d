@@ -188,7 +188,7 @@
             write_errorasciz(errormsg);
           }
         }
-        SetIoErr(0L); # Fehlercode löschen (fürs nächste Mal)
+        SetIoErr(0L); # Fehlercode lÃ¶schen (fÃ¼rs nÃ¤chste Mal)
       }
     global void OS_error()
       {
@@ -212,7 +212,7 @@
         errcode = IoErr();
         end_system_call();
         clr_break_sem_4(); # keine AMIGAOS-Operation mehr aktiv
-        pushSTACK(pathname); # Wert von PATHNAME für FILE-ERROR
+        pushSTACK(pathname); # Wert von PATHNAME fÃ¼r FILE-ERROR
         begin_error(); # Fehlermeldung anfangen
         if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
           STACK_3 = S(simple_file_error);
@@ -220,7 +220,7 @@
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
 
-  # Ausgabe eines Fehlers, direkt übers Betriebssystem
+  # Ausgabe eines Fehlers, direkt Ã¼bers Betriebssystem
   # errno_out(errorcode);
   # > LONG errorcode: Fehlercode
     global void errno_out (LONG errorcode);

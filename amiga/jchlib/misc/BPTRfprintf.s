@@ -1,5 +1,5 @@
 | Tiny GCC Library
-| Jörg Höhle, 9-Jul-96
+| JÃ¶rg HÃ¶hle, 9-Jul-96
 
 |A 254 byte buffer is allocated and chunks max that large written
 |Write() results are not checked! We suppose Write() writes all data!

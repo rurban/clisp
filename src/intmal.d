@@ -1,6 +1,6 @@
 # Multiplikation ganzer Zahlen
 
-# meldet Überlauf bei der Multiplikation:
+# meldet Ãœberlauf bei der Multiplikation:
   nonreturning_function(local, mal_ueberlauf, (void));
   local void mal_ueberlauf()
     { fehler(arithmetic_error,
@@ -8,10 +8,10 @@
             );
     }
 
-# karatsuba_threshold = Länge, ab der die Karatsuba-Multiplikation bevorzugt
+# karatsuba_threshold = LÃ¤nge, ab der die Karatsuba-Multiplikation bevorzugt
 # wird. Der Break-Even-Point bestimmt sich aus Zeitmessungen.
 # Als Test dient (progn (time (! 5000)) nil), das viele kleine und einige
-# ganz große Multiplikationen durchführt. Miss die Runtime.
+# ganz groÃŸe Multiplikationen durchfÃ¼hrt. Miss die Runtime.
 # Unter Linux mit einem 80486:      Auf einer Sparc 2:
 # threshold  time in 0.01 sec.
 #      5        125
@@ -41,11 +41,11 @@
 #    500        203
 #   1000        203
 # Das Optimum scheint bei karatsuba_threshold = 12 zu liegen.
-# Da das Optimum aber vom Verhältnis
-#         Zeit für uintD-Multiplikation / Zeit für uintD-Addition
-# abhängt und die gemessenen Zeiten auf eine Unterschreitung des Optimums
-# empfindlicher reagieren als auf eine Überschreitung des Optimums,
-# sind wir vorsichtig und wählen einen Wert etwas über dem Optimum:
+# Da das Optimum aber vom VerhÃ¤ltnis
+#         Zeit fÃ¼r uintD-Multiplikation / Zeit fÃ¼r uintD-Addition
+# abhÃ¤ngt und die gemessenen Zeiten auf eine Unterschreitung des Optimums
+# empfindlicher reagieren als auf eine Ãœberschreitung des Optimums,
+# sind wir vorsichtig und wÃ¤hlen einen Wert etwas Ã¼ber dem Optimum:
 #define karatsuba_threshold  16
 
 # Quadriert eine Unsigned-Digit-sequence.
@@ -68,7 +68,7 @@
 # square_2loop_down(sourceptr,len,destptr);
 # quadriert die UDS  sourceptr[-len..-1]  (len1>0)
 # und legt das Ergebnis in der UDS  destptr[-2*len..-1]  ab.
-# Unterhalb von destptr werden 2*len Digits Platz benötigt.
+# Unterhalb von destptr werden 2*len Digits Platz benÃ¶tigt.
   local void square_2loop_down (const uintD* sourceptr, uintC len,
                                 uintD* destptr);
   local void square_2bigloop_down (const uintD* sourceptr, uintC len,
@@ -134,7 +134,7 @@
                #endif
              }} while (len > 0);
         }
-      else # len groß
+      else # len groÃŸ
         # Karatsuba-Quadrierung
         # (ausgelagert, um die eigentliche Quadrierfunktion nicht
         # durch zu viele Registervariablen zu belasten):
@@ -149,8 +149,8 @@
       SAVE_NUM_STACK
       var uintC prod_len = 2*len;
       var uintD* prod_LSDptr = destptr;
-      var uintC k_hi = floor(len,2); # Länge der High-Teile: floor(len/2) >0
-      var uintC k_lo = len - k_hi; # Länge der Low-Teile: ceiling(len/2) >0
+      var uintC k_hi = floor(len,2); # LÃ¤nge der High-Teile: floor(len/2) >0
+      var uintC k_lo = len - k_hi; # LÃ¤nge der Low-Teile: ceiling(len/2) >0
       # Es gilt k_hi <= k_lo <= len, k_lo + k_hi = len.
       # Summe x1+x0 berechnen:
       var uintD* sum_MSDptr;
@@ -167,14 +167,14 @@
          }
        if (carry) { *--sum_MSDptr = 1; sum_len++; }
       }
-      # Platz für Produkte x0*x0, x1*x1:
+      # Platz fÃ¼r Produkte x0*x0, x1*x1:
       { var uintC prodhi_len = 2*k_hi;
         var uintD* prodhi_LSDptr = prod_LSDptr - 2*k_lo;
         # prod_MSDptr/2*len/prod_LSDptr wird zuerst die beiden
         # Produkte x1*x1 in prod_MSDptr/2*k_hi/prodhi_LSDptr
         #      und x0*x0 in prodhi_LSDptr/2*k_lo/prod_LSDptr,
         # dann das Produkt (b^k*x1+x0)*(b^k*x1+x0) enthalten.
-        # Platz fürs Produkt (x1+x0)*(x1+x0) belegen:
+        # Platz fÃ¼rs Produkt (x1+x0)*(x1+x0) belegen:
        {var uintD* prodmid_MSDptr;
         var uintC prodmid_len = 2*sum_len;
         var uintD* prodmid_LSDptr;
@@ -200,10 +200,10 @@
          # Carry um maximal 1 Digit weitertragen:
          if (!(carry==0)) { prodmid_LSDptr[-2*(uintP)k_lo-1] -= 1; }
         }
-        # prodmid_LSDptr[-prodmid_len..-1] enthält nun 2*x0*x1.
+        # prodmid_LSDptr[-prodmid_len..-1] enthÃ¤lt nun 2*x0*x1.
         # Dies ist < 2 * b^k_lo * b^k_hi = 2 * b^len,
         # passt also in len+1 Digits.
-        # prodmid_len, wenn möglich, um maximal 2 verkleinern:
+        # prodmid_len, wenn mÃ¶glich, um maximal 2 verkleinern:
         # (benutzt prodmid_len >= 2*k_lo >= len >= 2)
         if (prodmid_MSDptr[0]==0)
           { prodmid_len--;
@@ -237,14 +237,14 @@
       if (I_fixnump(x))
         { var sint32 x_ = FN_to_L(x);
          #if (oint_data_len+1 > intLsize)
-          # nur falls x ein Integer mit höchstens 32 Bit ist:
+          # nur falls x ein Integer mit hÃ¶chstens 32 Bit ist:
           if (((sint32)FN_sign(x) ^ x_) >= 0)
          #endif
          {# Wert direkt quadrieren:
           var uint32 hi;
           var uint32 lo;
           mulu32((uint32)x_,(uint32)x_,hi=,lo=); # erst unsigned multiplizieren
-          if (x_ < 0) { hi -= 2*(uint32)x_; } # dann Korrektur für Vorzeichen
+          if (x_ < 0) { hi -= 2*(uint32)x_; } # dann Korrektur fÃ¼r Vorzeichen
           return L2_to_I(hi,lo);
         }}
      {var uintD* xMSDptr;
@@ -269,7 +269,7 @@
        }   }
        end_arith_call();
        {var object result = DS_to_I(ergMSDptr,erglen);
-        RESTORE_NUM_STACK # num_stack zurück
+        RESTORE_NUM_STACK # num_stack zurÃ¼ck
         return result;
     }}}}
 
@@ -294,7 +294,7 @@
 # multipliziert die UDS  sourceptr1[-len1..-1]  (len1>0)
 #           mit der UDS  sourceptr2[-len1..-1]  (len2>0)
 # und legt das Ergebnis in der UDS  destptr[-len..-1]  (len=len1+len2) ab.
-# Unterhalb von destptr werden len Digits Platz benötigt.
+# Unterhalb von destptr werden len Digits Platz benÃ¶tigt.
   local void mulu_2loop_down (const uintD* sourceptr1, uintC len1,
                               const uintD* sourceptr2, uintC len2,
                               uintD* destptr);
@@ -322,16 +322,16 @@
         # Multiplikation nach Schulmethode
         { # len2 Digits auf 0 setzen:
           var uintD* destptr2 = clear_loop_down(destptr,len2);
-          # äußere Schleife läuft über source1 :
+          # Ã¤uÃŸere Schleife lÃ¤uft Ã¼ber source1 :
           dotimespC(len1,len1,
-            { # innere Schleife läuft über source2 :
+            { # innere Schleife lÃ¤uft Ã¼ber source2 :
               var uintD carry =
                 muluadd_loop_down(*--sourceptr1,sourceptr2,destptr,len2);
-              *--destptr2 = carry; # UDS um das Carry-Digit verlängern
+              *--destptr2 = carry; # UDS um das Carry-Digit verlÃ¤ngern
               destptr--;
             });
         }
-      else # len1 groß
+      else # len1 groÃŸ
         # Karatsuba-Multiplikation
         # (ausgelagert, um die eigentliche Multiplikationsfunktion nicht
         # durch zu viele Registervariablen zu belasten):
@@ -348,14 +348,14 @@
     #        = x1*y1 * b^2k + ((x1+x0)*(y1+y0)-x1*y1-x0*y0) * b^k + x0*y0
     # Methode 1 (Collins/Loos, Degel):
     # source2 wird in floor(len2/len1) einzelne UDS mit je einer
-    # Länge len3 (len1 <= len3 < 2*len1) unterteilt,
+    # LÃ¤nge len3 (len1 <= len3 < 2*len1) unterteilt,
     # jeweils k=floor(len3/2).
     # Methode 2 (Haible):
     # source2 wird in ceiling(len2/len1) einzelne UDS mit je einer
-    # Länge len3 (0 < len3 <= len1) unterteilt, jeweils k=floor(len1/2).
-    # Aufwand für die hinteren Einzelteile:
+    # LÃ¤nge len3 (0 < len3 <= len1) unterteilt, jeweils k=floor(len1/2).
+    # Aufwand fÃ¼r die hinteren Einzelteile:
     # bei beiden Methoden jeweils 3*len1^2.
-    # Aufwand für das vorderste Teil (alles, falls len1 <= len2 < 2*len1)
+    # Aufwand fÃ¼r das vorderste Teil (alles, falls len1 <= len2 < 2*len1)
     # mit r = len1, s = (len2 mod len1) + len1 (>= len1, < 2*len1):
     # bei Methode 1:
     #                       |   :       |  r
@@ -366,17 +366,17 @@
     #                    |  |     :     |  s
     #      (s-r)*r + r/2*r/2 + r/2*r/2 + r/2*r/2 = r*s - r^2/4 .
     # Wegen (r*s/2 + s^2/4) - (r*s - r^2/4) = (r-s)^2/4 >= 0
-    # ist Methode 2 günstiger.
-    # Denkfehler! Dies gilt - wenn überhaupt - nur knapp oberhalb des
+    # ist Methode 2 gÃ¼nstiger.
+    # Denkfehler! Dies gilt - wenn Ã¼berhaupt - nur knapp oberhalb des
     # Break-Even-Points.
-    # Im allgemeinen ist der Multiplikationsaufwand für zwei Zahlen der
-    # Längen u bzw. v nämlich gegeben durch  min(u,v)^c * max(u,v),
+    # Im allgemeinen ist der Multiplikationsaufwand fÃ¼r zwei Zahlen der
+    # LÃ¤ngen u bzw. v nÃ¤mlich gegeben durch  min(u,v)^c * max(u,v),
     # wobei  c = log3/log2 - 1 = 0.585...
-    # Dadurch wird der Aufwand in Abhängigkeit des Parameters t = k,
+    # Dadurch wird der Aufwand in AbhÃ¤ngigkeit des Parameters t = k,
     # r/2 <= t <= s/2 (der einzig sinnvolle Bereich), zu
     # (r-t)^c*(s-t) + t^c*(s-t) + t^(1+c).
     # Dessen Optimum liegt (im Bereich r <= s <= 2*r)
-    # - im klassischen Fall c=1 tatsächlich stets bei t=r/2 [Methode 2],
+    # - im klassischen Fall c=1 tatsÃ¤chlich stets bei t=r/2 [Methode 2],
     # - im Karatsuba-Fall c=0.6 aber offenbar bei t=s/2 [Methode 1]
     #   oder ganz knapp darunter.
     # Auch erweist sich Methode 1 im Experiment als effizienter.
@@ -386,8 +386,8 @@
       if (len2 >= 2*len1)
         { SAVE_NUM_STACK
           # Teilprodukte von jeweils len1 mal len1 Digits bilden:
-          var uintC k_lo = floor(len1,2); # Länge der Low-Teile: floor(len1/2) >0
-          var uintC k_hi = len1 - k_lo; # Länge der High-Teile: ceiling(len1/2) >0
+          var uintC k_lo = floor(len1,2); # LÃ¤nge der Low-Teile: floor(len1/2) >0
+          var uintC k_hi = len1 - k_lo; # LÃ¤nge der High-Teile: ceiling(len1/2) >0
           # Es gilt k_lo <= k_hi <= len1, k_lo + k_hi = len1.
           # Summe x1+x0 berechnen:
           var uintD* sum1_MSDptr;
@@ -404,11 +404,11 @@
              }
            if (carry) { *--sum1_MSDptr = 1; sum1_len++; }
           }
-         {  # Platz für Summe y1+y0 belegen:
+         {  # Platz fÃ¼r Summe y1+y0 belegen:
             var uintC sum2_maxlen = k_hi+1;
             var uintD* sum2_LSDptr;
             num_stack_need(sum2_maxlen,_EMA_,sum2_LSDptr=);
-            # Platz für Produkte x0*y0, x1*y1 belegen:
+            # Platz fÃ¼r Produkte x0*y0, x1*y1 belegen:
           { var uintD* prod_MSDptr;
             var uintD* prod_LSDptr;
             var uintD* prodhi_LSDptr;
@@ -418,11 +418,11 @@
             # Produkte x1*y1 in prod_MSDptr/2*k_hi/prodhi_LSDptr
             #      und x0*y0 in prodhi_LSDptr/2*k_lo/prod_LSDptr,
             # dann das Produkt (b^k*x1+x0)*(b^k*y1+y0) enthalten.
-            # Platz fürs Produkt (x1+x0)*(y1+y0) belegen:
+            # Platz fÃ¼rs Produkt (x1+x0)*(y1+y0) belegen:
            {var uintD* prodmid_MSDptr;
             var uintD* prodmid_LSDptr;
             num_stack_need(sum1_len+sum2_maxlen,prodmid_MSDptr=,prodmid_LSDptr=);
-            # Schleife über die hinteren Einzelteile:
+            # Schleife Ã¼ber die hinteren Einzelteile:
             do { # Produkt x0*y0 berechnen:
                  mulu_2loop_down(sourceptr1,k_lo,sourceptr2,k_lo,prod_LSDptr);
                  # Produkt x1*y1 berechnen:
@@ -457,7 +457,7 @@
                    if (!(carry==0))
                      { dec_loop_down(&prodmid_LSDptr[-2*(uintP)k_lo],prodmid_len-2*k_lo); }
                   }
-                  # prodmid_LSDptr[-prodmid_len..-1] enthält nun x0*y1+x1*y0.
+                  # prodmid_LSDptr[-prodmid_len..-1] enthÃ¤lt nun x0*y1+x1*y0.
                   # Dies wird zu prod = x1*y1*b^(2*k) + x0*y0 addiert:
                   {var uintD carry =
                      addto_loop_down(prodmid_LSDptr,&prod_LSDptr[-(uintP)k_lo],prodmid_len);
@@ -491,8 +491,8 @@
       var uintC prod_len = len1+len2;
       var uintD* prod_LSDptr;
       num_stack_need((uintL)prod_len,prod_MSDptr=,prod_LSDptr=);
-      { var uintC k_hi = floor(len2,2); # Länge der High-Teile: floor(len2/2) >0
-        var uintC k_lo = len2 - k_hi; # Länge der Low-Teile: ceiling(len2/2) >0
+      { var uintC k_hi = floor(len2,2); # LÃ¤nge der High-Teile: floor(len2/2) >0
+        var uintC k_lo = len2 - k_hi; # LÃ¤nge der Low-Teile: ceiling(len2/2) >0
         # Es gilt k_hi <= k_lo <= len1 <= len2, k_lo + k_hi = len2.
         var uintC x1_len = len1-k_lo; # <= len2-k_lo = k_hi <= k_lo
         # Summe x1+x0 berechnen:
@@ -525,14 +525,14 @@
            }
          if (carry) { *--sum2_MSDptr = 1; sum2_len++; }
         }
-        # Platz für Produkte x0*y0, x1*y1:
+        # Platz fÃ¼r Produkte x0*y0, x1*y1:
         { var uintC prodhi_len = x1_len+k_hi;
           var uintD* prodhi_LSDptr = &prod_LSDptr[-2*(uintP)k_lo];
           # prod_MSDptr/len1+len2/prod_LSDptr wird zuerst die beiden
           # Produkte x1*y1 in prod_MSDptr/x1_len+k_hi/prodhi_LSDptr
           #      und x0*y0 in prodhi_LSDptr/2*k_lo/prod_LSDptr,
           # dann das Produkt (b^k*x1+x0)*(b^k*y1+y0) enthalten.
-          # Platz fürs Produkt (x1+x0)*(y1+y0) belegen:
+          # Platz fÃ¼rs Produkt (x1+x0)*(y1+y0) belegen:
          {var uintD* prodmid_MSDptr;
           var uintC prodmid_len = sum1_len+sum2_len;
           var uintD* prodmid_LSDptr;
@@ -562,13 +562,13 @@
            # Carry um maximal 1 Digit weitertragen:
            if (!(carry==0)) { prodmid_LSDptr[-2*(uintP)k_lo-1] -= 1; }
           }
-          # prodmid_LSDptr[-prodmid_len..-1] enthält nun x0*y1+x1*y0.
+          # prodmid_LSDptr[-prodmid_len..-1] enthÃ¤lt nun x0*y1+x1*y0.
           # Dies ist < b^k_lo * b^k_hi + b^x1_len * b^k_lo
           #          = b^len2 + b^len1 <= 2 * b^len2,
           # passt also in len2+1 Digits.
           # Im Fall x1_len=0 ist es sogar < b^k_lo * b^k_hi = b^len2,
           # es passt also in len2 Digits.
-          # prodmid_len, wenn möglich, um maximal 2 verkleinern:
+          # prodmid_len, wenn mÃ¶glich, um maximal 2 verkleinern:
           # (benutzt prodmid_len >= 2*k_lo >= len2 >= 2)
           if (prodmid_MSDptr[0]==0)
             { prodmid_len--;
@@ -644,14 +644,14 @@
         { var sint32 x_ = FN_to_L(x);
           var sint32 y_ = FN_to_L(y);
          #if (oint_data_len+1 > intLsize)
-          # nur falls x und y Integers mit höchstens 32 Bit sind:
+          # nur falls x und y Integers mit hÃ¶chstens 32 Bit sind:
           if ((((sint32)FN_sign(x) ^ x_) >= 0) && (((sint32)FN_sign(y) ^ y_) >= 0))
          #endif
          {# Werte direkt multiplizieren:
           var uint32 hi;
           var uint32 lo;
           mulu32((uint32)x_,(uint32)y_,hi=,lo=); # erst unsigned multiplizieren
-          if (x_ < 0) { hi -= (uint32)y_; } # dann Korrektur für Vorzeichen
+          if (x_ < 0) { hi -= (uint32)y_; } # dann Korrektur fÃ¼r Vorzeichen
           if (y_ < 0) { hi -= (uint32)x_; } # (vgl. DS_DS_mal_DS)
           return L2_to_I(hi,lo);
         }}
@@ -670,7 +670,7 @@
         DS_DS_mal_DS(xMSDptr,xlen,xLSDptr,yMSDptr,ylen,yLSDptr, ergMSDptr=,erglen=,);
         end_arith_call();
         {var object result = DS_to_I(ergMSDptr,erglen);
-         RESTORE_NUM_STACK # num_stack zurück
+         RESTORE_NUM_STACK # num_stack zurÃ¼ck
          return result;
     }}}}}
 
@@ -730,23 +730,23 @@
     }
   #endif
 
-# Fakultät (! n), wo n Fixnum >=0 ist. Ergebnis Integer.
+# FakultÃ¤t (! n), wo n Fixnum >=0 ist. Ergebnis Integer.
 # can trigger GC
   # Methode:
   # n <= 10 -> Ergebnis (Fixnum) aus Tabelle
   # Sonst:
   #   Zweierpotenzen extra am Schluss durch einen Shift um
   #   ord2(n!) = sum(k>=1, floor(n/2^k) ) = n - logcount(n)  Bits.
-  #   Für k>=1 wird jede ungerade Zahl m im Intervall n/2^k < m <= n/2^(k-1)
+  #   FÃ¼r k>=1 wird jede ungerade Zahl m im Intervall n/2^k < m <= n/2^(k-1)
   #   genau k mal gebraucht (als ungerader Anteil von m*2^0,...,m*2^(k-1) ).
   #   Zur Bestimmung des Produkts aller ungeraden Zahlen in einem Intervall
   #   a < m <= b verwenden wir eine rekursive Funktion, die nach Divide-and-
-  #   Conquer das Produkt über die Intervalle a < m <= c und c < m <= b
+  #   Conquer das Produkt Ã¼ber die Intervalle a < m <= c und c < m <= b
   #   (c := floor((a+b)/2)) bestimmt und beide zusammenmultipliziert. Dies
-  #   vermeidet, dass oft große Zahlen mit ganz kleinen Zahlen multipliziert
+  #   vermeidet, dass oft groÃŸe Zahlen mit ganz kleinen Zahlen multipliziert
   #   werden.
   local object FN_fak_I (object n);
-  # UP für Fakultät:
+  # UP fÃ¼r FakultÃ¤t:
   # Bilde das Produkt prod(a < i <= b, 2*i+1), wobei 0 <= a < b klein.
     local object prod_ungerade (uintL a, uintL b);
     local object prod_ungerade(a,b)
@@ -759,7 +759,7 @@
             var object produkt = faktor;
             var uintC count;
             dotimesC(count,diff-1,
-              { faktor = fixnum_inc(faktor,-2); # nächster Faktor
+              { faktor = fixnum_inc(faktor,-2); # nÃ¤chster Faktor
                 produkt = I_I_mal_I(faktor,produkt); # mit bisherigem Produkt multiplizieren
               });
             return produkt;
@@ -823,9 +823,9 @@
           pushSTACK(n);        # obere Intervallgrenze floor(n/2^(k-1))
           loop
             { # Stackaufbau: prod, n, k, floor(n/2^(k-1)).
-              # 'n' enthält floor(n/2^(k-1)).
+              # 'n' enthÃ¤lt floor(n/2^(k-1)).
               n = I_I_ash_I(n,Fixnum_minus1); # untere Grenze floor(n/2^k)
-              # 'n' enthält floor(n/2^k).
+              # 'n' enthÃ¤lt floor(n/2^k).
               # Bilde Teilprodukt prod(A < i <= B & oddp(i), i)
               #       = prod(floor((A-1)/2) < i <= floor((B-1)/2), 2*i+1)
               # wobei B = floor(n/2^(k-1)), A = floor(n/2^k) = floor(B/2).

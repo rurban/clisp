@@ -72,9 +72,9 @@ Note:
 Authors:
   Generic CLISP: Bruno Haible, Michael Stoll
   Atari version: Bruno Haible, Michael Stoll
-  Amiga version: Bruno Haible, Jörg Höhle
+  Amiga version: Bruno Haible, JÃ¶rg HÃ¶hle
   Acorn version: Bruno Haible, Peter Burwood
-  DOS version:   Bruno Haible, Bernhard Degel, Jürgen Weber
+  DOS version:   Bruno Haible, Bernhard Degel, JÃ¼rgen Weber
   OS/2 version:  Bruno Haible
   Unix version:  Bruno Haible
   PCL:           Richard Harris, ported by Bruno Haible
@@ -85,7 +85,7 @@ Maintenance:     Bruno Haible, Marcus Daniels
 Email addresses (September 1992 or newer):
   Bruno Haible     haible@clisp.cons.org
   Michael Stoll    michael@rhein.iam.uni-bonn.de
-  Jörg Höhle       Joerg.Hoehle@gmd.de
+  JÃ¶rg HÃ¶hle       Joerg.Hoehle@gmd.de
   Peter Burwood    clisp@arcangel.dircon.co.uk
   Marcus Daniels   marcus@sysc.pdx.edu
   Richard Harris   harrisr@cs.rpi.edu

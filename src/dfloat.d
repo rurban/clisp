@@ -1,10 +1,10 @@
-# Grundfunktionen für Double-Floats
+# Grundfunktionen fÃ¼r Double-Floats
 
 # Entpacken eines Double-Float:
 #ifdef intQsize
 # DF_decode(obj, zero_statement, sign=,exp=,mant=);
 # zerlegt ein Double-Float obj.
-# Ist obj=0.0, wird zero_statement ausgeführt.
+# Ist obj=0.0, wird zero_statement ausgefÃ¼hrt.
 # Sonst: signean sign = Vorzeichen (0 = +, -1 = -),
 #        sintWL exp = Exponent (vorzeichenbehaftet),
 #        uintQ mant = Mantisse (>= 2^DF_mant_len, < 2^(DF_mant_len+1))
@@ -23,7 +23,7 @@
 #else
 # DF_decode2(obj, zero_statement, sign=,exp=,manthi=,mantlo=);
 # zerlegt ein Double-Float obj.
-# Ist obj=0.0, wird zero_statement ausgeführt.
+# Ist obj=0.0, wird zero_statement ausgefÃ¼hrt.
 # Sonst: signean sign = Vorzeichen (0 = +, -1 = -),
 #        sintWL exp = Exponent (vorzeichenbehaftet),
 #        uintL manthi,mantlo = Mantisse 2^32*manthi+mantlo
@@ -48,11 +48,11 @@
 #ifdef intQsize
 # encode_DF(sign,exp,mant, ergebnis=);
 # liefert ein Double-Float.
-# > signean sign: Vorzeichen, 0 für +, -1 für negativ.
+# > signean sign: Vorzeichen, 0 fÃ¼r +, -1 fÃ¼r negativ.
 # > sintWL exp: Exponent
 # > uintQ mant: Mantisse, sollte >= 2^DF_mant_len und < 2^(DF_mant_len+1) sein.
 # < object ergebnis: ein Double-Float
-# Der Exponent wird auf Überlauf/Unterlauf getestet.
+# Der Exponent wird auf Ãœberlauf/Unterlauf getestet.
 # can trigger GC
   #define encode_DF(sign,exp,mant, erg_zuweisung)  \
     { if ((exp) < (sintWL)(DF_exp_low-DF_exp_mid))                  \
@@ -74,12 +74,12 @@
 #else
 # encode2_DF(sign,exp,manthi,mantlo, ergebnis=);
 # liefert ein Double-Float.
-# > signean sign: Vorzeichen, 0 für +, -1 für negativ.
+# > signean sign: Vorzeichen, 0 fÃ¼r +, -1 fÃ¼r negativ.
 # > sintWL exp: Exponent
 # > uintL manthi,mantlo: Mantisse 2^32*manthi+mantlo,
 #                        sollte >= 2^DF_mant_len und < 2^(DF_mant_len+1) sein.
 # < object ergebnis: ein Double-Float
-# Der Exponent wird auf Überlauf/Unterlauf getestet.
+# Der Exponent wird auf Ãœberlauf/Unterlauf getestet.
 # can trigger GC
   #define encode2_DF(sign,exp,manthi,mantlo, erg_zuweisung)  \
     { if ((exp) < (sintWL)(DF_exp_low-DF_exp_mid))                       \
@@ -104,7 +104,7 @@
 #ifdef FAST_DOUBLE
 # Auspacken eines Double:
   #define DF_to_double(obj)  (TheDfloat(obj)->representation.machine_double)
-# Überprüfen und Einpacken eines von den 'double'-Routinen gelieferten
+# ÃœberprÃ¼fen und Einpacken eines von den 'double'-Routinen gelieferten
 # IEEE-Floats.
 # Klassifikation:
 #   1 <= e <= 2046 : normalisierte Zahl
@@ -112,8 +112,8 @@
 #   e=0, m=0: vorzeichenbehaftete 0.0
 #   e=2047, m=0: vorzeichenbehaftete Infinity
 #   e=2047, m/=0: NaN
-# Angabe der möglicherweise auftretenden Sonderfälle:
-#   maybe_overflow: Operation läuft über, liefert IEEE-Infinity
+# Angabe der mÃ¶glicherweise auftretenden SonderfÃ¤lle:
+#   maybe_overflow: Operation lÃ¤uft Ã¼ber, liefert IEEE-Infinity
 #   maybe_subnormal: Ergebnis sehr klein, liefert IEEE-subnormale Zahl
 #   maybe_underflow: Ergebnis sehr klein und /=0, liefert IEEE-Null
 #   maybe_divide_0: Ergebnis unbestimmt, liefert IEEE-Infinity
@@ -135,7 +135,7 @@
             && (((~_erg.eksplicit) & ((uint64)bit(DF_exp_len+DF_mant_len)-bit(DF_mant_len))) == 0) # e=2047 ? \
            )                                                             \
         { if (maybe_nan && !((_erg.eksplicit<<(64-DF_mant_len)) == 0))   \
-            { divide_0(); } # NaN, also Singularität -> "Division durch 0" \
+            { divide_0(); } # NaN, also SingularitÃ¤t -> "Division durch 0" \
           else # Infinity                                                \
           if (!maybe_overflow || maybe_divide_0)                         \
             { divide_0(); } # Infinity, Division durch 0                 \
@@ -163,7 +163,7 @@
             && (((~_erg.eksplicit.semhi) & ((uint32)bit(DF_exp_len+DF_mant_len-32)-bit(DF_mant_len-32))) == 0) # e=2047 ? \
            )                                                              \
         { if (maybe_nan && !(((_erg.eksplicit.semhi<<(64-DF_mant_len)) == 0) && (_erg.eksplicit.mlo==0))) \
-            { divide_0(); } # NaN, also Singularität -> "Division durch 0" \
+            { divide_0(); } # NaN, also SingularitÃ¤t -> "Division durch 0" \
           else # Infinity                                                 \
           if (!maybe_overflow || maybe_divide_0)                          \
             { divide_0(); } # Infinity, Division durch 0                  \
@@ -182,7 +182,7 @@
 
 # Liefert zu einem Double-Float x : (ftruncate x), ein DF.
 # DF_ftruncate_DF(x)
-# x wird zur 0 hin zur nächsten ganzen Zahl gerundet.
+# x wird zur 0 hin zur nÃ¤chsten ganzen Zahl gerundet.
 # can trigger GC
   local object DF_ftruncate_DF (object x);
 # Methode:
@@ -203,7 +203,7 @@
             else
             # 1<=e<=52
             { return allocate_dfloat
-                ( x_ & # Bitmaske: Bits 52-e..0 gelöscht, alle anderen gesetzt
+                ( x_ & # Bitmaske: Bits 52-e..0 gelÃ¶scht, alle anderen gesetzt
                   ~(bit(DF_mant_len+1+DF_exp_mid-uexp)-1)
                 );
     }   }   }
@@ -223,13 +223,13 @@
             if (uexp > DF_exp_mid+DF_mant_len+1-32) # e > 21 ?
               { return allocate_dfloat
                   ( semhi,
-                    mlo & # Bitmaske: Bits 52-e..0 gelöscht, alle anderen gesetzt
+                    mlo & # Bitmaske: Bits 52-e..0 gelÃ¶scht, alle anderen gesetzt
                     ~(bit(DF_mant_len+1+DF_exp_mid-uexp)-1)
                   );
               }
               else
               { return allocate_dfloat
-                  ( semhi & # Bitmaske: Bits 20-e..0 gelöscht, alle anderen gesetzt
+                  ( semhi & # Bitmaske: Bits 20-e..0 gelÃ¶scht, alle anderen gesetzt
                     ~(bit(DF_mant_len+1+DF_exp_mid-32-uexp)-1),
                     0
                   );
@@ -238,7 +238,7 @@
 
 # Liefert zu einem Double-Float x : (futruncate x), ein DF.
 # DF_futruncate_DF(x)
-# x wird von der 0 weg zur nächsten ganzen Zahl gerundet.
+# x wird von der 0 weg zur nÃ¤chsten ganzen Zahl gerundet.
 # can trigger GC
   local object DF_futruncate_DF (object x);
 # Methode:
@@ -246,10 +246,10 @@
 # e<=0 -> Ergebnis 1.0 oder -1.0, je nach Vorzeichen von x.
 # 1<=e<=52 -> Greife die letzten (53-e) Bits von x heraus.
 #             Sind sie alle =0 -> Ergebnis x.
-#             Sonst setze sie alle und erhöhe dann die letzte Stelle um 1.
-#             Kein Überlauf der 52 Bit -> fertig.
+#             Sonst setze sie alle und erhÃ¶he dann die letzte Stelle um 1.
+#             Kein Ãœberlauf der 52 Bit -> fertig.
 #             Sonst (Ergebnis eine Zweierpotenz): Mantisse := .1000...000,
-#               e:=e+1. (Test auf Überlauf wegen e<=53 überflüssig)
+#               e:=e+1. (Test auf Ãœberlauf wegen e<=53 Ã¼berflÃ¼ssig)
 # e>=53 -> Ergebnis x.
 #ifdef intQsize
   local object DF_futruncate_DF(x)
@@ -266,13 +266,13 @@
         { if (uexp > DF_exp_mid+DF_mant_len) # e > 52 ?
             { return x; }
             else
-            { var uint64 mask = # Bitmaske: Bits 52-e..0 gesetzt, alle anderen gelöscht
+            { var uint64 mask = # Bitmaske: Bits 52-e..0 gesetzt, alle anderen gelÃ¶scht
                 bit(DF_mant_len+1+DF_exp_mid-uexp)-1;
               if ((x_ & mask)==0) # alle diese Bits =0 ?
                 { return x; }
               return allocate_dfloat
                 ((x_ | mask) # alle diese Bits setzen
-                 + 1 # letzte Stelle erhöhen, dabei evtl. Exponenten incrementieren
+                 + 1 # letzte Stelle erhÃ¶hen, dabei evtl. Exponenten incrementieren
                 );
     }   }   }
 #else
@@ -292,23 +292,23 @@
             { return x; }
             else
             if (uexp > DF_exp_mid+DF_mant_len+1-32) # e > 21 ?
-              { var uint32 mask = # Bitmaske: Bits 52-e..0 gesetzt, alle anderen gelöscht
+              { var uint32 mask = # Bitmaske: Bits 52-e..0 gesetzt, alle anderen gelÃ¶scht
                   bit(DF_mant_len+1+DF_exp_mid-uexp)-1;
                 if ((mlo & mask)==0) # alle diese Bits =0 ?
                   { return x; }
                 mlo = (mlo | mask) # alle diese Bits setzen
-                      + 1; # letzte Stelle erhöhen,
+                      + 1; # letzte Stelle erhÃ¶hen,
                 if (mlo==0) { semhi += 1; } # dabei evtl. Exponenten incrementieren
                 return allocate_dfloat(semhi,mlo);
               }
               else
-              { var uint32 mask = # Bitmaske: Bits 20-e..0 gesetzt, alle anderen gelöscht
+              { var uint32 mask = # Bitmaske: Bits 20-e..0 gesetzt, alle anderen gelÃ¶scht
                   bit(DF_mant_len+1+DF_exp_mid-32-uexp)-1;
                 if ((mlo==0) && ((semhi & mask)==0)) # alle diese Bits und mlo =0 ?
                   { return x; }
                 return allocate_dfloat
                   ((semhi | mask) # alle diese Bits setzen
-                   + 1, # letzte Stelle erhöhen, dabei evtl. Exponenten incrementieren
+                   + 1, # letzte Stelle erhÃ¶hen, dabei evtl. Exponenten incrementieren
                    0
                   );
     }   }     }
@@ -316,7 +316,7 @@
 
 # Liefert zu einem Double-Float x : (fround x), ein DF.
 # DF_fround_DF(x)
-# x wird zur nächsten ganzen Zahl gerundet.
+# x wird zur nÃ¤chsten ganzen Zahl gerundet.
 # can trigger GC
   local object DF_fround_DF (object x);
 # Methode:
@@ -336,9 +336,9 @@
             { return x; }
             else
             if (uexp > DF_exp_mid+1) # e>1 ?
-              { var uint64 bitmask = # Bitmaske: Bit 52-e gesetzt, alle anderen gelöscht
+              { var uint64 bitmask = # Bitmaske: Bit 52-e gesetzt, alle anderen gelÃ¶scht
                   bit(DF_mant_len+DF_exp_mid-uexp);
-                var uint64 mask = # Bitmaske: Bits 51-e..0 gesetzt, alle anderen gelöscht
+                var uint64 mask = # Bitmaske: Bits 51-e..0 gesetzt, alle anderen gelÃ¶scht
                   bitmask-1;
                 if ( ((x_ & bitmask) ==0) # Bit 52-e =0 -> abrunden
                      || ( ((x_ & mask) ==0) # Bit 52-e =1 und Bits 51-e..0 >0 -> aufrunden
@@ -346,14 +346,14 @@
                           && ((x_ & (bitmask<<1)) ==0)
                    )    )
                   # abrunden
-                  { mask |= bitmask; # Bitmaske: Bits 52-e..0 gesetzt, alle anderen gelöscht
+                  { mask |= bitmask; # Bitmaske: Bits 52-e..0 gesetzt, alle anderen gelÃ¶scht
                     return allocate_dfloat( x_ & ~mask );
                   }
                   else
                   # aufrunden
                   { return allocate_dfloat
                       ((x_ | mask) # alle diese Bits 51-e..0 setzen (Bit 52-e schon gesetzt)
-                       + 1 # letzte Stelle erhöhen, dabei evtl. Exponenten incrementieren
+                       + 1 # letzte Stelle erhÃ¶hen, dabei evtl. Exponenten incrementieren
                       );
                   }
               }
@@ -366,13 +366,13 @@
                   # aufrunden
                   { return allocate_dfloat
                       ((x_ | (bit(DF_mant_len)-1)) # alle diese Bits 52-e..0 setzen
-                       + 1 # letzte Stelle erhöhen, dabei evtl. Exponenten incrementieren
+                       + 1 # letzte Stelle erhÃ¶hen, dabei evtl. Exponenten incrementieren
                       );
                   }
               }
             else # e=0 ?
               # Wie bei 1 < e <= 52, nur dass Bit 52-e stets gesetzt
-              # und Bit 53-e stets gelöscht ist.
+              # und Bit 53-e stets gelÃ¶scht ist.
               { if ((x_ & (bit(DF_mant_len)-1)) ==0)
                   # abrunden von +-0.5 zu 0.0
                   { return DF_0; }
@@ -380,7 +380,7 @@
                   # aufrunden
                   { return allocate_dfloat
                       ((x_ | (bit(DF_mant_len)-1)) # alle Bits 51-e..0 setzen
-                       + 1 # letzte Stelle erhöhen, dabei Exponenten incrementieren
+                       + 1 # letzte Stelle erhÃ¶hen, dabei Exponenten incrementieren
                       );
               }   }
     }   }
@@ -398,9 +398,9 @@
             else
             if (uexp > DF_exp_mid+1) # e>1 ?
               { if (uexp > DF_exp_mid+DF_mant_len-32) # e > 20 ?
-                  { var uint32 bitmask = # Bitmaske: Bit 52-e gesetzt, alle anderen gelöscht
+                  { var uint32 bitmask = # Bitmaske: Bit 52-e gesetzt, alle anderen gelÃ¶scht
                       bit(DF_mant_len+DF_exp_mid-uexp);
-                    var uint32 mask = # Bitmaske: Bits 51-e..0 gesetzt, alle anderen gelöscht
+                    var uint32 mask = # Bitmaske: Bits 51-e..0 gesetzt, alle anderen gelÃ¶scht
                       bitmask-1;
                     if ( ((mlo & bitmask) ==0) # Bit 52-e =0 -> abrunden
                          || ( ((mlo & mask) ==0) # Bit 52-e =1 und Bits 51-e..0 >0 -> aufrunden
@@ -410,21 +410,21 @@
                                     : ((mlo & (bitmask<<1)) ==0)
                        )    )    )
                       # abrunden
-                      { mask |= bitmask; # Bitmaske: Bits 52-e..0 gesetzt, alle anderen gelöscht
+                      { mask |= bitmask; # Bitmaske: Bits 52-e..0 gesetzt, alle anderen gelÃ¶scht
                         return allocate_dfloat(semhi, mlo & ~mask );
                       }
                       else
                       # aufrunden
                       { mlo = (mlo | mask) # alle diese Bits 51-e..0 setzen (Bit 52-e schon gesetzt)
-                              + 1; # letzte Stelle erhöhen,
+                              + 1; # letzte Stelle erhÃ¶hen,
                         if (mlo==0) { semhi += 1; } # dabei evtl. Exponenten incrementieren
                         return allocate_dfloat(semhi,mlo);
                       }
                   }
                   else
-                  { var uint32 bitmask = # Bitmaske: Bit 20-e gesetzt, alle anderen gelöscht
+                  { var uint32 bitmask = # Bitmaske: Bit 20-e gesetzt, alle anderen gelÃ¶scht
                       bit(DF_mant_len+DF_exp_mid-32-uexp);
-                    var uint32 mask = # Bitmaske: Bits 19-e..0 gesetzt, alle anderen gelöscht
+                    var uint32 mask = # Bitmaske: Bits 19-e..0 gesetzt, alle anderen gelÃ¶scht
                       bitmask-1;
                     if ( ((semhi & bitmask) ==0) # Bit 52-e =0 -> abrunden
                          || ( (mlo==0) && ((semhi & mask) ==0) # Bit 52-e =1 und Bits 51-e..0 >0 -> aufrunden
@@ -432,14 +432,14 @@
                               && ((semhi & (bitmask<<1)) ==0)
                        )    )
                       # abrunden
-                      { mask |= bitmask; # Bitmaske: Bits 20-e..0 gesetzt, alle anderen gelöscht
+                      { mask |= bitmask; # Bitmaske: Bits 20-e..0 gesetzt, alle anderen gelÃ¶scht
                         return allocate_dfloat( semhi & ~mask, 0 );
                       }
                       else
                       # aufrunden
                       { return allocate_dfloat
                           ((semhi | mask) # alle diese Bits 19-e..0 setzen (Bit 20-e schon gesetzt)
-                           + 1, # letzte Stelle erhöhen, dabei evtl. Exponenten incrementieren
+                           + 1, # letzte Stelle erhÃ¶hen, dabei evtl. Exponenten incrementieren
                            0
                           );
                       }
@@ -454,14 +454,14 @@
                   # aufrunden
                   { return allocate_dfloat
                       ((semhi | (bit(DF_mant_len-32)-1)) # alle diese Bits 52-e..0 setzen
-                       + 1, # letzte Stelle erhöhen, dabei evtl. Exponenten incrementieren
+                       + 1, # letzte Stelle erhÃ¶hen, dabei evtl. Exponenten incrementieren
                        0
                       );
                   }
               }
             else # e=0 ?
               # Wie bei 1 < e <= 20, nur dass Bit 52-e stets gesetzt
-              # und Bit 53-e stets gelöscht ist.
+              # und Bit 53-e stets gelÃ¶scht ist.
               { if ((mlo==0) && ((semhi & (bit(DF_mant_len-32)-1)) ==0))
                   # abrunden von +-0.5 zu 0.0
                   { return DF_0; }
@@ -469,7 +469,7 @@
                   # aufrunden
                   { return allocate_dfloat
                       ((semhi | (bit(DF_mant_len-32)-1)) # alle Bits 51-e..0 setzen
-                       + 1, # letzte Stelle erhöhen, dabei Exponenten incrementieren
+                       + 1, # letzte Stelle erhÃ¶hen, dabei Exponenten incrementieren
                        0
                       );
               }   }
@@ -592,11 +592,11 @@
 # Also e1 >= e2.
 # Falls e1 - e2 >= 52 + 3, Ergebnis x1.
 # Schiebe beide Mantissen um 3 Bits nach links (Vorbereitung der Rundung:
-#   Bei e1-e2=0,1 ist keine Rundung nötig, bei e1-e2>1 ist der Exponent des
+#   Bei e1-e2=0,1 ist keine Rundung nÃ¶tig, bei e1-e2>1 ist der Exponent des
 #   Ergebnisses =e1-1, =e1 oder =e1+1. Brauche daher 1 Schutzbit und zwei
-#   Rundungsbits: 00 exakt, 01 1.Hälfte, 10 exakte Mitte, 11 2.Hälfte.)
+#   Rundungsbits: 00 exakt, 01 1.HÃ¤lfte, 10 exakte Mitte, 11 2.HÃ¤lfte.)
 # Schiebe die Mantisse von x2 um e0-e1 Bits nach rechts. (Dabei die Rundung
-# ausführen: Bit 0 ist das logische Oder der Bits 0,-1,-2,...)
+# ausfÃ¼hren: Bit 0 ist das logische Oder der Bits 0,-1,-2,...)
 # Falls x1,x2 selbes Vorzeichen haben: Addiere dieses zur Mantisse von x1.
 # Falls x1,x2 verschiedenes Vorzeichen haben: Subtrahiere dieses von der
 #   Mantisse von x1. <0 -> (Es war e1=e2) Vertausche die Vorzeichen, negiere.
@@ -609,9 +609,9 @@
     var object x2;
     { double_to_DF(DF_to_double(x1) + DF_to_double(x2), return ,
                    TRUE, TRUE, # Overflow und subnormale Zahl abfangen
-                   FALSE, # kein Underflow mit Ergebnis +/- 0.0 möglich
+                   FALSE, # kein Underflow mit Ergebnis +/- 0.0 mÃ¶glich
                           # (nach Definition der subnormalen Zahlen)
-                   FALSE, FALSE # keine Singularität, kein NaN als Ergebnis möglich
+                   FALSE, FALSE # keine SingularitÃ¤t, kein NaN als Ergebnis mÃ¶glich
                   );
     }
 #else
@@ -658,10 +658,10 @@
         { mant1 = mant1 + mant2; }
       # mant1 = Ergebnis-Mantisse >0, sign1 = Ergebnis-Vorzeichen,
       # exp1 = Ergebnis-Exponent.
-      # Außerdem: Bei expdiff=0,1 sind die zwei letzten Bits von mant1 Null,
+      # AuÃŸerdem: Bei expdiff=0,1 sind die zwei letzten Bits von mant1 Null,
       # bei expdiff>=2 ist mant1 >= 2^(DF_mant_len+2).
       # Stets ist mant1 < 2^(DF_mant_len+5). (Daher werden die 2 Rundungsbits
-      # nachher um höchstens eine Position nach links geschoben werden.)
+      # nachher um hÃ¶chstens eine Position nach links geschoben werden.)
       # [Knuth, S.201, leicht modifiziert:
       #   N1. m>=1 -> goto N4.
       #   N2. [Hier m<1] m>=1/2 -> goto N5.
@@ -700,8 +700,8 @@
          # aufrunden
          { mant1 = mant1+1;
            if (mant1 >= bit(DF_mant_len+1))
-             # Bei Überlauf während der Rundung nochmals rechts schieben
-             # (Runden ist hier überflüssig):
+             # Bei Ãœberlauf wÃ¤hrend der Rundung nochmals rechts schieben
+             # (Runden ist hier Ã¼berflÃ¼ssig):
              { mant1 = mant1>>1; exp1 = exp1+1; } # Mantisse rechts schieben
          }
       }# Runden fertig
@@ -779,10 +779,10 @@
         }
       # mant1 = Ergebnis-Mantisse >0, sign1 = Ergebnis-Vorzeichen,
       # exp1 = Ergebnis-Exponent.
-      # Außerdem: Bei expdiff=0,1 sind die zwei letzten Bits von mant1 Null,
+      # AuÃŸerdem: Bei expdiff=0,1 sind die zwei letzten Bits von mant1 Null,
       # bei expdiff>=2 ist mant1 >= 2^(DF_mant_len+2).
       # Stets ist mant1 < 2^(DF_mant_len+5). (Daher werden die 2 Rundungsbits
-      # nachher um höchstens eine Position nach links geschoben werden.)
+      # nachher um hÃ¶chstens eine Position nach links geschoben werden.)
       # [Knuth, S.201, leicht modifiziert:
       #   N1. m>=1 -> goto N4.
       #   N2. [Hier m<1] m>=1/2 -> goto N5.
@@ -826,8 +826,8 @@
            if (mantlo1==0)
              { manthi1 = manthi1+1;
                if (manthi1 >= bit(DF_mant_len-32+1))
-                 # Bei Überlauf während der Rundung nochmals rechts schieben
-                 # (Runden ist hier überflüssig):
+                 # Bei Ãœberlauf wÃ¤hrend der Rundung nochmals rechts schieben
+                 # (Runden ist hier Ã¼berflÃ¼ssig):
                  { manthi1 = manthi1>>1; exp1 = exp1+1; } # Mantisse rechts schieben
          }   }
       }# Runden fertig
@@ -848,9 +848,9 @@
     var object x2;
     { double_to_DF(DF_to_double(x1) - DF_to_double(x2), return ,
                    TRUE, TRUE, # Overflow und subnormale Zahl abfangen
-                   FALSE, # kein Underflow mit Ergebnis +/- 0.0 möglich
+                   FALSE, # kein Underflow mit Ergebnis +/- 0.0 mÃ¶glich
                           # (nach Definition der subnormalen Zahlen)
-                   FALSE, FALSE # keine Singularität, kein NaN als Ergebnis möglich
+                   FALSE, FALSE # keine SingularitÃ¤t, kein NaN als Ergebnis mÃ¶glich
                   );
     }
 #else
@@ -909,7 +909,7 @@
                    TRUE, TRUE, # Overflow und subnormale Zahl abfangen
                    !(DF_zerop(x1) || DF_zerop(x2)), # ein Ergebnis +/- 0.0
                                # ist genau dann in Wirklichkeit ein Underflow
-                   FALSE, FALSE # keine Singularität, kein NaN als Ergebnis möglich
+                   FALSE, FALSE # keine SingularitÃ¤t, kein NaN als Ergebnis mÃ¶glich
                   );
     }
 #else
@@ -1082,11 +1082,11 @@
 #   nach Rundung mant1/mant2 >=1/2, <=2*mant1<2.
 #   Bei mant1/mant2 >=1 brauche 52 Nachkommabits,
 #   bei mant1/mant2 <1 brauche 53 Nachkommabits.
-#   Fürs Runden: brauche ein Rundungsbit (Rest gibt an, ob exakt).
+#   FÃ¼rs Runden: brauche ein Rundungsbit (Rest gibt an, ob exakt).
 #   Brauche daher insgesamt 54 Nachkommabits von mant1/mant2.
 #   Dividiere daher (als Unsigned Integers) 2^54*(2^53*mant1) durch (2^53*mant2).
 #   Falls der Quotient >=2^54 ist, runde die letzten zwei Bits weg und
-#     erhöhe den Exponenten um 1.
+#     erhÃ¶he den Exponenten um 1.
 #   Falls der Quotient <2^54 ist, runde das letzte Bit weg. Bei rounding
 #     overflow schiebe um ein weiteres Bit nach rechts, incr. Exponenten.
 #if defined(FAST_DOUBLE) && !defined(I80386)
@@ -1098,7 +1098,7 @@
                    !DF_zerop(x1), # ein Ergebnis +/- 0.0
                                # ist genau dann in Wirklichkeit ein Underflow
                    DF_zerop(x2), # Division durch Null abfangen
-                   FALSE # kein NaN als Ergebnis möglich
+                   FALSE # kein NaN als Ergebnis mÃ¶glich
                   );
     }
 #else
@@ -1125,9 +1125,9 @@
       #endif
       exp1 = exp1 - exp2; # Differenz der Exponenten
       sign1 = sign1 ^ sign2; # Ergebnis-Vorzeichen
-      # Dividiere 2^54*mant1 durch mant2 oder (äquivalent)
-      # 2^i*2^54*mant1 durch 2^i*mant2 für irgendein i mit 0 <= i <= 64-53 :
-      # wähle i = 64-(DF_mant_len+1), also i+(DF_mant_len+2) = 65.
+      # Dividiere 2^54*mant1 durch mant2 oder (Ã¤quivalent)
+      # 2^i*2^54*mant1 durch 2^i*mant2 fÃ¼r irgendein i mit 0 <= i <= 64-53 :
+      # wÃ¤hle i = 64-(DF_mant_len+1), also i+(DF_mant_len+2) = 65.
       #ifdef intQsize
       mant1 = mant1 << 1;
       mant2 = mant2 << (64-(DF_mant_len+1));
@@ -1250,7 +1250,7 @@
           }   }   }
         #endif
        }
-       RESTORE_NUM_STACK # num_stack zurück
+       RESTORE_NUM_STACK # num_stack zurÃ¼ck
        #ifdef intQsize
        encode_DF(sign1,exp1,manthi, return);
        #else
@@ -1270,7 +1270,7 @@
 # Ergebnis-Mantisse:
 #   Bilde aus [1,m51,...,m0,(55 Nullbits)] bei geradem e,
 #         aus [0,1,m51,...,m0,(54 Nullbits)] bei ungeradem e
-#   die Ganzzahl-Wurzel, eine 54-Bit-Zahl mit einer führenden 1.
+#   die Ganzzahl-Wurzel, eine 54-Bit-Zahl mit einer fÃ¼hrenden 1.
 #   Runde das letzte Bit weg:
 #     Bit 0 = 0 -> abrunden,
 #     Bit 0 = 1 und Wurzel exakt -> round-to-even,
@@ -1285,7 +1285,7 @@
       var sintWL exp;
       var uint64 mantx;
       DF_decode(x, { return x; }, _EMA_,exp=,mantx=);
-      # Um die 128-Bit-Ganzzahl-Wurzel ausnutzen zu können, fügen wir beim
+      # Um die 128-Bit-Ganzzahl-Wurzel ausnutzen zu kÃ¶nnen, fÃ¼gen wir beim
       # Radikanden 74 bzw. 75 statt 54 bzw. 55 Nullbits an.
       if (exp & bit(0))
         # e ungerade
@@ -1321,7 +1321,7 @@
             if (mantx >= bit(DF_mant_len+1)) # rounding overflow?
               { mantx = mantx>>1; exp = exp+1; }
           }
-        RESTORE_NUM_STACK # num_stack zurück
+        RESTORE_NUM_STACK # num_stack zurÃ¼ck
       }}
       encode_DF(0,exp,mantx, return);
     }
@@ -1333,7 +1333,7 @@
       var uint32 manthi;
       var uint32 mantlo;
       DF_decode2(x, { return x; }, _EMA_,exp=,manthi=,mantlo=);
-      # Um die 128-Bit-Ganzzahl-Wurzel ausnutzen zu können, fügen wir beim
+      # Um die 128-Bit-Ganzzahl-Wurzel ausnutzen zu kÃ¶nnen, fÃ¼gen wir beim
       # Radikanden 74 bzw. 75 statt 54 bzw. 55 Nullbits an.
       if (exp & bit(0))
         # e ungerade
@@ -1388,7 +1388,7 @@
                 if (manthi >= bit(DF_mant_len-32+1)) # rounding overflow?
                   { manthi = manthi>>1; exp = exp+1; }
           }   }
-        RESTORE_NUM_STACK # num_stack zurück
+        RESTORE_NUM_STACK # num_stack zurÃ¼ck
       }}
       encode2_DF(0,exp,manthi,mantlo, return);
     }
@@ -1441,7 +1441,7 @@
 # Merke Vorzeichen von x.
 # x:=(abs x)
 # Exponent:=(integer-length x)
-#   Greife die 54 höchstwertigen Bits heraus (angeführt von einer 1).
+#   Greife die 54 hÃ¶chstwertigen Bits heraus (angefÃ¼hrt von einer 1).
 #   Runde das letzte Bit weg:
 #     Bit 0 = 0 -> abrunden,
 #     Bit 0 = 1 und Rest =0 -> round-to-even,
@@ -1460,7 +1460,7 @@
           var uintC len;
           I_to_NDS_nocopy(x, MSDptr=,len=,);
           # MSDptr/len/LSDptr ist die NDS zu x, len>0.
-          # Führende Digits holen: Brauche DF_mant_len+1 Bits, dazu intDsize
+          # FÃ¼hrende Digits holen: Brauche DF_mant_len+1 Bits, dazu intDsize
           # Bits (die NDS kann mit bis zu intDsize Nullbits anfangen).
           # Dann werden diese Bits um (exp mod intDsize) nach rechts geschoben.
         { var uintD msd = *MSDptr++; # erstes Digit
@@ -1480,16 +1480,16 @@
           #undef NEXT_DIGIT
           --len; ok:
           # Die NDS besteht aus msd, msdd, msddf und len weiteren Digits.
-          # Das höchste in 2^64*msd+2^32*msdd+msddf gesetzte Bit ist Bit Nummer
+          # Das hÃ¶chste in 2^64*msd+2^32*msdd+msddf gesetzte Bit ist Bit Nummer
           # 63 + (exp mod intDsize).
          {var uintL shiftcount = exp % intDsize;
           #ifdef intQsize
-          var uint64 mant = # führende 64 Bits
+          var uint64 mant = # fÃ¼hrende 64 Bits
             (shiftcount==0
               ? (((uint64)msdd << 32) | (uint64)msddf)
               : (((uint64)msd << (64-shiftcount)) | ((uint64)msdd << (32-shiftcount)) | ((uint64)msddf >> shiftcount))
             );
-          # Das höchste in mant gesetzte Bit ist Bit Nummer 63.
+          # Das hÃ¶chste in mant gesetzte Bit ist Bit Nummer 63.
           if ( ((mant & bit(62-DF_mant_len)) ==0) # Bit 10 =0 -> abrunden
                || ( ((mant & (bit(62-DF_mant_len)-1)) ==0) # Bit 10 =1 und Bits 9..0 =0
                     && ((msddf & (bit(shiftcount)-1)) ==0) # und weitere Bits aus msddf =0
@@ -1508,15 +1508,15 @@
             }
           encode_DF(sign,(sintL)exp,mant, return);
           #else
-          var uint32 manthi; # führende 32 Bits
-          var uint32 mantlo; # nächste 32 Bits
+          var uint32 manthi; # fÃ¼hrende 32 Bits
+          var uint32 mantlo; # nÃ¤chste 32 Bits
           if (shiftcount==0)
             { manthi = msdd; mantlo = msddf; }
             else
             { manthi = ((uint32)msd << (32-shiftcount)) | (msdd >> shiftcount);
               mantlo = (msdd << (32-shiftcount)) | (msddf >> shiftcount);
             }
-          # Das höchste in mant gesetzte Bit ist Bit Nummer 63.
+          # Das hÃ¶chste in mant gesetzte Bit ist Bit Nummer 63.
           if ( ((mantlo & bit(62-DF_mant_len)) ==0) # Bit 10 =0 -> abrunden
                || ( ((mantlo & (bit(62-DF_mant_len)-1)) ==0) # Bit 10 =1 und Bits 9..0 =0
                     && ((msddf & (bit(shiftcount)-1)) ==0) # und weitere Bits aus msddf =0
@@ -1549,7 +1549,7 @@
 # Methode:
 # x ganz -> klar.
 # x = +/- a/b mit Integers a,b>0:
-#   Seien n,m so gewählt, dass
+#   Seien n,m so gewÃ¤hlt, dass
 #     2^(n-1) <= a < 2^n, 2^(m-1) <= b < 2^m.
 #   Dann ist 2^(n-m-1) < a/b < 2^(n-m+1).
 #   Berechne n=(integer-length a) und m=(integer-length b) und
@@ -1591,7 +1591,7 @@
            { zaehler = I_I_ash_I(popSTACK(),fixnum((uint32)((DF_mant_len+2) - lendiff))); # (ash a -n+m+54)
              nenner = popSTACK(); # b
            }
-         # Division zaehler/nenner durchführen:
+         # Division zaehler/nenner durchfÃ¼hren:
          I_I_divide_I_I(zaehler,nenner);
          # Stackaufbau: q, r.
          # 2^53 <= q < 2^55, also ist q Bignum mit ceiling(55/intDsize) Digits.

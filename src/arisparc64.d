@@ -1,14 +1,14 @@
 # Externe Routinen zu ARILEV1.D
 # Prozessor: SPARC 64-bit
 # Compiler: GNU-C oder ...
-# Parameter-‹bergabe: in Registern %o0-%o5.
+# Parameter-√úbergabe: in Registern %o0-%o5.
 #   Argumente vom Typ uint8, uint16, uint32 sind bereits vom Aufrufer zu
 #   uint64 umgewandelt worden (zero-extend, "srl reg,0,reg").
 #   Argumente vom Typ sint8, sint16, sint32 sind bereits vom Aufrufer zu
 #   sint64 umgewandelt worden (sign-extend, "sra reg,0,reg").
-#   Ergebnisse vom Typ uint8, uint16, uint32 m¸ssen vor R¸ckgabe zu uint64
+#   Ergebnisse vom Typ uint8, uint16, uint32 m√ºssen vor R√ºckgabe zu uint64
 #   umgewandelt werden (zero-extend, "srl reg,0,reg").
-#   Ergebnisse vom Typ sint8, sint16, sint32 m¸ssen vor R¸ckgabe zu sint64
+#   Ergebnisse vom Typ sint8, sint16, sint32 m√ºssen vor R√ºckgabe zu sint64
 #   umgewandelt werden (sign-extend, "sra reg,0,reg").
 # Einstellungen: intCsize=32, intDsize=32.
 
@@ -32,11 +32,11 @@
   #define C(entrypoint) entrypoint
 #endif
 
-  # Indikatoren f¸r Anweisungen (Instruktionen) in Delay-Slots
-  # (diese werden VOR der vorigen Instruktion ausgef¸hrt):
-  #define _             # Instruktion, die stets ausgef¸hrt wird
-  #define __            # Instruktion, die nur im Sprung-Fall ausgef¸hrt wird
-  # Abk¸rzungen f¸r Anweisungen:
+  # Indikatoren f√ºr Anweisungen (Instruktionen) in Delay-Slots
+  # (diese werden VOR der vorigen Instruktion ausgef√ºhrt):
+  #define _             # Instruktion, die stets ausgef√ºhrt wird
+  #define __            # Instruktion, die nur im Sprung-Fall ausgef√ºhrt wird
+  # Abk√ºrzungen f√ºr Anweisungen:
   #define ret   return %i7+8  # return from subroutine
   #define retl  jmp %o7+8     # return from leaf subroutine (no save/restore)
 
@@ -59,7 +59,7 @@
         .global C(divu_loop_up),C(divucopy_loop_up)
 
 #define LOOP_TYPE  1    # 1: Standard-Schleifen
-                        # 2: Schleifen ohne Pointer, nur mit Z‰hler
+                        # 2: Schleifen ohne Pointer, nur mit Z√§hler
 #define STANDARD_LOOPS  (LOOP_TYPE==1)
 #define COUNTER_LOOPS  (LOOP_TYPE==2)
 
@@ -134,8 +134,8 @@ C(copy_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
         sllx %o2,2,%o2          # %o2 = -4*count
         sub %o0,%o2,%o0         # %o0 = &sourceptr[count]
         sub %o1,%o2,%o1         # %o1 = &destptr[count-1]
-1:        ld [%o0+%o2],%o3      # n‰chstes Digit holen
-          addcc %o2,4,%o2       # Z‰hler "erniedrigen", Pointer erhˆhen
+1:        ld [%o0+%o2],%o3      # n√§chstes Digit holen
+          addcc %o2,4,%o2       # Z√§hler "erniedrigen", Pointer erh√∂hen
           bne,pt %xcc,1b
          _ st %o3,[%o1+%o2]     # Digit ablegen
 2:      retl
@@ -164,8 +164,8 @@ C(copy_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
         sllx %o2,2,%o2          # %o2 = 4*count
         sub %o0,%o2,%o0         # %o0 = &sourceptr[-count-1]
         sub %o1,%o2,%o1         # %o1 = &destptr[-count]
-1:        ld [%o0+%o2],%o3      # n‰chstes Digit holen
-          subcc %o2,4,%o2       # Z‰hler erniedrigen, Pointer erniedrigen
+1:        ld [%o0+%o2],%o3      # n√§chstes Digit holen
+          subcc %o2,4,%o2       # Z√§hler erniedrigen, Pointer erniedrigen
           bne,pt %xcc,1b
          _ st %o3,[%o1+%o2]     # Digit ablegen
 2:      retl
@@ -192,7 +192,7 @@ C(fill_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
         sub %g0,%o1,%o1         # %o1 = -count
         sllx %o1,2,%o1          # %o1 = -4*count
         sub %o0,%o1,%o0         # %o0 = &destptr[count-1]
-1:        addcc %o1,4,%o1       # Z‰hler "erniedrigen", Pointer erhˆhen
+1:        addcc %o1,4,%o1       # Z√§hler "erniedrigen", Pointer erh√∂hen
           bne,pt %xcc,1b
          _ st %o2,[%o0+%o1]     # Digit ablegen
 2:      retl
@@ -217,7 +217,7 @@ C(fill_loop_down:) # Input in %o0,%o1,%o2, Output in %o0
         brz,pn %o1,2f
        _ sllx %o1,2,%o1         # %o1 = 4*count
         sub %o0,%o1,%o0         # %o0 = &destptr[-count]
-1:        subcc %o1,4,%o1       # Z‰hler erniedrigen, Pointer erniedrigen
+1:        subcc %o1,4,%o1       # Z√§hler erniedrigen, Pointer erniedrigen
           bne,pt %xcc,1b
          _ st %o2,[%o0+%o1]     # Digit ablegen
 2:      retl
@@ -244,7 +244,7 @@ C(clear_loop_up:) # Input in %o0,%o1, Output in %o0
         sub %g0,%o1,%o1         # %o1 = -count
         sllx %o1,2,%o1          # %o1 = -4*count
         sub %o0,%o1,%o0         # %o0 = &destptr[count-1]
-1:        addcc %o1,4,%o1       # Z‰hler "erniedrigen", Pointer erhˆhen
+1:        addcc %o1,4,%o1       # Z√§hler "erniedrigen", Pointer erh√∂hen
           bne,pt %xcc,1b
          _ st %g0,[%o0+%o1]     # Digit 0 ablegen
 2:      retl
@@ -269,7 +269,7 @@ C(clear_loop_down:) # Input in %o0,%o1, Output in %o0
         brz,pn %o1,2f
        _ sllx %o1,2,%o1         # %o1 = 4*count
         sub %o0,%o1,%o0         # %o0 = &destptr[-count]
-1:        subcc %o1,4,%o1       # Z‰hler erniedrigen, Pointer erniedrigen
+1:        subcc %o1,4,%o1       # Z√§hler erniedrigen, Pointer erniedrigen
           bne,pt %xcc,1b
          _ st %g0,[%o0+%o1]     # Digit 0 ablegen
 2:      retl
@@ -301,10 +301,10 @@ C(or_loop_up:) # Input in %o0,%o1,%o2
         sllx %o2,2,%o2          # %o2 = -4*count
         sub %o0,%o2,%o0         # %o0 = &xptr[count-1]
         sub %o1,%o2,%o1         # %o1 = &yptr[count]
-1:        ld [%o1+%o2],%o3      # n‰chstes Digit holen
-          addcc %o2,4,%o2       # Z‰hler "erniedrigen", Pointer erhˆhen
+1:        ld [%o1+%o2],%o3      # n√§chstes Digit holen
+          addcc %o2,4,%o2       # Z√§hler "erniedrigen", Pointer erh√∂hen
           ld [%o0+%o2],%o4      # noch ein Digit holen
-          or %o4,%o3,%o3        # beide verkn¸pfen
+          or %o4,%o3,%o3        # beide verkn√ºpfen
           bne,pt %xcc,1b
          _ st %o3,[%o1+%o2]     # Digit ablegen
 2:      retl
@@ -336,10 +336,10 @@ C(xor_loop_up:) # Input in %o0,%o1,%o2
         sllx %o2,2,%o2          # %o2 = -4*count
         sub %o0,%o2,%o0         # %o0 = &xptr[count-1]
         sub %o1,%o2,%o1         # %o1 = &yptr[count]
-1:        ld [%o1+%o2],%o3      # n‰chstes Digit holen
-          addcc %o2,4,%o2       # Z‰hler "erniedrigen", Pointer erhˆhen
+1:        ld [%o1+%o2],%o3      # n√§chstes Digit holen
+          addcc %o2,4,%o2       # Z√§hler "erniedrigen", Pointer erh√∂hen
           ld [%o0+%o2],%o4      # noch ein Digit holen
-          xor %o4,%o3,%o3       # beide verkn¸pfen
+          xor %o4,%o3,%o3       # beide verkn√ºpfen
           bne,pt %xcc,1b
          _ st %o3,[%o1+%o2]     # Digit ablegen
 2:      retl
@@ -371,10 +371,10 @@ C(and_loop_up:) # Input in %o0,%o1,%o2
         sllx %o2,2,%o2          # %o2 = -4*count
         sub %o0,%o2,%o0         # %o0 = &xptr[count-1]
         sub %o1,%o2,%o1         # %o1 = &yptr[count]
-1:        ld [%o1+%o2],%o3      # n‰chstes Digit holen
-          addcc %o2,4,%o2       # Z‰hler "erniedrigen", Pointer erhˆhen
+1:        ld [%o1+%o2],%o3      # n√§chstes Digit holen
+          addcc %o2,4,%o2       # Z√§hler "erniedrigen", Pointer erh√∂hen
           ld [%o0+%o2],%o4      # noch ein Digit holen
-          and %o4,%o3,%o3       # beide verkn¸pfen
+          and %o4,%o3,%o3       # beide verkn√ºpfen
           bne,pt %xcc,1b
          _ st %o3,[%o1+%o2]     # Digit ablegen
 2:      retl
@@ -406,10 +406,10 @@ C(eqv_loop_up:) # Input in %o0,%o1,%o2
         sllx %o2,2,%o2          # %o2 = -4*count
         sub %o0,%o2,%o0         # %o0 = &xptr[count-1]
         sub %o1,%o2,%o1         # %o1 = &yptr[count]
-1:        ld [%o1+%o2],%o3      # n‰chstes Digit holen
-          addcc %o2,4,%o2       # Z‰hler "erniedrigen", Pointer erhˆhen
+1:        ld [%o1+%o2],%o3      # n√§chstes Digit holen
+          addcc %o2,4,%o2       # Z√§hler "erniedrigen", Pointer erh√∂hen
           ld [%o0+%o2],%o4      # noch ein Digit holen
-          xnor %o4,%o3,%o3      # beide verkn¸pfen
+          xnor %o4,%o3,%o3      # beide verkn√ºpfen
           bne,pt %xcc,1b
          _ st %o3,[%o1+%o2]     # Digit ablegen
 2:      retl
@@ -442,10 +442,10 @@ C(nand_loop_up:) # Input in %o0,%o1,%o2
         sllx %o2,2,%o2          # %o2 = -4*count
         sub %o0,%o2,%o0         # %o0 = &xptr[count-1]
         sub %o1,%o2,%o1         # %o1 = &yptr[count]
-1:        ld [%o1+%o2],%o3      # n‰chstes Digit holen
-          addcc %o2,4,%o2       # Z‰hler "erniedrigen", Pointer erhˆhen
+1:        ld [%o1+%o2],%o3      # n√§chstes Digit holen
+          addcc %o2,4,%o2       # Z√§hler "erniedrigen", Pointer erh√∂hen
           ld [%o0+%o2],%o4      # noch ein Digit holen
-          and %o4,%o3,%o3       # beide verkn¸pfen
+          and %o4,%o3,%o3       # beide verkn√ºpfen
           xor %o3,-1,%o3
           bne,pt %xcc,1b
          _ st %o3,[%o1+%o2]     # Digit ablegen
@@ -479,10 +479,10 @@ C(nor_loop_up:) # Input in %o0,%o1,%o2
         sllx %o2,2,%o2          # %o2 = -4*count
         sub %o0,%o2,%o0         # %o0 = &xptr[count-1]
         sub %o1,%o2,%o1         # %o1 = &yptr[count]
-1:        ld [%o1+%o2],%o3      # n‰chstes Digit holen
-          addcc %o2,4,%o2       # Z‰hler "erniedrigen", Pointer erhˆhen
+1:        ld [%o1+%o2],%o3      # n√§chstes Digit holen
+          addcc %o2,4,%o2       # Z√§hler "erniedrigen", Pointer erh√∂hen
           ld [%o0+%o2],%o4      # noch ein Digit holen
-          or %o4,%o3,%o3        # beide verkn¸pfen
+          or %o4,%o3,%o3        # beide verkn√ºpfen
           xor %o3,-1,%o3
           bne,pt %xcc,1b
          _ st %o3,[%o1+%o2]     # Digit ablegen
@@ -515,10 +515,10 @@ C(andc2_loop_up:) # Input in %o0,%o1,%o2
         sllx %o2,2,%o2          # %o2 = -4*count
         sub %o0,%o2,%o0         # %o0 = &xptr[count-1]
         sub %o1,%o2,%o1         # %o1 = &yptr[count]
-1:        ld [%o1+%o2],%o3      # n‰chstes Digit holen
-          addcc %o2,4,%o2       # Z‰hler "erniedrigen", Pointer erhˆhen
+1:        ld [%o1+%o2],%o3      # n√§chstes Digit holen
+          addcc %o2,4,%o2       # Z√§hler "erniedrigen", Pointer erh√∂hen
           ld [%o0+%o2],%o4      # noch ein Digit holen
-          andn %o4,%o3,%o3      # beide verkn¸pfen
+          andn %o4,%o3,%o3      # beide verkn√ºpfen
           bne,pt %xcc,1b
          _ st %o3,[%o1+%o2]     # Digit ablegen
 2:      retl
@@ -550,10 +550,10 @@ C(orc2_loop_up:) # Input in %o0,%o1,%o2
         sllx %o2,2,%o2          # %o2 = -4*count
         sub %o0,%o2,%o0         # %o0 = &xptr[count-1]
         sub %o1,%o2,%o1         # %o1 = &yptr[count]
-1:        ld [%o1+%o2],%o3      # n‰chstes Digit holen
-          addcc %o2,4,%o2       # Z‰hler "erniedrigen", Pointer erhˆhen
+1:        ld [%o1+%o2],%o3      # n√§chstes Digit holen
+          addcc %o2,4,%o2       # Z√§hler "erniedrigen", Pointer erh√∂hen
           ld [%o0+%o2],%o4      # noch ein Digit holen
-          orn %o4,%o3,%o3       # beide verkn¸pfen
+          orn %o4,%o3,%o3       # beide verkn√ºpfen
           bne,pt %xcc,1b
          _ st %o3,[%o1+%o2]     # Digit ablegen
 2:      retl
@@ -582,8 +582,8 @@ C(not_loop_up:) # Input in %o0,%o1
         sub %g0,%o1,%o1         # %o1 = -count
         sllx %o1,2,%o1          # %o1 = -4*count
         sub %o0,%o1,%o0         # %o0 = &destptr[count-1]
-1:        addcc %o1,4,%o1       # Z‰hler "erniedrigen", Pointer erhˆhen
-          ld [%o0+%o1],%o2      # n‰chstes Digit holen
+1:        addcc %o1,4,%o1       # Z√§hler "erniedrigen", Pointer erh√∂hen
+          ld [%o0+%o1],%o2      # n√§chstes Digit holen
           xor %o2,-1,%o2
           bne,pt %xcc,1b
          _ st %o2,[%o0+%o1]     # Digit ablegen
@@ -617,13 +617,13 @@ C(and_test_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
         sllx %o2,2,%o2          # %o2 = -4*count
         sub %o0,%o2,%o0         # %o0 = &xptr[count]
         sub %o1,%o2,%o1         # %o1 = &yptr[count]
-          ld [%o0+%o2],%o3      # n‰chstes Digit holen
+          ld [%o0+%o2],%o3      # n√§chstes Digit holen
 1:        ld [%o1+%o2],%o4      # noch ein Digit holen
-          andcc %o3,%o4,%g0     # beide verkn¸pfen
+          andcc %o3,%o4,%g0     # beide verkn√ºpfen
           bne,pn %icc,3f
-         _ addcc %o2,4,%o2      # Z‰hler "erniedrigen", Pointer erhˆhen
+         _ addcc %o2,4,%o2      # Z√§hler "erniedrigen", Pointer erh√∂hen
           bne,a,pt %xcc,1b
-         __ ld [%o0+%o2],%o3    # n‰chstes Digit holen
+         __ ld [%o0+%o2],%o3    # n√§chstes Digit holen
 2:      retl
        _ mov 0,%o0
 3:      retl
@@ -653,11 +653,11 @@ C(test_loop_up:) # Input in %o0,%o1, Output in %o0
        _ sub %g0,%o1,%o1        # %o1 = -count
         sllx %o1,2,%o1          # %o1 = -4*count
         sub %o0,%o1,%o0         # %o0 = &ptr[count]
-          lduw [%o0+%o1],%o2    # n‰chstes Digit holen
+          lduw [%o0+%o1],%o2    # n√§chstes Digit holen
 1:        brnz,pn %o2,3f        # testen
-         _ addcc %o1,4,%o1      # Z‰hler "erniedrigen", Pointer erhˆhen
+         _ addcc %o1,4,%o1      # Z√§hler "erniedrigen", Pointer erh√∂hen
           bne,a,pt %xcc,1b
-         __ lduw [%o0+%o1],%o2  # n‰chstes Digit holen
+         __ lduw [%o0+%o1],%o2  # n√§chstes Digit holen
 2:      retl
        _ mov 0,%o0
 3:      retl
@@ -693,13 +693,13 @@ C(compare_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
         sllx %o2,2,%o2          # %o2 = -4*count
         sub %o0,%o2,%o0         # %o0 = &xptr[count]
         sub %o1,%o2,%o1         # %o1 = &yptr[count]
-          ld [%o0+%o2],%o3      # n‰chstes Digit holen
+          ld [%o0+%o2],%o3      # n√§chstes Digit holen
 1:        ld [%o1+%o2],%o4      # noch ein Digit holen
           subcc %o3,%o4,%g0     # vergleichen
           bne,pn %icc,3f
-         _ addcc %o2,4,%o2      # Z‰hler "erniedrigen", Pointer erhˆhen
+         _ addcc %o2,4,%o2      # Z√§hler "erniedrigen", Pointer erh√∂hen
           bne,a,pt %xcc,1b
-         __ ld [%o0+%o2],%o3    # n‰chstes Digit holen
+         __ ld [%o0+%o2],%o3    # n√§chstes Digit holen
 2:      retl
        _ mov 0,%o0
 3:      subcc %o3,%o4,%g0       # nochmals vergleichen
@@ -710,7 +710,7 @@ C(compare_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 #endif
 
 # extern uintD add_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
-C(add_loop_down:) # Input in %o0,%o1,%o2,%o3, ver‰ndert %g1, Output in %o0
+C(add_loop_down:) # Input in %o0,%o1,%o2,%o3, ver√§ndert %g1, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o3,0,%o3           # zero-extend %o3 = count
         brz,pn %o3,2f
@@ -818,7 +818,7 @@ C(inc_loop_down:) # Input in %o0,%o1, Output in %o0
 1:        addcc %o2,1,%o2       # incrementieren
           bne,pn %icc,3f
          _ st %o2,[%o0+%o1]     # ablegen
-          subcc %o1,4,%o1       # Z‰hler erniedrigen, Pointer erniedrigen
+          subcc %o1,4,%o1       # Z√§hler erniedrigen, Pointer erniedrigen
           bne,a,pt %xcc,1b
          __ ld [%o0+%o1],%o2
 2:      retl
@@ -828,7 +828,7 @@ C(inc_loop_down:) # Input in %o0,%o1, Output in %o0
 #endif
 
 # extern uintD sub_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count);
-C(sub_loop_down:) # Input in %o0,%o1,%o2,%o3, ver‰ndert %g1, Output in %o0
+C(sub_loop_down:) # Input in %o0,%o1,%o2,%o3, ver√§ndert %g1, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o3,0,%o3           # zero-extend %o3 = count
         brz,pn %o3,2f
@@ -869,7 +869,7 @@ C(sub_loop_down:) # Input in %o0,%o1,%o2,%o3, ver‰ndert %g1, Output in %o0
 #endif
 
 # extern uintD subx_loop_down (uintD* sourceptr1, uintD* sourceptr2, uintD* destptr, uintC count, uintD carry);
-C(subx_loop_down:) # Input in %o0,%o1,%o2,%o3,%o4, ver‰ndert %g1, Output in %o0
+C(subx_loop_down:) # Input in %o0,%o1,%o2,%o3,%o4, ver√§ndert %g1, Output in %o0
 #if STANDARD_LOOPS
 #       srl %o3,0,%o3           # zero-extend %o3 = count
         brz,pn %o3,2f
@@ -977,7 +977,7 @@ C(dec_loop_down:) # Input in %o0,%o1, Output in %o0
 1:        subcc %o2,1,%o2       # decrementieren
           bcc,pn %icc,3f
          _ st %o2,[%o0+%o1]     # ablegen
-          subcc %o1,4,%o1       # Z‰hler erniedrigen, Pointer erniedrigen
+          subcc %o1,4,%o1       # Z√§hler erniedrigen, Pointer erniedrigen
           bne,a,pt %xcc,1b
          __ ld [%o0+%o1],%o2
 2:      retl
@@ -1026,7 +1026,7 @@ C(neg_loop_down:) # Input in %o0,%o1, Output in %o0
           ld [%o0+%o1],%o2      # digit holen
 1:        subcc %g0,%o2,%o2     # negieren, testen
           bne,pn %icc,3f
-         _ subcc %o1,4,%o1      # Z‰hler erniedrigen, Pointer erniedrigen
+         _ subcc %o1,4,%o1      # Z√§hler erniedrigen, Pointer erniedrigen
           bne,a,pt %xcc,1b
          __ ld [%o0+%o1],%o2
 2:      retl
@@ -1132,7 +1132,7 @@ C(shift1right_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 #endif
 
 # extern uintD shiftright_loop_up (uintD* ptr, uintC count, uintC i);
-C(shiftright_loop_up:) # Input in %o0,%o1,%o2, ver‰ndert %g1, Output in %o0
+C(shiftright_loop_up:) # Input in %o0,%o1,%o2, ver√§ndert %g1, Output in %o0
 #ifdef SLOWER
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         brz,pn %o1,2f
@@ -1168,7 +1168,7 @@ C(shiftright_loop_up:) # Input in %o0,%o1,%o2, ver‰ndert %g1, Output in %o0
 #endif
 
 # extern uintD shiftrightsigned_loop_up (uintD* ptr, uintC count, uintC i);
-C(shiftrightsigned_loop_up:) # Input in %o0,%o1,%o2, ver‰ndert %g1, Output in %o0
+C(shiftrightsigned_loop_up:) # Input in %o0,%o1,%o2, ver√§ndert %g1, Output in %o0
 #ifdef SLOWER
 #       srl %o1,0,%o1           # zero-extend %o1 = count
         mov 32,%g1
@@ -1215,7 +1215,7 @@ C(shiftrightsigned_loop_up:) # Input in %o0,%o1,%o2, ver‰ndert %g1, Output in %o
 #endif
 
 # extern uintD shiftrightcopy_loop_up (uintD* sourceptr, uintD* destptr, uintC count, uintC i, uintD carry);
-C(shiftrightcopy_loop_up:) # Input in %o0,%o1,%o2,%o3,%o4, ver‰ndert %g1,%g2, Output in %o0
+C(shiftrightcopy_loop_up:) # Input in %o0,%o1,%o2,%o3,%o4, ver√§ndert %g1,%g2, Output in %o0
 #ifdef SLOWER
 #       srl %o2,0,%o2           # zero-extend %o2 = count
         sub %g0,%o3,%g1         # 64-i (mod 64)
@@ -1257,7 +1257,7 @@ C(mulusmall_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
 #       srl %o2,0,%o2           # zero-extend %o2 = len
         brz,pn %o2,2f
        _ sub %o1,4,%o1
-1:        # n‰chstes Digit [%o1] mit der 6-Bit-Zahl %o0 multiplizieren
+1:        # n√§chstes Digit [%o1] mit der 6-Bit-Zahl %o0 multiplizieren
           # und kleinen Carry %o3 dazu:
           mov %o0,%y
           ld [%o1],%o4          # Wartetakt!
@@ -1287,11 +1287,11 @@ C(mulusmall_loop_down:) # Input in %o0,%o1,%o2,%o3, Output in %o0
        _ srl %o3,0,%o0
 
 # extern void mulu_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-C(mulu_loop_down:) # Input in %o0,%o1,%o2,%o3, ver‰ndert %g1
+C(mulu_loop_down:) # Input in %o0,%o1,%o2,%o3, ver√§ndert %g1
 #       srl %o3,0,%o3           # zero-extend %o3 = len
         mov 0,%o4               # Carry
 1:        sub %o1,4,%o1
-          ld [%o1],%g1          # n‰chstes Digit
+          ld [%o1],%g1          # n√§chstes Digit
           sub %o2,4,%o2
           # mit digit multiplizieren: %o0 * %g1 -> %o5|%g1
           umul %g1,%o0,%g1
@@ -1305,16 +1305,16 @@ C(mulu_loop_down:) # Input in %o0,%o1,%o2,%o3, ver‰ndert %g1
        _ st %o4,[%o2-4]         # letzten Carry ablegen
 
 # extern uintD muluadd_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-C(muluadd_loop_down:) # Input in %o0,%o1,%o2,%o3, ver‰ndert %g1,%g2, Output in %o0
+C(muluadd_loop_down:) # Input in %o0,%o1,%o2,%o3, ver√§ndert %g1,%g2, Output in %o0
 #       srl %o3,0,%o3           # zero-extend %o3 = len
         mov 0,%o4               # Carry
 1:        sub %o1,4,%o1
-          ld [%o1],%o5          # n‰chstes source-Digit
+          ld [%o1],%o5          # n√§chstes source-Digit
           sub %o2,4,%o2
           # mit digit multiplizieren: %o0 * %o5 -> %g2|%g1
           umul %o0,%o5,%g1
           rd %y,%g2
-          ld [%o2],%o5          # n‰chstes dest-digit
+          ld [%o2],%o5          # n√§chstes dest-digit
           addcc %o4,%g1,%g1     # und bisherigen Carry addieren
           addx %g0,%g2,%o4      # High-Digit gibt neuen Carry
           addcc %o5,%g1,%g1     # addieren
@@ -1326,16 +1326,16 @@ C(muluadd_loop_down:) # Input in %o0,%o1,%o2,%o3, ver‰ndert %g1,%g2, Output in %
        _ srl %o4,0,%o0          # letzter Carry
 
 # extern uintD mulusub_loop_down (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-C(mulusub_loop_down:) # Input in %o0,%o1,%o2,%o3, ver‰ndert %g1,%g2, Output in %o0
+C(mulusub_loop_down:) # Input in %o0,%o1,%o2,%o3, ver√§ndert %g1,%g2, Output in %o0
 #       srl %o3,0,%o3           # zero-extend %o3 = len
         mov 0,%o4               # Carry
 1:        sub %o1,4,%o1
-          ld [%o1],%o5          # n‰chstes source-Digit
+          ld [%o1],%o5          # n√§chstes source-Digit
           sub %o2,4,%o2
           # mit digit multiplizieren: %o0 * %o5 -> %g2|%g1
           umul %o0,%o5,%g1
           rd %y,%g2
-          ld [%o2],%o5          # n‰chstes dest-digit
+          ld [%o2],%o5          # n√§chstes dest-digit
           addcc %o4,%g1,%g1     # und bisherigen Carry addieren
           addx %g0,%g2,%o4      # High-Digit gibt neuen Carry
           subcc %o5,%g1,%o5     # davon das Low-Digit subtrahieren
@@ -1347,12 +1347,12 @@ C(mulusub_loop_down:) # Input in %o0,%o1,%o2,%o3, ver‰ndert %g1,%g2, Output in %
        _ srl %o4,0,%o0          # letzter Carry
 
 # extern uintD divu_loop_up (uintD digit, uintD* ptr, uintC len);
-C(divu_loop_up:) # Input in %o0,%o1,%o2, ver‰ndert %g1, Output in %o0
+C(divu_loop_up:) # Input in %o0,%o1,%o2, ver√§ndert %g1, Output in %o0
 #       srl %o2,0,%o2           # zero-extend %o2 = len
         brz,pn %o2,2f
        _ mov 0,%o3              # Rest
 #       srl %o0,0,%o0           # zero-extend %o0 = digit
-1:        lduw [%o1],%o4        # n‰chstes Digit
+1:        lduw [%o1],%o4        # n√§chstes Digit
           sllx %o3,32,%o3       # Rest als High-Digit
           or %o3,%o4,%o3        # zusammen
           udivx %o3,%o0,%o4     # durch digit dividieren
@@ -1366,12 +1366,12 @@ C(divu_loop_up:) # Input in %o0,%o1,%o2, ver‰ndert %g1, Output in %o0
        _ srl %o3,0,%o0          # Rest als Ergebnis
 
 # extern uintD divucopy_loop_up (uintD digit, uintD* sourceptr, uintD* destptr, uintC len);
-C(divucopy_loop_up:) # Input in %o0,%o1,%o2,%o3, ver‰ndert %g1, Output in %o0
+C(divucopy_loop_up:) # Input in %o0,%o1,%o2,%o3, ver√§ndert %g1, Output in %o0
 #       srl %o3,0,%o3           # zero-extend %o3 = len
         brz,pn %o3,2f
        _ mov 0,%o4              # Rest
 #       srl %o0,0,%o0           # zero-extend %o0 = digit
-1:        lduw [%o1],%o5        # n‰chstes Digit
+1:        lduw [%o1],%o5        # n√§chstes Digit
           add %o1,4,%o1
           sllx %o4,32,%o4       # Rest als High-Digit
           or %o4,%o5,%o4        # zusammen

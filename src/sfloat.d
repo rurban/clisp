@@ -1,9 +1,9 @@
-# Grundfunktionen für Short-Floats
+# Grundfunktionen fÃ¼r Short-Floats
 
 # Entpacken eines Short-Float:
 # SF_decode(obj, zero_statement, sign=,exp=,mant=);
 # zerlegt ein Short-Float obj.
-# Ist obj=0.0, wird zero_statement ausgeführt.
+# Ist obj=0.0, wird zero_statement ausgefÃ¼hrt.
 # Sonst: signean sign = Vorzeichen (0 = +, -1 = -),
 #        sintWL exp = Exponent (vorzeichenbehaftet),
 #        uintL mant = Mantisse (>= 2^SF_mant_len, < 2^(SF_mant_len+1))
@@ -34,11 +34,11 @@
 # Einpacken eines Short-Float:
 # encode_SF(sign,exp,mant, ergebnis=);
 # liefert ein Short-Float.
-# > signean sign: Vorzeichen, 0 für +, -1 für negativ.
+# > signean sign: Vorzeichen, 0 fÃ¼r +, -1 fÃ¼r negativ.
 # > sintWL exp: Exponent
 # > uintL mant: Mantisse, sollte >= 2^SF_mant_len und < 2^(SF_mant_len+1) sein.
 # < object ergebnis: ein Short-Float
-# Der Exponent wird auf Überlauf/Unterlauf getestet.
+# Der Exponent wird auf Ãœberlauf/Unterlauf getestet.
   #define encode_SF(sign,exp,mant, erg_zuweisung)  \
     { if ((exp) < (sintWL)(SF_exp_low-SF_exp_mid))  \
         { if (underflow_allowed())                  \
@@ -63,7 +63,7 @@
 
 # Liefert zu einem Short-Float x : (ftruncate x), ein SF.
 # SF_ftruncate_SF(x)
-# x wird zur 0 hin zur nächsten ganzen Zahl gerundet.
+# x wird zur 0 hin zur nÃ¤chsten ganzen Zahl gerundet.
   local object SF_ftruncate_SF (object x);
 # Methode:
 # x = 0.0 oder e<=0 -> Ergebnis 0.0
@@ -80,24 +80,24 @@
             { return x; }
             else
             { return as_object
-                ( as_oint(x) & # Bitmaske: Bits 16-e..0 gelöscht, alle anderen gesetzt
+                ( as_oint(x) & # Bitmaske: Bits 16-e..0 gelÃ¶scht, alle anderen gesetzt
                   ~(wbit(SF_mant_len+SF_mant_shift + 1+SF_exp_mid-uexp) - wbit(SF_mant_shift))
                 );
     }   }   }
 
 # Liefert zu einem Short-Float x : (futruncate x), ein SF.
 # SF_futruncate_SF(x)
-# x wird von der 0 weg zur nächsten ganzen Zahl gerundet.
+# x wird von der 0 weg zur nÃ¤chsten ganzen Zahl gerundet.
   local object SF_futruncate_SF (object x);
 # Methode:
 # x = 0.0 -> Ergebnis 0.0
 # e<=0 -> Ergebnis 1.0 oder -1.0, je nach Vorzeichen von x.
 # 1<=e<=16 -> Greife die letzten (17-e) Bits von x heraus.
 #             Sind sie alle =0 -> Ergebnis x.
-#             Sonst setze sie alle und erhöhe dann die letzte Stelle um 1.
-#             Kein Überlauf der 16 Bit -> fertig.
+#             Sonst setze sie alle und erhÃ¶he dann die letzte Stelle um 1.
+#             Kein Ãœberlauf der 16 Bit -> fertig.
 #             Sonst (Ergebnis eine Zweierpotenz): Mantisse := .1000...000,
-#               e:=e+1. (Test auf Überlauf wegen e<=17 überflüssig)
+#               e:=e+1. (Test auf Ãœberlauf wegen e<=17 Ã¼berflÃ¼ssig)
 # e>=17 -> Ergebnis x.
   local object SF_futruncate_SF(x)
     var object x;
@@ -116,19 +116,19 @@
         { if (uexp > SF_exp_mid+SF_mant_len) # e > 16 ?
             { return x; }
             else
-            { var oint mask = # Bitmaske: Bits 16-e..0 gesetzt, alle anderen gelöscht
+            { var oint mask = # Bitmaske: Bits 16-e..0 gesetzt, alle anderen gelÃ¶scht
                 wbit(SF_mant_len+SF_mant_shift + 1+SF_exp_mid-uexp) - wbit(SF_mant_shift);
               if ((as_oint(x) & mask)==0) # alle diese Bits =0 ?
                 { return x; }
               return as_object
                      ((as_oint(x) | mask) # alle diese Bits setzen
-                      + wbit(SF_mant_shift) # letzte Stelle erhöhen, dabei evtl. Exponenten incrementieren
+                      + wbit(SF_mant_shift) # letzte Stelle erhÃ¶hen, dabei evtl. Exponenten incrementieren
                      );
     }   }   }
 
 # Liefert zu einem Short-Float x : (fround x), ein SF.
 # SF_fround_SF(x)
-# x wird zur nächsten ganzen Zahl gerundet.
+# x wird zur nÃ¤chsten ganzen Zahl gerundet.
   local object SF_fround_SF (object x);
 # Methode:
 # x = 0.0 oder e<0 -> Ergebnis 0.0
@@ -145,9 +145,9 @@
             { return x; }
             else
             if (uexp > SF_exp_mid+1) # e>1 ?
-              { var oint bitmask = # Bitmaske: Bit 16-e gesetzt, alle anderen gelöscht
+              { var oint bitmask = # Bitmaske: Bit 16-e gesetzt, alle anderen gelÃ¶scht
                   wbit(SF_mant_len+SF_mant_shift + SF_exp_mid-uexp);
-                var oint mask = # Bitmaske: Bits 15-e..0 gesetzt, alle anderen gelöscht
+                var oint mask = # Bitmaske: Bits 15-e..0 gesetzt, alle anderen gelÃ¶scht
                   bitmask - wbit(SF_mant_shift);
                 if ( ((as_oint(x) & bitmask) ==0) # Bit 16-e =0 -> abrunden
                      || ( ((as_oint(x) & mask) ==0) # Bit 16-e =1 und Bits 15-e..0 >0 -> aufrunden
@@ -155,14 +155,14 @@
                           && ((as_oint(x) & (bitmask<<1)) ==0)
                    )    )
                   # abrunden
-                  { mask |= bitmask; # Bitmaske: Bits 16-e..0 gesetzt, alle anderen gelöscht
+                  { mask |= bitmask; # Bitmaske: Bits 16-e..0 gesetzt, alle anderen gelÃ¶scht
                     return as_object( as_oint(x) & ~mask );
                   }
                   else
                   # aufrunden
                   { return as_object
                            ((as_oint(x) | mask) # alle diese Bits 15-e..0 setzen (Bit 16-e schon gesetzt)
-                            + wbit(SF_mant_shift) # letzte Stelle erhöhen, dabei evtl. Exponenten incrementieren
+                            + wbit(SF_mant_shift) # letzte Stelle erhÃ¶hen, dabei evtl. Exponenten incrementieren
                            );
                   }
               }
@@ -175,13 +175,13 @@
                   # aufrunden
                   { return as_object
                            ((as_oint(x) | (wbit(SF_mant_len+SF_mant_shift)-wbit(SF_mant_shift))) # alle diese Bits 16-e..0 setzen
-                            + wbit(SF_mant_shift) # letzte Stelle erhöhen, dabei evtl. Exponenten incrementieren
+                            + wbit(SF_mant_shift) # letzte Stelle erhÃ¶hen, dabei evtl. Exponenten incrementieren
                            );
                   }
               }
             else # e=0 ?
               # Wie bei 1 < e <= 16, nur dass Bit 16-e stets gesetzt
-              # und Bit 17-e stets gelöscht ist.
+              # und Bit 17-e stets gelÃ¶scht ist.
               { if ((as_oint(x) & (wbit(SF_mant_len+SF_mant_shift)-wbit(SF_mant_shift))) ==0)
                   # abrunden von +-0.5 zu 0.0
                   { return SF_0; }
@@ -189,7 +189,7 @@
                   # aufrunden
                   { return as_object
                            ((as_oint(x) | (wbit(SF_mant_len+SF_mant_shift)-wbit(SF_mant_shift))) # alle Bits 15-e..0 setzen
-                            + wbit(SF_mant_shift) # letzte Stelle erhöhen, dabei Exponenten incrementieren
+                            + wbit(SF_mant_shift) # letzte Stelle erhÃ¶hen, dabei Exponenten incrementieren
                            );
               }   }
     }   }
@@ -251,11 +251,11 @@
 # Also e1 >= e2.
 # Falls e1 - e2 >= 16 + 3, Ergebnis x1.
 # Schiebe beide Mantissen um 3 Bits nach links (Vorbereitung der Rundung:
-#   Bei e1-e2=0,1 ist keine Rundung nötig, bei e1-e2>1 ist der Exponent des
+#   Bei e1-e2=0,1 ist keine Rundung nÃ¶tig, bei e1-e2>1 ist der Exponent des
 #   Ergebnisses =e1-1, =e1 oder =e1+1. Brauche daher 1 Schutzbit und zwei
-#   Rundungsbits: 00 exakt, 01 1.Hälfte, 10 exakte Mitte, 11 2.Hälfte.)
+#   Rundungsbits: 00 exakt, 01 1.HÃ¤lfte, 10 exakte Mitte, 11 2.HÃ¤lfte.)
 # Schiebe die Mantisse von x2 um e0-e1 Bits nach rechts. (Dabei die Rundung
-# ausführen: Bit 0 ist das logische Oder der Bits 0,-1,-2,...)
+# ausfÃ¼hren: Bit 0 ist das logische Oder der Bits 0,-1,-2,...)
 # Falls x1,x2 selbes Vorzeichen haben: Addiere dieses zur Mantisse von x1.
 # Falls x1,x2 verschiedenes Vorzeichen haben: Subtrahiere dieses von der
 #   Mantisse von x1. <0 -> (Es war e1=e2) Vertausche die Vorzeichen, negiere.
@@ -304,10 +304,10 @@
         { mant1 = mant1 + mant2; }
       # mant1 = Ergebnis-Mantisse >0, sign1 = Ergebnis-Vorzeichen,
       # exp1 = Ergebnis-Exponent.
-      # Außerdem: Bei expdiff=0,1 sind die zwei letzten Bits von mant1 Null,
+      # AuÃŸerdem: Bei expdiff=0,1 sind die zwei letzten Bits von mant1 Null,
       # bei expdiff>=2 ist mant1 >= 2^(SF_mant_len+2).
       # Stets ist mant1 < 2^(SF_mant_len+5). (Daher werden die 2 Rundungsbits
-      # nachher um höchstens eine Position nach links geschoben werden.)
+      # nachher um hÃ¶chstens eine Position nach links geschoben werden.)
       # [Knuth, S.201, leicht modifiziert:
       #   N1. m>=1 -> goto N4.
       #   N2. [Hier m<1] m>=1/2 -> goto N5.
@@ -346,8 +346,8 @@
          # aufrunden
          { mant1 = mant1+1;
            if (mant1 >= bit(SF_mant_len+1))
-             # Bei Überlauf während der Rundung nochmals rechts schieben
-             # (Runden ist hier überflüssig):
+             # Bei Ãœberlauf wÃ¤hrend der Rundung nochmals rechts schieben
+             # (Runden ist hier Ã¼berflÃ¼ssig):
              { mant1 = mant1>>1; exp1 = exp1+1; } # Mantisse rechts schieben
          }
       }# Runden fertig
@@ -469,11 +469,11 @@
 #   nach Rundung mant1/mant2 >=1/2, <=2*mant1<2.
 #   Bei mant1/mant2 >=1 brauche 16 Nachkommabits,
 #   bei mant1/mant2 <1 brauche 17 Nachkommabits.
-#   Fürs Runden: brauche ein Rundungsbit (Rest gibt an, ob exakt).
+#   FÃ¼rs Runden: brauche ein Rundungsbit (Rest gibt an, ob exakt).
 #   Brauche daher insgesamt 18 Nachkommabits von mant1/mant2.
 #   Dividiere daher (als Unsigned Integers) 2^18*(2^17*mant1) durch (2^17*mant2).
 #   Falls der Quotient >=2^18 ist, runde die letzten zwei Bits weg und
-#     erhöhe den Exponenten um 1.
+#     erhÃ¶he den Exponenten um 1.
 #   Falls der Quotient <2^18 ist, runde das letzte Bit weg. Bei rounding
 #     overflow schiebe um ein weiteres Bit nach rechts, incr. Exponenten.
   local object SF_SF_durch_SF(x1,x2)
@@ -490,11 +490,11 @@
       SF_decode(x1, { return x1; }, sign1=,exp1=,mant1=);
       exp1 = exp1 - exp2; # Differenz der Exponenten
       sign1 = sign1 ^ sign2; # Ergebnis-Vorzeichen
-      # Dividiere 2^18*mant1 durch mant2 oder (äquivalent)
-      # 2^i*2^18*mant1 durch 2^i*mant2 für irgendein i mit 0 <= i <= 32-17 :
+      # Dividiere 2^18*mant1 durch mant2 oder (Ã¤quivalent)
+      # 2^i*2^18*mant1 durch 2^i*mant2 fÃ¼r irgendein i mit 0 <= i <= 32-17 :
      {var uintL mant;
       var uintL rest;
-      # wähle i = 32-(SF_mant_len+1), also i+(SF_mant_len+2) = 33.
+      # wÃ¤hle i = 32-(SF_mant_len+1), also i+(SF_mant_len+2) = 33.
       divu_6432_3232(mant1<<1,0, mant2<<(32-(SF_mant_len+1)), mant=,rest=);
       if (mant >= bit(SF_mant_len+2))
         # Quotient >=2^18 -> 2 Bits wegrunden
@@ -541,7 +541,7 @@
 # Ergebnis-Mantisse:
 #   Bilde aus [1,m15,...,m0,(19 Nullbits)] bei geradem e,
 #         aus [0,1,m15,...,m0,(18 Nullbits)] bei ungeradem e
-#   die Ganzzahl-Wurzel, eine 18-Bit-Zahl mit einer führenden 1.
+#   die Ganzzahl-Wurzel, eine 18-Bit-Zahl mit einer fÃ¼hrenden 1.
 #   Runde das letzte Bit weg:
 #     Bit 0 = 0 -> abrunden,
 #     Bit 0 = 1 und Wurzel exakt -> round-to-even,
@@ -555,7 +555,7 @@
       var sintWL exp;
       var uint32 mant;
       SF_decode(x, { return x; }, _EMA_,exp=,mant=);
-      # Um die 64-Bit-Ganzzahl-Wurzel ausnutzen zu können, fügen wir beim
+      # Um die 64-Bit-Ganzzahl-Wurzel ausnutzen zu kÃ¶nnen, fÃ¼gen wir beim
       # Radikanden 46 bzw. 47 statt 18 bzw. 19 Nullbits an.
       if (exp & bit(0))
         # e ungerade
@@ -616,7 +616,7 @@
 # Merke Vorzeichen von x.
 # x:=(abs x)
 # Exponent:=(integer-length x)
-#   Greife die 18 höchstwertigen Bits heraus (angeführt von einer 1).
+#   Greife die 18 hÃ¶chstwertigen Bits heraus (angefÃ¼hrt von einer 1).
 #   Runde das letzte Bit weg:
 #     Bit 0 = 0 -> abrunden,
 #     Bit 0 = 1 und Rest =0 -> round-to-even,
@@ -635,7 +635,7 @@
           var uintC len;
           I_to_NDS_nocopy(x, MSDptr=,len=,);
           # MSDptr/len/LSDptr ist die NDS zu x, len>0.
-          # Führende Digits holen: Brauche SF_mant_len+1 Bits, dazu intDsize
+          # FÃ¼hrende Digits holen: Brauche SF_mant_len+1 Bits, dazu intDsize
           # Bits (die NDS kann mit bis zu intDsize Nullbits anfangen).
           # Dann werden diese Bits um (exp mod intDsize) nach rechts geschoben.
         { var uintD msd = *MSDptr++; # erstes Digit
@@ -648,15 +648,15 @@
           #undef NEXT_DIGIT
           --len; ok:
           # Die NDS besteht aus msd, msdd, und len weiteren Digits.
-          # Das höchste in 2^32*msd+msdd gesetzte Bit ist Bit Nummer
+          # Das hÃ¶chste in 2^32*msd+msdd gesetzte Bit ist Bit Nummer
           # 31 + (exp mod intDsize).
          {var uintL shiftcount = exp % intDsize;
-          var uint32 mant = # führende 32 Bits
+          var uint32 mant = # fÃ¼hrende 32 Bits
             (shiftcount==0
              ? msdd
              : (((uint32)msd << (32-shiftcount)) | (msdd >> shiftcount))
             );
-          # Das höchste in mant gesetzte Bit ist Bit Nummer 31.
+          # Das hÃ¶chste in mant gesetzte Bit ist Bit Nummer 31.
           if ( ((mant & bit(30-SF_mant_len)) ==0) # Bit 14 =0 -> abrunden
                || ( ((mant & (bit(30-SF_mant_len)-1)) ==0) # Bit 14 =1 und Bits 13..0 =0
                     && ((msdd & (bit(shiftcount)-1)) ==0) # und weitere Bits aus msdd =0
@@ -683,7 +683,7 @@
 # Methode:
 # x ganz -> klar.
 # x = +/- a/b mit Integers a,b>0:
-#   Seien n,m so gewählt, dass
+#   Seien n,m so gewÃ¤hlt, dass
 #     2^(n-1) <= a < 2^n, 2^(m-1) <= b < 2^m.
 #   Dann ist 2^(n-m-1) < a/b < 2^(n-m+1).
 #   Berechne n=(integer-length a) und m=(integer-length b) und
@@ -725,7 +725,7 @@
            { zaehler = I_I_ash_I(popSTACK(),fixnum((uint32)((SF_mant_len+2) - lendiff))); # (ash a -n+m+18)
              nenner = popSTACK(); # b
            }
-         # Division zaehler/nenner durchführen:
+         # Division zaehler/nenner durchfÃ¼hren:
          I_I_divide_I_I(zaehler,nenner);
          # Stackaufbau: q, r.
          # 2^17 <= q < 2^19, also ist q Fixnum.

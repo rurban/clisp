@@ -159,7 +159,7 @@ the load-time-value
 deftype defun defvar defparameter defconstant and or psetq setf psetf shiftf
 rotatef define-modify-macro defsetf define-setf-expander define-setf-method
 prog1 prog2 when unless cond
-case typecase  otherwise ; otherwise als Marker f¸r die catchall-clause
+case typecase  otherwise ; otherwise als Marker f√ºr die catchall-clause
 return loop do do* dolist dotimes prog prog* multiple-value-list
 multiple-value-bind multiple-value-setq defmacro remf do-symbols
 do-external-symbols do-all-symbols with-package-iterator incf decf
@@ -251,13 +251,13 @@ interpreter compiler
 (in-package "LISP")
 ; Exportierungen von condition.lisp
 (export '(
-  handler-bind                  ; vorgezogen f¸r compiler.lisp
-  find-restart compute-restarts ; vorgezogen f¸r user1.lisp
+  handler-bind                  ; vorgezogen f√ºr compiler.lisp
+  find-restart compute-restarts ; vorgezogen f√ºr user1.lisp
   invoke-restart-interactively  ; dito
   restart                       ; vermeide Konflikt mit user1.lisp
   continue                      ; vermeide Konflikt mit user1.lisp
   end-of-file                   ; vermeide Konflikt mit init.lisp, user2.lisp
-  ; Typen f¸r error-of-type:
+  ; Typen f√ºr error-of-type:
   condition warning serious-condition error storage-condition type-error
   program-error control-error package-error print-not-readable parse-error
   stream-error end-of-file reader-error file-error cell-error unbound-variable
@@ -277,7 +277,7 @@ interpreter compiler
 #-COMPILER ; nur beim Bootstrappen
 (progn
 
-; vorl‰ufig soll bei GET_CLOSURE nicht expandiert werden:
+; vorl√§ufig soll bei GET_CLOSURE nicht expandiert werden:
 (sys::%putd '%expand-lambdabody-main
   (function %expand-lambdabody-main
     (lambda (lambdabody venv fenv)
@@ -285,7 +285,7 @@ interpreter compiler
       lambdabody
 ) ) )
 
-; vorl‰ufig soll defun ganz trivial expandiert werden:
+; vorl√§ufig soll defun ganz trivial expandiert werden:
 (sys::%putd 'defun
   (sys::make-macro
     (function defun
@@ -425,7 +425,7 @@ interpreter compiler
             (list (list* 'BLOCK (function-block-name name) body-rest))
 ) ) )
 
-;;; Funktionen zum Expandieren von Macros innerhalb eines Codest¸ckes
+;;; Funktionen zum Expandieren von Macros innerhalb eines Codest√ºckes
 ;;;
 ;;; Insgesamt wird der gesamte Code (einer Funktion) durchgegangen und
 ;;; globale und lokale Macros expandiert.
@@ -433,11 +433,11 @@ interpreter compiler
 ;;; wird so   #'(lambda expanded-lambdalist
 ;;;               (declare (source (lambdalist . body))) . expanded-body
 ;;;             )
-;;; Durch diese Deklaration ist gew‰hrleistet, dass eine bereits einmal
-;;; durchlaufene Funktion als solche erkannt und nicht unnˆtigerweise ein
+;;; Durch diese Deklaration ist gew√§hrleistet, dass eine bereits einmal
+;;; durchlaufene Funktion als solche erkannt und nicht unn√∂tigerweise ein
 ;;; zweites Mal durchlaufen wird.
 
-; Vorsicht! F¸rs Bootstrappen (erkennbar an #-COMPILER) m¸ssen manche der
+; Vorsicht! F√ºrs Bootstrappen (erkennbar an #-COMPILER) m√ºssen manche der
 ; Funktionen in primitiverem Lisp (ohne do, do*, case) geschrieben werden.
 
 (PROGN
@@ -446,7 +446,7 @@ interpreter compiler
 (setq *keyword-package* (find-package "KEYWORD"))
 
 (proclaim '(special *fenv*))
-; *fenv* = Das aktuelle Function-Environment w‰hrend der Expansion
+; *fenv* = Das aktuelle Function-Environment w√§hrend der Expansion
 ; einer Form. Struktur: NIL oder ein 2n+1-elementiger Vektor
 ; (n1 f1 ... nn fn next), wo die ni Funktionsnamen sind, die fi ihre funktionale
 ; Bedeutung sind (Closure oder Macro oder FunctionMacro oder noch NIL); bei next
@@ -484,12 +484,12 @@ interpreter compiler
 ) )
 ; Stellt fest, ob ein Funktionsname im Function-Environment fenv nicht
 ; definiert ist und daher auf die globale Funktion verweist.
-(defun global-in-fenv-p (s fenv) ; vorl‰ufig
+(defun global-in-fenv-p (s fenv) ; vorl√§ufig
   (eq (fenv-assoc s fenv) 'T)
 )
 
 (proclaim '(special *venv*))
-; *venv* = Das aktuelle Variablen-Environment w‰hrend der Expansion
+; *venv* = Das aktuelle Variablen-Environment w√§hrend der Expansion
 ; einer Form. Struktur: NIL oder ein 2n+1-elementiger Vektor
 ; (n1 v1 ... nn vn next), wo die ni Symbole sind, die vi ihre
 ; syntaktische Bedeutung (Symbol-Macro-Objekt oder sonstiges); bei next
@@ -531,7 +531,7 @@ interpreter compiler
 ) )
 
 ; Die meisten Expansionsfunktionen liefern zwei Werte: Das Expansions-
-; ergebnis, der zweite Wert (NIL oder T) zeigt an, ob darin etwas ver‰ndert
+; ergebnis, der zweite Wert (NIL oder T) zeigt an, ob darin etwas ver√§ndert
 ; wurde.
 
 ; (%expand-cons ...) setzt ein cons zusammen. 2 Werte.
@@ -565,7 +565,7 @@ interpreter compiler
           ; f ist in *fenv* assoziiert zu h
           (if (eq h 'T)
             ; f hat keine lokale Definition
-            ; Nun die einzelnen Expander f¸r die Special-forms:
+            ; Nun die einzelnen Expander f√ºr die Special-forms:
             (case f
               ((RETURN-FROM THE)
                 ; 1. Argument lassen, alle weiteren expandieren
@@ -615,8 +615,8 @@ interpreter compiler
                         (cdddr form) nil
               ) ) ) ) )
               (EVAL-WHEN
-                ; Falls die Situation COMPILE angegeben ist, f¸hre den Body
-                ; als PROGN aus, gib eine Form zur¸ck, die ohne Seiteneffekte
+                ; Falls die Situation COMPILE angegeben ist, f√ºhre den Body
+                ; als PROGN aus, gib eine Form zur√ºck, die ohne Seiteneffekte
                 ; dieselben Werte liefert.
                 ; Sonst expandiere alle Argumente ab dem zweiten als Formen.
                 (if (or (member 'COMPILE (second form))
@@ -895,7 +895,7 @@ interpreter compiler
             '%expand-form form
 ) ) ) ) ) )
 
-; Hilfsfunktionen f¸r die Expansion:
+; Hilfsfunktionen f√ºr die Expansion:
 
 ; expandiert eine Liste von Formen. 2 Werte.
 (defun %expand-list (l)
@@ -912,8 +912,8 @@ interpreter compiler
                          (%expand-list (rest l))
 ) ) )
 
-; F¸gt lexikalische Variablen zu *venv* hinzu.
-; (Wird nur dazu benutzt, um Symbol-Macros zu ¸berdecken.)
+; F√ºgt lexikalische Variablen zu *venv* hinzu.
+; (Wird nur dazu benutzt, um Symbol-Macros zu √ºberdecken.)
 (defun %expand-lexical-variables (vars)
   (if vars
     (setq *venv*
@@ -921,7 +921,7 @@ interpreter compiler
         (nconc (mapcan #'(lambda (v) (list v nil)) vars) (list *venv*))
 ) ) ) )
 
-; F¸gt SPECIAL-Deklarationen am Anfang eines Body zu *venv* hinzu.
+; F√ºgt SPECIAL-Deklarationen am Anfang eines Body zu *venv* hinzu.
 (defun %expand-special-declarations (body)
   (multiple-value-bind (body-rest declarations)
       (sys::parse-body body nil (vector *venv* *fenv*))
@@ -966,7 +966,7 @@ interpreter compiler
                              (and (consp declspec)
                                   (eq (car declspec) 'SOURCE)
         )    ) )    ) )    ) )
-      (values lambdabody nil) ; bereits expandiert -> unber¸hrt lassen
+      (values lambdabody nil) ; bereits expandiert -> unber√ºhrt lassen
       (let ((*venv* *venv*))
         (if blockp
           (setq lambdabody
@@ -1013,7 +1013,7 @@ interpreter compiler
             (cddr ps) nil
 ) ) )   )
 
-; expandiert eine Variablenliste f¸r LET. 2 Werte.
+; expandiert eine Variablenliste f√ºr LET. 2 Werte.
 (defun %expand-varspez (vs &optional (nvenv nil))
   (if (atom vs)
     (if vs
@@ -1030,7 +1030,7 @@ interpreter compiler
         (%expand-varspez (rest vs) (list* nil (%expand-varspec-var (first vs)) nvenv))
 ) ) )
 
-; expandiert eine Variablenliste f¸r LET*. 2 Werte.
+; expandiert eine Variablenliste f√ºr LET*. 2 Werte.
 (defun %expand-varspez* (vs)
   (if (atom vs)
     (if vs
@@ -1078,14 +1078,14 @@ interpreter compiler
 
 ; Auf den bereits expandierten Body wird folgendes angewandt:
 ; (%return-p name list) stellt fest, ob die Formenliste list irgendwo ein
-; (RETURN-FROM name ...) enth‰lt.
+; (RETURN-FROM name ...) enth√§lt.
 (defun %return-p (name body)
   (block return-p
     (tagbody 1
       (if (atom body) (return-from return-p nil))
       (let ((form (car body)))
         (if
-          ; stelle fest, ob form ein (RETURN-FROM name ...) enth‰lt:
+          ; stelle fest, ob form ein (RETURN-FROM name ...) enth√§lt:
           (and (consp form)
                (or (and (eq (first form) 'return-from) ; (RETURN-FROM name ...)
                         (eq (second form) name)
@@ -1126,9 +1126,9 @@ interpreter compiler
             (%expand-setqlist (cddr l))
 ) ) )   )
 
-; (%expand-tagbody list) expandiert die Elemente einer Liste und l‰sst dabei
+; (%expand-tagbody list) expandiert die Elemente einer Liste und l√§sst dabei
 ; entstehende Atome fest (damit keine neuen Tags entstehen, die andere Tags
-; verdecken kˆnnten). 2 Werte.
+; verdecken k√∂nnten). 2 Werte.
 (defun %expand-tagbody (body)
   (cond ((atom body) (values body nil))
         ((atom (first body))
@@ -1242,7 +1242,7 @@ interpreter compiler
 
 (VALUES) )
 
-;; ab hier ist FUNCTION funktionsf‰hig, soweit kein MACROLET darin vorkommt.
+;; ab hier ist FUNCTION funktionsf√§hig, soweit kein MACROLET darin vorkommt.
 
 (PROGN
 
@@ -1253,7 +1253,7 @@ interpreter compiler
 (proclaim '(special *compiled-file-types*))
 (setq *compiled-file-types* '(#".fas"))
 
-; vorl‰ufig brauchen die Files nicht gesucht zu werden:
+; vorl√§ufig brauchen die Files nicht gesucht zu werden:
 (defun search-file (filename extensions)
   (mapcan #'(lambda (extension)
               (let ((filename (merge-pathnames filename extension)))
@@ -1391,7 +1391,7 @@ interpreter compiler
       )
 ) ) )
 
-; vorl‰ufig:
+; vorl√§ufig:
 (sys::%putd 'defun
   (sys::make-macro
     (function defun
@@ -1446,7 +1446,7 @@ interpreter compiler
     ) ) ) )
 ) )
 
-; vorl‰ufige Definition des Macros DO :
+; vorl√§ufige Definition des Macros DO :
 (sys::%putd 'do
   (sys::make-macro
     (function do
@@ -1521,7 +1521,7 @@ interpreter compiler
     ) ) ) ) ) ) )
 ) )
 
-; vorl‰ufige Definition des Macros DOTIMES :
+; vorl√§ufige Definition des Macros DOTIMES :
 (sys::%putd 'dotimes
   (sys::make-macro
     (function dotimes
@@ -1551,7 +1551,7 @@ interpreter compiler
 
 (VALUES) )
 
-;; ab hier sind LOAD, DEFUN, DO, DOTIMES (eingeschr‰nkt) funktionsf‰hig.
+;; ab hier sind LOAD, DEFUN, DO, DOTIMES (eingeschr√§nkt) funktionsf√§hig.
 
 (LOAD "defseq")   ;; Definitionen von Standard-Sequences
 
@@ -1567,11 +1567,11 @@ interpreter compiler
 
 (VALUES) )
 
-;; ab hier ist Backquote funktionsf‰hig
+;; ab hier ist Backquote funktionsf√§hig
 
 (LOAD "defmacro")
 
-;; ab hier ist FUNCTION (uneingeschr‰nkt) funktionsf‰hig.
+;; ab hier ist FUNCTION (uneingeschr√§nkt) funktionsf√§hig.
 
 (PROGN
 
@@ -1692,7 +1692,7 @@ interpreter compiler
 
 (VALUES) )
 
-;; ab hier sind DEFMACRO und DEFUN funktionsf‰hig.
+;; ab hier sind DEFMACRO und DEFUN funktionsf√§hig.
 
 (LOAD "macros1")  ;; Kontrollstrukturen - Macros
 (LOAD "macros2")  ;; weitere Macros
@@ -1703,7 +1703,7 @@ interpreter compiler
 
 (LOAD "places")   ;; SETF-Places: Definitionen und Macros
 
-;; ab hier ist SETF u.‰. funktionsf‰hig.
+;; ab hier ist SETF u.√§. funktionsf√§hig.
 
 (LOAD "floatprint") ;; Ausgabe von Floating-Points
 
@@ -1713,16 +1713,16 @@ interpreter compiler
 
 (LOAD "format")   ;; FORMAT
 
-;; ab hier ist FORMATTER funktionsf‰hig.
+;; ab hier ist FORMATTER funktionsf√§hig.
 
 (in-package "LISP")
 (export '(default-directory dir))
 (in-package "SYSTEM")
 
-; (default-directory) ist ein Synonym f¸r (cd).
+; (default-directory) ist ein Synonym f√ºr (cd).
 (defun default-directory () (cd))
 
-; (setf (default-directory) dir) ist ein Synonym f¸r (cd dir).
+; (setf (default-directory) dir) ist ein Synonym f√ºr (cd dir).
 (defsetf default-directory () (value)
   `(PROGN (CD ,value) ,value)
 )
@@ -1774,7 +1774,7 @@ interpreter compiler
 (defun search-file (filename extensions
                     &aux (use-extensions (null (pathname-type filename))) )
   (when use-extensions
-    (setq extensions ; Case-Konversionen auf den Extensions durchf¸hren
+    (setq extensions ; Case-Konversionen auf den Extensions durchf√ºhren
       (mapcar #'pathname-type extensions)
   ) )
   ; Defaults einmergen:
@@ -1782,7 +1782,7 @@ interpreter compiler
   ; Suchen:
   (let ((already-searched nil))
     (dolist (dir (cons '#""
-                       ; Wenn filename ".." enth‰lt, z‰hlt *load-paths* nicht
+                       ; Wenn filename ".." enth√§lt, z√§hlt *load-paths* nicht
                        ; (um Errors wegen ".../../foo" z.B. auf DOS zu vermeiden):
                        (if (member #+(or AMIGA ACORN-RISCOS) :PARENT
                                    #+(or UNIX OS/2 WIN32) ".."
@@ -1809,7 +1809,7 @@ interpreter compiler
                   xpathnames
             ) ) )
             (when xpathnames
-              ; nach Datum sortiert, zur¸ckgeben:
+              ; nach Datum sortiert, zur√ºckgeben:
               (dolist (xpathname xpathnames)
                 (setf (rest xpathname)
                       (apply #'encode-universal-time (third xpathname))
@@ -1939,9 +1939,9 @@ interpreter compiler
 (LOAD "defs3")     ;; the COMMON-LISP package
 
 #+GETTEXT (LOAD "german") ;; Deutsche Meldungen
-#+GETTEXT (LOAD "french") ;; Franzˆsische Meldungen
+#+GETTEXT (LOAD "french") ;; Franz√∂sische Meldungen
 #+GETTEXT (LOAD "spanish") ;; Spanische Meldungen
-#+GETTEXT (LOAD "dutch")  ;; Holl‰ndische Meldungen
+#+GETTEXT (LOAD "dutch")  ;; Holl√§ndische Meldungen
 
 (LOAD "config")    ;; configuration parameters to be adjusted by the user
 

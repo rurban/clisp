@@ -1,4 +1,4 @@
-# Funktionen f¸r Zufallszahlen
+# Funktionen f√ºr Zufallszahlen
 
 # Zufallszahlengenerator nach [Knuth: The Art of Computer Programming, Vol. II,
 # Seminumerical Algorithms, 3.3.4., Table 1, Line 30], nach C. Haynes:
@@ -6,7 +6,7 @@
 # mit m=2^64, a=6364136223846793005, c=1.
 
 # random_L(randomstate) liefert eine neue Zufallszahl.
-# > randomstate: ein Random-State, wird ver‰ndert
+# > randomstate: ein Random-State, wird ver√§ndert
 # < ergebnis: eine 32-Bit-Zufallszahl
   local uint32 random_L (object randomstate);
   local uint32 random_L(randomstate)
@@ -26,18 +26,18 @@
       # letzte 64 Bits holen:
      {var uint32 seed_hi = get_32_Dptr(&product[64/intDsize]);
       var uint32 seed_lo = get_32_Dptr(&product[96/intDsize]);
-      seed_lo += 1; if (seed_lo==0) { seed_hi += 1; } # um 1 erhˆhen
-      # seed neu f¸llen:
+      seed_lo += 1; if (seed_lo==0) { seed_hi += 1; } # um 1 erh√∂hen
+      # seed neu f√ºllen:
       set_32_Dptr(seedMSDptr,seed_hi); set_32_Dptr(&seedMSDptr[32/intDsize],seed_lo);
       # mittlere 32 Bits als Ergebnis:
       return highlow32(low16(seed_hi),high16(seed_lo));
     }}
 
-# random_UDS(randomstate,MSDptr,len) f¸llt die UDS MSDptr/len/..
+# random_UDS(randomstate,MSDptr,len) f√ºllt die UDS MSDptr/len/..
 # mit len Zufallsdigits.
-# > randomstate: ein Random-State, wird ver‰ndert
+# > randomstate: ein Random-State, wird ver√§ndert
 # > MSDptr/len/..: wo die Zufallsdigits abgelegt werden sollen
-# > len: gew¸nschte Anzahl von Zufallsdigits
+# > len: gew√ºnschte Anzahl von Zufallsdigits
   local void random_UDS (object randomstate, uintD* MSDptr, uintC len);
   local void random_UDS(randomstate,ptr,len)
     var object randomstate;
@@ -55,9 +55,9 @@
         }
     }
 
-# I_random_I(randomstate,n) liefert zu einem Integer n>0 ein zuf‰lliges
+# I_random_I(randomstate,n) liefert zu einem Integer n>0 ein zuf√§lliges
 # Integer x mit 0 <= x < n.
-# > randomstate: ein Random-State, wird ver‰ndert
+# > randomstate: ein Random-State, wird ver√§ndert
 # can trigger GC
   local object I_random_I (object randomstate, object n);
   local object I_random_I(randomstate,n)
@@ -82,13 +82,13 @@
         end_arith_call();
         # Rest in Integer umwandeln:
         {var object result = NUDS_to_I(r.MSDptr,r.len);
-         RESTORE_NUM_STACK # num_stack zur¸ck
+         RESTORE_NUM_STACK # num_stack zur√ºck
          return result;
     }}}}}
 
-# F_random_F(randomstate,n) liefert zu einem Float n>0 ein zuf‰lliges
+# F_random_F(randomstate,n) liefert zu einem Float n>0 ein zuf√§lliges
 # Float x mit 0 <= x < n.
-# > randomstate: ein Random-State, wird ver‰ndert
+# > randomstate: ein Random-State, wird ver√§ndert
 # can trigger GC
   local object F_random_F (object randomstate, object n);
   local object F_random_F(randomstate,n)
@@ -108,7 +108,7 @@
        { var uintL dr = d % intDsize; if (dr>0) { MSDptr[0] &= (bit(dr)-1); } }
        # in Integer umwandeln:
       {var object mant = UDS_to_I(MSDptr,len);
-       RESTORE_NUM_STACK # num_stack zur¸ck
+       RESTORE_NUM_STACK # num_stack zur√ºck
        # Bilde  Zufalls-Float zwischen 0 und 1
        #        = (scale-float (float Zufalls-Integer,d_Bits n) (- d)) :
        mant = I_F_float_F(mant,STACK_0); # in Float vom Typ von n umwandeln

@@ -24,7 +24,7 @@
     #'list-fe-init-end
 ) )
 
-(%defseq ; VECTOR steht für GENERAL-VECTOR
+(%defseq ; VECTOR steht fÃ¼r GENERAL-VECTOR
   (vector
     'VECTOR
     #'vector-init
@@ -88,7 +88,7 @@
   #'(lambda (n &aux (eltype (list 'UNSIGNED-BYTE n)))
       (%defseq
         (vector
-          n ; n steht für `(VECTOR (UNSIGNED-BYTE ,n))
+          n ; n steht fÃ¼r `(VECTOR (UNSIGNED-BYTE ,n))
           #'vector-init
           #'vector-upd
           #'vector-endtest

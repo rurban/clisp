@@ -1,5 +1,5 @@
 | GCC2 Library
-| Jörg Höhle, 6-Jul-94
+| JÃ¶rg HÃ¶hle, 6-Jul-94
 | GCC2 calls ___main() in _main()!
 
 .text

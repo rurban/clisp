@@ -1,6 +1,6 @@
 # Hilfsfunktion zur Ausgabe von Integers
 
-# Tabelle: enthält zu jeder Basis b (2 <= b <= 36)
+# Tabelle: enthÃ¤lt zu jeder Basis b (2 <= b <= 36)
 # - eine Kettenbruchapproximation num/den von intDsize*log(2)/log(b)
 #   (num/den >= intDsize*log(2)/log(b), mit num <= 2^10)
 # - k-1 und b^k mit b^k < 2^intDsize, k maximal.
@@ -119,8 +119,8 @@
     #endif
     };
 
-# digits_need(len,base) liefert eine obere Abschätzung für die Anzahl der
-# Ziffern im Stellenwertsystem der Basis base, die eine UDS der Länge len
+# digits_need(len,base) liefert eine obere AbschÃ¤tzung fÃ¼r die Anzahl der
+# Ziffern im Stellenwertsystem der Basis base, die eine UDS der LÃ¤nge len
 # braucht.
   local uintL digits_need (uintC len, uintWL base);
   local uintL digits_need(len,base)
@@ -177,7 +177,7 @@
 # > base: Stellensystem-Basis, 2 <= base <= 36.
 # > ergebnis.LSBptr: darunter ist mindestens digits_need(len) Zeichen Platz
 # < ergebnis: fertige Folge MSBptr/len/LSBptr von Ziffern
-# Die UDS MSDptr/len/.. wird zerstört.
+# Die UDS MSDptr/len/.. wird zerstÃ¶rt.
   typedef struct { chart* MSBptr; uintL len; chart* LSBptr; } DIGITS;
   local void UDS_to_DIGITS (uintD* MSDptr, uintC len, uintD base, DIGITS* erg);
 # Methode:
@@ -189,17 +189,17 @@
 # Falls X>0:
 #   Dividiere X durch das Wort b^k,
 #   (Single-Precision-Division, vgl. UDS_DIVIDE mit n=1:
-#     r:=0, j:=m=Länge(X),
+#     r:=0, j:=m=LÃ¤nge(X),
 #     while j>0 do
 #       j:=j-1, r:=r*beta+X[j], X[j]:=floor(r/b^k), r:=r-b^k*q[j].
 #     r=Rest.)
 #   zerlege den Rest (mit k-1 Divisionen durch b) in k Ziffern, wandle diese
 #   Ziffern einzeln in Ascii um und lege sie an die DIGITS an.
-#   Teste auf Speicherüberlauf.
+#   Teste auf SpeicherÃ¼berlauf.
 #   X := Quotient.
 #   Mache aus X wieder eine NUDS (maximal 1 Nulldigit streichen).
 #   Dies solange bis X=0.
-#   Streiche die führenden Nullen.
+#   Streiche die fÃ¼hrenden Nullen.
   local void UDS_to_DIGITS(MSDptr,len,base,erg)
     var uintD* MSDptr;
     var uintC len;
@@ -225,7 +225,7 @@
           # Zerlegen des Restes in seine k Ziffern:
          {var uintC count = k_1;
           if ((intDsize>=11) || (count>0))
-            # (Bei intDsize>=11 ist wegen b<=36 zwangsläufig
+            # (Bei intDsize>=11 ist wegen b<=36 zwangslÃ¤ufig
             # k = ceiling(intDsize*log(2)/log(b))-1 >= 2, also count = k_1 > 0.)
             do { var uintD d;
                  #if HAVE_DD
@@ -241,7 +241,7 @@
           if (MSDptr[0]==0) { MSDptr++; len--; if (len==0) break; }
         }}
       #undef next_digit
-      # Streiche führende Nullen:
+      # Streiche fÃ¼hrende Nullen:
       while (chareq(*erg_ptr,ascii('0'))) { erg_ptr++; }
       fertig:
       erg->MSBptr = erg_ptr;

@@ -1,6 +1,6 @@
 ;;; ENGLISH: Site specific definitions, to be modified on installation
-;;; DEUTSCH: Funktionen, die beim Transportieren zu ändern sind
-;;; FRANCAIS: Fonctions dépendantes de l'installation
+;;; DEUTSCH: Funktionen, die beim Transportieren zu Ã¤ndern sind
+;;; FRANCAIS: Fonctions dÃ©pendantes de l'installation
 
 (in-package "LISP")
 (mapcar #'fmakunbound '(machine-type machine-version machine-instance
@@ -16,20 +16,20 @@
 
 ;; ENGLISH: The name of the editor:
 ;; DEUTSCH: Der Name des Editors:
-;; FRANCAIS: Nom de l'éditeur :
+;; FRANCAIS: Nom de l'Ã©diteur :
 (defparameter *editor* "C:\\UTIL\\PRODIT.EXE")
 (defun editor-name () (or (sys::getenv "EDITOR") *editor*))
 
 ;; ENGLISH: The temporary file LISP creates for editing:
-;; DEUTSCH: Das temporäre File, das LISP beim Editieren anlegt:
-;; FRANCAIS: Fichier temporaire créé par LISP pour l'édition :
+;; DEUTSCH: Das temporÃ¤re File, das LISP beim Editieren anlegt:
+;; FRANCAIS: Fichier temporaire crÃ©Ã© par LISP pour l'Ã©dition :
 (defun editor-tempfile ()
   "lisptemp.lisp"
 )
 
 ;; ENGLISH: (edit-file file) edits a file.
 ;; DEUTSCH: (edit-file file) editiert eine Datei.
-;; FRANCAIS: (edit-file file) permet l'édition d'un fichier.
+;; FRANCAIS: (edit-file file) permet l'Ã©dition d'un fichier.
 (defun edit-file (file)
   ; The function EXECUTE apparently crashes on batch files. Work around.
   (let ((editor (editor-name))
@@ -42,9 +42,9 @@
 ;; ENGLISH: Treat Ctrl-Z in files as whitespace. Some losing middle-age
 ;;          editors insist on appending this to files.
 ;; DEUTSCH: Behandle Ctrl-Z in Dateien als Leerstelle. Einige dumme
-;;          Steinzeit-Editoren bestehen darauf, das an Dateien anzuhängen.
+;;          Steinzeit-Editoren bestehen darauf, das an Dateien anzuhÃ¤ngen.
 ;; FRANCAIS: Traite Ctrl-Z dans les fichiers comme un espace. Quelques
-;;           éditeurs du moyen age n'arrêtent pas d'ajouter cela aux fichiers.
+;;           Ã©diteurs du moyen age n'arrÃªtent pas d'ajouter cela aux fichiers.
 (eval-when (load eval compile)
   (set-syntax-from-char #\Code26 #\Space)
 )
@@ -53,8 +53,8 @@
 ;;          if device and directory are unspecified:
 ;; DEUTSCH: Die Liste von Directories, in denen Programme bei LOAD etc. gesucht
 ;;          werden, wenn dabei Laufwerk und Directory nicht angegeben ist:
-;; FRANCAIS: Liste de répertoires où chercher un fichier lorsqu'un répertoire
-;;           particulier n'est pas indiqué :
+;; FRANCAIS: Liste de rÃ©pertoires oÃ¹ chercher un fichier lorsqu'un rÃ©pertoire
+;;           particulier n'est pas indiquÃ© :
 (defparameter *load-paths*
   '(#"C:"               ; erst im Current-Directory von Laufwerk C:
     #"C:\\CLISP\\...\\" ; dann in allen Directories unterhalb C:\CLISP
@@ -63,15 +63,15 @@
 
 ;; ENGLISH: This makes screen output prettier:
 ;; DEUTSCH: Dadurch sehen Bildschirmausgaben besser aus:
-;; FRANCAIS: Pour que les sorties sur l'écran soient plus lisibles:
+;; FRANCAIS: Pour que les sorties sur l'Ã©cran soient plus lisibles:
 (setq *print-pretty* t)
 
 ;; ENGLISH: Also set the variable *default-time-zone* in TIMEZONE.LISP according
 ;;          to your time zone.
 ;; DEUTSCH: Setzen Sie auch die Variable *default-time-zone* in TIMEZONE.LISP
-;;          auf die bei Ihnen gültige Zeitzone.
-;; FRANCAIS: Dans TIMEZONE.LISP, affectez à *default-time-zone* la valeur
-;;           correspondante à votre fuseau horaire.
+;;          auf die bei Ihnen gÃ¼ltige Zeitzone.
+;; FRANCAIS: Dans TIMEZONE.LISP, affectez Ã  *default-time-zone* la valeur
+;;           correspondante Ã  votre fuseau horaire.
 ;; (setq *default-time-zone* 0)
 
 ;; ENGLISH: Common Lisp HyperSpec access

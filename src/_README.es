@@ -1,43 +1,43 @@
-Esto es CLISP, una implementaciÛn de Common Lisp.
+Esto es CLISP, una implementaci√≥n de Common Lisp.
 
 
-ø QuÈ es LISP ?
+¬ø Qu√© es LISP ?
 ---------------
 
-LISP es un lenguaje de programaciÛn inventado por J. McCarthy en
-1959. Aunque ha habido muchos dialectos de Èl, actualmente se ha
+LISP es un lenguaje de programaci√≥n inventado por J. McCarthy en
+1959. Aunque ha habido muchos dialectos de √©l, actualmente se ha
 estandarizado y difundido ampliamente gracias al estandar industrial
 COMMON LISP. Hay aplicaciones en los dominios del procesamiento del
-conocimiento simbÛlico (IA), c·lculo numÈrico (MACLISP generaba cÛdigo
+conocimiento simb√≥lico (IA), c√°lculo num√©rico (MACLISP generaba c√≥digo
 tan bueno como el de FORTRAN), y en programas ampliamente utilizados
 como editores (EMACS) y CAD (AUTOCAD). Si lo desea, puede consultar la
-introducciÛn al lenguaje LISP:
+introducci√≥n al lenguaje LISP:
 
   Sheila Hughes: Lisp. Pitman Publishing Limited, London 1986.
   107 pages.
 
-DespuÈs de un rato, necesitar· el texto estandar que contiene la
-definiciÛn del lenguaje:
+Despu√©s de un rato, necesitar√° el texto estandar que contiene la
+definici√≥n del lenguaje:
 
 Guy L. Steele Jr.: Common Lisp - The Language. Digital Press.
   1. edition 1984, 465 pages.
   2. edition 1990, 1032 pages.
 
-Este libro est· disponible en formato HTML via FTP en:
+Este libro est√° disponible en formato HTML via FTP en:
   ftp.cs.cmu.edu:/user/ai/lang/lisp/doc/cltl/cltl_ht.tgz
 
-y puede consultarse a travÈs de WWW en:
+y puede consultarse a trav√©s de WWW en:
 
   http://www.cs.cmu.edu:8001/Web/Groups/AI/html/cltl/cltl2.html o	
   http://www.cs.cmu.edu:8001/afs/cs/project/ai-repository/ai/html/cltl/cltl2.html .
 
 Nota para los expertos: Este texto estandar se ha convertido en un
-est·ndar ANSI, que puede obtenerse <<<exceptionally>>> sin cargo alguno en:
+est√°ndar ANSI, que puede obtenerse <<<exceptionally>>> sin cargo alguno en:
 
   http://www.lisp.org/HyperSpec/FrontMatter/
 
 LISP se ejecuta en un entorno interactivo. Usted introduce formas, que
-ser·n evaluadas de inmediato. Por lo tanto, puede inspeccionar
+ser√°n evaluadas de inmediato. Por lo tanto, puede inspeccionar
 variables, invocar funciones con unos argumentos concretos o definir
 sus propias funciones.
 
@@ -54,47 +54,47 @@ Consta de los siguientes ficheros:
 #ifdef UNIX_BINARY_DISTRIB
    base/lisp.run          programa principal
 #endif
-   base/lispinit.mem      imagen de memoria necesaria para la inicializaciÛn
+   base/lispinit.mem      imagen de memoria necesaria para la inicializaci√≥n
    doc/clisp.1            manual en formato man de Unix
    doc/clisp.man          manual
    doc/clisp.html         manual en format HTML
-   doc/impnotes.html      notas de la implementaciÛn
+   doc/impnotes.html      notas de la implementaci√≥n
 #ifdef GNU_READLINE
-   doc/clreadline.3       manual de ediciÛn de lÌnea en formato man de Unix
-   doc/clreadline.man     manual de ediciÛn de lÌnea
+   doc/clreadline.3       manual de edici√≥n de l√≠nea en formato man de Unix
+   doc/clreadline.man     manual de edici√≥n de l√≠nea
 #endif
    doc/LISP-tutorial.txt  tutorial de LISP para aprendices
-   doc/CLOS-guide.txt     breve guÌa de CLOS
+   doc/CLOS-guide.txt     breve gu√≠a de CLOS
    README                 este texto
-   SUMMARY                pequeÒa descripciÛn de CLISP
-   ANNOUNCE               declaraciÛn
-   NEWS                   lista de modificaciones desde la ˙ltima versiÛn
+   SUMMARY                peque√±a descripci√≥n de CLISP
+   ANNOUNCE               declaraci√≥n
+   NEWS                   lista de modificaciones desde la √∫ltima versi√≥n
    COPYRIGHT              derechos de autor <<<copyright>>>
    GNU-GPL                licencia de software libre
 #ifdef GNU_READLINE
-   doc/readline.dvi       documentaciÛn de la librerÌa GNU readline
+   doc/readline.dvi       documentaci√≥n de la librer√≠a GNU readline
                           en formato DVI
 #endif
    doc/editors.txt        Lista de editores que soportan Lisp
-   emacs/*.el             personalizaciÛn de Emacs, vÈase doc/editors.txt
+   emacs/*.el             personalizaci√≥n de Emacs, v√©ase doc/editors.txt
 #ifndef UNIX_BINARY_DISTRIB
    src/clisp.c            fuentes del programa
 #endif
-   src/config.lisp        configuraciÛn dependiente del lugar
+   src/config.lisp        configuraci√≥n dependiente del lugar
 
-y - cuando le apetezca, si le gusta leer cÛdigo fuente -
+y - cuando le apetezca, si le gusta leer c√≥digo fuente -
 
-   src/*.lisp             el cÛdigo fuente de lispinit.mem
+   src/*.lisp             el c√≥digo fuente de lispinit.mem
    src/*.fas              los mismos ficheros, una vez compilados
 #if !defined(UNIX_BINARY_DISTRIB) && defined(GNU_READLINE)
 
-Para crear el ejecutable, tambiÈn necesitar·:
+Para crear el ejecutable, tambi√©n necesitar√°:
 
-   base/libreadline.a     librerÌa GNU readline
+   base/libreadline.a     librer√≠a GNU readline
 
 o
 
-   base/libnoreadline.a   sustituto ficticio de la librerÌa GNU readline
+   base/libnoreadline.a   sustituto ficticio de la librer√≠a GNU readline
 #endif
 #else /* !defined(UNIX) */
 #ifdef AMIGAOS
@@ -106,7 +106,7 @@ o
 #ifdef RISCOS
       lisp               programa principal
 #endif
-      lispinit.mem       imagen de memoria necesaria para la inicializaciÛn
+      lispinit.mem       imagen de memoria necesaria para la inicializaci√≥n
 #ifdef GNU_GETTEXT
       locale/*/LC_MESSAGES/clisp.mo  <<<localized messages databases>>>
 #endif
@@ -120,47 +120,47 @@ o
 #ifdef OS2
       clisp.dvi          manual en formato DVI
 #endif
-      impnotes.html      notas de la implementaciÛn
+      impnotes.html      notas de la implementaci√≥n
 #ifdef GNU_READLINE
-      clreadline.3       manual de ediciÛn de lÌnea en formato `man' de Unix
-      clreadline.man     manual de ediciÛn de lÌnea
-      clreadline.html    manual de ediciÛn de lÌnea en format HTML
+      clreadline.3       manual de edici√≥n de l√≠nea en formato `man' de Unix
+      clreadline.man     manual de edici√≥n de l√≠nea
+      clreadline.html    manual de edici√≥n de l√≠nea en format HTML
 #ifdef OS2
-      clreadline.dvi     manual de ediciÛn de lÌnea en formato DVI
+      clreadline.dvi     manual de edici√≥n de l√≠nea en formato DVI
 #endif
 #endif
       LISP-tutorial.txt  tutorial de LISP para aprendices
-      CLOS-guide.txt     breve guÌa de CLOS
+      CLOS-guide.txt     breve gu√≠a de CLOS
       editors.txt        <<<some words about text editors for Lisp>>>
 #ifdef EMUNIX
       emx.exe            extensor DOS rsx para ejecutar clisp bajo DOS o OS/2
-      emx-user.doc       guÌa del usuario de aplicaciones emx
+      emx-user.doc       gu√≠a del usuario de aplicaciones emx
       emx-faq.doc        preguntas frecuentes sobre las aplicaciones emx
-      emx.dll            librerÌa de enlazamiento din·mico de OS/2 que contiene emx
-      emxlibc.dll        librerÌa de enlazamiento din·mico de OS/2 que contiene emx libc
+      emx.dll            librer√≠a de enlazamiento din√°mico de OS/2 que contiene emx
+      emxlibc.dll        librer√≠a de enlazamiento din√°mico de OS/2 que contiene emx libc
       termcap.dat        base de datos del terminal 
 #endif
 #ifdef RISCOS
-      !Run               fichero de ejecuciÛn para CLISP
+      !Run               fichero de ejecuci√≥n para CLISP
       !Sprites           icono de CLISP
 #endif
       README             este texto
-      SUMMARY            pequeÒa descripciÛn de CLISP
-      ANNOUNCE           declaraciÛn
-      NEWS               lista de modificaciones desde la ˙ltima versiÛn
+      SUMMARY            peque√±a descripci√≥n de CLISP
+      ANNOUNCE           declaraci√≥n
+      NEWS               lista de modificaciones desde la √∫ltima versi√≥n
       COPYRIGHT          derechos de autor
       GNU-GPL            licencia de software libre
 #ifdef GNU_READLINE
-      readline.dvi	 documentaciÛn de la librerÌa GNU readline en formato DVI
+      readline.dvi	 documentaci√≥n de la librer√≠a GNU readline en formato DVI
 #endif
-      config.lisp        configuraciÛn dependiente del lugar
+      config.lisp        configuraci√≥n dependiente del lugar
 #if !(defined(UNIX) || defined(WIN32))
       timezone.lisp      zona horaria dependiente del lugar
 #endif
 
-y - cuando le apetezca, si le gusta leer cÛdigo fuente -
+y - cuando le apetezca, si le gusta leer c√≥digo fuente -
 
-      *.lisp             el cÛdigo fuente de lispinit.mem
+      *.lisp             el c√≥digo fuente de lispinit.mem
 #if !defined(OS2)
       *.fas              los mismos ficheros, una vez compilados
 #endif
@@ -171,10 +171,10 @@ y - cuando le apetezca, si le gusta leer cÛdigo fuente -
 Requisitos Hardware:
 --------------------
 
-La versiÛn para OS/2 de CLISP necesita una CPU 80386 (SX o DX) o un 80486,
+La versi√≥n para OS/2 de CLISP necesita una CPU 80386 (SX o DX) o un 80486,
 ejecutando OS/2 2.0.
-TambiÈn se ejecuta en un Pentium; los resultados que produce CLISP no
-est·n afectados por el error de divisiÛn del Pentium de Intel.
+Tambi√©n se ejecuta en un Pentium; los resultados que produce CLISP no
+est√°n afectados por el error de divisi√≥n del Pentium de Intel.
 
 #endif
 #ifdef AMIGAOS
@@ -182,19 +182,19 @@ est·n afectados por el error de divisiÛn del Pentium de Intel.
 Requisitos Hardware:
 --------------------
 
-Esta versiÛn para Amiga de CLISP requiere, al menos, 1.5 MB de RAM. La
-versiÛn denominada CLISP-LOW se ejecuta en m·quinas sin m·s memoria
+Esta versi√≥n para Amiga de CLISP requiere, al menos, 1.5 MB de RAM. La
+versi√≥n denominada CLISP-LOW se ejecuta en m√°quinas sin m√°s memoria
 que la que puede direccionarse en un rango de 24 bits: en el 68000,
-A2620 y A2630. La versiÛn denominada CLISP-HIGH se ejecuta en memorias
+A2620 y A2630. La versi√≥n denominada CLISP-HIGH se ejecuta en memorias
 que se direccionan con 27 bits (en el rango de direcciones de
-#x00000000 to #x07FFFFFF), pero sÛlo en las CPUs 68020/030/040(/060?):
-en A3000 y A4000 sin placas de memoria Zorro-III. La versiÛn
-denominada CLISP-00 se ejecuta ˙nicamente en una CPU 68000/010, pero
-es m·s r·pida que CLISP-LOW. La versiÛn denominada CLISP-WIDE utiliza
+#x00000000 to #x07FFFFFF), pero s√≥lo en las CPUs 68020/030/040(/060?):
+en A3000 y A4000 sin placas de memoria Zorro-III. La versi√≥n
+denominada CLISP-00 se ejecuta √∫nicamente en una CPU 68000/010, pero
+es m√°s r√°pida que CLISP-LOW. La versi√≥n denominada CLISP-WIDE utiliza
 enteros de 64 bits y se ejecuta sobre cualquier memoria en un
 procesador 68020 o superior: sobre A4000 con VMM. El esfuerzo
-adicional para el tratamiento de n˙meros enteros de 64 bits hace que
-CLISP-WIDE sea m·s lento que CLISP-HIGH.
+adicional para el tratamiento de n√∫meros enteros de 64 bits hace que
+CLISP-WIDE sea m√°s lento que CLISP-HIGH.
 
 #endif
 #ifdef RISCOS
@@ -202,9 +202,9 @@ CLISP-WIDE sea m·s lento que CLISP-HIGH.
 Requisitos Hardware:
 --------------------
 
-Esta versiÛn de CLISP requiere un PC Acorn Archimedes o Acorn RISC
-con, al menos, 4 MB de Ram y RISC OS 3.0 o superior. M·s adelante se
-explica como crear una versiÛn de CLISP que se ejecute con solo 2 MB.
+Esta versi√≥n de CLISP requiere un PC Acorn Archimedes o Acorn RISC
+con, al menos, 4 MB de Ram y RISC OS 3.0 o superior. M√°s adelante se
+explica como crear una versi√≥n de CLISP que se ejecute con solo 2 MB.
 
 #endif
 #if defined(SINGLEMAP_MEMORY) && (defined(UNIX_LINUX) || !defined(HAVE_MMAP_ANON))
@@ -215,12 +215,12 @@ Requisitos Software:
 #ifdef UNIX_LINUX
 #ifdef GENERATIONAL_GC
 #ifdef IMMUTABLE
-Esta versiÛn de CLISP necesita Linux 1.2.2 o m·s reciente.
+Esta versi√≥n de CLISP necesita Linux 1.2.2 o m√°s reciente.
 #else
-Esta versiÛn de CLISP necesita Linux 1.1.52 o m·s reciente.
+Esta versi√≥n de CLISP necesita Linux 1.1.52 o m√°s reciente.
 #endif
 #else
-Esta versiÛn de CLISP necesita Linux 0.99.7 o m·s reciente.
+Esta versi√≥n de CLISP necesita Linux 0.99.7 o m√°s reciente.
 #endif
 #endif
 #if !defined(HAVE_MACH_VM) && !defined(HAVE_MMAP_ANON) /* impliziert HAVE_MMAP_DEVZERO */
@@ -234,34 +234,34 @@ comando "chmod a+r /dev/zero".
 Requisitos Software:
 --------------------
 
-Esta versiÛn de CLISP necesita OS 2.04 (V37) o m·s reciente.
+Esta versi√≥n de CLISP necesita OS 2.04 (V37) o m√°s reciente.
 
 #endif
 
-InstalaciÛn:
+Instalaci√≥n:
 ------------
 
 #ifdef OS2
 Antes que nada, instale emx.dll y emxlibc.dll en un directorio aparte,
-por ejemplo c:\emx\dll. AÒada c:\emx\dll (aseg˙rese de colocar la
+por ejemplo c:\emx\dll. A√±ada c:\emx\dll (aseg√∫rese de colocar la
 unidad de disco correcta) a la sentencia LIBPATH de su fichero
 config.sys. Reinicie su ordenador, de modo que se active la nueva
-instrucciÛn LIBPATH y las nuevas variables de entorno.
+instrucci√≥n LIBPATH y las nuevas variables de entorno.
 
 #endif
 #ifdef EMUNIX
 
-Para que las lÌneas de entrada demasiado largas puedan mostrarse de
+Para que las l√≠neas de entrada demasiado largas puedan mostrarse de
 una manera elegante, es necesario que tenga una linea del tipo:
 
     DEVICE=ANSI.SYS
 
-en su fichero CONFIG.SYS. M·s a˙n, la variable de entorno TERM debe
+en su fichero CONFIG.SYS. M√°s a√∫n, la variable de entorno TERM debe
 estar definida, y la variable de entorno TERMCAP debe contener el
 nombre del fichero (con la ruta completa) de la base de datos
-TERMCAP.DAT, con la definiciÛn de las capacidades del terminal. Es una
-buena idea, aÒadir estas instrucciones en el fichero CLISP.BAT que se
-construye m·s adelante. Si lo desea, puede instalar el fichero
+TERMCAP.DAT, con la definici√≥n de las capacidades del terminal. Es una
+buena idea, a√±adir estas instrucciones en el fichero CLISP.BAT que se
+construye m√°s adelante. Si lo desea, puede instalar el fichero
 TERMCAP.DAT en un directorio aparte, por ejemplo c:\emx\etc.
 
 #endif
@@ -271,19 +271,19 @@ Teclee
 
          make
 
-#if 0 /* def GNU_READLINE - man muﬂ Makefile ver‰ndern */
-Si desea renunciar a las capacidades de ediciÛn de lectura de la
-librerÌa GNU readline, deberÌa haber reemplazado "libreadline.a" en la
-lÌnea LIBS del fichero BASE/MAKEVARS por "libnoreadline.a".
+#if 0 /* def GNU_READLINE - man mu√ü Makefile ver√§ndern */
+Si desea renunciar a las capacidades de edici√≥n de lectura de la
+librer√≠a GNU readline, deber√≠a haber reemplazado "libreadline.a" en la
+l√≠nea LIBS del fichero BASE/MAKEVARS por "libnoreadline.a".
 
 #endif
 #endif
 Cambie las cadenas en SRC/CONFIG.LISP, empleando para ello un editor de
 textos.
 #else
-Edite el fichero CONFIG.LISP y modifÌquelo adecuadamente para su
-estaciÛn, con especial atenciÛn a las definiciones de short-site-name
-y long-site-name. Si lo desea, tambiÈn puede modificar la definiciÛn
+Edite el fichero CONFIG.LISP y modif√≠quelo adecuadamente para su
+estaci√≥n, con especial atenci√≥n a las definiciones de short-site-name
+y long-site-name. Si lo desea, tambi√©n puede modificar la definici√≥n
 de la zona horaria al final del fichero TIMEZONE.LISP.
 #endif
 Luego ejecute
@@ -312,7 +312,7 @@ teclee
 #ifdef RISCOS
         (cd "<clisp$path>.")
 
-para asegurarse de que el directorio !Clisp es el que est· actualmente
+para asegurarse de que el directorio !Clisp es el que est√° actualmente
 seleccionado. Luego
 
 #endif
@@ -323,7 +323,7 @@ seleccionado. Luego
         (compile-file "config.lisp")
         (load "config.fas")
 
-y - si modificÛ el fichero TIMEZONE.LISP -
+y - si modific√≥ el fichero TIMEZONE.LISP -
 
         (compile-file "timezone.lisp")
         (load "timezone.fas")
@@ -336,8 +336,8 @@ y luego
 #endif
         (saveinitmem)
 
-para sobreescribir el fichero LISPINIT.MEM con su configuraciÛn. A
-continuaciÛn
+para sobreescribir el fichero LISPINIT.MEM con su configuraci√≥n. A
+continuaci√≥n
 
         (exit)
 
@@ -350,7 +350,7 @@ En vez de esto, puede hacerlo usted mismo, paso por paso:
 
 #endif
 #ifndef RISCOS
-Luego cree un directorio, y ponga en Èl el ejecutable con la imagen de
+Luego cree un directorio, y ponga en √©l el ejecutable con la imagen de
 memoria.
 #endif
 #ifdef UNIX
@@ -369,7 +369,7 @@ Suponiendo D:\LIB\LISP :
 #endif
 
 #if defined(MSDOS) || defined(WIN32_NATIVE)
-Y cree un fichero de ejecuciÛn por lotes que ejecute lisp:
+Y cree un fichero de ejecuci√≥n por lotes que ejecute lisp:
 
 #ifndef OS2
    copy con c:\bat\clisp.bat
@@ -397,9 +397,9 @@ Y cree el programa que ejeute lisp:
 #endif
 
 #ifdef GNU_READLINE
-Ahora, instale las p·ginas de man.
+Ahora, instale las p√°ginas de man.
 #else
-Ahora, instale la p·gina man.
+Ahora, instale la p√°gina man.
 #endif
 
    mv doc/clisp.1 /usr/local/man/man1/clisp.1
@@ -420,7 +420,7 @@ Nota:
 Puede ejecutar CLISP desde Workbench(tm). Los siguientes Tooltypes son
 reconocidos en el icono Tool:
 
-   WINDOW=<ventana o especificaciÛn de `pipe'>
+   WINDOW=<ventana o especificaci√≥n de `pipe'>
    ARGS=<argumentos del tipo CLI>
 
 Por ejemplo,
@@ -431,21 +431,21 @@ Por ejemplo,
 #endif
 #ifdef RISCOS
 
-øCorto de memoria?
+¬øCorto de memoria?
 ------------------
 
-Si sÛlo dispone de 2 MB de RAM, puede crear un CLISP "desmontado" que
-requiere menos memoria, pero que no dispondr· de algunas partes
-definidas en CLtL2, dpANS-LOOP, CLOS, Condiciones y flujos genÈricos:
+Si s√≥lo dispone de 2 MB de RAM, puede crear un CLISP "desmontado" que
+requiere menos memoria, pero que no dispondr√° de algunas partes
+definidas en CLtL2, dpANS-LOOP, CLOS, Condiciones y flujos gen√©ricos:
 Reemplace DEFS2.FAS, LOOP.FAS, CLOS.FAS, CONDITIO.FAS, DEFS3.FAS,
-GSTREAM.FAS por ficheros vacÌos y ejecute:
+GSTREAM.FAS por ficheros vac√≠os y ejecute:
 
    lisp
    > (load "init.fas")
    > (saveinitmem)
    > (exit)
 
-Esto sobreescribir· el fichero LISPINIT.MEM por otro m·s pequeÒo.
+Esto sobreescribir√° el fichero LISPINIT.MEM por otro m√°s peque√±o.
 
 #endif
 
@@ -454,23 +454,23 @@ Cuando encuentre problemas:
 
 #ifdef EMUNIX
 Si clisp no se ejecuta de ninguna manera, consulte
-EMX-USER.DOC. LISP.EXE es una aplicaciÛn EMX, de modo que todo lo que
-se menciona ahÌ, se aplica a LISP.EXE.
+EMX-USER.DOC. LISP.EXE es una aplicaci√≥n EMX, de modo que todo lo que
+se menciona ah√≠, se aplica a LISP.EXE.
 
 #endif
-DespuÈs de un error, se encontrar· en el depurador:
+Despu√©s de un error, se encontrar√° en el depurador:
 
      1. Break> _
 
-En Èl, usted puede evaluar formas como siempre. M·s a˙n:
+En √©l, usted puede evaluar formas como siempre. M√°s a√∫n:
 
      Help
                invoca la ayuda
      Abort     o
      Unwind
-               retrocede hasta el bucle de entrada m·s reciente
+               retrocede hasta el bucle de entrada m√°s reciente
      Backtrace
-               muestra los contenidos de la pila, ˙til para la depuraciÛn
+               muestra los contenidos de la pila, √∫til para la depuraci√≥n
 
 Y puede consultar el valor de las variables de las funciones donde se
 produjo el error.
@@ -487,20 +487,20 @@ Cuando los problemas sean mayor, por ejemplo "register dumps", por favor
 #ifdef RISCOS
 Cuando los problemas sean mayores, por ejemplo, "stack dumps", por favor
 #endif
-envÌe una descripciÛn del error y una descripciÛn de cÛmo reproducir
-el error a los autores o al "mantenedor". Por favor, acompaÒe su mensaje
-de la versiÛn de CLISP que puede obtener invocando la funciÛn
+env√≠e una descripci√≥n del error y una descripci√≥n de c√≥mo reproducir
+el error a los autores o al "mantenedor". Por favor, acompa√±e su mensaje
+de la versi√≥n de CLISP que puede obtener invocando la funci√≥n
 (lisp-implementation-version).
 
 
-CÛdigo fuente:
+C√≥digo fuente:
 --------------
 
-El cÛdigo fuente de CLISP est· disponible en
+El c√≥digo fuente de CLISP est√° disponible en
      ftp://clisp.cons.org/pub/lisp/clisp/source/clispsrc*
 #ifdef UNIX_LINUX
-La ˙ltima distribuciÛn binaria de CLISP para Linux tiene su propio
-cÛdigo fuente en
+La √∫ltima distribuci√≥n binaria de CLISP para Linux tiene su propio
+c√≥digo fuente en
      ftp://sunsite.unc.edu/pub/Linux/devel/lang/lisp/clisp-source.tar.gz
 #endif
 
@@ -512,9 +512,9 @@ Lista de correo:
 ----------------
 
 #if 0
-Hay una lista de correo para los usuarios de CLISP. …se es el foro
-adecuado para cualquier cuestiÛn relacionada con CLISP, problemas de
-instalaciÛn, errores, paquetes de aplicaciones, etc.
+Hay una lista de correo para los usuarios de CLISP. √âse es el foro
+adecuado para cualquier cuesti√≥n relacionada con CLISP, problemas de
+instalaci√≥n, errores, paquetes de aplicaciones, etc.
 #endif
 <<<There are three mailing lists for users of CLISP. You find subscription
 information and archives on the homepage http://clisp.cons.org/.>>>
@@ -524,13 +524,13 @@ Agradecimientos:
 ----------------
 
 Estamos muy agradecidos a 
-  * Guy L. Steele y otros muchos por la especificaciÛn de Common Lisp.
+  * Guy L. Steele y otros muchos por la especificaci√≥n de Common Lisp.
 #ifdef UNIX
-  * El proyecto GNU de Richard Stallman para el GCC, Autoconf y la librerÌa
+  * El proyecto GNU de Richard Stallman para el GCC, Autoconf y la librer√≠a
     readline.
 #else
 #ifdef GNU_READLINE
-  * El proyecto GNU de Richard Stallman para el GCC y la librerÌa readline.
+  * El proyecto GNU de Richard Stallman para el GCC y la librer√≠a readline.
 #else
 #ifdef GNU
   * El proyecto GNU de Richard Stallman para el GCC.
@@ -551,16 +551,16 @@ Autores:
 Email: clisp-list@lists.sourceforge.net
 #ifdef AMIGAOS
 
-MigraciÛn a Amiga por:
+Migraci√≥n a Amiga por:
 ----------------------
 
-        Jˆrg Hˆhle
+        J√∂rg H√∂hle
 
 Email: Joerg.Hoehle@gmd.de
 #endif
 #ifdef RISCOS
 
-MigraciÛn a Acorn RISC OS por:
+Migraci√≥n a Acorn RISC OS por:
 ------------------------------
 
         Peter Burwood

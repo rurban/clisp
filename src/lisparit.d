@@ -1,4 +1,4 @@
-# Arithmetik f¸r CLISP
+# Arithmetik f√ºr CLISP
 # Bruno Haible 1990-1999
 
 #include "lispbibl.c"
@@ -13,7 +13,7 @@
 # > x,y: zwei Zahlen
 # < ergebnis: TRUE, falls (= x y) gilt
   global boolean number_gleich (object x, object y);
-  #define N_N_gleich  number_gleich  # N_N_gleich wird sp‰ter definiert
+  #define N_N_gleich  number_gleich  # N_N_gleich wird sp√§ter definiert
 
 
 # zur Arithmetik allgemein:
@@ -43,16 +43,16 @@
 #include "flo_konv.c" # Float-Konversionen
 #include "flo_rest.c" # Floats allgemein
 # zu reellen Zahlen:
-#include "realelem.c" # elementare Funktionen f¸r reelle Zahlen
-#include "realrand.c" # Funktionen f¸r Zufallszahlen
-#include "realtran.c" # transzendente Funktionen f¸r reelle Zahlen
+#include "realelem.c" # elementare Funktionen f√ºr reelle Zahlen
+#include "realrand.c" # Funktionen f√ºr Zufallszahlen
+#include "realtran.c" # transzendente Funktionen f√ºr reelle Zahlen
 # zu komplexen Zahlen:
-#include "compelem.c" # elementare Funktionen f¸r komplexe Zahlen
-#include "comptran.c" # transzendente Funktionen f¸r komplexe Zahlen
+#include "compelem.c" # elementare Funktionen f√ºr komplexe Zahlen
+#include "comptran.c" # transzendente Funktionen f√ºr komplexe Zahlen
 
 
 # =========================================================================== #
-#                       Einleseroutinen f¸r Zahlen
+#                       Einleseroutinen f√ºr Zahlen
 
 # UP: Multipliziert ein Integer mit 10 und addiert eine weitere Ziffer.
 # mal_10_plus_x(y,x)
@@ -74,19 +74,19 @@
       end_arith_call();
       if (!(carry==0))
         { *--MSDptr = carry; len++;
-          if (uintWCoverflow(len)) { RESTORE_NUM_STACK; BN_ueberlauf(); } # ‹berlauf der L‰nge?
+          if (uintWCoverflow(len)) { RESTORE_NUM_STACK; BN_ueberlauf(); } # √úberlauf der L√§nge?
         }
       {var object result = UDS_to_I(MSDptr,len); # UDS als Integer
-       RESTORE_NUM_STACK # num_stack zur¸ck
+       RESTORE_NUM_STACK # num_stack zur√ºck
        return result;
     }}}
 
 # UP: Wandelt eine Zeichenkette mit Integer-Syntax in ein Integer um.
-# Punkte werden ¸berlesen.
+# Punkte werden √ºberlesen.
 # read_integer(base,sign,string,index1,index2)
 # > base: Lesebasis (>=2, <=36)
 # > sign: Vorzeichen (/=0 falls negativ)
-# > string: Simple-String (enth‰lt Ziffern mit Wert <base und evtl. Punkt)
+# > string: Simple-String (enth√§lt Ziffern mit Wert <base und evtl. Punkt)
 # > index1: Index der ersten Ziffer
 # > index2: Index nach der letzten Ziffer
 #   (also index2-index1 Ziffern, incl. evtl. Dezimalpunkt am Schluss)
@@ -114,11 +114,11 @@
 # read_rational(base,sign,string,index1,index3,index2)
 # > base: Lesebasis (>=2, <=36)
 # > sign: Vorzeichen (/=0 falls negativ)
-# > string: Normal-Simple-String (enth‰lt Ziffern mit Wert <base und Bruchstrich)
+# > string: Normal-Simple-String (enth√§lt Ziffern mit Wert <base und Bruchstrich)
 # > index1: Index der ersten Ziffer
 # > index3: Index von '/'
 # > index2: Index nach der letzten Ziffer
-#   (also index3-index1 Z‰hler-Ziffern, index2-index3-1 Nenner-Ziffern)
+#   (also index3-index1 Z√§hler-Ziffern, index2-index3-1 Nenner-Ziffern)
 # < ergebnis: rationale Zahl
 # can trigger GC
   global object read_rational (uintWL base,
@@ -137,17 +137,17 @@
       if (eq(x,Fixnum_0)) { divide_0(); } # Division durch 0 abfangen
       string = STACK_0; STACK_0 = x;
      }
-     {var object x = # Z‰hler
+     {var object x = # Z√§hler
         DIGITS_to_I(&TheSstring(string)->data[index1],index3-index1,(uintD)base);
       if (!(sign==0)) { x = I_minus_I(x); } # incl. Vorzeichen
-      return I_posI_durch_RA(x,popSTACK()); # Z‰hler/Nenner als Bruch
+      return I_posI_durch_RA(x,popSTACK()); # Z√§hler/Nenner als Bruch
     }}
 
 # UP: Wandelt eine Zeichenkette mit Float-Syntax in ein Float um.
 # read_float(base,sign,string,index1,index4,index2,index3)
 # > base: Lesebasis (=10)
 # > sign: Vorzeichen (/=0 falls negativ)
-# > string: Normal-Simple-String (enth‰lt Ziffern und evtl. Punkt und Exponentmarker)
+# > string: Normal-Simple-String (enth√§lt Ziffern und evtl. Punkt und Exponentmarker)
 # > index1: Index vom Mantissenanfang (excl. Vorzeichen)
 # > index4: Index nach dem Mantissenende
 # > index2: Index beim Ende der Characters
@@ -176,12 +176,12 @@
       {var uintL exp_len = index2-index4; # Anzahl Stellen des Exponenten
        if (exp_len > 0)
          { var const chart* ptr = &TheSstring(string)->data[index4]; # zeigt auf den Exponentmarker
-           exp_marker = *ptr++; exp_len--; # Exponentmarker ¸berlesen
-                        # (als Groﬂbuchstabe, da vom Aufrufer umgewandelt)
+           exp_marker = *ptr++; exp_len--; # Exponentmarker √ºberlesen
+                        # (als Gro√übuchstabe, da vom Aufrufer umgewandelt)
           {var signean exp_sign = 0; # Exponenten-Vorzeichen
            switch (as_cint(*ptr))
              { case '-': exp_sign = ~exp_sign; # Vorzeichen := negativ
-               case '+': ptr++; exp_len--; # Exponenten-Vorzeichen ¸berlesen
+               case '+': ptr++; exp_len--; # Exponenten-Vorzeichen √ºberlesen
                default: ;
              }
            exponent = DIGITS_to_I(ptr,exp_len,(uintD)base); # Exponent in Integer umwandeln
@@ -190,7 +190,7 @@
          else
          # kein Exponent da
          { exp_marker = ascii('E'); exponent = Fixnum_0; }
-       # exp_marker = Exponentmarker als Groﬂbuchtabe,
+       # exp_marker = Exponentmarker als Gro√übuchtabe,
        # exponent = Exponent als Integer.
        exponent = # Exponent - Anzahl der Nachkommaziffern
          I_I_minus_I(exponent,fixnum(index4-index3));
@@ -205,12 +205,12 @@
         if (RA_integerp(exponent))
           { mantisse = I_I_mal_I(mantisse,exponent); }
           else
-          { # falls mantisse/=0, in exponent=1/10^i den Z‰hler durch mantisse
-            # ersetzen (liefert ungek¸rzten Bruch, Vorsicht!)
+          { # falls mantisse/=0, in exponent=1/10^i den Z√§hler durch mantisse
+            # ersetzen (liefert ungek√ºrzten Bruch, Vorsicht!)
             if (!(eq(mantisse,Fixnum_0)))
               { TheRatio(exponent)->rt_num = mantisse; mantisse = exponent; }
           }
-        # mantisse = Mantisse * Zehnerpotenz, als ungek¸rzte rationale Zahl!
+        # mantisse = Mantisse * Zehnerpotenz, als ungek√ºrzte rationale Zahl!
         switch (as_cint(exp_marker))
           { case 'S': SF: # in Short-Float umwandeln
               {var object x = RA_to_SF(mantisse);
@@ -238,7 +238,7 @@
 
 
 # =========================================================================== #
-#                       Ausgaberoutinen f¸r Zahlen
+#                       Ausgaberoutinen f√ºr Zahlen
 
 # UP: Gibt ein Integer aus.
 # print_integer(z,base,&stream);
@@ -271,7 +271,7 @@
         write_char_array(stream_,&STACK_0,erg.MSBptr-&TheSstring(digits)->data[0],erg.len);
         FREE_DYNAMIC_STRING(STACK_0);
         skipSTACK(1);
-        RESTORE_NUM_STACK # num_stack zur¸ck
+        RESTORE_NUM_STACK # num_stack zur√ºck
     }}}}
 
 # UP: Gibt ein Float aus.
@@ -291,14 +291,14 @@
         { pushSTACK(*stream_); pushSTACK(z); funcall(fun,2); }
         else
         # eigene Routine: gibt
-        # Vorzeichen, Punkt, Mantisse (bin‰r), (Zweiersystem-)Exponent (dezimal)
+        # Vorzeichen, Punkt, Mantisse (bin√§r), (Zweiersystem-)Exponent (dezimal)
         # aus.
         { pushSTACK(z);
           F_integer_decode_float_I_I_I(z);
           # Stackaufbau: z, m, e, s.
           # Vorzeichen ausgeben, falls <0:
           if (eq(STACK_0,Fixnum_minus1)) { write_ascii_char(stream_,'-'); }
-          # Mantisse bin‰r(!) ausgeben:
+          # Mantisse bin√§r(!) ausgeben:
           write_ascii_char(stream_,'.');
           print_integer(STACK_2,2,stream_);
           # Exponent-Marker ausgeben:
@@ -327,8 +327,8 @@
   nonreturning_function(local, fehler_not_N, (object obj));
   local void fehler_not_N(obj)
     var object obj;
-    { pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(number)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+    { pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(number)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -342,8 +342,8 @@
   nonreturning_function(local, fehler_not_R, (object obj));
   local void fehler_not_R(obj)
     var object obj;
-    { pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(real)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+    { pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(real)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -357,8 +357,8 @@
   nonreturning_function(local, fehler_not_F, (object obj));
   local void fehler_not_F(obj)
     var object obj;
-    { pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(float)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+    { pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(float)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -372,8 +372,8 @@
   nonreturning_function(local, fehler_not_RA, (object obj));
   local void fehler_not_RA(obj)
     var object obj;
-    { pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(rational)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+    { pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(rational)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -387,8 +387,8 @@
   nonreturning_function(local, fehler_not_I, (object obj));
   local void fehler_not_I(obj)
     var object obj;
-    { pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(integer)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+    { pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(integer)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -402,8 +402,8 @@
   nonreturning_function(local, fehler_digits, (object obj));
   local void fehler_digits(obj)
     var object obj;
-    { pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_posfixnum1)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+    { pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_posfixnum1)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -411,23 +411,23 @@
             );
     }
 
-# check_number(obj) ¸berpr¸ft, ob obj eine Zahl ist.
+# check_number(obj) √ºberpr√ºft, ob obj eine Zahl ist.
 # > subr_self: Aufrufer (ein SUBR)
   #define check_number(obj)  { if (!numberp(obj)) { fehler_not_N(obj); } }
 
-# check_real(obj) ¸berpr¸ft, ob obj eine reelle Zahl ist.
+# check_real(obj) √ºberpr√ºft, ob obj eine reelle Zahl ist.
 # > subr_self: Aufrufer (ein SUBR)
   #define check_real(obj)  if_realp(obj, ; , { fehler_not_R(obj); } );
 
-# check_float(obj) ¸berpr¸ft, ob obj eine Floating-Point-Zahl ist.
+# check_float(obj) √ºberpr√ºft, ob obj eine Floating-Point-Zahl ist.
 # > subr_self: Aufrufer (ein SUBR)
   #define check_float(obj)  { if (!floatp(obj)) { fehler_not_F(obj); } }
 
-# check_rational(obj) ¸berpr¸ft, ob obj eine rationale Zahl ist.
+# check_rational(obj) √ºberpr√ºft, ob obj eine rationale Zahl ist.
 # > subr_self: Aufrufer (ein SUBR)
   #define check_rational(obj)  if_rationalp(obj, ; , { fehler_not_RA(obj); } );
 
-# check_integer(obj) ¸berpr¸ft, ob obj eine ganze Zahl ist.
+# check_integer(obj) √ºberpr√ºft, ob obj eine ganze Zahl ist.
 # > subr_self: Aufrufer (ein SUBR)
   #define check_integer(obj)  { if (!integerp(obj)) { fehler_not_I(obj); } }
 
@@ -444,14 +444,14 @@
        var uintC len;
        I_to_NDS(x, MSDptr=,len=,); # x (>=0) als UDS
      { var uintL need = digits_need(len,10);
-       var DYNAMIC_ARRAY(ziffern,chart,need); # Platz f¸r die Ziffern
+       var DYNAMIC_ARRAY(ziffern,chart,need); # Platz f√ºr die Ziffern
        var DIGITS erg; erg.LSBptr = &ziffern[need];
        UDS_to_DIGITS(MSDptr,len,10,&erg); # Umwandlung in Ziffern
        # Ziffern in Normal-Simple-String schreiben:
       {var object string = allocate_string(erg.len);
        chartcopy(erg.MSBptr,&TheSstring(string)->data[0],erg.len);
        FREE_DYNAMIC_ARRAY(ziffern);
-       RESTORE_NUM_STACK # num_stack zur¸ck
+       RESTORE_NUM_STACK # num_stack zur√ºck
        return string;
     }}}
 
@@ -502,14 +502,14 @@ LISPFUNN(evenp,1)
 # UP: Testet, ob alle argcount+1 Argumente unterhalb von args_pointer
 # Zahlen sind. Wenn nein, Error.
 # > argcount: Argumentezahl-1
-# > args_pointer: Pointer ¸ber die Argumente
+# > args_pointer: Pointer √ºber die Argumente
 # > subr_self: Aufrufer (ein SUBR)
   local void test_number_args (uintC argcount, object* args_pointer);
   local void test_number_args(argcount,args_pointer)
     var uintC argcount;
     var object* args_pointer;
     { dotimespC(argcount,argcount+1,
-        { var object arg = NEXT(args_pointer); # n‰chstes Argument
+        { var object arg = NEXT(args_pointer); # n√§chstes Argument
           check_number(arg); # muss eine Zahl sein
         });
     }
@@ -517,14 +517,14 @@ LISPFUNN(evenp,1)
 # UP: Testet, ob alle argcount+1 Argumente unterhalb von args_pointer
 # reelle Zahlen sind. Wenn nein, Error.
 # > argcount: Argumentezahl-1
-# > args_pointer: Pointer ¸ber die Argumente
+# > args_pointer: Pointer √ºber die Argumente
 # > subr_self: Aufrufer (ein SUBR)
   local void test_real_args (uintC argcount, object* args_pointer);
   local void test_real_args(argcount,args_pointer)
     var uintC argcount;
     var object* args_pointer;
     { dotimespC(argcount,argcount+1,
-        { var object arg = NEXT(args_pointer); # n‰chstes Argument
+        { var object arg = NEXT(args_pointer); # n√§chstes Argument
           check_real(arg); # muss eine reelle Zahl sein
         });
     }
@@ -532,14 +532,14 @@ LISPFUNN(evenp,1)
 # UP: Testet, ob alle argcount+1 Argumente unterhalb von args_pointer
 # ganze Zahlen sind. Wenn nein, Error.
 # > argcount: Argumentezahl-1
-# > args_pointer: Pointer ¸ber die Argumente
+# > args_pointer: Pointer √ºber die Argumente
 # > subr_self: Aufrufer (ein SUBR)
   local void test_integer_args (uintC argcount, object* args_pointer);
   local void test_integer_args(argcount,args_pointer)
     var uintC argcount;
     var object* args_pointer;
     { dotimespC(argcount,argcount+1,
-        { var object arg = NEXT(args_pointer); # n‰chstes Argument
+        { var object arg = NEXT(args_pointer); # n√§chstes Argument
           check_integer(arg); # muss eine ganze Zahl sein
         });
     }
@@ -718,7 +718,7 @@ LISPFUN(minus,1,0,rest,nokey,0,NIL)
   { var object* args_pointer = rest_args_pointer STACKop 1;
     test_number_args(argcount,args_pointer); # Alle Argumente Zahlen?
     if (argcount==0)
-      # un‰res Minus
+      # un√§res Minus
       { value1 = N_minus_N(Next(args_pointer)); }
       else
       # Methode:
@@ -760,7 +760,7 @@ LISPFUN(durch,1,0,rest,nokey,0,NIL)
   { var object* args_pointer = rest_args_pointer STACKop 1;
     test_number_args(argcount,args_pointer); # Alle Argumente Zahlen?
     if (argcount==0)
-      # un‰res Durch
+      # un√§res Durch
       { value1 = N_durch_N(Next(args_pointer)); }
       else
       # Methode:
@@ -827,7 +827,7 @@ LISPFUN(xgcd,0,0,rest,nokey,0,NIL)
 # (xgcd x) = (abs x), (signum x)
 # (xgcd x1 x2 x3 ... xn) mit n>=2:
 #   (g,u[1],u[2]) := (xgcd x1 x2),
-#   f¸r i=3,...,n:
+#   f√ºr i=3,...,n:
 #     (g',u,v) := (xgcd g xi),
 #     (g,u[1],...,u[i]) := (g',u*u[1],...,u*u[i-1],v).
   { if (argcount==0) { value1 = Fixnum_0; mv_count=1; return; }
@@ -1387,10 +1387,10 @@ LISPFUNN(integer_decode_float,1)
 LISPFUN(complex,1,1,norest,nokey,0,NIL)
 # (COMPLEX real [real]), CLTL S. 220
 # Abweichung von CLTL:
-# Bei uns ist f¸r reelle x stets (COMPLEX x) = x.
+# Bei uns ist f√ºr reelle x stets (COMPLEX x) = x.
 # Grund: Dass (COMPLEX 1) = 1 sein soll, zeigt, dass (COMPLEX x) als (COMPLEX x 0)
-# zu interpretieren ist. Bei uns kˆnnen komplexe Zahlen einen Realteil
-# und einen Imagin‰rteil verschiedenen Typs haben (vgl. CLTL, Seite 19),
+# zu interpretieren ist. Bei uns k√∂nnen komplexe Zahlen einen Realteil
+# und einen Imagin√§rteil verschiedenen Typs haben (vgl. CLTL, Seite 19),
 # und es ist dann (COMPLEX x 0) = x.
   { var object arg2 = popSTACK();
     var object arg1 = popSTACK();
@@ -1595,24 +1595,24 @@ LISPFUNN(byte,2)
   { var object s = STACK_1;
     var object p = STACK_0;
     skipSTACK(2);
-    value1 = I_I_Byte(s,p); mv_count=1; # Typpr¸fungen dort. Wieso Fixnums??
+    value1 = I_I_Byte(s,p); mv_count=1; # Typpr√ºfungen dort. Wieso Fixnums??
   }
 
 LISPFUNN(bytesize,1)
 # (BYTE-SIZE bytespec), CLTL S. 226
   { var object b = popSTACK();
-    value1 = Byte_size(b); mv_count=1; # Typpr¸fung dort
+    value1 = Byte_size(b); mv_count=1; # Typpr√ºfung dort
   }
 
 LISPFUNN(byteposition,1)
 # (BYTE-POSITION bytespec), CLTL S. 226
   { var object b = popSTACK();
-    value1 = Byte_position(b); mv_count=1; # Typpr¸fung dort
+    value1 = Byte_position(b); mv_count=1; # Typpr√ºfung dort
   }
 
 LISPFUNN(ldb,2)
 # (LDB bytespec integer), CLTL S. 226
-  { var object b = STACK_1; # Typpr¸fung erfolgt sp‰ter
+  { var object b = STACK_1; # Typpr√ºfung erfolgt sp√§ter
     var object x = STACK_0;
     check_integer(x); skipSTACK(2);
     value1 = I_Byte_ldb_I(x,b); mv_count=1;
@@ -1620,7 +1620,7 @@ LISPFUNN(ldb,2)
 
 LISPFUNN(ldb_test,2)
 # (LDB-TEST bytespec integer), CLTL S. 226
-  { var object b = STACK_1; # Typpr¸fung erfolgt sp‰ter
+  { var object b = STACK_1; # Typpr√ºfung erfolgt sp√§ter
     var object x = STACK_0;
     check_integer(x); skipSTACK(2);
     value1 = (I_Byte_ldb_test(x,b) ? T : NIL); mv_count=1;
@@ -1628,7 +1628,7 @@ LISPFUNN(ldb_test,2)
 
 LISPFUNN(mask_field,2)
 # (MASK_FIELD bytespec integer), CLTL S. 226
-  { var object b = STACK_1; # Typpr¸fung erfolgt sp‰ter
+  { var object b = STACK_1; # Typpr√ºfung erfolgt sp√§ter
     var object x = STACK_0;
     check_integer(x); skipSTACK(2);
     value1 = I_Byte_mask_field_I(x,b); mv_count=1;
@@ -1637,7 +1637,7 @@ LISPFUNN(mask_field,2)
 LISPFUNN(dpb,3)
 # (DPB integer bytespec integer), CLTL S. 227
   { var object x = STACK_2;
-    var object b = STACK_1; # Typpr¸fung erfolgt sp‰ter
+    var object b = STACK_1; # Typpr√ºfung erfolgt sp√§ter
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(3);
     value1 = I_I_Byte_dpb_I(x,y,b); mv_count=1;
@@ -1646,13 +1646,13 @@ LISPFUNN(dpb,3)
 LISPFUNN(deposit_field,3)
 # (DEPOSIT-FIELD integer bytespec integer), CLTL S. 227
   { var object x = STACK_2;
-    var object b = STACK_1; # Typpr¸fung erfolgt sp‰ter
+    var object b = STACK_1; # Typpr√ºfung erfolgt sp√§ter
     var object y = STACK_0;
     check_integer(x); check_integer(y); skipSTACK(3);
     value1 = I_I_Byte_deposit_field_I(x,y,b); mv_count=1;
   }
 
-# ‹berpr¸ft ein optionales Random-State-Argument obj.
+# √úberpr√ºft ein optionales Random-State-Argument obj.
 # check_random_state(obj)
 # > obj: optionales Random-State-Argument
 # > subr_self: Aufrufer (ein SUBR)
@@ -1665,8 +1665,8 @@ LISPFUNN(deposit_field,3)
         { if (random_state_p(obj))
             { return obj; }
             else
-            { pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-              pushSTACK(S(random_state)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+            { pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+              pushSTACK(S(random_state)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
               pushSTACK(obj);
               pushSTACK(TheSubr(subr_self)->name);
               fehler(type_error,
@@ -1679,8 +1679,8 @@ LISPFUNN(deposit_field,3)
           if (random_state_p(obj))
             { return obj; }
             else
-            { pushSTACK(obj); # Wert f¸r Slot DATUM von TYPE-ERROR
-              pushSTACK(S(random_state)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+            { pushSTACK(obj); # Wert f√ºr Slot DATUM von TYPE-ERROR
+              pushSTACK(S(random_state)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
               pushSTACK(obj);
               pushSTACK(S(random_state_stern));
               pushSTACK(TheSubr(subr_self)->name);
@@ -1700,8 +1700,8 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
       { if (R_floatp(x)) { value1 = F_random_F(r,x); mv_count=1; return; }
         elif (RA_integerp(x)) { value1 = I_random_I(r,x); mv_count=1; return; }
       }
-    pushSTACK(x); # Wert f¸r Slot DATUM von TYPE-ERROR
-    pushSTACK(O(type_random_arg)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+    pushSTACK(x); # Wert f√ºr Slot DATUM von TYPE-ERROR
+    pushSTACK(O(type_random_arg)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
     pushSTACK(x); pushSTACK(S(random));
     fehler(type_error,
            GETTEXT("~: argument should be positive and an integer or float, not ~")
@@ -1709,7 +1709,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
   }
 
 # make_random_state(r) liefert ein neues Random-State mit Initialzustand
-# - zuf‰llig, falls r=T,
+# - zuf√§llig, falls r=T,
 # - aus Random-State *RANDOM-STATE*, falls r=NIL oder r=unbound,
 # - aus Random-State r selbst, sonst.
 # can trigger GC
@@ -1725,20 +1725,20 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
           seed_lo = get_real_time(); # Uhrzeit
           begin_system_call(); seed_hi = FindTask(NULL); end_system_call(); # Pointer auf eigene Task
           #elif defined(MSDOS) || defined(RISCOS)
-          # Keine Zufallszahlen, keine PID, nichts Zuf‰lliges da.
+          # Keine Zufallszahlen, keine PID, nichts Zuf√§lliges da.
           seed_lo = get_real_time(); # Uhrzeit, 100 Hz
           begin_system_call(); seed_hi = time(NULL); end_system_call(); # Uhrzeit, 1 Hz
           #elif defined(UNIX)
           #ifdef TIME_UNIX
           var internal_time real_time; # Uhrzeit
           get_real_time(&real_time);
-          seed_lo = highlow32(real_time.tv_sec,real_time.tv_usec); # 16+16 zuf‰llige Bits
+          seed_lo = highlow32(real_time.tv_sec,real_time.tv_usec); # 16+16 zuf√§llige Bits
           #endif
           #ifdef TIME_UNIX_TIMES
           seed_lo = get_real_time(); # Uhrzeit, CLK_TCK Hz
           #endif
           begin_system_call();
-          seed_hi = (rand() # zuf‰llige 31 Bit (bei UNIX_BSD) bzw. 16 Bit (bei UNIX_SYSV)
+          seed_hi = (rand() # zuf√§llige 31 Bit (bei UNIX_BSD) bzw. 16 Bit (bei UNIX_SYSV)
                            << 8) ^ (uintL)(getpid()); # ca. 8 Bit von der Process ID
           end_system_call();
           #elif defined(WIN32_NATIVE)
@@ -1753,7 +1753,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
           #endif
         }
         else
-        { # Random-State ¸berpr¸fen:
+        { # Random-State √ºberpr√ºfen:
           r = check_random_state( (eq(r,NIL) ? unbound : r) );
           # dessen Zustand herausholen:
          {var object seed = The_Random_state(r)->random_state_seed;
@@ -1761,7 +1761,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
           seed_hi = get_32_Dptr(seedMSDptr);
           seed_lo = get_32_Dptr(&seedMSDptr[32/intDsize]);
         }}
-      # neuen Zustands-Bitvektor holen und f¸llen:
+      # neuen Zustands-Bitvektor holen und f√ºllen:
       {var object seed = allocate_bit_vector(Atype_Bit,64);
        var uintD* seedMSDptr = (uintD*)(&TheSbvector(seed)->data[0]);
        set_32_Dptr(seedMSDptr,seed_hi);
@@ -1769,7 +1769,7 @@ LISPFUN(random,1,1,norest,nokey,0,NIL)
        pushSTACK(seed);
       }
       {var object state = allocate_random_state(); # neuen Random-State
-       The_Random_state(state)->random_state_seed = popSTACK(); # mit Bit-Vektor f¸llen
+       The_Random_state(state)->random_state_seed = popSTACK(); # mit Bit-Vektor f√ºllen
        return state;
     } }
 
@@ -1782,8 +1782,8 @@ LISPFUNN(fakultaet,1)
   { var object x = popSTACK();
     check_integer(x);
     if (!posfixnump(x))
-      { pushSTACK(x); # Wert f¸r Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_posfixnum)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      { pushSTACK(x); # Wert f√ºr Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_posfixnum)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(x); pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
                GETTEXT("~ : argument should be a fixnum >=0, not ~")
@@ -1806,7 +1806,7 @@ LISPFUNN(long_float_digits,0)
 # (LONG-FLOAT-DIGITS) liefert die Default-Bitzahl von Long-Floats.
   { value1 = UL_to_I(intDsize * I_to_UL(O(LF_digits))); mv_count=1; }
 
-# Setzt die Default-Long-Float-L‰nge auf den Wert len (>= LF_minlen).
+# Setzt die Default-Long-Float-L√§nge auf den Wert len (>= LF_minlen).
 # set_lf_digits(len);
 # can trigger GC
   local void set_lf_digits (uintC len);
@@ -1814,7 +1814,7 @@ LISPFUNN(long_float_digits,0)
     var uintC len;
     { O(LF_digits) = UL_to_I(len);
       # MOST-POSITIVE-LONG-FLOAT und MOST-NEGATIVE-LONG-FLOAT :
-      { # Exponent so groﬂ wie mˆglich, Mantisse 1...1
+      { # Exponent so gro√ü wie m√∂glich, Mantisse 1...1
         var object x = allocate_lfloat(len,LF_exp_high,0);
         fill_loop_up(&TheLfloat(x)->data[0],len,~(uintD)0);
         define_variable(S(most_positive_long_float),x);
@@ -1822,7 +1822,7 @@ LISPFUNN(long_float_digits,0)
         define_variable(S(most_negative_long_float),x);
       }
       # LEAST-POSITIVE-LONG-FLOAT und LEAST-NEGATIVE-LONG-FLOAT :
-      { # Exponent so klein wie mˆglich, Mantisse 10...0
+      { # Exponent so klein wie m√∂glich, Mantisse 10...0
         var object x = allocate_lfloat(len,LF_exp_low,0);
         var uintD* ptr = &TheLfloat(x)->data[0];
         *ptr++ = bit(intDsize-1);
@@ -1869,14 +1869,14 @@ LISPFUNN(set_long_float_digits,1)
     value1 = popSTACK(); mv_count=1; # digits als Wert
   }}
 
-# UP f¸r LOG2 und LOG10: Logarithmus des Fixnums x mit mindestens digits
-# Bits berechnen und - wenn nˆtig - den Wert in *objptr aktualisieren.
+# UP f√ºr LOG2 und LOG10: Logarithmus des Fixnums x mit mindestens digits
+# Bits berechnen und - wenn n√∂tig - den Wert in *objptr aktualisieren.
   local object log_digits (object x, object digits, object* objptr);
   local object log_digits(x,digits,objptr)
     var object x;
     var object digits;
     var object* objptr;
-    { # digits-Argument ¸berpr¸fen:
+    { # digits-Argument √ºberpr√ºfen:
       if (!posfixnump(digits)) { fehler_digits(digits); } # nicht notwendig Fixnum!??
      {var uintL d = posfixnum_to_L(digits); # = I_to_UL(digits); ??
       if (d==0) { fehler_digits(digits); } # sollte >0 sein
@@ -1887,12 +1887,12 @@ LISPFUNN(set_long_float_digits,1)
           # -> Long-Float
           { d = ceiling(d,intDsize);
             if ((intWCsize<32) && (d > (bitc(intWCsize)-1))) { fehler_LF_toolong(); }
-           {var uintC oldlen = Lfloat_length(ln_x); # vorhandene L‰nge
+           {var uintC oldlen = Lfloat_length(ln_x); # vorhandene L√§nge
             if (d < oldlen) { return LF_shorten_LF(ln_x,d); }
             if (d == oldlen) { return ln_x; }
-            # gew¸nschte > vorhandene L‰nge -> muss nachberechnen:
+            # gew√ºnschte > vorhandene L√§nge -> muss nachberechnen:
             # Lfloat_length(ln_x) um mindestens einen konstanten Faktor
-            # > 1 wachsen lassen, damit es nicht zu h‰ufig nachberechnet wird:
+            # > 1 wachsen lassen, damit es nicht zu h√§ufig nachberechnet wird:
             oldlen += floor(oldlen,2); # oldlen * 3/2
             {var uintC newlen = (d < oldlen ? oldlen : d);
              ln_x = *objptr = R_ln_R(I_to_LF(x,newlen)); # (ln x) als LF mit newlen Digits berechnen
@@ -1986,7 +1986,7 @@ LISPFUNN(log10,1)
       encode_LF(0,2,&pi_mantisse[0],2048/intDsize, O(LF_pi)=); # pi auf 2048 Bits
       encode_LF(0,0,&ln2_mantisse[0],64/intDsize, O(LF_ln2)=); # ln(2) auf 64 Bits
       encode_LF(0,2,&ln10_mantisse[0],64/intDsize, O(LF_ln10)=); # ln(10) auf 64 Bits
-      # Defaultl‰nge von Long-Floats so klein wie mˆglich:
+      # Defaultl√§nge von Long-Floats so klein wie m√∂glich:
       set_lf_digits(LF_minlen);
       # pi als Short-, Single-, Double-Float:
       O(SF_pi) = LF_to_SF(O(pi));
@@ -2064,7 +2064,7 @@ LISPFUNN(log10,1)
       # weitere Variablen:
       define_variable(S(default_float_format),S(single_float)); # *DEFAULT-FLOAT-FORMAT* := 'SINGLE-FLOAT
       define_variable(S(read_default_float_format),S(single_float)); # *READ-DEFAULT-FLOAT-FORMAT* := 'SINGLE-FLOAT
-      {var object obj = make_random_state(T); # neuer zuf‰lliger Random-State
+      {var object obj = make_random_state(T); # neuer zuf√§lliger Random-State
        define_variable(S(random_state_stern),obj); } # =: *RANDOM-STATE*
       # SYS::*INHIBIT-FLOATING-POINT-UNDERFLOW* := NIL
         define_variable(S(inhibit_floating_point_underflow),NIL);

@@ -1,14 +1,14 @@
-# AVL-Bäume für CLISP
+# AVL-BÃ¤ume fÃ¼r CLISP
 # Bruno Haible 1993-1999
 
 # Ziel: Eine Menge von Elementen sortiert zu halten, in der ab und zu
-# einmal ein Element dazukommt oder ein Element seinen Sortierschlüssel
-# verändert.
+# einmal ein Element dazukommt oder ein Element seinen SortierschlÃ¼ssel
+# verÃ¤ndert.
 
 # ==============================================================================
 # Spezifikation:
 
-# Von außen ist einzustellen:
+# Von auÃŸen ist einzustellen:
 # Identifier AVLID :
 #   Identifier, der die Inkarnation dieser Package identifiziert
 # Typ AVL_ELEMENT :
@@ -16,7 +16,7 @@
 # Funktion AVL_EQUAL, mit
 #   local boolean AVL_EQUAL (AVL_ELEMENT element1, AVL_ELEMENT element2);
 #   stellt fest, ob zwei Elemente als gleich gelten.
-#   In einem AVL-Baum dürfen keine zwei Elemente abgespeichert werden, die
+#   In einem AVL-Baum dÃ¼rfen keine zwei Elemente abgespeichert werden, die
 #   als gleich gelten. (D.h. kein Element darf doppelt abgespeichert werden.)
 # Typ AVL_KEY :
 #   Typ des Key, nach dem ein AVL-Baum sortiert wird.
@@ -24,7 +24,7 @@
 #   local AVL_KEY AVL_KEYOF (AVL_ELEMENT element);
 #   liefert den Sortier-Key eines Elements, das in einem AVL-Baum sitzt.
 # Typ AVL_SIGNED_INT :
-#   Vorzeichenbehafteter Integer-Typ, breit genug für AVL_COMPARE-Werte.
+#   Vorzeichenbehafteter Integer-Typ, breit genug fÃ¼r AVL_COMPARE-Werte.
 #   (Normalerweise `sintL'. `signean' ist zu kurz.)
 # Funktion AVL_COMPARE, mit
 #   local AVL_SIGNED_INT AVL_COMPARE (AVL_KEY key1, AVL_KEY key2);
@@ -58,7 +58,7 @@
 #endif
 
 #ifndef AVL
-  # Eine Art "AVL-Package" für Identifier von Typen und Funktionen:
+  # Eine Art "AVL-Package" fÃ¼r Identifier von Typen und Funktionen:
   #define AVL(incarnation,identifier)  CONCAT4(avl_,incarnation,_,identifier)
 #endif
 
@@ -90,23 +90,23 @@
 #endif
 
 # Ein AVL-Baum ist entweder leer oder ein NODE.
-# Der leere Baum hat die Höhe 0, ein NODE hat als Höhe das Maximum der Höhen
-# der beiden Teilbäume + 1.
+# Der leere Baum hat die HÃ¶he 0, ein NODE hat als HÃ¶he das Maximum der HÃ¶hen
+# der beiden TeilbÃ¤ume + 1.
   #define EMPTY  ((NODE *) 0)
   #define heightof(tree)  ((tree)==EMPTY ? 0 : (tree)->nodedata.height)
 
 # Invarianten eines jeden AVL-Baumes:
-# 1. Die Höhe eines jeden NODE ist korrekt berechnet:
+# 1. Die HÃ¶he eines jeden NODE ist korrekt berechnet:
 #    node.height = 1+max(heightof(node.left),heightof(node.right))
-# 2. Die Höhen der Teilbäume eines jeden NODE unterscheiden sich um höchstens 1:
+# 2. Die HÃ¶hen der TeilbÃ¤ume eines jeden NODE unterscheiden sich um hÃ¶chstens 1:
 #    | heightof(node.left) - heightof(node.right) | <= 1
 # 3. In jedem NODE gilt:
 #    forall x in node.left : COMPARE(KEYOF(x.value),KEYOF(node.value)) <= 0,
 #    forall x in node.right : COMPARE(KEYOF(x.value),KEYOF(node.value)) >= 0.
-# Ein AVL-Baum der Höhe h hat also mindestens F_(h+2) [Fibonacci-Zahl] und
-# höchstens 2^h - 1 Elemente. Also h<=41 (denn ein Baum mit Höhe h>=42 hätte
+# Ein AVL-Baum der HÃ¶he h hat also mindestens F_(h+2) [Fibonacci-Zahl] und
+# hÃ¶chstens 2^h - 1 Elemente. Also h<=41 (denn ein Baum mit HÃ¶he h>=42 hÃ¤tte
 # mindestens F_44 Elemente, und wegen sizeof(NODE) * F_44 > 2^32 passt das
-# in keinen 32-Bit-Adressraum.) Daher reicht auch ein uintB für HEIGHT.
+# in keinen 32-Bit-Adressraum.) Daher reicht auch ein uintB fÃ¼r HEIGHT.
 
 # Stellt fest, ob in einem Baum ein Element mit einem gegebenen Key vorkommt.
 #ifndef NO_AVL_MEMBER0
@@ -160,11 +160,11 @@
     }
 #endif
 
-# Stellt die Balance neu her: Beim Einfügen bzw. Löschen eines Elements
-# eines Baumes ist eine Folge nodes[0],...,nodes[k-1] von Teilbäumen
-# (mit nodes[i+1] = nodes[i] -> (left oder right) für alle i)
+# Stellt die Balance neu her: Beim EinfÃ¼gen bzw. LÃ¶schen eines Elements
+# eines Baumes ist eine Folge nodes[0],...,nodes[k-1] von TeilbÃ¤umen
+# (mit nodes[i+1] = nodes[i] -> (left oder right) fÃ¼r alle i)
 # neu auszubalancieren. Da dabei die Wurzel eines Teilbaums sich
-# verändern kann, müssen alle nodes[i] nicht NODE*, sondern NODE** sein.
+# verÃ¤ndern kann, mÃ¼ssen alle nodes[i] nicht NODE*, sondern NODE** sein.
   local void AVL(AVLID,rebalance) (NODE** * nodeplaces_ptr, uintC count);
   local void AVL(AVLID,rebalance) (nodeplaces_ptr,count)
     var NODE** * nodeplaces_ptr;
@@ -172,7 +172,7 @@
     {
       dotimesC(count,count, {
         var NODE** nodeplace = *--nodeplaces_ptr;
-        var NODE* node = *nodeplace; # nächster zu balancierender Teilbaum
+        var NODE* node = *nodeplace; # nÃ¤chster zu balancierender Teilbaum
         var NODE* nodeleft = node->nodedata.left;
         var NODE* noderight = node->nodedata.right;
         var HEIGHT heightleft = heightof(nodeleft);
@@ -236,10 +236,10 @@
             *nodeplace = noderightleft;
           }
         } else {
-          var HEIGHT height = # neue Gesamthöhe
+          var HEIGHT height = # neue GesamthÃ¶he
             (heightleft<heightright ? heightright : heightleft) + 1;
-          # Gesamthöhe dieses Teilbaumes bleibt unverändert ->
-          # die diesen enthaltenden Teilbäume sind bereits ausbalanciert.
+          # GesamthÃ¶he dieses Teilbaumes bleibt unverÃ¤ndert ->
+          # die diesen enthaltenden TeilbÃ¤ume sind bereits ausbalanciert.
           if (height == node->nodedata.height)
             break;
           node->nodedata.height = height;
@@ -247,7 +247,7 @@
       });
     }
 
-# Fügt ein Element in einen AVL-Baum ein und liefert den neuen AVL-Baum.
+# FÃ¼gt ein Element in einen AVL-Baum ein und liefert den neuen AVL-Baum.
 #ifndef NO_AVL_INSERT
   local NODE* AVL(AVLID,insert) (ELEMENT value, NODE* tree);
   local NODE* AVL(AVLID,insert) (value,tree)
@@ -265,10 +265,10 @@
           break;
         *stack_ptr++ = nodeplace; stack_count++;
         if (COMPARE(key,KEYOF(node->nodedata.value)) < 0)
-          # key < KEYOF(node->nodedata.value)  --> im linken Teilbaum einfügen:
+          # key < KEYOF(node->nodedata.value)  --> im linken Teilbaum einfÃ¼gen:
           nodeplace = &node->nodedata.left;
         else
-          # key >= KEYOF(node->nodedata.value)  --> im rechten Teilbaum einfügen:
+          # key >= KEYOF(node->nodedata.value)  --> im rechten Teilbaum einfÃ¼gen:
           nodeplace = &node->nodedata.right;
       }
       var NODE* new_node = ALLOC(NODE,1);
@@ -297,10 +297,10 @@
           break;
         *stack_ptr++ = nodeplace; stack_count++;
         if (COMPARE(key,KEYOF(node->nodedata.value)) < 0)
-          # key < KEYOF(node->nodedata.value)  --> im linken Teilbaum einfügen:
+          # key < KEYOF(node->nodedata.value)  --> im linken Teilbaum einfÃ¼gen:
           nodeplace = &node->nodedata.left;
         else
-          # key >= KEYOF(node->nodedata.value)  --> im rechten Teilbaum einfügen:
+          # key >= KEYOF(node->nodedata.value)  --> im rechten Teilbaum einfÃ¼gen:
           nodeplace = &node->nodedata.right;
       }
       new_node->nodedata.left = EMPTY;
@@ -370,8 +370,8 @@
         node->nodedata.right = node_to_delete->nodedata.right;
         node->nodedata.height = node_to_delete->nodedata.height;
         *nodeplace_to_delete = node; # statt node_to_delete
-        # Der Rebalance-Stack (Weg von der Wurzel nach unten) führt jetzt
-        # nicht mehr über node_to_delete, sondern über node:
+        # Der Rebalance-Stack (Weg von der Wurzel nach unten) fÃ¼hrt jetzt
+        # nicht mehr Ã¼ber node_to_delete, sondern Ã¼ber node:
         *stack_ptr_to_delete = &node->nodedata.left; # statt &node_to_delete->nodedata.left
       }
       FREE(node_to_delete);
@@ -399,7 +399,7 @@
           return (NODE***)NULL;
         var SIGNED_INT sign = COMPARE(key,KEYOF(tree->nodedata.value));
         if (sign == 0) {
-          # key = KEYOF(tree->nodedata.value)  --> Suche in beiden Teilbäumen:
+          # key = KEYOF(tree->nodedata.value)  --> Suche in beiden TeilbÃ¤umen:
           if (tree == node_to_delete)
             return stack_ptr;
           *stack_ptr = &tree->nodedata.left;
@@ -484,8 +484,8 @@
         node->nodedata.right = node_to_delete->nodedata.right;
         node->nodedata.height = node_to_delete->nodedata.height;
         *nodeplace_to_delete = node; # statt node_to_delete
-        # Der Rebalance-Stack (Weg von der Wurzel nach unten) führt jetzt
-        # nicht mehr über node_to_delete, sondern über node:
+        # Der Rebalance-Stack (Weg von der Wurzel nach unten) fÃ¼hrt jetzt
+        # nicht mehr Ã¼ber node_to_delete, sondern Ã¼ber node:
         *stack_ptr_to_delete = &node->nodedata.left; # statt &node_to_delete->nodedata.left
       }
       AVL(AVLID,rebalance)(stack_ptr,stack_count);
@@ -496,11 +496,11 @@
 
 # Macros zum Durchlaufen eines AVL-Baumes:
 # AVL_map(tree,node,statement);
-# Ein Baum wird durchlaufen, jeweils node gebunden und statement ausgeführt.
+# Ein Baum wird durchlaufen, jeweils node gebunden und statement ausgefÃ¼hrt.
   # Durchlaufungsreihenfolge:
   #               AVL_map : in Reihenfolge  L N R
   #     N         AVL_map_reverse : in umgekehrter Reihenfolge  R N L
-  #    / \        AVL_map_preorder : in Präfix-Reihenfolge  N L R
+  #    / \        AVL_map_preorder : in PrÃ¤fix-Reihenfolge  N L R
   #   L   R       AVL_map_postorder : in Postfix-Reihenfolge  L R N
   #
   typedef struct { NODE* node; boolean rightp; } AVL(AVLID,mapstackitem);
@@ -602,15 +602,15 @@
 #     if (bestfit == EMPTY) { error(); }
 #     # Nun ist sicher COMPARE(KEYOF(bestfit->nodedata.value),limit) >= 0.
 #     ...; KEYOF(bestfit->nodedata.value) -= limit; ...;
-#     # gefundenes und modifiziertes Element im AVL-Baum umhängen:
+#     # gefundenes und modifiziertes Element im AVL-Baum umhÃ¤ngen:
 #     AVL(AVLID,move)(&stack);
 #   }
 
 typedef struct { uintC count; NODE** path[MAXHEIGHT]; } AVL(AVLID,stack);
 
-# Liefert das Element aus einem AVL-Baum, dessen Key möglichst klein, aber
+# Liefert das Element aus einem AVL-Baum, dessen Key mÃ¶glichst klein, aber
 # noch >= ein gegebener Limit ist. (EMPTY, falls alle Elemente < Limit sind.)
-# Dazu als Vorbereitung fürs Löschen den Pfad von der Wurzel bis dorthin
+# Dazu als Vorbereitung fÃ¼rs LÃ¶schen den Pfad von der Wurzel bis dorthin
 # (inclusive, d.h. Ergebnis = stack->path[stack->count-1] ).
 #ifndef NO_AVL_LEAST
   local NODE* AVL(AVLID,least) (KEY limit, NODE** tree_ptr, AVL(AVLID,stack) * stack);
@@ -634,7 +634,7 @@ typedef struct { uintC count; NODE** path[MAXHEIGHT]; } AVL(AVLID,stack);
         if (node==EMPTY)
           break;
         if (COMPARE(KEYOF(node->nodedata.value),limit) < 0) {
-          # Alle Elemente unterhalb von node, die >= Limit sind, müssen
+          # Alle Elemente unterhalb von node, die >= Limit sind, mÃ¼ssen
           # bereits unterhalb von node->nodedata.right liegen.
           nodeplace = &node->nodedata.right;
         } else {
@@ -649,7 +649,7 @@ typedef struct { uintC count; NODE** path[MAXHEIGHT]; } AVL(AVLID,stack);
     }
 #endif
 
-# Setzt ein Element in einem AVL-Baum um, nachdem sich sein Key verändert hat.
+# Setzt ein Element in einem AVL-Baum um, nachdem sich sein Key verÃ¤ndert hat.
 #ifndef NO_AVL_MOVE
   local void AVL(AVLID,move) (AVL(AVLID,stack) * stack);
   local void AVL(AVLID,move) (
@@ -684,8 +684,8 @@ typedef struct { uintC count; NODE** path[MAXHEIGHT]; } AVL(AVLID,stack);
         node->nodedata.right = node_to_delete->nodedata.right;
         node->nodedata.height = node_to_delete->nodedata.height;
         *nodeplace_to_delete = node; # statt node_to_delete
-        # Der Rebalance-Stack (Weg von der Wurzel nach unten) führt jetzt
-        # nicht mehr über node_to_delete, sondern über node:
+        # Der Rebalance-Stack (Weg von der Wurzel nach unten) fÃ¼hrt jetzt
+        # nicht mehr Ã¼ber node_to_delete, sondern Ã¼ber node:
         *stack_ptr_to_delete = &node->nodedata.left; # statt &node_to_delete->nodedata.left
       }
       AVL(AVLID,rebalance)(stack_ptr,stack_count);
@@ -699,10 +699,10 @@ typedef struct { uintC count; NODE** path[MAXHEIGHT]; } AVL(AVLID,stack);
           break;
         *stack_ptr++ = nodeplace; stack_count++;
         if (COMPARE(key,KEYOF(node->nodedata.value)) < 0)
-          # key < KEYOF(node->nodedata.value)  --> im linken Teilbaum einfügen:
+          # key < KEYOF(node->nodedata.value)  --> im linken Teilbaum einfÃ¼gen:
           nodeplace = &node->nodedata.left;
         else
-          # key >= KEYOF(node->nodedata.value)  --> im rechten Teilbaum einfügen:
+          # key >= KEYOF(node->nodedata.value)  --> im rechten Teilbaum einfÃ¼gen:
           nodeplace = &node->nodedata.right;
       }
       node_to_delete->nodedata.left = EMPTY;
@@ -713,7 +713,7 @@ typedef struct { uintC count; NODE** path[MAXHEIGHT]; } AVL(AVLID,stack);
     }
 #endif
 
-# Sortiert einen AVL-Baum, nachdem sich die Keys verändert haben, und
+# Sortiert einen AVL-Baum, nachdem sich die Keys verÃ¤ndert haben, und
 # liefert den neuen AVL-Baum.
 #ifndef NO_AVL_SORT
   local NODE* AVL(AVLID,sort) (NODE* tree);
@@ -748,14 +748,14 @@ typedef struct { uintC count; NODE** path[MAXHEIGHT]; } AVL(AVLID,stack);
 #endif
 
 #ifdef DEBUG_AVL
-  # Invarianten eines AVL-Baumes überprüfen:
+  # Invarianten eines AVL-Baumes Ã¼berprÃ¼fen:
   local void AVL(AVLID,check) (NODE* tree);
   local void AVL(AVLID,checkleft) (NODE* tree, KEY key);
   local void AVL(AVLID,checkright) (NODE* tree, KEY key);
   local void AVL(AVLID,check) (tree)
     var NODE* tree;
     {
-      # Überprüfe Regeln 1 und 2:
+      # ÃœberprÃ¼fe Regeln 1 und 2:
       AVL_map_postorder(tree,node, {
         var HEIGHT h = node->nodedata.height;
         var HEIGHT hl = heightof(node->nodedata.left);
@@ -765,13 +765,13 @@ typedef struct { uintC count; NODE** path[MAXHEIGHT]; } AVL(AVLID,stack);
            ) )
           abort();
       });
-      # Überprüfe Regel 3:
+      # ÃœberprÃ¼fe Regel 3:
       AVL_map(tree,node, {
         AVL(AVLID,checkleft)(node->nodedata.left,KEYOF(node->nodedata.value));
         AVL(AVLID,checkright)(node->nodedata.right,KEYOF(node->nodedata.value));
       });
     }
-  # Überprüfe, ob alle Elemente von tree einen Wert <= key haben:
+  # ÃœberprÃ¼fe, ob alle Elemente von tree einen Wert <= key haben:
   local void AVL(AVLID,checkleft) (tree,key)
     var NODE* tree;
     var KEY key;
@@ -780,7 +780,7 @@ typedef struct { uintC count; NODE** path[MAXHEIGHT]; } AVL(AVLID,stack);
         if (!( COMPARE(KEYOF(node->nodedata.value),key) <= 0)) abort();
       );
     }
-  # Überprüfe, ob alle Elemente von tree einen Wert >= key haben:
+  # ÃœberprÃ¼fe, ob alle Elemente von tree einen Wert >= key haben:
   local void AVL(AVLID,checkright) (tree,key)
     var NODE* tree;
     var KEY key;

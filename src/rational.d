@@ -68,14 +68,14 @@
       return I_posI_durch_RA(a,b);
     }
 
-# Liefert Zähler und Nenner einer rationalen Zahl.
+# Liefert ZÃ¤hler und Nenner einer rationalen Zahl.
 # RA_numden_I_I(r, num=,den=);
 # > r: rationale Zahl
 # < num: (numerator r)
 # < den: (denominator r)
   #define RA_numden_I_I(r,num_zuweisung,den_zuweisung)  \
     { if (RA_integerp(r))                                                         \
-        { num_zuweisung r; den_zuweisung Fixnum_1; } # Zähler = r, Nenner = 1     \
+        { num_zuweisung r; den_zuweisung Fixnum_1; } # ZÃ¤hler = r, Nenner = 1     \
         else                                                                      \
         { num_zuweisung TheRatio(r)->rt_num; den_zuweisung TheRatio(r)->rt_den; } \
     }
@@ -123,8 +123,8 @@
 #     )
 #   Sonst b' := b/g, d' := d/g. e := a*d'+b'*c, f:= b'*d = b*d'.
 #   Es ist g = ggT(g*b',g*d') = g*ggT(b',d'), also ggT(b',d')=1.
-#   Es ist r+s = (a*d+b*c)/(b*d) = (nach Kürzen mit g) e/f.
-#   Außerdem:
+#   Es ist r+s = (a*d+b*c)/(b*d) = (nach KÃ¼rzen mit g) e/f.
+#   AuÃŸerdem:
 #     ggT(a,b') teilt ggT(a,b)=1, also ggT(a,b')=1. Mit ggT(d',b')=1 folgt
 #     1 = ggT(a*d',b') = ggT(a*d'+b'*c,b') = ggT(e,b').
 #     ggT(c,d') teilt ggT(c,d)=1, also ggT(c,d')=1. Mit ggT(b',d')=1 folgt
@@ -252,8 +252,8 @@
 #     )
 #   Sonst b' := b/g, d' := d/g. e := a*d'-b'*c, f:= b'*d = b*d'.
 #   Es ist g = ggT(g*b',g*d') = g*ggT(b',d'), also ggT(b',d')=1.
-#   Es ist r-s = (a*d-b*c)/(b*d) = (nach Kürzen mit g) e/f.
-#   Außerdem:
+#   Es ist r-s = (a*d-b*c)/(b*d) = (nach KÃ¼rzen mit g) e/f.
+#   AuÃŸerdem:
 #     ggT(a,b') teilt ggT(a,b)=1, also ggT(a,b')=1. Mit ggT(d',b')=1 folgt
 #     1 = ggT(a*d',b') = ggT(a*d'-b'*c,b') = ggT(e,b').
 #     ggT(c,d') teilt ggT(c,d)=1, also ggT(c,d')=1. Mit ggT(b',d')=1 folgt
@@ -623,7 +623,7 @@
           I_I_truncate_I_I(TheRatio(x)->rt_num,b); # (truncate a b)
           # Stackaufbau: b, q, r.
           b = STACK_2;
-          STACK_2 = STACK_1; # q unverändert
+          STACK_2 = STACK_1; # q unverÃ¤ndert
          {var object r = popSTACK();
           STACK_0 = I_I_to_RT(r,b);
     }   }}
@@ -652,7 +652,7 @@
           I_I_floor_I_I(TheRatio(x)->rt_num,b); # (floor a b)
           # Stackaufbau: b, q, r.
           b = STACK_2;
-          STACK_2 = STACK_1; # q unverändert
+          STACK_2 = STACK_1; # q unverÃ¤ndert
          {var object r = popSTACK();
           STACK_0 = I_I_to_RT(r,b);
     }   }}
@@ -681,7 +681,7 @@
           I_I_ceiling_I_I(TheRatio(x)->rt_num,b); # (ceiling a b)
           # Stackaufbau: b, q, r.
           b = STACK_2;
-          STACK_2 = STACK_1; # q unverändert
+          STACK_2 = STACK_1; # q unverÃ¤ndert
          {var object r = popSTACK();
           STACK_0 = I_I_to_RT(r,b);
     }   }}
@@ -710,7 +710,7 @@
           I_I_round_I_I(TheRatio(x)->rt_num,b); # (round a b)
           # Stackaufbau: b, q, r.
           b = STACK_2;
-          STACK_2 = STACK_1; # q unverändert
+          STACK_2 = STACK_1; # q unverÃ¤ndert
          {var object r = popSTACK();
           STACK_0 = I_I_to_RT(r,b);
     }   }}
@@ -720,7 +720,7 @@
   local object RA_I_expt_RA (object x, object y);
   # Methode:
   # x Integer -> klar
-  # x Ratio a/b -> x^y = (a^y)/(b^y), gekürzt, mit b^y>=b>1.
+  # x Ratio a/b -> x^y = (a^y)/(b^y), gekÃ¼rzt, mit b^y>=b>1.
   local object RA_I_expt_RA(x,y)
     var object x;
     var object y;
@@ -745,7 +745,7 @@
   local object RA_sqrtp (object x);
 # Methode:
 # Bei Integers: klar.
-# Bei Brüchen a/b : muss a=c^2 und b=d^2 sein. Dann ist die Wurzel = c/d
+# Bei BrÃ¼chen a/b : muss a=c^2 und b=d^2 sein. Dann ist die Wurzel = c/d
 # (mit ggT(c,d)=1 und d>1).
   local object RA_sqrtp(x)
     var object x;
@@ -753,12 +753,12 @@
         { return I_sqrtp(x); }
         else
         # x ist Ratio
-        { pushSTACK(TheRatio(x)->rt_num); # Zähler retten
+        { pushSTACK(TheRatio(x)->rt_num); # ZÃ¤hler retten
           x = TheRatio(x)->rt_den;
          {var object h = I_sqrtp(x); # Nenner auf Quadratzahl testen
           if (eq(h,nullobj)) { skipSTACK(1); return nullobj; }
           x = STACK_0; STACK_0 = h;
-          h = I_sqrtp(x); # Zähler auf Quadratzahl testen
+          h = I_sqrtp(x); # ZÃ¤hler auf Quadratzahl testen
           if (eq(h,nullobj)) { skipSTACK(1); return nullobj; }
           # beides Quadratzahlen -> Quotient der Wurzeln bilden
           return I_I_to_RT(h,popSTACK());
@@ -774,7 +774,7 @@
   local object RA_rootp (object x, object n);
 # Methode:
 # Bei Integers: klar.
-# Bei Brüchen a/b : muss a=c^n und b=d^n sein. Dann ist die Wurzel = c/d
+# Bei BrÃ¼chen a/b : muss a=c^n und b=d^n sein. Dann ist die Wurzel = c/d
 # (mit ggT(c,d)=1 und d>1).
   local object RA_rootp(x,n)
     var object x;
@@ -783,12 +783,12 @@
         { return I_rootp(x,n); }
         else
         # x ist Ratio
-        { pushSTACK(TheRatio(x)->rt_num); pushSTACK(n); # Zähler und n retten
+        { pushSTACK(TheRatio(x)->rt_num); pushSTACK(n); # ZÃ¤hler und n retten
           x = TheRatio(x)->rt_den;
          {var object h = I_rootp(x,n); # Nenner auf n-te Potenz testen
           if (eq(h,nullobj)) { skipSTACK(2); return nullobj; }
           n = popSTACK(); x = STACK_0; STACK_0 = h;
-          h = I_rootp(x,n); # Zähler auf n-te Potenz testen
+          h = I_rootp(x,n); # ZÃ¤hler auf n-te Potenz testen
           if (eq(h,nullobj)) { skipSTACK(1); return nullobj; }
           # beides n-te Potenzen -> Quotient der Wurzeln bilden
           return I_I_to_RT(h,popSTACK());

@@ -1,4 +1,4 @@
-# Pathnames für CLISP
+# Pathnames fÃ¼r CLISP
 # Bruno Haible 1990-2000
 # Logical Pathnames: Marcus Daniels 16.9.1994
 # ANSI compliance: Sam Steingold 1999-2000
@@ -89,8 +89,8 @@
       var char mypath[MAXPATHLEN];
       var int symlinkcount = 0; # Anzahl bisher aufgetretener symbolischer Links
       var char* resolved_limit = &resolved_path[MAXPATHLEN-1];
-      # Gültige Pointer sind die mit resolved_path <= ptr <= resolved_limit.
-      # In *resolved_limit darf höchstens noch ein Nullbyte stehen.
+      # GÃ¼ltige Pointer sind die mit resolved_path <= ptr <= resolved_limit.
+      # In *resolved_limit darf hÃ¶chstens noch ein Nullbyte stehen.
       # (Analog mit mypath.)
       var char* resolve_start;
       {
@@ -115,7 +115,7 @@
         while ((resolved_ptr < resolved_limit) && *path_ptr) {
           *resolved_ptr++ = *path_ptr++;
         }
-        # Mit '/' und einem Nullbyte abschließen:
+        # Mit '/' und einem Nullbyte abschlieÃŸen:
         if (resolved_ptr < resolved_limit) {
           *resolved_ptr++ = '/';
         }
@@ -130,7 +130,7 @@
         # wobei 'txt' evtl. leer, aber kein subdir leer.
         var char next = *from_ptr++; *to_ptr++ = next;
         if ((next == '/') && (to_ptr > resolved_path+1)) {
-          # to_ptr[-1]='/'  ->  Directory ...to_ptr[-2] auflösen:
+          # to_ptr[-1]='/'  ->  Directory ...to_ptr[-2] auflÃ¶sen:
           var char* last_subdir_end = &to_ptr[-2];
           switch (*last_subdir_end) {
             case '/':
@@ -147,7 +147,7 @@
                   if (*last_subdir_ptr == '.') {
                     if ((to_ptr > resolved_path+4) && (*--last_subdir_ptr == '/')) {
                       # letztes subdir war '/../'
-                      # Dafür das subdir davor entfernen:
+                      # DafÃ¼r das subdir davor entfernen:
                       while ((last_subdir_ptr > resolved_path) && !(*--last_subdir_ptr == '/'));
                       to_ptr = last_subdir_ptr+1;
                     }
@@ -184,23 +184,23 @@
                     if (++symlinkcount > MAXSYMLINKS) {
                       errno = ELOOP_VALUE; return NULL;
                     }
-                    # noch aufzulösenden path-Anteil an den Link-Inhalt anhängen:
+                    # noch aufzulÃ¶senden path-Anteil an den Link-Inhalt anhÃ¤ngen:
                     {
                       var char* mypath_ptr = &mypath[linklen]; # ab hier ist Platz
                       var char* mypath_limit = &mypath[MAXPATHLEN-1]; # bis hierher
-                      if (mypath_ptr < mypath_limit) { *mypath_ptr++ = '/'; } # erst ein '/' anhängen
+                      if (mypath_ptr < mypath_limit) { *mypath_ptr++ = '/'; } # erst ein '/' anhÃ¤ngen
                       # dann den Rest:
                       while ((mypath_ptr <= mypath_limit) && (*mypath_ptr = *from_ptr++)) { mypath_ptr++; }
-                      *mypath_ptr = 0; # und mit 0 abschließen
+                      *mypath_ptr = 0; # und mit 0 abschlieÃŸen
                     }
-                    # Dies ersetzt bzw. ergänzt den path:
+                    # Dies ersetzt bzw. ergÃ¤nzt den path:
                     if (mypath[0] == '/') {
                       # ersetzt den path:
                       from_ptr = &mypath[0]; to_ptr = resolved_path;
                       while ((*to_ptr++ = *from_ptr++));
                       from_ptr = resolved_path;
                     } else {
-                      # ergänzt den path:
+                      # ergÃ¤nzt den path:
                       # Linknamen streichen. Dazu bis zum letzten '/' suchen:
                       {
                         var char* ptr = &to_ptr[-1];
@@ -234,7 +234,7 @@
               break;
           }
         }
-      } # dann zum nächsten subdir
+      } # dann zum nÃ¤chsten subdir
       # ein '/' am Ende streichen:
       if ((to_ptr[-1] == '/')
           #ifdef PATHNAME_UNIX_UNC
@@ -244,7 +244,7 @@
           #endif
          )
         to_ptr--;
-      to_ptr[0] = 0; # durch 0 abschließen
+      to_ptr[0] = 0; # durch 0 abschlieÃŸen
       return resolved_path; # fertig
     }
 #endif
@@ -333,28 +333,28 @@
       #ifdef AMIGAOS
       # Noch Test, ob's auch ein Directory und kein File ist??
       begin_system_call();
-      if (! DeleteFile(pathstring) ) { # Unterdirectory löschen
+      if (! DeleteFile(pathstring) ) { # Unterdirectory lÃ¶schen
         end_system_call(); OS_file_error(STACK_0);
       }
       end_system_call();
       #endif
       #if defined(UNIX) || defined(EMUNIX)
       begin_system_call();
-      if (rmdir(pathstring)) { # Unterdirectory löschen
+      if (rmdir(pathstring)) { # Unterdirectory lÃ¶schen
         end_system_call(); OS_file_error(STACK_0);
       }
       end_system_call();
       #endif
       #ifdef RISCOS
       begin_system_call();
-      if (unlink(pathstring)) { # Unterdirectory löschen
+      if (unlink(pathstring)) { # Unterdirectory lÃ¶schen
         end_system_call(); OS_file_error(STACK_0);
       }
       end_system_call();
       #endif
       #ifdef WIN32_NATIVE
       begin_system_call();
-      if (! RemoveDirectory(pathstring) ) { # Unterdirectory löschen
+      if (! RemoveDirectory(pathstring) ) { # Unterdirectory lÃ¶schen
         end_system_call(); OS_file_error(STACK_0);
       }
       end_system_call();
@@ -575,21 +575,21 @@
 # VERSION       stets NIL (auch :WILD oder :NEWEST bei Eingabe)
 # Constraint: Startpoint = :RELATIVE nur, falls Device = NIL;
 #             bei angegebenem Device gibt es also nur absolute Pathnames!
-# Ein AMIGAOS-Filename wird folgendermaßen in Name und Typ aufgespalten:
+# Ein AMIGAOS-Filename wird folgendermaÃŸen in Name und Typ aufgespalten:
 #   falls kein '.' im Filename: Name = alles, Typ = NIL,
 #   falls '.' im Filename: Name = alles vor, Typ = alles nach dem letzten '.' .
-# Groß-/Klein-Schreibung innerhalb der Strings wird bei Vergleichen ignoriert,
-# aber ansonsten findet keine Groß/Klein-Umwandlung statt.
-# Wenn ein Pathname vollständig spezifiziert sein muss (keine Wildcards),
+# GroÃŸ-/Klein-Schreibung innerhalb der Strings wird bei Vergleichen ignoriert,
+# aber ansonsten findet keine GroÃŸ/Klein-Umwandlung statt.
+# Wenn ein Pathname vollstÃ¤ndig spezifiziert sein muss (keine Wildcards),
 # ist :WILD, :WILD-INFERIORS nicht erlaubt, keine Wildcard-Zeichen in den
 # Strings, bei NAME evtl. auch nicht NIL.
 # Externe Notation:  device:sub1.typ/sub2.typ/name.typ
 # mit Defaults:             sub1.typ/sub2.typ/name.typ
 # oder                                        name.typ
 # oder                      sub1.typ/ ** /sub3.typ/x*.lisp  (ohne Spaces!)
-# oder Ähnliches.
+# oder Ã„hnliches.
 # Formal:
-#   ch ::= beliebgiges Character außer ':','/' und '*','?'
+#   ch ::= beliebgiges Character auÃŸer ':','/' und '*','?'
 #   name ::= {ch}+
 #   device ::= [ <leer> | ':' | name ':' ]
 #              ; leer = aktuelles Device, relativ ab aktuellem Directory
@@ -611,11 +611,11 @@
 #   '//foo/bar'   current, device->up->up->foo->bar  NIL (:RELATIVE :PARENT :PARENT "foo" "bar")
 #   ''            current, device                    NIL (:RELATIVE)
 # An einen Pathstring, der nichtleer ist und der nicht mit ':' oder '/'
-# endet, kann ein '/' angehängt werden, ohne seine Semantik zu verändern.
-# Dieser '/' muss angehängt werden, bevor man eine weitere nichtleere
-# Komponente anhängen kann.
+# endet, kann ein '/' angehÃ¤ngt werden, ohne seine Semantik zu verÃ¤ndern.
+# Dieser '/' muss angehÃ¤ngt werden, bevor man eine weitere nichtleere
+# Komponente anhÃ¤ngen kann.
 # An einen Pathstring, der leer ist oder mit ':' oder '/' endet, ein '/'
-# anzuhängen, bedeutet aber, zum Parent Directory aufzusteigen!
+# anzuhÃ¤ngen, bedeutet aber, zum Parent Directory aufzusteigen!
 # Bei uns wird jeder Pathstring, der leer ist oder mit ':' oder '/' endet,
 # als Directory-Pathname (mit Name=NIL und Type=NIL) interpretiert.
 #endif
@@ -636,17 +636,17 @@
 #               Simple-String, evtl. mit Wildcard-Zeichen ? und *
 #               (auch :WILD bei der Eingabe)
 # VERSION       stets NIL (auch :WILD oder :NEWEST bei Eingabe)
-# Ein UNIX-Filename wird folgendermaßen in Name und Typ aufgespalten:
+# Ein UNIX-Filename wird folgendermaÃŸen in Name und Typ aufgespalten:
 #   falls kein '.' im Filename: Name = alles, Typ = NIL,
 #   falls '.' im Filename: Name = alles vor, Typ = alles nach dem letzten '.' .
-# Wenn ein Pathname vollständig spezifiziert sein muss (keine Wildcards),
+# Wenn ein Pathname vollstÃ¤ndig spezifiziert sein muss (keine Wildcards),
 # ist :WILD, :WILD-INFERIORS nicht erlaubt, keine Wildcard-Zeichen in den
 # Strings, bei NAME evtl. auch nicht NIL.
 # Externe Notation:  server:/sub1.typ/sub2.typ/name.typ
 # mit Defaults:             /sub1.typ/sub2.typ/name.typ
 # oder                                         name.typ
 # oder                      /sub1.typ/ ** /sub3.typ/x*.lisp  (ohne Spaces!)
-# oder Ähnliches.
+# oder Ã„hnliches.
 #endif
 
 #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
@@ -665,18 +665,18 @@
 #               Simple-String, evtl. mit Wildcard-Zeichen ? und *
 #               (auch :WILD bei der Eingabe)
 # VERSION       stets NIL (auch :WILD oder :NEWEST bei Eingabe)
-# Ein OS/2-Filename wird folgendermaßen in Name und Typ aufgespalten:
+# Ein OS/2-Filename wird folgendermaÃŸen in Name und Typ aufgespalten:
 #   falls kein '.' im Filename: Name = alles, Typ = NIL,
 #   falls '.' im Filename: Name = alles vor, Typ = alles nach dem letzten '.' .
-# Wenn ein Pathname vollständig spezifiziert sein muss (keine Wildcards),
+# Wenn ein Pathname vollstÃ¤ndig spezifiziert sein muss (keine Wildcards),
 # ist :WILD, :WILD-INFERIORS nicht erlaubt, keine Wildcard-Zeichen in den
 # Strings, bei NAME evtl. auch nicht NIL.
 # Externe Notation:       A:\sub1.typ\sub2.typ\name.typ
 # mit Defaults:             \sub1.typ\sub2.typ\name.typ
 # oder                                         name.typ
 # oder                    *:\sub1.typ\**\sub3.typ\x*.lisp
-# oder Ähnliches.
-# Statt '\' ist - wie unter DOS üblich - auch '/' erlaubt.
+# oder Ã„hnliches.
+# Statt '\' ist - wie unter DOS Ã¼blich - auch '/' erlaubt.
 #endif
 
 #ifdef PATHNAME_RISCOS
@@ -983,12 +983,12 @@
       }
       check_STACK(); check_SP();
       pushSTACK(obj);
-      # rekursiv für den CAR aufrufen:
+      # rekursiv fÃ¼r den CAR aufrufen:
       {
         var object new_car = subst_coerce_normal_ss(Car(obj));
         pushSTACK(new_car);
       }
-      # rekursiv für den CDR aufrufen:
+      # rekursiv fÃ¼r den CDR aufrufen:
       {
         var object new_cdr = subst_coerce_normal_ss(Cdr(STACK_1));
         if (eq(new_cdr,Cdr(STACK_1)) && eq(STACK_0,Car(STACK_1))) {
@@ -1003,7 +1003,7 @@
       }
     }
 
-# Wandelt Groß-/Klein-Schreibung zwischen :LOCAL und :COMMON um.
+# Wandelt GroÃŸ-/Klein-Schreibung zwischen :LOCAL und :COMMON um.
 # common_case(string)
 # > string: Normal-Simple-String oder Symbol/Zahl
 # < ergebnis: umgewandelter Normal-Simple-String oder dasselbe Symbol/Zahl
@@ -1011,14 +1011,14 @@
   local object common_case (object string);
 # Dasselbe, rekursiv wie mit SUBST:
   local object subst_common_case (object obj);
-  # Betriebssystem mit Vorzug für Kleinbuchstaben oder Capitalize
+  # Betriebssystem mit Vorzug fÃ¼r Kleinbuchstaben oder Capitalize
   local object common_case(string)
     var object string;
     {
       if (!simple_string_p(string))
         return string;
       var uintL len = Sstring_length(string);
-      # Suche, ob Groß- oder Kleinbuchstaben (oder beides) vorkommen:
+      # Suche, ob GroÃŸ- oder Kleinbuchstaben (oder beides) vorkommen:
       var boolean all_upper = TRUE;
       var boolean all_lower = TRUE;
       if (len > 0) {
@@ -1052,12 +1052,12 @@
         return common_case(obj);
       check_STACK(); check_SP();
       pushSTACK(obj);
-      # rekursiv für den CAR aufrufen:
+      # rekursiv fÃ¼r den CAR aufrufen:
       {
         var object new_car = subst_common_case(Car(obj));
         pushSTACK(new_car);
       }
-      # rekursiv für den CDR aufrufen:
+      # rekursiv fÃ¼r den CDR aufrufen:
       {
         var object new_cdr = subst_common_case(Cdr(STACK_1));
         if (eq(new_cdr,Cdr(STACK_1)) && eq(STACK_0,Car(STACK_1))) {
@@ -1113,12 +1113,12 @@ local boolean legal_logical_word_char(ch)
       #endif
     }
 
-# UP: Überprüft ein optionales Host-Argument.
+# UP: ÃœberprÃ¼ft ein optionales Host-Argument.
 # test_optional_host(host,convert)
 # > host: Host-Argument
-# > convert: Flag, ob Case-Konversion erwünscht ist
+# > convert: Flag, ob Case-Konversion erwÃ¼nscht ist
 # > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: gültige Host-Komponente
+# < ergebnis: gÃ¼ltige Host-Komponente
 # can trigger GC
   local object test_optional_host (object host, boolean convert);
   local object test_optional_host(host,convert)
@@ -1131,8 +1131,8 @@ local boolean legal_logical_word_char(ch)
         goto OK; # NIL ist OK
       # Sonst muss host ein String sein, dessen Zeichen alphanumerisch sind:
       if (!stringp(host)) {
-        pushSTACK(host); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_host)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(host); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_host)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(host);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -1166,11 +1166,11 @@ local boolean legal_logical_word_char(ch)
 
 #ifdef LOGICAL_PATHNAMES
 
-# UP: Überprüft ein optionales Host-Argument.
+# UP: ÃœberprÃ¼ft ein optionales Host-Argument.
 # test_optional_host(host)
 # > host: Host-Argument
 # > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: gültige Host-Komponente
+# < ergebnis: gÃ¼ltige Host-Komponente
 # can trigger GC
   local object test_optional_host (object host);
   local object test_optional_host(host)
@@ -1182,8 +1182,8 @@ local boolean legal_logical_word_char(ch)
         goto OK; # NIL ist OK
       # Sonst muss host ein String sein, dessen Zeichen alphanumerisch sind:
       if (!stringp(host)) {
-        pushSTACK(host); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_host)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(host); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_host)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(host);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -1213,19 +1213,19 @@ local boolean legal_logical_word_char(ch)
 
 #else
 
-# UP: Überprüft ein optionales Host-Argument.
+# UP: ÃœberprÃ¼ft ein optionales Host-Argument.
 # test_optional_host(host);
 # > host: Host-Argument
 # > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: gültige Host-Komponente
+# < ergebnis: gÃ¼ltige Host-Komponente
   local object test_optional_host (object host);
   local object test_optional_host(host)
     var object host;
     {
       if (!eq(host,unbound)) { # nicht angegeben -> OK
         if (!nullp(host)) { # angegeben -> sollte =NIL sein
-          pushSTACK(host); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(null)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(host); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+          pushSTACK(S(null)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(host);
           pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
@@ -1295,7 +1295,7 @@ local boolean legal_logical_word_char(ch)
       #endif
     }
 
-# Stellt fest, ob ein Character ein Wildcard-Platzhalter für ein einzelnes
+# Stellt fest, ob ein Character ein Wildcard-Platzhalter fÃ¼r ein einzelnes
 # Zeichen ist.
 # singlewild_char_p(ch)
 # > chart ch: Character-Code
@@ -1307,18 +1307,18 @@ local boolean legal_logical_word_char(ch)
   #endif
 
 # Wandelt ein Objekt in einen Pathname um.
-  local object coerce_xpathname (object obj); # später
+  local object coerce_xpathname (object obj); # spÃ¤ter
 
 # Wandelt ein Objekt in einen nicht-Logical Pathname um.
-  local object coerce_pathname (object obj); # später
+  local object coerce_pathname (object obj); # spÃ¤ter
 #if !defined(LOGICAL_PATHNAMES)
   #define coerce_pathname(obj)  coerce_xpathname(obj)
 #endif
 
 # Liefert den Default-Pathname.
-  local object defaults_pathname (void); # später
+  local object defaults_pathname (void); # spÃ¤ter
 
-# Überprüft einen Default-Pathname.
+# ÃœberprÃ¼ft einen Default-Pathname.
 # test_default_pathname(defaults)
 # > defaults: Defaults-Argument
 # < ergebnis: Wert des Defaults-Arguments, ein Pathname
@@ -1343,8 +1343,8 @@ local boolean legal_logical_word_char(ch)
   global void fehler_pathname_designator(thing)
     var object thing;
     {
-      pushSTACK(thing); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_designator_pathname)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(thing); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_designator_pathname)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(thing);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -1387,7 +1387,7 @@ local boolean legal_logical_word_char(ch)
   local void fehler_file_stream_unnamed(stream)
     var object stream;
     {
-      pushSTACK(stream); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(stream); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
       pushSTACK(stream);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(file_error,
@@ -1423,12 +1423,12 @@ local boolean legal_logical_word_char(ch)
      {
        var object pathname;
        var const char* pathptr = path;
-       var uintL len = 0; # Stringlänge
+       var uintL len = 0; # StringlÃ¤nge
        # ASCIZ-Stringende suchen:
        until (*pathptr == 0) {
          pathptr++; len++;
        }
-       # Sofern der String nicht schon mit '/' endet, wird ein '/' angefügt:
+       # Sofern der String nicht schon mit '/' endet, wird ein '/' angefÃ¼gt:
        if ((len>0) && (pathptr[-1] == slash)) {
          pathname = n_char_to_string(path,len,encoding);
        } else {
@@ -1459,8 +1459,8 @@ local boolean legal_logical_word_char(ch)
 # > STACK_1: Datenvektor, ein Normal-Simple-String
 # > STACK_0: neuer Logical Pathname
 # > zustand z: Start-Zustand
-# < STACK_0: selber Logical Pathname, ausgefüllt
-# < ergebnis: Anzahl der übriggebliebenen Zeichen
+# < STACK_0: selber Logical Pathname, ausgefÃ¼llt
+# < ergebnis: Anzahl der Ã¼briggebliebenen Zeichen
 # can trigger GC
 local uintL parse_logical_pathnamestring (zustand z);
 
@@ -1484,7 +1484,7 @@ local object parse_logical_word(z,subdirp)
     loop {
       if (z->count == 0)
         break;
-      ch = TheSstring(STACK_2)->data[z->index]; # nächstes Character
+      ch = TheSstring(STACK_2)->data[z->index]; # nÃ¤chstes Character
       if (!legal_logical_word_char(ch)) {
         if (chareq(ch,ascii('*'))) {
           if (last_was_star) {
@@ -1497,7 +1497,7 @@ local object parse_logical_word(z,subdirp)
         } else
           break;
       }
-      # Character übergehen:
+      # Character Ã¼bergehen:
       z->index++; z->FNindex = fixnum_inc(z->FNindex,1); z->count--;
     }
     var uintL len = z->index - startz.index;
@@ -1505,7 +1505,7 @@ local object parse_logical_word(z,subdirp)
       if ((z->count == 0) || !slashp(ch)) {
         *z = startz; return NIL; # kein ';' -> kein subdir
       }
-      # Character ';' übergehen:
+      # Character ';' Ã¼bergehen:
       z->index++; z->FNindex = fixnum_inc(z->FNindex,1); z->count--;
     }
     if (len==0)
@@ -1516,7 +1516,7 @@ local object parse_logical_word(z,subdirp)
       return S(Kwild_inferiors);
     else { # String bilden:
       var object result = allocate_string(len);
-      # und füllen:
+      # und fÃ¼llen:
       {
         var const chart* ptr1 = &TheSstring(STACK_2)->data[startz.index];
         var chart* ptr2 = &TheSstring(result)->data[0];
@@ -1597,17 +1597,17 @@ local uintL parse_logical_pathnamestring(z)
     }
     # Directory-Start eintragen:
     {
-      var object new_cons = allocate_cons(); # neues Cons für Startpoint
+      var object new_cons = allocate_cons(); # neues Cons fÃ¼r Startpoint
       TheLogpathname(STACK_0)->pathname_directory = new_cons;
       pushSTACK(new_cons); # neues (last (pathname-directory Pathname))
     }
     # Stackaufbau: Datenvektor, Pathname, (last (pathname-directory Pathname)).
     # Subdirectories parsen:
-    # Falls sofort ein ';' kommt, wird er übergangen, und es kommt :RELATIVE
+    # Falls sofort ein ';' kommt, wird er Ã¼bergangen, und es kommt :RELATIVE
     # (sonst :ABSOLUTE) als erstes subdir:
     if ((!(z.count == 0)) && slashp(TheSstring(STACK_2)->data[z.index])) {
       # Es kommt sofort ein ';'.
-      # Character übergehen:
+      # Character Ã¼bergehen:
       z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
       Car(STACK_0) = S(Krelative); # Startpoint = :RELATIVE
     } else {
@@ -1619,11 +1619,11 @@ local uintL parse_logical_pathnamestring(z)
       var object subdir = parse_logical_word(&z,TRUE);
       if (nullp(subdir))
         break;
-      # (pathname-directory pathname) um Subdir verlängern:
+      # (pathname-directory pathname) um Subdir verlÃ¤ngern:
       pushSTACK(subdir);
       var object new_cons = allocate_cons(); # neues Cons
       Car(new_cons) = popSTACK(); # = (cons subdir NIL)
-      Cdr(STACK_0) = new_cons; # verlängert (pathname-directory Pathname)
+      Cdr(STACK_0) = new_cons; # verlÃ¤ngert (pathname-directory Pathname)
       STACK_0 = new_cons; # neues (last (pathname-directory Pathname))
     }
     # Name parsen:
@@ -1632,7 +1632,7 @@ local uintL parse_logical_pathnamestring(z)
       TheLogpathname(STACK_1)->pathname_name = name;
       if ((z.count > 0) && chareq(TheSstring(STACK_2)->data[z.index],ascii('.'))) {
         var zustand z_name = z;
-        # Character '.' übergehen:
+        # Character '.' Ã¼bergehen:
         z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
         # Typ parsen:
         var object type = parse_logical_word(&z,FALSE);
@@ -1640,7 +1640,7 @@ local uintL parse_logical_pathnamestring(z)
         if (!nullp(type)) {
           if ((z.count > 0) && chareq(TheSstring(STACK_2)->data[z.index],ascii('.'))) {
             var zustand z_type = z;
-            # Character '.' übergehen:
+            # Character '.' Ã¼bergehen:
             z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
             # Version parsen:
             var object version = parse_logical_word(&z,FALSE);
@@ -1655,12 +1655,12 @@ local uintL parse_logical_pathnamestring(z)
             }
             TheLogpathname(STACK_1)->pathname_version = version;
             if (nullp(version))
-              z = z_type; # Character '.' wieder zurück
+              z = z_type; # Character '.' wieder zurÃ¼ck
           } else {
             TheLogpathname(STACK_1)->pathname_version = NIL;
           }
         } else {
-          z = z_name; # Character '.' wieder zurück
+          z = z_name; # Character '.' wieder zurÃ¼ck
           TheLogpathname(STACK_1)->pathname_version = NIL;
         }
       } else {
@@ -1694,7 +1694,7 @@ local uintL parse_logical_pathnamestring(z)
 #endif
 
 #ifdef PATHNAME_NOEXT
-# Hilfsfunktion für PARSE-NAMESTRING:
+# Hilfsfunktion fÃ¼r PARSE-NAMESTRING:
 # Spaltet einen String (beim letzten Punkt) in Name und Typ auf.
 # split_name_type(skip);
 # > STACK_0: Normal-Simple-String
@@ -1738,7 +1738,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
     # Stackaufbau: thing, host, defaults, start, end, junk-allowed.
     var boolean junk_allowed;
     var boolean parse_logical = FALSE;
-    # 1. junk-allowed überprüfen:
+    # 1. junk-allowed Ã¼berprÃ¼fen:
     {
       var object obj = popSTACK(); # junk-allowed-Argument
       if (eq(obj,unbound))
@@ -1750,10 +1750,10 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
           junk_allowed = TRUE;
     }
     # Stackaufbau: thing, host, defaults, start, end.
-    # 2. Default-Wert für start ist 0:
+    # 2. Default-Wert fÃ¼r start ist 0:
     if (eq(STACK_1,unbound))
       STACK_1 = Fixnum_0;
-    # 3. host überprüfen:
+    # 3. host Ã¼berprÃ¼fen:
     #if HAS_HOST || defined(LOGICAL_PATHNAMES)
     {
       var object host;
@@ -1809,7 +1809,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
         fehler_pathname_designator(thing);
       thing = Symbol_name(thing); # Symbol -> Symbolname verwenden
       thing_symbol = TRUE;
-      STACK_4 = thing; # und in den Stack zurückschreiben
+      STACK_4 = thing; # und in den Stack zurÃ¼ckschreiben
     }
     # thing = STACK_4 ist jetzt ein String.
     # Er wird durchlaufen.
@@ -1823,7 +1823,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
     #endif
     {
       var object string; # String thing
-      # Grenzen überprüfen, mit thing, start, end als Argumenten:
+      # Grenzen Ã¼berprÃ¼fen, mit thing, start, end als Argumenten:
       var stringarg arg;
       pushSTACK(thing); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
       test_string_limits_ro(&arg);
@@ -1854,12 +1854,12 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
       # Coerce string to be a normal-simple-string.
       if (thing_symbol && !parse_logical) {
         #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
-        # Betriebssystem mit Vorzug für Kleinbuchstaben
+        # Betriebssystem mit Vorzug fÃ¼r Kleinbuchstaben
         string = subsstring(string,z.index,z.index+z.count); z.index = 0; # ja -> mit STRING-DOWNCASE umwandeln
         nstring_downcase(&TheSstring(string)->data[0],Sstring_length(string));
         #endif
         #ifdef PATHNAME_AMIGAOS
-        # Betriebssystem mit Vorzug für Capitalize
+        # Betriebssystem mit Vorzug fÃ¼r Capitalize
         string = subsstring(string,z.index,z.index+z.count); z.index = 0; # ja -> mit STRING-CAPITALIZE umwandeln
         nstring_capitalize(&TheSstring(string)->data[0],Sstring_length(string));
         #endif
@@ -1886,21 +1886,21 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
         if ((!(z.count==0)) && chareq(TheSstring(STACK_0)->data[z.index],ascii('<'))) {
           var zustand startz = z; # Start-Zustand
           var chart ch;
-          # Character '<' übergehen:
+          # Character '<' Ã¼bergehen:
           z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
           loop {
             if (z.count==0)
               goto no_envvar;
-            ch = TheSstring(STACK_0)->data[z.index]; # nächstes Character
+            ch = TheSstring(STACK_0)->data[z.index]; # nÃ¤chstes Character
             if (chareq(ch,ascii('>')))
               break;
             if (!(graphic_char_p(ch) && !chareq(ch,ascii('*')) && !chareq(ch,ascii('#'))))
               goto no_envvar;
-            # gültiges Character übergehen:
+            # gÃ¼ltiges Character Ã¼bergehen:
             z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
           }
           FNindex_fallback = z.FNindex;
-          # Character '>' übergehen:
+          # Character '>' Ã¼bergehen:
           z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
           # Environment-Variable als Simple-String bauen:
           if (z.index - startz.index - 2 == 0)
@@ -1922,9 +1922,9 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               pushSTACK(asciz_to_string(envval,O(misc_encoding))); # Wert der Variablen als String
             });
           }
-          # Reststück bilden:
+          # ReststÃ¼ck bilden:
           pushSTACK(subsstring(STACK_1,z.index,z.index+z.count));
-          # Beides zusammenhängen, thing ersetzen:
+          # Beides zusammenhÃ¤ngen, thing ersetzen:
           {
             var uintL envval_len = Sstring_length(STACK_1);
             var object new_thing = string_concat(2);
@@ -1936,7 +1936,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
           }
           goto envvar_ok;
          no_envvar: # keine Environment-Variable
-          z = startz; # zum Start zurück
+          z = startz; # zum Start zurÃ¼ck
         }
        envvar_ok: ;
       #endif
@@ -1953,19 +1953,19 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               # Kommt eine Folge von Zeichen, eingeschlossen in '-',
               # oder eine Folge von Zeichen und dann eine ':' ?
               if (z.count==0) goto no_hostspec; # String schon zu Ende -> kein Host
-              ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
+              ch = TheSstring(STACK_1)->data[z.index]; # nÃ¤chstes Character
               if (chareq(ch,ascii('-'))) {
-                # '-' übergehen:
+                # '-' Ã¼bergehen:
                 z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                 loop {
                   if (z.count==0)
                     goto no_hostspec; # String schon zu Ende -> kein Host
-                  ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
+                  ch = TheSstring(STACK_1)->data[z.index]; # nÃ¤chstes Character
                   if (chareq(ch,ascii('-')))
                     break;
                   if (!legal_hostchar(ch))
                     goto no_hostspec;
-                  # gültiges Character übergehen:
+                  # gÃ¼ltiges Character Ã¼bergehen:
                   z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                 }
                 # Host-String bilden:
@@ -1976,18 +1976,18 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                 loop {
                   if (!legal_hostchar(ch))
                     goto no_hostspec;
-                  # gültiges Character übergehen:
+                  # gÃ¼ltiges Character Ã¼bergehen:
                   z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                   if (z.count==0)
                     goto no_hostspec; # String schon zu Ende -> kein Host
-                  ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
+                  ch = TheSstring(STACK_1)->data[z.index]; # nÃ¤chstes Character
                   if (chareq(ch,ascii(':')))
                     break;
                 }
                 # Host-String bilden:
                 host = subsstring(STACK_1,startz.index,z.index);
               }
-              # Character '-' bzw. ':' übergehen:
+              # Character '-' bzw. ':' Ã¼bergehen:
               z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               goto hostspec_ok;
             #else
@@ -1995,22 +1995,22 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               loop {
                 if (z.count==0)
                   goto no_hostspec; # String schon zu Ende -> kein Host
-                ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
+                ch = TheSstring(STACK_1)->data[z.index]; # nÃ¤chstes Character
                 if (!alphanumericp(ch))
                   break;
-                # alphanumerisches Character übergehen:
+                # alphanumerisches Character Ã¼bergehen:
                 z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               }
               if (!chareq(ch,ascii(':')))
                 goto no_hostspec; # kein ':' -> kein Host
               # Host-String bilden:
               host = subsstring(STACK_1,startz.index,z.index);
-              # Character ':' übergehen:
+              # Character ':' Ã¼bergehen:
               z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               goto hostspec_ok;
             #endif
            no_hostspec: # keine Host-Specification
-            z = startz; # zum Start zurück
+            z = startz; # zum Start zurÃ¼ck
             host = STACK_(3+2); # Default-Host
           }
          hostspec_ok:
@@ -2030,29 +2030,29 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               var chart ch;
               if (z.count==0)
                 goto no_drivespec; # String schon zu Ende ?
-              ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
-              ch = up_case(ch); # als Großbuchstabe
+              ch = TheSstring(STACK_1)->data[z.index]; # nÃ¤chstes Character
+              ch = up_case(ch); # als GroÃŸbuchstabe
               if (chareq(ch,ascii('*'))) {
                 # ch = '*' -> Device := :WILD
                 device = S(Kwild);
               } elif ((as_cint(ch) >= 'A') && (as_cint(ch) <= 'Z')) {
                 # 'A' <= ch <= 'Z' -> Device := "ch"
-                var object string = allocate_string(1); # String der Länge 1
+                var object string = allocate_string(1); # String der LÃ¤nge 1
                 TheSstring(string)->data[0] = ch; # mit ch als einzigem Buchstaben
                 device = string;
               } else
                 goto no_device;
-              # Device OK, Character übergehen:
+              # Device OK, Character Ã¼bergehen:
               z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               if (z.count==0)
                 goto no_drivespec; # String schon zu Ende ?
-              ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
-              ch = up_case(ch); # als Großbuchstabe
+              ch = TheSstring(STACK_1)->data[z.index]; # nÃ¤chstes Character
+              ch = up_case(ch); # als GroÃŸbuchstabe
              no_device:
               # mit Doppelpunkt abgeschlossen?
               if (!chareq(ch,ascii(':')))
                 goto no_drivespec;
-              # Character übergehen:
+              # Character Ã¼bergehen:
               z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               goto drivespec_ok;
              no_drivespec:
@@ -2075,10 +2075,10 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               loop {
                 if (z.count==0)
                   goto no_devicespec; # String schon zu Ende -> kein Device
-                ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
+                ch = TheSstring(STACK_1)->data[z.index]; # nÃ¤chstes Character
                 if (!legal_namechar(ch))
                   break;
-                # alphanumerisches Character übergehen:
+                # alphanumerisches Character Ã¼bergehen:
                 z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               }
               if (!chareq(ch,ascii(':')))
@@ -2087,10 +2087,10 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                 goto no_devicespec; # ':' am Anfang ist kein Device
               # Device-String bilden:
               device = subsstring(STACK_1,startz.index,z.index);
-              # Character ':' nicht übergehen; das ergibt dann :ABSOLUTE.
+              # Character ':' nicht Ã¼bergehen; das ergibt dann :ABSOLUTE.
               goto devicespec_ok;
              no_devicespec: # keine Device-Specification
-              z = startz; # zum Start zurück
+              z = startz; # zum Start zurÃ¼ck
               device = NIL; # Device NIL
             }
            devicespec_ok:
@@ -2108,18 +2108,18 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               var chart ch;
               if (z.count==0)
                 goto no_devicespec; # String schon zu Ende -> kein Device
-              ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
+              ch = TheSstring(STACK_1)->data[z.index]; # nÃ¤chstes Character
               if (!chareq(ch,ascii(':')))
                 goto no_devicespec; # kein ':' -> kein Device
-              # Character ':' übergehen:
+              # Character ':' Ã¼bergehen:
               z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               loop {
                 if (z.count==0)
                   goto no_devicespec; # String schon zu Ende -> kein Device
-                ch = TheSstring(STACK_1)->data[z.index]; # nächstes Character
+                ch = TheSstring(STACK_1)->data[z.index]; # nÃ¤chstes Character
                 if (!(legal_namechar(ch) && !chareq(ch,ascii('*')) && !singlewild_char_p(ch)))
                   break;
-                # gültiges Character übergehen:
+                # gÃ¼ltiges Character Ã¼bergehen:
                 z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               }
               if (!chareq(ch,ascii('.')))
@@ -2128,11 +2128,11 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               if (z.index - startz.index - 1 == 0)
                 goto no_devicespec;
               device = subsstring(STACK_1,startz.index+1,z.index);
-              # Character '.' übergehen:
+              # Character '.' Ã¼bergehen:
               z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               goto devicespec_ok;
              no_devicespec: # keine Device-Specification
-              z = startz; # zum Start zurück
+              z = startz; # zum Start zurÃ¼ck
               device = NIL; # Device NIL
             }
            devicespec_ok:
@@ -2143,7 +2143,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
       #endif
       # Directory-Start eintragen:
       {
-        var object new_cons = allocate_cons(); # neues Cons für Startpoint
+        var object new_cons = allocate_cons(); # neues Cons fÃ¼r Startpoint
         ThePathname(STACK_0)->pathname_directory = new_cons;
         pushSTACK(new_cons); # neues (last (pathname-directory Pathname))
       }
@@ -2161,14 +2161,14 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
       #endif
       {
         #if defined(USER_HOMEDIR) && defined(PATHNAME_UNIX)
-          # Falls sofort ein '~' kommt, wird bis zum nächsten '/' oder Stringende
+          # Falls sofort ein '~' kommt, wird bis zum nÃ¤chsten '/' oder Stringende
           # ein Username gelesen und das Home-Directory dieses Users eingesetzt:
           if ((!(z.count == 0)) && chareq(TheSstring(STACK_2)->data[z.index],ascii('~'))) {
             # Es kommt sofort ein '~'.
-            # Character übergehen:
+            # Character Ã¼bergehen:
             z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
             var object userhomedir; # Pathname des User-Homedir
-            # nächsten '/' suchen:
+            # nÃ¤chsten '/' suchen:
             var uintL charcount = 0;
             {
               var const chart* charptr = &TheSstring(STACK_2)->data[z.index];
@@ -2212,26 +2212,26 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
             ThePathname(STACK_1)->pathname_directory = userhomedir;
             while (mconsp(Cdr(userhomedir))) { userhomedir = Cdr(userhomedir); }
             STACK_0 = userhomedir;
-            # username-Characters übergehen:
+            # username-Characters Ã¼bergehen:
             z.index += charcount; z.FNindex = fixnum_inc(z.FNindex,charcount); z.count -= charcount;
             # Falls der String zu Ende ist: fertig,
-            # sonst kommt sofort ein '/', es wird übergangen:
+            # sonst kommt sofort ein '/', es wird Ã¼bergangen:
             if (z.count==0) {
               pushSTACK(NIL); pushSTACK(NIL); goto after_name_type; # Name und Typ := NIL
             }
-            # Character übergehen:
+            # Character Ã¼bergehen:
             z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
           } else
         #endif
-        #if defined(PATHNAME_UNIX) && 0 # Wozu braucht man das, außer für $HOME ?
-          # Falls sofort ein '$' kommt, wird bis zum nächsten '/' oder Stringende
+        #if defined(PATHNAME_UNIX) && 0 # Wozu braucht man das, auÃŸer fÃ¼r $HOME ?
+          # Falls sofort ein '$' kommt, wird bis zum nÃ¤chsten '/' oder Stringende
           # eine Environment-Variable gelesen und ihr Wert eingesetzt:
           if ((!(z.count == 0)) && chareq(TheSstring(STACK_2)->data[z.index],ascii('$'))) {
             # Es kommt sofort ein '$'.
-            # Character übergehen:
+            # Character Ã¼bergehen:
             z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
             var object envval_dir;
-            # nächsten '/' suchen:
+            # nÃ¤chsten '/' suchen:
             var uintL charcount = 0;
             {
               var const chart* charptr = &TheSstring(STACK_2)->data[z.index];
@@ -2268,23 +2268,23 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
             ThePathname(STACK_1)->pathname_directory = envval_dir;
             while (mconsp(Cdr(envval_dir))) { envval_dir = Cdr(envval_dir); }
             STACK_0 = envval_dir;
-            # envvar-Characters übergehen:
+            # envvar-Characters Ã¼bergehen:
             z.index += charcount; z.FNindex = fixnum_inc(z.FNindex,charcount); z.count -= charcount;
             # Falls der String zu Ende ist: fertig,
-            # sonst kommt sofort ein '/', es wird übergangen:
+            # sonst kommt sofort ein '/', es wird Ã¼bergangen:
             if (z.count==0) {
               pushSTACK(NIL); pushSTACK(NIL); goto after_name_type; # Name und Typ := NIL
             }
-            # Character übergehen:
+            # Character Ã¼bergehen:
             z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
           } else
         #endif
         #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-          # Falls sofort ein '\' bzw. '/' kommt, wird er übergangen, und es kommt
+          # Falls sofort ein '\' bzw. '/' kommt, wird er Ã¼bergangen, und es kommt
           # :ABSOLUTE (sonst :RELATIVE) als erstes subdir:
           if ((!(z.count == 0)) && slashp(TheSstring(STACK_2)->data[z.index])) {
             # Es kommt sofort ein '\' bzw. '/'.
-            # Character übergehen:
+            # Character Ã¼bergehen:
             z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
             Car(STACK_0) = S(Kabsolute); # Startpoint = :ABSOLUTE
           } else {
@@ -2293,11 +2293,11 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
           }
         #endif
         #ifdef PATHNAME_AMIGAOS
-          # Falls sofort ein ':' kommt, wird er übergangen, und es kommt
+          # Falls sofort ein ':' kommt, wird er Ã¼bergangen, und es kommt
           # :ABSOLUTE (sonst :RELATIVE) als erstes subdir:
           if ((!(z.count == 0)) && chareq(TheSstring(STACK_2)->data[z.index],ascii(':'))) {
             # Es kommt sofort ein ':'.
-            # Character übergehen:
+            # Character Ã¼bergehen:
             z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
             Car(STACK_0) = S(Kabsolute); # directory = (:ABSOLUTE)
           } else {
@@ -2306,7 +2306,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
           }
         #endif
         #ifdef PATHNAME_RISCOS
-          # Präfix '$.' oder '&.' oder '@.' oder '%.' oder '\.' parsen.
+          # PrÃ¤fix '$.' oder '&.' oder '@.' oder '%.' oder '\.' parsen.
           if ((z.count >= 2) && chareq(TheSstring(STACK_2)->data[z.index+1],ascii('.'))) {
             switch (as_cint(TheSstring(STACK_2)->data[z.index])) {
               case '$': Car(STACK_0) = S(Kroot); break; # directory = (:ABSOLUTE :ROOT)
@@ -2316,9 +2316,9 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               case '\\': Car(STACK_0) = S(Kprevious); break; # directory = (:ABSOLUTE :PREVIOUS)
               default: goto prefix_relative;
             }
-            # Präfix übergehen:
+            # PrÃ¤fix Ã¼bergehen:
             z.index+=2; z.FNindex = fixnum_inc(z.FNindex,2); z.count-=2;
-            # (pathname-directory pathname) um ein Cons (:ABSOLUTE) verlängern:
+            # (pathname-directory pathname) um ein Cons (:ABSOLUTE) verlÃ¤ngern:
             var object new_cons = allocate_cons(); # neues Cons
             Car(new_cons) = S(Kabsolute); Cdr(new_cons) = STACK_0;
             ThePathname(STACK_1)->pathname_directory = new_cons;
@@ -2337,16 +2337,16 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                   var chart ch;
                   if (z.count == 0)
                     break;
-                  ch = TheSstring(STACK_2)->data[z.index]; # nächstes Character
-                  if (!legal_namechar(ch)) # gültiges Character ?
+                  ch = TheSstring(STACK_2)->data[z.index]; # nÃ¤chstes Character
+                  if (!legal_namechar(ch)) # gÃ¼ltiges Character ?
                     break;
                   # ja -> Teil des Namens
-                  # Character übergehen:
+                  # Character Ã¼bergehen:
                   z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
                 }
                 # Ende des Namens erreicht.
-                # Name := Teilstring von STACK_2 von z_start_index (einschließlich)
-                #                                bis z.index (ausschließlich).
+                # Name := Teilstring von STACK_2 von z_start_index (einschlieÃŸlich)
+                #                                bis z.index (ausschlieÃŸlich).
                 var object string = subsstring(STACK_2,z_start_index,z.index);
                 # Name fertig.
                 pushSTACK(string);
@@ -2356,7 +2356,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               if ((z.count==0) || !slashp(TheSstring(STACK_3)->data[z.index]))
                 # Nein -> war der Name und kein Subdir.
                 break;
-              # Es kommt ein '/' bzw. '\'. Character übergehen:
+              # Es kommt ein '/' bzw. '\'. Character Ã¼bergehen:
               z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               # Stackaufbau: ...,
               #   Datenvektor, Pathname, (last (pathname-directory Pathname)),
@@ -2372,10 +2372,10 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                 STACK_0 = S(Kwild_inferiors); # ja -> durch :WILD-INFERIORS ersetzen
               }
             #endif
-            # (pathname-directory pathname) um Subdir STACK_0 verlängern:
+            # (pathname-directory pathname) um Subdir STACK_0 verlÃ¤ngern:
             var object new_cons = allocate_cons(); # neues Cons
             Car(new_cons) = popSTACK(); # = (cons subdir NIL)
-            Cdr(STACK_0) = new_cons; # verlängert (pathname-directory Pathname)
+            Cdr(STACK_0) = new_cons; # verlÃ¤ngert (pathname-directory Pathname)
             STACK_0 = new_cons; # neues (last (pathname-directory Pathname))
           }
         #else # defined(PATHNAME_RISCOS)
@@ -2394,7 +2394,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                 && chareq(TheSstring(STACK_3)->data[z.index],ascii('^'))
                 && slashp(TheSstring(STACK_3)->data[z.index+1])
                ) {
-              # beide Characters übergehen:
+              # beide Characters Ã¼bergehen:
               z.index+=2; z.FNindex = fixnum_inc(z.FNindex,2); z.count-=2;
               pushSTACK(S(Kparent)); # :PARENT
             } else {
@@ -2404,16 +2404,16 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                 var chart ch;
                 if (z.count == 0)
                   break;
-                ch = TheSstring(STACK_3)->data[z.index]; # nächstes Character
-                if (!legal_namechar(ch)) # gültiges Character ?
+                ch = TheSstring(STACK_3)->data[z.index]; # nÃ¤chstes Character
+                if (!legal_namechar(ch)) # gÃ¼ltiges Character ?
                   break;
                 # ja -> Teil des Namens
-                # Character übergehen:
+                # Character Ã¼bergehen:
                 z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               }
               # Ende des Namens erreicht.
-              # Name := Teilstring von STACK_3 von z_start_index (einschließlich)
-              #                                bis z.index (ausschließlich).
+              # Name := Teilstring von STACK_3 von z_start_index (einschlieÃŸlich)
+              #                                bis z.index (ausschlieÃŸlich).
               var object string;
               if (z.index - z_start_index == 0)
                 string = NIL; # "" wird zu NIL
@@ -2426,15 +2426,15 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
                  ) {
                 pushSTACK(string); break;
               }
-              # Character '.' übergehen:
+              # Character '.' Ã¼bergehen:
               z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
               pushSTACK(string);
             }
             if (!eq(STACK_1,unbound)) {
-              # (pathname-directory pathname) um Subdir STACK_1 verlängern:
+              # (pathname-directory pathname) um Subdir STACK_1 verlÃ¤ngern:
               var object new_cons = allocate_cons(); # neues Cons
               Car(new_cons) = STACK_1; # = (cons subdir NIL)
-              Cdr(STACK_2) = new_cons; # verlängert (pathname-directory Pathname)
+              Cdr(STACK_2) = new_cons; # verlÃ¤ngert (pathname-directory Pathname)
               STACK_2 = new_cons; # neues (last (pathname-directory Pathname))
             }
             STACK_1 = STACK_0; skipSTACK(1); # maybe-name := subdir
@@ -2444,15 +2444,15 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
           }
           # Stackaufbau: ..., Datenvektor, Pathname, (last (pathname-directory Pathname)),
           #              name, type.
-          # In gewissen Fällen hört die Directory-Angabe nicht nach dem
+          # In gewissen FÃ¤llen hÃ¶rt die Directory-Angabe nicht nach dem
           # vorletzten Punkt, sondern nach dem letzten Punkt auf:
           elif (eq(STACK_1,S(Kparent)) # z.B. "bar.^.foo"
                 || (nullp(STACK_0) && !nullp(STACK_1)) # z.B. "foo.bar."
                ) {
-            # (pathname-directory pathname) um Subdir STACK_1 verlängern:
+            # (pathname-directory pathname) um Subdir STACK_1 verlÃ¤ngern:
             var object new_cons = allocate_cons(); # neues Cons
             Car(new_cons) = STACK_1; # = (cons subdir NIL)
-            Cdr(STACK_2) = new_cons; # verlängert (pathname-directory Pathname)
+            Cdr(STACK_2) = new_cons; # verlÃ¤ngert (pathname-directory Pathname)
             STACK_2 = new_cons; # neues (last (pathname-directory Pathname))
             STACK_1 = STACK_0; # name := type
             STACK_0 = NIL;     # type := NIL
@@ -2498,7 +2498,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
     # Pathname fertig.
     # Stackaufbau: ..., Datenvektor, Pathname.
     if (!junk_allowed)
-      # Überprüfen, ob keine Zeichen mehr übrig sind:
+      # ÃœberprÃ¼fen, ob keine Zeichen mehr Ã¼brig sind:
       if (!(z.count == 0)) {
         pushSTACK(z.FNindex); # letzter Index
         pushSTACK(STACK_(4+2+1)); # thing
@@ -2510,7 +2510,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
     #ifdef LOGICAL_PATHNAMES
     if (parse_logical) {
       if (!nullp(STACK_(3+2)))
-        # Hosts müssen übereinstimmen, vgl. CLtL2 S. 629
+        # Hosts mÃ¼ssen Ã¼bereinstimmen, vgl. CLtL2 S. 629
         if (!equal(STACK_(3+2),TheLogpathname(STACK_0)->pathname_host)) {
           pushSTACK(STACK_0);
           pushSTACK(TheLogpathname(STACK_(0+1))->pathname_host);
@@ -2529,11 +2529,11 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
       value2 = fixnum_inc(z.FNindex,FNindex_offset);
     } else {
       # FNindex zeigt in den ersetzten (!) String envval. Was bleibt
-      # uns als Index anderes übrig als der Start-Index?
-      # (Nicht ganz korrekt freilich: Hätte das Parsen wirklich dort
-      # aufgehört, würde value1 anders aussehen!)
+      # uns als Index anderes Ã¼brig als der Start-Index?
+      # (Nicht ganz korrekt freilich: HÃ¤tte das Parsen wirklich dort
+      # aufgehÃ¶rt, wÃ¼rde value1 anders aussehen!)
       # Zum Beispiel ein Index in das Innere des <...>-Konstruktes.
-      # (Auch das ist nicht ganz korrekt, kommt der Sache aber näher.)
+      # (Auch das ist nicht ganz korrekt, kommt der Sache aber nÃ¤her.)
       value2 = FNindex_fallback;
     }
     #else
@@ -2557,7 +2557,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
         return obj;
       } else {
         # sonst: PARSE-NAMESTRING aufrufen:
-        pushSTACK(subr_self); # subr_self retten (für spätere Fehlermeldungen)
+        pushSTACK(subr_self); # subr_self retten (fÃ¼r spÃ¤tere Fehlermeldungen)
         pushSTACK(obj); funcall(L(parse_namestring),1);
         subr_self = popSTACK();
         return value1;
@@ -2682,7 +2682,7 @@ LISPFUNN(pathnameversion,1)
     mv_count=1;
   }
 
-# Zugriffsfunktionen ohne Groß-/Klein-Umwandlung:
+# Zugriffsfunktionen ohne GroÃŸ-/Klein-Umwandlung:
 # xpathname_host(logical,pathname)
 # xpathname_device(logical,pathname)
 # xpathname_directory(logical,pathname)
@@ -2751,9 +2751,9 @@ LISPFUNN(logical_pathname,1)
       # Bei Logical Pathnames ist nichts zu tun.
       value1 = thing; mv_count=1;
     } elif (pathnamep(thing)) {
-      # Normale Pathnames können nicht in Logical Pathnames umgewandelt werden.
-      pushSTACK(thing); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_logical_pathname)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      # Normale Pathnames kÃ¶nnen nicht in Logical Pathnames umgewandelt werden.
+      pushSTACK(thing); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_logical_pathname)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(thing);
       pushSTACK(S(logical_pathname));
       fehler(type_error,
@@ -2761,7 +2761,7 @@ LISPFUNN(logical_pathname,1)
             );
     } else {
       # sonst: PARSE-NAMESTRING aufrufen:
-      pushSTACK(subr_self); # subr_self retten (für spätere Fehlermeldungen)
+      pushSTACK(subr_self); # subr_self retten (fÃ¼r spÃ¤tere Fehlermeldungen)
       # Das Ergebnis von (PARSE-NAMESTRING thing nil empty-logical-pathname)
       # ist garantiert ein logischer Pathname.
       pushSTACK(thing); pushSTACK(NIL); pushSTACK(O(empty_logical_pathname));
@@ -2809,7 +2809,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
       # Stackaufbau: pathname, ht.
       loop {
         if (!nullp(shifthash(STACK_0,STACK_1,T))) {
-          # STACK_1 = pathname; # Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_1 = pathname; # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
           STACK_0 = STACK_1;
           pushSTACK(S(translate_logical_pathname));
           fehler(file_error,
@@ -2830,7 +2830,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
         var object host = TheLogpathname(STACK_1)->pathname_host;
         var object translations = gethash(host,Symbol_value(S(logpathname_translations)));
         if (eq(translations,nullobj)) {
-          # STACK_1 = pathname; # Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_1 = pathname; # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
           STACK_0 = STACK_1;
           pushSTACK(host);
           pushSTACK(S(translate_logical_pathname));
@@ -2843,7 +2843,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
         pushSTACK(S(Ktest)); pushSTACK(L(pathname_match_p));
         funcall(L(assoc),4);
         if (atomp(value1) || matomp(Cdr(value1))) {
-          # STACK_1 = pathname; # Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_1 = pathname; # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
           STACK_0 = STACK_1;
           pushSTACK(S(translate_logical_pathname));
           fehler(file_error,
@@ -2878,7 +2878,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
         return obj;
       } elif (logpathnamep(obj)) {
         # TRANSLATE-LOGICAL-PATHNAME aufrufen:
-        pushSTACK(subr_self); # subr_self retten (für spätere Fehlermeldungen)
+        pushSTACK(subr_self); # subr_self retten (fÃ¼r spÃ¤tere Fehlermeldungen)
         pushSTACK(obj); funcall(L(translate_logical_pathname),1);
         subr_self = popSTACK();
         return value1;
@@ -2889,12 +2889,12 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
 
 #endif
 
-# UP: Legt Teilstrings für STRING_CONCAT auf den STACK, die zusammen den
-# String für ein Subdirectory (car path) ergeben.
+# UP: Legt Teilstrings fÃ¼r STRING_CONCAT auf den STACK, die zusammen den
+# String fÃ¼r ein Subdirectory (car path) ergeben.
 # subdir_namestring_parts(path)
 # > path: ein Cons
 # < ergebnis: Anzahl der auf den Stack gelegten Strings
-# verändert STACK
+# verÃ¤ndert STACK
   local uintC subdir_namestring_parts (object path);
   local uintC subdir_namestring_parts(path)
     var object path;
@@ -2928,12 +2928,12 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
       #endif
     }
 
-# UP: Legt Teilstrings für STRING_CONCAT auf den STACK, die zusammen den
-# String für den Host des Pathname pathname ergeben.
+# UP: Legt Teilstrings fÃ¼r STRING_CONCAT auf den STACK, die zusammen den
+# String fÃ¼r den Host des Pathname pathname ergeben.
 # host_namestring_parts(pathname)
 # > pathname: nicht-Logical Pathname
 # < ergebnis: Anzahl der auf den Stack gelegten Strings
-# verändert STACK
+# verÃ¤ndert STACK
 #if HAS_HOST
   local uintC host_namestring_parts (object pathname);
   local uintC host_namestring_parts(pathname)
@@ -2952,12 +2952,12 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
   #define host_namestring_parts(pathname)  (unused (pathname), 0)  # keine Strings
 #endif
 
-# UP: Legt Teilstrings für STRING_CONCAT auf den STACK, die zusammen den
-# String fürs Device und Directory des Pathname pathname ergeben.
+# UP: Legt Teilstrings fÃ¼r STRING_CONCAT auf den STACK, die zusammen den
+# String fÃ¼rs Device und Directory des Pathname pathname ergeben.
 # directory_namestring_parts(pathname)
 # > pathname: nicht-Logical Pathname
 # < ergebnis: Anzahl der auf den Stack gelegten Strings
-# verändert STACK
+# verÃ¤ndert STACK
   local uintC directory_namestring_parts (object pathname);
   local uintC directory_namestring_parts (pathname)
     var object pathname;
@@ -2971,7 +2971,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
           if (eq(device,S(Kwild)))
             device = O(wild_string); # :WILD -> String "*"
           pushSTACK(device); # Device auf den Stack
-          stringcount++; # und mitzählen
+          stringcount++; # und mitzÃ¤hlen
         }
       }
       #endif
@@ -2981,7 +2981,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
         var object device = ThePathname(pathname)->pathname_device;
         if (!(nullp(device))) { # NIL -> kein String
           pushSTACK(device); # Device auf den Stack
-          stringcount += 1; # und mitzählen
+          stringcount += 1; # und mitzÃ¤hlen
           # Wegen :ABSOLUTE kommt gleich danach ein ":" auf den Stack.
         }
       }
@@ -2994,7 +2994,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
           pushSTACK(O(doppelpunkt_string)); # ":"
           pushSTACK(device); # Device auf den Stack
           pushSTACK(O(punkt_string)); # "."
-          stringcount += 3; # und mitzählen
+          stringcount += 3; # und mitzÃ¤hlen
         }
       }
       #endif
@@ -3019,7 +3019,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
           pushSTACK(O(slash_string)); stringcount++; # "/" auf den Stack
           #endif
           #ifdef PATHNAME_RISCOS
-          directory = Cdr(directory); # übergehen
+          directory = Cdr(directory); # Ã¼bergehen
           var object firstdir = Car(directory);
           if (eq(firstdir,S(Kroot))) {
             pushSTACK(O(root_string)); stringcount++; # "$." auf den Stack
@@ -3036,7 +3036,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
           }
           #endif
         }
-        directory = Cdr(directory); # übergehen
+        directory = Cdr(directory); # Ã¼bergehen
         # weitere subdirs auf den Stack:
         while (consp(directory)) {
           stringcount += subdir_namestring_parts(directory);
@@ -3055,13 +3055,13 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
       return stringcount;
     }
 
-# UP: Legt Teilstrings für STRING_CONCAT auf den STACK, die zusammen den
-# String für Name und Typ des Pathname ergeben.
+# UP: Legt Teilstrings fÃ¼r STRING_CONCAT auf den STACK, die zusammen den
+# String fÃ¼r Name und Typ des Pathname ergeben.
 # nametype_namestring_parts(name,type,version)
 # > name, type, evtl. version: Komponenten des Pathname
 # < ergebnis: Anzahl der auf den Stack gelegten Strings
 # can trigger GC
-# verändert STACK
+# verÃ¤ndert STACK
   #if HAS_VERSION
   local uintC nametype_namestring_parts (object name, object type, object version);
   local uintC nametype_namestring_parts (
@@ -3080,37 +3080,37 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
       # Name:
       if (!nullp(name)) { # name=NIL -> nicht ausgeben
         pushSTACK(name); # Name auf den Stack
-        stringcount++; # und mitzählen
+        stringcount++; # und mitzÃ¤hlen
       }
       # Typ:
       if (!nullp(type)) { # type=NIL -> nicht ausgeben
         pushSTACK(O(punkt_string)); # "." auf den Stack
-        stringcount++; # und mitzählen
+        stringcount++; # und mitzÃ¤hlen
         pushSTACK(type); # Typ auf den Stack
-        stringcount++; # und mitzählen
+        stringcount++; # und mitzÃ¤hlen
       }
       #if HAS_VERSION
       if (!nullp(version)) { # version=NIL -> nicht ausgeben
         pushSTACK(O(strichpunkt_string)); # ";" auf den Stack
-        stringcount++; # und mitzählen
+        stringcount++; # und mitzÃ¤hlen
         if (eq(version,S(Knewest)))
           pushSTACK(O(zero_string)); # :NEWEST -> String "0"
         else
           # Version (Integer >0) in String umwandeln: (sys::decimal-string version)
           pushSTACK(decimal_string(version));
-        stringcount++; # und mitzählen
+        stringcount++; # und mitzÃ¤hlen
       }
       #endif
       return stringcount;
     }
 
-# UP: Legt Teilstrings für STRING_CONCAT auf den STACK, die zusammen den
-# String für Name und Typ des Pathname ergeben.
+# UP: Legt Teilstrings fÃ¼r STRING_CONCAT auf den STACK, die zusammen den
+# String fÃ¼r Name und Typ des Pathname ergeben.
 # file_namestring_parts(pathname)
 # > pathname: nicht-Logical Pathname
 # < ergebnis: Anzahl der auf den Stack gelegten Strings
 # can trigger GC
-# verändert STACK
+# verÃ¤ndert STACK
   local uintC file_namestring_parts (object pathname);
   local uintC file_namestring_parts(pathname)
     var object pathname;
@@ -3130,19 +3130,19 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_)
     var object pathname;
     {
       var uintC stringcount;
-      stringcount = host_namestring_parts(pathname); # Strings für den Host
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      stringcount += file_namestring_parts(pathname); # Strings für den Filename
-      subr_self = L(namestring); # ("aktuelles" SUBR für Fehlermeldung)
-      return string_concat(stringcount); # zusammenhängen
+      stringcount = host_namestring_parts(pathname); # Strings fÃ¼r den Host
+      stringcount += directory_namestring_parts(pathname); # Strings fÃ¼rs Directory
+      stringcount += file_namestring_parts(pathname); # Strings fÃ¼r den Filename
+      subr_self = L(namestring); # ("aktuelles" SUBR fÃ¼r Fehlermeldung)
+      return string_concat(stringcount); # zusammenhÃ¤ngen
     }
 
 LISPFUNN(file_namestring,1)
 # (FILE-NAMESTRING pathname), CLTL S. 417
   {
     var object pathname = coerce_pathname(popSTACK());
-    var uintC stringcount = file_namestring_parts(pathname); # Strings für den Filename
-    value1 = string_concat(stringcount); mv_count=1; # zusammenhängen
+    var uintC stringcount = file_namestring_parts(pathname); # Strings fÃ¼r den Filename
+    value1 = string_concat(stringcount); mv_count=1; # zusammenhÃ¤ngen
   }
 
 # UP: Liefert den String zum Directory eines Pathname.
@@ -3156,8 +3156,8 @@ LISPFUNN(file_namestring,1)
     var object pathname;
     {
       var uintC stringcount =
-        directory_namestring_parts(pathname); # Strings fürs Directory
-      return string_concat(stringcount); # zusammenhängen
+        directory_namestring_parts(pathname); # Strings fÃ¼rs Directory
+      return string_concat(stringcount); # zusammenhÃ¤ngen
     }
 
 LISPFUNN(directory_namestring,1)
@@ -3172,8 +3172,8 @@ LISPFUNN(host_namestring,1)
   {
     var object pathname = coerce_pathname(popSTACK());
     #if HAS_HOST
-    var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
-    value1 = string_concat(stringcount); # zusammenhängen
+    var uintC stringcount = host_namestring_parts(pathname); # Strings fÃ¼r den Host
+    value1 = string_concat(stringcount); # zusammenhÃ¤ngen
     #else
     value1 = O(leer_string); # "" als Wert
     #endif
@@ -3181,12 +3181,12 @@ LISPFUNN(host_namestring,1)
   }
 
 #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
-# UP: Überprüft ein optionales VERSION-Argument.
+# UP: ÃœberprÃ¼ft ein optionales VERSION-Argument.
 # test_optional_version(def);
 # > STACK_0: VERSION-Argument
-# > def: Defaultwert dafür
+# > def: Defaultwert dafÃ¼r
 # > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: gültige Version-Komponente
+# < ergebnis: gÃ¼ltige Version-Komponente
   local object test_optional_version (object def);
   local object test_optional_version(def)
     var object def;
@@ -3210,9 +3210,9 @@ LISPFUNN(host_namestring,1)
         STACK_0 = TheLogpathname(version)->pathname_version;
       }
       #endif
-      else { # Keiner der gewünschten Fälle -> Fehler:
-        pushSTACK(version); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_version)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      else { # Keiner der gewÃ¼nschten FÃ¤lle -> Fehler:
+        pushSTACK(version); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_version)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(version);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -3222,7 +3222,7 @@ LISPFUNN(host_namestring,1)
       return version;
     }
 #else
-# UP: Überprüft ein optionales VERSION-Argument.
+# UP: ÃœberprÃ¼ft ein optionales VERSION-Argument.
 # test_optional_version();
 # > STACK_0: VERSION-Argument
 # > subr_self: Aufrufer (ein SUBR)
@@ -3238,8 +3238,8 @@ LISPFUNN(host_namestring,1)
          )
         return; # ja -> OK
       else {
-        pushSTACK(version); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_version)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(version); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_version)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(version);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -3253,23 +3253,23 @@ LISPFUNN(host_namestring,1)
 
 # Das Betriebssystem verwaltet ein Default-Drive.
 # Das Betriebssystem verwaltet auf jedem Drive ein Default-Directory. Dieses
-# kann sich allerdings ändern, wenn eine andere Diskette eingelegt wird.
+# kann sich allerdings Ã¤ndern, wenn eine andere Diskette eingelegt wird.
 
-# Es wird ein Default-Drive geführt: DEFAULT_DRIVE = O(default_drive).
+# Es wird ein Default-Drive gefÃ¼hrt: DEFAULT_DRIVE = O(default_drive).
 
-# Die Variable *DEFAULT-PATHNAME-DEFAULTS* enthält (als Pathname) den
-# Defaultwert für jede MERGE-Operation. Dies ist derjenige, den das System
+# Die Variable *DEFAULT-PATHNAME-DEFAULTS* enthÃ¤lt (als Pathname) den
+# Defaultwert fÃ¼r jede MERGE-Operation. Dies ist derjenige, den das System
 # in vom Benutzer eingegebene Pathnames "hineininterpretiert".
 # Er wird auf dem neuesten Stand des DEFAULT_DRIVE gehalten: bei der
 # Initialisierung das aktuelle Device (im Sinne von DOS), bei der
-# Änderung von DEFAULT_DRIVE mittels CD.
+# Ã„nderung von DEFAULT_DRIVE mittels CD.
 
 #endif # PATHNAME_OS2 || PATHNAME_WIN32
 
 #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
 
-# Die Variable *DEFAULT-PATHNAME-DEFAULTS* enthält (als Pathname) den
-# Defaultwert für jede MERGE-Operation. Dies ist derjenige, den das System
+# Die Variable *DEFAULT-PATHNAME-DEFAULTS* enthÃ¤lt (als Pathname) den
+# Defaultwert fÃ¼r jede MERGE-Operation. Dies ist derjenige, den das System
 # in vom Benutzer eingegebene Pathnames "hineininterpretiert".
 
 #endif
@@ -3277,7 +3277,7 @@ LISPFUNN(host_namestring,1)
 #ifdef UNIX
 
 # Das Betriebssystem verwaltet ein Default-Directory ("working directory")
-# für diesen Prozess. Es kann mit chdir verändert und mit getwd abgefragt
+# fÃ¼r diesen Prozess. Es kann mit chdir verÃ¤ndert und mit getwd abgefragt
 # werden. Siehe CHDIR(2) und GETWD(3).
 
 #endif
@@ -3285,7 +3285,7 @@ LISPFUNN(host_namestring,1)
 #ifdef AMIGAOS
 
 # Das Betriebssystem verwaltet ein Default-Directory ("current directory")
-# für diesen Prozess. Es kann mit CurrentDir verändert und mit einer
+# fÃ¼r diesen Prozess. Es kann mit CurrentDir verÃ¤ndert und mit einer
 # Kombination aus Examine und ParentDir abgefragt werden.
 
 #endif
@@ -3301,12 +3301,12 @@ LISPFUNN(host_namestring,1)
   local object recalc_defaults_pathname()
     {
       #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-      # (MAKE-PATHNAME :DEVICE default-drive) ausführen:
+      # (MAKE-PATHNAME :DEVICE default-drive) ausfÃ¼hren:
       pushSTACK(S(Kdevice)); pushSTACK(O(default_drive));
       funcall(L(make_pathname),2);
       #endif
       #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(PATHNAME_RISCOS)
-      # (MAKE-PATHNAME) ausführen:
+      # (MAKE-PATHNAME) ausfÃ¼hren:
       funcall(L(make_pathname),0);
       #endif
       # und *DEFAULT-PATHNAME-DEFAULTS* zuweisen:
@@ -3326,8 +3326,8 @@ LISPFUNN(host_namestring,1)
         return pathname;
       } else {
         # sonst Warnung:
-        pushSTACK(subr_self); # subr_self retten (für spätere Fehlermeldungen)
-        # (WARN "Der Wert von ~S war kein Pathname. ~:*~S wird zurückgesetzt." ...)
+        pushSTACK(subr_self); # subr_self retten (fÃ¼r spÃ¤tere Fehlermeldungen)
+        # (WARN "Der Wert von ~S war kein Pathname. ~:*~S wird zurÃ¼ckgesetzt." ...)
         pushSTACK(OLS(defaults_warn_string));
         pushSTACK(S(default_pathname_defaults));
         funcall(S(warn),2);
@@ -3431,7 +3431,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     # :wild t causes only wild components to be considered unspecified.
     var boolean wildp = !(eq(STACK_0,unbound) || nullp(STACK_0));
     skipSTACK(1);
-    # default-version überprüfen:
+    # default-version Ã¼berprÃ¼fen:
     #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
     {
       var object v = test_optional_version(S(Knewest)); # Default ist :NEWEST
@@ -3442,14 +3442,14 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
     test_optional_version(S(Knewest)); skipSTACK(1);
     # Stackaufbau: pathname, defaults.
     #endif
-    # pathname und defaults überprüfen:
+    # pathname und defaults Ã¼berprÃ¼fen:
     # defaults zu einem Pathname machen:
     STACK_0 = test_default_pathname(STACK_0);
     # pathname zu einem Pathname machen:
     #ifdef LOGICAL_PATHNAMES
     if (logpathnamep(STACK_0)) {
       if (!xpathnamep(STACK_1)) {
-        pushSTACK(subr_self); # subr_self retten (für spätere Fehlermeldungen)
+        pushSTACK(subr_self); # subr_self retten (fÃ¼r spÃ¤tere Fehlermeldungen)
         # Das Ergebnis von (PARSE-NAMESTRING obj nil empty-logical-pathname)
         # ist garantiert ein logischer Pathname.
         pushSTACK(STACK_(1+1)); pushSTACK(NIL); pushSTACK(O(empty_logical_pathname));
@@ -3462,7 +3462,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       STACK_1 = coerce_xpathname(STACK_1);
     #ifdef LOGICAL_PATHNAMES
     if (logpathnamep(STACK_1) && logpathnamep(STACK_0)) {
-      # MERGE-PATHNAMES für Logical Pathnames
+      # MERGE-PATHNAMES fÃ¼r Logical Pathnames
       var object newp = allocate_logpathname(); # neuen Pathname holen
       var object d = popSTACK(); # defaults
       var object p = popSTACK(); # pathname
@@ -3497,7 +3497,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
             # ja -> verwende defaults-subdirs:
             new_subdirs = d_directory;
         } else {
-          # Fängt pathname-subdirs mit :RELATIVE an?
+          # FÃ¤ngt pathname-subdirs mit :RELATIVE an?
           if (!wildp && eq(Car(p_directory),S(Krelative))) {
             # ja.
             # Endet pathname-subdirs danach?
@@ -3506,14 +3506,14 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
               new_subdirs = d_directory;
             } else {
               # nein.
-              # Fängt defaults-subdirs mit :RELATIVE an?
+              # FÃ¤ngt defaults-subdirs mit :RELATIVE an?
               if (eq(Car(d_directory),S(Krelative))) {
                 # ja -> Ersetzen von :RELATIVE in pathname-subdirs
                 # durch das gesamte defaults-subdirs ist nicht sinnvoll
                 # (da nicht klar ist, auf was das dabei entstehende
                 # Default-Directory sich beziehen soll). Daher nichts tun:
               } else {
-                # nein -> Um :RELATIVE aufzulösen: ersetze :RELATIVE
+                # nein -> Um :RELATIVE aufzulÃ¶sen: ersetze :RELATIVE
                 # in pathname-subdirs durch defaults-subdirs, d.h.
                 # bilde (append defaults-subdirs (cdr pathname-subdirs)) =
                 # (nreconc (reverse defaults-subdirs) (cdr pathname-subdirs)) :
@@ -3621,7 +3621,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
           # ja -> verwende defaults-subdirs:
           new_subdirs = d_directory;
       } else {
-        # Fängt pathname-subdirs mit :RELATIVE an?
+        # FÃ¤ngt pathname-subdirs mit :RELATIVE an?
         if (!wildp && eq(Car(p_directory),S(Krelative))) {
           # ja.
           # Endet pathname-subdirs danach?
@@ -3630,7 +3630,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
             new_subdirs = d_directory;
           } else {
             # nein.
-            # Fängt defaults-subdirs mit :RELATIVE an?
+            # FÃ¤ngt defaults-subdirs mit :RELATIVE an?
             if (nullp(Symbol_value(S(merge_pathnames_ansi)))
                 && eq(Car(d_directory),S(Krelative))) {
               # ja -> Ersetzen von :RELATIVE in pathname-subdirs
@@ -3638,7 +3638,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
               # (da nicht klar ist, auf was das dabei entstehende
               # Default-Directory sich beziehen soll). Daher nichts tun:
             } else {
-              # nein -> Um :RELATIVE aufzulösen: ersetze :RELATIVE
+              # nein -> Um :RELATIVE aufzulÃ¶sen: ersetze :RELATIVE
               # in pathname-subdirs durch defaults-subdirs, d.h.
               # bilde (append defaults-subdirs (cdr pathname-subdirs)) =
               # (nreconc (reverse defaults-subdirs) (cdr pathname-subdirs)) :
@@ -3761,7 +3761,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
 #             )
 # ) ) )
   {
-    # pathname und defaults überprüfen:
+    # pathname und defaults Ã¼berprÃ¼fen:
     # pathname zu einem Pathname machen:
     STACK_1 = coerce_pathname(STACK_1);
     # defaults zu einem Pathname machen:
@@ -3797,16 +3797,16 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
             # gleich -> verwende (cons :RELATIVE nil) :
             new_subdirs = NIL; goto insert_RELATIVE;
           } else {
-            # Fängt weder pathname-subdirs noch defaults-subdirs
+            # FÃ¤ngt weder pathname-subdirs noch defaults-subdirs
             # mit :RELATIVE an?
             if (   (!eq(Car(p_directory),S(Krelative)))
                 && (!eq(Car(d_directory),S(Krelative)))
                ) {
-              # ja -> testen, ob defaults-subdirs ein Anfangsstück
+              # ja -> testen, ob defaults-subdirs ein AnfangsstÃ¼ck
               # der Liste pathname-subdirs ist:
               var object Lp = p_directory;
               var object Ld = d_directory;
-              # Ist Ld ein Anfangsstück von Lp ?
+              # Ist Ld ein AnfangsstÃ¼ck von Lp ?
               loop {
                 if (atomp(Ld)) { # Ld zu Ende -> ja
                   new_subdirs = Lp; goto insert_RELATIVE;
@@ -3815,7 +3815,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
                   break; # Lp zu Ende -> nein
                 if (!equal(Car(Ld),Car(Lp))) # verschiedene Listenelemente?
                   break; # -> nein
-                Ld = Cdr(Ld); Lp = Cdr(Lp); # Listen weiterrücken
+                Ld = Cdr(Ld); Lp = Cdr(Lp); # Listen weiterrÃ¼cken
               }
             }
             new_subdirs = p_directory; # new-subdirs := pathname-subdirs
@@ -3856,13 +3856,13 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
       }
     }
     #endif
-    # name einfüllen:
+    # name einfÃ¼llen:
     {
       var object p_name = ThePathname(STACK_2)->pathname_name; # pathname-name
       var object d_name = ThePathname(STACK_1)->pathname_name; # defaults-name
       ThePathname(newp)->pathname_name = (equal(p_name,d_name) ? NIL : p_name);
     }
-    # type einfüllen:
+    # type einfÃ¼llen:
     {
       var object p_type = ThePathname(STACK_2)->pathname_type; # pathname-type
       var object d_type = ThePathname(STACK_1)->pathname_type; # defaults-type
@@ -3875,8 +3875,8 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
 
 #ifdef LOGICAL_PATHNAMES
 
-# UP: Überprüft, ob object ein zulässiger Name ist:
-# :WILD oder ein Simple-String aus gültigen Zeichen, keine adjazenten '*'.
+# UP: ÃœberprÃ¼ft, ob object ein zulÃ¤ssiger Name ist:
+# :WILD oder ein Simple-String aus gÃ¼ltigen Zeichen, keine adjazenten '*'.
 # legal_logical_word(object)
   local boolean legal_logical_word (object obj);
   local boolean legal_logical_word(obj)
@@ -3910,8 +3910,8 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
 
 #if defined(PATHNAME_NOEXT) || defined(PATHNAME_RISCOS)
 
-# UP: Überprüft, ob object ein zulässiger Name ist:
-# ein Simple-String aus gültigen Zeichen
+# UP: ÃœberprÃ¼ft, ob object ein zulÃ¤ssiger Name ist:
+# ein Simple-String aus gÃ¼ltigen Zeichen
 # legal_name(object)
   local boolean legal_name (object obj);
   local boolean legal_name(obj)
@@ -3927,8 +3927,8 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
       return TRUE;
     }
 
-# UP: Überprüft, ob object ein zulässiger Name ist:
-# ein Simple-String aus gültigen Zeichen, ohne '.'
+# UP: ÃœberprÃ¼ft, ob object ein zulÃ¤ssiger Name ist:
+# ein Simple-String aus gÃ¼ltigen Zeichen, ohne '.'
 # legal_type(object)
   local boolean legal_type (object obj);
 #ifdef PATHNAME_NOEXT
@@ -3964,7 +3964,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
   {
     var boolean logical = FALSE;
     var boolean convert = eq(STACK_6,S(Kcommon));
-    # 1. host überprüfen:
+    # 1. host Ã¼berprÃ¼fen:
     #ifdef LOGICAL_PATHNAMES
     # Damit TRANSLATE-PATHNAMES logische Pathnames erzeugen kann:
     if (logpathnamep(STACK_5)) {
@@ -3982,7 +3982,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       logical = TRUE; convert = FALSE; STACK_5 = string_upcase(STACK_5);
     }
     #endif
-    # 2. device überprüfen:
+    # 2. device Ã¼berprÃ¼fen:
     #if HAS_DEVICE
     {
       var object device = STACK_4;
@@ -4008,7 +4008,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         elif (eq(device,S(Kwild))) # = :WILD ?
           goto device_ok;
         elif (simple_string_p(device)) { # Simple-String ?
-          if (Sstring_length(device) == 1) { # der Länge 1 ?
+          if (Sstring_length(device) == 1) { # der LÃ¤nge 1 ?
             var chart ch = TheSstring(device)->data[0];
             if ((as_cint(ch) >= 'A') && (as_cint(ch) <= 'Z')) # mit Buchstaben >='A' und <='Z' ?
               goto device_ok;
@@ -4049,7 +4049,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
           #endif
           STACK_4 = ThePathname(device)->pathname_device; goto device_ok;
         }
-        # Keiner der gewünschten Fälle -> Fehler:
+        # Keiner der gewÃ¼nschten FÃ¤lle -> Fehler:
         pushSTACK(STACK_4); pushSTACK(S(Kdevice)); goto fehler_arg;
        device_ok: ;
       }
@@ -4059,12 +4059,12 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       var object device = STACK_4;
       if (!eq(device,unbound)) # angegeben ?
         if (!(nullp(device) || xpathnamep(device))) { # NIL oder Pathname -> OK
-          # Keiner der gewünschten Fälle -> Fehler:
+          # Keiner der gewÃ¼nschten FÃ¤lle -> Fehler:
           pushSTACK(STACK_4); pushSTACK(S(Kdevice)); goto fehler_arg;
         }
     }
     #endif
-    # 3. directory überprüfen:
+    # 3. directory Ã¼berprÃ¼fen:
     {
       var object directory = STACK_3;
       if (eq(directory,unbound) && !eq(STACK_7,unbound)) { # nicht angegeben
@@ -4104,9 +4104,9 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
           #endif
         }
         directory = Cdr(directory);
-        # Subdir-Liste überprüfen:
+        # Subdir-Liste Ã¼berprÃ¼fen:
         while (consp(directory)) {
-          # nächstes subdir überprüfen:
+          # nÃ¤chstes subdir Ã¼berprÃ¼fen:
           var object subdir = Car(directory);
           #ifdef LOGICAL_PATHNAMES
           if (logical) {
@@ -4150,7 +4150,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         STACK_3 = ThePathname(directory)->pathname_directory;
         goto directory_ok;
       }
-      # Keiner der gewünschten Fälle -> Fehler:
+      # Keiner der gewÃ¼nschten FÃ¤lle -> Fehler:
      directory_bad:
       pushSTACK(STACK_3); pushSTACK(S(Kdirectory)); goto fehler_arg;
      directory_ok: ;
@@ -4160,7 +4160,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         goto directory_bad;
       #endif
     }
-    # 4. name überprüfen:
+    # 4. name Ã¼berprÃ¼fen:
     {
       var object name = STACK_2;
       if (stringp(name))
@@ -4178,7 +4178,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         if (legal_logical_word(name)) { # OK
         } elif (logpathnamep(name)) { # Pathname -> dessen Name
           STACK_2 = TheLogpathname(name)->pathname_name;
-        } else { # Keiner der gewünschten Fälle -> Fehler:
+        } else { # Keiner der gewÃ¼nschten FÃ¤lle -> Fehler:
           pushSTACK(STACK_2); pushSTACK(S(Kname)); goto fehler_arg;
         }
       }
@@ -4190,17 +4190,17 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
       #endif
       elif (equal(name,O(leer_string))) { # name = "" ?
         STACK_2 = NIL; # ja -> verwende NIL
-      } elif (legal_name(name)) { # zulässiger Name ist OK
+      } elif (legal_name(name)) { # zulÃ¤ssiger Name ist OK
       } elif (xpathnamep(name)) { # Pathname -> dessen Name
         #ifdef LOGICAL_PATHNAMES
         name = coerce_pathname(name);
         #endif
         STACK_2 = ThePathname(name)->pathname_name;
-      } else { # Keiner der gewünschten Fälle -> Fehler:
+      } else { # Keiner der gewÃ¼nschten FÃ¤lle -> Fehler:
         pushSTACK(STACK_2); pushSTACK(S(Kname)); goto fehler_arg;
       }
     }
-    # 5. type überprüfen:
+    # 5. type Ã¼berprÃ¼fen:
     {
       var object type = STACK_1;
       if (stringp(type))
@@ -4218,7 +4218,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         if (legal_logical_word(type)) { # OK
         } elif (logpathnamep(type)) { # Pathname -> dessen Typ
           STACK_1 = TheLogpathname(type)->pathname_type;
-        } else { # Keiner der gewünschten Fälle -> Fehler:
+        } else { # Keiner der gewÃ¼nschten FÃ¤lle -> Fehler:
           pushSTACK(STACK_1); pushSTACK(S(Ktype)); goto fehler_arg;
         }
       }
@@ -4228,17 +4228,17 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
         STACK_1 = O(wild_string); # aus :WILD mache "*"
       }
       #endif
-      elif (legal_type(type)) { # zulässiger Typ ist OK
+      elif (legal_type(type)) { # zulÃ¤ssiger Typ ist OK
       } elif (xpathnamep(type)) { # Pathname -> dessen Typ
         #ifdef LOGICAL_PATHNAMES
         type = coerce_pathname(type);
         #endif
         STACK_1 = ThePathname(type)->pathname_type;
-      } else { # Keiner der gewünschten Fälle -> Fehler:
+      } else { # Keiner der gewÃ¼nschten FÃ¤lle -> Fehler:
         pushSTACK(STACK_1); pushSTACK(S(Ktype)); goto fehler_arg;
       }
     }
-    # 6. version überprüfen:
+    # 6. version Ã¼berprÃ¼fen:
     #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
     STACK_0 = test_optional_version(eq(STACK_7,unbound) ? NIL : unbound); # Default ist NIL
     #else
@@ -4326,7 +4326,7 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
 # (USER-HOMEDIR-PATHNAME [host]), CLTL S. 418
   {
     #if HAS_HOST
-    STACK_0 = test_optional_host(STACK_0,FALSE); # Host überprüfen
+    STACK_0 = test_optional_host(STACK_0,FALSE); # Host Ã¼berprÃ¼fen
     #ifdef PATHNAME_RISCOS
     {
       var object pathname = allocate_pathname(); # neuer Pathname
@@ -4346,7 +4346,7 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
     ??
     #endif
     #else
-    test_optional_host(popSTACK()); # Host überprüfen und ignorieren
+    test_optional_host(popSTACK()); # Host Ã¼berprÃ¼fen und ignorieren
     value1 = O(user_homedir); # User-Homedir-Pathname
     #endif
     mv_count=1; # als Wert
@@ -4384,10 +4384,10 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
 # =========
 
 #if defined(PATHNAME_NOEXT) || defined(PATHNAME_RISCOS)
-# UP: Testet, ob ein Simple-String Wildcards enthält.
+# UP: Testet, ob ein Simple-String Wildcards enthÃ¤lt.
 # has_wildcards(string)
 # > string: Normal-Simple-String
-# < ergebnis: TRUE wenn string Wildcard-Zeichen enthält
+# < ergebnis: TRUE wenn string Wildcard-Zeichen enthÃ¤lt
   local boolean has_wildcards (object string);
   local boolean has_wildcards(string)
     var object string;
@@ -4397,8 +4397,8 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
         var const chart* charptr = &TheSstring(string)->data[0];
         dotimespL(len,len, {
           var chart ch = *charptr++;
-          if (chareq(ch,ascii('*')) # Wildcard für beliebig viele Zeichen
-              || singlewild_char_p(ch) # Wildcard für genau ein Zeichen
+          if (chareq(ch,ascii('*')) # Wildcard fÃ¼r beliebig viele Zeichen
+              || singlewild_char_p(ch) # Wildcard fÃ¼r genau ein Zeichen
              )
             return TRUE;
         });
@@ -4408,10 +4408,10 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
 #endif
 
 #ifdef LOGICAL_PATHNAMES
-# UP: Testet, ob ein Simple-String Wildcards enthält.
+# UP: Testet, ob ein Simple-String Wildcards enthÃ¤lt.
 # has_word_wildcards(string)
 # > string: Normal-Simple-String
-# < ergebnis: TRUE wenn string Wildcard-Zeichen enthält
+# < ergebnis: TRUE wenn string Wildcard-Zeichen enthÃ¤lt
   local boolean has_word_wildcards (object string);
   local boolean has_word_wildcards(string)
     var object string;
@@ -4428,18 +4428,18 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
     }
 #endif
 
-# UP: Testet, ob die Host-Komponente eines Pathname Wildcards enthält.
+# UP: Testet, ob die Host-Komponente eines Pathname Wildcards enthÃ¤lt.
 # has_host_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn (PATHNAME-HOST pathname) Wildcards enthält.
+# < ergebnis: TRUE wenn (PATHNAME-HOST pathname) Wildcards enthÃ¤lt.
   local boolean has_host_wildcards (object pathname);
   # Host kann keine Wildcards enthalten.
   #define has_host_wildcards(pathname)  (unused (pathname), FALSE)
 
-# UP: Testet, ob die Device-Komponente eines Pathname Wildcards enthält.
+# UP: Testet, ob die Device-Komponente eines Pathname Wildcards enthÃ¤lt.
 # has_device_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn (PATHNAME-DEVICE pathname) Wildcards enthält.
+# < ergebnis: TRUE wenn (PATHNAME-DEVICE pathname) Wildcards enthÃ¤lt.
   local boolean has_device_wildcards (object pathname);
   local boolean has_device_wildcards(pathname)
     var object pathname;
@@ -4449,22 +4449,22 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
       if (logpathnamep(pathname))
         return FALSE;
       #endif
-      # Device überprüfen: = :WILD ?
+      # Device Ã¼berprÃ¼fen: = :WILD ?
       return eq(ThePathname(pathname)->pathname_device,S(Kwild));
       #else
       return FALSE;
       #endif
     }
 
-# UP: Testet, ob die Directory-Komponente eines Pathname Wildcards enthält.
+# UP: Testet, ob die Directory-Komponente eines Pathname Wildcards enthÃ¤lt.
 # has_directory_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn (PATHNAME-DIRECTORY pathname) Wildcards enthält.
+# < ergebnis: TRUE wenn (PATHNAME-DIRECTORY pathname) Wildcards enthÃ¤lt.
   local boolean has_directory_wildcards (object pathname);
   local boolean has_directory_wildcards(pathname)
     var object pathname;
     {
-      # Directory überprüfen:
+      # Directory Ã¼berprÃ¼fen:
       #ifdef LOGICAL_PATHNAMES
       if (logpathnamep(pathname)) {
         var object directory = TheLogpathname(pathname)->pathname_directory;
@@ -4503,15 +4503,15 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
       return FALSE;
     }
 
-# UP: Testet, ob die Name-Komponente eines Pathname Wildcards enthält.
+# UP: Testet, ob die Name-Komponente eines Pathname Wildcards enthÃ¤lt.
 # has_name_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn (PATHNAME-NAME pathname) Wildcards enthält.
+# < ergebnis: TRUE wenn (PATHNAME-NAME pathname) Wildcards enthÃ¤lt.
   local boolean has_name_wildcards (object pathname);
   local boolean has_name_wildcards(pathname)
     var object pathname;
     {
-      # Name überprüfen:
+      # Name Ã¼berprÃ¼fen:
       #ifdef LOGICAL_PATHNAMES
       if (logpathnamep(pathname)) {
         var object name = TheLogpathname(pathname)->pathname_name;
@@ -4537,15 +4537,15 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
       return FALSE;
     }
 
-# UP: Testet, ob die Type-Komponente eines Pathname Wildcards enthält.
+# UP: Testet, ob die Type-Komponente eines Pathname Wildcards enthÃ¤lt.
 # has_type_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn (PATHNAME-TYPE pathname) Wildcards enthält.
+# < ergebnis: TRUE wenn (PATHNAME-TYPE pathname) Wildcards enthÃ¤lt.
   local boolean has_type_wildcards (object pathname);
   local boolean has_type_wildcards(pathname)
     var object pathname;
     {
-      # Typ überprüfen:
+      # Typ Ã¼berprÃ¼fen:
       #ifdef LOGICAL_PATHNAMES
       if (logpathnamep(pathname)) {
         var object type = TheLogpathname(pathname)->pathname_type;
@@ -4571,15 +4571,15 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
       return FALSE;
     }
 
-# UP: Testet, ob die Version-Komponente eines Pathname Wildcards enthält.
+# UP: Testet, ob die Version-Komponente eines Pathname Wildcards enthÃ¤lt.
 # has_version_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn (PATHNAME-VERSION pathname) Wildcards enthält.
+# < ergebnis: TRUE wenn (PATHNAME-VERSION pathname) Wildcards enthÃ¤lt.
   local boolean has_version_wildcards (object pathname);
   local boolean has_version_wildcards(pathname)
     var object pathname;
     {
-      # Version überprüfen:
+      # Version Ã¼berprÃ¼fen:
       #ifdef LOGICAL_PATHNAMES
       if (logpathnamep(pathname)) {
         if (eq(TheLogpathname(pathname)->pathname_version,S(Kwild)))
@@ -4590,10 +4590,10 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
       return FALSE;
     }
 
-# UP: Testet, ob irgendeine Komponente eines Pathname Wildcards enthält.
+# UP: Testet, ob irgendeine Komponente eines Pathname Wildcards enthÃ¤lt.
 # has_some_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn pathname Wildcards enthält.
+# < ergebnis: TRUE wenn pathname Wildcards enthÃ¤lt.
   local boolean has_some_wildcards (object pathname);
   local boolean has_some_wildcards(pathname)
     var object pathname;
@@ -4607,7 +4607,7 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
       return FALSE;
     }
 
-# UP: Überprüft, ob ein Pathname keine Wildcards enthält.
+# UP: ÃœberprÃ¼ft, ob ein Pathname keine Wildcards enthÃ¤lt.
 # check_no_wildcards(pathname);
 # > pathname: Pathname
   local void check_no_wildcards (object pathname);
@@ -4617,8 +4617,8 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
       if (!has_some_wildcards(pathname))
         # Keine Wildcards gefunden.
         return;
-      # Fehlermeldung, wenn der Pathname Wildcards enthält:
-      pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+      # Fehlermeldung, wenn der Pathname Wildcards enthÃ¤lt:
+      pushSTACK(pathname); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
       pushSTACK(pathname);
       fehler(file_error,
              GETTEXT("wildcards are not allowed here: ~")
@@ -4646,8 +4646,8 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
     } elif (eq(key,S(Kversion))) {
       erg = has_version_wildcards(pathname);
     } else {
-      pushSTACK(key); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(O(type_pathname_field_key)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(key); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(O(type_pathname_field_key)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(NIL);
       pushSTACK(S(Kversion));
       pushSTACK(S(Ktype));
@@ -4675,8 +4675,8 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
 
   # UP: Matcht einen Wildcard-String ("Muster") mit einem "Beispiel".
   # > muster: Normal-Simple-String, mit Platzhaltern
-  #           '?' für genau 1 Zeichen
-  #           '*' für beliebig viele Zeichen
+  #           '?' fÃ¼r genau 1 Zeichen
+  #           '*' fÃ¼r beliebig viele Zeichen
   # > beispiel: Normal-Simple-String, der damit zu matchen ist
   local boolean wildcard_match (object muster, object beispiel);
   # rekursive Implementation wegen Backtracking:
@@ -4703,25 +4703,25 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
         if (m_count==0)
           return (b_count==0 ? TRUE : FALSE); # "" matcht nur ""
         m_count--;
-        c = *m_ptr++; # nächstes Match-Zeichen
+        c = *m_ptr++; # nÃ¤chstes Match-Zeichen
         if (chareq(c,ascii('?'))) { # Wildcard '?'
           if (b_count==0) return FALSE; # mindestens ein Zeichen muss noch kommen
           b_count--; b_ptr++; # es wird ignoriert
         } elif (chareq(c,ascii('*')))
-          break; # Wildcard '*' später
+          break; # Wildcard '*' spÃ¤ter
         else { # alles andere muss genau matchen:
           if (b_count==0) return FALSE;
           b_count--; if (!equal_pathchar(*b_ptr++,c)) return FALSE;
         }
       }
-      # Wildcard '*': Suche nächstes non-Wildcard-Zeichen und zähle die '?'
+      # Wildcard '*': Suche nÃ¤chstes non-Wildcard-Zeichen und zÃ¤hle die '?'
       # mit (denn eine Folge '*??*???***?' matcht alles, was mindestens so
-      # lang ist, wie die Folge Fragezeichen enthält). Man kann die '?' auch
-      # gleich verwerten, denn '*??*???***?' ist zu '??????*' äquivalent.
+      # lang ist, wie die Folge Fragezeichen enthÃ¤lt). Man kann die '?' auch
+      # gleich verwerten, denn '*??*???***?' ist zu '??????*' Ã¤quivalent.
       loop {
         if (m_count==0) return TRUE; # Wildcard am Ende matcht den Rest.
         m_count--;
-        c = *m_ptr++; # nächstes Match-Zeichen
+        c = *m_ptr++; # nÃ¤chstes Match-Zeichen
         if (chareq(c,ascii('?'))) { # Fragezeichen: nach vorne ziehen, sofort abarbeiten
           if (b_count==0) return FALSE;
           b_count--; b_ptr++;
@@ -4729,7 +4729,7 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
         elif (!chareq(c,ascii('*')))
           break;
       }
-      # c = nächstes non-Wildcard-Zeichen. Suche es.
+      # c = nÃ¤chstes non-Wildcard-Zeichen. Suche es.
       loop {
         if (b_count==0) return FALSE; # c nicht gefunden
         b_count--;
@@ -4975,27 +4975,27 @@ LISPFUNN(pathname_match_p,2)
     value1 = NIL; mv_count=1; return;
   }
 
-# (TRANSLATE-PATHNAME beispiel muster1 muster2) machen wir folgendermaßen:
+# (TRANSLATE-PATHNAME beispiel muster1 muster2) machen wir folgendermaÃŸen:
 # 1. (PATHNAME-MATCH-P beispiel muster1) nachrechnen, dabei aber die
-#    Substitution aufheben, in Form von Textstücken (:WILD -> "*").
-# 2. In muster2 die Textstücke einsetzen, bis muster2 voll ist oder die
-#    Textstücke aufgebraucht sind.
+#    Substitution aufheben, in Form von TextstÃ¼cken (:WILD -> "*").
+# 2. In muster2 die TextstÃ¼cke einsetzen, bis muster2 voll ist oder die
+#    TextstÃ¼cke aufgebraucht sind.
 # 3. Zum Schluss (MERGE-PATHNAMES modifiziertes_muster2 beispiel).
 
   # UP: Vergleicht einen Wildcard-String ("Muster") mit einem "Beispiel".
   # wildcard_diff(muster,beispiel,previous,solutions);
   # > muster: Normal-Simple-String, mit Platzhaltern
-  #           '?' für genau 1 Zeichen
-  #           '*' für beliebig viele Zeichen
+  #           '?' fÃ¼r genau 1 Zeichen
+  #           '*' fÃ¼r beliebig viele Zeichen
   # > beispiel: Normal-Simple-String, der damit zu vergleichen ist
   # > previous: bisher bekanntes Vergleichsergebnis
   #             (umgedrehte Liste von Normal-Simple-Strings, NILs und Listen)
   # > solutions: Pointer auf eine Liste im STACK, auf die die
   #              Vergleichsergebnisse (umgedrehte Liste von
   #              Normal-Simple-Strings und Listen) zu consen sind
-  # kann GC auslösen
+  # kann GC auslÃ¶sen
 
-  # Hier wünscht man sich nicht Lisp oder C, sondern PROLOG als Sprache!
+  # Hier wÃ¼nscht man sich nicht Lisp oder C, sondern PROLOG als Sprache!
 
   #define push_solution()  \
     { var object new_cons = allocate_cons(); \
@@ -5073,7 +5073,7 @@ LISPFUNN(pathname_match_p,2)
       }
       var uintL b_start_index = b_index;
       loop {
-        # Um weniger zu consen, die Fälle abfangen, wo wildcard_diff_ab()
+        # Um weniger zu consen, die FÃ¤lle abfangen, wo wildcard_diff_ab()
         # gar nichts tut:
         if (m_index == Sstring_length(muster)
             ? b_index == Sstring_length(beispiel)
@@ -5279,7 +5279,7 @@ LISPFUNN(pathname_match_p,2)
       } else {
         pushSTACK(b_list); # b_start_list := b_list
         loop {
-          # Um weniger zu consen, die Fälle abfangen, wo directory_diff_ab()
+          # Um weniger zu consen, die FÃ¤lle abfangen, wo directory_diff_ab()
           # gar nichts tut:
           if (atomp(m_list)
               ? atomp(b_list)
@@ -5399,8 +5399,8 @@ LISPFUNN(pathname_match_p,2)
 
 #ifdef LOGICAL_PATHNAMES
 
-# Beim Einsetzen von Stücken normaler Pathnames in logische Pathnames:
-# Umwandlung in Großbuchstaben.
+# Beim Einsetzen von StÃ¼cken normaler Pathnames in logische Pathnames:
+# Umwandlung in GroÃŸbuchstaben.
 # logical_case(string)
 # > string: Normal-Simple-String oder Symbol/Zahl
 # < ergebnis: umgewandelter Normal-Simple-String oder dasselbe Symbol/Zahl
@@ -5422,12 +5422,12 @@ LISPFUNN(pathname_match_p,2)
         return logical_case(obj);
       check_STACK(); check_SP();
       pushSTACK(obj);
-      # rekursiv für den CAR aufrufen:
+      # rekursiv fÃ¼r den CAR aufrufen:
       {
         var object new_car = subst_logical_case(Car(obj));
         pushSTACK(new_car);
       }
-      # rekursiv für den CDR aufrufen:
+      # rekursiv fÃ¼r den CDR aufrufen:
       {
         var object new_cdr = subst_logical_case(Cdr(STACK_1));
         if (eq(new_cdr,Cdr(STACK_1)) && eq(STACK_0,Car(STACK_1))) {
@@ -5442,8 +5442,8 @@ LISPFUNN(pathname_match_p,2)
       }
     }
 
-# Beim Einsetzen von Stücken logischer Pathnames in normale Pathnames:
-# Umwandlung in Großbuchstaben.
+# Beim Einsetzen von StÃ¼cken logischer Pathnames in normale Pathnames:
+# Umwandlung in GroÃŸbuchstaben.
 # customary_case(string)
 # > string: Normal-Simple-String oder Symbol/Zahl
 # < ergebnis: umgewandelter Normal-Simple-String oder dasselbe Symbol/Zahl
@@ -5457,11 +5457,11 @@ LISPFUNN(pathname_match_p,2)
       if (!simple_string_p(string))
         return string;
       #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_RISCOS)
-      # Betriebssystem mit Vorzug für Kleinbuchstaben
+      # Betriebssystem mit Vorzug fÃ¼r Kleinbuchstaben
       return string_downcase(string);
       #endif
       #ifdef PATHNAME_AMIGAOS
-      # Betriebssystem mit Vorzug für Capitalize
+      # Betriebssystem mit Vorzug fÃ¼r Capitalize
       string = copy_string(string);
       nstring_capitalize(&TheSstring(string)->data[0],Sstring_length(string));
       return string;
@@ -5474,12 +5474,12 @@ LISPFUNN(pathname_match_p,2)
         return customary_case(obj);
       check_STACK(); check_SP();
       pushSTACK(obj);
-      # rekursiv für den CAR aufrufen:
+      # rekursiv fÃ¼r den CAR aufrufen:
       {
         var object new_car = subst_customary_case(Car(obj));
         pushSTACK(new_car);
       }
-      # rekursiv für den CDR aufrufen:
+      # rekursiv fÃ¼r den CDR aufrufen:
       {
         var object new_cdr = subst_customary_case(Cdr(STACK_1));
         if (eq(new_cdr,Cdr(STACK_1)) && eq(STACK_0,Car(STACK_1))) {
@@ -5500,7 +5500,7 @@ LISPFUNN(pathname_match_p,2)
 # translate_pathname(&subst,muster)
   local object translate_pathname (object* subst, object muster);
 # translate_host(&subst,muster,logical) etc. liefert den host etc. mit Ersetzungen
-# und verkürzen subst passend. Falls nicht passend, liefert es nullobj.
+# und verkÃ¼rzen subst passend. Falls nicht passend, liefert es nullobj.
   local object translate_host (object* subst, object muster, boolean logical);
   local object translate_device (object* subst, object muster, boolean logical);
   local object translate_subdir (object* subst, object muster, boolean logical);
@@ -5583,21 +5583,21 @@ LISPFUNN(pathname_match_p,2)
         loop {
           var uintL last_index = index;
           var chart c;
-          # Suche nächstes Wildcard-Zeichen:
+          # Suche nÃ¤chstes Wildcard-Zeichen:
           muster = *muster_;
           loop {
             if (index == len)
               break;
             c = TheSstring(muster)->data[index];
-            if ((chareq(c,ascii('*')) # Wildcard für beliebig viele Zeichen
-                 || (!logical && singlewild_char_p(c)) # Wildcard für genau ein Zeichen
+            if ((chareq(c,ascii('*')) # Wildcard fÃ¼r beliebig viele Zeichen
+                 || (!logical && singlewild_char_p(c)) # Wildcard fÃ¼r genau ein Zeichen
                 )
                 && mconsp(*subst)
                )
               break;
             index++;
           }
-          # Nächsten Teilstring auf den Stack:
+          # NÃ¤chsten Teilstring auf den Stack:
           pushSTACK(subsstring(muster,last_index,index)); # (SUBSTRING muster last_index index)
           stringcount++;
           # Fertig?
@@ -5738,13 +5738,13 @@ LISPFUNN(pathname_match_p,2)
     {
       var boolean logical = FALSE;
       var object item;
-      pushSTACK(*subst); # subst retten für Fehlermeldung
+      pushSTACK(*subst); # subst retten fÃ¼r Fehlermeldung
       pushSTACK(muster);
       #ifdef LOGICAL_PATHNAMES
       if (logpathnamep(muster))
         logical = TRUE;
       #endif
-      # Argumente für MAKE-PATHNAME zusammenbauen:
+      # Argumente fÃ¼r MAKE-PATHNAME zusammenbauen:
       item = translate_host(subst,xpathname_host(logical,muster),logical);
       if (eq(item,nullobj)) { goto subst_error; }
       pushSTACK(S(Khost)); pushSTACK(item);
@@ -5765,7 +5765,7 @@ LISPFUNN(pathname_match_p,2)
       item = translate_version(subst,xpathname_version(logical,STACK_(2+2*HAS_DEVICE+6)),logical);
       if (eq(item,nullobj)) { skipSTACK(2+2*HAS_DEVICE+6); goto subst_error; }
       pushSTACK(S(Kversion)); pushSTACK(item);
-      # Alle Ersetzungsstücke müssen verbraucht werden!
+      # Alle ErsetzungsstÃ¼cke mÃ¼ssen verbraucht werden!
       if (mconsp(*subst)) { skipSTACK(2+2*HAS_DEVICE+8); goto subst_error; }
       # (MAKE-PATHNAME ...) bzw. (SYS::MAKE-LOGICAL-PATHNAME ...) aufrufen:
       #ifdef LOGICAL_PATHNAMES
@@ -5789,7 +5789,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # (TRANSLATE-PATHNAME beispiel muster1 muster2 [:all] [:merge]), CLtL2 S. 624
 # :all = T --> liefere eine Liste aller passenden Pathnames
 # :all = NIL --> Error, falls mehr als ein Pathname passt
-# :merge = NIL --> letzten MERGE-PATHNAMES Schritt überspringen
+# :merge = NIL --> letzten MERGE-PATHNAMES Schritt Ã¼berspringen
   {
     # Stackaufbau: beispiel, muster1, muster2, all, merge.
     var boolean logical = FALSE; # Flag, ob beispiel und muster logische Pathnames sind
@@ -5858,9 +5858,9 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       STACK_1 = Cdr(solutions);
       {
         var object solution = reverse(Car(solutions)); # Liste solution umdrehen
-        # 2. Schritt: Substitution in muster2 einfügen.
+        # 2. Schritt: Substitution in muster2 einfÃ¼gen.
         #ifdef LOGICAL_PATHNAMES
-        # Groß-/Kleinschreibung passend konvertieren:
+        # GroÃŸ-/Kleinschreibung passend konvertieren:
         if (!logical) {
           if (logical2)
             solution = subst_logical_case(solution);
@@ -5874,7 +5874,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       }
       # 3. Schritt: (MERGE-PATHNAMES modifiziertes_muster2 beispiel :WILD T)
       if (!nullp(STACK_(0+1+2))) # :MERGE-Argument abfragen
-        if (has_some_wildcards(STACK_0)) { # evtl. ist MERGE-PATHNAMES unnötig
+        if (has_some_wildcards(STACK_0)) { # evtl. ist MERGE-PATHNAMES unnÃ¶tig
           pushSTACK(STACK_(4+1+2)); pushSTACK(unbound);
           pushSTACK(S(Kwild)); pushSTACK(T);
           funcall(L(merge_pathnames),5);
@@ -5922,7 +5922,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local void fehler_dir_not_exists(obj)
     var object obj;
     {
-      pushSTACK(obj); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(obj); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
       pushSTACK(obj);
       fehler(file_error,
              GETTEXT("nonexistent directory: ~")
@@ -5937,7 +5937,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var object caller;
     var object pathname;
     {
-      pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(pathname); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
       pushSTACK(pathname);
       pushSTACK(caller);
       fehler(file_error,
@@ -5947,19 +5947,19 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 
 #ifdef LOGICAL_PATHNAMES
 # Ein "absoluter Pathname" ist stets ein nicht-Logical Pathname, evtl.
-# mit weiteren Einschränkungen.
+# mit weiteren EinschrÃ¤nkungen.
 #endif
 
 #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
 
-# Ein "absoluter Pathname" ist ein Pathname, bei dem Device ein überprüfter
-# String ist und Directory kein :RELATIVE, :CURRENT, :PARENT enthält.
+# Ein "absoluter Pathname" ist ein Pathname, bei dem Device ein Ã¼berprÃ¼fter
+# String ist und Directory kein :RELATIVE, :CURRENT, :PARENT enthÃ¤lt.
 
-# UP: Liefert den Namestring eines Pathname fürs Betriebssystem.
+# UP: Liefert den Namestring eines Pathname fÃ¼rs Betriebssystem.
 # OSnamestring(dir_namestring)
 # > STACK_0: nicht-Logical Pathname
-# > dir_namestring: Directory-Namestring (für DOS)
-# < ergebnis: Namestring (für DOS)
+# > dir_namestring: Directory-Namestring (fÃ¼r DOS)
+# < ergebnis: Namestring (fÃ¼r DOS)
 # can trigger GC
   local object OSnamestring (object dir_namestring);
   local object OSnamestring(dir_namestring)
@@ -5968,7 +5968,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       var uintC stringcount;
       pushSTACK(dir_namestring); # Directory-Namestring als 1. String
       stringcount = file_namestring_parts(STACK_(0+1)); # Strings zum Filenamen
-      return string_concat(1+stringcount); # zusammenhängen
+      return string_concat(1+stringcount); # zusammenhÃ¤ngen
     }
 
 #ifdef EMUNIX
@@ -5982,8 +5982,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 
 # Liefert das aktuelle Directory auf einem Laufwerk.
 # getwd_of(path,drive)
-# > uintB drive: Laufwerks-(groß-)buchstabe
-# > uintB* path: Platz fürs aktuelle Directory
+# > uintB drive: Laufwerks-(groÃŸ-)buchstabe
+# > uintB* path: Platz fÃ¼rs aktuelle Directory
 # < path: Pfad des aktuellen Directories, mit '/' als Trennzeichen und als Anfang
 # < ergebnis: <0 falls Fehler
   #define getwd_of(path,drive)  _getcwd1(path,drive)
@@ -5991,7 +5991,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 #endif # EMUNIX
 
 # UP: Stellt fest, ob ein Laufwerk existiert.
-# > uintB drive: Laufwerks-(groß-)buchstabe
+# > uintB drive: Laufwerks-(groÃŸ-)buchstabe
 # < boolean ergebnis: ob dieses Laufwerk existiert und ansprechbar ist
   local boolean good_drive (uintB drive);
   #ifdef EMUNIX
@@ -6069,7 +6069,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   #endif
 
 # UP: Liefert das aktuelle Drive.
-# < char drive: Laufwerks-(groß-)buchstabe
+# < char drive: Laufwerks-(groÃŸ-)buchstabe
   local char default_drive (void);
  #ifdef EMUNIX
   local char default_drive()
@@ -6103,8 +6103,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
  #endif
 
 # UP: Liefert das aktuelle Directory auf einem gegebenen Drive.
-# > uintB drive: Laufwerks-(groß-)buchstabe
-# > object pathname: Pathname (für Fehlermeldungszwecke)
+# > uintB drive: Laufwerks-(groÃŸ-)buchstabe
+# > object pathname: Pathname (fÃ¼r Fehlermeldungszwecke)
 # < ergebnis: aktuelles Directory (als Pathname)
 # can trigger GC
   local object default_directory_of (uintB drive, object pathname);
@@ -6132,7 +6132,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           if (!result) { end_system_call(); OS_file_error(pathname); }
         }
         end_system_call();
-        # evtl. noch ein '\' am Schluss anfügen:
+        # evtl. noch ein '\' am Schluss anfÃ¼gen:
         {
           var char* path_end = &path_buffer[asciz_length(path_buffer)];
           if (!(path_end[-1]=='\\')) { path_end[0] = '\\'; path_end[1] = '\0'; }
@@ -6146,14 +6146,14 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         end_system_call();
       #endif
       # Hack von DJ (siehe GO32/EXPHDLR.C) und EM (siehe LIB/MISC/_GETCWD1.C):
-      # wandelt alle '\' in '/' und alle Groß- in Kleinbuchstaben (nur Kosmetik,
+      # wandelt alle '\' in '/' und alle GroÃŸ- in Kleinbuchstaben (nur Kosmetik,
       # da DOS und unser PARSE-NAMESTRING auch Filenamen mit '/' statt '\'
       # verstehen).
       # in Pathname umwandeln:
       return asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding));
     }
 
-# UP: Füllt Default-Drive und Default-Directory in einen Pathname ein.
+# UP: FÃ¼llt Default-Drive und Default-Directory in einen Pathname ein.
 # use_default_dir(pathname)
 # > pathname: nicht-Logical Pathname mit Device /= :WILD
 # < ergebnis: neuer absoluter Pathname
@@ -6166,15 +6166,15 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       pathname = copy_pathname(pathname);
       pushSTACK(pathname);
       # Stackaufbau: pathname.
-      # Default fürs Device:
+      # Default fÃ¼rs Device:
       if (nullp(ThePathname(pathname)->pathname_device)) { # kein Device angegeben?
         # Nimm das Default-Drive stattdessen:
         ThePathname(pathname)->pathname_device = O(default_drive);
       }
-      # Default fürs Directory:
+      # Default fÃ¼rs Directory:
       {
         var object subdirs = ThePathname(pathname)->pathname_directory;
-        # Fängt pathname-directory mit :RELATIVE an?
+        # FÃ¤ngt pathname-directory mit :RELATIVE an?
         if (eq(Car(subdirs),S(Krelative))) {
           # ja -> Ersetze :RELATIVE durch das Default-Directory:
           pushSTACK(Cdr(subdirs));
@@ -6189,36 +6189,36 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           subdirs = nreconc(temp,popSTACK());
         }
         # Liste durchgehen und dabei neu aufconsen, dabei '.\' und '..\'
-        # und '...\' verarbeiten (nicht dem DOS überlassen):
+        # und '...\' verarbeiten (nicht dem DOS Ã¼berlassen):
         pushSTACK(subdirs);
         pushSTACK(NIL);
         # Stackaufbau: Pathname, subdir-oldlist, subdir-newlist.
         while (mconsp(STACK_1)) { # Bis oldlist am Ende ist:
-          var object subdir = Car(STACK_1); # nächstes subdir
+          var object subdir = Car(STACK_1); # nÃ¤chstes subdir
           if (equal(subdir,O(punkt_string))) {
-            # = :CURRENT -> newlist unverändert lassen
+            # = :CURRENT -> newlist unverÃ¤ndert lassen
           } elif (equal(subdir,O(punktpunkt_string))) {
-            # = :PARENT -> newlist um eins verkürzen:
+            # = :PARENT -> newlist um eins verkÃ¼rzen:
             if (matomp(Cdr(STACK_0))) { # newlist (bis auf :ABSOLUTE) leer ?
               # :PARENT von "\" aus liefert Error
-              pushSTACK(STACK_2); # Wert für Slot PATHNAME von FILE-ERROR
+              pushSTACK(STACK_2); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
               pushSTACK(O(backslash_string)); # "\\"
               pushSTACK(directory_namestring(STACK_(2+2))); # Directory von pathname
               fehler(file_error,
                      GETTEXT("no directory ~ above ~")
                     );
             }
-            if (eq(Car(STACK_0),S(Kwild_inferiors))) { # newlist fängt mit '...\' an ?
+            if (eq(Car(STACK_0),S(Kwild_inferiors))) { # newlist fÃ¤ngt mit '...\' an ?
               # :PARENT von "...\" aus liefert Error
-              pushSTACK(STACK_2); # Wert für Slot PATHNAME von FILE-ERROR
+              pushSTACK(STACK_2); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
               pushSTACK(directory_namestring(STACK_(2+1))); # Directory von pathname
-              fehler(file_error, # '"..\\" nach "...\\" ist unzulässig: ~'
+              fehler(file_error, # '"..\\" nach "...\\" ist unzulÃ¤ssig: ~'
                      GETTEXT("\"..\\\\\" after \"...\\\\\" is invalid: ~")
                     );
             }
             STACK_0 = Cdr(STACK_0);
           } else { # (auch wenn :ABSOLUTE !)
-            # newlist um eins verlängern:
+            # newlist um eins verlÃ¤ngern:
             pushSTACK(subdir);
             var object new_cons = allocate_cons();
             Car(new_cons) = popSTACK();
@@ -6241,11 +6241,11 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # assure_dir_exists(links_resolved,tolerantp)
 # > STACK_0: absoluter Pathname ohne Wildcards im Directory
 # > links_resolved: Flag, ob im Directory des Pathname schon alle Links
-#     aufgelöst sind und es als existierend bekannt ist
+#     aufgelÃ¶st sind und es als existierend bekannt ist
 # > tolerantp: Flag, ob ein Fehler vermieden werden soll
 # < ergebnis:
-#     falls Name=NIL: Directory-Namestring (für DOS)
-#     falls Name/=NIL: Namestring (für DOS)
+#     falls Name=NIL: Directory-Namestring (fÃ¼r DOS)
+#     falls Name/=NIL: Namestring (fÃ¼r DOS)
 #     falls tolerantp evtl.: nullobj
 # can trigger GC
   local object assure_dir_exists (boolean links_resolved, boolean tolerantp);
@@ -6253,8 +6253,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var boolean links_resolved;
     var boolean tolerantp;
     {
-      var uintC stringcount = directory_namestring_parts(STACK_0); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount); # zusammenhängen
+      var uintC stringcount = directory_namestring_parts(STACK_0); # Strings fÃ¼rs Directory
+      var object dir_namestring = string_concat(stringcount); # zusammenhÃ¤ngen
       if (!links_resolved) {
         # Existenztest:
         #ifdef MSDOS
@@ -6326,8 +6326,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # assume_dir_exists()
 # > STACK_0: absoluter Pathname ohne Wildcards im Directory
 # < ergebnis:
-#     falls Name=NIL: Directory-Namestring (für DOS)
-#     falls Name/=NIL: Namestring (für DOS)
+#     falls Name=NIL: Directory-Namestring (fÃ¼r DOS)
+#     falls Name/=NIL: Namestring (fÃ¼r DOS)
 # can trigger GC
   global object assume_dir_exists (void);
   global object assume_dir_exists()
@@ -6340,7 +6340,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 #ifdef PATHNAME_AMIGAOS
 
 # UP: Liefert den Truename eines Directory-Locks.
-# > set_break_sem_4(): schon ausgeführt
+# > set_break_sem_4(): schon ausgefÃ¼hrt
 # > lock: Directory-Lock, wird freigegeben
 # < ergebnis: Directory (als Pathname)
 # can trigger GC
@@ -6410,14 +6410,14 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local object default_directory (void);
   local object default_directory()
     {
-      # Lock fürs aktuelle Directory holen:
-      set_break_sem_4(); # Unterbrechungen währenddessen verhindern
+      # Lock fÃ¼rs aktuelle Directory holen:
+      set_break_sem_4(); # Unterbrechungen wÃ¤hrenddessen verhindern
       begin_system_call();
       var BPTR lock = Lock("",ACCESS_READ);
       if (lock==BPTR_NULL) {
         if (!(IoErr()==ERROR_OBJECT_NOT_FOUND)) { clr_break_sem_4(); OS_error(); }
         end_system_call(); clr_break_sem_4();
-        pushSTACK(unbound); # "Wert" für Slot PATHNAME von FILE-ERROR
+        pushSTACK(unbound); # "Wert" fÃ¼r Slot PATHNAME von FILE-ERROR
         fehler(file_error,
                GETTEXT("Couldn't access current directory")
               );
@@ -6426,7 +6426,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       return directory_truename(lock); # macht clr_break_sem_4(); und UnLock(lock);
     }
 
-# UP: Füllt Default-Directory in einen Pathname ein.
+# UP: FÃ¼llt Default-Directory in einen Pathname ein.
 # use_default_dir(pathname)
 # > pathname: nicht-Logical Pathname
 # < ergebnis: neuer absoluter Pathname
@@ -6440,7 +6440,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       # Dann das Default-Directory in den Pathname einbauen:
       {
         var object subdirs = ThePathname(pathname)->pathname_directory;
-        # Fängt pathname-directory mit :RELATIVE an?
+        # FÃ¤ngt pathname-directory mit :RELATIVE an?
         if (eq(Car(subdirs),S(Krelative))) {
           # ja -> Ersetze :RELATIVE durch default-subdirs, d.h.
           # bilde  (append default-subdirs (cdr subdirs))
@@ -6459,12 +6459,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       return pathname;
     }
 
-# UP: Macht aus einem Directory-Namestring einen, der für AMIGAOS geeignet ist.
+# UP: Macht aus einem Directory-Namestring einen, der fÃ¼r AMIGAOS geeignet ist.
 # OSdirnamestring(namestring)
 # > namestring: neu erzeugter Directory-Namestring, mit '/' oder ':' am
 #               Schluss, ein Normal-Simple-String
 # < ergebnis: Namestring zu diesem Directory, im AmigaOS-Format: letzter '/'
-#             gestrichen, falls überflüssig, ein Normal-Simple-String
+#             gestrichen, falls Ã¼berflÃ¼ssig, ein Normal-Simple-String
 # can trigger GC
   local object OSdirnamestring (object namestring);
   local object OSdirnamestring(namestring)
@@ -6486,15 +6486,15 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 
 # UP: Stellt sicher, dass das Directory eines Pathname existiert.
 # assure_dir_exists(tolerantp)
-# > STACK_0: nicht-Logical Pathname, bei dem Directory kein :RELATIVE enthält.
+# > STACK_0: nicht-Logical Pathname, bei dem Directory kein :RELATIVE enthÃ¤lt.
 # > links_resolved: Flag, ob im Directory des Pathname schon alle Links
-#     aufgelöst sind und es als existierend bekannt ist
+#     aufgelÃ¶st sind und es als existierend bekannt ist
 # > tolerantp: Flag, ob ein Fehler vermieden werden soll
 # > subr_self: Aufrufer (ein SUBR)
-# < STACK_0: (evtl. derselbe) Pathname, aber aufgelöst.
+# < STACK_0: (evtl. derselbe) Pathname, aber aufgelÃ¶st.
 # < ergebnis:
-#     falls Name=NIL: Directory-Namestring (für AMIGAOS, mit '/' am Schluss)
-#     falls Name/=NIL: Namestring (für AMIGAOS)
+#     falls Name=NIL: Directory-Namestring (fÃ¼r AMIGAOS, mit '/' am Schluss)
+#     falls Name/=NIL: Namestring (fÃ¼r AMIGAOS)
 #     falls tolerantp evtl.: nullobj
 # < filestatus: Falls Name/=NIL: NULL falls das File nicht existiert,
 #                                sonst ein Pointer auf eine STAT-Information.
@@ -6506,18 +6506,18 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var boolean tolerantp;
     {
       if (!links_resolved) {
-        # Zur Auflösung von :PARENTs, die über Root hinaussteigen,
-        # müssen wir das Betriebssystem bemühen. Daher:
+        # Zur AuflÃ¶sung von :PARENTs, die Ã¼ber Root hinaussteigen,
+        # mÃ¼ssen wir das Betriebssystem bemÃ¼hen. Daher:
         var object dir_namestring;
         {
-          var uintC stringcount = directory_namestring_parts(STACK_0); # Strings fürs Directory
+          var uintC stringcount = directory_namestring_parts(STACK_0); # Strings fÃ¼rs Directory
           dir_namestring = string_concat(stringcount);
         }
         pushSTACK(dir_namestring);
-        dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
+        dir_namestring = OSdirnamestring(dir_namestring); # ohne Ã¼berflÃ¼ssigen '/' am Schluss
         with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
-          # Lock für dieses Directory holen:
-          set_break_sem_4(); # Unterbrechungen währenddessen verhindern
+          # Lock fÃ¼r dieses Directory holen:
+          set_break_sem_4(); # Unterbrechungen wÃ¤hrenddessen verhindern
           begin_system_call();
           var BPTR lock = Lock(dir_namestring_asciz,ACCESS_READ);
           if (lock==BPTR_NULL) {
@@ -6530,19 +6530,19 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                 if (tolerantp) { skipSTACK(1); return nullobj; }
                 fehler_dir_not_exists(STACK_0);
               case ERROR_ACTION_NOT_KNOWN:
-                # Ein Device, bei dem man keine Locks für Subdirectories holen
+                # Ein Device, bei dem man keine Locks fÃ¼r Subdirectories holen
                 # kann! Hierbei muss es sich wohl um ein spezielles Device handeln
                 # (PIPE, CON, AUX, etc.).
-                # Wir stoppen die Subdirectory-Überprüfungen. Nicht einmal mehr
+                # Wir stoppen die Subdirectory-ÃœberprÃ¼fungen. Nicht einmal mehr
                 # Examine() rufen wir auf. Wir gehen im Gegenteil davon aus, dass
-                # das File im gewöhnlichen Sinne (noch) nicht existiert.
+                # das File im gewÃ¶hnlichen Sinne (noch) nicht existiert.
                 clr_break_sem_4(); # Unterbrechungen zulassen, da wir nun doch kein Lock belegt haben
                 if (namenullp(STACK_(0+1))) { # kein File angesprochen?
                   return popSTACK(); # ja -> fertig
                 } else {
                   var uintC stringcount = 1; # directory_namestring schon auf dem STACK
-                  stringcount += file_namestring_parts(STACK_(0+1)); # Strings für den Filename
-                  var object namestring = string_concat(stringcount); # zusammenhängen
+                  stringcount += file_namestring_parts(STACK_(0+1)); # Strings fÃ¼r den Filename
+                  var object namestring = string_concat(stringcount); # zusammenhÃ¤ngen
                   filestatus = (struct FileInfoBlock *)NULL; # File existiert nicht, sagen wir
                   return namestring;
                 }
@@ -6552,7 +6552,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           }
           end_system_call();
           dir_namestring = popSTACK();
-          # und überprüfen, ob's ein Directory ist:
+          # und Ã¼berprÃ¼fen, ob's ein Directory ist:
           {
             var LONGALIGNTYPE(struct FileInfoBlock) fib;
             var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
@@ -6569,7 +6569,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
               end_system_call(); clr_break_sem_4();
               FREE_DYNAMIC_ARRAY(dir_namestring_asciz);
               if (tolerantp) { return nullobj; }
-              # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+              # STACK_0 = Wert fÃ¼r Slot PATHNAME von FILE-ERROR
               pushSTACK(dir_namestring);
               pushSTACK(TheSubr(subr_self)->name);
               fehler(file_error,
@@ -6591,12 +6591,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       if (namenullp(pathname)) # kein File angesprochen?
         return directory_namestring(pathname); # ja -> fertig
       var uintC stringcount = 0;
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      stringcount += file_namestring_parts(pathname); # Strings für den Filename
-      var object namestring = string_concat(stringcount); # zusammenhängen
+      stringcount += directory_namestring_parts(pathname); # Strings fÃ¼rs Directory
+      stringcount += file_namestring_parts(pathname); # Strings fÃ¼r den Filename
+      var object namestring = string_concat(stringcount); # zusammenhÃ¤ngen
       with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-        # Lock für dieses File holen:
-        set_break_sem_4(); # Unterbrechungen währenddessen verhindern
+        # Lock fÃ¼r dieses File holen:
+        set_break_sem_4(); # Unterbrechungen wÃ¤hrenddessen verhindern
         begin_system_call();
         var BPTR lock = Lock(namestring_asciz,ACCESS_READ);
         if (lock==BPTR_NULL) {
@@ -6620,7 +6620,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         end_system_call();
         clr_break_sem_4();
         if (statusptr->fib_DirEntryType >= 0) { # Ist es ein Directory?
-          # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_0 = Wert fÃ¼r Slot PATHNAME von FILE-ERROR
           pushSTACK(whole_namestring(STACK_0));
           pushSTACK(TheSubr(subr_self)->name);
           fehler(file_error,
@@ -6629,7 +6629,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         } else {
           # normales File
           pushSTACK(namestring);
-          # Die Groß-/Kleinschreibung des Truename wird bestimmt durch
+          # Die GroÃŸ-/Kleinschreibung des Truename wird bestimmt durch
           # das bereits existierende File.
           pushSTACK(asciz_to_string(&statusptr->fib_FileName[0],O(pathname_encoding)));
           split_name_type(1);
@@ -6644,7 +6644,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     }
 
 # Dasselbe unter der Annahme, dass das Directory bereits existiert.
-# (Keine Vereinfachung, da wir ja den Truename bestimmen müssen.??)
+# (Keine Vereinfachung, da wir ja den Truename bestimmen mÃ¼ssen.??)
   global object assume_dir_exists (void);
   global object assume_dir_exists()
     {
@@ -6667,7 +6667,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       begin_system_call();
       if ( getwd(&path_buffer[0]) ==NULL) {
         end_system_call();
-        pushSTACK(O(punkt_string)); # Wert für Slot PATHNAME von FILE-ERROR
+        pushSTACK(O(punkt_string)); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
         pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding))); # Meldung
         fehler(file_error,
                GETTEXT("UNIX error while GETWD: ~")
@@ -6676,7 +6676,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       end_system_call();
       # Es muss mit '/' anfangen:
       if (!(path_buffer[0] == '/')) {
-        pushSTACK(O(punkt_string)); # Wert für Slot PATHNAME von FILE-ERROR
+        pushSTACK(O(punkt_string)); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
         pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
         fehler(file_error,
                GETTEXT("UNIX GETWD returned ~")
@@ -6686,10 +6686,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       return asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding));
     }
 
-# UP: Füllt Default-Directory in einen Pathname ein.
+# UP: FÃ¼llt Default-Directory in einen Pathname ein.
 # use_default_dir(pathname)
 # > pathname: nicht-Logical Pathname
-# < ergebnis: neuer Pathname, bei dem Directory kein :RELATIVE enthält.
+# < ergebnis: neuer Pathname, bei dem Directory kein :RELATIVE enthÃ¤lt.
 #             (kurz: "absoluter Pathname")
 # can trigger GC
   local object use_default_dir (object pathname);
@@ -6701,7 +6701,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       # Dann das Default-Directory in den Pathname einbauen:
       {
         var object subdirs = ThePathname(pathname)->pathname_directory;
-        # Fängt pathname-directory mit :RELATIVE an?
+        # FÃ¤ngt pathname-directory mit :RELATIVE an?
         if (eq(Car(subdirs),S(Krelative))) {
           # ja -> Ersetze :RELATIVE durch default-subdirs, d.h.
           # bilde  (append default-subdirs (cdr subdirs))
@@ -6720,19 +6720,19 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       return pathname;
     }
 
-# UP: Stellt sicher, dass das Directory eines Pathname existiert, und löst
+# UP: Stellt sicher, dass das Directory eines Pathname existiert, und lÃ¶st
 # dabei symbolische Links auf.
 # assure_dir_exists(tolerantp)
-# > STACK_0: nicht-Logical Pathname, bei dem Directory kein :RELATIVE enthält.
+# > STACK_0: nicht-Logical Pathname, bei dem Directory kein :RELATIVE enthÃ¤lt.
 # > links_resolved: Flag, ob im Directory des Pathname schon alle Links
-#     aufgelöst sind und es als existierend bekannt ist
+#     aufgelÃ¶st sind und es als existierend bekannt ist
 # > tolerantp: Flag, ob ein Fehler vermieden werden soll
 # > subr_self: Aufrufer (ein SUBR)
-# < STACK_0: (evtl. derselbe) Pathname, wobei weder fürs Directory noch
-#            für den Filenamen ein symbolisches Link zu verfolgen ist.
+# < STACK_0: (evtl. derselbe) Pathname, wobei weder fÃ¼rs Directory noch
+#            fÃ¼r den Filenamen ein symbolisches Link zu verfolgen ist.
 # < ergebnis:
-#     falls Name=NIL: Directory-Namestring (für UNIX, mit '/' am Schluss)
-#     falls Name/=NIL: Namestring (für UNIX)
+#     falls Name=NIL: Directory-Namestring (fÃ¼r UNIX, mit '/' am Schluss)
+#     falls Name/=NIL: Namestring (fÃ¼r UNIX)
 #     falls tolerantp evtl.: nullobj
 # < filestatus: Falls Name/=NIL: NULL falls das File nicht existiert,
 #                                sonst ein Pointer auf eine STAT-Information.
@@ -6751,15 +6751,15 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       var uintC allowed_links = MAXSYMLINKS; # Anzahl der noch erlaubten symbolischen Links
       if (links_resolved)
         goto dir_exists;
-      loop { # Schleife über die aufzulösenden symbolischen Links
+      loop { # Schleife Ã¼ber die aufzulÃ¶senden symbolischen Links
         # Truepath des Directory bestimmen:
         {
           var char path_buffer[MAXPATHLEN]; # vgl. REALPATH(3)
           {
             var uintC stringcount = directory_namestring_parts(STACK_0); # Strings zum Directory
             pushSTACK(O(punkt_string)); # und "."
-            var object string = string_concat(stringcount+1); # zusammenhängen
-            # symbolische Links darin auflösen:
+            var object string = string_concat(stringcount+1); # zusammenhÃ¤ngen
+            # symbolische Links darin auflÃ¶sen:
             with_sstring_0(string,O(pathname_encoding),string_asciz, {
               begin_system_call();
               if ( realpath(string_asciz,&path_buffer[0]) ==NULL) {
@@ -6776,18 +6776,18 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           }
           # Neuer Directory-Path muss mit '/' anfangen:
           if (!(path_buffer[0] == '/')) {
-            # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+            # STACK_0 = Wert fÃ¼r Slot PATHNAME von FILE-ERROR
             pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
             fehler(file_error,
                    GETTEXT("UNIX REALPATH returned ~")
                   );
           }
-          # Am Schluss evtl. ein '/' anfügen:
+          # Am Schluss evtl. ein '/' anfÃ¼gen:
           var char* pathptr = &path_buffer[0];
-          var uintL len = 0; # Stringlänge
+          var uintL len = 0; # StringlÃ¤nge
           until (*pathptr == 0) { pathptr++; len++; } # ASCIZ-Stringende suchen
           if (!((len>0) && (pathptr[-1]=='/'))) {
-            *pathptr = '/'; len++; # ein '/' anfügen
+            *pathptr = '/'; len++; # ein '/' anfÃ¼gen
           }
           # und in einen String umwandeln:
           var object new_string = n_char_to_string(&path_buffer[0],len,O(pathname_encoding));
@@ -6802,9 +6802,9 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           return directory_namestring(STACK_0); # ja -> fertig
         var object pathname = STACK_0;
         var uintC stringcount = 0;
-        stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-        stringcount += file_namestring_parts(pathname); # Strings für den Filename
-        var object namestring = string_concat(stringcount); # zusammenhängen
+        stringcount += directory_namestring_parts(pathname); # Strings fÃ¼rs Directory
+        stringcount += file_namestring_parts(pathname); # Strings fÃ¼r den Filename
+        var object namestring = string_concat(stringcount); # zusammenhÃ¤ngen
         # Information holen:
         var local struct stat status;
         with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
@@ -6819,7 +6819,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           end_system_call();
           # File existiert.
           if (S_ISDIR(status.st_mode)) { # Ist es ein Directory?
-            # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+            # STACK_0 = Wert fÃ¼r Slot PATHNAME von FILE-ERROR
             pushSTACK(whole_namestring(STACK_0));
             pushSTACK(TheSubr(subr_self)->name);
             fehler(file_error,
@@ -6837,10 +6837,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
               OS_file_error(STACK_0);
             }
             allowed_links--; # danach ist ein Link weniger erlaubt
-            var uintL linklen = status.st_size; # vermutliche Länge des Link-Inhalts
+            var uintL linklen = status.st_size; # vermutliche LÃ¤nge des Link-Inhalts
            retry_readlink:
             {
-              var DYNAMIC_ARRAY(linkbuf,char,linklen+1); # Buffer für den Link-Inhalt
+              var DYNAMIC_ARRAY(linkbuf,char,linklen+1); # Buffer fÃ¼r den Link-Inhalt
               # Link-Inhalt lesen:
               begin_system_call();
               {
@@ -6879,7 +6879,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 
 # Dasselbe unter der Annahme, dass das Directory bereits existiert.
 # (Nur wenig Vereinfachung, da das File ein symbolisches Link in ein anderes
-# Directory sein kann, und dieses muss dann als existent überprüft werden.)
+# Directory sein kann, und dieses muss dann als existent Ã¼berprÃ¼ft werden.)
   global object assume_dir_exists (void);
   global object assume_dir_exists()
     {
@@ -6898,7 +6898,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # can trigger GC
   local object default_directory (void);
   local object default_directory()
-    # Working Directory (von RISCOS) ist das aufgelöste "@":
+    # Working Directory (von RISCOS) ist das aufgelÃ¶ste "@":
     {
       var char path_buffer[MAXPATHLEN];
       # Working Directory in path_buffer ablegen:
@@ -6940,7 +6940,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var object dirname;
     {
       pushSTACK(pathname);
-      var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
+      var uintC stringcount = host_namestring_parts(pathname); # Strings fÃ¼r den Host
       # Device, vgl. directory_namestring_parts():
       {
         var object device = ThePathname(pathname)->pathname_device;
@@ -6948,7 +6948,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           pushSTACK(O(doppelpunkt_string)); # ":"
           pushSTACK(device); # Device auf den Stack
           pushSTACK(O(punkt_string)); # "."
-          stringcount += 3; # und mitzählen
+          stringcount += 3; # und mitzÃ¤hlen
         }
       }
       pushSTACK(dirname);
@@ -6971,10 +6971,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       return dir_string;
     }
 
-# UP: Füllt Default-Directory in einen Pathname ein.
+# UP: FÃ¼llt Default-Directory in einen Pathname ein.
 # use_default_dir(pathname)
 # > pathname: nicht-Logical Pathname
-# < ergebnis: neuer Pathname, bei dem Directory kein :RELATIVE u.ä. enthält.
+# < ergebnis: neuer Pathname, bei dem Directory kein :RELATIVE u.Ã¤. enthÃ¤lt.
 #             (kurz: "absoluter Pathname")
 # can trigger GC
   local object use_default_dir (object pathname);
@@ -6995,12 +6995,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
             pushSTACK(allocate_cons());
             var object new_cons = allocate_cons();
             subdirs = popSTACK();
-            pathname = popSTACK(); # pathname zurück
+            pathname = popSTACK(); # pathname zurÃ¼ck
             Car(subdirs) = S(Kabsolute); Cdr(subdirs) = new_cons;
             Car(new_cons) = S(Kroot); Cdr(new_cons) = Cdr(ThePathname(pathname)->pathname_directory);
             ThePathname(pathname)->pathname_directory = subdirs;
           } elif (!(eq(Car(subdirs),S(Kabsolute)) && eq(Car(Cdr(subdirs)),S(Kroot)))) {
-            pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+            pushSTACK(pathname); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
             pushSTACK(pathname);
             pushSTACK(O(root_string));
             pushSTACK(TheSubr(subr_self)->name);
@@ -7016,10 +7016,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         } else { # (eq(Car(subdirs),S(Kabsolute)))
           var object next = Car(Cdr(subdirs));
           pushSTACK(Cdr(Cdr(subdirs)));
-          if (eq(next,S(Kroot))) { # :ROOT -> "$." auflösen oder fertig
-            # "$." wird nur dann aufgelöst, wenn Host oder Device noch
+          if (eq(next,S(Kroot))) { # :ROOT -> "$." auflÃ¶sen oder fertig
+            # "$." wird nur dann aufgelÃ¶st, wenn Host oder Device noch
             # unbekannt sind, aber nur einmal (um eine Endlosschleife zu
-            # verhindern). Ob Host oder Device =NIL sind, ist nämlich
+            # verhindern). Ob Host oder Device =NIL sind, ist nÃ¤mlich
             # nicht so wichtig.
             if (!resolved_root
                 && (nullp(ThePathname(pathname)->pathname_host)
@@ -7029,13 +7029,13 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
               resolved_root = TRUE;
             } else
               goto resolved;
-          } elif (eq(next,S(Khome))) { # :HOME -> "&." auflösen
+          } elif (eq(next,S(Khome))) { # :HOME -> "&." auflÃ¶sen
             defaults = canonicalise_dirname(pathname,O(home_string));
-          } elif (eq(next,S(Kcurrent))) { # :CURRENT -> "@." auflösen
+          } elif (eq(next,S(Kcurrent))) { # :CURRENT -> "@." auflÃ¶sen
             defaults = canonicalise_dirname(pathname,O(current_string));
-          } elif (eq(next,S(Klibrary))) { # :LIBRARY -> "%." auflösen
+          } elif (eq(next,S(Klibrary))) { # :LIBRARY -> "%." auflÃ¶sen
             defaults = canonicalise_dirname(pathname,O(library_string));
-          } elif (eq(next,S(Kprevious))) { # :PREVIOUS -> "\\." auflösen
+          } elif (eq(next,S(Kprevious))) { # :PREVIOUS -> "\\." auflÃ¶sen
             defaults = canonicalise_dirname(pathname,O(previous_string));
           } else {
             NOTREACHED
@@ -7052,22 +7052,22 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         defaults = reverse(defaults); subdirs = nreconc(defaults,popSTACK());
         pathname = popSTACK();
         ThePathname(pathname)->pathname_directory = subdirs;
-        # Es könnte sein, dass auch jetzt noch nicht alles aufgelöst ist.
+        # Es kÃ¶nnte sein, dass auch jetzt noch nicht alles aufgelÃ¶st ist.
         goto retry;
       }
      resolved: # Stackaufbau: pathname, subdir-oldlist.
       # Liste durchgehen und dabei neu aufconsen, dabei "^." verarbeiten.
-      # (Sonst müsste dies assure_dir_exists() machen.)
+      # (Sonst mÃ¼sste dies assure_dir_exists() machen.)
       pushSTACK(S(Kroot)); pushSTACK(S(Kabsolute));
       { var object newlist = listof(2); pushSTACK(newlist); }
       # Stackaufbau: pathname, subdir-oldlist, subdir-newlist.
       while (mconsp(STACK_1)) { # Bis oldlist am Ende ist:
-        var object subdir = Car(STACK_1); # nächstes subdir
+        var object subdir = Car(STACK_1); # nÃ¤chstes subdir
         if (eq(subdir,S(Kparent))) {
-          # = :PARENT -> newlist um eins verkürzen:
+          # = :PARENT -> newlist um eins verkÃ¼rzen:
           if (matomp(Cdr(Cdr(STACK_0)))) { # newlist (bis auf :ABSOLUTE und :ROOT) leer ?
             # :PARENT von "$." aus liefert Error
-            pushSTACK(STACK_2); # Wert für Slot PATHNAME von FILE-ERROR
+            pushSTACK(STACK_2); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
             pushSTACK(O(root_string)); # "$."
             pushSTACK(directory_namestring(STACK_(2+2))); # Directory von pathname
             fehler(file_error,
@@ -7076,7 +7076,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           }
           STACK_0 = Cdr(STACK_0);
         } else {
-          # newlist um eins verlängern:
+          # newlist um eins verlÃ¤ngern:
           pushSTACK(subdir);
           var object new_cons = allocate_cons();
           Car(new_cons) = popSTACK();
@@ -7092,11 +7092,11 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       return pathname;
     }
 
-# UP: Liefert den Namestring eines Pathname fürs Betriebssystem.
+# UP: Liefert den Namestring eines Pathname fÃ¼rs Betriebssystem.
 # OSnamestring(dir_namestring)
 # > STACK_0: nicht-Logical Pathname
 # > dir_namestring: Directory-Namestring
-# < ergebnis: Namestring (für RISCOS, mit Name/Type vertauscht)
+# < ergebnis: Namestring (fÃ¼r RISCOS, mit Name/Type vertauscht)
 # can trigger GC
   local object OSnamestring (object dir_namestring);
   local object OSnamestring(dir_namestring)
@@ -7115,7 +7115,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                                      ThePathname(pathname)->pathname_name,
                                      ThePathname(pathname)->pathname_version)
         );
-      return string_concat(1+stringcount); # zusammenhängen
+      return string_concat(1+stringcount); # zusammenhÃ¤ngen
     }
 
 # UP: Stellt sicher, dass das Directory eines Pathname existiert.
@@ -7124,12 +7124,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # assure_dir_exists_(links_resolved,tolerantp,allowdir)
 # > STACK_0: absoluter Pathname ohne Wildcards im Directory
 # > links_resolved: Flag, ob im Directory des Pathname schon alle Links
-#     aufgelöst sind und es als existierend bekannt ist
+#     aufgelÃ¶st sind und es als existierend bekannt ist
 # > tolerantp: Flag, ob ein Fehler vermieden werden soll
 # > allowdir: Flag, ob bei Name/=NIL ein Directory statt eines File erlaubt ist
 # < ergebnis:
-#     falls Name=NIL: Directory-Namestring (für RISCOS, mit '.' am Schluss)
-#     falls Name/=NIL: Namestring (für RISCOS)
+#     falls Name=NIL: Directory-Namestring (fÃ¼r RISCOS, mit '.' am Schluss)
+#     falls Name/=NIL: Namestring (fÃ¼r RISCOS)
 #     falls tolerantp evtl.: nullobj
 # < filestatus: Falls Name/=NIL: NULL falls das File nicht existiert,
 #                                sonst ein Pointer auf eine STAT-Information.
@@ -7144,9 +7144,9 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     var boolean allowdir;
     {
       var object pathname = STACK_0;
-      var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount); # zusammenhängen
+      var uintC stringcount = host_namestring_parts(pathname); # Strings fÃ¼r den Host
+      stringcount += directory_namestring_parts(pathname); # Strings fÃ¼rs Directory
+      var object dir_namestring = string_concat(stringcount); # zusammenhÃ¤ngen
       if (!links_resolved) {
         # Existenztest:
         var struct stat statbuf;
@@ -7189,7 +7189,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         });
         # File existiert.
         if (!allowdir && S_ISDIR(status.st_mode)) { # Ist es ein Directory?
-          # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_0 = Wert fÃ¼r Slot PATHNAME von FILE-ERROR
           pushSTACK(whole_namestring(STACK_0));
           pushSTACK(TheSubr(subr_self)->name);
           fehler(file_error,
@@ -7203,7 +7203,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     }
 
 # Dasselbe unter der Annahme, dass das Directory bereits existiert.
-# (Keine Vereinfachung, da wir ja den Truename bestimmen müssen.??)
+# (Keine Vereinfachung, da wir ja den Truename bestimmen mÃ¼ssen.??)
   global object assume_dir_exists (void);
   global object assume_dir_exists()
     {
@@ -7235,7 +7235,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         } else {
           skipSTACK(1);
         }
-        subr_self = popSTACK(); # subr_self zurück
+        subr_self = popSTACK(); # subr_self zurÃ¼ck
       }
     }
 
@@ -7248,12 +7248,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 
 #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
 #if 0 # unbenutzt
-# UP: Macht aus einem Directory-Namestring einen, der für DOS geeignet ist.
+# UP: Macht aus einem Directory-Namestring einen, der fÃ¼r DOS geeignet ist.
 # OSdirnamestring(namestring)
 # > namestring: neu erzeugter Directory-Namestring, mit '\' am Schluss,
 #               ein Normal-Simple-String
 # < ergebnis: Namestring zu diesem Directory, im DOS-Format: letzter '\'
-#             gestrichen, falls überflüssig, ein Normal-Simple-String
+#             gestrichen, falls Ã¼berflÃ¼ssig, ein Normal-Simple-String
 # can trigger GC
   local object OSdirnamestring (object namestring);
   local object OSdirnamestring(namestring)
@@ -7276,7 +7276,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # UP: Setzt das Default-Drive und sein Default-Directory neu.
 # change_default();
 # > STACK_0: absoluter Pathname, bei dem Device ein String ist und Directory
-#     kein :RELATIVE, :CURRENT, :PARENT enthält, und Name und Typ =NIL sind.
+#     kein :RELATIVE, :CURRENT, :PARENT enthÃ¤lt, und Name und Typ =NIL sind.
 # can trigger GC
   local void change_default (void);
   local void change_default()
@@ -7285,14 +7285,14 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       {
         var object pathname = STACK_0;
         var uintC stringcount =
-          directory_namestring_parts(pathname); # Strings fürs Directory
-        # ohne überflüssiges '\' am Schluss
+          directory_namestring_parts(pathname); # Strings fÃ¼rs Directory
+        # ohne Ã¼berflÃ¼ssiges '\' am Schluss
         if (mconsp(Cdr(ThePathname(pathname)->pathname_directory))) {
           skipSTACK(1); stringcount--;
         }
-        var object string = string_concat(stringcount); # zusammenhängen
+        var object string = string_concat(stringcount); # zusammenhÃ¤ngen
         with_sstring_0(string,O(pathname_encoding),asciz, {
-          # Default-Directory ändern:
+          # Default-Directory Ã¤ndern:
           change_current_directory(asciz);
         });
       }
@@ -7306,19 +7306,19 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # UP: Setzt das Default-Directory neu.
 # change_default();
 # > STACK_0: absoluter Pathname, bei dem Directory kein :RELATIVE, :CURRENT,
-#     :PARENT enthält, und Name und Typ =NIL sind.
+#     :PARENT enthÃ¤lt, und Name und Typ =NIL sind.
 # can trigger GC
   local void change_default (void);
-  extern BPTR orig_dir_lock; # Lock auf das ursprüngliche Verzeichnis
-                             # (das gehört nicht uns, nicht freigeben!)
+  extern BPTR orig_dir_lock; # Lock auf das ursprÃ¼ngliche Verzeichnis
+                             # (das gehÃ¶rt nicht uns, nicht freigeben!)
   local void change_default()
     {
       var uintC stringcount =
-        directory_namestring_parts(STACK_0); # Strings fürs Directory
+        directory_namestring_parts(STACK_0); # Strings fÃ¼rs Directory
       var object dir_namestring = string_concat(stringcount);
-      dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
+      dir_namestring = OSdirnamestring(dir_namestring); # ohne Ã¼berflÃ¼ssigen '/' am Schluss
       with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
-        # Default-Directory ändern:
+        # Default-Directory Ã¤ndern:
         set_break_sem_4();
         begin_system_call();
         var BPTR lock = Lock(dir_namestring_asciz,ACCESS_READ);
@@ -7338,16 +7338,16 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # UP: Setzt das Default-Directory neu.
 # change_default();
 # > STACK_0: absoluter Pathname, bei dem Directory kein :RELATIVE, :CURRENT,
-#     :PARENT enthält, und Name und Typ =NIL sind.
+#     :PARENT enthÃ¤lt, und Name und Typ =NIL sind.
 # can trigger GC
   local void change_default (void);
   local void change_default()
     {
-      var uintC stringcount = host_namestring_parts(STACK_0); # Strings für den Host
-      stringcount += directory_namestring_parts(STACK_0); # Strings fürs Directory
-      var object string = string_concat(stringcount); # zusammenhängen
+      var uintC stringcount = host_namestring_parts(STACK_0); # Strings fÃ¼r den Host
+      stringcount += directory_namestring_parts(STACK_0); # Strings fÃ¼rs Directory
+      var object string = string_concat(stringcount); # zusammenhÃ¤ngen
       with_sstring_0(string,O(pathname_encoding),asciz, {
-        # Default-Directory ändern:
+        # Default-Directory Ã¤ndern:
         begin_system_call();
         if (!( chdir(asciz) ==0)) { end_system_call(); OS_file_error(STACK_0); }
         end_system_call();
@@ -7363,9 +7363,9 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local void change_default()
     {
       var object pathname = STACK_0;
-      var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
-      stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount); # zusammenhängen
+      var uintC stringcount = host_namestring_parts(pathname); # Strings fÃ¼r den Host
+      stringcount += directory_namestring_parts(pathname); # Strings fÃ¼rs Directory
+      var object dir_namestring = string_concat(stringcount); # zusammenhÃ¤ngen
       with_sstring(dir_namestring,O(pathname_encoding),dir_namestring_asciz,len, {
         ASSERT((len > 0) && (dir_namestring_asciz[len-1]=='.'));
         dir_namestring_asciz[len-1] = '\0'; # '.' am Schluss durch Nullbyte ersetzen
@@ -7385,9 +7385,9 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
     var object pathname = coerce_pathname(popSTACK()); # Argument zu einem Pathname machen
     #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(PATHNAME_RISCOS) || defined(PATHNAME_WIN32)
     if (!eq(flag,unbound) && !nullp(flag)) {
-      # flag /= NIL -> fürs Betriebssystem:
+      # flag /= NIL -> fÃ¼rs Betriebssystem:
       check_no_wildcards(pathname); # mit Wildcards -> Fehler
-      pathname = use_default_dir(pathname); # Default-Directory einfügen
+      pathname = use_default_dir(pathname); # Default-Directory einfÃ¼gen
       # (da Unix/AMIGAOS das Default-Directory von LISP nicht kennt
       # und Win32 multitasking ist)
       value1 = whole_namestring(pathname);
@@ -7405,21 +7405,21 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
   local void fehler_noname(pathname)
     var object pathname;
     {
-      pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(pathname); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
       pushSTACK(pathname);
       fehler(file_error,
              GETTEXT("no file name given: ~")
             );
     }
 
-# Fehler wegen unzulässiger Name/Type-Angabe
+# Fehler wegen unzulÃ¤ssiger Name/Type-Angabe
 # fehler_notdir(pathname);
 # > pathname: Pathname
   nonreturning_function(local, fehler_notdir, (object pathname));
   local void fehler_notdir(pathname)
     var object pathname;
     {
-      pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(pathname); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
       pushSTACK(pathname);
       fehler(file_error,
              GETTEXT("not a directory: ~")
@@ -7429,8 +7429,8 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
 # Test, ob ein File existiert:
 # file_exists(namestring)
 # > vorausgegangen: assure_dir_exists()
-# > STACK_0: Pathname, wie nach Ausführung von assure_dir_exists(), Name/=NIL
-# > namestring: dessen Namestring fürs Betriebssystem
+# > STACK_0: Pathname, wie nach AusfÃ¼hrung von assure_dir_exists(), Name/=NIL
+# > namestring: dessen Namestring fÃ¼rs Betriebssystem
   #if defined(MSDOS) || defined(WIN32_NATIVE)
     #ifdef MSDOS
       local inline int access0 (CONST char* path);
@@ -7487,7 +7487,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
   nonreturning_function(local, fehler_file_not_exists, (void));
   local void fehler_file_not_exists()
     {
-      # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+      # STACK_0 = Wert fÃ¼r Slot PATHNAME von FILE-ERROR
       pushSTACK(STACK_0); # pathname
       pushSTACK(TheSubr(subr_self)->name);
       fehler(file_error,
@@ -7509,14 +7509,14 @@ LISPFUNN(truename,1)
     } else {
       pathname = coerce_pathname(pathname); # zu einem Pathname machen
       check_no_wildcards(pathname); # mit Wildcards -> Fehler
-      pathname = use_default_dir(pathname); # Default-Directory einfügen
+      pathname = use_default_dir(pathname); # Default-Directory einfÃ¼gen
       pushSTACK(pathname);
       # Directory muss existieren:
-      var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
+      var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fÃ¼rs Betriebssystem
       if (namenullp(STACK_0)) {
         # Kein Name angegeben
         if (!nullp(ThePathname(STACK_0)->pathname_type)) {
-          # STACK_0 = Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_0 = Wert fÃ¼r Slot PATHNAME von FILE-ERROR
           pushSTACK(STACK_0); # pathname
           pushSTACK(TheSubr(subr_self)->name);
           fehler(file_error,
@@ -7526,7 +7526,7 @@ LISPFUNN(truename,1)
         # Kein Name und kein Typ angegeben -> pathname als Ergebnis
       } else {
         # Name angegeben.
-        # Überprüfe, ob die Datei existiert:
+        # ÃœberprÃ¼fe, ob die Datei existiert:
         if (!file_exists(namestring)) { fehler_file_not_exists(); }
         # Datei existiert -> Pathname als Wert
       }
@@ -7547,7 +7547,7 @@ LISPFUNN(probe_file,1)
       # Streamtyp File-Stream -> Truename nehmen:
       var uintB flags = TheStream(pathname)->strmflags;
       pathname = TheStream(pathname)->strm_file_truename;
-      if (flags & strmflags_open_B) { # Datei geöffnet ?
+      if (flags & strmflags_open_B) { # Datei geÃ¶ffnet ?
         # ja -> Truename sofort als Ergebnis:
         value1 = pathname; mv_count=1; return;
       }
@@ -7557,17 +7557,17 @@ LISPFUNN(probe_file,1)
     }
     # pathname ist jetzt ein Pathname.
     check_no_wildcards(pathname); # mit Wildcards -> Fehler
-    pathname = use_default_dir(pathname); # Default-Directory einfügen
+    pathname = use_default_dir(pathname); # Default-Directory einfÃ¼gen
     if (namenullp(pathname)) { fehler_noname(pathname); } # Kein Name angegeben -> Fehler
     # Name angegeben.
     pushSTACK(pathname);
     # Directory muss existieren:
-    var object namestring = assure_dir_exists(FALSE,TRUE); # Filename fürs Betriebssystem
+    var object namestring = assure_dir_exists(FALSE,TRUE); # Filename fÃ¼rs Betriebssystem
     if (eq(namestring,nullobj)) {
       # Pfad zur Datei existiert nicht -> NIL als Wert:
       skipSTACK(1); value1 = NIL; mv_count=1; return;
     }
-    # Überprüfe, ob die Datei existiert:
+    # ÃœberprÃ¼fe, ob die Datei existiert:
     if (file_exists(namestring)) {
       value1 = popSTACK(); mv_count=1; # Datei existiert -> Pathname als Wert
     } else {
@@ -7585,8 +7585,8 @@ LISPFUNN(probe_file,1)
     var object pathname;
     {
       pushSTACK(pathname); # Pathname retten
-      var uintC stringcount = directory_namestring_parts(pathname); # Strings fürs Directory
-      var object dir_namestring = string_concat(stringcount); # zusammenhängen
+      var uintC stringcount = directory_namestring_parts(pathname); # Strings fÃ¼rs Directory
+      var object dir_namestring = string_concat(stringcount); # zusammenhÃ¤ngen
       # Existenztest, siehe auch assure_dir_exists():
       var boolean exists = TRUE;
       #ifdef MSDOS
@@ -7633,10 +7633,10 @@ LISPFUNN(probe_file,1)
         });
       #endif
       #ifdef PATHNAME_AMIGAOS
-        dir_namestring = OSdirnamestring(dir_namestring); # ohne überflüssigen '/' am Schluss
+        dir_namestring = OSdirnamestring(dir_namestring); # ohne Ã¼berflÃ¼ssigen '/' am Schluss
         with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
-          # Lock für dieses Directory holen:
-          set_break_sem_4(); # Unterbrechungen währenddessen verhindern
+          # Lock fÃ¼r dieses Directory holen:
+          set_break_sem_4(); # Unterbrechungen wÃ¤hrenddessen verhindern
           begin_system_call();
           var BPTR lock = Lock(dir_namestring_asciz,ACCESS_READ);
           if (lock==BPTR_NULL) {
@@ -7664,7 +7664,7 @@ LISPFUNN(probe_file,1)
       #ifdef PATHNAME_UNIX
         pushSTACK(dir_namestring);
         pushSTACK(O(punkt_string)); # und "."
-        dir_namestring = string_concat(2); # zusammenhängen
+        dir_namestring = string_concat(2); # zusammenhÃ¤ngen
         with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
           var struct stat statbuf;
           begin_system_call();
@@ -7704,8 +7704,8 @@ LISPFUNN(probe_directory,1)
     var object pathname = popSTACK(); # pathname-Argument
     pathname = coerce_pathname(pathname); # zu einem Pathname machen
     check_no_wildcards(pathname); # mit Wildcards -> Fehler
-    pathname = use_default_dir(pathname); # Default-Directory einfügen
-    # Überprüfe, ob Name=NIL und Typ=NIL :
+    pathname = use_default_dir(pathname); # Default-Directory einfÃ¼gen
+    # ÃœberprÃ¼fe, ob Name=NIL und Typ=NIL :
     if (!(nullp(ThePathname(pathname)->pathname_name)
           && nullp(ThePathname(pathname)->pathname_type)
        ) )
@@ -7713,7 +7713,7 @@ LISPFUNN(probe_directory,1)
     value1 = (directory_exists(pathname) ? T : NIL); mv_count=1;
   }
 
-# UP: Stellt fest, ob eine Datei geöffnet ist.
+# UP: Stellt fest, ob eine Datei geÃ¶ffnet ist.
 # openp(pathname)
 #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
 # > pathname: absoluter Pathname, ohne Wildcards.
@@ -7722,17 +7722,17 @@ LISPFUNN(probe_directory,1)
 # > pathname: absoluter Pathname, ohne Wildcards, ohne :PARENT
 #endif
 #ifdef PATHNAME_UNIX
-# > pathname: absoluter Pathname, ohne Wildcards, nach Auflösung
+# > pathname: absoluter Pathname, ohne Wildcards, nach AuflÃ¶sung
 #             symbolischer Links
 #endif
-# < ergebnis: TRUE, falls ein geöffneter File-Stream auf diese Datei existiert.
+# < ergebnis: TRUE, falls ein geÃ¶ffneter File-Stream auf diese Datei existiert.
   local boolean openp (object pathname);
   local boolean openp(pathname)
     var object pathname;
     {
       var object flist = O(open_files); # Liste aller offenen Files durchlaufen
       while (consp(flist)) {
-        var object f = Car(flist); # nächster offener Stream
+        var object f = Car(flist); # nÃ¤chster offener Stream
         if (TheStream(f)->strmtype == strmtype_file) { # File-Stream ?
           if (equal(TheStream(f)->strm_file_truename,pathname))
             return TRUE;
@@ -7742,14 +7742,14 @@ LISPFUNN(probe_directory,1)
       return FALSE;
     }
 
-# Fehlermeldung wegen Löschversuch auf geöffnete Datei
+# Fehlermeldung wegen LÃ¶schversuch auf geÃ¶ffnete Datei
 # fehler_delete_open(pathname);
 # > pathname: Truename der Datei
   nonreturning_function(local, fehler_delete_open, (object pathname));
   local void fehler_delete_open(pathname)
     var object pathname;
     {
-      pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(pathname); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
       pushSTACK(pathname);
       fehler(file_error,
              GETTEXT("cannot delete file ~ since there is file stream open to it")
@@ -7765,29 +7765,29 @@ LISPFUNN(delete_file,1)
       var object stream = as_file_stream(pathname); # muss File-Stream sein
       test_file_stream_named(stream);
       # Streamtyp File-Stream.
-      # Falls Datei geöffnet, erst Datei schließen:
-      if (TheStream(stream)->strmflags & strmflags_open_B) { # Datei geöffnet ?
+      # Falls Datei geÃ¶ffnet, erst Datei schlieÃŸen:
+      if (TheStream(stream)->strmflags & strmflags_open_B) { # Datei geÃ¶ffnet ?
         pushSTACK(stream); builtin_stream_close(&STACK_0); stream = popSTACK();
       }
-      # Dann den Truename als zu löschende Datei nehmen:
+      # Dann den Truename als zu lÃ¶schende Datei nehmen:
       pathname = TheStream(stream)->strm_file_truename;
     } else {
       pathname = coerce_pathname(pathname); # zu einem Pathname machen
     }
     # pathname ist jetzt ein Pathname.
     check_no_wildcards(pathname); # mit Wildcards -> Fehler
-    pathname = use_default_dir(pathname); # Default-Directory einfügen
+    pathname = use_default_dir(pathname); # Default-Directory einfÃ¼gen
     if (namenullp(pathname)) { fehler_noname(pathname); } # Kein Name angegeben -> Fehler
     # Name angegeben.
     pushSTACK(pathname);
     # Directory muss existieren:
-    var object namestring = assure_dir_exists(FALSE,TRUE); # Filename fürs Betriebssystem
+    var object namestring = assure_dir_exists(FALSE,TRUE); # Filename fÃ¼rs Betriebssystem
     if (eq(namestring,nullobj)) {
       # Pfad zur Datei existiert nicht -> Wert NIL
       skipSTACK(1); value1 = NIL; mv_count=1; return;
     }
-    if (openp(STACK_0)) { fehler_delete_open(STACK_0); } # Keine offenen Dateien löschen!
-    # Datei löschen:
+    if (openp(STACK_0)) { fehler_delete_open(STACK_0); } # Keine offenen Dateien lÃ¶schen!
+    # Datei lÃ¶schen:
     #ifdef FILE_EXISTS_TRIVIAL
     if (!file_exists(namestring)) {
       skipSTACK(1); value1 = NIL; mv_count=1; return; # File existiert nicht -> Wert NIL
@@ -7800,25 +7800,25 @@ LISPFUNN(delete_file,1)
         value1 = NIL; mv_count=1; return;
       }
     });
-    # Datei existierte, wurde gelöscht -> Pathname (/=NIL) als Wert
+    # Datei existierte, wurde gelÃ¶scht -> Pathname (/=NIL) als Wert
     value1 = popSTACK(); mv_count=1;
   }
 
-# Fehlermeldung wegen Umbenennungsversuch einer geöffneten Datei
+# Fehlermeldung wegen Umbenennungsversuch einer geÃ¶ffneten Datei
 # fehler_rename_open(pathname);
 # > pathname: Truename der Datei
   nonreturning_function(local, fehler_rename_open, (object pathname));
   local void fehler_rename_open(pathname)
     var object pathname;
     {
-      pushSTACK(pathname); # Wert für Slot PATHNAME von FILE-ERROR
+      pushSTACK(pathname); # Wert fÃ¼r Slot PATHNAME von FILE-ERROR
       pushSTACK(pathname);
       fehler(file_error,
              GETTEXT("cannot rename file ~ since there is file stream open to it")
             );
     }
 
-# UP: Führt eine Datei-Umbenennung durch.
+# UP: FÃ¼hrt eine Datei-Umbenennung durch.
 # rename_file();
 # > Stackaufbau: filename, newname, oldpathname.
 # < Stackaufbau: filename, newname, oldpathname, newpathname,
@@ -7834,36 +7834,36 @@ LISPFUNN(delete_file,1)
         pushSTACK(value1);
       }
       # Stackaufbau: filename, newname, oldpathname, newpathname.
-      # 2. oldpathname überprüfen:
+      # 2. oldpathname Ã¼berprÃ¼fen:
       {
         var object oldpathname = STACK_1;
         check_no_wildcards(oldpathname); # mit Wildcards -> Fehler
-        oldpathname = use_default_dir(oldpathname); # Default-Directory einfügen
+        oldpathname = use_default_dir(oldpathname); # Default-Directory einfÃ¼gen
         if (namenullp(oldpathname)) { fehler_noname(oldpathname); } # Kein Name angegeben -> Fehler
         # Name angegeben.
         pushSTACK(oldpathname);
         # Directory muss existieren:
-        var object old_namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
+        var object old_namestring = assure_dir_exists(FALSE,FALSE); # Filename fÃ¼rs Betriebssystem
         if (openp(STACK_0)) { fehler_rename_open(STACK_0); } # Keine offenen Dateien umbenennen!
         pushSTACK(old_namestring);
       }
       # Stackaufbau: filename, newname, oldpathname, newpathname,
       #              oldtruename, oldnamestring.
-      # 3. newpathname überprüfen:
+      # 3. newpathname Ã¼berprÃ¼fen:
       {
         var object newpathname = coerce_pathname(STACK_2);
         check_no_wildcards(newpathname); # mit Wildcards -> Fehler
-        newpathname = use_default_dir(newpathname); # Default-Directory einfügen
+        newpathname = use_default_dir(newpathname); # Default-Directory einfÃ¼gen
         if (namenullp(newpathname)) { fehler_noname(newpathname); } # Kein Name angegeben -> Fehler
         # Name angegeben.
         pushSTACK(newpathname);
         # Directory muss existieren:
-        var object new_namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
+        var object new_namestring = assure_dir_exists(FALSE,FALSE); # Filename fÃ¼rs Betriebssystem
         # Stackaufbau: filename, newname, oldpathname, newpathname,
         #              oldtruename, oldnamestring, newtruename.
         # 4. Datei umbenennen:
         if (file_exists(new_namestring)) {
-          # Datei existiert bereits -> nicht ohne Vorwarnung löschen
+          # Datei existiert bereits -> nicht ohne Vorwarnung lÃ¶schen
           fehler_file_exists(S(rename_file),STACK_0);
         }
         pushSTACK(new_namestring);
@@ -7897,7 +7897,7 @@ LISPFUNN(rename_file,2)
       filename = STACK_7;
       TheStream(filename)->strm_file_name = STACK_4; # newpathname als neuer Name
       TheStream(filename)->strm_file_truename = STACK_1; # newtruename als neuer Truename
-      # Handle etc. unverändert lassen
+      # Handle etc. unverÃ¤ndert lassen
     } else {
       filename = coerce_pathname(filename); # zu einem Pathname machen
       pushSTACK(filename);
@@ -7924,7 +7924,7 @@ LISPFUNN(rename_file,2)
         var Handle handle = Open(pathstring,MODE_NEWFILE);
         if (handle == Handle_NULL) { end_system_call(); OS_file_error(STACK_0); } # Error melden
         # Datei wurde erzeugt, handle ist das Handle.
-        # Datei wieder schließen:
+        # Datei wieder schlieÃŸen:
         (void) Close(handle);
         end_system_call();
       #endif
@@ -7933,7 +7933,7 @@ LISPFUNN(rename_file,2)
         var Handle handle = CreateFile(pathstring, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
         if (handle==INVALID_HANDLE_VALUE) { end_system_call(); OS_file_error(STACK_0); }
         # Datei wurde erzeugt, handle ist das Handle.
-        # Datei wieder schließen:
+        # Datei wieder schlieÃŸen:
         if (!CloseHandle(handle)) { end_system_call(); OS_file_error(STACK_0); }
         end_system_call();
       #endif
@@ -7943,7 +7943,7 @@ LISPFUNN(rename_file,2)
         if (result<0) { end_system_call(); OS_file_error(STACK_0); } # Error melden
         setmode(ergebnis,O_BINARY);
         # Datei wurde erzeugt, ergebnis ist das Handle.
-        # Datei wieder schließen:
+        # Datei wieder schlieÃŸen:
         if (!(CLOSE(result)==0)) { end_system_call(); OS_file_error(STACK_0); } # Error melden
         end_system_call();
       #endif
@@ -7952,7 +7952,7 @@ LISPFUNN(rename_file,2)
         var int result = OPEN(pathstring, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, my_open_mask);
         if (result<0) { end_system_call(); OS_file_error(STACK_0); } # Error melden
         # Datei wurde erzeugt, ergebnis ist das Handle.
-        # Datei wieder schließen:
+        # Datei wieder schlieÃŸen:
         if (!(CLOSE(result)==0)) { end_system_call(); OS_file_error(STACK_0); } # Error melden
         end_system_call();
       #endif
@@ -7974,7 +7974,7 @@ LISPFUNN(rename_file,2)
     {
       #ifdef EMUNIX
         var sintW result;
-        # Datei zu öffnen versuchen:
+        # Datei zu Ã¶ffnen versuchen:
         #ifdef FILE_EXISTS_TRIVIAL
           if (file_exists(_EMA_)) {
             begin_system_call();
@@ -8164,24 +8164,24 @@ LISPFUNN(rename_file,2)
         # filename := (merge-pathnames ".bak" filename) :
         filename = copy_pathname(filename); # kopieren
         ThePathname(filename)->pathname_type = O(backuptype_string); # mit Extension "BAK"
-        if (openp(filename)) { fehler_delete_open(filename); } # Keine offenen Dateien löschen!
+        if (openp(filename)) { fehler_delete_open(filename); } # Keine offenen Dateien lÃ¶schen!
         pushSTACK(filename);
         # Directory existiert schon.
-        new_namestring = assume_dir_exists(); # Filename fürs Betriebssystem
+        new_namestring = assume_dir_exists(); # Filename fÃ¼rs Betriebssystem
       #endif
       #if defined(UNIX) || defined(AMIGAOS) || defined(WIN32_NATIVE)
         # Truename mit "%" bzw. ".bak" bzw. "~" erweitern:
         # filename := (parse-namestring (concatenate 'string (namestring filename) "%")) :
         filename = whole_namestring(filename); # als String
         pushSTACK(filename); pushSTACK(O(backupextend_string)); # "%"
-        filename = string_concat(2); # dazuhängen
+        filename = string_concat(2); # dazuhÃ¤ngen
         pushSTACK(filename); # retten
         pushSTACK(filename); # retten
         filename = coerce_pathname(filename); # wieder als Filename
-        if (openp(filename)) { fehler_delete_open(filename); } # Keine offenen Dateien löschen!
+        if (openp(filename)) { fehler_delete_open(filename); } # Keine offenen Dateien lÃ¶schen!
         STACK_1 = filename;
         # Directory existiert schon. Hier keine weiteren Links verfolgen.
-        new_namestring = popSTACK(); # Filename fürs Betriebssystem
+        new_namestring = popSTACK(); # Filename fÃ¼rs Betriebssystem
       #endif
       #ifdef RISCOS
         # Dem Namen ein "~" voranstellen:
@@ -8193,11 +8193,11 @@ LISPFUNN(rename_file,2)
           filename = STACK_0;
           ThePathname(filename)->pathname_name = new_name;
         }
-        if (openp(filename)) { fehler_delete_open(filename); } # Keine offenen Dateien löschen!
-        new_namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
+        if (openp(filename)) { fehler_delete_open(filename); } # Keine offenen Dateien lÃ¶schen!
+        new_namestring = assure_dir_exists(FALSE,FALSE); # Filename fÃ¼rs Betriebssystem
       #endif
       with_sstring_0(new_namestring,O(pathname_encoding),new_namestring_asciz, {
-        # Datei (oder Link) mit diesem Namen löschen, falls vorhanden:
+        # Datei (oder Link) mit diesem Namen lÃ¶schen, falls vorhanden:
         delete_file_before_rename(new_namestring_asciz);
         # Datei vom alten auf diesen Namen umbenennen:
         rename_existing_file(pathstring,new_namestring_asciz);
@@ -8221,7 +8221,7 @@ LISPFUNN(rename_file,2)
 # > if_not_exists: :IF-DOES-NOT-EXIST-Argument
 #         (0 = nichts, 1 = :ERROR, 2 = NIL, 3 = :CREATE)
 # < ergebnis: Stream oder NIL
-# < STACK: aufgeräumt
+# < STACK: aufgerÃ¤umt
 # can trigger GC
   local object open_file (object filename, uintB direction, uintB if_exists, uintB if_not_exists);
   local object open_file(filename,direction,if_exists,if_not_exists)
@@ -8232,18 +8232,18 @@ LISPFUNN(rename_file,2)
     {
       pushSTACK(STACK_3); # Filename retten
       check_no_wildcards(filename); # mit Wildcards -> Fehler
-      filename = use_default_dir(filename); # Default-Directory einfügen
+      filename = use_default_dir(filename); # Default-Directory einfÃ¼gen
       if (namenullp(filename)) { fehler_noname(filename); } # Kein Name angegeben -> Fehler
       pushSTACK(filename); # absPathname retten
       # Stackaufbau: origPathname, absPathname.
       # Directory muss existieren:
-      var object namestring = # Filename fürs Betriebssystem
+      var object namestring = # Filename fÃ¼rs Betriebssystem
         assure_dir_exists(FALSE,((direction == 0) && (if_not_exists == 0)) || (if_not_exists == 2)); # tolerant only if :PROBE and if_not_exists = 0 or if if_not_exists = 2
       if (eq(namestring,nullobj))
         # Pfad zur Datei existiert nicht, und :IF-DOES-NOT-EXIST = nichts oder NIL
         goto ergebnis_NIL;
       # Stackaufbau: Pathname, Truename.
-      # Filename überprüfen und Handle holen:
+      # Filename Ã¼berprÃ¼fen und Handle holen:
       var object handle;
       var boolean append_flag = FALSE;
       switch (direction) {
@@ -8255,7 +8255,7 @@ LISPFUNN(rename_file,2)
               goto fehler_notfound;
             if (!(if_not_exists==3)) # nichts oder NIL -> NIL
               goto ergebnis_NIL;
-            # :CREATE -> Datei mit open erzeugen und schließen:
+            # :CREATE -> Datei mit open erzeugen und schlieÃŸen:
             with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
               prepare_create(STACK_0);
               create_new_file(namestring_asciz);
@@ -8286,12 +8286,12 @@ LISPFUNN(rename_file,2)
           }
           break;
         default: # Modus ist :OUTPUT oder :IO
-          # Defaultwert für if_not_exists ist von if_exists abhängig:
+          # Defaultwert fÃ¼r if_not_exists ist von if_exists abhÃ¤ngig:
           if (if_not_exists==0) { # falls if_not_exists nicht angegeben:
-            if (if_exists<6) # if_exists = :APPEND oder :OVERWRITE -> if_not_exists unverändert
+            if (if_exists<6) # if_exists = :APPEND oder :OVERWRITE -> if_not_exists unverÃ¤ndert
               if_not_exists = 3; # weder :APPEND noch :OVERWRITE -> Default ist :CREATE
           }
-          # Defaultwert für if_exists ist :NEW-VERSION :
+          # Defaultwert fÃ¼r if_exists ist :NEW-VERSION :
           if (if_exists==0)
             if_exists = 5;
           #ifdef EMUNIX
@@ -8300,7 +8300,7 @@ LISPFUNN(rename_file,2)
               # CREAT ansteuern, sonst muss man vorher OPEN versuchen:
               if (!((if_exists==5) && (if_not_exists==3))) {
                 begin_system_call();
-                var sintW ergebnis = # Datei zu öffnen versuchen
+                var sintW ergebnis = # Datei zu Ã¶ffnen versuchen
                   open(namestring_asciz,O_RDWR);
                 if (ergebnis<0) {
                   if (errno == ENOENT) { # nicht gefunden?
@@ -8319,13 +8319,13 @@ LISPFUNN(rename_file,2)
                   # Datei existiert, ergebnis ist das Handle
                   # :IF-EXISTS-Argument entscheidet:
                   switch (if_exists) {
-                    case 1: # :ERROR -> schließen und Error
+                    case 1: # :ERROR -> schlieÃŸen und Error
                       if (CLOSE(ergebnis) < 0) {
                         end_system_call(); OS_file_error(STACK_0); # Error melden
                       }
                       end_system_call();
                       goto fehler_exists;
-                    case 2: # NIL -> schließen und NIL
+                    case 2: # NIL -> schlieÃŸen und NIL
                       if (CLOSE(ergebnis) < 0) {
                         end_system_call(); OS_file_error(STACK_0); # Error melden
                       }
@@ -8339,10 +8339,10 @@ LISPFUNN(rename_file,2)
                       handle = allocate_handle(ergebnis);
                       goto handle_ok;
                     default: ;
-                      # :RENAME, :RENAME-AND-DELETE -> Datei umbenennen und dann neu eröffnen.
-                      # :NEW-VERSION, :SUPERSEDE -> Datei auf Länge 0 kürzen.
+                      # :RENAME, :RENAME-AND-DELETE -> Datei umbenennen und dann neu erÃ¶ffnen.
+                      # :NEW-VERSION, :SUPERSEDE -> Datei auf LÃ¤nge 0 kÃ¼rzen.
                   }
-                  # In beiden Fällen erst die Datei schließen:
+                  # In beiden FÃ¤llen erst die Datei schlieÃŸen:
                   if (CLOSE(ergebnis) < 0) {
                     end_system_call(); OS_file_error(STACK_0); # Error melden
                   }
@@ -8383,7 +8383,7 @@ LISPFUNN(rename_file,2)
                     append_flag = TRUE; # am Schluss ans Ende positionieren
                   default: ;
                     # :OVERWRITE -> bestehende Datei benutzen
-                    # :NEW-VERSION, :SUPERSEDE -> Datei auf Länge 0 kürzen.
+                    # :NEW-VERSION, :SUPERSEDE -> Datei auf LÃ¤nge 0 kÃ¼rzen.
                 }
               } else {
                 # Datei existiert nicht
@@ -8395,8 +8395,8 @@ LISPFUNN(rename_file,2)
                 # :CREATE
               }
               prepare_create(STACK_0);
-              # Datei mit open öffnen:
-              # if-exists-Handling: bei if_exists<=5 Inhalt löschen,
+              # Datei mit open Ã¶ffnen:
+              # if-exists-Handling: bei if_exists<=5 Inhalt lÃ¶schen,
               # sonst (bei :APPEND, :OVERWRITE) bestehenden Inhalt lassen.
               # if-not-exists-Handling: neue Datei erzeugen.
               var Handle handl = open_output_file(namestring_asciz,if_exists<=5);
@@ -8405,13 +8405,13 @@ LISPFUNN(rename_file,2)
           #endif
           break;
          fehler_notfound: # Fehler, da Datei nicht gefunden
-          # STACK_0 = Truename, Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_0 = Truename, Wert fÃ¼r Slot PATHNAME von FILE-ERROR
           pushSTACK(STACK_0);
           fehler(file_error,
                  GETTEXT("file ~ does not exist")
                 );
          fehler_exists: # Fehler, da Datei bereits existiert
-          # STACK_0 = Truename, Wert für Slot PATHNAME von FILE-ERROR
+          # STACK_0 = Truename, Wert fÃ¼r Slot PATHNAME von FILE-ERROR
           pushSTACK(STACK_0);
           fehler(file_error,
                  GETTEXT("a file named ~ already exists")
@@ -8458,7 +8458,7 @@ LISPFUN(open,1,0,norest,key,6,\
     var uintB direction;
     var uintB if_exists;
     var uintB if_not_exists;
-    # :direction überprüfen und in direction übersetzen:
+    # :direction Ã¼berprÃ¼fen und in direction Ã¼bersetzen:
     {
       var object arg = STACK_(5+1);
       if (eq(arg,unbound) || eq(arg,S(Kinput))) {
@@ -8472,16 +8472,16 @@ LISPFUN(open,1,0,norest,key,6,\
       } elif (eq(arg,S(Kprobe))) {
         direction = 0;
       } else {
-        pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_direction)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_direction)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(S(open));
         fehler(type_error,
                GETTEXT("~: illegal :DIRECTION argument ~")
               );
       }
     }
-    # :element-type wird später überprüft.
-    # :if-exists überprüfen und in if_exists übersetzen:
+    # :element-type wird spÃ¤ter Ã¼berprÃ¼ft.
+    # :if-exists Ã¼berprÃ¼fen und in if_exists Ã¼bersetzen:
     {
       var object arg = STACK_(3+1);
       if (eq(arg,unbound)) {
@@ -8501,15 +8501,15 @@ LISPFUN(open,1,0,norest,key,6,\
       } elif (eq(arg,S(Koverwrite))) {
         if_exists = 7;
       } else {
-        pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_if_exists)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_if_exists)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(S(open));
         fehler(type_error,
                GETTEXT("~: illegal :IF-EXISTS argument ~")
               );
       }
     }
-    # :if-does-not-exist überprüfen und in if_not_exists übersetzen:
+    # :if-does-not-exist Ã¼berprÃ¼fen und in if_not_exists Ã¼bersetzen:
     {
       var object arg = STACK_(2+1);
       if (eq(arg,unbound)) {
@@ -8521,17 +8521,17 @@ LISPFUN(open,1,0,norest,key,6,\
       } elif (eq(arg,S(Kcreate))) {
         if_not_exists = 3;
       } else {
-        pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(O(type_if_does_not_exist)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(arg); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(O(type_if_does_not_exist)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(arg); pushSTACK(S(open));
         fehler(type_error,
                GETTEXT("~: illegal :IF-DOES-NOT-EXIST argument ~")
               );
       }
     }
-    # :external-format wird später überprüft.
-    # :buffered wird später überprüft.
-    # File öffnen:
+    # :external-format wird spÃ¤ter Ã¼berprÃ¼ft.
+    # :buffered wird spÃ¤ter Ã¼berprÃ¼ft.
+    # File Ã¶ffnen:
     STACK_4 = STACK_5; STACK_5 = STACK_2; STACK_6 = STACK_1; STACK_7 = STACK_0;
     skipSTACK(4);
     value1 = open_file(filename,direction,if_exists,if_not_exists);
@@ -8553,12 +8553,12 @@ LISPFUN(open,1,0,norest,key,6,\
 #          (Pathname Write-Date Length)
 #          mit  Pathname ohne :WILD/:WILD-INFERIORS-Komponenten,
 #               Write-Date = Datum der Dateierstellung (ss mm hh dd mm yy),
-#                 als Decoded-Time passend für ENCODE-UNIVERSAL-TIME,
-#               Length = Länge der Datei (in Bytes).
+#                 als Decoded-Time passend fÃ¼r ENCODE-UNIVERSAL-TIME,
+#               Length = LÃ¤nge der Datei (in Bytes).
 # can trigger GC
   local object directory_search (object pathname);
   # Methode: Breadth-first-search, damit nur eine Suchoperation gleichzeitig
-  # läuft.
+  # lÃ¤uft.
   #
   #if defined(MSDOS) || defined(WIN32_NATIVE)
     # Common set of macros for directory search.
@@ -8648,14 +8648,14 @@ LISPFUN(open,1,0,norest,key,6,\
   # UP: Erweitert das Directory eines Pathname um eine Komponente.
   # > STACK_1: ein Pathname
   # > STACK_0: neue Subdir-Komponente, ein Simple-String
-  # < ergebnis: neuer Pathname mit um subdir verlängertem Directory
-  # Erhöht STACK um 2
-  # kann GC auslösen
+  # < ergebnis: neuer Pathname mit um subdir verlÃ¤ngertem Directory
+  # ErhÃ¶ht STACK um 2
+  # kann GC auslÃ¶sen
   local object pathname_add_subdir (void);
   local object pathname_add_subdir()
     {
-      # Pathname kopieren und dessen Directory gemäß
-      # (append x (list y)) = (nreverse (cons y (reverse x))) verlängern:
+      # Pathname kopieren und dessen Directory gemÃ¤ÃŸ
+      # (append x (list y)) = (nreverse (cons y (reverse x))) verlÃ¤ngern:
       var object pathname = copy_pathname(STACK_1);
       STACK_1 = pathname;
       pushSTACK(reverse(ThePathname(pathname)->pathname_directory));
@@ -8671,7 +8671,7 @@ LISPFUN(open,1,0,norest,key,6,\
   #if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS)
   # UP: Erweitert einen Pathname um die File-Information.
   # > STACK_1: absoluter Pathname
-  # > STACK_0: absoluter Pathname, Links aufgelöst
+  # > STACK_0: absoluter Pathname, Links aufgelÃ¶st
   # > *filestatus: dessen stat-Info
   # < STACK_0: Liste (Pathname Truename Write-Date Length [Kommentar]) im :FULL-Format
   local void with_stat_info (void);
@@ -8703,7 +8703,7 @@ LISPFUN(open,1,0,norest,key,6,\
         newlist = listof(6); # 6-elementige Liste bauen
       }
       pushSTACK(newlist); # als 3. Listenelement
-      pushSTACK(UL_to_I(size)); # Länge als 4. Listenelement
+      pushSTACK(UL_to_I(size)); # LÃ¤nge als 4. Listenelement
       #if defined(UNIX) || defined(RISCOS)
       newlist = listof(4); # 4-elementige Liste bauen
       #endif
@@ -8794,7 +8794,7 @@ LISPFUN(open,1,0,norest,key,6,\
   # > namestring: the namestring (for the OS)
   # < STACK_0: replaced
   # < STACK_(3+1): augmented
-  # kann GC auslösen
+  # kann GC auslÃ¶sen
   local void directory_search_1subdir (object subdir, object namestring);
   local void directory_search_1subdir(subdir,namestring)
     var object subdir;
@@ -8804,7 +8804,7 @@ LISPFUN(open,1,0,norest,key,6,\
         check_stat_directory(namestring_asciz,
                              { OS_file_error(STACK_0); },
           {
-            # pathname kopieren und dessen Directory um subdir verlängern:
+            # pathname kopieren und dessen Directory um subdir verlÃ¤ngern:
             pushSTACK(subdir);
             {
               var object pathname = pathname_add_subdir();
@@ -8828,13 +8828,13 @@ LISPFUN(open,1,0,norest,key,6,\
   # STACK_0 = dir_namestring
   # STACK_1 = pathname
   # < result: a hash code, or nullobj if the directory does not exist
-  # kann GC auslösen
+  # kann GC auslÃ¶sen
   local object directory_search_hashcode (void);
   local object directory_search_hashcode()
     {
       pushSTACK(STACK_0); # Directory-Name
       pushSTACK(O(punkt_string)); # und "."
-      var object namestring = string_concat(2); # zusammenhängen
+      var object namestring = string_concat(2); # zusammenhÃ¤ngen
       var struct stat status;
       with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
         begin_system_call();
@@ -8898,13 +8898,13 @@ LISPFUN(open,1,0,norest,key,6,\
           #ifdef UNIX
           pushSTACK(STACK_0); # Directory-Name
           pushSTACK(O(punkt_string)); # und "."
-          namestring = string_concat(2); # zusammenhängen
+          namestring = string_concat(2); # zusammenhÃ¤ngen
           #endif
           #ifdef RISCOS
           var object wildcard_mask;
           namestring = STACK_0; # Directory-Name
           namestring = subsstring(namestring,0,Sstring_length(namestring)-1); # Directory-Name ohne '.' am Schluss
-          # Statt wildcard_match() selber aufzurufen, überlassen wir das dem Betriebssystem:
+          # Statt wildcard_match() selber aufzurufen, Ã¼berlassen wir das dem Betriebssystem:
           wildcard_mask = (next_task<0 ? Car(STACK_(1+4+3)) : STACK_(2+4+3));
           #endif
           # Directory absuchen:
@@ -8913,7 +8913,7 @@ LISPFUN(open,1,0,norest,key,6,\
           #ifdef UNIX
           with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
             begin_system_call();
-            dirp = opendir(namestring_asciz); # Directory öffnen
+            dirp = opendir(namestring_asciz); # Directory Ã¶ffnen
             end_system_call();
           });
           #endif
@@ -8926,7 +8926,7 @@ LISPFUN(open,1,0,norest,key,6,\
                 while (*ptr != '\0') { if (*ptr == '?') { *ptr = '#'; } ptr++; }
               }
               begin_system_call();
-              dirp = opendir(namestring_asciz,wildcard_mask_asciz); # Directory zum Suchen öffnen
+              dirp = opendir(namestring_asciz,wildcard_mask_asciz); # Directory zum Suchen Ã¶ffnen
               end_system_call();
             });
           });
@@ -8936,7 +8936,7 @@ LISPFUN(open,1,0,norest,key,6,\
             var SDIRENT* dp;
             begin_system_call();
             errno = 0;
-            dp = readdir(dirp); # nächsten Directory-Eintrag holen
+            dp = readdir(dirp); # nÃ¤chsten Directory-Eintrag holen
             if (dp == (SDIRENT*)NULL) { # Error oder Directory zu Ende
               if (!(errno==0)) { end_system_call(); OS_file_error(STACK_1); }
               end_system_call();
@@ -8951,9 +8951,9 @@ LISPFUN(open,1,0,norest,key,6,\
               # Neither d_reclen nor d_namlen present in DIR structure.
               direntry_len = asciz_length(dp->d_name);
               #elif defined(DIRENT_WITHOUT_NAMLEN) || defined(__USE_GNU)
-              # Unter UNIX_LINUX reichte früher direntry_len := dp->d_reclen, aber
+              # Unter UNIX_LINUX reichte frÃ¼her direntry_len := dp->d_reclen, aber
               # i.a. ist direntry_len := min(dp->d_reclen,asciz_length(dp->d_name))
-              # nötig. Die GNU libc ist buggy: macht "#define d_namlen d_reclen",
+              # nÃ¶tig. Die GNU libc ist buggy: macht "#define d_namlen d_reclen",
               # ebenso die Linux libc-5.0.9.
               {
                 var const uintB* ptr = (const uintB*)(&dp->d_name[0]);
@@ -8970,7 +8970,7 @@ LISPFUN(open,1,0,norest,key,6,\
               direntry = n_char_to_string(&dp->d_name[0],direntry_len,O(pathname_encoding));
             }
             #ifndef RISCOS
-            # "." und ".." übergehen:
+            # "." und ".." Ã¼bergehen:
             if (!(equal(direntry,O(punkt_string))
                   || equal(direntry,O(punktpunkt_string))
                ) )
@@ -8981,7 +8981,7 @@ LISPFUN(open,1,0,norest,key,6,\
               # Feststellen, ob es ein Directory oder ein File ist:
               pushSTACK(STACK_1); # Directory-Namestring
               pushSTACK(direntry); # direntry
-              var object namestring = string_concat(2); # zusammenhängen
+              var object namestring = string_concat(2); # zusammenhÃ¤ngen
               # Information holen:
               var struct stat status;
               #if 1 # just an optimization
@@ -9009,13 +9009,13 @@ LISPFUN(open,1,0,norest,key,6,\
               }
               #endif
               if (directory_search_direntry_ok(namestring,&status)) {
-                # Eintrag existiert und ist nicht unerwünscht.
+                # Eintrag existiert und ist nicht unerwÃ¼nscht.
                 if (S_ISDIR(status.st_mode)) { # Ist es ein Directory?
                   # Eintrag ist ein Directory.
-                  if (recursively) { # alle rekursiven Subdirectories gewünscht?
+                  if (recursively) { # alle rekursiven Subdirectories gewÃ¼nscht?
                     # ja -> zu einem Pathname machen und auf
                     # pathnames-to-insert pushen (wird nachher
-                    # vor pathname-list-rest eingefügt):
+                    # vor pathname-list-rest eingefÃ¼gt):
                     pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
                     {
                       var object pathname = pathname_add_subdir();
@@ -9089,10 +9089,10 @@ LISPFUN(open,1,0,norest,key,6,\
                         pushSTACK(pathname);
                       }
                       #endif
-                      # Truename bilden (symbolische Links auflösen):
+                      # Truename bilden (symbolische Links auflÃ¶sen):
                       assure_dir_exists(TRUE,FALSE);
                       if (file_exists(_EMA_)) { # falls File (immer noch...) existiert
-                        if (!nullp(STACK_(0+5+4+3+2))) # :FULL gewünscht?
+                        if (!nullp(STACK_(0+5+4+3+2))) # :FULL gewÃ¼nscht?
                           with_stat_info(); # ja -> STACK_0 erweitern
                         # und STACK_0 vor result-list pushen:
                         {
@@ -9145,8 +9145,8 @@ LISPFUN(open,1,0,norest,key,6,\
               {
                 var boolean isdir;
                 if (fibptr->fib_DirEntryType == ST_SOFTLINK) {
-                  # Einen Lock auf das Ziel holen und Examine ausführen:
-                  # das geht, denn Lock() löst Links auf (bzw. versucht es)
+                  # Einen Lock auf das Ziel holen und Examine ausfÃ¼hren:
+                  # das geht, denn Lock() lÃ¶st Links auf (bzw. versucht es)
                   pushSTACK(STACK_1); pushSTACK(STACK_(0+1));
                   var object direntry_namestring = string_concat(2);
                   with_sstring_0(direntry_namestring,O(pathname_encoding),direntry_namestring_asciz, {
@@ -9177,10 +9177,10 @@ LISPFUN(open,1,0,norest,key,6,\
                 }
                 if (isdir) {
                   # Eintrag ist ein Directory.
-                  if (recursively) { # alle rekursiven Subdirectories gewünscht?
+                  if (recursively) { # alle rekursiven Subdirectories gewÃ¼nscht?
                     # ja -> zu einem Pathname machen und auf
                     # pathnames-to-insert pushen (wird nachher
-                    # vor pathname-list-rest eingefügt):
+                    # vor pathname-list-rest eingefÃ¼gt):
                     pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
                     {
                       var object pathname = pathname_add_subdir();
@@ -9229,8 +9229,8 @@ LISPFUN(open,1,0,norest,key,6,\
                         pushSTACK(pathname);
                         pushSTACK(pathname);
                       }
-                      assure_dir_exists(TRUE,FALSE); # Truename bilden (symbolische Links auflösen)
-                      if (!nullp(STACK_(0+5+4+3+2))) # :FULL gewünscht?
+                      assure_dir_exists(TRUE,FALSE); # Truename bilden (symbolische Links auflÃ¶sen)
+                      if (!nullp(STACK_(0+5+4+3+2))) # :FULL gewÃ¼nscht?
                         with_stat_info(); # ja -> STACK_0 erweitern
                       # und STACK_0 vor result-list pushen:
                       {
@@ -9261,9 +9261,9 @@ LISPFUN(open,1,0,norest,key,6,\
         {
           pushSTACK(STACK_0); # Directory-Name
           pushSTACK(READDIR_wildnametype_suffix); # und "*.*" bzw. "*"
-          var object namestring = string_concat(2); # zusammenhängen
+          var object namestring = string_concat(2); # zusammenhÃ¤ngen
           with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-            # Directory absuchen, gemäß DOS-Konvention bzw. Win32-Konvention:
+            # Directory absuchen, gemÃ¤ÃŸ DOS-Konvention bzw. Win32-Konvention:
             READDIR_var_declarations;
             # Suchanfang, suche nach Ordnern und normalen Dateien:
             begin_system_call();
@@ -9275,7 +9275,7 @@ LISPFUN(open,1,0,norest,key,6,\
                 end_system_call();
                 # Directory-Eintrag in String umwandeln:
                 var object direntry = asciz_to_string(READDIR_entry_name(),O(pathname_encoding));
-                # "." und ".." übergehen:
+                # "." und ".." Ã¼bergehen:
                 if (!(equal(direntry,O(punkt_string))
                       || equal(direntry,O(punktpunkt_string))
                    ) ) {
@@ -9283,10 +9283,10 @@ LISPFUN(open,1,0,norest,key,6,\
                   # Stackaufbau: ..., pathname, dir_namestring, direntry.
                   if (READDIR_entry_ISDIR()) { # Ist es ein Directory?
                     # Eintrag ist ein Directory.
-                    if (recursively) { # alle rekursiven Subdirectories gewünscht?
+                    if (recursively) { # alle rekursiven Subdirectories gewÃ¼nscht?
                       # ja -> zu einem Pathname machen und auf
                       # pathnames-to-insert pushen (wird nachher
-                      # vor pathname-list-rest eingefügt):
+                      # vor pathname-list-rest eingefÃ¼gt):
                       pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); # pathname und direntry
                       {
                         var object pathname = pathname_add_subdir();
@@ -9333,7 +9333,7 @@ LISPFUN(open,1,0,norest,key,6,\
                           ThePathname(new)->pathname_type = popSTACK(); # Typ einsetzen
                           ThePathname(new)->pathname_name = popSTACK(); # Name einsetzen
                           # Full-Flag abtesten und evtl. mehr Information besorgen:
-                          if (!nullp(STACK_(0+5+4+3))) { # :FULL gewünscht?
+                          if (!nullp(STACK_(0+5+4+3))) { # :FULL gewÃ¼nscht?
                             pushSTACK(new); # newpathname als 1. Listenelement
                             pushSTACK(new); # newpathname als 2. Listenelement
                             {
@@ -9349,7 +9349,7 @@ LISPFUN(open,1,0,norest,key,6,\
                               new = listof(6); # 6-elementige Liste bauen
                             }
                             pushSTACK(new); # als 3. Listenelement
-                            pushSTACK(UL_to_I(READDIR_entry_size())); # Länge als 4. Listenelement
+                            pushSTACK(UL_to_I(READDIR_entry_size())); # LÃ¤nge als 4. Listenelement
                             new = listof(4); # 4-elementige Liste bauen
                           }
                           pushSTACK(new);
@@ -9366,7 +9366,7 @@ LISPFUN(open,1,0,norest,key,6,\
                   }
                   skipSTACK(1); # direntry vergessen
                 }
-                # nächstes File:
+                # nÃ¤chstes File:
                 begin_system_call();
                 READDIR_findnext({ end_system_call(); OS_file_error(STACK_1); }, break; );
               }
@@ -9389,7 +9389,7 @@ LISPFUN(open,1,0,norest,key,6,\
       # found files are legal.
       var boolean type_is_wild = FALSE;
       #endif
-      pathname = use_default_dir(pathname); # Default-Directory einfügen
+      pathname = use_default_dir(pathname); # Default-Directory einfÃ¼gen
       # pathname ist jetzt neu und ein absoluter Pathname.
       pushSTACK(NIL); # result-list := NIL
       pushSTACK(pathname);
@@ -9422,10 +9422,10 @@ LISPFUN(open,1,0,norest,key,6,\
       }
       pushSTACK(ThePathname(pathname)->pathname_directory); # subdir-list
       #ifdef PATHNAME_RISCOS
-      STACK_0 = Cdr(STACK_0); # Liste fängt mit (:ABSOLUTE :ROOT ...) an, verkürze sie
+      STACK_0 = Cdr(STACK_0); # Liste fÃ¤ngt mit (:ABSOLUTE :ROOT ...) an, verkÃ¼rze sie
       #endif
       # pathname kopieren und dabei Name und Typ streichen und
-      # Directory zu (:ABSOLUTE) bzw. (:ABSOLUTE :ROOT) verkürzen:
+      # Directory zu (:ABSOLUTE) bzw. (:ABSOLUTE :ROOT) verkÃ¼rzen:
       pathname = copy_pathname(pathname);
       ThePathname(pathname)->pathname_name = NIL;
       ThePathname(pathname)->pathname_type = NIL;
@@ -9437,7 +9437,7 @@ LISPFUN(open,1,0,norest,key,6,\
         Car(new_cons) = STACK_0;
         STACK_0 = new_cons;
       }
-      var boolean recursively = # Flag, ob die nächste Operation auf
+      var boolean recursively = # Flag, ob die nÃ¤chste Operation auf
         FALSE;                  # alle Subdirectories anzuwenden ist.
       loop {
         # Stackaufbau: result-list, pathname, name&type, subdir-list, pathname-list.
@@ -9446,8 +9446,8 @@ LISPFUN(open,1,0,norest,key,6,\
         # pathname-list = Liste der noch abzuarbeitenden Directories.
         # Dabei enthalten die Pathnames aus pathname-list das Directory
         # nur so tief, dass es danach mit (cdr subdir-list) weitergeht.
-        # Nächste subdir-Ebene abarbeiten:
-        STACK_1 = Cdr(STACK_1); # subdir-list verkürzen
+        # NÃ¤chste subdir-Ebene abarbeiten:
+        STACK_1 = Cdr(STACK_1); # subdir-list verkÃ¼rzen
         var signean next_task; # Was mit den Dirs aus pathname-list zu tun ist:
           # 0: nichts, fertig
           # 1: nach einem File gegebenen Namens/Typs sehen
@@ -9468,7 +9468,7 @@ LISPFUN(open,1,0,norest,key,6,\
         } else {
           var object next_subdir = Car(STACK_1);
           if (eq(next_subdir,S(Kwild_inferiors))) { # '...' ?
-            # wird erst beim nächsten Durchlauf behandelt
+            # wird erst beim nÃ¤chsten Durchlauf behandelt
             recursively = TRUE; goto passed_subdir;
           }
           #ifndef MSDOS
@@ -9491,7 +9491,7 @@ LISPFUN(open,1,0,norest,key,6,\
         #ifdef UNIX
         if (!nullp(STACK_(1+5+1))) { # :CIRCLE-Flag abfragen
           # Hash-Tabelle aller bisher abgesuchten Directories (jeweils
-          # als Cons (dev . ino)) führen:
+          # als Cons (dev . ino)) fÃ¼hren:
           pushSTACK(S(Ktest)); pushSTACK(S(equal));
           funcall(L(make_hash_table),2); # (MAKE-HASH-TABLE :TEST 'EQUAL)
           pushSTACK(value1);
@@ -9504,18 +9504,18 @@ LISPFUN(open,1,0,norest,key,6,\
           var object pathname_list_rest = STACK_0;
           if (atomp(pathname_list_rest))
             break;
-          STACK_0 = Cdr(pathname_list_rest); # Liste verkürzen
+          STACK_0 = Cdr(pathname_list_rest); # Liste verkÃ¼rzen
           pushSTACK(NIL); # pathnames-to-insert := NIL
           # Stackaufbau: ..., new-pathname-list, ht, pathname-list-rest, pathnames-to-insert.
           {
-            var object pathname = Car(pathname_list_rest); # nächstes Directory
+            var object pathname = Car(pathname_list_rest); # nÃ¤chstes Directory
             pushSTACK(pathname); # in den Stack
-            # Versuche, die Task ein wenig abzukürzen:
+            # Versuche, die Task ein wenig abzukÃ¼rzen:
             if (!recursively) {
               switch (next_task) {
                 case 0: # Dieses pathname liefern
                   #ifdef UNIX
-                  assure_dir_exists(FALSE,FALSE); # erst noch Links auflösen
+                  assure_dir_exists(FALSE,FALSE); # erst noch Links auflÃ¶sen
                   #endif
                   # und STACK_0 vor result-list pushen:
                   {
@@ -9541,15 +9541,15 @@ LISPFUN(open,1,0,norest,key,6,\
                     ThePathname(pathname)->pathname_type = Car(subdirs);
                     ThePathname(pathname)->pathname_directory = nreverse(Cdr(subdirs));
                   }
-                  assure_dir_exists_(TRUE,FALSE,type_is_wild); # Links auflösen, File suchen
+                  assure_dir_exists_(TRUE,FALSE,type_is_wild); # Links auflÃ¶sen, File suchen
                   if (file_exists(_EMA_) && !S_ISDIR(filestatus->st_mode)) # falls File existiert und kein Directory ist
                   #else
-                  assure_dir_exists(TRUE,FALSE); # Links auflösen, File suchen
+                  assure_dir_exists(TRUE,FALSE); # Links auflÃ¶sen, File suchen
                   if (file_exists(_EMA_)) # falls File existiert
                   #endif
                   {
                     # result-list erweitern:
-                    if (!nullp(STACK_(0+5+4+2))) # :FULL gewünscht?
+                    if (!nullp(STACK_(0+5+4+2))) # :FULL gewÃ¼nscht?
                       with_stat_info(); # ja -> STACK_0 erweitern
                     # und STACK_0 vor result-list pushen:
                     var object new_cons = allocate_cons();
@@ -9563,23 +9563,23 @@ LISPFUN(open,1,0,norest,key,6,\
                 #ifndef MSDOS
                 case -1: # In diesem pathname nach einem Subdirectory sehen
                   {
-                    var object namestring = assure_dir_exists(TRUE,FALSE); # Links auflösen, Directory-Namestring
+                    var object namestring = assure_dir_exists(TRUE,FALSE); # Links auflÃ¶sen, Directory-Namestring
                     pushSTACK(namestring); # Directory-Namestring
                     {
                       var object subdir = Car(STACK_(1+4+1+1)); # (car subdir-list)
                       #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_RISCOS)
-                      if (eq(subdir,S(Kparent))) { # für Parent-Directory
+                      if (eq(subdir,S(Kparent))) { # fÃ¼r Parent-Directory
                         #ifdef PATHNAME_AMIGAOS
-                        pushSTACK(O(slash_string)); # zusätzliches "/" ans Ende
+                        pushSTACK(O(slash_string)); # zusÃ¤tzliches "/" ans Ende
                         #endif
                         #ifdef PATHNAME_RISCOS
-                        pushSTACK(O(parent_string)); # zusätzliches "^" ans Ende
+                        pushSTACK(O(parent_string)); # zusÃ¤tzliches "^" ans Ende
                         #endif
                       } else
                       #endif
                         pushSTACK(subdir);
                     }
-                    namestring = string_concat(2); # zusammenhängen
+                    namestring = string_concat(2); # zusammenhÃ¤ngen
                     # Information holen:
                     directory_search_1subdir(Car(STACK_(1+4+1)),namestring);
                   }
@@ -9588,10 +9588,10 @@ LISPFUN(open,1,0,norest,key,6,\
                 #endif
               }
             }
-            # Um die Task zu erledigen, müssen alle Einträge dieses
+            # Um die Task zu erledigen, mÃ¼ssen alle EintrÃ¤ge dieses
             # Directory abgesucht werden:
             {
-              var object dir_namestring = assure_dir_exists(TRUE,FALSE); # Links auflösen, Directory-Name bilden
+              var object dir_namestring = assure_dir_exists(TRUE,FALSE); # Links auflÃ¶sen, Directory-Name bilden
               pushSTACK(dir_namestring); # retten
             }
             # Stackaufbau: ..., pathname, dir_namestring.
@@ -9602,12 +9602,12 @@ LISPFUN(open,1,0,norest,key,6,\
               if (eq(hashcode,nullobj)) {
                 # Eintrag existiert doch nicht (das kann uns
                 # wohl nur bei symbolischen Links passieren)
-                # -> wird übergangen
+                # -> wird Ã¼bergangen
                 skipSTACK(2); goto next_pathname;
               }
               # und in der Hash-Tabelle aufsuchen und ablegen:
               if (!nullp(shifthash(STACK_(2+2),hashcode,T))) {
-                # war schon drin -> wird übergangen
+                # war schon drin -> wird Ã¼bergangen
                 skipSTACK(2); goto next_pathname;
               }
             }
@@ -9624,7 +9624,7 @@ LISPFUN(open,1,0,norest,key,6,\
             next_pathname: ;
           }
           # Stackaufbau: ..., new-pathname-list, ht, pathname-list-rest, pathnames-to-insert.
-          # Vor dem Weiterrücken mit pathname-list-rest :
+          # Vor dem WeiterrÃ¼cken mit pathname-list-rest :
           # pathname-list-rest := (nreconc pathnames-to-insert pathname-list-rest) :
           var object pathnames_to_insert = popSTACK();
           STACK_0 = nreconc(pathnames_to_insert,STACK_0);
@@ -9638,7 +9638,7 @@ LISPFUN(open,1,0,norest,key,6,\
         # Mit dieser Subdir-Stufe sind wir fertig.
         if (matomp(STACK_1))
           break; # (atom subdir-list) -> fertig.
-        recursively = FALSE; # die nächste (vorläufig) nicht-rekursiv
+        recursively = FALSE; # die nÃ¤chste (vorlÃ¤ufig) nicht-rekursiv
         passed_subdir: ;
       }
       # Stackaufbau: result-list, pathname, name&type, subdir-list, pathname-list.
@@ -9663,7 +9663,7 @@ LISPFUN(directory,0,1,norest,key,2, (kw(circle),kw(full)) )
     # :FULL-Argument hat Defaultwert NIL:
     if (eq(STACK_0,unbound))
       STACK_0 = NIL;
-    # Pathname-Argument überprüfen:
+    # Pathname-Argument Ã¼berprÃ¼fen:
     var object pathname = STACK_2;
     if (eq(pathname,unbound)) {
       #if defined(PATHNAME_NOEXT) || defined(PATHNAME_RISCOS)
@@ -9677,7 +9677,7 @@ LISPFUN(directory,0,1,norest,key,2, (kw(circle),kw(full)) )
       # alle Devices abzusuchen
       STACK_2 = pathname;
       pushSTACK(NIL); # bisherige Pathname-Liste := NIL
-      pushSTACK(STACK_(0+1)); # full (für directory_search)
+      pushSTACK(STACK_(0+1)); # full (fÃ¼r directory_search)
       # Stackaufbau: pathname, circle, full, pathname-list, full.
       {
         var char drive;
@@ -9685,10 +9685,10 @@ LISPFUN(directory,0,1,norest,key,2, (kw(circle),kw(full)) )
           if (good_drive(drive)) {
             pushSTACK(n_char_to_string(&drive,1,O(pathname_encoding))); # Device, einelementiger String
             var object newpathname = copy_pathname(STACK_(2+2+1)); # Pathname kopieren
-            ThePathname(newpathname)->pathname_device = popSTACK(); # Drive übernehmen
+            ThePathname(newpathname)->pathname_device = popSTACK(); # Drive Ã¼bernehmen
             # innerhalb eines Laufwerks suchen:
             var object newpathnames = directory_search(newpathname);
-            # und Pathname-Liste vor STACK_1 hängen:
+            # und Pathname-Liste vor STACK_1 hÃ¤ngen:
             STACK_1 = nreconc(newpathnames,STACK_1);
           }
       }
@@ -9722,20 +9722,20 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
     value1 = popSTACK(); mv_count=1; # neuer pathname als Wert
   }
 
-# UP: Überprüft ein Pathname, ob Name und Typ beide =NIL sind,
+# UP: ÃœberprÃ¼ft ein Pathname, ob Name und Typ beide =NIL sind,
 # und ob das Directory "fast" existiert.
 # shorter_directory(pathname,resolve_links)
 # > pathname : Pathname-Argument
-# > resolve_links : Flag, ob Links aufgelöst werden müssen (normalerweise ja)
+# > resolve_links : Flag, ob Links aufgelÃ¶st werden mÃ¼ssen (normalerweise ja)
 # < -(STACK) : absoluter Pathname
 #if defined(MSDOS) || defined(WIN32_NATIVE)
-# < ergebnis: Directory-Namestring (fürs OS, ohne '\' am Schluss, Normal-Simple-String)
+# < ergebnis: Directory-Namestring (fÃ¼rs OS, ohne '\' am Schluss, Normal-Simple-String)
 #endif
 #if defined(UNIX) || defined(AMIGAOS)
-# < ergebnis: Directory-Namestring (fürs OS, ohne '/' am Schluss, Normal-Simple-String)
+# < ergebnis: Directory-Namestring (fÃ¼rs OS, ohne '/' am Schluss, Normal-Simple-String)
 #endif
 #if defined(RISCOS)
-# < ergebnis: Directory-Namestring (fürs OS, ohne '.' am Schluss, Normal-Simple-String)
+# < ergebnis: Directory-Namestring (fÃ¼rs OS, ohne '.' am Schluss, Normal-Simple-String)
 #endif
 # Erniedrigt STACK um 1.
 # can trigger GC
@@ -9746,18 +9746,18 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
     {
       pathname = coerce_pathname(pathname); # Argument zu einem Pathname machen
       check_no_wildcards(pathname); # mit Wildcards -> Fehler
-      pathname = use_default_dir(pathname); # Default-Directory einfügen
-      # Überprüfe, ob Name=NIL und Typ=NIL :
+      pathname = use_default_dir(pathname); # Default-Directory einfÃ¼gen
+      # ÃœberprÃ¼fe, ob Name=NIL und Typ=NIL :
       if (!(nullp(ThePathname(pathname)->pathname_name)
             && nullp(ThePathname(pathname)->pathname_type)
          ) )
         fehler_notdir(pathname);
       pushSTACK(pathname); # neuen Pathname retten
-      # verkürze das Directory:
+      # verkÃ¼rze das Directory:
       var object subdirs = ThePathname(pathname)->pathname_directory;
       if (nullp(Cdr(subdirs))) { # Root-Directory ?
        baddir:
-        # STACK_0 = pathname, Wert für Slot PATHNAME von FILE-ERROR
+        # STACK_0 = pathname, Wert fÃ¼r Slot PATHNAME von FILE-ERROR
         pushSTACK(STACK_0);
         fehler(file_error,
                GETTEXT("root directory not allowed here: ~")
@@ -9778,13 +9778,13 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
       # Stackaufbau: pathname, subdircons, pathname.
       var object dir_namestring =
         (resolve_links ? assure_dir_exists(FALSE,FALSE) : assume_dir_exists());
-      # Baue Subdir-String fürs Betriebssystem:
+      # Baue Subdir-String fÃ¼rs Betriebssystem:
       STACK_0 = dir_namestring; # bisheriger Directory-Namestring als 1. String
       var uintC stringcount =
         subdir_namestring_parts(STACK_1); # und Strings zum letzten Subdir
-      # und kein '\' am Schluss (fürs OS)
-      # und kein '/' am Schluss (fürs OS)
-      var object dirstring = string_concat(1+stringcount); # zusammenhängen
+      # und kein '\' am Schluss (fÃ¼rs OS)
+      # und kein '/' am Schluss (fÃ¼rs OS)
+      var object dirstring = string_concat(1+stringcount); # zusammenhÃ¤ngen
       skipSTACK(1);
       return dirstring;
     }
@@ -9846,7 +9846,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
     ThePathname(pathname)->pathname_name = NIL;
     ThePathname(pathname)->pathname_type = NIL;
     check_no_wildcards(pathname); # mit Wildcards -> Fehler
-    pathname = use_default_dir(pathname); # Default-Directory einfügen
+    pathname = use_default_dir(pathname); # Default-Directory einfÃ¼gen
     pushSTACK(pathname); # neuen Pathname retten
     # Stackaufbau: pathspec, verbose, pathname.
     if (directory_exists(pathname)) {
@@ -9867,7 +9867,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
             pushSTACK(STACK_2); funcall(L(princ),1); # (PRINC pathname [*standard-output*])
             funcall(L(terpri),0); # (TERPRI [*standard-output*])
           }
-          # NB: Brauche hier keine Links aufzulösen, weil man ja hier
+          # NB: Brauche hier keine Links aufzulÃ¶sen, weil man ja hier
           # sowieso ab der Wurzel schrittweise vorgeht.
           var object pathstring = shorter_directory(STACK_2,FALSE);
           with_sstring_0(pathstring,O(pathname_encoding),pathstring_asciz, {
@@ -9935,15 +9935,15 @@ local struct passwd * unix_user_pwd()
       #ifdef USER_HOMEDIR
       #ifdef UNIX
       # Wir ziehen uns das Home-Directory und die benutzbare Shell aus dem
-      # Environment. Es enthält (fast) immer mindestens folgende Variablen:
-      #   LOGNAME = Username beim ersten Einloggen ("wahre" Identität des Benutzers)
+      # Environment. Es enthÃ¤lt (fast) immer mindestens folgende Variablen:
+      #   LOGNAME = Username beim ersten Einloggen ("wahre" IdentitÃ¤t des Benutzers)
       #   USER    = aktueller Username
       #   HOME    = aktuelles Home-Directory, aus /etc/passwd geholt
       #   SHELL   = aktuelle Standard-Shell, aus /etc/passwd geholt
       #   PATH    = Suchpfad bei Programmaufruf
       #   TERM    = Terminalemulation
-      # Wir holen uns HOME (für "~" - Übersetzung) und SHELL (für EXECUTE).
-      # Bei "~username" müssen wir das /etc/passwd - File absuchen.
+      # Wir holen uns HOME (fÃ¼r "~" - Ãœbersetzung) und SHELL (fÃ¼r EXECUTE).
+      # Bei "~username" mÃ¼ssen wir das /etc/passwd - File absuchen.
       {
         # Im Environment nach Variable HOME suchen:
         begin_system_call();
@@ -9996,8 +9996,8 @@ local struct passwd * unix_user_pwd()
       #endif
       #ifdef HAVE_SHELL
       #ifdef UNIX
-      # Die Kommando-Shell O(command_shell) bleibt unverändert, sonst
-      # handelt man sich zu viele Portabilitätsprobleme ein.
+      # Die Kommando-Shell O(command_shell) bleibt unverÃ¤ndert, sonst
+      # handelt man sich zu viele PortabilitÃ¤tsprobleme ein.
       {
         # Im Environment nach Variable SHELL suchen:
         begin_system_call();
@@ -10052,10 +10052,10 @@ LISPFUNN(file_write_date,1)
 # (FILE-WRITE-DATE file), CLTL S. 424
   {
     #ifdef AMIGAOS
-    var struct DateStamp file_datetime; # Buffer für Datum/Uhrzeit einer Datei
+    var struct DateStamp file_datetime; # Buffer fÃ¼r Datum/Uhrzeit einer Datei
     #endif
     #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
-    var time_t file_datetime; # Buffer für Datum/Uhrzeit einer Datei
+    var time_t file_datetime; # Buffer fÃ¼r Datum/Uhrzeit einer Datei
     #endif
     #ifdef WIN32_NATIVE
     var WIN32_FIND_DATA filedata;
@@ -10110,12 +10110,12 @@ LISPFUNN(file_write_date,1)
       pathname = coerce_pathname(pathname); # zu einem Pathname machen
      is_pathname: # pathname ist jetzt wirklich ein Pathname
       check_no_wildcards(pathname); # mit Wildcards -> Fehler
-      pathname = use_default_dir(pathname); # Default-Directory einfügen
+      pathname = use_default_dir(pathname); # Default-Directory einfÃ¼gen
       if (namenullp(pathname)) { fehler_noname(pathname); } # Kein Name angegeben -> Fehler
       # Name angegeben.
       pushSTACK(pathname);
       # Directory muss existieren:
-      var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
+      var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fÃ¼rs Betriebssystem
       #ifdef EMUNIX
         with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
           var struct stat statbuf;
@@ -10200,24 +10200,24 @@ LISPFUNN(file_author,1)
      is_pathname: # pathname ist jetzt wirklich ein Pathname
       # pathname ist jetzt ein Pathname.
       check_no_wildcards(pathname); # mit Wildcards -> Fehler
-      pathname = use_default_dir(pathname); # Default-Directory einfügen
+      pathname = use_default_dir(pathname); # Default-Directory einfÃ¼gen
       if (namenullp(pathname)) { fehler_noname(pathname); } # Kein Name angegeben -> Fehler
       # Name angegeben.
       pushSTACK(pathname);
       # Directory muss existieren:
-      var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
+      var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fÃ¼rs Betriebssystem
       #ifdef MSDOS
         #if 1
           with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-            # Datei öffnen:
+            # Datei Ã¶ffnen:
             begin_system_call();
-            var sintW ergebnis = # Datei zu öffnen versuchen
+            var sintW ergebnis = # Datei zu Ã¶ffnen versuchen
               open(namestring_asciz,O_RDONLY);
             if (ergebnis < 0) {
               end_system_call(); OS_file_error(STACK_0); # Error melden
             }
-            # Nun enthält ergebnis das Handle des geöffneten Files.
-            if (CLOSE(ergebnis) < 0) { # Datei gleich wieder schließen
+            # Nun enthÃ¤lt ergebnis das Handle des geÃ¶ffneten Files.
+            if (CLOSE(ergebnis) < 0) { # Datei gleich wieder schlieÃŸen
               end_system_call(); OS_file_error(STACK_0);
             }
             end_system_call();
@@ -10250,44 +10250,44 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
   {
     var object* args_pointer = rest_args_pointer STACKop 1;
     {
-      var object* argptr = args_pointer; # Pointer über die Argumente
-      # File überprüfen:
+      var object* argptr = args_pointer; # Pointer Ã¼ber die Argumente
+      # File Ã¼berprÃ¼fen:
       {
         var object* file_ = &NEXT(argptr);
         var object pathname = *file_;
         pathname = coerce_pathname(pathname); # zu einem Pathname machen
         check_no_wildcards(pathname); # mit Wildcards -> Fehler
-        pathname = use_default_dir(pathname); # Default-Directory einfügen
+        pathname = use_default_dir(pathname); # Default-Directory einfÃ¼gen
         if (namenullp(pathname)) { fehler_noname(pathname); } # Kein Name angegeben -> Fehler
         # Name angegeben.
         pushSTACK(pathname);
         # Directory muss existieren:
-        var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
-        # Überprüfe, ob die Datei existiert:
+        var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fÃ¼rs Betriebssystem
+        # ÃœberprÃ¼fe, ob die Datei existiert:
         if (!file_exists(namestring)) { fehler_file_not_exists(); }
         *file_ = string_to_asciz(namestring,O(pathname_encoding)); # retten
         skipSTACK(1);
       }
-      # restliche Argumente überprüfen:
+      # restliche Argumente Ã¼berprÃ¼fen:
       {
         var uintC count;
         dotimesC(count,argcount, {
           var object* arg_ = &NEXT(argptr);
-          pushSTACK(*arg_); funcall(L(string),1); # nächstes Argument in String umwandeln
+          pushSTACK(*arg_); funcall(L(string),1); # nÃ¤chstes Argument in String umwandeln
           *arg_ = string_to_asciz(value1,O(misc_encoding)); # und ASCIZ-String umwandeln
         });
       }
     }
     #ifdef EMUNIX
     # (Unter OS/2 scheint system() sicherer zu sein als spawnv(). Warum?)
-    # Alle Argumente (nun ASCIZ-Strings) zusammenhängen, mit Spaces dazwischen:
+    # Alle Argumente (nun ASCIZ-Strings) zusammenhÃ¤ngen, mit Spaces dazwischen:
     {
       var uintL argvdata_length = 0;
       {
         var object* argptr = args_pointer;
         var uintC count;
         dotimespC(count,argcount+1, {
-          var object arg = NEXT(argptr); # nächstes Argument, ASCIZ-String
+          var object arg = NEXT(argptr); # nÃ¤chstes Argument, ASCIZ-String
           argvdata_length += Sbvector_length(arg);
         });
       }
@@ -10297,7 +10297,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
         var char* argvdataptr = &argvdata[0];
         var uintC count;
         dotimespC(count,argcount+1, {
-          var object arg = NEXT(argptr); # nächstes Argument, ASCIZ-String
+          var object arg = NEXT(argptr); # nÃ¤chstes Argument, ASCIZ-String
           var char* ptr = TheAsciz(arg);
           var uintL len = Sbvector_length(arg);
           dotimesL(len,len-1, { *argvdataptr++ = *ptr++; } ); # und kopieren
@@ -10310,8 +10310,8 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
       var int ergebnis = system(&argvdata[0]);
       end_system_call();
       # Fertig.
-      set_args_end_pointer(args_pointer); # STACK aufräumen
-      # Rückgabewert verwerten: =0 (OK) -> T, >0 (nicht OK) -> NIL :
+      set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen
+      # RÃ¼ckgabewert verwerten: =0 (OK) -> T, >0 (nicht OK) -> NIL :
       value1 = (ergebnis==0 ? T : NIL); mv_count=1;
       FREE_DYNAMIC_ARRAY(argvdata);
     }
@@ -10324,7 +10324,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
         var object* argptr = args_pointer;
         var uintC count;
         dotimespC(count,argcount+1, {
-          var object arg = NEXT(argptr); # nächstes Argument, ASCIZ-String
+          var object arg = NEXT(argptr); # nÃ¤chstes Argument, ASCIZ-String
           argvdata_length += Sbvector_length(arg);
         });
       }
@@ -10336,13 +10336,13 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
         var char* argvdataptr = &argvdata[0];
         var uintC count;
         dotimespC(count,argcount+1, {
-          var object arg = NEXT(argptr); # nächstes Argument, ASCIZ-String
+          var object arg = NEXT(argptr); # nÃ¤chstes Argument, ASCIZ-String
           var char* ptr = TheAsciz(arg);
           var uintL len = Sbvector_length(arg);
-          *argvptr++ = argvdataptr; # in argv einfüllen
+          *argvptr++ = argvdataptr; # in argv einfÃ¼llen
           dotimespL(len,len, { *argvdataptr++ = *ptr++; } ); # und kopieren
         });
-        *argvptr = NULL; # und mit Nullpointer abschließen
+        *argvptr = NULL; # und mit Nullpointer abschlieÃŸen
       }
       # einen neuen Prozess starten:
       {
@@ -10350,14 +10350,14 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
         begin_system_call();
         begin_want_sigcld();
         if ((child = vfork()) ==0) {
-          # Dieses Programmstück wird vom Child-Prozess ausgeführt:
+          # Dieses ProgrammstÃ¼ck wird vom Child-Prozess ausgefÃ¼hrt:
           execv(argv[0],argv); # Programm aufrufen
           _exit(-1); # sollte dies misslingen, Child-Prozess beenden
         }
-        # Dieses Programmstück wird wieder vom Aufrufer ausgeführt:
+        # Dieses ProgrammstÃ¼ck wird wieder vom Aufrufer ausgefÃ¼hrt:
         if (child==-1) {
           # Etwas ist misslungen, entweder beim vfork oder beim execv.
-          # In beiden Fällen wurde errno gesetzt.
+          # In beiden FÃ¤llen wurde errno gesetzt.
           end_want_sigcld(); OS_error();
         }
         # Warten, bis der Child-Prozess beendet wird:
@@ -10368,7 +10368,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
         end_want_sigcld();
         end_system_call();
         # Fertig.
-        set_args_end_pointer(args_pointer); # STACK aufräumen
+        set_args_end_pointer(args_pointer); # STACK aufrÃ¤umen
         value1 = (((status & 0xFF) == 0000) # Prozess normal beendet (ohne Signal, ohne Core-Dump) ?
                   ? # ja -> Exit-Status als Wert:
                     fixnum( (status & 0xFF00) >> 8)
@@ -10398,10 +10398,10 @@ LISPFUN(execute,1,0,norest,nokey,0,NIL)
 #ifdef HAVE_SHELL
 
 # (SHELL) ruft eine Shell auf.
-# (SHELL command) ruft eine Shell auf und lässt sie ein Kommando ausführen.
+# (SHELL command) ruft eine Shell auf und lÃ¤sst sie ein Kommando ausfÃ¼hren.
 
 #if defined(AMIGAOS)
-#include <dos/dostags.h>         # für SystemTags()
+#include <dos/dostags.h>         # fÃ¼r SystemTags()
 
 LISPFUN(shell,0,1,norest,nokey,0,NIL)
   {
@@ -10431,13 +10431,13 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
       #endif
       end_system_call();
       run_time_restart();
-      # Rückgabewert verwerten: ausgeführt -> T, nicht gefunden -> NIL :
+      # RÃ¼ckgabewert verwerten: ausgefÃ¼hrt -> T, nicht gefunden -> NIL :
       value1 = (ergebnis ? T : NIL); mv_count=1;
     } else {
-      # einzelnes Kommando ausführen:
+      # einzelnes Kommando ausfÃ¼hren:
       if (!stringp(command)) {
-        pushSTACK(command); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(command); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(S(string)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(command);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -10445,7 +10445,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
               );
       }
       with_string_0(command,O(misc_encoding),command_asciz, {
-        # Kommando ausführen:
+        # Kommando ausfÃ¼hren:
         run_time_stop();
         begin_system_call();
         var ULONG signals = SetSignal(0L,0L);
@@ -10463,7 +10463,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
         SetSignal(signals,(SIGBREAKF_CTRL_C|SIGBREAKF_CTRL_D|SIGBREAKF_CTRL_E|SIGBREAKF_CTRL_F));
         end_system_call();
         run_time_restart();
-        # Rückgabewert verwerten
+        # RÃ¼ckgabewert verwerten
         value1 = L_to_I(ergebnis); mv_count=1;
       });
     }
@@ -10483,8 +10483,8 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
     if (eq(command,unbound))
       command = O(command_shell);
     if (!stringp(command)) {
-      pushSTACK(command); # Wert für Slot DATUM von TYPE-ERROR
-      pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(command); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+      pushSTACK(S(string)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(command);
       pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
@@ -10520,7 +10520,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
     if (!GetExitCodeProcess(prochandle,&exitcode)) { OS_error(); }
     if (!CloseHandle(prochandle)) { OS_error(); }
     end_system_call();
-    # Rückgabewert verwerten: =0 (OK) -> T, >0 (nicht OK) -> NIL :
+    # RÃ¼ckgabewert verwerten: =0 (OK) -> T, >0 (nicht OK) -> NIL :
     value1 = (exitcode==0 ? T : NIL); mv_count=1;
   }
 
@@ -10530,7 +10530,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
   {
     var object command = popSTACK();
     if (eq(command,unbound)) {
-      # (EXECUTE shell) ausführen:
+      # (EXECUTE shell) ausfÃ¼hren:
       #ifdef UNIX
       pushSTACK(O(user_shell)); # Shell-Name
       #else # MSDOS
@@ -10540,11 +10540,11 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
     } else {
       #if defined(MSDOS) || defined(RISCOS)
       # Dem DOS-Kommandointerpreter muss man das Kommando bereits entlang
-      # der Leerstellen in einzelne Teile zerlegt übergeben. Die Funktion
-      # system() erledigt uns das zum Glück.
+      # der Leerstellen in einzelne Teile zerlegt Ã¼bergeben. Die Funktion
+      # system() erledigt uns das zum GlÃ¼ck.
       if (!stringp(command)) {
-        pushSTACK(command); # Wert für Slot DATUM von TYPE-ERROR
-        pushSTACK(S(string)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+        pushSTACK(command); # Wert fÃ¼r Slot DATUM von TYPE-ERROR
+        pushSTACK(S(string)); # Wert fÃ¼r Slot EXPECTED-TYPE von TYPE-ERROR
         pushSTACK(command);
         pushSTACK(TheSubr(subr_self)->name);
         fehler(type_error,
@@ -10556,11 +10556,11 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
         # Programm aufrufen:
         var int ergebnis = system(command_asciz);
         end_system_call();
-        # Rückgabewert verwerten: =0 (OK) -> T, >0 (nicht OK) -> NIL :
+        # RÃ¼ckgabewert verwerten: =0 (OK) -> T, >0 (nicht OK) -> NIL :
         value1 = (ergebnis==0 ? T : NIL); mv_count=1;
       });
       #else
-      # (EXECUTE shell "-c" command) ausführen:
+      # (EXECUTE shell "-c" command) ausfÃ¼hren:
       pushSTACK(O(command_shell)); # Shell-Name
       pushSTACK(O(command_shell_option)); # Shell-Option "-c"
       #ifdef EMUNIX
@@ -10584,13 +10584,13 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
 LISPFUNN(savemem,1)
 # (SAVEMEM pathname) speichert ein Speicherabbild unter pathname ab.
   {
-    # (OPEN pathname :direction :output) ausführen:
+    # (OPEN pathname :direction :output) ausfÃ¼hren:
     # pathname als 1. Argument
     pushSTACK(S(Kdirection)); # :DIRECTION als 2. Argument
     pushSTACK(S(Koutput)); # :OUTPUT als 3. Argument
     #ifdef UNIX
     # Unter Unix mit mmap() darf man existierende .mem-Files nicht einfach
-    # überschreiben, weil laufende Lisp-Prozesse dadurch abstürzen würden.
+    # Ã¼berschreiben, weil laufende Lisp-Prozesse dadurch abstÃ¼rzen wÃ¼rden.
     # Deswegen :if-exists :rename-and-delete.
     #if defined(UNIX_LINUX) && defined(SINGLEMAP_MEMORY)
     # Under Linux 1.3.20, when the mem file to be saved is on an NFS volume
@@ -10608,13 +10608,13 @@ LISPFUNN(savemem,1)
     #else
     #ifdef SELFMADE_MMAP
     # Bei selfmade_mmap muss man das existierende .mem-File erst komplett in
-    # den Speicher laden. Andere laufende Lisp-Prozesse werden aber abstürzen.
+    # den Speicher laden. Andere laufende Lisp-Prozesse werden aber abstÃ¼rzen.
     gar_col();
     #endif
     funcall(L(open),3);
     #endif
     # Speicherabbild in die Datei schreiben:
-    # (Den Stream muss die Funktion savemem() schließen, auch im Fehlerfalle.)
+    # (Den Stream muss die Funktion savemem() schlieÃŸen, auch im Fehlerfalle.)
     savemem(value1);
     value1 = T; mv_count=1; # 1 Wert T
   }
@@ -10629,7 +10629,7 @@ LISPFUNN(dynload_modules,2)
     pushSTACK(subr_self); # subr_self retten
     pushSTACK(STACK_2); pushSTACK(T); funcall(L(namestring),2); # (NAMESTRING pathname T)
     STACK_2 = value1; subr_self = popSTACK();
-    # Strings überprüfen und in den Stack legen:
+    # Strings Ã¼berprÃ¼fen und in den Stack legen:
     var uintL stringcount = llength(STACK_0);
     var object* arg_ = &STACK_0;
     {
@@ -10946,7 +10946,7 @@ LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
 
 #ifdef EMUNIX
 
-# Umgehen eines lästigen ENAMETOOLONG Errors bei Benutzung von langen
+# Umgehen eines lÃ¤stigen ENAMETOOLONG Errors bei Benutzung von langen
 # Filenamen auf FAT-Drives unter OS/2:
 
 #undef chdir
@@ -10960,13 +10960,13 @@ LISPFUN(file_stat_,1,1,norest,nokey,0,NIL)
 #undef creat
 #undef spawnv
 
-# path2 := verkürzte Kopie von path1
+# path2 := verkÃ¼rzte Kopie von path1
 local void shorten_path (const char* path1, char* path2)
   {
     var const uintB* p1 = path1;
     var uintB* p2 = path2;
     var uintB c;
-    var uintC wordlength = 0; # bisherige Länge in Name oder Typ
+    var uintC wordlength = 0; # bisherige LÃ¤nge in Name oder Typ
     var uintC maxwordlength = 8; # = 8 im Namen, = 3 im Typ
     loop {
       c = *p1++;

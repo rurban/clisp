@@ -1,5 +1,5 @@
-/* C-Programm-Pr‰prozessor-Hilfe:
-   Entfernt die Spaces und Tabs am Beginn jeder Zeile, die mit # anf‰ngt.
+/* C-Programm-Pr√§prozessor-Hilfe:
+   Entfernt die Spaces und Tabs am Beginn jeder Zeile, die mit # anf√§ngt.
    Bruno Haible 17.1.1991
 */
 
@@ -40,7 +40,7 @@ int main ()
   /* c ist kein Space */
   if (c=='#') { spacecount=0; }
   n_spaces(spacecount);
-  /* Rest der Zeile unver‰ndert ¸bernehmen: */
+  /* Rest der Zeile unver√§ndert √ºbernehmen: */
  rest:
   putchar(c);
   if (c==NL) goto zeilenanfang;

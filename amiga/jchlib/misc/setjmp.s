@@ -1,5 +1,5 @@
 | GCC Library
-| Jörg Höhle, 6-Jul-94
+| JÃ¶rg HÃ¶hle, 6-Jul-94
 | Translated to MIT Syntax from GCCBuRP project
 
 .text

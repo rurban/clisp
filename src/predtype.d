@@ -1,4 +1,4 @@
-# Pr‰dikate f¸r Gleichheit und Typtests, Typen, Klassen in CLISP
+# Pr√§dikate f√ºr Gleichheit und Typtests, Typen, Klassen in CLISP
 # Bruno Haible 1990-2000
 
 #include "lispbibl.c"
@@ -15,11 +15,11 @@
      start:
       if (eq(obj1,obj2))
         return TRUE; # (EQ x y) ==> (EQL x y)
-      # sonst ist EQL-Gleichheit nur mˆglich, wenn beides Zahlen sind:
+      # sonst ist EQL-Gleichheit nur m√∂glich, wenn beides Zahlen sind:
       #ifdef TYPECODES
       if (!(numberp(obj1) && numberp(obj2)))
         return FALSE;
-      # und der Typ von beiden muss ¸bereinstimmen:
+      # und der Typ von beiden muss √ºbereinstimmen:
       if (!(typecode(obj1) == typecode(obj2)))
         return FALSE;
       switch (typecode(obj1))
@@ -41,7 +41,7 @@
       #endif
       {
         case_bignum: # Bignums
-          # L‰ngen vergleichen:
+          # L√§ngen vergleichen:
           {
             var uintC length1 = Bignum_length(obj1);
             if (!(length1 == Bignum_length(obj2))) goto no;
@@ -52,7 +52,7 @@
           }
           return TRUE;
         case_ratio: # Ratio
-          # Z‰hler und Nenner m¸ssen ¸bereinstimmen:
+          # Z√§hler und Nenner m√ºssen √ºbereinstimmen:
           # (and (eql (numerator obj1) (numerator obj2))
           #      (eql (denominator obj1) (denominator obj2))
            # )
@@ -61,7 +61,7 @@
           obj1 = TheRatio(obj1)->rt_den; obj2 = TheRatio(obj2)->rt_den;
           goto start;
         case_complex: # Complex
-          # Real- und Imagin‰rteil m¸ssen ¸bereinstimmen:
+          # Real- und Imagin√§rteil m√ºssen √ºbereinstimmen:
           # (and (eql (realpart obj1) (realpart obj2))
           #      (eql (imagpart obj1) (imagpart obj2))
           # )
@@ -89,7 +89,7 @@
             goto no;
         case_lfloat: # Long-Floats
           {
-            # L‰ngen vergleichen:
+            # L√§ngen vergleichen:
             var uintC len1 = Lfloat_length(obj1);
             if (!(len1 == Lfloat_length(obj2))) goto no;
             # Exponenten vergleichen:
@@ -106,8 +106,8 @@
             dotimespC(len1,len1, { if (!(*ptr1++ == *ptr2++)) goto no; });
           }
           return TRUE;
-        /* case_fixnum: */ # Fixnums: h‰tten schon EQ sein m¸ssen
-        /* case_sfloat: */ # Short-Floats: h‰tten schon EQ sein m¸ssen
+        /* case_fixnum: */ # Fixnums: h√§tten schon EQ sein m√ºssen
+        /* case_sfloat: */ # Short-Floats: h√§tten schon EQ sein m√ºssen
         default:
         no: return FALSE;
       }
@@ -125,8 +125,8 @@
      start:
       if (eql(obj1,obj2))
         return TRUE; # (EQL x y) ==> (EQUAL x y)
-      # sonst ist EQUAL-Gleichheit nur mˆglich, wenn beides strukturierte
-      # Typen sind. Typen m¸ssen (bis auf notsimple_bit) ¸bereinstimmen:
+      # sonst ist EQUAL-Gleichheit nur m√∂glich, wenn beides strukturierte
+      # Typen sind. Typen m√ºssen (bis auf notsimple_bit) √ºbereinstimmen:
       #ifdef TYPECODES
       switch (typecode(obj1))
       #else
@@ -142,7 +142,7 @@
         case_cons: # Conses rekursiv vergleichen:
           if (!consp(obj2))
             return FALSE;
-          # CAR und CDR m¸ssen ¸bereinstimmen:
+          # CAR und CDR m√ºssen √ºbereinstimmen:
           # (and (equal (car obj1) (car obj2)) (equal (cdr obj1) (cdr obj2)))
           check_SP();
           if (!equal(Car(obj1),Car(obj2))) goto no;
@@ -153,7 +153,7 @@
           if (!bit_vector_p(Atype_Bit,obj2))
             return FALSE;
           {
-            # L‰ngen vergleichen:
+            # L√§ngen vergleichen:
             var uintL len1 = vector_length(obj1);
             if (!(len1 == vector_length(obj2))) goto no;
             if (len1 == 0)
@@ -171,7 +171,7 @@
           if (!stringp(obj2))
             return FALSE;
           {
-            # L‰ngen vergleichen:
+            # L√§ngen vergleichen:
             var uintL len1 = vector_length(obj1);
             if (!(len1 == vector_length(obj2))) goto no;
             # Inhalt vergleichen:
@@ -207,7 +207,7 @@
                   # Pathname-Komponenten bestehen aus Conses, Simple-Strings
                   # und Symbolen. Simple-Strings case-insensitive vergleichen:
                   dotimespC(count,pathname_length, {
-                    if (!equalp(*ptr1++,*ptr2++)) goto no; # (lˆst keine GC aus!)
+                    if (!equalp(*ptr1++,*ptr2++)) goto no; # (l√∂st keine GC aus!)
                   });
                 #endif
                 return TRUE;
@@ -929,7 +929,7 @@
       if (consp(obj1)) {
         if (!consp(obj2)) goto no;
         # Conses rekursiv vergleichen:
-        # CAR und CDR m¸ssen ¸bereinstimmen:
+        # CAR und CDR m√ºssen √ºbereinstimmen:
         # (and (equalp (car obj1) (car obj2)) (equalp (cdr obj1) (cdr obj2)))
         check_SP();
         if (!equalp(Car(obj1),Car(obj2))) goto no;
@@ -937,7 +937,7 @@
         obj1 = Cdr(obj1); obj2 = Cdr(obj2);
         goto start;
       } elif (symbolp(obj1)) { # Symbol ?
-        goto no; # ja -> h‰tte schon EQ zu obj2 sein m¸ssen
+        goto no; # ja -> h√§tte schon EQ zu obj2 sein m√ºssen
       } elif (numberp(obj1)) {
         if (!numberp(obj2)) goto no;
         # Zahlen mit = vergleichen
@@ -966,7 +966,7 @@
             if (!vectorp(obj2)) goto no;
             # obj1, obj2 beide Vektoren.
             {
-              # L‰ngen vergleichen:
+              # L√§ngen vergleichen:
               var uintL len1 = vector_length(obj1);
               if (!(len1 == vector_length(obj2))) goto no;
               # Inhalt vergleichen:
@@ -984,10 +984,10 @@
           case_mdarray: # Array vom Rang /=1
             if (!mdarrayp(obj2)) goto no;
             # obj1 und obj2 sind Arrays vom Rang /=1.
-            # Ihr Rang und ihre Dimensionen m¸ssen ¸bereinstimmen, und
+            # Ihr Rang und ihre Dimensionen m√ºssen √ºbereinstimmen, und
             # die Elemente werden dann wie bei Vektoren verglichen.
             {
-              # R‰nge vergleichen:
+              # R√§nge vergleichen:
               var uintC rank1 = Iarray_rank(obj1);
               if (!(rank1 == Iarray_rank(obj2))) goto no;
               # Dimensionen vergleichen:
@@ -1024,8 +1024,8 @@
           case_orecord:
             # Record, Structure, aber nicht Closure, Instance.
             # obj2 muss vom selben Typ wie obj1, also ein Record, sein
-            # und in rectype und recflags und reclength mit obj1 ¸berein-
-            # stimmen, und alle Komponenten m¸ssen EQUALP sein.
+            # und in rectype und recflags und reclength mit obj1 √ºberein-
+            # stimmen, und alle Komponenten m√ºssen EQUALP sein.
             switch (Record_type(obj1)) {
               case_Rectype_bvector_above;
               case_Rectype_b2vector_above;
@@ -1076,26 +1076,26 @@
             }
             return TRUE;
           case_closure: # Closure
-            goto no; # h‰tte schon EQ sein m¸ssen
+            goto no; # h√§tte schon EQ sein m√ºssen
           case_instance: # Instance
-            goto no; # h‰tte schon EQ sein m¸ssen
+            goto no; # h√§tte schon EQ sein m√ºssen
           case_char:
             # Character
             if (!charp(obj2)) goto no;
             # obj1, obj2 beide Characters.
             # Wie mit CHAR-EQUAL vergleichen: Bits und Font ignorieren,
-            # in Groﬂbuchstaben umwandeln und dann vergleichen.
+            # in Gro√übuchstaben umwandeln und dann vergleichen.
             if (chareq(up_case(char_code(obj1)),up_case(char_code(obj2))))
               return TRUE;
             else
               goto no;
           #ifdef TYPECODES
           case_subr: # SUBR
-            goto no; # h‰tte schon EQ sein m¸ssen
+            goto no; # h√§tte schon EQ sein m√ºssen
           case_system: # SYSTEM, Read-Label, FRAME-Pointer
-            goto no; # h‰tte schon EQ sein m¸ssen
+            goto no; # h√§tte schon EQ sein m√ºssen
           case_machine: # Maschinenpointer
-            goto no; # h‰tte schon EQ sein m¸ssen
+            goto no; # h√§tte schon EQ sein m√ºssen
           #endif
           default: NOTREACHED
         }
@@ -1736,11 +1736,11 @@ LISPFUNN(type_of,1)
 
 LISPFUNN(defclos,2)
 # (CLOS::%DEFCLOS class-type built-in-classes)
-# setzt die f¸r CLOS::CLASS-P und CLOS:CLASS-OF benˆtigten Daten.
+# setzt die f√ºr CLOS::CLASS-P und CLOS:CLASS-OF ben√∂tigten Daten.
   {
-    # F¸r CLOS::CLASS-P :
+    # F√ºr CLOS::CLASS-P :
     O(class_structure_types) = STACK_1;
-    # F¸r CLOS:CLASS-OF :
+    # F√ºr CLOS:CLASS-OF :
     {
       var object* ptr1 = &TheSvector(STACK_0)->data[0];
       var object* ptr2 = &O(class_array);
@@ -1965,8 +1965,8 @@ LISPFUN(find_class,1,2,norest,nokey,0,NIL)
 # ) ) )
   {
     if (!symbolp(STACK_2)) {
-      pushSTACK(STACK_2); # Wert f¸r Slot DATUM von TYPE-ERROR
-      pushSTACK(S(symbol)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(STACK_2); # Wert f√ºr Slot DATUM von TYPE-ERROR
+      pushSTACK(S(symbol)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(STACK_(2+2));
       pushSTACK(S(find_class));
       fehler(type_error,
@@ -1991,39 +1991,39 @@ LISPFUN(find_class,1,2,norest,nokey,0,NIL)
 LISPFUNN(coerce,2)
 # (COERCE object result-type), CLTL S. 51
 # Methode:
-# (TYPEP object result-type) -> object zur¸ck
+# (TYPEP object result-type) -> object zur√ºck
 # result-type ein Symbol type:
 #   (get type 'DEFTYPE-EXPANDER) /= NIL ->
 #          mit (list result-type) als Argument aufrufen, zum Anfang
-#   type = T -> object zur¸ck
+#   type = T -> object zur√ºck
 #   type = CHARACTER, STRING-CHAR -> COERCE_CHAR anwenden
-#   type = BASE-CHAR -> COERCE_CHAR anwenden und ¸berpr¸fen
+#   type = BASE-CHAR -> COERCE_CHAR anwenden und √ºberpr√ºfen
 #   type = FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT ->
 #          mit der Arithmetik umwandeln
-#   type = COMPLEX -> auf Zahl ¸berpr¸fen
+#   type = COMPLEX -> auf Zahl √ºberpr√ºfen
 #   type = FUNCTION -> Funktionsname oder Lambda-Ausdruck in Funktion umwandeln
 #   type = ARRAY, SIMPLE-ARRAY, VECTOR, SIMPLE-VECTOR, STRING, SIMPLE-STRING,
 #          BASE-STRING, SIMPLE-BASE-STRING, BIT-VECTOR, SIMPLE-BIT-VECTOR ->
 #          [hier auch result-type an object anpassen wie unten??]
-#          mit COERCE-SEQUENCE umwandeln, mit TYPEP ¸berpr¸fen
+#          mit COERCE-SEQUENCE umwandeln, mit TYPEP √ºberpr√ºfen
 #          und evtl. mit COPY-SEQ kopieren.
 #   sonst mit COERCE-SEQUENCE umwandeln
 # result-type ein Cons mit Symbol type als CAR:
-#   type = AND -> (coerce object (second result-type)), mit TYPEP ¸berpr¸fen
+#   type = AND -> (coerce object (second result-type)), mit TYPEP √ºberpr√ºfen
 #   (get type 'DEFTYPE-EXPANDER) /= NIL ->
 #          mit result-type als Argument aufrufen, zum Anfang
 #   type = FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT ->
-#          mit der Arithmetik umwandeln, mit TYPEP ¸berpr¸fen
-#   type = COMPLEX -> auf Zahl ¸berpr¸fen,
+#          mit der Arithmetik umwandeln, mit TYPEP √ºberpr√ºfen
+#   type = COMPLEX -> auf Zahl √ºberpr√ºfen,
 #          Realteil zum Typ (second result-type) coercen,
-#          Imagin‰rteil zum Typ (third result-type) bzw. (second result-type)
+#          Imagin√§rteil zum Typ (third result-type) bzw. (second result-type)
 #          coercen, COMPLEX anwenden.
 #   type = ARRAY, SIMPLE-ARRAY, VECTOR, SIMPLE-VECTOR, STRING, SIMPLE-STRING,
 #          BASE-STRING, SIMPLE-BASE-STRING, BIT-VECTOR, SIMPLE-BIT-VECTOR ->
 #          result-type an object anpassen, mit COERCE-SEQUENCE umwandeln (das
 #          verarbeitet auch den in result-type angegebenen element-type), auf
-#          type ¸berpr¸fen und evtl. mit COPY-SEQ kopieren. Dann auf
-#          result-type ¸berpr¸fen.
+#          type √ºberpr√ºfen und evtl. mit COPY-SEQ kopieren. Dann auf
+#          result-type √ºberpr√ºfen.
 # Sonst Error.
   {
     # (TYPEP object result-type) abfragen:
@@ -2060,8 +2060,8 @@ LISPFUNN(coerce,2)
          ) { # result-type = CHARACTER oder STRING-CHAR [oder BASE-CHAR] ?
         var object as_char = coerce_char(STACK_1); # object in Character umzuwandeln versuchen
         if (nullp(as_char)) {
-          pushSTACK(STACK_1); # Wert f¸r Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_designator_character)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(STACK_1); # Wert f√ºr Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_designator_character)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
           goto fehler_object;
         }
         value1 = as_char; mv_count=1; skipSTACK(2); return;
@@ -2070,8 +2070,8 @@ LISPFUNN(coerce,2)
       if (eq(result_type,S(base_char))) { # result-type = BASE-CHAR ?
         var object as_char = coerce_char(STACK_1); # object in Character umzuwandeln versuchen
         if (!base_char_p(as_char)) {
-          pushSTACK(STACK_1); # Wert f¸r Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_designator_base_char)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(STACK_1); # Wert f√ºr Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_designator_base_char)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
           goto fehler_object;
         }
         value1 = as_char; mv_count=1; skipSTACK(2); return;
@@ -2090,8 +2090,8 @@ LISPFUNN(coerce,2)
       }
       if (eq(result_type,S(complex))) { # COMPLEX ?
         if (!numberp(STACK_1)) { # object muss eine Zahl sein
-          pushSTACK(STACK_1); # Wert f¸r Slot DATUM von TYPE-ERROR
-          pushSTACK(S(number)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(STACK_1); # Wert f√ºr Slot DATUM von TYPE-ERROR
+          pushSTACK(S(number)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
           goto fehler_object;
         }
         goto return_object;
@@ -2101,7 +2101,7 @@ LISPFUNN(coerce,2)
         var object fun = STACK_1;
         if (funnamep(fun)) { # Symbol oder (SETF symbol) ?
           value1 = sym_function(fun,NIL); # globale Funktionsdefinition holen
-          if (!(subrp(value1) || closurep(value1) || ffunctionp(value1))) { # FUNCTIONP ¸berpr¸fen
+          if (!(subrp(value1) || closurep(value1) || ffunctionp(value1))) { # FUNCTIONP √ºberpr√ºfen
             if (functionmacrop(value1))
               value1 = TheFunctionMacro(value1)->functionmacro_function;
             else
@@ -2111,11 +2111,11 @@ LISPFUNN(coerce,2)
           skipSTACK(2); return;
         }
         if (!(consp(fun) && eq(Car(fun),S(lambda)))) { # object muss ein Lambda-Ausdruck sein
-          pushSTACK(fun); # Wert f¸r Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_designator_function)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(fun); # Wert f√ºr Slot DATUM von TYPE-ERROR
+          pushSTACK(O(type_designator_function)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
           goto fehler_object;
         }
-        # leeres Environment f¸r get_closure:
+        # leeres Environment f√ºr get_closure:
         var environment* env;
         make_STACK_env(NIL,NIL,NIL,NIL,O(top_decl_env), env = );
         # Closure bilden aus lambdabody = (cdr fun), name = :LAMBDA :
@@ -2149,7 +2149,7 @@ LISPFUNN(coerce,2)
         pushSTACK(result_type);
         # neue Sequence bauen:
         var object new_seq = (coerce_sequence(STACK_2,result_type),value1);
-        # und nochmals mit TYPEP ¸berpr¸fen:
+        # und nochmals mit TYPEP √ºberpr√ºfen:
         pushSTACK(new_seq); pushSTACK(STACK_(0+1)); STACK_(0+2) = new_seq;
         funcall(S(typep),2); # (TYPEP new_seq result-type)
         if (!nullp(value1)) {
@@ -2172,16 +2172,16 @@ LISPFUNN(coerce,2)
       if (eq(type,S(and))) { # (AND ...) ?
         if (matomp(Cdr(result_type))) # (AND)
           goto return_object; # wie T behandeln
-        # (COERCE object (second result-type)) ausf¸hren:
+        # (COERCE object (second result-type)) ausf√ºhren:
         pushSTACK(STACK_1); pushSTACK(Car(Cdr(result_type)));
         funcall(L(coerce),2);
-       check_return: # new-object in value1 ¸berpr¸fen und dann als Wert liefern:
+       check_return: # new-object in value1 √ºberpr√ºfen und dann als Wert liefern:
         pushSTACK(value1); # new-object retten
         # (TYPEP new-object result-type) abfragen:
         pushSTACK(value1); pushSTACK(STACK_(0+1+1)); funcall(S(typep),2);
         if (nullp(value1)) {
-          # STACK_0 = new-object, Wert f¸r Slot DATUM von TYPE-ERROR
-          pushSTACK(STACK_(0+1)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+          # STACK_0 = new-object, Wert f√ºr Slot DATUM von TYPE-ERROR
+          pushSTACK(STACK_(0+1)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
           goto fehler_object;
         } else {
           value1 = STACK_0; mv_count=1; skipSTACK(3); return; # new-object
@@ -2204,25 +2204,25 @@ LISPFUNN(coerce,2)
         # object in Float umwandeln:
         subr_self = L(coerce);
         value1 = coerce_float(STACK_1,result_type);
-        goto check_return; # und auf result-type ¸berpr¸fen
+        goto check_return; # und auf result-type √ºberpr√ºfen
       }
       if (eq(type,S(complex))) { # COMPLEX ?
         if (!numberp(STACK_1)) { # object muss eine Zahl sein
-          pushSTACK(STACK_1); # Wert f¸r Slot DATUM von TYPE-ERROR
-          pushSTACK(S(number)); # Wert f¸r Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(STACK_1); # Wert f√ºr Slot DATUM von TYPE-ERROR
+          pushSTACK(S(number)); # Wert f√ºr Slot EXPECTED-TYPE von TYPE-ERROR
           goto fehler_object;
         }
         if (!mconsp(Cdr(result_type))) goto fehler_type; # (rest result-type) muss ein Cons sein
         result_type = Cdr(result_type);
-        var object rtype = Car(result_type); # Typ f¸r den Realteil
-        var object itype = # Typ f¸r den Imagin‰rteil, Default ist rtype
+        var object rtype = Car(result_type); # Typ f√ºr den Realteil
+        var object itype = # Typ f√ºr den Imagin√§rteil, Default ist rtype
           (mconsp(Cdr(result_type)) ? Car(Cdr(result_type)) : rtype);
         pushSTACK(rtype); pushSTACK(itype);
         # Realteil holen und zum Typ rtype coercen:
         pushSTACK(STACK_(1+2)); funcall(L(realpart),1);
         pushSTACK(value1); pushSTACK(STACK_(1+1)); funcall(L(coerce),2);
         STACK_1 = value1;
-        # Imagin‰rteil holen und zum Typ itype coercen:
+        # Imagin√§rteil holen und zum Typ itype coercen:
         pushSTACK(STACK_(1+2)); funcall(L(imagpart),1);
         pushSTACK(value1); pushSTACK(STACK_(0+1)); funcall(L(coerce),2);
         STACK_0 = value1;
@@ -2273,7 +2273,7 @@ LISPFUNN(coerce,2)
         pushSTACK(type);
         # neue Sequence bauen:
         var object new_seq = (coerce_sequence(STACK_2,result_type),value1);
-        # und nochmals mit TYPEP ¸berpr¸fen:
+        # und nochmals mit TYPEP √ºberpr√ºfen:
         pushSTACK(new_seq); pushSTACK(STACK_(0+1)); STACK_(0+2) = new_seq;
         funcall(S(typep),2); # (TYPEP new_seq type)
         if (!nullp(value1)) {
@@ -2854,9 +2854,9 @@ LISPFUNN(gc_statistics,0)
     value1 = O(gc_statistics_list); mv_count=1;
   }
 
-# UP: F¸hrt eine Statistik ¸ber die Aktion einer GC.
+# UP: F√ºhrt eine Statistik √ºber die Aktion einer GC.
 # with_gc_statistics(fun);
-# > fun: Funktion, die eine GC ausf¸hrt
+# > fun: Funktion, die eine GC ausf√ºhrt
   global void with_gc_statistics (gc_function* fun);
   global void with_gc_statistics(fun)
     var gc_function* fun;
@@ -2887,11 +2887,11 @@ LISPFUNN(gc_statistics,0)
         # is a sign of an infinite recursion. In this case we rebind
         # SYSTEM::*GC-STATISTICS* to 0.
         var boolean danger = FALSE;
-        dynamic_bind(S(recurse_count_gc_statistics),fixnum_inc(Symbol_value(S(recurse_count_gc_statistics)),1)); # sys::*recurse-count-gc-statistics* erhˆhen
+        dynamic_bind(S(recurse_count_gc_statistics),fixnum_inc(Symbol_value(S(recurse_count_gc_statistics)),1)); # sys::*recurse-count-gc-statistics* erh√∂hen
         if (!posfixnump(Symbol_value(S(recurse_count_gc_statistics)))) # sollte ein Fixnum >=0 sein
           Symbol_value(S(recurse_count_gc_statistics)) = Fixnum_0; # sonst Notkorrektur
         if (posfixnum_to_L(Symbol_value(S(recurse_count_gc_statistics))) > 3) {
-          # Zu groﬂe Rekursionstiefe.
+          # Zu gro√üe Rekursionstiefe.
           danger = TRUE;
           dynamic_bind(S(gc_statistics_stern),Fixnum_0);
         }

@@ -381,8 +381,8 @@
     var void* map_addr;
     var uintL map_len;
     {
-      if ( (void*) mmap((MMAP_ADDR_T)map_addr, # gewünschte Adresse
-                        map_len, # Länge
+      if ( (void*) mmap((MMAP_ADDR_T)map_addr, # gewÃ¼nschte Adresse
+                        map_len, # LÃ¤nge
                         PROT_READ_WRITE, # Zugriffsrechte
                         map_flags | MAP_FIXED, # genau an diese Adresse!
                         mmap_zero_fd, 0 # leere Seiten legen

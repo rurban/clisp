@@ -89,15 +89,15 @@
     (let ((size nil) ; Flag ob :SIZE schon da war
           (documentation nil) ; Flag, ob :DOCUMENTATION schon da war
           (nickname-list '()) ; Liste von Nicknames
-          (shadow-list '()) ; Liste von Symbolnamen für shadow
-          (shadowing-list '()) ; Listen von Paaren (Symbolname . Paketname) für shadowing-import
-          (use-list '()) ; Liste von Paketnamen für use-package
-          (use-default '("LISP")) ; Default-Wert für use-list
-          (case-sensitive nil) ; Flag für :CASE-SENSITIVE
-          (import-list '()) ; Listen von Paaren (Symbolname . Paketname) für import
-          (intern-list '()) ; Liste von Symbolnamen für intern
-          (symname-list '()) ; Liste aller bisher aufgeführten Symbolnamen
-          (export-list '())) ; Liste von Symbolnamen für export
+          (shadow-list '()) ; Liste von Symbolnamen fÃ¼r shadow
+          (shadowing-list '()) ; Listen von Paaren (Symbolname . Paketname) fÃ¼r shadowing-import
+          (use-list '()) ; Liste von Paketnamen fÃ¼r use-package
+          (use-default '("LISP")) ; Default-Wert fÃ¼r use-list
+          (case-sensitive nil) ; Flag fÃ¼r :CASE-SENSITIVE
+          (import-list '()) ; Listen von Paaren (Symbolname . Paketname) fÃ¼r import
+          (intern-list '()) ; Liste von Symbolnamen fÃ¼r intern
+          (symname-list '()) ; Liste aller bisher aufgefÃ¼hrten Symbolnamen
+          (export-list '())) ; Liste von Symbolnamen fÃ¼r export
       (flet ((record-symname (name)
                (if (member name symname-list :test #'string=)
                  (error-of-type 'source-program-error
@@ -190,7 +190,7 @@
               (ENGLISH "~S ~A: not a ~S option: ~S")
               'defpackage packname 'defpackage option
         ) ) )
-        ; Auf Überschneidungen zwischen intern-list und export-list prüfen:
+        ; Auf Ãœberschneidungen zwischen intern-list und export-list prÃ¼fen:
         (setq symname-list intern-list)
         (mapc #'record-symname export-list)
       )
