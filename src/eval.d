@@ -5874,18 +5874,18 @@ local Values funcall_closure (object fun, uintC args_on_stack);
     # The scope of the labels is only one assembler-statement.
     #if defined(I80386) && !defined(UNIX_NEXTSTEP)
       #ifdef ASM_UNDERSCORE
-        #define LD(nr)  CONCAT("LASM%=X",STRING(nr))
-        #define LR(nr,fb)  CONCAT("LASM%=X",STRING(nr))
+        #define LD(nr)  "LASM%=X" STRING(nr)
+        #define LR(nr,fb)  "LASM%=X" STRING(nr)
       #else
-        #define LD(nr)  CONCAT(".LASM%=X",STRING(nr))
-        #define LR(nr,fb)  CONCAT(".LASM%=X",STRING(nr))
+        #define LD(nr)  ".LASM%=X" STRING(nr)
+        #define LR(nr,fb)  ".LASM%=X" STRING(nr)
       #endif
     #elif defined(ARM)
-      #define LD(nr)  CONCAT("LASM%=X",STRING(nr))
-      #define LR(nr,fb)  CONCAT("LASM%=X",STRING(nr))
+      #define LD(nr)  "LASM%=X" STRING(nr)
+      #define LR(nr,fb)  "LASM%=X" STRING(nr)
     #else
       #define LD(nr)  STRING(nr)
-      #define LR(nr,fb)  CONCAT(STRING(nr),STRING(fb))
+      #define LR(nr,fb)  STRING(nr) STRING(fb)
     #endif
   #endif
   # Persuade GNU-C, to keep closure and byteptr in registers:
