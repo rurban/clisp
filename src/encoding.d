@@ -1119,7 +1119,7 @@ global void java_wcstombs (object encoding, object stream, const chart* *srcp,
   var const chart* src = *srcp;
   var uintB* dest = *destp;
   while (src < srcend) {
-    local char const hex_table[] = "0123456789abcdef"; /* lowercase! */
+    local char const hex_table_lc[] = "0123456789abcdef"; /* lowercase! */
     var cint ch = as_cint(*src);
     var uintL count = (ch < 0x80 ? 1 : ch < 0x10000 ? 6 : 12);
     if (dest+count > destend) break;
@@ -1129,25 +1129,25 @@ global void java_wcstombs (object encoding, object stream, const chart* *srcp,
     } else if (ch < 0x10000) { /* 6 byte sequence */
       *dest++ = '\\';
       *dest++ = 'u';
-      *dest++ = hex_table[(ch>>12)&0x0F];
-      *dest++ = hex_table[(ch>>8)&0x0F];
-      *dest++ = hex_table[(ch>>4)&0x0F];
-      *dest++ = hex_table[ch&0x0F];
+      *dest++ = hex_table_lc[(ch>>12)&0x0F];
+      *dest++ = hex_table_lc[(ch>>8)&0x0F];
+      *dest++ = hex_table_lc[(ch>>4)&0x0F];
+      *dest++ = hex_table_lc[ch&0x0F];
     } else { /* 12 byte sequence */
       var cint ch1 = 0xD800 + ((ch - 0x10000) >> 10);
       var cint ch2 = 0xDC00 + ((ch - 0x10000) & 0x3FF);
       *dest++ = '\\';
       *dest++ = 'u';
-      *dest++ = hex_table[(ch1>>12)&0x0F];
-      *dest++ = hex_table[(ch1>>8)&0x0F];
-      *dest++ = hex_table[(ch1>>4)&0x0F];
-      *dest++ = hex_table[ch1&0x0F];
+      *dest++ = hex_table_lc[(ch1>>12)&0x0F];
+      *dest++ = hex_table_lc[(ch1>>8)&0x0F];
+      *dest++ = hex_table_lc[(ch1>>4)&0x0F];
+      *dest++ = hex_table_lc[ch1&0x0F];
       *dest++ = '\\';
       *dest++ = 'u';
-      *dest++ = hex_table[(ch2>>12)&0x0F];
-      *dest++ = hex_table[(ch2>>8)&0x0F];
-      *dest++ = hex_table[(ch2>>4)&0x0F];
-      *dest++ = hex_table[ch2&0x0F];
+      *dest++ = hex_table_lc[(ch2>>12)&0x0F];
+      *dest++ = hex_table_lc[(ch2>>8)&0x0F];
+      *dest++ = hex_table_lc[(ch2>>4)&0x0F];
+      *dest++ = hex_table_lc[ch2&0x0F];
     }
   }
   *srcp = src;
