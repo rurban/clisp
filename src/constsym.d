@@ -803,7 +803,16 @@ LISPSYM(socket_stream_local,"SOCKET-STREAM-LOCAL",lisp)
 #ifndef WIN32_NATIVE
 LISPSYM(socket_stream_handle,"SOCKET-STREAM-HANDLE",lisp)
 #endif
-#endif
+#endif # SOCKET_STREAMS
+#ifdef EXPORT_SYSCALLS
+#ifdef HAVE_GETHOSTBYNAME
+LISPSYM(resolve_host_ipaddr,"RESOLVE-HOST-IPADDR",lisp)
+#endif # HAVE_GETHOSTBYNAME
+#ifdef UNIX
+LISPSYM(file_stat,"FILE-STAT",lisp)
+LISPSYM(user_data,"USER-DATA",lisp)
+#endif # UNIX
+#endif # EXPORT_SYSCALLS
 LISPSYM(open_stream_p,"OPEN-STREAM-P",lisp)
 LISPSYM(input_stream_p,"INPUT-STREAM-P",lisp)
 LISPSYM(output_stream_p,"OUTPUT-STREAM-P",lisp)
