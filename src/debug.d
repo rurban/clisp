@@ -48,7 +48,7 @@
     pushSTACK(STACK_3); pushSTACK(NIL); funcall(L(terminal_raw),2); pushSTACK(value1);
     # Stackaufbau: ostream, istream, prompt, command-list, inputstream, raw.
     var signean status = listen_char(STACK_4); # horchen
-    if (ls_eof_p(status))
+    if (ls_eof_p(status) && !boundp(Symbol_value(S(terminal_read_stream))))
       goto eof;
     # bereits Zeichen verfügbar (und nicht im ilisp_mode) -> kein Prompt
     if (ilisp_mode || interactive_stream_p(STACK_4)) {
@@ -115,7 +115,9 @@
       }
       #endif
       #if !defined(TERMINAL_USES_KEYBOARD) # auf dem Atari ging's über Funktionstasten
-      if (!ls_avail_p(status)) { # nur bei interaktivem Input-Stream
+      var bool terminal_read_stream_bound = false;
+      if (!ls_avail_p(status) /* only for interactive input streams */
+          && !boundp(Symbol_value(S(terminal_read_stream)))) {
         # Erkennung von Kommandos statt Formen:
         # (multiple-value-bind (line flag) (read-line istream)
         #   (let ((h (assoc line *key-bindings* :test #'string-equal)))
@@ -175,6 +177,13 @@
         pushSTACK(value1); pushSTACK(*inputstream_);
         funcall(L(make_concatenated_stream),2);
         dynamic_bind(S(terminal_read_stream),value1);
+        terminal_read_stream_bound = true;
+        *inputstream_ = Symbol_value(S(terminal_read_stream));
+      } else if (streamp(Symbol_value(S(terminal_read_stream)))) {
+        var object stream = Symbol_value(S(terminal_read_stream));
+        Symbol_value(S(terminal_read_stream)) = unbound;
+        dynamic_bind(S(terminal_read_stream),stream);
+        terminal_read_stream_bound = true;
         *inputstream_ = Symbol_value(S(terminal_read_stream));
       }
       #endif
@@ -182,7 +191,19 @@
       var object obj = stream_read(inputstream_,NIL,NIL); # read object (recursive-p=NIL, whitespace-p=NIL)
       dynamic_unbind(); # S(read_suppress)
       #if !defined(TERMINAL_USES_KEYBOARD)
-      if (!ls_avail_p(status)) dynamic_unbind(); # S(terminal_read_stream)
+      if (streamp(Symbol_value(S(terminal_read_stream)))) {
+        var object stream = Symbol_value(S(terminal_read_stream));
+        var object strm_l = TheStream(stream)->strm_concat_list;
+        if (terminal_read_stream_bound)
+          dynamic_unbind(); /* S(terminal_read_stream) */
+        Symbol_value(S(terminal_read_stream)) =
+          (consp(strm_l) && !nullp(Cdr(strm_l))
+           /* some input on the first line was not processed ? */
+           && (pushSTACK(T), pushSTACK(Car(strm_l)),
+               pushSTACK(NIL), pushSTACK(eof_value),
+               funcall(L(peek_char),4), !eq(value1,eof_value)))
+          ? stream : unbound;
+      }
       #endif
       dynamic_unbind(); # S(key_bindings)
       if (!eq(obj,eof_value)) { # EOF test (after whitespace)
@@ -378,6 +399,7 @@ global void break_driver (bool continuable_p) {
     back_trace = &bt_here;
     /* Default-Driver: (CLEAR-INPUT *DEBUG-IO*), since whatever has been
        typed so far, was not typed in anticipation of this error */
+    Symbol_value(S(terminal_read_stream)) = unbound;
     clear_input(var_stream(S(debug_io),strmflags_rd_ch_B|strmflags_wr_ch_B));
     /* SYS::*BREAK-COUNT* increase: */
     dynamic_bind(S(break_count),fixnum_inc(Symbol_value(S(break_count)),1));
