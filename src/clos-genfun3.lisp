@@ -8,7 +8,7 @@
 
 ;; Runtime support for CALL-NEXT-METHOD.
 (defun %call-next-method (method next-methods original-args new-args)
-  (let* ((gf (std-method-gf method))
+  (let* ((gf (std-method-generic-function method))
          (emf (sys::generic-function-effective-method-function gf))
          (original-em (apply emf original-args))
          (new-em (apply emf new-args)))
@@ -91,13 +91,13 @@
 ;; Add a method to a generic function
 (defun std-add-method (gf method)
   (check-signature-congruence gf method)
-  (when (std-method-gf method)
+  (when (std-method-generic-function method)
     (error-of-type 'error
       "~S: ~S already belongs to ~S, cannot also add it to ~S"
-      'std-add-method method (std-method-gf method) gf))
+      'std-add-method method (std-method-generic-function method) gf))
   (check-method-qualifiers gf method)
   (setf (std-method-function method) nil
-        (std-method-gf method) gf)
+        (std-method-generic-function method) gf)
   ;; determine function from initfunction:
   (when (null (std-method-function method))
     (let ((h (funcall (std-method-initfunction method) method)))
@@ -144,7 +144,7 @@
             ((eq gf |#'update-instance-for-different-class|) (note-uidc-change method))
             ((eq gf |#'shared-initialize|) (note-si-change method)))
       (setf (gf-methods gf) (remove old-method (gf-methods gf))
-            (std-method-gf old-method) nil)
+            (std-method-generic-function old-method) nil)
       ;;(sys::closure-set-seclass gf
       ;;  (reduce #'sys::seclass-or (gf-methods gf)
       ;;          :key (lambda (sm) (sys::function-side-effect

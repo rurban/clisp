@@ -1,5 +1,17 @@
 2004-06-05  Bruno Haible  <bruno@clisp.org>
 
+	* clos-method1.lisp (std-method-generic-function): Renamed from
+	std-method-gf.
+	(initialize-instance-<standard-method>): Accept keyword clos::gf
+	instead of :gf.
+	* clos-method3.lisp (method-generic-function): New function.
+	* clos-genfun3.lisp (%call-next-method, std-add-method,
+	std-remove-method): Update.
+	* clos-genfun4.lisp (do-defgeneric): Update.
+	* clos-genfun5.lisp (%no-next-method): Update.
+
+2004-06-05  Bruno Haible  <bruno@clisp.org>
+
 	* clos-method1.lisp (initialize-instance-<standard-accessor-method>):
 	Check the slot-definition argument.
 

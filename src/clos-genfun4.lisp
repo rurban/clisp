@@ -32,7 +32,7 @@
           (setf (gf-methods gf)
                 (remove-if #'(lambda (method)
                                (when (std-method-origin method)
-                                 (setf (std-method-gf method) nil)
+                                 (setf (std-method-generic-function method) nil)
                                  t))
                            (gf-methods gf)))
           (unless (equalp signature (gf-signature gf))
