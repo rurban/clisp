@@ -1,5 +1,10 @@
 2004-10-22  Sam Steingold  <sds@gnu.org>
 
+	* modules/bindings/glibc/linux.lisp (write-helper, read-helper):
+	fixed argument lists (they were swapped)
+
+2004-10-22  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (new-fundef): fixed the package name case check
 
 2004-10-22  Sam Steingold  <sds@gnu.org>

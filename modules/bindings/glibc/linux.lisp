@@ -1056,11 +1056,12 @@
 (def-call-out close (:arguments (fd int)) (:return-type int))
 
 (def-call-out read-helper
-    (:arguments (fd int) (buf c-pointer) (nbytes size_t) (no-hang-p boolean))
+    (:arguments (fd int) (buf (c-ptr (c-array-max char 4096)) :out :alloca)
+                (nbytes size_t) (no-hang-p boolean))
   (:return-type ssize_t) (:name "read_helper"))
 (defmacro read (fd buf nbytes) `(read-helper ,fd ,buf ,nbytes nil))
 (def-call-out write-helper
-    (:arguments (fd int) (buf (c-ptr (c-array-max char 4096)) :out :alloca)
+    (:arguments (fd int) (buf c-pointer)
                 (nbytes size_t) (no-hang-p boolean))
   (:return-type ssize_t) (:name "write_helper"))
 (defmacro write (fd buf nbytes) `(write-helper ,fd ,buf ,nbytes nil))
