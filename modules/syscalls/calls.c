@@ -1017,7 +1017,7 @@ DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
   STACK_0 = physical_namestring(STACK_0);
   with_string_0(STACK_0,GLO(pathname_encoding),path, {
       begin_system_call();
-      if (mode != -1) my_chmod(path,mode);
+      if (mode != (mode_t)-1) my_chmod(path,mode);
       if ((uid != (uid_t)-1) || (gid != (gid_t)-1)) my_chown(path,uid,gid);
       if (utb_a || utb_m) my_utime(path,utb_a,utb_m,&utb);
       end_system_call();
