@@ -8535,6 +8535,7 @@ local object make_key_event(event)
         var uintB scancode = (uintB)(erg>>8); # Scan-Code
         if (scancode == 0)
           # Multikey-Event, z.B. accent+space oder Alt xyz
+          # FIXME: This should take into account the encoding.
           { pushSTACK(code_char(as_chart(code))); funcall(S(make_char),1); c = value1; }
         else
           { if ((code == 0) || (code == 0xE0))
@@ -8579,6 +8580,7 @@ local object make_key_event(event)
                       }
                     else
                       # normales Zeichen
+                      # FIXME: This should take into account the encoding.
                       { pushSTACK(code_char(as_chart(code))); funcall(S(make_char),1); c = value1; }
           }   }   }
         # noch zu behandeln: ??
@@ -8727,7 +8729,7 @@ local object make_key_event(event)
                 }
                 else
                 { ev.key = NULL;
-                  ev.code = as_chart((uintB)event.Event.KeyEvent.uAsciiChar);
+                  ev.code = as_chart((uintB)event.Event.KeyEvent.uAsciiChar); # FIXME: This should take into account the encoding.
                   ev.bits = 0;
                   if (event.Event.KeyEvent.dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
                     { # c = 'a'..'z' -> translate to 'A'..'Z'
@@ -8784,7 +8786,7 @@ local object make_key_event(event)
         next_char_is_read:
         # Es verlängert den Buffer:
         {var object new_cons = allocate_cons();
-         Car(new_cons) = code_char(as_chart(c));
+         Car(new_cons) = code_char(as_chart(c)); # FIXME: This should take into account the encoding.
          stream = *stream_;
          {var object* last_ = &TheStream(stream)->strm_keyboard_buffer;
           while (mconsp(*last_)) { last_ = &Cdr(*last_); }
@@ -8917,6 +8919,7 @@ local object make_key_event(event)
         TheStream(stream)->strm_keyboard_buffer = Cdr(l);
        {var cint c = as_cint(char_code(Car(l)));
         if ((c >= ' ') || (c == ESC) || (c == TAB) || (c == CR) || (c == BS))
+          # FIXME: This should take into account the encoding.
           { pushSTACK(code_char(as_chart(c))); funcall(S(make_char),1); return value1; }
           else
           # Taste vermutlich mit Ctrl getippt
@@ -8937,6 +8940,7 @@ local object make_key_event(event)
       var const key_event* event;
       { var const uintB* ptr = (const uintB*)cap;
         if (*ptr=='\0') return; # leere Tastenfolge vermeiden
+        # FIXME: This should take into account the encoding.
         pushSTACK(allocate_cons());
         # Liste (char1 ... charn . key) bilden:
         {var uintC count = 0;
@@ -9261,7 +9265,7 @@ LISPFUNN(make_keyboard_stream,0)
       ch = nxterminal_read_char(&linepos);
       end_call();
       TheStream(*stream_)->strm_wr_ch_lpos = fixnum(linepos);
-      return code_char(as_cint(ch));
+      return code_char(as_chart(ch)); # FIXME: This should take into account the encoding.
     }
 
 # Stellt fest, ob ein Terminal-Stream ein Zeichen verfügbar hat.
@@ -9640,6 +9644,7 @@ LISPFUNN(make_keyboard_stream,0)
        }
        #if TERMINAL_LINEBUFFERED
        # Zeichen c zur Eingabezeile dazunehmen, evtl. die Zeile vergrößern:
+       # FIXME: This should take into account the encoding.
        ssstring_push_extend(TheStream(stream)->strm_terminal_inbuff,as_chart(c));
        stream = *stream_;
        #endif
@@ -9656,6 +9661,7 @@ LISPFUNN(make_keyboard_stream,0)
        # Kam ein NL, so fangen wir an, die Zeichen des Buffers zu liefern:
        goto restart_it;
        #endif
+       # FIXME: No return value here??
       }
     }}
 
@@ -9822,6 +9828,7 @@ LISPFUNN(make_keyboard_stream,0)
           # EOF (am Zeilenanfang) erkennen
           { TheStream(stream)->strm_rd_ch_last = eof_value; return eof_value; }
         # gelesene Zeile zur Eingabezeile dazunehmen:
+        # FIXME: This should take into account the encoding.
         {var uintB* ptr = line;
          until (*ptr == '\0')
            { ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,as_chart(*ptr++)); }
@@ -11015,7 +11022,7 @@ uintW v_put(ch)
     var const object* stream_;
     var object ch;
     { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
-     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
+     {var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
       # Code c übers BIOS auf den Bildschirm ausgeben:
       v_put(c);
     }}
@@ -11176,7 +11183,7 @@ local int COLS;  # Anzahl Spalten, Anzahl Zeichen pro Zeile
     var const object* stream_;
     var object ch;
     { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
-     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
+     {var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
       # Code c über die Video-Library auf den Bildschirm ausgeben:
       if (c==NL)
         { v_putc(c); }
@@ -13014,7 +13021,7 @@ typedef struct { uintB** image; # image[y][x] ist das Zeichen an Position (x,y)
     var const object* stream_;
     var object ch;
     { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
-     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
+     {var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
       begin_system_call();
       if (graphic_char_p(as_chart(c)))
         { if (curr->x == cols) { cursor_return(); cursor_linefeed(); } # Wrap!
@@ -13247,7 +13254,7 @@ LISPFUNN(window_cursor_off,1)
     var const object* stream_;
     var object ch;
     { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
-     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
+     {var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
       begin_system_call();
       if (graphic_char_p(as_chart(c))) # nur druckbare Zeichen auf den Bildschirm lassen
         { addch(c); }
@@ -13437,7 +13444,7 @@ LISPFUNN(window_cursor_off,1)
     var const object* stream_;
     var object ch;
     { if (!charp(ch)) { fehler_wr_char(*stream_,ch); } # ch sollte Character sein
-     {var uintB c = as_cint(char_code(ch)); # Code des Zeichens
+     {var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
       ??
     }}
 
@@ -13576,6 +13583,8 @@ LISPFUNN(window_cursor_off,1)
 # Zusätzliche Komponenten:
   #define strm_printer_handle  strm_other[0]  # Handle von "PRT:"
 
+# FIXME: Should be based on an encoding.
+
 # WRITE-CHAR - Pseudofunktion für Printer-Streams:
   local void wr_ch_printer (const object* stream_, object ch);
   local void wr_ch_printer(stream_,ch)
@@ -13585,7 +13594,7 @@ LISPFUNN(window_cursor_off,1)
       # ch sollte Character sein:
       if (!charp(ch)) { fehler_wr_char(stream,ch); }
       begin_system_call();
-     {var uintB c = as_cint(char_code(ch));
+     {var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
       var long ergebnis = # Zeichen auszugeben versuchen
         Write(TheHandle(TheStream(stream)->strm_printer_handle),&c,1L);
       end_system_call();
