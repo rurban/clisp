@@ -3,6 +3,8 @@
 	* genclisph.d, encoding.d (cstombs_f, cslen_f) [!UNICODE]: macros
 	* modules/dirkey/dirkey.c: undef UNICODE before including clisp.h;
 	no need for *_encoding without CLISP_UNICODE
+	* modules/syscalls/calls.c: define WINVER before including clisp.h;
+	no need for *_encoding without CLISP_UNICODE
 
 2003-07-27  Sam Steingold  <sds@gnu.org>
 
