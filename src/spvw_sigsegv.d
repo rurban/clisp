@@ -73,15 +73,39 @@
         { setSTACK(STACK = saved_STACK); }
         else
         { # This depends on STACK_register.
-          # What about MC680X0 and SPARC ??
-          #ifdef I80386
-          if (scp) { setSTACK(STACK = (object*)(scp->ebx)); }
+          #ifdef UNIX_LINUX
+            # stackoverflow_context_t is actually `struct sigcontext *'.
+            # What about MC680X0 and SPARC ??
+            #ifdef I80386
+              if (scp) { setSTACK(STACK = (object*)(scp->ebx)); }
+            #endif
+            #ifdef ARM
+              if (scp) { setSTACK(STACK = (object*)(scp->arm_r8)); }
+            #endif
+            #ifdef DECALPHA
+              if (scp) { setSTACK(STACK = (object*)(scp->sc_regs[9])); }
+            #endif
           #endif
-          #ifdef ARM
-          if (scp) { setSTACK(STACK = (object*)(scp->arm_r8)); }
+          #ifdef UNIX_SUNOS5
+            # stackoverflow_context_t is actually `ucontext_t *'.
+            #ifdef SPARC
+              if (scp) { setSTACK(STACK = (object*)(scp->uc_mcontext.gregs[REG_G5])); }
+            #endif
+            #ifdef I80386
+              if (scp) { setSTACK(STACK = (object*)(scp->uc_mcontext.gregs[EBX])); }
+            #endif
           #endif
-          #ifdef DECALPHA
-          if (scp) { setSTACK(STACK = (object*)(scp->sc_regs[9])); }
+          #ifdef UNIX_IRIX
+            # stackoverflow_context_t is actually `struct sigcontext *'.
+            #ifdef MIPS
+              # no STACK_reg yet
+            #endif
+          #endif
+          #ifdef UNIX_OSF
+            # stackoverflow_context_t is actually `struct sigcontext *'.
+            #ifdef DECALPHA
+              if (scp) { setSTACK(STACK = (object*)(scp->sc_regs[9])); }
+            #endif
           #endif
         }
       #endif
