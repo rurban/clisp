@@ -23,6 +23,9 @@ User visible changes
   with arguments eof-error-p = NIL and without eof-value, now return NIL
   instead of #<END OF FILE>.
 
+* Fixed a bug: REPLACE signalled an error if the source and destination
+  sequences were the same and the source and destination ranges didn't overlap.
+
 * Fixed a bug: A garbage collection during the execution of a foreign function
   callback caused a crash.
 
