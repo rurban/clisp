@@ -3178,8 +3178,8 @@ local object test_external_format_arg (object arg) {
           #if defined(UNIX_IRIX) || defined(EMUNIX)
           if (!(errno==ENOSYS))
           #endif
-          #ifdef UNIX_CYGWIN32
-          if (errno != EBADF)
+          #ifdef UNIX_CYGWIN32  /* for win95 and xterm/rxvt */
+            if ((errno != EBADF) && (errno != EACCES))
           #endif
           if (!(errno==EINVAL))
             { OS_error(); }
@@ -10058,9 +10058,12 @@ local object make_terminal_stream_ (void) {
       if ((fstat(stdin_handle,&stdin_stat) >= 0)
           && (fstat(stdout_handle,&stdout_stat) >= 0))
         if ((stdin_stat.st_dev == stdout_stat.st_dev)
-           #ifndef UNIX_CYGWIN32
+           #ifdef UNIX_CYGWIN32
             /* st_ino does not make sense on Cygwin: they are based on
                filenames, and stdin is CONIN$ while stdout is CONOUT$ */
+            && (strcmp("/dev/conin", ttyname(stdin_handle))  == 0)
+            && (strcmp("/dev/conout",ttyname(stdout_handle)) == 0)
+           #else
             && (stdin_stat.st_ino == stdout_stat.st_ino)
            #endif
             )
