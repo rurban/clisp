@@ -1,5 +1,10 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* hashtabl.d (MAKE-HASH-TABLE): Fix GC-safety bug when using
+	:INITIAL-CONTENTS with user-defined test, introduced on 2003-05-13.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* pathname.d (use_default_dir): Fix GC-safety bug introduced on
 	2002-01-09.
 
