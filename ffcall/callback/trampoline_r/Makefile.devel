@@ -82,10 +82,10 @@ trampoline_r.man : trampoline_r.3
 	$(ROFF_MAN) trampoline_r.3 > trampoline_r.man
 
 config.h.msvc : config.h.in
-	sed -e 's,^#undef __i386__$$,#define __i386__ 1,' -e 's,^#undef STDC_HEADERS$$,#define STDC_HEADERS 1,' -e 's,^#undef HAVE_STDLIB_H$$,#define HAVE_STDLIB_H 1,' -e 's,^#undef HAVE_GETPAGESIZE$$,#define HAVE_GETPAGESIZE 1 /* fake */,' -e 's,^#undef RETGETPAGESIZETYPE$$,#define RETGETPAGESIZETYPE unsigned long,' -e 's,^#undef CODE_EXECUTABLE$$,#define CODE_EXECUTABLE 1,' < config.h.in > config.h.msvc
+	sed -e 's,^#undef __i386__$$,#define __i386__ 1,' -e 's,^#undef STDC_HEADERS$$,#define STDC_HEADERS 1,' -e 's,^#undef HAVE_GETPAGESIZE$$,#define HAVE_GETPAGESIZE 1 /* fake */,' -e 's,^#undef RETGETPAGESIZETYPE$$,#define RETGETPAGESIZETYPE unsigned long,' -e 's,^#undef CODE_EXECUTABLE$$,#define CODE_EXECUTABLE 1,' < config.h.in > config.h.msvc
 
 config.h.mingw32 : config.h.in
-	sed -e 's,^#undef __i386__$$,#define __i386__ 1,' -e 's,^#undef STDC_HEADERS$$,#define STDC_HEADERS 1,' -e 's,^#undef HAVE_STDLIB_H$$,#define HAVE_STDLIB_H 1,' -e 's,^#undef HAVE_GETPAGESIZE$$,#define HAVE_GETPAGESIZE 1 /* fake */,' -e 's,^#undef RETGETPAGESIZETYPE$$,#define RETGETPAGESIZETYPE unsigned long,' -e 's,^#undef CODE_EXECUTABLE$$,#define CODE_EXECUTABLE 1,' < config.h.in > config.h.mingw32
+	sed -e 's,^#undef __i386__$$,#define __i386__ 1,' -e 's,^#undef STDC_HEADERS$$,#define STDC_HEADERS 1,' -e 's,^#undef HAVE_GETPAGESIZE$$,#define HAVE_GETPAGESIZE 1 /* fake */,' -e 's,^#undef RETGETPAGESIZETYPE$$,#define RETGETPAGESIZETYPE unsigned long,' -e 's,^#undef CODE_EXECUTABLE$$,#define CODE_EXECUTABLE 1,' < config.h.in > config.h.mingw32
 
 tramp-i386.o : tramp-i386.s
 	$(ASPREFIX)/i486-linux/bin/as tramp-i386.s -o $@
