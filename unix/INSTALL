@@ -136,6 +136,10 @@ some platforms can be found in file unix/PLATFORMS.
 
          make testsuite
 
+   Or run both tests with one shot:
+
+         make check
+
 9. Edit the `prefix' variable in the makefile (you could also have specified
    it as command line option --prefix=... to `configure' in step 3), then type
 
