@@ -1,3 +1,11 @@
+2002-07-15  Marco Baringer  <empb@bese.it>
+	    Sam Steingold  <sds@gnu.org>
+
+	POSIX:DUPLICATE-HANDLE - interface to dup/dup2/DuplicateHandle
+	* pathname.d (DUPLICATE-HANDLE): implemented
+	* constsym.d, subr.d (duplicate_handle): ditto
+	* posix.lisp (duplicate-handle): export
+
 2002-07-16  Sam Steingold  <sds@gnu.org>
 
 	* defs1.lisp (module-name): do not use ETYPECASE for
