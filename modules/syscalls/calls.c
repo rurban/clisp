@@ -942,12 +942,12 @@ DEFUN(POSIX::CONVERT-MODE, mode)
     for (index = 0; index < check_chmod_mode_table_size; index++) {
       unsigned int c_const = check_chmod_mode_table[index].c_const;
       if (c_const == (mode & c_const)) {
-        pushSTACK(check_chmod_mode_table[index].l_const);
+        pushSTACK(*check_chmod_mode_table[index].l_const);
         count++;
         mode &= ~c_const;       /* clear this bit */
       }
     }
-    if (mode) {                 /* not all bit have been accounted for */
+    if (mode) {                 /* not all bits have been accounted for */
       pushSTACK(fixnum(mode));
       count++;
     }
