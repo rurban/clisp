@@ -151,6 +151,13 @@ argz_next__ (argz, argz_len, entry)
 #endif	/* !_LIBC && !HAVE___ARGZ_NEXT */
 
 
+#if defined(__MSDOS__) || defined(__EMX__) || defined(_WIN32)
+#define PATH_SEPARATOR ';'
+#else
+#define PATH_SEPARATOR ':'
+#endif
+
+
 /* Return number of bits set in X.  */
 static int pop PARAMS ((int x));
 
@@ -224,7 +231,7 @@ _nl_make_l10nflist (l10nfile_list, dirlist, dirlist_len, mask, language,
 
   /* Construct file name.  */
   memcpy (abs_filename, dirlist, dirlist_len);
-  __argz_stringify (abs_filename, dirlist_len, ':');
+  __argz_stringify (abs_filename, dirlist_len, PATH_SEPARATOR);
   cp = abs_filename + (dirlist_len - 1);
   *cp++ = '/';
   cp = stpcpy (cp, language);

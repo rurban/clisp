@@ -1,6 +1,16 @@
+1998-10-07  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Modifications for EMX, from Kai Uwe Rommel <rommel@ars.de>.
+        * intl/localealias.c (PATH_SEPARATOR): New macro.
+          (_nl_expand_alias): Use it instead of ':'.
+        * intl/l10nflist.c (PATH_SEPARATOR): New macro.
+          (_nl_make_l10nflist): Use it instead of ':'.
+        * intl/dcgettext.c (IS_ABSOLUTE): New macro.
+          (DCGETTEXT): Use it.
+
 1998-06-01  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
-        * ntl/*: Upgrade from 0.10.32 to 0.10.35.
+        * intl/*: Upgrade from 0.10.32 to 0.10.35.
 
 1998-04-08  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 	
