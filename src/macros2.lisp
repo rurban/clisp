@@ -288,7 +288,8 @@
          (MULTIPLE-VALUE-PROG1 (PROGN ,@body-rest) (CLOSE ,var))
          (CLOSE ,var :ABORT T)))))
 ;; ----------------------------------------------------------------------------
-(defmacro with-output-to-string ((var &optional (string nil) &key element-type)
+(defmacro with-output-to-string ((var &optional (string nil)
+                                      &key (element-type ''CHARACTER))
                                  &body body)
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     (if string
