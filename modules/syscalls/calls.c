@@ -145,6 +145,7 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
       length = 0;
 #    endif
     } else {
+      /* FIXME: This will crash if stream is nullobj. */
       pushSTACK(stream); funcall(L(file_length),1);
       length = I_to_UL(value1);
     }
