@@ -13819,7 +13819,7 @@ LISPFUN(make_pipe_output_stream,seclass_default,1,0,norest,key,3,
   VALUES1(add_to_open_streams(stream)); /* return stream */
 }
 
-/* mkops_from_handles 
+/* mkops_from_handles
    Make a PIPE-OUTPUT-STREAM from pipe handle and a process-id
    > STACK_0: buffered
    > STACK_1: element-type
@@ -15145,7 +15145,7 @@ LISPFUN(socket_status,seclass_default,1,2,norest,nokey,0,NIL) {
 
 /* the next three functions handle getsockopt()/setsockopt() calls
    for boolean, integer and timeval options respectively.
-   both push one result on STACK */
+   each pushes one result on STACK */
 local void sock_opt_bool (SOCKET handle, int option, object value)
 {
   var int val;
@@ -15265,15 +15265,15 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
   skipSTACK(argcount+1);
 }
 
-# (SOCKET-STREAM-PORT socket-stream)
-LISPFUNN(socket_stream_port,1) {
+LISPFUNN(socket_stream_port,1)
+{ /* (SOCKET-STREAM-PORT socket-stream) */
   var object stream = test_socket_stream(STACK_0,false);
   VALUES1(TheStream(stream)->strm_socket_port);
   skipSTACK(1);
 }
 
-# (SOCKET-STREAM-HOST socket-stream)
-LISPFUNN(socket_stream_host,1) {
+LISPFUNN(socket_stream_host,1)
+{ /* (SOCKET-STREAM-HOST socket-stream) */
   var object stream = test_socket_stream(STACK_0,false);
   VALUES1(TheStream(stream)->strm_socket_host);
   skipSTACK(1);
@@ -15306,20 +15306,20 @@ local void publish_host_data (host_data_fetcher_t* func) {
     VALUES2(hostname, fixnum(hd.port));
   }
 
-# (SOCKET-STREAM-PEER socket-stream [do-not-resolve-p])
-LISPFUN(socket_stream_peer,seclass_default,1,1,norest,nokey,0,NIL) {
+LISPFUN(socket_stream_peer,seclass_default,1,1,norest,nokey,0,NIL)
+{ /* (SOCKET-STREAM-PEER socket-stream [do-not-resolve-p]) */
   publish_host_data (&socket_getpeername);
 }
 
-# (SOCKET-STREAM-LOCAL socket-stream [do-not-resolve-p])
-LISPFUN(socket_stream_local,seclass_default,1,1,norest,nokey,0,NIL) {
+LISPFUN(socket_stream_local,seclass_default,1,1,norest,nokey,0,NIL)
+{ /* (SOCKET-STREAM-LOCAL socket-stream [do-not-resolve-p]) */
   publish_host_data (&socket_getlocalname);
 }
 
 #ifndef WIN32_NATIVE
 
-# (SOCKET-STREAM-HANDLE socket-stream)
-LISPFUNN(socket_stream_handle,1) {
+LISPFUNN(socket_stream_handle,1)
+{ /* (SOCKET-STREAM-HANDLE socket-stream) */
   var object stream = test_socket_stream(STACK_0,true);
   VALUES1(fixnum(SocketChannel(stream)));
   skipSTACK(1);
