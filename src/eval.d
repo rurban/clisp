@@ -3142,12 +3142,8 @@ global Values eval_no_hooks (object form) {
             pushSTACK(Cdr(form)); # Argumentlist
             fun = get_closure(Cdr(fun),S(Klambda),false,&aktenv); # create closure in current environment
             goto closure; # und apply it to the arguments, as above
-          } else {
-            pushSTACK(fun);
-            pushSTACK(S(eval));
-            fehler(source_program_error,
-                   GETTEXT("~: ~ is not a function name"));
-          }
+          } else
+            fehler_funname_source(S(eval),fun);
         }
       }
     }
@@ -4151,13 +4147,8 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
       #endif
       elif (consp(fun) && eq(Car(fun),S(lambda))) { # Cons (LAMBDA ...) ?
         subr_self = L(apply); fehler_lambda_expression(fun);
-      } else {
-        pushSTACK(fun); # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_designator_function)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(fun);
-        pushSTACK(S(apply));
-        fehler(type_error,GETTEXT("~: ~ is not a function name"));
-      }
+      } else
+        fehler_funname_type(S(apply),fun);
     }
 
 # Error because of dotted argument-list
@@ -5068,13 +5059,8 @@ local Values funcall_closure (object fun, uintC args_on_stack);
       #endif
       elif (consp(fun) && eq(Car(fun),S(lambda))) { # Cons (LAMBDA ...) ?
         subr_self = L(funcall); fehler_lambda_expression(fun);
-      } else {
-        pushSTACK(fun); # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_designator_function)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(fun);
-        pushSTACK(S(funcall));
-        fehler(type_error,GETTEXT("~: ~ is not a function name"));
-      }
+      } else
+        fehler_funname_type(S(funcall),fun);
     }
 
 # In FUNCALL: Applies a SUBR to arguments, cleans up STACK

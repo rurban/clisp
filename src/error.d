@@ -898,6 +898,22 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
           );
   }
 
+# signal a type-error when the argument is not a function name
+nonreturning_function(global, fehler_funname_type,
+                      (object caller, object obj)) {
+  pushSTACK(obj);                         # TYPE-ERROR slot DATUM
+  pushSTACK(O(type_designator_function)); # TYPE-ERROR slot EXPECTED-TYPE
+  pushSTACK(obj); pushSTACK(caller);
+  fehler(type_error,GETTEXT("~: ~ is not a function name"));
+}
+
+# signal a source-program-error when the argument is not a function name
+nonreturning_function(global, fehler_funname_source,
+                      (object caller, object obj)) {
+  pushSTACK(obj); pushSTACK(caller);
+  fehler(source_program_error,GETTEXT("~: ~ is not a function name"));
+}
+
 # Fehlermeldung, wenn ein Argument ein Lambda-Ausdruck statt einer Funktion ist:
 # fehler_lambda_expression(obj);
 # obj: Das fehlerhafte Argument

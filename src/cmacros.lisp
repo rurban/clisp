@@ -46,18 +46,14 @@
   (cond ((symbolp name) (get name 'compiler-macro))
         ((function-name-p name) ; (setf name)
          (get (second name) 'compiler-macro-setf))
-        (t (error-of-type 'source-program-error
-             (TEXT "~S: function name should be a symbol, not ~S")
-             'compiler-macro-function name))))
+        (t (error-function-name 'compiler-macro-function name))))
 
 (defun (setf compiler-macro-function) (newf name &optional environment)
   (declare (ignore environment))
   (cond ((symbolp name) (setf (get name 'compiler-macro) newf))
         ((function-name-p name) ; (setf name)
          (setf (get (second name) 'compiler-macro-setf) newf))
-        (t (error-of-type 'source-program-error
-             (TEXT "~S: function name should be a symbol, not ~S")
-             'compiler-macro-function name))))
+        (t (error-function-name '(setf compiler-macro-function) name))))
 
 ;; (proclaim '(inline function-form-funform simple-function-form-p))
 

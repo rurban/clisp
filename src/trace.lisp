@@ -132,15 +132,17 @@ This will not work with closures that use lexical variables!"
                     (apply #'trace1 fun)))
               funs))))
 
+(defun error-function-name (caller funname)
+  (error-of-type 'source-program-error
+    (TEXT "~s: ~s is not a function name")
+    caller funname))
+
 (defun trace1 (funname &key (suppress-if nil) (step-if nil)
                             (pre nil) (post nil)
                             (pre-break-if nil) (post-break-if nil)
                             (pre-print nil) (post-print nil) (print nil)
                        &aux (old-function (gensym)) (macro-flag (gensym)))
-  (unless (function-name-p funname)
-    (error-of-type 'source-program-error
-      (TEXT "~S: function name should be a symbol, not ~S")
-      'trace funname))
+  (unless (function-name-p funname) (error-function-name 'trace funname))
   (check-redefinition funname 'trace "function")
   (let ((symbolform
           (if (atom funname)

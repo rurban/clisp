@@ -11299,6 +11299,13 @@ nonreturning_function(extern, fehler_streamtype, (object obj, object type));
 nonreturning_function(extern, fehler_function, (object obj));
 # is used by RECORD
 
+# report errors if the argument is not a function name
+# obj - bad object; caller - the calling function (a symbol)
+nonreturning_function(global, fehler_funname_type,
+                      (object caller, object obj));
+nonreturning_function(global, fehler_funname_source,
+                      (object caller, object obj));
+
 # Error message, if an argument is a lambda-expression instead of a function:
 # fehler_lambda_expression(obj);
 # obj: the faulty argument
