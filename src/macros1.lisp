@@ -309,11 +309,10 @@
 #|
 ;; Dieser hier ist zwar kürzer, aber er reduziert COND auf OR,
 ;; das seinerseits wieder auf COND reduziert, ...
-(defmacro-special cond (&body clauses)
-  (ifify clauses)
-)
-; macht eine clauselist von COND zu verschachtelten IFs und ORs.
-(defun ifify (clauselist)
+ (defmacro-special cond (&body clauses)
+  (ifify clauses))
+;; macht eine clauselist von COND zu verschachtelten IFs und ORs.
+ (defun ifify (clauselist)
   (cond ((null clauselist) NIL)
         ((atom clauselist)
          (error-of-type 'source-program-error
@@ -346,7 +345,7 @@
 
 ;; Noch einfacher ginge es auch so:
 #|
-(defmacro-special cond (&body clauses)
+ (defmacro-special cond (&body clauses)
   (cond ((null clauses) 'NIL)
         ((atom clauses)
          (error-of-type 'source-program-error
