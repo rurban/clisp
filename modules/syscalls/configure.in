@@ -15,8 +15,8 @@ AC_MSG_NOTICE([ * System Calls (Headers)])
 AC_HEADER_STDC
 AC_HEADER_TIME
 CL_UTSNAME
-AC_CHECK_HEADERS(errno.h fcntl.h netdb.h sys/resource.h utime.h)
-AC_CHECK_HEADERS(pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h)
+AC_CHECK_HEADERS(errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h dnl
+pwd.h sys/stat.h sys/time.h sys/unistd.h time.h unistd.h)
 AC_CHECK_HEADERS(shlobj.h)
 if test "$ac_cv_header_shlobj_h" = yes ; then
    LIBS=${LIBS}' -luser32 -lole32 -loleaut32 -luuid';
@@ -32,18 +32,14 @@ if test "$ac_cv_struct_fsid_scalar" = yes; then
 fi
 
 AC_MSG_NOTICE([ * System Calls (Functions)])
-AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname)
-AC_CHECK_FUNCS(getrlimit setrlimit)
-AC_CHECK_FUNCS(getlogin getpwent getpwnam getpwuid getuid)
-AC_CHECK_FUNCS(fchmod fchown fstat link stat symlink utime)
-AC_CHECK_FUNCS(mknod chmod chown umask)
+AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname dnl
+getrlimit setrlimit getlogin getpwent getpwnam getpwuid getuid dnl
+fchmod fchown fstat link stat symlink utime mknod chmod chown umask)
 AC_SEARCH_LIBS(erf, m)
-AC_CHECK_FUNCS(erf erfc lgamma lgamma_r)
-AC_CHECK_FUNCS(fstatvfs statvfs)
+AC_CHECK_FUNCS(erf erfc lgamma lgamma_r fstatvfs statvfs)
 AC_CHECK_DECLS(signgam, , , [#include <math.h>] )
 AC_SEARCH_LIBS(crypt, crypt)
-AC_CHECK_FUNCS(crypt encrypt setkey)
-AC_CHECK_FUNCS(GlobalMemoryStatusEx)
+AC_CHECK_FUNCS(crypt encrypt setkey GlobalMemoryStatusEx)
 CL_LSTAT
 CL_RUSAGE
 
