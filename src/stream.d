@@ -7407,6 +7407,9 @@ local object make_buffered_stream (uintB type, direction_t direction,
       }
     }
   }
+  if (direction == DIRECTION_PROBE) { /* close stream right away */
+    STACK_0 = stream; builtin_stream_close(&STACK_0);
+  }
   skipSTACK(1);
   return stream;
 }
