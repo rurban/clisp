@@ -34,7 +34,9 @@
     #undef ULONGLONG
     #define unused (void)
   #else
+    #undef unused
     #include <windows.h>
+    #define unused
   #endif
 
 # Shell object handling for shell link resolution
