@@ -35,6 +35,9 @@ T
 (check-type #'c-self foreign-function)
 nil
 
+(integerp (foreign-address-unsigned #'c-self))
+T
+
 (functionp (setq parse-c-type-optimizer
                  (compiler-macro-function 'parse-c-type)))
 T
@@ -108,13 +111,13 @@ foreign-function
   (parse-c-type '(c-function (:arguments (obj long))
                              (:return-type long)
                              (:language :stdc))) :name "foo1")
-         #x76767676)
-#x76767676
+         #x67676767)
+#x67676767
 
 (funcall (foreign-function (foreign-address #'c-self)
   (parse-c-type '(c-function (:arguments (obj long))
                              (:return-type long)
-                             (:language :stdc))) :name "foo1")
+                             (:language :stdc))) :name "foo2")
          #x76767676)
 #x76767676
 
@@ -488,6 +491,25 @@ ERROR
 
 (progn (setf (validp fm) nil) 2)
 2
+
+(let ((restarts (list (unsigned-foreign-address 123450))))
+  (foreign-address-unsigned
+   (handler-bind
+    ((type-error (lambda (c &aux (retry (pop restarts)))
+                   (declare (ignore c))
+                   (when retry (use-value retry)))))
+    (foreign-variable "abc" (parse-c-type 'char)))))
+123450
+
+(let ((restarts (list #'c-self)))
+  (foreign-address-unsigned
+   (handler-bind
+    ((type-error (lambda (c &aux (retry (pop restarts)))
+                   (declare (ignore c))
+                   (when retry (use-value retry)))))
+    (foreign-function "abc"
+      (parse-c-type '(c-function (:language :stdc)))))))
+#.(foreign-address-unsigned #'c-self)
 
 (progn (setq fm (allocate-deep 'character "abc" :count 5)) (type-of fm))
 FOREIGN-VARIABLE
