@@ -81,10 +81,8 @@
  ht_kvtable             key-value-vector, a HashedAlist or WeakHashedAlist
                         with 3*MAXCOUNT data fields and
                         hal_itable     index-vector of length SIZE
+                        hal_count      number of entries in the table, <=MAXCOUNT
                         hal_freelist   start-index of the free-list
- ht_count               number of entries in the table (for weak hash-tables,
-                        more precisely: total length of all lists in the
-                        next-vector), Fixnum >=0, <=MAXCOUNT
  ht_rehash_size         growth-rate on reorganization. Float >1.1
  ht_mincount_threshold  ratio MINCOUNT/MAXCOUNT = 1/rehash-size^2
  ht_mincount            Fixnum>=0, lower bound for COUNT
@@ -98,7 +96,6 @@
 
 #define HT_GOOD_P(ht)                                   \
   (posfixnump(TheHashtable(ht)->ht_maxcount) &&         \
-   posfixnump(TheHashtable(ht)->ht_count) &&            \
    posfixnump(TheHashtable(ht)->ht_mincount))
 
 /* Rotates a hashcode x by n bits to the left (0<n<32).
@@ -961,7 +958,7 @@ local object rehash (object ht) {
     }
   }
   TheHashedAlist(kvtable)->hal_freelist = freelist; /* save freelist */
-  TheHashtable(ht)->ht_count = count; /* save number of pairs for consistency */
+  TheHashedAlist(kvtable)->hal_count = count; /* save number of pairs for consistency */
   set_ht_valid(TheHashtable(ht)); /* hashtable is now completely organized */
   return ht;
 }
@@ -1095,10 +1092,7 @@ global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
     var gcv_object_t* KVptr = &TheHashedAlist(kvtable)->hal_data[3*index]; \
     set_break_sem_2();                       /* protect from breaks */  \
     /* increment COUNT: */                                              \
-    TheHashtable(ht)->ht_count = fixnum_inc(TheHashtable(ht)->ht_count,1); \
-    if (!simple_vector_p(kvtable)) { /* ht_weak_p(ht) */                \
-      TheWeakHashedAlist(kvtable)->whal_count = fixnum_inc(TheWeakHashedAlist(kvtable)->whal_count,1); \
-    }                                                                   \
+    TheHashedAlist(kvtable)->hal_count = fixnum_inc(TheHashedAlist(kvtable)->hal_count,1); \
     /* save key and value: */                                           \
     *KVptr++ = key; *KVptr++ = value;                                   \
     /* shorten free-list: */                                            \
@@ -1272,15 +1266,13 @@ local object resize (object ht, object maxcount) {
   });
   /* Mark 'count' pairs of the new key-value-vector as "leer" : */
   dotimesL(count,count, { *KVptr++ = leer; *KVptr++ = leer; *KVptr++ = leer; } );
+  TheHashedAlist(KVvektor)->hal_count = counter; /* enter COUNT (for consistency) */
   /* modify hash-table: */
   set_break_sem_2();                 /* protect from breaks */
   set_ht_invalid(TheHashtable(ht)); /* table must still be reorganized */
   TheHashtable(ht)->ht_size = posfixnum_to_L(size);  /* enter new SIZE */
   TheHashtable(ht)->ht_maxcount = maxcount; /* enter new MAXCOUNT */
   TheHashtable(ht)->ht_kvtable = KVvektor; /* enter new key-value-vector */
-  TheHashtable(ht)->ht_count = counter; /* enter COUNT (for consistency) */
-  if (!simple_vector_p(KVvektor))
-    TheWeakHashedAlist(KVvektor)->whal_count = counter;
   TheHashtable(ht)->ht_mincount = mincount; /* enter new MINCOUNT */
   clr_break_sem_2();                        /* allow breaks again */
   return ht;
@@ -1333,17 +1325,18 @@ local object resize (object ht, object maxcount) {
  > ht: hash-table */
 local void clrhash (object ht) {
   set_break_sem_2();            /* protect from breaks */
+  var object kvtable = TheHashtable(ht)->ht_kvtable;
   {
     var uintL count = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
     if (count > 0) {
-      var gcv_object_t* KVptr = TheHashedAlist(TheHashtable(ht)->ht_kvtable)->hal_data;
+      var gcv_object_t* KVptr = TheHashedAlist(kvtable)->hal_data;
       dotimespL(count,count, {            /* in each entry */
         *KVptr++ = leer; *KVptr++ = leer; /* deplete key and value */
         *KVptr++ = leer;                  /* and next-index */
       });
     }
   }
-  TheHashtable(ht)->ht_count = Fixnum_0; /* COUNT := 0 */
+  TheHashedAlist(kvtable)->hal_count = Fixnum_0; /* COUNT := 0 */
   set_ht_invalid(TheHashtable(ht)); /* reorganize hashtable later */
   clr_break_sem_2();                 /* allow breaks again */
 }
@@ -1712,10 +1705,10 @@ LISPFUNN(remhash,2)
     *KVptr = TheHashedAlist(kvtable)->hal_freelist;
     TheHashedAlist(kvtable)->hal_freelist = index;
     /* decrement COUNT : */
-    TheHashtable(ht)->ht_count = fixnum_inc(TheHashtable(ht)->ht_count,-1);
+    TheHashedAlist(kvtable)->hal_count = fixnum_inc(TheHashedAlist(kvtable)->hal_count,-1);
     clr_break_sem_2();          /* allow breaks again */
     /* shrink the hash-table for COUNT < MINCOUNT : */
-    if (  posfixnum_to_L(TheHashtable(ht)->ht_count)
+    if (  posfixnum_to_L(TheHashedAlist(kvtable)->hal_count)
         < posfixnum_to_L(TheHashtable(ht)->ht_mincount)) {
       /* shrink hash-table:
        maxcount := (max (floor (/ maxcount rehash-size)) 1) */
@@ -1770,14 +1763,7 @@ LISPFUNN(clrhash,1)
 LISPFUNNR(hash_table_count,1)
 { /* (HASH-TABLE-COUNT hashtable), CLTL p. 285, CLtL2 p. 439 */
   var object ht = check_hashtable(popSTACK()); /* hashtable argument */
-  var object count;
-  if (ht_weak_p(ht))
-    # The TheHashtable(ht)->ht_count counts the number of used entries in the
-    # next-vector. This is >= TheWeakHashedAlist(kvt)->whal_count. The latter
-    # is right because it is maintained by the GC.
-    count = TheWeakHashedAlist(TheHashtable(ht)->ht_kvtable)->whal_count;
-  else
-    count = TheHashtable(ht)->ht_count;
+  var object count = TheHashedAlist(TheHashtable(ht)->ht_kvtable)->hal_count;
   VALUES1(count); /* fixnum COUNT as value */
 }
 
@@ -1899,10 +1885,8 @@ LISPFUNN(set_hash_table_weak_p,2)
                &TheHashedAlist(old_kvt)->hal_data[0],
                3*maxcount);
     TheHashedAlist(new_kvt)->hal_itable = TheHashedAlist(old_kvt)->hal_itable;
+    TheHashedAlist(new_kvt)->hal_count = TheHashedAlist(old_kvt)->hal_count;
     TheHashedAlist(new_kvt)->hal_freelist = TheHashedAlist(old_kvt)->hal_freelist;
-    if (!simple_vector_p(new_kvt))
-      TheWeakHashedAlist(new_kvt)->whal_count =
-        (simple_vector_p(old_kvt) ? TheHashtable(ht)->ht_count : TheWeakHashedAlist(old_kvt)->whal_count);
     TheHashtable(ht)->ht_kvtable = new_kvt;
   }
   VALUES1(hash_table_weak_type(popSTACK()));

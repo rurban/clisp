@@ -1,5 +1,22 @@
 2004-05-09  Bruno Haible  <bruno@clisp.org>
 
+	Unify the two hash table counts.
+	* lispbibl.d (Hashtable): Remove ht_count field.
+	(hashtable_length): Decrement.
+	* hashtabl.d (HT_GOOD_P): Remove check of ht_count.
+	(rehash): Store the count in the kvtable.
+	(hash_store): Increment the count in the kvtable.
+	(resize, clrhash): Store the count in the kvtable.
+	(REMHASH): Decrement the count in the kvtable.
+	(HASH-TABLE-COUNT): Return the count in the kvtable.
+	(SYS::%SET-HASH-TABLE-WEAK-P): Copy also the count, in all cases.
+	* io.d (pr_orecord): Update.
+	* predtype.d (hash_table_equalp): Update.
+	(typep_class, typep_classname): Use ht_size instead of ht_count.
+	* spvw_debug.d (nobject_out1): Update.
+
+2004-05-09  Bruno Haible  <bruno@clisp.org>
+
 	Let the GC clean up weak hash tables.
 	* spvw_weak.d (weak_hashed_alist_update_one, weak_hashed_alist_update):
 	New functions.
