@@ -95,8 +95,8 @@ dnl DEFS STDC_HEADERS if exist stdlib.h, stdarg.h, ...
 CL_STDC_HEADERS
 dnl DEFS HAVE_OFFSETOF if offsetof in stddef.h
 CL_OFFSETOF
-dnl DEFS HAVE_STDBOOL_H, sets variable STDBOOL_H
-CL_STDBOOL_H
+dnl DEFS HAVE_STDBOOL_H, sets variables STDBOOL_H, HAVE__BOOL
+gt_STDBOOL_H
 dnl DEFS HAVE_LOCALE_H if exist locale.h
 CL_LOCALE_H
 dnl DEFS HAVE_UNISTD_H if exist unistd.h
