@@ -45,6 +45,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.3  2004/03/12 19:22:47  sds
+# regenerated for 2.32.93
+#
 # Revision 1.2  2002/09/13 15:00:36  sds
 # regenerated for 2.30
 #
@@ -103,7 +106,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 2004-03-12 14:25:22 EST\n"
+"POT-Creation-Date: 2004-03-14 12:10:50 EST\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -800,12 +803,12 @@ msgstr "el disco está lleno"
 #
 # - cll
 #
-#: spvw_memfile.d:779
+#: spvw_memfile.d:777
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'\n"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización `%s'\n"
 
-#: spvw_memfile.d:1246
+#: spvw_memfile.d:1244
 #, fuzzy
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "No puedo escribir el fichero de inicialización en memoria."
@@ -824,17 +827,17 @@ msgstr "No puedo escribir el fichero de inicialización en memoria."
 #
 # - cll
 #
-#: spvw_memfile.d:1514
+#: spvw_memfile.d:1510
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "error del sistema operativo durante la carga del fichero de inicialización `%s'\n"
 
-#: spvw_memfile.d:1519
+#: spvw_memfile.d:1515
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
 msgstr "el fichero de inicialización no fue creado con esta versión de LISP\n"
 
-#: spvw_memfile.d:1522
+#: spvw_memfile.d:1518
 #, fuzzy
 msgid "%s: not enough memory for initialization\n"
 msgstr "no hay memoria suficiente para la inicialización\n"
@@ -6768,10 +6771,9 @@ msgstr "ATENCIÓN:"
 msgid "~S: This is more serious than a warning: ~A"
 msgstr "~S: Esto es más serio que una advertencia: ~A"
 
-#: threads.lisp:45
-#, fuzzy
-msgid "~S: ~S does not own ~S"
-msgstr "~S: ~S no nombra una clase"
+#: loadform.lisp:42
+msgid "A method on ~S for class ~S is necessary for externalizing the object ~S, according to ANSI CL 3.2.4.4, but no such method is defined."
+msgstr ""
 
 #: xcharin.lisp:35
 #, fuzzy
@@ -7615,6 +7617,11 @@ msgstr "El código de LETF contiene una lista punteada que termina con ~S"
 #: macros3.lisp:243
 msgid "illegal syntax in LETF binding: ~S"
 msgstr "sintaxis inválida en la ligadura de LETF: ~S"
+
+#: threads.lisp:45
+#, fuzzy
+msgid "~S: ~S does not own ~S"
+msgstr "~S: ~S no nombra una clase"
 
 # Creo que si ~S es un sólo carácter, te cabe en la misma línea :-) sv
 #

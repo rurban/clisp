@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2004-03-12 14:25:28 EST\n"
+"POT-Creation-Date: 2004-03-14 12:10:55 EST\n"
 "PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -1726,82 +1726,6 @@ msgstr "Fonction non implémentée"
 
 
 
-#, fuzzy
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-#, fuzzy
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-#, fuzzy
-
-#, fuzzy
-
-
-
-
-
-
-#, fuzzy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1817,10 +1741,45 @@ msgstr "Fonction non implémentée"
 #, fuzzy
 
 
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+
+#, fuzzy
+
+
+
+
 
 
 
 #, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+#, fuzzy
+
+#, fuzzy
+
+
+
 
 
 
@@ -1844,6 +1803,45 @@ msgstr "Fonction non implémentée"
 
 
 
+
+#, fuzzy
+
+
+
+
+
+
+
+#, fuzzy
+
+
+
+
+
+#, fuzzy
+
+
+
+#, fuzzy
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #, fuzzy
 
 
@@ -1886,6 +1884,8 @@ msgstr "Fonction non implémentée"
 
 
 
+
+#, fuzzy
 
 
 

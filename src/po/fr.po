@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2004-03-12 14:25:22 EST\n"
+"POT-Creation-Date: 2004-03-14 12:10:50 EST\n"
 "PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -443,27 +443,27 @@ msgstr "Essayons de faire de la place par un GC...\n"
 msgid "disk full"
 msgstr "Disque plein."
 
-#: spvw_memfile.d:779
+#: spvw_memfile.d:777
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'\n"
 msgstr "Erreur système pendant le chargement du fichier d'initialisation `%s'.\n"
 
-#: spvw_memfile.d:1246
+#: spvw_memfile.d:1244
 #, fuzzy
 msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "Ne peux placer le fichier d'initialisation en mémoire."
 
-#: spvw_memfile.d:1514
+#: spvw_memfile.d:1510
 #, fuzzy
 msgid "%s: operating system error during load of initialization file `%s'"
 msgstr "Erreur système pendant le chargement du fichier d'initialisation `%s'.\n"
 
-#: spvw_memfile.d:1519
+#: spvw_memfile.d:1515
 #, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP\n"
 msgstr "Le fichier d'initialisation ne provient pas de cette version de LISP.\n"
 
-#: spvw_memfile.d:1522
+#: spvw_memfile.d:1518
 #, fuzzy
 msgid "%s: not enough memory for initialization\n"
 msgstr "Il n'y a pas assez de mémoire pour l'initialisation.\n"
@@ -5115,10 +5115,9 @@ msgstr "AVERTISSEMENT :"
 msgid "~S: This is more serious than a warning: ~A"
 msgstr "~S : C'est plus sérieux qu'un avertissement: ~A"
 
-#: threads.lisp:45
-#, fuzzy
-msgid "~S: ~S does not own ~S"
-msgstr "~S : ~S n'est pas le nom d'une classe."
+#: loadform.lisp:42
+msgid "A method on ~S for class ~S is necessary for externalizing the object ~S, according to ANSI CL 3.2.4.4, but no such method is defined."
+msgstr ""
 
 #: xcharin.lisp:35
 msgid "~: argument ~S is not a character"
@@ -5811,6 +5810,11 @@ msgstr "Dans le code de LETF, occurence d'une paire pointée terminée en ~S"
 #: macros3.lisp:243
 msgid "illegal syntax in LETF binding: ~S"
 msgstr "Syntaxe illégale dans une liaison pour LETF : ~S"
+
+#: threads.lisp:45
+#, fuzzy
+msgid "~S: ~S does not own ~S"
+msgstr "~S : ~S n'est pas le nom d'une classe."
 
 #: foreign1.lisp:100
 msgid "Cannot map string ~S to C since it contains a character ~S"
