@@ -2064,30 +2064,32 @@ echodummyrule all
 echol
 
 # development targets
-echol "makemake : makemake.in config.status"
-echotab "./config.status --file=makemake"
-echol
-echol "unixconf.h : unixconf.h.in config.status"
-echotab "sh config.status --header=unixconf.h"
-echol
-echol "Makefile : makemake"
-echotab "$0$makemake_args > Makefile.tmp"
-echotab "\$(MV) Makefile Makefile~"
-echotab "\$(MV) Makefile.tmp Makefile"
-echol
-echol "config.status : configure"
-echotab "sh config.status --recheck"
-echol
-echol "${SRCDIR}VERSION : ${SRCDIR}configure"
-echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}VERSION"
-echol
-echol "${SRCDIR}configure : ${SRCDIR}configure.in"
-echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}configure"
-echol
-if [ -n "${SRCDIR}" ] ; then
-  for f in makemake.in unixconf.h.in configure VERSION version.h; do
-    link_dep "${f}" "${SRCDIR}${f}"
-  done
+if [ ! $TSYS = win32msvc -o $TSYS = win32bc ] ; then
+  echol "makemake : makemake.in config.status"
+  echotab "./config.status --file=makemake"
+  echol
+  echol "unixconf.h : unixconf.h.in config.status"
+  echotab "sh config.status --header=unixconf.h"
+  echol
+  echol "Makefile : makemake"
+  echotab "$0$makemake_args > Makefile.tmp"
+  echotab "\$(MV) Makefile Makefile~"
+  echotab "\$(MV) Makefile.tmp Makefile"
+  echol
+  echol "config.status : configure"
+  echotab "sh config.status --recheck"
+  echol
+  echol "${SRCDIR}VERSION : ${SRCDIR}configure"
+  echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}VERSION"
+  echol
+  echol "${SRCDIR}configure : ${SRCDIR}configure.in"
+  echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}configure"
+  echol
+  if [ -n "${SRCDIR}" ] ; then
+    for f in makemake.in unixconf.h.in configure VERSION version.h; do
+      link_dep "${f}" "${SRCDIR}${f}"
+    done
+  fi
 fi
 
 UTILS=''
@@ -3535,17 +3537,24 @@ elif [ $HOS = win32 ] ; then
   fi
   echotab "version=\`cat VERSION\` ; \\"
   echotab "distdir=clisp-\$\$version ; \\"
-  echotab "distfile=clisp-\$\$version-win32.zip ; \\"
   echotab "mkdir \$\$distdir ; \\"
   echotab "for f in ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es install.bat ; do \\"
   echotab "  if test -f \$\$f ; then cp -p \$\$f \$\$distdir/\$\$f ; else cp -p \`echo \$\$f | tr '[A-Z]' '[a-z]'\` \$\$distdir/\$\$f ; fi ; \\"
   echotab "done ; \\"
-  echotab "for d in base full ; do \\"
-  echotab " mkdir \$\$distdir/\$\$d ; \\"
-  echotab " for f in lisp.exe lispinit.mem ; do \\"
-  echotab "  cp -p \$\$d/\$\$f \$\$distdir/\$\$d/\$\$f ; \\"
-  echotab " done ; \\"
-  echotab "done ; \\"
+  if [ $TSYS = win32msvc ] ; then
+    echotab "distfile=clisp-\$\$version-msvc-win32.zip ; \\"
+    echotab "for f in lisp.exe lispinit.mem install.bat ; do \\"
+    echotab "  cp -p \$\$f \$\$distdir/\$\$f ; \\"
+    echotab "done ; \\"
+  else
+    echotab "distfile=clisp-\$\$version-win32.zip ; \\"
+    echotab "for d in base full ; do \\"
+    echotab "  mkdir \$\$distdir/\$\$d ; \\"
+    echotab "  for f in lisp.exe lispinit.mem ; do \\"
+    echotab "    cp -p \$\$d/\$\$f \$\$distdir/\$\$d/\$\$f ; \\"
+    echotab "  done ; \\"
+    echotab "done ; \\"
+  fi
   echotab "mkdir \$\$distdir/data ; \\"
   for f in ${DATA_FILES}; do
     echotab "cp -p data/${f} \$\$distdir/data/${f} ; \\"
@@ -3561,10 +3570,10 @@ elif [ $HOS = win32 ] ; then
   echotab "mkdir \$\$distdir/src ; \\"
   echotab "cp -p \$(LISPFILES) install.lisp \$\$distdir/src/ ; \\"
   echotab "chmod 755 \$\$distdir/. \$\$distdir/*/. ; \\"
-  echotab "chmod 644 \`find \$\$distdir -type f -print\` ; \\"
+  echotab "find \$\$distdir -type f -exec chmod 664 {} \';\' ; \\"
   echotab "rm -f \$\$distfile ; \\"
   echotab "(echo \"CLISP version \$\$version for Win32.\"; echo \".\") | zip -r -9 -z \$\$distfile \$\$distdir ; \\"
-  echotab "\$(RMRF) \$\$distdir"
+  echotab "rm -rf \$\$distdir"
   echol
 fi
 
