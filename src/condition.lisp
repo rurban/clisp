@@ -1112,28 +1112,29 @@
 
 ;; These macros supersede the corresponding ones from macros2.lisp.
 
-(defun prompt-for-new-value (place &optional instead-p) ; ABI
-  (let ((nn (length (nth-value 2 (get-setf-expansion place)))))
-    (cond ((= nn 1)
+;; Queries the user for the values to put into the given place.
+;; Returns a fresh list of length place-numvalues.
+(defun prompt-for-new-value (place place-numvalues &optional instead-p) ; ABI
+  (cond ((= place-numvalues 1)
+         (format *debug-io*
+                 (if instead-p
+                   (concatenate 'string "~&"
+                     (TEXT "Use instead~@[ of ~S~]: "))
+                   (prompt-for-new-value-string))
+                 place)
+         (list (read *debug-io*)))
+        ((do ((ii 1 (1+ ii)) res)
+             ((> ii place-numvalues) (nreverse res))
+           (fresh-line *debug-io*)
            (format *debug-io*
                    (if instead-p
-                     (concatenate 'string "~&"
-                       (TEXT "Use instead~@[ of ~S~]: "))
-                     (prompt-for-new-value-string))
-                   place)
-           (list (read *debug-io*)))
-          ((do ((ii 1 (1+ ii)) res)
-               ((> ii nn) (nreverse res))
-             (fresh-line *debug-io*)
-             (format *debug-io*
-                     (if instead-p
-                       (TEXT "Use instead of ~S [value ~D of ~D]: ")
-                       (TEXT "New ~S [value ~D of ~D]: "))
-                     place ii nn)
-             (push (read *debug-io*) res))))))
+                     (TEXT "Use instead of ~S [value ~D of ~D]: ")
+                     (TEXT "New ~S [value ~D of ~D]: "))
+                   place ii place-numvalues)
+           (push (read *debug-io*) res)))))
 
 ;; CHECK-TYPE, CLtL2 p. 889
-(defmacro check-type (place typespec &optional (string nil))
+(defmacro check-type (place typespec &optional (string nil) &environment env)
   (let ((tag1 (gensym))
         (tag2 (gensym))
         (var (gensym)))
@@ -1141,11 +1142,13 @@
        ,tag1
        (LET ((,var ,place))
          (WHEN (TYPEP ,var ',typespec) (GO ,tag2))
-         (CHECK-TYPE-FAILED ',place ,var #'(LAMBDA (NEW-VALUE) (SETF ,place NEW-VALUE))
+         (CHECK-TYPE-FAILED ',place ,var
+                            #'(LAMBDA (NEW-VALUE) (SETF ,place NEW-VALUE))
+                            ,(length (nth-value 2 (get-setf-expansion place env)))
                             ,string ',typespec))
        (GO ,tag1)
        ,tag2)))
-(defun check-type-failed (place place-oldvalue place-setter string typespec) ; ABI
+(defun check-type-failed (place place-oldvalue place-setter place-numvalues string typespec) ; ABI
   (restart-case
     (error-of-type 'type-error
       :datum place-oldvalue :expected-type typespec
@@ -1157,7 +1160,7 @@
     (STORE-VALUE
       :report (lambda (stream)
                 (format stream (report-one-new-value-string) place))
-      :interactive (lambda () (prompt-for-new-value place))
+      :interactive (lambda () (prompt-for-new-value place place-numvalues))
       (new-value) (funcall place-setter new-value))))
 
 ;; this is the same as `default-restart-interactive' but it must
@@ -1165,27 +1168,31 @@
 (defun assert-restart-no-prompts () nil) ; ABI
 
 ;; ASSERT, CLtL2 p. 891
-(defmacro assert (test-form &optional (place-list nil) (datum nil) &rest args)
+(defmacro assert (test-form &optional (place-list nil) (datum nil) &rest args
+                  &environment env)
   (let ((tag1 (gensym))
         (tag2 (gensym)))
     `(TAGBODY
        ,tag1
        (WHEN ,test-form (GO ,tag2))
        (,@(if place-list
-            (let ((all-setter-vars '())
+            (let ((all-numvalues '())
+                  (all-setter-vars '())
                   (all-setter-forms '()))
               (do ((pl place-list (cdr pl)))
                   ((endp pl))
                 (multiple-value-bind (temps subforms stores setterform getterform)
-                    (get-setf-expansion (car pl))
+                    (get-setf-expansion (car pl) env)
                   (declare (ignore getterform))
+                  (push (length stores) all-numvalues)
                   (setq all-setter-vars
                         (revappend stores all-setter-vars))
                   (push (wrap-let* (mapcar #'list temps subforms) setterform)
                         all-setter-forms)))
+              (setq all-numvalues (nreverse all-numvalues))
               (setq all-setter-vars (nreverse all-setter-vars))
               (setq all-setter-forms (nreverse all-setter-forms))
-              `(ASSERT-FAILED ',place-list
+              `(ASSERT-FAILED ',place-list ',all-numvalues
                               #'(LAMBDA ,all-setter-vars ,@all-setter-forms)))
             `(SIMPLE-ASSERT-FAILED))
         ,@(if datum
@@ -1193,11 +1200,11 @@
             `((ASSERT-ERROR-STRING ',test-form))))
        (GO ,tag1)
        ,tag2)))
-(defun assert-failed (place-list places-setter error-string &rest condition-datum+args) ; ABI
+(defun assert-failed (place-list place-numvalues-list places-setter error-string &rest condition-datum+args) ; ABI
   (flet ((assert-restart-prompt ()
-           (mapcan #'(lambda (place)
-                       (prompt-for-new-value place))
-                   place-list)))
+           (mapcan #'(lambda (place place-numvalues)
+                       (prompt-for-new-value place place-numvalues))
+                   place-list place-numvalues-list)))
     (setf (closure-name #'assert-restart-prompt) 'assert-restart-prompt)
     (restart-case
       ;; No need for explicit association, see APPLICABLE-RESTART-P.
@@ -1265,7 +1272,7 @@
                    (lambda (stream)
                      (format stream (report-one-new-value-string-instead)
                              place))
-                 :interactive (lambda () (prompt-for-new-value place t))
+                 :interactive (lambda () (prompt-for-new-value place 1 t))
                  :invoke-function
                    (lambda (val) (return-from check-value (values val nil)))))
           (when (and (consp place) (eq 'fdefinition (car place)))
@@ -1283,7 +1290,7 @@
                    :report
                      (lambda (stream)
                        (format stream (report-one-new-value-string) place))
-                   :interactive (lambda () (prompt-for-new-value place))
+                   :interactive (lambda () (prompt-for-new-value place 1))
                    :invoke-function
                      (lambda (val)
                        (return-from check-value (values val t)))))))))
@@ -1302,7 +1309,7 @@
                   (return
                    :report (lambda (out)
                              (format out (TEXT "specify return values")))
-                   :interactive (lambda () (prompt-for-new-value 'VALUES))
+                   :interactive (lambda () (prompt-for-new-value 'VALUES 1))
                    (l) (return-from retry-function-call (values-list l))))
     (with-condition-restarts condition
         (list (find-restart 'RETRY) (find-restart 'RETURN))
@@ -1362,7 +1369,7 @@
                   ;; it is treated as a normal key, as per CLHS.
                   (OTHERWISE
                     (ETYPECASE-FAILED ,var ,errorstring ',expected-type))))))
-         (retry-loop (casename place clauselist errorstring expected-type)
+         (retry-loop (casename place clauselist errorstring expected-type env)
            (let ((g (gensym))
                  (h (gensym)))
              `(BLOCK ,g
@@ -1373,7 +1380,9 @@
                       ;; if a clause contains an OTHERWISE or T key,
                       ;; it is treated as a normal key, as per CLHS.
                       (OTHERWISE
-                        (CTYPECASE-FAILED ',place ,place #'(LAMBDA (NEW-VALUE) (SETF ,place NEW-VALUE))
+                        (CTYPECASE-FAILED ',place ,place
+                                          #'(LAMBDA (NEW-VALUE) (SETF ,place NEW-VALUE))
+                                          ,(length (nth-value 2 (get-setf-expansion place env)))
                                           ,errorstring ',expected-type)
                         (GO ,h)))))))))
     (defmacro etypecase (keyform &rest keyclauselist)
@@ -1382,27 +1391,29 @@
         (simply-error 'TYPECASE keyform keyclauselist
                       (typecase-errorstring keyform keyclauselist)
                       (typecase-expected-type keyclauselist))))
-    (defmacro ctypecase (keyplace &rest keyclauselist)
+    (defmacro ctypecase (keyplace &rest keyclauselist &environment env)
       (if (assoc t keyclauselist)
         `(TYPECASE ,keyplace ,@keyclauselist)
         (retry-loop 'TYPECASE keyplace keyclauselist
                     (typecase-errorstring keyplace keyclauselist)
-                    (typecase-expected-type keyclauselist))))
+                    (typecase-expected-type keyclauselist)
+                    env)))
     (defmacro ecase (keyform &rest keyclauselist)
       (simply-error 'CASE keyform keyclauselist
                     (case-errorstring keyform keyclauselist)
                     (case-expected-type keyclauselist)))
-    (defmacro ccase (keyform &rest keyclauselist)
+    (defmacro ccase (keyform &rest keyclauselist &environment env)
       (retry-loop 'CASE keyform keyclauselist
                   (case-errorstring keyform keyclauselist)
-                  (case-expected-type keyclauselist)))
+                  (case-expected-type keyclauselist)
+                  env))
 ) )
 (defun etypecase-failed (value errorstring expected-type) ; ABI
   (error-of-type 'type-error
     :datum value :expected-type expected-type
     (type-error-string)
     errorstring value))
-(defun ctypecase-failed (place place-oldvalue place-setter errorstring expected-type) ; ABI
+(defun ctypecase-failed (place place-oldvalue place-setter place-numvalues errorstring expected-type) ; ABI
   (restart-case
     (progn ; no need for explicit association, see applicable-restart-p
       (error-of-type 'type-error
@@ -1415,7 +1426,7 @@
     (STORE-VALUE
       :report (lambda (stream)
                 (format stream (report-one-new-value-string) place))
-      :interactive (lambda () (prompt-for-new-value place))
+      :interactive (lambda () (prompt-for-new-value place place-numvalues))
       (new-value) (funcall place-setter new-value))))
 
 ;;; 29.4.11. Debugging Utilities

@@ -1,3 +1,17 @@
+2005-01-01  Bruno Haible  <bruno@clisp.org>
+
+	Fix check-type, assert, ctypecase, ccase when used on locally defined
+	places.
+	* condition.lisp (prompt-for-new-value): Add new argument
+	place-numvalues.
+	(check-type): Pass number of value to check-type-failed.
+	(check-type-failed): Add new argument place-numvalues.
+	(assert): Pass number of values to prompt-for-new-value. Pass
+	environment to get-setf-expansion.
+	(check-value, retry-function-call): Update.
+	(ctypecase, ccase): Pass number of value to ctypecase-failed.
+	(ctypecase-failed): Add new argument place-numvalues.
+
 2005-01-05  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (constant_bit_t, special_bit_t): Remove macros.
