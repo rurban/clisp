@@ -1,3 +1,8 @@
+1999-07-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * misc.d (MACHINE-VERSION) [WIN32]: Use the info.wProcessorLevel field
+          only on WinNT.
+
 1999-07-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Don't access objects in memory through `oint*' pointers.

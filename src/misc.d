@@ -136,12 +136,17 @@ LISPFUNN(machine_version,0)
         #endif
         #ifdef WIN32_NATIVE
           { var SYSTEM_INFO info;
+            var OSVERSIONINFO v;
             begin_system_call();
             GetSystemInfo(&info);
+            if (!GetVersionEx(&v)) { OS_error(); }
             end_system_call();
             if (info.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_INTEL)
               { erg = ascii_to_string("PC/386");
-                TheSstring(erg)->data[3] = '0'+info.wProcessorLevel;
+                # Check for Windows NT, since the info.wProcessorLevel is
+                # garbage on Windows 95.
+                if (v.dwPlatformId == VER_PLATFORM_WIN32_NT)
+                  TheSstring(erg)->data[3] = '0'+info.wProcessorLevel;
           }   }
         #endif
         # Das Ergebnis merken wir uns für's nächste Mal:
