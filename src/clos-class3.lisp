@@ -1703,6 +1703,8 @@
                                              ;; The following keys come from DEFINE-STRUCTURE-CLASS.
                                              ((names names) nil)
                                              ((kconstructor kconstructor) nil)
+                                             ((boa-constructors boa-constructors) '())
+                                             ((copier copier) nil)
                                              ((direct-slots direct-slots-as-metaobjects) '())
                                              ((slots slots) '()) ((size size) 1)
                                         &allow-other-keys)
@@ -1711,7 +1713,8 @@
   ;; replaced with #'make-instance later.
   (declare (ignore metaclass name direct-superclasses direct-slots-as-lists
                    direct-default-initargs documentation
-                   names kconstructor direct-slots-as-metaobjects slots size))
+                   names kconstructor boa-constructors copier
+                   direct-slots-as-metaobjects slots size))
   (let ((class (allocate-metaobject-instance *<structure-class>-class-version*
                                              *<structure-class>-instance-size*)))
     (apply #'initialize-instance-<structure-class> class args)))
@@ -1735,6 +1738,8 @@
                                                  ;; The following keys come from DEFINE-STRUCTURE-CLASS.
                                                  ((names names) nil names-p)
                                                  ((kconstructor kconstructor) nil kconstructor-p)
+                                                 ((boa-constructors boa-constructors) '() boa-constructors-p)
+                                                 ((copier copier) nil copier-p)
                                                  ((direct-slots direct-slots-as-metaobjects) '() direct-slots-as-metaobjects-p)
                                                  ((slots slots) '())
                                                  ((size size) 1)
@@ -1809,13 +1814,17 @@
     (setf (class-names class) names))
   (when (or (eq situation 't) kconstructor-p)
     (setf (class-kconstructor class) kconstructor))
+  (when (or (eq situation 't) boa-constructors-p)
+    (setf (class-boa-constructors class) boa-constructors))
+  (when (or (eq situation 't) copier-p)
+    (setf (class-copier class) copier))
   ; Done.
   (when (eq situation 't)
     (system::note-new-structure-class))
   class)
 
 ;; DEFSTRUCT-Hook
-(defun define-structure-class (name names keyword-constructor all-slots direct-slots) ; ABI
+(defun define-structure-class (name names keyword-constructor boa-constructors copier all-slots direct-slots) ; ABI
   (setf (find-class name)
         (make-instance-<structure-class> <structure-class>
           :name name
@@ -1823,6 +1832,8 @@
             (if (cdr names) (list (find-class (second names))) '())
           'names names
           'kconstructor keyword-constructor
+          'boa-constructors boa-constructors
+          'copier copier
           'direct-slots direct-slots
           'slots all-slots
           'size (if all-slots
@@ -1831,6 +1842,14 @@
           :generic-accessors nil)))
 (defun undefine-structure-class (name) ; ABI
   (setf (find-class name) nil))
+(defun structure-undefine-accessories (name) ; ABI
+  (let ((kconstructor (class-kconstructor name)))
+    (when kconstructor
+      (fmakunbound kconstructor)))
+  (mapc #'fmakunbound (class-boa-constructors name))
+  (let ((copier (class-copier name)))
+    (when copier
+      (fmakunbound copier))))
 
 ;; ------------- Creation of an instance of <semi-standard-class> -------------
 
