@@ -50,10 +50,10 @@
 (defun do-test (stream log &optional (ignore-errors t))
   (let ((eof "EOF") (error-count 0) (total-count 0))
     (loop
-      (incf total-count)
       (let ((form (read stream nil eof))
             (result (read stream nil eof)))
         (when (or (eq form eof) (eq result eof)) (return))
+        (incf total-count)
         (print form)
         (let ((my-result
                (if ignore-errors
@@ -77,10 +77,10 @@
   (declare (ignore ignore-errors))
   (let ((eof "EOF") (error-count 0) (total-count 0))
     (loop
-      (incf total-count)
       (let ((form (read stream nil eof))
             (errtype (read stream nil eof)))
         (when (or (eq form eof) (eq errtype eof)) (return))
+        (incf total-count)
         (print form)
         (let ((my-result (nth-value 1 (ignore-errors (eval form)))))
           (multiple-value-bind (typep-result typep-error)
