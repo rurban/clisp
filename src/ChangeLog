@@ -1,5 +1,10 @@
 1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * conditio.lsp: Add SYS::PRINT-CONDITION to
+          clos::*dynamically-modifiable-generic-function-names*.
+
+1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (get_synonym_stream): Argument must be a variable.
           (rd_by_array_synonym, wr_by_array_synonym, rd_ch_array_synonym,
            wr_ch_array_synonym, close_synonym, read_line_synonym): Update.

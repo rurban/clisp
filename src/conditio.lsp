@@ -68,6 +68,8 @@ muffle-cerrors appease-cerrors exit-on-error
     (clos:call-next-method)
     (print-condition object stream)
 ) )
+; Avoid warnings caused by DEFCONDITION adding methods to PRINT-CONDITION.
+(pushnew 'print-condition clos::*dynamically-modifiable-generic-function-names*)
 
 ;;; 29.4.5. Defining Conditions
 
