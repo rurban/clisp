@@ -178,7 +178,8 @@ unicode_character_name (ucs4_t c, char *buf)
       *ptr = '\0';
       return buf;
     }
-  else if ((c >= 0xF900 && c <= 0xFA2D) || (c >= 0x2F800 && c <= 0x2FA1D))
+  else if ((c >= 0xF900 && c <= 0xFA2D) || (c >= 0xFA30 && c <= 0xFA6A)
+	   || (c >= 0x2F800 && c <= 0x2FA1D))
     {
       /* Special case for CJK compatibility ideographs. Keeps the tables
 	 small.  */
