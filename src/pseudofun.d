@@ -94,7 +94,7 @@ LPSEUDOCODE(wr_ch_printer)
 
 # External definitions from ENCODING.D:
 #ifdef UNICODE
-XPSEUDOCODE(object, all_range, (object encoding, uintL start, uintL end))
+XPSEUDOCODE(object, all_range, (object encoding, uintL start, uintL end, uintL maxintervals))
 XPSEUDOCODE(uintL, uni16_mblen, (object encoding, const uintB* src, const uintB* srcend))
 XPSEUDOCODE(void, uni16be_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
 XPSEUDOCODE(void, uni16le_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
@@ -124,7 +124,7 @@ XPSEUDOCODE(uintL, nls_wcslen, (object encoding, const chart* src, const chart* 
 XPSEUDOCODE(void, nls_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
 XPSEUDOCODE(uintL, nls_asciiext_wcslen, (object encoding, const chart* src, const chart* srcend))
 XPSEUDOCODE(void, nls_asciiext_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
-XPSEUDOCODE(object, nls_range, (object encoding, uintL start, uintL end))
+XPSEUDOCODE(object, nls_range, (object encoding, uintL start, uintL end, uintL maxintervals))
 XPSEUDODATA(struct nls_table, nls_ascii_table)
 XPSEUDODATA(struct nls_table, nls_iso8859_1_table)
 XPSEUDODATA(struct nls_table, nls_iso8859_2_table)
@@ -197,6 +197,6 @@ XPSEUDOCODE(uintL, iconv_mblen, (object encoding, const uintB* src, const uintB*
 XPSEUDOCODE(void, iconv_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))
 XPSEUDOCODE(uintL, iconv_wcslen, (object encoding, const chart* src, const chart* srcend))
 XPSEUDOCODE(void, iconv_wcstombs, (object encoding, object stream, const chart* *srcp, const chart* srcend, uintB* *destp, uintB* destend))
-XPSEUDOCODE(object, iconv_range, (object encoding, uintL start, uintL end))
+XPSEUDOCODE(object, iconv_range, (object encoding, uintL start, uintL end, uintL maxintervals))
 #endif
 #endif

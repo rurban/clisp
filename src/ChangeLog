@@ -1,5 +1,21 @@
 2002-05-29  Bruno Haible  <bruno@clisp.org>
 
+	Speed up the loading of type.lisp.
+	* lispbibl.d (Encoding): Add a maxintervals argument to the enc_range
+	function.
+	(Encoding_range): Update.
+	* stream.d (iconv_range): Add a maxintervals argument.
+	* encoding.d (all_range): Likewise.
+	(bmp_range): Likewise.
+	(nls_range): Likewise.
+	(SYSTEM::CHARSET-TYPEP): Update.
+	(SYSTEM::CHARSET-RANGE): Add optional maxintervals argument.
+	* pseudofun.d (all_range, nls_range, iconv_range): Add a maxintervals
+	argument.
+	* type.lisp (get-charset-range): Add optional maxintervals argument.
+
+2002-05-29  Bruno Haible  <bruno@clisp.org>
+
 	Upgrade CHAR-WIDTH and STRING-WIDTH to Unicode 3.2.
 	* streq.h: New file, from libunistring-0.0.
 	* cjk.h: New file, from libunistring-0.0.
