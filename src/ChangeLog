@@ -1,5 +1,14 @@
 1999-07-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * aclocal.m4 (CL_RAISE): New macro.
+        * unixconf.h.in (HAVE_RAISE): New macro.
+        * configure.in: Call it.
+        * unix.d (raise): Declare only if HAVE_RAISE is defined.
+        * spvw_sigpipe.d (sigpipe_handler): Use kill(getpid(),...) if
+          HAVE_RAISE is not defined.
+
+1999-07-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (distrib): If BINARY_DISTRIB is defined, distribute
           clisp-link, linkkit, lisp.a etc. nevertheless, because we don't know
           whether the user has a C compiler or not.
