@@ -9922,17 +9922,12 @@ LISPFUN(write_char,seclass_default,1,1,norest,nokey,0,NIL) {
 # can trigger GC
 local void write_string_up (void) {
   test_ostream(&STACK_2);       /* check Output-Stream */
-  pushSTACK(STACK_0);           /* :END-Argument */
-  STACK_1 = STACK_2;            /* :START-Argument */
-  STACK_2 = STACK_4;            /* String-Argument */
-  STACK_4 = STACK_3;            /* Stream-Argument */
-  STACK_3 = STACK_2;            /* String-Argument */
-  # stack layout: stream, string, string, :START-Argument, :END-Argument.
+  swap(object,STACK_2,STACK_3); /* swap string and stream */
+  # stack layout: stream, string, :START-Argument, :END-Argument.
   # check borders:
   var stringarg arg;
   var object string = test_string_limits_ro(&arg);
-  if (!nullp(string))           /* not a nil vector => use storage vector */
-    STACK_0 = string;
+  pushSTACK(string);
   # stack layout: stream, string.
   write_sstring_ab(&STACK_1,arg.string,arg.offset+arg.index,arg.len);
 }
