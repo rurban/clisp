@@ -2880,13 +2880,12 @@
     (declare (ignore docstring))
     `(MAKE-GENERIC-FUNCTION ',funname ',signature ',argorder ,@method-forms)))
 
-
-;;; GENERIC-FUNCTION
-
-(defmacro generic-function (lambda-list &rest options &environment env)
+#| GENERIC-FUNCTION is a TYPE (and a COMMON-LISP symbol) in ANSI CL,
+ but not a macro, so this definition violates the standard
+ (defmacro generic-function (lambda-list &rest options &environment env)
   (make-generic-function-form 'generic-function 'LAMBDA
                               lambda-list options env))
-
+|#
 
 ;; For GENERIC-FLET, GENERIC-LABELS
 (defun analyze-generic-fundefs (caller fundefs env)
