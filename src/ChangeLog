@@ -1,7 +1,10 @@
 2000-07-20  Sam Steingold  <sds@gnu.org>
 
 	* inspect.lisp (insp-check): `warn' instead of `assert'
+	(*inspect-browser*): default to nil
 	(inspect-frontend :http): hardcode host 127.0.0.1
+	print URL when `*inspect-browser*' is nil - permits
+	CLISP and browser running on different machines
 
 2000-07-19  Sam Steingold  <sds@gnu.org>
 
