@@ -64,6 +64,11 @@ line, like this:
     funname
     (get-setf-symbol (second funname))))
 
+Elements of a list are indented by 2 spaces relative to the list, except
+- for arguments of function calls, which often can be aligned to the first
+  argument,
+- for elements of COND-clauses, which are usually indented by 1 space.
+
 Some of the CLISP code still uses the "Bruno style". Its characteristic
 is that closing parentheses are located either on the same line as the
 corresponding opening paren, or on extra lines containing only closing
@@ -101,7 +106,8 @@ additional braces.
 We have a few macros defined in lispbibl.d: 'elif' means 'else if',
 'until' means 'while not' (both are now deprecated).
 'loop' introduces a loop which can be exited only via 'break'; it's
-equivalent to 'for(;;)'.  It is deprecated as well.
+equivalent to 'for(;;)'.  It is deprecated as well.  Use 'for (;;)',
+not 'while (1)', instead.
 
                              C indentation
                              -------------
