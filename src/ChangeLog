@@ -1,3 +1,6 @@
+2003-08-27  John Hinsdale <hin@alma.com>
+	* modules/oracle/README, oracle.lisp - More documentation
+
 2003-08-26  Sam Steingold  <sds@gnu.org>
 
 	* control.d (MACROLET): fixed a GC-safety bug
