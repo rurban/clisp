@@ -1993,11 +1993,7 @@ if [ -n "${SRCDIR}" ] ; then
   line=$line${UNICODE_EXTRA}
 fi
 echol $line
-if [ $HOS = unix -a $CROSS = false ] ; then
-  echotab_mkdir_maybe "bindings"
-else
-  echodummyrule init
-fi
+echodummyrule init
 echol
 for parf in ${PARAMS}; do
   echol "${parf}.h : ${SRCDIR}${parf}.c unixconf.h"
