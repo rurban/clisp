@@ -28,6 +28,26 @@ options: The following options are recognized:
          --exec-prefix=PREFIX  base directory for architecture-dependent
                                files to be installed
          --fsstnd=STYLE        specify file system standard for installation
+         --bindir=DIR          sets the installation directory for executables
+         --libdir=DIR          sets the installation directory for libraries
+         --includedir=DIR      sets the installation directory for C header
+                               files
+         --datadir=DIR         sets the installation directory for
+                               read-only architecture-independent data
+         --localedir=DIR       sets the installation directory for
+                               locale-dependent architecture-independent data
+         --docdir=DIR          sets the installation directory for
+                               documentation
+         --mandir=DIR          sets the installation directory for
+                               documentation in man page format
+         --htmldir=DIR         sets the installation directory for
+                               documentation in HTML format
+         --dvidir=DIR          sets the installation directory for
+                               documentation in TeX DVI format
+         --psdir=DIR           sets the installation directory for
+                               documentation in PostScript format
+         --pdfdir=DIR          sets the installation directory for
+                               documentation in PDF format
          --host=HOST           specify host in CPU-VENDOR-OS format (just
                                in case config.guess guesses wrong)
          --with-PACKAGE        use PACKAGE
@@ -114,14 +134,14 @@ do
 
     case "$arg" in
 
-      --build | --buil | --bui | --bu | --b)
+      --build | --buil | --bui | --bu)
         do_config=1
         do_build=1 ;;
 
       --config | --confi | --conf | --con | --co | --c)
         do_config=1 ;;
 
-      --install | --instal | --insta | --inst | --ins | --in | --i)
+      --install | --instal | --insta | --inst | --ins)
         do_config=1
         do_build=1
         do_install=1 ;;
@@ -130,7 +150,7 @@ do
       --edit-c | --edit- | --edit | --edi | --ed)
         edit_config=1 ;;
 
-      --help | --hel | --he | --h)
+      --help | --hel | --he)
         info_help
         exit 0 ;;
 
@@ -146,11 +166,11 @@ do
         prev=srcdir
         passnext=yes ;;
 
-      --prefix=* | --prefi=* | --pref=* | --pre=* | --pr=* | --p=*)
+      --prefix=* | --prefi=* | --pref=* | --pre=* | --pr=*)
         subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --prefix="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
 
-      --prefix | --prefi | --pref | --pre | --pr | --p)
+      --prefix | --prefi | --pref | --pre | --pr)
         subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --prefix="
         prev=prefix
@@ -171,15 +191,136 @@ do
       --fsstnd=* | --fsstn=* | --fsst=* | --fss=* | --fs=* | --f=*)
         makemake_args="$makemake_args --fsstnd="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
 
+      --bindir=* | --bindi=* | --bind=* | --bin=* | --bi=*)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --bindir="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
+
+      --bindir | --bindi | --bind | --bin | --bi)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --bindir="
+        prev=bindir
+        passnext=yes
+        passnextm=yes ;;
+
+      --libdir=* | --libdi=* | --libd=* | --lib=* | --li=*)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --libdir="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
+
+      --libdir | --libdi | --libd | --lib | --li)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --libdir="
+        prev=libdir
+        passnext=yes
+        passnextm=yes ;;
+
+      --includedir=* | --includedi=* | --included=* | --include=* | --includ=* | --inclu=* | --incl=* | --inc=*)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --includedir="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
+
+      --includedir | --includedi | --included | --include | --includ | --inclu | --incl | --inc)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --includedir="
+        prev=includedir
+        passnext=yes
+        passnextm=yes ;;
+
+      --datadir=* | --datadi=* | --datad=* | --data=* | --dat=* | --da=*)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --datadir="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
+
+      --datadir | --datadi | --datad | --data | --dat | --da)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --datadir="
+        prev=datadir
+        passnext=yes
+        passnextm=yes ;;
+
+      --localedir=* | --localedi=* | --localed=* | --locale=* | --local=* | --loca=* | --loc=* | --lo=*)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --localedir="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
+
+      --localedir | --localedi | --localed | --locale | --local | --loca | --loc | --lo)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --localedir="
+        prev=localedir
+        passnext=yes
+        passnextm=yes ;;
+
+      --docdir=* | --docdi=* | --docd=* | --doc=* | --do=*)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --docdir="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
+
+      --docdir | --docdi | --docd | --doc | --do)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --docdir="
+        prev=docdir
+        passnext=yes
+        passnextm=yes ;;
+
+      --mandir=* | --mandi=* | --mand=* | --man=* | --ma=* | --m=*)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --mandir="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
+
+      --mandir | --mandi | --mand | --man | --ma | --m)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --mandir="
+        prev=mandir
+        passnext=yes
+        passnextm=yes ;;
+
+      --htmldir=* | --htmldi=* | --htmld=* | --html=* | --htm=* | --ht=*)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --htmldir="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
+
+      --htmldir | --htmldi | --htmld | --html | --htm | --ht)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --htmldir="
+        prev=htmldir
+        passnext=yes
+        passnextm=yes ;;
+
+      --dvidir=* | --dvidi=* | --dvid=* | --dvi=* | --dv=*)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --dvidir="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
+
+      --dvidir | --dvidi | --dvid | --dvi | --dv)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --dvidir="
+        prev=dvidir
+        passnext=yes
+        passnextm=yes ;;
+
+      --psdir=* | --psdi=* | --psd=* | --ps=*)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --psdir="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
+
+      --psdir | --psdi | --psd | --ps)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --psdir="
+        prev=psdir
+        passnext=yes
+        passnextm=yes ;;
+
+      --pdfdir=* | --pdfdi=* | --pdfd=* | --pdf=* | --pd=*)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --pdfdir="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
+
+      --pdfdir | --pdfdi | --pdfd | --pdf | --pd)
+        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        makemake_args="$makemake_args --pdfdir="
+        prev=pdfdir
+        passnext=yes
+        passnextm=yes ;;
+
       --hyperspec=* | --hyperspe=* | --hypersp=* | --hypers=* | --hs=* | --hy=*)
         makemake_args="$makemake_args --hyperspec="`echo "$arg" | sed 's,^[-_a-zA-Z0-9]*=,,'` ;;
 
-      --host=* | --hos=* | --ho=* | --h=* | \
+      --host=* | --hos=* | --ho=* | \
       --quiet | --quie | --qui | --qu | --q | \
       --silent | --silen | --sile | --sil | --si)
         subdir_configure_args="$subdir_configure_args $arg" ;;
 
-      --host | --hos | --ho | --h)
+      --host | --hos | --ho)
         subdir_configure_args="$subdir_configure_args $arg"
         prev=host
         passnext=yes ;;

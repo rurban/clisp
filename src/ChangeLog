@@ -1,5 +1,34 @@
 2005-01-09  Bruno Haible  <bruno@clisp.org>
 
+	* configure: Document and implement options --bindir, --libdir,
+	--includedir, --datadir, --localedir, --docdir, --mandir, --htmldir,
+	--dvidir, --psdir, --pdfdir, for consistency with other GNU programs.
+	* makemake.in: Likewise.
+	(PREFIX): On Unix, don't ignore @prefix@.
+	(EXEC_PREFIX): On Unix, don't ignore @exec_prefix@.
+	(bindir, BINDIR): New variables. On Unix, don't ignore @bindir@.
+	(libdir, LIBDIR): New variables. On Unix, don't ignore @libdir@.
+	(includedir, INCLUDEDIR): New variables. On Unix, don't ignore
+	@includedir@.
+	(datadir, DATADIR, localedir, LOCALEDIR): New variables. On Unix,
+	don't ignore @datadir@.
+	(docdir): Remove variable.
+	(docdir): New variable, renamed from lispdocdir.
+	(SRCDOCDIR): Renamed from DOCDIR.
+	(SRCDOCDIR_): Renamed from DOCDIR_.
+	(SRCDOCDIR_M): Renamed from DOCDIR_M.
+	(DOCDIR): New variable.
+	(mandir, MANDIR, htmldir, HTMLDIR, dvidir, DVIDIR, psdir, PSDIR,
+	pdfdir, PDFDIR): New variables.
+	(brace_to_paren): New variable.
+	(datadir): Renamed from shared.
+	* _distmakefile (datadir): Renamed from shared.
+	(docdir): Remove variable.
+	(docdir): New variable, renamed from lispdocdir.
+	(install-doc, uninstall): Update.
+
+2005-01-09  Bruno Haible  <bruno@clisp.org>
+
 	* po/Makefile.in.in (datadir): Use @datadir@.
 
 2005-01-01  Bruno Haible  <bruno@clisp.org>

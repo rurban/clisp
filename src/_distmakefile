@@ -11,19 +11,18 @@ prefix = /usr/local
 # Common base directory for architecture dependent files.
 exec_prefix = $(prefix)
 # Common base directory for architecture independent files
-shared = $(prefix)/share
+datadir = $(prefix)/share
 # Directory where executables are installed.
 bindir = $(exec_prefix)/bin
 # Directory where manual pages are installed.
-mandir = $(shared)/man
+mandir = $(datadir)/man
 # Directory where documentation is installed.
-docdir = $(shared)/doc
-lispdocdir = $(docdir)/clisp
-# Directory where manual pages in HTML/DVI/PS format are installed.
-htmldir = $(lispdocdir)
-dvidir = $(lispdocdir)
-psdir = $(lispdocdir)
-pdfdir = $(lispdocdir)
+docdir = $(datadir)/doc/clisp
+# Directory where manual pages in HTML/DVI/PS/PDF format are installed.
+htmldir = $(docdir)
+dvidir = $(docdir)
+psdir = $(docdir)
+pdfdir = $(docdir)
 libdir = $(exec_prefix)/lib
 lisplibdir = $(libdir)/clisp
 lexe=@@LEXE@@
@@ -122,9 +121,9 @@ install-man : doc/clisp.1 doc/clisp.html force
 install-doc : force
 	if [ ! -d $(prefix) ] ; then mkdir $(prefix) ; fi
 	if [ ! -d $(exec_prefix) ] ; then mkdir $(exec_prefix) ; fi
+	if [ ! -d $(datadir)/doc ] ; then mkdir $(datadir)/doc ; fi
 	if [ ! -d $(docdir) ] ; then mkdir $(docdir) ; fi
-	if [ ! -d $(lispdocdir) ] ; then mkdir $(lispdocdir) ; fi
-	tar cf - ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add doc | (cd $(lispdocdir) && tar xf -)
+	tar cf - ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add doc | (cd $(docdir) && tar xf -)
 
 uninstall : force
 	rm -rf $(lisplibdir)
@@ -137,7 +136,7 @@ uninstall : force
 	rm -f $(dvidir)/clisp.dvi
 	rm -f $(psdir)/clisp.ps
 	rm -f $(pdfdir)/clisp.pdf
-	rm -rf $(lispdocdir)
+	rm -rf $(docdir)
 
 force:
 
