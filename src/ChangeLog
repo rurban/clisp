@@ -1,3 +1,7 @@
+2004-12-12  Bruno Haible  <bruno@clisp.org>
+
+	* spvw.d (main_actions): Fix GC-safety bug in argv_package handling.
+
 2004-12-11  Bruno Haible  <bruno@clisp.org>
 
 	* control.d (parse_doc_decl): Fix GC-safety bug introduced on
