@@ -534,6 +534,9 @@ LISPSYM(program_id,"PROGRAM-ID",system)
 LISPSYM(ansi,"ANSI",system)
 LISPSYM(set_ansi,"SET-ANSI",system)
 LISPSYM(module_info,"MODULE-INFO",ext)
+#if defined(DYNAMIC_FFI) && (defined(WIN32_NATIVE) || defined(HAVE_DLOPEN))
+LISPSYM(Kffi,"FFI",keyword)
+#endif
 LISPSYM(argv,"ARGV",ext)
 /* ---------- I18N ---------- */
 LISPSYM(current_language,"CURRENT-LANGUAGE",system)
