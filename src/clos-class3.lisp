@@ -451,7 +451,11 @@
   (unless (proper-list-p direct-superclasses)
     (error (TEXT "~S for class ~S: The ~S argument should be a proper list, not ~S")
            'ensure-class-using-class name ':direct-superclasses direct-superclasses))
-  (unless (every #'(lambda (x) (or (potential-class-p x) (symbolp x))) direct-superclasses)
+  (unless (every #'(lambda (x)
+                     (or (defined-class-p x)
+                         (forward-reference-to-class-p x)
+                         (symbolp x)))
+                 direct-superclasses)
     (error (TEXT "~S for class ~S: The direct-superclasses list should consist of classes and symbols, not ~S")
            'ensure-class-using-class name direct-superclasses))
   ;; Ignore the old class if the given name is not its "proper name".
@@ -493,7 +497,7 @@
           (mapcar #'(lambda (c)
                       (if (defined-class-p c)
                         c
-                        (let ((cn (if (potential-class-p c) (class-name c) c)))
+                        (let ((cn (if (forward-reference-to-class-p c) (class-name c) c)))
                           (assert (symbolp cn))
                           (if a-semi-standard-class-p
                             ;; Need a class. Allocate a forward-referenced-class
@@ -600,7 +604,7 @@
             (let ((c (car l)))
               (unless (defined-class-p c)
                 (let ((new-c
-                        (let ((cn (if (potential-class-p c) (class-name c) c)))
+                        (let ((cn (if (forward-reference-to-class-p c) (class-name c) c)))
                           (assert (symbolp cn))
                           ;; Need a class. Allocate a forward-referenced-class
                           ;; if none is yet allocated.
@@ -613,7 +617,7 @@
                       ; changed from forward-referenced-class to defined-class
                       (check-allowed-superclass class new-c))
                     (setf (car l) new-c)
-                    (when (potential-class-p c)
+                    (when (or (defined-class-p c) (forward-reference-to-class-p c))
                       (remove-direct-subclass c class))
                     (add-direct-subclass new-c class))))))))
       (when direct-slots-p
@@ -820,7 +824,7 @@
 ;; Returns the currently existing direct subclasses, as a freshly consed list.
 (defun list-direct-subclasses (class) ...)
 |#
-(def-weak-set-accessors class-direct-subclasses-table class
+(def-weak-set-accessors class-direct-subclasses-table defined-class
   add-direct-subclass-internal
   remove-direct-subclass-internal
   list-direct-subclasses)
@@ -1882,7 +1886,7 @@
                                  (finalizing-now nil))
   (when (or (defined-class-p class)
             (setq class
-                  (find-class (if (potential-class-p class) (class-name class) class)
+                  (find-class (if (forward-reference-to-class-p class) (class-name class) class)
                               force-p)))
     (if (>= (class-initialized class) 6) ; already finalized?
       class
@@ -2403,7 +2407,9 @@
   (macrolet ((form () *<specializer>-defclass*))
     (form))
 
-  ;; 6. Define the class <potential-class>.
+  ;; 6. Define the classes <super-class>, <potential-class>.
+  (macrolet ((form () *<super-class>-defclass*))
+    (form))
   (setq <potential-class>
         (macrolet ((form () *<potential-class>-defclass*))
           (form)))
@@ -2504,9 +2510,13 @@
   (replace-class-version (find-class 'eql-specializer)
                          *<eql-specializer>-class-version*)
 
-  ;; Define the class <forward-referenced-class>.
-  (setq <forward-referenced-class>
-        (macrolet ((form () *<forward-referenced-class>-defclass*))
+  ;; Define the classes <forward-reference-to-class>,
+  ;; <misdesigned-forward-referenced-class>.
+  (setq <forward-reference-to-class>
+        (macrolet ((form () *<forward-reference-to-class>-defclass*))
+                     (form)))
+  (setq <misdesigned-forward-referenced-class>
+        (macrolet ((form () *<misdesigned-forward-referenced-class>-defclass*))
                      (form)))
 
 );progn
