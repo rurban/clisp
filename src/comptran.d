@@ -611,14 +611,15 @@ local object N_cosh_N (object x)
     STACK_5 = R_R_contagion_R(STACK_4,STACK_5);
     STACK_0 = R_R_mal_R(STACK_0,STACK_2); /* sinh(a)*sin(b) */
     STACK_1 = R_R_mal_R(STACK_1,STACK_3); /* cosh(a)*cos(b) */
+    var object result;
     if (eq(STACK_0,Fixnum_0)) {
-      STACK_1 = F_R_float_F(STACK_1,STACK_5);
+      result = F_R_float_F(STACK_1,STACK_5);
     } else {
       STACK_0 = F_R_float_F(STACK_0,STACK_5);
       STACK_1 = F_R_float_F(STACK_1,STACK_5);
-      STACK_1 = R_R_complex_C(STACK_1,STACK_0);
+      result = R_R_complex_C(STACK_1,STACK_0);
     }
-    { object ret = STACK_1; skipSTACK(6); return ret; }
+    skipSTACK(6); return result;
   }
 }
 
