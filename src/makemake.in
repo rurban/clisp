@@ -344,7 +344,7 @@ case $# in
      LIBTERMCAP='@LIBTERMCAP@'           # either '-ltermcap' or '-lncurses'
      LIBDL='@LIBDL@'                     # either '-ldl' or ''
      LIBICONV='@LIBICONV@'               # either '-liconv' or ''
-     LIBSIGSEGV='@LIBSIGSEGV@'           # either '-lsigsegv' or ''
+     LIBSIGSEGV='@LTLIBSIGSEGV@'         # '-lsigsegv -L/usr/local/lib' or ''
      X_INCLUDES='@X_INCLUDES@'           # either '-I/usr/somewhere/include' or ''
      X_LIBS='@X_LIBS@'                   # either '-L/usr/somewhere/lib -lX11' or ''
      host='@host@'                       # something like 'sparc-sun-sunos4'
