@@ -381,3 +381,9 @@ DEFUN(PCRE:PCRE-EXEC,pattern subject &key :BOOLEAN                      \
   } else pcre_error(ret);
   skipSTACK(2);                 /* drop pattern & subject */
 }
+
+void module__pcre__init_function_2 (module_t* module)
+{ /* the original pcre_malloc() and pcre_free() cause a crash in FINALIZE */
+  pcre_malloc = malloc;
+  pcre_free = free;
+}
