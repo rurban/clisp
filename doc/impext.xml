@@ -2576,8 +2576,7 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
  </simpara></listitem></varlistentry>
 
 <varlistentry id="c-struct"><term><literal role="type">(&c-struct;
-  &class-r; (&option-r;*)
-  (<replaceable>ident&sub-1;</replaceable>
+  &class-r; (<replaceable>ident&sub-1;</replaceable>
    <replaceable>c-type&sub-1;</replaceable>) ...
   (<replaceable>ident&sub-n;</replaceable>
    <replaceable>c-type&sub-n;</replaceable>))</literal></term>
@@ -2593,7 +2592,8 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
  instance of this class, with slots of names
  <replaceable>ident&sub-1;</replaceable>, ...,
  <replaceable>ident&sub-n;</replaceable>.</simpara><simpara>
- (&option-r;*) are there to reconstruct the &def-c-struct; form.
+ &class-r; may also be a &cons-t; of a &symbol-t; (as above) and
+ a &list-t; of &def-c-struct; options.
  </simpara></listitem></varlistentry>
 
 <varlistentry id="c-union"><term><literal role="type">(&c-union;
