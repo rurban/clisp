@@ -154,7 +154,7 @@ Returns: T if a cached connection was re-used (NIL if a new connection
     ; If there's an error, disconnect and invalidate; fall through and retry
     (when conn
 	  (let ((conn-handle (db-connection conn)))
-	    (oracle_exec_sql conn-handle "SELECT 'x' FROM dual" (make-array 0) (c-truth t))
+	    (oracle_exec_sql conn-handle "SELECT 'x' FROM dual" (make-array 0) (c-truth nil))
 	    (when (not (lisp-truth (oracle_success conn-handle)))
 		  (oracle_disconnect conn-handle) ; Don't check for error here
 		  (remhash hkey *oracle-connection-cache*)
