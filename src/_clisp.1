@@ -22,7 +22,7 @@ clisp \- ANSI Common Lisp compiler, interpreter and debugger.
 .B \-B
 .I lisplibdir
 ]
-#ifdef UNIX
+#if defined(UNIX) || defined(WIN32_NATIVE)
 [
 .B \-K
 .I linking-set
@@ -173,7 +173,7 @@ Directory lisplibdir can be changed at run-time using the symbol-macro
 .B *lib-directory*
 .
 
-#ifdef UNIX
+#if defined(UNIX) || defined(WIN32_NATIVE)
 .TP
 .BI "\-K " linking-set
 Specifies the linking set to be run.
