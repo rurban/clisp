@@ -1,3 +1,13 @@
+1999-03-10  Sam Steingold  <sds@gnu.org>
+
+	* ../configure: new option --export-syscalls.
+	* makemake.in: ditto.
+	* constsym.d, subr.d: added `RESOLVE-HOST-IPADDR', `FILE-STAT'
+	and `USER-DATA'.
+	* pathname.d: added `file_stat' and `user_data'.
+	* socket.d: added `resolve_host_ipaddr'.
+	* stream.d: added `stream_fd'.
+
 1999-03-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Make it possible to build clisp when neither libtermcap nor libncurses
