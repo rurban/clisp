@@ -1288,6 +1288,10 @@ LISPSPECFORM(return_from, 1,1,nobody)
   unwind_upto(FRAME);
 }
 
+/* UP: check whenter OBJ ends a proper list */
+#define ENDP(obj,caller) (consp(obj) ? false : nullp(obj) ? true : \
+                          (subr_self = caller, fehler_proper_list(obj), 0))
+
 /* We build the functions MAPCAR, MAPLIST, MAPCAN, MAPCON in two versions:
  The first one builds the list in reversed order, then has to reverse it.
  The second one works in forward direction, but needs one cons too much. */
@@ -1296,7 +1300,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
 #ifdef MAP_REVERSES
 
 /* macro for MAPCAR and MAPLIST */
-#define MAPCAR_MAPLIST_BODY(listaccess)                                 \
+#define MAPCAR_MAPLIST_BODY(listaccess,caller)                          \
   { var object* args_pointer = rest_args_pointer STACKop 2;             \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
@@ -1310,7 +1314,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
       dotimespC(count,argcount,{                                        \
         var object* next_list_ = &NEXT(argptr);                         \
         var object next_list = *next_list_;                             \
-        if (atomp(next_list)) goto fertig; /* one list finished -> done */ \
+        if (ENDP(next_list,caller)) goto fertig; /* a list ended -> done */ \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
         *next_list_ = Cdr(next_list); /* shorten list */                \
       });                                                               \
@@ -1328,7 +1332,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
 #else
 
 /* macro for MAPCAR and MAPLIST */
-#define MAPCAR_MAPLIST_BODY(listaccess)                                 \
+#define MAPCAR_MAPLIST_BODY(listaccess,caller)                          \
   { var object* args_pointer = rest_args_pointer STACKop 2;             \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
@@ -1346,7 +1350,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
      dotimespC(count,argcount,{                                         \
        var object* next_list_ = &NEXT(argptr);                          \
        var object next_list = *next_list_;                              \
-       if (atomp(next_list)) goto fertig; /* one list finished -> done */ \
+       if (ENDP(next_list,caller)) goto fertig; /* a list ended -> done */ \
        pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
        *next_list_ = Cdr(next_list); /* shorten list */                 \
      });                                                                \
@@ -1364,7 +1368,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
 #endif
 
 /* macro for MAPC and MAPL */
-#define MAPC_MAPL_BODY(listaccess)                                      \
+#define MAPC_MAPL_BODY(listaccess,caller)                               \
   { var object* args_pointer = rest_args_pointer STACKop 2;             \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
@@ -1378,7 +1382,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
       dotimespC(count,argcount,{                                        \
         var object* next_list_ = &NEXT(argptr);                         \
         var object next_list = *next_list_;                             \
-        if (atomp(next_list)) goto fertig; /* one list finished -> done */ \
+        if (ENDP(next_list,caller)) goto fertig; /* a list ended -> done */ \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
         *next_list_ = Cdr(next_list); /* shorten list */                \
       });                                                               \
@@ -1392,7 +1396,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
 #ifdef MAP_REVERSES
 
 /* macro for MAPCAN and MAPCON */
-#define MAPCAN_MAPCON_BODY(listaccess)                                  \
+#define MAPCAN_MAPCON_BODY(listaccess,caller)                           \
   { var object* args_pointer = rest_args_pointer STACKop 2;             \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
@@ -1406,7 +1410,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
       dotimespC(count,argcount,{                                        \
         var object* next_list_ = &NEXT(argptr);                         \
         var object next_list = *next_list_;                             \
-        if (atomp(next_list)) goto fertig; /* one list finished -> done */ \
+        if (ENDP(next_list,caller)) goto fertig; /* a list ended -> done */ \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
         *next_list_ = Cdr(next_list); /* shorten list */                \
       });                                                               \
@@ -1421,7 +1425,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
 #else
 
 /* macro for MAPCAN and MAPCON */
-#define MAPCAN_MAPCON_BODY(listaccess)                                  \
+#define MAPCAN_MAPCON_BODY(listaccess,caller)                           \
   { var object* args_pointer = rest_args_pointer STACKop 2;             \
     argcount++; /* argcount := number of lists on the stack */          \
     /* reserve space for the function call arguments: */                \
@@ -1439,7 +1443,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
       dotimespC(count,argcount,{                                        \
         var object* next_list_ = &NEXT(argptr);                         \
         var object next_list = *next_list_;                             \
-        if (atomp(next_list)) goto fertig; /* one list finished -> done */ \
+        if (ENDP(next_list,caller)) goto fertig; /* a list ended -> done */ \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
         *next_list_ = Cdr(next_list); /* shorten list */                \
       });                                                               \
@@ -1461,27 +1465,27 @@ LISPSPECFORM(return_from, 1,1,nobody)
 
 LISPFUN(mapcar,2,0,rest,nokey,0,NIL)
 /* (MAPCAR fun list {list}), CLTL p. 128 */
-  MAPCAR_MAPLIST_BODY(Car)
+  MAPCAR_MAPLIST_BODY(Car,L(mapcar))
 
 LISPFUN(maplist,2,0,rest,nokey,0,NIL)
 /* (MAPLIST fun list {list}), CLTL p. 128 */
-  MAPCAR_MAPLIST_BODY(Identity)
+  MAPCAR_MAPLIST_BODY(Identity,L(maplist))
 
 LISPFUN(mapc,2,0,rest,nokey,0,NIL)
 /* (MAPC fun list {list}), CLTL p. 128 */
-  MAPC_MAPL_BODY(Car)
+  MAPC_MAPL_BODY(Car,L(mapc))
 
 LISPFUN(mapl,2,0,rest,nokey,0,NIL)
 /* (MAPL fun list {list}), CLTL p. 128 */
-  MAPC_MAPL_BODY(Identity)
+  MAPC_MAPL_BODY(Identity,L(mapl))
 
 LISPFUN(mapcan,2,0,rest,nokey,0,NIL)
 /* (MAPCAN fun list {list}), CLTL p. 128 */
-  MAPCAN_MAPCON_BODY(Car)
+  MAPCAN_MAPCON_BODY(Car,L(mapcan))
 
 LISPFUN(mapcon,2,0,rest,nokey,0,NIL)
 /* (MAPCON fun list {list}), CLTL p. 128 */
-  MAPCAN_MAPCON_BODY(Identity)
+  MAPCAN_MAPCON_BODY(Identity,L(mapcon))
 
 LISPSPECFORM(tagbody, 0,0,body)
 { /* (TAGBODY {tag | statement}), CLTL p. 130 */
