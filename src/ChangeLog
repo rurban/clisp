@@ -1,3 +1,9 @@
+2001-05-25  Sam Steingold  <sds@gnu.org>
+
+	* dirkey.lisp (dir-key-info): `dkey-info' is in LDAP, not SYS
+	(with-dir-key-search): ditto for `dkey-search-iterator',
+	`dkey-search-next-key', and `dkey-search-next-att'
+
 2001-05-24  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (merge-pathnames): if PATHNAME is a logical
