@@ -128,7 +128,7 @@
         pushSTACK(S(Ktest)); pushSTACK(S(eq)); funcall(L(make_hash_table),2);
         pushSTACK(value1);
         # Allocate the simple-bit-vector.
-        pushSTACK(allocate_bit_vector(small_char_code_limit*8));
+        pushSTACK(allocate_bit_vector(Atype_8Bit,small_char_code_limit));
         var object new_cons = allocate_cons();
         Car(new_cons) = popSTACK();
         Cdr(new_cons) = popSTACK();
@@ -165,7 +165,7 @@
       }
   #else
     # A simple-bit-vector with char_code_limit bytes.
-    #define allocate_syntax_table()  allocate_bit_vector(char_code_limit*8)
+    #define allocate_syntax_table()  allocate_bit_vector(Atype_8Bit,char_code_limit)
     #define syntax_table_get(table,c)  TheSbvector(table)->data[as_cint(c)]
     #define syntax_table_put(table,c,value)  (TheSbvector(table)->data[as_cint(c)] = (value))
   #endif
@@ -535,7 +535,7 @@
         # neuer Array (mit Datenvektor NIL), Displaced, Rang=1
         O(displaced_string) =
           allocate_iarray(bit(arrayflags_displaced_bit)|bit(arrayflags_dispoffset_bit)|
-                          bit(arrayflags_notbytep_bit)|Atype_Char,
+                          Atype_Char,
                           1,
                           Array_type_string
                          );
@@ -1875,7 +1875,7 @@ LISPFUNN(set_readtable_case,2)
     {
       # Suche nach Attributcode /= a_dot:
       var object bvec = O(token_buff_2); # Semi-Simple-Byte-Vektor
-      var uintL len = TheIarray(bvec)->dims[1]/8; # Fill-Pointer
+      var uintL len = TheIarray(bvec)->dims[1]; # Fill-Pointer
       if (len > 0) {
         var uintB* attrptr = &TheSbvector(TheIarray(bvec)->data)->data[0];
         var uintL count;
@@ -2235,7 +2235,7 @@ LISPFUNN(set_readtable_case,2)
           direction = (uintW)posfixnum_to_L(TheReadtable(readtable)->readtable_case);
         }
         var object buff_2 = O(token_buff_2); # Attributcode-Buffer
-        var uintL len = TheIarray(buff_2)->dims[1]/8; # Länge = Fill-Pointer
+        var uintL len = TheIarray(buff_2)->dims[1]; # Länge = Fill-Pointer
         var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
         var uintL index = 0;
         # stets attrptr = &TheSbvector(...)->data[index].
@@ -3457,7 +3457,7 @@ LISPFUNN(uninterned_reader,3) # liest #:
     # Auf Package-Marker testen:
     {
       var object buff_2 = O(token_buff_2); # Attributcode-Buffer
-      var uintL len = TheIarray(buff_2)->dims[1]/8; # Länge = Fill-Pointer
+      var uintL len = TheIarray(buff_2)->dims[1]; # Länge = Fill-Pointer
       if (len > 0) {
         var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
         # Teste, ob einer der len Attributcodes ab attrptr ein a_pack_m ist:
@@ -3568,7 +3568,7 @@ LISPFUNN(bit_vector_reader,3) # liest #*
       }
     }
     # Erzeuge neuen Bit-Vektor der Länge n:
-    var object bv = allocate_bit_vector(n);
+    var object bv = allocate_bit_vector(Atype_Bit,n);
     # und fülle die Bits ein:
     buff_1 = O(token_buff_1);
     {
@@ -3774,9 +3774,9 @@ LISPFUNN(array_reader,3) # liest #A
       }
       nreverse(STACK_4); # Liste dims umdrehen
       # eltype bestimmen je nach innerstem subcontents:
-      STACK_2 = (stringp(STACK_1) ? S(character) : # String: CHARACTER
-                 bit_vector_p(STACK_1) ? S(bit) :  # Bitvektor: BIT
-                 S(t)                              # sonst (Liste): T
+      STACK_2 = (stringp(STACK_1) ? S(character) :          # String: CHARACTER
+                 bit_vector_p(Atype_Bit,STACK_1) ? S(bit) : # Bitvektor: BIT
+                 S(t)                                       # sonst (Liste): T
                 );
     }
     # Stackaufbau: dims, -, eltype, -, contents.
@@ -4338,7 +4338,7 @@ LISPFUNN(structure_reader,3) # liest #S
         # einem Simple-Bit-Vektor der Länge 64 als CAR sein:
         if (!(consp(args)
               && nullp(Cdr(args))
-              && simple_bit_vector_p(Car(args))
+              && simple_bit_vector_p(Atype_Bit,Car(args))
               && (Sbvector_length(Car(args)) == 64)
            ) ) {
           pushSTACK(*stream_); # Wert für Slot STREAM von STREAM-ERROR
@@ -4590,7 +4590,7 @@ LISPFUNN(closure_reader,3) # liest #Y
                              : bitm(oint_data_len)-1 # Bignum -> großer Wert
         );
       # neuen Bit-Vektor mit n Bytes besorgen:
-      STACK_1 = allocate_bit_vector(8*n);
+      STACK_1 = allocate_bit_vector(Atype_8Bit,n);
       # Stackaufbau: Stream, Codevektor, n.
       var object ch;
       var uintWL scode;
@@ -6998,14 +6998,15 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       switch (typecode(obj)) {
         case_machine: # Maschinenpointer
           pr_machine(stream_,obj); break;
-        case_obvector: # Bit/Byte-Vektor
-          if (!((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_Bit)) {
-            pr_vector(stream_,obj); break; # Byte-Vektor
-          }
-        case_sbvector: # Bit-Vektor
-          pr_bvector(stream_,obj); break;
         case_string: # String
           pr_string(stream_,obj); break;
+        case_bvector: # Bit-Vektor
+          pr_bvector(stream_,obj); break;
+        case_b2vector:
+        case_b4vector:
+        case_b8vector:
+        case_b16vector:
+        case_b32vector:
         case_vector: # (vector t)
           pr_vector(stream_,obj); break;
         case_mdarray: # allgemeiner Array
@@ -8899,14 +8900,15 @@ LISPFUNN(print_structure,2)
     {
       switch (Record_type(obj)) {
         #ifndef TYPECODES
-        case Rectype_bvector: # Bit/Byte-Vektor
-          if (!((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_Bit)) {
-            pr_vector(stream_,obj); break; # Byte-Vektor
-          }
-        case Rectype_Sbvector: # Bit-Vektor
-          pr_bvector(stream_,obj); break;
         case Rectype_string: case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: # String
           pr_string(stream_,obj); break;
+        case Rectype_bvector: case Rectype_Sbvector: # Bit-Vektor
+          pr_bvector(stream_,obj); break;
+        case Rectype_b2vector: case Rectype_Sb2vector: # 2Bit-Vektor
+        case Rectype_b4vector: case Rectype_Sb4vector: # 4Bit-Vektor
+        case Rectype_b8vector: case Rectype_Sb8vector: # 8Bit-Vektor
+        case Rectype_b16vector: case Rectype_Sb16vector: # 16Bit-Vektor
+        case Rectype_b32vector: case Rectype_Sb32vector: # 32Bit-Vektor
         case Rectype_vector: case Rectype_Svector: # (vector t)
           pr_vector(stream_,obj); break;
         case Rectype_mdarray: # allgemeiner Array
@@ -9562,7 +9564,7 @@ LISPFUNN(print_structure,2)
     var const object* stream_;
     var object obj;
     {
-      if (simple_bit_vector_p(TheClosure(obj)->clos_codevec)) {
+      if (simple_bit_vector_p(Atype_8Bit,TheClosure(obj)->clos_codevec)) {
         # compilierte Closure
         pr_cclosure(stream_,obj);
       } else {
@@ -9695,7 +9697,7 @@ LISPFUNN(print_structure,2)
       {
         pushSTACK(codevec); # Codevektor retten
         var object* codevec_ = &STACK_0; # und merken, wo er sitzt
-        var uintL len = Sbvector_length(codevec)/8; # Länge in Bytes
+        var uintL len = Sbvector_length(codevec); # Länge in Bytes
         #if BIG_ENDIAN_P
         var uintL header_end_index =
           (TheSbvector(codevec)->data[CCV_FLAGS] & bit(7) ? CCV_START_KEY : CCV_START_NONKEY);

@@ -1,5 +1,135 @@
 1999-10-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Introduce new primitive types for simple vectors with element-type
+        (UNSIGNED-BYTE n), n = 2,4,8,16,32.
+        * lispbibl.d (STANDARD_8BIT_TYPECODES): Define sb2vector_type etc.
+          and b2vector_type etc. Define case_sb2vector, case_ob2vector,
+          case_b2vector etc.
+          (case_array): Include case_b2vector etc.
+          (Rectype_b2vector, Rectype_Sb2vector, etc.): New rectype values.
+          (arrayflags_notbytep_bit): Remove.
+          (Array_type_b2vector, Array_type_sb2vector, etc.): New macros.
+          (TheSarray, TheSbvector): Add sb2vector_type etc.
+          (TheCodevec): Needs only s8bvector_type.
+          (TheIarray): Add b2vector_type etc.
+          (TheVarobject, ThePointer): Add sb2vector_type, b2vector_type, etc.
+          (vectorp, simplep, array_simplep, simple_string_p, stringp): Update
+          for changed Rectype values.
+          (simple_bit_vector_p, bit_vector_p): Take two arguments now.
+          (byte_vector_p, general_byte_vector_p): Remove macros.
+          (arrayp): Update for changed Rectype values.
+          (cclosurep): Assume the codevector is an 8bit-vector.
+          (case_Rectype_Sb2vector_above, case_Rectype_ob2vector_above,
+           case_Rectype_b2vector_above, etc.): New macros.
+          (allocate_bit_vector): Take two arguments now.
+          (DYNAMIC_BIT_VECTOR): Update.
+          (allocate_byte_vector): Remove declaration.
+        * spvw_objsize.d (size_sb2vector etc.): New macros.
+          (objsize): Add cases for sb2vector, ob2vector, etc.
+          (objsize_sb2vector etc.): New inline functions.
+          (init_objsize_table): Add cases for sb2vector, ob2vector, etc.
+        * spvw_global.d (init_mem_heaptypes): Add cases for sb2vector,
+          ob2vector, etc.
+        * spvw_genera1.d (walk_area): Add cases for ob2vector etc. and
+          Rectype_b2vector, Rectype_Sb2vector etc.
+          (build_old_generation_cache): Add cases for ob2vector etc. and
+          Rectype_b2vector, Rectype_Sb2vector etc.
+        * spvw_update.d (update_varobject): Add cases for ob2vector etc. and
+          Rectype_b2vector, Rectype_Sb2vector etc.
+        * spvw_garcol.d (gc_mark): Add cases for sb2vector, ob2vector, etc.
+          and Rectype_b2vector, Rectype_Sb2vector etc.
+        * spvw_typealloc.d (allocate_bit_vector): Take two arguments now.
+          (allocate_handle): Update.
+        * spvw_circ.d (get_circ_mark): Add cases for b2vector etc. and
+          Rectype_b2vector etc.
+          (get_circ_unmark): Likewise.
+          (subst, subst_circ_mark, subst_circ_unmark): Likewise.
+        * array.d (copy_sbvector): Make it work with any simple-[n]bit-vector.
+          (allocate_byte_vector): Remove function.
+          (iarray_displace, iarray_displace_check, array_displace_check):
+          Remove special treatment of indirect byte-arrays.
+          (storagevector_aref, storagevector_store): Update: storage-vectors
+          are now always simple.
+          (array_element_type): Update.
+          (BIT, SBIT): Likewise.
+          (bit_up): Simplify: Array_type_bvector now implies Atype_Bit. Don't
+          set arrayflags_notbytep_bit.
+          (VECTOR-PUSH-EXTEND): Use allocate_bit_vector in place of
+          allocate_byte_vector.
+          (allocate_bit_vector_0): Update.
+          (make_ssstring): Don't set arrayflags_notbytep_bit.
+          (make_ssbvector): Create an 8Bit vector.
+          (ssbvector_push_extend): Update.
+          (make_storagevector): Use allocate_bit_vector in place of
+          allocate_byte_vector.
+          (test_displaced): Update.
+          (MAKE-ARRAY): Update. Don't set arrayflags_notbytep_bit.
+          (reshape): Update.
+          (SYS::MAKE-BIT-VECTOR): Update.
+        * eval.d (get_closure): Create an 8Bit vector.
+          (eval_closure, apply_closure, funcall_closure): Assume the
+          codevector is an 8bit-vector.
+        * record.d (SYS::CLOSURE-CODEVEC): Likewise.
+          (SYS::MAKE-CODE-VECTOR): Create an 8bit-vector.
+          (SYS::%MAKE-CLOSURE): Assume the codevector is an 8bit-vector.
+        * hashtabl.d (hashcode_bvector): Remove special treatment of indirect
+          byte-arrays.
+          (hashcode3_atom): Treat sb2vector_type, b2vector_type etc. and
+          Rectype_Sb2vector, Rectype_b2vector etc.
+          (hashcode4_vector_2Bit etc.): Remove ->data indirection for storage
+          vectors.
+          (hashcode4_vector): Update.
+          (hashcode4_atom): Treat b2vector_type etc. and Rectype_b2vector etc.
+          (sxhash_atom): Likewise.
+        * predtype.d (equal): Simplify: Array_type_bvector now implies
+          Atype_Bit.
+          (elt_compare_T_2Bit etc., elt_compare_Bit_2Bit etc. etc.): Remove
+          ->data indirection for storage vectors.
+          (elt_compare): Update.
+          (equalp): Treat b2vector_type etc. and Rectype_b2vector etc.
+          (BIT-VECTOR-P, SIMPLE-BIT-VECTOR-P): Update.
+          (TYPE-OF, CLASS-OF): Simplify: case_obvector now implies Atype_Bit.
+          Treat sb2vector etc. and ob2vector etc. and Rectype_Sb2vector etc.
+          and Rectype_ob2vector etc.
+          (COERCE): Update. Optimize treatment of result-type = ARRAY/VECTOR/
+          SIMPLE-ARRAY.
+          (enum_hs_simple_2bit_vector etc., enum_hs_2bit_vector): New enum
+          items.
+          (enum_hs_byte_vector): Remove enum item.
+          (heap_statistics_mapper): Update. Treat sb2vector etc. and ob2vector
+          etc. and Rectype_Sb2vector etc. and Rectype_ob2vector etc.
+        * init.lsp: Export simple-2bit-vector etc. and 2bit-vector etc. Don't
+          export BYTE-VECTOR.
+        * sequence.d (get_seq_type): Update.
+          (READ-BYTE-SEQUENCE, WRITE-BYTE-SEQUENCE): Remove ->data indirection
+          for storage vectors.
+        * io.d (allocate_syntax_table): Allocate an 8Bit-vector.
+          (init_reader): Don't set arrayflags_notbytep_bit.
+          (test_dots, read_internal, uninterned_reader): Assume an 8bit-vector.
+          (bit_vector_reader, array_reader, structure_reader, closure_reader):
+          Update.
+          (prin_object_dispatch): Treat b2vector like normal vector.
+          (pr_orecord): Likewise.
+          (pr_closure, pr_cclosure_codevector): Assume the codevector is an
+          8bit-vector.
+        * encoding.d (string_to_asciz, string_to_asciz_): Create an
+          8bit-vector.
+        * stream.d (make_unbuffered_stream, make_buffered_stream): Update.
+          (rd_ch_terminal3): Assume ASCIZ-Strings are 8bit-vectors.
+          (test_n_bytes_args): Simplify test for 8bit-vector.
+          (SYS::READ-N-BYTES, SYS::WRITE-N-BYTES): Remove ->data indirection.
+          (SYSTEM::BUILT-IN-STREAM-SET-ELEMENT-TYPE): Update.
+        * lisparit.d (make_random_state): Update.
+        * pathname.d (EXECUTE): Assume ASCIZ-Strings are 8bit-vectors.
+        * foreign.d (convert_from_foreign_array_fill): Remove ->data
+          indirection.
+          (convert_to_foreign): Simplify test for 8/16/32bit-vector. Remove
+          ->data indirection.
+        * affi.d (affi_call_argsa, SYSTEM::MEM-READ, SYSTEM::MEM-WRITE-VECTOR):
+          Update. Simplify test for 8/16/32bit-vector.
+
+1999-10-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Make the TYPECODES model more extensible.
         * lispbibl.d (SUN4_29_1, SUN4_29_2, ACORN_1, ACORN_2, UNIX_SYSV_UHC_2):
           Remove definitions.

@@ -9,6 +9,10 @@
 //
 // --------------------------------------------------------------------------------
 //
+// Revision 1.24  1999-10-17  bruno
+// - Use allocate_bit_vector in place of allocate_byte_vector. Remove ->data
+//   indirection.
+//
 // Revision 1.23  1999-10-11  gilbert
 // - get_font_info_and_display: XGetAtomNames is a new X11R6 addition, use
 //   XGetAtomName instead.
@@ -1922,7 +1926,7 @@ local sint32 get_angle (object ang)
 
 local object make_key_vector (char key_vector[32])
 {
-  value1= allocate_bit_vector (256);
+  value1= allocate_bit_vector (Atype_Bit, 256);
   memcpy (TheSbvector(value1)->data, key_vector, 32); // may be wrong, may be right?!
   return value1;
 }
@@ -3801,8 +3805,8 @@ defun XLIB:GCONTEXT-DASHES-SETTER (2)
 	//
 	uintC i;
 
-	// Allocate a simple [nah, semi-simple] vector of uint8's:
-	pushSTACK (allocate_byte_vector (/* elm type: */ Atype_8Bit, /* len: */ n));
+	// Allocate a simple vector of uint8's:
+	pushSTACK (allocate_bit_vector (/* elm type: */ Atype_8Bit, /* len: */ n));
 
 	// Copy the values from the dash-list argument into the newly created byte-vector representation
 	for (i = 0; i < n; i++)
@@ -3812,13 +3816,13 @@ defun XLIB:GCONTEXT-DASHES-SETTER (2)
 	    pushSTACK (fixnum (i));	       // index
 	    funcall (L(elt), 2);	       // (elt dashes index)
 	    subr_self = popSTACK ();	       // restore
-	    ((uint8*)TheSbvector (TheIarray (STACK_0)->data)->data)[i] = get_uint8 (value1);
+	    ((uint8*)TheSbvector (STACK_0)->data)[i] = get_uint8 (value1);
 	  }
 
 	// The XSetDashes routine requires also the dash_offset, so retrieve it first.
 	begin_call ();
 	  XGetGCValues (dpy, gcon, GCDashOffset, &values);
-	  XSetDashes (dpy, gcon, values.dash_offset, ((char*)(&TheSbvector (TheIarray (STACK_0)->data)->data[0])), n);
+	  XSetDashes (dpy, gcon, values.dash_offset, ((char*)(&TheSbvector (STACK_0)->data[0])), n);
 	end_call ();
 
 	// Now install the byte-vector into the %dashes slot:
@@ -4186,7 +4190,7 @@ defun XLIB:%SAVE-GCONTEXT-COMPONENTS (2)
   end_call ();
 
   // Allocate a new bit vector, which should hold the requested components
-  value1 = allocate_bit_vector (8 * sizeof (values));
+  value1 = allocate_bit_vector (Atype_Bit, 8 * sizeof (values));
   begin_call ();
   memcpy (TheSbvector (value1)->data, &values, sizeof (values)); // memcpy considered harmful
   end_call ();
@@ -5122,9 +5126,9 @@ defun xlib:put-image (3, 0, norest, key, 7, (:SRC-X :SRC-Y :X :Y :WIDTH :HEIGHT 
 
       // Now fetch data it *must* be a vector of card8
       pushSTACK (subr_self); pushSTACK (STACK_8); funcall (`XLIB::IMAGE-X-DATA`, 1); subr_self = popSTACK ();
-      if (vectorp (value1) && (Iarray_flags(value1) & arrayflags_atype_mask) == Atype_8Bit)
+      if (simple_bit_vector_p (Atype_8Bit, value1))
 	{
-	  im.data = (char*) &TheSbvector (TheIarray (value1)->data)->data[0];
+	  im.data = (char*) &TheSbvector (value1)->data[0];
 	}
       else
 	{
@@ -8443,7 +8447,7 @@ defun XLIB:KEYBOARD-CONTROL (1)
   end_call ();
 
   pushSTACK (make_uint32 (coffee.led_mask));
-  value7 = allocate_bit_vector (256);
+  value7 = allocate_bit_vector (Atype_Bit, 256);
   memcpy (TheSbvector(value7)->data, coffee.auto_repeats, 32); // may be wrong, may be right?!
   value1 = make_uint8 (coffee.key_click_percent);
   value2 = make_uint8 (coffee.bell_percent);
@@ -8509,7 +8513,7 @@ defun XLIB:QUERY-KEYMAP (1, 1)
 
   if (!eq (STACK_0, unbound))
     {
-      unless (simple_bit_vector_p (STACK_0) && Sbvector_length (STACK_0) == 256)
+      unless (simple_bit_vector_p (Atype_Bit, STACK_0) && Sbvector_length (STACK_0) == 256)
 	{
 	  // raise type error
 	  pushSTACK (STACK_0);
@@ -8518,7 +8522,7 @@ defun XLIB:QUERY-KEYMAP (1, 1)
 	}
     }
   else
-    STACK_0 = allocate_bit_vector (256);
+    STACK_0 = allocate_bit_vector (Atype_Bit, 256);
 
   {
     unsigned char *ptr = TheSbvector(STACK_0)->data;

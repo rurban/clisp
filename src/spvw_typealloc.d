@@ -6,7 +6,7 @@
   global object allocate_cons (void);
   global object make_symbol (object string);
   global object allocate_vector (uintL len);
-  global object allocate_bit_vector (uintL len);
+  global object allocate_bit_vector (uintB atype, uintL len);
   global object allocate_string (uintL len);
   global object allocate_iarray (uintB flags, uintC rank, tint type);
   #ifdef TYPECODES
@@ -104,22 +104,24 @@
       #undef SETTFL
     }
 
-# UP, beschafft Bit-Vektor
-# allocate_bit_vector(len)
-# > len: Länge des Bitvektors (in Bits)
-# < ergebnis: neuer Bitvektor (LISP-Objekt)
+# Function: Allocates a bit/byte vector.
+# allocate_bit_vector(atype,len)
+# > uintB atype: Atype_nBit
+# > uintL len: length (number of n-bit blocks)
+# < ergebnis: fresh simple bit/byte-vector of the given length
 # can trigger GC
-  global object allocate_bit_vector (uintL len);
-  global object allocate_bit_vector (len)
+  global object allocate_bit_vector (uintB atype, uintL len);
+  global object allocate_bit_vector (atype,len)
+    var uintB atype;
     var uintL len;
     {
-      var uintL need = size_sbvector(len); # benötigter Speicherplatz in Bytes
+      var uintL need = size_sbvector(len<<atype); # benötigter Speicherplatz in Bytes
       #ifdef TYPECODES
         #define SETTFL  ptr->length = len;
       #else
-        #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Sbvector,len);
+        #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Sbvector+atype,len);
       #endif
-      allocate(sbvector_type,TRUE,need,Sbvector,ptr,
+      allocate(sbvector_type+atype,TRUE,need,Sbvector,ptr,
                { SETTFL } # Keine weitere Initialisierung
               )
       #undef SETTFL
@@ -360,7 +362,7 @@
   global object allocate_handle(handle)
     var Handle handle;
     {
-      var object result = allocate_bit_vector(sizeof(Handle)*8);
+      var object result = allocate_bit_vector(Atype_Bit,sizeof(Handle)*8);
       TheHandle(result) = handle;
       return result;
     }

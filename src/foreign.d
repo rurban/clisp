@@ -871,7 +871,7 @@ global object convert_from_foreign (object fvd, const void* data);
       } elif (eq(eltype,S(uint8))) {
         if (size > 0) {
           var const uint8* ptr1 = (const uint8*)data;
-          var uint8* ptr2 = (uint8*)&TheSbvector(TheIarray(array)->data)->data[0];
+          var uint8* ptr2 = (uint8*)&TheSbvector(array)->data[0];
           dotimespL(size,size, { *ptr2++ = *ptr1++; } );
         }
       }
@@ -879,7 +879,7 @@ global object convert_from_foreign (object fvd, const void* data);
       elif (eq(eltype,S(sint8))) {
         if (size > 0) {
           var const sint8* ptr1 = (const sint8*)data;
-          var sint8* ptr2 = (sint8*)&TheSbvector(TheIarray(array)->data)->data[0];
+          var sint8* ptr2 = (sint8*)&TheSbvector(array)->data[0];
           dotimespL(size,size, { *ptr2++ = *ptr1++; } );
         }
       }
@@ -887,7 +887,7 @@ global object convert_from_foreign (object fvd, const void* data);
       elif (eq(eltype,S(uint16))) {
         if (size > 0) {
           var const uint16* ptr1 = (const uint16*)data;
-          var uint16* ptr2 = (uint16*)&TheSbvector(TheIarray(array)->data)->data[0];
+          var uint16* ptr2 = (uint16*)&TheSbvector(array)->data[0];
           dotimespL(size,size, { *ptr2++ = *ptr1++; } );
         }
       }
@@ -895,7 +895,7 @@ global object convert_from_foreign (object fvd, const void* data);
       elif (eq(eltype,S(sint16))) {
         if (size > 0) {
           var const sint16* ptr1 = (const sint16*)data;
-          var sint16* ptr2 = (sint16*)&TheSbvector(TheIarray(array)->data)->data[0];
+          var sint16* ptr2 = (sint16*)&TheSbvector(array)->data[0];
           dotimespL(size,size, { *ptr2++ = *ptr1++; } );
         }
       }
@@ -903,7 +903,7 @@ global object convert_from_foreign (object fvd, const void* data);
       elif (eq(eltype,S(uint32))) {
         if (size > 0) {
           var const uint32* ptr1 = (const uint32*)data;
-          var uint32* ptr2 = (uint32*)&TheSbvector(TheIarray(array)->data)->data[0];
+          var uint32* ptr2 = (uint32*)&TheSbvector(array)->data[0];
           dotimespL(size,size, { *ptr2++ = *ptr1++; } );
         }
       }
@@ -911,7 +911,7 @@ global object convert_from_foreign (object fvd, const void* data);
       elif (eq(eltype,S(sint32))) {
         if (size > 0) {
           var const sint32* ptr1 = (const sint32*)data;
-          var sint32* ptr2 = (sint32*)&TheSbvector(TheIarray(array)->data)->data[0];
+          var sint32* ptr2 = (sint32*)&TheSbvector(array)->data[0];
           dotimespL(size,size, { *ptr2++ = *ptr1++; } );
         }
       }
@@ -1855,38 +1855,29 @@ local void convert_to_foreign(fvd,obj,data)
             unpack_sstring_alloca(string,len,offset, ptr1=);
             ASSERT(cslen(O(foreign_encoding),ptr1,len) == len);
             cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
-          } elif (eq(eltype,S(uint8))
-                  && general_byte_vector_p(obj)
-                  && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_8Bit)
-                 ) {
+          } elif (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
             if (size > 0) {
               var uintL index = 0;
               obj = array_displace_check(obj,size,&index);
-              var const uint8* ptr1 = &TheSbvector(TheIarray(obj)->data)->data[index];
+              var const uint8* ptr1 = &TheSbvector(obj)->data[index];
               var uint8* ptr2 = (uint8*)data;
               var uintL count;
               dotimespL(count,size, { *ptr2++ = *ptr1++; } );
             }
-          } elif (eq(eltype,S(uint16))
-                  && general_byte_vector_p(obj)
-                  && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_16Bit)
-                 ) {
+          } elif (eq(eltype,S(uint16)) && bit_vector_p(Atype_16Bit,obj)) {
             if (size > 0) {
               var uintL index = 0;
               obj = array_displace_check(obj,size,&index);
-              var const uint16* ptr1 = (uint16*)&TheSbvector(TheIarray(obj)->data)->data[2*index];
+              var const uint16* ptr1 = (uint16*)&TheSbvector(obj)->data[2*index];
               var uint16* ptr2 = (uint16*)data;
               var uintL count;
               dotimespL(count,size, { *ptr2++ = *ptr1++; } );
             }
-          } elif (eq(eltype,S(uint32))
-                  && general_byte_vector_p(obj)
-                  && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_32Bit)
-                 ) {
+          } elif (eq(eltype,S(uint32)) && bit_vector_p(Atype_32Bit,obj)) {
             if (size > 0) {
               var uintL index = 0;
               obj = array_displace_check(obj,size,&index);
-              var const uint32* ptr1 = (uint32*)&TheSbvector(TheIarray(obj)->data)->data[4*index];
+              var const uint32* ptr1 = (uint32*)&TheSbvector(obj)->data[4*index];
               var uint32* ptr2 = (uint32*)data;
               var uintL count;
               dotimespL(count,size, { *ptr2++ = *ptr1++; } );
@@ -1926,43 +1917,34 @@ local void convert_to_foreign(fvd,obj,data)
             cstombs(O(foreign_encoding),ptr1,len,(uintB*)data,len);
             if (len < maxdim)
               ((uintB*)data)[len] = '\0';
-          } elif (eq(eltype,S(uint8))
-                  && general_byte_vector_p(obj)
-                  && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_8Bit)
-                 ) {
+          } elif (eq(eltype,S(uint8)) && bit_vector_p(Atype_8Bit,obj)) {
             var uint8* ptr2 = (uint8*)data;
             if (len > 0) {
               var uintL index = 0;
               obj = array_displace_check(obj,len,&index);
-              var const uint8* ptr1 = &TheSbvector(TheIarray(obj)->data)->data[index];
+              var const uint8* ptr1 = &TheSbvector(obj)->data[index];
               var uintL count;
               dotimespL(count,len, { *ptr2++ = *ptr1++; } );
             }
             if (len < maxdim)
               *ptr2 = 0;
-          } elif (eq(eltype,S(uint16))
-                  && general_byte_vector_p(obj)
-                  && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_16Bit)
-                 ) {
+          } elif (eq(eltype,S(uint16)) && bit_vector_p(Atype_16Bit,obj)) {
             var uint16* ptr2 = (uint16*)data;
             if (len > 0) {
               var uintL index = 0;
               obj = array_displace_check(obj,len,&index);
-              var const uint16* ptr1 = (uint16*)&TheSbvector(TheIarray(obj)->data)->data[2*index];
+              var const uint16* ptr1 = (uint16*)&TheSbvector(obj)->data[2*index];
               var uintL count;
               dotimespL(count,len, { *ptr2++ = *ptr1++; } );
             }
             if (len < maxdim)
               *ptr2 = 0;
-          } elif (eq(eltype,S(uint32))
-                  && general_byte_vector_p(obj)
-                  && ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_32Bit)
-                 ) {
+          } elif (eq(eltype,S(uint32)) && bit_vector_p(Atype_32Bit,obj)) {
             var uint32* ptr2 = (uint32*)data;
             if (len > 0) {
               var uintL index = 0;
               obj = array_displace_check(obj,len,&index);
-              var const uint32* ptr1 = (uint32*)&TheSbvector(TheIarray(obj)->data)->data[4*index];
+              var const uint32* ptr1 = (uint32*)&TheSbvector(obj)->data[4*index];
               var uintL count;
               dotimespL(count,len, { *ptr2++ = *ptr1++; } );
             }

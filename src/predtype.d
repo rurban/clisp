@@ -143,11 +143,8 @@
           # return equal(Cdr(obj1),Cdr(obj2));
           obj1 = Cdr(obj1); obj2 = Cdr(obj2);
           goto start;
-        case_obvector: # Byte-Vektoren
-          if (!((Iarray_flags(obj1) & arrayflags_atype_mask) == Atype_Bit))
-            return FALSE; # hätten schon EQL sein müssen
-        case_sbvector: # Bit-Vektoren elementweise vergleichen:
-          if (!bit_vector_p(obj2))
+        case_sbvector: case_obvector: # Bit-Vektoren elementweise vergleichen:
+          if (!bit_vector_p(Atype_Bit,obj2))
             return FALSE;
           {
             # Längen vergleichen:
@@ -341,7 +338,7 @@
     var uintL count;
     {
       var const object* ptr1 = &TheSvector(dv1)->data[index1];
-      var const uintB* ptr2 = &TheSbvector(TheIarray(dv2)->data)->data[index2/4];
+      var const uintB* ptr2 = &TheSbvector(dv2)->data[index2/4];
       dotimespL(count,count, {
         var object elt1 = *ptr1++;
         var uintB elt2 = (*ptr2 >> (2*((~index2)%4))) & (bit(2)-1);
@@ -360,7 +357,7 @@
     var uintL count;
     {
       var const object* ptr1 = &TheSvector(dv1)->data[index1];
-      var const uintB* ptr2 = &TheSbvector(TheIarray(dv2)->data)->data[index2/2];
+      var const uintB* ptr2 = &TheSbvector(dv2)->data[index2/2];
       dotimespL(count,count, {
         var object elt1 = *ptr1++;
         var uintB elt2 = (*ptr2 >> (4*((~index2)%2))) & (bit(4)-1);
@@ -379,7 +376,7 @@
     var uintL count;
     {
       var const object* ptr1 = &TheSvector(dv1)->data[index1];
-      var const uintB* ptr2 = &TheSbvector(TheIarray(dv2)->data)->data[index2];
+      var const uintB* ptr2 = &TheSbvector(dv2)->data[index2];
       dotimespL(count,count, {
         var object elt1 = *ptr1++;
         var uintB elt2 = *ptr2++;
@@ -396,7 +393,7 @@
     var uintL count;
     {
       var const object* ptr1 = &TheSvector(dv1)->data[index1];
-      var const uint16* ptr2 = &((uint16*)&TheSbvector(TheIarray(dv2)->data)->data[0])[index2];
+      var const uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         var object elt1 = *ptr1++;
         var uint16 elt2 = *ptr2++;
@@ -413,7 +410,7 @@
     var uintL count;
     {
       var const object* ptr1 = &TheSvector(dv1)->data[index1];
-      var const uint32* ptr2 = &((uint32*)&TheSbvector(TheIarray(dv2)->data)->data[0])[index2];
+      var const uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         var object elt1 = *ptr1++;
         var uint32 elt2 = *ptr2++;
@@ -435,7 +432,7 @@
     var uintL count;
     {
       var const uintB* ptr1 = &TheSbvector(dv1)->data[index1/8];
-      var const uintB* ptr2 = &TheSbvector(TheIarray(dv2)->data)->data[index2/4];
+      var const uintB* ptr2 = &TheSbvector(dv2)->data[index2/4];
       dotimespL(count,count, {
         var uintB elt1 = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
         var uintB elt2 = (*ptr2 >> (2*((~index2)%4))) & (bit(2)-1);
@@ -456,7 +453,7 @@
     var uintL count;
     {
       var const uintB* ptr1 = &TheSbvector(dv1)->data[index1/8];
-      var const uintB* ptr2 = &TheSbvector(TheIarray(dv2)->data)->data[index2/2];
+      var const uintB* ptr2 = &TheSbvector(dv2)->data[index2/2];
       dotimespL(count,count, {
         var uintB elt1 = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
         var uintB elt2 = (*ptr2 >> (4*((~index2)%2))) & (bit(4)-1);
@@ -477,7 +474,7 @@
     var uintL count;
     {
       var const uintB* ptr1 = &TheSbvector(dv1)->data[index1/8];
-      var const uintB* ptr2 = &TheSbvector(TheIarray(dv2)->data)->data[index2];
+      var const uintB* ptr2 = &TheSbvector(dv2)->data[index2];
       dotimespL(count,count, {
         var uintB elt1 = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
         if (!(elt1 == *ptr2++)) goto no;
@@ -495,7 +492,7 @@
     var uintL count;
     {
       var const uintB* ptr1 = &TheSbvector(dv1)->data[index1/8];
-      var const uint16* ptr2 = &((uint16*)&TheSbvector(TheIarray(dv2)->data)->data[0])[index2];
+      var const uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         var uintB elt1 = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
         if (!(elt1 == *ptr2++)) goto no;
@@ -513,7 +510,7 @@
     var uintL count;
     {
       var const uintB* ptr1 = &TheSbvector(dv1)->data[index1/8];
-      var const uint32* ptr2 = &((uint32*)&TheSbvector(TheIarray(dv2)->data)->data[0])[index2];
+      var const uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         var uintB elt1 = (*ptr1 >> ((~index1)%8)) & (bit(1)-1);
         if (!(elt1 == *ptr2++)) goto no;
@@ -524,7 +521,7 @@
      no: return FALSE;
     }
   #define elt_compare_2Bit_2Bit(dv1,index1,dv2,index2,count)  \
-    bit_compare(TheIarray(dv1)->data,index1<<1,TheIarray(dv2)->data,index2<<1,count<<1)
+    bit_compare(dv1,index1<<1,dv2,index2<<1,count<<1)
   local boolean elt_compare_2Bit_4Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
@@ -532,8 +529,8 @@
     var uintL index2;
     var uintL count;
     {
-      var const uintB* ptr1 = &TheSbvector(TheIarray(dv1)->data)->data[index1/4];
-      var const uintB* ptr2 = &TheSbvector(TheIarray(dv2)->data)->data[index2/2];
+      var const uintB* ptr1 = &TheSbvector(dv1)->data[index1/4];
+      var const uintB* ptr2 = &TheSbvector(dv2)->data[index2/2];
       dotimespL(count,count, {
         var uintB elt1 = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
         var uintB elt2 = (*ptr2 >> (4*((~index2)%2))) & (bit(4)-1);
@@ -553,8 +550,8 @@
     var uintL index2;
     var uintL count;
     {
-      var const uintB* ptr1 = &TheSbvector(TheIarray(dv1)->data)->data[index1/4];
-      var const uintB* ptr2 = &TheSbvector(TheIarray(dv2)->data)->data[index2];
+      var const uintB* ptr1 = &TheSbvector(dv1)->data[index1/4];
+      var const uintB* ptr2 = &TheSbvector(dv2)->data[index2];
       dotimespL(count,count, {
         var uintB elt1 = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
         if (!(elt1 == *ptr2++)) goto no;
@@ -571,8 +568,8 @@
     var uintL index2;
     var uintL count;
     {
-      var const uintB* ptr1 = &TheSbvector(TheIarray(dv1)->data)->data[index1/4];
-      var const uint16* ptr2 = &((uint16*)&TheSbvector(TheIarray(dv2)->data)->data[0])[index2];
+      var const uintB* ptr1 = &TheSbvector(dv1)->data[index1/4];
+      var const uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         var uintB elt1 = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
         if (!(elt1 == *ptr2++)) goto no;
@@ -589,8 +586,8 @@
     var uintL index2;
     var uintL count;
     {
-      var const uintB* ptr1 = &TheSbvector(TheIarray(dv1)->data)->data[index1/4];
-      var const uint32* ptr2 = &((uint32*)&TheSbvector(TheIarray(dv2)->data)->data[0])[index2];
+      var const uintB* ptr1 = &TheSbvector(dv1)->data[index1/4];
+      var const uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         var uintB elt1 = (*ptr1 >> (2*((~index1)%4))) & (bit(2)-1);
         if (!(elt1 == *ptr2++)) goto no;
@@ -601,7 +598,7 @@
      no: return FALSE;
     }
   #define elt_compare_4Bit_4Bit(dv1,index1,dv2,index2,count)  \
-    bit_compare(TheIarray(dv1)->data,index1<<2,TheIarray(dv2)->data,index2<<2,count<<2)
+    bit_compare(dv1,index1<<2,dv2,index2<<2,count<<2)
   local boolean elt_compare_4Bit_8Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
@@ -609,8 +606,8 @@
     var uintL index2;
     var uintL count;
     {
-      var const uintB* ptr1 = &TheSbvector(TheIarray(dv1)->data)->data[index1/2];
-      var const uintB* ptr2 = &TheSbvector(TheIarray(dv2)->data)->data[index2];
+      var const uintB* ptr1 = &TheSbvector(dv1)->data[index1/2];
+      var const uintB* ptr2 = &TheSbvector(dv2)->data[index2];
       dotimespL(count,count, {
         var uintB elt1 = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
         if (!(elt1 == *ptr2++)) goto no;
@@ -627,8 +624,8 @@
     var uintL index2;
     var uintL count;
     {
-      var const uintB* ptr1 = &TheSbvector(TheIarray(dv1)->data)->data[index1/2];
-      var const uint16* ptr2 = &((uint16*)&TheSbvector(TheIarray(dv2)->data)->data[0])[index2];
+      var const uintB* ptr1 = &TheSbvector(dv1)->data[index1/2];
+      var const uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         var uintB elt1 = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
         if (!(elt1 == *ptr2++)) goto no;
@@ -645,8 +642,8 @@
     var uintL index2;
     var uintL count;
     {
-      var const uintB* ptr1 = &TheSbvector(TheIarray(dv1)->data)->data[index1/2];
-      var const uint32* ptr2 = &((uint32*)&TheSbvector(TheIarray(dv2)->data)->data[0])[index2];
+      var const uintB* ptr1 = &TheSbvector(dv1)->data[index1/2];
+      var const uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         var uintB elt1 = (*ptr1 >> (4*((~index1)%2))) & (bit(4)-1);
         if (!(elt1 == *ptr2++)) goto no;
@@ -663,8 +660,8 @@
     var uintL index2;
     var uintL count;
     {
-      var const uintB* ptr1 = &TheSbvector(TheIarray(dv1)->data)->data[index1];
-      var const uintB* ptr2 = &TheSbvector(TheIarray(dv2)->data)->data[index2];
+      var const uintB* ptr1 = &TheSbvector(dv1)->data[index1];
+      var const uintB* ptr2 = &TheSbvector(dv2)->data[index2];
       dotimespL(count,count, {
         if (!(*ptr1++ == *ptr2++)) goto no;
       });
@@ -678,8 +675,8 @@
     var uintL index2;
     var uintL count;
     {
-      var const uintB* ptr1 = &TheSbvector(TheIarray(dv1)->data)->data[index1];
-      var const uint16* ptr2 = &((uint16*)&TheSbvector(TheIarray(dv2)->data)->data[0])[index2];
+      var const uintB* ptr1 = &TheSbvector(dv1)->data[index1];
+      var const uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         if (!(*ptr1++ == *ptr2++)) goto no;
       });
@@ -693,8 +690,8 @@
     var uintL index2;
     var uintL count;
     {
-      var const uintB* ptr1 = &TheSbvector(TheIarray(dv1)->data)->data[index1];
-      var const uint32* ptr2 = &((uint32*)&TheSbvector(TheIarray(dv2)->data)->data[0])[index2];
+      var const uintB* ptr1 = &TheSbvector(dv1)->data[index1];
+      var const uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         if (!(*ptr1++ == *ptr2++)) goto no;
       });
@@ -708,8 +705,8 @@
     var uintL index2;
     var uintL count;
     {
-      var const uint16* ptr1 = &((uint16*)&TheSbvector(TheIarray(dv1)->data)->data[0])[index1];
-      var const uint16* ptr2 = &((uint16*)&TheSbvector(TheIarray(dv2)->data)->data[0])[index2];
+      var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1];
+      var const uint16* ptr2 = &((uint16*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         if (!(*ptr1++ == *ptr2++)) goto no;
       });
@@ -723,8 +720,8 @@
     var uintL index2;
     var uintL count;
     {
-      var const uint16* ptr1 = &((uint16*)&TheSbvector(TheIarray(dv1)->data)->data[0])[index1];
-      var const uint32* ptr2 = &((uint32*)&TheSbvector(TheIarray(dv2)->data)->data[0])[index2];
+      var const uint16* ptr1 = &((uint16*)&TheSbvector(dv1)->data[0])[index1];
+      var const uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         if (!(*ptr1++ == *ptr2++)) goto no;
       });
@@ -737,8 +734,8 @@
     var object dv2;
     var uintL index2;
     var uintL count;
-    { var const uint32* ptr1 = &((uint32*)&TheSbvector(TheIarray(dv1)->data)->data[0])[index1];
-      var const uint32* ptr2 = &((uint32*)&TheSbvector(TheIarray(dv2)->data)->data[0])[index2];
+    { var const uint32* ptr1 = &((uint32*)&TheSbvector(dv1)->data[0])[index1];
+      var const uint32* ptr2 = &((uint32*)&TheSbvector(dv2)->data[0])[index2];
       dotimespL(count,count, {
         if (!(*ptr1++ == *ptr2++)) goto no;
       });
@@ -759,22 +756,18 @@
               return elt_compare_T_T(dv1,index1,dv2,index2,count);
             case Array_type_sbvector: # Simple-Bit-Vector
               return elt_compare_T_Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb2vector:
+              return elt_compare_T_2Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb4vector:
+              return elt_compare_T_4Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb8vector:
+              return elt_compare_T_8Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb16vector:
+              return elt_compare_T_16Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb32vector:
+              return elt_compare_T_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return elt_compare_T_Char(dv1,index1,dv2,index2,count);
-            case Array_type_bvector: # Byte-Vector
-              switch (Iarray_flags(dv2) /* & arrayflags_atype_mask */ ) {
-                case Atype_2Bit:
-                  return elt_compare_T_2Bit(dv1,index1,dv2,index2,count);
-                case Atype_4Bit:
-                  return elt_compare_T_4Bit(dv1,index1,dv2,index2,count);
-                case Atype_8Bit:
-                  return elt_compare_T_8Bit(dv1,index1,dv2,index2,count);
-                case Atype_16Bit:
-                  return elt_compare_T_16Bit(dv1,index1,dv2,index2,count);
-                case Atype_32Bit:
-                  return elt_compare_T_32Bit(dv1,index1,dv2,index2,count);
-                default: NOTREACHED
-              }
             default: NOTREACHED
           }
         case Array_type_sbvector: # Simple-Bit-Vector
@@ -783,22 +776,118 @@
               return elt_compare_T_Bit(dv2,index2,dv1,index1,count);
             case Array_type_sbvector: # Simple-Bit-Vector
               return elt_compare_Bit_Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb2vector:
+              return elt_compare_Bit_2Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb4vector:
+              return elt_compare_Bit_4Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb8vector:
+              return elt_compare_Bit_8Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb16vector:
+              return elt_compare_Bit_16Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb32vector:
+              return elt_compare_Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
               return FALSE; # because count > 0
-            case Array_type_bvector: # Byte-Vector
-              switch (Iarray_flags(dv2) /* & arrayflags_atype_mask */ ) {
-                case Atype_2Bit:
-                  return elt_compare_Bit_2Bit(dv1,index1,dv2,index2,count);
-                case Atype_4Bit:
-                  return elt_compare_Bit_4Bit(dv1,index1,dv2,index2,count);
-                case Atype_8Bit:
-                  return elt_compare_Bit_8Bit(dv1,index1,dv2,index2,count);
-                case Atype_16Bit:
-                  return elt_compare_Bit_16Bit(dv1,index1,dv2,index2,count);
-                case Atype_32Bit:
-                  return elt_compare_Bit_32Bit(dv1,index1,dv2,index2,count);
-                default: NOTREACHED
-              }
+            default: NOTREACHED
+          }
+        case Array_type_sb2vector:
+          switch (Array_type(dv2)) {
+            case Array_type_svector: # Simple-Vector
+              return elt_compare_T_2Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sbvector: # Simple-Bit-Vector
+              return elt_compare_Bit_2Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb2vector:
+              return elt_compare_2Bit_2Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb4vector:
+              return elt_compare_2Bit_4Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb8vector:
+              return elt_compare_2Bit_8Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb16vector:
+              return elt_compare_2Bit_16Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb32vector:
+              return elt_compare_2Bit_32Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sstring: # Simple-String
+              return FALSE; # because count > 0
+            default: NOTREACHED
+          }
+        case Array_type_sb4vector:
+          switch (Array_type(dv2)) {
+            case Array_type_svector: # Simple-Vector
+              return elt_compare_T_4Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sbvector: # Simple-Bit-Vector
+              return elt_compare_Bit_4Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb2vector:
+              return elt_compare_2Bit_4Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb4vector:
+              return elt_compare_4Bit_4Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb8vector:
+              return elt_compare_4Bit_8Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb16vector:
+              return elt_compare_4Bit_16Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb32vector:
+              return elt_compare_4Bit_32Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sstring: # Simple-String
+              return FALSE; # because count > 0
+            default: NOTREACHED
+          }
+        case Array_type_sb8vector:
+          switch (Array_type(dv2)) {
+            case Array_type_svector: # Simple-Vector
+              return elt_compare_T_8Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sbvector: # Simple-Bit-Vector
+              return elt_compare_Bit_8Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb2vector:
+              return elt_compare_2Bit_8Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb4vector:
+              return elt_compare_4Bit_8Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb8vector:
+              return elt_compare_8Bit_8Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb16vector:
+              return elt_compare_8Bit_16Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb32vector:
+              return elt_compare_8Bit_32Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sstring: # Simple-String
+              return FALSE; # because count > 0
+            default: NOTREACHED
+          }
+        case Array_type_sb16vector:
+          switch (Array_type(dv2)) {
+            case Array_type_svector: # Simple-Vector
+              return elt_compare_T_16Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sbvector: # Simple-Bit-Vector
+              return elt_compare_Bit_16Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb2vector:
+              return elt_compare_2Bit_16Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb4vector:
+              return elt_compare_4Bit_16Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb8vector:
+              return elt_compare_8Bit_16Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb16vector:
+              return elt_compare_16Bit_16Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sb32vector:
+              return elt_compare_16Bit_32Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sstring: # Simple-String
+              return FALSE; # because count > 0
+            default: NOTREACHED
+          }
+        case Array_type_sb32vector:
+          switch (Array_type(dv2)) {
+            case Array_type_svector: # Simple-Vector
+              return elt_compare_T_32Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sbvector: # Simple-Bit-Vector
+              return elt_compare_Bit_32Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb2vector:
+              return elt_compare_2Bit_32Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb4vector:
+              return elt_compare_4Bit_32Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb8vector:
+              return elt_compare_8Bit_32Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb16vector:
+              return elt_compare_16Bit_32Bit(dv2,index2,dv1,index1,count);
+            case Array_type_sb32vector:
+              return elt_compare_32Bit_32Bit(dv1,index1,dv2,index2,count);
+            case Array_type_sstring: # Simple-String
+              return FALSE; # because count > 0
             default: NOTREACHED
           }
         case Array_type_sstring: # Simple-String
@@ -806,135 +895,14 @@
             case Array_type_svector: # Simple-Vector
               return elt_compare_T_Char(dv2,index2,dv1,index1,count);
             case Array_type_sbvector: # Simple-Bit-Vector
+            case Array_type_sb2vector:
+            case Array_type_sb4vector:
+            case Array_type_sb8vector:
+            case Array_type_sb16vector:
+            case Array_type_sb32vector:
               return FALSE; # because count > 0
             case Array_type_sstring: # Simple-String
               return elt_compare_Char_Char(dv1,index1,dv2,index2,count);
-            case Array_type_bvector: # Byte-Vector
-              return FALSE; # because count > 0
-            default: NOTREACHED
-          }
-        case Array_type_bvector: # Byte-Vector
-          switch (Iarray_flags(dv1) /* & arrayflags_atype_mask */ ) {
-            case Atype_2Bit:
-              switch (Array_type(dv2)) {
-                case Array_type_svector: # Simple-Vector
-                  return elt_compare_T_2Bit(dv2,index2,dv1,index1,count);
-                case Array_type_sbvector: # Simple-Bit-Vector
-                  return elt_compare_Bit_2Bit(dv2,index2,dv1,index1,count);
-                case Array_type_sstring: # Simple-String
-                  return FALSE; # because count > 0
-                case Array_type_bvector: # Byte-Vector
-                  switch (Iarray_flags(dv2) /* & arrayflags_atype_mask */ ) {
-                    case Atype_2Bit:
-                      return elt_compare_2Bit_2Bit(dv1,index1,dv2,index2,count);
-                    case Atype_4Bit:
-                      return elt_compare_2Bit_4Bit(dv1,index1,dv2,index2,count);
-                    case Atype_8Bit:
-                      return elt_compare_2Bit_8Bit(dv1,index1,dv2,index2,count);
-                    case Atype_16Bit:
-                      return elt_compare_2Bit_16Bit(dv1,index1,dv2,index2,count);
-                    case Atype_32Bit:
-                      return elt_compare_2Bit_32Bit(dv1,index1,dv2,index2,count);
-                    default: NOTREACHED
-                  }
-                default: NOTREACHED
-              }
-            case Atype_4Bit:
-              switch (Array_type(dv2)) {
-                case Array_type_svector: # Simple-Vector
-                  return elt_compare_T_4Bit(dv2,index2,dv1,index1,count);
-                case Array_type_sbvector: # Simple-Bit-Vector
-                  return elt_compare_Bit_4Bit(dv2,index2,dv1,index1,count);
-                case Array_type_sstring: # Simple-String
-                  return FALSE; # because count > 0
-                case Array_type_bvector: # Byte-Vector
-                  switch (Iarray_flags(dv2) /* & arrayflags_atype_mask */ ) {
-                    case Atype_2Bit:
-                      return elt_compare_2Bit_4Bit(dv2,index2,dv1,index1,count);
-                    case Atype_4Bit:
-                      return elt_compare_4Bit_4Bit(dv1,index1,dv2,index2,count);
-                    case Atype_8Bit:
-                      return elt_compare_4Bit_8Bit(dv1,index1,dv2,index2,count);
-                    case Atype_16Bit:
-                      return elt_compare_4Bit_16Bit(dv1,index1,dv2,index2,count);
-                    case Atype_32Bit:
-                      return elt_compare_4Bit_32Bit(dv1,index1,dv2,index2,count);
-                    default: NOTREACHED
-                  }
-                default: NOTREACHED
-              }
-            case Atype_8Bit:
-              switch (Array_type(dv2)) {
-                case Array_type_svector: # Simple-Vector
-                  return elt_compare_T_8Bit(dv2,index2,dv1,index1,count);
-                case Array_type_sbvector: # Simple-Bit-Vector
-                  return elt_compare_Bit_8Bit(dv2,index2,dv1,index1,count);
-                case Array_type_sstring: # Simple-String
-                  return FALSE; # because count > 0
-                case Array_type_bvector: # Byte-Vector
-                  switch (Iarray_flags(dv2) /* & arrayflags_atype_mask */ ) {
-                    case Atype_2Bit:
-                      return elt_compare_2Bit_8Bit(dv2,index2,dv1,index1,count);
-                    case Atype_4Bit:
-                      return elt_compare_4Bit_8Bit(dv2,index2,dv1,index1,count);
-                    case Atype_8Bit:
-                      return elt_compare_8Bit_8Bit(dv1,index1,dv2,index2,count);
-                    case Atype_16Bit:
-                      return elt_compare_8Bit_16Bit(dv1,index1,dv2,index2,count);
-                    case Atype_32Bit:
-                      return elt_compare_8Bit_32Bit(dv1,index1,dv2,index2,count);
-                    default: NOTREACHED
-                  }
-                default: NOTREACHED
-              }
-            case Atype_16Bit:
-              switch (Array_type(dv2)) {
-                case Array_type_svector: # Simple-Vector
-                  return elt_compare_T_16Bit(dv2,index2,dv1,index1,count);
-                case Array_type_sbvector: # Simple-Bit-Vector
-                  return elt_compare_Bit_16Bit(dv2,index2,dv1,index1,count);
-                case Array_type_sstring: # Simple-String
-                  return FALSE; # because count > 0
-                case Array_type_bvector: # Byte-Vector
-                  switch (Iarray_flags(dv2) /* & arrayflags_atype_mask */ ) {
-                    case Atype_2Bit:
-                      return elt_compare_2Bit_16Bit(dv2,index2,dv1,index1,count);
-                    case Atype_4Bit:
-                      return elt_compare_4Bit_16Bit(dv2,index2,dv1,index1,count);
-                    case Atype_8Bit:
-                      return elt_compare_8Bit_16Bit(dv2,index2,dv1,index1,count);
-                    case Atype_16Bit:
-                      return elt_compare_16Bit_16Bit(dv1,index1,dv2,index2,count);
-                    case Atype_32Bit:
-                      return elt_compare_16Bit_32Bit(dv1,index1,dv2,index2,count);
-                    default: NOTREACHED
-                  }
-                default: NOTREACHED
-              }
-            case Atype_32Bit:
-              switch (Array_type(dv2)) {
-                case Array_type_svector: # Simple-Vector
-                  return elt_compare_T_32Bit(dv2,index2,dv1,index1,count);
-                case Array_type_sbvector: # Simple-Bit-Vector
-                  return elt_compare_Bit_32Bit(dv2,index2,dv1,index1,count);
-                case Array_type_sstring: # Simple-String
-                  return FALSE; # because count > 0
-                case Array_type_bvector: # Byte-Vector
-                  switch (Iarray_flags(dv2) /* & arrayflags_atype_mask */ ) {
-                    case Atype_2Bit:
-                      return elt_compare_2Bit_32Bit(dv2,index2,dv1,index1,count);
-                    case Atype_4Bit:
-                      return elt_compare_4Bit_32Bit(dv2,index2,dv1,index1,count);
-                    case Atype_8Bit:
-                      return elt_compare_8Bit_32Bit(dv2,index2,dv1,index1,count);
-                    case Atype_16Bit:
-                      return elt_compare_16Bit_32Bit(dv2,index2,dv1,index1,count);
-                    case Atype_32Bit:
-                      return elt_compare_32Bit_32Bit(dv1,index1,dv2,index2,count);
-                    default: NOTREACHED
-                  }
-                default: NOTREACHED
-              }
             default: NOTREACHED
           }
         default: NOTREACHED
@@ -978,7 +946,12 @@
         switch (0)
         #endif
         {
-          case_bvector: # Bit/Byte-Vektor
+          case_bvector: # Bit-Vektor
+          case_b2vector: # 2Bit-Vektor
+          case_b4vector: # 4Bit-Vektor
+          case_b8vector: # 8Bit-Vektor
+          case_b16vector: # 16Bit-Vektor
+          case_b32vector: # 32Bit-Vektor
           case_string: # String
           case_vector: # (VECTOR T)
             if (!vectorp(obj2)) goto no;
@@ -1046,6 +1019,11 @@
             # stimmen, und alle Komponenten müssen EQUALP sein.
             switch (Record_type(obj1)) {
               case_Rectype_bvector_above;
+              case_Rectype_b2vector_above;
+              case_Rectype_b4vector_above;
+              case_Rectype_b8vector_above;
+              case_Rectype_b16vector_above;
+              case_Rectype_b32vector_above;
               case_Rectype_string_above;
               case_Rectype_vector_above;
               case_Rectype_mdarray_above;
@@ -1387,7 +1365,7 @@ LISPFUNN(simple_array_p,1)
 LISPFUNN(bit_vector_p,1)
 # (BIT-VECTOR-P object), CLTL S. 75
   {
-    value1 = (bit_vector_p(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
+    value1 = (bit_vector_p(Atype_Bit,STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
   }
 
 LISPFUNN(vectorp,1)
@@ -1411,7 +1389,7 @@ LISPFUNN(simple_string_p,1)
 LISPFUNN(simple_bit_vector_p,1)
 # (SIMPLE-BIT-VECTOR-P object), CLTL S. 76
   {
-    value1 = (simple_bit_vector_p(STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
+    value1 = (simple_bit_vector_p(Atype_Bit,STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
   }
 
 LISPFUNN(commonp,1)
@@ -1510,6 +1488,8 @@ LISPFUNN(type_of,1)
         value1 = S(address); break;
       case_sbvector: # Simple-Bit-Vector -> (SIMPLE-BIT-VECTOR dim0)
         pushSTACK(S(simple_bit_vector)); goto vectors;
+      case_obvector: # Bit-Vector -> (BIT-VECTOR dim0)
+        pushSTACK(S(bit_vector)); goto vectors;
       case_sstring: # Simple-String -> (SIMPLE-[BASE-]STRING dim0)
         #if (base_char_code_limit == char_code_limit)
         pushSTACK(S(simple_base_string)); goto vectors;
@@ -1545,11 +1525,17 @@ LISPFUNN(type_of,1)
           value1 = new_cons;
         }
         break;
-      case_obvector: # sonstiger Bit-Vector -> (BIT-VECTOR dim0)
-                     # sonstiger Byte-Vector -> ([SIMPLE-]ARRAY (UNSIGNED-BYTE n) (dim0))
-        if ((Iarray_flags(arg) & arrayflags_atype_mask) == Atype_Bit) {
-          pushSTACK(S(bit_vector)); goto vectors;
-        }
+      case_sb2vector: # simple Byte-Vector -> (SIMPLE-ARRAY (UNSIGNED-BYTE n) (dim0))
+      case_sb4vector:
+      case_sb8vector:
+      case_sb16vector:
+      case_sb32vector:
+        pushSTACK(S(simple_array)); goto arrays;
+      case_ob2vector: # sonstiger Byte-Vector -> ([SIMPLE-]ARRAY (UNSIGNED-BYTE n) (dim0))
+      case_ob4vector:
+      case_ob8vector:
+      case_ob16vector:
+      case_ob32vector:
       case_mdarray: # sonstiger Array -> ([SIMPLE-]ARRAY eltype dims)
         pushSTACK( ((Iarray_flags(arg)
                      & (  bit(arrayflags_adjustable_bit)
@@ -1562,6 +1548,8 @@ LISPFUNN(type_of,1)
                    ? S(simple_array)
                    : S(array)
                  );
+        goto arrays;
+      arrays:
         pushSTACK(arg);
         pushSTACK(array_dimensions(arg)); # Dimensionenliste
         STACK_1 = array_element_type(STACK_1); # eltype
@@ -1594,11 +1582,21 @@ LISPFUNN(type_of,1)
         switch (Record_type(arg)) {
           case_Rectype_Symbol_above;
           case_Rectype_Sbvector_above;
+          case_Rectype_Sb2vector_above;
+          case_Rectype_Sb4vector_above;
+          case_Rectype_Sb8vector_above;
+          case_Rectype_Sb16vector_above;
+          case_Rectype_Sb32vector_above;
           case_Rectype_Sstring_above;
           case_Rectype_Svector_above;
           case_Rectype_ostring_above;
           case_Rectype_ovector_above;
           case_Rectype_obvector_above;
+          case_Rectype_ob2vector_above;
+          case_Rectype_ob4vector_above;
+          case_Rectype_ob8vector_above;
+          case_Rectype_ob16vector_above;
+          case_Rectype_ob32vector_above;
           case_Rectype_mdarray_above;
           case_Rectype_Closure_above;
           case_Rectype_Structure_above;
@@ -1797,12 +1795,13 @@ LISPFUNN(class_of,1)
         value1 = (nullp(arg) ? O(class_null) : O(class_symbol)); break;
       case_sstring: case_ostring: # String -> <string>
         value1 = O(class_string); break;
-      case_obvector: # sonstiger Bit-Vector -> <bit-vector>
-                     # sonstiger Byte-Vector -> <vector>
-        if ((Iarray_flags(arg) & arrayflags_atype_mask) == Atype_Bit) {
-          case_sbvector: # Simple-Bit-Vector -> <bit-vector>
-          value1 = O(class_bit_vector); break;
-        }
+      case_sbvector: case_obvector: # Bit-Vector -> <bit-vector>
+        value1 = O(class_bit_vector); break;
+      case_sb2vector: case_ob2vector: # Byte-Vector -> <vector>
+      case_sb4vector: case_ob4vector:
+      case_sb8vector: case_ob8vector:
+      case_sb16vector: case_ob16vector:
+      case_sb32vector: case_ob32vector:
       case_svector: case_ovector: # General-Vector -> <vector>
         value1 = O(class_vector); break;
       case_mdarray: # sonstiger Array -> <array>
@@ -1834,8 +1833,18 @@ LISPFUNN(class_of,1)
           case_Rectype_Symbol_above;
           case_Rectype_Sstring_above;
           case_Rectype_ostring_above;
-          case_Rectype_obvector_above;
           case_Rectype_Sbvector_above;
+          case_Rectype_obvector_above;
+          case_Rectype_Sb2vector_above;
+          case_Rectype_ob2vector_above;
+          case_Rectype_Sb4vector_above;
+          case_Rectype_ob4vector_above;
+          case_Rectype_Sb8vector_above;
+          case_Rectype_ob8vector_above;
+          case_Rectype_Sb16vector_above;
+          case_Rectype_ob16vector_above;
+          case_Rectype_Sb32vector_above;
+          case_Rectype_ob32vector_above;
           case_Rectype_Svector_above;
           case_Rectype_ovector_above;
           case_Rectype_mdarray_above;
@@ -2107,15 +2116,14 @@ LISPFUNN(coerce,2)
          ) {
         # result-type an den Typ von object anpassen:
         if (eq(result_type,S(array)) || eq(result_type,S(vector))) { # ARRAY oder VECTOR ?
-          if (stringp(STACK_1)) # object ein String
+          if (vectorp(STACK_1)) # Schon ein Vektor?
             goto return_object; # -> ist ein Vektor und Array
-          elif (bit_vector_p(STACK_1)) # object ein Bitvektor
-            goto return_object; # -> ist ein Vektor und Array
-          # Hier auch Byte-Vektoren behandeln!??
         } elif (eq(result_type,S(simple_array))) { # SIMPLE-ARRAY ?
+          if (simplep(STACK_1)) # Schon ein simple-Array?
+            goto return_object;
           if (stringp(STACK_1)) # object ein String
             result_type = S(simple_string); # -> result-type := SIMPLE-STRING
-          elif (bit_vector_p(STACK_1)) # object ein Bitvektor
+          elif (bit_vector_p(Atype_Bit,STACK_1)) # object ein Bitvektor
             result_type = S(simple_bit_vector); # -> result-type := SIMPLE-BIT-VECTOR
           # Hier auch Byte-Vektoren behandeln!??
         }
@@ -2329,10 +2337,19 @@ enum { # The values of this enumeration are 0,1,2,...
   enum_hs_null,
   enum_hs_symbol,
   enum_hs_simple_bit_vector,
+  enum_hs_simple_2bit_vector,
+  enum_hs_simple_4bit_vector,
+  enum_hs_simple_8bit_vector,
+  enum_hs_simple_16bit_vector,
+  enum_hs_simple_32bit_vector,
   enum_hs_simple_string,
   enum_hs_simple_vector,
   enum_hs_bit_vector,
-  enum_hs_byte_vector,
+  enum_hs_2bit_vector,
+  enum_hs_4bit_vector,
+  enum_hs_8bit_vector,
+  enum_hs_16bit_vector,
+  enum_hs_32bit_vector,
   enum_hs_string,
   enum_hs_vector,
   enum_hs_simple_array,
@@ -2530,17 +2547,44 @@ local void heap_statistics_mapper(arg,obj,bytelen)
       case_sbvector: # Simple-Bit-Vector
         pighole = &locals->builtins[(int)enum_hs_simple_bit_vector];
         break;
+      case_sb2vector: # Simple-2Bit-Vector
+        pighole = &locals->builtins[(int)enum_hs_simple_2bit_vector];
+        break;
+      case_sb4vector: # Simple-4Bit-Vector
+        pighole = &locals->builtins[(int)enum_hs_simple_4bit_vector];
+        break;
+      case_sb8vector: # Simple-8Bit-Vector
+        pighole = &locals->builtins[(int)enum_hs_simple_8bit_vector];
+        break;
+      case_sb16vector: # Simple-16Bit-Vector
+        pighole = &locals->builtins[(int)enum_hs_simple_16bit_vector];
+        break;
+      case_sb32vector: # Simple-32Bit-Vector
+        pighole = &locals->builtins[(int)enum_hs_simple_32bit_vector];
+        break;
       case_sstring: # Simple-String
         pighole = &locals->builtins[(int)enum_hs_simple_string];
         break;
       case_svector: # Simple-Vector
         pighole = &locals->builtins[(int)enum_hs_simple_vector];
         break;
-      case_obvector:
-        if ((Iarray_flags(obj) & arrayflags_atype_mask) == Atype_Bit)
-          pighole = &locals->builtins[(int)enum_hs_bit_vector]; # sonstiger Bit-Vector
-        else
-          pighole = &locals->builtins[(int)enum_hs_byte_vector]; # sonstiger Byte-Vector
+      case_obvector: # sonstiger Bit-Vector
+        pighole = &locals->builtins[(int)enum_hs_bit_vector];
+        break;
+      case_ob2vector: # sonstiger 2Bit-Vector
+        pighole = &locals->builtins[(int)enum_hs_2bit_vector];
+        break;
+      case_ob4vector: # sonstiger 4Bit-Vector
+        pighole = &locals->builtins[(int)enum_hs_4bit_vector];
+        break;
+      case_ob8vector: # sonstiger 8Bit-Vector
+        pighole = &locals->builtins[(int)enum_hs_8bit_vector];
+        break;
+      case_ob16vector: # sonstiger 16Bit-Vector
+        pighole = &locals->builtins[(int)enum_hs_16bit_vector];
+        break;
+      case_ob32vector: # sonstiger 32Bit-Vector
+        pighole = &locals->builtins[(int)enum_hs_32bit_vector];
         break;
       case_ostring: # sonstiger String
         pighole = &locals->builtins[(int)enum_hs_string];
@@ -2595,9 +2639,19 @@ local void heap_statistics_mapper(arg,obj,bytelen)
           case_Rectype_Structure_above;
           case_Rectype_Symbol_above;
           case_Rectype_Sbvector_above;
+          case_Rectype_Sb2vector_above;
+          case_Rectype_Sb4vector_above;
+          case_Rectype_Sb8vector_above;
+          case_Rectype_Sb16vector_above;
+          case_Rectype_Sb32vector_above;
           case_Rectype_Sstring_above;
           case_Rectype_Svector_above;
           case_Rectype_obvector_above;
+          case_Rectype_ob2vector_above;
+          case_Rectype_ob4vector_above;
+          case_Rectype_ob8vector_above;
+          case_Rectype_ob16vector_above;
+          case_Rectype_ob32vector_above;
           case_Rectype_ostring_above;
           case_Rectype_ovector_above;
           case_Rectype_mdarray_above;
