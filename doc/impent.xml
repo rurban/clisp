@@ -394,6 +394,7 @@
 <!ENTITY object-r "<replaceable>object</replaceable>">
 <!ENTITY offset-r "<replaceable>offset</replaceable>">
 <!ENTITY option-r "<replaceable>option</replaceable>">
+<!ENTITY pack-r "<replaceable>package</replaceable>">
 <!ENTITY path-r "<replaceable>pathname</replaceable>">
 <!ENTITY pattern-r "<replaceable>pattern</replaceable>">
 <!ENTITY place-r "<replaceable>place</replaceable>">
@@ -560,6 +561,7 @@
 <!ENTITY unsigned-byte-vec "<literal role='type'>(&vector-t; (&unsigned-byte-t; 8))</literal>">
 <!ENTITY yes "<listitem><simpara>yes</simpara></listitem>">
 <!ENTITY no "<listitem><simpara>no</simpara></listitem>">
+<!ENTITY not-e "<emphasis>not</emphasis>">
 <!ENTITY charset-glibc-libiconv "This character set is only available on
                                  platforms with &glibc; or &libiconv;.">
 <!ENTITY charset-libiconv "This character set is only available on
