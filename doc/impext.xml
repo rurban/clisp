@@ -4327,7 +4327,9 @@ bash$
  section <link linkend="quickstart">Quickstarting delivery with
  &clisp;</link>.</para>
 
-<para>&clisp; is Free Software, covered by the &gnu; &gpl;, with special
+<para>&clisp; is
+ <ulink url="http://www.gnu.org/philosophy/free-sw.html">Free
+  Software</ulink>, covered by the &gnu; &gpl;, with special
  terms governing the distribution of applications that run in &clisp;.
  The precise terms can be found in the <filename>COPYRIGHT</filename>
  file contained in the source and binary distributions of &clisp;.  Here
@@ -4337,7 +4339,7 @@ bash$
 
 <para>In many cases, &clisp; does not force an application to be covered
  by the &gnu; &gpl;. Nevertheless, we encourage you to release your software
- under an open source copyright. The benefits of such a copyright for
+ under an open source license. The benefits of such a license for
  your users are numerous, in particular they are free to modify the
  application when their needs/requirements change, and they are free to
  recompile the application when they upgrade their machine or operating
