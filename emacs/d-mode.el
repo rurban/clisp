@@ -119,4 +119,7 @@ Beware - this will modify the original C-mode too!"
 (modify-syntax-entry ?\f "> b" d-mode-syntax-table)
 (modify-syntax-entry ?/ "_ 14" d-mode-syntax-table)
 
+;; put D buffers along with the C buffers in the menus
+(push '("\\<D\\>" . "C") mouse-buffer-menu-mode-groups)
+
 (provide 'd-mode)
