@@ -1,3 +1,17 @@
+2004-04-15  Sam Steingold  <sds@gnu.org>
+
+	make EXT:FILL-STREAM a user-visible extension
+	* fill-out.lisp (fill-stream, with-fill-stream): export symbol from EXT
+	(fill-stream): new slot PENDING-SPACE to avoid trailing spaces
+	and compress multiple blanks into one
+	(line-pos): new helper
+	(stream-line-column, stream-start-line-p): use it
+	(fill-stream-flush-buffer): write a #\Space when PENDING-SPACE is
+	non-NIL and we are not at the beginning of a line;
+	do not multiply indent by *PRINT-INDENT-LISTS*
+	(stream-write-char): set PENDING-SPACE instead of writing #\Space
+	(stream-clear-output): reset PENDING-SPACE
+
 2004-04-08  Bruno Haible  <bruno@clisp.org>
 
 	Make REMOVE[-IF[-NOT]], DELETE[-IF[-NOT]], SUBSTITUTE[-IF[-NOT]] on
