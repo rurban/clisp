@@ -1,5 +1,5 @@
 /*
- * Copyright 1993-1998 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1993-1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -9,14 +9,16 @@
 
 #include "sigsegv.h"
 
-#if defined(HAVE_SIGSEGV_RECOVERY)
+#if !defined(_WIN32) /* Unix */
 
-#ifndef _WIN32
+#if defined(HAVE_SIGSEGV_RECOVERY) || defined(HAVE_STACK_OVERFLOW_RECOVERY)
+
 #include "config.h"
-#endif
 
 #include <stddef.h> /* needed for NULL on SunOS4 */
 #include <stdlib.h>
+
+#if defined(HAVE_SIGSEGV_RECOVERY)
 
 /*
  * Portability section:
@@ -25,7 +27,7 @@
  * - SIGSEGV_FAULT_ADDRESS          is a macro for fetching the fault address.
  * - SIGSEGV_ALL_SIGNALS            enumerates the fault signals.
  */
-#if defined(linux) && (defined(i386) || defined(__i386)) /* Linux */
+#if defined(__linux__) && (defined(i386) || defined(__i386)) /* Linux */
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, unsigned long more
 #define SIGSEGV_FAULT_ADDRESS  ((unsigned long *) &more) [21]
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
@@ -35,7 +37,7 @@
 #define SIGSEGV_FAULT_ADDRESS  addr
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGBUS)
 #endif
-#if defined(linux) && defined(sparc) /* Linux, in case of SunOS4 signal frames */
+#if defined(__linux__) && defined(sparc) /* Linux, in case of SunOS4 signal frames */
 #define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, void* scp, char* addr
 #define SIGSEGV_FAULT_ADDRESS  addr
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
@@ -75,20 +77,116 @@
 #define SIGSEGV_FAULT_ADDRESS_FROM_SIGINFO
 #define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
 #endif
-#if defined(_WIN32) && !defined(__BORLANDC__) /* Win32, but not Borland C */
+
+#endif /* HAVE_SIGSEGV_RECOVERY */
+
+#if defined(HAVE_STACK_OVERFLOW_RECOVERY)
+
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h> /* declares struct rlimit */
+
+typedef
+struct vma_struct {
+  unsigned long start;
+  unsigned long end;
+  unsigned long prev_end;
+}
+vma_struct;
+static int get_vma (unsigned long address, vma_struct* vma);
+
+/*
+ * Portability section:
+ * - The sigaltstack function and the stack_t type must be available.
+ * - HAVE_SIGACTION must be defined.
+ * - The getrlimit/setrlimit functions must be available, and RLIMIT_STACK
+ *   must be defined.
+ * - The get_vma() function must be defined, to return the vma containing
+ *   a given address.
+ * - SIGSEGV_ALL_SIGNALS            enumerates the fault signals.
+ * If available:
+ * - SIGSEGV_FAULT_HANDLER_ARGLIST  is the argument list for the actual fault
+ *                                  handler.
+ * - SIGSEGV_FAULT_CONTEXT          is a macro giving a pointer to the entire
+ *                                  fault context (i.e. the register set etc.).
+ * - SIGSEGV_FAULT_STACKPOINTER     is a macro for fetching the old stackpointer.
+ */
+#if defined(__linux__) /* Linux */
+#include <stdio.h>
+static int get_vma (unsigned long address, vma_struct* vma)
+{
+  FILE* f = fopen("/proc/self/maps","r");
+  unsigned long start, end, prev = 0;
+  int c;
+  if (!f) return -1;
+  for (prev = 0; ; prev = end) {
+    if (fscanf(f,"%lx-%lx",&start,&end) != 2) break;
+    if (address >= start && address <= end-1) {
+      vma->start = start; vma->end = end; vma->prev_end = prev;
+      fclose(f); return 0;
+    }
+    while (c = getc(f), c != EOF && c != '\n') continue;
+  }
+  fclose(f); return -1;
+}
+#define SIGSEGV_ALL_SIGNALS  FAULT_HANDLER(SIGSEGV)
+#if (defined(i386) || defined(__i386))
+#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, unsigned long more
+#define SIGSEGV_FAULT_CONTEXT  ((struct sigcontext*) &more)
+#define SIGSEGV_FAULT_STACKPOINTER  ((unsigned long *) &more) [7]
+#endif
+#if (defined(m68k) || defined(__m68k))
+#include <asm/sigcontext.h>
+#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext* scp
+#define SIGSEGV_FAULT_CONTEXT  scp
+#define SIGSEGV_FAULT_STACKPOINTER  scp->sc_usp
+#endif
+#if (defined(mips) || defined(__mips))
+#include <asm/sigcontext.h>
+#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext* scp
+#define SIGSEGV_FAULT_CONTEXT  scp
+#define SIGSEGV_FAULT_STACKPOINTER  scp->sc_regs[29]
+#endif
+#if (defined(sparc) || defined(__sparc))
+#include <asm/sigcontext.h>
+#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext* scp, char* addr
+#define SIGSEGV_FAULT_CONTEXT  scp
+#define SIGSEGV_FAULT_STACKPOINTER  scp->sigc_sp
+#endif
+#if (defined(alpha) || defined(__alpha))
+#include <asm/sigcontext.h>
+#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int code, struct sigcontext* scp
+#define SIGSEGV_FAULT_CONTEXT  scp
+#define SIGSEGV_FAULT_STACKPOINTER  scp->sc_regs[30]
+#endif
+#if (defined(arm) || defined(__arm))
+#include <asm/sigcontext.h>
+#define SIGSEGV_FAULT_HANDLER_ARGLIST  int sig, int r1, int r2, int r3, struct sigcontext sc
+#define SIGSEGV_FAULT_CONTEXT  &sc
+#define SIGSEGV_FAULT_STACKPOINTER  sc.arm_sp
+#endif
 #endif
 
-static int no_user_handler (void* fault_address)
+/* Address of the last byte belonging to the stack vma. */
+static unsigned long stack_top = 0;
+/* Needs to be called once only. */
+static void remember_stack_top (void* some_variable_on_stack)
 {
-  (void)fault_address;
-  /* This shouldn't be called. Decline responsibility. */
-  return 0;
+  vma_struct vma;
+  if (get_vma((unsigned long)some_variable_on_stack,&vma) >= 0)
+    stack_top = vma.end-1;
 }
 
-/* User's SIGSEGV handler. */
-static sigsegv_handler_t user_handler = &no_user_handler;
+static stackoverflow_handler_t stk_user_handler = (stackoverflow_handler_t)NULL;
+static unsigned long stk_extra_stack;
+static unsigned long stk_extra_stack_size;
 
-#if !(defined(NeXT) || defined(_WIN32))
+#endif /* HAVE_STACK_OVERFLOW_RECOVERY */
+
+/* User's SIGSEGV handler. */
+static sigsegv_handler_t user_handler = (sigsegv_handler_t)NULL;
+
+#if !defined(NeXT)
 /* Generic Unix support. */
 
 /* Signal handling support. */
@@ -127,20 +225,152 @@ static int siginterrupt (int sig, int flag)
 #endif
 
 /* Our SIGSEGV handler, with OS dependent argument list. */
+
+#if defined(HAVE_SIGSEGV_RECOVERY)
+
 static void sigsegv_handler (SIGSEGV_FAULT_HANDLER_ARGLIST)
 {
   char* address = (char*)(SIGSEGV_FAULT_ADDRESS);
+#if defined(HAVE_STACK_OVERFLOW_RECOVERY)
   /* Call user's handler. */
-  if ((*user_handler)(address)) {
+  if (user_handler && (*user_handler)(address,0)) {
     /* Handler successful. Reinstall it for next time. */
 #if (defined(HAVE_SIGACTION) ? defined(SIGACTION_NEED_REINSTALL) : defined(SIGNAL_NEED_REINSTALL))
     install_for(sig);
 #endif
   } else {
-    /* Handler declined responsibility. Remove ourselves and dump core. */
-    sigsegv_deinstall_handler();
+    /* Handler declined responsibility. */
+    /* See whether it was a stack overflow. If so, longjump away. */
+#ifdef SIGSEGV_FAULT_STACKPOINTER
+    unsigned long old_sp = (unsigned long)(SIGSEGV_FAULT_STACKPOINTER);
+#endif
+    /* Did the user install a handler? */
+    if (stk_user_handler) {
+      /* Were we able to determine the stack top? */
+      if (stack_top) {
+        /* Determine stack bounds. */
+        vma_struct vma;
+        if (get_vma(stack_top,&vma) >= 0) {
+          /* Heuristic: If the fault_address is nearer to the stack segment's
+             [start,end] than to the previous segment, we consider it a stack
+             overflow. */
+          unsigned long addr = (unsigned long) address;
+          if (addr >= vma.start
+              ? (addr <= vma.end-1)
+              : (vma.start - addr < (vma.start - vma.prev_end) / 2)
+             ) {
+#ifdef SIGSEGV_FAULT_STACKPOINTER
+            int emergency = (old_sp >= stk_extra_stack && old_sp <= stk_extra_stack + stk_extra_stack_size);
+            stackoverflow_context_t context = (SIGSEGV_FAULT_CONTEXT);
+#else
+            int emergency = 0;
+            stackoverflow_context_t context = (void*)0;
+#endif
+#if 0 /* Not needed. The user's handler must call sigsegv_leave_handler() anyway. */
+            /* Reinstall handler for next time. */
+#if (defined(HAVE_SIGACTION) ? defined(SIGACTION_NEED_REINSTALL) : defined(SIGNAL_NEED_REINSTALL))
+            install_for(sig);
+#endif
+#endif
+            /* Call user's handler. */
+            (*stk_user_handler)(emergency,context);
+          }
+        }
+      }
+    }
+    if (user_handler && (*user_handler)(address,1)) {
+      /* Handler successful. Reinstall it for next time. */
+#if (defined(HAVE_SIGACTION) ? defined(SIGACTION_NEED_REINSTALL) : defined(SIGNAL_NEED_REINSTALL))
+      install_for(sig);
+#endif
+    } else {
+      /* Handler declined responsibility for real. */
+      /* Remove ourselves and dump core. */
+#define FAULT_HANDLER(sig)  signal(sig,SIG_DFL);
+      SIGSEGV_ALL_SIGNALS
+#undef FAULT_HANDLER
+    }
   }
+#else /* !defined(HAVE_STACK_OVERFLOW_RECOVERY) */
+  /* Call user's handler. */
+  if (user_handler && (*user_handler)(address,1)) {
+    /* Handler successful. Reinstall it for next time. */
+#if (defined(HAVE_SIGACTION) ? defined(SIGACTION_NEED_REINSTALL) : defined(SIGNAL_NEED_REINSTALL))
+    install_for(sig);
+#endif
+  } else {
+    /* Handler declined responsibility. */
+    /* Remove ourselves and dump core. */
+#define FAULT_HANDLER(sig)  signal(sig,SIG_DFL);
+    SIGSEGV_ALL_SIGNALS
+#undef FAULT_HANDLER
+  }
+#endif
 }
+
+#elif defined(HAVE_STACK_OVERFLOW_RECOVERY)
+
+#ifdef SIGSEGV_FAULT_STACKPOINTER
+static void sigsegv_handler (SIGSEGV_FAULT_HANDLER_ARGLIST)
+#else
+static void sigsegv_handler (int sig)
+#endif
+{
+  /* See whether it was a stack overflow. If so, longjump away. */
+#ifdef SIGSEGV_FAULT_STACKPOINTER
+  unsigned long old_sp = (unsigned long)(SIGSEGV_FAULT_STACKPOINTER);
+#endif
+  /* Did the user install a handler? */
+  if (stk_user_handler) {
+    /* Were we able to determine the stack top? */
+    if (stack_top) {
+      /* Determine stack bounds. */
+      vma_struct vma;
+      if (get_vma(stack_top,&vma) >= 0) {
+        /* Heuristic: If the stack size has reached its maximal size, and
+           old_sp is near the low end, we consider it a stack overflow. */
+        struct rlimit rl;
+        if (getrlimit(RLIMIT_STACK,&rl) >= 0) {
+          unsigned long current_stack_size = vma.end - vma.start;
+          unsigned long max_stack_size = rl.rlim_cur;
+          if (current_stack_size <= max_stack_size + 4096
+              && max_stack_size <= current_stack_size + 4096
+#ifdef SIGSEGV_FAULT_STACKPOINTER
+              /* Heuristic: If we know old_sp, and it is neither near the low
+                 end, nor in the alternate stack, then it's probably not a
+                 stack overflow. */
+              && ((old_sp >= stk_extra_stack && old_sp <= stk_extra_stack + stk_extra_stack_size)
+                  || (old_sp <= vma.start + 4096 && vma.start <= old_sp + 4096)
+                 )
+#endif
+             ) {
+#ifdef SIGSEGV_FAULT_STACKPOINTER
+            int emergency = (old_sp >= stk_extra_stack && old_sp <= stk_extra_stack + stk_extra_stack_size);
+            stackoverflow_context_t context = (SIGSEGV_FAULT_CONTEXT);
+#else
+            int emergency = 0;
+            stackoverflow_context_t context = (void*)0;
+#endif
+#if 0 /* Not needed. The user's handler must call sigsegv_leave_handler() anyway. */
+            /* Reinstall handler for next time. */
+#if (defined(HAVE_SIGACTION) ? defined(SIGACTION_NEED_REINSTALL) : defined(SIGNAL_NEED_REINSTALL))
+            install_for(sig);
+#endif
+#endif
+            /* Call user's handler. */
+            (*stk_user_handler)(emergency,context);
+          }
+        }
+      }
+    }
+  }
+  /* Remove ourselves and dump core. */
+#define FAULT_HANDLER(sig)  signal(sig,SIG_DFL);
+  SIGSEGV_ALL_SIGNALS
+#undef FAULT_HANDLER
+}
+
+#endif
 
 static void install_for (int sig)
 {
@@ -228,6 +458,13 @@ static void install_for (int sig)
 #else
   action.sa_flags = 0;
 #endif
+#ifdef HAVE_STACK_OVERFLOW_RECOVERY
+  /* Work around Linux 2.2.5 bug: If SA_ONSTACK is specified but sigaltstack()
+     has not been called, the kernel will busy loop, eating CPU time. So avoid
+     setting SA_ONSTACK until the user has requested stack overflow handling. */
+  if (stk_user_handler)
+    action.sa_flags |= SA_ONSTACK;
+#endif
   sigaction(sig,&action,(struct sigaction *)NULL);
 
 #else /* no HAVE_SIGACTION */
@@ -251,10 +488,15 @@ int sigsegv_install_handler (sigsegv_handler_t handler)
 
 void sigsegv_deinstall_handler (void)
 {
+  user_handler = (sigsegv_handler_t)NULL;
+#ifdef HAVE_STACK_OVERFLOW_RECOVERY
+  if (!stk_user_handler)
+#endif
+    {
 #define FAULT_HANDLER(sig)  signal(sig,SIG_DFL);
-  SIGSEGV_ALL_SIGNALS
+      SIGSEGV_ALL_SIGNALS
 #undef FAULT_HANDLER
-  user_handler = &no_user_handler;
+    }
 }
 
 void sigsegv_leave_handler (void)
@@ -348,7 +590,65 @@ void sigsegv_leave_handler (void)
 #endif
 }
 
-#endif /* Unix */
+int stackoverflow_install_handler (stackoverflow_handler_t handler,
+                                   void* extra_stack, unsigned long extra_stack_size)
+{
+#ifdef HAVE_STACK_OVERFLOW_RECOVERY
+  if (!stack_top) {
+    int dummy;
+    remember_stack_top(&dummy);
+    if (!stack_top)
+      return -1;
+  }
+  stk_user_handler = handler;
+  stk_extra_stack = (unsigned long) extra_stack;
+  stk_extra_stack_size = extra_stack_size;
+  {
+    stack_t ss;
+    ss.ss_sp = extra_stack;
+    ss.ss_size = extra_stack_size;
+    ss.ss_flags = 0; /* no SS_DISABLE */
+    if (sigaltstack(&ss,(stack_t*)0) < 0) return -1;
+  }
+  /* Install the signal handlers with SA_ONSTACK. */
+#define FAULT_HANDLER(sig)  install_for(sig);
+  SIGSEGV_ALL_SIGNALS
+#undef FAULT_HANDLER
+  return 0;
+#else
+  return -1;
+#endif
+}
+
+void stackoverflow_deinstall_handler (void)
+{
+#ifdef HAVE_STACK_OVERFLOW_RECOVERY
+  stk_user_handler = (stackoverflow_handler_t)NULL;
+#ifdef HAVE_SIGSEGV_RECOVERY
+  if (user_handler)
+    {
+      /* Reinstall the signal handlers without SA_ONSTACK, to avoid Linux
+         bug. */
+#define FAULT_HANDLER(sig)  install_for(sig);
+      SIGSEGV_ALL_SIGNALS
+#undef FAULT_HANDLER
+    }
+  else
+#endif
+    {
+#define FAULT_HANDLER(sig)  signal(sig,SIG_DFL);
+      SIGSEGV_ALL_SIGNALS
+#undef FAULT_HANDLER
+    }
+  {
+    stack_t ss;
+    ss.ss_flags = SS_DISABLE;
+    sigaltstack(&ss,(stack_t*)0);
+  }
+#endif
+}
+
+#endif /* Generic Unix */
 
 #if defined(NeXT) /* NeXTstep */
 
@@ -367,7 +667,7 @@ void sigsegv_leave_handler (void)
 static int exception_handled = 0;
 kern_return_t catch_exception_raise (port_t exception_port, port_t thread, port_t task, int exception, int code, int subcode)
 {
-  if (user_handler == &no_user_handler)
+  if (user_handler == (sigsegv_handler_t)NULL)
     return KERN_FAILURE;
   if ((exception == EXC_BAD_ACCESS)
       /*
@@ -464,7 +764,7 @@ int sigsegv_install_handler (sigsegv_handler_t handler)
 
 void sigsegv_deinstall_handler (void)
 {
-  user_handler = &no_user_handler;
+  user_handler = (sigsegv_handler_t)NULL;
   /* The exception thread keeps running, but behaves as if it weren't there. */
 }
 
@@ -472,7 +772,46 @@ void sigsegv_leave_handler (void)
 {
 }
 
+int stackoverflow_install_handler (stackoverflow_handler_t handler,
+                                   void* extra_stack, unsigned long extra_stack_size)
+{
+  return -1;
+}
+
+void stackoverflow_deinstall_handler (void)
+{
+}
+
 #endif /* NeXTstep */
+
+#else /* no HAVE_SIGSEGV_RECOVERY or HAVE_STACK_OVERFLOW_RECOVERY */
+
+int sigsegv_install_handler (sigsegv_handler_t handler)
+{
+  return -1;
+}
+
+void sigsegv_deinstall_handler (void)
+{
+}
+
+void sigsegv_leave_handler (void)
+{
+}
+
+int stackoverflow_install_handler (stackoverflow_handler_t handler,
+                                   void* extra_stack, unsigned long extra_stack_size)
+{
+  return -1;
+}
+
+void stackoverflow_deinstall_handler (void)
+{
+}
+
+#endif
+
+#endif /* Unix */
 
 #if defined(_WIN32) /* Win32 */
 
@@ -522,7 +861,7 @@ static stackoverflow_handler_t stk_user_handler = (stackoverflow_handler_t)NULL;
 static unsigned long stk_extra_stack;
 static unsigned long stk_extra_stack_size;
 
-static void stack_overflow_handler (unsigned long faulting_page_address)
+static void stack_overflow_handler (unsigned long faulting_page_address, stackoverflow_context_t context)
 {
   MEMORY_BASIC_INFORMATION info;
   DWORD oldprot;
@@ -554,10 +893,10 @@ static void stack_overflow_handler (unsigned long faulting_page_address)
       goto ok;
 failed:
   for (;;)
-    (*stk_user_handler)(1);
+    (*stk_user_handler)(1,context);
 ok:
   for (;;)
-    (*stk_user_handler)(0);
+    (*stk_user_handler)(0,context);
 }
 
 /* This is the stack overflow and page fault handler. */
@@ -567,7 +906,7 @@ static LONG WINAPI main_exception_filter (EXCEPTION_POINTERS* ExceptionInfo)
        && ExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW
       )
       ||
-      (user_handler != &no_user_handler
+      (user_handler != (sigsegv_handler_t)NULL
        && ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION
      )) {
 #if 0 /* for debugging only */
@@ -604,21 +943,22 @@ static LONG WINAPI main_exception_filter (EXCEPTION_POINTERS* ExceptionInfo)
         /* Restart the program, giving it a sane value for %esp. */
         unsigned long faulting_page_address = (unsigned long)address & -0x1000;
         unsigned long new_safe_esp = ((stk_extra_stack + stk_extra_stack_size) & -8);
-        new_safe_esp -= 8; /* make room for argument */
+        new_safe_esp -= 12; /* make room for arguments */
         ExceptionInfo->ContextRecord->Esp = new_safe_esp;
         /* Call stack_overflow_handler(faulting_page_address). */
         ExceptionInfo->ContextRecord->Eip = (unsigned long)&stack_overflow_handler;
-        *(unsigned long *)(new_safe_esp + 4) = faulting_page_address;
+        *(unsigned long *)(new_safe_esp + 8) = faulting_page_address;
+        *(unsigned long *)(new_safe_esp + 4) = (unsigned long) ExceptionInfo->ContextRecord;
         return EXCEPTION_CONTINUE_EXECUTION;
       }
-      if (user_handler != &no_user_handler
+      if (user_handler != (sigsegv_handler_t)NULL
           && ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION) {
         /* ExceptionInfo->ExceptionRecord->ExceptionInformation[0] is 1 if
          * it's a write access, 0 if it's a read access. But we don't need
          * this info because we don't have it on Unix either.
          */
         void* address = (void*)(ExceptionInfo->ExceptionRecord->ExceptionInformation[1]);
-        if ((*user_handler)(address))
+        if ((*user_handler)(address,1))
           return EXCEPTION_CONTINUE_EXECUTION;
       }
     }
@@ -640,15 +980,15 @@ int sigsegv_install_handler (sigsegv_handler_t handler)
 
 void sigsegv_deinstall_handler (void)
 {
-  user_handler = &no_user_handler;
+  user_handler = (sigsegv_handler_t)NULL;
 }
 
 void sigsegv_leave_handler (void)
 {
 }
 
-void stackoverflow_install_handler (stackoverflow_handler_t handler,
-                                    void* extra_stack, unsigned long extra_stack_size)
+int stackoverflow_install_handler (stackoverflow_handler_t handler,
+                                   void* extra_stack, unsigned long extra_stack_size)
 {
   stk_user_handler = handler;
   stk_extra_stack = (unsigned long) extra_stack;
@@ -657,6 +997,7 @@ void stackoverflow_install_handler (stackoverflow_handler_t handler,
     SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)&main_exception_filter);
     main_exception_filter_installed = 1;
   }
+  return 0;
 }
 
 void stackoverflow_deinstall_handler (void)
@@ -665,20 +1006,3 @@ void stackoverflow_deinstall_handler (void)
 }
 
 #endif /* Win32 */
-
-#else /* no HAVE_SIGSEGV_RECOVERY */
-
-int sigsegv_install_handler (sigsegv_handler_t handler)
-{
-  return -1;
-}
-
-void sigsegv_deinstall_handler (void)
-{
-}
-
-void sigsegv_leave_handler (void)
-{
-}
-
-#endif

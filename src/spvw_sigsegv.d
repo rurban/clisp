@@ -33,16 +33,17 @@
     }
 
   # Signal-Handler für Signal SIGSEGV u.ä.:
-  local int sigsegv_handler (void* fault_address)
+  local int sigsegv_handler (void* fault_address, int serious)
     { set_break_sem_0();
-      switch (handle_fault((aint)fault_address))
+      switch (handle_fault((aint)fault_address,serious))
         { case handler_done:
             # erfolgreich
             clr_break_sem_0();
             return 1;
           case handler_failed:
             # erfolglos
-            sigsegv_handler_failed(fault_address);
+            if (serious)
+              sigsegv_handler_failed(fault_address);
             # Der Default-Handler wird uns in den Debugger führen.
           default:
             clr_break_sem_0();
@@ -59,11 +60,31 @@
 
 #ifdef NOCOST_SP_CHECK
 
-  local void stackoverflow_handler (int emergency);
-  local void stackoverflow_handler(emergency)
+  local void stackoverflow_handler (int emergency, stackoverflow_context_t scp);
+  local void stackoverflow_handler(emergency,scp)
     var int emergency;
+    var stackoverflow_context_t scp;
     { if (emergency)
         { asciz_out(GETTEXT("Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!" NLstring)); }
+      sigsegv_leave_handler();
+      #ifdef HAVE_SAVED_STACK
+      # Assign a reasonable value to STACK:
+      if (!(saved_STACK==NULL))
+        { setSTACK(STACK = saved_STACK); }
+        else
+        { # This depends on STACK_register.
+          # What about MC680X0 and SPARC ??
+          #ifdef I80386
+          if (scp) { setSTACK(STACK = (object*)(scp->ebx)); }
+          #endif
+          #ifdef ARM
+          if (scp) { setSTACK(STACK = (object*)(scp->arm_r8)); }
+          #endif
+          #ifdef DECALPHA
+          if (scp) { setSTACK(STACK = (object*)(scp->sc_regs[9])); }
+          #endif
+        }
+      #endif
       SP_ueber();
     }
 
