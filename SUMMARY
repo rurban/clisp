@@ -13,7 +13,8 @@ The user interface comes in German, English, French, Spanish, Dutch
 and Russian.
 GNU CLISP includes an interpreter, a compiler, a debugger, a large
 subset of CLOS, a foreign language interface and a socket interface.
-An X11 interface is available through CLX and Garnet.
+An X11 interface is available through CLX, Garnet, CLUE/CLIO.
+GNU CLISP runs Maxima, ACL2 and many other Common Lisp packages.
 
 More information at
   <http://clisp.cons.org/>,
