@@ -42,6 +42,101 @@
 ;;;    an ordered list of intervals).
 ;;; 6. Decide the SUBTYPEP relationship in the particular category.
 
+;;; SUBTYPEP and (function ...) types
+;;;
+;;; How is SUBTYPEP on specific function types meant to work?
+;;;
+;;; HyperSpec/Body/syscla_function.html says:
+;;;
+;;;   "The list form of the function type-specifier can be used only for
+;;;    declaration and not for discrimination."
+;;;
+;;; So this means, the function call
+;;;
+;;;   (typep #'cons '(function (t t) cons))
+;;;
+;;; is invalid. But HyperSpec/Body/fun_subtypep.html talks about what
+;;; may happen when (function ...) is passed to SUBTYPEP. So the result of
+;;;
+;;;   (subtypep '(eql #.#'cons) '(function (t t) cons))
+;;;
+;;; must be either nil;nil (means unknown) or t;t (means true).
+;;;
+;;; Now, what about
+;;;
+;;;   (defun covariant ()
+;;;     (subtypep '(function (integer integer) cons)
+;;;               '(function (t t) cons)))
+;;;
+;;;   (defun contravariant ()
+;;;     (subtypep '(function (t t) cons)
+;;;               '(function (integer integer) cons)))
+;;;
+;;; Can either of these functions ever return true? In other words, are the
+;;; argument types in function types covariant or contravariant?
+;;;
+;;; Since a function that accepts any objects as arguments also accepts,
+;;; integers but not versa, the interpretation of a type as a "set of objects"
+;;; suggests that
+;;;   (covariant)     => nil;t or nil;nil
+;;;   (contravariant) => t;t or nil;nil
+;;;
+;;; But type relationships can also be defined through declarations: According
+;;; to HyperSpec/Body/dec_type.html, (subtypep A B) is true if and only if
+;;;
+;;;   (locally (declare (type A x)) (declare (type B x))
+;;;     (form ...))
+;;;
+;;; is equivalent to
+;;;
+;;;   (locally (declare (type A x))
+;;;     (form ...))
+;;;
+;;; When we transpose this to function types, (subtypep A B) should be true if
+;;; and only if
+;;;
+;;;   (locally (declare (ftype A x)) (declare (ftype B x))
+;;;     (form ...))
+;;;
+;;; is equivalent to
+;;;
+;;;   (locally (declare (ftype A x))
+;;;     (form ...))
+;;;
+;;; Using the definition of the semantics of FTYPE declarations in
+;;; HyperSpec/Body/syscla_function.html we arrive to the conclusion that
+;;;
+;;;   (locally (declare (ftype (function (t t) cons) x))
+;;;            (declare (ftype (function (integer integer) cons)))
+;;;     (form ...))
+;;;
+;;; is equivalent to
+;;;
+;;;   (locally (declare (ftype (function (integer integer) cons)))
+;;;     (form ...))
+;;;
+;;; hence
+;;;
+;;;   (covariant)     => t;t or nil;nil
+;;;   (contravariant) => nil;t or nil;nil
+;;;
+;;; In summary, the view of a type as a "set of objects" leads to a view of
+;;; subtypes that is opposite to the view of a function type as describing
+;;; function calls. Since "the function type-specifier can be used only for
+;;; declaration and not for discrimination" the first view is not the correct
+;;; one. Rather the second view should be used.
+;;;
+;;; However, I believe the contradiction persists because the view of a type
+;;; as a "set of objects" is so fundamental.
+;;;
+;;; Implementations like SBCL, CMUCL use the second view:
+;;;
+;;;   (covariant)     => t;t
+;;;   (contravariant) => nil;t
+;;;
+;;; Implementations like ACL 6.2 and LispWorks 4.3 punt and return nil;nil.
+;;; We do the same.
+
 ;;; Defines a type category.
 ;;; (DEF-TYPE-CATEGORY name atomic-type-specifiers list-type-specifiers
 ;;;                    and-simplifier or-simplifier subtype-decider)
@@ -1231,18 +1326,27 @@
     (unknown))
 )
 
-(def-type-category STANDARD-OBJECT () ()
-  ;; Each part is a CLOS class of metaclass <standard-class> or
-  ;; <funcallable-standard-class>, or <function>, of metaclass <built-in-class>.
+(def-type-category STANDARD-OBJECT () (FUNCTION)
+  ;; Each part is
+  ;; a CLOS class of metaclass <standard-class> or <funcallable-standard-class>,
+  ;; or <function>, of metaclass <built-in-class>,
+  ;; or of the form (FUNCTION ...).
   (lambda (parts)
     ;; Simplify `(AND ,@parts):
     (cond #+FFI
           ((member 'FFI::FOREIGN-FUNCTION parts)
-           (if (set-difference parts
-                 (list (find-class 'FUNCTION) #+FFI 'FFI::FOREIGN-FUNCTION))
-             'NIL
-             'FFI::FOREIGN-FUNCTION))
-          (t (if (rest parts) `(AND ,@parts) (first parts)))))
+           (let ((other-parts
+                   (set-difference parts
+                     (list (find-class 'FUNCTION) #+FFI 'FFI::FOREIGN-FUNCTION))))
+             (if (some #'atom other-parts)
+               'NIL
+               (if (null other-parts)
+                 'FFI::FOREIGN-FUNCTION
+                 `(AND ,@parts)))))
+          (t (when (some #'consp parts)
+               ; If some part is (FUNCTION ...), #<class FUNCTION> is redundant.
+               (setq parts (remove (find-class 'FUNCTION) parts)))
+             (if (rest parts) `(AND ,@parts) (first parts)))))
   (lambda (parts)
     ;; It's not worth simplifying the intersection of parts with
     ;; '(FUNCTION #+FFI FFI::FOREIGN-FUNCTION).
@@ -1257,18 +1361,27 @@
            (when (intersection type2parts
                    (list (find-class 'FUNCTION) #+FFI 'FFI::FOREIGN-FUNCTION))
              (yes)))
+          ((consp type1) ; (FUNCTION ...)
+           (when (member (find-class 'FUNCTION) type2parts)
+             (yes))
+           (when (member type1 type2parts :test #'canonicalized-types-equal-p)
+             (yes)))
           (t (let ((type1parts
                      (if (consp type1)
                        (progn (assert (eq (first type1) 'AND)) (rest type1))
                        (list type1))))
                (dolist (class1 type1parts)
-                 (dolist (class2 type2parts)
-                   (when (clos::subclassp class1 class2)
-                     (yes)))))))
+                 (if (consp class1) ; (FUNCTION ...)
+                   (when (member class1 type2parts :test #'canonicalized-types-equal-p)
+                     (yes))
+                   (dolist (class2 type2parts)
+                     (when (clos::subclassp class1 class2)
+                       (yes))))))))
     (when try-prove-no
-      ;; All checks already done. Any common instance of type1 would be a
-      ;; testimony.
-      (no))
+      ;; For classes, all checks already done. Any common instance of type1
+      ;; would be a testimony.
+      (unless (or (consp type1) (some #'consp type2parts))
+        (no)))
     (unknown))
 )
 
@@ -1295,7 +1408,7 @@
                             clauses))))
     (if (consp type)
       (case-list (first type)
-        (t 'NIL)) ; SATISFIES types cannot be classified.
+        (t 'NIL)) ; SATISFIES and VALUES types cannot be classified.
       (case-atomic type
         ((FUNCTION #+FFI FFI::FOREIGN-FUNCTION)
          ;; FUNCTION is not a category of its own, because of GENERIC-FUNCTION.
@@ -1619,10 +1732,16 @@
             (unless (and (null (cddr type)) (symbolp (second type)))
               (typespec-error 'subtypep type))
             type)
-           ((FUNCTION VALUES)
-            (error-of-type 'error
-              (TEXT "~S: type specification ~S is only valid for declaration, not for discrimination")
-              'subtypep type))
+           (VALUES ; (VALUES &rest types)
+            type)
+           (FUNCTION ; (FUNCTION &optional argtypes valuetype)
+            (unless (and (listp (cdr type)) (listp (cadr type))
+                         (listp (cddr type)) (null (cdddr type)))
+              (typespec-error 'subtypep type))
+            (if (null (cdr type))
+              ;; (FUNCTION) = FUNCTION. Return the CLOS class, as above.
+              (clos-class 'FUNCTION)
+              type))
            (t (typespec-error 'subtypep type))))
         ((clos::defined-class-p type)
          (if (and (clos::built-in-class-p type)
@@ -1652,9 +1771,10 @@
                               (null (set-difference objects2 objects1 :test #'eql)))))))
              (EQL ; (EQL object)
               (eql (second type1) (second type2)))
-             ((AND OR COMPLEX CONS)
+             ((AND OR COMPLEX CONS VALUES)
               ; (AND type*), (OR type*),
-              ; (COMPLEX &optional rtype itype), (CONS &optional cartype cdrtype)
+              ; (COMPLEX &optional rtype itype), (CONS &optional cartype cdrtype),
+              ; (VALUES &rest types)
               (let ((types1 (rest type1))
                     (types2 (rest type2)))
                 (and (eql (length types1) (length types2))
@@ -1665,6 +1785,11 @@
               (and (canonicalized-types-equal-p (if (cdr type1) (second type1))
                                                 (if (cdr type2) (second type2)))
                    (equal (cddr type1) (cddr type2))))
+             (FUNCTION ; (FUNCTION &optional argtypes valuetype)
+              (and (= (length type1) (length type2))
+                   (= (length (second type1)) (length (second type2)))
+                   (every #'canonicalized-types-equal-p (second type1) (second type2))
+                   (canonicalized-types-equal-p (third type1) (third type2))))
              (t ; Other canonicalized types only contain numbers and symbols.
               (equal (rest type1) (rest type2)))))))
 
@@ -1699,12 +1824,15 @@
             ;)
             ;; EQL: Element must belong to type2.
             ((eq head1 'EQL)
-             (if (typep (second type1) type2 env) (yes) (no)))
+             (return-from subtypep (safe-typep (second type1) type2 env)))
             ;; MEMBER: All elements must belong to type2.
             ((eq head1 'MEMBER)
-             (dolist (x (rest type1))
-               (unless (typep x type2 env) (return (no))))
-             (yes))
+             (let ((all-yes t))
+               (dolist (x (rest type1))
+                 (multiple-value-bind (is known) (safe-typep x type2 env)
+                   (unless is
+                     (if known (no) (setq all-yes nil)))))
+               (if all-yes (yes) (unknown))))
             ;; OR: Each type must be a subtype of type2.
             ((eq head1 'OR)
              (let ((all-yes t))
@@ -1802,7 +1930,7 @@
       (setq type2eqlparts
         (remove-if #'(lambda (x)
                        (dolist (tp type2parts nil)
-                         (when (typep x tp) (return t))))
+                         (when (safe-typep x tp) (return t))))
                    (the list type2eqlparts)))
       ;; Enumeratable results:
       ;; Does type1parts contain only a finite set?
@@ -1817,14 +1945,29 @@
                      (setq set (if (eq set 't) l (intersection set l))))))))
         (unless (eq set 't) ; Is type1parts entirely enumerated?
           ; Yes, so we can decide the result by a finite number of TYPEP calls.
-          (if (every #'(lambda (x)
-                         (or (dolist (tp type1parts nil)
-                               (unless (typep x tp) (return t)))
-                             (dolist (tp type2parts (member x type2eqlparts))
-                               (when (typep x tp) (return t)))))
-                     (the list set))
-            (yes)
-            (no))))
+          (let ((all-yes t))
+            (dolist (x set)
+              (multiple-value-bind (is1 known1)
+                  ; Is x eliminated by `(AND ,@type1parts) ?
+                  (let ((all-yes t))
+                    (dolist (tp type1parts (values nil all-yes))
+                      (multiple-value-bind (is known) (safe-typep x tp)
+                        (unless is
+                          (if known (return (values t t)) (setq all-yes nil))))))
+                (multiple-value-bind (is2 known2)
+                    ; Is x contained in `(OR ,@type2parts (MEMBER ,@type2eqlparts)) ?
+                    (let ((all-known t))
+                      (dolist (tp type2parts
+                               (if (member x type2eqlparts) (values t t) (values nil all-known)))
+                        (multiple-value-bind (is known) (safe-typep x tp)
+                          (when is (return (values t t)))
+                          (unless known (setq all-known nil)))))
+                  (cond ((and known1 known2)
+                         (unless (or is1 is2) (no)))
+                        (known1 (unless is1 (setq all-yes nil)))
+                        (known2 (unless is2 (setq all-yes nil)))
+                        (t (setq all-yes nil))))))
+            (if all-yes (yes) (unknown)))))
       ;; Now: None of the type1parts is an AND or MEMBER/EQL.
       ;;      None of the type2parts is an OR or MEMBER/EQL.
       ;; Handle `(OR ...) in type1parts:

@@ -644,13 +644,13 @@
 ;; ----------------------------------------------------------------------------
 
 ; Typtest ohne Gefahr einer Fehlermeldung. Für SIGNAL und HANDLER-BIND.
-(defun safe-typep (x y)
+(defun safe-typep (x y &optional env)
   (let ((*error-handler*
           #'(lambda (&rest error-args)
               (declare (ignore error-args))
-              (return-from safe-typep nil)
+              (return-from safe-typep (values nil nil))
        ))   )
-    (typep x y)
+    (values (typep x y env) t)
 ) )
 
 ; Umwandlung eines "type for declaration" in einen "type for discrimination".

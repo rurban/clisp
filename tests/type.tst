@@ -575,6 +575,39 @@ nil
   collect type)
 nil
 
+(multiple-value-list (subtypep '(function (t t) cons) 'function))
+(t t)
+(multiple-value-list (subtypep 'function '(function (t t) cons)))
+(nil nil)
+(multiple-value-list (subtypep '(function (integer integer) cons) '(function (t t) cons)))
+(nil nil)
+(multiple-value-list (subtypep '(function (t t) cons) '(function (integer integer) cons)))
+(nil nil)
+
+(multiple-value-list (subtypep '(eql #.#'cons) '(function (integer integer) cons)))
+(nil nil)
+
+(multiple-value-list (subtypep '(and (eql #.#'cons) integer) 'character))
+(t t)
+(multiple-value-list (subtypep '(and (eql #.#'cons) (function (t t) cons)) 'character))
+(nil nil)
+(multiple-value-list (subtypep '(and (eql #.#'cons) function) 'character))
+(nil t)
+
+(multiple-value-list (subtypep '(and (eql #.#'cons) integer) '(function (integer integer) cons)))
+(t t)
+(multiple-value-list (subtypep '(and (eql #.#'cons) (function (t t) cons)) '(function (integer integer) cons)))
+(nil nil)
+(multiple-value-list (subtypep '(and (eql #.#'cons) function) '(function (integer integer) cons)))
+(nil nil)
+
+(multiple-value-list (subtypep '(and (eql #.#'cons) integer) 'function))
+(t t)
+(multiple-value-list (subtypep '(and (eql #.#'cons) (function (t t) cons)) 'function))
+(t t)
+(multiple-value-list (subtypep '(and (eql #.#'cons) function) 'function))
+(t t)
+
 (loop :with class = (find-class 'vector) :for x :in '((1 0) #(1 0) #*10)
   :for y = (coerce x class) :always (and (equalp y #(1 0)) (vectorp y)))
 t

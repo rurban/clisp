@@ -1,3 +1,15 @@
+2005-02-08  Bruno Haible  <bruno@clisp.org>
+
+	* type.lisp (safe-typep): Accept an env argument and return a second
+	value, like SUBTYPEP does.
+	* subtypep.lisp (STANDARD-OBJECT): Handle (FUNCTION ...) types.
+	(canonicalize-type): Accept (FUNCTION ...) and (VALUES ...) type
+	specifiers.
+	(canonicalized-types-equal-p): Accept (FUNCTION ...) and (VALUES ...)
+	type specifiers.
+	(subtypep, subtypep-logic): Call safe-typep instead of typep and
+	handle the possibility of unknown subresults.
+
 2005-01-22  Bruno Haible  <bruno@clisp.org>
 
 	* compiler.lisp: Fix comments that confused the seclass of an anode
