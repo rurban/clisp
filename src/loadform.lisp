@@ -8,17 +8,22 @@
 
 (defun make-load-form-saving-slots
     (object &key environment
-     (slot-names (mapcan (lambda (slot)
-                           (when (eq :instance (slotdef-allocation slot))
-                             (list (slotdef-name slot))))
-                         (class-slots (class-of object)))))
+     (slot-names
+      (let ((slots (class-slots (class-of object))))
+        (etypecase object
+          (standard-object
+           (mapcan (lambda (slot)
+                     (when (eq :instance (slotdef-allocation slot))
+                       (list (slotdef-name slot))))
+                   slots))
+          (structure-object (mapcar #'slotdef-name slots))))))
   (declare (ignore environment))
   (values `(allocate-instance (find-class ',(class-name (class-of object))))
           `(progn
             (setf ,@(mapcan (lambda (slot)
                               (when (slot-boundp object slot)
                                 `((slot-value ,object ',slot)
-                                  ,(slot-value object slot))))
+                                  ',(slot-value object slot))))
                             slot-names))
             (initialize-instance ,object))))
 
