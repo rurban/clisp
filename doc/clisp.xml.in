@@ -149,13 +149,20 @@ that can be executed more efficiently.</para>
 <!-- #ifdef UNIX -->
 <varlistentry id="opt-link-set"><term><option>-K</option>
   <replaceable>linking-set</replaceable></term>
- <listitem><simpara>Specifies the <olink targetdoc="impnotes"
+ <listitem><para>Specifies the <olink targetdoc="impnotes"
    targetptr="linkset">linking set</olink> to be run.
    This is a directory (relative to the
    <link linkend="opt-libdir">&lld;</link>)
    containing at least a main executable (&rt;) and an initial &mem-img;.
-   Possible values are <command>base</command>, <command>full</command>.
-   The default is <command>base</command>.</simpara></listitem></varlistentry>
+   Possible values are
+   <variablelist><varlistentry><term><command>base</command></term>
+     <listitem><simpara>the core &clisp;</simpara></listitem></varlistentry>
+    <varlistentry><term><command>full</command></term>
+     <listitem><simpara>core plus all the modules with which this
+       installation was built, see
+       <olink targetdoc="impnotes" targetptr="modules"/>.
+   </simpara></listitem></varlistentry></variablelist>
+   The default is <command>base</command>.</para></listitem></varlistentry>
 <!-- #endif -->
 
 <varlistentry id="opt-memfile"><term><option>-M</option>
