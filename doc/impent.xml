@@ -171,6 +171,7 @@
 <!ENTITY ch-meta "<link linkend='char-bits'><constant>EXT:CHAR-META-BIT</constant></link>">
 <!ENTITY ch-super "<link linkend='char-bits'><constant>EXT:CHAR-SUPER-BIT</constant></link>">
 <!ENTITY char-width "<link linkend='char-width'><function>EXT:CHAR-WIDTH</function></link>">
+<!ENTITY cur-frame "<link linkend='cur-frame'>current stack frame</link>">
 <!ENTITY no-prim "<link linkend='no-prim'><function>CLOS:NO-PRIMARY-METHOD</function></link>">
 <!ENTITY meth-call-err "<link linkend='meth-call-err'><classname>CLOS:METHOD-CALL-ERROR</classname></link>">
 <!ENTITY meth-call-type-err "<link linkend='meth-call-type-err'><classname>CLOS:METHOD-CALL-TYPE-ERROR</classname></link>">
