@@ -1,5 +1,50 @@
 1999-01-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Split user1.lsp and user2.lsp into pieces.
+        * init.lsp: Change loading order. First room.lsp and saveinitmem.lsp,
+          then the language stuff up to conditio.lsp, then the user interface
+          and all kinds of extensions.
+          (cerror): Moved here from user1.lsp.
+        * defs1.lsp (fbound-string): Moved here from user2.lsp.
+          (*error-handler*): Moved here from user1.lsp.
+        * room.lsp: New file.
+          (room-format, room, %space1, %space2, %space, space-format,
+           space-tabulate): Moved here from user2.lsp.
+        * savemem.lsp: New file.
+          (%saveinitmem, saveinitmem): Moved here from user2.lsp.
+        * compile.lsp (*toplevel-environment*, *toplevel-denv*, eval-env):
+          Moved here from user1.lsp.
+        * conditio.lsp (break): Integrate with non-CLCS code from user1.lsp.
+          (*break-on-warnings*, batchmode-break-driver): Moved here from
+          user1.lsp.
+        * keyboard.lsp: New file.
+          (*keyboard-input*, with-keyboard, exec-with-keyboard): Moved here
+          from user1.lsp.
+        * runprog.lsp: New file.
+          (execute, run-shell-command, run-program): Moved here from
+          user2.lsp.
+        * query.lsp: New file.
+          (y-or-n-p, y-or-n, yes-or-no-p, yes-or-no): Moved here from
+          user1.lsp.
+        * reploop.lsp: New file.
+          (*prompt*, main-loop, break-loop, step et al.): Moved here from
+          user1.lsp.
+        * dribble.lsp: New file.
+          (dribble): Moved here from user2.lsp.
+        * complete.lsp: New file.
+          (completion): Moved here from user2.lsp.
+        * describe.lsp: New file.
+          (apropos-list, apropos, describe): Moved here from user2.lsp.
+        * edit.lsp: New file.
+          (*editor*, editor-name, editor-tempfile, edit-file, ed, uncompile):
+          Moved here from user2.lsp.
+        * user1.lsp: Remove file.
+        * user2.lsp: Remove file.
+        * makemake.in (LPARTS): Update.
+        * gettext/po/Makefile.devel (LSPSOURCES): Likewise.
+
+1999-01-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * Makefile.devel (win32msvc/makefile.msvc4, win32msvc/makefile.msvc5,
           acorn/makefile.cc, acorn/makefile.gcc): Fix rule.
 

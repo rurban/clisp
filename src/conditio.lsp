@@ -1427,24 +1427,34 @@ muffle-cerrors appease-cerrors exit-on-error
 ; It would be unfair to bypass the *debugger-hook* test in INVOKE-DEBUGGER.
 ; So we call INVOKE-DEBUGGER and therefore need a condition.
 (defun break (&optional (format-string "Break") &rest args)
-  (let ((condition
-          (make-condition 'simple-condition
-                          :format-string format-string
-                          :format-arguments args
-       )) )
-    (with-restarts
-        ((CONTINUE
-          :report (lambda (stream)
-                    (format stream (DEUTSCH "~S-Schleife beenden."
-                                    ENGLISH "Return from ~S loop"
-                                    FRANCAIS "Quitter le cycle de ~S.")
-                                   'break
-                  ) )
-          ()
-        ))
-      (with-condition-restarts condition (list (find-restart 'CONTINUE))
-        (invoke-debugger condition)
-  ) ) )
+  (if (not *use-clcs*)
+    (progn
+      (terpri *error-output*)
+      (apply #'format *error-output*
+                      (concatenate 'string "*** - " format-string)
+                      args
+      )
+      (funcall *break-driver* t)
+    )
+    (let ((condition
+            (make-condition 'simple-condition
+                            :format-string format-string
+                            :format-arguments args
+         )) )
+      (with-restarts
+          ((CONTINUE
+            :report (lambda (stream)
+                      (format stream (DEUTSCH "~S-Schleife beenden."
+                                      ENGLISH "Return from ~S loop"
+                                      FRANCAIS "Quitter le cycle de ~S.")
+                                     'break
+                    ) )
+            ()
+          ))
+        (with-condition-restarts condition (list (find-restart 'CONTINUE))
+          (invoke-debugger condition)
+    ) ) )
+  )
   nil
 )
 
@@ -1513,6 +1523,8 @@ muffle-cerrors appease-cerrors exit-on-error
 )
 
 ;;; 29.4.9. Warnings
+
+(defvar *break-on-warnings* nil)
 
 ;; WARN, CLtL2 p. 912
 ; (WARN format-string {arg}*)
@@ -1651,6 +1663,12 @@ Todo:
     (print-condition condition *error-output*)
     (exit t) ; exit Lisp with error
 ) )
+; Need to bind *break-driver* as well, because Ctrl-C interrupts are
+; most often signalled directly, without passing through ERROR or SIGNAL.
+(defun batchmode-break-driver (continuable &optional (condition nil) (print-it nil))
+  (declare (ignore continuable condition print-it))
+  (exit t)
+)
 
 ; (SYSTEM::BATCHMODE-ERRORS {form}*) executes the forms, but handles errors
 ; just as a batch program should do: continuable errors are signalled as
