@@ -94,8 +94,8 @@
 #undef HAVE_LDAP_H
 
 /* CL_READLINE */
-/* Define if you have <readline/readline.h>. */
-#undef HAVE_READLINE_READLINE_H
+/* Define if you have a recent readline (4+). */
+#undef HAVE_READLINE
 /* Define as const if the declaration of filename_completion_function()
    needs const in the first argument */
 #undef READLINE_CONST

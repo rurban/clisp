@@ -1,3 +1,10 @@
+2002-10-01  Sam Steingold  <sds@gnu.org>
+
+	* m4/readline.m4: check for `rl_already_prompted' after
+	AC_SEARCH_LIBS and define HAVE_READLINE on success
+	* lispbibl.d, unixconf.h.in: use HAVE_READLINE instead of
+	HAVE_READLINE_READLINE_H
+
 2002-09-30  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (defun): use GET-FUNNAME-SYMBOL instead of GET-SETF-SYMBOL
