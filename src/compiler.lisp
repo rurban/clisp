@@ -2902,7 +2902,7 @@ for-value   NIL or T
         (setq check (and name
                          (test-argument-syntax args nil fun req opt rest-p
                                                key-p keylist allow-p)))
-        (if (and name (eq fun name)) ; function is valid
+        (if (and name (equal fun name)) ; function is valid
           (case fun
             ((CAR CDR FIRST REST NOT NULL CONS SVREF VALUES
               CAAR CADR CDAR CDDR CAAAR CAADR CADAR CADDR CDAAR CDADR
@@ -6288,7 +6288,7 @@ for-value   NIL or T
                     allow-p (fnode-allow-other-keys-flag (car f3)))
               (multiple-value-setq (name req opt rest-p key-p keylist allow-p)
                 (function-signature fun t))) ; global functions only
-            (if (and name (eq fun name))
+            (if (and name (equal fun name))
               (test-argument-syntax args apply-args fun req opt rest-p
                                     key-p keylist allow-p)
               (note-function-used fun args apply-args))))
