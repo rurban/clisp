@@ -611,6 +611,9 @@
 /* The size of a `off_t', as computed by sizeof. */
 #undef SIZEOF_OFF_T
 
+/* The size of a `rlim_t', as computed by sizeof. */
+#undef SIZEOF_RLIM_T
+
 /* socklen_t (if defined in <sys/socket.h>) or int otherwise) */
 #undef SOCKLEN_T
 
