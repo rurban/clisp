@@ -1,5 +1,11 @@
 2004-03-11  Bruno Haible  <bruno@clisp.org>
 
+	* configure: Configure libcharset with --disable-shared on all
+	platforms, not only on cygwin and mingw. Needed because libtool's
+	support for shared libraries is broken at least on HP-UX 10 with gcc.
+
+2004-03-11  Bruno Haible  <bruno@clisp.org>
+
 	* stdint.h.in: Make it work with HP-UX 10.20 cc.
 
 2004-03-11  Bruno Haible  <bruno@clisp.org>
