@@ -194,7 +194,7 @@ typedef struct { uintD* MSDptr; uintC len; uintD* LSDptr; } DS;
 #                   als macroexpandierte Assembler-Routinen inline.
 #                   Ganz effizient.
 
-#if (defined(MC680X0) || defined(SPARC) || (defined(I80386) && !defined(BORLAND)) || defined(MIPS) || defined(VAX) || defined(ARM)) && !defined(NO_ARI_ASM) && (SAFETY < 3)
+#if (defined(MC680X0) || defined(SPARC) || (defined(I80386) && !defined(BORLAND)) || defined(MIPS) || defined(VAX) || defined(ARM)) && !defined(NO_ARI_ASM)
   # diese Assembler beherrsche ich
   #if (defined(GNU) && defined(WANT_LOOP_INLINE))
     # der GNU-Compiler kann Inline-Assembler
