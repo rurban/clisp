@@ -40,9 +40,8 @@ clx.e: clx.f
 clx.d: clx.e $(E2D)
 	echo "#line 1 \"clx.e\"" > clx.temp
 	sed -e 's,//.*$$,,' -e 's,/\*[^/]*\*/, ,g' -e 's,/\*[^*]*\*/, ,g' -e 's,\(/\*.*\)`,\1,g' < clx.e >> clx.temp
-	$(E2D) clx clx.temp clx.temp1
-	sed -e "s/^e_$$//" clx.temp1 > clx.d
-	$(RM) clx.temp*
+	$(E2D) clx clx.temp clx.d
+	$(RM) clx.temp
 
 clx.c: clx.d
 	$(COMMENT5) clx.d | $(ANSIDECL) > clx.c
@@ -59,7 +58,7 @@ clisp-module-distrib : clisp-module force
 
 
 clean : force
-	$(RM) genclx.c genclx clx.temp*
+	$(RM) genclx.c genclx clx.temp
 	$(RM) *.lib *.fas
 	$(RM) clx.e clx.d clx.c clx.o clx.tabs.c
 	$(RM) e2d
