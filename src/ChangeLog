@@ -1,5 +1,10 @@
 2004-02-26  Bruno Haible  <bruno@clisp.org>
 
+	* flo_konv.d (DF_to_c_double): Use minus_bit instead of -bit. Avoids
+	an "integer overflow" warning on 64-bit platforms.
+
+2004-02-26  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (fake_gcv_object): Cast argument to oint. Avoids gcc
 	warnings on 64-bit platforms when the argument is an uintL.
 	* eval.d (nest_var): Cast count to oint, Avoids a gcc warning as well.
