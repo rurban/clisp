@@ -1,3 +1,8 @@
+2005-03-10  Sam Steingold  <sds@gnu.org>
+
+	* configure.in (AC_INIT): moved PACKAGE_NAME, PACKAGE_TARNAME and
+	PACKAGE_BUGREPORT here
+
 2005-03-08  Sam Steingold  <sds@gnu.org>
 
 	* lisparit.d (RANDOM): do not accept RATIOs
