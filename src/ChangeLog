@@ -1,3 +1,18 @@
+2004-05-29  Bruno Haible  <bruno@clisp.org>
+
+	Make the class-precedence-list computation customizable.
+	* init.lisp: Export compute-class-precedence-list.
+	* clos-package.lisp: Likewise.
+	* clos-class3.lisp (compute-class-precedence-list-<class>,
+	compute-class-precedence-list, checked-compute-class-precedence-list):
+	New functions.
+	(initialize-instance-<built-in-class>,
+	initialize-instance-<structure-class>,
+	finalize-instance-standard-class): Use
+	checked-compute-class-precedence-list instead of std-compute-cpl.
+	* clos-class6.lisp (compute-class-precedence-list): New generic
+	function.
+
 2004-06-25  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d, spvw.d, xthread.d, zthread.d (thread_t):

@@ -275,6 +275,12 @@
   (:method ((name symbol))
     (class-finalized-p (find-class name))))
 
+;; MOP p. 38
+(fmakunbound 'compute-class-precedence-list)
+(defgeneric compute-class-precedence-list (class)
+  (:method ((class class))
+    (compute-class-precedence-list-<class> class)))
+
 ;;; ===========================================================================
 
 ;;; Class definition customization

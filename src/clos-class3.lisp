@@ -551,7 +551,8 @@
       (dolist (super added-direct-superclasses)
         (add-direct-subclass super class)))))
 
-;;; CLtL2 28.1.5., ANSI CL 4.3.5. Determining the Class Precedence List
+;; ----------------------------------------------------------------------------
+;; CLtL2 28.1.5., ANSI CL 4.3.5. Determining the Class Precedence List
 
 ;; The set of all classes forms a directed graph: Class C is located
 ;; below the direct superclasses of C. This graph is acyclic, because
@@ -698,6 +699,50 @@
           direct-superclasses)
     L))
 
+(defun compute-class-precedence-list-<class> (class)
+  (std-compute-cpl class (class-direct-superclasses class)))
+
+;; Preliminary.
+(defun compute-class-precedence-list (class)
+  (compute-class-precedence-list-<class> class))
+
+(defun checked-compute-class-precedence-list (class)
+  (let ((cpl (compute-class-precedence-list class))
+        (name (class-name class)))
+    ; Some checks, to guarantee that user-defined methods on
+    ; compute-class-precedence-list don't break our CLOS.
+    (unless (proper-list-p cpl)
+      (error (TEXT "Wrong ~S result for class ~S: not a proper list: ~S")
+             'compute-class-precedence-list name cpl))
+    (dolist (c cpl)
+      (unless (class-p c)
+        (error (TEXT "Wrong ~S result for class ~S: list element is not a class: ~S")
+               'compute-class-precedence-list name c)))
+    (unless (eq (first cpl) class)
+      (error (TEXT "Wrong ~S result for class ~S: list doesn't start with the class itself: ~S")
+             'compute-class-precedence-list name cpl))
+    (unless (or (eq name 't) ; for bootstrapping
+                (eq (car (last cpl)) <t>))
+      (error (TEXT "Wrong ~S result for class ~S: list doesn't end with ~S: ~S")
+             'compute-class-precedence-list name <t> cpl))
+    (unless (= (length cpl) (length (remove-duplicates cpl :test #'eq)))
+      (error (TEXT "Wrong ~S result for class ~S: list contains duplicates: ~S")
+             'compute-class-precedence-list name cpl))
+    (let ((superclasses (reduce #'union
+                                (mapcar #'class-precedence-list
+                                        (class-direct-superclasses class))
+                                :initial-value '())))
+      (let ((forgotten (set-difference superclasses cpl)))
+        (when forgotten
+          (error (TEXT "Wrong ~S result for class ~S: list doesn't contain the superclass~[~;~:;es~] ~{~S~^, ~}.")
+                 'compute-class-precedence-list name (length forgotten) forgotten)))
+      (let ((extraneous (set-difference (rest cpl) superclasses)))
+        (when extraneous
+          (error (TEXT "Wrong ~S result for class ~S: list contains elements that are not superclasses: ~{~S~^, ~}")
+                 'compute-class-precedence-list name extraneous))))
+    ; Now we've checked the CPL is OK.
+    cpl))
+
 ;; Stuff all superclasses (from the precedence-list) into a hash-table.
 (defun std-compute-superclasses (precedence-list)
   (let ((ht (make-hash-table :key-type 'class :value-type '(eql t)
@@ -715,6 +760,7 @@
                 (eq superclassname 'structure-stablehash))
         (return t)))))
 
+;; ----------------------------------------------------------------------------
 ;; CLtL2 28.1.3.2., ANSI CL 7.5.3. Inheritance of Slots and Slot Options
 
 (defun std-compute-slots (class)
@@ -920,7 +966,7 @@
   (apply #'initialize-instance-<class> class args)
   ; Initialize the remaining <class> slots:
   (setf (class-precedence-list class)
-        (std-compute-cpl class direct-superclasses))
+        (checked-compute-class-precedence-list class))
   (setf (class-all-superclasses class)
         (std-compute-superclasses (%class-precedence-list class)))
   (setf (class-slots class) '())
@@ -969,7 +1015,7 @@
   (setq direct-superclasses (class-direct-superclasses class)) ; augmented
   ; Initialize the remaining <class> slots:
   (setf (class-precedence-list class)
-        (std-compute-cpl class direct-superclasses))
+        (checked-compute-class-precedence-list class))
   (setf (class-all-superclasses class)
         (std-compute-superclasses (%class-precedence-list class)))
   (unless names
@@ -1147,7 +1193,7 @@
   (check-metaclass-mix name direct-superclasses
                        #'standard-class-p 'STANDARD-CLASS)
   (setf (class-precedence-list class)
-        (std-compute-cpl class direct-superclasses))
+        (checked-compute-class-precedence-list class))
   (setf (class-all-superclasses class)
         (std-compute-superclasses (%class-precedence-list class)))
   (dolist (super direct-superclasses)
