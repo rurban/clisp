@@ -1,5 +1,9 @@
 2005-03-17  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (distrib) [cygwin]: remove the target before ln
+
+2005-03-17  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (SET-FILE-STAT): added a cast to avoid
 	a woe32 warning (and maybe fix a bug?)
 

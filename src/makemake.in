@@ -3633,7 +3633,7 @@ if [ ${HSYSOS} = cygwin ]; then
   echol "CLISP_CYGWIN=\$(CLISP_VERSION)-cygwin-"`uname -r|sed 's/(.*)//g'`.tar.bz2
   echol "DEST_TMP='`pwd`/.install'"
   echol "distrib : setup.hint cygwin.README force"
-  echotab "\$(RMRF) \$(DEST_TMP); mkdir -p \$(DEST_TMP)"
+  echotab "\$(RMRF) \$(DEST_TMP) \$(CLISP_VR).tar.bz2; mkdir -p \$(DEST_TMP)"
   echotab "\$(MAKE) install prefix=/usr DESTDIR=\$(DEST_TMP)"
   echotab "cd \$(DEST_TMP); tar cvfj ../\$(CLISP_CYGWIN) *"
   echotab "ln \$(CLISP_CYGWIN) \$(CLISP_VR).tar.bz2"
