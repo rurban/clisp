@@ -1,3 +1,8 @@
+2004-12-24  Bruno Haible  <bruno@clisp.org>
+
+	* ffi.tst: Add a few tests for conversion of strings and arrays with
+	element-type CHARACTER.
+
 2004-12-19  Bruno Haible  <bruno@clisp.org>
 
 	* setf.tst: Add test against broken PUSH implementation.

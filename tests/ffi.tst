@@ -186,24 +186,25 @@ C-SELF
 
 #+UNICODE
 (typep (setf custom:*foreign-encoding*
-             (ext:make-encoding :charset 'charset:iso-8859-1)) 'ext:encoding)
+             (ext:make-encoding :charset 'charset:iso-8859-1))
+       'ext:encoding)
 #+UNICODE T
 
 #+UNICODE
-(setf custom:*foreign-encoding* (ext:make-encoding :charset 'charset:utf-8))
-#+UNICODE ERROR ;  not a 1:1 encoding
+(typep (setf custom:*foreign-encoding* (ext:make-encoding :charset 'charset:utf-8))
+       'ext:encoding)
+#+UNICODE T
 
-(typep (ffi::lookup-foreign-variable
-        "ffi_user_pointer" (ffi::parse-c-type 'ffi:c-pointer))
+(typep (ffi::lookup-foreign-variable "ffi_user_pointer"
+                                     (ffi::parse-c-type 'ffi:c-pointer))
        'foreign-variable)
 T
 
 (ffi::lookup-foreign-variable "ffi_user_pointer" (parse-c-type 'uint64))
 ERROR
 
-(typep (ffi::lookup-foreign-variable
-        "ffi_user_pointer"
-        (parse-c-type '(c-array-ptr sint8)))
+(typep (ffi::lookup-foreign-variable "ffi_user_pointer"
+                                     (parse-c-type '(c-array-ptr sint8)))
        'foreign-variable)
 T
 
@@ -315,6 +316,200 @@ T
     (:return-type (c-ptr (c-array character 4))) (:language :stdc))
   (c-self #(64 65 66 67 68)))
 "@ABC"
+
+
+;; Test convert_from_foreign of UTF-8 strings.
+;; C-STRING, C-ARRAY dim1, C-ARRAY-MAX, C-ARRAY-PTR use UTF-8 encoding,
+;; the others use ASCII encoding.
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-array-ptr uint8)))
+    (:return-type c-string) (:language :stdc))
+  (c-self #(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E)))
+"日本語"
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-array-ptr uint8)))
+    (:return-type (c-ptr (c-array character 9))) (:language :stdc))
+  (c-self #(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E)))
+"日本語"
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-array-ptr uint8)))
+    (:return-type (c-ptr (c-array-max character 20))) (:language :stdc))
+  (c-self #(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E  #x00
+            #x9E #xAA #xE8 #xAC #x9C #xE6 #xA5 #x97 #xE6 #x0A)))
+"日本語"
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-array-ptr uint8)))
+    (:return-type (c-array-ptr character)) (:language :stdc))
+  (c-self #(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E  #x00
+            #x9E #xAA #xE8 #xAC #x9C #xE6 #xA5 #x97 #xE6 #x0A)))
+"日本語"
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first uint8))
+    (:return-type character) (:language :stdc))
+  (c-self #x61))
+#\a
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first uint8))
+    (:return-type character) (:language :stdc))
+  (c-self #x9E))
+ERROR
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-array-ptr uint8)))
+    (:return-type (c-ptr (c-array character (3 3)))) (:language :stdc))
+  (c-self #(#x61 #x62 #x63  #x64 #x65 #x66  #x67 #x68 #x69)))
+#2A((#\a #\b #\c) (#\d #\e #\f) (#\g #\h #\i))
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-array-ptr uint8)))
+    (:return-type (c-ptr (c-array character (3 3)))) (:language :stdc))
+  (c-self #(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E)))
+ERROR
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-array-ptr uint8)))
+    (:return-type (c-ptr character)) (:language :stdc))
+  (c-self #(#x61 #x62 #x63  #x64 #x65 #x66  #x67 #x68 #x69)))
+#\a
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-array-ptr uint8)))
+    (:return-type (c-ptr character)) (:language :stdc))
+  (c-self #(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E)))
+ERROR
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-array-ptr uint8)))
+    (:return-type (c-ptr-null character)) (:language :stdc))
+  (c-self #(#x61 #x62 #x63  #x64 #x65 #x66  #x67 #x68 #x69)))
+#\a
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-array-ptr uint8)))
+    (:return-type (c-ptr-null character)) (:language :stdc))
+  (c-self #(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E)))
+ERROR
+
+;; Test convert_to_foreign of UTF-8 strings.
+;; C-STRING, C-ARRAY dim1, C-ARRAY-MAX, C-ARRAY-PTR use UTF-8 encoding,
+;; the others use ASCII encoding.
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first c-string))
+    (:return-type (c-array-ptr uint8)) (:language :stdc))
+  (c-self "日本語"))
+#(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E)
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-ptr (c-array character 9))))
+    (:return-type (c-ptr (c-array uint8 9))) (:language :stdc))
+  (c-self "日本語"))
+#(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E)
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-ptr (c-array-max character 20))))
+    (:return-type (c-array-ptr uint8)) (:language :stdc))
+  (c-self "日本語"))
+#(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E)
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-ptr (c-array-max character 7))))
+    (:return-type (c-array-ptr uint8)) (:language :stdc))
+  (c-self "日本語"))
+#(#xE6 #x97 #xA5  #xE6 #x9C #xAC)
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-array-ptr character)))
+    (:return-type (c-array-ptr uint8)) (:language :stdc))
+  (c-self "日本語"))
+#(#xE6 #x97 #xA5  #xE6 #x9C #xAC  #xE8 #xAA #x9E)
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first character))
+    (:return-type uint8) (:language :stdc))
+  (c-self #\a))
+#x61
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first character))
+    (:return-type uint8) (:language :stdc))
+  (c-self #\ø))
+ERROR
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-ptr (c-array character (3 3)))))
+    (:return-type (c-ptr (c-array uint8 9))) (:language :stdc))
+  (c-self #2A("abc" "def" "ghi")))
+#(#x61 #x62 #x63  #x64 #x65 #x66  #x67 #x68 #x69)
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-ptr (c-array character (3 3)))))
+    (:return-type (c-ptr (c-array uint8 9))) (:language :stdc))
+  (c-self #2A("日本語" "Tür" "kçe")))
+ERROR
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-ptr (c-array character (3 3)))))
+    (:return-type (c-ptr (c-array uint8 9))) (:language :stdc))
+  (c-self #2A("日" "本" "語")))
+ERROR
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-ptr character)))
+    (:return-type (c-ptr (c-array uint8 1))) (:language :stdc))
+  (c-self #\a))
+#(#x61)
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-ptr character)))
+    (:return-type (c-ptr (c-array uint8 1))) (:language :stdc))
+  (c-self #\ø))
+ERROR
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-ptr-null character)))
+    (:return-type (c-ptr (c-array uint8 1))) (:language :stdc))
+  (c-self #\a))
+#(#x61)
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (first (c-ptr-null character)))
+    (:return-type (c-ptr (c-array uint8 1))) (:language :stdc))
+  (c-self #\ø))
+ERROR
+
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
