@@ -70,7 +70,7 @@ local void test_dir_key (object obj, boolean check_open)
 }
 
 # convert an array of char to a (VECTOR (UNSIGNED-BYTE 8))
-local object reg_val_to_vector (uintL size,const char* buffer)
+local object reg_val_to_vector (uintL size, const char* buffer)
 {
   var object vec = allocate_bit_vector(Atype_8Bit,size);
   var uintB* dat = TheSbvector(vec)->data;
@@ -80,7 +80,7 @@ local object reg_val_to_vector (uintL size,const char* buffer)
 
 #ifdef WIN32_NATIVE
 # convert a registry value [type;size;buffer] to the appropriate Lisp object
-local object registry_value_to_object (DWORD type,DWORD size,const char*buffer)
+local object registry_value_to_object (DWORD type, DWORD size, const char* buffer)
 {
   switch (type) {
     case REG_NONE: return NIL;
@@ -102,10 +102,10 @@ local object registry_value_to_object (DWORD type,DWORD size,const char*buffer)
                        ((unsigned char)buffer[3]));
       else return UL_to_I(*(DWORD*)buffer);
     case REG_MULTI_SZ: {
-      object ret = NIL, tail = NIL;
-      unsigned int ii, len;
+      var object ret = NIL, tail = NIL;
+      var unsigned int ii, len;
       for (ii=0; (ii<size) && buffer[ii]; ii+= len+1) {
-        len = strlen(buffer+ii);
+        len = strlen(buffer+ii); # FIXME: possible buffer overrun
         if (len >= size) len = size;
         if (eq(tail,NIL)) tail = ret = allocate_cons();
         else tail = Cdr(tail) = allocate_cons();
@@ -130,7 +130,8 @@ LISPFUNN(dir_key_type,1)
 # (LISP:DIR-KEY-TYPE dkey)
 # return the type of the key (:win32 or :gnome-config or :ldap)
 {
-  object dkey = popSTACK(); test_dir_key(dkey,FALSE);
+  var object dkey = popSTACK();
+  test_dir_key(dkey,FALSE);
   value1 = TheDirKey(dkey)->type; mv_count = 1;
 }
 
@@ -138,7 +139,8 @@ LISPFUNN(dir_key_path,1)
 # (LISP:DIR-KEY-PATH dkey)
 # return the path of the key (a string)
 {
-  object dkey = popSTACK(); test_dir_key(dkey,FALSE);
+  var object dkey = popSTACK();
+  test_dir_key(dkey,FALSE);
   value1 = TheDirKey(dkey)->path; mv_count = 1;
 }
 
@@ -146,7 +148,8 @@ LISPFUNN(dir_key_direction,1)
 # (LISP:DIR-KEY-DIRECTION dkey)
 # return the direction of this key - :input :output or :io
 {
-  object dkey = popSTACK(); test_dir_key(dkey,TRUE);
+  var object dkey = popSTACK();
+  test_dir_key(dkey,TRUE);
   value1 = TheDirKey(dkey)->direction; mv_count = 1;
 }
 
@@ -154,7 +157,8 @@ LISPFUNN(dir_key_open_p,1)
 # (LISP:DIR-KEY-OPEN-P dkey)
 # return T if the key is open
 {
-  object dkey = popSTACK(); test_dir_key(dkey,FALSE);
+  var object dkey = popSTACK();
+  test_dir_key(dkey,FALSE);
   value1 = (TheDirKey(dkey)->closed_p ? NIL : T); mv_count = 1;
 }
 
@@ -162,7 +166,7 @@ LISPFUNN(dir_key_close,1)
 # (LISP:DIR-KEY-CLOSE dkey)
 # close the supplied DIR-KEY
 {
-  object dkey = popSTACK();
+  var object dkey = popSTACK();
   #ifdef WIN32_NATIVE
   if (fpointerp(dkey)) { # an HKEY in an iterator_state
     printf("finalizing %u\n",TheFpointer(dkey)->fp_pointer);
@@ -219,7 +223,7 @@ local void open_reg_key (HKEY hkey,char* path,REGSAM perms,
                          int if_not_exists, # 0-error 1-NIL 2-create
                          HKEY* p_hkey)
 {
-  DWORD status;
+  var DWORD status;
   begin_system_call();
   status = RegOpenKeyEx(hkey,path,0,perms,p_hkey);
   if (status != ERROR_SUCCESS) {
@@ -241,7 +245,7 @@ local void open_reg_key (HKEY hkey,char* path,REGSAM perms,
 
 local uintL parse_if_not_exists (object if_not_exists_arg,uintL direction)
 {
-  uintL res = IDNE_ERROR;
+  var uintL res = IDNE_ERROR;
   if ((eq(if_not_exists_arg,unbound) && (direction == DIR_KEY_INPUT)) ||
       eq(if_not_exists_arg,S(Kerror))) {
     res = IDNE_ERROR;
@@ -265,7 +269,7 @@ local uintL parse_if_not_exists (object if_not_exists_arg,uintL direction)
 
 local uintL parse_direction (object *direction_arg)
 {
-  uintL res = DIR_KEY_INPUT;
+  var uintL res = DIR_KEY_INPUT;
   if (eq(*direction_arg,unbound) || eq(*direction_arg,S(Kinput))) {
     res = DIR_KEY_INPUT;
     *direction_arg = S(Kinput);
@@ -299,9 +303,9 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
   var object path = STACK_2;
   var object root = STACK_3;
   var void* ret_handle;
-  uintL status;
-  uintL direction = parse_direction(&direction_arg);
-  uintL if_not_exists = parse_if_not_exists(if_not_exists_arg,direction);
+  var uintL status;
+  var uintL direction = parse_direction(&direction_arg);
+  var uintL if_not_exists = parse_if_not_exists(if_not_exists_arg,direction);
   if (!stringp(path)) fehler_string(path);
   # create the key handle
   var object type = (dir_key_p(root) ? TheDirKey(root)->type : root);
@@ -381,12 +385,12 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
 
 # The common code in DIR-KEY-SUBKEYS & DIR-KEY-ATTRIBUTES
 #define MAKE_OBJECT_LIST(count,get_obj)                                   \
-  object dkey = popSTACK();                                               \
-  object ret = NIL;                                                       \
-  LONG status;                                                            \
-  DWORD n_obj;                                                            \
-  DWORD maxlen;                                                           \
-  HKEY hkey;                                                              \
+  var object dkey = popSTACK();                                           \
+  var object ret = NIL;                                                   \
+  var LONG status;                                                        \
+  var DWORD n_obj;                                                        \
+  var DWORD maxlen;                                                       \
+  var HKEY hkey;                                                          \
   test_dir_key(dkey,TRUE);                                                \
   hkey = (HKEY)TheDirKey(dkey)->handle;                                   \
   begin_system_call();                                                    \
@@ -397,11 +401,13 @@ LISPFUN(dir_key_open,2,0,norest,key,2,(kw(direction),kw(if_does_not_exist)))
     char * buf = (char*)alloca(++maxlen); /* one extra char for #\Null */ \
     object tail = NIL;                                                    \
     for (ii=0; ii<n_obj; ii++) {                                          \
-      DWORD len = maxlen,                                                 \
-      status = get_obj;                                                   \
+      var DWORD len = maxlen;                                             \
+      var DWORD status = get_obj;                                         \
       if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }  \
-      if (nullp(tail)) tail = ret = allocate_cons();                      \
-      else tail = Cdr(tail) = allocate_cons();                            \
+      if (nullp(tail))                                                    \
+        tail = ret = allocate_cons();                                     \
+      else                                                                \
+        tail = Cdr(tail) = allocate_cons();                               \
       Cdr(tail) = NIL;                                                    \
       Car(tail) = asciz_to_string(buf,O(misc_encoding));                  \
     }                                                                     \
@@ -448,8 +454,8 @@ LISPFUNN(dir_key_attributes,1)
 local object itst_current (object state)
 # return the current path - concatenate the NAMEs of the NODEs of the STACK
 {
-  object stack = ITST_STACK(state);
-  uintL depth = 0;
+  var object stack = ITST_STACK(state);
+  var uintL depth = 0;
   stack = nreverse(stack);
   while(!eq(stack,NIL)) {
     if (depth) {
@@ -470,9 +476,9 @@ LISPFUNN(dkey_search_iterator,3)
 # < dkey path scope
 # > #(dkey init-path scope (node ...))
 {
-  object scope = popSTACK();
-  object path = popSTACK();
-  object dkey = popSTACK();
+  var object scope = popSTACK();
+  var object path = popSTACK();
+  var object dkey = popSTACK();
   test_dir_key(dkey,TRUE);
   if (!stringp(path)) fehler_string(path);
   if (!eq(scope,S(Kself)) && !eq(scope,S(Klevel)) && !eq(scope,S(Ktree))) {
@@ -498,10 +504,10 @@ local object init_iteration_node (object state,object subkey)
 # compute KEY_S, ATT_S and DAT_S
 # return the full current path (itst_current)
 {
-  object dkey = ITST_DKEY(state);
-  object path = ITST_PATH(state);
-  object stack = allocate_cons();
-  object node = allocate_vector(7);
+  var object dkey = ITST_DKEY(state);
+  var object path = ITST_PATH(state);
+  var object stack = allocate_cons();
+  var object node = allocate_vector(7);
   test_dir_key(dkey,TRUE);
   if (!stringp(path)) fehler_string(path);
   # (push node stack)
@@ -542,15 +548,15 @@ local object state_next_key (object state)
 # return the next key of the current state or NIL
 # the stack doesn't change, but the HKEY is closed
 {
-  object stack = ITST_STACK(state);
+  var object stack = ITST_STACK(state);
   if (!eq(stack,NIL)) {
-    object node = ITST_NODE(state);
-    uintL keynum = posfixnum_to_L(NODE_KEY(node));
-    uintL keylen = posfixnum_to_L(NODE_KEY_S(node));
-    char* buffer = (char*)alloca(keylen);
-    Fpointer fp  = TheFpointer(NODE_HANDLE(node));
+    var object node = ITST_NODE(state);
+    var uintL keynum = posfixnum_to_L(NODE_KEY(node));
+    var uintL keylen = posfixnum_to_L(NODE_KEY_S(node));
+    var char* buffer = (char*)alloca(keylen);
+    var Fpointer fp  = TheFpointer(NODE_HANDLE(node));
     if (fp->fp_pointer) {
-      DWORD status = RegEnumKey((HKEY)(fp->fp_pointer),keynum,buffer,keylen);
+      var DWORD status = RegEnumKey((HKEY)(fp->fp_pointer),keynum,buffer,keylen);
       if (status == ERROR_SUCCESS) {
         NODE_KEY(node) = fixnum_inc(NODE_KEY(node),1);
         return asciz_to_string(buffer,O(misc_encoding));
@@ -559,38 +565,46 @@ local object state_next_key (object state)
         fp->fp_pointer = NULL;
         return NIL;
       }
-    } else return NIL;
-  } else return NIL;
+    } else
+      return NIL;
+  } else
+    return NIL;
 }
 
 LISPFUNN(dkey_search_next_key,1)
 # (SYS::DKEY-SEARCH-NEXT-KEY state)
 # return the next key of this iteration
 {
-  object state = popSTACK();
-  object dkey  = ITST_DKEY(state);
-  object path  = ITST_PATH(state);
-  object scope = ITST_SCOPE(state);
-  object stack = ITST_STACK(state);
+  var object state = popSTACK();
+  var object dkey  = ITST_DKEY(state);
+  var object path  = ITST_PATH(state);
+  var object scope = ITST_SCOPE(state);
+  var object stack = ITST_STACK(state);
   test_dir_key(dkey,TRUE);
   if (!stringp(path)) fehler_string(path);
   if (eq(scope,S(Kself))) {         # just the top
-    if (eq(stack,T)) value1 = init_iteration_node(state,NIL); # first call
-    else value1 = NIL;
+    if (eq(stack,T))
+      value1 = init_iteration_node(state,NIL); # first call
+    else
+      value1 = NIL;
   } else if (eq(scope,S(Klevel))) { # the children
-    if (eq(stack,T)) init_iteration_node(state,NIL);
+    if (eq(stack,T))
+      init_iteration_node(state,NIL);
     value1 = state_next_key(state);
   } else if (eq(scope,S(Ktree))) {  # the whole subtree
-    if (eq(stack,T)) value1 = init_iteration_node(state,NIL); # first call
+    if (eq(stack,T))
+      value1 = init_iteration_node(state,NIL); # first call
     else {                          # find the next node and return it
       object subkey;
       do {
         subkey = state_next_key(state); # subkey==NIL ==> HANDLE is closed
         stack = ITST_STACK(state);
-      } while (eq(subkey,NIL) && !eq(stack,NIL) && # pop stack
-               !eq(ITST_STACK(state) = Cdr(stack),NIL));
-      if (eq(subkey,NIL)) value1 = NIL;
-      else value1 = init_iteration_node(state,subkey);
+      } while (eq(subkey,NIL) && !eq(stack,NIL) # pop stack
+               && !eq(ITST_STACK(state) = Cdr(stack),NIL));
+      if (eq(subkey,NIL))
+        value1 = NIL;
+      else
+        value1 = init_iteration_node(state,subkey);
     }
   } else {
     pushSTACK(scope);         # slot DATUM of         TYPE-ERROR
@@ -609,8 +623,8 @@ LISPFUNN(dkey_search_next_att,1)
 # (SYS::DKEY-SEARCH-NEXT-ATT state)
 # return the next attribute and its value of this iteration
 {
-  object state = popSTACK();
-  object stack = ITST_STACK(state);
+  var object state = popSTACK();
+  var object stack = ITST_STACK(state);
   if (!consp(stack)) {
     pushSTACK(S(dkey_search_next_key));
     pushSTACK(state);
@@ -665,9 +679,9 @@ LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL)
   test_dir_key(dkey,TRUE);
   if (!stringp(name)) fehler_string(name);
   with_string_0(name,O(misc_encoding),namez,{
-    DWORD status;
-    DWORD type;
-    DWORD size;
+    var DWORD status;
+    var DWORD type;
+    var DWORD size;
     begin_system_call();
     status = RegQueryValueEx((HKEY)TheDirKey(dkey)->handle,namez,
                              NULL,NULL,NULL,&size);
@@ -675,7 +689,7 @@ LISPFUN(dir_key_value,2,1,norest,nokey,0,NILL)
       if ((status == ERROR_FILE_NOT_FOUND) && !eq(default_value,unbound)) {
         value1 = default_value;
         end_system_call();
-        goto end;
+        goto end; # FIXME: goto outside with_string_0 is forbidden
       }
       SetLastError(status); OS_error();
     }
@@ -706,12 +720,12 @@ LISPFUNN(set_dkey_value,3)
                                     REG_SZ,valz,strlen(valz)));
       });
     } else if (integerp(value)) {
-      DWORD word = I_to_UL(value);
+      var DWORD word = I_to_UL(value);
       SYSCALL_WIN32(RegSetValueEx((HKEY)TheDirKey(dkey)->handle,namez,0,
                                   REG_DWORD,(char*)&word,sizeof(DWORD)));
     } else if (bit_vector_p(Atype_8Bit,value)) {
-      uintL idx = 0;
-      uintL len = vector_length(value);
+      var uintL idx = 0;
+      var uintL len = vector_length(value);
       object arr = (array_simplep(value) ? value :
                     iarray_displace_check(value,len,&idx));
       SYSCALL_WIN32(RegSetValueEx((HKEY)TheDirKey(dkey)->handle,namez,0,
