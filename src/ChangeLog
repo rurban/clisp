@@ -3,6 +3,7 @@
 	* modules/berkeley-db/bdb.c (BDB:ENV-GET-OPTIONS): new Lisp DEFUN
 	(env_verbose, env_tmp_dir, env_data_dirs): new functions
 	(BDB:DB-CREATE): permit NIL environment, call MKDB correctly
+	(BDB:DB-FD): fixed STACK handling
 
 2004-06-06  Bruno Haible  <bruno@clisp.org>
 
