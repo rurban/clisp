@@ -823,12 +823,12 @@ T
 (block nil
   (handler-bind ((unbound-variable (lambda (c) (princ-error c) (return :good))))
     (let ((foo (gensym "UNBOUND-")))
-      (declare (compile) (optimize safety))
+      (declare (compile) (optimize safety (debug 1)))
       (progn (symbol-value foo) :bad))))
 :GOOD
 
 (block nil
-  (declaim (optimize safety))
+  (declaim (optimize safety (debug 1)))
   (unwind-protect
        (handler-bind ((unbound-variable
                        (lambda (c) (princ-error c) (return :good))))
