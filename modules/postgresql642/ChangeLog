@@ -1,0 +1,12 @@
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * postgresql.lsp: Comments. Don't need to include <stdio.h>.
+          (PGnotify): Use foreign type ffi:character, not ffi:char.
+          (pqbool): Use foreign type ffi:char, not ffi:character.
+        * sql.lsp (sql-error): Condition type is SQL-ERROR, not SQL.
+        * link.sh: Link with -lcrypt only if this library exists.
+
+1999-03-21  Sam Steingold  <sds@goems.com>
+
+        Created the module.
+

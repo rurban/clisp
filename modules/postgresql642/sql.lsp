@@ -29,8 +29,8 @@
   (when conn (sql:PQfinish conn))
   ;; if you do `PQclear' twice on the same object, you will get segfault!
   (when res (sql:PQclear res))
-  (error 'sql :mesg (apply #'concatenate 'string mesgs)
-         :type (if res :request :connection)))
+  (error 'sql-error :mesg (apply #'concatenate 'string mesgs)
+                    :type (if res :request :connection)))
 
 (defun sql-connect (host port opts tty name login passwd)
   (let ((conn (sql:PQsetdbLogin host port opts tty name login passwd)))
