@@ -26,12 +26,13 @@ LISPFUNNR(current_language,0) {
 LISPFUNN(set_current_language,1) {
  #ifndef LANGUAGE_STATIC
   if (consp(STACK_0)) {
-    Car(STACK_0) = check_symbol(Car(STACK_0));
-    Cdr(STACK_0) = check_string(Cdr(STACK_0));
-    with_sstring_0(Symbol_name(Car(STACK_0)),O(misc_encoding),lang,{
-      with_string_0(Cdr(STACK_0),O(misc_encoding),localedir,
+    pushSTACK(check_symbol(Car(STACK_0)));
+    pushSTACK(check_string(Cdr(STACK_(0+1))));
+    with_sstring_0(Symbol_name(STACK_1),O(misc_encoding),lang,{
+      with_string_0(STACK_0,O(misc_encoding),localedir,
                     { init_language(lang,localedir); });
     });
+    skipSTACK(2);
   } else {
     STACK_0 = check_symbol(STACK_0);
     with_sstring_0(Symbol_name(STACK_0),O(misc_encoding),lang,
