@@ -1,5 +1,10 @@
 2005-01-19  Sam Steingold  <sds@gnu.org>
 
+	* control.d (make_variable_frame): the initial special binding is
+	inactive
+
+2005-01-19  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (funcall_iclosure): when reserving space for variable
 	bindings, the actual size depends on varframe_binding_size
 
