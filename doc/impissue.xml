@@ -92,7 +92,12 @@
  <varlistentry id="iss079"><term>&iss079;</term>&yes;</varlistentry>
  <varlistentry id="iss080"><term>&iss080;</term>&yes;</varlistentry>
  <varlistentry id="iss081"><term>&iss081;</term>&yes;</varlistentry>
- <varlistentry id="iss082"><term>&iss082;</term>&no;</varlistentry>
+ <varlistentry id="iss082"><term>&iss082;</term>
+  <listitem><simpara>&clisp; can dump compiled but &not-e; interpreted
+    closures, which should not be a problem, because an
+    <emphasis>interpreted</emphasis> closure in a
+    <emphasis>compiled</emphasis> file usually indicate a programmer
+    error (often an extra &quote;)</simpara></listitem></varlistentry>
  <varlistentry id="iss083"><term>&iss083;</term>&yes;</varlistentry>
  <varlistentry id="iss084"><term>&iss084;</term>&yes;</varlistentry>
  <varlistentry id="iss085"><term>&iss085;</term>&yes;</varlistentry>
@@ -108,7 +113,9 @@
  <varlistentry id="iss095"><term>&iss095;</term>&yes;</varlistentry>
  <varlistentry id="iss096"><term>&iss096;</term>&yes;</varlistentry>
  <varlistentry id="iss097"><term>&iss097;</term>
-  <listitem><simpara>??</simpara></listitem></varlistentry>
+  <listitem><simpara>there is no writeup, but but all affected
+    operators are fully implemented as specified
+ </simpara></listitem></varlistentry>
  <varlistentry id="iss098"><term>&iss098;</term>&yes;</varlistentry>
  <varlistentry id="iss099"><term>&iss099;</term>&yes;</varlistentry>
  <varlistentry id="iss100"><term>&iss100;</term>&yes;</varlistentry>
