@@ -27,7 +27,7 @@
   'class
   ;; built-in-classes for CLASS-OF
   (vector 'array 'bit-vector 'character 'complex 'cons 'float 'function
-          'hash-table 'integer 'null 'package 'pathname
+          'hash-table 'integer 'list 'null 'package 'pathname
           #+LOGICAL-PATHNAMES 'logical-pathname
           'random-state 'ratio 'readtable
           'stream 'file-stream 'synonym-stream 'broadcast-stream
@@ -2289,7 +2289,7 @@
   <class>
   ;; built-in-classes for CLASS-OF
   (vector <array> <bit-vector> <character> <complex> <cons> <float> <function>
-          <hash-table> <integer> <null> <package> <pathname>
+          <hash-table> <integer> <list> <null> <package> <pathname>
           #+LOGICAL-PATHNAMES <logical-pathname>
           <random-state> <ratio> <readtable>
           <stream> <file-stream> <synonym-stream> <broadcast-stream>

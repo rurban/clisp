@@ -175,6 +175,7 @@
   LISPOBJ(class_function,"FUNCTION")
   LISPOBJ(class_hash_table,"HASH-TABLE")
   LISPOBJ(class_integer,"INTEGER")
+  LISPOBJ(class_list,"LIST")
   LISPOBJ(class_null,"NULL")
   LISPOBJ(class_package,"PACKAGE")
   LISPOBJ(class_pathname,"PATHNAME")
