@@ -5,11 +5,6 @@ This file describes the standard installation procedure. Special hints for
 some platforms can be found in file unix/PLATFORMS.
 
 1. (Optional)
-   Convert the sources to your local character set.
-   They are distributed in ISO Latin-1 character set.
-   See file unix/CONVERT for more information.
-
-2. (Optional)
    Choose which C compiler to use for building CLISP.
    This is normally not necessary; if GNU C is available under the
    name "gcc", it will be used.
@@ -28,7 +23,7 @@ some platforms can be found in file unix/PLATFORMS.
          CC="gcc -Wall"
          export CC
 
-3. Choose the name of a directory in which to build CLISP.
+2. Choose the name of a directory in which to build CLISP.
    (This allows you to build CLISP with different compilers on the same
    machine or for different architectures in the same filesystem, sharing
    the same source.)
@@ -53,7 +48,7 @@ some platforms can be found in file unix/PLATFORMS.
 
          ./configure /tmp/with-gcc-wall 
 
-4. The previous step printed a recommendation how to continue. Follow
+3. The previous step printed a recommendation how to continue. Follow
    the recommendation: Go to this directory
 
          cd with-gcc-wall
@@ -72,10 +67,10 @@ some platforms can be found in file unix/PLATFORMS.
 
          ./makemake --help
 
-5. If you wish to build CLISP with add-on modules, edit Makefile and change
+4. If you wish to build CLISP with add-on modules, edit Makefile and change
    the line defining the MODULES variable.
 
-6. Type
+5. Type
 
          make config.lisp
 
@@ -89,7 +84,7 @@ some platforms can be found in file unix/PLATFORMS.
    For platform specific adjustment of the makefile, take a look at the
    PLATFORMS file.
 
-7. Type
+6. Type
 
          make
 
@@ -117,9 +112,9 @@ some platforms can be found in file unix/PLATFORMS.
    If you need to switch to a different compiler, execute a
          make distclean
          cd ..
-   and go back to step 2.
+   and go back to step 1.
 
-8. (Optionally)
+7. (Optionally)
    Two more tests for CLISP. Let the compiler (now compiled!) recompile itself:
 
          make test
@@ -128,8 +123,8 @@ some platforms can be found in file unix/PLATFORMS.
 
          make testsuite
 
-9. Edit the `prefix' variable in the makefile (you could also have specified
-   it as command line option --prefix=... to `configure' in step 3), then type
+8. Edit the `prefix' variable in the makefile (you could also have specified
+   it as command line option --prefix=... to `configure' in step 2), then type
 
          make install
 
@@ -139,20 +134,20 @@ some platforms can be found in file unix/PLATFORMS.
    You may need superuser privileges for this step when installing into
    public directories.
 
-10. If you want other people to profit from your work, you can make a binary
+9. If you want other people to profit from your work, you can make a binary
    distribution of CLISP for your platform which I will distribute.
-   To do this, make sure you have executed step 7 above, adjust the definitions
+   To do this, make sure you have executed step 6 above, adjust the definitions
    of ROFF_MAN, PACK, PACKOPT, PACKEXT in the makefile, then type
 
           make distrib
 
-   to create a binary distribution in /tmp/clisp.tar.z. Tell me about your
+   to create a binary distribution in /tmp/clisp.tar.gz. Tell me about your
    success, and ftp that file to a location I will indicate you.
 
    If you want to distribute the binaries, recall that you have to accompany
    them with full source; see the files COPYING and GNU-GPL.
 
-11. The last thing to do:
+10. The last thing to do:
 
          cd ..
 
@@ -163,5 +158,5 @@ Authors:
         Bruno Haible
         Michael Stoll
 
-Email: haible@clisp.cons.org
+Email: clisp-list@lists.sourceforge.net
 
