@@ -97,7 +97,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 1999-07-19 19:58:47 CEST\n"
+"POT-Creation-Date: 1999-07-20 16:11:34 CEST\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -3336,7 +3336,7 @@ msgstr "~: ~ no es una clase"
 
 #: record.d:674
 #, fuzzy
-msgid "ALLOCATE-INITIALIZE: keyword argument list ~ has an odd length"
+msgid "ALLOCATE-INSTANCE: keyword argument list ~ has an odd length"
 msgstr "SHARED-INITIALIZE: la lista de argumentos clave ~ tiene longitud impar"
 
 #
