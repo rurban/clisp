@@ -32,7 +32,9 @@ Supported CPUs:  (Put the GNU config.guess values here.)
    rs6000   rs6000-ibm-aix3.2.5 (gcc, cc, c89, xlc)  IBM RS/6000   AIX 3.2.5
             powerpc-ibm-aix4.1.4.0 (cc)
             powerpc-unknown-linux (gcc)              Apple PPC     LinuxPPC
+            powerpc-apple-darwin6.8 (gcc)            Apple PPC     MacOS X
    m88k     -- untested
    convex   -- untested
    ia64     ia64-unknown-linux (gcc)                 HP NUE/x86    Linux
+   x86_64   x86_64-suse-linux (gcc)                  AMD64         Linux
 
