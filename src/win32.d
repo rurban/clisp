@@ -10,7 +10,7 @@
 #define CRLFstring  "\r\n"  # C-String, der BS-Newline enthält
 
 # Many Win32 API functions are declared differently when UNICODE is defined,
-# in a way which doesn't work on Win95. We don't want this, so undefine it now. 
+# in a way which doesn't work on Win95. We don't want this, so undefine it now.
 #ifdef UNICODE
   #define UNICODE_SAVED
   #undef UNICODE
@@ -167,11 +167,7 @@
   # extern BOOL PeekNamedPipe (HANDLE NamedPipe, void* Buffer, DWORD BufferSize, DWORD* BytesRead, DWORD* TotalBytesAvail, DWORD* BytesLeftThisMessage);
   # extern BOOL PurgeComm (HANDLE File, DWORD Flags);
   # extern BOOL FlushConsoleInputBuffer (HANDLE ConsoleInput);
-  #if defined(__MINGW32__)
-    #define uAsciiChar AsciiChar
-  #else # defined(MICROSOFT) || defined(BORLAND)
-    #define uAsciiChar uChar.AsciiChar
-  #endif
+  #define uAsciiChar uChar.AsciiChar
 # used by spvw.d, stream.d, pathname.d, win32aux.d
   # My private error code when Ctrl-C has been pressed.
   #define ERROR_SIGINT ERROR_SUCCESS
@@ -312,7 +308,7 @@
 
 # Getting information about the machine.
   # extern void GetSystemInfo (LPSYSTEM_INFO SystemInfo);
-  #if defined(BORLAND) || defined(__MINGW32__)
+  #if defined(BORLAND)
     #define wProcessorArchitecture u.s.wProcessorArchitecture
   #endif
 # used by misc.d

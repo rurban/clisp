@@ -6,8 +6,10 @@
 
 #ifdef WIN32_NATIVE
 #include <winreg.h>
+#ifndef __MINGW32__
 #include <winldap.h>
 #define LDAP
+#endif
 #endif
 #if defined(LDAP) && !defined(WIN32_NATIVE)
 #include <ldap.h>
