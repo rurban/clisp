@@ -20,21 +20,21 @@
       # 3. environment variable LANG - a default for all LC_* variables.
       var const char * locale;
       locale = getenv("CLISP_LC_CTYPE");
-      if (!locale || !*locale)
-        { locale = getenv("LC_ALL");
+      if (!locale || !*locale) {
+        locale = getenv("LC_ALL");
+        if (!locale || !*locale) {
+          locale = getenv("LC_CTYPE");
           if (!locale || !*locale)
-            { locale = getenv("LC_CTYPE");
-              if (!locale || !*locale)
-                { locale = getenv("LANG"); }
-            }
+            locale = getenv("LANG");
         }
+      }
       #ifdef HAVE_LOCALE_H
       # Make the <ctype.h> functions 8-bit clean, if the LC_CTYPE environment
       # variable is set accordingly.
       # (We don't use these functions directly, but additional modules like
       # regexp use them and profit from this.)
       if (locale && *locale)
-        { setlocale(LC_CTYPE,locale); }
+        setlocale(LC_CTYPE,locale);
       #endif
       #ifdef UNICODE
       # Determine locale_charset from the environment variables.
@@ -365,287 +365,287 @@
       #   swedish                 sv_SE.ISO-8859-1
       #   turkish                 tr_TR.ISO-8859-9
       #
-      if (locale && *locale)
-        { # The most general syntax of a locale (not all optional parts
-          # recognized by all systems) is
-          # language[_territory][.codeset][@modifier][+special][,[sponsor][_revision]]
-          # To retrieve the codeset, search the first dot. Stop searching when
-          # a '@' or '+' or ',' is encountered.
-          var DYNAMIC_ARRAY(buf,char,strlen(locale)+1);
-          var const char* codeset = NULL;
-          { var const char* cp = locale;
-            for (; *cp != '\0' && *cp != '@' && *cp != '+' && *cp != ','; cp++) {
-              if (*cp == '.') {
-                codeset = ++cp;
-                for (; *cp != '\0' && *cp != '@' && *cp != '+' && *cp != ','; cp++);
-                if (*cp != '\0') {
-                  var uintL n = cp-codeset;
-                  memcpy(buf,codeset,n);
-                  buf[n] = '\0';
-                  codeset = buf;
-                }
-                break;
+      if (locale && *locale) {
+        # The most general syntax of a locale (not all optional parts
+        # recognized by all systems) is
+        # language[_territory][.codeset][@modifier][+special][,[sponsor][_revision]]
+        # To retrieve the codeset, search the first dot. Stop searching when
+        # a '@' or '+' or ',' is encountered.
+        var DYNAMIC_ARRAY(buf,char,strlen(locale)+1);
+        var const char* codeset = NULL;
+        {
+          var const char* cp = locale;
+          for (; *cp != '\0' && *cp != '@' && *cp != '+' && *cp != ','; cp++) {
+            if (*cp == '.') {
+              codeset = ++cp;
+              for (; *cp != '\0' && *cp != '@' && *cp != '+' && *cp != ','; cp++);
+              if (*cp != '\0') {
+                var uintL n = cp-codeset;
+                memcpy(buf,codeset,n);
+                buf[n] = '\0';
+                codeset = buf;
               }
+              break;
             }
           }
-          if (codeset)
-            { # Canonicalize the charset given after the dot.
-              if (   asciz_equal(codeset,"ISO8859-1")
-                  || asciz_equal(codeset,"ISO_8859-1")
-                  || asciz_equal(codeset,"iso88591")
-                  || asciz_equal(codeset,"88591")
-                  || asciz_equal(codeset,"88591.en")
-                  || asciz_equal(codeset,"8859")
-                  || asciz_equal(codeset,"8859.in")
-                  || asciz_equal(codeset,"ascii")
-                 )
-                { locale_charset = "ISO-8859-1"; }
-              else
-              if (   asciz_equal(codeset,"ISO8859-2")
-                  || asciz_equal(codeset,"ISO_8859-2")
-                  || asciz_equal(codeset,"iso88592")
-                 )
-                { locale_charset = "ISO-8859-2"; }
-              else
-              if (   asciz_equal(codeset,"ISO8859-5")
-                  || asciz_equal(codeset,"ISO_8859-5")
-                  || asciz_equal(codeset,"iso88595")
-                 )
-                { locale_charset = "ISO-8859-5"; }
-              else
-              if (   asciz_equal(codeset,"ISO8859-6")
-                  || asciz_equal(codeset,"ISO_8859-6")
-                  || asciz_equal(codeset,"iso88596")
-                 )
-                { locale_charset = "ISO-8859-6"; }
-              else
-              if (   asciz_equal(codeset,"ISO8859-7")
-                  || asciz_equal(codeset,"ISO_8859-7")
-                  || asciz_equal(codeset,"iso88597")
-                 )
-                { locale_charset = "ISO-8859-7"; }
-              else
-              if (   asciz_equal(codeset,"ISO8859-8")
-                  || asciz_equal(codeset,"iso88598")
-                 )
-                { locale_charset = "ISO-8859-8"; }
-              else
-              if (   asciz_equal(codeset,"ISO8859-9")
-                  || asciz_equal(codeset,"ISO_8859-9")
-                  || asciz_equal(codeset,"iso88599")
-                 )
-                { locale_charset = "ISO-8859-9"; }
-              else
-              if (asciz_equal(codeset,"KOI8-R"))
-                { locale_charset = "KOI8-R"; }
-              else
-              if (   asciz_equal(codeset,"eucJP")
-                  || asciz_equal(codeset,"ujis")
-                  || asciz_equal(codeset,"AJEC")
-                 )
-                { locale_charset = "eucJP"; }
-              else
-              if (   asciz_equal(codeset,"JIS7")
-                  || asciz_equal(codeset,"jis7")
-                  || asciz_equal(codeset,"JIS")
-                  || asciz_equal(codeset,"ISO-2022-JP")
-                 )
-                { locale_charset = "JIS7"; }
-              else
-              if (   asciz_equal(codeset,"SJIS")
-                  || asciz_equal(codeset,"mscode")
-                  || asciz_equal(codeset,"932")
-                 )
-                { locale_charset = "SJIS"; }
-              else
-              if (   asciz_equal(codeset,"eucKR")
-                  || asciz_equal(codeset,"949")
-                 )
-                { locale_charset = "eucKR"; }
-              else
-              if (asciz_equal(codeset,"eucCN"))
-                { locale_charset = "eucCN"; }
-              else
-              if (asciz_equal(codeset,"eucTW"))
-                { locale_charset = "eucTW"; }
-              else
-              if (asciz_equal(codeset,"TACTIS"))
-                { locale_charset = "TACTIS"; }
-              else
-              if (asciz_equal(codeset,"EUC") || asciz_equal(codeset,"euc"))
-                { if (locale[0]=='j' && locale[1]=='a')
-                    { locale_charset = "eucJP"; }
-                  elif (locale[0]=='k' && locale[1]=='o')
-                    { locale_charset = "eucKR"; }
-                  elif (locale[0]=='z' && locale[1]=='h' && locale[2]=='_')
-                    { if (locale[3]=='C' && locale[4]=='N')
-                        { locale_charset = "eucCN"; }
-                      elif (locale[3]=='T' && locale[4]=='W')
-                        { locale_charset = "eucTW"; }
-                    }
-                }
-              else
-              # The following are CLISP extensions.
-              if (   asciz_equal(codeset,"UTF-8")
-                  || asciz_equal(codeset,"utf8")
-                 )
-                { locale_charset = "UTF-8"; }
-            }
-            else
-            { # No dot found. Choose a default, based on locale.
-              if (   asciz_equal(locale,"iso_8859_1")
-                  || asciz_equal(locale,"ISO8859-1")
-                  || asciz_equal(locale,"ISO-8859-1")
-                 )
-                { locale_charset = "ISO-8859-1"; }
-              else
-              if (0)
-                { locale_charset = "ISO-8859-2"; }
-              else
-              if (0)
-                { locale_charset = "ISO-8859-5"; }
-              else
-              if (0)
-                { locale_charset = "ISO-8859-6"; }
-              else
-              if (0)
-                { locale_charset = "ISO-8859-7"; }
-              else
-              if (0)
-                { locale_charset = "ISO-8859-8"; }
-              else
-              if (0)
-                { locale_charset = "ISO-8859-9"; }
-              else
-              if (0)
-                { locale_charset = "KOI8-R"; }
-              else
-              if (0)
-                { locale_charset = "eucJP"; }
-              else
-              if (0)
-                { locale_charset = "JIS7"; }
-              else
-              if (0)
-                { locale_charset = "SJIS"; }
-              else
-              if (0)
-                { locale_charset = "eucKR"; }
-              else
-              if (asciz_equal(locale,"zh_CN") || asciz_equal(locale,"zh")
-                 )
-                { locale_charset = "eucCN"; }
-              else
-              if (asciz_equal(locale,"zh_TW")
-                 )
-                { locale_charset = "eucTW"; }
-              else
-              if (0)
-                { locale_charset = "TACTIS"; }
-              else
-                { # Choose a default, based on the language only.
-                  var const char* underscore = strchr(locale,'_');
-                  var const char* lang;
-                  if (underscore)
-                    { var uintL n = underscore-locale;
-                      memcpy(buf,locale,n);
-                      buf[n] = '\0';
-                      lang = buf;
-                    }
-                    else
-                    { lang = locale; }
-                  if (   asciz_equal(lang,"da") || asciz_equal(lang,"danish") || asciz_equal(lang,"dansk")
-                      || asciz_equal(lang,"de") || asciz_equal(lang,"german") || asciz_equal(lang,"deutsch")
-                      || asciz_equal(lang,"en")
-                      || asciz_equal(lang,"es") || asciz_equal(lang,"spanish")
-                      || asciz_equal(lang,"fi") || asciz_equal(lang,"finnish")
-                      || asciz_equal(lang,"fr") || asciz_equal(lang,"french")
-                                                #ifndef ASCII_CHS
-                                                || asciz_equal(lang,"français")
-                                                #endif
-                      || asciz_equal(lang,"is") || asciz_equal(lang,"icelandic")
-                      || asciz_equal(lang,"it") || asciz_equal(lang,"italian")
-                      || asciz_equal(lang,"nl") || asciz_equal(lang,"dutch")
-                      || asciz_equal(lang,"no") || asciz_equal(lang,"norwegian")
-                      || asciz_equal(lang,"pt") || asciz_equal(lang,"portuguese")
-                      || asciz_equal(lang,"sv") || asciz_equal(lang,"swedish")
-                     )
-                    { locale_charset = "ISO-8859-1"; }
-                  else
-                  if (   asciz_equal(lang,"cs") || asciz_equal(lang,"czech")
-                      || asciz_equal(lang,"cz")
-                      || asciz_equal(lang,"hr") || asciz_equal(lang,"croatian")
-                      || asciz_equal(lang,"hu") || asciz_equal(lang,"hungarian")
-                      || asciz_equal(lang,"pl") || asciz_equal(lang,"polish")
-                      || asciz_equal(lang,"ro") || asciz_equal(lang,"romanian") || asciz_equal(lang,"rumanian")
-                      || asciz_equal(lang,"sh") /* || asciz_equal(lang,"serbocroatian") ?? */
-                      || asciz_equal(lang,"sk") || asciz_equal(lang,"slovak")
-                      || asciz_equal(lang,"sl") || asciz_equal(lang,"slovene")
-                      || asciz_equal(lang,"sr")
-                     )
-                    { locale_charset = "ISO-8859-2"; }
-                  else
-                  if (   asciz_equal(lang,"bg") || asciz_equal(lang,"bulgarian")
-                      || asciz_equal(lang,"mk")
-                      || asciz_equal(lang,"ru") || asciz_equal(lang,"russian")
-                      || asciz_equal(lang,"sp")
-                     )
-                    { locale_charset = "ISO-8859-5"; }
-                  else
-                  if (asciz_equal(lang,"ar")
-                     )
-                    { locale_charset = "ISO-8859-6"; }
-                  else
-                  if (asciz_equal(lang,"el") || asciz_equal(lang,"greek")
-                     )
-                    { locale_charset = "ISO-8859-7"; }
-                  else
-                  if (asciz_equal(lang,"iw") || asciz_equal(lang,"he") || asciz_equal(lang,"hebrew")
-                     )
-                    { locale_charset = "ISO-8859-8"; }
-                  else
-                  if (asciz_equal(lang,"tr") || asciz_equal(lang,"turkish")
-                     )
-                    { locale_charset = "ISO-8859-9"; }
-                  else
-                  if (0)
-                    { locale_charset = "KOI8-R"; }
-                  else
-                  if (   asciz_equal(lang,"ja")
-                      || asciz_equal(lang,"Jp")
-                      || asciz_equal(lang,"japan")
-                      || asciz_equal(lang,"Japanese-EUC")
-                     )
-                    { locale_charset = "eucJP"; }
-                  else
-                  if (0)
-                    { locale_charset = "JIS7"; }
-                  else
-                  if (asciz_equal(lang,"japanese")
-                     )
-                    { locale_charset = "SJIS"; }
-                  else
-                  if (asciz_equal(lang,"ko") || asciz_equal(lang,"korean")
-                     )
-                    { locale_charset = "eucKR"; }
-                  else
-                  if (asciz_equal(lang,"chinese-s")
-                     )
-                    { locale_charset = "eucCN"; }
-                  else
-                  if (asciz_equal(lang,"chinese-t")
-                     )
-                    { locale_charset = "eucTW"; }
-                  else
-                  if (asciz_equal(lang,"th")
-                     )
-                    { locale_charset = "TACTIS"; }
-                  else
-                  {}
-                }
-            }
-          FREE_DYNAMIC_ARRAY(buf);
         }
+        if (codeset) {
+          # Canonicalize the charset given after the dot.
+          if (   asciz_equal(codeset,"ISO8859-1")
+              || asciz_equal(codeset,"ISO_8859-1")
+              || asciz_equal(codeset,"iso88591")
+              || asciz_equal(codeset,"88591")
+              || asciz_equal(codeset,"88591.en")
+              || asciz_equal(codeset,"8859")
+              || asciz_equal(codeset,"8859.in")
+              || asciz_equal(codeset,"ascii")
+             )
+            locale_charset = "ISO-8859-1";
+          else
+          if (   asciz_equal(codeset,"ISO8859-2")
+              || asciz_equal(codeset,"ISO_8859-2")
+              || asciz_equal(codeset,"iso88592")
+             )
+            locale_charset = "ISO-8859-2";
+          else
+          if (   asciz_equal(codeset,"ISO8859-5")
+              || asciz_equal(codeset,"ISO_8859-5")
+              || asciz_equal(codeset,"iso88595")
+             )
+            locale_charset = "ISO-8859-5";
+          else
+          if (   asciz_equal(codeset,"ISO8859-6")
+              || asciz_equal(codeset,"ISO_8859-6")
+              || asciz_equal(codeset,"iso88596")
+             )
+            locale_charset = "ISO-8859-6";
+          else
+          if (   asciz_equal(codeset,"ISO8859-7")
+              || asciz_equal(codeset,"ISO_8859-7")
+              || asciz_equal(codeset,"iso88597")
+             )
+            locale_charset = "ISO-8859-7";
+          else
+          if (   asciz_equal(codeset,"ISO8859-8")
+              || asciz_equal(codeset,"iso88598")
+             )
+            locale_charset = "ISO-8859-8";
+          else
+          if (   asciz_equal(codeset,"ISO8859-9")
+              || asciz_equal(codeset,"ISO_8859-9")
+              || asciz_equal(codeset,"iso88599")
+             )
+            locale_charset = "ISO-8859-9";
+          else
+          if (asciz_equal(codeset,"KOI8-R"))
+            locale_charset = "KOI8-R";
+          else
+          if (   asciz_equal(codeset,"eucJP")
+              || asciz_equal(codeset,"ujis")
+              || asciz_equal(codeset,"AJEC")
+             )
+            locale_charset = "eucJP";
+          else
+          if (   asciz_equal(codeset,"JIS7")
+              || asciz_equal(codeset,"jis7")
+              || asciz_equal(codeset,"JIS")
+              || asciz_equal(codeset,"ISO-2022-JP")
+             )
+            locale_charset = "JIS7";
+          else
+          if (   asciz_equal(codeset,"SJIS")
+              || asciz_equal(codeset,"mscode")
+              || asciz_equal(codeset,"932")
+             )
+            locale_charset = "SJIS";
+          else
+          if (   asciz_equal(codeset,"eucKR")
+              || asciz_equal(codeset,"949")
+             )
+            locale_charset = "eucKR";
+          else
+          if (asciz_equal(codeset,"eucCN"))
+            locale_charset = "eucCN";
+          else
+          if (asciz_equal(codeset,"eucTW"))
+            locale_charset = "eucTW";
+          else
+          if (asciz_equal(codeset,"TACTIS"))
+            locale_charset = "TACTIS";
+          else
+          if (asciz_equal(codeset,"EUC") || asciz_equal(codeset,"euc")) {
+            if (locale[0]=='j' && locale[1]=='a')
+              locale_charset = "eucJP";
+            elif (locale[0]=='k' && locale[1]=='o')
+              locale_charset = "eucKR";
+            elif (locale[0]=='z' && locale[1]=='h' && locale[2]=='_') {
+              if (locale[3]=='C' && locale[4]=='N')
+                locale_charset = "eucCN";
+              elif (locale[3]=='T' && locale[4]=='W')
+                locale_charset = "eucTW";
+            }
+          }
+          else
+          # The following are CLISP extensions.
+          if (   asciz_equal(codeset,"UTF-8")
+              || asciz_equal(codeset,"utf8")
+             )
+            locale_charset = "UTF-8";
+        } else {
+          # No dot found. Choose a default, based on locale.
+          if (   asciz_equal(locale,"iso_8859_1")
+              || asciz_equal(locale,"ISO8859-1")
+              || asciz_equal(locale,"ISO-8859-1")
+             )
+            locale_charset = "ISO-8859-1";
+          else
+          if (0)
+            locale_charset = "ISO-8859-2";
+          else
+          if (0)
+            locale_charset = "ISO-8859-5";
+          else
+          if (0)
+            locale_charset = "ISO-8859-6";
+          else
+          if (0)
+            locale_charset = "ISO-8859-7";
+          else
+          if (0)
+            locale_charset = "ISO-8859-8";
+          else
+          if (0)
+            locale_charset = "ISO-8859-9";
+          else
+          if (0)
+            locale_charset = "KOI8-R";
+          else
+          if (0)
+            locale_charset = "eucJP";
+          else
+          if (0)
+            locale_charset = "JIS7";
+          else
+          if (0)
+            locale_charset = "SJIS";
+          else
+          if (0)
+            locale_charset = "eucKR";
+          else
+          if (asciz_equal(locale,"zh_CN") || asciz_equal(locale,"zh")
+             )
+            locale_charset = "eucCN";
+          else
+          if (asciz_equal(locale,"zh_TW")
+             )
+            locale_charset = "eucTW";
+          else
+          if (0)
+            locale_charset = "TACTIS";
+          else {
+            # Choose a default, based on the language only.
+            var const char* underscore = strchr(locale,'_');
+            var const char* lang;
+            if (underscore) {
+              var uintL n = underscore-locale;
+              memcpy(buf,locale,n);
+              buf[n] = '\0';
+              lang = buf;
+            } else {
+              lang = locale;
+            }
+            if (   asciz_equal(lang,"da") || asciz_equal(lang,"danish") || asciz_equal(lang,"dansk")
+                || asciz_equal(lang,"de") || asciz_equal(lang,"german") || asciz_equal(lang,"deutsch")
+                || asciz_equal(lang,"en")
+                || asciz_equal(lang,"es") || asciz_equal(lang,"spanish")
+                || asciz_equal(lang,"fi") || asciz_equal(lang,"finnish")
+                || asciz_equal(lang,"fr") || asciz_equal(lang,"french")
+                                          #ifndef ASCII_CHS
+                                          || asciz_equal(lang,"français")
+                                          #endif
+                || asciz_equal(lang,"is") || asciz_equal(lang,"icelandic")
+                || asciz_equal(lang,"it") || asciz_equal(lang,"italian")
+                || asciz_equal(lang,"nl") || asciz_equal(lang,"dutch")
+                || asciz_equal(lang,"no") || asciz_equal(lang,"norwegian")
+                || asciz_equal(lang,"pt") || asciz_equal(lang,"portuguese")
+                || asciz_equal(lang,"sv") || asciz_equal(lang,"swedish")
+               )
+              locale_charset = "ISO-8859-1";
+            else
+            if (   asciz_equal(lang,"cs") || asciz_equal(lang,"czech")
+                || asciz_equal(lang,"cz")
+                || asciz_equal(lang,"hr") || asciz_equal(lang,"croatian")
+                || asciz_equal(lang,"hu") || asciz_equal(lang,"hungarian")
+                || asciz_equal(lang,"pl") || asciz_equal(lang,"polish")
+                || asciz_equal(lang,"ro") || asciz_equal(lang,"romanian") || asciz_equal(lang,"rumanian")
+                || asciz_equal(lang,"sh") /* || asciz_equal(lang,"serbocroatian") ?? */
+                || asciz_equal(lang,"sk") || asciz_equal(lang,"slovak")
+                || asciz_equal(lang,"sl") || asciz_equal(lang,"slovene")
+                || asciz_equal(lang,"sr")
+               )
+              locale_charset = "ISO-8859-2";
+            else
+            if (   asciz_equal(lang,"bg") || asciz_equal(lang,"bulgarian")
+                || asciz_equal(lang,"mk")
+                || asciz_equal(lang,"ru") || asciz_equal(lang,"russian")
+                || asciz_equal(lang,"sp")
+               )
+              locale_charset = "ISO-8859-5";
+            else
+            if (asciz_equal(lang,"ar")
+               )
+              locale_charset = "ISO-8859-6";
+            else
+            if (asciz_equal(lang,"el") || asciz_equal(lang,"greek")
+               )
+              locale_charset = "ISO-8859-7";
+            else
+            if (asciz_equal(lang,"iw") || asciz_equal(lang,"he") || asciz_equal(lang,"hebrew")
+               )
+              locale_charset = "ISO-8859-8";
+            else
+            if (asciz_equal(lang,"tr") || asciz_equal(lang,"turkish")
+               )
+              locale_charset = "ISO-8859-9";
+            else
+            if (0)
+              locale_charset = "KOI8-R";
+            else
+            if (   asciz_equal(lang,"ja")
+                || asciz_equal(lang,"Jp")
+                || asciz_equal(lang,"japan")
+                || asciz_equal(lang,"Japanese-EUC")
+               )
+              locale_charset = "eucJP";
+            else
+            if (0)
+              locale_charset = "JIS7";
+            else
+            if (asciz_equal(lang,"japanese")
+               )
+              locale_charset = "SJIS";
+            else
+            if (asciz_equal(lang,"ko") || asciz_equal(lang,"korean")
+               )
+              locale_charset = "eucKR";
+            else
+            if (asciz_equal(lang,"chinese-s")
+               )
+              locale_charset = "eucCN";
+            else
+            if (asciz_equal(lang,"chinese-t")
+               )
+              locale_charset = "eucTW";
+            else
+            if (asciz_equal(lang,"th")
+               )
+              locale_charset = "TACTIS";
+            else {
+            }
+          }
+        }
+        FREE_DYNAMIC_ARRAY(buf);
+      }
       #endif # UNICODE
       #endif # HAVE_LOCALE_H || UNICODE
     }
