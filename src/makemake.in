@@ -1690,7 +1690,7 @@ echol "exec_prefix = ${EXEC_PREFIX}"
 echol "bindir  = \$(exec_prefix)${NEXT_}bin"
 echol "shared  = \$(prefix)${NEXT_}share"
 echol "mandir  = \$(shared)${NEXT_}man"
-echol "docdir  = \$(shared}${NEXT_}doc"
+echol "docdir  = \$(shared)${NEXT_}doc"
 case "$fsstnd" in
   suse)
     echol "lispdocdir = \$(docdir)${NEXT_}packages${NEXT_}clisp"
