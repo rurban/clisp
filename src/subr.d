@@ -281,7 +281,7 @@ LISPFUN(applyhook,seclass_default,4,1,norest,nokey,0,NIL)
 LISPFUN(constantp,seclass_read,1,1,norest,nokey,0,NIL)
 LISPFUNNR(function_side_effect,1)
 LISPFUNNR(function_name_p,1)
-LISPFUN(parse_body,seclass_default,1,2,norest,nokey,0,NIL)
+LISPFUN(parse_body,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUNN(keyword_test,2)
 LISPFUN(xor,seclass_foldable,0,0,rest,nokey,0,NIL)
 /* ---------- DEBUG ---------- */

@@ -35,9 +35,8 @@
 
 ;;; macros for packages (Chapter 11), p. 187-188
 (defmacro do-symbols ((var &optional (packageform '*package*) (resultform nil))
-                      &body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-      (system::parse-body body nil env)
+                      &body body)
+  (multiple-value-bind (body-rest declarations) (system::parse-body body)
     (let ((packvar (gensym)))
       `(BLOCK NIL
          (LET ((,packvar ,packageform))
@@ -52,9 +51,8 @@
 
 (defmacro do-external-symbols ((var &optional (packageform '*package*)
                                     (resultform nil))
-                               &body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-      (system::parse-body body nil env)
+                               &body body)
+  (multiple-value-bind (body-rest declarations) (system::parse-body body)
     (let ((packvar (gensym)))
       `(BLOCK NIL
          (LET ((,packvar ,packageform))
@@ -67,10 +65,8 @@
                ,packvar)
              ,resultform))))))
 
-(defmacro do-all-symbols ((var &optional (resultform nil))
-                          &body body &environment env)
-  (multiple-value-bind (body-rest declarations)
-      (system::parse-body body nil env)
+(defmacro do-all-symbols ((var &optional (resultform nil)) &body body)
+  (multiple-value-bind (body-rest declarations) (system::parse-body body)
     `(BLOCK NIL
        (LET ((,var NIL))
          (DECLARE (IGNORABLE ,var) ,@declarations)
@@ -200,10 +196,8 @@
 
 ;;; functions for sequences (Chapter 14)
 
-(defmacro doseq ((var seqform &optional resultform) &body body
-                 &environment env)
-  (multiple-value-bind (body-rest declarations)
-      (system::parse-body body nil env)
+(defmacro doseq ((var seqform &optional resultform) &body body)
+  (multiple-value-bind (body-rest declarations) (system::parse-body body)
     (let ((seqvar (gensym)))
       `(BLOCK NIL
          (LET ((,seqvar ,seqform))
@@ -362,10 +356,8 @@
 
 ;;; functions for hash tables (Chapter 16)
 
-(defmacro dohash ((keyvar valuevar HTform &optional resultform) &body body
-                  &environment env)
-  (multiple-value-bind (body-rest declarations)
-      (system::parse-body body nil env)
+(defmacro dohash ((keyvar valuevar HTform &optional resultform) &body body)
+  (multiple-value-bind (body-rest declarations) (system::parse-body body)
     (let ((HTvar (gensym)))
       `(BLOCK NIL
          (LET ((,HTvar ,HTform))

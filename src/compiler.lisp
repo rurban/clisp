@@ -955,7 +955,7 @@ for-value   NIL or T
 (defun global-in-fenv-p (s fenv)
   (eq (fenv-search s fenv) 'NIL))
 
-;; The Functions MACROEXPAND-1, MACROEXPAND, PARSE-BODY work:
+;; The Functions MACROEXPAND-1, MACROEXPAND work:
 ;; With a Vector consisting of
 ;; - such a Variable-Environment (concatenated Vectors, with
 ;;   defi = #<SYMBOL-MACRO expansion> for Symbol-Macro-Definitions),
@@ -968,7 +968,7 @@ for-value   NIL or T
 ;; (MACROEXPAND form env) expands the given Form in the Macroexpansions-
 ;; Environment env and returns the Form expanded as many times as possible
 ;; and T (or form and NIL, if not expandable).
-;; (PARSE-BODY body docstring-allowed env) analyzes the body and detaches
+;; (PARSE-BODY body docstring-allowed) analyzes the body and detaches
 ;; the Declarations and the Docstring (if allowed and if existing) .
 ;; 3 values: the remaining body-rest, a list of the found declspecs,
 ;; the Docstring (or NIL).
@@ -3827,7 +3827,7 @@ for-value   NIL or T
             (fnode-allow-other-keys-flag *func*) allow-other-keys)
       (when fenv-cons (setf (caar fenv-cons) *func*)) ; Fixup for c-LABELS
       (multiple-value-bind (body-rest declarations)
-          (parse-body (cdr lambdabody) t (env))
+          (parse-body (cdr lambdabody) t)
         (let ((oldstackz *stackz*)
               (*stackz* *stackz*)
               (*denv* *denv*)
@@ -4645,8 +4645,7 @@ for-value   NIL or T
 (defun c-LET/LET* (*-flag)
   (test-list *form* 2)
   (test-list (second *form*) 0)
-  (multiple-value-bind (body-rest declarations)
-      (parse-body (cddr *form*) nil (env))
+  (multiple-value-bind (body-rest declarations) (parse-body (cddr *form*))
     (let ((oldstackz *stackz*)
           (*stackz* *stackz*)
           (*denv* *denv*)
@@ -4698,8 +4697,7 @@ for-value   NIL or T
 ;; compile (LOCALLY {declaration}* {form}*)
 (defun c-LOCALLY (&optional (c #'c-form)) ; cf. c-LET/LET*
   (test-list *form* 1)
-  (multiple-value-bind (body-rest declarations)
-      (parse-body (cdr *form*) nil (env))
+  (multiple-value-bind (body-rest declarations) (parse-body (cdr *form*))
     (let ((*venv* *venv*))
       (multiple-value-bind (*specials* ignores ignorables readonlys)
           (process-declarations declarations)
@@ -4718,8 +4716,7 @@ for-value   NIL or T
                  sym)))
     (if (= (length symbols) 1)
       (c-form `(LET ((,(first symbols) ,(third *form*))) ,@(cdddr *form*)))
-      (multiple-value-bind (body-rest declarations)
-          (parse-body (cdddr *form*) nil (env))
+      (multiple-value-bind (body-rest declarations) (parse-body (cdddr *form*))
         (let ((oldstackz *stackz*)
               (*stackz* *stackz*)
               (*denv* *denv*)
@@ -5553,17 +5550,12 @@ for-value   NIL or T
                          'symbol-macrolet symdef))))
     (let ((*denv* *denv*)
           (*venv*
-           ;; `*venv*' has to be modified before `parse-body' because
-           ;; `parse-body' macroexpands the first form in search of
-           ;; declarations, and that macroexpansion might rely on the
-           ;; definitions of the current `symbol-macrolet'
            (apply #'vector
                   (nconc (mapcan #'(lambda (sym exp)
                                      (list sym (make-symbol-macro exp)))
                                  symbols expansions)
                          (list *venv*)))))
-      (multiple-value-bind (body-rest declarations)
-          (parse-body (cddr *form*) nil (env))
+      (multiple-value-bind (body-rest declarations) (parse-body (cddr *form*))
         (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
             (process-declarations declarations)
           (push-specials)
@@ -5918,7 +5910,7 @@ for-value   NIL or T
                                    (t nil)))
                              *denv*)))))
         (multiple-value-bind (body-rest declarations)
-            (parse-body lambdabody t (env))
+            (parse-body lambdabody t)
           (let (*specials* *ignores* *ignorables* *readonlys*
                 req-vars req-anodes req-stackzs
                 opt-vars opt-anodes opt-stackzs ; optional and svar together!
