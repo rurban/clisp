@@ -177,7 +177,15 @@ T
 
 (progn
   (def-call-out c-self (:name "ffi_identity")
-    (:arguments (obj (c-union (c1 character)
+    (:arguments (obj (c-ptr (c-union (c1 character)
+                                     (s (c-array-ptr character))))))
+    (:return-type (c-ptr character)) (:language :stdc))
+  (c-self #\w))
+#\w
+
+(progn
+  (def-call-out c-self (:name "ffi_identity")
+    (:arguments (obj (c-union (c1 (c-ptr character))
                               (s (c-array-ptr character)))))
     (:return-type (c-ptr character)) (:language :stdc))
   (c-self #\w))
