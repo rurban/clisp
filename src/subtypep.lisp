@@ -1382,7 +1382,7 @@
            (SIMPLE-BIT-VECTOR
             ; (canonicalize-type (list type)) =>
             '(SIMPLE-ARRAY BIT (*)))
-           (STRING
+           ((STRING cs-cl:string)
             ; (canonicalize-type (list type)) =>
             '(OR (ARRAY CHARACTER (*))
                  #-BASE-CHAR=CHARACTER (ARRAY BASE-CHAR (*))
@@ -1535,7 +1535,7 @@
               (unless (or (eq size '*) (and (integerp size) (>= size 0)))
                 (typespec-error 'subtypep type))
               `(ARRAY BIT (,size))))
-           (STRING ; (STRING &optional size)
+           ((STRING cs-cl:string) ; (STRING &optional size)
             (when (cddr type)
               (typespec-error 'subtypep type))
             (let ((size (if (cdr type) (second type) '*)))

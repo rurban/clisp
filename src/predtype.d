@@ -2351,7 +2351,7 @@ LISPFUNNR(coerce,2)
         || eq(result_type,S(simple_array)) /* SIMPLE-ARRAY ? */
         || eq(result_type,S(vector)) /* VECTOR ? */
         || eq(result_type,S(simple_vector)) /* SIMPLE-VECTOR ? */
-        || eq(result_type,S(string)) /* STRING ? */
+        || eq(result_type,S(string)) || eq(result_type,S(cs_string)) /* STRING ? */
         || eq(result_type,S(simple_string)) /* SIMPLE-STRING ? */
         || eq(result_type,S(base_string)) /* BASE-STRING ? */
         || eq(result_type,S(simple_base_string)) /* SIMPLE-BASE-STRING ? */
@@ -2442,7 +2442,7 @@ LISPFUNNR(coerce,2)
         || eq(type,S(simple_array)) /* SIMPLE-ARRAY ? */
         || eq(type,S(vector)) /* VECTOR ? */
         || eq(type,S(simple_vector)) /* SIMPLE-VECTOR ? */
-        || eq(type,S(string)) /* STRING ? */
+        || eq(type,S(string)) || eq(type,S(cs_string)) /* STRING ? */
         || eq(type,S(simple_string)) /* SIMPLE-STRING ? */
         || eq(type,S(base_string)) /* BASE-STRING ? */
         || eq(type,S(simple_base_string)) /* SIMPLE-BASE-STRING ? */
