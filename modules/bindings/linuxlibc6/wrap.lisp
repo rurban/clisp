@@ -17,12 +17,11 @@
 
 (defun vec2string (vec)
   ;; Convert a char[] to a lisp STRING.
-  (convert-string-from-bytes (subseq vec 0 (position 0 vec))
-                             *foreign-encoding*))
+  (convert-string-from-bytes vec *foreign-encoding*
+                             :end (position 0 vec)))
 
 (defun linux:linux-error (caller)
-  (error "~s: ~a" caller (linux::strerror ; linux::errno
-                          (linux::__errno_location))))
+  (error "~s: ~a" caller (linux::strerror linux::errno)))
 (defmacro linux:check-res (res caller)
   `(unless (zerop ,res) (linux:linux-error ,caller)))
 
@@ -30,7 +29,7 @@
   (multiple-value-bind (success resolved)
       ;; :out or :in-out parameters are returned via multiple values
       (linux::realpath name)
-    (linux:check-res success 'linux:real-path)
+    (unless success (linux:linux-error 'linux:real-path))
     (vec2string resolved)))
 
 (defun linux:get-host-name ()
