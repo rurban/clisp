@@ -1,3 +1,8 @@
+2003-01-25  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (handle_isset): increased granularity of
+	SOCKET-STATUS: distinguish between EOF and INPUT for READ
+
 2003-01-28  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	* src/m4/as-underscore.m4, ffcall/m4/as-underscore.m4

@@ -14909,7 +14909,8 @@ local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
   object sock = (consp(socket) ? (object)Car(socket) : socket);
   direction_t dir = (consp(socket)?check_direction(Cdr(socket)):DIRECTION_IO);
   SOCKET in_sock = INVALID_SOCKET, out_sock = INVALID_SOCKET;
-  bool char_p = true, rd = false, wr = false;
+  bool char_p = true, wr = false;
+  signean rd = ls_wait;
   stream_handles(sock,true,&char_p,
                  READ_P(dir)  ? &in_sock  : NULL,
                  WRITE_P(dir) ? &out_sock : NULL);
@@ -14917,17 +14918,17 @@ local object handle_isset (object socket, fd_set *readfds, fd_set *writefds,
     if (FD_ISSET(in_sock,errorfds)) return S(Kerror);
     if (socket_server_p(sock))
       return FD_ISSET(in_sock,readfds) ? T : NIL;
-    rd = FD_ISSET(in_sock,readfds)
-      && (ls_avail_p(char_p ? listen_char(sock) : listen_byte(sock)));
+    if (FD_ISSET(in_sock,readfds))
+      rd = (char_p ? listen_char(sock) : listen_byte(sock));
   }
   if (out_sock != INVALID_SOCKET) {
     if (FD_ISSET(out_sock,errorfds)) return S(Kerror);
     wr = FD_ISSET(out_sock,writefds);
   }
-  if      ( rd && !wr) return S(Kinput);
-  else if (!rd &&  wr) return S(Koutput);
-  else if ( rd &&  wr) return S(Kio);
-  else                 return NIL;
+  if (ls_avail_p(rd)) return wr ? S(Kio)     : S(Kinput);
+  if (ls_eof_p(rd))   return wr ? S(Kappend) : S(Keof);
+  if (ls_wait_p(rd))  return wr ? S(Koutput) : S(Kwait);
+  NOTREACHED;
 }
 #undef READ_P
 #undef WRITE_P
