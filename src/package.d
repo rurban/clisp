@@ -387,9 +387,12 @@
             );
     }
 
-# check whether the symbol is inherited
+# check whether there is an inherited symbol with the given name
 # inherited_lookup(string,pack,symb)
 # return true iff string is found in (package-use-list pack)
+# STRING is a Lisp string object
+# PACK is a Lisp package object
+# the symbol found is returned in SYMB (if it not NULL)
 local bool inherited_lookup(object string,object pack,object* sym_) {
   var object packlistr = ThePackage(pack)->pack_use_list;
   while (consp(packlistr)) {
@@ -400,6 +403,11 @@ local bool inherited_lookup(object string,object pack,object* sym_) {
   }
   return false;
 }
+
+# check whether the symbol is inherited by the package
+# inherited_find(symbol, pack)
+# SYMBOL is a Lisp symbol object
+# PACK is a Lisp package object
 local bool inherited_find(object symbol,object pack) {
   var object list = ThePackage(pack)->pack_use_list;
   while (consp(list)) {
