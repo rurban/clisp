@@ -1,3 +1,10 @@
+2002-05-18  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (stdbool.h): sed RE depends on TOS: not all systems
+	use autoconf [actually, it is not clear that it is legitimate to
+	expect a non-UNIX system to have sed; cygwin is ubiquitous though,
+	so win32 is, hopefully, covered]
+
 2002-05-18  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 	    Sam Steingold  <sds@gnu.org>
 
