@@ -7756,6 +7756,7 @@ Simplification-Rules for Operations:
 ;; that further optimizations are possible), if its Property for-value
 ;; has been weakened.
 (defun simplify (codelist)
+  (unless codelist (return-from simplify nil))
   (let ((for-value-at-end
           (let ((item (car codelist)))
             (case (first item)
@@ -7770,7 +7771,7 @@ Simplification-Rules for Operations:
               ((RETGF JMPHASH) 'ONE)
               ((BARRIER GO GO-I JMPTAIL) 'NIL)
               ((RETURN-FROM RETURN-FROM-I RET THROW) 'ALL)
-              (t (compiler-error 'simplify "AT-END")))))
+              (t (compiler-error 'simplify codelist)))))
         (result nil)) ; poss. the start-label
     ;; for-value-at-end indicates, which values are needed before the jump.
     (loop

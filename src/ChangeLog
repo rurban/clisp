@@ -1,5 +1,10 @@
 2003-09-26  Sam Steingold  <sds@gnu.org>
 
+	fixed bug #[ 813119 ]: "Occurred in SIMPLIFY at AT-END"
+	* compiler.lisp (simplify): handle empty codelist
+
+2003-09-26  Sam Steingold  <sds@gnu.org>
+
 	* configure.in: added AC_COPYRIGHT and AC_REVISION (sugar)
 	check for --with-readline and --without-readline and run
 	CL_READLINE only if readline was not disabled by the user

@@ -509,3 +509,30 @@ dm2b
                          (list (fboundp 'foo) (fboundp 'bar)))
     (delete-file file1) (delete-file file2)))
 (T T)
+
+;; the following 3 tests are generated
+;; by the random tester in the GCL ANSI CL testsuite
+;; <https://sourceforge.net/tracker/?func=detail&atid=101355&aid=813119&group_id=1355>
+(funcall
+ (compile nil '(lambda (a)
+                (if (and (if a t nil) nil) a (min (block b5 -1) a))))
+ 123)
+-1
+
+(funcall
+ (compile nil '(lambda (a b c)
+                (if (or (not (and a nil))
+                        (and (or b (ldb-test (byte 26 31) c)) t))
+                    b b)))
+ 123 144 532)
+144
+
+(funcall
+ (compile nil '(lambda (c)
+		(if (or (not (if c nil nil))
+			(and (and (ldb-test (byte 13 25) -707966251)
+				  (logbitp 5 c))
+			     (ldb-test (byte 13 26) -396394270089)))
+		    513972305 19641756)))
+ 125)
+513972305
