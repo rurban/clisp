@@ -118,13 +118,15 @@ $(patsubst %,%.po.merged,$(OTHER_LINGUAS)) : %.po.merged : %.po.new %.po $(PACKA
 
 # clisplow.pot is a subset of clisp.pot.
 
+MSGATTRIB = msgattrib -w 1000
+
 clisplow.pot : $(SOURCES_POT2) ../VERSION po_header
 	(./po_header t ; cat $(SOURCES_POT2)) > clisplow.pox
 	$(MSGUNIQ) clisplow.pox -o $@
 	$(RM) clisplow.pox
 
 $(patsubst %,clisplow_%.po,$(LINGUAS)) : clisplow_%.po : clisplow.pot %.po
-	$(MSGMERGE) $*.po clisplow.pot -o - | sed -e '/^#~ /d' -e '/^#: /d' -e '/^# /d' > clisplow_$*.po
+	$(MSGMERGE) $*.po clisplow.pot -o - | $(MSGATTRIB) --no-obsolete > clisplow_$*.po
 
 
 # We must generate and distribute the .gmo files, because on the machine
