@@ -6390,7 +6390,13 @@ typedef struct strm_i_buffered_extrafields_struct {
             var const uintB* bptr = bufferptr;
             var chart* cptr = charptr;
             Encoding_mbstowcs(encoding)(encoding,stream,&bptr,bufferptr+available,&cptr,endptr);
-            if (cptr == charptr)
+            if (!(cptr == charptr))
+              { var uintL n = bptr-bufferptr;
+                # index und position incrementieren:
+                BufferedStream_index(stream) += n;
+                BufferedStream_position(stream) += n;
+              }
+              else
               { var uintB buf[max_bytes_per_chart];
                 var uintL buflen = 0;
                 loop
