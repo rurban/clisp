@@ -1,3 +1,22 @@
+2002-12-04  Bruno Haible  <bruno@clisp.org>
+
+	Fix some GC-safety bugs.
+	* package.d (safe_check_pack_lock): Use the first argument.
+	(unuse_1package): Mark as "can trigger GC".
+	(unuse_package): Likewise. Make GC-safe.
+	(SYSTEM::%IN-PACKAGE): Make GC-safe.
+	(DELETE-PACKAGE): Make GC-safe.
+	* pathname.d (copy_upcase): Change return type to void.
+	(parse_logical_word): Make GC-safe.
+	(simplify_directory): Make GC-safe. Avoid bug when dir list contains
+	"." followed by a non-string.
+	* realelem.d (R_R_contagion_R): Make GC-safe.
+	(N_N_contagion_R): Simplify and make GC-safe.
+	(C_R_float_C): Make GC-safe.
+	(N_N_float_N): Make GC-safe.
+	* comptran.d (N_exp_N): Make GC-safe.
+	(N_log_N): Make GC-safe.
+
 2002-12-18  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (bt_beyond_stack_p): fixed the back_trace circularity

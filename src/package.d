@@ -745,10 +745,10 @@ local void cerror_package_locked (object func, object pack, object obj) {
 /* check the package lock */
 #define check_pack_lock(func,pack,obj)                          \
   if (pack_locked_p(pack)) cerror_package_locked(func,pack,obj)
-#define safe_check_pack_lock(func,pack,obj)                              \
-  do { pushSTACK(pack); pushSTACK(obj); /* save */                       \
-       check_pack_lock(S(use_package),STACK_1 /*pack*/,STACK_0 /*obj*/); \
-       obj = popSTACK(); pack = popSTACK(); /* restore */                \
+#define safe_check_pack_lock(func,pack,obj)                     \
+  do { pushSTACK(pack); pushSTACK(obj); /* save */              \
+       check_pack_lock(func, STACK_1 /*pack*/,STACK_0 /*obj*/); \
+       obj = popSTACK(); pack = popSTACK(); /* restore */       \
   } while(0)
 
 /* UP: Inserts a symbol into a package, that hasn't yet a a symbol
@@ -1770,7 +1770,8 @@ local void use_package_aux (void* data, object sym) {
  > pack: package
  > qpack: package
  Removes qpack from the use-list of pack
- and pack from the used-by-list of qpack. */
+ and pack from the used-by-list of qpack.
+ can trigger GC */
 local void unuse_1package (object pack, object qpack) {
   safe_check_pack_lock(S(use_package),pack,qpack);
   set_break_sem_2();
@@ -1789,15 +1790,19 @@ local void unuse_1package (object pack, object qpack) {
  > packlist: list of packages
  > pack: package
  Removes all packages from packlist from the use-list of pack
- and pack from the used-by-lists of all packages from packlist. */
+ and pack from the used-by-lists of all packages from packlist.
+ can trigger GC */
 local void unuse_package (object packlist, object pack) {
+  pushSTACK(pack);
+  pushSTACK(packlist);
   set_break_sem_3();
   /* traverse packlist: */
-  while (consp(packlist)) {
-    unuse_1package(pack,Car(packlist));
-    packlist = Cdr(packlist);
+  while (mconsp(STACK_0)) {
+    unuse_1package(STACK_1,Car(STACK_0));
+    STACK_0 = Cdr(STACK_0);
   }
   clr_break_sem_3();
+  skipSTACK(2);
 }
 
 /* UP: returns the current package
@@ -2432,16 +2437,14 @@ LISPFUN(pin_package,1,0,norest,key,3,
          are removed with unuse_1package: */
       pack = STACK_3;
       { /* traverse use-list of pack */
-        var object used_packs = ThePackage(pack)->pack_use_list;
-        while (consp(used_packs)) {
-          var object qpack = Car(used_packs);
+        STACK_0 = ThePackage(pack)->pack_use_list;
+        while (mconsp(STACK_0)) {
+          var object qpack = Car(STACK_0);
           /* search in uselist: */
-          if (!nullp(memq(qpack,STACK_1)))
-            goto unuse_ok; /* found in uselist -> OK */
-          /* not found in uselist */
-          unuse_1package(pack,qpack);
-         unuse_ok: ;
-          used_packs = Cdr(used_packs);
+          if (nullp(memq(qpack,STACK_1)))
+            /* not found in uselist */
+            unuse_1package(STACK_3,qpack);
+          STACK_0 = Cdr(STACK_0);
         }
       }
     }
@@ -2508,15 +2511,14 @@ LISPFUNN(delete_package,1) {
                             'DELETE-PACKAGE pack used-by-list) */
     funcall(L(cerror_of_type),8);
   }
-  pack = STACK_0;
   /* execute (DOLIST (p used-py-list) (UNUSE-PACKAGE pack p)) : */
   set_break_sem_3();
-  while (mconsp(ThePackage(pack)->pack_used_by_list)) {
+  while ((pack = STACK_0, mconsp(ThePackage(pack)->pack_used_by_list))) {
     unuse_1package(Car(ThePackage(pack)->pack_used_by_list),pack);
   }
   clr_break_sem_3();
   /* execute (UNUSE-PACKAGE (package-use-list pack) pack) : */
-  unuse_package(ThePackage(pack)->pack_use_list,pack);
+  unuse_package(ThePackage(STACK_0)->pack_use_list,pack);
   /* apply delete_package_aux to the symbols present in pack: */
   map_symtab_c(&delete_package_aux,&STACK_0,
                ThePackage(STACK_0)->pack_external_symbols);

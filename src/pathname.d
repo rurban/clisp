@@ -1533,8 +1533,8 @@ typedef struct {
 
 /* copy LEN characters in string ORIG starting at ORIG_OFFSET to string DEST,
    starting at DEST_OFFSET, up-casing all characters */
-local object copy_upcase (object dest, uintL dest_offset,
-                          object orig, uintL orig_offset, uintL len) {
+local void copy_upcase (object dest, uintL dest_offset,
+                        object orig, uintL orig_offset, uintL len) {
   simple_array_to_storage(orig);
   SstringDispatch(orig,X1, {
     var cintX1* ptr1 = &((SstringX1)TheVarobject(orig))->data[orig_offset];
@@ -1544,7 +1544,6 @@ local object copy_upcase (object dest, uintL dest_offset,
       dotimespL(len,len, { *ptr2++ = as_cint(up_case(as_chart(*ptr1++))); });
     });
   });
-  return dest;
 }
 
 # Parses the name/type/version part (if subdirp=false) or a subdir part
@@ -1595,8 +1594,11 @@ local object parse_logical_word (zustand* z, bool subdirp) {
     return S(Kwild);
   else if ((len==2) && seen_starstar)
     return S(Kwild_inferiors);
-  else
-    return copy_upcase(allocate_string(len),0,STACK_2,startz.index,len);
+  else {
+    var object result = allocate_string(len);
+    copy_upcase(result,0,STACK_2,startz.index,len);
+    return result;
+  }
 }
 
 # Test whether a string is a digit sequence.
@@ -1689,35 +1691,49 @@ local object parse_logical_host_prefix (zustand* zp, object string) {
 local object simplify_directory (object dir) {
   if (!consp(dir)) return dir;
   DOUT("simplify_directory:< ",dir);
-  # kill ".", ".."->:up, coerce to normal simple strings
-  var object cur = dir;
-  while (consp(cur) && consp(Cdr(cur))) {
-    if (stringp(Car(Cdr(cur)))) {
-      if (string_equal(Car(Cdr(cur)),O(dot_string)))
-        Cdr(cur) = Cdr(Cdr(cur)); # drop "."
-      if (!consp(Cdr(cur))) break;
-      if (string_equal(Car(Cdr(cur)),O(dotdot_string)))
-        Car(Cdr(cur)) = S(Kup); # ".." --> :UP
-      else # coerce to normal
-        Car(Cdr(cur)) = coerce_normal_ss(Car(Cdr(cur)));
-    } else if (eq(Car(Cdr(cur)),S(Kback)))
-      Car(Cdr(cur)) = S(Kup); # :BACK --> :UP (ANSI)
-    cur = Cdr(cur);
-  }
-  # collapse "foo/../" (quadratic algorithm)
-  var bool changed_p = true;
-  while (changed_p) {
-    changed_p = false;
-    cur = dir;
-    while (consp(cur) && consp(Cdr(cur))) {
-      if (consp(Cdr(Cdr(cur))) && !eq(Car(Cdr(cur)),S(Kup))
-          && !eq(Car(Cdr(cur)),S(Kwild_inferiors))
-          && eq(Car(Cdr(Cdr(cur))),S(Kup))) {
-        changed_p = true;
-        Cdr(cur) = Cdr(Cdr(Cdr(cur))); # collapse "foo/../"
-      } else cur = Cdr(cur);
+  pushSTACK(dir);
+  { # kill ".", ".."->:up, coerce to normal simple strings
+    var object curr = dir;
+    while (consp(curr) && consp(Cdr(curr))) {
+      var object next = Cdr(curr);
+      if (stringp(Car(next))) {
+        if (string_equal(Car(next),O(dot_string))) {
+          Cdr(curr) = Cdr(next); # drop "."
+          continue;
+        }
+        if (!consp(next))
+          break;
+        if (string_equal(Car(next),O(dotdot_string)))
+          Car(next) = S(Kup); # ".." --> :UP
+        else {
+          # coerce to normal
+          pushSTACK(next);
+          var object element = coerce_normal_ss(Car(next));
+          next = popSTACK();
+          Car(next) = element;
+        }
+      } else if (eq(Car(next),S(Kback)))
+        Car(next) = S(Kup); # :BACK --> :UP (ANSI)
+      curr = next;
     }
   }
+  dir = popSTACK();
+  # collapse "foo/../" (quadratic algorithm)
+  var bool changed_p;
+  do {
+    changed_p = false;
+    var object curr = dir;
+    while (consp(curr) && consp(Cdr(curr))) {
+      var object next = Cdr(curr);
+      if (consp(Cdr(next))
+          && !eq(Car(next),S(Kup)) && !eq(Car(next),S(Kwild_inferiors))
+          && eq(Car(Cdr(next)),S(Kup))) {
+        changed_p = true;
+        Cdr(curr) = Cdr(Cdr(next)); # collapse "foo/../"
+      } else
+        curr = next;
+    }
+  } while (changed_p);
   if (eq(Car(dir),S(Kabsolute))) { # drop initial :up after :absolute
     while (consp(Cdr(dir)) && eq(Car(Cdr(dir)),S(Kup)))
       Cdr(dir) = Cdr(Cdr(dir));
