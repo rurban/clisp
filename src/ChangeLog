@@ -1,5 +1,13 @@
 2003-06-13  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (TrueName) [WIN32_NATIVE]: return bool; made global;
+	fixed a bug with overwriting "nameout" string with "resolved"
+	* spvw_memfile.d (loadmem) [WIN32_NATIVE]: use TrueName() to
+	resolve possible symbolic links
+	* lispbibl.d (TrueName): added a prototype
+
+2003-06-13  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (open_file): when :DIRECTION is :PROBE, open the file
 	for input and then immediately close the handle, as suggested by
 	the ANSI CL spec; this allows FILE-LENGTH and FILE-WRITE-DATE to
