@@ -22,7 +22,7 @@ clean : force
 	$(RM) *.erg
 
 tests : force
-	$(LISP) -i tests.lisp -x '(run-all-tests)'
+	$(LISP) -C -i tests.lisp -x '(time (run-all-tests))'
 
 compare : force
 	(echo *.erg | grep '\*') >/dev/null || (echo "Test failed." ; echo "To see which tests failed, type" ; echo "    cat "`pwd`"/*.erg" ; exit 1)
