@@ -1,5 +1,7 @@
 2000-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * nls_iso8859_8.c: Regenerate using newest unicode.org table.
+
         * cc_sparc.il: Remove obsolete file.
 
 2000-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
