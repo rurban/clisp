@@ -6634,42 +6634,86 @@ for-value   NIL or T
 (defun shift-vars (restvars)
   (mapcap #'(lambda (restvar) `(,restvar (CDR ,restvar))) restvars))
 
+(proclaim '(inline copy-list-lax))
+(defun copy-list-lax (obj)
+  "Like COPY-LIST, but return the argument when it is not a LIST."
+  (if (consp obj) (copy-list obj) obj))
+
 ;; Forms a MAPCAR/MAPCAN/MAPCAP-Expansion
 (defun c-MAP-on-CARs (adjoin-fun funform forms)
-  (let ((erg (gensym))
+  (let ((erg (gensym)) (tail (gensym))
         (blockname (gensym))
         (restvars (gensym-list forms))
         (tag (gensym)))
-    `(LET ((,erg NIL))
+    `(LET ((,erg NIL)
+           ,@(case adjoin-fun ((CONS)) ((NCONC APPEND) `((,tail nil)))))
        (BLOCK ,blockname
          (LET* ,(mapcar #'list restvars forms)
            (TAGBODY ,tag
              ,(c-MAP-on-CARs-inner
-                #'(lambda (itemvars)
-                    `(SETQ ,erg (,adjoin-fun (FUNCALL ,funform ,@itemvars)
-                                             ,erg)))
-                blockname
-                restvars)
+               (case adjoin-fun
+                 ((CONS)
+                  #'(lambda (itemvars)
+                      `(SETQ ,erg (,adjoin-fun (FUNCALL ,funform ,@itemvars)
+                                               ,erg))))
+                 ((NCONC)
+                  #'(lambda (itemvars)
+                      `(if (consp ,erg)
+                           (setf ,tail (last ,tail)
+                                 (cdr ,tail) (FUNCALL ,funform ,@itemvars))
+                           (setq ,erg (FUNCALL ,funform ,@itemvars)
+                                 ,tail ,erg))))
+                 ((APPEND)
+                  #'(lambda (itemvars)
+                      `(if (consp ,erg)
+                           (setf ,tail (last ,tail)
+                                 (cdr ,tail) (copy-list-lax
+                                              (FUNCALL ,funform ,@itemvars)))
+                           (setq ,erg (copy-list-lax
+                                       (FUNCALL ,funform ,@itemvars))
+                                 ,tail ,erg)))))
+               blockname
+               restvars)
              (SETQ ,@(shift-vars restvars))
              (GO ,tag))))
-       (SYS::LIST-NREVERSE ,erg))))
+       ,(case adjoin-fun
+          ((CONS) `(SYS::LIST-NREVERSE ,erg))
+          (t erg)))))
 
 ;; Forms a MAPLIST/MAPCON/MAPLAP-Expansion
 (defun c-MAP-on-LISTs (adjoin-fun funform forms)
-  (let ((erg (gensym))
+  (let ((erg (gensym)) (tail (gensym))
         (blockname (gensym))
         (restvars (gensym-list forms))
         (tag (gensym)))
-    `(LET ((,erg NIL))
+    `(LET ((,erg NIL)
+           ,@(case adjoin-fun ((CONS)) ((NCONC APPEND) `((,tail nil)))))
        (BLOCK ,blockname
          (LET* ,(mapcar #'list restvars forms)
            (TAGBODY ,tag
              (IF (OR ,@(mapcar #'(lambda (restvar) `(ENDP ,restvar)) restvars))
                (RETURN-FROM ,blockname))
-             (SETQ ,erg (,adjoin-fun (FUNCALL ,funform ,@restvars) ,erg))
+             ,(case adjoin-fun
+               ((CONS)
+                `(SETQ ,erg (,adjoin-fun (FUNCALL ,funform ,@restvars) ,erg)))
+               ((NCONC)
+                `(if (consp ,erg)
+                     (setf ,tail (last ,tail)
+                           (cdr ,tail) (FUNCALL ,funform ,@restvars))
+                     (setq ,erg (FUNCALL ,funform ,@restvars)
+                           ,tail ,erg)))
+               ((APPEND)
+                `(if (consp ,erg)
+                     (setf ,tail (last ,tail)
+                           (cdr ,tail) (copy-list-lax
+                                        (FUNCALL ,funform ,@restvars)))
+                     (setq ,erg (copy-list-lax (FUNCALL ,funform ,@restvars))
+                           ,tail ,erg))))
              (SETQ ,@(shift-vars restvars))
              (GO ,tag))))
-       (SYS::LIST-NREVERSE ,erg))))
+       ,(case adjoin-fun
+          ((CONS) `(SYS::LIST-NREVERSE ,erg))
+          (t erg)))))
 
 (defun c-MAPC ()
   (test-list *form* 3)
@@ -6742,7 +6786,7 @@ for-value   NIL or T
   (let ((funform (macroexpand-form (second *form*)))
         (forms (cddr *form*)))
     (if (inline-callable-function-p funform (length forms))
-      (c-form (c-MAP-on-CARs 'NRECONC funform forms))
+      (c-form (c-MAP-on-CARs 'NCONC funform forms))
       (c-GLOBAL-FUNCTION-CALL-form `(MAPCAN ,funform ,@forms)))))
 
 (defun c-MAPCON ()
@@ -6750,7 +6794,7 @@ for-value   NIL or T
   (let ((funform (macroexpand-form (second *form*)))
         (forms (cddr *form*)))
     (if (inline-callable-function-p funform (length forms))
-      (c-form (c-MAP-on-LISTs 'NRECONC funform forms))
+      (c-form (c-MAP-on-LISTs 'NCONC funform forms))
       (c-GLOBAL-FUNCTION-CALL-form `(MAPCON ,funform ,@forms)))))
 
 (defun c-MAPCAP ()
@@ -6760,7 +6804,7 @@ for-value   NIL or T
     (let ((funform (macroexpand-form (second *form*)))
           (forms (cddr *form*)))
       (if (inline-callable-function-p funform (length forms))
-        (c-form (c-MAP-on-CARs 'REVAPPEND funform forms))
+        (c-form (c-MAP-on-CARs 'APPEND funform forms))
         (c-GLOBAL-FUNCTION-CALL-form `(MAPCAP ,funform ,@forms))))))
 
 (defun c-MAPLAP ()
@@ -6770,7 +6814,7 @@ for-value   NIL or T
     (let ((funform (macroexpand-form (second *form*)))
           (forms (cddr *form*)))
       (if (inline-callable-function-p funform (length forms))
-        (c-form (c-MAP-on-LISTs 'REVAPPEND funform forms))
+        (c-form (c-MAP-on-LISTs 'APPEND funform forms))
         (c-GLOBAL-FUNCTION-CALL-form `(MAPLAP ,funform ,@forms))))))
 
 ;; c-TYPEP cf. TYPEP in type.lisp
