@@ -1,3 +1,7 @@
+2004-12-18  Bruno Haible  <bruno@clisp.org>
+
+	* stream.d (stream_handles): Support also the X11-socket streams.
+
 2004-12-17  Sam Steingold  <sds@gnu.org>
 
 	* modules/pari/pari.lisp (entree): fixed declaration
