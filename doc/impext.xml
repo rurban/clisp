@@ -1975,7 +1975,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  &linkset; will be created and deleted afterwards.  Note that dynamic
  loading does not work on all operating systems, and that
  <option>--with-dynamic-modules</option> precludes some efficiency
- optimizations which are on by default.</para>
+ optimizations which are enabled by default.</para>
 
 </section>
 
@@ -2057,7 +2057,43 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <programlisting>$ base+linux/lisp.run -M base+linux/lispinit.mem &gt; (linux::stat "/tmp")</programlisting></para></listitem>
 
 </orderedlist>
-<!-- #endif -->
+
+</section>
+
+<section id="module-tools"><title>Module tools</title>
+
+<para>There some tools to facilitate easy module writing.</para>
+
+<section id="modprep"><title>Modprep</title>
+<para>If your module is written in &c-lang;, you can pre-process your
+ sources with <filename>modprep.lisp</filename> in the &clisp;
+ distribution and define lisp functions with the
+ <function>DEFUN</function> macro:<programlisting>
+DEFUN(MY-PACKAGE:MY-FUNCTION-NAME, arg1 arg2 &key-amp; FOO BAR) {
+  if (!boundp(STACK_0)) STACK_0 = fixnum(0); /* BAR */
+  if (!boundp(STACK_1)) STACK_1 = fixnum(1); /* FOO */
+  pushSTACK(`MY-PACKAGE::SOME-SYMBOL`); /* create a symbol in the package */
+  pushSTACK(`#(:THIS :IS :A :VECTOR)`); /* some vector, created once */
+  pushSTACK(``MY-PACKAGE::MY-FUNCTION-NAME``); /* double '' means FUNCTION */
+  VALUES1(listof(7)); /* cons up a new list and clean up the STACK */
+}</programlisting>
+Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
+ T)</literal> will return <literal role="sexp">(A 12 T 0
+ MY-PACKAGE::SOME-SYMBOL #(:THIS :IS :A :VECTOR)
+ #'MY-PACKAGE::MY-FUNCTION-NAME)</literal>.</para>
+<para>See <filename>modules/syscalls</filename> and other included
+ modules for more examples.</para>
+</section>
+
+<section id="exporting"><title>Exporting</title>
+<para>If your module uses &ffi-pac; to interface to a &c-lang; library,
+ you might want to make your module package
+ <link linkend="make-pack">case-sensitive</link> and use
+ <filename>exporting.lisp</filename> in the &clisp; distribution to
+ make all &ffi-pac; forms export the symbols they define.
+ See <filename>modules/netica</filename>
+ and <filename>modules/bindings/*</filename> for examples.</para>
+</section>
 
 </section>
 
@@ -2085,20 +2121,23 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
      <ulink url="ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z"
             >ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z</ulink>
      - the standard implementation</simpara></listitem>
-    <listitem><simpara>new-clx, by
-      <author><firstname>Gilbert</firstname> <surname>Baumann</surname>
-       <address><otheraddr><ulink url="http://www.uni-karlsruhe.de/~unk6/"/>
-       </otheraddr></address><email>unk6@rz.uni-karlsruhe.de</email></author>
+    <listitem><simpara>new-clx, by &gilbert-baumann;
       - faster, with additional features, but not quite complete yet.
     </simpara></listitem>
-   </itemizedlist></para></listitem></varlistentry>
-  <varlistentry><term>oracle</term>
+ </itemizedlist></para></listitem></varlistentry>
+ <varlistentry><term>oracle</term>
   <listitem><simpara>Access
-    <ulink url="http://www.oracle.com/">Oracle</ulink> from &clisp;; by
-    <author><firstname>John</firstname> <surname>Hinsdale</surname>
-     <address><otheraddr><ulink url="http://www.alma.com/staff/hin"/>
-     </otheraddr></address><email>hin@alma.com</email></author>.
-  </simpara></listitem></varlistentry>
+    <ulink url="http://www.oracle.com/">Oracle</ulink> from &clisp;;
+    by &hin;.</simpara></listitem></varlistentry>
+ <varlistentry><term>fastcgi</term>
+  <listitem><simpara>Access
+    <ulink url="http://www.fastcgi.com/">FastCGI</ulink> from &clisp;;
+    by &hin;.</simpara></listitem></varlistentry>
+ <varlistentry><term>netica</term>
+  <listitem><simpara>Work with Bayesian belief networks and influence
+    diagrams using
+    <ulink url="http://norsys.com/netica_c_api.htm">Netica</ulink>.
+ </simpara></listitem></varlistentry>
  <varlistentry><term>postgresql</term>
   <listitem><simpara>Access
     <ulink url="http://www.PostgreSQL.org/">PostgreSQL</ulink> from &clisp;.
@@ -2129,6 +2168,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 </section>
 
 </section>
+<!-- #endif -->
 
 <!-- #ifdef DYNAMIC_FFI -->
 <section id="dffi">
