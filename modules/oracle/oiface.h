@@ -69,6 +69,8 @@ struct column {
                                  >0 = original size before truncation to "define" variable len */
   ub2           nfetched;   /* No. of bytes actually fetched */
   ub2           rcode;      /* Column-level return code */
+
+  OCILobLocator * lob_locator;  /* Special destination for LobLocator fetch */
 };
 
 /* Database connection, incl. (max of one) current statement, as well
