@@ -1,6 +1,6 @@
 ;; Module for wildcard matching in CLISP
 ;; Bruno Haible 18.4.1995
-;; Sam Steingold 2001-2004
+;; Sam Steingold 2001-2005
 
 (defpackage "WILDCARD"
   (:modern t)
