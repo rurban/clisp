@@ -1,5 +1,10 @@
 2002-01-22  Sam Steingold  <sds@gnu.org>
 
+	* predtype.d (with_gc_statistics) [DEBUG_SPVW]: print a message
+	when a GC is being done
+
+2002-01-22  Sam Steingold  <sds@gnu.org>
+
 	ANSI CL 11.1.2.1.2 #19 forbids methods with locked functions and
 	specializers - check that too
 	* package.d (CHECK-PACKAGE-LOCK): package may be a list of

@@ -2841,7 +2841,7 @@ LISPFUNN(gc_statistics,0)
       if (!posfixnump(flag)) {
         # No need to do statistics, throw old ones away.
         O(gc_statistics_list) = NIL; fun();
-      } elif (eq(flag,Fixnum_0)) {
+      } else if (eq(flag,Fixnum_0)) {
         # No need to do statistics, but keep old ones.
         fun();
       } else {
@@ -2850,8 +2850,14 @@ LISPFUNN(gc_statistics,0)
         init_hs_locals(locals);
         # Walk through memory.
         map_heap_objects(&heap_statistics_mapper,&locals);
+       #ifdef DEBUG_SPVW
+        asciz_out("with_gc_statistics: starting a GC...");
+       #endif
         # Now do the GC.
         fun();
+       #ifdef DEBUG_SPVW
+        asciz_out_1("done [%d]\n",free_space());
+       #endif
         # Walk through memory again, this time decrementing.
         locals.decrementing = true;
         map_heap_objects(&heap_statistics_mapper,&locals);
