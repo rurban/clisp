@@ -1,3 +1,11 @@
+2003-12-30  Bruno Haible  <bruno@clisp.org>
+
+	* compiler.lisp (seclass-foldable-p, seclass-uses, seclass-modifies):
+	New functions.
+	(*foldable-seclass*, *pure-seclass*): New variables.
+	(make-seclass): New function.
+	Use them throughout the compiler instead of null, car, cdr, cons.
+
 2003-12-27  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_calendar.c: New file.
