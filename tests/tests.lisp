@@ -91,7 +91,7 @@
                 (t
                  (incf error-count)
                  (format t "~&ERROR!! ~S should be ~S !~%" my-result result)
-                 (format log "~&Form: ~S~%CORRECT: ~S~%~7A: ~S~%~@[~A~%~]~%"
+                 (format log "~&Form: ~S~%CORRECT: ~S~%~7A: ~S~%~@[~A~%~]"
                              form result lisp-implementation
                              my-result error-message)
                  (when (and (typep result 'sequence)
@@ -109,7 +109,8 @@
                                  (if (< pos (length my-result)) (elt my-result pos) 'end-of-sequence)
                                  (pretty-tail-10 result)
                                  lisp-implementation
-                                 (pretty-tail-10 my-result)))))))))))
+                                 (pretty-tail-10 my-result))))))
+                 (format log "~%"))))))
     (values total-count error-count)))
 
 (defun do-errcheck (stream log)
