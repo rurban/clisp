@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- *** Entities for mop.xml *** -->
+
+<!-- *** objects *** -->
+<!ENTITY slot-definition-t "<link linkend='slotdef'><classname>CLOS:SLOT-DEFINITION</classname></olink>">
+<!ENTITY funcallable-standard-class "<link linkend='func-std-cl'><classname>CLOS:FUNCALLABLE-STANDARD-CLASS</classname></link>">
+
+<!-- *** shortcuts *** -->
+<!ENTITY doc-li "<listitem><simpara>The documentation is available as a &string-t; or &nil;.</simpara></listitem>">

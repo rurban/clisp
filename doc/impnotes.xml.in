@@ -7,8 +7,11 @@
   %imp-entities;
   <!ENTITY % unix-entities SYSTEM "unix-ent.xml">
   %unix-entities;
+  <!ENTITY % mop-entities SYSTEM "mop-ent.xml">
+  %mop-entities;
   <!ENTITY imp-body SYSTEM "impbody.xml">
   <!ENTITY imp-issues SYSTEM "impissue.xml">
+  <!ENTITY mop-chapter SYSTEM "mop.xml">
   <!ENTITY imp-ext SYSTEM "impext.xml">
   <!ENTITY imp-byte SYSTEM "impbyte.xml">
   <!ENTITY dirkey SYSTEM "../modules/dirkey/dirkey.xml">
@@ -146,6 +149,8 @@ and
 &imp-issues;
 
 </part>
+
+&mop-chapter;
 
 &imp-ext;
 
