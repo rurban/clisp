@@ -19,7 +19,7 @@
     {
       end_system_call(); # keine Betriebssystem-Operation läuft mehr
       #ifdef PENDING_INTERRUPTS
-        interrupt_pending = FALSE; # Ctrl-C-Wartezeit ist gleich beendet
+        interrupt_pending = false; # Ctrl-C-Wartezeit ist gleich beendet
         #ifndef WIN32_NATIVE
           begin_system_call();
           #ifdef HAVE_UALARM
@@ -31,7 +31,7 @@
         #endif
       #endif
       #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
-        writing_to_subprocess = FALSE;
+        writing_to_subprocess = false;
       #endif
       # Error-Count erhöhen, bei >3 Ausgabe-Abbruch:
       dynamic_bind(S(recursive_error_count),fixnum_inc(Symbol_value(S(recursive_error_count)),1));
@@ -643,7 +643,7 @@ LISPFUNN(invoke_debugger,1)
   global void tast_break()
     {
       #ifdef PENDING_INTERRUPTS
-        interrupt_pending = FALSE; # Ctrl-C-Wartezeit ist gleich beendet
+        interrupt_pending = false; # Ctrl-C-Wartezeit ist gleich beendet
         #ifndef WIN32_NATIVE
           begin_system_call();
           #ifdef HAVE_UALARM
@@ -655,7 +655,7 @@ LISPFUNN(invoke_debugger,1)
         #endif
       #endif
       #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
-        writing_to_subprocess = FALSE;
+        writing_to_subprocess = false;
       #endif
       # Simuliere begin_error(), 7 Elemente auf den STACK:
       pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);

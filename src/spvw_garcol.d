@@ -454,15 +454,15 @@
 
 # UP: Stellt fest, ob ein Objekt noch "lebt".
 # D.h. ob nach der Markierungsphase das Markierungsbit gesetzt ist.
-  local boolean alive (object obj);
-  local boolean alive(obj)
+  local bool alive (object obj);
+  local bool alive(obj)
     var object obj;
     {
       #ifdef TYPECODES
       switch (typecode(obj)) # je nach Typ
         { case_pair: # Cons
-            if (in_old_generation(obj,typecode(obj),1)) return TRUE;
-            if (marked(ThePointer(obj))) return TRUE; else return FALSE;
+            if (in_old_generation(obj,typecode(obj),1)) return true;
+            if (marked(ThePointer(obj))) return true; else return false;
           case_symbol: # Symbol
           case_array: # Array
           case_bignum: # Bignum
@@ -472,11 +472,11 @@
           case_dfloat: # Double-Float
           case_lfloat: # Long-Float
           case_record: # Record
-            if (in_old_generation(obj,typecode(obj),0)) return TRUE;
-            if (marked(ThePointer(obj))) return TRUE; else return FALSE;
+            if (in_old_generation(obj,typecode(obj),0)) return true;
+            if (marked(ThePointer(obj))) return true; else return false;
           case_subr: # Subr
             if (marked(pointerplus(TheSubr(obj),subr_const_offset)))
-              return TRUE; else return FALSE;
+              return true; else return false;
           case_machine: # Maschinenpointer
           case_char: # Character
           case_system: # Frame-pointer, Read-label, system
@@ -485,7 +485,7 @@
           #ifdef WIDE
           case_ffloat: # Single-Float
           #endif
-            return TRUE;
+            return true;
           default:
             # Das sind keine Objekte.
             /*NOTREACHED*/ abort();
@@ -493,17 +493,17 @@
       #else
       switch (as_oint(obj) & nonimmediate_bias_mask)
         { case varobject_bias:
-            if (in_old_generation(obj,,0)) return TRUE;
-            if (marked(ThePointer(obj))) return TRUE; else return FALSE;
+            if (in_old_generation(obj,,0)) return true;
+            if (marked(ThePointer(obj))) return true; else return false;
           case (cons_bias & immediate_bias):
-            if (immediate_object_p(obj)) return TRUE;
-            if (in_old_generation(obj,,1)) return TRUE;
-            if (marked(ThePointer(obj))) return TRUE; else return FALSE;
+            if (immediate_object_p(obj)) return true;
+            if (in_old_generation(obj,,1)) return true;
+            if (marked(ThePointer(obj))) return true; else return false;
           case subr_bias:
             if (marked(pointerplus(TheSubr(obj),subr_const_offset)))
-              return TRUE; else return FALSE;
+              return true; else return false;
           default:
-            return TRUE;
+            return true;
         }
       #endif
     }
@@ -1496,13 +1496,13 @@
 
 #ifdef DEBUG_SPVW
   # Kontrolle gegen Nullpointer:
-  #define CHECK_NULLOBJ()  nullobjcheck(FALSE)
-  local void nullobjcheck (boolean in_gc);
-  local void nullobjcheck_range (aint p1, aint p1end, boolean in_gc);
+  #define CHECK_NULLOBJ()  nullobjcheck(false)
+  local void nullobjcheck (bool in_gc);
+  local void nullobjcheck_range (aint p1, aint p1end, bool in_gc);
   local void nullobjcheck_range(p1,p1end,in_gc)
     var aint p1;
     var aint p1end;
-    var boolean in_gc;
+    var bool in_gc;
     { until (p1==p1end) # obere Grenze erreicht -> fertig
         { # nächstes Objekt hat Adresse p1
           if (eq(((Cons)p1)->cdr,nullobj) || eq(((Cons)p1)->car,nullobj))
@@ -1511,7 +1511,7 @@
           p1 += sizeof(cons_);
     }   }
   local void nullobjcheck(in_gc)
-    var boolean in_gc;
+    var bool in_gc;
     { # Von unten nach oben durchgehen:
       #ifdef GENERATIONAL_GC
       #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
@@ -1808,8 +1808,8 @@
                       # mit Pointer (Typinfo=0) zum nächsten markierten Objekt \
                       { ptr = (aint)pointer_was_object(*(object*)ptr); }       \
               }   }
-            #define update_fpointer_invalid  FALSE
-            #define update_fsubr_function FALSE
+            #define update_fpointer_invalid  false
+            #define update_fsubr_function false
             #define update_ht_invalid  mark_ht_invalid
             #define update_fp_invalid  mark_fp_invalid
             #define update_fs_function(ptr)
@@ -1916,7 +1916,7 @@
       inc_gc_count(); # GCs mitzählen
       # belegten Speicherplatz ermitteln:
       #ifdef SPVW_PAGES
-      recalc_space(FALSE);
+      recalc_space(false);
       #endif
       gcend_space = used_space();
       #ifdef SPVW_PAGES
@@ -2014,7 +2014,7 @@
             }   }
           );
         #endif
-        if (FALSE)
+        if (false)
           munmap_failure:
           { end_system_call();
             asciz_out(GETTEXTL("munmap() fails."));
@@ -2329,8 +2329,8 @@
                   { # nächstes Objekt mit Adresse ptr (< ptrend) durchgehen: \
                     updater(typecode_at(ptr) & ~bit(garcol_bit_t)); # und weiterrücken \
               }   }
-            #define update_fpointer_invalid  FALSE
-            #define update_fsubr_function FALSE
+            #define update_fpointer_invalid  false
+            #define update_fsubr_function false
             #define update_ht_invalid  mark_ht_invalid
             #define update_fp_invalid  mark_fp_invalid
             #define update_fs_function(ptr)
@@ -2361,7 +2361,7 @@
           }   }   }
           );
       for_each_cons_heap(heap, { heap->lastused = dummy_lastused; } );
-      recalc_space(TRUE);
+      recalc_space(true);
       free_delayed_pages();
       free_some_unused_pages();
       CHECK_AVL_CONSISTENCY();
@@ -2394,10 +2394,10 @@
       # Kompaktierung, denn fürs Betriebssystem kostet eine halbleere Page
       # genausoviel wie eine volle Page:
       if (free_space() > floor(mem.last_gcend_space,4))
-        { gar_col_compact(); mem.last_gc_compacted = TRUE; }
+        { gar_col_compact(); mem.last_gc_compacted = true; }
         else
       #endif
-        { mem.last_gc_compacted = FALSE; }
+        { mem.last_gc_compacted = false; }
       #endif
       #else # defined(GENERATIONAL_GC)
       # Wenn nach der letzten GC die Objekte in der neuen Generation
@@ -2405,9 +2405,9 @@
       # dann machen wir diesmal eine volle Garbage-Collection (beide
       # Generationen auf einmal.)
       if (mem.last_gcend_space1 > floor(mem.last_gcend_space0,4))
-        { generation = 0; gar_col_normal(); mem.last_gc_full = TRUE; }
+        { generation = 0; gar_col_normal(); mem.last_gc_full = true; }
         else
-        { generation = 1; gar_col_normal(); mem.last_gc_full = FALSE; }
+        { generation = 1; gar_col_normal(); mem.last_gc_full = false; }
       #endif
       gar_col_done();
     }
@@ -2432,10 +2432,10 @@
       #if !defined(GENERATIONAL_GC)
       gar_col_normal();
       #ifdef SPVW_PAGES
-      gar_col_compact(); mem.last_gc_compacted = TRUE;
+      gar_col_compact(); mem.last_gc_compacted = true;
       #endif
       #else # defined(GENERATIONAL_GC)
-      generation = 0; gar_col_normal(); mem.last_gc_full = TRUE;
+      generation = 0; gar_col_normal(); mem.last_gc_full = true;
       #endif
       gar_col_done();
     }
@@ -2527,8 +2527,8 @@
             #undef update_conspage
           # Pointer in den Objekten variabler Länge aktualisieren:
             #define update_page  update_page_normal
-            #define update_fpointer_invalid  FALSE
-            #define update_fsubr_function  FALSE
+            #define update_fpointer_invalid  false
+            #define update_fsubr_function  false
             #define update_ht_invalid  mark_ht_invalid
             #define update_fp_invalid  mark_fp_invalid
             #define update_fs_function(ptr)

@@ -1,5 +1,5 @@
 dnl local autoconf macros
-dnl Bruno Haible 2000-04-02
+dnl Bruno Haible 2001-02-04
 dnl Marcus Daniels 1997-04-10
 dnl
 AC_PREREQ(2.12)dnl
@@ -989,6 +989,25 @@ AC_DEFUN(CL_OFFSETOF,
 error no offsetof
 #endif
 ], AC_DEFINE(HAVE_OFFSETOF))]
+)dnl
+dnl
+AC_DEFUN(CL_STDBOOL_H,
+[dnl gcc 2.95.2 has an <stdbool.h> for which both 'true' and 'false' evaluate
+dnl to 0 in preprocessor expressions.
+CL_COMPILE_CHECK([stdbool.h], cl_cv_header_stdbool_h,
+[#include <stdbool.h>
+#if false
+int A[-1];
+#endif
+#define b -1
+#if true
+#undef b
+#define b 1
+#endif
+int B[b];
+], [], AC_DEFINE(HAVE_STDBOOL_H)
+STDBOOL_H='', STDBOOL_H='stdbool.h')
+AC_SUBST(STDBOOL_H)]
 )dnl
 dnl
 AC_DEFUN(CL_LOCALE_H,

@@ -395,19 +395,19 @@
   # > stream: Builtin-Stream, nicht der Terminal-Stream
   # > ptr: Pointer ans Ende(!) der bereits auf den Stream ausgegebenen Zeichen
   # > len: Anzahl der Zeichen, >0
-  # < ergebnis: TRUE, falls ein NL unter den Zeichen ist, FALSE sonst
-  local boolean wr_ss_lpos (object stream, const chart* ptr, uintL len);
-  local boolean wr_ss_lpos(stream,ptr,len)
+  # < ergebnis: true, falls ein NL unter den Zeichen ist, false sonst
+  local bool wr_ss_lpos (object stream, const chart* ptr, uintL len);
+  local bool wr_ss_lpos(stream,ptr,len)
     var object stream;
     var const chart* ptr;
     var uintL len;
     {
       #ifdef TERMINAL_USES_KEYBOARD
       if (TheStream(stream)->strmtype == strmtype_terminal)
-        return FALSE; # Auf dem Atari machte dies wr_ch_terminal() selbst.
+        return false; # Auf dem Atari machte dies wr_ch_terminal() selbst.
       #endif
       # Zähle die Breiten der Zeichen seit dem letzten NL zusammen:
-      var boolean result;
+      var bool result;
       var uintL pos = 0;
       var uintL count;
       dotimespL(count,len, {
@@ -415,11 +415,11 @@
           goto found_NL;
         pos++;
       });
-      if (FALSE) {
+      if (false) {
        found_NL: # pos Zeichen seit dem letzten NL
-        ptr++; len = pos; pos = 0; result = TRUE;
+        ptr++; len = pos; pos = 0; result = true;
       } else { # pos==len
-        pos = posfixnum_to_L(TheStream(stream)->strm_wr_ch_lpos); result = FALSE;
+        pos = posfixnum_to_L(TheStream(stream)->strm_wr_ch_lpos); result = false;
       }
       # Es gab len Zeichen ab ptr, pos ist die Position dort.
       #ifdef TERMINAL_USES_KEYBOARD
@@ -1214,17 +1214,17 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # > stream: synonym-stream
 # > buffer: a semi-simple string
 # < buffer: contains the read characters, excluding the terminating #\Newline
-# < result: TRUE is EOF was seen before newline, else FALSE
+# < result: true is EOF was seen before newline, else false
 # can trigger GC
-  local boolean read_line_synonym (object stream, const object* buffer_);
-  local boolean read_line_synonym(stream,buffer_)
+  local bool read_line_synonym (object stream, const object* buffer_);
+  local bool read_line_synonym(stream,buffer_)
     var object stream;
     var const object* buffer_;
     {
       check_SP(); check_STACK();
       var object symbol = TheStream(stream)->strm_synonym_symbol;
       pushSTACK(get_synonym_stream(symbol));
-      var boolean eofp = read_line(&STACK_0,buffer_);
+      var bool eofp = read_line(&STACK_0,buffer_);
       skipSTACK(1);
       return eofp;
     }
@@ -1248,10 +1248,10 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Synonym-Stream.
 # clear_input_synonym(stream)
 # > stream: Synonym-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde
+# < ergebnis: true falls Input gelöscht wurde
 # can trigger GC
-  local boolean clear_input_synonym (object stream);
-  local boolean clear_input_synonym(stream)
+  local bool clear_input_synonym (object stream);
+  local bool clear_input_synonym(stream)
     var object stream;
     {
       check_SP();
@@ -1784,13 +1784,13 @@ LISPFUNN(broadcast_stream_streams,1)
 # Concatenated-Stream.
 # clear_input_concat(stream)
 # > stream: Concatenated-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde
+# < ergebnis: true falls Input gelöscht wurde
 # can trigger GC
-  local boolean clear_input_concat (object stream);
-  local boolean clear_input_concat(stream)
+  local bool clear_input_concat (object stream);
+  local bool clear_input_concat(stream)
     var object stream;
     {
-      var boolean ergebnis = FALSE; # noch kein Input gelöscht
+      var bool ergebnis = false; # noch kein Input gelöscht
       # alle Streams einzeln behandeln:
       var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
       while (consp(streamlist)) {
@@ -1977,10 +1977,10 @@ LISPFUNN(concatenated_stream_streams,1)
 # oder Echo-Stream.
 # clear_input_twoway(stream)
 # > stream: Two-Way- oder Echo-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde
+# < ergebnis: true falls Input gelöscht wurde
 # can trigger GC
-  local boolean clear_input_twoway (object stream);
-  local boolean clear_input_twoway(stream)
+  local bool clear_input_twoway (object stream);
+  local bool clear_input_twoway(stream)
     var object stream;
     {
       check_SP();
@@ -2110,16 +2110,16 @@ LISPFUNN(concatenated_stream_streams,1)
 # > stream: two-way-stream
 # > buffer: a semi-simple string
 # < buffer: contains the read characters, excluding the terminating #\Newline
-# < result: TRUE is EOF was seen before newline, else FALSE
+# < result: true is EOF was seen before newline, else false
 # can trigger GC
-  local boolean read_line_twoway (object stream, const object* buffer_);
-  local boolean read_line_twoway(stream,buffer_)
+  local bool read_line_twoway (object stream, const object* buffer_);
+  local bool read_line_twoway(stream,buffer_)
     var object stream;
     var const object* buffer_;
     {
       check_SP(); check_STACK();
       pushSTACK(TheStream(stream)->strm_twoway_input);
-      var boolean eofp = read_line(&STACK_0,buffer_);
+      var bool eofp = read_line(&STACK_0,buffer_);
       skipSTACK(1);
       return eofp;
     }
@@ -2949,10 +2949,10 @@ LISPFUNN(string_stream_p,1)
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Buffered-Input-Stream.
 # clear_input_buff_in(stream)
 # > stream: Buffered-Input-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde
+# < ergebnis: true falls Input gelöscht wurde
 # can trigger GC
-  local boolean clear_input_buff_in (object stream);
-  local boolean clear_input_buff_in(stream)
+  local bool clear_input_buff_in (object stream);
+  local bool clear_input_buff_in(stream)
     var object stream;
     {
       # Bearbeitung des aktuellen Strings beenden:
@@ -2960,9 +2960,9 @@ LISPFUNN(string_stream_p,1)
       var object endindex = TheStream(stream)->strm_buff_in_endindex;
       TheStream(stream)->strm_buff_in_index = endindex; # index := endindex
       if (eq(index,endindex))
-        return FALSE;
+        return false;
       else
-        return TRUE;
+        return true;
     }
 
 LISPFUNN(make_buffered_input_stream,2)
@@ -3211,8 +3211,8 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
 
   # (CLEAR-INPUT s) ==
   # (GENERIC-STREAM-CLEAR-INPUT c)
-  local boolean clear_input_generic (object stream);
-  local boolean clear_input_generic(stream)
+  local bool clear_input_generic (object stream);
+  local bool clear_input_generic(stream)
     var object stream;
     {
       pushSTACK(stream); funcall(L(generic_stream_controller),1);
@@ -3622,8 +3622,8 @@ LISPFUNN(generic_stream_p,1)
       #ifdef UNIX_TERM_TERMIOS
       if (!( TCFLUSH(handle,TCIFLUSH) ==0)) {
         if (!((errno==ENOTTY)||(errno==EINVAL))) { # kein TTY: OK
-          local boolean flag = FALSE;
-          if (!flag) { flag = TRUE; OS_error(); } # sonstigen Error melden, aber nur einmal
+          local bool flag = false;
+          if (!flag) { flag = true; OS_error(); } # sonstigen Error melden, aber nur einmal
         }
       }
       #endif
@@ -3631,8 +3631,8 @@ LISPFUNN(generic_stream_p,1)
       #ifdef TCIFLUSH # !RISCOS
       if (!( ioctl(handle,TCFLSH,(CADDR_T)TCIFLUSH) ==0)) {
         if (!(errno==ENOTTY)) { # kein TTY: OK
-          local boolean flag = FALSE;
-          if (!flag) { flag = TRUE; OS_error(); } # sonstigen Error melden, aber nur einmal
+          local bool flag = false;
+          if (!flag) { flag = true; OS_error(); } # sonstigen Error melden, aber nur einmal
         }
       }
       #endif
@@ -3643,8 +3643,8 @@ LISPFUNN(generic_stream_p,1)
         var int arg = FREAD;
         if (!( ioctl(handle,TIOCFLUSH,&arg) ==0)) {
           if (!(errno==ENOTTY)) { # kein TTY: OK
-            local boolean flag = FALSE;
-            if (!flag) { flag = TRUE; OS_error(); } # sonstigen Error melden, aber nur einmal
+            local bool flag = false;
+            if (!flag) { flag = true; OS_error(); } # sonstigen Error melden, aber nur einmal
           }
         }
       }
@@ -3872,9 +3872,9 @@ LISPFUNN(generic_stream_p,1)
 # UP: Stellt fest, ob ein Handle auf ein (statisches) File verweist.
 # regular_handle_p(handle)
 # > handle: Handle des geöffneten Files
-# < ergebnis: TRUE wenn ein (statisches) File
-  local boolean regular_handle_p (Handle handle);
-  local boolean regular_handle_p(handle)
+# < ergebnis: true wenn ein (statisches) File
+  local bool regular_handle_p (Handle handle);
+  local bool regular_handle_p(handle)
     var Handle handle;
     {
       #if defined(UNIX)
@@ -3882,14 +3882,14 @@ LISPFUNN(generic_stream_p,1)
         begin_system_call();
         if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
         end_system_call();
-        return (S_ISREG(statbuf.st_mode) || S_ISBLK(statbuf.st_mode) ? TRUE : FALSE);
+        return (S_ISREG(statbuf.st_mode) || S_ISBLK(statbuf.st_mode) ? true : false);
       #endif
       #if defined(MSDOS) || defined(RISCOS)
         var struct stat statbuf;
         begin_system_call();
         if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
         end_system_call();
-        return (S_ISREG(statbuf.st_mode) ? TRUE : FALSE);
+        return (S_ISREG(statbuf.st_mode) ? true : false);
       #endif
       #ifdef AMIGAOS
         var LONG not_regular_p;
@@ -3957,8 +3957,8 @@ LISPFUNN(generic_stream_p,1)
 
 # Additional binary (not GCed) fields:
 typedef struct strm_channel_extrafields_struct {
-  boolean buffered;                    # FALSE for unbuffered streams,
-                                       # TRUE for buffered streams
+  bool buffered;                    # false for unbuffered streams,
+                                       # true for buffered streams
   uintL bitsize;                       # If the element-type is ([UN]SIGNED-BYTE n):
                                        #   n = number of bits per unit,
                                        #   >0, <intDsize*uintWC_max.
@@ -3994,7 +3994,7 @@ typedef struct strm_unbuffered_extrafields_struct {
   # Fields used for the input side only:
   sintL        (* low_read)          (object stream);
   signean      (* low_listen)        (object stream);
-  boolean      (* low_clear_input)   (object stream);
+  bool      (* low_clear_input)   (object stream);
   uintB*       (* low_read_array)    (object stream, uintB* byteptr, uintL len);
   sintL status;                        # -1 means EOF reached
                                        # 0 means unknown, bytebuf invalid
@@ -4010,7 +4010,7 @@ typedef struct strm_unbuffered_extrafields_struct {
     # Microsoft editors insert new lines with eol = CR/LF, while other Microsoft
     # editors insert new lines with eol = CR. Java learned the lesson and
     # understands all three line-terminators. So do we.
-  boolean ignore_next_LF : 8;          # TRUE after reading a CR
+  bool ignore_next_LF : 8;          # true after reading a CR
   # Fields used for the output side only:
   void         (* low_write)         (object stream, uintB b);
   const uintB* (* low_write_array)   (object stream, const uintB* byteptr, uintL len);
@@ -4502,7 +4502,7 @@ global object iconv_range(encoding,start,end)
       {
         var uintL i1;
         var uintL i2;
-        var boolean have_i1_i2 = FALSE; # [i1,i2] = interval being built
+        var bool have_i1_i2 = false; # [i1,i2] = interval being built
         var uintL i;
         for (i = start;;) {
           var chart ch = as_chart(i);
@@ -4522,7 +4522,7 @@ global object iconv_range(encoding,start,end)
                   pushSTACK(code_char(as_chart(i1))); pushSTACK(code_char(as_chart(i2)));
                   check_STACK(); count++;
                 }
-                have_i1_i2 = FALSE;
+                have_i1_i2 = false;
               } elif (errno == EINVAL) { # incomplete input?
                 NOTREACHED
               } elif (errno == E2BIG) { # output buffer too small?
@@ -4537,7 +4537,7 @@ global object iconv_range(encoding,start,end)
               end_system_call();
               # ch encodable -> extend the interval
               if (!have_i1_i2) {
-                have_i1_i2 = TRUE;
+                have_i1_i2 = true;
                 i1 = i;
               }
               i2 = i;
@@ -5492,12 +5492,12 @@ global object iconv_range(encoding,start,end)
       #endif
     }
 
-  local boolean low_clear_input_unbuffered_handle (object stream);
-  local boolean low_clear_input_unbuffered_handle(stream)
+  local bool low_clear_input_unbuffered_handle (object stream);
+  local bool low_clear_input_unbuffered_handle(stream)
     var object stream;
     {
       if (nullp(TheStream(stream)->strm_isatty))
-        return FALSE; # it's a file -> nothing to do
+        return false; # it's a file -> nothing to do
       UnbufferedStream_status(stream) = 0; # forget about past EOF
       # Terminal (interactive on AMIGAOS)
       clear_tty_input(TheHandle(TheStream(stream)->strm_ichannel));
@@ -5509,7 +5509,7 @@ global object iconv_range(encoding,start,end)
         # Our low_listen_unbuffered_handle function, when applied to a WinNT
         # console, cannot tell when there is an LF pending after the
         # preceding CR has been eaten. Therefore be careful to set
-        # UnbufferedStream_ignore_next_LF to TRUE when we read a LF.
+        # UnbufferedStream_ignore_next_LF to true when we read a LF.
         var uintL c = low_read_unbuffered_handle(stream);
         if (c >= 0)
           UnbufferedStream_ignore_next_LF(stream) = (c == CR);
@@ -5517,7 +5517,7 @@ global object iconv_range(encoding,start,end)
         low_read_unbuffered_handle(stream);
         #endif
       }
-      return TRUE;
+      return true;
     }
 
   local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr, uintL len);
@@ -5690,18 +5690,18 @@ global object iconv_range(encoding,start,end)
       #endif
       if (chareq(c,ascii(NL))) {
         if (UnbufferedStream_ignore_next_LF(stream)) {
-          UnbufferedStream_ignore_next_LF(stream) = FALSE;
+          UnbufferedStream_ignore_next_LF(stream) = false;
           goto retry;
         }
         # lineno incrementieren:
         ChannelStream_lineno(stream) += 1;
       } elif (chareq(c,ascii(CR))) {
-        UnbufferedStream_ignore_next_LF(stream) = TRUE;
+        UnbufferedStream_ignore_next_LF(stream) = true;
         c = ascii(NL);
         # lineno incrementieren:
         ChannelStream_lineno(stream) += 1;
       } else {
-        UnbufferedStream_ignore_next_LF(stream) = FALSE;
+        UnbufferedStream_ignore_next_LF(stream) = false;
       }
       return code_char(c);
     }
@@ -5757,11 +5757,11 @@ global object iconv_range(encoding,start,end)
           if (UnbufferedStream_ignore_next_LF(stream) && chareq(c,ascii(NL))) {
             # Move the remainder of the buffer into bytebuf.
             UnbufferedStreamLow_pushfront_bytes(stream,bptr,&buf[buflen]-bptr);
-            UnbufferedStream_ignore_next_LF(stream) = FALSE;
+            UnbufferedStream_ignore_next_LF(stream) = false;
           } else {
             # Move the buffer into bytebuf.
             UnbufferedStreamLow_pushfront_bytes(stream,&buf[0],buflen);
-            UnbufferedStream_ignore_next_LF(stream) = FALSE;
+            UnbufferedStream_ignore_next_LF(stream) = false;
             result = ls_avail;
             break;
           }
@@ -5774,7 +5774,7 @@ global object iconv_range(encoding,start,end)
         var sintL b = UnbufferedStreamLow_read(stream)(stream);
         if (b < 0)
           return ls_eof;
-        UnbufferedStream_ignore_next_LF(stream) = FALSE;
+        UnbufferedStream_ignore_next_LF(stream) = false;
         if (b == NL)
           goto retry;
         UnbufferedStreamLow_pushfront_byte(stream,b);
@@ -5787,13 +5787,13 @@ global object iconv_range(encoding,start,end)
 # Unbuffered-Channel-Stream.
 # clear_input_unbuffered(stream);
 # > stream: Unbuffered-Channel-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde, FALSE sonst
-  local boolean clear_input_unbuffered (object stream);
-  local boolean clear_input_unbuffered(stream)
+# < ergebnis: true falls Input gelöscht wurde, false sonst
+  local bool clear_input_unbuffered (object stream);
+  local bool clear_input_unbuffered(stream)
     var object stream;
     {
       if (nullp(TheStream(stream)->strm_isatty))
-        return FALSE; # it's a file -> nothing to do
+        return false; # it's a file -> nothing to do
       TheStream(stream)->strm_rd_ch_last = NIL; # forget about past EOF
       #ifdef WIN32_NATIVE
       # Our low_listen_unbuffered_handle function, when applied to a WinNT
@@ -5801,10 +5801,10 @@ global object iconv_range(encoding,start,end)
       # preceding CR has been eaten. Therefore be careful not to reset
       # UnbufferedStream_ignore_next_LF.
       #else
-      UnbufferedStream_ignore_next_LF(stream) = FALSE;
+      UnbufferedStream_ignore_next_LF(stream) = false;
       #endif
       UnbufferedStreamLow_clear_input(stream)(stream);
-      return TRUE;
+      return true;
     }
 
 # READ-CHAR-ARRAY - Pseudofunktion für Unbuffered-Channel-Streams:
@@ -5871,7 +5871,7 @@ global object iconv_range(encoding,start,end)
           count--;
           if (chareq(c,ascii(NL))) {
             if (UnbufferedStream_ignore_next_LF(stream)) {
-              UnbufferedStream_ignore_next_LF(stream) = FALSE;
+              UnbufferedStream_ignore_next_LF(stream) = false;
             } else {
               ChannelStream_lineno(stream) += 1; *charptr++ = ascii(NL);
             }
@@ -5880,13 +5880,13 @@ global object iconv_range(encoding,start,end)
               if (chareq(*tmpptr,ascii(NL))) {
                 tmpptr++; count--;
               }
-              UnbufferedStream_ignore_next_LF(stream) = FALSE;
+              UnbufferedStream_ignore_next_LF(stream) = false;
             } else {
-              UnbufferedStream_ignore_next_LF(stream) = TRUE;
+              UnbufferedStream_ignore_next_LF(stream) = true;
             }
             ChannelStream_lineno(stream) += 1; *charptr++ = ascii(NL);
           } else {
-            UnbufferedStream_ignore_next_LF(stream) = FALSE;
+            UnbufferedStream_ignore_next_LF(stream) = false;
             *charptr++ = c;
           }
         } while (count > 0);
@@ -6495,12 +6495,12 @@ global object iconv_range(encoding,start,end)
 # < ergebnis: File-Handle-Stream, Handle_{input,output}_init noch aufzurufen
 # < STACK: aufgeräumt
 # can trigger GC
-  local object make_unbuffered_stream (uintB type, uintB direction, const decoded_eltype* eltype, boolean handle_tty);
+  local object make_unbuffered_stream (uintB type, uintB direction, const decoded_eltype* eltype, bool handle_tty);
   local object make_unbuffered_stream(type,direction,eltype,handle_tty)
     var uintB type;
     var uintB direction;
     var const decoded_eltype* eltype;
-    var boolean handle_tty;
+    var bool handle_tty;
     {
       # Flags:
       var uintB flags =
@@ -6517,7 +6517,7 @@ global object iconv_range(encoding,start,end)
       # und füllen:
       TheStream(stream)->strm_encoding = STACK_2;
       fill_pseudofuns_unbuffered(stream,eltype);
-      UnbufferedStream_ignore_next_LF(stream) = FALSE;
+      UnbufferedStream_ignore_next_LF(stream) = false;
       TheStream(stream)->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
       {
         var object handle = popSTACK();
@@ -6531,7 +6531,7 @@ global object iconv_range(encoding,start,end)
       # Flag isatty = (handle_tty ? T : NIL) eintragen:
       TheStream(stream)->strm_isatty = (handle_tty ? T : NIL);
       TheStream(stream)->strm_eltype = popSTACK();
-      ChannelStream_buffered(stream) = FALSE;
+      ChannelStream_buffered(stream) = false;
       ChannelStream_init(stream);
       # element-type dependent initializations:
       ChannelStream_bitsize(stream) = eltype->size;
@@ -6576,9 +6576,9 @@ typedef struct strm_buffered_extrafields_struct {
   #define eofindex_all_invalid  (-1)
   #define eofindex_all_valid    (-2)
   uintL index;                  # index into buffer (>=0, <=strm_buffered_bufflen)
-  boolean modified : 8;         # TRUE if the buffer contains modified data, else FALSE
-  boolean regular : 8;          # whether the handle refers to a regular file
-  boolean blockpositioning : 8; # whether the handle refers to a regular file
+  bool modified : 8;         # true if the buffer contains modified data, else false
+  bool regular : 8;          # whether the handle refers to a regular file
+  bool blockpositioning : 8; # whether the handle refers to a regular file
                                 # and permits to position the buffer at
                                 # buffstart = (sector number) * strm_buffered_bufflen
   # Three cases:
@@ -6759,7 +6759,7 @@ typedef struct strm_i_buffered_extrafields_struct {
                   );
       if (ergebnis==bufflen) {
         # alles korrekt geschrieben
-        end_system_call(); BufferedStream_modified(stream) = FALSE;
+        end_system_call(); BufferedStream_modified(stream) = false;
       } else {
         # Nicht alles geschrieben
         #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
@@ -6780,7 +6780,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         end_system_call();
         # Nicht alles geschrieben, wohl wegen voller Diskette.
         # Um Inkonsistenzen zu vermeiden, muss man das File schließen.
-        BufferedStream_modified(stream) = FALSE; # Hierbei gehen Daten verloren!
+        BufferedStream_modified(stream) = false; # Hierbei gehen Daten verloren!
         pushSTACK(stream);
         builtin_stream_close(&STACK_0); # File schließen
         clr_break_sem_4(); # keine UNIX-Operation mehr aktiv
@@ -6893,7 +6893,7 @@ typedef struct strm_i_buffered_extrafields_struct {
           if (ergebnis==strm_buffered_bufflen) {
             # der ganze Buffer wurde gefüllt
             BufferedStream_index(stream) = 0; # Index := 0
-            BufferedStream_modified(stream) = FALSE; # Buffer unmodifiziert
+            BufferedStream_modified(stream) = false; # Buffer unmodifiziert
             BufferedStream_eofindex(stream) = eofindex_all_valid; # eofindex := all_valid
             return &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0];
           }
@@ -6903,7 +6903,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         # Es wurden ergebnis (< strm_buffered_bufflen) Bytes gelesen.
         # Nicht der ganze Buffer wurde gefüllt -> EOF ist erreicht.
         BufferedStream_index(stream) = index = 0; # Index := 0
-        BufferedStream_modified(stream) = FALSE; # Buffer unmodifiziert
+        BufferedStream_modified(stream) = false; # Buffer unmodifiziert
         BufferedStream_eofindex(stream) = eofindex = ergebnis; # eofindex := ergebnis
       }
      eofsector: # eofindex ist ein Fixnum, d.h. EOF tritt in diesem Sector auf.
@@ -6933,7 +6933,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         BufferedStream_buffstart(stream) += strm_buffered_bufflen;
         BufferedStream_eofindex(stream) = 0; # eofindex := 0
         BufferedStream_index(stream) = 0; # index := 0
-        BufferedStream_modified(stream) = FALSE; # unmodifiziert
+        BufferedStream_modified(stream) = false; # unmodifiziert
       }
       # eofindex erhöhen:
       BufferedStream_eofindex(stream) += 1;
@@ -6958,7 +6958,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         ptr = buffered_eofbyte(stream); # EOF -> 1 Byte Platz machen
       }
       # nächstes Byte in den Buffer schreiben:
-      *ptr = b; BufferedStream_modified(stream) = TRUE;
+      *ptr = b; BufferedStream_modified(stream) = true;
      no_modification:
       # index incrementieren:
       BufferedStream_index(stream) += 1;
@@ -7018,7 +7018,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         BufferedStream_buffstart(stream) = position;
         BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
         BufferedStream_index(stream) = 0; # index := 0
-        BufferedStream_modified(stream) = FALSE; # unmodifiziert
+        BufferedStream_modified(stream) = false; # unmodifiziert
       } else {
         var uintL oldposition = BufferedStream_buffstart(stream) + BufferedStream_index(stream);
         # Positionieren:
@@ -7033,7 +7033,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         # Sector lesen:
         BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
         BufferedStream_index(stream) = 0; # index := 0
-        BufferedStream_modified(stream) = FALSE; # unmodifiziert
+        BufferedStream_modified(stream) = false; # unmodifiziert
         var uintL newindex = position % strm_buffered_bufflen; # gewünschter Index im Sector
         if (!(newindex==0)) { # Position zwischen Sectoren -> brauche nichts zu lesen
           buffered_nextbyte(stream);
@@ -7121,7 +7121,7 @@ typedef struct strm_i_buffered_extrafields_struct {
           dotimespL(count,next, {
             var uintB b = *byteptr++; # nächstes Byte
             if (!(*ptr == b)) {
-              *ptr = b; BufferedStream_modified(stream) = TRUE; # in den Buffer
+              *ptr = b; BufferedStream_modified(stream) = true; # in den Buffer
             }
             ptr++;
           });
@@ -7130,7 +7130,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         # index incrementieren:
         BufferedStream_index(stream) += next;
       } until (remaining == 0);
-      if (FALSE) {
+      if (false) {
        eof_reached: # Schreiben am EOF, eofindex = index
         do { # Noch remaining>0 Bytes abzulegen.
           var uintL next = # so viel wie noch Platz im Buffer ist
@@ -7143,7 +7143,7 @@ typedef struct strm_i_buffered_extrafields_struct {
             BufferedStream_buffstart(stream) += strm_buffered_bufflen;
             BufferedStream_eofindex(stream) = 0; # eofindex := 0
             BufferedStream_index(stream) = 0; # index := 0
-            BufferedStream_modified(stream) = FALSE; # unmodifiziert
+            BufferedStream_modified(stream) = false; # unmodifiziert
             # Dann nochmals versuchen:
             next = strm_buffered_bufflen;
           }
@@ -7154,7 +7154,7 @@ typedef struct strm_i_buffered_extrafields_struct {
             var uintL count;
             ptr = &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[BufferedStream_index(stream)];
             dotimespL(count,next, { *ptr++ = *byteptr++; } );
-            BufferedStream_modified(stream) = TRUE;
+            BufferedStream_modified(stream) = true;
           }
           remaining = remaining - next;
           # index und eofindex incrementieren:
@@ -8085,7 +8085,7 @@ typedef struct strm_i_buffered_extrafields_struct {
             goto no_modification;
           *ptr ^= diff;
         }
-        BufferedStream_modified(stream) = TRUE;
+        BufferedStream_modified(stream) = true;
        no_modification: ;
       }
       BufferedStream_bitindex(stream) = count;
@@ -8135,7 +8135,7 @@ typedef struct strm_i_buffered_extrafields_struct {
             goto no_modification;
           *ptr ^= diff;
         }
-        BufferedStream_modified(stream) = TRUE;
+        BufferedStream_modified(stream) = true;
        no_modification: ;
       }
       BufferedStream_bitindex(stream) = count;
@@ -8329,7 +8329,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         BufferedStream_buffstart(stream) = eofbytes;
         BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
         BufferedStream_index(stream) = 0; # index := 0
-        BufferedStream_modified(stream) = FALSE; # unmodifiziert
+        BufferedStream_modified(stream) = false; # unmodifiziert
       } else {
         # auf den Anfang des letzten Sectors positionieren:
         {
@@ -8343,7 +8343,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         # Sector lesen:
         BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
         BufferedStream_index(stream) = 0; # index := 0
-        BufferedStream_modified(stream) = FALSE; # unmodifiziert
+        BufferedStream_modified(stream) = false; # unmodifiziert
         var uintL eofindex = eofbytes % strm_buffered_bufflen;
         if (!((eofindex==0) && (eofbits==0))) { # EOF am Sectorende -> brauche nichts zu lesen
           buffered_nextbyte(stream);
@@ -8467,18 +8467,18 @@ typedef struct strm_i_buffered_extrafields_struct {
 # > handle_regular: whether the handle refers to a regular file
 # > handle_blockpositioning: whether the handle refers to a regular file which
 #                            can be positioned at n*strm_buffered_bufflen
-# If direction==5, handle_blockpositioning must be TRUE.
+# If direction==5, handle_blockpositioning must be true.
 # < result: buffered file stream, Handle_{input,output}_init still to be called,
 #           for eltype.size<8 also eofposition still to be to determined
 # < STACK: cleaned up
 # can trigger GC
-  local object make_buffered_stream (uintB type, uintB direction, const decoded_eltype* eltype, boolean handle_regular, boolean handle_blockpositioning);
+  local object make_buffered_stream (uintB type, uintB direction, const decoded_eltype* eltype, bool handle_regular, bool handle_blockpositioning);
   local object make_buffered_stream(type,direction,eltype,handle_regular,handle_blockpositioning)
     var uintB type;
     var uintB direction;
     var const decoded_eltype* eltype;
-    var boolean handle_regular;
-    var boolean handle_blockpositioning;
+    var bool handle_regular;
+    var bool handle_blockpositioning;
     {
       var uintB flags =
           ((direction & bit(0)) ? strmflags_rd_B : 0) # evtl. READ-CHAR, READ-BYTE erlaubt
@@ -8507,7 +8507,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       {
         var object handle = popSTACK(); # Handle zurück
         TheStream(stream)->strm_eltype = popSTACK(); # Element-Type eintragen
-        ChannelStream_buffered(stream) = TRUE;
+        ChannelStream_buffered(stream) = true;
         ChannelStream_init(stream);
         if (!nullp(handle)) { # Handle=NIL -> Rest bereits mit NIL initialisiert, fertig
           TheStream(stream)->strm_buffered_channel = handle; # Handle eintragen
@@ -8523,7 +8523,7 @@ typedef struct strm_i_buffered_extrafields_struct {
           }
           BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex := all_invalid
           BufferedStream_index(stream) = 0; # index := 0
-          BufferedStream_modified(stream) = FALSE; # Buffer unmodifiziert
+          BufferedStream_modified(stream) = false; # Buffer unmodifiziert
           BufferedStream_position(stream) = 0; # position := 0
           ChannelStream_bitsize(stream) = eltype->size;
           ChannelStream_lineno(stream) = 1; # initialize always (cf. set-stream-element-type)
@@ -8556,8 +8556,8 @@ typedef struct strm_i_buffered_extrafields_struct {
 # > STACK_1: :ELEMENT-TYPE argument
 # > STACK_0: Handle des geöffneten Files
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
-# > append_flag: TRUE falls der Stream gleich ans Ende positioniert werden
-#         soll, FALSE sonst
+# > append_flag: true falls der Stream gleich ans Ende positioniert werden
+#         soll, false sonst
 # > handle_fresh: whether the handle is freshly created.
 #                 This means 1. that it is currently positioned at position 0,
 #                 2. if (direction & bit(2)), it is opened for read/write, not
@@ -8566,15 +8566,15 @@ typedef struct strm_i_buffered_extrafields_struct {
 #                 that it supports handle_lseek, reading/repositioning/writing
 #                 and close/reopen.
 # > subr_self: calling function
-# If direction==5, handle_fresh must be TRUE.
+# If direction==5, handle_fresh must be true.
 # < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
 # < STACK: aufgeräumt
 # can trigger GC
-  global object make_file_stream (uintB direction, boolean append_flag, boolean handle_fresh);
+  global object make_file_stream (uintB direction, bool append_flag, bool handle_fresh);
   global object make_file_stream(direction,append_flag,handle_fresh)
     var uintB direction;
-    var boolean append_flag;
-    var boolean handle_fresh;
+    var bool append_flag;
+    var bool handle_fresh;
     {
       var decoded_eltype eltype;
       var signean buffered;
@@ -8586,7 +8586,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       # Stackaufbau: filename, truename, buffered, encoding, eltype, handle.
       var object stream;
       var object handle = STACK_0;
-      var boolean handle_regular = TRUE;
+      var bool handle_regular = true;
       if (!nullp(handle))
         handle_regular = regular_handle_p(TheHandle(handle));
       # Check and canonicalize the :BUFFERED argument:
@@ -8606,7 +8606,7 @@ typedef struct strm_i_buffered_extrafields_struct {
                  GETTEXT("~: argument ~ ~ was specified, but ~ is not a regular file.")
                 );
         }
-        var boolean handle_tty = FALSE;
+        var bool handle_tty = false;
         if (direction & bit(0)) # only needed for input handles
           if (!handle_regular) { # regular files are certainly not ttys
             begin_system_call();
@@ -8646,9 +8646,9 @@ typedef struct strm_i_buffered_extrafields_struct {
         #    write() on the handle may be unrelated),
         # 2. if write access is requested, the handle is known to have
         #    read access as well (O_RDWR vs. O_WRONLY).
-        var boolean handle_blockpositioning =
-          (handle_regular && (direction & bit(2) ? handle_fresh : TRUE));
-        # Now, if direction==5, handle_blockpositioning is TRUE.
+        var bool handle_blockpositioning =
+          (handle_regular && (direction & bit(2) ? handle_fresh : true));
+        # Now, if direction==5, handle_blockpositioning is true.
         # Stream allozieren:
         stream = make_buffered_stream(strmtype_file,direction,&eltype,
                                       handle_regular,handle_blockpositioning);
@@ -8680,7 +8680,7 @@ typedef struct strm_i_buffered_extrafields_struct {
             # index incrementieren, da gerade *ptr verarbeitet:
             BufferedStream_index(stream) += 1;
           }
-          if (FALSE) {
+          if (false) {
            too_short:
             # File zu kurz (< sizeof(uintL) Bytes)
             if ((TheStream(stream)->strmflags & strmflags_wr_by_B) == 0) # Read-Only-Stream?
@@ -8909,7 +8909,7 @@ typedef struct strm_i_buffered_extrafields_struct {
       BufferedStream_buffstart(stream) = 0; # buffstart löschen (unnötig)
       BufferedStream_eofindex(stream) = eofindex_all_invalid; # eofindex löschen (unnötig)
       BufferedStream_index(stream) = 0; # index löschen (unnötig)
-      BufferedStream_modified(stream) = FALSE; # modified_flag löschen (unnötig)
+      BufferedStream_modified(stream) = false; # modified_flag löschen (unnötig)
       BufferedStream_position(stream) = 0; # position löschen (unnötig)
       if (ChannelStream_bitsize(stream) > 0) {
         ChannelStream_bitsize(stream) = 0; # bitsize löschen
@@ -9108,9 +9108,9 @@ local object make_key_event(event)
   # Liefert unter DOS den nächsten Tastendruck incl. Scan-Code:
   # high byte = Scan-Code oder 0, low byte = Ascii-Code oder 0 oder 0xE0.
   # (Note: Must push/pop %ebx because this is the STACK_register.)
-  local boolean kbhit()
+  local bool kbhit()
     {
-      var boolean result;
+      var bool result;
       __asm__ __volatile__ ("pushl %%ebx ; "
                             "movb $0x11,%%ah ; .byte 0xcd ; .byte 0x16 ; "
                             "movl $0,%%eax ; jz 1f ; incl %%eax ; 1: "
@@ -9336,13 +9336,13 @@ local object make_key_event(event)
     {
       if (!(_osmode == DOS_MODE)) {
         # OS/2
-        var int ch = _read_kbd(FALSE,FALSE,FALSE);
+        var int ch = _read_kbd(false,false,false);
         if (ch < 0)
           return ls_wait; # nein
         pushSTACK(stream);
         var object c;
         if (ch==0) {
-          c = make_key_event(&scancode_table[(uintB)_read_kbd(FALSE,TRUE,FALSE)]);
+          c = make_key_event(&scancode_table[(uintB)_read_kbd(false,true,false)]);
         } elif ((ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB)) {
           # Ctrl-A bis Ctrl-Z -> Buchstabe mit CONTROL-Bit draus machen:
           var key_event event;
@@ -9418,9 +9418,9 @@ local object make_key_event(event)
 # UP: Löscht bereits eingegebenen interaktiven Input vom Keyboard-Stream.
 # clear_input_keyboard(stream);
 # > stream: Stream
-# < ergebnis: TRUE falls Input gelöscht wurde, FALSE sonst
-  local boolean clear_input_keyboard (object stream);
-  local boolean clear_input_keyboard(stream)
+# < ergebnis: true falls Input gelöscht wurde, false sonst
+  local bool clear_input_keyboard (object stream);
+  local bool clear_input_keyboard(stream)
     var object stream;
     {
       #ifdef EMUNIX
@@ -9447,7 +9447,7 @@ local object make_key_event(event)
       #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
         if (nullp(TheStream(stream)->strm_keyboard_isatty))
           # File -> nichts tun
-          return FALSE;
+          return false;
         # Terminal
         TheStream(stream)->strm_rd_ch_last = NIL; # gewesenes EOF vergessen
         clear_tty_input(stdin_handle);
@@ -9457,7 +9457,7 @@ local object make_key_event(event)
         }
         skipSTACK(1);
       #endif
-      return TRUE;
+      return true;
     }
 
 # Lesen eines Zeichens vom Keyboard:
@@ -9471,9 +9471,9 @@ local object make_key_event(event)
         # OS/2
         run_time_stop(); # Run-Time-Stoppuhr anhalten
         var object c;
-        var int ch = _read_kbd(FALSE,TRUE,FALSE);
+        var int ch = _read_kbd(false,true,false);
         if (ch==0) {
-          c = make_key_event(&scancode_table[(uintB)_read_kbd(FALSE,TRUE,FALSE)]);
+          c = make_key_event(&scancode_table[(uintB)_read_kbd(false,true,false)]);
         } elif ((ch <= 26) && !(ch == BS) && !(ch == CR) && !(ch == TAB)) {
           # Ctrl-A bis Ctrl-Z -> Buchstabe mit CONTROL-Bit draus machen:
           var key_event event;
@@ -10087,7 +10087,7 @@ local object make_key_event(event)
               goto not_linux;
             end_system_call();
             keybinding(ESCstring"[4~", key_special("END")); # #\End
-            if (FALSE) {
+            if (false) {
              not_linux:
               end_system_call();
             }
@@ -10157,7 +10157,7 @@ local object make_key_event(event)
             keybinding(ESCstring"[21~", key_special("F10")); # #\F10
             keybinding(ESCstring"[23~", key_special("F11")); # #\F11
             keybinding(ESCstring"[24~", key_special("F12")); # #\F12
-            if (FALSE) {
+            if (false) {
              not_xterm:
               end_system_call();
             }
@@ -10206,14 +10206,14 @@ local object make_key_event(event)
         s->strm_keyboard_handle = popSTACK();
         s->strm_keyboard_buffer = NIL;
         s->strm_keyboard_keytab = popSTACK();
-        ChannelStream_buffered(stream) = FALSE;
+        ChannelStream_buffered(stream) = false;
         ChannelStream_init(stream);
         UnbufferedHandleStream_input_init(stream);
         #endif
         #ifdef WIN32_NATIVE
         s->strm_keyboard_isatty = T;
         s->strm_keyboard_handle = popSTACK();
-        ChannelStream_buffered(stream) = FALSE;
+        ChannelStream_buffered(stream) = false;
         ChannelStream_init(stream);
         UnbufferedHandleStream_input_init(stream);
         #endif
@@ -10330,13 +10330,13 @@ LISPFUNN(make_keyboard_stream,0)
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Terminal-Stream.
 # clear_input_terminal(stream);
 # > stream: Terminal-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde, FALSE sonst
-  local boolean clear_input_terminal (object stream);
-  local boolean clear_input_terminal(stream)
+# < ergebnis: true falls Input gelöscht wurde, false sonst
+  local bool clear_input_terminal (object stream);
+  local bool clear_input_terminal(stream)
     var object stream;
     {
       # Wir wollen im Eingabefenster nichts löschen.
-      return FALSE;
+      return false;
     }
 
 # UP: Ein Zeichen auf einen Terminal-Stream ausgeben.
@@ -10535,7 +10535,7 @@ LISPFUNN(make_keyboard_stream,0)
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Terminal-Stream.
 # clear_input_terminal1(stream);
 # > stream: Terminal-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde, FALSE sonst
+# < ergebnis: true falls Input gelöscht wurde, false sonst
   #define clear_input_terminal1  clear_input_unbuffered
 
 # UP: Ein Zeichen auf einen Terminal-Stream ausgeben.
@@ -10618,7 +10618,7 @@ LISPFUNN(make_keyboard_stream,0)
 
 #ifdef HAVE_TERMINAL2
 
-#define TERMINAL_LINEBUFFERED  TRUE
+#define TERMINAL_LINEBUFFERED  true
 
 # Lesen eines Zeichens von einem Terminal-Stream.
   local object rd_ch_terminal2 (const object* stream_);
@@ -10689,14 +10689,14 @@ LISPFUNN(make_keyboard_stream,0)
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Terminal-Stream.
 # clear_input_terminal2(stream);
 # > stream: Terminal-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde, FALSE sonst
-  local boolean clear_input_terminal2 (object stream);
-  local boolean clear_input_terminal2(stream)
+# < ergebnis: true falls Input gelöscht wurde, false sonst
+  local bool clear_input_terminal2 (object stream);
+  local bool clear_input_terminal2(stream)
     var object stream;
     {
       if (nullp(TheStream(stream)->strm_terminal_isatty))
         # File -> nichts tun
-        return FALSE;
+        return false;
       # Terminal
       clear_input_unbuffered(stream); # forget about past EOF, call clear_tty_input
       #if TERMINAL_LINEBUFFERED
@@ -10708,7 +10708,7 @@ LISPFUNN(make_keyboard_stream,0)
         read_char(&STACK_0);
       }
       skipSTACK(1);
-      return TRUE;
+      return true;
     }
 
 # UP: Ein Zeichen auf einen Terminal-Stream ausgeben.
@@ -10735,13 +10735,13 @@ LISPFUNN(make_keyboard_stream,0)
 
 #ifdef HAVE_TERMINAL3
 
-#define TERMINAL_LINEBUFFERED  TRUE
-#define TERMINAL_OUTBUFFERED   TRUE
+#define TERMINAL_LINEBUFFERED  true
+#define TERMINAL_OUTBUFFERED   true
 
 # Unsere eigene Vervollständigungs-Funktion, imitiert completion_matches()
 # aus readline.c.
   local char** lisp_completion_matches (char* text, int start, int end);
-  local boolean want_filename_completion;
+  local bool want_filename_completion;
   extern_C char* filename_completion_function (char* text, int state); # siehe readline.c
   local char** lisp_completion_matches(text,start,end)
     var char* text; # text[0..end-start-1] = the_line[start..end-1]
@@ -10759,10 +10759,10 @@ LISPFUNN(make_keyboard_stream,0)
            && (rl_line_buffer[start-1]== '\"')
          )) {
         # Vervollständigung nach #" oder #P" bezieht sich auf Filenamen:
-        want_filename_completion = TRUE; return NULL;
+        want_filename_completion = true; return NULL;
       }
       var char** result = lisp_completion(rl_line_buffer,start,end);
-      want_filename_completion = FALSE;
+      want_filename_completion = false;
       return result;
     }
 
@@ -10852,7 +10852,7 @@ LISPFUNN(make_keyboard_stream,0)
           rl_completer_quote_characters = "\\|";
           run_time_stop(); # Run-Time-Stoppuhr anhalten
           begin_call();
-          rl_already_prompted = TRUE;
+          rl_already_prompted = true;
           var uintB* line = (uintB*)readline(prompt==NULL ? "" : prompt); # Zeile lesen
           end_call();
           run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
@@ -10937,14 +10937,14 @@ LISPFUNN(make_keyboard_stream,0)
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Terminal-Stream.
 # clear_input_terminal3(stream);
 # > stream: Terminal-Stream
-# < ergebnis: TRUE falls Input gelöscht wurde, FALSE sonst
-  local boolean clear_input_terminal3 (object stream);
-  local boolean clear_input_terminal3(stream)
+# < ergebnis: true falls Input gelöscht wurde, false sonst
+  local bool clear_input_terminal3 (object stream);
+  local bool clear_input_terminal3(stream)
     var object stream;
     {
       if (nullp(TheStream(stream)->strm_terminal_isatty))
         # File -> nichts tun
-        return FALSE;
+        return false;
       # Terminal
       clear_input_unbuffered(stream); # forget about past EOF, call clear_tty_input
       #if TERMINAL_LINEBUFFERED
@@ -10956,7 +10956,7 @@ LISPFUNN(make_keyboard_stream,0)
         read_char(&STACK_0);
       }
       skipSTACK(1);
-      return TRUE;
+      return true;
     }
 
 # UP: Ein Zeichen auf einen Terminal-Stream ausgeben.
@@ -11010,7 +11010,7 @@ LISPFUNN(make_keyboard_stream,0)
             goto found_NL;
           pos++;
         });
-        if (FALSE) {
+        if (false) {
          found_NL: # pos Zeichen seit dem letzten NL
           ptr++;
           TheIarray(TheStream(*stream_)->strm_terminal_outbuff)->dims[1] = 0; # Fill-Pointer := 0
@@ -11108,7 +11108,7 @@ LISPFUNN(make_keyboard_stream,0)
           end_system_call();
           s->strm_terminal_ihandle = popSTACK();
           s->strm_terminal_ohandle = popSTACK();
-        ChannelStream_buffered(stream) = FALSE;
+        ChannelStream_buffered(stream) = false;
         ChannelStream_init(stream);
         UnbufferedHandleStream_input_init(stream);
         UnbufferedHandleStream_output_init(stream);
@@ -11122,7 +11122,7 @@ LISPFUNN(make_keyboard_stream,0)
         begin_system_call();
         stdin_tty = isatty(stdin_handle); # stdin ein Terminal?
         stdout_tty = isatty(stdout_handle); # stdout ein Terminal?
-        same_tty = FALSE; # vorläufig
+        same_tty = false; # vorläufig
         if (stdin_tty && stdout_tty) {
           # stdin und stdout Terminals.
           #if defined(UNIX) || defined(RISCOS)
@@ -11140,7 +11140,7 @@ LISPFUNN(make_keyboard_stream,0)
                 pushSTACK(filename);
                 filename = asciz_to_string(ergebnis,O(pathname_encoding));
                 if (string_gleich(popSTACK(),filename)) # gleiche Filenamen?
-                  same_tty = TRUE;
+                  same_tty = true;
               }
             }
             #else # ttyname() ist recht langsam, fstat() geht schneller.
@@ -11148,21 +11148,21 @@ LISPFUNN(make_keyboard_stream,0)
             struct stat stdout_stat;
             if ((fstat(stdin_handle,&stdin_stat) >= 0) && (fstat(stdout_handle,&stdout_stat) >= 0))
               if ((stdin_stat.st_dev == stdout_stat.st_dev) && (stdin_stat.st_ino == stdout_stat.st_ino))
-                same_tty = TRUE;
+                same_tty = true;
             #endif
           #endif
           #ifdef MSDOS
             if (   ((get_handle_info(stdin_handle) & (bit(7)|bit(0))) == (bit(7)|bit(0))) # stdin == console_input ?
                 && ((get_handle_info(stdout_handle) & (bit(7)|bit(1))) == (bit(7)|bit(1))) # stdout == console_output ?
                )
-              same_tty = TRUE;
+              same_tty = true;
           #endif
           #ifdef WIN32_NATIVE
             var DWORD console_mode;
             if (   GetConsoleMode(stdin_handle,&console_mode)
                 && GetConsoleMode(stdout_handle,&console_mode)
                )
-              same_tty = TRUE;
+              same_tty = true;
           #endif
         }
         end_system_call();
@@ -11203,7 +11203,7 @@ LISPFUNN(make_keyboard_stream,0)
             #if 1 # TERMINAL_OUTBUFFERED
             s->strm_terminal_outbuff = popSTACK(); # Zeilenbuffer eintragen
             #endif
-          ChannelStream_buffered(stream) = FALSE;
+          ChannelStream_buffered(stream) = false;
           ChannelStream_init(stream);
           UnbufferedHandleStream_input_init(stream);
           UnbufferedHandleStream_output_init(stream);
@@ -11243,7 +11243,7 @@ LISPFUNN(make_keyboard_stream,0)
             s->strm_terminal_inbuff = popSTACK(); # Zeilenbuffer eintragen, count := 0
             s->strm_terminal_index = Fixnum_0; # index := 0
             #endif
-          ChannelStream_buffered(stream) = FALSE;
+          ChannelStream_buffered(stream) = false;
           ChannelStream_init(stream);
           UnbufferedHandleStream_input_init(stream);
           UnbufferedHandleStream_output_init(stream);
@@ -11277,7 +11277,7 @@ LISPFUNN(make_keyboard_stream,0)
             s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
             s->strm_terminal_ihandle = popSTACK(); # Handle für listen_char_unbuffered()
             s->strm_terminal_ohandle = popSTACK(); # Handle für Output
-          ChannelStream_buffered(stream) = FALSE;
+          ChannelStream_buffered(stream) = false;
           ChannelStream_init(stream);
           UnbufferedHandleStream_input_init(stream);
           UnbufferedHandleStream_output_init(stream);
@@ -11328,7 +11328,7 @@ LISPFUNN(make_keyboard_stream,0)
 local void term_raw (void);
 local void term_unraw (void);
 
-local boolean oldterm_initialized = FALSE;
+local bool oldterm_initialized = false;
 
 #if defined(UNIX_TERM_TERMIOS)
   local struct termios oldtermio; # ursprünglicher TTY-Modus
@@ -11338,7 +11338,7 @@ local boolean oldterm_initialized = FALSE;
         if (!( tcgetattr(stdout_handle,&oldtermio) ==0)) {
           if (!(errno==ENOTTY)) { OS_error(); }
         }
-        oldterm_initialized = TRUE;
+        oldterm_initialized = true;
       }
       var struct termios newtermio;
       newtermio = oldtermio;
@@ -11381,7 +11381,7 @@ local boolean oldterm_initialized = FALSE;
         if (!( ioctl(stdout_handle,TCGETA,&oldtermio) ==0)) {
           if (!(errno==ENOTTY)) { OS_error(); }
         }
-        oldterm_initialized = TRUE;
+        oldterm_initialized = true;
       }
       var struct termio newtermio;
       newtermio = oldtermio;
@@ -11434,7 +11434,7 @@ local boolean oldterm_initialized = FALSE;
           if (!(errno==ENOTTY)) { OS_error(); }
         }
         #endif
-        oldterm_initialized = TRUE;
+        oldterm_initialized = true;
       }
       {
         var struct sgttyb newsgttyb;
@@ -11501,14 +11501,14 @@ local boolean oldterm_initialized = FALSE;
 
 # Wir speichern, ob zuletzt term_raw() oder term_unraw() ausgeführt wurde,
 # damit wir bei Programm-Ausstieg zurückschalten können.
-local boolean terminal_raw = FALSE;
+local bool terminal_raw = false;
 
 global void terminal_sane (void);
 global void terminal_sane()
   {
     if (terminal_raw) {
       term_unraw();
-      terminal_raw = FALSE;
+      terminal_raw = false;
     }
   }
 
@@ -11536,10 +11536,10 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
         begin_system_call();
         if (!nullp(flag)) {
           # Umschalten in cbreak/noecho-Modus:
-          term_raw(); terminal_raw = TRUE;
+          term_raw(); terminal_raw = true;
         } else {
           # Umschalten in nocbreak/echo-Modus:
-          term_unraw(); terminal_raw = FALSE;
+          term_unraw(); terminal_raw = false;
         }
         end_system_call();
       }
@@ -11598,7 +11598,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
           # Terminal
           value1 = (terminal_mode ? T : NIL);
           if (new_mode == terminal_mode) {
-            success = TRUE;
+            success = true;
           } else {
             begin_system_call();
             success = SetMode(stdin_handle,new_mode);
@@ -11609,7 +11609,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
           # unbuffered File-Stream
           value1 = (UnbufferedStream_rawp(stream) ? T : NIL);
           if (new_mode == UnbufferedStream_rawp(stream)) {
-            success = TRUE;
+            success = true;
           } else {
             begin_system_call();
             success = SetMode(TheHandle(TheStream(stream)->strm_ichannel),new_mode);
@@ -11618,10 +11618,10 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
           }
         }
       } else {
-        success = TRUE;
+        success = true;
       }
     } else {
-      success = FALSE;
+      success = false;
     }
     if (!success && (!eq(errorp,unbound) && !nullp(errorp)))
       fehler_terminal_raw(stream);
@@ -11970,32 +11970,32 @@ LISPFUNN(window_cursor_off,1)
     extern_C const char* tputs (const char* cp, int affcnt, outcharfun_t outcharfun);
 
 # Einstellbare Wünsche:
-  #define WANT_INSERT  FALSE  # Insert-Modus
-  #define WANT_SAVE    FALSE  # Save/Restore für die Cursor-Position
-  #define WANT_ATTR    TRUE   # Attribute (fett, reverse etc.)
-  #define WANT_CHARSET FALSE  # Fonts = Charsets
+  #define WANT_INSERT  false  # Insert-Modus
+  #define WANT_SAVE    false  # Save/Restore für die Cursor-Position
+  #define WANT_ATTR    true   # Attribute (fett, reverse etc.)
+  #define WANT_CHARSET false  # Fonts = Charsets
   # zu definierende Funktionen:
-  #define WANT_CURSOR_MOVE         FALSE
-  #define WANT_CURSOR_BACKSPACE    FALSE
-  #define WANT_CURSOR_RETURN       TRUE
-  #define WANT_CURSOR_LINEFEED     TRUE
-  #define WANT_CURSOR_REVLINEFEED  FALSE
-  #define WANT_CLEAR_SCREEN        TRUE
-  #define WANT_CLEAR_FROM_BOS      FALSE
-  #define WANT_CLEAR_TO_EOS        TRUE
-  #define WANT_CLEAR_LINE          FALSE
-  #define WANT_CLEAR_FROM_BOL      FALSE
-  #define WANT_CLEAR_TO_EOL        TRUE
-  #define WANT_INSERT_1CHAR        FALSE
-  #define WANT_INSERT_CHAR         FALSE
-  #define WANT_INSERT_LINE         TRUE
-  #define WANT_DELETE_CHAR         FALSE
-  #define WANT_DELETE_LINE         TRUE
-  #define WANT_OUTPUT_1CHAR        TRUE
+  #define WANT_CURSOR_MOVE         false
+  #define WANT_CURSOR_BACKSPACE    false
+  #define WANT_CURSOR_RETURN       true
+  #define WANT_CURSOR_LINEFEED     true
+  #define WANT_CURSOR_REVLINEFEED  false
+  #define WANT_CLEAR_SCREEN        true
+  #define WANT_CLEAR_FROM_BOS      false
+  #define WANT_CLEAR_TO_EOS        true
+  #define WANT_CLEAR_LINE          false
+  #define WANT_CLEAR_FROM_BOL      false
+  #define WANT_CLEAR_TO_EOL        true
+  #define WANT_INSERT_1CHAR        false
+  #define WANT_INSERT_CHAR         false
+  #define WANT_INSERT_LINE         true
+  #define WANT_DELETE_CHAR         false
+  #define WANT_DELETE_LINE         true
+  #define WANT_OUTPUT_1CHAR        true
   # kleine Korrekturen:
-  #define WANT_CLEAR_SCREEN        TRUE
+  #define WANT_CLEAR_SCREEN        true
   #if WANT_OUTPUT_1CHAR && WANT_INSERT
-  #define WANT_INSERT_1CHAR        TRUE
+  #define WANT_INSERT_1CHAR        true
   #endif
 
 # Ausgabe eines Zeichens, direkt.
@@ -12084,7 +12084,7 @@ LISPFUNN(window_cursor_off,1)
   #endif
   #if WANT_CHARSET
   # Zeichensätze:
-  local boolean ISO2022; # ob Zeichensatzwechsel nach ISO2022 unterstützt wird
+  local bool ISO2022; # ob Zeichensatzwechsel nach ISO2022 unterstützt wird
   #endif
   # Cursor-Bewegung:
   local const char* CMcap; # Cursor motion, allgemeine Cursor-Positionierung
@@ -12144,7 +12144,7 @@ LISPFUNN(window_cursor_off,1)
   #if WANT_DELETE_LINE
   local const char* CDLcap; # delete count lines
   #endif
-  local boolean AM; # automatic margins, ob an rechterer unterer Ecke scrollt
+  local bool AM; # automatic margins, ob an rechterer unterer Ecke scrollt
   local int rows; # Anzahl der Zeilen des Bildschirms, >0
   local int cols; # Anzahl der Spalten des Bildschirms, >0
   # Obere Zeile ist Zeile 0, untere Zeile ist Zeile rows-1.
@@ -12174,11 +12174,11 @@ typedef struct {
   int top, bot; # Scroll-Region = Zeilen y mit top <= y <= bot,
                 # es ist 0 <= top <= bot <= rows-1.
   #if WANT_INSERT
-  boolean insert; # ob die Ausgabe-Einheit im Insert-Modus arbeitet
+  bool insert; # ob die Ausgabe-Einheit im Insert-Modus arbeitet
                   # (dann ist das Terminal meist im Insert-Modus)
   #endif
   #if WANT_SAVE
-  boolean saved;
+  bool saved;
   #if WANT_ATTR
   uintB saved_curr_attr;
   #endif
@@ -12198,10 +12198,10 @@ typedef struct {
 
 # Insert-Modus ein- bzw. ausschalten:
   # Flag, ob das Terminal im Insert-Modus ist (falls es einen solchen gibt):
-  local boolean insert;
-  local void set_insert_mode (boolean flag);
+  local bool insert;
+  local void set_insert_mode (bool flag);
   local void set_insert_mode(flag)
-    var boolean flag;
+    var bool flag;
     {
       if (flag) {
         # Einschalten
@@ -12423,7 +12423,7 @@ typedef struct {
           if (x1<x2) {
             #if WANT_INSERT
             if (curr->insert)
-              set_insert_mode(FALSE);
+              set_insert_mode(false);
             #endif
             {
               var uintB* ptr = &curr->image[y1][x1];
@@ -12432,7 +12432,7 @@ typedef struct {
             }
             #if WANT_INSERT
             if (curr->insert)
-              set_insert_mode(TRUE);
+              set_insert_mode(true);
             #endif
           }
         }
@@ -12570,7 +12570,7 @@ typedef struct {
       {
         #if WANT_INSERT
         if (curr->insert)
-          set_insert_mode(FALSE);
+          set_insert_mode(false);
         #endif
         #if WANT_ATTR
         var uintB saved_attr = term_attr;
@@ -12593,7 +12593,7 @@ typedef struct {
         #endif
         #if WANT_INSERT
         if (curr->insert)
-          set_insert_mode(TRUE);
+          set_insert_mode(true);
         #endif
       }
   #endif
@@ -12602,7 +12602,7 @@ typedef struct {
     local void redisplay()
       {
         #if WANT_INSERT
-        set_insert_mode(FALSE);
+        set_insert_mode(false);
         #endif
         #if WANT_ATTR
         var uintB saved_attr = term_attr;
@@ -12632,7 +12632,7 @@ typedef struct {
         #endif
         #if WANT_INSERT
         if (curr->insert)
-          set_insert_mode(TRUE);
+          set_insert_mode(true);
         #endif
         gofromto(last_y,last_x,curr->y,curr->x);
       }
@@ -12905,7 +12905,7 @@ typedef struct {
             #endif
             #if WANT_INSERT
             if (curr->insert)
-              set_insert_mode(FALSE);
+              set_insert_mode(false);
             #endif
             gofromto(curr->y,curr->x,y,x1);
             {
@@ -12921,7 +12921,7 @@ typedef struct {
             #endif
             #if WANT_INSERT
             if (curr->insert)
-              set_insert_mode(TRUE);
+              set_insert_mode(true);
             #endif
           }
         }
@@ -13063,12 +13063,12 @@ typedef struct {
         #if WANT_INSERT
         if (!curr->insert)
         #endif
-          set_insert_mode(TRUE);
+          set_insert_mode(true);
         out_capstring(ICcap); out_char(c);
         #if WANT_INSERT
         if (!curr->insert)
         #endif
-          set_insert_mode(FALSE);
+          set_insert_mode(false);
         curr->x = x+1;
       } else {
         # alten Zeileninhalt retten:
@@ -13150,7 +13150,7 @@ typedef struct {
       if (CICcap && (n > 1)) {
         #if WANT_INSERT
         if (curr->insert)
-          set_insert_mode(FALSE);
+          set_insert_mode(false);
         #endif
         out_cap1string(CICcap,n);
         {
@@ -13159,14 +13159,14 @@ typedef struct {
         }
         #if WANT_INSERT
         if (curr->insert)
-          set_insert_mode(TRUE);
+          set_insert_mode(true);
         #endif
         gofromto(y,x+n,y,x);
       } elif (ICcap || IMcap) {
         #if WANT_INSERT
         if (!curr->insert)
         #endif
-          set_insert_mode(TRUE);
+          set_insert_mode(true);
         {
           var uintC count;
           dotimespC(count,n, { out_capstring(ICcap); out_char(' '); } );
@@ -13174,7 +13174,7 @@ typedef struct {
         #if WANT_INSERT
         if (!curr->insert)
         #endif
-          set_insert_mode(FALSE);
+          set_insert_mode(false);
         gofromto(y,x+n,y,x);
       } else {
         redisplay_line RLargs(old_image,old_attr,old_font,y,x,cols);
@@ -13369,7 +13369,7 @@ typedef struct {
         while (i<charset_count) { curr->saved_charsets[i] = curr->charsets[i]; i++; }
       }
       #endif
-      curr->saved = TRUE;
+      curr->saved = true;
     }
   local void restore_cursor (void);
   local void restore_cursor()
@@ -13396,7 +13396,7 @@ typedef struct {
 
 # Initialisiert das Terminal.
 # Liefert NULL falls OK, einen Fehlerstring sonst.
-  local boolean term_initialized = FALSE;
+  local bool term_initialized = false;
   local const char * init_term (void);
   local const char * init_term()
     {
@@ -13459,7 +13459,7 @@ typedef struct {
         return GETTEXT("insufficient terminal: cannot position cursor randomly");
       }
       # Capabilities initialisieren:
-      AM = tgetflag("am"); if (tgetflag("LP")) AM = FALSE;
+      AM = tgetflag("am"); if (tgetflag("LP")) AM = false;
       TIcap = tgetstr("ti",&tp);
       TEcap = tgetstr("te",&tp);
       # BLcap = tgetstr("bl",&tp); if (!BLcap) BLcap = "\007";
@@ -13598,7 +13598,7 @@ typedef struct {
       #endif
       #endif
       end_system_call();
-      term_initialized = TRUE;
+      term_initialized = true;
       return NULL;
     }
 
@@ -13765,10 +13765,10 @@ typedef struct {
       curr->x = 0; curr->y = 0;
       curr->top = 0; curr->bot = rows-1;
       #if WANT_INSERT
-      curr->insert = FALSE;
+      curr->insert = false;
       #endif
       #if WANT_SAVE
-      curr->saved = FALSE;
+      curr->saved = false;
       #endif
       if (CScap)
         out_capstring(tgoto(CScap,curr->bot,curr->top));
@@ -14098,7 +14098,7 @@ LISPFUNN(make_window,0)
     initscr(); # Curses initialisieren # Was ist, wenn das abstürzt?? newterm() benutzen??
     cbreak(); noecho(); # Input nicht zeilengebuffert, ohne Echo
     #if defined(SUN3) || defined(SUN4)
-    keypad(stdscr,TRUE); # Funktionstasten-Erkennung einschalten
+    keypad(stdscr,true); # Funktionstasten-Erkennung einschalten
     #endif
     end_system_call();
     value1 = stream; mv_count=1;
@@ -14112,7 +14112,7 @@ LISPFUNN(make_window,0)
       begin_system_call();
       nocbreak(); echo(); # Input wieder zeilengebuffert, mit Echo
       #if defined(SUN3) || defined(SUN4)
-      keypad(stdscr,FALSE); # Funktionstasten-Erkennung wieder ausschalten
+      keypad(stdscr,false); # Funktionstasten-Erkennung wieder ausschalten
       #endif
       endwin(); # Curses abschalten
       end_system_call();
@@ -14559,16 +14559,16 @@ LISPFUNN(make_printer_stream,0)
     var uintL bufflen;
     {
       begin_system_call();
-      writing_to_subprocess = TRUE;
+      writing_to_subprocess = true;
       var sintL ergebnis = # Buffer hinausschreiben
         full_write(TheHandle(TheStream(stream)->strm_buffered_channel), # Handle
                    &TheSbvector(TheStream(stream)->strm_buffered_buffer)->data[0], # Bufferadresse
                    bufflen
                   );
-      writing_to_subprocess = FALSE;
+      writing_to_subprocess = false;
       if (ergebnis==bufflen) {
         # alles korrekt geschrieben
-        end_system_call(); BufferedStream_modified(stream) = FALSE;
+        end_system_call(); BufferedStream_modified(stream) = false;
       } else {
         # Nicht alles geschrieben
         if (ergebnis<0) { # Fehler aufgetreten?
@@ -14688,7 +14688,7 @@ local inline void create_input_pipe(command)
       if (!CreatePipe(&handles[0],&handles[1],NULL,0)) { OS_error(); }
       if (!DuplicateHandle(GetCurrentProcess(),handles[1],
                            GetCurrentProcess(),&child_write_handle,
-                           0, TRUE, DUPLICATE_SAME_ACCESS)) {
+                           0, true, DUPLICATE_SAME_ACCESS)) {
         OS_error();
       }
       if (!CloseHandle(handles[1])) { OS_error(); }
@@ -14740,10 +14740,10 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
     # Stream allozieren:
     var object stream;
     if (!eq(STACK_(0+4),T)) { # (buffered <= 0) ?
-      stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,FALSE);
+      stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,false);
       UnbufferedPipeStream_input_init(stream);
     } else {
-      stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,FALSE,FALSE);
+      stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,false,false);
       BufferedPipeStream_init(stream);
     }
     ChannelStreamLow_close(stream) = &low_close_pipe;
@@ -14771,9 +14771,9 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
      restart_it:
       begin_system_call();
       # Try to output the byte.
-      writing_to_subprocess = TRUE;
+      writing_to_subprocess = true;
       var int result = write(handle,&b,1);
-      writing_to_subprocess = FALSE;
+      writing_to_subprocess = false;
       if (result<0) {
         if (errno==EINTR) { # Unterbrechung (evtl. durch Ctrl-C) ?
           end_system_call();
@@ -14795,9 +14795,9 @@ LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
     {
       var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
       begin_system_call();
-      writing_to_subprocess = TRUE;
+      writing_to_subprocess = true;
       var sintL result = full_write(handle,byteptr,len);
-      writing_to_subprocess = FALSE;
+      writing_to_subprocess = false;
       if (result<0) { OS_error(); } # Error melden
       end_system_call();
       if (!(result==(sintL)len)) # not successful?
@@ -14925,7 +14925,7 @@ local inline void create_output_pipe(command)
       if (!CreatePipe(&handles[0],&handles[1],NULL,0)) { OS_error(); }
       if (!DuplicateHandle(GetCurrentProcess(),handles[0],
                            GetCurrentProcess(),&child_read_handle,
-                           0, TRUE, DUPLICATE_SAME_ACCESS)) {
+                           0, true, DUPLICATE_SAME_ACCESS)) {
         OS_error();
       }
       if (!CloseHandle(handles[0])) { OS_error(); }
@@ -14977,10 +14977,10 @@ LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
     # Stream allozieren:
     var object stream;
     if (!eq(STACK_(0+4),T)) { # (buffered <= 0) ?
-      stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,FALSE);
+      stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,false);
       UnbufferedPipeStream_output_init(stream);
     } else {
-      stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,FALSE,FALSE);
+      stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,false,false);
       BufferedPipeStream_init(stream);
     }
     ChannelStreamLow_close(stream) = &low_close_pipe;
@@ -15118,14 +15118,14 @@ local inline void create_io_pipe(command)
       if (!CreatePipe(&in_handles[0],&in_handles[1],NULL,0)) { OS_error(); }
       if (!DuplicateHandle(GetCurrentProcess(),in_handles[1],
                            GetCurrentProcess(),&child_write_handle,
-                           0, TRUE, DUPLICATE_SAME_ACCESS)) {
+                           0, true, DUPLICATE_SAME_ACCESS)) {
         OS_error();
       }
       if (!CloseHandle(in_handles[1])) { OS_error(); }
       if (!CreatePipe(&out_handles[0],&out_handles[1],NULL,0)) { OS_error(); }
       if (!DuplicateHandle(GetCurrentProcess(),out_handles[0],
                            GetCurrentProcess(),&child_read_handle,
-                           0, TRUE, DUPLICATE_SAME_ACCESS)) {
+                           0, true, DUPLICATE_SAME_ACCESS)) {
         OS_error();
       }
       if (!CloseHandle(out_handles[0])) { OS_error(); }
@@ -15179,10 +15179,10 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       pushSTACK(STACK_(1+2));
       var object stream;
       if (!eq(STACK_(0+6),T)) { # (buffered <= 0) ?
-        stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,FALSE);
+        stream = make_unbuffered_stream(strmtype_pipe_in,1,&eltype,false);
         UnbufferedPipeStream_input_init(stream);
       } else {
-        stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,FALSE,FALSE);
+        stream = make_buffered_stream(strmtype_pipe_in,1,&eltype,false,false);
         BufferedPipeStream_init(stream);
       }
       ChannelStreamLow_close(stream) = &low_close_pipe;
@@ -15196,10 +15196,10 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       pushSTACK(STACK_(0+2));
       var object stream;
       if (!eq(STACK_(0+6),T)) { # (buffered <= 0) ?
-        stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,FALSE);
+        stream = make_unbuffered_stream(strmtype_pipe_out,4,&eltype,false);
         UnbufferedPipeStream_output_init(stream);
       } else {
-        stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,FALSE,FALSE);
+        stream = make_buffered_stream(strmtype_pipe_out,4,&eltype,false,false);
         BufferedPipeStream_init(stream);
       }
       ChannelStreamLow_close(stream) = &low_close_pipe;
@@ -15344,12 +15344,12 @@ LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
       }
     }
 
-  local boolean low_clear_input_unbuffered_socket (object stream);
-  local boolean low_clear_input_unbuffered_socket(stream)
+  local bool low_clear_input_unbuffered_socket (object stream);
+  local bool low_clear_input_unbuffered_socket(stream)
     var object stream;
     {
       # This is not called anyway, because TheStream(stream)->strm_isatty = NIL.
-      return FALSE; # Not sure whether this is the correct behaviour??
+      return false; # Not sure whether this is the correct behaviour??
     }
 
   local uintB* low_read_array_unbuffered_socket (object stream, uintB* byteptr, uintL len);
@@ -15521,7 +15521,7 @@ LISPFUNN(make_x11socket_stream,2)
     pushSTACK(allocate_socket(handle));
     # Stream allozieren:
     var decoded_eltype eltype = { eltype_iu, 8 };
-    var object stream = make_unbuffered_stream(strmtype_x11socket,5,&eltype,FALSE);
+    var object stream = make_unbuffered_stream(strmtype_x11socket,5,&eltype,false);
     UnbufferedSocketStream_input_init(stream);
     UnbufferedSocketStream_output_init(stream);
     ChannelStreamLow_close(stream) = &low_close_socket;
@@ -15685,7 +15685,7 @@ LISPFUNN(write_n_bytes,4)
     {
       begin_system_call();
       #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
-      writing_to_subprocess = TRUE;
+      writing_to_subprocess = true;
       #endif
       var sintL result = # Buffer hinausschreiben
         sock_write(TheSocket(TheStream(stream)->strm_buffered_channel), # Handle
@@ -15693,11 +15693,11 @@ LISPFUNN(write_n_bytes,4)
                    bufflen
                   );
       #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
-      writing_to_subprocess = FALSE;
+      writing_to_subprocess = false;
       #endif
       if (result==bufflen) {
         # alles korrekt geschrieben
-        end_system_call(); BufferedStream_modified(stream) = FALSE;
+        end_system_call(); BufferedStream_modified(stream) = false;
       } else {
         # Nicht alles geschrieben
         if (result<0) {
@@ -15758,7 +15758,7 @@ local object make_socket_stream(handle,eltype,buffered,host,port)
     # Stream allozieren:
     var object stream;
     if (buffered <= 0) {
-      stream = make_unbuffered_stream(strmtype_socket,5,eltype,FALSE);
+      stream = make_unbuffered_stream(strmtype_socket,5,eltype,false);
       UnbufferedSocketStream_input_init(stream);
       UnbufferedSocketStream_output_init(stream);
       ChannelStreamLow_close(stream) = &low_close_socket;
@@ -15767,7 +15767,7 @@ local object make_socket_stream(handle,eltype,buffered,host,port)
     } else {
       # Input-Stream allozieren:
       pushSTACK(STACK_2); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
-      stream = make_buffered_stream(strmtype_socket,1,eltype,FALSE,FALSE);
+      stream = make_buffered_stream(strmtype_socket,1,eltype,false,false);
       BufferedSocketStream_init(stream);
       ChannelStreamLow_close(stream) = &low_close_socket;
       TheStream(stream)->strm_socket_port = port;
@@ -15775,7 +15775,7 @@ local object make_socket_stream(handle,eltype,buffered,host,port)
       pushSTACK(stream);
       # Output-Stream allozieren:
       pushSTACK(STACK_(2+1)); pushSTACK(STACK_(1+2)); pushSTACK(STACK_(0+3));
-      stream = make_buffered_stream(strmtype_socket,4,eltype,FALSE,FALSE);
+      stream = make_buffered_stream(strmtype_socket,4,eltype,false,false);
       BufferedSocketStream_init(stream);
       ChannelStreamLow_close(stream) = &low_close_socket;
       TheStream(stream)->strm_socket_port = port;
@@ -15801,10 +15801,10 @@ local object make_socket_stream(handle,eltype,buffered,host,port)
     return stream;
   }
 
-local void test_socket_server (object obj, boolean check_open);
+local void test_socket_server (object obj, bool check_open);
 local void test_socket_server(obj,check_open)
   var object obj;
-  var boolean check_open;
+  var bool check_open;
   {
     if (!socket_server_p(obj)) {
       pushSTACK(obj);
@@ -15827,7 +15827,7 @@ local void test_socket_server(obj,check_open)
 # Called when some socket server dies.
 LISPFUNN(socket_server_close,1)
   {
-    test_socket_server(STACK_0,FALSE);
+    test_socket_server(STACK_0,false);
     var object ss = popSTACK();
     if (!nullp(TheSocketServer(ss)->socket_handle)) {
       var SOCKET s = TheSocket(TheSocketServer(ss)->socket_handle);
@@ -15908,7 +15908,7 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
 LISPFUNN(socket_server_port,1)
 # (SOCKET-SERVER-PORT socket-server)
   {
-    test_socket_server(STACK_0,FALSE);
+    test_socket_server(STACK_0,false);
     value1 = TheSocketServer(STACK_0)->port;
     mv_count = 1;
     skipSTACK(1);
@@ -15917,7 +15917,7 @@ LISPFUNN(socket_server_port,1)
 LISPFUNN(socket_server_host,1)
 # (SOCKET-SERVER-HOST socket-server)
   {
-    test_socket_server(STACK_0,FALSE);
+    test_socket_server(STACK_0,false);
     value1 = TheSocketServer(STACK_0)->host;
     mv_count = 1;
     skipSTACK(1);
@@ -15934,7 +15934,7 @@ LISPFUN(socket_accept,1,0,norest,key,3,\
     var signean buffered;
     var SOCKET handle;
 
-    test_socket_server(STACK_3,TRUE);
+    test_socket_server(STACK_3,true);
 
     # Check and canonicalize the :BUFFERED argument:
     buffered = test_buffered_arg(STACK_0); # default is NIL
@@ -15988,7 +15988,7 @@ LISPFUN(socket_wait,1,2,norest,nokey,0,NIL)
     var SOCKET handle;
     var struct timeval timeout;
     var struct timeval * timeout_ptr = sec_usec(STACK_1,STACK_0,&timeout);
-    test_socket_server(STACK_2,TRUE);
+    test_socket_server(STACK_2,true);
     handle = TheSocket(TheSocketServer(STACK_2)->socket_handle);
    restart_select:
     begin_system_call();
@@ -16055,10 +16055,10 @@ LISPFUN(socket_connect,1,1,norest,key,3,\
     mv_count = 1;
   }
 
-local object test_socket_stream (object obj, boolean check_open);
+local object test_socket_stream (object obj, bool check_open);
 local object test_socket_stream(obj,check_open)
   var object obj;
-  var boolean check_open;
+  var bool check_open;
   {
     if (builtin_stream_p(obj)) {
       switch (TheStream(obj)->strmtype) {
@@ -16091,7 +16091,7 @@ local object test_socket_stream(obj,check_open)
 
 #define HANDLE_SET(stream)                                      \
   { object obj = stream;                                        \
-    test_socket_stream(obj,TRUE);                               \
+    test_socket_stream(obj,true);                               \
     { SOCKET handle = TheSocket(TheStream(obj)->strm_ichannel); \
       FD_SET(handle,&exceptfds);                                \
       if (input_stream_p(obj)) FD_SET(handle,&readfds);         \
@@ -16101,7 +16101,7 @@ local object test_socket_stream(obj,check_open)
   { SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);          \
     if (FD_ISSET(handle,&exceptfds)) res = S(Kerror);                     \
     else {                                                                \
-      boolean wr = FD_ISSET(handle,&writefds),                            \
+      bool wr = FD_ISSET(handle,&writefds),                               \
         rd = FD_ISSET(handle,&readfds)&&ls_avail_p(listen_char(stream));  \
       if      ( rd && !wr) res = S(Kinput);                               \
       else if (!rd &&  wr) res = S(Koutput);                              \
@@ -16168,7 +16168,7 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL)
 LISPFUNN(socket_stream_port,1)
 # (SOCKET-STREAM-PORT socket-stream)
   {
-    var object stream = test_socket_stream(STACK_0,FALSE);
+    var object stream = test_socket_stream(STACK_0,false);
     value1 = TheStream(stream)->strm_socket_port;
     skipSTACK(1);
     mv_count=1;
@@ -16177,7 +16177,7 @@ LISPFUNN(socket_stream_port,1)
 LISPFUNN(socket_stream_host,1)
 # (SOCKET-STREAM-HOST socket-stream)
   {
-    var object stream = test_socket_stream(STACK_0,FALSE);
+    var object stream = test_socket_stream(STACK_0,false);
     value1 = TheStream(stream)->strm_socket_host;
     skipSTACK(1);
     mv_count=1;
@@ -16191,7 +16191,7 @@ local void publish_host_data (host_data_fetcher* func);
 local void publish_host_data (func)
   var host_data_fetcher* func;
   {
-    var object stream = test_socket_stream(popSTACK(),TRUE);
+    var object stream = test_socket_stream(popSTACK(),true);
     var SOCKET sk = TheSocket(TheStream(stream)->strm_ichannel);
     var host_data hd;
 
@@ -16230,7 +16230,7 @@ LISPFUNN(socket_stream_local,1)
 LISPFUNN(socket_stream_handle,1)
 # (SOCKET-STREAM-HANDLE socket-stream)
   {
-    var object stream = test_socket_stream(STACK_0,TRUE);
+    var object stream = test_socket_stream(STACK_0,true);
     value1 = fixnum(TheSocket(TheStream(stream)->strm_ichannel));
     skipSTACK(1);
     mv_count=1;
@@ -16252,8 +16252,8 @@ LISPFUNN(socket_stream_handle,1)
       # If stdin or stdout is a file, use a buffered stream instead of an
       # unbuffered terminal stream. For the ud2cd program used as filter,
       # this reduces the runtime on Solaris from 165 sec to 47 sec.
-      var boolean stdin_file = regular_handle_p(stdin_handle);
-      var boolean stdout_file = regular_handle_p(stdout_handle);
+      var bool stdin_file = regular_handle_p(stdin_handle);
+      var bool stdout_file = regular_handle_p(stdout_handle);
       if (stdin_file || stdout_file) {
         var object stream;
         # Allocate stream for stdin:
@@ -16269,7 +16269,7 @@ LISPFUNN(socket_stream_handle,1)
           pushSTACK(S(Kdefault)); # not O(terminal-encoding), since it's a file
           pushSTACK(S(character));
           pushSTACK(allocate_handle(stdin_handle));
-          stream = make_file_stream(1,FALSE,FALSE);
+          stream = make_file_stream(1,false,false);
         } else {
           stream = make_terminal_stream();
         }
@@ -16287,7 +16287,7 @@ LISPFUNN(socket_stream_handle,1)
           pushSTACK(S(Kdefault)); # not O(terminal-encoding), since it's a file
           pushSTACK(S(character));
           pushSTACK(allocate_handle(stdout_handle));
-          stream = make_file_stream(4,FALSE,FALSE);
+          stream = make_file_stream(4,false,false);
         } else {
           stream = make_terminal_stream();
         }
@@ -16302,9 +16302,9 @@ LISPFUNN(socket_stream_handle,1)
 # > unixyp: Flag, ob *error-output* nach Unix-Art (vom Standard abweichend)
 #           initialisiert werden soll
 # can trigger GC
-  global void init_streamvars (boolean unixyp);
+  global void init_streamvars (bool unixyp);
   global void init_streamvars(unixyp)
-    var boolean unixyp;
+    var bool unixyp;
     {
       #ifdef GNU_READLINE
       begin_call();
@@ -16318,7 +16318,7 @@ LISPFUNN(socket_stream_handle,1)
       rl_completion_entry_function = &lisp_completion_more;
       #ifdef NO_MATCH  # readline-2.2-clisp or newer
       _rl_comment_begin = ";";
-      _rl_enable_paren_matching(TRUE); # readline-4.1-clisp or newer
+      _rl_enable_paren_matching(true); # readline-4.1-clisp or newer
       #endif
       end_call();
       #endif
@@ -16343,7 +16343,7 @@ LISPFUNN(socket_stream_handle,1)
           pushSTACK(S(character));
           pushSTACK(allocate_handle(2));
           var decoded_eltype eltype = { eltype_ch, 0 };
-          stream = make_unbuffered_stream(strmtype_file,4,&eltype,FALSE);
+          stream = make_unbuffered_stream(strmtype_file,4,&eltype,false);
           UnbufferedHandleStream_output_init(stream);
           ChannelStreamLow_close(stream) = &low_close_handle;
           TheStream(stream)->strm_file_name =
@@ -16437,7 +16437,7 @@ local void rl_memory_abort()
     # der ohne sie auskommt.
     rl_deprep_terminal(); # alle komischen ioctl()s rückgängig machen
     begin_callback(); # STACK wieder auf einen vernünftigen Wert setzen
-    rl_gnu_readline_p = FALSE;
+    rl_gnu_readline_p = false;
     Symbol_value(S(terminal_io)) = make_terminal_stream();
     fehler(storage_condition,
            GETTEXT("readline library: out of memory.")
@@ -16773,7 +16773,7 @@ LISPFUNN(built_in_stream_set_element_type,2)
                   } else {
                     if (UnbufferedStream_status(stream) == 0) {
                       UnbufferedStreamLow_push_byte(stream,b);
-                      UnbufferedStream_ignore_next_LF(stream) = FALSE;
+                      UnbufferedStream_ignore_next_LF(stream) = false;
                       TheStream(stream)->strm_rd_ch_last = NIL;
                       TheStream(stream)->strmflags &= ~strmflags_unread_B;
                     }
@@ -16805,7 +16805,7 @@ LISPFUNN(built_in_stream_set_element_type,2)
             fill_pseudofuns_buffered(stream,&eltype);
           } else {
             fill_pseudofuns_unbuffered(stream,&eltype);
-            UnbufferedStream_ignore_next_LF(stream) = FALSE;
+            UnbufferedStream_ignore_next_LF(stream) = false;
           }
           TheStream(stream)->strm_eltype = STACK_0;
         }
@@ -16959,7 +16959,7 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
               fill_pseudofuns_buffered(stream,&eltype);
             } else {
               fill_pseudofuns_unbuffered(stream,&eltype);
-              UnbufferedStream_ignore_next_LF(stream) = FALSE;
+              UnbufferedStream_ignore_next_LF(stream) = false;
             }
             ChannelStream_init(stream);
           }
@@ -17048,7 +17048,7 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
 # NB: Relation zwischen clear_input, listen, interactive_stream_p:
 #   Wenn nach clear_input(stream) ls_wait_p(listen_char(stream)) ist
 #   (d.h. kein Zeichen mehr verfügbar und nicht EOF), dann ist
-#   interactive_stream_p(stream) TRUE.
+#   interactive_stream_p(stream) true.
 #   (Denn dann ist stream effektiv ein Keyboard-Stream, Terminal-Stream,
 #   Handle-Stream mit !regular_handle_p(ihandle), Pipe-Input-Stream,
 #   X11-Socket-Stream, Socket-Stream oder Generic-Stream.)
@@ -17060,17 +17060,17 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
 #   strmtype_x11socket, strmtype_socket (die interactive_stream_p(stream)
 #   erfüllen) tut clear_input(stream) nichts, und listen_char(stream) kann
 #   ls_avail liefern.
-  global boolean interactive_stream_p (object stream);
-  global boolean interactive_stream_p(stream)
+  global bool interactive_stream_p (object stream);
+  global bool interactive_stream_p(stream)
     var object stream;
     {
      start:
       if (!builtin_stream_p(stream))
         # Assume the worst.
-        return TRUE;
+        return true;
       if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0)
         # Stream für Input geschlossen
-        return FALSE;
+        return false;
       # Stream offen
       switch (TheStream(stream)->strmtype) {
         case strmtype_synonym:
@@ -17093,7 +17093,7 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
               /* return interactive_stream_p(stream); */ # entrekursiviert:
               goto start;
             } else
-              return FALSE;
+              return false;
           }
         case strmtype_twoway:
         case strmtype_echo:
@@ -17102,23 +17102,23 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
           /* return interactive_stream_p(stream); */ # entrekursiviert:
            goto start;
         case strmtype_str_in:
-          return FALSE;
+          return false;
         case strmtype_buff_in:
         #ifdef GENERIC_STREAMS
         case strmtype_generic:
         #endif
-          return TRUE;
+          return true;
         #if !defined(NEXTAPP)
         case strmtype_terminal:
         #endif
         case strmtype_file:
           if (ChannelStream_buffered(stream))
             # Buffered file streams are not considered to be interactive.
-            return FALSE;
+            return false;
           if (nullp(TheStream(stream)->strm_isatty))
             # Reguläre Files sind sicher nicht interaktiv.
             if (regular_handle_p(TheHandle(TheStream(stream)->strm_ichannel)))
-              return FALSE;
+              return false;
         #ifdef KEYBOARD
         case strmtype_keyboard:
         #endif
@@ -17135,9 +17135,9 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
         case strmtype_socket:
         case strmtype_twoway_socket:
         #endif
-          return TRUE;
+          return true;
         default:
-          return FALSE;
+          return false;
       }
     }
 
@@ -17298,10 +17298,10 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
 # > buffer: a semi-simple string
 # < stream: stream
 # < buffer: contains the read characters, excluding the terminating #\Newline
-# < result: TRUE is EOF was seen before newline, else FALSE
+# < result: true is EOF was seen before newline, else false
 # can trigger GC
-  global boolean read_line (const object* stream_, const object* buffer_);
-  global boolean read_line(stream_,buffer_)
+  global bool read_line (const object* stream_, const object* buffer_);
+  global bool read_line(stream_,buffer_)
     var const object* stream_;
     var const object* buffer_;
     {
@@ -17315,12 +17315,12 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
             subr_self = L(read_line); fehler_char(ch);
           }
           if (eq(ch,ascii_char(NL)))
-            return FALSE;
+            return false;
           ssstring_push_extend(*buffer_,char_code(ch));
           stream = *stream_;
         }
         var uintL oldfillptr = TheIarray(*buffer_)->dims[1];
-        var boolean eofp;
+        var bool eofp;
         switch (TheStream(stream)->strmtype) {
           case strmtype_synonym:
             eofp = read_line_synonym(stream,buffer_);
@@ -17337,14 +17337,14 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
             loop {
               var object ch = rd_ch(*stream_)(stream_); # nächstes Zeichen lesen
               if (eq(ch,eof_value)) { # EOF ?
-                eofp = TRUE; break;
+                eofp = true; break;
               }
               # sonst auf Character überprüfen:
               if (!charp(ch)) {
                 subr_self = L(read_line); fehler_char(ch);
               }
               if (eq(ch,ascii_char(NL))) { # NL -> End of Line
-                eofp = FALSE; break;
+                eofp = false; break;
               }
               # sonstiges Character in den Buffer schreiben:
               ssstring_push_extend(*buffer_,char_code(ch));
@@ -17367,7 +17367,7 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
                  GETTEXT("Return value ~ of call to ~ is not a string.")
                 );
         }
-        var boolean eofp = (mv_count >= 2 && !nullp(value2));
+        var bool eofp = (mv_count >= 2 && !nullp(value2));
         # Add the line to the buffer:
         var uintL len;
         var uintL offset;
@@ -17489,10 +17489,10 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Stream stream.
 # clear_input(stream)
 # > stream: Stream
-# < ergebnis: TRUE falls Input gelöscht wurde
+# < ergebnis: true falls Input gelöscht wurde
 # can trigger GC
-  global boolean clear_input (object stream);
-  global boolean clear_input(stream)
+  global bool clear_input (object stream);
+  global bool clear_input(stream)
     var object stream;
     {
       check_SP(); check_STACK();
@@ -17500,7 +17500,7 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
       # Typspezifische Routine aufrufen (darf GC auslösen).
       if (builtin_stream_p(stream)) {
         # Nur beim Keyboard-Stream und Terminal-Stream wird etwas getan.
-        var boolean ergebnis;
+        var bool ergebnis;
         switch (TheStream(stream)->strmtype) {
           case strmtype_synonym:
             ergebnis = clear_input_synonym(stream); break;
@@ -17534,7 +17534,7 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
                )
               ergebnis = clear_input_unbuffered(stream);
             else
-              ergebnis = FALSE;
+              ergebnis = false;
             break;
           #ifdef KEYBOARD
           case strmtype_keyboard:
@@ -17553,7 +17553,7 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
             #endif
             break;
           default:
-            ergebnis = FALSE; break;
+            ergebnis = false; break;
         }
         stream = popSTACK();
         if (ergebnis) {
@@ -17949,8 +17949,8 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
         return sizeof(ffloatjanus);
       if (eq(arg,S(double_float)))
         return sizeof(dfloatjanus);
-      var boolean is_ffloat_subtype;
-      var boolean is_dfloat_subtype;
+      var bool is_ffloat_subtype;
+      var bool is_dfloat_subtype;
       pushSTACK(subr_self); # subr_self retten
       # Erstmal ein wenig kanonischer machen (damit die verschiedenen
       # SUBTYPEP dann nicht zweimal dasselbe machen müssen):
@@ -17978,15 +17978,15 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
 # test_endianness_arg(arg)
 # > arg: the argument
 # > subr_self: calling function
-# < boolean result: endianness (BIG = TRUE, LITTLE = FALSE)
-  local boolean test_endianness_arg (object arg);
-  local boolean test_endianness_arg(arg)
+# < bool result: endianness (BIG = true, LITTLE = false)
+  local bool test_endianness_arg (object arg);
+  local bool test_endianness_arg(arg)
     var object arg;
     {
       if (eq(arg,unbound) || eq(arg,S(Klittle)) || eq(arg,S(Kdefault)))
-        return FALSE;
+        return false;
       if (eq(arg,S(Kbig)))
-        return TRUE;
+        return true;
       pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
       pushSTACK(O(type_endianness)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
@@ -18110,7 +18110,7 @@ LISPFUN(read_integer,2,3,norest,nokey,0,NIL)
     test_eltype_arg(&STACK_3,&eltype);
     check_multiple8_eltype(&eltype);
     # Endianness überprüfen:
-    var boolean endianness = test_endianness_arg(STACK_2);
+    var bool endianness = test_endianness_arg(STACK_2);
     var uintL bitsize = eltype.size;
     var uintL bytesize = bitsize/8;
     var DYNAMIC_BIT_VECTOR(bitbuffer,bitsize);
@@ -18326,7 +18326,7 @@ LISPFUN(read_float,2,3,norest,nokey,0,NIL)
     # Element-Type überprüfen:
     var uintL bytesize = check_float_eltype(&STACK_3);
     # Endianness überprüfen:
-    var boolean endianness = test_endianness_arg(STACK_2);
+    var bool endianness = test_endianness_arg(STACK_2);
     var DYNAMIC_BIT_VECTOR(bitbuffer,bytesize*8);
     pushSTACK(bitbuffer);
     # Stack layout: stream, element-type, endianness, eof-error-p, eof-value, bitbuffer.
@@ -18424,7 +18424,7 @@ LISPFUN(write_integer,3,1,norest,nokey,0,NIL)
     test_eltype_arg(&STACK_1,&eltype);
     check_multiple8_eltype(&eltype);
     # Endianness überprüfen:
-    var boolean endianness = test_endianness_arg(STACK_0);
+    var bool endianness = test_endianness_arg(STACK_0);
     # Integer überprüfen:
     var object obj = STACK_3;
     if (!integerp(obj))
@@ -18615,7 +18615,7 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL)
     # Element-Type überprüfen:
     var uintL bytesize = check_float_eltype(&STACK_1);
     # Endianness überprüfen:
-    var boolean endianness = test_endianness_arg(STACK_0);
+    var bool endianness = test_endianness_arg(STACK_0);
     # Float überprüfen:
     var object obj = STACK_3;
     switch (bytesize) {
@@ -18931,9 +18931,9 @@ LISPFUNN(file_string_length,2)
 # UP: Tells whether a stream is buffered.
 # stream_isbuffered(stream)
 # > stream: a channel or socket stream
-# < result: TRUE if stream is buffered, else FALSE
-  global boolean stream_isbuffered (object stream);
-  global boolean stream_isbuffered(stream)
+# < result: true if stream is buffered, else false
+  global bool stream_isbuffered (object stream);
+  global bool stream_isbuffered(stream)
     var object stream;
     {
       switch (TheStream(stream)->strmtype) {
@@ -18951,10 +18951,10 @@ LISPFUNN(file_string_length,2)
           return ChannelStream_buffered(stream);
         #ifdef SOCKET_STREAMS
         case strmtype_twoway_socket:
-          return TRUE;
+          return true;
         #endif
         default:
-          return FALSE;
+          return false;
       }
     }
 
@@ -18985,12 +18985,12 @@ LISPFUNN(line_number,1)
     value1 = stream_line_number(stream); mv_count=1;
   }
 
-# Function: Returns TRUE if a stream allows read-eval.
+# Function: Returns true if a stream allows read-eval.
 # stream_get_read_eval(stream)
 # > stream: a stream
-# < result: TRUE if read-eval is allowed from the stream, else FALSE
-  global boolean stream_get_read_eval (object stream);
-  global boolean stream_get_read_eval(stream)
+# < result: true if read-eval is allowed from the stream, else false
+  global bool stream_get_read_eval (object stream);
+  global bool stream_get_read_eval(stream)
     var object stream;
     {
       if (builtin_stream_p(stream)) {
@@ -19007,11 +19007,11 @@ LISPFUNN(line_number,1)
 # Function: Changes the read-eval state of a stream.
 # stream_set_read_eval(stream,value);
 # > stream: a stream
-# > value: TRUE if read-eval shall be allowed from the stream, else FALSE
-  global void stream_set_read_eval (object stream, boolean value);
+# > value: true if read-eval shall be allowed from the stream, else false
+  global void stream_set_read_eval (object stream, bool value);
   global void stream_set_read_eval(stream,value)
     var object stream;
-    var boolean value;
+    var bool value;
     {
       if (builtin_stream_p(stream)) {
         if (value)
@@ -19040,9 +19040,9 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
       value1 = (stream_get_read_eval(stream) ? T : NIL);
     } else {
       if (nullp(flag)) {
-        stream_set_read_eval(stream,FALSE); value1 = NIL;
+        stream_set_read_eval(stream,false); value1 = NIL;
       } else {
-        stream_set_read_eval(stream,TRUE); value1 = T;
+        stream_set_read_eval(stream,true); value1 = T;
       }
     }
     mv_count=1;

@@ -689,7 +689,7 @@
                    # b normalisieren:
                    while (b_MSDptr[0]==0) { b_MSDptr++; b_len--; }
              }   }
-             if (FALSE)
+             if (false)
                { subtract: # Ersetze (a,b) := (a-b,b).
                  if (!( subfrom_loop_down(b_LSDptr,a_LSDptr,b_len) ==0))
                    # Übertrag nach b_len Stellen, muss also a_len=b_len+1 sein.
@@ -698,7 +698,7 @@
              # a normalisieren:
              while (a_MSDptr[0]==0) { a_MSDptr++; a_len--; }
            }
-           if (FALSE)
+           if (false)
              { divide: # Ersetze (a,b) := (b , a mod b).
               {var uintD* old_a_LSDptr = a_LSDptr;
                var DS q;
@@ -868,8 +868,8 @@
         { pushSTACK(Fixnum_0); pushSTACK(Fixnum_1);
           pushSTACK(b); return;
         }
-     {var boolean sA = (R_minusp(a) ? ~0 : 0); # Vorzeichen von A
-      var boolean sB = (R_minusp(b) ? ~0 : 0); # Vorzeichen von B
+     {var bool sA = (R_minusp(a) ? ~0 : 0); # Vorzeichen von A
+      var bool sB = (R_minusp(b) ? ~0 : 0); # Vorzeichen von B
       SAVE_NUM_STACK # num_stack retten
       var uintD* a_MSDptr;
       var uintC a_len;
@@ -1059,7 +1059,7 @@
                    # b normalisieren:
                    while (b_MSDptr[0]==0) { b_MSDptr++; b_len--; }
              }   }
-             if (FALSE)
+             if (false)
                { subtract: # Ersetze (a,b) := (a-b,b).
                  NUDS_likobi0_NUDS(&uAa,&uAb); # uAa := uAa + uAb
                  NUDS_likobi0_NUDS(&uBa,&uBb); # uBa := uBa + uBb
@@ -1070,7 +1070,7 @@
              # a normalisieren:
              while (a_MSDptr[0]==0) { a_MSDptr++; a_len--; }
            }
-           if (FALSE)
+           if (false)
              { divide: # Ersetze (a,b) := (b , a mod b).
               {var uintD* old_a_LSDptr = a_LSDptr;
                var DS q;

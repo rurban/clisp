@@ -639,15 +639,15 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 
 #if defined(NOCOST_SP_CHECK) && !defined(WIN32_NATIVE)
 # Check for near stack overflow.
-  global boolean near_SP_overflow (void);
-  global boolean near_SP_overflow()
+  global bool near_SP_overflow (void);
+  global bool near_SP_overflow()
     { # Force a stack overflow if there is not a minimum of room available.
       var uintB dummy[0x1001];
       dummy[0] = 0; dummy[0x800] = 0; dummy[0x1000] = 0;
       #ifdef GNU
       alloca(1); # Makes this function non-inlinable.
       #endif
-      return FALSE;
+      return false;
     }
 #endif
 
@@ -751,9 +751,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 # asciz_equal(asciz1,asciz2)
 # > char* asciz1: erster ASCIZ-String
 # > char* asciz2: zweiter ASCIZ-String
-# < ergebnis: TRUE falls die Zeichenfolgen gleich sind
-  global boolean asciz_equal (const char * asciz1, const char * asciz2);
-  global boolean asciz_equal(asciz1,asciz2)
+# < ergebnis: true falls die Zeichenfolgen gleich sind
+  global bool asciz_equal (const char * asciz1, const char * asciz2);
+  global bool asciz_equal(asciz1,asciz2)
     var const char* asciz1;
     var const char* asciz2;
     { # Bytes vergleichen, solange bis das erste Nullbyte kommt:
@@ -762,8 +762,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
           if (!(ch1 == *asciz2++)) goto no;
           if (ch1 == '\0') goto yes;
         }
-      yes: return TRUE;
-      no: return FALSE;
+      yes: return true;
+      no: return false;
     }
 
 # -----------------------------------------------------------------------------
@@ -812,7 +812,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
   local char* program_name;
 
 # Flag, ob SYS::READ-FORM sich ILISP-kompatibel verhalten soll:
-  global boolean ilisp_mode = FALSE;
+  global bool ilisp_mode = false;
 
 #ifdef UNIX
 
@@ -1594,7 +1594,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
             dotimespC(count,*module->otab_size, { *ptr++ = NIL; });
           }
         # GC darf dieses subr_tab, object_tab nun sehen:
-        module->initialized = TRUE;
+        module->initialized = true;
         # Subr-Symbole eintragen:
         if (*module->stab_size > 0)
           { var subr_* subr_ptr = module->stab;
@@ -1787,9 +1787,9 @@ local void print_banner ()
   global const char* argv_encoding_terminal = NULL; # override for *terminal-encoding*
   global const char* argv_encoding_foreign = NULL; # override for *foreign-encoding*
   global const char* argv_encoding_misc = NULL; # override for *misc-encoding*
-  local boolean argv_quiet = FALSE; # ob beim Start Quiet-Option angegeben
-  local boolean argv_wait_keypress = FALSE;
-  local boolean argv_license = FALSE;
+  local bool argv_quiet = false; # ob beim Start Quiet-Option angegeben
+  local bool argv_wait_keypress = false;
+  local bool argv_license = false;
   global int main(argc,argv)
     var argc_t argc;
     var char* * argv;
@@ -1866,19 +1866,19 @@ local void print_banner ()
       var local char* argv_tmpdir = NULL;
       #endif
       extern char* argv_lisplibdir;
-      var local boolean argv_wide = FALSE; # for backward compatibility
+      var local bool argv_wide = false; # for backward compatibility
       var local char* argv_memfile = NULL;
-      var local boolean argv_load_compiling = FALSE;
+      var local bool argv_load_compiling = false;
       var local uintL argv_init_filecount = 0;
       var local char** argv_init_files;
-      var local boolean argv_compile = FALSE;
-      var local boolean argv_compile_listing = FALSE;
-      var local boolean argv_norc = FALSE;
+      var local bool argv_compile = false;
+      var local bool argv_compile_listing = false;
+      var local bool argv_norc = false;
       var local uintL argv_compile_filecount = 0;
       typedef struct { char* input_file; char* output_file; } argv_compile_file;
       var local argv_compile_file* argv_compile_files;
       var local char* argv_package = NULL;
-      var local boolean argv_ansi = FALSE;
+      var local bool argv_ansi = false;
       var local char* argv_expr = NULL;
       var local char* argv_execute_file = NULL;
       var local char** argv_execute_args = NULL;
@@ -2008,12 +2008,12 @@ local void print_banner ()
                     argv_lisplibdir = arg;
                     break;
                   case 'W': # WIDE-Version wählen, for backward compatibility
-                    argv_wide = TRUE;
+                    argv_wide = true;
                     if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'n':
                     if (asciz_equal(arg,"-norc"))
-                      argv_norc = TRUE;
+                      argv_norc = true;
                     else
                       usage (1);
                     break;
@@ -2055,15 +2055,15 @@ local void print_banner ()
                       usage(1);
                     break;
                   case 'q': # keine Copyright-Meldung
-                    argv_quiet = TRUE;
+                    argv_quiet = true;
                     if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'I': # ILISP-freundlich
-                    ilisp_mode = TRUE;
+                    ilisp_mode = true;
                     if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'C': # *LOAD-COMPILING* setzen
-                    argv_load_compiling = TRUE;
+                    argv_load_compiling = true;
                     if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'i': # Initialisierungs-Files
@@ -2071,17 +2071,17 @@ local void print_banner ()
                     if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'c': # Zu compilierende Files
-                    argv_compile = TRUE;
+                    argv_compile = true;
                     argv_for = for_compile;
                     if (arg[2] == 'l')
-                      { argv_compile_listing = TRUE;
+                      { argv_compile_listing = true;
                         if (!(arg[3] == '\0')) usage (1);
                       }
                       else
                       { if (!(arg[2] == '\0')) usage (1); }
                     break;
                   case 'l': # Compilate und Listings
-                    argv_compile_listing = TRUE;
+                    argv_compile_listing = true;
                     if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'o': # Ziel für zu compilierendes File
@@ -2096,7 +2096,7 @@ local void print_banner ()
                     argv_package = arg;
                     break;
                   case 'a': # ANSI CL Compliance
-                    argv_ansi = TRUE;
+                    argv_ansi = true;
                     if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'x': # LISP-Expression ausführen
@@ -2105,7 +2105,7 @@ local void print_banner ()
                     argv_expr = arg;
                     break;
                   case 'w': # wait for keypress after termination
-                    argv_wait_keypress = TRUE;
+                    argv_wait_keypress = true;
                     if (!(arg[2] == '\0')) usage (1);
                     break;
                   case '-': # -- GNU-style long options
@@ -2113,16 +2113,16 @@ local void print_banner ()
                       usage (0);
                     elif (asciz_equal(&arg[2],"version"))
                       { if (!(argv_expr == NULL)) usage (1);
-                        argv_quiet = TRUE;
-                        argv_norc = TRUE;
+                        argv_quiet = true;
+                        argv_norc = true;
                         argv_expr = "(PROGN (FORMAT T \"CLISP ~A\" (LISP-IMPLEMENTATION-VERSION)) (LISP:EXIT))";
                         break;
                       }
                     elif (asciz_equal(&arg[2],"quiet")
                           || asciz_equal(&arg[2],"silent"))
-                      { argv_quiet = TRUE; break; }
+                      { argv_quiet = true; break; }
                     elif (asciz_equal(&arg[2],"license"))
-                      { argv_license = TRUE; break; }
+                      { argv_license = true; break; }
                     else
                       usage (1); # unknown option
                     break;
@@ -2149,7 +2149,7 @@ local void print_banner ()
                     # Simulate -norc. Batch scripts should be executed in an
                     # environment which doesn't depend on files in $HOME, for
                     # maximum portability.
-                    argv_norc = TRUE;
+                    argv_norc = true;
                     argptr = argptr_limit; # Schleife abbrechen
                     break;
                   default:
@@ -2189,7 +2189,7 @@ local void print_banner ()
       if (argv_memfile == NULL)
         # If no memfile is given, LOAD cannot be called with 3 arguments.
         # So disable the loading of ~/.clisprc.
-        { argv_norc = TRUE; }
+        { argv_norc = true; }
       if (!argv_compile)
         # Manche Optionen sind nur zusammen mit '-c' sinnvoll:
         { if (argv_compile_listing) usage (1); }
@@ -2345,11 +2345,11 @@ local void print_banner ()
         #else
         if ( initmap() <0) goto no_mem;
         #endif
-        multimap(case_machine: MM_TYPECASES, memblock, memneed, FALSE);
+        multimap(case_machine: MM_TYPECASES, memblock, memneed, false);
         #ifdef MAP_MEMORY_TABLES
         # Dazu noch symbol_tab an die Adresse 0 legen:
         {var uintL memneed = round_up(sizeof(symbol_tab),pagesize); # Länge aufrunden
-         multimap(case_symbolflagged: , 0, memneed, FALSE);
+         multimap(case_symbolflagged: , 0, memneed, false);
         }
         # Dazu noch subr_tab an die Adresse 0 legen:
         if ( zeromap(&subr_tab,round_up(total_subr_anz*sizeof(subr_),pagesize)) <0) goto no_mem;
@@ -2365,14 +2365,14 @@ local void print_banner ()
          var aint subr_tab_end = round_up((aint)&subr_tab+sizeof(subr_tab),pagesize);
          if ((symbol_tab_end <= subr_tab_start) || (subr_tab_end <= symbol_tab_start))
            # zwei getrennte Intervalle
-           { multimap(case_machine: case_symbolflagged: , symbol_tab_start, symbol_tab_end-symbol_tab_start, TRUE);
-             multimap(case_machine: case_subr: , subr_tab_start, subr_tab_end-subr_tab_start, TRUE);
+           { multimap(case_machine: case_symbolflagged: , symbol_tab_start, symbol_tab_end-symbol_tab_start, true);
+             multimap(case_machine: case_subr: , subr_tab_start, subr_tab_end-subr_tab_start, true);
            }
            else
            # die Tabellen überlappen sich!
            { var aint tab_start = (symbol_tab_start < subr_tab_start ? symbol_tab_start : subr_tab_start);
              var aint tab_end = (symbol_tab_end > subr_tab_end ? symbol_tab_end : subr_tab_end);
-             multimap(case_machine: case_symbolflagged: case_subr: , tab_start, tab_end-tab_start, TRUE);
+             multimap(case_machine: case_symbolflagged: case_subr: , tab_start, tab_end-tab_start, true);
            }
         }
         #endif
@@ -2387,7 +2387,7 @@ local void print_banner ()
               heapptr->heap_limit = (aint)type_zero_oint(heapnr);
               heapptr->heap_hardlimit = (aint)type_zero_oint(heapnr+1);
               if (mem.heaptype[heapnr] >= -1)
-                if ( prepare_zeromap(&heapptr->heap_limit,&heapptr->heap_hardlimit,TRUE) <0) goto no_mem;
+                if ( prepare_zeromap(&heapptr->heap_limit,&heapptr->heap_hardlimit,true) <0) goto no_mem;
         }   }
         # Dazu noch symbol_tab, subr_tab an die Adresse 0 legen:
         # (Hierzu muss case_symbolflagged mit case_symbol äquivalent sein!)
@@ -2425,7 +2425,7 @@ local void print_banner ()
            mem.heaps[0].heap_limit = start + round_down(1*part,map_pagesize);
            mem.heaps[1].heap_limit = start + round_down(4*part,map_pagesize);
            #endif
-           if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_limit,TRUE) <0) goto no_mem;
+           if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_limit,true) <0) goto no_mem;
           #else # SPVW_MIXED_BLOCKS_STAGGERED
            #if defined(SUN4_29)
            var aint end = bitm(oint_addr_len+addr_shift < 29 ? oint_addr_len+addr_shift : 29);
@@ -2450,7 +2450,7 @@ local void print_banner ()
            mem.heaps[1].heap_limit = start + round_down(2*part,map_pagesize);
            mem.heaps[1].heap_hardlimit = start + round_down(3*part,map_pagesize);
            #endif
-           if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_hardlimit,TRUE) <0) goto no_mem;
+           if ( prepare_zeromap(&mem.heaps[0].heap_limit,&mem.heaps[1].heap_hardlimit,true) <0) goto no_mem;
           #endif
           free(malloc_addr);
         }
@@ -2476,7 +2476,7 @@ local void print_banner ()
           # Der Stack belegt das Intervall von 0 bis map_len bei Typcode = system_type:
           var aint low = (aint)type_zero_oint(system_type);
           var aint high = low + map_len;
-          if ( prepare_zeromap(&low,&high,TRUE) <0) goto no_mem;
+          if ( prepare_zeromap(&low,&high,true) <0) goto no_mem;
           if ( zeromap((void*)low,map_len) <0) goto no_mem;
           #ifdef STACK_DOWN
             STACK_bound = (object*)low + 0x40; # 64 Pointer Sicherheitsmarge
@@ -2765,9 +2765,9 @@ local void print_banner ()
       }
       # Begrüßung ausgeben:
       if (!nullp(Symbol_value(S(quiet)))) # SYS::*QUIET* /= NIL ?
-        { argv_quiet = TRUE; } # verhindert die Begrüßung
+        { argv_quiet = true; } # verhindert die Begrüßung
       if (!(argv_execute_file == NULL)) # Batch-Modus ?
-        { argv_quiet = TRUE; } # verhindert die Begrüßung
+        { argv_quiet = true; } # verhindert die Begrüßung
       if (!argv_quiet || argv_license) print_banner();
       if (argv_license) print_license();
       if ((argv_memfile == NULL) && (argv_expr == NULL))
@@ -3026,7 +3026,7 @@ local void print_banner ()
 # LISP-Interpreter verlassen
 # > final_exitcode: 0 bei normalem Ende, 1 bei Abbruch
   nonreturning_function(global, quit, (void));
-  global boolean final_exitcode = 0;
+  global bool final_exitcode = 0;
   local int quit_retry = 0;
   global void quit()
     { # Erst den STACK bis STACK-Ende "unwinden":
@@ -3055,7 +3055,7 @@ local void print_banner ()
         }
       # Then wait for a keypress:
       if (argv_wait_keypress)
-        { argv_wait_keypress = FALSE; # If this fails, don't retry it. For robustness.
+        { argv_wait_keypress = false; # If this fails, don't retry it. For robustness.
           # (WRITE-LINE "Press a key." [*standard-output*]) :
           pushSTACK(OLS(keypress_string)); funcall(L(write_line),1);
           funcall(S(wait_keypress),0); # (SYS::WAIT-KEYPRESS)
@@ -3161,7 +3161,7 @@ local void print_banner ()
                   err = dlerror();
                   if (err) fehler_dlerror("dlsym",symbolbuf,err);
                 }
-                module->initialized = FALSE;
+                module->initialized = false;
                 { sprintf(symbolbuf,"module__%s__subr_tab_initdata",modname);
                   module->stab_initdata = (const subr_initdata*) dlsym(libhandle,symbolbuf);
                   err = dlerror();
@@ -3232,8 +3232,8 @@ local void print_banner ()
                   # geladenen Shared-Library, sind also sicher noch nicht gemultimappt.
                   { var aint subr_tab_start = round_down((aint)module->stab,pagesize);
                     var aint subr_tab_end = round_up((aint)module->stab+(*module->stab_size)*sizeof(subr_),pagesize);
-                    multimap(case_machine: case_subr: , subr_tab_start, subr_tab_end-subr_tab_start, TRUE);
-                    if (FALSE)
+                    multimap(case_machine: case_subr: , subr_tab_start, subr_tab_end-subr_tab_start, true);
+                    if (false)
                       no_mem:
                       fehler_dlerror("multimap",NULL,"out of memory for subr_tab");
                   }

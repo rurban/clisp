@@ -1329,6 +1329,11 @@ for f in $EVERY_INCLUDES ; do
 done
 
 EVERY_INCLUDES_H=''
+if [ $TOS = unix ] ; then
+  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' @STDBOOL_H@'
+else
+  EVERY_INCLUDES_H=$EVERY_INCLUDES_H' stdbool.h'
+fi
 if [ -n "$GETTEXTLIB" ] ; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' libintl.h'
 fi
@@ -2127,6 +2132,10 @@ for util in $UTILS ; do
   fi
 done
 
+echol
+
+echol "stdbool.h : ${SRCDIR}stdbool.h.in"
+echotab "-\$(LN_S) ${SRCDIR}stdbool.h.in stdbool.h"
 echol
 
 if [ $HOS = unix ] ; then
@@ -3572,6 +3581,7 @@ cat <<!!
 !!
 fi
 cat <<!!
+	-\$(RM) stdbool.h
 
 # clean5 even undoes "make init".
 !!

@@ -57,7 +57,7 @@
         #if defined(SPVW_PURE_BLOCKS) || defined(TRIVIALMAP_MEMORY) || defined(GENERATIONAL_GC)
           uintL total_room; # wieviel Platz belegt werden darf, ohne dass GC nötig wird
           #ifdef GENERATIONAL_GC
-            boolean last_gc_full; # ob die letzte GC eine volle war
+            bool last_gc_full; # ob die letzte GC eine volle war
             uintL last_gcend_space0; # wieviel Platz am Ende der letzten GC belegt war
             uintL last_gcend_space1; # (von Generation 0 bzw. Generation 1)
           #endif
@@ -67,13 +67,13 @@
           uintL total_space; # wieviel Platz die belegten Pages überhaupt enthalten
           uintL used_space; # wieviel Platz gerade belegt ist
           uintL last_gcend_space; # wieviel Platz am Ende der letzten GC belegt war
-          boolean last_gc_compacted; # ob die letzte GC schon kompaktiert hat
+          bool last_gc_compacted; # ob die letzte GC schon kompaktiert hat
           uintL gctrigger_space; # wieviel Platz belegt werden darf, bis die nächste GC nötig wird
         #endif
 
         #ifdef SELFMADE_MMAP
           Handle memfile_handle;
-          boolean memfile_still_being_read;
+          bool memfile_still_being_read;
         #endif
 
       }
@@ -191,10 +191,10 @@
 #define for_each_cons_page_reversed for_each_cons_page
 
 # Heap classification.
-  #define is_heap_containing_objects(heapnr)  (TRUE)
+  #define is_heap_containing_objects(heapnr)  (true)
   #define is_varobject_heap(heapnr)  ((heapnr)==0)
   #define is_cons_heap(heapnr)  ((heapnr)==1)
-  #define is_unused_heap(heapnr)  (FALSE)
+  #define is_unused_heap(heapnr)  (false)
 
 #endif
 

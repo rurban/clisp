@@ -316,7 +316,7 @@ nlu1:        mcoml (r0),(r0)+
            ret
 
            .align 1
-# extern boolean and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern bool and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
 _and_test_loop_up: # Input in r0,r1,r2, verändert r3, Output in r0
            .word 0
            movl 4(ap),r0
@@ -335,7 +335,7 @@ atlu2:     movl $1,r0
            ret
 
            .align 1
-# extern boolean test_loop_up (uintD* ptr, uintC count);
+# extern bool test_loop_up (uintD* ptr, uintC count);
 _test_loop_up: # Input in r0,r1, Output in r0
            .word 0
            movl 4(ap),r0

@@ -165,8 +165,8 @@
     { if (N_realp(x)) { return R_I_expt_R(x,y); } # x reell -> schnellere Routine
       if (eq(y,Fixnum_0)) { return Fixnum_1; } # y=0 -> Ergebnis 1
       pushSTACK(x);
-     {var boolean y_negative = FALSE;
-      if (R_minusp(y)) { y = I_minus_I(y); y_negative = TRUE; } # Betrag von y nehmen
+     {var bool y_negative = false;
+      if (R_minusp(y)) { y = I_minus_I(y); y_negative = true; } # Betrag von y nehmen
       # Nun ist y>0.
       pushSTACK(y);
       # Stackaufbau: a, b.

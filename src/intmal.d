@@ -382,7 +382,7 @@
     # Auch erweist sich Methode 1 im Experiment als effizienter.
     # Daher implementieren wir Methode 1 :
     { # Es ist 2 <= len2 <= len1.
-      var boolean first_part = TRUE; # Flag, ob jetzt das erste Teilprodukt berechnet wird
+      var bool first_part = true; # Flag, ob jetzt das erste Teilprodukt berechnet wird
       if (len2 >= 2*len1)
         { SAVE_NUM_STACK
           # Teilprodukte von jeweils len1 mal len1 Digits bilden:
@@ -469,7 +469,7 @@
                  if (first_part)
                    { copy_loop_down(prod_LSDptr,destptr,2*len1);
                      destptr -= len1;
-                     first_part = FALSE;
+                     first_part = false;
                    }
                    else
                    { var uintD carry =

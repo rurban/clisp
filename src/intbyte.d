@@ -200,9 +200,9 @@
 
 # Teste, ob eines der Bits p,...,q-1 der Zahl x /=0 ist,
 # wobei 0 <= p <= q <= l = (integer-length x).
-# Ergebnis (wie bei LDB-TEST) FALSE wenn nein, TRUE wenn ja.
-  local boolean ldb_extract_test (object x, uintL p, uintL q);
-  local boolean ldb_extract_test(x,p,q)
+# Ergebnis (wie bei LDB-TEST) false wenn nein, true wenn ja.
+  local bool ldb_extract_test (object x, uintL p, uintL q);
+  local bool ldb_extract_test(x,p,q)
     var object x;
     var uintL p;
     var uintL q;
@@ -223,7 +223,7 @@
         len -= pD;
       }
       # Jetzt enthält MSDptr/len/LSDptr genau die maßgeblichen Digits.
-      if (len==0) return FALSE; # len=0 -> keine Bits abzutesten
+      if (len==0) return false; # len=0 -> keine Bits abzutesten
       q = ((q-1)%intDsize); # q := intDsize - (intDsize*ceiling(q/intDsize) - q) - 1
       p = p%intDsize; # p := p - intDsize*floor(p/intDsize)
       # Jetzt ist 0 <= q < intDsize, 0 <= p < intDsize.
@@ -235,23 +235,23 @@
         { # 1 Digit maßgeblich, wird von beiden Seiten angeschnitten:
           # Ein AND 2^(q+1)-2^p erreicht dies.
           if (!(((uintD)(bitm(q+1)-bit(p)) & *MSDptr) == 0))
-            return TRUE;
+            return true;
             else
-            return FALSE;
+            return false;
         }
       # mindestens 2 Digits. Teste erst die Randdigits, dann die inneren:
       if (!(((*MSDptr++ & (uintD)(bitm(q+1)-1)) == 0) &&
             ((*--LSDptr & (uintD)(minus_bit(p))) == 0)
          ) )
-        return TRUE;
+        return true;
       len--; # die beiden Randdigits sind jetzt abgezogen.
-      if (test_loop_up(MSDptr,len)) { return TRUE; } else { return FALSE; }
+      if (test_loop_up(MSDptr,len)) { return true; } else { return false; }
     }
 
 # I_Byte_ldb_test(n,byte) führt (LDB-TEST byte n) aus, wobei n ein Integer ist.
-# Ergebnis: FALSE wenn nein (also alle fraglichen Bits =0), TRUE wenn ja.
-  local boolean I_Byte_ldb_test (object n, object b);
-  local boolean I_Byte_ldb_test(n,b)
+# Ergebnis: false wenn nein (also alle fraglichen Bits =0), true wenn ja.
+  local bool I_Byte_ldb_test (object n, object b);
+  local bool I_Byte_ldb_test(n,b)
     var object n;
     var object b;
     { # Methode:
@@ -270,19 +270,19 @@
       var uintL p;
       var uintL l;
       Byte_to_L_L(b, s=,p=); # size s und position p bestimmen
-      if (s==0) return FALSE;
+      if (s==0) return false;
       l = I_integer_length(n); # l = (integer-length n)
       if (l<=p)
         # l<=p
         if (!(R_minusp(n)))
-          return FALSE; # n>=0
+          return false; # n>=0
           else
-          return TRUE; # n<0
+          return true; # n<0
         else
         # l>p
         { var uintL ps = p+s;
           if (ps>l) # p+s>l ?
-            return TRUE;
+            return true;
           # Bits p,...,q-1 mit q = min(p+s,l) = p+s extrahieren und testen:
           return ldb_extract_test(n,p,ps);
     }   }

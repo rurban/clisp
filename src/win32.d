@@ -285,7 +285,7 @@
   # extern void Sleep (DWORD Milliseconds);
 # used by win32aux.d
   # Sleep a certain time.
-  # Return TRUE after normal termination, FALSE if interrupted by Ctrl-C.
+  # Return true after normal termination, false if interrupted by Ctrl-C.
   extern BOOL msleep (DWORD milliseconds);
   extern unsigned int sleep (unsigned int seconds);
 # used by time.d, socket.d
@@ -304,9 +304,7 @@
     # Not defined in any header.
     extern STDCALL DWORD CoGetCurrentProcess (void);
   #else
-    #define boolean OS_boolean
     #include <objbase.h>
-    #undef boolean
     # extern DWORD CoGetCurrentProcess (void);
   #endif
 # used by lisparit.d

@@ -33,7 +33,7 @@
 LISPFUNN(validp,1)
   {
     var object obj = popSTACK();
-    var boolean valid = TRUE; # default: non-foreign objects are valid
+    var bool valid = true; # default: non-foreign objects are valid
     if (orecordp(obj)) {
       switch (Record_type(obj)) {
         case Rectype_Fpointer:
@@ -216,21 +216,21 @@ local void fehler_64bit(fvd)
 # come from the same declaration. Same for "c-union"s.
 # "c-array"s, "c-ptr", "c-ptr-null" are compared recursively. Same for
 # "c-function".
-  local boolean equal_fvd (object fvd1, object fvd2);
+  local bool equal_fvd (object fvd1, object fvd2);
 # As an exception to strict type and prototype checking,
 # C-POINTER matches any C-PTR, C-PTR-NULL, C-ARRAY-PTR and C-FUNCTION type.
-  local boolean equalp_fvd (object fvd1, object fvd2);
+  local bool equalp_fvd (object fvd1, object fvd2);
 # Comparison of two argument type vectors.
-  local boolean equal_argfvds (object argfvds1, object argfvds2);
+  local bool equal_argfvds (object argfvds1, object argfvds2);
 
-  local boolean equal_fvd(fvd1,fvd2)
+  local bool equal_fvd(fvd1,fvd2)
     var object fvd1;
     var object fvd2;
     {
       check_SP();
      recurse:
       if (eq(fvd1,fvd2))
-        return TRUE;
+        return true;
       if (simple_vector_p(fvd1) && simple_vector_p(fvd2))
         if (Svector_length(fvd1) == Svector_length(fvd2)) {
           var uintL len = Svector_length(fvd1);
@@ -253,50 +253,50 @@ local void fehler_64bit(fvd)
                   goto no;
                 if (!eql(TheSvector(fvd1)->data[3],TheSvector(fvd2)->data[3]))
                   goto no;
-                return TRUE;
+                return true;
               }
             }
           }
         }
      no:
-      return FALSE;
+      return false;
     }
 
-  local boolean equal_argfvds(argfvds1,argfvds2)
+  local bool equal_argfvds(argfvds1,argfvds2)
     var object argfvds1;
     var object argfvds2;
     {
       ASSERT(simple_vector_p(argfvds1) && simple_vector_p(argfvds2));
       var uintL len = Svector_length(argfvds1);
       if (!(len == Svector_length(argfvds2)))
-        return FALSE;
+        return false;
       while (len > 0) {
         len--;
         if (!equal_fvd(TheSvector(argfvds1)->data[len],TheSvector(argfvds2)->data[len]))
-          return FALSE;
+          return false;
       }
-      return TRUE;
+      return true;
     }
 
-  local boolean equalp_fvd(fvd1,fvd2)
+  local bool equalp_fvd(fvd1,fvd2)
     var object fvd1;
     var object fvd2;
     {
       if (eq(fvd1,fvd2))
-        return TRUE;
+        return true;
       if (eq(fvd1,S(c_pointer))
           && simple_vector_p(fvd2) && (Svector_length(fvd2) > 0)
          ) {
         var object fvd2type = TheSvector(fvd2)->data[0];
         if (eq(fvd2type,S(c_ptr)) || eq(fvd2type,S(c_ptr_null)) || eq(fvd2type,S(c_array_ptr)) || eq(fvd2type,S(c_function)))
-          return TRUE;
+          return true;
       }
       if (eq(fvd2,S(c_pointer))
           && simple_vector_p(fvd1) && (Svector_length(fvd1) > 0)
          ) {
         var object fvd1type = TheSvector(fvd1)->data[0];
         if (eq(fvd1type,S(c_ptr)) || eq(fvd1type,S(c_ptr_null)) || eq(fvd1type,S(c_array_ptr)) || eq(fvd1type,S(c_function)))
-          return TRUE;
+          return true;
       }
       return equal_fvd(fvd1,fvd2);
     }
@@ -586,7 +586,7 @@ local void fehler_malloc_free()
 local void foreign_layout (object fvd);
 local uintL data_size;
 local uintL data_alignment;
-local boolean data_splittable;
+local bool data_splittable;
 # `struct_alignment' is what gcc calls STRUCTURE_SIZE_BOUNDARY/8.
 # It is = 1 on most machines, but = 2 on MC680X0 and = 4 on ARM.
 #define struct_alignment  sizeof(struct { char slot1; })
@@ -597,61 +597,61 @@ local void foreign_layout(fvd)
     if (symbolp(fvd)) {
       if (eq(fvd,S(nil))) {
         data_size = 0; data_alignment = 1;
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(boolean))) {
         data_size = sizeof(int); data_alignment = alignof(int);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(character))) {
         data_size = sizeof(unsigned char); data_alignment = alignof(unsigned char);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(char)) || eq(fvd,S(sint8))) {
         data_size = sizeof(sint8); data_alignment = alignof(sint8);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(uchar)) || eq(fvd,S(uint8))) {
         data_size = sizeof(uint8); data_alignment = alignof(uint8);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(short)) || eq(fvd,S(sint16))) {
         data_size = sizeof(sint16); data_alignment = alignof(sint16);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(ushort)) || eq(fvd,S(uint16))) {
         data_size = sizeof(uint16); data_alignment = alignof(uint16);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(sint32))) {
         data_size = sizeof(sint32); data_alignment = alignof(sint32);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(uint32))) {
         data_size = sizeof(uint32); data_alignment = alignof(uint32);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(sint64))) {
         #ifdef HAVE_LONGLONG
         data_size = sizeof(sint64); data_alignment = alignof(sint64);
-        data_splittable = (long_bitsize<64 ? av_word_splittable_2(uint32,uint32) : av_word_splittable_1(uint64)); # always TRUE
+        data_splittable = (long_bitsize<64 ? av_word_splittable_2(uint32,uint32) : av_word_splittable_1(uint64)); # always true
         #else
         data_size = sizeof(struct_sint64); data_alignment = alignof(struct_sint64);
-        data_splittable = av_word_splittable_2(uint32,uint32); # always TRUE
+        data_splittable = av_word_splittable_2(uint32,uint32); # always true
         #endif
         return;
       } elif (eq(fvd,S(uint64))) {
         #ifdef HAVE_LONGLONG
         data_size = sizeof(uint64); data_alignment = alignof(uint64);
-        data_splittable = (long_bitsize<64 ? av_word_splittable_2(uint32,uint32) : av_word_splittable_1(uint64)); # always TRUE
+        data_splittable = (long_bitsize<64 ? av_word_splittable_2(uint32,uint32) : av_word_splittable_1(uint64)); # always true
         #else
         data_size = sizeof(struct_uint64); data_alignment = alignof(struct_uint64);
-        data_splittable = av_word_splittable_2(uint32,uint32); # always TRUE
+        data_splittable = av_word_splittable_2(uint32,uint32); # always true
         #endif
         return;
       } elif (eq(fvd,S(int))) {
         data_size = sizeof(int); data_alignment = alignof(int);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(uint))) {
         data_size = sizeof(unsigned int); data_alignment = alignof(unsigned int);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(long))) {
         data_size = sizeof(long); data_alignment = alignof(long);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(ulong))) {
         data_size = sizeof(unsigned long); data_alignment = alignof(unsigned long);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(single_float))) {
         data_size = sizeof(float); data_alignment = alignof(float);
         data_splittable = (sizeof(float) <= sizeof(long)); return;
@@ -660,10 +660,10 @@ local void foreign_layout(fvd)
         data_splittable = (sizeof(double) <= sizeof(long)); return;
       } elif (eq(fvd,S(c_pointer))) {
         data_size = sizeof(void*); data_alignment = alignof(void*);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       } elif (eq(fvd,S(c_string))) {
         data_size = sizeof(char*); data_alignment = alignof(char*);
-        data_splittable = TRUE; return;
+        data_splittable = true; return;
       }
     } elif (simple_vector_p(fvd)) {
       var uintL fvdlen = Svector_length(fvd);
@@ -672,7 +672,7 @@ local void foreign_layout(fvd)
         if (eq(fvdtype,S(c_struct)) && (fvdlen > 2)) {
           var uintL cumul_size = 0;
           var uintL cumul_alignment = struct_alignment;
-          var boolean cumul_splittable = TRUE;
+          var bool cumul_splittable = true;
           var uintL i;
           for (i = 3; i < fvdlen; i++) {
             foreign_layout(TheSvector(fvd)->data[i]);
@@ -681,7 +681,7 @@ local void foreign_layout(fvd)
             # cumul_splittable = cumul_splittable AND
             #       (cumul_size..cumul_size+data_size-1) fits in a word;
             if (floor(cumul_size,sizeof(long)) < floor(cumul_size+data_size-1,sizeof(long)))
-              cumul_splittable = FALSE;
+              cumul_splittable = false;
             cumul_size += data_size;
             # cumul_alignment = lcm(cumul_alignment,data_alignment);
             if (data_alignment > cumul_alignment)
@@ -694,7 +694,7 @@ local void foreign_layout(fvd)
         } elif (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
           var uintL cumul_size = 0;
           var uintL cumul_alignment = struct_alignment;
-          var boolean cumul_splittable = FALSE;
+          var bool cumul_splittable = false;
           var uintL i;
           for (i = 2; i < fvdlen; i++) {
             foreign_layout(TheSvector(fvd)->data[i]);
@@ -707,7 +707,7 @@ local void foreign_layout(fvd)
               cumul_alignment = data_alignment;
             # cumul_splittable = cumul_splittable OR data_splittable;
             if (data_splittable)
-              cumul_splittable = TRUE;
+              cumul_splittable = true;
           }
           data_size = cumul_size; data_alignment = cumul_alignment;
           data_splittable = cumul_splittable;
@@ -725,10 +725,10 @@ local void foreign_layout(fvd)
           return;
         } elif (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
           data_size = sizeof(void*); data_alignment = alignof(void*);
-          data_splittable = TRUE; return;
+          data_splittable = true; return;
         } elif ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)) || eq(fvdtype,S(c_array_ptr))) && (fvdlen == 2)) {
           data_size = sizeof(void*); data_alignment = alignof(void*);
-          data_splittable = TRUE; return;
+          data_splittable = true; return;
         }
       }
     }
@@ -775,8 +775,8 @@ local void blockzero(ptr,size)
   }
 
 # Test a block of memory for zero.
-local boolean blockzerop (const void* ptr, unsigned long size);
-local boolean blockzerop(ptr,size)
+local bool blockzerop (const void* ptr, unsigned long size);
+local bool blockzerop(ptr,size)
   var const void* ptr;
   var unsigned long size;
   {
@@ -784,16 +784,16 @@ local boolean blockzerop(ptr,size)
       var const char* p = (const char*)ptr;
       do {
         if (!(*p++ == 0))
-          return FALSE;
+          return false;
       } while (--size > 0);
-      return TRUE;
+      return true;
     } else {
       var const long* p = (const long*)ptr;
       do {
         if (!(*p++ == 0))
-          return FALSE;
+          return false;
       } while ((size -= sizeof(long)) > 0);
-      return TRUE;
+      return true;
     }
   }
 
@@ -1195,15 +1195,15 @@ global object convert_from_foreign(fvd,data)
   }
 
 # Test whether a foreign type contained C-PTRs (recursively).
-local boolean foreign_with_pointers_p (object fvd);
-local boolean foreign_with_pointers_p(fvd)
+local bool foreign_with_pointers_p (object fvd);
+local bool foreign_with_pointers_p(fvd)
   var object fvd;
   {
     check_SP();
     if (symbolp(fvd)) {
       if (eq(fvd,S(c_string)))
-        return TRUE;
-      return FALSE;
+        return true;
+      return false;
     } elif (simple_vector_p(fvd)) {
       var uintL fvdlen = Svector_length(fvd);
       if (fvdlen > 0) {
@@ -1212,8 +1212,8 @@ local boolean foreign_with_pointers_p(fvd)
           var uintL i;
           for (i = 3; i < fvdlen; i++)
             if (foreign_with_pointers_p(TheSvector(fvd)->data[i]))
-              return TRUE;
-          return FALSE;
+              return true;
+          return false;
         } elif (eq(fvdtype,S(c_union)) && (fvdlen > 1)) {
           # Use the union's first component.
           return foreign_with_pointers_p(fvdlen > 2 ? TheSvector(fvd)->data[2] : NIL);
@@ -1221,12 +1221,12 @@ local boolean foreign_with_pointers_p(fvd)
           var uintL i;
           for (i = 2; i < fvdlen; i++)
             if (eq(TheSvector(fvd)->data[i],Fixnum_0))
-              return FALSE;
+              return false;
           return foreign_with_pointers_p(TheSvector(fvd)->data[1]);
         } elif (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
-          return TRUE;
+          return true;
         } elif ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null)) || eq(fvdtype,S(c_array_ptr))) && (fvdlen == 2)) {
-          return TRUE;
+          return true;
         }
       }
     }
@@ -1236,7 +1236,7 @@ local boolean foreign_with_pointers_p(fvd)
 # Walk foreign data, giving special attention to the pointers.
 local void walk_foreign_pointers (object fvd, void* data);
 # Some flags and hooks that direct the walk:
-local boolean walk_foreign_null_terminates;
+local bool walk_foreign_null_terminates;
 local void (*walk_foreign_pre_hook) (object fvd, void** pdata); # what's the meaning of fvd here??
 local void (*walk_foreign_post_hook) (object fvd, void** pdata); # what's the meaning of fvd here??
 local void (*walk_foreign_function_hook) (object fvd, void** pdata);
@@ -1407,7 +1407,7 @@ global void free_foreign(fvd,data)
   var object fvd;
   var void* data;
   {
-    walk_foreign_null_terminates = TRUE;
+    walk_foreign_null_terminates = true;
     walk_foreign_pre_hook = &free_walk_pre;
     walk_foreign_post_hook = &free_walk_post;
     walk_foreign_function_hook = &free_walk_function;
@@ -1418,7 +1418,7 @@ global void free_foreign(fvd,data)
 # can trigger GC
 local void walk_lisp_pointers (object fvd, object obj);
 # Some flags and hooks that direct the walk:
-local boolean walk_lisp_nil_terminates;
+local bool walk_lisp_nil_terminates;
 local void (*walk_lisp_pre_hook) (object fvd, object obj);
 local void (*walk_lisp_post_hook) (object fvd, object obj);
 local void (*walk_lisp_function_hook) (object fvd, object obj);
@@ -1627,7 +1627,7 @@ local void convert_to_foreign_needs(fvd,obj)
   var object fvd;
   var object obj;
   {
-    walk_lisp_nil_terminates = TRUE;
+    walk_lisp_nil_terminates = true;
     walk_counter = 0; walk_alignment = 1;
     walk_lisp_pre_hook = &count_walk_pre;
     walk_lisp_post_hook = &count_walk_post;
@@ -2613,7 +2613,7 @@ LISPFUNN(lookup_foreign_function,2)
 
 # Call the appropriate av_start_xxx macro for the result.
 # do_av_start(flags,result_fvd,&alist,address,result_address,result_size,result_splittable);
-  local void do_av_start (uintWL flags, object result_fvd, av_alist * alist, void* address, void* result_address, uintL result_size, boolean result_splittable);
+  local void do_av_start (uintWL flags, object result_fvd, av_alist * alist, void* address, void* result_address, uintL result_size, bool result_splittable);
   local void do_av_start(flags,result_fvd,alist,address,result_address,result_size,result_splittable)
     var uintWL flags;
     var object result_fvd;
@@ -2621,7 +2621,7 @@ LISPFUNN(lookup_foreign_function,2)
     var void* address;
     var void* result_address;
     var uintL result_size;
-    var boolean result_splittable;
+    var bool result_splittable;
     {
       if (symbolp(result_fvd)) {
         if (eq(result_fvd,S(nil))) {
@@ -2860,7 +2860,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
       foreign_layout(result_fvd);
       var uintL result_size = data_size;
       var uintL result_alignment = data_alignment;
-      var boolean result_splittable = data_splittable;
+      var bool result_splittable = data_splittable;
       var uintL result_totalsize = result_size+result_alignment; # >= result_size+result_alignment-1, > 0
       var uintL cumul_alignment = result_alignment;
       var uintL cumul_size = result_totalsize;
@@ -3074,14 +3074,14 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
 
 # Call the appropriate va_start_xxx macro for the result.
 # do_va_start(flags,result_fvd,alist,result_size,result_alignment,result_splittable);
-  local void do_va_start (uintWL flags, object result_fvd, va_alist alist, uintL result_size, uintL result_alignment, boolean result_splittable);
+  local void do_va_start (uintWL flags, object result_fvd, va_alist alist, uintL result_size, uintL result_alignment, bool result_splittable);
   local void do_va_start(flags,result_fvd,alist,result_size,result_alignment,result_splittable)
     var uintWL flags;
     var object result_fvd;
     var va_alist alist;
     var uintL result_size;
     var uintL result_alignment;
-    var boolean result_splittable;
+    var bool result_splittable;
     {
       if (symbolp(result_fvd)) {
         if (eq(result_fvd,S(nil))) {
@@ -3442,7 +3442,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL)
       foreign_layout(result_fvd);
       var uintL result_size = data_size;
       var uintL result_alignment = data_alignment;
-      var boolean result_splittable = data_splittable;
+      var bool result_splittable = data_splittable;
       # Call va_start_xxx:
       begin_system_call();
       do_va_start(flags,result_fvd,alist,result_size,result_alignment,result_splittable);

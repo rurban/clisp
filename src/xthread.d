@@ -54,7 +54,7 @@
 #   # Give other threads a chance to run.
 #   extern void           xthread_yield (void);
 #   # Compare two threads for identity.
-#   extern boolean        xthread_equal (xthread_t thread1, xthread_t thread2);
+#   extern bool        xthread_equal (xthread_t thread1, xthread_t thread2);
 # # Conditions:
 #   # Initialize a wait queue.
 #   extern int            xcondition_init (xcondition_t* c);

@@ -1,8 +1,8 @@
 # Elementare Funktionen für reelle Zahlen
 
 # R_zerop(x) stellt fest, ob (= x 0), wo x eine reelle Zahl ist.
-  local boolean R_zerop (object x);
-  local boolean R_zerop(x)
+  local bool R_zerop (object x);
+  local bool R_zerop(x)
     var object x;
     { if (R_rationalp(x))
         # bei rationalen Zahlen: Test auf 0
@@ -15,17 +15,17 @@
                     { if (LF_zerop(x)) { goto yes; } else { goto no; } }
                    );
         }
-      yes: return TRUE;
-      no: return FALSE;
+      yes: return true;
+      no: return false;
     }
 
 # R_plusp(x) stellt fest, ob (> x 0), wo x eine reelle Zahl ist.
-  local boolean R_plusp (object x);
-  local boolean R_plusp(x)
+  local bool R_plusp (object x);
+  local bool R_plusp(x)
     var object x;
-    { if (R_minusp(x)) { return FALSE; } # x<0 -> nein
-      elif (R_zerop(x)) { return FALSE; } # x=0 -> nein
-      else { return TRUE; } # sonst ist x>0.
+    { if (R_minusp(x)) { return false; } # x<0 -> nein
+      elif (R_zerop(x)) { return false; } # x=0 -> nein
+      else { return true; } # sonst ist x>0.
     }
 
 # R_minusp(x) stellt fest, ob (< x 0), wo x eine reelle Zahl ist.
@@ -638,8 +638,8 @@
     }
 
 # R_R_gleich(x,y) vergleicht zwei reelle Zahlen x und y.
-# Ergebnis: TRUE falls x=y, FALSE sonst.
-  local boolean R_R_gleich (object x, object y);
+# Ergebnis: true falls x=y, false sonst.
+  local bool R_R_gleich (object x, object y);
   # Methode:
   # Wann sind x und y gleich? Nach CLTL, 2nd ed., S. 290 sind die exakten
   # mathematischen Werte zu vergleichen.
@@ -667,7 +667,7 @@
           if (!(xlen==ylen)) { false_statement } \
           if (!(compare_loop_up(&TheBignum(_x)->data[0],&TheBignum(_y)->data[0],xlen)==0)) { false_statement } \
     }   }}
-  local boolean R_R_gleich(x,y)
+  local bool R_R_gleich(x,y)
     var object x;
     var object y;
     { if (R_rationalp(x))
@@ -675,19 +675,19 @@
         { if (R_rationalp(y))
             # x,y beide rational
             { if (RA_integerp(x))
-                { if (!RA_integerp(y)) return FALSE;
+                { if (!RA_integerp(y)) return false;
                   # x,y beide Integers
-                  I_I_gleich(x,y, { return FALSE; } );
-                  return TRUE;
+                  I_I_gleich(x,y, { return false; } );
+                  return true;
                 }
                 else
-                { if (RA_integerp(y)) return FALSE;
+                { if (RA_integerp(y)) return false;
                   # x,y beide Ratio
                   # Nenner vergleichen:
-                  I_I_gleich(TheRatio(x)->rt_den,TheRatio(y)->rt_den, { return FALSE; } );
+                  I_I_gleich(TheRatio(x)->rt_den,TheRatio(y)->rt_den, { return false; } );
                   # Zähler vergleichen:
-                  I_I_gleich(TheRatio(x)->rt_num,TheRatio(y)->rt_num, { return FALSE; } );
-                  return TRUE;
+                  I_I_gleich(TheRatio(x)->rt_num,TheRatio(y)->rt_num, { return false; } );
+                  return true;
             }   }
             else
             # x rational, y Float
@@ -824,14 +824,14 @@
       if (compare_loop_up(x_MSDptr,y_MSDptr,x_len)) goto no;
       # Vergleich erfüllt.
       RESTORE_NUM_STACK # num_stack zurück
-      return TRUE;
+      return true;
       x_zero:
         RESTORE_NUM_STACK # num_stack zurück
-        if (R_zerop(y)) { return TRUE; } else { return FALSE; }
+        if (R_zerop(y)) { return true; } else { return false; }
       y_zero:
       no:
         RESTORE_NUM_STACK # num_stack zurück
-        return FALSE;
+        return false;
     }}
 
 # EQUALP-Hash-Code einer reellen Zahl:
@@ -1073,8 +1073,8 @@
     var object y;
     { if (eq(y,Fixnum_0)) { return Fixnum_1; } # y=0 -> Ergebnis 1
       pushSTACK(x);
-     {var boolean y_negative = FALSE;
-      if (R_minusp(y)) { y = I_minus_I(y); y_negative = TRUE; } # Betrag von y nehmen
+     {var bool y_negative = false;
+      if (R_minusp(y)) { y = I_minus_I(y); y_negative = true; } # Betrag von y nehmen
       # Nun ist y>0.
       if (R_rationalp(x)) # x rational (Abfrage nicht GC-gefährdet!) ?
         { x = RA_I_expt_RA(popSTACK(),y); } # ja -> schnellere Routine

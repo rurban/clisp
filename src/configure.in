@@ -1,5 +1,5 @@
 dnl  AUTOCONF configuration for CLISP
-dnl  Bruno Haible 2000-04-02
+dnl  Bruno Haible 2001-02-04
 dnl
 dnl  configure.in ---<autoconf>--->> configure
 dnl
@@ -87,6 +87,8 @@ CL_STDC_HEADERS
                       dnl DEFS STDC_HEADERS if exist stdlib.h, stdarg.h, ...
 CL_OFFSETOF
                       dnl DEFS HAVE_OFFSETOF if offsetof in stddef.h
+CL_STDBOOL_H
+                      dnl DEFS HAVE_STDBOOL_H, sets variable STDBOOL_H
 CL_LOCALE_H
                       dnl DEFS HAVE_LOCALE_H if exist locale.h
 CL_UNISTD_H

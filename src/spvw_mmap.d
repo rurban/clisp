@@ -20,9 +20,9 @@
 
 # Reserves an address range for use with mmap_zeromap().
 # It tries to reserve the range [*map_addr,*map_endaddr). If this is not
-# possible and shrinkp is TRUE, *map_addr is increased and *map_endaddr is
+# possible and shrinkp is true, *map_addr is increased and *map_endaddr is
 # reduced as necessary.
-  local int mmap_prepare (uintP* map_addr, uintP* map_endaddr, boolean shrinkp);
+  local int mmap_prepare (uintP* map_addr, uintP* map_endaddr, bool shrinkp);
 
 # Fill a memory range [map_addr,map_addr+map_len-1] with empty pages.
 # mmap_zeromap(map_addr,map_len)
@@ -61,7 +61,7 @@
     var void* map_addr;
     var uintL map_len;
     {
-      if (!(vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, FALSE)
+      if (!(vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, false)
             == KERN_SUCCESS
          ) ) {
         asciz_out_1(GETTEXTL("Cannot map memory to address 0x%x ."),
@@ -80,7 +80,7 @@
     var int fd;
     var off_t offset;
     {
-      switch (vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, FALSE)) {
+      switch (vm_allocate(task_self(), (vm_address_t*) &map_addr, map_len, false)) {
         case KERN_SUCCESS:
           break;
         default:
@@ -155,13 +155,13 @@
   # VirtualAlloc(..,MEM_RESERVE,..) will return an error.)
   # This function reserves an address range for use with mmap_zeromap().
   # It tries to reserve the range [*map_addr,*map_endaddr). If this is not
-  # possible and shrinkp is TRUE, *map_addr is increased and *map_endaddr is
+  # possible and shrinkp is true, *map_addr is increased and *map_endaddr is
   # reduced as necessary.
-  local int mmap_prepare (aint* map_addr, aint* map_endaddr, boolean shrinkp);
+  local int mmap_prepare (aint* map_addr, aint* map_endaddr, bool shrinkp);
   local int mmap_prepare(map_addr,map_endaddr,shrinkp)
     var aint* map_addr;
     var aint* map_endaddr;
-    var boolean shrinkp;
+    var bool shrinkp;
     {
       var uintL map_len = *map_endaddr - *map_addr;
       var aint start_addr = round_down(*map_addr,0x10000);

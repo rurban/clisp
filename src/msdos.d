@@ -91,7 +91,7 @@
     #undef S_ISREG # unser Macro hierfür ist effizienter
     #define S_ISREG(m)  (((m)&(S_IFMT&~S_IFREG)) == 0)
   # Links gibt es keine:
-    #define S_ISLNK(m)  FALSE
+    #define S_ISLNK(m)  false
   # siehe auch PATHNAME:get_file_write_datetime()
 # wird verwendet von PATHNAME, STREAM
 

@@ -1208,11 +1208,11 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
 # > array2: second simple-bit-vector
 # > index2: absolute index into array2
 # > count: number of bits to be compared, > 0
-# < result: TRUE, if both slices are the same, bit for bit, else FALSE.
-  global boolean bit_compare (object array1, uintL index1,
+# < result: true, if both slices are the same, bit for bit, else false.
+  global bool bit_compare (object array1, uintL index1,
                               object array2, uintL index2,
                               uintL bitcount);
-  global boolean bit_compare(array1,index1,array2,index2,bitcount)
+  global bool bit_compare(array1,index1,array2,index2,bitcount)
     var object array1;
     var uintL index1;
     var object array2;
@@ -1235,7 +1235,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
             return (((*ptr1 ^ *ptr2) & (bit(count1)-bit(count1-bitcount))) == 0);
           }
           if (((*ptr1 ^ *ptr2) & (bit(count1)-1)) != 0)
-            return FALSE;
+            return false;
           ptr1++;
           ptr2++;
           bitcount -= count1; # still > 0
@@ -1248,7 +1248,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         # einfache Schleife, da alle Bit-Offsets im Word =0 sind:
         dotimesL(bitpackcount,bitpackcount, {
           if (!(*ptr1++ == *ptr2++))
-            return FALSE;
+            return false;
         });
         # bitcount_rest = Anzahl der noch vergleichenden Bits
         if (!(bitcount_rest==0)) {
@@ -1258,9 +1258,9 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                     ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest)
                 ) ==0
              ) )
-            return FALSE;
+            return false;
         }
-        return TRUE;
+        return true;
       } else {
         # kompliziertere Schleife:
         var uintL bitpackcount = bitcount / bitpack;
@@ -1291,7 +1291,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                     L_bitpack(carry2) # und davon das linke Word verwenden
                   )
                ) )
-              return FALSE;
+              return false;
             carry2 = LR_bitpack_0(R_bitpack(carry2)); # carry2 := rechtes Word von carry2
           });
           # Noch bitcount_rest Bits zu vergleichen:
@@ -1310,9 +1310,9 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                       ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest)
                   ) ==0
                ) )
-              return FALSE;
+              return false;
           }
-          return TRUE;
+          return true;
         } elif (index2 == 0) {
           # index1 > 0, index2 = 0.
           var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
@@ -1335,7 +1335,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                   ==
                   *ptr2++
                ) )
-              return FALSE;
+              return false;
             carry1 = LR_bitpack_0(R_bitpack(carry1)); # carry1 := rechtes Word von carry1
           });
           # Noch bitcount_rest Bits zu vergleichen:
@@ -1354,9 +1354,9 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                       ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest)
                   ) ==0
                ) )
-              return FALSE;
+              return false;
           }
-          return TRUE;
+          return true;
         } else {
           var uint_2bitpack carry1 = LR_bitpack_0((*ptr1++) << index1);
           # carry1 hat in seinen oberen bitpack-index1 Bits (Bits 2*bitpack-1..bitpack+index1)
@@ -1387,7 +1387,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                     L_bitpack(carry2) # und davon das linke Word verwenden
                   )
                ) )
-              return FALSE;
+              return false;
             carry1 = LR_bitpack_0(R_bitpack(carry1)); # carry1 := rechtes Word von carry1
             carry2 = LR_bitpack_0(R_bitpack(carry2)); # carry2 := rechtes Word von carry2
           });
@@ -1411,9 +1411,9 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
                       ~( (uint_bitpack)(bitm(bitpack)-1) >> bitcount_rest)
                   ) ==0
                ) )
-              return FALSE;
+              return false;
           }
-          return TRUE;
+          return true;
         }
       }
     }
@@ -3478,9 +3478,9 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
 # > dv: destination storage-vector
 # > index: start index in dv
 # > count: number of elements to be filled
-# < result: TRUE if element does not fit, FALSE when done
-  global boolean elt_fill (object dv, uintL index, uintL count, object element);
-  global boolean elt_fill(dv,index,count,element)
+# < result: true if element does not fit, false when done
+  global bool elt_fill (object dv, uintL index, uintL count, object element);
+  global bool elt_fill(dv,index,count,element)
     var object dv;
     var uintL index;
     var uintL count;
@@ -3497,7 +3497,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           break;
        #if 0 # unoptimized
         case Array_type_sbvector: # Simple-Bit-Vector
-          if (!uint1_p(element)) return TRUE;
+          if (!uint1_p(element)) return true;
           if (count > 0) {
             var uint8 x = I_to_uint8(element);
             var uint8* ptr = &TheSbvector(dv)->data[index/8];
@@ -3509,7 +3509,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           }
           break;
         case Array_type_sb2vector:
-          if (!uint2_p(element)) return TRUE;
+          if (!uint2_p(element)) return true;
           if (count > 0) {
             var uint8 x = I_to_uint8(element);
             var uint8* ptr = &TheSbvector(dv)->data[index/4];
@@ -3521,7 +3521,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           }
           break;
         case Array_type_sb4vector:
-          if (!uint4_p(element)) return TRUE;
+          if (!uint4_p(element)) return true;
           if (count > 0) {
             var uint8 x = I_to_uint8(element);
             var uint8* ptr = &TheSbvector(dv)->data[index/2];
@@ -3533,7 +3533,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           }
           break;
         case Array_type_sb8vector:
-          if (!uint8_p(element)) return TRUE;
+          if (!uint8_p(element)) return true;
           if (count > 0) {
             var uint8 x = I_to_uint8(element);
             var uint8* ptr = &TheSbvector(dv)->data[index];
@@ -3543,7 +3543,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           }
           break;
         case Array_type_sb16vector:
-          if (!uint16_p(element)) return TRUE;
+          if (!uint16_p(element)) return true;
           if (count > 0) {
             var uint16 x = I_to_uint16(element);
             var uint16* ptr = &((uint16*)&TheSbvector(dv)->data[0])[index];
@@ -3553,7 +3553,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           }
           break;
         case Array_type_sb32vector:
-          if (!uint32_p(element)) return TRUE;
+          if (!uint32_p(element)) return true;
           if (count > 0) {
             var uint32 x = I_to_uint32(element);
             var uint32* ptr = &((uint32*)&TheSbvector(dv)->data[0])[index];
@@ -3565,7 +3565,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
        #else # optimized: use 32-bit accesses where possible
         var uint32 x;
         case Array_type_sbvector: # Simple-Bit-Vector
-          if (!uint1_p(element)) return TRUE;
+          if (!uint1_p(element)) return true;
           if (count == 0) break;
           x = I_to_uint8(element);
           x |= x << 1;
@@ -3592,7 +3592,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           count = count/8;
           goto store8;
         case Array_type_sb2vector:
-          if (!uint2_p(element)) return TRUE;
+          if (!uint2_p(element)) return true;
           if (count == 0) break;
           x = I_to_uint8(element);
           x |= x << 2;
@@ -3618,7 +3618,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           count = count/4;
           goto store8;
         case Array_type_sb4vector:
-          if (!uint4_p(element)) return TRUE;
+          if (!uint4_p(element)) return true;
           if (count == 0) break;
           x = I_to_uint8(element);
           x |= x << 4;
@@ -3637,7 +3637,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           count = count/2;
           goto store8;
         case Array_type_sb8vector:
-          if (!uint8_p(element)) return TRUE;
+          if (!uint8_p(element)) return true;
           if (count == 0) break;
           x = I_to_uint8(element);
         store8:
@@ -3655,7 +3655,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           x |= x << 8;
           goto store16;
         case Array_type_sb16vector:
-          if (!uint16_p(element)) return TRUE;
+          if (!uint16_p(element)) return true;
           if (count == 0) break;
           x = I_to_uint16(element);
         store16:
@@ -3673,7 +3673,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           x |= x << 16;
           goto store32;
         case Array_type_sb32vector:
-          if (!uint32_p(element)) return TRUE;
+          if (!uint32_p(element)) return true;
           if (count == 0) break;
           x = I_to_uint32(element);
         store32:
@@ -3686,7 +3686,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           break;
        #endif
         case Array_type_sstring: # Simple-String
-          if (!charp(element)) return TRUE;
+          if (!charp(element)) return true;
           if (count > 0) {
             check_sstring_mutable(dv);
             var chart c = char_code(element);
@@ -3698,7 +3698,7 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
           break;
         default: NOTREACHED
       }
-      return FALSE;
+      return false;
     }
 
 # Function: Reverses a slice of an array, copying it into another array
@@ -3940,18 +3940,18 @@ LISPFUN(bit_not,1,1,norest,nokey,0,NIL)
 # Function: Tests whether an array has a fill-pointer.
 # array_has_fill_pointer_p(array)
 # > array: ein Array
-# < result: TRUE, if it has a fill-pointer, else FALSE.
-  global boolean array_has_fill_pointer_p (object array);
-  global boolean array_has_fill_pointer_p(array)
+# < result: true, if it has a fill-pointer, else false.
+  global bool array_has_fill_pointer_p (object array);
+  global bool array_has_fill_pointer_p(array)
     var object array;
     {
       if (simplep(array)) {
-        return FALSE;
+        return false;
       } else {
         if (Iarray_flags(array) & bit(arrayflags_fillp_bit))
-          return TRUE;
+          return true;
         else
-          return FALSE;
+          return false;
       }
     }
 

@@ -23,8 +23,8 @@
 # UP: Tests whether a pathname is possibly a symlink.
 # possible_symlink(path)
 #ifdef UNIX_LINUX
-  local inline boolean possible_symlink (const char* path);
-  local inline boolean possible_symlink(path)
+  local inline bool possible_symlink (const char* path);
+  local inline bool possible_symlink(path)
     var const char* path;
     {
       # In Linux 2.0.35, /proc/<pid>/{cwd,exe,root} and /proc/<pid>/fd/<n>
@@ -35,11 +35,11 @@
           && path[5]=='/'
           && (path[6]>='0' && path[6]<='9')
          )
-        return FALSE;
-      return TRUE;
+        return false;
+      return true;
     }
 #else
-  #define possible_symlink(path)  TRUE
+  #define possible_symlink(path)  true
 #endif
 
 #ifdef UNIX_LINUX
@@ -416,18 +416,18 @@
 # > pathstring: file name, ASCIZ-String
 # > STACK_0: pathname
 # < result: whether the file existed
-  local inline boolean delete_file_if_exists (char* pathstring);
-  local inline boolean delete_file_if_exists(pathstring)
+  local inline bool delete_file_if_exists (char* pathstring);
+  local inline bool delete_file_if_exists(pathstring)
     var char* pathstring;
     {
-      var boolean exists = TRUE;
+      var bool exists = true;
       #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
         begin_system_call();
         if (!( unlink(pathstring) ==0)) {
           if (!(errno==ENOENT)) { # nicht gefunden -> OK
             end_system_call(); OS_file_error(STACK_0); # sonstigen Error melden
           }
-          exists = FALSE;
+          exists = false;
         }
         end_system_call();
       #endif
@@ -437,7 +437,7 @@
           if (!(IoErr()==ERROR_OBJECT_NOT_FOUND)) { # nicht gefunden -> OK
             end_system_call(); OS_file_error(STACK_0); # sonstigen Error melden
           }
-          exists = FALSE;
+          exists = false;
         }
         end_system_call();
       #endif
@@ -447,7 +447,7 @@
           if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH)) {
             end_system_call(); OS_file_error(STACK_0);
           }
-          exists = FALSE;
+          exists = false;
         }
         end_system_call();
       #endif
@@ -1054,30 +1054,30 @@
         return string;
       var uintL len = Sstring_length(string);
       # Suche, ob Groß- oder Kleinbuchstaben (oder beides) vorkommen:
-      var boolean all_upper = TRUE;
-      var boolean all_lower = TRUE;
+      var bool all_upper = true;
+      var bool all_lower = true;
       if (len > 0) {
         var const chart* ptr = &TheSstring(string)->data[0];
         var uintL count;
         dotimespL(count,len, {
           var chart ch = *ptr++;
           if (!chareq(ch,up_case(ch)))
-            all_upper = FALSE;
+            all_upper = false;
           if (!chareq(ch,down_case(ch)))
-            all_lower = FALSE;
+            all_lower = false;
           if (!all_upper && !all_lower)
             break;
         });
       }
       if (all_upper == all_lower)
-        # all_upper = all_lower = TRUE: Nichts zu konvertieren.
-        # all_upper = all_lower = FALSE: "Mixed case represents itself."
+        # all_upper = all_lower = true: Nichts zu konvertieren.
+        # all_upper = all_lower = false: "Mixed case represents itself."
         return string;
       if (all_upper)
-        # all_upper = TRUE, all_lower = FALSE: STRING-DOWNCASE
+        # all_upper = true, all_lower = false: STRING-DOWNCASE
         return string_downcase(string);
       else
-        # all_upper = FALSE, all_lower = TRUE: STRING-UPCASE
+        # all_upper = false, all_lower = true: STRING-UPCASE
         return string_upcase(string);
     }
   local object subst_common_case(obj)
@@ -1109,8 +1109,8 @@
 
 #ifdef LOGICAL_PATHNAMES
 
-local boolean legal_logical_word_char (chart ch);
-local boolean legal_logical_word_char(ch)
+local bool legal_logical_word_char (chart ch);
+local bool legal_logical_word_char(ch)
   var chart ch;
   {
     ch = up_case(ch);
@@ -1119,9 +1119,9 @@ local boolean legal_logical_word_char(ch)
         || ((c >= '0') && (c <= '9'))
         || (c == '-')
        )
-      return TRUE;
+      return true;
     else
-      return FALSE;
+      return false;
   }
 
 #endif
@@ -1132,10 +1132,10 @@ local boolean legal_logical_word_char(ch)
 # erlaubt ist.
 # legal_hostchar(ch)
 # > chart ch: Character-Code
-# < ergebnis: TRUE falls erlaubt, FALSE sonst
-  local boolean legal_hostchar (chart ch);
+# < ergebnis: true falls erlaubt, false sonst
+  local bool legal_hostchar (chart ch);
 # NB: legal_logical_word_char(ch) impliziert legal_hostchar(ch).
-  local boolean legal_hostchar(ch)
+  local bool legal_hostchar(ch)
     var chart ch;
     {
       #if defined(PATHNAME_RISCOS)
@@ -1150,9 +1150,9 @@ local boolean legal_logical_word_char(ch)
       if ((c >= ' ') && (c <= '~')
           && (c != '"') && (c != '/') && (c != ':') && (c != '<') && (c != '>')
           && (c != '\\'))
-        return TRUE;
+        return true;
       else
-        return FALSE;
+        return false;
       #else
       return alphanumericp(ch) || chareq(ch,ascii('-'));
       #endif
@@ -1165,10 +1165,10 @@ local boolean legal_logical_word_char(ch)
 # > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: gültige Host-Komponente
 # can trigger GC
-  local object test_optional_host (object host, boolean convert);
+  local object test_optional_host (object host, bool convert);
   local object test_optional_host(host,convert)
     var object host;
-    var boolean convert;
+    var bool convert;
     {
       if (eq(host,unbound))
         return NIL; # nicht angegeben -> NIL
@@ -1288,7 +1288,7 @@ local boolean legal_logical_word_char(ch)
 # Stellt fest, ob zwei Characters als Zeichen in Pathnames als gleich gelten.
 # equal_pathchar(ch1,ch2)
 # > chart ch1,ch2: Character-Codes
-# < ergebnis: TRUE falls gleich, FALSE sonst
+# < ergebnis: true falls gleich, false sonst
   #if !(defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32))
     #define equal_pathchar(ch1,ch2)  chareq(ch1,ch2)
   #else # defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
@@ -1300,15 +1300,15 @@ local boolean legal_logical_word_char(ch)
 # Namestring erlaubt ist.
 # legal_namechar(ch)
 # > chart ch: Character-Code
-# < ergebnis: TRUE falls erlaubt, FALSE sonst
-  local boolean legal_namechar (chart ch);
-  local boolean legal_namechar(ch)
+# < ergebnis: true falls erlaubt, false sonst
+  local bool legal_namechar (chart ch);
+  local bool legal_namechar(ch)
     var chart ch;
     {
       var uintB c;
       #ifdef UNICODE
       # Check whether ch fits into a single byte in O(pathname_encoding).
-      if (!(cslen(O(pathname_encoding),&ch,1) == 1)) return FALSE;
+      if (!(cslen(O(pathname_encoding),&ch,1) == 1)) return false;
       cstombs(O(pathname_encoding),&ch,1,&c,1); # causes error message if it doesn't fit
       #else
       c = as_cint(ch);
@@ -1344,7 +1344,7 @@ local boolean legal_logical_word_char(ch)
 # Zeichen ist.
 # singlewild_char_p(ch)
 # > chart ch: Character-Code
-# < ergebnis: TRUE falls ja, FALSE sonst
+# < ergebnis: true falls ja, false sonst
   #if !defined(PATHNAME_RISCOS)
     #define singlewild_char_p(ch)  chareq(ch,ascii('?'))
   #else # defined(PATHNAME_RISCOS)
@@ -1512,20 +1512,20 @@ local uintL parse_logical_pathnamestring (zustand z);
 # Trennzeichen zwischen subdirs
 #define slashp(c)  chareq(c,ascii(';'))
 
-# Parst Name/Type/Version-Teil (subdirp=FALSE) bzw. subdir-Teil (subdirp=TRUE).
+# Parst Name/Type/Version-Teil (subdirp=false) bzw. subdir-Teil (subdirp=true).
 # Liefert Normal-Simple-String oder :WILD oder :WILD-INFERIORS oder NIL.
-local object parse_logical_word (zustand* z, boolean subdirp);
+local object parse_logical_word (zustand* z, bool subdirp);
 local object parse_logical_word(z,subdirp)
   var zustand* z;
-  var boolean subdirp;
+  var bool subdirp;
   {
     var zustand startz = *z; # Start-Zustand
     var chart ch;
     # Kommt eine Folge von alphanumerischen Zeichen oder '*',
     # keine zwei '*' adjazent (ausgenommen "**", falls subdirp),
     # und, falls subdirp, ein ';' ?
-    var boolean last_was_star = FALSE;
-    var boolean seen_starstar = FALSE;
+    var bool last_was_star = false;
+    var bool seen_starstar = false;
     loop {
       if (z->count == 0)
         break;
@@ -1534,11 +1534,11 @@ local object parse_logical_word(z,subdirp)
         if (chareq(ch,ascii('*'))) {
           if (last_was_star) {
             if (subdirp && (z->index - startz.index == 1))
-              seen_starstar = TRUE;
+              seen_starstar = true;
             else
               break; # adjazente '*' sind verboten
           } else
-            last_was_star = TRUE;
+            last_was_star = true;
         } else
           break;
       }
@@ -1572,8 +1572,8 @@ local object parse_logical_word(z,subdirp)
   }
 
 # Test auf Ziffernfolge:
-local boolean all_digits (object string);
-local boolean all_digits(string)
+local bool all_digits (object string);
+local bool all_digits(string)
   var object string;
   {
     var uintL len = Sstring_length(string);
@@ -1583,10 +1583,10 @@ local boolean all_digits(string)
         var chart ch = *charptr++;
         var cint c = as_cint(ch);
         if (!((c >= '0') && (c <= '9')))
-          return FALSE;
+          return false;
       });
     }
-    return TRUE;
+    return true;
   }
 
 # Attempt to parse a logical host name string, starting at a given state.
@@ -1661,7 +1661,7 @@ local uintL parse_logical_pathnamestring(z)
     }
     loop {
       # Versuche, ein weiteres Unterdirectory zu parsen.
-      var object subdir = parse_logical_word(&z,TRUE);
+      var object subdir = parse_logical_word(&z,true);
       if (nullp(subdir))
         break;
       # (pathname-directory pathname) um Subdir verlängern:
@@ -1673,14 +1673,14 @@ local uintL parse_logical_pathnamestring(z)
     }
     # Name parsen:
     {
-      var object name = parse_logical_word(&z,FALSE);
+      var object name = parse_logical_word(&z,false);
       TheLogpathname(STACK_1)->pathname_name = name;
       if ((z.count > 0) && chareq(TheSstring(STACK_2)->data[z.index],ascii('.'))) {
         var zustand z_name = z;
         # Character '.' übergehen:
         z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
         # Typ parsen:
-        var object type = parse_logical_word(&z,FALSE);
+        var object type = parse_logical_word(&z,false);
         TheLogpathname(STACK_1)->pathname_type = type;
         if (!nullp(type)) {
           if ((z.count > 0) && chareq(TheSstring(STACK_2)->data[z.index],ascii('.'))) {
@@ -1688,7 +1688,7 @@ local uintL parse_logical_pathnamestring(z)
             # Character '.' übergehen:
             z.index++; z.FNindex = fixnum_inc(z.FNindex,1); z.count--;
             # Version parsen:
-            var object version = parse_logical_word(&z,FALSE);
+            var object version = parse_logical_word(&z,false);
             if (eq(version,S(Kwild))) {
             } elif (equal(version,Symbol_name(S(Knewest)))) {
               version = S(Knewest);
@@ -1725,8 +1725,8 @@ local uintL parse_logical_pathnamestring(z)
 #        (gethash host sys::*logical-pathname-translations*) ; :test #'equalp !
 #        t
 # ) )
-  local boolean logical_host_p (object host);
-  local boolean logical_host_p(host)
+  local bool logical_host_p (object host);
+  local bool logical_host_p(host)
     var object host;
     {
       return (simple_string_p(host)
@@ -1781,19 +1781,19 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
 # CLTL S. 414
   {
     # Stackaufbau: thing, host, defaults, start, end, junk-allowed.
-    var boolean junk_allowed;
-    var boolean host_was_null;
-    var boolean parse_logical = FALSE;
+    var bool junk_allowed;
+    var bool host_was_null;
+    var bool parse_logical = false;
     # 1. junk-allowed überprüfen:
     {
       var object obj = popSTACK(); # junk-allowed-Argument
       if (eq(obj,unbound))
-        junk_allowed = FALSE;
+        junk_allowed = false;
       else
         if (nullp(obj))
-          junk_allowed = FALSE;
+          junk_allowed = false;
         else
-          junk_allowed = TRUE;
+          junk_allowed = true;
     }
     # Stackaufbau: thing, host, defaults, start, end.
     # 2. Default-Wert für start ist 0:
@@ -1805,7 +1805,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
       var object host = STACK_3;
       host_was_null = (eq(host,unbound) || nullp(host));
       #if HAS_HOST
-      host = test_optional_host(host,FALSE);
+      host = test_optional_host(host,false);
       #else
       host = test_optional_host(host);
       #endif
@@ -1814,7 +1814,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
         var object defaults = test_default_pathname(STACK_2);
         #ifdef LOGICAL_PATHNAMES
         if (logpathnamep(defaults)) {
-          parse_logical = TRUE; host = TheLogpathname(defaults)->pathname_host;
+          parse_logical = true; host = TheLogpathname(defaults)->pathname_host;
         } else
         #endif
         {
@@ -1825,10 +1825,10 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
           #endif
         }
       } else {
-        host_was_null = FALSE;
+        host_was_null = false;
         #ifdef LOGICAL_PATHNAMES
         if (logical_host_p(host)) {
-          parse_logical = TRUE; host = string_upcase(host);
+          parse_logical = true; host = string_upcase(host);
         }
         #endif
       }
@@ -1836,7 +1836,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
     }
     #else
     test_optional_host(STACK_3);
-    host_was_null = TRUE;
+    host_was_null = true;
     #endif
     # 4. thing muss ein String sein:
     var object thing = STACK_4;
@@ -1853,12 +1853,12 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
       goto fertig; # 2. Wert wie oben
     }
     # thing sollte nun wenigstens ein String oder Symbol sein:
-    var boolean thing_symbol = FALSE;
+    var bool thing_symbol = false;
     if (!stringp(thing)) {
       if (!symbolp(thing))
         fehler_pathname_designator(thing);
       thing = Symbol_name(thing); # Symbol -> Symbolname verwenden
-      thing_symbol = TRUE;
+      thing_symbol = true;
       STACK_4 = thing; # und in den Stack zurückschreiben
     }
     # thing = STACK_4 ist jetzt ein String.
@@ -1897,7 +1897,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               # an error for Win32 pathnames like "C:\\FOOBAR".
               && logical_host_p(host)
              )
-            parse_logical = TRUE;
+            parse_logical = true;
         }
       }
       #endif
@@ -2817,7 +2817,7 @@ LISPFUNN(pathnameversion,1)
         (logical ? TheLogpathname(pathname)->pathname_version : NIL)
     #endif
   #else
-    # logical immer =FALSE
+    # logical immer =false
     #if HAS_HOST
       #define xpathname_host(logical,pathname)  ThePathname(pathname)->pathname_host
     #else
@@ -3313,7 +3313,7 @@ LISPFUNN(host_namestring,1)
       } elif (posfixnump(version) && !eq(version,Fixnum_0)) {
         # Fixnum >0 ist OK
       } elif (pathnamep(version)) { # Pathname -> dessen Version
-        STACK_0 = xpathname_version(FALSE,version);
+        STACK_0 = xpathname_version(false,version);
       }
       #ifdef LOGICAL_PATHNAMES
       elif (logpathnamep(version)) { # Logical Pathname -> dessen Version
@@ -3542,9 +3542,9 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
   {
     # :wild #'make-pathname causes NIL components to be considered specified,
     # only #<unbound> components are considered unspecified.
-    var boolean called_from_make_pathname = eq(STACK_0,L(make_pathname));
+    var bool called_from_make_pathname = eq(STACK_0,L(make_pathname));
     # :wild t causes only wild components to be considered unspecified.
-    var boolean wildp = !(eq(STACK_0,unbound) || nullp(STACK_0));
+    var bool wildp = !(eq(STACK_0,unbound) || nullp(STACK_0));
     skipSTACK(1);
     # default-version überprüfen:
     #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
@@ -3588,7 +3588,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
         TheLogpathname(newp)->pathname_host = p_host; # erstmal new-host := pathname-host
         if (equal(p_host,d_host))
           goto lmatch_directories;
-        if (wildp ? FALSE : nullp(p_host)) {
+        if (wildp ? false : nullp(p_host)) {
           # pathname-host nicht angegeben, aber defaults-host angegeben:
           TheLogpathname(newp)->pathname_host = d_host; # new-host := defaults-host
           goto lmatch_directories;
@@ -3698,7 +3698,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild)))
       # beide Hosts gleich -> Devices matchen:
       if (equal(p_host,d_host))
         goto match_devices;
-      if (!(wildp ? FALSE : nullp(p_host)))
+      if (!(wildp ? false : nullp(p_host)))
         goto notmatch_devices;
       #ifdef PATHNAME_WIN32
       var object p_device = ThePathname(p)->pathname_device;
@@ -4009,32 +4009,32 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
 # UP: Überprüft, ob object ein zulässiger Name ist:
 # :WILD oder ein Simple-String aus gültigen Zeichen, keine adjazenten '*'.
 # legal_logical_word(object)
-  local boolean legal_logical_word (object obj);
-  local boolean legal_logical_word(obj)
+  local bool legal_logical_word (object obj);
+  local bool legal_logical_word(obj)
     var object obj;
     {
       if (eq(obj,S(Kwild)))
-        return TRUE;
+        return true;
       if (!simple_string_p(obj))
-        return FALSE;
+        return false;
       var uintL len = Sstring_length(obj);
       if (len==0)
-        return FALSE; # leeres Word ist verboten
+        return false; # leeres Word ist verboten
       var const chart* charptr = &TheSstring(obj)->data[0];
-      var boolean last_was_star = FALSE;
+      var bool last_was_star = false;
       dotimespL(len,len, {
         var chart ch = *charptr++;
         if (!(legal_logical_word_char(ch) || chareq(ch,ascii('*'))))
-          return FALSE;
+          return false;
         if (chareq(ch,ascii('*'))) {
           if (last_was_star)
-            return FALSE; # adjazente '*' sind verboten
-          last_was_star = TRUE;
+            return false; # adjazente '*' sind verboten
+          last_was_star = true;
         } else {
-          last_was_star = FALSE;
+          last_was_star = false;
         }
       });
-      return TRUE;
+      return true;
     }
 
 #endif
@@ -4044,40 +4044,40 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL)
 # UP: Überprüft, ob object ein zulässiger Name ist:
 # ein Simple-String aus gültigen Zeichen
 # legal_name(object)
-  local boolean legal_name (object obj);
-  local boolean legal_name(obj)
+  local bool legal_name (object obj);
+  local bool legal_name(obj)
     var object obj;
     {
       if (!simple_string_p(obj))
-        return FALSE;
+        return false;
       var uintL len = Sstring_length(obj);
       if (len > 0) {
         var const chart* charptr = &TheSstring(obj)->data[0];
-        dotimespL(len,len, { if (!legal_namechar(*charptr++)) { return FALSE; } } );
+        dotimespL(len,len, { if (!legal_namechar(*charptr++)) { return false; } } );
       }
-      return TRUE;
+      return true;
     }
 
 # UP: Überprüft, ob object ein zulässiger Name ist:
 # ein Simple-String aus gültigen Zeichen, ohne '.'
 # legal_type(object)
-  local boolean legal_type (object obj);
+  local bool legal_type (object obj);
 #ifdef PATHNAME_NOEXT
-  local boolean legal_type(obj)
+  local bool legal_type(obj)
     var object obj;
     {
       if (!simple_string_p(obj))
-        return FALSE;
+        return false;
       var uintL len = Sstring_length(obj);
       if (len > 0) {
         var const chart* charptr = &TheSstring(obj)->data[0];
         dotimespL(len,len, {
           var chart ch = *charptr++;
           if (chareq(ch,ascii('.')) || !legal_namechar(ch))
-            return FALSE;
+            return false;
         });
       }
-      return TRUE;
+      return true;
     }
 #endif
 #ifdef PATHNAME_RISCOS
@@ -4093,14 +4093,14 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
 # CLTL S. 416, CLtL2 S. 643
   # Stackaufbau: defaults, case, host, device, directory, name, type, version.
   {
-    var boolean logical = FALSE;
-    var boolean convert = eq(STACK_6,S(Kcommon));
+    var bool logical = false;
+    var bool convert = eq(STACK_6,S(Kcommon));
     # 1. host überprüfen:
     #ifdef LOGICAL_PATHNAMES
     # Damit TRANSLATE-PATHNAMES logische Pathnames erzeugen kann:
     if (logpathnamep(STACK_5)) {
       STACK_5 = TheLogpathname(STACK_5)->pathname_host;
-      logical = TRUE; convert = FALSE;
+      logical = true; convert = false;
     }
     #endif
     #if HAS_HOST
@@ -4110,7 +4110,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     #endif
     #ifdef LOGICAL_PATHNAMES
     if (!nullp(STACK_5) && logical_host_p(STACK_5)) {
-      logical = TRUE; convert = FALSE; STACK_5 = string_upcase(STACK_5);
+      logical = true; convert = false; STACK_5 = string_upcase(STACK_5);
     }
     #endif
     # 2. device überprüfen:
@@ -4467,7 +4467,7 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
 # (USER-HOMEDIR-PATHNAME [host]), CLTL S. 418
   {
     #if HAS_HOST
-    STACK_0 = test_optional_host(STACK_0,FALSE); # Host überprüfen
+    STACK_0 = test_optional_host(STACK_0,false); # Host überprüfen
     if (!nullp(STACK_0)) {
       #if defined(PATHNAME_RISCOS)
       {
@@ -4551,9 +4551,9 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
 # UP: Testet, ob ein Simple-String Wildcards enthält.
 # has_wildcards(string)
 # > string: Normal-Simple-String
-# < ergebnis: TRUE wenn string Wildcard-Zeichen enthält
-  local boolean has_wildcards (object string);
-  local boolean has_wildcards(string)
+# < ergebnis: true wenn string Wildcard-Zeichen enthält
+  local bool has_wildcards (object string);
+  local bool has_wildcards(string)
     var object string;
     {
       var uintL len = Sstring_length(string);
@@ -4564,10 +4564,10 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
           if (chareq(ch,ascii('*')) # Wildcard für beliebig viele Zeichen
               || singlewild_char_p(ch) # Wildcard für genau ein Zeichen
              )
-            return TRUE;
+            return true;
         });
       }
-      return FALSE;
+      return false;
     }
 #endif
 
@@ -4575,9 +4575,9 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
 # UP: Testet, ob ein Simple-String Wildcards enthält.
 # has_word_wildcards(string)
 # > string: Normal-Simple-String
-# < ergebnis: TRUE wenn string Wildcard-Zeichen enthält
-  local boolean has_word_wildcards (object string);
-  local boolean has_word_wildcards(string)
+# < ergebnis: true wenn string Wildcard-Zeichen enthält
+  local bool has_word_wildcards (object string);
+  local bool has_word_wildcards(string)
     var object string;
     {
       var uintL len = Sstring_length(string);
@@ -4585,47 +4585,47 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
         var const chart* charptr = &TheSstring(string)->data[0];
         dotimespL(len,len, {
           if (chareq(*charptr++,ascii('*')))
-            return TRUE;
+            return true;
         });
       }
-      return FALSE;
+      return false;
     }
 #endif
 
 # UP: Testet, ob die Host-Komponente eines Pathname Wildcards enthält.
 # has_host_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn (PATHNAME-HOST pathname) Wildcards enthält.
-  local boolean has_host_wildcards (object pathname);
+# < ergebnis: true wenn (PATHNAME-HOST pathname) Wildcards enthält.
+  local bool has_host_wildcards (object pathname);
   # Host kann keine Wildcards enthalten.
-  #define has_host_wildcards(pathname)  (unused (pathname), FALSE)
+  #define has_host_wildcards(pathname)  (unused (pathname), false)
 
 # UP: Testet, ob die Device-Komponente eines Pathname Wildcards enthält.
 # has_device_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn (PATHNAME-DEVICE pathname) Wildcards enthält.
-  local boolean has_device_wildcards (object pathname);
-  local boolean has_device_wildcards(pathname)
+# < ergebnis: true wenn (PATHNAME-DEVICE pathname) Wildcards enthält.
+  local bool has_device_wildcards (object pathname);
+  local bool has_device_wildcards(pathname)
     var object pathname;
     {
       #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
       #ifdef LOGICAL_PATHNAMES
       if (logpathnamep(pathname))
-        return FALSE;
+        return false;
       #endif
       # Device überprüfen: = :WILD ?
       return eq(ThePathname(pathname)->pathname_device,S(Kwild));
       #else
-      return FALSE;
+      return false;
       #endif
     }
 
 # UP: Testet, ob die Directory-Komponente eines Pathname Wildcards enthält.
 # has_directory_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn (PATHNAME-DIRECTORY pathname) Wildcards enthält.
-  local boolean has_directory_wildcards (object pathname);
-  local boolean has_directory_wildcards(pathname)
+# < ergebnis: true wenn (PATHNAME-DIRECTORY pathname) Wildcards enthält.
+  local bool has_directory_wildcards (object pathname);
+  local bool has_directory_wildcards(pathname)
     var object pathname;
     {
       # Directory überprüfen:
@@ -4636,13 +4636,13 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
           var object subdir = Car(directory);
           if (simple_string_p(subdir)) {
             if (has_word_wildcards(subdir))
-              return TRUE;
+              return true;
           } else {
             if (eq(subdir,S(Kwild)) || eq(subdir,S(Kwild_inferiors)))
-              return TRUE;
+              return true;
           }
         }
-        return FALSE;
+        return false;
       }
       #endif
       var object directory = ThePathname(pathname)->pathname_directory;
@@ -4651,28 +4651,28 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
         #ifdef PATHNAME_NOEXT
         if (simple_string_p(subdir)) {
           if (has_wildcards(subdir))
-            return TRUE;
+            return true;
         } else {
           if (eq(subdir,S(Kwild_inferiors)))
-            return TRUE;
+            return true;
         }
         #endif
         #ifdef PATHNAME_RISCOS
         if (simple_string_p(subdir)) {
           if (has_wildcards(subdir))
-            return TRUE;
+            return true;
         }
         #endif
       }
-      return FALSE;
+      return false;
     }
 
 # UP: Testet, ob die Name-Komponente eines Pathname Wildcards enthält.
 # has_name_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn (PATHNAME-NAME pathname) Wildcards enthält.
-  local boolean has_name_wildcards (object pathname);
-  local boolean has_name_wildcards(pathname)
+# < ergebnis: true wenn (PATHNAME-NAME pathname) Wildcards enthält.
+  local bool has_name_wildcards (object pathname);
+  local bool has_name_wildcards(pathname)
     var object pathname;
     {
       # Name überprüfen:
@@ -4681,12 +4681,12 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
         var object name = TheLogpathname(pathname)->pathname_name;
         if (simple_string_p(name)) {
           if (has_word_wildcards(name))
-            return TRUE;
+            return true;
         } else {
           if (eq(name,S(Kwild)))
-            return TRUE;
+            return true;
         }
-        return FALSE;
+        return false;
       }
       #endif
       #if defined(PATHNAME_NOEXT) || defined(PATHNAME_RISCOS)
@@ -4694,19 +4694,19 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
         var object name = ThePathname(pathname)->pathname_name;
         if (simple_string_p(name)) {
           if (has_wildcards(name))
-            return TRUE;
+            return true;
         }
       }
       #endif
-      return FALSE;
+      return false;
     }
 
 # UP: Testet, ob die Type-Komponente eines Pathname Wildcards enthält.
 # has_type_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn (PATHNAME-TYPE pathname) Wildcards enthält.
-  local boolean has_type_wildcards (object pathname);
-  local boolean has_type_wildcards(pathname)
+# < ergebnis: true wenn (PATHNAME-TYPE pathname) Wildcards enthält.
+  local bool has_type_wildcards (object pathname);
+  local bool has_type_wildcards(pathname)
     var object pathname;
     {
       # Typ überprüfen:
@@ -4715,12 +4715,12 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
         var object type = TheLogpathname(pathname)->pathname_type;
         if (simple_string_p(type)) {
           if (has_word_wildcards(type))
-            return TRUE;
+            return true;
         } else {
           if (eq(type,S(Kwild)))
-            return TRUE;
+            return true;
         }
-        return FALSE;
+        return false;
       }
       #endif
       #if defined(PATHNAME_NOEXT) || defined(PATHNAME_RISCOS)
@@ -4728,47 +4728,47 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL)
         var object type = ThePathname(pathname)->pathname_type;
         if (simple_string_p(type)) {
           if (has_wildcards(type))
-            return TRUE;
+            return true;
         }
       }
       #endif
-      return FALSE;
+      return false;
     }
 
 # UP: Testet, ob die Version-Komponente eines Pathname Wildcards enthält.
 # has_version_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn (PATHNAME-VERSION pathname) Wildcards enthält.
-  local boolean has_version_wildcards (object pathname);
-  local boolean has_version_wildcards(pathname)
+# < ergebnis: true wenn (PATHNAME-VERSION pathname) Wildcards enthält.
+  local bool has_version_wildcards (object pathname);
+  local bool has_version_wildcards(pathname)
     var object pathname;
     {
       # Version überprüfen:
       #ifdef LOGICAL_PATHNAMES
       if (logpathnamep(pathname)) {
         if (eq(TheLogpathname(pathname)->pathname_version,S(Kwild)))
-          return TRUE;
-        return FALSE;
+          return true;
+        return false;
       }
       #endif
-      return FALSE;
+      return false;
     }
 
 # UP: Testet, ob irgendeine Komponente eines Pathname Wildcards enthält.
 # has_some_wildcards(pathname)
 # > pathname: Pathname
-# < ergebnis: TRUE wenn pathname Wildcards enthält.
-  local boolean has_some_wildcards (object pathname);
-  local boolean has_some_wildcards(pathname)
+# < ergebnis: true wenn pathname Wildcards enthält.
+  local bool has_some_wildcards (object pathname);
+  local bool has_some_wildcards(pathname)
     var object pathname;
     {
-      if (has_host_wildcards(pathname)) return TRUE;
-      if (has_device_wildcards(pathname)) return TRUE;
-      if (has_directory_wildcards(pathname)) return TRUE;
-      if (has_name_wildcards(pathname)) return TRUE;
-      if (has_type_wildcards(pathname)) return TRUE;
-      if (has_version_wildcards(pathname)) return TRUE;
-      return FALSE;
+      if (has_host_wildcards(pathname)) return true;
+      if (has_device_wildcards(pathname)) return true;
+      if (has_directory_wildcards(pathname)) return true;
+      if (has_name_wildcards(pathname)) return true;
+      if (has_type_wildcards(pathname)) return true;
+      if (has_version_wildcards(pathname)) return true;
+      return false;
     }
 
 # UP: Überprüft, ob ein Pathname keine Wildcards enthält.
@@ -4794,7 +4794,7 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
   {
     var object pathname = coerce_xpathname(STACK_1);
     var object key = STACK_0;
-    var boolean erg;
+    var bool erg;
     if (eq(key,unbound) || nullp(key)) {
       erg = has_some_wildcards(pathname);
     } elif (eq(key,S(Khost))) {
@@ -4842,10 +4842,10 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
   #           '?' für genau 1 Zeichen
   #           '*' für beliebig viele Zeichen
   # > beispiel: Normal-Simple-String, der damit zu matchen ist
-  local boolean wildcard_match (object muster, object beispiel);
+  local bool wildcard_match (object muster, object beispiel);
   # rekursive Implementation wegen Backtracking:
-  local boolean wildcard_match_ab (uintL m_count, const chart* m_ptr, uintL b_count, const chart* b_ptr);
-  local boolean wildcard_match(muster,beispiel)
+  local bool wildcard_match_ab (uintL m_count, const chart* m_ptr, uintL b_count, const chart* b_ptr);
+  local bool wildcard_match(muster,beispiel)
     var object muster;
     var object beispiel;
     {
@@ -4856,7 +4856,7 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
                                /* b_ptr   = */ &TheSstring(beispiel)->data[0]
                               );
     }
-  local boolean wildcard_match_ab(m_count,m_ptr,b_count,b_ptr)
+  local bool wildcard_match_ab(m_count,m_ptr,b_count,b_ptr)
     var uintL m_count;
     var const chart* m_ptr;
     var uintL b_count;
@@ -4865,17 +4865,17 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
       var chart c;
       loop {
         if (m_count==0)
-          return (b_count==0 ? TRUE : FALSE); # "" matcht nur ""
+          return (b_count==0 ? true : false); # "" matcht nur ""
         m_count--;
         c = *m_ptr++; # nächstes Match-Zeichen
         if (chareq(c,ascii('?'))) { # Wildcard '?'
-          if (b_count==0) return FALSE; # mindestens ein Zeichen muss noch kommen
+          if (b_count==0) return false; # mindestens ein Zeichen muss noch kommen
           b_count--; b_ptr++; # es wird ignoriert
         } elif (chareq(c,ascii('*')))
           break; # Wildcard '*' später
         else { # alles andere muss genau matchen:
-          if (b_count==0) return FALSE;
-          b_count--; if (!equal_pathchar(*b_ptr++,c)) return FALSE;
+          if (b_count==0) return false;
+          b_count--; if (!equal_pathchar(*b_ptr++,c)) return false;
         }
       }
       # Wildcard '*': Suche nächstes non-Wildcard-Zeichen und zähle die '?'
@@ -4883,11 +4883,11 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
       # lang ist, wie die Folge Fragezeichen enthält). Man kann die '?' auch
       # gleich verwerten, denn '*??*???***?' ist zu '??????*' äquivalent.
       loop {
-        if (m_count==0) return TRUE; # Wildcard am Ende matcht den Rest.
+        if (m_count==0) return true; # Wildcard am Ende matcht den Rest.
         m_count--;
         c = *m_ptr++; # nächstes Match-Zeichen
         if (chareq(c,ascii('?'))) { # Fragezeichen: nach vorne ziehen, sofort abarbeiten
-          if (b_count==0) return FALSE;
+          if (b_count==0) return false;
           b_count--; b_ptr++;
         }
         elif (!chareq(c,ascii('*')))
@@ -4895,11 +4895,11 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
       }
       # c = nächstes non-Wildcard-Zeichen. Suche es.
       loop {
-        if (b_count==0) return FALSE; # c nicht gefunden
+        if (b_count==0) return false; # c nicht gefunden
         b_count--;
         if (equal_pathchar(*b_ptr++,c)) {
           if (wildcard_match_ab(m_count,m_ptr,b_count,b_ptr))
-            return TRUE;
+            return true;
         }
       }
     }
@@ -4908,44 +4908,44 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
 
 # UPs: Matcht jeweils eine Pathname-Komponente ("Beispiel") und
 # eine Pathname-Komponente ("Muster").
-  local boolean host_match (object muster, object beispiel, boolean logical);
-  local boolean device_match (object muster, object beispiel, boolean logical);
-  local boolean directory_match (object muster, object beispiel, boolean logical);
-  local boolean nametype_match (object muster, object beispiel, boolean logical);
-  local boolean version_match (object muster, object beispiel, boolean logical);
-  local boolean host_match(muster,beispiel,logical)
+  local bool host_match (object muster, object beispiel, bool logical);
+  local bool device_match (object muster, object beispiel, bool logical);
+  local bool directory_match (object muster, object beispiel, bool logical);
+  local bool nametype_match (object muster, object beispiel, bool logical);
+  local bool version_match (object muster, object beispiel, bool logical);
+  local bool host_match(muster,beispiel,logical)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     {
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
-        if (nullp(muster)) return TRUE;
+        if (nullp(muster)) return true;
         return equal(muster,beispiel);
       }
       #endif
       #if HAS_HOST
-      if (nullp(muster)) return TRUE;
+      if (nullp(muster)) return true;
       return equal(muster,beispiel);
       #else
-      return TRUE;
+      return true;
       #endif
     }
-  local boolean device_match(muster,beispiel,logical)
+  local bool device_match(muster,beispiel,logical)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     {
       #if HAS_DEVICE
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
-        return TRUE;
+        return true;
       }
       #endif
-      if (nullp(muster)) return TRUE;
+      if (nullp(muster)) return true;
       #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
-      if (eq(muster,S(Kwild))) return TRUE;
-      if (eq(beispiel,S(Kwild))) return FALSE;
+      if (eq(muster,S(Kwild))) return true;
+      if (eq(beispiel,S(Kwild))) return false;
       #endif
       #if defined(PATHNAME_AMIGAOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
       return equalp(muster,beispiel);
@@ -4953,27 +4953,27 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
       return equal(muster,beispiel);
       #endif
       #else
-      return TRUE;
+      return true;
       #endif
     }
-  local boolean nametype_match_aux (object muster, object beispiel, boolean logical);
-  local boolean nametype_match_aux(muster,beispiel,logical)
+  local bool nametype_match_aux (object muster, object beispiel, bool logical);
+  local bool nametype_match_aux(muster,beispiel,logical)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     {
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
-        if (eq(muster,S(Kwild))) return TRUE;
-        if (eq(beispiel,S(Kwild))) return FALSE;
+        if (eq(muster,S(Kwild))) return true;
+        if (eq(beispiel,S(Kwild))) return false;
         if (nullp(muster)) {
           if (nullp(beispiel))
-            return TRUE;
+            return true;
           else
-            return FALSE;
+            return false;
         }
         if (nullp(beispiel)) {
-          return FALSE;
+          return false;
         }
         return wildcard_match(muster,beispiel);
       }
@@ -4981,40 +4981,40 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
       #ifdef PATHNAME_NOEXT
       if (nullp(muster)) {
         if (nullp(beispiel))
-          return TRUE;
+          return true;
         else
-          return FALSE;
+          return false;
       }
       if (nullp(beispiel)) {
-        return FALSE;
+        return false;
       }
       return wildcard_match(muster,beispiel);
       #endif
     }
-  local boolean subdir_match(muster,beispiel,logical)
+  local bool subdir_match(muster,beispiel,logical)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     {
-      if (eq(muster,beispiel)) return TRUE;
+      if (eq(muster,beispiel)) return true;
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
-        if (eq(muster,S(Kwild))) return TRUE;
-        if (!simple_string_p(muster) || !simple_string_p(beispiel)) return FALSE;
+        if (eq(muster,S(Kwild))) return true;
+        if (!simple_string_p(muster) || !simple_string_p(beispiel)) return false;
         return wildcard_match(muster,beispiel);
       }
       #endif
       #ifdef PATHNAME_NOEXT
-      if (!simple_string_p(muster) || !simple_string_p(beispiel)) return FALSE;
+      if (!simple_string_p(muster) || !simple_string_p(beispiel)) return false;
       return wildcard_match(muster,beispiel);
       #endif
     }
   # rekursive Implementation wegen Backtracking:
-  local boolean directory_match_ab (object m_list, object b_list, boolean logical);
-  local boolean directory_match_ab(m_list,b_list,logical)
+  local bool directory_match_ab (object m_list, object b_list, bool logical);
+  local bool directory_match_ab(m_list,b_list,logical)
     var object m_list;
     var object b_list;
-    var boolean logical;
+    var bool logical;
     {
       # Algorithmus analog zu wildcard_match_ab.
       var object item;
@@ -5022,66 +5022,66 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL)
         if (atomp(m_list)) { return atomp(b_list); }
         item = Car(m_list); m_list = Cdr(m_list);
         if (eq(item,S(Kwild_inferiors))) break;
-        if (atomp(b_list)) return FALSE;
-        if (!subdir_match(item,Car(b_list),logical)) return FALSE;
+        if (atomp(b_list)) return false;
+        if (!subdir_match(item,Car(b_list),logical)) return false;
         b_list = Cdr(b_list);
       }
       loop {
-        if (atomp(m_list)) return TRUE;
+        if (atomp(m_list)) return true;
         item = Car(m_list); m_list = Cdr(m_list);
         if (!eq(item,S(Kwild_inferiors))) break;
       }
       loop {
-        if (atomp(b_list)) return FALSE;
+        if (atomp(b_list)) return false;
         if (subdir_match(item,Car(b_list),logical)) {
           b_list = Cdr(b_list);
-          if (directory_match_ab(m_list,b_list,logical)) return TRUE;
+          if (directory_match_ab(m_list,b_list,logical)) return true;
         } else {
           b_list = Cdr(b_list);
         }
       }
     }
-  local boolean directory_match(muster,beispiel,logical)
+  local bool directory_match(muster,beispiel,logical)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     {
       # muster mit O(directory_default) vergleichen:
       if (eq(Car(muster),S(Krelative)) && nullp(Cdr(muster)))
-        return TRUE;
+        return true;
       # Startpoint matchen:
       if (!eq(Car(muster),Car(beispiel)))
-        return FALSE;
+        return false;
       muster = Cdr(muster); beispiel = Cdr(beispiel);
       # subdirs matchen:
       return directory_match_ab(muster,beispiel,logical);
     }
-  local boolean nametype_match(muster,beispiel,logical)
+  local bool nametype_match(muster,beispiel,logical)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     {
-      if (nullp(muster)) return TRUE;
+      if (nullp(muster)) return true;
       return nametype_match_aux(muster,beispiel,logical);
     }
-  local boolean version_match(muster,beispiel,logical)
+  local bool version_match(muster,beispiel,logical)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     {
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
-        if (nullp(muster) || eq(muster,S(Kwild))) return TRUE;
+        if (nullp(muster) || eq(muster,S(Kwild))) return true;
         return eql(muster,beispiel);
       }
       #endif
       #if HAS_VERSION
-      if (nullp(muster) || eq(muster,S(Kwild))) return TRUE;
-      if (eq(beispiel,S(Kwild))) return FALSE;
-      if (eql(muster,beispiel)) return TRUE;
-      return FALSE;
+      if (nullp(muster) || eq(muster,S(Kwild))) return true;
+      if (eq(beispiel,S(Kwild))) return false;
+      if (eql(muster,beispiel)) return true;
+      return false;
       #else
-      return TRUE;
+      return true;
       #endif
     }
 
@@ -5089,12 +5089,12 @@ LISPFUNN(pathname_match_p,2)
 # (PATHNAME-MATCH-P pathname wildname), CLtL2 S. 623
   {
     # Stackaufbau: pathname, wildname.
-    var boolean logical = FALSE;
+    var bool logical = false;
     STACK_1 = coerce_xpathname(STACK_1);
     STACK_0 = coerce_xpathname(STACK_0);
     #ifdef LOGICAL_PATHNAMES
     if (logpathnamep(STACK_1) && logpathnamep(STACK_0)) {
-      logical = TRUE;
+      logical = true;
     } else {
       # nicht beides logische Pathnames -> erst in normale Pathnames umwandeln:
       STACK_1 = coerce_pathname(STACK_1);
@@ -5267,15 +5267,15 @@ LISPFUNN(pathname_match_p,2)
 # UPs: Vergleicht jeweils eine Pathname-Komponente ("Beispiel") und
 # eine Pathname-Komponente ("Muster").
 # can trigger GC
-  local void host_diff (object muster, object beispiel, boolean logical, const object* previous, object* solutions);
-  local void device_diff (object muster, object beispiel, boolean logical, const object* previous, object* solutions);
-  local void directory_diff (object muster, object beispiel, boolean logical, const object* previous, object* solutions);
-  local void nametype_diff (object muster, object beispiel, boolean logical, const object* previous, object* solutions);
-  local void version_diff (object muster, object beispiel, boolean logical, const object* previous, object* solutions);
+  local void host_diff (object muster, object beispiel, bool logical, const object* previous, object* solutions);
+  local void device_diff (object muster, object beispiel, bool logical, const object* previous, object* solutions);
+  local void directory_diff (object muster, object beispiel, bool logical, const object* previous, object* solutions);
+  local void nametype_diff (object muster, object beispiel, bool logical, const object* previous, object* solutions);
+  local void version_diff (object muster, object beispiel, bool logical, const object* previous, object* solutions);
   local void host_diff(muster,beispiel,logical,previous,solutions)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     var const object* previous;
     var object* solutions;
     {
@@ -5300,7 +5300,7 @@ LISPFUNN(pathname_match_p,2)
   local void device_diff(muster,beispiel,logical,previous,solutions)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     var const object* previous;
     var object* solutions;
     {
@@ -5338,11 +5338,11 @@ LISPFUNN(pathname_match_p,2)
       #endif
       push_solution();
     }
-  local void nametype_diff_aux (object muster, object beispiel, boolean logical, const object* previous, object* solutions);
+  local void nametype_diff_aux (object muster, object beispiel, bool logical, const object* previous, object* solutions);
   local void nametype_diff_aux(muster,beispiel,logical,previous,solutions)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     var const object* previous;
     var object* solutions;
     {
@@ -5380,7 +5380,7 @@ LISPFUNN(pathname_match_p,2)
   local void subdir_diff(muster,beispiel,logical,previous,solutions)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     var const object* previous;
     var object* solutions;
     {
@@ -5412,11 +5412,11 @@ LISPFUNN(pathname_match_p,2)
       #endif
     }
   # rekursive Implementation wegen Backtracking:
-  local void directory_diff_ab (object m_list, object b_list, boolean logical, const object* previous, object* solutions);
+  local void directory_diff_ab (object m_list, object b_list, bool logical, const object* previous, object* solutions);
   local void directory_diff_ab(m_list,b_list,logical,previous,solutions)
     var object m_list;
     var object b_list;
-    var boolean logical;
+    var bool logical;
     var const object* previous;
     var object* solutions;
     {
@@ -5478,7 +5478,7 @@ LISPFUNN(pathname_match_p,2)
   local void directory_diff(muster,beispiel,logical,previous,solutions)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     var const object* previous;
     var object* solutions;
     {
@@ -5499,7 +5499,7 @@ LISPFUNN(pathname_match_p,2)
   local void nametype_diff(muster,beispiel,logical,previous,solutions)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     var const object* previous;
     var object* solutions;
     {
@@ -5514,7 +5514,7 @@ LISPFUNN(pathname_match_p,2)
   local void version_diff(muster,beispiel,logical,previous,solutions)
     var object muster;
     var object beispiel;
-    var boolean logical;
+    var bool logical;
     var const object* previous;
     var object* solutions;
     {
@@ -5665,16 +5665,16 @@ LISPFUNN(pathname_match_p,2)
   local object translate_pathname (object* subst, object muster);
 # translate_host(&subst,muster,logical) etc. liefert den host etc. mit Ersetzungen
 # und verkürzen subst passend. Falls nicht passend, liefert es nullobj.
-  local object translate_host (object* subst, object muster, boolean logical);
-  local object translate_device (object* subst, object muster, boolean logical);
-  local object translate_subdir (object* subst, object muster, boolean logical);
-  local object translate_directory (object* subst, object muster, boolean logical);
-  local object translate_nametype (object* subst, object muster, boolean logical);
-  local object translate_version (object* subst, object muster, boolean logical);
+  local object translate_host (object* subst, object muster, bool logical);
+  local object translate_device (object* subst, object muster, bool logical);
+  local object translate_subdir (object* subst, object muster, bool logical);
+  local object translate_directory (object* subst, object muster, bool logical);
+  local object translate_nametype (object* subst, object muster, bool logical);
+  local object translate_version (object* subst, object muster, bool logical);
   local object translate_host(subst,muster,logical)
     var object* subst;
     var object muster;
-    var boolean logical;
+    var bool logical;
     {
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
@@ -5703,7 +5703,7 @@ LISPFUNN(pathname_match_p,2)
   local object translate_device(subst,muster,logical)
     var object* subst;
     var object muster;
-    var boolean logical;
+    var bool logical;
     {
       #if HAS_DEVICE
       #ifdef LOGICAL_PATHNAMES
@@ -5725,11 +5725,11 @@ LISPFUNN(pathname_match_p,2)
       #endif
       return muster;
     }
-  local object translate_nametype_aux (object* subst, object muster, boolean logical);
+  local object translate_nametype_aux (object* subst, object muster, bool logical);
   local object translate_nametype_aux(subst,muster,logical)
     var object* subst;
     var object muster;
-    var boolean logical;
+    var bool logical;
     {
       if (eq(muster,S(Kwild)) && mconsp(*subst)) {
         if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
@@ -5786,20 +5786,20 @@ LISPFUNN(pathname_match_p,2)
   local object translate_subdir(subst,muster,logical)
     var object* subst;
     var object muster;
-    var boolean logical;
+    var bool logical;
     {
       #ifdef LOGICAL_PATHNAMES
       if (logical)
         return translate_nametype_aux(subst,muster,logical);
       #endif
       #ifdef PATHNAME_NOEXT
-      return translate_nametype_aux(subst,muster,FALSE);
+      return translate_nametype_aux(subst,muster,false);
       #endif
     }
   local object translate_directory(subst,muster,logical)
     var object* subst;
     var object muster;
-    var boolean logical;
+    var bool logical;
     {
       # muster mit O(directory_default) vergleichen:
       if (eq(Car(muster),S(Krelative)) && nullp(Cdr(muster))
@@ -5842,7 +5842,7 @@ LISPFUNN(pathname_match_p,2)
   local object translate_nametype(subst,muster,logical)
     var object* subst;
     var object muster;
-    var boolean logical;
+    var bool logical;
     {
       if (nullp(muster) && mconsp(*subst)) {
         if (simple_string_p(Car(*subst)) || nullp(Car(*subst))) {
@@ -5856,7 +5856,7 @@ LISPFUNN(pathname_match_p,2)
   local object translate_version(subst,muster,logical)
     var object* subst;
     var object muster;
-    var boolean logical;
+    var bool logical;
     {
       #ifdef LOGICAL_PATHNAMES
       if (logical) {
@@ -5899,13 +5899,13 @@ LISPFUNN(pathname_match_p,2)
     var object* subst;
     var object muster;
     {
-      var boolean logical = FALSE;
+      var bool logical = false;
       var object item;
       pushSTACK(*subst); # subst retten für Fehlermeldung
       pushSTACK(muster);
       #ifdef LOGICAL_PATHNAMES
       if (logpathnamep(muster))
-        logical = TRUE;
+        logical = true;
       #endif
       # Argumente für MAKE-PATHNAME zusammenbauen:
       item = translate_host(subst,xpathname_host(logical,muster),logical);
@@ -5955,21 +5955,21 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # :merge = NIL --> letzten MERGE-PATHNAMES Schritt überspringen
   {
     # Stackaufbau: beispiel, muster1, muster2, all, merge.
-    var boolean logical = FALSE; # Flag, ob beispiel und muster logische Pathnames sind
-    var boolean logical2 = FALSE; # Flag, ob muster2 ein logischer Pathname ist
+    var bool logical = false; # Flag, ob beispiel und muster logische Pathnames sind
+    var bool logical2 = false; # Flag, ob muster2 ein logischer Pathname ist
     STACK_4 = coerce_xpathname(STACK_4);
     STACK_3 = coerce_xpathname(STACK_3);
     STACK_2 = coerce_xpathname(STACK_2);
     #ifdef LOGICAL_PATHNAMES
     if (logpathnamep(STACK_4) && logpathnamep(STACK_3)) {
-      logical = TRUE;
+      logical = true;
     } else {
       # nicht beides logische Pathnames -> erst in normale Pathnames umwandeln:
       STACK_4 = coerce_pathname(STACK_4);
       STACK_3 = coerce_pathname(STACK_3);
     }
     if (logpathnamep(STACK_2))
-      logical2 = TRUE;
+      logical2 = true;
     #endif
     # 1. Schritt: Liste aller passenden Substitutionen bilden.
     pushSTACK(NIL); pushSTACK(NIL);
@@ -6074,8 +6074,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # UP: Stellt fest, ob der Name eines Pathname =NIL ist.
 # namenullp(pathname)
 # > pathname: nicht-Logical Pathname
-  # local boolean namenullp (object pathname);
-  # local boolean namenullp(pathname)
+  # local bool namenullp (object pathname);
+  # local bool namenullp(pathname)
   #   { return nullp(ThePathname(pathname)->pathname_name); }
   #define namenullp(path)  (nullp(ThePathname(path)->pathname_name))
 
@@ -6155,10 +6155,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 
 # UP: Stellt fest, ob ein Laufwerk existiert.
 # > uintB drive: Laufwerks-(groß-)buchstabe
-# < boolean ergebnis: ob dieses Laufwerk existiert und ansprechbar ist
-  local boolean good_drive (uintB drive);
+# < bool ergebnis: ob dieses Laufwerk existiert und ansprechbar ist
+  local bool good_drive (uintB drive);
   #ifdef EMUNIX
-  local boolean good_drive(drive)
+  local bool good_drive(drive)
     var uintB drive;
     {
       # Methode (siehe HELPPC/misc.txt):
@@ -6169,7 +6169,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       #       then drive exists
       #       else drive doesn't exist
       # 5. reset original drive  (INT 0x21,0xE)
-      var boolean result;
+      var bool result;
       begin_system_call();
       {
         var uintB orig_drive = _getdrive();
@@ -6192,7 +6192,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
     }
   #endif
   #ifdef WIN32_NATIVE
-  local boolean good_drive(drive)
+  local bool good_drive(drive)
     var uintB drive;
     {
       var char rootpath[4];
@@ -6206,7 +6206,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       switch (result) {
         case DRIVE_UNKNOWN:
           end_system_call();
-          return FALSE;
+          return false;
         case DRIVE_NO_ROOT_DIR:
           # Distinguish NFS mounts from nonassigned drive letters:
           result = GetFileAttributes(rootpath);
@@ -6214,12 +6214,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
           return !(result==0xFFFFFFFF);
         default:
           end_system_call();
-          return TRUE;
+          return true;
       }
     }
   #if 0
   # The following fails to recognize some (but not all) NFS mounts on WinNT.
-  local boolean good_drive_notsogood(drive)
+  local bool good_drive_notsogood(drive)
     var uintB drive;
     {
       var DWORD drives_bitmask;
@@ -6425,10 +6425,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 #     falls Name/=NIL: Namestring (für DOS)
 #     falls tolerantp evtl.: nullobj
 # can trigger GC
-  local object assure_dir_exists (boolean links_resolved, boolean tolerantp);
+  local object assure_dir_exists (bool links_resolved, bool tolerantp);
   local object assure_dir_exists(links_resolved,tolerantp)
-    var boolean links_resolved;
-    var boolean tolerantp;
+    var bool links_resolved;
+    var bool tolerantp;
     {
       var object pathname = STACK_0;
       var uintC stringcount = host_namestring_parts(pathname); # Strings fürn Host
@@ -6511,7 +6511,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   global object assume_dir_exists (void);
   global object assume_dir_exists()
     {
-      return assure_dir_exists(TRUE,FALSE);
+      return assure_dir_exists(true,false);
     }
 
 #endif
@@ -6679,10 +6679,10 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 #                                sonst ein Pointer auf eine STAT-Information.
 # can trigger GC
   local var struct FileInfoBlock * filestatus;
-  local object assure_dir_exists (boolean links_resolved, boolean tolerantp);
+  local object assure_dir_exists (bool links_resolved, bool tolerantp);
   local object assure_dir_exists(links_resolved,tolerantp)
-    var boolean links_resolved;
-    var boolean tolerantp;
+    var bool links_resolved;
+    var bool tolerantp;
     {
       if (!links_resolved) {
         # Zur Auflösung von :PARENTs, die über Root hinaussteigen,
@@ -6829,7 +6829,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   global object assume_dir_exists (void);
   global object assume_dir_exists()
     {
-      subr_self = L(open); return assure_dir_exists(TRUE,FALSE);
+      subr_self = L(open); return assure_dir_exists(true,false);
     }
 
 #endif
@@ -6919,15 +6919,15 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 #                                sonst ein Pointer auf eine STAT-Information.
 # can trigger GC
   local var struct stat * filestatus;
-  local object assure_dir_exists (boolean links_resolved, boolean tolerantp);
+  local object assure_dir_exists (bool links_resolved, bool tolerantp);
   #ifdef HAVE_LSTAT
     #define if_HAVE_LSTAT(statement)  statement
   #else
     #define if_HAVE_LSTAT(statement)
   #endif
   local object assure_dir_exists(links_resolved,tolerantp)
-    var boolean links_resolved;
-    var boolean tolerantp;
+    var bool links_resolved;
+    var bool tolerantp;
     {
       var uintC allowed_links = MAXSYMLINKS; # Anzahl der noch erlaubten symbolischen Links
       if (links_resolved)
@@ -7066,7 +7066,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   global object assume_dir_exists (void);
   global object assume_dir_exists()
     {
-      subr_self = L(open); return assure_dir_exists(TRUE,FALSE);
+      subr_self = L(open); return assure_dir_exists(true,false);
     }
 
 #endif
@@ -7164,7 +7164,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   local object use_default_dir(pathname)
     var object pathname;
     {
-      var boolean resolved_root = FALSE;
+      var bool resolved_root = false;
      retry:
       # erst den Pathname kopieren:
       pathname = copy_pathname(pathname);
@@ -7209,7 +7209,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
                     || nullp(ThePathname(pathname)->pathname_device)
                )   ) {
               defaults = canonicalise_dirname(pathname,O(root_string));
-              resolved_root = TRUE;
+              resolved_root = true;
             } else
               goto resolved;
           } elif (eq(next,S(Khome))) { # :HOME -> "&." auflösen
@@ -7319,12 +7319,12 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
 # can trigger GC
   local var struct stat * filestatus;
   #define assure_dir_exists(links_resolved,tolerantp)  \
-     assure_dir_exists_(links_resolved,tolerantp,FALSE)
-  local object assure_dir_exists_ (boolean links_resolved, boolean tolerantp, boolean allowdir);
+     assure_dir_exists_(links_resolved,tolerantp,false)
+  local object assure_dir_exists_ (bool links_resolved, bool tolerantp, bool allowdir);
   local object assure_dir_exists_(links_resolved,tolerantp,allowdir)
-    var boolean links_resolved;
-    var boolean tolerantp;
-    var boolean allowdir;
+    var bool links_resolved;
+    var bool tolerantp;
+    var bool allowdir;
     {
       var object pathname = STACK_0;
       var uintC stringcount = host_namestring_parts(pathname); # Strings für den Host
@@ -7390,7 +7390,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
   global object assume_dir_exists (void);
   global object assume_dir_exists()
     {
-      subr_self = L(open); return assure_dir_exists(TRUE,FALSE);
+      subr_self = L(open); return assure_dir_exists(true,false);
     }
 
 # Ein File "name.type" wird dem RISCOS als "type.name" vermittelt, dabei ist
@@ -7413,7 +7413,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
         # call MAKE-DIR if the directory does not exist:
         pushSTACK(subr_self); # subr_self retten
         pushSTACK(pathname);
-        if (eq(assure_dir_exists(FALSE,TRUE),nullobj)) {
+        if (eq(assure_dir_exists(false,true),nullobj)) {
           funcall(L(make_dir),1);
         } else {
           skipSTACK(1);
@@ -7644,11 +7644,11 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL)
           return 0;
         }
     #endif
-    local boolean file_exists (object namestring);
-    local boolean file_exists(namestring)
+    local bool file_exists (object namestring);
+    local bool file_exists(namestring)
       var object namestring;
       {
-        var boolean exists;
+        var bool exists;
         with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
           exists = (access0(namestring_asciz)==0);
         });
@@ -7696,7 +7696,7 @@ LISPFUNN(truename,1)
       pathname = use_default_dir(pathname); # Default-Directory einfügen
       pushSTACK(pathname);
       # Directory muss existieren:
-      var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
+      var object namestring = assure_dir_exists(false,false); # Filename fürs Betriebssystem
       if (namenullp(STACK_0)) {
         # Kein Name angegeben
         if (!nullp(ThePathname(STACK_0)->pathname_type)) {
@@ -7746,7 +7746,7 @@ LISPFUNN(probe_file,1)
     # Name angegeben.
     pushSTACK(pathname);
     # Directory muss existieren:
-    var object namestring = assure_dir_exists(FALSE,TRUE); # Filename fürs Betriebssystem
+    var object namestring = assure_dir_exists(false,true); # Filename fürs Betriebssystem
     if (eq(namestring,nullobj)) {
       # Pfad zur Datei existiert nicht -> NIL als Wert:
       skipSTACK(1); value1 = NIL; mv_count=1; return;
@@ -7762,10 +7762,10 @@ LISPFUNN(probe_file,1)
 # Stellt fest, ob ein Directory existiert.
 # directory_exists(pathname)
 # > pathname: ein absoluter Pathname ohne Wildcards, mit Name=NIL und Typ=NIL
-# < result: TRUE wenn es ein existierendes Verzeichnis bezeichnet
+# < result: true wenn es ein existierendes Verzeichnis bezeichnet
 # can trigger GC
-  local boolean directory_exists (object pathname);
-  local boolean directory_exists(pathname)
+  local bool directory_exists (object pathname);
+  local bool directory_exists(pathname)
     var object pathname;
     {
       pushSTACK(pathname); # Pathname retten
@@ -7773,7 +7773,7 @@ LISPFUNN(probe_file,1)
       stringcount += directory_namestring_parts(pathname); # Strings fürs Directory
       var object dir_namestring = string_concat(stringcount); # zusammenhängen
       # Existenztest, siehe auch assure_dir_exists():
-      var boolean exists = TRUE;
+      var bool exists = true;
       #ifdef MSDOS
         if (!(nullp(Cdr(ThePathname(STACK_0)->pathname_directory))
               #ifdef PATHNAME_OS2
@@ -7787,10 +7787,10 @@ LISPFUNN(probe_file,1)
             begin_system_call();
             if (stat(dir_namestring_asciz,&statbuf) < 0) {
               if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
-              exists = FALSE;
+              exists = false;
             } else {
               if (!S_ISDIR(statbuf.st_mode)) # gefundene Datei kein Unterdirectory ?
-                exists = FALSE;
+                exists = false;
             }
             end_system_call();
           });
@@ -7809,10 +7809,10 @@ LISPFUNN(probe_file,1)
             if (!(GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH)) {
               end_system_call(); OS_file_error(STACK_0);
             }
-            exists = FALSE;
+            exists = false;
           } else {
             if (!(fileattr & FILE_ATTRIBUTE_DIRECTORY)) # gefundene Datei kein Unterdirectory ?
-              exists = FALSE;
+              exists = false;
           }
           end_system_call();
         });
@@ -7829,7 +7829,7 @@ LISPFUNN(probe_file,1)
             switch (errcode) {
               case ERROR_OBJECT_NOT_FOUND:
               case ERROR_ACTION_NOT_KNOWN:
-                exists = FALSE;
+                exists = false;
                 break;
               default:
                 end_system_call(); OS_file_error(STACK_0);
@@ -7839,7 +7839,7 @@ LISPFUNN(probe_file,1)
             var struct FileInfoBlock * fibptr = LONGALIGN(&fib);
             var LONG ergebnis = Examine(lock,fibptr);
             if (!ergebnis || !(fibptr->fib_DirEntryType >= 0))
-              exists = FALSE;
+              exists = false;
             UnLock(lock);
           }
           end_system_call();
@@ -7855,10 +7855,10 @@ LISPFUNN(probe_file,1)
           begin_system_call();
           if (stat(dir_namestring_asciz,&statbuf) < 0) {
             if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
-            exists = FALSE;
+            exists = false;
           } else {
             if (!S_ISDIR(statbuf.st_mode)) # gefundene Datei kein Unterdirectory ?
-              exists = FALSE;
+              exists = false;
           }
           end_system_call();
         });
@@ -7871,10 +7871,10 @@ LISPFUNN(probe_file,1)
           begin_system_call();
           if (stat(dir_namestring_asciz,&statbuf) < 0) {
             if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
-            exists = FALSE;
+            exists = false;
           } else {
             if (!S_ISDIR(statbuf.st_mode)) # gefundene Datei kein Unterdirectory ?
-              exists = FALSE;
+              exists = false;
           }
           end_system_call();
         });
@@ -7910,9 +7910,9 @@ LISPFUNN(probe_directory,1)
 # > pathname: absoluter Pathname, ohne Wildcards, nach Auflösung
 #             symbolischer Links
 #endif
-# < ergebnis: TRUE, falls ein geöffneter File-Stream auf diese Datei existiert.
-  local boolean openp (object pathname);
-  local boolean openp(pathname)
+# < ergebnis: true, falls ein geöffneter File-Stream auf diese Datei existiert.
+  local bool openp (object pathname);
+  local bool openp(pathname)
     var object pathname;
     {
       var object flist = O(open_files); # Liste aller offenen Files durchlaufen
@@ -7920,11 +7920,11 @@ LISPFUNN(probe_directory,1)
         var object f = Car(flist); # nächster offener Stream
         if (TheStream(f)->strmtype == strmtype_file) { # File-Stream ?
           if (equal(TheStream(f)->strm_file_truename,pathname))
-            return TRUE;
+            return true;
         }
         flist = Cdr(flist);
       }
-      return FALSE;
+      return false;
     }
 
 # Fehlermeldung wegen Löschversuch auf geöffnete Datei
@@ -7966,7 +7966,7 @@ LISPFUNN(delete_file,1)
     # Name angegeben.
     pushSTACK(pathname);
     # Directory muss existieren:
-    var object namestring = assure_dir_exists(FALSE,TRUE); # Filename fürs Betriebssystem
+    var object namestring = assure_dir_exists(false,true); # Filename fürs Betriebssystem
     if (eq(namestring,nullobj)) {
       # Pfad zur Datei existiert nicht -> Wert NIL
       skipSTACK(1); value1 = NIL; mv_count=1; return;
@@ -8028,7 +8028,7 @@ LISPFUNN(delete_file,1)
         # Name angegeben.
         pushSTACK(oldpathname);
         # Directory muss existieren:
-        var object old_namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
+        var object old_namestring = assure_dir_exists(false,false); # Filename fürs Betriebssystem
         if (openp(STACK_0)) { fehler_rename_open(STACK_0); } # Keine offenen Dateien umbenennen!
         pushSTACK(old_namestring);
       }
@@ -8043,7 +8043,7 @@ LISPFUNN(delete_file,1)
         # Name angegeben.
         pushSTACK(newpathname);
         # Directory muss existieren:
-        var object new_namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
+        var object new_namestring = assure_dir_exists(false,false); # Filename fürs Betriebssystem
         # Stackaufbau: filename, newname, oldpathname, newpathname,
         #              oldtruename, oldnamestring, newtruename.
         # 4. Datei umbenennen:
@@ -8150,11 +8150,11 @@ LISPFUNN(rename_file,2)
 # > create_if_not_exists: if true, the file must be created
 # > STACK_0: pathname
 # < handle: open file handle
-# < result: whether the file could be opened (necessarily TRUE if create_if_not_exists)
-  local inline boolean open_input_file (char* pathstring, boolean create_if_not_exists, Handle* handle_);
-  local inline boolean open_input_file(pathstring,create_if_not_exists,handle_)
+# < result: whether the file could be opened (necessarily true if create_if_not_exists)
+  local inline bool open_input_file (char* pathstring, bool create_if_not_exists, Handle* handle_);
+  local inline bool open_input_file(pathstring,create_if_not_exists,handle_)
     var char* pathstring;
-    var boolean create_if_not_exists;
+    var bool create_if_not_exists;
     var Handle* handle_;
     {
       #ifdef EMUNIX
@@ -8166,7 +8166,7 @@ LISPFUNN(rename_file,2)
             result = open(pathstring,O_RDONLY);
           } else {
             # Datei existiert nicht
-            if (!create_if_not_exists) return FALSE;
+            if (!create_if_not_exists) return false;
             # Datei mit creat erzeugen:
             begin_system_call();
             result = creat(pathstring,my_open_mask);
@@ -8181,7 +8181,7 @@ LISPFUNN(rename_file,2)
           if (result<0) {
             if (errno == ENOENT) { # nicht gefunden?
               # Datei existiert nicht
-              if (!create_if_not_exists) { end_system_call(); return FALSE; }
+              if (!create_if_not_exists) { end_system_call(); return false; }
               # Datei mit creat erzeugen:
               result = creat(pathstring,my_open_mask);
               if (result<0) { end_system_call(); OS_file_error(STACK_0); }
@@ -8192,7 +8192,7 @@ LISPFUNN(rename_file,2)
         #endif
         setmode(result,O_BINARY);
         end_system_call();
-        *handle_ = result; return TRUE;
+        *handle_ = result; return true;
       #endif
       #ifdef AMIGAOS
         var Handle handle;
@@ -8202,7 +8202,7 @@ LISPFUNN(rename_file,2)
             handle = Open(pathstring,MODE_OLDFILE);
           } else {
             # Datei existiert nicht
-            if (!create_if_not_exists) return FALSE;
+            if (!create_if_not_exists) return false;
             # Datei mit Open erzeugen:
             begin_system_call();
             handle = Open(pathstring,MODE_READWRITE);
@@ -8214,7 +8214,7 @@ LISPFUNN(rename_file,2)
           if (handle==Handle_NULL) {
             if (IoErr()==ERROR_OBJECT_NOT_FOUND) {
               # Datei existiert nicht
-              if (!create_if_not_exists) { end_system_call(); return FALSE; }
+              if (!create_if_not_exists) { end_system_call(); return false; }
               # Datei mit Open erzeugen:
               handle = Open(pathstring,MODE_READWRITE);
             }
@@ -8222,7 +8222,7 @@ LISPFUNN(rename_file,2)
         #endif
         end_system_call();
         if (handle==Handle_NULL) { OS_file_error(STACK_0); }
-        *handle_ = handle; return TRUE;
+        *handle_ = handle; return true;
       #endif
       #if defined(UNIX) || defined(RISCOS)
         var int result;
@@ -8230,7 +8230,7 @@ LISPFUNN(rename_file,2)
           var int oflags = O_RDONLY | O_BINARY;
           if (!file_exists(_EMA_)) {
             # Datei existiert nicht
-            if (!create_if_not_exists) return FALSE;
+            if (!create_if_not_exists) return false;
             # Datei mit open erzeugen:
             oflags |= O_CREAT;
           }
@@ -8246,13 +8246,13 @@ LISPFUNN(rename_file,2)
           if (result<0) {
             if (errno == ENOENT) { # nicht gefunden?
               # Datei existiert nicht
-              if (!create_if_not_exists) { end_system_call(); return FALSE; }
+              if (!create_if_not_exists) { end_system_call(); return false; }
             }
             end_system_call(); OS_file_error(STACK_0); # sonstigen Error melden
           }
           end_system_call();
         #endif
-        *handle_ = result; return TRUE;
+        *handle_ = result; return true;
       #endif
       #ifdef WIN32_NATIVE
         var Handle handle;
@@ -8260,7 +8260,7 @@ LISPFUNN(rename_file,2)
           var DWORD flag = OPEN_EXISTING;
           if (!file_exists(_EMA_)) {
             # Datei existiert nicht
-            if (!create_if_not_exists) return FALSE;
+            if (!create_if_not_exists) return false;
             # Datei mit CreateFile erzeugen:
             flag = OPEN_ALWAYS;
           }
@@ -8278,13 +8278,13 @@ LISPFUNN(rename_file,2)
           if (handle==INVALID_HANDLE_VALUE) {
             if (GetLastError()==ERROR_FILE_NOT_FOUND || GetLastError()==ERROR_PATH_NOT_FOUND || GetLastError()==ERROR_BAD_NETPATH) { # nicht gefunden?
               # Datei existiert nicht
-              if (!create_if_not_exists) { end_system_call(); return FALSE; }
+              if (!create_if_not_exists) { end_system_call(); return false; }
             }
             end_system_call(); OS_file_error(STACK_0); # sonstigen Error melden
           }
           end_system_call();
         #endif
-        *handle_ = handle; return TRUE;
+        *handle_ = handle; return true;
       #endif
     }
 
@@ -8295,10 +8295,10 @@ LISPFUNN(rename_file,2)
 # > truncate_if_exists: if true, the file is truncated to zero size
 # > STACK_0: pathname
 # < result: open file handle
-  local inline Handle open_output_file (char* pathstring, boolean truncate_if_exists);
+  local inline Handle open_output_file (char* pathstring, bool truncate_if_exists);
   local inline Handle open_output_file(pathstring,truncate_if_exists)
     var char* pathstring;
-    var boolean truncate_if_exists;
+    var bool truncate_if_exists;
     {
       #ifdef AMIGAOS
         begin_system_call();
@@ -8335,10 +8335,10 @@ LISPFUNN(rename_file,2)
 # > pathstring: file name, ASCIZ-String
 # > delete_backup_file: if true, delete the backup file
 # > STACK_0: pathname
-  local inline void create_backup_file (char* pathstring, boolean delete_backup_file);
+  local inline void create_backup_file (char* pathstring, bool delete_backup_file);
   local inline void create_backup_file(pathstring,delete_backup_file)
     var char* pathstring;
-    var boolean delete_backup_file;
+    var bool delete_backup_file;
     {
       var object filename = STACK_0;
       if (openp(filename))
@@ -8379,7 +8379,7 @@ LISPFUNN(rename_file,2)
           ThePathname(filename)->pathname_name = new_name;
         }
         if (openp(filename)) { fehler_delete_open(filename); } # Keine offenen Dateien löschen!
-        new_namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
+        new_namestring = assure_dir_exists(false,false); # Filename fürs Betriebssystem
       #endif
       with_sstring_0(new_namestring,O(pathname_encoding),new_namestring_asciz, {
         # Datei (oder Link) mit diesem Namen löschen, falls vorhanden:
@@ -8423,14 +8423,14 @@ LISPFUNN(rename_file,2)
       # Stackaufbau: origPathname, absPathname.
       # Directory muss existieren:
       var object namestring = # Filename fürs Betriebssystem
-        assure_dir_exists(FALSE,((direction == 0) && (if_not_exists == 0)) || (if_not_exists == 2)); # tolerant only if :PROBE and if_not_exists = 0 or if if_not_exists = 2
+        assure_dir_exists(false,((direction == 0) && (if_not_exists == 0)) || (if_not_exists == 2)); # tolerant only if :PROBE and if_not_exists = 0 or if if_not_exists = 2
       if (eq(namestring,nullobj))
         # Pfad zur Datei existiert nicht, und :IF-DOES-NOT-EXIST = nichts oder NIL
         goto ergebnis_NIL;
       # Stackaufbau: Pathname, Truename.
       # Filename überprüfen und Handle holen:
       var object handle;
-      var boolean append_flag = FALSE;
+      var bool append_flag = false;
       switch (direction) {
         case 0: # Modus ist :PROBE
           if (!file_exists(namestring)) {
@@ -8451,7 +8451,7 @@ LISPFUNN(rename_file,2)
         case 1: case 3: # Modus ist :INPUT
           {
             var Handle handl;
-            var boolean result;
+            var bool result;
             #ifdef PATHNAME_RISCOS
             if (!file_exists(namestring)) {
               pushSTACK(namestring); prepare_create(STACK_1); namestring = popSTACK();
@@ -8517,7 +8517,7 @@ LISPFUNN(rename_file,2)
                       end_system_call();
                       goto ergebnis_NIL;
                     case 6: # :APPEND
-                      append_flag = TRUE; # am Schluss ans Ende positionieren
+                      append_flag = true; # am Schluss ans Ende positionieren
                     case 7: # :OVERWRITE -> bestehende Datei benutzen
                       setmode(ergebnis,O_BINARY);
                       end_system_call();
@@ -8565,7 +8565,7 @@ LISPFUNN(rename_file,2)
                     create_backup_file(namestring_asciz,if_exists==4);
                     break;
                   case 6: # :APPEND
-                    append_flag = TRUE; # am Schluss ans Ende positionieren
+                    append_flag = true; # am Schluss ans Ende positionieren
                   default: ;
                     # :OVERWRITE -> bestehende Datei benutzen
                     # :NEW-VERSION, :SUPERSEDE -> Datei auf Länge 0 kürzen.
@@ -8609,7 +8609,7 @@ LISPFUNN(rename_file,2)
       pushSTACK(STACK_4); # :EXTERNAL-FORMAT argument
       pushSTACK(STACK_4); # :ELEMENT-TYPE argument
       pushSTACK(handle);
-      var object stream = make_file_stream(direction,append_flag,TRUE);
+      var object stream = make_file_stream(direction,append_flag,true);
       skipSTACK(4);
       return stream;
      ergebnis_NIL: # Ergebnis NIL
@@ -9045,13 +9045,13 @@ LISPFUN(open,1,0,norest,key,6,\
   # (It could be a link pointing to nowhere, or an undesired directory.)
   # directory_search_direntry_ok(namestring,&statbuf)
   # STACK_2 = pathname
-  # < result: TRUE and statbuf filled, or FALSE.
-  local boolean directory_search_direntry_ok (object namestring, struct stat * statbuf);
-  local boolean directory_search_direntry_ok(namestring,statbuf)
+  # < result: true and statbuf filled, or false.
+  local bool directory_search_direntry_ok (object namestring, struct stat * statbuf);
+  local bool directory_search_direntry_ok(namestring,statbuf)
     var object namestring;
     var struct stat * statbuf;
     {
-      var boolean exists = TRUE;
+      var bool exists = true;
       with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
         begin_system_call();
         if (!( stat_for_search(namestring_asciz,statbuf) ==0)) {
@@ -9059,7 +9059,7 @@ LISPFUN(open,1,0,norest,key,6,\
             end_system_call(); OS_file_error(STACK_2);
           }
           end_system_call();
-          exists = FALSE;
+          exists = false;
         }
         end_system_call();
       });
@@ -9072,9 +9072,9 @@ LISPFUN(open,1,0,norest,key,6,\
   # Stackaufbau: result-list, pathname, name&type, subdir-list, pathname-list,
   #              new-pathname-list, ht, pathname-list-rest, pathnames-to-insert,
   #              pathname, dir_namestring.
-  local void directory_search_scandir (boolean recursively, signean next_task);
+  local void directory_search_scandir (bool recursively, signean next_task);
   local void directory_search_scandir(recursively,next_task)
-    var boolean recursively;
+    var bool recursively;
     var signean next_task;
     {
       #if defined(UNIX) || defined(RISCOS)
@@ -9275,7 +9275,7 @@ LISPFUN(open,1,0,norest,key,6,\
                       }
                       #endif
                       # Truename bilden (symbolische Links auflösen):
-                      assure_dir_exists(TRUE,FALSE);
+                      assure_dir_exists(true,false);
                       if (file_exists(_EMA_)) { # falls File (immer noch...) existiert
                         if (!nullp(STACK_(0+5+4+3+2))) # :FULL gewünscht?
                           with_stat_info(); # ja -> STACK_0 erweitern
@@ -9328,7 +9328,7 @@ LISPFUN(open,1,0,norest,key,6,\
               # Stackaufbau: ..., pathname, dir_namestring, direntry.
               # Feststellen, ob es ein Directory oder ein File ist:
               {
-                var boolean isdir;
+                var bool isdir;
                 if (fibptr->fib_DirEntryType == ST_SOFTLINK) {
                   # Einen Lock auf das Ziel holen und Examine ausführen:
                   # das geht, denn Lock() löst Links auf (bzw. versucht es)
@@ -9414,7 +9414,7 @@ LISPFUN(open,1,0,norest,key,6,\
                         pushSTACK(pathname);
                         pushSTACK(pathname);
                       }
-                      assure_dir_exists(TRUE,FALSE); # Truename bilden (symbolische Links auflösen)
+                      assure_dir_exists(true,false); # Truename bilden (symbolische Links auflösen)
                       if (!nullp(STACK_(0+5+4+3+2))) # :FULL gewünscht?
                         with_stat_info(); # ja -> STACK_0 erweitern
                       # und STACK_0 vor result-list pushen:
@@ -9555,7 +9555,7 @@ LISPFUN(open,1,0,norest,key,6,\
                 begin_system_call();
                 READDIR_findnext({ end_system_call(); OS_file_error(STACK_1); }, break; );
               }
-            } while (FALSE);
+            } while (false);
             end_system_call();
             READDIR_end_declarations;
           });
@@ -9569,10 +9569,10 @@ LISPFUN(open,1,0,norest,key,6,\
       #ifdef PATHNAME_RISCOS
       # If we search for a file with type /= NIL, we have to interpret the last
       # subdir as the type.
-      var boolean name_and_type = FALSE;
+      var bool name_and_type = false;
       # We need to remember if the type is wild, since this controls whether
       # found files are legal.
-      var boolean type_is_wild = FALSE;
+      var bool type_is_wild = false;
       #endif
       pathname = use_default_dir(pathname); # Default-Directory einfügen
       # pathname ist jetzt neu und ein absoluter Pathname.
@@ -9589,7 +9589,7 @@ LISPFUN(open,1,0,norest,key,6,\
       if (!nullp(ThePathname(pathname)->pathname_name)
           && !nullp(ThePathname(pathname)->pathname_type)
          ) {
-        name_and_type = TRUE;
+        name_and_type = true;
         type_is_wild = has_wildcards(ThePathname(pathname)->pathname_type);
         pushSTACK(pathname); pushSTACK(ThePathname(pathname)->pathname_type);
         STACK_0 = pathname = pathname_add_subdir();
@@ -9622,8 +9622,8 @@ LISPFUN(open,1,0,norest,key,6,\
         Car(new_cons) = STACK_0;
         STACK_0 = new_cons;
       }
-      var boolean recursively = # Flag, ob die nächste Operation auf
-        FALSE;                  # alle Subdirectories anzuwenden ist.
+      var bool recursively = # Flag, ob die nächste Operation auf
+        false;                  # alle Subdirectories anzuwenden ist.
       loop {
         # Stackaufbau: result-list, pathname, name&type, subdir-list, pathname-list.
         # result-list = Liste der fertigen Pathnames/Listen, umgedreht.
@@ -9654,7 +9654,7 @@ LISPFUN(open,1,0,norest,key,6,\
           var object next_subdir = Car(STACK_1);
           if (eq(next_subdir,S(Kwild_inferiors))) { # '...' ?
             # wird erst beim nächsten Durchlauf behandelt
-            recursively = TRUE; goto passed_subdir;
+            recursively = true; goto passed_subdir;
           }
           #ifndef MSDOS
           if (
@@ -9700,7 +9700,7 @@ LISPFUN(open,1,0,norest,key,6,\
               switch (next_task) {
                 case 0: # Dieses pathname liefern
                   #ifdef UNIX
-                  assure_dir_exists(FALSE,FALSE); # erst noch Links auflösen
+                  assure_dir_exists(false,false); # erst noch Links auflösen
                   #endif
                   # und STACK_0 vor result-list pushen:
                   {
@@ -9726,10 +9726,10 @@ LISPFUN(open,1,0,norest,key,6,\
                     ThePathname(pathname)->pathname_type = Car(subdirs);
                     ThePathname(pathname)->pathname_directory = nreverse(Cdr(subdirs));
                   }
-                  assure_dir_exists_(TRUE,FALSE,type_is_wild); # Links auflösen, File suchen
+                  assure_dir_exists_(true,false,type_is_wild); # Links auflösen, File suchen
                   if (file_exists(_EMA_) && !S_ISDIR(filestatus->st_mode)) # falls File existiert und kein Directory ist
                   #else
-                  assure_dir_exists(TRUE,FALSE); # Links auflösen, File suchen
+                  assure_dir_exists(true,false); # Links auflösen, File suchen
                   if (file_exists(_EMA_)) # falls File existiert
                   #endif
                   {
@@ -9748,7 +9748,7 @@ LISPFUN(open,1,0,norest,key,6,\
                 #ifndef MSDOS
                 case -1: # In diesem pathname nach einem Subdirectory sehen
                   {
-                    var object namestring = assure_dir_exists(TRUE,FALSE); # Links auflösen, Directory-Namestring
+                    var object namestring = assure_dir_exists(true,false); # Links auflösen, Directory-Namestring
                     pushSTACK(namestring); # Directory-Namestring
                     {
                       var object subdir = Car(STACK_(1+4+1+1)); # (car subdir-list)
@@ -9776,7 +9776,7 @@ LISPFUN(open,1,0,norest,key,6,\
             # Um die Task zu erledigen, müssen alle Einträge dieses
             # Directory abgesucht werden:
             {
-              var object dir_namestring = assure_dir_exists(TRUE,FALSE); # Links auflösen, Directory-Name bilden
+              var object dir_namestring = assure_dir_exists(true,false); # Links auflösen, Directory-Name bilden
               pushSTACK(dir_namestring); # retten
             }
             # Stackaufbau: ..., pathname, dir_namestring.
@@ -9823,7 +9823,7 @@ LISPFUN(open,1,0,norest,key,6,\
         # Mit dieser Subdir-Stufe sind wir fertig.
         if (matomp(STACK_1))
           break; # (atom subdir-list) -> fertig.
-        recursively = FALSE; # die nächste (vorläufig) nicht-rekursiv
+        recursively = false; # die nächste (vorläufig) nicht-rekursiv
         passed_subdir: ;
       }
       # Stackaufbau: result-list, pathname, name&type, subdir-list, pathname-list.
@@ -9902,7 +9902,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
     check_no_wildcards(pathname); # mit Wildcards -> Fehler
     pathname = use_default_dir(pathname); # absoluten Pathname draus machen
     pushSTACK(pathname);
-    assure_dir_exists(FALSE,FALSE); # Directory muss existieren
+    assure_dir_exists(false,false); # Directory muss existieren
     #if HAS_HOST # necessary at least for PATHNAME_WIN32
     if (!nullp(ThePathname(STACK_0)->pathname_host)) {
       pushSTACK(STACK_0); # value for slot PATHNAME of FILE-ERROR
@@ -9934,10 +9934,10 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
 #endif
 # Erniedrigt STACK um 1.
 # can trigger GC
-  local object shorter_directory (object pathname, boolean resolve_links);
+  local object shorter_directory (object pathname, bool resolve_links);
   local object shorter_directory(pathname,resolve_links)
     var object pathname;
-    var boolean resolve_links;
+    var bool resolve_links;
     {
       pathname = coerce_pathname(pathname); # Argument zu einem Pathname machen
       check_no_wildcards(pathname); # mit Wildcards -> Fehler
@@ -9972,7 +9972,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
       pushSTACK(pathname);
       # Stackaufbau: pathname, subdircons, pathname.
       var object dir_namestring =
-        (resolve_links ? assure_dir_exists(FALSE,FALSE) : assume_dir_exists());
+        (resolve_links ? assure_dir_exists(false,false) : assume_dir_exists());
       # Baue Subdir-String fürs Betriebssystem:
       STACK_0 = dir_namestring; # bisheriger Directory-Namestring als 1. String
       var uintC stringcount =
@@ -9987,7 +9987,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL)
 LISPFUNN(make_dir,1)
 # (MAKE-DIR pathname) legt ein neues Unterdirectory pathname an.
   {
-    var object pathstring = shorter_directory(STACK_0,TRUE);
+    var object pathstring = shorter_directory(STACK_0,true);
     with_sstring_0(pathstring,O(pathname_encoding),pathstring_asciz, {
       make_directory(pathstring_asciz);
     });
@@ -9998,7 +9998,7 @@ LISPFUNN(make_dir,1)
 LISPFUNN(delete_dir,1)
 # (DELETE-DIR pathname) entfernt das Unterdirectory pathname.
   {
-    var object pathstring = shorter_directory(STACK_0,TRUE);
+    var object pathstring = shorter_directory(STACK_0,true);
     with_sstring_0(pathstring,O(pathname_encoding),pathstring_asciz, {
       delete_directory(pathstring_asciz);
     });
@@ -10064,7 +10064,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose)))
           }
           # NB: Brauche hier keine Links aufzulösen, weil man ja hier
           # sowieso ab der Wurzel schrittweise vorgeht.
-          var object pathstring = shorter_directory(STACK_2,FALSE);
+          var object pathstring = shorter_directory(STACK_2,false);
           with_sstring_0(pathstring,O(pathname_encoding),pathstring_asciz, {
             make_directory(pathstring_asciz);
           });
@@ -10310,7 +10310,7 @@ LISPFUNN(file_write_date,1)
       # Name angegeben.
       pushSTACK(pathname);
       # Directory muss existieren:
-      var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
+      var object namestring = assure_dir_exists(false,false); # Filename fürs Betriebssystem
       #ifdef EMUNIX
         with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
           var struct stat statbuf;
@@ -10391,7 +10391,7 @@ LISPFUNN(file_author,1)
       # Name angegeben.
       pushSTACK(pathname);
       # Directory muss existieren:
-      var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
+      var object namestring = assure_dir_exists(false,false); # Filename fürs Betriebssystem
       #ifdef MSDOS
         #if 1
           with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
@@ -10448,7 +10448,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL)
         # Name angegeben.
         pushSTACK(pathname);
         # Directory muss existieren:
-        var object namestring = assure_dir_exists(FALSE,FALSE); # Filename fürs Betriebssystem
+        var object namestring = assure_dir_exists(false,false); # Filename fürs Betriebssystem
         # Überprüfe, ob die Datei existiert:
         if (!file_exists(namestring)) { fehler_file_not_exists(); }
         *file_ = string_to_asciz(namestring,O(pathname_encoding)); # retten
@@ -10601,7 +10601,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL)
       # Kommandointerpreter aufrufen:
       run_time_stop();
       begin_system_call();
-      var BOOL ergebnis = FALSE;
+      var BOOL ergebnis = false;
       #if 0 # so einfach geht's wohl nicht
       ergebnis = Execute("",stdin_handle,stdout_handle);
       #else
@@ -10864,28 +10864,28 @@ local int executable_fd = -1;
 
 # maybe_executable(pathname)
 # checks whether a given pathname may belong to the executable.
-local boolean maybe_executable (const char * filename);
-local boolean maybe_executable(filename)
+local bool maybe_executable (const char * filename);
+local bool maybe_executable(filename)
   var const char * filename;
   {
     var struct stat statexe;
     var struct stat statfile;
     if (access(filename,R_OK|X_OK) < 0)
-      return FALSE;
+      return false;
     if (executable_fd < 0)
-      return TRUE;
+      return true;
     # If we already have an executable_fd, check that filename points to
     # the same inode.
     if (fstat(executable_fd,&statexe) < 0)
-      return TRUE;
+      return true;
     if (stat(filename,&statfile) < 0)
-      return FALSE;
+      return false;
     if (statfile.st_dev
         && statfile.st_dev == statexe.st_dev
         && statfile.st_ino == statexe.st_ino
        )
-      return TRUE;
-    return FALSE;
+      return true;
+    return false;
   }
 
 # find_executable(program_name)
@@ -10918,12 +10918,12 @@ global int find_executable(program_name)
     # Now we guess the executable's full path. We assume the executable
     # has been called via execlp() or execvp() with properly set up argv[0].
     # The login(1) convention to add a '-' prefix to argv[0] is not supported.
-    var boolean has_slash = FALSE;
+    var bool has_slash = false;
     {
       var const char * p;
       for (p = program_name; *p; p++)
         if (*p == '/') {
-          has_slash = TRUE; break;
+          has_slash = true; break;
       }
     }
     if (!has_slash) {

@@ -1106,9 +1106,7 @@
   #endif
 
 # Wahrheitswerte:
-  #define TRUE   1
-  #define FALSE  0
-  typedef unsigned int  boolean;
+  #include "stdbool.h"
 
 # Typ für Vorzeichenwerte, Vergleichsergebnisse, dreiwertige enum's
 # mit Werten +1, 0, -1
@@ -1660,7 +1658,7 @@
     #define WIDE_STRUCT
   #endif
   # Bestimmt die Anordnung der Teile eines oints:
-  #define WIDE_ENDIANNESS TRUE  # so ist's effizienter
+  #define WIDE_ENDIANNESS true  # so ist's effizienter
 #endif
 
 #if defined(GNU) && (SAFETY >= 3)
@@ -2987,14 +2985,14 @@ Ratio and Complex (only if SPVW_MIXED).
 # (z.B. weil er keinen Pointer darstellt):
   #if 0 && defined(GNU)
     #define gcinvariant_type_p(type)  \
-      ({var boolean _erg;                      \
+      ({var bool _erg;                         \
         switch (type)                          \
           { case_machine:                      \
             case_char: case_subr: case_system: \
             case_fixnum: case_sfloat:          \
             /* bei WIDE auch: case_ffloat: */  \
-              _erg = TRUE; break;              \
-            default: _erg = FALSE; break;      \
+              _erg = true; break;              \
+            default: _erg = false; break;      \
           }                                    \
         _erg;                                  \
        })
@@ -5366,7 +5364,7 @@ typedef struct {
 # UP: testet auf Pointergleichheit EQ
 # eq(obj1,obj2)
 # > obj1,obj2: Lisp-Objekte
-# < ergebnis: TRUE, falls Objekte gleich
+# < ergebnis: true, falls Objekte gleich
   #if defined(WIDE_STRUCT) || defined(OBJECT_STRUCT)
     #define eq(obj1,obj2)  (as_oint(obj1) == as_oint(obj2))
   #else
@@ -5714,7 +5712,7 @@ typedef struct {
   #define logpathnamep(obj)  \
     (orecordp(obj) && (Record_type(obj) == Rectype_Logpathname))
 #else
-  #define logpathnamep(obj)  FALSE
+  #define logpathnamep(obj)  false
 #endif
 
 # Test auf Extended Pathname (d.h. Pathname oder Logical Pathname)
@@ -7175,7 +7173,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
       #define SP_overflow()  ( (aint)SP() > (aint)SP_bound )
     #endif
   #else # NO_SP_CHECK || NOCOST_SP_CHECK
-    #define SP_overflow()  FALSE
+    #define SP_overflow()  false
     #ifdef NOCOST_SP_CHECK
       #ifdef WIN32_NATIVE
         #ifdef SP_DOWN
@@ -7185,7 +7183,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
           #define near_SP_overflow()  ( (aint)SP() > (aint)SP_bound-0x1000 )
         #endif
       #else
-        extern boolean near_SP_overflow (void);
+        extern bool near_SP_overflow (void);
       #endif
     #endif
   #endif
@@ -7231,7 +7229,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # quit();
 # > final_exitcode: 0 bei normalem Ende, 1 bei Abbruch
   nonreturning_function(extern, quit, (void));
-  extern boolean final_exitcode;
+  extern bool final_exitcode;
 # wird verwendet von CONTROL
 
 # Fehlermeldung wegen Erreichen einer unerreichbaren Programmstelle.
@@ -7863,8 +7861,8 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # asciz_equal(asciz1,asciz2)
 # > char* asciz1: erster ASCIZ-String
 # > char* asciz2: zweiter ASCIZ-String
-# < ergebnis: TRUE falls die Zeichenfolgen gleich sind
-  extern boolean asciz_equal (const char * asciz1, const char * asciz2);
+# < ergebnis: true falls die Zeichenfolgen gleich sind
+  extern bool asciz_equal (const char * asciz1, const char * asciz2);
 # wird verwendet von STREAM
 
 #if defined(GNU) && (SAFETY < 2)
@@ -7893,14 +7891,14 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # auf den es mehr als einen Zugriffsweg gibt.)
 # get_circularities(obj,pr_array,pr_closure)
 # > object obj: Objekt
-# > boolean pr_array: Flag, ob Arrayelemente rekursiv als Teilobjekte gelten
-# > boolean pr_closure: Flag, ob Closurekomponenten rekursiv als Teilobjekte gelten
+# > bool pr_array: Flag, ob Arrayelemente rekursiv als Teilobjekte gelten
+# > bool pr_closure: Flag, ob Closurekomponenten rekursiv als Teilobjekte gelten
 # < ergebnis: T falls Stacküberlauf eintrat,
 #             NIL falls keine Zirkularitäten vorhanden,
 #             #(0 ...) ein (n+1)-elementiger Vektor, der die Zahl 0 und die n
 #                      Zirkularitäten als Elemente enthält, n>0.
 # can trigger GC
-  extern object get_circularities (object obj, boolean pr_array, boolean pr_closure);
+  extern object get_circularities (object obj, bool pr_array, bool pr_closure);
 # wird verwendet von IO
 
 # UP: Entflicht #n# - Referenzen im Objekt *ptr mit Hilfe der Aliste alist.
@@ -8021,7 +8019,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # wird verwendet von SPVW
 
 # Flag, ob SYS::READ-FORM sich ILISP-kompatibel verhalten soll:
-  extern boolean ilisp_mode;
+  extern bool ilisp_mode;
 
 # Liefert die Größe des von statischen LISP-Objekten belegten Platzes.
   extern uintL static_space (void);
@@ -8063,7 +8061,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 
 #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
   # Set ONLY during write() calls to pipes directed to subprocesses.
-  extern boolean writing_to_subprocess;
+  extern bool writing_to_subprocess;
 #endif
 
 
@@ -8198,9 +8196,9 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # 'constant expression' anerkannt wird. Wenn ja, können die Tabellen
 # zum großen Teil bereits vom C-Compiler initialisiert werden.
   #if (oint_addr_shift==0)
-    #define NIL_IS_CONSTANT  TRUE
+    #define NIL_IS_CONSTANT  true
   #else
-    #define NIL_IS_CONSTANT  FALSE
+    #define NIL_IS_CONSTANT  false
   #endif
 
 # Deklaration der Tabelle der sonstigen festen Objekte:
@@ -8233,7 +8231,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
 # handle_fault_range(PROT_READ,start,end) makes an address range readable.
 # handle_fault_range(PROT_READ_WRITE,start,end) makes an address range writable.
-  extern boolean handle_fault_range (int prot, aint start_address, aint end_address);
+  extern bool handle_fault_range (int prot, aint start_address, aint end_address);
 #endif
 
 
@@ -8262,7 +8260,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     const char* name; # Name
     subr_* stab; const uintC* stab_size; # eine eigene subr_tab
     object* otab; const uintC* otab_size; # eine eigene object_tab
-    boolean initialized;
+    bool initialized;
     # Daten zur Initialisierung:
     const subr_initdata* stab_initdata;
     const object_initdata* otab_initdata;
@@ -9738,8 +9736,8 @@ typedef struct {
 # eine Liste der Form (SETF symbol), ist.
 # funnamep(obj)
 # > obj: Objekt
-# < ergebnis: TRUE falls Funktionsname
-  extern boolean funnamep (object obj);
+# < ergebnis: true falls Funktionsname
+  extern bool funnamep (object obj);
 # wird verwendet von CONTROL
 
 # Liefert den zu einem Funktionsnamen gehörigen Block-Namen.
@@ -9752,8 +9750,8 @@ typedef struct {
 # UP: Stellt fest, ob ein Symbol im aktuellen Environment einen Macro darstellt.
 # sym_macrop(symbol)
 # > symbol: Symbol
-# < ergebnis: TRUE falls sym einen Symbol-Macro darstellt
-  extern boolean sym_macrop (object sym);
+# < ergebnis: true falls sym einen Symbol-Macro darstellt
+  extern bool sym_macrop (object sym);
 # wird verwendet von CONTROL
 
 # UP: Setzt den Wert eines Symbols im aktuellen Environment.
@@ -9846,9 +9844,9 @@ typedef struct {
 # < value1: body
 # < value2: Liste der decl-specs
 # < value3: Doc-String oder NIL
-# < ergebnis: TRUE falls eine (COMPILE)-Deklaration vorkam, FALSE sonst
+# < ergebnis: true falls eine (COMPILE)-Deklaration vorkam, false sonst
 # can trigger GC
-  extern boolean parse_dd (object formlist, object venv, object fenv);
+  extern bool parse_dd (object formlist, object venv, object fenv);
 # wird verwendet von CONTROL
 
 # UP: Erzeugt zu einem Lambdabody die entsprechende Closure durch Zerlegen
@@ -9863,7 +9861,7 @@ typedef struct {
 #        end->decl_env = DENV.
 # < ergebnis: Closure
 # can trigger GC
-  extern object get_closure (object lambdabody, object name, boolean blockp, environment* env);
+  extern object get_closure (object lambdabody, object name, bool blockp, environment* env);
 # wird verwendet von CONTROL, SYMBOL, PREDTYPE
 
 # UP: Wandelt ein Argument in eine Funktion um.
@@ -10308,8 +10306,8 @@ typedef struct {
 # > array2: second simple-bit-vector
 # > index2: absolute index into array2
 # > count: number of bits to be compared, > 0
-# < result: TRUE, if both slices are the same, bit for bit, else FALSE.
-  extern boolean bit_compare (object array1, uintL index1,
+# < result: true, if both slices are the same, bit for bit, else false.
+  extern bool bit_compare (object array1, uintL index1,
                               object array2, uintL index2,
                               uintL bitcount);
 # used by PREDTYPE
@@ -10342,8 +10340,8 @@ typedef struct {
 # > dv: destination storage-vector
 # > index: start index in dv
 # > count: number of elements to be filled
-# < result: TRUE if element does not fit, FALSE when done
-  extern boolean elt_fill (object dv, uintL index, uintL count, object element);
+# < result: true if element does not fit, false when done
+  extern bool elt_fill (object dv, uintL index, uintL count, object element);
 # used by SEQUENCE
 
 # Function: Reverses a slice of an array, copying it into another array
@@ -10368,8 +10366,8 @@ typedef struct {
 # Function: Tests whether an array has a fill-pointer.
 # array_has_fill_pointer_p(array)
 # > array: ein Array
-# < result: TRUE, if it has a fill-pointer, else FALSE.
-  extern boolean array_has_fill_pointer_p (object array);
+# < result: true, if it has a fill-pointer, else false.
+  extern bool array_has_fill_pointer_p (object array);
 # used by SEQUENCE, STREAM, IO
 
 # Function: Allocates a new simple-bit-vector, filled with zeroes.
@@ -10479,15 +10477,15 @@ typedef struct {
 # Stellt fest, ob ein Character alphanumerisch ist.
 # alphanumericp(ch)
 # > ch: Character-Code
-# < ergebnis: TRUE falls alphanumerisch, FALSE sonst.
-  extern boolean alphanumericp (chart ch);
+# < ergebnis: true falls alphanumerisch, false sonst.
+  extern bool alphanumericp (chart ch);
 # wird verwendet von IO, PATHNAME
 
 # Stellt fest, ob ein Character ein Graphic-Character ("druckend") ist.
 # graphic_char_p(ch)
 # > ch: Character-Code
-# < ergebnis: TRUE falls druckend, FALSE sonst.
-  extern boolean graphic_char_p (chart ch);
+# < ergebnis: true falls druckend, false sonst.
+  extern bool graphic_char_p (chart ch);
 # wird verwendet von STREAM, PATHNAME
 
 # Returns the screen display width of a character.
@@ -10566,7 +10564,7 @@ typedef struct {
 # > string1: String
 # > string2: simple-string
 # < ergebnis: /=0, wenn gleich
-  extern boolean string_gleich (object string1, object string2);
+  extern bool string_gleich (object string1, object string2);
 # wird verwendet von PACKAGE, STREAM, IO
 
 # UP: vergleicht zwei Strings auf Gleichheit, case-insensitive
@@ -10574,7 +10572,7 @@ typedef struct {
 # > string1: String
 # > string2: simple-string
 # < ergebnis: /=0, wenn gleich
-  extern boolean string_equal (object string1, object string2);
+  extern bool string_equal (object string1, object string2);
 # wird verwendet von IO, PATHNAME
 
 #ifdef UNICODE
@@ -10687,16 +10685,16 @@ typedef struct {
 # > string1,offset1: Ab hier kommen die angesprochenen Characters im String1
 # > string2,offset2: Ab hier kommen die angesprochenen Characters im String2
 # > len: Anzahl der angesprochenen Characters in String1 und in String2, > 0
-# < ergebnis: TRUE falls gleich, FALSE sonst.
-  extern boolean string_eqcomp (object string1, uintL offset1, object string2, uintL offset2, uintL len);
+# < ergebnis: true falls gleich, false sonst.
+  extern bool string_eqcomp (object string1, uintL offset1, object string2, uintL offset2, uintL len);
 # wird verwendet von PREDTYPE
 
 # UP: vergleicht zwei gleichlange Strings auf Gleichheit, case-insensitive
 # > string1,offset1: Ab hier kommen die angesprochenen Characters im String1
 # > string2,offset2: Ab hier kommen die angesprochenen Characters im String2
 # > len: Anzahl der angesprochenen Characters in String1 und in String2, > 0
-# < ergebnis: TRUE falls gleich, FALSE sonst.
-  extern boolean string_eqcomp_ci (object string1, uintL offset1, object string2, uintL offset2, uintL len);
+# < ergebnis: true falls gleich, false sonst.
+  extern bool string_eqcomp_ci (object string1, uintL offset1, object string2, uintL offset2, uintL len);
 # wird verwendet von PREDTYPE
 
 # UP: wandelt die Characters eines Stringstücks in Großbuchstaben
@@ -11267,9 +11265,9 @@ typedef struct {
 # accessiblep(sym,pack)
 # > sym: Symbol
 # > pack: Package
-# < ergebnis: TRUE falls sym in pack accessible und nicht verdeckt ist,
-#             FALSE sonst
-  extern boolean accessiblep (object sym, object pack);
+# < ergebnis: true falls sym in pack accessible und nicht verdeckt ist,
+#             false sonst
+  extern bool accessiblep (object sym, object pack);
 # wird verwendet von IO
 
 # UP: testet, ob ein Symbol in einer Package als externes Symbol accessible
@@ -11277,18 +11275,18 @@ typedef struct {
 # externalp(sym,pack)
 # > sym: Symbol
 # > pack: Package
-# < ergebnis: TRUE falls sym in pack als externes Symbol accessible ist,
-#             FALSE sonst
-  extern boolean externalp (object sym, object pack);
+# < ergebnis: true falls sym in pack als externes Symbol accessible ist,
+#             false sonst
+  extern bool externalp (object sym, object pack);
 # wird verwendet von IO
 
 # UP: sucht ein externes Symbol gegebenen Printnamens in einer Package.
 # find_external_symbol(string,pack,&sym)
 # > string: String
 # > pack: Package
-# < ergebnis: TRUE, falls ein externes Symbol dieses Printnamens in pack gefunden.
+# < ergebnis: true, falls ein externes Symbol dieses Printnamens in pack gefunden.
 # < sym: dieses Symbol, falls gefunden.
-  extern boolean find_external_symbol (object string, object pack, object* sym_);
+  extern bool find_external_symbol (object string, object pack, object* sym_);
 # wird verwendet von IO
 
 # UP: sucht eine Package mit gegebenem Namen oder Nickname
@@ -11381,22 +11379,22 @@ typedef struct {
 # UP: testet auf Atomgleichheit EQL
 # eql(obj1,obj2)
 # > obj1,obj2: Lisp-Objekte
-# < ergebnis: TRUE, falls Objekte gleich
-  extern boolean eql (object obj1, object obj2);
+# < ergebnis: true, falls Objekte gleich
+  extern bool eql (object obj1, object obj2);
 # wird verwendet von CONTROL, EVAL, HASHTABL, LISPARIT
 
 # UP: testet auf Gleichheit EQUAL
 # equal(obj1,obj2)
 # > obj1,obj2: Lisp-Objekte
-# < ergebnis: TRUE, falls Objekte gleich
-  extern boolean equal (object obj1, object obj2);
+# < ergebnis: true, falls Objekte gleich
+  extern bool equal (object obj1, object obj2);
 # wird verwendet von EVAL, PATHNAME, HASHTABL, MISC
 
 # UP: testet auf laschere Gleichheit EQUALP
 # equalp(obj1,obj2)
 # > obj1,obj2: Lisp-Objekte
-# < ergebnis: TRUE, falls Objekte gleich
-  extern boolean equalp (object obj1, object obj2);
+# < ergebnis: true, falls Objekte gleich
+  extern bool equalp (object obj1, object obj2);
 # wird verwendet von PATHNAME, HASHTABL
 
 # UP: Führt eine Statistik über die Aktion einer GC.
@@ -11441,7 +11439,7 @@ typedef struct {
 # > unixyp: Flag, ob *error-output* nach Unix-Art (vom Standard abweichend)
 #           initialisert werden soll
 # can trigger GC
-  extern void init_streamvars (boolean unixyp);
+  extern void init_streamvars (bool unixyp);
 # wird verwendet von SPVW
 
 # Fehlermeldung, wenn eine Stream-Operation auf einem Stream nicht erlaubt ist.
@@ -11499,9 +11497,9 @@ typedef struct {
 # > buffer: a semi-simple string
 # < stream: stream
 # < buffer: contains the read characters, excluding the terminating #\Newline
-# < result: TRUE is EOF was seen before newline, else FALSE
+# < result: true is EOF was seen before newline, else false
 # can trigger GC
-  extern boolean read_line (const object* stream_, const object* buffer_);
+  extern bool read_line (const object* stream_, const object* buffer_);
 # used by IO
 
 # Schreibt ein Character auf einen Stream.
@@ -11546,7 +11544,7 @@ typedef struct {
 # vermutlich von einem vorher ausgegebenen Prompt abhängen wird.
 # interactive_stream_p(stream)
 # > stream: Stream
-  extern boolean interactive_stream_p (object stream);
+  extern bool interactive_stream_p (object stream);
 # wird verwendet von DEBUG
 
 # UP: Schließt einen Stream.
@@ -11594,9 +11592,9 @@ typedef struct {
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Stream stream.
 # clear_input(stream)
 # > stream: Stream
-# < ergebnis: TRUE falls Input gelöscht wurde
+# < ergebnis: true falls Input gelöscht wurde
 # can trigger GC
-  extern boolean clear_input (object stream);
+  extern bool clear_input (object stream);
 # wird verwendet von IO, DEBUG
 
 # UP: Determines whether a stream has a byte immediately available.
@@ -11695,8 +11693,8 @@ typedef struct {
 # > STACK_1: :ELEMENT-TYPE argument
 # > STACK_0: Handle des geöffneten Files
 # > direction: Modus (0 = :PROBE, 1 = :INPUT, 4 = :OUTPUT, 5 = :IO, 3 = :INPUT-IMMUTABLE)
-# > append_flag: TRUE falls der Stream gleich ans Ende positioniert werden
-#         soll, FALSE sonst
+# > append_flag: true falls der Stream gleich ans Ende positioniert werden
+#         soll, false sonst
 # > handle_fresh: whether the handle is freshly created.
 #                 This means 1. that it is currently positioned at position 0,
 #                 2. if (direction & bit(2)), it is opened for read/write, not
@@ -11705,11 +11703,11 @@ typedef struct {
 #                 that it supports file_lseek, reading/repositioning/writing
 #                 and close/reopen.
 # > subr_self: calling function
-# If direction==5, handle_fresh must be TRUE.
+# If direction==5, handle_fresh must be true.
 # < ergebnis: File-Stream (oder evtl. File-Handle-Stream)
 # < STACK: aufgeräumt
 # can trigger GC
-  extern object make_file_stream (uintB direction, boolean append_flag, boolean handle_at_pos_0);
+  extern object make_file_stream (uintB direction, bool append_flag, bool handle_at_pos_0);
 # wird verwendet von PATHNAME
 
 # Liefert einen Broadcast-Stream zum Stream stream.
@@ -11751,8 +11749,8 @@ typedef struct {
 # UP: Tells whether a stream is buffered.
 # stream_isbuffered(stream)
 # > stream: a channel or socket stream
-# < result: TRUE if stream is buffered, else FALSE
-  extern boolean stream_isbuffered (object stream);
+# < result: true if stream is buffered, else false
+  extern bool stream_isbuffered (object stream);
 # wird verwendet von IO
 
 # UP: Returns the current line number of a stream.
@@ -11763,18 +11761,18 @@ typedef struct {
   extern object stream_line_number (object stream);
 # wird verwendet von IO
 
-# Function: Returns TRUE if a stream allows read-eval.
+# Function: Returns true if a stream allows read-eval.
 # stream_get_read_eval(stream)
 # > stream: a stream
-# < result: TRUE if read-eval is allowed from the stream, else FALSE
-  extern boolean stream_get_read_eval (object stream);
+# < result: true if read-eval is allowed from the stream, else false
+  extern bool stream_get_read_eval (object stream);
 # used by IO
 
 # Function: Changes the read-eval state of a stream.
 # stream_set_read_eval(stream,value);
 # > stream: a stream
-# > value: TRUE if read-eval shall be allowed from the stream, else FALSE
-  extern void stream_set_read_eval (object stream, boolean value);
+# > value: true if read-eval shall be allowed from the stream, else false
+  extern void stream_set_read_eval (object stream, bool value);
 # used by IO
 
 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(AMIGAOS) || defined(RISCOS)
@@ -12117,8 +12115,8 @@ typedef struct {
 # UP: entscheidet auf Zahlgleichheit
 # number_gleich(x,y)
 # > x,y: zwei Zahlen
-# < ergebnis: TRUE, falls (= x y) gilt
-  extern boolean number_gleich (object x, object y);
+# < ergebnis: true, falls (= x y) gilt
+  extern bool number_gleich (object x, object y);
 # wird verwendet von PREDTYPE
 
 # UP: Wandelt ein Objekt in ein Float von gegebenem Typ um.
@@ -12229,7 +12227,7 @@ typedef struct {
 # Initialisiert die Rexx-Schnittstelle.
 # init_rexx();
 # < ergebnis: Flag, ob erfolgreich initialisiert.
-  extern boolean init_rexx (void);
+  extern bool init_rexx (void);
 # wird verwendet von SPVW
 
 # Schließt die Rexx-Schnittstelle.

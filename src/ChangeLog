@@ -1,5 +1,20 @@
 2001-02-04  Bruno Haible  <haible@clisp.cons.org>
 
+        * autoconf/aclocal.m4 (CL_STDBOOL_H): New macro.
+        * configure.in: Invoke it.
+        * unixconf.h.in (HAVE_STDBOOL_H): New macro.
+        * makemake.in (EVERY_INCLUDES_H): Add stdbool.h, unless the system
+          has it.
+          (stdbool.h): New rule.
+          (clean4): Remove stdbool.h.
+        * lispbibl.d (boolean, FALSE, TRUE): Remove definitions. Include
+          stdbool.h instead.
+        * All *.d: Use bool/false/true instead of boolean/FALSE/TRUE.
+        * genclisph.d (main): Include or copy stdbool.h instead of defining
+          boolean/FALSE/TRUE.
+
+2001-02-04  Bruno Haible  <haible@clisp.cons.org>
+
         * pathname.d (translate_directory): Don't choke if 'subst' doesn't
           specify any pieces for the directory.
 

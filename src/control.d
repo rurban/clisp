@@ -111,7 +111,7 @@ LISPSPECFORM(function, 1,1,nobody)
     }
     # Lambdaausdruck
     # im aktuellen Environment in eine Closure umwandeln:
-    value1 = get_closure(Cdr(funname),name,FALSE,&aktenv); mv_count=1;
+    value1 = get_closure(Cdr(funname),name,false,&aktenv); mv_count=1;
     skipSTACK(2); return;
   }
 
@@ -265,9 +265,9 @@ LISPFUNN(special_operator_p,1)
 # UP: überprüft den Body einer SETQ- oder PSETQ-Form.
 # > caller: Aufrufer (ein Symbol)
 # > STACK_0: Body
-# < ergebnis: TRUE falls Symbol-Macros zu expandieren sind.
-  local boolean check_setq_body (object caller);
-  local boolean check_setq_body(caller)
+# < ergebnis: true falls Symbol-Macros zu expandieren sind.
+  local bool check_setq_body (object caller);
+  local bool check_setq_body(caller)
     var object caller;
     {
       var object body = STACK_0;
@@ -278,7 +278,7 @@ LISPFUNN(special_operator_p,1)
         if (constantp(TheSymbol(symbol)))
           fehler_symbol_constant(caller,symbol);
         if (sym_macrop(symbol))
-          return TRUE;
+          return true;
         body = Cdr(body);
         if (atomp(body)) {
           if (!nullp(body))
@@ -299,7 +299,7 @@ LISPFUNN(special_operator_p,1)
                GETTEXT("dotted list given to ~ : ~")
               );
       }
-      return FALSE;
+      return false;
     }
 
 LISPSPECFORM(setq, 0,0,body)
@@ -609,10 +609,10 @@ LISPSPECFORM(prog2, 2,0,body)
                           symbolp(symbol) &&
                           ( # zweielementig?
                             (consp(varspec) && nullp(Cdr(varspec))
-                             && (init = Car(varspec), TRUE))
+                             && (init = Car(varspec), true))
                             || # einelementig (bei LET, LET* gemäß X3J13 vote <182> erlaubt)
                             (nullp(varspec) && !eq(caller,S(symbol_macrolet))
-                             && (init = NIL, TRUE))
+                             && (init = NIL, true))
                      )   )) {
                 # now init = Car(varspec) or = NIL
               } else {
@@ -626,7 +626,7 @@ LISPSPECFORM(prog2, 2,0,body)
               pushSTACK_symbolwithflags(symbol,0); # Variable ablegen
               check_STACK();
               # feststellen, ob statische oder dynamische Bindung:
-              var boolean specdecled = FALSE; # Variable unter den Special-deklarierten?
+              var bool specdecled = false; # Variable unter den Special-deklarierten?
               if (spec_anz > 0) {
                 #ifdef NO_symbolflags
                 var object* ptr = spec_pointer;
@@ -635,7 +635,7 @@ LISPSPECFORM(prog2, 2,0,body)
                   NEXT(ptr);
                   if (eq(NEXT(ptr),symbol)) {
                     if (eq(NEXT(ptr),fixnum(bit(active_bit)))) {
-                      specdecled = TRUE; break;
+                      specdecled = true; break;
                     }
                   } else {
                     NEXT(ptr);
@@ -648,7 +648,7 @@ LISPSPECFORM(prog2, 2,0,body)
                 dotimespL(count,spec_anz, {
                   NEXT(ptr);
                   if (eq(NEXT(ptr),to_compare)) {
-                    specdecled = TRUE; break;
+                    specdecled = true; break;
                   }
                 });
                 #endif
@@ -743,7 +743,7 @@ LISPSPECFORM(let, 1,0,body)
 # (LET ({varspec}) {decl} {form}), CLTL S. 110
   {
     # {decl} {form} trennen:
-    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
+    var bool to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
     # bitte kein Docstring:
     if (!nullp(value3))
       fehler_docstring(S(let),STACK_0);
@@ -799,7 +799,7 @@ LISPSPECFORM(letstern, 1,0,body)
 # (LET* ({varspec}) {decl} {form}), CLTL S. 111
   {
     # {decl} {form} trennen:
-    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
+    var bool to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
     # bitte kein Docstring:
     if (!nullp(value3))
       fehler_docstring(S(letstern),STACK_0);
@@ -845,7 +845,7 @@ LISPSPECFORM(locally, 0,0,body)
 # (LOCALLY {decl} {form}), CLTL2 S. 221
   {
     # {decl} {form} trennen:
-    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
+    var bool to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
     # bitte kein Docstring:
     if (!nullp(value3))
       fehler_docstring(S(locally),STACK_0);
@@ -1042,7 +1042,7 @@ LISPSPECFORM(flet, 1,0,body)
         goto fehler_spec;
       pushSTACK(name); # name retten
       # lambdabody zu einer Closure machen:
-      var object fun = get_closure(lambdabody,name,TRUE,&aktenv);
+      var object fun = get_closure(lambdabody,name,true,&aktenv);
       name = popSTACK();
       funspecs = popSTACK(); # restliche funspecs
       body = popSTACK();
@@ -1113,7 +1113,7 @@ LISPSPECFORM(labels, 1,0,body)
         pushSTACK(Cdr(funspecs)); # restliche funspecs
         var object funspec = Car(funspecs);
         # Closure erzeugen:
-        var object fun = get_closure(Cdr(funspec),Car(funspec),TRUE,&aktenv);
+        var object fun = get_closure(Cdr(funspec),Car(funspec),true,&aktenv);
         funspecs = popSTACK();
         TheSvector(STACK_0)->data[index] = fun; # in den Vektor stecken
         index += 2;
@@ -1209,7 +1209,7 @@ LISPSPECFORM(function_macro_let, 1,0,body)
       pushSTACK(Car(Cdr(funmacspecs))); # fun-lambdabody
       pushSTACK(Car(Cdr(Cdr(funmacspecs)))); # macro-lambdabody
       # fun-lambdabody zu einer Closure machen:
-      STACK_1 = get_closure(STACK_1,name,FALSE,&aktenv);
+      STACK_1 = get_closure(STACK_1,name,false,&aktenv);
       # Macro-Expander bauen:
       # (SYSTEM::MAKE-MACRO-EXPANDER (cons name macro-lambdabody))
       {
@@ -1235,7 +1235,7 @@ LISPSPECFORM(symbol_macrolet, 1,0,body)
 # (SYMBOL-MACROLET ({(var expansion)}) {decl} {form}), CLTL2 S. 155
   {
     # {decl} {form} trennen:
-    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
+    var bool to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
     # bitte kein Docstring:
     if (!nullp(value3))
       fehler_docstring(S(symbol_macrolet),STACK_0);
@@ -1731,7 +1731,7 @@ LISPSPECFORM(tagbody, 0,0,body)
       finish_entry_frame(ITAGBODY,&!returner,, goto go_entry; );
       # GO_ENV erweitern:
       aktenv.go_env = make_framepointer(STACK);
-      if (FALSE) {
+      if (false) {
        go_entry: # Hierher wird gesprungen, wenn dieser Frame ein GO
                  # gefangen hat.
         body = value1; # Die Formenliste wird als value1 übergeben.
@@ -1906,7 +1906,7 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
 # (MULTIPLE-VALUE-BIND ({var}) values-form {decl} {form}), CLTL S. 136
   {
     # {decl} {form} trennen:
-    var boolean to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
+    var bool to_compile = parse_dd(STACK_0,aktenv.var_env,aktenv.fun_env); # unvollständiges var_env??
     # bitte kein Docstring:
     if (!nullp(value3))
       fehler_docstring(S(multiple_value_bind),STACK_0);
@@ -2002,7 +2002,7 @@ LISPSPECFORM(multiple_value_setq, 2,0,nobody)
         varlist = Cdr(varlist);
       }
     }
-    if (FALSE) {
+    if (false) {
      expand:
       pushSTACK(STACK_0); STACK_1 = STACK_2; STACK_2 = S(multiple_value_setf);
       var object newform = listof(3); # aus MULTIPLE-VALUE-SETQ mache MULTIPLE-VALUE-SETF
@@ -2485,7 +2485,7 @@ LISPFUN(parse_body,1,2,norest,nokey,0,NIL)
 #  env sollte ein Function-Environment sein.)
   {
     test_env();
-    var boolean docstring_allowed = (!eq(STACK_1,unbound) && !nullp(STACK_1)); # Docstrings erlaubt?
+    var bool docstring_allowed = (!eq(STACK_1,unbound) && !nullp(STACK_1)); # Docstrings erlaubt?
     var object body = STACK_2; # body = ({decl|doc} {form})
     STACK_1 = NIL; # Noch war kein Doc-String da
     pushSTACK(NIL); # Anfang decl-spec-Liste

@@ -7,28 +7,28 @@
 # UP: testet auf Atomgleichheit EQL
 # eql(obj1,obj2)
 # > obj1,obj2: Lisp-Objekte
-# < ergebnis: TRUE, falls Objekte gleich
-  global boolean eql (object obj1, object obj2);
-  global boolean eql(obj1,obj2)
+# < ergebnis: true, falls Objekte gleich
+  global bool eql (object obj1, object obj2);
+  global bool eql(obj1,obj2)
     var object obj1;
     var object obj2;
     {
      start:
       if (eq(obj1,obj2))
-        return TRUE; # (EQ x y) ==> (EQL x y)
+        return true; # (EQ x y) ==> (EQL x y)
       # sonst ist EQL-Gleichheit nur möglich, wenn beides Zahlen sind:
       #ifdef TYPECODES
       if (!(numberp(obj1) && numberp(obj2)))
-        return FALSE;
+        return false;
       # und der Typ von beiden muss übereinstimmen:
       if (!(typecode(obj1) == typecode(obj2)))
-        return FALSE;
+        return false;
       switch (typecode(obj1))
       #else
       if (!(orecordp(obj1) && orecordp(obj2)))
-        return FALSE;
+        return false;
       if (!(Record_type(obj1) == Record_type(obj2)))
-        return FALSE;
+        return false;
       switch (Record_type(obj1))
         { case_Rectype_Bignum_above;
           case_Rectype_Ratio_above;
@@ -51,7 +51,7 @@
             var uintD* ptr2 = &TheBignum(obj2)->data[0];
             dotimespC(length1,length1, { if (!(*ptr1++ == *ptr2++)) goto no; });
           }
-          return TRUE;
+          return true;
         case_ratio: # Ratio
           # Zähler und Nenner müssen übereinstimmen:
           # (and (eql (numerator obj1) (numerator obj2))
@@ -73,7 +73,7 @@
         case_ffloat: # Single-Floats
           #ifndef WIDE
           if (TheFfloat(obj1)->float_value == TheFfloat(obj2)->float_value)
-            return TRUE;
+            return true;
           else
           #endif
             goto no;
@@ -85,7 +85,7 @@
               && (TheDfloat(obj1)->float_value.mlo == TheDfloat(obj2)->float_value.mlo)
              )
           #endif
-            return TRUE;
+            return true;
           else
             goto no;
         case_lfloat: # Long-Floats
@@ -106,26 +106,26 @@
             var uintD* ptr2 = &TheLfloat(obj2)->data[0];
             dotimespC(len1,len1, { if (!(*ptr1++ == *ptr2++)) goto no; });
           }
-          return TRUE;
+          return true;
         /* case_fixnum: */ # Fixnums: hätten schon EQ sein müssen
         /* case_sfloat: */ # Short-Floats: hätten schon EQ sein müssen
         default:
-        no: return FALSE;
+        no: return false;
       }
     }
 
 # UP: testet auf Gleichheit EQUAL
 # equal(obj1,obj2)
 # > obj1,obj2: Lisp-Objekte
-# < ergebnis: TRUE, falls Objekte gleich
-  global boolean equal (object obj1, object obj2);
-  global boolean equal(obj1,obj2)
+# < ergebnis: true, falls Objekte gleich
+  global bool equal (object obj1, object obj2);
+  global bool equal(obj1,obj2)
     var object obj1;
     var object obj2;
     {
      start:
       if (eql(obj1,obj2))
-        return TRUE; # (EQL x y) ==> (EQUAL x y)
+        return true; # (EQL x y) ==> (EQUAL x y)
       # sonst ist EQUAL-Gleichheit nur möglich, wenn beides strukturierte
       # Typen sind. Typen müssen (bis auf notsimple_bit) übereinstimmen:
       #ifdef TYPECODES
@@ -142,7 +142,7 @@
       {
         case_cons: # Conses rekursiv vergleichen:
           if (!consp(obj2))
-            return FALSE;
+            return false;
           # CAR und CDR müssen übereinstimmen:
           # (and (equal (car obj1) (car obj2)) (equal (cdr obj1) (cdr obj2)))
           check_SP();
@@ -152,13 +152,13 @@
           goto start;
         case_sbvector: case_obvector: # Bit-Vektoren elementweise vergleichen:
           if (!bit_vector_p(Atype_Bit,obj2))
-            return FALSE;
+            return false;
           {
             # Längen vergleichen:
             var uintL len1 = vector_length(obj1);
             if (!(len1 == vector_length(obj2))) goto no;
             if (len1 == 0)
-              return TRUE;
+              return true;
             # Inhalt vergleichen:
             var uintL index1 = 0;
             var uintL index2 = 0;
@@ -170,7 +170,7 @@
           }
         case_string: # Strings elementweise vergleichen:
           if (!stringp(obj2))
-            return FALSE;
+            return false;
           {
             # Längen vergleichen:
             var uintL len1 = vector_length(obj1);
@@ -185,7 +185,7 @@
               # zu obji (i=1,2).
               return string_eqcomp(ss1,index1,ss2,index2,len1);
             }
-            return TRUE;
+            return true;
           }
         case_orecord:
           switch (Record_type(obj1)) {
@@ -211,7 +211,7 @@
                     if (!equalp(*ptr1++,*ptr2++)) goto no; # (löst keine GC aus!)
                   });
                 #endif
-                return TRUE;
+                return true;
               }
             #ifdef LOGICAL_PATHNAMES
             case Rectype_Logpathname:
@@ -225,55 +225,55 @@
                 dotimespC(count,logpathname_length, {
                   if (!equal(*ptr1++,*ptr2++)) goto no;
                 });
-                return TRUE;
+                return true;
               }
             #endif
             default: goto no;
           }
         # Sonst gelten obj1 und obj2 als verschieden.
         default: no:
-          return FALSE;
+          return false;
       }
     }
 
 # UP: testet auf laschere Gleichheit EQUALP
 # equalp(obj1,obj2)
 # > obj1,obj2: Lisp-Objekte
-# < ergebnis: TRUE, falls Objekte gleich
-  global boolean equalp (object obj1, object obj2);
+# < ergebnis: true, falls Objekte gleich
+  global bool equalp (object obj1, object obj2);
   # Element-by-element comparisons for various vector types. count > 0.
-  local boolean elt_compare_T_T (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_T_Char (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_T_Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_T_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_T_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_T_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_T_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_T_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_Char_Char (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_Bit_Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_Bit_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_2Bit_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_2Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_2Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_2Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_2Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_4Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_4Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_4Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_4Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_8Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_8Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_8Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_16Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_16Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_32Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare (object dv1, uintL index1, object dv2, uintL index2, uintL count);
-  local boolean elt_compare_T_T(dv1,index1,dv2,index2,count)
+  local bool elt_compare_T_T (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_T_Char (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_T_Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_T_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_T_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_T_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_T_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_T_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_Char_Char (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_Bit_Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_Bit_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_2Bit_2Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_2Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_2Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_2Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_2Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_4Bit_4Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_4Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_4Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_4Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_8Bit_8Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_8Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_8Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_16Bit_16Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_16Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_32Bit_32Bit (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare (object dv1, uintL index1, object dv2, uintL index2, uintL count);
+  local bool elt_compare_T_T(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -286,10 +286,10 @@
       dotimespL(count,count, {
         if (!equalp(*ptr1++,*ptr2++)) goto no;
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_T_Char(dv1,index1,dv2,index2,count)
+  local bool elt_compare_T_Char(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -317,10 +317,10 @@
           });
         }
         );
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_T_Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_T_Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -336,10 +336,10 @@
         index2++;
         ptr2 += ((index2%8)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_T_2Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_T_2Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -355,10 +355,10 @@
         index2++;
         ptr2 += ((index2%4)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_T_4Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_T_4Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -374,10 +374,10 @@
         index2++;
         ptr2 += ((index2%2)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_T_8Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_T_8Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -391,10 +391,10 @@
         var uintB elt2 = *ptr2++;
         if (!eq(elt1,fixnum(elt2))) goto no;
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_T_16Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_T_16Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -408,10 +408,10 @@
         var uint16 elt2 = *ptr2++;
         if (!eq(elt1,fixnum(elt2))) goto no;
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_T_32Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_T_32Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -426,14 +426,14 @@
         if (!(uint32_p(elt1) && (I_to_uint32(elt1) == elt2)))
           goto no;
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
   #define elt_compare_Char_Char(dv1,index1,dv2,index2,count)  \
     string_eqcomp_ci(dv1,index1,dv2,index2,count)
   #define elt_compare_Bit_Bit(dv1,index1,dv2,index2,count)  \
     bit_compare(dv1,index1,dv2,index2,count)
-  local boolean elt_compare_Bit_2Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_Bit_2Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -451,10 +451,10 @@
         index2++;
         ptr2 += ((index2%4)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_Bit_4Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_Bit_4Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -472,10 +472,10 @@
         index2++;
         ptr2 += ((index2%2)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_Bit_8Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_Bit_8Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -490,10 +490,10 @@
         index1++;
         ptr1 += ((index1%8)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_Bit_16Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_Bit_16Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -508,10 +508,10 @@
         index1++;
         ptr1 += ((index1%8)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_Bit_32Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_Bit_32Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -526,12 +526,12 @@
         index1++;
         ptr1 += ((index1%8)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
   #define elt_compare_2Bit_2Bit(dv1,index1,dv2,index2,count)  \
     bit_compare(dv1,index1<<1,dv2,index2<<1,count<<1)
-  local boolean elt_compare_2Bit_4Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_2Bit_4Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -549,10 +549,10 @@
         index2++;
         ptr2 += ((index2%2)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_2Bit_8Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_2Bit_8Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -567,10 +567,10 @@
         index1++;
         ptr1 += ((index1%4)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_2Bit_16Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_2Bit_16Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -585,10 +585,10 @@
         index1++;
         ptr1 += ((index1%4)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_2Bit_32Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_2Bit_32Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -603,12 +603,12 @@
         index1++;
         ptr1 += ((index1%4)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
   #define elt_compare_4Bit_4Bit(dv1,index1,dv2,index2,count)  \
     bit_compare(dv1,index1<<2,dv2,index2<<2,count<<2)
-  local boolean elt_compare_4Bit_8Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_4Bit_8Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -623,10 +623,10 @@
         index1++;
         ptr1 += ((index1%2)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_4Bit_16Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_4Bit_16Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -641,10 +641,10 @@
         index1++;
         ptr1 += ((index1%2)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_4Bit_32Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_4Bit_32Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -659,10 +659,10 @@
         index1++;
         ptr1 += ((index1%2)==0);
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_8Bit_8Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_8Bit_8Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -674,10 +674,10 @@
       dotimespL(count,count, {
         if (!(*ptr1++ == *ptr2++)) goto no;
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_8Bit_16Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_8Bit_16Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -689,10 +689,10 @@
       dotimespL(count,count, {
         if (!(*ptr1++ == *ptr2++)) goto no;
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_8Bit_32Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_8Bit_32Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -704,10 +704,10 @@
       dotimespL(count,count, {
         if (!(*ptr1++ == *ptr2++)) goto no;
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_16Bit_16Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_16Bit_16Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -719,10 +719,10 @@
       dotimespL(count,count, {
         if (!(*ptr1++ == *ptr2++)) goto no;
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_16Bit_32Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_16Bit_32Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -734,10 +734,10 @@
       dotimespL(count,count, {
         if (!(*ptr1++ == *ptr2++)) goto no;
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare_32Bit_32Bit(dv1,index1,dv2,index2,count)
+  local bool elt_compare_32Bit_32Bit(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -749,10 +749,10 @@
       dotimespL(count,count, {
         if (!(*ptr1++ == *ptr2++)) goto no;
       });
-      return TRUE;
-     no: return FALSE;
+      return true;
+     no: return false;
     }
-  local boolean elt_compare(dv1,index1,dv2,index2,count)
+  local bool elt_compare(dv1,index1,dv2,index2,count)
     var object dv1;
     var uintL index1;
     var object dv2;
@@ -797,7 +797,7 @@
             case Array_type_sb32vector:
               return elt_compare_Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
-              return FALSE; # because count > 0
+              return false; # because count > 0
             default: NOTREACHED
           }
         case Array_type_sb2vector:
@@ -817,7 +817,7 @@
             case Array_type_sb32vector:
               return elt_compare_2Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
-              return FALSE; # because count > 0
+              return false; # because count > 0
             default: NOTREACHED
           }
         case Array_type_sb4vector:
@@ -837,7 +837,7 @@
             case Array_type_sb32vector:
               return elt_compare_4Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
-              return FALSE; # because count > 0
+              return false; # because count > 0
             default: NOTREACHED
           }
         case Array_type_sb8vector:
@@ -857,7 +857,7 @@
             case Array_type_sb32vector:
               return elt_compare_8Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
-              return FALSE; # because count > 0
+              return false; # because count > 0
             default: NOTREACHED
           }
         case Array_type_sb16vector:
@@ -877,7 +877,7 @@
             case Array_type_sb32vector:
               return elt_compare_16Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
-              return FALSE; # because count > 0
+              return false; # because count > 0
             default: NOTREACHED
           }
         case Array_type_sb32vector:
@@ -897,7 +897,7 @@
             case Array_type_sb32vector:
               return elt_compare_32Bit_32Bit(dv1,index1,dv2,index2,count);
             case Array_type_sstring: # Simple-String
-              return FALSE; # because count > 0
+              return false; # because count > 0
             default: NOTREACHED
           }
         case Array_type_sstring: # Simple-String
@@ -910,7 +910,7 @@
             case Array_type_sb8vector:
             case Array_type_sb16vector:
             case Array_type_sb32vector:
-              return FALSE; # because count > 0
+              return false; # because count > 0
             case Array_type_sstring: # Simple-String
               return elt_compare_Char_Char(dv1,index1,dv2,index2,count);
             default: NOTREACHED
@@ -919,13 +919,13 @@
       }
     }
   # Now EQUALP itself.
-  global boolean equalp(obj1,obj2)
+  global bool equalp(obj1,obj2)
     var object obj1;
     var object obj2;
     {
      start:
       if (eq(obj1,obj2))
-        return TRUE; # (EQ x y) ==> (EQUALP x y)
+        return true; # (EQ x y) ==> (EQUALP x y)
       # Fallunterscheidung nach dem Typ von obj1:
       if (consp(obj1)) {
         if (!consp(obj2)) goto no;
@@ -980,7 +980,7 @@
                 # zu obji (i=1,2).
                 return elt_compare(dv1,index1,dv2,index2,len1);
               } else
-                return TRUE;
+                return true;
             }
           case_mdarray: # Array vom Rang /=1
             if (!mdarrayp(obj2)) goto no;
@@ -1016,7 +1016,7 @@
                 # zu obji (i=1,2).
                 return elt_compare(dv1,index1,dv2,index2,len1);
               } else
-                return TRUE;
+                return true;
             }
           #ifdef TYPECODES
           _case_structure
@@ -1075,7 +1075,7 @@
                 }
               }
             }
-            return TRUE;
+            return true;
           case_closure: # Closure
             goto no; # hätte schon EQ sein müssen
           case_instance: # Instance
@@ -1087,7 +1087,7 @@
             # Wie mit CHAR-EQUAL vergleichen: Bits und Font ignorieren,
             # in Großbuchstaben umwandeln und dann vergleichen.
             if (chareq(up_case(char_code(obj1)),up_case(char_code(obj2))))
-              return TRUE;
+              return true;
             else
               goto no;
           #ifdef TYPECODES
@@ -1101,7 +1101,7 @@
           default: NOTREACHED
         }
       }
-     no: return FALSE;
+     no: return false;
     }
 
 LISPFUNN(eq,2)
@@ -2127,7 +2127,7 @@ LISPFUNN(coerce,2)
         var environment* env;
         make_STACK_env(NIL,NIL,NIL,NIL,O(top_decl_env), env = );
         # Closure bilden aus lambdabody = (cdr fun), name = :LAMBDA :
-        value1 = get_closure(Cdr(fun),S(Klambda),FALSE,env); mv_count=1; # Closure erzeugen
+        value1 = get_closure(Cdr(fun),S(Klambda),false,env); mv_count=1; # Closure erzeugen
         skipSTACK(2+5); return;
       }
       if (   eq(result_type,S(array)) # ARRAY ?
@@ -2464,7 +2464,7 @@ typedef struct {
 } hs_sorted;
 
 typedef struct {
-  boolean decrementing; # incrementing or decrementing
+  bool decrementing; # incrementing or decrementing
   hs_sorted structure_classes;
   hs_sorted standard_classes;
   hs_record builtins[(int)enum_hs_dummy];
@@ -2482,7 +2482,7 @@ local void init_hs_locals_rest(locals,free_room)
   var hs_locals* locals;
   var NODE* free_room;
   {
-    locals->decrementing = FALSE;
+    locals->decrementing = false;
     # Initialize all counters to 0.
     locals->structure_classes.tree = EMPTY;
     locals->standard_classes.tree = EMPTY;
@@ -2892,7 +2892,7 @@ LISPFUNN(gc_statistics,0)
         # Now do the GC.
         fun();
         # Walk through memory again, this time decrementing.
-        locals.decrementing = TRUE;
+        locals.decrementing = true;
         map_heap_objects(&heap_statistics_mapper,&locals);
         # Now if in the following allocation requests, a GC occurs, we
         # might mix up the order of the records in O(gc_statistics_list),
@@ -2901,13 +2901,13 @@ LISPFUNN(gc_statistics,0)
         # depth of 1 is OK (that's normal), but a greater recursion depth
         # is a sign of an infinite recursion. In this case we rebind
         # SYSTEM::*GC-STATISTICS* to 0.
-        var boolean danger = FALSE;
+        var bool danger = false;
         dynamic_bind(S(recurse_count_gc_statistics),fixnum_inc(Symbol_value(S(recurse_count_gc_statistics)),1)); # sys::*recurse-count-gc-statistics* erhöhen
         if (!posfixnump(Symbol_value(S(recurse_count_gc_statistics)))) # sollte ein Fixnum >=0 sein
           Symbol_value(S(recurse_count_gc_statistics)) = Fixnum_0; # sonst Notkorrektur
         if (posfixnum_to_L(Symbol_value(S(recurse_count_gc_statistics))) > 3) {
           # Zu große Rekursionstiefe.
-          danger = TRUE;
+          danger = true;
           dynamic_bind(S(gc_statistics_stern),Fixnum_0);
         }
         # Allocate and fill result vector.

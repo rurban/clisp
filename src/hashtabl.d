@@ -1026,15 +1026,15 @@
 # hash_lookup(ht,obj,&KVptr,&Nptr,&Iptr)
 # > ht: Hash-Tabelle
 # > obj: Objekt
-# < falls gefunden: ergebnis=TRUE,
+# < falls gefunden: ergebnis=true,
 #     KVptr[0], KVptr[1] : Key, Value im Key-Value-Vektor,
 #     *Nptr : zugehöriger Eintrag im Next-Vektor,
 #     *Iptr : auf *Nptr zeigender vorheriger Index
-# < falls nicht gefunden: ergebnis=FALSE,
+# < falls nicht gefunden: ergebnis=false,
 #     *Iptr : zum Key gehöriger Eintrag im Index-Vektor
 #             oder ein beliebiges Element der dort beginnenden "Liste"
-  local boolean hash_lookup (object ht, object obj, object** KVptr_, object** Nptr_, object** Iptr_);
-  local boolean hash_lookup(ht,obj,KVptr_,Nptr_,Iptr_)
+  local bool hash_lookup (object ht, object obj, object** KVptr_, object** Nptr_, object** Iptr_);
+  local bool hash_lookup(ht,obj,KVptr_,Nptr_,Iptr_)
     var object ht;
     var object obj;
     var object** KVptr_;
@@ -1065,14 +1065,14 @@
             flags & bit(1) ? eql(key,obj) : # mit EQL vergleichen
             flags & bit(2) ? equal(key,obj) : # mit EQUAL vergleichen
             flags & bit(3) ? equalp(key,obj) : # mit EQUALP vergleichen
-            FALSE
+            false
            ) {
           # Objekt obj gefunden
-          *KVptr_ = KVptr; *Nptr_ = Nptr; *Iptr_ = Iptr; return TRUE;
+          *KVptr_ = KVptr; *Nptr_ = Nptr; *Iptr_ = Iptr; return true;
         }
       }
       # nicht gefunden
-      *Iptr_ = Nptr; return FALSE;
+      *Iptr_ = Nptr; return false;
     }
 
 # Macro: Trägt ein Key-Value-Paar in einer Hash-Tabelle ein.
@@ -1843,17 +1843,17 @@ LISPFUNN(class_gethash,2)
       }
   # Hilfsfunktion: Vergleich eines Objekts mit einer Reihe von Atomen, so als
   # wären sie per (hash-tuple-function n) zusammengeconst:
-    local boolean equal_tuple (object obj, uintC n, const object* args_pointer);
-    local boolean equal_tuple(obj,n,args_pointer)
+    local bool equal_tuple (object obj, uintC n, const object* args_pointer);
+    local bool equal_tuple(obj,n,args_pointer)
       var object obj;
       var uintC n; # n > 0
       var const object* args_pointer;
       {
         if (n==1) {
           if (eq(obj,Next(args_pointer)))
-            return TRUE;
+            return true;
           else
-            return FALSE;
+            return false;
         } elif (n<=16) {
           if (consp(obj)) {
             var uintC n1 = tuple_half_1[n];
@@ -1861,9 +1861,9 @@ LISPFUNN(class_gethash,2)
             if (equal_tuple(Car(obj),n1,args_pointer)
                 && equal_tuple(Cdr(obj),n2,args_pointer STACKop -(uintP)n1)
                )
-              return TRUE;
+              return true;
           }
-          return FALSE;
+          return false;
         } else {
           # n>16
           if (consp(obj) && equal_tuple(Car(obj),8,args_pointer)) {
@@ -1876,16 +1876,16 @@ LISPFUNN(class_gethash,2)
                 # obj mit einer Liste der weiteren Atome vergleichen:
                 dotimespC(n,n, {
                   if (!(consp(obj) && eq(Car(obj),Next(args_pointer))))
-                    return FALSE;
+                    return false;
                   obj = Cdr(obj); args_pointer skipSTACKop -1;
                 });
                 if (nullp(obj))
                   # Vergleich erfüllt
-                  return TRUE;
+                  return true;
               }
             }
           }
-          return FALSE;
+          return false;
         }
       }
 

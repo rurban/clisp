@@ -1083,7 +1083,7 @@ C(not_loop_up:) # Input in %o0,%o1
        _ nop
 #endif
 
-# extern boolean and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
+# extern bool and_test_loop_up (uintD* xptr, uintD* yptr, uintC count);
 C(and_test_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
 #if STANDARD_LOOPS
         andcc %o2,%o2,%g0
@@ -1121,7 +1121,7 @@ C(and_test_loop_up:) # Input in %o0,%o1,%o2, Output in %o0
        _ mov 1,%o0
 #endif
 
-# extern boolean test_loop_up (uintD* ptr, uintC count);
+# extern bool test_loop_up (uintD* ptr, uintC count);
 C(test_loop_up:) # Input in %o0,%o1, Output in %o0
 #if STANDARD_LOOPS
         andcc %o1,%o1,%g0

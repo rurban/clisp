@@ -189,7 +189,7 @@
     var void* map_addr;
     var uintL map_len;
     {
-      return fdmap(zero_fd,map_addr,map_len,FALSE,FALSE,FALSE);
+      return fdmap(zero_fd,map_addr,map_len,false,false,false);
     }
 
   local int open_temp_fd (uintL map_len);
@@ -292,7 +292,7 @@
   # 1. Temporäres File aufmachen
     #define open_mapid(map_len)  open_temp_fd(map_len) # -> fd
   # 2. File mehrfach überlagert in den Speicher legen
-    #define map_mapid(fd,map_addr,map_len,readonly)  fdmap(fd,map_addr,map_len,readonly,TRUE,TRUE)
+    #define map_mapid(fd,map_addr,map_len,readonly)  fdmap(fd,map_addr,map_len,readonly,true,true)
   # 3. File schließen
   # (Das Betriebssystem schließt und löscht das File erst dann, wenn am
   # Ende dieses Prozesses in _exit() ein munmap() durchgeführt wird.)
@@ -301,7 +301,7 @@
   #define multimap1(type,typecases,mapid,map_addr,map_len)  \
     { switch (type)        \
         { typecases        \
-            if ( map_mapid(mapid,combine(type,map_addr),map_len,FALSE) <0) \
+            if ( map_mapid(mapid,combine(type,map_addr),map_len,false) <0) \
               goto no_mem; \
             break;         \
           default: break;  \

@@ -20,7 +20,7 @@
 
 #ifdef PENDING_INTERRUPTS
   # Flag, ob eine Unterbrechung anliegt.
-  global uintB interrupt_pending = FALSE;
+  global uintB interrupt_pending = false;
 #endif
 
 #ifdef HAVE_SIGNALS
@@ -91,7 +91,7 @@
       inc_break_sem_5();
       signal_acknowledge(SIGINT,&interrupt_handler);
       if (!interrupt_pending) { # Liegt schon ein Interrupt an -> nichts zu tun
-        interrupt_pending = TRUE; # Flag für 'interruptp' setzen
+        interrupt_pending = true; # Flag für 'interruptp' setzen
         #ifdef HAVE_UALARM
         # eine halbe Sekunde warten, dann jede 1/20 sec probieren
         ualarm(ticks_per_second/2,ticks_per_second/20);
