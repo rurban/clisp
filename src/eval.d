@@ -6040,7 +6040,7 @@ LISPFUNN(subr_info,1)
             #endif
             #if defined(GNU) && defined(I80386) && !defined(NO_ASM)
               # Bei manchen Assemblern muss das Ergebnis in %eax liegen:
-              #if !defined(SUN386) && !defined(UHC) && !defined(UNIX_SINIX)
+              #if defined(UNIX_LINUX) || defined(UNIX_NETBSD) || defined(UNIX_FREEBSD) || defined(UNIX_OPENBSD)
                 # GNU-Assembler: in beliebigem Register.
                 # "testb %edx,%edx" wird als "testb %dl,%dl" assembliert.
                 #define OUT_EAX  "=q"
