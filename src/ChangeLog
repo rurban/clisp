@@ -1,5 +1,10 @@
 2004-04-16  Sam Steingold  <sds@gnu.org>
 
+	* utils/clispload.lsp (disassemble-machine-code) [CYGWIN, WIN32]:
+	redefine because debugging kills the process on woe32
+
+2004-04-16  Sam Steingold  <sds@gnu.org>
+
 	* comptran.d (R_R_asinh_R_R): fixed the floating point type of the
 	return value
 
