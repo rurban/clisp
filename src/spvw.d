@@ -1787,6 +1787,7 @@ global int main (argc_t argc, char* argv[]) {
   var local uintL argv_execute_arg_count;
   var local char* argv_language = NULL;
   var local char* argv_localedir = NULL;
+  var local bool batchmode_p = false;
   {var DYNAMIC_ARRAY(argv_selection_array,char*,(uintL)argc); # max argc -x/-i
   var DYNAMIC_ARRAY(argv_compile_files_array,argv_compile_file_t,(uintL)argc); # maximal argc file-arguments
   argv_compile_files = argv_compile_files_array;
@@ -2128,6 +2129,9 @@ global int main (argc_t argc, char* argv[]) {
         }
       }
     }
+    batchmode_p = /* '-c' or '-x' or file => batch-mode: */
+      ((argv_compile || argv_expr_count || argv_execute_file != NULL)
+       && !argv_interactive_debug && !argv_repl);
     # check options semantically and store defaults:
     if (argv_memneed == 0) {
      #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && defined(GENERATIONAL_GC)
@@ -2713,7 +2717,7 @@ global int main (argc_t argc, char* argv[]) {
   # Initialize locale dependent encodings:
   init_dependent_encodings();
   # initialize stream-variables:
-  init_streamvars(argv_execute_file && !argv_repl);
+  init_streamvars(batchmode_p);
  #ifdef NEXTAPP
   # make nxterminal-stream functional:
   if (nxterminal_init()) { final_exitcode = 17; quit(); }
@@ -2784,12 +2788,9 @@ global int main (argc_t argc, char* argv[]) {
     pushSTACK(asciz_to_string(argv_lisplibdir,O(pathname_encoding)));
     funcall(L(set_lib_directory),1);
   }
-  if ((argv_compile || argv_expr_count || argv_execute_file != NULL)
-      && !argv_interactive_debug && !argv_repl) {
-    # '-c' or '-x' or file specified -> LISP runs in batch-mode:
-    # (setq *debug-io*
-    #   (make-two-way-stream (make-string-input-stream "") *query-io*)
-    # )
+  if (batchmode_p) {
+    /* (setq *debug-io*
+         (make-two-way-stream (make-string-input-stream "") *query-io*)) */
     funcall(L(make_concatenated_stream),0); # (MAKE-CONCATENATED-STREAM)
     pushSTACK(value1); # empty input-stream
     var object stream = var_stream(S(query_io),strmflags_wr_ch_B);
