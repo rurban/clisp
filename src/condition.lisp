@@ -1603,17 +1603,15 @@ Todo:
         (let ((res-int (restart-interactive restart)))
           (case (closure-name res-int)
             ((assert-restart-prompt) ; prompt for new values
-             (if (interactive-stream-p *debug-io*)
-               (progn
-                 ;; Show the condition in the same way as the break-loop would.
-                 (fresh-line *error-output*)
-                 (write-string "** - " *error-output*)
-                 (write-string (TEXT "Continuable Error") *error-output*)
-                 (terpri *error-output*)
-                 (pretty-print-condition condition *error-output* :text-indent 5)
-                 (elastic-newline *error-output*)
-                 (invoke-restart-interactively restart))
-               (exitunconditionally condition)))
+             (when (interactive-stream-p *debug-io*)
+               ;; Show the condition in the same way as the break-loop would.
+               (fresh-line *error-output*)
+               (write-string "** - " *error-output*)
+               (write-string (TEXT "Continuable Error") *error-output*)
+               (terpri *error-output*)
+               (pretty-print-condition condition *error-output* :text-indent 5)
+               (elastic-newline *error-output*)
+               (invoke-restart-interactively restart)))
             (otherwise            ; general automatic error handling
              (when report-p
                (warn "~A" (with-output-to-string (stream)
@@ -1623,9 +1621,8 @@ Todo:
                                 (terpri stream)
                                 (funcall report-function stream))))))
              (invoke-restart-interactively restart))))
-        (if (interactive-stream-p *debug-io*)
-          (invoke-debugger condition)
-          (exitunconditionally condition))))))
+        (when (interactive-stream-p *debug-io*)
+          (invoke-debugger condition))))))
 
 (defun muffle-cerror (condition) (maybe-continue condition nil)) ; ABI
 (defmacro muffle-cerrors (&body body)
