@@ -1,3 +1,9 @@
+2004-01-16  Sam Steingold  <sds@gnu.org>
+
+	* cpcre.c (PCRE-COMPILE): do not allocate a foreign pointer for
+	NULL study
+	(PCRE-EXEC): pass subject_bytelen instead of subject_len
+
 2004-01-15  Bruno Haible  <bruno@clisp.org>
 
 	Remove support for Amiga running AmigaOS.
