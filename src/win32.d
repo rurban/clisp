@@ -18,7 +18,6 @@
 
 /* for _clisp.c */
 #define STDC_HEADERS
-#define HAVE_UNISTD_H
 #define HAVE_PERROR_DECL
 
 # Declaration of operating system functions

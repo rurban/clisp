@@ -1,3 +1,9 @@
+2002-09-03  Sam Steingold  <sds@gnu.org>
+
+	* win32.d (HAVE_UNISTD_H): do not define (revert the 2002-08-19
+	patch) since <unistd.h> is needed only for exec() which is not
+	used on WIN32_NATIVE
+
 2002-09-02  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
 	Fixing makemake.in for mingw.
