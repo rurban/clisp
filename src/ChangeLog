@@ -1,3 +1,8 @@
+2004-11-07  Bruno Haible  <bruno@clisp.org>
+
+	* stream.d (unread_char): Fix GC-safety bug and gcc warning introduced
+	on 2004-07-28.
+
 2004-11-06  Bruno Haible  <bruno@clisp.org>
 
 	Eliminate warnings during bootstrapping.
