@@ -283,7 +283,7 @@ global object reallocate_small_string (object string, sintBWL newtype) {
   set_break_sem_1(); # forbid interrupts
   var Siarray ptr;
   #ifdef TYPECODES
-    ptr = (Siarray)upointer(ptr);
+    ptr = (Siarray)upointer(string);
   #else
     ptr = (Siarray)TheRecord(string);
   #endif

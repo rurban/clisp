@@ -1,3 +1,8 @@
+2002-06-20  Sam Steingold  <sds@gnu.org>
+
+	* spvw_typealloc.d (reallocate_small_string) [TYPECODES]:
+	fixed a typo
+
 2002-06-19  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (nametype_diff_aux): treat logical and physical
