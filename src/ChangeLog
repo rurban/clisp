@@ -1,3 +1,8 @@
+2001-08-16  Sam Steingold  <sds@gnu.org>
+
+	* disassem.lisp (disassemble): if a form is not a lambda form,
+	prepend lambda before coercing to function
+
 2001-08-15  Sam Steingold  <sds@gnu.org>
 
 	* utils/gcc-cccp/Makefile.* (clean): new target
