@@ -156,15 +156,29 @@ LISPFUNN(copy_simple_vector,1)
        return new_array;
     } }
 
+# UP: Bildet einen Simple-Vektor mit gegebenen Elementen.
+# vectorof(len)
+# > uintC len: gewünschte Vektorlänge
+# > auf STACK: len Objekte, erstes zuoberst
+# < ergebnis: Simple-Vektor mit diesen Objekten
+# Erhöht STACK
+# verändert STACK, kann GC auslösen
+  global object vectorof (uintC len);
+  global object vectorof(len)
+    var uintC len;
+    { var object new_vector = allocate_vector(len);
+      if (len > 0)
+        { var object* topargptr = STACK STACKop len;
+          var object* argptr = topargptr;
+          var object* ptr = &TheSvector(new_vector)->data[0];
+          dotimespC(len,len, { *ptr++ = NEXT(argptr); } );
+          set_args_end_pointer(topargptr);
+        }
+      return new_vector;
+    }
+
 LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
-  { var object new_vector = allocate_vector((uintL)argcount);
-    var uintC count;
-    var object* argptr = rest_args_pointer;
-    var object* ptr = &TheSvector(new_vector)->data[0];
-    dotimesC(count,argcount, { *ptr++ = NEXT(argptr); } );
-    value1 = new_vector; mv_count=1;
-    set_args_end_pointer(rest_args_pointer);
-  }
+  { value1 = vectorof(argcount); mv_count=1; }
 
 # Vom Standpunkt der Speicherstruktur her ist "der Datenvektor" eines
 # nicht-simplen Arrays  TheIarray(array)->data.
