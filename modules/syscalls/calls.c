@@ -1933,8 +1933,8 @@ DEFUN(POSIX::FILE-INFO, file)
     end_system_call();
     if (hf == INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
   });
-  wfd_to_stack(&wfd); FindClose(hf);
-  funcall(`POSIX::MAKE-FILE-INFO`,8); skipSTACK(1);
+  wfd_to_stack(&wfd); funcall(`POSIX::MAKE-FILE-INFO`,8); skipSTACK(1);
+  begin_system_call(); FindClose(hf); end_system_call();
 }
 
 DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
