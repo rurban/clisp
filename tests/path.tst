@@ -641,6 +641,14 @@ FIXME
 #-CLISP
 FIXME
 
+(let* ((s "abcdefghijk")
+       (d (make-array 5 :displaced-to s :displaced-index-offset 3
+                      :element-type 'character)))
+  (parse-namestring d nil nil :start 2 :end 4))
+#+CLISP #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY (:RELATIVE)
+                    :NAME "fg" :TYPE NIL :VERSION NIL)
+#-CLISP #P"fg"                  ; same as above
+
 ;; Relative
 (translate-logical-pathname
  (merge-pathnames (logical-pathname "TEST-SUBDIR:;FOO;BAR;")

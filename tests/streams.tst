@@ -518,19 +518,26 @@ STR1   "test 123456"
                 :PRESERVE-WHITESPACE T))   (12345 6)
 
 (multiple-value-list (READ-FROM-STRING "012345 789" T NIL :END 4))
-  (123 4)
+(123 4)
 
 (multiple-value-list (READ-FROM-STRING "012345 789" T NIL :START 2))
-  (2345 7)
+(2345 7)
 
-(PROGN (SETQ STRGSTREAM (MAKE-STRING-INPUT-STREAM "0123456789" 5 8))
-T)   T
+(PROGN (SETQ STRGSTREAM (MAKE-STRING-INPUT-STREAM "0123456789" 5 8)) T)
+T
 
 (READ STRGSTREAM)   567
 
+(let* ((s "0123456789")
+       (d (make-array 5 :displaced-to s :displaced-index-offset 3
+                      :element-type 'character))
+       (i (make-string-input-stream d 2 5)))
+  (read i))
+567
+
 (PROGN (SETQ STRGSTREAM
-(MAKE-STRING-INPUT-STREAM "wenn alles gut geht ist das ein stream 012"))
-T)   T
+(MAKE-STRING-INPUT-STREAM "wenn alles gut geht ist das ein stream 012")) T)
+T
 
 (READ STRGSTREAM)   WENN
 

@@ -1145,15 +1145,27 @@ error
   X)
 "abcdef"
 
+(let* ((s "abcdefgh")
+       (d (make-array 5 :displaced-to s :displaced-index-offset 3
+                      :element-type 'character)))
+  (string-upcase d :start 2 :end 4))
+"deFGh"
+
 #+CLISP
-(let ((s (format nil "A~CB" (code-char 0))))
+(let* ((s (format nil "A~CB" (code-char 0)))
+       (d (make-array 2 :displaced-to s :displaced-index-offset 1
+                      :element-type 'character)))
   (list (ext:string-width s :start 0 :end 1)
         (ext:string-width s :start 1 :end 2)
         (ext:string-width s :start 2 :end 3)
         (ext:string-width s :start 0 :end 2)
         (ext:string-width s :start 0 :end 3)
-        (ext:string-width s :start 1 :end 3)))
-#+CLISP (1 0 1 1 2 1)
+        (ext:string-width s :start 1 :end 3)
+        (ext:string-width d :start 0 :end 1)
+        (ext:string-width d :start 1 :end 2)
+        (ext:string-width d :start 0 :end 2)
+        (ext:string-width d)))
+#+CLISP (1 0 1 1 2 1 0 1 1 1)
 
 (setq x (make-array 10 :fill-pointer 5 :element-type 'character
                     :initial-contents "abcdefghij"))
