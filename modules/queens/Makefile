@@ -7,6 +7,8 @@ INCLUDES=.
 CPP = gcc -O -E -w
 CLFLAGS = 
 
+MODPREP = ../modprep
+
 CLISP =
 
 LN = ln
@@ -23,8 +25,11 @@ all : queens.o callqueens.o
 queens.o : queens.c
 	$(CC) $(CFLAGS) -c queens.c
 
-callqueens.o : callqueens.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -c callqueens.c
+callqueens.m.c : callqueens.c
+	$(MODPREP) callqueens.c > callqueens.m.c
+
+callqueens.o : callqueens.m.c
+	$(CC) $(CFLAGS) -I$(INCLUDES) -c callqueens.m.c -o callqueens.o
 
 # Make a module
 clisp-module : all
