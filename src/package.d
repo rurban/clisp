@@ -648,10 +648,11 @@ local object query_user (object ml) {
     funcall(S(format),3); /* (FORMAT stream ... option-list) */
     terpri(stream_);
   }
- antwort_ok:
-  var object mlistr = popSTACK(); /* last option-list */
-  skipSTACK(3); /* answer, forget stream and option-list */
-  return Car(mlistr); /* chosen option */
+ antwort_ok: {
+    var object mlistr = popSTACK(); /* last option-list */
+    skipSTACK(3); /* answer, forget stream and option-list */
+    return Car(mlistr); /* chosen option */
+  }
 }
 
 /* UP: searches a package of given name or nickname
@@ -1841,8 +1842,8 @@ local object test_package_arg (object obj) {
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     fehler(package_error,GETTEXT("~: Package ~ has been deleted."));
   }
-  if (stringp(obj)) {
-  string: /* string -> search package with name obj: */
+  if (stringp(obj))
+  string: { /* string -> search package with name obj: */
     var object pack = find_package(obj);
     if (!nullp(pack))
       return pack;
@@ -2466,8 +2467,8 @@ LISPFUNN(delete_package,1) {
     if (pack_deletedp(pack)) {
       VALUES1(NIL); return; /* already deleted -> 1 value NIL */
     }
-  } else if (stringp(pack)) {
-  string: /* string -> search package with this name: */
+  } else if (stringp(pack))
+  string: { /* string -> search package with this name: */
     var object found = find_package(pack);
     if (nullp(found)) {
       /* raise Continuable Error: */

@@ -542,9 +542,8 @@ global object F_complex_C (object x) {
           }
         }
         # beide Komponenten zu einer komplexen Zahl zusammenfügen:
-        var object a = STACK_1;
-        var object b = STACK_0;
-        skipSTACK(2); return R_R_complex_C(a,b);
+        a = STACK_1; b = STACK_0; skipSTACK(2);
+        return R_R_complex_C(a,b);
       }
     }
   #define C_durch_C  N_durch_N
@@ -865,9 +864,8 @@ global object F_complex_C (object x) {
         var object b = TheComplex(x)->c_imag;
         pushSTACK(b); pushSTACK(a);
         var object r = R_R_hypot_R(a,b); # r = (abs x)
-        var object a = STACK_0;
-        if (!R_minusp(a)) {
-          # a>=0
+        a = STACK_0;
+        if (!R_minusp(a)) { /* a>=0 */
           var object c = # sqrt((r+a)/2)
             R_sqrt_R(R_R_durch_R(R_R_plus_R(r,a),fixnum(2)));
           STACK_0 = c;
@@ -877,8 +875,7 @@ global object F_complex_C (object x) {
           }
           c = R_R_complex_C(STACK_0,c); # c+di
           skipSTACK(2); return c; # als Ergebnis
-        } else {
-          # a<0
+        } else { /* a<0 */
           var object d = # sqrt((r-a)/2)
             R_sqrt_R(R_R_durch_R(R_R_minus_R(r,a),fixnum(2)));
           if (R_minusp(STACK_1)) # bei b<0 Vorzeichenwechsel

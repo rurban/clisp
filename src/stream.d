@@ -4751,25 +4751,23 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
     # If this doesn't work, should use a timer 0.1 sec ??
   } else
     #endif
-    # file (or pipe)
-    {
-      # try to read a byte:
-    restart_read_other:
-      var uintB b;
-      var int result = read(handle,&b,1);
-      if (result<0) {
-        if (errno==EINTR)
-          goto restart_read_other;
-        OS_error();
-      }
-      end_system_call();
-      if (result==0) {
-        return ls_eof;
-      } else {
-        if (byte) *byte = b;
-        return ls_avail;
-      }
+    /* file (or pipe) */
+  restart_read_other: { /* try to read a byte: */
+    var uintB b;
+    var int result = read(handle,&b,1);
+    if (result<0) {
+      if (errno==EINTR)
+        goto restart_read_other;
+      OS_error();
     }
+    end_system_call();
+    if (result==0) {
+      return ls_eof;
+    } else {
+      if (byte) *byte = b;
+      return ls_avail;
+    }
+  }
   #elif defined(AMIGAOS)
   begin_system_call();
   if (tty_p) { # interactive
@@ -5042,62 +5040,61 @@ local object rd_ch_unbuffered (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # already EOF?
     return eof_value;
- retry:
-  var chart c;
-  #ifdef UNICODE
-  var object encoding = TheStream(stream)->strm_encoding;
-  var uintB buf[max_bytes_per_chart];
-  var uintL buflen = 0;
-  loop {
-    var sintL b = UnbufferedStreamLow_read(stream)(stream);
-    if (b < 0)
-      return eof_value;
-    ASSERT(buflen < max_bytes_per_chart);
-    buf[buflen++] = (uintB)b;
-    var const uintB* bptr = &buf[0];
-    var chart* cptr = &c;
-    Encoding_mbstowcs(encoding)
-      (encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
-    if (cptr == &c) {
-      # Not a complete character.
-      # Shift the buffer
-      if (!(bptr == &buf[0])) {
-        var const uintB* ptr1 = bptr;
-        var uintB* ptr2 = &buf[0];
-        until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
-        buflen = ptr2 - &buf[0];
+ retry: {
+    var chart c;
+   #ifdef UNICODE
+    var object encoding = TheStream(stream)->strm_encoding;
+    var uintB buf[max_bytes_per_chart];
+    var uintL buflen = 0;
+    loop {
+      var sintL b = UnbufferedStreamLow_read(stream)(stream);
+      if (b < 0)
+        return eof_value;
+      ASSERT(buflen < max_bytes_per_chart);
+      buf[buflen++] = (uintB)b;
+      var const uintB* bptr = &buf[0];
+      var chart* cptr = &c;
+      Encoding_mbstowcs(encoding)
+        (encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
+      if (cptr == &c) { /* Not a complete character. */
+        /* Shift the buffer */
+        if (bptr != &buf[0]) {
+          var const uintB* ptr1 = bptr;
+          var uintB* ptr2 = &buf[0];
+          while (ptr1 != &buf[buflen]) { *ptr2++ = *ptr1++; }
+          buflen = ptr2 - &buf[0];
+        }
+      } else { /* Read a complete character. */
+        /* Move the remainder of the buffer into bytebuf. */
+        UnbufferedStreamLow_pushfront_bytes(stream,bptr,&buf[buflen]-bptr);
+        break;
       }
+    }
+   #else
+    {
+      var sintL b = UnbufferedStreamLow_read(stream)(stream);
+      if (b < 0)
+        return eof_value;
+      c = as_chart((uintB)b);
+    }
+   #endif
+    if (chareq(c,ascii(NL))) {
+      if (UnbufferedStream_ignore_next_LF(stream)) {
+        UnbufferedStream_ignore_next_LF(stream) = false;
+        goto retry;
+      }
+      /* increment lineno: */
+      ChannelStream_lineno(stream) += 1;
+    } else if (chareq(c,ascii(CR))) {
+      UnbufferedStream_ignore_next_LF(stream) = true;
+      c = ascii(NL);
+      /* increment lineno: */
+      ChannelStream_lineno(stream) += 1;
     } else {
-      # Read a complete character.
-      # Move the remainder of the buffer into bytebuf.
-      UnbufferedStreamLow_pushfront_bytes(stream,bptr,&buf[buflen]-bptr);
-      break;
-    }
-  }
-  #else
-  {
-    var sintL b = UnbufferedStreamLow_read(stream)(stream);
-    if (b < 0)
-      return eof_value;
-    c = as_chart((uintB)b);
-  }
-  #endif
-  if (chareq(c,ascii(NL))) {
-    if (UnbufferedStream_ignore_next_LF(stream)) {
       UnbufferedStream_ignore_next_LF(stream) = false;
-      goto retry;
     }
-    # increment lineno:
-    ChannelStream_lineno(stream) += 1;
-  } else if (chareq(c,ascii(CR))) {
-    UnbufferedStream_ignore_next_LF(stream) = true;
-    c = ascii(NL);
-    # increment lineno:
-    ChannelStream_lineno(stream) += 1;
-  } else {
-    UnbufferedStream_ignore_next_LF(stream) = false;
+    return code_char(c);
   }
-  return code_char(c);
 }
 
 # Determines, if a character is available on an Unbuffered-Channel-Stream.
@@ -8654,49 +8651,46 @@ local inline gcv_object_t* kbd_last_buf (const object stream) {
 
 # cf. rd_ch_unbuffered() :
 local object rd_ch_keyboard (const gcv_object_t* stream_) {
- restart_it:
+ restart_it: {
   var object stream = *stream_;
-  if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # EOF already?
+  if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) /* EOF already? */
     return eof_value;
-  # Still something in the Buffer?
+  /* Still something in the Buffer? */
   if (UnbufferedStream_status(stream) > 0) {
     var uintL num_bytes = UnbufferedStream_status(stream);
     var uintB *bytes = UnbufferedStream_bytebuf(stream);
     var uintL count;
     UnbufferedStream_status(stream) = 0;
-    dotimespL(count,num_bytes,{ pushSTACK(code_char(as_chart(*bytes++))); }); # FIXME: This should take into account the encoding.
+    dotimespL(count,num_bytes,{ pushSTACK(code_char(as_chart(*bytes++))); }); /* FIXME: This should take into account the encoding. */
     var object new_list = listof(num_bytes);
     *kbd_last_buf(stream = *stream_) = new_list;
   }
   if (mconsp(TheStream(stream)->strm_keyboard_buffer))
     goto empty_buffer;
-  # read a character:
-  {
+  { /* read a character: */
     var uintB c;
-   read_next_char:
-    {
-      run_time_stop(); # hold run time clock
+   read_next_char: {
+      run_time_stop(); /* hold run time clock */
       begin_system_call();
-      var int result = read(stdin_handle,&c,1); # try to read a byte
+      var int result = read(stdin_handle,&c,1); /* try to read a byte */
       end_system_call();
-      run_time_restart(); # resume run time clock
+      run_time_restart(); /* resume run time clock */
       if (result<0) {
         begin_system_call();
-        if (errno==EINTR) { # break (poss. by Ctrl-C) ?
+        if (errno==EINTR) { /* break (poss. by Ctrl-C) ? */
           end_system_call();
-          interruptp({ pushSTACK(S(read_char)); tast_break(); }); # call Break-Loop
+          interruptp({ pushSTACK(S(read_char)); tast_break(); }); /* call Break-Loop */
           goto restart_it;
         }
         OS_error();
       }
-      if (result==0) {
-        # no character available -> recognize EOF
+      if (result==0) { /* no character available -> recognize EOF */
         TheStream(stream)->strm_rd_ch_last = eof_value; return eof_value;
       }
     }
-  next_char_is_read: { /* increase the buffer: */
+   next_char_is_read: { /* increase the buffer: */
       var object new_cons = allocate_cons();
-      Car(new_cons) = code_char(as_chart(c)); # FIXME: This should take into account the encoding.
+      Car(new_cons) = code_char(as_chart(c)); /* FIXME: This should take into account the encoding. */
       *kbd_last_buf(stream = *stream_) = new_cons;
     }
     # Is the buffer a complete sequence of characters for a key,
@@ -8840,9 +8834,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
   #endif
     goto read_next_char;
   }
-  # return buffer character for character:
- empty_buffer:
-  {
+   empty_buffer: { /* return buffer character for character: */
     var object l = TheStream(stream)->strm_keyboard_buffer;
     TheStream(stream)->strm_keyboard_buffer = Cdr(l);
     var cint c = as_cint(char_code(Car(l)));
@@ -8859,7 +8851,9 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
       return make_key_event(&event);
     }
   }
+ }
 }
+
 
 # UP: extends the List STACK_0 by one key-assignment.
 # can trigger GC
@@ -11241,7 +11235,7 @@ LISPFUNN(window_cursor_off,1) {
 
 # output of a character, directly.
 local void out_char (uintB c) {
- restart_it:
+ restart_it: {
   var int result = write(stdout_handle,&c,1); # try to write character
   if (result<0) {
     if (errno==EINTR)
@@ -11252,6 +11246,7 @@ local void out_char (uintB c) {
     pushSTACK(var_stream(S(terminal_io),0)); # FILE-ERROR slot PATHNAME
     fehler(file_error,GETTEXT("cannot output to standard output"));
   }
+ }
 }
 
 # output of a Capability-String.
@@ -14602,27 +14597,28 @@ LISPFUN(socket_server,seclass_default,0,1,norest,nokey,0,NIL) {
   pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,GETTEXT("~: argument ~ is neither an open SOCKET-STREAM nor a positive FIXNUM"));
 
- doit:
-  var SOCKET sk;
-  var host_data_t myname;
-  begin_system_call();
-  sk = create_server_socket(&myname, sock, port);
-  end_system_call();
-  if (sk == INVALID_SOCKET) { SOCK_error(); }
+ doit: {
+    var SOCKET sk;
+    var host_data_t myname;
+    begin_system_call();
+    sk = create_server_socket(&myname, sock, port);
+    end_system_call();
+    if (sk == INVALID_SOCKET) { SOCK_error(); }
 
-  pushSTACK(allocate_socket(sk));
-  pushSTACK(allocate_socket_server());
-  TheSocketServer(STACK_0)->socket_handle = STACK_1;
-  TheSocketServer(STACK_0)->port = fixnum(myname.port);
-  {
-    var object host = asciz_to_string(myname.hostname,O(misc_encoding)); # for GC-safety
-    TheSocketServer(STACK_0)->host = host;
+    pushSTACK(allocate_socket(sk));
+    pushSTACK(allocate_socket_server());
+    TheSocketServer(STACK_0)->socket_handle = STACK_1;
+    TheSocketServer(STACK_0)->port = fixnum(myname.port);
+    {
+      var object host = asciz_to_string(myname.hostname,O(misc_encoding)); # for GC-safety
+      TheSocketServer(STACK_0)->host = host;
+    }
+    pushSTACK(STACK_0);
+    pushSTACK(L(socket_server_close));
+    funcall(L(finalize),2); # (FINALIZE socket-server #'socket-server-close)
+    VALUES1(popSTACK());
+    skipSTACK(2);
   }
-  pushSTACK(STACK_0);
-  pushSTACK(L(socket_server_close));
-  funcall(L(finalize),2); # (FINALIZE socket-server #'socket-server-close)
-  VALUES1(popSTACK());
-  skipSTACK(2);
 }
 
 # (SOCKET-SERVER-PORT socket-server)

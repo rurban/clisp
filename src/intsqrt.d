@@ -472,7 +472,7 @@
 # > n: ein Integer >0
 # < ergebnis: Integer (expt x (/ n)) falls x eine n-te Potenz, nullobj sonst
 # can trigger GC
-  local object I_rootp (object x, object n);
+  local object I_rootp (object x, object n1);
 # Methode:
 # Falls x=0 oder x=1: x = x^n -> JA, x als Ergebnis.
 # Hier also x>1. Suche ein Integer y > 1 mit x=y^n.
@@ -502,14 +502,14 @@
 #   Damit hat man  (y0 + beta^k*y1)^n == x mod beta^2k . 2k=m -> fertig.
 #   Den Anfang (k=1) bekommt man analog, mit beta:=2 und k=1,k=2,k=4,...
 # Dann testet man, ob wirklich x = y^n, und ist fertig.
-  local object I_rootp(x,n)
+  local object I_rootp(x,n1)
     var object x;
-    var object n;
+    var object n1;
     {
       if (eq(x,Fixnum_0) || eq(x,Fixnum_1)) # x=0 oder x=1 ?
         return x; # ja -> x als Ergebnis
       # Nun ist x>1.
-      pushSTACK(x); pushSTACK(n);
+      pushSTACK(x); pushSTACK(n1);
       {
         var object l = I_integer_length_I(x); # (integer-length x)
         if (I_I_comp(STACK_0,l) >= 0) { # n >= (integer-length x) ?

@@ -136,9 +136,9 @@ local object copy_perchar_table (object table) {
   map_hashtable(TheSvector(STACK_1)->data[small_char_code_limit],
                 key,value,{ shifthash(STACK_(0+1),key,value); });
   var object newht = popSTACK();
-  var object table = popSTACK();
-  TheSvector(table)->data[small_char_code_limit] = newht;
-  return table;
+  var object table1 = popSTACK();
+  TheSvector(table1)->data[small_char_code_limit] = newht;
+  return table1;
 }
 #else
  # A simple-vector of char_code_limit elements.
@@ -3859,8 +3859,8 @@ LISPFUNN(syntax_error_reader,3) { # reads #) and #whitespace
 local uintWL interpret_feature (object expr) {
   check_SP();
   if (symbolp(expr)) { # expr Symbol, search in *FEATURES*:
-    if (nullp(memq(expr,Symbol_value(S(features))))) goto nein;
-    else goto ja;
+    if (nullp(memq(expr,Symbol_value(S(features))))) return ~0;  /* no */
+    else return 0; /* yes */
   } else if (consp(expr) && symbolp(Car(expr))) {
     var object opname = Symbol_name(Car(expr));
     var uintWL and_or_flag;
@@ -3868,19 +3868,20 @@ local uintWL interpret_feature (object expr) {
       and_or_flag = 0; goto and_or;
     } else if (string_gleich(opname,Symbol_name(S(or)))) { # expr = (OR ...)
       and_or_flag = ~0;
-    and_or:
-      # interprete the list-elements of expr, until there is a
-      # result /=and_or_flag. Default is and_or_flag.
-      var object list = Cdr(expr);
-      while (consp(list)) { # interprete on List-element:
-        var uintWL sub_erg = interpret_feature(Car(list));
-        if (!(sub_erg == and_or_flag))
-          return sub_erg;
-        list = Cdr(list);
+     and_or: {
+        # interprete the list-elements of expr, until there is a
+        # result /=and_or_flag. Default is and_or_flag.
+        var object list = Cdr(expr);
+        while (consp(list)) { # interprete on List-element:
+          var uintWL sub_erg = interpret_feature(Car(list));
+          if (!(sub_erg == and_or_flag))
+            return sub_erg;
+          list = Cdr(list);
+        }
+        if (nullp(list))
+          return and_or_flag;
+        # expr was a Dotted List -> error
       }
-      if (nullp(list))
-        return and_or_flag;
-      # expr was a Dotted List -> error
     } else if (string_gleich(opname,Symbol_name(S(not)))) {
       # expr = (NOT ...) is to be of the shape (NOT obj):
       var object opargs = Cdr(expr);
@@ -3896,8 +3897,6 @@ local uintWL interpret_feature (object expr) {
   pushSTACK(STACK_(1+2)); # Stream
   pushSTACK(S(read));
   fehler(stream_error,GETTEXT("~ from ~: illegal feature ~"));
- ja: return 0; # expr is fulfilled
- nein: return ~0; # expr is not fulfilled
 }
 
 # UP: for #+ und #-

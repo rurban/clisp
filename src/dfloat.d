@@ -1409,63 +1409,65 @@ local object I_to_DF (object x) {
  }
   DOCONSTTIMES(32/intDsize,NEXT_DIGIT);
  #undef NEXT_DIGIT
-  --len; ok:
-  /* the NDS consists of msd, msdd, msddf and len further digits.
-     the highest set bit in 2^64*msd+2^32*msdd+msddf is bit number
-     63 + (exp mod intDsize). */
-  var uintL shiftcount = exp % intDsize;
- #ifdef intQsize
-  var uint64 mant = /* leading 64 bits */
-    (shiftcount==0
-     ? (((uint64)msdd << 32) | (uint64)msddf)
-     : (((uint64)msd << (64-shiftcount)) | ((uint64)msdd << (32-shiftcount)) | ((uint64)msddf >> shiftcount)));
-  /* the highest set bit in mant is bit number 63. */
-  if (((mant & bit(62-DF_mant_len)) ==0) /* bit 10 =0 -> round off */
-      || (((mant & (bit(62-DF_mant_len)-1)) ==0) /* bit 10 =1 and bits 9..0 =0 */
-          && ((msddf & (bit(shiftcount)-1)) ==0) /* and further bits from msddf =0 */
-          && (!test_loop_up(MSDptr,len)) /* and all further digits =0 */
-          /* round-to-even, according to bit 11 : */
-          && ((mant & bit(63-DF_mant_len)) ==0))) { /* round off */
-    mant = mant >> (63-DF_mant_len);
-  } else { /* round up */
-    mant = mant >> (63-DF_mant_len);
-    mant += 1;
-    if (mant >= bit(DF_mant_len+1)) { /* rounding overflow? */
-      mant = mant>>1; exp = exp+1;
-    }
-  }
-  encode_DF(sign,(sintL)exp,mant, return);
- #else
-  var uint32 manthi; /* leading 32 bits */
-  var uint32 mantlo; /* next 32 bits */
-  if (shiftcount==0) {
-    manthi = msdd; mantlo = msddf;
-  } else {
-    manthi = ((uint32)msd << (32-shiftcount)) | (msdd >> shiftcount);
-    mantlo = (msdd << (32-shiftcount)) | (msddf >> shiftcount);
-  }
-  /* the highest set bit in mant is bit number 63. */
-  if (((mantlo & bit(62-DF_mant_len)) ==0) /* bit 10 =0 -> round off */
-      || (((mantlo & (bit(62-DF_mant_len)-1)) ==0) /* bit 10 =1 and bits 9..0 =0 */
-          && ((msddf & (bit(shiftcount)-1)) ==0) /* and further bits from msddf =0 */
-          && (!test_loop_up(MSDptr,len)) /* and all further digits =0 */
-          /* round-to-even, according to bit 11 : */
-          && ((mantlo & bit(63-DF_mant_len)) ==0))) { /* round off */
-    mantlo = (mantlo >> (63-DF_mant_len)) | (manthi << (DF_mant_len-32+1));
-    manthi = manthi >> (63-DF_mant_len);
-  } else { /* round up */
-    mantlo = (mantlo >> (63-DF_mant_len)) | (manthi << (DF_mant_len-32+1));
-    manthi = manthi >> (63-DF_mant_len);
-    mantlo += 1;
-    if (mantlo==0) {
-      manthi += 1;
-      if (manthi >= bit(DF_mant_len-32+1)) { /* rounding overflow? */
-        manthi = manthi>>1; exp = exp+1;
+  --len; ok: {
+    /* the NDS consists of msd, msdd, msddf and len further digits.
+       the highest set bit in 2^64*msd+2^32*msdd+msddf is bit number
+       63 + (exp mod intDsize). */
+    var uintL shiftcount = exp % intDsize;
+   #ifdef intQsize
+    var uint64 mant = /* leading 64 bits */
+      (shiftcount==0
+       ? (((uint64)msdd << 32) | (uint64)msddf)
+       : (((uint64)msd << (64-shiftcount)) | ((uint64)msdd << (32-shiftcount))
+          | ((uint64)msddf >> shiftcount)));
+    /* the highest set bit in mant is bit number 63. */
+    if (((mant & bit(62-DF_mant_len)) ==0) /* bit 10 =0 -> round off */
+        || (((mant & (bit(62-DF_mant_len)-1)) ==0) /* bit 10 =1 and bits 9..0 =0 */
+            && ((msddf & (bit(shiftcount)-1)) ==0) /* and further bits from msddf =0 */
+            && (!test_loop_up(MSDptr,len)) /* and all further digits =0 */
+            /* round-to-even, according to bit 11 : */
+            && ((mant & bit(63-DF_mant_len)) ==0))) { /* round off */
+      mant = mant >> (63-DF_mant_len);
+    } else { /* round up */
+      mant = mant >> (63-DF_mant_len);
+      mant += 1;
+      if (mant >= bit(DF_mant_len+1)) { /* rounding overflow? */
+        mant = mant>>1; exp = exp+1;
       }
     }
+    encode_DF(sign,(sintL)exp,mant, return);
+   #else
+    var uint32 manthi; /* leading 32 bits */
+    var uint32 mantlo; /* next 32 bits */
+    if (shiftcount==0) {
+      manthi = msdd; mantlo = msddf;
+    } else {
+      manthi = ((uint32)msd << (32-shiftcount)) | (msdd >> shiftcount);
+      mantlo = (msdd << (32-shiftcount)) | (msddf >> shiftcount);
+    }
+    /* the highest set bit in mant is bit number 63. */
+    if (((mantlo & bit(62-DF_mant_len)) ==0) /* bit 10 =0 -> round off */
+        || (((mantlo & (bit(62-DF_mant_len)-1)) ==0) /* bit 10 =1 and bits 9..0 =0 */
+            && ((msddf & (bit(shiftcount)-1)) ==0) /* and further bits from msddf =0 */
+            && (!test_loop_up(MSDptr,len)) /* and all further digits =0 */
+            /* round-to-even, according to bit 11 : */
+            && ((mantlo & bit(63-DF_mant_len)) ==0))) { /* round off */
+      mantlo = (mantlo >> (63-DF_mant_len)) | (manthi << (DF_mant_len-32+1));
+      manthi = manthi >> (63-DF_mant_len);
+    } else { /* round up */
+      mantlo = (mantlo >> (63-DF_mant_len)) | (manthi << (DF_mant_len-32+1));
+      manthi = manthi >> (63-DF_mant_len);
+      mantlo += 1;
+      if (mantlo==0) {
+        manthi += 1;
+        if (manthi >= bit(DF_mant_len-32+1)) { /* rounding overflow? */
+          manthi = manthi>>1; exp = exp+1;
+        }
+      }
+    }
+    encode2_DF(sign,(sintL)exp,manthi,mantlo, return);
+   #endif
   }
-  encode2_DF(sign,(sintL)exp,manthi,mantlo, return);
- #endif
 }
 
 /* RA_to_DF(x) converts a rational number x into a Double-Float

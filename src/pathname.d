@@ -10400,46 +10400,47 @@ LISPFUNNR(file_write_date,1) {
     }
   } else {
     pathname = coerce_pathname(pathname); # turn into a pathname
-  is_pathname: # pathname is now really a pathname
-    var object namestring = true_namestring(pathname,true,false);
-   #ifdef EMUNIX
-    with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-      var struct stat statbuf;
-      begin_system_call();
-      if (stat(namestring_asciz,&statbuf) < 0) {
-        end_system_call(); OS_file_error(STACK_0);
-      }
-      end_system_call();
-      if (!S_ISREG(statbuf.st_mode)) { fehler_file_not_exists(); } # file must exist
-      file_datetime = statbuf.st_mtime;
-    });
-   #endif
-   #ifdef AMIGAOS
-    if (!file_exists(namestring)) { fehler_file_not_exists(); } # file must exist
-    file_datetime = filestatus->fib_Date;
-   #endif
-   #if defined(UNIX) || defined(RISCOS)
-    if (!file_exists(namestring)) { fehler_file_not_exists(); } # file must exist
-    file_datetime = filestatus->st_mtime;
-   #endif
-   #ifdef WIN32_NATIVE
-    # Only a directory search gives us the times.
-    with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-      var HANDLE search_handle;
-      begin_system_call();
-      search_handle = FindFirstFile(namestring_asciz,&filedata);
-      if (search_handle==INVALID_HANDLE_VALUE) {
-        if (WIN32_ERROR_NOT_FOUND) {
-          end_system_call(); fehler_file_not_exists();
+   is_pathname: { /* pathname is now really a pathname */
+      var object namestring = true_namestring(pathname,true,false);
+     #ifdef EMUNIX
+      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+        var struct stat statbuf;
+        begin_system_call();
+        if (stat(namestring_asciz,&statbuf) < 0) {
+          end_system_call(); OS_file_error(STACK_0);
         }
-        end_system_call(); OS_file_error(STACK_0);
-      } else if (!FindClose(search_handle)) {
-        end_system_call(); OS_file_error(STACK_0);
-      }
-      end_system_call();
-    });
-   #endif
-    skipSTACK(1);
+        end_system_call();
+        if (!S_ISREG(statbuf.st_mode)) { fehler_file_not_exists(); } # file must exist
+        file_datetime = statbuf.st_mtime;
+      });
+     #endif
+     #ifdef AMIGAOS
+      if (!file_exists(namestring)) { fehler_file_not_exists(); } # file must exist
+      file_datetime = filestatus->fib_Date;
+     #endif
+     #if defined(UNIX) || defined(RISCOS)
+      if (!file_exists(namestring)) { fehler_file_not_exists(); } # file must exist
+      file_datetime = filestatus->st_mtime;
+     #endif
+     #ifdef WIN32_NATIVE
+      # Only a directory search gives us the times.
+      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+        var HANDLE search_handle;
+        begin_system_call();
+        search_handle = FindFirstFile(namestring_asciz,&filedata);
+        if (search_handle==INVALID_HANDLE_VALUE) {
+          if (WIN32_ERROR_NOT_FOUND) {
+            end_system_call(); fehler_file_not_exists();
+          }
+          end_system_call(); OS_file_error(STACK_0);
+        } else if (!FindClose(search_handle)) {
+          end_system_call(); OS_file_error(STACK_0);
+        }
+        end_system_call();
+      });
+     #endif
+      skipSTACK(1);
+    }
   }
   # date/time no is in the buffer file_datetime.
   # convert into Universal-Time-Format:
@@ -10470,42 +10471,43 @@ LISPFUNNR(file_author,1) {
     }
   } else {
     pathname = coerce_pathname(pathname); # turn into a pathname
-  is_pathname: # pathname is now really a pathname
-    var object namestring = true_namestring(pathname,true,false);
-  #ifdef MSDOS
-   #if 1
-    with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-      # open file:
-      begin_system_call();
-      var sintW ergebnis = # try to open file
-        open(namestring_asciz,O_RDONLY);
-      if (ergebnis < 0) {
-        end_system_call(); OS_file_error(STACK_0); # report error
-      }
-      # now ergebnis (eng.: "result") contains the handle of the opened files.
-      if (CLOSE(ergebnis) < 0) { # close file instantly again
-        end_system_call(); OS_file_error(STACK_0);
-      }
-      end_system_call();
-    });
-   #else
-    with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-      var struct stat statbuf;
-      begin_system_call();
-      if (stat(namestring_asciz,&statbuf) < 0) {
-        end_system_call(); OS_file_error(STACK_0);
-      }
-      end_system_call();
-      if (!S_ISREG(statbuf.st_mode)) { fehler_file_not_exists(); } # file must exist
-    });
-   #endif
-  #endif
-  #if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
-    if (!file_exists(namestring)) { fehler_file_not_exists(); } # file must exist
-   #endif
-    skipSTACK(1);
+   is_pathname: { # pathname is now really a pathname
+      var object namestring = true_namestring(pathname,true,false);
+    #ifdef MSDOS
+     #if 1
+      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+        # open file:
+        begin_system_call();
+        var sintW result = # try to open file
+          open(namestring_asciz,O_RDONLY);
+        if (result < 0) {
+          end_system_call(); OS_file_error(STACK_0); # report error
+        }
+        # now result contains the handle of the opened files.
+        if (CLOSE(result) < 0) { # close file instantly again
+          end_system_call(); OS_file_error(STACK_0);
+        }
+        end_system_call();
+      });
+     #else
+      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+        var struct stat statbuf;
+        begin_system_call();
+        if (stat(namestring_asciz,&statbuf) < 0) {
+          end_system_call(); OS_file_error(STACK_0);
+        }
+        end_system_call();
+        if (!S_ISREG(statbuf.st_mode)) { fehler_file_not_exists(); } # file must exist
+      });
+     #endif
+    #endif
+     #if defined(UNIX) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
+      if (!file_exists(namestring)) { fehler_file_not_exists(); } # file must exist
+     #endif
+      skipSTACK(1);
+    }
   }
-  # file exists -> NIL as value
+  /* file exists -> NIL as value */
   VALUES1(NIL);
 }
 
