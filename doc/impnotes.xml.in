@@ -88,7 +88,7 @@
  <street>Louisenstra&szlig;e 103</street>
  <city>Bad Homburg</city>
  <postcode>D-61348</postcode> <country>Germany</country>
- <otheraddr><ulink url="http://www.haible.de/bruno/">http://www.haible.de/bruno/</ulink></otheraddr>
+ <otheraddr><ulink url="http://www.haible.de/bruno/"/></otheraddr>
 </address></blockquote>
  and
 <blockquote><address>
@@ -96,7 +96,7 @@
  <street>Westerwaldweg 22</street>
  <city>Remagen-Oberwinter</city>
  <postcode>D-53424</postcode> <country>Germany</country>
- <otheraddr><ulink url="http://www.math.uni-duesseldorf.de/~stoll/">http://www.math.uni-duesseldorf.de/~stoll/</ulink></otheraddr>
+ <otheraddr><ulink url="http://www.math.uni-duesseldorf.de/~stoll/"/></otheraddr>
 </address></blockquote>
 The current maintainers are
 <blockquote><address>
@@ -105,7 +105,7 @@ The current maintainers are
 and
 <blockquote><address>
   <honorific>Dr</honorific> <firstname>Sam</firstname> <surname>Steingold</surname>
-  <otheraddr><ulink url="http://www.podval.org/~sds/">http://www.podval.org/~sds/</ulink></otheraddr>
+  <otheraddr><ulink url="http://www.podval.org/~sds/"/></otheraddr>
 </address></blockquote>
 </para>
 
