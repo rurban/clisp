@@ -3135,68 +3135,65 @@ and possibly the calling convention.</para>
  <listitem><simpara>allocation of storage on the stack, which has
    dynamic extent.</simpara></listitem></varlistentry>
 <varlistentry><term>&malloc-free-k;</term>
- <listitem><simpara>storage will be allocated via &malloc; and freed via
+ <listitem><simpara>storage will be allocated via &malloc; and released via
    &free;.</simpara></listitem></varlistentry></variablelist></para>
 
 <para>If no &allocation; is specified, the default &allocation; is
  &none-k; for most types, but &alloca-k; for &c-string; and &c-ptr; and
- &c-ptr-null; and &c-array-ptr; and for &out-k; arguments. [Subject to
- change!]  The &malloc-free-k; policy provides the ability to pass
- arbitrarily nested structs containing pointers pointing to structs
- ... within a single conversion.</para>
+ &c-ptr-null; and &c-array-ptr; and for &out-k; arguments.
+ The &malloc-free-k; policy provides the ability to pass
+ arbitrarily nested structures within a single conversion.</para>
 
-<variablelist>
-<varlistentry><term>For call-out functions:</term>
-<listitem><variablelist>
+<formalpara id="dffi-allocation-out"><title>Call-out function arguments:</title>
+<para><variablelist>
  <varlistentry><term>For arguments passed from Lisp to &c-lang;:</term>
   <listitem><variablelist>
-   <varlistentry><term>If &allocation; is &malloc-free-k;:</term>
+   <varlistentry><term>&malloc-free-k;</term>
     <listitem><simpara>Lisp allocates the storage using &malloc; and
      never deallocates it.  The &c-lang; function is supposed to call
      &free; when done with it.</simpara></listitem></varlistentry>
-   <varlistentry><term>If &allocation; is &alloca-k;:</term>
+   <varlistentry><term>&alloca-k;</term>
     <listitem><simpara>Lisp allocates the storage on the stack, with
      dynamic extent.  It is freed when the &c-lang; function returns.
     </simpara></listitem></varlistentry>
-   <varlistentry><term>If &allocation; is &none-k;:</term>
+   <varlistentry><term>&none-k;</term>
     <listitem><simpara>Lisp assumes that the pointer already points to a
-     valid area of the proper size and puts the result value there.
-     This is dangerous! and deprecated.
-    </simpara></listitem></varlistentry></variablelist>
+     valid area of the proper size and puts the result value there.</simpara>
+     <simpara>This is dangerous and deprecated.</simpara>
+    </listitem></varlistentry></variablelist>
   </listitem></varlistentry>
  <varlistentry><term>For results passed from &c-lang; to Lisp:</term>
   <listitem><variablelist>
-   <varlistentry><term>If &allocation; is &malloc-free-k;:</term>
+   <varlistentry><term>&malloc-free-k;</term>
     <listitem><simpara>Lisp calls &free; on it when done.
     </simpara></listitem></varlistentry>
-   <varlistentry><term>If &allocation; is &none-k;:</term>
+   <varlistentry><term>&none-k;</term>
     <listitem><simpara>Lisp does nothing.
     </simpara></listitem></varlistentry></variablelist>
-  </listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>For call-in functions:</term>
- <listitem><variablelist>
+  </listitem></varlistentry></variablelist></para></formalpara>
+<formalpara id="dffi-allocation-in"><title>Call-in function arguments:</title>
+ <para><variablelist>
   <varlistentry><term>For arguments passed from &c-lang; to Lisp:</term>
    <listitem><variablelist>
-    <varlistentry><term>If &allocation; is &malloc-free-k;:</term>
+    <varlistentry><term>&malloc-free-k;</term>
      <listitem><simpara>Lisp calls &free; on it when done.
      </simpara></listitem></varlistentry>
-    <varlistentry><term>If &allocation; is &alloca-k; or &none-k;:</term>
+    <varlistentry><term>&alloca-k;</term><term>&none-k;</term>
      <listitem><simpara>Lisp does nothing.
      </simpara></listitem></varlistentry></variablelist>
    </listitem></varlistentry>
   <varlistentry><term>For results passed from Lisp to &c-lang;:</term>
    <listitem><variablelist>
-    <varlistentry><term>If &allocation; is &malloc-free-k;:</term>
+    <varlistentry><term>&malloc-free-k;</term>
      <listitem><simpara>Lisp allocates the storage using &malloc; and
       never deallocates it.  The &c-lang; function is supposed to call
       &free; when done with it.</simpara></listitem></varlistentry>
-   <varlistentry><term>If &allocation; is &none-k;:</term>
+   <varlistentry><term>&none-k;</term>
     <listitem><simpara>Lisp assumes that the pointer already points to a
-     valid area of the proper size and puts the result value there.
-     This is dangerous! and deprecated.
-    </simpara></listitem></varlistentry></variablelist>
- </listitem></varlistentry></variablelist></listitem></varlistentry>
-</variablelist>
+     valid area of the proper size and puts the result value there.</simpara>
+     <simpara>This is dangerous and deprecated.</simpara>
+    </listitem></varlistentry></variablelist>
+ </listitem></varlistentry></variablelist></para></formalpara>
 
 <warning id="ffi-struct-arg"><simpara>Passing &c-struct;, &c-union;,
   &c-array;, &c-array-max; values as arguments (not via pointers) is
@@ -3222,7 +3219,7 @@ and possibly the calling convention.</para>
   <listitem><simpara>The callee passes information back to the caller on
    return.  When viewed as a Lisp function, there is no Lisp argument
    corresponding to this, instead it means an additional return value.
-  </simpara></listitem></varlistentry>
+   Requires &allocation; = &alloca-k;.</simpara></listitem></varlistentry>
  <varlistentry><term>&in-out-k; (means: read-write):</term>
   <listitem><simpara>Information is passed from the caller to the callee
    and then back to the caller.  When viewed as a Lisp function, the
@@ -3232,8 +3229,6 @@ and possibly the calling convention.</para>
 
 <para>The default is &in-k;.</para>
 
-<para>[Currently, only &in-k; is fully implemented.  &out-k; works only
- with &allocation; = &alloca-k;.]</para>
 </section>
 
 <section id="dffi-examples"><title>Examples</title>
