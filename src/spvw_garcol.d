@@ -1745,10 +1745,14 @@ local void gc_unmarkcheck (void) {
           var object Lu = all_weakpointers;
           var gcv_object_t* L1 = &O(all_weakpointers);
           while (!eq(Lu,Fixnum_0)) {
-            if (!alive(Lu)) {
-              # The weak-pointer itself is being GCed.
-              # Don't care about its contents. Remove it from the list.
+            if (!alive(Lu)) { /* the weak-pointer itself is being GCed */
+              /* remove it from the list. */
               Lu = TheWeakpointer(Lu)->wp_cdr;
+            } else if (gcinvariant_object_p(TheWeakpointer(Lu)->wp_value)) {
+              /* value is GC-invariant ==> remove it from the list */
+              var object tail = TheWeakpointer(Lu)->wp_cdr;
+              TheWeakpointer(Lu)->wp_cdr = unbound;
+              Lu = tail;
             } else if (!alive(TheWeakpointer(Lu)->wp_value)) {
               # The referenced value is being GCed. Break the
               # weak-pointer and remove it from the list.

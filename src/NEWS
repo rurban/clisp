@@ -58,6 +58,10 @@ User visible changes
   are garbage collected.
   See <http://clisp.cons.org/impnotes.html#make-hash> for details.
 
+* You can use (SETF WEAK-POINTER-VALUE) to change the object to which
+  the given weak pointer point to.
+  See <http://clisp.cons.org/impnotes.html#weak> for details.
+
 * New macro EXT:DEFINE-HASH-TABLE-TEST allows user-defined hash table tests.
   See <http://clisp.cons.org/impnotes.html#defhash> for details.
 

@@ -615,7 +615,18 @@ LISPFUNN(function_macro_expander,1) {
 }
 
 /* ===========================================================================
- * Weak-Pointer: */
+ * Weak-Pointer:
+ We keep all WEAK-POINTER objects on the O(all_weakpointers) list unless the
+ value that the WEAK-POINTER points to is GC-invariant.  This requires that
+ we add the WEAK-POINTER to O(all_weakpointers) when the value is changed
+ to a non-GC-invariant one, and GC removes the WEAK-POINTERs with GC-invariant
+ values from O(all_weakpointers).
+ The alternative it to keep all the WEAK-POINTERs on the list.
+ We do not do that because we assume that the lifetime of a WEAK-POINTER is
+ relatively high compared to GC timeout, so there will be several GCs while
+ the given WEAK-POINTER is alive (why would one use a WEAK-POINTER otherwise?)
+ and therefore it is worth the effort to keep O(all_weakpointers) as short
+ as possible. */
 
 /* UP: make a weakpointer to popSTACK()
  can trigger GC, modifies STACK */
@@ -625,7 +636,7 @@ local object mk_weakpointer () {
   var object obj = popSTACK();
   TheWeakpointer(wp)->wp_value = obj;
   if (gcinvariant_object_p(obj)) {
-    TheWeakpointer(wp)->wp_cdr = Fixnum_0; /* a GC-invariant dummy */
+    TheWeakpointer(wp)->wp_cdr = unbound; /* a GC-invariant dummy */
   } else {
     TheWeakpointer(wp)->wp_cdr = O(all_weakpointers);
     O(all_weakpointers) = wp;
@@ -645,33 +656,54 @@ global object allocate_weakpointer (object obj) {
 
 /* (MAKE-WEAK-POINTER value)
    returns a fresh weak pointer referring to value. */
-LISPFUNN(make_weak_pointer,1) {
+LISPFUN(make_weak_pointer,seclass_no_se,1,0,norest,nokey,0,NIL) {
   VALUES1(mk_weakpointer());
 }
 
 /* (WEAK-POINTER-P object)
    returns true if the object is of type WEAK-POINTER. */
-LISPFUNN(weak_pointer_p,1) {
+LISPFUNNF(weak_pointer_p,1) {
   var object obj = popSTACK();
   VALUES_IF(weakpointerp(obj));
 }
 
-/* (WEAK-POINTER-VALUE weak-pointer) returns two values: The original value
- and T, if the value has not yet been garbage collected, else NIL and NIL. */
-LISPFUNN(weak_pointer_value,1) {
-  var object wp = popSTACK();
-  if (!weakpointerp(wp)) {
+/* UP: make sure that the argument is a WEAK-POINTER and return it
+ can trigger GC */
+local object check_weak_pointer (object wp) {
+  while (!weakpointerp(wp)) {
+    pushSTACK(NIL); /* no PLACE */
     pushSTACK(wp); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(weak_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(wp);
+    pushSTACK(S(weak_pointer)); pushSTACK(wp);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
-    fehler(type_error,GETTEXT("~: ~ is not a weak pointer"));
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    wp = value1;
   }
-  if (weakpointer_broken_p(wp)) {
+  return wp;
+}
+
+/* (WEAK-POINTER-VALUE weak-pointer) returns two values: The original value
+ and T, if the value has not yet been garbage collected, else NIL and NIL. */
+LISPFUNNR(weak_pointer_value,1) {
+  var object wp = check_weak_pointer(popSTACK());
+  if (weakpointer_broken_p(wp))
     VALUES2(NIL,NIL);
-  } else {
+  else
     VALUES2(TheWeakpointer(wp)->wp_value, T);
+}
+
+LISPFUNN(set_weak_pointer_value,2)
+{ /* (SETF (WEAK-POINTER-VALUE wp) value) */
+  var object wp = check_weak_pointer(STACK_1);
+  var object value = STACK_0; skipSTACK(2);
+  if (!gcinvariant_object_p(value)) {
+    /* make sure wp is on the O(all_weakpointers) list */
+    if (!boundp(TheWeakpointer(wp)->wp_cdr)) { /* put wp on the list */
+      TheWeakpointer(wp)->wp_cdr = O(all_weakpointers);
+      O(all_weakpointers) = wp;
+    }
   }
+  VALUES1(TheWeakpointer(wp)->wp_value = value);
 }
 
 /* ===========================================================================
