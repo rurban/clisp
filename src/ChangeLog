@@ -1,5 +1,59 @@
 2004-02-14  Bruno Haible  <bruno@clisp.org>
 
+	Make arrays with element type NIL work also in the TYPECODES config.
+	* lispbibl.d (Rectype_nilvector, Rectype_Snilvector): Remove enum
+	items.
+	(Atype_NIL, Array_type_snilvector): Define also for TYPECODES.
+	(Array_type_nilvector): Remove macro.
+	(general_vector_p): Exclude the vectors of element type NIL.
+	(case_Rectype_Snilvector_above): Remove macro.
+	(case_Rectype_nilvector_above): Remove macro.
+	(if_recordp): Remove special casing of Rectype_nilvector,
+	Rectype_Snilvector.
+	(allocate_nilvector): Remove declaration.
+	(fehler_retrieve): New declaration.
+	* spvw_circ.d (get_circ_mark, get_circ_unmark, subst_circ_mark, subst,
+	subst_circ_unmark): Remove handling of nilvector and snilvector types.
+	* spvw_garcol.d (gc_mark): Likewise.
+	* spvw_genera1.d (walk_area, build_old_generation_cache): Likewise.
+	* spvw_objsize.d (objsize): Likewise.
+	* spvw_update.d (update_varobject): Likewise.
+	* spvw_typealloc.d (allocate_nilvector): Remove function.
+	* array.d (eltype_code): Recognize also types equivalent to the NIL
+	type, not only NIL itself.
+	(iarray_displace, iarray_displace_check, array_displace_check): Handle
+	the case when the storage vector is NIL.
+	(fehler_retrieve): Change error message, ignore the storage vector.
+	(fehler_store): Give a different error message if the storage vector
+	is NIL.
+	(array_atype): Recognize vectors of element type NIL. Drop
+	Array_type_nilvector and Array_type_snilvector.
+	(elt_reverse, elt_nreverse): Give an error for a vector of element type
+	NIL.
+	(make_storagevector): For eltype==Atype_NIL, just return NIL.
+	(MAKE-ARRAY): For eltype==Atype_NIL, return a vector of type
+	vector_type, not just the storage vector.
+	* io.d (pr_vector): Don't call array_element_type if the array's
+	element type is known to be NIL.
+	(pr_array): Likewise.
+	(pr_orecord): Remove handling of Rectype_nilvector, Rectype_Snilvector.
+	* sequence.d (get_seq_type): Change recognition of arrays with element
+	type NIL.
+	* hashtabl.d (hashcode4_vector): Handle the case of a vector of element
+	type NIL.
+	* predtype.d (elt_compare): Handle the cases when dv1 or dv2 are
+	storage vectors of element type NIL.
+	(TYPE-OF): Handle vectors of element type NIL specially.
+	(CLOS:CLASS-OF): Remove handling of nilvector and snilvector types.
+	(heap_statistics_mapper): Likewise, but still distinguish general
+	vectors and those of element type NIL.
+	* type.lisp (upgraded-element-type): Recognize also types equivalent to
+	the NIL type, not only NIL itself.
+	* genclisph.d (general_vector_p): Exclude the vectors of element type
+	NIL.
+
+2004-02-14  Bruno Haible  <bruno@clisp.org>
+
 	* genclisph.d (make_system, vectorp): Make consistent with lispbibl.d.
 	(simple_vector_p, simple_string_p, simple_bit_vector_p, bit_vector_p,
 	TheFpointer) [TYPECODES]: Fix compilation errors.

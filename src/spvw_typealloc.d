@@ -93,22 +93,6 @@ global object allocate_vector (uintL len) {
  #undef SETTFL
 }
 
-/* allocate a (VECTOR NIL)
- allocate_nilvector(len)
- > len: length of the vector
- < result: new vector
- can trigger GC */
-global object allocate_nilvector (uintL len) {
-  var uintL need = size_svector(0);
- #ifdef TYPECODES
-  #define SETTFL  ptr->length = len
- #else
-  #define SETTFL  ptr->tfl = lrecord_tfl(Rectype_Snilvector,len)
- #endif
-  allocate(nilvector_type,true,need,Lrecord,ptr,{ SETTFL; });
- #undef SETTFL
-}
-
 /* allocate and init the weak kvtable
  > len:    the length of the data vector
  > type:   :KEY or :VALUE or :EITHER or :BOTH

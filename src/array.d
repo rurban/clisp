@@ -97,21 +97,24 @@ global uintB eltype_code (object obj)
 { /* (cond ((eq obj 'BIT) Atype_Bit)
            ((eq obj 'CHARACTER) Atype_Char)
            ((eq obj 'T) Atype_T)
-           (t (multiple-value-bind (low high) (sys::subtype-integer obj)
-                ;; Now (or (null low) (subtypep obj `(INTEGER ,low ,high)))
-                (if (and (integerp low) (not (minusp low)) (integerp high))
-                  (let ((l (integer-length high)))
-                    ;; Now (subtypep obj `(UNSIGNED-BYTE ,l))
-                    (cond ((<= l 1) Atype_Bit)
-                          ((<= l 2) Atype_2Bit)
-                          ((<= l 4) Atype_4Bit)
-                          ((<= l 8) Atype_8Bit)
-                          ((<= l 16) Atype_16Bit)
-                          ((<= l 32) Atype_32Bit)
-                          (t Atype_T)))
-                  (if (subtypep type 'CHARACTER)
-                    Atype_Char
-                    Atype_T))))) */
+           ((eq obj 'NIL) Atype_NIL)
+           (t (if (subtypep obj 'NIL)
+                Atype_NIL
+                (multiple-value-bind (low high) (sys::subtype-integer obj)
+                  ;; Now (or (null low) (subtypep obj `(INTEGER ,low ,high)))
+                  (if (and (integerp low) (not (minusp low)) (integerp high))
+                    (let ((l (integer-length high)))
+                      ;; Now (subtypep obj `(UNSIGNED-BYTE ,l))
+                      (cond ((<= l 1) Atype_Bit)
+                            ((<= l 2) Atype_2Bit)
+                            ((<= l 4) Atype_4Bit)
+                            ((<= l 8) Atype_8Bit)
+                            ((<= l 16) Atype_16Bit)
+                            ((<= l 32) Atype_32Bit)
+                            (t Atype_T)))
+                    (if (subtypep type 'CHARACTER)
+                      Atype_Char
+                      Atype_T)))))) */
   if (eq(obj,S(bit))) { /* symbol BIT ? */
     return Atype_Bit;
   } else if (eq(obj,S(character))) { /* symbol CHARACTER ? */
@@ -121,8 +124,14 @@ global uintB eltype_code (object obj)
   } else if (nullp(obj)) /* symbol NIL ? */
     return Atype_NIL;
   pushSTACK(obj); /* save obj */
+  /* (SUBTYPEP obj 'NIL) */
+  pushSTACK(obj); pushSTACK(S(nil)); funcall(S(subtypep),2);
+  if (!nullp(value1)) {
+    skipSTACK(1);
+    return Atype_NIL;
+  }
   /* (SYS::SUBTYPE-INTEGER obj) */
-  pushSTACK(obj); funcall(S(subtype_integer),1);
+  pushSTACK(STACK_0); funcall(S(subtype_integer),1);
   obj = popSTACK(); /* restore obj */
   if ((mv_count>1) && integerp(value1)
       && positivep(value1) && integerp(value2)) {
@@ -140,6 +149,7 @@ global uintB eltype_code (object obj)
     if (l<=32)
       return Atype_32Bit;
   }
+  /* (SUBTYPEP obj 'CHARACTER) */
   pushSTACK(obj); pushSTACK(S(character)); funcall(S(subtypep),2);
   if (!nullp(value1))
     return Atype_Char;
@@ -178,9 +188,10 @@ LISPFUN(vector,seclass_no_se,0,0,rest,nokey,0,NIL)
 /* An indirect array contains a pointer to another array:
      TheIarray(array)->data.
  The "storage vector" of an array is a 1-dimensional array, of the same
- element type as the original array, without fill-pointer or adjustable bit.
+ element type as the original array, without fill-pointer or adjustable bit;
+ for arrays of element type NIL, the "storage vector" is the symbol NIL.
  It can be obtained by repeatedly taking TheIarray(array)->data, until
- array satisfies array_simplep. */
+ array satisfies array_simplep || nullp. */
 
 /* Function: Follows the TheIarray(array)->data chain until the storage-vector
  is reached, and thereby sums up displaced-offsets. This function is useful
@@ -211,8 +222,9 @@ local object iarray_displace (object array, uintL* index) {
  simple:
   simple_array_to_storage(array);
   /* have reached the storage-vector, not indirect */
-  if (*index >= Sarray_length(array))
-    goto fehler_bad_index;
+  if (!nullp(array))
+    if (*index >= Sarray_length(array))
+      goto fehler_bad_index;
   return array;
  fehler_bad_index:
   fehler(error,GETTEXT("index too large")); /* more details?? */
@@ -248,8 +260,9 @@ global object iarray_displace_check (object array, uintL size, uintL* index) {
  simple:
   simple_array_to_storage(array);
   /* have reached the storage-vector, not indirect */
-  if (*index+size > Sarray_length(array))
-    goto fehler_bad_index;
+  if (!nullp(array))
+    if (*index+size > Sarray_length(array))
+      goto fehler_bad_index;
   return array;
  fehler_bad_index:
   fehler_displaced_inconsistent();
@@ -282,8 +295,9 @@ global object array_displace_check (object array, uintL size, uintL* index) {
  simple:
   simple_array_to_storage(array);
   /* have reached the storage-vector, not indirect */
-  if (*index+size > Sarray_length(array))
-    goto fehler_bad_index;
+  if (!nullp(array))
+    if (*index+size > Sarray_length(array))
+      goto fehler_bad_index;
   return array;
  fehler_bad_index:
   fehler_displaced_inconsistent();
@@ -475,11 +489,9 @@ local object subscripts_to_index (object array, gcv_object_t* argptr,
 
 /* error: attempt to retrieve a value from (ARRAY NIL) */
 nonreturning_function(global, fehler_retrieve, (object array)) {
-  pushSTACK(array); /* TYPE-ERROR slot DATUM -- what else can we put here?! */
-  pushSTACK(array_element_type(array)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(STACK_1); /* array */
+  /* Ignore array, since it's always NIL. */
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: cannot retrieve values from ~"));
+  fehler(error,GETTEXT("~: cannot retrieve values from an array of element type NIL"));
 }
 
 /* Function: Performs an AREF access.
@@ -516,11 +528,18 @@ global object storagevector_aref (object datenvektor, uintL index) {
  fehler_store(array,value); */
 nonreturning_function(global, fehler_store, (object array, object value)) {
   pushSTACK(value); /* TYPE-ERROR slot DATUM */
-  pushSTACK(NIL); pushSTACK(array);
-  STACK_1 = array_element_type(array); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(STACK_2); /* value */
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ does not fit into ~, bad type"));
+  pushSTACK(NIL); /* TYPE-ERROR slot EXPECTED-TYPE */
+  if (!nullp(array)) {
+    pushSTACK(array);
+    STACK_1 = array_element_type(array); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(STACK_2); /* value */
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,GETTEXT("~: ~ does not fit into ~, bad type"));
+  } else {
+    pushSTACK(STACK_1); /* value */
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(type_error,GETTEXT("~: ~ cannot be stored in an array of element type NIL"));
+  }
 }
 
 /* performs a STORE-access.
@@ -759,6 +778,7 @@ local uintBWL array_atype (object array)
 {
   switch (Array_type(array)) {
     case Array_type_mdarray: /* general array -> look at Arrayflags */
+    case Array_type_vector: /* [GENERAL-]VECTOR or (VECTOR NIL) */
       return Iarray_flags(array) & arrayflags_atype_mask;
     case Array_type_sbvector:
     case Array_type_sb2vector:
@@ -777,12 +797,12 @@ local uintBWL array_atype (object array)
     case Array_type_string:
     case Array_type_sstring:
       return Atype_Char;
-    case Array_type_vector:
     case Array_type_svector:
       return Atype_T;
-    case Array_type_nilvector:
+    #if 0 /* not necessary */
     case Array_type_snilvector:
       return Atype_NIL;
+    #endif
     default: NOTREACHED;
   }
 }
@@ -2788,7 +2808,8 @@ global void elt_copy (object dv1, uintL index1,
       break;
     case Array_type_snilvector: /* (VECTOR NIL) */
       switch (Array_type(dv2)) {
-        case Array_type_snilvector: return;
+        case Array_type_snilvector:
+          return;
         case Array_type_svector: /* Simple-Vector */
         case Array_type_sbvector: /* Simple-Bit-Vector */
         case Array_type_sb2vector:
@@ -3018,7 +3039,8 @@ global void elt_move (object dv1, uintL index1,
     case Array_type_sstring: /* Simple-String */
       elt_move_Char(dv1,index1,dv2,index2,count);
       break;
-    case Array_type_snilvector: break; /* nothing to be done! */
+    case Array_type_snilvector:
+      return;
     default: NOTREACHED;
   }
 }
@@ -3255,8 +3277,8 @@ global bool elt_fill (object dv, uintL index, uintL count, object element) {
  > index2: start index in dv2
  > count: number of elements to be copied, > 0
  can trigger GC */
-global void elt_reverse (object dv1, uintL index1, object dv2,
-                         uintL index2, uintL count) {
+global void elt_reverse (object dv1, uintL index1, object dv2, uintL index2,
+                         uintL count) {
 #define SIMPLE_REVERSE(p1,p2,c)   dotimespL(c,c, { *p2-- = *p1++; })
   index2 += count-1;
   switch (Array_type(dv1)) {
@@ -3412,6 +3434,8 @@ global void elt_reverse (object dv1, uintL index1, object dv2,
       });
     }
       break;
+    case Array_type_snilvector:
+      fehler_retrieve(dv1);
     default: NOTREACHED;
   }
 #undef SIMPLE_REVERSE
@@ -3507,6 +3531,8 @@ global void elt_nreverse (object dv, uintL index, uintL count) {
         });
       }
       break;
+    case Array_type_snilvector:
+      fehler_retrieve(dv);
     default: NOTREACHED;
   }
 #undef SIMPLE_NREVERSE
@@ -4151,7 +4177,9 @@ local object make_storagevector (uintL len, uintB eltype) {
     case Atype_32Bit: /* create simple bit/byte-vector */
       vector = allocate_bit_vector(eltype,len);
       break;
-    case Atype_NIL: vector = allocate_nilvector(len); break;
+    case Atype_NIL:
+      vector = NIL;
+      break;
     default: NOTREACHED;
   }
   if (boundp(STACK_4)) /* initial-element supplied? */
@@ -4282,7 +4310,8 @@ local uintL test_displaced (uintB eltype, uintL totalsize) {
       pushSTACK(displaced_to); /* TYPE-ERROR slot DATUM */
       pushSTACK(S(array)); pushSTACK(STACK_(5+2));
       { /* TYPE-ERROR slot EXPECTED-TYPE */
-        object exp_type = listof(2); pushSTACK(exp_type); }
+        object exp_type = listof(2); pushSTACK(exp_type);
+      }
       pushSTACK(STACK_(5+2)); /* element-type */
       pushSTACK(STACK_2); /* displaced_to */
       pushSTACK(S(Kdisplaced_to));
@@ -4386,7 +4415,7 @@ LISPFUN(make_array,seclass_read,1,0,norest,key,7,
        and adjustable is not supplied
        and rank=1 ,
        then return a (semi-)simple vector: */
-    if ((rank==1) && (nullp(STACK_6)) && (nullp(STACK_2))) {
+    if ((rank==1) && nullp(STACK_6) && nullp(STACK_2) && !nullp(datenvektor)) {
       VALUES1(datenvektor); /* return datenvektor */
       skipSTACK(8); return;
     }
@@ -4440,7 +4469,7 @@ LISPFUN(make_array,seclass_read,1,0,norest,key,7,
       Array_type_b32vector, /* Atype_32Bit -> Array_type_b32vector */
       Array_type_vector,    /* Atype_T     -> Array_type_vector */
       Array_type_string,    /* Atype_Char  -> Array_type_string */
-      Array_type_nilvector, /* Atype_NIL   -> Array_type_nilvector */
+      Array_type_vector,    /* Atype_NIL   -> Array_type_vector */
       Array_type_vector,    /* unused yet */
       Array_type_vector,    /* unused yet */
       Array_type_vector,    /* unused yet */

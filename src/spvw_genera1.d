@@ -250,7 +250,6 @@ local uintC generation;
                   case Rectype_reallocstring:                             \
                   case Rectype_string:                                    \
                   case Rectype_vector:                                    \
-                  case Rectype_nilvector:                                 \
                     # arrays that are not simple:                         \
                     walk_area_iarray(objptr,physpage_end,walkfun);        \
                     break;                                                \
@@ -271,7 +270,6 @@ local uintC generation;
                   case Rectype_Ffloat:                                    \
                   case Rectype_Dfloat:                                    \
                   case Rectype_Lfloat:                                    \
-                  case Rectype_Snilvector:                                \
                     # simple-byte-vector, simple-string, bignum, float    \
                     objptr += objsize((Varobject)objptr);                 \
                     break;                                                \
@@ -606,7 +604,7 @@ local uintC generation;
                   }
                   break;
                 #endif
-                case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: case_nilvector: # non-simple arrays:
+                case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector: # non-simple arrays:
                   {
                     var aint nextptr = objptr + objsize((Iarray)objptr);
                     # here is gen0_start-physpagesize <= objptr < gen0_start.
@@ -682,7 +680,6 @@ local uintC generation;
                     case_Rectype_ob32vector_above;
                     case_Rectype_ostring_above;
                     case_Rectype_ovector_above;
-                    case_Rectype_nilvector_above;
                     case_Rectype_Svector_above;
                     case_Rectype_WeakKVT_above;
                     case Rectype_Sbvector:
@@ -696,7 +693,6 @@ local uintC generation;
                     case Rectype_S32string: case Rectype_Imm_S32string:
                     case Rectype_Bignum:
                     case Rectype_Ffloat: case Rectype_Dfloat: case Rectype_Lfloat:
-                    case Rectype_Snilvector:
                       goto case_nopointers;
                     default: ;
                   }

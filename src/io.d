@@ -1,6 +1,6 @@
 /*
  * Input/Output for CLISP
- * Bruno Haible 1990-2003
+ * Bruno Haible 1990-2004
  * Marcus Daniels 11.3.1997
  * Sam Steingold 1998-2003
  * German comments translated into English: Stefan Kain 2001-06-12
@@ -7517,7 +7517,7 @@ local void pr_vector (const gcv_object_t* stream_, object v) {
         INDENT_START(3); # indent by 3 characters because of '#A('
         JUSTIFY_START(1);
         JUSTIFY_LAST(false);
-        prin_object_dispatch(stream_,array_element_type(*sv_)); # print element-type
+        prin_object_dispatch(stream_, vector_nil_p ? NIL : array_element_type(*sv_)); # print element-type
         JUSTIFY_SPACE;
         JUSTIFY_LAST(false);
         pushSTACK(fixnum(len));
@@ -7881,7 +7881,7 @@ local void pr_array (const gcv_object_t* stream_, object obj) {
         INDENT_START(3); # indent by 3 characters, because of '#A('
         JUSTIFY_START(1);
         JUSTIFY_LAST(false);
-        prin_object_dispatch(stream_,array_element_type(*obj_)); # print element-type (Symbol or List)
+        prin_object_dispatch(stream_, locals.pr_one_elt==NULL ? NIL : array_element_type(*locals.obj_)); # print element-type (Symbol or List)
         JUSTIFY_SPACE; JUSTIFY_LAST(false);
         pr_list(stream_,array_dimensions(*obj_)); # print dimension-list
         if (locals.pr_one_elt) { /* not (ARRAY NIL) */
@@ -8423,7 +8423,6 @@ local void pr_orecord (const gcv_object_t* stream_, object obj) {
     case Rectype_b16vector: case Rectype_Sb16vector: # 16bit-vector
     case Rectype_b32vector: case Rectype_Sb32vector: # 32bit-vector
     case Rectype_vector: case Rectype_Svector: # (vector t)
-    case Rectype_nilvector: case Rectype_Snilvector: /* (VECTOR NIL) */
       pr_vector(stream_,obj); break;
     case Rectype_WeakKVT: # weak key-value table
       pr_weakkvt(stream_,obj); break;

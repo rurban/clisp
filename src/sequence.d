@@ -1,6 +1,6 @@
 /*
  * Sequences for CLISP
- * Bruno Haible 1987-2003
+ * Bruno Haible 1987-2004
  * Sam Steingold 1998-2003
  */
 #include "lispbibl.c"
@@ -261,10 +261,20 @@ local object get_seq_type (object seq) {
       case Array_type_b16vector:
       case Array_type_b32vector: # Typ n, bedeutet (VECTOR (UNSIGNED-BYTE n))
         name = fixnum(bit(bNvector_atype(seq))); break;
-      case Array_type_snilvector: case Array_type_nilvector: /* (VECTOR NIL) */
-        name = Fixnum_0; break;
-      default:
+      case Array_type_vector:
+        switch (Iarray_flags(seq) & arrayflags_atype_mask) {
+          case Atype_NIL: /* type (VECTOR NIL) */
+            name = Fixnum_0; break;
+          case Atype_T: /* type [GENERAL-]VECTOR */
+            name = S(vector); break;
+          default:
+            NOTREACHED;
+        }
+        break;
+      case Array_type_svector:
         name = S(vector); break; # Typ [GENERAL-]VECTOR
+      default:
+        NOTREACHED;
     }
   } else if (structurep(seq)) {
     name = TheStructure(seq)->structure_types; # Structure-Typen-List*e

@@ -445,7 +445,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
       case_lfloat: # Long-Float
       case_ratio: # Ratio
       case_complex: # Complex
-      case_snilvector: /* (VECTOR NIL) */
         # Object without components that are printed:
         if (mlb_add(&env->bitmap,obj)) # marked?
           goto m_schon_da;
@@ -465,7 +464,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           }
         }
         goto m_end;
-      case_mdarray: case_ovector: case_nilvector:
+      case_mdarray: case_ovector:
         # non-simple Array with components, that are objects:
         if (mlb_add(&env->bitmap,obj)) # marked?
           goto m_schon_da;
@@ -522,8 +521,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           case_Rectype_Ratio_above;
           case_Rectype_Complex_above;
           case_Rectype_Svector_above;
-          case_Rectype_Snilvector_above;
-          case_Rectype_nilvector_above;
           case_Rectype_mdarray_above;
           case_Rectype_ovector_above;
           #endif
@@ -746,7 +743,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
       case_lfloat: # Long-Float
       case_ratio: # Ratio
       case_complex: # Complex
-      case_snilvector: /* (VECTOR NIL) */
         # object without components that are printed:
         if (marked(ThePointer(obj))) # marked?
           goto m_schon_da;
@@ -770,7 +766,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           }
         }
         goto m_end;
-      case_mdarray: case_ovector: case_nilvector:
+      case_mdarray: case_ovector:
         # non-simple array with components that are objects:
         if (marked(TheIarray(obj))) # marked?
           goto m_schon_da;
@@ -833,8 +829,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           case_Rectype_Ratio_above;
           case_Rectype_Complex_above;
           case_Rectype_Svector_above;
-          case_Rectype_Snilvector_above;
-          case_Rectype_nilvector_above;
           case_Rectype_mdarray_above;
           case_Rectype_ovector_above;
           #endif
@@ -947,7 +941,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
       case_lfloat: # Long-Float
       case_ratio: # Ratio
       case_complex: # Complex
-      case_snilvector: /* (VECTOR NIL) */
         # unmark object, that has no marked components:
         unmark(ThePointer(obj)); # unmark
         goto u_end;
@@ -966,7 +959,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           }
         }
         goto u_end;
-      case_mdarray: case_ovector: case_nilvector:
+      case_mdarray: case_ovector:
         # non-simple Array with components that are objects:
         if (!marked(TheIarray(obj))) # already unmarked?
           goto u_end;
@@ -1024,8 +1017,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           case_Rectype_Ratio_above;
           case_Rectype_Complex_above;
           case_Rectype_Svector_above;
-          case_Rectype_Snilvector_above;
-          case_Rectype_nilvector_above;
           case_Rectype_mdarray_above;
           case_Rectype_ovector_above;
           #endif
@@ -1154,7 +1145,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             }
           }
           return;
-        case_mdarray: case_ovector: case_nilvector:
+        case_mdarray: case_ovector:
           # non-simple array, no string or bit-vector
           if (mlb_add(&env->bitmap,obj)) # object already marked?
             return;
@@ -1165,8 +1156,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           #ifndef TYPECODES
           switch (Record_type(obj)) {
             case_Rectype_Svector_above;
-            case_Rectype_Snilvector_above;
-            case_Rectype_nilvector_above;
             case_Rectype_mdarray_above;
             case_Rectype_ovector_above;
             case_Rectype_bvector_above;
@@ -1247,7 +1236,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         case_subr: # SUBR
         case_number: # Zahl
         case_symbol: # Symbol
-        case_snilvector: /* (VECTOR NIL) */
           # Object contains no references -> do nothing
           return;
         default: NOTREACHED;
@@ -1345,7 +1333,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             }
           }
           break;
-        case_mdarray: case_ovector: case_nilvector:
+        case_mdarray: case_ovector:
           # non-simple array, no string or bit-vector
           # traverse data-vector: end-recursive subst(data-vector)
           ptr = &TheIarray(obj)->data; goto enter_subst;
@@ -1354,8 +1342,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           #ifndef TYPECODES
           switch (Record_type(obj)) {
             case_Rectype_Svector_above;
-            case_Rectype_Snilvector_above;
-            case_Rectype_nilvector_above;
             case_Rectype_mdarray_above;
             case_Rectype_ovector_above;
             case_Rectype_bvector_above;
@@ -1427,7 +1413,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         case_subr: # SUBR
         case_number: # Zahl
         case_symbol: # Symbol
-        case_snilvector: /* (VECTOR NIL) */
           # Object contains no references -> do nothing
           break;
         default: NOTREACHED;
@@ -1520,7 +1505,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             }
           }
           return;
-        case_mdarray: case_ovector: case_nilvector:
+        case_mdarray: case_ovector:
           # non-simple array, no string or bit-vector
           if (marked(TheIarray(obj))) # object already marked?
             return;
@@ -1531,8 +1516,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           #ifndef TYPECODES
           switch (Record_type(obj)) {
             case_Rectype_Svector_above;
-            case_Rectype_Snilvector_above;
-            case_Rectype_nilvector_above;
             case_Rectype_mdarray_above;
             case_Rectype_ovector_above;
             case_Rectype_bvector_above;
@@ -1615,7 +1598,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         case_subr: # SUBR
         case_number: # Zahl
         case_symbol: # Symbol
-        case_snilvector: /* (VECTOR NIL) */
           # Object contains no references -> do nothing
           return;
         default: NOTREACHED;
@@ -1661,7 +1643,7 @@ global object subst_circ (gcv_object_t* ptr, object alist);
             }
           }
           return;
-        case_mdarray: case_ovector: case_nilvector:
+        case_mdarray: case_ovector:
           # non-simple array, no string or bit-vector
           if (!marked(TheIarray(obj))) # already unmarked?
             return;
@@ -1673,8 +1655,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
           #ifndef TYPECODES
           switch (Record_type(obj)) {
             case_Rectype_Svector_above;
-            case_Rectype_Snilvector_above;
-            case_Rectype_nilvector_above;
             case_Rectype_mdarray_above;
             case_Rectype_ovector_above;
             case_Rectype_bvector_above;
@@ -1722,7 +1702,6 @@ global object subst_circ (gcv_object_t* ptr, object alist);
         case_subr: # SUBR
         case_number: # Zahl
         case_symbol: # Symbol
-        case_snilvector: /* (VECTOR NIL) */
           # Object contains no references -> do nothing
           return;
         default: NOTREACHED;
