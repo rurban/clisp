@@ -1,0 +1,205 @@
+<bookinfo>
+ <legalnotice><para>&gnu; &gpl;</para></legalnotice>
+ <authorgroup>
+  <author>
+   <authorblurb><para>Bugs in both these notes and &clisp; itself should
+    be sent to <email>clisp-list@lists.sourceforge.net</email>
+   </para></authorblurb>
+  </author>
+  <author><honorific>Dr.</honorific><firstname>Bruno</firstname>
+   <surname>Haible</surname></author>
+  <author><honorific>Dr.</honorific><firstname>Sam</firstname>
+   <surname>Steingold</surname></author>
+ </authorgroup>
+ <keywordset>
+  <keyword>Lisp</keyword>
+  <keyword>Common Lisp</keyword>
+  <keyword>CLISP</keyword>
+ </keywordset>
+</bookinfo>
+
+<preface><title><inlinemediaobject>
+ <imageobject>
+  <imagedata fileref="clisp.gif" width="48" depth="48"></imagedata>
+ </imageobject>
+ <textobject><phrase>[CLISP icon]</phrase></textobject>
+</inlinemediaobject></title>
+
+<subtitle>Last modified: 2000-02-24</subtitle>
+
+<para>These notes discuss the &clisp; implementation of &cl; by
+<blockquote><address>
+ <honorific>Dr.</honorific>
+ <firstname>Bruno</firstname><surname>Haible</surname>
+ <email>haible@clisp.cons.org</email>
+ <street>17, rue Danton</street>
+ <city>Le Kremlin-Bic&ecirc;tre</city>
+ <postcode>F-94270</postcode> <country>France</country>
+</address></blockquote>
+ and
+<blockquote><address>
+ <honorific>Dr.</honorific>
+ <firstname>Michael</firstname><surname>Stoll</surname>
+ <street>Westerwaldweg 22</street>
+ <city>Remagen-Oberwinter</city>
+ <postcode>D-53424</postcode> <country>Germany</country>
+</address></blockquote>
+ The current maintainers are Bruno Haible and
+ <address><honorific>Dr.</honorific><firstname>Sam</firstname>
+ <surname>Steingold</surname><email>sds@clisp.cons.org</email></address>.
+</para>
+
+<para>This implementation is mostly conforming to the &ansi-cl;
+ available on-line as the <citation>Common Lisp HyperSpec</citation>
+ (but the printed ANSI document remains the authoritative source of
+ information).  &ansi-cl; supersedes the earlier specifications
+ <citation>CLtL1</citation> and <citation>CLtL2</citation>.</para>
+
+<para>These notes document the differences between the &clisp;
+ implementation of &cl; and the &ansi-cl;, and some implementation
+ details.  This document is indexed in parallel to the <citation>Common
+ Lisp HyperSpec</citation>.</para>
+
+</preface>
+
+<toc>
+<tocpart><tocentry><ulink url="&clhs;/FrontMatter/Chapter-Index.html">CLHS
+   Chapters</ulink></tocentry>
+ <tocentry><xref linkend="intro"></xref>
+  <ulink url="&clhs;/Body/chap-1.html">[CLHS-1
+   Introduction]</ulink></tocentry>
+ <tocentry><xref linkend="syntax"></xref>
+  <ulink url="&clhs;/Body/chap-2.html">[CLHS-2
+   Syntax]</ulink></tocentry>
+ <tocentry><xref linkend="eval"></xref>
+  <ulink url="&clhs;/Body/chap-3.html">[CLHS-3
+   Evaluation and Compilation]</ulink></tocentry>
+ <tocentry><xref linkend="types"></xref>
+  <ulink url="&clhs;/Body/chap-4.html">[CLHS-4
+   Types and Classes]</ulink></tocentry>
+ <tocentry><xref linkend="data"></xref>
+  <ulink url="&clhs;/Body/chap-5.html">[CLHS-5
+   Data and Control Flow]</ulink></tocentry>
+ <tocentry><xref linkend="iteration"></xref>
+  <ulink url="&clhs;/Body/chap-6.html">[CLHS-6
+   Iteration]</ulink></tocentry>
+ <tocentry><xref linkend="objects"></xref>
+  <ulink url="&clhs;/Body/chap-7.html">[CLHS-7
+   Objects]</ulink></tocentry>
+ <tocentry><xref linkend="structures"></xref>
+  <ulink url="&clhs;/Body/chap-8.html">[CLHS-8
+   Structures]</ulink></tocentry>
+ <tocentry><xref linkend="conditions"></xref>
+  <ulink url="&clhs;/Body/chap-9.html">[CLHS-9
+   Conditions]</ulink></tocentry>
+ <tocentry><xref linkend="symbols"></xref>
+  <ulink url="&clhs;/Body/chap-10.html">[CLHS-10
+   Symbols]</ulink></tocentry>
+ <tocentry><xref linkend="packages"></xref>
+  <ulink url="&clhs;/Body/chap-11.html">[CLHS-11
+   Packages]</ulink></tocentry>
+ <tocentry><xref linkend="numbers"></xref>
+  <ulink url="&clhs;/Body/chap-12.html">[CLHS-12
+   Numbers]</ulink></tocentry>
+ <tocentry><xref linkend="characters"></xref>
+  <ulink url="&clhs;/Body/chap-13.html">[CLHS-13
+   Characters]</ulink></tocentry>
+ <tocentry><xref linkend="conses"></xref>
+  <ulink url="&clhs;/Body/chap-14.html">[CLHS-14
+   Conses]</ulink></tocentry>
+ <tocentry><xref linkend="arrays"></xref>
+  <ulink url="&clhs;/Body/chap-15.html">[CLHS-15
+   Arrays]</ulink></tocentry>
+ <tocentry><xref linkend="strings"></xref>
+  <ulink url="&clhs;/Body/chap-16.html">[CLHS-16
+   Strings]</ulink></tocentry>
+ <tocentry><xref linkend="sequences"></xref>
+  <ulink url="&clhs;/Body/chap-17.html">[CLHS-17
+   Sequences]</ulink></tocentry>
+ <tocentry><xref linkend="hash"></xref>
+  <ulink url="&clhs;/Body/chap-18.html">[CLHS-18
+   Hash Tables]</ulink></tocentry>
+ <tocentry><xref linkend="filenames"></xref>
+  <ulink url="&clhs;/Body/chap-19.html">[CLHS-19
+   Filenames]</ulink></tocentry>
+ <tocentry><xref linkend="files"></xref>
+  <ulink url="&clhs;/Body/chap-20.html">[CLHS-20
+   Files]</ulink></tocentry>
+ <tocentry><xref linkend="streams"></xref>
+  <ulink url="&clhs;/Body/chap-21.html">[CLHS-21
+   Streams]</ulink></tocentry>
+ <tocentry><xref linkend="printer"></xref>
+  <ulink url="&clhs;/Body/chap-22.html">[CLHS-22
+   Printer]</ulink></tocentry>
+ <tocentry><xref linkend="reader"></xref>
+  <ulink url="&clhs;/Body/chap-23.html">[CLHS-23
+   Reader]</ulink></tocentry>
+ <tocentry><xref linkend="system"></xref>
+  <ulink url="&clhs;/Body/chap-24.html">[CLHS-24
+   System Construction]</ulink></tocentry>
+ <tocentry><xref linkend="environment"></xref>
+  <ulink url="&clhs;/Body/chap-25.html">[CLHS-25
+   Environment]</ulink></tocentry>
+ <tocentry><xref linkend="glossary"></xref>
+  <ulink url="&clhs;/Body/chap-26.html">[CLHS-26
+   Glossary]</ulink></tocentry>
+ <tocentry><xref linkend="appendix"></xref>
+  <ulink url="&clhs;/Body/chap-a.html">[CLHS-a
+   Appendix]</ulink></tocentry>
+ <tocentry><xref linkend="issues"></xref>
+  <ulink url="&clhs;/Issues/Issues-Categorized.html">[CLHS-ic
+   X3J13 Issue Index]</ulink></tocentry>
+</tocpart>
+
+<tocpart><tocentry><xref linkend="extensions"></xref></tocentry>
+
+ <tocchap><tocentry><xref linkend="p-indep"></xref>
+   [Platform-independent Extensions]</tocentry>
+   <tocentry><xref linkend="image"></xref>
+    [Saving an Image]</tocentry>
+   <tocentry><xref linkend="quit"></xref>
+    [Quitting Lisp]</tocentry>
+   <tocentry><xref linkend="language"></xref>
+    [The Language]</tocentry>
+   <tocentry><xref linkend="encoding"></xref>
+    [Encodings]</tocentry>
+   <tocentry><xref linkend="gstream"></xref>
+    [Defining new kinds of Streams]</tocentry>
+   <tocentry><xref linkend="weak"></xref>
+    [Weak Pointers]</tocentry>
+   <tocentry><xref linkend="final"></xref>
+    [Finalization]</tocentry>
+   <tocentry><xref linkend="prompt"></xref>
+    [The Prompt]</tocentry>
+   <tocentry><xref linkend="ansi"></xref>
+    [Maximum ANSI CL compliance]</tocentry>
+   <tocentry><xref linkend="macros3"></xref>
+    [Additional Fancy Macros]</tocentry>
+ </tocchap>
+ <tocchap><tocentry><xref linkend="platform"></xref>
+   [Platform-specific Extensions]</tocentry>
+   <tocentry><xref linkend="screen"></xref>
+    [Random Screen Access]</tocentry>
+   <tocentry><xref linkend="modules"></xref>
+    [External Modules]</tocentry>
+   <tocentry><xref linkend="dffi"></xref>
+    [The Foreign Function Call Facility]</tocentry>
+   <tocentry><xref linkend="affi"></xref>
+    [The Amiga Foreign Function Call Facility]</tocentry>
+   <tocentry><xref linkend="rexx"></xref>
+    [ARexx]</tocentry>
+   <tocentry><xref linkend="socket"></xref>
+    [Socket Streams]</tocentry>
+   <tocentry><xref linkend="syscalls"></xref>
+    [System Calls]</tocentry>
+   <tocentry><xref linkend="quickstart"></xref>
+    [Quickstarting CLISP programs]</tocentry>
+   <tocentry><xref linkend="app-dev"></xref>
+    [Application delivery with CLISP]</tocentry>
+   <tocentry><xref linkend="shell"></xref>
+    [Shell Access]</tocentry>
+   <tocentry><xref linkend="other"></xref>
+    [Other]</tocentry>
+ </tocchap>
+</tocpart>
+</toc>

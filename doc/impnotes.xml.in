@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//Norman Walsh//DTD DocBk XML V3.1.4//EN"
+                      "/kdd2/web/misc/db3xml/docbookx.dtd" [
+  <!ENTITY % imp-entities SYSTEM "impent.xml">
+  %imp-entities;
+
+  <!ENTITY imp-toc    SYSTEM "imptoc.xml">
+  <!ENTITY imp-body   SYSTEM "impbody.xml">
+  <!ENTITY imp-issues SYSTEM "impissue.xml">
+  <!ENTITY imp-ext    SYSTEM "impext.xml">
+  <!ENTITY imp-bib    SYSTEM "impbib.xml">
+]>
+
+<!-- "http://nwalsh.com/docbook/xml/3.1.4/docbookx.dtd" -->
+
+<!-- *** Conventions: ***
+ * function (car)      == function
+ * variable (t)        == varname
+ * formal arg (x)      == replaceable
+ * keyword (:eof)      == constant
+ * number (1.0)        == literal
+ * char (#\a)          == keysym
+ * class/type (t)      == classname (?type?)
+ * format (~S)         == literal
+ * lambda-key (&amp;)  == literal
+ * declaration (ftype) == literal
+ * package (CL-USER)   == quote
+ -->
+
+<book><title>CLISP implementation notes</title>
+
+&imp-toc;
+
+&imp-body;
+
+&imp-issues;
+
+&imp-ext;
+
+&imp-bib;
+
+</book>
+
+<!--
+Local Variables:
+compile-command: "docbook2texi impnotes.xml > impnotes.texi"
+time-stamp-start: "<subtitle>Last modified: "
+time-stamp-end: "</subtitle>"
+time-stamp-format: "%:y-%02m-%02d"
+time-stamp-line-limit: 100
+sentence-end-double-space: t
+paragraph-separate: "^\f\\|$"
+paragraph-start: "^\f\\|$"
+eval: (add-hook 'write-file-hooks 'time-stamp)
+end:
+-->

@@ -1,0 +1,543 @@
+<!-- *** Entities for impnotes.xml *** -->
+
+<!-- *** general *** -->
+<!ENTITY clhs "http://www.harlequin.com/education/books/HyperSpec">
+<!ENTITY cl "<ulink url='http://www.lisp.org'><command>Common Lisp</command></ulink>">
+<!ENTITY c-lang "<ulink url='http://www.eskimo.com/~scs/C-faq/top.html'><command>C</command></ulink>">
+<!ENTITY perl "<ulink url='http://www.perl.com'><command>Perl</command></ulink>">
+<!ENTITY ansi-cl "<citation>ANSI CL standard</citation>">
+<!ENTITY clisp "<ulink url='http://clisp.cons.org'><command>CLISP</command></ulink>">
+<!ENTITY clos "<command>CLOS</command>">
+<!ENTITY gnu "<ulink url='http://www.gnu.org'>GNU</ulink>">
+<!ENTITY gpl "<ulink url='http://www.gnu.org/copyleft/gpl.html'>GPL</ulink>">
+
+<!-- *** literals *** -->
+<!ENTITY eos "<literal>end-of-stream</literal>">
+<!ENTITY config-file "<filename>config.lsp</filename>">
+
+<!ENTITY abort-k "<constant>:abort</constant>">
+<!ENTITY absolute-k "<constant>:absolute</constant>">
+<!ENTITY all-k "<constant>:all</constant>">
+<!ENTITY alloca-k "<constant>:alloca</constant>">
+<!ENTITY append-k "<constant>:append</constant>">
+<!ENTITY arguments-k "<constant>:arguments</constant>">
+<!ENTITY case-sensitive-k "<constant>:case-sensitive</constant>">
+<!ENTITY control-k "<constant>:control</constant>">
+<!ENTITY compiling-k "<constant>:compiling</constant>">
+<!ENTITY count-k "<constant>:count</constant>">
+<!ENTITY current-k "<constant>:current</constant>">
+<!ENTITY echo-k "<constant>:echo</constant>">
+<!ENTITY end-k "<constant>:end</constant>">
+<!ENTITY eof-k "<constant>:eof</constant>">
+<!ENTITY error-k "<constant>:error</constant>">
+<!ENTITY external-k "<constant>:external</constant>">
+<!ENTITY home-k "<constant>:home</constant>">
+<!ENTITY hyper-k "<constant>:hyper</constant>">
+<!ENTITY if-output-exists "<constant>:if-output-exists</constant>">
+<!ENTITY ignore-k "<constant>:ignore</constant>">
+<!ENTITY in-k "<constant>:in</constant>">
+<!ENTITY include-k "<constant>:include</constant>">
+<!ENTITY inherit-k "<constant>:inherit</constant>">
+<!ENTITY input-k "<constant>:input</constant>">
+<!ENTITY io-k "<constant>:io</constant>">
+<!ENTITY key-k "<constant>:key</constant>">
+<!ENTITY library-k "<constant>:library</constant>">
+<!ENTITY malloc-free-k "<constant>:malloc-free</constant>">
+<!ENTITY merge-k "<constant>:merge</constant>">
+<!ENTITY meta-k "<constant>:meta</constant>">
+<!ENTITY metaclass-k "<constant>:metaclass</constant>">
+<!ENTITY newest-k "<constant>:newest</constant>">
+<!ENTITY none-k "<constant>:none</constant>">
+<!ENTITY overwrite-k "<constant>:overwrite</constant>">
+<!ENTITY out-k "<constant>:out</constant>">
+<!ENTITY output-k "<constant>:output</constant>">
+<!ENTITY parent-k "<constant>:parent</constant>">
+<!ENTITY previous-k "<constant>:precious</constant>">
+<!ENTITY print-k "<constant>:print</constant>">
+<!ENTITY print-function-k "<constant>:print-function</constant>">
+<!ENTITY relative-k "<constant>:relative</constant>">
+<!ENTITY root-k "<constant>:root</constant>">
+<!ENTITY start-k "<constant>:start</constant>">
+<!ENTITY stream-k "<constant>:stream</constant>">
+<!ENTITY super-k "<constant>:super</constant>">
+<!ENTITY use-k "<constant>:use</constant>">
+<!ENTITY verbose-k "<constant>:verbose</constant>">
+<!ENTITY warnings-k "<constant>:warnings</constant>">
+<!ENTITY wild-inferiors-k "<constant>:wild-inferiors</constant>">
+<!ENTITY wild-k "<constant>:wild</constant>">
+
+<!-- *** local *** -->
+<!ENTITY buffered "<link linkend='buffered'><constant>:buffered</constant></link>">
+<!ENTITY eltype "<link linkend='eltype'><constant>:element-type</constant></link>">
+<!ENTITY endianness "<link linkend='endianness'><replaceable>endianness</replaceable></link>">
+<!ENTITY extfmt "<link linkend='extfmt'><constant>:external-format</constant></link>">
+<!ENTITY count-ansi "<link linkend='count-ansi'><varname>lisp:*sequence-count-ansi*</varname></link>">
+<!ENTITY file-pipe-socket "<link linkend='open'>file</link>/<link linkend='pipe'>pipe</link>/<link linkend='socket'>socket</link>">
+<!ENTITY finalize "<link linkend='final'><function>lisp:finalize</function></link>">
+<!ENTITY flocont "<link linkend='flocont'><varname>lisp:*floating-point-contagion-ansi*</varname></link>">
+<!ENTITY lalist "<link linkend='lalist'>lambda list</link>">
+<!ENTITY lfd "<link linkend='lfd'><function>lisp:long-float-digits</function></link>">
+<!ENTITY pathmerge "<link linkend='pathmerge'><varname>lisp:*merge-pathnames-ansi*</varname></link>">
+<!ENTITY pathprint "<link linkend='pathprint'><varname>lisp:*print-pathnames-ansi*</varname></link>">
+<!ENTITY pr-closure "<link linkend='pr-closure'><varname>lisp:*print-closure*</varname></link>">
+<!ENTITY warn-fpc "<link linkend='warn-fpc'><varname>lisp:*warn-on-floating-point-contagion*</varname></link>">
+
+
+<!-- *** FFI *** -->
+<!ENTITY c-pointer "<link linkend='c-pointer'><type>c-pointer</type></link>">
+<!ENTITY c-string "<link linkend='c-string'><type>c-string</type></link>">
+<!ENTITY c-struct "<link linkend='c-struct'><type>c-struct</type></link>">
+<!ENTITY c-union "<link linkend='c-union'><type>c-union</type></link>">
+<!ENTITY c-array "<link linkend='c-array'><type>c-array</type></link>">
+<!ENTITY c-array-max "<link linkend='c-array-max'><type>c-array-max</type></link>">
+<!ENTITY c-function "<link linkend='c-function'><type>c-function</type></link>">
+<!ENTITY c-ptr "<link linkend='c-ptr'><type>c-ptr</type></link>">
+<!ENTITY c-ptr-null "<link linkend='c-ptr-null'><type>c-ptr-null</type></link>">
+<!ENTITY c-array-ptr "<link linkend='c-array-ptr'><type>c-array-ptr</type></link>">
+<!ENTITY def-c-type "<link linkend='def-c-type'><function>def-c-type</function></link>">
+<!ENTITY def-c-var "<link linkend='def-c-var'><function>def-c-var</function></link>">
+<!ENTITY def-c-call-out "<link linkend='def-c-call-out'><function>def-c-call-out</function></link>">
+<!ENTITY def-c-call-in "<link linkend='def-c-call-in'><function>def-c-call-in</function></link>">
+<!ENTITY def-call-out "<link linkend='def-call-out'><function>def-call-out</function></link>">
+<!ENTITY def-call-in "<link linkend='def-call-in'><function>def-call-in</function></link>">
+<!ENTITY def-c-struct "<link linkend='def-c-struct'><function>def-c-struct</function></link>">
+<!ENTITY def-c-enum "<link linkend='def-c-enum'><function>def-c-enum</function></link>">
+<!ENTITY c-lines "<link linkend='c-lines'><function>c-lines</function></link>">
+<!ENTITY element "<link linkend='element'><function>element</function></link>">
+<!ENTITY deref "<link linkend='deref'><function>deref</function></link>">
+<!ENTITY slot "<link linkend='slot'><function>slot</function></link>">
+<!ENTITY cast "<link linkend='cast'><function>cast</function></link>">
+<!ENTITY typeof "<link linkend='typeof'><function>typeof</function></link>">
+<!ENTITY sizeof "<link linkend='sizeof'><function>sizeof</function></link>">
+<!ENTITY bitsizeof "<link linkend='bitsizeof'><function>bitsizeof</function></link>">
+<!ENTITY simple-c-type "<link linkend='simple-c-type'><replaceable>simple-c-type</replaceable></link>">
+<!ENTITY allocation "<link linkend='allocation'><replaceable>allocation</replaceable></link>">
+<!ENTITY param-mode "<link linkend='param-mode'><replaceable>param-mode</replaceable></link>">
+
+
+<!-- *** CLHS *** -->
+<!ENTITY lambda-expr "<ulink url='&clhs;/Body/glo_l.html#lambda_expression'>lambda expression</ulink>">
+<!ENTITY repl "<ulink url='&clhs;/Body/sec_25-1-1.html'>read-eval-print loops</ulink>">
+<!ENTITY iter-forms "<ulink url='&clhs;/Body/glo_i.html#iteration_form'><quote>iteration forms</quote></ulink>">
+
+
+<!-- *** packages *** -->
+<!ENTITY cl-pac "<ulink url='&clhs;/Body/sec_11-1-2-1.html'><quote>COMMON-LISP</quote></ulink>">
+<!ENTITY clu-pac "<ulink url='&clhs;/Body/sec_11-1-2-2.html'><quote>COMMON-LISP-USER</quote></ulink>">
+<!ENTITY kwd-pac "<ulink url='&clhs;/Body/sec_11-1-2-3.html'><quote>KEYWORD</quote></ulink>">
+<!-- ENTITY clos-pac "<quote>CLOS</quote>" -->
+
+
+<!-- *** lambda-list-keywords *** -->
+<!ENTITY optional-amp "<ulink url='&clhs;/Body/sec_3-4-1-2.html'><literal>&amp;optional</literal></ulink>">
+<!ENTITY rest-amp "<ulink url='&clhs;/Body/sec_3-4-1-3.html'><literal>&amp;rest</literal></ulink>">
+<!ENTITY key-amp "<ulink url='&clhs;/Body/sec_3-4-1-4.html'><literal>&amp;key</literal></ulink>">
+<!ENTITY allow-other-keys-amp "<ulink url='&clhs;/Body/sec_3-4-1.html'><literal>&amp;allow-other-keys</literal></ulink>">
+<!ENTITY aux-amp "<ulink url='&clhs;/Body/sec_3-4-1-5.html'><literal>&amp;aux</literal></ulink>">
+<!ENTITY body-amp "<ulink url='&clhs;/Body/sec_3-4-1.html'><literal>&amp;body</literal></ulink>">
+<!ENTITY whole-amp "<ulink url='&clhs;/Body/sec_3-4-1.html'><literal>&amp;whole</literal></ulink>">
+<!ENTITY environment-amp "<ulink url='&clhs;/Body/sec_3-4-1.html'><literal>&amp;environment</literal></ulink>">
+
+
+<!-- *** format instructions *** -->
+<!ENTITY format-a "<ulink url='&clhs;/Body/sec_22-3-4-1.html'><literal>~A</literal></ulink>">
+<!ENTITY format-b "<ulink url='&clhs;/Body/sec_22-3-2-3.html'><literal>~B</literal></ulink>">
+<!ENTITY format-c "<ulink url='&clhs;/Body/sec_22-3-1-1.html'><literal>~:@C</literal></ulink>">
+<!ENTITY format-d "<ulink url='&clhs;/Body/sec_22-3-2-2.html'><literal>~D</literal></ulink>">
+<!ENTITY format-dollar "<ulink url='&clhs;/Body/sec_22-3-3-4.html'><literal>~$</literal></ulink>">
+<!ENTITY format-e "<ulink url='&clhs;/Body/sec_22-3-3-2.html'><literal>~E</literal></ulink>">
+<!ENTITY format-f "<ulink url='&clhs;/Body/sec_22-3-3-1.html'><literal>~F</literal></ulink>">
+<!ENTITY format-g "<ulink url='&clhs;/Body/sec_22-3-3-3.html'><literal>~G</literal></ulink>">
+<!ENTITY format-o "<ulink url='&clhs;/Body/sec_22-3-2-4.html'><literal>~O</literal></ulink>">
+<!ENTITY format-r "<ulink url='&clhs;/Body/sec_22-3-2-1.html'><literal>~R</literal></ulink>">
+<!ENTITY format-rs "<ulink url='&clhs;/Body/sec_22-3-2-1.html'><literal>~:R</literal></ulink>">
+<!ENTITY format-s "<ulink url='&clhs;/Body/sec_22-3-4-2.html'><literal>~S</literal></ulink>">
+<!ENTITY format-slash "<ulink url='&clhs;/Body/sec_22-3-5-4.html'><literal>~/</literal></ulink>">
+<!ENTITY format-t "<ulink url='&clhs;/Body/sec_22-3-6-1.html'><literal>~T</literal></ulink>">
+<!ENTITY format-w "<ulink url='&clhs;/Body/sec_22-3-4-3.html'><literal>~W</literal></ulink>">
+<!ENTITY format-x "<ulink url='&clhs;/Body/sec_22-3-2-5.html'><literal>~X</literal></ulink>">
+
+<!-- *** declarations *** -->
+<!ENTITY ftype "<ulink url='&clhs;/Body/dec_ftype.html'><literal>ftype</literal></ulink>">
+<!ENTITY ignorable "<ulink url='&clhs;/Body/dec_ignorecm_ignorable.html'><literal>ignorable</literal></ulink>">
+<!ENTITY optimize "<ulink url='&clhs;/Body/dec_optimize.html'><literal>optimize</literal></ulink>">
+<!ENTITY special "<ulink url='&clhs;/Body/dec_special.html'><literal>special</literal></ulink>">
+<!ENTITY type "<ulink url='&clhs;/Body/dec_type.html'><literal>type</literal></ulink>">
+
+
+<!-- *** classes *** -->
+<!ENTITY array-class "<ulink url='&clhs;/Body/syscla_array.html'><classname>array</classname></ulink>">
+<!ENTITY base-char-type "<ulink url='&clhs;/Body/typ_base-char.html'><classname>base-char</classname></ulink>">
+<!ENTITY base-string-type "<ulink url='&clhs;/Body/typ_base-string.html'><classname>base-string</classname></ulink>">
+<!ENTITY bignum-type "<ulink url='&clhs;/Body/typ_bignum.html'><classname>bignum</classname></ulink>">
+<!ENTITY bit-type "<ulink url='&clhs;/Body/typ_bit.html'><classname>bit</classname></ulink>">
+<!ENTITY bit-vector-class "<ulink url='&clhs;/Body/syscla_bit-vector.html'><classname>bit-vector</classname></ulink>">
+<!ENTITY boolean-type "<ulink url='&clhs;/Body/typ_boolean.html'><classname>boolean</classname></ulink>">
+<!ENTITY broadcast-stream-class "<ulink url='&clhs;/Body/syscla_broadcast-stream.html'><classname>broadcast-stream</classname></ulink>">
+<!ENTITY built-in-class "<ulink url='&clhs;/Body/syscla_built-in-class.html'><classname>built-in-class</classname></ulink>">
+<!ENTITY character-class "<ulink url='&clhs;/Body/syscla_character.html'><classname>character</classname></ulink>">
+<!ENTITY class-class "<ulink url='&clhs;/Body/syscla_class.html'><classname>class</classname></ulink>">
+<!ENTITY compiled-function-type "<ulink url='&clhs;/Body/typ_compiled-function.html'><classname>compiled-function</classname></ulink>">
+<!ENTITY complex-class "<ulink url='&clhs;/Body/syscla_complex.html'><classname>complex</classname></ulink>">
+<!ENTITY concatenated-stream-class "<ulink url='&clhs;/Body/syscla_concatenated-stream.html'><classname>concatenated-stream</classname></ulink>">
+<!ENTITY cons-class "<ulink url='&clhs;/Body/syscla_cons.html'><classname>cons</classname></ulink>">
+<!ENTITY double-float-type "<ulink url='&clhs;/Body/typ_short-flo_m_long-float.html'><classname>double-float</classname></ulink>">
+<!ENTITY echo-stream-class "<ulink url='&clhs;/Body/syscla_echo-stream.html'><classname>echo-stream</classname></ulink>">
+<!ENTITY file-stream-class "<ulink url='&clhs;/Body/syscla_file-stream.html'><classname>file-stream</classname></ulink>">
+<!ENTITY fixnum-type "<ulink url='&clhs;/Body/typ_fixnum.html'><classname>fixnum</classname></ulink>">
+<!ENTITY float-class "<ulink url='&clhs;/Body/syscla_float.html'><classname>float</classname></ulink>">
+<!ENTITY floating-point-inexact "<ulink url='&clhs;/Body/contyp_floati_oint-inexact.html'><classname>floating-point-inexact</classname></ulink>">
+<!ENTITY floating-point-invalid-operation "<ulink url='&clhs;/Body/contyp_floati_id-operation.html'><classname>floating-point-invalid-operation</classname></ulink>">
+<!ENTITY floating-point-underflow "<ulink url='&clhs;/Body/contyp_floati_nt-underflow.html'><function>floating-point-underflow</function></ulink>">
+<!ENTITY function-class "<ulink url='&clhs;/Body/syscla_function.html'><classname>function</classname></ulink>">
+<!ENTITY generic-function-class "<ulink url='&clhs;/Body/syscla_generic-function.html'><classname>generic-function</classname></ulink>">
+<!ENTITY hash-table-class "<ulink url='&clhs;/Body/syscla_hash-table.html'><classname>hash-table</classname></ulink>">
+<!ENTITY integer-class "<ulink url='&clhs;/Body/syscla_integer.html'><classname>integer</classname></ulink>">
+<!ENTITY list-class "<ulink url='&clhs;/Body/syscla_list.html'><classname>list</classname></ulink>">
+<!ENTITY logical-pathname-class "<ulink url='&clhs;/Body/syscla_logical-pathname.html'><classname>logical-pathname</classname></ulink>">
+<!ENTITY long-float-type "<ulink url='&clhs;/Body/typ_short-flo_m_long-float.html'><classname>long-float</classname></ulink>">
+<!ENTITY method-combination-class "<ulink url='&clhs;/Body/syscla_method-combination.html'><classname>method-combination</classname></ulink>">
+<!ENTITY nil-type "<ulink url='&clhs;/Body/typ_nil.html'><classname>nil</classname></ulink>">
+<!ENTITY null-class "<ulink url='&clhs;/Body/syscla_null.html'><classname>null</classname></ulink>">
+<!ENTITY number-class "<ulink url='&clhs;/Body/syscla_number.html'><classname>number</classname></ulink>">
+<!ENTITY package-class "<ulink url='&clhs;/Body/syscla_package.html'><classname>package</classname></ulink>">
+<!ENTITY pathname-class "<ulink url='&clhs;/Body/syscla_pathname.html'><classname>pathname</classname></ulink>">
+<!ENTITY random-state-class "<ulink url='&clhs;/Body/syscla_random-state.html'><classname>random-state</classname></ulink>">
+<!ENTITY ratio-class "<ulink url='&clhs;/Body/syscla_ratio.html'><classname>ratio</classname></ulink>">
+<!ENTITY rational-class "<ulink url='&clhs;/Body/syscla_rational.html'><classname>rational</classname></ulink>">
+<!ENTITY readtable-class "<ulink url='&clhs;/Body/syscla_readtable.html'><classname>readtable</classname></ulink>">
+<!ENTITY real-class "<ulink url='&clhs;/Body/syscla_real.html'><classname>real</classname></ulink>">
+<!ENTITY sequence-class "<ulink url='&clhs;/Body/syscla_sequence.html'><classname>sequence</classname></ulink>">
+<!ENTITY short-float-type "<ulink url='&clhs;/Body/typ_short-flo_m_long-float.html'><classname>short-float</classname></ulink>">
+<!ENTITY signed-byte "<ulink url='&clhs;/Body/typ_signed-byte.html'><classname>signed-byte</classname></ulink>">
+<!ENTITY simple-array-type "<ulink url='&clhs;/Body/typ_unsigned-byte.html'><classname>simple-array</classname></ulink>">
+<!ENTITY simple-base-string-type "<ulink url='&clhs;/Body/typ_simple-base-string.html'><classname>simple-base-string</classname></ulink>">
+<!ENTITY simple-bit-vector-type "<ulink url='&clhs;/Body/typ_simple-bit-vector.html'><classname>simple-bit-vector</classname></ulink>">
+<!ENTITY simple-string-type "<ulink url='&clhs;/Body/typ_simple-string.html'><classname>simple-string</classname></ulink>">
+<!ENTITY simple-vector-type "<ulink url='&clhs;/Body/typ_simple-vector.html'><classname>simple-vector</classname></ulink>">
+<!ENTITY single-float-type "<ulink url='&clhs;/Body/typ_short-flo_m_long-float.html'><classname>single-float</classname></ulink>">
+<!ENTITY standard-class "<ulink url='&clhs;/Body/syscla_standard-class.html'><classname>standard-class</classname></ulink>">
+<!ENTITY standard-generic-function-class "<ulink url='&clhs;/Body/syscla_standa_ric-function.html'><classname>standard-generic-function</classname></ulink>">
+<!ENTITY standard-method "<ulink url='&clhs;/Body/syscla_standard-method.html'><classname>standard-method</classname></ulink>">
+<!ENTITY standard-object "<ulink url='&clhs;/Body/cla_standard-object.html'><classname>standard-object</classname></ulink>">
+<!ENTITY stream-class "<ulink url='&clhs;/Body/syscla_stream.html'><classname>stream</classname></ulink>">
+<!ENTITY string-class "<ulink url='&clhs;/Body/syscla_string.html'><classname>string</classname></ulink>">
+<!ENTITY string-stream-class "<ulink url='&clhs;/Body/syscla_string-stream.html'><classname>string-stream</classname></ulink>">
+<!ENTITY structure-class "<ulink url='&clhs;/Body/syscla_structure-class.html'><classname>structure-class</classname></ulink>">
+<!ENTITY structure-object "<ulink url='&clhs;/Body/cla_structure-object.html'><classname>structure-object</classname></ulink>">
+<!ENTITY symbol-class "<ulink url='&clhs;/Body/syscla_symbol.html'><classname>symbol</classname></ulink>">
+<!ENTITY symbol-macro "<ulink url='&clhs;/Body/mac_define-symbol-macro.html'><classname>symbol-macro</classname></ulink>">
+<!ENTITY synonym-stream-class "<ulink url='&clhs;/Body/syscla_synonym-stream.html'><classname>synonym-stream</classname></ulink>">
+<!ENTITY t-class "<ulink url='&clhs;/Body/syscla_t.html'><classname>t</classname></ulink>">
+<!ENTITY two-way-stream-class "<ulink url='&clhs;/Body/syscla_two-way-stream.html'><classname>two-way-stream</classname></ulink>">
+<!ENTITY unsigned-byte "<ulink url='&clhs;/Body/typ_unsigned-byte.html'><classname>unsigned-byte</classname></ulink>">
+<!ENTITY vector-class "<ulink url='&clhs;/Body/syscla_vector.html'><classname>vector</classname></ulink>">
+
+
+
+
+<!-- *** variables *** -->
+<!ENTITY array-dimension-limit "<ulink url='&clhs;/Body/convar_array-_ension-limit.html'><varname>array-dimension-limit</varname></ulink>">
+<!ENTITY array-rank-limit "<ulink url='&clhs;/Body/convar_array-rank-limit.html'><varname>array-rank-limit</varname></ulink>">
+<!ENTITY array-total-size-limit "<ulink url='&clhs;/Body/convar_array-_l-size-limit.html'><varname>array-total-size-limit</varname></ulink>">
+<!ENTITY call-arguments-limit "<ulink url='&clhs;/Body/convar_call-a_uments-limit.html'><varname>call-arguments-limit</varname></ulink>">
+<!ENTITY char-code-limit "<ulink url='&clhs;/Body/convar_char-code-limit.html'><varname>char-code-limit</varname></ulink>">
+<!ENTITY compile-print-var "<ulink url='&clhs;/Body/var_stcompile_le-verbosest.html'><varname>*compile-print*</varname></ulink>">
+<!ENTITY compile-verbose-var "<ulink url='&clhs;/Body/var_stcompile_le-verbosest.html'><varname>*compile-verbose*</varname></ulink>">
+<!ENTITY debug-io-var "<ulink url='&clhs;/Body/var_stdebug-i_ace-outputst.html'><varname>*debug-io*</varname></ulink>">
+<!ENTITY error-output-var "<ulink url='&clhs;/Body/var_stdebug-i_ace-outputst.html'><varname>*error-output*</varname></ulink>">
+<!ENTITY features-var "<ulink url='&clhs;/Body/var_stfeaturesst.html'><varname>*features*</varname></ulink>">
+<!ENTITY internal-time-units-per-second "<ulink url='&clhs;/Body/convar_intern_s-per-second.html'><varname>internal-time-units-per-second</varname></ulink>">
+<!ENTITY lambda-list-keywords "<ulink url='&clhs;/Body/convar_lambda_ist-keywords.html'><varname>lambda-list-keywords</varname></ulink>">
+<!ENTITY lambda-parameters-limit "<ulink url='&clhs;/Body/convar_lambda_meters-limit.html'><varname>lambda-parameters-limit</varname></ulink>">
+<!ENTITY least-negative-long-float "<ulink url='&clhs;/Body/convar_most-p_d-long-float.html'><varname>least-negative-long-float</varname></ulink>">
+<!ENTITY least-negative-normalized-long-float "<ulink url='&clhs;/Body/convar_most-p_d-long-float.html'><varname>least-negative-normalized-long-float</varname></ulink>">
+<!ENTITY least-positive-long-float "<ulink url='&clhs;/Body/convar_most-p_d-long-float.html'><varname>least-positive-long-float</varname></ulink>">
+<!ENTITY least-positive-normalized-long-float "<ulink url='&clhs;/Body/convar_most-p_d-long-float.html'><varname>least-positive-normalized-long-float</varname></ulink>">
+<!ENTITY load-print-var "<ulink url='&clhs;/Body/var_stload-pr_ad-verbosest.html'><varname>*load-print*</varname></ulink>">
+<!ENTITY load-verbose-var "<ulink url='&clhs;/Body/var_stload-pr_ad-verbosest.html'><varname>*load-verbose*</varname></ulink>">
+<!ENTITY long-float-epsilon "<ulink url='&clhs;/Body/convar_short-_tive-epsilon.html'><varname>long-float-epsilon</varname></ulink>">
+<!ENTITY long-float-negative-epsilon "<ulink url='&clhs;/Body/convar_short-_tive-epsilon.html'><varname>long-float-negative-epsilon</varname></ulink>">
+<!ENTITY most-negative-fixnum "<ulink url='&clhs;/Body/convar_most-p_ative-fixnum.html'><varname>most-negative-fixnum</varname></ulink>">
+<!ENTITY most-negative-long-float "<ulink url='&clhs;/Body/convar_most-p_d-long-float.html'><varname>most-negative-long-float</varname></ulink>">
+<!ENTITY most-positive-fixnum "<ulink url='&clhs;/Body/convar_most-p_ative-fixnum.html'><varname>most-positive-fixnum</varname></ulink>">
+<!ENTITY most-positive-long-float "<ulink url='&clhs;/Body/convar_most-p_d-long-float.html'><varname>most-positive-long-float</varname></ulink>">
+<!ENTITY multiple-values-limit "<ulink url='&clhs;/Body/convar_multip_values-limit.html'><varname>multiple-values-limit</varname></ulink>">
+<!ENTITY nil "<ulink url='&clhs;/Body/convar_nil.html'><varname>nil</varname></ulink>">
+<!ENTITY package-var "<ulink url='&clhs;/Body/var_stpackagest.html'><varname>*package*</varname></ulink>">
+<!ENTITY pi "<ulink url='&clhs;/Body/convar_pi.html'><varname>pi</varname></ulink>">
+<!ENTITY print-array-var "<ulink url='&clhs;/Body/var_stprint-arrayst.html'><varname>*print-array*</varname></ulink>">
+<!ENTITY print-base-var "<ulink url='&clhs;/Body/var_stprint-b_rint-radixst.html'><varname>*print-base*</varname></ulink>">
+<!ENTITY print-case-var "<ulink url='&clhs;/Body/var_stprint-casest.html'><varname>*print-case*</varname></ulink>">
+<!ENTITY print-circle-var "<ulink url='&clhs;/Body/var_stprint-circlest.html'><varname>*print-circle*</varname></ulink>">
+<!ENTITY print-escape-var "<ulink url='&clhs;/Body/var_stprint-escapest.html'><varname>*print-escape*</varname></ulink>">
+<!ENTITY print-gensym-var "<ulink url='&clhs;/Body/var_stprint-gensymst.html'><varname>*print-gensym*</varname></ulink>">
+<!ENTITY print-length-var "<ulink url='&clhs;/Body/var_stprint-l_int-lengthst.html'><varname>*print-length*</varname></ulink>">
+<!ENTITY print-level-var "<ulink url='&clhs;/Body/var_stprint-l_int-lengthst.html'><varname>*print-level*</varname></ulink>">
+<!ENTITY print-lines-var "<ulink url='&clhs;/Body/var_stprint-linesst.html'><varname>*print-lines*</varname></ulink>">
+<!ENTITY print-miser-width-var "<ulink url='&clhs;/Body/var_stprint-miser-widthst.html'><varname>*print-miser-width*</varname></ulink>">
+<!ENTITY print-pprint-dispatch-var "<ulink url='&clhs;/Body/var_stprint-p_t-dispatchst.html'><varname>*print-pprint-dispatch*</varname></ulink>">
+<!ENTITY print-pretty-var "<ulink url='&clhs;/Body/var_stprint-prettyst.html'><varname>*print-pretty*</varname></ulink>">
+<!ENTITY print-radix-var "<ulink url='&clhs;/Body/var_stprint-b_rint-radixst.html'><varname>*print-radix*</varname></ulink>">
+<!ENTITY print-readably-var "<ulink url='&clhs;/Body/var_stprint-readablyst.html'><varname>*print-readably*</varname></ulink>">
+<!ENTITY read-default-float-format-var "<ulink url='&clhs;/Body/var_stread-de_oat-formatst.html'><varname>*read-default-float-format*</varname></ulink>">
+<!ENTITY read-eval-var "<ulink url='&clhs;/Body/var_stread-evalst.html'><varname>*read-eval*</varname></ulink>">
+<!ENTITY readtable-var "<ulink url='&clhs;/Body/var_streadtablest.html'><varname>*readtable*</varname></ulink>">
+<!ENTITY standard-input-var "<ulink url='&clhs;/Body/var_stdebug-i_ace-outputst.html'><varname>*standard-input*</varname></ulink>">
+<!ENTITY standard-output-var "<ulink url='&clhs;/Body/var_stdebug-i_ace-outputst.html'><varname>*standard-output*</varname></ulink>">
+<!ENTITY t "<ulink url='&clhs;/Body/convar_t.html'><varname>t</varname></ulink>">
+<!ENTITY terminal-io-var "<ulink url='&clhs;/Body/var_stterminal-iost.html'><varname>*terminal-io*</varname></ulink>">
+
+
+<!-- *** functions *** -->
+<!ENTITY add-method "<ulink url='&clhs;/Body/stagenfun_add-method.html'><function>add-method</function></ulink>">
+<!ENTITY adjust-array "<ulink url='&clhs;/Body/fun_adjust-array.html'><function>adjust-array</function></ulink>">
+<!ENTITY and "<ulink url='&clhs;/Body/mac_and.html'><function>and</function></ulink>">
+<!ENTITY append "<ulink url='&clhs;/Body/fun_append.html'><function>append</function></ulink>">
+<!ENTITY apply "<ulink url='&clhs;/Body/fun_apply.html'><function>apply</function></ulink>">
+<!ENTITY apropos "<ulink url='&clhs;/Body/fun_aproposcm_apropos-list.html'><function>apropos</function></ulink>">
+<!ENTITY apropos-list "<ulink url='&clhs;/Body/fun_aproposcm_apropos-list.html'><function>apropos-list</function></ulink>">
+<!ENTITY aref "<ulink url='&clhs;/Body/acc_aref.html'><function>aref</function></ulink>">
+<!ENTITY block "<ulink url='&clhs;/Body/speope_block.html'><function>block</function></ulink>">
+<!ENTITY boundp "<ulink url='&clhs;/Body/fun_boundp.html'><function>boundp</function></ulink>">
+<!ENTITY break "<ulink url='&clhs;/Body/fun_break.html'><function>break</function></ulink>">
+<!ENTITY call-method "<ulink url='&clhs;/Body/locmac_call-m__make-method.html'><function>call-method</function></ulink>">
+<!ENTITY call-next-method "<ulink url='&clhs;/Body/locfun_call-next-method.html'><function>call-next-method</function></ulink>">
+<!ENTITY case "<ulink url='&clhs;/Body/mac_casecm_ccasecm_ecase.html'><function>case</function></ulink>">
+<!ENTITY catch "<ulink url='&clhs;/Body/speope_catch.html'><function>catch</function></ulink>">
+<!ENTITY cdr "<ulink url='&clhs;/Body/acc_carcm_cdr_darcm_cddddr.html'><function>cdr</function></ulink>">
+<!ENTITY cerror "<ulink url='&clhs;/Body/fun_cerror.html'><function>cerror</function></ulink>">
+<!ENTITY change-class "<ulink url='&clhs;/Body/stagenfun_change-class.html'><function>change-class</function></ulink>">
+<!ENTITY char-code "<ulink url='&clhs;/Body/fun_char-code.html'><function>char-code</function></ulink>">
+<!ENTITY char-eq "<ulink url='&clhs;/Body/fun_chareqcm__ar-not-lessp.html'><function>char=</function></ulink>">
+<!ENTITY char-equal "<ulink url='&clhs;/Body/fun_chareqcm__ar-not-lessp.html'><function>char-equal</function></ulink>">
+<!ENTITY char-ge "<ulink url='&clhs;/Body/fun_chareqcm__ar-not-lessp.html'><function>char&gt;=</function></ulink>">
+<!ENTITY char-greaterp "<ulink url='&clhs;/Body/fun_chareqcm__ar-not-lessp.html'><function>char-greaterp</function></ulink>">
+<!ENTITY char-gt "<ulink url='&clhs;/Body/fun_chareqcm__ar-not-lessp.html'><function>char&gt;</function></ulink>">
+<!ENTITY char-int "<ulink url='&clhs;/Body/fun_char-int.html'><function>char-int</function></ulink>">
+<!ENTITY char-le "<ulink url='&clhs;/Body/fun_chareqcm__ar-not-lessp.html'><function>char&lt;=</function></ulink>">
+<!ENTITY char-lessp "<ulink url='&clhs;/Body/fun_chareqcm__ar-not-lessp.html'><function>char-lessp</function></ulink>">
+<!ENTITY char-lt "<ulink url='&clhs;/Body/fun_chareqcm__ar-not-lessp.html'><function>char&lt;</function></ulink>">
+<!ENTITY char-ne "<ulink url='&clhs;/Body/fun_chareqcm__ar-not-lessp.html'><function>char/=</function></ulink>">
+<!ENTITY char-not-equal "<ulink url='&clhs;/Body/fun_chareqcm__ar-not-lessp.html'><function>char-not-equal</function></ulink>">
+<!ENTITY char-not-greaterp "<ulink url='&clhs;/Body/fun_chareqcm__ar-not-lessp.html'><function>char-not-greaterp</function></ulink>">
+<!ENTITY char-not-lessp "<ulink url='&clhs;/Body/fun_chareqcm__ar-not-lessp.html'><function>char-not-lessp</function></ulink>">
+<!ENTITY clear-input "<ulink url='&clhs;/Body/fun_clear-input.html'><function>clear-input</function></ulink>">
+<!ENTITY close "<ulink url='&clhs;/Body/fun_close.html'><function>close</function></ulink>">
+<!ENTITY code-char "<ulink url='&clhs;/Body/fun_code-char.html'><function>code-char</function></ulink>">
+<!ENTITY coerce "<ulink url='&clhs;/Body/fun_coerce.html'><function>coerce</function></ulink>">
+<!ENTITY compile "<ulink url='&clhs;/Body/fun_compile.html'><function>compile</function></ulink>">
+<!ENTITY compile-file "<ulink url='&clhs;/Body/fun_compile-file.html'><function>compile-file</function></ulink>">
+<!ENTITY compile-file-pathname "<ulink url='&clhs;/Body/fun_compile-file-pathname.html'><function>compile-file-pathname</function></ulink>">
+<!ENTITY compiled-function-p "<ulink url='&clhs;/Body/fun_compiled-function-p.html'><function>compiled-function-p</function></ulink>">
+<!ENTITY compiler-macro "<ulink url='&clhs;/Body/stagenfun_doc_umentationcp.html'><function>compiler-macro</function></ulink>">
+<!ENTITY compiler-macro-function "<ulink url='&clhs;/Body/acc_compiler-_cro-function.html'><function>compiler-macro-function</function></ulink>">
+<!ENTITY compute-restarts "<ulink url='&clhs;/Body/fun_compute-restarts.html'><function>compute-restarts</function></ulink>">
+<!ENTITY cond "<ulink url='&clhs;/Body/mac_cond.html'><function>cond</function></ulink>">
+<!ENTITY continue "<ulink url='&clhs;/Body/res_continue.html'><function>continue</function></ulink>">
+<!ENTITY copy-pprint-dispatch "<ulink url='&clhs;/Body/fun_copy-pprint-dispatch.html'><function>copy-pprint-dispatch</function></ulink>">
+<!ENTITY decode-universal-time "<ulink url='&clhs;/Body/fun_decode-universal-time.html'><function>decode-universal-time</function></ulink>">
+<!ENTITY defclass "<ulink url='&clhs;/Body/mac_defclass.html'><function>defclass</function></ulink>">
+<!ENTITY defconstant "<ulink url='&clhs;/Body/mac_defconstant.html'><function>defconstant</function></ulink>">
+<!ENTITY define-compiler-macro "<ulink url='&clhs;/Body/mac_define-compiler-macro.html'><function>define-compiler-macro</function></ulink>">
+<!ENTITY define-method-combination "<ulink url='&clhs;/Body/mac_define-me_-combination.html'><function>define-method-combination</function></ulink>">
+<!ENTITY define-setf-expander "<ulink url='&clhs;/Body/mac_define-setf-expander.html'><function>define-setf-expander</function></ulink>">
+<!ENTITY define-symbol-macro "<ulink url='&clhs;/Body/mac_define-symbol-macro.html'><function>define-symbol-macro</function></ulink>">
+<!ENTITY defmacro "<ulink url='&clhs;/Body/mac_defmacro.html'><function>defmacro</function></ulink>">
+<!ENTITY defpackage "<ulink url='&clhs;/Body/mac_defpackage.html'><function>defpackage</function></ulink>">
+<!ENTITY defparameter "<ulink url='&clhs;/Body/mac_defparametercm_defvar.html'><function>defparameter</function></ulink>">
+<!ENTITY defsetf "<ulink url='&clhs;/Body/mac_defsetf.html'><function>defsetf</function></ulink>">
+<!ENTITY defstruct "<ulink url='&clhs;/Body/mac_defstruct.html'><function>defstruct</function></ulink>">
+<!ENTITY deftype "<ulink url='&clhs;/Body/mac_deftype.html'><function>deftype</function></ulink>">
+<!ENTITY defun "<ulink url='&clhs;/Body/mac_defun.html'><function>defun</function></ulink>">
+<!ENTITY defvar "<ulink url='&clhs;/Body/mac_defparametercm_defvar.html'><function>defvar</function></ulink>">
+<!ENTITY delete "<ulink url='&clhs;/Body/fun_removecm__elete-if-not.html'><function>delete</function></ulink>">
+<!ENTITY delete-duplicates "<ulink url='&clhs;/Body/fun_remove-du_e-duplicates.html'><function>delete-duplicates</function></ulink>">
+<!ENTITY delete-if "<ulink url='&clhs;/Body/fun_removecm__elete-if-not.html'><function>delete-if</function></ulink>">
+<!ENTITY delete-if-not "<ulink url='&clhs;/Body/fun_removecm__elete-if-not.html'><function>delete-if-not</function></ulink>">
+<!ENTITY destructuring-bind "<ulink url='&clhs;/Body/mac_destructuring-bind.html'><function>destructuring-bind</function></ulink>">
+<!ENTITY directory "<ulink url='&clhs;/Body/fun_directory.html'><function>directory</function></ulink>">
+<!ENTITY disassemble "<ulink url='&clhs;/Body/fun_disassemble.html'><function>disassemble</function></ulink>">
+<!ENTITY documentation "<ulink url='&clhs;/Body/stagenfun_doc_umentationcp.html'><function>documentation</function></ulink>">
+<!ENTITY dolist "<ulink url='&clhs;/Body/mac_dolist.html'><function>dolist</function></ulink>">
+<!ENTITY dribble "<ulink url='&clhs;/Body/fun_dribble.html'><function>dribble</function></ulink>">
+<!ENTITY ed "<ulink url='&clhs;/Body/fun_ed.html'><function>ed</function></ulink>">
+<!ENTITY encode-universal-time "<ulink url='&clhs;/Body/fun_encode-universal-time.html'><function>encode-universal-time</function></ulink>">
+<!ENTITY ensure-generic-function "<ulink url='&clhs;/Body/fun_ensure-ge_ric-function.html'><function>ensure-generic-function</function></ulink>">
+<!ENTITY eq "<ulink url='&clhs;/Body/fun_eq.html'><function>eq</function></ulink>">
+<!ENTITY eql "<ulink url='&clhs;/Body/fun_eql.html'><function>eql</function></ulink>">
+<!ENTITY equal "<ulink url='&clhs;/Body/fun_equal.html'><function>equal</function></ulink>">
+<!ENTITY equalp "<ulink url='&clhs;/Body/fun_equalp.html'><function>equalp</function></ulink>">
+<!ENTITY error "<ulink url='&clhs;/Body/fun_error.html'><function>error</function></ulink>">
+<!ENTITY eval "<ulink url='&clhs;/Body/fun_eval.html'><function>eval</function></ulink>">
+<!ENTITY eval-when "<ulink url='&clhs;/Body/speope_eval-when.html'><function>eval-when</function></ulink>">
+<!ENTITY expt "<ulink url='&clhs;/Body/fun_expcm_expt.html'><function>expt</function></ulink>">
+<!ENTITY file-author "<ulink url='&clhs;/Body/fun_file-author.html'><function>file-author</function></ulink>">
+<!ENTITY file-position "<ulink url='&clhs;/Body/fun_file-position.html'><function>file-position</function></ulink>">
+<!ENTITY find-restart "<ulink url='&clhs;/Body/fun_find-restart.html'><function>find-restart</function></ulink>">
+<!ENTITY finish-output "<ulink url='&clhs;/Body/fun_finish-ou_clear-output.html'><function>finish-output</function></ulink>">
+<!ENTITY flet "<ulink url='&clhs;/Body/speope_fletcm_scm_macrolet.html'><function>flet</function></ulink>">
+<!ENTITY float "<ulink url='&clhs;/Body/fun_float.html'><function>float</function></ulink>">
+<!ENTITY float-digits "<ulink url='&clhs;/Body/fun_decode-fl_decode-float.html'><function>float-digits</function></ulink>">
+<!ENTITY float-radix "<ulink url='&clhs;/Body/fun_decode-fl_decode-float.html'><function>float-radix</function></ulink>">
+<!ENTITY format "<ulink url='&clhs;/Body/fun_format.html'><function>format</function></ulink>">
+<!ENTITY funcall "<ulink url='&clhs;/Body/fun_funcall.html'><function>funcall</function></ulink>">
+<!ENTITY function "<ulink url='&clhs;/Body/speope_function.html'><function>function</function></ulink>">
+<!ENTITY gcd "<ulink url='&clhs;/Body/fun_gcd.html'><function>gcd</function></ulink>">
+<!ENTITY gensym "<ulink url='&clhs;/Body/fun_gensym.html'><function>gensym</function></ulink>">
+<!ENTITY get-dispatch-macro-character "<ulink url='&clhs;/Body/fun_set-dispa_ro-character.html'><function>get-dispatch-macro-character</function></ulink>">
+<!ENTITY get-internal-run-time "<ulink url='&clhs;/Body/fun_get-internal-run-time.html'><function>get-internal-run-time</function></ulink>">
+<!ENTITY get-setf-expansion "<ulink url='&clhs;/Body/fun_get-setf-expansion.html'><function>get-setf-expansion</function></ulink>">
+<!ENTITY in-package "<ulink url='&clhs;/Body/mac_in-package.html'><function>in-package</function></ulink>">
+<!ENTITY input-stream-p "<ulink url='&clhs;/Body/fun_input-str_put-stream-p.html'><function>input-stream-p</function></ulink>">
+<!ENTITY inspect "<ulink url='&clhs;/Body/fun_inspect.html'><function>inspect</function></ulink>">
+<!ENTITY interactive-stream-p "<ulink url='&clhs;/Body/fun_interactive-stream-p.html'><function>interactive-stream-p</function></ulink>">
+<!ENTITY invalid-method-error "<ulink url='&clhs;/Body/fun_invalid-method-error.html'><function>invalid-method-error</function></ulink>">
+<!ENTITY invoke-debugger "<ulink url='&clhs;/Body/fun_invoke-debugger.html'><function>invoke-debugger</function></ulink>">
+<!ENTITY labels "<ulink url='&clhs;/Body/speope_fletcm_scm_macrolet.html'><function>labels</function></ulink>">
+<!ENTITY lambda "<ulink url='&clhs;/Body/mac_lambda.html'><function>lambda</function></ulink>">
+<!ENTITY length "<ulink url='&clhs;/Body/fun_length.html'><function>length</function></ulink>">
+<!ENTITY let "<ulink url='&clhs;/Body/speope_letcm_letst.html'><function>let</function></ulink>">
+<!ENTITY let-s "<ulink url='&clhs;/Body/speope_letcm_letst.html'><function>let*</function></ulink>">
+<!ENTITY listen "<ulink url='&clhs;/Body/fun_listen.html'><function>listen</function></ulink>">
+<!ENTITY load "<ulink url='&clhs;/Body/fun_load.html'><function>load</function></ulink>">
+<!ENTITY log "<ulink url='&clhs;/Body/fun_log.html'><function>log</function></ulink>">
+<!ENTITY logical-pathname "<ulink url='&clhs;/Body/fun_logical-pathname.html'><function>logical-pathname</function></ulink>">
+<!ENTITY long-site-name "<ulink url='&clhs;/Body/fun_short-sit_ng-site-name.html'><function>long-site-name</function></ulink>">
+<!ENTITY loop "<ulink url='&clhs;/Body/mac_loop.html'><function>loop</function></ulink>">
+<!ENTITY machine-instance "<ulink url='&clhs;/Body/fun_machine-instance.html'><function>machine-instance</function></ulink>">
+<!ENTITY machine-type "<ulink url='&clhs;/Body/fun_machine-type.html'><function>machine-type</function></ulink>">
+<!ENTITY machine-version "<ulink url='&clhs;/Body/fun_machine-version.html'><function>machine-version</function></ulink>">
+<!ENTITY macrolet "<ulink url='&clhs;/Body/speope_fletcm_scm_macrolet.html'><function>macrolet</function></ulink>">
+<!ENTITY make-array "<ulink url='&clhs;/Body/fun_make-array.html'><function>make-array</function></ulink>">
+<!ENTITY make-hash-table "<ulink url='&clhs;/Body/fun_make-hash-table.html'><function>make-hash-table</function></ulink>">
+<!ENTITY make-instances-obsolete "<ulink url='&clhs;/Body/stagenfun_mak_ces-obsolete.html'><function>make-instances-obsolete</function></ulink>">
+<!ENTITY make-load-form "<ulink url='&clhs;/Body/stagenfun_make-load-form.html'><function>make-load-form</function></ulink>">
+<!ENTITY make-load-form-saving-slots "<ulink url='&clhs;/Body/fun_make-load_saving-slots.html'><function>make-load-form-saving-slots</function></ulink>">
+<!ENTITY make-method "<ulink url='&clhs;/Body/locmac_call-m__make-method.html'><function>make-method</function></ulink>">
+<!ENTITY make-package "<ulink url='&clhs;/Body/fun_make-package.html'><function>make-package</function></ulink>">
+<!ENTITY make-pathname "<ulink url='&clhs;/Body/fun_make-pathname.html'><function>make-pathname</function></ulink>">
+<!ENTITY makunbound "<ulink url='&clhs;/Body/fun_makunbound.html'><function>makunbound</function></ulink>">
+<!ENTITY map "<ulink url='&clhs;/Body/fun_map.html'><function>map</function></ulink>">
+<!ENTITY mapcan "<ulink url='&clhs;/Body/fun_mapccm_ma_istcm_mapcon.html'><function>mapcan</function></ulink>">
+<!ENTITY mapcar "<ulink url='&clhs;/Body/fun_mapccm_ma_istcm_mapcon.html'><function>mapcar</function></ulink>">
+<!ENTITY mapcon "<ulink url='&clhs;/Body/fun_mapccm_ma_istcm_mapcon.html'><function>mapcon</function></ulink>">
+<!ENTITY maplist "<ulink url='&clhs;/Body/fun_mapccm_ma_istcm_mapcon.html'><function>maplist</function></ulink>">
+<!ENTITY maphash "<ulink url='&clhs;/Body/fun_maphash.html'><function>maphash</function></ulink>">
+<!ENTITY merge-pathnames "<ulink url='&clhs;/Body/fun_merge-pathnames.html'><function>merge-pathnames</function></ulink>">
+<!ENTITY method-combination-error "<ulink url='&clhs;/Body/fun_method-co_nation-error.html'><function>method-combination-error</function></ulink>">
+<!ENTITY method-qualifiers "<ulink url='&clhs;/Body/stagenfun_met_d-qualifiers.html'><function>method-qualifiers</function></ulink>">
+<!ENTITY multiple-value-bind "<ulink url='&clhs;/Body/mac_multiple-value-bind.html'><function>multiple-value-bind</function></ulink>">
+<!ENTITY multiple-value-list "<ulink url='&clhs;/Body/mac_multiple-value-list.html'><function>multiple-value-list</function></ulink>">
+<!ENTITY multiple-value-setq "<ulink url='&clhs;/Body/mac_multiple-value-setq.html'><function>multiple-value-setq</function></ulink>">
+<!ENTITY namestring "<ulink url='&clhs;/Body/fun_namestrin_h-namestring.html'><function>namestring</function></ulink>">
+<!ENTITY nconc "<ulink url='&clhs;/Body/fun_nconc.html'><function>nconc</function></ulink>">
+<!ENTITY next-method-p "<ulink url='&clhs;/Body/locfun_next-method-p.html'><function>next-method-p</function></ulink>">
+<!ENTITY no-applicable-method "<ulink url='&clhs;/Body/stagenfun_no-_cable-method.html'><function>no-applicable-method</function></ulink>">
+<!ENTITY nreconc "<ulink url='&clhs;/Body/fun_revappendcm_nreconc.html'><function>nreconc</function></ulink>">
+<!ENTITY nreverse "<ulink url='&clhs;/Body/fun_reversecm_nreverse.html'><function>nreverse</function></ulink>">
+<!ENTITY nsublis "<ulink url='&clhs;/Body/fun_subliscm_nsublis.html'><function>nsublis</function></ulink>">
+<!ENTITY open "<ulink url='&clhs;/Body/fun_open.html'><function>open</function></ulink>">
+<!ENTITY open-stream-p "<ulink url='&clhs;/Body/fun_open-stream-p.html'><function>open-stream-p</function></ulink>">
+<!ENTITY or "<ulink url='&clhs;/Body/mac_or.html'><function>or</function></ulink>">
+<!ENTITY output-stream-p "<ulink url='&clhs;/Body/fun_input-str_put-stream-p.html'><function>output-stream-p</function></ulink>">
+<!ENTITY parse-namestring "<ulink url='&clhs;/Body/fun_parse-namestring.html'><function>parse-namestring</function></ulink>">
+<!ENTITY pathname "<ulink url='&clhs;/Body/fun_pathname.html'><function>pathname</function></ulink>">
+<!ENTITY pathname-match-p "<ulink url='&clhs;/Body/fun_pathname-match-p.html'><function>pathname-match-p</function></ulink>">
+<!ENTITY peek-char "<ulink url='&clhs;/Body/fun_peek-char.html'><function>peek-char</function></ulink>">
+<!ENTITY pprint "<ulink url='&clhs;/Body/fun_writecm_p_rintcm_princ.html'><function>pprint</function></ulink>">
+<!ENTITY pprint-dispatch "<ulink url='&clhs;/Body/fun_pprint-dispatch.html'><function>pprint-dispatch</function></ulink>">
+<!ENTITY pprint-exit-if-list-exhausted "<ulink url='&clhs;/Body/locmac_pprint_st-exhausted.html'><function>pprint-exit-if-list-exhausted</function></ulink>">
+<!ENTITY pprint-fill "<ulink url='&clhs;/Body/fun_pprint-fi_rint-tabular.html'><function>pprint-fill</function></ulink>">
+<!ENTITY pprint-indent "<ulink url='&clhs;/Body/fun_pprint-indent.html'><function>pprint-indent</function></ulink>">
+<!ENTITY pprint-linear "<ulink url='&clhs;/Body/fun_pprint-fi_rint-tabular.html'><function>pprint-linear</function></ulink>">
+<!ENTITY pprint-logical-block "<ulink url='&clhs;/Body/mac_pprint-logical-block.html'><function>pprint-logical-block</function></ulink>">
+<!ENTITY pprint-newline "<ulink url='&clhs;/Body/fun_pprint-newline.html'><function>pprint-newline</function></ulink>">
+<!ENTITY pprint-pop "<ulink url='&clhs;/Body/locmac_pprint-pop.html'><function>pprint-pop</function></ulink>">
+<!ENTITY pprint-tab "<ulink url='&clhs;/Body/fun_pprint-tab.html'><function>pprint-tab</function></ulink>">
+<!ENTITY pprint-tabular "<ulink url='&clhs;/Body/fun_pprint-fi_rint-tabular.html'><function>pprint-tabular</function></ulink>">
+<!ENTITY prin1 "<ulink url='&clhs;/Body/fun_writecm_p_rintcm_princ.html'><function>prin1</function></ulink>">
+<!ENTITY princ "<ulink url='&clhs;/Body/fun_writecm_p_rintcm_princ.html'><function>princ</function></ulink>">
+<!ENTITY print "<ulink url='&clhs;/Body/fun_writecm_p_rintcm_princ.html'><function>print</function></ulink>">
+<!ENTITY print-object "<ulink url='&clhs;/Body/stagenfun_print-object.html'><function>print-object</function></ulink>">
+<!ENTITY print-unreadable-object "<ulink url='&clhs;/Body/mac_print-unr_dable-object.html'><function>print-unreadable-object</function></ulink>">
+<!ENTITY probe-file "<ulink url='&clhs;/Body/fun_probe-file.html'><function>probe-file</function></ulink>">
+<!ENTITY proclaim "<ulink url='&clhs;/Body/fun_proclaim.html'><function>proclaim</function></ulink>">
+<!ENTITY prog1 "<ulink url='&clhs;/Body/mac_prog1cm_prog2.html'><function>prog1</function></ulink>">
+<!ENTITY prog2 "<ulink url='&clhs;/Body/mac_prog1cm_prog2.html'><function>prog2</function></ulink>">
+<!ENTITY progn "<ulink url='&clhs;/Body/speope_progn.html'><function>progn</function></ulink>">
+<!ENTITY psetq "<ulink url='&clhs;/Body/mac_psetq.html'><function>psetq</function></ulink>">
+<!ENTITY read "<ulink url='&clhs;/Body/fun_readcm_re_g-whitespace.html'><function>read</function></ulink>">
+<!ENTITY read-byte "<ulink url='&clhs;/Body/fun_read-byte.html'><function>read-byte</function></ulink>">
+<!ENTITY read-char "<ulink url='&clhs;/Body/fun_read-char.html'><function>read-char</function></ulink>">
+<!ENTITY read-char-no-hang "<ulink url='&clhs;/Body/fun_read-char-no-hang.html'><function>read-char-no-hang</function></ulink>">
+<!ENTITY read-delimited-list "<ulink url='&clhs;/Body/fun_read-delimited-list.html'><function>read-delimited-list</function></ulink>">
+<!ENTITY read-line "<ulink url='&clhs;/Body/fun_read-line.html'><function>read-line</function></ulink>">
+<!ENTITY read-sequence "<ulink url='&clhs;/Body/fun_read-sequence.html'><function>read-sequence</function></ulink>">
+<!ENTITY readtable-case "<ulink url='&clhs;/Body/acc_readtable-case.html'><function>readtable-case</function></ulink>">
+<!ENTITY remove "<ulink url='&clhs;/Body/fun_removecm__elete-if-not.html'><function>remove</function></ulink>">
+<!ENTITY remove-duplicates "<ulink url='&clhs;/Body/fun_remove-du_e-duplicates.html'><function>remove-duplicates</function></ulink>">
+<!ENTITY remove-if "<ulink url='&clhs;/Body/fun_removecm__elete-if-not.html'><function>remove-if</function></ulink>">
+<!ENTITY remove-if-not "<ulink url='&clhs;/Body/fun_removecm__elete-if-not.html'><function>remove-if-not</function></ulink>">
+<!ENTITY rename-file "<ulink url='&clhs;/Body/fun_rename-file.html'><function>rename-file</function></ulink>">
+<!ENTITY require "<ulink url='&clhs;/Body/fun_providecm_require.html'><function>require</function></ulink>">
+<!ENTITY restart-case "<ulink url='&clhs;/Body/mac_restart-case.html'><function>restart-case</function></ulink>">
+<!ENTITY return "<ulink url='&clhs;/Body/mac_return.html'><function>return</function></ulink>">
+<!ENTITY room "<ulink url='&clhs;/Body/fun_room.html'><function>room</function></ulink>">
+<!ENTITY set "<ulink url='&clhs;/Body/fun_set.html'><function>set</function></ulink>">
+<!ENTITY set-dispatch-macro-character "<ulink url='&clhs;/Body/fun_set-dispa_ro-character.html'><function>set-dispatch-macro-character</function></ulink>">
+<!ENTITY set-pprint-dispatch "<ulink url='&clhs;/Body/fun_set-pprint-dispatch.html'><function>set-pprint-dispatch</function></ulink>">
+<!ENTITY setf "<ulink url='&clhs;/Body/mac_setfcm_psetf.html'><function>setf</function></ulink>">
+<!ENTITY setq "<ulink url='&clhs;/Body/spefor_setq.html'><function>setq</function></ulink>">
+<!ENTITY short-site-name "<ulink url='&clhs;/Body/fun_short-sit_ng-site-name.html'><function>short-site-name</function></ulink>">
+<!ENTITY signal "<ulink url='&clhs;/Body/fun_signal.html'><function>signal</function></ulink>">
+<!ENTITY simple-condition "<ulink url='&clhs;/Body/contyp_simple-condition.html'><function>simple-condition</function></ulink>">
+<!ENTITY simple-condition-format-control "<ulink url='&clhs;/Body/fun_simple-co_at-arguments.html'><function>simple-condition-format-control</function></ulink>">
+<!ENTITY simple-error "<ulink url='&clhs;/Body/contyp_simple-error.html'><function>simple-error</function></ulink>">
+<!ENTITY simple-warning "<ulink url='&clhs;/Body/contyp_simple-warning.html'><function>simple-warning</function></ulink>">
+<!ENTITY slash "<ulink url='&clhs;/Body/fun_sl.html'><function>/</function></ulink>">
+<!ENTITY sort "<ulink url='&clhs;/Body/fun_sortcm_stable-sort.html'><function>sort</function></ulink>">
+<!ENTITY special-operator-p "<ulink url='&clhs;/Body/fun_special-operator-p.html'><function>special-operator-p</function></ulink>">
+<!ENTITY sqrt "<ulink url='&clhs;/Body/fun_sqrtcm_isqrt.html'><function>sqrt</function></ulink>">
+<!ENTITY stable-sort "<ulink url='&clhs;/Body/fun_sortcm_stable-sort.html'><function>stable-sort</function></ulink>">
+<!ENTITY standard-mc "<ulink url='&clhs;/Body/sec_7-6-6-2.html'><function>standard</function></ulink>">
+<!ENTITY step "<ulink url='&clhs;/Body/mac_step.html'><function>step</function></ulink>">
+<!ENTITY stream-element-type "<ulink url='&clhs;/Body/fun_stream-element-type.html'><function>stream-element-type</function></ulink>">
+<!ENTITY stream-external-format "<ulink url='&clhs;/Body/fun_stream-external-format.html'><function>stream-external-format</function></ulink>">
+<!ENTITY style-warning "<ulink url='&clhs;/Body/contyp_style-warning.html'><function>style-warning</function></ulink>">
+<!ENTITY sublis "<ulink url='&clhs;/Body/fun_subliscm_nsublis.html'><function>sublis</function></ulink>">
+<!ENTITY subtypep "<ulink url='&clhs;/Body/fun_subtypep.html'><function>subtypep</function></ulink>">
+<!ENTITY symbol-function "<ulink url='&clhs;/Body/acc_symbol-function.html'><function>symbol-function</function></ulink>">
+<!ENTITY symbol-macrolet "<ulink url='&clhs;/Body/speope_symbol-macrolet.html'><function>symbol-macrolet</function></ulink>">
+<!ENTITY symbol-value "<ulink url='&clhs;/Body/acc_symbol-value.html'><function>symbol-value</function></ulink>">
+<!ENTITY tagbody "<ulink url='&clhs;/Body/speope_tagbody.html'><function>tagbody</function></ulink>">
+<!ENTITY the "<ulink url='&clhs;/Body/speope_the.html'><function>the</function></ulink>">
+<!ENTITY time "<ulink url='&clhs;/Body/mac_time.html'><function>time</function></ulink>">
+<!ENTITY trace "<ulink url='&clhs;/Body/mac_tracecm_untrace.html'><function>trace</function></ulink>">
+<!ENTITY translate-logical-pathname "<ulink url='&clhs;/Body/fun_translate_cal-pathname.html'><function>translate-logical-pathname</function></ulink>">
+<!ENTITY translate-pathname "<ulink url='&clhs;/Body/fun_translate-pathname.html'><function>translate-pathname</function></ulink>">
+<!ENTITY truename "<ulink url='&clhs;/Body/fun_truename.html'><function>truename</function></ulink>">
+<!ENTITY type-of "<ulink url='&clhs;/Body/fun_type-of.html'><function>type-of</function></ulink>">
+<!ENTITY typep "<ulink url='&clhs;/Body/fun_typep.html'><function>typep</function></ulink>">
+<!ENTITY unbound-slot "<ulink url='&clhs;/Body/contyp_unbound-slot.html'><function>unbound-slot</function></ulink>">
+<!ENTITY unbound-slot-instance "<ulink url='&clhs;/Body/fun_unbound-slot-instance.html'><function>unbound-slot-instance</function></ulink>">
+<!ENTITY unless "<ulink url='&clhs;/Body/mac_whencm_unless.html'><function>unless</function></ulink>">
+<!ENTITY untrace "<ulink url='&clhs;/Body/mac_tracecm_untrace.html'><function>untrace</function></ulink>">
+<!ENTITY unuse-package "<ulink url='&clhs;/Body/fun_unuse-package.html'><function>unuse-package</function></ulink>">
+<!ENTITY unwind-protect "<ulink url='&clhs;/Body/speope_unwind-protect.html'><function>unwind-protect</function></ulink>">
+<!ENTITY update-instance-for-different-class "<ulink url='&clhs;/Body/stagenfun_upd_ferent-class.html'><function>update-instance-for-different-class</function></ulink>">
+<!ENTITY update-instance-for-redefined-class "<ulink url='&clhs;/Body/stagenfun_upd_efined-class.html'><function>update-instance-for-redefined-class</function></ulink>">
+<!ENTITY upgraded-complex-part-type "<ulink url='&clhs;/Body/fun_upgraded-_ex-part-type.html'><function>upgraded-complex-part-type</function></ulink>">
+<!ENTITY use-package "<ulink url='&clhs;/Body/fun_use-package.html'><function>use-package</function></ulink>">
+<!ENTITY user-homedir-pathname "<ulink url='&clhs;/Body/fun_user-homedir-pathname.html'><function>user-homedir-pathname</function></ulink>">
+<!ENTITY values-list "<ulink url='&clhs;/Body/fun_values-list.html'><function>values-list</function></ulink>">
+<!ENTITY warn "<ulink url='&clhs;/Body/fun_warn.html'><function>warn</function></ulink>">
+<!ENTITY when "<ulink url='&clhs;/Body/mac_whencm_unless.html'><function>when</function></ulink>">
+<!ENTITY with-compilation-unit "<ulink url='&clhs;/Body/mac_with-compilation-unit.html'><function>with-compilation-unit</function></ulink>">
+<!ENTITY with-standard-io-syntax "<ulink url='&clhs;/Body/mac_with-stan_rd-io-syntax.html'><function>with-standard-io-syntax</function></ulink>">
+<!ENTITY write "<ulink url='&clhs;/Body/fun_writecm_p_rintcm_princ.html'><function>write</function></ulink>">
+<!ENTITY write-byte "<ulink url='&clhs;/Body/fun_write-byte.html'><function>write-byte</function></ulink>">
+<!ENTITY write-char "<ulink url='&clhs;/Body/fun_write-char.html'><function>write-char</function></ulink>">
+<!ENTITY write-sequence "<ulink url='&clhs;/Body/fun_write-sequence.html'><function>write-sequence</function></ulink>">
+<!ENTITY write-string "<ulink url='&clhs;/Body/fun_write-str_m_write-line.html'><function>write-string</function></ulink>">
+<!ENTITY write-to-string "<ulink url='&clhs;/Body/fun_write-to-_nc-to-string.html'><function>write-to-string</function></ulink>">
