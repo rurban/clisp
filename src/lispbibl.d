@@ -12426,7 +12426,11 @@ extern void init_pathnames (void);
 /* duplicate the handle (maybe into new_handle)
  must be surrounded with begin_system_call()/end_system_call() */
 global Handle handle_dup (Handle old_handle, Handle new_handle);
-#define handle_dup1(h) handle_dup(h,(Handle)-1)
+#if !defined(WIN32_NATIVE)
+#define INVALID_HANDLE_VALUE ((Handle)(-1))
+#endif
+#define HNULLP(h) ((h)==INVALID_HANDLE_VALUE)
+#define handle_dup1(h) handle_dup(h,INVALID_HANDLE_VALUE)
 /* used by STREAM */
 
 # Locates the executable program immediately after the program start.
