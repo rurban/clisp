@@ -1,3 +1,8 @@
+1998-05-31  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
+
+        * acspecific.m4 (AC_PROG_CXX): Don't add "-O" to $CXX if it is
+          already present.
+
 1998-05-20  Bruno Haible  <bruno@linuix.mathematik.uni-karlsruhe.de>
 
         * stream.d (INTERACTIVE-STREAM-P): Check for stream first.
