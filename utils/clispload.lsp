@@ -148,15 +148,6 @@
   ;; to use either one."
   FORMAT.F.2 FORMAT.F.3
 
-  ;; Paul Dietz assumes that FORMAT ~S prints characters like FORMAT ~:C.
-  ;; CLISP behaviour for graphic characters with non-standardized names is,
-  ;; however, that FORMAT ~S uses the character's name, whereas FORMAT ~:C
-  ;; doesn't.
-  ;;   (format nil "~S" #\euro_sign)  => "#\\EURO_SIGN"
-  ;;   (format nil "~:C" #\euro_sign) => "€"
-  ;; ANSI CL 22.3.4.2, 22.1.3.2 and 22.3.1.1 allow this.
-  FORMAT.S.8
-
   ;; Paul Dietz assumes that FORMAT ~10:T does nothing if the stream is not
   ;; a pretty-printing stream.
   ;; CLISP honors the FORMAT ~10:T even when the stream is a string-stream.
