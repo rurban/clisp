@@ -1,6 +1,6 @@
 # Foreign language interface for CLISP
 # Marcus Daniels 8.4.1994
-# Bruno Haible 1995-1999
+# Bruno Haible 1995-2000
 
 #include "lispbibl.c"
 #include "arilev0.c" # für mulu32_unchecked
@@ -1329,6 +1329,11 @@ local void walk_foreign_pointers(fvd,data)
           }
           return;
         } elif (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
+          if (walk_foreign_null_terminates) {
+            # NULL pointers stop the recursion
+            if (*(void**)data == NULL)
+              return;
+          }
           (*walk_foreign_function_hook)(fvd,(void**)data);
           return;
         } elif ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null))) && (fvdlen == 2)) {
@@ -1969,13 +1974,17 @@ local void convert_to_foreign(fvd,obj,data)
           }
           return;
         } elif (eq(fvdtype,S(c_function)) && (fvdlen == 4)) {
-          var object ffun =
-            convert_function_to_foreign(obj,
-                                        TheSvector(fvd)->data[1],
-                                        TheSvector(fvd)->data[2],
-                                        TheSvector(fvd)->data[3]
-                                       );
-          *(void**)data = Faddress_value(TheFfunction(ffun)->ff_address);
+          if (nullp(obj)) {
+            *(void**)data = NULL;
+          } else {
+            var object ffun =
+              convert_function_to_foreign(obj,
+                                          TheSvector(fvd)->data[1],
+                                          TheSvector(fvd)->data[2],
+                                          TheSvector(fvd)->data[3]
+                                         );
+            *(void**)data = Faddress_value(TheFfunction(ffun)->ff_address);
+          }
           return;
         } elif ((eq(fvdtype,S(c_ptr)) || eq(fvdtype,S(c_ptr_null))) && (fvdlen == 2)) {
           if (nullp(obj) && eq(fvdtype,S(c_ptr_null))) {
