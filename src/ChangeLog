@@ -1,5 +1,10 @@
 2004-04-15  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (update-ansi-tests): do not pass "-d" to "cvs
+	update" becase "ansi-tests" could be a symlink to a writable sandbox
+
+2004-04-15  Sam Steingold  <sds@gnu.org>
+
 	make EXT:FILL-STREAM a user-visible extension
 	* fill-out.lisp (fill-stream, with-fill-stream): export symbol from EXT
 	(fill-stream): new slot PENDING-SPACE to avoid trailing spaces
