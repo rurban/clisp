@@ -6261,8 +6261,8 @@ local object use_default_dir (object pathname) {
 #ifdef WIN32_NATIVE
 
 # UP: translates short name to full name
-# > LPCSTR shortname: old DOS 8.3 pathname
-# < LPSTR fullname: buffer should be not less than MAX_PATH
+# > shortname: old DOS 8.3 pathname
+# < fullname: buffer should be not less than MAX_PATH
 # < result: true on success
 bool FullName(LPCSTR shortname, LPSTR fullname) {
   WIN32_FIND_DATA wfd;
@@ -6292,20 +6292,13 @@ bool FullName(LPCSTR shortname, LPSTR fullname) {
   return true;
 }
 
-# UP: substitutes filename of nonexisting file with windows
-# shortcut filename value when it is appropriate and possible.
-# If directory+filename exists doing nothing returns false
-# If it doesn't but direstory+filename+".lnk" exists then
-# tries to read it. On reading success returns true with lnk
-# filename value as resolved.
-# On resolving error returns false.
-# If ".lnk" doesn't exists returns false.
-# > LPCSTR directory: path to opening file (with ending /)
-# > LPCSTR filename: file name
-# < LPSTR resolved: buffer for resolved path and filename.
-# < result: true if substitution happened.
-bool resolve_shell_shortcut(LPCSTR directory,
-                            LPCSTR filename,
+
+# UP: extracts a filename field from windows shortcut
+# > filename: name the shortcut file
+# < resolved (can be null) buffer not less than MAX_PATH
+# < result true if link was successfully resolved AND
+#          target is not directory AND target exists
+bool resolve_shell_shortcut(LPCSTR filename,
                             LPSTR resolved) {
   var char pathname[_MAX_PATH];
   var DWORD fileattr;
@@ -6315,14 +6308,8 @@ bool resolve_shell_shortcut(LPCSTR directory,
   var bool result = false;
   var IPersistFile* ppf;
 
-  strcpy(pathname,directory);
-  strcat(pathname,filename);
-  fileattr = GetFileAttributes(pathname);
-  if (fileattr != 0xFFFFFFFF) return false;
-  strcat(pathname,".lnk");
-  fileattr = GetFileAttributes(pathname);
+  fileattr = GetFileAttributes(filename);
   if (fileattr == 0xFFFFFFFF) return false;
-  *resolved = 0;
   # Get a pointer to the IShellLink interface.
   hres = CoCreateInstance(&CLSID_ShellLink, NULL,
       CLSCTX_INPROC_SERVER, &IID_IShellLink, (LPVOID *) &psl);
@@ -6332,7 +6319,7 @@ bool resolve_shell_shortcut(LPCSTR directory,
   if (SUCCEEDED(hres)) {
     var WCHAR wsz[MAX_PATH];
     # Ensure that the string is Unicode.
-    MultiByteToWideChar(CP_ACP, 0, pathname, -1, wsz,MAX_PATH);
+    MultiByteToWideChar(CP_ACP, 0, filename, -1, wsz,MAX_PATH);
     # Load the shortcut.
     hres = ppf->lpVtbl->Load(ppf, wsz, STGM_READ);
     if (SUCCEEDED(hres)) {
@@ -6342,8 +6329,13 @@ bool resolve_shell_shortcut(LPCSTR directory,
         # Get the path to the link target.
         hres = psl->lpVtbl->GetPath(psl, pathname,
                  MAX_PATH, (WIN32_FIND_DATA *)&wfd,
-                      SLGP_SHORTPATH );
-        if (SUCCEEDED(hres) && FullName(pathname,resolved)) result = true;
+                        SLGP_SHORTPATH );
+        if (SUCCEEDED(hres) &&
+            !(GetFileAttributes(pathname)&FILE_ATTRIBUTE_DIRECTORY)) {
+          result = true;
+          if (resolved && !FullName(pathname,resolved))
+            result = false;
+        }
       }
     }
     # Release the pointer to the IPersistFile interface.
@@ -6352,6 +6344,32 @@ bool resolve_shell_shortcut(LPCSTR directory,
   # Release the pointer to the IShellLink interface.
   psl->lpVtbl->Release(psl);
   return result;
+}
+
+
+# UP: see if a file is normal file or it is a "shell symlink"
+# If directory+filename exists do nothing return false
+# If it doesn't but direstory+filename+".lnk" exists then
+# try to read it. On reading success return true with lnk
+# filename value as resolved. See resolve_shell_shortcut also.
+# > LPCSTR directory: path to opening file (with ending /)
+# > LPCSTR filename: file name
+# < LPSTR resolved: buffer for resolved path and filename.
+# < result: true if substitution happened.
+bool resolve_shell_symlink(LPCSTR directory,
+                            LPCSTR filename,
+                            LPSTR resolved) {
+  var char pathname[_MAX_PATH];
+  var DWORD fileattr;
+
+  strcpy(pathname,directory);
+  strcat(pathname,filename);
+  fileattr = GetFileAttributes(pathname);
+  if (fileattr != 0xFFFFFFFF) return false;
+  strcat(pathname,".lnk");
+  fileattr = GetFileAttributes(pathname);
+  if (fileattr == 0xFFFFFFFF) return false;
+  return resolve_shell_shortcut(pathname,resolved);
 }
 
 #endif
@@ -6438,8 +6456,8 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
   else {
     with_string_0(directory_namestring(STACK_0),O(pathname_encoding),dirname, {
       with_string_0(file_namestring(STACK_0),O(pathname_encoding),filename, {
-        char resolved[MAX_PATH];
-        if (resolve_shell_shortcut(dirname,filename,resolved)) {
+        var char resolved[MAX_PATH];
+        if (resolve_shell_symlink(dirname,filename,resolved)) {
           var object resolved_string = asciz_to_string(resolved,O(pathname_encoding));
           STACK_0 = coerce_pathname(resolved_string);
           dir_namestring = directory_namestring(STACK_0);
@@ -9238,6 +9256,18 @@ local void directory_search_scandir (bool recursively, signean next_task) {
     var object namestring = string_concat(2); # "*.*" resp. "*"
     with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
       # scan directory, according to DOS-convention resp. Win32-convention:
+
+      # handle shell shortcuts specially:
+      # Valid shortcuts for us are ones that
+      # a) have ".lnk" type
+      # b) point to existing file
+      # c) that is, not on directory
+      # So directory_search_scandir won't see valid shortcuts.
+      # instead it collects filenames with ".lnk" suffix removed
+      # so latter open can lead (via assure_dir_exists) to successful
+      # link following. We should first resolve a link to determine if
+      # it valid and (for :full) to retrieve target file date and size.
+
       READDIR_var_declarations;
       # start of search, search for folders and normal files:
       begin_system_call();
@@ -9293,44 +9323,91 @@ local void directory_search_scandir (bool recursively, signean next_task) {
             } else {
               # entry is a (halfway) normal file.
               if (next_task>0) {
-                # match name&type with direntry:
-                if (wildcard_match(STACK_(2+4+3),STACK_0)) {
-                  # file matches -> turn into a pathname
-                  # and push onto result-list:
-                  pushSTACK(STACK_0); # direntry
-                  split_name_type(1); # split up into name and type
-                  {
-                    var object new = copy_pathname(STACK_(2+2));
-                    ThePathname(new)->pathname_type = popSTACK(); # insert type
-                    ThePathname(new)->pathname_name = popSTACK(); # insert name
-                    # test Full-Flag and poss. get more information:
-                    if (!nullp(STACK_(0+5+4+3))) { # :FULL wanted?
-                      pushSTACK(new); # newpathname as 1. list element
-                      pushSTACK(new); # newpathname as 2. list element
-                      {
-                        # convert time and date from DOS-format to decoded-time:
-                        var decoded_time_t timepoint;
-                        READDIR_entry_timedate(&timepoint);
-                        pushSTACK(timepoint.Sekunden);
-                        pushSTACK(timepoint.Minuten);
-                        pushSTACK(timepoint.Stunden);
-                        pushSTACK(timepoint.Tag);
-                        pushSTACK(timepoint.Monat);
-                        pushSTACK(timepoint.Jahr);
-                        new = listof(6); # build 6-element list
-                      }
-                      pushSTACK(new); # as 3. list element
-                      pushSTACK(UL_to_I(READDIR_entry_size())); # length as 4. list element
-                      new = listof(4); # build 4-element list
+                # prepare pathname for assembling
+                pushSTACK(copy_pathname(STACK_(2)));  
+                # there will be resolved pathname
+                pushSTACK(NIL);
+                # direntry hacking
+                pushSTACK(STACK_(2)); # direntry
+                split_name_type(1);
+                # stack layout: direntry, pathname, resolved-pathname==NIL, name, type
+                {
+                  var bool followedp = false; # if .lnk was followed
+                  ThePathname(STACK_(3))->pathname_type = STACK_0; # insert type
+                  ThePathname(STACK_(3))->pathname_name = STACK_1; # insert name
+                  if (!nullp(STACK_0) && string_equal(STACK_0,ascii_to_string("lnk"))) {
+                    var char resolved[MAX_PATH];
+                    with_sstring_0(whole_namestring(STACK_(3)),O(pathname_encoding),linkfile_asciiz, {
+                      followedp = resolve_shell_shortcut(linkfile_asciiz,resolved);
+                      if (followedp)
+                        STACK_(2) = coerce_pathname(asciz_to_string(resolved,O(pathname_encoding)));
+                    }); 
+                  }
+                  skipSTACK(1); # drop type
+
+                  # stack layout: pathname, dir_namestring,
+                  # direntry, pathname, resolved-pathname, name.
+
+                  # either direntry or name of lnk file (w/o ".lnk")
+                  # should be matched with pattern
+                  if (!followedp) STACK_0 = STACK_(3);
+
+                  if (wildcard_match(STACK_(2+4+2+4),STACK_0)) {
+                    if (followedp) {
+                      # hack pathname to place it to result list
+                      # result link names are ones w/o ".lnk"
+                      # so split the name again
+                      pushSTACK(STACK_0);
+                      split_name_type(1);
+                      ThePathname(STACK_(2+2))->pathname_name = STACK_1;
+                      ThePathname(STACK_(2+2))->pathname_type = STACK_0;
+                      skipSTACK(2);
                     }
-                    pushSTACK(new);
+                    # test Full-Flag and poss. get more information:
+                    if (!nullp(STACK_(0+5+4+2+4))) { # :FULL wanted?
+                      var decoded_time_t timepoint;
+                      var uintL entry_size = 0;
+                      # get file attributes into these vars
+                      if (followedp) { # need another readdir here
+                        READDIR_var_declarations;
+                        with_sstring_0(whole_namestring(STACK_1),O(pathname_encoding),resolved_asciz, {
+                          var bool notfound = false;
+                          begin_system_call();
+                          READDIR_findfirst(resolved_asciz, notfound = true; , notfound = true; );
+                          end_system_call();
+                          if (notfound || READDIR_entry_ISDIR()) OS_file_error(STACK_1);
+                          READDIR_entry_timedate(&timepoint);
+                          entry_size = READDIR_entry_size();
+                        });
+                        READDIR_end_declarations;
+                      } else {         # easy way
+                        READDIR_entry_timedate(&timepoint);
+                        entry_size = READDIR_entry_size();
+                      }
+                      pushSTACK(STACK_(2)); # newpathname as 1st list element
+                      pushSTACK(STACK_(1+(followedp?1:2))); # resolved pathname as 2nd list element
+                      # convert time and date from DOS-format to decoded-time:
+                      pushSTACK(timepoint.Sekunden);
+                      pushSTACK(timepoint.Minuten);
+                      pushSTACK(timepoint.Stunden);
+                      pushSTACK(timepoint.Tag);
+                      pushSTACK(timepoint.Monat);
+                      pushSTACK(timepoint.Jahr);
+                      pushSTACK(listof(6)); # build 6-element list
+                                            # as 3th list element
+                      pushSTACK(UL_to_I(entry_size)); # length as 4th list element
+                      STACK_(2) = listof(4);          # build 4-element list
+                    }
+                    # now STACK_2 can contain either pathname or
+                    # list-of-file-information (both for insertion to result-list)
+                    { # push STACK_2 in front of result-list:
+                      var object new_cons = allocate_cons();
+                      Car(new_cons) = STACK_2;
+                      Cdr(new_cons) = STACK_(4+4+2+4);
+                      STACK_(4+4+2+4) = new_cons;
+                    }
                   }
-                  { # and push STACK_0 in front of result-list:
-                    var object new_cons = allocate_cons();
-                    Car(new_cons) = popSTACK();
-                    Cdr(new_cons) = STACK_(4+4+3);
-                    STACK_(4+4+3) = new_cons;
-                  }
+                  skipSTACK(3); # forget pathname, resolved-pathname, name.
                 }
               }
             }
