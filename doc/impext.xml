@@ -408,7 +408,7 @@
    = <literal>CP1255</literal>,
       a platform specific extension of the ASCII character set,
       gratuitously incompatible with ISO-8859-8,
-      meant to be suitable for the Hebrew language.
+      suitable for the Hebrew language.
     </simpara></listitem>
   <listitem><simpara><literal>WINDOWS-1256</literal>
    = <literal>CP1256</literal>,
