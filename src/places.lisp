@@ -978,7 +978,12 @@
         (get-setf-expansion (pop placesr) env)
       (setq temps (revappend SM1 temps))
       (setq vals (revappend SM2 vals))
-      (setq stores (revappend SM3 stores))
+      (when SM3
+        ;; See ANSI CL 5.1.2.3.
+        (dolist (extra-store (rest SM3))
+          (push extra-store temps)
+          (push 'NIL vals))
+        (push (first SM3) stores))
       (setq storeforms (cons SM4 storeforms))
       (setq accessforms (cons SM5 accessforms))
 ) ) )
