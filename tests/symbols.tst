@@ -238,12 +238,7 @@
           (do-external-symbols (s (find-package :common-lisp) lst)
             (push s lst))
           lst))
-       (known-missing
-        #+CLISP
-        '(call-method define-method-combination
-          invalid-method-error method-combination
-          method-combination-error make-method)
-        #-CLISP nil)
+       (known-missing nil)
        (known-extra
         #+CMU
         '(define-setf-method with-added-methods compiler-macroexpand-1

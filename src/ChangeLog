@@ -1,3 +1,13 @@
+2004-02-01  James Anderson  <james.anderson@setf.de>
+	    Sam Steingold  <sds@gnu.org>
+
+	DEFINE-METHOD-COMBINATION is now implemented
+	* clos.lisp: merged in James' patch
+	* init.lisp: export the symbols
+	* constobj.d (version): bumped because of changed
+	signature of DO-DEFMETHOD
+	* record.d (parse_seclass): removed legacy code
+
 2004-02-01  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (my_malloc): malloc() with error check
