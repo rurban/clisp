@@ -1,3 +1,8 @@
+2004-03-10  Bruno Haible  <bruno@clisp.org>
+
+	* Makefile.devel (src/autoconf/aclocal.m4): Append also mbstate_t.m4
+	and fnmatch.m4, needed by modules/wildcard/configure.in.
+
 2004-03-10  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (XCFLAGS): add "-I." on all platforms
