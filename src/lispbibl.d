@@ -11244,6 +11244,41 @@ extern void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len);
 extern void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len);
 #endif
 
+#if defined(HAVE_SMALL_SSTRING)
+
+# Determines the smallest string element type capable of holding a
+# set of 8-bit characters.
+#define smallest_string_flavour8(src,len)  \
+  (unused (src), unused(len), Sstringtype_8Bit)
+
+# Determines the smallest string element type capable of holding a
+# set of 16-bit characters.
+# smallest_string_flavour16(src,len)
+# > uint16* src: source
+# > uintL len: number of characters at src
+# < result: Sstringtype_8Bit or Sstringtype_16Bit
+extern uintBWL smallest_string_flavour16 (const uint16* src, uintL len);
+
+# Determines the smallest string element type capable of holding a
+# set of 32-bit characters.
+# smallest_string_flavour32(src,len)
+# > uint32* src: source
+# > uintL len: number of characters at src
+# < result: Sstringtype_8Bit or Sstringtype_16Bit or Sstringtype_32Bit
+extern uintBWL smallest_string_flavour32 (const uint32* src, uintL len);
+
+# Determines the smallest string element type capable of holding a
+# set of characters.
+# smallest_string_flavour(src,len)
+# > chart* src: source
+# > uintL len: number of characters at src
+# < result: Sstringtype_8Bit or Sstringtype_16Bit or Sstringtype_32Bit
+static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
+  return smallest_string_flavour32((const uint32*)src,len);
+}
+
+#endif
+
 # Dispatches among S8string, S16string and S32string.
 # SstringCase(string,s8string_statement,s16string_statement,s32string_statement);
 # > string: a not-reallocated simple-string
@@ -11410,11 +11445,23 @@ extern bool string_equal (object string1, object string2);
 #endif
 
 # UP: copies a String and turns it into a Simple-String.
-# copy_string(string)
+# copy_string_normal(string)
 # > string: String
 # < result: mutable Normal-Simple-String with the same characters
 # can trigger GC
-extern object copy_string (object string);
+  extern object copy_string_normal (object string);
+# is used by IO, PATHNAME
+
+# UP: copies a String and turns it into a Simple-String.
+# copy_string(string)
+# > string: String
+# < result: mutable Simple-String with the same characters
+# can trigger GC
+#ifdef HAVE_SMALL_SSTRING
+  extern object copy_string (object string);
+#else
+  #define copy_string(string)  copy_string_normal(string)
+#endif
 # is used by IO, PATHNAME
 
 # UP: Converts a String to a Simple-String.

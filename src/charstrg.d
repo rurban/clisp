@@ -493,6 +493,54 @@ global void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len) {
 }
 #endif
 
+#ifdef HAVE_SMALL_SSTRING
+
+# Determines the smallest string element type capable of holding a
+# set of 16-bit characters.
+# smallest_string_flavour16(src,len)
+# > uint16* src: source
+# > uintL len: number of characters at src
+# < result: Sstringtype_8Bit or Sstringtype_16Bit
+global uintBWL smallest_string_flavour16 (const uint16* src, uintL len) {
+  var uintBWL result = Sstringtype_8Bit;
+  if (len > 0) {
+    var uintL count;
+    dotimespL(count,len, {
+      if (!(*src < cint8_limit)) {
+        result = Sstringtype_16Bit;
+        break;
+      }
+      src++;
+    });
+  }
+  return result;
+}
+
+# Determines the smallest string element type capable of holding a
+# set of 32-bit characters.
+# smallest_string_flavour32(src,len)
+# > uint32* src: source
+# > uintL len: number of characters at src
+# < result: Sstringtype_8Bit or Sstringtype_16Bit or Sstringtype_32Bit
+global uintBWL smallest_string_flavour32 (const uint32* src, uintL len) {
+  var uintBWL result = Sstringtype_8Bit;
+  if (len > 0) {
+    var uintL count;
+    dotimespL(count,len, {
+      if (!(*src < cint8_limit))
+        result = Sstringtype_16Bit;
+      if (!(*src < cint16_limit)) {
+        result = Sstringtype_32Bit;
+        break;
+      }
+      src++;
+    });
+  }
+  return result;
+}
+
+#endif
+
 /* UP: unpack a string
  unpack_string_ro(string,&len,&offset)  [for read-only access]
  > object string: a string
@@ -763,20 +811,38 @@ global object stringof (uintL len) {
     var gcv_object_t* topargptr = STACK STACKop len;
     var gcv_object_t* argptr = topargptr;
     var chart* ptr = &TheSnstring(new_string)->data[0];
-    do { *ptr++ = char_code(NEXT(argptr));
-    } while (--len);
+    var uintL count;
+    dotimespL(count,len, { *ptr++ = char_code(NEXT(argptr)); });
     set_args_end_pointer(topargptr);
+    #ifdef HAVE_SMALL_SSTRING
+    # We use alloca for small-simple-strings, therefore their length
+    # should not be too large, or we risk an SP overflow and core dump.
+    if (len < 0x10000) {
+      var uintBWL flavour = smallest_string_flavour(&TheSnstring(new_string)->data[0],len);
+      if (flavour == Sstringtype_8Bit) {
+        var object copied_string = allocate_s8string(len);
+        copy_32bit_8bit(&TheS32string(new_string)->data[0],
+                        &TheS8string(copied_string)->data[0],len);
+        new_string = copied_string;
+      } else if (flavour == Sstringtype_16Bit) {
+        var object copied_string = allocate_s16string(len);
+        copy_32bit_16bit(&TheS32string(new_string)->data[0],
+                         &TheS16string(copied_string)->data[0],len);
+        new_string = copied_string;
+      }
+    }
+    #endif
   }
   return new_string;
 }
 #endif
 
 /* UP: Copies a string and thereby turns it into a Simple-String.
- copy_string(string)
+ copy_string_normal(string)
  > string: String
  < result: mutable Normal-Simple-String with the same characters
  can trigger GC */
-global object copy_string (object string) {
+global object copy_string_normal (object string) {
   var uintL len;
   var uintL offset;
   string = unpack_string_ro(string,&len,&offset);
@@ -800,6 +866,64 @@ global object copy_string (object string) {
   }
   return new_string;
 }
+
+#ifdef HAVE_SMALL_SSTRING
+/* UP: Copies a string and thereby turns it into a Simple-String.
+ copy_string(string)
+ > string: String
+ < result: mutable Simple-String with the same characters
+ can trigger GC */
+global object copy_string (object string) {
+  var uintL len;
+  var uintL offset;
+  string = unpack_string_ro(string,&len,&offset);
+  var uintBWL flavour;
+  # We use alloca for small-simple-strings, therefore their length
+  # should not be too large, or we risk an SP overflow and core dump.
+  if (len < 0x10000) {
+    SstringCase(string,
+      { flavour = smallest_string_flavour8(&TheS8string(string)->data[offset],len); },
+      { flavour = smallest_string_flavour16(&TheS16string(string)->data[offset],len); },
+      { flavour = smallest_string_flavour32(&TheS32string(string)->data[offset],len); });
+  } else
+    flavour = Sstringtype_32Bit;
+  pushSTACK(string); /* save string */
+  var object new_string =
+    (flavour == Sstringtype_8Bit ? allocate_s8string(len) :
+     flavour == Sstringtype_16Bit ? allocate_s16string(len) :
+     allocate_s32string(len));
+  /* new_string = new Simple-String with given length len */
+  string = popSTACK(); /* return string */
+  if (len > 0) {
+    if (flavour == Sstringtype_8Bit) {
+      SstringCase(string,
+                  { copy_8bit_8bit(&TheS8string(string)->data[offset],
+                                   &TheS8string(new_string)->data[0],len); },
+                  { copy_16bit_8bit(&TheS16string(string)->data[offset],
+                                    &TheS8string(new_string)->data[0],len); },
+                  { copy_32bit_8bit(&TheS32string(string)->data[offset],
+                                    &TheS8string(new_string)->data[0],len); });
+    } else if (flavour == Sstringtype_16Bit) {
+      SstringCase(string,
+                  { copy_8bit_16bit(&TheS8string(string)->data[offset],
+                                    &TheS16string(new_string)->data[0],len); },
+                  { copy_16bit_16bit(&TheS16string(string)->data[offset],
+                                     &TheS16string(new_string)->data[0],len); },
+                  { copy_32bit_16bit(&TheS32string(string)->data[offset],
+                                     &TheS16string(new_string)->data[0],len); });
+    } else {
+      SstringCase(string,
+                  { copy_8bit_32bit(&TheS8string(string)->data[offset],
+                                    &TheS32string(new_string)->data[0],len); },
+                  { copy_16bit_32bit(&TheS16string(string)->data[offset],
+                                     &TheS32string(new_string)->data[0],len); },
+                  { copy_32bit_32bit(&TheS32string(string)->data[offset],
+                                     &TheS32string(new_string)->data[0],len); });
+    }
+  }
+  return new_string;
+}
+#endif
 
 /* UP: converts a string into a Simple-String.
  coerce_ss(obj)
@@ -998,7 +1122,7 @@ global object coerce_normal_ss (object obj)
         /*FALLTHROUGH*/
       case_ostring:
         /* other string, copy it */
-        return copy_string(obj);
+        return copy_string_normal(obj);
       default:
         break;
     }
@@ -2934,11 +3058,10 @@ global void nstring_upcase (object dv, uintL offset, uintL len) {
  < ergebnis: new normal-simple-string, in uppercase letters
  can trigger GC */
 global object string_upcase (object string) {
-  string = copy_string(string); /* copy and turn into a normal-simple-string */
+  string = copy_string_normal(string); /* copy and turn into a normal-simple-string */
   pushSTACK(string);
   nstring_upcase(string,0,Sstring_length(string)); /* convert */
   string = popSTACK();
-  sstring_un_realloc(string);
   DBGREALLOC(string);
   return string;
 }
@@ -3007,11 +3130,10 @@ global void nstring_downcase (object dv, uintL offset, uintL len) {
  < result: new normal-simple-string, in lowercase letters
  can trigger GC */
 global object string_downcase (object string) {
-  string = copy_string(string); /* copy and turn into a normal-simple-string */
+  string = copy_string_normal(string); /* copy and turn into a normal-simple-string */
   pushSTACK(string);
   nstring_downcase(string,0,Sstring_length(string)); /* convert */
   string = popSTACK();
-  sstring_un_realloc(string);
   DBGREALLOC(string);
   return string;
 }

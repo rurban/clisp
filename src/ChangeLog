@@ -1,3 +1,18 @@
+2004-03-06  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (smallest_string_flavour8): New macro.
+	(smallest_string_flavour16, smallest_string_flavour32): New
+	declarations.
+	(smallest_string_flavour): New function.
+	(copy_string_normal): Renamed from copy_string.
+	(copy_string): New declaration.
+	* charstrg.d (smallest_string_flavour16 smallest_string_flavour32): New
+	functions.
+	(stringof): Produce a small string if possible.
+	(copy_string_normal): Renamed from copy_string.
+	(copy_string): New function.
+	(coerce_normal_ss, string_upcase, string_downcase): Update.
+
 2004-02-20  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_garcol.d (UNREALLOC, GC_UNREALLOC): Remove macros.
