@@ -4511,7 +4511,7 @@ functions are provided:</para>
  role="strong"><function>sys::write-float-decimal</function></emphasis>,
  floating point numbers are output in radix 2.  This function is defined
  in <filename>floatpri.lisp</filename> and is not available if you run
- &clisp; without a memory image (which you should never do anyway!)</para>
+ &clisp; without a &mem-image; (which you should never do anyway!)</para>
 
 <para>If &print-readably-var; is true,
  &read-default-float-format-var; has no influence on the way
@@ -5417,7 +5417,7 @@ and you can leave the function call with specified values by using
  the numeric version (like <literal>3.14</literal>), and
  the release date (like <literal>"1999-07-21"</literal>).
  When running on the same machine on which &clisp; was built, it appends
-  the binary build and memory image dump date in universal time
+  the binary build and &mem-image; dump date in universal time
   (like <literal>3141592654</literal>).
  When running on a different machine, it appends the &machine-instance;
   of the machine on which it was built.</para>
