@@ -141,13 +141,13 @@
         (declare (ignore env))
         (bq-expand (second form))))))
 
-;; The BQ-NCONC form is a marker used in the backquote-generated code.
+;; The BQ-NCONCABLE form is a marker used in the backquote-generated code.
 ;; It tells the optimizer that the enclosed forms may be combined with
-;; NCONC. By defining BQ-NCONC as a macro, we take care of any `surviving'
+;; NCONC. By defining BQ-NCONCABLE as a macro, we take care of any `surviving'
 ;; occurrences that are not removed and processed by the optimizer.
-(sys::%putd 'BQ-NCONC
+(sys::%putd 'BQ-NCONCABLE
   (sys::make-macro
-   (function BQ-NCONC
+   (function BQ-NCONCABLE
      (lambda (form env)
        (declare (ignore env))
        (if (cddr form)
@@ -209,9 +209,9 @@
     (case (first form)
       ((UNQUOTE) (list 'list (second form)))
       ((SPLICE) (second form))
-      ;; (BQ-NCONC FORM) serves as a parse tree annotation which
+      ;; (BQ-NCONCABLE FORM) serves as a parse tree annotation which
       ;; tells the optimizer that FORM may be destructively manipulated.
-      ((NSPLICE) (list 'bq-nconc (second form)))
+      ((NSPLICE) (list 'BQ-NCONCABLE (second form)))
       ((BACKQUOTE) (list 'list (list 'BACKQUOTE (bq-expand (second form)))))
       (otherwise (list 'list (bq-expand form))))
     (list 'list (bq-expand form))))
@@ -294,10 +294,10 @@
   (cond
     ;; () -> ()
     ((null forms) nil)
-    ;; ((bq-nconc x1) ... (bq-nconc xn)) -> (bq-nconc x1 .. xn)
+    ;; ((bq-nconcable x1) ... (bq-nconcable xn)) -> (bq-nconcable x1 .. xn)
     ((and (rest forms)
           (every #'(lambda (form)
-                     (and (consp form) (eq (first form) 'bq-nconc)))
+                     (and (consp form) (eq (first form) 'BQ-NCONCABLE)))
                  forms))
      (cons 'nconc (mapcar #'second forms)))
     ;; ((list x1) ... (list xn-1) xn) -> (list* x1 ... xn-1 xn)
@@ -306,9 +306,9 @@
             (setq butlast (butlast forms)))
      (bq-optimize-list* (nconc (mapcap #'rest butlast)
                                (last forms))))
-    ;; ((bq-nconc x) ...) -> (nconc x <recurse (...)>)
+    ;; ((bq-nconcable x) ...) -> (nconc x <recurse (...)>)
     ((and (consp (first forms))
-          (eq (first (first forms)) 'bq-nconc))
+          (eq (first (first forms)) 'BQ-NCONCABLE))
      (list 'nconc
            (second (first forms))
            (bq-optimize-append (rest forms))))
