@@ -667,7 +667,7 @@
   LISPOBJ(command_shell,"\"gos\"")
  #endif
  #endif
-  # Liste aller offenen File-Streams, Handle-Streams, Terminal-Streams:
+  # Liste aller offenen Channel-Streams, Terminal-Streams:
   LISPOBJ(open_files,"NIL")
  #ifdef GC_CLOSES_FILES
   # W‰hrend der GC: die Liste der nach der GC zu schlieﬂenden File-Streams:
