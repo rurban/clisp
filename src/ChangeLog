@@ -1,5 +1,10 @@
 2005-03-29  Sam Steingold  <sds@gnu.org>
 
+	* src/m4/alloca.m4: removed
+	* configure.in: use AC_FUNC_ALLOCA instead of CL_ALLOCA
+
+2005-03-29  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c (RAWSOCK:SOCKATMARK): added
 	* modules/rawsock/configure.in: check for sockatmark()
 	* modules/rawsock/sock.lisp (sockatmark): export
