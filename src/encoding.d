@@ -2072,7 +2072,7 @@ global void init_dependent_encodings(void) {
      : STACK_0);
  #if defined(WIN32_NATIVE)
   { # cf libiconv/libcharset/lib/localcharset.c locale_charset()
-    var char *enc = argv_encoding_terminal;
+    var const char *enc = argv_encoding_terminal;
     var char buf[2+10+1];
     if (enc == NULL)
       sprintf(enc=buf,"CP%u",GetOEMCP());
