@@ -564,16 +564,16 @@ nonreturning_function(global, fehler_store, (object array, object value)) {
 }
 
 /* performs a STORE-access.
- storagevector_store(datenvektor,index,element,maygc)
+ storagevector_store(datenvektor,index,element,allowgc)
  > datenvektor : a data vector (simple vector or semi-simple byte-vector)
  > index : (checked) index into the data vector
  > element : (unchecked) object to be written
- > maygc : whether GC is allowed, if datenvektor is a string and element is a character
+ > allowgc : whether GC is allowed, if datenvektor is a string and element is a character
  > STACK_0 : array (for error-message)
  < datenvektor: possibly reallocated storage vector
  can trigger GC, if datenvektor is a string and element is a character */
 local object storagevector_store (object datenvektor, uintL index,
-                                  object element, bool maygc) {
+                                  object element, bool allowgc) {
   switch (Array_type(datenvektor)) {
     case Array_type_svector: /* Simple-Vector */
       TheSvector(datenvektor)->data[index] = element;
@@ -663,7 +663,7 @@ local object storagevector_store (object datenvektor, uintL index,
       if (charp(element)) {
         if (char_int(element) < cint8_limit)
           TheS8string(datenvektor)->data[index] = char_int(element);
-        else if (maygc) {
+        else if (allowgc) {
           if (char_int(element) < cint16_limit) {
             datenvektor = reallocate_small_string(datenvektor,Sstringtype_16Bit);
             TheS16string(TheSistring(datenvektor)->data)->data[index] = char_int(element);
@@ -680,7 +680,7 @@ local object storagevector_store (object datenvektor, uintL index,
       if (charp(element)) {
         if (char_int(element) < cint16_limit)
           TheS16string(datenvektor)->data[index] = char_int(element);
-        else if (maygc) {
+        else if (allowgc) {
           datenvektor = reallocate_small_string(datenvektor,Sstringtype_32Bit);
           TheS32string(TheSistring(datenvektor)->data)->data[index] = char_int(element);
         } else
