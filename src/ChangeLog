@@ -10,8 +10,6 @@
 2001-05-12  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (pslashp, lslashp, Z_AT_SLASH, Z_SHIFT): new macros
-	(parse_logical_pathnamestring): bugfix: :relative & :absolute
-	 were reversed
 	(parse_as_logical): new helper function
 	(logical_pathname, merge_pathnames): use it
 	(merge_pathnames): new macros SPECIFIED, NAMETYPE_MATCH, and
