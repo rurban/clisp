@@ -1,5 +1,6 @@
 # EVAL, APPLY and bytecode interpreter for CLISP
-# Bruno Haible 1990-2001
+# Bruno Haible 1990-2002
+# Sam Steingold 1998-2002
 # German comments translated into English: Stefan Kain 2001-08-13
 
 #include "lispbibl.c"
@@ -2840,7 +2841,7 @@ nonreturning_function(local, fehler_key_badkw, (object fun, object kw, object kw
     {
       # halve argcount --> number of pairs Key.Value:
       if (!((argcount%2)==0))
-        # number was ood -> not paired:
+        # number was odd -> not paired:
         fehler_key_unpaarig(closure);
       if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
         fehler_too_many_args(unbound,closure,argcount,ca_limit_1);
