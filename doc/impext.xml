@@ -1439,9 +1439,6 @@ N. Gray to X3J13.</para>
  <listitem><simpara>Setting &pathmerge; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &parsename; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &flocont; to &t;.</simpara></listitem>
- <listitem><simpara>Adding <emphasis
-  role="strong"><constant>:ansi-cl</constant></emphasis> to
-  &features-var;.</simpara></listitem>
 </itemizedlist>
 
 <para>Please note that if you run &clisp; with the <option>-a</option>
@@ -1466,9 +1463,6 @@ N. Gray to X3J13.</para>
  <listitem><simpara>Setting &pathmerge; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &parsename; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &flocont; to &nil;.</simpara></listitem>
- <listitem><simpara>Deleting <emphasis
-  role="strong"><constant>:ansi-cl</constant></emphasis> from
-  &features-var;.</simpara></listitem>
 </itemizedlist>
 
 </section>
