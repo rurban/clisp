@@ -1,5 +1,11 @@
 2004-04-20  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (pr_symbol): Follow CLHS also in the "pathological case that
+	the symbol has no home package but is nevertheless somehow accessible
+	in the current package".
+
+2004-04-20  Bruno Haible  <bruno@clisp.org>
+
 	* io.d (pr_symbol): Print keywords that are accessible in the current
 	package with a colon. Required by CLHS 22.1.3.3.1.
 
