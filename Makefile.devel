@@ -283,13 +283,12 @@ distrib : linux-distrib src-distrib
 # www/index.php, www/impnotes.html, www/clisp.html, www/impnotes/
 
 # CLISP release announcements go to:
-# clisp-announce@sourceforge.net
+# clisp-announce@lists.sourceforge.net
 # info-gnu@gnu.org
 # news:comp.lang.lisp
 # news:comp.os.linux.announce (linux-announce@news.ornl.gov)
 # http://freshmeat.net/projects/clisp/
 # https://sourceforge.net/news/submit.php?group_id=1355
-# https://www.opensourcedirectory.org/projects/clisp/
 
 # careful here: this src/VERSION is changed by this file!
 VER=$(shell cat src/VERSION)
