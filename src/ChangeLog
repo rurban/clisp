@@ -1,5 +1,10 @@
 2004-11-07  Bruno Haible  <bruno@clisp.org>
 
+	* m4/putenv.m4 (CL_PUTENV): Include stdlib.h before attempting to
+	call putenv. Needed in C++ mode.
+
+2004-11-07  Bruno Haible  <bruno@clisp.org>
+
 	* m4/putenv.m4 (CL_PUTENV): Require AC_GNU_SOURCE. Needed for the
 	declaration of 'environ' on glibc systems.
 	* configure.in: Invoke AC_GNU_SOURCE.
