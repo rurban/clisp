@@ -156,6 +156,11 @@ to print the corresponding values, or T for all of them.")
       (FOREIGN-VARIABLE
        (format stream (ENGLISH "a foreign variable of foreign type ~S.")
                (deparse-c-type (sys::%record-ref obj 3))))
+      #+FFI
+      (FOREIGN-FUNCTION
+       (format stream (ENGLISH "a foreign function taking foreign types ~:S and returning foreign type ~S.")
+               (map 'list #'deparse-c-type (sys::%record-ref obj 3))
+               (deparse-c-type (sys::%record-ref obj 2))))
       (BYTE
        (format stream (ENGLISH "a byte specifier, denoting the ~S bits starting at bit position ~S of an integer.")
                (byte-size obj) (byte-position obj)))
@@ -163,6 +168,10 @@ to print the corresponding values, or T for all of them.")
        (format stream (ENGLISH "a special form handler.")))
       (LOAD-TIME-EVAL
        (format stream (ENGLISH "a load-time evaluation promise.")))
+      (SYMBOL-MACRO
+       (format stream (ENGLISH "a symbol macro handler.")))
+      (ENCODING
+       (format stream (ENGLISH "an encoding.")))
       (WEAK-POINTER
        (multiple-value-bind (value validp) (weak-pointer-value obj)
          (if validp
