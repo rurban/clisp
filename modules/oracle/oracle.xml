@@ -270,14 +270,14 @@ The following data type conversions are done between &oracle-link; datatypes and
 <tbody>
 <row><entry>Numeric (NUMBER, INTEGER, FLOAT)</entry>
 <entry>
-The appropriate &cl; numeric type (FIXNUM, BIGNUM, FLOAT)
+The appropriate &cl; numeric type (&fixnum-t;, &bignum-t;, &float-t;)
 </entry></row>
 <row><entry>String (CHAR, VARCHAR, VARCHAR2)</entry>
 <entry>
 A &cl; string.  Note that CHAR will be padded out to its full, fixed length as
 defined in &oracle-link;; VARCHAR will be a string of variable length.  Also note
 that &oracle-link; has no "zero-length string" value -- it returns the SQL special
-value NULL which is converted to &nil; (see below).
+value &c-NULL; which is converted to &nil; (see below).
 </entry></row>
 <row><entry>DATE</entry>
 <entry>
@@ -297,7 +297,7 @@ A Lisp string of (arbitrary, possibly binary) data.  Note that truncation may
 occur; see the <function>CONNECT</function> parameters <replaceable>long-len</replaceable>
 and <replaceable>truncate-ok</replaceable>.
 </entry></row>
-<row><entry>NULL</entry>
+<row><entry>&c-NULL;</entry>
 <entry>
 The &cl; value &nil;
 </entry></row>
@@ -388,7 +388,7 @@ query used a column alias, <literal>SELECT <replaceable>expr</replaceable> AS
 <row><entry>SIZE</entry><entry>&oracle-link; data length (useful mostly for character types)</entry></row>
 <row><entry>SCALE</entry><entry>For numeric types, number of digits to right of decimal</entry></row>
 <row><entry>PRECISION</entry><entry>For numeric types, total number of significant digits</entry></row>
-<row><entry>NULL_OK</entry><entry>&t; if NULLs allowed, &nil; if nulls are not allowed.</entry></row>
+<row><entry>NULL_OK</entry><entry>&t; if &c-NULL;s allowed, &nil; if &c-NULL;s are not allowed.</entry></row>
 </tbody></tgroup></informaltable></para>
 <simpara>
 To access the values of the SQLCOL structures, use the standard accessor functions, e.g.,
@@ -416,8 +416,8 @@ Inserts a single row into <replaceable>table</replaceable>.
 Second argument <replaceable>values</replaceable> is a map of
 column names to values: either a hash table whose keys are the column
 names, or a list of (name, value) pairs.  Columns missing from the map
-will be given the default &oracle-link; value, or NULL.  Returns the number
-of rows inserted (i.e., always 1).
+will be given the default &oracle-link; value, or &c-NULL;.
+Returns the number of rows inserted (i.e., always 1).
 </simpara></listitem></varlistentry>
 
 		<!-- UPDATE-ROW -->

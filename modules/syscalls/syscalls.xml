@@ -245,7 +245,7 @@
     <type>SYSTEM-INFO</type> structure.</simpara></listitem></varlistentry>
  <varlistentry><term><literal role="sexp">(OS:VERSION)</literal></term>
   <listitem><simpara>Return &win32; version information in a
-    <type>SYSTEM-INFO</type> structure.</simpara></listitem></varlistentry>
+    <type>VERSION</type> structure.</simpara></listitem></varlistentry>
 </variablelist>
 
 </section>
