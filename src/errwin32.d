@@ -3865,7 +3865,7 @@
       var const wchar* wmsg;
       { if (!(name == NULL)) # bekannter Name?
           { write_errorasciz(" (");
-            write_errorasciz(errinfo.name);
+            write_errorasciz(name);
             write_errorasciz(")");
           }
         if (!(msg == NULL) || !(wmsg == NULL)) # Meldung vorhanden?

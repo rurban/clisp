@@ -1383,7 +1383,7 @@ local boolean legal_logical_word_char(ch)
        if ((len>0) && (pathptr[-1] == (wchar)slash))
          { pathname = n_wchar_to_string(path,len,encoding); }
          else
-         { var DYNAMIC_ARRAY(pathbuf,char,len+1);
+         { var DYNAMIC_ARRAY(pathbuf,wchar,len+1);
            begin_system_call(); memcpy(pathbuf,path,len*sizeof(wchar)); end_system_call();
            pathbuf[len] = (wchar)slash;
            pathname = n_wchar_to_string(pathbuf,len+1,encoding);
