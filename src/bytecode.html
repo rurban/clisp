@@ -1,0 +1,1010 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>The CLISP bytecode specification</TITLE>
+<META NAME="author" CONTENT="Bruno Haible">
+<META NAME="keywords" CONTENT="Lisp, Common Lisp, CLISP, bytecode, Virtual Machine">
+</HEAD>
+
+<BODY>
+<H1 ALIGN=CENTER>The CLISP bytecode specification</H1>
+
+The CLISP compiler compiles Lisp programs into an instruction code for
+a virtual processor. This bytecode is optimized for saving space in the
+most common cases of Lisp programs. The main advantages/drawbacks of this
+approach, compared to native code compilation, are:
+<P>
+<UL>
+  <LI>Bytecode compiled programs are a lot smaller than when compiled to
+      native code. This results in better use of CPU caches, and in less
+      virtual memory paging. Users perceive this as good responsiveness.
+  <LI>Maximum execution speed (throughput in tight loops) is limited.
+  <LI>Since no bytecode instructions are provided for "unsafe" operations
+      (like unchecked array accesses, or "fast"
+      <CODE>car</CODE>/<CODE>cdr</CODE>), programs run with all safety checks
+      enabled even when compiled.
+  <LI>Execution speed of a program can easily be understood by looking at
+      the output of the <CODE>disassemble</CODE> function. A rule of thumb
+      is that every elementary instruction costs 1 time unit, whereas a
+      function call costs 3 to 4 time units.
+  <LI>Needing to do no type inference, the compiler is pretty straightforward
+      and fast. As a consequence, the definition of CLOS generic functions,
+      which needs to compile small pieces of generated code, is not perceived
+      to be slow.
+  <LI>The compiler is independent from the hardware CPU. Different backends,
+      one for each hardware CPU, are not needed. As a consequence, the compiler
+      is fairly small (and would be easily maintainable if written in a less
+      kludgy way...), and it is impossible for the compiler writer
+      to introduce CPU dependent bugs.
+</UL>
+
+<H2>The virtual machine</H2>
+
+The bytecode can be thought as being interpreted by a virtual processor.
+The engine which actually interprets the bytecode (the "implementation of
+the virtual machine") is actually a C function, but it could as well be
+a just-in-time compiler which translates a function's bytecode into hardware
+CPU instructions the first time said function is called.
+<P>
+The virtual machine is a stack machine with two stacks:
+<UL>
+  <LI>STACK, a stack for Lisp objects and frames.
+  <LI>SP, a stack for other data and pointers.
+</UL>
+This two-stack architecture permits to save an unlimited number of Lisp
+objects on the STACK (needed for handling of Common Lisp multiple values),
+without consing. Also, in a world with a compacting no-ambiguous-roots
+garbage collector, STACK must only hold Lisp objects, and SP can hold all
+the other data belonging to a frame, which would not fit into STACK without
+tagging/untagging overhead.
+<P>
+The scope of STACK and SP is only valid for a given function invocation.
+Whereas the amount of STACK space needed for executing a function
+(excluding other function calls) is unlimited, the amount of SP space needed
+is known a priori, at compile time. When a function is called, no relation
+is specified between the caller's STACK and the callee's STACK, and between
+the caller's SP and the callee's SP. The bytecode is designed so that
+outgoing arguments on the caller's STACK can be shared by the caller's
+incoming arguments area (on the callee's STACK), but a virtual machine
+implementation may also copy outgoing arguments to incoming arguments
+instead of sharing them.
+<P>
+The virtual machine has a special data structure, <CODE>values</CODE>,
+containing the "top of stack", specially adapted to Common Lisp multiple values:
+<UL>
+  <LI><CODE>mv_count</CODE>, an unsigned integer.
+  <LI><CODE>value1</CODE>, the first value, a Lisp object.
+      If <CODE>mv_count</CODE> = 0, this is <CODE>nil</CODE>.
+  <LI><CODE>mv_space</CODE>, all values except the first one,
+      an array of Lisp objects.
+</UL>
+The contents of <CODE>values</CODE> is short-lived. It does not survive
+a function call, not even a garbage collection.
+<P>
+The interpretation of some bytecode instructions depends on a constant,
+jmpbufsize. This is a CPU dependent number, the value of
+<CODE>system::*jmpbuf-size*</CODE>. In C, it is defined as
+<CODE>ceiling(sizeof(jmp_buf),sizeof(void*))</CODE>.
+
+<H2>The structure of compiled functions</H2>
+
+A compiled function consists of two objects: The function itself,
+containing the references to all Lisp objects needed for the bytecode,
+and a byte vector containing only immediate data, including the
+bytecode proper.
+<P>
+Typically, the byte vector is about twice as large as the function vector.
+The separation thus helps the garbage collector (since the byte vector
+does not need to be scanned for pointers).
+<P>
+The function looks like this (cf. the C type <CODE>Cclosure</CODE>):
+<DL>
+  <DT><VAR>name</VAR></DT>
+  <DD>This is the name of the function, normally a symbol or a
+      list of the form <CODE>(setf <VAR>symbol</VAR>)</CODE>. It is
+      used for printing the function and for error messages. This field
+      is immutable.
+  </DD>
+  <DT><VAR>codevec</VAR></DT>
+  <DD>This is the byte vector. It is a <CODE>simple-bit-vector</CODE> (because
+      that's the simplest type in CLISP which contains immediate data -- note
+      that <CODE>(simple-vector (unsigned-byte 8))</CODE> is more complex
+      than this). This field is immutable.
+  </DD>
+  <DT><VAR>consts</VAR>[]</DT>
+  <DD>The remaining fields in the function object are references to other
+      Lisp objects. These references are immutable, which is why they are
+      called "constants". (The referenced Lisp objects can be mutable
+      objects, such as conses or vectors, however.)
+  </DD>
+</DL>
+There is actually one exception to the immutability rule: When a generic
+function's dispatch code is installed, the <VAR>codevec</VAR> and
+<VAR>consts</VAR> fields are destructively modified.
+<P>
+Some of the <VAR>consts</VAR> can play special roles. A function's looks
+like this, in more detail:
+<DL>
+  <DT><VAR>name</VAR></DT>
+  <DD>see above</DD>
+  <DT><VAR>codevec</VAR></DT>
+  <DD>see above</DD>
+  <DT><VAR>venv-const</VAR>*</DT>
+  <DD>At most one object, representing the closed-up variables,
+      representing the variables of the lexical environment in which this
+      function was defined. It is a simple-vector, looking like this:
+      <CODE>#(<VAR>next</VAR> <VAR>value<SUB>1</SUB></VAR> ... <VAR>value<SUB>n</SUB></VAR>)</CODE>
+      where <VAR>value<SUB>1</SUB></VAR>, ..., <VAR>value<SUB>n</SUB></VAR>
+      are the values of the closed-up variables, and <VAR>next</VAR> is
+      either <CODE>nil</CODE> or a simple-vector having the same structure.
+  </DD>
+  <DT><VAR>block-const</VAR>*</DT>
+  <DD>Objects representing closed-up <CODE>block</CODE> tags,
+      representing the <CODE>block</CODE> tags of the lexical environment
+      in which this function was defined. Each is a cons containing in the
+      cdr part: either a frame pointer to the block frame, or
+      <CODE>#&lt;DISABLED&gt;</CODE> if the block has already been left.
+      The car is the block's name, only for error message purposes.
+  </DD>
+  <DT><VAR>tagbody-const</VAR>*</DT>
+  <DD>Objects representing closed-up <CODE>tagbody</CODE> tags,
+      representing the <CODE>tagbody</CODE> tags of the lexical environment
+      in which this function was defined. Each is a cons containing in the
+      cdr part: either a frame pointer to the tagbody frame, or
+      <CODE>#&lt;DISABLED&gt;</CODE> if the tagbody has already been left.
+      The car is a simple-vector containing the names of the
+      <CODE>tagbody</CODE> tags, only for error message purposes.
+  </DD>
+  <DT><VAR>keyword-const</VAR>*</DT>
+  <DD>If the function was defined with a lambda list containing
+      <CODE>&amp;key</CODE>, here come the symbols ("keywords"), in their
+      correct order. They are used by the interpreter during function call.
+  </DD>
+  <DT><VAR>other-const</VAR>*</DT>
+  <DD>Other objects needed by the function's bytecode.
+  </DD>
+</DL>
+<P>
+If <VAR>venv-const</VAR>, <VAR>block-const</VAR>, <VAR>tagbody-const</VAR>
+are all absent, the function is called <EM>autonomous</EM>. This is the case
+if the function does not refer to lexical variables, blocks or tags defined
+in compile code outside of the function. In particular, it is the case
+if the function is defined in a null lexical environment.
+<P>
+If some <VAR>venv-const</VAR>, <VAR>block-const</VAR>, or
+<VAR>tagbody-const</VAR> are present, the function (a "closure")
+is created at runtime. The compiler only generates a prototype, containing
+<CODE>nil</CODE> values instead of each <VAR>venv-const</VAR>,
+<VAR>block-const</VAR>, <VAR>tagbody-const</VAR>. At runtime, a function
+is created by copying this prototype and replacing the <CODE>nil</CODE> values
+by the definitive ones.
+<P>
+The list <CODE>(<VAR>keyword-const</VAR>* <VAR>other-const</VAR>*)</CODE>
+normally doesn't contain duplicates, because the compiler removes duplicates
+when possible. (Duplicates can occur nevertheless, through the use of
+<CODE>load-time-value</CODE>.)
+<P>
+The <VAR>codevec</VAR> looks like this (cf. C type <CODE>Codevec</CODE>):
+<DL>
+  <DT><VAR>spdepth_1</VAR> (2 bytes)</DT>
+  <DD>The 1 part of the maximal SP depth.</DD>
+  <DT><VAR>spdepth_jmpbufsize</VAR> (2 bytes)</DT>
+  <DD>The jmpbufsize part of the maximal SP depth.
+      The maximal SP depth (precomputed by the compiler) is given by
+      <VAR>spdepth_1</VAR> + <VAR>spdepth_jmpbufsize</VAR> * jmpbufsize.
+  </DD>
+  <DT><VAR>numreq</VAR> (2 bytes)</DT>
+  <DD>Number of required parameters.</DD>
+  <DT><VAR>numopt</VAR> (2 bytes)</DT>
+  <DD>Number of optional parameters.</DD>
+  <DT><VAR>flags</VAR> (1 byte)</DT>
+  <DD>
+      <DL>
+        <DT>bit 0</DT><DD>set if the function has an <CODE>&amp;rest</CODE>
+                          parameter</DD>
+        <DT>bit 7</DT><DD>set if the function has <CODE>&amp;key</CODE>
+                          parameters</DD>
+        <DT>bit 6</DT><DD>set if the function has
+                          <CODE>&amp;allow-other-keys</CODE></DD>
+        <DT>bit 4</DT><DD>set if the function is a generic function</DD>
+        <DT>bit 3</DT><DD>set if the function is a generic function and its
+                          effective method shall be returned (instead of being
+                          executed)</DD>
+      </DL>
+  </DD>
+  <DT><VAR>signature</VAR> (1 byte)</DT>
+  <DD>An abbreviation code depending on <VAR>numreq</VAR>, <VAR>numopt</VAR>,
+      <VAR>flags</VAR>. It is used for speeding up the function call.
+  </DD>
+  <DT><VAR>numkey</VAR> (2 bytes, only if the function has <CODE>&amp;key</CODE>)</DT>
+  <DD>The number of <CODE>&amp;key</CODE> parameters.</DD>
+  <DT><VAR>keyconsts</VAR> (2 bytes, only if the function has <CODE>&amp;key</CODE>)</DT>
+  <DD>The offset of the <VAR>keyword-const</VAR> in the function.</DD>
+  <DT><VAR>byte</VAR>* (any number of bytes)</DT>
+  <DD>The bytecode instructions.</DD>
+</DL>
+
+<H2>The general structure of the instructions</H2>
+
+All instructions consist of one byte, denoting the opcode, and some number
+of operands.
+<P>
+The conversion from a byte (in the range 0..255) to the opcode is performed
+by lookup in the table contained in the file <CODE>bytecode.d</CODE>.
+<P>
+There are the following types of operands, denoted by different letters:
+<DL>
+  <DT><VAR>k</VAR>, <VAR>n</VAR>, <VAR>m</VAR>, <VAR>l</VAR></DT>
+  <DD>A (nonnegative) numeric operand. The next byte is read. If its bit 7
+      is zero, then the bits 6..0 give the value (7 bits). If its bit 7 is
+      one, then the bits 6..0 and the subsequent byte together form the value
+      (15 bits).
+  </DD>
+  <DT><VAR>b</VAR></DT>
+  <DD>A (nonnegative) 1-byte operand. The next byte is read and is the value.
+  </DD>
+  <DT><VAR>label</VAR></DT>
+  <DD>A label operand. A signed numeric operand is read: The next byte is read.
+      If its bit 7 is zero, then the bits 6..0 give the value (7 bits,
+      sign-extended). If its bit 7 is one, then the bits 6..0 and the
+      subsequent byte together form the value (15 bits, sign-extended).
+      If the latter 15-bit result is zero, then four more bytes are read
+      and put together (32 bits, sign-extended). Finally, the bytecode pointer
+      for the target is computed as the current bytecode pointer (pointing
+      after the operand just read), plus the signed numeric operand.
+  </DD>
+</DL>
+
+<H2>The instruction set</H2>
+
+<H3>1. Instructions for constants</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(NIL)</CODE>
+       <TD VALIGN=TOP>Load <CODE>nil</CODE> into values.
+       <TD VALIGN=TOP>value1 := <CODE>nil</CODE>, mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(PUSH-NIL <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Push <VAR>n</VAR> <CODE>nil</CODE>s into the STACK.
+       <TD VALIGN=TOP><VAR>n</VAR> times do: *--STACK := <CODE>nil</CODE>,<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(T)</CODE>
+       <TD VALIGN=TOP>Load <CODE>t</CODE> into values.
+       <TD VALIGN=TOP>value1 := <CODE>t</CODE>, mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(CONST <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Load the function's <VAR>n</VAR>th constant into values.
+       <TD VALIGN=TOP>value1 := <VAR>consts</VAR>[<VAR>n</VAR>], mv_count := 1
+</TABLE>
+
+<H3>2. Instructions for lexical variables</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(LOAD <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Load a directly accessible local variable into values.
+       <TD VALIGN=TOP>value1 := *(STACK+<VAR>n</VAR>), mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(LOADI <VAR>k<SUB>1</SUB></VAR> <VAR>k<SUB>2</SUB></VAR> <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Load an indirectly accessible local variable into values.
+       <TD VALIGN=TOP><VAR>k</VAR> := <VAR>k<SUB>1</SUB></VAR> + jmpbufsize * <VAR>k<SUB>2</SUB></VAR>,<BR>
+                      value1 := *(*(SP+<VAR>k</VAR>)+<VAR>n</VAR>),
+                      mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(LOADC <VAR>n</VAR> <VAR>m</VAR>)</CODE>
+       <TD VALIGN=TOP>Load a closed-up variable, defined in the same function and directly accessible, into values.
+       <TD VALIGN=TOP>value1 := svref(*(STACK+<VAR>n</VAR>),1+m), mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(LOADV <VAR>k</VAR> <VAR>m</VAR>)</CODE>
+       <TD VALIGN=TOP>Load a closed-up variable, defined in an outer function, into values.
+       <TD VALIGN=TOP><VAR>vector</VAR> := <VAR>venv-const</VAR>,<BR>
+                      <VAR>m</VAR> times do: <VAR>vector</VAR> := svref(<VAR>vector</VAR>,0),<BR>
+                      value1 := svref(<VAR>vector</VAR>,m), mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(LOADIC <VAR>k<SUB>1</SUB></VAR> <VAR>k<SUB>2</SUB></VAR> <VAR>n</VAR> <VAR>m</VAR>)</CODE>
+       <TD VALIGN=TOP>Load a closed-up variable, defined in the same function and indirectly accessible, into values.
+       <TD VALIGN=TOP><VAR>k</VAR> := <VAR>k<SUB>1</SUB></VAR> + jmpbufsize * <VAR>k<SUB>2</SUB></VAR>,<BR>
+                      value1 := svref(*(*(SP+<VAR>k</VAR>)+<VAR>n</VAR>),1+m),
+                      mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(STORE <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Store values into a directly accessible local variable.
+       <TD VALIGN=TOP>*(STACK+<VAR>n</VAR>) := value1, mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(STOREI <VAR>k<SUB>1</SUB></VAR> <VAR>k<SUB>2</SUB></VAR> <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Store values into an indirectly accessible local variable.
+       <TD VALIGN=TOP><VAR>k</VAR> := <VAR>k<SUB>1</SUB></VAR> + jmpbufsize * <VAR>k<SUB>2</SUB></VAR>,<BR>
+                      *(*(SP+<VAR>k</VAR>)+<VAR>n</VAR>) := value1,
+                      mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(STOREC <VAR>n</VAR> <VAR>m</VAR>)</CODE>
+       <TD VALIGN=TOP>Store values into a closed-up variable, defined in the same function and directly accessible.
+       <TD VALIGN=TOP>svref(*(STACK+<VAR>n</VAR>),1+m) := value1, mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(STOREV <VAR>k</VAR> <VAR>m</VAR>)</CODE>
+       <TD VALIGN=TOP>Store values into a closed-up variable, defined in an outer function.
+       <TD VALIGN=TOP><VAR>vector</VAR> := <VAR>venv-const</VAR>,<BR>
+                      <VAR>m</VAR> times do: <VAR>vector</VAR> := svref(<VAR>vector</VAR>,0),<BR>
+                      svref(<VAR>vector</VAR>,m) := value1, mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(STOREIC <VAR>k<SUB>1</SUB></VAR> <VAR>k<SUB>2</SUB></VAR> <VAR>n</VAR> <VAR>m</VAR>)</CODE>
+       <TD VALIGN=TOP>Store values into a closed-up variable, defined in the same function and indirectly accessible.
+       <TD VALIGN=TOP><VAR>k</VAR> := <VAR>k<SUB>1</SUB></VAR> + jmpbufsize * <VAR>k<SUB>2</SUB></VAR>,<BR>
+                      svref(*(*(SP+<VAR>k</VAR>)+<VAR>n</VAR>),1+m) := value1,
+                      mv_count := 1
+</TABLE>
+
+<H3>3. Instructions for dynamic variables</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(GETVALUE <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Load a symbol's value into values.
+       <TD VALIGN=TOP>value1 := symbol-value(<VAR>consts</VAR>[<VAR>n</VAR>]), mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(SETVALUE <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Store values into a symbol's value.
+       <TD VALIGN=TOP>symbol-value(<VAR>consts</VAR>[<VAR>n</VAR>]) := value1, mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(BIND <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Bind a symbol dynamically.
+       <TD VALIGN=TOP>Bind the value of the symbol <VAR>consts</VAR>[<VAR>n</VAR>] to value1,<BR>
+                      implicitly STACK -= 3,<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(UNBIND1)</CODE>
+       <TD VALIGN=TOP>Dissolve one binding frame.
+       <TD VALIGN=TOP>Unbind the binding frame STACK is pointing to,
+                      implicitly STACK += 1+2*<VAR>x</VAR>
+  <TR> <TD VALIGN=TOP><CODE>(UNBIND <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Dissolve <VAR>n</VAR> binding frames.
+       <TD VALIGN=TOP><VAR>n</VAR> times do: Unbind the binding frame STACK is pointing to, thereby incrementing STACK
+  <TR> <TD VALIGN=TOP><CODE>(PROGV)</CODE>
+       <TD VALIGN=TOP>Bind a set of symbols dynamically to a set of values.
+       <TD VALIGN=TOP><VAR>symbols</VAR> := *STACK++,<BR>
+                      *--SP := STACK,<BR>
+                      build a single binding frame binding the symbols in
+                      <VAR>symbols</VAR> to the values in <VAR>value1</VAR>,<BR>
+                      values undefined
+</TABLE>
+
+<H3>4. Instructions for stack operations</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(PUSH)</CODE>
+       <TD VALIGN=TOP>Push one object onto the STACK.
+       <TD VALIGN=TOP>*--STACK := value1,<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(POP)</CODE>
+       <TD VALIGN=TOP>Pop one object from the STACK, into values.
+       <TD VALIGN=TOP>value1 := *STACK++, mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(SKIP <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Restore a previous STACK pointer. Remove <VAR>n</VAR> objects from the STACK.
+       <TD VALIGN=TOP>STACK := STACK + <VAR>n</VAR>
+  <TR> <TD VALIGN=TOP><CODE>(SKIPI <VAR>k<SUB>1</SUB></VAR> <VAR>k<SUB>2</SUB></VAR> <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Restore a previous STACK pointer. Remove an unknown number of objects from the STACK.
+       <TD VALIGN=TOP><VAR>k</VAR> := <VAR>k<SUB>1</SUB></VAR> + jmpbufsize * <VAR>k<SUB>2</SUB></VAR>,<BR>
+                      STACK := *(SP+<VAR>k</VAR>),<BR>
+                      SP := SP+<VAR>k</VAR>+1
+  <TR> <TD VALIGN=TOP><CODE>(SKIPSP <VAR>k<SUB>1</SUB></VAR> <VAR>k<SUB>2</SUB></VAR>)</CODE>
+       <TD VALIGN=TOP>Restore a previous SP pointer.
+       <TD VALIGN=TOP><VAR>k</VAR> := <VAR>k<SUB>1</SUB></VAR> + jmpbufsize * <VAR>k<SUB>2</SUB></VAR>,<BR>
+                      SP := SP+<VAR>k</VAR>
+</TABLE>
+
+<H3>5. Instructions for control flow, jumps</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(SKIP&amp;RET <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Clean up the STACK, and return from the function.
+       <TD VALIGN=TOP>STACK := STACK+<VAR>n</VAR>,<BR>
+                      return from the function, returning values.
+  <TR> <TD VALIGN=TOP><CODE>(SKIP&amp;RETGF <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Clean up the STACK, and return from the generic function.
+       <TD VALIGN=TOP>If bit 3 is set in the function's <VAR>flags</VAR>,
+                      then STACK := STACK+<VAR>n</VAR>, mv_count := 1, and
+                      return from the function. Otherwise: if the current
+                      function has no <CODE>&amp;rest</CODE> argument, then
+                      STACK := STACK+<VAR>n</VAR>-<VAR>numreq</VAR>, apply
+                      value1 to the <VAR>numreq</VAR> arguments still on the
+                      STACK, and return from the function. Else
+                      STACK := STACK+<VAR>n</VAR>-<VAR>numreq</VAR>-1, apply
+                      value1 to the <VAR>numreq</VAR> arguments and the
+                      <CODE>&amp;rest</CODE> argument, all still on the STACK,
+                      and return from the function.
+  <TR> <TD VALIGN=TOP><CODE>(JMP <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump to <VAR>label</VAR>.
+       <TD VALIGN=TOP>PC := <VAR>label</VAR>.
+  <TR> <TD VALIGN=TOP><CODE>(JMPIF <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump to <VAR>label</VAR>, if value1 is true.
+       <TD VALIGN=TOP>If value1 is not <CODE>nil</CODE>, PC := <VAR>label</VAR>.
+  <TR> <TD VALIGN=TOP><CODE>(JMPIFNOT <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump to <VAR>label</VAR>, if value1 is false.
+       <TD VALIGN=TOP>If value1 is <CODE>nil</CODE>, PC := <VAR>label</VAR>.
+  <TR> <TD VALIGN=TOP><CODE>(JMPIF1 <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump to <VAR>label</VAR> and forget secondary values, if value1 is true.
+       <TD VALIGN=TOP>If value1 is not <CODE>nil</CODE>, mv_count := 1, PC := <VAR>label</VAR>.
+  <TR> <TD VALIGN=TOP><CODE>(JMPIFNOT1 <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump to <VAR>label</VAR> and forget secondary values, if value1 is false.
+       <TD VALIGN=TOP>If value1 is <CODE>nil</CODE>, mv_count := 1, PC := <VAR>label</VAR>.
+  <TR> <TD VALIGN=TOP><CODE>(JMPIFATOM <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump to <VAR>label</VAR>, if value1 is not a cons.
+       <TD VALIGN=TOP>If value1 is not a cons, PC := <VAR>label</VAR>.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(JMPIFCONSP <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump to <VAR>label</VAR>, if value1 is a cons.
+       <TD VALIGN=TOP>If value1 is a cons, PC := <VAR>label</VAR>.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(JMPIFEQ <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump to <VAR>label</VAR>, if value1 is <CODE>eq</CODE>
+                      to the top-of-stack.
+       <TD VALIGN=TOP>If eq(value1,*STACK++), PC := <VAR>label</VAR>.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(JMPIFNOTEQ <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump to <VAR>label</VAR>, if value1 is not <CODE>eq</CODE>
+                      to the top-of-stack.
+       <TD VALIGN=TOP>If not eq(value1,*STACK++), PC := <VAR>label</VAR>.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(JMPIFEQTO <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump to <VAR>label</VAR>, if the top-of-stack is <CODE>eq</CODE>
+                      to a constant.
+       <TD VALIGN=TOP>If eq(*STACK++,<VAR>consts</VAR>[<VAR>n</VAR>]),
+                      PC := <VAR>label</VAR>.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(JMPIFNOTEQTO <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump to <VAR>label</VAR>, if the top-of-stack is not <CODE>eq</CODE>
+                      to a constant.
+       <TD VALIGN=TOP>If not eq(*STACK++,<VAR>consts</VAR>[<VAR>n</VAR>]),
+                      PC := <VAR>label</VAR>.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(JMPHASH <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Table-driven jump, depending on value1.
+       <TD VALIGN=TOP>Lookup value1 in the hash table <VAR>consts</VAR>[<VAR>n</VAR>].
+                      (The hash table's test is either EQ or EQL.)
+                      If found, the hash table value is a signed fixnum, jump
+                      to it: PC := PC + value. Else jump to <VAR>label</VAR>.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(JMPHASHV <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Table-driven jump, depending on value1, inside a generic function.
+       <TD VALIGN=TOP>Lookup value1 in the hash table svref(<VAR>consts</VAR>[0],<VAR>n</VAR>).
+                      (The hash table's test is either EQ or EQL.)
+                      If found, the hash table value is a signed fixnum, jump
+                      to it: PC := PC + value. Else jump to <VAR>label</VAR>.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(JSR <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Subroutine call.
+       <TD VALIGN=TOP>*--STACK := function. Then start interpreting the
+                      bytecode at <VAR>label</VAR>, with values undefined.
+                      When a <CODE>(RET)</CODE> is encountered, program
+                      execution is resumed at the instruction after
+                      <CODE>(JSR <VAR>label</VAR>)</CODE>.
+  <TR> <TD VALIGN=TOP><CODE>(JMPTAIL <VAR>m</VAR> <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Tail subroutine call.
+       <TD VALIGN=TOP><VAR>n</VAR> &gt;= <VAR>m</VAR>. The STACK frame of size
+                      <VAR>n</VAR> is reduced to size <VAR>m</VAR>:
+                      {*(STACK+<VAR>n</VAR>-<VAR>m</VAR>), ..., *(STACK+<VAR>n</VAR>-1)} := {*STACK, ..., *(STACK+<VAR>m</VAR>-1)}.<BR>
+                      STACK += n-m.<BR>
+                      *--STACK := function.
+                      Then jump to <VAR>label</VAR>, with values undefined.
+</TABLE>
+
+<H3>6. Instructions for lexical environment, creation of closures</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(VENV)</CODE>
+       <TD VALIGN=TOP>Load the <VAR>venv-const</VAR> into values.
+       <TD VALIGN=TOP>value1 := <VAR>consts</VAR>[0], mv_count := 1.
+  <TR> <TD VALIGN=TOP><CODE>(MAKE-VECTOR1&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Create a simple-vector used for closed-up variables.
+       <TD VALIGN=TOP><VAR>vector</VAR> := new simple-vector of size <VAR>n</VAR>+1.<BR>
+                      svref(<VAR>vector</VAR>,0) := value1.<BR>
+                      *--STACK := <VAR>vector</VAR>.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(COPY-CLOSURE <VAR>m</VAR> <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Create a closure by copying the prototype and filling in
+                      the lexical environment.
+       <TD VALIGN=TOP><VAR>func</VAR> := copy-function(<VAR>consts</VAR>[<VAR>m</VAR>]).<BR>
+                      For <VAR>i</VAR>=0,..,<VAR>n</VAR>-1: <VAR>func_consts</VAR>[i] := *(STACK+<VAR>n</VAR>-1-<VAR>i</VAR>).<BR>
+                      STACK += <VAR>n</VAR>.<BR>
+                      value1 := <VAR>func</VAR>, mv_count := 1
+</TABLE>
+
+<H3>7. Instructions for function calls</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(CALL <VAR>k</VAR> <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Calls a constant function with <VAR>k</VAR> arguments.
+       <TD VALIGN=TOP>The function <VAR>consts</VAR>[<VAR>n</VAR>] is called
+                      with the arguments *(STACK+<VAR>k</VAR>-1), ..., *(STACK+0).<BR>
+                      STACK += <VAR>k</VAR>. The returned values go into values.
+  <TR> <TD VALIGN=TOP><CODE>(CALL0 <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Calls a constant function with 0 arguments.
+       <TD VALIGN=TOP>The function <VAR>consts</VAR>[<VAR>n</VAR>] is called
+                      with 0 arguments.<BR>
+                      The returned values go into values.
+  <TR> <TD VALIGN=TOP><CODE>(CALL1 <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Calls a constant function with 1 argument.
+       <TD VALIGN=TOP>The function <VAR>consts</VAR>[<VAR>n</VAR>] is called
+                      with one argument *STACK.<BR>
+                      STACK += 1. The returned values go into values.
+  <TR> <TD VALIGN=TOP><CODE>(CALL2 <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Calls a constant function with 2 arguments.
+       <TD VALIGN=TOP>The function <VAR>consts</VAR>[<VAR>n</VAR>] is called
+                      with two arguments *(STACK+1) and *(STACK+0).<BR>
+                      STACK += 2. The returned values go into values.
+  <TR> <TD VALIGN=TOP><CODE>(CALLS1 <VAR>b</VAR>)</CODE>
+       <TD VALIGN=TOP>Calls a system function with no <CODE>&amp;rest</CODE>.
+       <TD VALIGN=TOP>Calls the system function FUNTAB[<VAR>b</VAR>]. The
+                      right number of arguments is already on the STACK
+                      (including <CODE>#&lt;UNBOUND&gt;</CODE>s in place
+                      of absent <CODE>&amp;optional</CODE> or
+                      <CODE>&amp;key</CODE> parameters). The arguments are
+                      removed from the STACK. The returned values go into
+                      values.
+  <TR> <TD VALIGN=TOP><CODE>(CALLS2 <VAR>b</VAR>)</CODE>
+       <TD VALIGN=TOP>Calls a system function with no <CODE>&amp;rest</CODE>.
+       <TD VALIGN=TOP>Calls the system function FUNTAB[256+<VAR>b</VAR>]. The
+                      right number of arguments is already on the STACK
+                      (including <CODE>#&lt;UNBOUND&gt;</CODE>s in place
+                      of absent <CODE>&amp;optional</CODE> or
+                      <CODE>&amp;key</CODE> parameters). The arguments are
+                      removed from the STACK. The returned values go into
+                      values.
+  <TR> <TD VALIGN=TOP><CODE>(CALLSR <VAR>m</VAR> <VAR>b</VAR>)</CODE>
+       <TD VALIGN=TOP>Calls a system function with <CODE>&amp;rest</CODE>.
+       <TD VALIGN=TOP>Calls the system function FUNTABR[<VAR>b</VAR>].
+                      The minimum number of arguments is already on the STACK,
+                      and <VAR>m</VAR> additional arguments as well. The
+                      arguments are removed from the STACK. The returned values
+                      go into values.
+  <TR> <TD VALIGN=TOP><CODE>(CALLC)</CODE>
+       <TD VALIGN=TOP>Calls a computed compiled function with no <CODE>&amp;key</CODE>.
+       <TD VALIGN=TOP>Calls the compiled function value1. The right number of
+                      arguments is already on the STACK (including
+                      <CODE>#&lt;UNBOUND&gt;</CODE>s in place of absent
+                      <CODE>&amp;optional</CODE> parameters). The arguments are
+                      removed from the STACK. The returned values go into
+                      values.
+  <TR> <TD VALIGN=TOP><CODE>(CALLCKEY)</CODE>
+       <TD VALIGN=TOP>Calls a computed compiled function with <CODE>&amp;key</CODE>.
+       <TD VALIGN=TOP>Calls the compiled function value1. The right number of
+                      arguments is already on the STACK (including
+                      <CODE>#&lt;UNBOUND&gt;</CODE>s in place of absent
+                      <CODE>&amp;optional</CODE> or <CODE>&amp;key</CODE>
+                      parameters). The arguments are removed from the STACK.
+                      The returned values go into values.
+  <TR> <TD VALIGN=TOP><CODE>(FUNCALL <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Calls a computed function.
+       <TD VALIGN=TOP>Calls the function *(STACK+<VAR>n</VAR>)
+                      with the arguments *(STACK+<VAR>n</VAR>-1), ..., *(STACK+0).<BR>
+                      STACK += <VAR>n</VAR>+1. The returned values go into values.
+  <TR> <TD VALIGN=TOP><CODE>(APPLY <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Calls a computed function with an unknown number of arguments.
+       <TD VALIGN=TOP>Calls the function *(STACK+<VAR>n</VAR>)
+                      with the arguments *(STACK+<VAR>n</VAR>-1), ..., *(STACK+0)
+                      and a list of additional arguments value1.<BR>
+                      STACK += <VAR>n</VAR>+1. The returned values go into values.
+</TABLE>
+
+<H3>8. Instructions for optional and keyword parameters</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(PUSH-UNBOUND <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Push <VAR>n</VAR> <CODE>#&lt;UNBOUND&gt;</CODE>s into
+                      the STACK.
+       <TD VALIGN=TOP><VAR>n</VAR> times do: *--STACK := <CODE>#&lt;UNBOUND&gt;</CODE>.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(UNLIST <VAR>n</VAR> <VAR>m</VAR>)</CODE>
+       <TD VALIGN=TOP>Destructure a proper list.
+       <TD VALIGN=TOP>0 &lt;= <VAR>m</VAR> &lt;= <VAR>n</VAR>.<BR>
+                      <VAR>n</VAR> times do: *--STACK := car(value1),
+                      value1 := cdr(value1).<BR>
+                      During the last <VAR>m</VAR> iterations, the list value1
+                      may already have reached its end; in this case, *--STACK := <CODE>#&lt;UNBOUND&gt;</CODE>.<BR>
+                      At the end, value1 must be <CODE>nil</CODE>.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(UNLIST* <VAR>n</VAR> <VAR>m</VAR>)</CODE>
+       <TD VALIGN=TOP>Destructure a proper or dotted list.
+       <TD VALIGN=TOP>0 &lt;= <VAR>m</VAR> &lt;= <VAR>n</VAR>, <VAR>n</VAR> &gt; 0.<BR>
+                      <VAR>n</VAR> times do: *--STACK := car(value1),
+                      value1 := cdr(value1).<BR>
+                      During the last <VAR>m</VAR> iterations, the list value1
+                      may already have reached its end; in this case, *--STACK := <CODE>#&lt;UNBOUND&gt;</CODE>.<BR>
+                      At the end, after <VAR>n</VAR> cdrs, *--STACK := value1.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(JMPIFBOUNDP <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump to <VAR>label</VAR>, if a local variable is not unbound.
+       <TD VALIGN=TOP>If *(STACK+<VAR>n</VAR>) is not <CODE>#&lt;UNBOUND&gt;</CODE>,
+                      value1 := *(STACK+<VAR>n</VAR>), mv_count := 1, PC := <VAR>label</VAR>.
+                      Else: values undefined.
+  <TR> <TD VALIGN=TOP><CODE>(BOUNDP <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Load <CODE>t</CODE> or <CODE>nil</CODE> into values,
+                      depending on whether a local variables is not unbound.
+       <TD VALIGN=TOP>If *(STACK+<VAR>n</VAR>) is not <CODE>#&lt;UNBOUND&gt;</CODE>,
+                      value1 := <CODE>t</CODE>, mv_count := 1.
+                      Else: value1 := <CODE>nil</CODE>, mv_count := 1.
+  <TR> <TD VALIGN=TOP><CODE>(UNBOUND->NIL <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>If a local variable is unbound, assign a default value
+                      <CODE>nil</CODE> to it.
+       <TD VALIGN=TOP>If *(STACK+<VAR>n</VAR>) is <CODE>#&lt;UNBOUND&gt;</CODE>,
+                      *(STACK+<VAR>n</VAR>) := <CODE>nil</CODE>.
+</TABLE>
+
+<H3>9. Instructions for multiple values</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(VALUES0)</CODE>
+       <TD VALIGN=TOP>Load no values into values.
+       <TD VALIGN=TOP>value1 := <CODE>nil</CODE>, mv_count := 0
+  <TR> <TD VALIGN=TOP><CODE>(VALUES1)</CODE>
+       <TD VALIGN=TOP>Forget secondary values.
+       <TD VALIGN=TOP>mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(STACK-TO-MV <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Pop the first <VAR>n</VAR> objects from STACK into values.
+       <TD VALIGN=TOP>Load values(*(STACK+<VAR>n</VAR>-1),...,*(STACK+0)) into
+                      values. STACK += <VAR>n</VAR>.
+  <TR> <TD VALIGN=TOP><CODE>(MV-TO-STACK)</CODE>
+       <TD VALIGN=TOP>Save values on STACK.
+       <TD VALIGN=TOP>Push the mv_count values onto the STACK
+                      (in order: value1 comes first).
+                      STACK -= mv_count.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(NV-TO-STACK <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Save <VAR>n</VAR> values on STACK.
+       <TD VALIGN=TOP>Push the first <VAR>n</VAR> values onto the STACK
+                      (in order: value1 comes first).
+                      STACK -= <VAR>n</VAR>.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(MV-TO-LIST)</CODE>
+       <TD VALIGN=TOP>Convert multiple values into a list.
+       <TD VALIGN=TOP>value1 := list of values, mv_count := 1
+  <TR> <TD VALIGN=TOP><CODE>(LIST-TO-MV)</CODE>
+       <TD VALIGN=TOP>Convert a list into multiple values.
+       <TD VALIGN=TOP>Call the function <CODE>values-list</CODE> with value1
+                      as argument. The returned values go into values.
+  <TR> <TD VALIGN=TOP><CODE>(MVCALLP)</CODE>
+       <TD VALIGN=TOP>Start a multiple-value-call invocation.
+       <TD VALIGN=TOP>*--SP := STACK. *--STACK := value1.
+  <TR> <TD VALIGN=TOP><CODE>(MVCALL)</CODE>
+       <TD VALIGN=TOP>Finish a multiple-value-call invocation.
+       <TD VALIGN=TOP>newSTACK := *SP++.
+                      Call the function *(newSTACK-1), passing it
+                      *(newSTACK-2), ..., *(STACK+0) as arguments.
+                      STACK := newSTACK. The returned values go into values.
+</TABLE>
+
+<H3>10. Instructions for block and return-from</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(BLOCK-OPEN <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Create a block frame.
+       <TD VALIGN=TOP>Create a block frame, STACK -= 3, SP -= 2+jmpbufsize.
+                      The topmost (third) object in the block frame is
+                      cons(<VAR>consts</VAR>[<VAR>n</VAR>],frame-pointer).
+                      Upon a return-from to this frame, execution will
+                      continue at <VAR>label</VAR>.
+  <TR> <TD VALIGN=TOP><CODE>(BLOCK-CLOSE)</CODE>
+       <TD VALIGN=TOP>Dissolve a block frame.
+       <TD VALIGN=TOP>Dissolve the block frame at STACK, STACK += 3,
+                      SP += 2+jmpbufsize. Mark the block-cons as invalid.
+  <TR> <TD VALIGN=TOP><CODE>(RETURN-FROM <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Leave a block whose block-cons is given.
+       <TD VALIGN=TOP>block-cons := <VAR>consts</VAR>[<VAR>n</VAR>].
+                      If cdr(block-cons) = <CODE>#&lt;DISABLED&gt;</CODE>,
+                      signal an error. Else cdr(block-cons) is a frame-pointer.
+                      Unwind the stack up to this frame, pass it values.
+  <TR> <TD VALIGN=TOP><CODE>(RETURN-FROM-I <VAR>k<SUB>1</SUB></VAR> <VAR>k<SUB>2</SUB></VAR> <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Leave a block whose block-cons is indirectly accessible.
+       <TD VALIGN=TOP><VAR>k</VAR> := <VAR>k<SUB>1</SUB></VAR> + jmpbufsize * <VAR>k<SUB>2</SUB></VAR>,<BR>
+                      block-cons := *(*(SP+<VAR>k</VAR>)+<VAR>n</VAR>).
+                      If cdr(block-cons) = <CODE>#&lt;DISABLED&gt;</CODE>,
+                      signal an error. Else cdr(block-cons) is a frame-pointer.
+                      Unwind the stack up to this frame, pass it values.
+</TABLE>
+
+<H3>11. Instructions for tagbody and go</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(TAGBODY-OPEN <VAR>n</VAR> <VAR>label<SUB>1</SUB></VAR> ... <VAR>label<SUB>m</SUB></VAR>)</CODE>
+       <TD VALIGN=TOP>Create a tagbody frame.
+       <TD VALIGN=TOP>Fetch <VAR>consts</VAR>[<VAR>n</VAR>], this is a
+                      simple-vector with <VAR>m</VAR> elements, then decode
+                      <VAR>m</VAR> label operands. Create a tagbody frame,
+                      STACK -= 3+<VAR>m</VAR>, SP -= 1+jmpbufsize.
+                      The third object in the tagbody frame is
+                      cons(<VAR>consts</VAR>[<VAR>n</VAR>],frame-pointer).
+                      Upon a go to tag <VAR>l</VAR> of this frame, execution
+                      will continue at <VAR>label<SUB>l</SUB></VAR>.<BR>
+                      values undefined
+  <TR> <TD VALIGN=TOP><CODE>(TAGBODY-CLOSE-NIL)</CODE>
+       <TD VALIGN=TOP>Dissolve a tagbody frame,
+                      and load <CODE>nil</CODE> into values.
+       <TD VALIGN=TOP>Dissolve the tagbody frame at STACK,
+                      STACK += 3+<VAR>m</VAR>, SP += 1+jmpbufsize.
+                      Mark the tagbody-cons as invalid.<BR>
+                      value1 := <CODE>nil</CODE>, mv_count := 1.
+  <TR> <TD VALIGN=TOP><CODE>(TAGBODY-CLOSE)</CODE>
+       <TD VALIGN=TOP>Dissolve a tagbody frame.
+       <TD VALIGN=TOP>Dissolve the tagbody frame at STACK,
+                      STACK += 3+<VAR>m</VAR>, SP += 1+jmpbufsize.
+                      Mark the tagbody-cons as invalid.
+  <TR> <TD VALIGN=TOP><CODE>(GO <VAR>n</VAR> <VAR>l</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump into a tagbody whose tagbody-cons is given.
+       <TD VALIGN=TOP>tagbody-cons := <VAR>consts</VAR>[<VAR>n</VAR>].
+                      If cdr(tagbody-cons) = <CODE>#&lt;DISABLED&gt;</CODE>,
+                      signal an error. Else cdr(tagbody-cons) is a
+                      frame-pointer. Unwind the stack up to this frame, pass it
+                      the number <VAR>l</VAR>.
+  <TR> <TD VALIGN=TOP><CODE>(GO-I <VAR>k<SUB>1</SUB></VAR> <VAR>k<SUB>2</SUB></VAR> <VAR>n</VAR> <VAR>l</VAR>)</CODE>
+       <TD VALIGN=TOP>Jump into a tagbody whose tagbody-cons is indirectly accessible.
+       <TD VALIGN=TOP><VAR>k</VAR> := <VAR>k<SUB>1</SUB></VAR> + jmpbufsize * <VAR>k<SUB>2</SUB></VAR>,<BR>
+                      tagbody-cons := *(*(SP+<VAR>k</VAR>)+<VAR>n</VAR>).
+                      If cdr(tagbody-cons) = <CODE>#&lt;DISABLED&gt;</CODE>,
+                      signal an error. Else cdr(tagbody-cons) is a
+                      frame-pointer. Unwind the stack up to this frame, pass it
+                      the number <VAR>l</VAR>.
+</TABLE>
+
+<H3>12. Instructions for catch and throw</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(CATCH-OPEN <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Create a catch frame.
+       <TD VALIGN=TOP>Create a catch frame, with value1 as tag.
+                      STACK -= 3, SP -= 2+jmpbufsize.
+                      Upon a throw to this tag execution continues at
+                      <VAR>label</VAR>.
+  <TR> <TD VALIGN=TOP><CODE>(CATCH-CLOSE)</CODE>
+       <TD VALIGN=TOP>Dissolve a catch frame.
+       <TD VALIGN=TOP>Dissolve the catch frame at STACK.
+                      STACK += 3, SP += 2+jmpbufsize.
+  <TR> <TD VALIGN=TOP><CODE>(THROW)</CODE>
+       <TD VALIGN=TOP>Non-local exit to a catch frame.
+       <TD VALIGN=TOP><VAR>tag</VAR> := *STACK++. Search the innermost catch
+                      frame with tag <VAR>tag</VAR> on the STACK, unwind the
+                      stack up to it, pass it values.
+</TABLE>
+
+<H3>13. Instructions for unwind-protect</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(UNWIND-PROTECT-OPEN <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP>Create an unwind-protect frame.
+       <TD VALIGN=TOP>Create an unwind-protect frame.
+                      STACK -= 2, SP -= 2+jmpbufsize.
+                      When the stack will be unwound by a non-local exit,
+                      values will be saved on STACK, and execution will be
+                      transferred to <VAR>label</VAR>.
+  <TR> <TD VALIGN=TOP><CODE>(UNWIND-PROTECT-NORMAL-EXIT)</CODE>
+       <TD VALIGN=TOP>Dissolve an unwind-protect frame, and start the cleanup code.
+       <TD VALIGN=TOP>Dissolve the unwind-protect frame at STACK.
+                      STACK += 2, SP += 2+jmpbufsize.
+                      *--SP := 0, *--SP := 0, *--SP := STACK.
+                      Save the values on the STACK, STACK -= mv_count.
+  <TR> <TD VALIGN=TOP><CODE>(UNWIND-PROTECT-CLOSE)</CODE>
+       <TD VALIGN=TOP>Terminate the cleanup code.
+       <TD VALIGN=TOP>newSTACK := *SP++. Load
+                      values(*(newSTACK-1), ..., *(STACK+0)) into values.
+                      STACK := newSTACK. SPword1 := *SP++, SPword2 := *SP++.
+                      Continue depending on SPword1 and SPword2. If both are 0,
+                      simply continue execution. If SPword2 is 0 but SPword1 is
+                      nonzero, interpret it as a label and jump to it.
+  <TR> <TD VALIGN=TOP><CODE>(UNWIND-PROTECT-CLEANUP)</CODE>
+       <TD VALIGN=TOP>Dissolve an unwind-protect frame, and execute the cleanup code like a subroutine call.
+       <TD VALIGN=TOP>Dissolve the unwind-protect frame at STACK, get
+                      <VAR>label</VAR> out of the frame.
+                      STACK += 2, SP += 2+jmpbufsize.
+                      *--SP := 0, *--SP := PC, *--SP := STACK.
+                      Save the values on the STACK, STACK -= mv_count.
+                      PC := <VAR>label</VAR>.
+</TABLE>
+
+<H3>14. Instructions for handler-bind</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(HANDLER-OPEN <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Create a handler frame.
+       <TD VALIGN=TOP>Create a handler frame, using
+                      <VAR>consts</VAR>[<VAR>n</VAR>] which contains the
+                      condition types, the corresponding labels and the
+                      current SP depth (= function entry SP - current SP).
+  <TR> <TD VALIGN=TOP><CODE>(HANDLER-BEGIN&amp;PUSH)</CODE>
+       <TD VALIGN=TOP>Start a handler.
+       <TD VALIGN=TOP>Restore the same SP state as after the HANDLER-OPEN.
+                      value1 := the condition that was passed to the handler,
+                      mv_count := 1.<BR>
+                      *--STACK := value1.
+</TABLE>
+
+<H3>15. Instructions for some inlined functions</H3>
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>description <TH>semantics
+  <TR> <TD VALIGN=TOP><CODE>(NOT)</CODE>
+       <TD VALIGN=TOP>Inlined call to NOT.
+       <TD VALIGN=TOP>value1 := not(value1), mv_count := 1.
+  <TR> <TD VALIGN=TOP><CODE>(EQ)</CODE>
+       <TD VALIGN=TOP>Inlined call to EQ.
+       <TD VALIGN=TOP>value1 := eq(*STACK++,value1), mv_count := 1.
+  <TR> <TD VALIGN=TOP><CODE>(CAR)</CODE>
+       <TD VALIGN=TOP>Inlined call to CAR.
+       <TD VALIGN=TOP>value1 := car(value1), mv_count := 1.
+  <TR> <TD VALIGN=TOP><CODE>(CDR)</CODE>
+       <TD VALIGN=TOP>Inlined call to CDR.
+       <TD VALIGN=TOP>value1 := cdr(value1), mv_count := 1.
+  <TR> <TD VALIGN=TOP><CODE>(CONS)</CODE>
+       <TD VALIGN=TOP>Inlined call to CONS.
+       <TD VALIGN=TOP>value1 := cons(*STACK++,value1), mv_count := 1.
+  <TR> <TD VALIGN=TOP><CODE>(SYMBOL-FUNCTION)</CODE>
+       <TD VALIGN=TOP>Inlined call to SYMBOL-FUNCTION.
+       <TD VALIGN=TOP>value1 := symbol-function(value1), mv_count := 1.
+  <TR> <TD VALIGN=TOP><CODE>(SVREF)</CODE>
+       <TD VALIGN=TOP>Inlined call to SVREF.
+       <TD VALIGN=TOP>value1 := svref(*STACK++,value1), mv_count := 1.
+  <TR> <TD VALIGN=TOP><CODE>(SVSET)</CODE>
+       <TD VALIGN=TOP>Inlined call to SYSTEM::SVSTORE.
+       <TD VALIGN=TOP><VAR>arg1</VAR> := *(STACK+1), <VAR>arg2</VAR> := *(STACK+0), STACK += 2.<BR>
+                      svref(<VAR>arg2</VAR>,value1) := <VAR>arg1</VAR>.<BR>
+                      value1 := <VAR>arg1</VAR>, mv_count := 1.
+  <TR> <TD VALIGN=TOP><CODE>(LIST <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Inlined call to LIST.
+       <TD VALIGN=TOP>value1 := list(*(STACK+<VAR>n</VAR>-1),...,*(STACK+0)), mv_count := 1, STACK += <VAR>n</VAR>.
+  <TR> <TD VALIGN=TOP><CODE>(LIST* <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>Inlined call to LIST*.
+       <TD VALIGN=TOP>value1 := list*(*(STACK+<VAR>n</VAR>-1),...,*(STACK+0),value1), mv_count := 1, STACK += <VAR>n</VAR>.
+</TABLE>
+
+<H3>16. Combined instructions</H3>
+
+The most frequent short sequences of instructions have an equivalent combined
+instruction. They are only present for space and speed optimization. The only
+exception is <CODE>FUNCALL&amp;SKIP&amp;RETGF</CODE>, whose existence is needed
+for generic functions.
+<P>
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>equivalent
+  <TR> <TD VALIGN=TOP><CODE>(NIL&amp;PUSH)</CODE>
+       <TD VALIGN=TOP><CODE>(NIL) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(T&amp;PUSH)</CODE>
+       <TD VALIGN=TOP><CODE>(T) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CONST&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CONST <VAR>n</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOAD <VAR>n</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOADI&amp;PUSH <VAR>k<SUB>1</SUB></VAR> <VAR>k<SUB>2</SUB></VAR> <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOADI <VAR>k<SUB>1</SUB></VAR> <VAR>k<SUB>2</SUB></VAR> <VAR>n</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOADC&amp;PUSH <VAR>n</VAR> <VAR>m</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOADC <VAR>n</VAR> <VAR>m</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOADV&amp;PUSH <VAR>k</VAR> <VAR>m</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOADV <VAR>k</VAR> <VAR>m</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(POP&amp;STORE <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(POP) (STORE <VAR>n</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(GETVALUE&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(GETVALUE <VAR>n</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(JSR&amp;PUSH <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(JSR <VAR>label</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(COPY-CLOSURE&amp;PUSH <VAR>m</VAR> <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(COPY-CLOSURE <VAR>m</VAR> <VAR>n</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALL&amp;PUSH <VAR>k</VAR> <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALL <VAR>k</VAR> <VAR>n</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALL1&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALL1 <VAR>n</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALL2&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALL2 <VAR>n</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLS1&amp;PUSH <VAR>b</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLS1 <VAR>b</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLS2&amp;PUSH <VAR>b</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLS2 <VAR>b</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLSR&amp;PUSH <VAR>m</VAR> <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLSR <VAR>m</VAR> <VAR>n</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLC&amp;PUSH)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLC) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLCKEY&amp;PUSH)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLCKEY) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(FUNCALL&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(FUNCALL <VAR>n</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(APPLY&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(APPLY <VAR>n</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CAR&amp;PUSH)</CODE>
+       <TD VALIGN=TOP><CODE>(CAR) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CDR&amp;PUSH)</CODE>
+       <TD VALIGN=TOP><CODE>(CDR) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CONS&amp;PUSH)</CODE>
+       <TD VALIGN=TOP><CODE>(CONS) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LIST&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LIST <VAR>n</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LIST*&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LIST* <VAR>n</VAR>) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(NIL&amp;STORE <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(NIL) (STORE <VAR>n</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(T&amp;STORE <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(T) (STORE <VAR>n</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;STOREC <VAR>k</VAR> <VAR>n</VAR> <VAR>m</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOAD <VAR>k</VAR>) (STOREC <VAR>n</VAR> <VAR>m</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLS1&amp;STORE <VAR>b</VAR> <VAR>k</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLS1 <VAR>b</VAR>) (STORE <VAR>k</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLS2&amp;STORE <VAR>b</VAR> <VAR>k</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLS2 <VAR>b</VAR>) (STORE <VAR>k</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLSR&amp;STORE <VAR>m</VAR> <VAR>n</VAR> <VAR>k</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLSR <VAR>m</VAR> <VAR>n</VAR>) (STORE <VAR>k</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;CDR&amp;STORE <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOAD <VAR>n</VAR>) (CDR) (STORE <VAR>n</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;CONS&amp;STORE <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOAD <VAR>n</VAR>+1) (CONS) (STORE <VAR>n</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;INC&amp;STORE <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOAD <VAR>n</VAR>) (CALL1 #'1+) (STORE <VAR>n</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;DEC&amp;STORE <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOAD <VAR>n</VAR>) (CALL1 #'1-) (STORE <VAR>n</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;CAR&amp;STORE <VAR>m</VAR> <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOAD <VAR>m</VAR>) (CAR) (STORE <VAR>n</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALL1&amp;JMPIF <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALL1 <VAR>n</VAR>) (JMPIF <VAR>label</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALL1&amp;JMPIFNOT <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALL1 <VAR>n</VAR>) (JMPIFNOT <VAR>label</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALL2&amp;JMPIF <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALL2 <VAR>n</VAR>) (JMPIF <VAR>label</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALL2&amp;JMPIFNOT <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALL2 <VAR>n</VAR>) (JMPIFNOT <VAR>label</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLS1&amp;JMPIF <VAR>b</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLS1 <VAR>b</VAR>) (JMPIF <VAR>label</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLS1&amp;JMPIFNOT <VAR>b</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLS1 <VAR>b</VAR>) (JMPIFNOT <VAR>label</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLS2&amp;JMPIF <VAR>b</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLS2 <VAR>b</VAR>) (JMPIF <VAR>label</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLS2&amp;JMPIFNOT <VAR>b</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLS2 <VAR>b</VAR>) (JMPIFNOT <VAR>label</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLSR&amp;JMPIF <VAR>m</VAR> <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLSR <VAR>m</VAR> <VAR>n</VAR>) (JMPIF <VAR>label</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CALLSR&amp;JMPIFNOT <VAR>m</VAR> <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CALLSR <VAR>m</VAR> <VAR>n</VAR>) (JMPIFNOT <VAR>label</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;JMPIF <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOAD <VAR>n</VAR>) (JMPIF <VAR>label</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;JMPIFNOT <VAR>n</VAR> <VAR>label</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOAD <VAR>n</VAR>) (JMPIFNOT <VAR>label</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;CAR&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOAD <VAR>n</VAR>) (CAR) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;CDR&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOAD <VAR>n</VAR>) (CDR) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;INC&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOAD <VAR>n</VAR>) (CALL1 #'1+) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;DEC&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(LOAD <VAR>n</VAR>) (CALL1 #'1-) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CONST&amp;SYMBOL-FUNCTION <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CONST <VAR>n</VAR>) (SYMBOL-FUNCTION)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CONST&amp;SYMBOL-FUNCTION&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CONST <VAR>n</VAR>) (SYMBOL-FUNCTION) (PUSH)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(CONST&amp;SYMBOL-FUNCTION&amp;STORE <VAR>n</VAR> <VAR>k</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(CONST <VAR>n</VAR>) (SYMBOL-FUNCTION) (STORE <VAR>k</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(APPLY&amp;SKIP&amp;RET <VAR>n</VAR> <VAR>k</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(APPLY <VAR>n</VAR>) (SKIP&amp;RET <VAR>k</VAR>)</CODE>
+  <TR> <TD VALIGN=TOP><CODE>(FUNCALL&amp;SKIP&amp;RETGF <VAR>n</VAR> <VAR>k</VAR>)</CODE>
+       <TD VALIGN=TOP><CODE>(FUNCALL <VAR>n</VAR>) (SKIP&amp;RETGF <VAR>k</VAR>)</CODE>
+</TABLE>
+
+<H3>17. Shortcut instructions</H3>
+
+There are special one-byte instructions (without explicit operands) for the
+following frequent instructions:
+
+<TABLE BORDER=1>
+  <TR> <TH>mnemonic <TH>operand range
+  <TR> <TD VALIGN=TOP><CODE>(LOAD <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>0 &lt;= <VAR>n</VAR> &lt; 15
+  <TR> <TD VALIGN=TOP><CODE>(LOAD&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>0 &lt;= <VAR>n</VAR> &lt; 25
+  <TR> <TD VALIGN=TOP><CODE>(CONST <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>0 &lt;= <VAR>n</VAR> &lt; 21
+  <TR> <TD VALIGN=TOP><CODE>(CONST&amp;PUSH <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>0 &lt;= <VAR>n</VAR> &lt; 30
+  <TR> <TD VALIGN=TOP><CODE>(STORE <VAR>n</VAR>)</CODE>
+       <TD VALIGN=TOP>0 &lt;= <VAR>n</VAR> &lt; 8
+</TABLE>
+
+<HR>
+
+<ADDRESS>The CLISP bytecode specification<BR>
+Bruno Haible &lt;haible@clisp.cons.org&gt;
+</ADDRESS>
+<P>
+Last modified: 19 September 1998.
+
+</BODY>
+</HTML>

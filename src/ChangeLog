@@ -1,5 +1,10 @@
 1998-09-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * bytecode.html: New file.
+        * compiler.lsp: Remove description of instruction set.
+
+1998-09-19  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * condition.lsp (prompt-for-new-value): Change message, to be
           consistent with prompt-for-new-value-string.
           (assert): Make more readable. Prefer `append' to `nconc'.
