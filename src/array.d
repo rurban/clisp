@@ -4534,7 +4534,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         if (initcount > 1) { # Mehr als eine Initialisierung?
           pushSTACK(TheSubr(subr_self)->name);
           fehler(error,
-                 GETTEXT("~: ambiguous, more than one initialisation specified")
+                 GETTEXT("~: ambiguous, more than one initialization specified")
                 );
         }
       }

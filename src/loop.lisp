@@ -153,10 +153,10 @@
                 (t (setf (second declspec) `(OR NULL ,type)))))))
     bindings))
 
-;; A loop-initialisation describes at macro expansion time the task
-;; to initialise one or more variables. The initialisation may end up
+;; A loop-initialization describes at macro expansion time the task
+;; to initialise one or more variables. The initialization may end up
 ;; generating code in the prologue or in the inner loop.
-(defstruct (loop-initialisation
+(defstruct (loop-initialization
              (:copier nil)
              (:conc-name "LI-")
              (:predicate nil)
@@ -168,7 +168,7 @@
   declspecs          ; list of declspecs
   (endtest-forms nil) ; more forms to be inserted after the declarations,
                       ; within the tagbody.
-  ;; Properties of this initialisation.
+  ;; Properties of this initialization.
   everytime ; If the assignment has to be evaluated in the prologue only: NIL.
             ; If the assignment has to be evaluated once for each iteration:
             ; a cons, pointing at the right place in the stepafter-code.
@@ -184,20 +184,20 @@
                       ; so that these values
                       ; must be computed no later than in the initially-code.
 
-#+CLISP (remprop 'loop-initialisation 'sys::defstruct-description)
+#+CLISP (remprop 'loop-initialization 'sys::defstruct-description)
 
-; (wrap-initialisations initialisations form) wickelt eine (umgedrehte!)
+; (wrap-initializations initializations form) wickelt eine (umgedrehte!)
 ; Liste von Initialisierungen um form herum und liefert die neue Form.
-(defun wrap-initialisations (initialisations form)
-  (dolist (initialisation initialisations)
-    (let ((name (li-specform initialisation))
-          (bindings (li-bindings initialisation))
-          (declarations (li-declspecs initialisation)))
+(defun wrap-initializations (initializations form)
+  (dolist (initialization initializations)
+    (let ((name (li-specform initialization))
+          (bindings (li-bindings initialization))
+          (declarations (li-declspecs initialization)))
       (setq form
             `(,name
               ,@(case name (MULTIPLE-VALUE-BIND bindings) (LET `(,bindings)))
               ,@(if declarations `((DECLARE ,@declarations)))
-              ,@(li-endtest-forms initialisation)
+              ,@(li-endtest-forms initialization)
               ,form))))
   form)
 
@@ -219,7 +219,7 @@
         (accu-vars-nil nil) ; Akkumulationsvariablen mit Initialwert NIL
         (accu-vars-0 nil) ; Akkumulationsvariablen mit Initialwert 0
         (accu-declarations nil) ; Typdeklarationen (umgedrehte Liste von declspecs)
-        (initialisations nil) ; Bindungen: (init ...) (umgedrehte Liste)
+        (initializations nil) ; Bindungen: (init ...) (umgedrehte Liste)
         (seen-for-as-= nil) ; schon eine FOR-AS-= Klausel gesehen?
         (seen-endtest nil) ; schon eine FOR-AS Klausel mit Abbruchbedingung gesehen?
         (initially-code nil) ; initially-Code (umgedrehte Liste)
@@ -450,15 +450,15 @@
        ;   FOR-AS-= Klausel vorkommt und hinter ihr auch keine andere FOR-AS
        ;   Klausel stört, können die Bindung und die Initialiserung der
        ;   Variablen ins Schleifeninnere verschoben werden.
-       (note-initialisation (initialisation)
-         (when (or (li-bindings initialisation)
-                   (li-declspecs initialisation)
-                   (li-endtest-forms initialisation))
+       (note-initialization (initialization)
+         (when (or (li-bindings initialization)
+                   (li-declspecs initialization)
+                   (li-endtest-forms initialization))
            (when seen-for-as-=
-             (setf (li-requires-stepbefore initialisation) t))
-           (when (li-endtest-forms initialisation)
+             (setf (li-requires-stepbefore initialization) t))
+           (when (li-endtest-forms initialization)
              (setq seen-endtest t))
-           (push initialisation initialisations)))
+           (push initialization initializations)))
        (make-endtest (endtest-form)
          (make-loop-init
            :specform 'PROGN
@@ -536,7 +536,7 @@
                             (setq declspecs (revappend new-declspecs declspecs))))
                         (unless (parse-kw-p 'and) (return))
                         (setq kw 'and))
-                      (note-initialisation
+                      (note-initialization
                         (make-loop-init
                           :specform 'LET
                           :bindings (nreverse bindings)
@@ -563,16 +563,16 @@
                     ;                   {in | of} expr
                     (let ((bindings nil)
                           (declspecs nil)
-                          (initialisations nil)
+                          (initializations nil)
                           (stepafter nil)
                           (old-seen-endtest seen-endtest)
                           (depends-preceding nil))
-                      (flet ((note-initialisation (initialisation)
+                      (flet ((note-initialization (initialization)
                                ;; supersedes the outer definition!
-                               ;; Calls to note-initialisation must temporarily be suspended.
-                               (when (li-endtest-forms initialisation)
+                               ;; Calls to note-initialization must temporarily be suspended.
+                               (when (li-endtest-forms initialization)
                                  (setq seen-endtest t))
-                               (push initialisation initialisations)))
+                               (push initialization initializations)))
                         (loop
                           (multiple-value-bind (pattern new-declspecs) (parse-var-typespec)
                             (let ((preposition (next-kw)))
@@ -595,9 +595,9 @@
                                      (when step-function-var
                                        (push `(,step-function-var ,step-function-form)
                                              bindings))
-                                     (note-initialisation
+                                     (note-initialization
                                        (make-endtest `(WHEN (ENDP ,var) (LOOP-FINISH))))
-                                     (note-initialisation
+                                     (note-initialization
                                        (make-loop-init
                                          :specform 'LET
                                          :bindings (destructure pattern (if (eq preposition 'IN) `(CAR ,var) var))
@@ -636,9 +636,9 @@
                                        (index-var (gensym)))
                                    (push `(,vector-var ,vector-form) bindings)
                                    (push `(,index-var 0) bindings)
-                                   (note-initialisation
+                                   (note-initialization
                                      (make-endtest `(WHEN (>= ,index-var (LENGTH ,vector-var)) (LOOP-FINISH))))
-                                   (note-initialisation
+                                   (note-initialization
                                      (make-loop-init
                                        :specform 'LET
                                        :bindings (destructure pattern `(AREF ,vector-var ,index-var))
@@ -698,7 +698,7 @@
                                                   ((HASH-KEY HASH-KEYS) (values nextkey-var nextvalue-var))
                                                   ((HASH-VALUE HASH-VALUES) (values nextvalue-var nextkey-var)))
                                                 (push `(,state-var (SYS::HASH-TABLE-ITERATOR ,form)) bindings)
-                                                (note-initialisation
+                                                (note-initialization
                                                   (make-loop-init
                                                     :specform 'MULTIPLE-VALUE-BIND
                                                     :bindings `((,nextp-var ,nextkey-var ,nextvalue-var)
@@ -707,7 +707,7 @@
                                                     :endtest-forms `((UNLESS ,nextp-var (LOOP-FINISH)))
                                                     :everytime t
                                                     :requires-stepbefore seen-endtest))
-                                                (note-initialisation
+                                                (note-initialization
                                                   (make-loop-init
                                                     :specform 'LET
                                                     :bindings (destructure pattern nextmain-var)
@@ -715,7 +715,7 @@
                                                     :everytime t
                                                     :requires-stepbefore seen-endtest))
                                                 (when other-pattern
-                                                  (note-initialisation
+                                                  (note-initialization
                                                     (make-loop-init
                                                       :specform 'LET
                                                       :bindings (destructure other-pattern nextother-var)
@@ -734,7 +734,7 @@
                                                 (nextsym-var (gensym)))
                                             (push `(,state-var (SYS::PACKAGE-ITERATOR ,form ',flags))
                                                   bindings)
-                                            (note-initialisation
+                                            (note-initialization
                                               (make-loop-init
                                                 :specform 'MULTIPLE-VALUE-BIND
                                                 :bindings `((,nextp-var ,nextsym-var)
@@ -743,7 +743,7 @@
                                                 :endtest-forms `((UNLESS ,nextp-var (LOOP-FINISH)))
                                                 :everytime t
                                                 :requires-stepbefore seen-endtest))
-                                            (note-initialisation
+                                            (note-initialization
                                               (make-loop-init
                                                 :specform 'LET
                                                 :bindings (destructure pattern nextsym-var)
@@ -835,7 +835,7 @@
                                                     (<= `(NOT (PLUSP ,pattern)))
                                                     (< `(MINUSP ,pattern)))
                                                   `(,compfun ,pattern ,step-end-form))))
-                                         (note-initialisation
+                                         (note-initialization
                                            (make-endtest `(WHEN ,endtest (LOOP-FINISH))))))
                                      (push
                                        (list pattern `(,(if (eq step-direction 'up) '+ '-) ,pattern ,step-by-form))
@@ -846,7 +846,7 @@
                       (when (setq stepafter (apply #'append (nreverse stepafter)))
                         (push `(PSETQ ,@stepafter) stepafter-code))
                       (push 'NIL stepafter-code) ; Markierung für spätere Initialisierungen
-                      (note-initialisation ; outer `note-initialisation'!
+                      (note-initialization ; outer `note-initialization'!
                         (make-loop-init
                           :specform 'LET
                           :bindings (nreverse bindings)
@@ -854,14 +854,14 @@
                           :everytime nil
                           :requires-stepbefore old-seen-endtest
                           :depends-preceding depends-preceding))
-                      (dolist (initialisation (nreverse initialisations))
-                        (when (li-everytime initialisation)
-                          (setf (li-everytime initialisation) stepafter-code))
-                        (note-initialisation initialisation))))
+                      (dolist (initialization (nreverse initializations))
+                        (when (li-everytime initialization)
+                          (setf (li-everytime initialization) stepafter-code))
+                        (note-initialization initialization))))
                    ((REPEAT)
                     (let ((form (parse-form kw))
                           (var (gensym)))
-                      (note-initialisation
+                      (note-initialization
                         (make-loop-init
                           :specform 'LET
                           :bindings `((,var ,form))
@@ -870,7 +870,7 @@
                           :requires-stepbefore seen-endtest
                           :depends-preceding t))
                       (push `(SETQ ,var (1- ,var)) stepafter-code)
-                      (note-initialisation
+                      (note-initialization
                        (make-endtest `(UNLESS (PLUSP ,var) (LOOP-FINISH))))))))
                 (t (error (ENGLISH "~S: illegal syntax near ~S in ~S")
                           'loop (first body-rest) *whole*)))))))
@@ -882,31 +882,31 @@
       (unless (null results)
         (push `(RETURN-FROM ,block-name ,@results) finally-code))
       ; Initialisierungen abarbeiten und optimieren:
-      (let ((initialisations1 nil)
-            (initialisations2 nil))
+      (let ((initializations1 nil)
+            (initializations2 nil))
         (unless seen-for-as-=
           (loop
-            (when (null initialisations) (return))
-            (let ((initialisation (first initialisations)))
-              (unless (li-everytime initialisation) (return))
-              ; letzte Initialiserungsklausel nach initialisations2 verschieben:
-              (pop initialisations)
-              (push initialisation initialisations2))))
+            (when (null initializations) (return))
+            (let ((initialization (first initializations)))
+              (unless (li-everytime initialization) (return))
+              ; letzte Initialiserungsklausel nach initializations2 verschieben:
+              (pop initializations)
+              (push initialization initializations2))))
         ; `depends-preceding' backpropagation:
         (let ((later-depend nil))
-          (dolist (initialisation initialisations)
-            (when later-depend (setf (li-later-depend initialisation) t))
-            (when (li-depends-preceding initialisation)
+          (dolist (initialization initializations)
+            (when later-depend (setf (li-later-depend initialization) t))
+            (when (li-depends-preceding initialization)
               (setq later-depend t))))
-        (setq initialisations (nreverse initialisations))
+        (setq initializations (nreverse initializations))
         (loop
-          (when (null initialisations) (return))
-          (let* ((initialisation (pop initialisations))
-                 (everytime (li-everytime initialisation))
-                 (requires-stepbefore (li-requires-stepbefore initialisation))
-                 (name (li-specform initialisation))
-                 (bindings (li-bindings initialisation))
-                 (declarations (li-declspecs initialisation))
+          (when (null initializations) (return))
+          (let* ((initialization (pop initializations))
+                 (everytime (li-everytime initialization))
+                 (requires-stepbefore (li-requires-stepbefore initialization))
+                 (name (li-specform initialization))
+                 (bindings (li-bindings initialization))
+                 (declarations (li-declspecs initialization))
                  (vars (case name
                          (MULTIPLE-VALUE-BIND (first bindings))
                          (LET (mapcar #'first bindings))))
@@ -915,7 +915,7 @@
                      (MULTIPLE-VALUE-BIND `((MULTIPLE-VALUE-SETQ ,@bindings)))
                      (LET `((SETQ ,@(apply #'append bindings))))
                      (t '())))
-                 (endtest-forms (li-endtest-forms initialisation)))
+                 (endtest-forms (li-endtest-forms initialization)))
             (if requires-stepbefore
               ; wegen seen-for-as-= oder AREF nicht optimierbar
               (progn
@@ -924,34 +924,34 @@
                     :specform 'LET
                     :bindings (default-bindings vars declarations)
                     :declspecs declarations)
-                  initialisations1)
+                  initializations1)
                 (if everytime
-                  (if (li-later-depend initialisation)
+                  (if (li-later-depend initialization)
                     (progn ; double code: initially-code and stepafter-code
                       (setq initially-code (revappend endtest-forms (revappend initforms initially-code)))
                       (setf (cdr everytime) (revappend endtest-forms (revappend initforms (cdr everytime)))))
                     (setq stepbefore-code (revappend endtest-forms (revappend initforms stepbefore-code))))
                   (setq initially-code (revappend endtest-forms (revappend initforms initially-code)))))
-              ; Initialisierungsklausel nach initialisations1 schaffen:
+              ; Initialisierungsklausel nach initializations1 schaffen:
               (progn
                 (push
                   (make-loop-init
                     :specform name
                     :bindings bindings
                     :declspecs declarations)
-                  initialisations1)
+                  initializations1)
                 (if everytime
                   (progn
                     ; put the initforms into the stepafter-code only.
                     (setf (cdr everytime) (revappend initforms (cdr everytime)))
                     ; handle the endtest-forms.
-                    (if (li-later-depend initialisation)
+                    (if (li-later-depend initialization)
                       (progn ; double endtest: initially-code and stepafter-code
                         (setq initially-code (revappend endtest-forms initially-code))
                         (setf (cdr everytime) (revappend endtest-forms (cdr everytime))))
                       (setq stepbefore-code (revappend endtest-forms stepbefore-code))))
                   (setq initially-code (revappend endtest-forms initially-code)))))))
-        (setq initialisations1 (nreverse initialisations1))
+        (setq initializations1 (nreverse initializations1))
         (push
           (make-loop-init
             :specform 'LET
@@ -961,7 +961,7 @@
                 ,@(mapcar #'(lambda (var) `(,var 0)) (delete-duplicates accu-vars-0)))
             :declspecs
               (nreverse accu-declarations))
-          initialisations1)
+          initializations1)
         ;; Remove the NIL placeholders in stepafter-code.
         (setq stepafter-code (delete 'NIL stepafter-code))
         ;; If initially-code and stepafter-code both end in the same
@@ -984,13 +984,13 @@
         ;; Final macroexpansion.
         `(MACROLET ((LOOP-FINISH () (LOOP-FINISH-ERROR)))
            (BLOCK ,block-name
-             ,(wrap-initialisations (nreverse initialisations1)
+             ,(wrap-initializations (nreverse initializations1)
                 `(MACROLET ((LOOP-FINISH () '(GO END-LOOP)))
                    (TAGBODY
                      ,@(if initially-code `((PROGN ,@(nreverse initially-code))))
                      BEGIN-LOOP
                      ,@(if stepbefore-code `((PROGN ,@(nreverse stepbefore-code))))
-                     ,(wrap-initialisations (nreverse initialisations2)
+                     ,(wrap-initializations (nreverse initializations2)
                         `(PROGN ,@(nreverse main-code)))
                      ,@(if stepafter-code `((PROGN ,@(nreverse stepafter-code))))
                      (GO BEGIN-LOOP)
