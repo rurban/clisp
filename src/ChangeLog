@@ -1,3 +1,16 @@
+2002-05-31  Arseny Slobodjuck <ampy@ich.dvo.ru>
+
+	* win32.d (stderr_handle): new global variable.
+	(earlylate_asciz_error): new function.
+	* win32aux.d (stderr_handle): define.
+	(winsock_initialized): new static variable.
+	(init_win32): initialize stderr_handle, 
+	set winsock_initialized, use earlylate_asciz_error
+	(done_win32): use winsock_initialized flag.
+	(earlylate_asciz_error): New function. Prints an
+	error to stderr, optionally exits clisp (the latter
+	is not recommended). Not using clisp internals.
+
 2002-05-30  Sam Steingold  <sds@gnu.org>
 
 	* genclisph.d: anticipate possible future addition of stdint.h
