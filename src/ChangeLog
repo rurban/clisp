@@ -1,5 +1,11 @@
 2005-01-21  Sam Steingold  <sds@gnu.org>
 
+	* control.d (SET_BIT): new macro
+	(make_variable_frame, activate_bindings, LET*, SYMBOL-MACROLET):
+	(MULTIPLE-VALUE-BIND): use it
+
+2005-01-21  Sam Steingold  <sds@gnu.org>
+
 	* condition.lisp (handler-bind): use the function syntax for
 	%HANDLER-BIND
 	* compiler.lisp (quote-p): new function
