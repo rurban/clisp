@@ -1148,6 +1148,8 @@ LISPFUNN(string_info,1) {
     if (Record_type(str) == Rectype_reallocstring) {
       value3 = T; simple_array_to_storage(str);
     } else value3 = NIL;
+   #else
+    value3 = NIL;
    #endif
     value2 = NIL;
     switch (Record_type(str)) {
