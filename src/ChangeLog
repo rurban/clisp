@@ -1,3 +1,23 @@
+2002-06-05  Arseny Slobodjuck <ampy@ich.dvo.ru>
+
+	Working with sockets on win32
+	* win32.d (socket_wait_event): new enum typedef
+	(interruptible_socket_wait): renamed from
+	interruptible_wait and generalized to take event parameter,
+	see socket select() function for description of	these events.
+	* win32aux.d (socket_wait_params): parameter struct to pass
+	in thread.
+	(do_socket_wait): renamed from do_wait, takes struct
+	as Joerg likes, now tests for given event, not only for read.
+        (interruptible_socket_wait): parameters changed to struct.
+        * socket.d [WIN32] (ioctl): define on win32 as ioctlsocket.
+        (bindlisten_via_ip): don't lingerize socket (seems working,
+        need to test).
+        (connect_via_ip): don't lingerize. Fixed for win32 (may affect
+        UNIX behavior too).
+        * stream.d (socket_server_wait): use renamed
+        interruptible_socket_wait.
+
 2002-06-04  Peter Burwood  <clisp@peterb.org.uk>
 
 	* lispbibl.d (DYNAMIC_STRING): Replace obsolete Rectype_Sstring with
