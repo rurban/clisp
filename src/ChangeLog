@@ -11,7 +11,8 @@
 
 2003-03-12  Jörg Höhle  <Joerg-Cyril.Hoehle@t-systems.com>
 
-	* time.d: [TIME_WIN32]: use GetSystemTimeAsFileTime, not ftime()
+	* time.d (get_real_time) [TIME_WIN32]: use
+	GetSystemTimeAsFileTime(), not ftime()
 
 2003-03-11  Sam Steingold  <sds@gnu.org>
 
