@@ -1,3 +1,8 @@
+2002-02-21  Stefan Kain  <stefan.kain@freenet.de>
+
+	* package.d: translated all comments
+	* constobj.d: ditto
+
 2002-02-20  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (distrib): include the Emacs-Lisp files in the
