@@ -5895,39 +5895,25 @@ global object file_stream_truename (object s)
  > persev: one of persev_partial, persev_immediate, persev_bonus
  < result: number of bytes read */
 local uintL low_fill_buffered_handle (object stream, perseverance_t persev) {
-  var sintL result = 0;
   var Handle handle = TheHandle(BufferedStream_channel(stream));
-  var signean listen_status = ls_eof;
-  var int byte = -1;
-  /* no_hang => call listen_handle() => correct listen_status
-   otherwise, result=0 means there was nothing to read => EOF */
-  if (persev == persev_partial
-      || ls_avail_p(listen_status = listen_handle(handle,false,&byte))) {
-    var uintB * buff = BufferedStream_buffer_address(stream,0);
+  var uintB* buff = BufferedStream_buffer_address(stream,0);
+  begin_system_call();
+  var sintL result = fd_read(handle,buff,strm_buffered_bufflen,persev);
+  end_system_call();
+  if (result<0)               /* error occurred? */
+    OS_filestream_error(stream);
+  if (result==0) {
     begin_system_call();
-    if (byte != -1) {
-      buff[0] = byte;
-      result = fd_read(handle,buff+1,strm_buffered_bufflen-1,
-                       persev == persev_partial ? persev_bonus : persev);
-    } else
-      result = fd_read(handle,buff,strm_buffered_bufflen,persev);
+   #if !defined(WIN32_NATIVE)
+    if (errno==ENOENT) /* indicates EOF */
+      BufferedStream_have_eof_p(stream) = true;
+   #endif
+   #ifdef WIN32_NATIVE
+    if (GetLastError()==ERROR_HANDLE_EOF)
+      BufferedStream_have_eof_p(stream) = true;
+   #endif
     end_system_call();
-    if (result<0)               /* error occurred? */
-      OS_filestream_error(stream);
-    if (result==0) {
-      begin_system_call();
-     #if !defined(WIN32_NATIVE)
-      if (errno==ENOENT) /* indicates EOF */
-        BufferedStream_have_eof_p(stream) = true;
-     #endif
-     #ifdef WIN32_NATIVE
-      if (GetLastError()==ERROR_HANDLE_EOF)
-        BufferedStream_have_eof_p(stream) = true;
-     #endif
-      end_system_call();
-    }
   }
-  BufferedStream_have_eof_p(stream) = ((result==0) && ls_eof_p(listen_status));
   return result;
 }
 
@@ -6025,8 +6011,9 @@ local uintB* buffered_nextbyte (object stream, perseverance_t persev) {
     if (BufferedStream_blockpositioning(stream)
         || (TheStream(stream)->strmflags & strmflags_rd_B)) {
       result = BufferedStreamLow_fill(stream)(stream,persev);
-      if (result == 0 && !BufferedStream_have_eof_p(stream))
-        return persev != persev_partial ? (uintB*)-1 : NULL; /* hang case */
+      if (result == 0 && !BufferedStream_have_eof_p(stream)
+          && persev != persev_partial)
+        return (uintB*)-1; /* would hang */
     } else
       result = 0;
     BufferedStream_index(stream) = index = 0;
