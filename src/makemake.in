@@ -1399,8 +1399,10 @@ fi
 SPVW_INCLUDES=' spvw_module spvw_debug spvw_alloca spvw_mmap spvw_multimap spvw_singlemap spvw_page spvw_heap spvw_global spvw_gcstat spvw_space spvw_mark spvw_objsize spvw_update spvw_fault spvw_sigsegv spvw_sigcld spvw_sigpipe spvw_sigint spvw_sigwinch spvw_garcol spvw_genera1 spvw_genera2 spvw_genera3 spvw_allocate spvw_typealloc spvw_circ spvw_walk spvw_ctype spvw_language spvw_memfile'
 
 UNICODE_INCLUDES=''
+UNICODE_EXTRA='';
 if [ "${with_unicode}" != "0" ] ; then
   UNICODE_INCLUDES=$UNICODE_INCLUDES' uni_upcase uni_downcase uni_attribute uniname'
+  UNICODE_EXTRA=${UNICODE_EXTRA}' streq.h cjk.h uniwidth.h width.c unitypes.h uniname.h uninames.h';
 fi
 
 NLS_INCLUDES=''
@@ -2128,7 +2130,7 @@ if [ -n "${SRCDIR}" ] ; then
   for f in $UNICODE_INCLUDES $NLS_INCLUDES ; do
     line=$line" ${f}.c"
   done
-  line=$line" unitypes.h uniname.h uninames.h"
+  line=$line${UNICODE_EXTRA}
 fi
 echol $line
 if [ $HOS = unix -a $CROSS = false ] ; then
@@ -2250,7 +2252,7 @@ if [ -n "${SRCDIR}" ] ; then
       echotab "-\$(LN_S) ${SRCDIR}${f}.c ${f}.c"
       echol
     done
-    for f in unitypes.h uniname.h uninames.h version.h modules.h ; do
+    for f in ${UNICODE_EXTRA} version.h modules.h ; do
       echol "${f} : ${SRCDIR}${f}"
       echotab "-\$(LN_S) ${SRCDIR}${f} ${f}"
       echol
@@ -2363,6 +2365,7 @@ echol
 
 for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   depends=$EVERY_INCLUDES
+  dependsc='';
   if [ $f = spvw -o $f = package ] ; then
     depends=$depends' constpack'
   fi
@@ -2382,8 +2385,8 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     depends=$depends' aridecl'
   fi
   if [ $f = charstrg ] && [ "${with_unicode}" != "0" ] ; then
-    depends=$depends''$UNICODE_INCLUDES
-    dependsc=$dependsc' unitypes.h uniname.h uninames.h'
+    depends=$depends${UNICODE_INCLUDES}
+    dependsc=${dependsc}${UNICODE_EXTRA};
   fi
   if [ $f = encoding ] ; then
     depends=$depends''$NLS_INCLUDES
@@ -2397,7 +2400,6 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   if [ $f = rexx ] ; then
     depends=$depends' amiga2'
   fi
-  dependsc=''
   for g in $depends ; do
     dependsc=$dependsc' '$g'.c'
   done
@@ -3715,7 +3717,7 @@ if [ -n "${SRCDIR}" ] ; then
   for f in $UNICODE_INCLUDES $NLS_INCLUDES ; do
     line="$line ${f}.c"
   done
-  line="$line unitypes.h uniname.h uninames.h version.h modules.h"
+  line="$line version.h modules.h"${UNICODE_EXTRA}
   line="$line \$(LISPFILES) NEWS clisp.png"
   echotab "$line"
   if [ $HOS = unix -a $CROSS = false ] ; then
