@@ -183,7 +183,7 @@ LISPFUN(getf,2,1,norest,nokey,0,NIL)
 LISPFUNN(putf,3)
 { /* (setf place (SYS::%PUTF place key value)) ==
      (setf (getf place key) value)
-  see places.lisp: this will return NIL if no allocation was done, i.e.,
+  see places.lisp: this will return NIL if place was a CONS, i.e.,
   if the list was modified "in place" and the PLACE does not have to be set */
   var gcv_object_t *tail = plist_find(&STACK_2,STACK_1);
   if (tail == NULL) fehler_plist_odd(S(putf),STACK_2);
@@ -192,11 +192,20 @@ LISPFUNN(putf,3)
     pushSTACK(allocate_cons());
     var object cons1 = allocate_cons();
     var object cons2 = popSTACK();
-    Car(cons2) = STACK_0; /* value */
-    Cdr(cons2) = STACK_2; /* tail */
-    Car(cons1) = STACK_1; /* key */
     Cdr(cons1) = cons2;
-    VALUES1(cons1);
+    if (consp(STACK_2)) { /* can modify in-place */
+      Cdr(cons2) = Cdr(STACK_2);
+      Car(cons2) = Car(STACK_2);
+      Car(STACK_2) = STACK_1; /* key */
+      Cdr(STACK_2) = cons1;
+      Car(cons1) = STACK_0; /* value */
+      VALUES1(NIL);
+    } else { /* prepend */
+      Car(cons2) = STACK_0; /* value */
+      Cdr(cons2) = STACK_2; /* tail */
+      Car(cons1) = STACK_1; /* key */
+      VALUES1(cons1);
+    }
   } else {
     plistr = Cdr(plistr);
     if (atomp(plistr)) fehler_plist_odd(S(putf),STACK_2);

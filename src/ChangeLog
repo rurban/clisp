@@ -1,3 +1,7 @@
+2002-12-22  Sam Steingold  <sds@gnu.org>
+
+	* symbol.d (%PUTF): when the place is a cons, modify it in-place
+
 2002-12-21  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (LIBSIGSEGV): init to @LTLIBSIGSEGV@ (-L/... -lsigsegv)
