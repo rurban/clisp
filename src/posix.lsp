@@ -97,35 +97,38 @@
   (version      "" :type simple-string)
   (machine      "" :type simple-string)
   ;; from sysconf
-  (page-size       nil :type (or null (unsigned-byte 32)))
-  (physical-pages  nil :type (or null (unsigned-byte 32)))
-  (physical-pages-available nil :type (or null (unsigned-byte 32)))
-  (num-processor-conf   nil :type (or null (unsigned-byte 32)))
-  (num-processor-online nil :type (or null (unsigned-byte 32))))
+  (page-size       nil :type (or null (eq t) (unsigned-byte 32)))
+  (physical-pages  nil :type (or null (eq t) (unsigned-byte 32)))
+  (physical-pages-available nil :type (or null (eq t) (unsigned-byte 32)))
+  (num-processor-conf   nil :type (or null (eq t) (unsigned-byte 32)))
+  (num-processor-online nil :type (or null (eq t) (unsigned-byte 32)))
+  (max-threads-per-process nil :type (or null (eq t) (unsigned-byte 32))))
 
 (defun sysinfo ()
-  "Return an instance of the SYSINFO structure."
+  "Return an instance of the SYSINFO structure.
+NIL - no such key; T - sysconf(3c) returned -1."
   (multiple-value-bind
         (sysname nodename release version machine
          page-size physical-pages physical-pages-available
-         num-processor-conf num-processor-online)
+         num-processor-conf num-processor-online max-threads-per-process)
       (sysinfo-internal)
     (make-sysinfo :sysname sysname :nodename nodename :release release
                   :version version :machine machine
                   :page-size page-size :physical-pages physical-pages
                   :physical-pages-available physical-pages-available
                   :num-processor-conf num-processor-conf
-                  :num-processor-online num-processor-online)))
+                  :num-processor-online num-processor-online
+                  :max-threads-per-process max-threads-per-process)))
 
 ;;; ============================================================
 (defstruct rlimit
   "see getrlimit(2) for details"
-  (soft 0 :type (unsigned-byte 32))
-  (hard 0 :type (unsigned-byte 32)))
+  (soft nil :type (or null (unsigned-byte 32)))
+  (hard nil :type (or null (unsigned-byte 32))))
 
 (defmethod print-object ((rl rlimit) (out stream))
   (if *print-readably* (call-next-method)
-      (format out "~d:~d" (rlimit-soft rl) (rlimit-hard rl))))
+      (format out "~a:~a" (rlimit-soft rl) (rlimit-hard rl))))
 
 (defstruct limits
   "see getrlimit(2) for details"
@@ -185,13 +188,10 @@ see getrusage(3) and getrlimit(2) for details"
                  :messages-sent u210 :messages-received u211
                  :signals u212 :context-switches-voluntary u213
                  :context-switches-involuntary u214)
-     (make-limits
-      :core      (if lim11 (make-rlimit :soft lim11 :hard lim12))
-      :cpu       (if lim21 (make-rlimit :soft lim21 :hard lim22))
-      :heap      (if lim31 (make-rlimit :soft lim31 :hard lim32))
-      :file-size (if lim41 (make-rlimit :soft lim41 :hard lim42))
-      :num-files (if lim51 (make-rlimit :soft lim51 :hard lim52))
-      :stack     (if lim61 (make-rlimit :soft lim61 :hard lim62))
-      :virt-mem  (if lim71 (make-rlimit :soft lim71 :hard lim72))
-      :rss       (if lim81 (make-rlimit :soft lim81 :hard lim82))
-      :memlock   (if lim91 (make-rlimit :soft lim91 :hard lim92))))))
+     (labels ((nu (lim) (if (eq lim t) nil lim))
+              (mk (l1 l2) (if l1 (make-rlimit :soft (nu l1) :hard (nu l2)))))
+       (make-limits :core (mk lim11 lim12) :cpu (mk lim21 lim22)
+                    :heap (mk lim31 lim32) :file-size (mk lim41 lim42)
+                    :num-files (mk lim51 lim52) :stack (mk lim61 lim62)
+                    :virt-mem (mk lim71 lim72) :rss (mk lim81 lim82)
+                    :memlock (mk lim91 lim92))))))

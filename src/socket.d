@@ -924,6 +924,8 @@ LISPFUN(socket_service_port,0,2,norest,nokey,0,NIL)
 # Lisp interface to gethostbyname(3) and gethostbyaddr(3)
 LISPFUN(resolve_host_ipaddr_,1,0,norest,nokey,0,NIL)
 # (POSIX::RESOLVE-HOST-IPADDR-INTERNAL host)
+# if you modify this function wrt it's return values,
+# you should modify POSIX:RESOLVE-HOST-IPADDR in posix.lsp accordingly
 {
   var object arg = popSTACK();
   var struct hostent *he = NULL;
