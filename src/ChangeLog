@@ -1,3 +1,10 @@
+1999-05-09  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * aclocal.m4 (CL_SIGNAL_UNBLOCK, CL_SIGNAL_BLOCK_OTHERS,
+           CL_SIGACTION_UNBLOCK): Perform the test if either POSIX or BSD
+          signal mask primitives are available. Otherwise,
+          SIGACTION_NEED_UNBLOCK would not be defined on Solaris.
+
 1999-05-07  Sam Steingold  <sds@goems.com>
 
 	* describe.lsp (*apropos-do-more*): new variable.
