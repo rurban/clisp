@@ -50,6 +50,7 @@ User visible changes
    POSIX:COPY-FILE provides an interface to link(2)/symlink(2)/rename(2),
      (in addition to the usual file copy);
    POSIX:DUPLICATE-HANDLE provides an interface to dup(2)/dup2(2).
+  Thanks to Marco Baringer for COPY-FILE and DUPLICATE-HANDLE.
   See <http://clisp.cons.org/impnotes.html#syscalls> for details.
 
 * You can now control the CLISP exit code better by passing a
@@ -888,7 +889,7 @@ User visible changes
 
 * Fixed a bug: Reading objects in #n# syntax into typed structure slots gave
   an error if the structure's constructor was not compiled.
-  Reported by Sam Steingold <sds@usa.net>.
+  Reported by Sam Steingold.
 
 * BUTLAST and NBUTLAST are now ANSI CL compliant: They signal an error if the
   argument is a dotted list of length 0. (Stupid.)
