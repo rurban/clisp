@@ -92,6 +92,9 @@
 (%put 'ARRAY 'TYPE-SYMBOL #'arrayp)
 (%put 'ATOM 'TYPE-SYMBOL #'atom)
 (%put 'BASE-CHAR 'TYPE-SYMBOL
+  #+BASE-CHAR=CHARACTER
+  #'characterp
+  #-BASE-CHAR=CHARACTER
   (function type-symbol-base-char
     (lambda (x) (and (characterp x) (base-char-p x)))
 ) )
@@ -117,6 +120,9 @@
 (%put 'DOUBLE-FLOAT 'TYPE-SYMBOL #'double-float-p)
 (%put 'EXTENDED-CHAR 'TYPE-SYMBOL
   (function type-symbol-extended-char
+    #+BASE-CHAR=CHARACTER
+    (lambda (x) (declare (ignore x)) nil)
+    #-BASE-CHAR=CHARACTER
     (lambda (x) (and (characterp x) (not (base-char-p x))))
 ) )
 (%put 'FIXNUM 'TYPE-SYMBOL #'fixnump)
@@ -584,7 +590,9 @@
              (canonicalize-type (funcall f (list type))) ; macroexpandieren
              (case type
                (ATOM '(NOT CONS))
-               (BASE-CHAR '(AND CHARACTER (SATISFIES BASE-CHAR-P)))
+               (BASE-CHAR #+BASE-CHAR=CHARACTER 'CHARACTER
+                          #-BASE-CHAR=CHARACTER '(AND CHARACTER (SATISFIES BASE-CHAR-P))
+               )
                (BIGNUM '(AND INTEGER (NOT FIXNUM)))
                (BIT '(INTEGER 0 1))
                (BOOLEAN '(MEMBER NIL T))
@@ -592,7 +600,9 @@
                          STREAM PACKAGE HASH-TABLE READTABLE PATHNAME RANDOM-STATE
                          STRUCTURE
                )        )
-               (EXTENDED-CHAR '(AND CHARACTER (NOT (SATISFIES BASE-CHAR-P))))
+               (EXTENDED-CHAR #+BASE-CHAR=CHARACTER 'NIL
+                              #-BASE-CHAR=CHARACTER '(AND CHARACTER (NOT (SATISFIES BASE-CHAR-P)))
+               )
                (FIXNUM '(INTEGER #,most-negative-fixnum #,most-positive-fixnum))
                (KEYWORD '(AND SYMBOL (SATISFIES KEYWORDP)))
                (LIST '(OR CONS (MEMBER NIL)))
@@ -602,7 +612,7 @@
                (RATIO '(AND RATIONAL (NOT INTEGER)))
                (SEQUENCE '(OR LIST VECTOR)) ; user-defined sequences??
                (SIGNED-BYTE 'INTEGER)
-               (STANDARD-CHAR '(AND CHARACTER (SATISFIES BASE-CHAR-P) (SATISFIES STANDARD-CHAR-P)))
+               (STANDARD-CHAR '(AND CHARACTER #-BASE-CHAR=CHARACTER (SATISFIES BASE-CHAR-P) (SATISFIES STANDARD-CHAR-P)))
                (STRING-CHAR 'CHARACTER)
                ((T) '(AND))
                (UNSIGNED-BYTE '(INTEGER 0 *))

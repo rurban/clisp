@@ -492,9 +492,9 @@
       )
       (let* ((subc (char-upcase subch))
              (macrodef
-               (if (base-char-p subc)
+               (if (< (char-code subc) #x100)
                  (svref vector (char-code subc))
-                 (gethash subc (svref vector base-char-code-limit))
+                 (gethash subc (svref vector #x100))
             )) )
         (unless macrodef
           (error-of-type 'stream-error
@@ -633,6 +633,9 @@
            (BASE-CHAR
              `(OR BASE-CHAR
                   ,@(if (not *ansi*) `((INTEGER 0 ,(1- base-char-code-limit))))
+                  #+BASE-CHAR=CHARACTER
+                  (DESIGNATOR (STRING 1))
+                  #-BASE-CHAR=CHARACTER
                   (AND (DESIGNATOR (STRING 1)) (SATISFIES BASE-CHAR-DESIGNATOR-P))
            )  )
 ;          (CLASS `(OR CLOS:CLASS (AND SYMBOL (SATISFIES CLASS-DESIGNATOR-P))))
@@ -702,6 +705,7 @@
         (t (typespec-error 'designator thing))
 ) )
 
+#-BASE-CHAR=CHARACTER
 (defun base-char-designator-p (obj)
   (base-char-p (char (coerce obj 'string) 0))
 )
