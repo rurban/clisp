@@ -1,3 +1,9 @@
+2004-10-30  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #[ 1056862 ]: socket:socket-status modifies stream
+	* stream.d (listen_char_unbuffered): when ignore_next_LF is set,
+	discard NL from buf
+
 2004-10-29  Sam Steingold  <sds@gnu.org>
 
 	* loop.lisp (expand-loop): since RESULTS can contain forms,
