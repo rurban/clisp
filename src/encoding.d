@@ -1236,7 +1236,7 @@ LISPFUNN(charset_range,3)
 # > uintL len: Länge der Zeichenfolge
 # > object encoding: Encoding
 # < ergebnis: Normal-Simple-String mit den len Zeichen ab charptr als Inhalt
-# kann GC auslösen
+# can trigger GC
   #ifdef UNICODE
     global object make_string (const uintB* bptr, uintL blen, object encoding);
     global object make_string(bptr,blen,encoding)
@@ -1277,7 +1277,7 @@ LISPFUNN(charset_range,3)
 #       (Adresse einer durch ein Nullbyte abgeschlossenen Zeichenfolge)
 # > object encoding: Encoding
 # < ergebnis: Normal-Simple-String mit der Zeichenfolge (ohne Nullbyte) als Inhalt
-# kann GC auslösen
+# can trigger GC
   #ifdef UNICODE
     global object asciz_to_string (const char * asciz, object encoding);
     global object asciz_to_string(asciz,encoding)
@@ -1315,7 +1315,7 @@ LISPFUNN(charset_range,3)
 # < ergebnis: Simple-Bit-Vektor mit denselben Zeichen als Bytes und einem
 #             Nullbyte mehr am Schluss
 # < TheAsciz(ergebnis): Adresse der darin enthaltenen Bytefolge
-# kann GC auslösen
+# can trigger GC
   #ifdef UNICODE
     global object string_to_asciz (object obj, object encoding);
     global object string_to_asciz(obj,encoding)

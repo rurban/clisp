@@ -6,7 +6,7 @@
 # savemem(stream);
 # > object stream: open file output stream
 # As a side effect, the stream is closed.
-# kann GC auslösen
+# can trigger GC
   global void savemem (object stream);
 
 # Restores a memory image from diskette.
@@ -187,7 +187,7 @@
 # UP, speichert Speicherabbild auf Diskette
 # savemem(stream);
 # > object stream: offener File-Output-Stream, wird geschlossen
-# kann GC auslösen
+# can trigger GC
   global void savemem (object stream);
   global void savemem(stream)
     var object stream;

@@ -113,7 +113,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 # > name: Sequence-Typ-Bezeichner
 # < ergebnis: dazugehöriger Typdescriptor
 # < -(STACK): durch den Typ erzwungene Länge, oder unbound.
-# kann GC auslösen
+# can trigger GC
   local object valid_type (object name);
   local object valid_type(name)
     var object name;
@@ -312,7 +312,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 
 # Macro: Trägt (SEQ-LENGTH sequence) als Defaultwert von END in den Stack ein:
 # end_default_len(end,seq,typdescr);
-# kann GC auslösen
+# can trigger GC
   #define end_default_len(end,seq,typdescr)  \
     if (eq(end,unbound) || eq(end,NIL))              \
       { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet! \
@@ -388,7 +388,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 # > var: alter Wert
 # < var: neuer Wert
 # < ergebnis: neuer Wert
-# kann GC auslösen
+# can trigger GC
   #define increment(var)  (var = I_1_plus_I(var)) # var := (1+ var)
 
 # Macro: Decrementiert eine Integer-Variable (im Stack).
@@ -396,13 +396,13 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 # > var: alter Wert
 # < var: neuer Wert
 # < ergebnis: neuer Wert
-# kann GC auslösen
+# can trigger GC
   #define decrement(var)  (var = I_minus1_plus_I(var)) # var := (1- var)
 
 # Macro: Rückt einen Vorwärts-Pointer (im Stack) weiter.
 # pointer_update(pointer,sequence,typdescr);
 # pointer muss von der Form STACK_i sein!
-# kann GC auslösen
+# can trigger GC
   #define pointer_update(pointer,sequence,typdescr)  \
     { var object updatefun = seq_upd(typdescr);          \
       pushSTACK(sequence); # sequence                    \
@@ -414,7 +414,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 # Macro: Rückt einen Rückwärts-Pointer (im Stack) weiter.
 # pointer_fe_update(pointer,sequence,typdescr);
 # pointer muss von der Form STACK_i sein!
-# kann GC auslösen
+# can trigger GC
   #define pointer_fe_update(pointer,sequence,typdescr)  \
     { var object updatefun = seq_fe_upd(typdescr);          \
       pushSTACK(sequence); # sequence                       \
@@ -433,7 +433,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
 # > STACK_0: pointer2
 # kopiert count Elemente von sequence1 nach sequence2 und rückt dabei
 # pointer1 und pointer2 um count Stellen weiter (mit SEQ-UPD), setzt count:=0.
-# kann GC auslösen
+# can trigger GC
   local void copy_seqpart_into (void);
   local void copy_seqpart_into()
     { # Methode etwa so:
@@ -904,7 +904,7 @@ LISPFUN(make_sequence,2,0,norest,key,2,\
 # > obj: Objekt, sollte eine Sequence sein
 # > result_type: Bezeichner (Symbol) des Sequence-Typs
 # < Wert: Sequence vom Typ result_type
-# kann GC auslösen
+# can trigger GC
   global Values coerce_sequence (object sequence, object result_type);
   global Values coerce_sequence(sequence,result_type)
     var object sequence;
@@ -1040,7 +1040,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
 # > obj: Objekt, sollte eine Sequence sein
 # > fun: Funktion, fun(arg,element) darf GC auslösen
 # > arg: beliebiges vorgegebenes Argument
-# kann GC auslösen
+# can trigger GC
   global void map_sequence (object obj, map_sequence_function* fun, void* arg);
   global void map_sequence(obj,fun,arg)
     var object obj;
@@ -1077,7 +1077,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
 # > default: Defaultwert am Schluss
 # < 1 Wert: wie von fun beim Hinausspringen vorgegeben, oder default.
 # < STACK: aufgeräumt (= args_pointer beim Einsprung)
-# kann GC auslösen
+# can trigger GC
   typedef boolean seq_boolop_fun (object pred_ergebnis);
   local Values seq_boolop (seq_boolop_fun* boolop_fun,
                            object* args_pointer,
@@ -1475,7 +1475,7 @@ LISPFUN(notevery,2,0,rest,nokey,0,NIL)
 # > key: Wert des :KEY-Arguments
 # > value1: Element einer Sequence
 # < value1: (FUNCALL key value1)
-# kann GC auslösen
+# can trigger GC
   #define funcall_key(key)  \
     { var object _key = (key);                                                \
       if (!eq(_key,L(identity))) # :KEY #'IDENTITY ist sehr häufig, Abkürzung \
@@ -1733,7 +1733,7 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > *(stackptr+1): das zu vergleichende Item
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   local boolean up_test (const object* stackptr, object x);
   local boolean up_test(stackptr,x)
     var const object* stackptr;
@@ -1751,7 +1751,7 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > *(stackptr+1): das zu vergleichende Item
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   local boolean up_test_not (const object* stackptr, object x);
   local boolean up_test_not(stackptr,x)
     var const object* stackptr;
@@ -1768,7 +1768,7 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > *(stackptr+1): das Testprädikat
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   local boolean up_if (const object* stackptr, object x);
   local boolean up_if(stackptr,x)
     var const object* stackptr;
@@ -1783,7 +1783,7 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > *(stackptr+1): das Testprädikat
 # > x: Argument
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   local boolean up_if_not (const object* stackptr, object x);
   local boolean up_if_not(stackptr,x)
     var const object* stackptr;
@@ -1909,7 +1909,7 @@ LISPFUN(replace,2,0,norest,key,4,\
 #       < ergebnis: Ergebnis
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
-# kann GC auslösen
+# can trigger GC
   # help_function sei der Typ der Adresse einer solchen Hilfsfunktion:
   typedef object (*help_function) (object* stackptr, uintL bvl, uintL dl);
   local Values seq_filterop (object* stackptr, up_function up_fun, help_function help_fun);
@@ -2035,7 +2035,7 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > bvl: Länge des Bit-Vektors (= end - start),
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
-# kann GC auslösen
+# can trigger GC
   local object remove_help (object* stackptr, uintL bvl, uintL dl);
   local object remove_help(stackptr,bvl,dl)
     var object* stackptr;
@@ -2104,7 +2104,7 @@ LISPFUN(replace,2,0,norest,key,4,\
 # > bvl: Länge des Bit-Vektors (= end - start),
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
-# kann GC auslösen
+# can trigger GC
   local object delete_help (object* stackptr, uintL bvl, uintL dl);
   local object delete_help(stackptr,bvl,dl)
     var object* stackptr;
@@ -2267,7 +2267,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
 # > *(stackptr-5): die Testfunktion
 # > x,y: Argumente
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   local boolean up2_test (const object* stackptr, object x, object y);
   local boolean up2_test(stackptr,x,y)
     var const object* stackptr;
@@ -2285,7 +2285,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
 # > *(stackptr-6): die Testfunktion
 # > x,y: Argumente
 # < ergebnis: TRUE falls der Test erfüllt ist, FALSE sonst
-# kann GC auslösen
+# can trigger GC
   local boolean up2_test_not (const object* stackptr, object x, object y);
   local boolean up2_test_not(stackptr,x,y)
     var const object* stackptr;
@@ -2355,7 +2355,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,\
 #       kann GC auslösen
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
-# kann GC auslösen
+# can trigger GC
   local Values seq_duplicates (help_function help_fun);
   local Values seq_duplicates(help_fun)
     var help_function help_fun;
@@ -2665,7 +2665,7 @@ LISPFUN(delete_duplicates,1,0,norest,key,6,\
 # > bvl: Länge des Bit-Vektors (= end - start),
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
-# kann GC auslösen
+# can trigger GC
   local object substitute_help (object* stackptr, uintL bvl, uintL dl);
   local object substitute_help(stackptr,bvl,dl)
     var object* stackptr;
@@ -2821,7 +2821,7 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,\
 # > bvl: Länge des Bit-Vektors (= end - start),
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 # < ergebnis: Ergebnis
-# kann GC auslösen
+# can trigger GC
   local object nsubstitute_fe_help (object* stackptr, uintL bvl, uintL dl);
   local object nsubstitute_fe_help(stackptr,bvl,dl)
     var object* stackptr;
@@ -2880,7 +2880,7 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,\
 #           < TRUE, falls der Test erfüllt ist, FALSE sonst.
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
-# kann GC auslösen
+# can trigger GC
   local Values nsubstitute_op (object* stackptr, up_function up_fun);
   local Values nsubstitute_op(stackptr,up_fun)
     var object* stackptr;
@@ -2980,7 +2980,7 @@ LISPFUN(nsubstitute_if_not,3,0,norest,key,5,\
 #           < TRUE, falls der Test erfüllt ist, FALSE sonst.
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
-# kann GC auslösen
+# can trigger GC
   local Values find_op (object* stackptr, up_function up_fun);
   local Values find_op(stackptr,up_fun)
     var object* stackptr;
@@ -3099,7 +3099,7 @@ LISPFUN(find_if_not,2,0,norest,key,4,\
 #           < TRUE, falls der Test erfüllt ist, FALSE sonst.
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
-# kann GC auslösen
+# can trigger GC
   local Values position_op (object* stackptr, up_function up_fun);
   local Values position_op(stackptr,up_fun)
     var object* stackptr;
@@ -3220,7 +3220,7 @@ LISPFUN(position_if_not,2,0,norest,key,4,\
 #           < TRUE, falls der Test erfüllt ist, FALSE sonst.
 # > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
-# kann GC auslösen
+# can trigger GC
   local Values count_op (object* stackptr, up_function up_fun);
   local Values count_op(stackptr,up_fun)
     var object* stackptr;
@@ -3733,7 +3733,7 @@ LISPFUN(search,2,0,norest,key,8,\
 #            pointer2 genau  count2  mal weitergerückt (mit SEQ-UPD),
 #            pointer3 genau  count1+count2  mal weitergerückt (mit SEQ-UPD).
 # count1 und count2 werden auf 0 gesetzt.
-# kann GC auslösen
+# can trigger GC
   local void merge (object* stackptr);
   local void merge(stackptr)
     var object* stackptr;
@@ -3828,7 +3828,7 @@ LISPFUN(search,2,0,norest,key,8,\
 # > stackptr: Pointer in den Stack:
 #       sequence, predicate [stackptr], key, start, end, typdescr, seq2
 # < ergebnis: Pointer nach den k Elementen
-# kann GC auslösen
+# can trigger GC
   local object sort_part (object pointer_left, object k, object* stackptr);
   local object sort_part(pointer_left,k,stackptr)
     var object pointer_left;
@@ -3908,7 +3908,7 @@ LISPFUN(search,2,0,norest,key,8,\
 # stable_sort();
 # > Stackaufbau: sequence, predicate, key, start, end
 # < mv_space/mv_count: Werte
-# kann GC auslösen
+# can trigger GC
   local Values stable_sort (void);
   local Values stable_sort()
     { # Stackaufbau: sequence, predicate, key, start, end.

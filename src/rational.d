@@ -2,13 +2,13 @@
 
 # Liefert zu den Integers a und b mit b>1 und ggT(a,b)=1 den Bruch a/b.
 # I_I_to_RT(a,b)
-# kann GC auslösen
+# can trigger GC
   #define I_I_to_RT  make_ratio
 
 # Liefert zu den Integers a und b mit b>0 und ggT(a,b)=1 den Bruch a/b
 # (Ratio oder Integer).
 # I_I_to_RA(a,b)
-# kann GC auslösen
+# can trigger GC
   local object I_I_to_RA (object a, object b);
 # Methode:
 # falls b=1, a als Ergebnis, sonst der echte Bruch a/b.
@@ -23,7 +23,7 @@
   # define I_I_to_RA(a,b)  (eq(b,Fixnum_1) ? a : I_I_to_RT(a,b))
 
 # Liefert zu den Integers a und b mit b>0 den Bruch a/b (Ratio oder Integer).
-# kann GC auslösen
+# can trigger GC
   local object I_posI_durch_RA (object a, object b);
 # Methode:
 # d:=ggT(a,b).
@@ -51,7 +51,7 @@
 
 # Liefert zu den Integers a und b den Bruch a/b (Ratio oder Integer).
 # I_I_durch_RA(a,b)
-# kann GC auslösen
+# can trigger GC
   local object I_I_durch_RA (object a, object b);
 # Methode:
 # Falls b=0: Error.
@@ -82,7 +82,7 @@
 
 # Liefert (- r), wo r eine rationale Zahl ist.
 # RA_minus_RA(r)
-# kann GC auslösen
+# can trigger GC
   local object RA_minus_RA (object r);
 # Methode:
 # r Integer -> klar.
@@ -102,7 +102,7 @@
 
 # (+ r s), wo r und s rationale Zahlen sind.
 # RA_RA_plus_RA(r,s)
-# kann GC auslösen
+# can trigger GC
   local object RA_RA_plus_RA (object r, object s);
 # Methode (vgl. [Buchberger, Collins, Loos: Computer Algebra, S.200-201])
 # r,s beide Integers -> klar.
@@ -221,7 +221,7 @@
 
 # (- r s), wo r und s rationale Zahlen sind.
 # RA_RA_minus_RA(r,s)
-# kann GC auslösen
+# can trigger GC
   local object RA_RA_minus_RA (object r, object s);
 #if 0
 # Methode:
@@ -356,7 +356,7 @@
 
 # (1+ r), wo r eine rationale Zahl ist.
 # RA_1_plus_RA(r)
-# kann GC auslösen
+# can trigger GC
   local object RA_1_plus_RA (object r);
 # Methode:
 # Falls r ein Integer ist: I_1_plus_I anwenden
@@ -374,7 +374,7 @@
 
 # (1- r), wo r eine rationale Zahl ist.
 # RA_minus1_plus_RA(r)
-# kann GC auslösen
+# can trigger GC
   local object RA_minus1_plus_RA (object r);
 # Methode:
 # Falls r ein Integer ist: I_minus1_plus_I anwenden
@@ -392,7 +392,7 @@
 
 # RA_RA_comp(r,s) vergleicht zwei rationale Zahlen r und s.
 # Ergebnis: 0 falls r=s, +1 falls r>s, -1 falls r<s.
-# kann GC auslösen
+# can trigger GC
   local signean RA_RA_comp (object r, object s);
 # Methode:
 # r,s Integer -> klar
@@ -443,7 +443,7 @@
 
 # Kehrwert (/ r), wo r eine rationale Zahl ist.
 # RA_durch_RA(r)
-# kann GC auslösen
+# can trigger GC
   local object RA_durch_RA (object r);
 # Methode:
 # r=0 -> Error.
@@ -466,7 +466,7 @@
 
 # Liefert (* r r), wo r eine rationale Zahl ist.
 # RA_square_RA(r)
-# kann GC auslösen
+# can trigger GC
   local object RA_square_RA (object r);
 # Methode:
 # r Integer -> klar.
@@ -492,7 +492,7 @@
 
 # Liefert (* r s), wo r und s rationale Zahlen sind.
 # RA_RA_mal_RA(r,s)
-# kann GC auslösen
+# can trigger GC
   local object RA_RA_mal_RA (object r, object s);
 # Methode (vgl. [Buchberger, Collins, Loos: Computer Algebra, S.201])
 # r,s beide Integers -> klar.
@@ -585,7 +585,7 @@
 
 # Liefert (/ r s), wo r und s rationale Zahlen sind.
 # RA_RA_durch_RA(r,s)
-# kann GC auslösen
+# can trigger GC
   local object RA_RA_durch_RA (object r, object s);
 # Methode:
 # (* r (/ s))
@@ -606,7 +606,7 @@
 # < STACK_1: Quotient q, ein Integer
 # < STACK_0: Rest r, eine rationale Zahl
 # Erniedrigt STACK um 2
-# kann GC auslösen
+# can trigger GC
   local void RA_truncate_I_RA (object x);
 # Methode:
 # x Integer -> (q,r) := (x,0)
@@ -635,7 +635,7 @@
 # < STACK_1: Quotient q, ein Integer
 # < STACK_0: Rest r, eine rationale Zahl
 # Erniedrigt STACK um 2
-# kann GC auslösen
+# can trigger GC
   local void RA_floor_I_RA (object x);
 # Methode:
 # x Integer -> (q,r) := (x,0)
@@ -664,7 +664,7 @@
 # < STACK_1: Quotient q, ein Integer
 # < STACK_0: Rest r, eine rationale Zahl
 # Erniedrigt STACK um 2
-# kann GC auslösen
+# can trigger GC
   local void RA_ceiling_I_RA (object x);
 # Methode:
 # x Integer -> (q,r) := (x,0)
@@ -693,7 +693,7 @@
 # < STACK_1: Quotient q, ein Integer
 # < STACK_0: Rest r, eine rationale Zahl
 # Erniedrigt STACK um 2
-# kann GC auslösen
+# can trigger GC
   local void RA_round_I_RA (object x);
 # Methode:
 # x Integer -> (q,r) := (x,0)
@@ -716,7 +716,7 @@
     }   }}
 
 # RA_I_expt_RA(x,y) = (expt x y), wo x eine rationale Zahl und y ein Integer >0 ist.
-# kann GC auslösen
+# can trigger GC
   local object RA_I_expt_RA (object x, object y);
   # Methode:
   # x Integer -> klar
@@ -741,7 +741,7 @@
 # RA_sqrtp(x)
 # > x: eine rationale Zahl >=0
 # < ergebnis: exakte Wurzel (sqrt x) falls x Quadrat, nullobj sonst
-# kann GC auslösen
+# can trigger GC
   local object RA_sqrtp (object x);
 # Methode:
 # Bei Integers: klar.
@@ -770,7 +770,7 @@
 # > x: eine rationale Zahl >=0
 # > n: ein Integer >0
 # < ergebnis: exakte n-te Wurzel (expt x (/ n)) falls eine n-te Potenz, nullobj sonst
-# kann GC auslösen
+# can trigger GC
   local object RA_rootp (object x, object n);
 # Methode:
 # Bei Integers: klar.

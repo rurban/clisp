@@ -359,7 +359,7 @@
 # (BOOLE op x y), wenn x und y Integers und op ein Objekt sind.
 # Ergebnis Integer.
 # OP_I_I_boole_I(op,x,y)
-# kann GC auslösen
+# can trigger GC
   local object OP_I_I_boole_I (object op, object x, object y);
   local object OP_I_I_boole_I(op,x,y)
     var object op;
@@ -548,7 +548,7 @@
 
 # (ASH x y), wo x und y Integers sind. Ergebnis Integer.
 # I_I_ash_I(x,y)
-# kann GC auslösen
+# can trigger GC
   global object I_I_ash_I (object x, object y);
   global object I_I_ash_I(x,y)
     var object x;
@@ -648,7 +648,7 @@
 
 # (LOGCOUNT x), wo x ein Integer ist. Ergebnis Integer >=0.
 # I_logcount_I(x)
-# kann GC auslösen
+# can trigger GC
   local object I_logcount_I (object x);
   # Bits von x8 zählen: (Input x8, Output x8)
   #define logcount_8()  \
@@ -947,7 +947,7 @@
 
 # (INTEGER-LENGTH x), wo x ein Integer ist. Ergebnis Integer >=0.
 # I_integer_length_I(x)
-# kann GC auslösen
+# can trigger GC
   local object I_integer_length_I (object x);
   local object I_integer_length_I(x)
     var object x;

@@ -2,12 +2,12 @@
 
 # Liefert zu reellen Zahlen a und b /= Fixnum 0 die komplexe Zahl a+bi.
 # R_R_complex_C(a,b)
-# kann GC auslösen
+# can trigger GC
   #define R_R_complex_C  make_complex
 
 # Liefert zu reellen Zahlen a und b die komplexe Zahl a+bi.
 # R_R_complex_N(a,b)
-# kann GC auslösen
+# can trigger GC
   local object R_R_complex_N (object a, object b);
 # Methode:
 # Falls b=0, nur a. sonst komplexe Zahl erzeugen.
@@ -37,7 +37,7 @@
 #endif
 
 # N_conjugate_N(x) liefert die konjugiert komplexe Zahl zur Zahl x.
-# kann GC auslösen
+# can trigger GC
   local object N_conjugate_N (object x);
   local object N_conjugate_N(x)
     var object x;
@@ -51,7 +51,7 @@
     }   }}
 
 # N_minus_N(x) liefert (- x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_minus_N (object x);
 # Methode:
 # x reell -> klar.
@@ -69,7 +69,7 @@
     }   }}
 
 # N_N_plus_N(x) liefert (+ x y), wo x und y Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object N_N_plus_N (object x, object y);
 # Methode:
 # x,y beide reell -> klar.
@@ -110,7 +110,7 @@
     }   }
 
 # N_N_minus_N(x) liefert (- x y), wo x und y Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object N_N_minus_N (object x, object y);
 # Methode:
 # x,y beide reell -> klar.
@@ -153,7 +153,7 @@
     }   }
 
 # N_1_plus_N(x) liefert (1+ x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_1_plus_N (object x);
 # Methode:
 # x reell -> klar.
@@ -169,7 +169,7 @@
     }   }}
 
 # N_minus1_plus_N(x) liefert (1- x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_minus1_plus_N (object x);
 # Methode:
 # x reell -> klar.
@@ -185,7 +185,7 @@
     }   }}
 
 # N_square_N(x) liefert (* x x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_square_N (object x);
 # Methode:
 # x reell -> klar.
@@ -211,7 +211,7 @@
     }
 
 # N_N_mal_N(x) liefert (* x y), wo x und y Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object N_N_mal_N (object x, object y);
 # Methode:
 # x,y beide reell -> klar.
@@ -280,7 +280,7 @@
     }
 
 # N_durch_N(x) liefert (/ x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_durch_N (object x);
 # Methode:
 # Falls x reell, klar.
@@ -509,7 +509,7 @@
   #define C_durch_C  N_durch_N
 
 # N_N_durch_N(x,y) liefert (/ x y), wo x und y Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object N_N_durch_N (object x, object y);
 # Methode:
 # x,y beide reell -> klar.
@@ -541,7 +541,7 @@
     }
 
 # R_R_hypot_R(a,b) liefert sqrt(a^2+b^2), wo a und b reelle Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object R_R_hypot_R (object a, object b);
 # Methode:
 # Falls a=0: (abs b).
@@ -755,7 +755,7 @@
     }
 
 # N_abs_R(x) liefert (abs x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_abs_R (object x);
 # Methode:
 # Falls x reell: klar
@@ -770,7 +770,7 @@
   #define C_abs_R(x)  R_R_hypot_R(TheComplex(x)->c_real,TheComplex(x)->c_imag)
 
 # N_signum_N(x) liefert (signum x), wo x eine Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_signum_N (object x);
 # Methode:
 # x reell -> klar.
@@ -786,7 +786,7 @@
     }   }
 
 # N_sqrt_N(x) liefert (sqrt x), wo x eine beliebige Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object N_sqrt_N (object x);
 # Methode:
 # x reell -> Für x>=0 klar, für x<0: sqrt(-x)*i.

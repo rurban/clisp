@@ -2487,7 +2487,7 @@ local void heap_statistics_mapper(arg,obj,bytelen)
 
 # Creates a vector containing the heap statistics result,
 # and pushes it onto the STACK.
-# kann GC auslösen
+# can trigger GC
   local void heap_statistics_result (hs_locals* locals);
   local void heap_statistics_result(locals)
     var hs_locals* locals;

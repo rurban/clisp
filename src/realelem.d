@@ -36,7 +36,7 @@
 # > x: ein Integer
 # > y: ein Float
 # < ergebnis: (float x y)
-# kann GC auslösen
+# can trigger GC
   local object I_F_float_F (object x, object y);
   local object I_F_float_F(x,y)
     var object x;
@@ -54,7 +54,7 @@
 # > x: eine rationale Zahl
 # > y: ein Float
 # < ergebnis: (float x y)
-# kann GC auslösen
+# can trigger GC
   local object RA_F_float_F (object x, object y);
   local object RA_F_float_F(x,y)
     var object x;
@@ -72,7 +72,7 @@
 # > x: eine reelle Zahl
 # > y: ein Float
 # < ergebnis: (float x y)
-# kann GC auslösen
+# can trigger GC
   local object R_F_float_F (object x, object y);
   local object R_F_float_F(x,y)
     var object x;
@@ -81,7 +81,7 @@
 
 # R_to_SF(x) wandelt eine reelle Zahl x in ein Short-Float um.
 # < ergebnis: (coerce x 'short-float)
-# kann GC auslösen
+# can trigger GC
   local object R_to_SF (object x);
   local object R_to_SF(x)
     var object x;
@@ -89,7 +89,7 @@
 
 # R_to_FF(x) wandelt eine reelle Zahl x in ein Single-Float um.
 # < ergebnis: (coerce x 'single-float)
-# kann GC auslösen
+# can trigger GC
   local object R_to_FF (object x);
   local object R_to_FF(x)
     var object x;
@@ -97,7 +97,7 @@
 
 # R_to_DF(x) wandelt eine reelle Zahl x in ein Double-Float um.
 # < ergebnis: (coerce x 'double-float)
-# kann GC auslösen
+# can trigger GC
   local object R_to_DF (object x);
   local object R_to_DF(x)
     var object x;
@@ -106,7 +106,7 @@
 # R_to_LF(x,len) wandelt eine reelle Zahl x in ein Long-Float mit len Digits um.
 # > uintC len: gewünschte Anzahl Digits, >=LF_minlen
 # < ergebnis: (coerce x `(long-float ,len))
-# kann GC auslösen
+# can trigger GC
   local object R_to_LF (object x, uintC len);
   local object R_to_LF(x,len)
     var object x;
@@ -184,7 +184,7 @@
 # I_float_F(x) wandelt ein Integer x in ein Float um und rundet dabei.
 # > x: ein Integer
 # < ergebnis: (float x)
-# kann GC auslösen
+# can trigger GC
   local object I_float_F (object x);
   local object I_float_F(x)
     var object x;
@@ -200,7 +200,7 @@
 # RA_float_F(x) wandelt eine rationale Zahl x in ein Float um und rundet dabei.
 # > x: eine rationale Zahl
 # < ergebnis: (float x)
-# kann GC auslösen
+# can trigger GC
   local object RA_float_F (object x);
   local object RA_float_F(x)
     var object x;
@@ -217,7 +217,7 @@
 # und rundet dabei nötigenfalls.
 # > x: eine reelle Zahl
 # < ergebnis: (float x)
-# kann GC auslösen
+# can trigger GC
   local object R_float_F (object x);
   local object R_float_F(x)
     var object x;
@@ -245,25 +245,25 @@
 
 # R_floor_I_R(x) liefert (floor x), wo x eine reelle Zahl ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_floor_I_R (object x);
   GEN_R_round(floor)
 
 # R_ceiling_I_R(x) liefert (ceiling x), wo x eine reelle Zahl ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_ceiling_I_R (object x);
   GEN_R_round(ceiling)
 
 # R_truncate_I_R(x) liefert (truncate x), wo x eine reelle Zahl ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_truncate_I_R (object x);
   GEN_R_round(truncate)
 
 # R_round_I_R(x) liefert (round x), wo x eine reelle Zahl ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_round_I_R (object x);
   GEN_R_round(round)
 
@@ -291,25 +291,25 @@
 
 # R_ffloor_F_R(x) liefert (ffloor x), wo x eine reelle Zahl ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_ffloor_F_R (object x);
   GEN_R_fround(floor)
 
 # R_fceiling_F_R(x) liefert (fceiling x), wo x eine reelle Zahl ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_fceiling_F_R (object x);
   GEN_R_fround(ceiling)
 
 # R_ftruncate_F_R(x) liefert (ftruncate x), wo x eine reelle Zahl ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_ftruncate_F_R (object x);
   GEN_R_fround(truncate)
 
 # R_fround_F_R(x) liefert (fround x), wo x eine reelle Zahl ist.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_fround_F_R (object x);
   GEN_R_fround(round)
 
@@ -338,21 +338,21 @@
     }
 
 # R_minus_R(x) liefert (- x), wo x eine reelle Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object R_minus_R (object x);
   local object R_minus_R(x)
     var object x;
     { return (R_rationalp(x) ? RA_minus_RA(x) : F_minus_F(x)); }
 
 # R_abs_R(x) liefert (abs x), wo x eine reelle Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object R_abs_R (object x);
   local object R_abs_R(x)
     var object x;
     { return (R_minusp(x) ? R_minus_R(x) : x); } # x<0 -> (- x), x>=0 -> x
 
 # R_R_plus_R(x,y) liefert (+ x y), wo x und y reelle Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object R_R_plus_R (object x, object y);
   local object R_R_plus_R(x,y)
     var object x;
@@ -364,7 +364,7 @@
     }
 
 # R_R_minus_R(x,y) liefert (- x y), wo x und y reelle Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object R_R_minus_R (object x, object y);
   local object R_R_minus_R(x,y)
     var object x;
@@ -376,14 +376,14 @@
     }
 
 # R_square_R(x) liefert (* x x), wo x eine reelle Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object R_square_R (object x);
   local object R_square_R(x)
     var object x;
     { return (R_rationalp(x) ? RA_square_RA(x) : F_square_F(x)); }
 
 # R_R_mal_R(x,y) liefert (* x y), wo x und y reelle Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object R_R_mal_R (object x, object y);
   local object R_R_mal_R(x,y)
     var object x;
@@ -395,14 +395,14 @@
     }
 
 # R_durch_R(x) liefert (/ x), wo x eine reelle Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object R_durch_R (object x);
   local object R_durch_R(x)
     var object x;
     { return (R_rationalp(x) ? RA_durch_RA(x) : F_durch_F(x)); }
 
 # R_R_durch_R(x,y) liefert (/ x y), wo x und y reelle Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object R_R_durch_R (object x, object y);
   local object R_R_durch_R(x,y)
     var object x;
@@ -441,25 +441,25 @@
 
 # R_R_floor_I_R(x,y) liefert (floor x y), wo x und y reelle Zahlen sind.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_R_floor_I_R (object x, object y);
   GEN_R_R_round(floor)
 
 # R_R_ceiling_I_R(x,y) liefert (ceiling x y), wo x und y reelle Zahlen sind.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_R_ceiling_I_R (object x, object y);
   GEN_R_R_round(ceiling)
 
 # R_R_truncate_I_R(x,y) liefert (truncate x y), wo x und y reelle Zahlen sind.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_R_truncate_I_R (object x, object y);
   GEN_R_R_round(truncate)
 
 # R_R_round_I_R(x,y) liefert (round x y), wo x und y reelle Zahlen sind.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_R_round_I_R (object x, object y);
   GEN_R_R_round(round)
 
@@ -486,12 +486,12 @@
       }   }
 
 # R_R_mod_R(x,y) = (mod x y), wo x und y reelle Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object R_R_mod_R (object x, object y);
   GEN_R_R_mod(mod,floor)
 
 # R_R_rem_R(x,y) = (rem x y), wo x und y reelle Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object R_R_rem_R (object x, object y);
   GEN_R_R_mod(rem,truncate)
 
@@ -526,44 +526,44 @@
 
 # R_R_ffloor_F_R(x,y) liefert (ffloor x y), wo x und y reelle Zahlen sind.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_R_ffloor_F_R (object x, object y);
   GEN_R_R_fround(floor)
 
 # R_R_fceiling_F_R(x,y) liefert (fceiling x y), wo x und y reelle Zahlen sind.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_R_fceiling_F_R (object x, object y);
   GEN_R_R_fround(ceiling)
 
 # R_R_ftruncate_F_R(x,y) liefert (ftruncate x y), wo x und y reelle Zahlen sind.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_R_ftruncate_F_R (object x, object y);
   GEN_R_R_fround(truncate)
 
 # R_R_fround_F_R(x,y) liefert (fround x y), wo x und y reelle Zahlen sind.
 # Beide Werte in den Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_R_fround_F_R (object x, object y);
   GEN_R_R_fround(round)
 
 # R_1_plus_R(x) liefert (1+ x), wo x eine reelle Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object R_1_plus_R (object x);
   local object R_1_plus_R(x)
     var object x;
     { return (R_rationalp(x) ? RA_1_plus_RA(x) : R_R_plus_R(x,Fixnum_1)); }
 
 # R_minus1_plus_R(x) liefert (1- x), wo x eine reelle Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object R_minus1_plus_R (object x);
   local object R_minus1_plus_R(x)
     var object x;
     { return (R_rationalp(x) ? RA_minus1_plus_RA(x) : R_R_plus_R(x,Fixnum_minus1)); }
 
 # F_rational_RA(x) liefert (rational x), wo x ein Float ist.
-# kann GC auslösen
+# can trigger GC
   local object F_rational_RA (object x);
   # Methode:
   # Der mathematische Wert eines Float ist, wenn INTEGER-DECODE-FLOAT die
@@ -590,7 +590,7 @@
     }}}
 
 # R_rational_RA(x) liefert (rational x), wo x eine reelle Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object R_rational_RA (object x);
   local object R_rational_RA(x)
     var object x;
@@ -598,7 +598,7 @@
 
 # R_R_comp(x,y) vergleicht zwei reelle Zahlen x und y.
 # Ergebnis: 0 falls x=y, +1 falls x>y, -1 falls x<y.
-# kann GC auslösen
+# can trigger GC
   local signean R_R_comp (object x, object y);
   # Methode:
   # Beide rational oder beide Floats -> klar.
@@ -970,7 +970,7 @@
     };
 
 # R_R_max_R(x,y) liefert (max x y), wo x und y reelle Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object R_R_max_R (object x, object y);
   local object R_R_max_R(x,y)
     var object x;
@@ -986,7 +986,7 @@
     }}
 
 # R_R_min_R(x,y) liefert (min x y), wo x und y reelle Zahlen sind.
-# kann GC auslösen
+# can trigger GC
   local object R_R_min_R (object x, object y);
   local object R_R_min_R(x,y)
     var object x;
@@ -1002,7 +1002,7 @@
     }}
 
 # R_signum_R(x) liefert (signum x), wo x eine reelle Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object R_signum_R (object x);
   local object R_signum_R(x)
     var object x;
@@ -1034,7 +1034,7 @@
     }   }
 
 # R_sqrt_R(x) = (sqrt x) zieht die Wurzel aus einer reellen Zahl x >=0.
-# kann GC auslösen
+# can trigger GC
   local object R_sqrt_R (object x);
   local object R_sqrt_R(x)
     var object x;
@@ -1054,7 +1054,7 @@
   #define RA_sqrt_R  R_sqrt_R
 
 # R_I_expt_R(x,y) = (expt x y), wo x eine reelle Zahl und y ein Integer ist.
-# kann GC auslösen
+# can trigger GC
   local object R_I_expt_R (object x, object y);
   # Methode:
   # Für y>0:
@@ -1097,7 +1097,7 @@
     }}
 
 # R_rationalize_RA(x) liefert (rationalize x), wo x eine reelle Zahl ist.
-# kann GC auslösen
+# can trigger GC
   local object R_rationalize_RA (object x);
   # Methode (rekursiv dargestellt):
   # Falls x rational ist: x.

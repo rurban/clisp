@@ -540,7 +540,7 @@
 # L_to_I(wert)
 # > wert: Wert des Integers, ein signed 32-Bit-Integer.
 # < ergebnis: Integer mit diesem Wert.
-# kann GC auslösen
+# can trigger GC
   global object L_to_I (sint32 wert);
   #if (oint_data_len+1 >= intLsize)
   global object L_to_I(wert)
@@ -669,7 +669,7 @@
 # UL_to_I(wert)
 # > wert: Wert des Integers, ein unsigned 32-Bit-Integer.
 # < ergebnis: Integer mit diesem Wert.
-# kann GC auslösen
+# can trigger GC
 #ifndef UL_to_I # wenn nicht schon als Macro definiert
   global object UL_to_I (uint32 wert);
   global object UL_to_I(wert)
@@ -769,7 +769,7 @@
 # L2_to_I(wert_hi,wert_lo)
 # > wert_hi|wert_lo: Wert des Integers, ein signed 64-Bit-Integer.
 # < ergebnis: Integer mit diesem Wert.
-# kann GC auslösen
+# can trigger GC
   global object L2_to_I (sint32 wert_hi, uint32 wert_lo);
   global object L2_to_I(wert_hi,wert_lo)
     var sint32 wert_hi;
@@ -921,7 +921,7 @@
 # UL2_to_I(wert_hi,wert_lo)
 # > wert_hi|wert_lo: Wert des Integers, ein unsigned 64-Bit-Integer.
 # < ergebnis: Integer mit diesem Wert.
-# kann GC auslösen
+# can trigger GC
   global object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
   global object UL2_to_I(wert_hi,wert_lo)
     var uint32 wert_hi;
@@ -1035,7 +1035,7 @@
 # Q_to_I(wert)
 # > wert: Wert des Integers, ein signed 64-Bit-Integer.
 # < ergebnis: Integer mit diesem Wert.
-# kann GC auslösen
+# can trigger GC
   global object Q_to_I (sint64 wert);
   global object Q_to_I(wert)
     var sint64 wert;
@@ -1106,7 +1106,7 @@
 # UQ_to_I(wert)
 # > wert: Wert des Integers, ein unsigned 64-Bit-Integer.
 # < ergebnis: Integer mit diesem Wert.
-# kann GC auslösen
+# can trigger GC
   global object UQ_to_I (uint64 wert);
   global object UQ_to_I(wert)
     var uint64 wert;
@@ -1305,7 +1305,7 @@
 # Normalized Digit sequence to Integer
 # NDS_to_I(MSDptr,len)
 # Digit Sequence MSDptr/len/.. in Integer umwandeln.
-# kann GC auslösen
+# can trigger GC
   local object NDS_to_I (const uintD* MSDptr, uintC len);
   local object NDS_to_I(MSDptr,len)
     var const uintD* MSDptr;
@@ -1413,7 +1413,7 @@
 # NUDS_to_I(MSDptr,len)
 # Normalized UDS MSDptr/len/.. in Integer >=0 umwandeln.
 # Unterhalb von MSDptr muss 1 Digit Platz sein.
-# kann GC auslösen
+# can trigger GC
   local object NUDS_to_I (uintD* MSDptr, uintC len);
   local object NUDS_to_I(MSDptr,len)
     var uintD* MSDptr;
@@ -1432,7 +1432,7 @@
 # UDS_to_I(MSDptr,len)
 # UDS MSDptr/len/.. in Integer >=0 umwandeln.
 # Unterhalb von MSDptr muss 1 Digit Platz sein.
-# kann GC auslösen
+# can trigger GC
   local object UDS_to_I (uintD* MSDptr, uintC len);
   local object UDS_to_I(MSDptr,len)
     var uintD* MSDptr;
@@ -1453,7 +1453,7 @@
 # Digit Sequence to Integer
 # DS_to_I(MSDptr,len)
 # DS MSDptr/len/.. in Integer umwandeln.
-# kann GC auslösen
+# can trigger GC
   local object DS_to_I (const uintD* MSDptr, uintC len);
   local object DS_to_I(MSDptr,len)
     var const uintD* MSDptr;

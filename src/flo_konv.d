@@ -3,7 +3,7 @@
 # Konversionen ohne Rundung:
 
 # SF_to_FF(x) wandelt ein Short-Float x in ein Single-Float um.
-# kann GC auslösen
+# can trigger GC
   local object SF_to_FF (object x);
   local object SF_to_FF(x)
     var object x;
@@ -34,7 +34,7 @@
     }
 
 # SF_to_DF(x) wandelt ein Short-Float x in ein Double-Float um.
-# kann GC auslösen
+# can trigger GC
   local object SF_to_DF (object x);
   local object SF_to_DF(x)
     var object x;
@@ -53,7 +53,7 @@
 
 # SF_to_LF(x,len) wandelt ein Short-Float x in ein Long-Float mit len Digits um.
 # > uintC len: gewünschte Anzahl Digits, >=LF_minlen
-# kann GC auslösen
+# can trigger GC
   local object SF_to_LF (object x, uintC len);
   local object SF_to_LF(x,len)
     var object x;
@@ -75,7 +75,7 @@
     }}
 
 # FF_to_DF(x) wandelt ein Single-Float x in ein Double-Float um.
-# kann GC auslösen
+# can trigger GC
   local object FF_to_DF (object x);
   local object FF_to_DF(x)
     var object x;
@@ -94,7 +94,7 @@
 
 # FF_to_LF(x,len) wandelt ein Single-Float x in ein Long-Float mit len Digits um.
 # > uintC len: gewünschte Anzahl Digits, >=LF_minlen
-# kann GC auslösen
+# can trigger GC
   local object FF_to_LF (object x, uintC len);
   local object FF_to_LF(x,len)
     var object x;
@@ -117,7 +117,7 @@
 
 # DF_to_LF(x,len) wandelt ein Double-Float x in ein Long-Float mit len Digits um.
 # > uintC len: gewünschte Anzahl Digits, >=LF_minlen
-# kann GC auslösen
+# can trigger GC
   local object DF_to_LF (object x, uintC len);
   local object DF_to_LF(x,len)
     var object x;
@@ -278,7 +278,7 @@
     }
 
 # DF_to_FF(x) wandelt ein Double-Float x in ein Single-Float um.
-# kann GC auslösen
+# can trigger GC
   local object DF_to_FF (object x);
   local object DF_to_FF(x)
     var object x;
@@ -334,7 +334,7 @@
     }
 
 # LF_to_FF(x) wandelt ein Long-Float x in ein Single-Float um.
-# kann GC auslösen
+# can trigger GC
   local object LF_to_FF (object x);
   local object LF_to_FF(x)
     var object x;
@@ -371,7 +371,7 @@
     }
 
 # LF_to_DF(x) wandelt ein Long-Float x in ein Double-Float um.
-# kann GC auslösen
+# can trigger GC
   local object LF_to_DF (object x);
   local object LF_to_DF(x)
     var object x;
@@ -460,7 +460,7 @@
 #   e=255, m/=0: NaN
 
 # c_float_to_FF(&val) wandelt ein IEEE-Single-Float val in ein Single-Float um.
-# kann GC auslösen
+# can trigger GC
   global object c_float_to_FF (const ffloatjanus* val_);
   global object c_float_to_FF(val_)
     var const ffloatjanus* val_;
@@ -523,7 +523,7 @@
 #   e=2047, m/=0: NaN
 
 # c_double_to_DF(&val) wandelt ein IEEE-Double-Float val in ein Double-Float um.
-# kann GC auslösen
+# can trigger GC
   global object c_double_to_DF (const dfloatjanus* val_);
   global object c_double_to_DF(val_)
     var const dfloatjanus* val_;

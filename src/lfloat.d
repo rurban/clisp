@@ -34,7 +34,7 @@
 # encode_LF0(len,erg_zuweisung) liefert ein Long-Float 0.0 mit len Digits.
 # > uintC len: Anzahl der Digits
 # < object erg: neues Long-Float 0.0 mit len Digits
-# kann GC auslösen
+# can trigger GC
   #define encode_LF0(len,erg_zuweisung)  \
     { var uintC _len = (len);                                                 \
       var object _erg = allocate_lfloat(_len,0,0); # Exponent 0, Vorzeichen + \
@@ -47,7 +47,7 @@
 # > signean sign: Vorzeichen
 # > uintC len: Anzahl der Digits
 # < object erg: neues Long-Float +1.0 oder -1.0 mit len Digits
-# kann GC auslösen
+# can trigger GC
   #define encode_LF1s(sign,len,erg_zuweisung)  \
     { var uintC _len = (len);                                                      \
       var object _erg = allocate_lfloat(_len,LF_exp_mid+1,(sign)); # Exponent 1    \
@@ -60,7 +60,7 @@
 # encode_LF1(len,erg_zuweisung) liefert ein Long-Float 1.0 mit len Digits.
 # > uintC len: Anzahl der Digits
 # < object erg: neues Long-Float 1.0 mit len Digits
-# kann GC auslösen
+# can trigger GC
   #define encode_LF1(len,erg_zuweisung)  encode_LF1s(0,len,erg_zuweisung)
 
 # Einpacken eines Long-Float:
@@ -71,7 +71,7 @@
 # > uintC mantlen: Anzahl der Digits, >= LF_minlen
 # < object erg: neues Long-Float mit der UDS mantMSDptr/mantlen/.. als Mantisse
 # Der Exponent wird nicht auf Überlauf/Unterlauf getestet.
-# kann GC auslösen
+# can trigger GC
   #define encode_LFu(sign,uexp,mantMSDptr,mantlen,erg_zuweisung)  \
     { var uintC _len = (mantlen);                                                      \
       var object _erg = allocate_lfloat(_len,uexp,(sign)); # Exponent                  \
@@ -87,7 +87,7 @@
 # > uintC mantlen: Anzahl der Digits, >= LF_minlen
 # < object erg: neues Long-Float mit der UDS mantMSDptr/mantlen/.. als Mantisse
 # Der Exponent wird nicht auf Überlauf/Unterlauf getestet.
-# kann GC auslösen
+# can trigger GC
   #define encode_LF(sign,exp,mantMSDptr,mantlen,erg_zuweisung)  \
     encode_LFu(sign,LF_exp_mid+(uintL)(exp),mantMSDptr,mantlen,_EMA_ erg_zuweisung)
 
@@ -105,7 +105,7 @@
 # Liefert zu einem Long-Float x : (ftruncate x), ein LF.
 # LF_ftruncate_LF(x)
 # x wird zur 0 hin zur nächsten ganzen Zahl gerundet.
-# kann GC auslösen
+# can trigger GC
   local object LF_ftruncate_LF (object x);
 # Methode:
 # x = 0.0 oder e<=0 -> Ergebnis 0.0
@@ -171,7 +171,7 @@
 # Liefert zu einem Long-Float x : (futruncate x), ein LF.
 # LF_futruncate_LF(x)
 # x wird von der 0 weg zur nächsten ganzen Zahl gerundet.
-# kann GC auslösen
+# can trigger GC
   local object LF_futruncate_LF (object x);
 # Methode:
 # x = 0.0 -> Ergebnis 0.0
@@ -267,7 +267,7 @@
 # Liefert zu einem Long-Float x : (fround x), ein LF.
 # LF_fround_LF(x)
 # x wird zur nächsten ganzen Zahl gerundet.
-# kann GC auslösen
+# can trigger GC
   local object LF_fround_LF (object x);
 # Methode:
 # x = 0.0 oder e<0 -> Ergebnis 0.0
@@ -399,7 +399,7 @@
 
 # Liefert zu einem Long-Float x : (- x), ein LF.
 # LF_minus_LF(x)
-# kann GC auslösen
+# can trigger GC
   local object LF_minus_LF (object x);
 # Methode:
 # Falls x=0.0, fertig. Sonst Vorzeichenbit umdrehen und Pointer beibehalten.
@@ -516,7 +516,7 @@
 # > object x: ein Long-FLoat
 # > uintC len: gewünschte Länge (>= LF_minlen, < Lfloat_length(x))
 # < object ergebnis: verkürztes Long-Float
-# kann GC auslösen
+# can trigger GC
   local object LF_shorten_LF (object x, uintC len);
   local object LF_shorten_LF(x,len)
     var object x;
@@ -555,7 +555,7 @@
 # > object x: ein Long-FLoat
 # > uintC len: gewünschte Länge (> Lfloat_length(x))
 # < object ergebnis: verlängertes Long-Float
-# kann GC auslösen
+# can trigger GC
   local object LF_extend_LF (object x, uintC len);
   local object LF_extend_LF(x,len)
     var object x;
@@ -578,7 +578,7 @@
 # > object x: ein Long-FLoat
 # > uintC len: gewünschte Länge (>= LF_minlen)
 # < object ergebnis: Long-Float gegebener Länge
-# kann GC auslösen
+# can trigger GC
   local object LF_to_LF (object x, uintC len);
   local object LF_to_LF(x,len)
     var object x;
@@ -592,7 +592,7 @@
 
 # Liefert zu zwei gleichlangen Long-Float x und y : (+ x y), ein LF.
 # LF_LF_plus_LF(x,y)
-# kann GC auslösen
+# can trigger GC
   local object LF_LF_plus_LF (object x, object y);
 # Methode (nach [Knuth, II, Seminumerical Algorithms, Abschnitt 4.2.1., S.200]):
 # Falls e1<e2, vertausche x1 und x2.
@@ -848,7 +848,7 @@
 
 # Liefert zu zwei gleichlangen Long-Float x und y : (- x y), ein LF.
 # LF_LF_minus_LF(x,y)
-# kann GC auslösen
+# can trigger GC
   local object LF_LF_minus_LF (object x, object y);
 # Methode:
 # (- x1 x2) = (+ x1 (- x2))
@@ -873,7 +873,7 @@
 
 # Liefert zu einem Long-Float x : (* x x), ein LF.
 # LF_square_LF(x)
-# kann GC auslösen
+# can trigger GC
   local object LF_square_LF (object x);
 # Methode:
 # Falls x=0.0 -> Ergebnis 0.0
@@ -962,7 +962,7 @@
 
 # Liefert zu zwei gleichlangen Long-Float x und y : (* x y), ein LF.
 # LF_LF_mal_LF(x,y)
-# kann GC auslösen
+# can trigger GC
   local object LF_LF_mal_LF (object x, object y);
 # Methode:
 # Falls x1=0.0 oder x2=0.0 -> Ergebnis 0.0
@@ -1058,7 +1058,7 @@
 
 # Liefert zu zwei gleichlangen Long-Float x und y : (/ x y), ein LF.
 # LF_LF_durch_LF(x,y)
-# kann GC auslösen
+# can trigger GC
   local object LF_LF_durch_LF (object x, object y);
 # Methode:
 # x2 = 0.0 -> Error
@@ -1209,7 +1209,7 @@
 
 # Liefert zu einem Long-Float x>=0 : (sqrt x), ein LF.
 # LF_sqrt_LF(x)
-# kann GC auslösen
+# can trigger GC
   local object LF_sqrt_LF (object x);
 # Methode:
 # x = 0.0 -> Ergebnis 0.0
@@ -1289,7 +1289,7 @@
 
 # LF_to_I(x) wandelt ein Long-Float x, das eine ganze Zahl darstellt,
 # in ein Integer um.
-# kann GC auslösen
+# can trigger GC
   local object LF_to_I (object x);
 # Methode:
 # Falls x=0.0, Ergebnis 0.
@@ -1324,7 +1324,7 @@
 
 # I_to_LF(x,len) wandelt ein Integer x in ein Long-Float mit len Digits um
 # und rundet dabei.
-# kann GC auslösen
+# can trigger GC
   local object I_to_LF (object x, uintC len);
 # Methode:
 # x=0 -> Ergebnis 0.0
@@ -1432,7 +1432,7 @@
 
 # RA_to_LF(x,len) wandelt eine rationale Zahl x in ein Long-Float
 # mit len Digits um und rundet dabei.
-# kann GC auslösen
+# can trigger GC
   local object RA_to_LF (object x, uintC len);
 # Methode:
 # x ganz -> klar.

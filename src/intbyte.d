@@ -1,7 +1,7 @@
 # BYTE-Operationen auf Integers
 
 # Konstruktor: (I_I_Byte size position), wo size und position Integers sind.
-# kann GC auslösen
+# can trigger GC
   local object I_I_Byte (object size, object position);
   local object I_I_Byte(size,position)
     var object size;
@@ -76,7 +76,7 @@
 # fullbyte_I(p,q) liefert zu p,q die Zahl 2^q-2^p als Integer,
 # wobei p und q uintL sind. Bei p<=q ist das Ergebnis also
 # ein Integer >=0, bei dem genau die Bits p,...,q-1 gesetzt sind.
-# kann GC auslösen
+# can trigger GC
   local object fullbyte_I (uintL p, uintL q);
   local object fullbyte_I(p,q)
     var uintL p;
@@ -96,7 +96,7 @@
 # Extrahiere die Bits p,...,q-1 der Zahl x,
 # wobei 0 <= p <= q <= l = (integer-length x).
 # Ergebnis (wie bei LDB) ein Integer >=0.
-# kann GC auslösen
+# can trigger GC
   local object ldb_extract (object x, uintL p, uintL q);
   local object ldb_extract(x,p,q)
     var object x;
@@ -147,7 +147,7 @@
     }}
 
 # (LDB byte n), wo n ein Integer ist.
-# kann GC auslösen
+# can trigger GC
   local object I_Byte_ldb_I (object n, object b);
   local object I_Byte_ldb_I(n,b)
     var object n;
@@ -288,7 +288,7 @@
 # Extrahiere die Bits p,...,q-1 der Zahl x,
 # wobei 0 <= p <= q <= l = (integer-length x).
 # Ergebnis (wie bei MASK-FIELD) ein Integer >=0.
-# kann GC auslösen
+# can trigger GC
   local object mkf_extract (object x, uintL p, uintL q);
   local object mkf_extract(x,p,q)
     var object x;
@@ -330,7 +330,7 @@
     }}
 
 # (MASK-FIELD byte n), wo n ein Integer ist.
-# kann GC auslösen
+# can trigger GC
   local object I_Byte_mask_field_I (object n, object b);
   local object I_Byte_mask_field_I(n,b)
     var object n;
@@ -378,7 +378,7 @@
     }}  }
 
 # (DEPOSIT-FIELD new byte n), wo n und new Integers sind.
-# kann GC auslösen
+# can trigger GC
   local object I_I_Byte_deposit_field_I (object newbyte, object n, object b);
   local object I_I_Byte_deposit_field_I(newbyte,n,b)
     var object newbyte;
@@ -401,7 +401,7 @@
     }}
 
 # (DPB new byte n), wo n und new Integers sind.
-# kann GC auslösen
+# can trigger GC
   local object I_I_Byte_dpb_I (object newbyte, object n, object b);
   local object I_I_Byte_dpb_I(newbyte,n,b)
     var object newbyte;

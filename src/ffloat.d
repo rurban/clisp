@@ -27,7 +27,7 @@
 # > uintL mant: Mantisse, sollte >= 2^FF_mant_len und < 2^(FF_mant_len+1) sein.
 # < object ergebnis: ein Single-Float
 # Der Exponent wird auf Überlauf/Unterlauf getestet.
-# kann GC auslösen
+# can trigger GC
   #define encode_FF(sign,exp,mant, erg_zuweisung)  \
     { if ((exp) < (sintWL)(FF_exp_low-FF_exp_mid))                  \
         { if (underflow_allowed())                                  \
@@ -106,7 +106,7 @@
 # Liefert zu einem Single-Float x : (ftruncate x), ein FF.
 # FF_ftruncate_FF(x)
 # x wird zur 0 hin zur nächsten ganzen Zahl gerundet.
-# kann GC auslösen
+# can trigger GC
   local object FF_ftruncate_FF (object x);
 # Methode:
 # x = 0.0 oder e<=0 -> Ergebnis 0.0
@@ -132,7 +132,7 @@
 # Liefert zu einem Single-Float x : (futruncate x), ein FF.
 # FF_futruncate_FF(x)
 # x wird von der 0 weg zur nächsten ganzen Zahl gerundet.
-# kann GC auslösen
+# can trigger GC
   local object FF_futruncate_FF (object x);
 # Methode:
 # x = 0.0 -> Ergebnis 0.0
@@ -171,7 +171,7 @@
 # Liefert zu einem Single-Float x : (fround x), ein FF.
 # FF_fround_FF(x)
 # x wird zur nächsten ganzen Zahl gerundet.
-# kann GC auslösen
+# can trigger GC
   local object FF_fround_FF (object x);
 # Methode:
 # x = 0.0 oder e<0 -> Ergebnis 0.0
@@ -240,7 +240,7 @@
 
 # Liefert zu einem Single-Float x : (- x), ein FF.
 # FF_minus_FF(x)
-# kann GC auslösen
+# can trigger GC
   local object FF_minus_FF (object x);
 # Methode:
 # Falls x=0.0, fertig. Sonst Vorzeichenbit umdrehen.
@@ -295,7 +295,7 @@
 
 # Liefert zu zwei Single-Float x und y : (+ x y), ein FF.
 # FF_FF_plus_FF(x,y)
-# kann GC auslösen
+# can trigger GC
   local object FF_FF_plus_FF (object x, object y);
 # Methode (nach [Knuth, II, Seminumerical Algorithms, Abschnitt 4.2.1., S.200]):
 # x1=0.0 -> Ergebnis x2.
@@ -422,7 +422,7 @@
 
 # Liefert zu zwei Single-Float x und y : (- x y), ein FF.
 # FF_FF_minus_FF(x,y)
-# kann GC auslösen
+# can trigger GC
   local object FF_FF_minus_FF (object x, object y);
 # Methode:
 # (- x1 x2) = (+ x1 (- x2))
@@ -453,7 +453,7 @@
 
 # Liefert zu zwei Single-Float x und y : (* x y), ein FF.
 # FF_FF_mal_FF(x,y)
-# kann GC auslösen
+# can trigger GC
   local object FF_FF_mal_FF (object x, object y);
 # Methode:
 # Falls x1=0.0 oder x2=0.0 -> Ergebnis 0.0
@@ -543,7 +543,7 @@
 
 # Liefert zu zwei Single-Float x und y : (/ x y), ein FF.
 # FF_FF_durch_FF(x,y)
-# kann GC auslösen
+# can trigger GC
   local object FF_FF_durch_FF (object x, object y);
 # Methode:
 # x2 = 0.0 -> Error
@@ -634,7 +634,7 @@
 
 # Liefert zu einem Single-Float x>=0 : (sqrt x), ein FF.
 # FF_sqrt_FF(x)
-# kann GC auslösen
+# can trigger GC
   local object FF_sqrt_FF (object x);
 # Methode:
 # x = 0.0 -> Ergebnis 0.0
@@ -689,7 +689,7 @@
 
 # FF_to_I(x) wandelt ein Single-Float x, das eine ganze Zahl darstellt,
 # in ein Integer um.
-# kann GC auslösen
+# can trigger GC
   local object FF_to_I (object x);
 # Methode:
 # Falls x=0.0, Ergebnis 0.
@@ -714,7 +714,7 @@
     }
 
 # I_to_FF(x) wandelt ein Integer x in ein Single-Float um und rundet dabei.
-# kann GC auslösen
+# can trigger GC
   local object I_to_FF (object x);
 # Methode:
 # x=0 -> Ergebnis 0.0
@@ -783,7 +783,7 @@
 
 # RA_to_FF(x) wandelt eine rationale Zahl x in ein Single-Float um
 # und rundet dabei.
-# kann GC auslösen
+# can trigger GC
   local object RA_to_FF (object x);
 # Methode:
 # x ganz -> klar.

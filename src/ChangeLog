@@ -1,5 +1,14 @@
 1999-04-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * array.d (iarray_displace): Renamed from notsimple_displace.
+          (storagevector_aref): Renamed from datenvektor_aref.
+          (storagevector_store): Renamed from datenvektor_store.
+          (iarray_dims_sizes): Renamed from array_dims_sizes.
+          (make_storagevector): Renamed from make_datenvektor.
+        * io.d (pr_vector, pr_array_elt_t, pr_array): Update.
+
+1999-04-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * macros2.lsp (space): Also print timing data, like TIME does.
 
 1999-04-27  Sam Steingold  <sds@goems.com>

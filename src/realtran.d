@@ -1,7 +1,7 @@
 # Transzendente Funktionen für reelle Zahlen
 
 # pi_F_float_F(f) liefert die Zahl pi im selben Float-Format wie f.
-# kann GC auslösen
+# can trigger GC
   local object pi_F_float_F (object f);
   local object pi_F_float_F(f)
     var object f;
@@ -85,7 +85,7 @@
     }}}}}
 
 # pi() liefert die Zahl pi im Default-Float-Format.
-# kann GC auslösen
+# can trigger GC
   local object pi (void);
   local object pi()
     { defaultfloatcase(S(default_float_format),
@@ -97,7 +97,7 @@
     }
 
 # F_atanhx_F(x) liefert zu einem Float x (betragsmäßig <1/2) atanh(x) als Float.
-# kann GC auslösen
+# can trigger GC
   local object F_atanhx_F (object x);
 # Methode:
 # e := Exponent aus (decode-float x), d := (float-digits x)
@@ -118,7 +118,7 @@
 # Aufwand: asymptotisch d^2.5 .
 
 # F_atanx_F(x) liefert zu einem Float x (betragsmäßig <=1) atan(x) als Float.
-# kann GC auslösen
+# can trigger GC
   local object F_atanx_F (object x);
 # Methode:
 # e := Exponent aus (decode-float x), d := (float-digits x)
@@ -198,7 +198,7 @@
 
 # R_R_atan_R(x,y) liefert zu zwei reellen Zahlen x, y den Winkel von (x,y)
 # in Polarkoordinaten. Ergebnis rational nur, wenn x>0 und y=0.
-# kann GC auslösen
+# can trigger GC
   local object R_R_atan_R (object x, object y);
 # Methode:
 # y=0 -> bei x>0: 0 als Ergebnis,
@@ -268,7 +268,7 @@
 
 # R_atan_R(x) liefert den Arctan einer reellen Zahl x.
 # Ergebnis rational nur, wenn x=0.
-# kann GC auslösen
+# can trigger GC
   local object R_atan_R (object x);
 # Methode:
 # arctan(x) = arctan(X=1,Y=x).
@@ -281,7 +281,7 @@
 #endif
 
 # F_sinx_F(x) liefert zu einem Float x (betragsmäßig <2) (sin(x)/x)^2 als Float.
-# kann GC auslösen
+# can trigger GC
   local object F_sinx_F (object x);
 # Methode:
 # e := Exponent aus (decode-float x), d := (float-digits x)
@@ -306,7 +306,7 @@
 # Aufwand: asymptotisch d^2.5 .
 
 # F_sinhx_F(x) liefert zu einem Float x (betragsmäßig <2) (sinh(x)/x)^2 als Float.
-# kann GC auslösen
+# can trigger GC
   local object F_sinhx_F (object x);
 # Methode:
 # e := Exponent aus (decode-float x), d := (float-digits x)
@@ -388,7 +388,7 @@
 
 # F_pi_round_I_F(x) dividiert ein Float x mit Rest durch pi.
 # Beide Werte von (round x (float pi x)) auf den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_pi_round_I_F (object x);
   local void F_pi_round_I_F(x)
     var object x;
@@ -404,7 +404,7 @@
 
 # F_pi2_round_I_F(x) dividiert ein Float x mit Rest durch pi/2.
 # Beide Werte von (round x (float pi/2 x)) auf den Stack.
-# kann GC auslösen
+# can trigger GC
   local void F_pi2_round_I_F (object x);
   local void F_pi2_round_I_F(x)
     var object x;
@@ -420,7 +420,7 @@
     }
 
 # R_sin_R(x) liefert den Sinus (sin x) einer reellen Zahl x.
-# kann GC auslösen
+# can trigger GC
   local object R_sin_R (object x);
 # Methode:
 # x rational -> bei x=0 0 als Ergebnis, sonst x in Float umwandeln.
@@ -449,7 +449,7 @@
     }}
 
 # R_cos_R(x) liefert den Cosinus (cos x) einer reellen Zahl x.
-# kann GC auslösen
+# can trigger GC
   local object R_cos_R (object x);
 # Methode:
 # x rational -> bei x=0 1 als Ergebnis, sonst x in Float umwandeln.
@@ -495,7 +495,7 @@
     }}
 
 # R_cos_sin_R_R(x) liefert ((cos x),(sin x)), beide Werte auf dem Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_cos_sin_R_R (object x);
 # Methode:
 # x rational -> bei x=0 (1,0) als Ergebnis, sonst x in Float umwandeln.
@@ -569,7 +569,7 @@
     }
 
 # F_lnx_F(x) liefert zu einem Float x (>=1/2, <=2) ln(x) als Float.
-# kann GC auslösen
+# can trigger GC
   local object F_lnx_F (object x);
 # Methode:
 # y:=x-1, e := Exponent aus (decode-float y), d := (float-digits y)
@@ -628,7 +628,7 @@
     }}}}
 
 # ln2_F_float_F(f) liefert die Zahl ln(2) im selben Float-Format wie f.
-# kann GC auslösen
+# can trigger GC
   local object ln2_F_float_F (object f);
   local object ln2_F_float_F(f)
     var object f;
@@ -684,7 +684,7 @@
 # SF -> DF wegen 17+sqrt(17)+2+7 = 30.2 < 53
 # FF -> DF wegen 24+sqrt(24)+2+7 = 37.9 < 53
 # DF -> LF(5) wegen 53+sqrt(53)+2+10 = 72.3 < 80
-# kann GC auslösen
+# can trigger GC
   local object F_extend2_F (object x);
   local object F_extend2_F(x)
     var object x;
@@ -697,7 +697,7 @@
     }
 
 # R_ln_R(x) liefert zu einer reellen Zahl x>0 die Zahl ln(x).
-# kann GC auslösen
+# can trigger GC
   local object R_ln_R (object x);
 # Methode:
 # x rational -> bei x=1 0 als Ergebnis, sonst x in Float umwandeln.
@@ -739,7 +739,7 @@
 
 # I_I_log_RA(a,b) liefert zu Integers a>0, b>1 den Logarithmus log(a,b)
 # als exakte rationale Zahl, oder nullobj wenn er irrational ist.
-# kann GC auslösen
+# can trigger GC
   local object I_I_log_RA (object a, object b);
 # Methode:
 #   log(a,b) soll Bruch c/d mit teilerfremdem c>=0,d>0 ergeben.
@@ -804,7 +804,7 @@
 # R_R_log_R(a,b) liefert zu reellen Zahlen a>0, b>0 die Zahl
 # log(a,b)=ln(a)/ln(b).
 # Ergebnis rational nur, wenn a=1 oder a und b rational.
-# kann GC auslösen
+# can trigger GC
   local object R_R_log_R (object a, object b);
 # Methode:
 # a und b rational:
@@ -907,7 +907,7 @@
     }}
 
 # F_expx_F(x) liefert zu einem Float x (betragsmäßig <1) exp(x) als Float.
-# kann GC auslösen
+# can trigger GC
   local object F_expx_F (object x);
 # Methode:
 # e := Exponent aus (decode-float x), d := (float-digits x)
@@ -964,7 +964,7 @@
     }}}}
 
 # R_exp_R(x) liefert zu einer reellen Zahl x die Zahl exp(x).
-# kann GC auslösen
+# can trigger GC
   local object R_exp_R (object x);
 # Methode:
 # x rational -> bei x=0 1 als Ergebnis, sonst x in Float umwandeln.
@@ -1001,7 +1001,7 @@
     }}
 
 # R_sinh_R(x) liefert zu einer reellen Zahl x die Zahl sinh(x).
-# kann GC auslösen
+# can trigger GC
   local object R_sinh_R (object x);
 # Methode:
 # x rational -> bei x=0 0 als Ergebnis, sonst x in Float umwandeln.
@@ -1038,7 +1038,7 @@
     }   }
 
 # R_cosh_R(x) liefert zu einer reellen Zahl x die Zahl cosh(x).
-# kann GC auslösen
+# can trigger GC
   local object R_cosh_R (object x);
 # Methode:
 # x rational -> bei x=0 1 als Ergebnis, sonst x in Float umwandeln.
@@ -1090,7 +1090,7 @@
     } }
 
 # R_cosh_sinh_R_R(x) liefert ((cosh x),(sinh x)), beide Werte auf dem Stack.
-# kann GC auslösen
+# can trigger GC
   local void R_cosh_sinh_R_R (object x);
 # Methode:
 # x rational -> bei x=0 (1,0) als Ergebnis, sonst x in Float umwandeln.

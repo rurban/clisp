@@ -45,7 +45,7 @@
     }     }
 
 # (1+ x), wo x ein Integer ist. Ergebnis Integer.
-# kann GC auslösen
+# can trigger GC
   global object I_1_plus_I (object x);
   global object I_1_plus_I(x)
     var object x;
@@ -66,7 +66,7 @@
     } }
 
 # (1- x), wo x ein Integer ist. Ergebnis Integer.
-# kann GC auslösen
+# can trigger GC
   global object I_minus1_plus_I (object x);
   global object I_minus1_plus_I(x)
     var object x;
@@ -87,7 +87,7 @@
     } }
 
 # (+ x y), wo x und y Integers sind. Ergebnis Integer.
-# kann GC auslösen
+# can trigger GC
   global object I_I_plus_I (object x, object y);
   global object I_I_plus_I(x,y)
     var object x;
@@ -204,7 +204,7 @@
     }   }
 
 # (- x), wenn x ein Integer ist. Ergebnis Integer.
-# kann GC auslösen
+# can trigger GC
   local object I_minus_I (object x);
   local object I_minus_I(x)
     var object x;
@@ -240,7 +240,7 @@
     }   }
 
 # (- x y), wo x und y Integers sind. Ergebnis Integer.
-# kann GC auslösen
+# can trigger GC
   global object I_I_minus_I (object x, object y);
   global object I_I_minus_I(x,y)
     var object x;
@@ -418,7 +418,7 @@
     }   }   }
 
 # (abs x), wenn x ein Integer ist. Ergebnis Integer.
-# kann GC auslösen
+# can trigger GC
   local object I_abs_I (object x);
   local object I_abs_I(x)
     var object x;

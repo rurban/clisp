@@ -31,7 +31,7 @@
 
 # Output a lisp object in lisp notation to standard output.
 # object_out(obj);
-# kann GC auslösen
+# can trigger GC
   global void object_out (object obj);
 
 # ------------------------------ Implementation --------------------------------

@@ -456,7 +456,7 @@ local void bytecopy(to,from,length,size)
   }   }
 
 # (SYSTEM::MEM-READ address into [offset]) reads from address[+offset].
-# kann GC auslösen
+# can trigger GC
 LISPFUN(mem_read,2,1,norest,nokey,0,NIL)
   { var aint address = convert_address(STACK_2,STACK_0);
     # TODO? address could be a LISP string or vector. Better not
