@@ -719,6 +719,22 @@ nonreturning_function(global, fehler_symbol, (object obj)) {
   fehler_kein_symbol(aufrufer,obj);
 }
 
+/* UP: signal an error if OBJ is not a non-constant symbol and
+ return OBJ otherwise
+ > caller: the caller (function name)
+ > obj: a potential symbol
+ < obj: a non-constant symbol */
+global object test_symbol_non_constant (object caller, object obj)
+{
+  if (!symbolp(obj)) fehler_kein_symbol(caller,obj);
+  if (constantp(TheSymbol(obj))) {
+    pushSTACK(obj); pushSTACK(caller);
+    fehler(program_error,
+           GETTEXT("~: ~ is a constant, may not be used as a variable"));
+  }
+  return obj;
+}
+
 /* error-message, if an object is not a simple-vector.
  fehler_kein_svector(caller,obj);
  > caller: caller (a symbol)

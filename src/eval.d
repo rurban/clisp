@@ -537,15 +537,7 @@ global void progv (object symlist, object vallist) {
   var object* top_of_frame = STACK; # Pointer to Frame
   var object symlistr = symlist;
   while (consp(symlistr)) { # loop over symbol list
-    var object sym = Car(symlistr);
-    if (!symbolp(sym))
-      fehler_kein_symbol(S(progv),sym);
-    if (constantp(TheSymbol(sym))) {
-      pushSTACK(sym);
-      pushSTACK(S(progv));
-      fehler(program_error,
-             GETTEXT("~: ~ is a constant, cannot be bound dynamically"));
-    }
+    var object sym = test_symbol_non_constant(S(progv),Car(symlistr));
     pushSTACK(Symbol_value(sym)); # old value of the variables
     pushSTACK(sym); # variable
     symlistr = Cdr(symlistr);
@@ -1804,10 +1796,7 @@ local object lambdabody_source (object lambdabody) {
      req: # process required-parameter push on STACK:
       loop {
         NEXT_ITEM(opt,rest,key,badLLkey,aux,ende);
-        if (!symbolp(item))
-          goto fehler_symbol;
-        if (constantp(TheSymbol(item)))
-          goto fehler_constant;
+        test_symbol_non_constant(S(function),item);
         # push Variable on STACK:
         check_STACK();
         pushSTACK(item); pushSTACK(Fixnum_0); req_count++; var_count++;
@@ -1823,20 +1812,14 @@ local object lambdabody_source (object lambdabody) {
         # the svar_bit. Returns also init (or NIL) in init_form.
         check_STACK();
         if (atomp(item)) {
-          if (!symbolp(item))
-            goto fehler_symbol;
-          if (constantp(TheSymbol(item)))
-            goto fehler_constant;
+          test_symbol_non_constant(S(function),item);
           # push variable on STACK:
           pushSTACK(item); pushSTACK(Fixnum_0); opt_count++; var_count++;
           init_form = NIL; # Default-Init
         } else {
           var object item_rest = Cdr(item);
-          item = Car(item); # first list-element: var
-          if (!symbolp(item))
-            goto fehler_symbol;
-          if (constantp(TheSymbol(item)))
-            goto fehler_constant;
+          /* first list-element: var */
+          item = test_symbol_non_constant(S(function),Car(item));
           # push variable on STACK:
           pushSTACK(item); pushSTACK(Fixnum_0); opt_count++; var_count++;
           if (consp(item_rest)) {
@@ -1849,11 +1832,8 @@ local object lambdabody_source (object lambdabody) {
                 fehler(source_program_error,
                        GETTEXT("FUNCTION: too long variable specification after &OPTIONAL: ~"));
               }
-              item = Car(item_rest); # third list-element: svar
-              if (!symbolp(item))
-                goto fehler_symbol;
-              if (constantp(TheSymbol(item)))
-                goto fehler_constant;
+              /* third list-element: svar */
+              item = test_symbol_non_constant(S(function),Car(item_rest));
               # set svar-bit for var:
               STACK_0 = fixnum_inc(STACK_0,bit(svar_bit));
               # push variable on STACK:
@@ -1876,10 +1856,7 @@ local object lambdabody_source (object lambdabody) {
       }
      rest: # process &REST-parameter and push on Stack:
       NEXT_ITEM(badrest,badrest,badrest,badrest,badrest,badrest);
-      if (!symbolp(item))
-        goto fehler_symbol;
-      if (constantp(TheSymbol(item)))
-        goto fehler_constant;
+      test_symbol_non_constant(S(function),item);
       # push variable on STACK:
       pushSTACK(item); pushSTACK(Fixnum_0); var_count++;
       # set Rest-Flag to T:
@@ -1906,10 +1883,7 @@ local object lambdabody_source (object lambdabody) {
         # init (or NIL) in init_form.
         check_STACK();
         if (atomp(item)) {
-          if (!symbolp(item))
-            goto fehler_symbol;
-          if (constantp(TheSymbol(item)))
-            goto fehler_constant;
+          test_symbol_non_constant(S(function),item);
           # push variable on STACK:
           pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
           # fetch Keyword:
@@ -1922,11 +1896,7 @@ local object lambdabody_source (object lambdabody) {
           var object item_rest = Cdr(item); # ([init [svar]])
           item = Car(item); # first list-element: var or (key var)
           if (atomp(item)) {
-            # item = var
-            if (!symbolp(item))
-              goto fehler_symbol;
-            if (constantp(TheSymbol(item)))
-              goto fehler_constant;
+            test_symbol_non_constant(S(function),item); /* item = var */
             # push variable on STACK:
             pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
             # fetch Keyword:
@@ -1946,11 +1916,7 @@ local object lambdabody_source (object lambdabody) {
             item = Cdr(item); # (var)
             if (!(consp(item) && matomp(Cdr(item))))
               goto fehler_keyspec;
-            item = Car(item); # var
-            if (!symbolp(item))
-              goto fehler_symbol;
-            if (constantp(TheSymbol(item)))
-              goto fehler_constant;
+            item = test_symbol_non_constant(S(function),Car(item)); /* var */
             # push variable on STACK:
             pushSTACK(item); pushSTACK(Fixnum_0); key_count++; var_count++;
           }
@@ -1960,11 +1926,8 @@ local object lambdabody_source (object lambdabody) {
             if (consp(item_rest)) {
               if (mconsp(Cdr(item_rest)))
                 goto fehler_keyspec;
-              item = Car(item_rest); # third list-element: svar
-              if (!symbolp(item))
-                goto fehler_symbol;
-              if (constantp(TheSymbol(item)))
-                goto fehler_constant;
+              /* third list-element: svar */
+              item = test_symbol_non_constant(S(function),Car(item_rest));
               # set svar-Bit in var:
               STACK_0 = fixnum_inc(STACK_0,bit(svar_bit));
               # push variable on STACK:
@@ -2014,20 +1977,14 @@ local object lambdabody_source (object lambdabody) {
         # Returns also init (or NIL) in init_form.
         check_STACK();
         if (atomp(item)) {
-          if (!symbolp(item))
-            goto fehler_symbol;
-          if (constantp(TheSymbol(item)))
-            goto fehler_constant;
+          test_symbol_non_constant(S(function),item);
           # push variable on STACK:
           pushSTACK(item); pushSTACK(Fixnum_0); aux_count++; var_count++;
           init_form = NIL; # Default-Init
         } else {
           var object item_rest = Cdr(item);
-          item = Car(item); # first list-element: var
-          if (!symbolp(item))
-            goto fehler_symbol;
-          if (constantp(TheSymbol(item)))
-            goto fehler_constant;
+          /* first list-element: var */
+          item = test_symbol_non_constant(S(function),Car(item));
           # push variable on STACK:
           pushSTACK(item); pushSTACK(Fixnum_0); aux_count++; var_count++;
           if (consp(item_rest)) {
@@ -2059,14 +2016,6 @@ local object lambdabody_source (object lambdabody) {
       pushSTACK(item);
       fehler(source_program_error,
              GETTEXT("FUNCTION: badly placed lambda-list keyword ~: ~"));
-     fehler_symbol:
-      pushSTACK(item);
-      fehler(source_program_error,
-             GETTEXT("FUNCTION: ~ is not a symbol, may not be used as a variable"));
-     fehler_constant:
-      pushSTACK(item);
-      fehler(program_error,
-             GETTEXT("FUNCTION: ~ is a constant, may not be used as a variable"));
      ende: # reached list-end
       #undef NEXT_ITEM
       if (((uintL)~(uintL)0 > lp_limit_1) && (var_count > lp_limit_1)) { # too many parameters?
@@ -6583,8 +6532,8 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             # The Compiler has already checked, that it's a Symbol.
             if (!boundp(Symbol_value(symbol))) {
               pushSTACK(symbol); # CELL-ERROR slot NAME
-              pushSTACK(symbol);
-              fehler(unbound_variable,GETTEXT("symbol ~ has no value"));
+              pushSTACK(symbol); pushSTACK(TheCclosure(closure)->clos_name);
+              fehler(unbound_variable,GETTEXT("~: symbol ~ has no value"));
             }
             VALUES1(Symbol_value(symbol));
           }
@@ -6597,8 +6546,8 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             # The Compiler has already checked, that it's a Symbol.
             if (!boundp(Symbol_value(symbol))) {
               pushSTACK(symbol); # CELL-ERROR slot NAME
-              pushSTACK(symbol);
-              fehler(unbound_variable,GETTEXT("symbol ~ has no value"));
+              pushSTACK(symbol); pushSTACK(TheCclosure(closure)->clos_name);
+              fehler(unbound_variable,GETTEXT("~: symbol ~ has no value"));
             }
             pushSTACK(Symbol_value(symbol));
           }
@@ -6610,9 +6559,8 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             var object symbol = TheCclosure(closure)->clos_consts[n];
             # The Compiler has already checked, that it's a Symbol.
             if (constantp(TheSymbol(symbol))) {
-              pushSTACK(symbol);
-              fehler(error,
-                     GETTEXT("assignment to constant symbol ~ is impossible"));
+              pushSTACK(symbol); pushSTACK(TheCclosure(closure)->clos_name);
+              fehler(error,GETTEXT("~: assignment to constant symbol ~ is impossible"));
             }
             Symbol_value(symbol) = value1; mv_count=1;
           }
