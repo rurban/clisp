@@ -4385,7 +4385,7 @@ functions are provided:</para>
 
 </section>
 
-<section><title>The Lisp Pretty Printer
+<section id="xp"><title>The Lisp Pretty Printer
    <ulink url="&clhs;/Body/sec_22-2.html">[CLHS-22.2]</ulink></title>
 
 <para>The Lisp Pretty Printer implementation is
