@@ -115,7 +115,9 @@ global void done_win32 (void) {
           interruptible_active = false;
           # Terminate the interruptible operation, set the exitcode to 1.
           if (interruptible_socketp) {
+           #ifndef __MINGW32__
             WSACancelBlockingCall();
+           #endif
           }
           # We treat error as nonexistent thread which shouldn't be closed
           if (GetExitCodeThread(interruptible_thread,&thread_exit_code)

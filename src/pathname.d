@@ -6085,7 +6085,7 @@ local char default_drive (void) {
   end_system_call();
   ASSERT(path_buffer[1]==':');
   ASSERT(path_buffer[2]=='\\');
-  return up_case(path_buffer[0]);
+  return as_cint(up_case(as_chart(path_buffer[0])));
 }
 #endif
 

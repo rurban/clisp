@@ -1,5 +1,21 @@
 2002-07-31  Sam Steingold  <sds@gnu.org>
 
+	mingw port moving along - in-place only for now
+	* configure: handle --with-mingw and pass 'win32gcc gcc' to makemake
+	* makemake.in [win32gcc]: no special treatment for libcharset,
+	sigsegv, and ffcall
+	* Makefile.devel: removed win32gcc
+	* win32gcc: removed directory
+	* encoding.d [__MINGW32__]: #include <stdio.h> for sprintf()
+	* pathname.d (default_drive) [WIN32_NATIVE]: cast chart/cint properly
+	* stream.d (rd_ch_keyboard, wr_ch_array_window, wr_ch_window)
+	[WIN32_NATIVE]: ditto
+	* win32.d (HAVE_LC_MESSAGES) [__MINGW32__]: define to 0
+	* win32aux.d (temp_interrupt_handler) [__MINGW32__]: no
+	WSACancelBlockingCall() - need a replacement!
+
+2002-07-31  Sam Steingold  <sds@gnu.org>
+
 	* m4/general.m4 (CL_CANONICAL_HOST_CPU_FOR_FFCALL)
 	(CL_CANONICAL_HOST_CPU): canonicalize alphaev[4-8] to alpha
 	Suggested by Will Newton <will@misconception.org.uk>

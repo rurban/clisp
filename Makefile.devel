@@ -65,7 +65,7 @@ SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.sp
 SOURCES2 = $T/src/*[^t] $T/src/[^g]*t $T/src/.??*
 SOURCES3 = $T/src/po/*[^p]
 SOURCES4 = $T/ffcall $T/sigsegv $T/libcharset $T/utils
-SOURCES5 = $T/unix $T/os2 $T/win32gcc $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
+SOURCES5 = $T/unix $T/os2 $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
 SOURCES6 = $T/modules
 SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
 
@@ -84,14 +84,10 @@ ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c ffcall/vacall/vacall-i386-msvc.c 
 htmldoc:
 	cd doc && make impnotes.html && make html && cd ..;
 
-makefiles : os2/makefile win32gcc/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc
+makefiles : os2/makefile win32msvc/makefile.msvc4 win32msvc/makefile.msvc5 win32bc/makefile acorn/makefile.cc acorn/makefile.gcc
 
 os2/makefile : makemake
 	./makemake os2 gcc > os2/makefile
-
-win32gcc/makefile : makemake
-	./makemake --with-dir-key --with-export-syscalls --with-dynamic-ffi \
-		win32gcc gcc > win32gcc/makefile
 
 win32msvc/makefile.msvc4 : makemake
 	./makemake --with-dir-key --with-dynamic-ffi \

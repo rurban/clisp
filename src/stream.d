@@ -8624,7 +8624,7 @@ local object rd_ch_keyboard (const object* stream_) {
       } else {
        #ifdef UNICODE
         var object encoding = TheStream(*stream_)->strm_encoding;
-        var chart c = 0;
+        var chart c = as_chart(0);
         var uintB buf[max_bytes_per_chart];
         var chart* cptr  = &c;
         var char* bptr   = buf;
@@ -10820,7 +10820,7 @@ local void v_move(HANDLE handle,uintW y,uintW x) {
 }
 
 local void v_emit_spaces(HANDLE handle,COORD *pos,int nspaces,uintW attr) {
-  int i;
+  DWORD i;
   FillConsoleOutputAttribute(handle,attr,nspaces,*pos,&i);
   FillConsoleOutputCharacter(handle,' ',nspaces,*pos,&i);
 }
@@ -10979,7 +10979,7 @@ local void wr_ch_array_window (const object* stream_,const object* chararray_,
       chart_str[strindex] = as_chart(((SstringX)TheVarobject(*chararray_))->data[index]);
       index++; strindex++;
     } while (index < end);
-    chart_str[strindex] = 0;
+    chart_str[strindex] = as_chart(0);
   });
  #ifdef UNICODE
   var char *mb_str = (char*)malloc((len + 1)*sizeof(char)*max_bytes_per_chart);
@@ -11025,7 +11025,7 @@ local void wr_ch_window (const object* stream_, object ch) {
   var uintB* bptr = buf;
   Encoding_wcstombs(encoding)
     (encoding,*stream_,&cptr,cptr+1,&bptr,buf+max_bytes_per_chart);
-  c = (uintB)*buf;
+  c = as_chart((uintB)*buf);
  #else
   CharToOemBuff((char *)&c,(char *)&c,1);
  #endif
