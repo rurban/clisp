@@ -2,7 +2,7 @@
 
 /*
  * Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
- * Copyright 1995-1998 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -20,7 +20,7 @@ FILE* out;
  * - foo(x) float x; { ... } passes x as a double & converts it to a float internally.
  * - foo(float x) { ... } passes x as a float.
  */
-#if defined(__STDC__) || defined(__GNUC__)
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 #define _ ,
 #define _P(ARGS,TYPES) (TYPES)
 #define FTYPE(RETTYPE,ARGTYPES) (RETTYPE (*) ARGTYPES)
@@ -373,9 +373,7 @@ X X_BcdB _P((a,b,c,d), B a _ char b _ double c _ B d)
 /* These functions simulate the behaviour of the functions above. */
 
 /* void tests */
-void v_v_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void v_v_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&v_v) { fprintf(out,"wrong data for v_v\n"); exit(1); }
   va_start_void(alist);
@@ -385,9 +383,7 @@ void v_v_simulator (data,alist)
 }
 
 /* int tests */
-void i_v_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void i_v_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&i_v) { fprintf(out,"wrong data for i_v\n"); exit(1); }
   va_start_int(alist);
@@ -396,9 +392,7 @@ void i_v_simulator (data,alist)
   fflush(out);
   va_return_int(alist, r);
 }}
-void i_i_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void i_i_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&i_i) { fprintf(out,"wrong data for i_i\n"); exit(1); }
   va_start_int(alist);
@@ -408,9 +402,7 @@ void i_i_simulator (data,alist)
   fflush(out);
   va_return_int(alist, r);
 }}
-void i_i2_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void i_i2_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&i_i2) { fprintf(out,"wrong data for i_i2\n"); exit(1); }
   va_start_int(alist);
@@ -421,9 +413,7 @@ void i_i2_simulator (data,alist)
   fflush(out);
   va_return_int(alist, r);
 }}
-void i_i4_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void i_i4_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&i_i4) { fprintf(out,"wrong data for i_i4\n"); exit(1); }
   va_start_int(alist);
@@ -436,9 +426,7 @@ void i_i4_simulator (data,alist)
   fflush(out);
   va_return_int(alist, r);
 }}
-void i_i8_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void i_i8_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&i_i8) { fprintf(out,"wrong data for i_i8\n"); exit(1); }
   va_start_int(alist);
@@ -455,9 +443,7 @@ void i_i8_simulator (data,alist)
   fflush(out);
   va_return_int(alist, r);
 }}
-void i_i16_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void i_i16_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&i_i16) { fprintf(out,"wrong data for i_i16\n"); exit(1); }
   va_start_int(alist);
@@ -485,9 +471,7 @@ void i_i16_simulator (data,alist)
 }}
 
 /* float tests */
-void f_f_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void f_f_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&f_f) { fprintf(out,"wrong data for f_f\n"); exit(1); }
   va_start_float(alist);
@@ -497,9 +481,7 @@ void f_f_simulator (data,alist)
   fflush(out);
   va_return_float(alist, r);
 }}
-void f_f2_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void f_f2_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&f_f2) { fprintf(out,"wrong data for f_f2\n"); exit(1); }
   va_start_float(alist);
@@ -510,9 +492,7 @@ void f_f2_simulator (data,alist)
   fflush(out);
   va_return_float(alist, r);
 }}
-void f_f4_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void f_f4_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&f_f4) { fprintf(out,"wrong data for f_f4\n"); exit(1); }
   va_start_float(alist);
@@ -525,9 +505,7 @@ void f_f4_simulator (data,alist)
   fflush(out);
   va_return_float(alist, r);
 }}
-void f_f8_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void f_f8_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&f_f8) { fprintf(out,"wrong data for f_f8\n"); exit(1); }
   va_start_float(alist);
@@ -544,9 +522,7 @@ void f_f8_simulator (data,alist)
   fflush(out);
   va_return_float(alist, r);
 }}
-void f_f16_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void f_f16_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&f_f16) { fprintf(out,"wrong data for f_f16\n"); exit(1); }
   va_start_float(alist);
@@ -573,9 +549,7 @@ void f_f16_simulator (data,alist)
 }}
 
 /* double tests */
-void d_d_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void d_d_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&d_d) { fprintf(out,"wrong data for d_d\n"); exit(1); }
   va_start_double(alist);
@@ -585,9 +559,7 @@ void d_d_simulator (data,alist)
   fflush(out);
   va_return_double(alist, r);
 }}
-void d_d2_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void d_d2_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&d_d2) { fprintf(out,"wrong data for d_d2\n"); exit(1); }
   va_start_double(alist);
@@ -598,9 +570,7 @@ void d_d2_simulator (data,alist)
   fflush(out);
   va_return_double(alist, r);
 }}
-void d_d4_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void d_d4_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&d_d4) { fprintf(out,"wrong data for d_d4\n"); exit(1); }
   va_start_double(alist);
@@ -613,9 +583,7 @@ void d_d4_simulator (data,alist)
   fflush(out);
   va_return_double(alist, r);
 }}
-void d_d8_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void d_d8_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&d_d8) { fprintf(out,"wrong data for d_d8\n"); exit(1); }
   va_start_double(alist);
@@ -632,9 +600,7 @@ void d_d8_simulator (data,alist)
   fflush(out);
   va_return_double(alist, r);
 }}
-void d_d16_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void d_d16_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&d_d16) { fprintf(out,"wrong data for d_d16\n"); exit(1); }
   va_start_double(alist);
@@ -661,9 +627,7 @@ void d_d16_simulator (data,alist)
 }}
 
 /* pointer tests */
-void vp_vpdpcpsp_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void vp_vpdpcpsp_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&vp_vpdpcpsp) { fprintf(out,"wrong data for vp_vpdpcpsp\n"); exit(1); }
   va_start_ptr(alist, void*);
@@ -678,9 +642,7 @@ void vp_vpdpcpsp_simulator (data,alist)
 }}
 
 /* mixed number tests */
-void uc_ucsil_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void uc_ucsil_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&uc_ucsil) { fprintf(out,"wrong data for uc_ucsil\n"); exit(1); }
   va_start_uchar(alist);
@@ -693,9 +655,7 @@ void uc_ucsil_simulator (data,alist)
   fflush(out);
   va_return_uchar(alist, r);
 }}
-void d_iidd_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void d_iidd_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&d_iidd) { fprintf(out,"wrong data for d_iidd\n"); exit(1); }
   va_start_double(alist);
@@ -708,9 +668,7 @@ void d_iidd_simulator (data,alist)
   fflush(out);
   va_return_double(alist, r);
 }}
-void d_idid_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void d_idid_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&d_idid) { fprintf(out,"wrong data for d_idid\n"); exit(1); }
   va_start_double(alist);
@@ -723,9 +681,7 @@ void d_idid_simulator (data,alist)
   fflush(out);
   va_return_double(alist, r);
 }}
-void us_cdcd_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void us_cdcd_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&us_cdcd) { fprintf(out,"wrong data for us_cdcd\n"); exit(1); }
   va_start_ushort(alist);
@@ -739,9 +695,7 @@ void us_cdcd_simulator (data,alist)
   va_return_ushort(alist, r);
 }}
 #ifdef HAVE_LONGLONG
-void ll_flli_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void ll_flli_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&ll_flli) { fprintf(out,"wrong data for ll_flli\n"); exit(1); }
   va_start_longlong(alist);
@@ -757,9 +711,7 @@ void ll_flli_simulator (data,alist)
 
 #ifndef SKIP_STRUCTS
 /* structure tests */
-void I_III_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void I_III_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&I_III) { fprintf(out,"wrong data for I_III\n"); exit(1); }
  {Int a;
@@ -775,9 +727,7 @@ void I_III_simulator (data,alist)
   fflush(out);
   va_return_struct(alist, Int, r);
 }}
-void C_CdC_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void C_CdC_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&C_CdC) { fprintf(out,"wrong data for C_CdC\n"); exit(1); }
  {Char a;
@@ -793,9 +743,7 @@ void C_CdC_simulator (data,alist)
   fflush(out);
   va_return_struct(alist, Char, r);
 }}
-void F_Ffd_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void F_Ffd_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&F_Ffd) { fprintf(out,"wrong data for F_Ffd\n"); exit(1); }
  {Float a;
@@ -811,9 +759,7 @@ void F_Ffd_simulator (data,alist)
   fflush(out);
   va_return_struct(alist, Float, r);
 }}
-void D_fDd_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void D_fDd_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&D_fDd) { fprintf(out,"wrong data for D_fDd\n"); exit(1); }
  {float a;
@@ -829,9 +775,7 @@ void D_fDd_simulator (data,alist)
   fflush(out);
   va_return_struct(alist, Double, r);
 }}
-void J_JiJ_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void J_JiJ_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&J_JiJ) { fprintf(out,"wrong data for J_JiJ\n"); exit(1); }
  {J a;
@@ -847,9 +791,7 @@ void J_JiJ_simulator (data,alist)
   fflush(out);
   va_return_struct(alist, J, r);
 }}
-void T_TcT_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void T_TcT_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&T_TcT) { fprintf(out,"wrong data for T_TcT\n"); exit(1); }
  {T a;
@@ -865,9 +807,7 @@ void T_TcT_simulator (data,alist)
   fflush(out);
   va_return_struct(alist, T, r);
 }}
-void X_BcdB_simulator (data,alist)
-  void* data;
-  va_alist alist;
+void X_BcdB_simulator _P((data,alist), void* data _ va_alist alist)
 {
   if (data != (void*)&X_BcdB) { fprintf(out,"wrong data for X_BcdB\n"); exit(1); }
  {B a;

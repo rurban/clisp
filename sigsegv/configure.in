@@ -19,6 +19,8 @@ AC_ISC_POSIX
                       dnl DEFS _POSIX_SOURCE, LIBS
 AC_MINIX
                       dnl DEFS _POSIX_SOURCE, _POSIX_1_SOURCE, _MINIX
+CL_CC_GCC
+                      dnl sets variables CC_GCC, GCC_X_NONE
 CL_CC_WORKS
                       dnl final CC check
 dnl

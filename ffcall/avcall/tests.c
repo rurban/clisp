@@ -27,7 +27,7 @@ FILE* out;
  * - foo(x) float x; { ... } passes x as a double & converts it to a float internally.
  * - foo(float x) { ... } passes x as a float.
  */
-#if defined(__STDC__) || defined(__GNUC__)
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 #define _ ,
 #define _P(ARGS,TYPES) (TYPES)
 #else

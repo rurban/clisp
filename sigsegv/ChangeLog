@@ -1,3 +1,9 @@
+1999-03-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * configure.in: Add CL_CC_GCC.
+        * Makefile.in: Use "-x none" option where appropriate.
+        * dispatcher.c: In C++ mode, don't define a function named `delete'.
+
 1999-02-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * sigsegv/sigsegv.h.in: Renamed from sigsegv/sigsegv.h.

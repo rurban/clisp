@@ -48,46 +48,46 @@ avcall.o : avcall-$(CPU).o
 	$(LN) avcall-$(CPU).o avcall.o
 
 avcall-i386.o : avcall-i386.s
-	$(CC) -c avcall-i386.s
+	$(CC) @GCC_X_NONE@ -c avcall-i386.s
 
 avcall-i386.s : $(srcdir)/avcall-i386.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/avcall-i386.S | grep -v '^ *#line' | grep -v '^#ident' | grep -v '^#' | sed -e 's,% ,%,g' > avcall-i386.s
 
 avcall-sparc.o : avcall-sparc.s
-	$(CC) -c avcall-sparc.s
+	$(CC) @GCC_X_NONE@ -c avcall-sparc.s
 
 avcall-sparc.s : $(srcdir)/avcall-sparc.S
 	$(CPP) $(ASPFLAGS) $(srcdir)/avcall-sparc.S > avcall-sparc.s
 
 avcall-m68k.o : $(srcdir)/avcall-m68k.mit.s $(srcdir)/avcall-m68k.mot.s
-	if test @AS_UNDERSCORE@ = true; then syntax=mit; else syntax=mot; fi; $(CC) -c $(srcdir)/avcall-m68k.$${syntax}.s ; mv avcall-m68k.$${syntax}.o avcall-m68k.o
+	if test @AS_UNDERSCORE@ = true; then syntax=mit; else syntax=mot; fi; $(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-m68k.$${syntax}.s ; mv avcall-m68k.$${syntax}.o avcall-m68k.o
 
 avcall-mips.o : $(srcdir)/avcall-mips.s
-	$(CC) -c $(srcdir)/avcall-mips.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-mips.s
 
 avcall-mipsn32.o : $(srcdir)/avcall-mipsn32.s
-	$(CC) -c $(srcdir)/avcall-mipsn32.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-mipsn32.s
 
 avcall-mips64.o : $(srcdir)/avcall-mips64.s
-	$(CC) -c $(srcdir)/avcall-mips64.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-mips64.s
 
 avcall-alpha.o : $(srcdir)/avcall-alpha.s
-	$(CC) -c $(srcdir)/avcall-alpha.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-alpha.s
 
 avcall-hppa.o : $(srcdir)/avcall-hppa.s
-	$(CC) -c $(srcdir)/avcall-hppa.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-hppa.s
 
 avcall-arm.o : $(srcdir)/avcall-arm.s
-	$(CC) -c $(srcdir)/avcall-arm.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-arm.s
 
 avcall-rs6000.o : $(srcdir)/avcall-rs6000.s
-	$(CC) -c $(srcdir)/avcall-rs6000.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-rs6000.s
 
 avcall-m88k.o : $(srcdir)/avcall-m88k.s
-	$(CC) -c $(srcdir)/avcall-m88k.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-m88k.s
 
 avcall-convex.o : $(srcdir)/avcall-convex.s
-	$(CC) -c $(srcdir)/avcall-convex.s
+	$(CC) @GCC_X_NONE@ -c $(srcdir)/avcall-convex.s
 
 structcpy.o : $(srcdir)/structcpy.c
 	$(CC) $(CFLAGS) -c $(srcdir)/structcpy.c
@@ -128,7 +128,7 @@ tests.s : $(srcdir)/tests.c avcall.h
 	$(CC) $(CFLAGS) $(INCLUDES) -S $(srcdir)/tests.c
 
 tests : tests.o $(OBJECTS)
-	$(CC) $(CFLAGS) tests.o $(OBJECTS) -o tests
+	$(CC) $(CFLAGS) @GCC_X_NONE@ tests.o $(OBJECTS) -o tests
 
 check : all tests
 	./tests > tests.out

@@ -1,7 +1,7 @@
 /* Trampoline construction */
 
 /*
- * Copyright 1995-1998 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -93,14 +93,14 @@ extern void (*tramp) (); /* trampoline prototype */
 
 /* Declare malloc(), free(). */
 #ifndef malloc
-#ifdef __STDC__
+#if defined(__STDC__) || defined(__cplusplus)
 extern RETMALLOCTYPE malloc (MALLOC_SIZE_T size);
 #else
 extern RETMALLOCTYPE malloc();
 #endif
 #endif
 #ifndef free
-#ifdef __STDC__
+#if defined(__STDC__) || defined(__cplusplus)
 extern RETFREETYPE free (RETMALLOCTYPE ptr);
 #else
 extern RETFREETYPE free();
@@ -108,7 +108,7 @@ extern RETFREETYPE free();
 #endif
 
 /* Declare abort(). */
-#ifdef __STDC__
+#if defined(__STDC__) || defined(__cplusplus)
 extern ABORT_VOLATILE RETABORTTYPE abort (void);
 #else
 extern ABORT_VOLATILE RETABORTTYPE abort();
@@ -116,7 +116,7 @@ extern ABORT_VOLATILE RETABORTTYPE abort();
 
 /* Declare getpagesize(). */
 #ifdef HAVE_GETPAGESIZE
-#ifdef __STDC__
+#if defined(__STDC__) || defined(__cplusplus)
 extern RETGETPAGESIZETYPE getpagesize (void);
 #else
 extern RETGETPAGESIZETYPE getpagesize ();
@@ -146,7 +146,7 @@ extern RETGETPAGESIZETYPE getpagesize ();
 #include <sys/types.h>
 #include <sys/mman.h>
 #if !defined(__convex__)
-#ifdef __STDC__
+#if defined(__STDC__) || defined(__cplusplus)
 extern int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
 #else
 extern int mprotect ();
@@ -163,7 +163,7 @@ extern int mprotect ();
 #if !defined(PROT_EXEC) && defined(PROT_EXECUTE) /* Irix 4.0.5 needs this */
 #define PROT_EXEC PROT_EXECUTE
 #endif
-#ifdef __STDC__
+#if defined(__STDC__) || defined(__cplusplus)
 extern RETMMAPTYPE mmap (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot, int flags, int fd, off_t off);
 #else
 extern RETMMAPTYPE mmap ();
@@ -178,7 +178,7 @@ extern RETMMAPTYPE mmap ();
 #ifdef OPEN_NEEDS_SYS_FILE_H
 #include <sys/file.h>
 #endif
-#ifdef __STDC__
+#if defined(__STDC__) || defined(__cplusplus)
 #ifdef OPEN_DOTS
 extern int open (OPEN_CONST char* path, int flags, ...);
 #else
@@ -197,7 +197,7 @@ extern int open ();
 #ifdef HAVE_SYS_SYSMACROS_H
 #include <sys/sysmacros.h>
 #endif
-#ifdef __STDC__
+#if defined(__STDC__) || defined(__cplusplus)
 extern int shmget (key_t key, SHMGET_SIZE_T size, int shmflg);
 extern RETSHMATTYPE shmat (int shmid, SHMAT_CONST RETSHMATTYPE shmaddr, int shmflg);
 #ifdef SHMCTL_DOTS
@@ -341,10 +341,14 @@ extern void __TR_clear_cache();
 static char* freelist = NULL;
 #endif
 
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
+__TR_function alloc_trampoline (__TR_function address, void* variable, void* data)
+#else
 __TR_function alloc_trampoline (address, variable, data)
   __TR_function address;
   void* variable;
   void* data;
+#endif
 {
   char* function;
 
@@ -399,7 +403,7 @@ __TR_function alloc_trampoline (address, variable, data)
     } }
   function = freelist; freelist = *(char**)freelist;
 #else
-  { char* room = malloc(sizeof(void*) + TRAMP_LENGTH + TRAMP_ALIGN-1);
+  { char* room = (char*) malloc(sizeof(void*) + TRAMP_LENGTH + TRAMP_ALIGN-1);
     if (!room)
       { fprintf(stderr,"trampoline: Out of virtual memory!\n"); abort(); }
     function = (char*)(((long)room + sizeof(void*) + TRAMP_ALIGN-1) & -TRAMP_ALIGN);
@@ -1150,8 +1154,12 @@ __TR_function alloc_trampoline (address, variable, data)
   return (__TR_function) (function + TRAMP_BIAS);
 }
 
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
+void free_trampoline (__TR_function function)
+#else
 void free_trampoline (function)
   __TR_function function;
+#endif
 {
 #if TRAMP_BIAS
   function = (__TR_function)((char*)function - TRAMP_BIAS);
@@ -1164,8 +1172,12 @@ void free_trampoline (function)
 #endif
 }
 
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
+int is_trampoline (void* function)
+#else
 int is_trampoline (function)
   void* function;
+#endif
 {
 #ifdef is_tramp
 #ifdef __hppanew__
@@ -1177,8 +1189,12 @@ int is_trampoline (function)
 #endif
 }
 
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
+__TR_function trampoline_address (void* function)
+#else
 __TR_function trampoline_address (function)
   void* function;
+#endif
 {
 #ifdef tramp_address
   return (__TR_function)(tramp_address(((char*)function - TRAMP_BIAS)));
@@ -1187,8 +1203,12 @@ __TR_function trampoline_address (function)
 #endif
 }
 
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
+void* trampoline_variable (void* function)
+#else
 void* trampoline_variable (function)
   void* function;
+#endif
 {
 #ifdef tramp_variable
   return (void*)(tramp_variable(((char*)function - TRAMP_BIAS)));
@@ -1197,8 +1217,12 @@ void* trampoline_variable (function)
 #endif
 }
 
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
+void* trampoline_data (void* function)
+#else
 void* trampoline_data (function)
   void* function;
+#endif
 {
 #ifdef tramp_data
   return (void*)(tramp_data(((char*)function - TRAMP_BIAS)));

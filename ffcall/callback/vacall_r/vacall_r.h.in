@@ -999,8 +999,12 @@ typedef __va_alist* va_alist;
 /*
  * Miscellaneous declarations.
  */
+#ifdef __cplusplus
+extern "C" void __vacall_r (); /* the return type is variable, not void! */
+#else
 extern void __vacall_r (); /* the return type is variable, not void! */
-#if defined(__STDC__) || defined(__GNUC__)
+#endif
+#if defined(__STDC__) || defined(__GNUC__) || defined(__cplusplus)
 extern int __va_error1 (enum __VAtype, enum __VAtype);
 extern int __va_error2 (unsigned int);
 extern void __structcpy (void* dest, void* src, unsigned long size, unsigned long alignment);
