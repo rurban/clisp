@@ -1750,7 +1750,7 @@ use of this facility.</para></formalpara>
  <title>Generic Function &compute-applicable-methods-mop;</title>
 
 <variablelist><varlistentry><term>Syntax</term>
-  <listitem><simpara><literal role="sexp">&compute-applicable-methods-mop;
+  <listitem><simpara><literal role="sexp">(&compute-applicable-methods-mop;
      &gf-r; &args-r;)</literal></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
