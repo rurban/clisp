@@ -6,13 +6,6 @@ MUST-FIX BEFORE NEXT RELEASE
 
 Contagion warnings emitted by many floating-point operations. (Bruno)
 
-Fix modules/exporting.lisp :
-(eval-when (load compile eval)
-  (defconstant FOO 10))
-does not export FOO. (Bruno)
-
-Follow the "English Only" rule for additions - here and everywhere. (Bruno)
-
 
 MUST-FIX BEFORE RELEASE 2.35
 ============================
