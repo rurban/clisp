@@ -12464,7 +12464,7 @@ Die Funktion make-closure wird dazu vorausgesetzt.
                 (when *fasoutput-stream*
                   (let ((*package* *keyword-package*))
                     (write `(SYSTEM::VERSION ',(version)) :stream *fasoutput-stream*
-                           :readably t :right-margin 79
+                           :readably t :right-margin 79 :case ':upcase
                            ; :escape t :level nil :length nil :radix t
                   ) )
                   (terpri *fasoutput-stream*)
