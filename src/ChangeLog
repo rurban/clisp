@@ -1,3 +1,8 @@
+2004-07-26  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (array_rank, get_array_dimensions): New declarations.
+	* array.d (array_rank, get_array_dimensions): New functions.
+
 2004-06-02  Bruno Haible  <bruno@clisp.org>
 
 	Make METHOD objects CLOS STANDARD-OBJECT instances.

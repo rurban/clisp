@@ -921,6 +921,45 @@ LISPFUNNR(array_dimension,2)
   fehler(type_error,GETTEXT("~S: ~S is not an nonnegative integer less than the rank of ~S"));
 }
 
+/* Returns the rank of an array.
+ array_rank(array)
+ > array: an array
+ < uintL result: its rank = number of dimensions */
+global uintL array_rank (object array) {
+  if (mdarrayp(array))
+    /* multi-dimensional array */
+    return Iarray_rank(array);
+  else
+    /* vector has rank 1 */
+    return 1;
+}
+
+/* Returns the dimensions of an array.
+ get_array_dimensions(array,rank,&dimensions[]);
+ > array: an array
+ > uintL rank: = array_rank(array)
+ > uintL dimensions[0..rank-1]: room for rank dimensions
+ < uintL dimensions[0..rank-1]: the array's dimensions */
+global void get_array_dimensions (object array, uintL rank, uintL* dimensions) {
+  if (array_simplep(array)) {
+    /* simple vector */
+    ASSERT(rank == 1);
+    if (simple_string_p(array)) {
+      sstring_un_realloc(array);
+      dimensions[0] = Sstring_length(array);
+    } else
+      dimensions[0] = Sarray_length(array);
+  } else {
+    ASSERT(rank == Iarray_rank(array));
+    if (rank > 0) {
+      var uintL* dimptr = &TheIarray(array)->dims[0];
+      if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
+        dimptr++; /* poss. skip displaced-offset */
+      dotimespL(rank,rank, { *dimensions++ = *dimptr++; });
+    }
+  }
+}
+
 /* Function: Returns the list of dimensions of an array.
  array_dimensions(array)
  > array: an array
