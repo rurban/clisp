@@ -1,3 +1,9 @@
+2001-11-04  Bruno Haible  <haible@clisp.cons.org>
+
+	Interoperability with gcc-3.0 -fuse-cxa-atexit.
+	* autoconf/aclocal.m4 (CL_GLOBAL_CONSTRUCTORS): Add test whether
+	global destructors actually exist.
+
 2001-11-02  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (check_stream, check_streamtype, check_builtin_stream):
