@@ -1,3 +1,7 @@
+2004-11-21  Sam Steingold  <sds@gnu.org>
+
+	* setf.tst: check that long DEFSETF permit missing store variables
+
 2004-11-13  Bruno Haible  <bruno@clisp.org>
 
 	* mop.tst: Test for the generic-function-class' default-initargs use in
