@@ -4085,7 +4085,7 @@ LISPFUNN(structure_reader,3) { # reads #S
       { # execute (GET name 'SYS::DEFSTRUCT-DESCRIPTION):
         var object description = get(name,S(defstruct_description));
         if (boundp(description)) {
-          /* description must be a Simple-Vector of length 6: */
+          /* description must be a Simple-Vector of length 7: */
           if (simple_vector_p(description)
               && (Svector_length(description) == 7)) {
             /* fetch constructor-function: */
