@@ -1,5 +1,10 @@
 2000-05-16  Sam Steingold  <sds@gnu.org>
 
+	* reploop.lisp (break-loop): terpri *debug-io* even when it is
+	not interactive.
+
+2000-05-16  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (sec_usec, socket_connect): treat NIL as unbound
 
 2000-05-15  Sam Steingold  <sds@gnu.org>
@@ -712,7 +717,7 @@
         * pathname.d (directory_diff_ab): Set new_piece to
           (cons ':directory subdirs), not (list ':directory subdirs).
 
-1999-11-08  Valeriy E. Ushakov <uwe@ptc.spbu.ru>
+1999-11-08  Valeriy E. Ushakov  <uwe@ptc.spbu.ru>
 
         * lispbibl.d (NEED_temp_mv_count, NEED_temp_value1): Define if
           SPARC && UNIX_NETBSD.
@@ -1373,7 +1378,7 @@
         * arisparc.d (compare_loop_up) [COUNTER_LOOPS]: Bug fix.
           (shiftright_loop_up): Save 1 cycle if count==0.
 
-1999-07-15  Jörg Höhle <Joerg.Hoehle@gmd.de>
+1999-07-15  Jörg Höhle  <Joerg.Hoehle@gmd.de>
 
         * affi.d (SYSTEM::MEM-WRITE): No need to check for integerp(wert),
           it is done later during conversion.
@@ -2479,7 +2484,7 @@
           (GENERIC-STREAM-P, SYS::TERMINAL-RAW): Use builtin_stream_p.
         * predtype.d (SYS::BUILT-IN-STREAM-P): New function.
 
-1999-04-29  Wolfgang Jenkner <wolfgang@mat.univie.ac.at>
+1999-04-29  Wolfgang Jenkner  <wolfgang@mat.univie.ac.at>
 
         * control.d (make_variable_frame): Treat special-declared variables
           like special-proclaimed ones.
