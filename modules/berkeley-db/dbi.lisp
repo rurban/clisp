@@ -1,4 +1,4 @@
-;;; Copyright (C) 2003-2004 by Sam Steingold
+;;; Copyright (C) 2003-2005 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See <http://www.gnu.org/copyleft/gpl.html>
 
@@ -341,5 +341,5 @@
   (($errno :initarg :errno :reader bdb-error-number)))
 
 ;;; restore locks
-(push "BDB" *system-package-list*)
+(pushnew "BDB" *system-package-list* :test #'string=)
 (setf (package-lock *system-package-list*) t)
