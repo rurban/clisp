@@ -355,10 +355,6 @@ global void check_value (condition_t errortype, const char* errorstring)
 #undef OS_file_error
 #undef OS_filestream_error
 
-#ifdef AMIGAOS
-#include "erramiga.c"
-#endif
-
 #if defined(UNIX) || defined(EMUNIX)
 #include "errunix.c"
 #endif /* UNIX || EMUNIX */

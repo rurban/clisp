@@ -206,7 +206,6 @@ be a string, which must be the name of a known library."
         (arguments (rest (assoc :arguments options))))
     (dolist (arg arguments)
       (unless (and (symbolp (first arg))  ; variable name
-                   #+AMIGA (keywordp (third arg)) ; register
                    (null (nthcdr 3 arg))) ; nothing more
         (error (TEXT "Invalid parameter specification ~S in function ~S")
                arg name)))

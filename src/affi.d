@@ -20,10 +20,6 @@
   #define reg_coding 4 # used bits in mask
   struct reg_map { ULONG reg[reg_num]; }; # d0-7,a0-6. a7 ist sp und nicht belegbar
 
-  #ifdef AMIGAOS
-    #define libbase_reg 14 # a6 wird mit der Librarybase belegt
-  #endif
-
   #if defined(GNU) && !defined(NO_ASM)
   local ULONG reg_call (aint address, const struct reg_map *);
   local ULONG reg_call(address, regs)
@@ -194,9 +190,6 @@ local void affi_callit(address, ffinfo, args)
         var struct reg_map regs;
         if (uintbig_p(mask)) {
           var uintC count = Svector_length(ffinfo)-2;
-          #ifdef AMIGAOS # Always fill a6 with possible library base address
-            regs.reg[libbase_reg] = address;
-          #endif
           if (eq(mask,Fixnum_0)) {
             if (count!=0)
               goto bad_proto;

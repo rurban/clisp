@@ -113,22 +113,6 @@
 ) )
 
 ;; Characters which had names in earlier versions of CLISP:
-; AMIGA_CHARNAMES
-;  charname_hyper_18     (make-input-character :key :Down)
-;  charname_hyper_20     (make-input-character :key :Left)
-;  charname_hyper_22     (make-input-character :key :Right)
-;  charname_hyper_24     (make-input-character :key :Up)
-;  charname_hyper_28     (make-input-character :key :Help)
-;  charname_hyper_a      (make-input-character :key :F1)
-;  charname_hyper_b      (make-input-character :key :F2)
-;  charname_hyper_c      (make-input-character :key :F3)
-;  charname_hyper_d      (make-input-character :key :F4)
-;  charname_hyper_e      (make-input-character :key :F5)
-;  charname_hyper_f      (make-input-character :key :F6)
-;  charname_hyper_g      (make-input-character :key :F7)
-;  charname_hyper_h      (make-input-character :key :F8)
-;  charname_hyper_i      (make-input-character :key :F9)
-;  charname_hyper_j      (make-input-character :key :F10)
 ; MSDOS_CHARNAMES
 ;  charname_hyper_13     (make-input-character :key :Enter)
 ;  charname_hyper_16     (make-input-character :key :Insert)

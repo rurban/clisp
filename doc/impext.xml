@@ -1759,10 +1759,10 @@ returns two values:
 <chapter id="platform">
    <title>Extensions-2: Platform specific Extensions</title>
 
-<!-- #if defined(SCREEN) || defined(AMIGAOS) -->
+<!-- #if defined(SCREEN) -->
 
 <section id="screen"><title>Extensions-2.1. Random Screen Access</title>
-<subtitle>Platform dependent: &unix;, &amiga;, &dos;, &os2;, &win32;
+<subtitle>Platform dependent: &unix;, &dos;, &os2;, &win32;
    platforms only.</subtitle>
 
 <variablelist>
@@ -2151,7 +2151,6 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
   <listitem><para>Call the operating system functions from &clisp;.
     The following platforms are supported:
    <itemizedlist>
-    <listitem><simpara>&amiga;</simpara></listitem>
     <listitem><simpara>&linux;/&glibc;</simpara></listitem>
     <listitem><simpara>&win32;</simpara></listitem>
    </itemizedlist></para></listitem></varlistentry>
@@ -2233,7 +2232,7 @@ Then <literal role="sexp">(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO
 <!-- #ifdef DYNAMIC_FFI -->
 <section id="dffi">
   <title>Extensions-2.3. The Foreign Function Call Facility</title>
-<subtitle>Platform dependent: many &unix;, &win32;, &amiga; platforms
+<subtitle>Platform dependent: many &unix;, &win32; platforms
 only.</subtitle>
 
 <para>A foreign function description is written as a Lisp file, and when
@@ -3064,24 +3063,6 @@ unit</ulink> (usually a file), a warning is issued and
  </listitem></varlistentry></variablelist></listitem></varlistentry>
 </variablelist>
 
-<variablelist>
-<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
-<listitem><simpara>&allocation; may not be &malloc-free-k; because there
- is no commonly used &malloc;/&free; library function.</simpara>
-
- <simpara>The &allocation; may be followed by a register specification,
- any of the symbols <constant>:d0</constant>, <constant>:d1</constant>,
- <constant>:d2</constant>, <constant>:d3</constant>,
- <constant>:d4</constant>, <constant>:d5</constant>,
- <constant>:d6</constant>, <constant>:d7</constant>,
- <constant>:a0</constant>, <constant>:a1</constant>,
- <constant>:a2</constant>, <constant>:a3</constant>,
- <constant>:a4</constant>, <constant>:a5</constant>,
- <constant>:a6</constant>, each representing one 680x0 register.
- This works only for integral types: integers, pointers, &c-string;,
- &c-function;.
-</simpara></listitem></varlistentry></variablelist>
-
 <warning id="ffi-struct-arg"><simpara>Passing &c-struct;, &c-union;,
   &c-array;, &c-array-max; values as arguments (not via pointers) is
   only possible to the extent the &c-lang; compiler supports it.
@@ -3485,7 +3466,7 @@ F
 
 <section id="affi">
   <title>Extensions-2.4. The Amiga Foreign Function Call Facility</title>
-<subtitle>Platform dependent: &amiga; platforms only.</subtitle>
+<subtitle>Platform dependent: no platform supports this currently.</subtitle>
 
 <formalpara><title>Another Foreign Function Interface</title>
 <para>All symbols relating to the simple foreign function interface are
@@ -3714,11 +3695,7 @@ and register mask to be specified,
 <function>declare-library-function</function> requires the library name
 and computes the mask from the declaration of the arguments.</para>
 
-<para>The value of mask is implementation-dependent. On the Amiga, it is
-an integer whose hexadecimal value is the reverse of the function
-argument register numbers, where d0 has number <literal>1</literal>
-and a6 number <literal>#xF</literal>.  A &nil; mask is reserved for
-stack-based calls (unimplemented).</para>
+<para>The value of mask is implementation-dependent.</para>
 
 <para>The &affi-pac; type &zero; is only acceptable as a
 function result type and yields either &t; or &nil;. The difference
@@ -3937,70 +3914,7 @@ Compiled, it will have inlined the library function calls.
 </section>
 <!-- #endif -->
 
-<!-- #ifdef AMIGAOS -->
-<section id="rexx"><title>Extensions-2.5. ARexx</title>
-<subtitle>Platform dependent: &amiga; platforms only.</subtitle>
-
-<para>&clisp; comes with a small yet extensible and powerful ARexx
- interface.</para>
-
-<variablelist>
-<varlistentry><term><literal role="sexp">(rexx-do-command
-   "return address()" :string &t; :result &t;)</literal></term>
- <listitem><simpara>tells you the name of the &clisp; ARexx port.  The
-  default extension for &clisp; ARexx scripts is <filename>cl</filename>.
- </simpara></listitem></varlistentry>
-
-<varlistentry><term><literal role="sexp">(rexx-do-command
-   &command-r; &key-amp; :string :result :token :io :host)</literal></term>
- <listitem><simpara> -&gt; <literal role="sexp">(RC &optional-amp;
-  <replaceable>result</replaceable>)</literal>, or &nil; on failure
-</simpara></listitem></varlistentry>
-
-<varlistentry><term><literal role="sexp">(rexx-run-command
-  &command-r; &key-amp; :string :token)</literal></term>
- <listitem><simpara> -&gt; &t;, or &nil; on failure
-</simpara></listitem></varlistentry>
-
-<varlistentry><term><literal role="sexp">(rexx-send-command
-   &command-r; &key-amp; :string :result :token :io :host)</literal></term>
- <listitem><simpara> -&gt; <replaceable>arexx-msg-handle</replaceable>,
-  or &nil; on failure</simpara></listitem></varlistentry>
-
-<varlistentry><term><literal role="sexp">(rexx-wait-sent-command
-   <replaceable>arexx-msg-handle</replaceable>)</literal></term>
- <listitem><simpara> -&gt; <literal role="sexp">(RC &optional-amp;
-   <replaceable>result</replaceable>)</literal>, or &nil; on failure
-</simpara></listitem></varlistentry>
-
-<varlistentry><term><literal role="sexp">(rexx-loop)</literal></term>
- <listitem><simpara> -&gt; no return, use the
-  <filename>exit-loop.cl</filename> ARexx script to abort the loop
-</simpara></listitem></varlistentry>
-
-</variablelist>
-
-<para>&command-r; may be a string denoting a command with optional
-arguments or a vector of strings thus denoting an ARexx function call.
-The first element in the vector is the function name, the others are the
-up to 15 arguments.</para>
-
-<para>Messages may be sent to an arbitrary ARexx host, special cases are
-&nil; (meaning <function>"REXX"</function>, the default) and &t;
-(<function>"AREXX"</function> for asynchronous execution).</para>
-
-<para>ARexx server mode: Like Ispell, Csh and SKsh, you can run it in
-server mode by calling <literal role="sexp">(rexx-loop)</literal>. You
-can then only exit with the ARexx <filename>exit-loop.cl</filename>
-script.</para>
-
-<para>Restrictions: Currently &clisp; is not able to wait for input from
-several sources, e.g. both a console and ARexx, at the same time.</para>
-
-</section>
-<!-- #endif -->
-
-<section id="socket"><title>Extensions-2.6. Socket Streams</title>
+<section id="socket"><title>Extensions-2.5. Socket Streams</title>
 <subtitle>Platform dependent: &unix;, &win32; platforms only.</subtitle>
 <!-- #ifdef SOCKET_STREAMS -->
 
@@ -4211,7 +4125,7 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
 </section>
 
 <section id="quickstart">
-   <title>Extensions-2.7. Quickstarting delivery with &clisp;</title>
+   <title>Extensions-2.6. Quickstarting delivery with &clisp;</title>
 
 <para>This section describes four ways to turn &clisp; programs into
  executable programs, which can be started as quickly as executables
@@ -4232,12 +4146,6 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   <listitem><simpara>Associate the extensions &fasl-file;
    and &lisp-file; with &clisp;; then you can make the
    files executable and run them from the command line.
-  </simpara></listitem></varlistentry>
- <varlistentry><term>&amiga;</term>
-  <listitem><simpara>Files created with &clisp; can be associated with a
-   Workbench project icon so that clicking on them would make &clisp;
-   execute the appropriate code.  Note that several &fasl-file; files
-   can be concatenated (using <function>Join</function>) into one file.
   </simpara></listitem></varlistentry>
 </variablelist>
 
@@ -4405,51 +4313,12 @@ bash$
  <filename>/usr/src/linux/Documentation/binfmt_misc.txt</filename> for
  details.</para>
 </listitem></varlistentry>
-
-<!-- #ifdef AMIGAOS -->
-<varlistentry id="quickstart-amiga">
- <term>Platform dependent: &amiga; platforms only.</term>
-
-<listitem><para>Using a Workbench project file, the &mem-image;s,
- source and binary files can be made "executable".
-
-<itemizedlist>
- <listitem><simpara>Using IconEdit, create a project icon.</simpara></listitem>
- <listitem><simpara>Set the tool to <filename>lisp:lisp.run</filename>
-  (or wherever the binary is located).</simpara></listitem>
- <listitem><simpara>Define a tooltype named
-  <replaceable>ARGS</replaceable> set to <option>-M *</option>
-  for a &mem-image; project icon or to <option>-M lisp:lispinit.mem
-  -i *</option> for a source or compiled lisp file.  The startup code
-  will replace an isolated <token>*</token> token with the file
-  name.</simpara></listitem>
- <listitem><simpara>Alternatively, you may want to have a function
-  <function>main</function> in your files and set the
-  <replaceable>ARGS</replaceable> tooltype to <option>-M
-  lisp:lispinit.mem -i * -x (main)</option>.</simpara></listitem>
- <listitem><simpara>You might want to add more <ulink
-  url="clisp.html">command line options</ulink> to the
-  <replaceable>ARGS</replaceable> tooltype.</simpara></listitem>
-</itemizedlist>
-
- Clicking on the compiled lisp file (with &fasl-file; suffix) will load
- the image and the file (thus executing all the code in the file), while
- clicking on the &clisp;'s &mem-image; (with &mem-file; suffix) with
- start &clisp; with the given &mem-image;.</para>
-
-<para>You might want to add a tooltype named
- <replaceable>WINDOW</replaceable> which names the console window that
- &terminal-io-var; will be bound to, for example
- <filename>CON:0/0/500/300/CLISP-Listener/AUTO/CLOSE</filename>, or
- <filename>TCP:20002</filename>.</para></listitem></varlistentry>
-
-<!-- #endif -->
 </variablelist>
 
 </section>
 
 <section id="app-dev">
-  <title>Extensions-2.8. Application delivery with &clisp;</title>
+  <title>Extensions-2.7. Application delivery with &clisp;</title>
 
 <para>Some ways of packaging &clisp; programs are discussed in the
  section <link linkend="quickstart">Quickstarting delivery with
@@ -4497,7 +4366,7 @@ bash$
 
 </section>
 
-<section id="shell"><title>Extensions-2.9. Shell, Pipes and Printing</title>
+<section id="shell"><title>Extensions-2.8. Shell, Pipes and Printing</title>
 
 <section id="exec"><title>Shell</title>
 
@@ -4514,15 +4383,9 @@ bash$
    <replaceable>arg&sub-2;</replaceable>, ... as arguments.
  </simpara></listitem></varlistentry>
 <!-- #endif -->
-<!-- #ifdef AMIGAOS -->
-<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
- <listitem><simpara><literal role="sexp">(&exec; &command-r;)</literal>
-   executes a given &command-r; using the operating system's shell.
- </simpara></listitem></varlistentry>
-<!-- #endif -->
 
 <!-- #ifdef HAVE_SHELL -->
-<varlistentry><term>Platform dependent: &unix;, &amiga;,
+<varlistentry><term>Platform dependent: &unix;,
    &dos;, &os2;, &win32; platforms only.</term>
  <listitem><simpara><literal role="sexp">(&shell; [&command-r;])</literal>
    calls the operating system's shell. <literal
@@ -4681,7 +4544,7 @@ bash$
 </section>
 </section>
 
-<section id="getenv"><title>Extensions-2.10. Operating System
+<section id="getenv"><title>Extensions-2.9. Operating System
   Environment.</title>
 
 <para>Most modern operating systems support &env-var;s that associate
@@ -4701,21 +4564,9 @@ are returned in an &alist;.</para>
  &string-r;) <replaceable>new-value</replaceable>)</literal>.</para>
 </section>
 
-<section id="separate-io"><title>Extensions-2.11. Other</title>
+<section id="separate-io"><title>Extensions-2.10. Other</title>
 
 <variablelist>
-<!-- #ifdef AMIGAOS -->
-<varlistentry><term>Platform dependent: &amiga; platforms only.</term>
-<listitem><para>To have &debug-io-var; and &error-output-var; point
- to separate console windows (thus keeping your standard console window
- clean from error messages) you can use
-<programlisting>
-  (&setq; &error-output-var;
-    (&setq; &debug-io-var;
-      (&open; "CON:0/0/500/300/CLISP-Debugger/AUTO/CLOSE"
-            &direction-k; &io-k;)))
-</programlisting></para></listitem></varlistentry>
-<!-- #endif -->
 <!-- #ifdef UNIX -->
 <varlistentry><term>Platform dependent: &unix; platforms only.</term>
 <listitem><para>When running under the &X;, you can create

@@ -114,7 +114,7 @@
 (defvar *system-package-list*
   '("SYSTEM" "LISP" "EXT" "CUSTOM" "I18N" "GRAY" "CHARSET" "CLOS"
     #+sockets "SOCKET" #+generic-streams "GSTREAM" #+syscalls "POSIX"
-    #+ffi "FFI" #+amiga "AFFI" #+screen "SCREEN"))
+    #+ffi "FFI" #+(or) "AFFI" #+screen "SCREEN"))
 
 ;; Unlock the specified packages, execute the BODY, then lock them again.
 (defmacro without-package-lock (packages &body body)
@@ -492,7 +492,7 @@
               old-space1 old-space2 old-gccount)
   (macrolet ((diff4 (val1-n val2-n val1-o val2-o)
                (if (< internal-time-units-per-second 1000000)
-                 ;; TIME_1: AMIGA, OS/2, UNIX_TIMES
+                 ;; TIME_1: OS/2, UNIX_TIMES
                  `(delta4 ,val1-n ,val2-n ,val1-o ,val2-o 16)
                  ;; TIME_2: other UNIX, WIN32
                  `(+ (* (- ,val1-n ,val1-o) internal-time-units-per-second)
@@ -527,7 +527,7 @@
   (if (and (realp time) (not (minusp time)))
     (progn
       ; Diese Fallunterscheidung hängt von sys::%sleep in time.d ab.
-      #+(or AMIGA OS/2) ; SLEEP_1
+      #+OS/2 ; SLEEP_1
       (if (> time '#,(floor (expt 2 31) internal-time-units-per-second))
         ; Mehr als 248 bzw. 994 bzw. 497 Tage? (Denn sys::%sleep akzeptiert nur
         ; Argumente < 2^32, bei #+OS/2 sogar nur Argumente < 2^31.)

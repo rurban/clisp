@@ -39,11 +39,6 @@ PACK = tar
 PACKOPT = cvfhj
 PACKEXT = .tar.bz2
 
-# Popular Amiga packer. Good performance.
-#PACK = lha
-#PACKOPT = a
-#PACKEXT = .lzh
-
 # Popular DOS packer.
 #PACK = zip
 #PACKOPT = -r
@@ -62,7 +57,7 @@ T = $(TOPDIR)
 SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/clisp.lsm $T/configure
 SOURCES2 = $T/src
 SOURCES4 = $T/ffcall $T/libcharset $T/utils
-SOURCES5 = $T/unix $T/os2 $T/win32msvc $T/win32bc $T/amiga $T/nextapp
+SOURCES5 = $T/unix $T/os2 $T/win32msvc $T/win32bc $T/nextapp
 SOURCES6 = $T/modules
 # $T/benchmarks are for developers only
 SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel

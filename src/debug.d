@@ -1407,11 +1407,7 @@ LISPFUN(show_stack,seclass_default,0,3,norest,nokey,0,NIL)
 LISPFUNN(debug,0)
 # (SYSTEM::DEBUG) springt in einen im Hintergrund sitzenden Debugger.
   {
-    #if !defined(AMIGAOS)
-      abort();
-    #else # AMIGAOS
-      Debug(0);
-    #endif
+    abort();
     VALUES0; # keine Werte
   }
 

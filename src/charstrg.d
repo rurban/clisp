@@ -1198,10 +1198,6 @@ global object coerce_char (object obj) {
 
 /* table of character-names:
  defined in CONSTOBJ.D, */
-#ifdef AMIGA_CHARNAMES
-  #define charname_table_length  45  /* length of the table */
-  #define charname_table  ((gcv_object_t*)(&object_tab.charname_0)) /* table starts with charname_0 */
-#endif
 #ifdef MSDOS_CHARNAMES
   #define charname_table_length  13  /* length of the table */
   #define charname_table  ((gcv_object_t*)(&object_tab.charname_0)) /* table starts with charname_0 */
@@ -1216,12 +1212,6 @@ global object coerce_char (object obj) {
 #endif
 /* table of codes for this name: */
 local const uintB charname_table_codes [charname_table_length]
-  #ifdef AMIGA_CHARNAMES
-    = { 0,1,2,3,4,5,6,BEL,BS,TAB,NL,11,PG,CR,14,15,16,17,18,19,20,21,22,
-        23,24,25,26,ESC,28,29,30,31,' ',127,7,8,9,LF,10,12,13,27,127,RUBOUT,
-        155,
-      };
-  #endif
   #ifdef MSDOS_CHARNAMES
     = { 0,BEL,BS,TAB,NL,11,PG,CR,26,ESC,' ',RUBOUT,LF, };
   #endif

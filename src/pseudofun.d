@@ -76,7 +76,7 @@ LPSEUDOCODE(rd_ch_keyboard)
 #if defined(MAYBE_NEXTAPP)
 LPSEUDOCODE(wr_ch_terminal) LPSEUDOCODE(rd_ch_terminal)
 #endif
-#if defined(UNIX) || defined(MSDOS) || defined(AMIGAOS)
+#if defined(UNIX) || defined(MSDOS)
 LPSEUDOCODE(wr_ch_terminal1) LPSEUDOCODE(rd_ch_terminal1) LPSEUDOCODE(wr_ch_array_terminal1)
 #ifdef MSDOS
 LPSEUDOCODE(wr_ch_terminal2) LPSEUDOCODE(rd_ch_terminal2) LPSEUDOCODE(wr_ch_array_terminal2)

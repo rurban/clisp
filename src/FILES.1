@@ -1,4 +1,4 @@
-.TH "CLISP SOURCE" 1 "2004-01-11"
+.TH "CLISP SOURCE" 1 "2004-01-13"
 
 
 .SH ABOUT
@@ -58,12 +58,6 @@ list of miscellaneous objects accessed by C code
 .TP 15
 .B unix.d
 include file for unix implementations
-.TP 15
-.B amiga.d
-include file for Amiga/AmigaOS version
-.TP 15
-.B amiga2.d
-second include file for Amiga/AmigaOS version
 .TP 15
 .B msdos.d
 include file for OS/2 based versions
@@ -156,9 +150,6 @@ Support for debugging and the read-eval-print loop.
 Error handling and signalling.
 .RS 4
 .TP 15
-.B erramiga.d
-AMIGAOS specific error messages.
-.TP 15
 .B errunix.d
 Unix specific error messages.
 .TP 15
@@ -183,12 +174,6 @@ Auxiliary functions (UNIX version only).
 .TP 15
 .B win32aux.d
 Auxiliary functions (Win32 version only).
-.TP 15
-.B amigaaux.d
-Auxiliary functions (Amiga version only).
-.TP 15
-.B rexx.d
-Low-level Rexx interface (Amiga version only).
 .TP 15
 .B graph.d
 Low-level graphics functions.
@@ -443,9 +428,6 @@ for Unix, using SunOS
 .B cfgunix.lisp
 for any other Unix
 .TP 15
-.B cfgamiga.lisp
-for Amiga
-.TP 15
 .B cfgdos.lisp
 for OS/2 version
 .TP 15
@@ -482,9 +464,6 @@ foreign language interface
 .TP
 .B screen.lisp
 the screen access package
-.TP
-.B rexx1.lisp
-for Amiga, an interface to Rexx
 .TP
 .B edit.lisp
 (optional) the screen editor

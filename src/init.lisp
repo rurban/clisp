@@ -1709,7 +1709,7 @@
   (localized 'date-format))
 
 ;; list a directory
-(defun dir (&optional (pathnames #+(or AMIGA UNIX OS/2 WIN32) '("*/" "*")))
+(defun dir (&optional (pathnames #+(or UNIX OS/2 WIN32) '("*/" "*")))
   (flet ((onedir (pathname)
            (let ((pathname-list (directory pathname :full t :circle t)))
              (if (every #'atom pathname-list)
@@ -1742,8 +1742,7 @@
     (dolist (dir (cons '#""
                        ;; when filename has "..", ignore *load-paths*
                        ;; (to avoid errors with ".../../foo"):
-                       (if (member #+AMIGA :PARENT
-                                   #+(or UNIX OS/2 WIN32) ".."
+                       (if (member #+(or UNIX OS/2 WIN32) ".."
                                    (pathname-directory filename)
                                    :test #'equal)
                            '()
@@ -1765,8 +1764,8 @@
                 (delete-if-not ; does xpathname have the given extensions?
                  #'(lambda (xpathname)
                      (member (pathname-type (first xpathname)) extensions
-                             :test #-(or AMIGA OS/2 WIN32) #'string=
-                             #+(or AMIGA OS/2 WIN32) #'string-equal))
+                             :test #-(or OS/2 WIN32) #'string=
+                             #+(or OS/2 WIN32) #'string-equal))
                  xpathnames)))
             (when xpathnames
               ;; reverse sort by date:
@@ -1846,7 +1845,7 @@
 
 (LOAD "keyboard")               ; keyboard stream, optional
 
-#+(or AMIGA SCREEN)
+#+SCREEN
 (LOAD "screen")                 ; screen-package, optional
 
 
@@ -1868,8 +1867,6 @@
 
 (common-lisp:in-package "SYSTEM")
 
-#+AMIGA
-(LOAD "amigasock")              ; sockets, optional
 #+BEOS
 (LOAD "beossock")               ; sockets, optional
 
@@ -1902,11 +1899,9 @@
 #+FFI ; when (find-package "FFI")
 (LOAD "foreign1")               ; foreign function interface, optional
 
-#+AMIGA
+#+AFFI
 (when (find-symbol "%LIBCALL" "SYSTEM")
   (LOAD "affi1"))               ; simple FFI, optional
-
-#+AMIGA (LOAD "rexx1")          ; REXX-interface, optional
 
 ;; POSIX/SUSV2 system calls and library functions, optional
 ;; http://www.UNIX-systems.org/online.html

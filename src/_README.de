@@ -90,9 +90,6 @@ oder
    base/libnoreadline.a  wertloser Ersatz für die GNU Readline-Bibliothek
 #endif
 #else /* !defined(UNIX) */
-#ifdef AMIGAOS
-      lisp.run         Hauptprogramm
-#endif
 #ifdef OS2
       lisp.exe         Hauptprogramm
 #endif
@@ -101,11 +98,7 @@ oder
       locale/*/LC_MESSAGES/clisp.mo  Datenbanken lokalisierter Meldungen
 #endif
       clisp.1          Benutzungshinweise im man-Format von Unix
-#ifdef AMIGAOS
-      clisp.doc        Benutzungshinweise
-#else
       clisp.man        Benutzungshinweise
-#endif
       clisp.html       Benutzungshinweise im HTML-Format
 #ifdef OS2
       clisp.dvi        Benutzungshinweise im DVI-Format
@@ -163,24 +156,6 @@ Sie läuft auch auf einem Pentium; die Ergebnisse, die CLISP produziert, sind
 vom Divisionsfehler des Intel Pentium nicht betroffen.
 
 #endif
-#ifdef AMIGAOS
-
-Hardware-Voraussetzungen:
--------------------------
-
-Diese Amiga-Version von CLISP setzt einen Amiga mit mindestens 1.5 MB RAM
-voraus. Die CLISP-LOW genannte Version läuft auf Geräten, deren gesamter
-Speicher mit 24 Bit adressierbar ist: auf 68000, A2620, A2630. Die
-CLISP-HIGH genannte Version hingegen läuft in Speicher, der mit 27 Bit
-adressierbar ist (Adressen #x00000000 bis #x07FFFFFF), jedoch nur auf
-Geräten mit 68020/030/040(/60?): A3000 und A4000 ohne Zorro-III
-Speichererweiterungskarten. Die CLISP-00 genannte Version läuft nur auf
-68000, ist dafür schneller als CLISP-LOW. Die CLISP-WIDE genannte Version
-arbeitet mit 64 Bit Integern, läuft daher in beliebigem Speicher, aber nur
-mit 68020 oder besser (z.B. A4000 mit VMM) und ist wegen der 64 Bit
-langsamer als CLISP-HIGH.
-
-#endif
 #if defined(SINGLEMAP_MEMORY) && (defined(UNIX_LINUX) || !defined(HAVE_MMAP_ANON))
 
 Software-Voraussetzungen:
@@ -201,14 +176,6 @@ Diese CLISP-Version setzt Linux 0.99.7 oder neuer voraus.
 /dev/zero muß von jedermann lesbar sein. Um das sicherzustellen, können Sie
 ein "chmod a+r /dev/zero" ausführen.
 #endif
-
-#endif
-#ifdef AMIGAOS
-
-Software-Voraussetzungen:
--------------------------
-
-Diese CLISP-Version setzt OS 2.04 (V37) oder neuer voraus.
 
 #endif
 
@@ -261,9 +228,6 @@ Starten Sie dann
 
 #if defined(OS2) || defined(WIN32_NATIVE)
          lisp.exe -M lispinit.mem
-#endif
-#ifdef AMIGAOS
-         lisp.run -M lispinit.mem
 #endif
 #ifdef UNIX
          base/lisp.run -M base/lispinit.mem
@@ -371,24 +335,6 @@ and probieren Sie
    man clisp
 #endif
 
-#ifdef AMIGAOS
-
-Anmerkung:
-----------
-
-Sie können CLISP von der Workbench(r) aus starten. Die folgenden Anwendungs-
-parameter des Anwendungs-Piktogrammes werden erkannt:
-
-   WINDOW=<Spezifikation eines Fensters oder eines Kanals>
-   ARGS=<Argumente wie beim Kommandozeilen-Aufruf>
-
-Beispielsweise
-
-   WINDOW=CON:0/11/640/200/CLISP-Fenster/CLOSE
-   ARGS=-M lispinit.mem
-
-#endif
-
 Wenn's Probleme gibt:
 ---------------------
 
@@ -469,15 +415,6 @@ Autoren:
         Michael Stoll
 
 Email: clisp-list@lists.sourceforge.net
-#ifdef AMIGAOS
-
-Portierung für den Amiga:
--------------------------
-
-        Jörg Höhle
-
-Email: Joerg.Hoehle@gmd.de
-#endif
 
 Wartung und Pflege:
 -------------------

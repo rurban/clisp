@@ -120,13 +120,6 @@ global void init_language (const char* argv_language,
       if (init_language_from(langname))
         goto chosen1;
     }
-   #ifdef AMIGAOS
-    langname = getenv("Language"); # since OS 3.0
-    if (langname) {
-      if (init_language_from(langname))
-        goto chosen1;
-    }
-   #endif
   }
  #endif
  #ifdef GNU_GETTEXT

@@ -37,7 +37,6 @@ Installation:
       os2/               installing on OS/2
       win32msvc/         installing on Win32, using MSVC
       win32bc/           installing on Win32, using Borland C/C++
-      amiga/             installing on Amiga
 
 Other:
 
@@ -56,7 +55,6 @@ Installation:
 
 For instruction on how to install CLISP
 * on Unix: see file unix/INSTALL.
-* on Amiga (AmigaOS): see file amiga/INSTALL.
 * on OS/2: see file os2/INSTALL,
 * on Win32 (WinNT, Win95): see files win32msvc/INSTALL and win32bc/INSTALL.
 
