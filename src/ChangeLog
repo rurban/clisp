@@ -1,3 +1,9 @@
+2001-01-14  Bruno Haible  <haible@clisp.cons.org>
+
+        * configure: In avcall and callback, do "make check" instead of
+          "make minicheck".
+        * makemake.in: Likewise.
+
 2001-01-04  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (pathname_check_remote): replaced with
