@@ -51,7 +51,7 @@ SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.sp
 SOURCES2 = $T/src/*[^t] $T/src/[^g]*t $T/src/.??*
 # exclude $T/src/gettext/*o/*p = $T/src/gettext/po/tmp
 SOURCES3 = $T/src/gettext/*[^o] $T/src/gettext/po/*[^p]
-SOURCES4 = $T/ffcall $T/sigsegv $T/libiconv $T/utils 
+SOURCES4 = $T/ffcall $T/sigsegv $T/libiconv $T/utils
 SOURCES5 = $T/unix $T/os2 $T/cygwin32 $T/win32gcc $T/win32msvc $T/win32bc $T/amiga $T/acorn $T/nextapp
 SOURCES6 = $T/modules
 SOURCES7 = $T/tests $T/emacs $T/doc $T/Makefile.devel
@@ -72,16 +72,18 @@ os2/makefile : makemake
 	./makemake os2 gcc > os2/makefile
 
 win32gcc/makefile : makemake
-	./makemake win32gcc gcc > win32gcc/makefile
+	./makemake --with-dir-key win32gcc gcc > win32gcc/makefile
 
 win32msvc/makefile.msvc4 : makemake
-	./makemake --with-dynamic-ffi win32msvc msvc4 > win32msvc/makefile.msvc4
+	./makemake --with-dir-key --with-dynamic-ffi \
+		win32msvc msvc4 > win32msvc/makefile.msvc4
 
 win32msvc/makefile.msvc5 : makemake
-	./makemake --with-dynamic-ffi win32msvc msvc5 > win32msvc/makefile.msvc5
+	./makemake --with-dir-key --with-dynamic-ffi \
+		win32msvc msvc5 > win32msvc/makefile.msvc5
 
 win32bc/makefile : makemake
-	./makemake win32bc bcc32i > win32bc/makefile
+	./makemake --with-dir-key win32bc bcc32i > win32bc/makefile
 
 acorn/makefile.cc : makemake src/VERSION
 	./makemake acorn ansi | $(PERL) acorn/swap-ext.pl > acorn/makefile.cc
