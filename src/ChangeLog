@@ -1,3 +1,8 @@
+2002-08-05  Sam Steingold  <sds@gnu.org>
+
+	* m4/dynload.m4 (CL_DYNLOAD): check for <dlfcn.h> before doing
+	anything else and drop out if the header is not there
+
 2002-08-03  Sam Steingold  <sds@gnu.org>
 
 	* spvw_garcol.d (GC_MARK): new macro

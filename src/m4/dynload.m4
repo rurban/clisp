@@ -1,4 +1,5 @@
 dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
+dnl -*- Autoconf -*-
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -11,6 +12,8 @@ AC_PREREQ(2.13)
 
 AC_DEFUN([CL_DYNLOAD],
 [dnl Some systems have dlopen in libc, some have it in libdl.
+AC_CHECK_HEADERS(dlfcn.h)
+if test "$ac_cv_header_dlfcn_h" = yes; then
 AC_CACHE_CHECK(for dlopen, cl_cv_func_dlopen, [
 cl_cv_func_dlopen=no
 cl_cv_lib_dl=no
@@ -25,6 +28,8 @@ cl_cv_func_dlopen=yes)
 LIBS="$cl_save_LIBS"
 fi
 ])
+else cl_cv_func_dlopen=no;
+fi
 if test "$cl_cv_func_dlopen" = yes; then
   AC_DEFINE(HAVE_DLOPEN)
   CL_PROTO([dlsym], [
