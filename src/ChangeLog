@@ -2,6 +2,7 @@
 
 	* trace.lisp (force-cclosure): take FDEFINITION when compiling
 	(%local-set): COMPILE NEW-DEF and take its FDEFINITION
+	when NEW-DEF is not compiled
 
 2002-02-28   Barry Fishman  <bfishman@users.sf.net>
 
