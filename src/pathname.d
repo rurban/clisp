@@ -162,12 +162,12 @@ local char* realpath (const char* path, char* resolved_path) {
             var char* last_subdir_ptr = &last_subdir_end[-1];
             if (to_ptr > resolved_path+2) {
               if (*last_subdir_ptr == '.') {
-                if ((to_ptr > resolved_path+4) &&
-                    (*--last_subdir_ptr == '/')) {
+                if ((to_ptr > resolved_path+4)
+                    && (*--last_subdir_ptr == '/')) {
                   # letztes subdir war '/../'
                   # Dafür das subdir davor entfernen:
-                  while ((last_subdir_ptr > resolved_path) &&
-                         !(*--last_subdir_ptr == '/'));
+                  while ((last_subdir_ptr > resolved_path)
+                         && !(*--last_subdir_ptr == '/'));
                   to_ptr = last_subdir_ptr+1;
                 }
               } else if (*last_subdir_ptr == '/') {
@@ -210,8 +210,8 @@ local char* realpath (const char* path, char* resolved_path) {
                     var char* mypath_limit = &mypath[MAXPATHLEN-1]; # bis hierher
                     if (mypath_ptr < mypath_limit) { *mypath_ptr++ = '/'; } # erst ein '/' anhängen
                     # dann den Rest:
-                    while ((mypath_ptr <= mypath_limit) &&
-                           (*mypath_ptr = *from_ptr++))
+                    while ((mypath_ptr <= mypath_limit)
+                           && (*mypath_ptr = *from_ptr++))
                       { mypath_ptr++; }
                     *mypath_ptr = 0; # und mit 0 abschließen
                   }
@@ -448,9 +448,9 @@ local inline bool delete_file_if_exists (char* pathstring) {
 #ifdef WIN32_NATIVE
   begin_system_call();
   if (! DeleteFile(pathstring) ) {
-    if (!(GetLastError()==ERROR_FILE_NOT_FOUND ||
-          GetLastError()==ERROR_PATH_NOT_FOUND ||
-          GetLastError()==ERROR_BAD_NETPATH)) {
+    if (!(GetLastError()==ERROR_FILE_NOT_FOUND
+          || GetLastError()==ERROR_PATH_NOT_FOUND
+          || GetLastError()==ERROR_BAD_NETPATH)) {
       end_system_call(); OS_file_error(STACK_0);
     }
     exists = false;
@@ -1554,8 +1554,8 @@ local object parse_logical_word (zustand* z, bool subdirp) {
   }
   if (len==0)
     return NIL;
-  else if ((len==1) &&
-           chareq(TheSstring(STACK_2)->data[startz.index],ascii('*')))
+  else if ((len==1)
+           && chareq(TheSstring(STACK_2)->data[startz.index],ascii('*')))
     return S(Kwild);
   else if ((len==2) && seen_starstar)
     return S(Kwild_inferiors);
@@ -1721,8 +1721,8 @@ local uintL parse_logical_pathnamestring (zustand z) {
       var object type = parse_logical_word(&z,false);
       TheLogpathname(STACK_1)->pathname_type = type;
       if (!nullp(type)) {
-        if ((z.count > 0) &&
-            chareq(TheSstring(STACK_2)->data[z.index],ascii('.'))) {
+        if ((z.count > 0)
+            && chareq(TheSstring(STACK_2)->data[z.index],ascii('.'))) {
           var zustand z_type = z;
           # Character '.' übergehen:
           Z_SHIFT(z,1);
@@ -2458,8 +2458,8 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
               } else
               #endif
               # War es '**' oder '...' ?
-              if (equal(STACK_0,O(wildwild_string)) ||
-                  equal(STACK_0,O(dotdotdot_string))) {
+              if (equal(STACK_0,O(wildwild_string))
+                  || equal(STACK_0,O(dotdotdot_string))) {
                 STACK_0 = S(Kwild_inferiors); # replace with :WILD-INFERIORS
               }
             #endif
@@ -2582,14 +2582,14 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
           var object pathname = STACK_0;
           var object dir = ThePathname(pathname)->pathname_directory;
           var object dev = Symbol_value(S(device_prefix));
-          if (nullp(ThePathname(pathname)->pathname_device) &&
+          if (nullp(ThePathname(pathname)->pathname_device)
               # actually, we already know that dir is a cons
-              consp(dir) && eq(Car(dir),S(Kabsolute)) &&
+              && consp(dir) && eq(Car(dir),S(Kabsolute))
               # Cdr(dir) might not be a cons, e.g., "/foo" ==
               # #S(pathname :directory (:absolute) :name "foo")
-              consp(Cdr(dir)) && consp(Cdr(Cdr(dir))) &&
-              stringp(dev) &&
-              string_eqcomp_ci(Car(Cdr(dir)),0,dev,0,vector_length(dev))) {
+              && consp(Cdr(dir)) && consp(Cdr(Cdr(dir)))
+              && stringp(dev)
+              && string_eqcomp_ci(Car(Cdr(dir)),0,dev,0,vector_length(dev))) {
             # path = (:ABSOLUTE "cygdrive" "drive" "dir1" ...) ===>
             # path = (:ABSOLUTE "dir1" ...); device = "DRIVE"
             var object device = Car(Cdr(Cdr(dir)));
@@ -3430,13 +3430,13 @@ local object merge_dirs (object p_directory, object d_directory, bool p_log,
       new_subdirs = d_directory; # use defaults-subdirs
   } else if (!wildp) {
     # is pathname-subdirs trivial?
-    if (eq(Car(p_directory),p_log ? S(Kabsolute) : S(Krelative)) &&
-        matomp(Cdr(p_directory))) {
+    if (eq(Car(p_directory),p_log ? S(Kabsolute) : S(Krelative))
+        && matomp(Cdr(p_directory))) {
       new_subdirs = d_directory; # use defaults-subdirs:
-    } else if (eq(Car(p_directory),S(Krelative)) &&
+    } else if (eq(Car(p_directory),S(Krelative))
                # PATHNAME = :ABSOLUTE ==> merge is not needed
-               (eq(Car(d_directory),S(Kabsolute)) ||
-                !nullp(Symbol_value(S(merge_pathnames_ansi))))) {
+               && (eq(Car(d_directory),S(Kabsolute))
+                   || !nullp(Symbol_value(S(merge_pathnames_ansi))))) {
       # (append defaults-subdirs (cdr pathname-subdirs)) =
       # (nreconc (reverse defaults-subdirs) (cdr pathname-subdirs)) :
       pushSTACK(Cdr(p_directory));
@@ -4012,8 +4012,8 @@ LISPFUN(make_pathname,0,0,norest,key,8,\
     # 0. check defaults (STACK_7):
     if (!eq(STACK_7,unbound)) {
       #ifdef LOGICAL_PATHNAMES
-      if (!nullp(Symbol_value(S(parse_namestring_ansi))) &&
-          stringp(STACK_7) && looks_logical_p(STACK_7))
+      if (!nullp(Symbol_value(S(parse_namestring_ansi)))
+          && stringp(STACK_7) && looks_logical_p(STACK_7))
         STACK_7 = parse_as_logical(STACK_7);
       else
       #endif
@@ -5603,8 +5603,8 @@ local object translate_directory (object* subst, object muster, bool logical) {
       return nullobj;
   }
   # if subst is :relative while muster is :absolute, nothing is to be done
-  if (eq(Car(muster),S(Kabsolute)) && mconsp(*subst) &&
-      mconsp(Car(*subst)) && eq(Car(Car(*subst)),S(Krelative))) {
+  if (eq(Car(muster),S(Kabsolute)) && mconsp(*subst)
+      && mconsp(Car(*subst)) && eq(Car(Car(*subst)),S(Krelative))) {
     *subst = Cdr(*subst);
     return copy_list(muster);
   }
@@ -6243,9 +6243,9 @@ local object assure_dir_exists (bool links_resolved, bool tolerantp) {
         SetLastError(ERROR_DIRECTORY);
       }
       if (fileattr == 0xFFFFFFFF) {
-        if (!(GetLastError()==ERROR_FILE_NOT_FOUND ||
-              GetLastError()==ERROR_PATH_NOT_FOUND ||
-              GetLastError()==ERROR_BAD_NETPATH)) {
+        if (!(GetLastError()==ERROR_FILE_NOT_FOUND
+              || GetLastError()==ERROR_PATH_NOT_FOUND
+              || GetLastError()==ERROR_BAD_NETPATH)) {
           end_system_call(); OS_file_error(STACK_0);
         }
         end_system_call();
@@ -6898,8 +6898,8 @@ local object canonicalise_filename (object filename) {
             Car(new_cons) = S(Kroot);
             Cdr(new_cons) = Cdr(ThePathname(pathname)->pathname_directory);
             ThePathname(pathname)->pathname_directory = subdirs;
-          } else if (!(eq(Car(subdirs),S(Kabsolute)) &&
-                       eq(Car(Cdr(subdirs)),S(Kroot)))) {
+          } else if (!(eq(Car(subdirs),S(Kabsolute))
+                       && eq(Car(Cdr(subdirs)),S(Kroot)))) {
             pushSTACK(pathname); # FILE-ERROR slot PATHNAME
             pushSTACK(pathname);
             pushSTACK(O(root_string));
@@ -8197,8 +8197,9 @@ local object open_file (object filename, direction_t direction,
   # Directory must exist:
   var object namestring = # File name for the operating system
     # tolerant only if :PROBE and if_not_exists = UNBOUND or NIL
-    assure_dir_exists(false,((direction == DIRECTION_PROBE) &&
-                             (if_not_exists == IF_DOES_NOT_EXIST_UNBOUND))
+    assure_dir_exists(false,
+                      ((direction == DIRECTION_PROBE)
+                       && (if_not_exists == IF_DOES_NOT_EXIST_UNBOUND))
                       || (if_not_exists == IF_DOES_NOT_EXIST_NIL));
   if (eq(namestring,nullobj))
     # path to the file does not exist,
@@ -8214,8 +8215,8 @@ local object open_file (object filename, direction_t direction,
         # :IF-DOES-NOT-EXIST decides:
         if (if_not_exists==IF_DOES_NOT_EXIST_ERROR)
           goto fehler_notfound;
-        if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND ||
-            if_not_exists==IF_DOES_NOT_EXIST_NIL)
+        if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND
+            || if_not_exists==IF_DOES_NOT_EXIST_NIL)
           goto ergebnis_NIL;
         # :CREATE -> create the file using open and close:
         with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
@@ -8266,8 +8267,8 @@ local object open_file (object filename, direction_t direction,
         # when if_exists=IF_EXISTS_SUPERSEDE and
         # if_not_exists=IF_DOES_NOT_EXIST_CREATE we can go for
         # CREATE right away, otherwise must first try OPEN:
-        if (!((if_exists==IF_EXISTS_SUPERSEDE) &&
-              (if_not_exists==IF_DOES_NOT_EXIST_CREATE))) {
+        if (!((if_exists==IF_EXISTS_SUPERSEDE)
+              && (if_not_exists==IF_DOES_NOT_EXIST_CREATE))) {
           begin_system_call(); # try to open file
           var sintW ergebnis = open(namestring_asciz,O_RDWR);
           if (ergebnis<0) {
@@ -8275,8 +8276,8 @@ local object open_file (object filename, direction_t direction,
               # file does not exist
               end_system_call();
               # :IF-DOES-NOT-EXIST decides:
-              if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND ||
-                  if_not_exists==IF_DOES_NOT_EXIST_ERROR)
+              if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND
+                  || if_not_exists==IF_DOES_NOT_EXIST_ERROR)
                 goto fehler_notfound;
               if (if_not_exists==IF_DOES_NOT_EXIST_NIL)
                 goto ergebnis_NIL;
@@ -8316,8 +8317,8 @@ local object open_file (object filename, direction_t direction,
               end_system_call(); OS_file_error(STACK_0);
             }
             end_system_call();
-            if ((if_exists==IF_EXISTS_RENAME) ||
-                (if_exists==IF_EXISTS_RENAME_AND_DELETE)) {
+            if ((if_exists==IF_EXISTS_RENAME)
+                || (if_exists==IF_EXISTS_RENAME_AND_DELETE)) {
               # :RENAME or :RENAME-AND-DELETE -> rename:
               create_backup_file(namestring_asciz,
                                  if_exists==IF_EXISTS_RENAME_AND_DELETE);
@@ -8359,8 +8360,8 @@ local object open_file (object filename, direction_t direction,
         } else {
           # file does not exist
           # :IF-DOES-NOT-EXIST decides:
-          if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND ||
-              if_not_exists==IF_DOES_NOT_EXIST_ERROR)
+          if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND
+              || if_not_exists==IF_DOES_NOT_EXIST_ERROR)
             goto fehler_notfound;
           if (if_not_exists==IF_DOES_NOT_EXIST_NIL)
             goto ergebnis_NIL;
@@ -8373,8 +8374,8 @@ local object open_file (object filename, direction_t direction,
         # if-not-exists: create new file.
         var Handle handl =
           open_output_file(namestring_asciz,# if_exists<IF_EXISTS_APPEND
-                           (if_exists!=IF_EXISTS_APPEND &&
-                            if_exists!=IF_EXISTS_OVERWRITE));
+                           (if_exists!=IF_EXISTS_APPEND
+                            && if_exists!=IF_EXISTS_OVERWRITE));
         handle = allocate_handle(handl);
       });
       #endif
@@ -8873,8 +8874,8 @@ LISPFUN(open,1,0,norest,key,6,\
             }
             #ifndef RISCOS
             # "." und ".." übergehen:
-            if (!(equal(direntry,O(dot_string)) ||
-                  equal(direntry,O(dotdot_string))))
+            if (!(equal(direntry,O(dot_string))
+                  || equal(direntry,O(dotdot_string))))
             #endif
             {
               pushSTACK(direntry);
@@ -9177,8 +9178,8 @@ LISPFUN(open,1,0,norest,key,6,\
                 # Directory-Eintrag in String umwandeln:
                 var object direntry = asciz_to_string(READDIR_entry_name(),O(pathname_encoding));
                 # "." und ".." übergehen:
-                if (!(equal(direntry,O(dot_string)) ||
-                      equal(direntry,O(dotdot_string)))) {
+                if (!(equal(direntry,O(dot_string))
+                      || equal(direntry,O(dotdot_string)))) {
                   pushSTACK(direntry);
                   # Stackaufbau: ..., pathname, dir_namestring, direntry.
                   if (READDIR_entry_ISDIR()) { # Ist es ein Directory?
