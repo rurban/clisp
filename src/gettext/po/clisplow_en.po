@@ -1,10 +1,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: clisp 2000-03-09\n"
-"POT-Creation-Date: 2002-02-25 09:53:14 EST\n"
-"PO-Revision-Date: 2000-06-13 22:37:09 CEST\n"
-"Last-Translator: Automatically generated <haible@honolulu>\n"
+"Project-Id-Version: clisp 2.28.1\n"
+"POT-Creation-Date: 2002-05-08 17:52:36 EDT\n"
+"PO-Revision-Date: 2002-05-08 17:52:12 EDT\n"
+"Last-Translator: Automatically generated <sds@glip.premonitia.com>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-1\n"
@@ -140,6 +140,12 @@ msgstr " -x expression - execute the expression, then exit\n"
 
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
 msgstr " lispfile [argument ...] - load lispfile, then exit\n"
+
+msgid "These actions put CLISP into a batch mode, which is overridden by\n"
+msgstr "These actions put CLISP into a batch mode, which is overridden by\n"
+
+msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
+msgstr " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 
 msgid "Default action is an interactive read-eval-print loop.\n"
 msgstr "Default action is an interactive read-eval-print loop.\n"
@@ -298,6 +304,9 @@ msgstr "initialization file was not created by this version of LISP\n"
 msgid "not enough memory for initialization\n"
 msgstr "not enough memory for initialization\n"
 
+msgid "Invalid multibyte or wide character"
+msgstr "Invalid multibyte or wide character"
+
 msgid "Operation not permitted"
 msgstr "Operation not permitted"
 
@@ -399,9 +408,6 @@ msgstr "Argument out of domain"
 
 msgid "Result too large"
 msgstr "Result too large"
-
-msgid "Invalid multibyte or wide character"
-msgstr "Invalid multibyte or wide character"
 
 msgid "Operation would block"
 msgstr "Operation would block"
@@ -579,6 +585,8 @@ msgstr "Not supported under MS-DOS"
 
 msgid "This version of CLISP runs only in low address memory.\n"
 msgstr "This version of CLISP runs only in low address memory.\n"
+
+
 
 
 

@@ -25,7 +25,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 2002-02-25 09:53:14 EST\n"
+"POT-Creation-Date: 2002-05-08 17:52:36 EDT\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -181,6 +181,12 @@ msgid " -x expression - execute the expression, then exit\n"
 msgstr ""
 
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
+msgstr ""
+
+msgid "These actions put CLISP into a batch mode, which is overridden by\n"
+msgstr ""
+
+msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 msgstr ""
 
 msgid "Default action is an interactive read-eval-print loop.\n"
@@ -388,6 +394,9 @@ msgstr "el fichero de inicialización no fue creado con esta versión de LISP\n"
 msgid "not enough memory for initialization\n"
 msgstr "no hay memoria suficiente para la inicialización\n"
 
+msgid "Invalid multibyte or wide character"
+msgstr ""
+
 msgid "Operation not permitted"
 msgstr "Operación no permitida"
 
@@ -503,9 +512,6 @@ msgstr "Argumento fuera del dominio"
 #
 msgid "Result too large"
 msgstr "El resultado es demasiado grande"
-
-msgid "Invalid multibyte or wide character"
-msgstr ""
 
 #
 msgid "Operation would block"
@@ -797,10 +803,6 @@ msgstr ""
 
 
 
-#
-#
-#
-
 #, fuzzy
 
 
@@ -812,6 +814,9 @@ msgstr ""
 #
 #
 
+#
+#
+#
 
 #
 #
@@ -836,6 +841,10 @@ msgstr ""
 #
 #
 
+#
+#
+#
+#, fuzzy
 
 #
 #
@@ -938,6 +947,7 @@ msgstr ""
 #
 #
 #
+
 
 
 
@@ -1101,7 +1111,6 @@ msgstr ""
 
 #, fuzzy
 
-
 #, fuzzy
 
 #, fuzzy
@@ -1431,7 +1440,6 @@ msgstr ""
 #
 #
 #
-
 
 
 
@@ -1448,9 +1456,6 @@ msgstr ""
 
 
 
-
-
-
 #
 #
 #
@@ -1554,19 +1559,28 @@ msgstr ""
 #, fuzzy
 
 #, fuzzy
+
+
+
+
 
 
 
 
 
 
+#, fuzzy
+
 
 
 
+#, fuzzy
 
 #, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1587,6 +1601,7 @@ msgstr ""
 
 #
 #
+
 
 
 
@@ -1627,7 +1642,6 @@ msgstr ""
 
 
 
-
 #
 
 
@@ -1637,7 +1651,6 @@ msgstr ""
 #
 #
 #
-
 
 
 
@@ -1691,8 +1704,6 @@ msgstr ""
 
 
 
-
-
 #, fuzzy
 
 #, fuzzy
@@ -1862,7 +1873,6 @@ msgstr ""
 
 #
 #
-
 
 
 
@@ -1935,6 +1945,9 @@ msgstr ""
 
 #, fuzzy
 
+#, fuzzy
+
+#, fuzzy
 
 
 #, fuzzy
@@ -1972,7 +1985,9 @@ msgstr ""
 #
 #
 #
+#, fuzzy
 
+#, fuzzy
 
 
 #
@@ -2297,7 +2312,10 @@ msgstr ""
 
 
 #
+#
+
 #
+#, fuzzy
 
 
 
@@ -2423,6 +2441,7 @@ msgstr ""
 
 
 
+#, fuzzy
 
 
 
@@ -2451,11 +2470,18 @@ msgstr ""
 #
 #
 #
+
+
 
 
+#, fuzzy
+
+
 
 
 
+#, fuzzy
+
 
 
 
@@ -2470,11 +2496,19 @@ msgstr ""
 
 
 
+#, fuzzy
 
 
 
 #, fuzzy
+
 
+
+
+
+
+
+
 #
 #
 #, fuzzy
@@ -2588,8 +2622,6 @@ msgstr ""
 
 
 
-
-#, fuzzy
 
 #, fuzzy
 

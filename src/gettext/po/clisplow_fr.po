@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2000-03-06\n"
-"POT-Creation-Date: 2002-02-25 09:53:14 EST\n"
+"POT-Creation-Date: 2002-05-08 17:52:36 EDT\n"
 "PO-Revision-Date: 2000-03-02 14:48:21 CET\n"
 "Last-Translator: Bruno Haible <haible@clisp.cons.org>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -133,6 +133,12 @@ msgid " -x expression - execute the expression, then exit\n"
 msgstr ""
 
 msgid " lispfile [argument ...] - load lispfile, then exit\n"
+msgstr ""
+
+msgid "These actions put CLISP into a batch mode, which is overridden by\n"
+msgstr ""
+
+msgid " -interactive-debug - allow interaction for failed ASSERT and friends\n"
 msgstr ""
 
 msgid "Default action is an interactive read-eval-print loop.\n"
@@ -292,6 +298,9 @@ msgstr "Le fichier d'initialisation ne provient pas de cette version de LISP.\n"
 msgid "not enough memory for initialization\n"
 msgstr "Il n'y a pas assez de mémoire pour l'initialisation.\n"
 
+msgid "Invalid multibyte or wide character"
+msgstr "caractère multi-octet invalide"
+
 msgid "Operation not permitted"
 msgstr "Opération non autorisée"
 
@@ -393,9 +402,6 @@ msgstr "Argument mathématique en dehors du domaine de définition de la fonction"
 
 msgid "Result too large"
 msgstr "Résultat mathématique non représentable"
-
-msgid "Invalid multibyte or wide character"
-msgstr "caractère multi-octet invalide"
 
 msgid "Operation would block"
 msgstr "L'opération devrait bloquer"
@@ -616,7 +622,6 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
-
 #, fuzzy
 
 #, fuzzy
@@ -626,6 +631,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
 
 
@@ -713,6 +719,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+
 #, fuzzy
 
 
@@ -787,7 +794,6 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 #, fuzzy
 
 #, fuzzy
-
 
 
 
@@ -1005,6 +1011,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
 
 
@@ -1074,11 +1081,11 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
 
 
 
-#, fuzzy
 
 
 
@@ -1091,9 +1098,13 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1120,9 +1131,9 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
-#, fuzzy
 
 
+#, fuzzy
 
 
 
@@ -1201,8 +1212,6 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
-
-
 #, fuzzy
 
 
@@ -1402,11 +1411,13 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
 #, fuzzy
 
 #, fuzzy
 
+#, fuzzy
 
 
 #, fuzzy
@@ -1426,7 +1437,9 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
+#, fuzzy
 
 
 
@@ -1683,6 +1696,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
 
 
 
@@ -1761,6 +1775,13 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 #, fuzzy
+
+
+
+
+
+
+
 
 
 
@@ -1769,6 +1790,11 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
+
+
+
+
 
 
 
@@ -1792,10 +1818,13 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+#, fuzzy
+
 
 
 
 
+#, fuzzy
 
 
 
@@ -1822,6 +1851,7 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 
+
 #, fuzzy
 
 
@@ -1920,7 +1950,6 @@ msgstr "Cette version de CLISP ne marche qu'en mémoire à adresse basse.\n"
 
 
 #, fuzzy
-
 
 
 
