@@ -1,3 +1,8 @@
+2004-05-10  Bruno Haible  <bruno@clisp.org>
+
+	* hashtabl.d (hashcode_raw_user): Renamed from hashcode5.
+	(hashcode_raw, hashcode_raw_user): Update.
+
 2004-05-09  Bruno Haible  <bruno@clisp.org>
 
 	* hashtabl.d (hashcode_builtin, hashcode_user): New functions.
