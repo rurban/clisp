@@ -28,7 +28,14 @@ if test $cl_cv_proto_strlen_macro = no; then
 CL_PROTO([strlen], [
 CL_PROTO_RET([#define strlen foo
 #include <string.h>
-], [size_t strlen();], cl_cv_proto_strlen_ret, size_t, int)
+], [
+#ifdef __cplusplus
+size_t strlen(const char *s);
+#else
+size_t strlen();
+#endif
+], [size_t strlen();],
+cl_cv_proto_strlen_ret, size_t, int)
 CL_PROTO_CONST([#define strlen foo
 #include <string.h>
 ], [$cl_cv_proto_strlen_ret strlen (char* s);],

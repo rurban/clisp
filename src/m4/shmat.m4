@@ -22,6 +22,12 @@ CL_PROTO_RET([
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+], [
+#ifdef __cplusplus
+void* shmat(int, const void *, int);
+#else
+void* shmat();
+#endif
 ], [void* shmat();],
 cl_cv_proto_shmat_ret, [void*], [char*])
 CL_PROTO_CONST([

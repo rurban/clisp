@@ -16,7 +16,8 @@ CL_PROTO_RET([
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [int free();], cl_cv_proto_free_ret, int, void)],
+], [int free($cl_cv_proto_malloc_ret);], [int free();],
+cl_cv_proto_free_ret, int, void)],
 [extern $cl_cv_proto_free_ret free ($cl_cv_proto_malloc_ret);])
 AC_DEFINE_UNQUOTED(RETFREETYPE,$cl_cv_proto_free_ret)
 ])

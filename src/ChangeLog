@@ -1,3 +1,19 @@
+2002-12-01  Bruno Haible  <bruno@clisp.org>
+
+	Make it buildable with CC=g++.
+
+	* m4/proto.m4 (CL_PROTO_RET): Add an argument, the ANSI-DECL.
+	* m4/abort.m4 (CL_ABORT): Update.
+	* m4/closedir.m4 (CL_CLOSEDIR): Update.
+	* m4/free.m4 (CL_FREE): Make it work better with CC=g++.
+	* m4/getpagesize.m4 (CL_GETPAGESIZE): Update.
+	* m4/putenv.m4 (CL_PUTENV): Avoid buggy AC_CHECK_FUNCS(putenv).
+	* m4/select.m4 (RL_SELECT): Avoid buggy AC_CHECK_FUNCS(select).
+	(CL_SELECT): Likewise.
+	* m4/shmat.m4 (CL_SHMAT): Make it work better with CC=g++.
+	* m4/signal.m4 (RL_RETSIGTYPE): Make it work better with CC=g++.
+	* m4/strlen.m4 (CL_STRLEN): Make it work better with CC=g++.
+
 2002-12-01  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (check_wr_char): new macro (used in 18 places)
