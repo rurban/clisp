@@ -3486,8 +3486,9 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
       if (!GetFileInformationByHandle(handle1,&fileinfo1)) { OS_error(); }
       if (!GetFileInformationByHandle(handle2,&fileinfo2)) { OS_error(); }
       end_system_call();
-     #define TIME_EQ(ft1,ft2) (ft1.dwLowDateTime == ft2.dwLowDateTime &&     \
-                               ft1.dwHighDateTime == ft2.dwHighDateTime)
+      #define TIME_EQ(ft1,ft2)  \
+        ((ft1).dwLowDateTime == (ft2).dwLowDateTime \
+         && (ft1).dwHighDateTime == (ft2).dwHighDateTime)
       return (fileinfo1.dwVolumeSerialNumber == fileinfo2.dwVolumeSerialNumber
               && fileinfo1.nFileIndexLow == fileinfo2.nFileIndexLow
               && fileinfo1.nFileIndexHigh == fileinfo2.nFileIndexHigh
@@ -3500,7 +3501,7 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
               && fileinfo1.nFileSizeLow == fileinfo2.nFileSizeLow
               && fileinfo1.nFileSizeHigh == fileinfo2.nFileSizeHigh
               && fileinfo1.nNumberOfLinks == fileinfo2.nNumberOfLinks);
-     #undef TIME_EQ
+      #undef TIME_EQ
     } else if (filetype1 == FILE_TYPE_CHAR) {
       /* Same console? */
       var DWORD console_mode;
