@@ -5,6 +5,8 @@
 <para>This interface to &sleepycat-berkeley-db; exports almost all
  functions in the official &c-lang; API.</para>
 
+<simpara>When this module is present, &features-var; contains the
+ symbol <constant>:BERKELEY-DB</constant>.</simpara>
 
 <section id="bdb-objects"><title>Berkeley-DB Objects</title>
 
@@ -584,6 +586,7 @@
 
 
 <section id="bdb-mem-pool"><title>Memory Pool Subsystem</title>
+ <simpara>not implemented yet, patches are welcome</simpara>
 <!--
  DB_ENV->set_cachesize	Set the environment cache size
  DB_ENV->set_mp_mmapsize	Set maximum mapped-in database file size
@@ -606,10 +609,10 @@ Memory Pool Files
  DB_MPOOLFILE->set_lsn_offset	Set file log-sequence-number offset
  DB_MPOOLFILE->set_pgcookie	Set file cookie for pgin/pgout
  -->
-<variablelist>
+<!--variablelist>
 <varlistentry><term><code>()</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
-</variablelist>
+</variablelist-->
 </section>
 
 
@@ -657,6 +660,7 @@ Memory Pool Files
 
 
 <section id="bdb-replication"><title>Replication</title>
+ <simpara>not implemented yet, patches are welcome</simpara>
 <!--
  DB_ENV->set_rep_transport	Configure replication transport
  DB_ENV->rep_elect	Hold a replication election
@@ -665,10 +669,10 @@ Memory Pool Files
  DB_ENV->rep_start	Configure an environment for replication
  DB_ENV->rep_stat	Replication statistics
   -->
-<variablelist>
+<!--variablelist>
 <varlistentry><term><code>()</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
-</variablelist>
+</variablelist-->
 </section>
 
 </section>
