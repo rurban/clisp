@@ -368,8 +368,7 @@ x
 
 (progn
   (defsetf my-subseq (sequence start &optional end) (new-sequence)
-    `(progn (replace ,sequence ,new-sequence
-             :start1 ,start :end1 ,end)
+    `(progn (replace ,sequence ,new-sequence :start1 ,start :end1 ,end)
       ,new-sequence)) t)
 t
 
@@ -378,6 +377,26 @@ t
 
 s
 "axyfg"
+
+; defsetf supports &environment
+(progn
+  (defsetf my-subseq-env (sequence start &optional end &environment env) (new-sequence)
+    `(progn (replace ,sequence ,new-sequence :start1 ,start :end1 ,end)
+      ,new-sequence)) t)
+t
+
+; defsetf required arguments are really required
+(progn
+  (defsetf test-setf-01 (a b &optional c) (newval)
+    `(progn (print (list ',a ',b ',c ',newval)) ,newval))
+  (setf (test-setf-01) 3))
+ERROR
+
+; defsetf lambda-lists don't allow destructuring
+(progn
+  (defsetf test-setf-02 (a ((b))) (newval))
+  t)
+ERROR
 
 ;; property lists
 (setf pl (list 'a 10 'b 11 'c 12 'd 13 'a 14 'b 15 'c 16 'd 17))
