@@ -516,7 +516,12 @@ t
  (setf (logical-pathname-translations "clocc")
        '(("**;*" "/usr/local/src/clocc/**/*"))
        (logical-pathname-translations "CL-LIBRARY")
-       (list (quote (";**;*.*.*" "/tmp/clisp/"))))
+       '((";**;*.*.*" "/tmp/clisp/"))
+       (logical-pathname-translations "cl-systems")
+       '((";**;*.*.*"  "/usr/share/common-lisp/systems/**/*.*")
+         ("**;*.*.*"  "/usr/share/common-lisp/systems/**/*.*")
+         (";*.*.*"  "/usr/share/common-lisp/systems/*.*")
+         ("*.*.*"  "/usr/share/common-lisp/systems/*.*")))
  nil)
 nil
 
@@ -535,26 +540,43 @@ nil
 (translate-pathname "uufoobarbazquuxfff" "u?foo*baz*f?" "**baq*zot*")
 #P"ubarbaqquuxfzotf"
 
-#+clisp
 (make-pathname :defaults "**;*.FASL" :host "CL-LIBRARY")
 #+clisp
 #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
    :DIRECTORY (:ABSOLUTE :WILD-INFERIORS)
    :NAME :WILD :TYPE "FASL" :VERSION NIL)
+#-clisp
+FIXME
 
-#+clisp
 (make-pathname :defaults "**/*.FASL" :host "CL-LIBRARY")
 #+clisp
 #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
    :DIRECTORY (:ABSOLUTE :WILD-INFERIORS)
    :NAME :WILD :TYPE "FASL" :VERSION NIL)
+#-clisp
+FIXME
 
-#+clisp
 (make-pathname :defaults ";**;*.FASL.*" :host "CL-LIBRARY")
 #+clisp
 #S(LOGICAL-PATHNAME :HOST "CL-LIBRARY" :DEVICE NIL
    :DIRECTORY (:RELATIVE :WILD-INFERIORS)
    :NAME :WILD :TYPE "FASL" :VERSION :WILD)
+#-clisp
+FIXME
+
+(merge-pathnames (logical-pathname "cl-systems:") "metering.system")
+#+clisp
+#S(lOGICAL-PATHNAME :HOST "CL-SYSTEMS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
+                    :NAME "METERING" :TYPE "SYSTEM" :VERSION :NEWEST)
+#-clisp
+FIXME
+
+(merge-pathnames (logical-pathname "cl-systems:") #P"metering.system")
+#+clisp
+#S(lOGICAL-PATHNAME :HOST "CL-SYSTEMS" :DEVICE NIL :DIRECTORY (:ABSOLUTE)
+                    :NAME "METERING" :TYPE "SYSTEM" :VERSION :NEWEST)
+#-clisp
+FIXME
 
 (make-pathname :defaults "a.b" :name "c" :type nil)
 #p"c"
