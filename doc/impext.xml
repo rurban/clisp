@@ -783,7 +783,7 @@ she will get the output
  &mac-k; line terminators.</para>
 
 <para>The line terminator mode is relevant only for output (writing to a
- &file-pipe-socket;).  During input, all three kinds of line terminators
+ &file-pipe-socket-s;).  During input, all three kinds of line terminators
  are recognized.  See also <xref linkend="clhs-newline"/>.</para>
 
 </section>
@@ -818,22 +818,25 @@ she will get the output
 <subtitle>Platform dependent: Only in &clisp; built
  &with; compile-time flag &unicode;.</subtitle>
 
-<para>The function <literal role="sexp">(&enc-charset; &encoding-r;)</literal>
- returns the charset of the &encoding-r;, as a &symbol-t; or a &string-t;.
- Note that <literal role="sexp">(&string; (&enc-charset;
- &encoding-r;))</literal> is not necessarily a valid MIME name.</para>
+<para>The function <literal role="sexp">(&enc-charset;
+ &encoding-r;)</literal> returns the charset of the &encoding-r;,
+ as a &symbol-t; or a &string-t;.</para>
+
+<warning><para><literal role="sexp">(&string; (&enc-charset;
+   &encoding-r;))</literal> is not necessarily a valid MIME name.
+</para></warning>
 
 </section>
 
 <section id="enc-dflt"><title>Default encodings.</title>
 
-<para>Besides every &file-pipe-socket; stream containing an encoding,
+<para>Besides every &file-pipe-socket-s; containing an encoding,
  the following &symbol-macro; places contain global &encoding;s:</para>
 
-<formalpara id="def-file-enc"><title>Macro &def-file-enc;</title>
+<formalpara id="def-file-enc"><title>&symbol-macro; &def-file-enc;</title>
 <para>The &symbol-macro; &place; &def-file-enc; is the encoding used for
- new &file-pipe-socket; streams, when no &extfmt; argument was
- specified.</para></formalpara>
+ new &file-pipe-socket-s;, when no &extfmt; argument was specified.
+</para></formalpara>
 
 <!-- #ifdef UNICODE -->
 <variablelist>
@@ -841,20 +844,32 @@ she will get the output
   &with; compile-time flag &unicode;.</term>
 <listitem><simpara>The following are &symbol-macro; places.</simpara>
 <variablelist>
-<varlistentry id="path-enc"><term>&path-enc;</term>
+<varlistentry><term><firstterm>&path-enc;
+   <indexterm id="path-enc" significance="preferred">
+    <primary id="path-enc-i"><varname>*PATHNAME-ENCODING*</varname>
+ </primary></indexterm></firstterm></term>
  <listitem><simpara>is the encoding used for pathnames in the file
  system. Normally, this is a 1:1 encoding.  Its &line-term; mode is ignored.
  </simpara></listitem></varlistentry>
-<varlistentry id="term-enc"><term>&term-enc;</term>
+<varlistentry><term><firstterm>&term-enc;
+   <indexterm id="term-enc" significance="preferred">
+    <primary id="term-enc-i"><varname>*TERMINAL-ENCODING*</varname>
+ </primary></indexterm></firstterm></term>
  <listitem><simpara>is the encoding used for communication with the
   terminal, in particular by &terminal-io-var;.
  </simpara></listitem></varlistentry>
-<varlistentry id="misc-enc"><term>&misc-enc;</term>
+<varlistentry><term><firstterm>&misc-enc;
+   <indexterm id="misc-enc" significance="preferred">
+    <primary id="misc-enc-i"><varname>*MISC-ENCODING*</varname>
+ </primary></indexterm></firstterm></term>
  <listitem><simpara>is the encoding used for access to &env-var;s,
  command line options, and the like.  Its &line-term; mode is ignored.
  </simpara></listitem></varlistentry>
 <!-- #if defined(HAVE_AFFI) || defined(DYNAMIC_FFI) -->
-<varlistentry id="foreign-enc"><term>&foreign-enc;</term>
+<varlistentry><term><firstterm>&foreign-enc;
+   <indexterm id="foreign-enc" significance="preferred">
+    <primary id="foreign-enc-i"><varname>*FOREIGN-ENCODING*</varname>
+ </primary></indexterm></firstterm></term>
  <listitem><simpara>is the encoding for characters and strings passed
  through the &ffi-pac; (some plaforms only).
  Its value must be a 1:1 encoding, i.e., an encoding in which every
@@ -4582,7 +4597,7 @@ Compiled, it will have inlined the library function calls.
    &socket-server; without blocking.</simpara>
    <simpara>For the cognoscenti: this is the interface to &select;, so
     it will work for any &clisp; &stream-t; which is based on a
-    &file-des;, e.g., &file-pipe-socket; and &kbd-in;, as well as
+    &file-des;, e.g., &kbd-in; and &file-pipe-socket-s;, as well as
     for <link linkend="rawsock">raw sockets</link>.</simpara>
    <simpara>This is similar to &listen;, which checks only one
     &stream-t; and only for input, and &so-wait;, which works only with
