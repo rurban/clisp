@@ -335,7 +335,7 @@ local uintL back_trace_out (FILE* out, const struct backtrace_t *bt) {
 }
 
 global void back_trace_check (const struct backtrace_t *bt,
-                              char* label,char* file,int line) {
+                              const char* label, const char* file, int line) {
   if (bt && back_trace_depth(bt)<0) {
     fprintf(stderr,"\n%s:%d:%s: circularity!\n",file,line,label);
     back_trace_out(stderr,bt);
