@@ -2864,7 +2864,7 @@ LISPFUN(foreign_call_out,1,0,rest,nokey,0,NIL) {
         if (!(arg_flags & ff_out)) {
           inargcount++;
           if (inargcount > argcount)
-            fehler_too_few_args(S(foreign_call_out),ffun,inargcount,argcount);
+            fehler_too_few_args(S(foreign_call_out),ffun,argcount,inargcount);
         }
         if (arg_flags & (ff_out | ff_inout)) {
           if (!(simple_vector_p(arg_fvd) && (Svector_length(arg_fvd) == 2)
