@@ -181,6 +181,8 @@ User visible changes
   + Printing of multidimensional arrays now respects *PRINT-LEVEL*.
   + As required by 19.2.3, *DEFAULT-PATHNAME-DEFAULTS* is merged into
     pathnames before accessing the file system.
+  + LOGICAL-PATHNAME now gives an error if the argument string does not
+    contain a host specification.
   Thanks to Paul F. Dietz <dietz@dls.net> and his ANSI compliance
   suite, which helped detect some of these deficiencies.
   Thanks to Yuji Minejima <ggb01164@nifty.ne.jp> and his ANSI compliance
