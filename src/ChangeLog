@@ -1,3 +1,35 @@
+1998-07-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d: Don't use CPU registers when compiling for MULTITHREAD,
+          for the moment.
+          (SP_register, ASM_get_SP_register): Define.
+          (SP): Use it.
+          (thread): New structure.
+          (thread_size, thread_objects_offset, thread_objects_anz, roughly_SP,
+           sp_to_thread): New macros.
+          (current_thread): New function.
+          (callback_saved_registers, STACK, saved_mv_count, saved_value1,
+           saved_subr_self, saved_STACK, SP_bound, STACK_bound, mv_count,
+           mv_space, value1, temp_mv_count, temp_value1, subr_self, aktenv,
+           unwind_protect_to_save, handler_args, inactive_handlers): Support
+          for MULTITHREAD.
+        * eval.d (STACK, saved_STACK, mv_count, temp_mv_count, saved_mv_count,
+           temp_value1, saved_value1, subr_self, saved_subr_self): Move out to
+          spvw.d.
+          (unwind_protect_to_save, handler_args, stack_range,
+           inactive_handlers): Move out to lispbibl.d and spvw.d.
+        * spvw.d (STACK, saved_STACK, mv_count, temp_mv_count, saved_mv_count,
+           temp_value1, saved_value1, subr_self, saved_subr_self,
+           callback_saved_registers, SP_bound, STACK_bound, aktenv,
+           unwind_protect_to_save, handler_args, inactive_handlers): Define
+          all together here.
+          (allthreads_lock, MAXNTHREADS, nthreads, allthreads, num_symvalues,
+           maxnum_symvalues): New definitions.
+          (init_multithread, create_thread, delete_thread,
+           make_symvalue_perthread): New functions.
+          (for_all_threadobjs, for_all_STACKs): Reimplement.
+          (main): Call init_multithread and create_thread.
+
 1998-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * spvw_mmap.d: New file.
