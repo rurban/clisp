@@ -14,7 +14,7 @@
 MFLAGS=
 !endif
 
-VERSION=2.32.94
+VERSION=2.33
 CLISP_VERSION=clisp-$(VERSION)
 # Directories used by "make install":
 prefix = 
