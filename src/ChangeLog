@@ -1,3 +1,9 @@
+2003-11-05  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (FILE-STAT): compilation fix
+	(copy_file_low): pass no_block=false to read_helper()
+	(copy_one_file): fixed :SYMLINK/:HARDLINK
+
 2003-11-04  Sam Steingold  <sds@gnu.org>
 
 	* array.d, eval.d, sequence.d, spvw_debug.d: do not shadow index(3)
