@@ -27,7 +27,7 @@
     please use logical tags like <strong> and <em> instead.
   * At the definition point of a symbol, this symbol is written as
     <code><strong>...</strong></code>.
-  * All symbols in CLHS are referenced with a "CLHSROOT" hyperlink.
+  * All symbols in CLHS are referenced with an "CLHSROOT" hyperlink.
   * All symbols not in COMMON-LISP (as per ANSI CL) are referenced with
     the package prefix, like this: `lisp:space'.
   * Platform depencencies are emphasized like this:
@@ -694,9 +694,10 @@ like conses and numbers, due to the performance concerns.
     4.3.1.1 Standard Metaclasses</a></h3>
 
 <p>Among those classes listed in
-<a href="CLHSROOT/Body/sec_4-3-7.html#classtypecorrespondence">Figure 4-8</a>,
-only the following are instances of
-<a href="CLHSROOT/Body/syscla_built-in-class.html"><code>built-in-class</code></a>:
+<a href="CLHSROOT/Body/sec_4-3-7.html#classtypecorrespondence">
+Figure 4-8</a>, only the following are instances of
+<a href="CLHSROOT/Body/syscla_built-in-class.html">
+<code>built-in-class</code></a>:
 <ul>
   <li><a href="CLHSROOT/Body/syscla_t.html"><code>t</code></a>,
   <li><a href="CLHSROOT/Body/syscla_character.html"><code>character</code></a>,
@@ -710,7 +711,8 @@ only the following are instances of
   <li><a href="CLHSROOT/Body/syscla_sequence.html"><code>sequence</code></a>,
   <li><a href="CLHSROOT/Body/syscla_array.html"><code>array</code></a>,
       <a href="CLHSROOT/Body/syscla_vector.html"><code>vector</code></a>,
-      <a href="CLHSROOT/Body/syscla_bit-vector.html"><code>bit-vector</code></a>,
+      <a href="CLHSROOT/Body/syscla_bit-vector.html">
+         <code>bit-vector</code></a>,
       <a href="CLHSROOT/Body/syscla_string.html"><code>string</code></a>,
   <li><a href="CLHSROOT/Body/syscla_list.html"><code>list</code></a>,
       <a href="CLHSROOT/Body/syscla_cons.html"><code>cons</code></a>,
@@ -721,7 +723,8 @@ only the following are instances of
          <code>generic-function</code></a>,
       <a href="CLHSROOT/Body/syscla_standa_ric-function.html">
          <code>standard-generic-function</code></a>,
-  <li><a href="CLHSROOT/Body/syscla_hash-table.html"><code>hash-table</code></a>,
+  <li><a href="CLHSROOT/Body/syscla_hash-table.html">
+         <code>hash-table</code></a>,
   <li><a href="CLHSROOT/Body/syscla_package.html"><code>package</code></a>,
   <li><a href="CLHSROOT/Body/syscla_pathname.html"><code>pathname</code></a>,
       <a href="CLHSROOT/Body/syscla_logical-pathname.html">
@@ -738,10 +741,12 @@ only the following are instances of
          <code>concatenated-stream</code></a>,
       <a href="CLHSROOT/Body/syscla_two-way-stream.html">
          <code>two-way-stream</code></a>,
-      <a href="CLHSROOT/Body/syscla_echo-stream.html"><code>echo-stream</code></a>,
+      <a href="CLHSROOT/Body/syscla_echo-stream.html">
+         <code>echo-stream</code></a>,
       <a href="CLHSROOT/Body/syscla_string-stream.html">
          <code>string-stream</code></a>,
-      <a href="CLHSROOT/Body/syscla_file-stream.html"><code>file-stream</code></a>.
+      <a href="CLHSROOT/Body/syscla_file-stream.html">
+         <code>file-stream</code></a>.
 </ul>
 
 <h3><a href="CLHSROOT/Body/sec_4-3-2.html">
@@ -1278,9 +1283,10 @@ href="CLHSROOT/Body/mac_restart-case.html">restart-case</a>
 <h3><a href="CLHSROOT/Body/sec_9-1-3-1-3.html">
     9.1.3.1.3 Embedded Newlines in Condition Reports</a></h3>
 
-The error message prefix for the first line is "*** - ". There is no prefix
-for subsequent error lines. The aesthetics of condition reports containing
-an object that requires newlines when pretty printing is enabled is undefined.
+<p>The error message prefix for the first line is "*** - ". There is no
+prefix for subsequent error lines. The aesthetics of condition reports
+containing an object, which requires newlines when pretty printing is
+enabled, is undefined.
 
 <h3><a href="CLHSROOT/Body/sec_the_condi_s_dictionary.html">
     9.2. The Conditions Dictionary</a></h3>
@@ -3632,7 +3638,8 @@ not replaced by corresponding pieces of <var>source</var>.
 <h4><a href="CLHSROOT/Body/fun_parse-namestring.html">
     parse-namestring</a></h4>
 
-<p><code>(<a href="CLHSROOT/Body/fun_parse-namestring.html">parse-namestring</a>
+<p><code>(<a
+   href="CLHSROOT/Body/fun_parse-namestring.html">parse-namestring</a>
           <var>string</var> &amp;optional
           <var>host</var> <var>defaults</var>)</code>
 returns a logical pathname only if host is a logical host or host is
@@ -3987,15 +3994,17 @@ use it at your own risk!
 read from each other at the same time or both try to write to each other
 at the same time. To avoid deadlocks, it is recommended that you fix a
 protocol between the command and your program and avoid any hidden
-buffering: Use <a href="CLHSROOT/Body/fun_read-char.html">
-<code>read-char</code></a>, <a href="CLHSROOT/Body/fun_read-char-no-hang.html">
+buffering: use <a href="CLHSROOT/Body/fun_read-char.html">
+<code>read-char</code></a>,
+<a href="CLHSROOT/Body/fun_read-char-no-hang.html">
 <code>read-char-no-hang</code></a>,
 <a href="CLHSROOT/Body/fun_listen.html">
-<code>listen</code></a> instead of <a href="CLHSROOT/Body/fun_read-line.html">
+<code>listen</code></a> instead of
+<a href="CLHSROOT/Body/fun_read-line.html">
 <code>read-line</code></a> and
 <a href="CLHSROOT/Body/fun_readcm_re_g-whitespace.html">
-<code>read</code></a> on the input side, and complete every output operation
-by a <a href="CLHSROOT/Body/fun_finish-ou_clear-output.html">
+<code>read</code></a> on the input side, and complete every output
+operation by a <a href="CLHSROOT/Body/fun_finish-ou_clear-output.html">
 <code>finish-output</code></a>. The same cautions must apply to the
 called command as well.
 <!-- #endif -->
@@ -4071,13 +4080,16 @@ controller and some number of arguments.
     end of file. Takes one argument, the controller object.
   <dt><code>(<strong>lisp:generic-stream-peek-char</strong>
              <var>controller</var>)</code>
-   <dd> Returns the next character, <a href="CLHSROOT/Body/convar_nil.html">
+   <dd> Returns the next character,
+   <a href="CLHSROOT/Body/convar_nil.html">
    <code>nil</code></a> at end of file. A
    second value indicates whether the side effects associated with
-   consuming the character were executed: <a href="CLHSROOT/Body/convar_t.html">
+   consuming the character were executed:
+   <a href="CLHSROOT/Body/convar_t.html">
    <code>t</code></a> means that a full
    <a href="CLHSROOT/Body/fun_read-char.html">
-   <code>read-char</code></a> was done, <a href="CLHSROOT/Body/convar_nil.html">
+   <code>read-char</code></a> was done,
+   <a href="CLHSROOT/Body/convar_nil.html">
    <code>nil</code></a> means that no side effects were done. Takes one
    argument, the controller object.
   <dt><code>(<strong>lisp:generic-stream-read-byte</strong>
@@ -4219,7 +4231,8 @@ The default is <code>:little</code>, which corresponds to the
 <a href="CLHSROOT/Body/fun_write-byte.html"><code>write-byte</code></a>
 behaviour in CLISP.
 
-<p>Together with <code>(setf <a href="CLHSROOT/Body/fun_stream-element-type.html">
+<p>Together with <code>(setf <a
+href="CLHSROOT/Body/fun_stream-element-type.html">
 stream-element-type</a>)</code>, this function
 permits mixed character/binary output to a stream.
 
@@ -5297,9 +5310,10 @@ The search performed by
 <h4><a href="CLHSROOT/Body/fun_dribble.html">
     dribble</a></h4>
 
-If <a href="CLHSROOT/Body/fun_dribble.html"><code>dribble</code></a> is called
-with an argument, and dribbling is already enabled, a warning is printed,
-and the new dribbling request is ignored.
+If <a href="CLHSROOT/Body/fun_dribble.html">
+<code>dribble</code></a> is called with an argument, and dribbling is
+already enabled, a warning is printed, and the new dribbling request is
+ignored.
 
 <h2><a name="glossary"></a><a href="CLHSROOT/Body/chap-26.html">
     Chapter 26: Glossary</a></h2>
@@ -5935,7 +5949,8 @@ specified by the vote.
      READ-MODIFY-WRITE-EVALUATION-ORDER:DELAYED-ACCESS-STORES</a> <dd>no
  <dt><a href="CLHSROOT/Issues/iss288.html">
      READ-SUPPRESS-CONFUSING:GENERALIZE</a>
-     <dd>yes, except that <a href="CLHSROOT/Body/fun_read-delimited-list.html">
+     <dd>yes, except that <a
+     href="CLHSROOT/Body/fun_read-delimited-list.html">
      <code>read-delimited-list</code></a> still constructs a list
  <dt><a href="CLHSROOT/Issues/iss289.html">
      READER-ERROR:NEW-TYPE</a>                     <dd>yes
@@ -5953,7 +5968,8 @@ specified by the vote.
      REQUIRE-PATHNAME-DEFAULTS-AGAIN:X3J13-DEC-91</a> <dd>yes
  <dt><a href="CLHSROOT/Issues/iss295.html">
      REQUIRE-PATHNAME-DEFAULTS-YET-AGAIN:RESTORE-ARGUMENT</a>
-     <dd>yes, except that <a href="CLHSROOT/Body/fun_providecm_require.html">
+     <dd>yes, except that
+     <a href="CLHSROOT/Body/fun_providecm_require.html">
      <code>require</code></a> wants a pathname, not a list of pathnames
  <dt><a href="CLHSROOT/Issues/iss296.html">
      REQUIRE-PATHNAME-DEFAULTS:ELIMINATE</a>
@@ -7647,8 +7663,8 @@ implemented. <code>:out</code> works only with
 <dt><em>Platform dependent: <strong>Amiga</strong> platforms only.
 </em>
 <dd>
-<var>allocation</var> may not be <code>:malloc-free</code> because there is no commonly
-used <code>malloc()/free()</code> library function.
+<var>allocation</var> may not be <code>:malloc-free</code> because there
+is no commonly used <code>malloc()/free()</code> library function.
 
 <p>The <var>allocation</var> may be followed by a register
 specification, any of the symbols <code>:d0</code>, <code>:d1</code>,
@@ -8553,7 +8569,7 @@ lisp.
   <dd>files created with CLISP can be associated with the CLISP
       executables so that clicking on them would make CLISP execute the
       appropriate code.
-</ul>
+</dl>
 
 <dl>
 <!-- #ifdef UNIX -->
