@@ -3887,7 +3887,8 @@
 ) ) )
 
 ; 28.1.9.6.
-(defgeneric initialize-instance (instance &rest initargs))
+(defgeneric initialize-instance (instance &rest initargs
+                                 &key &allow-other-keys))
 (setq |#'initialize-instance| #'initialize-instance)
 #|
 (defmethod initialize-instance ((instance standard-object) &rest initargs)
