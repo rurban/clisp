@@ -4,17 +4,18 @@
 (require "netica")
 
 (defpackage "NETICA"
-  (:export "*verbose*" "*env*" "error-category" "error-message"
+  (:export "*verbose*" "*env*" "*license*" "error-category" "error-message"
            "check-errors" "start-netica" "close-netica" "save-net"
            "make-net" "net-info" "make-node" "node-info"
            "get-beliefs" "enter-finding"))
 
 (in-package "SYS")
-(eval-when (compile load eval)
-  (setf (package-lock "SYS") nil))
+(setf (package-lock "SYS") nil)
+(pushnew :netica *features*)
 
 (defvar netica:*verbose* *standard-output* "the netica log stream")
 (defvar netica:*env* nil "the current netica environment")
+(defvar netica:*license* "" "the netica license key - ask norsys")
 
 (defun netica:error-category (err)
   "return the list of categories where the error belongs"
@@ -50,7 +51,7 @@
         (netica::ClearError_ns err)
         (format *error-output* "~&...cleared~%")))))
 
-(defun netica:start-netica (license &key
+(defun netica:start-netica (&key ((:license netica:*license*) netica:*license*)
                             ((:verbose netica:*verbose*) netica:*verbose*))
   "Start netica, initialize it, and return the new environment.
 Sets netica:*env* to this environment on success."
@@ -245,5 +246,4 @@ and node-state-probability-vector is a vector of corresponding node state
               (netica::GetNetFileName_bn net) out))))
 
 (push "NETICA" *system-package-list*)
-(eval-when (compile load eval)
-  (setf (package-lock *system-package-list*) t))
+(setf (package-lock *system-package-list*) t)
