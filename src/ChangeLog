@@ -1,5 +1,9 @@
 2005-04-05  Sam Steingold  <sds@gnu.org>
 
+	* case-sensitive.lisp: add CS-COMMON-LISP to *SYSTEM-PACKAGE-LIST*
+
+2005-04-05  Sam Steingold  <sds@gnu.org>
+
 	* modules/postgresql/link.sh.in (TO_LOAD): added sql
 	* modules/postgresql/sql.lisp: rewrote to export
 	higher-level functionality
