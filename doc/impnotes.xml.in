@@ -32,7 +32,7 @@
 <book id="impnotes-top"><title>Implementation Notes for &gnu; &clisp;.</title>
 <titleabbrev>&clisp; impnotes</titleabbrev>
 
-<bookinfo>
+<bookinfo id="book-info-title-page">
  <title>Implementation Notes for &gnu; &clisp;.</title>
  <subtitle>These notes document &clisp; version @VERSION@.</subtitle>
  <graphic srccredit="[CLISP icon]" align="center"
