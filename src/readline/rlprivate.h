@@ -203,7 +203,7 @@ extern int _rl_vi_textmod_command _PROTO((int c));
 extern void _rl_vi_done_inserting _PROTO((void));
 
 /* testUTF8.c */
-extern int is_in_UTF8_mode __P((void));
+extern int is_in_UTF8_mode _PROTO((void));
 
 /*************************************************************************
  * Undocumented private variables					 *
