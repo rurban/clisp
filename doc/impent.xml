@@ -167,6 +167,7 @@
 <!ENTITY byte-t "<link linkend='byte-type'><type>BYTE</type></link>">
 <!ENTITY case-inverted-k "<link linkend='package-case'><constant>:CASE-INVERTED</constant></link>">
 <!ENTITY case-sensitive-k "<link linkend='package-case'><constant>:CASE-SENSITIVE</constant></link>">
+<!ENTITY modern-k "<link linkend='package-case'><constant>:MODERN</constant></link>">
 <!ENTITY cd "<link linkend='cd'><function>EXT:CD</function></link>">
 <!ENTITY ch-ctrl "<link linkend='char-bits'><constant>EXT:CHAR-CONTROL-BIT</constant></link>">
 <!ENTITY ch-hyper "<link linkend='char-bits'><constant>EXT:CHAR-HYPER-BIT</constant></link>">
