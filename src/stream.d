@@ -795,12 +795,11 @@ nonreturning_function(local, fehler_value_stream, (object sym));
 # > strmflags: set of Operations, that are to be possible on the Stream
 # < result: Stream
 global object var_stream (object sym, uintB strmflags) {
-  var object result = Symbol_value(sym);
   var object stream;
  recurse:
   stream = Symbol_value(sym);
   if (builtin_stream_p(stream)) {
-    if (strmflags & ~ TheStream(stream)->strmflags)
+    if ((strmflags | strmflags_open_B) & ~ TheStream(stream)->strmflags)
       fehler_value_stream(sym);
     if (TheStream(stream)->strmtype == strmtype_synonym) {
       sym = TheStream(stream)->strm_synonym_symbol;
@@ -817,7 +816,7 @@ global object var_stream (object sym, uintB strmflags) {
       fehler_value_stream(sym);
   } else
     fehler_value_stream(sym);
-  return result;
+  return stream;
 }
 
 # (SYSTEM::SYMBOL-STREAM symbol [direction])
