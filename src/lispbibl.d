@@ -11096,6 +11096,13 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   nonreturning_function(extern, fehler_streamtype, (object obj, object type));
 # wird verwendet von STREAM
 
+# Fehlermeldung, wenn ein Argument ein Lambda-Ausdruck statt einer Funktion ist:
+# fehler_lambda_expression(obj);
+# obj: Das fehlerhafte Argument
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(extern, fehler_lambda_expression, (object obj));
+# wird verwendet von EVAL, SYMBOL
+
 #ifdef HAVE_FFI
 # Überprüfung eines Arguments
 # check_...(obj);

@@ -2,6 +2,12 @@
 User visible changes
 --------------------
 
+* Conforming with X3J13 writeup <FUNCTION-TYPE:X3J13-MARCH-88>, an error
+  is now signalled when a lambda expression (not a function) is passed to
+  APPLY, FUNCALL, SETF SYMBOL-FUNCTION, EVERY, SOME, NOTEVERY, NOTANY,
+  SET-MACRO-CHARACTER, SET-DISPATCH-MACRO-CHARACTER. The latter two now
+  accept a symbol instead of a function.
+
 * X3J13 writeups <READER-ERROR:NEW-TYPE> and <PARSE-ERROR-STREAM:SPLIT-TYPES>
   are implemented: New condition classes PARSE-ERROR and READER-ERROR.
 

@@ -2285,22 +2285,28 @@ LISPFUNN(subr_info,1)
   global object coerce_function (object obj);
   global object coerce_function(obj)
     var object obj;
-    { # obj sollte ein SUBR, eine Closure oder ein Lambdaausdruck sein.
+    { # obj sollte ein Symbol, ein SUBR oder eine Closure sein.
       if (subrp(obj)) { return obj; } # SUBR ist OK
       elif (closurep(obj)) { return obj; } # Closure ist OK
-      elif (consp(obj) && eq(Car(obj),S(lambda))) # Cons (LAMBDA . ...) ?
-        # Lambda-Ausdruck wird sofort in eine Closure umgewandelt:
-        { # leeres Environment für get_closure:
-          var environment* env5;
-          make_STACK_env(NIL,NIL,NIL,NIL,O(top_decl_env), env5 = );
-          # Closure bilden aus lambdabody = (cdr obj), name = :LAMBDA :
-         {var object closure = get_closure(Cdr(obj),S(Klambda),FALSE,env5);
-          skipSTACK(5);
-          return closure;
-        }}
       #ifdef DYNAMIC_FFI
       elif (ffunctionp(obj)) { return obj; } # Foreign-Function ist OK
       #endif
+      elif (symbolp(obj))
+        { var object fdef = Symbol_function(obj);
+          if (subrp(fdef)) { return fdef; }
+          elif (closurep(fdef)) { return fdef; }
+          #ifdef DYNAMIC_FFI
+          elif (ffunctionp(fdef)) { return fdef; }
+          #endif
+          elif (orecordp(fdef))
+            { fehler_specialform(TheSubr(subr_self)->name,obj); }
+          elif (consp(fdef))
+            { fehler_macro(TheSubr(subr_self)->name,obj); }
+          else
+            { fehler_undefined(TheSubr(subr_self)->name,obj); }
+        }
+      elif (consp(obj) && eq(Car(obj),S(lambda))) # Cons (LAMBDA . ...) ?
+        { fehler_lambda_expression(obj); }
       else
         { pushSTACK(obj);
           pushSTACK(TheSubr(subr_self)->name);
@@ -4186,21 +4192,6 @@ LISPFUNN(subr_info,1)
             # fdef wird vermutlich #<UNBOUND> sein.
             goto undef;
         }}
-      elif (consp(fun) && eq(Car(fun),S(lambda))) # Cons (LAMBDA ...) ?
-        # Lambda-Ausdruck: zu einer Funktion mit leerem Environment machen
-        { pushSTACK(other_args); # Argumentliste retten
-          # leeres Environment bauen:
-         {var environment* env5;
-          make_STACK_env(NIL,NIL,NIL,NIL,O(top_decl_env), env5 = );
-          fun = get_closure(Cdr(fun), # Lambdabody (lambda-list {decl|doc} . body)
-                            S(Klambda), # :LAMBDA als Name
-                            FALSE, # ohne impliziten Block
-                            env5); # im leeren Environment
-          skipSTACK(5); # Environment wieder vergessen
-          other_args = popSTACK();
-          # und neu erzeugte Closure anwenden:
-          return_Values apply_closure(fun,args_on_stack,other_args);
-        }}
       #ifdef DYNAMIC_FFI
       elif (ffunctionp(fun)) # Foreign-Function ?
         # (SYS::FOREIGN-CALL-OUT foreign-function . args) aufrufen
@@ -4216,6 +4207,8 @@ LISPFUNN(subr_info,1)
           return_Values apply_subr(L(foreign_call_out),args_on_stack+1,other_args);
         }
       #endif
+      elif (consp(fun) && eq(Car(fun),S(lambda))) # Cons (LAMBDA ...) ?
+        { subr_self = L(apply); fehler_lambda_expression(fun); }
       else
         { pushSTACK(fun);
           fehler(error,
@@ -5098,19 +5091,6 @@ LISPFUNN(subr_info,1)
             # fdef wird vermutlich #<UNBOUND> sein.
             goto undef;
         }}
-      elif (consp(fun) && eq(Car(fun),S(lambda))) # Cons (LAMBDA ...) ?
-        # Lambda-Ausdruck: zu einer Funktion mit leerem Environment machen
-        { # leeres Environment bauen:
-         {var environment* env5;
-          make_STACK_env(NIL,NIL,NIL,NIL,O(top_decl_env), env5 = );
-          fun = get_closure(Cdr(fun), # Lambdabody (lambda-list {decl|doc} . body)
-                            S(Klambda), # :LAMBDA als Name
-                            FALSE, # ohne impliziten Block
-                            env5); # im leeren Environment
-          skipSTACK(5); # Environment wieder vergessen
-          # und neu erzeugte Closure anwenden:
-          return_Values funcall_closure(fun,args_on_stack);
-        }}
       #ifdef DYNAMIC_FFI
       elif (ffunctionp(fun)) # Foreign-Function ?
         # (SYS::FOREIGN-CALL-OUT foreign-function . args) aufrufen
@@ -5126,6 +5106,8 @@ LISPFUNN(subr_info,1)
           return_Values funcall_subr(L(foreign_call_out),args_on_stack+1);
         }
       #endif
+      elif (consp(fun) && eq(Car(fun),S(lambda))) # Cons (LAMBDA ...) ?
+        { subr_self = L(funcall); fehler_lambda_expression(fun); }
       else
         { pushSTACK(fun);
           fehler(error,

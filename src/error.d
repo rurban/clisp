@@ -749,6 +749,24 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
             );
     }
 
+# Fehlermeldung, wenn ein Argument ein Lambda-Ausdruck statt einer Funktion ist:
+# fehler_lambda_expression(obj);
+# obj: Das fehlerhafte Argument
+# > subr_self: Aufrufer (ein SUBR)
+  nonreturning_function(global, fehler_lambda_expression, (object obj));
+  global void fehler_lambda_expression(obj)
+    var object obj;
+    { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+      pushSTACK(S(function)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+      fehler(type_error,
+             DEUTSCH ? "~: Argument ~ ist keine Funktion." NLstring "Um eine Funktion im aktuellen Environment zu bekommen, (FUNCTION ...) schreiben." NLstring "Um eine Funktion im globalen Environment zu bekommen, (COERCE '... 'FUNCTION) schreiben." :
+             ENGLISH ? "~: argument ~ is not a function." NLstring "To get a function in the current environment, write (FUNCTION ...)." NLstring "To get a function in the global environment, write (COERCE '... 'FUNCTION)." :
+             FRANCAIS ? "~ : L'argument ~ n'est pas une fonction." NLstring "Pour obtenir une fonction dans l'environnement courant, écrire (FUNCTION ...)." NLstring "Pour obtenir une fonction dans l'environnement global, écrire (COERCE '... 'FUNCTION)." :
+             ""
+            );
+    }
+
 #ifdef HAVE_FFI
 
 # Fehler, wenn Argument kein Integer vom Typ `uint8' ist.

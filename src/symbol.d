@@ -94,14 +94,8 @@ LISPFUNN(putd,2)
       { if (eq(Car(fun),S(macro)))
           { if (closurep(Cdr(fun))) goto ok; } # (SYS::MACRO . Closure) ist ok
         elif (eq(Car(fun),S(lambda)))
-          { var object lambdabody = Cdr(fun); # (lambda-list {decl|doc} . body)
-            # leeres Environment für get_closure:
-            pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
-           {var environment* env = &STACKblock_(environment,0);
-            fun = get_closure(lambdabody,symbol,FALSE,env); # Closure erzeugen
-            skipSTACK(5);
-            goto ok;
-      }   }}
+          { fehler_lambda_expression(fun); }
+      }
     elif (ffunctionp(fun)) goto ok; # Foreign-Function ist auch ok.
     pushSTACK(fun);
     fehler(error,
