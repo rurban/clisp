@@ -1,5 +1,9 @@
 2004-04-24  Bruno Haible  <bruno@clisp.org>
 
+	* clos-package.lisp: Tweak.
+
+2004-04-24  Bruno Haible  <bruno@clisp.org>
+
 	* clos-package.lisp: New file, extracted from clos.lisp.
 	* clos.lisp: Move the package setup away.
 	* init.lisp: Load clos-package before defstruct.lisp.
