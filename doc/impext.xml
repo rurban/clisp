@@ -869,10 +869,9 @@ N. Gray to X3J13.</para>
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>gray:stream-unread-char</function> &stream-r;
-                 <replaceable>character</replaceable>)</literal></term>
-  <listitem><simpara>Pushes <replaceable>character</replaceable>, which
-   must be the last character read from the stream, back onto the front
-   of the stream.
+                 &ch-r;)</literal></term>
+  <listitem><simpara>Pushes &ch-r;, which must be the last character
+   read from the &stream-r;, back onto the front of the &stream-r;.
    </simpara><simpara>You must define a method for this function.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
@@ -975,8 +974,8 @@ N. Gray to X3J13.</para>
 <variablelist><title>generic functions for character output</title>
  <varlistentry><term><literal
     role="sexp">(<function>gray:stream-write-char</function> &stream-r;
-                 <replaceable>character</replaceable>)</literal></term>
-  <listitem><simpara>Writes <replaceable>character</replaceable>.
+                 &ch-r;)</literal></term>
+  <listitem><simpara>Writes &ch-r;.
    </simpara><simpara>You must define a method for this function.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
@@ -1250,8 +1249,7 @@ N. Gray to X3J13.</para>
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>gstream:generic-stream-write-char</function>
-                 <replaceable>controller</replaceable>
-                 <replaceable>ch</replaceable>)</literal></term>
+                 <replaceable>controller</replaceable> &ch-r;)</literal></term>
   <listitem><simpara>The first argument is the controller object.
    The second argument is the character to be written.
   </simpara></listitem></varlistentry>
@@ -1265,11 +1263,9 @@ N. Gray to X3J13.</para>
  <varlistentry><term><literal
     role="sexp">(<function>gstream:generic-stream-write-string</function>
                  <replaceable>controller</replaceable>
-                 &string-r;
-                 &start-r;
-                 <replaceable>len</replaceable>)</literal></term>
+                 &string-r; &start-r; &len-r;)</literal></term>
   <listitem><simpara>Writes the subsequence of &string-r; starting from
-   &start-r; of length <replaceable>len</replaceable>.
+   &start-r; of length &len-r;.
    The first argument is the controller object.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
@@ -1534,12 +1530,12 @@ returns two lists <literal role="sexp">(1 3 5 7 9)</literal> and
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>screen:with-window</function>
-                 . <replaceable>body</replaceable>)</literal></term>
+                 . &body-r;)</literal></term>
   <listitem><simpara>binds <emphasis
    role="strong"><varname>screen:*window*</varname></emphasis> to a
-   window stream and executes <replaceable>body</replaceable>.  The
-   stream is guaranteed to be closed when the body is left.  During its
-   execution, &terminal-io-var; should not be used, as above.
+   window stream and executes &body-r;.  The stream is guaranteed to be
+   closed when the body is left.  During its execution,
+   &terminal-io-var; should not be used, as above.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>screen:window-size</function>
@@ -1923,10 +1919,10 @@ for my $kk (keys(%hash)) {
    <replaceable>c-name</replaceable> is a string.</title>
 <varlistentry id="def-c-type">
   <term><literal role="sexp">(<function>def-c-type</function>
-        &name-r; <replaceable>c-type</replaceable>)</literal></term>
+        &name-r; &ctype-r;)</literal></term>
  <listitem><simpara>This form makes &name-r; a shortcut for
-  <replaceable>c-type</replaceable>.  Note that
-  <replaceable>c-type</replaceable> may already refer to name.
+  &ctype-r;.  Note that
+  &ctype-r; may already refer to name.
   Forward declarations of types are not possible, however.
  </simpara></listitem></varlistentry>
 
@@ -1939,7 +1935,7 @@ for my $kk (keys(%hash)) {
 <seglistitem><seg/><seg/><seg><literal role="sexp">(:name
    <replaceable>c-name</replaceable>)</literal></seg></seglistitem>
 <seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:type
-  <replaceable>c-type</replaceable>)</literal></seg></seglistitem>
+  &ctype-r;)</literal></seg></seglistitem>
 <seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:read-only
   <replaceable>boolean</replaceable>)</literal></seg></seglistitem>
 <seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:alloc
@@ -1985,10 +1981,10 @@ within Lisp (using &setq; or similar).</simpara>
 <seglistitem><seg/><seg/><seg><literal role="sexp">(:name
    <replaceable>c-name</replaceable>)</literal></seg></seglistitem>
 <seglistitem><seg/><seg><literal role="sexp">(:arguments
-   {(<replaceable>arg-name</replaceable> <replaceable>c-type</replaceable>
+   {(<replaceable>arg-name</replaceable> &ctype-r;
     [&param-mode; [&allocation;]])}*)</literal> |</seg></seglistitem>
 <seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:return-type
-   <replaceable>c-type</replaceable>
+   &ctype-r;
    [&allocation;])</literal></seg></seglistitem>
 <seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:language
    <replaceable>language</replaceable>)</literal></seg></seglistitem>
@@ -2016,10 +2012,10 @@ within Lisp (using &setq; or similar).</simpara>
 <seglistitem><seg/><seg><literal role="sexp">(:name
    <replaceable>c-name</replaceable>)</literal> |</seg></seglistitem>
 <seglistitem><seg/><seg/><seg><literal role="sexp">(:arguments
-   {(<replaceable>arg-name</replaceable> <replaceable>c-type</replaceable>
+   {(<replaceable>arg-name</replaceable> &ctype-r;
     [&param-mode; [&allocation;]])}*)</literal></seg></seglistitem>
 <seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:return-type
-   <replaceable>c-type</replaceable>
+   &ctype-r;
    [&allocation;])</literal></seg></seglistitem>
 <seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:language
    <replaceable>language</replaceable>)</literal></seg></seglistitem>
@@ -2056,10 +2052,9 @@ within Lisp (using &setq; or similar).</simpara>
 <varlistentry id="def-c-struct">
   <term><literal role="sexp">(<function>def-c-struct</function>
         &name-r; (<replaceable>ident</replaceable>
-        <replaceable>c-type</replaceable>)*)</literal></term>
- <listitem><simpara>This form defines &name-r; to
-  be both a <type>defstruct</type> structure type and a foreign &c-lang;
-  type with the given slots.
+        &ctype-r;)*)</literal></term>
+ <listitem><simpara>This form defines &name-r; to be both a
+  &structure-class; and a foreign &c-lang; type with the given slots.
  </simpara></listitem></varlistentry>
 
 <varlistentry id="def-c-enum">
@@ -2090,7 +2085,7 @@ within Lisp (using &setq; or similar).</simpara>
      <replaceable>index<subscript>n</subscript></replaceable>)</literal></term>
 <listitem><simpara>Array element: If <replaceable>c-place</replaceable>
   is of foreign type <literal role="sexp">(c-array
-  <replaceable>c-type</replaceable>
+  &ctype-r;
   <replaceable>dim<subscript>1</subscript></replaceable>
   ... <replaceable>dim<subscript>n</subscript></replaceable>)</literal>
   and 0 &le; <replaceable>index<subscript>1</subscript></replaceable>
@@ -2102,28 +2097,28 @@ within Lisp (using &setq; or similar).</simpara>
   <replaceable>index<subscript>1</subscript></replaceable>
   ... <replaceable>index<subscript>n</subscript></replaceable>)</literal> or
   <varname><replaceable>c-place</replaceable>[<replaceable>index<subscript>1</subscript></replaceable>]...[<replaceable>index<subscript>n</subscript></replaceable>]</varname>.
-  It is a place of type <replaceable>c-type</replaceable>.
+  It is a place of type &ctype-r;.
   If <replaceable>c-place</replaceable> is of foreign type <literal
-  role="sexp">(c-array-max <replaceable>c-type</replaceable>
+  role="sexp">(c-array-max &ctype-r;
   <replaceable>dim</replaceable>)</literal> and 0 &le;
   <replaceable>index</replaceable> &lt; <replaceable>dim</replaceable>,
   this will be the place corresponding to <literal role="sexp">(&aref;
   <replaceable>c-place</replaceable>
   <replaceable>index</replaceable>)</literal> or
   <varname><replaceable>c-place</replaceable>[<replaceable>index</replaceable>]</varname>.
-  It is a place of type <replaceable>c-type</replaceable>.
+  It is a place of type &ctype-r;.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="deref"><term><literal role="sexp">(<function>deref</function>
                 <replaceable>c-place</replaceable>)</literal></term>
 <listitem><simpara>Dereference pointer: If
   <replaceable>c-place</replaceable> is of foreign type <literal
-  role="sexp">(&c-ptr; <replaceable>c-type</replaceable>)</literal> or
+  role="sexp">(&c-ptr; &ctype-r;)</literal> or
   <literal role="sexp">(&c-ptr-null;
-  <replaceable>c-type</replaceable>)</literal>, this will be the place
+  &ctype-r;)</literal>, this will be the place
   the pointer points to.  It is a place of type
-  <replaceable>c-type</replaceable>.  For <literal
-  role="sexp">(&c-ptr-null; <replaceable>c-type</replaceable>)</literal>,
+  &ctype-r;.  For <literal
+  role="sexp">(&c-ptr-null; &ctype-r;)</literal>,
   the <replaceable>c-place</replaceable> may not be <constant>NULL</constant>.
 </simpara></listitem></varlistentry>
 
@@ -2134,45 +2129,45 @@ within Lisp (using &setq; or similar).</simpara>
   <replaceable>c-place</replaceable> is of foreign type <literal
   role="sexp">(&c-struct; <replaceable>class</replaceable>
   ... (<replaceable>slot-name</replaceable>
-  <replaceable>c-type</replaceable>) ...)</literal> or of type <literal
+  &ctype-r;) ...)</literal> or of type <literal
   role="sexp">(&c-union;  ... (<replaceable>slot-name</replaceable>
-  <replaceable>c-type</replaceable>) ...)</literal>, this will be of
-  type <replaceable>c-type</replaceable>.
+  &ctype-r;) ...)</literal>, this will be of
+  type &ctype-r;.
   </simpara></listitem></varlistentry>
 
 <varlistentry id="cast"><term><literal role="sexp">(<function>cast</function>
                 <replaceable>c-place</replaceable>
-                <replaceable>c-type</replaceable>)</literal></term>
+                &ctype-r;)</literal></term>
 <listitem><simpara>Type change: A place denoting the same memory
   locations as the original <replaceable>c-place</replaceable>, but of
-  type <replaceable>c-type</replaceable>.
+  type &ctype-r;.
   </simpara></listitem></varlistentry>
 
 <varlistentry id="typeof">
   <term><literal role="sexp">(<function>typeof</function>
                 <replaceable>c-place</replaceable>)</literal></term>
-<listitem><simpara>returns the <replaceable>c-type</replaceable>
+<listitem><simpara>returns the &ctype-r;
   corresponding to the <replaceable>c-place</replaceable>.
   </simpara></listitem></varlistentry>
 
 <varlistentry id="sizeof">
   <term><literal role="sexp">(<function>sizeof</function>
-                <replaceable>c-type</replaceable>)</literal>,
+                &ctype-r;)</literal>,
                 <literal role="sexp">(<function>sizeof</function>
                 <replaceable>c-place</replaceable>)</literal></term>
 <listitem><simpara>The first form returns the size and alignment of a
-  &c-lang; type <replaceable>c-type</replaceable>, measured in bytes.</simpara>
+  &c-lang; type &ctype-r;, measured in bytes.</simpara>
   <simpara>The second form returns the size and alignment of the
   &c-lang; type of <replaceable>c-place</replaceable>, measured in bytes.
   </simpara></listitem></varlistentry>
 
 <varlistentry id="bitsizeof">
   <term><literal role="sexp">(<function>bitsizeof</function>
-                <replaceable>c-type</replaceable>)</literal>,
+                &ctype-r;)</literal>,
                 <literal role="sexp">(<function>bitsizeof</function>
                 <replaceable>c-place</replaceable>)</literal></term>
 <listitem><simpara>The first form returns the size and alignment of the
-  &c-lang; type <replaceable>c-type</replaceable>, measured in bits.</simpara>
+  &c-lang; type &ctype-r;, measured in bits.</simpara>
   <simpara>The second form returns the size and alignment of the
   &c-lang; type of <replaceable>c-place</replaceable>, measured in
   bits.</simpara></listitem></varlistentry>
@@ -2196,11 +2191,11 @@ within Lisp (using &setq; or similar).</simpara>
  <emphasis>not</emphasis> regular &cl; types or &clos;
  classes.</para>
 
-<para>A <replaceable>c-type</replaceable> is either a predefined
+<para>A &ctype-r; is either a predefined
  &c-lang; type or the name of a type defined by &def-c-type;.</para>
 
 <variablelist><title>the predefined &c-lang; types
- (<replaceable>c-type</replaceable>)</title>
+ (&ctype-r;)</title>
 <varlistentry id="simple-c-type">
    <term><replaceable>simple-c-type</replaceable></term>
 <listitem><segmentedlist><title>the simple &c-lang; types</title>
@@ -2311,11 +2306,11 @@ within Lisp (using &setq; or similar).</simpara>
  </simpara></listitem></varlistentry>
 
 <varlistentry id="c-array"><term><literal role="sexp">(<type>c-array</type>
-   <replaceable>c-type</replaceable>
+   &ctype-r;
    <replaceable>dim<subscript>1</subscript></replaceable> ...
    <replaceable>dim<subscript>n</subscript></replaceable>)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
-  <type><replaceable>c-type</replaceable>
+  <type>&ctype-r;
   [<replaceable>dim<subscript>1</subscript></replaceable>]
   ... [<replaceable>dim<subscript>n</subscript></replaceable>]</type>.
   Note that when an array is passed as an argument to a function in
@@ -2326,10 +2321,10 @@ within Lisp (using &setq; or similar).</simpara>
 
 <varlistentry id="c-array-max"><term><literal
    role="sexp">(<type>c-array-max</type>
-               <replaceable>c-type</replaceable>
+               &ctype-r;
                <replaceable>maxdimension</replaceable>)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
-  <type><replaceable>c-type</replaceable>
+  <type>&ctype-r;
   [<replaceable>maxdimension</replaceable>]</type>, an array containing
   up to <replaceable>maxdimension</replaceable> elements.  The array is
   zero-terminated if it contains less than
@@ -2365,28 +2360,28 @@ within Lisp (using &setq; or similar).</simpara>
  </simpara></listitem></varlistentry>
 
 <varlistentry id="c-ptr"><term><literal role="sexp">(<type>c-ptr</type>
-                <replaceable>c-type</replaceable>)</literal></term>
+                &ctype-r;)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
-  <type><replaceable>c-type</replaceable> *</type>: a pointer to a single
-  item of the given <replaceable>c-type</replaceable>.
+  <type>&ctype-r; *</type>: a pointer to a single
+  item of the given &ctype-r;.
  </simpara></listitem></varlistentry>
 
 <varlistentry id="c-ptr-null"><term><literal
    role="sexp">(<type>c-ptr-null</type>
-                <replaceable>c-type</replaceable>)</literal></term>
+                &ctype-r;)</literal></term>
  <listitem><simpara>This type is also equivalent to what &c-lang; calls
-  <type><replaceable>c-type</replaceable> *</type>: a pointer to a single
-  item of the given <replaceable>c-type</replaceable>, with the exception
+  <type>&ctype-r; *</type>: a pointer to a single
+  item of the given &ctype-r;, with the exception
   that &c-lang; <constant>NULL</constant> corresponds to Lisp &nil;.
  </simpara></listitem></varlistentry>
 
 <varlistentry id="c-array-ptr"><term><literal
    role="sexp">(<type>c-array-ptr</type>
-                <replaceable>c-type</replaceable>)</literal></term>
+                &ctype-r;)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
-  <type><replaceable>c-type</replaceable> (*)[]</type>: a pointer to a
+  <type>&ctype-r; (*)[]</type>: a pointer to a
   zero-terminated array of items of the given
-  <replaceable>c-type</replaceable>.
+  &ctype-r;.
  </simpara></listitem></varlistentry>
 </variablelist>
 </section>
@@ -3533,13 +3528,12 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    <filename>${windir}/system32/etc/hosts</filename> on a Win32 system).
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
-    role="sexp">(<function>posix:file-stat</function>
-    <replaceable>file</replaceable> &optional-amp;
-    <replaceable>link-p</replaceable>)</literal></term>
- <listitem><simpara>Return the stat struct.  <function>file</function> can
-   be a stream, a pathname, a string or a number (on a UNIX system,
-   meaning file descriptor).  The first slot of the struct returned is
-   the string or the number on which
+    role="sexp">(<function>posix:file-stat</function> &path-r;
+      &optional-amp; <replaceable>link-p</replaceable>)</literal></term>
+ <listitem><simpara>Return the stat struct.  &path-r; can
+   be a &stream-class;, a &pathname-class;, a &string-class; or a
+   &number-class; (on a UNIX system, meaning file descriptor).  The
+   first slot of the struct returned is the string or the number on which
    <function>stat(2)</function>/<function>fstat(2)</function>/<function>lstat(2)</function>
    was called.  The other 13 slots are numbers, members of the stat
    struct: device, inode, protection, number of hard links, owner's UID,
@@ -3577,28 +3571,19 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
     <function>getrusage(3)</function>.
   </simpara></listitem></varlistentry>
  <varlistentry><term>
-   <literal role="sexp">(<function>posix:erf</function>
-                         <replaceable>real</replaceable>)</literal>
-   <literal role="sexp">(<function>posix:erfc</function>
-                         <replaceable>real</replaceable>)</literal>
-   <literal role="sexp">(<function>posix:j0</function>
-                         <replaceable>real</replaceable>)</literal>
-   <literal role="sexp">(<function>posix:j1</function>
-                         <replaceable>real</replaceable>)</literal>
+   <literal role="sexp">(<function>posix:erf</function> &real-r;)</literal>
+   <literal role="sexp">(<function>posix:erfc</function> &real-r;)</literal>
+   <literal role="sexp">(<function>posix:j0</function> &real-r;)</literal>
+   <literal role="sexp">(<function>posix:j1</function> &real-r;)</literal>
    <literal role="sexp">(<function>posix:jn</function>
-                         <replaceable>int</replaceable>
-                         <replaceable>real</replaceable>)</literal>
-   <literal role="sexp">(<function>posix:y0</function>
-                         <replaceable>real</replaceable>)</literal>
-   <literal role="sexp">(<function>posix:y1</function>
-                         <replaceable>real</replaceable>)</literal>
+                         &int-r; &real-r;)</literal>
+   <literal role="sexp">(<function>posix:y0</function> &real-r;)</literal>
+   <literal role="sexp">(<function>posix:y1</function> &real-r;)</literal>
    <literal role="sexp">(<function>posix:yn</function>
-                         <replaceable>int</replaceable>
-                         <replaceable>real</replaceable>)</literal>
-   <literal role="sexp">(<function>posix:gamma</function>
-                         <replaceable>real</replaceable>)</literal>
+                         &int-r; &real-r;)</literal>
+   <literal role="sexp">(<function>posix:gamma</function> &real-r;)</literal>
    <literal role="sexp">(<function>posix:lgamma</function>
-                         <replaceable>real</replaceable>)</literal></term>
+                         &real-r;)</literal></term>
  <listitem><simpara>Compute the error functions, Bessel functions and
    Gamma.  These functions are required by the POSIX standard and should
    be available in libm.so.  Please note that these functions do not
@@ -4122,16 +4107,15 @@ future).</para>
   </simpara></listitem></varlistentry>
  <varlistentry id="with-dir-key-open"><term><literal
    role="sexp">(<function>ldap:with-dir-key-open</function>
-                (&var-r;
-                 <replaceable>dkey</replaceable>
+                (&var-r; <replaceable>dkey</replaceable>
                  <replaceable>path</replaceable>
                  &rest-amp; <replaceable>options</replaceable>)
-                &body-amp; <replaceable>body</replaceable>)</literal></term>
+                &body-amp; &body-r;)</literal></term>
   <listitem><simpara>Open the directory key (by calling <link
    linkend="dir-key-open"><function>ldap:dir-key-open</function></link>
    on <replaceable>dkey</replaceable>, <replaceable>path</replaceable>
    and <replaceable>options</replaceable>), bind it to
-   &var-r;, execute <replaceable>body</replaceable>, then close it with <link
+   &var-r;, execute &body-r;, then close it with <link
    linkend="dir-key-close"><function>ldap:dir-key-close</function></link>.
   </simpara></listitem></varlistentry>
  <varlistentry><term><literal
@@ -4201,7 +4185,7 @@ future).</para>
                  <replaceable>dkey</replaceable>
                  <replaceable>path</replaceable>
                  &key-amp; <constant>:scope</constant>)
-                 &body-amp; <replaceable>body</replaceable>)</literal></term>
+                 &body-amp; &body-r;)</literal></term>
   <listitem><simpara>This is the main way to iterate over the subtree
    under the key
    <replaceable>dkey</replaceable>+<replaceable>path</replaceable>.
