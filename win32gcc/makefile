@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host david as the output of the command:
+# This file was created on host SSTEINGOLD as the output of the command:
 # ./makemake --with-dir-key win32gcc gcc
 
 # -------------- Start of configurable section --------------------
@@ -389,6 +389,7 @@ defstruct.lisp \
 format.lisp \
 savemem.lisp \
 trace.lisp \
+cmacros.lisp \
 compiler.lisp \
 disassem.lisp \
 defs2.lisp \
@@ -409,7 +410,6 @@ describe.lisp \
 room.lisp \
 edit.lisp \
 macros3.lisp \
-posix.lisp \
 foreign1.lisp \
 clhs.lisp \
 inspect.lisp \
@@ -436,6 +436,7 @@ defstruct.fas \
 format.fas \
 savemem.fas \
 trace.fas \
+cmacros.fas \
 compiler.fas \
 disassem.fas \
 defs2.fas \
@@ -456,7 +457,6 @@ describe.fas \
 room.fas \
 edit.fas \
 macros3.fas \
-posix.fas \
 foreign1.fas \
 clhs.fas \
 inspect.fas \
@@ -488,6 +488,7 @@ stage/defstruct.lisp \
 stage/format.lisp \
 stage/savemem.lisp \
 stage/trace.lisp \
+stage/cmacros.lisp \
 stage/compiler.lisp \
 stage/disassem.lisp \
 stage/defs2.lisp \
@@ -508,7 +509,6 @@ stage/describe.lisp \
 stage/room.lisp \
 stage/edit.lisp \
 stage/macros3.lisp \
-stage/posix.lisp \
 stage/foreign1.lisp \
 stage/clhs.lisp \
 stage/inspect.lisp \
@@ -535,6 +535,7 @@ stage/defstruct.fas \
 stage/format.fas \
 stage/savemem.fas \
 stage/trace.fas \
+stage/cmacros.fas \
 stage/compiler.fas \
 stage/disassem.fas \
 stage/defs2.fas \
@@ -555,7 +556,6 @@ stage/describe.fas \
 stage/room.fas \
 stage/edit.fas \
 stage/macros3.fas \
-stage/posix.fas \
 stage/foreign1.fas \
 stage/clhs.fas \
 stage/inspect.fas \
@@ -1286,6 +1286,9 @@ savemem.fas : savemem.lisp lisp.exe interpreted.mem
 trace.fas : trace.lisp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile UTF-8 -norc -q -c trace.lisp
 
+cmacros.fas : cmacros.lisp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile UTF-8 -norc -q -c cmacros.lisp
+
 compiler.fas : compiler.lisp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile UTF-8 -norc -q -c compiler.lisp
 
@@ -1345,9 +1348,6 @@ edit.fas : edit.lisp lisp.exe interpreted.mem
 
 macros3.fas : macros3.lisp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile UTF-8 -norc -q -c macros3.lisp
-
-posix.fas : posix.lisp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile UTF-8 -norc -q -c posix.lisp
 
 foreign1.fas : foreign1.lisp lisp.exe interpreted.mem
 	lisp.exe -m 1000KW -M interpreted.mem -B . -Efile UTF-8 -norc -q -c foreign1.lisp
@@ -1446,6 +1446,9 @@ stage/savemem.lisp : savemem.lisp
 stage/trace.lisp : trace.lisp
 	$(LN_S) trace.lisp stage
 
+stage/cmacros.lisp : cmacros.lisp
+	$(LN_S) cmacros.lisp stage
+
 stage/compiler.lisp : compiler.lisp
 	$(LN_S) compiler.lisp stage
 
@@ -1505,9 +1508,6 @@ stage/edit.lisp : edit.lisp
 
 stage/macros3.lisp : macros3.lisp
 	$(LN_S) macros3.lisp stage
-
-stage/posix.lisp : posix.lisp
-	$(LN_S) posix.lisp stage
 
 stage/foreign1.lisp : foreign1.lisp
 	$(LN_S) foreign1.lisp stage
@@ -1581,6 +1581,9 @@ stage/savemem.fas : stage/savemem.lisp lisp.exe lispinit.mem
 stage/trace.fas : stage/trace.lisp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile UTF-8 -norc -q -c stage/trace.lisp
 
+stage/cmacros.fas : stage/cmacros.lisp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -B . -Efile UTF-8 -norc -q -c stage/cmacros.lisp
+
 stage/compiler.fas : stage/compiler.lisp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile UTF-8 -norc -q -c stage/compiler.lisp
 
@@ -1640,9 +1643,6 @@ stage/edit.fas : stage/edit.lisp lisp.exe lispinit.mem
 
 stage/macros3.fas : stage/macros3.lisp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile UTF-8 -norc -q -c stage/macros3.lisp
-
-stage/posix.fas : stage/posix.lisp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -B . -Efile UTF-8 -norc -q -c stage/posix.lisp
 
 stage/foreign1.fas : stage/foreign1.lisp lisp.exe lispinit.mem
 	lisp.exe -M lispinit.mem -B . -Efile UTF-8 -norc -q -c stage/foreign1.lisp

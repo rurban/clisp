@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host david as the output of the command:
+# This file was created on host SSTEINGOLD as the output of the command:
 # ./makemake acorn ansi
 
 # -------------- Start of configurable section --------------------
@@ -387,6 +387,7 @@ lisp.defstruct \
 lisp.format \
 lisp.savemem \
 lisp.trace \
+lisp.cmacros \
 lisp.compiler \
 lisp.disassem \
 lisp.defs2 \
@@ -407,7 +408,6 @@ lisp.describe \
 lisp.room \
 lisp.edit \
 lisp.macros3 \
-lisp.posix \
 lisp.foreign1 \
 lisp.clhs \
 lisp.inspect \
@@ -434,6 +434,7 @@ fas.defstruct \
 fas.format \
 fas.savemem \
 fas.trace \
+fas.cmacros \
 fas.compiler \
 fas.disassem \
 fas.defs2 \
@@ -454,7 +455,6 @@ fas.describe \
 fas.room \
 fas.edit \
 fas.macros3 \
-fas.posix \
 fas.foreign1 \
 fas.clhs \
 fas.inspect \
@@ -486,6 +486,7 @@ stage.lisp.defstruct \
 stage.lisp.format \
 stage.lisp.savemem \
 stage.lisp.trace \
+stage.lisp.cmacros \
 stage.lisp.compiler \
 stage.lisp.disassem \
 stage.lisp.defs2 \
@@ -506,7 +507,6 @@ stage.lisp.describe \
 stage.lisp.room \
 stage.lisp.edit \
 stage.lisp.macros3 \
-stage.lisp.posix \
 stage.lisp.foreign1 \
 stage.lisp.clhs \
 stage.lisp.inspect \
@@ -533,6 +533,7 @@ stage.fas.defstruct \
 stage.fas.format \
 stage.fas.savemem \
 stage.fas.trace \
+stage.fas.cmacros \
 stage.fas.compiler \
 stage.fas.disassem \
 stage.fas.defs2 \
@@ -553,7 +554,6 @@ stage.fas.describe \
 stage.fas.room \
 stage.fas.edit \
 stage.fas.macros3 \
-stage.fas.posix \
 stage.fas.foreign1 \
 stage.fas.clhs \
 stage.fas.inspect \
@@ -1699,6 +1699,9 @@ fas.savemem : lisp.savemem lisp mem.interpre
 fas.trace : lisp.trace lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c trace.lisp
 
+fas.cmacros : lisp.cmacros lisp mem.interpre
+	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c cmacros.lisp
+
 fas.compiler : lisp.compiler lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c compiler.lisp
 
@@ -1758,9 +1761,6 @@ fas.edit : lisp.edit lisp mem.interpre
 
 fas.macros3 : lisp.macros3 lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c macros3.lisp
-
-fas.posix : lisp.posix lisp mem.interpre
-	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c posix.lisp
 
 fas.foreign1 : lisp.foreign1 lisp mem.interpre
 	/@.lisp -m 1000KW -M mem.interpre -B . -Efile UTF-8 -norc -q -c foreign1.lisp
@@ -1859,6 +1859,9 @@ stage.lisp.savemem : lisp.savemem
 stage.lisp.trace : lisp.trace
 	$(LN_S) lisp.trace stage
 
+stage.lisp.cmacros : lisp.cmacros
+	$(LN_S) lisp.cmacros stage
+
 stage.lisp.compiler : lisp.compiler
 	$(LN_S) lisp.compiler stage
 
@@ -1918,9 +1921,6 @@ stage.lisp.edit : lisp.edit
 
 stage.lisp.macros3 : lisp.macros3
 	$(LN_S) lisp.macros3 stage
-
-stage.lisp.posix : lisp.posix
-	$(LN_S) lisp.posix stage
 
 stage.lisp.foreign1 : lisp.foreign1
 	$(LN_S) lisp.foreign1 stage
@@ -1994,6 +1994,9 @@ stage.fas.savemem : stage.lisp.savemem lisp mem.lispinit
 stage.fas.trace : stage.lisp.trace lisp mem.lispinit
 	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.trace.lisp
 
+stage.fas.cmacros : stage.lisp.cmacros lisp mem.lispinit
+	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.cmacros.lisp
+
 stage.fas.compiler : stage.lisp.compiler lisp mem.lispinit
 	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.compiler.lisp
 
@@ -2053,9 +2056,6 @@ stage.fas.edit : stage.lisp.edit lisp mem.lispinit
 
 stage.fas.macros3 : stage.lisp.macros3 lisp mem.lispinit
 	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.macros3.lisp
-
-stage.fas.posix : stage.lisp.posix lisp mem.lispinit
-	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.posix.lisp
 
 stage.fas.foreign1 : stage.lisp.foreign1 lisp mem.lispinit
 	/@.lisp -M mem.lispinit -B . -Efile UTF-8 -norc -q -c stage.foreign1.lisp
