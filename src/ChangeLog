@@ -5,9 +5,12 @@
 	and GET-SETF-METHOD-MULTIPLE-VALUE out
 	* init.lisp (export "EXT"): ditto
 	* defs1.lisp (special-form-p): moved to deprecated.lisp
-	* places.lisp (get-setf-method-multiple-value): ditto
-	* deprecated.lisp (special-form-p, get-setf-method-multiple-value):
-	added as deprecated
+	* places.lisp (get-setf-method-multiple-value)
+	(define-setf-method): ditto
+	* deprecated.lisp (special-form-p, get-setf-method-multiple-value)
+	(define-setf-method): added and deprecated
+	* describe.lisp (describe-object): macros can be deprecated too,
+	give the new name for the deprecated functionality
 
 2001-11-11  Bruno Haible  <haible@clisp.cons.org>
 
