@@ -722,17 +722,11 @@ nonreturning_function(global, fehler_proper_list, (object caller, object obj))
   fehler(type_error,GETTEXT("~: A true list must not end with ~"));
 }
 
-/* error-message, if an object is not a symbol.
- fehler_kein_symbol(caller,obj);
- > caller: caller (a Symbol)
- > obj: non-symbol */
-nonreturning_function(global, fehler_kein_symbol, (object caller, object obj))
-{
-  pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(symbol)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(S(symbol)); pushSTACK(obj); pushSTACK(caller);
-  fehler(type_error,GETTEXT("~: ~ is not a ~"));
-}
+/* UP: error, if an object is not a symbol.
+ check_symbol(obj);
+ > obj: maybe non-symbol
+ < symbol
+ can trigger GC */
 global object check_symbol (object sy) {
   while (!symbolp(sy)) {
     var object caller = subr_self;
@@ -749,16 +743,38 @@ global object check_symbol (object sy) {
 
 /* UP: signal an error if OBJ is not a non-constant symbol and
  return OBJ otherwise
- > caller: the caller (function name)
  > obj: a potential symbol
- < obj: a non-constant symbol */
-global object test_symbol_non_constant (object caller, object obj)
+ > caller: a symbol
+ < obj: a non-constant symbol
+ can trigger GC */
+global object check_symbol_non_constant (object obj, object caller)
 {
-  if (!symbolp(obj)) fehler_kein_symbol(caller,obj);
-  if (constantp(TheSymbol(obj))) {
-    pushSTACK(obj); pushSTACK(caller);
-    fehler(program_error,
-           GETTEXT("~: ~ is a constant, may not be used as a variable"));
+  while (1) {
+    obj = check_symbol(obj);
+    if (!constantp(TheSymbol(obj))) break;
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);
+    pushSTACK(caller);
+    check_value(source_program_error,
+                GETTEXT("~: ~ is a constant, may not be used as a variable"));
+    obj = value1;
+  }
+  return obj;
+}
+
+/* YP: signal an error if a non-symbol was declared special
+ returns the symbol
+ can trigger GC */
+global object check_symbol_special (object obj, object caller)
+{
+  while (!symbolp(obj)) {
+    pushSTACK(caller);
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(S(special)); pushSTACK(obj); pushSTACK(caller);
+    check_value(source_program_error,
+                GETTEXT("~: ~ is not a symbol, cannot be declared ~"));
+    caller = popSTACK();
+    obj = value1;
   }
   return obj;
 }
@@ -1003,19 +1019,62 @@ nonreturning_function(global, fehler_key_badkw,
 }
 
 /* error-message, if an argument is not a Function:
- fehler_function(obj);
+ check_function(obj);
  > obj: the erroneous argument */
-nonreturning_function(global, fehler_function, (object obj)) {
-  pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
-  pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(S(function)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~: ~ is not a ~"));
+global object check_function (object obj) {
+  while (!functionp(obj)) {
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(function)); pushSTACK(obj);
+    pushSTACK(TheSubr(subr_self)->name);
+    check_value(type_error,GETTEXT("~: ~ is not a ~"));
+    if (symbolp(value1))
+      obj = Symbol_function(value1);
+    else if (funnamep(value1))
+      obj = Symbol_function(get(Car(Cdr(value1)),S(setf_function)));
+    else if (consp(value1) && eq(Car(value1),S(lambda))) {
+      pushSTACK(value1); pushSTACK(S(function));
+      funcall(L(coerce),2);
+      obj = value1;
+    } else obj = value1;
+  }
+  return obj;
+}
+
+/* error if funname does not have a function definition
+ > funname: symbol or (setf symbol)
+ > caller: symbol
+ < a function object
+ can trigger GC */
+global object check_fdefinition (object funname, object caller)
+{
+  var object name = (symbolp(funname) ? funname
+                     : get(Car(Cdr(funname)),S(setf_function)));
+  var object def = Symbol_function(name);
+  while (!functionp(def)) {
+    pushSTACK(funname); pushSTACK(caller); /* save */
+    pushSTACK(S(quote)); pushSTACK(funname); def = listof(2);
+    pushSTACK(S(fdefinition)); pushSTACK(def); def = listof(2);
+    pushSTACK(def); /* PLACE */
+    pushSTACK(STACK_2); /* CELL-ERROR Slot NAME */
+    pushSTACK(STACK_0); /* funname */
+    pushSTACK(STACK_3); /* caller */
+    check_value(undefined_function,GETTEXT("~: undefined function ~"));
+    caller = popSTACK(); funname = popSTACK(); /* restore */
+    name = (symbolp(funname) ? funname
+            : get(Car(Cdr(funname)),S(setf_function)));
+    def = value1;
+    if (functionp(def) && !nullp(value2))
+      Symbol_function(name) = def;
+  }
+  return def;
 }
 
 /* signal a type-error or source-program-error
  when the argument is not a function name
  can trigger GC */
-global object check_funname (condition_t errtype,object caller, object obj) {
+global object check_funname (condition_t errtype, object caller, object obj) {
   pushSTACK(caller); /* save */
   while (!funnamep(obj)) {
     caller = STACK_0;

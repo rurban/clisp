@@ -1220,7 +1220,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
     { BEFORE(rest_args_pointer);
       { var object predicate = Before(rest_args_pointer);
         if (!(symbolp(predicate) || functionp(predicate)))
-          fehler_function(predicate);
+          Before(rest_args_pointer) = check_function(predicate);
       }
       # rest_args_pointer zeigt jetzt über alle argcount+1 Sequence-Argumente
       pushSTACK(defolt); # Defaultwert retten
