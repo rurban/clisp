@@ -11,7 +11,7 @@
   `(SYS::EXEC-WITH-KEYBOARD (FUNCTION (LAMBDA () (PROGN ,@body))))
 )
 (defun exec-with-keyboard (fun)
-  #+(or OS/2 WIN32) ; *keyboard-input* existiert schon
+  #+WIN32 ; *keyboard-input* existiert schon
     (funcall fun)
   #+UNIX
     (let ((mode nil))

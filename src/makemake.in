@@ -71,7 +71,6 @@ EOP
 #        i386      (any other 386 machine, e.g. Linux boxes or Sun386i)
 #        i486      (any other 486 machine)
 #        mips
-#        os2       (PC or compatible running OS/2 2.0)
 #  and COMPILER is one of
 #        gcc       (GNU C under the name gcc)
 #        cc        (any other ANSI C compliant cc)
@@ -83,7 +82,6 @@ EOP
 #   makemake i386 gcc > make.gcc/makefile
 #   makemake i486 gcc > make.gcc/makefile
 #   makemake sun4 gcc > make.gcc/makefile
-#   makemake os2 gcc > make.os2/makefile
 #   makemake win32gcc gcc > make.win32gcc/makefile
 #   makemake --with-dynamic-ffi win32msvc msvc4 > make.win32msvc/makefile.msvc4
 #   makemake --with-dynamic-ffi win32msvc msvc5 > make.win32msvc/makefile.msvc5
@@ -375,10 +373,9 @@ case $# in
      fi
      TSYS=$1
      COMPILER=$2
-     # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|os2|win32msvc).
+     # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|win32msvc).
      # COMPILER should be gcc or cc
      case ${TSYS} in
-       os2 ) TOS=$TSYS ;;
        win32msvc ) TOS='win32' ;;
        *)         TOS='unix' ;;
      esac
@@ -505,11 +502,10 @@ BENCHDIR=benchmarks
 
 # DOS-style filenames and file utilities
 H_DOS="false"
-if [ $HOS = os2 ]; then H_DOS="true"; fi
 if [ $HOS = win32 -a $HSYS != win32gcc ]; then H_DOS="true"; fi
 
 # HEXE = extension for executable files on host
-if [ $HOS = os2 -o $HOS = win32 ] ; then
+if [ $HOS = win32 ] ; then
   HEXE='.exe'
 else
   HEXE=''
@@ -672,12 +668,6 @@ if [ $TSYS = master -o $TOS = unix ] ; then
   OS_INCLUDES=$OS_INCLUDES' unix'
   LIBS=$LIBS' '$LIBICONV' '$LIBSIGSEGV
 fi
-if [ $TSYS = master -o $TOS = os2 ] ; then
-  OS_INCLUDES=$OS_INCLUDES' msdos'
-  if [ $TSYS = os2 ] ; then
-    LIBS=$LIBS' -ltermcap'
-  fi
-fi
 SYSLIBS=''
 if [ $TSYS = master -o $TOS = win32 ] ; then
   OS_INCLUDES=$OS_INCLUDES' win32'
@@ -695,18 +685,9 @@ if [ $TSYS = master -o $TOS = unix -o $TOS = win32 ] ; then
   OS_INCLUDES=$OS_INCLUDES' xthread'
 fi
 
-if [ $CROSS = true ] ; then
-  if [ $TOS = os2 ] ; then
-    # CHSCONVERT='$(HOME)/cc/convert-to-ibmpc'
-    # CHSCONVERT='/usr/local/utils/cv-to-ibmpc'
-    # CHSCONVERT='recode latin1:ibmpc | crlf-to-nl'
-    CHSCONVERT='./cv_lt_pc'
-  fi
-fi
-
 # TEXE = extension for executable files on target
 # LEXE = extension for executable file LISP on target
-if [ ${TOS} = os2 -o ${TOS} = win32 -o ${HSYSOS} = cygwin ] ; then
+if [ ${TOS} = win32 -o ${HSYSOS} = cygwin ] ; then
   TEXE='.exe'
   LEXE='.exe'
 else
@@ -744,7 +725,7 @@ fi
 if [ "$host_cpu" = mips64 ] ; then
   cpu=mips64
 fi
-if [ "$host_cpu" = i386 -o "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686 -o "$host_cpu" = i786 -o $TSYS = i386 -o $TSYS = i486 -o $TSYS = i586 -o $TSYS = i686 -o $TSYS = i786 -o $TSYS = os2 -o $TOS = win32 ] ; then
+if [ "$host_cpu" = i386 -o "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686 -o "$host_cpu" = i786 -o $TSYS = i386 -o $TSYS = i486 -o $TSYS = i586 -o $TSYS = i686 -o $TSYS = i786 -o $TOS = win32 ] ; then
   cpu=i386
 fi
 case "$host_cpu" in
@@ -779,10 +760,6 @@ fi
 if [ $XCC_GCC = true ] ; then
   XCC_GCC_VERSION=`$XCC -v 2>&1 | grep version | tail -1 | sed -e 's/.*version //g' -e 's/gcc //'`
   XCFLAGS='-W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type '
-  if [ $HOS = os2 ] ; then
-    # DOS has a very limited command line length
-    XCFLAGS=''
-  fi
   XCFLAGS="$XCPPFLAGS $XCFLAGS"
   if [ $CROSS = false ] ; then
     case "$XCC_GCC_VERSION" in
@@ -1201,7 +1178,7 @@ if [ $HOS = unix -o $HOS = win32 ] ; then
   LIBS=$XCL_CHARSETLIB' '$LIBS
 fi
 
-if [ $TOS = unix -o $TOS = os2 ] ; then
+if [ $TOS = unix ] ; then
   if [ "${with_readline}" = "0" ]; then
     XCFLAGS=$XCFLAGS' -DNO_READLINE'
   else
@@ -1218,7 +1195,7 @@ fi
 
 USE_GETTEXT=''
 XCL_GETTEXTLIB=''
-if [ $TOS = unix -o $TOS = os2 ] ; then
+if [ $TOS = unix ] ; then
   if [ "${with_gettext}" = "0" ]; then
     XCFLAGS=$XCFLAGS' -DNO_GETTEXT'
   else
@@ -1253,7 +1230,7 @@ CPARTS=$CPARTS' charstrg debug error misc time predtype symbol lisparit i18n'
 if [ $TSYS = master -o -n "$with_dynamic_ffi" ] ; then
   CPARTS=$CPARTS' foreign'
 fi
-if [ $TSYS = master -o $TOS = unix -o $TSYS = os2 ] ; then
+if [ $TSYS = master -o $TOS = unix ] ; then
   CPARTS=$CPARTS' unixaux'
 fi
 if [ $TSYS = master -o $TOS = win32 ] ; then
@@ -1325,7 +1302,7 @@ if [ "${with_unicode}" != "0" ] ; then
 fi
 
 ERROR_INCLUDES=''
-if [ $TSYS = master -o $TOS = unix -o $TSYS = os2 ] ; then
+if [ $TSYS = master -o $TOS = unix ] ; then
   ERROR_INCLUDES=$ERROR_INCLUDES' errunix'
 fi
 if [ $TSYS = master -o $TOS = win32 ] ; then
@@ -1620,14 +1597,6 @@ fi
 # if [ $TSYS = sun4 -a "$CC" = cc ] ; then
 #   echol "INLINE = /usr/lib/inline"
 # fi
-if [ $HSYS = os2 ] ; then
-  echol "LD = ld"
-fi
-if [ $HSYS = os2 ] ; then
-  # Putting emx.exe allows one to get away with less installation problems.
-  # Putting emxl.exe causes rsx.exe to be used if running under Windows.
-  echol 'EMX = c:\emx\bin\emxl.exe'
-fi
 if [ $HSYS = win32msvc ] ; then
   if [ $COMPILER = msvc4 ] ; then
     echol "MSVCDIR = d:/msdev"
@@ -1938,9 +1907,6 @@ UTILS=$UTILS' ccmp2c' # needed by clx module
 if [ "$CHSCONVERT" = "./cv_lt_at" ] ; then
   UTILS=$UTILS' cv_lt_at'
 fi
-if [ "$CHSCONVERT" = "./cv_lt_pc" ] ; then
-  UTILS=$UTILS' cv_lt_pc'
-fi
 LUTILS=''
 LUTILS=$LUTILS' modprep'
 
@@ -2006,10 +1972,6 @@ for util in ${UTILS} ; do
       if [ $util = ccmp2c ] ; then flags=' -I.'; fi
       echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
       echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS) ${flags}" "${UTILDIR_CC}${util}.c" "${util}"
-      echol ;;
-    cv_lt_pc )  # Only used when $CROSS = true
-      echol "${util}${HEXE} : ${SRCTOPDIR}os2/${util}.c"
-      echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "${SRCTOPDIR}os2/${util}.c" "${util}"
       echol ;;
     comment5 )
       if [ $CC_NEED_CCPAUX = true ] ; then
@@ -2456,7 +2418,7 @@ done
 echol
 
 echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_GETTEXTLIB} ${XCL_CHARSETLIB} ${SYSLIBS} data"
-if [ $HOS != os2 -a $HOS != win32 ] ; then
+if [ $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.
     LIBGCC_DIR='`'"${XCC} -print-libgcc-file-name"' | sed -e '"'"'s,[^/]*$$,,'"'"'`'
@@ -2505,9 +2467,6 @@ echol "alllisp : \$(LISPFILES)"
 echodummyrule alllisp
 echol
 
-if [ $TOS = os2 ] ; then
-  CONFIG=cfgdos
-fi
 if [ $TOS = win32 ] ; then
   CONFIG=cfgwin32
 fi
@@ -2572,11 +2531,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  if [ $HOS != os2 ] ; then
-    echotab '$(RUN) -m 750KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"'
-  else
-    echotab '$(RUN) -m 750KW < interpreted.in'
-  fi
+  echotab '$(RUN) -m 750KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"'
   echotab "\$(MV) lispimag.mem interpreted.mem"
   echol
 
@@ -2618,11 +2573,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  if [ $HOS != os2 ] ; then
-    echotab '$(RUN) -m 750KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"'
-  else
-    echotab '$(RUN) -m 750KW < interpreted.in'
-  fi
+  echotab '$(RUN) -m 750KW -x "(and (load \"init.lisp\") (sys::%saveinitmem) (ext::exit))"'
   echotab "\$(MV) lispimag.mem halfcompiled.mem"
   echol
 
@@ -2635,11 +2586,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  if [ $HOS != os2 ] ; then
-    echotab '$(RUN) -x "(and (load \"init.fas\") (ext::saveinitmem) (ext::exit))"'
-  else
-    echotab '$(RUN) < lispinit.in'
-  fi
+  echotab '$(RUN) -x "(and (load \"init.fas\") (ext::saveinitmem) (ext::exit))"'
   echol
 
 fi
@@ -2689,7 +2636,7 @@ if [ $CROSS = false ] ; then
     echotab 'echo "Test passed."'
     echol
   else
-    if [ $HOS = os2 -o $HSYS = win32msvc ] ; then
+    if [ $HSYS = win32msvc ] ; then
       echotab "comp *.fas ${TESTDIR}"
       echotab "echo The test passed if only GENSYM differences were found."
       echol
@@ -2937,14 +2884,10 @@ for f in $TXT_FILES ; do
   fi
   line="${HERE}txt"
   if [ $f = clisp.1 ] ; then
-    if [ $HOS != os2 -a $HOS != win32 ] ; then
+    if [ $HOS != win32 ] ; then
       line=$line" | \$(GREP) -v '^ *\$\$'"
     else
-      if [ $HOS = os2 ] ; then
-        # DOS command line args may not contain spaces. grep.in contains "^ *$"
-        line=$line" | \$(GREP) -v -f grep.in"
-      fi
-      # On Win32, no grep installed. The blank lines don't hurt.
+      : # On Win32, no grep installed. The blank lines don't hurt.
     fi
   fi
   if [ $f = clisp.html ] ; then
@@ -3141,39 +3084,6 @@ if [ $CROSS = false ] ; then
     esac
     echotab "\$(RMRF) \$(DESTDIR)\$(lispdocdir)"
     echol
-    echol
-  fi
-  if [ $HOS = os2 ] ; then
-    echol "install : install-bin"
-    echodummyrule install
-    echol
-    echol "installdirs : force"
-    echotab "-mkdir \$(DESTDIR)\$(libdir)"
-    echotab "-mkdir \$(DESTDIR)\$(lisplibdir)"
-    echotab "-mkdir \$(DESTDIR)\$(bindir)"
-    echol
-    echol "install-bin : lisp${LEXE} lispinit.mem force"
-    echotab "-mkdir \$(DESTDIR)\$(libdir)"
-    echotab "-mkdir \$(DESTDIR)\$(lisplibdir)"
-    echotab "-mkdir \$(DESTDIR)\$(lisplibdir)data"
-    for f in ${DATA_FILES}; do
-      echotab "\$(INSTALL_DATA) data/${f} \$(DESTDIR)\$(lisplibdir)data/${f}"
-    done
-    echotab "\$(INSTALL_PROGRAM) lisp${LEXE} \$(DESTDIR)\$(lisplibdir)lisp${LEXE}"
-    echotab "\$(INSTALL_DATA) lispinit.mem \$(DESTDIR)\$(lisplibdir)lispinit.mem"
-    echotab "-mkdir \$(DESTDIR)\$(bindir)"
-    echotab "echo \$(lisplibdir)\lisp${LEXE} -M \$(lisplibdir)lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > \$(DESTDIR)\$(bindir)clisp.cmd"
-    echol
-    echol "uninstall : uninstall-bin"
-    echodummyrule uninstall
-    echol
-    echol "uninstall-bin : force"
-    for f in ${DATA_FILES}; do
-      echotab "\$(RM) \$(DESTDIR)\$(lisplibdir)/data/${f}"
-    done
-    echotab "\$(RM) \$(DESTDIR)\$(lisplibdir)/lisp${LEXE}"
-    echotab "\$(RM) \$(DESTDIR)\$(lisplibdir)/lispinit.mem"
-    echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp.cmd"
     echol
   fi
 fi

@@ -76,11 +76,8 @@ LPSEUDOCODE(rd_ch_keyboard)
 #if defined(MAYBE_NEXTAPP)
 LPSEUDOCODE(wr_ch_terminal) LPSEUDOCODE(rd_ch_terminal)
 #endif
-#if defined(UNIX) || defined(MSDOS)
+#ifdef UNIX
 LPSEUDOCODE(wr_ch_terminal1) LPSEUDOCODE(rd_ch_terminal1) LPSEUDOCODE(wr_ch_array_terminal1)
-#ifdef MSDOS
-LPSEUDOCODE(wr_ch_terminal2) LPSEUDOCODE(rd_ch_terminal2) LPSEUDOCODE(wr_ch_array_terminal2)
-#endif
 #if defined(GNU_READLINE) || defined(MAYBE_NEXTAPP)
 LPSEUDOCODE(wr_ch_terminal3) LPSEUDOCODE(rd_ch_terminal3) LPSEUDOCODE(wr_ch_array_terminal3)
 #endif

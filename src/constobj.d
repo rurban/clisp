@@ -67,22 +67,6 @@
 # for CHARSTRG.D:
   # On change of character-names except of CONSTOBJ.D, also
   # readjust CHARSTRG.D, FORMAT.LISP, IMPNOTES.HTML!
-  #ifdef MSDOS_CHARNAMES
-    # names of characters with codes 0,7,...,13,26,27,32,8,10:
-    LISPOBJ(charname_0,"\"Null\"")
-    LISPOBJ(charname_7,"\"Bell\"")
-    LISPOBJ(charname_8,"\"Backspace\"")
-    LISPOBJ(charname_9,"\"Tab\"")
-    LISPOBJ(charname_10,"\"Newline\"")
-    LISPOBJ(charname_11,"\"Code11\"")
-    LISPOBJ(charname_12,"\"Page\"")
-    LISPOBJ(charname_13,"\"Return\"")
-    LISPOBJ(charname_26,"\"Code26\"")
-    LISPOBJ(charname_27,"\"Escape\"")
-    LISPOBJ(charname_32,"\"Space\"")
-    LISPOBJ(charname_8bis,"\"Rubout\"")
-    LISPOBJ(charname_10bis,"\"Linefeed\"")
-  #endif
   #ifdef WIN32_CHARNAMES
     # names of characters with codes 0,7,...,13,26,27,32,8,10:
     LISPOBJ(charname_0,"\"Null\"")
@@ -429,7 +413,7 @@
   LISPOBJ_S(semicolon_string,";")
   LISPOBJ_S(zero_string,"0")
  #endif
- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #ifdef PATHNAME_WIN32
   LISPOBJ(backslash_string,"\"\\\\\"")
  #endif
  #if defined(PATHNAME_WIN32)
@@ -440,18 +424,9 @@
   LISPOBJ_S(slash_string,"/")
  #endif
   LISPOBJ_S(dot_string,".")
- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_UNIX)
+ #if defined(PATHNAME_WIN32) || defined(PATHNAME_UNIX)
   LISPOBJ_S(dotdot_string,"..")
   LISPOBJ_S(dotdotdot_string,"...")
- #endif
- #ifdef PATHNAME_OS2
-  LISPOBJ(pipe_subdirs,"(\"PIPE\")")
- #endif
- #ifdef PATHNAME_OS2
-  LISPOBJ_S(wild_wild_string,"*.*")
- #endif
- #ifdef PATHNAME_OS2
-  LISPOBJ_S(backuptype_string,"bak") # filetype of backupfiles
  #endif
  #ifdef PATHNAME_WIN32
   LISPOBJ_S(backupextend_string,".bak") # name-extension of backupfiles
@@ -459,11 +434,11 @@
  #ifdef PATHNAME_UNIX
   LISPOBJ_S(backupextend_string,"%") # name-extension of backupfiles
  #endif
- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #ifdef PATHNAME_WIN32
   # default-drive (as string of length 1):
   LISPOBJ(default_drive,"NIL")
  #endif
- #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #if defined(PATHNAME_UNIX) || defined(PATHNAME_WIN32)
   LISPOBJ_S(wildwild_string,"**")
   LISPOBJ(directory_absolute,"(:ABSOLUTE)") # directory of the empty absolute pathname
  #endif
@@ -475,10 +450,6 @@
   LISPOBJ(command_shell,"\""SHELL"\"") # command-shell as string
   LISPOBJ(command_shell_option,"\"-c\"") # command-shell-option for command
   LISPOBJ(user_shell,"\"/bin/csh\"") # user-shell as string
- #endif
- #ifdef MSDOS
-  LISPOBJ(command_shell,"\"\\\\COMMAND.COM\"") # command-interpreter as string
-  LISPOBJ(command_shell_option,"\"/C\"") # command-interpreter-option for command
  #endif
  #ifdef WIN32_NATIVE
   LISPOBJ(command_shell,"NIL") # command-interpreter as string

@@ -9,7 +9,7 @@
 ;; Output: a list of simple-strings. empty, when no meaningful completions.
 ;; otherwise, CDR = list of all meaningful completions,
 ;; CAR = the immediate replacement
-#+(or UNIX OS/2)
+#+UNIX
 (let ((state nil))
 (defun completion (string start end)
   (let* ((quotedp (and (>= start 1) ; quoted completion?

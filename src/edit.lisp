@@ -18,7 +18,6 @@
 
 ;; Das temporäre File, das LISP beim Editieren anlegt:
 (defun editor-tempfile ()
-  #+OS/2 "lisptemp.lisp"
   #+(or UNIX WIN32) (merge-pathnames "lisptemp.lisp" (user-homedir-pathname))
 )
 
@@ -34,7 +33,7 @@
   (unless (probe-file file)
     (close (open file :direction :output))
   )
-  #+(or OS/2 WIN32)
+  #+WIN32
     (execute (editor-name) ; das ist der Name des Editors
              (namestring file t) ; file als String
     )

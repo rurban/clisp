@@ -86,7 +86,7 @@ Recommended in the following situations:
 3. emacs, xemacs
    -------------
 
-Platforms: Unix, OS/2, Win32.
+Platforms: Unix, Win32.
 
 Characteristics:
 - GUI editor with pull-down menus.
@@ -165,7 +165,7 @@ Discussion:
 * How to customize Emacs in general?
 
   1. Create a file called .emacs in your home directory. (This file
-     is called \!EMACS on DOS, and _emacs on Win32. [What about OS/2 ??])
+     is called \!EMACS on DOS, and _emacs on Win32.)
      The file called etc/sample.emacs in the XEmacs distribution might
      be a good starting point.
 
