@@ -314,6 +314,9 @@ User visible changes
   + Fixed a crash when using a hash-table as hash-table key.
   + Fixed a crash triggered by the READ-BYTE function on streams with
     element type ([UN]SIGNED-BYTE n), 24 < n < 32, on big-endian platforms.
+  + Fixed a crash that occurred on glibc platforms when writing Unicode
+    characters in the range #\U000E0000..#\U000E007F on a stream with an
+    encoding other than UTF-8.
   + An invalid bignum could be returned by GET-INTERNAL-RUN-TIME on 64-bit
     platforms.
   + Third party code walkers can now handle HANDLER-BIND et al.
