@@ -21,13 +21,8 @@ CL_PROTO_RET([
 #include <unistd.h>
 #endif
 #include <$ac_header_dirent>
-], [
-#if defined(__STDC__) || defined(__cplusplus)
-int closedir (DIR* dir);
-#else
-int closedir();
-#endif
-], cl_cv_proto_closedir_ret, int, void)],
+], [int closedir (DIR* dir);], [int closedir();],
+cl_cv_proto_closedir_ret, int, void)],
 [extern $cl_cv_proto_closedir_ret closedir (DIR*);])
 AC_DEFINE_UNQUOTED(RETCLOSEDIRTYPE,$cl_cv_proto_closedir_ret)
 if test $cl_cv_proto_closedir_ret = void; then

@@ -18,7 +18,14 @@ CL_PROTO_RET(
 #ifdef signal
 #undef signal
 #endif
-], [int (*signal ()) ();], cl_cv_proto_signal_ret, int, void)
+], [
+#ifdef __cplusplus
+int (*signal (int sig, void (*handler)(int))) ();
+#else
+int (*signal ()) ();
+#endif
+], [int (*signal ()) ();],
+cl_cv_proto_signal_ret, int, void)
 AC_MSG_RESULT($cl_cv_proto_signal_ret)
 AC_DEFINE_UNQUOTED(RETSIGTYPE,$cl_cv_proto_signal_ret)
 if test $cl_cv_proto_signal_ret = void; then
