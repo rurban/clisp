@@ -8623,7 +8623,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   /* child's error stream, pipe-input from our side */
   make_launch_pipe (1, true, hparent_errin, child_id);
 
-  value1 = wait_p ? sfixnum(exit_code) : fixnum(child_id);
+  value1 = wait_p ? fixnum(exit_code) : fixnum(child_id);
   value2 = (!HNULLP(hparent_out))   ? (object)STACK_3 : NIL; /* INPUT */
   value3 = (!HNULLP(hparent_in))    ? (object)STACK_2 : NIL; /* OUTPUT */
   value4 = (!HNULLP(hparent_errin)) ? (object)STACK_1 : NIL; /* ERROR */
