@@ -2318,8 +2318,10 @@
             (BLOCK ,block-name
               ,form
               ,@(if maybe-no-applicable
-                  `((,apply-fun 'NO-APPLICABLE-METHOD ',gf
-                                ,@apply-args))))))))))
+                  `((funcall '%NO-APPLICABLE-METHOD ',gf))))))))))
+
+(defun %no-applicable-method (gf)
+  (lambda (args) (no-applicable-method gf args)))
 
 ;; Our EQUAL hash-function looks into cons-trees only upto depth 4.
 ;; A tuple of at most 16 elements can be turned into such a tree.
