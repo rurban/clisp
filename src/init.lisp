@@ -453,6 +453,8 @@
           ;; MOP for classes
           class-prototype class-finalized-p finalize-inheritance
           ;; MOP for specializers
+          specializer-direct-generic-functions specializer-direct-methods
+          eql-specializer-object intern-eql-specializer
           ;; MOP for methods
           ;; MOP for method combinations
           ;; MOP for generic functions
@@ -1766,6 +1768,7 @@
 (LOAD "clos-class0")
 (LOAD "clos-slotdef1")
 (LOAD "clos-stablehash1")
+(LOAD "clos-specializer1")
 
 (LOAD "defstruct")              ; DEFSTRUCT-macro
 
