@@ -1,6 +1,6 @@
 2005-01-04  Sam Steingold  <sds@gnu.org>
 
-	* exporting.lisp (export-acessories): new function
+	* exporting.lisp (export-accessories): new function
 	(defstruct, def-c-struct): use it
 
 2005-01-04  Sam Steingold  <sds@gnu.org>
