@@ -133,7 +133,8 @@
           (when ,raw (close ,raw)))))))
 
 (defvar *http-encoding*
-  (make-encoding :charset charset:utf-8 :line-terminator :dos))
+  (make-encoding #+UNICODE :charset #+UNICODE charset:utf-8
+                 :line-terminator :dos))
 
 (defmacro with-http-output ((var raw &rest opts &key keep-alive (debug 0)
                              (return-code 200) (return-name "OK")

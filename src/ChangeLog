@@ -1,5 +1,20 @@
 2003-04-29  Sam Steingold  <sds@gnu.org>
 
+	fixed --without-unicode build
+	* spvw_debug.d (string_out) [!UNICODE]: implemented
+	* stream.d (rd_ch_array_unbuffered, wr_ch_array_unbuffered_unix)
+	(wr_ch_array_unbuffered_mac, wr_ch_array_unbuffered_dos)
+	(wr_ch_array_buffered_unix) [!UNICODE]: added a cast
+	* inspect.lisp (*http-encoding*) [-UNICODE]: do not
+	pass :CHARSET to MAKE-ENCODING
+	* foreign1.lisp (with-foreign-string) [-UNICODE]: no
+	CUSTOM:*FOREIGN-ENCODING* without UNICODE
+	* foreign.d (CALL-WITH-FOREIGN-STRING) [!UNICODE]:
+	* encoding.d (MAKE-ENCODING) [!UNICODE]: NIL charset is passed
+	when initializing O(default_file_encoding); handle that
+
+2003-04-29  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 729456 ]: --with-readline is silently ignored
 	* makemake.in: fail when --with-readline is supplied but
 	configure does not find a working readline

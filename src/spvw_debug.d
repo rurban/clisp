@@ -31,7 +31,7 @@ global object object_out (object obj) {
 
 #ifdef UNICODE
 /* see string_to_asciz() */
-local void string_out (FILE* out, object str, object encoding) {
+local void string_out_ (FILE* out, object str, object encoding) {
   var uintL len;
   var uintL offset;
   var object string = unpack_string_ro(str,&len,&offset);
@@ -44,8 +44,20 @@ local void string_out (FILE* out, object str, object encoding) {
   fputs((const char*)buffer,out);
   FREE_DYNAMIC_ARRAY(buffer);
 }
+#define string_out(o,s) string_out(o,s,O(terminal_encoding))
 #else /* no UNICODE */
-  /* not implemented */
+local void string_out (FILE* out, object str) {
+  var uintL len;
+  var uintL offset;
+  var object string = unpack_string_ro(str,&len,&offset);
+  var const chart* srcptr= &TheSstring(string)->data[offset];
+  var DYNAMIC_ARRAY(buffer,uintB,len+1);
+  var uintB* destptr = buffer;
+  while (len--) *destptr++ = as_cint(*srcptr++);
+  *destptr++ = '\0'; /* append NULL byte */
+  fputs((const char*)buffer,out);
+  FREE_DYNAMIC_ARRAY(buffer);
+}
 #endif
 
 /* non-consing, STACK non-modifying */
@@ -53,24 +65,24 @@ global object nobject_out (FILE* out, object obj) {
   if (out == NULL) out = stdout;
   if (stringp(obj)) {
     fputc('"',out);
-    string_out(out,obj,O(terminal_encoding));
+    string_out(out,obj);
     fputc('\"',out);
   } else if (charp(obj)) {
     var object name = char_name(char_code(obj));
     fprintf(out,"[%c]",as_cint(char_code(obj)));
     if (!nullp(name)) {
       fputs("=#\\",out);
-      string_out(out,name,O(terminal_encoding));
+      string_out(out,name);
     }
   } else if (symbolp(obj)) {
     var object pack = Symbol_package(obj);
     if (nullp(pack)) fputs("#:",out); /* uninterned symbol */
     else if (eq(pack,O(keyword_package))) fputc(':',out);
     else {
-      string_out(out,ThePackage(pack)->pack_name,O(terminal_encoding));
+      string_out(out,ThePackage(pack)->pack_name);
       fputs("::",out);
     }
-    string_out(out,Symbol_name(obj),O(terminal_encoding));
+    string_out(out,Symbol_name(obj));
   } else if (simple_vector_p(obj)) {
     var uintL len = vector_length(obj);
     var uintL idx = 0;
@@ -96,30 +108,26 @@ global object nobject_out (FILE* out, object obj) {
   } else if (functionp(obj)) {
     fputs("#<",out);
     if (subrp(obj)) {
-      string_out(out,
-                 ((as_oint(subr_tab_ptr_as_object(&subr_tab)) <=
-                   as_oint(obj))
-                  && (as_oint(obj) <
-                      as_oint(subr_tab_ptr_as_object(&subr_tab+1))))
-                 ? O(printstring_subr) : O(printstring_addon_subr),
-                 O(terminal_encoding));
+      string_out(out, (((as_oint(subr_tab_ptr_as_object(&subr_tab)) <=
+                         as_oint(obj))
+                        && (as_oint(obj) <
+                            as_oint(subr_tab_ptr_as_object(&subr_tab+1))))
+                       ? O(printstring_subr) : O(printstring_addon_subr)));
       obj = TheSubr(obj)->name;
     } else if (cclosurep(obj)) {
-      string_out(out,
-                 genericfunctionp(obj)
-                 ? O(printstring_generic_function)
-                 : O(printstring_compiled_closure),
-                 O(terminal_encoding));
+      string_out(out, (genericfunctionp(obj)
+                       ? O(printstring_generic_function)
+                       : O(printstring_compiled_closure)));
       obj = TheClosure(obj)->clos_name;
     }
     #ifdef DYNAMIC_FFI
       else if (ffunctionp(obj)) {
-      string_out(out,O(printstring_ffunction),O(terminal_encoding));
+      string_out(out,O(printstring_ffunction));
       obj = TheFfunction(obj)->ff_name;
     }
     #endif
       else { /* interpreted closure */
-      string_out(out,O(printstring_closure),O(terminal_encoding));
+      string_out(out,O(printstring_closure));
       obj = TheIclosure(obj)->clos_name;
     }
     fputc(' ',out);
@@ -127,7 +135,7 @@ global object nobject_out (FILE* out, object obj) {
     fputc('>',out);
   } else if (fsubrp(obj)) {
     fputs("#<",out);
-    string_out(out,O(printstring_fsubr),O(terminal_encoding));
+    string_out(out,O(printstring_fsubr));
     fputc(' ',out);
     nobject_out(out,TheFsubr(obj)->name);
     fputc('>',out);
