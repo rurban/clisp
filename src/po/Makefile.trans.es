@@ -1,4 +1,4 @@
-# This is the translator's makefile, not the user's makefile.
+# This is the translator's -*- makefile -*-, not the user's makefile.
 
 # Package name.
 PACKAGE = clisp
