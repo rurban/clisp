@@ -2541,3 +2541,14 @@
     `(FORMATTER-HAIRY ,(coerce control-string 'simple-string))))
 
 ;;; ---------------------------------------------------------------------------
+
+;; (FORMAT-QUOTE string)
+;; returns a format-string that yields exactly the given string.
+(defun format-quote (string)
+  (let ((qstring (make-array 10 :element-type 'character
+                                :adjustable t :fill-pointer 0)))
+    (map nil #'(lambda (c)
+                 (when (eql c #\~) (vector-push-extend #\~ qstring))
+                 (vector-push-extend c qstring))
+         string)
+    qstring))
