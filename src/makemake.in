@@ -441,7 +441,6 @@ case $# in
      GROFF='groff'
      GMALLOC=''
      LIBS=''
-     LIBTERMCAP='-ltermcap'
      LIBDL=''
      LIBICONV=''
      X_INCLUDES=''
@@ -708,7 +707,7 @@ fi
 OS_INCLUDES=''
 if [ $TSYS = master -o $TOS = unix ] ; then
   OS_INCLUDES=$OS_INCLUDES' unix'
-  LIBS=$LIBS' '$LIBTERMCAP' '$LIBDL' '$LIBICONV
+  LIBS=$LIBS' '$LIBDL' '$LIBICONV
 fi
 if [ $TSYS = master -o $TOS = amiga ] ; then
   OS_INCLUDES=$OS_INCLUDES' amiga'
@@ -1286,7 +1285,6 @@ if [ $TOS = unix -o $TOS = os2 ] ; then
     XCFLAGS=$XCFLAGS' -DNO_READLINE'
   else
     FILES='libnoreadline.a '$FILES
-    LIBS=${LIBS}' -lreadline'
   fi
 fi
 
@@ -2662,7 +2660,7 @@ for f in ${DATA_FILES_TOP_PATH}; do
 done
 echol
 
-echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_SIGSEGVLIB}${SYSLIBS} data"
+echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_GETTEXTLIB} ${XCL_SIGSEGVLIB}${SYSLIBS} data"
 if [ $HOS != os2 -a $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.

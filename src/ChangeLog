@@ -1,5 +1,14 @@
 2002-07-19  Sam Steingold  <sds@gnu.org>
 
+	* m4/termcap.m4 (CL_TERMCAP): use AC_SEARCH_LIBS
+	* m4/readline.m4 (CL_READLINE): AC_REQUIRE CL_TERMCAP;
+	check for the readline library, not just the header
+	* configure (conf_dir): new function
+	* makemake.in (LIBS): LIBTERMCAP and LIBREADLINE
+	get into LIBS automagically
+
+2002-07-19  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (GNU_GETTEXT): define based on NO_GETTEXT and
 	ENABLE_NLS, not complex heuristics
 
