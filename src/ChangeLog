@@ -1,5 +1,27 @@
 1999-02-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Make BASE-CHAR equivalent to CHARACTER.
+        * lispbibl.d (small_char_int_len): Renamed from base_char_int_len.
+          (small_char_int_limit): Renamed from base_char_int_limit.
+          (scint): Renamed from bcint.
+          (small_char_code_limit): Renamed from base_char_code_limit.
+          (base_char_int_len, base_char_code_limit): New macros.
+          (base_char_p): Define only when needed.
+          (small_char_p): New macro.
+        * charstrg.d (SYSTEM::BASE-CHAR-P): Define only when needed.
+        * spvw.d (init_object_tab): Add :BASE-CHAR=CHARACTER to *features*.
+        * io.d: Update.
+        * defs2.lsp (dispatch-reader): Don't use base-char-p and
+          base-char-code-limit.
+          (designator): Depend upon :BASE-CHAR=CHARACTER.
+          (base-char-designator-p): Define only when needed.
+        * type.lsp (BASE-CHAR, EXTENDED-CHAR, canonicalize-type): Depend
+          upon :BASE-CHAR=CHARACTER.
+        * compiler.lsp (c-typep-alist1, c-typep-alist2): Treat BASE-CHAR
+          and EXTENDED-CHAR depending upon :BASE-CHAR=CHARACTER.
+
+1999-02-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Improve the speed of NLS charset conversions.
         * utils/unicode/nls_table.java: Emit a value for is_ascii_extension.
         * encoding.d (nls_table): New field `is_ascii_extension'.

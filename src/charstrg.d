@@ -726,15 +726,15 @@ LISPFUNN(string_char_p,1) # (STRING-CHAR-P char), CLTL S. 235
     yes: value1 = T; mv_count=1; return;
   }
 
+#if (base_char_code_limit < char_code_limit)
 LISPFUNN(base_char_p,1) # (SYSTEM::BASE-CHAR-P char)
   { var object arg = popSTACK(); # Argument
     if (!charp(arg)) fehler_char(arg); # muss ein Character sein
-    #if (base_char_code_limit < char_code_limit)
     if (as_cint(char_code(arg)) >= base_char_code_limit) goto no; else goto yes;
     no: value1 = NIL; mv_count=1; return;
-    #endif
     yes: value1 = T; mv_count=1; return;
   }
+#endif
 
 LISPFUNN(alpha_char_p,1) # (ALPHA-CHAR-P char), CLTL S. 235
 # Teste mit ALPHAP.
