@@ -1,5 +1,9 @@
 2004-06-03  Sam Steingold  <sds@gnu.org>
 
+	* backquot.tst: CLISP now produces a much better result on one test
+
+2004-06-03  Sam Steingold  <sds@gnu.org>
+
 	* number2.tst: test all transcendental functions at #C(1 2)
 	* lists152.tst (last): check the list argument for circularity,
 	do not accept ATOMs

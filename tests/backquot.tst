@@ -33,7 +33,7 @@ ERROR
 
 (let ((list '(a b c d)))
   `(foo `(bar ,@',(mapcar #'(lambda (sym) `(baz ',sym ,sym)) list))))
-(FOO (LIST* 'BAR '((BAZ 'A A) (BAZ 'B B) (BAZ 'C C) (BAZ 'D D))))
+(FOO '(BAR (BAZ 'A A) (BAZ 'B B) (BAZ 'C C) (BAZ 'D D)))
 
 `#(1 2 3 4)
 #(1 2 3 4)
