@@ -1,5 +1,13 @@
 2002-12-12  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (key_event): renamed to key_event_t
+	(add_keybinding): renamed to keybinding();
+	second argument is a struct, not a pointer now
+	(keybinding): removed the macro
+	(make_keyboard_stream): use new macros BIND_KEY() and CHECK_CAP()
+
+2002-12-12  Sam Steingold  <sds@gnu.org>
+
 	reversed the 2001-11-27 patch: elt_nreverse() reverses
 	_bits_ in the bitvector, while we need to swap _bytes_
 	* stream.d (byte_swap): new function
