@@ -383,7 +383,7 @@ LISPFUN(read_char,0,4,norest,nokey,0,NIL)
 LISPFUN(unread_char,1,1,norest,nokey,0,NIL)
 LISPFUN(peek_char,0,5,norest,nokey,0,NIL)
 LISPFUN(listen,0,1,norest,nokey,0,NIL)
-LISPFUNN(real_listen,1)
+LISPFUNN(read_char_status,1)
 LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
 LISPFUN(clear_input,0,1,norest,nokey,0,NIL)
 LISPFUN(read_from_string,1,2,norest,key,3,

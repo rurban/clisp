@@ -135,7 +135,7 @@ string of a special file to be OPENed, e.g. \"RAW:0/11/581/231/Window Title\"."
   (read-char (controller-stream controller))
 )
 
-(defmethod generic-stream-listen ((controller screen-controller))
+(defmethod generic-stream-read-char-status ((controller screen-controller))
   (generic-raw-mode controller nil) ;; want to switch to cooked mode
   (if (listen (controller-stream controller)) ':input-available ':wait)
 )
@@ -404,7 +404,7 @@ Will flush pending characters!"
   (read-keyboard-char (controller-stream controller))
 )
 
-(defmethod generic-stream-listen ((controller screen-controller))
+(defmethod generic-stream-read-char-status ((controller screen-controller))
   (generic-raw-mode controller t) ;; need to switch to raw mode
   (if (listen (controller-stream controller)) ':input-available ':wait)
 )
