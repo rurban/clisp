@@ -1,5 +1,17 @@
 2000-11-08  Bruno Haible  <haible@clisp.cons.org>
 
+        * pathname.d (delete_file_if_exists) [WIN32_NATIVE]: Treat
+          ERROR_BAD_NETPATH like ERROR_PATH_NOT_FOUND.
+          (rename_file_to_nonexisting) [WIN32_NATIVE]: Likewise.
+          (assure_dir_exists) [WIN32_NATIVE]: Likewise.
+          (directory_exists) [WIN32_NATIVE]: Likewise.
+          (open_input_file) [WIN32_NATIVE]: Likewise.
+          (READDIR_findfirst) [WIN32_NATIVE]: Likewise.
+          (check_stat_directory) [WIN32_NATIVE]: Likewise.
+          (FILE-WRITE-DATE) [WIN32_NATIVE]: Likewise.
+
+2000-11-08  Bruno Haible  <haible@clisp.cons.org>
+
         * aclocal.m4 (CL_SIGNAL_UNBLOCK): Enable 'volatile' for gotsig,
           wasblocked.
           (CL_SIGNAL_BLOCK_OTHERS): Enable 'volatile' for gotsig,
