@@ -77,7 +77,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
   (unless (stringp address) (setq address (format nil "~A" address)))
   (let ((tempfilename (format nil "/tmp/gdbcomm~D" pid))
         (outfilename (format nil "/tmp/gdbdis~D" pid))
-        :: On Windows older than Windows XP, we cannot use gdb on the live
+        ;; On Windows older than Windows XP, we cannot use gdb on the live
         ;; process, due to a limitation of the Win32 API.
         ;; See http://sources.redhat.com/ml/cygwin/2003-06/msg00933.html
         (use-live-process (and #+(or WIN32 CYGWIN) nil)))
