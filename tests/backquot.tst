@@ -116,6 +116,15 @@ X
 (2 3 . #(4 5))
 
 #+:enable-risky-tests
+(let ((o 1))
+  (declare (special o))
+  (eval (let ((a 2) (b 3))
+          (declare (special o a b))
+          ``(,o ,@',(mapcar #'symbol-value '(a b))))))
+#+:enable-risky-tests
+(1 2 3)
+
+#+:enable-risky-tests
 (let ((env 1))
   (eval
    (let ((get-code '(:a 12 :b 45 :double (* %buffer 2))))
