@@ -501,9 +501,7 @@ LISPFUNN(symbol_macro_p,1) {
 #        (values t (sys::%record-ref (%symbol-value v) 0))
 # ) )
 LISPFUNN(symbol_macro_expand,1) {
-  var object obj = popSTACK();
-  if (!symbolp(obj))
-    fehler_symbol(obj);
+  var object obj = test_symbol(popSTACK());
   obj = Symbol_value(obj);
   if (!symbolmacrop(obj)) {
     VALUES1(NIL); return;

@@ -811,9 +811,7 @@ global object var_stream (object sym, uintB strmflags) {
 # open Stream with Direction direction (:PROBE, :INPUT, :OUTPUT or :IO) .
 LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL) {
   var object direction = popSTACK();
-  var object symbol = popSTACK();
-  if (!symbolp(symbol))
-    fehler_symbol(symbol);
+  var object symbol = test_symbol(popSTACK());
   VALUES1(var_stream(symbol,(uintB)(
                     eq(direction,S(Kinput)) ? strmflags_rd_ch_B : /* :INPUT */
                     eq(direction,S(Koutput)) ? strmflags_wr_ch_B : /* :OUTPUT */
