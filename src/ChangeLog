@@ -1,3 +1,10 @@
+1998-10-29  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * makemake.in: Keep "-norc" out of the localeflags.
+        * user1.lsp (load-rc-file): Use `load'. Filename is OS dependent.
+          (help): Don't mention Ctrl-D, it's Ctrl-Z on DOS, OS/2, Win32.
+        * _clisp.1: Update accordingly.
+
 1998-10-28  Sam Steingold  <sds@goems.com>
 
 	* spvw.d (main): added a new command line option -norc; load
@@ -6,7 +13,6 @@
 	* makemake.in: give lisp.run options -norc on build
 	* user1.lsp (load-rc-file): new function.
 	  (help): more verbose message.
-	* constobj.d: ditto.
 	* _clisp.1: document it.
 
 1998-10-27  Sam Steingold  <sds@goems.com>
