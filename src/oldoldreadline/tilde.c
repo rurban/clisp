@@ -28,7 +28,7 @@
 #endif
 #include <string.h> /* declares strlen(), strcmp(), strncmp(), strcpy(), strncpy(), strcat() */
 
-#if !(defined(__MSDOS__) || defined(__EMX__))
+#if !(defined(__MSDOS__) || defined(__EMX__) || defined(WIN32))
 #include <pwd.h> /* declares getpwnam(), getpwuid(), endpwent() */
 extern struct passwd *getpwnam (/* [const] char *name */);
 extern struct passwd *getpwuid RL((GETPWUID_UID_T uid));
@@ -217,7 +217,7 @@ tilde_expand_word (filename)
 	  /* Prepend $HOME to the rest of the string. */
 	  char *temp_home = getenv ("HOME");
 
-#if !(defined(__MSDOS__) || defined(__EMX__))
+#if !(defined(__MSDOS__) || defined(__EMX__) || defined(WIN32))
 	  /* If there is no HOME variable, look up the directory in
 	     the password database. */
 	  if (!temp_home)
@@ -241,7 +241,7 @@ tilde_expand_word (filename)
 	}
       else
 	{
-#if !(defined(__MSDOS__) || defined(__EMX__))
+#if !(defined(__MSDOS__) || defined(__EMX__) || defined(WIN32))
 	  struct passwd *user_entry;
 #endif
 	  char *username = (char *)alloca (strlen (dirname));
@@ -256,7 +256,7 @@ tilde_expand_word (filename)
 	    }
 	  username[i - 1] = '\0';
 
-#if !(defined(__MSDOS__) || defined(__EMX__))
+#if !(defined(__MSDOS__) || defined(__EMX__) || defined(WIN32))
 	  if (!(user_entry = getpwnam (username)))
 	    {
 #endif
@@ -281,7 +281,7 @@ tilde_expand_word (filename)
 		    }
 		}
 	      /* We shouldn't report errors. */
-#if !(defined(__MSDOS__) || defined(__EMX__))
+#if !(defined(__MSDOS__) || defined(__EMX__) || defined(WIN32))
 	    }
 	  else
 	    {
