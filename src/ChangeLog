@@ -1,5 +1,14 @@
 2005-03-07  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/configure.in: use AC_FUNC_CHOWN
+
+2005-03-07  Sam Steingold  <sds@gnu.org>
+
+	* m4/alloca.m4 (CL_ALLOCA): define HAVE_ALLOCA_H to 1 for
+	compatibility with AC_FUNC_ALLOCA
+
+2005-03-07  Sam Steingold  <sds@gnu.org>
+
 	* modules/regexp/regex.c, modules/regexp/regex.h:
 	upgraded to gnulib CVS head
 
