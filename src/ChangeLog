@@ -72,7 +72,8 @@
 1999-01-27  Sam Steingold  <sds@goems.com>
 
         * spvw.d (print_banner): updated copyright statements.
-	(main): actually call print_banner.
+	(print_license): new function.
+	(main): call print_banner and print_license.
 
 1999-01-27  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
@@ -97,10 +98,10 @@
 1999-01-25  Sam Steingold  <sds@goems.com>
 
 	* spvw.d (main): expanded --help, added --license, removed trailing
-	  whitespace.
-          (print_banner): New function.
-          (argv_license): New variable.
-          (copyright_notice): Remove.
+	whitespace.
+	(print_banner): New function.
+	(argv_license): New variable.
+	(copyright_notice): Remove.
 
 1999-01-25  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
