@@ -236,20 +236,19 @@ DEFCHECKER(check_priority_which,prefix=PRIO,default=0, PROCESS PGRP USER)
 DEFUN(OS:PRIORITY, pid &optional which) {
   int which = check_priority_which(popSTACK());
   int pid = posfixnum_to_L(check_posfixnum(popSTACK()));
-#if defined(HAVE_GETPRIORITY)
   int res;
+#if defined(HAVE_GETPRIORITY)
   errno = 0;
   begin_system_call();
   res = getpriority(which,pid);
   end_system_call();
   if (errno) OS_error();
 #elif defined(WIN32_NATIVE)
-  DWORD res;
   HANDLE handle;
   begin_system_call();
   handle = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,pid);
   if (handle == NULL) OS_error();
-  res = GetPriorityClass(handle);
+  res = (int)GetPriorityClass(handle);
   CloseHandle(handle);
   end_system_call();
 #else
