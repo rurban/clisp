@@ -1,5 +1,15 @@
 2003-08-14  Sam Steingold  <sds@gnu.org>
 
+	ANSI compliance: macro definitions respects the lexical environment
+	* defmacro.lisp (make-macro-expander): accept the second argument
+	- the current lexical environment
+	* compiler.lisp (insert-combined-LAPs): avoid ANSI-"undefined" code
+	* control.d (aktenv_to_stack): new function, extracted from ...
+	(compile_eval_form): call aktenv_to_stack()
+	(MACROLET): pass aktev as the second argument to MAKE-MACRO-EXPANDER
+
+2003-08-14  Sam Steingold  <sds@gnu.org>
+
 	* modules/netica/wrap.lisp (adjust-number-of-states): new function
 	(GetNodeLevels): new wrapper
 	(error-message, node-info): use ENUM-FROM-VALUE

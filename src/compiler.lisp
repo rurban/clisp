@@ -9093,7 +9093,7 @@ This step works on the code-list and changes is destructively.
                  ;; replaces the next length elements
                  ;; (nth 0 middle) ... (nth (- length 1) middle)
                  ;; by one single element new-code.
-                 (assert (typep length '(INTEGER 0 4)))
+                 (check-type length (INTEGER 0 4))
                  `(progn
                     ,(case length
                        (0 `(setf (cdr middle)
@@ -9101,11 +9101,11 @@ This step works on the code-list and changes is destructively.
                                  (car middle) ,new-code))
                        (1 `(setf (car middle) ,new-code))
                        (t `(setf (car middle) ,new-code
-                                 (cdr middle) ,(setq right
-                                                     (case length
-                                                       (2 `(cdr right))
-                                                       (3 `(cddr right))
-                                                       (4 `(cdddr right)))))))
+                                 (cdr middle) (setq right
+                                                    ,(case length
+                                                       (2 '(cdr right))
+                                                       (3 '(cddr right))
+                                                       (4 '(cdddr right)))))))
                     (go next))))
       (let ((item (car middle)))
         (when (consp item)

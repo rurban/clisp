@@ -372,6 +372,27 @@ nonreturning_function(local, fehler_docstring, (object caller, object body)) {
          GETTEXT("~: doc-strings are not allowed here: ~"));
 }
 
+/* get the 5 environment objects to the stack
+ adds 5 elements to the STACK */
+local inline void aktenv_to_stack (void) {
+  /* nest current environment, push on STACK */
+  var gcv_environment_t* stack_env = nest_aktenv();
+ #if !defined(STACK_UP)
+  /* and transfer here */
+  var object my_var_env = stack_env->var_env;
+  var object my_fun_env = stack_env->fun_env;
+  var object my_block_env = stack_env->block_env;
+  var object my_go_env = stack_env->go_env;
+  var object my_decl_env = stack_env->decl_env;
+  skipSTACK(5); /* and take away from STACK again */
+  pushSTACK(my_var_env); /* second argument */
+  pushSTACK(my_fun_env); /* third argument */
+  pushSTACK(my_block_env); /* fourth argument */
+  pushSTACK(my_go_env); /* fifth argument */
+  pushSTACK(my_decl_env); /* sixth argument */
+ #endif
+}
+
 /* UP for LET, LET*, LOCALLY, MULTIPLE-VALUE-BIND, SYMBOL-MACROLET:
  Compiles the current form and executes it in compiled state.
  compile_form()
@@ -382,24 +403,8 @@ local Values compile_eval_form (void)
 { /* execute (SYS::COMPILE-FORM form venv fenv benv genv denv) :
      get the whole form from the EVAL-frame in the stack: */
   pushSTACK(STACK_(frame_form)); /* as first argument */
-  {
-    var gcv_environment_t* stack_env = nest_aktenv(); /* nest current environment, push on STACK */
-   #if !defined(STACK_UP)
-    /* and transfer here */
-    var object my_var_env = stack_env->var_env;
-    var object my_fun_env = stack_env->fun_env;
-    var object my_block_env = stack_env->block_env;
-    var object my_go_env = stack_env->go_env;
-    var object my_decl_env = stack_env->decl_env;
-    skipSTACK(5); /* and take away from STACK again */
-    pushSTACK(my_var_env); /* second argument */
-    pushSTACK(my_fun_env); /* third argument */
-    pushSTACK(my_block_env); /* fourth argument */
-    pushSTACK(my_go_env); /* fifth argument */
-    pushSTACK(my_decl_env); /* sixth argument */
-   #endif
-    funcall(S(compile_form),6);
-  }
+  aktenv_to_stack();
+  funcall(S(compile_form),6);
   /* call the freshly compiled closure with 0 arguments: */
   funcall(value1,0);
 }
@@ -1019,8 +1024,10 @@ LISPSPECFORM(macrolet, 1,0,body)
     if (!mconsp(Cdr(macrodefs)))
       goto fehler_spec;
     pushSTACK(name); /* save name */
-    /* build macro-expander: (SYSTEM::MAKE-MACRO-EXPANDER macrodef) */
-    pushSTACK(macrodefs); funcall(S(make_macro_expander),1);
+    /* build macro-expander: (SYSTEM::MAKE-MACRO-EXPANDER macrodef env) */
+    aktenv_to_stack();
+    { object vec = vectorof(5); pushSTACK(macrodefs); pushSTACK(vec); }
+    funcall(S(make_macro_expander),2);
     name = popSTACK();
     macrodefs = popSTACK(); /* remaining macrodefs */
     body = popSTACK();
