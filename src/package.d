@@ -1835,8 +1835,8 @@ local object test_package_arg (object obj) {
     if (!pack_deletedp(obj))
       return obj;
     pushSTACK(obj); # PACKAGE-ERROR slot PACKAGE
-    pushSTACK(obj);
-    fehler(package_error,GETTEXT("Package ~ has been deleted."));
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(package_error,GETTEXT("~: Package ~ has been deleted."));
   }
   if (stringp(obj)) {
   string: # string -> search package with name obj:
@@ -1844,8 +1844,8 @@ local object test_package_arg (object obj) {
     if (!nullp(pack))
       return pack;
     pushSTACK(obj); # PACKAGE-ERROR slot PACKAGE
-    pushSTACK(obj);
-    fehler(package_error,GETTEXT("There is no package with name ~"));
+    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+    fehler(package_error,GETTEXT("~: There is no package with name ~"));
   }
   if (symbolp(obj)) { # symbol ->
     obj = Symbol_name(obj); goto string; # use print name
@@ -2046,14 +2046,27 @@ LISPFUNN(set_package_lock,2) {
   value1 = (eq(lock_p,NIL) ? NIL : T); mv_count = 1;
 }
 
-# (SYSTEM::CHECK-PACKAGE-LOCK function package symbol)
+/* barf when SYMBOL is an unaccessible special variable
+   being modified from a non-home package.
+   See compiler.lisp:symbol-value-check-lock.
+   can trigger GC */
+global void symbol_value_check_lock (object caller, object symbol) {
+  var object pack = Symbol_package(symbol);
+  if (!nullp(pack) && !eq(pack,Symbol_value(S(packagestern))) /* non-home */
+      && special_var_p(TheSymbol(symbol))  /* special */
+      && !accessiblep(symbol,Symbol_value(S(packagestern)))) /* accessible */
+    check_pack_lock(caller,pack,symbol);
+}
+
+/* (SYSTEM::CHECK-PACKAGE-LOCK caller package symbol)
+   when FUNCTION is (P)SETQ, calls symbol_value_check_lock() */
 LISPFUNN(check_package_lock,3) {
-  if (mconsp(STACK_1)) { # package is actually a clist of packages
+  if (mconsp(STACK_1)) { /* package is actually a list of packages */
     var bool locked = true;
     var object list = STACK_1;
-    # for the package list to be "locked", _all_ members must be locked
-    # non-package members means that the argument was something like
-    # (eql 1), which means unlocked: you can always redefine such methods
+    /* for the package list to be "locked", _all_ members must be locked
+       non-package members mean that the argument was a defmethod spec like
+       (eql 1), which means unlocked: you can always redefine such methods */
     while (locked && mconsp(list)) {
       locked = (packagep(Car(list)) ? pack_locked_p(Car(list)) : false);
       list = Cdr(list);
@@ -2488,7 +2501,7 @@ LISPFUNN(delete_package,1) {
   pushSTACK(pack);
   if (!nullp(ThePackage(pack)->pack_used_by_list)) {
     # raise Continuable Error:
-    pushSTACK(NIL); # "~*~S is deleted nevertheless."
+    pushSTACK(NIL); /* "~*Delete ~S anyway." */
     pushSTACK(S(package_error)); # PACKAGE-ERROR
     pushSTACK(S(Kpackage)); # :PACKAGE
     pushSTACK(pack); # package
@@ -2496,7 +2509,7 @@ LISPFUNN(delete_package,1) {
     pushSTACK(S(delete_package));
     pushSTACK(pack);
     pushSTACK(ThePackage(pack)->pack_used_by_list);
-    STACK_7 = CLSTEXT("~*Nevertheless delete ~S.");
+    STACK_7 = CLSTEXT("~*Delete ~S anyway.");
     STACK_3 = CLSTEXT("~S: ~S is used by ~{~S~^, ~}.");
     # (SYS::CERROR-OF-TYPE "..." 'PACKAGE-ERROR :PACKAGE pack "..."
     # 'DELETE-PACKAGE pack used-by-list)

@@ -981,7 +981,7 @@ or
 <literal role="sexp" >(without-package-lock () ...)</literal>
 temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>
 
-<formalpara><title>Rationale - see also
+<formalpara><title>Discussion - see also
   <ulink url="http://groups.google.com/groups?hl=en&amp;lr=&amp;ie=UTF-8&amp;selm=3C3E7F57.7F80395%40pacbell.net">the USENET posting</ulink> by
 <ulink url="mailto:haflich@pacbell.net">Steven M. Haflich</ulink></title>
 <para>This should prevent you from accidentally hosing yourself with
@@ -989,6 +989,12 @@ temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>
  (defstruct instance ...)
 </programlisting>
 and allow enforcing modularity.
+Note that you will also get the continuable error when you try to
+assign (with &setq;, &psetq;, etc.) a value to a special variable
+living in a locked package and not accessible in your current
+&package-var;, but only in the interpreted code and during compilation.
+There is no check for package locks in compiled code because of the
+performance considerations.
 </para></formalpara>
 
 </section>

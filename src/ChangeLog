@@ -1,5 +1,16 @@
 2002-07-11  Sam Steingold  <sds@gnu.org>
 
+	extended package locking to assignments and bindings
+	* compiler.lisp (set-check-lock, bind-check-lock): new functions
+	(c-SETQ, c-PSETQ, c-MULTIPLE-VALUE-SETQ): use SET-CHECK-LOCK
+	(c-LET/LET*, c-MULTIPLE-VALUE-BIND): use BIND-CHECK-LOCK
+	* package.d (symbol_value_check_lock): new function
+	* lispbibl.d (symbol_value_check_lock): declare
+	* control.d (LET, LET*, COMPILER-LET): use it
+	* eval.d (progv, setq): ditto
+
+2002-07-11  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 580090 ]: unbound SYSTEM::*COMPILING-FROM-FILE*
 	error on (lambda () (defmethod ...))
 	* init.lisp (%expand-form): when evaluating (EVAL-WHEN (COMPILE))

@@ -546,7 +546,10 @@ global void progv (object symlist, object vallist) {
       fehler(program_error,
              GETTEXT("~: ~ is a constant, cannot be bound dynamically"));
     }
-    pushSTACK(Symbol_value(sym)); # old value of the variables
+    pushSTACK(symlistr);
+    symbol_value_check_lock(S(progv),sym);
+    symlistr = STACK_0;
+    STACK_0 = Symbol_value(sym); # old value of the variables
     pushSTACK(sym); # variable
     symlistr = Cdr(symlistr);
   }
@@ -883,7 +886,10 @@ global bool sym_macrop (object sym) {
         #undef binds_sym_p
       }
      global_value: #  global (dynamic) value of the Symbols
-      Symbol_value(sym) = value; return;
+      pushSTACK(value); pushSTACK(sym);
+      symbol_value_check_lock(S(setq),sym);
+      Symbol_value(STACK_0) = STACK_1;
+      skipSTACK(2); return;
     }
 
 # UP: returns for a Symbol its function definition in an Environment
