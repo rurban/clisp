@@ -24,9 +24,11 @@
 #   #define update_fp_invalid ...
 #   #define update_fsubr_function ...
 #   #define update_fs_function ...
+#   #define update_weak_pointers ...
 #   #define update_page ...
 #   update_varobjects();
 #   #undef update_page
+#   #undef update_weak_pointers
 #   #undef update_fs_function
 #   #undef update_fsubr_function
 #   #undef update_fp_invalid
@@ -43,8 +45,17 @@
 # Same, but here update(objptr) may modify *objptr. and the
 # value before update should be taken while following the list.
 #   update_weakpointers_mod();
-# ditto for weak key-value tables:
-#   update_weakkvtables() and update_weakkvtables_mod()
+# update_weakpointers() is to be used _after_ the objects have moved, and it
+# must come after update_tables() because it uses O(all_weakpointers) and
+# expects that O(all_weakpointers) has already been updated.
+# update_weakpointers_mod() is to be used _before_ the big sweep operation,
+# and it must come before update_tables() because it uses O(all_weakpointers)
+# and expects that O(all_weakpointers) is still pointing to the old location.
+
+# Update the list of weak key/value tables.
+#   update_weakkvtables();
+# or
+#   update_weakkvtables_mod();
 
 # Update the stacks.
 #   #define update_stackobj ...
@@ -152,7 +163,12 @@
     }                                                                     \
    {var uintC count = (record_type((Record)ptr) < rectype_limit           \
                        ? srecord_length((Srecord)ptr)                     \
-                       : xrecord_length((Xrecord)ptr));                   \
+                       : xrecord_length((Xrecord)ptr)                     \
+                         + (update_weak_pointers                          \
+                            && (record_type((Record)ptr) == Rectype_Weakpointer \
+                                || record_type((Record)ptr) == Rectype_WeakKVT) \
+                            ? xrecord_xlength((Xrecord)ptr)/sizeof(gcv_object_t) \
+                            : 0));                                        \
     if (count != 0) {                                                     \
       var gcv_object_t* p = &((Record)ptr)->recdata[0];                   \
       dotimespC(count,count, { update(p); p++; } );                       \
