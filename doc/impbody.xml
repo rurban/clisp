@@ -2442,13 +2442,6 @@ be one of &fasthash-eq;, &stablehash-eq;.</para>
  must be one of <constant>EXT:FASTHASH-EQUAL</constant>,
  <constant>EXT:STABLEHASH-EQUAL</constant>.</para>
 
-<para>The <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> argument,
-if true, causes a warning to be signalled when an object is stored into
-the table which will force table reorganizations at the first access
-of the table after each GC. This keyword argument can be used to check
-whether &stablehash-eq; should be preferred over
-&fasthash-eq; for a particular table.</para>
-
 <para>The <constant>:INITIAL-CONTENTS</constant> argument is an
  &alist; that is used to initialize the new hash table.</para>
 
@@ -2479,17 +2472,33 @@ checks whether the &hash-table-t; is weak.</para>
 
 <para>See also <olink targetdoc="impnotes" targetptr="weak-ht"/>.</para>
 
+<section id="hashtable-gc-rehash"><title>Interaction between
+  &hash-table-t;s and &gc;ion.</title>
+
+<para>--- Bruno! ---</para>
+
+<para>The <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> argument,
+if true, causes a &warning-t; to be &signal;led when an object is stored
+into the table which will force table reorganizations at the first
+access of the table after each &gc;ion.
+This keyword argument can be used to check whether &stablehash-eq;
+should be preferred over &fasthash-eq; for a particular table.
+Use <function>HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC</function>
+to check and &setf; this parameter after the table has been created.</para>
+
 <para>While <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> can help
- checking the efficiency of a particular hash table, the variable
+ checking the efficiency of a particular &hash-table-t;, the variable
 <firstterm>&warn-on-hashtable-needing-rehash-after-gc;
  <indexterm id="hashtable-gc-rehash-warn" significance="preferred">
   <primary id="hashtable-gc-rehash-warn-i">
    <varname>*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</varname>
 </primary></indexterm></firstterm>
- achieves the same effect for all hash tables in the system at once:
- when &warn-on-hashtable-needing-rehash-after-gc; is true and a hash
- table needs to be rehashed after a &gc;ion, a warning is issued that
- shows the inefficient hash table.</para>
+ achieves the same effect for all &hash-table-t;s in the system at once:
+ when &warn-on-hashtable-needing-rehash-after-gc; is true and a
+ &hash-table-t; needs to be rehashed after a &gc;ion, a warning is
+ issued that shows the inefficient &hash-table-t;.</para>
+
+</section>
 
 </section>
 
