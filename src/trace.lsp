@@ -112,88 +112,73 @@
          (format t (ENGLISH "~&;; Tracing ~:[function~;macro~] ~S.")
                    ,macro-flag ',funname
          )
-         (replace-in-fenv (get ,symbolform 'sys::traced-definition) ',funname
-           ,old-function
-           (setf (get ,symbolform 'sys::tracing-definition)
-             (setf (symbol-function ,symbolform)
-               ; neue Funktion, die die ursprüngliche ersetzt:
-               ,(let ((newname (concat-pnames "TRACED-" (get-funname-symbol funname)))
-                      (body
-                        `((declare (compile) (inline car cdr cons apply values-list))
-                          (let ((*trace-level* (trace-level-inc)))
-                            (block nil
-                              (unless ,suppress-if
-                                (trace-pre-output)
+         (setf (get ,symbolform 'sys::tracing-definition)
+           (setf (symbol-function ,symbolform)
+             ; neue Funktion, die die ursprüngliche ersetzt:
+             ,(let ((newname (concat-pnames "TRACED-" (get-funname-symbol funname)))
+                    (body
+                      `((declare (compile) (inline car cdr cons apply values-list))
+                        (let ((*trace-level* (trace-level-inc)))
+                          (block nil
+                            (unless ,suppress-if
+                              (trace-pre-output)
+                            )
+                            ,@(when pre-print
+                                `((trace-print (multiple-value-list ,pre-print)))
                               )
-                              ,@(when pre-print
-                                  `((trace-print (multiple-value-list ,pre-print)))
+                            ,@(when print
+                                `((trace-print (multiple-value-list ,print)))
+                              )
+                            ,pre
+                            ,@(when pre-break-if
+                                `((when ,pre-break-if (sys::break-loop t)))
+                              )
+                            (let ((*trace-values*
+                                    (multiple-value-list
+                                      (if ,step-if
+                                        (trace-step-apply)
+                                        (apply *trace-function* *trace-args*)
+                                 )) ) )
+                              ,@(when post-break-if
+                                  `((when ,post-break-if (sys::break-loop t)))
                                 )
+                              ,post
                               ,@(when print
                                   `((trace-print (multiple-value-list ,print)))
                                 )
-                              ,pre
-                              ,@(when pre-break-if
-                                  `((when ,pre-break-if (sys::break-loop t)))
+                              ,@(when post-print
+                                  `((trace-print (multiple-value-list ,post-print)))
                                 )
-                              (let ((*trace-values*
-                                      (multiple-value-list
-                                        (if ,step-if
-                                          (trace-step-apply)
-                                          (apply *trace-function* *trace-args*)
-                                   )) ) )
-                                ,@(when post-break-if
-                                    `((when ,post-break-if (sys::break-loop t)))
-                                  )
-                                ,post
-                                ,@(when print
-                                    `((trace-print (multiple-value-list ,print)))
-                                  )
-                                ,@(when post-print
-                                    `((trace-print (multiple-value-list ,post-print)))
-                                  )
-                                (unless ,suppress-if
-                                  (trace-post-output)
-                                )
-                                (values-list *trace-values*)
-                         )) ) )
-                     ))
-                  `(if (not ,macro-flag)
+                              (unless ,suppress-if
+                                (trace-post-output)
+                              )
+                              (values-list *trace-values*)
+                       )) ) )
+                   ))
+                `(if (not ,macro-flag)
+                   (function ,newname
+                     (lambda (&rest *trace-args*
+                              &aux (*trace-form* (make-apply-form ',funname *trace-args*))
+                                   (*trace-function* (get-traced-definition ,symbolform))
+                             )
+                       ,@body
+                   ) )
+                   (cons 'sys::macro
                      (function ,newname
                        (lambda (&rest *trace-args*
-                                &aux (*trace-form* (make-apply-form ',funname *trace-args*))
-                                     (*trace-function* (get-traced-definition ,symbolform))
+                                &aux (*trace-form* (car *trace-args*))
+                                     (*trace-function* (cdr (get-traced-definition ,symbolform)))
                                )
                          ,@body
-                     ) )
-                     (cons 'sys::macro
-                       (function ,newname
-                         (lambda (&rest *trace-args*
-                                  &aux (*trace-form* (car *trace-args*))
-                                       (*trace-function* (cdr (get-traced-definition ,symbolform)))
-                                 )
-                           ,@body
-                     ) ) )
-                   )
-                )
-       ) ) ) )
+                   ) ) )
+                 )
+              )
+       ) ) )
        '(,funname)
      )
 ) )
 
 ;; Hilfsfunktionen:
-; Funktionsreferenzen, die vom LABELS bei DEFUN kommen, ersetzen:
-(defun replace-in-fenv (fun funname old new)
-  (when (and (sys::closurep fun) (not (compiled-function-p fun)))
-    ; interpretierte Closure
-    (let ((fenv (sys::%record-ref fun 5))) ; Funktions-Environment
-      (when fenv ; falls nichtleer, durchlaufen:
-        (do ((l (length fenv)) ; l = 2 * Anzahl der Bindungen + 1
-             (i 1 (+ i 2)))
-            ((eql i l))
-          (when (and (equal (svref fenv (- i 1)) funname) (eq (svref fenv i) old))
-            (setf (svref fenv i) new)
-        ) )
-) ) ) )
 ; Nächsthöheres Trace-Level liefern:
 (defun trace-level-inc ()
   (%funcall '#,#'1+ *trace-level*)
