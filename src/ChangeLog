@@ -4,7 +4,7 @@
 	(CLOSE_ERRFILE): call time_stamp() before fclose()
 	(my_fopen): call time_stamp() after fopen()
 	* modules/berkeley-db/configure.in: check for gettimeofday(),
-	localtime() and strftime()
+	localtime() and strftime(); also check for <sys/time.h> and <time.h>
 
 2004-08-04  Sam Steingold  <sds@gnu.org>
 
