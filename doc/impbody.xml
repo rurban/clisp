@@ -1074,7 +1074,8 @@ temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>
 
 <formalpara><title>Discussion - see also
   <ulink url="http://groups.google.com/groups?hl=en&amp;lr=&amp;ie=UTF-8&amp;selm=3C3E7F57.7F80395%40pacbell.net">the USENET posting</ulink> by
-<ulink url="mailto:haflich@pacbell.net">Steven M. Haflich</ulink></title>
+  <author><firstname>Steven M.</firstname> <surname>Haflich</surname>
+   <email>haflich@pacbell.net</email></author></title>
 <para>This should prevent you from accidentally hosing yourself with
 <programlisting>
  (&defstruct; instance ...)
@@ -5456,17 +5457,24 @@ exhaust the available line length.</para></formalpara>
 <section id="machine"><title>Machine</title>
 <variablelist>
 <!-- #ifdef MACHINE_KNOWN -->
-<varlistentry><term>Platform dependent: &unix;, &win32; platforms only.</term>
+<varlistentry><term>Platform dependent: &unix; platform only.</term>
  <listitem><simpara>The functions &short-site-name;, &long-site-name;
-  should be defined in a site-specific &config-file; file.
-  </simpara></listitem></varlistentry>
+   should be defined in a site-specific &config-file; file.
+   The default implementations try to read the value of the &env-var;
+   <envar>ORGANIZATION</envar>, and, failing that, call &uname;.
+</simpara></listitem></varlistentry>
+<varlistentry><term>Platform dependent: &win32; platform only.</term>
+ <listitem><simpara>The functions &short-site-name;, &long-site-name;
+   should be defined in a site-specific &config-file; file.
+   The default implementations try to read the registry.
+</simpara></listitem></varlistentry>
 <!-- #else -->
- <varlistentry><term>Platform dependent: &amiga;, &acorn;, &dos;, &os2;
-    platforms only.</term>
+<varlistentry><term>Platform dependent: &amiga;, &acorn;, &dos;, &os2;
+  platforms only.</term>
  <listitem><simpara>The functions &machine-type;, &machine-version;,
-  &machine-instance; and &short-site-name;, &long-site-name; should be
-  defined by every user in his user-specific &config-file; file.
-  </simpara></listitem></varlistentry>
+   &machine-instance; and &short-site-name;, &long-site-name; should be
+   defined by every user in his user-specific &config-file; file.
+</simpara></listitem></varlistentry>
 <!-- #endif -->
 </variablelist>
 
