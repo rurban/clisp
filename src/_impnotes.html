@@ -27,11 +27,13 @@
   * All symbols not in COMMON-LISP (as per ANSI CL) are referenced with
     the package prefix, like this: `lisp:space'.
   * Platform depencencies are emphasized like this:
-<dl>
-<dt><em>Platform dependent: UNIX, DOS, OS/2, Win32, Amiga, Acorn
-platforms only.</em>
-<dd>...
-</dl>
+       <dl>
+        <dt><em>Platform dependent: <strong>UNIX</strong>,
+            <strong>DOS</strong>, <strong>OS/2</strong>,
+            <strong>Win32</strong>, <strong>Amiga</strong>,
+            <strong>Acorn</strong> platforms only.</em>
+         <dd>...
+       </dl>
   * Multi-line code snippets with <sub> and <sup> are passed through
       sed -e 's, ,\&nbsp;,g' -e 's,^,<code>,' -e 's,$,</code><br>,'
     The reverse filter is
@@ -45,7 +47,7 @@ platforms only.</em>
           <code> .....
           ........
           </code></pre>
-    Other combinations don't work:
+    Other combinations do not work:
     - <code><pre>...</pre></code> is not valid HTML, according to the DTD.
     - <pre><code>...</code></pre>
       leaves a blank line in Netscape but not in Lynx.
@@ -55,9 +57,9 @@ platforms only.</em>
     - <pre>
       <code>....</code></pre>
       leaves one blank line in both Netscape and Lynx.
-  * Don't put a <p> before <table ...>. It causes an extraneous blank line
+  * Do not put a <p> before <table ...>. It causes an extraneous blank line
     in Netscape Navigator and Amaya.
-  * Don't put a <p> before <dl>, <ol>, <pre>. It causes an extraneous blank
+  * Do not put a <p> before <dl>, <ol>, <pre>. It causes an extraneous blank
     line in Amaya.
 -->
 
@@ -165,7 +167,7 @@ details.
 <h1><a href="#extensions">Extensions</a></h1>
 
 <ol>
- <li><a href="#extensions"><b>Platform independent Extensions</b></a>
+ <li><a href="#extensions"><b>Platform-independent Extensions</b></a>
   <ol>
    <li><a href="#image">Saving an Image</a>
    <li><a href="#quit">Quitting Lisp</a>
@@ -177,7 +179,7 @@ details.
    <li><a href="#syscalls">System Calls</a>
    <li><a href="#options">Command Line Options</a>
   </ol>
- <li><a href="#platform"><b>Platform specific Extensions</b></a>
+ <li><a href="#platform"><b>Platform-specific Extensions</b></a>
   <ol>
    <li><a href="#screen">Random Screen Access</a>
    <li><a href="#modules">External Modules</a>
@@ -619,10 +621,11 @@ type.
 <h3><a href="CLHSROOT/Body/sec_4-3.html">
     4.3 Classes</a></h3>
 
-<p>The CLOS symbols are exported from the package
-<code>"CLOS"</code> and thus normally visible in all user
-packages. If you don't want them (for example, if you want to use PCL
-instead of CLOS), do <code>(unuse-package "CLOS")</code>.
+<p>The CLOS symbols are exported from the package <code>"CLOS"</code>
+and thus normally visible in all user packages. If you do not want them
+(for example, if you want to use PCL instead of CLOS), do
+<code>(<a href="CLHSROOT/Body/fun_unuse-package.html">unuse-package</a>
+"CLOS")</code>.
 
 <h4>Deviations from ANSI CL:</h4>
 
@@ -1201,7 +1204,7 @@ like. The following rules must be obeyed:
   <a href="CLHSROOT/Body/var_stprint-l_int-lengthst.html">
   <code>*print-level*</code></a>,
   <a href="CLHSROOT/Body/var_stprint-l_int-lengthst.html">
-  <code>*print-length*</code></a> don't matter
+  <code>*print-length*</code></a> are ignored
   if <a href="CLHSROOT/Body/var_stprint-readablyst.html">
   <code>*print-readably*</code></a> is true.  The value of
   <a href="CLHSROOT/Body/var_stprint-readablyst.html">
@@ -1806,8 +1809,8 @@ encoding.
 
 <!-- #ifdef UNICODE -->
 <dl>
-<dt><em>Platform dependent: Only in CLISP built with the
-        compile-time flag <code>UNICODE</code>.</em>
+<dt><em>Platform dependent: Only in CLISP built <strong>with</strong>
+    the compile-time flag <code><strong>UNICODE</strong></code>.</em>
 <dd>
 More precisely, CLISP uses the 16-bit
 <a href="http://www.unicode.org/">Unicode</a> character set (ISO 10646,
@@ -1817,8 +1820,9 @@ also known as UCS-2).
 
 <!-- #if defined(IBMPC_CHS) && !defined(UNICODE) -->
 <dl>
-<dt><em>Platform dependent: DOS, OS/2 platforms only, and only in clisp
-        binaries built without compile-time flag <code>UNICODE</code>.</em>
+<dt><em>Platform dependent: <strong>DOS</strong>, <strong>OS/2</strong>
+    platforms only, and only in CLISP built <strong>without</strong>
+    compile-time flag <code><strong>UNICODE</strong></code>.</em>
 <dd>
 More precisely, CLISP uses the IBM PC character set (code page 437):
 <table border=1>
@@ -1870,9 +1874,11 @@ characters left blank here cannot be represented in this character set).
 
 <!-- #if defined(ISOLATIN_CHS) && !defined(UNICODE) -->
 <dl>
-<dt><em>Platform dependent: UNIX (except NeXTstep), Win32, Amiga, Acorn
-        platforms only, and only in clisp binaries built without
-        compile-time flag <code>UNICODE</code>.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong> (except NeXTstep),
+    <strong>Win32</strong>, <strong>Amiga</strong>,
+    <strong>Acorn</strong> platforms only, and only in CLISP
+    built <strong>without</strong> compile-time flag
+    <code><strong>UNICODE</strong></code>.</em>
 <dd>More precisely, CLISP uses the ISO Latin-1 (ISO 8859-1) character set:
 <table border=1>
   <tr><th><th>#x0 <th>#x1 <th>#x2 <th>#x3 <th>#x4 <th>#x5 <th>#x6 <th>#x7
@@ -1929,8 +1935,9 @@ blank here cannot be represented in this character set).
 
 <!-- #if defined(NEXTSTEP_CHS) && !defined(UNICODE) -->
 <dl>
-<dt><em>Platform dependent: NeXTstep platforms only, and only in clisp
-        binaries built without compile-time flag <code>UNICODE</code>.</em>
+<dt><em>Platform dependent: <strong>NeXTstep</strong> platforms only,
+    and only in clisp built <strong>without</strong> compile-time flag
+    <code><strong>UNICODE</strong></code>.</em>
 <dd>More precisely, CLISP uses the NextStep character set:
 <table border=1>
   <tr><th><th>#x0 <th>#x1 <th>#x2 <th>#x3 <th>#x4 <th>#x5 <th>#x6 <th>#x7
@@ -2001,7 +2008,8 @@ The following are semi-standard characters:
 </table>
 <!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
 <dl>
-<dt><em>Platform dependent: DOS, OS/2, Win32 platforms only.</em>
+<dt><em>Platform dependent: <strong>DOS</strong>, <strong>OS/2</strong>,
+    <strong>Win32</strong> platforms only.</em>
 <dd>
 <table border=1>
   <tr><th align=left><code>#\Rubout</code>             <td> #x08
@@ -2011,7 +2019,8 @@ The following are semi-standard characters:
 
 <!-- #if defined(UNIX_CHARNAMES) || defined(AMIGA_CHARNAMES) -->
 <dl>
-<dt><em>Platform dependent: UNIX, Amiga, Acorn platforms only.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong>,
+    <strong>Amiga</strong>, <strong>Acorn</strong> platforms only.</em>
 <dd>
 <table border=1>
   <tr><th align=left><code>#\Rubout</code>             <td> #x7F
@@ -2048,12 +2057,17 @@ from #x00 to #x1F:
 
 <h3>Attributes</h3>
 
-<p>Characters don't have the CLtL1 font and bits attributes. For
+<p>Characters do not have the CLtL1 font and bits attributes. For
 backward compatibility, there is a class <code>sys::input-character</code>
 representing either a character with font and bits, or a keystroke.
-The following functions work with objects of types <code>character</code>
-and <code>sys::input-character</code>. Note that <code>eql</code> or
-<code>equal</code> can not be used to compare objects of tyoe
+The following functions work with objects of types
+<a href="CLHSROOT/Body/syscla_character.html">
+<code>character</code></a>
+and <code>sys::input-character</code>. Note that
+<a href="CLHSROOT/Body/typspe_eql.html fun_eql.html">
+<code>eql</code></a> or
+<a href="CLHSROOT/Body/fun_equal.html">
+<code>equal</code></a> can not be used to compare objects of type
 <code>sys::input-character</code>.
 
 <dl>
@@ -2088,8 +2102,9 @@ and <code>sys::input-character</code>. Note that <code>eql</code> or
 
 <!-- #ifdef KEYBOARD -->
 <dl>
-<dt><em>Platform dependent: UNIX, DOS, OS/2, Win32, Acorn platforms
-only.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong>, <strong>DOS</strong>,
+    <strong>OS/2</strong>, <strong>Win32</strong>, <strong>Acorn</strong>
+    platforms only.</em>
 <dd>The system itself uses this <code>sys::input-character</code> type
     only to mention special keys and Control/Alternate/Shift key status
     on return from
@@ -2152,17 +2167,20 @@ as digits by the Unicode standard.
 
 The characters are ordered according to their Unicode code.
 
+<a name="clhs-newline"></a>
 <h3><a href="CLHSROOT/Body/sec_13-1-8.html">
     13.1.8 Treatment of Newline during Input and Output</a></h3>
 
 Newlines are written according to the stream's encoding, see the
 function <a href="CLHSROOT/Body/fun_stream-external-format.html">
 <code>stream-external-format</code></a> and the description of <a
-href="#encoding">encodings</a>. The default behaviour is as follows:
+href="#encoding">encodings</a>, in particular, <a href="#newline">line
+terminators</a>.  The default behaviour is as follows:
 
 <!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
 <dl>
-<dt><em>Platform dependent: DOS, OS/2, Win32 platforms only.</em>
+<dt><em>Platform dependent: <strong>DOS</strong>, <strong>OS/2</strong>,
+    <strong>Win32</strong> platforms only.</em>
 <dd>When writing to a file, <code>#\Newline</code> is converted to
 CR/LF. (This is the usual convention on DOS.) For example,
 <code>#\Return #\Newline</code> is written as CR/CR/LF.
@@ -2245,7 +2263,7 @@ have names:
 
 <!-- #ifdef AMIGA_CHARNAMES -->
 <dl>
-<dt><em>Platform dependent: Amiga platforms only.</em>
+<dt><em>Platform dependent: <strong>Amiga</strong> platforms only.</em>
 <dd><table>
   <tr><td><code>(code-char #x00)</code><td>=<td><code>#\Null</code>
   <tr><td><code>(code-char #x01)</code><td>=<td><code>#\Code1</code>
@@ -2295,7 +2313,8 @@ have names:
 
 <!-- #if defined(MSDOS_CHARNAMES) || defined(WIN32_CHARNAMES) -->
 <dl>
-<dt><em>Platform dependent: DOS, OS/2, Win32 platforms only.</em>
+<dt><em>Platform dependent: <strong>DOS</strong>, <strong>OS/2</strong>,
+    <strong>Win32</strong> platforms only.</em>
 <dd><table>
   <tr><td><code>(code-char #x00)</code><td>=<td><code>#\Null</code>
   <tr><td><code>(code-char #x07)</code><td>=<td><code>#\Bell</code>
@@ -2316,7 +2335,8 @@ have names:
 
 <!-- #ifdef UNIX_CHARNAMES -->
 <dl>
-<dt><em>Platform dependent: UNIX, Acorn platforms only.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong>,
+    <strong>Acorn</strong> platforms only.</em>
 <dd><table>
   <tr><td><code>(code-char #x00)</code><td>=<td><code>#\Null</code>
       <td>=<td><code>#\Nul</code>
@@ -2597,7 +2617,8 @@ directories can not be used interchangeably.
 
 <dl>
 <!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
-<dt><em>Platform dependent: UNIX, Amiga platforms only.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong>,
+    <strong>Amiga</strong> platforms only.</em>
 <dd>For example, <code>#p"FOO/BAR"</code> denotes the file
 <code>BAR</code> in the directory <code>FOO</code>, while
 <code>#p"FOO/BAR/"</code> denotes the subdirectory
@@ -2605,7 +2626,8 @@ directories can not be used interchangeably.
 <!-- #endif -->
 
 <!-- #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
-<dt><em>Platform dependent: DOS, OS/2, Win32 platforms only.</em>
+<dt><em>Platform dependent: <strong>DOS</strong>, <strong>OS/2</strong>,
+    <strong>Win32</strong> platforms only.</em>
 <dd>For example, <code>#p"FOO\\BAR"</code> denotes the file
 <code>BAR</code> in the directory <code>FOO</code>, while
 <code>#p"FOO\\BAR\\"</code> denotes the subdirectory
@@ -2613,7 +2635,7 @@ directories can not be used interchangeably.
 <!-- #endif -->
 
 <!-- #ifdef PATHNAME_RISCOS -->
-<dt><em>Platform dependent: Acorn platforms only.</em>
+<dt><em>Platform dependent: <strong>Acorn</strong> platforms only.</em>
 <dd>For example, <code>#p"FOO.BAR"</code> denotes the file
 <code>FOO</code> in the directory <code>BAR</code>, while
 <code>#p"FOO.BAR."</code> denotes the subdirectory
@@ -2647,7 +2669,7 @@ vary between operating systems.
 
 <!-- #ifdef PATHNAME_MSDOS -->
 <dl>
-<dt><em>Platform dependent: DOS platforms only.</em>
+<dt><em>Platform dependent: <strong>DOS</strong> platforms only.</em>
 <dd>
 Pathname components:
 <dl>
@@ -2715,7 +2737,7 @@ for DOS calls.
 
 <!-- #ifdef PATHNAME_AMIGAOS -->
 <dl>
-<dt><em>Platform dependent: Amiga platforms only.</em>
+<dt><em>Platform dependent: <strong>Amiga</strong> platforms only.</em>
  <dd> Pathname components:
  <dl>
   <dt><code>host</code>
@@ -2868,7 +2890,7 @@ both <var>name</var> and <var>type</var> being
 
 <!-- #ifdef PATHNAME_UNIX -->
 <dl>
-<dt><em>Platform dependent: UNIX platforms only.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
 <dd>
 Pathname components:
 <dl>
@@ -2936,7 +2958,8 @@ wildcard characters are allowed in the strings, and <var>name</var> =
 <!-- #endif -->
 <!-- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
 <dl>
-<dt><em>Platform dependent: OS/2, Win32 platforms only.</em>
+<dt><em>Platform dependent: <strong>OS/2</strong>,
+    <strong>Win32</strong> platforms only.</em>
 <dd>
 Pathname components:
 <dl>
@@ -3010,7 +3033,9 @@ wildcard characters are allowed in the strings, and <var>name</var>
 
 <!-- #ifdef PATHNAME_NOEXT -->
 <dl>
-<dt><em>Platform dependent: UNIX, OS/2, Win32, Amiga platforms only.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong>,
+    <strong>OS/2</strong>, <strong>Win32</strong>,
+    <strong>Amiga</strong> platforms only.</em>
 <dd>The wildcard characters: <code>'*'</code> matches any sequence of
 characters, <code>'?'</code> matches any one character.
 </dl>
@@ -3018,7 +3043,9 @@ characters, <code>'?'</code> matches any one character.
 
 <!-- #ifdef PATHNAME_NOEXT -->
 <dl>
-<dt><em>Platform dependent: UNIX, OS/2, Win32, Amiga platforms only.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong>,
+    <strong>OS/2</strong>, <strong>Win32</strong>,
+    <strong>Amiga</strong> platforms only.</em>
 <dd>Due to the name/type splitting rule, there are pathnames that can't
 result from <a href="CLHSROOT/Body/fun_parse-namestring.html">
 <code>parse-namestring</code></a>. To get a pathname whose type
@@ -3033,7 +3060,7 @@ contains a dot or whose name contains a dot and whose type is
 
 <!-- #ifdef PATHNAME_RISCOS -->
 <dl>
-<dt><em>Platform dependent: Acorn platforms only.</em>
+<dt><em>Platform dependent: <strong>Acorn</strong> platforms only.</em>
 <dd>RISC OS provides several file systems as standard (ADFS, IDEFS,
 NetFS, RamFS, NetPrint) and support for extra file systems (DOSFS,
 ResourceFS and DeviceFS).
@@ -3489,7 +3516,7 @@ is <a href="CLHSROOT/Body/convar_nil.html">
 <code>namestring</code></a>), of course without spaces, [,],{,}:
 <dl>
 <!-- #ifdef PATHNAME_MSDOS -->
-<dt><em>Platform dependent: DOS platforms only.</em>
+<dt><em>Platform dependent: <strong>DOS</strong> platforms only.</em>
 <dd>
 <table>
  <tr><td>[ [drivespec] : ]
@@ -3509,12 +3536,12 @@ single <code>'*'</code> is allowed for <code>:wild</code>.
 
 <!-- #endif -->
 <!-- #ifdef PATHNAME_AMIGAOS -->
-<dt><em>Platform dependent: Amiga platforms only.</em>
+<dt><em>Platform dependent: <strong>Amiga</strong> platforms only.</em>
 <dd>
 see <a href="#pathnames-externally-amiga">above</a>.
 <!-- #endif -->
 <!-- #ifdef PATHNAME_UNIX -->
-<dt><em>Platform dependent: UNIX platforms only.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
 <dd>
 <table>
  <tr><td>[ / ]                 <td>/ denotes absolute pathnames
@@ -3527,7 +3554,8 @@ printing ASCII characters, except <code>'/'</code>).
 
 <!-- #endif -->
 <!-- #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) -->
-<dt><em>Platform dependent: OS/2, Win32 platforms only.</em>
+<dt><em>Platform dependent: <strong>OS/2</strong>,
+    <strong>Win32</strong> platforms only.</em>
 <dd>
 <table>
  <tr><td>[ [drivespec] : ]
@@ -3544,7 +3572,7 @@ printing ASCII characters, except <code>'/'</code>, <code>'\'</code>,
 
 <!-- #endif -->
 <!-- #ifdef PATHNAME_RISCOS -->
-<dt><em>Platform dependent: Acorn platforms only.</em>
+<dt><em>Platform dependent: <strong>Acorn</strong> platforms only.</em>
 <dd>
 see <a href="#pathnames-externally-acorn">above</a>.
 <!-- #endif -->
@@ -3557,12 +3585,14 @@ notation suitable for passing to the operating system or other programs.
 <!-- #if !defined(USER_HOMEDIR) -->
 
 <p><dl>
-<dt><em>Platform dependent: DOS, OS/2, Acorn platforms only.</em>
+<dt><em>Platform dependent: <strong>DOS</strong>, <strong>OS/2</strong>,
+    <strong>Acorn</strong> platforms only.</em>
 <dd>
 The function <a href="CLHSROOT/Body/fun_user-homedir-pathname.html">
 <code>user-homedir-pathname</code></a> is not implemented.
 <!-- #if defined(MSDOS) -->
-<dt><em>Platform dependent: DOS, OS/2 platforms only.</em>
+<dt><em>Platform dependent: <strong>DOS</strong>,
+    <strong>OS/2</strong> platforms only.</em>
 <dd>
 If you really need that function, you might define it like this:
 <pre><code>  (defun user-homedir-pathname (&amp;optional host)
@@ -3697,7 +3727,7 @@ function <a href="CLHSROOT/Body/fun_directory.html">
 <code>file-author</code></a> always returns
 <a href="CLHSROOT/Body/convar_nil.html">
 <code>nil</code></a>, because the operating systems CLISP is ported to
-don't store a file's author in the file system. Some operating systems,
+do not store a file's author in the file system. Some operating systems,
 such as Unix, have the notion of a file's owner, and some other CL
 implementations return the user name of the file owner. CLISP does not
 do this, because <em>owner</em> and <em>author</em> are not the same; in
@@ -3734,7 +3764,7 @@ of <var>pathname</var> doesn't exist.
 </ul>
 <!-- #ifdef UNIX -->
 <dl>
-<dt><em>Platform dependent: UNIX platforms only.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
 <dd>If the <code>:circle</code> argument is
 non-<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>,
 the function avoids endless loops that may result from symbolic links.
@@ -3750,15 +3780,17 @@ directory.
 
 <p><dl>
 <!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
-<dt><em>Platform dependent: UNIX, Amiga platforms only.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong>,
+    <strong>Amiga</strong> platforms only.</em>
  <dd><code>(<strong>lisp:cd</strong> [<var>pathname</var>])</code>
       manages the current directory.
 <!-- #elif defined(PATHNAME_RISCOS) -->
- <dt><em>Platform dependent: Acorn platforms only.</em>
+ <dt><em>Platform dependent: <strong>Acorn</strong> platforms only.</em>
   <dd><code>(<strong>lisp:cd</strong> [<var>pathname</var>])</code>
   manages the current host, current device and the current directory.
 <!-- #else -->
- <dt><em>Platform dependent: DOS, OS/2, Win32 platforms only.</em>
+ <dt><em>Platform dependent: <strong>DOS</strong>,
+     <strong>OS/2</strong>, <strong>Win32</strong> platforms only.</em>
   <dd><code>(<strong>lisp:cd</strong> [<var>pathname</var>])</code>
   manages the current device and the current directory.
 <!-- #endif -->
@@ -3791,9 +3823,10 @@ prompt one might output.
 
 <!-- #ifdef GNU_READLINE -->
 <p><dl>
- <dt><em>Platform dependent: UNIX, DOS, OS/2 platforms only, and only in
-  clisp binaries built without compile-time flag
-  <code>NO_READLINE</code>.</em>
+ <dt><em>Platform dependent: <strong>UNIX</strong>,
+     <strong>DOS</strong>, <strong>OS/2</strong> platforms only, and
+     only in CLISP built <strong>without</strong> compile-time flag
+     <code><strong>NO_READLINE</strong></code>.</em>
  <dd>Input through <a href="CLHSROOT/Body/var_stterminal-iost.html">
   <code>*terminal-io*</code></a> uses the GNU readline
   library. Arrow keys can be used to move within the input history. The
@@ -3808,8 +3841,9 @@ prompt one might output.
 
 <!-- #if defined(KEYBOARD) || defined(AMIGAOS) -->
 <p><dl>
-<dt><em>Platform dependent: UNIX, DOS, OS/2, Win32, Amiga, Acorn
- platforms only.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong>, <strong>DOS</strong>,
+    <strong>OS/2</strong>, <strong>Win32</strong>,
+    <strong>Amiga</strong>, <strong>Acorn</strong> platforms only.</em>
 <dd><a href="CLHSROOT/Body/var_stterminal-iost.html">
  <code>*terminal-io*</code></a> is not the only stream that communicates
  directly with the user: During execution of the body of a
@@ -3820,15 +3854,18 @@ prompt one might output.
 <dl>
 <!-- #if defined(MSDOS) || defined(WIN32) || defined(AMIGAOS) -->
  <dt><code>:hyper</code>
-  <dd><em>(Platform dependent: DOS, OS/2, Win32, Amiga platforms
- only.)</em> if a non-standard key. These are:
+  <dd><em>(Platform dependent: <strong>DOS</strong>,
+      <strong>OS/2</strong>, <strong>Win32</strong>,
+      <strong>Amiga</strong> platforms only.)</em>
+      if a non-standard key. These are:
 <!-- #if defined(MSDOS) || defined(WIN32) -->
      Function keys, cursor keypads, numeric keypad <em>(Platform
-     dependent: DOS, OS/2, Win32 platforms only)</em>.
+     dependent: <strong>DOS</strong>, <strong>OS/2</strong>,
+     <strong>Win32</strong> platforms only)</em>.
 <!-- #endif -->
 <!-- #ifdef AMIGAOS -->
-     Function keys, cursor keypad <em>(Platform dependent: Amiga
-     platforms only)</em>.
+     Function keys, cursor keypad <em>(Platform dependent:
+     <strong>Amiga</strong> platforms only)</em>.
 <!-- #endif -->
 
 <!-- #endif -->
@@ -3837,7 +3874,8 @@ prompt one might output.
 
       <dl>
 <!-- #ifdef MSDOS -->
-         <dt><em>Platform dependent: DOS, OS/2 platforms only.</em>
+         <dt><em>Platform dependent: <strong>DOS</strong>,
+             <strong>OS/2</strong> platforms only.</em>
           <dd> F1 -&gt; <code>:F1</code>, ..., F10 -&gt;
            <code>:F10</code>, F11 -&gt; <code>:F11</code>, F12 -&gt;
            <code>:F12</code>, Insert -&gt; <code>:Insert</code>,
@@ -3849,8 +3887,8 @@ prompt one might output.
 <!-- #endif -->
 
 <!-- #if defined(UNIX) || defined(WIN32) -->
-         <dt><em>Platform dependent: UNIX, Win32 platforms only.</em>
-
+         <dt><em>Platform dependent: <strong>UNIX</strong>,
+             <strong>Win32</strong> platforms only.</em>
           <dd> F1 -&gt; <code>:F1</code>, ..., F10 -&gt;
            <code>:F10</code>, F11 -&gt; <code>:F11</code>, F12 -&gt;
            <code>:F12</code>, Insert -&gt; <code>:Insert</code>,
@@ -3863,7 +3901,8 @@ prompt one might output.
 <!-- #endif -->
 
 <!-- #ifdef AMIGAOS -->
-         <dt><em>Platform dependent: Amiga platforms only.</em>
+         <dt><em>Platform dependent: <strong>Amiga</strong> platforms
+             only.</em>
           <dd> F1 -&gt; <code>:F1</code>, ..., F9 -&gt;
            <code>:F9</code>, F10 -&gt; <code>:F10</code>, Help -&gt;
            <code>:Help</code>, Arrow keys -&gt; <code>:Up</code>,
@@ -3877,14 +3916,17 @@ prompt one might output.
 
 <!-- #if defined(MSDOS) || defined(WIN32) || defined(AMIGAOS) -->
   <dt><code>:super</code>
-  <dd><em>(Platform dependent: DOS, OS/2, Win32, Amiga platforms only.)</em>
+  <dd><em>(Platform dependent: <strong>DOS</strong>,
+      <strong>OS/2</strong>, <strong>Win32</strong>,
+      <strong>Amiga</strong> platforms only.)</em>
   if pressed together with Shift key(s) and if the keystroke
   would have been an other without Shift.
 <!-- #endif -->
   <dt><code>:control</code> <dd>if pressed together with the Control key.
 <!-- #if defined(MSDOS) || defined(WIN32) -->
   <dt><code>:meta</code>
-  <dd><em>(Platform dependent: DOS, OS/2, Win32 platforms only.)</em>
+  <dd><em>(Platform dependent: <strong>DOS</strong>,
+      <strong>OS/2</strong>, <strong>Win32</strong> platforms only.)</em>
   if pressed together with the Alternate key.
 <!-- #endif -->
 </dl>
@@ -3915,7 +3957,8 @@ output to the printer.
 <!-- #ifdef PIPES -->
 
 <p><a name="pipe"></a><dl>
-<dt><em>Platform dependent: UNIX, OS/2, Win32 platforms only.</em><dd>
+<dt><em>Platform dependent: <strong>UNIX</strong>,
+    <strong>OS/2</strong>, <strong>Win32</strong> platforms only.</em><dd>
 <dl><dt><code>(<strong>lisp:make-pipe-input-stream</strong>
            <var>command</var> &amp;key
            <a href="#eltype">:element-type</a>
@@ -4286,7 +4329,8 @@ stream with element type <a href="CLHSROOT/Body/syscla_character.html">
     file-position</a></h4>
 
 <dl>
- <dt><em>Platform dependent: DOS, OS/2, Win32 platforms only.</em>
+ <dt><em>Platform dependent: <strong>DOS</strong>,
+     <strong>OS/2</strong>, <strong>Win32</strong> platforms only.</em>
   <dd><a href="CLHSROOT/Body/fun_file-position.html">
   <code>file-position</code></a> works on any buffered file stream. When
   a Newline is output to resp. input from a file stream, its file
@@ -4342,7 +4386,7 @@ understands.  <code>lisp:*print-closure*</code> is initially set to
 <code><strong>lisp:*print-rpars*</strong></code> controls the output of
 the right (closing) parentheses. If <code>lisp:*print-rpars*</code> is
 non-<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>, closing
-parentheses which don't fit onto the same line as the the corresponding
+parentheses which do not fit onto the same line as the the corresponding
 opening parenthesis are output just below their corresponding opening
 parenthesis, in the same column.  <code>lisp:*print-rpars*</code> is
 initially set to <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
@@ -4385,7 +4429,7 @@ the syntax <code>#A(<var>element-type</var> <var>dimensions</var>
 <a href="CLHSROOT/Body/fun_write-to-_nc-to-string.html">
 <code>write-to-string</code></a> have an additional keyword
 <code>:closure</code> that can be used to bind
-<a href="#pr-closure"><code>lisp:*print-closure*</code><a>.
+<a href="#pr-closure"><code>lisp:*print-closure*</code></a>.
 
 <h2><a href="CLHSROOT/Body/sec_the_printer_dictionary.html">
     22.4 The Printer Dictionary</a></h2>
@@ -4393,7 +4437,8 @@ the syntax <code>#A(<var>element-type</var> <var>dimensions</var>
 <h3><a href="CLHSROOT/Body/fun_format.html">
     format</a></h3>
 
-<p>The <code>format</code> instruction
+<p>The <a href="CLHSROOT/Body/fun_format.html">
+<code>format</code></a> instruction
 <a href="CLHSROOT/Body/sec_22-3-4-3.html"><code>~W</code></a> is analogous to
 <a href="CLHSROOT/Body/sec_22-3-4-1.html"><code>~A</code></a> and
 <a href="CLHSROOT/Body/sec_22-3-4-2.html"><code>~S</code></a>,
@@ -4484,7 +4529,9 @@ floating point numbers are printed.
 
 <p><dl>
 <!-- #ifndef AMIGAOS -->
-<dt><em>Platform dependent: UNIX, DOS, OS/2, Win32, Acorn platforms only.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong>, <strong>DOS</strong>,
+    <strong>OS/2</strong>, <strong>Win32</strong>, <strong>Acorn</strong>
+    platforms only.</em>
 <dd><a href="CLHSROOT/Body/var_stprint-prettyst.html">
 <code>*print-pretty*</code></a> is initially
 <a href="CLHSROOT/Body/convar_nil.html">
@@ -4492,7 +4539,7 @@ floating point numbers are printed.
 <code>t</code></a> in <code>config.lsp</code>. This makes screen output
 prettier.
 <!-- #else -->
-<dt><em>Platform dependent: Amiga platforms only.</em>
+<dt><em>Platform dependent: <strong>Amiga</strong> platforms only.</em>
 <dd><a href="CLHSROOT/Body/var_stprint-prettyst.html">
 <code>*print-pretty*</code></a> is initially
 <a href="CLHSROOT/Body/convar_nil.html">
@@ -4556,18 +4603,23 @@ meaningfully read in:
 <!-- #ifdef FOREIGN -->
   <tr> <td valign=top> <code>#&lt;FOREIGN-POINTER #x...&gt;</code>
        <td> foreign pointer
-            <br><em>(Platform dependent: UNIX, Win32, Amiga platforms only.)</em>
+            <br><em>(Platform dependent: <strong>UNIX</strong>,
+                <strong>Win32</strong>, <strong>Amiga</strong>
+                platforms only.)</em>
 <!-- #endif -->
 <!-- #ifdef DYNAMIC_FFI -->
   <tr> <td valign=top> <code>#&lt;FOREIGN-ADDRESS #x...&gt;</code>
        <td> foreign address
-            <br><em>(Platform dependent: UNIX, Win32 platforms only.)</em>
+            <br><em>(Platform dependent: <strong>UNIX</strong>,
+                <strong>Win32</strong> platforms only.)</em>
   <tr> <td valign=top> <code>#&lt;FOREIGN-VARIABLE <var>name</var> #x...&gt;</code>
        <td> foreign variable
-            <br><em>(Platform dependent: UNIX, Win32 platforms only.)</em>
+            <br><em>(Platform dependent: <strong>UNIX</strong>,
+                <strong>Win32</strong> platforms only.)</em>
   <tr> <td valign=top> <code>#&lt;FOREIGN-FUNCTION <var>name</var> #x...&gt;</code>
        <td> foreign function
-            <br><em>(Platform dependent: UNIX, Win32 platforms only.)</em>
+            <br><em>(Platform dependent: <strong>UNIX</strong>,
+                <strong>Win32</strong> platforms only.)</em>
 <!-- #endif -->
   <tr> <td valign=top> <code>#&lt;UNBOUND&gt;</code>
        <td> "value" of a symbol without value, "value"
@@ -4604,13 +4656,14 @@ meaningfully read in:
      is the value of <code>(pathname "test.lsp")</code>
 <dl>
 <!-- #if defined(MSDOS) -->
-<dt><em>Platform dependent: DOS, OS/2, Win32 platforms only.</em>
+<dt><em>Platform dependent: <strong>DOS</strong>, <strong>OS/2</strong>,
+    <strong>Win32</strong> platforms only.</em>
 <dd> As in all strings, backslashes must be written twice here:
      <code>#"A:\\programs\\test.lsp"</code>
 <!-- #endif -->
 
 <!-- #ifdef RISCOS -->
-<dt><em>Platform dependent: Acorn platforms only.</em>
+<dt><em>Platform dependent: <strong>Acorn</strong> platforms only.</em>
 <dd> As in all strings, backslashes must be written twice here:
      <code>#"\\.test.lsp"</code>
 <!-- #endif -->
@@ -4827,7 +4880,8 @@ the specified or current directory - by
 <!-- #ifdef GNU_GETTEXT -->
  <tr><th align=left><code>:GETTEXT</code>
      <td> if internationalization using the GNU gettext package is
-     supported <em>(Platform dependent: most UNIX platforms only)</em>
+     supported <em>(Platform dependent: most <strong>UNIX</strong>
+     platforms only)</em>
 <!-- #endif -->
 <!-- #ifdef UNICODE -->
  <tr><th align=left><code>:UNICODE</code>
@@ -5022,7 +5076,7 @@ of <code>Next</code> commands or one <code>Over</code> command will help.
     disassemble</a></h4>
 
 <dl>
-<dt><em>Platform dependent: UNIX platforms only.</em>
+<dt><em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
 <dd><code><strong><a href="CLHSROOT/Body/fun_disassemble.html">
 disassemble</a></strong></code> can disassemble to machine
 code, provided that GNU gdb is present.  In that case the argument may
@@ -5160,7 +5214,8 @@ text which was used to define the function.
 
 <!-- #if !(defined(UNIX) || defined(WIN32)) -->
 <dl>
-<dt><em>Platform dependent: DOS, OS/2, Amiga, Acorn platforms only.</em>
+<dt><em>Platform dependent: <strong>DOS</strong>, <strong>OS/2</strong>,
+    <strong>Amiga</strong>, <strong>Acorn</strong> platforms only.</em>
 <dd>The variable <code><strong>lisp:*default-time-zone*</strong></code>
 contains the default time zone used by
 <a href="CLHSROOT/Body/fun_encode-universal-time.html">
@@ -5196,19 +5251,22 @@ but (as float or rational number) it should be a multiple of
 
 <p><a href="CLHSROOT/Body/fun_get-internal-run-time.html">
 <code>get-internal-run-time</code></a> returns the amount of run time
-consumed by the current clisp process since its startup.
+consumed by the current CLISP process since its startup.
 
 <h4>machine</h4>
 <dl>
 <!-- #ifdef MACHINE_KNOWN -->
- <dt><em>Platform dependent: UNIX, Win32 platforms only.</em>
+ <dt><em>Platform dependent: <strong>UNIX</strong>,
+     <strong>Win32</strong> platforms only.</em>
   <dd>The functions <a href="CLHSROOT/Body/fun_short-sit_ng-site-name.html">
   <code>short-site-name</code></a>,
   <a href="CLHSROOT/Body/fun_short-sit_ng-site-name.html">
   <code>long-site-name</code></a> should be defined in a site-specific
   <code>config.lsp</code> file.
 <!-- #else -->
- <dt><em>Platform dependent: DOS, OS/2, Amiga, Acorn platforms only.</em>
+ <dt><em>Platform dependent: <strong>DOS</strong>,
+     <strong>OS/2</strong>, <strong>Amiga</strong>,
+     <strong>Acorn</strong> platforms only.</em>
   <dd>The functions <a href="CLHSROOT/Body/fun_machine-type.html">
   <code>machine-type</code></a>,
   <a href="CLHSROOT/Body/fun_machine-version.html">
@@ -6113,25 +6171,28 @@ raw bytes during input/output via streams with element-type
 
 <p>An encoding is an object composed of the following facets:
 <ul>
-  <li>A <em>character set</em>. This denotes both the set of characters that
-      can be represented and passed through the I/O channel, and the way these
-      characters translate into raw bytes. In this context, for example,
-      "UTF-8" and "UCS-4" are considered different, although they can represent
-      the same set of characters.
-  <li>A <em>line terminator mode</em>. This denotes the way newline characters
-      are represented.
+  <li>A <a href="#charset"><em>character set</em></a>. This denotes both
+      the set of characters that can be represented and passed through
+      the I/O channel, and the way these characters translate into raw
+      bytes. In this context, for example, "UTF-8" and "UCS-4" are
+      considered different, although they can represent the same set of
+      characters.
+  <li>A <a href="#newline"><em>line terminator mode</em></a>. This
+      denotes the way newline characters are represented.
 </ul>
+
+<a name="charset"></a><h4>Character Sets</h4>
 
 <dl>
 <!-- #ifndef UNICODE -->
-<dt><em>Platform dependent: Only in clisp binaries built without
-        compile-time flag <code>UNICODE</code>.</em>
+<dt><em>Platform dependent: Only in CLISP built <strong>without</strong>
+    compile-time flag <code><strong>UNICODE</strong></code>.</em>
 <dd>
 Only one character set is understood: the platform's native (8-bit) character
 set. See <a href="#characters">chapter 13</a>.
 <!-- #else -->
-<dt><em>Platform dependent: Only in clisp binaries built with
-        compile-time flag <code>UNICODE</code>.</em>
+<dt><em>Platform dependent: Only in CLISP built <strong>with</strong>
+    compile-time flag <code><strong>UNICODE</strong></code>.</em>
 <dd>The following character sets are supported, as values of the
 corresponding (constant) symbol in the <code>CHARSET</code> package.
 <ul>
@@ -6143,7 +6204,7 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
   <li><code>UCS-4</code> = <code>UNICODE-32</code>
       = <code>UNICODE-32-BIG-ENDIAN</code>,
       the 32-bit Unicode character set. Every character is represented as
-      four bytes. Note that clisp understands only those characters which
+      four bytes. Note that CLISP understands only those characters which
       are already contained in the 16-bit Unicode character set.
   <li><code>UNICODE-32-LITTLE-ENDIAN</code>
   <li><code>UTF-8</code>,
@@ -6317,8 +6378,9 @@ corresponding (constant) symbol in the <code>CHARSET</code> package.
 <p>
 <!-- #ifdef HAVE_ICONV -->
 <dl>
-<dt><a name="iconv"></a><em>Platform dependent: Only on Unix systems
-    having the C library function iconv().</em>
+<dt><a name="iconv"></a><em>Platform dependent: Only on
+    <strong>Unix</strong> systems having the C library function
+    <strong>iconv()</strong>.</em>
 <dd>
 The character sets provided by the library function iconv() can also
 be used as encodings. To create such an encoding, call
@@ -6356,7 +6418,7 @@ supports in particular, among others:
 <p>On Solaris systems, you can forget about iconv-based encodings, because
 all the possible encodings are already built-in. (Solaris knows about
 Japanese, Chinese and Korean encodings, but can convert them only to/from
-UTF-8, not to/from UCS-2, which is clisp's internal encoding.)
+UTF-8, not to/from UCS-2, which is CLISP's internal encoding.)
 <p>On IRIX systems, you can forget about iconv-based encodings as well,
 because all the interesting possible encodings are already built-in.
 <p>On OSF/1 systems, iconv-based encodings are not usable at all.
@@ -6386,9 +6448,14 @@ sometimes they also accept <code>:unix</code> line terminators or produce
 
 <p>The line terminator mode is relevant only for output (writing to a file,
 pipe or socket). During input, all three kinds of line terminators are
-recognized. If you don't want this, i.e. if you really want to distinguish
+recognized. If you do not want this, i.e. if you really want to distinguish
 LF, CR and CR/LF, you have to resort to binary input (function
 <a href="CLHSROOT/Body/fun_read-byte.html"><code>read-byte</code></a>).
+
+<p>See also <a href="#clhs-newline">13.1.8 Treatment of Newline during
+Input and Output</a>.
+
+<h4>lisp:make-encoding</h4>
 
 <p>The function <code>(<strong>lisp:make-encoding</strong> [:charset]
 [:line-terminator])</code> returns an encoding. The
@@ -6417,8 +6484,8 @@ specified.
 
 <!-- #ifdef UNICODE -->
 <dl>
-<dt><em>Platform dependent: Only in clisp binaries built with
-        compile-time flag <code>UNICODE</code>.</em>
+<dt><em>Platform dependent: Only in CLISP built <strong>with</strong>
+    compile-time flag <code><strong>UNICODE</strong></code>.</em>
 <dd>
 <p><code><strong>lisp:*pathname-encoding*</strong></code> is the
 encoding used for pathnames in the file system. Normally, this is a 1:1
@@ -6684,7 +6751,8 @@ platform-independent command line options:
 <!-- #if defined(SCREEN) || defined(AMIGAOS) -->
 <a name="screen"></a><h3>Extensions-2.1. Random Screen Access</h3>
 
-<em>Platform dependent: UNIX, DOS, OS/2, Amiga platforms only.</em>
+<em>Platform dependent: <strong>UNIX</strong>, <strong>DOS</strong>,
+    <strong>OS/2</strong>, <strong>Amiga</strong> platforms only.</em>
 
 <dl>
  <dt><code>(<strong>screen:make-window</strong>)</code>
@@ -6765,7 +6833,7 @@ platform-independent command line options:
 <!-- #ifdef UNIX -->
 <a name="modules"></a><h3>Extensions-2.2. External Modules</h3>
 
-<em>Platform dependent: UNIX platforms only.</em>
+<em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
 
 <p>CLISP has a facility for adding external modules (written in C, for
 example).  It is invoked through <code>clisp-link</code>.
@@ -6912,7 +6980,8 @@ this order.)
 <!-- #ifdef DYNAMIC_FFI -->
 <a name="dffi"></a><h3>Extensions-2.3. The Foreign Function Call Facility</h3>
 
-<em>Platform dependent: many UNIX, Win32 platforms only.</em>
+<em>Platform dependent: many <strong>UNIX</strong>,
+    <strong>Win32</strong> platforms only.</em>
 
 <p>A foreign function description is written as a Lisp file, and when
 compiled it produces a <code>.c</code> file which is then compiled by
@@ -7539,7 +7608,7 @@ implemented. <code>:out</code> works only with
 <var>allocation</var> = <code>:alloca</code>.]
 <p>
 <dl>
-<dt><em>Platform dependent: Amiga platforms only.
+<dt><em>Platform dependent: <strong>Amiga</strong> platforms only.
 </em>
 <dd>
 <var>allocation</var> may not be <code>:malloc-free</code> because there is no commonly
@@ -7563,8 +7632,8 @@ hppa) have problems with this.
 
 <!-- #ifdef UNICODE -->
 <dl>
-<dt><em>Platform dependent: Only in clisp binaries built with
-        compile-time flag <code>UNICODE</code>.</em>
+<dt><em>Platform dependent: Only in CLISP built <strong>with</strong>
+    compile-time flag <code><strong>UNICODE</strong></code>.</em>
 <dd>
 A symbol-macro place <code><strong>lisp:*foreign-encoding*</strong></code>
 contains the encoding for characters and strings passed through the
@@ -7682,8 +7751,9 @@ Suppose the following is defined in a file <code>"cfun.c"</code>:
            return r2;
        }
 </code></pre>
-It is possible to call this function from Lisp using the file <code>"callcfun.lsp"</code>
-(don't call it <code>"cfun.lsp"</code> - <code>compile-file</code> would overwrite <code>"cfun.c"</code>) whose
+It is possible to call this function from Lisp using the file
+<code>"callcfun.lsp"</code> (do not call it <code>"cfun.lsp"</code> -
+<code>compile-file</code> would overwrite <code>"cfun.c"</code>) whose
 contents is:
 <pre>
 <code>       (in-package "TEST-C-CALL" :use '("LISP" "FFI"))
@@ -7816,7 +7886,7 @@ Now try
 <a name="affi"></a>
 <h3>Extensions-2.4. The Amiga Foreign Function Call Facility</h3>
 
-<em>Platform dependent: Amiga platforms only.</em>
+<em>Platform dependent: <strong>Amiga</strong> platforms only.</em>
 
 <h4>Another Foreign Function Interface</h4>
 
@@ -7932,7 +8002,7 @@ in all recognized representations (<a href="CLHSROOT/Body/syscla_null.html">
 <h4>Foreign Libraries</h4>
 
 <p><code>declare-library-base</code> ought to be wrapped in an
-<code>(<a href="CLHSROOT/Body/speope_eval-when.html">eval-when
+<code>(<a href="CLHSROOT/Body/speope_eval-when.html">eval-when</a>
 (compile eval load) ...)</code> form and come before any function is
 referenced, because the library base symbol must be known.
 
@@ -8026,8 +8096,8 @@ acceptable where a <a href="CLHSROOT/Body/syscla_string.html">
 
 <!-- #ifdef UNICODE -->
 <dl>
-<dt><em>Platform dependent: Only in clisp binaries built with
-        compile-time flag <code>UNICODE</code>.</em>
+<dt><em>Platform dependent: Only in CLISP built <strong>with</strong>
+    compile-time flag <code><strong>UNICODE</strong></code>.</em>
 <dd>
 A symbol-macro place <code><strong>lisp:*foreign-encoding*</strong></code>
 contains the encoding for characters and strings passed through the
@@ -8260,7 +8330,7 @@ have inlined the library function calls.
 <!-- #ifdef AMIGAOS -->
 <a name="rexx"></a><h3>Extensions-2.5. ARexx</h3>
 
-<em>Platform dependent: Amiga platforms only.</em>
+<em>Platform dependent: <strong>Amiga</strong> platforms only.</em>
 
 <p>CLISP comes with a small yet extensible and powerful ARexx interface.
 
@@ -8311,7 +8381,8 @@ several sources, e.g. both a console and ARexx, at the same time.
 <!-- #ifdef SOCKET_STREAMS -->
 <a name="socket"></a><h3>Extensions-2.6. Socket Streams</h3>
 
-<em>Platform dependent: UNIX, Win32 platforms only.</em>
+<em>Platform dependent: <strong>UNIX</strong>,
+    <strong>Win32</strong> platforms only.</em>
 
 <dl><dt>
 <code>(<strong>lisp:socket-server</strong>
@@ -8386,7 +8457,7 @@ name and port number, but for the local host.
 <!-- #ifdef UNIX -->
 <a name="script"></a><h3>Extensions-2.7. CLISP as a script interpreter</h3>
 
-<em>Platform dependent: UNIX platforms only.</em>
+<em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
 <p>On Unix, a script can be made executable by adding a first line of
 the form
 
@@ -8469,16 +8540,18 @@ input will be available.
 
 <dl>
 <!-- #if defined(UNIX) || defined(MSDOS) || defined(RISCOS) -->
- <dt><em>Platform dependent: UNIX, DOS, OS/2, Acorn platforms only.</em>
-  <dd><code>(<strong>execute</strong> <var>programfile</var>
+ <dt><em>Platform dependent: <strong>UNIX</strong>,
+     <strong>DOS</strong>, <strong>OS/2</strong>,
+     <strong>Acorn</strong> platforms only.</em>
+  <dd><code>(<strong>lisp:execute</strong> <var>programfile</var>
    <var>arg<sub>1</sub></var> <var>arg<sub>2</sub></var> ...)</code>
    executes an external program. Its name is <var>programfile</var>. It is
    given the strings <var>arg<sub>1</sub></var>,
    <var>arg<sub>2</sub></var>, ... as arguments.
 <!-- #endif -->
 <!-- #ifdef AMIGAOS -->
- <dt><em>Platform dependent: Amiga platforms only.</em>
-  <dd><code>(<strong>execute</strong> <var>command</var>)</code>
+ <dt><em>Platform dependent: <strong>Amiga</strong> platforms only.</em>
+  <dd><code>(<strong>lisp:execute</strong> <var>command</var>)</code>
    executes a given <var>command</var> using the operating system's
    shell.
 <!-- #endif -->
@@ -8486,17 +8559,20 @@ input will be available.
 
 <!-- #ifdef HAVE_SHELL -->
 <dl>
- <dt><em>Platform dependent: UNIX, DOS, OS/2, Win32, Amiga, Acorn
-   platforms only.</em>
-  <dd><code>(<strong>shell</strong> [<var>command</var>])</code>  calls
-   the operating system's shell. <code>(shell)</code> calls the shell
-   for interactive use. <code>(shell <var>command</var>)</code> calls the
-   shell only for execution of the one given <var>command</var>.
+ <dt><em>Platform dependent: <strong>UNIX</strong>,
+   <strong>DOS</strong>, <strong>OS/2</strong>, <strong>Win32</strong>,
+   <strong>Amiga</strong>, <strong>Acorn</strong> platforms only.</em>
+  <dd><code>(<strong>lisp:shell</strong> [<var>command</var>])</code>
+   calls the operating system's shell. <code>(lisp:shell)</code> calls
+   the shell for interactive use. <code>(lisp:shell
+   <var>command</var>)</code> calls the shell only for execution of the
+   one given <var>command</var>.
 </dl>
 <!-- #endif -->
 <!-- #ifdef PIPES2 -->
 <dl>
- <dt><em>Platform dependent: UNIX, OS/2, Win32 platforms only.</em>
+ <dt><em>Platform dependent: <strong>UNIX</strong>,
+     <strong>OS/2</strong>, <strong>Win32</strong> platforms only.</em>
   <dd>The functions <code><strong>lisp:run-shell-command</strong></code>
    and <code><strong>lisp:run-program</strong></code> are a general
    interface to <code><strong>lisp:shell</strong></code> and the above:
@@ -8509,7 +8585,7 @@ input will be available.
 <dt><var>command</var> <dd>the shell command.
 <!-- #ifdef UNIX -->
  <dl>
-  <dt><em>Platform dependent: UNIX platforms only.</em>
+  <dt><em>Platform dependent: <strong>UNIX</strong> platforms only.</em>
   <dd>The shell the command is passed to is the value of the environment
    variable <code>SHELL</code>, which normally is
    <code>/bin/sh</code>. The command should be a ``simple command''; a
@@ -8559,7 +8635,7 @@ href="#pipe"><code>lisp:make-pipe-io-stream</code></a>.
 
 <p>
 <dl>
-<dt><em>Platform dependent: Amiga platforms only.
+<dt><em>Platform dependent: <strong>Amiga</strong> platforms only.
 </em>
 <dd>
 To have <a href="CLHSROOT/Body/var_stdebug-i_ace-outputst.html">
