@@ -1,3 +1,11 @@
+2001-07-11  Sam Steingold  <sds@gnu.org>
+
+	YAPT (yet another pathname tweak)
+	* pathname.d (lslashp): removed, replaced with slashp
+	(parse-namestring): with *PARSE-NAMESTRING-ANSI* non-nil, parse as
+	logical when pathname contains ";" - this is what others do
+	(merge-pathnames): merge to logical even when only one is logical
+
 2001-07-10  Sam Steingold  <sds@gnu.org>
 
 	* encoding.d, hashtabl.d, stream.d: unified some error messages
