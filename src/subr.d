@@ -409,6 +409,7 @@ LISPFUN(pprint_indent,2,1,norest,nokey,0,NIL)
 LISPFUN(pprint_newline,1,1,norest,nokey,0,NIL)
 LISPFUN(format_tabulate,3,2,norest,nokey,0,NIL)
 LISPFUNN(ppprint_logical_block,3)
+LISPFUNN(pcirclep,2)
 LISPFUN(princ,1,1,norest,nokey,0,NIL)
 LISPFUN(write_to_string,1,0,norest,key,16,
         (kw(case),kw(level),kw(length),kw(gensym),kw(escape),kw(radix),

@@ -5732,6 +5732,11 @@ local uintL pphelp_string_width (object string) {
 # > stream: Stream
 # < stream: Stream
 # can trigger GC
+#define LINES_INC                                               \
+  do { var object pl = Symbol_value(S(prin_lines));             \
+   if (!posfixnump(pl)) fehler_posfixnum(pl);                   \
+   if (test_value(S(print_lines)))                              \
+     Symbol_value(S(prin_lines)) = fixnum_inc(pl,1); } while(0)
 local void pphelp_newline (const object* stream_) {
   # (push (make-ssstring 50) (strm-pphelp-strings stream)) :
   cons_ssstring(stream_,NIL);
@@ -5739,8 +5744,7 @@ local void pphelp_newline (const object* stream_) {
   # Line-Position := 0, Modus := multi-liner :
   TheStream(stream)->strm_pphelp_lpos = Fixnum_0;
   TheStream(stream)->strm_pphelp_modus = mehrzeiler;
-  if (!nullp(S(print_lines)))
-    Symbol_value(S(prin_lines)) = fixnum_inc(Symbol_value(S(prin_lines)),1);
+  LINES_INC;
 }
 
 #define PPHELP_STREAM_P(str) \
@@ -6357,11 +6361,11 @@ local bool check_lines_limit (void) {
 # can trigger GC
 local void double_dots (const object* stream_) {
   JUSTIFY_LAST(true);
-  if (!eq(Symbol_value(S(prin_lines)),S(Kend))) {
+  # if (!eq(Symbol_value(S(prin_lines)),S(Kend))) {
     write_ascii_char(stream_,'.');
     write_ascii_char(stream_,'.');
-    Symbol_value(S(prin_lines)) = S(Kend); # do not print anything else
-  }
+  #   Symbol_value(S(prin_lines)) = S(Kend); # do not print anything else
+  # }
 }
 
 # ------------------ sub-routines for *PRINT-CIRCLE* ------------------------
@@ -6541,17 +6545,22 @@ local object pphelp_length (object pph_stream) {
 }
 
 # UP: check whether the string fits into the current line in the stream
-local inline bool string_fit_line_p (object list, object stream) {
+# return true iff the next object does fit
+local inline bool string_fit_line_p (object list, object stream,
+                                     uintL offset) {
   var object avail = space_available(stream);
   if (nullp(avail)) return true; # unlimited space available
   var uintL len;
   var object top = Car(list); list = Cdr(list); # (pop list)
   if (stringp(top)) len = vector_length(top);
   else if (mconsp(top)) return true;
-  else if (vectorp(top))
-    len = PPH_FORMAT_TAB(stream,top) + vector_length(Car(list));
-  else NOTREACHED;
-  return posfixnum_to_L(avail) >= len;
+  else if (vectorp(top)) {
+    len = PPH_FORMAT_TAB(stream,top);
+    while (mconsp(list) && !stringp(Car(list))) list = Cdr(list);
+    if (mconsp(list)) len += vector_length(Car(list)); # string!
+    else return false; # do not need to print this tab
+  } else NOTREACHED;
+  return posfixnum_to_L(avail) >= len + offset;
 }
 
 # UP: Binds the variables of the printer and then calls a printer-routine.
@@ -6632,6 +6641,7 @@ local void pr_enter_1 (const object* stream_, object obj,
         STACK_0 = Cdr(STACK_0);
         goto skip_NL;
       } else STACK_0 = Cdr(STACK_0);
+      # Symbol_value(S(prin_lines)) = Fixnum_0;
       do {
         # NL & indent
         var object top = Car(STACK_0);
@@ -6640,18 +6650,27 @@ local void pr_enter_1 (const object* stream_, object obj,
           STACK_0 = Cdr(STACK_0);
           if (modus_single_p ||
               (eq(PPHELP_NL_TYPE(top),S(Kfill)) &&
-               string_fit_line_p(STACK_0,*stream_)))
+               string_fit_line_p(STACK_0,*stream_,0)))
             goto skip_NL;
           indent = PPHELP_INDENTN(top);
           if (!mconsp(STACK_0)) break; # end of stream
         } else if (!stringp(top)) { # tab - a vector but not a string
           STACK_0 = Cdr(STACK_0);
-          spaces(stream_,fixnum(PPH_FORMAT_TAB(*stream_,top)));
           if (!mconsp(STACK_0)) break; # end of stream
-          goto skip_NL;
+          # if the next object is not a NL then indent
+          var uintL num_space = PPH_FORMAT_TAB(*stream_,top);
+          if (modus_single_p || stringp(Car(STACK_0)) ||
+              (mconsp(Car(STACK_0)) &&  # ignored NL
+               (eq(PPHELP_NL_TYPE(Car(STACK_0)),S(Kfill)) &&
+                string_fit_line_p(Cdr(STACK_0),*stream_,num_space)))) {
+            spaces(stream_,fixnum(num_space));
+            goto skip_NL;
+          }
         }
         write_ascii_char(stream_,NL); # #\Newline as the line separator
         pprint_prefix(stream_,indent); # line prefix & indentation, if any
+        # LINES_INC;
+        # CHECK_LINES_LIMIT(break);
       skip_NL:
         { # print first element, if string
           var object top = Car(STACK_0);
@@ -6661,7 +6680,12 @@ local void pr_enter_1 (const object* stream_, object obj,
           }
         }
       } while (mconsp(STACK_0));
-      skipSTACK(1); # obj
+      # if we are here because of *PRINT-LINES*, we should print the suffix
+      # if (mconsp(STACK_0)) {
+      #   while (!nullp(Cdr(STACK_0))) STACK_0 = Cdr(STACK_0);
+      #   if (stringp(Car(STACK_0))) write_string(stream_,Car(STACK_0));
+      # }
+      skipSTACK(1); # list of PPHELP stream strings
       dynamic_unbind(); # SYS::*PRIN-LM*
       dynamic_unbind(); # SYS::*PRIN-L1*
     } else { # already a PPHELP-stream
@@ -9797,12 +9821,29 @@ LISPFUN(pprint_newline,1,1,norest,nokey,0,NIL)
   mv_count=1;
 }
 
-pr_routine_t pprint_lisp;
+pr_routine_t pprin_object;
+pr_routine_t pprin_object_dispatch;
+local void pprin_object (const object* stream_,object obj) {
+ restart_it:
+  # test for keyboard-interrupt:
+  interruptp({
+    pushSTACK(obj); # save obj in the STACK; the stream is safe
+    pushSTACK(S(print)); tast_break(); # PRINT call break-loop
+    obj = popSTACK(); # move obj back
+    goto restart_it;
+  });
+  # test for stack overflow:
+  check_SP(); check_STACK();
+  # handle circularity:
+  pr_circle(stream_,obj,&pprin_object_dispatch);
+}
 # SYS::*PRIN-PPRINTER* == the lisp function
-void pprint_lisp (const object* stream_,object obj) {
+local void pprin_object_dispatch (const object* stream_,object obj) {
   LEVEL_CHECK;
+  var uintC count = pr_external_1(*stream_); # instantiate bindings
   pushSTACK(*stream_); pushSTACK(obj);
   funcall(Symbol_value(S(prin_pprinter)),2);
+  pr_external_2(count); # dissolve bindings
   LEVEL_END;
 }
 
@@ -9815,13 +9856,32 @@ LISPFUNN(ppprint_logical_block,3)
     var object obj = STACK_1;
     var object func = STACK_2;
     dynamic_bind(S(prin_pprinter),func); # modifies STACK
-    pr_enter(&stream,obj,&pprint_lisp);
+    pr_enter(&stream,obj,&pprin_object);
     dynamic_unbind();
   } else
     pr_enter(&STACK_0,STACK_1,&prin_object);
   skipSTACK(3);
   value1=NIL;
   mv_count=1;
+}
+
+LISPFUNN(pcirclep,2)
+# (%CIRCLEP object stream)
+# return the appropriate read label or NIL
+# called from PPRINT-POP
+{
+  test_ostream();
+  # var circle_info_t ci;
+  if (!circle_p(STACK_1,NULL) || !PPHELP_STREAM_P(STACK_0)) # &ci
+    value1 = NIL;
+  else {
+    write_ascii_char(&STACK_0,'.');
+    write_ascii_char(&STACK_0,' ');
+    prin_object(&STACK_0,STACK_1);
+    value1 = T; # make_read_label(ci.n);
+  }
+  skipSTACK(2);
+  mv_count = 1;
 }
 
 LISPFUN(format_tabulate,3,2,norest,nokey,0,NIL)
