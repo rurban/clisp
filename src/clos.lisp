@@ -808,6 +808,7 @@
         ;; instances have to be updated
         (let ((copy (copy-standard-class class)))
           (setf (class-previous-definition class) copy)
+          (incf (class-id class))
           (apply (cond ((eq metaclass <standard-class>)
                         #'initialize-instance-standard-class)
                        ((eq metaclass <built-in-class>)
@@ -3693,7 +3694,6 @@
     (let ((name (class-name class)))
       (warn (TEXT "~S: Class ~S (or its ancestor) is being redefined, instances are obsolete")
             'defclass name)
-      (incf (class-id class))
       (mapc #'make-instances-obsolete (class-direct-subclasses class)))
     class)
   (:method ((class symbol)) (make-instances-obsolete (find-class class))))

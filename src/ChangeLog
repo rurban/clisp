@@ -1,3 +1,11 @@
+2003-05-21  Sam Steingold  <sds@gnu.org>
+
+	MAKE-INSTANCES-OBSOLETE now does nothing except for issuing a
+	warning: there is no point in obsoleting instances if the class
+	has not been redefined
+	* clos.lisp (ensure-class): incf CLASS-ID here
+	(make-instances-obsolete): do not incf CLASS-ID here
+
 2003-05-20  Sam Steingold  <sds@gnu.org>
 
 	even more errors are now recoverable
