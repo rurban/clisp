@@ -1,6 +1,6 @@
 /*
  * Setting up a connection to an X server, and other socket functions
- * Bruno Haible 19.6.1994, 27.6.1997, 9.3.1999 ... 2002
+ * Bruno Haible 19.6.1994, 27.6.1997, 9.3.1999 ... 2003
  * Marcus Daniels 28.9.1995, 9.9.1997
  * Sam Steingold 1998-2002
  * German comments translated into English: Stefan Kain 2002-09-11
@@ -90,7 +90,7 @@
       begin_system_call();                      \
       if ( uname(&utsname) <0) { OS_error(); }  \
       end_system_call();                        \
-      host_assignment &!utsname.nodename;       \
+      host_assignment utsname.nodename;         \
     } while(0)
 #else
   #define get_hostname(host_assignment)    ??

@@ -1455,12 +1455,12 @@ local void walk_lisp_pointers (object fvd, object obj)
       if (eq(fvdtype,S(c_struct)) && (fvdlen >= C_STRUCT_C_TYPE_START)) {
         var object slots = TheSvector(fvd)->data[C_STRUCT_SLOTS];
         var object constructor = TheSvector(fvd)->data[C_STRUCT_CONSTRUCTOR];
-        if (!(simple_vector_p(slots) &&
-              (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START)))
+        if (!(simple_vector_p(slots)
+              && (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START)))
           fehler_foreign_type(fvd);
         if (eq(constructor,L(vector))) {
-          if (!(simple_vector_p(obj) &&
-                (Svector_length(obj)==fvdlen-C_STRUCT_C_TYPE_START)))
+          if (!(simple_vector_p(obj)
+                && (Svector_length(obj)==fvdlen-C_STRUCT_C_TYPE_START)))
             goto bad_obj;
         } else if (eq(constructor,L(list))) {
         } else {
@@ -1482,8 +1482,8 @@ local void walk_lisp_pointers (object fvd, object obj)
             obji = STACK_0;
             if (atomp(obji)) goto bad_obj;
             STACK_0 = Cdr(obji); obji = Car(obji);
-          } else { /* simple_vector_p(slots) &&
-                      (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START) */
+          } else { /* simple_vector_p(slots)
+                      && (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START) */
             pushSTACK(STACK_0);
             pushSTACK(TheSvector(STACK_(2+1))->data[i-C_STRUCT_C_TYPE_START]);
             funcall(L(slot_value),2); obji = value1;
@@ -1794,12 +1794,12 @@ local void convert_to_foreign (object fvd, object obj, void* data)
       if (eq(fvdtype,S(c_struct)) && (fvdlen >= C_STRUCT_C_TYPE_START)) {
         var object slots = TheSvector(fvd)->data[C_STRUCT_SLOTS];
         var object constructor = TheSvector(fvd)->data[C_STRUCT_CONSTRUCTOR];
-        if (!(simple_vector_p(slots) &&
-              (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START)))
+        if (!(simple_vector_p(slots)
+              && (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START)))
           fehler_foreign_type(fvd);
         if (eq(constructor,L(vector))) {
-          if (!(simple_vector_p(obj) &&
-                (Svector_length(obj)==fvdlen-C_STRUCT_C_TYPE_START)))
+          if (!(simple_vector_p(obj)
+                && (Svector_length(obj)==fvdlen-C_STRUCT_C_TYPE_START)))
             goto bad_obj;
         } else if (eq(constructor,L(list))) {
         } else {
@@ -1821,8 +1821,8 @@ local void convert_to_foreign (object fvd, object obj, void* data)
             obji = STACK_0;
             if (atomp(obji)) goto bad_obj;
             STACK_0 = Cdr(obji); obji = Car(obji);
-          } else { /* simple_vector_p(slots) &&
-                      (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START) */
+          } else { /* simple_vector_p(slots)
+                      && (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START) */
             pushSTACK(STACK_0);
             pushSTACK(TheSvector(STACK_(2+1))->data[i-C_STRUCT_C_TYPE_START]);
             funcall(L(slot_value),2); obji = value1;
@@ -2348,8 +2348,8 @@ LISPFUNN(slot,2)
     if (eq(TheSvector(fvd)->data[0],S(c_struct))
         && (fvdlen >= C_STRUCT_C_TYPE_START)) {
       var object slots = TheSvector(fvd)->data[C_STRUCT_SLOTS];
-      if (!(simple_vector_p(slots) &&
-            (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START)))
+      if (!(simple_vector_p(slots)
+            && (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START)))
         fehler_foreign_type(fvd);
       var uintL cumul_size = 0;
       var uintL i;
@@ -2545,7 +2545,7 @@ LISPFUN(exec_on_stack,seclass_default,2,1,norest,nokey,0,NIL) {
   STACK_1 = fp_obj; skipSTACK(1);
   { var gcv_object_t* top_of_frame = STACK;
     var sp_jmp_buf returner; /* return point */
-    finish_entry_frame(UNWIND_PROTECT,&!returner,, goto clean_up; );
+    finish_entry_frame(UNWIND_PROTECT,returner,, goto clean_up; );
   }
   pushSTACK(fvar); funcall(thunk,1); /* protected: (funcall thunk fvar) */
   /* normal clean-up: */
@@ -2601,7 +2601,7 @@ LISPFUNN(call_with_foreign_string,6)
     pushSTACK(pointer_base);
     var gcv_object_t* top_of_frame = STACK;
     var sp_jmp_buf returner;
-    finish_entry_frame(UNWIND_PROTECT,&!returner,, {
+    finish_entry_frame(UNWIND_PROTECT,returner,, {
       /* UNWIND-PROTECT case: (MARK-INVALID-FOREIGN pointer_base) */
       var restartf_t fun = unwind_protect_to_save.fun;
       var gcv_object_t* arg = unwind_protect_to_save.upto_frame;

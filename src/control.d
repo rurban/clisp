@@ -487,13 +487,13 @@ local void make_variable_frame (object caller, object varspecs,
             (consp(varspec)
              && !eq(caller, S(multiple_value_bind))
              && (symbol = Car(varspec), varspec = Cdr(varspec),
-                 symbolp(symbol) &&
-                 ( /* two elements? */
-                  (consp(varspec) && nullp(Cdr(varspec))
-                   && (init = Car(varspec), true))
-                  || /* one-element (allowed at LET, LET* according to X3J13 vote <182> ) */
-                  (nullp(varspec) && !eq(caller,S(symbol_macrolet))
-                   && (init = NIL, true))))) {
+                 symbolp(symbol)
+                 && ( /* two elements? */
+                     (consp(varspec) && nullp(Cdr(varspec))
+                      && (init = Car(varspec), true))
+                     || /* one-element (allowed at LET, LET* according to X3J13 vote <182> ) */
+                     (nullp(varspec) && !eq(caller,S(symbol_macrolet))
+                      && (init = NIL, true))))) {
             /* now init = Car(varspec) or = NIL */
           } else {
             pushSTACK(value1); pushSTACK(value2);         /* save */
@@ -1255,7 +1255,7 @@ LISPSPECFORM(block, 1,0,body)
     var gcv_object_t* top_of_frame = STACK; /* pointer to frame */
     pushSTACK(name); /* block-name */
     pushSTACK(aktenv.block_env); /* current BLOCK_ENV as NEXT_ENV */
-    finish_entry_frame(IBLOCK,&!returner,, goto block_return; );
+    finish_entry_frame(IBLOCK,returner,, goto block_return; );
   }
   { /* build BENV-frame: */
     var gcv_object_t* top_of_frame = STACK;
@@ -1580,7 +1580,7 @@ LISPSPECFORM(tagbody, 0,0,body)
   if (tagcount>0) {
     var sp_jmp_buf returner; /* return point */
     pushSTACK(aktenv.go_env); /* current GO_ENV as NEXT_ENV */
-    finish_entry_frame(ITAGBODY,&!returner,, goto go_entry; );
+    finish_entry_frame(ITAGBODY,returner,, goto go_entry; );
     /* extend GO_ENV: */
     aktenv.go_env = make_framepointer(STACK);
     if (false) {
@@ -1861,7 +1861,7 @@ LISPSPECFORM(catch, 1,0,body)
   var object body = popSTACK(); /* ({form}) */
   var gcv_object_t* top_of_frame = STACK STACKop 1; /* pointer above frame */
   var sp_jmp_buf returner; /* memorize return point */
-  finish_entry_frame(CATCH,&!returner,, goto catch_return; );
+  finish_entry_frame(CATCH,returner,, goto catch_return; );
   /* execute body: */
   implicit_progn(body,NIL);
  catch_return: /* we jump to this label, if the catch-frame built
@@ -1877,7 +1877,7 @@ LISPSPECFORM(unwind_protect, 1,0,body)
   pushSTACK(cleanup);
   var gcv_object_t* top_of_frame = STACK;
   var sp_jmp_buf returner; /* return point */
-  finish_entry_frame(UNWIND_PROTECT,&!returner,, goto throw_save; );
+  finish_entry_frame(UNWIND_PROTECT,returner,, goto throw_save; );
   /* evaluate protected form: */
   eval(form);
   { /* Cleanup after normal termination of the protected form: */
@@ -1933,7 +1933,7 @@ LISPFUNN(driver,1)
  that can be aborted with GO or THROW . */
   var gcv_object_t* top_of_frame = STACK; /* pointer above frame */
   var sp_jmp_buf returner; /* remember entry point */
-  finish_entry_frame(DRIVER,&!returner,,;);
+  finish_entry_frame(DRIVER,returner,,;);
   /* this is the entry point. */
   loop { funcall(STACK_(0+2),0); } /* call fun, endless loop */
 }

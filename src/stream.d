@@ -2324,8 +2324,8 @@ global object get_output_stream_string (const gcv_object_t* stream_) {
 LISPFUNN(get_output_stream_string,1) {
   var object stream = STACK_0; # Argument
   # must be a String-Output-Stream:
-  if (!(builtin_stream_p(stream) &&
-        (TheStream(stream)->strmtype == strmtype_str_out))) {
+  if (!(builtin_stream_p(stream)
+        && (TheStream(stream)->strmtype == strmtype_str_out))) {
     # stream in STACK_0
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: ~ is not a string output stream"));
@@ -2636,8 +2636,8 @@ LISPFUNNR(buffered_input_stream_index,1)
      returns the Index */
   var object stream = popSTACK(); # Argument
   # must be a Buffered-Input-Stream:
-  if (!(builtin_stream_p(stream) &&
-        (TheStream(stream)->strmtype == strmtype_buff_in))) {
+  if (!(builtin_stream_p(stream)
+        && (TheStream(stream)->strmtype == strmtype_buff_in))) {
     pushSTACK(stream);
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: ~ is not a buffered input stream"));
@@ -3129,15 +3129,14 @@ local object canon_eltype (const decoded_el_t* decoded) {
 
 # UP: Deletes already entered interactive Input from a Handle.
   local void clear_tty_input (Handle handle);
-  #if !defined(RISCOS)
-  local void clear_tty_input(handle)
-    var Handle handle;
-    {
-      # Method 1: tcflush TCIFLUSH, see TERMIOS(3V)
-      # Method 2: ioctl TCFLSH TCIFLUSH, see TERMIO(4)
-      # Method 3: ioctl TIOCFLUSH FREAD, see TTCOMPAT(4)
-      begin_system_call();
-      #ifdef UNIX_TERM_TERMIOS
+#if !defined(RISCOS)
+  local void clear_tty_input (Handle handle)
+   {
+    # Method 1: tcflush TCIFLUSH, see TERMIOS(3V)
+    # Method 2: ioctl TCFLSH TCIFLUSH, see TERMIO(4)
+    # Method 3: ioctl TIOCFLUSH FREAD, see TTCOMPAT(4)
+    begin_system_call();
+    #ifdef UNIX_TERM_TERMIOS
       if (!( TCFLUSH(handle,TCIFLUSH) ==0)) {
         if (!((errno==ENOTTY)||(errno==EINVAL))) { # no TTY: OK
           local bool flag = false;
@@ -3145,8 +3144,8 @@ local object canon_eltype (const decoded_el_t* decoded) {
           if (!flag) { flag = true; OS_error(); }
         }
       }
-      #endif
-      #ifdef UNIX_TERM_TERMIO
+    #endif
+    #ifdef UNIX_TERM_TERMIO
       #ifdef TCIFLUSH # !RISCOS
       if (!( ioctl(handle,TCFLSH,(CADDR_T)TCIFLUSH) ==0)) {
         if (!(errno==ENOTTY)) { # no TTY: OK
@@ -3156,8 +3155,8 @@ local object canon_eltype (const decoded_el_t* decoded) {
         }
       }
       #endif
-      #endif
-      #ifdef UNIX_TERM_SGTTY
+    #endif
+    #ifdef UNIX_TERM_SGTTY
       #ifdef FREAD # !UNIX_MINT
       {
         var int arg = FREAD;
@@ -3170,32 +3169,31 @@ local object canon_eltype (const decoded_el_t* decoded) {
         }
       }
       #endif
-      #endif
-      #ifdef EMUNIX
+    #endif
+    #ifdef EMUNIX
       # Eberhard Mattes says, this works only, if IDEFAULT is not set. ??
       if (!( ioctl(handle,TCFLSH,0) ==0)) {
         if (!(errno==ENOTTY)) { OS_error(); } # no TTY: OK, other Error
       }
-      #endif
-      end_system_call();
-    }
-  #else
-    #define clear_tty_input(handle)
-  #endif
+    #endif
+    end_system_call();
+  }
+#else
+  #define clear_tty_input(handle)
+#endif
 
 # UP: Move the pending Output of a Handle to the destination.
   local void finish_tty_output (Handle handle);
-  #if !defined(RISCOS)
-  local void finish_tty_output(handle)
-    var Handle handle;
-    {
-      # Method 1: fsync, see FSYNC(2)
-      # Method 2: tcdrain, see TERMIOS(3V)
-      # Method 3: ioctl TCSBRK 1, see TERMIO(4)
-      # poss. Method 3: ioctl TCGETS/TCSETSW, see TERMIO(4)
-      # or (almost equivalent) ioctl TIOCGETP/TIOCSETP, see TTCOMPAT(4)
-      begin_system_call();
-      #if !(defined(UNIX) && !defined(HAVE_FSYNC))
+#if !defined(RISCOS)
+  local void finish_tty_output (Handle handle)
+  {
+    # Method 1: fsync, see FSYNC(2)
+    # Method 2: tcdrain, see TERMIOS(3V)
+    # Method 3: ioctl TCSBRK 1, see TERMIO(4)
+    # poss. Method 3: ioctl TCGETS/TCSETSW, see TERMIO(4)
+    # or (almost equivalent) ioctl TIOCGETP/TIOCSETP, see TTCOMPAT(4)
+    begin_system_call();
+    #if !(defined(UNIX) && !defined(HAVE_FSYNC))
       if (!( fsync(handle) ==0)) {
         #ifndef UNIX_BEOS # BeOS 5 apparently does not set errno
           #if defined(UNIX_IRIX) || defined(EMUNIX)
@@ -3208,19 +3206,19 @@ local object canon_eltype (const decoded_el_t* decoded) {
             { OS_error(); }
         #endif
       }
-      #endif
-      #ifdef UNIX_TERM_TERMIOS
+    #endif
+    #ifdef UNIX_TERM_TERMIOS
       if (!( TCDRAIN(handle) ==0)) {
         if (!((errno==ENOTTY)||(errno==EINVAL)))
           { OS_error(); } # no TTY: OK, report other Error
       }
-      #endif
-      #ifdef UNIX_TERM_TERMIO
+    #endif
+    #ifdef UNIX_TERM_TERMIO
       if (!( ioctl(handle,TCSBRK,(CADDR_T)1) ==0)) {
         if (!(errno==ENOTTY)) { OS_error(); }
       }
-      #endif
-      #if defined(UNIX_TERM_TERMIOS) && defined(TCGETS) && defined(TCSETSW)
+    #endif
+    #if defined(UNIX_TERM_TERMIOS) && defined(TCGETS) && defined(TCSETSW)
       {
         var struct termios term_parameters;
         if (!(   ( ioctl(handle,TCGETS,&term_parameters) ==0)
@@ -3229,8 +3227,8 @@ local object canon_eltype (const decoded_el_t* decoded) {
             { OS_error(); } # no TTY: OK, report other Error
         }
       }
-      #endif
-      #ifdef EMUNIX
+    #endif
+    #ifdef EMUNIX
       {
         var struct termio term_parameters;
         if (!(   ( ioctl(handle,TCGETA,&term_parameters) ==0)
@@ -3238,8 +3236,8 @@ local object canon_eltype (const decoded_el_t* decoded) {
           if (!(errno==ENOTTY)) { OS_error(); }
         }
       }
-      #endif
-      #if 0 # Caution: This should cause FINISH-OUTPUT and CLEAR-INPUT!
+    #endif
+    #if 0 # Caution: This should cause FINISH-OUTPUT and CLEAR-INPUT!
       {
         var struct sgttyb tty_parameters;
         if (!(   ( ioctl(handle,TIOCGETP,&tty_parameters) ==0)
@@ -3247,50 +3245,48 @@ local object canon_eltype (const decoded_el_t* decoded) {
           if (!(errno==ENOTTY)) { OS_error(); }
         }
       }
-      #endif
-      end_system_call();
-    }
-  #else
-    #define finish_tty_output(handle)
-  #endif
+    #endif
+    end_system_call();
+  }
+#else
+  #define finish_tty_output(handle)
+#endif
 
 # UP: Move the pending Output of a Handle to the destination.
   local void force_tty_output (Handle handle);
-  #if !((defined(UNIX) && !defined(HAVE_FSYNC)) || defined(RISCOS))
-  local void force_tty_output(handle)
-    var Handle handle;
-    {
-      # Method: fsync, see FSYNC(2)
-      begin_system_call();
-      if (!( fsync(handle) ==0)) {
-        #ifndef UNIX_BEOS # BeOS 5 apparently does not set errno
-          #if defined(UNIX_IRIX) || defined(EMUNIX)
-          if (!(errno==ENOSYS))
-          #endif
-          #ifdef UNIX_CYGWIN32 /* for win95 and xterm/rxvt */
-          if ((errno != EBADF) && (errno != EACCES))
-          #endif
-          if (!(errno==EINVAL))
-            { OS_error(); }
+#if !((defined(UNIX) && !defined(HAVE_FSYNC)) || defined(RISCOS))
+  local void force_tty_output (Handle handle)
+  {
+    # Method: fsync, see FSYNC(2)
+    begin_system_call();
+    if (!( fsync(handle) ==0)) {
+      #ifndef UNIX_BEOS # BeOS 5 apparently does not set errno
+        #if defined(UNIX_IRIX) || defined(EMUNIX)
+        if (!(errno==ENOSYS))
         #endif
-      }
-      end_system_call();
+        #ifdef UNIX_CYGWIN32 /* for win95 and xterm/rxvt */
+        if ((errno != EBADF) && (errno != EACCES))
+        #endif
+        if (!(errno==EINVAL))
+          OS_error();
+      #endif
     }
-  #else
-    #define force_tty_output(handle)
-  #endif
+    end_system_call();
+  }
+#else
+  #define force_tty_output(handle)
+#endif
 
 # UP: Deletes the pending Output of a Handle.
   local void clear_tty_output (Handle handle);
-  #if !(defined(EMUNIX) || defined(RISCOS))
-  local void clear_tty_output(handle)
-    var Handle handle;
-    {
-      # Method 1: tcflush TCOFLUSH, see TERMIOS(3V)
-      # Method 2: ioctl TCFLSH TCOFLUSH, see TERMIO(4)
-      # Method 3: ioctl TIOCFLUSH FWRITE, see TTCOMPAT(4)
-      begin_system_call();
-      #ifdef UNIX_TERM_TERMIOS
+#if !(defined(EMUNIX) || defined(RISCOS))
+  local void clear_tty_output (Handle handle)
+  {
+    # Method 1: tcflush TCOFLUSH, see TERMIOS(3V)
+    # Method 2: ioctl TCFLSH TCOFLUSH, see TERMIO(4)
+    # Method 3: ioctl TIOCFLUSH FWRITE, see TTCOMPAT(4)
+    begin_system_call();
+    #ifdef UNIX_TERM_TERMIOS
       if (!( TCFLUSH(handle,TCOFLUSH) ==0)) {
         #ifdef UNIX_IRIX
         if (!(errno==ENOSYS))
@@ -3298,15 +3294,15 @@ local object canon_eltype (const decoded_el_t* decoded) {
         if (!((errno==ENOTTY)||(errno==EINVAL)))
           { OS_error(); } # no TTY: OK, report other Error
       }
-      #endif
-      #ifdef UNIX_TERM_TERMIO
+    #endif
+    #ifdef UNIX_TERM_TERMIO
       #ifdef TCOFLUSH # !RISCOS
       if (!( ioctl(handle,TCFLSH,(CADDR_T)TCOFLUSH) ==0)) {
         if (!(errno==ENOTTY)) { OS_error(); } # no TTY: OK, report other Error
       }
       #endif
-      #endif
-      #ifdef UNIX_TERM_SGTTY
+    #endif
+    #ifdef UNIX_TERM_SGTTY
       #ifdef FWRITE # !UNIX_MINT
       {
         var int arg = FWRITE;
@@ -3315,12 +3311,12 @@ local object canon_eltype (const decoded_el_t* decoded) {
         }
       }
       #endif
-      #endif
-      end_system_call();
-    }
-  #else
-    #define clear_tty_output(handle)
-  #endif
+    #endif
+    end_system_call();
+  }
+#else
+  #define clear_tty_output(handle)
+#endif
 
 #endif # defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
 
@@ -7976,8 +7972,8 @@ local void close_buffered (object stream) {
 LISPFUNNF(file_stream_p,1)
 { /* (SYS::FILE-STREAM-P stream) == (TYPEP stream 'FILE-STREAM) */
   var object arg = popSTACK();
-  VALUES_IF(builtin_stream_p(arg) &&
-            (TheStream(arg)->strmtype == strmtype_file));
+  VALUES_IF(builtin_stream_p(arg)
+            && (TheStream(arg)->strmtype == strmtype_file));
 }
 
 
@@ -9086,18 +9082,18 @@ local object make_keyboard_stream (void) {
           # ESC O p -> Insert, ESC O l -> Delete.
           var char cap[4];
           cap[0] = ESC; cap[1] = 'O'; cap[3] = '\0';
-          cap[2] = 'M'; keybinding(&!cap, key_ascii('M'-64));
-          cap[2] = '+'+64; keybinding(&!cap, key_ascii('+'));
-          cap[2] = '-'+64; keybinding(&!cap, key_ascii('-'));
-          cap[2] = '*'+64; keybinding(&!cap, key_ascii('*'));
-          cap[2] = '/'+64; keybinding(&!cap, key_ascii('/'));
-          cap[2] = '8'+64; keybinding(&!cap, key_special("UP")); # #\Up
-          cap[2] = '2'+64; keybinding(&!cap, key_special("DOWN")); # #\Down
-          cap[2] = '6'+64; keybinding(&!cap, key_special("RIGHT")); # #\Right
-          cap[2] = '4'+64; keybinding(&!cap, key_special("LEFT")); # #\Left
-          cap[2] = '0'+64; keybinding(&!cap, key_special("INSERT")); # #\Insert
-          cap[2] = '.'+64; keybinding(&!cap, key_special("DELETE")); # #\Delete
-          cap[2] = ','+64; keybinding(&!cap, key_special("DELETE")); # #\Delete
+          cap[2] = 'M'; keybinding(cap, key_ascii('M'-64));
+          cap[2] = '+'+64; keybinding(cap, key_ascii('+'));
+          cap[2] = '-'+64; keybinding(cap, key_ascii('-'));
+          cap[2] = '*'+64; keybinding(cap, key_ascii('*'));
+          cap[2] = '/'+64; keybinding(cap, key_ascii('/'));
+          cap[2] = '8'+64; keybinding(cap, key_special("UP")); # #\Up
+          cap[2] = '2'+64; keybinding(cap, key_special("DOWN")); # #\Down
+          cap[2] = '6'+64; keybinding(cap, key_special("RIGHT")); # #\Right
+          cap[2] = '4'+64; keybinding(cap, key_special("LEFT")); # #\Left
+          cap[2] = '0'+64; keybinding(cap, key_special("INSERT")); # #\Insert
+          cap[2] = '.'+64; keybinding(cap, key_special("DELETE")); # #\Delete
+          cap[2] = ','+64; keybinding(cap, key_special("DELETE")); # #\Delete
           # "7" -> #\Home, "1" -> #\End, "9" -> #\PgUp, "3" -> #\PgDn,
           # "5" -> #\Center are already handled above.
         }
@@ -9258,7 +9254,7 @@ global char** lisp_completion (char* text, int start, int end) {
         var gcv_object_t* top_of_frame = STACK;
         pushSTACK(S(conversion_failure));
         var sp_jmp_buf returner;
-        finish_entry_frame(CATCH,&!returner,, goto catch_return; );
+        finish_entry_frame(CATCH,returner,, goto catch_return; );
       }
       # Upon charset_type_error, call lisp_completion_ignore.
       make_HANDLER_frame(O(handler_for_charset_type_error),
@@ -12524,7 +12520,7 @@ local const char * init_term (void) {
   # screen-size with _scrsize().
   {
     var int scrsize[2];
-    _scrsize(&!scrsize);
+    _scrsize(scrsize);
     if (scrsize[0] > 0)
       cols = scrsize[0];
     if (scrsize[1] > 0)

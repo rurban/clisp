@@ -35,41 +35,37 @@ typedef struct malloca_header_t {
 # Linked list of blocks, the most recent in front, the oldest at the end.
   local malloca_header_t* malloca_list = NULL;
 
-  global void* malloca (size_t size);
-  global void* malloca(size)
-    var size_t size;
-    {
-      var malloca_header_t* ptr = (malloca_header_t*)malloc(offsetofa(malloca_header_t,usable_memory) + size);
-      if (!(ptr == NULL)) {
-        ptr->next = malloca_list;
-        malloca_list = ptr;
-        return &ptr->usable_memory;
-      } else {
-        #ifdef VIRTUAL_MEMORY
-        fprintf(stderr,GETTEXTL(NLstring "*** - " "Virtual memory exhausted. RESET"));
-        #else
-        fprintf(stderr,GETTEXTL(NLstring "*** - " "Memory exhausted. RESET")); :
-        #endif
-        reset(1);
-      }
+  global void* malloca (size_t size)
+  {
+    var malloca_header_t* ptr = (malloca_header_t*)malloc(offsetofa(malloca_header_t,usable_memory) + size);
+    if (!(ptr == NULL)) {
+      ptr->next = malloca_list;
+      malloca_list = ptr;
+      return &ptr->usable_memory;
+    } else {
+      #ifdef VIRTUAL_MEMORY
+      fprintf(stderr,GETTEXTL(NLstring "*** - " "Virtual memory exhausted. RESET"));
+      #else
+      fprintf(stderr,GETTEXTL(NLstring "*** - " "Memory exhausted. RESET")); :
+      #endif
+      reset(1);
     }
+  }
 
-  global void freea (void* ptr);
-  global void freea(address)
-    var void* address;
-    {
-      var malloca_header_t* ptr = (malloca_header_t*)
-        ((aint)address - offsetofa(malloca_header_t,usable_memory));
-      var malloca_header_t* p = malloca_list;
-      loop {
-        var malloca_header_t* n = p->next;
-        free(p);
-        if (!(p == ptr)) {
-          p = n;
-        } else {
-          malloca_list = n; break;
-        }
+  global void freea (void* address)
+  {
+    var malloca_header_t* ptr = (malloca_header_t*)
+      ((aint)address - offsetofa(malloca_header_t,usable_memory));
+    var malloca_header_t* p = malloca_list;
+    loop {
+      var malloca_header_t* n = p->next;
+      free(p);
+      if (!(p == ptr)) {
+        p = n;
+      } else {
+        malloca_list = n; break;
       }
     }
+  }
 
 #endif

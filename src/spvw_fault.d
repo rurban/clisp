@@ -67,67 +67,63 @@ local void xmmprotect (aint addr, uintL len, int prot);
                      # or      SPVW_MIXED_BLOCKS_STAGGERED
 
 # subroutine for reading a page from the mem-file.
-local int handle_mmap_fault (off_t offset, aint address, uintB* memfile_page);
-local int handle_mmap_fault(offset,address,memfile_page)
-  var off_t offset;
-  var aint address;
-  var uintB* memfile_page;
-  {
-    if (*memfile_page == 0) {
-      # Page already in memory, nothing to be done.
-      return 0;
-    }
-    # Fetch the page from the file.
-    var Handle handle = mem.memfile_handle;
-    var off_t orig_offset = 0;
-    # If loadmem() is still reading from the memfile, we must be careful
-    # to restore the handle's file position. (This could be avoided under
-    # UNIX by using dup(), but not on WIN32_NATIVE.)
-    if (mem.memfile_still_being_read) {
-      orig_offset = lseek(handle,0,SEEK_CUR);
-      if (orig_offset < 0) {
-        fputs("selfmade_mmap: lseek() failed.",stderr);
-        errno_out(OS_errno);
-        return -1;
-      }
-    }
-    if (zeromap((void*)address,physpagesize) < 0) {
-      fputs("selfmade_mmap: zeromap() failed.",stderr);
-      return -1;
-    }
-    if (lseek(handle,offset,SEEK_SET) < 0) {
-      fprintf(stderr,"selfmade_mmap: lseek(0x%lx) failed.",(unsigned long)offset);
+local int handle_mmap_fault (off_t offset, aint address, uintB* memfile_page)
+{
+  if (*memfile_page == 0) {
+    # Page already in memory, nothing to be done.
+    return 0;
+  }
+  # Fetch the page from the file.
+  var Handle handle = mem.memfile_handle;
+  var off_t orig_offset = 0;
+  # If loadmem() is still reading from the memfile, we must be careful
+  # to restore the handle's file position. (This could be avoided under
+  # UNIX by using dup(), but not on WIN32_NATIVE.)
+  if (mem.memfile_still_being_read) {
+    orig_offset = lseek(handle,0,SEEK_CUR);
+    if (orig_offset < 0) {
+      fputs("selfmade_mmap: lseek() failed.",stderr);
       errno_out(OS_errno);
       return -1;
     }
-    #ifdef DEBUG_SPVW
-    fprintf(stderr,"selfmade_mmap: address=0x%lx <-- offset=0x%lx\n",
-            address,(unsigned long)offset);
-    #endif
-    var sintL res;
-    #ifdef WIN32_NATIVE
-    # Call ReadFile(), not full_read(), because we don't want to handle Ctrl-C now.
-    if (!ReadFile(handle,(void*)address,physpagesize,&res,NULL))
-      res = -1;
-    #else
-    res = full_read(handle,(void*)address,physpagesize);
-    #endif
-    if (res != physpagesize) {
-      fprintf(stderr,"selfmade_mmap: full_read(offset=0x%lx,count=%d) failed, returned %d.",(unsigned long)offset,physpagesize,res);
-      if (res < 0) errno_out(OS_errno);
+  }
+  if (zeromap((void*)address,physpagesize) < 0) {
+    fputs("selfmade_mmap: zeromap() failed.",stderr);
+    return -1;
+  }
+  if (lseek(handle,offset,SEEK_SET) < 0) {
+    fprintf(stderr,"selfmade_mmap: lseek(0x%lx) failed.",(unsigned long)offset);
+    errno_out(OS_errno);
+    return -1;
+  }
+  #ifdef DEBUG_SPVW
+  fprintf(stderr,"selfmade_mmap: address=0x%lx <-- offset=0x%lx\n",
+          address,(unsigned long)offset);
+  #endif
+  var sintL res;
+  #ifdef WIN32_NATIVE
+  # Call ReadFile(), not full_read(), because we don't want to handle Ctrl-C now.
+  if (!ReadFile(handle,(void*)address,physpagesize,&res,NULL))
+    res = -1;
+  #else
+  res = full_read(handle,(void*)address,physpagesize);
+  #endif
+  if (res != physpagesize) {
+    fprintf(stderr,"selfmade_mmap: full_read(offset=0x%lx,count=%d) failed, returned %d.",(unsigned long)offset,physpagesize,res);
+    if (res < 0) errno_out(OS_errno);
+    return -1;
+  }
+  if (mem.memfile_still_being_read) {
+    if (lseek(handle,orig_offset,SEEK_SET) < 0) {
+      fprintf(stderr,"selfmade_mmap: lseek(0x%lx) failed.",(unsigned long)orig_offset);
+      errno_out(OS_errno);
       return -1;
     }
-    if (mem.memfile_still_being_read) {
-      if (lseek(handle,orig_offset,SEEK_SET) < 0) {
-        fprintf(stderr,"selfmade_mmap: lseek(0x%lx) failed.",(unsigned long)orig_offset);
-        errno_out(OS_errno);
-        return -1;
-      }
-    }
-    # Done.
-    *memfile_page = 0;
-    return 1;
   }
+  # Done.
+  *memfile_page = 0;
+  return 1;
+}
 
 #endif # SELFMADE_MMAP
 
@@ -136,69 +132,63 @@ local int handle_mmap_fault(offset,address,memfile_page)
                        # or      SPVW_MIXED_BLOCKS_OPPOSITE
 
 # subroutine for protection: PROT_NONE -> PROT_READ
-local int handle_read_fault (aint address, physpage_state_t* physpage);
-local int handle_read_fault(address,physpage)
-  var aint address;
-  var physpage_state_t* physpage;
+local int handle_read_fault (aint address, physpage_state_t* physpage)
+{
+  # bring page up to date with the state of the cache:
   {
-    # bring page up to date with the state of the cache:
-    {
-      var uintL count = physpage->cache_size;
-      if (count > 0) {
-        var old_new_pointer_t* ptr = physpage->cache;
-        #if !defined(MULTIMAP_MEMORY)
-        if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ_WRITE) < 0)
-          return -1;
-        #endif
-        dotimespL(count,count, {
-          *(ptr->p) = ptr->o;
-          ptr++;
-        });
-      }
+    var uintL count = physpage->cache_size;
+    if (count > 0) {
+      var old_new_pointer_t* ptr = physpage->cache;
+      #if !defined(MULTIMAP_MEMORY)
+      if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ_WRITE) < 0)
+        return -1;
+      #endif
+      dotimespL(count,count, {
+        *(ptr->p) = ptr->o;
+        ptr++;
+      });
     }
-    # superimpose page read-only:
-    #if !defined(MULTIMAP_MEMORY)
-    if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ) < 0)
-      return -1;
-    #else # MULTIMAP_MEMORY
-    #if !defined(WIDE_SOFT)
-    ASSERT(address == upointer(address));
-    #endif
-    {
-      var uintL type;
-      for (type = 0; type < typecount; type++)
-        if (mem.heapnr_from_type[type] >= 0) # type listed in MM_TYPECASES?
-          if (mprotect((MMAP_ADDR_T)combine(type,address), physpagesize, PROT_READ) < 0)
-            return -1;
-    }
-    #endif
-    physpage->protection = PROT_READ;
-    return 0;
   }
+  # superimpose page read-only:
+  #if !defined(MULTIMAP_MEMORY)
+  if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ) < 0)
+    return -1;
+  #else # MULTIMAP_MEMORY
+  #if !defined(WIDE_SOFT)
+  ASSERT(address == upointer(address));
+  #endif
+  {
+    var uintL type;
+    for (type = 0; type < typecount; type++)
+      if (mem.heapnr_from_type[type] >= 0) # type listed in MM_TYPECASES?
+        if (mprotect((MMAP_ADDR_T)combine(type,address), physpagesize, PROT_READ) < 0)
+          return -1;
+  }
+  #endif
+  physpage->protection = PROT_READ;
+  return 0;
+}
 
 # subroutine for protection: PROT_READ -> PROT_READ_WRITE
-local int handle_readwrite_fault (aint address, physpage_state_t* physpage);
-local int handle_readwrite_fault(address,physpage)
-  var aint address;
-  var physpage_state_t* physpage;
+local int handle_readwrite_fault (aint address, physpage_state_t* physpage)
+{
+  # superimose page read-write:
+  #if !defined(MULTIMAP_MEMORY)
+  if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ_WRITE) < 0)
+    return -1;
+  #else # MULTIMAP_MEMORY
+  ASSERT(address == upointer(address));
   {
-    # superimose page read-write:
-    #if !defined(MULTIMAP_MEMORY)
-    if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ_WRITE) < 0)
-      return -1;
-    #else # MULTIMAP_MEMORY
-    ASSERT(address == upointer(address));
-    {
-      var uintL type;
-      for (type = 0; type < typecount; type++)
-        if (mem.heapnr_from_type[type] >= 0) # type listed in MM_TYPECASES?
-          if (mprotect((MMAP_ADDR_T)combine(type,address), physpagesize, PROT_READ_WRITE) < 0)
-            return -1;
-    }
-    #endif
-    physpage->protection = PROT_READ_WRITE;
-    return 0;
+    var uintL type;
+    for (type = 0; type < typecount; type++)
+      if (mem.heapnr_from_type[type] >= 0) # type listed in MM_TYPECASES?
+        if (mprotect((MMAP_ADDR_T)combine(type,address), physpagesize, PROT_READ_WRITE) < 0)
+          return -1;
   }
+  #endif
+  physpage->protection = PROT_READ_WRITE;
+  return 0;
+}
 
 # mapped generation: the old one
 #define heap_mgen_start  heap_gen0_start
@@ -211,25 +201,23 @@ local int handle_readwrite_fault(address,physpage)
 
 #endif # GENERATIONAL_GC
 
-local handle_fault_result_t handle_fault(address,verbose)
-  var aint address;
-  var int verbose;
+local handle_fault_result_t handle_fault (aint address, int verbose)
+{
+  var uintL heapnr;
+  var object obj = as_object((oint)address << oint_addr_shift);
+  var aint uaddress = canon(address); # hopefully = canonaddr(obj);
+  var aint pa_uaddress = uaddress & -physpagesize; # page aligned address
+  #ifdef SPVW_PURE_BLOCKS
+  heapnr = typecode(obj);
+  #elif defined(SPVW_MIXED_BLOCKS_STAGGERED)
+  heapnr = (uaddress >= mem.heaps[1].heap_mgen_start ? 1 : 0);
+  #else # SPVW_MIXED_BLOCKS_OPPOSITE
+  heapnr = (uaddress >= mem.heaps[1].heap_start ? 1 : 0);
+  #endif
   {
-    var uintL heapnr;
-    var object obj = as_object((oint)address << oint_addr_shift);
-    var aint uaddress = canon(address); # hopefully = canonaddr(obj);
-    var aint pa_uaddress = uaddress & -physpagesize; # page aligned address
-    #ifdef SPVW_PURE_BLOCKS
-    heapnr = typecode(obj);
-    #elif defined(SPVW_MIXED_BLOCKS_STAGGERED)
-    heapnr = (uaddress >= mem.heaps[1].heap_mgen_start ? 1 : 0);
-    #else # SPVW_MIXED_BLOCKS_OPPOSITE
-    heapnr = (uaddress >= mem.heaps[1].heap_start ? 1 : 0);
-    #endif
-    {
-      var Heap* heap = &mem.heaps[heapnr];
-      var uintL pageno;
-      #ifdef SELFMADE_MMAP
+    var Heap* heap = &mem.heaps[heapnr];
+    var uintL pageno;
+    #ifdef SELFMADE_MMAP
       if (is_unused_heap(heapnr))
         goto error1;
       if (!((heap->heap_mgen_start <= uaddress) && (uaddress < heap->heap_mgen_end)))
@@ -267,8 +255,8 @@ local handle_fault_result_t handle_fault(address,verbose)
           #endif
         }
       }
-      #endif
-      #ifdef GENERATIONAL_GC
+    #endif
+    #ifdef GENERATIONAL_GC
       if (!is_heap_containing_objects(heapnr))
         goto error1;
       if (!((heap->heap_gen0_start <= uaddress) && (uaddress < heap->heap_gen0_end)))
@@ -323,32 +311,32 @@ local handle_fault_result_t handle_fault(address,verbose)
       if (verbose)
         fprintf(stderr,"\n*** - " "handle_fault error5 !");
       goto error;
-      #endif
-     error1: # A fault was not expected on this type of heap.
-      if (verbose)
-        fprintf(stderr,"\n*** - " "handle_fault error1 !");
-      goto error;
-     error2: # The address is outside of the used address range for this heap.
-      if (verbose)
-        fprintf(stderr,"\n*** - " "handle_fault error2 ! address = 0x%x not in [0x%x,0x%x) !", address, heap->heap_mgen_start, heap->heap_mgen_end);
-      goto error;
-      #ifdef SELFMADE_MMAP
-     error3: # handle_mmap_fault() failed
-      if (verbose)
-        fprintf(stderr,"\n*** - " "handle_fault error3 !");
-      goto error;
-      #endif
-      #if defined(SELFMADE_MMAP) && defined(GENERATIONAL_GC)
-     error4: # The page ought not to be read-write, although we just paged it in.
-      if (verbose)
-        fprintf(stderr,"\n*** - " "handle_fault error4 ! protection = %d",
-                heap->physpages[pageno].protection);
-      goto error;
-      #endif
-    }
-   error:
-    return handler_failed;
+    #endif
+   error1: # A fault was not expected on this type of heap.
+    if (verbose)
+      fprintf(stderr,"\n*** - " "handle_fault error1 !");
+    goto error;
+   error2: # The address is outside of the used address range for this heap.
+    if (verbose)
+      fprintf(stderr,"\n*** - " "handle_fault error2 ! address = 0x%x not in [0x%x,0x%x) !", address, heap->heap_mgen_start, heap->heap_mgen_end);
+    goto error;
+    #ifdef SELFMADE_MMAP
+   error3: # handle_mmap_fault() failed
+    if (verbose)
+      fprintf(stderr,"\n*** - " "handle_fault error3 !");
+    goto error;
+    #endif
+    #if defined(SELFMADE_MMAP) && defined(GENERATIONAL_GC)
+   error4: # The page ought not to be read-write, although we just paged it in.
+    if (verbose)
+      fprintf(stderr,"\n*** - " "handle_fault error4 ! protection = %d",
+              heap->physpages[pageno].protection);
+    goto error;
+    #endif
   }
+ error:
+  return handler_failed;
+}
 
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED_BLOCKS)) || defined(SELFMADE_MMAP)
 # System calls like read() and write(), when they operate on pages with
@@ -356,21 +344,17 @@ local handle_fault_result_t handle_fault(address,verbose)
 # errno=EFAULT and unpredictable side effects.
 # handle_fault_range(PROT_READ,start,end) makes an address range readable.
 # handle_fault_range(PROT_READ_WRITE,start,end) makes an address range writable.
-global bool handle_fault_range (int prot, aint start_address, aint end_address);
-global bool handle_fault_range(prot,start_address,end_address)
-  var int prot;
-  var aint start_address;
-  var aint end_address;
-  {
-    start_address = canon(start_address);
-    end_address = canon(end_address);
-    if (!(start_address < end_address))
-      return true;
-    var Heap* heap = &mem.heaps[0]; # varobject_heap
-    var bool did_pagein = false;
-    if ((end_address <= heap->heap_mgen_start) || (heap->heap_mgen_end <= start_address))
-      return true; # nothing to do, but strange that an error occurred at all
-    #ifdef SELFMADE_MMAP
+global bool handle_fault_range (int prot, aint start_address, aint end_address)
+{
+  start_address = canon(start_address);
+  end_address = canon(end_address);
+  if (!(start_address < end_address))
+    return true;
+  var Heap* heap = &mem.heaps[0]; # varobject_heap
+  var bool did_pagein = false;
+  if ((end_address <= heap->heap_mgen_start) || (heap->heap_mgen_end <= start_address))
+    return true; # nothing to do, but strange that an error occurred at all
+  #ifdef SELFMADE_MMAP
     if (heap->memfile_numpages > 0) {
       var aint pa_uaddress;
       for (pa_uaddress = start_address & -physpagesize; pa_uaddress < end_address; pa_uaddress += physpagesize)
@@ -415,8 +399,8 @@ global bool handle_fault_range(prot,start_address,end_address)
             }
         }
     }
-    #endif
-    #ifdef GENERATIONAL_GC
+  #endif
+  #ifdef GENERATIONAL_GC
     if (heap->physpages == NULL) {
       if (did_pagein)
         return true;
@@ -441,33 +425,29 @@ global bool handle_fault_range(prot,start_address,end_address)
         }
     }
     return true;
-    #else
+  #else
     return did_pagein;
-    #endif
-  }
+  #endif
+}
 #endif
 
 #ifdef SELFMADE_MMAP
 
-local int selfmade_mmap (Heap* heap, uintL map_len, off_t offset);
-local int selfmade_mmap(heap,map_len,offset)
-  var Heap* heap;
-  var uintL map_len;
-  var off_t offset;
-  {
-    var uintL pagecount = map_len>>physpageshift;
-    var uintB* pages = MALLOC(pagecount,uintB);
-    if (pages == NULL)
-      return -1;
-    heap->memfile_numpages = pagecount;
-    heap->memfile_pages = pages;
-    heap->memfile_offset = offset;
-    # Initially, all pages are paged out.
-    dotimespL(pagecount,pagecount, {
-      *pages++ = 1;
-    });
-    return 0;
-  }
+local int selfmade_mmap (Heap* heap, uintL map_len, off_t offset)
+{
+  var uintL pagecount = map_len>>physpageshift;
+  var uintB* pages = MALLOC(pagecount,uintB);
+  if (pages == NULL)
+    return -1;
+  heap->memfile_numpages = pagecount;
+  heap->memfile_pages = pages;
+  heap->memfile_offset = offset;
+  # Initially, all pages are paged out.
+  dotimespL(pagecount,pagecount, {
+    *pages++ = 1;
+  });
+  return 0;
+}
 
 #endif
 
@@ -482,61 +462,53 @@ local void xmprotect (aint addr, uintL len, int prot) {
 }
 
 #ifdef MULTIMAP_MEMORY
-  local void xmmprotect (Heap* heap, aint addr, uintL len, int prot);
-  local void xmmprotect(heap,addr,len,prot)
-    var Heap* heap;
-    var aint addr;
-    var uintL len;
-    var int prot;
-    {
-      unused heap;
-      var uintL type;
-      for (type = 0; type < typecount; type++)
-        if (mem.heapnr_from_type[type] >= 0) # type listed in MM_TYPECASES?
-          xmprotect((aint)combine(type,addr),len,prot);
-    }
+  local void xmmprotect (Heap* heap, aint addr, uintL len, int prot)
+  {
+    unused heap;
+    var uintL type;
+    for (type = 0; type < typecount; type++)
+      if (mem.heapnr_from_type[type] >= 0) # type listed in MM_TYPECASES?
+        xmprotect((aint)combine(type,addr),len,prot);
+  }
 #else
   #ifdef SELFMADE_MMAP
-    local void xmmprotect (Heap* heap, aint addr, uintL len, int prot);
-    local void xmmprotect(heap,addr,len,prot)
-      var Heap* heap;
-      var aint addr;
-      var uintL len;
-      var int prot;
-      {
-        # skip the not yet superimposed pages and minimize
-        # the number of necessary mprotect()-calls: a mprotect-call
-        # is pending for the interval [todo_address,address-1].
-        var aint todo_address = 0;
-        #define do_todo()  \
-          { if (todo_address)                                        \
-              { if (todo_address < address)                          \
-                  xmprotect(todo_address,address-todo_address,prot); \
-                todo_address = 0;                                    \
-          }   }
-        #define addto_todo()  \
-          { if (todo_address)             \
-              {} # increment address  \
-              else                        \
-              { todo_address = address; } \
-          }
-        var aint address = addr; # multiple of physpagesize
-        var uintL pageno = (address - (heap->heap_gen0_start & -physpagesize)) >> physpageshift;
-        var uintL pagecount = len >> physpageshift;
-        var uintL count;
-        dotimesL(count,pagecount, {
-          if (!(pageno < heap->memfile_numpages && heap->memfile_pages[pageno])) {
-            addto_todo();
-          } else {
-            do_todo();
-          }
-          address += physpagesize;
-          pageno++;
-        });
-        do_todo();
-        #undef addto_todo
-        #undef do_todo
-      }
+    local void xmmprotect (Heap* heap, aint addr, uintL len, int prot)
+    {
+      # skip the not yet superimposed pages and minimize
+      # the number of necessary mprotect()-calls: a mprotect-call
+      # is pending for the interval [todo_address,address-1].
+      var aint todo_address = 0;
+      #define do_todo()  \
+        { if (todo_address) {                                    \
+            if (todo_address < address)                          \
+              xmprotect(todo_address,address-todo_address,prot); \
+            todo_address = 0;                                    \
+          }                                                      \
+        }
+      #define addto_todo()  \
+        { if (todo_address) {       \
+            # increment address     \
+          } else {                  \
+            todo_address = address; \
+          }                         \
+        }
+      var aint address = addr; # multiple of physpagesize
+      var uintL pageno = (address - (heap->heap_gen0_start & -physpagesize)) >> physpageshift;
+      var uintL pagecount = len >> physpageshift;
+      var uintL count;
+      dotimesL(count,pagecount, {
+        if (!(pageno < heap->memfile_numpages && heap->memfile_pages[pageno])) {
+          addto_todo();
+        } else {
+          do_todo();
+        }
+        address += physpagesize;
+        pageno++;
+      });
+      do_todo();
+      #undef addto_todo
+      #undef do_todo
+    }
   #else
     #define xmmprotect(heap,addr,len,prot)  xmprotect(addr,len,prot)
   #endif

@@ -1877,8 +1877,8 @@ LISPFUNNF(code_char,1)
   /* codeobj is now an integer. */
   var uintL code;
   /* test, if  0 <= code < char_code_limit : */
-  if (posfixnump(codeobj) &&
-      ((code = posfixnum_to_L(codeobj)) < char_code_limit)) {
+  if (posfixnump(codeobj)
+      && ((code = posfixnum_to_L(codeobj)) < char_code_limit)) {
     VALUES1(code_char(as_chart(code))); /* handicraft character */
   } else {
     VALUES1(NIL); /* else value NIL */
@@ -1931,8 +1931,8 @@ LISPFUN(digit_char,seclass_foldable,1,1,norest,nokey,0,NIL)
   /* weightobj is now an integer. */
   /* test, if 0<=weight<radix, else NIL: */
   var uintL weight;
-  if (posfixnump(weightobj) &&
-      ((weight = posfixnum_to_L(weightobj)) < radix)) {
+  if (posfixnump(weightobj)
+      && ((weight = posfixnum_to_L(weightobj)) < radix)) {
     weight = weight + '0'; /* convert into digit */
     if (weight > '9')
       weight += 'A'-'0'-10; /* or turn it into a letter */

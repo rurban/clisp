@@ -1,5 +1,5 @@
 # Hilfsfunktionen für CLISP auf UNIX
-# Bruno Haible 1990-2002
+# Bruno Haible 1990-2003
 # Sam Steingold 1998-2002
 
 #include "lispbibl.c"
@@ -23,83 +23,72 @@ global unsigned int ualarm (unsigned int value, unsigned int interval) {
 
 #ifdef NEED_OWN_SELECT
 # Ein Ersatz für die select-Funktion.
-  global int select (int width, fd_set* readfds, fd_set* writefds, fd_set* exceptfds, struct timeval * timeout);
-  global int select(width,readfds,writefds,exceptfds,timeout)
-    var int width;
-    var fd_set* readfds;
-    var fd_set* writefds;
-    var fd_set* exceptfds;
-    var struct timeval * timeout;
-    {
-      var struct pollfd pollfd_bag[FD_SETSIZE];
-      var struct pollfd * pollfd_ptr = &pollfd_bag[0];
-      var int pollfd_count = 0;
-      if (width<0) {
-        errno = EINVAL; return -1;
-      }
-      if (width>FD_SETSIZE)
-        width = FD_SETSIZE;
-      {
-        var int fd;
-        for (fd=0; fd<width; fd++) {
-          var short events = 0;
-          if (!(readfds==NULL) && FD_ISSET(fd,readfds))
-            events |= POLLIN;
-          if (!(writefds==NULL) && FD_ISSET(fd,writefds))
-            events |= POLLOUT;
-          if (!(exceptfds==NULL) && FD_ISSET(fd,exceptfds))
-            events |= POLLPRI;
-          if (events) {
-            pollfd_ptr->fd = fd;
-            pollfd_ptr->events = events;
-            pollfd_ptr->revents = 0;
-            pollfd_ptr++; pollfd_count++;
-          }
-        }
-      }
-      var int poll_timeout = timeout->tv_sec * 1000 + timeout->tv_usec / (1000000/1000);
-      var int result = poll(pollfd_count,&pollfd_bag[0],poll_timeout);
-      if (result>=0) {
-        pollfd_ptr = &pollfd_bag[0];
-        while (pollfd_count != 0) {
-          var int fd = pollfd_ptr->fd;
-          var short revents = pollfd_ptr->revents;
-          if (!(readfds==NULL) && (revents & POLLIN))
-            FD_SET(fd,readfds);
-          if (!(writefds==NULL) && (revents & POLLOUT))
-            FD_SET(fd,writefds);
-          if (!(exceptfds==NULL) && (revents & (POLLPRI|POLLERR|POLLHUP)))
-            FD_SET(fd,exceptfds);
-          pollfd_ptr++; pollfd_count--;
-        }
-      }
-      return result;
+  global int select (int width, fd_set* readfds, fd_set* writefds, fd_set* exceptfds, struct timeval * timeout) {
+    var struct pollfd pollfd_bag[FD_SETSIZE];
+    var struct pollfd * pollfd_ptr = &pollfd_bag[0];
+    var int pollfd_count = 0;
+    if (width<0) {
+      errno = EINVAL; return -1;
     }
+    if (width>FD_SETSIZE)
+      width = FD_SETSIZE;
+    {
+      var int fd;
+      for (fd=0; fd<width; fd++) {
+        var short events = 0;
+        if (!(readfds==NULL) && FD_ISSET(fd,readfds))
+          events |= POLLIN;
+        if (!(writefds==NULL) && FD_ISSET(fd,writefds))
+          events |= POLLOUT;
+        if (!(exceptfds==NULL) && FD_ISSET(fd,exceptfds))
+          events |= POLLPRI;
+        if (events) {
+          pollfd_ptr->fd = fd;
+          pollfd_ptr->events = events;
+          pollfd_ptr->revents = 0;
+          pollfd_ptr++; pollfd_count++;
+        }
+      }
+    }
+    var int poll_timeout = timeout->tv_sec * 1000 + timeout->tv_usec / (1000000/1000);
+    var int result = poll(pollfd_count,&pollfd_bag[0],poll_timeout);
+    if (result>=0) {
+      pollfd_ptr = &pollfd_bag[0];
+      while (pollfd_count != 0) {
+        var int fd = pollfd_ptr->fd;
+        var short revents = pollfd_ptr->revents;
+        if (!(readfds==NULL) && (revents & POLLIN))
+          FD_SET(fd,readfds);
+        if (!(writefds==NULL) && (revents & POLLOUT))
+          FD_SET(fd,writefds);
+        if (!(exceptfds==NULL) && (revents & (POLLPRI|POLLERR|POLLHUP)))
+          FD_SET(fd,exceptfds);
+        pollfd_ptr++; pollfd_count--;
+      }
+    }
+    return result;
+  }
 #endif
 
 # =============================================================================
 
 #ifdef NEED_OWN_GETTIMEOFDAY
 # Ein Ersatz für die gettimeofday-Funktion.
-  global int gettimeofday (struct timeval * tp, struct timezone * tzp);
-  global int gettimeofday(tp,tzp)
-    var struct timeval * tp;
-    var struct timezone * tzp;
-    {
-      var struct timeb timebuf;
-      if (!((tp==NULL) && (tzp==NULL))) {
-        ftime(&timebuf);
-        if (!(tp==NULL)) {
-          tp->tv_sec = timebuf.time;
-          tp->tv_usec = (long)(timebuf.millitm) * (1000000/1000);
-        }
-        if (!(tzp==NULL)) {
-          tzp->tz_minuteswest = timebuf.timezone;
-          tzp->tz_dsttime = 0; # ??
-        }
+  global int gettimeofday (struct timeval * tp, struct timezone * tzp) {
+    var struct timeb timebuf;
+    if (!((tp==NULL) && (tzp==NULL))) {
+      ftime(&timebuf);
+      if (!(tp==NULL)) {
+        tp->tv_sec = timebuf.time;
+        tp->tv_usec = (long)(timebuf.millitm) * (1000000/1000);
       }
-      return 0;
+      if (!(tzp==NULL)) {
+        tzp->tz_minuteswest = timebuf.timezone;
+        tzp->tz_dsttime = 0; # ??
+      }
     }
+    return 0;
+  }
 #endif
 
 # =============================================================================
@@ -112,80 +101,61 @@ global unsigned int ualarm (unsigned int value, unsigned int interval) {
 global int nonintr_open (const char* path, int flags, mode_t mode)
 {
   var int retval;
-  do { retval = open(path,flags,mode);
+  do {
+    retval = open(path,flags,mode);
   } while ((retval < 0) && (errno == EINTR));
   return retval;
 }
 
 # Ein Wrapper um die close-Funktion.
-  global int nonintr_close (int fd);
-  global int nonintr_close(fd)
-    var int fd;
-    {
-      var int retval;
-      do {
-        retval = close(fd);
-      } while ((retval < 0) && (errno == EINTR));
-      return retval;
-    }
+  global int nonintr_close (int fd) {
+    var int retval;
+    do {
+      retval = close(fd);
+    } while ((retval < 0) && (errno == EINTR));
+    return retval;
+  }
 
 # Ein Wrapper um die ioctl-Funktion.
   #undef ioctl
-  global int nonintr_ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg);
-  global int nonintr_ioctl(fd,request,arg)
-    var int fd;
-    var IOCTL_REQUEST_T request;
-    var IOCTL_ARGUMENT_T arg;
-    {
-      var int retval;
-      do {
-        retval = ioctl(fd,request,arg);
-      } while ((retval != 0) && (errno == EINTR));
-      return retval;
-    }
+  global int nonintr_ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg) {
+    var int retval;
+    do {
+      retval = ioctl(fd,request,arg);
+    } while ((retval != 0) && (errno == EINTR));
+    return retval;
+  }
 
 #endif
 
 #ifdef UNIX_TERM_TERMIOS
 
 # Ein Wrapper um die tcsetattr-Funktion.
-  global int nonintr_tcsetattr (int fd, int optional_actions, struct termios * tp);
-  global int nonintr_tcsetattr(fd,optional_actions,tp)
-    var int fd;
-    var int optional_actions;
-    var struct termios * tp;
-    {
-      var int retval;
-      do {
-        retval = tcsetattr(fd,optional_actions,tp);
-      } while ((retval != 0) && (errno == EINTR));
-      return retval;
-    }
+  global int nonintr_tcsetattr (int fd, int optional_actions, struct termios * tp) {
+    var int retval;
+    do {
+      retval = tcsetattr(fd,optional_actions,tp);
+    } while ((retval != 0) && (errno == EINTR));
+    return retval;
+  }
 
 # Ein Wrapper um die tcdrain-Funktion.
-  global int nonintr_tcdrain (int fd);
-  global int nonintr_tcdrain(fd)
-    var int fd;
-    {
-      var int retval;
-      do {
-        retval = tcdrain(fd);
-      } while ((retval != 0) && (errno == EINTR));
-      return retval;
-    }
+  global int nonintr_tcdrain (int fd) {
+    var int retval;
+    do {
+      retval = tcdrain(fd);
+    } while ((retval != 0) && (errno == EINTR));
+    return retval;
+  }
 
 # Ein Wrapper um die tcflush-Funktion.
-  global int nonintr_tcflush (int fd, int flag);
-  global int nonintr_tcflush(fd,flag)
-    var int fd;
-    var int flag;
-    {
-      var int retval;
-      do {
-        retval = tcflush(fd,flag);
-      } while ((retval != 0) && (errno == EINTR));
-      return retval;
-    }
+  global int nonintr_tcflush (int fd, int flag) {
+    var int retval;
+    do {
+      retval = tcflush(fd,flag);
+    } while ((retval != 0) && (errno == EINTR));
+    return retval;
+  }
 
 #endif
 
@@ -198,11 +168,8 @@ global int nonintr_open (const char* path, int flags, mode_t mode)
   #elif defined(HAVE_SIGVEC) && defined(SV_INTERRUPT)
     extern_C int sigvec (/* int sig, [const] struct sigvec * new, struct sigvec * old */);
   #endif
-  global int siginterrupt (sig,flag)
-    var int sig;
-    var int flag;
-    {
-     #if defined(HAVE_SIGACTION)
+  global int siginterrupt (int sig, int flag) {
+    #if defined(HAVE_SIGACTION)
       var struct sigaction sa;
       sigaction(sig,(struct sigaction *)NULL,&sa);
       #ifdef SA_INTERRUPT
@@ -228,7 +195,7 @@ global int nonintr_open (const char* path, int flags, mode_t mode)
       }
       #endif
       sigaction(sig,&sa,(struct sigaction *)NULL);
-     #elif defined(HAVE_SIGVEC) && defined(SV_INTERRUPT)
+    #elif defined(HAVE_SIGVEC) && defined(SV_INTERRUPT)
       var struct sigvec sv;
       sigvec(sig,(struct sigvec *)NULL,&sv);
       if (flag) {
@@ -241,9 +208,9 @@ global int nonintr_open (const char* path, int flags, mode_t mode)
         sv.sv_flags &= ~ SV_INTERRUPT; # system calls will be restarted
       }
       sigvec(sig,&sv,(struct sigvec *)NULL);
-     #endif
-      return 0; # den Rückgabewert ignorieren wir immer.
-    }
+    #endif
+    return 0; # den Rückgabewert ignorieren wir immer.
+  }
 
 #endif
 
@@ -333,35 +300,30 @@ global ssize_t write_helper (int fd, const void* bufarea, size_t nbyte,
 # BeOS 5 sockets cannot be used like file descriptors.
 
 # A wrapper around the recv() function.
-  global ssize_t sock_read (int fd, void* bufarea, size_t nbyte);
-  global ssize_t sock_read (fd,bufarea,nbyte)
-    var int fd;
-    var void* bufarea;
-    var size_t nbyte;
-    {
-      var char* buf = (char*) bufarea;
-      var ssize_t retval;
-      var size_t done = 0;
-      #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+  global ssize_t sock_read (int fd, void* bufarea, size_t nbyte) {
+    var char* buf = (char*) bufarea;
+    var ssize_t retval;
+    var size_t done = 0;
+    #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
       # Must adjust the memory permissions before calling recv().
       handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
-      #endif
-      while (nbyte!=0) {
-        retval = recv(fd,buf,nbyte,0);
-        if (retval == 0)
-          break;
-        else if (retval < 0) {
-          #ifdef EINTR
-          if (!(errno == EINTR))
-          #endif
-            return retval;
-        } else {
-          buf += retval; done += retval; nbyte -= retval;
-          break; # return partial read
-        }
+    #endif
+    while (nbyte!=0) {
+      retval = recv(fd,buf,nbyte,0);
+      if (retval == 0)
+        break;
+      else if (retval < 0) {
+        #ifdef EINTR
+        if (!(errno == EINTR))
+        #endif
+          return retval;
+      } else {
+        buf += retval; done += retval; nbyte -= retval;
+        break; # return partial read
       }
-      return done;
     }
+    return done;
+  }
 
 /* A wrapper around the send() function.
  FIXME: no_hang case totally untested ! */
@@ -371,10 +333,10 @@ global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte,
   var const char* buf = (const char*) bufarea;
   var ssize_t retval;
   var size_t done = 0;
-#if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
-  /* Must adjust the memory permissions before calling send(). */
-  handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
-#endif
+  #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
+    /* Must adjust the memory permissions before calling send(). */
+    handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
+  #endif
   {NO_BLOCK_DECL(fd);
    if (no_hang) START_NO_BLOCK(fd);
    while (nbyte!=0) {
@@ -400,33 +362,30 @@ global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte,
 #ifdef PID_T
 
 # Auf die Beendingung eines Child-Prozesses warten:
-  global int wait2 (PID_T child);
-  global int wait2(child)
-    var PID_T child;
-    {
-      var int status = 0;
-      # vgl. WAIT(2V) und #include <sys/wait.h> :
-      #   WIFSTOPPED(status)  ==  ((status & 0xFF) == 0177)
-      #   WEXITSTATUS(status)  == ((status & 0xFF00) >> 8)
-      loop {
-        var int ergebnis = waitpid(child,&status,0);
-        if (!(ergebnis == child)) {
-          if (ergebnis<0) {
-            if (errno==EINTR)
-              continue;
-            #ifdef ECHILD
-            if (errno==ECHILD) { # Wenn der Child-Prozess nicht mehr da ist,
-              status = 0; break; # ist er wohl korrekt beendet worden.
-            }
-            #endif
+  global int wait2 (PID_T child) {
+    var int status = 0;
+    # vgl. WAIT(2V) und #include <sys/wait.h> :
+    #   WIFSTOPPED(status)  ==  ((status & 0xFF) == 0177)
+    #   WEXITSTATUS(status)  == ((status & 0xFF00) >> 8)
+    loop {
+      var int ergebnis = waitpid(child,&status,0);
+      if (!(ergebnis == child)) {
+        if (ergebnis<0) {
+          if (errno==EINTR)
+            continue;
+          #ifdef ECHILD
+          if (errno==ECHILD) { # Wenn der Child-Prozess nicht mehr da ist,
+            status = 0; break; # ist er wohl korrekt beendet worden.
           }
-          OS_error();
+          #endif
         }
-        if (!((status & 0xFF) == 0177)) # Child-Prozess beendet?
-          break;
+        OS_error();
       }
-      return status;
+      if (!((status & 0xFF) == 0177)) # Child-Prozess beendet?
+        break;
     }
+    return status;
+  }
 
 #endif
 
@@ -490,10 +449,9 @@ global signal_handler_t install_signal_handler (int sig,
 # But I want to see a backtrace!
 
 int abort_dummy;
-global void abort()
-  {
-    abort_dummy = 1/0;
-  }
+global void abort() {
+  abort_dummy = 1/0;
+}
 
 # -----------------------------------------------------------------------------
 
@@ -531,39 +489,27 @@ global long to_time_t_ (FILETIME * ptr) {
 
 # Ein Wrapper um die mmap-Funktion.
   #undef mmap
-  global RETMMAPTYPE fixed_mmap (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot, int flags, int fd, off_t off);
-  global RETMMAPTYPE fixed_mmap(addr,len,prot,flags,fd,off)
-    var MMAP_ADDR_T addr;
-    var MMAP_SIZE_T len;
-    var int prot;
-    var int flags;
-    var int fd;
-    var off_t off;
-    {
-      if (fd < 0) {
-        # Brauche ein Handle auf ein reguläres File.
-        var local int regular_fd = -2;
-        #define regular_file  "/tmp/lispdummy.mmap"
-        if (regular_fd < -1) {
-          regular_fd = open(regular_file,O_CREAT|O_TRUNC|O_RDWR,my_open_mask);
-          if (regular_fd >= 0)
-            unlink(regular_file);
-        }
-        if (regular_fd >= 0) {
-          return mmap(addr,&len,prot,flags,regular_fd,off);
-        }
+  global RETMMAPTYPE fixed_mmap (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot, int flags, int fd, off_t off) {
+    if (fd < 0) {
+      # Brauche ein Handle auf ein reguläres File.
+      var local int regular_fd = -2;
+      #define regular_file  "/tmp/lispdummy.mmap"
+      if (regular_fd < -1) {
+        regular_fd = open(regular_file,O_CREAT|O_TRUNC|O_RDWR,my_open_mask);
+        if (regular_fd >= 0)
+          unlink(regular_file);
       }
-      return mmap(addr,&len,prot,flags|MAP_FILE,fd,off);
+      if (regular_fd >= 0) {
+        return mmap(addr,&len,prot,flags,regular_fd,off);
+      }
     }
+    return mmap(addr,&len,prot,flags|MAP_FILE,fd,off);
+  }
 
 # Ein Ersatz für die mprotect-Funktion.
-  global int mprotect(addr,len,prot)
-    var MMAP_ADDR_T addr;
-    var MMAP_SIZE_T len;
-    var int prot;
-    {
-      return mremap(addr,&len,prot,MAP_PRIVATE);
-    }
+  global int mprotect(MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot) {
+    return mremap(addr,&len,prot,MAP_PRIVATE);
+  }
 
 #endif
 

@@ -276,7 +276,7 @@ local object N_N_float_N (object x, object y)
  x rational -> RA_rounding_I_RA(x)
  x float -> F_rounding_I_F(x) */
 #define GEN_R_round(rounding)                           \
-    local void CONCAT3(R_,rounding,_I_R) (var object x) \
+    local void CONCAT3(R_,rounding,_I_R) (object x)     \
       { if (R_rationalp(x))                             \
           { CONCAT3(RA_,rounding,_I_RA) (x); }          \
           else                                          \
@@ -320,7 +320,7 @@ GEN_R_round(round)
  x rational -> RA_rounding_I_RA(x), convert quotient into Float.
  x Float -> F_frounding_F_F(x). */
 #define GEN_R_fround(rounding)                                          \
-  local void CONCAT3(R_f,rounding,_F_R) (var object x) {                \
+  local void CONCAT3(R_f,rounding,_F_R) (object x) {                    \
     if (R_rationalp(x)) {                                               \
       CONCAT3(RA_,rounding,_I_RA) (x); /* rational-routine */           \
       STACK_1 = I_float_F(STACK_1); /* convert 1. value into in Float */ \
@@ -440,7 +440,7 @@ local object R_R_durch_R (object x, object y)
  both integers -> I_I_rounding_I_I(x,y).
  Else: R_rounding_I_R(x/y) -> (q,r). Return q and x-y*q=y*r. */
 #define GEN_R_R_round(rounding)                                         \
-  local void CONCAT3(R_R_,rounding,_I_R) (var object x, var object y) { \
+  local void CONCAT3(R_R_,rounding,_I_R) (object x, object y) {         \
     if (N_integerp(x) && N_integerp(y)) { /* both integers? */          \
       CONCAT3(I_I_,rounding,_I_I) (x,y);  /* yes -> integer-routine */  \
     } else {                                                            \
@@ -490,7 +490,7 @@ GEN_R_R_round(truncate)
  both integers -> I_I_remainder_I(x,y).
  else: R_rounding_I_R(x/y) -> (q,r). return x-y*q=y*r.  */
 #define GEN_R_R_mod(remainder,rounding)                                 \
-  local object CONCAT3(R_R_,remainder,_R) (var object x, var object y) { \
+  local object CONCAT3(R_R_,remainder,_R) (object x, object y) {        \
     if (N_integerp(x) && N_integerp(y)) { /* both integers? */          \
       return CONCAT3(I_I_,remainder,_I) (x,y);  /* yes -> integer-routine */ \
     } else {                                                            \
@@ -528,7 +528,7 @@ GEN_R_R_mod(rem,truncate)
  else:                                                               \
    R_frounding_F_R(x/y) -> q,r. Return the values q and x-y*q = y*r. \ */
 #define GEN_R_R_fround(rounding)                                        \
-  local void CONCAT3(R_R_f,rounding,_F_R) (var object x, var object y) { \
+  local void CONCAT3(R_R_f,rounding,_F_R) (object x, object y) {        \
     if (R_rationalp(x) && R_rationalp(y)) { /* both rational numbers? */ \
       CONCAT3(R_R_,rounding,_I_R) (x,y); /* division with remainder */  \
       STACK_1 = I_float_F(STACK_1); /* turn quotient into a float */    \
