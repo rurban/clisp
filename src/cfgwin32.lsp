@@ -86,6 +86,6 @@ You can set the environment variable `CLHSROOT' or redefine this function
 in ~/.clisprc.  On win32 you can also use the Registry."
   (or (sys::getenv "CLHSROOT")
       (let ((s (system::registry "SOFTWARE\\GNU\\CLISP" "CLHSROOT")))
-        (check-type s string)
+        (check-type s (or null string))
         s)
       *clhs-root-default*))
