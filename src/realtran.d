@@ -233,8 +233,12 @@ local object pi (object x) {
         divide_0();
       if (R_minusp(x)) # x<0 -> pi in default-float-format
         return pi(x);
-      else # x>0 -> 0
-        return Fixnum_0;
+      else { # x>0 -> 0
+        if (R_floatp(x))
+          return RA_F_exact_contagion_R(Fixnum_0,x);
+        else
+          return Fixnum_0;
+      }
     } elif (eq(x,Fixnum_0)) {
       # x=0 (exakt)
       if (R_zerop(y)) # y=0 -> Error
@@ -975,7 +979,7 @@ local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
       if (R_rationalp(a)) {
         # a rational
         if (eq(a,Fixnum_1)) { # a=1 -> Ergebnis 0
-          skipSTACK(2); return Fixnum_0;
+          skipSTACK(2); return RA_F_exact_contagion_R(Fixnum_0,b);
         }
         STACK_1 = RA_F_float_F(a,b); # a := (float a b)
       }

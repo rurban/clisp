@@ -979,7 +979,7 @@ LISPFUNNR(abs,1)
 LISPFUNNR(phase,1)
 { /* (PHASE number), CLTL p. 206 */
   var object x = check_number(popSTACK());
-  VALUES1(N_phase_R(x));
+  VALUES1(N_phase_R(x,false));
 }
 
 LISPFUNNR(signum,1)
@@ -1995,4 +1995,10 @@ global void init_arith (void)
   define_variable(S(warn_on_floating_point_contagion),T);
   /* *FLOATING-POINT-CONTAGION-ANSI* := NIL */
   define_variable(S(floating_point_contagion_ansi),NIL);
+  /* *WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION* := T */
+  define_variable(S(warn_on_floating_point_rational_contagion),T);
+  /* *FLOATING-POINT-RATIONAL-CONTAGION-ANSI* := NIL */
+  define_variable(S(floating_point_rational_contagion_ansi),NIL);
+  /* *PHASE-ANSI* := NIL */
+  define_variable(S(phase_ansi),NIL);
 }
