@@ -1,5 +1,9 @@
 2002-06-12  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (XCFLAGS): Put a space before --traditional-cpp.
+
+2002-06-12  Bruno Haible  <bruno@clisp.org>
+
 	* array.d (make_storagevector): Create a string with as small
 	element size as possible.
 
