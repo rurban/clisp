@@ -1,5 +1,9 @@
 2004-07-19  Sam Steingold  <sds@gnu.org>
 
+	* spvw_language.d (init_language): save the whales, free the mallocs!
+
+2004-07-19  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c (fill_dbt): do not allocate data on
 	stack when DBT size is divisible by sizeof(uintD)
 	(BDB:CURSOR-GET, BDB:CURSOR-PUT): pass DBC->dbp to record_length()
