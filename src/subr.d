@@ -584,8 +584,9 @@ LISPFUNN(address_of,1)
 LISPFUNN(code_address_of,1)
 LISPFUNN(program_id,0)
 #endif
-LISPFUNN(ansi,0)
+LISPFUNNF(ansi,0)
 LISPFUNN(set_ansi,1)
+LISPFUN(module_info,seclass_no_se,0,2,norest,nokey,0,NIL)
 /* ---------- I18N ---------- */
 LISPFUNNR(current_language,0)
 LISPFUNN(set_current_language,1)
