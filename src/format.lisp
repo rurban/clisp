@@ -396,7 +396,7 @@
     (if (null *FORMAT-NEXT-ARG*)
       (format-error 'error *FORMAT-CS* nil
         (TEXT "There are not enough arguments left for this format directive."))
-      (format-error 'type-error :datum *FORMAT-NEXT-ARG* :expected-type 'list
+      (format-error 'type-error :datum *FORMAT-NEXT-ARG* :expected-type 'LIST
         *FORMAT-CS* nil
         (TEXT "The argument list is a dotted list: ~S")
         *FORMAT-ARG-LIST*))
@@ -2480,7 +2480,7 @@
                        (setq *FORMAT-CSDL* body-csdl)
                        (labels ((compute-inner ()
                                   `((PPRINT-LOGICAL-BLOCK
-                                      ;; *args refers to things *after*
+                                      ;; *args* refers to things *after*
                                       ;; anything used in the body.
                                       ;; I need some way to refer to
                                       ;; all the list.
