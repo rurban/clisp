@@ -450,8 +450,10 @@ LISPFUN(tree_equal,2,0,norest,key,2, (kw(test),kw(test_not)) )
     var object obj;
     { if (consp(obj)) return FALSE;
       else if (nullp(obj)) return TRUE;
-           else { pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-                  fehler(error,
+           else { pushSTACK(obj); # Wert für Slot DATUM von TYPE-ERROR
+                  pushSTACK(S(list)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+                  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+                  fehler(type_error,
                          DEUTSCH ? "~: Eine echte Liste darf nicht mit ~ aufhören." :
                          ENGLISH ? "~: A true list must not end with ~" :
                          FRANCAIS ? "~ : Une vraie liste ne peut pas se terminer en ~." :
