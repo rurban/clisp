@@ -62,52 +62,6 @@ typedef int boolean_t;
 #define MAXFUNCLENGTH  20
 
 
-/* ============================= Reading lines ============================= */
-
-/* Line number of the last line returned by get_line(). */
-static unsigned long line_number;
-
-/* Read a line from fp, terminated with '\n', or
-   NULL if EOF is encountered.  */
-static unsigned char *
-get_line (FILE *fp)
-{
-  int len = 1;
-  unsigned char *line = (unsigned char *) malloc (len);
-  int index = 0;
-
-  for (;;)
-    {
-      /* Read a character.  */
-      int c = fgetc (fp);
-      if (c == EOF)
-        {
-          free (line);
-          return NULL;
-        }
-
-      /* Add it to the line.  */
-      if (index >= len)
-        {
-          len = 2 * len;
-          line = (unsigned char *) realloc (line, len);
-        }
-      if (!line)
-        {
-          fprintf (stderr, "Out of memory.\n");
-          exit (1);
-        }
-      line[index++] = c;
-
-      /* Stop when we've read a newline.  */
-      if (c == '\n')
-        break;
-    }
-  line_number++;
-  return line;
-}
-
-
 /* ================================ Strings ================================ */
 
 /* The type 'string_t' represents a simple string.  */
@@ -197,68 +151,53 @@ stringlist_lookup (string_list_t *l, string_t *s)
 }
 
 
-/* The list of globally defined macros.  */
-static string_list_t macronames;
+/* ============================= Reading lines ============================= */
 
-/* A counter for temporary variable names.  */
-static int gensym_count = 0;
+/* Line number of the last line returned by get_line(). */
+static unsigned long line_number;
 
-/* During output, we split the code into many small functions, so that it's
-   easier to compile. (Some C compilers have problems compiling functions
-   with a lot of code and no if/for/do/while control structure because this
-   function is a single huge "basic block".) */
-
-/* A counter: denotes number of the current/last function.  */
-static int func_number = 0;
-
-/* Number of statements in the current function so far.
-   -1 when the function has been closed.  */
-static int func_statements = -1;
-
-/* The lines for main() that have been generated so far, including the
-   control lines.  */
-static string_list_t main_output;
-
-/* Finish the current function.  */
-static void
-finish_func (void)
+/* Read a line from fp, terminated with '\n', or
+   NULL if EOF is encountered.  */
+static unsigned char *
+get_line (FILE *fp)
 {
-  if (func_statements >= 0)
+  int len = 1;
+  unsigned char *line = (unsigned char *) malloc (len);
+  int index = 0;
+
+  for (;;)
     {
-      printf ("}\n");
-      func_statements = -1;
+      /* Read a character.  */
+      int c = fgetc (fp);
+      if (c == EOF)
+        {
+          free (line);
+          return NULL;
+        }
+
+      /* Add it to the line.  */
+      if (index >= len)
+        {
+          len = 2 * len;
+          line = (unsigned char *) realloc (line, len);
+        }
+      if (!line)
+        {
+          fprintf (stderr, "Out of memory.\n");
+          exit (1);
+        }
+      line[index++] = c;
+
+      /* Stop when we've read a newline.  */
+      if (c == '\n')
+        break;
     }
+  line_number++;
+  return line;
 }
 
-/* Start a new statement.  Begin a new function if the current function
-   is getting too big.  */
-static void
-new_statement (void)
-{
-  if (func_statements >= MAXFUNCLENGTH)
-    /* Finish the current function.  */
-    finish_func ();
-  if (func_statements < 0)
-    {
-      /* Start a new function.  */
-      func_number++; func_statements = 0;
-      printf ("void main%d (TEXT *curr)\n", func_number);
-      printf ("{\n");
-      {
-        string_t main_line;
-        main_line.data = (unsigned char *) malloc (30);
-        if (!main_line.data)
-          {
-            fprintf (stderr, "Out of memory.\n");
-            exit (1);
-          }
-        sprintf ((char *) main_line.data, "$  main%d (&curr);", func_number);
-        main_line.length = strlen ((char *) main_line.data);
-        stringlist_add (&main_output, &main_line);
-      }
-    }
-  func_statements++;
-}
+
+/* ============================= Input parsing ============================= */
 
 /* Return TRUE if the given line contains a ##if/##else/##endif directive.  */
 static boolean_t
@@ -713,6 +652,65 @@ tokenify (unsigned char *line,
   tokens->index--;
 }
 
+/* ============================ Code generation ============================ */
+
+/* During output, we split the code into many small functions, so that it's
+   easier to compile. (Some C compilers have problems compiling functions
+   with a lot of code and no if/for/do/while control structure because this
+   function is a single huge "basic block".) */
+
+/* A counter: denotes number of the current/last function.  */
+static int func_number = 0;
+
+/* Number of statements in the current function so far.
+   -1 when the function has been closed.  */
+static int func_statements = -1;
+
+/* The lines for main() that have been generated so far, including the
+   control lines.  */
+static string_list_t main_output;
+
+/* Finish the current function.  */
+static void
+finish_func (void)
+{
+  if (func_statements >= 0)
+    {
+      printf ("}\n");
+      func_statements = -1;
+    }
+}
+
+/* Start a new statement.  Begin a new function if the current function
+   is getting too big.  */
+static void
+new_statement (void)
+{
+  if (func_statements >= MAXFUNCLENGTH)
+    /* Finish the current function.  */
+    finish_func ();
+  if (func_statements < 0)
+    {
+      /* Start a new function.  */
+      func_number++; func_statements = 0;
+      printf ("void main%d (TEXT *curr)\n", func_number);
+      printf ("{\n");
+      {
+        string_t main_line;
+        main_line.data = (unsigned char *) malloc (30);
+        if (!main_line.data)
+          {
+            fprintf (stderr, "Out of memory.\n");
+            exit (1);
+          }
+        sprintf ((char *) main_line.data, "$  main%d (&curr);", func_number);
+        main_line.length = strlen ((char *) main_line.data);
+        stringlist_add (&main_output, &main_line);
+      }
+    }
+  func_statements++;
+}
+
 /* Emit an indentation.  */
 static void
 emit_indent (unsigned long indent)
@@ -810,6 +808,15 @@ emit_literal (unsigned char *line,
     }
   printf ("\");\n");
 }
+
+
+/* =========================== Expanding macros ============================ */
+
+/* The list of globally defined macros.  */
+static string_list_t macronames;
+
+/* A counter for temporary variable names.  */
+static int gensym_count = 0;
 
 /* Emit the code for generating a certain string.  */
 static void
