@@ -227,6 +227,10 @@
 /* Define if <errno.h> or <stdio.h> contains a declaration for perror(). */
 #undef HAVE_PERROR_DECL
 
+/* CL_STRERROR */
+/* Define if you have the strerror() function. */
+#undef HAVE_STRERROR
+
 /* CL_SYS_ERRLIST */
 /* Define as const if the declaration type of sys_errlist needs const. */
 #define SYS_ERRLIST_CONST

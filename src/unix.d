@@ -28,8 +28,13 @@
   # Zugriff und Zuweisung auf errno durch begin_system_call()/end_system_call()
   # geschützt sein.
   #define OS_errno errno
-  extern int sys_nerr; # Anzahl der Betriebssystem-Fehlermeldungen
-  extern SYS_ERRLIST_CONST char* SYS_ERRLIST_CONST sys_errlist[]; # Betriebssystem-Fehlermeldungen
+  #ifdef HAVE_STRERROR
+    #include <string.h>
+    extern_C char* strerror (int errnum);
+  #else
+    extern int sys_nerr; # Anzahl der Betriebssystem-Fehlermeldungen
+    extern SYS_ERRLIST_CONST char* SYS_ERRLIST_CONST sys_errlist[]; # Betriebssystem-Fehlermeldungen
+  #endif
   # siehe PERROR(3)
 # wird verwendet von ERROR, SPVW, STREAM, PATHNAME
 

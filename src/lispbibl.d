@@ -1740,13 +1740,6 @@
   # > WSAGetLastError(): Fehlercode
     nonreturning_function(extern, SOCK_error, (void));
 #endif
-#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
-  # Initialisierung der Fehlertabelle:
-    extern int init_errormsg_table (void);
-#else
-  # Nichts zu initialisieren.
-    #define init_errormsg_table()  0
-#endif
 #if defined(DEBUG_OS_ERROR)
   # Show the file and line number of the caller of OS_error(). For debugging.
   #define OS_error()  \
