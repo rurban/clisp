@@ -3655,10 +3655,9 @@ local void callback (void* data, va_alist alist)
 #endif
 
 /* O(foreign_libraries) is an alist of all open libraries.
- It is a list ((string . fpointer) ...)
- although it could have been a list ((string . faddress) ...)
- with all fa_offsets being 0.
- G'hopft wie g'sprungen, nur konsistent muss es sein. */
+ It is a list ((string fpointer function ...) ...)
+ although it could have been a list ((string faddress ...) ...)
+ with all fa_offsets being 0. */
 
 #if defined(HAVE_DLERROR)
 local object dlerror_string (void)
@@ -3669,7 +3668,8 @@ local object dlerror_string (void)
 }
 #endif
 
-local inline void *libopen (char *libname, uintL version) {
+local inline void *libopen (char *libname, uintL version)
+{ /* open the library == dlopen() */
  #if defined(AMIGAOS)
   return (void*)OpenLibrary(libname,version);
  #elif defined(WIN32_NATIVE)
@@ -3710,6 +3710,69 @@ local void * open_library (object name, uintL version)
   return handle;
 }
 
+local inline void* find_name (void *handle, char *name)
+{ /* find the name in the library handle  ==  dlsym()*/
+  var void *ret = NULL;
+  begin_system_call();
+ #if defined(AMIGAOS)
+ #elif defined(WIN32_NATIVE)
+  ret = GetProcAddress(handle,name);
+ #else
+  ret = dlsym(handle,name);
+ #endif
+  end_system_call();
+  return ret;
+}
+
+/* return the handle of the object (string) in the library (name fpointer ...)
+ can trigger GC (when retry_p is true) */
+local void* object_handle (object library, gcv_object_t *name, bool retry_p)
+{
+  void * address;
+ object_handle_restart:
+  with_string_0(*name,O(foreign_encoding),namez, {
+    address = find_name(TheFpointer(Car(Cdr(library)))->fp_pointer, namez);
+  });
+  if (address == NULL) {
+    pushSTACK(library);
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(Car(library)); pushSTACK(*name);
+    pushSTACK(TheSubr(subr_self)->name);
+    if (retry_p)
+      check_value(error,GETTEXT("~: no dynamic object named ~ in library ~"));
+    else fehler(error,GETTEXT("~: no dynamic object named ~ in library ~"));
+    *name = value1; library = popSTACK();
+    goto object_handle_restart;
+  }
+  return address;
+}
+
+/* update the DLL pointer and all related objects
+ acons = (library fpointer object1 object2 ...) */
+local void update_library (object acons, uintL version) {
+  var object lib_name = Car(acons);
+  var object lib_addr = Car(Cdr(acons)); /* presumably invalid */
+  var void *lib_handle = open_library(lib_name,version);
+  TheFpointer(lib_addr)->fp_pointer = lib_handle;
+  mark_fp_valid(TheFpointer(lib_addr));
+ #if !defined(AMIGAOS)
+  var object lib_list = Cdr(Cdr(acons));
+  while (consp(lib_list)) {
+    var object fo = Car(lib_list); /* foreign object */
+    var object fa = foreign_address(fo,false); /* its foreign address */
+    var gcv_object_t *fn;                       /* its name */
+    switch (Record_type(fo)) {
+      case Rectype_Fvariable: fn = &(TheFvariable(fo)->fv_name); break;
+      case Rectype_Ffunction: fn = &(TheFfunction(fo)->ff_name); break;
+      default: NOTREACHED;
+    }
+    ASSERT(eq(TheFaddress(fa)->fa_base,lib_addr));
+    TheFaddress(fa)->fa_offset = (sintP)object_handle(acons,fn,false) -
+      (sintP)lib_handle;
+  }
+ #endif
+}
+
 /* (FFI::FOREIGN-LIBRARY name [required-version])
  returns a foreign library specifier. */
 LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
@@ -3722,14 +3785,11 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
     var object alist = O(foreign_libraries);
     while (consp(alist)) {
       if (equal(name,Car(Car(alist)))) {
-        var object lib = Cdr(Car(alist));
-        if (!fp_validp(TheFpointer(lib))) {
+        var object lib = Car(Cdr(Car(alist)));
+        if (!fp_validp(TheFpointer(lib)))
           /* Library already existed in a previous Lisp session.
              Update the address, and make it valid. */
-          var void * libaddr = open_library(name,v);
-          TheFpointer(lib)->fp_pointer = libaddr;
-          mark_fp_valid(TheFpointer(lib));
-        }
+          update_library(Car(alist),v);
         value1 = lib;
         goto done;
       }
@@ -3738,16 +3798,18 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
   }
   /* Pre-allocate room: */
   pushSTACK(allocate_cons()); pushSTACK(allocate_cons());
-  pushSTACK(allocate_fpointer((void*)0));
+  pushSTACK(allocate_cons()); pushSTACK(allocate_fpointer((void*)0));
   { /* Open the library: */
-    var void * libaddr = open_library(STACK_(1+3),v);
+    var void * libaddr = open_library(STACK_(1+4),v);
     var object lib = popSTACK();
-    TheFpointer(lib)->fp_pointer = libaddr;
-    value1 = lib;
     var object acons = popSTACK();
     var object new_cons = popSTACK();
-    Car(acons) = STACK_1; Cdr(acons) = lib;
+    var object tail_cons = popSTACK();
+    TheFpointer(lib)->fp_pointer = libaddr;
+    value1 = lib;
+    Car(acons) = STACK_1; Cdr(acons) = tail_cons;
     Car(new_cons) = acons; Cdr(new_cons) = O(foreign_libraries);
+    Car(tail_cons) = lib; /* Cdr(tail_cons) = NIL; */
     O(foreign_libraries) = new_cons;
   }
  done:
@@ -3763,24 +3825,23 @@ global void validate_fpointer (object obj)
   while (consp(l)) {
     var object acons = Car(l);
     l = Cdr(l);
-    if (eq(Cdr(acons),obj)) {
-      var void * libaddr = open_library(Car(acons),0); /*version??*/
-      TheFpointer(obj)->fp_pointer = libaddr;
-      mark_fp_valid(TheFpointer(obj));
+    if (eq(Car(Cdr(acons)),obj)) {
+      update_library(acons,0);  /*version??*/
       return;
     }
   }
   check_fpointer(obj,false);
 }
 
+/* can trigger GC */
 local object check_library (object obj)
-{ /* Check for a library argument. */
+{ /* Check for a library argument - return (lib addr obj ...) */
  restart:
   if (fpointerp(obj)) {
     var object alist = O(foreign_libraries);
     while (consp(alist)) {
-      if (eq(obj,Cdr(Car(alist))))
-        return obj;
+      if (eq(obj,Car(Cdr(Car(alist)))))
+        return Car(alist);
       alist = Cdr(alist);
     }
   }
@@ -3791,39 +3852,25 @@ local object check_library (object obj)
   goto restart;
 }
 
-local inline void* find_name (void *handle, char *name)
-{ /* find the name in the library handle  ==  dlsym()*/
- #if defined(AMIGAOS)
-  return NULL;
- #elif defined(WIN32_NATIVE)
-  return GetProcAddress(handle,name);
- #else
-  return dlsym(handle,name);
- #endif
+/* can trigger GC */
+local object object_address (object library, gcv_object_t *name, object offset)
+{ /* return the foreign address of the foreign object named `name' */
+  var object lib_addr = Car(Cdr(library));
+  if (nullp(offset))
+    return make_faddress(lib_addr,(sintP)object_handle(library,name,true) -
+                         (sintP)TheFpointer(lib_addr)->fp_pointer);
+  else
+    return make_faddress(lib_addr,(sintP)I_to_sint32(offset));
 }
 
-local object object_address (object library, object name, object offset)
-{ /* return the foreign address of the foreign object named `name' */
-  if (nullp(offset)) {
-    void * address;
-   object_address_restart:
-    begin_system_call();
-    with_string_0(name,O(foreign_encoding),namez, {
-      address = find_name(TheFpointer(library)->fp_pointer, namez);
-    });
-    end_system_call();
-    if (address == NULL) {
-      pushSTACK(library);
-      pushSTACK(NIL); /* no PLACE */
-      pushSTACK(name); pushSTACK(TheSubr(subr_self)->name);
-      check_value(error,GETTEXT("~: no dynamic object named ~"));
-      name = value1; library = popSTACK();
-      goto object_address_restart;
-    }
-    return make_faddress(library,(sintP)address -
-                         (sintP)TheFpointer(library)->fp_pointer);
-  } else
-    return make_faddress(library,(sintP)I_to_sint32(offset));
+/* add foreign object obj to the acons (name addr obj1 ...)
+ can trigger GC */
+local void push_foreign_object (object obj, object acons) {
+  pushSTACK(obj); pushSTACK(acons);
+  var object new_cons = allocate_cons();
+  acons = popSTACK();
+  Car(new_cons) = popSTACK()/*obj*/; Cdr(new_cons) = Cdr(Cdr(acons));
+  Cdr(Cdr(acons)) = new_cons;
 }
 
 /* (FFI::FOREIGN-LIBRARY-VARIABLE name library offset c-type)
@@ -3836,7 +3883,7 @@ LISPFUNN(foreign_library_variable,4)
   foreign_layout(STACK_0);
   var uintL size = data_size;
   var uintL alignment = data_alignment;
-  pushSTACK(object_address(STACK_2,STACK_3,STACK_1));
+  pushSTACK(object_address(STACK_2,&STACK_3,STACK_1));
   var object fvar = allocate_fvariable();
   TheFvariable(fvar)->fv_name = STACK_(3+1);
   TheFvariable(fvar)->fv_address = STACK_0;
@@ -3847,6 +3894,7 @@ LISPFUNN(foreign_library_variable,4)
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: foreign variable ~ does not have the required alignment"));
   }
+  push_foreign_object(fvar,STACK_(2+1));
   VALUES1(fvar); skipSTACK(4+1);
 }
 
@@ -3869,7 +3917,7 @@ LISPFUNN(foreign_library_function,4)
       fehler(error,GETTEXT("~: illegal foreign function type ~"));
     }
   }
-  pushSTACK(object_address(STACK_2,STACK_3,STACK_1));
+  pushSTACK(object_address(STACK_2,&STACK_3,STACK_1));
   var object ffun = allocate_ffunction();
   var object fvd = STACK_(0+1);
   TheFfunction(ffun)->ff_name = STACK_(3+1);
@@ -3877,6 +3925,7 @@ LISPFUNN(foreign_library_function,4)
   TheFfunction(ffun)->ff_resulttype = TheSvector(fvd)->data[1];
   TheFfunction(ffun)->ff_argtypes = TheSvector(fvd)->data[2];
   TheFfunction(ffun)->ff_flags = TheSvector(fvd)->data[3];
+  push_foreign_object(ffun,STACK_(2+1));
   VALUES1(ffun); skipSTACK(4+1);
 }
 
@@ -3915,7 +3964,7 @@ global void exit_ffi (void) {
   var object alist = O(foreign_libraries);
   while (consp(alist)) {
     var object acons = Car(alist);
-    var object obj = Cdr(acons);
+    var object obj = Car(Cdr(acons));
     if (fp_validp(TheFpointer(obj))) {
       var void * libaddr = (TheFpointer(obj)->fp_pointer);
       begin_system_call();
