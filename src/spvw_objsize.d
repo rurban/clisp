@@ -82,6 +82,10 @@
 #define size_svector(length)  # simple-vector                   \
   Varobject_aligned_size(offsetofa(svector_,data),              \
                          sizeof(object),(uintL)(length))
+#ifndef TYPECODES
+#define size_siarray(xlength)  # simple indirect array          \
+  size_xrecord(1,xlength)
+#endif
 #define size_iarray(size)  # non-simple array, with                           \
   # size = dimension number + (1 if fill-pointer) + (1 if displaced-offset)   \
   Varobject_aligned_size(offsetofa(iarray_,dims),sizeof(uintL),(uintL)(size))
@@ -141,6 +145,16 @@ local uintL objsize (void* addr) {
    #ifdef HAVE_SMALL_SSTRING
     case Rectype_Imm_SmallSstring:
       return size_small_sstring(sstring_length((SmallSstring)addr));
+    case Rectype_SmallSstring:
+      {
+        var uintL len = sstring_length((SmallSstring)addr);
+        var uintL size = size_small_sstring(len);
+        # Some uprounding, for reallocate_small_string to work.
+        if (size_small_sstring(1) < size_siarray(0)
+            && size < size_siarray(0) && len > 0)
+          size = size_siarray(0);
+        return size;
+      }
    #endif
     default: goto case_record;
   }

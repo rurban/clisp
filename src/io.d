@@ -24,6 +24,7 @@ global char* clisp_type_of (object o) {
 global void sstring_printf (object sstr, uintL len, uintL offset) {
   uintL idx;
   ASSERT(simple_string_p(sstr));
+  simple_array_to_storage(sstr);
   printf("<%d/%d\"",len,offset);
   for(idx=offset;idx<len;idx++) {
     chart ch;
@@ -5160,6 +5161,7 @@ global void write_sstring (const object* stream_, object string) {
 # can trigger GC
 global void write_string (const object* stream_, object string) {
   if (simple_string_p(string)) { # Simple-String
+    simple_array_to_storage(string);
     write_sstring(stream_,string);
   } else { # non-simpler String
     var uintL len = vector_length(string); # length
@@ -8636,8 +8638,9 @@ local void pr_record_descr (const object* stream_, object obj,
 local void pr_orecord (const object* stream_, object obj) {
   switch (Record_type(obj)) {
 #ifndef TYPECODES
-    case Rectype_string: case Rectype_Sstring: case Rectype_Imm_Sstring:
-    case Rectype_Imm_SmallSstring: # String
+    case Rectype_string: case Rectype_reallocstring:
+    case Rectype_Sstring: case Rectype_Imm_Sstring:
+    case Rectype_SmallSstring: case Rectype_Imm_SmallSstring: # String
       pr_string(stream_,obj); break;
     case Rectype_bvector: case Rectype_Sbvector: # bit-vector
       pr_bvector(stream_,obj); break;

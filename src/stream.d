@@ -135,7 +135,7 @@
   # Specification for READ-CHAR-ARRAY - Pseudo-Function:
   # fun(&stream,&chararray,start,len)
   # > stream: stream
-  # > object chararray: mutable simple-string
+  # > object chararray: a mutable string that is or was simple
   # > uintL start: start index of character sequence to be filled
   # > uintL len: length of character sequence to be filled, >0
   # < uintL result: number of characters that have been filled
@@ -304,7 +304,7 @@ local uintL rd_ch_array_dummy (const object* stream_, const object* chararray_,
       break;
     if (!charp(obj))
       fehler_char(obj);
-    TheSstring(*chararray_)->data[index] = char_code(obj);
+    sstring_store(*chararray_,index,char_code(obj));
     index++;
   } while (index < end);
   return index - start;
@@ -627,7 +627,7 @@ global object peek_char (const object* stream_) {
 # Function: Reads several characters from a stream.
 # read_char_array(&stream,&chararray,start,len)
 # > stream: stream (on the STACK)
-# > object chararray: mutable simple-string (on the STACK)
+# > object chararray: a mutable string that is or was simple (on the STACK)
 # > uintL start: start index of character sequence to be filled
 # > uintL len: length of character sequence to be filled
 # < uintL result: number of characters that have been filled
@@ -645,7 +645,8 @@ global uintL read_char_array (const object* stream_, const object* chararray_,
     if (TheStream(stream)->strmflags & strmflags_unread_B) {
       if (!charp(lastchar))
         fehler_char(lastchar);
-      TheSstring(*chararray_)->data[index++] = char_code(lastchar);
+      sstring_store(*chararray_,index++,char_code(lastchar));
+      stream = *stream_;
       len--;
       if (len==0) {
         TheStream(stream)->strmflags &= ~strmflags_unread_B;
@@ -655,8 +656,17 @@ global uintL read_char_array (const object* stream_, const object* chararray_,
     var uintL count = rd_ch_array(stream)(stream_,chararray_,index,len);
     index += count;
     stream = *stream_;
-    TheStream(stream)->strm_rd_ch_last =
-      (count == len ? code_char(TheSstring(*chararray_)->data[index-1]) : eof_value);
+    if (count == len) {
+      var object chararray = *chararray_;
+      simple_array_to_storage(chararray);
+      var chart last_ch;
+      SstringDispatch(chararray,
+        { last_ch = TheSstring(chararray)->data[index-1]; },
+        { last_ch = as_chart(TheSmallSstring(chararray)->data[index-1]); }
+        );
+      TheStream(stream)->strm_rd_ch_last = code_char(last_ch);
+    } else
+      TheStream(stream)->strm_rd_ch_last = eof_value;
     TheStream(stream)->strmflags &= ~strmflags_unread_B;
     return index - start;
   } else {
@@ -2076,7 +2086,6 @@ local uintL rd_ch_array_str_in (const object* stream_,
   var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index);
   var uintL endindex = posfixnum_to_L(TheStream(stream)->strm_str_in_endindex);
   if (index < endindex) {
-    var chart* charptr = &TheSstring(*chararray_)->data[start];
     var uintL srclen;
     var uintL srcoffset;
     var object string = unpack_string_ro(TheStream(stream)->strm_str_in_string,&srclen,&srcoffset);
@@ -2086,10 +2095,10 @@ local uintL rd_ch_array_str_in (const object* stream_,
     if (count > len)
       count = len;
     # count = min(len,endindex-index) > 0.
+    var object chararray = *chararray_;
+    simple_array_to_storage(chararray);
+    elt_copy(string,srcoffset+index,chararray,start,count);
     TheStream(stream)->strm_str_in_index = fixnum_inc(TheStream(stream)->strm_str_in_index,count);
-    SstringDispatch(string,
-    { chartcopy(&TheSstring(string)->data[srcoffset+index],charptr,count); },
-    { scintcopy(&TheSmallSstring(string)->data[srcoffset+index],charptr,count); });
     return count;
   } else {
     return 0;
@@ -3642,7 +3651,7 @@ global void check_charset (const char * code, object charset) {
 global uintL iconv_mblen (object encoding, const uintB* src,
                           const uintB* srcend) {
   var uintL count = 0;
- #define tmpbufsize 4096
+  #define tmpbufsize 4096
   var chart tmpbuf[tmpbufsize];
   with_sstring_0(TheEncoding(encoding)->enc_charset,Symbol_value(S(ascii)),
                  charset_asciz, {
@@ -3679,7 +3688,7 @@ global uintL iconv_mblen (object encoding, const uintB* src,
     if (iconv_close(cd) < 0) { OS_error(); }
     end_system_call();
   });
- #undef tmpbufsize
+  #undef tmpbufsize
   return count/sizeof(chart);
 }
 
@@ -5205,11 +5214,10 @@ local uintL rd_ch_array_unbuffered (const object* stream_,
   #define tmpbufsize 4096
   var chart tmpbuf[tmpbufsize];
   var object stream = *stream_;
-  var chart* startptr = &TheSstring(*chararray_)->data[start];
-  var chart* endptr = startptr+len;
-  var chart* charptr = startptr;
+  var uintL end = start+len;
+  var uintL currindex = start;
   loop {
-    var uintL remaining = endptr - charptr;
+    var uintL remaining = end - currindex;
     if (remaining == 0)
       break;
     if (remaining > tmpbufsize)
@@ -5260,7 +5268,8 @@ local uintL rd_ch_array_unbuffered (const object* stream_,
         if (UnbufferedStream_ignore_next_LF(stream)) {
           UnbufferedStream_ignore_next_LF(stream) = false;
         } else {
-          ChannelStream_lineno(stream) += 1; *charptr++ = ascii(NL);
+          ChannelStream_lineno(stream) += 1;
+          sstring_store(*chararray_,currindex++,ascii(NL));
         }
       } else if (chareq(c,ascii(CR))) {
         if (count > 0) {
@@ -5271,14 +5280,15 @@ local uintL rd_ch_array_unbuffered (const object* stream_,
         } else {
           UnbufferedStream_ignore_next_LF(stream) = true;
         }
-        ChannelStream_lineno(stream) += 1; *charptr++ = ascii(NL);
+        ChannelStream_lineno(stream) += 1;
+        sstring_store(*chararray_,currindex++,ascii(NL));
       } else {
         UnbufferedStream_ignore_next_LF(stream) = false;
-        *charptr++ = c;
+        sstring_store(*chararray_,currindex++,c);
       }
     } while (count > 0);
   }
-  return charptr - startptr;
+  return currindex - start;
   #undef tmpbufsize
 }
 
@@ -6496,13 +6506,13 @@ local uintL rd_ch_array_buffered (const object* stream_,
                                   const object* chararray_,
                                   uintL start, uintL len) {
   var object stream = *stream_;
-  var chart* startptr = &TheSstring(*chararray_)->data[start];
-  var chart* charptr = startptr;
   #ifdef UNICODE
+  #define tmpbufsize 4096
+  var uintL end = start+len;
+  var uintL currindex = start;
   var object encoding = TheStream(stream)->strm_encoding;
-  var chart* endptr = startptr+len;
   loop {
-    var chart* startptr = charptr;
+    var uintL startindex = currindex;
     var uintB* bufferptr = buffered_nextbyte(stream);
     if (bufferptr == (uintB*)NULL) # EOF -> finished
       break;
@@ -6513,14 +6523,20 @@ local uintL rd_ch_array_buffered (const object* stream_,
         (eofindex == eofindex_all_valid ? strm_buffered_bufflen : eofindex)
         - BufferedStream_index(stream);
       var const uintB* bptr = bufferptr;
-      var chart* cptr = charptr;
+      var chart tmpbuf[tmpbufsize];
+      var chart* cptr = &tmpbuf[0];
       Encoding_mbstowcs(encoding)
-        (encoding,stream,&bptr,bufferptr+available,&cptr,endptr);
-      if (!(cptr == charptr)) {
+        (encoding,stream,&bptr,bufferptr+available,&cptr,
+         &tmpbuf[end-currindex < tmpbufsize ? end-currindex : tmpbufsize]);
+      if (!(cptr == &tmpbuf[0])) {
         var uintL n = bptr-bufferptr;
         # increment index and position
         BufferedStream_index(stream) += n;
         BufferedStream_position(stream) += n;
+        # store the read characters
+        sstring_store_array(*chararray_,currindex,tmpbuf,cptr-&tmpbuf[0]);
+        currindex += cptr-&tmpbuf[0];
+        stream = *stream_;
       } else {
         var uintB buf[max_bytes_per_chart];
         var uintL buflen = 0;
@@ -6531,9 +6547,9 @@ local uintL rd_ch_array_buffered (const object* stream_,
           BufferedStream_index(stream) += 1;
           BufferedStream_position(stream) += 1;
           var const uintB* bptr = &buf[0];
-          var chart* cptr = charptr;
+          var chart* cptr = &tmpbuf[0];
           Encoding_mbstowcs(encoding)(encoding,stream,&bptr,&buf[buflen],&cptr,cptr+1);
-          if (cptr == charptr) { # Not a complete character.
+          if (cptr == &tmpbuf[0]) { # Not a complete character.
             # Shift the buffer
             if (!(bptr == &buf[0])) {
               var const uintB* ptr1 = bptr;
@@ -6549,52 +6565,94 @@ local uintL rd_ch_array_buffered (const object* stream_,
               BufferedStream_index(stream) -= 1;
               BufferedStream_position(stream) -= 1;
             }
+            # store the read character
+            sstring_store(*chararray_,currindex++,tmpbuf[0]);
+            stream = *stream_;
             break;
           }
           bufferptr = buffered_nextbyte(stream);
           if (bufferptr == (uintB*)NULL) # EOF -> finished
             break;
         }
-        if (cptr == charptr) # EOF -> finished
+        if (currindex == startindex) # EOF -> finished
           break;
       }
-      charptr = cptr;
     }
     # Now apply CR/LF->NL and CR->NL conversion to the characters
-    # [startptr..charptr).
+    # [startindex..currindex).
     {
-      const chart* ptr1 = startptr;
-      chart* ptr2 = startptr;
-      do {
-        chart c = *ptr1++;
-        if (chareq(c,ascii(NL))) {
-          ChannelStream_lineno(stream) += 1;
-        } else if (chareq(c,ascii(CR))) {
-          # check next character for LF
-          if (ptr1 == charptr) {
-            uintB* bufferptr = buffered_nextbyte(stream);
-            if ((bufferptr != NULL)
-                && chareq(as_chart(*bufferptr),ascii(LF))) {
-              # increment index and position
-              BufferedStream_index(stream) += 1;
-              BufferedStream_position(stream) += 1;
+      var object chararray = *chararray_;
+      simple_array_to_storage(chararray);
+      SstringDispatch(chararray,
+        {
+          var chart* startptr = &TheSstring(chararray)->data[startindex];
+          var chart* currptr = &TheSstring(chararray)->data[currindex];
+          const chart* ptr1 = startptr;
+          chart* ptr2 = startptr;
+          do {
+            chart c = *ptr1++;
+            if (chareq(c,ascii(NL))) {
+              ChannelStream_lineno(stream) += 1;
+            } else if (chareq(c,ascii(CR))) {
+              # check next character for LF
+              if (ptr1 == currptr) {
+                var uintB* bufferptr = buffered_nextbyte(stream);
+                if ((bufferptr != NULL)
+                    && chareq(as_chart(*bufferptr),ascii(LF))) {
+                  # increment index and position
+                  BufferedStream_index(stream) += 1;
+                  BufferedStream_position(stream) += 1;
+                }
+              } else {
+                if (chareq(*ptr1,ascii(LF)))
+                  ptr1++;
+              }
+              c = ascii(NL);
+              ChannelStream_lineno(stream) += 1;
             }
-          } else {
-            if (chareq(*ptr1,ascii(LF)))
-              ptr1++;
-          }
-          c = ascii(NL);
-          ChannelStream_lineno(stream) += 1;
+            *ptr2++ = c;
+          } until (ptr1 == currptr);
+          currindex = ptr2 - &TheSstring(chararray)->data[0];
+        },
+        {
+          var scint* startptr = &TheSmallSstring(chararray)->data[startindex];
+          var scint* currptr = &TheSmallSstring(chararray)->data[currindex];
+          const scint* ptr1 = startptr;
+          scint* ptr2 = startptr;
+          do {
+            scint c = *ptr1++;
+            if (chareq(as_chart(c),ascii(NL))) {
+              ChannelStream_lineno(stream) += 1;
+            } else if (chareq(as_chart(c),ascii(CR))) {
+              # check next character for LF
+              if (ptr1 == currptr) {
+                var uintB* bufferptr = buffered_nextbyte(stream);
+                if ((bufferptr != NULL)
+                    && chareq(as_chart(*bufferptr),ascii(LF))) {
+                  # increment index and position
+                  BufferedStream_index(stream) += 1;
+                  BufferedStream_position(stream) += 1;
+                }
+              } else {
+                if (chareq(as_chart(*ptr1),ascii(LF)))
+                  ptr1++;
+              }
+              c = NL;
+              ChannelStream_lineno(stream) += 1;
+            }
+            *ptr2++ = c;
+          } until (ptr1 == currptr);
+          currindex = ptr2 - &TheSmallSstring(chararray)->data[0];
         }
-        *ptr2++ = c;
-      } until (ptr1 == charptr);
-      charptr = ptr2;
+        );
     }
-    if (charptr == endptr)
+    if (currindex == end)
       break;
   }
-  return charptr - startptr;
+  return currindex - start;
   #else
+  var chart* startptr = &TheSstring(*chararray_)->data[start];
+  var chart* charptr = startptr;
   do {
     var uintB* ptr = buffered_nextbyte(stream);
     if (ptr == (uintB*)NULL) # EOF -> finished
@@ -9225,19 +9283,21 @@ global char** lisp_completion (char* text, int start, int end) {
     var char** ptr = array;
     pushSTACK(mlist);
     while (mconsp(STACK_0)) {
-      if (!simple_string_p(Car(STACK_0))) {
+      var object m = Car(STACK_0);
+      if (!simple_string_p(m)) {
         end_callback();
-        pushSTACK(Car(STACK_0));     # slot DATUM of TYPE-ERROR
+        pushSTACK(m);                # slot DATUM of TYPE-ERROR
         pushSTACK(S(simple_string)); # slot EXPECTED-TYPE of TYPE-ERROR
         pushSTACK(S(simple_string));
-        pushSTACK(Car(STACK_0));
+        pushSTACK(m);
         pushSTACK(S(completion));
         pushSTACK(mlist);
         fehler(type_error,GETTEXT("Return value ~ of call to ~ contains ~ which is not a ~."));
       }
-      var uintL charcount = Sstring_length(Car(STACK_0));
+      simple_array_to_storage(m);
+      var uintL charcount = Sstring_length(m);
       var const chart* ptr1;
-      unpack_sstring_alloca(Car(STACK_0),charcount,0, ptr1=);
+      unpack_sstring_alloca(m,charcount,0, ptr1=);
       # (CATCH 'SYS::CONVERSION-FAILURE ...)
       {
         var object* top_of_frame = STACK;

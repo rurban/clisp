@@ -550,15 +550,22 @@ LISPFUN(mem_read,2,1,norest,nokey,0,NIL)
       value1 = asciz_to_string((uintB*)address,O(foreign_encoding));
     } elif (stringp(into)) { # copy memory into a LISP string
       var uintL length;
-      var chart* charptr = unpack_string_rw(into,&length);
+      var uintL offset;
+      var object dv = unpack_string_rw(into,&length,&offset);
       if (length > 0) {
         #ifdef UNICODE
+          pushSTACK(into);
           var object encoding = O(foreign_encoding);
           var const uintB* byteptr = (uintB*)address;
           ASSERT(Encoding_mblen(encoding)(encoding,byteptr,byteptr+length) == length);
+          var chart* tmpchars = (chart*) alloca(length*sizeof(chart));
+          var chart* charptr = tmpchars;
           Encoding_mbstowcs(encoding)(encoding,nullobj,&byteptr,byteptr+length,&charptr,charptr+length);
           ASSERT(byteptr == (uintB*)address+length);
+          sstring_store_array(dv,offset,tmpchars,length);
+          into = popSTACK();
         #else
+          var chart* charptr = &TheSstring(dv)->data[offset];
           dotimespL(length,length, {
             *charptr++ = as_chart(*((uintB*)address)++);
           });

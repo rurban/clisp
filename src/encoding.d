@@ -1563,6 +1563,18 @@ global object asciz_to_string_ (const char * asciz) {
 global object ascii_to_string (const char * asciz) {
   var const uintB* bptr = (const uintB*)asciz;
   var uintL len = asciz_length(asciz);
+  #ifdef HAVE_SMALL_SSTRING
+  var object obj = allocate_small_string(len); # String allozieren
+  if (len > 0) {
+    var scint* ptr = &TheSmallSstring(obj)->data[0];
+    # Zeichenfolge von bptr nach ptr kopieren:
+    dotimespL(len,len, {
+      var uintB b = *bptr++;
+      ASSERT(b < 0x80);
+      *ptr++ = (scint)b;
+    });
+  }
+  #else
   var object obj = allocate_string(len);
   if (len > 0) {
     var chart* ptr = &TheSstring(obj)->data[0];
@@ -1573,6 +1585,7 @@ global object ascii_to_string (const char * asciz) {
       *ptr++ = as_chart(b);
     });
   }
+  #endif
   return obj;
 }
 
