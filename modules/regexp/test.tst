@@ -9,6 +9,9 @@
 (let ((*apropos-matcher* #'regexp:regexp-matcher)) (apropos-list "regexp.*r$"))
 (REGEXP:REGEXP-MATCHER)
 
+(REGEXP:REGEXP-EXEC (ffi:foreign-pointer (ffi:unsigned-foreign-address 0)) "a")
+ERROR
+
 ;;; SDS: WARNING: the following tests are checking the underlying regexp
 ;;; implementation rather than CLISP regexp interface.
 ;;; a test failure should be reported to the regexp maintainer.
