@@ -45,6 +45,8 @@ User visible changes
     - making local variables accessible in the INITIALLY clauses,
     - initializing accumulation variables after iteration variables
       to avoid shadowing,
+    - using forward consing for APPEND/NCONC because REVAPPEND/NRECONC
+      drop the last atom in dotted lists,
     - checking for duplicate variables in iteration clauses;
   + sequence functions (MAP, LENGTH and such) no longer accept dotted lists
     and treat NULL as LIST of length 0 and CONS as LIST of positive length;

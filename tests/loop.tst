@@ -252,6 +252,9 @@ February 17
       nconc (if (evenp i) (list x) '()))
 (A (C))
 
+(LOOP FOR X IN '(A B C D E) NCONC (CONS X 'FOO))
+(A B C D E . FOO)
+
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1-3-3.html>
 (loop for i in '(a b nil c nil d e)
       count i)
