@@ -43,3 +43,13 @@
         (how-many (#+(or CLISP ALLEGRO) clos:class-prototype (find-class 'counter)))))
 #+(or CLISP ALLEGRO)
 (1 1 2 2)
+
+;; Check that the slot :accessor option works also on structure-class.
+(progn
+  (defclass structure01 () ((x :initarg :x :accessor structure01-x))
+    (:metaclass structure-class))
+  (let ((object (make-instance 'structure01 :x 17)))
+    (list (typep #'structure01-x 'generic-function)
+          (structure01-x object)
+          (progn (incf (structure01-x object)) (structure01-x object)))))
+(t 17 18)
