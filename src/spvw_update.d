@@ -137,7 +137,9 @@
         record_type((Record)ptr) == Rectype_Hashtable) {                  \
       update_ht_invalid((Hashtable)ptr); # yes -> note for reorganisation \
     } else if (update_unrealloc && # Instance ?                           \
-               (record_type((Record)ptr) == Rectype_Instance)) {          \
+               (record_type((Record)ptr) == Rectype_Instance              \
+                || (record_type((Record)ptr) == Rectype_Closure           \
+                    && (closure_flags((Closure)ptr) & closflags_instance_B)))) {          \
       update_in_unrealloc((Record)ptr); # yes -> cleanup forward ptr mark \
     } else if (update_fpointer_invalid &&  # foreign-pointer ?            \
                (record_type((Record)ptr) == Rectype_Fpointer)) {          \
