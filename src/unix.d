@@ -505,10 +505,12 @@ extern int nonintr_close (int fd);
 #define CLOSE close
 #endif
 /* wrapper around the system call, get partial results and handle EINTR: */
-extern ssize_t read_helper (int fd, void* buf, size_t nbyte, bool partial_p);
+extern ssize_t read_helper (int fd, void* buf, size_t nbyte, bool no_hang);
+extern ssize_t write_helper (int fd, const void* buf, size_t nbyte, bool no_hang);
 #define safe_read(f,b,n)  read_helper(f,b,n,true)
 #define full_read(f,b,n)  read_helper(f,b,n,false)
-extern ssize_t full_write (int fd, const void* buf, size_t nbyte);
+#define safe_write(f,b,n)  write_helper(f,b,n,true)
+#define full_write(f,b,n)  write_helper(f,b,n,false)
 /* used by STREAM, PATHNAME, SPVW, MISC, UNIXAUX */
 
 /* inquire the terminal, window size: */

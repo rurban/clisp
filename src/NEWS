@@ -1,6 +1,9 @@
 User visible changes
 --------------------
 
+* WRITE-BYTE-SEQUENCE now accepts :NO-HANG keyword argument.
+  Thanks to Don Cohen <don-sourceforge@isis.cs3-inc.com>.
+
 * Readline is now used properly on Cygwin/X11.
 
 
