@@ -1,5 +1,10 @@
 1999-04-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * po/Makefile.devel (DSOURCES): Add amigaaux.
+          (LSPSOURCES): Add amigasock.
+
+1999-04-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Stop storing german and french translations in the source files.
         * po/Makefile.devel (PREDEF_LINGUAS): Remove de, fr.
           (OTHER_LINGUAS): Add de, fr.
