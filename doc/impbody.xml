@@ -4839,7 +4839,7 @@ compiles a file to platform-independent bytecode.</para>
 
 <para><literal role="sexp">(&load; <replaceable>filename</replaceable>
  &key-amp; &verbose-k; &print-k; &echo-k;
- <constant>:if-does-not-exist</constant> &compiling-k;)</literal></para>
+ &if-does-not-exist; &compiling-k;)</literal></para>
 
 <variablelist>
  <varlistentry><term>&verbose-k; &t;</term>
