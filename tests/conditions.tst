@@ -479,31 +479,45 @@ check-use-value
 (check-use-value fdefinition cons "CONS") t
 
 (handler-bind ((undefined-function
-                (lambda (c) (princ c) (terpri) (store-value #'car))))
-  (fdefinition '(setf zz)))
-#.#'car
-
-(fdefinition '(setf zz)) #.#'car
+                (lambda (c) (princ c) (terpri)
+                        (store-value
+                         (lambda (new-car pair)
+                           (setf (car pair) new-car))))))
+  (let ((a '(1 . 2)))
+    (setf (zz a) 12)
+    a))
+(12 . 2)
 (fmakunbound '(setf zz)) (setf zz)
+
+(handler-bind ((undefined-function
+                (lambda (c) (princ c) (terpri) (store-value #'car))))
+  (zz '(1 . 2)))
+1
+(fmakunbound 'zz) zz
+
+(defun use-value-string->symbol (c)
+  (princ c) (terpri)
+  (use-value (intern (string-upcase
+                      (etypecase c
+                        (type-error (type-error-datum c))
+                        (cell-error (cell-error-name c)))))))
+use-value-string->symbol
 
 (handler-bind ((error (lambda (c) (princ c) (terpri) (use-value '+))))
   (eval '(function "+")))
 #.#'+
 
-(defun use-value-string->symbol (c)
-  (princ c) (terpri)
-  (use-value (intern (string-upcase (type-error-datum c)))))
-use-value-string->symbol
+(handler-bind ((error #'use-value-string->symbol))
+  (funcall "+" 1 2 3))
+6
 
 ;; progv
 (handler-bind ((type-error #'use-value-string->symbol))
   (progv '("foo") '(123) foo))
 123
 
-(defconstant const-var 10) const-var
-
 (handler-bind ((program-error (lambda (c) (princ c) (terpri) (use-value 'zz))))
-  (progv '(const-var) '(123) zz))
+  (progv '(:const-var) '(123) zz))
 123
 
 (handler-bind ((type-error #'use-value-string->symbol))
@@ -512,7 +526,7 @@ use-value-string->symbol
 (321 123)
 
 (handler-bind ((program-error (lambda (c) (princ c) (terpri) (use-value 'zz))))
-  (setq const-var 125)
+  (setq :const-var 125)
   zz)
 125
 
@@ -523,7 +537,7 @@ use-value-string->symbol
 
 (handler-bind ((program-error
                 (lambda (c) (princ c) (terpri) (use-value 'zz))))
-  (let ((const-var 64)) zz))
+  (let ((:const-var 64)) zz))
 64
 
 (handler-bind ((type-error #'use-value-string->symbol))
