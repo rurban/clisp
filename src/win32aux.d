@@ -596,7 +596,8 @@ global int sock_read (SOCKET fd, void* buf, int nbyte)
 
 /* Writing to a socket.
    This is the non-interruptible routine. */
-local int lowlevel_sock_write (SOCKET fd, const void* buf, int nbyte)
+local int lowlevel_sock_write (SOCKET fd, const void* buf, int nbyte,
+                               bool no_hang)
 {
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED)) || defined(SELFMADE_MMAP)
   handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
@@ -612,6 +613,7 @@ local int lowlevel_sock_write (SOCKET fd, const void* buf, int nbyte)
       return retval;
     else {
       buf += retval; done += retval; nbyte -= retval;
+      if (no_hang) break;
     }
   }
   return done;
@@ -620,16 +622,18 @@ local int lowlevel_sock_write (SOCKET fd, const void* buf, int nbyte)
 struct sock_write_params {
   SOCKET fd; const void* buf; int nbyte;
   int retval; int errcode;
+  bool no_hang;
 };
 local DWORD WINAPI do_sock_write (LPVOID arg)
 {
   var struct sock_write_params * params = (struct sock_write_params *)arg;
-  params->retval = lowlevel_sock_write(params->fd,params->buf,params->nbyte);
+  params->retval = lowlevel_sock_write(params->fd,params->buf,params->nbyte,
+                                       params->no_hang);
   if (params->retval < 0)
     params->errcode = WSAGetLastError();
   return 0;
 }
-global int sock_write (SOCKET fd, const void* buf, int nbyte)
+global int sock_write (SOCKET fd, const void* buf, int nbyte, bool no_hang)
 {
   var struct sock_write_params params;
   params.fd      = fd;
@@ -637,6 +641,7 @@ global int sock_write (SOCKET fd, const void* buf, int nbyte)
   params.nbyte   = nbyte;
   params.retval  = 0;
   params.errcode = 0;
+  params.no_hang = no_hang;
   if (DoInterruptible(&do_sock_write,(void*)&params,true)) {
     if (params.retval < 0)
       WSASetLastError(params.errcode);
