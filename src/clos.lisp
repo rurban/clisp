@@ -1714,6 +1714,7 @@
           (body (cdr description)))
       (let ((req-vars '())
             (ignorable-req-vars '())
+            (spec-list '())
             (req-specializer-forms '()))
         (do ()
             ((or (atom specialized-lambda-list)
@@ -1728,6 +1729,7 @@
                        (push (first item) ignorable-req-vars) ; CLtL2 S. 840 oben
                        (second item)
                 )) ) )
+            (push specializer-name spec-list)
             (push (if (class-p specializer-name)
                     `',specializer-name
                     (if (and (consp specializer-name)
@@ -1737,7 +1739,9 @@
                       `(FIND-CLASS ',specializer-name)
                   ) )
                   req-specializer-forms
-        ) ) )
+                  ) ) )
+        (sys::check-redefinition (cons funname (nreverse spec-list))
+                                 caller "method")
         (let* ((reqanz (length req-vars))
                (lambda-list (nreconc req-vars specialized-lambda-list))
                (optanz

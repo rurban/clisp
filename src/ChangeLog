@@ -1,3 +1,13 @@
+2002-01-22  Sam Steingold  <sds@gnu.org>
+
+	ANSI CL 11.1.2.1.2 #19 forbids methods with locked functions and
+	specializers - check that too
+	* package.d (CHECK-PACKAGE-LOCK): package may be a list of
+	packages
+	* init.lisp (check-redefinition): symbol maybe a method spec - a
+	list of function name and specializers
+	* clos.lisp (analyze-method-description): call CHECK-REDEFINITION
+
 2002-01-21  Sam Steingold  <sds@gnu.org>
 
 	SOCKET-STATUS now works on all handle streams, whose handles are

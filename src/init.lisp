@@ -422,7 +422,13 @@
   (function sys::check-redefinition
     (lambda (symbol caller what)
       (declare (ignore what))   ; for now...
-      (sys::check-package-lock caller (symbol-package symbol) symbol))))
+      (sys::check-package-lock
+       caller
+       (if (atom symbol) (symbol-package symbol)
+           (mapcar #'(lambda (obj) ; handle (setf NAME) and (eql NAME)
+                       (symbol-package (if (atom obj) obj (second obj))))
+                   symbol))
+       symbol))))
 
 (sys::%putd 'sys::remove-old-definitions
   (function sys::remove-old-definitions
