@@ -2200,25 +2200,18 @@ local void in_make_package (void) {
     return;
   } else                     /* corrected: replace */
     STACK_3 = new_name;
-  { /* check nicknames and maybe adjust: */
-    var gcv_object_t *nicknames_ = &STACK_2;
-    pushSTACK(STACK_2);
-    while (mconsp(STACK_0)) {
-      var object nickname = correct_packname(Car(STACK_0),true);
-      if (nullp(nickname)) { /* CONTINUE: discard nickname */
-        *nicknames_ = Cdr(*nicknames_);
-      } else {               /* corrected: replace */
-        Car(*nicknames_) = nickname;
-        nicknames_ = &Cdr(*nicknames_);
-      }
-      STACK_0 = Cdr(STACK_0);
-    }
-    skipSTACK(1);
-    /* (DELETE-DUPLICATES NICKNAMES :TEST (FUNCTION STRING=)) */
-    pushSTACK(STACK_2); pushSTACK(S(Ktest)); pushSTACK(L(string_gleich));
-    funcall(L(delete_duplicates),3);
-    STACK_2 = value1;
+  /* check nicknames and maybe adjust: */
+  pushSTACK(STACK_2);
+  while (mconsp(STACK_0)) {
+    Car(STACK_0) = correct_packname(Car(STACK_0),true);
+    STACK_0 = Cdr(STACK_0);
   }
+  skipSTACK(1);
+  STACK_2 = deleteq(STACK_2,NIL);
+  /* (DELETE-DUPLICATES NICKNAMES :TEST (FUNCTION STRING=)) */
+  pushSTACK(STACK_2); pushSTACK(S(Ktest)); pushSTACK(L(string_gleich));
+  funcall(L(delete_duplicates),3);
+  STACK_2 = value1;
   /* create package: */
   STACK_3 = make_package(STACK_3,STACK_2,!missingp(STACK_0));
   /* stack-layout: pack, nicknames, uselist, case-sensitive. */
