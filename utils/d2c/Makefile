@@ -164,9 +164,5 @@ convert-makefiles:
 	cd ../..; $(MAKE) -f Makefile.devel makefiles
 
 clean-up:
-	cd ../../src;
-	rm -f *.c~
-	rm -f *.d.ORIG
-	rm -f *.d.PHASE-1
-	rm -f *.d.PHASE-2
-	rm -f *.d.PHASE-3
+	cd ../../src; \
+	rm -f *.c~ *.d.ORIG *.d.PHASE-1 *.d.PHASE-2 *.d.PHASE-3
