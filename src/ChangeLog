@@ -8,6 +8,7 @@
 	* modules/matlab/matlab.lisp (engGetVisible, engSetVisible)
 	(engOpenSingleUse): win32-only
 	(mx_aref, set_mx_aref): fixed 2dim<->1dim conversion
+	(mx-aref-i): access the imaginary part
 
 2005-04-03  Sam Steingold  <sds@gnu.org>
 
