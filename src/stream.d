@@ -7655,6 +7655,75 @@ typedef struct strm_i_file_extrafields_struct {
         } }   }}
     }
 
+# UP: Schreibt einen Array von Bytes auf einen (offenen) Byte-basierten
+# File-Stream.
+# write_byte_array_b_file(stream,byteptr,len);
+# > stream : (offener) Byte-basierter File-Stream.
+# > byteptr[0..len-1] : auszugebende Bytes.
+# < result: &byteptr[len]
+# verändert in stream: index, eofindex, buffstart, position
+  local const uintB* write_byte_array_b_file (object stream, const uintB* byteptr, uintL len);
+  local const uintB* write_byte_array_b_file(stream,byteptr,len)
+    var object stream;
+    var const uintB* byteptr;
+    var uintL len;
+    { var uintL remaining = len;
+      var uintB* ptr;
+      do # Noch remaining>0 Bytes abzulegen.
+        { ptr = b_file_nextbyte(stream);
+          if (ptr == (uintB*)NULL) goto eof_reached;
+         {var sintL eofindex = FileStream_eofindex(stream);
+          var uintL next = # so viel wie noch in den Buffer oder bis EOF passt
+            ((eofindex==eofindex_all_valid) ? strm_file_bufflen : eofindex)
+            - FileStream_index(stream); # > 0 !
+          if (next > remaining) { next = remaining; }
+          # next Bytes in den Buffer kopieren:
+          {var uintL count;
+           dotimespL(count,next,
+             { var uintB b = *byteptr++; # nächstes Byte
+               if (!(*ptr == b)) { *ptr = b; FileStream_modified(stream) = TRUE; } # in den Buffer
+               ptr++;
+             });
+          }
+          remaining = remaining - next;
+          # index incrementieren:
+          FileStream_index(stream) += next;
+        }}
+        until (remaining == 0);
+      if (FALSE)
+        eof_reached: # Schreiben am EOF, eofindex = index
+        do # Noch remaining>0 Bytes abzulegen.
+          { var uintL next = # so viel wie noch Platz im Buffer ist
+              strm_file_bufflen - FileStream_index(stream);
+            if (next==0)
+              { # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
+                # genügt es, ihn hinauszuschreiben:
+                if (FileStream_modified(stream)) { b_file_half_flush(stream); }
+                FileStream_buffstart(stream) += strm_file_bufflen;
+                FileStream_eofindex(stream) = 0; # eofindex := 0
+                FileStream_index(stream) = 0; # index := 0
+                FileStream_modified(stream) = FALSE; # unmodifiziert
+                # Dann nochmals versuchen:
+                next = strm_file_bufflen;
+              }
+            if (next > remaining) { next = remaining; }
+            # next Bytes in den Buffer kopieren:
+            {var uintL count;
+             ptr = &TheSbvector(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
+             dotimespL(count,next, { *ptr++ = *byteptr++; } );
+             FileStream_modified(stream) = TRUE;
+            }
+            remaining = remaining - next;
+            # index und eofindex incrementieren:
+            FileStream_index(stream) += next;
+            FileStream_eofindex(stream) += next;
+          }
+          until (remaining == 0);
+      # position incrementieren:
+      FileStream_position(stream) += len;
+      return byteptr;
+    }
+
 # File-Stream für Characters
 # ==========================
 
@@ -7772,60 +7841,8 @@ typedef struct strm_i_file_extrafields_struct {
     var object stream;
     var const uintB* strptr;
     var uintL len;
-    { var uintL remaining = len;
-      var uintB* ptr;
-      do # Noch remaining>0 Bytes abzulegen.
-        { ptr = b_file_nextbyte(stream);
-          if (ptr == (uintB*)NULL) goto eof_reached;
-         {var sintL eofindex = FileStream_eofindex(stream);
-          var uintL next = # so viel wie noch in den Buffer oder bis EOF passt
-            ((eofindex==eofindex_all_valid) ? strm_file_bufflen : eofindex)
-            - FileStream_index(stream); # > 0 !
-          if (next > remaining) { next = remaining; }
-          # next Bytes in den Buffer kopieren:
-          {var uintL count;
-           dotimespL(count,next,
-             { var uintB b = *strptr++; # nächstes Byte
-               if (!(*ptr == b)) { *ptr = b; FileStream_modified(stream) = TRUE;; } # in den Buffer
-               ptr++;
-             });
-          }
-          remaining = remaining - next;
-          # index incrementieren:
-          FileStream_index(stream) += next;
-        }}
-        until (remaining == 0);
-      if (FALSE)
-        eof_reached: # Schreiben am EOF, eofindex = index
-        do # Noch remaining>0 Bytes abzulegen.
-          { var uintL next = # so viel wie noch Platz im Buffer ist
-              strm_file_bufflen - FileStream_index(stream);
-            if (next==0)
-              { # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
-                # genügt es, ihn hinauszuschreiben:
-                if (FileStream_modified(stream)) { b_file_half_flush(stream); }
-                FileStream_buffstart(stream) += strm_file_bufflen;
-                FileStream_eofindex(stream) = 0; # eofindex := 0
-                FileStream_index(stream) = 0; # index := 0
-                FileStream_modified(stream) = FALSE; # unmodifiziert
-                # Dann nochmals versuchen:
-                next = strm_file_bufflen;
-              }
-            if (next > remaining) { next = remaining; }
-            # next Bytes in den Buffer kopieren:
-            {var uintL count;
-             ptr = &TheSbvector(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
-             dotimespL(count,next, { *ptr++ = *strptr++; } );
-             FileStream_modified(stream) = TRUE;
-            }
-            remaining = remaining - next;
-            # index und eofindex incrementieren:
-            FileStream_index(stream) += next;
-            FileStream_eofindex(stream) += next;
-          }
-          until (remaining == 0);
-      # position incrementieren:
-      FileStream_position(stream) += len;
+    { write_byte_array_b_file(stream,strptr,len);
+      strptr += len;
       wr_ss_lpos(stream,strptr,len); # Line-Position aktualisieren
       return strptr;
     }
@@ -8546,66 +8563,8 @@ typedef struct strm_i_file_extrafields_struct {
 
 # WRITE-BYTE-SEQUENCE für File-Streams für Integers, Art au, bitsize = 8 :
   local const uintB* write_byte_array_iau8_file (object stream, const uintB* byteptr, uintL len);
-  local const uintB* write_byte_array_iau8_file(stream,byteptr,len)
-    var object stream;
-    var const uintB* byteptr;
-    var uintL len;
-    { var uintL remaining = len;
-      var uintB* ptr;
-      do # Noch remaining>0 Bytes abzulegen.
-        { ptr = b_file_nextbyte(stream);
-          if (ptr == (uintB*)NULL) goto eof_reached;
-         {var sintL eofindex = FileStream_eofindex(stream);
-          var uintL next = # so viel wie noch in den Buffer oder bis EOF passt
-            ((eofindex==eofindex_all_valid) ? strm_file_bufflen : eofindex)
-            - FileStream_index(stream); # > 0 !
-          if (next > remaining) { next = remaining; }
-          # next Bytes in den Buffer kopieren:
-          {var uintL count;
-           dotimespL(count,next,
-             { var uintB b = *byteptr++; # nächstes Byte
-               if (!(*ptr == b)) { *ptr = b; FileStream_modified(stream) = TRUE; } # in den Buffer
-               ptr++;
-             });
-          }
-          remaining = remaining - next;
-          # index incrementieren:
-          FileStream_index(stream) += next;
-        }}
-        until (remaining == 0);
-      if (FALSE)
-        eof_reached: # Schreiben am EOF, eofindex = index
-        do # Noch remaining>0 Bytes abzulegen.
-          { var uintL next = # so viel wie noch Platz im Buffer ist
-              strm_file_bufflen - FileStream_index(stream);
-            if (next==0)
-              { # Buffer muss neu gefüllt werden. Da nach ihm sowieso EOF kommt,
-                # genügt es, ihn hinauszuschreiben:
-                if (FileStream_modified(stream)) { b_file_half_flush(stream); }
-                FileStream_buffstart(stream) += strm_file_bufflen;
-                FileStream_eofindex(stream) = 0; # eofindex := 0
-                FileStream_index(stream) = 0; # index := 0
-                FileStream_modified(stream) = FALSE; # unmodifiziert
-                # Dann nochmals versuchen:
-                next = strm_file_bufflen;
-              }
-            if (next > remaining) { next = remaining; }
-            # next Bytes in den Buffer kopieren:
-            {var uintL count;
-             ptr = &TheSbvector(TheStream(stream)->strm_file_buffer)->data[FileStream_index(stream)];
-             dotimespL(count,next, { *ptr++ = *byteptr++; } );
-             FileStream_modified(stream) = TRUE;
-            }
-            remaining = remaining - next;
-            # index und eofindex incrementieren:
-            FileStream_index(stream) += next;
-            FileStream_eofindex(stream) += next;
-          }
-          until (remaining == 0);
-      # position incrementieren:
-      FileStream_position(stream) += len;
-      return byteptr;
-    }
+  #define write_byte_array_iau8_file(stream,byteptr,len)  \
+    write_byte_array_b_file(stream,byteptr,len)
 
 # File-Stream allgemein
 # =====================
