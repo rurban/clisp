@@ -1555,37 +1555,12 @@
 #endif
 
 # Fixnum to Normalized Digit sequence
-# FN_to_NDS_nocopy(obj, MSDptr=,len=,LSDptr=);
+# { FN_to_NDS_nocopy(obj, MSDptr=,len=,LSDptr=); ... }
 # > obj: ein Fixnum
 # < MSDptr/len/LSDptr: Normalized Digit sequence, im Maschinenstack
   #define FN_to_NDS_nocopy(obj,MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung)  \
-    FN_to_NDS_(nocopy,obj,_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung)
-  #if 0
-    # Manche C-Compiler allozieren ihre Variablen auf dem Stack
-    # überschneidungsfrei. Beispielsweise GCC 2.3.3 auf den meisten Systemen.
-    # Coherent CC auf i386 und GCC 2.4.5 auf 680x0 allerdings nicht.
-    # Wir gehen nun kein Risiko mehr ein.
-    #define alloc_FNDS_nocopy(len,MSDptr_zuweisung,LSDptr_zuweisung)  \
-      { var uintD UDS_from_FN_to_NDS[FN_maxlength]; \
-        MSDptr_zuweisung &UDS_from_FN_to_NDS[0];    \
-        LSDptr_zuweisung &UDS_from_FN_to_NDS[len];  \
-      }
-  #elif !defined(NEED_MALLOCA)
-    # Alloziere einen Array, der bis Funktionsende existieren muss, mit alloca().
-    #define alloc_FNDS_nocopy(len,MSDptr_zuweisung,LSDptr_zuweisung)  \
-      { LSDptr_zuweisung                                                \
-          (MSDptr_zuweisung (uintD*)alloca(FN_maxlength*sizeof(uintD))) \
-          + (len);                                                      \
-      }
-  #else
-    # Benutze malloca(), siehe SPVW.D. Hoffen wir, dass das Fehlen von
-    # freea()-Aufrufen sich nicht zu stark bemerkbar macht.
-    #define alloc_FNDS_nocopy(len,MSDptr_zuweisung,LSDptr_zuweisung)  \
-      { LSDptr_zuweisung                                                 \
-          (MSDptr_zuweisung (uintD*)malloca(FN_maxlength*sizeof(uintD))) \
-          + (len);                                                       \
-      }
-  #endif
+    var uintD CONCAT(FN_to_NDS_room_,__LINE__)[FN_maxlength]; \
+    FN_to_NDS_nocopy_(obj,CONCAT(FN_to_NDS_room_,__LINE__),_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung)
 
 # Fixnum to Normalized Digit sequence
 # FN_to_NDS(obj, MSDptr=,len=,LSDptr=);
@@ -1667,16 +1642,59 @@
           *ptr_from_FN_to_NDS = FN_LSD0(as_object(fix_from_FN_to_NDS));                             \
         }                                                                                           \
     }
+  #define FN_to_NDS_nocopy_(obj, room, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung)  \
+    { var oint fix_from_FN_to_NDS = as_oint(obj);                                                             \
+      var uintC len_from_FN_to_NDS;                                                                           \
+      # Länge der NDS bestimmen und Platz füllen:                                                             \
+      if (eq(as_object(fix_from_FN_to_NDS),Fixnum_0)) # mindestens 1 Digit nötig?                             \
+        { len_from_FN_to_NDS=0; }                                                                             \
+        else                                                                                                  \
+        { var oint testMSD; # vordere Bits von fix_from_FN_to_NDS                                             \
+          var uintD* ptr_from_FN_to_NDS = room;                                                               \
+          if ((FN_maxlength<=1) ||                                                                            \
+              (((testMSD = fix_from_FN_to_NDS & FN_MSD1_mask) == 0) || (testMSD == FN_MSD1_mask))             \
+             )                                                                                                \
+            { len_from_FN_to_NDS=1; } # nur ein Digit abzulegen                                               \
+            else                                                                                              \
+            { if ((FN_maxlength<=2) ||                                                                        \
+                  (((testMSD = fix_from_FN_to_NDS & FN_MSD2_mask) == 0) || (testMSD == FN_MSD2_mask))         \
+                 )                                                                                            \
+                { len_from_FN_to_NDS=2; } # zwei Digits abzulegen                                             \
+                else                                                                                          \
+                { if ((FN_maxlength<=3) ||                                                                    \
+                      (((testMSD = fix_from_FN_to_NDS & FN_MSD3_mask) == 0) || (testMSD == FN_MSD3_mask))     \
+                     )                                                                                        \
+                    { len_from_FN_to_NDS=3; } # drei Digits abzulegen                                         \
+                    else                                                                                      \
+                    { if ((FN_maxlength<=4) ||                                                                \
+                          (((testMSD = fix_from_FN_to_NDS & FN_MSD4_mask) == 0) || (testMSD == FN_MSD4_mask)) \
+                         )                                                                                    \
+                        { len_from_FN_to_NDS=4; } # vier Digits abzulegen                                     \
+                        else                                                                                  \
+                        { len_from_FN_to_NDS=5; # fünf Digits abzulegen                                       \
+                          *ptr_from_FN_to_NDS++ = FN_LSD4(as_object(fix_from_FN_to_NDS));                     \
+                        }                                                                                     \
+                      *ptr_from_FN_to_NDS++ = FN_LSD3(as_object(fix_from_FN_to_NDS));                         \
+                    }                                                                                         \
+                  *ptr_from_FN_to_NDS++ = FN_LSD2(as_object(fix_from_FN_to_NDS));                             \
+                }                                                                                             \
+              *ptr_from_FN_to_NDS++ = FN_LSD1(as_object(fix_from_FN_to_NDS));                                 \
+            }                                                                                                 \
+          *ptr_from_FN_to_NDS = FN_LSD0(as_object(fix_from_FN_to_NDS));                                       \
+        }                                                                                                     \
+      len_zuweisung len_from_FN_to_NDS;                                                                       \
+      unused (LSDptr_zuweisung (MSDptr_zuweisung room) + len_from_FN_to_NDS);                                 \
+    }
 
 # Bignum to Normalized Digit sequence, Kopieren unnötig
 # BN_to_NDS_nocopy(obj, MSDptr=,len=,LSDptr=);
 # > obj: ein Bignum
 # < MSDptr/len/LSDptr: Normalized Digit sequence
   #define BN_to_NDS_nocopy(obj, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung)  \
-    { var Bignum bn_from_BN_to_NDS_nocopy = TheBignum(obj);         \
-      unused (MSDptr_zuweisung &bn_from_BN_to_NDS_nocopy->data[0]); \
-      LSDptr_zuweisung &bn_from_BN_to_NDS_nocopy->data[(uintP)(     \
-        len_zuweisung bignum_length(bn_from_BN_to_NDS_nocopy) )];   \
+    { var Bignum bn_from_BN_to_NDS_nocopy = TheBignum(obj);              \
+      unused (MSDptr_zuweisung &bn_from_BN_to_NDS_nocopy->data[0]);      \
+      unused (LSDptr_zuweisung &bn_from_BN_to_NDS_nocopy->data[(uintP)(  \
+              len_zuweisung bignum_length(bn_from_BN_to_NDS_nocopy) )]); \
     }
 
 # Bignum to Normalized Digit sequence
@@ -1709,13 +1727,14 @@
     }
 
 # Integer to Normalized Digit sequence, Kopieren unnötig.
-# I_to_NDS_nocopy(obj, MSDptr=,len=,LSDptr=);
+# { I_to_NDS_nocopy(obj, MSDptr=,len=,LSDptr=); ... }
 # > obj: ein Integer
 # < MSDptr/len/LSDptr: Normalized Digit sequence
   #define I_to_NDS_nocopy(obj, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung)  \
+    var uintD CONCAT(I_to_NDS_room_,__LINE__)[FN_maxlength];                     \
     { var object obj_from_I_to_NDS_nocopy = (obj);                               \
       if (I_fixnump(obj_from_I_to_NDS_nocopy))                                   \
-        { FN_to_NDS_nocopy(obj_from_I_to_NDS_nocopy,_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung); } \
+        { FN_to_NDS_nocopy_(obj_from_I_to_NDS_nocopy,CONCAT(I_to_NDS_room_,__LINE__),_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung); } \
         else                                                                     \
         { BN_to_NDS_nocopy(obj_from_I_to_NDS_nocopy,_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung); } \
     }

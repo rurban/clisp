@@ -503,8 +503,6 @@
        { SAVE_NUM_STACK # num_stack retten
          var uintC n_len;
          var uintD* n_LSDptr;
-         var uintC x_len;
-         var uintD* x_LSDptr;
          # UDS zu n bilden, 0<n_len<=32/intDsize:
          var uintD n_UDS[32/intDsize];
          {var uintD* n_MSDptr = &n_UDS[0];
@@ -515,97 +513,99 @@
             );
           n_UDS_ok: ; # n_MSDptr/n_len/n_LSDptr ist NUDS zu n.
          }
-         I_to_NDS_nocopy(x, _EMA_,x_len=,x_LSDptr=); # UDS zu x bilden, x_len>0
-        {var uintD x_lsd = x_LSDptr[-1]; # letztes Digit von x
-         var uintD y_lsd; # n-te Wurzel von x_lsd mod 2^intDsize
-         y_lsd = 1; # Wurzel mod 2^1
-         # Für k=1,2,4,...:
-         # y_lsd := y_lsd + 2^k * (x_lsd-y_lsd^n)/2^k / (n*y_lsd^(n-1))
-         #        = y_lsd + (x_lsd-y_lsd^n) / (n*y_lsd^(n-1))
-         doconsttimes(log2_intDsize, # log2(intDsize) Iterationen reichen aus
-           { var uintD y_lsd_n1 = D_UL_expt_D(y_lsd,n-1); # y_lsd^(n-1)
-             var uintD y_lsd_n = D_D_mal2adic_D(y_lsd_n1,y_lsd); # y_lsd^n
-             var uintD delta = x_lsd-y_lsd_n; # x_lsd - y_lsd^n
-             if (delta==0) goto y_lsd_ok;
-             y_lsd = y_lsd + D_D_durch2adic_D(delta,D_D_mal2adic_D((uintD)n,y_lsd_n1));
-           });
-         y_lsd_ok:
-         ASSERT(D_UL_expt_D(y_lsd,n)==x_lsd);
-         # Nun ist y_lsd^n == x_lsd mod beta=2^intDsize.
-         { var uintL m = ceiling((uintL)x_len,n); # für y nötige Länge, >0, <=x_len
-           var uintD* y_LSDptr;
-           begin_arith_call();
-           { var uintD* z1_LSDptr;
-             var uintD* z2_LSDptr;
-             var uintD* z3_LSDptr;
-             num_stack_need_1(m, _EMA_,y_LSDptr=); # Platz für y
-             {var uintL need = 2*m+(32/intDsize-1); # >= max(2*m,m+32/intDsize)
-              num_stack_need(need, _EMA_,z1_LSDptr=); # Platz für Rechenregister 1
-              num_stack_need(need, _EMA_,z2_LSDptr=); # Platz für Rechenregister 2
-              num_stack_need(need, _EMA_,z3_LSDptr=); # Platz für Rechenregister 3
-             }
-            {var uintL k = 1; # y ist bisher mod beta^k bekannt
-             y_LSDptr[-1] = y_lsd; # Startwert von y
-             until (k==m)
-               { var uintL k2 = 2*k; if (k2>m) { k2=m; } # k2 = min(2*k,m) > k
-                 # bisheriges y mod beta^k2 mit n-1 potenzieren:
-                 # Methode für z := y^(n-1) :
-                 #   zz:=y, e:=n-1.
-                 #   Solange e gerade, setze zz:=zz*zz, e:=e/2.
-                 #   z:=zz.
-                 #   Solange (e:=floor(e/2)) >0,
-                 #     setze zz:=zz*zz, und falls e ungerade, setze z:=z*zz.
-                {var uintL e = n-1; # e:=n-1
-                 var uintD* free_LSDptr = z1_LSDptr;
-                 var uintD* zz_LSDptr = z2_LSDptr;
-                 var uintD* z_LSDptr;
-                 # Ab jetzt {zz_LSDptr,free_LSDptr} = {z1_LSDptr,z2_LSDptr}.
-                 clear_loop_down(&y_LSDptr[-(uintP)k],k2-k); # y auf k2 Digits erweitern
-                 copy_loop_down(y_LSDptr,zz_LSDptr,k2); # zz:=y
-                 do { var uintD* new_zz_LSDptr = free_LSDptr;
-                      mulu_2loop_down(zz_LSDptr,k2,zz_LSDptr,k2,new_zz_LSDptr); # zz:=zz*zz
-                      free_LSDptr = zz_LSDptr; zz_LSDptr = new_zz_LSDptr;
-                      e = e>>1; # e:=e/2
-                    }
-                    while ((e & bit(0)) ==0); # solange e gerade
-                 z_LSDptr = zz_LSDptr; # z:=zz
-                 # (zz nicht kopieren; ab der nächsten Veränderung von zz wird
-                 # {zz_LSDptr,z_LSDptr,free_LSDptr} = {z1_LSDptr,z2_LSDptr,z3_LSDptr}
-                 # gelten.)
-                 until ((e = e>>1) == 0)
-                   { {var uintD* new_zz_LSDptr = free_LSDptr;
-                      mulu_2loop_down(zz_LSDptr,k2,zz_LSDptr,k2,new_zz_LSDptr); # zz:=zz*zz
-                      free_LSDptr = (z_LSDptr==zz_LSDptr ? z3_LSDptr : zz_LSDptr);
-                      zz_LSDptr = new_zz_LSDptr;
-                     }
-                     if (!((e & bit(0)) == 0))
-                       {var uintD* new_z_LSDptr = free_LSDptr;
-                        mulu_2loop_down(z_LSDptr,k2,zz_LSDptr,k2,new_z_LSDptr); # z:=z*zz
-                        free_LSDptr = z_LSDptr; z_LSDptr = new_z_LSDptr;
-                   }   }
-                 # z = y^(n-1) mod beta^k2 ist fertig.
-                 if (z_LSDptr==zz_LSDptr) { zz_LSDptr = z3_LSDptr; } # zz ist jetzt auch frei
-                 mulu_2loop_down(z_LSDptr,k2,y_LSDptr,k2,free_LSDptr); # y^n
-                 sub_loop_down(x_LSDptr,free_LSDptr,zz_LSDptr,k2); # zz:=x-y^n
-                 ASSERT(!test_loop_up(&zz_LSDptr[-(uintP)k],k)); # zz == 0 mod beta^k
-                 mulu_2loop_down(z_LSDptr,k2-k,n_LSDptr,n_len,free_LSDptr); # n*y^(n-1)
-                 # Quotienten mod beta^(k2-k) bilden und an y mod beta^k ankleben:
-                 UDS_UDS_durch2adic_UDS(k2-k,&zz_LSDptr[-(uintP)k],free_LSDptr,&y_LSDptr[-(uintP)k]);
-                 k = k2; # jetzt gilt y^n == x sogar mod beta^k2.
-           }}  }}
-           end_arith_call();
-           # y mit y^n == x mod beta^m ist gefunden.
-           RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
-           {var object y = UDS_to_I(&y_LSDptr[-(uintP)m],m); # y als Integer >=0
-            pushSTACK(y);
+         {var uintC x_len;
+          var uintD* x_LSDptr;
+          I_to_NDS_nocopy(x, _EMA_,x_len=,x_LSDptr=); # UDS zu x bilden, x_len>0
+          {var uintD x_lsd = x_LSDptr[-1]; # letztes Digit von x
+           var uintD y_lsd; # n-te Wurzel von x_lsd mod 2^intDsize
+           y_lsd = 1; # Wurzel mod 2^1
+           # Für k=1,2,4,...:
+           # y_lsd := y_lsd + 2^k * (x_lsd-y_lsd^n)/2^k / (n*y_lsd^(n-1))
+           #        = y_lsd + (x_lsd-y_lsd^n) / (n*y_lsd^(n-1))
+           doconsttimes(log2_intDsize, # log2(intDsize) Iterationen reichen aus
+             { var uintD y_lsd_n1 = D_UL_expt_D(y_lsd,n-1); # y_lsd^(n-1)
+               var uintD y_lsd_n = D_D_mal2adic_D(y_lsd_n1,y_lsd); # y_lsd^n
+               var uintD delta = x_lsd-y_lsd_n; # x_lsd - y_lsd^n
+               if (delta==0) goto y_lsd_ok;
+               y_lsd = y_lsd + D_D_durch2adic_D(delta,D_D_mal2adic_D((uintD)n,y_lsd_n1));
+             });
+           y_lsd_ok:
+           ASSERT(D_UL_expt_D(y_lsd,n)==x_lsd);
+           # Nun ist y_lsd^n == x_lsd mod beta=2^intDsize.
+           { var uintL m = ceiling((uintL)x_len,n); # für y nötige Länge, >0, <=x_len
+             var uintD* y_LSDptr;
+             begin_arith_call();
+             { var uintD* z1_LSDptr;
+               var uintD* z2_LSDptr;
+               var uintD* z3_LSDptr;
+               num_stack_need_1(m, _EMA_,y_LSDptr=); # Platz für y
+               {var uintL need = 2*m+(32/intDsize-1); # >= max(2*m,m+32/intDsize)
+                num_stack_need(need, _EMA_,z1_LSDptr=); # Platz für Rechenregister 1
+                num_stack_need(need, _EMA_,z2_LSDptr=); # Platz für Rechenregister 2
+                num_stack_need(need, _EMA_,z3_LSDptr=); # Platz für Rechenregister 3
+               }
+              {var uintL k = 1; # y ist bisher mod beta^k bekannt
+               y_LSDptr[-1] = y_lsd; # Startwert von y
+               until (k==m)
+                 { var uintL k2 = 2*k; if (k2>m) { k2=m; } # k2 = min(2*k,m) > k
+                   # bisheriges y mod beta^k2 mit n-1 potenzieren:
+                   # Methode für z := y^(n-1) :
+                   #   zz:=y, e:=n-1.
+                   #   Solange e gerade, setze zz:=zz*zz, e:=e/2.
+                   #   z:=zz.
+                   #   Solange (e:=floor(e/2)) >0,
+                   #     setze zz:=zz*zz, und falls e ungerade, setze z:=z*zz.
+                  {var uintL e = n-1; # e:=n-1
+                   var uintD* free_LSDptr = z1_LSDptr;
+                   var uintD* zz_LSDptr = z2_LSDptr;
+                   var uintD* z_LSDptr;
+                   # Ab jetzt {zz_LSDptr,free_LSDptr} = {z1_LSDptr,z2_LSDptr}.
+                   clear_loop_down(&y_LSDptr[-(uintP)k],k2-k); # y auf k2 Digits erweitern
+                   copy_loop_down(y_LSDptr,zz_LSDptr,k2); # zz:=y
+                   do { var uintD* new_zz_LSDptr = free_LSDptr;
+                        mulu_2loop_down(zz_LSDptr,k2,zz_LSDptr,k2,new_zz_LSDptr); # zz:=zz*zz
+                        free_LSDptr = zz_LSDptr; zz_LSDptr = new_zz_LSDptr;
+                        e = e>>1; # e:=e/2
+                      }
+                      while ((e & bit(0)) ==0); # solange e gerade
+                   z_LSDptr = zz_LSDptr; # z:=zz
+                   # (zz nicht kopieren; ab der nächsten Veränderung von zz wird
+                   # {zz_LSDptr,z_LSDptr,free_LSDptr} = {z1_LSDptr,z2_LSDptr,z3_LSDptr}
+                   # gelten.)
+                   until ((e = e>>1) == 0)
+                     { {var uintD* new_zz_LSDptr = free_LSDptr;
+                        mulu_2loop_down(zz_LSDptr,k2,zz_LSDptr,k2,new_zz_LSDptr); # zz:=zz*zz
+                        free_LSDptr = (z_LSDptr==zz_LSDptr ? z3_LSDptr : zz_LSDptr);
+                        zz_LSDptr = new_zz_LSDptr;
+                       }
+                       if (!((e & bit(0)) == 0))
+                         {var uintD* new_z_LSDptr = free_LSDptr;
+                          mulu_2loop_down(z_LSDptr,k2,zz_LSDptr,k2,new_z_LSDptr); # z:=z*zz
+                          free_LSDptr = z_LSDptr; z_LSDptr = new_z_LSDptr;
+                     }   }
+                   # z = y^(n-1) mod beta^k2 ist fertig.
+                   if (z_LSDptr==zz_LSDptr) { zz_LSDptr = z3_LSDptr; } # zz ist jetzt auch frei
+                   mulu_2loop_down(z_LSDptr,k2,y_LSDptr,k2,free_LSDptr); # y^n
+                   sub_loop_down(x_LSDptr,free_LSDptr,zz_LSDptr,k2); # zz:=x-y^n
+                   ASSERT(!test_loop_up(&zz_LSDptr[-(uintP)k],k)); # zz == 0 mod beta^k
+                   mulu_2loop_down(z_LSDptr,k2-k,n_LSDptr,n_len,free_LSDptr); # n*y^(n-1)
+                   # Quotienten mod beta^(k2-k) bilden und an y mod beta^k ankleben:
+                   UDS_UDS_durch2adic_UDS(k2-k,&zz_LSDptr[-(uintP)k],free_LSDptr,&y_LSDptr[-(uintP)k]);
+                   k = k2; # jetzt gilt y^n == x sogar mod beta^k2.
+             }}  }}
+             end_arith_call();
+             # y mit y^n == x mod beta^m ist gefunden.
+             RESTORE_NUM_STACK # num_stack (vorzeitig) zurück
+             {var object y = UDS_to_I(&y_LSDptr[-(uintP)m],m); # y als Integer >=0
+              pushSTACK(y);
        # Stackaufbau: x, y.
        # y^n (mit n ungerade) bilden:
        #   c:=a:=y, b:=n.
        #   Solange b:=floor(b/2) >0 ist,
        #     setze a:=a*a, und falls b ungerade, setze c:=a*c.
        #   Liefere c.
-            pushSTACK(y); pushSTACK(y);
-       }}} } # Stackaufbau: x, y, c, a.
+              pushSTACK(y); pushSTACK(y);
+       } }}} } # Stackaufbau: x, y, c, a.
        until ((n = n>>1) == 0)
          { var object a = STACK_0 = I_square_I(STACK_0);
            if (!((n & bit(0)) == 0)) { STACK_1 = I_I_mal_I(a,STACK_1); }
