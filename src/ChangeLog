@@ -1,5 +1,19 @@
 2004-06-23  Bruno Haible  <bruno@clisp.org>
 
+	Simplify handling of generic-function docstring.
+	* clos-genfun2.lisp (%make-gf): Add documentation argument.
+	(make-fast-gf): Likewise.
+	* clos-genfun3.lisp (do-defmethod): Update.
+	(defgeneric): Pass documentation string to do-defgeneric, instead of
+	calling SYSTEM::%SET-DOCUMENTATION.
+	(ensure-generic): Update.
+	* clos-genfun4.lisp (make-generic-function, do-defgeneric): Accept
+	documentation argument.
+	(make-generic-function-form): Pass the docstring to
+	make-generic-function.
+
+2004-06-23  Bruno Haible  <bruno@clisp.org>
+
 	Implement the :declarations, :declare option.
 	* clos-genfun2.lisp (check-gf-declspecs): New function.
 	(shared-initialize-<standard-generic-function>): Accept option :declare
