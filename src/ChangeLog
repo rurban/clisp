@@ -1,3 +1,7 @@
+2002-11-15  Sam Steingold  <sds@gnu.org>
+
+	* m4/libtool.m4: upgraded to libtool-1.4.3
+
 2002-11-14  Sam Steingold  <sds@gnu.org>
 
 	moved %REMF and %PUTF to C to unify all plist handling in one place
