@@ -5987,7 +5987,8 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge)))
       end_system_call();
       return result;
       # Alternative:
-      # { var uintB drv[3];
+      # {
+      #   var uintB drv[3];
       #   var uintB fsys[16];
       #   drv[0] = drive; drv[1] = ':'; drv[2] = '\0';
       #   begin_system_call();
@@ -10648,7 +10649,8 @@ local int executable_fd = -1;
 local boolean maybe_executable (const char * filename);
 local boolean maybe_executable(filename)
   var const char * filename;
-  { var struct stat statexe;
+  {
+    var struct stat statexe;
     var struct stat statfile;
     if (access(filename,R_OK|X_OK) < 0)
       return FALSE;

@@ -4496,7 +4496,8 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
   local uintL test_dims (uintL* totalsize_);
   local uintL test_dims(totalsize_)
     var uintL* totalsize_;
-    { var object dims = STACK_7;
+    {
+      var object dims = STACK_7;
       if (listp(dims)) {
         var uintL rank = 0; # bisherige Anzahl der Dimensionen
         var uintL totalsize = 1; # bisheriges Produkt der Dimensionen,
