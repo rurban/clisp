@@ -1175,6 +1175,7 @@ LISPSYM(lookup_foreign_function,"LOOKUP-FOREIGN-FUNCTION",ffi) /* ABI */
 LISPSYM(foreign_call_out,"FOREIGN-CALL-OUT",ffi)
 #if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
 LISPSYM(foreign_library,"FOREIGN-LIBRARY",ffi) /* ABI */
+LISPSYM(close_foreign_library,"CLOSE-FOREIGN-LIBRARY",ffi)
 LISPSYM(foreign_library_variable,"FOREIGN-LIBRARY-VARIABLE",ffi) /* ABI */
 LISPSYM(foreign_library_function,"FOREIGN-LIBRARY-FUNCTION",ffi) /* ABI */
 #endif  /* WIN32_NATIVE || HAVE_DLOPEN */

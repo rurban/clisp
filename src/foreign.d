@@ -3980,6 +3980,19 @@ local maygc void * open_library (gcv_object_t* name, uintL version)
   return handle;
 }
 
+/* close the fpointer to a library */
+local void close_library (object fp) {
+  var void * libaddr = (TheFpointer(fp)->fp_pointer);
+  begin_system_call();
+ #if defined(WIN32_NATIVE)
+  FreeLibrary((HMODULE)libaddr);
+ #else
+  dlclose(libaddr);
+ #endif
+  end_system_call();
+  mark_fp_invalid(TheFpointer(fp));
+}
+
 #if defined(UNIX_FREEBSD) && !defined(RTLD_DEFAULT)
 local void* libc_handle;
 #endif
@@ -4156,6 +4169,16 @@ LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
   mv_count=1; skipSTACK(2);
 }
 
+/* (FFI:CLOSE-FOREIGN-LIBRARY name [required-version]) */
+LISPFUNN(close_foreign_library,1)
+{
+  var object lib_cons = find_library(popSTACK());
+  if (consp(lib_cons))
+    close_library(value1 = Car(Cdr(lib_cons)));
+  else value1 = NIL;
+  mv_count = 1;
+}
+
 /* Try to make a Foreign-Pointer valid again.
    FIXME: update_library() is GC-unsafe, so this should be too?!
  validate_fpointer(obj); */
@@ -4322,16 +4345,8 @@ global void exit_ffi (void) {
   while (consp(alist)) {
     var object acons = Car(alist);
     var object obj = Car(Cdr(acons));
-    if (stringp(Car(acons)) && fp_validp(TheFpointer(obj))) {
-      var void * libaddr = (TheFpointer(obj)->fp_pointer);
-      begin_system_call();
-     #if defined(WIN32_NATIVE)
-      FreeLibrary((HMODULE)libaddr);
-     #else
-      dlclose(libaddr);
-     #endif
-      end_system_call();
-    }
+    if (stringp(Car(acons)) && fp_validp(TheFpointer(obj)))
+      close_library(obj);
     alist = Cdr(alist);
   }
   O(foreign_libraries) = NIL;
