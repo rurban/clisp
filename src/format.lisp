@@ -1337,7 +1337,7 @@
 
 (defun current-indent ()
   (if (boundp 'sys::*prin-level*)
-      (* sys::*prin-level* sys::*print-indent-lists*)
+      (* sys::*prin-level* *print-indent-lists*)
       (progn (warn "~s: ~s unbound" 'current-indent 'sys::*prin-level*)
              0)))
 
