@@ -44,7 +44,7 @@ if test $ac_cv_header_sys_resource_h = yes; then
 int main ()
 {
   struct rusage used, prev;
-  time_t end = time(NULL)+1;
+  time_t end = time(NULL)+2;
   int count = 0;
 
   if ((count = getrusage(RUSAGE_SELF, &prev))) {
