@@ -1,3 +1,16 @@
+
+User visible changes
+--------------------
+
+Portability
+-----------
+
+* Added build instructions for Win32 using MSVC 6.0.
+
+Other modifications
+-------------------
+
+
 1999-01-08
 ==========
 
