@@ -101,6 +101,9 @@ space.</para>
  the OS environment is informed that the &clisp; session did not
  succeed.</para>
 
+<para><link linkend="fin-delim">Final delimiter</link>s also terminate
+ &clisp;.</para>
+
 </section>
 
 <section id="i18n"><title>Internationalization of &clisp;</title>
