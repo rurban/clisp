@@ -1,5 +1,9 @@
 2004-10-23  Bruno Haible  <bruno@clisp.org>
 
+	* mop.tst: Add virtual-dispatch generic functions example.
+
+2004-10-23  Bruno Haible  <bruno@clisp.org>
+
 	* mop.tst: Add test of compute-effective-slot-definition-initargs.
 	Add test for slots with one value per subclass.
 
