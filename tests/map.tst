@@ -129,8 +129,7 @@ t
 ERROR
 
 (MAPCAR (FUNCTION (LAMBDA (X Y Z) (LIST X Y)))
-        (QUOTE (C)) (QUOTE (1 2))
-(QUOTE (U V W)))
+        (QUOTE (C)) (QUOTE (1 2)) (QUOTE (U V W)))
 ((C 1))
 
 (MAPCAR (FUNCTION (LAMBDA (X Y Z) (LIST X Y)))
@@ -138,22 +137,20 @@ ERROR
 ((A 1) (B 2) (C 3))
 
 (MAPCAR (FUNCTION (LAMBDA (X Y Z) (LIST X Y Z)))
-        (QUOTE (A B C)) (QUOTE (1 2 3))
-(QUOTE (U V W)))
+        (QUOTE (A B C)) (QUOTE (1 2 3)) (QUOTE (U V W)))
 ((A 1 U) (B 2 V) (C 3 W))
+
 
 ;; mapc
 (mapc #'abs '(3 -4 2 -5 -6))
 (3 -4 2 -5 -6)
 
 (MAPC (FUNCTION (LAMBDA (X Y Z) (LIST X Y Z)))
-      (QUOTE (A B C)) (QUOTE (1 2 3))
-(QUOTE (U I V)))
+      (QUOTE (A B C)) (QUOTE (1 2 3)) (QUOTE (U I V)))
 (A B C)
 
 (MAPCAR (FUNCTION (LAMBDA (X Y Z) (LIST X Y Z)))
-        (QUOTE (A B C)) (QUOTE (1 2 3))
-(QUOTE (U I V)))
+        (QUOTE (A B C)) (QUOTE (1 2 3)) (QUOTE (U I V)))
 ((A 1 U) (B 2 I) (C 3 V))
 
 (mapl #'(lambda (x y) (cons x y)) '(a b c d) '(1 2 3 4))
@@ -168,11 +165,9 @@ ERROR
 (maplist #'(lambda (x) (cons 'foo x)) '(a b c d))
 ((foo a b c d)(foo b c d)(foo c d)(foo d))
 
-
 (maplist #'(lambda (x) (if (member (car x) (cdr x)) 0 1))
          '(a b a c d b c))
 (0 0 1 0 1 1 1)
-
 
 (MAPLIST (FUNCTION (LAMBDA (X Y Z) (LIST X Y Z)))
          (QUOTE (A B C)) (QUOTE (1 2 3)) (QUOTE (U I V)))
