@@ -426,7 +426,9 @@
        caller
        (if (atom symbol) (symbol-package symbol)
            (mapcar #'(lambda (obj) ; handle (setf NAME) and (eql NAME)
-                       (symbol-package (if (atom obj) obj (second obj))))
+                       (let ((oo (if (atom obj) obj (second obj))))
+                         (when (symbolp oo)
+                           (symbol-package oo))))
                    symbol))
        symbol))))
 
