@@ -1,5 +1,13 @@
 2004-10-09  Bruno Haible  <bruno@clisp.org>
 
+	Allow the user to override class-direct-subclasses.
+	* clos-class3.lisp (class-direct-subclasses): New preliminary function.
+	(checked-class-direct-subclasses): New function.
+	(list-all-finalized-subclasses): Use it instead of
+	list-direct-subclasses.
+
+2004-10-09  Bruno Haible  <bruno@clisp.org>
+
 	Improved bootstrapping.
 	* clos-class3.lisp (defclass): Hardwire the
 	CLASS-VALID-INITIALIZATION-KEYWORDS result if the metaclass is
