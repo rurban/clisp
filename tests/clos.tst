@@ -346,16 +346,18 @@ T
   (defparameter *t-list*
     (list (make-instance 'test-class1 :foo 100)
           (make-instance 'test-class2 :foo 200)))
-  (let ((compiled-file
-         (compile-file
-          (with-open-file (stream "make-load-form-demo.lisp"
-                                  :direction :output
-                                  :if-exists :supersede)
-            (format stream "(in-package \"CL-USER\")~
-                            ~%(defparameter *t-list* '#.*t-list*)~%")
-            (truename stream)))))
+  (let* ((lisp-file "make-load-form-demo.lisp")
+         (compiled-file
+          (compile-file
+           (with-open-file (stream lisp-file :direction :output
+                                   :if-exists :supersede)
+             (format stream "(in-package \"CL-USER\")~
+                             ~%(defparameter *t-list* '#.*t-list*)~%")
+             (truename stream)))))
     (setq *t-list* '())
     (load compiled-file)
     (delete-file compiled-file)
+    (delete-file lisp-file)
+    #+clisp (delete-file (merge-pathnames ".lib" lisp-file))
     (mapcar #'foo *t-list*)))
 (100 200)
