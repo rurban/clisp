@@ -1262,7 +1262,7 @@ typedef signed int  signean;
 
 # non-local exits
 #include <setjmp.h>
-#if defined(UNIX) && defined(HAVE__JMP) && !defined(UNIX_LINUX) && !defined(UNIX_GNU) && !defined(UNIX_BEOS)
+#if defined(UNIX) && defined(HAVE__JMP) && !defined(UNIX_LINUX) && !defined(UNIX_GNU) && !defined(UNIX_BEOS) && !defined(UNIX_CYGWIN32)
   # The following routines are more efficient (don't use with signal-masks):
   #undef setjmp
   #undef longjmp
