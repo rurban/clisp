@@ -416,15 +416,14 @@ local maygc object check_varspec (object varspec, object caller) {
 /* the variables declared special appear on the stack twice:
    with binding SPECDECL (added when processing declarations)
    and the actual value (added when processing bindings).
- here we activate the SPECDECL bindings */
-#define specdecled_p(sym,ptr,nn) (nn>0 ? specdecled_(sym,ptr,nn) : NULL)
-/* Find the SPECDECL binding for the symbol
+ here we activate the SPECDECL bindings:
+ Find the SPECDECL binding for the symbol
  > spec_pointer & spec_anz are returned by make_variable_frame()
  < return the pointer to the flags (or symbol+flags)
  i.e., something suitable to SET_BIT,
  or NULL if no such binding is found */
-local inline gcv_object_t* specdecled_
-(object symbol, gcv_object_t* spec_pointer, uintL spec_anz) {
+global gcv_object_t* specdecled_ (object symbol, gcv_object_t* spec_pointer,
+                                  uintL spec_anz) {
   do {
     NEXT(spec_pointer);
    #ifdef NO_symbolflags
@@ -441,13 +440,6 @@ local inline gcv_object_t* specdecled_
   } while (--spec_anz);
   return NULL;
 }
-/* activate the SPECDECL binding if found */
-#define activate_specdecl(sym,ptr,nn) do {                      \
-  var gcv_object_t *spec = specdecled_p(sym,ptr,nn);            \
-  if (spec)                                                     \
-    *spec = SET_BIT(*spec,active_bit_o); /* activate binding */ \
- } while(0)
-
 
 /* UP for LET, LET*, LOCALLY, MULTIPLE-VALUE-BIND, SYMBOL-MACROLET:
  Analyzes the variables and declarations, builds up a variable binding-
