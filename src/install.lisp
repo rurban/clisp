@@ -5,15 +5,21 @@
 ;;  - to set the Registry appropriately
 ;;  - to create CLISP.BAT on your desktop
 
-(defvar *clisp-home* (substitute #\/ #\\ (namestring (default-directory))))
+(defvar *clisp-home* (namestring (default-directory)))
 (defvar *clisp-base-cmd*
   (concatenate 'string "\"" *clisp-home* "lisp.exe\" -B \""
-               *clisp-home* "\" -M "))
+               (substitute #\/ #\\ *clisp-home*) "\" -M "))
 (defvar *clisp-cmd*
   (concatenate 'string *clisp-base-cmd* "\"" *clisp-home* "lispinit.mem\""))
 
 (defvar *eflags*
   (make-array 4 :element-type '(unsigned-byte 8) :initial-contents '(0 0 0 0)))
+
+(defparameter *lisp-type-map*  '((".lisp" . "lispfile")
+                                 (".lsp" . "lispfile")
+                                 (".cl" . "lispfile")
+                                 (".fas" . "fasfile")
+                                 (".mem" . "memfile")))
 
 (format t "~& * Installing CLISP to run from ~a~%" *clisp-home*)
 
@@ -65,20 +71,20 @@
           (setf (dir-key-value cmd "")
                 (concatenate 'string *clisp-base-cmd* " \"%1\"")))))))
 
-
-(with-dir-key-open (c1 :win32 "HKEY_CLASSES_ROOT")
-  (add-lisp-file c1)
-  (add-fas-file c1)
-  (add-mem-file c1))
-(with-dir-key-open (c2 :win32 "HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes")
-  (add-lisp-file c2)
-  (add-fas-file c2)
-  (add-mem-file c2))
+(when (y-or-no-p "Associate types~:{ <~a>,~} with CLISP?" *lisp-type-map*)
+  (with-dir-key-open (c1 :win32 "HKEY_CLASSES_ROOT")
+    (loop :for (type . key) :in *lisp-type-map* :do
+       (with-dir-key-open (lf dkey type :direction :output)
+         (setf (dir-key-value lf "") key)))
+    (add-lisp-file c1)
+    (add-fas-file c1)
+    (add-mem-file c1)))
 
 (let ((bat-file (concatenate 'string
                              (dir-key-single-value :win32 "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders" "Common Desktop")
                              "\\clisp.bat")))
-  (with-open-file (bat bat-file :direction :output)
-    (format t "~&writing <~a>..." bat-file) (force-output)
-    (format bat "@echo off~%~a %1 %2 %3 %4 %5 %6 %7 %8 %9~%" *clisp-cmd*)
-    (format t "done~%")))
+  (when (y-or-no-p "Create CLISP bat file on your desktop <~s>?" bat-file)
+    (with-open-file (bat bat-file :direction :output)
+      (format t "~&writing <~a>..." bat-file) (force-output)
+      (format bat "@echo off~%~a %1 %2 %3 %4 %5 %6 %7 %8 %9~%" *clisp-cmd*)
+      (format t "done~%"))))
