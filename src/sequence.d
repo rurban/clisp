@@ -1,13 +1,14 @@
-# Sequences für CLISP
+# Sequences for CLISP
 # Bruno Haible 1987-2000
+# Sam Steingold 2001
 
 #include "lispbibl.c"
 
 
-# O(seq_types) enthält eine Liste von Typdescriptoren für Sequences.
-# Das sind Simple-Vektoren der Länge 16, mit folgendem Inhalt:
-#  SEQ-TYPE        ; der Typ der Sequence, meist ein Symbol
-#  Zugriffsfunktionen:
+# O(seq_types) contains a list of type descriptors for sequences.
+# These are simple-vectors of length 16, containing:
+#  SEQ-TYPE        ; the type of the sequence, usually a symbol
+#  access functions:
 #  SEQ-INIT
 #  SEQ-UPD
 #  SEQ-ENDTEST
@@ -26,67 +27,66 @@
 
 /*
 
- Erklärung der Einzelfunktionen SEQ-XXX:
+ Explanation of the functions SEQ-XXX:
 
-Ein "Pointer" ist etwas, was durch die Sequence durchlaufen kann.
-Es gibt Pointer, die von links nach rechts laufen;
-  sie werden mit INIT oder INIT-START kreiert, mit COPY kopiert,
-             mit UPD um eine Stelle weitergerückt,
-             mit ENDTEST getestet, ob sie am Ende der Sequence angelangt sind,
-             mit ACCESS wird das Element, worauf der Pointer zeigt, geholt,
-             mit ACCESS-SET wird das Element, worauf der Pointer zeigt, gesetzt.
-Es gibt auch Pointer, die von rechts nach links laufen;
-  sie werden mit FE-INIT oder FE-INIT-END kreiert, mit COPY kopiert,
-             mit FE-UPD um eine Stelle nach links weitergerückt,
-             mit FE-ENDTEST getestet, ob sie am Ende der Sequence angelangt sind,
-             mit ACCESS wird das Element, worauf der Pointer zeigt, geholt.
-  Für sie funktioniert ACCESS-SET nicht.
+A "Pointer" is something, that can step through a sequence.
+There are pointers, that move from left to right;
+  they are created with INIT or INIT-START, copied with COPY,
+    UPD to advance one step,
+    ENDTEST for testing, if they have reached the end of the Sequence,
+    ACCESS  for fetching the element, which is pointed to by the pointer,
+    ACCESS-SET for setting the element, which is pointed to by the pointer.
+There are also pointers, that move from right to left;
+  they are created with FE-INIT or FE-INIT-END, copied with COPY,
+    FE-UPD for moving them one step to the left,
+    FE-ENDTEST for testing, if they have reached the end of the Sequence,
+    ACCESS for fetching the element, which is pointed to by the pointer.
+  For them, ACCESS-SET does not work.
 
-Durchlaufe-Operationen:
+Movement operations:
 INIT          (lambda (seq) ...) -> pointer
-              liefert den Pointer zu SEQ, der ganz links steht.
+              returns the leftmost pointer of SEQ.
 UPD           (lambda (seq pointer) ...) -> pointer
-              liefert zu einem Pointer den Pointer eins weiter rechts.
-              SEQ-UPD kann voraussetzen, dass dabei der rechte Rand von
-              SEQ nicht überschritten wird.
+              returns a pointer to the adjacent neighbor at the right.
+              SEQ-UPD can assume, that the right border of
+              SEQ is not stepped over.
 ENDTEST       (lambda (seq pointer) ...) -> bool
-              testet, ob dieser Pointer am rechten Rand von SEQ steht.
-Dasselbe "FROM END" :
+              tests, if this pointer is at the right end of SEQ.
+the same "FROM END" :
 FE-INIT       (lambda (seq) ...) -> pointer
-              liefert den Pointer zu SEQ, der ganz rechts steht.
+              returns the rightmost pointer of SEQ.
 FE-UPD        (lambda (seq pointer) ...) -> pointer
-              liefert zu einem Pointer den Pointer eins weiter links.
-              SEQ-FE-UPD kann voraussetzen, dass dabei der linke Rand von
-              SEQ nicht überschritten wird.
+              returns a pointer to the adjacent neighbor at the left.
+              SEQ-FE-UPD can assume, that the left border of
+              SEQ is not stepped over.
 FE-ENDTEST    (lambda (seq pointer) ...) -> bool
-              testet, ob dieser Pointer am linken Rand von SEQ steht.
-Zugriff mit Pointer:
+              tests, if this pointer is at the left end of SEQ.
+Access via pointer:
 ACCESS        (lambda (seq pointer) ...) -> value
-              liefert zu einem Pointer in SEQ das entsprechende Element an
-              dieser Stelle.
+              returns the element in SEQ the pointer is pointing to.
 ACCESS-SET    (lambda (seq pointer value) ...) ->
-              setzt das Element in SEQ, auf das der Pointer zeigt, auf den
-              gegebenen Wert. Nur bei von links nach rechts laufenden Pointern!
+              sets the element where the pointer is pointing to in SEQ, to the
+              specified value. Works only for pointers that move from left to right!
 COPY          (lambda (pointer) ...) -> pointer
-              liefert eine Kopie des Pointers zu SEQ (denn UPD und FE-UPD
-              können destruktiv auf den Pointern arbeiten)
-Gesamtlänge:
+              returns a copy of the Pointer to SEQ (because UPD and FE-UPD
+              can operate destructively on the pointers)
+total length:
 LENGTH        (lambda (seq) ...) -> size
-              liefert die (aktive) Länge der Sequence SEQ.
+              returns the (active) length of the Sequence SEQ.
 MAKE          (lambda (size) ...) -> sequence
-              liefert eine neu allozierte, leere Sequence, die vom Typ
-              SEQ-TYPE ist und die angegebene Länge hat.
-Zugriff über Index (meist ineffizienter als über Pointer):
+              returns a newly allocated, empty sequence, that has the type
+              SEQ-TYPE and the specified length.
+Access via index (usually more inefficient than via pointer):
 ELT           (lambda (seq index) ...) -> value
-              liefert (ELT SEQ index)
+              returns (ELT SEQ index)
 SET-ELT       (lambda (seq index value) ...) ->
-              setzt (ELT SEQ index) auf value.
+              sets (ELT SEQ index) to value.
 INIT-START    (lambda (seq index) ...) -> pointer
-              liefert einen nach rechts laufenden Pointer in SEQ
-              ab Position index. Muss den Range-test selbst durchführen.
+              returns a pointer which moves in SEQ from left to right
+              from Position index. Must execute the Range-test by itself.
 FE-INIT-END   (lambda (seq index) ...) -> pointer
-              liefert einen nach links laufenden Pointer in SEQ
-              an Position index. Muss den Range-test selbst durchführen.
+              returns a pointer which moves in SEQ from right to left
+              from Position index. Must execute the Range-test by itself.
 
 */
 
