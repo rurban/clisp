@@ -1,5 +1,9 @@
 1999-02-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (with_sstring): Assign a value to lenvar.
+
+1999-02-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Introduce encodings.
         * lispbibl.d (Rectype_Encoding): New enum value.
           (Encoding): New structure type.

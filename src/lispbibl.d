@@ -8239,7 +8239,7 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
     }}
   #define with_sstring(string,charptrvar,lenvar,statement)  \
     { var object charptrvar##_string = (string);                         \
-      var uintL charptrvar##_len = Sstring_length(charptrvar##_string);  \
+      var uintL lenvar = Sstring_length(charptrvar##_string);            \
       var const chart* ptr1 = &TheSstring(charptrvar##_string)->data[0]; \
      {var DYNAMIC_ARRAY(charptrvar##_data,uintB,lenvar);                 \
       {var uintB* ptr2 = &charptrvar##_data[0];                          \
