@@ -117,7 +117,7 @@
   ; MERGE-PATHNAMES.7 ENSURE-DIRECTORIES-EXIST.8
 
   ; Evident CLISP bugs:
-  ; ASINH.5 TYPE-OF.1
+  ; TYPE-OF.1
 ))
 
 ;; A few tests in misc.lsp want a CONDITIONS package.
