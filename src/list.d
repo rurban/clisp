@@ -50,11 +50,7 @@ global object copy_list (object old_list) {
 # can trigger GC
 global object reverse (object list) {
   pushSTACK(list); pushSTACK(NIL);
-  loop {
-    # Hier ist für r=0,1,...,m
-    # STACK_0 = (xr ... x1), STACK_1 = list = (xr+1 ... xm)
-    if atomp(list)
-              break;
+  while (mconsp(list)) {
     # Hier ist für r=1,...,m:
     # STACK_0 = (xr-1 ... x1), list = (xr ... xm)
     STACK_1 = Cdr(list);
@@ -208,10 +204,8 @@ global object nreconc (object list, object obj) {
 global object deleteq (object list, object obj) {
   var object list1 = list;
   var object list2 = list;
-  loop {
+  while (!atomp(list2)) {
     # Hier ist entweder list1=list2=list oder (cdr list1) = list2.
-    if (atomp(list2))
-      break;
     if (eq(Car(list2),obj))
       # Streiche (car list2):
       if (eq(list2,list)) {
