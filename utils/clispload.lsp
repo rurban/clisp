@@ -123,6 +123,11 @@
   ;; subclasses.
   USER-CLASS-DISJOINTNESS-2 TAC-3.16
 
+  ;; Paul Dietz assumes that when a WITH-INPUT-FROM-STRING form terminates
+  ;; through a transfer of control, the index place is not updated.
+  ;; CLISP updates it nevertheless, through an UNWIND-PROTECT handler.
+  WITH-INPUT-FROM-STRING.22
+
   ;; Paul Dietz assumes that binding *PRINT-READABLY* to T has no effect on
   ;; how integers are printed.
   ;; In CLISP *PRINT-READABLY* = T implies the effects of *PRINT-RADIX* = T.
@@ -157,7 +162,7 @@
   ;; Paul Dietz assumes that FORMAT ~V[ consumes two arguments.
   ;; However, ANSI CL 22.3.7.2. says that "the parameter is used instead of
   ;; an argument"; so only one argument is consumed (by the V, not by ~[).
-  FORMATTER.COND.14 |FORMATTER.COND:.7|
+  FORMAT.COND.14 FORMATTER.COND.14 |FORMAT.COND:.7| |FORMATTER.COND:.7|
 
   ;; Paul Dietz assumes that the reader constructs an array of element type T
   ;; for #1a"abcd" and #1a#*000110. This could be what ANSI CL 2.4.8.12 is
@@ -238,7 +243,8 @@
   FORMAT./.12 FORMAT./.13 FORMAT./.14 FORMAT./.15 FORMAT./.16 FORMAT./.17
   FORMAT./.18 |FORMAT.:T.5| |FORMAT.:T.5A| |FORMAT.:T.7| |FORMAT.:T.8|
   |FORMAT.:T.9| |FORMAT.:T.10| |FORMAT.:T.12| |FORMAT.:T.ERROR.1|
-  |FORMAT.:T.ERROR.2| |FORMAT.:T.ERROR.3| |FORMAT.:@T.2| |FORMAT.:@T.3|
+  |FORMAT.:T.ERROR.2| |FORMAT.:T.ERROR.3| |FORMAT.:@T.1| |FORMAT.:@T.1A|
+  |FORMAT.:@T.1B| |FORMAT.:@T.1C| |FORMAT.:@T.1D| |FORMAT.:@T.2| |FORMAT.:@T.3|
   |FORMAT.:@T.4| |FORMAT.:@T.5| FORMAT.JUSTIFY.ERROR.W.1
   FORMAT.JUSTIFY.ERROR.W.2 FORMAT.JUSTIFY.ERROR.W.3 FORMAT.JUSTIFY.ERROR._.1
   FORMAT.JUSTIFY.ERROR._.2 FORMAT.JUSTIFY.ERROR._.3 FORMAT.JUSTIFY.ERROR.I.1
