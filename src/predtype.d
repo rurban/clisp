@@ -1402,60 +1402,6 @@ LISPFUNN(simple_bit_vector_p,1)
     value1 = (simple_bit_vector_p(Atype_Bit,STACK_0) ? T : NIL); mv_count=1; skipSTACK(1);
   }
 
-LISPFUNN(commonp,1)
-# (COMMONP object), CLTL S. 76
-  {
-    var object arg = popSTACK();
-    # Fallunterscheidung nach Typ:
-    #ifdef TYPECODES
-    switch (typecode(arg))
-    #else
-    if (orecordp(arg)) {
-      goto case_orecord;
-    } elif (consp(arg)) {
-      goto case_cons;
-    } elif (immediate_number_p(arg)) {
-      goto case_number;
-    } elif (charp(arg)) {
-      goto case_char;
-    } else switch (0)
-    #endif
-    {
-      case_cons: goto yes; # Conses ja
-      case_symbol: goto yes; # Symbole ja
-      case_number: goto yes; # Zahlen ja
-      case_array: goto yes; # Arrays ja
-      case_structure: goto yes; # Structures ja
-      case_stream: goto yes; # Streams ja
-      case_char: # Character: nur Standard-Char
-        # (STANDARD-CHAR-P object) als Wert:
-        pushSTACK(arg); funcall(L(standard_char_p),1); return;
-      case_orecord: # sonstige Records:
-        # nur Package, Hash-Table, Readtable, Pathname, Random-State [,Structure, Stream]
-        switch (Record_type(arg)) {
-          case_Rectype_Symbol_above;
-          case_Rectype_number_above;
-          case_Rectype_array_above;
-          case_Rectype_Structure_above;
-          case_Rectype_Stream_above;
-          case Rectype_Hashtable:
-          case Rectype_Package:
-          case Rectype_Readtable:
-          case Rectype_Pathname:
-          #ifdef LOGICAL_PATHNAMES
-          case Rectype_Logpathname:
-          #endif
-          case Rectype_Random_State:
-            goto yes;
-          default:
-            goto no;
-        }
-      default: goto no;
-    }
-   no: value1 = NIL; mv_count=1; return;
-   yes: value1 = T; mv_count=1; return;
-  }
-
 LISPFUNN(type_of,1)
 # (TYPE-OF object), CLTL S. 52
   {

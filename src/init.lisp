@@ -8,7 +8,7 @@
 (export '(
 ;; Typen:
 array atom base-char base-string bignum bit bit-vector boolean character
-common compiled-function complex cons double-float extended-char fixnum float
+compiled-function complex cons double-float extended-char fixnum float
 function hash-table integer keyword list #+LOGICAL-PATHNAMES logical-pathname
 long-float nil null number package pathname random-state ratio rational
 readtable real sequence short-float simple-array simple-base-string
@@ -59,7 +59,7 @@ array-total-size-limit internal-time-units-per-second
 coerce type-of upgraded-array-element-type typep subtypep null symbolp
 atom consp listp numberp integerp rationalp floatp realp complexp characterp
 stringp bit-vector-p vectorp simple-vector-p simple-string-p
-simple-bit-vector-p arrayp packagep functionp compiled-function-p commonp eq
+simple-bit-vector-p arrayp packagep functionp compiled-function-p eq
 eql equal equalp not symbol-value symbol-function fdefinition boundp fboundp
 special-operator-p special-form-p set makunbound fmakunbound
 get-setf-expansion get-setf-method get-setf-method-multiple-value
