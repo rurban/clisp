@@ -723,7 +723,9 @@
 
 (defmacro DEF-C-VAR (&whole whole name &rest options)
   (check-symbol (first whole) name)
-  (let* ((alist (parse-options options '(:name :type :read-only :alloc) whole))
+  (let* ((alist (parse-options options '(:name :type :read-only
+                                         :alloc :library)
+                               whole))
          (c-name (foreign-name name (assoc ':name alist)))
          (type (second (or (assoc ':type alist)
                            (sys::error-of-type 'sys::source-program-error
