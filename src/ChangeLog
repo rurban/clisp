@@ -1,5 +1,12 @@
 2003-08-12  Sam Steingold  <sds@gnu.org>
 
+	* modules/dirkey/dirkey.c, modules/syscalls/calls.c
+	(misc_encoding, pathname_encoding): functions, not module
+	variables, because they must pick the user changes to
+	*MISC-ENCODING* and *PATHNAME-ENCODING* at run time
+
+2003-08-12  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-write-lib): do not write constants; unwrap PROGN
 	* init.lisp (LAMBDA-LIST-TO-SIGNATURE) [!COMPILER]: dummy definition
 	(defun): call LAMBDA-LIST-TO-SIGNATURE at macroexpand time

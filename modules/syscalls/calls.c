@@ -58,8 +58,8 @@ extern object nobject_out (FILE* stream, object obj);
 DEFMODULE(syscalls,"POSIX");
 
 #if CLISP_UNICODE
-DEFVAR(misc_encoding, (funcall(L(misc_encoding),0),value1));
-DEFVAR(pathname_encoding, (funcall(L(pathname_encoding),0),value1));
+object misc_encoding (void) {funcall(L(misc_encoding),0); return value1;}
+object pathname_encoding(void){funcall(L(pathname_encoding),0);return value1;}
 #endif
 
 #if defined(HAVE_FCNTL) || defined(WIN32_NATIVE)
@@ -228,7 +228,7 @@ DEFUN(POSIX::UNAME,)
 { /* Lisp interface to uname(2) */
   struct utsname utsname;
   begin_system_call(); uname(&utsname); end_system_call();
-#define UN(str) pushSTACK(asciz_to_string(str,O(misc_encoding)));
+#define UN(str) pushSTACK(asciz_to_string(str,misc_encoding()));
   UN(utsname.sysname);
   UN(utsname.nodename);
   UN(utsname.release);
@@ -435,7 +435,7 @@ static void hostent_to_stack (struct hostent *he) {
   object tmp;
   pushSTACK(ascii_to_string(he->h_name));
   ARR_TO_LIST(tmp,(he->h_aliases[ii] != NULL),
-              asciz_to_string(he->h_aliases[ii],O(misc_encoding)));
+              asciz_to_string(he->h_aliases[ii],misc_encoding()));
   pushSTACK(tmp);
   ARR_TO_LIST(tmp,(he->h_addr_list[ii] != NULL),
               addr_to_string(he->h_addrtype,he->h_addr_list[ii]));
@@ -493,13 +493,13 @@ static object whole_namestring (object path) {
 #endif
 
 #define PASSWD_TO_STACK(pwd)                                   \
-  pushSTACK(asciz_to_string(pwd->pw_name,O(misc_encoding)));   \
-  pushSTACK(asciz_to_string(pwd->pw_passwd,O(misc_encoding))); \
+  pushSTACK(asciz_to_string(pwd->pw_name,misc_encoding()));    \
+  pushSTACK(asciz_to_string(pwd->pw_passwd,misc_encoding()));  \
   pushSTACK(UL_to_I(pwd->pw_uid));                             \
   pushSTACK(UL_to_I(pwd->pw_gid));                             \
-  pushSTACK(asciz_to_string(pwd->pw_gecos,O(misc_encoding)));  \
-  pushSTACK(asciz_to_string(pwd->pw_dir,O(misc_encoding)));    \
-  pushSTACK(asciz_to_string(pwd->pw_shell,O(misc_encoding)))
+  pushSTACK(asciz_to_string(pwd->pw_gecos,misc_encoding()));   \
+  pushSTACK(asciz_to_string(pwd->pw_dir,misc_encoding()));     \
+  pushSTACK(asciz_to_string(pwd->pw_shell,misc_encoding()))
 
 DEFUN(POSIX::USER-DATA, user)
 { /* return the USER-DATA for the user or a list thereof if user is NIL. */
@@ -532,10 +532,10 @@ DEFUN(POSIX::USER-DATA, user)
     else
       pwd = getpwuid(getuid());
   } else if (symbolp(user)) {
-    with_string_0(Symbol_name(user),O(misc_encoding),userz,
+    with_string_0(Symbol_name(user),misc_encoding(),userz,
                   { pwd = getpwnam(userz); });
   } else if (stringp(user)) {
-    with_string_0(user,O(misc_encoding),userz,
+    with_string_0(user,misc_encoding(),userz,
                   { pwd = getpwnam(userz); });
   } else {
     end_system_call(); fehler_string_integer(user);
@@ -572,7 +572,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
     end_system_call();
   } else { stat_pathname:
     file = whole_namestring(file);
-    with_string_0(file,O(pathname_encoding),namez, {
+    with_string_0(file,pathname_encoding(),namez, {
       begin_system_call();
       if ((link_p ? stat(namez,&buf) : lstat(namez,&buf)) < 0)
         OS_error();
@@ -679,7 +679,7 @@ static void copy_attributes_and_close () {
     utb[1].tv_sec = source_sb.st_mtime;
     utb[1].tv_usec = 0;
     with_string_0(whole_namestring(file_stream_truename(STACK_0)),
-                  O(pathname_encoding), dest_asciz,
+                  pathname_encoding(), dest_asciz,
                   { utimes_ret = utimes(dest_asciz, utb); });
     if (utimes_ret == -1) {
       pushSTACK(file_stream_truename(STACK_0));
@@ -893,8 +893,8 @@ static void copy_one_file (object source, object src_path,
       /* use the original argument, not the truename here,
          so that the user can create relative symlinks */
       source = stringp(STACK_5) ? (object)STACK_5 : whole_namestring(STACK_4);
-      with_string_0(source, O(pathname_encoding), source_asciz, {
-        with_string_0(dest, O(pathname_encoding), dest_asciz,
+      with_string_0(source, pathname_encoding(), source_asciz, {
+        with_string_0(dest, pathname_encoding(), dest_asciz,
                       { symlink_file(source_asciz,dest_asciz); });
       });
       break;
@@ -902,8 +902,8 @@ static void copy_one_file (object source, object src_path,
       /* FALLTHROUGH if no symlinks */
     case COPY_METHOD_HARDLINK:
 #    if defined(HAVE_LINK)
-      with_string_0(source, O(pathname_encoding), source_asciz, {
-        with_string_0(dest, O(pathname_encoding), dest_asciz,
+      with_string_0(source, pathname_encoding(), source_asciz, {
+        with_string_0(dest, pathname_encoding(), dest_asciz,
                       { hardlink_file(source_asciz,dest_asciz); });
       });
       break;
@@ -1040,8 +1040,8 @@ static void wfd_to_stack (WIN32_FIND_DATA *wfd) {
 #endif
   pushSTACK(UL_to_I(wfd->nFileSizeHigh));
   pushSTACK(UL_to_I(wfd->nFileSizeLow));
-  pushSTACK(asciz_to_string(wfd->cFileName,O(pathname_encoding)));
-  pushSTACK(asciz_to_string(wfd->cAlternateFileName,O(pathname_encoding)));
+  pushSTACK(asciz_to_string(wfd->cFileName,pathname_encoding()));
+  pushSTACK(asciz_to_string(wfd->cAlternateFileName,pathname_encoding()));
 }
 
 DEFUN(POSIX::FILE-INFO, file)
@@ -1049,7 +1049,7 @@ DEFUN(POSIX::FILE-INFO, file)
   WIN32_FIND_DATA wfd;
   HANDLE hf;
   object file = whole_namestring(STACK_0);
-  with_string_0(file, O(pathname_encoding), pathz, {
+  with_string_0(file, pathname_encoding(), pathz, {
     begin_system_call();
     hf = FindFirstFile(pathz, &wfd);
     end_system_call();
@@ -1075,7 +1075,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
   end_system_call();
   if (!missingp(STACK_0)) {     /* PATH */
     object path = check_string(STACK_0);
-    with_string_0(path,O(pathname_encoding),pathz, {
+    with_string_0(path,pathname_encoding(),pathz, {
       begin_system_call();
       hres = psl->lpVtbl->SetPath(psl,pathz);
       if (!SUCCEEDED(hres)) goto fail_psl;
@@ -1120,7 +1120,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
   skipSTACK(1);                 /* drop HOT-KEY */
   if (!missingp(STACK_0)) {     /* DESCRIPTION */
     object desc = check_string(STACK_0);
-    with_string_0(desc,O(pathname_encoding),descz, {
+    with_string_0(desc,pathname_encoding(),descz, {
       begin_system_call();
       hres = psl->lpVtbl->SetDescription(psl,descz);
       if (!SUCCEEDED(hres)) goto fail_psl;
@@ -1137,7 +1137,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
                                                 ? Car(Cdr(STACK_0))
                                                 : Cdr(STACK_0)));
     } else icon_name = check_string(STACK_0);
-    with_string_0(icon_name,O(pathname_encoding),iconz, {
+    with_string_0(icon_name,pathname_encoding(),iconz, {
       begin_system_call();
       hres = psl->lpVtbl->SetIconLocation(psl,iconz,icon_idx);
       if (!SUCCEEDED(hres)) goto fail_psl;
@@ -1169,7 +1169,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
   skipSTACK(1);                 /* drop SHOW-COMMAND */
   if (!missingp(STACK_0)) {     /* ARGUMENTS */
     object args = check_string(STACK_0);
-    with_string_0(args,O(pathname_encoding),argz, {
+    with_string_0(args,pathname_encoding(),argz, {
       begin_system_call();
       hres = psl->lpVtbl->SetArguments(psl,argz);
       if (!SUCCEEDED(hres)) goto fail_psl;
@@ -1179,7 +1179,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
   skipSTACK(1);                 /* drop ARGUMENTS */
   if (!missingp(STACK_0)) {     /* WORKING-DIRECTORY */
     object wd = check_string(STACK_0);
-    with_string_0(wd,O(pathname_encoding),wdz, {
+    with_string_0(wd,pathname_encoding(),wdz, {
       begin_system_call();
       hres = psl->lpVtbl->SetWorkingDirectory(psl,wdz);
       if (!SUCCEEDED(hres)) goto fail_psl;
@@ -1194,7 +1194,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
   if (!SUCCEEDED(hres)) goto fail_psl;
   { /* Ensure that the string is Unicode & Save the shortcut. */
     WCHAR wsz[MAX_PATH];
-    with_string_0(*file, O(pathname_encoding), pathz, {
+    with_string_0(*file, pathname_encoding(), pathz, {
       MultiByteToWideChar(CP_ACP, 0, pathz, -1, wsz, MAX_PATH);
       hres = ppf->lpVtbl->Save(ppf, wsz, TRUE);
       if (!SUCCEEDED(hres)) goto fail_ppf;
@@ -1233,7 +1233,7 @@ DEFUN(POSIX::SHORTCUT-INFO, file)
   if (!SUCCEEDED(hres)) goto fail_psl;
   { /* Ensure that the string is Unicode & Load the shortcut. */
     WCHAR wsz[MAX_PATH];
-    with_string_0(STACK_0, O(pathname_encoding), pathz, {
+    with_string_0(STACK_0, pathname_encoding(), pathz, {
       MultiByteToWideChar(CP_ACP, 0, pathz, -1, wsz, MAX_PATH);
       hres = ppf->lpVtbl->Load(ppf, wsz, STGM_READ);
       if (!SUCCEEDED(hres)) goto fail_ppf;
@@ -1266,21 +1266,21 @@ DEFUN(POSIX::SHORTCUT-INFO, file)
   ppf->lpVtbl->Release(ppf);
   psl->lpVtbl->Release(psl);
   end_system_call();
-  pushSTACK(asciz_to_string(path,O(pathname_encoding))); /* 1 */
+  pushSTACK(asciz_to_string(path,pathname_encoding())); /* 1 */
   wfd_to_stack(&wfd); funcall(`POSIX::MAKE-FILE-INFO`,8);
   pushSTACK(value1); /* 2 */
-  pushSTACK(asciz_to_string(wd,O(pathname_encoding))); /* 3 */
-  pushSTACK(asciz_to_string(args,O(pathname_encoding))); /* 4 */
+  pushSTACK(asciz_to_string(wd,pathname_encoding())); /* 3 */
+  pushSTACK(asciz_to_string(args,pathname_encoding())); /* 4 */
   switch (show_cmd) {                                    /* 5 */
     case SW_SHOWNORMAL: pushSTACK(`:NORMAL`); break;
     case SW_SHOWMAXIMIZED: pushSTACK(`:MAX`); break;
     case SW_SHOWMINIMIZED: pushSTACK(`:MIN`); break;
     default: NOTREACHED;
   }
-  pushSTACK(asciz_to_string(icon,O(pathname_encoding)));
+  pushSTACK(asciz_to_string(icon,pathname_encoding()));
   pushSTACK(fixnum(icon_idx));
   { object tmp = listof(2); pushSTACK(tmp); } /* 6 */
-  pushSTACK(asciz_to_string(desc,O(pathname_encoding))); /* 7 */
+  pushSTACK(asciz_to_string(desc,pathname_encoding())); /* 7 */
   { int count=0;                                         /* 8 */
     BYTE *pb = (BYTE*)&hot_key;
     if (pb[1] & HOTKEYF_ALT) { pushSTACK(`:ALT`); count++; }
