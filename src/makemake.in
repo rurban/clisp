@@ -3067,7 +3067,12 @@ if [ $CROSS = false ] ; then
     echotab "(cd \$(install_root)\$(lisplibdir) && rm -rf base full)"
     echotab "mkdir \$(install_root)\$(lisplibdir)/base"
     echotab "mkdir \$(install_root)\$(lisplibdir)/full"
-    echotab "for f in clisp-link linkkit/modules.d linkkit/modules.c linkkit/clisp.h base/* full/*; do cp -p \$\$f \$(install_root)\$(lisplibdir)/\$\$f; done"
+    echotab "for f in clisp-link linkkit/modules.d linkkit/modules.c linkkit/clisp.h base/* full/*; do \\"
+    echotab "  case \$\$f in \\"
+    echotab "    */lisp${LEXE}) \$(INSTALL_PROGRAM) \$\$f \$(install_root)\$(lisplibdir)/\$\$f;; \\"
+    echotab "    *) \$(INSTALL_DATA) \$\$f \$(install_root)\$(lisplibdir)/\$\$f;; \\"
+    echotab "  esac; \\"
+    echotab "done"
     # Don't strip the executables, otherwise (disassemble #'cons) won't work.
     # echotab "strip \$(install_root)\$(lisplibdir)/base/lisp${LEXE}"
     if [ -n "$USE_GETTEXT" ] ; then
