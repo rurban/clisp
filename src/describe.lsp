@@ -169,6 +169,11 @@
                   (length properties) properties))
         (push `(symbol-plist ',obj) moree))
       (format stream (ENGLISH "."))
+      (dolist (ty '(compiler-macro setf structure type variable function))
+        (let ((doc (documentation obj ty)))
+          (when doc
+            (format stream (ENGLISH "~%~v,vtDocumentation as a ~a:~%~a")
+                    *describe-nesting* *print-indent-lists* ty doc))))
       (when moree
         (format stream (ENGLISH "~%~v,vtFor more information, evaluate ~{~S~^ or ~}.")
                 *describe-nesting* *print-indent-lists* moree))
@@ -308,7 +313,7 @@
                    *describe-nesting* *print-indent-lists*
                    `((DISASSEMBLE #',(sys::closure-name obj)))))
          (let ((doc (sys::%record-ref obj 2)))
-           (format stream (ENGLISH "~%~v,vtargument list: ~S")
+           (format stream (ENGLISH "~%~v,vtargument list: ~:S")
                    *describe-nesting* *print-indent-lists*
                    (car (sys::%record-ref obj 1)))
            (when doc

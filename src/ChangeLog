@@ -1,3 +1,9 @@
+1999-04-07  Sam Steingold  <sds@goems.com>
+
+	* compiler.lsp (c-FORMAT): signal an error when the stream
+	argument is missing.
+	* describe.lsp (describe-object): call `documentation'.
+
 1999-04-06  Sam Steingold  <sds@goems.com>
 
 	--- *ANSI* is a symbol macro now.
@@ -19,7 +25,8 @@
 	* lispbibl.d: declare `stream_fd'.
 	--- fix `describe'
 	* describe.lsp (describe): set `*describe-done*' and
-	`*describe-nesting*' instead of binding.
+	`*describe-nesting*' instead of binding.  Print empty arglist as
+	(), not NIL.
 
 1999-04-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
