@@ -1,3 +1,8 @@
+2003-07-08  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-MAP-on-CARs, c-MAP-on-LISTs): fixed the
+	2003-02-09 patch: avoid bytecode duplication
+
 2003-07-03  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (testsuite): pass LEXE to make in suite
