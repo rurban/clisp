@@ -1,3 +1,39 @@
+2004-06-02  Bruno Haible  <bruno@clisp.org>
+
+	Make METHOD objects CLOS STANDARD-OBJECT instances.
+	* clos.lisp: Include clos-method4.
+	* clos-method1.lisp (method): Define through defclass.
+	(<method>): New variable.
+	(standard-method): Define through defclass.
+	(<standard-method>): New variable.
+	(initialize-instance-<standard-method>): New function.
+	(make-instance-<standard-method>): New function.
+	(print-object-<standard-method>): Renamed from print-std-method.
+	(standard-accessor-method): Define through defclass.
+	(<standard-accessor-method>): New variable.
+	(initialize-instance-<standard-accessor-method>): New function.
+	(standard-reader-method): Define through defclass.
+	(<standard-reader-method>): New variable.
+	(make-instance-<standard-reader-method>): New function.
+	(standard-writer-method): Define through defclass.
+	(<standard-writer-method>): New variable.
+	(make-instance-<standard-writer-method>): New function.
+	* clos-methcomb2.lisp (compute-effective-method-function): Use
+	make-instance-<standard-method> instead of make-standard-method.
+	* clos-method2.lisp (analyze-method-description): Likewise.
+	* clos-method3.lisp (initialize-instance@standard-method): New method.
+	(initialize-instance@standard-accessor-method): New method.
+	(reinitialize-instance@method): New method.
+	* clos-class5.lisp (shared-initialize, reinitialize-instance,
+	initialize-instance, allocate-instance, make-instance): Use
+	make-instance-<standard-method> instead of make-standard-method.
+	* clos-method4.lisp: New file.
+	* clos-print.lisp (print-object): Update.
+	* makemake.in (LPARTS): Add clos-method4.
+	* po/Makefile.devel (LISPSOURCES): Add clos-method4.
+	* utils/clispload.lsp (*expected-failures*): Remove TYPES.3,
+	STANDARD-METHOD-CPL.
+
 2004-07-23  Sam Steingold  <sds@gnu.org>
 
 	interface to the LOCK sybsystem
