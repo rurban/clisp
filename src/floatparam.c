@@ -14,7 +14,7 @@ typedef int boolean;
 #define TRUE  1
 #define FALSE 0
 
-#ifdef HAVE_LONGDOUBLE
+#if HAVE_LONG_DOUBLE
 typedef long double ldouble;
 #endif
 
