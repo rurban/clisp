@@ -3324,8 +3324,8 @@ der Docstring (oder NIL).
 ;;; That is exactly what makes c-form later anyway.
 ;;; (c-form (macroexpand-form form)) == (c-form form).
 (defun macroexpand-form (form)
-  ;; The differemce from (values (macroexpand form (env)))
-  ;; is that here the macros mentioned in `cform-table' are not expanded.
+  ;; The difference from (values (macroexpand form (env)))
+  ;; is that here the macros mentioned in `c-form-table' are not expanded.
   (tagbody
     reexpand
     (when (consp form)
