@@ -42,6 +42,9 @@
 #ifndef __convex__
 #undef __convex__
 #endif
+#ifndef __ia64__
+#undef __ia64__
+#endif
 
 
 /* compiler characteristics */

@@ -7,7 +7,7 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : vacall-i386.S vacall-i386-msvc.c vacall-m68k.mit.S vacall-m68k.mot.s vacall-mips.S vacall-mipsn32.S vacall-mips64.S vacall-sparc.S vacall-sparc64.S vacall-alpha.s vacall-hppa.s vacall-arm.S vacall-rs6000-aix.old.s vacall-rs6000-aix.new.s vacall-rs6000-sysv4.s vacall-m88k.s vacall-convex.s \
+all : vacall-i386.S vacall-i386-msvc.c vacall-m68k.mit.S vacall-m68k.mot.s vacall-mips.S vacall-mipsn32.S vacall-mips64.S vacall-sparc.S vacall-sparc64.S vacall-alpha.s vacall-hppa.s vacall-arm.S vacall-rs6000-aix.old.s vacall-rs6000-aix.new.s vacall-rs6000-sysv4.s vacall-m88k.s vacall-convex.s vacall-ia64.s \
       vacall_r.h.msvc config.h.msvc
 
 vacall-i386.S : vacall-i386.c vacall_r.h.in asmi386.sh
@@ -78,6 +78,9 @@ vacall-m88k.s : vacall-m88k.c vacall_r.h.in
 
 vacall-convex.s : vacall-convex.c vacall_r.h.in
 	$(GCC) -V 2.6.3 -b convex-c2 $(GCCFLAGS) -D__convex__ -S vacall-convex.c -o vacall-convex.s
+
+vacall-ia64.s : vacall-ia64.c vacall_r.h.in
+	$(GCC) -V 2.9-ia64-000216 -b ia64-hp-linux $(GCCFLAGS) -D__ia64__ -S vacall-ia64.c -o vacall-ia64.s
 
 vacall_r.man : vacall_r.3
 	$(ROFF_MAN) vacall_r.3 > vacall_r.man

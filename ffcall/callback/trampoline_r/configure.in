@@ -1,5 +1,5 @@
 dnl  AUTOCONF configuration for TRAMPOLINE
-dnl  Bruno Haible 2000-04-02
+dnl  Bruno Haible 2001-01-27
 dnl
 AC_INIT(trampoline_r.h.in)
 AC_CONFIG_HEADER(config.h)
@@ -41,7 +41,7 @@ CL_CANONICAL_HOST(../../autoconf)
 CL_CANONICAL_HOST_CPU_FOR_FFCALL
 CL_CODEEXEC
 CPU_OBJECTS=''
-if test ${host_cpu} = hppa; then
+if test ${host_cpu} = hppa -o ${host_cpu} = ia64; then
   CPU_OBJECTS="$CPU_OBJECTS "'tramp-$(CPU).lo'
 fi
 if test ${host_cpu} = rs6000; then

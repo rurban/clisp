@@ -1,7 +1,7 @@
 /* Trampoline construction */
 
 /*
- * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999, 2001 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -40,7 +40,7 @@ extern void tramp_r (); /* trampoline prototype */
 #define CODE_EXECUTABLE
 #endif
 #endif
-#if defined(__rs6000aix__)
+#if defined(__rs6000aix__) || defined(__ia64__)
 /*
  * A function pointer is a pointer to a data area whose first word contains
  * the actual address of the function.
@@ -346,6 +346,10 @@ extern void __TR_clear_cache();
 #ifdef __convex__
 #define TRAMP_LENGTH 14
 #define TRAMP_ALIGN 4
+#endif
+#ifdef __ia64__
+#define TRAMP_LENGTH 32
+#define TRAMP_ALIGN 16
 #endif
 
 #ifndef TRAMP_BIAS
@@ -927,6 +931,25 @@ __TR_function alloc_trampoline_r (address, data0, data1)
 #define tramp_data(function)  \
   *(long *)  (function + 2)
 #endif
+#ifdef __ia64__
+  /* function:
+   *    data8   tramp_r
+   *    data8   closure
+   * closure:
+   *    data8   <address>
+   *    data8   <data>
+   */
+  *(long *) (function + 0) = (long) &tramp_r;
+  *(long *) (function + 8) = (long) (function + 16);
+  *(long *) (function +16) = (long) address;
+  *(long *) (function +24) = (long) data;
+#define is_tramp(function)  \
+  ((long *) function)[0] == (long) &tramp_r
+#define tramp_address(function)  \
+  ((long *) function)[2]
+#define tramp_data(function)  \
+  ((long *) function)[3]
+#endif
   /*
    * data:
    *    <data0>				<data0>
@@ -968,7 +991,7 @@ __TR_function alloc_trampoline_r (address, data0, data1)
    * cache. The freshly built trampoline is visible to the data cache, but not
    * maybe not to the instruction cache. This is hairy.
    */
-#if !(defined(__hppanew__) || defined(__rs6000aix__))
+#if !(defined(__hppanew__) || defined(__rs6000aix__) || defined(__ia64__))
   /* Only needed if we really set up machine instructions. */
 #ifdef __i386__
 #if defined(_WIN32)

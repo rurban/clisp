@@ -1,7 +1,7 @@
 /* Trampoline test */
 
 /*
- * Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
+ * Copyright 1995-1999, 2001 Bruno Haible, <haible@clisp.cons.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -76,6 +76,9 @@ register void* env __asm__("r11");
 #endif
 #ifdef __convex__
 register void* env __asm__("s0");
+#endif
+#ifdef __ia64__
+register void* env __asm__("r15");
 #endif
   return x + (int)((long*)env)[0] + (int)((long*)env)[1] + MAGIC3;
 #else
