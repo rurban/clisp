@@ -513,9 +513,9 @@
             else
             if (nullp(Symbol_value(S(ansi))) && posfixnump(obj))
               { var uintL code = posfixnum_to_L(obj);
-                if (code < char_int_limit)
-                  # obj ist ein Fixnum >=0, < char_int_limit
-                  return int_char(code);
+                if (code < char_code_limit)
+                  # obj ist ein Fixnum >=0, < char_code_limit
+                  return code_char(code);
               }
       # war nichts von allem -> nicht in Character umwandelbar
       return NIL; # NIL als Ergebnis
@@ -523,7 +523,7 @@
 
 # Character-Namen:
 # Nur die Characters mit Font 0 und Bits 0 haben Namen. Unter diesen
-# sind alle non-graphic String-Chars und das Space.
+# sind alle non-graphic Characters und das Space.
 # Vom Reader wird allerdings auch
 # - die Syntax #\A für das Character A (usw. für alle Characters),
 # - die Syntax #\^A für das Character 'A'-64 (usw. für alle Control-Characters
@@ -619,7 +619,7 @@ LISPFUNN(standard_char_p,1) # (STANDARD-CHAR-P char), CLTL S. 234
 #       $20 <= c <= $7E oder c = NL.
   { var object arg = popSTACK(); # Argument
     if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    { var cint ch = char_int(arg);
+    { var uintB ch = char_code(arg);
       if ((('~' >= ch) && (ch >= ' ')) || (ch == NL))
         { value1 = T; mv_count=1; }
         else
@@ -628,35 +628,24 @@ LISPFUNN(standard_char_p,1) # (STANDARD-CHAR-P char), CLTL S. 234
 
 LISPFUNN(graphic_char_p,1) # (GRAPHIC-CHAR-P char), CLTL S. 234
   { var object arg = popSTACK(); # Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    { var cint ch = char_int(arg);
-      if (ch >= char_code_limit) goto no; # kein String-Char -> nein
-      if (graphic_char_p(ch)) goto yes; else goto no;
-    }
+    if (!charp(arg)) fehler_char(arg); # muß ein Character sein
+    if (graphic_char_p(char_code(arg))) goto yes; else goto no;
     yes: value1 = T; mv_count=1; return;
     no: value1 = NIL; mv_count=1; return;
   }
 
 LISPFUNN(string_char_p,1) # (STRING-CHAR-P char), CLTL S. 235
-# String-Chars sind die mit einem Code c, mit 0 <= c < $100.
+# Alle Characters sind String-Chars.
   { var object arg = popSTACK(); # Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    { var cint ch = char_int(arg);
-      if (ch >= char_code_limit) goto no;
-      goto yes;
-    }
+    if (!charp(arg)) fehler_char(arg); # muß ein Character sein
     yes: value1 = T; mv_count=1; return;
-    no: value1 = NIL; mv_count=1; return;
   }
 
 LISPFUNN(alpha_char_p,1) # (ALPHA-CHAR-P char), CLTL S. 235
-# Nur String-Chars sind alphabetisch, auf sie wird ALPHAP angewandt
+# Teste mit ALPHAP.
   { var object arg = popSTACK(); # Argument
     if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    { var cint ch = char_int(arg);
-      if (ch >= char_code_limit) goto no; # kein String-Char -> nein
-      if (alphap(ch)) goto yes; else goto no;
-    }
+    if (alphap(char_code(arg))) goto yes; else goto no;
     yes: value1 = T; mv_count=1; return;
     no: value1 = NIL; mv_count=1; return;
   }
@@ -665,9 +654,8 @@ LISPFUNN(upper_case_p,1) # (UPPER-CASE-P char), CLTL S. 235
 # Upper-case-Characters sind die mit einem Code c mit 0 <= c < $100, die
 # von (downcase char) verschieden sind.
   { var object arg = popSTACK(); # Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    { var cint ch = char_int(arg);
-      if (ch >= char_code_limit) goto no; # kein String-Char -> nein
+    if (!charp(arg)) fehler_char(arg); # muß ein Character sein
+    { var uintB ch = char_code(arg);
       if (!(down_case(ch)==ch)) goto yes; else goto no;
     }
     yes: value1 = T; mv_count=1; return;
@@ -678,9 +666,8 @@ LISPFUNN(lower_case_p,1) # (LOWER-CASE-P char), CLTL S. 235
 # Lower-case-Characters sind die mit einem Code c mit 0 <= c < $100, die
 # von (upcase char) verschieden sind.
   { var object arg = popSTACK(); # Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    { var cint ch = char_int(arg);
-      if (ch >= char_code_limit) goto no; # kein String-Char -> nein
+    if (!charp(arg)) fehler_char(arg); # muß ein Character sein
+    { var uintB ch = char_code(arg);
       if (!(up_case(ch)==ch)) goto yes; else goto no;
     }
     yes: value1 = T; mv_count=1; return;
@@ -692,9 +679,8 @@ LISPFUNN(both_case_p,1) # (BOTH-CASE-P char), CLTL S. 235
 # Both-case-Characters sind die mit einem Code c mit 0 <= c < $100, bei denen
 # (downcase char) und (upcase char) verschieden sind.
   { var object arg = popSTACK(); # Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    { var cint ch = char_int(arg);
-      if (ch >= char_code_limit) goto no; # kein String-Char -> nein
+    if (!charp(arg)) fehler_char(arg); # muß ein Character sein
+    { var uintB ch = char_code(arg);
       if (!(down_case(ch)==up_case(ch))) goto yes; else goto no;
     }
     yes: value1 = T; mv_count=1; return;
@@ -731,15 +717,15 @@ LISPFUN(digit_char_p,1,1,norest,nokey,0,NIL)
 # (DIGIT-CHAR-P char [radix]), CLTL S. 236
 # Methode:
 # Test, ob radix ein Integer >=2 und <=36 ist.
-# char muß ein String-Char <= 'z' sein, sonst NIL als Ergebnis.
+# char muß ein Character <= 'z' sein, sonst NIL als Ergebnis.
 # Falls radix<=10: c muß >= '0' und < '0'+radix sein, sonst NIL.
 # Falls radix>=10: c muß >= '0' und <= '9' oder
 #                  (upcase c) muß >= 'A' und < 'A'-10+radix sein, sonst NIL.
   { var uintWL radix = test_radix_arg(); # Zahlbasis, >=2, <=36
     var object arg = popSTACK(); # Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    { var cint ch = char_int(arg);
-      if (ch > 'z') goto no; # kein String-Char oder zu groß -> nein
+    if (!charp(arg)) fehler_char(arg); # muß ein Character sein
+    { var uintB ch = char_code(arg);
+      if (ch > 'z') goto no; # zu groß -> nein
       if (ch >= 'a') { ch -= 'a'-'A'; } # Character >='a',<='z' in Großbuchstaben wandeln
       # Nun ist $00 <= ch <= $60.
       if (ch < '0') goto no;
@@ -759,20 +745,17 @@ LISPFUNN(alphanumericp,1) # (ALPHANUMERICP char), CLTL S. 236
 # Alphanumerische Characters sind die Ziffern '0',...,'9' und die
 # alphabetischen Characters.
   { var object arg = popSTACK(); # Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    { var cint ch = char_int(arg);
-      if (ch >= char_code_limit) goto no; # kein String-Char -> nein
-      if (alphanumericp(ch)) goto yes; else goto no;
-    }
+    if (!charp(arg)) fehler_char(arg); # muß ein Character sein
+    if (alphanumericp(char_code(arg))) goto yes; else goto no;
     yes: value1 = T; mv_count=1; return;
     no: value1 = NIL; mv_count=1; return;
   }
 
 # Zeichenvergleichsfunktionen:
 # Die Vergleiche CHAR=,... vergleichen das gesamte oint (oder äquivalent,
-# nur das cint, aber inclusive Font und Bits).
-# Die Vergleiche CHAR-EQUAL,... ignorieren Font und Bits, wandeln die
-# Ascii-Codes in Großbuchstaben um und vergleichen diese.
+# nur das cint).
+# Die Vergleiche CHAR-EQUAL,... wandeln die Codes in Großbuchstaben um und
+# vergleichen diese.
 
 # UP: Testet, ob alle argcount+1 Argumente unterhalb von args_pointer
 # Characters sind. Wenn nein, Error.
@@ -1023,7 +1006,7 @@ LISPFUNN(code_char,1)
     { var uintL code;
       # Teste, ob  0 <= code < char_code_limit :
       if (posfixnump(codeobj) && ((code = posfixnum_to_L(codeobj)) < char_code_limit))
-        { value1 = code_char(code); mv_count=1; } # String-Char basteln
+        { value1 = code_char(code); mv_count=1; } # Character basteln
         else
         { value1 = NIL; mv_count=1; } # sonst Wert NIL
   } }
@@ -1048,34 +1031,24 @@ LISPFUNN(character,1) # (CHARACTER object), CLTL S. 241
 
 LISPFUNN(char_upcase,1) # (CHAR-UPCASE char), CLTL S. 241
   { var object arg = popSTACK(); # char-Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    { var cint ch = char_int(arg);
-      value1 =
-        ( (ch >= char_code_limit)
-          ? arg # kein String-Char, also Font oder Bits /=0 -> tut sich nichts
-          : int_char(up_case(ch)) # sonst in Großbuchstaben umwandeln
-        );
-      mv_count=1;
-  } }
+    if (!charp(arg)) fehler_char(arg); # muß ein Character sein
+    value1 = code_char(up_case(char_code(arg))); # in Großbuchstaben umwandeln
+    mv_count=1;
+  }
 
 LISPFUNN(char_downcase,1) # (CHAR-DOWNCASE char), CLTL S. 241
   { var object arg = popSTACK(); # char-Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    { var cint ch = char_int(arg);
-      value1 =
-        ( (ch >= char_code_limit)
-          ? arg # kein String-Char, also Font oder Bits /=0 -> tut sich nichts
-          : int_char(down_case(ch)) # sonst in Kleinbuchstaben umwandeln
-        );
-      mv_count=1;
-  } }
+    if (!charp(arg)) fehler_char(arg); # muß ein Character sein
+    value1 = code_char(down_case(char_code(arg))); # in Kleinbuchstaben umwandeln
+    mv_count=1;
+  }
 
 LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
 # (DIGIT-CHAR weight [radix]), CLTL2 S. 384
   # Methode:
   # Alles müssen Integers sein, radix zwischen 2 und 36.
   # Falls 0 <= weight < radix, konstruiere
-  #     ein String-Char aus '0',...,'9','A',...,'Z' mit Wert weight.
+  #     ein Character aus '0',...,'9','A',...,'Z' mit Wert weight.
   # Sonst Wert NIL.
   { var uintWL radix = test_radix_arg(); # radix-Argument, >=2, <=36
     var object weightobj = popSTACK(); # weight-Argument
@@ -1097,7 +1070,7 @@ LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
       if (posfixnump(weightobj) && ((weight = posfixnum_to_L(weightobj)) < radix))
         { weight = weight + '0'; # in Ziffer umwandeln
           if (weight > '9') { weight += 'A'-'0'-10; } # oder Buchstaben draus machen
-          value1 = code_char(weight); # String-Char basteln
+          value1 = code_char(weight); # Character basteln
           mv_count=1;
         }
         else
@@ -1106,17 +1079,17 @@ LISPFUN(digit_char,1,1,norest,nokey,0,NIL)
 
 LISPFUNN(char_int,1) # (CHAR-INT char), CLTL S. 242
   { var object arg = popSTACK(); # char-Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    value1 = fixnum(char_int(arg)); mv_count=1;
+    if (!charp(arg)) fehler_char(arg); # muß ein Character sein
+    value1 = fixnum(char_code(arg)); mv_count=1;
   }
 
 LISPFUNN(int_char,1) # (INT-CHAR integer), CLTL S. 242
   { var object arg = popSTACK(); # integer-Argument
     if (integerp(arg))
-      { # bei 0 <= arg < char_int_limit in Character umwandeln, sonst NIL
+      { # bei 0 <= arg < char_code_limit in Character umwandeln, sonst NIL
         var uintL i;
-        if ((posfixnump(arg)) && ((i = posfixnum_to_L(arg)) < char_int_limit))
-          { value1 = int_char(i); mv_count=1; }
+        if ((posfixnump(arg)) && ((i = posfixnum_to_L(arg)) < char_code_limit))
+          { value1 = code_char(i); mv_count=1; }
           else
           { value1 = NIL; mv_count=1; }
       }
@@ -1136,15 +1109,10 @@ LISPFUNN(int_char,1) # (INT-CHAR integer), CLTL S. 242
 
 LISPFUNN(char_name,1) # (CHAR-NAME char), CLTL S. 242
   { var object arg = popSTACK(); # char-Argument
-    if (!(charp(arg))) fehler_char(arg); # muß ein Character sein
-    { var cint ch = char_int(arg);
-      value1 =
-        ( (ch >= char_code_limit)
-          ? NIL # Characters mit Bits oder Font /=0 haben keinen Namen
-          : char_name(ch)
-        );
-      mv_count=1;
-  } }
+    if (!charp(arg)) fehler_char(arg); # muß ein Character sein
+    value1 = char_name(char_code(arg));
+    mv_count=1;
+  }
 
 
 # Fehler, wenn Index-Argument kein Integer ist.
@@ -1368,21 +1336,21 @@ LISPFUNN(schar,2) # (SCHAR string integer), CLTL S. 300
 # test_newchar_arg()
 # > STACK_0: Argument
 # > subr_self: Aufrufer (ein SUBR)
-# < ergebnis: Argument als String-Char
+# < ergebnis: Argument als Character
 # erhöht STACK um 1
   local object test_newchar_arg (void);
   local object test_newchar_arg()
     { var object arg = popSTACK(); # Argument
-      if (string_char_p(arg))
+      if (charp(arg))
         return arg;
         else
         { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(string_char)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: Argument muß ein String-Char sein, nicht ~." :
-                 ENGLISH ? "~: argument should be a string-char, not ~" :
-                 FRANCAIS ? "~: L'argument doit être de type STRING-CHAR et non ~." :
+                 DEUTSCH ? "~: Argument muß ein Character sein, nicht ~." :
+                 ENGLISH ? "~: argument should be a character, not ~" :
+                 FRANCAIS ? "~: L'argument doit être un caractère et non ~." :
                  ""
                 );
         }
@@ -1475,7 +1443,7 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
     var object obj;
     { if (stringp(obj)) return obj; # String: unverändert zurück
       if (symbolp(obj)) return TheSymbol(obj)->pname; # Symbol: Printnamen verwenden
-      if (string_char_p(obj)) # String-Char: einelementigen String daraus machen:
+      if (charp(obj)) # Character: einelementigen String daraus machen:
         { var object new_string = allocate_string(1);
           TheSstring(new_string)->data[0] = char_code(obj);
           return new_string;
@@ -1484,9 +1452,9 @@ LISPFUNN(store_schar,3) # (SYSTEM::STORE-SCHAR simple-string index newchar)
       pushSTACK(O(type_stringsymchar)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       fehler(type_error,
-             DEUTSCH ? "~: Argument muß ein String, Symbol oder String-Char sein, nicht ~." :
-             ENGLISH ? "~: argument ~ should be a string, a symbol or a string-char" :
-             FRANCAIS ? "~: L'argument ~ doit être de type STRING, SYMBOL ou STRING-CHAR et non ~." :
+             DEUTSCH ? "~: Argument muß ein String, Symbol oder Character sein, nicht ~." :
+             ENGLISH ? "~: argument ~ should be a string, a symbol or a character" :
+             FRANCAIS ? "~: L'argument ~ doit être de type STRING, SYMBOL ou CHARACTER et non ~." :
              ""
             );
     }
@@ -2002,7 +1970,7 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
     # element-type überprüfen:
     if (!eq(STACK_0,unbound))
       { var object eltype = STACK_0;
-        if (!(eq(eltype,S(character)) || eq(eltype,S(string_char))))
+        if (!eq(eltype,S(character)))
           { # Verify (SUBTYPEP eltype 'CHARACTER):
             pushSTACK(eltype); pushSTACK(S(character)); funcall(S(subtypep),2);
             if (nullp(value1))
@@ -2023,14 +1991,14 @@ LISPFUN(make_string,1,0,norest,key,2, (kw(initial_element),kw(element_type)) )
     if (eq(initial_element,unbound))
       ; # nicht angegeben -> nichts zu tun
       else
-      if (!(string_char_p(initial_element))) # sonst: muß ein String-Char sein
+      if (!charp(initial_element)) # sonst: muß ein Character sein
         { pushSTACK(initial_element); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(S(string_char)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
+          pushSTACK(S(character)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
           pushSTACK(initial_element); pushSTACK(TheSubr(subr_self)->name);
           fehler(type_error,
-                 DEUTSCH ? "~: :INITIAL-ELEMENT ~ ist nicht vom Typ STRING-CHAR." :
-                 ENGLISH ? "~: :initial-element ~ should be of type string-char" :
-                 FRANCAIS ? "~: L'élément initial ~ n'est pas de type STRING-CHAR." :
+                 DEUTSCH ? "~: :INITIAL-ELEMENT ~ ist nicht vom Typ CHARACTER." :
+                 ENGLISH ? "~: :initial-element ~ should be of type character" :
+                 FRANCAIS ? "~: L'élément initial ~ n'est pas de type CHARACTER." :
                  ""
                 );
         }

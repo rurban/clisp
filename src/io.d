@@ -348,7 +348,7 @@
         # neuer Array (mit Datenvektor NIL), Displaced, Rang=1
         O(displaced_string) =
           allocate_iarray(bit(arrayflags_displaced_bit)|bit(arrayflags_dispoffset_bit)|
-                          bit(arrayflags_notbytep_bit)|Atype_String_Char,
+                          bit(arrayflags_notbytep_bit)|Atype_Char,
                           1,
                           Array_type_string
                          );
@@ -423,9 +423,9 @@ LISPFUN(set_syntax_from_char,2,2,norest,nokey,0,NIL)
     var object from_readtable = STACK_0;
     skipSTACK(4);
     # to-char überprüfen:
-    if (!string_char_p(to_char)) { fehler_string_char(to_char); } # muß ein String-Char sein
+    if (!charp(to_char)) { fehler_char(to_char); } # muß ein Character sein
     # from-char überprüfen:
-    if (!string_char_p(from_char)) { fehler_string_char(from_char); } # muß ein String-Char sein
+    if (!charp(from_char)) { fehler_char(from_char); } # muß ein Character sein
     # to-readtable überprüfen:
     if (eq(to_readtable,unbound))
       { get_readtable(to_readtable=); } # Default ist die aktuelle Readtable
@@ -511,7 +511,7 @@ LISPFUN(set_macro_character,2,2,norest,nokey,0,NIL)
 # CLTL S. 362
   { # char überprüfen:
     { var object ch = STACK_3;
-      if (!string_char_p(ch)) { fehler_string_char(ch); }
+      if (!charp(ch)) { fehler_char(ch); }
     }
     # function überprüfen und in ein Objekt vom Typ FUNCTION umwandeln:
     {var object function = coerce_function(STACK_2);
@@ -542,7 +542,7 @@ LISPFUN(get_macro_character,1,1,norest,nokey,0,NIL)
 # (GET-MACRO-CHARACTER char [readtable]), CLTL S. 362
   { # char überprüfen:
     { var object ch = STACK_1;
-      if (!string_char_p(ch)) { fehler_string_char(ch); }
+      if (!charp(ch)) { fehler_char(ch); }
     }
    {var object readtable = test_readtable_null_arg(); # Readtable
     var object ch = popSTACK();
@@ -593,7 +593,7 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
     var uintB syntaxcode = test_nontermp_arg(); # neuer Syntaxcode
     # char überprüfen:
     var object ch = popSTACK();
-    if (!string_char_p(ch)) { fehler_string_char(ch); }
+    if (!charp(ch)) { fehler_char(ch); }
    {var uintL c = char_code(ch);
     # neue (leere) Dispatch-Macro-Tabelle holen:
     pushSTACK(readtable);
@@ -623,8 +623,8 @@ LISPFUN(make_dispatch_macro_character,1,2,norest,nokey,0,NIL)
     var object readtable;
     { var object sub_ch = popSTACK(); # sub-char
       var object disp_ch = popSTACK(); # disp-char
-      if (!string_char_p(disp_ch)) { fehler_string_char(disp_ch); } # disp-char muß ein String-Char sein
-      if (!string_char_p(sub_ch)) { fehler_string_char(sub_ch); } # sub-char muß ein String-Char sein
+      if (!charp(disp_ch)) { fehler_char(disp_ch); } # disp-char muß ein Character sein
+      if (!charp(sub_ch)) { fehler_char(sub_ch); } # sub-char muß ein Character sein
      {var uintL disp_c = char_code(disp_ch);
       var object entry = TheSvector(TheReadtable(readtable)->readtable_macro_table)->data[disp_c];
       if (!simple_vector_p(entry))
@@ -792,7 +792,7 @@ LISPFUNN(set_readtable_case,2)
 
 # ------------------------ READ auf Character-Ebene ---------------------------
 
-# Fehler, wenn Zeichen kein String-Char ist:
+# Fehler, wenn gelesenes Objekt kein Character ist:
 # fehler_charread(ch,&stream);
   nonreturning_function(local, fehler_charread, (object ch, const object* stream_));
   local void fehler_charread(ch,stream_)
@@ -803,9 +803,9 @@ LISPFUNN(set_readtable_case,2)
       pushSTACK(*stream_); # Stream
       pushSTACK(S(read));
       fehler(stream_error,
-             DEUTSCH ? "~ von ~: Gelesenes Zeichen ist kein String-Char: ~" :
-             ENGLISH ? "~ from ~: character read should be a string-char: ~" :
-             FRANCAIS ? "~ de ~ : le caractère lu n'est pas de type STRING-CHAR." :
+             DEUTSCH ? "~ von ~: Gelesenes Zeichen ist kein Character: ~" :
+             ENGLISH ? "~ from ~: character read should be a character: ~" :
+             FRANCAIS ? "~ de ~ : le caractère lu n'est pas un caractère: ~" :
              ""
             );
     }
@@ -814,7 +814,7 @@ LISPFUNN(set_readtable_case,2)
 # read_char_syntax(ch=,scode=,&stream);
 # > stream: Stream
 # < stream: Stream
-# < object ch: String-Char oder eof_value
+# < object ch: Character oder eof_value
 # < uintWL scode: Syntaxcode (aus der aktuellen Readtable) bzw. syntax_eof
 # kann GC auslösen
   #define read_char_syntax(ch_zuweisung,scode_zuweisung,stream_)  \
@@ -823,9 +823,8 @@ LISPFUNN(set_readtable_case,2)
       if (eq(ch0,eof_value)) # EOF ?                                   \
         { scode_zuweisung syntax_eof; }                                \
         else                                                           \
-        # sonst Character.                                             \
-        { # Auf String-Char überprüfen:                                \
-          if (!string_char_p(ch0)) { fehler_charread(ch0,stream_); }   \
+        { # Sonst auf Character überprüfen:                            \
+          if (!charp(ch0)) { fehler_charread(ch0,stream_); }           \
          {var object readtable;                                        \
           get_readtable(readtable = );                                 \
           scode_zuweisung # Syntaxcode aus Tabelle holen               \
@@ -896,16 +895,15 @@ LISPFUNN(set_readtable_case,2)
 # wpeek_char_syntax(ch=,scode=,&stream);
 # > stream: Stream
 # < stream: Stream
-# < object ch: nächstes String-Char
+# < object ch: nächstes Character
 # < uintWL scode: sein Syntaxcode
 # kann GC auslösen
   #define wpeek_char_syntax(ch_zuweisung,scode_zuweisung,stream_)  \
     { loop                                                                 \
         { var object ch0 = read_char(stream_); # Character lesen           \
           if (eq(ch0,eof_value)) { fehler_eof(stream_); } # EOF -> Error   \
-          # sonst Character.                                               \
-          # Auf String-Char überprüfen:                                    \
-          if (!string_char_p(ch0)) { fehler_charread(ch0,stream_); }       \
+          # Sonst auf Character überprüfen:                                \
+          if (!charp(ch0)) { fehler_charread(ch0,stream_); }               \
           {var object readtable;                                           \
            get_readtable(readtable = );                                    \
            if (!((scode_zuweisung # Syntaxcode aus Tabelle holen           \
@@ -923,7 +921,7 @@ LISPFUNN(set_readtable_case,2)
 # wpeek_char_eof(&stream)
 # > stream: Stream
 # < stream: Stream
-# < ergebnis: nächstes String-Char oder eof_value
+# < ergebnis: nächstes Character oder eof_value
 # kann GC auslösen
   local object wpeek_char_eof (const object* stream_);
   local object wpeek_char_eof(stream_)
@@ -931,9 +929,8 @@ LISPFUNN(set_readtable_case,2)
     { loop
         { var object ch = read_char(stream_); # Character lesen
           if (eq(ch,eof_value)) { return ch; } # EOF ?
-          # sonst Character.
-          # Auf String-Char überprüfen:
-          if (!string_char_p(ch)) { fehler_charread(ch,stream_); }
+          # Sonst auf Character überprüfen:
+          if (!charp(ch)) { fehler_charread(ch,stream_); }
           {var object readtable;
            get_readtable(readtable = );
            if (!(( # Syntaxcode aus Tabelle holen
@@ -1732,7 +1729,7 @@ LISPFUNN(set_readtable_case,2)
 # Ruft die zugehörige Macro-Funktion auf, bei Dispatch-Characters erst noch
 # Zahl-Argument und Subchar einlesen.
 # read_macro(ch,&stream)
-# > ch: Macro-Character, ein String-Char
+# > ch: Macro-Character, ein Character
 # > stream: Stream
 # < stream: Stream
 # < mv_count/mv_space: max. 1 Wert
@@ -1801,8 +1798,8 @@ LISPFUNN(set_readtable_case,2)
                            ""
                           );
                   }
-                # sonst Character. Auf String-Char überprüfen.
-                if (!string_char_p(nextch)) { fehler_charread(nextch,stream_); }
+                # Sonst auf Character überprüfen.
+                if (!charp(nextch)) { fehler_charread(nextch,stream_); }
                {var uintB c = char_code(nextch);
                 if (!((c>='0') && (c<='9'))) # keine Ziffer -> Schleife fertig
                   { subc = c; break; }
@@ -1814,7 +1811,7 @@ LISPFUNN(set_readtable_case,2)
             arg = popSTACK();
             if (!flag) { arg = NIL; } # kam keine Ziffer -> Argument := NIL
           }
-          # Weiter geht's mit Subchar (String-Char subc)
+          # Weiter geht's mit Subchar (Character subc)
           subch = code_char(subc);
           subc = up_case(subc); # Subchar in Großbuchstaben umwandeln
           macrodef = popSTACK(); # Vektor zurück
@@ -2290,7 +2287,7 @@ LISPFUNN(set_readtable_case,2)
 
 # UP: Liest eine Liste ein.
 # read_delimited_list(&stream,endch,ifdotted)
-# > endch: erwartetes Endzeichen, ein String-Char
+# > endch: erwartetes Endzeichen, ein Character
 # > ifdotted: #DOT_VALUE falls Dotted List erlaubt, #EOF_VALUE sonst
 # > stream: Stream
 # < stream: Stream
@@ -2499,7 +2496,7 @@ LISPFUNN(rpar_reader,2) # liest )
 
 # (set-macro-character #\"
 #   #'(lambda (stream char)
-#       (let ((buffer (make-array 50 :element-type 'string-char
+#       (let ((buffer (make-array 50 :element-type 'character
 #                                    :adjustable t :fill-pointer 0
 #            ))       )
 #         (loop
@@ -2801,8 +2798,6 @@ LISPFUNN(char_reader,3) # liest #\
     if (test_value(S(read_suppress)))
       { value1 = NIL; mv_count=1; skipSTACK(3); return; } # NIL als Wert
     case_convert_token_1();
-    # Zeichen aufbauen:
-   {var cint c = 0; # im Aufbau befindliches Zeichen
     # Font bestimmen:
     if (!nullp(STACK_0)) # n=NIL -> Default-Font 0
       if (!eq(STACK_0,Fixnum_0))
@@ -2825,7 +2820,7 @@ LISPFUNN(char_reader,3) # liest #\
       token = TheIarray(token)->data; # Simple-String mit Token
      {var uintL pos = 0; # momentane Position im Token
       loop # Suche nächstes Hyphen
-        { if (len-pos == 1) goto remains_one; # einbuchstabiger Charactername?
+        { if (len-pos == 1) break; # einbuchstabiger Charactername?
           { var uintL hyphen = pos; # hyphen := pos
             loop
               { if (hyphen == len) goto no_more_hyphen; # schon Token-Ende?
@@ -2854,10 +2849,9 @@ LISPFUNN(char_reader,3) # liest #\
             # Mit diesem Bitnamen fertig.
             pos = hyphen+1; # zum nächsten
         } }}
-      remains_one: # einbuchstabiger Charactername
+      # einbuchstabiger Charactername
       {var uintB code = TheSstring(token)->data[pos]; # (char token pos)
-       c |= ((cint)code << char_code_shift_c); # Code einbauen
-       value1 = int_char(c); mv_count=1; skipSTACK(3); return;
+       value1 = code_char(code); mv_count=1; skipSTACK(3); return;
       }
       no_more_hyphen: # kein weiteres Hyphen gefunden.
       {var uintL sub_len = len-pos; # Länge des Characternamens
@@ -2887,17 +2881,15 @@ LISPFUNN(char_reader,3) # liest #\
                index++;
              }}
            # Charactername war vom Typ "Codexxxx" mit code = xxxx < char_code_limit
-           c |= ((cint)code << char_code_shift_c); # Code einbauen
-           value1 = int_char(c); mv_count=1; skipSTACK(3); return;
+           value1 = code_char(code); mv_count=1; skipSTACK(3); return;
          }}
        not_codexxxx:
        # Test auf Pseudo-Character-Namen ^X:
        if ((sub_len == 2) && (TheSstring(token)->data[pos] == '^'))
          { var uintB code = TheSstring(token)->data[pos+1]-64;
            if (code < 32)
-             { c |= ((cint)code << char_code_shift_c); # Code einbauen
-               value1 = int_char(c); mv_count=1; skipSTACK(3); return;
-         }   }
+             { value1 = code_char(code); mv_count=1; skipSTACK(3); return; }
+         }
        # Test auf Characternamen wie NAME-CHAR:
        TheIarray(hstring)->totalsize =
          TheIarray(hstring)->dims[1] = sub_len; # Länge := len-pos
@@ -2916,10 +2908,9 @@ LISPFUNN(char_reader,3) # liest #\
                   );
           }
         # gefunden
-        c |= char_int(ch); # Code einbauen
-        value1 = int_char(c); mv_count=1; skipSTACK(3); return;
+        value1 = ch; mv_count=1; skipSTACK(3); return;
       }}
-  }}}}
+  } }}
 
 # (defun radix-1 (stream sub-char n base)
 #   (let ((token (read-token stream)))
@@ -3403,7 +3394,7 @@ LISPFUNN(vector_reader,3) # liest #(
 #                     (incf i) (when (>= i rank) (return))
 #                     (when (plusp l) (setq subcont (elt subcont 0)))
 #                 ) )
-#                 (cond ((stringp subcont) (setq eltype 'string-char))
+#                 (cond ((stringp subcont) (setq eltype 'character))
 #                       ((bit-vector-p subcont) (setq eltype 'bit))
 #             ) ) )
 #             (make-array (nreverse dims) :element-type eltype :initial-contents cont)
@@ -3477,9 +3468,9 @@ LISPFUNN(array_reader,3) # liest #A
           }
         nreverse(STACK_4); # Liste dims umdrehen
         # eltype bestimmen je nach innerstem subcontents:
-        STACK_2 = (stringp(STACK_1) ? S(string_char) : # String: STRING-CHAR
-                   bit_vector_p(STACK_1) ? S(bit) :   # Bitvektor: BIT
-                   S(t)                               # sonst (Liste): T
+        STACK_2 = (stringp(STACK_1) ? S(character) : # String: CHARACTER
+                   bit_vector_p(STACK_1) ? S(bit) :  # Bitvektor: BIT
+                   S(t)                              # sonst (Liste): T
                   );
       }
     # Stackaufbau: dims, -, eltype, -, contents.
@@ -4244,10 +4235,10 @@ LISPFUNN(structure_reader,3) # liest #S
                ""
               );
       }
-  # UP: Überprüft, ob String-Char ch mit Syntaxcode scode eine
+  # UP: Überprüft, ob Character ch mit Syntaxcode scode eine
   # Hexadezimal-Ziffer ist, und liefert ihren Wert.
   # hexziffer(ch,scode)
-  # > ch, scode: String-Char (oder eof_value) und sein Syntaxcode
+  # > ch, scode: Character (oder eof_value) und sein Syntaxcode
   # > Stackaufbau: stream, sub-char, arg.
   # < ergebnis: Wert (>=0, <16) der Hexziffer
     local uintB hexziffer (object ch, uintWL scode);
@@ -4255,7 +4246,7 @@ LISPFUNN(structure_reader,3) # liest #S
       var object ch;
       var uintWL scode;
       { if (scode == syntax_eof) { fehler_eof_innen(&STACK_2); }
-        # ch ist ein String-Char
+        # ch ist ein Character
        {var uintB c = char_code(ch);
         if (c<'0') goto badchar; if (c<='9') { return (c-'0'); } # '0'..'9'
         if (c<'A') goto badchar; if (c<='F') { return (c-'A'+10); } # 'A'..'F'
@@ -4532,7 +4523,7 @@ LISPFUN(read_delimited_list,1,2,norest,nokey,0,NIL)
 # (READ-DELIMITED-LIST char [input-stream [recursive-p]]), CLTL S. 377
   { # char überprüfen:
     var object ch = STACK_2;
-    if (!string_char_p(ch)) { fehler_string_char(ch); }
+    if (!charp(ch)) { fehler_char(ch); }
     # input-stream überprüfen:
     test_istream(&STACK_1);
     # recursive-p-Argument abfragen:
@@ -4568,8 +4559,8 @@ LISPFUN(read_line,0,4,norest,nokey,0,NIL)
     loop
       { var object ch = read_char(stream_); # nächstes Zeichen lesen
         if (eq(ch,eof_value)) goto eof; # EOF ?
-        # sonst Character. Auf String-Char überprüfen:
-        if (!string_char_p(ch)) { subr_self = L(read_line); fehler_string_char(ch); }
+        # sonst auf Character überprüfen:
+        if (!charp(ch)) { subr_self = L(read_line); fehler_char(ch); }
         if (eq(ch,code_char(NL))) goto eol; # NL -> End of Line
         # sonstiges Character in den Buffer schreiben:
         ssstring_push_extend(STACK_0,char_code(ch));
@@ -6795,18 +6786,17 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # Character mit Escape-Zeichen ausgeben.
         # Syntax:  # \ char
         # bzw.     # \ charname
-        { var cint c = char_int(ch);
-          write_schar(stream_,'#');
+        { write_schar(stream_,'#');
           write_schar(stream_,'\\');
-          { var uintB code = (c >> char_code_shift_c) & (char_code_limit-1); # Code
-            var object charname = char_name(code); # Name des Characters
-            if (nullp(charname))
-              # kein Name vorhanden
-              { write_schar(stream_,code); }
-              else
-              # Namen (Simple-String) ausgeben
-              { write_sstring_case(stream_,charname); }
-        } }
+         {var uintB code = char_code(ch); # Code
+          var object charname = char_name(code); # Name des Characters
+          if (nullp(charname))
+            # kein Name vorhanden
+            { write_schar(stream_,code); }
+            else
+            # Namen (Simple-String) ausgeben
+            { write_sstring_case(stream_,charname); }
+        }}
         else
         # Character ohne Escape-Zeichen ausgeben
         { write_char(stream_,ch); } # ch selbst ausgeben
@@ -7406,10 +7396,10 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 #         (let ((*print-base* 10.)) (prin1 rank stream))
 #         (write-char #\A stream)
 #         (if (and (plusp rank)
-#                  (or (eq eltype 'bit) (eq eltype 'string-char))
+#                  (or (eq eltype 'bit) (eq eltype 'character))
 #                  (or (null *print-length*) (>= *print-length* (array-dimension array (1- rank))))
 #             )
-#           ; kürzere Ausgabe von mehrdimensionalen Bit- und String-Char-Arrays
+#           ; kürzere Ausgabe von mehrdimensionalen Bit- und Character-Arrays
 #           (let* ((lastdim (array-dimension array (1- rank)))
 #                  (offset 0)
 #                  (sub-array (make-array 0 :element-type eltype :adjustable t)))
@@ -7603,7 +7593,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
                        # ganze Bitvektoren statt einzelnen Bits ausgeben
                        locals.pr_one_elt = &pr_array_elt_bvector;
                        goto nicht_einzeln;
-                     case Atype_String_Char:
+                     case Atype_Char:
                        # ganze Strings statt einzelnen Characters ausgeben
                        locals.pr_one_elt = &pr_array_elt_string;
                      nicht_einzeln:
@@ -8974,8 +8964,7 @@ LISPFUNN(print_structure,2)
         write_sstring_case(stream_,O(printstring_stream));
       # Streamspezifische Zusatzinformation:
         switch (type)
-          { case strmtype_sch_file:
-            case strmtype_ch_file:
+          { case strmtype_ch_file:
             case strmtype_iu_file:
             case strmtype_is_file:
             #ifdef HANDLES
@@ -9048,11 +9037,11 @@ LISPFUNN(print_structure,2)
               # sonst keine Zusatzinformation
               break;
           }
-        if (type==strmtype_sch_file)
+        if (type==strmtype_ch_file)
           { JUSTIFY_SPACE;
             # Zeilennummer ausgeben, in der sich der Stream gerade befindet:
             write_schar(stream_,'@');
-            pr_number(stream_,TheStream(*obj_)->strm_sch_file_lineno);
+            pr_number(stream_,TheStream(*obj_)->strm_ch_file_lineno);
           }
       }
       JUSTIFY_END_ENG;

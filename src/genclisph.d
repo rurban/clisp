@@ -693,16 +693,8 @@ global int main()
   #else
     printf("#define char_int(char_from_char_int)  ((cint)as_oint(char_from_char_int))\n");
   #endif
-  #if !(char_code_shift_c==0)
-    printf("#define code_char(code_from_code_char)  int_char((cint)(code_from_code_char)<<%d)\n",char_code_shift_c);
-  #else
-    printf("#define code_char(code_from_code_char)  int_char((cint)(code_from_code_char))\n");
-  #endif
-  #if !((char_code_shift_c==0)&&(char_code_len_c==8))
-    printf2("#define char_code(char_from_char_code)  ((uintB)((char_int(char_from_char_code)&%x)>>%d))\n",(cint)char_code_mask_c,char_code_shift_c);
-  #else
-    printf("#define char_code(char_from_char_code)  ((uintB)(char_int(char_from_char_code)))\n");
-  #endif
+  printf("#define code_char(code_from_code_char)  int_char((cint)(code_from_code_char))\n");
+  printf("#define char_code(char_from_char_code)  ((uintB)(char_int(char_from_char_code)))\n");
   printf1("#define fixnum(x)  type_data_object(%d,x)\n",(tint)fixnum_type);
 # printf("#define Fixnum_0  fixnum(0)\n");
 # printf("#define Fixnum_1  fixnum(1)\n");
@@ -988,7 +980,6 @@ global int main()
 # #else
 #   printf2("#define charp(obj)  ((as_oint(obj) & %d) == %d)\n",0x3F,char_type);
 # #endif
-# printf2("#define string_char_p(obj)  ((as_oint(obj) & ~%x) == type_zero_oint(%d))\n",((oint)char_code_mask_c) << oint_data_shift,(tint)char_type);
 # #ifdef TYPECODES
 #   printf2("#define integerp(obj)  ((typecode(obj) & ~%d) == %d)\n",(tint)((fixnum_type|bignum_type|bit(sign_bit_t)) & ~(fixnum_type&bignum_type)),(tint)(fixnum_type&bignum_type));
 # #else
@@ -1427,10 +1418,9 @@ global int main()
 # printf("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));\n");
 # printf("nonreturning_function(extern, fehler_vector, (object obj));\n");
 # printf("nonreturning_function(extern, fehler_char, (object obj));\n");
-# printf("nonreturning_function(extern, fehler_string_char, (object obj));\n");
 # printf("nonreturning_function(extern, fehler_string, (object obj));\n");
 # printf("nonreturning_function(extern, fehler_sstring, (object obj));\n");
-  printf("#define check_string_char(obj)  if (!string_char_p(obj)) { fehler_string_char(obj); }\n");
+  printf("#define check_char(obj)  if (!charp(obj)) { fehler_char(obj); }\n");
   printf("#define check_uint8(obj)  if (!uint8_p(obj)) { fehler_uint8(obj); }\n");
   printf("#define check_sint8(obj)  if (!sint8_p(obj)) { fehler_sint8(obj); }\n");
   printf("#define check_uint16(obj)  if (!uint16_p(obj)) { fehler_uint16(obj); }\n");

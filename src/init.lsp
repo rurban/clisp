@@ -1266,7 +1266,7 @@ interpreter compiler
             filename
             (or (open (setq filename (pathname filename))
                   :direction :input-immutable
-                  :element-type 'string-char
+                  :element-type 'character
                   :if-does-not-exist nil
                 )
                 ; Datei mit genau diesem Namen nicht vorhanden.
@@ -1280,7 +1280,7 @@ interpreter compiler
                     nil
                     (open (setq filename (first present-files))
                           :direction :input-immutable
-                          :element-type 'string-char
+                          :element-type 'character
        )) ) )   ) ) )
     (if stream
       (let* ((input-stream

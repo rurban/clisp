@@ -121,7 +121,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
       # Wir erkennen aber auch gewisse Alias-Namen:
       # - DEFTYPE-defininierte Typen werden expandiert.
       # - ([SIMPLE-]ARRAY [eltype [1 | (dim)]]), (VECTOR [eltype [size]]) ergeben
-      #   STRING falls eltype = STRING-CHAR,
+      #   STRING falls eltype = CHARACTER,
       #   BIT-VECTOR falls eltype = BIT,
       #   n [steht für (VECTOR (UNSIGNED-BYTE n))] falls eltype = n BIT,
       #   VECTOR sonst.
@@ -189,7 +189,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
                         { if (consp(name3) && integerp(Car(name3))) { pushSTACK(Car(name3)); } else { pushSTACK(unbound); } }
                      {var uintB atype = eltype_code(name2);
                       if (atype==Atype_T) { name = S(vector); goto expanded; } # (VECTOR T)
-                      elif (atype==Atype_String_Char) { name = S(string); goto expanded; } # (VECTOR STRING-CHAR)
+                      elif (atype==Atype_Char) { name = S(string); goto expanded; } # (VECTOR CHARACTER)
                       elif (atype==Atype_Bit) { name = S(bit_vector); goto expanded; } # (VECTOR BIT)
                       else { name = fixnum(bit(atype)); goto expanded; } # (VECTOR (UNSIGNED-BYTE n))
              }  }   }}
@@ -4077,7 +4077,7 @@ LISPFUN(read_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
         var uintL start = posfixnum_to_L(STACK_2);
         var uintL end = posfixnum_to_L(STACK_1);
         # Versuche, eine optimierte Lese-Routine aufzurufen:
-        var uintB* endptr = read_schar_array(STACK_3,&charptr[start],end-start);
+        var uintB* endptr = read_char_array(STACK_3,&charptr[start],end-start);
         if (!(endptr==NULL))
           { value1 = fixnum(endptr-charptr); mv_count=1;
             skipSTACK(5);
@@ -4123,7 +4123,7 @@ LISPFUN(write_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
         var uintL start = posfixnum_to_L(STACK_2);
         var uintL end = posfixnum_to_L(STACK_1);
         # Versuche, eine optimierte Schreib-Routine aufzurufen:
-        var const uintB* endptr = write_schar_array(STACK_3,&charptr[start],end-start);
+        var const uintB* endptr = write_char_array(STACK_3,&charptr[start],end-start);
         if (!(endptr==NULL)) goto done;
       }
     # start- und end-Argumente subtrahieren:

@@ -86,7 +86,7 @@ The simple C types are these:
  Lisp name     Lisp equiv           C equiv        ILU equiv
   nil           NIL                  void                             (o)
   boolean       BOOLEAN              int            BOOLEAN
-  character     STRING-CHAR          char           SHORT CHARACTER
+  character     CHARACTER            char           SHORT CHARACTER
   char          INTEGER              signed char
   uchar         INTEGER              unsigned char
   short         INTEGER              short

@@ -873,7 +873,7 @@ The graphic characters have been described above.
 The standard characters are #\Newline and those graphic characters with a
 code between 32 and 126 (inclusive).
 
-The alphabetic characters are these string-chars:
+The alphabetic characters are these characters:
              ABCDEFGHIJKLMNOPQRSTUVWXYZ
              abcdefghijklmnopqrstuvwxyz
 and the international alphabetic characters from the character set:
@@ -886,7 +886,7 @@ arguments.
 13.4.
 -----
 
-The string chars that are not graphic chars and the space character have
+The characters that are not graphic chars and the space character have
 names:
 #ifdef AMIGA_CHARNAMES
   (code-char #x00) = #\Null
@@ -1064,7 +1064,7 @@ be used instead of MAPHASH :
 
 MAKE-ARRAY can return specialized arrays for the element types
 (UNSIGNED-BYTE 2), (UNSIGNED-BYTE 4), (UNSIGNED-BYTE 8), (UNSIGNED-BYTE 16),
-(UNSIGNED-BYTE 32) and of course BIT and STRING-CHAR.
+(UNSIGNED-BYTE 32) and of course BIT and CHARACTER.
 
 ARRAY-RANK-LIMIT is either 65536 or 4294967296.
 
@@ -1429,8 +1429,8 @@ consecutively read from stream. It returns the index of the first element
 of sequence that was not updated (= end or < end if the stream reached its
 end).
 This function is especially efficient if sequence is a string and stream is
-a file stream with element type STRING-CHAR, a pipe stream or a string input
-stream.
+a file stream with element type CHARACTER or STRING-CHAR, a pipe stream or
+a string input stream.
 
 (SYSTEM::REAL-LISTEN stream)
 SYS::REAL-LISTEN is a variant of the standard LISTEN function, which returns
@@ -1469,7 +1469,7 @@ The function WRITE-CHAR-SEQUENCE performs multiple WRITE-CHAR operations:
 of the subsequence of sequence specified by :start and :end to stream.
 It returns sequence.
 This function is especially efficient if sequence is a string and stream is
-a file stream with element type STRING-CHAR or a pipe stream.
+a file stream with element type CHARACTER or STRING-CHAR or a pipe stream.
 
 22.3.2.
 -------

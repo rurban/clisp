@@ -36,8 +36,7 @@ PSEUDOFUN(wr_ch_terminal3) PSEUDOFUN(rd_ch_terminal3) PSEUDOFUNSS(wr_ss_terminal
 #ifdef SCREEN
 PSEUDOFUN(wr_ch_window)
 #endif
-PSEUDOFUN(rd_ch_sch_file) PSEUDOFUN(wr_ch_sch_file) PSEUDOFUNSS(wr_ss_sch_file)
-PSEUDOFUN(rd_ch_ch_file) PSEUDOFUN(wr_ch_ch_file)
+PSEUDOFUN(rd_ch_ch_file) PSEUDOFUN(wr_ch_ch_file) PSEUDOFUNSS(wr_ss_ch_file)
 PSEUDOFUN(rd_by_iau_file) PSEUDOFUN(wr_by_iau_file)
 PSEUDOFUN(rd_by_ias_file) PSEUDOFUN(wr_by_ias_file)
 PSEUDOFUN(rd_by_ibu_file) PSEUDOFUN(wr_by_ibu_file)
