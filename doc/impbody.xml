@@ -1948,6 +1948,13 @@ are simple characters.</para>
  &lf-c;, &cr-c; and &cr-c;/&lf-c;, you have to resort to
  binary input (function &read-byte;).</para>
 
+<formalpara><title>Justification</title>
+<para><ulink url="http://www.unicode.org/reports/tr13/tr13-9.html">Unicode
+  Newline Guidelines</ulink> say: <quote>Even if you know which
+  characters represents NLF on your particular platform, on input and in
+  interpretation, treat CR, LF, CRLF, and NEL the same. Only on output do
+  you need to distinguish between them.</quote></para></formalpara>
+
 <formalpara><title>Rationale</title>
 <para>In &clisp;, &nl-s; is identical to &lf-s;
  (which is specifically permitted by &ansi-cl; in section
