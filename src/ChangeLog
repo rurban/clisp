@@ -1,5 +1,10 @@
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (interpret_feature, FEATUREP): Optimize 2005-01-12 patch:
+	Use boundp instead of streamp. Also fix comment.
+
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
 	* io.d (SYS::SET-READTABLE-CASE): Optimize after 2004-12-18 patch.
 
 2005-01-02  Bruno Haible  <bruno@clisp.org>
