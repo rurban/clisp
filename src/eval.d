@@ -158,9 +158,6 @@
     _(ldb), _(ldb_test), _(mask_field), _(dpb), _(deposit_field), _(random),
     _(make_random_state), _(fakultaet), _(exquo), _(long_float_digits),
     _(set_long_float_digits), _(log2), _(log10),
-#ifdef EXPORT_SYSCALLS
-    _(erf),_(erfc),_(j0),_(j1),_(jn),_(y0),_(y1),_(yn),_(gamma),_(lgamma),
-#endif # EXPORT_SYSCALLS
     # sonstige:
     _(copy_generic_function),
     };

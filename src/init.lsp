@@ -1787,9 +1787,15 @@ interpreter compiler
     ) )
 ) )
 
-;; this has to come before compiler
+;; this should come before `compiler'
 #+syscalls
-(load "posix")
+(in-package "POSIX" :use '("LISP" "CLOS"))
+#+syscalls
+(export '(resolve-host-ipaddr hostent user-data file-stat sysinfo bogomips
+          resource-usage-limits
+          erf erfc j0 j1 jn y0 y1 yn gamma lgamma))
+#+syscalls
+(in-package "SYSTEM")
 
 (LOAD "trace")     ;; TRACE
 
@@ -1807,6 +1813,8 @@ interpreter compiler
 
 ;; At this point the core Common Lisp is complete.
 
+#+syscalls
+(load "posix")
 
 ;; Fancy streams:
 
