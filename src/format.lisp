@@ -930,7 +930,7 @@
   (let ((width (if w (if (or plus-sign-flag (minusp arg)) (1- w) w) nil)))
     ;; width = available characters without sign
     (multiple-value-bind (digits digitslength leadingpoint trailingpoint)
-        (format-float-to-string arg width d k nil)
+        (format-float-to-string arg width d k 0)
       (when (eql d 0)
         (setq trailingpoint nil)) ; d=0 -> no additional zero behind
       (when w
