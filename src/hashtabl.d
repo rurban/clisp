@@ -378,7 +378,7 @@
       elif (numberp(obj)) # eine Zahl?
         { return hashcode2(obj); } # ja -> EQL-Hashcode nehmen
       else
-        { var tint type = typecode(obj) & ~imm_array_mask # Typinfo
+        { var tint type = typecode(obj) # Typinfo
                           & ~bit(notsimple_bit_t); # ob simple oder nicht, ist irrelevant
           if (type == (sbvector_type & ~bit(notsimple_bit_t))) # Bit-Vektor ?
             { return hashcode_bvector(obj); } # komponentenweise ansehen
@@ -541,7 +541,7 @@
             { return hashcode4_real(obj); }
         }
       else
-        { var tint type = typecode(obj) & ~imm_array_mask # Typinfo
+        { var tint type = typecode(obj) # Typinfo
                           & ~bit(notsimple_bit_t); # ob simple oder nicht, ist irrelevant
           if (type == (sbvector_type & ~bit(notsimple_bit_t))) # Bit-Vektor ?
             { return hashcode_bvector(obj); } # komponentenweise ansehen

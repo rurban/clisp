@@ -2361,12 +2361,7 @@ LISPFUNN(set_readtable_case,2)
       }
       { var object new_cons = allocate_cons(); # Listenanfang basteln
         Car(new_cons) = popSTACK(); # new_cons = (cons object1 nil)
-        #ifdef IMMUTABLE_CONS
-        if (TheStream(*stream_)->strmflags & strmflags_immut_B)
-          { pushSTACK(make_imm_cons(new_cons)); }
-          else
-        #endif
-          { pushSTACK(new_cons); }
+        pushSTACK(new_cons);
         pushSTACK(new_cons);
       }
       # Stackaufbau: Gesamtliste, (last Gesamtliste).
@@ -2402,12 +2397,7 @@ LISPFUNN(set_readtable_case,2)
           pushSTACK(object1);
          {var object new_cons = allocate_cons(); # nächstes Listen-Cons
           Car(new_cons) = popSTACK(); # (cons object1 nil)
-          #ifdef IMMUTABLE_CONS
-          if (TheStream(*stream_)->strmflags & strmflags_immut_B)
-            Cdr(STACK_0) = make_imm_cons(new_cons);
-            else
-          #endif
-            Cdr(STACK_0) = new_cons; # =: (cdr (last Gesamtliste))
+          Cdr(STACK_0) = new_cons; # =: (cdr (last Gesamtliste))
           STACK_0 = new_cons;
         }}
       dot: # Dot gelesen
@@ -2568,13 +2558,7 @@ LISPFUNN(string_reader,2) # liest "
             ssstring_push_extend(STACK_0,char_code(ch));
           }
         # Buffer kopieren und dabei in Simple-String umwandeln:
-        { var object string = copy_string(STACK_0);
-          #ifdef IMMUTABLE_ARRAY
-          if (TheStream(*stream_)->strmflags & strmflags_immut_B)
-            { string = make_imm_array(string); }
-          #endif
-          value1 = string;
-        }
+        value1 = copy_string(STACK_0);
         # Buffer zur Wiederverwendung freigeben:
         O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
       }
@@ -2605,15 +2589,7 @@ LISPFUNN(string_reader,2) # liest "
      {var object new_cons1 = allocate_cons(); # erstes Listencons
       var object new_cons2 = popSTACK(); # zweites Listencons
       Car(new_cons2) = popSTACK(); # new_cons2 = (cons obj nil)
-      #ifdef IMMUTABLE_CONS
-      if (TheStream(*stream_)->strmflags & strmflags_immut_B)
-        { new_cons2 = make_imm_cons(new_cons2); }
-      #endif
       Cdr(new_cons1) = new_cons2; Car(new_cons1) = STACK_0; # new_cons1 = (cons symbol new_cons2)
-      #ifdef IMMUTABLE_CONS
-      if (TheStream(*stream_)->strmflags & strmflags_immut_B)
-        { new_cons1 = make_imm_cons(new_cons1); }
-      #endif
       value1 = new_cons1; mv_count=1; skipSTACK(2);
     }}
 
@@ -3345,10 +3321,6 @@ LISPFUNN(bit_vector_reader,3) # liest #*
             index++;
           }
       }
-      #ifdef IMMUTABLE_ARRAY
-      if (TheStream(*stream_)->strmflags & strmflags_immut_B)
-        { bv = make_imm_array(bv); }
-      #endif
       value1 = bv; mv_count=1; skipSTACK(3); # bv als Wert
   }}}}
 
@@ -3436,10 +3408,6 @@ LISPFUNN(vector_reader,3) # liest #(
            index++;
          }
      }
-     #ifdef IMMUTABLE_ARRAY
-     if (TheStream(*stream_)->strmflags & strmflags_immut_B)
-       { v = make_imm_array(v); }
-     #endif
      value1 = v; mv_count=1; skipSTACK(3); # v als Wert
   }}}
 
@@ -3479,10 +3447,6 @@ LISPFUNN(array_reader,3) # liest #A
       { read_recursive_no_dot(stream_);
         value1 = NIL; mv_count=1; skipSTACK(3); return;
       }
-   {
-    #ifdef IMMUTABLE_ARRAY
-    var uintB flags = TheStream(*stream_)->strmflags;
-    #endif
     if (nullp(STACK_0)) # n nicht angegeben?
       # ja -> Liste (eltype dims contents) lesen:
       { var object obj = read_recursive_no_dot(stream_); # Liste lesen
@@ -3554,20 +3518,8 @@ LISPFUNN(array_reader,3) # liest #A
     STACK_3 = S(Kelement_type); STACK_1 = S(Kinitial_contents);
     call_make_array:
     funcall(L(make_array),5);
-    #ifdef IMMUTABLE_ARRAY
-    if (flags & strmflags_immut_B)
-      { # Ergebnis-Array value1 immutabel machen:
-        if (!array_simplep(value1))
-          { var object dv = TheIarray(value1)->data; # Datenvektor: Simple-Array
-            if (!array_simplep(dv)) # Simple-Byte-Vektor?
-              { TheIarray(dv)->data = make_imm_array(TheIarray(dv)->data); }
-            TheIarray(value1)->data = make_imm_array(dv);
-          }
-        value1 = make_imm_array(value1);
-      }
-    #endif
     mv_count=1; return;
-  }}
+  }
 
 # Fehlermeldung für #. und #, wegen *READ-EVAL*.
 # fehler_read_eval_forbidden(&stream,obj);

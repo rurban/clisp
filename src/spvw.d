@@ -436,13 +436,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 # Pointer. Über diesen kann zugegriffen werden, und er kann mit >=, <=
 # verglichen werden. heap_start und heap_end sind kanonische Adressen.
   #ifdef MULTIMAP_MEMORY
-    #if defined(IMMUTABLE) && defined(WIDE_SOFT)
-      #define canonaddr(obj)  (upointer(obj) & ~imm_addr_mask)
-      #define canon(address)  ((address) & (oint_addr_mask & ~imm_addr_mask))
-    #else
-      #define canonaddr(obj)  upointer(obj)
-      #define canon(address)  ((address) & oint_addr_mask)
-    #endif
+    #define canonaddr(obj)  upointer(obj)
+    #define canon(address)  ((address) & oint_addr_mask)
   #else
     #define canonaddr(obj)  (aint)ThePointer(obj)
     #define canon(address)  (address)
@@ -485,50 +480,10 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 # Auf einen Speicherbereich [map_addr,map_addr+map_len-1] Seiten legen,
 # die unter den Typcodes, die in typecases angegeben sind, ansprechbar
 # sein sollen:
-# multimap(typecases,imm_typecases,imm_flag,map_addr,map_len,save_flag);
-
-# Alle immutablen Objekte mutabel machen:
-# immutable_off();
-
-# Alle immutablen Objekte wieder immutabel machen:
-# immutable_on();
+# multimap(typecases,map_addr,map_len,save_flag);
 
 # Beendigung:
 # exitmap();
-
-#ifdef IMMUTABLE
-
-  # Fehlermeldung:
-    nonreturning_function(local, fehler_immutable, (void));
-    local void fehler_immutable()
-      { fehler(error,
-               DEUTSCH ? "Versuch der Modifikation unveränderlicher Daten." :
-               ENGLISH ? "Attempt to modify read-only data" :
-               FRANCAIS ? "Tentative de modification d'un objet non modifiable." :
-               ""
-              );
-      }
-
-#endif
-
-#if defined(IMMUTABLE) && defined(WIDE_SOFT)
-
-  # In diesem Modell, das MINIMAL_MULTIMAP_MEMORY impliziert,
-  # ist das Immutable-Bit in der Adresse und nicht im Typ untergebracht.
-
-  #define imm_type  1
-  #define MM_TYPECASES  \
-    case 0: case imm_type:
-  #define IMM_TYPECASES  \
-    case imm_type:
-  local tint imm_types[] = { imm_type };
-  #define imm_types_count  (sizeof(imm_types)/sizeof(tint))
-
-  # imm+address combination. x = 0,1.
-    #define combine(x,addr)  (void*)((aint)(addr) | ((aint)x << immutable_bit))
-  #define mm_types_count  2
-
-#else
 
   # Diese Typen kennzeichnen Objekte mit !gcinvariant_type_p(type):
     #define MM_TYPECASES  \
@@ -538,47 +493,9 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       case_bignum: case_ratio: case_ffloat: case_dfloat: case_lfloat: case_complex: \
       case_symbolflagged: case_cons:
 
-  # Diese Typen kennzeichnen immutable Objekte:
-    #ifdef IMMUTABLE
-      #ifdef IMMUTABLE_CONS
-        #define IMM_TYPECASES_1  case imm_cons_type:
-      #else
-        #define IMM_TYPECASES_1
-      #endif
-      #ifdef IMMUTABLE_ARRAY
-        #define IMM_TYPECASES_2  \
-          case imm_sbvector_type: case imm_sstring_type: case imm_svector_type: case imm_mdarray_type: \
-          case imm_bvector_type: case imm_string_type: case imm_vector_type:
-      #else
-        #define IMM_TYPECASES_2
-      #endif
-      #define IMM_TYPECASES  IMM_TYPECASES_1 IMM_TYPECASES_2
-      local tint imm_types[] =
-        {
-          #ifdef IMMUTABLE_CONS
-          imm_cons_type,
-          #endif
-          #ifdef IMMUTABLE_ARRAY
-          imm_sbvector_type,
-          imm_sstring_type,
-          imm_svector_type,
-          imm_mdarray_type,
-          imm_bvector_type,
-          imm_string_type,
-          imm_vector_type,
-          #endif
-        };
-      #define imm_types_count  (sizeof(imm_types)/sizeof(tint))
-    #else
-      #define IMM_TYPECASES
-      #define fehler_immutable()
-    #endif
-
   # Normal type+address combination.
     #define combine(type,addr)  ThePointer(type_pointer_object(type,addr))
   #define mm_types_count  typecount
-
-#endif
 
 #ifdef MULTIMAP_MEMORY_VIA_FILE
 
@@ -824,108 +741,21 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
   # Ende dieses Prozesses in _exit() ein munmap() durchgeführt wird.)
     #define close_mapid(fd)  close_temp_fd(fd)
 
-  #ifndef IMMUTABLE
-    #define multimap1(type,typecases,imm_typecases,mapid,map_addr,map_len)  \
-      { switch (type)        \
-          { typecases        \
-              if ( map_mapid(mapid,combine(type,map_addr),map_len,FALSE) <0) \
-                goto no_mem; \
-              break;         \
-            default: break;  \
-      }   }
-  #else
-    #ifndef GENERATIONAL_GC
-      #define multimap1(type,typecases,imm_typecases,mapid,map_addr,map_len)  \
-        { var int readonly;                                 \
-          switch (type)                                     \
-            { typecases                                     \
-                switch (type)                               \
-                  { imm_typecases  readonly = TRUE; break;  \
-                    default:       readonly = FALSE; break; \
-                  }                                         \
-                if ( map_mapid(mapid,combine(type,map_addr),map_len,readonly) <0) \
-                  goto no_mem;                              \
-                break;                                      \
-              default: break;                               \
-        }   }
-    #else
-      #define multimap1(type,typecases,imm_typecases,mapid,map_addr,map_len)  \
-        { switch (type)                                     \
-            { typecases                                     \
-                if ( map_mapid(mapid,combine(type,map_addr),map_len,FALSE) <0) \
-                  goto no_mem;                              \
-                switch (type)                               \
-                  { imm_typecases                           \
-                      xmprotect((aint)combine(type,map_addr),map_len,PROT_READ); \
-                      break;                                \
-                    default:                                \
-                      break;                                \
-                  }                                         \
-                break;                                      \
-              default: break;                               \
-        }   }
-    #endif
-  #endif
+  #define multimap1(type,typecases,mapid,map_addr,map_len)  \
+    { switch (type)        \
+        { typecases        \
+            if ( map_mapid(mapid,combine(type,map_addr),map_len,FALSE) <0) \
+              goto no_mem; \
+            break;         \
+          default: break;  \
+    }   }
 
-  #if !defined(IMMUTABLE) || defined(GENERATIONAL_GC)
-    #define done_mapid(imm_flag,mapid,map_addr,map_len)  \
-      if ( close_mapid(mapid) <0) \
-        goto no_mem;
-    #if !defined(IMMUTABLE)
-      #define immutable_off()
-      #define immutable_on()
-    #endif
-    #define exitmap()  msync_mmap_intervals()
-  #else # defined(IMMUTABLE) && !defined(GENERATIONAL_GC)
-    typedef struct { int mm_mapid; aint mm_addr; uintL mm_len; } mmapping;
-    local mmapping bigblock[1];
-    local mmapping* bigblock_ptr = &bigblock[0];
-    #define done_mapid(imm_flag,mapid,map_addr,map_len)  \
-      if (imm_flag)                     \
-        { bigblock[0].mm_mapid = mapid; \
-          bigblock[0].mm_addr = map_addr; bigblock[0].mm_len = map_len; \
-          bigblock_ptr++;               \
-        }                               \
-        else                            \
-        { if ( close_mapid(mapid) <0)   \
-            goto no_mem;                \
-        }
-    local void immutable_off (void);
-    local void immutable_off()
-      { var tint* tptr = &imm_types[0];
-        var uintC count;
-        dotimesC(count,imm_types_count,
-          { var void* map_addr = combine(*tptr,bigblock[0].mm_addr);
-            if (fdmap(bigblock[0].mm_mapid,map_addr,bigblock[0].mm_len,FALSE,TRUE,FALSE) <0)
-              { asciz_out("Cannot remap immutable objects read/write.");
-                errno_out(errno);
-                quit_sofort(1);
-              }
-            tptr++;
-          });
-      }
-    local void immutable_on (void);
-    local void immutable_on()
-      { var tint* tptr = &imm_types[0];
-        var uintC count;
-        dotimesC(count,imm_types_count,
-          { var void* map_addr = combine(*tptr,bigblock[0].mm_addr);
-            if (fdmap(bigblock[0].mm_mapid,map_addr,bigblock[0].mm_len,TRUE,TRUE,FALSE) <0)
-              { asciz_out("Cannot remap immutable objects read-only.");
-                errno_out(errno);
-                quit_sofort(1);
-              }
-            tptr++;
-          });
-      }
-    #define exitmap()  \
-      { if (!(bigblock_ptr == &bigblock[0])) \
-          close_mapid(bigblock[0].mm_mapid); \
-        msync_mmap_intervals();              \
-      }
-  #endif
+  #define done_mapid(mapid,map_addr,map_len)  \
+    if ( close_mapid(mapid) <0) \
+      goto no_mem;
+  #define exitmap()  msync_mmap_intervals()
 
-  #define multimap(typecases,imm_typecases,imm_flag,map_addr,map_len,save_flag)  \
+  #define multimap(typecases,map_addr,map_len,save_flag)  \
     { # Temporäres File aufmachen:                            \
       var int mapid = open_mapid(map_len);                    \
       if (mapid<0) goto no_mem;                               \
@@ -933,10 +763,10 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       # und mehrfach überlagert in den Speicher legen:        \
       { var oint type;                                        \
         for (type=0; type < mm_types_count; type++)           \
-          { multimap1(type,typecases,imm_typecases,mapid,map_addr,map_len); } \
+          { multimap1(type,typecases,mapid,map_addr,map_len); } \
       }                                                       \
       # und evtl. öffentlich unzugänglich machen:             \
-      done_mapid(imm_flag,mapid,map_addr,map_len);            \
+      done_mapid(mapid,map_addr,map_len);                     \
     }
 
 #endif # MULTIMAP_MEMORY_VIA_FILE
@@ -1079,147 +909,25 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
   # Ende dieses Prozesses in _exit() ein munmap() durchgeführt wird.)
     #define close_mapid(shmid)  close_shmid(shmid)
 
-  #ifndef IMMUTABLE
-    #define multimap1(type,typecases,imm_typecases,mapid,map_addr,map_len)  \
-      { switch (type)                                  \
-          { typecases                                  \
-              if ( map_mapid(mapid, combine(type,map_addr), map_len, \
-                             (type==0 ? SHM_REMAP : 0) \
-                            )                          \
-                   <0                                  \
-                 )                                     \
-                goto no_mem;                           \
-              break;                                   \
-            default: break;                            \
-      }   }
-  #else
-    #ifndef GENERATIONAL_GC
-      #define multimap1(type,typecases,imm_typecases,mapid,map_addr,map_len)  \
-        { var int readonly;                                 \
-          switch (type)                                     \
-            { typecases                                     \
-                switch (type)                               \
-                  { imm_typecases  readonly = TRUE; break;  \
-                    default:       readonly = FALSE; break; \
-                  }                                         \
-                if ( map_mapid(mapid, combine(type,map_addr), map_len, \
-                               (readonly ? SHM_RDONLY : 0) | (type==0 ? SHM_REMAP : 0) \
-                              )                             \
-                     <0                                     \
-                   )                                        \
-                  goto no_mem;                              \
-                break;                                      \
-              default: break;                               \
-        }   }
-    #else
-      #define multimap1(type,typecases,imm_typecases,mapid,map_addr,map_len)  \
-        { switch (type)                                     \
-            { typecases                                     \
-                if ( map_mapid(mapid, combine(type,map_addr), map_len, \
-                               (type==0 ? SHM_REMAP : 0)    \
-                              )                             \
-                     <0                                     \
-                   )                                        \
-                  goto no_mem;                              \
-                switch (type)                               \
-                  { imm_typecases                           \
-                      xmprotect((aint)combine(type,map_addr),map_len,PROT_READ); \
-                      break;                                \
-                    default:                                \
-                      break;                                \
-                  }                                         \
-                break;                                      \
-              default: break;                               \
-        }   }
-    #endif
-  #endif
+  #define multimap1(type,typecases,mapid,map_addr,map_len)  \
+    { switch (type)                                  \
+        { typecases                                  \
+            if ( map_mapid(mapid, combine(type,map_addr), map_len, \
+                           (type==0 ? SHM_REMAP : 0) \
+                          )                          \
+                 <0                                  \
+               )                                     \
+              goto no_mem;                           \
+            break;                                   \
+          default: break;                            \
+    }   }
 
-  #if !defined(IMMUTABLE) || defined(GENERATIONAL_GC)
-    #define done_mapid(imm_flag,mapid,map_addr,map_len)  \
-      if ( close_mapid(mapid) <0) \
-        goto no_mem;
-    #if !defined(IMMUTABLE)
-      #define immutable_off()
-      #define immutable_on()
-    #endif
-    #define exitmap()
-  #else # defined(IMMUTABLE) && !defined(GENERATIONAL_GC)
-    typedef struct { int mm_mapid; aint mm_addr; uintL mm_len; } mmapping;
-    local mmapping bigblock[256]; # Hoffentlich reicht 256, da 256*64KB = 2^24 ??
-    local mmapping* bigblock_ptr = &bigblock[0];
-    # Wann werden Shared-Memory-Segmente freigegeben? Je nachdem,
-    # ob shmat() auf einem Shared-Memory-Segment funktioniert, das bereits
-    # mit shmctl(..,IPC_RMID,NULL) entfernt wurde, aber noch nattch > 0 hat.
-    #ifdef SHM_RMID_VALID # UNIX_LINUX || ...
-      #define SHM_RM_atonce  TRUE
-      #define SHM_RM_atexit  FALSE
-    #else # UNIX_SUNOS4 || ...
-      #define SHM_RM_atonce  FALSE
-      #define SHM_RM_atexit  TRUE
-    #endif
-    #define done_mapid(imm_flag,mapid,map_addr,map_len)  \
-      if (imm_flag)                                                          \
-        { bigblock_ptr->mm_mapid = mapid;                                    \
-          bigblock_ptr->mm_addr = map_addr; bigblock_ptr->mm_len = map_len;  \
-          bigblock_ptr++;                                                    \
-          if (SHM_RM_atonce)                                                 \
-            { if ( close_mapid(mapid) <0)                                    \
-                goto no_mem;                                                 \
-            }                                                                \
-        }                                                                    \
-        else                                                                 \
-        { if ( close_mapid(mapid) <0)                                        \
-            goto no_mem;                                                     \
-        }
-    local void immutable_off (void);
-    local void immutable_off()
-      { var tint* tptr = &imm_types[0];
-        var uintC count;
-        dotimesC(count,imm_types_count,
-          { var mmapping* ptr = &bigblock[0];
-            until (ptr==bigblock_ptr)
-              { var void* map_addr = combine(*tptr,ptr->mm_addr);
-                if ((shmdt(map_addr) <0) ||
-                    (map_mapid(ptr->mm_mapid, map_addr, ptr->mm_len, 0) <0))
-                  { asciz_out("Cannot remap immutable objects read/write.");
-                    errno_out(errno);
-                    quit_sofort(1);
-                  }
-                ptr++;
-              }
-            tptr++;
-          });
-      }
-    local void immutable_on (void);
-    local void immutable_on()
-      { var tint* tptr = &imm_types[0];
-        var uintC count;
-        dotimesC(count,imm_types_count,
-          { var mmapping* ptr = &bigblock[0];
-            until (ptr==bigblock_ptr)
-              { var void* map_addr = combine(*tptr,ptr->mm_addr);
-                if ((shmdt(map_addr) <0) ||
-                    (map_mapid(ptr->mm_mapid, map_addr, ptr->mm_len, SHM_RDONLY) <0))
-                  { asciz_out("Cannot remap immutable objects read-only.");
-                    errno_out(errno);
-                    quit_sofort(1);
-                  }
-                ptr++;
-              }
-            tptr++;
-          });
-      }
-    #if SHM_RM_atexit
-      #define exitmap()  \
-        { var mmapping* ptr = &bigblock[0];                                \
-          until (ptr==bigblock_ptr) { close_mapid(ptr->mm_mapid); ptr++; } \
-        }
-    #else
-      #define exitmap()
-    #endif
-  #endif
+  #define done_mapid(mapid,map_addr,map_len)  \
+    if ( close_mapid(mapid) <0) \
+      goto no_mem;
+  #define exitmap()
 
-  #define multimap(typecases,imm_typecases,imm_flag,total_map_addr,total_map_len,save_flag)  \
+  #define multimap(typecases,total_map_addr,total_map_len,save_flag)  \
     { var uintL remaining_len = total_map_len;                                     \
       var aint map_addr = total_map_addr;                                          \
       do { var uintL map_len = (remaining_len > SHMMAX ? SHMMAX : remaining_len);  \
@@ -1231,10 +939,10 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
            # und mehrfach überlagert in den Speicher legen:                        \
            { var oint type;                                                        \
              for (type=0; type < mm_types_count; type++)                           \
-               { multimap1(type,typecases,imm_typecases,mapid,map_addr,map_len); } \
+               { multimap1(type,typecases,mapid,map_addr,map_len); }               \
            }                                                                       \
            # und evtl. öffentlich unzugänglich machen:                             \
-           done_mapid(imm_flag,mapid,map_addr,map_len);                            \
+           done_mapid(mapid,map_addr,map_len);                                     \
            map_addr += map_len; remaining_len -= map_len;                          \
          }                                                                         \
          until (remaining_len==0);                                                 \
@@ -1279,9 +987,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
   # Despite of SINGLEMAP_MEMORY, a relocation may be necessary at loadmem() time.
   #define SINGLEMAP_MEMORY_RELOCATE
 #endif
-
-# Immutable Objekte gibt es nicht.
-  #define fehler_immutable()
 
 #endif # SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY
 
@@ -2376,7 +2081,7 @@ typedef struct { Pages pages;
 local /* uintL */ aint physpagesize;  # = map_pagesize
 local uintL physpageshift; # 2^physpageshift = physpagesize
 
-typedef enum { handler_failed, handler_immutable, handler_done }
+typedef enum { handler_failed, handler_done }
         handle_fault_result;
 local handle_fault_result handle_fault (aint address);
 
@@ -2457,7 +2162,7 @@ local int handle_read_fault(address,physpage)
     { var uintL count = physpage->cache_size;
       if (count > 0)
         { var old_new_pointer* ptr = physpage->cache;
-          #if !defined(NORMAL_MULTIMAP_MEMORY)
+          #if !defined(MULTIMAP_MEMORY)
           if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ_WRITE) < 0)
             return -1;
           #endif
@@ -2471,19 +2176,12 @@ local int handle_read_fault(address,physpage)
     #if !defined(WIDE_SOFT)
     ASSERT(address == upointer(address));
     #endif
-    #ifdef MINIMAL_MULTIMAP_MEMORY
-    if (mprotect((MMAP_ADDR_T)combine(0,address), physpagesize, PROT_READ) < 0)
-      return -1;
-    if (mprotect((MMAP_ADDR_T)combine(imm_type,address), physpagesize, PROT_READ) < 0)
-      return -1;
-    #else # NORMAL_MULTIMAP_MEMORY
     { var uintL type;
       for (type = 0; type < typecount; type++)
         if (mem.heapnr_from_type[type] >= 0) # type in MM_TYPECASES aufgeführt?
           { if (mprotect((MMAP_ADDR_T)combine(type,address), physpagesize, PROT_READ) < 0)
               return -1;
     }     }
-    #endif
     #endif
     physpage->protection = PROT_READ;
     return 0;
@@ -2495,21 +2193,17 @@ local int handle_readwrite_fault(address,physpage)
   var aint address;
   var physpage_state* physpage;
   { # Seite read-write einblenden:
-    #if !defined(NORMAL_MULTIMAP_MEMORY)
+    #if !defined(MULTIMAP_MEMORY)
     if (mprotect((MMAP_ADDR_T)address, physpagesize, PROT_READ_WRITE) < 0)
       return -1;
-    #else # NORMAL_MULTIMAP_MEMORY
+    #else # MULTIMAP_MEMORY
     ASSERT(address == upointer(address));
     { var uintL type;
       for (type = 0; type < typecount; type++)
         if (mem.heapnr_from_type[type] >= 0) # type in MM_TYPECASES aufgeführt?
-          switch (type)
-            { default:
-                if (mprotect((MMAP_ADDR_T)combine(type,address), physpagesize, PROT_READ_WRITE) < 0)
-                  return -1;
-              IMM_TYPECASES # type in IMM_TYPECASES aufgeführt -> bleibt read-only
-                break;
-    }       }
+          if (mprotect((MMAP_ADDR_T)combine(type,address), physpagesize, PROT_READ_WRITE) < 0)
+            return -1;
+    }
     #endif
     physpage->protection = PROT_READ_WRITE;
     return 0;
@@ -2532,21 +2226,6 @@ local handle_fault_result handle_fault(address)
     var object obj = as_object((oint)address << oint_addr_shift);
     var aint uaddress = canon(address); # hoffentlich = canonaddr(obj);
     var aint pa_uaddress = uaddress & -physpagesize; # page aligned address
-    #if defined(MULTIMAP_MEMORY) && defined(IMMUTABLE)
-    var boolean is_immutable;
-    #ifdef MINIMAL_MULTIMAP_MEMORY
-    is_immutable = (as_oint(obj) & bit(immutable_bit_o) ? TRUE : FALSE);
-    #else
-    switch (typecode(obj))
-      { IMM_TYPECASES # Zugriff auf ein immutables Objekt
-          is_immutable = TRUE; break;
-        default:
-          is_immutable = FALSE; break;
-      }
-    #endif
-    #else
-    #define is_immutable  0
-    #endif
     #ifdef SPVW_PURE_BLOCKS
     heapnr = typecode(obj);
     #elif defined(SPVW_MIXED_BLOCKS_STAGGERED)
@@ -2594,10 +2273,8 @@ local handle_fault_result handle_fault(address)
      #endif
      #ifdef GENERATIONAL_GC
      if (!is_heap_containing_objects(heapnr)) goto error1;
-     if (!((heap->heap_gen0_start <= uaddress) && (uaddress < heap->heap_gen0_end)))
-       { if (is_immutable) return handler_immutable; else goto error2; }
-     if (heap->physpages == NULL)
-       { if (is_immutable) return handler_immutable; else goto error5; }
+     if (!((heap->heap_gen0_start <= uaddress) && (uaddress < heap->heap_gen0_end))) goto error2;
+     if (heap->physpages == NULL) goto error5;
      #ifndef SELFMADE_MMAP
      pageno = (pa_uaddress>>physpageshift)-(heap->heap_gen0_start>>physpageshift);
      #endif
@@ -2609,13 +2286,9 @@ local handle_fault_result handle_fault(address)
             return handler_done;
           case PROT_READ:
             # protection: PROT_READ -> PROT_READ_WRITE
-            if (is_immutable)
-              return handler_immutable; # Schreibzugriff auf ein immutables Objekt
             if (handle_readwrite_fault(pa_uaddress,physpage) < 0) goto error7;
             return handler_done;
           case PROT_READ_WRITE:
-            if (is_immutable)
-              return handler_immutable; # Schreibzugriff auf ein immutables Objekt
             goto error8;
           default:
             goto error9;
@@ -2662,7 +2335,6 @@ local handle_fault_result handle_fault(address)
     }
     error:
     return handler_failed;
-    #undef is_immutable
   }
 
 #if (defined(GENERATIONAL_GC) && defined(SPVW_MIXED_BLOCKS)) || defined(SELFMADE_MMAP)
@@ -2674,24 +2346,7 @@ global boolean handle_fault_range(prot,start_address,end_address)
   var int prot;
   var aint start_address;
   var aint end_address;
-  {
-    #if defined(MULTIMAP_MEMORY) && defined(IMMUTABLE)
-    var boolean is_immutable;
-    #ifdef MINIMAL_MULTIMAP_MEMORY
-    is_immutable = (((oint)start_address << oint_addr_shift) & bit(immutable_bit_o) ? TRUE : FALSE);
-    #else # NORMAL_MULTIMAP_MEMORY
-    var tint type = typecode(as_object((oint)start_address << oint_addr_shift));
-    switch (type)
-      { IMM_TYPECASES # Zugriff auf ein immutables Objekt
-          is_immutable = TRUE; break;
-        default:
-          is_immutable = FALSE; break;
-      }
-    #endif
-    #else
-    #define is_immutable  0
-    #endif
-    start_address = canon(start_address);
+  { start_address = canon(start_address);
     end_address = canon(end_address);
     if (!(start_address < end_address)) { return TRUE; }
    {var Heap* heap = &mem.heaps[0]; # varobject_heap
@@ -2744,10 +2399,8 @@ global boolean handle_fault_range(prot,start_address,end_address)
     #ifdef GENERATIONAL_GC
     if (heap->physpages == NULL)
       { if (did_pagein) { return TRUE; }
-        if (is_immutable) { fehler_immutable(); }
         return FALSE;
       }
-    if ((prot == PROT_READ_WRITE) && is_immutable) { fehler_immutable(); }
     { var aint pa_uaddress;
       for (pa_uaddress = start_address & -physpagesize; pa_uaddress < end_address; pa_uaddress += physpagesize)
         if ((heap->heap_gen0_start <= pa_uaddress) && (pa_uaddress < heap->heap_gen0_end))
@@ -2768,7 +2421,6 @@ global boolean handle_fault_range(prot,start_address,end_address)
     #else
     return did_pagein;
     #endif
-    #undef is_immutable
   }}
 #endif
 
@@ -2820,16 +2472,11 @@ local void xmprotect(addr,len,prot)
     var uintL len;
     var int prot;
     { unused heap;
-      #ifdef NORMAL_MULTIMAP_MEMORY
       { var uintL type;
         for (type = 0; type < typecount; type++)
           if (mem.heapnr_from_type[type] >= 0) # type in MM_TYPECASES aufgeführt?
             { xmprotect((aint)combine(type,addr),len,prot); }
       }
-      #else # MINIMAL_MULTIMAP_MEMORY
-      xmprotect((aint)combine(0,addr),len,prot);
-      xmprotect((aint)combine(imm_type,addr),len,prot);
-      #endif
     }
 #else
   # Nur ein Adreßbereich
@@ -2876,132 +2523,6 @@ local void xmprotect(addr,len,prot)
     #define xmmprotect(heap,addr,len,prot)  xmprotect(addr,len,prot)
   #endif
 #endif
-
-#ifdef IMMUTABLE # impliziert SPVW_MIXED_BLOCKS_OPPOSITE
-
-# Implementation von immutable_on() und immutable_off(), basierend auf
-# mprotect(). Nur für Betriebssysteme, die mprotect() auf Shared Memory
-# korrekt implementieren.
-
-  # immutable_on_off(...);
-  # modifiziert die Protection der Seiten, die zu den Typcodes in IMM_TYPECASES
-  # gehören.
-  # physpage->protection == PROT_NONE --> mprotect(..,..,PROT_NONE)
-  # physpage->protection == PROT_READ --> mprotect(..,..,PROT_READ)
-  # physpage->protection == PROT_READ_WRITE && flag --> mprotect(..,..,PROT_READ)
-  # physpage->protection == PROT_READ_WRITE && !flag --> mprotect(..,..,PROT_READ_WRITE)
-
-  # mehrfaches mprotect() auf alle Immutable-Mappings eines Adreßbereiches
-  local void ximmprotect (aint addr, uintL len, int prot);
-  local void ximmprotect(addr,len,prot)
-    var aint addr;
-    var uintL len;
-    var int prot;
-    {
-      #ifdef NORMAL_MULTIMAP_MEMORY
-      var uintL type;
-      for (type = 0; type < typecount; type++)
-        switch (type)
-          { IMM_TYPECASES # type in IMM_TYPECASES aufgeführt?
-              xmprotect((aint)combine(type,addr),len,prot);
-              break;
-            default:
-              break;
-          }
-      #else # MINIMAL_MULTIMAP_MEMORY
-      xmprotect((aint)combine(imm_type,addr),len,prot);
-      #endif
-    }
-
-  local void immutable_on_off (int oldprotrw, int newprotrw);
-  local void immutable_on_off(oldprotrw,newprotrw)
-    var int oldprotrw;
-    var int newprotrw;
-    { var aint address;
-      # Minimiere die Anzahl der nötigen mprotect()-Aufrufe: Auf Halde steht
-      # ein mprotect-Aufruf für das Intervall [todo_address,address-1].
-      var aint todo_address = 0;
-      var int todo_prot; # Parameter für mprotect-Aufruf, falls !(todo_address==0)
-      #define do_todo()  \
-        { if (todo_address)                                               \
-            { if (todo_address < address)                                 \
-                ximmprotect(todo_address,address-todo_address,todo_prot); \
-              todo_address = 0;                                           \
-        }   }
-      #define addto_todo(old_prot,new_prot)  \
-        { if (todo_address && (todo_prot == new_prot))            \
-            {} # incrementiere address                            \
-            else                                                  \
-            { do_todo();                                          \
-              if (!(old_prot==new_prot))                          \
-                { todo_address = address; todo_prot = new_prot; } \
-        }   }
-      # Heap 0 durchlaufen:
-      { var Heap* heap = &mem.heaps[0];
-        address = heap->heap_gen0_start & -physpagesize;
-        if (heap->physpages == NULL)
-          { addto_todo(oldprotrw,newprotrw); }
-          else
-          { var physpage_state* physpage = heap->physpages;
-            var uintL pagecount =
-              (((heap->heap_gen0_end + (physpagesize-1)) & -physpagesize)
-               - (heap->heap_gen0_start & -physpagesize)
-              ) >> physpageshift;
-            var uintL count;
-            dotimesL(count,pagecount,
-              { switch (physpage->protection)
-                  { case PROT_NONE: addto_todo(PROT_NONE,PROT_NONE); break;
-                    case PROT_READ: addto_todo(PROT_READ,PROT_READ); break;
-                    case PROT_READ_WRITE: addto_todo(oldprotrw,newprotrw); break;
-                    default: abort();
-                  }
-                physpage++;
-                address += physpagesize;
-              });
-          }
-        address = (heap->heap_gen0_end + (physpagesize-1)) & -physpagesize;
-        #if 0 # unnötig
-        addto_todo(oldprotrw,newprotrw);
-        address = (heap->heap_end + (physpagesize-1)) & -physpagesize;
-        #endif
-      }
-      # Nun kommen Generation 1 von Heap 0, die große Lücke, Generation 1 von Heap 1.
-      addto_todo(oldprotrw,newprotrw);
-      # Heap 1 durchlaufen:
-      { var Heap* heap = &mem.heaps[1];
-        #if 0 # unnötig
-        address = heap->heap_start & -physpagesize;
-        addto_todo(oldprotrw,newprotrw);
-        #endif
-        address = heap->heap_gen0_start & -physpagesize;
-        if (heap->physpages == NULL)
-          { addto_todo(oldprotrw,newprotrw); }
-          else
-          { var physpage_state* physpage = heap->physpages;
-            var uintL pagecount =
-              (((heap->heap_gen0_end + (physpagesize-1)) & -physpagesize)
-               - (heap->heap_gen0_start & -physpagesize)
-              ) >> physpageshift;
-            var uintL i;
-            for (i = 0; i < pagecount; i++, physpage++, address += physpagesize)
-              switch (physpage->protection)
-                { case PROT_NONE: addto_todo(PROT_NONE,PROT_NONE); break;
-                  case PROT_READ: addto_todo(PROT_READ,PROT_READ); break;
-                  case PROT_READ_WRITE: addto_todo(oldprotrw,newprotrw); break;
-                  default: abort();
-                }
-          }
-        address = (heap->heap_gen0_end + (physpagesize-1)) & -physpagesize;
-      }
-      do_todo();
-      #undef addto_todo
-      #undef do_todo
-    }
-
-  #define immutable_off()  immutable_on_off(PROT_READ,PROT_READ_WRITE)
-  #define immutable_on()  immutable_on_off(PROT_READ_WRITE,PROT_READ)
-
-#endif # IMMUTABLE && GENERATIONAL_GC
 
 # Versionen von malloc() und realloc(), bei denen der Input auch = NULL sein darf:
   #define xfree(ptr)  \
@@ -5802,12 +5323,6 @@ local uintC generation;
     #define gc_signalblock_off()
   #endif
 
-# GC-bedingt Immutabilität von Objekten aufheben:
-  #ifndef MULTIMAP_MEMORY
-    #define immutable_off()
-    #define immutable_on()
-  #endif
-
 # Normale Garbage Collection durchführen:
   local void gar_col_normal(void);
   local void gar_col_normal()
@@ -5826,7 +5341,6 @@ local uintC generation;
         vadvise(VA_ANOM); # Paging-Verhalten wird jetzt etwas ungewöhnlich
         end_system_call();
       #endif
-      immutable_off(); # immutable Objekte werden jetzt modifizierbar
       CHECK_GC_UNMARKED(); CHECK_NULLOBJ(); CHECK_GC_CACHE(); CHECK_GC_GENERATIONAL(); SAVE_GC_DATA();
       #ifdef SPVW_PAGES
         { var uintL heapnr;
@@ -6252,7 +5766,6 @@ local uintC generation;
           }
         end_system_call();
       #endif
-      immutable_on();
       # von dieser GC benötigte Zeit zur GC-Gesamtzeit addieren:
       gc_timer_off();
       #ifdef GC_CLOSES_FILES
@@ -6522,7 +6035,6 @@ local uintC generation;
       set_break_sem_1(); # BREAK während Garbage Collection sperren
       gc_signalblock_on(); # Signale während Garbage Collection sperren
       gc_timer_on();
-      immutable_off(); # immutable Objekte werden jetzt modifizierbar
       CHECK_GC_UNMARKED(); CHECK_NULLOBJ();
       { var uintL heapnr;
         for (heapnr=0; heapnr<heapcount; heapnr++)
@@ -6594,7 +6106,6 @@ local uintC generation;
       CHECK_GC_CONSISTENCY();
       CHECK_GC_UNMARKED(); CHECK_NULLOBJ();
       CHECK_PACK_CONSISTENCY();
-      immutable_on();
       gc_timer_off();
       gc_signalblock_off(); # Signale wieder freigeben
       clr_break_sem_1(); # BREAK wieder ermöglichen
@@ -7543,11 +7054,7 @@ local uintC generation;
   global object make_symbol (object string);
   global object make_symbol(string)
     var object string;
-    {
-      #ifdef IMMUTABLE_ARRAY
-      string = make_imm_array(string); # String immutabel machen
-      #endif
-      pushSTACK(string); # String retten
+    { pushSTACK(string); # String retten
       #define FILL  \
         { ptr->symvalue = unbound; # leere Wertzelle         \
           ptr->symfunction = unbound; # leere Funktionszelle \
@@ -8142,7 +7649,7 @@ local uintC generation;
   local boolean mlb_add(bitmap,obj)
     var mlbitmap* bitmap;
     var object obj;
-    { var aint addr = UnImm((aint)ThePointer(obj));
+    { var aint addr = (aint)ThePointer(obj);
       #if (mlb_levels >= 6)
       var uintL******* p6 = &bitmap->base;
       if (*p6)
@@ -8625,32 +8132,20 @@ local uintC generation;
       switch (typecode(obj)) # je nach Typ
       #else
       if (orecordp(obj)) { goto case_orecord; }
-      elif (consp(obj)) { goto case_mut_cons; }
+      elif (consp(obj)) { goto case_cons; }
       else { goto m_end; }
       switch (0)
       #endif
-        { case_mut_cons:
+        { case_cons:
             if (marked(TheCons(obj))) goto m_schon_da; # markiert?
             { var object obj_cdr = Cdr(obj); # Komponenten (ohne Markierungsbit)
               var object obj_car = Car(obj);
-              mark(UnImm(TheCons(obj))); # markieren
+              mark(TheCons(obj)); # markieren
               if (SP_overflow()) # SP-Tiefe überprüfen
                 longjmp(env->abbruch_context,TRUE); # Abbruch
               get_circ_mark(obj_car,env); # CAR markieren (rekursiv)
               obj = obj_cdr; goto entry; # CDR markieren (tail-end-rekursiv)
             }
-          #if defined(IMMUTABLE_CONS) && !defined(WIDE_SOFT)
-          case imm_cons_type:
-            if (marked(TheCons(obj))) goto m_schon_da; # markiert?
-            { var object obj_cdr = Cdr(obj); # Komponenten (ohne Markierungsbit)
-              var object obj_car = Car(obj);
-              mark(TheImmCons(obj)); # markieren
-              if (SP_overflow()) # SP-Tiefe überprüfen
-                longjmp(env->abbruch_context,TRUE); # Abbruch
-              get_circ_mark(obj_car,env); # CAR markieren (rekursiv)
-              obj = obj_cdr; goto entry; # CDR markieren (tail-end-rekursiv)
-            }
-          #endif
           case_symbol:
             if (marked(TheSymbol(obj))) # markiert?
               if (eq(Symbol_package(obj),NIL)) # uninterniertes Symbol?
@@ -8660,15 +8155,8 @@ local uintC generation;
             # bisher unmarkiertes Symbol
             mark(TheSymbol(obj)); # markieren
             goto m_end;
-          case_mut_bvector: # Bit-Vector
-          case_mut_string: # String
-           #if defined(IMMUTABLE_ARRAY) && defined(WIDE_SOFT)
-            # Objekt ohne Komponenten, die ausgegeben werden:
-            if (marked(ThePointer(obj))) goto m_schon_da; # markiert?
-            # bisher unmarkiert
-            mark(UnImm(ThePointer(obj))); # markieren
-            goto m_end;
-           #endif
+          case_bvector: # Bit-Vector
+          case_string: # String
           case_bignum: # Bignum
           #ifndef WIDE
           case_ffloat: # Single-Float
@@ -8682,19 +8170,10 @@ local uintC generation;
             # bisher unmarkiert
             mark(ThePointer(obj)); # markieren
             goto m_end;
-          #if defined(IMMUTABLE_ARRAY) && !defined(WIDE_SOFT)
-          case imm_sbvector_type: case imm_bvector_type: # immutabler Bit-Vector
-          case imm_sstring_type: case imm_string_type: # immutabler String
-            # immutables Objekt ohne Komponenten, die ausgegeben werden:
-            if (marked(ThePointer(obj))) goto m_schon_da; # markiert?
-            # bisher unmarkiert
-            mark(TheImmArray(obj)); # markieren
-            goto m_end;
-          #endif
-          case_mut_svector: # Simple-Vector
+          case_svector: # Simple-Vector
             if (marked(TheSvector(obj))) goto m_schon_da; # markiert?
             # bisher unmarkiert
-            mark(UnImm(TheSvector(obj))); # markieren
+            mark(TheSvector(obj)); # markieren
             m_svector:
             if (env->pr_array) # Komponenten weiterzuverfolgen?
               { var uintL count = Svector_length(obj);
@@ -8706,29 +8185,16 @@ local uintC generation;
                     dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); # markiere Komponenten (rekursiv)
               }   }
             goto m_end;
-          case_mut_mdarray: case_mut_ovector:
+          case_mdarray: case_ovector:
             # Nicht-simpler Array mit Komponenten, die Objekte sind:
             if (marked(TheIarray(obj))) goto m_schon_da; # markiert?
             # bisher unmarkiert
-            mark(UnImm(TheIarray(obj))); # markieren
+            mark(TheIarray(obj)); # markieren
             m_array:
             if (env->pr_array) # Komponenten weiterzuverfolgen?
               { obj=TheIarray(obj)->data; goto entry; } # Datenvektor (tail-end-rekursiv) markieren
               else
               goto m_end;
-          #if defined(IMMUTABLE_ARRAY) && !defined(WIDE_SOFT)
-          case imm_svector_type: # immutabler Simple-Vector
-            if (marked(TheSvector(obj))) goto m_schon_da; # markiert?
-            # bisher unmarkiert
-            mark(TheImmSvector(obj)); # markieren
-            goto m_svector;
-          case imm_mdarray_type: case imm_vector_type:
-            # immutabler nicht-simpler Array mit Komponenten, die Objekte sind:
-            if (marked(TheIarray(obj))) goto m_schon_da; # markiert?
-            # bisher unmarkiert
-            mark(TheImmArray(obj)); # markieren
-            goto m_array;
-          #endif
           case_closure: # Closure
             if (marked(TheClosure(obj))) goto m_schon_da; # markiert?
             # bisher unmarkiert
@@ -8763,17 +8229,17 @@ local uintC generation;
               {
                 #ifndef TYPECODES
                 case_Rectype_Symbol_above;
-                case Rectype_Sbvector: case Rectype_bvector: goto case_mut_bvector;
-                case Rectype_Sstring: case Rectype_string: goto case_mut_string;
+                case_Rectype_bvector_above;
+                case_Rectype_string_above;
                 case_Rectype_Bignum_above;
                 case_Rectype_Ffloat_above;
                 case_Rectype_Dfloat_above;
                 case_Rectype_Lfloat_above;
                 case_Rectype_Ratio_above;
                 case_Rectype_Complex_above;
-                case Rectype_Svector: goto case_mut_svector;
-                case Rectype_mdarray: goto case_mut_mdarray;
-                case Rectype_vector: goto case_mut_ovector;
+                case_Rectype_Svector_above;
+                case_Rectype_mdarray_above;
+                case_Rectype_ovector_above;
                 #endif
                 case_Rectype_Closure_above;
                 case_Rectype_Structure_above;
@@ -8843,29 +8309,17 @@ local uintC generation;
       switch (typecode(obj) & ~bit(garcol_bit_t)) # je nach Typinfo ohne garcol_bit
       #else
       if (orecordp(obj)) { goto case_orecord; }
-      elif (consp(obj)) { goto case_mut_cons; }
+      elif (consp(obj)) { goto case_cons; }
       else { goto u_end; }
       switch (0)
       #endif
-        { case_mut_cons:
+        { case_cons:
             if (!marked(TheCons(obj))) goto u_end; # schon demarkiert?
-            unmark(UnImm(TheCons(obj))); # demarkieren
+            unmark(TheCons(obj)); # demarkieren
             get_circ_unmark(Car(obj),env); # CAR demarkieren (rekursiv)
             obj=Cdr(obj); goto entry; # CDR demarkieren (tail-end-rekursiv)
-          #if defined(IMMUTABLE_CONS) && !defined(WIDE_SOFT)
-          case imm_cons_type:
-            if (!marked(TheCons(obj))) goto u_end; # schon demarkiert?
-            unmark(TheImmCons(obj)); # demarkieren
-            get_circ_unmark(Car(obj),env); # CAR demarkieren (rekursiv)
-            obj=Cdr(obj); goto entry; # CDR demarkieren (tail-end-rekursiv)
-          #endif
-          case_mut_bvector: # Bit-Vector
-          case_mut_string: # String
-           #if defined(IMMUTABLE_ARRAY) && defined(WIDE_SOFT)
-            # Objekt demarkieren, das keine markierten Komponenten hat:
-            unmark(UnImm(ThePointer(obj))); # demarkieren
-            goto u_end;
-           #endif
+          case_bvector: # Bit-Vector
+          case_string: # String
           case_symbol:
             # Symbol demarkieren. Wertzelle etc. für PRINT unwesentlich.
           case_bignum: # Bignum
@@ -8879,17 +8333,10 @@ local uintC generation;
             # Objekt demarkieren, das keine markierten Komponenten hat:
             unmark(ThePointer(obj)); # demarkieren
             goto u_end;
-          #if defined(IMMUTABLE_ARRAY) && !defined(WIDE_SOFT)
-          case imm_sbvector_type: case imm_bvector_type: # immutabler Bit-Vector
-          case imm_sstring_type: case imm_string_type: # immutabler String
-            # immutables Objekt demarkieren, das keine markierten Komponenten hat:
-            unmark(TheImmArray(obj)); # demarkieren
-            goto u_end;
-          #endif
-          case_mut_svector:
+          case_svector:
             # Simple-Vector demarkieren, seine Komponenten ebenfalls:
             if (!marked(TheSvector(obj))) goto u_end; # schon demarkiert?
-            unmark(UnImm(TheSvector(obj))); # demarkieren
+            unmark(TheSvector(obj)); # demarkieren
             u_svector:
             if (env->pr_array) # wurden die Komponenten weiterverfolgt?
               { var uintL count = Svector_length(obj);
@@ -8899,27 +8346,15 @@ local uintC generation;
                     dotimespL(count,count, { get_circ_unmark(*ptr++,env); } ); # demarkiere Komponenten (rekursiv)
               }   }
             goto u_end;
-          case_mut_mdarray: case_mut_ovector:
+          case_mdarray: case_ovector:
             # Nicht-simpler Array mit Komponenten, die Objekte sind:
             if (!marked(TheIarray(obj))) goto u_end; # schon demarkiert?
-            unmark(UnImm(TheIarray(obj))); # demarkieren
+            unmark(TheIarray(obj)); # demarkieren
             u_array:
             if (env->pr_array) # wurden die Komponenten weiterverfolgt?
               { obj=TheIarray(obj)->data; goto entry; } # Datenvektor (tail-end-rekursiv) demarkieren
               else
               goto u_end;
-          #if defined(IMMUTABLE_ARRAY) && !defined(WIDE_SOFT)
-          case imm_svector_type:
-            # immutablen Simple-Vector demarkieren, seine Komponenten ebenfalls:
-            if (!marked(TheSvector(obj))) goto u_end; # schon demarkiert?
-            unmark(TheImmSvector(obj)); # demarkieren
-            goto u_svector;
-          case imm_mdarray_type: case imm_vector_type:
-            # immutabler nicht-simpler Array mit Komponenten, die Objekte sind:
-            if (!marked(TheIarray(obj))) goto u_end; # schon demarkiert?
-            unmark(TheImmArray(obj)); # demarkieren
-            goto u_array;
-          #endif
           case_closure: # Closure demarkieren
             if (!marked(TheClosure(obj))) goto u_end; # schon demarkiert?
             unmark(TheClosure(obj)); # demarkieren
@@ -8949,8 +8384,8 @@ local uintC generation;
             switch (Record_type(obj))
               {
                 #ifndef TYPECODES
-                case Rectype_Sbvector: case Rectype_bvector: goto case_mut_bvector;
-                case Rectype_Sstring: case Rectype_string: goto case_mut_string;
+                case_Rectype_bvector_above;
+                case_Rectype_string_above;
                 case_Rectype_Symbol_above;
                 case_Rectype_Bignum_above;
                 case_Rectype_Ffloat_above;
@@ -8958,9 +8393,9 @@ local uintC generation;
                 case_Rectype_Lfloat_above;
                 case_Rectype_Ratio_above;
                 case_Rectype_Complex_above;
-                case Rectype_Svector: goto case_mut_svector;
-                case Rectype_mdarray: goto case_mut_mdarray;
-                case Rectype_vector: goto case_mut_ovector;
+                case_Rectype_Svector_above;
+                case_Rectype_mdarray_above;
+                case_Rectype_ovector_above;
                 #endif
                 case_Rectype_Closure_above;
                 case_Rectype_Structure_above;
@@ -9070,7 +8505,7 @@ local uintC generation;
             # alle Elemente durchlaufen:
             { var uintL len = Svector_length(obj);
               if (!(len==0))
-                { var object* objptr = &((Svector)UnImm(TheSvector(obj)))->data[0];
+                { var object* objptr = &TheSvector(obj)->data[0];
                   dotimespL(len,len, { subst_circ_mark(&(*objptr++),env); } );
             }   }
             return;
@@ -9079,7 +8514,7 @@ local uintC generation;
             # nicht-simpler Array, kein String oder Bit-Vektor
             if (mlb_add(&env->bitmap,obj)) return; # Objekt schon markiert?
             # Datenvektor durchlaufen: endrekursiv subst_circ_mark(Datenvektor)
-            ptr = &((Iarray)UnImm(TheIarray(obj)))->data; goto enter_subst;
+            ptr = &TheIarray(obj)->data; goto enter_subst;
           case_closure: _case_structure _case_stream case_orecord: case_instance: # Record
             #ifndef TYPECODES
             switch (Record_type(obj))
@@ -9140,9 +8575,9 @@ local uintC generation;
           case_cons: # Cons
             if (mlb_add(&env->bitmap,obj)) return; # Objekt schon markiert?
             # rekursiv: subst_circ_mark(&Car(obj))
-            subst_circ_mark(&((Cons)UnImm(TheCons(obj)))->car,env);
+            subst_circ_mark(&TheCons(obj)->car,env);
             # endrekursiv: subst_circ_mark(&Cdr(obj))
-            ptr = &((Cons)UnImm(TheCons(obj)))->cdr; goto enter_subst;
+            ptr = &TheCons(obj)->cdr; goto enter_subst;
           case_machine: # Maschinenpointer
           case_bvector: # Bit-Vektor
           case_string: # String
@@ -9216,7 +8651,7 @@ local uintC generation;
       switch (mtypecode(*ptr))
       #else
       if (orecordp(obj)) { goto case_orecord; }
-      elif (consp(obj)) { goto case_mut_cons; }
+      elif (consp(obj)) { goto case_cons; }
       elif (immediate_number_p(obj)) { goto case_number; }
       elif (charp(obj)) { goto case_char; }
       elif (subrp(obj)) { goto case_subr; }
@@ -9225,40 +8660,25 @@ local uintC generation;
       elif (systemp(obj)) { return; }
       else switch (0)
       #endif
-        { case_mut_svector: # Simple-Vector
+        { case_svector: # Simple-Vector
             # alle Elemente durchlaufen:
             { var uintL len = Svector_length(obj);
               if (!(len==0))
-                { var object* objptr = &((Svector)UnImm(TheSvector(obj)))->data[0];
+                { var object* objptr = &TheSvector(obj)->data[0];
                   dotimespL(len,len, { subst(&(*objptr++)); } );
             }   }
             break;
-          case_mut_mdarray:
-          case_mut_ovector:
+          case_mdarray:
+          case_ovector:
             # nicht-simpler Array, kein String oder Bit-Vektor
             # Datenvektor durchlaufen: endrekursiv subst(Datenvektor)
-            ptr = &((Iarray)UnImm(TheIarray(obj)))->data; goto enter_subst;
-          #if defined(IMMUTABLE_ARRAY) && !defined(WIDE_SOFT)
-          case imm_svector_type: # immutabler Simple-Vector
-            # alle Elemente durchlaufen:
-            { var uintL len = Svector_length(obj);
-              if (!(len==0))
-                { var object* objptr = &TheImmSvector(obj)->data[0];
-                  dotimespL(len,len, { subst(&(*objptr++)); } );
-            }   }
-            break;
-          case imm_mdarray_type:
-          case imm_vector_type:
-            # nicht-simpler Array, kein String oder Bit-Vektor
-            # Datenvektor durchlaufen: endrekursiv subst(Datenvektor)
-            ptr = &TheImmArray(obj)->data; goto enter_subst;
-          #endif
+            ptr = &TheIarray(obj)->data; goto enter_subst;
           case_closure: _case_structure _case_stream case_orecord: case_instance: # Record
             #ifndef TYPECODES
             switch (Record_type(obj))
-              { case Rectype_Svector: goto case_mut_svector;
-                case Rectype_mdarray: goto case_mut_mdarray;
-                case Rectype_vector: goto case_mut_ovector;
+              { case_Rectype_Svector_above;
+                case_Rectype_mdarray_above;
+                case_Rectype_ovector_above;
                 case_Rectype_bvector_above;
                 case_Rectype_string_above;
                 case_Rectype_number_above;
@@ -9304,18 +8724,11 @@ local uintC generation;
                   longjmp(subst_circ_jmpbuf,TRUE);
                 }
             break;
-          case_mut_cons: # Cons
+          case_cons: # Cons
             # rekursiv: subst(&Car(obj))
-            subst(&((Cons)UnImm(TheCons(obj)))->car);
+            subst(&TheCons(obj)->car);
             # endrekursiv: subst(&Cdr(obj))
-            ptr = &((Cons)UnImm(TheCons(obj)))->cdr; goto enter_subst;
-          #if defined(IMMUTABLE_CONS) && !defined(WIDE_SOFT)
-          case imm_cons_type: # immutables Cons
-            # rekursiv: subst(&Car(obj))
-            subst(&TheImmCons(obj)->car);
-            # endrekursiv: subst(&Cdr(obj))
-            ptr = &TheImmCons(obj)->cdr; goto enter_subst;
-          #endif
+            ptr = &TheCons(obj)->cdr; goto enter_subst;
           case_machine: # Maschinenpointer
           case_bvector: # Bit-Vektor
           case_string: # String
@@ -9381,7 +8794,7 @@ local uintC generation;
       switch (typecode(obj))
       #else
       if (orecordp(obj)) { goto case_orecord; }
-      elif (consp(obj)) { goto case_mut_cons; }
+      elif (consp(obj)) { goto case_cons; }
       elif (immediate_number_p(obj)) { goto case_number; }
       elif (charp(obj)) { goto case_char; }
       elif (subrp(obj)) { goto case_subr; }
@@ -9390,48 +8803,29 @@ local uintC generation;
       elif (systemp(obj)) { return; }
       else switch (0)
       #endif
-        { case_mut_svector: # Simple-Vector
+        { case_svector: # Simple-Vector
             if (marked(TheSvector(obj))) return; # Objekt schon markiert?
-            mark(UnImm(TheSvector(obj))); # markieren
+            mark(TheSvector(obj)); # markieren
             # alle Elemente durchlaufen:
             { var uintL len = Svector_length(obj);
               if (!(len==0))
-                { var object* objptr = &((Svector)UnImm(TheSvector(obj)))->data[0];
+                { var object* objptr = &TheSvector(obj)->data[0];
                   dotimespL(len,len, { subst_circ_mark(&(*objptr++)); } );
             }   }
             return;
-          case_mut_mdarray:
-          case_mut_ovector:
+          case_mdarray:
+          case_ovector:
             # nicht-simpler Array, kein String oder Bit-Vektor
             if (marked(TheIarray(obj))) return; # Objekt schon markiert?
-            mark(UnImm(TheIarray(obj))); # markieren
+            mark(TheIarray(obj)); # markieren
             # Datenvektor durchlaufen: endrekursiv subst_circ_mark(Datenvektor)
-            ptr = &((Iarray)UnImm(TheIarray(obj)))->data; goto enter_subst;
-          #if defined(IMMUTABLE_ARRAY) && !defined(WIDE_SOFT)
-          case imm_svector_type: # immutabler Simple-Vector
-            if (marked(TheSvector(obj))) return; # Objekt schon markiert?
-            mark(TheImmSvector(obj)); # markieren
-            # alle Elemente durchlaufen:
-            { var uintL len = Svector_length(obj);
-              if (!(len==0))
-                { var object* objptr = &TheImmSvector(obj)->data[0];
-                  dotimespL(len,len, { subst_circ_mark(&(*objptr++)); } );
-            }   }
-            return;
-          case imm_mdarray_type:
-          case imm_vector_type:
-            # nicht-simpler Array, kein String oder Bit-Vektor
-            if (marked(TheIarray(obj))) return; # Objekt schon markiert?
-            mark(TheImmArray(obj)); # markieren
-            # Datenvektor durchlaufen: endrekursiv subst_circ_mark(Datenvektor)
-            ptr = &TheImmArray(obj)->data; goto enter_subst;
-          #endif
+            ptr = &TheIarray(obj)->data; goto enter_subst;
           case_closure: _case_structure _case_stream case_orecord: case_instance: # Record
             #ifndef TYPECODES
             switch (Record_type(obj))
-              { case Rectype_Svector: goto case_mut_svector;
-                case Rectype_mdarray: goto case_mut_mdarray;
-                case Rectype_vector: goto case_mut_ovector;
+              { case_Rectype_Svector_above;
+                case_Rectype_mdarray_above;
+                case_Rectype_ovector_above;
                 case_Rectype_bvector_above;
                 case_Rectype_string_above;
                 case_Rectype_number_above;
@@ -9484,22 +8878,13 @@ local uintC generation;
                   longjmp(subst_circ_jmpbuf,TRUE);
                 }
             return;
-          case_mut_cons: # Cons
+          case_cons: # Cons
             if (marked(TheCons(obj))) return; # Objekt schon markiert?
-            mark(UnImm(TheCons(obj))); # markieren
+            mark(TheCons(obj)); # markieren
             # rekursiv: subst_circ_mark(&Car(obj))
-            subst_circ_mark(&((Cons)UnImm(TheCons(obj)))->car);
+            subst_circ_mark(&TheCons(obj)->car);
             # endrekursiv: subst_circ_mark(&Cdr(obj))
-            ptr = &((Cons)UnImm(TheCons(obj)))->cdr; goto enter_subst;
-          #if defined(IMMUTABLE_CONS) && !defined(WIDE_SOFT)
-          case imm_cons_type: # immutables Cons
-            if (marked(TheCons(obj))) return; # Objekt schon markiert?
-            mark(TheImmCons(obj)); # markieren
-            # rekursiv: subst_circ_mark(&Car(obj))
-            subst_circ_mark(&TheImmCons(obj)->car);
-            # endrekursiv: subst_circ_mark(&Cdr(obj))
-            ptr = &TheImmCons(obj)->cdr; goto enter_subst;
-          #endif
+            ptr = &TheCons(obj)->cdr; goto enter_subst;
           case_machine: # Maschinenpointer
           case_bvector: # Bit-Vektor
           case_string: # String
@@ -9520,7 +8905,7 @@ local uintC generation;
       switch (typecode(obj))
       #else
       if (orecordp(obj)) { goto case_orecord; }
-      elif (consp(obj)) { goto case_mut_cons; }
+      elif (consp(obj)) { goto case_cons; }
       elif (immediate_number_p(obj)) { goto case_number; }
       elif (charp(obj)) { goto case_char; }
       elif (subrp(obj)) { goto case_subr; }
@@ -9528,48 +8913,29 @@ local uintC generation;
       elif (read_label_p(obj) || systemp(obj)) { goto case_system; }
       else switch (0)
       #endif
-        { case_mut_svector: # Simple-Vector
+        { case_svector: # Simple-Vector
             if (!marked(TheSvector(obj))) return; # schon demarkiert?
-            unmark(UnImm(TheSvector(obj))); # demarkieren
+            unmark(TheSvector(obj)); # demarkieren
             # alle Elemente durchlaufen:
             { var uintL len = Svector_length(obj);
               if (!(len==0))
-                { var object* objptr = &((Svector)UnImm(TheSvector(obj)))->data[0];
+                { var object* objptr = &TheSvector(obj)->data[0];
                   dotimespL(len,len, { subst_circ_unmark(&(*objptr++)); } );
             }   }
             return;
-          case_mut_mdarray:
-          case_mut_ovector:
+          case_mdarray:
+          case_ovector:
             # nicht-simpler Array, kein String oder Bit-Vektor
             if (!marked(TheIarray(obj))) return; # schon demarkiert?
-            unmark(UnImm(TheIarray(obj))); # demarkieren
+            unmark(TheIarray(obj)); # demarkieren
             # Datenvektor durchlaufen: endrekursiv subst_circ_unmark(Datenvektor)
-            ptr = &((Iarray)UnImm(TheIarray(obj)))->data; goto enter_subst;
-          #if defined(IMMUTABLE_ARRAY) && !defined(WIDE_SOFT)
-          case imm_svector_type: # immutabler Simple-Vector
-            if (!marked(TheSvector(obj))) return; # schon demarkiert?
-            unmark(TheImmSvector(obj)); # demarkieren
-            # alle Elemente durchlaufen:
-            { var uintL len = Svector_length(obj);
-              if (!(len==0))
-                { var object* objptr = &TheImmSvector(obj)->data[0];
-                  dotimespL(len,len, { subst_circ_unmark(&(*objptr++)); } );
-            }   }
-            return;
-          case imm_mdarray_type:
-          case imm_vector_type:
-            # nicht-simpler Array, kein String oder Bit-Vektor
-            if (!marked(TheIarray(obj))) return; # schon demarkiert?
-            unmark(TheImmArray(obj)); # demarkieren
-            # Datenvektor durchlaufen: endrekursiv subst_circ_unmark(Datenvektor)
-            ptr = &TheImmArray(obj)->data; goto enter_subst;
-          #endif
+            ptr = &TheIarray(obj)->data; goto enter_subst;
           case_closure: _case_structure _case_stream case_orecord: case_instance: # Record
             #ifndef TYPECODES
             switch (Record_type(obj))
-              { case Rectype_Svector: goto case_mut_svector;
-                case Rectype_mdarray: goto case_mut_mdarray;
-                case Rectype_vector: goto case_mut_ovector;
+              { case_Rectype_Svector_above;
+                case_Rectype_mdarray_above;
+                case_Rectype_ovector_above;
                 case_Rectype_bvector_above;
                 case_Rectype_string_above;
                 case_Rectype_number_above;
@@ -9586,22 +8952,13 @@ local uintC generation;
                   dotimespC(len,len, { subst_circ_unmark(&(*objptr++)); } );
             }   }
             return;
-          case_mut_cons: # Cons
+          case_cons: # Cons
             if (!marked(TheCons(obj))) return; # schon demarkiert?
-            unmark(UnImm(TheCons(obj))); # demarkieren
+            unmark(TheCons(obj)); # demarkieren
             # rekursiv: subst_circ_unmark(&Car(obj))
-            subst_circ_unmark(&((Cons)UnImm(TheCons(obj)))->car);
+            subst_circ_unmark(&TheCons(obj)->car);
             # endrekursiv: subst_circ_unmark(&Cdr(obj))
-            ptr = &((Cons)UnImm(TheCons(obj)))->cdr; goto enter_subst;
-          #if defined(IMMUTABLE_CONS) && !defined(WIDE_SOFT)
-          case imm_cons_type: # immutables Cons
-            if (!marked(TheCons(obj))) return; # schon demarkiert?
-            unmark(TheImmCons(obj)); # demarkieren
-            # rekursiv: subst_circ_unmark(&Car(obj))
-            subst_circ_unmark(&TheImmCons(obj)->car);
-            # endrekursiv: subst_circ_unmark(&Cdr(obj))
-            ptr = &TheImmCons(obj)->cdr; goto enter_subst;
-          #endif
+            ptr = &TheCons(obj)->cdr; goto enter_subst;
           case_system: # Frame-Pointer oder Read-Label oder System
           case_machine: # Maschinenpointer
           case_bvector: # Bit-Vektor
@@ -10494,28 +9851,6 @@ local uintC generation;
     #endif
     }
 
-#if defined(IMMUTABLE) && !defined(GENERATIONAL_GC) # implies !defined(SELFMADE_MMAP)
-# Signal-Handler für Signal SIGSEGV:
-  local void sigsegv_handler (int sig);
-  local void sigsegv_handler(sig)
-    var int sig; # sig = SIGSEGV
-    { signal_acknowledge(SIGSEGV,&sigsegv_handler);
-      clear_break_sems(); # Sehr gefährlich!!
-      #if (defined(USE_SIGACTION) ? defined(SIGACTION_NEED_UNBLOCK) : defined(SIGNAL_NEED_UNBLOCK)) # Unter Linux nicht nötig, unter SunOS4 nötig.
-      # gerade blockiertes Signal entblockieren:
-      sigsetmask(sigblock(0) & ~sigmask(SIGSEGV));
-      #endif
-      #ifdef HAVE_SAVED_STACK
-      # STACK auf einen sinnvollen Wert setzen:
-      if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }
-      #endif
-      # Über 'fehler' in eine Break-Schleife springen:
-      fehler_immutable();
-    }
-  #define install_segv_handler()  \
-    SIGNAL(SIGSEGV,&sigsegv_handler)
-#endif
-
 #endif # HAVE_SIGNALS
 
 #if defined(SELFMADE_MMAP) || defined(GENERATIONAL_GC)
@@ -10539,21 +9874,6 @@ local uintC generation;
             # erfolgreich
             clr_break_sem_0();
             return 1;
-          case handler_immutable:
-            #ifdef IMMUTABLE
-              sigsegv_leave_handler(); # gerade blockierte Signale entblockieren
-              clear_break_sems(); # Sehr gefährlich!!
-              #if defined(SIGNALBLOCK_BSD)
-              sigsetmask(0);
-              #endif
-              #ifdef HAVE_SAVED_STACK
-                # STACK auf einen sinnvollen Wert setzen:
-                if (!(saved_STACK==NULL)) { setSTACK(STACK = saved_STACK); }
-              #endif
-              # Über 'fehler' in eine Break-Schleife springen:
-              fehler_immutable();
-            #endif
-            /* fallthrough */
           case handler_failed:
             # erfolglos
             sigsegv_handler_failed(fault_address);
@@ -10989,7 +10309,7 @@ local uintC generation;
         var const uintB* index_ptr = &package_index_table[0]; # package_index_table durchgehen
         var uintC count;
         dotimesC(count,symbol_anz,
-          { ptr->pname = make_imm_array(asciz_to_string(*pname_ptr++)); # Printnamen eintragen
+          { ptr->pname = asciz_to_string(*pname_ptr++); # Printnamen eintragen
            {var uintB index = *index_ptr++;
             var object* package_ = &STACK_(package_anz-1) STACKop -(uintP)index; # Pointer auf Package
             pushSTACK(symbol_tab_ptr_as_object(ptr)); # Symbol
@@ -11815,10 +11135,7 @@ local uintC generation;
      { var uintL heapnr;
        for (heapnr=0; heapnr<heapcount; heapnr++)
          { switch (heapnr)
-             { # NB: IMMUTABLE spielt hier keine Rolle, denn die Heaps zu
-               # case_imm_array  und  case imm_cons_type  werden immer leer
-               # bleiben, da für sie keine allocate()-Anforderungen kommen.
-               case_sstring:
+             { case_sstring:
                case_sbvector:
                case_bignum:
                #ifndef WIDE
@@ -11848,7 +11165,7 @@ local uintC generation;
      { var uintL type;
        for (type = 0; type < typecount; type++)
          {
-           #ifdef NORMAL_MULTIMAP_MEMORY
+           #ifdef MULTIMAP_MEMORY
            switch (type)
              { MM_TYPECASES break;
                default: mem.heapnr_from_type[type] = -1; continue;
@@ -11984,19 +11301,15 @@ local uintC generation;
         #else
         if ( initmap() <0) goto no_mem;
         #endif
-        #ifdef NORMAL_MULTIMAP_MEMORY
-        multimap(case_machine: MM_TYPECASES, IMM_TYPECASES, TRUE, memblock, memneed, FALSE);
-        #else # MINIMAL_MULTIMAP_MEMORY
-        multimap(case 0: case imm_type:, case imm_type:, TRUE, memblock, memneed, FALSE);
-        #endif
+        multimap(case_machine: MM_TYPECASES, memblock, memneed, FALSE);
         #ifdef MAP_MEMORY_TABLES
         # Dazu noch symbol_tab an die Adresse 0 legen:
         {var uintL memneed = round_up(sizeof(symbol_tab),pagesize); # Länge aufrunden
-         multimap(case_symbolflagged: , , FALSE, 0, memneed, FALSE);
+         multimap(case_symbolflagged: , 0, memneed, FALSE);
         }
         # Dazu noch subr_tab an die Adresse 0 legen:
         if ( zeromap(&subr_tab,round_up(total_subr_anz*sizeof(subr_),pagesize)) <0) goto no_mem;
-        #elif defined(NORMAL_MULTIMAP_MEMORY)
+        #else
         # Dazu noch symbol_tab und subr_tab multimappen:
         # Die symbol_tab und subr_tab behalten dabei ihre Adresse. Der Bereich,
         # in dem sie liegen (im Datensegment des Programms!!), wird zu Shared
@@ -12008,14 +11321,14 @@ local uintC generation;
          var aint subr_tab_end = round_up((aint)&subr_tab+sizeof(subr_tab),pagesize);
          if ((symbol_tab_end <= subr_tab_start) || (subr_tab_end <= symbol_tab_start))
            # zwei getrennte Intervalle
-           { multimap(case_machine: case_symbolflagged: , , FALSE, symbol_tab_start, symbol_tab_end-symbol_tab_start, TRUE);
-             multimap(case_machine: case_subr: , , FALSE, subr_tab_start, subr_tab_end-subr_tab_start, TRUE);
+           { multimap(case_machine: case_symbolflagged: , symbol_tab_start, symbol_tab_end-symbol_tab_start, TRUE);
+             multimap(case_machine: case_subr: , subr_tab_start, subr_tab_end-subr_tab_start, TRUE);
            }
            else
            # die Tabellen überlappen sich!
            { var aint tab_start = (symbol_tab_start < subr_tab_start ? symbol_tab_start : subr_tab_start);
              var aint tab_end = (symbol_tab_end > subr_tab_end ? symbol_tab_end : subr_tab_end);
-             multimap(case_machine: case_symbolflagged: case_subr: , , FALSE, tab_start, tab_end-tab_start, TRUE);
+             multimap(case_machine: case_symbolflagged: case_subr: , tab_start, tab_end-tab_start, TRUE);
            }
         }
         #endif
@@ -12413,7 +11726,7 @@ local uintC generation;
           #ifdef PENDING_INTERRUPTS
             SIGNAL(SIGALRM,&alarm_handler);
           #endif
-          #if defined(IMMUTABLE) || defined(GENERATIONAL_GC)
+          #if defined(GENERATIONAL_GC)
             install_segv_handler();
           #endif
         #endif
@@ -12803,44 +12116,41 @@ local uintC generation;
     #ifdef case_stream
       bit(7) |
     #endif
-    #ifdef IMMUTABLE
-      bit(8) |
-    #endif
     # Codierung von Zahlen:
     #ifdef FAST_FLOAT
-      bit(9) |
+      bit(8) |
     #endif
     #ifdef FAST_DOUBLE
-      bit(10) |
+      bit(9) |
     #endif
     # Codierung von Streams:
     #ifdef STRM_WR_SS
-      bit(11) |
+      bit(10) |
     #endif
     # Codierung von strmtype:
     #ifdef HANDLES
-      bit(12) |
+      bit(11) |
     #endif
     #ifdef KEYBOARD
-      bit(13) |
+      bit(12) |
     #endif
     #ifdef SCREEN
-      bit(14) |
+      bit(13) |
     #endif
     #ifdef PRINTER
-      bit(15) |
+      bit(14) |
     #endif
     #ifdef PIPES
-      bit(16) |
+      bit(15) |
     #endif
     #ifdef X11SOCKETS
-      bit(17) |
+      bit(16) |
     #endif
     #ifdef GENERIC_STREAMS
-      bit(18) |
+      bit(17) |
     #endif
     #ifdef SOCKET_STREAMS
-      bit(19) |
+      bit(18) |
     #endif
     0;
 
@@ -14375,14 +13685,14 @@ local uintC generation;
                       }
                       total_subr_anz += *module->stab_size;
                 }   }
-                #elif defined(NORMAL_MULTIMAP_MEMORY)
+                #elif defined(MULTIMAP_MEMORY)
                 if (*module->stab_size > 0)
                   # Die subr_tab des geladenen Moduls multimappen.
                   # Die zu mappenden Pages gehören zum Datensegment der neu
                   # geladenen Shared-Library, sind also sicher noch nicht gemultimappt.
                   { var aint subr_tab_start = round_down((aint)module->stab,pagesize);
                     var aint subr_tab_end = round_up((aint)module->stab+(*module->stab_size)*sizeof(subr_),pagesize);
-                    multimap(case_machine: case_subr: , , FALSE, subr_tab_start, subr_tab_end-subr_tab_start, TRUE);
+                    multimap(case_machine: case_subr: , subr_tab_start, subr_tab_end-subr_tab_start, TRUE);
                     if (FALSE)
                       no_mem:
                       fehler_dlerror("multimap",NULL,"out of memory for subr_tab");

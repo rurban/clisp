@@ -1228,16 +1228,10 @@ LISPFUN(subst_if_not,3,0,norest,key,1, (kw(key)) )
             { check_STACK(); check_SP();
               # rekursiv für den CDR aufrufen:
               {var object modified_cdr = nsubst(Cdr(STACK_0),stackptr,up_fun);
-               #ifdef IMMUTABLE_CONS
-               if (!eq(Cdr(STACK_0),modified_cdr))
-               #endif
                Cdr(STACK_0) = modified_cdr;
               }
               # rekursiv für den CAR aufrufen:
               {var object modified_car = nsubst(Car(STACK_0),stackptr,up_fun);
-               #ifdef IMMUTABLE_CONS
-               if (!eq(Car(STACK_0),modified_car))
-               #endif
                Car(STACK_0) = modified_car;
             } }
           return popSTACK(); # ursprünglicher Baum zurück
@@ -1402,16 +1396,10 @@ LISPFUN(sublis,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
             { check_STACK(); check_SP();
               # rekursiv für den CDR aufrufen:
               {var object modified_cdr = nsublis(Cdr(STACK_0),stackptr);
-               #ifdef IMMUTABLE_CONS
-               if (!eq(Cdr(STACK_0),modified_cdr))
-               #endif
                Cdr(STACK_0) = modified_cdr;
               }
               # rekursiv für den CAR aufrufen:
               {var object modified_car = nsublis(Car(STACK_0),stackptr);
-               #ifdef IMMUTABLE_CONS
-               if (!eq(Car(STACK_0),modified_car))
-               #endif
                Car(STACK_0) = modified_car;
             } }
           return popSTACK(); # ursprünglicher Baum zurück
