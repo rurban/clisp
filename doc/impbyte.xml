@@ -445,12 +445,11 @@ first time said function is called.</para>
 </variablelist></para>
 
 <para>This two-stack architecture permits to save an unlimited number of
-&clisp; objects on the &STACK; (needed for handling of &cl; multiple
-values), without consing.  Also, in a world with a compacting
-no-ambiguous-roots garbage collector, &STACK; must only hold &clisp;
-objects, and &SP; can hold all the other data belonging to a frame,
-which would not fit into &STACK; without tagging/untagging
-overhead.</para>
+&clisp; objects on the &STACK; (needed for handling of &cl; &mul-val;),
+without consing.  Also, in a world with a compacting no-ambiguous-roots
+garbage collector, &STACK; must only hold &clisp; objects, and &SP; can
+hold all the other data belonging to a frame, which would not fit into
+&STACK; without tagging/untagging overhead.</para>
 
 <para>The scope of &STACK; and &SP; is only valid for a given function
 invocation.  Whereas the amount of &STACK; space needed for executing a
@@ -465,7 +464,7 @@ outgoing arguments to incoming arguments instead of sharing them.</para>
 
 <para>The virtual machine has a special data structure,
 <literal>values</literal>, containing the "top of stack", specially
-adapted to &cl; multiple values:
+adapted to &cl; &mul-val;:
 <variablelist>
  <varlistentry><term>&mv-count;</term>
   <listitem><simpara>an unsigned integer.
@@ -1067,7 +1066,7 @@ letters:
       <entry>&n-r; times do: *--&STACK; := &unbound;.
              values undefined</entry></row>
  <row><entry><literal role="sexp">(UNLIST &n-r; &m-r;)</literal></entry>
-      <entry>Destructure a proper list.</entry>
+      <entry>Destructure a proper &list-t;.</entry>
       <entry>0 &le; &m-r; &le; &n-r;.
              &n-r; times do: *--&STACK; := &car;(&value1;),
              &value1; := &cdr;(&value1;).
@@ -1077,7 +1076,7 @@ letters:
              At the end, &value1; must be &nil;.
              values undefined</entry></row>
  <row><entry><literal role="sexp">(UNLIST* &n-r; &m-r;)</literal></entry>
-      <entry>Destructure a proper or dotted list.</entry>
+      <entry>Destructure a proper or dotted &list-t;.</entry>
       <entry>0 &le; &m-r; &le; &n-r;, &n-r; &gt; 0.
              &n-r; times do: *--&STACK; := &car;(&value1;),
              &value1; := &cdr;(&value1;).
@@ -1105,7 +1104,7 @@ letters:
 </tbody></tgroup></informaltable>
 </section>
 
-<section id="instr-mulval"><title>Instructions for multiple values</title>
+<section id="instr-mulval"><title>Instructions for &mul-val;</title>
 <informaltable id="instr-mulval-tab" frame="all">
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
@@ -1134,10 +1133,10 @@ letters:
              &STACK; -= &n-r;.
              values undefined</entry></row>
  <row><entry><literal role="sexp">(MV-TO-LIST)</literal></entry>
-      <entry>Convert multiple values into a list.</entry>
+      <entry>Convert &mul-val; into a list.</entry>
       <entry>&value1; := list of values, &mv-count; := 1</entry></row>
  <row><entry><literal role="sexp">(LIST-TO-MV)</literal></entry>
-      <entry>Convert a list into multiple values.</entry>
+      <entry>Convert a &list-t; into &mul-val;.</entry>
       <entry>Call the function &values-list; with &value1; as argument.
              The returned values go into values.</entry></row>
  <row><entry><literal role="sexp">(MVCALLP)</literal></entry>
