@@ -2994,6 +2994,7 @@ in the generic function instance."
   (multiple-value-bind (signature argorder method-combo method-forms docstring)
       (analyze-defgeneric 'defgeneric funname lambda-list options)
     `(LET ()
+       (DECLARE (SYS::IN-DEFUN ,funname))
        (COMPILER::EVAL-WHEN-COMPILE
         (COMPILER::C-DEFUN ',funname ',signature nil 'defgeneric))
        ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)

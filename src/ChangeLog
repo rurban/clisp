@@ -1,3 +1,8 @@
+2004-03-19  Sam Steingold  <sds@gnu.org>
+
+	* clos.lisp (defgeneric): added (DECLARE IN-DEFUN) to avoid a
+	compiler warning on recursive generic functions
+
 2004-03-06  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (smallest_string_flavour8): New macro.
