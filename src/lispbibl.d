@@ -4708,10 +4708,10 @@ typedef struct {
                               enum_strmtype_dummy
   };
   # Bei Änderung dieser Tabelle auch
-  # - die elf Sprungtabellen bei STREAM-ELEMENT-TYPE, SET-STREAM-ELEMENT-TYPE,
+  # - die 12 Sprungtabellen bei STREAM-ELEMENT-TYPE, SET-STREAM-ELEMENT-TYPE,
   #   STREAM-EXTERNAL-FORMAT, SET-STREAM-EXTERNAL-FORMAT, INTERACTIVE-STREAM-P,
-  #   CLOSE, LISTEN, CLEAR_INPUT, FINISH_OUTPUT, FORCE_OUTPUT, CLEAR_OUTPUT
-  #   in STREAM.D und
+  #   CLOSE, LISTEN-CHAR, CLEAR_INPUT, LISTEN-BYTE, FINISH_OUTPUT,
+  #   FORCE_OUTPUT, CLEAR_OUTPUT in STREAM.D und
   # - die Namenstabelle in CONSTOBJ.D und
   # - die Sprungtabelle bei PR_STREAM in IO.D und
   # - die Pseudofunktionentabelle in PSEUDOFUN.D
@@ -11448,13 +11448,13 @@ typedef struct {
 # wird verwendet von SPVW
 
 # UP: Stellt fest, ob im Stream stream ein Zeichen sofort verfügbar ist.
-# stream_listen(stream)
+# listen_char(stream)
 # > stream: Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  extern signean stream_listen (object stream);
+  extern signean listen_char (object stream);
   #define ls_avail  0
   #define ls_eof   -1
   #define ls_wait   1
@@ -11470,6 +11470,16 @@ typedef struct {
 # can trigger GC
   extern boolean clear_input (object stream);
 # wird verwendet von IO, DEBUG
+
+# UP: Determines whether a stream has a byte immediately available.
+# listen_byte(stream)
+# > stream: a stream with element-type ([UN]SIGNED-BYTE 8)
+# < result: ls_avail if a byte is available,
+#           ls_eof   if EOF is reached,
+#           ls_wait  if no byte is available, but not because of EOF
+# can trigger GC
+  extern signean listen_byte (object stream);
+# wird verwendet von
 
 # UP: Wartenden Output eines Stream stream ans Ziel bringen.
 # finish_output(stream);

@@ -43,8 +43,8 @@
   (when (find-symbol "WITH-STANDARD-IO-SYNTAX" "LISP")
     (pushnew :have-with-standard-io-syntax *features*)
   )
-  (when (find-symbol "LISTEN-BYTE" "SYSTEM")
-    (pushnew :have-listen-byte *features*)
+  (when (find-symbol "READ-BYTE-LOOKAHEAD" "SYSTEM")
+    (pushnew :have-read-byte-lookahead *features*)
 ) )
 
 ;;;-------------------------------------------------------------------------

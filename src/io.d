@@ -4989,7 +4989,7 @@ LISPFUN(listen,0,1,norest,nokey,0,NIL)
 # (LISTEN [input-stream]), CLTL S. 380
   {
     test_istream(&STACK_0); # input-stream überprüfen
-    if (ls_avail_p(stream_listen(popSTACK()))) {
+    if (ls_avail_p(listen_char(popSTACK()))) {
       value1 = T; mv_count=1; # Wert T
     } else {
       value1 = NIL; mv_count=1; # Wert NIL
@@ -5003,7 +5003,7 @@ LISPFUNN(read_char_will_hang_p,1)
 # thus avoiding the need for UNREAD-CHAR and preventing side effects.
   {
     test_istream(&STACK_0); # input-stream überprüfen
-    value1 = (ls_wait_p(stream_listen(popSTACK())) ? T : NIL); mv_count=1;
+    value1 = (ls_wait_p(listen_char(popSTACK())) ? T : NIL); mv_count=1;
   }
 
 LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
@@ -5019,7 +5019,7 @@ LISPFUN(read_char_no_hang,0,4,norest,nokey,0,NIL)
         : !instanceof(stream,O(class_fundamental_input_stream))
        )
       fehler_illegal_streamop(S(read_char_no_hang),stream);
-    var signean status = stream_listen(stream);
+    var signean status = listen_char(stream);
     if (ls_eof_p(status)) { # EOF ?
       return_Values eof_handling();
     } elif (ls_avail_p(status)) { # Zeichen verfügbar

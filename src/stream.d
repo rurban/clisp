@@ -1230,19 +1230,19 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
     }
 
 # Stellt fest, ob ein Synonym-Stream ein Zeichen verfügbar hat.
-# listen_synonym(stream)
+# listen_char_synonym(stream)
 # > stream : Synonym-Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  local signean listen_synonym (object stream);
-  local signean listen_synonym(stream)
+  local signean listen_char_synonym (object stream);
+  local signean listen_char_synonym(stream)
     var object stream;
     {
       check_SP();
       var object symbol = TheStream(stream)->strm_synonym_symbol;
-      return stream_listen(get_synonym_stream(symbol));
+      return listen_char(get_synonym_stream(symbol));
     }
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Synonym-Stream.
@@ -1257,6 +1257,22 @@ LISPFUN(symbol_stream,1,1,norest,nokey,0,NIL)
       check_SP();
       var object symbol = TheStream(stream)->strm_synonym_symbol;
       return clear_input(get_synonym_stream(symbol));
+    }
+
+# Stellt fest, ob ein Synonym-Stream ein Byte verfügbar hat.
+# listen_byte_synonym(stream)
+# > stream : Synonym-Stream
+# < ergebnis: ls_avail if a byte is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no byte is available, but not because of EOF
+# can trigger GC
+  local signean listen_byte_synonym (object stream);
+  local signean listen_byte_synonym(stream)
+    var object stream;
+    {
+      check_SP();
+      var object symbol = TheStream(stream)->strm_synonym_symbol;
+      return listen_byte(get_synonym_stream(symbol));
     }
 
 # UP: Wartenden Output eines Synonym-Stream ans Ziel bringen.
@@ -1735,21 +1751,21 @@ LISPFUNN(broadcast_stream_streams,1)
     }
 
 # Stellt fest, ob ein Concatenated-Stream ein Zeichen verfügbar hat.
-# listen_concat(stream)
+# listen_char_concat(stream)
 # > stream : Concatenated-Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  local signean listen_concat (object stream);
-  local signean listen_concat(stream)
+  local signean listen_char_concat (object stream);
+  local signean listen_char_concat(stream)
     var object stream;
     {
       pushSTACK(stream);
       var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
       var signean ergebnis;
       while (consp(streamlist)) {
-        ergebnis = stream_listen(Car(streamlist));
+        ergebnis = listen_char(Car(streamlist));
         if (!ls_eof_p(ergebnis)) # nicht EOF ?
           goto OK;
         # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
@@ -1782,6 +1798,36 @@ LISPFUNN(broadcast_stream_streams,1)
         ergebnis |= clear_input(Car(streamlist)); # allen Input des Teilstreams löschen
         streamlist = popSTACK();
       }
+      return ergebnis;
+    }
+
+# Stellt fest, ob ein Concatenated-Stream ein Byte verfügbar hat.
+# listen_byte_concat(stream)
+# > stream : Concatenated-Stream
+# < ergebnis: ls_avail if a byte is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no byte is available, but not because of EOF
+# can trigger GC
+  local signean listen_byte_concat (object stream);
+  local signean listen_byte_concat(stream)
+    var object stream;
+    {
+      pushSTACK(stream);
+      var object streamlist = TheStream(stream)->strm_concat_list; # Liste von Streams
+      var signean ergebnis;
+      while (consp(streamlist)) {
+        ergebnis = listen_byte(Car(streamlist));
+        if (!ls_eof_p(ergebnis)) # nicht EOF ?
+          goto OK;
+        # EOF erreicht -> verbrauchten Stream aus der Liste nehmen:
+        stream = STACK_0;
+        streamlist =
+        TheStream(stream)->strm_concat_list = Cdr(TheStream(stream)->strm_concat_list);
+      }
+      # alle Streams verbraucht -> liefere EOF:
+      ergebnis = ls_eof;
+     OK: # ergebnis fertig
+      skipSTACK(1);
       return ergebnis;
     }
 
@@ -1913,18 +1959,18 @@ LISPFUNN(concatenated_stream_streams,1)
     }
 
 # Stellt fest, ob ein Two-Way- oder Echo-Stream ein Zeichen verfügbar hat.
-# listen_twoway(stream)
+# listen_char_twoway(stream)
 # > stream : Two-Way- oder Echo-Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  local signean listen_twoway (object stream);
-  local signean listen_twoway(stream)
+  local signean listen_char_twoway (object stream);
+  local signean listen_char_twoway(stream)
     var object stream;
     {
       check_SP();
-      return stream_listen(TheStream(stream)->strm_twoway_input);
+      return listen_char(TheStream(stream)->strm_twoway_input);
     }
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Two-Way-
@@ -1939,6 +1985,21 @@ LISPFUNN(concatenated_stream_streams,1)
     {
       check_SP();
       return clear_input(TheStream(stream)->strm_twoway_input);
+    }
+
+# Stellt fest, ob ein Two-Way- oder Echo-Stream ein Byte verfügbar hat.
+# listen_byte_twoway(stream)
+# > stream : Two-Way- oder Echo-Stream
+# < ergebnis: ls_avail if a byte is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no byte is available, but not because of EOF
+# can trigger GC
+  local signean listen_byte_twoway (object stream);
+  local signean listen_byte_twoway(stream)
+    var object stream;
+    {
+      check_SP();
+      return listen_byte(TheStream(stream)->strm_twoway_input);
     }
 
 # UP: Bringt den wartenden Output eines Two-Way- oder Echo-Stream ans Ziel.
@@ -2408,14 +2469,14 @@ LISPFUNN(echo_stream_output_stream,1)
     }
 
 # Stellt fest, ob ein String-Input-Stream ein Zeichen verfügbar hat.
-# listen_str_in(stream)
+# listen_char_str_in(stream)
 # > stream : String-Input-Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  local signean listen_str_in (object stream);
-  local signean listen_str_in(stream)
+  local signean listen_char_str_in (object stream);
+  local signean listen_char_str_in(stream)
     var object stream;
     {
       var uintL index = posfixnum_to_L(TheStream(stream)->strm_str_in_index); # Index
@@ -2851,14 +2912,14 @@ LISPFUNN(string_stream_p,1)
     }
 
 # Stellt fest, ob ein Buffered-Input-Stream ein Zeichen verfügbar hat.
-# listen_buff_in(stream)
+# listen_char_buff_in(stream)
 # > stream : Buffered-Input-Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  local signean listen_buff_in (object stream);
-  local signean listen_buff_in(stream)
+  local signean listen_char_buff_in (object stream);
+  local signean listen_char_buff_in(stream)
     var object stream;
     {
       var uintL index = posfixnum_to_L(TheStream(stream)->strm_buff_in_index); # Index
@@ -3130,8 +3191,8 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
   #     :INPUT-AVAILABLE
   #     :EOF
   # ) )
-  local signean listen_generic (object stream);
-  local signean listen_generic(stream)
+  local signean listen_char_generic (object stream);
+  local signean listen_char_generic(stream)
     var object stream;
     {
       pushSTACK(stream);
@@ -5564,6 +5625,19 @@ global object iconv_range(encoding,start,end)
       return endptr-startptr;
     }
 
+# Stellt fest, ob ein Unbuffered-Channel-Stream ein Byte verfügbar hat.
+# listen_byte_ia8_unbuffered(stream)
+# > stream: Unbuffered-Channel-Stream, Art a, bitsize = 8
+# < ergebnis: ls_avail if a byte is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no byte is available, but not because of EOF
+  local signean listen_byte_ia8_unbuffered (object stream);
+  local signean listen_byte_ia8_unbuffered(stream)
+    var object stream;
+    {
+      return UnbufferedStreamLow_listen(stream)(stream);
+    }
+
 # Character streams
 # -----------------
 
@@ -5633,13 +5707,13 @@ global object iconv_range(encoding,start,end)
     }
 
 # Stellt fest, ob ein Unbuffered-Channel-Stream ein Zeichen verfügbar hat.
-# listen_unbuffered(stream)
+# listen_char_unbuffered(stream)
 # > stream: Unbuffered-Channel-Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-  local signean listen_unbuffered (object stream);
-  local signean listen_unbuffered(stream)
+  local signean listen_char_unbuffered (object stream);
+  local signean listen_char_unbuffered(stream)
     var object stream;
     {
       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
@@ -7185,13 +7259,13 @@ typedef struct strm_i_buffered_extrafields_struct {
     }
 
 # Stellt fest, ob ein File-Stream ein Zeichen verfügbar hat.
-# listen_buffered(stream)
+# listen_char_buffered(stream)
 # > stream: File-Stream für Characters
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-  local signean listen_buffered (object stream);
-  local signean listen_buffered(stream)
+  local signean listen_char_buffered (object stream);
+  local signean listen_char_buffered(stream)
     var object stream;
     {
       if (buffered_nextbyte(stream) == (uintB*)NULL)
@@ -7935,6 +8009,21 @@ typedef struct strm_i_buffered_extrafields_struct {
       # position incrementieren:
       BufferedStream_position(*stream_) += result;
       return result;
+    }
+
+# Stellt fest, ob ein File-Stream ein Byte verfügbar hat.
+# listen_byte_ia8_buffered(stream)
+# > stream: File-Stream für Integers, Art a, bitsize = 8
+# < ergebnis: ls_avail if a byte is available,
+#             ls_eof   if EOF is reached,
+#             ls_wait  if no byte is available, but not because of EOF
+  local signean listen_byte_ia8_buffered (object stream);
+  local signean listen_byte_ia8_buffered(stream)
+    var object stream;
+    {
+      if (buffered_nextbyte(stream) == (uintB*)NULL)
+        return ls_eof; # EOF
+      return ls_avail;
     }
 
 # Output side
@@ -8896,7 +8985,7 @@ LISPFUNN(file_stream_p,1)
 #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
   # Zusätzliche Komponenten:
   #define strm_keyboard_isatty  strm_isatty   # Flag, ob stdin ein Terminal ist
-  #define strm_keyboard_handle  strm_ichannel  # Handle für listen_unbuffered()
+  #define strm_keyboard_handle  strm_ichannel # Handle für listen_char_unbuffered()
   #define strm_keyboard_buffer  strm_field1   # Liste der noch zu liefernden Zeichen
   #define strm_keyboard_keytab  strm_field2   # Liste aller Tastenzuordnungen
                                               # jeweils (char1 ... charn . result)
@@ -8905,7 +8994,7 @@ LISPFUNN(file_stream_p,1)
 #elif defined(WIN32_NATIVE)
   # Zusätzliche Komponenten:
   #define strm_keyboard_isatty  strm_isatty   # Flag, ob stdin ein Terminal ist
-  #define strm_keyboard_handle  strm_ichannel  # Handle für listen_unbuffered()
+  #define strm_keyboard_handle  strm_ichannel # Handle für listen_char_unbuffered()
   #define strm_keyboard_len  strm_channel_len
   #define strm_keyboard_xlen  sizeof(strm_unbuffered_extrafields_struct)
 #else
@@ -9235,14 +9324,14 @@ local object make_key_event(event)
 #endif # MSDOS
 
 # Stellt fest, ob der Keyboard-Stream ein Zeichen verfügbar hat.
-# listen_keyboard(stream)
+# listen_char_keyboard(stream)
 # > stream: Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-  local signean listen_keyboard (object stream);
+  local signean listen_char_keyboard (object stream);
   #ifdef EMUNIX
-  local signean listen_keyboard(stream)
+  local signean listen_char_keyboard(stream)
     var object stream;
     {
       if (!(_osmode == DOS_MODE)) {
@@ -9279,11 +9368,11 @@ local object make_key_event(event)
     }
   #endif
   #ifdef WIN32_NATIVE
-  local signean listen_keyboard(stream)
+  local signean listen_char_keyboard(stream)
     var object stream;
     {
       var Handle handle = TheHandle(TheStream(stream)->strm_keyboard_handle);
-      # See the implementation of listen_unbuffered() for consoles.
+      # See the implementation of listen_char_unbuffered() for consoles.
       var DWORD nevents;
       begin_system_call();
       if (!GetNumberOfConsoleInputEvents(handle,&nevents)) {
@@ -9320,10 +9409,10 @@ local object make_key_event(event)
     }
   #endif
   #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
-    #define listen_keyboard  listen_unbuffered
+    #define listen_char_keyboard  listen_char_unbuffered
   #endif
   #if defined(NEXTAPP)
-    #define listen_keyboard(stream)  (stream, ls_eof)
+    #define listen_char_keyboard(stream)  (stream, ls_eof)
   #endif
 
 # UP: Löscht bereits eingegebenen interaktiven Input vom Keyboard-Stream.
@@ -9337,7 +9426,7 @@ local object make_key_event(event)
       #ifdef EMUNIX
         if (!(_osmode == DOS_MODE)) {
           # OS/2
-          while (listen_keyboard(stream)) {
+          while (listen_char_keyboard(stream)) {
             # das Zeichen wurde schon geholt!
           }
         } else {
@@ -9350,7 +9439,7 @@ local object make_key_event(event)
       #ifdef WIN32_NATIVE
         clear_tty_input(TheHandle(TheStream(stream)->strm_keyboard_handle));
         pushSTACK(stream);
-        while (ls_avail_p(listen_keyboard(STACK_0))) {
+        while (ls_avail_p(listen_char_keyboard(STACK_0))) {
           read_char(&STACK_0);
         }
         skipSTACK(1);
@@ -9363,7 +9452,7 @@ local object make_key_event(event)
         TheStream(stream)->strm_rd_ch_last = NIL; # gewesenes EOF vergessen
         clear_tty_input(stdin_handle);
         pushSTACK(stream);
-        while (ls_avail_p(listen_keyboard(STACK_0))) {
+        while (ls_avail_p(listen_char_keyboard(STACK_0))) {
           read_char(&STACK_0);
         }
         skipSTACK(1);
@@ -10222,13 +10311,13 @@ LISPFUNN(make_keyboard_stream,0)
     }
 
 # Stellt fest, ob ein Terminal-Stream ein Zeichen verfügbar hat.
-# listen_terminal(stream)
+# listen_char_terminal(stream)
 # > stream: Terminal-Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-  local signean listen_terminal (object stream);
-  local signean listen_terminal(stream)
+  local signean listen_char_terminal (object stream);
+  local signean listen_char_terminal(stream)
     var object stream;
     {
       var signean result;
@@ -10436,12 +10525,12 @@ LISPFUNN(make_keyboard_stream,0)
     }
 
 # Stellt fest, ob ein Terminal-Stream ein Zeichen verfügbar hat.
-# listen_terminal1(stream)
+# listen_char_terminal1(stream)
 # > stream: Terminal-Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-  #define listen_terminal1  listen_unbuffered
+  #define listen_char_terminal1  listen_char_unbuffered
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Terminal-Stream.
 # clear_input_terminal1(stream);
@@ -10578,13 +10667,13 @@ LISPFUNN(make_keyboard_stream,0)
     }
 
 # Stellt fest, ob ein Terminal-Stream ein Zeichen verfügbar hat.
-# listen_terminal2(stream)
+# listen_char_terminal2(stream)
 # > stream: Terminal-Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-  local signean listen_terminal2 (object stream);
-  local signean listen_terminal2(stream)
+  local signean listen_char_terminal2 (object stream);
+  local signean listen_char_terminal2(stream)
     var object stream;
     {
       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
@@ -10594,7 +10683,7 @@ LISPFUNN(make_keyboard_stream,0)
          )
         # index<count -> Es sind noch Zeichen im Buffer
         return ls_avail;
-      return listen_unbuffered(stream);
+      return listen_char_unbuffered(stream);
     }
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Terminal-Stream.
@@ -10615,7 +10704,7 @@ LISPFUNN(make_keyboard_stream,0)
       TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; # count := 0
       #endif
       pushSTACK(stream);
-      while (ls_avail_p(listen_terminal2(STACK_0))) {
+      while (ls_avail_p(listen_char_terminal2(STACK_0))) {
         read_char(&STACK_0);
       }
       skipSTACK(1);
@@ -10690,21 +10779,21 @@ LISPFUNN(make_keyboard_stream,0)
         return NULL;
     }
 
-# In the implementation of rd_ch_terminal3 and listen_terminal3, we should
-# not use the corresponding rd_ch_unbuffered and listen_unbuffered functions,
-# because they store intermediately read bytes in
+# In the implementation of rd_ch_terminal3 and listen_char_terminal3, we
+# should not use the corresponding rd_ch_unbuffered and listen_char_unbuffered
+# functions, because they store intermediately read bytes in
 # UnbufferedStream_bytebuf(stream), where readline() will not see them.
 # As a workaround, we use rl_stuff_char before calling readline().
 #
-# However, there is a deeper problem with the rd_ch_terminal3/listen_terminal3
-# implementation: readline() terminates when `rl_done' gets set to 1, whereas
-# listen_unbuffered normally returns ls_avail when the user has entered a line
-# of characters followed by #\Newline. Normally this is the same condition,
-# but if the user modifies his readline key bindings so that newline does not
-# always cause `rl_done' to become 1, then rd_ch_terminal3() might block
-# although listen_terminal3() returned ls_avail.
-# One possible fix would be to use the READLINE_CALLBACK functions, see
-# readline.dvi p. 29, but in order to get this right, RUN-PROGRAM and
+# However, there is a deeper problem with the rd_ch_terminal3/
+# listen_char_terminal3 implementation: readline() terminates when `rl_done'
+# gets set to 1, whereas listen_char_unbuffered normally returns ls_avail when
+# the user has entered a line of characters followed by #\Newline. Normally
+# this is the same condition, but if the user modifies his readline key
+# bindings so that newline does not always cause `rl_done' to become 1, then
+# rd_ch_terminal3() might block although listen_char_terminal3() returned
+# ls_avail. One possible fix would be to use the READLINE_CALLBACK functions,
+# see readline.dvi p. 29, but in order to get this right, RUN-PROGRAM and
 # MAKE-PIPE-INPUT-STREAM might need to be modified to temporarily turn off
 # readline.
 
@@ -10826,13 +10915,13 @@ LISPFUNN(make_keyboard_stream,0)
     }
 
 # Stellt fest, ob ein Terminal-Stream ein Zeichen verfügbar hat.
-# listen_terminal3(stream)
+# listen_char_terminal3(stream)
 # > stream: Terminal-Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
-  local signean listen_terminal3 (object stream);
-  local signean listen_terminal3(stream)
+  local signean listen_char_terminal3 (object stream);
+  local signean listen_char_terminal3(stream)
     var object stream;
     {
       if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) # schon EOF ?
@@ -10842,7 +10931,7 @@ LISPFUNN(make_keyboard_stream,0)
          )
         # index<count -> Es sind noch Zeichen im Buffer
         return ls_avail;
-      return listen_unbuffered(stream);
+      return listen_char_unbuffered(stream);
     }
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Terminal-Stream.
@@ -10863,7 +10952,7 @@ LISPFUNN(make_keyboard_stream,0)
       TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; # count := 0
       #endif
       pushSTACK(stream);
-      while (ls_avail_p(listen_terminal3(STACK_0))) {
+      while (ls_avail_p(listen_char_terminal3(STACK_0))) {
         read_char(&STACK_0);
       }
       skipSTACK(1);
@@ -11105,7 +11194,7 @@ LISPFUNN(make_keyboard_stream,0)
             s->strm_wr_ch_array = P(wr_ch_array_terminal3); # WRITE-CHAR-SEQUENCE-Pseudofunktion
             s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
             s->strm_terminal_isatty = S(equal); # stdout=stdin
-            s->strm_terminal_ihandle = popSTACK(); # Handle für listen_unbuffered()
+            s->strm_terminal_ihandle = popSTACK(); # Handle für listen_char_unbuffered()
             s->strm_terminal_ohandle = popSTACK(); # Handle für Output
             #if 1 # TERMINAL_LINEBUFFERED
             s->strm_terminal_inbuff = popSTACK(); # Zeilenbuffer eintragen, count := 0
@@ -11148,7 +11237,7 @@ LISPFUNN(make_keyboard_stream,0)
             s->strm_wr_ch_array = P(wr_ch_array_terminal2); # WRITE-CHAR-SEQUENCE-Pseudofunktion
             s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
             s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
-            s->strm_terminal_ihandle = popSTACK(); # Handle für listen_unbuffered()
+            s->strm_terminal_ihandle = popSTACK(); # Handle für listen_char_unbuffered()
             s->strm_terminal_ohandle = popSTACK(); # Handle für Output
             #if 1 # TERMINAL_LINEBUFFERED
             s->strm_terminal_inbuff = popSTACK(); # Zeilenbuffer eintragen, count := 0
@@ -11186,7 +11275,7 @@ LISPFUNN(make_keyboard_stream,0)
             s->strm_wr_ch_array = P(wr_ch_array_terminal1); # WRITE-CHAR-SEQUENCE-Pseudofunktion
             s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
             s->strm_terminal_isatty = (stdin_tty ? (same_tty ? S(equal) : T) : NIL);
-            s->strm_terminal_ihandle = popSTACK(); # Handle für listen_unbuffered()
+            s->strm_terminal_ihandle = popSTACK(); # Handle für listen_char_unbuffered()
             s->strm_terminal_ohandle = popSTACK(); # Handle für Output
           ChannelStream_buffered(stream) = FALSE;
           ChannelStream_init(stream);
@@ -15440,32 +15529,6 @@ LISPFUNN(make_x11socket_stream,2)
     value1 = stream; mv_count=1; # stream als Wert
   }
 
-# A general LISTEN-BYTE function would be hairy (at least the case where you
-# want to know whether a multibyte integer is pending, and the stream is
-# unbuffered). For CLX, it is sufficient to deal with a socket stream with
-# element type (UNSIGNED-BYTE 8).
-
-LISPFUNN(listen_byte,1)
-# (SYS::LISTEN-BYTE stream)
-  {
-    var object stream = popSTACK();
-    if (!(builtin_stream_p(stream)
-          && eq(TheStream(stream)->strm_rd_by,P(rd_by_iau8_unbuffered))
-       ) ) {
-      if (!streamp(stream)) {
-        fehler_stream(stream);
-      } else {
-        pushSTACK(stream);
-        pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,
-               GETTEXT("~: stream must be a socket-stream, not ~")
-              );
-      }
-    }
-    value1 = (ls_avail_p(UnbufferedStreamLow_listen(stream)(stream)) ? T : NIL);
-    mv_count=1;
-  }
-
 # Die beiden folgenden Funktionen sollten
 # 1. nicht nur auf Handle- und Socket-Streams, sondern auch auf Synonym-
 #    und Concatenated-Streams funktionieren, idealerweise auch auf File-Streams.
@@ -16038,8 +16101,8 @@ local object test_socket_stream(obj,check_open)
   { SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);          \
     if (FD_ISSET(handle,&exceptfds)) res = S(Kerror);                     \
     else {                                                                \
-      boolean wr=FD_ISSET(handle,&writefds),                              \
-        rd=FD_ISSET(handle,&readfds)&&ls_avail_p(stream_listen(stream));  \
+      boolean wr = FD_ISSET(handle,&writefds),                            \
+        rd = FD_ISSET(handle,&readfds)&&ls_avail_p(listen_char(stream));  \
       if      ( rd && !wr) res = S(Kinput);                               \
       else if (!rd &&  wr) res = S(Koutput);                              \
       else if ( rd &&  wr) res = S(Kio);                                  \
@@ -16983,7 +17046,7 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
 # interactive_stream_p(stream)
 # > stream: Stream
 # NB: Relation zwischen clear_input, listen, interactive_stream_p:
-#   Wenn nach clear_input(stream) ls_wait_p(stream_listen(stream)) ist
+#   Wenn nach clear_input(stream) ls_wait_p(listen_char(stream)) ist
 #   (d.h. kein Zeichen mehr verfügbar und nicht EOF), dann ist
 #   interactive_stream_p(stream) TRUE.
 #   (Denn dann ist stream effektiv ein Keyboard-Stream, Terminal-Stream,
@@ -16992,10 +17055,10 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
 #   (Bei einem Concatenated-Stream, der gerade am Ende eines nicht interaktiven
 #   Teil-Stream ist und wo der nächste Teil-Stream nicht interaktiv ist, gilt
 #   das evtl. nicht. Aber das kann man abfangen, indem man vor der Abfrage
-#   noch ein stream_listen(stream) einschiebt.)
+#   noch ein listen_char(stream) einschiebt.)
 #   Aber nicht umgekehrt: Bei Streams vom Typ strmtype_pipe_in,
 #   strmtype_x11socket, strmtype_socket (die interactive_stream_p(stream)
-#   erfüllen) tut clear_input(stream) nichts, und stream_listen(stream) kann
+#   erfüllen) tut clear_input(stream) nichts, und listen_char(stream) kann
 #   ls_avail liefern.
   global boolean interactive_stream_p (object stream);
   global boolean interactive_stream_p(stream)
@@ -17019,7 +17082,7 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL)
             goto start;
           }
         case strmtype_concat:
-          # Hier könnte man stream_listen(stream) machen, um Streams, die
+          # Hier könnte man listen_char(stream) machen, um Streams, die
           # am EOF angelangt sind, zu ignorieren. Aber es ist nicht gut,
           # wenn interactive_stream_p Systemaufrufe und I/O macht.??
           # Den ersten der Streams abfragen:
@@ -17321,14 +17384,14 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
     }
 
 # UP: Stellt fest, ob im Stream stream ein Zeichen sofort verfügbar ist.
-# stream_listen(stream)
+# listen_char(stream)
 # > stream: Stream
 # < ergebnis: ls_avail if a character is available,
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
 # can trigger GC
-  global signean stream_listen (object stream);
-  global signean stream_listen(stream)
+  global signean listen_char (object stream);
+  global signean listen_char(stream)
     var object stream;
     {
       if (builtin_stream_p(stream)) {
@@ -17340,23 +17403,23 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
           # Jede Einzelroutine darf GC auslösen. Außer beim Keyboard-Stream
           # oder Terminal-Stream handelt es sich um einen reinen EOF-Test.
           switch (TheStream(stream)->strmtype) {
-            case strmtype_synonym:  return listen_synonym(stream);
+            case strmtype_synonym:  return listen_char_synonym(stream);
             case strmtype_broad:    return ls_eof; # kein READ-CHAR
-            case strmtype_concat:   return listen_concat(stream);
+            case strmtype_concat:   return listen_char_concat(stream);
             case strmtype_twoway:
             case strmtype_echo:
             #ifdef SOCKET_STREAMS
             case strmtype_twoway_socket:
             #endif
-              return listen_twoway(stream);
-            case strmtype_str_in:   return listen_str_in(stream);
+              return listen_char_twoway(stream);
+            case strmtype_str_in:   return listen_char_str_in(stream);
             case strmtype_str_out:  return ls_eof; # kein READ-CHAR
             case strmtype_str_push: return ls_eof; # kein READ-CHAR
             case strmtype_pphelp:   return ls_eof; # kein READ-CHAR
-            case strmtype_buff_in:  return listen_buff_in(stream);
+            case strmtype_buff_in:  return listen_char_buff_in(stream);
             case strmtype_buff_out: return ls_eof; # kein READ-CHAR
             #ifdef GENERIC_STREAMS
-            case strmtype_generic:  return listen_generic(stream);
+            case strmtype_generic:  return listen_char_generic(stream);
             #endif
             case strmtype_file:
             #ifdef PIPES
@@ -17369,26 +17432,26 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
             #ifdef SOCKET_STREAMS
             case strmtype_socket:
             #endif
-             # if (TheStream(stream)->strmflags & strmflags_rd_ch_B) {
+              if (TheStream(stream)->strmflags & strmflags_rd_ch_B) {
                 if (ChannelStream_buffered(stream))
-                  return listen_buffered(stream);
+                  return listen_char_buffered(stream);
                 else
-                  return listen_unbuffered(stream);
-             # } else {
-             #   return ls_eof; # kein READ-CHAR
-             # }
+                  return listen_char_unbuffered(stream);
+              } else {
+                return ls_eof; # kein READ-CHAR
+              }
             #ifdef KEYBOARD
-            case strmtype_keyboard: return listen_keyboard(stream);
+            case strmtype_keyboard: return listen_char_keyboard(stream);
             #endif
             case strmtype_terminal:
               #if defined(NEXTAPP)
-              return listen_terminal(stream);
+              return listen_char_terminal(stream);
               #endif
               #if (defined(UNIX) && !defined(NEXTAPP)) || defined(MSDOS) || defined(AMIGAOS) || defined(RISCOS) || defined(WIN32_NATIVE)
               terminalcase(stream,
-                           { return listen_terminal1(stream); },
-                           { return listen_terminal2(stream); },
-                           { return listen_terminal3(stream); }
+                           { return listen_char_terminal1(stream); },
+                           { return listen_char_terminal2(stream); },
+                           { return listen_char_terminal3(stream); }
                           );
               #endif
               NOTREACHED
@@ -17510,6 +17573,93 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
         # Call the generic function (STREAM-CLEAR-INPUT stream):
         funcall(S(stream_clear_input),1);
         return !nullp(value1);
+      }
+    }
+
+# UP: Determines whether a stream has a byte immediately available.
+# listen_byte(stream)
+# > stream: a stream with element-type ([UN]SIGNED-BYTE 8)
+# < result: ls_avail if a byte is available,
+#           ls_eof   if EOF is reached,
+#           ls_wait  if no byte is available, but not because of EOF
+# can trigger GC
+  global signean listen_byte (object stream);
+  global signean listen_byte(stream)
+    var object stream;
+    {
+      if (builtin_stream_p(stream)) {
+        if (TheStream(stream)->strmflags & strmflags_rd_B) { # Input-Stream?
+          check_SP(); check_STACK();
+          # nach Streamtyp verzweigen.
+          # Jede Einzelroutine darf GC auslösen. Außer bei den Sockets
+          # handelt es sich um einen reinen EOF-Test.
+          switch (TheStream(stream)->strmtype) {
+            case strmtype_synonym:  return listen_byte_synonym(stream);
+            case strmtype_broad:    return ls_eof; # kein READ-BYTE
+            case strmtype_concat:   return listen_byte_concat(stream);
+            case strmtype_twoway:
+            case strmtype_echo:
+            #ifdef SOCKET_STREAMS
+            case strmtype_twoway_socket:
+            #endif
+              return listen_byte_twoway(stream);
+            case strmtype_str_in:   return ls_eof; # kein READ-BYTE
+            case strmtype_str_out:  return ls_eof; # kein READ-BYTE
+            case strmtype_str_push: return ls_eof; # kein READ-BYTE
+            case strmtype_pphelp:   return ls_eof; # kein READ-BYTE
+            case strmtype_buff_in:  return ls_eof; # kein READ-BYTE
+            case strmtype_buff_out: return ls_eof; # kein READ-BYTE
+            #ifdef GENERIC_STREAMS
+            case strmtype_generic:  return ls_eof; # unsupported functionality
+            #endif
+            case strmtype_file:
+            #ifdef PIPES
+            case strmtype_pipe_in:
+            case strmtype_pipe_out:
+            #endif
+            #ifdef X11SOCKETS
+            case strmtype_x11socket:
+            #endif
+            #ifdef SOCKET_STREAMS
+            case strmtype_socket:
+            #endif
+              if (TheStream(stream)->strmflags & strmflags_rd_by_B) {
+                # Only 8-bit element types. A general LISTEN-BYTE function
+                # would be hairy (at least the case where you want to know
+                # whether a multibyte integer is pending, and the stream is
+                # unbuffered). For CLX and most applications, it is sufficient
+                # to deal with a socket stream with 8-bit element types.
+                if (ChannelStream_buffered(stream))
+                  return listen_byte_ia8_buffered(stream);
+                else
+                  return listen_byte_ia8_unbuffered(stream);
+              } else {
+                return ls_eof; # kein READ-BYTE
+              }
+            #ifdef KEYBOARD
+            case strmtype_keyboard: return ls_eof; # kein READ-BYTE
+            #endif
+            case strmtype_terminal: return ls_eof; # kein READ-BYTE
+            #ifdef SCREEN
+            case strmtype_window:   return ls_eof; # kein READ-BYTE
+            #endif
+            #ifdef PRINTER
+            case strmtype_printer:  return ls_eof; # kein READ-BYTE
+            #endif
+            default: NOTREACHED
+          }
+        } else {
+          return ls_eof; # kein READ-BYTE
+        }
+      } else {
+        # Call the generic function (STREAM-READ-BYTE-LOOKAHEAD stream):
+        pushSTACK(stream); funcall(S(stream_read_byte_lookahead),1);
+        if (nullp(value1))
+          return ls_wait;
+        elif (eq(value1,S(Keof)))
+          return ls_eof;
+        else
+          return ls_avail;
       }
     }
 
@@ -17879,6 +18029,77 @@ LISPFUN(read_byte,1,2,norest,nokey,0,NIL)
       }
     } else {
       value1 = obj; mv_count=1; skipSTACK(3); # obj als Wert
+    }
+  }
+
+LISPFUNN(read_byte_lookahead,1)
+# (READ-BYTE-LOOKAHEAD stream)
+  {
+    # Check the stream:
+    var object stream = popSTACK();
+    if (!streamp(stream))
+      fehler_stream(stream);
+    # Query the status:
+    var signean status = listen_byte(stream);
+    if (ls_wait_p(status))
+      value1 = NIL;
+    elif (ls_eof_p(status))
+      value1 = S(Keof);
+    else # ls_avail_p(status)
+      value1 = T;
+    mv_count=1;
+  }
+
+LISPFUNN(read_byte_will_hang_p,1)
+# (READ-BYTE-WILL-HANG-P stream)
+  {
+    # Check the stream:
+    var object stream = popSTACK();
+    if (!streamp(stream))
+      fehler_stream(stream);
+    # Query the status:
+    var signean status = listen_byte(stream);
+    value1 = (ls_wait_p(status) ? T : NIL);
+    mv_count=1;
+  }
+
+LISPFUN(read_byte_no_hang,1,2,norest,nokey,0,NIL)
+# (READ-BYTE-NO-HANG stream [eof-error-p [eof-value]])
+  {
+    # Check the stream:
+    var object stream = STACK_2;
+    if (!streamp(stream))
+      fehler_stream(stream);
+    # Query the status:
+    var signean status = listen_byte(stream);
+    if (ls_wait_p(status)) {
+      # Return NIL.
+      value1 = NIL; mv_count=1; skipSTACK(3);
+      return;
+    } else if (!ls_eof_p(status)) {
+      # Read a byte:
+      var object obj = read_byte(stream);
+      if (!eq(obj,eof_value)) {
+        # Return the read integer.
+        value1 = obj; mv_count=1; skipSTACK(3);
+        return;
+      }
+    }
+    # EOF handling.
+    if (!nullp(STACK_1)) { # eof-error-p /= NIL (z.B. = #<UNBOUND>) ?
+      # Error melden:
+      pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
+      pushSTACK(STACK_(2+1)); # Stream
+      pushSTACK(S(read_byte_no_hang));
+      fehler(end_of_file,
+             GETTEXT("~: input stream ~ has reached its end")
+            );
+    } else {
+      # EOF verarzten:
+      var object eofval = STACK_0;
+      if (eq(eofval,unbound))
+        eofval = NIL; # Default ist NIL
+      value1 = eofval; mv_count=1; skipSTACK(3); # eofval als Wert
     }
   }
 

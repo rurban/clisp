@@ -13,6 +13,11 @@ User visible changes
 
 * New functions CONVERT-STRING-FROM-BYTES and CONVERT-STRING-TO-BYTES.
 
+* Support for non-blocking binary I/O.
+  New functions READ-BYTE-LOOKAHEAD, READ-BYTE-WILL-HANG-P, READ-BYTE-NO-HANG.
+  New generic functions STREAM-READ-BYTE-LOOKAHEAD,
+  STREAM-READ-BYTE-WILL-HANG-P, STREAM-READ-BYTE-NO-HANG.
+
 * CONCATENATED-STREAM-STREAMS now returns only the remaining streams,
   as per ANSI CL spec.
 
