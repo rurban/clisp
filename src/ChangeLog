@@ -1,3 +1,10 @@
+1999-09-30  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * genclisph.d (main): Define minus_bit, needed for minus_wbit. Define
+          minus_wbit, needed for framecode. In end_callback, use `framecode'
+          instead of `mtypecode'. Define uintP, needed for framebottomword,
+          needed for finish_frame, needed for begin_callback.
+
 1999-09-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * compiler.lsp (c-GLOBAL-FUNCTION-CALL): When pushing forms onto
