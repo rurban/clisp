@@ -67,9 +67,6 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
   if (saved_STACK != NULL) {
     setSTACK(STACK = saved_STACK);
   } else { # This depends on STACK_register.
-  #ifdef UNIX_CYGWIN32
-    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->Ebx)); }
-  #endif
   #ifdef UNIX_LINUX
     # stackoverflow_context_t is actually `struct sigcontext *'.
     # What about MC680X0 and SPARC ??
@@ -133,6 +130,11 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
     # stackoverflow_context_t is actually `struct sigcontext *'.
    #ifdef DECALPHA
     if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->sc_regs[9])); }
+   #endif
+  #endif
+  #ifdef UNIX_CYGWIN32
+   #ifdef I80386
+    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->Ebx)); }
    #endif
   #endif
   }
