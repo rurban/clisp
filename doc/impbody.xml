@@ -1154,7 +1154,8 @@ the package level. A <firstterm>modern package
  symbol name before calling &intern;.  Similarly, the printer, when
  printing the &symbol-name; part of a &symbol-t; (i.e. the part after
  the package markers), behaves as if the readtable's case were set
- to <constant>:PRESERVE</constant>.</para>
+ to <constant>:PRESERVE</constant>.
+ See also <xref linkend="pack-sensitive"/>.</para>
 
 <para>A <firstterm>case-inverted package
   <indexterm id="pack-case-inverted" significance="preferred">
@@ -1176,7 +1177,8 @@ the package level. A <firstterm>modern package
  like &intern; takes the old-style-string as argument and computes the
  inverted-string from it; whereas the
  function <function>cs-cl:intern</function> takes the inverted-string as
- argument and computes the old-style-string from it.</para>
+ argument and computes the old-style-string from it.
+ See also <xref linkend="pack-inverted"/>.</para>
 
 <para>For a few built-in functions, a variant for the case-inverted
 world is defined in the &cs-cl; package, which has the nickname
@@ -1281,6 +1283,12 @@ can give problems:
  &case-inverted-k;.</para>
 <para>When the package being defined already exists, it is modified as
  follows (and in this order):<variablelist>
+  <varlistentry><term>&case-sensitive-k;</term><term>&case-inverted-k;</term>
+   <listitem><simpara>adjusted with <code>(&setf; &pack-sensitive;)</code>
+     (with a warning)</simpara></listitem></varlistentry>
+  <varlistentry><term>&case-inverted-k;</term>
+   <listitem><simpara>adjusted with <code>(&setf; &pack-inverted;)</code>
+     (with a warning)</simpara></listitem></varlistentry>
   <varlistentry><term><constant>:NICKNAMES</constant></term>
    <listitem><simpara>adjusted with &rename-package;
   </simpara></listitem></varlistentry>
@@ -1307,8 +1315,6 @@ can give problems:
      &unexport;)</simpara></listitem></varlistentry>
   <varlistentry><term><constant>:SIZE</constant></term>
    <listitem><simpara>ignored</simpara></listitem></varlistentry>
-  <varlistentry><term>&case-sensitive-k;</term><term>&case-inverted-k;</term>
-   <listitem><simpara>immutable</simpara></listitem></varlistentry>
 </variablelist></para></section>
 
 <section id="re-export"><title>Function &re-export;</title>
@@ -1319,6 +1325,18 @@ can give problems:
  <replaceable>TO-PACK</replaceable>, provided it already uses
  <replaceable>FROM-PACK</replaceable>; and &signal;s an &error-t; otherwise.
 </para></section>
+
+<section id="pack-inverted"><title>Function &pack-inverted;</title>
+ <para>Returns &t; if the argument is a
+  <link linkend="pack-case-inverted">case-inverted package</link>.
+  This function is &setf;able, although it is probably not a good idea
+  to change the case-inverted status of an existing package.</para></section>
+
+<section id="pack-sensitive"><title>Function &pack-sensitive;</title>
+ <para>Returns &t; if the argument is a
+  <link linkend="pack-case-sensitive">case-sensitive package</link>.
+  This function is &setf;able, although it is probably not a good idea
+  to change the case-sensitive status of an existing package.</para></section>
 
 </section>
 </chapter>

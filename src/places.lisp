@@ -337,6 +337,8 @@
 ;;; Definition of places:
 ;;;----------------------------------------------------------------------------
 (def-setf-alias system::package-documentation SYSTEM::|(SETF PACKAGE-DOCUMENTATION)|)
+(def-setf-alias package-case-inverted-p SYSTEM::|(SETF PACKAGE-CASE-INVERTED-P)|)
+(def-setf-alias package-case-sensitive-p SYSTEM::|(SETF PACKAGE-CASE-SENSITIVE-P)|)
 (def-setf-alias package-lock SYSTEM::|(SETF PACKAGE-LOCK)|)
 (def-setf-alias hash-table-weak-p SYSTEM::|(SETF HASH-TABLE-WEAK-P)|)
 (def-setf-alias hash-table-warn-if-needs-rehash-after-gc SYSTEM::|(SETF HASH-TABLE-WARN-IF-NEEDS-REHASH-AFTER-GC)|)

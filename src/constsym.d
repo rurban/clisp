@@ -68,7 +68,7 @@ LISPSYM(if,"IF",lisp)
 LISPSYM(when,"WHEN",lisp)
 LISPSYM(unless,"UNLESS",lisp)
 LISPSYM(cond,"COND",lisp)
-LISPSYM(case,"CASE",lisp)
+LISPSYM(case ,"CASE",lisp)
 LISPSYM(block,"BLOCK",lisp)
 LISPSYM(return_from,"RETURN-FROM",lisp)
 LISPSYM(tagbody,"TAGBODY",lisp)
@@ -592,6 +592,8 @@ LISPSYM(package_case_inverted_p,"PACKAGE-CASE-INVERTED-P",ext)
 LISPSYM(package_documentation,"PACKAGE-DOCUMENTATION",system) /* ABI */
 LISPSYM(set_package_documentation,"(SETF PACKAGE-DOCUMENTATION)",system) /* ABI */
 LISPSYM(set_package_lock,"(SETF PACKAGE-LOCK)",system) /* ABI */
+LISPSYM(set_package_case_inverted_p,"(SETF PACKAGE-CASE-INVERTED-P)",system)
+LISPSYM(set_package_case_sensitive_p,"(SETF PACKAGE-CASE-SENSITIVE-P)",system)
 LISPSYM(symbol_value_lock,"SYMBOL-VALUE-LOCK",system)
 LISPSYM(check_package_lock,"CHECK-PACKAGE-LOCK",system)
 LISPSYM(list_all_packages,"LIST-ALL-PACKAGES",lisp)
