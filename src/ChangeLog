@@ -1,5 +1,18 @@
 1999-01-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * pathname.d (OPEN): Add keyword argument :BUFFERED.
+          (SYS::OLD-OPEN): Temporary hack, in order to preserve binary
+          compatibility.
+        * stream.d (MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM,
+           MAKE-PIPE-IO-STREAM): Add keyword arguments :ELEMENT-TYPE,
+          :EXTERNAL-FORMAT, :BUFFERED.
+          (SOCKET-ACCEPT, SOCKET-CONNECT): Likewise.
+        * eval.d (FUNTAB): Replace OPEN with SYS::OLD-OPEN.
+        * compiler.lsp (funtab): Likewise.
+          (subr-info): Update.
+
+1999-01-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * stream.d (make_socket_stream): Fix a potential GC crash: host was
           not GC-safe.
 

@@ -598,8 +598,10 @@ LISPFUNN(probe_file,1)
 LISPFUNN(probe_directory,1)
 LISPFUNN(delete_file,1)
 LISPFUNN(rename_file,2)
-LISPFUN(open,1,0,norest,key,5,
+LISPFUN(old_open,1,0,norest,key,5,
         (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format)) )
+LISPFUN(open,1,0,norest,key,6,
+        (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),kw(external_format),kw(buffered)) )
 LISPFUN(directory,0,1,norest,key,2, (kw(circle),kw(full)) )
 LISPFUN(cd,0,1,norest,nokey,0,NIL)
 LISPFUNN(make_dir,1)
@@ -859,10 +861,13 @@ LISPFUNN(file_stream_p,1)
 LISPFUNN(make_printer_stream,0)
 #endif
 #ifdef PIPES
-LISPFUNN(make_pipe_input_stream,1)
-LISPFUNN(make_pipe_output_stream,1)
+LISPFUN(make_pipe_input_stream,1,0,norest,key,3,\
+        (kw(element_type),kw(external_format),kw(buffered)) )
+LISPFUN(make_pipe_output_stream,1,0,norest,key,3,\
+        (kw(element_type),kw(external_format),kw(buffered)) )
 #ifdef PIPES2
-LISPFUNN(make_pipe_io_stream,1)
+LISPFUN(make_pipe_io_stream,1,0,norest,key,3,\
+        (kw(element_type),kw(external_format),kw(buffered)) )
 #endif
 #endif
 #ifdef X11SOCKETS
@@ -876,9 +881,11 @@ LISPFUNN(socket_server_close,1)
 LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
 LISPFUNN(socket_server_port,1)
 LISPFUNN(socket_server_host,1)
-LISPFUNN(socket_accept,1)
+LISPFUN(socket_accept,1,0,norest,key,3,\
+        (kw(element_type),kw(external_format),kw(buffered)) )
 LISPFUN(socket_wait,1,2,norest,nokey,0,NIL)
-LISPFUN(socket_connect,1,1,norest,nokey,0,NIL)
+LISPFUN(socket_connect,1,1,norest,key,3,\
+        (kw(element_type),kw(external_format),kw(buffered)) )
 LISPFUNN(socket_service_port,1)
 LISPFUNN(socket_stream_port,1)
 LISPFUNN(socket_stream_host,1)
