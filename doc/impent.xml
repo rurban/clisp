@@ -537,8 +537,8 @@
    &newest-k;)</simpara></listitem></varlistentry>">
 <!ENTITY name-type-split "filename is <link
    linkend='name-type-split'>split into name and type</link>.">
-<!ENTITY dir-title "<title><literal role='sexp'>Directory = (&startpoint-r;
-   . <replaceable>subdirs</replaceable>)</literal></title>">
+<!ENTITY dir-term "<term><literal role='sexp'>&directory-r; = (&startpoint-r;
+   . <replaceable>subdirs</replaceable>)</literal></term>">
 <!ENTITY startp-rel-abs "<row><entry>&startpoint-r;</entry>
    <entry>&relative-k; | &absolute-k;</entry></row>">
 <!ENTITY subdirs-def "<row><entry><replaceable>subdirs</replaceable></entry>
