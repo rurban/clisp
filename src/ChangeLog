@@ -1,5 +1,13 @@
 2005-02-01  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d (close_library): new function
+	(exit_ffi): use it
+	(FFI:CLOSE-FOREIGN-LIBRARY): implemented
+	* constsym.d, subr.d (close_foreign_library): added
+	* foreign1.lisp (FFI:CLOSE-FOREIGN-LIBRARY): exported
+
+2005-02-01  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d (find_library): extracted from FFI::FOREIGN-LIBRARY
 	(FFI::FOREIGN-LIBRARY): use it; fixed a GC-safety bug
 	(object_handle): maygc only if retry_p is true

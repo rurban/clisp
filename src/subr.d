@@ -1360,6 +1360,7 @@ LISPFUNN(lookup_foreign_function,2)
 LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL)
 #if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
 LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL)
+LISPFUNN(close_foreign_library,1)
 LISPFUNN(foreign_library_variable,4)
 LISPFUNN(foreign_library_function,4)
 #endif  /* WIN32_NATIVE || HAVE_DLOPEN */
