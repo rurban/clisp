@@ -1,7 +1,7 @@
 /* vacall function for m68k CPU */
 
 /*
- * Copyright 1995-1999 Bruno Haible, <bruno@clisp.org>
+ * Copyright 1995-2004 Bruno Haible, <bruno@clisp.org>
  *
  * This is free software distributed under the GNU General Public Licence
  * described in the file COPYING. Contact the author if you don't have this
@@ -16,7 +16,7 @@
 #endif
 
 #ifdef REENTRANT
-#define vacall __vacall_r
+#define __vacall __vacall_r
 register struct { void (*vacall_function) (void*,va_alist); void* arg; }
          *	env	__asm__("a0");
 #endif
@@ -30,7 +30,7 @@ register float	fp_fret	__asm__("fp0");
 register double	fp_dret	__asm__("fp0");
 
 void /* the return type is variable, not void! */
-vacall (__vaword firstword)
+__vacall (__vaword firstword)
 {
   __va_alist list;
   /* Prepare the va_alist. */
