@@ -2034,9 +2034,6 @@
 ;                    clos::structure-object-p symbolp vectorp
 ;                    class-of cons gethash funcall apply ...
 ;   )        )
-; Das Ergebnis ist nicht(!) als eigenständige Funktion aufrufbar, sondern
-; bedarf der Nachbearbeitung: Die Konstanten C_0 ... C_(k-1) C_k müssen zu
-; #(C_0 ... C_(k-1) . [Rest von C_k]) zusammengefasst werden, k = 0 oder 1.
 
 ; Liefert eine generische Funktion ohne Dispatch-Code. Nicht aufrufbar!!
 (let* ((prototype ; eine sinnlose Funktion
@@ -2052,7 +2049,6 @@
 )
 
 #|
-; Besser in compiler.lsp??
 (defun make-gf (name lambdabody signature argorder methods)
   (let ((preliminary
           (eval `(LET ()
@@ -2064,12 +2060,7 @@
       name
       (sys::closure-codevec preliminary)
       (list
-        (case (sys::%record-length preliminary)
-          (3 (sys::%record-ref preliminary 2))
-          (4 (let ((consts (sys::%record-ref preliminary 3)))
-               (setf (svref consts 0) (sys::%record-ref preliminary 2))
-               consts
-        ) )  )
+        (sys::%record-ref preliminary 2)
         signature
         argorder
         methods
@@ -2092,14 +2083,7 @@
                   ) )
         )) )
     (setf (sys::%record-ref final 1) (sys::closure-codevec preliminary))
-    (setf (sys::%record-ref final 2)
-          (case (sys::%record-length preliminary)
-            (3 (sys::%record-ref preliminary 2))
-            (4 (let ((consts (sys::%record-ref preliminary 3)))
-                 (setf (svref consts 0) (sys::%record-ref preliminary 2))
-                 consts
-          ) )  )
-    )
+    (setf (sys::%record-ref final 2) (sys::%record-ref preliminary 2))
     final
 ) )
 
@@ -2111,10 +2095,14 @@
              (apply 'slow-funcall-gf gf args)
        ) ) )
        (prototype-code (sys::%record-ref prototype 1))
-       (prototype-consts (sys::%record-ref prototype 3)))
+       (prototype-consts (sys::%record-ref prototype 2)))
   (defun finalize-slow-gf (gf)
     (setf (sys::%record-ref gf 1) prototype-code)
-    (setf (sys::%record-ref gf 2) (substitute gf 'magic prototype-consts))
+    (setf (sys::%record-ref gf 2)
+          (let ((v (copy-seq prototype-consts)))
+            (setf (svref v 0) (substitute gf 'magic (svref v 0)))
+            v
+    )     )
   )
   (defun gf-never-called-p (gf) (eq (sys::%record-ref gf 1) prototype-code))
   (defun warn-if-gf-already-called (gf) )
@@ -2227,7 +2215,7 @@
                                        ) )
                              )) )
                          ; (sys::%record-ref proto-gf 1) müssen wir aufbewahren.
-                         ; (sys::%record-ref proto-gf 3) = #(NIL INITIAL-FUNCALL-GF MAGIC)
+                         ; (sys::%record-ref proto-gf 2) = #(NIL INITIAL-FUNCALL-GF MAGIC)
                          (sys::%record-ref proto-gf 1)
           )) )   )     )
       (setf (sys::%record-ref gf 1) prototype)
@@ -2280,13 +2268,7 @@
                    )
          )) )
       (setf (sys::%record-ref gf 1) (sys::%record-ref preliminary 1))
-      (setf (sys::%record-ref gf 2)
-            (case (sys::%record-length preliminary)
-              (3 (sys::%record-ref preliminary 2))
-              (4 (let ((consts (sys::%record-ref preliminary 3)))
-                   (setf (svref consts 0) (sys::%record-ref preliminary 2))
-                   consts
-      )     ) )  )
+      (setf (sys::%record-ref gf 2) (sys::%record-ref preliminary 2))
 ) ) )
 
 ; Berechnet den Dispatch-Code einer generischen Funktion.

@@ -1,5 +1,18 @@
 1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Make SYS::%GENERIC-FUNCTION-LAMBDA self-contained.
+        * misc.d (SYS::VERSION), constobj.d: Bump version number.
+        * record.d (SYS::%COPY-GENERIC-FUNCTION): New function.
+        * eval.d (FUNTAB): Add it.
+        * compiler.lsp (funtab): Likewise.
+          (subr-info): Likewise.
+          (c-FNODE-FUNCTION): Generate different code for generic functions.
+          (create-fun-obj): The venv of generic functions is now inside
+          consts[0], from the beginning.
+        * clos.lsp (install-dispatch): Simplify.
+
+1999-05-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * conditio.lsp: Add SYS::PRINT-CONDITION to
           clos::*dynamically-modifiable-generic-function-names*.
 
