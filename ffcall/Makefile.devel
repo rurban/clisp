@@ -53,8 +53,7 @@ autoconf/aclocal.m4 : m4/general.m4 m4/proto.m4 m4/cc-gcc.m4 m4/as-underscore.m4
 configures : $(CONFIGURES)
 
 AUTOCONF_FILES = autoconf/aclocal.m4
-AUTOCONF_VERSION ?= 2.53
-AUTOCONF = autoconf-$(AUTOCONF_VERSION)
+AUTOCONF = autoconf
 
 configure : configure.in $(AUTOCONF_FILES)
 	$(AUTOCONF) --include autoconf

@@ -1,3 +1,9 @@
+2003-01-29  Sam Steingold  <sds@gnu.org>
+
+	upgraded to autoconf-2.57
+	* Makefile.devel, ffcall/Makefile.devel (AUTOCONF_VERSION): removed
+	(AUTOCONF, AUTOCONF_CACHE): do not depend on it
+
 2003-01-25  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (handle_isset): increased granularity of
