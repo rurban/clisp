@@ -3,22 +3,17 @@
  * Copyright (C) 2000-2003 by Sam Steingold
  */
 
+#include "clisp.h"
+
 #include "config.h"
 
-/* #define DEBUG */
-#ifdef DEBUG
-# include <stdio.h>
-#else
-# define OBJECT_OUT(o,l)
-#endif
-
-#ifdef __CYGWIN__
+#if defined(__CYGWIN__)
 # define UNIX_CYGWIN32
 #endif
 
 #define WIN32_LEAN_AND_MEAN  /* avoid including junk */
 #if defined(UNIX_CYGWIN32) || defined(__MINGW32__)
-# ifdef UNICODE
+# if defined(UNICODE)
 #  define SAVED_UNICODE
 #  undef UNICODE
 # endif
@@ -47,7 +42,7 @@
 # include <ldap.h>
 # define ACCESS_LDAP
 #endif
-#ifdef HAVE_GNOME_H
+#if defined(HAVE_GNOME_H)
 # include <gnome.h>
 #endif
 
@@ -61,7 +56,7 @@ typedef enum {
   SCOPE_SELF, SCOPE_KIDS, SCOPE_TREE
 } scope_t;
 
-#ifdef WIN32_REGISTRY
+#if defined(WIN32_REGISTRY)
 # define SYSCALL_WIN32(call)     do {                                  \
     uintL status;                                                      \
     begin_system_call();                                               \
@@ -71,8 +66,8 @@ typedef enum {
   } while(0)
 #endif
 
-#ifdef ACCESS_LDAP
-#ifdef WIN32_NATIVE
+#if defined(ACCESS_LDAP)
+#if defined(WIN32_NATIVE)
 # define SYSCALL_LDAP(call) SYSCALL_WIN32(call)
 #else
 # define SYSCALL_LDAP(call)      do {                                  \
@@ -85,27 +80,29 @@ typedef enum {
 #endif
 #endif
 
-#include "clisp.h"
-
-#ifdef DEBUG
+/* #define DEBUG */
+#if defined(DEBUG)
+# include <stdio.h>
 extern object nobject_out (FILE* stream, object obj);
 # define XOUT(obj,label)                                                \
   (printf("[%s:%d] %s: %s:\n",__FILE__,__LINE__,STRING(obj),label),     \
    obj=nobject_out(stdout,obj), printf("\n"))
 #else
+# undef OBJECT_OUT
+# define OBJECT_OUT(o,l)
 # define XOUT(o,l)
 #endif
 
 DEFMODULE(dirkey,"LDAP");
 
-#ifdef SAVED_UNICODE
+#if defined(SAVED_UNICODE)
 DEFVAR(misc_encoding, (funcall(L(misc_encoding),0),value1));
-# ifdef GNOME
+# if defined(GNOME)
 DEFVAR(pathname_encoding, (funcall(L(pathname_encoding),0),value1));
 # endif
 #else
 DEFVAR(misc_encoding, (funcall(L(default_file_encoding),0),value1));
-# ifdef GNOME
+# if defined(GNOME)
 DEFVAR(pathname_encoding, O(misc_encoding));
 # endif
 #endif
@@ -168,7 +165,7 @@ static object reg_val_to_vector (uintL size, const char* buffer) {
   return vec;
 }
 
-#ifdef WIN32_REGISTRY
+#if defined(WIN32_REGISTRY)
 /* convert a registry value [type;size;buffer] to the appropriate Lisp object
  can trigger GC */
 static object registry_value_to_object (DWORD type, DWORD size,
@@ -225,7 +222,7 @@ static object registry_value_to_object (DWORD type, DWORD size,
 DEFUN(LDAP:DIR-KEY-CLOSE,dk)
 { /* close the supplied DIR-KEY */
   object dkey = popSTACK();
-# ifdef WIN32_REGISTRY
+# if defined(WIN32_REGISTRY)
   if (fpointerp(dkey)) { /* an HKEY in an iterator_state */
     if (TheFpointer(dkey)->fp_pointer)
       SYSCALL_WIN32(RegCloseKey((HKEY)(TheFpointer(dkey)->fp_pointer)));
@@ -234,17 +231,17 @@ DEFUN(LDAP:DIR-KEY-CLOSE,dk)
   {
     gcv_object_t *slots = dir_key_slots(dkey = test_dir_key(dkey,false));
     if (!nullp(slots[DK_OPEN])) {
-#    ifdef WIN32_REGISTRY
+#    if defined(WIN32_REGISTRY)
       if (eq(slots[DK_TYPE],`:WIN32`)) {
         SYSCALL_WIN32(RegCloseKey((HKEY)SLOT_HANDLE(slots)));
       } else
 #    endif
-#    ifdef ACCESS_LDAP
+#    if defined(ACCESS_LDAP)
       if (eq(slots[DK_TYPE],`:LDAP`)) {
         SYSCALL_LDAP(ldap_unbind((struct ldap*)SLOT_HANDLE(slots)));
       } else
 #    endif
-#    ifdef GNOME
+#    if defined(GNOME)
       if (eq(slots[DK_TYPE],`:GNOME`)) {
         with_string_0(slots[DK_PATH],O(pathname_encoding),pathz,{
           gnome_config_drop_file(pathz);
@@ -259,7 +256,7 @@ DEFUN(LDAP:DIR-KEY-CLOSE,dk)
   VALUES1(NIL);
 }
 
-#ifdef WIN32_REGISTRY
+#if defined(WIN32_REGISTRY)
 struct root {
   const char *name;
   unsigned int namelen;
@@ -267,25 +264,25 @@ struct root {
 };
 #define MKKEY(key)  { #key, sizeof(#key)-1, key }
 static struct root roots[] = {
-# ifdef  HKEY_CLASSES_ROOT
+# if defined(HKEY_CLASSES_ROOT)
   MKKEY(HKEY_CLASSES_ROOT),
 # endif
-# ifdef  HKEY_CURRENT_USER
+# if defined(HKEY_CURRENT_USER)
   MKKEY(HKEY_CURRENT_USER),
 # endif
-# ifdef  HKEY_LOCAL_MACHINE
+# if defined(HKEY_LOCAL_MACHINE)
   MKKEY(HKEY_LOCAL_MACHINE),
 # endif
-# ifdef  HKEY_USERS
+# if defined(HKEY_USERS)
   MKKEY(HKEY_USERS),
 # endif
-# ifdef  HKEY_PERFORMANCE_DATA
+# if defined(HKEY_PERFORMANCE_DATA)
   MKKEY(HKEY_PERFORMANCE_DATA),
 # endif
-# ifdef  HKEY_CURRENT_CONFIG
+# if defined(HKEY_CURRENT_CONFIG)
   MKKEY(HKEY_CURRENT_CONFIG),
 # endif
-# ifdef  HKEY_DYN_DATA
+# if defined(HKEY_DYN_DATA)
   MKKEY(HKEY_DYN_DATA),
 # endif
 };
@@ -367,7 +364,7 @@ static void open_reg_key (HKEY hkey, char* path, direction_t dir,
 }}
 #endif
 
-#ifdef ACCESS_LDAP
+#if defined(ACCESS_LDAP)
 nonreturning_function(static, fehler_ldap,
                       (object dk, object path, char* errmsg)) {
   end_system_call();
@@ -403,7 +400,7 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
     default: STACK_1 = S(Kinput); break;
   }
   /* create the key handle */
-# ifdef WIN32_REGISTRY
+# if defined(WIN32_REGISTRY)
   if (eq(type,`:WIN32`)) {
     if (NULL != slots) {
       root = test_dir_key(root,true);
@@ -421,7 +418,7 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
     }
   } else
 # endif
-# ifdef ACCESS_LDAP
+# if defined(ACCESS_LDAP)
   if (eq(type,`:LDAP`)) {
     if (NULL != slots) {
       root = test_dir_key(root,true);
@@ -457,7 +454,7 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
     }
   } else
 # endif
-# ifdef GNOME
+# if defined(GNOME)
   if (eq(type,`:GNOME`)) {
     /* do nothing - gnome-conf is stateless */
   } else
@@ -475,7 +472,7 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
   pushSTACK(STACK_(1+1)); /* direction */
   if (NULL != slots) {
     pushSTACK(slots[DK_PATH]);
-#  ifdef WIN32_NATIVE
+#  if defined(WIN32_NATIVE)
     if (eq(slots[DK_TYPE],`:WIN32`))
       pushSTACK(`"\\"`);
     else
@@ -535,7 +532,7 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
 
 DEFUN(LDAP::DIR-KEY-SUBKEYS, key)
 { /* return the list of subkey names of the given KEY */
-# ifdef WIN32_REGISTRY
+# if defined(WIN32_REGISTRY)
   if (eq(STACK_0,`:WIN32`)) { /* top-level keys */
     int ii, len = sizeof(roots)/sizeof(*roots);
     skipSTACK(1);
@@ -585,7 +582,7 @@ static object itst_current (object state) {
     if (Sstring_length(name) > 0) {
       if (depth) {
         depth++;
-#      ifdef WIN32_NATIVE
+#      if defined(WIN32_NATIVE)
         pushSTACK(`"\\"`);
 #      else
         pushSTACK(`"/"`);
@@ -897,7 +894,7 @@ DEFUN(LDAP::DIR-KEY-VALUE-DELETE, key name)
 }
 #undef REG_KEY_DEL
 
-#ifdef UNIX_CYGWIN32
+#if defined(UNIX_CYGWIN32)
 /* Cygwin internal in <src/winsup/cygwin/times.cc>
  Convert a Win32 time to "UNIX" format. */
 #define FACTOR (0x19db1ded53ea710LL)
@@ -961,7 +958,7 @@ DEFUN(LDAP::DKEY-INFO,key) {
   value6 = L_to_I(max_value_name_length);
   value7 = L_to_I(max_value_length);
   value8 = L_to_I(security_descriptor);
-# ifdef WIN32_NATIVE
+# if defined(WIN32_NATIVE)
   value9 = convert_time_to_universal(&write_time);
 # else
   {
