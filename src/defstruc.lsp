@@ -308,54 +308,78 @@
        ) ) )
 )  ))
 
-(defun ds-make-accessors (name type concname slotlist)
+(defun ds-make-accessors (name names type concname slotlist)
   (mapcap
     #'(lambda (slot)
         (if (ds-slot-name slot)
           (let ((accessorname (concat-pnames concname (ds-slot-name slot)))
                 (offset (ds-slot-offset slot))
                 (slottype (ds-slot-type slot)))
-            `((PROCLAIM '(FUNCTION ,accessorname (,name) ,slottype))
-              (PROCLAIM '(INLINE ,accessorname))
-              (DEFUN ,accessorname (OBJECT)
-                (THE ,slottype
-                  ,(if (eq type 'T)
-                     `(%STRUCTURE-REF ',name OBJECT ,offset)
-                     (if (eq type 'LIST)
-                       `(NTH ,offset OBJECT)
-                       (if (consp type)
-                         `(AREF OBJECT ,offset)
-                         `(SVREF OBJECT ,offset)
-             )) )  ) ) )
-          )
+            ;; This makes the macroexpansion depend on the current state
+            ;; of the compilation environment, but it doesn't hurt because
+            ;; because the included structure's definition must already be
+            ;; present in the compilation environment anyway. We don't expect
+            ;; people to re-DEFUN defstruct accessors.
+            (if (member (get accessorname 'SYSTEM::DEFSTRUCT-READER name)
+                        (cdr names)
+                        :test #'eq
+                )
+              '()
+              `((PROCLAIM '(FUNCTION ,accessorname (,name) ,slottype))
+                (PROCLAIM '(INLINE ,accessorname))
+                (DEFUN ,accessorname (OBJECT)
+                  (THE ,slottype
+                    ,(if (eq type 'T)
+                       `(%STRUCTURE-REF ',name OBJECT ,offset)
+                       (if (eq type 'LIST)
+                         `(NTH ,offset OBJECT)
+                         (if (consp type)
+                           `(AREF OBJECT ,offset)
+                           `(SVREF OBJECT ,offset)
+                ) )  ) ) )
+                (SYSTEM::%PUT ',accessorname 'SYSTEM::DEFSTRUCT-READER ',name)
+               )
+          ) )
           '()
       ) )
     slotlist
 ) )
 
-(defun ds-make-defsetfs (name type concname slotlist)
+(defun ds-make-defsetfs (name names type concname slotlist)
   (mapcap
     #'(lambda (slot)
         (if (and (ds-slot-name slot) (not (ds-slot-readonly slot)))
           (let ((accessorname (concat-pnames concname (ds-slot-name slot)))
                 (offset (ds-slot-offset slot))
                 (slottype (ds-slot-type slot)))
-            `((DEFSETF ,accessorname (STRUCT) (VALUE)
-                ,(if (eq type 'T)
-                   `(LIST '%STRUCTURE-STORE '',name
-                      STRUCT
-                      ,offset
-                      ,(if (eq 'T slottype)
-                         `VALUE
-                         `(LIST 'THE ',slottype VALUE)
-                    )  )
-                   (if (eq type 'LIST)
-                     `(LIST 'SETF (LIST 'NTH ,offset STRUCT) VALUE)
-                     (if (consp type)
-                       `(LIST 'SETF (LIST 'AREF STRUCT ,offset) VALUE)
-                       `(LIST 'SETF (LIST 'SVREF STRUCT ,offset) VALUE)
-             ))  ) ) )
-      ) ) )
+            ;; This makes the macroexpansion depend on the current state
+            ;; of the compilation environment, but it doesn't hurt because
+            ;; because the included structure's definition must already be
+            ;; present in the compilation environment anyway. We don't expect
+            ;; people to re-DEFSETF defstruct accessors.
+            (if (member (get accessorname 'SYSTEM::DEFSTRUCT-WRITER name)
+                        (cdr names)
+                        :test #'eq
+                )
+              '()
+              `((DEFSETF ,accessorname (STRUCT) (VALUE)
+                  ,(if (eq type 'T)
+                     `(LIST '%STRUCTURE-STORE '',name
+                        STRUCT
+                        ,offset
+                        ,(if (eq 'T slottype)
+                           `VALUE
+                           `(LIST 'THE ',slottype VALUE)
+                      )  )
+                     (if (eq type 'LIST)
+                       `(LIST 'SETF (LIST 'NTH ,offset STRUCT) VALUE)
+                       (if (consp type)
+                         `(LIST 'SETF (LIST 'AREF STRUCT ,offset) VALUE)
+                         `(LIST 'SETF (LIST 'SVREF STRUCT ,offset) VALUE)
+                )  ) ) )
+                (SYSTEM::%PUT ',accessorname 'SYSTEM::DEFSTRUCT-WRITER ',name)
+               )
+      ) ) ) )
     slotlist
 ) )
 
@@ -845,8 +869,8 @@
            )
          ,@(if copier-option (ds-make-copier copier-option name type-option))
          ,@(let ((directslotlist (nthcdr inherited-slot-count slotlist)))
-             `(,@(ds-make-accessors name type-option conc-name-option directslotlist)
-               ,@(ds-make-defsetfs name type-option conc-name-option directslotlist)
+             `(,@(ds-make-accessors name names type-option conc-name-option directslotlist)
+               ,@(ds-make-defsetfs name names type-option conc-name-option directslotlist)
               )
            )
          (SETF (DOCUMENTATION ',name 'STRUCTURE) ,docstring)

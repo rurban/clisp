@@ -1,5 +1,19 @@
 1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        DEFSTRUCT with option :INCLUDE should not define accessors which were
+        already defined in a superclass DEFSTRUCT.
+        * init.lsp (remove-old-definitions): Also remprop
+          SYSTEM::DEFSTRUCT-READER.
+        * places.lsp (define-setf-expander, defsetf): Also remprop
+          SYSTEM::DEFSTRUCT-WRITER.
+        * defstruc.lsp (ds-make-accessors): One more argument. Check property
+          SYSTEM::DEFSTRUCT-READER.
+          (ds-make-defsetfs): One more argument. Check property
+          SYSTEM::DEFSTRUCT-WRITER.
+          (defstruct): Update.
+
+1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * conditio.lsp: Export STYLE-WARNING.
           (STYLE-WARNING): New condition type.
         * defs3.lsp: Export STYLE-WARNING.

@@ -1131,9 +1131,7 @@ PRINT, PPRINT, FORMAT and the like. The following rules must be obeyed:
   *PRINT-INDENT-LISTS*.
 
 The :INHERIT option is exactly like :INCLUDE except that it doesn't create
-new accessors for the inherited slots. Use this option to avoid the problems
-that occur when using the same :CONC-NAME for the new and the inherited
-structure.
+new accessors for the inherited slots.
 
 
                        CHAPTER 20: The Evaluator
