@@ -1,3 +1,7 @@
+2004-06-22  Bruno Haible  <bruno@clisp.org>
+
+	* clos-method1.lisp (<method>): New variable.
+
 2004-06-06  Bruno Haible  <bruno@clisp.org>
 
 	* clos-methcomb2.lisp (add-next-method-local-functions): New function,
