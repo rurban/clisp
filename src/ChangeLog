@@ -1,3 +1,15 @@
+2004-05-29  Bruno Haible  <bruno@clisp.org>
+
+	Make the class-default-initargs computation customizable.
+	* init.lisp: Export compute-default-initargs.
+	* clos-package.lisp: Likewise.
+	* clos-class3.lisp (compute-default-initargs-<class>): New function.
+	(compute-default-initargs): New function.
+	(checked-compute-default-initargs): New function.
+	(initialize-instance-<structure-class>,
+	finalize-instance-standard-class): Call it.
+	* clos-class6.lisp (compute-default-initargs): New generic function.
+
 2004-07-13  Bruno Haible  <bruno@clisp.org>
 
 	* intelem.d (UDS_to_I, DS_to_I): Make global.
