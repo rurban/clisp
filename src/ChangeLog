@@ -1,5 +1,11 @@
 2004-10-06  Bruno Haible  <bruno@clisp.org>
 
+	* time.d (SYS::DELTA4): Fix error message's argument. Signal an error
+	if the shift is >= 32. Fix 64-bit computations.
+	* defs1.lisp (%time): Use more verbose variable names.
+
+2004-10-06  Bruno Haible  <bruno@clisp.org>
+
 	* control.d (MULTIPLE-VALUE-SETQ): Rewritten, to fix three bugs
 	introduced since 2003-05-20: GC-safety bug when assigning Car(STACK_0),
 	side effect on variable list given in the original form, GC-safety bug
