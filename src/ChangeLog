@@ -1,3 +1,9 @@
+2004-10-28  Bruno Haible  <bruno@clisp.org>
+
+	* Makefile.devel (SBCL_VERSION, SBCL_SOURCE_FILE, SBCL_SOURCE_URL): New
+	variables.
+	(check-sbcl): New target.
+
 2004-10-27  Bruno Haible  <bruno@clisp.org>
 
 	* reploop.lisp (break-loop): Change Ctrl-D's behaviour when the

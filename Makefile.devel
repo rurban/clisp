@@ -405,6 +405,18 @@ build-darwin-powerpc-10:
 	  ./configure --build $(MULTIBUILD_OPTIONS) \
 	              build-wide
 
+# Bootstrap SBCL.
+SBCL_VERSION = 0.8.15
+SBCL_SOURCE_FILE = sbcl-$(SBCL_VERSION)-source.tar.bz2
+SBCL_SOURCE_URL = http://www.haible.de/bruno/$(SBCL_SOURCE_FILE)
+check-sbcl:
+	./configure --build build-for-sbcl
+	test -f $(SBCL_SOURCE_FILE) || wget $(SBCL_SOURCE_URL)
+	rm -rf sbcl-$(SBCL_VERSION)
+	bunzip2 -c < $(SBCL_SOURCE_FILE) | tar xvf -
+	clisp=`pwd`/build-for-sbcl/clisp; \
+	cd sbcl-$(SBCL_VERSION) && sh make.sh $$clisp
+
 
 distrib : linux-distrib src-distrib
 
