@@ -24,8 +24,12 @@
 #define _READLINE_H_
 
 /* Need to include <stdio.h> for the declaration of FILE below. */
-#if defined(__GNUC__) || defined(__STDC__) || defined(__cplusplus)
+#if defined (__GNUC__) || defined (__STDC__) || defined (__cplusplus)
 #  include <stdio.h>
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #if defined (READLINE_LIBRARY)
@@ -333,6 +337,8 @@ extern Keymap rl_get_keymap_by_name _PROTO((char *name));
 extern char *rl_get_keymap_name _PROTO((Keymap map));
 extern void rl_set_keymap _PROTO((Keymap map));
 extern Keymap rl_get_keymap _PROTO((void));
+extern void rl_set_keymap_from_edit_mode _PROTO((void));
+extern char *rl_get_keymap_name_from_edit_mode _PROTO((void));
 
 /* Functions for manipulating the funmap, which maps command names to functions. */
 /* funmap.c */
@@ -359,7 +365,7 @@ extern int rl_forced_update_display _PROTO((void));
 extern int rl_clear_message _PROTO((void));
 extern int rl_reset_line_state _PROTO((void));
 
-#if (defined (__STDC__) || defined(__cplusplus)) && defined (USE_VARARGS) && defined (PREFER_STDARG)
+#if (defined (__STDC__) || defined (__cplusplus)) && defined (USE_VARARGS) && defined (PREFER_STDARG)
 extern int rl_message (const char *, ...);
 #else
 extern int rl_message ();
@@ -417,7 +423,7 @@ extern int maybe_unsave_line _PROTO((void));
 extern int maybe_replace_line _PROTO((void));
 
 /* Completion functions. */
-/* omplete.c */
+/* complete.c */
 extern int rl_complete_internal _PROTO((int what_to_do));
 extern void rl_display_match_list _PROTO((char **matches, int len, int max));
 
@@ -436,7 +442,6 @@ extern char *filename_completion_function _PROTO((char *text, int state));
 
 /* Other undocumented. */
 /* bind.c */
-extern void rl_set_keymap_from_edit_mode _PROTO((void));
 extern void _rl_bind_if_unbound _PROTO((char *keyseq, Function *default_func));
 /* callback.c */
 #if defined(READLINE_CALLBACKS)
@@ -842,6 +847,10 @@ extern int rl_inhibit_completion;
 
 #if !defined (savestring)
 extern char *savestring _PROTO((char *s));	/* XXX backwards compatibility */
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* _READLINE_H_ */
