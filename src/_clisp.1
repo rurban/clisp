@@ -1,4 +1,4 @@
-.TH CLISP 1 "11 April 1999"
+.TH CLISP 1 "13 May 1999"
 
 
 .SH NAME
@@ -402,15 +402,29 @@ defaults to `-i *' which means that the file will be
 
 .PP
 .SH REFERENCE
-The language implemented conforms to
+The language implemented mostly conforms to
 .RS 1
-      ANSI CL standard X3.226-1994
+      ANSI Common Lisp standard X3.226-1994
+      http://www.x3.org/tc_home/j13sd4.htm
 .RE
-and to the relevant parts of
+available online as the
+.RS 1
+      Common Lisp HyperSpec
+      http://www.harlequin.com/education/books/HyperSpec/
+      ("CLHS" for short)
+.RE
+which supersedes the earlier specifications
 .RS 1
       Guy L. Steele Jr.: Common Lisp - The Language.
       Digital Press. 2nd edition 1990, 1032 pages.
+      http://www.cs.cmu.edu/afs/cs.cmu.edu/project/ai-repository/ai/html/cltl/cltl2.html
       ("CLtL2" for short)
+.RE
+and
+.RS 1
+      Guy L. Steele Jr.: Common Lisp - The Language.
+      Digital Press. 1st edition 1984, 465 pages.
+      ("CLtL1" for short)
 .RE
 
 
@@ -604,6 +618,7 @@ specifies the directory where the temporary core file is to be held.
 
 .SH "SEE ALSO"
 
+impnotes.html,
 .IR cmucl (1),
 #ifdef UNIX
 .IR xemacs (1).
