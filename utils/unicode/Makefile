@@ -308,62 +308,64 @@ nls_ascii.in : nls_txt_to_in.class
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/ASCII.TXT > nls_ascii.in
 
 nls_iso8859_1.in : nls_txt_to_in.class
-#	$(ICONV) --from-code=ISO-8859-1 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_1.in
-#	native2ascii -encoding 8859_1           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_1.in
+#	$(ICONV) --from-code=ISO-8859-1 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_iso8859_1.in
+#	native2ascii -encoding 8859_1           < nls_table_in > nls_iso8859_1.in
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-1.TXT > nls_iso8859_1.in
 
 nls_iso8859_2.in : nls_txt_to_in.class
-#	$(ICONV) --from-code=ISO-8859-2 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_2.in
-#	native2ascii -encoding 8859_2           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_2.in
+#	$(ICONV) --from-code=ISO-8859-2 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_iso8859_2.in
+#	native2ascii -encoding 8859_2           < nls_table_in > nls_iso8859_2.in
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-2.TXT > nls_iso8859_2.in
 
 nls_iso8859_3.in : nls_txt_to_in.class
-#	native2ascii -encoding 8859_3           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_3.in
+#	native2ascii -encoding 8859_3           < nls_table_in > nls_iso8859_3.in
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-3.TXT > nls_iso8859_3.in
 
 nls_iso8859_4.in : nls_txt_to_in.class
-#	$(ICONV) --from-code=ISO-8859-4 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_4.in
-#	native2ascii -encoding 8859_4           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_4.in
+#	$(ICONV) --from-code=ISO-8859-4 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_iso8859_4.in
+#	native2ascii -encoding 8859_4           < nls_table_in > nls_iso8859_4.in
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-4.TXT > nls_iso8859_4.in
 
 nls_iso8859_5.in : nls_txt_to_in.class
-#	$(ICONV) --from-code=ISO-8859-5 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_5.in
-#	native2ascii -encoding 8859_5           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_5.in
+#	$(ICONV) --from-code=ISO-8859-5 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_iso8859_5.in
+#	native2ascii -encoding 8859_5           < nls_table_in > nls_iso8859_5.in
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-5.TXT > nls_iso8859_5.in
 
 nls_iso8859_6.in : nls_txt_to_in.class
-#	native2ascii -encoding 8859_6           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_6.in
+#	native2ascii -encoding 8859_6           < nls_table_in > nls_iso8859_6.in
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-6.TXT > nls_iso8859_6.in
 
 nls_iso8859_7.in : nls_txt_to_in.class
-#	native2ascii -encoding 8859_7           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_7.in
+#	native2ascii -encoding 8859_7           < nls_table_in > nls_iso8859_7.in
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-7.TXT > nls_iso8859_7.in
 
 nls_iso8859_8.in : nls_txt_to_in.class
-#	native2ascii -encoding 8859_8           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_8.in
+#	native2ascii -encoding 8859_8           < nls_table_in > nls_iso8859_8.in
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-8.TXT > nls_iso8859_8.in
 
 nls_iso8859_9.in : nls_txt_to_in.class
-#	$(ICONV) --from-code=ISO-8859-9 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_9.in
-#	native2ascii -encoding 8859_9           < nls_table_in | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_9.in
+#	$(ICONV) --from-code=ISO-8859-9 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_iso8859_9.in
+#	native2ascii -encoding 8859_9           < nls_table_in > nls_iso8859_9.in
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-9.TXT > nls_iso8859_9.in
 
 nls_iso8859_10.in :
-	$(ICONV) --from-code=ISO-8859-10 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_10.in
+#	$(ICONV) --from-code=ISO-8859-10 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_iso8859_10.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-10.TXT > nls_iso8859_10.in
 
 nls_iso8859_13.in :
-	$(ICONV) --from-code=ISO-8859-13 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_13.in
+#	$(ICONV) --from-code=ISO-8859-13 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_iso8859_13.in
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-13.TXT > nls_iso8859_13.in
 
 nls_iso8859_14.in : nls_txt_to_in.class
-#	$(ICONV) --from-code=ISO-8859-14 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_14.in
+#	$(ICONV) --from-code=ISO-8859-14 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_iso8859_14.in
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-14.TXT > nls_iso8859_14.in
 
 nls_iso8859_15.in : nls_txt_to_in.class
-#	$(ICONV) --from-code=ISO-8859-15 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 | sed -e 's/u00[89][0-9a-f]/ufffd/' > nls_iso8859_15.in
+#	$(ICONV) --from-code=ISO-8859-15 --to-code=UTF-8 < nls_table_in | native2ascii -encoding UTF8 > nls_iso8859_15.in
 	$(JAVA) nls_txt_to_in < ftp.unicode.org/8859-15.TXT > nls_iso8859_15.in
 
-#nls_koi8_r.in :
-#	> nls_koi8_r.in
+nls_koi8_r.in : nls_txt_to_in.class
+	$(JAVA) nls_txt_to_in < ftp.unicode.org/KOI8-R.TXT > nls_koi8_r.in
 
 nls_mac_arabic.in :
 	native2ascii -encoding MacArabic        < nls_table_in > nls_mac_arabic.in
