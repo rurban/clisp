@@ -5,8 +5,8 @@
 ;;-----------------------------------------------------------------------------
 ;; DESCRIBE
 
-(defvar *describe-nesting* 0)
-(defvar *describe-done* nil)
+(defvar *describe-nesting*)
+(defvar *describe-done*)
 
 (defun describe-slotted-object (object s)
   (let ((slotnames (mapcar #'clos::slotdef-name (clos::class-slots (clos:class-of object)))))
@@ -319,17 +319,23 @@
 (defun describe (obj &optional stream)
   (cond ((eq stream 'nil) (setq stream *standard-output*))
         ((eq stream 't) (setq stream *terminal-io*)))
+  (unless (boundp '*describe-nesting*)
+    (setq *describe-nesting* 0 *describe-done* nil))
   (if (member obj *describe-done* :test #'eq)
-    (format stream (ENGLISH "~%~v,vt~S [see above]")
-            (1+ *describe-nesting*) *print-indent-lists* obj)
-    (let ((*describe-nesting* (1+ *describe-nesting*))
-          (*describe-done* (cons obj *describe-done*))
-          (*print-circle* t))
-      (format stream
-              (ENGLISH "~%~v,vt~a is ")
-              *describe-nesting* *print-indent-lists*
-              (sys::write-to-short-string obj sys::*prin-linelength*))
-      (describe-object obj stream)))
+      (format stream (ENGLISH "~%~v,vt~S [see above]")
+              (1+ *describe-nesting*) *print-indent-lists* obj)
+      (let ((*print-circle* t))
+        (incf *describe-nesting*)
+        (push obj *describe-done*)
+        (format stream
+                (ENGLISH "~%~v,vt~a is ")
+                *describe-nesting* *print-indent-lists*
+                (sys::write-to-short-string obj sys::*prin-linelength*))
+        (describe-object obj stream)
+        (decf *describe-nesting*)))
+  (when (= 0 *describe-nesting*)
+    (makunbound '*describe-nesting*)
+    (makunbound '*describe-done*))
   (values))
 
 ;;-----------------------------------------------------------------------------

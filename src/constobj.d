@@ -60,6 +60,7 @@
   #endif
 
 # zu SPVW.D:
+  LISPOBJ(ansi,"NIL")
   # chained list of all active weak-pointers:
   LISPOBJ(all_weakpointers,"0")
   # Liste aller Finalisierer:

@@ -11024,7 +11024,7 @@ LISPFUN(user_data,0,1,norest,nokey,0,NIL)
                                             O(misc_encoding))));
   else if (stringp(user))
     pwd = getpwnam(TheAsciz(string_to_asciz(user,O(misc_encoding))));
-  else { end_system_call(); fehler_string_int(user); }
+  else { end_system_call(); fehler_string_integer(user); }
   end_system_call();
 
   if (NULL == pwd) { OS_error(); }
@@ -11053,7 +11053,7 @@ LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
         fehler_file_stream_unnamed(file);
       file = TheStream(file)->strm_file_truename;
     } else                      # open stream
-      file = UL_to_I(TheHandle(TheStream(file)->strm_ochannel));
+      file = stream_fd(file);
   } else if (symbolp(file)) file = Symbol_name(file);
 
   if (pathnamep(file)) {
@@ -11073,7 +11073,7 @@ LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
               stat(string,&buf) : lstat(string,&buf)))
       { OS_error(); }
     end_system_call();
-  } else fehler_pathname_descriptor(file);
+  } else fehler_pathname_designator(file);
 
   pushSTACK(file);                    # the object stat'ed
   pushSTACK(L_to_I(buf.st_dev));      # device

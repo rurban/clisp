@@ -17163,70 +17163,13 @@ LISPFUN(allow_read_eval,1,1,norest,nokey,0,NIL)
 #ifdef EXPORT_SYSCALLS
 #ifdef UNIX
 
-global object as_file_stream (object stream);
-nonreturning_function(global, fehler_file_stream_unnamed, (object stream));
-nonreturning_function(global, fehler_pathname_descriptor, (object thing));
-
-# Lisp interface to stat(2), lstat(2) and fstat(2)
-# the first arg can be: file stream, pathname, string, symbol, number.
-# the return values are: the file descriptor (int) or the file name
-# (string) on which the appropriate stat function was called,
-# as well as the 13 slots of the struct stat.
-LISPFUN(file_stat,1,1,norest,nokey,0,NIL)
-# (LISP:FILE-STAT file &optional link-p)
+global object stream_fd (object stream);
+global object stream_fd (stream)
+  var object stream;
 {
-  var object link = popSTACK();
-  var object file = popSTACK();
-  struct stat buf;
-
-  if (streamp(file)) {
-    pushSTACK(file);
-    funcall(L(open_stream_p),1);
-    if (nullp(value1)) {        # closed stream
-      file = as_file_stream(file);
-      if (nullp(TheStream(file)->strm_file_truename))
-        fehler_file_stream_unnamed(file);
-      file = TheStream(file)->strm_file_truename;
-    } else                      # open stream
-      file = UL_to_I(TheHandle(TheStream(file)->strm_ochannel));
-  } else if (symbolp(file)) file = Symbol_name(file);
-
-  if (pathnamep(file)) {
-    pushSTACK(file);
-    funcall(L(namestring),1);
-    file = value1;
-  }
-
-  if (posfixnump(file)) {
-    begin_system_call();
-    if (0 != fstat(posfixnum_to_L(file),&buf)) { OS_error(); }
-    end_system_call();
-  } else if (stringp(file)) {
-    char * string = TheAsciz(string_to_asciz(file,O(pathname_encoding)));
-    begin_system_call();
-    if (0 != ((eq(link,unbound) || nullp(link)) ?
-              stat(string,&buf) : lstat(string,&buf)))
-      { OS_error(); }
-    end_system_call();
-  } else fehler_pathname_descriptor(file);
-
-  pushSTACK(file);                    # the object stat'ed
-  pushSTACK(L_to_I(buf.st_dev));      # device
-  pushSTACK(UL_to_I(buf.st_ino));     # inode
-  pushSTACK(UL_to_I(buf.st_mode));    # protection
-  pushSTACK(UL_to_I(buf.st_nlink));   # number of hard links
-  pushSTACK(UL_to_I(buf.st_uid));     # user ID of owner
-  pushSTACK(UL_to_I(buf.st_gid));     # group ID of owner
-  pushSTACK(L_to_I(buf.st_rdev));     # device type (if inode device)
-  pushSTACK(L_to_I(buf.st_size));     # total size, in bytes
-  pushSTACK(UL_to_I(buf.st_blksize)); # blocksize for filesystem I/O
-  pushSTACK(UL_to_I(buf.st_blocks));  # number of blocks allocated
-  # 2208988800 is the number of seconds from 1900-01-01 to 1970-01-01
-  pushSTACK(UL_to_I(buf.st_atime+2208988800)); # time of last access
-  pushSTACK(UL_to_I(buf.st_mtime+2208988800)); # time of last modification
-  pushSTACK(UL_to_I(buf.st_ctime+2208988800)); # time of last change
-  funcall(L(values),14);
+  return UL_to_I(TheHandle(TheStream(stream)->strm_ochannel));
 }
+
 
 #endif # UNIX
 #endif # EXPORT_SYSCALLS

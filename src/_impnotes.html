@@ -23,6 +23,9 @@
   * All tags are written in lowercase (which is more readable for a human).
   * At the definition point of a symbol, this symbol is written as
     <code><strong>...</strong></code>.
+  * All symbols in CLHS are referenced with CLHSROOT.
+  * All symbols not in COMMON-LISP (as per ANSI CL) are referenced with
+    the package prefix, like this: `lisp:space'.
   * Platform depencencies are emphasized like this:
 <dl>
 <dt><em>Platform dependent: UNIX, DOS, OS/2, Win32, Amiga, Acorn
@@ -390,7 +393,8 @@ and is not compilable!
 
 <h4>eval-env</h4>
 
-<p><code>(<strong>lisp:eval-env</strong> <var>form</var> [<var>env</var>])</code>
+<p><code>(<strong>lisp:eval-env</strong> <var>form</var>
+          [<var>env</var>])</code>
 evaluates a form in a given lexical environment, just if the form had
 been part of the program text that environment came from.
 
@@ -491,22 +495,27 @@ denotes the real numbers between <var>low</var> and <var>high</var>.
 <p><a href="CLHSROOT/Body/mac_deftype.html">
 <code>deftype</code></a> lambda lists are subject to destructuring
 (nested lambda lists are allowed, as in <code>defmacro</code>) and may
-contain a <code>&amp;whole</code> marker, but not an
-<code>&amp;environment</code> marker.
+contain a <a href="CLHSROOT/Body/sec_3-4-4.html">
+<code>&amp;whole</code></a> marker, but not an
+<a href="CLHSROOT/Body/sec_3-4-4.html">
+<code>&amp;environment</code></a> marker.
 
 <p><code>(<strong>lisp:type-expand-1</strong>
 <var>typespec</var>)</code>: If <var>typespec</var> is a user-defined
 type, <code>type-expand-1</code> will expand it once and return two
-values: the expansion and <code>t</code>. If <var>typespec</var> is not
+values: the expansion and <a href="CLHSROOT/Body/convar_t.html">
+<code>t</code></a>. If <var>typespec</var> is not
 a user-defined type, then the two values <var>typespec</var> and
-<code>nil</code> are returned.
+<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> are returned.
 
 <p><code>(<strong>lisp:type-expand</strong> <var>typespec</var>)</code>:
 This is similar to <code>(type-expand-1 <var>typespec</var>)</code>, but
 repeatedly expands <var>typespec</var> until it is no longer a
-user-defined type. A second value of <code>t</code> or <code>nil</code>
-is returned as for <code>type-expand-1</code>, indicating whether the
-original <var>typespec</var> was a user-defined type.
+user-defined type. A second value of <a href="CLHSROOT/Body/convar_t.html">
+<code>t</code></a> or <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> is returned as for <code>type-expand-1</code>,
+indicating whether the original <var>typespec</var> was a user-defined
+type.
 
 <p>The possible results of <a href="CLHSROOT/Body/fun_type-of.html">
 <code>type-of</code></a> are:
@@ -797,7 +806,8 @@ and, as such, rather efficient.
     compiled-function-p</a></h4>
 
 <p><a href="CLHSROOT/Body/fun_compiled-function-p.html">
-<code>compiled-function-p</code></a> returns <code>t</code> on built-in
+<code>compiled-function-p</code></a> returns <a
+href="CLHSROOT/Body/convar_t.html"><code>t</code></a> on built-in
 functions written in C, compiled functions and special operator
 handlers. Therefore <a href="CLHSROOT/Body/typ_compiled-function.html">
 <code>compiled-function</code></a> is not a subtype of
@@ -815,8 +825,9 @@ and numbers. Nevertheless, one should use
 <a href="CLHSROOT/Body/fun_eql.html">
 <code>eql</code></a> as it is more portable across CL implementations.
 
-<p><code>(let ((x y)) (eq x x))</code> always returns <code>t</code>,
-regardless of <code>y</code>.
+<p><code>(let ((x y)) (eq x x))</code> always returns <a
+href="CLHSROOT/Body/convar_t.html"><code>t</code></a>, regardless of
+<code>y</code>.
 
 <h4><a href="CLHSROOT/Body/acc_symbol-function.html">
     symbol-function</a></h4>
@@ -903,8 +914,10 @@ it exists, otherwise the global function definition.
 
 <p><code>(<a
 href="CLHSROOT/Body/fun_special-operator-p.html">special-operator-p</a>
-<var>symbol</var>)</code> returns <code>nil</code> or <code>t</code>. If
-it returns <code>t</code>, then <code>(<a
+<var>symbol</var>)</code> returns <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> or <a href="CLHSROOT/Body/convar_t.html">
+<code>t</code></a>.  If it returns <a href="CLHSROOT/Body/convar_t.html">
+<code>t</code></a>, then <code>(<a
 href="CLHSROOT/Body/acc_symbol-function.html">symbol-function</a>
 <var>symbol</var>)</code> returns the (useless) special operator
 handler.
@@ -923,12 +936,13 @@ defined with <a href="CLHSROOT/Body/speope_symbol-macrolet.html">
 <p>The function <code><strong>lisp:symbol-macro-expand</strong></code>
 tests for a symbol macro: If <var>symbol</var> is defined as symbol
 macro, <code>(symbol-macro-expand <var>symbol</var>)</code> returns two
-values, <code>t</code> and the expansion, else it returns
-<code>nil</code>.
+values, <a href="CLHSROOT/Body/convar_t.html">
+<code>t</code></a> and the expansion, else it returns
+<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
 
 <p>Calling <a href="CLHSROOT/Body/fun_boundp.html">
 <code>boundp</code></a> on a symbol defined as symbol macro
-returns <code>t</code>.
+returns <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
 
 <p>Calling <a href="CLHSROOT/Body/acc_symbol-value.html">
 <code>symbol-value</code></a> on a symbol defined as symbol
@@ -990,8 +1004,14 @@ removes the symbol macro definition.
 
 <p><a href="CLHSROOT/Body/convar_lambda_ist-keywords.html">
 <code>lambda-list-keywords</code></a> =
-    <code>(&amp;optional &amp;rest &amp;key &amp;allow-other-keys
-    &amp;aux &amp;body &amp;whole &amp;environment)</code>
+    <code>(<a href="CLHSROOT/Body/sec_3-4-1-2.html">&amp;optional</a>
+           <a href="CLHSROOT/Body/sec_3-4-1-3.html">&amp;rest</a>
+           <a href="CLHSROOT/Body/sec_3-4-1-4.html">&amp;key</a>
+           <a href="CLHSROOT/Body/sec_3-4-1.html">&amp;allow-other-keys</a>
+           <a href="CLHSROOT/Body/sec_3-4-1-5.html">&amp;aux</a>
+           <a href="CLHSROOT/Body/sec_3-4-1.html">&amp;body</a>
+           <a href="CLHSROOT/Body/sec_3-4-1.html">&amp;whole</a>
+           <a href="CLHSROOT/Body/sec_3-4-1.html">&amp;environment</a>)</code>
 
 <h4><a href="CLHSROOT/Body/mac_defun.html">
     defun</a> &amp; <a href="CLHSROOT/Body/mac_defmacro.html">
@@ -1040,8 +1060,10 @@ for <a href="CLHSROOT/Body/mac_defparametercm_defvar.html">
 
 <p>It is an error if a <a href="CLHSROOT/Body/mac_defconstant.html">
 <code>defconstant</code></a> variable is bound at the
-moment the <code>defconstant</code> is executed, but
-<code>defconstant</code> does not check this.
+moment the <a href="CLHSROOT/Body/mac_defconstant.html">
+<code>defconstant</code></a> is executed, but
+<a href="CLHSROOT/Body/mac_defconstant.html">
+<code>defconstant</code></a> does not check this.
 
 <p>Constants may not be bound dynamically or lexically.
 
@@ -1355,8 +1377,7 @@ dependent implicit association performed by
 <p>are implemented. The package <code>COMMON-LISP</code> exports only
 those symbols from the ANSI CL standard that are actually implemented.
 
-<a name="clupack"></a>
-<h3><a href="CLHSROOT/Body/sec_11-1-2-2.html">
+<a name="clupack"></a><h3><a href="CLHSROOT/Body/sec_11-1-2-2.html">
     11.1.2.2 The COMMON-LISP-USER Package</a></h3>
 
 The <a href="CLHSROOT/Body/sec_11-1-2-2.html">
@@ -1409,12 +1430,13 @@ For <code>lisp:make-package</code>, the default value of the
 keyword argument <code>:case-sensitive</code>.  Similarly,
 <a href="CLHSROOT/Body/mac_defpackage.html">
 <code>defpackage</code></a> accepts an option
-<code>:case-sensitive</code>. When its value is non-<code>nil</code>,
-the package will be case sensitive, i.e. the reader will not
-case-convert symbol names before looking them up or creating them in
-this package. The package names are still subject to
-<code>(<a href="CLHSROOT/Body/acc_readtable-case.html">readtable-case</a>
-<a href="CLHSROOT/Body/var_streadtablest.html">*readtable*</a>)</code>, though.
+<code>:case-sensitive</code>. When its value is non-<a
+href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>, the package will
+be case sensitive, i.e. the reader will not case-convert symbol names
+before looking them up or creating them in this package. The package
+names are still subject to <code>(<a
+href="CLHSROOT/Body/acc_readtable-case.html">readtable-case</a> <a
+href="CLHSROOT/Body/var_streadtablest.html">*readtable*</a>)</code>, though.
 
 <h2><a name="numbers"></a><a href="CLHSROOT/Body/chap-12.html">
     Chapter 12: Numbers</a></h2>
@@ -1505,8 +1527,7 @@ It can be set by <code>(setf (lisp:long-float-digits)
 <p>Example: <code>(setf (lisp:long-float-digits) 3322)</code> sets the
 default precision of long floats to 1000 decimal digits.
 
-<a name="flocont"></a>
-<h4><a href="CLHSROOT/Body/sec_12-1-4-4.html">
+<a name="flocont"></a><h4><a href="CLHSROOT/Body/sec_12-1-4-4.html">
     12.1.4.4 Rule of Float Precision Contagion</a></h4>
 
 <p>The floating point contagion is controlled by the variable
@@ -2044,11 +2065,13 @@ and <code>sys::input-character</code>. Note that <code>eql</code> or
  <dd>returns the bits of a character or <code>sys::input-character</code>.
  <dt><code>(lisp:make-char <var>char</var> [<var>bits</var>
             [<var>font</var>]])</code>
- <dd>returns a new <code>sys::input-character</code>, or <code>nil</code> if
+ <dd>returns a new <code>sys::input-character</code>, or
+     <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> if
      such a character cannot be created.
  <dt><code>(lisp:char-bit <var>object</var> <var>name</var>)</code>
- <dd>returns <code>t</code> if the named bit is set in <var>object</var>, else
-     <code>nil</code>.
+ <dd>returns <a href="CLHSROOT/Body/convar_t.html">
+     <code>t</code></a> if the named bit is set in <var>object</var>, else
+     <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
  <dt><code>(lisp:set-char-bit <var>object</var> <var>name</var>
             <var>newvalue</var>)</code>
  <dd>returns a new <code>sys::input-character</code> with the named bit set
@@ -2590,7 +2613,9 @@ directories can not be used interchangeably.
 <!-- #endif -->
 
 </dl>
-This is especially important for the functions <code>directory</code>,
+This is especially important for the functions
+<a href="CLHSROOT/Body/fun_directory.html">
+<code>directory</code></a>,
 <code>dir</code>, <code>cd</code>, <code>make-dir</code>,
 <code>delete-dir</code>.
 
@@ -2618,9 +2643,11 @@ vary between operating systems.
 <dd>
 Pathname components:
 <dl>
-<dt><code>host</code> <dd>always <code>nil</code>
+<dt><code>host</code>
+ <dd>always <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
 <dt><code>device</code>
- <dd><code>nil</code> or <code>:wild</code> or
+ <dd><a href="CLHSROOT/Body/convar_nil.html">
+    <code>nil</code></a> or <code>:wild</code> or
     <code>"A"</code>|...|<code>"Z"</code>
 <dt><code>directory</code>
  <dd><code>(<var>startpoint</var> . <var>subdirs</var>)</code> where
@@ -2636,24 +2663,30 @@ Pathname components:
                 <code>"..."</code>, all subdirectories) or
             <br><var>subdir</var> = <code>(<var>name</var>
                 . <var>type</var>)</code>
-            <br><var>name</var> = <code>:wild</code> or a simple string
-                with 8 characters maximum
-            <br><var>type</var> = <code>:wild</code> or a simple string
-                with 3 characters maximum
+            <br><var>name</var> = <code>:wild</code> or a
+                <a href="CLHSROOT/Body/typ_simple-string.html">
+                <code>simple-string</code></a> of length at most 8
+            <br><var>type</var> = <code>:wild</code> or a
+                <a href="CLHSROOT/Body/typ_simple-string.html">
+                <code>simple-string</code></a> of length at most 3
 <dt><code>name</code>
- <dd><code>nil</code> or <code>:wild</code> or a simple string with 8
- characters maximum
+ <dd><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> or
+ <code>:wild</code> or a <a href="CLHSROOT/Body/typ_simple-string.html">
+ <code>simple-string</code></a> of length at most 8
 <dt><code>type</code>
- <dd><code>nil</code> or <code>:wild</code> or a simple string with 3
- characters maximum
+ <dd><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> or
+ <code>:wild</code> or a <a href="CLHSROOT/Body/typ_simple-string.html">
+ <code>simple-string</code></a> of length at most 3
 <dt><code>version</code>
- <dd>always <code>nil</code> (may also be specified as
+ <dd>always <a href="CLHSROOT/Body/convar_nil.html">
+ <code>nil</code></a> (may also be specified as
  <code>:wild</code> or <code>:newest</code>)
 </dl>
 
 <p>When a pathname is to be fully specified (no wildcards), that means
 that no <code>:wild</code>, <code>:wild-inferiors</code> is allowed, and
-<var>name</var> = <code>nil</code> may not be allowed either.
+<var>name</var> = <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> may not be allowed either.
 
 <p><table>
   <tr> <td>External notation:
@@ -2678,9 +2711,13 @@ for DOS calls.
  <dd> Pathname components:
  <dl>
   <dt><code>host</code>
-   <dd>always <code>nil</code>
+   <dd>always <a href="CLHSROOT/Body/convar_nil.html">
+    <code>nil</code></a>
   <dt><code>device</code>
-   <dd><code>nil</code> or a simple string
+   <dd><a href="CLHSROOT/Body/convar_nil.html">
+    <code>nil</code></a> or a
+    <a href="CLHSROOT/Body/typ_simple-string.html">
+    <code>simple-string</code></a>
   <dt><code>directory</code>
    <dd><code>(<var>startpoint</var> . <var>subdirs</var>)</code> where
     <br><var>startpoint</var> = <code>:relative</code> | <code>:absolute</code>
@@ -2692,30 +2729,38 @@ for DOS calls.
    <br><var>subdir</var> = <code>:parent</code>
     (means <code>"/"</code> instead of
     <code>"subdir/"</code>) or
-   <br><var>subdir</var> = simple string, may contain wildcard
+   <br><var>subdir</var> = <a href="CLHSROOT/Body/typ_simple-string.html">
+    <code>simple-string</code></a>, may contain wildcard
     characters <code>?</code> and <code>*</code>
   <dt><code>name</code>
-   <dd><code>nil</code> or simple string, may contain wildcard
+   <dd><a href="CLHSROOT/Body/convar_nil.html">
+   <code>nil</code></a> or <a href="CLHSROOT/Body/typ_simple-string.html">
+   <code>simple-string</code></a>, may contain wildcard
    characters <code>?</code> and <code>*</code> (may also be specified
    as <code>:wild</code>)
   <dt><code>type</code>
-   <dd><code>nil</code> or simple string, may contain wildcard
+   <dd><a href="CLHSROOT/Body/convar_nil.html">
+   <code>nil</code></a> or <a href="CLHSROOT/Body/typ_simple-string.html">
+   <code>simple-string</code></a>, may contain wildcard
    characters <code>?</code> and <code>*</code> (may also be specified
    as <code>:wild</code>)
   <dt><code>version</code>
-   <dd>always <code>nil</code> (may also be specified as
+   <dd>always <a href="CLHSROOT/Body/convar_nil.html">
+   <code>nil</code></a> (may also be specified as
    <code>:wild</code> or <code>:newest</code>)
 </dl>
 
 <p>Constraint: <var>startpoint</var> = <code>:relative</code> only if
-<var>device</var> = <code>nil</code>. If the device is specified, the
+<var>device</var> is <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a>. If the device is specified, the
 pathname must be absolute!
 
 <p>A filename from AMIGAOS is split into name and type according to the
 following rule:
 <ul>
  <li>if there is no <code>'.'</code> in the filename, then the
-  <var>name</var> is everything, <var>type</var> = <code>nil</code>;
+  <var>name</var> is everything, <var>type</var> is
+  <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>;
  <li>if there is a <code>'.'</code>, then <var>name</var> is the part
   before and <var>type</var> the part after the last dot.
 </ul>
@@ -2726,7 +2771,8 @@ are performed.
 <p>When a pathname is to be fully specified (no wildcards), that means
 that no <code>:wild</code>, <code>:wild-inferiors</code> is allowed, no
 wildcard characters are allowed in the strings, and <var>name</var> =
-<code>nil</code> may not be allowed either.
+<a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> may not be allowed either.
 
 <p><a name="pathnames-externally-amiga"></a>
 <table>
@@ -2807,8 +2853,8 @@ to a path string that is empty or ends with <code>':'</code> or
 
 <br>We interpret any path string that is empty or ends with
 <code>':'</code> or <code>'/'</code> as pathname of a directory (with
-<var>name</var> = <code>nil</code> and <var>type</var> =
-<code>nil</code>).
+both <var>name</var> and <var>type</var> being
+<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>).
 </dl>
 <!-- #endif -->
 
@@ -2819,9 +2865,9 @@ to a path string that is empty or ends with <code>':'</code> or
 Pathname components:
 <dl>
 <dt><code>host</code>
- <dd>always <code>nil</code>
+ <dd>always <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
 <dt><code>device</code>
- <dd>always <code>nil</code>
+ <dd>always <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
 <dt><code>directory</code>
  <dd><code>(<var>startpoint</var> . <var>subdirs</var>)</code> where
   <br><var>startpoint</var> = <code>:relative</code> | <code>:absolute</code>
@@ -2830,18 +2876,24 @@ Pathname components:
   <br><var>subdir</var> = <code>:wild-inferiors</code>
       (means <code>"**"</code> or <code>"..."</code>,
       all subdirectories) or
-  <br><var>subdir</var> = simple string, may contain wildcard characters
+  <br><var>subdir</var> = <a href="CLHSROOT/Body/typ_simple-string.html">
+      <code>simple-string</code></a>, may contain wildcard characters
       <code>?</code> and <code>*</code>
 <dt><code>name</code>
- <dd><code>nil</code> or simple string, may contain wildcard characters
+ <dd><a href="CLHSROOT/Body/convar_nil.html">
+ <code>nil</code></a> or <a href="CLHSROOT/Body/typ_simple-string.html">
+ <code>simple-string</code></a>, may contain wildcard characters
  <code>?</code> and <code>*</code> (may also be specified as
  <code>:wild</code>)
 <dt><code>type</code>
- <dd><code>nil</code> or simple string, may contain wildcard characters
+ <dd><a href="CLHSROOT/Body/convar_nil.html">
+ <code>nil</code></a> or <a href="CLHSROOT/Body/typ_simple-string.html">
+ <code>simple-string</code></a>, may contain wildcard characters
  <code>?</code> and <code>*</code> (may also be specified as
  <code>:wild</code>)
 <dt><code>version</code>
- <dd>always <code>nil</code> (may also be specified as
+ <dd>always <a href="CLHSROOT/Body/convar_nil.html">
+ <code>nil</code></a> (may also be specified as
  <code>:wild</code> or <code>:newest</code>)
 </dl>
 
@@ -2849,7 +2901,8 @@ Pathname components:
 following rule:
 <ul>
  <li>if there is no <code>'.'</code> in the filename, then the
-  <var>name</var> is everything, <var>type</var> = <code>nil</code>;
+  <var>name</var> is everything, <var>type</var> is <a
+  href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>;
  <li>if there is a <code>'.'</code>, then <var>name</var> is the part
   before and <var>type</var> the part after the last dot.
 </ul>
@@ -2857,7 +2910,8 @@ following rule:
 <p>When a pathname is to be fully specified (no wildcards), that means
 that no <code>:wild</code>, <code>:wild-inferiors</code> is allowed, no
 wildcard characters are allowed in the strings, and <var>name</var> =
-<code>nil</code> may not be allowed either.
+<a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> may not be allowed either.
 
 <p><table>
   <tr> <td>External notation:
@@ -2879,9 +2933,10 @@ wildcard characters are allowed in the strings, and <var>name</var> =
 Pathname components:
 <dl>
 <dt><code>host</code>
- <dd>always <code>nil</code>
+ <dd>always <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
 <dt><code>device</code>
- <dd><code>nil</code> or <code>:wild</code>
+ <dd><a href="CLHSROOT/Body/convar_nil.html">
+ <code>nil</code></a> or <code>:wild</code>
  or <code>"A"</code>|...|<code>"Z"</code>
 <dt><code>directory</code>
  <dd><code>(<var>startpoint</var> . <var>subdirs</var>)</code> where
@@ -2891,18 +2946,24 @@ Pathname components:
   <br><var>subdir</var> = <code>:wild-inferiors</code> (
       means <code>"**"</code> or <code>"..."</code>, all
       subdirectories) or
-  <br><var>subdir</var> = simple string, may contain wildcard characters
+  <br><var>subdir</var> = <a href="CLHSROOT/Body/typ_simple-string.html">
+      <code>simple-string</code></a>, may contain wildcard characters
       <code>?</code> and <code>*</code>
 <dt><code>name</code>
- <dd><code>nil</code> or simple string, may contain wildcard characters
+ <dd><a href="CLHSROOT/Body/convar_nil.html">
+ <code>nil</code></a> or <a href="CLHSROOT/Body/typ_simple-string.html">
+ <code>simple-string</code></a>, may contain wildcard characters
  <code>?</code> and <code>*</code> (may also be specified as
  <code>:wild</code>)
 <dt><code>type</code>
- <dd><code>nil</code> or simple string, may contain wildcard characters
+ <dd><a href="CLHSROOT/Body/convar_nil.html">
+ <code>nil</code></a> or <a href="CLHSROOT/Body/typ_simple-string.html">
+ <code>simple-string</code></a>, may contain wildcard characters
  <code>?</code> and <code>*</code> (may also be specified as
  <code>:wild</code>)
 <dt><code>version</code>
- <dd>always <code>nil</code> (may also be specified as
+ <dd>always <a href="CLHSROOT/Body/convar_nil.html">
+ <code>nil</code></a> (may also be specified as
  <code>:wild</code> or <code>:newest</code>)
 </dl>
 
@@ -2910,15 +2971,18 @@ Pathname components:
 following rule:
 <ul>
  <li>if there is no <code>'.'</code> in the filename, then the
-  <var>name</var> is everything, <var>type</var> = <code>nil</code>;
+  <var>name</var> is everything, <var>type</var> is
+  <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>;
  <li>if there is a <code>'.'</code>, then <var>name</var> is the part
   before and <var>type</var> the part after the last dot.
 </ul>
 
 <p>When a pathname is to be fully specified (no wildcards), that means
 that no <code>:wild</code>, <code>:wild-inferiors</code> is allowed, no
-wildcard characters are allowed in the strings, and <var>name</var> =
-<code>nil</code> may not be allowed either.
+wildcard characters are allowed in the strings, and <var>name</var>
+<a href="CLHSROOT/Body/fun_eq.html">
+<code>eq</code></a> <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> may not be allowed either.
 
 <p><table>
   <tr> <td>External notation:
@@ -2948,10 +3012,14 @@ characters, <code>'?'</code> matches any one character.
 <dl>
 <dt><em>Platform dependent: UNIX, OS/2, Win32, Amiga platforms only.</em>
 <dd>Due to the name/type splitting rule, there are pathnames that can't
-result from <code>parse-namestring</code>. To get a pathname whose type
+result from <a href="CLHSROOT/Body/fun_parse-namestring.html">
+<code>parse-namestring</code></a>. To get a pathname whose type
 contains a dot or whose name contains a dot and whose type is
-<code>nil</code>, <code>make-pathname</code> must be used.  Example:
-<code>(make-pathname :name ".profile")</code>.
+<a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a>, <a href="CLHSROOT/Body/fun_make-pathname.html">
+<code>make-pathname</code></a> must be used.  Example:
+<code>(<a href="CLHSROOT/Body/fun_make-pathname.html">make-pathname</a>
+:name ".profile")</code>.
 </dl>
 <!-- #endif -->
 
@@ -3139,76 +3207,76 @@ Examples:
   <tr><th>String <th>Hostname <th>Device  <th>Directory <th>Name <th>Type
   <tr><td><code>-net-$.SystemMesg</code>
       <td><code>"net"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:absolute :root)</code>
       <td><code>"SystemMesg"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
   <tr><td><code>net#MJHardy::disc1.mike</code>
       <td><code>"net#MJHardy"</code>
       <td><code>"disc1"</code>
       <td><code>(:absolute :root)</code>
       <td><code>"mike"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
   <tr><td><code>#MJHardy::disc1.mike</code>
       <td><code>"#MJHardy"</code>
       <td><code>"disc1"</code>
       <td><code>(:absolute :root)</code>
       <td><code>"mike"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
   <tr><td><code>-net#MJHardy-:disc1.mike</code>
       <td><code>"net#MJHardy"</code>
       <td><code>"disc1"</code>
       <td><code>(:absolute :root)</code>
       <td><code>"mike"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
   <tr><td><code>-#MJHardy-:disc1.mike</code>
       <td><code>"#MJHardy"</code>
       <td><code>"disc1"</code>
       <td><code>(:absolute :root)</code>
       <td><code>"mike"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
   <tr><td><code>@.foo</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:absolute :current)</code>
       <td><code>"foo"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
   <tr><td><code>foo</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:relative)</code>
       <td><code>"foo"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
   <tr><td><code>^.</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:relative :parent)</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
   <tr><td><code>@.^.</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:absolute :current :parent)</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
   <tr><td><code>foo.bar</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:relative)</code>
       <td><code>"foo"</code>
       <td><code>"bar"</code>
   <tr><td><code>foo.bar.baz</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:relative "foo")</code>
       <td><code>"bar"</code>
       <td><code>"baz"</code>
   <tr><td><code>foo.bar.</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:relative "foo" "bar")</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
   <tr><td><code>foo.@.</code>
       <td colspan=5 align=center>illegal
 </table>
@@ -3223,7 +3291,7 @@ Examples:
       <td><code>"disc1"</code>
       <td><code>(:absolute :root)</code>
       <td><code>"foo"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>"net::disc1.$.foo"</code>
   <tr><td><code>"net#MJ"</code>
       <td><code>"disc1"</code>
@@ -3234,85 +3302,85 @@ Examples:
   <tr><td><code>"adfs"</code>
       <td><code>"4"</code>
       <td><code>(:absolute :root "foo" "bar")</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>"adfs::4.$.foo.bar"</code>
-  <tr><td><code>nil</code>
+  <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>"disc1"</code>
       <td><code>(:absolute :root "foo")</code>
       <td><code>"bar"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>":disc1.$.foo.bar"</code>
-  <tr><td><code>nil</code>
+  <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>"disc1"</code>
       <td><code>(:absolute :current)</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td>illegal here
-  <tr><td><code>nil</code>
+  <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>"disc1"</code>
       <td><code>(:relative)</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>":disc1."</code>
-  <tr><td><code>nil</code>
+  <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>"disc1"</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>":disc1."</code>
-  <tr><td><code>nil</code>
-      <td><code>nil</code>
+  <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:absolute :root)</code>
       <td><code>"foo"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>"$.foo"</code>
-  <tr><td><code>nil</code>
-      <td><code>nil</code>
+  <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:absolute :current)</code>
       <td><code>"foo"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>"@.foo"</code>
-  <tr><td><code>nil</code>
-      <td><code>nil</code>
+  <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:relative)</code>
       <td><code>"foo"</code>
       <td><code>"bar"</code>
       <td><code>"bar.foo"</code>
-  <tr><td><code>nil</code>
-      <td><code>nil</code>
+  <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:relative "foo")</code>
       <td><code>"bar"</code>
       <td><code>"baz"</code>
       <td><code>"foo.baz.bar"</code>
-  <tr><td><code>nil</code>
-      <td><code>nil</code>
+  <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:absolute :library)</code>
       <td><code>"bar"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>"%.bar"</code>
-  <tr><td><code>nil</code>
-      <td><code>nil</code>
+  <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:absolute :library "foo")</code>
       <td><code>"bar"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>"%.foo.bar"</code>
-  <tr><td><code>nil</code>
-      <td><code>nil</code>
+  <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:relative)</code>
       <td><code>"foo"</code>
       <td><code>"bar"</code>
       <td><code>"bar.foo"</code>
-  <tr><td><code>nil</code>
-      <td><code>nil</code>
+  <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:relative "foo")</code>
       <td><code>"bar"</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>"foo.bar"</code>
-  <tr><td><code>nil</code>
-      <td><code>nil</code>
+  <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>(:relative "foo")</code>
-      <td><code>nil</code>
+      <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>"bar"</code>
       <td>illegal here
 </table>
@@ -3347,9 +3415,13 @@ Examples:
  <dd>Pathname components:
 <dl>
 <dt><code>host</code>
- <dd>Simple-String or <code>nil</code>
+ <dd><a href="CLHSROOT/Body/typ_simple-string.html">
+  <code>simple-string</code></a> or <a href="CLHSROOT/Body/convar_nil.html">
+  <code>nil</code></a>
 <dt><code>device</code>
- <dd>Simple-String or <code>nil</code>
+ <dd><a href="CLHSROOT/Body/typ_simple-string.html">
+  <code>simple-string</code></a> or <a href="CLHSROOT/Body/convar_nil.html">
+  <code>nil</code></a>
 <dt><code>directory</code>
  <dd><code>(<var>Startpoint</var> . <var>Subdirs</var>)</code> where
      <br><var>Startpoint</var> = <code>:relative</code> |
@@ -3359,23 +3431,29 @@ Examples:
      <br><var>Subdirs</var> = <code>()</code> |
          <code>(<var>subdir</var> . <var>Subdirs</var>)</code>
      <br><var>subdir</var> = <code>:parent</code> or
-     <br><var>subdir</var> = simple string, may contain wildcard
-     characters <code>?</code>,<code>#</code> and <code>*</code>
+     <br><var>subdir</var> = <a href="CLHSROOT/Body/typ_simple-string.html">
+         <code>simple-string</code></a>, may contain wildcard
+         characters <code>?</code>,<code>#</code> and <code>*</code>
 <dt><code>name</code>
- <dd><code>nil</code> or simple string, may contain wildcard characters
+ <dd><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> or
+ <a href="CLHSROOT/Body/typ_simple-string.html">
+ <code>simple-string</code></a>, may contain wildcard characters
  <code>?</code>,<code>#</code> and <code>*</code> (may also be specified
  as <code>:wild</code>)
 <dt><code>type</code>
- <dd><code>nil</code> or simple string, may contain wildcard characters
+ <dd><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> or
+ <a href="CLHSROOT/Body/typ_simple-string.html">
+ <code>simple-string</code></a>, may contain wildcard characters
  <code>?</code>,<code>#</code> and <code>*</code> (may also be specified
  as <code>:wild</code>)
 <dt><code>version</code>
- <dd>always <code>nil</code> (may also be specified as
- <code>:wild</code> or <code>:newest</code>)
+ <dd>always <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+ (may also be specified as <code>:wild</code> or <code>:newest</code>)
 </dl>
 
-<p>Constraint: startpoint /= <code>:absolute :root</code> only if device
-= <code>nil</code>. If the device is specified, the pathname must be
+<p>Constraint: startpoint is not <code>:absolute :root</code> only if
+device is <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a>. If the device is specified, the pathname must be
 <code>:absolute :root</code>.
 
 <p>The wildcard characters: <code>'*'</code> matches any sequence of
@@ -3385,10 +3463,11 @@ character.
 <p>Due to the name/type swapping rule, there are pathnames that can't
 result from <a href="CLHSROOT/Body/fun_parse-namestring.html">
 <code>parse-namestring</code></a>. To get a pathname whose type
-is <code>nil</code>, <a href="CLHSROOT/Body/fun_make-pathname.html">
+is <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a>, <a href="CLHSROOT/Body/fun_make-pathname.html">
 <code>make-pathname</code></a> must be used.  Example:
-<code>(make-pathname :directory "!Clisp." :name
-"README")</code>.
+<code>(<a href="CLHSROOT/Body/fun_make-pathname.html">make-pathname</a>
+       :directory "!Clisp." :name "README")</code>.
 </dl>
 </dl>
 <!-- #endif -->
@@ -3510,15 +3589,16 @@ as wild.
       <var>from-wildname</var> <var>to-wildname</var> &amp;key :all
       :merge)</code>
 
-<br>If <code>:all</code> is specified and non-<code>nil</code>, a list
+<br>If <code>:all</code> is specified and
+non-<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>, a list
 of all resulting pathnames, corresponding to all matches of <code>(<a
 href="CLHSROOT/Body/fun_pathname-match-p.html">pathname-match-p</a>
 <var>source</var> <var>from-wildname</var>)</code>, is returned. If
-<code>:merge</code> is specified and <code>nil</code>, unspecified
-pieces of <var>to-pathname</var> are not replaced by corresponding
-pieces of <var>source</var>.
+<code>:merge</code> is specified and <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a>, unspecified pieces of <var>to-pathname</var> are
+not replaced by corresponding pieces of <var>source</var>.
 
-<br>This function seems to be currently buggy, sorry.
+<br>This function seems to be buggy at this time.  Sorry.
 
 <h4><a href="CLHSROOT/Body/fun_parse-namestring.html">
     parse-namestring</a></h4>
@@ -3526,13 +3606,13 @@ pieces of <var>source</var>.
 <p><code>(<a href="CLHSROOT/Body/fun_parse-namestring.html">parse-namestring</a>
           <var>string</var> [<var>host</var> [<var>defaults</var>]])</code>
 returns a logical pathname only if host is a logical host or host is
-<code>nil</code> and defaults is a logical pathname.  To construct a
+<a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> and defaults is a logical pathname.  To construct a
 logical pathname from a string, the function
 <a href="CLHSROOT/Body/fun_logical-pathname.html">
 <code>logical-pathname</code></a> can be used.
 
-<a name="pathmerge"></a>
-<h4><a href="CLHSROOT/Body/fun_merge-pathnames.html">
+<a name="pathmerge"></a><h4><a href="CLHSROOT/Body/fun_merge-pathnames.html">
     merge-pathnames</a></h4>
 
 <p><code>(<a href="CLHSROOT/Body/fun_merge-pathnames.html">merge-pathnames</a>
@@ -3545,7 +3625,8 @@ function <a href="CLHSROOT/Body/fun_logical-pathname.html">
 <p>When both <code>pathname</code> and <code>default-pathname</code> are
 relative pathnames, the behavior depends on
 <code><strong>lisp:*merge-pathnames-ansi*</strong></code>: when it is
-<code>nil</code>, then CLISP retains its traditional behavior:
+<a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a>, then CLISP retains its traditional behavior:
 <pre><code>(merge-pathnames #p"x/" #p"y/")
              ==&gt; #p"x/"</code></pre>
 
@@ -3564,12 +3645,14 @@ with defaults not yet applied".)
 <p>Now, <code>(merge-pathnames (merge-pathnames '#p"x/" '#p"y/")
 '#p"y/")</code> and <code>(merge-pathnames '#p"x/" '#p"y/")</code> are
 equal in CLISP (when <code>lisp:*merge-pathnames-ansi*</code> is
-<code>nil</code>), but not in implementations that strictly follow the
+<a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a>), but not in implementations that strictly follow the
 Common Lisp spec. In fact, the above twice-default = once-default rule
 holds for all pathnames in CLISP.
 
 <p>When <code><strong>lisp:*merge-pathnames-ansi*</strong></code> is
-non-<code>nil</code>, the normal ANSI CL behavior is exhibited:
+non-<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>, the normal
+ANSI CL behavior is exhibited:
 <pre><code>(merge-pathnames #p"x/" #p"y/")
              ==&gt; #p"y/x/"</code></pre>
 
@@ -3593,7 +3676,8 @@ its first value.
 
 <p><a href="CLHSROOT/Body/fun_probe-file.html">
 <code>probe-file</code></a> can not be used to check whether a directory
-exists. Use the function <code>lisp:probe-directory</code> or the
+exists. Use the function <a
+href="#probe-dir"><code>lisp:probe-directory</code></a> or the
 function <a href="CLHSROOT/Body/fun_directory.html">
 <code>directory</code></a> for this purpose.
 
@@ -3601,15 +3685,16 @@ function <a href="CLHSROOT/Body/fun_directory.html">
     file-author</a></h4>
 
 <p><a href="CLHSROOT/Body/fun_file-author.html">
-<code>file-author</code></a> always returns <code>nil</code>, because the
-operating systems CLISP is ported to don't store a file's author in the
-file system. Some operating systems, such as Unix, have the notion of
-a file's owner, and some other CL implementations return the user name
-of the file owner. CLISP does not do this, because <em>owner</em> and
-<em>author</em> are not the same; in particular, authorship is preserved
-by copying, while ownership is not.
+<code>file-author</code></a> always returns
+<a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a>, because the operating systems CLISP is ported to
+don't store a file's author in the file system. Some operating systems,
+such as Unix, have the notion of a file's owner, and some other CL
+implementations return the user name of the file owner. CLISP does not
+do this, because <em>owner</em> and <em>author</em> are not the same; in
+particular, authorship is preserved by copying, while ownership is not.
 
-<h4>probe-directory</h4>
+<a name="probe-dir"></a><h4>probe-directory</h4>
 
 <p><code>(<strong>lisp:probe-directory</strong>
 <var>pathname</var>)</code> tests whether <var>pathname</var> exists and
@@ -3629,7 +3714,8 @@ run in two modes:
  <li>If <var>pathname</var> contains no name or type component, a list
   of all matching directories is produced.
  <li>Otherwise a list of all matching files is returned. If the
-  <code>:full</code> argument is non-<code>nil</code>, this contains
+  <code>:full</code> argument is non-
+  <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>, this contains
   additional information: for each matching file you get a list of at
   least four elements <code>(<var>file-pathname</var>
   <var>file-truename</var>
@@ -3639,8 +3725,9 @@ run in two modes:
 <!-- #ifdef UNIX -->
 <dl>
 <dt><em>Platform dependent: UNIX platforms only.</em>
-<dd>If the <code>:circle</code> argument is non-<code>nil</code>, the
-function avoids endless loops that may result from symbolic links.
+<dd>If the <code>:circle</code> argument is
+non-<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>,
+the function avoids endless loops that may result from symbolic links.
 </dl>
 <!-- #endif -->
 
@@ -3688,8 +3775,7 @@ to <code>(cd)</code>.  <code>(setf (lisp:default-directory)
 <p>Interactive streams are those whose next input might depend on a
 prompt one might output.
 
-<a name="terminal"></a>
-<h3>terminal interaction.</h3>
+<a name="terminal"></a><h3>terminal interaction.</h3>
 
 <!-- #ifdef GNU_READLINE -->
 <p><dl>
@@ -3882,11 +3968,13 @@ called command as well.
    The default encoding is
    <code><strong>lisp:*default-file-encoding*</strong></code>.
  <dt><a name="buffered"><code>:buffered</code></a>
-  <dd><code>nil</code>, <code>t</code>, or <code>:default</code>.
+  <dd><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>,
+      <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>,
+      or <code>:default</code>.
   <ul>
    <li>for functions that create <a href="#socket">sockets</a> and
      <a href="#pipe">pipes</a>, <code>:default</code> is equivalent
-     to <code>nil</code>;
+     to <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>;
     <li>for functions that <a href="#open">open</a> files,
      <code>:default</code> means that buffered file streams will be
      returned for regular files and (on Unix) block-devices, and
@@ -3913,7 +4001,8 @@ Generic streams are user programmable streams. The programmer interface:
   <dt><code>(<strong>lisp:generic-stream-p</strong>
     <var>stream</var>)</code>
    <dd>determines whether a stream is a generic stream, returning
-    <code>t</code> if it is, <code>nil</code> otherwise.
+    <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a> if it is,
+    <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> otherwise.
 </dl>
 
 <p>In order to specify the behaviour of a generic stream, the user must
@@ -3925,21 +4014,27 @@ controller and some number of arguments.
 <dl>
   <dt><code>(<strong>lisp:generic-stream-read-char</strong>
              <var>controller</var>)</code>
-   <dd> Returns and consumes the next character, <code>nil</code> at
+   <dd> Returns and consumes the next character,
+    <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> at
     end of file. Takes one argument, the controller object.
   <dt><code>(<strong>lisp:generic-stream-peek-char</strong>
              <var>controller</var>)</code>
-   <dd> Returns the next character, <code>nil</code> at end of file. A
+   <dd> Returns the next character, <a href="CLHSROOT/Body/convar_nil.html">
+   <code>nil</code></a> at end of file. A
    second value indicates whether the side effects associated with
-   consuming the character were executed: <code>t</code> means that a
-   full <a href="CLHSROOT/Body/fun_read-char.html">
-   <code>read-char</code></a> was done, <code>nil</code> means that no
-   side effects were done. Takes one argument, the controller object.
+   consuming the character were executed: <a href="CLHSROOT/Body/convar_t.html">
+   <code>t</code></a> means that a full
+   <a href="CLHSROOT/Body/fun_read-char.html">
+   <code>read-char</code></a> was done, <a href="CLHSROOT/Body/convar_nil.html">
+   <code>nil</code></a> means that no side effects were done. Takes one
+   argument, the controller object.
   <dt><code>(<strong>lisp:generic-stream-read-byte</strong>
              <var>controller</var>)</code>
-   <dd> Returns and consumes the next integer, <code>nil</code> at end of file.
+   <dd> Returns and consumes the next integer,
+       <a href="CLHSROOT/Body/convar_nil.html">
+       <code>nil</code></a> at end of file.
        Takes one argument, the controller object.
-  <dt><a name=generic-stream-listen></a>
+  <dt><a name="generic-stream-listen"></a>
       <code>(<strong>lisp:generic-stream-listen</strong>
              <var>controller</var>)</code>
   <dd> This generic function is used to query the stream's input status.
@@ -4081,8 +4176,7 @@ permits mixed character/binary output to a stream.
 </dl>
 <!-- #endif -->
 
-<a name="open"></a>
-<h4><a href="CLHSROOT/Body/fun_open.html">
+<a name="open"></a><h4><a href="CLHSROOT/Body/fun_open.html">
     open</a></h4>
 
 <p><a href="CLHSROOT/Body/fun_open.html">
@@ -4112,18 +4206,20 @@ permits mixed character/binary output to a stream.
 <p>An additional variable
 <code><strong>lisp:*print-closure*</strong></code> controls whether
 compiled and interpreted functions (closures) are output in detailed
-form.  If <code>*print-closure*</code> is non-<code>nil</code>, compiled
+form.  If <code>*print-closure*</code> is
+non-<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>, compiled
 closures are output in <code>#Y</code> syntax which the reader
 understands.  <code>*print-closure*</code> is initially set to
-<code>nil</code>.
+<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
 
 <p>An additional variable
 <code><strong>lisp:*print-rpars*</strong></code> controls the output of
-the right (closing) parentheses. If <code>*print-rpars*</code> is
-non-<code>nil</code>, closing parentheses which don't fit onto the same
-line as the the corresponding opening parenthesis are output just below
-their corresponding opening parenthesis, in the same column.
-<code>*print-rpars*</code> is initially set to <code>t</code>.
+the right (closing) parentheses. If <code>*print-rpars*</code> is non-<a
+href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>, closing
+parentheses which don't fit onto the same line as the the corresponding
+opening parenthesis are output just below their corresponding opening
+parenthesis, in the same column.  <code>*print-rpars*</code> is
+initially set to <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
 
 <p>An additional variable
 <code><strong>lisp:*print-indent-lists*</strong></code> controls the
@@ -4255,7 +4351,8 @@ can determine the current column of any stream.
 
 <p>Pathnames are printed as follows: If
 <a href="CLHSROOT/Body/var_stprint-escapest.html">
-<code>*print-escape*</code></a> is <code>nil</code>, only the namestring
+<code>*print-escape*</code></a> is <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a>, only the namestring
 is printed; otherwise it is printed with <code>#P""</code> syntax, as
 per ANSI CL Issue <a href="CLHSROOT/Issues/iss276.html">
 PRINT-READABLY-BEHAVIOR:CLARIFY</a>.  But, if
@@ -4292,20 +4389,25 @@ floating point numbers are printed.
 <!-- #ifndef AMIGAOS -->
 <dt><em>Platform dependent: UNIX, DOS, OS/2, Win32, Acorn platforms only.</em>
 <dd><a href="CLHSROOT/Body/var_stprint-prettyst.html">
-<code>*print-pretty*</code></a> is initially = <code>nil</code> but set
-to <code>t</code> in <code>config.lsp</code>. This makes screen output
+<code>*print-pretty*</code></a> is initially
+<a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> but set to <a href="CLHSROOT/Body/convar_t.html">
+<code>t</code></a> in <code>config.lsp</code>. This makes screen output
 prettier.
 <!-- #else -->
 <dt><em>Platform dependent: Amiga platforms only.</em>
 <dd><a href="CLHSROOT/Body/var_stprint-prettyst.html">
-<code>*print-pretty*</code></a> is initially = <code>nil</code> but set
-to <code>t</code> in <code>config.lsp</code>. This makes unbuffered screen
+<code>*print-pretty*</code></a> is initially
+<a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> but set to <a href="CLHSROOT/Body/convar_t.html">
+<code>t</code></a> in <code>config.lsp</code>. This makes unbuffered screen
 output much faster.
 <!-- #endif -->
 </dl>
 
 <p><a href="CLHSROOT/Body/var_stprint-arrayst.html">
-<code>*print-array*</code></a> is initially set to <code>t</code>.
+<code>*print-array*</code></a> is initially set to
+<a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
 
 <h2><a name="reader"></a><a href="CLHSROOT/Body/chap-23.html">
     Chapter 23: Reader</a></h2>
@@ -4317,8 +4419,10 @@ meaningfully read in:
        <td> all structures lacking a keyword constructor
   <tr> <td valign=top> <code>#&lt;ARRAY <var>type</var>
        <var>dimensions</var>&gt;</code>
-       <td> all arrays except strings, if <code>*print-array*</code> =
-       <code>nil</code>
+       <td> all arrays except strings, if
+            <a href="CLHSROOT/Body/var_stprint-arrayst.html">
+            <code>*print-array*</code></a> is
+            <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
   <tr> <td valign=top> <code>#&lt;SYSTEM-FUNCTION <var>name</var>&gt;</code>
        <td> built-in function written in C
   <tr> <td valign=top> <code>#&lt;ADD-ON-SYSTEM-FUNCTION
@@ -4328,8 +4432,8 @@ meaningfully read in:
        <var>name</var>&gt;</code>
        <td> special operator handler
   <tr> <td valign=top> <code>#&lt;COMPILED-CLOSURE <var>name</var>&gt;</code>
-       <td> compiled function, if <code>*print-closure*</code> =
-       <code>nil</code>
+       <td> compiled function, if <code>lisp:*print-closure*</code> =
+       <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
   <tr> <td valign=top> <code>#&lt;CLOSURE <var>name</var> ...&gt;</code>
        <td> interpreted function
   <tr> <td valign=top> <code>#&lt;FRAME-POINTER #x...&gt;</code>
@@ -4343,7 +4447,10 @@ meaningfully read in:
   <tr> <td valign=top> <code>#&lt;PACKAGE <var>name</var>&gt;</code>
        <td> package
   <tr> <td valign=top> <code>#&lt;HASH-TABLE #x...&gt;</code>
-       <td> hash table, if <code>*print-array*</code> = <code>nil</code>
+       <td> hash table, if <a href="CLHSROOT/Body/var_stprint-arrayst.html">
+            <code>*print-array*</code></a> is
+            <a href="CLHSROOT/Body/convar_nil.html">
+            <code>nil</code></a>
   <tr> <td valign=top> <code>#&lt;READTABLE #x...&gt;</code>
        <td> readtable
   <tr> <td valign=top> <code>#&lt;SYMBOL-MACRO <var>form</var>&gt;</code>
@@ -4469,7 +4576,7 @@ with element type <code>character</code> or a string input stream.
     <a href="CLHSROOT/Body/fun_read-char-no-hang.html">read-char-no-hang</a></h4>
 
 <dl>
-  <dt> <a name=real-listen></a>
+  <dt> <a name="real-listen"></a>
     <code>(system::<strong>real-listen</strong> <var>stream</var>)</code>
   <dd> <code>sys::real-listen</code> is a variant of the standard
     <code>listen</code> function, which returns more detailed information
@@ -4500,8 +4607,7 @@ with element type <code>character</code> or a string input stream.
 <code>disassemble</code></a>, but also by the declaration
 <code>(compile)</code>.
 
-<a name="compilefile"></a>
-<h4><a href="CLHSROOT/Body/fun_compile-file.html">
+<a name="compilefile"></a><h4><a href="CLHSROOT/Body/fun_compile-file.html">
     compile-file</a></h4>
 
 <p><code>(compile-file <var>input-file</var> &amp;key [:output-file]
@@ -4512,13 +4618,17 @@ compiles a file to platform-independent bytecode.
 <dt><var>input-file</var>
  <dd>should be a pathname/string/symbol.
 <dt><code>:output-file</code>
- <dd>should be <code>nil</code> or <code>t</code> or a
- pathname/string/symbol or an output-stream. The default is
- <code>t</code>.
+ <dd>should be <a href="CLHSROOT/Body/convar_nil.html">
+ <code>nil</code></a> or <a href="CLHSROOT/Body/convar_t.html">
+ <code>t</code></a> or a pathname/string/symbol or an output-stream.
+ The default is <a href="CLHSROOT/Body/convar_t.html">
+ <code>t</code></a>.
 <dt><code>:listing</code>
- <dd>should be <code>nil</code> or <code>t</code> or a
- pathname/string/symbol or an output-stream. The default is
- <code>nil</code>.
+ <dd>should be <a href="CLHSROOT/Body/convar_nil.html">
+ <code>nil</code></a> or <a href="CLHSROOT/Body/convar_t.html">
+ <code>t</code></a> or a pathname/string/symbol or an output-stream.
+ The default is <a href="CLHSROOT/Body/convar_nil.html">
+ <code>nil</code></a>.
 <dt><code>:warnings</code>
  <dd>specifies whether warnings should also appear on the screen.
 <dt><code>:verbose</code>
@@ -4541,23 +4651,27 @@ files are generated:
 <p><table border=1>
   <tr><th>File <th>When <th>Default file type  <th>Contents
   <tr><td>output file
-      <td>only if <code>:output-file</code> is not <code>nil</code>
+      <td>only if <code>:output-file</code> is not
+          <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>#p".fas"</code>
       <td>can be loaded using the <a href="CLHSROOT/Body/fun_load.html">
           <code>load</code></a> function.
   <tr><td>auxiliary output file
-      <td>only if <code>:output-file</code> is not <code>nil</code>
+      <td>only if <code>:output-file</code> is not
+          <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>#p".lib"</code>
       <td>used by <a href="CLHSROOT/Body/fun_compile-file.html">
           <code>compile-file</code></a> when compiling
           a <a href="CLHSROOT/Body/fun_providecm_require.html">
           <code>require</code></a> form referring to the input file.
   <tr><td>listing file
-      <td>only if <code>:listing</code> is not <code>nil</code>
+      <td>only if <code>:listing</code> is not
+          <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>#p".lis"</code>
       <td>disassembly of the output file.
   <tr><td>C output file
-      <td>only if <code>:output-file</code> is not <code>nil</code>
+      <td>only if <code>:output-file</code> is not
+          <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
       <td><code>#p".c"</code>
       <td>foreign function interface; this file is deleted if it is empty.
 </table>
@@ -4565,7 +4679,8 @@ files are generated:
 <h4><a href="CLHSROOT/Body/fun_compile-file-pathname.html">
     compile-file-pathname</a></h4>
 
-The default for the <code>:output-file</code> argument is <code>t</code>,
+The default for the <code>:output-file</code> argument is
+<a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>,
 which means <code>#p".fas"</code>.
 
 <h4><a href="CLHSROOT/Body/fun_providecm_require.html">
@@ -4576,8 +4691,7 @@ which means <code>#p".fas"</code>.
 either a pathname or a list of pathnames: files to be loaded if the
 required module is not already in memory.
 
-<a name="loadfile"></a>
-<h4><a href="CLHSROOT/Body/fun_load.html">
+<a name="loadfile"></a><h4><a href="CLHSROOT/Body/fun_load.html">
     load</a></h4>
 
 <p><a href="CLHSROOT/Body/fun_load.html">
@@ -4591,35 +4705,43 @@ required module is not already in memory.
  <dt><code>:verbose t</code>
   <dd>causes <code>load</code> to emit a short message that a file is
   being loaded. The default is <code>*load-verbose*</code>, which is
-  initially = <code>t</code>.
+  initially <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
  <dt><code>:print t</code>
-  <dd>causes <code>load</code> to print the value of each form. The
-  default is <code>*load-print*</code>, which is initially =
-  <code>nil</code>.
+  <dd>causes <a href="CLHSROOT/Body/fun_load.html">
+  <code>load</code></a> to print the value of each form. The
+  default is <a href="CLHSROOT/Body/var_stload-pr_ad-verbosest.html">
+  <code>*load-print*</code></a>, which is initially
+  <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
  <dt><code>:echo t</code>
   <dd>causes the input from the file to be echoed to
-  <code>*standard-output*</code> (normally to the screen). Should there
-  be an error in the file, you can see at one glance where it is. The
-  default is <code><strong>*load-echo*</strong></code>, which is
-  initially = <code>nil</code>.
+  <a href="CLHSROOT/Body/var_stdebug-i_ace-outputst.html">
+  <code>*standard-output*</code></a> (normally to the screen). Should
+  there be an error in the file, you can see at one glance where it is.
+  The default is <code><strong>lisp:*load-echo*</strong></code>, which is
+  initially <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
  <dt><code>:compiling t</code>
   <dd>causes each form read to be compiled on the fly. The compiled code
   is executed at once and - in contrast to <a
   href="#compilefile"><code>compile-file</code></a> - not written to a
   file. The default is
   <code><strong>lisp:*load-compiling*</strong></code>,
-  which is initially <code>nil</code>.
+  which is initially <a href="CLHSROOT/Body/convar_nil.html">
+  <code>nil</code></a>.
 </dl>
 
 <p>The variable <code><strong>lisp:*load-paths*</strong></code> contains
 a list of directories where program files are searched - additionally to
-the specified or current directory - by <code>load</code>,
-<code>require</code>, <code>compile-file</code>.
+the specified or current directory - by
+<a href="CLHSROOT/Body/fun_load.html">
+<code>load</code></a>, <a href="CLHSROOT/Body/fun_providecm_require.html">
+<code>require</code></a>, <a href="CLHSROOT/Body/fun_compile-file.html">
+<code>compile-file</code></a>.
 
 <a name="features"></a>
 <h4><a href="CLHSROOT/Body/var_stfeaturesst.html">*features*</a></h4>
 
-<p>The variable <code>*features*</code> initially contains the symbols
+<p>The variable <a href="CLHSROOT/Body/var_stfeaturesst.html">
+<code>*features*</code></a> initially contains the symbols
 <table border=1>
  <tr><th align=left><code>:CLISP</code>
      <td> the name of this implementation
@@ -4764,11 +4886,16 @@ detail the stack is shown by the stack related debugger commands.
          form or function that caused the debugger to be entered.
  <tr><th align=left width=100><code>Backtrace</code>
      <td>lists the stack in current mode, bottom frame first, top frame last.
- <tr><th align=left width=100><code>Backtrace-1</code> <td>lists the stack in mode 1.
- <tr><th align=left width=100><code>Backtrace-2</code> <td>lists the stack in mode 2.
- <tr><th align=left width=100><code>Backtrace-3</code> <td>lists the stack in mode 3.
- <tr><th align=left width=100><code>Backtrace-4</code> <td>lists the stack in mode 4.
- <tr><th align=left width=100><code>Backtrace-5</code> <td>lists the stack in mode 5.
+ <tr><th align=left width=100><code>Backtrace-1</code>
+     <td>lists the stack in mode 1.
+ <tr><th align=left width=100><code>Backtrace-2</code>
+     <td>lists the stack in mode 2.
+ <tr><th align=left width=100><code>Backtrace-3</code>
+     <td>lists the stack in mode 3.
+ <tr><th align=left width=100><code>Backtrace-4</code>
+     <td>lists the stack in mode 4.
+ <tr><th align=left width=100><code>Backtrace-5</code>
+     <td>lists the stack in mode 5.
 </table>
 
 <p>If the current stack frame is an <a href="CLHSROOT/Body/fun_eval.html">
@@ -4832,7 +4959,8 @@ of <code>Next</code> commands or one <code>Over</code> command will help.
 
 <dl>
 <dt><em>Platform dependent: UNIX platforms only.</em>
-<dd><code><strong>disassemble</strong></code> can disassemble to machine
+<dd><code><strong><a href="CLHSROOT/Body/fun_disassemble.html">
+disassemble</a></strong></code> can disassemble to machine
 code, provided that GNU gdb is present.  In that case the argument may
 be a <code>system-function</code>, a <code>foreign-function</code>, a
 special operator indicator, a symbol denoting one of these, a number, or a
@@ -4904,9 +5032,12 @@ its interpreted form.
 and you can leave the function call with specified values by using
 <code>return</code>.
 
-<p><code>trace</code> and <code>untrace</code> are also applicable to
-functions <code>(setf <var>symbol</var>)</code> and to macros, but not
-to locally defined functions and macros.
+<p><a href="CLHSROOT/Body/mac_tracecm_untrace.html"><code>trace</code></a>
+and <a href="CLHSROOT/Body/mac_tracecm_untrace.html">
+<code>untrace</code></a> are also applicable to functions <code>(<a
+href="CLHSROOT/Body/mac_setfcm_psetf.html">setf</a>
+<var>symbol</var>)</code> and to macros, but not to locally defined
+functions and macros.
 
 <h4><a href="CLHSROOT/Body/fun_inspect.html">
     inspect</a></h4>
@@ -4917,7 +5048,7 @@ as an add-on from the <a
 href="http://ftp2.cons.org/pub/lisp/clisp/contrib/">contrib</a>
 directory.)
 
-<h4>space</h4>
+<a name="space"></a><h4>space</h4>
 
 <p>The macro <code><strong>lisp:space</strong></code> is like the macro
 <a href="CLHSROOT/Body/mac_time.html">
@@ -4945,8 +5076,8 @@ second value of <a href="CLHSROOT/Body/fun_room.html">
 <p>The timing data printed by the macro <a
 href="CLHSROOT/Body/mac_time.html"> <code>time</code></a> includes: The real
 time (elapsed time), the run time (processor time for this process), the
-number of bytes allocated (use the <code>space</code> macro for more
-detailed analysis), and the number of GCs performed, if any.
+number of bytes allocated (use the <a href="#space"><code>space</code></a>
+macro for more detailed analysis), and the number of GCs performed, if any.
 
 <h4><a href="CLHSROOT/Body/fun_ed.html">
     ed</a></h4>
@@ -5828,8 +5959,7 @@ specified by the vote.
 <!-- ======================================================= -->
 <br><hr><br>
 
-<a name="extensions"></a>
-<h2>Extensions-1: Platform independent Extensions</h2>
+<a name="extensions"></a><h2>Extensions-1: Platform independent Extensions</h2>
 
 <a name="image"></a><h3>Extensions-1.1. Saving an Image</h3>
 
@@ -5837,20 +5967,22 @@ specified by the vote.
 [:quiet] [:init-function]])</code> saves the running CLISP's memory to a
 file. The <var>filename</var> defaults to
 <code>"lispinit.mem"</code>.  If the <code>:quiet</code>
-argument is not <code>nil</code>, the startup banner and the good-bye
+argument is not <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a>, the startup banner and the good-bye
 message will be suppressed. The <code>:init-function</code> argument
 specifies a function that will be executed at startup of the saved
-image.
+image.  The starting package of the new image is the one in which you
+were when you invoked <code>saveinitmem</code>.
 
 <a name="quit"></a><h3>Extensions-1.2. Quitting Lisp</h3>
 
-<p>The functions <code>(<strong>exit</strong>
-[<var>errorp</var>])</code>, <code>(<strong>quit</strong>
-[<var>errorp</var>])</code> and <code>(<strong>bye</strong>
+<p>The functions <code>(<strong>lisp:exit</strong>
+[<var>errorp</var>])</code>, <code>(<strong>lisp:quit</strong>
+[<var>errorp</var>])</code> and <code>(<strong>lisp:bye</strong>
 [<var>errorp</var>])</code> - all synonymous - terminate CLISP. If
-<var>errorp</var> is not <code>nil</code>, CLISP aborts with error
-status, i.e. the environment is informed that the CLISP session didn't
-succeed.
+<var>errorp</var> is not <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a>, CLISP aborts with error status, i.e. the
+environment is informed that the CLISP session didn't succeed.
 
 <a name="language"></a><h3>Extensions-1.3. The Language</h3>
 
@@ -6228,8 +6360,11 @@ returns true if the <var>object</var> is of type
 
 <p><code>(<strong>lisp:weak-pointer-value</strong>
 <var>weak-pointer</var>)</code> returns two values: The original value
-and <code>t</code>, if the value has not yet been garbage collected,
-else <code>nil</code> and <code>nil</code>.
+and <a href="CLHSROOT/Body/convar_t.html">
+<code>t</code></a>, if the value has not yet been garbage collected,
+else <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> and <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a>.
 
 
 <a name="final"></a><h3>Extensions-1.6. Finalization</h3>
@@ -6269,14 +6404,16 @@ prints &#34;<var>package[nn]</var>&gt;&nbsp;&#34; where
 <var>package</var> is the shortest (nick)name of the current package <a
 href="CLHSROOT/Body/var_stpackagest.html"><code>*package*</code></a> if it
 is the same as it was in the beginning or if it doesn't contain symbol
-<code>t</code> (it is assumed that in the latter case you would want to
+<a href="CLHSROOT/Body/convar_t.html">
+<code>t</code></a> (it is assumed that in the latter case you would want to
 keep in mind that your current package is something weird); and
 <var>nn</var> is the ordinal number of the current prompt (hopefully, it
 will remain finite).  To help you in constructing your own fancy
 prompts, two functions are provided:
 <code><strong>sys::prompt-new-package</strong></code>, returning <a
 href="CLHSROOT/Body/var_stpackagest.html"><code>*package*</code></a> or
-<code>nil</code> if the current package is the same as it was initially;
+<a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> if the current package is the same as it was initially;
 and <code><strong>sys::package-short-name</strong></code> taking one
 argument, a package, and returning its shortest name or nickname.  Also,
 a variable <code><strong>sys::*command-index*</strong></code> contains
@@ -6297,7 +6434,8 @@ lisp.
      octets (for IPv6), address type - IPv4 or IPv6).  When
      <code>host</code> is omitted or <code>:default</code>, return the
      data for the current host.  When <code>host</code> is given and is
-     <code>nil</code>, all the host database is returned as a list of
+     <a href="CLHSROOT/Body/convar_nil.html">
+     <code>nil</code></a>, all the host database is returned as a list of
      vectors of length 4 (this would be the contents of the
      <var>/etc/hosts</var> file on a UNIX system or
      <var>${windir}/system32/etc/hosts</var> on a Win32 system).
@@ -6313,19 +6451,22 @@ lisp.
      number of blocks allocated, atime, mtime, ctime (as number of
      seconds since 1900-01-01).  If the system doesn't support a
      particular field (e.g., Win32 does not have hard links),
-     <code>nil</code> (or the default, like 1 for the number of
+     <a href="CLHSROOT/Body/convar_nil.html">
+     <code>nil</code></a> (or the default, like 1 for the number of
      hard links for Win32 or DOS) is returned.
      <br>[UNIX systems only at this time, patches are welcome.]
  <dt><code>(<strong>lisp:user-data</strong>
              &amp;optional <var>user</var>)</code>
  <dd>Return the passwd struct as multiple values (name, encoded
      password, UID, GID, full name, home directory, shell).  When
-     <code>user</code> is <code>nil</code>, return all users as a list
+     <code>user</code> is <a href="CLHSROOT/Body/convar_nil.html">
+     <code>nil</code></a>, return all users as a list
      of vectors of length 7.  When <code>user</code> is
      <code>:default</code> or not supplied, return the information
      about the current user.  If the system doesn't support a particular
      field (e.g., Win32 does not have a concept of a shell),
-     <code>nil</code> (or the default, like <var>c:\command.com</var>
+     <a href="CLHSROOT/Body/convar_nil.html">
+     <code>nil</code></a> (or the default, like <var>c:\command.com</var>
      for DOS) is returned.
      <br>[UNIX systems only at this time, patches are welcome.]
 </dl>
@@ -6362,7 +6503,8 @@ platform-independent command line options:
   interface to Common Lisps.
  <dt><strong>-C</strong>
   <dd>Set <a href="#loadfile"><code>lisp:*load-compiling*</code></a> to
-  <code>t</code>.  Useful in <a href="#script">scripts</a>.
+  <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
+  Useful in <a href="#script">scripts</a>.
  <dt><strong>-norc</strong>
   <dd>Do not load the user run control file on startup.  Normally, CLISP
   executes <pre><code>(load (merge-pathnames
@@ -6385,31 +6527,63 @@ platform-independent command line options:
  <dt><a name="ansi"><strong>-a</strong></a>
   <dd>Stricter ANSI CL compliance:
   <ul>
-   <li>Set <code><strong>lisp:*ansi*</strong></code> to <code>t</code>.
-       This implies:
+   <li>Set the <a href="CLHSROOT/Body/mac_define-symbol-macro.html">
+    symbol-macro</a> <code><strong>lisp:*ansi*</strong></code> to
+    <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.  This implies:
     <ul>
-     <li>ANSI CL compliant <a href="#pathprint"><code>pathname</code>
-      printing</a>.
-     <li>Fixnums cannot be <a href="CLHSROOT/Body/fun_coerce.html">
-      <code>coerce</code></a>d to characters (because a fixnum is not a
-      <a href="CLHSROOT/Body/glo_c.html#character_designator">character
-      designator</a> in ANSI CL.)
+     <li>ANSI CL compliant <a href="CLHSROOT/Body/syscla_pathname.html">
+      <code>pathname</code></a> <a href="#pathprint">printing</a>.
+     <li><a href="CLHSROOT/Body/typ_fixnum.html">
+      <code>fixnum</code></a>s cannot be
+      <a href="CLHSROOT/Body/fun_coerce.html">
+      <code>coerce</code></a>d to
+      <a href="CLHSROOT/Body/syscla_character.html_character.html">
+      <code>character</code></a>s (because a
+      <a href="CLHSROOT/Body/typ_fixnum.html">
+      <code>fixnum</code></a> is not a
+      <a href="CLHSROOT/Body/glo_c.html#character_designator">
+      character designator</a> in ANSI CL.)
+     <li>Setting <a
+      href="#pathmerge"><code>lisp:*merge-pathnames-ansi*</code></a>
+      to <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
+     <li>Setting <a
+      href="#flocont"><code>lisp:*floating-point-contagion-ansi*</code></a>
+      to <a href="CLHSROOT/Body/convar_t.html"><code>t</code></a>.
+     <li>Adding <code><strong>:ansi-cl</strong></code> to
+      <a href="#features"><code>*features*</code></a>.
     </ul>
-   <li>Set <a
-   href="#pathmerge"><code>lisp:*merge-pathnames-ansi*</code></a>
-   to <code>t</code>.
-   <li>Set <a
-   href="#flocont"><code>lisp:*floating-point-contagion-ansi*</code></a>
-   to <code>t</code>.
    <li>Start in package <a
    href="#clupack"><code>COMMON-LISP-USER</code></a>.
-   <li>Add <code><strong>:ansi-cl</strong></code> to
-   <a href="#features"><code>*features*</code></a>.
   </ul>
   Please note that if you run CLISP with the <strong>-a</strong> switch
   and <a href="#image">save image</a>, then all subsequent invocations
   of CLISP with this image will be as if with <strong>-a</strong>
-  (regardless whether you actually supply the <strong>-a</strong> switch).
+  (regardless whether you actually supply the <strong>-a</strong>
+  switch).  You can always set the
+  <a href="CLHSROOT/Body/mac_define-symbol-macro.html">
+  symbol-macro</a> <code><strong>lisp:*ansi*</strong></code> to
+  <a href="CLHSROOT/Body/convar_nil.html">
+  <code>nil</code></a>, reversing the above settings, i.e.,
+  <ul>
+   <li>Readable <a href="CLHSROOT/Body/syscla_pathname.html">
+      <code>pathname</code></a> <a href="#pathprint">printing</a>.
+   <li><a href="CLHSROOT/Body/typ_fixnum.html">
+      <code>fixnum</code></a>s <strong>can</strong> be
+      <a href="CLHSROOT/Body/fun_coerce.html">
+      <code>coerce</code></a>d to
+      <a href="CLHSROOT/Body/syscla_character.html_character.html">
+      <code>character</code></a>s
+      (via <a href="CLHSROOT/Body/fun_code-char.html">
+      <code>code-char</code></a>).
+   <li>Setting <a
+      href="#pathmerge"><code>lisp:*merge-pathnames-ansi*</code></a>
+      to <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
+   <li>Setting <a
+      href="#flocont"><code>lisp:*floating-point-contagion-ansi*</code></a>
+      to <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
+   <li>Deleting <code><strong>:ansi-cl</strong></code> from
+      <a href="#features"><code>*features*</code></a>.
+  </ul>
  <dt><strong>-x sexp</strong>
   <dd>Execute the <em>SEXP</em> and exit.
 </dl>
@@ -6777,80 +6951,94 @@ type defined by <code>def-c-type</code>.
 
 <table border=1>
  <tr><th>Lisp name <th>Lisp equiv <th>C equiv <th>ILU equiv <th>Comment
- <tr><td><code>nil</code>
-     <td><code>nil</code>
+ <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+     <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
      <td><code>void</code>
      <td> <td>as a result type only
- <tr><td><code>boolean</code>
-     <td><code>boolean</code>
+ <tr><td><a href="CLHSROOT/Body/typ_boolean.html"><code>boolean</code></a>
+     <td><a href="CLHSROOT/Body/typ_boolean.html"><code>boolean</code></a>
      <td><code>int</code>
      <td><code>BOOLEAN</code>
- <tr><td><code>character</code>
-     <td><code>character</code>
+ <tr><td><a href="CLHSROOT/Body/syscla_character.html_character.html">
+         <code>character</code></a>
+     <td><a href="CLHSROOT/Body/syscla_character.html_character.html">
+         <code>character</code></a>
      <td><code>char</code>
      <td><code>SHORT CHARACTER</code>
  <tr><td><code>char</code>
-     <td><code>integer</code>
+     <td><a href="CLHSROOT/Body/syscla_integer.html"><code>integer</code></a>
      <td><code>signed char</code>
  <tr><td><code>uchar</code>
-     <td><code>integer</code>
+     <td><a href="CLHSROOT/Body/syscla_integer.html"><code>integer</code></a>
      <td><code>unsigned char</code>
  <tr><td><code>short</code>
-     <td><code>integer</code>
+     <td><a href="CLHSROOT/Body/syscla_integer.html"><code>integer</code></a>
      <td><code>short</code>
  <tr><td><code>ushort</code>
-     <td><code>integer</code>
+     <td><a href="CLHSROOT/Body/syscla_integer.html"><code>integer</code></a>
      <td><code>unsigned short</code>
  <tr><td><code>int</code>
-     <td><code>integer</code>
+     <td><a href="CLHSROOT/Body/syscla_integer.html"><code>integer</code></a>
      <td><code>int</code>
  <tr><td><code>uint</code>
-     <td><code>integer</code>
+     <td><a href="CLHSROOT/Body/syscla_integer.html"><code>integer</code></a>
      <td><code>unsigned int</code>
  <tr><td><code>long</code>
-     <td><code>integer</code>
+     <td><a href="CLHSROOT/Body/syscla_integer.html"><code>integer</code></a>
      <td><code>long</code>
  <tr><td><code>ulong</code>
-     <td><code>integer</code>
+     <td><a href="CLHSROOT/Body/syscla_integer.html"><code>integer</code></a>
      <td><code>unsigned long</code>
  <tr><td><code>uint8</code>
-     <td><code>(unsigned-byte 8)</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+                8)</code>
      <td><code>uint8</code>
      <td><code>BYTE</code>
  <tr><td><code>sint8</code>
-     <td><code>(signed-byte 8)</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_signed-byte.html">signed-byte</a>
+                8)</code>
      <td><code>sint8</code>
  <tr><td><code>uint16</code>
-     <td><code>(unsigned-byte 16)</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+                16)</code>
      <td><code>uint16</code>
      <td><code>SHORT CARDINAL</code>
  <tr><td><code>sint16</code>
-     <td><code>(signed-byte 16)</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_signed-byte.html">signed-byte</a>
+                16)</code>
      <td><code>sint16</code>
      <td><code>SHORT INTEGER</code>
  <tr><td><code>uint32</code>
-     <td><code>(unsigned-byte 32)</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+                32)</code>
      <td><code>uint32</code>
      <td><code>CARDINAL</code>
  <tr><td><code>sint32</code>
-     <td><code>(signed-byte 32)</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_signed-byte.html">signed-byte</a>
+                32)</code>
      <td><code>sint32</code>
      <td><code>INTEGER</code>
  <tr><td><code>uint64</code>
-     <td><code>(unsigned-byte 64)</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+                64)</code>
      <td><code>uint64</code>
      <td><code>LONG CARDINAL</code>
      <td>does not work on all platforms
  <tr><td><code>sint64</code>
-     <td><code>(signed-byte 64)</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_signed-byte.html">signed-byte</a>
+                64)</code>
      <td><code>sint64</code>
      <td><code>LONG INTEGER</code>
      <td>does not work on all platforms
- <tr><td><code>single-float</code>
-     <td><code>single-float</code>
+ <tr><td><a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">
+         <code>single-float</code></a>
+     <td><a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">
+         <code>single-float</code></a>
      <td><code>float</code>
- <tr><td><code>double-float</code>
-     <td><code>double-float</code>
+ <tr><td><a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">
+         <code>double-float</code></a>
+     <td><a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">
+         <code>double-float</code></a>
      <td><code>double</code>
 </table>
 
@@ -6940,9 +7128,10 @@ calls &#34;<code><var>type</var> *</code>&#34;: a pointer to a single
 item of the given <var>type</var>.
 
 <p>The type <code>(c-ptr-null <var>type</var>)</code> is also equivalent
-to what C calls &#34;<code><var>type</var> *&#34;</code>: a pointer to
-a single item of the given <var>type</var>, with the exception that C
-<code>NULL</code> corresponds to Lisp <code>nil</code>.
+to what C calls &#34;<code><var>type</var> *&#34;</code>: a pointer to a
+single item of the given <var>type</var>, with the exception that C
+<code>NULL</code> corresponds to Lisp <a
+href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
 
 <p>The type <code>(c-array-ptr <var>type</var>)</code> is equivalent to
 what C calls &#34;<code><var>type</var> (*)[]</code>&#34;: a pointer
@@ -6982,10 +7171,12 @@ returns the size and alignment of a C type, measured in bytes.
 returns the size and alignment of a C type, measured in bits.
 
 <p>The predicate <code>(<strong>validp</strong>
-<var>foreign-entity</var>)</code> returns <code>nil</code> if the
+<var>foreign-entity</var>)</code> returns <a
+href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> if the
 <var>foreign-entity</var> (e.g. the Lisp equivalent of a
 <code>c-pointer</code>) refers to a pointer which is invalid because it
-comes from a previous Lisp session. It returns <code>t</code> if
+comes from a previous Lisp session. It returns <a
+href="CLHSROOT/Body/convar_t.html"><code>t</code></a> if
 <var>foreign-entity</var> can be used within the current Lisp process.
 
 <h4>Foreign variables</h4>
@@ -7019,9 +7210,11 @@ Lisp name.
 
 <p>The <code>:type</code> option specifies the variable's foreign type.
 
-<p>If the <code>:read-only</code> option is specified and
-non-<code>nil</code>, it will be impossible to change the variable's
-value from within Lisp (using <code>setq</code> or similar).
+<p>If the <code>:read-only</code> option is specified and non-<a
+href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>, it will be
+impossible to change the variable's value from within Lisp (using
+<a href="CLHSROOT/Body/spefor_setq.html">
+<code>setq</code></a> or similar).
 
 <p>The <code>:alloc</code> option can be either <code>:none</code> or
 <code>:malloc-free</code> and defaults to <code>:none</code>.  If it is
@@ -7618,7 +7811,8 @@ close the library for you, thus it's much safer to use.
 <p>A function is contained in a library. Every function is referred to
 by a symbol. A function is defined through <code>defflibfun</code> or
 <code>declare-library-function</code> by giving the function name, the
-library-base, an offset into the library, a mask (or <code>nil</code>)
+library-base, an offset into the library, a mask
+(or <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>)
 for register-based library calls, the result type and all
 parameter-types.  <code>require-library-functions</code> loads the
 complete set of functions defined in a library file. Symbols are created
@@ -7650,7 +7844,8 @@ function is referenced, because the library base symbol must be known.
 
 <p><code>open-library</code> tries to open the library referenced by the
 base symbol.  Therefore it must have been preceeded with
-<code>declare-library-base</code>. The call returns <code>nil</code> on
+<code>declare-library-base</code>. The call returns
+<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> on
 failure. <code>open-library</code> calls nest. Every successful call
 must be matched by <code>close-library</code>.
 <code>with-open-library</code> does this for you and also allows you to
@@ -7670,33 +7865,70 @@ regular Common Lisp types or CLOS classes.
 
 <p>
 <table border=1>
-<tr> <th>AFFI name     <th>Lisp equiv              <th>C equiv     <th>Comment
-<tr>  <td><code>nil</code>           <td><code>nil</code>                     <td><code>void</code>            <td>as a result type for functions only
-<tr>  <td><code>4</code>             <td><code>(unsigned-byte 32)</code>      <td><code>unsigned long</code>
-<tr>  <td><code>2</code>             <td><code>(unsigned-byte 16)</code>      <td><code>unsigned short</code>
-<tr>  <td><code>1</code>             <td><code>(unsigned-byte 8)</code>       <td><code>unsigned char</code>
-<tr>  <td><code>-4</code>            <td><code>(signed-byte 32)</code>        <td><code>long</code>
-<tr>  <td><code>-2</code>            <td><code>(signed-byte 16)</code>        <td><code>short</code>
-<tr>  <td><code>-1</code>            <td><code>(signed-byte 8)</code>         <td><code>signed char</code>
-<tr>  <td><code>0</code>             <td><code>boolean</code>                 <td><code>BOOL</code>          <td>as a result type for functions only
-<tr>  <td><code>*</code>             <td>opaque                  <td><code>void*</code>
-<tr>  <td><code>:external</code>     <td>opaque                  <td><code>void*</code>
-<tr>  <td><code>string</code>        <td><code>string</code> or <code>vector</code>        <td><code>char*</code>
-<tr>  <td><code>:io</code>           <td><code>string</code> or <code>vector</code>        <td><code>char*</code>
+ <tr><th>AFFI name <th>Lisp equiv <th>C equiv <th>Comment
+ <tr><td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+     <td><a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+     <td><code>void</code>
+     <td>as a result type for functions only
+ <tr><td><code>4</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+                32)</code>
+     <td><code>unsigned long</code>
+ <tr><td><code>2</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+                16)</code>
+     <td><code>unsigned short</code>
+ <tr><td><code>1</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_unsigned-byte.html">unsigned-byte</a>
+                8)</code>
+     <td><code>unsigned char</code>
+ <tr><td><code>-4</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_signed-byte.html">signed-byte</a>
+                32)</code>
+     <td><code>long</code>
+ <tr><td><code>-2</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_signed-byte.html">signed-byte</a>
+                16)</code>
+     <td><code>short</code>
+ <tr><td><code>-1</code>
+     <td><code>(<a href="CLHSROOT/Body/typ_signed-byte.html">signed-byte</a>
+                8)</code>
+     <td><code>signed char</code>
+ <tr><td><code>0</code>
+     <td><a href="CLHSROOT/Body/typ_boolean.html"><code>boolean</code></a>
+     <td><code>BOOL</code>
+     <td>as a result type for functions only
+ <tr><td><code>*</code>
+     <td>opaque
+     <td><code>void*</code>
+ <tr><td><code>:external</code>
+     <td>opaque
+     <td><code>void*</code>
+ <tr><td><a href="CLHSROOT/Body/syscla_string.html"><code>string</code></a>
+     <td><a href="CLHSROOT/Body/syscla_string.html"><code>string</code></a> or
+         <a href="CLHSROOT/Body/syscla_vector.html"><code>vector</code></a>
+     <td><code>char*</code>
+ <tr><td><code>:io</code>
+     <td><a href="CLHSROOT/Body/syscla_string.html"><code>string</code></a> or
+         <a href="CLHSROOT/Body/syscla_vector.html"><code>vector</code></a>
+     <td><code>char*</code>
 </table>
 
-<p>Objects of type <code>string</code> are copied and passed
-NUL-terminated on the execution stack.  On return, a Lisp string is
+<p>Objects of type <a href="CLHSROOT/Body/syscla_string.html">
+<code>string</code></a> are copied and passed
+NULL-terminated on the execution stack.  On return, a Lisp string is
 allocated and filled from the address returned (unless NULL). Functions
 with <code>:io</code> parameters are passed the address of the Lisp
 string or unsigned byte vector. These are not NUL-terminated!  This is
 useful for functions like like <code>read()</code> which do not need an
 array at a constant address longer than the dynamic extent of the call
 (it is dangerous to define callback functions with <code>:io</code> (or
-<code>string</code>) type parameters). Arguments of type
-<code>integer</code> and <code>foreign-pointer</code> are always
-acceptable where a <code>string</code> or <code>:io</code> type is
-specified.
+<a href="CLHSROOT/Body/syscla_string.html">
+<code>string</code></a>) type parameters). Arguments of type
+<a href="CLHSROOT/Body/syscla_integer.html">
+<code>integer</code></a> and <code>foreign-pointer</code> are always
+acceptable where a <a href="CLHSROOT/Body/syscla_string.html">
+<code>string</code></a> or <code>:io</code> type is specified.
 
 <!-- #ifdef UNICODE -->
 <dl>
@@ -7732,19 +7964,24 @@ arguments.
 <p>The value of mask is implementation-dependent. On the Amiga, it's an
 integer whose hexadecimal value is the reverse of the function argument
 register numbers, where d0 has number <code>1</code> and a6 number
-<code>#xF</code>. A <code>nil</code> mask is reserved for stack-based
-calls (unimplemented).
+<code>#xF</code>. A <a
+href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> mask is reserved
+for stack-based calls (unimplemented).
 
 <p>The AFFI type <code>0</code> is only acceptable as a function result
-type and yields either <code>t</code> or <code>nil</code>. The
+type and yields either <a href="CLHSROOT/Body/convar_t.html">
+<code>t</code></a> or <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a>. The
 difference between <code>*</code> and <code>:external</code> is the
 following: <code>*</code> uses integers, <code>:external</code> uses
 <code>foreign-pointer</code> as function result-type (except from
-<code>nil</code> for a NULL pointer) and refuses objects of type
-<code>string</code> or unsigned byte vector as input. Thus
+<a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> for a NULL pointer) and refuses objects of type
+<a href="CLHSROOT/Body/syscla_string.html">
+<code>string</code></a> or unsigned byte vector as input. Thus
 <code>:external</code> provides some security on the input and the
-ability to use <code>finalize</code> for resource-tracking on the output
-side.
+ability to use <a href="#final"><code>lisp:finalize</code></a> for
+resource-tracking on the output side.
 
 <p><code>(declare-library-function <var>name</var>
 <var>library-name</var> {<var>option</var>}*)</code>
@@ -7939,18 +8176,21 @@ extension for CLISP ARexx scripts is <code>"cl"</code>.
 
 <p><code>(REXX-DO-COMMAND <var>command</var> &amp;key :string :result
 :token :io :host)</code> <br> -&gt; <code>(RC &amp;optional
-<var>result</var>)</code>, or <code>nil</code> on failure
+<var>result</var>)</code>, or <a
+href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> on failure
 
 <p><code>(REXX-RUN-COMMAND <var>command</var> &amp;KEY :string
-:token)</code> <br> -&gt; <code>t</code>, or <code>nil</code> on failure
+:token)</code> <br> -&gt; <a href="CLHSROOT/Body/convar_t.html">
+<code>t</code></a>, or <a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> on failure
 
 <p><code>(REXX-SEND-COMMAND <var>command</var> &amp;KEY :string :result
 :token :io :host)</code> <br> -&gt; <var>arexx-msg-handle</var>, or
-<code>nil</code> on failure
+<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> on failure
 
 <p><code>(REXX-WAIT-SENT-COMMAND <var>arexx-msg-handle</var>)</code>
 <br> -&gt; <code>(RC &amp;optional <var>result</var>)</code>, or
-<code>nil</code> on failure
+<a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a> on failure
 
 <p><code>(REXX-LOOP)</code> <br> -&gt; no return, use the
 <code>exit-loop.cl</code> ARexx script to abort the loop
@@ -7961,9 +8201,10 @@ call. The first element in the vector is the function name, the others
 are the up to 15 arguments.
 
 <p>Messages may be sent to an arbitrary ARexx host, special cases are
-<code>nil</code> (meaning <code>"REXX"</code>, the default)
-and <code>t</code> (<code>"AREXX"</code> for asynchronouns
-execution).
+<a href="CLHSROOT/Body/convar_nil.html">
+<code>nil</code></a> (meaning <code>"REXX"</code>, the default) and <a
+href="CLHSROOT/Body/convar_t.html"> <code>t</code></a> (<code>"AREXX"</code>
+for asynchronouns execution).
 
 <p>ARexx server mode: Like Ispell, Csh and SKsh, you can run it in
 server mode by calling <code>(rexx-loop)</code>. You can then only exit
@@ -8022,7 +8263,7 @@ the server accepts the connections.
        <var>socket-stream</var>)</code>
 <dd>These two functions return information about the
 socket stream.  For a server, <code>socket-stream-host</code>
-returns <code>nil</code>.
+returns <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
 <dt>
 <code>(<strong>lisp:socket-service-port</strong>
        &amp;optional &#34;<var>service-name</var>&#34;
@@ -8032,7 +8273,7 @@ It returns the servent struct as multiple values (name, list of aliases,
 port, protocol) for the given <code>service-name</code> and
 <code>protocol</code>, or all services as the list of vectors of length
 4, if <code>service-name</code> is not given or is <code>:default</code>
-or <code>nil</code>.
+or <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>.
 <dt>
 <code>(<strong>lisp:socket-stream-peer</strong>
        <var>socket-stream</var>)</code>
@@ -8192,12 +8433,14 @@ input will be available.
   <dd>where the program's input is to come from: either
    <code>:terminal</code> (the standard input) or <code>:stream</code>
    (a Lisp stream to be created) or a pathname (an input file) or
-   <code>nil</code> (no input at all).
+   <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+   (no input at all).
  <dt><code>:output</code>
   <dd>where the program's output is to be sent to: either
    <code>:terminal</code> (the standard output) or <code>:stream</code>
    (a Lisp stream to be created) or a pathname (an output file) or
-   <code>nil</code> (ignore the output).
+   <a href="CLHSROOT/Body/convar_nil.html"><code>nil</code></a>
+   (ignore the output).
  <dt><code>:if-output-exists</code>
   <dd>what to do if the <code>:output</code> file already
    exists. The possible values are <code>:overwrite</code>,

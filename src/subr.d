@@ -537,6 +537,8 @@ LISPFUNN(address_of,1)
 LISPFUNN(code_address_of,1)
 LISPFUNN(program_id,0)
 #endif
+LISPFUNN(ansi,0)
+LISPFUNN(set_ansi,1)
 # ---------- SOCKET ----------
 #ifdef MACHINE_KNOWN
 LISPFUNN(machine_instance,0)
