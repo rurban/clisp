@@ -1,3 +1,8 @@
+2000-04-03  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (addressbus_mask) [UNIX_OSF]: Define to
+          0xFFFFFF01FFFFFFFFUL instead of 0xFFFFFFC1FFFFFFFFUL.
+
 2000-04-02  Bruno Haible  <haible@linuix.math.u-bordeaux.fr>
 
         * clhs.lisp (*browsers*): Add support for w3m.

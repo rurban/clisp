@@ -3204,9 +3204,9 @@ Ratio and Complex (only if SPVW_MIXED).
     #undef addressbus_mask
     #define addressbus_mask  0xE0FFFFFFUL
   #elif defined(DECALPHA) && defined(UNIX_OSF)
-    # Durchs Memory-Mapping sind jetzt die Bits 37..33 einer Adresse redundant.
+    # Durchs Memory-Mapping sind jetzt die Bits 39..33 einer Adresse redundant.
     #undef addressbus_mask
-    #define addressbus_mask  0xFFFFFFC1FFFFFFFFUL
+    #define addressbus_mask  0xFFFFFF01FFFFFFFFUL
   #elif !defined(WIDE_SOFT)
     # Durchs Memory-Mapping sind jetzt die Bits 31..24 einer Adresse redundant.
     #undef addressbus_mask
