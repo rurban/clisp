@@ -1,5 +1,26 @@
 2002-10-16  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
+	Directory shortcuts on win32.
+	* pathname.d (FullName): save final slash, respect it.
+	(resolve_shell_shortcut): don't call IShellLink->Resolve
+	don't need to substitute missing target with any other file.
+	Try to use description field on missing symlinks.
+	(shell_shortcut_target_t): resolve result enumeration.
+	(resolve_shell_shortcut_more): new function - resolve links
+	to links, returns target attributes.
+	(TrueName): similar to FullName, but tries to resolve every
+	pathname component up to filename.
+	(resolve_shell_symlink): changed result type, input parameters.
+	(assure_dir_exists): splitted MSDOS and WIN32_NATIVE, latter
+	is rewritten.
+	(directory_search_1subdir) [WIN32_NATIVE]: separated from others.
+	Uses TrueName to handle links.
+	(directory_search_hashcode) [WIN32_NATIVE]: new for win32.
+	(directory_search_scandir) [WIN32_NATIVE]: reworked.
+	(directory_search) [WIN32_NATIVE]: handle :CIRCLE flag.
+
+2002-10-16  Arseny Slobodjuck <ampy@ich.dvo.ru>
+
 	Fix build for MSVC.
 	* win32.d (MyCreateProcess): declare 1st parameter as const
 	* win32aux.d (MyCreateProcess): same.
