@@ -9498,7 +9498,7 @@ LISPFUNN(make_keyboard_stream,0)
 # wr_ch_terminal2(&stream,ch);
 # > stream: Terminal-Stream
 # > ch: auszugebendes Zeichen
-  #define wr_ch_terminal2  wr_ch_unbuffered
+  #define wr_ch_terminal2  wr_ch_unbuffered_dos
 
 # UP: Mehrere Zeichen auf einen Terminal-Stream ausgeben.
 # wr_ch_array_terminal2(&stream,&chararray,start,len);
@@ -9506,7 +9506,7 @@ LISPFUNN(make_keyboard_stream,0)
 # > chararray: Simple-String
 # > start: Startindex
 # > len: Anzahl der auszugebenden Zeichen
-  #define wr_ch_array_terminal2  wr_ch_array_unbuffered
+  #define wr_ch_array_terminal2  wr_ch_array_unbuffered_dos
 
 # UP: Löscht den wartenden Output eines Terminal-Stream.
 # clear_output_terminal2(stream);
