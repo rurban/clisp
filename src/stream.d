@@ -14999,7 +14999,7 @@ LISPFUN(socket_status,1,2,norest,nokey,0,NIL) {
 local void sock_opt_bool (SOCKET handle, int option, object value)
 {
   var int val;
-  var socklen_t len = sizeof(val);
+  var SOCKLEN_T len = sizeof(val);
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char *)&val,&len)) OS_error();
   pushSTACK(val ? T : NIL);
   if (!(eq(value,nullobj))) {
@@ -15011,7 +15011,7 @@ local void sock_opt_bool (SOCKET handle, int option, object value)
 local void sock_opt_int (SOCKET handle, int option, object value)
 {
   var uintL val;
-  var socklen_t len = sizeof(val);
+  var SOCKLEN_T len = sizeof(val);
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char *)&val,&len)) OS_error();
   pushSTACK(fixnum(val));
   if (!(eq(value,nullobj))) {
@@ -15024,7 +15024,7 @@ local void sock_opt_int (SOCKET handle, int option, object value)
 local void sock_opt_time (SOCKET handle, int option, object value)
 { /* may trigger GC */
   var struct timeval val;
-  var socklen_t len = sizeof(val);
+  var SOCKLEN_T len = sizeof(val);
   if (-1 == getsockopt(handle,SOL_SOCKET,option,(char *)&val,&len)) OS_error();
   if (val.tv_usec) {
     double x = val.tv_sec + val.tv_sec*0.000001;
@@ -15064,7 +15064,7 @@ LISPFUN(socket_options,1,0,rest,nokey,0,NIL) {
       sock_opt_bool(handle,SO_ERROR,arg);
     } else if (eq(kwd,S(Kso_linger))) {
       struct linger val;
-      var socklen_t len = sizeof(val);
+      var SOCKLEN_T len = sizeof(val);
       if (-1 == getsockopt(handle,SOL_SOCKET,SO_LINGER,(char *)&val,&len)) OS_error();
       if (val.l_onoff) pushSTACK(fixnum(val.l_linger));
       else pushSTACK(NIL);
