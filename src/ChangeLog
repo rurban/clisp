@@ -3,6 +3,7 @@
 
 	applied NetBSD patches: do not assume r11 is free on PowerPC
 	<http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/lang/clisp/patches/>
+	* lispbibl.d (RS6000) [__powerpc__]: define
 	* ffcall/avcall/Makefile.in: use linux syntax for netbsd
 	* ffcall/vacall/Makefile.in: ditto
 	* ffcall/callback/vacall_r/Makefile.in: use netbsd syntax for netbsd

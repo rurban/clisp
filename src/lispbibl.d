@@ -209,7 +209,7 @@
   #if defined(m88000) || defined(__m88k__)
     #define M88000
   #endif
-  #if defined(_IBMR2) || defined(__powerpc) || defined(__ppc) || defined(__ppc__)
+  #if defined(_IBMR2) || defined(__powerpc) || defined(__ppc) || defined(__ppc__) || defined(__powerpc__)
     #define RS6000
   #endif
   #ifdef __convex__
