@@ -12,6 +12,7 @@
 
 #define stdin_handle   0  /* the file handle for the standard input */
 #define stdout_handle  1  /* the file handle for the standard output */
+#define stderr_handle  2  /* the file handle for the standard error */
 
 /* Declaration of types of I/O parameters of operating system functions */
 #ifdef STDC_HEADERS

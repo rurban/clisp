@@ -158,12 +158,13 @@ global long full_write(handle,bufarea,nbyte)
       freemem(address);
     }
 
-# ==============================================================================
+/* ======================================================================== */
 
-  # Diese beiden Variablen werden, wenn man Glück hat, vom Startup-System
-  # (von dem main() aufgerufen wird) sinnvoll vorbesetzt:
-  global Handle stdin_handle = Handle_NULL;    # low-level stdin Eingabekanal
-  global Handle stdout_handle = Handle_NULL;   # low-level stdout Ausgabekanal
+# Diese beiden Variablen werden, wenn man Glück hat, vom Startup-System
+# (von dem main() aufgerufen wird) sinnvoll vorbesetzt:
+global Handle stdin_handle = Handle_NULL;    # low-level stdin Eingabekanal
+global Handle stdout_handle = Handle_NULL;   # low-level stdout Ausgabekanal
+extern Handle stderr_handle = Handle_NULL; /* low-level stderr ouput channel */
 
   global BPTR orig_dir_lock = BPTR_NONE; # das Current Directory beim Programmstart
   # wird verwendet von PATHNAME
@@ -190,12 +191,12 @@ global long full_write(handle,bufarea,nbyte)
         if (SysBase->LibNode.lib_Version < 36) {
           exit(RETURN_FAIL);
         }
-        if (stdin_handle==Handle_NULL) {
+        if (stdin_handle==Handle_NULL)
           stdin_handle = Input();
-        }
-        if (stdout_handle==Handle_NULL) {
+        if (stdout_handle==Handle_NULL)
           stdout_handle = Output();
-        }
+        if (stderr_handle==Handle_NULL)
+          stderr_handle = Error();
         # Abfrage, ob Workbench-Aufruf ohne besonderen Startup:
         if ((stdin_handle==Handle_NULL) || (stdout_handle==Handle_NULL)) {
           exit(RETURN_FAIL);

@@ -1,5 +1,10 @@
 2003-05-03  Sam Steingold  <sds@gnu.org>
 
+	* acorn.d, amiga.d, unix.d (stderr_handle): added
+	* amigaaux.d (init_amiga): initialize it
+
+2003-05-03  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (STACK_register) [__GNUC__ >= 3]: disable.
 	This is a workaround for a GCC3 bug(s?) which manifest itself
 	in CLISP bugs #[ 710737 ]: CLISP+readline = core dump

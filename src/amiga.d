@@ -76,9 +76,9 @@
 
 
 # For *terminal-io*, initialized in SPVW:
-  extern Handle stdin_handle;     # low-level stdin Eingabekanal
-  extern Handle stdout_handle;    # low-level stdout Ausgabekanal
-
+extern Handle stdin_handle;     # low-level stdin Eingabekanal
+extern Handle stdout_handle;    # low-level stdout Ausgabekanal
+extern Handle stderr_handle;  /* low-level stderr ouput channel */
 
 # Information über die eigene Task.
   extern struct ExecBase * const SysBase;
