@@ -1,4 +1,3 @@
-# $Id$
 # Copyright (C) 1998, 1999 by Sam Steingold
 # GNU General Public License v.2 (GPL2) is applicable:
 # No warranty; you may copy/modify/redistribute under the same
@@ -9,17 +8,18 @@
 # building/installing CLISP.  If you read the comments below, you will
 # learn why.
 
-# to create the source/binary RPMs, do (as root!)
-# rpm -ba --sign clisp.spec
+# to create the source/binary RPMs, do
+#  rpm -ba --sign clisp.spec
 
 %define name clisp
-%define version 1999.01.08
+%define version 1999.05.15
 %define clisp_build build
 
 # don't you just love that you have to fit the macro into one line?
 # this automatically upgrades `release' with each build.
 # don't forget to remove the file `.release' when changing `version'.
 %define release %(test -f .release || echo 0 >> .release; echo "1 + " `cat .release` | bc > ,.release; mv ,.release .release; cat .release)
+#%define release %(cat .release)
 
 Summary:      Common Lisp (ANSI CL) implementation
 Name:         %{name}
@@ -56,6 +56,9 @@ Sources and selected binaries are available by anonymous ftp from
 The latest and greatest i386 binary RPM is on
 <ftp://cellar.goems.com/pub/clisp>.
 
+The is built with glibc2.1; if you want to use it with glibc2.0, you will
+need <ftp://ftp.suse.com/pub/suse_update/suse61/a1/regframe.rpm>.
+
 The package was created by Sam Steingold <sds@goems.com>.
 (RHCN requires that I put their e-mail into the "Packager:" header).
 
@@ -86,71 +89,37 @@ EOF
 ##make -f Makefile.devel src/version.h
 ## make -f Makefile.devel
 ## make -f Makefile.devel check-configures
-./configure --prefix=/usr --fsstnd=redhat --with-module=wildcard \
-    --with-module=regexp --with-module=bindings/linuxlibc6 \
-    --with-module=clx/new-clx --with-module=postgresql642 \
-    --with-export-syscalls --build %{clisp_build}
+echo "Uncomment 'configure' in 'clisp.spec' if you want to build";
+#./configure --prefix=/usr --fsstnd=redhat --with-module=wildcard \
+#    --with-module=regexp --with-module=bindings/linuxlibc6 \
+#    --with-module=clx/new-clx --with-module=postgresql642 \
+#    --with-export-syscalls --build %{clisp_build}
 %install
-cd %{clisp_build}
+echo "Uncomment 'make install' in 'clisp.spec' if you want to install";
+# cd %{clisp_build}
 # make install
-test -d doc || mkdir doc
-cp CLOS-guide.txt clisp.html cltl2.txt readline.dvi \
-    LISP-tutorial.txt clreadline.3 editors.txt clisp.1 clreadline.dvi \
-    impnotes.html clisp.gif clreadline.html doc
-cd ..
-
-# Can you believe it?!!  RPM runs chown -R root.root / chmod -R!!!
-# Who was the wise guy who invented this?!  Now not only I have to run
-# rpm as root (as I should not have to - chown/chmod can be done in the
-# package file itself, not on disk!) but I also cannot work with the
-# sources afterwards!
-# Allright, I can set `fixperms' in /etc/rpmrc, but how do I avoid chown?!
-# Unfortunately, the following screws up the docs: they are installed
-# root.src, not root.root, and RPM on the target machine will complain.
-#cd /usr/src/%{name}
-#chgrp -R src .
-#chmod -R g+wX .
 
 # create the source tar, necessary for source RPMs
 cd /usr/src/%{name}
 # remove the junk created by CVS
 find . -name ".#*" | xargs rm -f
 cd ..
-mv clisp clisp-%{version}
-tar cf redhat/SOURCES/clispsrc.tar clisp-%{version} \
-    --exclude build --exclude CVS --exclude .cvsignore
-gzip -9v redhat/SOURCES/clispsrc.tar
-mv clisp-%{version} clisp
+rm -fv clisp-%{version} # redhat/SOURCES/clispsrc.tar.gz
+ln -sv clisp clisp-%{version}
+tar -c -h -f redhat/SOURCES/clispsrc.tar clisp-%{version}/ \
+    --exclude build --exclude CLHSROOT --exclude CVS --exclude .cvsignore
+gzip -9vf redhat/SOURCES/clispsrc.tar
+rm -fv clisp-%{version}
 cd clisp
 
-# BuildRoot: /tmp/build-%{name}-%{version}
-
 %files
-%defattr(644,root,root)
 %dir /usr/lib/clisp/
-%dir /usr/lib/clisp/data/
-%dir /usr/lib/clisp/base/
-%dir /usr/lib/clisp/full/
-%docdir /usr/doc/%{name}-%{version}
-%doc build/ANNOUNCE
-%doc build/GNU-GPL
-%doc build/MAGIC.add
-%doc build/README
-%doc build/SUMMARY
-%doc build/COPYRIGHT
-%doc build/NEWS
-%doc build/README.en
-%doc build/README.de
-%doc build/README.es
-%doc build/doc
+/usr/lib/clisp/*
+/usr/bin/clisp
+%dir /usr/doc/%{name}-%{version}/
+/usr/doc/%{name}-%{version}/*
 /usr/man/man3/clreadline.3
 /usr/man/man1/clisp.1
-%attr(755,root,root) /usr/bin/clisp
-%attr(755,root,root) /usr/lib/clisp/base/lisp.run
-%attr(755,root,root) /usr/lib/clisp/full/lisp.run
-/usr/lib/clisp/base/lispinit.mem
-/usr/lib/clisp/full/lispinit.mem
-/usr/lib/clisp/data/UnicodeData.txt
 /usr/share/locale/de/LC_MESSAGES/clisp.mo
 /usr/share/locale/en/LC_MESSAGES/clisp.mo
 /usr/share/locale/es/LC_MESSAGES/clisp.mo
