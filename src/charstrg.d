@@ -3223,7 +3223,9 @@ LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
   /* maybe fill with initial-element: */
   var object initial_element = STACK_1;
   if (!boundp(initial_element)) {
-    new_string = allocate_string(size);
+    # Allocate a small-sstring, to save memory in the most frequent case.
+    # It will become wider as needed automatically.
+    new_string = allocate_s8string(size);
   } else {
     if (!charp(initial_element)) { /* must be a character */
       pushSTACK(initial_element); /* TYPE-ERROR slot DATUM */
