@@ -66,10 +66,12 @@ global object built_flags (void) {
   #endif
     ;
  #ifdef LIBSIGSEGV_VERSION
-  var char* result = alloca (strlen (part1) + 20);
-  sprintf(result, "%s\nlibsigsegv %d.%d",
+  var DYNAMIC_ARRAY(entire_string,char,strlen(part1)+20);
+  sprintf(entire_string, "%s\nlibsigsegv %d.%d",
           part1, LIBSIGSEGV_VERSION >> 8, LIBSIGSEGV_VERSION & 0xff);
-  return ascii_to_string(result);
+  var object result = ascii_to_string(entire_string);
+  FREE_DYNAMIC_ARRAY(entire_string);
+  return result;
  #else
   return ascii_to_string(part1);
  #endif

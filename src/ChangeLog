@@ -1,5 +1,9 @@
 2005-02-07  Bruno Haible  <bruno@clisp.org>
 
+	* built.d (built_flags): Use DYNAMIC_ARRAY instead of alloca().
+
+2005-02-07  Bruno Haible  <bruno@clisp.org>
+
 	* foreign.d (FFI:CLOSE-FOREIGN-LIBRARY): Assign value1 only after
 	calling close_library().
 
