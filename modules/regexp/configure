@@ -3282,6 +3282,7 @@ if test "$ac_cv_use_sysre" = no; then
 echo "$as_me: not checking for system-wide regexp" >&6;}
 else
 
+
 for ac_header in regex.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
@@ -3431,6 +3432,7 @@ fi
 
 done
 
+if test "$ac_cv_header_regex_h" = yes; then
 
 
 
@@ -3536,11 +3538,104 @@ _ACEOF
 fi
 done
 
+if test "$ac_cv_func_regcomp" = yes -a "$ac_cv_func_regexec"   = yes -a \
+        "$ac_cv_func_regfree" = yes -a "$ac_cv_func_regerror"  = yes ; then
+echo "$as_me:$LINENO: checking for a working regexp implementation" >&5
+echo $ECHO_N "checking for a working regexp implementation... $ECHO_C" >&6
+if test "${cl_cv_regexp+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test "$cross_compiling" = yes; then
+  cl_cv_regexp="guessing no"
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <regex.h>
+#include <stdio.h>
+int check_re (char* pat, char* str, int count, int* beg, int* end) {
+  regex_t re;
+  regmatch_t *matches;
+  int num, ii, status = regcomp(&re,pat,0);
+  if (status) {
+    fprintf(stderr,"regcomp(%s): %d\n",pat,status);
+    return 1;
+  }
+  num = re.re_nsub+1;
+  if (num != count) {
+    fprintf(stderr,"regcomp(%s): %d != %d\n",pat,num,count);
+    return 1;
+  }
+  matches = (regmatch_t*)malloc(num*sizeof(regmatch_t));
+  status = regexec(&re,str,num,matches,0);
+  regfree(&re);
+  if (status) {
+    fprintf(stderr,"regexec(%s): %d\n",str,status);
+    return 1;
+  }
+  for (ii=0; ii < num; ii++)
+    if ((beg[ii] != matches[ii].rm_so) || (end[ii] != matches[ii].rm_eo)) {
+      fprintf(stderr,"matches(%d): [%d/%d] != [%d/%d]\n",ii,
+              matches[ii].rm_so,matches[ii].rm_eo,beg[ii],end[ii]);
+      free(matches); return 1;
+    }
+  free(matches);
+  return 0;
+}
+
+int
+main ()
+{
+
+  int beg[3] = { 4, -1, -1 };
+  int end[3] = { 9, -1, -1 };
+  if (check_re("quick","The quick brown fox jumped quickly.",1,beg,end))
+    return 1;
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  cl_cv_regexp=yes
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+( exit $ac_status )
+cl_cv_regexp=no
+fi
+rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+echo "$as_me:$LINENO: result: $cl_cv_regexp" >&5
+echo "${ECHO_T}$cl_cv_regexp" >&6
+if test "$cl_cv_regexp" = yes; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_WORKING_REGEXP 1
+_ACEOF
+
+fi
+fi
+fi
 fi
 # can we use the system-wide regex implementation?
-if test "$ac_cv_use_sysre" = yes    -a "$ac_cv_header_regex_h" = yes -a  \
-        "$ac_cv_func_regcomp" = yes -a "$ac_cv_func_regexec"   = yes -a \
-        "$ac_cv_func_regfree" = yes -a "$ac_cv_func_regerror"  = yes ; then
+if test "$ac_cv_use_sysre" = yes -a "$cl_cv_regexp" = yes; then
   REGEX_H=""
   REGEX_O=""
 else
