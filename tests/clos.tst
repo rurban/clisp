@@ -1,8 +1,8 @@
 ;; -*- Lisp -*-
 
-#-CMU
+#-(or CMU SBCL)
 (use-package "CLOS")
-#-CMU
+#-(or CMU SBCL)
 T
 
 (unintern '<C1>)
@@ -315,19 +315,19 @@ T
 (eq (class-of t)                (find-class 'symbol))
 T
 
-(eq (class-of 10)               (find-class #+(or ALLEGRO CMU) 'fixnum #-(or ALLEGRO CMU) 'integer))
+(eq (class-of 10)               (find-class #+(or ALLEGRO CMU SBCL) 'fixnum #-(or ALLEGRO CMU SBCL) 'integer))
 T
 
-(eq (class-of 10.0)             (find-class #+(or ALLEGRO CMU) 'single-float #-(or ALLEGRO CMU) 'float))
+(eq (class-of 10.0)             (find-class #+(or ALLEGRO CMU SBCL) 'single-float #-(or ALLEGRO CMU SBCL) 'float))
 T
 
 (eq (class-of '(a b))           (find-class 'cons))
 T
 
-(eq (class-of "abc")            (find-class #+CMU 'simple-string #-CMU 'string))
+(eq (class-of "abc")            (find-class #+CMU 'simple-string #+SBCL 'simple-base-string #-(or CMU SBCL) 'string))
 T
 
-(eq (class-of '#(1 2))          (find-class #+CMU 'simple-vector #-CMU 'vector))
+(eq (class-of '#(1 2))          (find-class #+(or CMU SBCL) 'simple-vector #-(or CMU SBCL) 'vector))
 T
 
 (eq (class-of #'car)            (find-class 'function))
@@ -336,7 +336,7 @@ T
 (eq (class-of #'make-instance)  (find-class 'standard-generic-function))
 T
 
-(eq (class-of '#2a((a) (b)))    (find-class #+CMU 'simple-array #-CMU 'array))
+(eq (class-of '#2a((a) (b)))    (find-class #+(or CMU SBCL) 'simple-array #-(or CMU SBCL) 'array))
 T
 
 (eq (class-of *standard-input*) (find-class 'stream))
@@ -348,9 +348,9 @@ T
 (eq (class-of (find-class 't)) (find-class 'built-in-class))
 T
 
-(eq (class-of (make-array nil)) (find-class 'array))  T
-(eq (class-of (make-array nil :element-type nil)) (find-class 'array)) T
-(eq (class-of (make-array 10 :element-type nil)) (find-class 'string)) T
+(eq (class-of (make-array nil)) (find-class #+SBCL 'simple-array #-SBCL 'array))  T
+(eq (class-of (make-array nil :element-type nil)) (find-class #+SBCL 'simple-array #-SBCL 'array)) T
+(eq (class-of (make-array 10 :element-type nil)) (find-class #+SBCL 'sb-kernel::simple-array-nil #-SBCL 'string)) T
 
 (typep "abc" (find-class 't))
 T
@@ -399,7 +399,12 @@ T
   (not (null (member (car (pcl:class-precedence-list class2))
                      (pcl:class-precedence-list class1)
 ) )    )     )
-#+(or CLISP ALLEGRO CMU) SUBCLASSP
+#+SBCL
+(defun subclassp (class1 class2)
+  (not (null (member (car (sb-pcl:class-precedence-list class2))
+                     (sb-pcl:class-precedence-list class1)
+) )    )     )
+#+(or CLISP ALLEGRO CMU SBCL) SUBCLASSP
 
 (subclassp (find-class 'number)           (find-class 't))
 T
@@ -415,8 +420,7 @@ T
                    &aux (compiled-file (compile-file-pathname lisp-file)))
   (unwind-protect
        (progn
-         (with-open-file (stream lisp-file :direction :output
-                                 :if-exists :supersede)
+         (with-open-file (stream lisp-file :direction :output #+SBCL :if-exists #+SBCL :supersede)
            (format stream "(in-package ~s)~%(defparameter ~S '#.~S)~%"
                    (package-name (symbol-package symbol))
                    symbol symbol))
@@ -460,7 +464,7 @@ FOO
   (defmethod make-load-form ((x foo) &optional env)
     (make-load-form-saving-slots x :environment env))
   (defparameter *tmp-file* "mlf-tmp.lisp")
-  (with-open-file (s *tmp-file* :direction :output)
+  (with-open-file (s *tmp-file* :direction :output #+SBCL :if-exists #+SBCL :supersede)
     (format s "(defparameter *foo* '#S(FOO :A BAR-CONST))~%"))
   (load (compile-file *tmp-file*))
   *foo*)
@@ -475,6 +479,10 @@ FOO
     #+clisp (delete-file (make-pathname :type "lib" :defaults *tmp-file*))
     (mlf-kill 'foo)))
 #S(FOO :A BAR-CONST)
+
+#+SBCL (unintern 'foo) #+SBCL t
+#+SBCL (unintern 'copy-foo) #+SBCL t
+#+SBCL (unintern 'make-foo) #+SBCL t
 
 ;; <http://www.lisp.org/HyperSpec/Issues/iss215-writeup.html>
 (progn
@@ -543,7 +551,14 @@ FOO
   (prin1-to-string (make-foo)))
 " <2>"
 
-(progn (mlf-kill 'foo) (defstruct foo slot))
+(progn (mlf-kill 'foo) nil)
+nil
+
+#+SBCL (unintern 'foo) #+SBCL t
+#+SBCL (unintern 'copy-foo) #+SBCL t
+#+SBCL (unintern 'make-foo) #+SBCL t
+
+(defstruct foo slot)
 FOO
 
 ;; From: Kaz Kylheku <kaz@ashi.footprints.net>
@@ -553,7 +568,7 @@ FOO
   (unwind-protect
        (progn
          (makunbound '*foo*)
-         (with-open-file (f file :direction :output)
+         (with-open-file (f file :direction :output #+SBCL :if-exists #+SBCL :supersede)
            (format f "(eval-when (compile load eval) (defstruct foo slot))~@
                       (defparameter *foo* #.(make-foo))~%"))
          (load (setq c (compile-file file)))
@@ -561,7 +576,9 @@ FOO
     (delete-file file)
     (delete-file c)
     #+clisp (delete-file (make-pathname :type "lib" :defaults file))))
-#S(FOO :SLOT NIL)
+#+CLISP #S(FOO :SLOT NIL)
+#+SBCL ERROR
+#-(or CLISP SBCL) UNKNOWN
 
 ;; change-class
 ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_change-class.html>
@@ -589,7 +606,9 @@ FOO
   (change-class p2 'rho-theta-position)
   (list (slot-value p1 'name) (slot-value p1 'rho) (slot-value p1 'theta)
         (slot-value p2 'name) (slot-value p2 'rho) (slot-value p2 'theta)))
-(FOO 2 0 BAR 1.4142135 0.7853981)
+#+CLISP (FOO 2 0 BAR 1.4142135 0.7853981)
+#+SBCL (FOO 2.0 0.0 BAR 1.4142135 0.7853982)
+#-(or CLISP SBCL) UNKNOWN
 
 (progn
   (defclass c0 () (a b c))
@@ -1217,8 +1236,9 @@ error
   (defmethod test-mc-standard-bad-qualifiers ((x integer) (y integer)) (+ x y))
   (defmethod test-mc-standard-bad-qualifiers ((x float) (y float)) (+ x y))
   (defmethod test-mc-standard-bad-qualifiers :beffor ((x float) (y float))
-    (format t "x = ~S, y = ~S~%" x y)))
-ERROR
+    (format t "x = ~S, y = ~S~%" x y))
+  t)
+#+CLISP ERROR #+SBCL T #-(or CLISP SBCL) UNKNOWN
 
 (progn
   (defgeneric test-mc-progn (x s)

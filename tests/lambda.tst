@@ -231,15 +231,25 @@ ERROR
 ;; function-lambda-expression:
 (defun foo (x) (list x))  foo
 
-(multiple-value-list (function-lambda-expression 'foo))
+(multiple-value-list (function-lambda-expression #'foo))
+#+CLISP
 ((LAMBDA (X) (DECLARE (SYSTEM::IN-DEFUN FOO)) (BLOCK FOO (LIST X)))
  #(NIL NIL NIL NIL ((DECLARATION OPTIMIZE DECLARATION)))
  foo)
+#+SBCL
+(NIL T FOO)
+#-(or CLISP SBCL)
+NIL
 
 (compile 'foo) foo
 
-(multiple-value-list (function-lambda-expression 'foo))
+(multiple-value-list (function-lambda-expression #'foo))
+#+CLISP
 ((lambda (x) (list x)) t foo)
+#+SBCL
+(NIL T FOO)
+#-(or CLISP SBCL)
+NIL
 
 (fmakunbound 'foo) foo
 

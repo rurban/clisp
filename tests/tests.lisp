@@ -113,6 +113,7 @@
   (with-open-file (s (merge-extension "tst" testname) :direction :input)
     (format t "~&~s: started ~s~%" 'run-test s)
     (with-open-file (log logname :direction :output
+                                 #+SBCL :if-exists #+SBCL :supersede
                                  #+ANSI-CL :if-exists #+ANSI-CL :new-version)
       (let ((*package* *package*)
             (*print-pretty* nil))

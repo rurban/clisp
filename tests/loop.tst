@@ -483,8 +483,8 @@ February 17
       and for b integer = (second numlist)
       and for c float = (third numlist)
       collect (list c b a))
-#-CMU ((4.0 2 1) (8.3 6 5) (10.4 9 8))
-#+CMU ERROR
+#-(or CMU SBCL) ((4.0 2 1) (8.3 6 5) (10.4 9 8))
+#+(or CMU SBCL) ERROR
 
 (loop for numlist in '((1 2 4.0) (5 6 8.3) (8 9 10.4))
       for a integer = (first numlist)

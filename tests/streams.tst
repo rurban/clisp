@@ -1,11 +1,11 @@
 ;; -*- lisp -*-
 (progn (in-package "COMMON-LISP-USER") t) t
 
-#-(or AKCL ECL ALLEGRO) (PRIN1-TO-STRING (MAKE-BROADCAST-STREAM))
+#-(or AKCL ECL ALLEGRO SBCL) (PRIN1-TO-STRING (MAKE-BROADCAST-STREAM))
 #+XCL "#<%TYPE-STRUCTURE-STREAM NIL>"
 #+CLISP "#<OUTPUT BROADCAST-STREAM>"
 #+CMU "#<Broadcast Stream>"
-#-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
+#-(or XCL CLISP AKCL ECL ALLEGRO CMU SBCL) UNKNOWN
 
 ;; CLOSE should not delete information about
 ;; element type, direction, and external format
@@ -16,6 +16,7 @@
 ;; <http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&th=e0c06a88910db64b&rnum=1>
 ;; appears to imply otherwise; we follow the opinion of the users.
 (defun close-1 (s)
+  #-SBCL
   (let* ((i (input-stream-p s))
          (o (output-stream-p s))
          (e (stream-element-type s))
@@ -25,12 +26,14 @@
          (eq o (output-stream-p s))
          (equal e (stream-element-type s))
          (equal f (stream-external-format s))
-         c)))
+         c))
+  #+SBCL
+  (close s))
 close-1
 
-(PROGN (SETQ S1 (OPEN "d1.plc" :DIRECTION :OUTPUT))
-(SETQ S2 (OPEN "d2.plc" :DIRECTION :OUTPUT))
-(SETQ S3 (OPEN "d3.plc" :DIRECTION :OUTPUT))
+(PROGN (SETQ S1 (OPEN "d1.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
+(SETQ S2 (OPEN "d2.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
+(SETQ S3 (OPEN "d3.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
 (SETQ B1 (MAKE-BROADCAST-STREAM S1 S2 S3 *STANDARD-OUTPUT*)) T)   T
 
 (PRINT "test broadcast satz 1" B1)   "test broadcast satz 1"
@@ -75,7 +78,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t0.plc" :DIRECTION :OUTPUT)) T)   T
+(PROGN (SETQ S (OPEN "t0.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
 
 (PRINT (QUOTE READ1) S)   READ1
 
@@ -84,17 +87,17 @@ close-1
 (CLOSE-1 S)   T
 
 (PROGN (SETQ INPTW (OPEN "t0.plc"))
-(SETQ S1 (OPEN "d1.plc" :DIRECTION :OUTPUT))
-(SETQ S2 (OPEN "d2.plc" :DIRECTION :OUTPUT))
+(SETQ S1 (OPEN "d1.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
+(SETQ S2 (OPEN "d2.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
 (SETQ SY (MAKE-SYNONYM-STREAM (QUOTE S2)))
-(SETQ S3 (OPEN "d3.plc" :DIRECTION :OUTPUT))
+(SETQ S3 (OPEN "d3.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
 (SETQ TW (MAKE-TWO-WAY-STREAM INPTW S3))
-(SETQ S4 (OPEN "d4.plc" :DIRECTION :OUTPUT))
+(SETQ S4 (OPEN "d4.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
 (SETQ EC (MAKE-ECHO-STREAM INPTW S4))
-(SETQ S5 (OPEN "d5.plc" :DIRECTION :OUTPUT))
-(SETQ S6 (OPEN "d6.plc" :DIRECTION :OUTPUT))
+(SETQ S5 (OPEN "d5.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
+(SETQ S6 (OPEN "d6.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
 (SETQ B1 (MAKE-BROADCAST-STREAM S5 S6))
-(SETQ S7 (OPEN "d7.plc" :DIRECTION :OUTPUT))
+(SETQ S7 (OPEN "d7.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
 (SETQ B2 (MAKE-BROADCAST-STREAM S1 SY TW EC B1 S7)) T)   T
 
 (PRINT "w to b2 1.satz" B2)   "w to b2 1.satz"
@@ -297,7 +300,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t1.plc" :DIRECTION :OUTPUT)) T)   T
+(PROGN (SETQ S (OPEN "t1.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t1" S)   "1.satz t1"
 
@@ -305,7 +308,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t2.plc" :DIRECTION :OUTPUT)) T)   T
+(PROGN (SETQ S (OPEN "t2.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t2" S)   "1.satz t2"
 
@@ -313,7 +316,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t3.plc" :DIRECTION :OUTPUT)) T)   T
+(PROGN (SETQ S (OPEN "t3.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t3" S)   "1.satz t3"
 
@@ -321,7 +324,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t4.plc" :DIRECTION :OUTPUT)) T)   T
+(PROGN (SETQ S (OPEN "t4.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t4" S)   "1.satz t4"
 
@@ -329,7 +332,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t5.plc" :DIRECTION :OUTPUT)) T)   T
+(PROGN (SETQ S (OPEN "t5.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t5" S)   "1.satz t5"
 
@@ -337,7 +340,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t6.plc" :DIRECTION :OUTPUT)) T)   T
+(PROGN (SETQ S (OPEN "t6.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t6" S)   "1.satz t6"
 
@@ -345,7 +348,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t7.plc" :DIRECTION :OUTPUT)) T)   T
+(PROGN (SETQ S (OPEN "t7.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t7" S)   "1.satz t7"
 
@@ -353,7 +356,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t8.plc" :DIRECTION :OUTPUT)) T)   T
+(PROGN (SETQ S (OPEN "t8.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t8" S)   "1.satz t8"
 
@@ -361,7 +364,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t9.plc" :DIRECTION :OUTPUT)) T)   T
+(PROGN (SETQ S (OPEN "t9.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t9" S)   "1.satz t9"
 
@@ -369,7 +372,7 @@ close-1
 
 (CLOSE-1 S)   T
 
-(PROGN (SETQ S (OPEN "t10.plc" :DIRECTION :OUTPUT)) T)   T
+(PROGN (SETQ S (OPEN "t10.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
 
 (PRINT "1.satz t10" S)   "1.satz t10"
 
@@ -666,9 +669,9 @@ E"
 
 (LENGTH (PRINC (GET-OUTPUT-STREAM-STRING OS)))   496
 
-(PROGN (SETQ OS (OPEN "d0.plc" :DIRECTION :OUTPUT))
-(SETQ OS1 (OPEN "d1.plc" :DIRECTION :OUTPUT))
-(SETQ IS (OPEN "t0.plc" :DIRECTION :OUTPUT)) T)   T
+(PROGN (SETQ OS (OPEN "d0.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
+(SETQ OS1 (OPEN "d1.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE))
+(SETQ IS (OPEN "t0.plc" :DIRECTION :OUTPUT #+SBCL :IF-EXISTS #+SBCL :SUPERSEDE)) T)   T
 
 (PRINC "'(a b #.(print \"1.zwischenwert\" os1) c d)" IS)
 "'(a b #.(print \"1.zwischenwert\" os1) c d)"
@@ -775,7 +778,7 @@ T
 (let ((f "foo.bar") fwd1)
   (unwind-protect
        (progn ; FILE-WRITE-DATE should work on :PROBE streams
-         (with-open-file (s f :direction :output)
+         (with-open-file (s f :direction :output #+SBCL :if-exists #+SBCL :supersede)
            (write f :stream s)
            (setq fwd1 (file-write-date s)))
          (with-open-file (s f :direction :probe)
@@ -826,7 +829,7 @@ T
 (file-string-length (make-broadcast-stream) "foo") 1
 (stream-element-type (make-broadcast-stream))      T
 
-(let ((o (open "foo.bin" :direction :output :element-type '(unsigned-byte 8)))
+(let ((o (open "foo.bin" :direction :output #+SBCL :if-exists #+SBCL :supersede :element-type '(unsigned-byte 8)))
       (i (make-string-input-stream "foo")))
   (unwind-protect (stream-element-type (make-two-way-stream i o))
     (close o) (delete-file o)
@@ -838,7 +841,8 @@ T
                       (make-string-input-stream "bar")
                       (make-string-input-stream "baz")
                       (make-string-input-stream "zot")))
-CHARACTER
+#-SBCL CHARACTER
+#+SBCL BASE-CHAR
 
 (let ((s (make-string-output-stream :element-type nil)))
   (list (typep #\z (stream-element-type s))
