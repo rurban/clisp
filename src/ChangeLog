@@ -1,5 +1,10 @@
 1998-10-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * control.d (TAGBODY, GO): Allow NIL as GO tag.
+        * compiler.lsp (c-TAGBODY, c-GO): Likewise.
+
+1998-10-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * list.d (LDIFF): Allow dotted lists, like for TAILP.
 
 1998-10-15  Sam Steingold  <sds@goems.com>
