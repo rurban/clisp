@@ -1,3 +1,10 @@
+2002-01-29  Sam Steingold  <sds@gnu.org>
+
+	* hashtabl.d (check_hashtable): new macro
+	(GETHASH, PUTHASH, REMHASH, MAPHASH, CLRHASH)
+	(HASH-TABLE-REHASH-THRESHOLD, HASH-TABLE-TEST, HASH-TABLE-ITERATOR)
+	(CLASS-GETHASH, CLASS-TUPLE-GETHASH): use it
+
 2002-01-29  Stefan Kain  <stefan.kain@freenet.de>
 
 	* hashtabl.d: translated all comments
