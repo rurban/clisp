@@ -1,5 +1,21 @@
 1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * describe.lsp (describe-slotted-object): Define code in package
+          SYSTEM, not package CLOS.
+          (describe-object): Likewise. Reindent.
+          (describe-object T): Treat FSUBR here.
+          (describe-object FUNCTION): Not here.
+          (describe-object CONS): De-obfuscate list-length determination.
+          (describe-object SYMBOL): Bind *print-escape* and *print-readably*
+          only around the necessary code. Update translations. Terminate
+          sentence with a dot.
+          (describe-object PACKAGE): Keep "." internationalizable. Update
+          translations. Don't sort L if all we need is its length.
+          (describe): Update translations.
+          (apropos-list): Reindent.
+
+1999-04-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Change the type of FSUBRs (were COMPILED-FUNCTION, but ANSI CL
         specifies that COMPILED-FUNCTION is a subtype of FUNCTION).
         * predtype.d (COMPILED-FUNCTION-P): For FSUBRs, return NIL.
