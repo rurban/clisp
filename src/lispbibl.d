@@ -12057,6 +12057,19 @@ nonreturning_function(extern, OS_filestream_error, (object stream));
 extern void tast_break (void);
 # is used by EVAL, IO, SPVW, STREAM
 
+#ifdef FOREIGN
+/* check that the argument is a valid foreign pointer.
+ check_fpointer(obj);
+ > obj: object
+ > restart_p: allow entering a new value
+ < a valid foreign pointer
+ this is used by foreign.d and also by some modules
+ that rely on fpointer but not FFI, e.g., regexp
+ can trigger GC */
+extern object check_fpointer (object obj, bool restart_p);
+/* used by FOREIGN and REGEXP (amd maybe other non-FFI modules) */
+#endif
+
 # Error message, if an object isn't a list.
 # fehler_list(obj);
 # > obj: non-list
