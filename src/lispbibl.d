@@ -6600,7 +6600,7 @@ typedef enum {
       var object obj_forwarded = obj;                                 \
       instance_un_realloc(obj_forwarded);                             \
       /*instance_update(obj,obj_forwarded); - not needed since we don't access a slot */ \
-      var object cv = TheInstance(obj_forwarded)->inst_class_version; \
+     {var object cv = TheInstance(obj_forwarded)->inst_class_version; \
       /* Treat the most frequent cases first, for speed. */           \
       if (eq(cv,O(class_version_standard_class))) # direct instance of STANDARD-CLASS? \
         goto obj##_classp_yes;                                        \
@@ -6609,10 +6609,10 @@ typedef enum {
       if (eq(cv,O(class_version_built_in_class))) # direct instance of BUILT-IN-CLASS? \
         goto obj##_classp_yes;                                        \
       /* Now a slow, but general instanceof test. */                  \
-      var object objclas = TheClassVersion(cv)->cv_newest_class;      \
-      if (eq(gethash(O(class_class),TheClass(objclas)->all_superclasses),nullobj)) \
-        goto obj##_classp_no;                                         \
-    }                                                                 \
+      {var object objclas = TheClassVersion(cv)->cv_newest_class;     \
+       if (eq(gethash(O(class_class),TheClass(objclas)->all_superclasses),nullobj)) \
+         goto obj##_classp_no;                                        \
+    }}}                                                               \
    obj##_classp_yes: statement1;                                      \
   } else {                                                            \
    obj##_classp_no: statement2;                                       \
