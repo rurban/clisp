@@ -7041,7 +7041,7 @@ man XErrorEvent says:
  Lisp error handler here found in the ERROR-HANDLER slot in the display. */
 int xlib_error_handler (Display *display, XErrorEvent *event)
 {
-  int f = 0;
+  int f = 11;
 
   begin_callback ();
 
@@ -7073,33 +7073,33 @@ int xlib_error_handler (Display *display, XErrorEvent *event)
   pushSTACK(`:MAJOR`);            pushSTACK(make_uint8 (event->request_code));
   pushSTACK(`:MINOR`);            pushSTACK(make_uint16(event->minor_code));
 
-  if (event->error_code == BadColor    ||       /* colormap-error */
-      event->error_code == BadCursor   ||       /* cursor-error */
-      event->error_code == BadDrawable ||       /* drawable-error */
-      event->error_code == BadFont     ||       /* font-error */
-      event->error_code == BadGC       ||       /* gcontext-error */
-      event->error_code == BadIDChoice ||       /* id-choice-error */
-      event->error_code == BadPixmap   ||       /* pixmap-error */
-      event->error_code == BadWindow) {         /* window-error */
-    pushSTACK(`:RESOURCE-ID`);
-    pushSTACK(make_uint32 (event->resourceid));
-    f = 1;
-  }
-
-  if (event->error_code == BadAtom) { /* atom-error */
-    pushSTACK(`:ATOM-ID`);
-    pushSTACK(make_uint32 (event->resourceid));
-    f = 1;
-  }
-
-  if (event->error_code == BadValue) { /* value-error */
-    pushSTACK(`:VALUE`);
-    pushSTACK(make_uint32 (event->resourceid));
-    f = 1;
+  switch (event->error_code) {
+    case BadColor:              /* colormap-error */
+    case BadCursor:             /* cursor-error */
+    case BadDrawable:           /* drawable-error */
+    case BadFont:               /* font-error */
+    case BadGC:                 /* gcontext-error */
+    case BadIDChoice:           /* id-choice-error */
+    case BadPixmap:             /* pixmap-error */
+    case BadWindow:             /* window-error */
+      pushSTACK(`:RESOURCE-ID`);
+      pushSTACK(make_uint32 (event->resourceid));
+      f += 2;
+      break;
+    case BadAtom:               /* atom-error */
+      pushSTACK(`:ATOM-ID`);
+      pushSTACK(make_uint32 (event->resourceid));
+      f += 2;
+      break;
+    case BadValue:              /* value-error */
+      pushSTACK(`:VALUE`);
+      pushSTACK(make_uint32 (event->resourceid));
+      f += 2;
+      break;
   }
 
   /* Now call the handler: */
-  funcall (L(funcall), f ? 13 : 11);
+  funcall (L(funcall), f);
 
   skipSTACK(1);                /* clean up */
 
