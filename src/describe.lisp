@@ -29,7 +29,7 @@ It can be a list of :FUNCTION, :VARIABLE, :TYPE, :CLASS
 to print the corresponding values, or T for all of them.")
 
 (defun apropos-do-more (what)
-  (or (eq t *apropos-do-more*) (member what *apropos-do-more* :test #'eq)))
+  (or (eq t *apropos-do-more*) (memq what *apropos-do-more*)))
 
 (defun apropos (string &optional (package nil))
   (dolist (sym (apropos-list string package) (terpri))
@@ -284,10 +284,10 @@ to print the corresponding values, or T for all of them.")
                  (format stream (TEXT " with macro definition"))))
               ((functionp (symbol-function obj))
                (format stream (TEXT "a~:[~; deprecated~] function")
-                       (member obj *deprecated-functions-list* :test #'eq)))
+                       (memq obj *deprecated-functions-list*)))
               (t ; (macro-function obj)
                (format stream (TEXT "a~:[~; deprecated~] macro")
-                       (member obj *deprecated-functions-list* :test #'eq))))
+                       (memq obj *deprecated-functions-list*))))
         (let ((dep (get obj 'deprecated)))
           (when dep
             (format stream (TEXT " (use ~s instead)") dep)))
@@ -473,7 +473,7 @@ to print the corresponding values, or T for all of them.")
 (defun describe1 (obj stream)
   (let ((objstring (sys::write-to-short-string
                     obj (or *print-right-margin* sys::*prin-linelength*))))
-    (if (member obj *describe-done* :test #'eq)
+    (if (memq obj *describe-done*)
       (format stream (TEXT "~&~%~A [see above]") objstring)
       (progn
         (push obj *describe-done*)

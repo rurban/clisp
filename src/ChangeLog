@@ -1,3 +1,11 @@
+2002-06-19  Sam Steingold  <sds@gnu.org>
+
+	new built-in MEMQ == MEMBER :TEST #'EQ
+	* list.d (MEMQ): new function (uses memq)
+	* constsym.d, subr.d (memq): define
+	* clos.lisp, compiler.lisp, defstruct.lisp, describe.lisp:
+	* init.lisp, type.lisp: use it instead of MEMBER :TEST #'EQ
+
 2002-06-17  Sam Steingold  <sds@gnu.org>
 
 	abstracted some code

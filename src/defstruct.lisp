@@ -149,7 +149,7 @@
     (let* ((argnames
              (let ((L nil))
                (dolist (arg arglist)
-                 (unless (member arg lambda-list-keywords :test #'eq)
+                 (unless (memq arg lambda-list-keywords)
                    (let ((var (if (listp arg) (first arg) arg)))
                      (push (if (consp var) (second var) var) L)
                ) ) )
@@ -163,34 +163,34 @@
                       (arg)
                       (required-args nil))
                      ((or (endp arglistr)
-                          (member (setq arg (car arglistr)) lambda-list-keywords :test #'eq)
-                      )
+                          (memq (setq arg (car arglistr))
+                                lambda-list-keywords))
                       (nreverse required-args)
                      )
                    (push arg required-args)
                  )
                ; optional args:
-               ,@(do ((arglistr (cdr (member '&optional arglist :test #'eq)) (cdr arglistr))
+               ,@(do ((arglistr (cdr (memq '&optional arglist)) (cdr arglistr))
                       (arg)
                       (optionals nil))
                      ((or (endp arglistr)
-                          (member (setq arg (car arglistr)) lambda-list-keywords :test #'eq)
-                      )
+                          (memq (setq arg (car arglistr))
+                                lambda-list-keywords))
                       (if (null optionals) nil (cons '&optional (nreverse optionals)))
                      )
                    (push (ds-arg-with-default arg slotlist) optionals)
                  )
                ; rest arg:
-               ,@(let ((arglistr (member '&rest arglist :test #'eq)))
+               ,@(let ((arglistr (memq '&rest arglist)))
                    (if arglistr `(&rest ,(second arglistr)) '())
                  )
                ; key args:
-               ,@(do ((arglistr (cdr (member '&key arglist :test #'eq)) (cdr arglistr))
+               ,@(do ((arglistr (cdr (memq '&key arglist)) (cdr arglistr))
                       (arg)
                       (keys nil))
                      ((or (endp arglistr)
-                          (member (setq arg (car arglistr)) lambda-list-keywords :test #'eq)
-                      )
+                          (memq (setq arg (car arglistr))
+                                lambda-list-keywords))
                       (setq keys (nreverse keys))
                       (if (and (consp arglistr) (eq (car arglistr) '&allow-other-keys))
                         (progn (pop arglistr) `(&key ,@keys &allow-other-keys))
@@ -200,12 +200,12 @@
                  )
                ; aux args:
                &aux
-               ,@(do ((aux-args-r (cdr (member '&aux arglist :test #'eq)) (cdr aux-args-r))
+               ,@(do ((aux-args-r (cdr (memq '&aux arglist)) (cdr aux-args-r))
                       (aux-arg)
                       (new-aux-args nil))
                      ((or (null aux-args-r)
-                          (member (setq aux-arg (car aux-args-r)) lambda-list-keywords :test #'eq)
-                      )
+                          (memq (setq aux-arg (car aux-args-r))
+                                lambda-list-keywords))
                       (nreverse new-aux-args)
                      )
                    (push (ds-arg-with-default aux-arg slotlist) new-aux-args)
@@ -213,7 +213,7 @@
                ,@(let ((slotinitlist nil))
                    (dolist (slot slotlist)
                      (when (ds-slot-name slot)
-                       (unless (member (ds-slot-name slot) argnames :test #'eq)
+                       (unless (memq (ds-slot-name slot) argnames)
                          (push (ds-arg-with-default (ds-slot-name slot) slotlist) slotinitlist)
                    ) ) )
                    (nreverse slotinitlist)
@@ -305,10 +305,8 @@
             ;; because the included structure's definition must already be
             ;; present in the compilation environment anyway. We don't expect
             ;; people to re-DEFUN defstruct accessors.
-            (if (member (get accessorname 'SYSTEM::DEFSTRUCT-READER name)
-                        (cdr names)
-                        :test #'eq
-                )
+            (if (memq (get accessorname 'SYSTEM::DEFSTRUCT-READER name)
+                      (cdr names))
               '()
               `((PROCLAIM '(FUNCTION ,accessorname (,name) ,slottype))
                 (PROCLAIM '(INLINE ,accessorname))
@@ -342,10 +340,8 @@
             ;; because the included structure's definition must already be
             ;; present in the compilation environment anyway. We don't expect
             ;; people to re-DEFSETF defstruct accessors.
-            (if (member (get accessorname 'SYSTEM::DEFSTRUCT-WRITER name)
-                        (cdr names)
-                        :test #'eq
-                )
+            (if (memq (get accessorname 'SYSTEM::DEFSTRUCT-WRITER name)
+                      (cdr names))
               '()
               `((DEFSETF ,accessorname (STRUCT) (VALUE)
                   ,(if (eq type 'T)
