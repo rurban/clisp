@@ -1,3 +1,10 @@
+1999-03-08  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * intl/dcgettext.c: Define _GNU_SOURCE before including any system
+          header file.
+        * intl/l10nflist.c: Likewise.
+        * intl/localealias.c: Likewise.
+
 1998-11-01  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * po_header: Use "ls --full-time" instead of "ls -e". Option -e does
