@@ -1,3 +1,11 @@
+2003-05-02  Sam Steingold  <sds@gnu.org>
+
+	* clos.lisp (allocate-instance, shared-initialize)
+	(reinitialize-instance, make-instance):
+	add &key &allow-other-keys to the signature
+	(initial-reinitialize-instance): collect keywords from methods
+	for REINITIALIZE-INSTANCE (in addition to SHARED-INITIALIZE)
+
 2003-05-01  Sam Steingold  <sds@gnu.org>
 
 	make some errors recoverable
@@ -51,7 +59,7 @@
 	* eval.d (SPECIAL-VARIABLE-P): use use check_symbol()
 	instead of test_symbol()
 	(sym_value_place, check_local_symbol_value): new functions
-	(sym_value): now a macro that cals sym_value_place()
+	(sym_value): now a macro that calls sym_value_place()
 	(eval1): use check_local_symbol_value()
 	* foreign.d (FOREIGN-LIBRARY): use check_string() instead of
 	fehler_string()
