@@ -64,7 +64,7 @@
     <member>&DBE_set_timeout;</member>
     <member>&DBE_set_encrypt;</member>
     <member>&DBE_set_errfile;</member>
-   </simplelist>.</para></listitem></varlistentry>
+   </simplelist></para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:ENV-GET-OPTIONS dbe
    &optional-amp; what)</literal></term>
  <listitem><para>Retrieve some environment options.
@@ -174,7 +174,7 @@
    <simplelist columns="2"><member><constant>:DB_CONSUME</constant></member>
     <member><constant>:DB_CONSUME_WAIT</constant></member>
     <member><constant>:DB_GET_BOTH</constant></member>
-    <member><constant>:DB_SET_RECNO</constant></member></simplelist>.
+    <member><constant>:DB_SET_RECNO</constant></member></simplelist>
 </para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DB-PUT db key val
    &key-amp; AUTO_COMMIT ACTION TRANSACTION)</literal></term>
@@ -182,7 +182,7 @@
   <constant>:ACTION</constant> should be one of
   <simplelist columns="3"><member><constant>:DB_APPEND</constant></member>
    <member><constant>:DB_NODUPDATA</constant></member>
-   <member><constant>:DB_NOOVERWRITE</constant></member></simplelist>.
+   <member><constant>:DB_NOOVERWRITE</constant></member></simplelist>
 </para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DB-STAT db &key-amp;
    FAST_STAT)</literal></term>
@@ -197,7 +197,7 @@
     <member><constant>:HASH</constant></member>
     <member><constant>:QUEUE</constant></member>
     <member><constant>:RECNO</constant></member>
-    <member><constant>:UNKNOWN</constant> (default)</member></simplelist>.
+    <member><constant>:UNKNOWN</constant> (default)</member></simplelist>
 </para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DB-SYNC db)</literal></term>
  <listitem><simpara>Flush a database to stable storage (&DB_sync;).
@@ -275,7 +275,7 @@
     <member>&DB_set_re_pad;</member>
     <member>&DB_set_re_source;</member>
     <member>&DB_set_flags;</member>
-   </simplelist>.</para></listitem></varlistentry>
+   </simplelist></para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DB-GET-OPTIONS db
    &optional-amp; what)</literal></term>
  <listitem><para>Retrieve some database options.
@@ -342,7 +342,7 @@
        for <constant>:RECNO</constant> databases (&DB_get_re_source;).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:LORDER</constant></term>
-     <listitem><simpara>database byte orderb (&DB_get_lorder;).
+     <listitem><simpara>database byte order (&DB_get_lorder;).
     </simpara></listitem></varlistentry>
   </variablelist></para>
   <warning><para>Once you call a method for one type of access method,
@@ -427,7 +427,7 @@
  <listitem><para>Retrieve by cursor (&DBC_get;).
    If &error-k; is &nil; and the record is not found, no &err-sig;,
    <constant>:NOTFOUND</constant> or <constant>:KEYEMPTY</constant>
-   is returned instead.
+   is returned instead, as appropriate.
    <replaceable>action</replaceable> should be one of
    <simplelist columns="4"><member><constant>:DB_CURRENT</constant></member>
     <member><constant>:DB_FIRST</constant></member>
@@ -443,7 +443,7 @@
     <member><constant>:DB_PREV_NODUP</constant></member>
     <member><constant>:DB_SET</constant></member>
     <member><constant>:DB_SET_RANGE</constant></member>
-    <member><constant>:DB_SET_RECNO</constant></member></simplelist>.
+    <member><constant>:DB_SET_RECNO</constant></member></simplelist>
 </para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:CURSOR-PUT
    cursor key data flag)</literal></term>
