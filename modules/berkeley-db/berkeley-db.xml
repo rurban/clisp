@@ -45,14 +45,15 @@
 <section id="bdb-environment-config"><title>Environment Configuration</title>
 
 <variablelist>
-<varlistentry><term><literal role="sexp">(BDB:ENV-SET-OPTIONS dbe
-   &key-amp; DATA_DIR TMP_DIR AUTO_COMMIT CDB_ALLDB DIRECT_DB
+<varlistentry><term><literal role="sexp">(BDB:ENV-SET-OPTIONS dbe &key-amp;
+   TX_TIMESTAMP TX_MAX DATA_DIR TMP_DIR AUTO_COMMIT CDB_ALLDB DIRECT_DB
    DIRECT_LOG NOLOCKING NOMMAP NOPANIC OVERWRITE PANIC_ENVIRONMENT
    REGION_INIT TXN_NOSYNC TXN_WRITE_NOSYNC YIELDCPU VERB_CHKPOINT
    VERB_DEADLOCK VERB_RECOVERY VERB_REPLICATION VERB_WAITSFOR
    VERBOSE)</literal></term>
  <listitem><simpara>Set some environment options using &DBE_set_flags;,
-   &DBE_set_verbose;, &DBE_set_tmp_dir; and &DBE_set_data_dir;.
+   &DBE_set_verbose;, &DBE_set_tmp_dir;, &DBE_set_data_dir;,
+   &DBE_set_tx_max;, &DBE_set_tx_timestamp;.
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:ENV-GET-OPTIONS dbe
    &optional-amp; what)</literal></term>
@@ -61,15 +62,22 @@
     <varlistentry><term>missing</term><term>&nil;</term>
      <listitem><simpara>all options as multiple values
     </simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:TX_TIMESTAMP</constant></term>
+     <listitem><simpara>Recover to the time specified by timestamp
+       rather than to the most current possible date
+       (&DBE_get_tx_timestamp;)</simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:TX_MAX</constant></term>
+     <listitem><simpara>the number of active transactions
+       (&DBE_set_tx_max;)</simpara></listitem></varlistentry>
     <varlistentry><term><constant>:DATA_DIR</constant></term>
-     <listitem><simpara>list of data directories
+     <listitem><simpara>list of data directories (&DBE_get_data_dir;)
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:TMP_DIR</constant></term>
-     <listitem><simpara>temporary directory (may be &nil;)
-    </simpara></listitem></varlistentry>
+     <listitem><simpara>temporary directory (&DBE_get_tmp_dir;).
+       May be &nil;.</simpara></listitem></varlistentry>
     <varlistentry><term>&verbose-k;</term>
      <listitem><simpara>the &list-t; of verbosity settings
-    </simpara></listitem></varlistentry>
+       (&DBE_get_verbose;).</simpara></listitem></varlistentry>
     <varlistentry><term><constant>:AUTO_COMMIT</constant></term>
      <term><constant>:CDB_ALLDB</constant></term>
      <term><constant>:DIRECT_DB</constant></term>
@@ -89,7 +97,8 @@
      <term><constant>:VERB_REPLICATION</constant></term>
      <term><constant>:VERB_WAITSFOR</constant></term>
      <listitem><simpara>a &boolean-t; indicator of whether this
-       option is set or not</simpara></listitem></varlistentry>
+       option is set or not (&DBE_get_verbose; and &DBE_get_flags;).
+    </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 </variablelist>
 </section>
@@ -388,6 +397,9 @@ Memory Pool Files
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:TXN-DISCARD txn)</literal></term>
  <listitem><simpara>Discard a transaction (&TXN_discard;).
+</simpara></listitem></varlistentry>
+<varlistentry><term><literal role="sexp">(BDB:TXN-ID txn)</literal></term>
+ <listitem><simpara>Return the transaction's ID (&TXN_id;).
 </simpara></listitem></varlistentry>
 </variablelist>
 </section>
