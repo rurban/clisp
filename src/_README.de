@@ -383,7 +383,7 @@ Und erstellen Sie eine Kommando-Datei, die Lisp startet:
    set TERM=ansi
    set TERMCAP=c:/emx/etc/termcap.dat
 #endif
-   d:\lib\lisp\lisp.exe -M d:\lib\lisp\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9
+   d:\lib\lisp\lisp.exe -M d:\lib\lisp\lispinit.mem -B d:\lib\lisp\ %1 %2 %3 %4 %5 %6 %7 %8 %9
    [Ctrl-Z]
 #endif
 #ifdef UNIX
@@ -397,13 +397,13 @@ Und erstellen Sie ein Shell-Script, das Lisp startet:
 #else
    #!/bin/sh
 #endif
-   exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem "$@"
+   exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/ "$@"
 #else
    #!/bin/sh
    if test $# = 0; then
-     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem
+     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/
    else
-     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem "$@"
+     exec /usr/local/lib/lisp/lisp.run -M /usr/local/lib/lisp/lispinit.mem -B /usr/local/lib/lisp/ "$@"
    fi
 #endif
    [Ctrl-D]EOF
@@ -449,7 +449,7 @@ Dazu sind folgende zus‰tzliche Schritte notwendig:
 
    Programmdateiname:      c:\rsx\bin\rsx.exe
    Programmtitel:          COMMON LISP
-   Programmparameter:      -Ra c:\lib\lisp\lisp.exe -M c:\lib\lisp\lispinit.mem
+   Programmparameter:      -Ra c:\lib\lisp\lisp.exe -M c:\lib\lisp\lispinit.mem -B c:\lib\lisp\
                            (evtl. auﬂer -Ra auch -Rs1024)
    Anfangsverzeichnis:     e:\lisp
    Bildschirmspeicher:     Text

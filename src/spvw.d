@@ -1635,6 +1635,7 @@ local void usage (int exit_code)
   #ifdef MULTIMAP_MEMORY_VIA_FILE
   asciz_out(" -t tmpdir   - temporary directory for memmap" NLstring);
   #endif
+  asciz_out(" -B lisplibdir - set the installation directory" NLstring);
   #if defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)
   asciz_out(" -K linkingset - use this executable and memory image" NLstring);
   #endif
@@ -1830,6 +1831,7 @@ local void print_banner ()
       #ifdef MULTIMAP_MEMORY_VIA_FILE
       var local char* argv_tmpdir = NULL;
       #endif
+      extern char* argv_lisplibdir;
       var local boolean argv_wide = FALSE; # for backward compatibility
       var local char* argv_memfile = NULL;
       var local boolean argv_load_compiling = FALSE;
@@ -1860,6 +1862,7 @@ local void print_banner ()
       #   -m size         Memory size (size = xxxxxxxB oder xxxxKB oder xMB)
       #   -s size         Stack size (size = xxxxxxxB oder xxxxKB oder xMB)
       #   -t directory    temporäres Directory
+      #   -B directory    set lisplibdir
       #   -W              WIDE-Version wählen
       #   -K linkingset   specify executable and mem file
       #   -M file         MEM-File laden
@@ -1963,6 +1966,11 @@ local void print_banner ()
                     argv_tmpdir = arg;
                     break;
                   #endif
+                  case 'B': # lisplibdir
+                    OPTION_ARG
+                    if (!(argv_lisplibdir == NULL)) usage (1);
+                    argv_lisplibdir = arg;
+                    break;
                   case 'W': # WIDE-Version wählen, for backward compatibility
                     argv_wide = TRUE;
                     if (!(arg[2] == '\0')) usage (1);

@@ -1,5 +1,14 @@
 1999-04-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Add command-line option specifying $(lisplibdir).
+        * _clisp.c (main): New option "-B".
+        * spvw.d (main, usage): Likewise.
+        * pathname.d (argv_lisplibdir): New variable.
+          (SYS::LIB-DIRECTORY): New function.
+        * makemake.in: Pass "-B" option to all invocations of lisp.run.
+
+1999-04-12  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * makemake.in (installdirs): Create $(lisplibdir)/linkkit.
           (install-bin): Fix syntax error introduced on 1999-04-04.
 
