@@ -2413,13 +2413,14 @@ LISPFUN(gethash,seclass_default,2,1,norest,nokey,0,NIL)
 LISPFUNN(puthash,3)
 { /* (SYSTEM::PUTHASH key hashtable value) =
  (SETF (GETHASH key hashtable) value), CLTL p. 284 */
-  var object ht = check_hashtable(STACK_1); /* hashtable argument */
+  STACK_1 = check_hashtable(STACK_1); /* hashtable argument */
   var gcv_object_t* KVptr;
   var gcv_object_t* Iptr;
   /* search key STACK_2 in the hash-table: */
-  if (hash_lookup(ht,STACK_2,&KVptr,&Iptr)) { /* -> replace value: */
+  if (hash_lookup(STACK_1,STACK_2,&KVptr,&Iptr)) { /* -> replace value: */
     VALUES1(KVptr[1] = popSTACK()); skipSTACK(2);
   } else {                      /* not found -> make new entry: */
+    var object ht;
     var object freelist;
     hash_prepare_store(1,2); /* ht==STACK_1, obj==STACK_2 */
     hash_store(STACK_2,STACK_0); /* make entry */
@@ -2455,14 +2456,14 @@ global object shifthash (object ht, object obj, object value) {
 
 LISPFUNN(remhash,2)
 { /* (REMHASH key hashtable), CLTL p. 284 */
-  var object ht = check_hashtable(STACK_0); /* hashtable argument */
+  STACK_0 = check_hashtable(STACK_0); /* hashtable argument */
   var object key = STACK_1; /* key-argument */
   var gcv_object_t* KVptr;
   var gcv_object_t* Iptr;
   /* search key in the hash-table: */
-  if (hash_lookup(ht,key,&KVptr,&Iptr)) {
+  if (hash_lookup(STACK_0,key,&KVptr,&Iptr)) {
     /* found -> drop from the hash-table: */
-    ht = STACK_0; skipSTACK(2);
+    var object ht = STACK_0; skipSTACK(2);
     var object kvtable = TheHashtable(ht)->ht_kvtable;
     var object index = *Iptr;   /* index in next-vector */
     /* with KVptr = &TheHashedAlist(kvtable)->hal_data[3*index] */
