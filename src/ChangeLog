@@ -1,3 +1,8 @@
+1998-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * lispbibl.d (OS_error): Move declaration.
+          (xthread.c): Move #include.
+
 1998-06-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Make the *print-circle* subroutines multithread-safe.
