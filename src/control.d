@@ -2066,8 +2066,8 @@ LISPFUNN(proclaim,1)
     }
   } else if (eq(decltype,S(inline)) || eq(decltype,S(notinline))) {
     pushSTACK(decltype); /* INLINE, NOTINLINE */
-    while (consp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
-      var object symbol = Car(STACK_0/*declspec*/);
+    while (consp( STACK_1/*declspec*/ = Cdr(STACK_1/*declspec*/) )) {
+      var object symbol = Car(STACK_1/*declspec*/);
       if (!funnamep(symbol))
         fehler_kein_symbol(S(proclaim),symbol);
       /*(SYS::%PUT (SYS::GET-FUNNAME-SYMBOL symbol) 'SYS::INLINABLE decltype)*/
