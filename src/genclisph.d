@@ -10,18 +10,18 @@
 # Nur dass die Zahlen auch vom Typ `unsigned long long' sein können.
 # Wir vermeiden es, <stdarg.h> oder <varargs.h> vorauszusetzen.
 
-typedef struct { char base; # 'd' für dezimal, 'x' für hexadezimal
-                 int size;
-                 union { uint8 val8;
-                         uint16 val16;
-                         uint32 val32;
-                         #ifdef HAVE_LONGLONG
-                         uint64 val64;
-                         #endif
-                       }
-                       value;
-               }
-        printf_arg;
+typedef struct {
+  char base; # 'd' für dezimal, 'x' für hexadezimal
+  int size;
+  union {
+    uint8 val8;
+    uint16 val16;
+    uint32 val32;
+    #ifdef HAVE_LONGLONG
+    uint64 val64;
+    #endif
+  } value;
+} printf_arg;
 
 #ifdef HAVE_LONGLONG
   #define fill_printf_arg(where,expr)  \
@@ -49,50 +49,54 @@ local const char* ULLsuffix = "ULL";
 global void print_printf_arg (const printf_arg* arg);
 global void print_printf_arg(arg)
   var const printf_arg* arg;
-  { switch (arg->size)
-      { case sizeof(uint8):
-          printf(arg->base=='d' ? "%u" : "0x%X", (unsigned int)(arg->value.val8));
-          break;
-        case sizeof(uint16):
-          printf(arg->base=='d' ? "%u" : "0x%X", (unsigned int)(arg->value.val16));
-          break;
-        case sizeof(uint32):
-          printf(arg->base=='d' ? "%lu%s" : "0x%lX%s", (unsigned long)(arg->value.val32), ULsuffix);
-          break;
-        #ifdef HAVE_LONGLONG
-        case sizeof(uint64):
-          #if (long_bitsize == 64)
-            if (!(sizeof(uint64) == sizeof(unsigned long))) { abort(); }
-            printf("0x%lX%s", (unsigned long)(arg->value.val64), ULsuffix);
-          #else
-            if (!(sizeof(uint32) == sizeof(unsigned long))) { abort(); }
-            printf("0x%lX%08lX%s",
-                   (unsigned long)(arg->value.val64 >> 32),
-                   (unsigned long)(arg->value.val64 & 0xFFFFFFFFUL),
-                   ULLsuffix
-                  );
-          #endif
-          break;
+  {
+    switch (arg->size) {
+      case sizeof(uint8):
+        printf(arg->base=='d' ? "%u" : "0x%X", (unsigned int)(arg->value.val8));
+        break;
+      case sizeof(uint16):
+        printf(arg->base=='d' ? "%u" : "0x%X", (unsigned int)(arg->value.val16));
+        break;
+      case sizeof(uint32):
+        printf(arg->base=='d' ? "%lu%s" : "0x%lX%s", (unsigned long)(arg->value.val32), ULsuffix);
+        break;
+      #ifdef HAVE_LONGLONG
+      case sizeof(uint64):
+        #if (long_bitsize == 64)
+          if (!(sizeof(uint64) == sizeof(unsigned long))) abort();
+          printf("0x%lX%s", (unsigned long)(arg->value.val64), ULsuffix);
+        #else
+          if (!(sizeof(uint32) == sizeof(unsigned long))) abort();
+          printf("0x%lX%08lX%s",
+                 (unsigned long)(arg->value.val64 >> 32),
+                 (unsigned long)(arg->value.val64 & 0xFFFFFFFFUL),
+                 ULLsuffix
+                );
         #endif
-        default:
-          abort();
-  }   }
+        break;
+      #endif
+      default:
+        abort();
+    }
+  }
 
 global void printf_with_args (const char* string, int argcount, printf_arg* args);
 global void printf_with_args(string,argcount,args)
   var const char* string;
   var int argcount;
   var printf_arg* args;
-  { while (*string)
-      { if (string[0]=='%')
-          { if (!(string[1]=='d' || string[1]=='x')) { abort(); }
-            if (!(argcount > 0)) { abort(); }
-            args->base = string[1]; print_printf_arg(args);
-            string+=2; args++; argcount--;
-          }
-        else
-          { putchar(*string); string++; }
-  }   }
+  {
+    while (*string) {
+      if (string[0]=='%') {
+        if (!(string[1]=='d' || string[1]=='x')) abort();
+        if (!(argcount > 0)) abort();
+        args->base = string[1]; print_printf_arg(args);
+        string+=2; args++; argcount--;
+      } else {
+        putchar(*string); string++;
+      }
+    }
+  }
 
 #define printf0(string)  printf(string)
 #define printf1(string,arg0)  \
@@ -153,7 +157,8 @@ global void printf_with_args(string,argcount,args)
   }
 
 global int main()
-{ # Was hier ausgegeben wird, kann voraussetzen, dass unixconf.h und intparam.h
+{
+  # Was hier ausgegeben wird, kann voraussetzen, dass unixconf.h und intparam.h
   # schon includet wurden. (intparam.h z.Zt. nicht nötig, aber was soll's.)
 # #ifdef LANGUAGE_STATIC
 #   printf1("#define ENGLISH  %d\n",ENGLISH);
@@ -1331,7 +1336,8 @@ global int main()
     printf("#define popSTACK()  (STACK skipSTACKop 1, STACK_(-1))\n");
   #endif
   printf("#define skipSTACK(n)  (STACK skipSTACKop (sintP)(n))\n");
-# { int i;
+# {
+#   var int i;
 #   for (i=0; i<=10; i++) printf("#define STACK_%d  (STACK_(%d))\n",i,i);
 # }
 # printf("#define mv_limit %d\n",mv_limit);
