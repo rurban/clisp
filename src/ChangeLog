@@ -1,3 +1,9 @@
+2003-04-19  Sam Steingold  <sds@gnu.org>
+
+	* defmacro.lisp (kwd-arg-form): new function
+	(analyze-key): use it, this fixes the 2003-03-25 patch which
+	treated NIL keyword arguments as unsupplied
+
 2003-04-18  Sam Steingold  <sds@gnu.org>
 
 	* condition.lisp (expand-restart-case): associate when ERROR-OF-TYPE

@@ -376,13 +376,18 @@ with-var
 (with-var (my-var "fake variable") (my-typeof my-var))
 "fake variable"
 
+;; from Christophe Rhodes <csr21@cam.ac.uk>
 (defmacro my-mac (&optional (x (error "missing arg"))
                   &key (y (error "missing arg")))
   `'(,x ,y))
-my-mac
-
-(my-mac 1 :y 10)
-(1 10)
+MY-MAC
+(my-mac 1 :y 10)           (1 10)
+(defmacro my-mac (&key (b t)) (if b 'c 'd)) MY-MAC
+(macroexpand '(my-mac))        C
+(macroexpand '(my-mac :b nil)) D
+(defmacro my-mac (&key (a t b)) `(,a ,b))   MY-MAC
+(macroexpand '(my-mac :a 1))   (1 T)
+(macroexpand '(my-mac))        (T NIL)
 
 ;; <http://www.lisp.org/HyperSpec/Body/mac_defmacro.html>
 (defmacro dm1a (&whole x) `',x) dm1a
