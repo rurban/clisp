@@ -888,7 +888,6 @@ LISPSYM(socket_stream_port,"SOCKET-STREAM-PORT",socket)
 LISPSYM(socket_stream_host,"SOCKET-STREAM-HOST",socket)
 LISPSYM(socket_stream_peer,"SOCKET-STREAM-PEER",socket)
 LISPSYM(socket_stream_local,"SOCKET-STREAM-LOCAL",socket)
-LISPSYM(Ktimeout,"TIMEOUT",keyword)
 #ifdef HAVE_SHUTDOWN
 LISPSYM(socket_stream_shutdown,"SOCKET-STREAM-SHUTDOWN",socket)
 #endif
@@ -1213,6 +1212,9 @@ LISPSYM(Klc_ctype,"LC_CTYPE",keyword)
 LISPSYM(Klc_time,"LC_TIME",keyword)
 LISPSYM(Klc_collate,"LC_COLLATE",keyword)
 LISPSYM(Klc_monetary,"LC_MONETARY",keyword)
+#endif
+#ifdef SOCKET_STREAMS
+LISPSYM(Ktimeout,"TIMEOUT",keyword)
 #endif
 #ifdef REXX
 LISPSYM(Kresult,"RESULT",keyword)
