@@ -24,6 +24,7 @@
   #include <errno.h>
   # extern volatile int errno; # letzter Fehlercode
   #define OS_errno errno
+  #define OS_set_errno(e) (errno=(e))
   extern int sys_nerr; # Anzahl der Betriebssystem-Fehlermeldungen
   #define SYS_ERRLIST_CONST
   extern SYS_ERRLIST_CONST char* SYS_ERRLIST_CONST sys_errlist[]; # Betriebssystem-Fehlermeldungen
