@@ -1,3 +1,9 @@
+2005-04-15  Bruno Haible  <bruno@clisp.org>
+
+	* clos-slotdef1.lisp (*<slot-definition>-...-location*): New constants.
+	(slot-definition-...): Use them.
+	* clos-slotdef3.lisp (slot-definition-...): Likewise.
+
 2004-05-08  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (Rectype_WeakKVT): Remove enum value.
