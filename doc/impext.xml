@@ -2248,8 +2248,8 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
     interface</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="regexp">regexp</link></term>
   <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
-   Expressions</ulink> matching, compiling, executing.
- </simpara></listitem></varlistentry>
+     Expressions</ulink> matching, compiling, executing.
+    See <xref linkend="base-modules"/>.</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="pari">pari</link></term>
   <listitem><simpara>Interface to the computer algebra system
     <ulink url="http://pari.math.u-bordeaux.fr/">PARI</ulink>.
@@ -2259,11 +2259,11 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
      Compatible Regular Expressions</ulink> matching, compiling,
     executing.</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="i18n-mod">i18n</link></term>
-  <listitem><simpara>Internationalization of User Programs
- </simpara></listitem></varlistentry>
+  <listitem><simpara>Internationalization of User Programs.
+    See <xref linkend="base-modules"/>.</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="syscalls">syscalls</link></term>
   <listitem><simpara>Use some system calls in a platform-independent way.
- </simpara></listitem></varlistentry>
+    See <xref linkend="base-modules"/>.</simpara></listitem></varlistentry>
  <varlistentry><term><ulink url="wildcard.html">wildcard</ulink></term>
   <listitem><simpara>Shell (&sh;) globbing</simpara></listitem></varlistentry>
  <varlistentry><term><link linkend="rawsock">rawsock</link></term>
@@ -2277,12 +2277,21 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 
 <para>To use them, read <filename>unix/INSTALL</filename> and build
  &clisp; in directory <filename>build-dir</filename> with, e.g.,<screen>
-bash$ ./configure --with-module=syscalls --with-module=clx/new-clx --build build-dir
+bash$ ./configure --with-module=pcre --with-module=clx/new-clx --build build-dir
 </screen>then run it with<screen>
 bash$ ./build-dir/clisp &opt-K; full
 </screen></para>
 
 <para>See <xref linkend="ext-modules"/> for details.</para>
+
+<note id="base-modules"><title>Base Modules</title>
+ <para>Note that the default distribution includes the following modules
+  in <emphasis>both</emphasis> <command>base</command> <emphasis>and</emphasis>
+  <command>full</command> &linkset;s:<simplelist columns="1">
+   <member><link linkend="i18n-mod">i18n</link></member>
+   <member><link linkend="regexp">regexp</link></member>
+   <member><link linkend="syscalls">syscalls</link></member>
+</simplelist></para></note>
 
 </section>
 
