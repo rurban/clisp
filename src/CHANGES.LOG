@@ -6,8 +6,7 @@ User visible changes
   symbols GENERIC-FLET and GENERIC-LABELS are not exported from the
   COMMON-LISP package any more.
 
-* When CLISP is invoked with an "-a" option, *features* contain :ANSI-CL
-  and :IEEE-FLOATING-POINT.
+* When CLISP is invoked with an "-a" option, *features* contain :ANSI-CL.
 
 * Weak pointers are implemented. New functions MAKE-WEAK-POINTER,
   WEAK-POINTER-P, WEAK-POINTER-VALUE.
