@@ -1985,6 +1985,8 @@ LISPFUNN(charset_range,3)
         # Use a reasonable default.
         #if defined(ISOLATIN_CHS)
         pushSTACK(Symbol_value(S(iso8859_1)));
+        #elif defined(UTF8_CHS)
+        pushSTACK(Symbol_value(S(utf_8)));
         #elif defined(HPROMAN8_CHS)
         pushSTACK(Symbol_value(S(hp_roman8)));
         #elif defined(NEXTSTEP_CHS)
