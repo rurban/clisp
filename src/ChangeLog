@@ -1,5 +1,10 @@
 2002-12-02  Sam Steingold  <sds@gnu.org>
 
+	* foreign1.lisp (finalize-coutput-file): produce ANSI C,
+	compilable with a C++ compiler such as g++
+
+2002-12-02  Sam Steingold  <sds@gnu.org>
+
 	fixed bug #[ 647015 ]: ffi:def-c-enum broken from .fas file
 	* foreign1.lisp (def-c-enum): use DEF-C-TYPE to define the enum
 	type to C `int'
