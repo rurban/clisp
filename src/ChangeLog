@@ -4,14 +4,14 @@
 
 2004-10-27  Bruno Haible  <bruno@clisp.org>
 
-	* spvw.d (fehler_code_alignment, init_memory): Use %lx to print
-	addresses.
-	* spvw_debug.d (nobject_out1): Likewise.
+	* spvw_debug.d (nobject_out1): Use %lx to print addresses.
+	* spvw.d (fehler_code_alignment, init_memory): Likewise.
 	* spvw_fault.d (handle_fault, xmprotect): Likewise.
 	* spvw_garcol.d (gc_mark_stack): Likewise.
 	* spvw_mmap.d (mmap_zeromap, mmap_prepare): Likewise.
 	* spvw_multimap.d (msync_mmap_intervals, fdmap, idmap): Likewise.
 	* spvw_sigsegv.d (sigsegv_handler_failed): Likewise.
+	* avl.d (out): Likewise.
 
 2004-10-27  Sam Steingold  <sds@gnu.org>
 
