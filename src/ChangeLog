@@ -8,16 +8,16 @@
 	(CHAR, SCHAR): Likewise.
 	* debug.d (read_form): Likewise.
 	* io.d (sstring_printf): Likewise.
-	* pathname.d (Z_AT_SLASH, parse_logical_word,
-	parse_logical_host_prefix, parse_logical_pathnamestring,
-	PARSE-NAMESTRING): Likewise.
+	* pathname.d (Z_AT_SLASH, parse_logical_word)
+	(parse_logical_host_prefix, parse_logical_pathnamestring)
+	(PARSE-NAMESTRING): Likewise.
 	(legal_logical_word): Change variable from 'cintX' to 'chart', it's
 	safer.
 	(legal_type, wild_p, word_wild_p): Likewise.
 	(wildcard_diff_ab): Update for schar change. Simplify filling string.
 	(translate_nametype_aux, ensure_last_slash): Update for schar change.
-	* stream.d (read_char_array, rd_ch_str_in, wr_ch_array_pphelp,
-	rd_ch_buff_in): Likewise.
+	* stream.d (read_char_array, rd_ch_str_in, wr_ch_array_pphelp)
+	(rd_ch_buff_in): Likewise.
 
 2002-06-12  Bruno Haible  <bruno@clisp.org>
 
@@ -30,8 +30,8 @@
 
 2002-06-12  Bruno Haible  <bruno@clisp.org>
 
-	* encoding.d (MAKE-ENCODING): Fix a GC safety bug. Use the original
-	arg for the error message, not the upcased one.
+	* encoding.d (MAKE-ENCODING): Fix a GC safety bug. Use the
+	original arg for the error message, not the upcased one.
 
 2002-06-12  Bruno Haible  <bruno@clisp.org>
 
@@ -39,8 +39,8 @@
 
 2002-06-12  Bruno Haible  <bruno@clisp.org>
 
-	* m4/lcmessage.m4 (AM_LC_MESSAGES): Don't test ac_cv_header_locale_h
-	here.
+	* m4/lcmessage.m4 (AM_LC_MESSAGES): Do not test
+	ac_cv_header_locale_h here.
 	* m4/gettext.m4 (AM_INTL_SUBDIR): Test it here.
 	* configure.in: Call AM_LC_MESSAGES.
 	* unixconf.h.in (HAVE_LC_MESSAGES): New macro.
