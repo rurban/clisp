@@ -303,8 +303,7 @@
          ;; return the variable pattern and the list of declspecs
          (unless (consp body-rest)
            (error-of-type 'source-program-error
-             :form *whole*
-             :detail body-rest
+             :form *whole* :detail body-rest
              (TEXT "~S: missing variable.") 'loop))
          (let ((pattern (pop body-rest))
                (typedecl nil))
@@ -504,8 +503,7 @@
            (dolist (var (li-vars initialization))
              (when (memq var var-list)
                (error-of-type 'source-program-error
-                 :form *whole*
-                 :detail var
+                 :form *whole* :detail var
                  (TEXT "~S: duplicate iteration variable ~S") *whole* var))
              (push var var-list))
            (push initialization initializations)))
@@ -877,8 +875,7 @@
                                            (if (or (eq step-start-p 'down) (eq step-end-p 'down))
                                              (if (or (eq step-start-p 'up) (eq step-end-p 'up))
                                                (error-of-type 'source-program-error
-                                                 :form *whole*
-                                                 :detail kw
+                                                 :form *whole* :detail kw
                                                  (TEXT "~S: questionable iteration direction after ~A")
                                                  'loop (symbol-name kw))
                                                'down)
@@ -889,8 +886,7 @@
                                          ; Abwärtsiteration ohne Startwert ist nicht erlaubt.
                                          ; Die zweite optionale Klausel (d.h. preposition) muss abwärts zeigen.
                                          (error-of-type 'source-program-error
-                                           :form *whole*
-                                           :detail preposition
+                                           :form *whole* :detail preposition
                                            (TEXT "~S: specifying ~A requires FROM or DOWNFROM")
                                            'loop (symbol-name preposition)))
                                        ; Aufwärtsiteration -> Startwert 0
@@ -1028,8 +1024,7 @@
         (flet ((check-accu-var (var)
                  (when (memq var var-list)
                    (error-of-type 'source-program-error
-                     :form *whole*
-                     :detail var
+                     :form *whole* :detail var
                      (TEXT "~S: accumulation variable ~S is already bound")
                      *whole* var))))
           (push
