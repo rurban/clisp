@@ -206,7 +206,8 @@
                            (#\{ . FORMAT-ITERATION)       (#\} . FORMAT-ITERATION-END)
                            (#\< . FORMAT-JUSTIFICATION)   (#\> . FORMAT-JUSTIFICATION-END)
                            (#\^ . FORMAT-UP-AND-OUT)      (#\; . FORMAT-SEPARATOR)
-                           (#\! . FORMAT-CALL))))))
+                           (#\! . FORMAT-CALL)
+                           (#\. . FORMAT-ELASTIC-NEWLINE))))))
             (if directive-name
               (setf (csd-data newcsd) directive-name)
               (format-error 'error control-string index
@@ -1349,6 +1350,15 @@
   (when (plusp count)
     (fresh-line stream)
     (dotimes (i (1- count)) (terpri stream))))
+
+;; ~.
+(defun format-elastic-newline (stream colon-modifier atsign-modifier
+                               &optional (count 1))
+  (declare (ignore colon-modifier atsign-modifier))
+  (if (null count) (setq count 1))
+  (when (plusp count)
+    (dotimes (i (1- count)) (terpri stream))
+    (ext:elastic-newline stream)))
 
 ;; ~|, CLTL p.397, CLtL2 p. 596, ABI
 (defun format-page (stream colon-modifier atsign-modifier &optional (count 1))
@@ -2516,6 +2526,11 @@
                                    ,inner-form)
                                 inner-form)
                               forms)))
+                     (FORMAT-ELASTIC-NEWLINE        ; #\.
+                      (simple-arglist 1)
+                      (if (member (first arglist) '(nil 1))
+                        (push `(EXT:ELASTIC-NEWLINE STREAM) forms)
+                        (trivial-call)))
                      (t ;; Huh? Someone implemented a new format directive,
                         ;; but forgot it here! Bail out.
                       (throw 'formatter-hairy nil)))))))))
