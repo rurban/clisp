@@ -1,5 +1,10 @@
 2003-06-05  Sam Steingold  <sds@gnu.org>
 
+	* predtype.d (TYPE-OF): return KEYWORD for keyword symbols
+	and BIT for 0 and 1
+
+2003-06-05  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (LAUNCH) [WIN32_NATIVE]: fixed GC-safety
 
 2003-06-04  Sam Steingold  <sds@gnu.org>
