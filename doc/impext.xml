@@ -2702,8 +2702,11 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
 
 <varlistentry id="c-pointer"><term>&c-pointer;</term>
  <listitem><simpara>This type corresponds to what &c-lang; calls
-  <type>void*</type>, an opaque pointer.
- </simpara></listitem></varlistentry>
+   <type>void*</type>, an opaque pointer.
+   When used as an argument, &nil; is accepted as a &c-pointer; and
+   treated as &c-NULL;; when a function wants to return a &c-NULL;
+   &c-pointer;, it actually returns &nil;.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="c-string"><term>&c-string;</term>
  <listitem><simpara>This type corresponds to what &c-lang; calls
