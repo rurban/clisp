@@ -1251,7 +1251,7 @@ if [ $TOS = unix ] ; then
     FILES='libnoreadline.a '$FILES
     if [ "${with_readline}" != ifpossible ]; then
       # --with-readline was supplied ==> barf when readline is missing
-      if grep "#undef HAVE_READLINE" unixconf.h 2>&1 >/dev/null; then
+      if grep "#undef HAVE_READLINE" unixconf.h >/dev/null 2>&1; then
         echol "makemake: configure failed to detect readline" >&2
         exit 1
       fi
@@ -2026,7 +2026,7 @@ echotab "echo $ARGQ/* generated from Makefile */$ARGQ > cflags.h.new"
 for x in CC CFLAGS CPP CPPLAGS CLFLAGS LIBS X_LIBS; do
   echotab "echo $ARGQ#define $x \"\$($x)\"$ARGQ >> cflags.h.new"
 done
-echotab 'if cmp cflags.h.new cflags.h 2>&1 > /dev/null; then ${RM} cflags.h.new; else ${MV} cflags.h.new cflags.h; fi'
+echotab 'if cmp cflags.h.new cflags.h > /dev/null 2>&1; then ${RM} cflags.h.new; else ${MV} cflags.h.new cflags.h; fi'
 echol
 
 UTILS=''
