@@ -5,14 +5,16 @@
 
 # -------------- Start of configurable section --------------------
 
+PATH=/bin:.
+
 # Directories used by "make install":
 prefix = 
 exec_prefix = $(prefix)
-bindir = $(exec_prefix)/bin
-mandir = $(exec_prefix)/man
+bindir  = $(exec_prefix)/bin
+mandir  = $(exec_prefix)/share/man
 htmldir = $(exec_prefix)/share/html
-dvidir = $(exec_prefix)/share/dvi
-docdir = $(exec_prefix)/doc
+dvidir  = $(exec_prefix)/share/dvi
+docdir  = $(exec_prefix)/share/doc
 lispdocdir = $(docdir)/clisp
 libdir = $(exec_prefix)/lib
 lisplibdir = $(libdir)/clisp
@@ -31,10 +33,10 @@ MODULES =
 
 # Programs used by "make":
 CC = gcc
-CFLAGS = -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -O2 -fexpensive-optimizations -D_NO_OLDNAMES -D_WIN32 -D__MINGW32__ -DUNICODE -DEXPORT_SYSCALLS -DDIR_KEY -DDYNAMIC_FFI -DNO_GETTEXT
+CFLAGS = -W -Wswitch -Wcomment -Wpointer-arith -Wimplicit -Wreturn-type -fomit-frame-pointer -O2 -fexpensive-optimizations -mno-cygwin -D_WIN32 -DUNICODE -DEXPORT_SYSCALLS -DDIR_KEY -DDYNAMIC_FFI -DNO_GETTEXT
 CPP = gcc -E
 CLFLAGS =  -x none
-LIBS = sigsegv.lib iconv.lib avcall.lib callback.lib  -luser32 -lwsock32 -lole32 -lm
+LIBS = libsigsegv.a libiconv.a libavcall.a libcallback.a  -luser32 -lwsock32 -lole32 -lm
 X_LIBS = 
 
 MAKE = make
@@ -438,6 +440,7 @@ german.lisp \
 french.lisp \
 spanish.lisp \
 dutch.lisp \
+deprecated.lisp \
 config.lisp
 
 FASFILES = \
@@ -491,6 +494,7 @@ german.fas \
 french.fas \
 spanish.fas \
 dutch.fas \
+deprecated.fas \
 config.fas
 
 TXTFILES = \
@@ -549,6 +553,7 @@ stage/german.lisp \
 stage/french.lisp \
 stage/spanish.lisp \
 stage/dutch.lisp \
+stage/deprecated.lisp \
 stage/config.lisp
 
 TESTFASFILES = \
@@ -602,6 +607,7 @@ stage/german.fas \
 stage/french.fas \
 stage/spanish.fas \
 stage/dutch.fas \
+stage/deprecated.fas \
 stage/config.fas
 
 
@@ -1296,36 +1302,34 @@ ari80386.o : ari80386.s
 avcall.h : ../ffcall/avcall/avcall.h
 	-$(LN_S) ../ffcall/avcall/avcall.h avcall.h
 
-avcall.lib : ../ffcall/avcall/avcall.lib
-	-$(LN_S) ../ffcall/avcall/avcall.lib avcall.lib
+libavcall.a : ../ffcall/avcall/libavcall.a
+	-$(LN_S) ../ffcall/avcall/libavcall.a libavcall.a
 
 callback.h : ../ffcall/callback/callback.h
 	-$(LN_S) ../ffcall/callback/callback.h callback.h
+
+libcallback.a : ../ffcall/callback/libcallback.a
+	-$(LN_S) ../ffcall/callback/libcallback.a libcallback.a
 	-$(LN_S) ../ffcall/callback/vacall_r.h vacall_r.h
 	-$(LN_S) ../ffcall/callback/trampoline_r.h trampoline_r.h
-
-callback.lib : ../ffcall/callback/callback.lib
-	-$(LN_S) ../ffcall/callback/callback.lib callback.lib
 
 iconv.h : ../libiconv/include/iconv.h
 	-$(LN_S) ../libiconv/include/iconv.h iconv.h
 
-iconv.lib : ../libiconv/lib/iconv.lib
-	-$(LN_S) ../libiconv/lib/iconv.lib iconv.lib
+libiconv.a : ../libiconv/lib/libiconv.a
+	-$(LN_S) ../libiconv/lib/libiconv.a libiconv.a
 
 libcharset.h : ../libiconv/libcharset/include/libcharset.h
 	-$(LN_S) ../libiconv/libcharset/include/libcharset.h libcharset.h
 
-sigsegv.h : ../sigsegv/sigsegv.h
+sigsegv.h libsigsegv.a :
 	-$(LN_S) ../sigsegv/sigsegv.h sigsegv.h
-
-sigsegv.lib : ../sigsegv/sigsegv.lib
-	-$(LN_S) ../sigsegv/sigsegv.lib sigsegv.lib
+	-$(LN_S) ../sigsegv/libsigsegv.a libsigsegv.a
 
 UnicodeData.txt :
 	$(LN_S) ../utils/unicode/ftp.unicode.org/UnicodeData.txt UnicodeData.txt
 
-lisp.exe : $(OBJECTS) modules.o avcall.lib callback.lib    iconv.lib sigsegv.lib UnicodeData.txt
+lisp.exe : $(OBJECTS) modules.o libavcall.a libcallback.a    libiconv.a libsigsegv.a UnicodeData.txt
 	$(CC) $(CFLAGS) $(CLFLAGS) $(OBJECTS) modules.o $(LIBS) -o lisp.exe
 
 
@@ -1491,6 +1495,9 @@ spanish.fas : spanish.lisp lisp.exe halfcompiled.mem
 dutch.fas : dutch.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c dutch.lisp
 
+deprecated.fas : deprecated.lisp lisp.exe halfcompiled.mem
+	$(RUN) -m 1000KW -M halfcompiled.mem -q -c deprecated.lisp
+
 config.fas : config.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 1000KW -M halfcompiled.mem -q -c config.lisp
 
@@ -1506,7 +1513,7 @@ lispinit.mem : lisp.exe $(FASFILES)
 
 
 # Perform self-tests.
-check : test
+check : test testsuite
 
 # Test: recompile $(LISPFILES) and compare their contents.
 test : lispinit.mem stage $(TESTLISPFILES) $(TESTFASFILES)
@@ -1666,6 +1673,9 @@ stage/spanish.lisp : spanish.lisp
 stage/dutch.lisp : dutch.lisp
 	$(LN_S) dutch.lisp stage
 
+stage/deprecated.lisp : deprecated.lisp
+	$(LN_S) deprecated.lisp stage
+
 stage/config.lisp : config.lisp
 	$(LN_S) config.lisp stage
 
@@ -1822,6 +1832,9 @@ stage/spanish.fas : stage/spanish.lisp lisp.exe stage/testinit.mem
 stage/dutch.fas : stage/dutch.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/dutch.lisp
 
+stage/deprecated.fas : stage/deprecated.lisp lisp.exe stage/testinit.mem
+	$(RUN) -M stage/testinit.mem -q -c stage/deprecated.lisp
+
 stage/config.fas : stage/config.lisp lisp.exe stage/testinit.mem
 	$(RUN) -M stage/testinit.mem -q -c stage/config.lisp
 
@@ -1831,11 +1844,24 @@ lispinit2.mem : lisp.exe $(TESTFASFILES)
 	$(MV) lispimag.mem lispinit2.mem
 
 
+testsuite : suite lisp.exe lispinit.mem
+	LISP="`pwd`/lisp.exe -M `pwd`/lispinit.mem -B `pwd` -Efile UTF-8 -norc"; export LISP; cd suite; $(MAKE) LISP="$$LISP"
+
+suite :
+	-mkdir suite
+	cd suite && $(LN_S) ../../tests/Makefile .
+	cd suite && $(LN_S) ../../tests/*.lisp .
+	cd suite && $(LN_S) ../../tests/*.tst .
+
+
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
-MANUALS = clisp.1 clisp.html $(TXTFILES) impnotes.html clisp.gif
+MANUALS = clisp.1 clisp.html $(TXTFILES) impnotes.html clisp.png
 
 impnotes.html : ../doc/impnotes.html
 	$(CP) ../doc/impnotes.html impnotes.html
+
+clisp.png : ../doc/clisp.png
+	$(CP) ../doc/clisp.png clisp.png
 
 manual : $(READMES) $(MANUALS)
 
@@ -1920,7 +1946,7 @@ distrib : force
 	  cp -p $$f $$distdir/$$f ; \
 	done ; \
 	mkdir $$distdir/doc ; \
-	for f in clisp.1 clisp.man clisp.html $(TXTFILES) impnotes.html clisp.gif ; do \
+	for f in clisp.1 clisp.man clisp.html $(TXTFILES) impnotes.html clisp.png ; do \
 	  if test -f $$f ; then cp -p $$f $$distdir/doc/$$f ; else cp -p `echo $$f | tr '[A-Z]' '[a-z]'` $$distdir/doc/$$f ; fi ; \
 	done ; \
 	mkdir $$distdir/src ; \
@@ -1940,7 +1966,7 @@ clean0 : force
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
 	-$(RM) lispbibl.h clisp.h *.i *.s *.o *.a lisp.exe clisp-link makevars stage/* suite/*
-	-$(RM) sigsegv.lib iconv.lib avcall.lib callback.lib
+	-$(RM) libsigsegv.* libiconv.* libavcall.* libcallback.*
 	-rmdir stage
 	-rmdir suite
 	-$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.html impnotes.html clisp.c distmakefile $(TXTFILES) clreadline.3 clreadline.man clreadline.html clreadline.dvi readline.dvi
@@ -1970,7 +1996,7 @@ clean4 : clean3
 clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
 	-$(RM) config.lisp
-	-$(RM) comment5.exe ansidecl.exe ccpaux.exe deema.exe txt2c.exe ccmp2c.exe modprep.exe
+	-$(RM) comment5.exe ansidecl.exe varbrace.exe ccpaux.exe deema.exe txt2c.exe ccmp2c.exe modprep.exe
 
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5
