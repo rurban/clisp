@@ -394,11 +394,15 @@
 (defvar <built-in-class> 'built-in-class)
 (defvar *<built-in-class>-defclass*
   '(defclass built-in-class (defined-class)
-     ()
+     (($prototype          ; class prototype - an instance
+        :type t))
      (:fixed-slot-locations t)))
 (defvar *<built-in-class>-class-version* (make-class-version))
 
-(defconstant *<built-in-class>-instance-size* 16)
+;; Fixed slot locations.
+(defconstant *<built-in-class>-prototype-location* 16)
+
+(defconstant *<built-in-class>-instance-size* 17)
 
 ;;; ===========================================================================
 
@@ -488,7 +492,9 @@
       ($copier             ; name of the copier function
        :type symbol)
       ($predicate          ; name of the predicate function
-       :type symbol))
+       :type symbol)
+      ($prototype          ; class prototype - an instance or NIL
+        :type (or structure-object null)))
      (:fixed-slot-locations t)))
 (defvar *<structure-class>-class-version* (make-class-version))
 
@@ -498,6 +504,7 @@
 (defconstant *<structure-class>-boa-constructors-location* 23)
 (defconstant *<structure-class>-copier-location* 24)
 (defconstant *<structure-class>-predicate-location* 25)
+(defconstant *<structure-class>-prototype-location* 26)
 
 ;; Preliminary accessors.
 (predefun class-names (object)
@@ -521,7 +528,7 @@
 (predefun (setf class-predicate) (new-value object)
   (setf (sys::%record-ref object *<structure-class>-predicate-location*) new-value))
 
-(defconstant *<structure-class>-instance-size* 26)
+(defconstant *<structure-class>-instance-size* 27)
 
 ;;; ===========================================================================
 
