@@ -1381,6 +1381,42 @@ performance considerations.
  precision contagion.</para></formalpara>
 
 </section>
+
+<section id="floratcont"><title>Rule of Float and Rational Contagion
+   <ulink url="&clhs;/Body/sec_12-1-4-1.html">[CLHS-12.1.4.1]</ulink></title>
+
+<para>The contagion between floating point and rational numbers is controlled
+ by the variable &floratcont;.  When it is non-&nil;, contagion is done as per
+ the &ansi-cl;: &rational-t; &rarr; &float-t;.</para>
+
+<para>When &floratcont; is &nil;, the traditional &clisp; method is used,
+ namely if the result is mathematically an exact rational number, this
+ rational number is returned (in contrast to <ulink
+ url="&clhs;/Body/sec_12-1-4-1.html">12.1.4.1 Rule of Float and Rational
+ Contagion</ulink>!)</para>
+
+<para>&floratcont; has an effect only in those few cases when the mathematical
+ result is exact although one of the arguments is a floating-point number,
+ such as <literal role="sexp">(&star; 0 1.618)</literal>,
+ <literal role="sexp">(&slash; 0 1.618)</literal>,
+ <literal role="sexp">(&atan; 0 1.0)</literal>,
+ <literal role="sexp">(&expt; 2.0 0)</literal>,
+ <literal role="sexp">(&phase; 2.718)</literal>.</para>
+
+<formalpara id="warn-fprc"><title>Variable &warn-fprc;</title>
+<para>If the variable &warn-fprc; is non-&nil;, a warning is emitted for
+ every avoidable coercion from a rational number to a floating-point number.
+ &warn-fprc; is set to &t; initially. Set it to &error; to have &clisp;
+ &signal; an &error-t; on avoidable coercions to a floating-point number
+ when a rational number result would be possible.</para></formalpara>
+
+<para id="phasecont">A similar variable, &phasecont;, controls the return
+ value of the phase function when the argument is an exact nonnegative real.
+ Namely, if &phasecont; is non-&nil;, it returns a floating-point zero; if
+ &phasecont; is &nil;, it returns an exact zero. Example:
+ <literal role="sexp">(&phase; 2/3)</literal></para>
+
+</section>
 </section>
 
 <section id="complex-comp"><title>Complex Computations

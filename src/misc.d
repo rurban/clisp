@@ -574,6 +574,10 @@ LISPFUNN(set_ansi,1)
     O(ansi) = val;
     # (SETQ *FLOATING-POINT-CONTAGION-ANSI* val)
     Symbol_value(S(floating_point_contagion_ansi)) = val;
+    # (SETQ *FLOATING-POINT-RATIONAL-CONTAGION-ANSI* val)
+    Symbol_value(S(floating_point_rational_contagion_ansi)) = val;
+    # (SETQ *PHASE-ANSI* val)
+    Symbol_value(S(phase_ansi)) = val;
     # (SETQ *MERGE-PATHNAMES-ANSI* val)
     Symbol_value(S(merge_pathnames_ansi)) = val;
     # (SETQ *PRINT-PATHNAMES-ANSI* val)

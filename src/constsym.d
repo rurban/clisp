@@ -1623,6 +1623,9 @@ LISPSYM(pprint_first_newline,"*PPRINT-FIRST-NEWLINE*",custom) /* io.d:pr_enter_1
 LISPSYM(inhibit_floating_point_underflow,"*INHIBIT-FLOATING-POINT-UNDERFLOW*",system) /* variable in LISPARIT */
 LISPSYM(warn_on_floating_point_contagion,"*WARN-ON-FLOATING-POINT-CONTAGION*",custom)
 LISPSYM(floating_point_contagion_ansi,"*FLOATING-POINT-CONTAGION-ANSI*",custom)
+LISPSYM(warn_on_floating_point_rational_contagion,"*WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION*",custom)
+LISPSYM(floating_point_rational_contagion_ansi,"*FLOATING-POINT-RATIONAL-CONTAGION-ANSI*",custom)
+LISPSYM(phase_ansi,"*PHASE-ANSI*",custom)
 LISPSYM(pi,"PI",lisp) /* variable in LISPARIT */
 LISPSYM(number,"NUMBER",lisp) /* type for LISPARIT */
 LISPSYM(real,"REAL",lisp) /* type for LISPARIT */
