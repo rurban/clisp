@@ -10713,6 +10713,18 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern object ssstring_extend (object ssstring, uintL needed_len);
 # used by STREAM
 
+# Function: Adds a substring to a semi-simple-string, thereby possibly
+# extending it.
+# ssstring_append_extend(ssstring,sstring,start,len)
+# > ssstring: a semi-simple-string
+# > sstring: a simple-string
+# > start: the start index into the sstring
+# > len: the number of characters to be pushed, starting from start
+# < result: the same semi-simple-string
+# can trigger GC
+  extern object ssstring_append_extend (object ssstring, object sstring, uintL start, uintL len);
+# used by STREAM
+
 # The following functions work on "semi-simple byte-vector"s.
 # That are bit vectors with FILL-POINTER, (pro forma) not adjustable and
 # not displaced, whose storagevector is a simple-bit-vector. When their
