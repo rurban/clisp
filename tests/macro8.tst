@@ -373,5 +373,5 @@ my-typeof
          ,@body))))
 with-var
 
-(with-var (x "fake variable") (my-typeof x))
+(with-var (my-var "fake variable") (my-typeof my-var))
 "fake variable"
