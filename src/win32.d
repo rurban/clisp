@@ -22,6 +22,11 @@
     #include <windows.h>
   #endif
 
+# UNICODE dependent definitions
+# TCHAR is either `char' or `wchar_t'. We use `wchar' instead.
+# TEXT("xxx") converts "xxx" to a `const TCHAR *'. We use `WLITERAL' instead.
+# Many Win32 API functions are declared differently when UNICODE is defined.
+
 # Table of system error messages
   #include <winerror.h>
   # extern DWORD GetLastError (void);
@@ -85,6 +90,12 @@
 # Environment variables
   #include <stdlib.h>
   extern char* getenv (const char* name);
+  # extern wchar* wgetenv (const char* name); # where `name' is a literal string
+  #ifdef UNICODE
+    #define wgetenv(name)  _wgetenv(WLITERAL(name))
+  #else
+    #define wgetenv(name)  getenv(name)
+  #endif
 # used by pathname.d, misc.d
 
 # Character set conversion

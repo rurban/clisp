@@ -1,5 +1,106 @@
 1999-06-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Use Unicode API on Win32.
+        * lispbibl.d (wchar, WLITERAL): New macros.
+          (wgetenv): New macro.
+          (wasciz_out, wasciz_length): New declaration.
+          (wasciz_equal, wwasciz_equal): New declaration.
+          (n_char_to_string): Renamed from make_string.
+          (n_wchar_to_string): New declaration.
+          (wasciz_to_string): New declaration.
+          (with_string_w0, with_sstring_w0): New macros.
+          (n_chart_to_wchar): New declaration.
+        * win32.d (wgetenv): New macro.
+        * spvw.d (wasciz_length, wasciz_equal, wwasciz_equal): New functions.
+          (program_name): Change type to `wchar*'.
+          (loadmem): Change declaration.
+          (usage): Call wasciz_out instead of asciz_out.
+          (main): On Win32 with UNICODE, rename to `wmain'. Change type of
+          argv to `wchar* []'. Change types of argv_lisplibdir, argv_memfile,
+          argv_init_files, argv_compile_files, argv_package, argv_expr,
+          argv_execute_file, argv_execute_args, argv_language, argv_localedir,
+          argv_init_files, argv_compile_files to use `wchar' instead of `char'.
+          Use wasciz_equal, wasciz_to_string, wasciz_out and WLITERAL where
+          appropriate.
+        * spvw_debug.d (wasciz_out): New function.
+        * spvw_language.d (init_language, init_language_from): Change
+          declarations.
+          (init_language_from): Use wasciz_equal instead of asciz_equal.
+          (init_language): Use wgetenv instead of getenv where appropriate.
+        * spvw_memfile.d (loadmem): Change declaration. Use wasciz_equal
+          instead of asciz_equal where appropriate.
+        * encoding.d (n_char_to_string): Renamed from make_string.
+          (n_char_to_string_): Renamed from make_string_.
+          (n_wchar_to_string_): New function.
+          (asciz_to_string, asciz_to_string_): Update.
+          (wasciz_to_string_): New function.
+        * charstrg.d (n_chart_to_wchar): New function.
+        * pathname.d (make_directory, delete_directory,
+           change_current_directory, delete_existing_file,
+           delete_file_if_exists, delete_file_before_rename,
+           rename_existing_file, rename_file_to_nonexisting): Change
+          declaration.
+          (asciz_dir_to_pathname): Change declaration. Use n_wchar_to_string
+          instead of make_string.
+          (good_drive): Use wchar instead of char.
+          (default_drive): Return wchar instead of uintB. Use wchar instead
+          of char.
+          (default_directory_of): Use wchar instead of char.
+          (assure_dir_exists): Likewise. Use n_wchar_to_string instead of
+          make_string.
+          (change_default): Use wchar instead of char.
+          (access0): Change declaration.
+          (file_exists): Use wchar instead of char.
+          (directory_exists, DELETE-FILE, rename_file): Likewise.
+          (create_new_file, open_input_file, open_output_file): Change
+          declaration.
+          (create_backup_file): Change declaration. Use wchar instead of char.
+          (open_file): Use wchar instead of char.
+          (extract): Use n_char_to_string instead of make_string.
+          (directory_search_1subdir): Use wchar instead of char.
+          (directory_search_scandir): Use n_char_to_string instead of
+          make_string. Use wchar instead of char. Use wasciz_to_string instead
+          of asciz_to_string.
+          (DIRECTORY): Use n_char_to_string instead of make_string.
+          (MAKE-DIR, DELETE-DIR, ENSURE-DIRECTORIES-EXIST): Use wchar instead
+          of char.
+          (init_pathnames): Use n_char_to_string instead of make_string.
+          Use wchar instead of char. Use wgetenv instead of getenv.
+          (FILE-WRITE-DATE, SHELL): Use wchar instead of char.
+          (argv_lisplibdir): Change declaration.
+        * stream.d (make_keyboard_stream): Use wchar instead of char.
+          (create_input_pipe): Change declaration.
+          (MAKE-PIPE-INPUT-STREAM): Update.
+          (create_output_pipe): Change declaration.
+          (MAKE-PIPE-OUTPUT-STREAM): Update.
+          (create_io_pipe): Change declaration.
+          (MAKE-PIPE-IO-STREAM): Update.
+        * misc.d (SYS::GETENV): Use wchar instead of char. On Win32 with
+          UNICODE, use _wgetenv. Use wasciz_to_string instead of
+          asciz_to_string.
+          (SYS::REGISTRY): Use wchar instead of char.
+        * error.d (write_errorasciz, write_errorwasciz): New functions.
+        * erramiga.d (OS_error_internal): Use write_errorasciz instead of
+          write_errorstring.
+        * errdjgpp.d (OS_error_internal): Likewise.
+        * errunix.d (OS_error_internal): Likewise.
+        * errwin32.d (OS_error_info): Remove type.
+          (OS_error_info_callback): New type.
+          (get_OS_error_info): Take a callback and call it, instead of
+          returning the result in a structure. Use wchar instead of char.
+          (OS_error_internal_body): New function, split out of
+          OS_error_internal. Call write_errorasciz and write_errorwasciz
+          instead of write_errorstring.
+          (SOCK_error): Call write_errorasciz instead of write_errorstring.
+          (errno_out_body): New function, split out of errno_out. Call
+          wasciz_out.
+        * rexx.d (rexx_getmsg): Use n_char_to_string instead of make_string.
+        * win32aux.d (init_win32): Call non-Unicode versions of OemToChar and
+          CharToOem.
+        * genclisph.d (n_char_to_string): Renamed from make_string.
+
+1999-06-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Don't force building clisp.dvi on non-Unix OSes.
         * makemake.in (MANUALS): Remove clisp.dvi.
           (manual): Add it, on Unix only.

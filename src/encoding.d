@@ -1410,19 +1410,20 @@ LISPFUNN(charset_range,3)
 #                          Elementary string functions
 
 # UP: Liefert einen LISP-String mit vorgegebenem Inhalt.
-# make_string(charptr,len,encoding)
-# > uintB* charptr: Adresse einer Zeichenfolge
+# n_char_to_string(charptr,len,encoding)
+# > char* charptr: Adresse einer Zeichenfolge
 # > uintL len: Länge der Zeichenfolge
 # > object encoding: Encoding
 # < ergebnis: Normal-Simple-String mit den len Zeichen ab charptr als Inhalt
 # can trigger GC
   #ifdef UNICODE
-    global object make_string (const uintB* bptr, uintL blen, object encoding);
-    global object make_string(bptr,blen,encoding)
-      var const uintB* bptr;
+    global object n_char_to_string (const char* srcptr, uintL blen, object encoding);
+    global object n_char_to_string(srcptr,blen,encoding)
+      var const char* srcptr;
       var uintL blen;
       var object encoding;
-      { var const uintB* bendptr = bptr+blen;
+      { var const uintB* bptr = (const uintB*)srcptr;
+        var const uintB* bendptr = bptr+blen;
         var uintL clen = Encoding_mblen(encoding)(encoding,bptr,bendptr);
         pushSTACK(encoding);
        {var object obj = allocate_string(clen);
@@ -1435,15 +1436,30 @@ LISPFUNN(charset_range,3)
         return obj;
       }}
   #else
-    global object make_string_ (const uintB* bptr, uintL len);
-    global object make_string_(bptr,len)
-      var const uintB* bptr;
+    global object n_char_to_string_ (const char* srcptr, uintL len);
+    global object n_char_to_string_(srcptr,len)
+      var const char* srcptr;
       var uintL len;
-      { var object obj = allocate_string(len); # String allozieren
+      { var const uintB* bptr = (const uintB*)srcptr;
+        var object obj = allocate_string(len); # String allozieren
         if (len > 0)
           { var chart* ptr = &TheSstring(obj)->data[0];
             # Zeichenfolge von bptr nach ptr kopieren:
             dotimespL(len,len, { *ptr++ = as_chart(*bptr++); } );
+          }
+        return obj;
+      }
+  #endif
+  #if defined(WIN32_NATIVE) && defined(UNICODE)
+    global object n_wchar_to_string_ (const wchar* srcptr, uintL len);
+    global object n_wchar_to_string_(srcptr,len)
+      var const wchar* srcptr;
+      var uintL len;
+      { var object obj = allocate_string(len); # String allozieren
+        if (len > 0)
+          { var chart* ptr = &TheSstring(obj)->data[0];
+            # Zeichenfolge von srcptr nach ptr kopieren:
+            dotimespL(len,len, { *ptr++ = as_chart(*srcptr++); } );
           }
         return obj;
       }
@@ -1462,12 +1478,18 @@ LISPFUNN(charset_range,3)
     global object asciz_to_string(asciz,encoding)
       var const char* asciz;
       var object encoding;
-      { return make_string((const uintB*)asciz,asciz_length(asciz),encoding); }
+      { return n_char_to_string(asciz,asciz_length(asciz),encoding); }
   #else
     global object asciz_to_string_ (const char * asciz);
     global object asciz_to_string_(asciz)
       var const char* asciz;
-      { return make_string_((const uintB*)asciz,asciz_length(asciz)); }
+      { return n_char_to_string_(asciz,asciz_length(asciz)); }
+  #endif
+  #if defined(WIN32_NATIVE) && defined(UNICODE)
+    global object wasciz_to_string_ (const wchar * asciz);
+    global object wasciz_to_string_(asciz)
+      var const wchar* asciz;
+      { return n_wchar_to_string_(asciz,wasciz_length(asciz)); }
   #endif
   global object ascii_to_string (const char * asciz);
   global object ascii_to_string(asciz)

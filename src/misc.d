@@ -159,14 +159,22 @@ LISPFUNN(get_env,1)
 # assoziierten String oder NIL.
   { var object arg = popSTACK();
     if (stringp(arg))
-      { var const char* found;
+      { var const wchar* found;
+        #if defined(WIN32_NATIVE) && defined(UNICODE)
+        with_string_w0(arg,O(misc_encoding),envvar,
+          { begin_system_call();
+            found = _wgetenv(envvar);
+            end_system_call();
+          });
+        #else
         with_string_0(arg,O(misc_encoding),envvar,
           { begin_system_call();
             found = getenv(envvar);
             end_system_call();
           });
+        #endif
         if (!(found==NULL))
-          { value1 = asciz_to_string(found,O(misc_encoding)); } # gefunden -> String als Wert
+          { value1 = wasciz_to_string(found,O(misc_encoding)); } # gefunden -> String als Wert
           else
           { value1 = NIL; } # nicht gefunden -> Wert NIL
       }
@@ -184,8 +192,8 @@ LISPFUNN(registry,2)
 # Used to implement SHORT-SITE-NAME and LONG-SITE-NAME.
   { if (!stringp(STACK_1)) { fehler_string(STACK_1); }
     if (!stringp(STACK_0)) { fehler_string(STACK_0); }
-    with_string_0(STACK_1,O(misc_encoding),pathz,
-      with_string_0(STACK_0,O(misc_encoding),namez,
+    with_string_w0(STACK_1,O(misc_encoding),pathz,
+      with_string_w0(STACK_0,O(misc_encoding),namez,
         { LONG err;
           HKEY key;
           DWORD type;

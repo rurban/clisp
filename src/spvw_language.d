@@ -9,7 +9,7 @@
 
   # Initializes the current interface language, according to the given
   # arguments, getting the defaults from environment variables.
-    local void init_language (const char* argv_language, const char* argv_localedir);
+    local void init_language (const wchar* argv_language, const wchar* argv_localedir);
 
   # Returns the translation of msgid according to the current interface
   # language.
@@ -126,33 +126,33 @@
     global uintL language;
 
   # Initialisiert die Sprache, gegeben die Sprachbezeichnung.
-    local boolean init_language_from (const char* langname);
+    local boolean init_language_from (const wchar* langname);
     #ifdef GNU_GETTEXT
       #define language_deutsch   1
       #define language_francais  2
       #define language_spanish   3
     #endif
     local boolean init_language_from(langname)
-      var const char* langname;
-      { if (asciz_equal(langname,"ENGLISH") || asciz_equal(langname,"english"))
+      var const wchar* langname;
+      { if (wasciz_equal(langname,"ENGLISH") || wasciz_equal(langname,"english"))
           { language = language_english; return TRUE; }
         #ifdef GNU_GETTEXT
-        if (asciz_equal(langname,"DEUTSCH") || asciz_equal(langname,"deutsch")
-            || asciz_equal(langname,"GERMAN") || asciz_equal(langname,"german")
+        if (wasciz_equal(langname,"DEUTSCH") || wasciz_equal(langname,"deutsch")
+            || wasciz_equal(langname,"GERMAN") || wasciz_equal(langname,"german")
            )
           { language = language_deutsch; return TRUE; }
-        if (asciz_equal(langname,"FRANCAIS") || asciz_equal(langname,"francais")
+        if (wasciz_equal(langname,"FRANCAIS") || wasciz_equal(langname,"francais")
             #ifndef ASCII_CHS
-            || asciz_equal(langname,"FRANÇAIS") || asciz_equal(langname,"français")
+            || wasciz_equal(langname,"FRANÇAIS") || wasciz_equal(langname,"français")
             #endif
-            || asciz_equal(langname,"FRENCH") || asciz_equal(langname,"french")
+            || wasciz_equal(langname,"FRENCH") || wasciz_equal(langname,"french")
            )
           { language = language_francais; return TRUE; }
-        if (asciz_equal(langname,"ESPANOL") || asciz_equal(langname,"espanol")
+        if (wasciz_equal(langname,"ESPANOL") || wasciz_equal(langname,"espanol")
             #ifndef ASCII_CHS
-            || asciz_equal(langname,"ESPAÑOL") || asciz_equal(langname,"español")
+            || wasciz_equal(langname,"ESPAÑOL") || wasciz_equal(langname,"español")
             #endif
-            || asciz_equal(langname,"SPANISH") || asciz_equal(langname,"spanish")
+            || wasciz_equal(langname,"SPANISH") || wasciz_equal(langname,"spanish")
            )
           { language = language_spanish; return TRUE; }
         #endif
@@ -160,10 +160,10 @@
       }
 
   # Initialisiert die Sprache.
-    local void init_language (const char* argv_language, const char* argv_localedir);
+    local void init_language (const wchar* argv_language, const wchar* argv_localedir);
     local void init_language(argv_language,argv_localedir)
-      var const char* argv_language;
-      var const char* argv_localedir;
+      var const wchar* argv_language;
+      var const wchar* argv_localedir;
       { # Sprache wird so festgelegt, mit Prioritäten in dieser Reihenfolge:
         #   1. Fest eingebaut, LANGUAGE_STATIC
         #   2. -L Kommandozeilen-Argument
@@ -173,11 +173,11 @@
         if (argv_language)
           { if (init_language_from(argv_language)) goto chosen1; }
         #ifdef HAVE_ENVIRONMENT
-        { var const char* langname = getenv("CLISP_LANGUAGE");
+        { var const wchar* langname = wgetenv("CLISP_LANGUAGE");
           if (langname)
             { if (init_language_from(langname)) goto chosen1; }
           #ifdef AMIGAOS
-          langname = getenv("Language"); # since OS 3.0
+          langname = wgetenv("Language"); # since OS 3.0
           if (langname)
             { if (init_language_from(langname)) goto chosen1; }
           #endif

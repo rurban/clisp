@@ -12,7 +12,7 @@
 # Restores a memory image from diskette.
 # loadmem(filename);
 # This overwrites all Lisp data.
-  local void loadmem (const char* filename);
+  local void loadmem (const wchar* filename);
 
 # ------------------------------ Implementation --------------------------------
 
@@ -674,7 +674,7 @@
               break;
     }   }   }
   local void loadmem(filename)
-    var const char* filename;
+    var const wchar* filename;
     { # File zum Lesen öffnen:
       begin_system_call();
      {
@@ -701,7 +701,7 @@
       return;
       abbruch1:
         {var int abbruch_errno = errno;
-         asciz_out(program_name); asciz_out(": ");
+         wasciz_out(program_name); asciz_out(": ");
          asciz_out_s(
            GETTEXT("operating system error during load of initialisation file `%s'" NLstring),
            filename
@@ -1395,17 +1395,17 @@
       return;
       abbruch1:
         {var int abbruch_errno = OS_errno;
-         asciz_out(program_name); asciz_out(": ");
+         wasciz_out(program_name); asciz_out(": ");
          asciz_out(GETTEXT("operating system error during load of initialisation file" NLstring));
          errno_out(abbruch_errno);
         }
         goto abbruch_quit;
       abbruch2:
-        asciz_out(program_name); asciz_out(": ");
+        wasciz_out(program_name); asciz_out(": ");
         asciz_out(GETTEXT("initialisation file was not created by this version of LISP" NLstring));
         goto abbruch_quit;
       abbruch3:
-        asciz_out(program_name); asciz_out(": ");
+        wasciz_out(program_name); asciz_out(": ");
         asciz_out(GETTEXT("not enough memory for initialisation" NLstring));
         goto abbruch_quit;
       abbruch_quit:
