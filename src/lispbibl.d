@@ -10587,6 +10587,16 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
   extern object string_downcase (object string);
 # wird verwendet von PATHNAME
 
+# Returns a substring of a simple-string.
+# subsstring(string,start,end)
+# > object string: a simple-string
+# > uintL start: start index
+# > uintL end: end index
+# with 0 <= start <= end <= Sstring_length(string)
+# < object result: (subseq string start end), a freshly created simple-string
+  extern object subsstring (object string, uintL start, uintL end);
+# wird verwendet von PATHNAME
+
 # UP: bildet einen aus mehreren Strings zusammengehängten String.
 # string_concat(argcount)
 # > uintC argcount: Anzahl der Argumente

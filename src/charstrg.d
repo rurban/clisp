@@ -2227,6 +2227,30 @@ LISPFUNN(name_char,1) # (NAME-CHAR name), CLTL S. 243
     mv_count=1;
   }
 
+# Returns a substring of a simple-string.
+# subsstring(string,start,end)
+# > object string: a simple-string
+# > uintL start: start index
+# > uintL end: end index
+# with 0 <= start <= end <= Sstring_length(string)
+# < object result: (subseq string start end), a freshly created simple-string
+  global object subsstring (object string, uintL start, uintL end);
+  global object subsstring(string,start,end)
+    var object string;
+    var uintL start;
+    var uintL end;
+    { var uintL count = end - start;
+      pushSTACK(string);
+     {var object new_string = allocate_string(count);
+      string = popSTACK();
+      if (!(count==0))
+        { var const uintB* charptr1 = &TheSstring(string)->data[start];
+          var uintB* charptr2 = &TheSstring(new_string)->data[0];
+          dotimespL(count,count, { *charptr2++ = *charptr1++; } );
+        }
+      return new_string;
+    }}
+
 LISPFUN(substring,2,1,norest,nokey,0,NIL)
 # (SUBSTRING string start [end]) wie SUBSEQ, aber nur für Strings
   { var object string;

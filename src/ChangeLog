@@ -1,5 +1,12 @@
 1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (subsstring): New declaration.
+        * charstrg.d (subsstring): New function.
+        * pathname.d (split_name_type, PARSE-NAMESTRING, wildcard_diff_ab,
+           translate_nametype_aux): Use it.
+
+1999-01-03  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (make_ssbvector, ssbvector_push_extend): New
           declarations.
         * array.d (make_ssbvector, ssbvector_push_extend): New functions.
