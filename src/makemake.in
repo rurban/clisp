@@ -2675,28 +2675,15 @@ if [ $TOS = win32 ] ; then
   done
 fi
 
-if [ $TOS = unix ] ; then
-  echol "data :"
-  echotab "if test -d data; then rm -rf data; fi"
-  echotab "mkdir data"
-  echotab "cd data && \$(LN_S) ${PARENT_SRCTOPDIR}utils${NEXT}unicode${NEXT}ftp.unicode.org${NEXT}UnicodeData.txt UnicodeData.txt"
-  echotab "cd data && \$(LN_S) ${PARENT_SRCTOPDIR}src${NEXT}clhs.txt clhs.txt"
-  echol
-  XCL_DATA='data'
-else
-  echol "UnicodeData.txt :"
-  echotab "\$(LN_S) ${SRCTOPDIR_M}utils${NEXT_}unicode${NEXT_}ftp.unicode.org${NEXT_}UnicodeData.txt UnicodeData.txt"
-  echol
-  XCL_DATA='UnicodeData.txt'
-  if [ -n "${SRCDIR}" ] ; then
-    echol "clhs.txt :"
-    echotab "\$(LN_S) ${SRCDIR}clhs.txt clhs.txt"
-    echol
-    XCL_DATA=$XCL_DATA' clhs.txt'
-  fi
-fi
+DATA_FILES="UnicodeData.txt clhs.txt"
+echol "data :"
+echotab "if test -d data; then rm -rf data; fi"
+echotab "mkdir data"
+echotab "cd data && \$(LN_S) ${PARENT_SRCTOPDIR}utils${NEXT}unicode${NEXT}ftp.unicode.org${NEXT}UnicodeData.txt UnicodeData.txt"
+echotab "cd data && \$(LN_S) ${PARENT_SRCTOPDIR}src${NEXT}clhs.txt clhs.txt"
+echol
 
-echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_ICONVLIB} ${XCL_SIGSEGVLIB}${SYSLIBS} ${XCL_DATA}"
+echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_READLINELIB} ${XCL_GETTEXTLIB} ${XCL_TERMCAPLIB} ${XCL_ICONVLIB} ${XCL_SIGSEGVLIB}${SYSLIBS} data"
 if [ $HOS != os2 -a $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.
@@ -3062,15 +3049,7 @@ for f in ${IMPNOTES_FILES} ; do
   echol
 done
 EMACS_FILES="clisp-coding.el clisp-indent.el clisp-indent.lisp";
-echol "FILES_EMACS = ${EMACS_FILES}"
-echol "emacs : \$(FILES_EMACS)"
-echodummyrule emacs
-echol
-for f in ${EMACS_FILES} ; do
-  echol "${f} : ${SRCTOPDIR}emacs${NEXT}${f}"
-  echotab "\$(LN_S) ${SRCTOPDIR}emacs${NEXT}${f} ${f}"
-  echol
-done
+
 # On Unix, clisp.dvi must be built by "make all", because "make install" needs
 # it and "make install" must not create files in the current directory, for
 # compliance with the GNU standards. On other OSes, clisp.dvi must be built
@@ -3261,8 +3240,9 @@ if [ $CROSS = false ] ; then
     echotab_mkdir_maybe "\$(DESTDIR)\$(libdir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)"
     echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)/data"
-    echotab "\$(INSTALL_DATA) data/UnicodeData.txt \$(DESTDIR)\$(lisplibdir)/data/UnicodeData.txt"
-    echotab "\$(INSTALL_DATA) data/clhs.txt \$(DESTDIR)\$(lisplibdir)/data/clhs.txt"
+    for f in ${DATA_FILES}; do
+      echotab "\$(INSTALL_DATA) data/${f} \$(DESTDIR)\$(lisplibdir)/data/${f}"
+    done
     echotab_mkdir_maybe "\$(DESTDIR)\$(lisplibdir)/linkkit"
     echotab "(cd \$(DESTDIR)\$(lisplibdir) && rm -rf base full)"
     echotab "mkdir \$(DESTDIR)\$(lisplibdir)/base"
@@ -3404,19 +3384,22 @@ if [ $CROSS = false ] ; then
     echol "install-bin : lisp${LEXE} lispinit.mem force"
     echotab "-mkdir \$(DESTDIR)\$(libdir)"
     echotab "-mkdir \$(DESTDIR)\$(lisplibdir)"
-    echotab "\$(INSTALL_DATA) UnicodeData.txt \$(DESTDIR)\$(lisplibdir)\UnicodeData.txt"
-    echotab "\$(INSTALL_DATA) clhs.txt \$(DESTDIR)\$(lisplibdir)\clhs.txt"
-    echotab "\$(INSTALL_PROGRAM) lisp${LEXE} \$(DESTDIR)\$(lisplibdir)\lisp${LEXE}"
-    echotab "\$(INSTALL_DATA) lispinit.mem \$(DESTDIR)\$(lisplibdir)\lispinit.mem"
+    echotab "-mkdir \$(DESTDIR)\$(lisplibdir)data"
+    for f in ${DATA_FILES}; do
+      echotab "\$(INSTALL_DATA) data/${f} \$(DESTDIR)\$(lisplibdir)data/${f}"
+    done
+    echotab "\$(INSTALL_PROGRAM) lisp${LEXE} \$(DESTDIR)\$(lisplibdir)lisp${LEXE}"
+    echotab "\$(INSTALL_DATA) lispinit.mem \$(DESTDIR)\$(lisplibdir)lispinit.mem"
     echotab "-mkdir \$(DESTDIR)\$(bindir)"
-    echotab "echo \$(lisplibdir)\lisp${LEXE} -M \$(lisplibdir)\lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > \$(DESTDIR)\$(bindir)\clisp.cmd"
+    echotab "echo \$(lisplibdir)\lisp${LEXE} -M \$(lisplibdir)lispinit.mem %1 %2 %3 %4 %5 %6 %7 %8 %9 > \$(DESTDIR)\$(bindir)clisp.cmd"
     echol
     echol "uninstall : uninstall-bin"
     echodummyrule uninstall
     echol
     echol "uninstall-bin : force"
-    echotab "\$(RM) \$(DESTDIR)\$(lisplibdir)/UnicodeData.txt"
-    echotab "\$(RM) \$(DESTDIR)\$(lisplibdir)/clhs.txt"
+    for f in ${DATA_FILES}; do
+      echotab "\$(RM) \$(DESTDIR)\$(lisplibdir)/data/${f}"
+    done
     echotab "\$(RM) \$(DESTDIR)\$(lisplibdir)/lisp${LEXE}"
     echotab "\$(RM) \$(DESTDIR)\$(lisplibdir)/lispinit.mem"
     echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp.cmd"
@@ -3486,8 +3469,8 @@ if test "$HLN" != ln; then
   echotab "ln buildhln/hln${TEXE} hln${TEXE}"
   echol
 fi
-echol "distrib : force $needs modular manualx emacs clisp.c distmakefile"
-echotab "\$(RM) \$(DISTFILE)"
+echol "distrib : force $needs modular manualx clisp.c distmakefile"
+echotab "\$(RM) \$(DISTFILE) clisp\$(PACKEXT)"
 echotab "mkdir \$(TOPDIR)"
 # General documentation files.
 echotab "${HLN} ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es MAGIC.add \$(TOPDIR)"
@@ -3524,7 +3507,9 @@ echotab "${HLN} data/* \$(TOPDIR)/data"
 echotab "mkdir \$(TOPDIR)/doc"
 echotab "${HLN} clisp.1 clisp.man${manual_dvi} clisp.html \$(TXTFILES) \$(IMPNOTES)${manual_readline}${manualx_readline} \$(TOPDIR)/doc"
 echotab "mkdir \$(TOPDIR)/emacs"
-echotab "${HLN} ${EMACS_FILES} \$(TOPDIR)/emacs"
+for f in ${EMACS_FILES}; do
+  echotab "${HLN} ${SRCTOPDIR}/emacs/${f} \$(TOPDIR)/emacs/${f}"
+done
 echotab "mkdir \$(TOPDIR)/src"
 echotab "${HLN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src"
 echotab "${HLN} clisp-link \$(TOPDIR)"
@@ -3550,7 +3535,7 @@ echol
 echol
 fi
 if [ $HSYS = acorn ] ; then
-  echol "distrib : force all manualx emacs"
+  echol "distrib : force all manualx"
   echotab "-cdir ^.!Clisp"
   echotab "\$(CP) lisp ^.!Clisp.lisp"
   echotab "squeeze ^.!Clisp.lisp"
@@ -3571,6 +3556,8 @@ if [ $HSYS = acorn ] ; then
   echotab "\$(CP) el.clisp-coding ^.!Clisp.el.clisp-coding"
   echotab "\$(CP) el.clisp-indent ^.!Clisp.el.clisp-indent"
   echotab "\$(CP) lisp.clisp-indent ^.!Clisp.lisp.clisp-indent"
+  echotab "\$(CP) txt.clhs ^.!Clisp.txt.clhs"
+  echotab "\$(CP) txt.UnicodeData ^.!Clisp.txt.UnicodeData"
   echotab "settype ^.!Clisp.html.clisp FAF"
   echotab "-cdir ^.!Clisp.txt"
   for f in $DOC; do
@@ -3589,7 +3576,7 @@ if [ $HSYS = acorn ] ; then
 fi
 if [ $HOS = win32 ] ; then
   echol "# Distribution, to be executed on a Unix host or using Cygwin."
-  echol "distrib : force emacs"
+  echol "distrib : force"
   echotab "nroff -man clisp.1 > clisp.man"
   if [ $HOS = win32 ] ; then
     for f in clisp.html ; do
@@ -3607,12 +3594,18 @@ if [ $HOS = win32 ] ; then
   echotab "for f in lisp.exe lispinit.mem install.bat ; do \\"
   echotab "  cp -p \$\$f \$\$distdir/\$\$f ; \\"
   echotab "done ; \\"
+  echotab "mkdir \$\$distdir/data ; \\"
+  for f in ${DATA_FILES}; do
+    echotab "cp -p data/${f} \$\$distdir/data/${f} ; \\"
+  done
   echotab "mkdir \$\$distdir/doc ; \\"
   echotab "for f in clisp.1 clisp.man clisp.html \$(TXTFILES) \$(IMPNOTES) ; do \\"
   echotab "  if test -f \$\$f ; then cp -p \$\$f \$\$distdir/doc/\$\$f ; else cp -p \`echo \$\$f | tr '[A-Z]' '[a-z]'\` \$\$distdir/doc/\$\$f ; fi ; \\"
   echotab "done ; \\"
   echotab "mkdir \$\$distdir/emacs; \\"
-  echotab "cp -p ${EMACS_FILES} \$\$distdir/emacs; \\"
+  for f in ${EMACS_FILES}; do
+    echotab "cp -p ${SRCTOPDIR}emacs/${f} \$\$distdir/emacs/${f} ; \\"
+  done
   echotab "mkdir \$\$distdir/src ; \\"
   echotab "cp -p \$(LISPFILES) install.lisp \$\$distdir/src/ ; \\"
   echotab "chmod 755 \$\$distdir/. \$\$distdir/*/. ; \\"

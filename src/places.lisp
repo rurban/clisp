@@ -1097,6 +1097,10 @@ Invoking CLISP with `-traditional' sets this to NIL.")
 (system::%set-documentation '*current-language* 'variable
  "This symbol-macro determines the current language used for UI.")
 
+(define-symbol-macro *lib-directory* (sys::lib-directory))
+(defsetf sys::lib-directory sys::set-lib-directory)
+(system::%set-documentation '*lib-directory* 'variable
+ "This symbol-macro determines the location where CLISP finds its data files.")
 
 (define-symbol-macro *default-file-encoding*
   (system::default-file-encoding))

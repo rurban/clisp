@@ -632,6 +632,7 @@ LISPSYM(dynload_modules,"DYNLOAD-MODULES",system)
 LISPSYM(program_name,"PROGRAM-NAME",system)
 #endif
 LISPSYM(lib_directory,"LIB-DIRECTORY",system)
+LISPSYM(set_lib_directory,"SET-LIB-DIRECTORY",system)
 #if defined(EXPORT_SYSCALLS) && defined(UNIX)
 LISPSYM(user_data_,"USER-DATA-INTERNAL",posix)
 LISPSYM(file_stat_,"FILE-STAT-INTERNAL",posix)
