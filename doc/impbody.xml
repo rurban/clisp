@@ -1298,7 +1298,7 @@ can give problems:
 
 <para>&clisp; supports a command-line option &opt-modern; that
  sets the &package-var; initially to the &cs-clu; package, and
- &print-base-var; to <constant>:downcase</constant>.</para>
+ &print-base-var; to <constant>:DOWNCASE</constant>.</para>
 
 <para>For packages to be located in the <quote>modern</quote>
  (case-sensitive) world, you need to augment their &defpackage;
@@ -3498,7 +3498,7 @@ pointing to non-existent files and can take the following values:
  <varlistentry><term><replaceable>bits</replaceable></term>
   <listitem><para><variablelist>
      <!-- #ifdef WIN32 -->
-     <varlistentry><term><constant>:hyper</constant></term>
+     <varlistentry><term><constant>:HYPER</constant></term>
       <listitem><simpara>(&win32-only;) if a non-standard key.
         These keys are:
         <!-- #ifdef WIN32 -->
@@ -3506,16 +3506,16 @@ pointing to non-existent files and can take the following values:
         Function keys, cursor keypads, numeric keypad.
         <!-- #endif -->
      </simpara></listitem></varlistentry>
-     <varlistentry><term><constant>:super</constant></term>
+     <varlistentry><term><constant>:SUPER</constant></term>
       <listitem><simpara>(&win32-only;) if pressed together with &shift;
         key(s) and if the keystroke would have been different without
         &shift;.</simpara></listitem></varlistentry>
      <!-- #endif -->
-     <varlistentry><term><constant>:control</constant></term>
+     <varlistentry><term><constant>:CONTROL</constant></term>
       <listitem><simpara>if pressed together with the &ctrl; key.
      </simpara></listitem></varlistentry>
      <!-- #ifdef WIN32 -->
-     <varlistentry><term><constant>:meta</constant></term>
+     <varlistentry><term><constant>:META</constant></term>
       <listitem><simpara>(&win32-only;) if pressed together with the
         &alt; key.</simpara></listitem></varlistentry>
      <!-- #endif -->
@@ -4972,42 +4972,42 @@ E.g.,
 <para><code>(&trace; &func-r; ...)</code> makes the
  functions &func-r;, ... traced.  &func-r; should be either a symbol or
  a list <code>(&symbol-r; &key-amp;
- <constant>:suppress-if</constant> <constant>:max-depth</constant>
- <constant>:step-if</constant>
- <constant>:pre</constant> <constant>:post</constant>
- <constant>:pre-break-if</constant> <constant>:post-break-if</constant>
- <constant>:pre-print</constant> <constant>:post-print</constant>
+ <constant>:SUPPRESS-IF</constant> <constant>:MAX-DEPTH</constant>
+ <constant>:STEP-IF</constant>
+ <constant>:PRE</constant> <constant>:POST</constant>
+ <constant>:PRE-BREAK-IF</constant> <constant>:POST-BREAK-IF</constant>
+ <constant>:PRE-PRINT</constant> <constant>:POST-PRINT</constant>
  &print-k;)</code>, where</para>
 
 <variablelist>
- <varlistentry><term><constant>:suppress-if</constant> &form-r;</term>
+ <varlistentry><term><constant>:SUPPRESS-IF</constant> &form-r;</term>
   <listitem><simpara>no trace output as long as &form-r; is true
   </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:max-depth</constant> &form-r;</term>
+ <varlistentry><term><constant>:MAX-DEPTH</constant> &form-r;</term>
   <listitem><simpara>no trace output as long as <code>(&gt;
   *trace-level* &form-r;)</code>. This is useful for tracing functions that
   are use by the tracer itself, such as &print-object;, or otherwise when
   tracing would lead to an infinite recursion.
   </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:step-if</constant> &form-r;</term>
+ <varlistentry><term><constant>:STEP-IF</constant> &form-r;</term>
   <listitem><simpara>invokes the stepper as soon as &form-r; is true
   </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:pre</constant> &form-r;</term>
+ <varlistentry><term><constant>:PRE</constant> &form-r;</term>
   <listitem><simpara>evaluates &form-r; before calling the function
   </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:post</constant> &form-r;</term>
+ <varlistentry><term><constant>:POST</constant> &form-r;</term>
   <listitem><simpara>evaluates &form-r; after return from the function
   </simpara></listitem></varlistentry>
- <varlistentry><term><constant>:pre-break-if</constant> &form-r;</term>
+ <varlistentry><term><constant>:PRE-BREAK-IF</constant> &form-r;</term>
   <listitem><simpara>goes into the break loop before calling the
    function if &form-r; is true</simpara></listitem></varlistentry>
- <varlistentry><term><constant>:post-break-if</constant> &form-r;</term>
+ <varlistentry><term><constant>:POST-BREAK-IF</constant> &form-r;</term>
   <listitem><simpara>goes into the break loop after return from the
    function if &form-r; is true</simpara></listitem></varlistentry>
- <varlistentry><term><constant>:pre-print</constant> &form-r;</term>
+ <varlistentry><term><constant>:PRE-PRINT</constant> &form-r;</term>
   <listitem><simpara>prints the values of &form-r; before calling the
    function</simpara></listitem></varlistentry>
- <varlistentry><term><constant>:post-print</constant> &form-r;</term>
+ <varlistentry><term><constant>:POST-PRINT</constant> &form-r;</term>
   <listitem><simpara>prints the values of &form-r; after return from the
    function</simpara></listitem></varlistentry>
  <varlistentry><term>&print-k; &form-r;</term>
@@ -5048,16 +5048,16 @@ exhaust the available line length.</para></formalpara>
 <section id="inspect"><title>Function &inspect;</title>
 
 <para>The function &inspect; takes a keyword argument
- <constant>:frontend</constant>, which specifies the way &clisp; will
+ <constant>:FRONTEND</constant>, which specifies the way &clisp; will
  interact with the user.</para>
 
-<variablelist><title>Available <constant>:frontend</constant>s for
+<variablelist><title>Available <constant>:FRONTEND</constant>s for
    &inspect; in &clisp;</title>
- <varlistentry><term><constant>:tty</constant></term>
+ <varlistentry><term><constant>:TTY</constant></term>
   <listitem><simpara>The interaction is conducted via the &terminal-io-var;
     stream.  Please use the <userinput>:h</userinput> command to get the
     list of all available commands.</simpara></listitem></varlistentry>
- <varlistentry><term><constant>:http</constant></term>
+ <varlistentry><term><constant>:HTTP</constant></term>
   <listitem><simpara>A window in your Web browser (specified by the
     &browser-k; keyword argument) is opened and it is controlled by
     &clisp; via a &socket-stream;, using the &http; protocol.
