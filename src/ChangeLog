@@ -2,6 +2,8 @@
 
 	* init.lisp (load) [:COMPILING]: bind *ERROR-COUNT* *WARNING-COUNT*
 	*STYLE-WARNING-COUNT* like in WITH-COMPILATION-UNIT
+	* compiler.lisp (match-known-unknown-functions): do not try to
+	print source location when it is not available
 
 2003-09-22  Sam Steingold  <sds@gnu.org>
 
