@@ -13,8 +13,8 @@
 
 	* error.d (check_classname): new function for modules
 	* genclisph.d (main): declare check_classname()
-	* rawsock/rawsock.c, pcre/cpcre.c: use check_classname() instead
-	of ad hoc checks
+	* rawsock/rawsock.c, pcre/cpcre.c, berkeley-db/bdb.c, dirkey/dirkey.c:
+	use check_classname() and typep_classname() instead of ad hoc checks
 
 2004-04-25  Bruno Haible  <bruno@clisp.org>
 

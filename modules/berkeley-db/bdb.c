@@ -86,18 +86,15 @@ nonreturning_function(static, error_bdb, (int status, char *caller)) {
 /* check whether the OBJ has type TYPE and return its handle
  can trigger GC */
 static void* object_handle (object obj, object type, bool null_on_error) {
-  while (!structurep(obj) ||
-         nullp(memq(type,TheStructure(obj)->structure_types))) {
+  while (!typep_classname(obj,type)) {
     if (null_on_error) return NULL;
     pushSTACK(type);            /* save */
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
-    pushSTACK(`BDB::ENV`);      /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(`BDB::ENV`); pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
+    pushSTACK(type);            /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(type); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
-    obj = value1;
-    type = popSTACK();          /* restore */
+    obj = value1; type = popSTACK(); /* restore */
   }
   return TheFpointer(*(TheStructure(obj)->recdata+1))->fp_pointer; /* FIXME for derived structs! */
 }

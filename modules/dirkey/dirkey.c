@@ -107,9 +107,7 @@ enum { /* DIR-KEY slots */
 
 /* check whether the OBJ is a DIR-KEY */
 static gcv_object_t* dir_key_slots (object obj) {
-  if (!structurep(obj) ||
-      nullp(memq(`LDAP::DIR-KEY`,TheStructure(obj)->structure_types)))
-    return NULL;
+  if (!typep_classname(obj,`LDAP::DIR-KEY`)) return NULL;
   return TheStructure(obj)->recdata+1; /* FIXME for derived structs! */
 }
 
