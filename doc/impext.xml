@@ -3656,15 +3656,17 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
   <listitem><simpara>Returns the host mask indicating which hosts can
     connect to this server and the port which was bound using &sose;.
  </simpara></listitem></varlistentry>
- <varlistentry id="so-wait"><term><literal role="sexp">(&so-wait; &sose-r;
-                 &timeout-opt;)</literal></term>
-  <listitem id="timeout-opt"><simpara>Wait for a fixed time for a connection
-   on the &sose-r; (a &socket-server;).
-   Without a timeout argument, &so-wait; blocks indefinitely.
-   When timeout is zero, poll.</simpara></listitem></varlistentry>
+ <varlistentry id="so-wait"><term><literal role="sexp">(&so-wait;
+    &sose-r; &timeout-opt;)</literal></term>
+  <listitem id="timeout-opt"><simpara>Wait for a fixed time for a
+    connection on the &sose-r; (a &socket-server;).
+    Without a timeout argument, &so-wait; blocks indefinitely.
+    When timeout is zero, poll.
+    Returns &t; when a connection is available (i.e., &so-accept; will
+    not block) and &nil; on timeout.</simpara></listitem></varlistentry>
  <varlistentry id="so-accept"><term><literal role="sexp">(&so-accept;
-                 &sose-r; &key-amp; &eltype; &extfmt; &buffered;
-                 &timeout-k;)</literal></term>
+    &sose-r; &key-amp; &eltype; &extfmt; &buffered;
+    &timeout-k;)</literal></term>
   <listitem id="timeout-k"><simpara>Creates the server-side two-way
    stream for the connection.
    Waits for an attempt to connect to the server for no more than
@@ -3786,9 +3788,9 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
    (name, list of aliases, port, protocol) for the given
    <replaceable>service-name</replaceable> and
    <replaceable>protocol</replaceable>, or all services as the list of
-   vectors of &length; 4, if <replaceable>service-name</replaceable> is
-   not given or is &default-k; or &nil;.
-  </simpara></listitem></varlistentry>
+   <literal role="type">(&simple-vector-t; 4)</literal>
+   if <replaceable>service-name</replaceable> is not given or is
+   &default-k; or &nil;.</simpara></listitem></varlistentry>
  <varlistentry id="sost-peer"><term><literal role="sexp">(&sost-peer;
     &sost-r; [<replaceable>do-not-resolve-p</replaceable>])</literal></term>
   <listitem><simpara>Given a socket stream, this function returns the
@@ -3811,21 +3813,22 @@ several sources, e.g. both a console and ARexx, at the same time.</para>
     &sost-r; &direction-r;)</literal></term>
   <listitem><simpara>Some Internet protocols, such as &http;, provide for
    closing the connection in one &direction-r; using &shutdown;.
-   &direction-r; can be &input-k; or &output-k;.
+   This function provides an interface to this &unix; system call.
+   &direction-r; should be &input-k; or &output-k;.
    Note that you should still call &close; after you are done with your
    &sost-r;; this is best accomplished by using &with-open-stream;.</simpara>
-   <para>All &socket-stream;s are &bidi-s;s (i.e., both
-   &input-stream-p; and &output-stream-p; return &t; for them).
-   &sost-shut; <emphasis>breaks</emphasis> this:
-   the invariant is that whenever
-   <itemizedlist><listitem><simpara>a stream is open
+   <para>All &socket-stream;s are &bidi-s;s (i.e., both &input-stream-p;
+   and &output-stream-p; return &t; for them).
+   &sost-shut; <emphasis>breaks</emphasis> this and turns its argument
+   stream into an &in-s; (if &direction-r; is &output-k;) or &out-s; (if
+   &direction-r; is &input-k;).
+    Thus, the following important invariant is preserved: whenever
+   <itemizedlist><listitem><simpara>a &stream-t; is open
     (i.e., &open-stream-p; returns &t;) and</simpara></listitem>
-   <listitem><simpara>a stream is an &input-k; stream
-    (i.e., &input-stream-p; returns &t;)</simpara></listitem></itemizedlist>
-   the stream can be read from (e.g., with &read-char; or &read-byte;).
-   This is &not-e; the case for a &socket-stream; which
-   was shut down in the &input-k; direction: it is still open (for
-   output) but it cannot be read from.</para></listitem></varlistentry>
+   <listitem><simpara>a &stream-t; is an &in-s; (i.e., &input-stream-p;
+     returns &t;)</simpara></listitem></itemizedlist>
+   the &stream-t; can be read from (e.g., with &read-char; or &read-byte;).
+ </para></listitem></varlistentry>
  <varlistentry id="so-opt"><term><literal role="sexp">(&so-opt;
     &sose-r; &rest-amp; {&option-r;}*)</literal></term>
   <listitem><simpara>Query and, optionally, set socket options using
