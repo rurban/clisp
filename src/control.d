@@ -1844,7 +1844,7 @@ LISPSPECFORM(unwind_protect, 1,0,body)
                 built above has kept a throw.
                 save unwind_protect_to_save and jump to it in the end. */
   {
-    var restart fun = unwind_protect_to_save.fun;
+    var restartf_t fun = unwind_protect_to_save.fun;
     var object* arg = unwind_protect_to_save.upto_frame;
     /* Cleanup: */
     /* unwind UNWIND-PROTECT-frame: */

@@ -2914,7 +2914,7 @@ local int quit_retry = 0;
 nonreturning_function(global, quit, (void)) {
   # first "unwind" the STACK downto STACK-end:
   VALUES0; /* do not save values for UNWIND-PROTECT-frames */
-  unwind_protect_to_save.fun = (restart)&quit;
+  unwind_protect_to_save.fun = (restartf_t)&quit;
   loop { # does STACK end here?
     if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) break;
     if (framecode(STACK_0) & bit(frame_bit_t))

@@ -9940,9 +9940,9 @@ extern void bindhooks (object evalhook_value, object applyhook_value);
 #   and then jumps to unwind_protect_to_save.fun.
 # modifies STACK
 # can trigger GC
-typedef /* nonreturning */ void (*restart)(object* upto_frame);
+typedef /* nonreturning */ void (*restartf_t)(object* upto_frame);
 typedef struct {
-  restart fun;
+  restartf_t fun;
   object* upto_frame;
 } unwind_protect_caller_t;
 #ifndef MULTITHREAD
