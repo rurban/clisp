@@ -1195,6 +1195,7 @@ T
 ;; Test the :fixed-slot-location option.
 
 ; Single class.
+#+CLISP
 (progn
   (defclass foo100 () (a b c) (:fixed-slot-locations))
   (mapcar #'(lambda (name)
@@ -1202,9 +1203,11 @@ T
                                 :key #'clos:slot-definition-name)))
                 (clos:slot-definition-location slot)))
           '(a b c)))
+#+CLISP
 (1 2 3)
 
 ; Simple subclass.
+#+CLISP
 (progn
   (defclass foo101a () (a b c) (:fixed-slot-locations))
   (defclass foo101b (foo101a) (d e f) (:fixed-slot-locations))
@@ -1213,9 +1216,11 @@ T
                                 :key #'clos:slot-definition-name)))
                 (clos:slot-definition-location slot)))
           '(a b c d e f)))
+#+CLISP
 (1 2 3 4 5 6)
 
 ; Subclass with multiple inheritance.
+#+CLISP
 (progn
   (defclass foo102a () (a b c) (:fixed-slot-locations))
   (defclass foo102b () (d e f))
@@ -1225,9 +1230,11 @@ T
                                 :key #'clos:slot-definition-name)))
                 (clos:slot-definition-location slot)))
           '(a b c d e f g h i)))
+#+CLISP
 (1 2 3 4 5 6 7 8 9)
 
 ; Subclass with multiple inheritance.
+#+CLISP
 (progn
   (defclass foo103a () (a b c))
   (defclass foo103b () (d e f) (:fixed-slot-locations))
@@ -1237,17 +1244,21 @@ T
                                 :key #'clos:slot-definition-name)))
                 (clos:slot-definition-location slot)))
           '(a b c d e f g h i)))
+#+CLISP
 (4 5 6 1 2 3 7 8 9)
 
 ; Subclass with multiple inheritance and collision.
+#+CLISP
 (progn
   (defclass foo104a () (a b c) (:fixed-slot-locations))
   (defclass foo104b () (d e f) (:fixed-slot-locations))
   (defclass foo104c (foo104a foo104b) (g h i))
   t)
+#+CLISP
 ERROR
 
 ; Subclass with multiple inheritance and no collision.
+#+CLISP
 (progn
   (defclass foo105a () (a b c) (:fixed-slot-locations))
   (defclass foo105b () () (:fixed-slot-locations))
@@ -1257,9 +1268,11 @@ ERROR
                                 :key #'clos:slot-definition-name)))
                 (clos:slot-definition-location slot)))
           '(a b c g h i)))
+#+CLISP
 (1 2 3 4 5 6)
 
 ; Subclass with multiple inheritance and no collision.
+#+CLISP
 (progn
   (defclass foo106a () () (:fixed-slot-locations))
   (defclass foo106b () (d e f) (:fixed-slot-locations))
@@ -1269,9 +1282,11 @@ ERROR
                                 :key #'clos:slot-definition-name)))
                 (clos:slot-definition-location slot)))
           '(d e f g h i)))
+#+CLISP
 (1 2 3 4 5 6)
 
 ; Subclass with shared slots.
+#+CLISP
 (progn
   (defclass foo107a ()
     ((a :allocation :instance)
@@ -1283,9 +1298,11 @@ ERROR
   (defclass foo107b (foo107a)
     ((b :allocation :class)))
   t)
+#+CLISP
 ERROR
 
 ; Subclass with shared slots and no collision.
+#+CLISP
 (progn
   (defclass foo108a ()
     ((a :allocation :instance)
@@ -1308,6 +1325,7 @@ ERROR
                     (class-name (clos::cv-newest-class (car location)))
                     location))))
           '(a b c d e f g)))
+#+CLISP
 (1 2 3 foo108b foo108a 4 foo108b)
 
 ;; Check that two classes with the same name can have different documentation

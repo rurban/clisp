@@ -1,3 +1,8 @@
+2004-08-04  Bruno Haible  <bruno@clisp.org>
+
+	* clos.tst: Mark the :fixed-slot-locations tests as clisp-specific.
+	* streamslong.tst: Mark a test as clisp-specific.
+
 2004-08-07  Bruno Haible  <bruno@clisp.org>
 
 	* clos.tst: Add one more test.

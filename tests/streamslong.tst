@@ -120,10 +120,12 @@ nil
  "zotplonk")
 
 ;; <https://sourceforge.net/tracker/?func=detail&aid=959549&group_id=1355&atid=101355>
+#+CLISP
 (let ((f "foo") (s "12345") l)
   (with-open-file (o f :direction :output) (write-string s o))
   (with-open-file (i f :buffered t) (listen i) (push (read-char i) l))
   (with-open-file (i f :buffered nil) (listen i) (push (read-char i) l))
   (delete-file f)
   l)
+#+CLISP
 (#\1 #\1)
