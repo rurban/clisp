@@ -3,10 +3,19 @@
 <part id="internals"><title>Internals of the &clisp; Implementation</title>
 
 <chapter id="gc"><title>Overview of &clisp;'s Garbage Collection</title>
+ <subtitle>These are internals, which are of interest only to the
+  &clisp; developers.
+  If you are not subscribed to
+  <email>clisp-devel@lists.sourceforge.net</email>,
+  this chapter is not for you.</subtitle>
+
+<section><title>Introduction</title>
 
 <para>Knowing that most &malloc; implementations are buggy and/or slow,
 and because &clisp; needs to perform garbage collection, &clisp; has its
 own memory management subsystem in files <filename>spvw*.d</filename>.</para>
+
+</section>
 
 <section><title>&clisp; objects</title>
 
@@ -25,7 +34,7 @@ a pointer to storage.  Pointers to &c-lang; data have tag = machine_type
 = 0, pointers to &clisp; stack have tag = system_type, most other pointers
 point to &clisp; data.</para>
 
-<para>Let's turn to these &clisp; objects that consume regular &clisp;
+<para>Let us turn to these &clisp; objects that consume regular &clisp;
 memory.  Every &clisp; object has a size which is determined when the
 object is allocated (using one of the <function>allocate_*()</function>
 routines). The size can be computed from the type tag and - if necessary
@@ -59,7 +68,7 @@ address decreases).</para>
 <section><title>Memory Models</title>
 
 <para>There are 6 memory models. Which one is used, depends on the
-operating system.</para>
+operating system and is determined at build time.</para>
 
 <variablelist><title>Memory Models</title>
 <varlistentry><term>SPVW_MIXED_BLOCKS_OPPOSITE</term>
@@ -123,17 +132,19 @@ operating system.</para>
 <varlistentry><term>SPVW_MIXED_PAGES</term>
  <listitem><para>The heap consists of many small pages (usually around 8 KB).
   There are two kinds of pages: one for 2-pointer objects, one for
-  variable-length objects. The set of all pages of a fixed kind is
-  called a "Heap".  Each page has its hole (free space) at its end.
+  variable-length objects.
+  The set of all pages of a fixed kind is called a "Heap".
+  Each page has its hole (free space) at its end.
   For every heap, the pages are kept sorted according to the size of
-  their hole, using AVL trees.  Garbage collection is invoked when the
-  used space has grown by 25% since the last GC; until that point new
-  pages are allocated from the operating system. The GC compacts the
-  data in each page separately: data is moved to the left. Emptied pages
-  are given back to the OS.  If the holes then make up more than 25% of
-  the occupied storage, a second GC turn moves objects across pages, from
-  nearly empty ones to nearly full ones, with the aim to free as many
-  pages as possible.
+  their hole, using AVL trees.
+  Garbage collection is invoked when the used space has grown by 25%
+  since the last GC; until that point new pages are allocated from the
+  operating system.
+  The GC compacts the data in each page separately:
+  data is moved to the left. Emptied pages are given back to the OS.
+  If the holes then make up more than 25% of the occupied storage, a
+  second GC turn moves objects across pages, from nearly empty ones to
+  nearly full ones, with the aim to free as many pages as possible.
   <variablelist><title>overview</title>
    <varlistentry><term>(-)</term>
     <listitem><simpara>every allocation requires AVL tree operations,
@@ -185,6 +196,10 @@ operating system.</para>
     <listitem><simpara>Works only in combination with SINGLEMAP_MEMORY.
     </simpara></listitem></varlistentry></variablelist>
  </para></listitem></varlistentry></variablelist>
+
+<para>In page based memory models, an object larger than a page is the
+only object carried by its pages.
+There are no small objects in pages belonging to a big object.</page>
 
 <para>The following combinations of memory model and mmap tricks are
 possible:</para>
