@@ -1,4 +1,5 @@
 2003-09-30  John Hinsdale  <hin@alma.com>
+
 	* modules/oracle/oracle.lisp: Fix bug that leaks connections
 
 2003-09-30  Bruno Haible  <bruno@clisp.org>
@@ -10,21 +11,21 @@
 	(UQ_to_I): Fix to make it work when sizeof(oint) < sizeof(uint64).
 	* stream.d (uoff_t): New type.
 	(uoff_t_to_I, I_to_uoff_t, uoff_t_p): New macros.
-	(struct strm_buffered_extrafields_t): Change type of buffstart and
+	(strm_buffered_extrafields_t): Change type of buffstart and
 	position to uoff_t.
-	(struct strm_i_buffered_extrafields_t): Change type of eofposition to
-	uoff_t.
+	(strm_i_buffered_extrafields_t): Change type of eofposition to uoff_t.
 	(handle_lseek): Change the result to off_t.
 	(position_file_buffered): Change argument type to uoff_t.
 	(sync_file_buffered): Use uoff_t where appropriate.
 	(position_file_i_buffered): Change argument type to uoff_t.
 	(logical_position_file): Likewise.
-	(logical_position_file_end, make_file_stream, buffered_flush_everything,
-	finish_output_buffered): Use uoff_t where appropriate.
+	(logical_position_file_end, make_file_stream)
+	(buffered_flush_everything, finish_output_buffered):
+	Use uoff_t where appropriate.
 	(FILE-POSITION): Use uoff_t_to_I and I_to_uoff_t.
 	(FILE-LENGTH): Use uoff_t_to_I.
-	* spvw_memfile.d (memflags): Add a bit to denote whether file streams
-	store a 64-bit or 32-bit file position.
+	* spvw_memfile.d (memflags): Add a bit to denote whether file
+	streams store a 64-bit or 32-bit file position.
 
 2003-09-30  Bruno Haible  <bruno@clisp.org>
 
