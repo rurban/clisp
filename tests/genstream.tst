@@ -9,12 +9,12 @@ T
 (progn
 
 ;; The controller is an instance of this class.
-(defclass generic-stream-controller-class ()
+(defclass generic-stream-controller-class (generic-stream-controller)
   (source-stream      ; Input methods get/check-for characters on this stream
    destination-stream ; Output methods put/clear characters on this stream
    ;; Flags are used to indicate the success of the finish/force/clear
    ;; generic-stream methods.
-   ;; The semantics of CLISP's `close' function is still CLt1, so closed check
+   ;; The semantics of CLISP's `close' function is still CLtL1, so closed check
    ;; is done with a flag too.
    (flags :initform (copy-tree '((finish-output . nil)
                                  (force-output . nil)
@@ -40,9 +40,13 @@ T
               (if (listen source-stream) (read-char source-stream))
               ))
 
-;; Notice this function does not return boolean values.
-(defmethod generic-stream-read-char-status ((controller generic-stream-controller-class))
-  (if (listen (slot-value controller 'source-stream)) :INPUT-AVAILABLE :WAIT))
+(defmethod generic-stream-peek-char ((controller generic-stream-controller-class))
+  (with-slots (source-stream) controller
+              (if (listen source-stream) (peek-char nil source-stream) nil)
+              ))
+
+(defmethod generic-stream-read-char-will-hang-p ((controller generic-stream-controller-class))
+  (if (listen (slot-value controller 'source-stream)) nil t))
 
 (defmethod generic-stream-clear-input ((controller generic-stream-controller-class))
   (rplacd (assoc 'clear-input (slot-value controller 'flags)) t))
@@ -167,9 +171,7 @@ T
 
 ;; Report flag-set status
 (defun check-flag (flag controller)
-  (let ((status
-         (cdr
-          (assoc flag (slot-value controller 'flags)))))
+  (let ((status (cdr (assoc flag (slot-value controller 'flags)))))
     (format t "Checking ~S flag status: ~S~%" flag status)
     status))
 

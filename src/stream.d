@@ -2852,7 +2852,7 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
 
   #   (GENERIC-STREAM-READ-CHAR c)                      --> character or NIL
   #   (GENERIC-STREAM-PEEK-CHAR c)                      --> character or NIL
-  #   (GENERIC-STREAM-READ-CHAR-STATUS c)               --> {:EOF,:INPUT-AVAILABLE,:WAIT}
+  #   (GENERIC-STREAM-READ-CHAR-WILL-HANG-P c)          --> {T,NIL}
   #   (GENERIC-STREAM-CLEAR-INPUT c)                    --> {T,NIL}
   #   (GENERIC-STREAM-WRITE-CHAR c ch)                  -->
   #   (GENERIC-STREAM-WRITE-STRING c string start len)  -->
@@ -2893,24 +2893,26 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
     }
 
   # (LISTEN s) ==
-  # (GENERIC-STREAM-READ-CHAR-STATUS c)
+  # (IF (GENERIC-STREAM-READ-CHAR-WILL-HANG-P c)
+  #   :WAIT
+  #   (IF (GENERIC-STREAM-PEEK-CHAR c)
+  #     :INPUT-AVAILABLE
+  #     :EOF
+  # ) )
   local signean listen_generic (object stream);
   local signean listen_generic(stream)
     var object stream;
-    { pushSTACK(stream); funcall(L(generic_stream_controller),1);
-      pushSTACK(value1); funcall(S(generic_stream_read_char_status),1);
-      if (eq (value1, S(Keof))) return ls_eof;
-      if (eq (value1, S(Kinput_available))) return ls_avail;
-      if (eq (value1, S(Kwait))) return ls_wait;
-      pushSTACK (value1);               # DATUM
-      pushSTACK (O(type_read_char_status)); # EXPECTED-TYPE
-      pushSTACK (O(type_read_char_status)); # once again for the error message.
-      pushSTACK (S(generic_stream_read_char_status));
-      pushSTACK (value1);
-      fehler(type_error,
-             GETTEXT("Return value ~ of call to ~ is not of type ~.")
-            );
-    }
+    { pushSTACK(stream);
+      pushSTACK(stream); funcall(L(generic_stream_controller),1);
+      pushSTACK(value1); funcall(S(generic_stream_read_char_will_hang_p),1);
+      if (!nullp(value1)) { skipSTACK(1); return ls_wait; }
+     {var object nextchar = pk_ch_generic(&STACK_0);
+      skipSTACK(1);
+      if (eq(nextchar,eof_value))
+        return ls_eof;
+        else
+        return ls_avail;
+    }}
 
   # (CLEAR-INPUT s) ==
   # (GENERIC-STREAM-CLEAR-INPUT c)
@@ -16365,20 +16367,18 @@ LISPFUN(built_in_stream_close,1,0,norest,key,1, (kw(abort)) )
                       { return ls_eof; } # kein READ-CHAR
         }   }   }
         else
-        { # Call the generic function (STREAM-READ-CHAR-STATUS stream):
-          pushSTACK(stream); funcall(S(stream_read_char_status),1);
-          if (eq(value1,S(Kinput_available))) { return ls_avail; }
-          if (eq(value1,S(Kwait))) { return ls_wait; }
-          if (eq(value1,S(Keof))) { return ls_eof; }
-          pushSTACK(value1); # Wert für Slot DATUM von TYPE-ERROR
-          pushSTACK(O(type_read_char_status)); # Wert für Slot EXPECTED-TYPE von TYPE-ERROR
-          pushSTACK(O(type_read_char_status));
-          pushSTACK(S(stream_read_char_status));
-          pushSTACK(value1);
-          fehler(type_error,
-                 GETTEXT("Return value ~ of call to ~ is not of type ~.")
-                );
-        }
+        { # Call the generic function (STREAM-READ-CHAR-WILL-HANG-P stream),
+          # then call (PEEK-CHAR NIL STREAM):
+          pushSTACK(stream);
+          pushSTACK(stream); funcall(S(stream_read_char_will_hang_p),1);
+          if (!nullp(value1)) { skipSTACK(1); return ls_wait; }
+         {var object nextchar = peek_char(&STACK_0);
+          skipSTACK(1);
+          if (eq(nextchar,eof_value))
+            return ls_eof;
+            else
+            return ls_avail;
+        }}
     }
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Stream stream.

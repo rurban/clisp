@@ -1,3 +1,11 @@
+1999-06-05  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * genstream.tst (generic-stream-controller-class): Subclass of
+          generic-stream-controller, so the predefined methods apply.
+          (generic-stream-read-char-status): Remove method.
+          (generic-stream-peek-char, generic-stream-read-char-will-hang-p):
+          New methods.
+
 1999-05-10  Sam Steingold  <sds@goems.com>
 
 	* eval20.tst: (constantp '#(110)) is T unconditionally.
