@@ -1,3 +1,7 @@
+New in 1.7:
+
+* Added support for PowerPC Linux.
+
 New in 1.6:
 
 * The avcall and callback packages are compiled as position-independent code,
