@@ -2974,7 +2974,7 @@ echo "$as_me:$LINENO: result: $cl_cv_prog_LN" >&5
 echo "${ECHO_T}$cl_cv_prog_LN" >&6
 LN="$cl_cv_prog_LN"
 
- ac_aux_dir=${srcdir}/../../autoconf
+ ac_aux_dir=${srcdir}/../../build-aux
 ac_config_guess="$SHELL $ac_aux_dir/config.guess"
 ac_config_sub="$SHELL $ac_aux_dir/config.sub"
 # Make sure we can run config.sub.
