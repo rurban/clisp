@@ -22,6 +22,9 @@
 	shows that GNU libiconv is used. Otherwise, if not glibc >= 2.2,
 	undefine HAVE_ICONV.
 	* _distmakefile: Use 'share' instead of @DATADIRNAME@.
+	* Makefile.devel (SOURCES4): Use libcharset, not libiconv.
+	(CONFIGURES): Remove libiconv/configure.
+	(libiconv/autoconf/aclocal.m4, libiconv/configure): Remove rules.
 
 2002-05-08  Sam Steingold  <sds@gnu.org>
 
