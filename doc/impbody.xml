@@ -1057,8 +1057,8 @@ performance considerations.
    <literal role="sexp">(&use-package; "EXT")</literal> is enough to
    make all the extensions available in the current package.
    This package uses packages (in addition to &cl-pac;):
-   &ldap-pac; &posix-pac; &socket-pac; &gstream-pac; &gray-pac;
-   &i18n-pac; &custom-pac;.</simpara></listitem></varlistentry>
+   &ldap-pac;, &posix-pac;, &socket-pac;, &gstream-pac;, &gray-pac;,
+   &i18n-pac;, &custom-pac;.</simpara></listitem></varlistentry>
   <varlistentry><term>&charset-pac;</term><listitem>
    <simpara>defines and &export;s some character sets, for use with
    &make-encoding; and as &extfmt; argument.
