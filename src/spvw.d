@@ -1446,6 +1446,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         define_variable(S(prin_jbstrings),unbound);     # SYS::*PRIN-JBSTRINGS*
         define_variable(S(prin_jbmodus),unbound);       # SYS::*PRIN-JBMODUS*
         define_variable(S(prin_jblpos),unbound);        # SYS::*PRIN-JBLPOS*
+        define_variable(S(pprint_first_newline),T);     # LISP:*PPRINT-FIRST-NEWLINE*
         # zu EVAL:
         define_variable(S(evalhookstern),NIL);          # *EVALHOOK* := NIL
         define_variable(S(applyhookstern),NIL);         # *APPLYHOOK* := NIL
