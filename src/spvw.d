@@ -1617,6 +1617,7 @@ local void print_banner ()
 #ifndef argc_t
   #define argc_t int  # Type of argc is mostly 'int'.
 #endif
+global const char* locale_encoding = NULL; # GNU canonical name of locale encoding
 global const char* argv_encoding_misc = NULL; # override for *misc-encoding*
 global const char* argv_encoding_file = NULL; # ... for *default-file-encoding*
 global const char* argv_encoding_pathname = NULL; # ... for *pathname-encoding*
