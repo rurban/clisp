@@ -25,10 +25,11 @@
 	extended/case-sensitive/newline/nosub/cflags &key arguments
 	(regexp-quote): accept an &optional extended argument
 	Suggested by Pascal Bourguignon <pjb@informatimago.com>
+	(*system-package-list*): push "REGEXP", i.e., REGEXP is now locked
 
 2003-03-29  Sam Steingold  <sds@gnu.org>
 
-	solidified updating back_trace callers
+	solidified updating back_trace callers [cygwin build fix]
 	* spvw.d (for_all_back_traces): new macro
 	* spvw_update.d (update_back_traces): new macro
 	* spvw_garcol.d, spvw_memfile.d: use it for all updating

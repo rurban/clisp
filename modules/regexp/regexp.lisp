@@ -10,6 +10,7 @@
            "REGEXP-COMPILE" "REGEXP-EXEC" "REGEXP-SPLIT" "WITH-LOOP-SPLIT"))
 
 (in-package "REGEXP")
+(push "REGEXP" ext:*system-package-list*)
 
 (default-foreign-language :stdc)
 
