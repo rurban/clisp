@@ -1,3 +1,16 @@
+2001-04-06  Sam Steingold  <sds@gnu.org>
+
+	Symbols in FAS files remember their home packages and do not
+	depend as much on the special treatment of the package tasks,
+	which is now optional.
+	* constsym.d (*print-symbols-long*): new variable
+	* spvw.d (init_symbol_values): define it
+	* io.d (pr_symbol): respect it
+	* compiler.lisp (*package-tasks-treat-specially*): new variable
+	(c-GLOBAL-FUNCTION-CALL, compile-toplevel-form): use it
+	(compile-toplevel-form): bind *print-symbols-long* to t
+	 when writing to *fasoutput-stream*
+
 2001-03-23  Sam Steingold  <sds@gnu.org>
 
 	Removed the obsolete `COMMON' type (not in ANSI)

@@ -3935,7 +3935,7 @@ LISPFUNN(load_eval_reader,3) # liest #,
       }
       # n ist ein Integer >=0
       if (!read_label_integer_p(n)) {
-        # n ist zu groß
+        # n ist zu gro
         pushSTACK(STACK_2); # Wert für Slot STREAM von STREAM-ERROR
         pushSTACK(STACK_(1+1)); # sub-char
         pushSTACK(STACK_(0+2)); # n
@@ -7132,7 +7132,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
 
 #                      -------- Symbole --------
 
-# UP: Gibt ein Symbol auf einen Stream aus.
+# UP: print a symbol into a stream
 # pr_symbol(&stream,sym);
 # > sym: Symbol
 # > stream: Stream
@@ -7147,7 +7147,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
         # mit Escape-Zeichen und evtl. Packagenamen:
         var bool case_sensitive = false;
         var object curr_pack = get_current_package();
-        if (accessiblep(sym,curr_pack)) {
+        if (accessiblep(sym,curr_pack) &&
+            nullp(Symbol_value(S(print_symbols_long)))) {
           # Falls Symbol accessible und nicht verdeckt,
           # keinen Packagenamen und keine Packagemarker ausgeben.
           case_sensitive = pack_casesensitivep(curr_pack);
@@ -7172,7 +7173,8 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
             pr_symbol_part(stream_,ThePackage(home)->pack_name,false); # Packagenamen ausgeben
             home = popSTACK(); # Home-Package zurück
             case_sensitive = pack_casesensitivep(home);
-            if (externalp(STACK_0,home)) # Symbol extern in seiner Home-Package?
+            if (externalp(STACK_0,home) &&
+                nullp(Symbol_value(S(print_symbols_long))))
               goto one_marker; # ja -> 1 Packagemarker
             write_ascii_char(stream_,':'); # sonst 2 Packagemarker
            one_marker:
