@@ -1,5 +1,10 @@
 1999-08-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Assume <stddef.h> exists.
+        * aclocal.m4 (CL_STDDEF_H): Remove.
+        * configure.in: Don't call CL_STDDEF_H.
+        * unixconf.h.in: Don't define HAVE_STDDEF_H.
+
         Assume waitpid() is available.
         * aclocal.m4 (CL_WAITPID): Don't test for waitpid or <sys/wait.h>.
         * unix.d: Assume waitpid exists.

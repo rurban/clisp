@@ -91,8 +91,6 @@ CL_STDC_HEADERS
                       dnl DEFS STDC_HEADERS if exist stdlib.h, stdarg.h, ...
 CL_STDLIB_H
                       dnl DEFS HAVE_STDLIB_H if exist stdlib.h
-CL_STDDEF_H
-                      dnl DEFS HAVE_STDDEF_H if exist stddef.h
 CL_OFFSETOF
                       dnl DEFS HAVE_OFFSETOF if offsetof in stddef.h
 CL_LOCALE_H
