@@ -9,10 +9,10 @@
 
 (defun machine-type () "PC/486")
 (defun machine-version () "486/33")
-(defun machine-instance () "Heimger‰t Bruno Haible")
+(defun machine-instance () (or (sys::getenv "HOSTNAME") "edit config.lsp"))
 
-(defun short-site-name () "Karlsruhe")
-(defun long-site-name () "Augartenstraﬂe 40, D-76137 Karlsruhe, Deutschland")
+(defun short-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lsp"))
+(defun long-site-name () (or (sys::getenv "ORGANIZATION") "edit config.lsp"))
 
 ;; ENGLISH: The name of the editor:
 ;; DEUTSCH: Der Name des Editors:

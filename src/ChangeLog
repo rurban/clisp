@@ -1,3 +1,13 @@
+1998-10-27  Sam Steingold  <sds@goems.com>
+
+	* configure: remind the user to edit config.lsp.
+	* cfgacorn.lsp, cfgamiga.lsp, cfgdos.lsp:
+	  (machine-instance): init from $HOSTNAME.
+	* cfgacorn.lsp, cfgamiga.lsp, cfgdos.lsp, cfgsunux.lsp, cfgunix.lsp:
+	  (short-site-name, long-site-name): init from $ORGANIZATION.
+	  In both cases, when the environment variable is undefined, return 
+	  an instruction to edit `config.lsp'.
+
 1998-09-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * time.d (SYS::DEFAULT-TIME-ZONE): Treat dates <= 1.1.1970 or
