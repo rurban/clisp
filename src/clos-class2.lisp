@@ -585,14 +585,15 @@
   ;; metaclass <= <standard-class>
   (check-metaclass-mix name direct-superclasses
                        #'standard-class-p 'STANDARD-CLASS)
-  (setf (class-precedence-list class)
-        (std-compute-cpl class
+  (let ((augmented-direct-superclasses
           (add-default-superclass direct-superclasses <standard-object>)))
-  (setf (class-all-superclasses class)
-        (std-compute-superclasses (class-precedence-list class)))
-  (dolist (super direct-superclasses)
-    (when (standard-class-p super)
-      (pushnew class (class-direct-subclasses super))))
+    (setf (class-precedence-list class)
+          (std-compute-cpl class augmented-direct-superclasses))
+    (setf (class-all-superclasses class)
+          (std-compute-superclasses (class-precedence-list class)))
+    (dolist (super augmented-direct-superclasses)
+      (when (standard-class-p super)
+        (pushnew class (class-direct-subclasses super)))))
   (setf (class-slots class) (std-compute-slots class))
   (setf (class-slot-location-table class) (make-hash-table :test #'eq))
   (setf (class-instance-size class) 1) ; slot 0 is the class_version pointer
