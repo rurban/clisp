@@ -1563,6 +1563,7 @@ LISPSYM(closclass,"CLOSCLASS",clos) # als Marker in PREDTYPE
 LISPSYM(typep,"TYPEP",lisp) # als Funktion für PREDTYPE
 LISPSYM(deftype_expander,"DEFTYPE-EXPANDER",system) # als Property in PREDTYPE
 LISPSYM(expand_deftype,"EXPAND-DEFTYPE",system) # function in PREDTYPE
+LISPSYM(deftype_depth_limit,"*DEFTYPE-DEPTH-LIMIT*",custom) # PREDTYPE variable
 LISPSYM(gc_statistics_stern,"*GC-STATISTICS*",system) # als Variable für PREDTYPE
 LISPSYM(recurse_count_gc_statistics,"*RECURSE-COUNT-GC-STATISTICS*",system) # als Variable in PREDTYPE
 LISPSYM(traced_definition,"TRACED-DEFINITION",system) # als Property in SYMBOL
