@@ -203,20 +203,11 @@
   (:method ((gf standard-generic-function) (method standard-method))
     (std-remove-method gf method)))
 
+;; MOP p. 40
+(fmakunbound 'compute-applicable-methods)
 (defgeneric compute-applicable-methods (gf args)
   (:method ((gf standard-generic-function) args)
-    (let ((reqanz (sig-req-num (std-gf-signature gf)))
-          (methods (std-gf-methods gf)))
-      (if (>= (length args) reqanz)
-        (let ((req-args (subseq args 0 reqanz)))
-          ;; 1. Select the applicable methods:
-          (setq methods
-            (remove-if-not
-              #'(lambda (method) (method-applicable-p method req-args))
-              (the list methods)))
-          ;; 2. Sort the applicable methods by precedence order:
-          (sort-applicable-methods methods req-args (std-gf-argorder gf)))
-        nil)))) ; rather no error
+    (compute-applicable-methods-<standard-generic-function> gf args)))
 
 ;; MOP p. 41
 (fmakunbound 'compute-effective-method)

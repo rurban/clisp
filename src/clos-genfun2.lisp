@@ -754,23 +754,48 @@
 ;;; for the same EQL and class restrictions as the given arguments,
 ;;; therefore compute dispatch is already taken care of.
 (defun compute-applicable-methods-effective-method (gf &rest args)
-  ;; FIXME: Unify this with compute-applicable-methods.
-  ;; 1. Select the applicable methods:
-  (let* ((signature (std-gf-signature gf))
-         (req-num (sig-req-num signature))
-         (req-args (subseq args 0 req-num))
-         (methods
-           (remove-if-not #'(lambda (method)
-                              (method-applicable-p method req-args))
-                          (the list (std-gf-methods gf)))))
+  (let ((methods
+          (funcall (cond ((or (eq gf #'compute-applicable-methods) (eq gf #'compute-effective-method))
+                          #'compute-applicable-methods-<standard-generic-function>)
+                         (t #'compute-applicable-methods))
+                   gf args)))
     (when (null methods)
       (return-from compute-applicable-methods-effective-method
         (no-method-caller 'no-applicable-method gf)))
-    ;; 2. Sort the applicable methods by precedence order:
-    (setq methods (sort-applicable-methods methods req-args (std-gf-argorder gf)))
-    ;; 3. Combine the methods to an effective method:
+    ;; Combine the methods to an effective method:
     (let ((*method-combination-arguments* args))
       (compute-effective-method-as-function gf (std-gf-method-combination gf) methods))))
+
+;; Preliminary.
+(defun compute-applicable-methods (gf args)
+  (compute-applicable-methods-<standard-generic-function> gf args))
+
+(defun compute-applicable-methods-<standard-generic-function> (gf args)
+  (let ((req-num (sig-req-num (std-gf-signature gf))))
+    (if (>= (length args) req-num)
+      ;; 0. Check the method specializers:
+      (let ((methods (std-gf-methods gf)))
+        (dolist (method methods)
+          (check-method-only-standard-specializers gf method))
+        ;; 1. Select the applicable methods:
+        (let ((req-args (subseq args 0 req-num)))
+          (setq methods
+                (remove-if-not #'(lambda (method)
+                                   (method-applicable-p method req-args))
+                               (the list methods)))
+          ;; 2. Sort the applicable methods by precedence order:
+          (sort-applicable-methods methods req-args (std-gf-argorder gf))))
+      (error (TEXT "~S: ~S has ~S required argument~:P, but only ~S argument~:P were passed to ~S: ~S")
+             'compute-applicable-methods gf req-num (length args) 'compute-applicable-methods args))))
+
+;; There's no real reason for checking the method specializers in
+;; compute-applicable-methods, rather than in compute-effective-method-as-function,
+;; but that's how the MOP specifies it.
+(defun check-method-only-standard-specializers (gf method)
+  (dolist (spec (std-method-specializers method))
+    (unless (or (class-p spec) (typep-class spec <eql-specializer>))
+      (error (TEXT "~S: Invalid method specializer ~S on ~S in ~S")
+        'compute-applicable-methods spec method gf))))
 
 (defun compute-effective-method-as-function (gf combination methods)
   ;; Apply method combination:

@@ -1,3 +1,15 @@
+2004-06-19  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp: Export compute-applicable-methods.
+	* clos-package.lisp: Likewise.
+	* clos-genfun2.lisp (compute-applicable-methods,
+	compute-applicable-methods-<standard-generic-function>,
+	check-method-only-standard-specializers): New functions.
+	(compute-applicable-methods-effective-method): Use
+	compute-applicable-methods.
+	* clos-genfun5.lisp (compute-applicable-methods@standard-generic-function):
+	Use compute-applicable-methods-<standard-generic-function>.
+
 2004-08-18  Bruno Haible  <bruno@clisp.org>
 
 	Make it work with automake-1.9.
