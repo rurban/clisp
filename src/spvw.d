@@ -1249,6 +1249,9 @@
         define_variable(S(print_symbols_long),NIL);     # CUSTOM:*PRINT-SYMBOLS-LONG*
         define_variable(S(print_pathnames_ansi),NIL);   # CUSTOM:*PRINT-PATHNAMES-ANSI*
         define_variable(S(parse_namestring_ansi),NIL);  # CUSTOM:*PARSE-NAMESTRING-ANSI*
+        #ifdef WIN32_NATIVE
+        define_variable(S(device_prefix),NIL); # CUSTOM:*DEVICE-PREFIX*
+        #endif
         # zu EVAL:
         define_variable(S(evalhookstern),NIL);          # *EVALHOOK* := NIL
         define_variable(S(applyhookstern),NIL);         # *APPLYHOOK* := NIL

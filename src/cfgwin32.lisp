@@ -79,6 +79,9 @@
 ;; FRANCAIS: Pour que les sorties sur l'écran soient plus lisibles:
 (setq *print-pretty* t)
 
+;; understand CYGWIN pathnames
+(setq *device-prefix* "cygdrive")
+
 ;; ENGLISH: Common Lisp HyperSpec access
 (defvar *clhs-root-default*)
 (defun clhs-root ()
