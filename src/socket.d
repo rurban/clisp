@@ -621,5 +621,67 @@ global host_data * socket_getlocalname(socket_handle, hd)
 
 #endif # SOCKET_STREAMS
 
+#ifdef EXPORT_SYSCALLS
+
+#define H_ERRMSG \
+	(h_errno == HOST_NOT_FOUND ? "host not found" : \
+	 (h_errno == TRY_AGAIN ? "try again later" : \
+	  (h_errno == NO_RECOVERY ? "a non-recoverable error occurred" : \
+	   (h_errno == NO_DATA ? "valid name, but no data for this host" : \
+	    ((h_errno == NO_ADDRESS) || (h_errno == NO_DATA) ? \
+	     "no IP address for this host" : "unknown error")))))
+
+# Lisp interface to gethostbyname(3) and gethostbyaddr(3)
+LISPFUNN(resolve_host_ipaddr,1)
+# (LISP:RESOLVE-HOST-IPADDR host)
+{
+  var object arg = popSTACK();
+  struct hostent *he;
+
+  if (symbolp(arg)) arg = Symbol_name(arg);
+
+  if (stringp(arg)) {
+    begin_system_call();
+    he = gethostbyname(TheAsciz(string_to_asciz(arg,O(misc_encoding))));
+    end_system_call();
+  } else if (uint32_p(arg)) {
+    uintL ip = htonl(I_to_UL(arg));
+    begin_system_call();
+    he = gethostbyaddr((char*)(&ip),sizeof(uintL),AF_INET);
+    end_system_call();
+  } else {
+    pushSTACK(arg);
+    pushSTACK(S(resolve_host_ipaddr));
+    fehler(type_error,
+           DEUTSCH ? "~: ~" :
+           ENGLISH ? "~: host should be a string, a symbol, or an integer, not ~" :
+           FRANCAIS ? "~: ~" :
+           "");
+  }
+
+  if (NULL == he) {
+    pushSTACK(arg);
+    pushSTACK(ascii_to_string(H_ERRMSG));
+    fehler(file_error,
+           DEUTSCH ? "~: ~" :
+           ENGLISH ? "~: ~" :
+           FRANCAIS ? "~: ~" :
+           "");
+  }
+
+#define ARR_TO_LIST(val,test,expr)                      \
+  { int ii; for (ii = 0; test; ii ++) pushSTACK(expr); val = listof(ii); }
+
+  value1 = ascii_to_string(he->h_name);
+  ARR_TO_LIST(value2,(NULL != he->h_aliases[ii]),
+              asciz_to_string(he->h_aliases[ii],O(misc_encoding)));
+  ARR_TO_LIST(value3,(ii < he->h_length/sizeof(uint32)),
+              UL_to_I(ntohl(*(uint32*)(he->h_addr_list[ii]))));
+  value4 = fixnum(he->h_addrtype);
+  mv_count = 4;
+}
+
+#endif # EXPORT_SYSCALLS
+
 #endif # HAVE_GETHOSTBYNAME
 
