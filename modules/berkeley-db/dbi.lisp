@@ -69,7 +69,8 @@
                                         (byte-swapped magic version num-keys
                                          num-data page-size
                                          min-key re-len re-pad levels
-                                         internal-pages leaf-pages dup over
+                                         internal-pages leaf-pages dup-pages
+                                         overflow-pager
                                          free int-pgfree leaf-pgfree dup-pgfree
                                          over-pgfree)))
   (min-key nil :read-only t)
@@ -78,8 +79,8 @@
   (levels nil :read-only t)
   (internal-pages nil :read-only t)
   (leaf-pages nil :read-only t)
-  (dup nil :read-only t)
-  (over nil :read-only t)
+  (dup-pages nil :read-only t)
+  (overflow-pager nil :read-only t)
   (free nil :read-only t)
   (int-pgfree nil :read-only t)
   (leaf-pgfree nil :read-only t)
@@ -174,37 +175,6 @@
 
 (define-condition bdb-error (simple-error)
   (($errno :initarg :errno :reader bdb-error-number)))
-
-#+(or)
-(progn ;; sample
- (bdb:db-version)
- (setq dbe (bdb:env-create))
- (bdb:env-set-options dbe :errfile "bdb-errors" :verbose t
-                      :data_dir "d:/sds/work/eeld/Test BDBs/35_teth_db/")
- (bdb:env-get-options dbe)
- (bdb:env-open dbe :home "berkeley-db/" :create t :init_mpool t)
-
- (setq db (bdb:db-create dbe))
- (bdb:db-open db "admin.db" :rdonly t)
- (bdb:db-open db "d:/sds/work/eeld/Test BDBs/35_teth_db/admin.db" :rdonly t)
- (bdb:db-open db "d:/sds/work/eeld/Test BDBs/35_teth_db/index.db" :rdonly t)
- (bdb:db-get-options db)
- (bdb:db-stat db)
- (bdb:db-fd db)
-
- (setq cu (bdb:make-cursor db))
- (loop (multiple-value-bind (key val)
-           (bdb:cursor-get cu nil nil :DB_NEXT :error nil)
-         (when (eq key :notfound) (return))
-         (format t "=> ~S~%-> ~S~%" key
-                 (ext:convert-string-from-bytes val charset:utf-8))))
- (bdb:db-get db (ext:convert-string-to-bytes "foo" *misc-encoding*) :error nil)
-
- (bdb:env-set-options dbe :errfile nil)
- (bdb:env-close dbe)
- (bdb:db-close db)
- (bdb:cursor-close cu)
-)
 
 ;;; restore locks
 (push "BDB" *system-package-list*)
