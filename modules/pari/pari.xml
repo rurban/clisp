@@ -2,12 +2,14 @@
 
 <section id="pari"><title>Computer Algebra System PARI.</title>
 
-<para>This is an interface to
- <ulink url="http://pari.math.u-bordeaux.fr/">PARI</ulink>.</para>
+<para>This package offers an &ffi-pac;-based interface to &pari-link;.</para>
+<para>The package <quote role="package">PARI</quote>
+ is <link linkend="package-case">case-sensitive</link>.</para>
+
 <simpara>When this module is present, &features-var; contains the
  symbol <constant>:PARI</constant>.</simpara>
 
 <para>PARI objects are printed and read using a
- special <literal>#Z""</literal> syntax.</para>
+ special <literal role="data">#Z""</literal> syntax.</para>
 
 </section>
