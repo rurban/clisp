@@ -47,11 +47,13 @@ local object N_exp_N (object x, bool start_p, gcv_object_t* end_p)
     /* b != Fixnum_0 ==> sin(b) ~= Fixnum_0. */
     STACK_2 = R_exp_R(STACK_4,false,NULL); /* (exp a) */
     /* stack layout: a, exp(a), cos(b), sin(b). */
-    STACK_0 = R_R_mal_R(STACK_2,STACK_0); /* (* (exp a) (sin b)) != Fixnum_0 */
-    STACK_1 = R_R_mal_R(STACK_2,STACK_1); /* (* (exp a) (cos b)) */
-    x = R_R_complex_C(F_R_float_F(STACK_1,*end_p),
-                      F_R_float_F(STACK_0,*end_p)); /* (complex ... ...) */
-    skipSTACK(5); return x;
+    var object temp;
+    temp = R_R_mal_R(STACK_2,STACK_0); /* (* (exp a) (sin b)) != Fixnum_0 */
+    STACK_0 = F_R_float_F(temp,*end_p);
+    temp = R_R_mal_R(STACK_2,STACK_1); /* (* (exp a) (cos b)) */
+    temp = F_R_float_F(temp,*end_p);
+    temp = R_R_complex_C(temp,STACK_0); /* (complex ... ...) */
+    skipSTACK(5); return temp;
   }
 }
 
@@ -74,12 +76,14 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
               floatp(TheComplex(STACK_1)->c_imag))) {
       STACK_1 = R_R_complex_C(TheComplex(STACK_1)->c_real,
                               TheComplex(STACK_1)->c_imag);
-      if (floatp(TheComplex(STACK_1)->c_real))
-        TheComplex(STACK_1)->c_real =
-          F_extend2_F(TheComplex(STACK_1)->c_real);
-      if (floatp(TheComplex(STACK_1)->c_imag))
-        TheComplex(STACK_1)->c_imag =
-          F_extend2_F(TheComplex(STACK_1)->c_imag);
+      if (floatp(TheComplex(STACK_1)->c_real)) {
+        var object longer_realpart = F_extend2_F(TheComplex(STACK_1)->c_real);
+        TheComplex(STACK_1)->c_real = longer_realpart;
+      }
+      if (floatp(TheComplex(STACK_1)->c_imag)) {
+        var object longer_imagpart = F_extend2_F(TheComplex(STACK_1)->c_imag);
+        TheComplex(STACK_1)->c_imag = longer_imagpart;
+      }
     }
   }
   STACK_1 = N_phase_R(STACK_1); /* (phase x) */
