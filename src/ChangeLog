@@ -1,5 +1,16 @@
 2004-05-09  Bruno Haible  <bruno@clisp.org>
 
+	* lispbibl.d (Hashtable): New field ht_lookupfn.
+	(hashtable_length): Increment.
+	* hashtabl.d (lookup_Pseudofun): New type.
+	(lookupfn): New macro.
+	(hash_lookup_builtin, hash_lookup_user): New functions.
+	(hash_lookup): Turn into a macro.
+	(MAKE-HASH-TABLE): Initialize ht_lookupfn.
+	* pseudofun.d: Add hash_lookup_builtin, hash_lookup_user.
+
+2004-05-09  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (Hashtable): Add fields ht_hashcodefn, ht_testfn.
 	(hashtable_length): Increment by 2.
 	* hashtabl.d (hashcode2, hashcode3, hashcode4): Make global.
