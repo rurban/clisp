@@ -241,7 +241,20 @@ LISPFUNN(machine_version,0)
 
 #endif # MACHINE_KNOWN
 
-#ifdef HAVE_ENVIRONMENT
+#if defined(HAVE_ENVIRONMENT)
+
+/* push the (VAR . VALUE) on the STACK
+ can trigger GC */
+local inline char* push_envar (char *env) {
+  char *ep = env;
+  while ((*ep != 0) && (*ep != '=')) ep++;
+  pushSTACK(allocate_cons());
+  Car(STACK_0) = n_char_to_string(env,ep-env,O(misc_encoding));
+  if (*ep == '=')
+    Cdr(STACK_0) = asciz_to_string(ep+1,O(misc_encoding));
+  while (*ep != 0) ep++;
+  return ep;
+}
 
 # (EXT:GETENV string) return the string associated with the given string
 # in the OS Environment or NIL if no value
@@ -249,18 +262,19 @@ LISPFUNN(machine_version,0)
 LISPFUN(get_env,seclass_default,0,1,norest,nokey,0,NIL) {
   var object arg = popSTACK();
   if (missingp(arg)) { /* return all the environment at once */
+    var uintL count = 0;
+   #if defined(WIN32_NATIVE)
+    var char* eblock = GetEnvironmentStrings();
+    for (; *eblock; eblock++, count++) eblock = push_envar(eblock);
+   #else
     extern char** environ;
     var char** epp;
-    var char* ep;
-    var uintL count = 0;
-    for (epp = environ; (ep = *epp) != NULL; epp++, count++) {
-      while ((*ep != 0) && (*ep != '=')) ep++;
-      pushSTACK(allocate_cons());
-      Car(STACK_0) = n_char_to_string(*epp,ep-*epp,O(misc_encoding));
-      if (*ep == '=')
-        Cdr(STACK_0) = asciz_to_string(ep+1,O(misc_encoding));
-    }
+    for (epp = environ; *epp; epp++, count++) push_envar(*epp);
+   #endif
     VALUES1(listof(count));
+   #if defined(WIN32_NATIVE)
+    FreeEnvironmentStrings(eblock);
+   #endif
     return;
   }
   arg = check_string(arg);
@@ -305,6 +319,8 @@ global int clisp_setenv (const char * name, const char * value) {
   return putenv(cat_env_var(buffer,name,namelen,value,valuelen));
 #elif defined(HAVE_SETENV)
   return setenv(name,value,1);
+#elif defined(WIN32_NATIVE)
+  return SetEnvironmentVariable(name,value);
 #else
   # Uh oh, neither putenv() nor setenv(), have to frob the environment
   # ourselves. Routine taken from glibc and fixed in several aspects.
