@@ -4045,6 +4045,18 @@ fi
 AC_SUBST(LIBDL)
 ])dnl
 dnl
+AC_DEFUN(CL_ICONV,
+[AC_CACHE_CHECK(for iconv, cl_cv_func_iconv, [
+AC_TRY_LINK([#include <stdlib.h>
+#include <iconv.h>],
+[iconv_t cd = iconv_open("",""); iconv(cd,NULL,NULL,NULL,NULL); iconv_close(cd);],
+cl_cv_func_iconv=yes, cl_cv_func_iconv=no)
+])
+if test $cl_cv_func_iconv = yes; then
+  AC_DEFINE(HAVE_ICONV)
+fi
+])dnl
+dnl
 AC_DEFUN(CL_TERMCAP,
 [dnl Some systems have tgetent(), tgetnum(), tgetstr(), tgetflag(), tputs(),
 dnl tgoto() in libc, some have it in libtermcap, some have it in libncurses.
