@@ -1,3 +1,8 @@
+2002-04-10  Sam Steingold  <sds@gnu.org>
+
+	* configure: handle --with-no-dynamic-modules
+	* makemake.in: uniform handling of --with* arguments
+
 2002-04-05  Joerg-Cyril Hoehle  <Joerg-Cyril.Hoehle@t-systems.com>
 
 	* modules.d (MODULE): silence the compiler warning about
