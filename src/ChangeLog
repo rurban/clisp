@@ -1,5 +1,15 @@
 1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (strmtype_*): Change the order of stream types.
+        * io.d (pr_stream): Likewise.
+        * stream.d: Move the OS dependent stream stuff after the portable
+          stuff.
+          (STREAM-ELEMENT-TYPE): Change the order of stream types.
+          (interactive_stream_p, stream_close, stream_listen, clear_input,
+           finish_output, force_output, clear_output): Likewise.
+
+1999-01-23  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Change the string element type from `uintB' to `chart' (an abstract
         equivalent of `cint').
         * lispbibl.d (OBJECT_STRUCT): Define macro.

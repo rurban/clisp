@@ -843,10 +843,6 @@
     #ifdef HANDLES
     LISPOBJ_S(printstring_strmtype_handle,"FILE-HANDLE")
     #endif
-    #ifdef KEYBOARD
-    LISPOBJ_S(printstring_strmtype_keyboard,"KEYBOARD")
-    #endif
-    LISPOBJ_S(printstring_strmtype_terminal,"TERMINAL")
     LISPOBJ_S(printstring_strmtype_synonym,"SYNONYM")
     LISPOBJ_S(printstring_strmtype_broad,"BROADCAST")
     LISPOBJ_S(printstring_strmtype_concat,"CONCATENATED")
@@ -858,6 +854,13 @@
     LISPOBJ_S(printstring_strmtype_pphelp,"PRETTY-PRINTER-HELP")
     LISPOBJ_S(printstring_strmtype_buff_in,"BUFFERED-INPUT")
     LISPOBJ_S(printstring_strmtype_buff_out,"BUFFERED-OUTPUT")
+    #ifdef GENERIC_STREAMS
+    LISPOBJ_S(printstring_strmtype_generic,"GENERIC")
+    #endif
+    #ifdef KEYBOARD
+    LISPOBJ_S(printstring_strmtype_keyboard,"KEYBOARD")
+    #endif
+    LISPOBJ_S(printstring_strmtype_terminal,"TERMINAL")
     #ifdef SCREEN
     LISPOBJ_S(printstring_strmtype_window,"WINDOW")
     #endif
@@ -873,9 +876,6 @@
     #endif
     #ifdef SOCKET_STREAMS
     LISPOBJ_S(printstring_strmtype_socket,"SOCKET")
-    #endif
-    #ifdef GENERIC_STREAMS
-    LISPOBJ_S(printstring_strmtype_generic,"GENERIC")
     #endif
   LISPOBJ_S(printstring_stream,"-STREAM")
 # zu LISPARIT.D:

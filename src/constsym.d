@@ -712,26 +712,6 @@ LISPSYM(read_byte_sequence,"READ-BYTE-SEQUENCE",lisp)
 LISPSYM(write_byte_sequence,"WRITE-BYTE-SEQUENCE",lisp)
 # ---------- STREAM ----------
 LISPSYM(symbol_stream,"SYMBOL-STREAM",system)
-#ifdef KEYBOARD
-LISPSYM(make_keyboard_stream,"MAKE-KEYBOARD-STREAM",system)
-#endif
-LISPSYM(terminal_raw,"TERMINAL-RAW",system)
-#ifdef SCREEN
-LISPSYM(make_window,"MAKE-WINDOW",screen)
-LISPSYM(window_size,"WINDOW-SIZE",screen)
-LISPSYM(window_cursor_position,"WINDOW-CURSOR-POSITION",screen)
-LISPSYM(set_window_cursor_position,"SET-WINDOW-CURSOR-POSITION",screen)
-LISPSYM(clear_window,"CLEAR-WINDOW",screen)
-LISPSYM(clear_window_to_eot,"CLEAR-WINDOW-TO-EOT",screen)
-LISPSYM(clear_window_to_eol,"CLEAR-WINDOW-TO-EOL",screen)
-LISPSYM(delete_window_line,"DELETE-WINDOW-LINE",screen)
-LISPSYM(insert_window_line,"INSERT-WINDOW-LINE",screen)
-LISPSYM(highlight_on,"HIGHLIGHT-ON",screen)
-LISPSYM(highlight_off,"HIGHLIGHT-OFF",screen)
-LISPSYM(window_cursor_on,"WINDOW-CURSOR-ON",screen)
-LISPSYM(window_cursor_off,"WINDOW-CURSOR-OFF",screen)
-#endif
-LISPSYM(file_stream_p,"FILE-STREAM-P",system)
 LISPSYM(make_synonym_stream,"MAKE-SYNONYM-STREAM",lisp)
 LISPSYM(synonym_stream_p,"SYNONYM-STREAM-P",system)
 LISPSYM(synonym_stream_symbol,"SYNONYM-STREAM-SYMBOL",lisp)
@@ -758,6 +738,31 @@ LISPSYM(string_stream_p,"STRING-STREAM-P",system)
 LISPSYM(make_buffered_input_stream,"MAKE-BUFFERED-INPUT-STREAM",lisp)
 LISPSYM(buffered_input_stream_index,"BUFFERED-INPUT-STREAM-INDEX",system)
 LISPSYM(make_buffered_output_stream,"MAKE-BUFFERED-OUTPUT-STREAM",lisp)
+#ifdef GENERIC_STREAMS
+LISPSYM(generic_stream_controller,"GENERIC-STREAM-CONTROLLER",lisp)
+LISPSYM(make_generic_stream,"MAKE-GENERIC-STREAM",lisp)
+LISPSYM(generic_stream_p,"GENERIC-STREAM-P",lisp)
+#endif
+#ifdef KEYBOARD
+LISPSYM(make_keyboard_stream,"MAKE-KEYBOARD-STREAM",system)
+#endif
+LISPSYM(terminal_raw,"TERMINAL-RAW",system)
+#ifdef SCREEN
+LISPSYM(make_window,"MAKE-WINDOW",screen)
+LISPSYM(window_size,"WINDOW-SIZE",screen)
+LISPSYM(window_cursor_position,"WINDOW-CURSOR-POSITION",screen)
+LISPSYM(set_window_cursor_position,"SET-WINDOW-CURSOR-POSITION",screen)
+LISPSYM(clear_window,"CLEAR-WINDOW",screen)
+LISPSYM(clear_window_to_eot,"CLEAR-WINDOW-TO-EOT",screen)
+LISPSYM(clear_window_to_eol,"CLEAR-WINDOW-TO-EOL",screen)
+LISPSYM(delete_window_line,"DELETE-WINDOW-LINE",screen)
+LISPSYM(insert_window_line,"INSERT-WINDOW-LINE",screen)
+LISPSYM(highlight_on,"HIGHLIGHT-ON",screen)
+LISPSYM(highlight_off,"HIGHLIGHT-OFF",screen)
+LISPSYM(window_cursor_on,"WINDOW-CURSOR-ON",screen)
+LISPSYM(window_cursor_off,"WINDOW-CURSOR-OFF",screen)
+#endif
+LISPSYM(file_stream_p,"FILE-STREAM-P",system)
 #ifdef PRINTER_AMIGAOS
 LISPSYM(make_printer_stream,"MAKE-PRINTER-STREAM",system)
 #endif
@@ -789,11 +794,6 @@ LISPSYM(socket_stream_local,"SOCKET-STREAM-LOCAL",lisp)
 #ifndef WIN32_NATIVE
 LISPSYM(socket_stream_handle,"SOCKET-STREAM-HANDLE",lisp)
 #endif
-#endif
-#ifdef GENERIC_STREAMS
-LISPSYM(generic_stream_controller,"GENERIC-STREAM-CONTROLLER",lisp)
-LISPSYM(make_generic_stream,"MAKE-GENERIC-STREAM",lisp)
-LISPSYM(generic_stream_p,"GENERIC-STREAM-P",lisp)
 #endif
 LISPSYM(open_stream_p,"OPEN-STREAM-P",lisp)
 LISPSYM(input_stream_p,"INPUT-STREAM-P",lisp)
@@ -1125,22 +1125,6 @@ LISPSYM(coerce_to_condition,"COERCE-TO-CONDITION",system) # als Funktion für ERR
 LISPSYM(cerror,"CERROR",lisp) # als Funktion für ERROR
 LISPSYM(break_on_signals,"*BREAK-ON-SIGNALS*",lisp) # als Variable für ERROR
 LISPSYM(safe_typep,"SAFE-TYPEP",system) # als Funktion für ERROR
-LISPSYM(completion,"COMPLETION",system) # als Funktion in STREAM, für den Fall, dass GNU_READLINE benutzt wird
-#ifdef KEYBOARD
-LISPSYM(Kchar,"CHAR",keyword) # als make-input-character-Argument für STREAM
-LISPSYM(Kbits,"BITS",keyword) # als make-input-character-Argument für STREAM
-LISPSYM(make_input_character,"MAKE-INPUT-CHARACTER",system) # als Funktion für STREAM
-LISPSYM(make_char,"MAKE-CHAR",lisp) # als Funktion für STREAM
-LISPSYM(keyboard_input,"*KEYBOARD-INPUT*",lisp) # als Variable in STREAM
-#endif
-LISPSYM(terminal_io,"*TERMINAL-IO*",lisp) # als Variable in STREAM
-LISPSYM(key_bindings,"*KEY-BINDINGS*",system) # als Variable in STREAM
-LISPSYM(query_io,"*QUERY-IO*",lisp) # als Variable in STREAM
-LISPSYM(debug_io,"*DEBUG-IO*",lisp) # als Variable in STREAM
-LISPSYM(standard_input,"*STANDARD-INPUT*",lisp) # als Variable in STREAM
-LISPSYM(standard_output,"*STANDARD-OUTPUT*",lisp) # als Variable in STREAM
-LISPSYM(error_output,"*ERROR-OUTPUT*",lisp) # als Variable in STREAM
-LISPSYM(trace_output,"*TRACE-OUTPUT*",lisp) # als Variable in STREAM
 #ifdef GENERIC_STREAMS
 LISPSYM(generic_stream_rdch,"GENERIC-STREAM-READ-CHAR",lisp) # als Funktion für STREAM
 LISPSYM(generic_stream_pkch,"GENERIC-STREAM-PEEK-CHAR",lisp) # als Funktion für STREAM
@@ -1155,6 +1139,22 @@ LISPSYM(generic_stream_rdby,"GENERIC-STREAM-READ-BYTE",lisp) # als Funktion für 
 LISPSYM(generic_stream_wrby,"GENERIC-STREAM-WRITE-BYTE",lisp) # als Funktion für STREAM
 LISPSYM(generic_stream_close,"GENERIC-STREAM-CLOSE",lisp) # als Funktion für STREAM
 #endif
+#ifdef KEYBOARD
+LISPSYM(Kchar,"CHAR",keyword) # als make-input-character-Argument für STREAM
+LISPSYM(Kbits,"BITS",keyword) # als make-input-character-Argument für STREAM
+LISPSYM(make_input_character,"MAKE-INPUT-CHARACTER",system) # als Funktion für STREAM
+LISPSYM(make_char,"MAKE-CHAR",lisp) # als Funktion für STREAM
+LISPSYM(keyboard_input,"*KEYBOARD-INPUT*",lisp) # als Variable in STREAM
+#endif
+LISPSYM(completion,"COMPLETION",system) # als Funktion in STREAM, für den Fall, dass GNU_READLINE benutzt wird
+LISPSYM(terminal_io,"*TERMINAL-IO*",lisp) # als Variable in STREAM
+LISPSYM(key_bindings,"*KEY-BINDINGS*",system) # als Variable in STREAM
+LISPSYM(query_io,"*QUERY-IO*",lisp) # als Variable in STREAM
+LISPSYM(debug_io,"*DEBUG-IO*",lisp) # als Variable in STREAM
+LISPSYM(standard_input,"*STANDARD-INPUT*",lisp) # als Variable in STREAM
+LISPSYM(standard_output,"*STANDARD-OUTPUT*",lisp) # als Variable in STREAM
+LISPSYM(error_output,"*ERROR-OUTPUT*",lisp) # als Variable in STREAM
+LISPSYM(trace_output,"*TRACE-OUTPUT*",lisp) # als Variable in STREAM
 LISPSYM(default_pathname_defaults,"*DEFAULT-PATHNAME-DEFAULTS*",lisp) # als Variable in PATHNAME
 #ifdef LOGICAL_PATHNAMES
 LISPSYM(logpathname_translations,"*LOGICAL-PATHNAME-TRANSLATIONS*",system) # als Variable in PATHNAME

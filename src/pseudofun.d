@@ -15,6 +15,22 @@
 
 PSEUDOFUN(rd_by_dummy) PSEUDOFUN(wr_by_dummy) PSEUDOFUN(rd_ch_dummy) PSEUDOFUN(pk_ch_dummy) PSEUDOFUN(wr_ch_dummy)
 PSEUDOFUN(wr_ss_dummy) PSEUDOFUN(wr_ss_dummy_nogc)
+
+PSEUDOFUN(rd_by_synonym) PSEUDOFUN(wr_by_synonym) PSEUDOFUN(rd_ch_synonym) PSEUDOFUN(pk_ch_synonym) PSEUDOFUN(wr_ch_synonym) PSEUDOFUN(wr_ss_synonym)
+PSEUDOFUN(wr_by_broad) PSEUDOFUN(wr_ch_broad) PSEUDOFUN(wr_ss_broad)
+PSEUDOFUN(rd_by_concat) PSEUDOFUN(rd_ch_concat) PSEUDOFUN(pk_ch_concat)
+PSEUDOFUN(rd_by_twoway) PSEUDOFUN(wr_by_twoway) PSEUDOFUN(rd_ch_twoway) PSEUDOFUN(pk_ch_twoway) PSEUDOFUN(wr_ch_twoway) PSEUDOFUN(wr_ss_twoway)
+PSEUDOFUN(rd_by_echo) PSEUDOFUN(rd_ch_echo)
+PSEUDOFUN(rd_ch_str_in)
+PSEUDOFUN(wr_ch_str_out) PSEUDOFUN(wr_ss_str_out)
+PSEUDOFUN(wr_ch_str_push)
+PSEUDOFUN(wr_ch_pphelp) PSEUDOFUN(wr_ss_pphelp)
+PSEUDOFUN(rd_ch_buff_in)
+PSEUDOFUN(wr_ch_buff_out)
+#ifdef GENERIC_STREAMS
+PSEUDOFUN(rd_ch_generic) PSEUDOFUN(pk_ch_generic) PSEUDOFUN(wr_ch_generic) PSEUDOFUN(wr_ss_generic) PSEUDOFUN(rd_by_generic) PSEUDOFUN(wr_by_generic)
+#endif
+
 #ifdef HANDLES
 PSEUDOFUN(rd_ch_handle) PSEUDOFUN(wr_ch_handle_x) PSEUDOFUN(wr_ss_handle_x) PSEUDOFUN(rd_by_handle) PSEUDOFUN(wr_by_handle)
 #endif
@@ -43,17 +59,6 @@ PSEUDOFUN(rd_by_ibu_file) PSEUDOFUN(wr_by_ibu_file)
 PSEUDOFUN(rd_by_ibs_file) PSEUDOFUN(wr_by_ibs_file)
 PSEUDOFUN(rd_by_icu_file) PSEUDOFUN(wr_by_icu_file)
 PSEUDOFUN(rd_by_ics_file) PSEUDOFUN(wr_by_ics_file)
-PSEUDOFUN(rd_by_synonym) PSEUDOFUN(wr_by_synonym) PSEUDOFUN(rd_ch_synonym) PSEUDOFUN(pk_ch_synonym) PSEUDOFUN(wr_ch_synonym) PSEUDOFUN(wr_ss_synonym)
-PSEUDOFUN(wr_by_broad) PSEUDOFUN(wr_ch_broad) PSEUDOFUN(wr_ss_broad)
-PSEUDOFUN(rd_by_concat) PSEUDOFUN(rd_ch_concat) PSEUDOFUN(pk_ch_concat)
-PSEUDOFUN(rd_by_twoway) PSEUDOFUN(wr_by_twoway) PSEUDOFUN(rd_ch_twoway) PSEUDOFUN(pk_ch_twoway) PSEUDOFUN(wr_ch_twoway) PSEUDOFUN(wr_ss_twoway)
-PSEUDOFUN(rd_by_echo) PSEUDOFUN(rd_ch_echo)
-PSEUDOFUN(rd_ch_str_in)
-PSEUDOFUN(wr_ch_str_out) PSEUDOFUN(wr_ss_str_out)
-PSEUDOFUN(wr_ch_str_push)
-PSEUDOFUN(wr_ch_pphelp) PSEUDOFUN(wr_ss_pphelp)
-PSEUDOFUN(rd_ch_buff_in)
-PSEUDOFUN(wr_ch_buff_out)
 #ifdef PRINTER
 PSEUDOFUN(wr_ch_printer)
 #endif
@@ -66,8 +71,5 @@ PSEUDOFUN(rd_ch_x11socket) PSEUDOFUN(wr_ch_x11socket) PSEUDOFUN(wr_ss_x11socket)
 #endif
 #ifdef SOCKET_STREAMS
 PSEUDOFUN(rd_ch_socket) PSEUDOFUN(wr_ch_socket) PSEUDOFUN(wr_ss_socket) PSEUDOFUN(rd_by_socket) PSEUDOFUN(wr_by_socket)
-#endif
-#ifdef GENERIC_STREAMS
-PSEUDOFUN(rd_ch_generic) PSEUDOFUN(pk_ch_generic) PSEUDOFUN(wr_ch_generic) PSEUDOFUN(wr_ss_generic) PSEUDOFUN(rd_by_generic) PSEUDOFUN(wr_by_generic)
 #endif
 
