@@ -1,5 +1,11 @@
 2001-04-09  Sam Steingold  <sds@gnu.org>
 
+	* type.lisp (upgraded-complex-part-type): ANSI CL compliance -
+	trivial function, always returns T
+	* init.lisp (upgraded-complex-part-type): exported
+
+2001-04-09  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp (sys::*home-package*): set to NIL at the end
 
 2001-04-06  Sam Steingold  <sds@gnu.org>
