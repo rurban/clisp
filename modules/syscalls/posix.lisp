@@ -132,7 +132,7 @@
 ;;; ============================================================
 #+unix (progn
 (export
- '(rlimit rlimit-cur rlimit-max limits
+ '(rlimit rlimit-cur rlimit-max
    usage usage-user-time usage-system-time usage-max-rss
    usage-shared-memory usage-data-memory usage-stack-memory
    usage-minor-page-faults usage-major-page-faults usage-num-swaps
@@ -144,6 +144,8 @@
   "see getrlimit(2) for details"
   (cur nil :type (or null (unsigned-byte 32)) :read-only t)
   (max nil :type (or null (unsigned-byte 32)) :read-only t))
+
+(defsetf rlimit (what) (cur max) `(set-rlimit ,what ,cur ,max))
 
 (defstruct (usage (:constructor
                    make-usage (user-time system-time max-rss
