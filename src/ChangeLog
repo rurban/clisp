@@ -1,5 +1,10 @@
 2004-06-24  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/bdb.c (BDB:DB-GET, BDB:CURSOR-GET):
+	separate options and actions
+
+2004-06-24  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (physical_namestring): new function, for modules
 	* genclisph.d (physical_namestring): export it
 	* modules/berkeley-db/bdb.c, modules/syscalls/calls.c: use it

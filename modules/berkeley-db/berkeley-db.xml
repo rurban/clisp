@@ -154,12 +154,17 @@
  <listitem><simpara>Return a file descriptor from a database (&DB_fd;).
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DB-GET db key &key-amp;
-   CONSUME CONSUME_WAIT DIRTY_READ RMW TRANSACTION
-   (ERROR &t;))</literal></term>
- <listitem><simpara>Get items from a database (&DB_get;).
+   ACTION AUTO_COMMIT DIRTY_READ MULTIPLE RMW TRANSACTION (ERROR &t;))
+ </literal></term>
+ <listitem><para>Get items from a database (&DB_get;).
    If &error-k; is &nil; and the record is not found, no &err-sig;,
    instead <constant>:NOTFOUND</constant> is returned.
-</simpara></listitem></varlistentry>
+   <constant>:ACTION</constant> should be one of
+   <simplelist><member><constant>:DB_CONSUME</constant></member>
+    <member><constant>:DB_CONSUME_WAIT</constant></member>
+    <member><constant>:DB_GET_BOTH</constant></member>
+    <member><constant>:DB_SET_RECNO</constant></member></simplelist>.
+</para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:DB-PUT db key val
    &key-amp; APPEND NODUPDATA NOOVERWRITE AUTO_COMMIT
    TRANSACTION)</literal></term>
@@ -181,7 +186,7 @@
    TRANSACTION AUTO_COMMIT)</literal></term>
  <listitem><simpara>Empty a database (&DB_truncate;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:DB-UPGRADE, db file
+<varlistentry><term><literal role="sexp">(BDB:DB-UPGRADE db file
    &key-amp; DUPSORT)</literal></term>
  <listitem><simpara>Upgrade a database (&DB_upgrade;).
 </simpara></listitem></varlistentry>
@@ -299,12 +304,28 @@
    cursor &key-amp; POSITION)</literal></term>
  <listitem><simpara>Duplicate a cursor (&DBC_dup;).
 </simpara></listitem></varlistentry>
-<varlistentry><term><literal role="sexp">(BDB:CURSOR-GET
-   cursor key data flag &key-amp; (ERROR &t;))</literal></term>
- <listitem><simpara>Retrieve by cursor (&DBC_get;).
+<varlistentry><term><literal role="sexp">(BDB:CURSOR-GET cursor key data
+   action &key-amp; DIRTY_READ MULTIPLE (ERROR &t;))</literal></term>
+ <listitem><para>Retrieve by cursor (&DBC_get;).
    If &error-k; is &nil; and the record is not found, no &err-sig;,
    instead <constant>:NOTFOUND</constant> is returned.
-</simpara></listitem></varlistentry>
+   <replaceable>action</replaceable> should be one of
+   <simplelist><member><constant>:DB_CURRENT</constant></member>
+    <member><constant>:DB_FIRST</constant></member>
+    <member><constant>:DB_GET_BOTH</constant></member>
+    <member><constant>:DB_GET_BOTH_RANGE</constant></member>
+    <member><constant>:DB_GET_RECNO</constant></member>
+    <member><constant>:DB_JOIN_ITEM</constant></member>
+    <member><constant>:DB_LAST</constant></member>
+    <member><constant>:DB_NEXT</constant></member>
+    <member><constant>:DB_NEXT_DUP</constant></member>
+    <member><constant>:DB_NEXT_NODUP</constant></member>
+    <member><constant>:DB_PREV</constant></member>
+    <member><constant>:DB_PREV_NODUP</constant></member>
+    <member><constant>:DB_SET</constant></member>
+    <member><constant>:DB_SET_RANGE</constant></member>
+    <member><constant>:DB_SET_RECNO</constant></member></simplelist>.
+</para></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(BDB:CURSOR-PUT
    cursor key data flag)</literal></term>
  <listitem><simpara>Store by cursor (&DBC_put;).
