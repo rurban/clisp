@@ -1,3 +1,9 @@
+2003-05-06  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* ffcall/avcall/avcall.h.in (av_overflown): added this macro to
+	check when buffer[AV_ALIST_WORDS] is too small for av_call()
+	* foreign.d (FOREIGN-CALL-OUT): use it (bug #[ 654718 ])
+
 2003-05-05  Sam Steingold  <sds@gnu.org>
 
 	* backquote.lisp (bq-vec-expand): fixed the unoptimized case
