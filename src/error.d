@@ -134,16 +134,6 @@
       while (*bptr != '\0') { write_code_char(&STACK_0,as_chart(*bptr)); bptr++; }
       #endif
     }
-#if defined(WIN32_NATIVE) && defined(UNICODE)
-  local void write_errorwasciz (const wchar* asciz);
-  local void write_errorwasciz(asciz)
-    var const wchar* asciz;
-    { while (*asciz != (wchar)'\0')
-        { write_code_char(&STACK_0,as_chart(*asciz)); asciz++; }
-    }
-#else
-  #define write_errorwasciz  write_errorasciz
-#endif
 
 # UP: Gibt einen Errorstring aus. Bei jeder Tilde '~' wird ein Objekt aus dem
 # Stack ausgegeben, bei jedem '$' wird ein Character aus dem Stack ausgegeben.

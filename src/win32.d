@@ -9,6 +9,13 @@
 #define RUBOUT 127          # Rubout = Delete
 #define CRLFstring  "\r\n"  # C-String, der BS-Newline enthält
 
+# Many Win32 API functions are declared differently when UNICODE is defined,
+# in a way which doesn't work on Win95. We don't want this, so undefine it now. 
+#ifdef UNICODE
+  #define UNICODE_SAVED
+  #undef UNICODE
+#endif
+
 # Declaration of operating system functions
   #define WIN32_LEAN_AND_MEAN  # avoid including junk
   #ifdef __MINGW32__
@@ -21,11 +28,6 @@
   #else
     #include <windows.h>
   #endif
-
-# UNICODE dependent definitions
-# TCHAR is either `char' or `wchar_t'. We use `wchar' instead.
-# TEXT("xxx") converts "xxx" to a `const TCHAR *'. We use `WLITERAL' instead.
-# Many Win32 API functions are declared differently when UNICODE is defined.
 
 # Table of system error messages
   #include <winerror.h>
@@ -90,12 +92,6 @@
 # Environment variables
   #include <stdlib.h>
   extern char* getenv (const char* name);
-  # extern wchar* wgetenv (const char* name); # where `name' is a literal string
-  #ifdef UNICODE
-    #define wgetenv(name)  _wgetenv(WLITERAL(name))
-  #else
-    #define wgetenv(name)  getenv(name)
-  #endif
 # used by pathname.d, misc.d
 
 # Character set conversion
@@ -359,4 +355,10 @@
   #define PROT_READ_WRITE PAGE_READWRITE
   # PROT_WRITE, PROT_EXEC not used
 # used by spvw.d
+
+
+# Now it's time to enable our UNICODE macro again.
+#ifdef UNICODE_SAVED
+  #define UNICODE
+#endif
 

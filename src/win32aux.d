@@ -35,13 +35,13 @@
       { var int i;
         for (i = 0; i < 256; i++) OEM2ANSI_table[i] = i;
         OEM2ANSI_table[i] = '\0';
-        OemToCharA(&OEM2ANSI_table[1],&OEM2ANSI_table[1]);
+        OemToChar(&OEM2ANSI_table[1],&OEM2ANSI_table[1]);
       }
       # Translation table for console output.
       { var int i;
         for (i = 0; i < 256; i++) ANSI2OEM_table[i] = i;
         ANSI2OEM_table[i] = '\0';
-        CharToOemA(&ANSI2OEM_table[1],&ANSI2OEM_table[1]);
+        CharToOem(&ANSI2OEM_table[1],&ANSI2OEM_table[1]);
       }
       # Winsock.
       { var WSADATA data;

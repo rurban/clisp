@@ -751,17 +751,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       return len;
     }
 #endif
-#if defined(WIN32_NATIVE) && defined(UNICODE)
-  global uintL wasciz_length (const wchar * asciz);
-  global uintL wasciz_length(asciz)
-    var const wchar* asciz;
-    { var const wchar* ptr = asciz;
-      var uintL len = 0;
-      # Nullcharacter suchen und dabei Länge hochzählen:
-      while (!( *ptr++ == 0 )) { len++; }
-      return len;
-    }
-#endif
 
 #ifndef asciz_equal
 # UP: Vergleicht zwei ASCIZ-Strings.
@@ -778,34 +767,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         { var char ch1 = *asciz1++;
           if (!(ch1 == *asciz2++)) goto no;
           if (ch1 == '\0') goto yes;
-        }
-      yes: return TRUE;
-      no: return FALSE;
-    }
-#endif
-#if defined(WIN32_NATIVE) && defined(UNICODE)
-  global boolean wasciz_equal (const wchar * asciz1, const char * asciz2);
-  global boolean wasciz_equal(asciz1,asciz2)
-    var const wchar* asciz1;
-    var const char* asciz2;
-    { # Bytes vergleichen, solange bis das erste Nullcharacter kommt:
-      loop
-        { var wchar ch1 = *asciz1++;
-          if (!(ch1 == *(const unsigned char *)asciz2++)) goto no; # This assumes ISOLATIN_CHS is defined.
-          if (ch1 == (wchar)'\0') goto yes;
-        }
-      yes: return TRUE;
-      no: return FALSE;
-    }
-  global boolean wwasciz_equal (const wchar * asciz1, const wchar * asciz2);
-  global boolean wwasciz_equal(asciz1,asciz2)
-    var const wchar* asciz1;
-    var const wchar* asciz2;
-    { # Bytes vergleichen, solange bis das erste Nullcharacter kommt:
-      loop
-        { var wchar ch1 = *asciz1++;
-          if (!(ch1 == *asciz2++)) goto no;
-          if (ch1 == (wchar)'\0') goto yes;
         }
       yes: return TRUE;
       no: return FALSE;
@@ -855,7 +816,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
 #                        Initialisierung
 
 # Name des Programms (für Fehlermeldungszwecke)
-  local wchar* program_name;
+  local char* program_name;
 
 # Flag, ob SYS::READ-FORM sich ILISP-kompatibel verhalten soll:
   global boolean ilisp_mode = FALSE;
@@ -1600,7 +1561,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         init_object_tab();
       }
   # Laden vom MEM-File:
-    local void loadmem (const wchar* filename); # siehe unten
+    local void loadmem (const char* filename); # siehe unten
   # Initialiserung der anderen, noch nicht initialisierten Module:
     local void init_other_modules_2 (void);
     local void init_module_2 (module_* module);
@@ -1676,7 +1637,7 @@ local void usage (int exit_code)
 {
   asciz_out("CLISP (http://clisp.cons.org) is an ANSI Common Lisp."
             NLstring "Usage:  ");
-  wasciz_out(program_name);
+  asciz_out(program_name);
   asciz_out(" [options] [lispfile [argument ...]]" NLstring
             " When `lispfile' is given, it is loaded and `*ARGS*' is set"
             NLstring " to the list of argument strings." NLstring
@@ -1799,20 +1760,16 @@ local void print_banner ()
     # main() existiert schon in Lisp_main.m
     #define main  clisp_main
   #endif
-  #if defined(WIN32_NATIVE) && defined(UNICODE)
-    # Ask the Win32 to pass us command-line arguments as `wchar_t*'.
-    #define main  wmain
-  #endif
   #ifndef argc_t
     #define argc_t int  # Typ von argc ist meist 'int'.
   #endif
-  global int main (argc_t argc, wchar* argv[]);
+  global int main (argc_t argc, char* argv[]);
   local boolean argv_quiet = FALSE; # ob beim Start Quiet-Option angegeben
   local boolean argv_wait_keypress = FALSE;
   local boolean argv_license = FALSE;
   global int main(argc,argv)
     var argc_t argc;
-    var wchar* * argv;
+    var char* * argv;
     { # Initialisierung der Speicherverwaltung.
       # Gesamtvorgehen:
       # Command-Line-Argumente verarbeiten.
@@ -1893,27 +1850,27 @@ local void print_banner ()
       #ifdef MULTIMAP_MEMORY_VIA_FILE
       var local char* argv_tmpdir = NULL;
       #endif
-      extern wchar* argv_lisplibdir;
+      extern char* argv_lisplibdir;
       var local boolean argv_wide = FALSE; # for backward compatibility
-      var local wchar* argv_memfile = NULL;
+      var local char* argv_memfile = NULL;
       var local boolean argv_load_compiling = FALSE;
       var local uintL argv_init_filecount = 0;
-      var local wchar** argv_init_files;
+      var local char** argv_init_files;
       var local boolean argv_compile = FALSE;
       var local boolean argv_compile_listing = FALSE;
       var local boolean argv_norc = FALSE;
       var local uintL argv_compile_filecount = 0;
-      typedef struct { wchar* input_file; wchar* output_file; } argv_compile_file;
+      typedef struct { char* input_file; char* output_file; } argv_compile_file;
       var local argv_compile_file* argv_compile_files;
-      var local wchar* argv_package = NULL;
+      var local char* argv_package = NULL;
       var local boolean argv_ansi = FALSE;
-      var local wchar* argv_expr = NULL;
-      var local wchar* argv_execute_file = NULL;
-      var local wchar** argv_execute_args = NULL;
+      var local char* argv_expr = NULL;
+      var local char* argv_execute_file = NULL;
+      var local char** argv_execute_args = NULL;
       var local uintL argv_execute_arg_count;
-      var local wchar* argv_language = NULL;
-      var local wchar* argv_localedir = NULL;
-      {var DYNAMIC_ARRAY(argv_init_files_array,wchar*,(uintL)argc); # maximal argc Init-Files
+      var local char* argv_language = NULL;
+      var local char* argv_localedir = NULL;
+      {var DYNAMIC_ARRAY(argv_init_files_array,char*,(uintL)argc); # maximal argc Init-Files
        argv_init_files = argv_init_files_array;
       {var DYNAMIC_ARRAY(argv_compile_files_array,argv_compile_file,(uintL)argc); # maximal argc File-Argumente
        argv_compile_files = argv_compile_files_array;
@@ -1954,13 +1911,13 @@ local void print_banner ()
       # - in den Manual-Pages _clisp.1 und _clisp.html.
       #
       program_name = argv[0]; # argv[0] ist der Programmname
-     {var wchar** argptr = &argv[1];
-      var wchar** argptr_limit = &argv[argc];
+     {var char** argptr = &argv[1];
+      var char** argptr_limit = &argv[argc];
       var enum { for_exec, for_init, for_compile } argv_for = for_exec;
       # Durchlaufen und Optionen abarbeiten, alles Abgearbeitete durch NULL
       # ersetzen:
       while (argptr < argptr_limit)
-        { var wchar* arg = *argptr++; # nächstes Argument
+        { var char* arg = *argptr++; # nächstes Argument
           if ((arg[0] == '-') && !(arg[1] == '\0'))
             { switch (arg[1])
                 { case 'h': # Help
@@ -2039,7 +1996,7 @@ local void print_banner ()
                     if (!(arg[2] == '\0')) usage (1);
                     break;
                   case 'n':
-                    if (wasciz_equal(arg,"-norc"))
+                    if (asciz_equal(arg,"-norc"))
                       argv_norc = TRUE;
                     else
                       usage (1);
@@ -2121,19 +2078,19 @@ local void print_banner ()
                     if (!(arg[2] == '\0')) usage (1);
                     break;
                   case '-': # -- GNU-style long options
-                    if (wasciz_equal(&arg[2],"help"))
+                    if (asciz_equal(&arg[2],"help"))
                       usage (0);
-                    elif (wasciz_equal(&arg[2],"version"))
+                    elif (asciz_equal(&arg[2],"version"))
                       { if (!(argv_expr == NULL)) usage (1);
                         argv_quiet = TRUE;
                         argv_norc = TRUE;
-                        argv_expr = WLITERAL("(PROGN (FORMAT T \"CLISP ~A\" (LISP-IMPLEMENTATION-VERSION)) (LISP:EXIT))");
+                        argv_expr = "(PROGN (FORMAT T \"CLISP ~A\" (LISP-IMPLEMENTATION-VERSION)) (LISP:EXIT))";
                         break;
                       }
-                    elif (wasciz_equal(&arg[2],"quiet")
-                          || wasciz_equal(&arg[2],"silent"))
+                    elif (asciz_equal(&arg[2],"quiet")
+                          || asciz_equal(&arg[2],"silent"))
                       { argv_quiet = TRUE; break; }
-                    elif (wasciz_equal(&arg[2],"license"))
+                    elif (asciz_equal(&arg[2],"license"))
                       { argv_license = TRUE; break; }
                     else
                       usage (1); # unknown option
@@ -2187,7 +2144,7 @@ local void print_banner ()
       #ifdef UNIX
       if (!(argv_memfile == NULL))
         { # Search a ':' in argv_memfile, for backward compatibility.
-          var wchar* ptr = argv_memfile;
+          var char* ptr = argv_memfile;
           until (*ptr == '\0' || *ptr == ':') { ptr++; }
           if (*ptr != '\0')
             { if (argv_wide)
@@ -2800,7 +2757,7 @@ local void print_banner ()
             asciz_to_string(GETTEXT("Please try: "),
                             O(internal_encoding)
                            ));
-          write_string(&STACK_0,wasciz_to_string(program_name,O(pathname_encoding)));
+          write_string(&STACK_0,asciz_to_string(program_name,O(pathname_encoding)));
           #ifdef RISCOS
           write_string(&STACK_0,ascii_to_string(" -M mem.lispinit" NLstring));
           #else
@@ -2826,7 +2783,7 @@ local void print_banner ()
       }
       if (!(argv_package == NULL))
         # (IN-PACKAGE packagename) ausführen:
-        { var object packname = wasciz_to_string(argv_package,O(misc_encoding));
+        { var object packname = asciz_to_string(argv_package,O(misc_encoding));
           pushSTACK(packname); funcall(L(in_package),1);
         }
       if (argv_load_compiling)
@@ -2861,10 +2818,10 @@ local void print_banner ()
       }
       # für jedes initfile (LOAD initfile) ausführen:
       if (argv_init_filecount > 0)
-        { var wchar** fileptr = &argv_init_files[0];
+        { var char** fileptr = &argv_init_files[0];
           var uintL count;
           dotimespL(count,argv_init_filecount,
-            { var object filename = wasciz_to_string(*fileptr++,O(misc_encoding));
+            { var object filename = asciz_to_string(*fileptr++,O(misc_encoding));
               pushSTACK(filename); funcall(S(load),1);
             });
         }
@@ -2882,7 +2839,7 @@ local void print_banner ()
               var uintL count;
               dotimespL(count,argv_compile_filecount,
                 { var uintC argcount = 1;
-                  var object filename = wasciz_to_string(fileptr->input_file,O(misc_encoding));
+                  var object filename = asciz_to_string(fileptr->input_file,O(misc_encoding));
                   pushSTACK(S(compile_file));
                   pushSTACK(filename);
                   pushSTACK(O(source_file_type)); # #".lsp"
@@ -2892,7 +2849,7 @@ local void print_banner ()
                   funcall(L(merge_pathnames),2); # (MERGE-PATHNAMES file ...)
                   pushSTACK(value1);
                   if (fileptr->output_file)
-                    { filename = wasciz_to_string(fileptr->output_file,O(misc_encoding));
+                    { filename = asciz_to_string(fileptr->output_file,O(misc_encoding));
                       pushSTACK(S(Koutput_file));
                       pushSTACK(filename);
                       pushSTACK(O(compiled_file_type)); # #".fas"
@@ -2952,19 +2909,19 @@ local void print_banner ()
           #endif
           Symbol_value(S(load_verbose)) = NIL;
           { if (argv_execute_arg_count > 0)
-              { var wchar** argsptr = argv_execute_args;
+              { var char** argsptr = argv_execute_args;
                 var uintL count;
                 dotimespL(count,argv_execute_arg_count,
-                  { pushSTACK(wasciz_to_string(*argsptr++,O(misc_encoding))); });
+                  { pushSTACK(asciz_to_string(*argsptr++,O(misc_encoding))); });
               }
             define_variable(S(args),listof(argv_execute_arg_count));
           }
           { var object form;
             pushSTACK(S(load));
-            if (wasciz_equal(argv_execute_file,"-"))
+            if (asciz_equal(argv_execute_file,"-"))
               { pushSTACK(S(standard_input)); } # *STANDARD-INPUT*
               else
-              { pushSTACK(wasciz_to_string(argv_execute_file,O(misc_encoding))); } # "..."
+              { pushSTACK(asciz_to_string(argv_execute_file,O(misc_encoding))); } # "..."
             form = listof(2);
             pushSTACK(S(batchmode_errors)); pushSTACK(form);
             form = listof(2); # `(SYS::BATCHMODE-ERRORS (LOAD "..."))
@@ -2974,7 +2931,7 @@ local void print_banner ()
         }
       if (!(argv_expr == NULL))
         # *STANDARD-INPUT* auf einen Stream setzen, der argv_expr produziert:
-        { pushSTACK(wasciz_to_string(argv_expr,O(misc_encoding)));
+        { pushSTACK(asciz_to_string(argv_expr,O(misc_encoding)));
           funcall(L(make_string_input_stream),1);
           Symbol_value(S(standard_input)) = value1;
           # Dann den Driver aufrufen. Stringende -> EOF -> Programmende.
@@ -2985,7 +2942,7 @@ local void print_banner ()
       /*NOTREACHED*/
       # Falls der Speicher nicht ausreichte:
       no_mem:
-      wasciz_out(program_name); asciz_out(": ");
+      asciz_out(program_name); asciz_out(": ");
       asciz_out(GETTEXT("Not enough memory for Lisp." NLstring));
       quit_sofort(1);
       /*NOTREACHED*/
