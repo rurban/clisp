@@ -1,3 +1,8 @@
+2004-07-27  Sam Steingold  <sds@gnu.org>
+
+	* clos-method2.lisp (analyze-method-description): signal an error
+	when a lambda-list entry is invalid
+
 2004-06-04  Bruno Haible  <bruno@clisp.org>
 
 	* clos-method1.lisp (standard-method): Add lambda-list slot.
