@@ -57,6 +57,9 @@ OPAQUE
 (car (funcall parse-c-type-optimizer '(parse-c-type `(c-array uint8 ,l)) nil))
 VECTOR
 
+(car (funcall parse-c-type-optimizer '(parse-c-type `(c-array ,type ,l)) nil))
+PARSE-C-TYPE
+
 (let () (declare (compile)) (with-c-var (place 'long -12345678) place))
 -12345678
 
@@ -97,22 +100,22 @@ ERROR
 
 (type-of (foreign-function #'c-self
   (parse-c-type '(c-function (:arguments (obj (c-pointer short)))
-			     (:return-type (c-ptr-null short))
-			     (:language :stdc)))))
+                             (:return-type (c-ptr-null short))
+                             (:language :stdc)))))
 foreign-function
 
 (funcall (foreign-function #'c-self
   (parse-c-type '(c-function (:arguments (obj long))
-			     (:return-type long)
-			     (:language :stdc))) :name "foo1")
-	 #x76767676)
+                             (:return-type long)
+                             (:language :stdc))) :name "foo1")
+         #x76767676)
 #x76767676
 
 (funcall (foreign-function (foreign-address #'c-self)
   (parse-c-type '(c-function (:arguments (obj long))
-			     (:return-type long)
-			     (:language :stdc))) :name "foo1")
-	 #x76767676)
+                             (:return-type long)
+                             (:language :stdc))) :name "foo1")
+         #x76767676)
 #x76767676
 
 (progn

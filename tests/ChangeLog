@@ -1,3 +1,7 @@
+2004-10-06  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* ffi.tst: do not optimize (parse-c-type `(c-array ,foo ,len))
+
 2004-10-05  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* ffi.tst: Test FOREIGN-VARIABLE and FOREIGN-FUNCTION constructors.
