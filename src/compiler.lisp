@@ -2968,12 +2968,11 @@ der Docstring (oder NIL).
 ; gibt eine Stil-Warnung aus (mittels FORMAT).
 (defun c-style-warn (cstring &rest args)
   (incf *style-warning-count*)
-  (apply #'c-warn cstring args)
-)
+  (apply #'c-warn cstring args))
 
 (defvar *error-count*)
-; (C-ERROR controlstring . args)
-; gibt einen Compiler-Error aus (mittels FORMAT) und beendet das laufende C-FORM.
+;; (C-ERROR controlstring . args)
+;; ouput a compiler error (using FORMAT) und beendet das laufende C-FORM.
 (defun c-error (cstring &rest args)
   (incf *error-count*)
   (let ((in-function (current-function)))
@@ -2982,15 +2981,16 @@ der Docstring (oder NIL).
         (pushnew in-function *functions-with-errors*)))
     (format *c-error-output*
             (ENGLISH "~%ERROR~@[ in function ~S~]~A :~%~?")
-            in-function (c-source-location)
-            cstring args))
+            in-function (c-source-location) cstring args))
   (throw 'c-error
     (make-anode :source NIL
                 :type 'ERROR
                 :sub-anodes '()
                 :seclass '(NIL . NIL)
-                :code '((NIL))
-) ) )
+                :code '((NIL)))))
+
+;; caught c-error
+(defmacro c-error-c (&rest args) `(catch 'c-error (c-error ,@args)))
 
 ; (c-eval-when-compile form) führt eine Form zur Compile-Zeit aus.
 (defun c-eval-when-compile (form)
@@ -3122,18 +3122,14 @@ der Docstring (oder NIL).
 (defun test-list (L &optional (l1 0) (l2 nil))
   (unless (and (listp L) (null (cdr (last L))))
     (c-error (ENGLISH "Code contains dotted list ~S")
-             L
-  ) )
+             L))
   (unless (>= (length L) l1)
     (c-error (ENGLISH "Form too short, too few arguments: ~S")
-             L
-  ) )
+             L))
   (when l2
     (unless (<= (length L) l2)
       (c-error (ENGLISH "Form too long, too many arguments: ~S")
-               L
-  ) ) )
-)
+               L))))
 
 ; c-form-table enthält zu allen Funktionen/Specialforms/Macros, die speziell
 ; behandelt werden müssen, die Behandlungsfunktion (ohne Argumente aufzurufen).
@@ -3274,55 +3270,45 @@ der Docstring (oder NIL).
                     ; also (symbolp fun)
                     (if (or (and (special-operator-p fun)
                                  (not (macro-function fun)))
-                            (not (declared-notinline fun))
-                        )
+                            (not (declared-notinline fun)))
                       (funcall handler) ; ja -> aufrufen
                       (if (macro-function fun)
                         (c-form (mac-exp (macro-function fun) *form*))
                         ; normaler Aufruf globaler Funktion
-                        (c-GLOBAL-FUNCTION-CALL fun)
-                    ) )
+                        (c-GLOBAL-FUNCTION-CALL fun)))
                     ; nein -> jedenfalls keine Special-Form (die sind ja
                     ; alle in der Tabelle).
                     (if (and (symbolp fun) (macro-function fun)) ; globaler Macro ?
                       (c-form (mac-exp (macro-function fun) *form*))
-                      ; globale Funktion
+                      ;; global function
                       (if (and (in-defun-p fun)
                                (not (declared-notinline fun)))
                         ;; recursive call of the current global function
                         (c-LOCAL-FUNCTION-CALL fun (cons *func* nil) (cdr *form*))
                         ;; normal call of the global function
-                        (c-GLOBAL-FUNCTION-CALL fun)
-                ) ) ) )
+                        (c-GLOBAL-FUNCTION-CALL fun)))))
                 (if (and m (not (and f1 (declared-notinline fun))))
                   (c-form (mac-exp m *form*))
                   (case f1
                     (GLOBAL ; Funktion im Interpreter-Environment %fenv% gefunden
                       ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
-                      (c-FUNCALL-NOTINLINE `(FUNCTION ,fun) (cdr *form*))
-                    )
+                      (c-FUNCALL-NOTINLINE `(FUNCTION ,fun) (cdr *form*)))
                     (LOCAL ; lokale Funktion (in *fenv* gefunden)
                       ; (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
-                      (c-LOCAL-FUNCTION-CALL fun f3 (cdr *form*))
-                    )
-                    (t (compiler-error 'c-form))
-            ) ) ) )
+                      (c-LOCAL-FUNCTION-CALL fun f3 (cdr *form*)))
+                    (t (compiler-error 'c-form))))))
             (if (and (consp fun) (eq (car fun) 'LAMBDA))
               (c-form `(SYS::%FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
               #| nicht: (c-LAMBDA-FUNCTION-CALL fun (cdr *form*)) |#
               (c-error (ENGLISH "Not the name of a function: ~S")
-                       fun
-    ) ) ) ) ) )
-  ))
+                       fun))))))))
   #+COMPILER-DEBUG (setf (anode-source anode) *form*)
   ; Falls keine Werte gebraucht werden und keine Seiteneffekte produziert
   ; werden, kann der dazugehörige Code ganz gestrichen werden:
   (when (and (null *for-value*) (null (cdr (anode-seclass anode))))
     (setf (anode-code anode) '())
-    (setf (anode-seclass anode) '(NIL . NIL))
-  )
-  anode
-))
+    (setf (anode-seclass anode) '(NIL . NIL)))
+  anode))
 
 ;;; Macroexpand a form.
 ;;; That is exactly what makes c-form later anyway.
@@ -4583,15 +4569,10 @@ der Docstring (oder NIL).
     (cond ((symbolp (car L)) (push (car L) symbols) (push nil forms))
           ((and (consp (car L)) (symbolp (caar L))
                 (or (null (cdar L))
-                    (and (consp (cdar L)) (null (cddar L)))
-           )    )
-           (push (caar L) symbols) (push (cadar L) forms)
-          )
-          (t (catch 'c-error
-               (c-error (ENGLISH "Illegal syntax in LET/LET*: ~S")
-                        (car L)
-    )     )  ) )
-) )
+                    (and (consp (cdar L)) (null (cddar L)))))
+           (push (caar L) symbols) (push (cadar L) forms))
+          (t (c-error-c (ENGLISH "Illegal syntax in LET/LET*: ~S")
+                        (car L))))))
 
 ; analysiert eine Lambdaliste einer Funktion (CLTL S. 60), liefert 13 Werte:
 ; 1. Liste der required Parameter
@@ -4624,39 +4605,37 @@ der Docstring (oder NIL).
         (auxinit nil))
        ; alle in umgedrehter Reihenfolge
     (macrolet ((err-illegal (item)
-                 `(catch 'c-error
-                    (c-error (ENGLISH "Lambda list marker ~S not allowed here.")
-                             ,item
-                  ) )
-               )
+                 `(c-error-c
+                   (ENGLISH "Lambda list marker ~S not allowed here.")
+                   ,item))
+               (check-item (item permissible)
+                 `(if (memq ,item ,permissible)
+                   (return)
+                   (err-illegal ,item)))
                (err-norest ()
-                 `(catch 'c-error
-                    (c-error (ENGLISH "Missing &REST parameter in lambda list ~S")
-                             lambdalist
-                  ) )
-               )
-               (err-superflu (item)
-                 `(catch 'c-error
-                    (c-error (ENGLISH "Lambda list element ~S is superfluous.")
-                             ,item
-                  ) )
-              ))
+                 `(c-error-c
+                   (ENGLISH "Missing &REST parameter in lambda list ~S")
+                   lambdalist))
+               (skip-L (items)
+                 `(loop
+                   (when (atom L) (return))
+                   (let ((item (car L)))
+                     (if (memq item lambda-list-keywords)
+                         (check-item item ,items)
+                         (c-error-c
+                          (ENGLISH "Lambda list element ~S is superfluous.")
+                          item)))
+                   (setq L (cdr L)))))
       ; Required Parameter:
       (loop
         (if (atom L) (return))
         (let ((item (car L)))
           (if (symbolp item)
             (if (memq item lambda-list-keywords)
-              (if (memq item '(&optional &rest &key &aux))
-                (return)
-                (err-illegal item)
-              )
-              (push item req)
-            )
-            (lambdalist-error item)
-        ) )
-        (setq L (cdr L))
-      )
+              (check-item item '(&optional &rest &key &aux))
+              (push item req))
+            (lambdalist-error item)))
+        (setq L (cdr L)))
       ; Hier gilt (or (atom L) (member (car L) '(&optional &rest &key &aux))).
       ; Optionale Parameter:
       (when (and (consp L) (eq (car L) '&optional))
@@ -4666,12 +4645,8 @@ der Docstring (oder NIL).
           (let ((item (car L)))
             (if (symbolp item)
               (if (memq item lambda-list-keywords)
-                (if (memq item '(&rest &key &aux))
-                  (return)
-                  (err-illegal item)
-                )
-                (progn (push item optvar) (push nil optinit) (push 0 optsvar))
-              )
+                (check-item item '(&rest &key &aux))
+                (progn (push item optvar) (push nil optinit) (push 0 optsvar)))
               (if (and (consp item) (symbolp (car item)))
                 (if (null (cdr item))
                   (progn (push (car item) optvar) (push nil optinit) (push 0 optsvar))
@@ -4680,14 +4655,10 @@ der Docstring (oder NIL).
                       (progn (push (car item) optvar) (push (cadr item) optinit) (push 0 optsvar))
                       (if (and (consp (cddr item)) (symbolp (caddr item)) (null (cdddr item)))
                         (progn (push (car item) optvar) (push (cadr item) optinit) (push (caddr item) optsvar))
-                        (lambdalist-error item)
-                    ) )
-                    (lambdalist-error item)
-                ) )
-                (lambdalist-error item)
-          ) ) )
-          (setq L (cdr L))
-      ) )
+                        (lambdalist-error item)))
+                    (lambdalist-error item)))
+                (lambdalist-error item))))
+          (setq L (cdr L))))
       ; Hier gilt (or (atom L) (member (car L) '(&rest &key &aux))).
       ; Rest-Parameter:
       (when (and (consp L) (eq (car L) '&rest))
@@ -4698,25 +4669,11 @@ der Docstring (oder NIL).
             (if (symbolp item)
               (if (memq item lambda-list-keywords)
                 (progn (err-norest) (return))
-                (setq rest item)
-              )
-              (lambdalist-error item)
-            )
-            (setq L (cdr L))
-      ) ) )
+                (setq rest item))
+              (lambdalist-error item))
+            (setq L (cdr L)))))
       ; Vorrücken bis zum nächsten &key oder &aux :
-      (loop
-        (when (atom L) (return))
-        (let ((item (car L)))
-          (if (memq item lambda-list-keywords)
-            (if (memq item '(&key &aux))
-              (return)
-              (err-illegal item)
-            )
-            (err-superflu item)
-        ) )
-        (setq L (cdr L))
-      )
+      (skip-L '(&key &aux))
       ; Hier gilt (or (atom L) (member (car L) '(&key &aux))).
       ; Keyword-Parameter:
       (when (and (consp L) (eq (car L) '&key))
@@ -4727,14 +4684,10 @@ der Docstring (oder NIL).
           (let ((item (car L)))
             (if (symbolp item)
               (if (memq item lambda-list-keywords)
-                (if (memq item '(&allow-other-keys &aux))
-                  (return)
-                  (err-illegal item)
-                )
+                (check-item item '(&allow-other-keys &aux))
                 (progn
                   (push (intern (symbol-name item) *keyword-package*) keyword)
-                  (push item keyvar) (push nil keyinit) (push 0 keysvar)
-              ) )
+                  (push item keyvar) (push nil keyinit) (push 0 keysvar)))
               (if (and
                     (consp item)
                     (or
@@ -4743,49 +4696,30 @@ der Docstring (oder NIL).
                            (symbolp (caar item))
                            (consp (cdar item))
                            (symbolp (cadar item))
-                           (null (cddar item))
-                    ) )
+                           (null (cddar item))))
                     (or (null (cdr item))
                         (and (consp (cdr item))
                              (or (null (cddr item))
-                                 (and (consp (cddr item)) (symbolp (caddr item)) (null (cdddr item)))
-                  ) )   )    )
+                                 (and (consp (cddr item)) (symbolp (caddr item)) (null (cdddr item)))))))
                 (progn
                   (if (consp (car item))
                     (progn (push (caar item) keyword) (push (cadar item) keyvar))
-                    (progn (push (intern (symbol-name (car item)) *keyword-package*) keyword) (push (car item) keyvar))
-                  )
+                    (progn (push (intern (symbol-name (car item)) *keyword-package*) keyword) (push (car item) keyvar)))
                   (if (consp (cdr item))
                     (progn
                       (push (cadr item) keyinit)
                       (if (consp (cddr item))
                         (push (caddr item) keysvar)
-                        (push 0 keysvar)
-                    ) )
-                    (progn (push nil keyinit) (push 0 keysvar))
-                ) )
-                (lambdalist-error item)
-          ) ) )
-          (setq L (cdr L))
-        )
+                        (push 0 keysvar)))
+                    (progn (push nil keyinit) (push 0 keysvar))))
+                (lambdalist-error item))))
+          (setq L (cdr L)))
         ; Hier gilt (or (atom L) (member (car L) '(&allow-other-keys &aux))).
         (when (and (consp L) (eq (car L) '&allow-other-keys))
           (setq allow-other-keys t)
-          (setq L (cdr L))
-      ) )
+          (setq L (cdr L))))
       ; Vorrücken bis zum nächsten &AUX :
-      (loop
-        (when (atom L) (return))
-        (let ((item (car L)))
-          (if (memq item lambda-list-keywords)
-            (if (memq item '(&aux))
-              (return)
-              (err-illegal item)
-            )
-            (err-superflu item)
-        ) )
-        (setq L (cdr L))
-      )
+      (skip-L '(&aux))
       ; Hier gilt (or (atom L) (member (car L) '(&aux))).
       ; &AUX-Variablen:
       (when (and (consp L) (eq (car L) '&aux))
@@ -4796,41 +4730,31 @@ der Docstring (oder NIL).
             (if (symbolp item)
               (if (memq item lambda-list-keywords)
                 (err-illegal item)
-                (progn (push item auxvar) (push nil auxinit))
-              )
+                (progn (push item auxvar) (push nil auxinit)))
               (if (and (consp item) (symbolp (car item)))
                 (if (null (cdr item))
                   (progn (push (car item) auxvar) (push nil auxinit))
                   (if (and (consp (cdr item)) (null (cddr item)))
                     (progn (push (car item) auxvar) (push (cadr item) auxinit))
-                    (lambdalist-error item)
-                ) )
-                (lambdalist-error item)
-          ) ) )
-          (setq L (cdr L))
-      ) )
+                    (lambdalist-error item)))
+                (lambdalist-error item))))
+          (setq L (cdr L))))
       ; Hier gilt (atom L).
       (if L
-        (catch 'c-error
-          (c-error (ENGLISH "Lambda lists with dots are only allowed in macros, not here: ~S")
-                   lambdalist
-      ) ) )
-    )
+          (c-error-c (ENGLISH "Lambda lists with dots are only allowed in macros, not here: ~S")
+                     lambdalist)))
     (values
-      (nreverse req)
-      (nreverse optvar) (nreverse optinit) (nreverse optsvar)
-      rest
-      keyflag
-      (nreverse keyword) (nreverse keyvar) (nreverse keyinit) (nreverse keysvar)
-      allow-other-keys
-      (nreverse auxvar) (nreverse auxinit)
-) ) )
+     (nreverse req)
+     (nreverse optvar) (nreverse optinit) (nreverse optsvar)
+     rest
+     keyflag
+     (nreverse keyword) (nreverse keyvar) (nreverse keyinit) (nreverse keysvar)
+     allow-other-keys
+     (nreverse auxvar) (nreverse auxinit))))
 
 (defun lambdalist-error (item)
-  (catch 'c-error
-    (c-error (ENGLISH "Illegal lambda list element ~S")
-             item
-) ) )
+  (c-error-c (ENGLISH "Illegal lambda list element ~S")
+             item))
 
 (defun lambda-list-to-signature (lambda-list)
   (multiple-value-bind (req opt opt-i opt-p rest
@@ -4978,30 +4902,23 @@ der Docstring (oder NIL).
 (defun bind-fixed-var-1 (symbol)
   (if (or (constantp symbol)
           (proclaimed-special-p symbol)
-          (member symbol *specials* :test #'eq)
-      )
+          (member symbol *specials* :test #'eq))
     ; muss symbol dynamisch binden:
     (progn
       (when (l-constantp symbol)
-        (catch 'c-error
-          (c-error (ENGLISH "Constant ~S cannot be bound.")
-                   symbol
-      ) ) )
-      (make-special-var symbol)
-    )
+        (c-error-c (ENGLISH "Constant ~S cannot be bound.")
+                   symbol))
+      (make-special-var symbol))
     ; muss symbol lexikalisch binden:
     (make-var :name symbol :specialp nil :constantp nil
               :usedp nil :for-value-usedp nil :really-usedp nil
               :closurep nil
-              :stackz *stackz* :venvc *venvc* :fnode *func*
-    )
-) )
+              :stackz *stackz* :venvc *venvc* :fnode *func*)))
 
 ; registriert in *stackz*, dass eine fixed-var gebunden wird
 (defun bind-fixed-var-2 (var)
   (when (and (var-specialp var) (not (var-constantp var)))
-    (push '(BIND 1) *stackz*)
-) )
+    (push '(BIND 1) *stackz*)))
 
 ; liefert den Code, der die Variable var an den Inhalt von stackdummyvar
 ; bindet. stackz ist der Stackzustand vor dem Binden dieser Variablen.
@@ -5119,10 +5036,8 @@ der Docstring (oder NIL).
     (progn
       (if (l-constantp symbol)
         (progn
-          (catch 'c-error
-            (c-error (ENGLISH "Constant ~S cannot be bound.")
-                     symbol
-          ) )
+          (c-error-c (ENGLISH "Constant ~S cannot be bound.")
+                     symbol)
           (push 0 *stackz*)
         )
         (push '(BIND 1) *stackz*)
@@ -5882,8 +5797,7 @@ der Docstring (oder NIL).
 (defun c-DECLARE ()
   (test-list *form* 1)
   (c-error (ENGLISH "Misplaced declaration: ~S")
-           *form*
-) )
+           *form*))
 
 ; compiliere (LOAD-TIME-VALUE form [read-only-p])
 (defun c-LOAD-TIME-VALUE ()
@@ -6094,8 +6008,7 @@ der Docstring (oder NIL).
   (test-list *form* 1)
   (when (evenp (length *form*))
     (c-error (ENGLISH "Odd number of arguments to SETQ: ~S")
-             *form*
-  ) )
+             *form*))
   (if (null (cdr *form*))
     (c-NIL) ; (SETQ) == (PROGN) == NIL
     (if (setqlist-macrop (cdr *form*))
@@ -6127,10 +6040,8 @@ der Docstring (oder NIL).
                 (seclass-or-f seclass setteri)
             ) )
             (progn
-              (catch 'c-error
-                (c-error (ENGLISH "Cannot assign to non-symbol ~S.")
-                         symboli
-              ) )
+              (c-error-c (ENGLISH "Cannot assign to non-symbol ~S.")
+                         symboli)
               (push '(VALUES1) codelist)
       ) ) ) )
 ) ) )
@@ -6141,8 +6052,7 @@ der Docstring (oder NIL).
   (test-list *form* 1)
   (when (evenp (length *form*))
     (c-error (ENGLISH "Odd number of arguments to PSETQ: ~S")
-             *form*
-  ) )
+             *form*))
   (if (null (cdr *form*))
     (c-NIL) ; (PSETQ) == (PROGN) == NIL
     (if (setqlist-macrop (cdr *form*))
@@ -6160,12 +6070,9 @@ der Docstring (oder NIL).
               (progn
                 (push anodei anodelist)
                 (push (c-VARSET symboli anodei nil) setterlist)
-                (push 0 *stackz*)
-              )
-              (catch 'c-error
-                (c-error (ENGLISH "Cannot assign to non-symbol ~S.")
-                         symboli
-        ) ) ) ) )
+                (push 0 *stackz*))
+              (c-error-c (ENGLISH "Cannot assign to non-symbol ~S.")
+                         symboli))))
         ; Versuche, sie so zu reorganisieren, dass möglichst wenige (PUSH)
         ; und (POP) nötig werden:
         (let ((codelist1 '())
@@ -6260,10 +6167,8 @@ der Docstring (oder NIL).
                 (push setter codelist)
                 (seclass-or-f seclass setter)
               )
-              (catch 'c-error
-                (c-error (ENGLISH "Cannot assign to non-symbol ~S.")
-                         symbol
-          ) ) ) )
+              (c-error-c (ENGLISH "Cannot assign to non-symbol ~S.")
+                         symbol)))
           (push '(POP) codelist)
           (push 1 *stackz*)
 ) ) ) ) )
@@ -6398,8 +6303,7 @@ der Docstring (oder NIL).
     (dolist (sym symbols)
       (unless (symbolp sym)
         (c-error (ENGLISH "Only symbols may be used as variables, not ~S")
-                 sym
-    ) ) )
+                 sym)))
     (if (= (length symbols) 1)
       (c-form `(LET ((,(first symbols) ,(third *form*))) ,@(cdddr *form*)))
       (multiple-value-bind (body-rest declarations)
@@ -6492,29 +6396,20 @@ der Docstring (oder NIL).
        (valueslist '()))
       ((null L)
        (progv (nreverse varlist) (nreverse valueslist)
-         (funcall c `(PROGN ,@(cddr *form*)) )
-      ))
+         (funcall c `(PROGN ,@(cddr *form*)) )))
     (cond ((symbolp (car L)) (push (car L) varlist) (push nil valueslist))
           ((and (consp (car L)) (symbolp (caar L))
                 (or (null (cdar L))
-                    (and (consp (cdar L)) (null (cddar L)))
-           )    )
+                    (and (consp (cdar L)) (null (cddar L)))))
            (push (caar L) varlist) (push (eval (cadar L)) valueslist))
-          (t (catch 'c-error
-               (c-error (ENGLISH "Illegal syntax in COMPILER-LET: ~S")
-                        (car L)
-    )     )  ) )
-) )
+          (t (c-error-c (ENGLISH "Illegal syntax in COMPILER-LET: ~S")
+                        (car L))))))
 
 (macrolet ((check-blockname (name)
              `(unless (symbolp ,name)
-                (catch 'c-error
-                  (c-error (ENGLISH "Block name must be a symbol, not ~S")
-                           ,name
-                ) )
-                (setq ,name NIL) ; Default-Blockname
-              )
-          ))
+                (c-error-c (ENGLISH "Block name must be a symbol, not ~S")
+                           ,name)
+                (setq ,name NIL)))) ; Default-Blockname
 
 ; compiliere (BLOCK name {form}*)
 (defun c-BLOCK ()
@@ -6559,8 +6454,7 @@ der Docstring (oder NIL).
     (let ((a (benv-search name)))
       (cond ((null a) ; dieser Blockname ist unsichtbar
              (c-error (ENGLISH "RETURN-FROM block ~S is impossible from here.")
-                      name
-            ))
+                      name))
             ((block-p a) ; in *benv* ohne %benv% sichtbar
              (let ((anode (c-form (third *form*) (block-for-value a))))
                (if (and (eq (block-fnode a) *func*)
@@ -6621,12 +6515,10 @@ der Docstring (oder NIL).
             ; 3.3 ein zulässiges Sprungziel ist.
             (progn
               (push item taglist)
-              (push (make-label 'NIL) labellist)
-            )
-            (catch 'c-error
-              (c-error (ENGLISH "Only numbers and symbols are valid tags, not ~S")
-                       item
-    ) ) ) ) ) )
+              (push (make-label 'NIL) labellist))
+            (c-error-c
+             (ENGLISH "Only numbers and symbols are valid tags, not ~S")
+             item)))))
     (let* ((*stackz* (cons 0 *stackz*)) ; evtl. TAGBODY-Frame
            (tagbody (make-tagbody :fnode *func* :labellist labellist
                       :consvar (make-var :name (gensym) :specialp nil
@@ -6703,13 +6595,11 @@ der Docstring (oder NIL).
   (let ((tag (second *form*)))
     (unless (or (symbolp tag) (numberp tag))
       (c-error (ENGLISH "Tag must be a symbol or a number, not ~S")
-               tag
-    ) )
+               tag))
     (multiple-value-bind (a b) (genv-search tag)
       (cond ((null a) ; dieser Tag ist unsichtbar
              (c-error (ENGLISH "GO to tag ~S is impossible from here.")
-                      tag
-            ))
+                      tag))
             ((tagbody-p a) ; in *genv* ohne %genv% sichtbar
              (if (and (eq (tagbody-fnode a) *func*)
                       (may-UNWIND *stackz* (tagbody-stackz a))
@@ -6797,8 +6687,7 @@ der Docstring (oder NIL).
             ))
             (t (if (and (null f1) m)
                  (c-error (ENGLISH "~S is not a function. It is a locally defined macro.")
-                          name
-                 )
+                          name)
                  (compiler-error 'c-FUNCTION)
       ) ) ) )  )
       (let ((funname (car (last *form*))))
@@ -6875,10 +6764,9 @@ der Docstring (oder NIL).
        bo)))
 
 (macrolet ((err-syntax (specform fdef)
-             `(catch 'c-error
-               (c-error
-                (ENGLISH "Illegal function definition syntax in ~S: ~S")
-                ,specform ,fdef))))
+             `(c-error-c
+               (ENGLISH "Illegal function definition syntax in ~S: ~S")
+               ,specform ,fdef)))
 
 ; compiliere (FLET ({fundef}*) {form}*)
 (defun c-FLET ()
@@ -7429,41 +7317,41 @@ der Docstring (oder NIL).
   (test-list *form* 2)
   (test-list (second *form*) 0)
   ;; check the syntax of the parameter list:
-  (macrolet ((err (fmt sym)
-               `(catch 'c-error (c-error ,fmt 'symbol-macrolet ,sym))))
-    (multiple-value-bind (symbols expansions)
-        (do ((L (second *form*) (cdr L))
-             (symbols nil)
-             (expansions nil))
-            ((null L) (values (nreverse symbols) (nreverse expansions)))
-          (let ((symdef (car L)))
-            (if (and (consp symdef) (symbolp (car symdef))
-                     (consp (cdr symdef)) (null (cddr symdef)))
-                (progn (push (first symdef) symbols)
-                       (push (second symdef) expansions))
-                (err (ENGLISH "~S: Illegal syntax: ~S") symdef))))
-      (let ((*denv* *denv*)
-            (*venv*
-             ;; `*venv*' has to be modified before `parse-body' because
-             ;; `parse-body' macroexpands the first form in search of
-             ;; declarations, and that macroexpansion might rely on the
-             ;; definitions of the current `symbol-macrolet'
-             (apply #'vector
-                    (nconc (mapcan #'(lambda (sym exp)
-                                       (list sym (make-symbol-macro exp)))
-                                   symbols expansions)
-                           (list *venv*)))))
-        (multiple-value-bind (body-rest declarations)
-            (parse-body (cddr *form*) nil (env))
-          (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
-              (process-declarations declarations)
-            (push-specials)
-            (dolist (symbol symbols)
-              (if (or (constantp symbol) (proclaimed-special-p symbol))
-                (err (ENGLISH "~S: symbol ~S is declared special and must not be declared a macro") symbol)
-                (if (member symbol *specials* :test #'eq)
-                  (err (ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time") symbol))))
-            (funcall c `(PROGN ,@body-rest))))))))
+  (multiple-value-bind (symbols expansions)
+      (do ((L (second *form*) (cdr L))
+           (symbols nil)
+           (expansions nil))
+          ((null L) (values (nreverse symbols) (nreverse expansions)))
+        (let ((symdef (car L)))
+          (if (and (consp symdef) (symbolp (car symdef))
+                   (consp (cdr symdef)) (null (cddr symdef)))
+              (progn (push (first symdef) symbols)
+                     (push (second symdef) expansions))
+              (c-error-c (ENGLISH "~S: Illegal syntax: ~S")
+                         'symbol-macrolet symdef))))
+    (let ((*denv* *denv*)
+          (*venv*
+           ;; `*venv*' has to be modified before `parse-body' because
+           ;; `parse-body' macroexpands the first form in search of
+           ;; declarations, and that macroexpansion might rely on the
+           ;; definitions of the current `symbol-macrolet'
+           (apply #'vector
+                  (nconc (mapcan #'(lambda (sym exp)
+                                     (list sym (make-symbol-macro exp)))
+                                 symbols expansions)
+                         (list *venv*)))))
+      (multiple-value-bind (body-rest declarations)
+          (parse-body (cddr *form*) nil (env))
+        (multiple-value-bind (*specials* *ignores* *ignorables* *readonlys*)
+            (process-declarations declarations)
+          (push-specials)
+          (dolist (symbol symbols)
+            (if (or (constantp symbol) (proclaimed-special-p symbol))
+                (c-error-c (ENGLISH "~S: symbol ~S is declared special and must not be declared a macro") 'symbol-macrolet symbol)
+                (when (member symbol *specials* :test #'eq)
+                  (c-error-c (ENGLISH "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
+                             'symbol-macrolet symbol))))
+          (funcall c `(PROGN ,@body-rest)))))))
 
 ; compiliere (EVAL-WHEN ({situation}*) {form}*)
 (defun c-EVAL-WHEN (&optional (c #'c-form))
@@ -7534,10 +7422,9 @@ der Docstring (oder NIL).
                 (if (or (eq keys 'T) (eq keys 'OTHERWISE))
                   (progn
                     (when clauses
-                      (catch 'c-error
-                        (c-error (ENGLISH "~S: the ~S clause must be the last one: ~S")
-                                 'case keys *form*
-                    ) ) )
+                      (c-error-c
+                       (ENGLISH "~S: the ~S clause must be the last one: ~S")
+                       'case keys *form*))
                     (setq keys 'T)
                     (setq default-passed t)
                   )
@@ -7791,10 +7678,8 @@ der Docstring (oder NIL).
       (when (and (null restvar) (> |t| (+ r s)))
         ; zu viele Argumente angegeben. Wird beseitigt durch Einführung
         ; mehrerer zusätzlicher optionaler Argumente:
-        (catch 'c-error
-          (c-error (ENGLISH "Too many arguments to ~S")
-                   funform
-        ) )
+        (c-error-c (ENGLISH "Too many arguments to ~S")
+                   funform)
         (dotimes (i (- |t| (+ r s)))
           (let ((var (gensym)))
             (setq optvar (append optvar (list var)))
@@ -7806,10 +7691,8 @@ der Docstring (oder NIL).
       (when (and (null applyarglist) (< |t| r))
         ; zu wenige Argumente angegeben. Wird beseitigt durch Einführung
         ; zusätzlicher Argumente:
-        (catch 'c-error
-          (c-error (ENGLISH "Too few arguments to ~S")
-                   funform
-        ) )
+        (c-error-c (ENGLISH "Too few arguments to ~S")
+                   funform)
         (setq arglist (append arglist (make-list (- r |t|) :initial-element nil)))
         (setq |t| r)
       )
