@@ -4872,13 +4872,20 @@ LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,
   skipSTACK(5+1);
 }
 
+/* for modules: coerce to an absolute physical pathname and
+   return its namestring
+ can trigger GC */
+global object physical_namestring (object thing) {
+  return whole_namestring(use_default_dir(coerce_pathname(thing)));
+}
+
 /* UP: tests, if the name of a pathname is =NIL.
  namenullp(pathname)
  > pathname: non-logical pathname
    local bool namenullp (object pathname);
    local bool namenullp(pathname)
      { return nullp(ThePathname(pathname)->pathname_name); } */
-  #define namenullp(path)  (nullp(ThePathname(path)->pathname_name))
+#define namenullp(path)  (nullp(ThePathname(path)->pathname_name))
 
 /* error, if directory does not exist
  > obj: pathname or (better) erroneous component */

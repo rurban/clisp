@@ -1,8 +1,14 @@
 2004-06-24  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (physical_namestring): new function, for modules
+	* genclisph.d (physical_namestring): export it
+	* modules/berkeley-db/bdb.c, modules/syscalls/calls.c: use it
+
+2004-06-24  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/bdb.c (ENV-GET-OPTIONS, ENV-SET-OPTIONS):
 	get and set tas_spins, shm_key, timeouts and encryption
-	(BDB:DB-JOIN, BDB:DB-KEY-RANGE): new functions
+	(BDB:DB-JOIN, BDB:DB-KEY-RANGE, BDB:DB-VERIFY): new functions
 
 2004-06-08  Bruno Haible  <bruno@clisp.org>
 
