@@ -1220,6 +1220,8 @@ interpreter compiler
 (setq *load-truename* nil)
 (proclaim '(special *load-input-stream*))
 (setq *load-input-stream* nil)
+(proclaim '(special *load-level*))
+(setq *load-level* 0)
 
 ; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:echo] [:compiling]),
 ; CLTL S. 426
@@ -1254,6 +1256,9 @@ interpreter compiler
                  (make-echo-stream stream *standard-output*)
                  stream
              ) )
+             (*load-level* (1+ *load-level*))
+             (indent (if (null verbose) ""
+                         (make-string *load-level* :initial-element #\Space)))
              (*load-input-stream* input-stream)
              ; :verbose, :print, :echo und :compiling wirken nicht rekursiv -
              ; dazu hat man ja gerade die Special-Variablen *load-verbose* etc.
@@ -1268,10 +1273,11 @@ interpreter compiler
              (end-of-file "EOF")) ; einmaliges Objekt
         (when verbose
           (fresh-line)
-          (write-string (ENGLISH ";; Loading file "))
+          (write-string ";;")
+          (write-string indent)
+          (write-string (ENGLISH "Loading file "))
           (princ filename)
-          (write-string (ENGLISH " ..."))
-        )
+          (write-string " ..."))
         (sys::allow-read-eval input-stream t)
         (block nil
           (unwind-protect
@@ -1294,7 +1300,9 @@ interpreter compiler
         ) )
         (when verbose
           (fresh-line)
-          (write-string (ENGLISH ";; Loading of file "))
+          (write-string ";;")
+          (write-string indent)
+          (write-string (ENGLISH "Loading of file "))
           (princ filename)
           (write-string (ENGLISH " is finished."))
         )
