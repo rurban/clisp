@@ -1,3 +1,8 @@
+2004-01-31  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (looks_logical_p): return true only if all the
+	characters in the string are legal logical path elements
+
 2004-01-29  Sam Steingold  <sds@gnu.org>
 
 	some fixes for Garnet
