@@ -228,7 +228,7 @@
       ;; this construction uses stack space at run time only
       (UNWIND-PROTECT ,form (MULTIPLE-VALUE-CALL #'%TIME (%%TIME) ,@vars)))))
 ;; ----------------------------------------------------------------------------
-(defmacro space (form)
+(defmacro times (form)
   (let ((var1 (gensym))
         (var2 (gensym))
         (var3 (gensym))
