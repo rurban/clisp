@@ -1,5 +1,12 @@
 1999-03-20  Sam Steingold  <sds@gnu.org>
 
+	Added PostgreSQL interface.  New module: postgresql.
+	* modules/postgresql/postgresql.lsp: bindings.
+	* modules/postgresql/sql.lsp: example of use.
+	* makemake.in: added postgresql.
+
+1999-03-20  Sam Steingold  <sds@gnu.org>
+
 	* describe.lsp (describe-onject): handle foreign functions correctly.
 
 1999-03-19  Sam Steingold  <sds@gnu.org>
