@@ -14,6 +14,7 @@
 ;; so that it doesn't interfere with :after/:around methods that a user could
 ;; install. See MOP p. 60.
 (defmethod initialize-instance ((class class) &rest args)
+  (declare (ignore args))
   (call-next-method) ; == (apply #'shared-initialize class 't args)
   (install-class-direct-accessors class)
   class)
