@@ -2886,14 +2886,10 @@ for f in $TXT_FILES ; do
   fi
   line="${HERE}txt"
   if [ $f = clisp.1 ] ; then
-    if [ $HOS != win32 ] ; then
-      line=$line" | \$(GREP) -v '^ *\$\$'"
-    else
-      : # On Win32, no grep installed. The blank lines don't hurt.
-    fi
+    line=$line" | \$(GREP) -v '^ *\$\$'"
   fi
-  if [ $f = clisp.html ] ; then
-    line=$line" | sed -e 's,=\"${HSDEFAULT}/,=\"${hyperspec}/,' -e \"s,VERSION,\`cat VERSION\`,\""
+  if [ $f = clisp.html -a "${HSDEFAULT}" != "${hyperspec}" ] ; then
+    line=$line" | sed -e 's,=\"${HSDEFAULT}/,=\"${hyperspec}/,'"
   fi
   if [ $f = distmakefile ] ; then
     line=$line" | (libs=''; for f in modules.o lisp.a \$(LIBS); do case \$\$f in -*) libs=\"\$\$libs \$\$f\";; *) libs=\"\$\$libs\"' base/'\"\$\$f\";; esac; done; files=''; for f in modules.o ${FILES}; do files=\"\$\$files\"' base/'\"\$\$f\"; done; sed -e \"s,@@LEXE@@,${LEXE},g\" -e \"s,@@BASE_LIBS@@,\$\$libs,g\" -e \"s,@@BASE_FILES@@,\$\$files,g\")"
