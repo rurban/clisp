@@ -405,11 +405,7 @@
                      (old-direct-accessors (class-direct-accessors class))
                      old-class)
                 ;; ANSI CL 4.3.6. Remove accessor methods created by old DEFCLASS.
-                (do ((l old-direct-accessors (cddr l)))
-                    ((endp l))
-                  (let ((funname (car l))
-                        (method (cadr l)))
-                    (remove-method (fdefinition funname) method)))
+                (remove-accessor-methods old-direct-accessors)
                 (setf (class-direct-accessors class) '())
                 ;; Clear the cached prototype.
                 (setf (class-prototype class) nil)
@@ -431,11 +427,7 @@
                                       (setf (sys::%record-ref class i) (sys::%record-ref old-class i)))
                                     (setf (class-current-version class) new-version))
                                   ;; Restore the accessor methods.
-                                  (do ((l old-direct-accessors (cddr l)))
-                                      ((endp l))
-                                    (let ((funname (car l))
-                                          (method (cadr l)))
-                                      (add-method (fdefinition funname) method)))
+                                  (add-accessor-methods old-direct-accessors)
                                   (setf (class-direct-accessors class) old-direct-accessors))))
                     (apply (cond ((eq metaclass <standard-class>)
                                   #'shared-initialize-<standard-class>)
@@ -466,62 +458,7 @@
                      :name name
                      :direct-superclasses direct-superclasses
                      all-keys))))
-    (dolist (slot (class-direct-slots class))
-      (let ((slot-name (slot-definition-name slot))
-            (readers (slot-definition-readers slot))
-            (writers (slot-definition-writers slot)))
-        (dolist (funname readers)
-          (setf (class-direct-accessors class)
-                (list* funname
-                       (do-defmethod funname
-                         (let* ((args
-                                  (list
-                                    :initfunction
-                                      (eval
-                                        `#'(LAMBDA (#:SELF)
-                                             (DECLARE (COMPILE))
-                                             (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
-                                               (DECLARE (COMPILE))
-                                               (SLOT-VALUE OBJECT ',slot-name))))
-                                    :wants-next-method-p t
-                                    :parameter-specializers (list class)
-                                    :qualifiers nil
-                                    :signature (make-signature :req-num 1)
-                                    :slot-definition slot))
-                                (method-class
-                                  (apply #'reader-method-class class slot args)))
-                           (unless (and (class-p method-class)
-                                        (subclassp method-class <standard-reader-method>))
-                             (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                                    'reader-method-class name 'standard-reader-method method-class))
-                           (apply #'make-instance method-class args)))
-                       (class-direct-accessors class))))
-        (dolist (funname writers)
-          (setf (class-direct-accessors class)
-                (list* funname
-                       (do-defmethod funname
-                         (let* ((args
-                                  (list
-                                    :initfunction
-                                      (eval
-                                        `#'(LAMBDA (#:SELF)
-                                             (DECLARE (COMPILE))
-                                             (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
-                                               (DECLARE (COMPILE))
-                                               (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))))
-                                    :wants-next-method-p t
-                                    :parameter-specializers (list <t> class)
-                                    :qualifiers nil
-                                    :signature (make-signature :req-num 2)
-                                    :slot-definition slot))
-                                (method-class
-                                  (apply #'writer-method-class class slot args)))
-                           (unless (and (class-p method-class)
-                                        (subclassp method-class <standard-writer-method>))
-                             (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
-                                    'writer-method-class name 'standard-writer-method method-class))
-                           (apply #'make-instance method-class args)))
-                       (class-direct-accessors class))))))
+    (install-class-direct-accessors class)
     class))
 (defun equal-direct-slots (slots1 slots2)
   (or (and (null slots1) (null slots2))
@@ -1207,6 +1144,83 @@
       (error (TEXT "Wrong ~S result for class ~S: list contains duplicate initarg names: ~S")
              'compute-default-initargs (class-name class) default-initargs))
     default-initargs))
+
+;; ----------------------------- Accessor Methods -----------------------------
+
+;; Install the accessor methods corresponding to the direct slots of a class.
+(defun install-class-direct-accessors (class)
+  (dolist (slot (class-direct-slots class))
+    (let ((slot-name (slot-definition-name slot))
+          (readers (slot-definition-readers slot))
+          (writers (slot-definition-writers slot)))
+      (dolist (funname readers)
+        (setf (class-direct-accessors class)
+              (list* funname
+                     (do-defmethod funname
+                       (let* ((args
+                                (list
+                                  :initfunction
+                                    (eval
+                                      `#'(LAMBDA (#:SELF)
+                                           (DECLARE (COMPILE))
+                                           (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION OBJECT)
+                                             (DECLARE (COMPILE))
+                                             (SLOT-VALUE OBJECT ',slot-name))))
+                                  :wants-next-method-p t
+                                  :parameter-specializers (list class)
+                                  :qualifiers nil
+                                  :signature (make-signature :req-num 1)
+                                  :slot-definition slot))
+                              (method-class
+                                (apply #'reader-method-class class slot args)))
+                         (unless (and (class-p method-class)
+                                      (subclassp method-class <standard-reader-method>))
+                           (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                                  'reader-method-class (class-name class) 'standard-reader-method method-class))
+                         (apply #'make-instance method-class args)))
+                     (class-direct-accessors class))))
+      (dolist (funname writers)
+        (setf (class-direct-accessors class)
+              (list* funname
+                     (do-defmethod funname
+                       (let* ((args
+                                (list
+                                  :initfunction
+                                    (eval
+                                      `#'(LAMBDA (#:SELF)
+                                           (DECLARE (COMPILE))
+                                           (%OPTIMIZE-FUNCTION-LAMBDA (T) (#:CONTINUATION NEW-VALUE OBJECT)
+                                             (DECLARE (COMPILE))
+                                             (SETF (SLOT-VALUE OBJECT ',slot-name) NEW-VALUE))))
+                                  :wants-next-method-p t
+                                  :parameter-specializers (list <t> class)
+                                  :qualifiers nil
+                                  :signature (make-signature :req-num 2)
+                                  :slot-definition slot))
+                              (method-class
+                                (apply #'writer-method-class class slot args)))
+                         (unless (and (class-p method-class)
+                                      (subclassp method-class <standard-writer-method>))
+                           (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                                  'writer-method-class (class-name class) 'standard-writer-method method-class))
+                         (apply #'make-instance method-class args)))
+                     (class-direct-accessors class)))))))
+
+;; Remove a set of accessor methods given as a plist.
+(defun remove-accessor-methods (plist)
+  (do ((l plist (cddr l)))
+      ((endp l))
+    (let ((funname (car l))
+          (method (cadr l)))
+      (remove-method (fdefinition funname) method))))
+
+;; Add a set of accessor methods given as a plist.
+(defun add-accessor-methods (plist)
+  (do ((l plist (cddr l)))
+      ((endp l))
+    (let ((funname (car l))
+          (method (cadr l)))
+      (add-method (fdefinition funname) method))))
 
 ;; --------------- Creation of an instance of <built-in-class> ---------------
 
