@@ -87,7 +87,7 @@ prepare_dynamic_module() {
     dynmod=${DYNMOD-dynmod}
     dyndir=${absolute_currentdir}/${dynmod}
     mkdir -p ${dyndir}
-    dll="lib"; for m in ${NEW_MODULES}; do dll=${dll}-$m; done; dll=${dll}@DLL@
+    dll="lib"; for m in ${NEW_MODULES}; do dll=${dll}-$m; done; dll=${dll}@SHREXT@
     lib=${dyndir}/${dll}; libs=${NEW_LIBS}; verbose @createsharedlib@
     # for each module there will be a hard link to a REQUIRE file
     firstmod=''; othermods=''
@@ -599,7 +599,7 @@ case "$1" in
           done
         done
         func_tmpdir
-        tmpsharedlib="$tmp/clisplink@DLL@"
+        tmpsharedlib="$tmp/clisplink@SHREXT@"
         tmpinitlisp="$tmp/clisplink.lisp"
         # What to do if we abort.
         trap 'rm -rf "$tmp"' 0 1 2 15
