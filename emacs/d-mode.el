@@ -45,7 +45,7 @@
   "Return the name of the current function."
   (save-excursion
     (d-mode-beg-of-defun)
-    (cond ((looking-at "LISPFUN")
+    (cond ((looking-at "LISP")
            (search-forward "(")
            (let ((c-name (buffer-substring-no-properties
                           (point) (scan-sexps (point) 1))))
@@ -72,8 +72,9 @@
   "A valid value for `beginning-of-defun-function' for `d-mode'."
   (re-search-backward
    (eval-when-compile
-    (concat "^" (regexp-opt '("LISPFUN" "local " "global " "#define "
-                              "nonreturning_function" "typedef " "struct ")
+    (concat "^" (regexp-opt '("LISPFUN" "LISPSPECFORM" "local " "global "
+                              "#define " "nonreturning_function"
+                              "typedef " "struct ")
                             t)))
    nil 1))                      ; move to the limit
 
