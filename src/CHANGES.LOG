@@ -23,6 +23,9 @@ User visible changes
   with arguments eof-error-p = NIL and without eof-value, now return NIL
   instead of #<END OF FILE>.
 
+* Arguments passed to MAKE-PATHNAME with value NIL are not overridden by
+  pathname slots in the :DEFAULTS argument any more.
+
 * Fixed a bug: REPLACE signalled an error if the source and destination
   sequences were the same and the source and destination ranges didn't overlap.
 
