@@ -7,7 +7,7 @@
 
 <variablelist>
 <varlistentry><term><literal role="sexp">(ZLIB:Z-VERSION)</literal></term>
- <listitem><simpara>Return the string version of underlying library.
+ <listitem><simpara>Return the string version of the underlying library.
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(ZLIB:COMPRESS source
    &key-amp; level)</literal></term>
@@ -15,8 +15,11 @@
 </simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(ZLIB:UNCOMPRESS
    source destination-length)</literal></term>
- <listitem><simpara>Uncompress the &vector-t; (returned
-   by <function>ZLIB:COMPRESS</function>).</simpara></listitem></varlistentry>
+ <listitem><simpara>Uncompress the source &vector-t; (returned
+   by <function>ZLIB:COMPRESS</function>).
+   <replaceable>destination-length</replaceable> should be no less than
+   the length of the uncompressed &vector-t;.
+</simpara></listitem></varlistentry>
 <varlistentry><term><literal role="sexp">(ZLIB:COMPRESS-BOUND
    source-length)</literal></term>
  <listitem><simpara>Return the maximum length of the return value
