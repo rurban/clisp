@@ -1,5 +1,12 @@
 2002-10-16  Sam Steingold  <sds@gnu.org>
 
+	* complete.lisp (completion): respect (readtable-case *readtable*)
+	when printing and searching completions; do not close the
+	parenthesis when quoting since readline will add a close quote
+	after the closing parenthesis
+
+2002-10-16  Sam Steingold  <sds@gnu.org>
+
 	* realtran.d (F_pi_round_I_F): removed
 	(F_pi2_round_I_F): the second (integer) value is taken mod 4
 	(cos_stack, sin_stack): new functions
