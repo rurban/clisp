@@ -1,5 +1,9 @@
 2004-02-28  Bruno Haible  <bruno@clisp.org>
 
+	* io.d (pr_structure_default): Change error message.
+
+2004-02-28  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (namestring_correctly_parseable_p): Mark as GC-unsafe.
 	* io.d (pr_orecord): Fix GC-safety bug.
 
