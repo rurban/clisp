@@ -152,11 +152,11 @@
 
 # Ein Wrapper um die ioctl-Funktion.
   #undef ioctl
-  global int nonintr_ioctl (int fd, IOCTL_REQUEST_T request, CADDR_T arg);
+  global int nonintr_ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg);
   global int nonintr_ioctl(fd,request,arg)
     var int fd;
     var IOCTL_REQUEST_T request;
-    var CADDR_T arg;
+    var IOCTL_ARGUMENT_T arg;
     { var int retval;
       do { retval = ioctl(fd,request,arg); } while ((retval != 0) && (errno == EINTR));
       return retval;

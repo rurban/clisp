@@ -2754,7 +2754,7 @@ AC_LANG_EXTERN[char* ioctl();], [],
 ioctl_decl="$ioctl_decl1", ioctl_decl="$ioctl_decl2")
 fi
 dnl Then find out about the correct ioctl declaration:
-for y in 'caddr_t arg' '...'; do
+for y in 'caddr_t arg' 'void* arg' '...'; do
 for x in 'int' 'unsigned long' 'long'; do
 if test -z "$have_ioctl"; then
 CL_PROTO_TRY($ioctl_decl[
@@ -2768,7 +2768,8 @@ cl_cv_proto_ioctl_dots=yes
 cl_cv_proto_ioctl_args="int, $cl_cv_proto_ioctl_arg2, ..."
 else
 cl_cv_proto_ioctl_dots=no
-cl_cv_proto_ioctl_args="int, $cl_cv_proto_ioctl_arg2, caddr_t"
+cl_cv_proto_ioctl_arg3=`echo "$y" | sed -e 's, arg,,'`
+cl_cv_proto_ioctl_args="int, $cl_cv_proto_ioctl_arg2, $cl_cv_proto_ioctl_arg3"
 fi
 have_ioctl=1])
 fi
@@ -2778,6 +2779,8 @@ done
 AC_DEFINE_UNQUOTED(IOCTL_REQUEST_T,$cl_cv_proto_ioctl_arg2)
 if test $cl_cv_proto_ioctl_dots = yes; then
 AC_DEFINE(IOCTL_DOTS)
+else
+AC_DEFINE_UNQUOTED(IOCTL_ARGUMENT_T,$cl_cv_proto_ioctl_arg3)
 fi
 ioctl_decl="$ioctl_decl1"
 ioctl_prog='int x = FIONREAD;'
