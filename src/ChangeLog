@@ -1,5 +1,10 @@
 2005-02-21  Sam Steingold  <sds@gnu.org>
 
+	* modules/pari/configure.in, modules/pari/Makefile.in:
+	AC_LIB_LINKFLAGS_BODY should work since 2005-02-16
+
+2005-02-21  Sam Steingold  <sds@gnu.org>
+
 	* defpackage.lisp (defpackage): use SYS::%FIND-PACKAGE instead of
 	FIND-PACKAGE to give a meaningful error for non-existent packages
 
