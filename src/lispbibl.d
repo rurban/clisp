@@ -518,9 +518,9 @@
 
 # Selection of the safety-level:
 # SAFETY=0 : all optimizations are turned on
-# SAFETY=1 : all optimizatiosn, but still STACKCHECKs
+# SAFETY=1 : all optimizations on, but keep STACKCHECKs
 # SAFETY=2 : only simple assembler-support
-# SAFETY=3 : no optimization
+# SAFETY=3 : no optimizations
 #ifndef SAFETY
   #define SAFETY 0
 #endif
@@ -11312,6 +11312,19 @@ nonreturning_function(global, fehler_funname_source,
 # > subr_self: caller(a SUBR)
 nonreturning_function(extern, fehler_lambda_expression, (object obj));
 # is used by EVAL, SYMBOL
+
+# too many/few arguments in a function call
+# > caller : the function that is reporting the error (unbound == EVAL/APPLY)
+# > func   : the function being incorrectly called
+# > ngiven : the number of arguments given
+# < nmax   : the maximum number of arguments accepted
+# < nmin   : the minimum number of arguments required
+nonreturning_function(global, fehler_too_many_args,
+                      (object caller, object func, uintL ngiven, uintL nmax));
+nonreturning_function(global, fehler_too_few_args,
+                      (object caller, object func, uintL ngiven, uintL nmin));
+
+# used by EVAL, FOREIGN1
 
 # Checking of an argument
 # check_...(obj);
