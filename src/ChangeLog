@@ -722,7 +722,7 @@
 	(coerce_function, funcall, apply): not all orecords are
 	special operators
 	* control.d (FMAKUNBOUND): error message spelling
-	* trave.lisp (trace1): ditto
+	* trace.lisp (trace1): ditto
 	* init.lisp (defun): ditto
 	* defs1.lisp (fbound-string): ditto
 
