@@ -44,6 +44,9 @@ User visible changes
 * Fixed a bug: Calling the function INTERACTIVE-STREAM-P with a non-stream
   argument could cause a crash.
 
+* Fixed a bug: The function CERROR signalled an error if more than two
+  arguments were given and the second argument was a condition.
+
 * The function VALUES-LIST now verifies that its argument is a proper list.
 
 Portability

@@ -166,13 +166,14 @@ muffle-cerrors appease-cerrors exit-on-error
   (typecase datum
     (condition
       (when arguments
-        (error-of-type 'type-error
-          :datum arguments :expected-type 'null
-          (DEUTSCH "~S ~S: Überflüssige Argumente ~S"
-           ENGLISH "~S ~S: superfluous arguments ~S"
-           FRANCAIS "~S ~S : Les arguments ~S sont superflus.")
-          caller-name datum arguments
-      ) )
+        (unless (eq caller-name 'cerror)
+          (error-of-type 'type-error
+            :datum arguments :expected-type 'null
+            (DEUTSCH "~S ~S: Überflüssige Argumente ~S"
+             ENGLISH "~S ~S: superfluous arguments ~S"
+             FRANCAIS "~S ~S : Les arguments ~S sont superflus.")
+            caller-name datum arguments
+      ) ) )
       datum
     )
     (symbol
