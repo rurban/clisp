@@ -1008,7 +1008,7 @@
           low_flush_buffered_handle.
         * errunix.d (init_errormsg_table): Change message for EPIPE.
 
-1999-10-05  Sam Shteingold  <sds@ksp.com>
+1999-10-05  Sam Steingold  <sds@ksp.com>
 
 	* socket.d (ADDR_TO_STRING): new macro
 	(HOSTENT_TO_STACK): use it
