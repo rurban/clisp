@@ -145,9 +145,16 @@ global bool equal (object obj1, object obj2)
       /* return equal(Cdr(obj1),Cdr(obj2)); */
       obj1 = Cdr(obj1); obj2 = Cdr(obj2);
       goto start;
+    case_nilvector: case_snilvector:
+      /* (VECTOR NIL) is a STRING _and_ a BIT-VECTOR ! */
+      if (nil_vector_p(obj2))
+        return vector_length(obj1) == vector_length(obj2);
+      if (stringp(obj2) || bit_vector_p(Atype_Bit,obj2))
+        return vector_length(obj2) == 0 && vector_length(obj1) == 0;
+      return false;
     case_sbvector: case_obvector: /* compare bit vectors element-wise: */
       if (!bit_vector_p(Atype_Bit,obj2))
-        return false;
+        return (nil_vector_0_p(obj2) && vector_length(obj1) == 0);
       { /* compare lengths: */
         var uintL len1 = vector_length(obj1);
         if (!(len1 == vector_length(obj2))) goto no;
@@ -165,7 +172,7 @@ global bool equal (object obj1, object obj2)
       }
     case_string: /* compare strings element-wise: */
       if (!stringp(obj2))
-        return false;
+        return (nil_vector_0_p(obj2) && vector_length(obj1) == 0);
       { /* compare lengths: */
         var uintL len1 = vector_length(obj1);
         if (len1 != vector_length(obj2)) goto no;
@@ -186,6 +193,8 @@ global bool equal (object obj1, object obj2)
         case_Rectype_obvector_above;
         case_Rectype_Sbvector_above;
         case_Rectype_string_above;
+        case_Rectype_nilvector_above;
+        case_Rectype_Snilvector_above;
         case Rectype_Pathname:
           /* compare pathnames component-wise: */
           if (!pathnamep(obj2)) goto no;
@@ -307,7 +316,7 @@ local bool elt_compare_T_T (object dv1, uintL index1,
   var const gcv_object_t* ptr2 = &TheSvector(dv2)->data[index2];
   dotimespL(count,count, {
     if (!equalp(*ptr1++,*ptr2++)) goto no;
-      });
+  });
   return true;
  no: return false;
 }
@@ -917,6 +926,11 @@ global bool equalp (object obj1, object obj2)
           } else
             return true;
         }
+      case_nilvector: case_snilvector: /* (VECTOR NIL) */
+        if (nil_vector_p(obj2))
+          return vector_length(obj2) == vector_length(obj1);
+        return vectorp(obj2) &&
+          vector_length(obj2) == 0 && vector_length(obj1) == 0;
       case_mdarray: /* array of rank /=1 */
         if (!mdarrayp(obj2)) return false;
         /* obj1 and obj2 are arrays of rank /=1.
@@ -969,6 +983,8 @@ global bool equalp (object obj1, object obj2)
             case_Rectype_b16vector_above;
             case_Rectype_b32vector_above;
             case_Rectype_string_above;
+            case_Rectype_nilvector_above;
+            case_Rectype_Snilvector_above;
             case_Rectype_vector_above;
             case_Rectype_mdarray_above;
             case_Rectype_Closure_above;
