@@ -2635,6 +2635,109 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #endif
 #endif
 
+
+#if (oint_addr_shift == 0) && (addr_shift == 0) && defined(TYPECODES) && !defined(WIDE_SOFT) && !(defined(SUN3) && !defined(UNIX_SUNOS4) && !defined(WIDE_SOFT))
+# If the address bits are the lower ones and not WIDE_SOFT,
+# memory mapping may be possible.
+
+  #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MULTIMAP_MEMORY) && !(defined(UNIX_SINIX) || defined(UNIX_AIX)) && !defined(NO_SINGLEMAP)
+    # Access to LISP-objects is made easier by putting each LISP-object
+    # to an address that already contains its type information.
+    # But this does not work on SINIX and AIX.
+      #define SINGLEMAP_MEMORY
+  #endif
+
+  #if defined(UNIX_SUNOS4) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_FILE)
+    # Access to Lisp-objects is done through memory-mapping: Each
+    # memory page can be accessed at several addresses.
+      #define MULTIMAP_MEMORY
+      #define MULTIMAP_MEMORY_VIA_FILE
+  #endif
+
+  #if defined(HAVE_SHM) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_SHM)
+    # Access to Lisp-objects is done through memory-mapping: Each
+    # memory page can be accessed at several addresses.
+      #define MULTIMAP_MEMORY
+      #define MULTIMAP_MEMORY_VIA_SHM
+  #endif
+
+  #if (defined(UNIX_LINUX) || defined(UNIX_FREEBSD)) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_FILE)
+     # Access to Lisp-objects is done through memory-mapping: Each
+     # memory page can be accessed at several addresses.
+      #define MULTIMAP_MEMORY
+      #define MULTIMAP_MEMORY_VIA_FILE
+  #endif
+
+#endif
+
+#if defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY)
+  #define MAP_MEMORY
+#endif
+
+#if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MAP_MEMORY) && !(defined(UNIX_HPUX) || defined(UNIX_AIX)) && !defined(NO_TRIVIALMAP)
+  # mmap() allows for a more flexible way of memory management than malloc().
+  # It's not really memory-mapping, but a more comfortable way to
+  # manage two large memory blocks.
+  # But is doesn't work on HP-UX 9 and AIX.
+  #define TRIVIALMAP_MEMORY
+#endif
+
+
+# Way to read the.mem-Files.
+#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) /* || defined(TRIVIALMAP_MEMORY) */) && !defined(HAVE_MMAP) && defined(HAVE_SIGSEGV_RECOVERY) && (SAFETY < 3) && !defined(NO_SELFMADE_MMAP)
+  # The .mem-file will be read in, by pages, if required, between the program
+  # start and the first full GC. You can do that without mmap() if you
+  # catch the SIGSEGV yourself.
+  # This works with SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY, but will only bring
+  # a real benefit with SINGLEMAP_MEMORY. (With TRIVIALMAP_MEMORY loadmem
+  # has to read in the whole mem-file to relocate all pointers.)
+  #define SELFMADE_MMAP
+#endif
+
+
+# Flavor of the garbage collection: normal or generational.
+#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || (defined(MULTIMAP_MEMORY) && (defined(UNIX_LINUX) || defined(UNIX_FREEBSD)))) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && !defined(UNIX_IRIX) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
+  # "generational garbage collection" has some requirements.
+  # With Linux, it will only work with 1.1.52, and higher, which will be checked in makemake.
+  # On IRIX 6, it worked in the past, but leads to core dumps now. Reason unknown. FIXME!
+  #define GENERATIONAL_GC
+#endif
+
+
+#ifdef MAP_MEMORY
+  # Some type-bit combinations might not be allowed
+  #ifdef vm_addr_mask
+    #define tint_allowed_type_mask  ((oint_type_mask & vm_addr_mask) >> oint_type_shift)
+  #endif
+#endif
+
+
+# The type `object' is now fully defined.
+#ifdef WIDE_STRUCT
+  #ifdef GENERATIONAL_GC
+    # The generational GC can't deal with an object-pointer that points
+    # towards two sides.
+    # Thus we enforce alignof(gcv_object_t) = sizeof(gcv_object_t).
+    #define _attribute_aligned_object_  __attribute__ ((aligned(8)))
+  #else
+    #define _attribute_aligned_object_
+  #endif
+  TYPEDEF_OBJECT
+#endif
+
+
+# The type `gcv_object_t' denotes a GC visible object, i.e. a slot inside
+# a heap-allocated object or a STACK slot. If its value is not an immediate
+# object, any call that can trigger GC can modify the pointer value.
+# NEVER write "var gcv_object_t foo;" - this is forbidden!
+typedef object gcv_object_t;
+
+# fake_gcv_object(value)
+# creates a gcv_object that is actually not seen by GC,
+# for use as second word in SKIP2 frames.
+#define fake_gcv_object(value)  as_object(value)
+
+
 # mask of those bits of a tint, which really belong to the type:
 # tint_type_mask = oint_type_mask >> oint_type_shift
 # (a constant expression, without any 'long long's in it!)
@@ -2906,108 +3009,6 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
     (((as_oint(obj) & 1) == 0) || immediate_object_p(obj))
 
 #endif # TYPECODES
-
-
-#if (oint_addr_shift == 0) && (addr_shift == 0) && defined(TYPECODES) && !defined(WIDE_SOFT) && !(defined(SUN3) && !defined(UNIX_SUNOS4) && !defined(WIDE_SOFT))
-# If the address bits are the lower ones and not WIDE_SOFT,
-# memory mapping may be possible.
-
-  #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MULTIMAP_MEMORY) && !(defined(UNIX_SINIX) || defined(UNIX_AIX)) && !defined(NO_SINGLEMAP)
-    # Access to LISP-objects is made easier by putting each LISP-object
-    # to an address that already contains its type information.
-    # But this does not work on SINIX and AIX.
-      #define SINGLEMAP_MEMORY
-  #endif
-
-  #if defined(UNIX_SUNOS4) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_FILE)
-    # Access to Lisp-objects is done through memory-mapping: Each
-    # memory page can be accessed at several addresses.
-      #define MULTIMAP_MEMORY
-      #define MULTIMAP_MEMORY_VIA_FILE
-  #endif
-
-  #if defined(HAVE_SHM) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_SHM)
-    # Access to Lisp-objects is done through memory-mapping: Each
-    # memory page can be accessed at several addresses.
-      #define MULTIMAP_MEMORY
-      #define MULTIMAP_MEMORY_VIA_SHM
-  #endif
-
-  #if (defined(UNIX_LINUX) || defined(UNIX_FREEBSD)) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_FILE)
-     # Access to Lisp-objects is done through memory-mapping: Each
-     # memory page can be accessed at several addresses.
-      #define MULTIMAP_MEMORY
-      #define MULTIMAP_MEMORY_VIA_FILE
-  #endif
-
-#endif
-
-#if defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY)
-  #define MAP_MEMORY
-#endif
-
-#if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MAP_MEMORY) && !(defined(UNIX_HPUX) || defined(UNIX_AIX)) && !defined(NO_TRIVIALMAP)
-  # mmap() allows for a more flexible way of memory management than malloc().
-  # It's not really memory-mapping, but a more comfortable way to
-  # manage two large memory blocks.
-  # But is doesn't work on HP-UX 9 and AIX.
-  #define TRIVIALMAP_MEMORY
-#endif
-
-
-# Way to read the.mem-Files.
-#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) /* || defined(TRIVIALMAP_MEMORY) */) && !defined(HAVE_MMAP) && defined(HAVE_SIGSEGV_RECOVERY) && (SAFETY < 3) && !defined(NO_SELFMADE_MMAP)
-  # The .mem-file will be read in, by pages, if required, between the program
-  # start and the first full GC. You can do that without mmap() if you
-  # catch the SIGSEGV yourself.
-  # This works with SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY, but will only bring
-  # a real benefit with SINGLEMAP_MEMORY. (With TRIVIALMAP_MEMORY loadmem
-  # has to read in the whole mem-file to relocate all pointers.)
-  #define SELFMADE_MMAP
-#endif
-
-
-# Flavor of the garbage collection: normal or generational.
-#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || (defined(MULTIMAP_MEMORY) && (defined(UNIX_LINUX) || defined(UNIX_FREEBSD)))) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && !defined(UNIX_IRIX) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
-  # "generational garbage collection" has some requirements.
-  # With Linux, it will only work with 1.1.52, and higher, which will be checked in makemake.
-  # On IRIX 6, it worked in the past, but leads to core dumps now. Reason unknown. FIXME!
-  #define GENERATIONAL_GC
-#endif
-
-
-#ifdef MAP_MEMORY
-  # Some type-bit combinations might not be allowed
-  #ifdef vm_addr_mask
-    #define tint_allowed_type_mask  ((oint_type_mask & vm_addr_mask) >> oint_type_shift)
-  #endif
-#endif
-
-
-# The type `object' is now fully defined.
-#ifdef WIDE_STRUCT
-  #ifdef GENERATIONAL_GC
-    # The generational GC can't deal with an object-pointer that points
-    # towards two sides.
-    # Thus we enforce alignof(gcv_object_t) = sizeof(gcv_object_t).
-    #define _attribute_aligned_object_  __attribute__ ((aligned(8)))
-  #else
-    #define _attribute_aligned_object_
-  #endif
-  TYPEDEF_OBJECT
-#endif
-
-
-# The type `gcv_object_t' denotes a GC visible object, i.e. a slot inside
-# a heap-allocated object or a STACK slot. If its value is not an immediate
-# object, any call that can trigger GC can modify the pointer value.
-# NEVER write "var gcv_object_t foo;" - this is forbidden!
-typedef object gcv_object_t;
-
-# fake_gcv_object(value)
-# creates a gcv_object that is actually not seen by GC,
-# for use as second word in SKIP2 frames.
-#define fake_gcv_object(value)  as_object(value)
 
 
 # Objects with variable length must reside at addresses that are divisable by 2
