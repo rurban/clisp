@@ -2581,7 +2581,7 @@ in the generic function instance."
             (eval `(LET () (DECLARE (COMPILE) (INLINE FUNCALL APPLY))
                         ,ef-fun))))))))
 
-(defun short-form-method-combination-check-method-qualifiers (gf method-combo method)
+(defun standard-method-combination-check-method-qualifiers (gf method-combo method)
   ;; 28.1.7.2, 28.1.7.4 method qualifiers
   (let ((qualifiers (std-method-qualifiers method)))
     (when qualifiers
@@ -2611,7 +2611,7 @@ in the generic function instance."
         :documentation "the STANDARD METHOD-COMBINATION object"
         :qualifiers '(:before :after :around)
         :expander #'standard-method-combination-expander
-        :check-method-qualifiers #'short-form-method-combination-check-method-qualifiers
+        :check-method-qualifiers #'standard-method-combination-check-method-qualifiers
         :call-next-method-allowed #'standard-method-combination-call-next-method-allowed))
 
 
@@ -4278,7 +4278,7 @@ Long-form options are a list of method-group specifiers,
              ,@(when identity-with-one-argument
                  `(:identity-with-one-argument ',identity-with-one-argument))
              :operator ',operator
-             :qualifiers ',(list operator ':around)
+             :qualifiers ',(list name ':around)
              :expander #'short-form-method-combination-expander
              :check-method-qualifiers #'short-form-method-combination-check-method-qualifiers
              :call-next-method-allowed #'short-form-method-combination-call-next-method-allowed)))
@@ -4566,8 +4566,13 @@ has already transpired."
              *method-combination-generic-function*
              *method-combination* methods em-form)))))
 
-;(defun short-form-method-combination-check-method-qualifiers (gf method-combo method)
-; Already defined above.
+(defun short-form-method-combination-check-method-qualifiers (gf method-combo method)
+  (standard-method-combination-check-method-qualifiers gf method-combo method)
+  (let ((qualifiers (std-method-qualifiers method)))
+    (when (null qualifiers)
+      (error-of-type 'sys::source-program-error
+        (TEXT "~S method combination, used by ~S, does not allow less than one method qualifier on a method: ~S")
+        (method-combination-name method-combo) gf method))))
 
 (defun short-form-method-combination-call-next-method-allowed (gf method-combo method)
   (declare (ignore gf method-combo))
