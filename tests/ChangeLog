@@ -1,3 +1,7 @@
+2001-08-16  Sam Steingold  <sds@gnu.org>
+
+	* loop.tst: one more test
+
 2001-08-04  Bruno Haible  <haible@clisp.cons.org>
 
 	* lambda.tst: Add more :ALLOW-OTHER-KEYS tests.

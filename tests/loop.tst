@@ -819,6 +819,9 @@ nil
 (loop for i from 1 to 5 collect i into c collect (copy-list c))
 ((1) (1 2) (1 2 3) (1 2 3 4) (1 2 3 4 5))
 
+(let ((rem 55)) (loop for i below 3 with num = (* 10 rem) and rem collect rem))
+(nil nil nil)
+
 ;; Clean up.
 (progn (delete-package "LOOP-TEST") t)
 T
