@@ -1151,8 +1151,10 @@
 ;; this function does not return anything useful,
 ;; since CLISP complex numbers can always hold any number
 (defun upgraded-complex-part-type (spec)
-  (declare (ignore spec))
-  t)
+  (if (subtypep spec 'real) 'real
+      (error-of-type 'error
+        (TEXT "~S: type ~S is not a subtype of ~S")
+        'upgraded-complex-part-type spec 'real)))
 
 #-UNICODE
 (defun charset-subtypep (encoding1 encoding2)
