@@ -1,14 +1,16 @@
-# Pathnames for CLISP
-# Bruno Haible 1990-2002
-# Logical Pathnames: Marcus Daniels 16.9.1994
-# ANSI compliance, bugs: Sam Steingold 1998-2002
-# German comments translated into English: Stefan Kain 2002-01-03
+/*
+ * Pathnames for CLISP
+ * Bruno Haible 1990-2003
+ * Logical Pathnames: Marcus Daniels 16.9.1994
+ * ANSI compliance, bugs: Sam Steingold 1998-2003
+ * German comments translated into English: Stefan Kain 2002-01-03
+ */
 
 #include "lispbibl.c"
 
 #ifdef HAVE_DISASSEMBLER
-  #include <string.h> # declares strlen()
-  #ifdef RETSTRLENTYPE # unless strlen() is a macro
+  #include <string.h> /* declares strlen() */
+  #ifdef RETSTRLENTYPE /* unless strlen() is a macro */
     extern_C RETSTRLENTYPE strlen (STRLEN_CONST char* s);
   #endif
 #endif
@@ -2119,8 +2121,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
       }
       # build rest-piece:
       pushSTACK(subsstring(STACK_1,z.index,z.index+z.count));
-      # merge both, replace thing:
-      {
+      { /* merge both, replace thing: */
         var uintL envval_len = Sstring_length(STACK_1);
         var object new_thing = string_concat(2);
         STACK_(4+1) = STACK_0 = new_thing;
@@ -3779,9 +3780,8 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild))) {
     goto notmatch_directories;
   }
  #endif /* HAS_DEVICE */
-  # match directories:
  match_directories:
-  {
+  { /* match directories: */
     pushSTACK(p); pushSTACK(d); pushSTACK(newp);
     ThePathname(STACK_0)->pathname_directory =
       merge_dirs(ThePathname(p)->pathname_directory,
@@ -3932,8 +3932,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL) {
             goto subdirs_ok;
           }
          insert_RELATIVE:
-          # new-subdirs := (cons :RELATIVE new-subdirs) :
-          {
+          { /* new-subdirs := (cons :RELATIVE new-subdirs) : */
             pushSTACK(new_subdirs);
             new_subdirs = allocate_cons();
             Cdr(new_subdirs) = popSTACK(); Car(new_subdirs) = S(Krelative);
@@ -7491,8 +7490,7 @@ local object OSdirnamestring (object namestring) {
 #     contains no :RELATIVE, :CURRENT, :PARENT, and name and type are =NIL.
 # can trigger GC
 local void change_default (void) {
-  # change default-directory for this drive:
-  {
+  { /* change default-directory for this drive: */
     var object pathname = STACK_0;
     var uintC stringcount =
       directory_namestring_parts(pathname); # strings for the directory
