@@ -574,6 +574,14 @@
   #endif
 
 
+# Flags for the system's include files.
+  #ifdef MULTITHREAD
+    #if defined(UNIX_LINUX) || defined(UNIX_SUNOS5)
+      #define _REENTRANT
+    #endif
+  #endif
+
+
 # Width of object representation:
 # WIDE means than an object (pointer) occupies 64 bits (instead of 32 bits).
 # WIDE_HARD means on a 64-bit platform.
@@ -12079,6 +12087,14 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
 # Schaltet die Grafik auf Text-Modus zurück.
 # switch_text_mode();
   extern void switch_text_mode (void);
+
+#endif
+
+# ######################## THREADBIBL zu THREAD.D ######################### #
+
+#ifdef MULTITHREAD
+
+#include "xthread.c"
 
 #endif
 

@@ -1,3 +1,12 @@
+1998-06-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * xthread.d: New file.
+        * lispbibl.d: Include it if defined(MULTITHREAD).
+          (_REENTRANT): Define if defined(MULTITHREAD).
+        * makemake.in (OS_includes): Add xthread.
+        * FILES.1: Update.
+        * gettext/po/Makefile.devel (DSOURCES): Likewise.
+
 1998-06-21  Gilbert Baumann  <unk6@rz.uni-karlsruhe.de>
 
         * impnotes.html: Fix a couple of syntax errors.
