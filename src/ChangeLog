@@ -1,3 +1,33 @@
+2005-01-17  Sam Steingold  <sds@gnu.org>
+
+	DEFCHECKER now accepts new "PREFIX" argument
+	* utils/modprep.lisp (prev-non-blank): made more robust
+	(*commands*, split-command, argument-string)
+	(ensure-argument-string): added
+	(defmodule-p): use SPLIT-COMMAND
+	(checker): new slot PREFIX
+	(to-C-name): new function
+	(new-flag-set, new-checker): :CONDITION is now a &KEY argument;
+	also accept :TYPE & :PREFIX
+	(word-list): rewrote; return the un-reversed list
+	(def-something-p): accept a NAME->CONSTRUCTOR alist; pass TYPE and
+	PREFIX to constructor
+	(parse): call DEF-SOMETHING-P just once
+	(print-tables-1): respect PREFIX when printing checkers
+	* modules/i18n/gettext.c (check_locale_category): use prefix "LC"
+	* modules/rawsock/rawsock.c (check_socket_domain): use prefix "AF"
+	(check_socket_type): use prefix "SOCK"
+	(check_socket_protocol): use prefix "ETH_P"
+	* modules/syscalls/calls.c (sysconf_arg): use prefix "_SC"
+	(confstr_arg): use prefix "_CS"
+	(getrlimit_arg): use prefix "RLIMIT"
+	(mknod_type_check): use prefix "S"
+	* modules/berkeley-db/bdb.c (txn_check_sync): use prefix "DB_TXN"
+	(check_lk_detect, check_lockmode): use prefix "DB_LOCK"
+	(dbe_encryption_check, db_get_action, db_put_action, dbc_get_action)
+	(dbc_put_flag, logc_get_action): use prefix "DB"
+	(txn_timeout_check): use prefix "DB_SET"
+
 2005-01-01  Bruno Haible  <bruno@clisp.org>
 
 	* condition.lisp (exitonerror): Treat non-meaningful or interactive
