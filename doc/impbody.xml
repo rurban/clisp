@@ -2385,8 +2385,8 @@ and the international alphabetic characters from the character set:
  <constant>:INITIAL-CONTENTS</constant> and <constant>:WEAK</constant>:</para>
 
 <programlisting language="lisp">
-(&make-hash-table; &key-amp; :test :initial-contents :size
-                 :rehash-size :rehash-threshold
+(&make-hash-table; &key-amp; :TEST :INITIAL-CONTENTS :SIZE
+                 :REHASH-SIZE :REHASH-THRESHOLD
                  :warn-if-needs-rehash-after-gc :weak)
 </programlisting>
 
@@ -2414,7 +2414,7 @@ and the international alphabetic characters from the character set:
      &structure-stablehash; instances.</simpara></listitem></varlistentry>
  </variablelist>
  One can recommend to use &fasthash-eq; for short-lived hash tables.
- For hash tables with a long lifespan which can be big or accessed
+ For tables with a longer lifespan which can be big or accessed
  frequently, it is recommended to use &stablehash-eq;, and to modify the
  objects that are used as its keys to become instances of
  &standard-stablehash; or &structure-stablehash;.
@@ -2431,8 +2431,8 @@ be one of &fasthash-eq;, &stablehash-eq;.</para>
  <constant>EXT:FASTHASH-EQUAL</constant>,
  <constant>EXT:STABLEHASH-EQUAL</constant>.
  The same remarks apply as for &fasthash-eq; and &stablehash-eq;.
- When the symbol &eql; or the function <literal>#'eql</literal> is used as a
- &test-k; argument, the value of the variable
+ When the symbol &eql; or the function <literal>#'eql</literal> is used
+ as a &test-k; argument, the value of the variable
  <varname>EXT:*EQL-HASHFUNCTION*</varname> is used instead; this value must
  be one of <constant>EXT:FASTHASH-EQL</constant>,
  <constant>EXT:STABLEHASH-EQL</constant>.
@@ -3354,9 +3354,8 @@ pointing to non-existent files and can take the following values:
 
 <para>The function <code>(&rd-integer; &stream-r;
     &eltype-r; &optional-amp; &endianness; &eof-ep; &eof-v;)</code>
- reads a multi-byte &integer-t; from &stream-r;.
- &stream-r; should be a &stream-t; with &stream-element-type;
- &unsigned-byte-8;.
+ reads a multi-byte &integer-t; from &stream-r;, which should be a
+ &stream-t; with &stream-element-type; &unsigned-byte-8;.
  &eltype-r; should be &type-eq; to &unsigned-byte-n;,
  where &n-r; is a multiple of 8.</para>
 
@@ -3373,15 +3372,17 @@ pointing to non-existent files and can take the following values:
 <para>The function <code>(&rd-float; &stream-r; &eltype-r;
   &optional-amp; &endianness; &eof-ep; &eof-v;)</code> reads a
  floating-point number in &ieee-bfp; binary representation from
- &stream-r;.  &stream-r; should be a &stream-t; with
+ &stream-r;, which should be a &stream-t; with
  &stream-element-type; &unsigned-byte-8;.  &eltype-r; should be
  &type-eq; to &single-float-t; or &double-float-t;.</para>
 
 <formalpara id="endianness"><title>Endianness</title>
-<para>&endianness; can be <constant>:LITTLE</constant>
- or <constant>:BIG</constant>.  The default is
- <constant>:LITTLE</constant>, which corresponds to the &read-byte;
- behavior in &clisp;.</para></formalpara>
+ <para><firstterm>&endianness;
+   <indexterm id="endianness-i" significance="preferred">
+    <primary>endianness</primary></indexterm></firstterm>
+  can be <constant>:LITTLE</constant> or <constant>:BIG</constant>.
+  The default is <constant>:LITTLE</constant>, which corresponds
+  to the &read-byte; behavior in &clisp;.</para></formalpara>
 
 </section>
 
@@ -3389,8 +3390,8 @@ pointing to non-existent files and can take the following values:
   &wr-integer; &amp; &wr-float;</title>
 
 <para>The function <code>(&wr-integer; &int-r; &stream-r; &eltype-r;
-  &optional-amp; &endianness;)</code> writes a multi-byte integer to
- &stream-r;.  &stream-r; should be a &stream-t; with
+  &optional-amp; &endianness;)</code> writes a multi-byte &integer-t; to
+ &stream-r;, which should be a &stream-t; with
  &stream-element-type; &unsigned-byte-8;.  &eltype-r; should be
  &type-eq; to &unsigned-byte-n;, where &n-r; is a multiple of 8.</para>
 
@@ -3407,8 +3408,8 @@ pointing to non-existent files and can take the following values:
 <para>The function <code>(&wr-float; <replaceable>float</replaceable>
   &stream-r; &eltype-r; &optional-amp; &endianness;)</code> writes a
  floating-point number in &ieee-bfp; binary representation to
- &stream-r;.  &stream-r; should be a &stream-t; with
- &stream-element-type; &unsigned-byte-8;.  &eltype-r; should be
+ &stream-r;, which should be a &stream-t; with &stream-element-type;
+ &unsigned-byte-8;.  &eltype-r; should be
  &type-eq; to &single-float-t; or &double-float-t;.</para>
 
 </section>
