@@ -9611,8 +9611,9 @@ local bool clear_input_terminal2 (object stream) {
 #define TERMINAL_OUTBUFFERED   true
 
 local bool want_filename_completion;
-local char** lisp_completion_matches (char* text, int start, int end) {
-  # text[0..end-start-1] = the_line[start..end-1]
+local char** lisp_completion_matches (READLINE_CONST char* text,
+                                      int start, int end)
+{ /* text[0..end-start-1] = the_line[start..end-1] */
   if (((start>=2)
        && (rl_line_buffer[start-2]=='#')
        && (rl_line_buffer[start-1]== '\"'))
@@ -9620,7 +9621,7 @@ local char** lisp_completion_matches (char* text, int start, int end) {
           && (rl_line_buffer[start-3]=='#')
           && (rl_line_buffer[start-2]=='P' || rl_line_buffer[start-2]=='p')
           && (rl_line_buffer[start-1]== '\"'))) {
-    # Completion after #" or #P" relates to file names:
+    /* Completion after #" or #P" relates to file names: */
     want_filename_completion = true; return NULL;
   }
   var char** result = lisp_completion(rl_line_buffer,start,end);
@@ -9630,7 +9631,7 @@ local char** lisp_completion_matches (char* text, int start, int end) {
 
 # If the function above returns NULL (no Matches), the following
 # function is called until it returns NULL on its part.
-local char* lisp_completion_more (char* text, int state) {
+local char* lisp_completion_more (READLINE_CONST char* text, int state) {
   if (want_filename_completion)
     return READLINE_FILE_COMPLETE(text,state);
   else

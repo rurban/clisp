@@ -495,6 +495,10 @@
 /* type of `pid' in waitpid() declaration */
 #undef PID_T
 
+/* declaration of filename_completion_function() needs const in the first
+   argument */
+#undef READLINE_CONST
+
 /* The readline built-in filename completion function, either
    rl_filename_completion_function() or filename_completion_function() */
 #undef READLINE_FILE_COMPLETE
