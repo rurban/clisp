@@ -1,6 +1,6 @@
 # Makefile for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host mescaline.gnu.org as the output of the command:
+# This file was created on host melange.gnu.org as the output of the command:
 # ./makemake dosdjgpp gcc
 
 # -------------- Start of configurable section --------------------
@@ -11,16 +11,16 @@ exec_prefix = $(prefix)
 bindir = $(exec_prefix)\bin
 mandir = $(exec_prefix)\man
 libdir = $(exec_prefix)\lib
-lisplibdir = $(libdir)\lisp
+lisplibdir = $(libdir)\clisp
 
 # List of add-on modules:
 # queens               the queens function as a separate module
 # If you change this after doing "make", you have to "rm -r full; make".
-MODULES = 
+MODULES =  
 
 # Programs used by "make":
 CC = gcc
-CFLAGS = -fomit-frame-pointer -O2 -fexpensive-optimizations -fno-strength-reduce
+CFLAGS = -fomit-frame-pointer -O2 -fexpensive-optimizations
 CPP = gcc -E
 CLFLAGS =  -x none
 LIBS = readline/libreadline.a  -lpc
@@ -157,6 +157,35 @@ avl.d \
 sort.d \
 subrkw.d \
 bytecode.d \
+spvw_module.d \
+spvw_debug.d \
+spvw_alloca.d \
+spvw_mmap.d \
+spvw_multimap.d \
+spvw_singlemap.d \
+spvw_page.d \
+spvw_heap.d \
+spvw_global.d \
+spvw_gcstat.d \
+spvw_space.d \
+spvw_mark.d \
+spvw_objsize.d \
+spvw_update.d \
+spvw_fault.d \
+spvw_sigsegv.d \
+spvw_sigcld.d \
+spvw_sigint.d \
+spvw_sigwinch.d \
+spvw_garcol.d \
+spvw_genera1.d \
+spvw_genera2.d \
+spvw_genera3.d \
+spvw_allocate.d \
+spvw_typealloc.d \
+spvw_circ.d \
+spvw_walk.d \
+spvw_language.d \
+spvw_memfile.d \
 errdjgpp.d \
 aridecl.d \
 arilev0.d \
@@ -230,6 +259,35 @@ avl.c \
 sort.c \
 subrkw.c \
 bytecode.c \
+spvw_module.c \
+spvw_debug.c \
+spvw_alloca.c \
+spvw_mmap.c \
+spvw_multimap.c \
+spvw_singlemap.c \
+spvw_page.c \
+spvw_heap.c \
+spvw_global.c \
+spvw_gcstat.c \
+spvw_space.c \
+spvw_mark.c \
+spvw_objsize.c \
+spvw_update.c \
+spvw_fault.c \
+spvw_sigsegv.c \
+spvw_sigcld.c \
+spvw_sigint.c \
+spvw_sigwinch.c \
+spvw_garcol.c \
+spvw_genera1.c \
+spvw_genera2.c \
+spvw_genera3.c \
+spvw_allocate.c \
+spvw_typealloc.c \
+spvw_circ.c \
+spvw_walk.c \
+spvw_language.c \
+spvw_memfile.c \
 errdjgpp.c \
 aridecl.c \
 arilev0.c \
@@ -320,10 +378,10 @@ clos.lsp \
 conditio.lsp \
 defs3.lsp \
 gstream.lsp \
+xcharin.lsp \
 foreign1.lsp \
 screen.lsp \
 rexx1.lsp \
-editor.lsp \
 spanish.lsp
 
 FASFILES = \
@@ -353,10 +411,10 @@ clos.fas \
 conditio.fas \
 defs3.fas \
 gstream.fas \
+xcharin.fas \
 foreign1.fas \
 screen.fas \
 rexx1.fas \
-editor.fas \
 spanish.fas
 
 TXTFILES = \
@@ -392,10 +450,10 @@ stage\clos.lsp \
 stage\conditio.lsp \
 stage\defs3.lsp \
 stage\gstream.lsp \
+stage\xcharin.lsp \
 stage\foreign1.lsp \
 stage\screen.lsp \
 stage\rexx1.lsp \
-stage\editor.lsp \
 stage\spanish.lsp
 
 TESTFASFILES = \
@@ -425,17 +483,17 @@ stage\clos.fas \
 stage\conditio.fas \
 stage\defs3.fas \
 stage\gstream.fas \
+stage\xcharin.fas \
 stage\foreign1.fas \
 stage\screen.fas \
 stage\rexx1.fas \
-stage\editor.fas \
 stage\spanish.fas
 
 
 all : init allc allo lisp.exe interpreted.mem halfcompiled.mem lispinit.mem manual
 
 
-init : comment5.exe ansidecl.exe txt2c.exe ccmp2c.exe $(DFILES) modules.h
+init : comment5.exe ansidecl.exe txt2c.exe ccmp2c.exe modprep.exe $(DFILES) modules.h
 
 comment5.exe : ..\utils\comment5.c
 	$(CC) $(CFLAGS) $(CLFLAGS) ../utils/comment5.c -o comment5
@@ -464,6 +522,13 @@ ccmp2c.exe : ..\utils\ccmp2c.d comment5.exe ansidecl.exe
 	$(COFF2EXE) ccmp2c ccmp2c.exe
 	$(RM) ccmp2c
 	$(RM) ccmp2c.c
+
+modprep.exe : ..\utils\modprep.d comment5.exe ansidecl.exe
+	$(COMMENT5) ../utils/modprep.d | $(ANSIDECL) > modprep.c
+	$(CC) $(CFLAGS) $(CLFLAGS) modprep.c -o modprep
+	$(COFF2EXE) modprep modprep.exe
+	$(RM) modprep
+	$(RM) modprep.c
 
 
 allc : init $(CFILES)
@@ -575,6 +640,93 @@ subrkw.c : subrkw.d comment5.exe ansidecl.exe
 
 bytecode.c : bytecode.d comment5.exe ansidecl.exe
 	$(COMMENT5) bytecode.d | $(ANSIDECL) > bytecode.c
+
+spvw_module.c : spvw_module.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_module.d | $(ANSIDECL) > spvw_module.c
+
+spvw_debug.c : spvw_debug.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_debug.d | $(ANSIDECL) > spvw_debug.c
+
+spvw_alloca.c : spvw_alloca.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_alloca.d | $(ANSIDECL) > spvw_alloca.c
+
+spvw_mmap.c : spvw_mmap.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_mmap.d | $(ANSIDECL) > spvw_mmap.c
+
+spvw_multimap.c : spvw_multimap.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_multimap.d | $(ANSIDECL) > spvw_multimap.c
+
+spvw_singlemap.c : spvw_singlemap.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_singlemap.d | $(ANSIDECL) > spvw_singlemap.c
+
+spvw_page.c : spvw_page.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_page.d | $(ANSIDECL) > spvw_page.c
+
+spvw_heap.c : spvw_heap.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_heap.d | $(ANSIDECL) > spvw_heap.c
+
+spvw_global.c : spvw_global.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_global.d | $(ANSIDECL) > spvw_global.c
+
+spvw_gcstat.c : spvw_gcstat.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_gcstat.d | $(ANSIDECL) > spvw_gcstat.c
+
+spvw_space.c : spvw_space.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_space.d | $(ANSIDECL) > spvw_space.c
+
+spvw_mark.c : spvw_mark.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_mark.d | $(ANSIDECL) > spvw_mark.c
+
+spvw_objsize.c : spvw_objsize.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_objsize.d | $(ANSIDECL) > spvw_objsize.c
+
+spvw_update.c : spvw_update.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_update.d | $(ANSIDECL) > spvw_update.c
+
+spvw_fault.c : spvw_fault.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_fault.d | $(ANSIDECL) > spvw_fault.c
+
+spvw_sigsegv.c : spvw_sigsegv.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_sigsegv.d | $(ANSIDECL) > spvw_sigsegv.c
+
+spvw_sigcld.c : spvw_sigcld.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_sigcld.d | $(ANSIDECL) > spvw_sigcld.c
+
+spvw_sigint.c : spvw_sigint.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_sigint.d | $(ANSIDECL) > spvw_sigint.c
+
+spvw_sigwinch.c : spvw_sigwinch.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_sigwinch.d | $(ANSIDECL) > spvw_sigwinch.c
+
+spvw_garcol.c : spvw_garcol.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_garcol.d | $(ANSIDECL) > spvw_garcol.c
+
+spvw_genera1.c : spvw_genera1.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_genera1.d | $(ANSIDECL) > spvw_genera1.c
+
+spvw_genera2.c : spvw_genera2.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_genera2.d | $(ANSIDECL) > spvw_genera2.c
+
+spvw_genera3.c : spvw_genera3.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_genera3.d | $(ANSIDECL) > spvw_genera3.c
+
+spvw_allocate.c : spvw_allocate.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_allocate.d | $(ANSIDECL) > spvw_allocate.c
+
+spvw_typealloc.c : spvw_typealloc.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_typealloc.d | $(ANSIDECL) > spvw_typealloc.c
+
+spvw_circ.c : spvw_circ.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_circ.d | $(ANSIDECL) > spvw_circ.c
+
+spvw_walk.c : spvw_walk.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_walk.d | $(ANSIDECL) > spvw_walk.c
+
+spvw_language.c : spvw_language.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_language.d | $(ANSIDECL) > spvw_language.c
+
+spvw_memfile.c : spvw_memfile.d comment5.exe ansidecl.exe
+	$(COMMENT5) spvw_memfile.d | $(ANSIDECL) > spvw_memfile.c
 
 errdjgpp.c : errdjgpp.d comment5.exe ansidecl.exe
 	$(COMMENT5) errdjgpp.d | $(ANSIDECL) > errdjgpp.c
@@ -691,13 +843,13 @@ alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s pathname.s 
 # Normally not used (just for debugging).
 alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i pathname.i stream.i io.i array.i hashtabl.i list.i package.i record.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i graph.i
 
-spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c constpack.c avl.c sort.c subrkw.c arilev0.c aridecl.c version.h
+spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c version.h
 	$(CPP) $(CFLAGS) spvw.c > spvw.i
 
-spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c constpack.c avl.c sort.c subrkw.c arilev0.c aridecl.c version.h
+spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c version.h
 	$(CC) $(CFLAGS) -S spvw.c
 
-spvw.o : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c constpack.c avl.c sort.c subrkw.c arilev0.c aridecl.c version.h
+spvw.o : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigint.c spvw_sigwinch.c spvw_garcol.c spvw_genera1.c spvw_genera2.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_language.c spvw_memfile.c sort.c subrkw.c arilev0.c aridecl.c version.h
 	$(CC) $(CFLAGS) -c spvw.c
 
 spvwtabf.i : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c msdos.c
@@ -937,7 +1089,7 @@ noreadline.o : noreadline.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c con
 ari80386.o : ari80386.s
 	$(CC) $(CFLAGS) -x assembler -c ari80386.s
 
-lisp.exe : $(OBJECTS) modules.o  readline/libreadline.a  
+lisp.exe : $(OBJECTS) modules.o  readline/libreadline.a   
 	$(RM) lisp
 	$(RM) lisp.exe
 	$(CC) -o lisp @gcclink.in $(CLFLAGS) $(LIBS)
@@ -952,105 +1104,105 @@ config.lsp : cfgdos.lsp
 
 interpreted.mem : lisp.exe $(LSPFILES)
 	-$(RM) interpreted.mem
-	lisp.exe -m 750KW < interpreted.in
+	lisp.exe -m 750KW -norc < interpreted.in
 	$(MV) lispimag.mem interpreted.mem
 
 init.fas : init.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c init.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c init.lsp
 
 defseq.fas : defseq.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c defseq.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c defseq.lsp
 
 backquot.fas : backquot.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c backquot.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c backquot.lsp
 
 defmacro.fas : defmacro.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c defmacro.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c defmacro.lsp
 
 macros1.fas : macros1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c macros1.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c macros1.lsp
 
 macros2.fas : macros2.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c macros2.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c macros2.lsp
 
 defs1.fas : defs1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c defs1.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c defs1.lsp
 
 timezone.fas : timezone.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c timezone.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c timezone.lsp
 
 places.fas : places.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c places.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c places.lsp
 
 floatpri.fas : floatpri.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c floatpri.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c floatpri.lsp
 
 type.fas : type.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c type.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c type.lsp
 
 defstruc.fas : defstruc.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c defstruc.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c defstruc.lsp
 
 format.fas : format.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c format.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c format.lsp
 
 user1.fas : user1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c user1.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c user1.lsp
 
 user2.fas : user2.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c user2.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c user2.lsp
 
 trace.fas : trace.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c trace.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c trace.lsp
 
 macros3.fas : macros3.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c macros3.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c macros3.lsp
 
 config.fas : config.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c config.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c config.lsp
 
 compiler.fas : compiler.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c compiler.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c compiler.lsp
 
 disassem.fas : disassem.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c disassem.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c disassem.lsp
 
 defs2.fas : defs2.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c defs2.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c defs2.lsp
 
 loop.fas : loop.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c loop.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c loop.lsp
 
 clos.fas : clos.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c clos.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c clos.lsp
 
 conditio.fas : conditio.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c conditio.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c conditio.lsp
 
 defs3.fas : defs3.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c defs3.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c defs3.lsp
 
 gstream.fas : gstream.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c gstream.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c gstream.lsp
+
+xcharin.fas : xcharin.lsp lisp.exe interpreted.mem
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c xcharin.lsp
 
 foreign1.fas : foreign1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c foreign1.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c foreign1.lsp
 
 screen.fas : screen.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c screen.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c screen.lsp
 
 rexx1.fas : rexx1.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c rexx1.lsp
-
-editor.fas : editor.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c editor.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c rexx1.lsp
 
 spanish.fas : spanish.lsp lisp.exe interpreted.mem
-	lisp.exe -m 1000KW -M interpreted.mem -q -c spanish.lsp
+	lisp.exe -m 1000KW -M interpreted.mem -norc -q -c spanish.lsp
 
 halfcompiled.mem : lisp.exe $(LSPFILES) compiler.fas
 	-$(RM) interpreted.mem
-	lisp.exe -m 750KW < interpreted.in
+	lisp.exe -m 750KW -norc < interpreted.in
 	$(MV) lispimag.mem interpreted.mem
 	$(TOUCH) interpreted.mem
 	$(TOUCH) compiler.fas
@@ -1058,7 +1210,7 @@ halfcompiled.mem : lisp.exe $(LSPFILES) compiler.fas
 
 lispinit.mem : lisp.exe $(FASFILES)
 	-$(RM) lispinit.mem
-	lisp.exe < lispinit.in
+	lisp.exe -norc < lispinit.in
 	$(MV) lispimag.mem lispinit.mem
 
 
@@ -1151,6 +1303,9 @@ stage\defs3.lsp : defs3.lsp
 stage\gstream.lsp : gstream.lsp
 	$(LN) gstream.lsp stage
 
+stage\xcharin.lsp : xcharin.lsp
+	$(LN) xcharin.lsp stage
+
 stage\foreign1.lsp : foreign1.lsp
 	$(LN) foreign1.lsp stage
 
@@ -1160,107 +1315,104 @@ stage\screen.lsp : screen.lsp
 stage\rexx1.lsp : rexx1.lsp
 	$(LN) rexx1.lsp stage
 
-stage\editor.lsp : editor.lsp
-	$(LN) editor.lsp stage
-
 stage\spanish.lsp : spanish.lsp
 	$(LN) spanish.lsp stage
 
 stage\init.fas : stage\init.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/init.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/init.lsp
 
 stage\defseq.fas : stage\defseq.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/defseq.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/defseq.lsp
 
 stage\backquot.fas : stage\backquot.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/backquot.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/backquot.lsp
 
 stage\defmacro.fas : stage\defmacro.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/defmacro.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/defmacro.lsp
 
 stage\macros1.fas : stage\macros1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/macros1.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/macros1.lsp
 
 stage\macros2.fas : stage\macros2.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/macros2.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/macros2.lsp
 
 stage\defs1.fas : stage\defs1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/defs1.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/defs1.lsp
 
 stage\timezone.fas : stage\timezone.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/timezone.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/timezone.lsp
 
 stage\places.fas : stage\places.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/places.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/places.lsp
 
 stage\floatpri.fas : stage\floatpri.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/floatpri.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/floatpri.lsp
 
 stage\type.fas : stage\type.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/type.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/type.lsp
 
 stage\defstruc.fas : stage\defstruc.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/defstruc.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/defstruc.lsp
 
 stage\format.fas : stage\format.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/format.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/format.lsp
 
 stage\user1.fas : stage\user1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/user1.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/user1.lsp
 
 stage\user2.fas : stage\user2.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/user2.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/user2.lsp
 
 stage\trace.fas : stage\trace.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/trace.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/trace.lsp
 
 stage\macros3.fas : stage\macros3.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/macros3.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/macros3.lsp
 
 stage\config.fas : stage\config.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/config.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/config.lsp
 
 stage\compiler.fas : stage\compiler.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/compiler.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/compiler.lsp
 
 stage\disassem.fas : stage\disassem.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/disassem.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/disassem.lsp
 
 stage\defs2.fas : stage\defs2.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/defs2.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/defs2.lsp
 
 stage\loop.fas : stage\loop.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/loop.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/loop.lsp
 
 stage\clos.fas : stage\clos.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/clos.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/clos.lsp
 
 stage\conditio.fas : stage\conditio.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/conditio.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/conditio.lsp
 
 stage\defs3.fas : stage\defs3.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/defs3.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/defs3.lsp
 
 stage\gstream.fas : stage\gstream.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/gstream.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/gstream.lsp
+
+stage\xcharin.fas : stage\xcharin.lsp lisp.exe lispinit.mem
+	lisp.exe -M lispinit.mem -norc -q -c stage/xcharin.lsp
 
 stage\foreign1.fas : stage\foreign1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/foreign1.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/foreign1.lsp
 
 stage\screen.fas : stage\screen.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/screen.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/screen.lsp
 
 stage\rexx1.fas : stage\rexx1.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/rexx1.lsp
-
-stage\editor.fas : stage\editor.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/editor.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/rexx1.lsp
 
 stage\spanish.fas : stage\spanish.lsp lisp.exe lispinit.mem
-	lisp.exe -M lispinit.mem -q -c stage/spanish.lsp
+	lisp.exe -M lispinit.mem -norc -q -c stage/spanish.lsp
 
 lispinit2.mem : lisp.exe $(TESTFASFILES)
-	lisp.exe -x "(cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%saveinitmem) (exit)"
+	lisp.exe -norc -x "(cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%saveinitmem) (exit)"
 	-$(RM) lispinit2.mem
 	$(MV) lispimag.mem lispinit2.mem
 
@@ -1408,7 +1560,7 @@ uninstall-bin : force
 
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
-	-$(RM) core ansidecl.c ccmp2c.c genclisph.exe wgenclisph.exe linkkit txt.c txt.exe
+	-$(RM) core ansidecl.c ccmp2c.c modprep.c genclisph.exe wgenclisph.exe linkkit txt.c txt.exe
 
 # clean1 removes everything that becomes obsolete once lisp.exe is recompiled
 # without changing the bytecode format and the tables in
