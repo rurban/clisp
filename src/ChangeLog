@@ -1,3 +1,8 @@
+2004-02-20  Sam Steingold  <sds@gnu.org>
+
+	* record.d (SLOT-BOUNDP): when slot is missing, return the
+	boolean equivalent of the return value of SLOT-MISSING, per ANSI
+
 2004-02-19  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 898561 ]: LOOP compilation warnings
