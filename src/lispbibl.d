@@ -8520,15 +8520,19 @@ Alle anderen Langwörter auf dem LISP-Stack stellen LISP-Objekte dar.
 # For SAVEMEM/LOADMEM we have a table of all such pseudofunctions.
   typedef const void *  Pseudofun; # assume function pointers fit in a void*
 
-# Deklaration der Pseudofunktionen-Tabelle:
-  #define PSEUDOFUN  PSEUDOFUN_A
-  #define XPSEUDO  XPSEUDO_A
-  extern struct pseudofun_tab_ {
-                                 #include "pseudofun.c"
-                               }
-         pseudofun_tab;
-  #undef XPSEUDO
-  #undef PSEUDOFUN
+# Deklaration der Tabellen relozierbarer Pointer:
+  #define PSEUDO  PSEUDO_A
+  extern struct pseudocode_tab_ {
+                                  #include "pseudofun.c"
+                                }
+         pseudocode_tab;
+  #undef PSEUDO
+  #define PSEUDO  PSEUDO_B
+  extern struct pseudodata_tab_ {
+                                  #include "pseudofun.c"
+                                }
+         pseudodata_tab;
+  #undef PSEUDO
 # wird verwendet von STREAM, SPVW
 
 # Return an ADDRESS object encapsulating a pseudofunction.
