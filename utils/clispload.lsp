@@ -159,15 +159,6 @@
   ;; an argument"; so only one argument is consumed (by the V, not by ~[).
   FORMATTER.COND.13 FORMATTER.COND.14 |FORMATTER.COND:.6| |FORMATTER.COND:.7|
 
-  ;; Paul Dietz expects that FORMAT signals an error of type TYPE-ERROR in
-  ;; some cases.
-  ;; However, ANSI CL 22.3. doesn't require this.
-  ;; CLISP happens to signal an error of type ERROR in this cases.
-  FORMAT.{.ERROR.1 FORMAT.{.ERROR.2 FORMAT.{.ERROR.3 FORMAT.{.ERROR.4
-  FORMAT.{.ERROR.5 |FORMAT.:{.ERROR.1| |FORMAT.:{.ERROR.2| |FORMAT.:{.ERROR.4|
-  |FORMAT.:{.ERROR.5| |FORMAT.:@.ERROR.1| |FORMAT.:@.ERROR.2|
-  |FORMAT.:@.ERROR.3| |FORMAT.:@.ERROR.4| |FORMAT.:@.ERROR.5|
-
   ; To be fixed:
   PATHNAME-MATCH-P.4
 
