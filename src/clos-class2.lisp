@@ -50,7 +50,7 @@
   direct-accessors         ; automatically generated accessor methods (as plist)
   fixed-slot-locations     ; flag whether to guarantee same slot locations in all subclasses
   instantiated             ; true if an instance has already been created
-  direct-subclasses        ; weak-list of all finalized direct subclasses
+  direct-subclasses        ; weak-list or weak-hash-table of all finalized direct subclasses
   proto)                   ; class prototype - an instance or NIL
 
 ;; CLtL2 28.1.4., ANSI CL 4.3.7. Integrating Types and Classes
@@ -1116,29 +1116,48 @@
 ;;;  - A non-finalized class cannot have instances.
 ;;;  - Without an instance one cannot even access the shared slots.)
 
+;;; The direct-subclasses slot can be either
+;;; - NIL or a weak-list (for saving memory when there are few subclasses), or
+;;; - a weak-hash-table (for speed when there are many subclasses).
+
 ;; Adds a class to the list of direct subclasses.
 (defun add-direct-subclass (class subclass)
-  (let* ((direct-subclasses (class-direct-subclasses class))
-         (list (and direct-subclasses (ext:weak-list-list direct-subclasses))))
-    (unless (member subclass list :test #'eq)
-      (push subclass list)
-      (if direct-subclasses
-        (setf (ext:weak-list-list direct-subclasses) list)
-        (setf (class-direct-subclasses class) (ext:make-weak-list list))))))
+  (let ((direct-subclasses (class-direct-subclasses class)))
+    (cond ((null direct-subclasses)
+           (setf (class-direct-subclasses class)
+                 (ext:make-weak-list (list subclass))))
+          ((ext:weak-list-p direct-subclasses)
+           (let ((list (ext:weak-list-list direct-subclasses)))
+             (unless (member subclass list :test #'eq)
+               (push subclass list)
+               (if (<= (length list) 10)
+                 (setf (ext:weak-list-list direct-subclasses) list)
+                 (setf (class-direct-subclasses class)
+                       (let ((ht (make-hash-table :test #'eq :weak :key)))
+                         (dolist (x list) (setf (gethash x ht) t))
+                         ht))))))
+          (t (setf (gethash subclass direct-subclasses) t)))))
 
 ;; Removes a class from the list of direct subclasses.
 (defun remove-direct-subclass (class subclass)
   (let ((direct-subclasses (class-direct-subclasses class)))
-    (when direct-subclasses
-      (let ((list (ext:weak-list-list direct-subclasses)))
-        (when (member subclass list :test #'eq)
-          (setf (ext:weak-list-list direct-subclasses)
-                (remove subclass list :test #'eq)))))))
+    (cond ((null direct-subclasses))
+          ((ext:weak-list-p direct-subclasses)
+           (let ((list (ext:weak-list-list direct-subclasses)))
+             (when (member subclass list :test #'eq)
+               (setf (ext:weak-list-list direct-subclasses)
+                     (remove subclass list :test #'eq)))))
+          (t (remhash subclass direct-subclasses)))))
 
 ;; Returns the currently existing direct subclasses, as a freshly consed list.
 (defun list-direct-subclasses (class)
   (let ((direct-subclasses (class-direct-subclasses class)))
-    (and direct-subclasses (ext:weak-list-list direct-subclasses))))
+    (cond ((null direct-subclasses) '())
+          ((ext:weak-list-p direct-subclasses)
+           (ext:weak-list-list direct-subclasses))
+          (t (let ((l '()))
+               (maphash #'(lambda (x y) (push x l)) direct-subclasses)
+               l)))))
 
 ;; Returns the currently existing subclasses, in top-down order, including the
 ;; class itself as first element.

@@ -1,3 +1,10 @@
+2004-05-10  Bruno Haible  <bruno@clisp.org>
+
+	* clos-class2.lisp (add-direct-subclass): Use a weak hash-table when
+	the list has more than 10 elements.
+	(remove-direct-subclass, list-direct-subclasses): Recognize the
+	possibility that direct-subclasses is a hash-table.
+
 2004-05-09  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (hash_lookup_builtin, hash_lookup_builtin_with_rehash):
