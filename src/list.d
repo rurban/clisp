@@ -1007,17 +1007,32 @@ LISPFUNN(list_nreverse,1) # (SYS::LIST-NREVERSE list)
     VALUES1(nreverse(popSTACK()));
   }
 
+/* check that the argument is a non-circular list and return its length
+ can trigger GC */
+local inline uintL check_list_length (gcv_object_t *list_) {
+  while(1) {
+    /* Give an error if the argument is not a list. (It's stupid to allow
+       dotted lists of length > 0 but to forbid dotted lists of length 0,
+       but that's how ANSI CL specifies it.) */
+    if (!listp(*list_)) *list_ = check_list_replacement(*list_);
+    var object dotted_p;
+    var object llen = list_length(*list_,&dotted_p);
+    if (!nullp(llen)) return I_to_UL(llen);
+    dynamic_bind(S(print_circle),T);
+    pushSTACK(NIL);               /* no PLACE */
+    pushSTACK(*list_); pushSTACK(TheSubr(subr_self)->name);
+    check_value(error,GETTEXT("~S: ~S is a circular list"));
+    *list_ = value1;
+    dynamic_unbind(S(print_circle));
+  }
+}
+
 LISPFUN(butlast,seclass_read,1,1,norest,nokey,0,NIL)
 { /* (BUTLAST list [integer]), CLTL S. 271 */
   var object intarg = popSTACK();
   /* check optional integer argument: */
   var uintL count = (boundp(intarg) ? get_integer_truncate(intarg) : 1);
-  var uintL len = llength(STACK_0); /* list length */
-  /* Give an error if the argument is not a list. (It's stupid to allow
-     dotted lists of length > 0 but to forbid dotted lists of length 0,
-     but that's how ANSI CL specifies it.) */
-  if (len==0 && !nullp(STACK_0))
-    fehler_list(STACK_0);
+  var uintL len = check_list_length(&STACK_0); /* list length */
   if (len<=count) {
     VALUES1(NIL); skipSTACK(1); /* length(list)<=count -> return NIL */
   } else {
@@ -1040,12 +1055,7 @@ LISPFUN(nbutlast,seclass_default,1,1,norest,nokey,0,NIL)
   var object intarg = popSTACK();
   /* check optional integer argument: */
   var uintL count = (boundp(intarg) ? get_integer_truncate(intarg) : 1);
-  var uintL len = llength(STACK_0); /* list length */
-  /* Give an error if the argument is not a list. (It's stupid to allow
-     dotted lists of length > 0 but to forbid dotted lists of length 0,
-     but that's how ANSI CL specifies it.) */
-  if (len==0 && !nullp(STACK_0))
-    fehler_list(STACK_0);
+  var uintL len = check_list_length(&STACK_0); /* list length */
   if (len<=count) {
     VALUES1(NIL); skipSTACK(1); /* length(list)<=count -> return NIL */
   } else {

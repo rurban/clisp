@@ -1,3 +1,7 @@
+2004-06-01  Sam Steingold  <sds@gnu.org>
+
+	* lists152.tst (butlast): check for circular lists
+
 2004-05-23  Bruno Haible  <bruno@clisp.org>
 
 	* backquot.tst: Add test for vector element type.
