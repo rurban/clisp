@@ -3415,8 +3415,8 @@ pointing to non-existent files and can take the following values:
    When <constant>:NO-HANG</constant> is non-&nil;, does not block:
    treat input unavailability as &eos;.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
-   &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket;
-   &stream-t; with &stream-element-type; &unsigned-byte-8;.
+   &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket-s;
+   with &stream-element-type; &unsigned-byte-8;.
  </simpara></listitem></varlistentry>
  <varlistentry id="rd-ch-seq"><term>&rd-ch-seq;
    performs multiple &read-char; operations:</term>
@@ -3427,7 +3427,7 @@ pointing to non-existent files and can take the following values:
   of the first element of &sequence-r; that was not updated (= &end-r;
   or &lt; &end-r; if the &stream-r; reached its end).</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
-  &string-t; and &stream-k; is a &file-pipe-socket; stream with
+  &string-t; and &stream-k; is a &file-pipe-socket-s; with
   &stream-element-type; &character-t; or an &input-s; &string-stream-t;.
   </simpara></listitem></varlistentry>
 </variablelist></para></formalpara>
@@ -3443,9 +3443,8 @@ functions are provided:
   &integer-t;s of the subsequence of &sequence-r; specified by
   &start-k; and &end-k; to &stream-k;. It returns &sequence-r;.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
-  &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket;
-  &stream-t; with &stream-element-type; &unsigned-byte-8;.
- </simpara></listitem></varlistentry>
+  &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket-s; with
+  &stream-element-type; &unsigned-byte-8;.</simpara></listitem></varlistentry>
 <varlistentry id="wr-ch-seq"><term>&wr-ch-seq;
   performs multiple &write-char; operations:</term>
  <listitem><simpara><literal role="sexp">(&wr-ch-seq; &sequence-r;
@@ -3456,9 +3455,8 @@ functions are provided:
   Returns two values: &sequence-r; and the index of the first byte that
   was not output.</simpara>
  <simpara>This function is especially efficient if &sequence-r; is a
-  &string-t; and &stream-k; is a &file-pipe-socket; &stream-t;
-  with &stream-element-type; &character-t;.
-  </simpara></listitem></varlistentry>
+  &string-t; and &stream-k; is a &file-pipe-socket-s; with
+  &stream-element-type; &character-t;.</simpara></listitem></varlistentry>
 </variablelist></para></formalpara>
 
 <formalpara id="bulk-io-rationale"><title>Rationale</title>
@@ -3542,7 +3540,7 @@ functions are provided:
 <para>&open; accepts an additional keyword &buffered;.</para>
 
 <variablelist><title>The acceptable values for the arguments to the
-   &file-pipe-socket; functions</title>
+   &file-pipe-socket-s; functions</title>
  <varlistentry id="eltype"><term>&eltype;</term>
   <listitem><simpara>types equivalent to &character-t; or
     &unsigned-byte-n;, &signed-byte-n;; if the stream is to be
