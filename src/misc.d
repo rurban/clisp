@@ -248,11 +248,27 @@ LISPFUNN(machine_version,0)
 
 #ifdef HAVE_ENVIRONMENT
 
-LISPFUNN(get_env,1)
 # (EXT:GETENV string) return the string associated with the given string
 # in the OS Environment or NIL if no value
-{
+# if STRING is NIL, return all the environment as an alist
+LISPFUNN(get_env,1) {
   var object arg = popSTACK();
+  if (nullp(arg)) {    /* return all the environment variables at once */
+    extern char** environ;
+    var char** epp;
+    var char* ep;
+    var uintL count = 0;
+    for (epp = environ; (ep = *epp) != NULL; epp++, count++) {
+      while ((*ep != 0) && (*ep != '=')) ep++;
+      pushSTACK(allocate_cons());
+      Car(STACK_0) = n_char_to_string(*epp,ep-*epp,O(misc_encoding));
+      if (*ep == '=')
+        Cdr(STACK_0) = asciz_to_string(ep+1,O(misc_encoding));
+    }
+    value1 = listof(count);
+    mv_count = 1;
+    return;
+  }
   if (!stringp(arg))
     fehler_string(arg);
   var const char* found;

@@ -35,9 +35,11 @@
 <!ENTITY uname "<ulink url='&unix-f;/uname.html'><function>uname</function></ulink>">
 
 <!-- header files -->
-<!ENTITY unix-f "&unix-top;/basedefs">
-<!ENTITY regex-h "<ulink url='&unix-f;/regex.h.html'><filename>regex.h</filename></ulink>">
-<!ENTITY stdlib-h "<ulink url='&unix-f;/stdlib.h.html'><filename>stdlib.h</filename></ulink>">
+<!ENTITY unix-b "&unix-top;/basedefs">
+<!ENTITY regex-h "<ulink url='&unix-b;/regex.h.html'><filename>regex.h</filename></ulink>">
+<!ENTITY stdlib-h "<ulink url='&unix-b;/stdlib.h.html'><filename>stdlib.h</filename></ulink>">
+<!ENTITY env-var "<ulink url='&unix-b;/xbd_chap08.html'><quote>environment
+  variable</quote></ulink>">
 
 <!-- utilities -->
 <!ENTITY unix-u "&unix-top;/utilities">
