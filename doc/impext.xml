@@ -597,19 +597,22 @@
 
 <section id="newline"><title>Line Terminators</title>
 
-<segmentedlist><title>The line terminator mode can be one of the
+<table frame="all"><title>The line terminator mode can be one of the
  following three keywords</title>
-<segtitle>keyword</segtitle><segtitle>newline representation</segtitle>
-<seglistitem><seg><constant>:unix</constant></seg>
-     <seg>Newline is represented by the ASCII <keycode>LF</keycode>
-     character (<keycode>U000A</keycode>).</seg></seglistitem>
-<seglistitem><seg><constant>:mac</constant></seg>
-     <seg>Newline is represented by the ASCII <keycode>CR</keycode>
-     character (<keycode>U000D</keycode>).</seg></seglistitem>
-<seglistitem><seg><constant>:dos</constant></seg>
-     <seg>Newline is represented by ASCII <keycode>CR</keycode> followed
-     by ASCII <keycode>LF</keycode>.</seg></seglistitem>
-</segmentedlist>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center">
+<thead><row><entry>keyword</entry>
+            <entry>newline representation</entry></row></thead>
+<tbody>
+<row><entry><constant>:unix</constant></entry>
+     <entry>Newline is represented by the ASCII <keycode>LF</keycode>
+     character (<keycode>U000A</keycode>).</entry></row>
+<row><entry><constant>:mac</constant></entry>
+     <entry>Newline is represented by the ASCII <keycode>CR</keycode>
+     character (<keycode>U000D</keycode>).</entry></row>
+<row><entry><constant>:dos</constant></entry>
+     <entry>Newline is represented by ASCII <keycode>CR</keycode> followed
+     by ASCII <keycode>LF</keycode>.</entry></row>
+</tbody></tgroup></table>
 
 <para>Windows programs typically use the <constant>:dos</constant> line
  terminator, sometimes they also accept <constant>:unix</constant> line
@@ -1929,18 +1932,18 @@ for my $kk (keys(%hash)) {
 <varlistentry id="def-c-var">
   <term><literal role="sexp">(<function>def-c-var</function>
         &name-r; {&option-r;}*)</literal></term>
-<listitem><segmentedlist>
- <segtitle>&option-r; ::==</segtitle>
- <segtitle/><segtitle/>
-<seglistitem><seg/><seg/><seg><literal role="sexp">(:name
-   <replaceable>c-name</replaceable>)</literal></seg></seglistitem>
-<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:type
-  &ctype-r;)</literal></seg></seglistitem>
-<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:read-only
-  <replaceable>boolean</replaceable>)</literal></seg></seglistitem>
-<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:alloc
-  &allocation;)</literal></seg></seglistitem>
-</segmentedlist>
+<listitem><table frame="all"><title/>
+ <tgroup cols="3" colsep="1" rowsep="1" align="left"><thead><row>
+ <entry>&option-r; ::==</entry><entry/><entry/></row></thead><tbody>
+<row><entry/><entry/><entry><literal role="sexp">(:name
+   <replaceable>c-name</replaceable>)</literal></entry></row>
+<row><entry/><entry>|</entry><entry><literal role="sexp">(:type
+  &ctype-r;)</literal></entry></row>
+<row><entry/><entry>|</entry><entry><literal role="sexp">(:read-only
+  <replaceable>boolean</replaceable>)</literal></entry></row>
+<row><entry/><entry>|</entry><entry><literal role="sexp">(:alloc
+  &allocation;)</literal></entry></row>
+</tbody></tgroup></table>
 
 <simpara>This form defines a foreign variable.  &name-r; is the Lisp
  name, a regular Lisp symbol.</simpara>
@@ -1975,20 +1978,21 @@ within Lisp (using &setq; or similar).</simpara>
 <varlistentry id="def-call-out">
   <term><literal role="sexp">(<function>def-call-out</function>
         &name-r; {&option-r;}*)</literal></term>
-<listitem><segmentedlist>
- <segtitle>&option-r; ::==</segtitle>
- <segtitle/><segtitle/>
-<seglistitem><seg/><seg/><seg><literal role="sexp">(:name
-   <replaceable>c-name</replaceable>)</literal></seg></seglistitem>
-<seglistitem><seg/><seg><literal role="sexp">(:arguments
+<listitem><table frame="all"><title/>
+ <tgroup cols="3" colsep="1" rowsep="1" align="left">
+ <thead><row><entry>&option-r; ::==</entry>
+ <entry/><entry/></row></thead><tbody>
+<row><entry/><entry/><entry><literal role="sexp">(:name
+   <replaceable>c-name</replaceable>)</literal></entry></row>
+<row><entry/><entry><literal role="sexp">(:arguments
    {(<replaceable>arg-name</replaceable> &ctype-r;
-    [&param-mode; [&allocation;]])}*)</literal> |</seg></seglistitem>
-<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:return-type
+    [&param-mode; [&allocation;]])}*)</literal> |</entry></row>
+<row><entry/><entry>|</entry><entry><literal role="sexp">(:return-type
    &ctype-r;
-   [&allocation;])</literal></seg></seglistitem>
-<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:language
-   <replaceable>language</replaceable>)</literal></seg></seglistitem>
-</segmentedlist>
+   [&allocation;])</literal></entry></row>
+<row><entry/><entry>|</entry><entry><literal role="sexp">(:language
+   <replaceable>language</replaceable>)</literal></entry></row>
+</tbody></tgroup></table>
 
 <simpara>This form defines a named call-out function (a foreign function
  called from Lisp: control flow temporarily leaves Lisp).  Any Lisp
@@ -2006,20 +2010,21 @@ within Lisp (using &setq; or similar).</simpara>
 <varlistentry id="def-call-in">
   <term><literal role="sexp">(<function>def-call-in</function>
         &name-r; {&option-r;}*)</literal></term>
-<listitem><segmentedlist>
- <segtitle>&option-r; ::==</segtitle>
- <segtitle/><segtitle/>
-<seglistitem><seg/><seg><literal role="sexp">(:name
-   <replaceable>c-name</replaceable>)</literal> |</seg></seglistitem>
-<seglistitem><seg/><seg/><seg><literal role="sexp">(:arguments
+<listitem><table frame="all"><title/>
+ <tgroup cols="3" colsep="1" rowsep="1" align="left">
+ <thead><row><entry>&option-r; ::==</entry>
+ <entry/><entry/></row></thead><tbody>
+<row><entry/><entry><literal role="sexp">(:name
+   <replaceable>c-name</replaceable>)</literal> |</entry></row>
+<row><entry/><entry/><entry><literal role="sexp">(:arguments
    {(<replaceable>arg-name</replaceable> &ctype-r;
-    [&param-mode; [&allocation;]])}*)</literal></seg></seglistitem>
-<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:return-type
+    [&param-mode; [&allocation;]])}*)</literal></entry></row>
+<row><entry/><entry>|</entry><entry><literal role="sexp">(:return-type
    &ctype-r;
-   [&allocation;])</literal></seg></seglistitem>
-<seglistitem><seg/><seg>|</seg><seg><literal role="sexp">(:language
-   <replaceable>language</replaceable>)</literal></seg></seglistitem>
-</segmentedlist>
+   [&allocation;])</literal></entry></row>
+<row><entry/><entry>|</entry><entry><literal role="sexp">(:language
+   <replaceable>language</replaceable>)</literal></entry></row>
+</tbody></tgroup></table>
 
 <simpara>This form defines a named call-in function (i.e., a Lisp
  function called from the foreign language: control flow temporary
@@ -2198,66 +2203,67 @@ within Lisp (using &setq; or similar).</simpara>
  (&ctype-r;)</title>
 <varlistentry id="simple-c-type">
    <term><replaceable>simple-c-type</replaceable></term>
-<listitem><segmentedlist><title>the simple &c-lang; types</title>
- <segtitle>Lisp name</segtitle><segtitle>Lisp equivalent</segtitle>
- <segtitle>&c-lang; equivalent</segtitle><segtitle>ILU
- equivalent</segtitle><segtitle>Comment</segtitle>
-<seglistitem><seg>&nil;</seg><seg>&nil;</seg><seg><type>void</type></seg>
-   <seg/><seg>as a result type only</seg></seglistitem>
-<seglistitem><seg>&boolean-type;</seg><seg>&boolean-type;</seg>
-   <seg><type>int</type></seg><seg><type>BOOLEAN</type></seg></seglistitem>
-<seglistitem><seg>&character-class;</seg><seg>&character-class;</seg>
-   <seg><type>char</type></seg>
-   <seg><type>SHORT CHARACTER</type></seg></seglistitem>
-<seglistitem><seg><type>char</type></seg><seg>&integer-class;</seg>
-   <seg><type>signed char</type></seg></seglistitem>
-<seglistitem><seg><type>uchar</type></seg><seg>&integer-class;</seg>
-   <seg><type>unsigned char</type></seg></seglistitem>
-<seglistitem><seg><type>short</type></seg><seg>&integer-class;</seg>
-   <seg><type>short</type></seg></seglistitem>
-<seglistitem><seg><type>ushort</type></seg><seg>&integer-class;</seg>
-   <seg><type>unsigned short</type></seg></seglistitem>
-<seglistitem><seg><type>int</type></seg><seg>&integer-class;</seg>
-   <seg><type>int</type></seg></seglistitem>
-<seglistitem><seg><type>uint</type></seg><seg>&integer-class;</seg>
-   <seg><type>unsigned int</type></seg></seglistitem>
-<seglistitem><seg><type>long</type></seg><seg>&integer-class;</seg>
-   <seg><type>long</type></seg></seglistitem>
-<seglistitem><seg><type>ulong</type></seg><seg>&integer-class;</seg>
-   <seg><type>unsigned long</type></seg></seglistitem>
-<seglistitem><seg><type>uint8</type></seg>
-   <seg><literal role="sexp">(&unsigned-byte-type; 8)</literal></seg>
-   <seg><type>uint8</type></seg><seg><type>BYTE</type></seg></seglistitem>
-<seglistitem><seg><type>sint8</type></seg>
-   <seg><literal role="sexp">(&signed-byte-type; 8)</literal></seg>
-   <seg><type>sint8</type></seg></seglistitem>
-<seglistitem><seg><type>uint16</type></seg>
-   <seg><literal role="sexp">(&unsigned-byte-type; 16)</literal></seg>
-   <seg><type>uint16</type></seg>
-   <seg><type>SHORT CARDINAL</type></seg></seglistitem>
-<seglistitem><seg><type>sint16</type></seg>
-   <seg><literal role="sexp">(&signed-byte-type; 16)</literal></seg>
-   <seg><type>sint16</type></seg>
-   <seg><type>SHORT INTEGER</type></seg></seglistitem>
-<seglistitem><seg><type>uint32</type></seg>
-   <seg><literal role="sexp">(&unsigned-byte-type; 32)</literal></seg>
-   <seg><type>uint32</type></seg><seg><type>CARDINAL</type></seg></seglistitem>
-<seglistitem><seg><type>sint32</type></seg>
-   <seg><literal role="sexp">(&signed-byte-type; 32)</literal></seg>
-   <seg><type>sint32</type></seg><seg><type>INTEGER</type></seg></seglistitem>
-<seglistitem><seg><type>uint64</type></seg>
-   <seg><literal role="sexp">(&unsigned-byte-type; 64)</literal></seg>
-   <seg><type>uint64</type></seg><seg><type>LONG CARDINAL</type></seg>
-   <seg>does not work on all platforms</seg></seglistitem>
-<seglistitem><seg><type>sint64</type></seg>
-   <seg><literal role="sexp">(&signed-byte-type; 64)</literal></seg>
-   <seg><type>sint64</type></seg><seg><type>LONG INTEGER</type></seg>
-   <seg>does not work on all platforms</seg></seglistitem>
-<seglistitem><seg>&single-float-type;</seg><seg>&single-float-type;</seg>
-   <seg><type>float</type></seg></seglistitem>
-<seglistitem><seg>&double-float-type;</seg><seg>&double-float-type;</seg>
-   <seg><type>double</type></seg></seglistitem>
-</segmentedlist></listitem></varlistentry>
+<listitem><table frame="all"><title>the simple &c-lang; types</title>
+ <tgroup cols="5" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>Lisp name</entry><entry>Lisp equivalent</entry>
+ <entry>&c-lang; equivalent</entry><entry>ILU
+ equivalent</entry><entry>Comment</entry></row></thead><tbody>
+<row><entry>&nil;</entry><entry>&nil;</entry><entry><type>void</type></entry>
+   <entry/><entry>as a result type only</entry></row>
+<row><entry>&boolean-type;</entry><entry>&boolean-type;</entry>
+   <entry><type>int</type></entry><entry><type>BOOLEAN</type></entry></row>
+<row><entry>&character-class;</entry><entry>&character-class;</entry>
+   <entry><type>char</type></entry>
+   <entry><type>SHORT CHARACTER</type></entry></row>
+<row><entry><type>char</type></entry><entry>&integer-class;</entry>
+   <entry><type>signed char</type></entry></row>
+<row><entry><type>uchar</type></entry><entry>&integer-class;</entry>
+   <entry><type>unsigned char</type></entry></row>
+<row><entry><type>short</type></entry><entry>&integer-class;</entry>
+   <entry><type>short</type></entry></row>
+<row><entry><type>ushort</type></entry><entry>&integer-class;</entry>
+   <entry><type>unsigned short</type></entry></row>
+<row><entry><type>int</type></entry><entry>&integer-class;</entry>
+   <entry><type>int</type></entry></row>
+<row><entry><type>uint</type></entry><entry>&integer-class;</entry>
+   <entry><type>unsigned int</type></entry></row>
+<row><entry><type>long</type></entry><entry>&integer-class;</entry>
+   <entry><type>long</type></entry></row>
+<row><entry><type>ulong</type></entry><entry>&integer-class;</entry>
+   <entry><type>unsigned long</type></entry></row>
+<row><entry><type>uint8</type></entry>
+   <entry><literal role="sexp">(&unsigned-byte-type; 8)</literal></entry>
+   <entry><type>uint8</type></entry><entry><type>BYTE</type></entry></row>
+<row><entry><type>sint8</type></entry>
+   <entry><literal role="sexp">(&signed-byte-type; 8)</literal></entry>
+   <entry><type>sint8</type></entry></row>
+<row><entry><type>uint16</type></entry>
+   <entry><literal role="sexp">(&unsigned-byte-type; 16)</literal></entry>
+   <entry><type>uint16</type></entry>
+   <entry><type>SHORT CARDINAL</type></entry></row>
+<row><entry><type>sint16</type></entry>
+   <entry><literal role="sexp">(&signed-byte-type; 16)</literal></entry>
+   <entry><type>sint16</type></entry>
+   <entry><type>SHORT INTEGER</type></entry></row>
+<row><entry><type>uint32</type></entry>
+   <entry><literal role="sexp">(&unsigned-byte-type; 32)</literal></entry>
+   <entry><type>uint32</type></entry><entry><type>CARDINAL</type></entry></row>
+<row><entry><type>sint32</type></entry>
+   <entry><literal role="sexp">(&signed-byte-type; 32)</literal></entry>
+   <entry><type>sint32</type></entry><entry><type>INTEGER</type></entry></row>
+<row><entry><type>uint64</type></entry>
+   <entry><literal role="sexp">(&unsigned-byte-type; 64)</literal></entry>
+   <entry><type>uint64</type></entry><entry><type>LONG CARDINAL</type></entry>
+   <entry>does not work on all platforms</entry></row>
+<row><entry><type>sint64</type></entry>
+   <entry><literal role="sexp">(&signed-byte-type; 64)</literal></entry>
+   <entry><type>sint64</type></entry><entry><type>LONG INTEGER</type></entry>
+   <entry>does not work on all platforms</entry></row>
+<row><entry>&single-float-type;</entry><entry>&single-float-type;</entry>
+   <entry><type>float</type></entry></row>
+<row><entry>&double-float-type;</entry><entry>&double-float-type;</entry>
+   <entry><type>double</type></entry></row>
+</tbody></tgroup></table></listitem></varlistentry>
 
 <varlistentry id="c-pointer"><term><type>c-pointer</type></term>
  <listitem><simpara>This type corresponds to what &c-lang; calls
@@ -2439,16 +2445,18 @@ within Lisp (using &setq; or similar).</simpara>
 <para>Values of type &c-string;, &c-ptr;, &c-ptr-null;, &c-array-ptr;
  need storage.  The &allocation; specifies the allocation policy:</para>
 
-<segmentedlist>
- <segtitle>&allocation;</segtitle><segtitle>meaning</segtitle>
-<seglistitem><seg>&none-k;</seg>
-   <seg>no storage is allocated.</seg></seglistitem>
-<seglistitem><seg>&alloca-k;</seg><seg>allocation of storage on the
-   stack, which has dynamic extent.</seg></seglistitem>
-<seglistitem><seg>&malloc-free-k;</seg><seg>storage will be allocated
+<table frame="all"><title>allocation policy</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="left">
+ <thead><row><entry>&allocation;</entry>
+        <entry>meaning</entry></row></thead><tbody>
+<row><entry>&none-k;</entry>
+   <entry>no storage is allocated.</entry></row>
+<row><entry>&alloca-k;</entry><entry>allocation of storage on the
+   stack, which has dynamic extent.</entry></row>
+<row><entry>&malloc-free-k;</entry><entry>storage will be allocated
    via <function>malloc()</function> and freed via
-   <function>free()</function>.</seg></seglistitem>
-</segmentedlist>
+   <function>free()</function>.</entry></row>
+</tbody></tgroup></table>
 
 <para>If no &allocation; is specified, the default &allocation; is
  &none-k; for most types, but &alloca-k; for &c-string; and &c-ptr; and
@@ -3008,43 +3016,44 @@ exit functions.]  Programmers, watch
 <para>The following foreign &c-lang; types are used in AFFI. They are
  <emphasis>not</emphasis> regular &cl; types or &clos; classes.</para>
 
-<segmentedlist><title>foreign &c-lang; types used in AFFI</title>
- <segtitle>AFFI name</segtitle><segtitle>Lisp equivalent</segtitle>
- <segtitle>&c-lang; equivalent</segtitle><segtitle>Comment</segtitle>
-<seglistitem><seg>&nil;</seg><seg>&nil;</seg><seg><type>void</type></seg>
-  <seg>as a result type for functions only</seg></seglistitem>
-<seglistitem><seg><type>4</type></seg>
-  <seg><literal role="sexp">(&unsigned-byte-type; 32)</literal></seg>
-  <seg><type>unsigned long</type></seg><seg/></seglistitem>
-<seglistitem><seg><type>2</type></seg>
-  <seg><literal role="sexp">(&unsigned-byte-type; 16)</literal></seg>
-  <seg><type>unsigned short</type></seg><seg/></seglistitem>
-<seglistitem><seg><type>1</type></seg>
-  <seg><literal role="sexp">(&unsigned-byte-type; 8)</literal></seg>
-  <seg><type>unsigned char</type></seg><seg/></seglistitem>
-<seglistitem><seg><type>-4</type></seg>
-  <seg><literal role="sexp">(&signed-byte-type; 32)</literal></seg>
-  <seg><type>long</type></seg><seg/></seglistitem>
-<seglistitem><seg><type>-2</type></seg>
-  <seg><literal role="sexp">(&signed-byte-type; 16)</literal></seg>
-  <seg><type>short</type></seg><seg/></seglistitem>
-<seglistitem><seg><type>-1</type></seg>
-  <seg><literal role="sexp">(&signed-byte-type; 8)</literal></seg>
-  <seg><type>signed char</type></seg><seg/></seglistitem>
-<seglistitem><seg><type>0</type></seg><seg>&boolean-type;</seg>
-  <seg><type>BOOL</type></seg>
-  <seg>as a result type for functions only</seg></seglistitem>
-<seglistitem><seg><type>*</type></seg><seg>opaque</seg>
-  <seg><type>void*</type></seg><seg/></seglistitem>
-<seglistitem><seg>&external-k;</seg><seg>opaque</seg>
-  <seg><type>void*</type></seg><seg/></seglistitem>
-<seglistitem><seg>&string-class;</seg>
-  <seg>&string-class; or &vector-class;</seg>
-  <seg><type>char*</type></seg><seg/></seglistitem>
-<seglistitem><seg>&io-k;</seg>
-  <seg>&string-class; or &vector-class;</seg>
-  <seg><type>char*</type></seg><seg/></seglistitem>
-</segmentedlist>
+<table frame="all"><title>foreign &c-lang; types used in AFFI</title>
+ <tgroup cols="5" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>AFFI name</entry><entry>Lisp equivalent</entry>
+ <entry>&c-lang; equivalent</entry><entry>Comment</entry></row></thead><tbody>
+<row><entry>&nil;</entry><entry>&nil;</entry><entry><type>void</type></entry>
+  <entry>as a result type for functions only</entry></row>
+<row><entry><type>4</type></entry>
+  <entry><literal role="sexp">(&unsigned-byte-type; 32)</literal></entry>
+  <entry><type>unsigned long</type></entry><entry/></row>
+<row><entry><type>2</type></entry>
+  <entry><literal role="sexp">(&unsigned-byte-type; 16)</literal></entry>
+  <entry><type>unsigned short</type></entry><entry/></row>
+<row><entry><type>1</type></entry>
+  <entry><literal role="sexp">(&unsigned-byte-type; 8)</literal></entry>
+  <entry><type>unsigned char</type></entry><entry/></row>
+<row><entry><type>-4</type></entry>
+  <entry><literal role="sexp">(&signed-byte-type; 32)</literal></entry>
+  <entry><type>long</type></entry><entry/></row>
+<row><entry><type>-2</type></entry>
+  <entry><literal role="sexp">(&signed-byte-type; 16)</literal></entry>
+  <entry><type>short</type></entry><entry/></row>
+<row><entry><type>-1</type></entry>
+  <entry><literal role="sexp">(&signed-byte-type; 8)</literal></entry>
+  <entry><type>signed char</type></entry><entry/></row>
+<row><entry><type>0</type></entry><entry>&boolean-type;</entry>
+  <entry><type>BOOL</type></entry>
+  <entry>as a result type for functions only</entry></row>
+<row><entry><type>*</type></entry><entry>opaque</entry>
+  <entry><type>void*</type></entry><entry/></row>
+<row><entry>&external-k;</entry><entry>opaque</entry>
+  <entry><type>void*</type></entry><entry/></row>
+<row><entry>&string-class;</entry>
+  <entry>&string-class; or &vector-class;</entry>
+  <entry><type>char*</type></entry><entry/></row>
+<row><entry>&io-k;</entry>
+  <entry>&string-class; or &vector-class;</entry>
+  <entry><type>char*</type></entry><entry/></row>
+</tbody></tgroup></table>
 
 <para>Objects of type &string-class; are copied and passed
 NUL-terminated on the execution stack.  On return, a Lisp string is
@@ -3112,17 +3121,17 @@ from &nil; for a NULL pointer) and refuses objects of type
 
 <variablelist>
  <varlistentry><term>&option-r; ::==</term>
- <listitem><segmentedlist>
-   <segtitle/><segtitle/>
-  <seglistitem><seg/><seg><literal role="sexp">(:offset
-    <replaceable>library-offset</replaceable>)</literal></seg></seglistitem>
-  <seglistitem><seg>|</seg><seg><literal role="sexp">(:arguments
+ <listitem><table frame="all"><title/>
+  <tgroup cols="3" colsep="1" rowsep="1" align="left"><tbody>
+  <row><entry/><entry><literal role="sexp">(:offset
+    <replaceable>library-offset</replaceable>)</literal></entry></row>
+  <row><entry>|</entry><entry><literal role="sexp">(:arguments
     {(<replaceable>arg-name</replaceable>
     <replaceable>AFFI-type</replaceable>
-    <replaceable>register</replaceable>)}*)</literal></seg></seglistitem>
-  <seglistitem><seg>|</seg><seg><literal role="sexp">(:return-type
-    <replaceable>AFFI-type</replaceable>)</literal></seg></seglistitem>
-</segmentedlist></listitem></varlistentry>
+    <replaceable>register</replaceable>)}*)</literal></entry></row>
+  <row><entry>|</entry><entry><literal role="sexp">(:return-type
+    <replaceable>AFFI-type</replaceable>)</literal></entry></row>
+</tbody></tgroup></table></listitem></varlistentry>
 <varlistentry><term><replaceable>register</replaceable> ::==</term>
  <listitem><simpara><constant>:d0</constant> | <constant>:d1</constant>
  | ... | <constant>:d7</constant> | <constant>:a0</constant> | ... |
