@@ -4050,6 +4050,7 @@ T
 ;; Check that undefined classes are treated as undefined, even though they
 ;; are represented by a FORWARD-REFERENCED-CLASS.
 (progn
+  #+CLISP (setq custom:*forward-referenced-class-misdesign* t)
   (defclass foo131 (forwardclass01) ())
   t)
 T
@@ -4074,4 +4075,32 @@ NIL ; should also be ERROR
 (defstruct (foo131a (:include forwardclass01)))
 ERROR
 (defmethod foo131b ((x forwardclass01)))
+ERROR
+;; Same thing with opposite setting of *forward-referenced-class-misdesign*.
+(progn
+  #+CLISP (setq custom:*forward-referenced-class-misdesign* nil)
+  (defclass foo132 (forwardclass02) ())
+  t)
+T
+(find-class 'forwardclass02)
+ERROR
+(find-class 'forwardclass02 nil)
+NIL
+(typep 1 'forwardclass02)
+ERROR
+(locally (declare (compile)) (typep 1 'forwardclass02))
+ERROR
+(type-expand 'forwardclass02)
+ERROR
+(subtypep 'forwardclass02 't)
+ERROR
+(subtypep 'nil 'forwardclass02)
+ERROR
+(sys::subtype-integer 'forwardclass02)
+NIL ; should also be ERROR
+(sys::subtype-sequence 'forwardclass02)
+NIL ; should also be ERROR
+(defstruct (foo132a (:include forwardclass02)))
+ERROR
+(defmethod foo132b ((x forwardclass02)))
 ERROR

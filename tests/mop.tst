@@ -286,8 +286,9 @@ AS-STRING
 ;; Check that undefined classes are treated as undefined, even though they
 ;; are represented by a FORWARD-REFERENCED-CLASS.
 (progn
-  (defclass foo132 (forwardclass02) ())
-  (defparameter *forwardclass* (first (clos:class-direct-superclasses (find-class 'foo132))))
+  #+CLISP (setq custom:*forward-referenced-class-misdesign* t)
+  (defclass foo133 (forwardclass03) ())
+  (defparameter *forwardclass* (first (clos:class-direct-superclasses (find-class 'foo133))))
   t)
 T
 (typep 1 *forwardclass*)
@@ -306,14 +307,14 @@ ERROR
 NIL ; should also be ERROR
 (write-to-string *forwardclass* :readably t)
 ERROR
-(setf (find-class 'foo132a) *forwardclass*)
+(setf (find-class 'foo133a) *forwardclass*)
 ERROR
 (class-name *forwardclass*)
-FORWARDCLASS02
-(setf (class-name *forwardclass*) 'forwardclass03)
+FORWARDCLASS03
+(setf (class-name *forwardclass*) 'forwardclass03changed)
 ERROR
 (class-name *forwardclass*)
-FORWARDCLASS02
+FORWARDCLASS03
 (clos:class-direct-superclasses *forwardclass*)
 NIL
 (clos:class-direct-slots *forwardclass*)
@@ -334,19 +335,103 @@ ERROR
 ERROR
 (clos:class-finalized-p *forwardclass*)
 NIL
-(eval `(defmethod foo132a ((x ,*forwardclass*))))
+(eval `(defmethod foo133a ((x ,*forwardclass*))))
 ERROR
 (progn
-  (defgeneric foo132b (x)
+  (defgeneric foo133b (x)
     (:method ((x integer)) x))
-  (clos:add-method #'foo132b
+  (clos:add-method #'foo133b
     (make-instance 'standard-method
       :qualifiers '()
       :lambda-list '(x)
       :specializers (list *forwardclass*)
       :function #'(lambda (args next-methods) (first args))))
-  #-CLISP (foo132b 7))
+  #-CLISP (foo133b 7))
 ERROR
+(typep *forwardclass* 'class)
+T ; misdesign!
+(typep *forwardclass* 'clos:specializer)
+T ; misdesign!
+(subtypep 'clos:forward-referenced-class 'class)
+T ; misdesign!
+(subtypep 'clos:forward-referenced-class 'clos:specializer)
+T ; misdesign!
+;; Same thing with opposite setting of *forward-referenced-class-misdesign*.
+(progn
+  #+CLISP (setq custom:*forward-referenced-class-misdesign* nil)
+  (defclass foo134 (forwardclass04) ())
+  (defparameter *forwardclass* (first (clos:class-direct-superclasses (find-class 'foo134))))
+  t)
+T
+(typep 1 *forwardclass*)
+ERROR
+(locally (declare (compile)) (typep 1 *forwardclass*))
+ERROR
+(type-expand *forwardclass*)
+ERROR
+(subtypep *forwardclass* 't)
+ERROR
+(subtypep 'nil *forwardclass*)
+ERROR
+(sys::subtype-integer *forwardclass*)
+ERROR
+(sys::subtype-sequence *forwardclass*)
+NIL ; should also be ERROR
+(write-to-string *forwardclass* :readably t)
+ERROR
+(setf (find-class 'foo134a) *forwardclass*)
+ERROR
+(class-name *forwardclass*)
+FORWARDCLASS04
+(setf (class-name *forwardclass*) 'forwardclass04changed)
+ERROR
+(class-name *forwardclass*)
+FORWARDCLASS04
+(clos:class-direct-superclasses *forwardclass*)
+NIL
+(clos:class-direct-slots *forwardclass*)
+NIL
+(clos:class-direct-default-initargs *forwardclass*)
+NIL
+(clos:class-precedence-list *forwardclass*)
+ERROR
+(clos:class-slots *forwardclass*)
+ERROR
+(clos:class-default-initargs *forwardclass*)
+ERROR
+(clos:class-finalized-p *forwardclass*)
+NIL
+(clos:class-prototype *forwardclass*)
+ERROR
+(clos:finalize-inheritance *forwardclass*)
+ERROR
+(clos:class-finalized-p *forwardclass*)
+NIL
+(eval `(defmethod foo134a ((x ,*forwardclass*))))
+ERROR
+(progn
+  (defgeneric foo134b (x)
+    (:method ((x integer)) x))
+  (clos:add-method #'foo134b
+    (make-instance 'standard-method
+      :qualifiers '()
+      :lambda-list '(x)
+      :specializers (list *forwardclass*)
+      :function #'(lambda (args next-methods) (first args))))
+  #-CLISP (foo134b 7))
+ERROR
+(typep *forwardclass* 'class)
+#+CLISP NIL
+#-CLISP T ; misdesign!
+(typep *forwardclass* 'clos:specializer)
+#+CLISP NIL
+#-CLISP T ; misdesign!
+(subtypep 'clos:forward-referenced-class 'class)
+#+CLISP NIL
+#-CLISP T ; misdesign!
+(subtypep 'clos:forward-referenced-class 'clos:specializer)
+#+CLISP NIL
+#-CLISP T ; misdesign!
 
 
 ;; Check that defclass supports user-defined options.
