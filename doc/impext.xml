@@ -747,71 +747,34 @@ localized.</para>
 
 <!-- #ifdef /* HAVE_ICONV */ -->
 <variablelist>
-<varlistentry id="iconv"><term>[&clisp; comes with it own implementation
-   of &iconv;, so the following is more or less obsolete now.]
-    (Platform dependent: Only on &unix; systems having the &c-lang;
-     library function &iconv;).</term>
+<varlistentry id="iconv"><term>Platform dependent: Only on &gnu; systems
+     with glibc-2.2 or better and other systems (&unix; and &win32;)
+     on which the &gnu; libiconv &c-lang; library has been installed</term>
 <listitem><simpara>The character sets provided by the library function
  &iconv; can also be used as encodings.  To create such an encoding,
  call &make-encoding; with the character set name (a string) as
  <constant>:charset</constant> argument.</simpara>
 
- <simpara>These encodings are not assigned to global variables, since
+<simpara>These encodings are not assigned to global variables, since
  there is no portable way to get the list of all character sets
  supported by &iconv;.</simpara>
 
- <simpara>On &gnu; systems (such as GNU/Linux and GNU/Hurd), you get
- this list by calling the <emphasis>program</emphasis>
- iconv: <command>iconv --list</command>.
- &gnu; glibc-2.1 supports in particular, among others:</simpara>
+<simpara>On &gnu; systems (such as GNU/Linux and GNU/Hurd) and on
+ systems with &gnu; libiconv you get this list by calling the
+ <emphasis>program</emphasis> iconv: <command>iconv --list</command>.
+ </simpara>
 
-<itemizedlist id="gnu-extra-charset-list">
-  <listitem id="charset-EUC-JP-gnu"><simpara><literal>EUC-JP</literal> and
-  <literal>SHIFT-JIS</literal>, for the Japanese language,</simpara></listitem>
-  <listitem id="charset-EUC-CN-gnu"><simpara><literal>EUC-CN</literal>,
-  <literal>EUC-TW</literal>, <literal>BIG5</literal> and
-  <literal>GB</literal>, for the Chinese language,</simpara></listitem>
-  <listitem id="charset-EUC-KR-gnu"><simpara><literal>EUC-KR</literal> and
-  <literal>ISO-2022-KR</literal>, for the Korean language.</simpara></listitem>
-</itemizedlist>
+<simpara>When an encoding is available both as a &enc-built-in; and
+ through &iconv;, the &enc-built-in; is recommended, because it is more
+ efficient and available across all platforms.</simpara>
 
-<para>HP-UX systems support in particular, among others:</para>
-<itemizedlist id="hpux-extra-charset-list">
-  <listitem id="charset-eucJP"><simpara><literal>eucJP</literal> and
-  <literal>sjis</literal>, for the Japanese language,</simpara></listitem>
-  <listitem id="charset-eucTW"><simpara><literal>eucTW</literal>,
-  <literal>big5</literal> and <literal>chinese-gb</literal>,
-  for the Chinese language,</simpara></listitem>
-  <listitem id="charset-eucKR"><simpara><literal>eucKR</literal>,
-  for the Korean language.</simpara></listitem>
-</itemizedlist>
-
-<simpara>AIX 4.2 systems support in particular, among others:</simpara>
-<itemizedlist id="aix-extra-charset-list">
-  <listitem id="charset-IBM-eucJP"><simpara><literal>IBM-eucJP</literal>,
-  for the Japanese language,</simpara></listitem>
-  <listitem id="charset-IBM-eucTW"><simpara><literal>IBM-eucTW</literal>,
-  for the Chinese language,</simpara></listitem>
-  <listitem id="charset-IBM-eucKR"><simpara><literal>IBM-eucKR</literal>,
-  for the Korean language.</simpara></listitem>
-</itemizedlist>
-
-<simpara>On Solaris systems, you can forget about &iconv;-based
- encodings, because all the possible encodings are already
- &enc-built-in;.  (Solaris knows about Japanese, Chinese and Korean
- encodings, but can convert them only to/from UTF-8, not to/from UCS-2,
- which is the &clisp;'s internal encoding.)</simpara>
-
-<simpara>On IRIX systems, you can forget about &iconv;-based encodings
- as well, because all the interesting possible encodings are already
- &enc-built-in;.</simpara>
-
-<simpara>On OSF/1 systems, &iconv;-based encodings are not usable at
- all.</simpara>
-
-<simpara>When an encoding is available as a &enc-built-in; and through
- &iconv;, the &enc-built-in; is preferred, because it is more efficient
- and available across platforms.</simpara>
+<simpara>The reason we use only &gnu; glibc-2.2 or &gnu; libiconv is
+ that the other &iconv; implementations are broken in various ways and
+ we do not want deal with random &clisp; crashes caused by those bugs.
+ If your system supplies an &iconv; implementation which passes the
+ &gnu; libiconv's test suite, please report that to
+ <email>clisp-list@sf.net</email> and a future &clisp; version will use
+ &iconv; on your system.</simpara>
 
 </listitem></varlistentry></variablelist>
 <!-- #endif /* HAVE_ICONV */ -->
