@@ -1,3 +1,7 @@
+2004-12-10  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (maygc): expand to nothing
+
 2004-12-07  Bruno Haible  <bruno@clisp.org>
 
 	Delay warn_forced_gc_rehash call if needed.

@@ -2204,15 +2204,17 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #endif
 #endif
 
-# The type 'object' denotes an object in registers or in memory that is
-# not seen by the GC.
+/* The type 'object' denotes an object in registers or in memory that is
+ not seen by the GC.
 
-# The type `gcv_object_t' denotes a GC visible object, i.e. a slot inside
-# a heap-allocated object or a STACK slot. If its value is not an immediate
-# object, any call that can trigger GC can modify the pointer value.
-# NEVER write "var gcv_object_t foo;" - this is forbidden!
-# You can write "var gcunsafe_object_t foo;" instead - but then you must not
-# trigger GC during the entire lifetime of the variable 'foo'!
+ The type `gcv_object_t' denotes a GC visible object, i.e. a slot inside
+ a heap-allocated object or a STACK slot. If its value is not an immediate
+ object, any call that can trigger GC can modify the pointer value.
+ NEVER write "var gcv_object_t foo;" - this is forbidden!
+ You can write "var gcunsafe_object_t foo;" instead - but then you must not
+ trigger GC during the entire lifetime of the variable 'foo'!
+*/
+#define maygc
 
 #if !defined(WIDE_SOFT)
 
