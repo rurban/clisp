@@ -565,7 +565,7 @@ local object LF_shorten_LF (object x, uintC len)
       /* carry by rounding up */
       TheLfloat(y)->data[0] = bit(intDsize-1); /* mantissa := 10...0 */
       /* increase exponent: */
-      if (++(TheLfloat(y)->expo) == LF_exp_high+1)
+      if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1))
         fehler_overflow();
     }
   }
@@ -720,7 +720,7 @@ local object LF_LF_plus_LF (object x1, object x2)
       if (carry!=0)
         if ( inc_loop_down(ptr,i) ) { /* carry beyond the first digit */
           /* increment exponent of y : */
-          if ( ++(TheLfloat(y)->expo) == LF_exp_high+1 )
+          if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1))
             fehler_overflow();
           /* normalize by shifting by 1 bit to the right: */
           var uintD carry_rechts =
@@ -861,7 +861,7 @@ local object LF_LF_plus_LF (object x1, object x2)
       /* carry by rounding up */
       y_mantMSDptr[0] = bit(intDsize-1); /* mantissa := 10...0 */
       /* increase exponent: */
-      if (++(TheLfloat(y)->expo) == LF_exp_high+1) {
+      if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1)) {
         end_arith_call(); RESTORE_NUM_STACK; fehler_overflow();
       }
     }
@@ -980,7 +980,7 @@ local object LF_square_LF (object x)
       }
     }
     /* assure LF_exp_low <= exp <= LF_exp_high : */
-    if (TheLfloat(y)->expo == LF_exp_high+1) {
+    if (TheLfloat(y)->expo == (uint32)(LF_exp_high+1)) {
       RESTORE_NUM_STACK; fehler_overflow();
     }
   }
@@ -1078,7 +1078,7 @@ local object LF_LF_mal_LF (object x1, object x2)
       }
     }
     /* assure LF_exp_low <= exp <= LF_exp_high : */
-    if (TheLfloat(y)->expo == LF_exp_high+1) {
+    if (TheLfloat(y)->expo == (uint32)(LF_exp_high+1)) {
       RESTORE_NUM_STACK; fehler_overflow();
     }
   }
@@ -1187,7 +1187,7 @@ local object LF_LF_durch_LF (object x1, object x2)
           shiftrightcopy_loop_up(&q.MSDptr[1],y_mantMSDptr,len,1,
                                  /* carry left = q.MSDptr[0] = 1 */ 1 );
         /* increment exponent: */
-        if (++(TheLfloat(y)->expo) == LF_exp_high+1)
+        if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1))
           fehler_overflow();
         /* round: */
         if ((carry_rechts == 0) /* shifted out bit =0 -> round off */
@@ -1216,7 +1216,7 @@ local object LF_LF_durch_LF (object x1, object x2)
             /* carry created by rounding up */
             y_mantMSDptr[0] = bit(intDsize-1); /* mantissa := 10...0 */
             /* increment exponents: */
-            if (++(TheLfloat(y)->expo) == LF_exp_high+1)
+            if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1))
               fehler_overflow();
           }
         }
@@ -1439,7 +1439,7 @@ local object I_to_LF (object x, uintC len)
         /* guarantees exp < intDsize*2^intWCsize-1 <= LF_exp_high-LF_exp_mid */
         (TheLfloat(y)->expo)++; /* now, exp <= LF_exp_high-LF_exp_mid */
       } else {
-        if (++(TheLfloat(y)->expo) == LF_exp_high+1)
+        if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1))
           fehler_overflow();
       }
     }
