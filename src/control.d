@@ -606,7 +606,7 @@ LISPSPECFORM(prog2, 2,0,body)
                     }
                   if (specdecled || special_var_p(TheSymbol(symbol)))
                     # dynamisch binden
-                    { *(oint*)(&STACK_0) |= wbit(dynam_bit_o); }
+                    { STACK_0 = as_object(as_oint(STACK_0) | wbit(dynam_bit_o)); }
                     else
                     # statisch binden
                     {}
@@ -694,15 +694,15 @@ LISPSPECFORM(let, 1,0,body)
               dotimespC(count,bind_count,
                 { frame_pointer skipSTACKop -varframe_binding_size;
                  {var object* markptr = &Before(frame_pointer);
-                  if (*(oint*)(markptr) & wbit(dynam_bit_o)) # Bindung dynamisch?
+                  if (as_oint(*markptr) & wbit(dynam_bit_o)) # Bindung dynamisch?
                     { var object symbol = *(markptr STACKop varframe_binding_sym); # Variable
                       var object newval = *(markptr STACKop varframe_binding_value); # neuer Wert
                       *(markptr STACKop varframe_binding_value) = TheSymbolflagged(symbol)->symvalue; # alten Wert im Frame sichern
-                      *(oint*)(markptr) |= wbit(active_bit_o); # Bindung aktivieren
+                      *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # Bindung aktivieren
                       TheSymbolflagged(symbol)->symvalue = newval; # neuer Wert
                     }
                     else
-                    { *(oint*)(markptr) |= wbit(active_bit_o); } # Bindung aktivieren
+                    { *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); } # Bindung aktivieren
                 }});
           } }
         # Body abinterpretieren:
@@ -737,15 +737,15 @@ LISPSPECFORM(letstern, 1,0,body)
                {var object* markptr = &Before(frame_pointer);
                 var object init = *initptr; # nächstes Init
                 var object newval = (eq(init,unbound) ? NIL : (eval(init),value1)); # auswerten, NIL als Default
-                if (*(oint*)(markptr) & wbit(dynam_bit_o)) # Bindung dynamisch?
+                if (as_oint(*markptr) & wbit(dynam_bit_o)) # Bindung dynamisch?
                   { var object symbol = *(markptr STACKop varframe_binding_sym); # Variable
                     *initptr = TheSymbolflagged(symbol)->symvalue; # alten Wert im Frame sichern
-                    *(oint*)(markptr) |= wbit(active_bit_o); # Bindung aktivieren
+                    *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # Bindung aktivieren
                     TheSymbolflagged(symbol)->symvalue = newval; # neuer Wert
                   }
                   else
                   { *initptr = newval; # neuen Wert in den Frame
-                    *(oint*)(markptr) |= wbit(active_bit_o); # Bindung aktivieren
+                    *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # Bindung aktivieren
                   }
               }});
           }
@@ -1072,7 +1072,7 @@ LISPSPECFORM(symbol_macrolet, 1,0,body)
                 TheSymbolmacro(sm)->symbolmacro_expansion = *initptr;
                 *initptr = sm;
                 frame_pointer skipSTACKop -(varframe_binding_size-1);
-                *(oint*)(&Before(frame_pointer)) |= wbit(active_bit_o);
+                Before(frame_pointer) = as_object(as_oint(Before(frame_pointer)) | wbit(active_bit_o));
               });
           }
         # Body abinterpretieren:
@@ -1710,17 +1710,17 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
           { var object* valptr = &Next(frame_pointer);                        \
             frame_pointer skipSTACKop -varframe_binding_size;                 \
            {var object* markptr = &Before(frame_pointer);                     \
-            if (*(oint*)(markptr) & wbit(dynam_bit_o))                        \
+            if (as_oint(*markptr) & wbit(dynam_bit_o))                        \
               # dynamische Bindung aktivieren:                                \
               { var object sym = *(markptr STACKop varframe_binding_sym); # Variable     \
                 *valptr = TheSymbolflagged(sym)->symvalue; # alten Wert in den Frame     \
-                *(oint*)(markptr) |= wbit(active_bit_o); # Bindung aktivieren            \
+                *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # Bindung aktivieren \
                 TheSymbolflagged(sym)->symvalue = (value); # neuen Wert in die Wertzelle \
               }                                                               \
               else                                                            \
               # statische Bindung aktivieren:                                 \
               { *valptr = (value); # neuen Wert in den Frame                  \
-                *(oint*)(markptr) |= wbit(active_bit_o); # Bindung aktivieren \
+                *markptr = as_object(as_oint(*markptr) | wbit(active_bit_o)); # Bindung aktivieren \
               }                                                               \
           }}
         # Die r:=bind_count Variablen an die s:=mv_count Werte binden:

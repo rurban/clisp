@@ -283,8 +283,8 @@
       #define update_STACKs()  \
         for_all_STACKs(                                                               \
           until (eq(*objptr,nullobj)) # bis STACK zu Ende ist:                        \
-            { if ( *((oint*)objptr) & wbit(frame_bit_o) ) # Beginnt hier ein Frame?   \
-               { if (( *((oint*)objptr) & wbit(skip2_bit_o) ) == 0) # Ohne skip2-Bit? \
+            { if ( as_oint(*objptr) & wbit(frame_bit_o) ) # Beginnt hier ein Frame?   \
+               { if (( as_oint(*objptr) & wbit(skip2_bit_o) ) == 0) # Ohne skip2-Bit? \
                   objptr skipSTACKop 2; # ja -> um 2 weiterrücken                     \
                   else                                                                \
                   objptr skipSTACKop 1; # nein -> um 1 weiterrücken                   \

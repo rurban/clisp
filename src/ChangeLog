@@ -1,3 +1,20 @@
+1999-07-06  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        Don't access objects in memory through `oint*' pointers.
+        * spvw_mark.d (mark, unmark, marked): Use as_object/as_oint
+          conversions instead of oint* memory access.
+        * spvw_update.d (update_STACKs): Use as_oint conversion instead of
+          oint* memory access.
+        * spvw_garcol.d (gc_mark): Change type of `dies_' to `object*'.
+          (gc_mark_stack, alive): Use as_oint conversion instead of oint*
+          memory access.
+          (gc_morris3, update, update_stackobj): Use as_object/as_oint
+          conversions instead of oint* memory access.
+        * spvw_memfile.d (update, loadmem_update): Likewise.
+        * eval.d (nest_var, funcall_iclosure): Likewise.
+        * control.d (make_variable_frame, LET, LET*, SYMBOL-MACROLET,
+           MULTIPLE-VALUE-BIND): Likewise.
+
 1999-07-04  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * utils/gcc-cccp/cccp.c (output_line_command): In the filename
