@@ -1,5 +1,5 @@
 # Liste aller dem C-Programm bekannten Objekte ("Programmkonstanten")
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 
 # Die Symbole sind bereits speziell abgehandelt.
 # Es wird eine Tabelle aller sonstigen dem C-Programm bekannten Objekte
@@ -608,14 +608,14 @@
   LISPOBJ_S(leer_string,"")
   LISPOBJ_S(wild_string,"*")
   LISPOBJ_S(doppelpunkt_string,":")
- #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
   LISPOBJ(backslash_string,"\"\\\\\"")
  #endif
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
   LISPOBJ_S(slash_string,"/")
  #endif
   LISPOBJ_S(punkt_string,".")
- #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
+ #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32) || defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS)
   LISPOBJ_S(punktpunkt_string,"..")
   LISPOBJ_S(punktpunktpunkt_string,"...")
  #endif
@@ -630,11 +630,8 @@
  #ifdef PATHNAME_OS2
   LISPOBJ(pipe_subdirs,"(\"PIPE\")")
  #endif
- #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2)
+ #ifdef PATHNAME_OS2
   LISPOBJ_S(wild_wild_string,"*.*")
- #endif
- #ifdef PATHNAME_MSDOS
-  LISPOBJ_S(backuptype_string,"BAK") # Filetyp von Backupfiles
  #endif
  #ifdef PATHNAME_OS2
   LISPOBJ_S(backuptype_string,"bak") # Filetyp von Backupfiles
@@ -648,7 +645,7 @@
  #ifdef PATHNAME_RISCOS
   LISPOBJ_S(backupprepend_string,"~") # Namenserweiterung von Backupfiles
  #endif
- #if defined(PATHNAME_MSDOS) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
+ #if defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
   # Default-Drive (als String der Länge 1):
   LISPOBJ(default_drive,"NIL")
  #endif

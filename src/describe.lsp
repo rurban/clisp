@@ -570,7 +570,7 @@ to print the corresponding values, or T for all of them.")
 (defun unicode-data-file ()
   ; $(lisplibdir)/data/UnicodeData.txt
   (merge-pathnames
-    #-DOS "UnicodeData.txt" #+DOS "UNICODED.TXT"
+    "UnicodeData.txt"
     (let ((libdir (sys::lib-directory)))
       (make-pathname
         :host (pathname-host libdir)

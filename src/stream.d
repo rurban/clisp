@@ -1,5 +1,5 @@
 # Streams für CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2000
 # Generic Streams: Marcus Daniels 8.4.1994
 
 #include "lispbibl.c"
@@ -3546,11 +3546,11 @@ LISPFUNN(generic_stream_p,1)
             );
     }
 
-#if defined(UNIX) || defined(EMUNIX) || defined(DJUNIX) || defined(WATCOM) || defined(RISCOS)
+#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
 
 # UP: Löscht bereits eingegebenen interaktiven Input von einem Handle.
   local void clear_tty_input (Handle handle);
-  #if !(defined(DJUNIX) || defined(RISCOS))
+  #if !defined(RISCOS)
   local void clear_tty_input(handle)
     var Handle handle;
     {
@@ -3604,7 +3604,7 @@ LISPFUNN(generic_stream_p,1)
 
 # UP: Bringt den wartenden Output eines Handles ans Ziel.
   local void finish_tty_output (Handle handle);
-  #if !(defined(DJUNIX) || defined(WATCOM) || defined(RISCOS))
+  #if !defined(RISCOS)
   local void finish_tty_output(handle)
     var Handle handle;
     {
@@ -3670,7 +3670,7 @@ LISPFUNN(generic_stream_p,1)
 
 # UP: Bringt den wartenden Output eines Handles ans Ziel.
   local void force_tty_output (Handle handle);
-  #if !(defined(DJUNIX) || defined(WATCOM) || (defined(UNIX) && !defined(HAVE_FSYNC)) || defined(RISCOS))
+  #if !((defined(UNIX) && !defined(HAVE_FSYNC)) || defined(RISCOS))
   local void force_tty_output(handle)
     var Handle handle;
     {
@@ -3693,7 +3693,7 @@ LISPFUNN(generic_stream_p,1)
 
 # UP: Löscht den wartenden Output eines Handles.
   local void clear_tty_output (Handle handle);
-  #if !(defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS))
+  #if !(defined(EMUNIX) || defined(RISCOS))
   local void clear_tty_output(handle)
     var Handle handle;
     {
@@ -5095,23 +5095,7 @@ global object iconv_range(encoding,start,end)
       #           see READ(2V), FILIO(4), or
       #           see READ(2V), FCNTL(2V), FCNTL(5)
       var Handle handle = TheHandle(TheStream(stream)->strm_ichannel);
-      #if defined(MSDOS) && !defined(EMUNIX_PORTABEL)
-      {
-        var uintB status;
-        begin_system_call();
-        get_handle_input_status(handle,status);
-        end_system_call();
-        if (status)
-          return ls_avail;
-      }
-      if (!nullp(TheStream(stream)->strm_isatty)) {
-        # Terminal
-        return ls_wait;
-      } else {
-        # File
-        UnbufferedStream_status(stream) = -1; return ls_eof;
-      }
-      #elif defined(EMUNIX_PORTABEL)
+      #if defined(EMUNIX)
       {
         var struct termio oldtermio;
         var struct termio newtermio;
@@ -6573,7 +6557,7 @@ typedef struct strm_i_buffered_extrafields_struct {
 # File-Stream allgemein
 # =====================
 
-#if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+#if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
 # Annahme: Alle von OPEN(2) gelieferten File-Descriptoren (hier Handles
 # genannt) passen in ein uintW.
 # Begründung: Bekanntlich ist 0 <= fd < getdtablesize() .
@@ -6594,7 +6578,7 @@ typedef struct strm_i_buffered_extrafields_struct {
 #         SEEK_CUR  "relativ"
 #         SEEK_END  "ab Ende"
 # < ergebnis: neue Position
-  #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+  #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
     #define handle_lseek(stream,handle,offset,mode,ergebnis_zuweisung)  \
       { var sintL ergebnis =                                  \
           lseek(TheHandle(handle),                            \
@@ -6692,7 +6676,7 @@ typedef struct strm_i_buffered_extrafields_struct {
         end_system_call(); BufferedStream_modified(stream) = FALSE;
       } else {
         # Nicht alles geschrieben
-        #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
+        #if defined(UNIX) || defined(EMUNIX) || defined(RISCOS)
         if (ergebnis<0) # Fehler aufgetreten?
           #ifdef ENOSPC
           if (!(errno == ENOSPC))
@@ -9011,29 +8995,6 @@ local object make_key_event(event)
 #       - similar to INT 16,01
 #
 
-#if defined(DJUNIX) || defined(WATCOM)
-
-  # Liefert den nächsten Tastendruck incl. Scan-Code:
-  # high byte = Scan-Code oder 0, low byte = Ascii-Code oder 0 oder 0xE0.
-  local boolean kbhit()
-    {
-      var union REGS in;
-      var union REGS out;
-      in.regB.ah = 0x11;
-      int86(0x16,&in,&out);
-      return ((out.reg_flags & 0x40) == 0); # Zero-Flag abfragen
-    }
-  local uintW getch()
-    {
-      var union REGS in;
-      var union REGS out;
-      in.regB.ah = 0x10;
-      int86(0x16,&in,&out);
-      return out.regW.ax;
-    }
-
-#endif
-
 #ifdef EMUNIX
 
   # Unter DOS:
@@ -9246,7 +9207,7 @@ local object make_key_event(event)
     { NULL,  CR, char_meta_c | char_hyper_c }, # 166 = Alt-Enter -> #\META-HYPER-Return
     };
 
-#ifdef EMUNIX_PORTABEL
+#ifdef EMUNIX
 
 # Wir haben, um portabel zu bleiben, nur die Funktion _read_kbd zur Verfügung.
 # Diese erkennt unter DOS aber nur recht wenige Sondertasten: nur die mit
@@ -9257,7 +9218,7 @@ local object make_key_event(event)
 # Da INT 16,10 unter DOS seit emx 0.8f nun endlich befriedigend funktioniert,
 # verwenden wir dieses. Zur Laufzeit wird _osmode abgefragt.
 
-#endif # EMUNIX_PORTABEL
+#endif # EMUNIX
 
 #endif # MSDOS
 
@@ -9268,11 +9229,10 @@ local object make_key_event(event)
 #             ls_eof   if EOF is reached,
 #             ls_wait  if no character is available, but not because of EOF
   local signean listen_keyboard (object stream);
-  #ifdef MSDOS
+  #ifdef EMUNIX
   local signean listen_keyboard(stream)
     var object stream;
     {
-      #ifdef EMUNIX_PORTABEL
       if (!(_osmode == DOS_MODE)) {
         # OS/2
         var int ch = _read_kbd(FALSE,FALSE,FALSE);
@@ -9296,13 +9256,13 @@ local object make_key_event(event)
         TheStream(stream)->strm_rd_ch_last = c;
         TheStream(stream)->strmflags |= strmflags_unread_B;
         return ls_avail;
-      } else
-      #endif
-      # DOS
-      if (kbhit()) { # inzwischen wieder Tasten gedrückt?
-        return ls_avail; # ja
       } else {
-        return ls_wait; # nein
+        # DOS
+        if (kbhit()) { # inzwischen wieder Tasten gedrückt?
+          return ls_avail; # ja
+        } else {
+          return ls_wait; # nein
+        }
       }
     }
   #endif
@@ -9362,18 +9322,17 @@ local object make_key_event(event)
   local boolean clear_input_keyboard(stream)
     var object stream;
     {
-      #ifdef MSDOS
-        #ifdef EMUNIX_PORTABEL
+      #ifdef EMUNIX
         if (!(_osmode == DOS_MODE)) {
           # OS/2
           while (listen_keyboard(stream)) {
             # das Zeichen wurde schon geholt!
           }
-        } else
-        #endif
-        # DOS
-        while (kbhit()) {
-          getch();
+        } else {
+          # DOS
+          while (kbhit()) {
+            getch();
+          }
         }
       #endif
       #ifdef WIN32_NATIVE
@@ -9403,11 +9362,10 @@ local object make_key_event(event)
 # Lesen eines Zeichens vom Keyboard:
   local object rd_ch_keyboard (const object* stream_);
 
-  #ifdef MSDOS
+  #ifdef EMUNIX
   local object rd_ch_keyboard(stream_)
     var const object* stream_;
     {
-      #ifdef EMUNIX_PORTABEL
       if (!(_osmode == DOS_MODE)) {
         # OS/2
         run_time_stop(); # Run-Time-Stoppuhr anhalten
@@ -9430,10 +9388,8 @@ local object make_key_event(event)
         # Ctrl-+ -> #\Code29, Ctrl-ü -> #\Code27 = #\Escape
         run_time_restart(); # Run-Time-Stoppuhr weiterlaufen lassen
         return c;
-      } else
-      #endif
-      # DOS
-      {
+      } else {
+        # DOS
         var object c;
         run_time_stop(); # Run-Time-Stoppuhr anhalten
         {
@@ -10431,40 +10387,12 @@ LISPFUNN(make_keyboard_stream,0)
       statement1
   #endif
 
-#ifdef MSDOS
+#ifdef EMUNIX
 
   # get_handle_info(handle)
   # > handle
   # < ergebnis: Handle-Info (INT 21,44,00)
-  #ifdef DJUNIX
-    #define get_handle_info(handle)  \
-      ({ var uintW __info;                                                  \
-         __asm__ (# DOS-Funktion 44H, Code 00H                              \
-                  " pushl %%ebx ;"                                          \
-                  " movw %1,%%bx ; movw $0x4400,%%ax ; int $0x21 ;"         \
-                  " popl %%ebx "                                            \
-                  : "=d" /* %dx */ (__info)                       # OUT     \
-                  : "ri" ((uintW)(handle))                        # IN      \
-                  : "ax","cx","si","di" /* %eax,%ecx,%esi,%edi */ # CLOBBER \
-                 );                                                         \
-         __info;                                                            \
-       })
-  #endif
-  #ifdef EMUNIX
     #define get_handle_info(handle)  __ioctl1(handle,0x00)
-  #endif
-  #ifdef WATCOM
-    local uintW get_handle_info (uintW handle);
-    local uintW get_handle_info(handle)
-      var uintW handle;
-      {
-        var union REGS in;
-        var union REGS out;
-        in.regW.ax = 0x4400; in.regW.bx = handle;
-        intdos(&in,&out);
-        return out.regW.dx;
-      }
-  #endif
 
 #endif
 
@@ -11695,585 +11623,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL)
             );
     }
 
-#if defined(MSDOS) && !defined(EMUNIX_PORTABEL)
-
-# Aus der Distribution von ELVIS 1.4, File PC.C :
-
-# Author:
-#      Guntram Blohm
-#      Buchenstraße 19
-#      W 7904 Erbach
-#      Germany
-#      Tel. ++49-7305-6997
-#      sorry - no regular network connection
-
-# This file implements the ibm pc bios interface. See IBM documentation
-# for details.
-# If TERM is set upon invocation of CLISP, this code is ignored completely,
-# and the standard termcap functions are used, thus, even not-so-close
-# compatibles can run CLISP. For close compatibles however, bios output
-# is much faster (and permits reverse scrolling, adding and deleting lines,
-# and much more ansi.sys isn't capable of). GB.
-
-local uintL screentype; # 0 = monochrome, 1 = color
-
-local uintW screenattr; # screen attribute index
-
-# Documentation of attributes:
-# bit 7    : foreground character blinking,
-# bit 6..4 : background color,
-# bit 3    : foreground intensity,
-# bit 2..0 : foreground color,
-# color table:
-#   0 black, 1 blue, 2 green, 3 cyan, 4 red, 5 magenta, 6 brown, 7 lightgray,
-# and as foreground color with intensity bit set, it is light:
-#   8 darkgray, ..., E yelloe, F white.
-  #define col_black    0  # schwarz
-  #define col_blue     1  # blau
-  #define col_green    2  # grün
-  #define col_cyan     3  # blaugrün
-  #define col_red      4  # rot
-  #define col_magenta  5  # lila
-  #define col_brown    6  # braun
-  #define col_white    7  # weiß
-  #define col_light(x)  (8 | x)  # hell
-  #define FG(x)  x         # foreground color
-  #define BG(x)  (x << 4)  # background color
-local uintB attr_table[2][5] = {
-  # monochrome:
-  { /* no standout   */  BG(col_black) | FG(col_white),
-    /* standout      */  BG(col_white) | FG(col_black),
-    /* visible bell  */  BG(col_black) | FG(col_light(col_white)),
-    /* underline     */  BG(col_black) | FG(1), # underline
-    /* alt. char set */  BG(col_black) | FG(col_light(col_white)),
-  },
-  # color:
-  { /* no standout   */  BG(col_blue) | FG(col_light(col_white)),
-    /* standout      */  BG(col_blue) | FG(col_light(col_magenta)),
-    /* visible bell  */  BG(col_blue) | FG(col_light(col_brown)),
-    /* underline     */  BG(col_blue) | FG(col_light(col_green)),
-    /* alt. char set */  BG(col_blue) | FG(col_light(col_red)),
-  },
-};
-local uintB attr; # = attr_table[screentype][screenattr];
-
-# INT 10 documentation:
-#   INT 10,01 - Set cursor type
-#   INT 10,02 - Set cursor position
-#   INT 10,03 - Read cursor position
-#   INT 10,06 - Scroll active page up
-#   INT 10,07 - Scroll active page down
-#   INT 10,09 - Write character and attribute at cursor
-#   INT 10,0E - Write text in teletype mode
-#   INT 10,0F - Get current video state
-#
-# INT 10,01 - Set Cursor Type
-#     AH = 01
-#     CH = cursor starting scan line (cursor top) (low order 5 bits)
-#     CL = cursor ending scan line (cursor bottom) (low order 5 bits)
-#     returns nothing
-#     - cursor scan lines are zero based
-#     - the following is a list of the cursor scan lines associated with
-#       most common adapters;  screen sizes over 40 lines may differ
-#       depending on adapters.
-#               Line     Starting     Ending      Character
-#       Video   Count    Scan Line    Scan Line   Point Size
-#       CGA      25         06           07           08
-#       MDA      25         0B           0C           0E
-#       EGA      25         06           07           0E
-#       EGA      43       04/06          07           08
-#       VGA      25         0D           0E           10
-#       VGA      40         08           09           0A
-#       VGA      50         06           07           08
-#     - use CX = 2000h to disable cursor
-#
-# INT 10,02 - Set Cursor Position
-#     AH = 02
-#     BH = page number (0 for graphics modes)
-#     DH = row
-#     DL = column
-#     returns nothing
-#     - positions relative to 0,0 origin
-#     - 80x25 uses coordinates 0,0 to 24,79;  40x25 uses 0,0 to 24,39
-#
-# INT 10,03 - Read Cursor Position and Size
-#     AH = 03
-#     BH = video page
-#     on return:
-#     CH = cursor starting scan line (low order 5 bits)
-#     CL = cursor ending scan line (low order 5 bits)
-#     DH = row
-#     DL = column
-#
-# INT 10,06 - Scroll Window Up
-#     AH = 06
-#     AL = number of lines to scroll, previous lines are
-#          blanked, if 0 or AL > screen size, window is blanked
-#     BH = attribute to be used on blank line
-#     CH = row of upper left corner of scroll window
-#     CL = column of upper left corner of scroll window
-#     DH = row of lower right corner of scroll window
-#     DL = column of lower right corner of scroll window
-#     returns nothing
-#     - in video mode 4 (300x200 4 color) on the EGA, MCGA and VGA
-#       this function scrolls page 0 regardless of the current page
-#
-# INT 10,07 - Scroll Window Down
-#     AH = 07
-#     AL = number of lines to scroll, previous lines are
-#          blanked, if 0 or AL > screen size, window is blanked
-#     BH = attribute to be used on blank line
-#     CH = row of upper left corner of scroll window
-#     CL = column of upper left corner of scroll window
-#     DH = row of lower right corner of scroll window
-#     DL = column of lower right corner of scroll window
-#     returns nothing
-#     - in video mode 4 (300x200 4 color) on the EGA, MCGA and VGA
-#       this function scrolls page 0 regardless of the current page
-#
-# INT 10,09 - Write Character and Attribute at Cursor Position
-#     AH = 09
-#     AL = ASCII character to write
-#     BH = display page  (or mode 13h, background pixel value)
-#     BL = character attribute (text) foreground color (graphics)
-#     CX = count of characters to write (CX >= 1)
-#     returns nothing
-#     - does not move the cursor
-#     - in graphics mode (except mode 13h), if BL bit 7=1 then
-#       value of BL is XOR'ed with the background color
-#
-# INT 10,0E - Write Text in Teletype Mode
-#     AH = 0E
-#     AL = ASCII character to write
-#     BH = page number (text modes)
-#     BL = foreground pixel color (graphics modes)
-#     returns nothing
-#     - cursor advances after write
-#     - characters BEL (7), BS (8), LF (A), and CR (D) are
-#       treated as control codes
-#     - for some older BIOS (10/19/81), the BH register must point
-#       to the currently displayed page
-#     - on CGA adapters this function can disable the video signal while
-#       performing the output which causes flitter.
-#
-# INT 10,0F - Get Video State
-#     AH = 0F
-#     on return:
-#     AH = number of screen columns
-#     AL = mode currently set (see ~VIDEO MODES~)
-#     BH = current display page
-#     - video modes greater than 13h on EGA, MCGA and VGA indicate
-#       ~INT 10,0~ was called with the high bit of the mode (AL) set
-#       to 1, meaning the display does not need cleared
-
-# low-level BIOS interface
-
-#if defined(DJUNIX) || defined(WATCOM)
-  #define intvideo(in_ptr,out_ptr)  int86(0x10,in_ptr,out_ptr)
-#endif
 #ifdef EMUNIX
-  local void intvideo (const union REGS * in_regs, union REGS * out_regs);
-  local void intvideo(in_regs,out_regs)
-    var const register union REGS * in_regs;
-    var register union REGS * out_regs;
-    {
-      __asm__ __volatile__ ( "pushl %%ebx ; "
-                             "movl 0(%%esi),%%eax ; "
-                             "movl 4(%%esi),%%ebx ; "
-                             "movl 8(%%esi),%%ecx ; "
-                             "movl 12(%%esi),%%edx ; "
-                             "pushl %%edi ; "
-                             ".byte 0xcd ; .byte 0x10 ; "
-                             "popl %%edi ; "
-                             "movl %%eax,0(%%edi) ; "
-                             "movl %%ebx,4(%%edi) ; "
-                             "movl %%ecx,8(%%edi) ; "
-                             "movl %%edx,12(%%edi) ; "
-                             "popl %%ebx"
-                             :                                                     # OUT
-                             : "S" /* %esi */ (in_regs), "D" /* %edi */ (out_regs) # IN
-                             : "ax","cx","si","di" /* %eax,%ecx,%esi,%edi */       # CLOBBER
-                           );
-    }
-#endif
-
-local void video (uintW ax, uintW* cx, uintW* dx);
-local void video(ax,cx,dx)
-  var uintW ax;
-  var uintW* cx;
-  var uintW* dx;
-  {
-    var union REGS in;
-    var union REGS out;
-    in.regW.ax = ax;
-    {
-      var uintB ah = in.regB.ah;
-      if (ah==0x06 || ah==0x07) {
-        in.regB.bh = attr;
-      } else {
-        in.regB.bh = 0; # "active page"
-        if (ah==0x09 || ah==0x0e)
-          in.regB.bl = attr;
-      }
-    }
-    if (cx)
-      in.regW.cx = *cx;
-    if (dx)
-      in.regW.dx = *dx;
-    begin_system_call();
-    intvideo(&in,&out);
-    end_system_call();
-    if (dx)
-      *dx = out.regW.dx;
-    if (cx)
-      *cx = out.regW.cx;
-  }
-
-global uintW v_cols()
-  {
-    # determine number of screen columns. Also set screentype according
-    # to monochrome/color screen.
-    var union REGS in;
-    var union REGS out;
-    in.regB.ah=0x0f;
-    intvideo(&in,&out); # INT 10,0F : get current video state
-    var uintB videomode = out.regB.al & 0x7f;
-    # Text modes are 0,1,2,3,7, and others (depending on the graphics card).
-    # Only modes 0 and 7 are mono. (Well, mode 2 is gray shaded.)
-    screentype = (((videomode==0) || (videomode==7))
-                  ? 0 # monochrome
-                  : 1 # color
-                 );
-    return out.regB.ah;
-  }
-
-local uintW v_rows()
-  {
-    # Getting the number of rows is hard. Most screens support 25 only,
-    # EGA/VGA also support 43/50 lines, and some OEM's even more.
-    # Unfortunately, there is no standard bios variable for the number
-    # of lines, and the bios screen memory size is always rounded up
-    # to 0x1000. So, we'll really have to cheat.
-    # When using the screen memory size, keep in mind that each character
-    # byte has an associated attribute byte.
-    # uses:        word at 40:4c contains  memory size
-    #              byte at 40:84           # of rows-1 (sometimes)
-    #              byte at 40:4a           # of columns
-    #if 0 # cannot execute 8086 code!
-    # screen size less then 4K? then we have 25 lines only
-    if (*(uintW far *)(0x0040004CL)<=4096)
-      return 25;
-    # VEGA vga uses the bios byte at 0x40:0x84 for # of rows.
-    # Use that byte, if it makes sense together with memory size.
-    if ((((*(uintB far *)(0x0040004AL)*2*(*(uintB far *)(0x00400084L)+1))
-          +0xfff
-         )
-         &(~0xfff)
-        )
-        == *(uintW far *)(0x0040004CL)
-       )
-      return *(uintB far *)(0x00400084L)+1;
-    #endif
-    # uh oh. Emit LFs until screen starts scrolling.
-    {
-      var uintW line;
-      var uintW oldline = 0;
-      video(0x0200,NULL,&oldline); # INT 10,02 : set cursor position to (0,0)
-      loop {
-        video(0x0e0a,NULL,NULL); # INT 10,0E : write LF in teletype mode
-        video(0x0300,NULL,&line); # INT 10,03 : read cursor position
-        line>>=8;
-        if (oldline==line)
-          return line+1;
-        oldline = line;
-      }
-    }
-  }
-
-# High-level BIOS interface
-
-local uintW LINES;
-local uintW COLS;
-
-void v_up()
-  {
-    # cursor up: determine current position, decrement row, set position
-    var uintW dx;
-    video(0x0300,NULL,&dx); # INT 10,03 : read cursor position
-    dx -= 0x100;
-    video(0x0200,NULL,&dx); # INT 10,02 : set cursor position
-  }
-
-#if 1
-
-void v_cb()
-  {
-    # cursor big: set begin scan to end scan - 4
-    var uintW cx;
-    video(0x0300,&cx,NULL); # INT 10,03 : read cursor position
-    cx=((cx&0xff)|(((cx&0xff)-4)<<8));
-    video(0x0100,&cx,NULL); # INT 10,01 : set cursor type
-  }
-
-void v_cs()
-  {
-    # cursor small: set begin scan to end scan - 1
-    var uintW cx;
-    video(0x0300,&cx,NULL); # INT 10,03 : read cursor position
-    cx=((cx&0xff)|(((cx&0xff)-1)<<8));
-    video(0x0100,&cx,NULL); # INT 10,01 : set cursor type
-  }
-
-#endif
-
-void v_ce()
-  {
-    # clear to end: get cursor position and emit the aproppriate number
-    # of spaces, without moving cursor.
-    var uintW cx;
-    var uintW dx;
-    video(0x0300,NULL,&dx); # INT 10,03 : read cursor position
-    cx = COLS - (dx&0xff);
-    video(0x0920,&cx,NULL); # INT 10,09 : write character at cursor, cx times 0x20
-  }
-
-void v_cl()
-  {
-    # clear screen: clear all and set cursor home
-    var uintW cx = 0;
-    var uintW dx = ((LINES-1)<<8)+(COLS-1);
-    video(0x0600,&cx,&dx); # INT 10,06 : scroll active page up
-    dx = 0;
-    video(0x0200,&cx,&dx); # INT 10,02 : set cursor position
-  }
-
-void v_cd()
-  {
-    # clear to bottom: get position, clear to eol, clear next line to end
-    var uintW cx;
-    var uintW dx;
-    var uintW dxtmp;
-    video(0x0300,NULL,&dx); # INT 10,03 : read cursor position
-    dxtmp = (dx&0xff00)|(COLS-1);
-    cx = dx;
-    video(0x0600,&cx,&dxtmp); # INT 10,06 : scroll active page up
-    cx = (dx&0xff00)+0x100;
-    dx = ((LINES-1)<<8)+(COLS-1);
-    video(0x0600,&cx,&dx); # INT 10,06 : scroll active page up
-  }
-
-void v_al()
-  {
-    # add line: scroll rest of screen down
-    var uintW cx;
-    var uintW dx;
-    video(0x0300,NULL,&dx); # INT 10,03 : read cursor position
-    cx = (dx&0xff00);
-    dx = ((LINES-1)<<8)+(COLS-1);
-    video(0x0701,&cx,&dx); # INT 10,06 : scroll active page down
-  }
-
-void v_dl()
-  {
-    # delete line: scroll rest up
-    var uintW cx;
-    var uintW dx;
-    video(0x0300,NULL,&dx); # INT 10,03 : read cursor position
-    cx = (dx&0xff00) /* + 0x100 */ ;
-    dx = ((LINES-1)<<8)+(COLS-1);
-    video(0x0601,&cx,&dx); # INT 10,06 : scroll active page up
-  }
-
-void v_sr()
-  {
-    # scroll reverse: scroll whole screen
-    var uintW cx = 0;
-    var uintW dx = ((LINES-1)<<8)+(COLS-1);
-    video(0x0701,&cx,&dx); # INT 10,06 : scroll active page down
-  }
-
-void v_move(y,x)
-  var uintW y;
-  var uintW x;
-  {
-    # set cursor
-    var uintW dx = (y<<8)+x;
-    video(0x0200,NULL,&dx); # INT 10,02 : set cursor position
-  }
-
-uintW v_put(ch)
-  var uintW ch;
-  {
-    # put character:
-    # put attribute and char (no scroll!), then update cursor position.
-    var uintW cx=1;
-    ch &= 0xff;
-    if (ch==NL) {
-      video(0x0e00|CR,NULL,NULL); # INT 10,0E : write in teletype mode
-      video(0x0e00|LF,NULL,NULL); # INT 10,0E : write in teletype mode
-    } else {
-      video(0x0900|ch,&cx,NULL); # INT 10,09 : write character at cursor
-      # cursor right: determine current position, increment column, set position
-      var uintW dx;
-      video(0x0300,NULL,&dx); # INT 10,03 : read cursor position
-      dx += 0x1; # increment column
-      if ((dx & 0xff) == COLS) { # at right margin?
-        dx &= 0xff00; # set column to 0
-        dx += 0x100; # increment row
-        if ((dx >> 8) == LINES) # at bottom margin?
-          goto no_scroll; # do not scroll at right bottom corner!!
-      }
-      video(0x0200,NULL,&dx); # INT 10,02 : set cursor position
-     no_scroll: ;
-    }
-    return ch;
-  }
-
-# Lisp-Funktionen:
-
-# UP: Ein Zeichen auf einen Window-Stream ausgeben.
-# wr_ch_window(&stream,ch);
-# > stream: Window-Stream
-# > ch: auszugebendes Zeichen
-  local void wr_ch_window (const object* stream_, object ch);
-  local void wr_ch_window(stream_,ch)
-    var const object* stream_;
-    var object ch;
-    {
-      if (!charp(ch)) # ch sollte Character sein
-        fehler_wr_char(*stream_,ch);
-      var uintB c = as_cint(char_code(ch)); # FIXME: This should take into account the encoding.
-      # Code c übers BIOS auf den Bildschirm ausgeben:
-      v_put(c);
-    }
-
-LISPFUNN(make_window,0)
-  {
-    var object stream =
-      allocate_stream(strmflags_wr_ch_B,strmtype_window,strm_len+0,0);
-      # Flags: nur WRITE-CHAR erlaubt
-    # und füllen:
-    var Stream s = TheStream(stream);
-      s->strm_rd_by = P(rd_by_error); # READ-BYTE unmöglich
-      s->strm_rd_by_array = P(rd_by_array_error); # READ-BYTE unmöglich
-      s->strm_wr_by = P(wr_by_error); # WRITE-BYTE unmöglich
-      s->strm_wr_by_array = P(wr_by_array_error); # WRITE-BYTE unmöglich
-      s->strm_rd_ch = P(rd_ch_error); # READ-CHAR unmöglich
-      s->strm_pk_ch = P(pk_ch_dummy); # PEEK-CHAR-Pseudofunktion
-      s->strm_rd_ch_array = P(rd_ch_array_error); # READ-CHAR unmöglich
-      s->strm_rd_ch_last = NIL; # Lastchar := NIL
-      s->strm_wr_ch = P(wr_ch_window); # WRITE-CHAR-Pseudofunktion
-      s->strm_wr_ch_array = P(wr_ch_array_dummy); # WRITE-CHAR-SEQUENCE-Pseudofunktion
-      s->strm_wr_ch_lpos = Fixnum_0; # Line Position := 0
-    LINES = v_rows(); COLS = v_cols();
-    screenattr = 0; attr = attr_table[screentype][screenattr];
-    v_cs();
-    value1 = stream; mv_count=1;
-  }
-
-# Schließt einen Window-Stream.
-  local void close_window (object stream);
-  local void close_window(stream)
-    var object stream;
-    {
-      v_cs();
-      attr = BG(col_black) | FG(col_white); v_cl(); # clear screen black
-    }
-
-LISPFUNN(window_size,1)
-  {
-    check_window_stream(popSTACK());
-    value1 = fixnum(LINES);
-    value2 = fixnum(COLS);
-    mv_count=2;
-  }
-
-LISPFUNN(window_cursor_position,1)
-  {
-    check_window_stream(popSTACK());
-    var uintW dx;
-    video(0x0300,NULL,&dx); # INT 10,03 : read cursor position
-    value1 = fixnum(dx>>8);
-    value2 = fixnum(dx&0xff);
-    mv_count=2;
-  }
-
-LISPFUNN(set_window_cursor_position,3)
-  {
-    check_window_stream(STACK_2);
-    var uintL line = posfixnum_to_L(STACK_1);
-    var uintL column = posfixnum_to_L(STACK_0);
-    if ((line < (uintL)LINES) && (column < (uintL)COLS))
-      v_move(line,column);
-    value1 = STACK_1; value2 = STACK_0; mv_count=2; skipSTACK(3);
-  }
-
-LISPFUNN(clear_window,1)
-  {
-    check_window_stream(popSTACK());
-    v_cl();
-    value1 = NIL; mv_count=0;
-  }
-
-LISPFUNN(clear_window_to_eot,1)
-  {
-    check_window_stream(popSTACK());
-    v_cd();
-    value1 = NIL; mv_count=0;
-  }
-
-LISPFUNN(clear_window_to_eol,1)
-  {
-    check_window_stream(popSTACK());
-    v_ce();
-    value1 = NIL; mv_count=0;
-  }
-
-LISPFUNN(delete_window_line,1)
-  {
-    check_window_stream(popSTACK());
-    v_dl();
-    value1 = NIL; mv_count=0;
-  }
-
-LISPFUNN(insert_window_line,1)
-  {
-    check_window_stream(popSTACK());
-    v_al();
-    value1 = NIL; mv_count=0;
-  }
-
-LISPFUNN(highlight_on,1)
-  {
-    check_window_stream(popSTACK());
-    screenattr = 1; attr = attr_table[screentype][screenattr];
-    value1 = NIL; mv_count=0;
-  }
-
-LISPFUNN(highlight_off,1)
-  {
-    check_window_stream(popSTACK());
-    screenattr = 0; attr = attr_table[screentype][screenattr];
-    value1 = NIL; mv_count=0;
-  }
-
-LISPFUNN(window_cursor_on,1)
-  {
-    check_window_stream(popSTACK());
-    v_cb();
-    value1 = NIL; mv_count=0;
-  }
-
-LISPFUNN(window_cursor_off,1)
-  {
-    check_window_stream(popSTACK());
-    v_cs();
-    value1 = NIL; mv_count=0;
-  }
-
-#endif # MSDOS && !EMUNIX_PORTABEL
-
-#if defined(MSDOS) && defined(EMUNIX_PORTABEL)
 
 # Benutze die Video-Library von Eberhard Mattes.
 # Vorzüge:
@@ -12477,9 +11827,9 @@ LISPFUNN(window_cursor_off,1)
     value1 = NIL; mv_count=0;
   }
 
-#endif # MSDOS && EMUNIX_PORTABEL
+#endif # EMUNIX
 
-#if (defined(UNIX) && !defined(NEXTAPP)) || (defined(EMUNIX_PORTABEL) && 0) || defined(RISCOS)
+#if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS)
 
 # ------------------------------------------------------------------------------
 
@@ -14497,7 +13847,7 @@ LISPFUNN(window_cursor_off,1)
     value1 = NIL; mv_count=0;
   }
 
-#endif # (UNIX && !NEXTAPP) || (EMUNIX_PORTABEL && 0) || RISCOS
+#endif # (UNIX && !NEXTAPP) || RISCOS
 
 #if defined(MAYBE_NEXTAPP) && defined(NEXTAPP)
 
@@ -19348,7 +18698,7 @@ global object stream_fd (stream)
 
 # =============================================================================
 
-#ifdef EMUNIX_PORTABEL
+#ifdef EMUNIX
 
 # Eine Hilfsfunktion für bidirektionale Pipes: popenrw()
 #undef stdin_handle

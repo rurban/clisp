@@ -345,7 +345,7 @@
         (when (<= pos1 errorpos pos2)
           (setq errorstring
             (string-concat errorstring "~%~VT"
-                           #+(or DOS OS/2) "" #-(or DOS OS/2) "|"
+                           #+OS/2 "" #-OS/2 "|"
           ) )
           (setq arguments (nconc arguments (list (+ (- errorpos pos1) 2))))
         )

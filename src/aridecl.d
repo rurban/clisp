@@ -286,7 +286,7 @@
      check_SP_notUNIX();                                                           \
      unused (low_zuweisung &__array[1]); unused (high_zuweisung &__array[__need]); \
     }
-#elif (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(WATCOM) || defined(BORLAND) || defined(MICROSOFT)
+#elif (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT)
   # Platz im Maschinenstack reservieren.
   #define SAVE_NUM_STACK
   #define RESTORE_NUM_STACK  ;
