@@ -15413,7 +15413,9 @@ LISPFUN(set_stream_external_format,seclass_default,2,1,norest,nokey,0,NIL) {
      #endif
         {
           var decoded_el_t eltype;
-          test_eltype_arg(&TheStream(stream)->strm_eltype,&eltype); # no GC here!
+          STACK_2 = stream; /* save stream */
+          test_eltype_arg(&TheStream(stream)->strm_eltype,&eltype);
+          stream = STACK_2; /* restore stream */
           ChannelStream_fini(stream);
           stream = stream_reset_eltype(stream,&eltype);
           encoding = STACK_1; /* restore encoding */

@@ -1,5 +1,10 @@
 2004-12-08  Bruno Haible  <bruno@clisp.org>
 
+	* stream.d (SYSTEM::SET-STREAM-EXTERNAL-FORMAT): Fix possible
+	GC-safety bug.
+
+2004-12-08  Bruno Haible  <bruno@clisp.org>
+
 	* stream.d (SYSTEM::SET-STREAM-EXTERNAL-FORMAT): Fix GC-safety bug
 	introduced on 2002-01-17.
 
