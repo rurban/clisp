@@ -795,8 +795,9 @@ fi
 if [ "$host_cpu" = i386 -o "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686 -o $TSYS = i386 -o $TSYS = i486 -o $TSYS = i586 -o $TSYS = i686 -o $TSYS = os2 -o $TOS = win32 ] ; then
   cpu=i386
 fi
-case "$host_cpu" in hppa*)
-  cpu=hppa ;;
+case "$host_cpu" in
+  hppa*) cpu=hppa ;;
+  arm*)  cpu=arm  ;;
 esac
 # Probably obsolete.
 # case $TSYS in 9000/7* | 9000/8* | hp7*)
@@ -806,9 +807,6 @@ esac
 if [ "$TSYS" = acorn ] ; then
   cpu=arm
 fi
-case "$host_cpu" in arm*)
-  cpu=arm ;;
-esac
 
 # Main compiler dependencies:
 

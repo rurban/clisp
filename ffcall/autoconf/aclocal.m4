@@ -328,6 +328,9 @@ changequote(,)dnl
   c1 | c2 | c32 | c34 | c38 | c4 )
     host_cpu=convex
     ;;
+  arm* )
+    host_cpu=arm
+    ;;
 changequote([,])dnl
   mips )
     AC_CACHE_CHECK([for 64-bit MIPS], cl_cv_host_mips64, [
