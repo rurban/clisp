@@ -10,7 +10,7 @@
    For structure types (but not for structure classes!):
 
    (get name 'DEFSTRUCT-DESCRIPTION) =
-     #(type size keyword-constructor slotlist boa-constructors copier
+     #(type size keyword-constructor slotlist boa-constructors copier predicate
        defaultfun0 defaultfun1 ...)
 
    type (if the type of the whole structure is meant):
@@ -23,6 +23,7 @@
    keyword-constructor = NIL or the name of the keyword-constructor
    boa-constructors = list of BOA constructors
    copier = NIL or the copier
+   predicate = NIL or the predicate
 
    slotlist is a packed description of the slots of a structure:
    slotlist = ({slot}*)
@@ -71,6 +72,7 @@
 (defconstant *defstruct-description-slots-location* 3)
 (defconstant *defstruct-description-boa-constructors-location* 4)
 (defconstant *defstruct-description-copier-location* 5)
+(defconstant *defstruct-description-predicate-location* 6)
 
 (defun make-ds-slot (name initargs offset initer type readonly)
   (clos::make-instance-<structure-effective-slot-definition>
@@ -1069,6 +1071,7 @@
               `(%PUT ',name 'DEFSTRUCT-DESCRIPTION
                      (VECTOR ',type-option ,size ',keyword-constructor
                              ',boa-constructors ',copier-option
+                             ',predicate-option
                              (LIST
                                ,@(mapcar #'(lambda (slot+initff)
                                              (let ((slot (car slot+initff)))
@@ -1079,8 +1082,8 @@
                                          slotlist)))))
            ,(if (eq type-option 'T)
               `(CLOS::DEFINE-STRUCTURE-CLASS ',name
-                 ,namesform
-                 ',keyword-constructor ',boa-constructors ',copier-option
+                 ,namesform ',keyword-constructor ',boa-constructors
+                 ',copier-option ',predicate-option
                  (LIST
                    ,@(mapcar #'(lambda (slot+initff)
                                  (let ((slot (car slot+initff)))

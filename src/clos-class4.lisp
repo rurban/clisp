@@ -45,11 +45,12 @@
                                    ((kconstructor kconstructor) nil)
                                    ((boa-constructors boa-constructors) nil)
                                    ((copier copier) nil)
+                                   ((predicate predicate) nil)
                                    ((slots slots) '()) ((size size) 1))
   (declare (ignore name direct-superclasses direct-slots
                    direct-default-initargs documentation generic-accessors
                    direct-slots-as-metaobjects names kconstructor
-                   boa-constructors copier slots size))
+                   boa-constructors copier predicate slots size))
   (apply #'shared-initialize-<structure-class> class situation args))
 
 ;;; ===========================================================================

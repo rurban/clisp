@@ -1,5 +1,28 @@
 2005-01-04  Sam Steingold  <sds@gnu.org>
 
+	carry predicate with the structure metaobject
+	* clos-class1.lisp (*<structure-class>-defclass*): new slot:
+	$predicate
+	(*<structure-class>-predicate-location*): new constant
+	(class-predicate, (setf class-predicate)): new predefuns
+	(*<structure-class>-instance-size*): increased by 1
+	* clos-class3.lisp (make-instance-<structure-class>):
+	accept and ignore 'predicate argument
+	(shared-initialize-<structure-class>): accept and use
+	'predicate argument
+	(define-structure-class): accept and use predicate argument
+	* clos-class4.lisp (shared-initialize@structure-class):
+	accept and ignore 'predicate argument
+	* clos-class6.lisp (class-predicate, (setf class-predicate)): added
+	(class-direct-slots): handle structures too
+	((setf class-direct-slots)): turn into a defgeneric
+	* constobj.d (version): bumped
+	* defstruct.lisp (*defstruct-description-predicate-location*): added
+	(defstruct): pass predicate to DEFINE-STRUCTURE-CLASS
+	* io.d (STRUCTURE-READER): structure descriptors have length 7
+
+2005-01-04  Sam Steingold  <sds@gnu.org>
+
 	* defstruct.lisp (defstruct): avoid unnecessary warnings on
 	predicate-accessor conflict
 
