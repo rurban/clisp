@@ -4612,6 +4612,12 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
   # Try to enquire the number of available bytes:
   {
     var unsigned long bytes_ready;
+    # Clear bytes_ready before use. Some kernels (such as Linux-2.4.18 on ia64)
+    # apparently expect an 'int *', not a 'long *', as argument of this ioctl,
+    # and thus fill only part of the bytes_ready variable. Fortunately,
+    # endianness is not a problem here, because we only check whether
+    # bytes_ready is == 0 or != 0.
+    bytes_ready = 0;
     if ( ioctl(handle,FIONREAD,&bytes_ready) <0) {
       # Enquiry failed, probably wasn't a file
       if (!((errno == ENOTTY)
