@@ -30,6 +30,7 @@ if test "$ac_cv_struct_fsid_scalar" = yes; then
   AC_DEFINE([HAVE_SCALAR_FSID], 1,
     [Define to 1 if the f_fsid member of 'struct statvfs' has a integral type.])
 fi
+AC_CHECK_MEMBERS([struct stat.st_rdev, struct stat.st_blksize, struct stat.st_blocks],,,[#include <sys/stat.h>])
 
 AC_MSG_NOTICE([ * System Calls (Functions)])
 AC_CHECK_FUNCS(clock confstr fcntl gethostent sysconf uname dnl
