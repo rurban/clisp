@@ -61,6 +61,6 @@ module_t modules[] = {
   },
   #include "modules.h"
  #undef MODULE
-  { NULL, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL _NEXT_NULL }
+  { NULL, NULL, NULL, NULL, NULL, false, NULL, NULL, NULL, NULL, NULL _NEXT_NULL }
 };
 
