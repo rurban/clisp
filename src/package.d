@@ -1,5 +1,6 @@
 # Package-Verwaltung für CLISP
-# Bruno Haible 1990-1999
+# Bruno Haible 1990-2002
+# Sam Steingold 1999-2002
 
 #include "lispbibl.c"
 #include "arilev0.c" # für Hashcode-Berechnung
@@ -826,6 +827,31 @@ local bool inherited_find (object symbol, object pack)
     # man die präsenten Symbole abgesucht hat, denn das Symbol in der
     # Shadowing-Liste ist ja präsent (Konsistenzregel 5).
 
+# raise a continuable error when func(obj) was called on a locked package pack
+# continue means "Ignore the lock and proceed"
+# can trigger GC
+local void cerror_package_locked (object func, object pack, object obj) {
+  pushSTACK(OGETTEXT("Ignore the lock and proceed")); # continue-format-string
+  # pushSTACK(OLS(cerror_package_locked_string1));
+  pushSTACK(S(package_error)); # error type
+  pushSTACK(S(Kpackage)); # :PACKAGE
+  pushSTACK(pack); # PACKAGE-ERROR slot PACKAGE
+  pushSTACK(OGETTEXT("~S(~S): ~S is locked")); # error-format-string
+  # pushSTACK(OLS(cerror_package_locked_string2));
+  pushSTACK(func);
+  pushSTACK(obj);
+  pushSTACK(pack);
+  funcall(L(cerror_of_type),8);
+}
+# check the package lock
+#define check_pack_lock(func,pack,obj)                          \
+  if (pack_locked_p(pack)) cerror_package_locked(func,pack,obj)
+#define safe_check_pack_lock(func,pack,obj)                              \
+  do { pushSTACK(pack); pushSTACK(obj); /* save */                       \
+       check_pack_lock(S(use_package),STACK_1 /*pack*/,STACK_0 /*obj*/); \
+       obj = popSTACK(); pack = popSTACK(); /* restore */                \
+  } while(0)
+
 # UP: Fügt ein Symbol in eine Package ein, in der noch kein Symbol desselben
 # Namens existiert. Achtet nicht auf Konflikte.
 # make_present(sym,pack);
@@ -872,8 +898,9 @@ local bool inherited_find (object symbol, object pack)
           return ergebnis & 3; # gefunden -> fertig
       }
       pushSTACK(pack); # Package retten
-      string = coerce_imm_ss(string); # String in immutablen Simple-String umwandeln
-      var object sym = make_symbol(string); # (make-symbol string) ausführen
+      pushSTACK(coerce_imm_ss(string)); # string --> immutable simple-string
+      check_pack_lock(S(intern),STACK_1 /*pack*/,STACK_0 /*string*/);
+      var object sym = make_symbol(popSTACK()); # (make-symbol string)
       pack = popSTACK();
       # dieses neue Symbol in die Package eintragen:
       set_break_sem_2(); # Vor Unterbrechungen schützen
@@ -913,6 +940,7 @@ local bool inherited_find (object symbol, object pack)
     var const object* sym_;
     var const object* pack_;
     {
+      check_pack_lock(S(shadowing_import),*pack_,*sym_);
       set_break_sem_2(); # Vor Unterbrechungen schützen
       {
         var object sym = *sym_;
@@ -968,6 +996,7 @@ local bool inherited_find (object symbol, object pack)
     var const object* sym_;
     var const object* pack_;
     {
+      check_pack_lock(S(shadow),*pack_,*sym_);
       set_break_sem_2(); # Vor Unterbrechungen schützen
       # Suche ein internes oder ein externes Symbol gleichen Namens:
       var object string = # Nur der Name des Symbols interessiert.
@@ -1011,6 +1040,7 @@ local bool inherited_find (object symbol, object pack)
     var const object* sym_;
     var const object* pack_;
     {
+      check_pack_lock(S(unintern),*pack_,*sym_);
       var object sym = *sym_;
       var object pack = *pack_;
       var object symtab;
@@ -1247,6 +1277,7 @@ local bool inherited_find (object symbol, object pack)
     var const object* sym_;
     var const object* pack_;
     {
+      check_pack_lock(S(unexport),*pack_,*sym_);
       var object sym = *sym_;
       var object pack = *pack_;
       var object symtab;
@@ -1310,6 +1341,7 @@ local bool inherited_find (object symbol, object pack)
     var const object* sym_;
     var const object* pack_;
     {
+      check_pack_lock(S(export),*pack_,*sym_);
       var object sym = *sym_;
       var object pack = *pack_;
       # sym unter den externen Symbolen von pack suchen:
@@ -1552,6 +1584,7 @@ local bool inherited_find (object symbol, object pack)
     var object packlist;
     var object pack;
     {
+      safe_check_pack_lock(S(use_package),pack,packlist);
       # packlist := (delete-duplicates packlist :test #'eq) :
       {
         var object packlist1 = packlist;
@@ -1874,6 +1907,7 @@ local void use_package_aux(data,sym)
     var object pack;
     var object qpack;
     {
+      safe_check_pack_lock(S(use_package),pack,qpack);
       set_break_sem_2();
       # qpack aus der Use-List von pack entfernen:
       ThePackage(pack)->pack_use_list =
@@ -2092,6 +2126,7 @@ LISPFUN(rename_package,2,1,norest,nokey,0,NIL)
   {
     # Testen, ob pack eine Package ist:
     STACK_2 = test_package_arg(STACK_2);
+    check_pack_lock(S(rename_package),STACK_2,STACK_1);
     # name und nicknames überprüfen:
     pushSTACK(NIL); pushSTACK(NIL); # Dummies auf den Stack
     test_names_args();
@@ -2149,6 +2184,29 @@ LISPFUNN(package_shadowing_symbols,1) # (PACKAGE-SHADOWING-SYMBOLS package), CLT
     value1 = copy_list(ThePackage(pack)->pack_shadowing_symbols); # Shadowing-Liste sicherheitshalber kopieren
     mv_count=1;
   }
+
+# (EXT:PACKAGE-LOCK package)
+LISPFUNN(package_lock,1) {
+  var object pack = test_package_arg(popSTACK());
+  value1 = (pack_locked_p(pack) ? T : NIL);
+  mv_count = 1;
+}
+
+# (SYSTEM::%SET-PACKAGE-LOCK package lock)
+LISPFUNN(set_package_lock,2) {
+  var object lock_p = popSTACK();
+  var object pack = test_package_arg(popSTACK());
+  if (eq(lock_p,NIL)) { value1 = NIL; mark_pack_unlocked(pack); }
+  else {                value1 = T;   mark_pack_locked(pack); }
+  mv_count = 1;
+}
+
+# (SYSTEM::CHECK-PACKAGE-LOCK function package symbol)
+LISPFUNN(check_package_lock,3) {
+  check_pack_lock(STACK_2,STACK_1,STACK_0);
+  skipSTACK(3);
+  mv_count = 0;
+}
 
 LISPFUNN(list_all_packages,0)
 # (LIST-ALL-PACKAGES) liefert eine Liste aller Packages, CLTL S. 184
