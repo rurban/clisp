@@ -7,6 +7,7 @@
 	(make-node): allow setting levels and creating continuous nodes
 	(save-net): call TRANSLATE-LOGICAL-PATHNAME before NAMESTRING
 	* modules/netica/demo.lisp: call net-info
+	* modules/netica/netica.lisp: fixed some declarations
 
 2003-08-13  Sam Steingold  <sds@gnu.org>
 
