@@ -1,6 +1,6 @@
 /* Foreign language interface for CLISP
  * Marcus Daniels 8.4.1994
- * Bruno Haible 1995-2003
+ * Bruno Haible 1995-2004
  * Sam Steingold 2000-2004
  */
 
@@ -3876,7 +3876,9 @@ global void validate_fpointer (object obj)
 /* Allow everybody the creation of a FOREIGN-VARIABLE and FOREIGN-FUNCTION
  object, even without any module.
  This allows, among others, a self-test of the FFI (see testsuite). */
-local uintL ffi_identity(uintL arg) { return arg; }
+local uintP ffi_identity (uintP arg) {
+  return arg;
+}
 global void* ffi_user_pointer = NULL;
 
 /* Initialize the FFI. */
