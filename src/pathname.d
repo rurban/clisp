@@ -5306,8 +5306,6 @@ local void subdir_diff (object pattern, object sample, bool logical,
 }
 # recursive implementation because of backtracking:
 local void directory_diff_ab (object m_list, object b_list, bool logical,
-                              const gcv_object_t* previous, gcv_object_t* solutions);
-local void directory_diff_ab (object m_list, object b_list, bool logical,
                               const gcv_object_t* previous, gcv_object_t* solutions) {
   # algorithm analogous to wildcard_diff_ab.
   var object item;
