@@ -2405,7 +2405,12 @@ local uintC file_namestring_parts (object pathname) {
  #endif
     return nametype_namestring_parts(ThePathname(pathname)->pathname_name,
                                      ThePathname(pathname)->pathname_type,
-                                     NIL); /* do not print version */
+                                     #if HAS_VERSION
+                                     ThePathname(pathname)->pathname_version
+                                     #else
+                                     NIL /* do not print version */
+                                     #endif
+                                    );
 }
 
 /* UP: Converts pathname into string.
@@ -3148,8 +3153,12 @@ global bool namestring_correctly_parseable_p (gcv_object_t *path_)
     goto parse_namestring_dot_file_type;
   }
   /* name cannot be "": it is replaced with NIL by MAKE-PATHNAME */
+  #if HAS_VERSION
+  return true;
+  #else
   /* physical pathname version is not printed, so cannot be read back! */
   return nullp(ThePathname(*path_)->pathname_version);
+  #endif
 }
 #endif
 
