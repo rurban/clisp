@@ -59,7 +59,7 @@
   direct-accessors         ; automatically generated accessor methods (as plist)
   fixed-slot-locations     ; flag whether to guarantee same slot locations in all subclasses
   instantiated             ; true if an instance has already been created
-  direct-subclasses        ; weak-list or weak-hash-table of all finalized direct subclasses
+  finalized-direct-subclasses-table ; weak-list or weak-hash-table of all finalized direct subclasses
   proto)                   ; class prototype - an instance or NIL
 
 ;; CLtL2 28.1.4., ANSI CL 4.3.7. Integrating Types and Classes
@@ -400,7 +400,7 @@
           (let* ((was-finalized (class-precedence-list class))
                  (must-be-finalized
                    (and was-finalized
-                        (some #'class-instantiated (list-all-subclasses class))))
+                        (some #'class-instantiated (list-all-finalized-subclasses class))))
                  (old-direct-superclasses (class-direct-superclasses class))
                  (old-direct-accessors (class-direct-accessors class))
                  old-class)
@@ -527,7 +527,7 @@
                               :serial 0))
     (setf (class-direct-accessors class) '())
     (setf (class-instantiated class) nil)
-    (setf (class-direct-subclasses class) '()))
+    (setf (class-finalized-direct-subclasses-table class) '()))
   (when *classes-finished*
     (apply #'%initialize-instance class args)) ; == (call-next-method)
   (setf (class-direct-superclasses class) (copy-list direct-superclasses))
@@ -601,7 +601,7 @@
           (std-compute-superclasses (class-precedence-list class)))
     (dolist (super augmented-direct-superclasses)
       (when (standard-class-p super)
-        (add-direct-subclass super class))))
+        (add-finalized-direct-subclass super class))))
   (setf (class-subclass-of-stablehash-p class)
         (std-compute-subclass-of-stablehash-p class))
   (setf (class-slots class) (std-compute-slots class))
@@ -1018,7 +1018,7 @@
     ;; Recurse to the subclasses. (Even if there are no direct instances of
     ;; this class: the subclasses may have instances.)
     (mapc #'make-instances-obsolete-standard-class-nonrecursive
-          (list-all-subclasses class))))
+          (list-all-finalized-subclasses class))))
 
 (defun make-instances-obsolete-standard-class-nonrecursive (class)
   (when (class-instantiated class) ; don't warn if there are no instances
@@ -1067,17 +1067,17 @@
                       (set-difference new-augmented-direct-superclasses old-augmented-direct-superclasses)))
                 (dolist (super removed-direct-superclasses)
                   (when (standard-class-p super)
-                    (remove-direct-subclass super class)))
+                    (remove-finalized-direct-subclass super class)))
                 (dolist (super added-direct-superclasses)
                   (when (standard-class-p super)
-                    (add-direct-subclass super class)))))))
+                    (add-finalized-direct-subclass super class)))))))
         ;; The class becomes unfinalized.
         (dolist (super old-augmented-direct-superclasses)
           (when (standard-class-p super)
-            (remove-direct-subclass super class)))))
+            (remove-finalized-direct-subclass super class)))))
     ;; Now handle the true subclasses.
     (mapc #'update-subclasses-for-redefined-class-nonrecursive
-          (rest (list-all-subclasses class)))))
+          (rest (list-all-finalized-subclasses class)))))
 
 (defun update-subclasses-for-redefined-class-nonrecursive (class)
   (when (class-precedence-list class) ; nothing to do if not yet finalized
@@ -1092,7 +1092,7 @@
               (add-default-superclass (class-direct-superclasses class) <standard-object>)))
         (dolist (super augmented-direct-superclasses)
           (when (standard-class-p super)
-            (remove-direct-subclass super class)))))))
+            (remove-finalized-direct-subclass super class)))))))
 
 ;; Store the information needed by the update of obsolete instances in a
 ;; class-version object. Invoked when an instance needs to be updated.
@@ -1140,26 +1140,26 @@
 ;;;  - A non-finalized class cannot have instances.
 ;;;  - Without an instance one cannot even access the shared slots.)
 
-;;; The direct-subclasses slot can be either
+;;; The finalized-direct-subclasses slot can be either
 ;;; - NIL or a weak-list (for saving memory when there are few subclasses), or
 ;;; - a weak-hash-table (for speed when there are many subclasses).
 
 #|
 ;; Adds a class to the list of direct subclasses.
-(defun add-direct-subclass (class subclass) ...)
+(defun add-finalized-direct-subclass (class subclass) ...)
 ;; Removes a class from the list of direct subclasses.
-(defun remove-direct-subclass (class subclass) ...)
+(defun remove-finalized-direct-subclass (class subclass) ...)
 ;; Returns the currently existing direct subclasses, as a freshly consed list.
-(defun list-direct-subclasses (class) ...)
+(defun list-finalized-direct-subclasses (class) ...)
 |#
-(def-weak-set-accessors class-direct-subclasses class
-  add-direct-subclass
-  remove-direct-subclass
-  list-direct-subclasses)
+(def-weak-set-accessors class-finalized-direct-subclasses-table class
+  add-finalized-direct-subclass
+  remove-finalized-direct-subclass
+  list-finalized-direct-subclasses)
 
-;; Returns the currently existing subclasses, in top-down order, including the
-;; class itself as first element.
-(defun list-all-subclasses (class)
+;; Returns the currently existing finalized subclasses, in top-down order,
+;; including the class itself as first element.
+(defun list-all-finalized-subclasses (class)
   ; Use a breadth-first search which removes duplicates.
   (let ((as-list '())
         (as-set (make-hash-table :key-type 'class :value-type '(eql t)
@@ -1174,7 +1174,7 @@
             (push class as-list)
             (setf (gethash class as-set) t)
             (setq new-pending
-              (nreconc (list-direct-subclasses class) new-pending))))
+              (nreconc (list-finalized-direct-subclasses class) new-pending))))
         (setq pending (nreverse new-pending))))
     ;; Now reorder the list so that superclasses come before, not after, a
     ;; class. This is needed by update-subclasses-for-redefined-class. (It's
