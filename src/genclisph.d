@@ -1,6 +1,6 @@
 # Ausgabe aller Definitionen aus lispbibl.d, die an externe Module
 # exportiert werden.
-# Bruno Haible 1994-2000
+# Bruno Haible 1994-2001
 
 #include "lispbibl.c"
 
@@ -1437,7 +1437,7 @@ global int main()
 # printf("extern chart* unpack_string (object string, uintL* len);\n");
 # printf("extern object make_list (uintL len);\n");
 # printf("extern object listof (uintC len);\n");
-# printf("typedef enum { condition, serious_condition, error, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, storage_condition, warning, } conditiontype;\n");
+# printf("typedef enum { condition, serious_condition, error, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, storage_condition, interrupt_condition, warning, } conditiontype;\n");
 # printf("nonreturning_function(extern, fehler, (conditiontype errortype, const char * errorstring));\n");
 # printf("nonreturning_function(extern, fehler_list, (object obj));\n");
 # printf("nonreturning_function(extern, fehler_symbol, (object obj));\n");
