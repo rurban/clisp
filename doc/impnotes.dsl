@@ -25,6 +25,8 @@
   (list (normalize "title")
 	(normalize "subtitle")
 	(normalize "date")
+	(normalize "pubdate")
+	(normalize "edition")
         (normalize "author")
         (normalize "authorblurb")
 	(normalize "graphic")
@@ -63,7 +65,7 @@
 
 <![%html;[  ;; customize the html stylesheet here
 
-;; /usr/share/sgml/docbook/dsssl-stylesheets-1.76/html/dbparam.dsl
+;; /usr/share/sgml/docbook/dsssl-stylesheets/html/dbparam.dsl
 (define %force-chapter-toc% #t)
 (define %shade-verbatim% #t)
 (define biblio-citation-check #t)
