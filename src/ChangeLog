@@ -3,6 +3,8 @@
 	* makemake.in (XCFLAGS) [CC=g++]: add DEBUG_GCSAFETY
 	* pathname.d, socket.d, spvw.d, stream.d:
 	compilable with DEBUG_GCSAFETY
+	* arilev1i.d (sub_loop_down, subx_loop_down, subfrom_loop_down):
+	(dec_loop_down, neg_loop_down): avoid some C++ warnings
 
 2002-12-04  Bruno Haible  <bruno@clisp.org>
 
