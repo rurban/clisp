@@ -763,6 +763,78 @@
 ;; ----------------------------------------------------------------------------
 ;; CLtL2 28.1.3.2., ANSI CL 7.5.3. Inheritance of Slots and Slot Options
 
+(defun compute-effective-slot-definition-<class> (class name directslotdefs)
+  (let* ((args
+           `(:name ,name
+             ; "The allocation of a slot is controlled by the most
+             ;  specific slot specifier."
+             :allocation ,(slot-definition-allocation (first directslotdefs))
+             ; "The set of initialization arguments that initialize a
+             ;  given slot is the union of the initialization arguments
+             ;  declared in the :initarg slot options in all the slot
+             ;  specifiers.
+             ,@(let ((initargs
+                       (remove-duplicates
+                         (mapcap #'slot-definition-initargs directslotdefs)
+                         :from-end t)))
+                 (if initargs `(:initargs ,initargs)))
+             ; "The default initial value form for a slot is the value
+             ;  of the :initform slot option in the most specific slot
+             ;  specifier that contains one."
+             ,@(dolist (slot directslotdefs '())
+                 (when (slot-definition-initfunction slot)
+                   (return `(:initform ,(slot-definition-initform slot)
+                             :initfunction ,(slot-definition-initfunction slot)
+                             inheritable-initer ,(slot-definition-inheritable-initer slot)))))
+             ; "The contents of a slot will always be of type
+             ;  (and T1 ... Tn) where T1 ...Tn are the values of the
+             ;  :type slot options contained in all of the slot specifiers."
+             ,@(let ((types '()))
+                 (dolist (slot directslotdefs)
+                   (push (slot-definition-type slot) types))
+                 `(:type ,(if types `(AND ,@(nreverse types)) 'T)))
+             ; "The documentation string for a slot is the value of the
+             ;  :documentation slot option in the most specific slot
+             ;  specifier that contains one."
+             ,@(dolist (slot directslotdefs '())
+                 (when (slot-definition-documentation slot)
+                   (return `(:documentation ,(slot-definition-documentation slot)
+                             inheritable-doc ,(slot-definition-inheritable-doc slot)))))
+             #|| ; Commented out because <effective-slot-definition>
+                 ; doesn't have readers and writers.
+             ,@(let ((readers
+                       (mapcap #'slot-definition-readers directslotdefs)))
+                 (if readers `(:readers ,readers)))
+             ,@(let ((writers
+                       (mapcap #'slot-definition-writers directslotdefs)))
+                 (if writers `(:writers ,writers)))
+             ||#
+             ))
+         (slot-definition-class
+           (apply #'effective-slot-definition-class class args)))
+    (cond ((standard-class-p class)
+           (unless (or ; for bootstrapping
+                       (eq slot-definition-class 'standard-effective-slot-definition)
+                       (and (class-p slot-definition-class)
+                            (subclassp slot-definition-class <standard-effective-slot-definition>)))
+             (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                    'effective-slot-definition-class (class-name class)
+                    'standard-effective-slot-definition slot-definition-class)))
+          ((structure-class-p class)
+           (unless (and (class-p slot-definition-class)
+                        (subclassp slot-definition-class <structure-effective-slot-definition>))
+             (error (TEXT "Wrong ~S result for class ~S: not a subclass of ~S: ~S")
+                    'effective-slot-definition-class (class-name class)
+                    'structure-effective-slot-definition slot-definition-class))))
+    (apply (cond ((eq slot-definition-class 'standard-effective-slot-definition)
+                  #'make-instance-<standard-effective-slot-definition>)
+                 (t #'make-instance))
+           slot-definition-class args)))
+
+;; Preliminary.
+(defun compute-effective-slot-definition (class slotname direct-slot-definitions)
+  (compute-effective-slot-definition-<class> class slotname direct-slot-definitions))
+
 (defun std-compute-slots (class)
   ;; Gather all slot-specifiers, ordered by precedence:
   (let ((all-slots
@@ -807,72 +879,29 @@
       #'(lambda (slotbag)
           (let* ((name (car slotbag))
                  (slotspecs (cdr slotbag))
-                 (args
-                   `(:name ,name
-                     ; "The allocation of a slot is controlled by the most
-                     ;  specific slot specifier."
-                     :allocation ,(cadr (first slotspecs))
-                     ; "The set of initialization arguments that initialize a
-                     ;  given slot is the union of the initialization arguments
-                     ;  declared in the :initarg slot options in all the slot
-                     ;  specifiers.
-                     ,@(let ((initargs
-                               (remove-duplicates
-                                 (mapcap #'(lambda (slot+alloc)
-                                             (slot-definition-initargs (car slot+alloc)))
-                                         slotspecs)
-                                 :from-end t)))
-                         (if initargs `(:initargs ,initargs)))
-                     ; "The default initial value form for a slot is the value
-                     ;  of the :initform slot option in the most specific slot
-                     ;  specifier that contains one."
-                     ,@(dolist (slot+alloc slotspecs '())
-                         (when (slot-definition-initfunction (car slot+alloc))
-                           (return `(:initform ,(slot-definition-initform (car slot+alloc))
-                                     :initfunction ,(slot-definition-initfunction (car slot+alloc))
-                                     inheritable-initer ,(slot-definition-inheritable-initer (car slot+alloc))))))
-                     ; "The contents of a slot will always be of type
-                     ;  (and T1 ... Tn) where T1 ...Tn are the values of the
-                     ;  :type slot options contained in all of the slot specifiers."
-                     ,@(let ((types '()))
-                         (dolist (slot+alloc slotspecs)
-                           (push (slot-definition-type (car slot+alloc)) types))
-                         `(:type ,(if types `(AND ,@(nreverse types)) 'T)))
-                     ; "The documentation string for a slot is the value of the
-                     ;  :documentation slot option in the most specific slot
-                     ;  specifier that contains one."
-                     ,@(dolist (slot+alloc slotspecs '())
-                         (when (slot-definition-documentation (car slot+alloc))
-                           (return `(:documentation ,(slot-definition-documentation (car slot+alloc))
-                                     inheritable-doc ,(slot-definition-inheritable-doc (car slot+alloc))))))
-                     #|| ; Commented out because <effective-slot-definition>
-                         ; doesn't have readers and writers.
-                     ,@(let ((readers
-                               (mapcap #'(lambda (slot+alloc) (slot-definition-readers (car slot+alloc)))
-                                       slotspecs)))
-                         (if readers `(:readers ,readers)))
-                     ,@(let ((writers
-                               (mapcap #'(lambda (slot+alloc) (slot-definition-writers (car slot+alloc)))
-                                       slotspecs)))
-                         (if writers `(:writers ,writers)))
-                     ||#
-                     ,@(let ((location nil))
-                         ;; Implementation of fixed-slot-locations policy, part 1.
-                         (dolist (slot+alloc slotspecs)
-                           (let ((guaranteed-location (cddr slot+alloc)))
-                             (when guaranteed-location
-                               (if location
-                                 (unless (equal location guaranteed-location)
-                                   (error (TEXT "In class ~S, the slot ~S is constrained by incompatible constraints inherited from the superclasses.")
-                                          (class-name class) name))
-                                 (setq location guaranteed-location)))))
-                         (if location `(location ,location)))))
-                 (slot-definition-class
-                   (apply #'effective-slot-definition-class class args)))
-            (apply (cond ((eq slot-definition-class 'standard-effective-slot-definition)
-                          #'make-instance-<standard-effective-slot-definition>)
-                         (t #'make-instance))
-                   slot-definition-class args)))
+                 ;; Create the effective slot definition in a way that depends
+                 ;; only on the class, name, and direct-slot-definitions.
+                 (effslot
+                   (compute-effective-slot-definition class name
+                                                      (mapcar #'car slotspecs))))
+            ;; Compute and store the allocation and location afterwards.
+            (setf (slot-definition-allocation effslot)
+                  ; "The allocation of a slot is controlled by the most
+                  ;  specific slot specifier."
+                  (cadr (first slotspecs)))
+            (setf (slot-definition-location effslot)
+                  (let ((location nil))
+                    ;; Implementation of fixed-slot-locations policy, part 1.
+                    (dolist (slot+alloc slotspecs)
+                      (let ((guaranteed-location (cddr slot+alloc)))
+                        (when guaranteed-location
+                          (if location
+                            (unless (equal location guaranteed-location)
+                              (error (TEXT "In class ~S, the slot ~S is constrained by incompatible constraints inherited from the superclasses.")
+                                     (class-name class) name))
+                            (setq location guaranteed-location)))))
+                    location))
+            effslot))
       all-slots)))
 
 ;; Allocation of local and shared slots

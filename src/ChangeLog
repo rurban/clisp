@@ -1,3 +1,14 @@
+2004-05-29  Bruno Haible  <bruno@clisp.org>
+
+	* init.lisp: Export compute-effective-slot-definition.
+	* clos-package.lisp: Likewise.
+	* clos-class3.lisp (compute-effective-slot-definition-<class>): New
+	function, extracted from std-compute-slots.
+	(compute-effective-slot-definition): New function.
+	(std-compute-slots): Use it.
+	* clos-class6.lisp (compute-effective-slot-definition): New generic
+	function.
+
 2004-07-01  Sam Steingold  <sds@gnu.org>
 
 	keys and values can also be STRING and (INTEGER 0)
