@@ -1,5 +1,9 @@
 1999-04-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d (make_HANDLER_frame): Fix compilation problem.
+
+1999-04-24  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * io.d (READ-CHAR-STATUS): Renamed from SYS::REAL-LISTEN.
         * stream.d (listen_generic): Call GENERIC-STREAM-READ-CHAR-STATUS
           instead of GENERIC-STREAM-LISTEN. Remove backward compatibility

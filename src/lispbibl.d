@@ -9940,7 +9940,7 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
     { var object* top_of_frame = STACK;      \
       pushSTACK(types_labels_vector_list);   \
       pushSTACK(make_machine_code(handler)); \
-      pushSTACK(as_oint((aint)(sp_arg)));    \
+      pushSTACK(as_object((aint)(sp_arg)));  \
       finish_frame(HANDLER);                 \
     }
   #define make_HANDLER_entry_frame(types_labels_vector_list,handler,returner,reentry_statement)  \
