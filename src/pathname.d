@@ -5919,13 +5919,13 @@ nonreturning_function(local, fehler_dir_not_exists, (object obj)) {
 }
 
 # Fehler, wenn eine Datei bereits existiert
-# > caller: Aufrufer (ein Symbol)
-# > pathname: Pathname
-nonreturning_function(local, fehler_file_exists, (object caller, object pathname)) {
-  pushSTACK(pathname); # FILE-ERROR slot PATHNAME
-  pushSTACK(pathname);
-  pushSTACK(caller);
-  fehler(file_error,GETTEXT("~: File ~ already exists"));
+# > STACK_0: pathname
+# > subr_self: caller (a SUBR)
+nonreturning_function(local, fehler_file_exists, (void)) {
+  # STACK_0 = FILE-ERROR slot PATHNAME
+  pushSTACK(STACK_0); # pathname
+  pushSTACK(TheSubr(subr_self)->name);
+  fehler(file_error,GETTEXT("~: file ~ already exists"));
 }
 
 #ifdef LOGICAL_PATHNAMES
@@ -7802,7 +7802,7 @@ nonreturning_function(local, fehler_rename_open, (object pathname)) {
         # 4. Datei umbenennen:
         if (file_exists(new_namestring)) {
           # Datei existiert bereits -> nicht ohne Vorwarnung löschen
-          fehler_file_exists(S(rename_file),STACK_0);
+          fehler_file_exists();
         }
         pushSTACK(new_namestring);
       }
@@ -8418,14 +8418,11 @@ local object open_file (object filename, direction_t direction,
       });
       #endif
       break;
+      # STACK_0 = Truename, FILE-ERROR slot PATHNAME
   fehler_notfound: # error: file not found
-    # STACK_0 = Truename, FILE-ERROR slot PATHNAME
-      pushSTACK(STACK_0);
-      fehler(file_error,GETTEXT("file ~ does not exist"));
+      fehler_file_not_exists();
   fehler_exists: # error: file already exists
-    # STACK_0 = Truename, FILE-ERROR slot PATHNAME
-      pushSTACK(STACK_0);
-      fehler(file_error,GETTEXT("a file named ~ already exists"));
+      fehler_file_exists();
  }}
  handle_ok:
   # handle and append_flag are done with.
