@@ -2748,12 +2748,24 @@ printed readably.</para>
    &name-r; is everything, &type-r; is &nil;;</simpara></listitem>
   <listitem><simpara>if there is a &file-dot;, then &name-r; is the part
    before and &type-r; the part after the last dot.</simpara></listitem>
+  <listitem><para>if the only &file-dot; is the first character, then
+   the behavior depends on the value of the user variable
+   <emphasis role="strong"><varname
+     >CUSTOM:*PARSE-NAMESTRING-DOT-FILE*</varname></emphasis>
+   which can be either
+   <variablelist><varlistentry><term><constant>:type</constant></term>
+    <listitem><simpara>&nil; &name-r;, everything after the &file-dot;
+     is the &type-r;; or</simpara></listitem></varlistentry>
+   <varlistentry><term><constant>:name</constant></term>
+    <listitem><simpara>&nil; &type-r;, everything is the
+     &name-r;</simpara></listitem></varlistentry></variablelist>
+   </para></listitem>
   </itemizedlist></para>
 <simpara>Due to this name/type splitting rule, there are pathnames that
  cannot result from &parse-namestring;.
  To get a pathname whose type contains a dot or whose name contains a
  dot and whose type is &nil;, &make-pathname; must be used.  Example:
- <literal role="sexp">(&make-pathname; :name ".profile")</literal>.
+ <literal role="sexp">(&make-pathname; :name "foo.bar")</literal>.
  </simpara></listitem></varlistentry>
 </variablelist>
 <!-- #endif -->

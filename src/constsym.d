@@ -1364,6 +1364,9 @@ LISPSYM(default_pathname_defaults,"*DEFAULT-PATHNAME-DEFAULTS*",lisp) # als Vari
 LISPSYM(merge_pathnames_ansi,"*MERGE-PATHNAMES-ANSI*",custom) # als Variable in PATHNAME
 LISPSYM(print_pathnames_ansi,"*PRINT-PATHNAMES-ANSI*",custom) # as variable in IO
 LISPSYM(parse_namestring_ansi,"*PARSE-NAMESTRING-ANSI*",custom) # als Variable in PATHNAME
+#ifdef PATHNAME_NOEXT
+LISPSYM(parse_namestring_dot_file,"*PARSE-NAMESTRING-DOT-FILE*",custom) # as variable in PATHNAME
+#endif
 #ifdef LOGICAL_PATHNAMES
 LISPSYM(logpathname_translations,"*LOGICAL-PATHNAME-TRANSLATIONS*",system) # als Variable in PATHNAME
 #endif

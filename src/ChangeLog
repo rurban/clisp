@@ -1,3 +1,24 @@
+2002-03-18  Sam Steingold  <sds@gnu.org>
+
+	added CUSTOM:*PARSE-NAMESTRING-DOT-FILE* user option
+	* init.lisp (*source-file-types*, *compiled-file-types*): list
+	strings, not pathnames
+	(load): modified accordingly
+	(search-file): EXTENSION is a list of strings, not pathnames
+	* cfgamiga.lisp, cfgdos.lisp, cfgsunux.lisp, cfgunix.lisp:
+	* cfgwin32.lisp: set *PARSE-NAMESTRING-DOT-FILE* to :NAME
+	* compiler.lisp: do not use pathname literals
+	(merge-extension): new function
+	(compile-file-pathname-helper, compile-file): use it
+	* constsym.d (*PARSE-NAMESTRING-DOT-FILE*): added
+	* spvw.d (init_symbol_values): defvar it
+	* defs1.lisp (load-logical-pathname-translations): pass strings,
+	not pathnames, to SEARCH-FILE
+	* io.d (pr_orecord): when compiling, print pathnames as
+	#s(pathname) without #p""
+	* pathname.d (split_name_type): respect *PARSE-NAMESTRING-DOT-FILE*
+	* savemem.lisp (saveinitmem): do not use pathname literals
+
 2002-03-17  Sam Steingold  <sds@gnu.org>
 
 	* describe.lisp (describe-stream-flush-buffer): use
