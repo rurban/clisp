@@ -524,6 +524,7 @@ global int main()
   printf("typedef uint%d tint;\n",oint_type_len);
   printf("typedef uint%d aint;\n",oint_addr_len);
 # printf("typedef sint%d saint;\n",oint_addr_len);
+  printf("typedef object gcv_object_t;\n");
 # printf1("#define tint_type_mask  %x\n",(tint)tint_type_mask);
   #if !(defined(WIDE_SOFT) || defined(OBJECT_STRUCT))
     printf("#define objectplus(obj,offset)  ((object)pointerplus(obj,offset))\n");
@@ -630,7 +631,6 @@ global int main()
     printf("#define type_data_object(type,data)  (as_object(((oint)(tint)(type) << %d) + ((oint)(aint)(data) << %d)))\n",oint_type_shift,oint_addr_shift);
     printf("#define type_zero_oint(type)  ((oint)(tint)(type) << %d)\n",oint_type_shift);
   #endif
-  printf("typedef object gcv_object_t;\n");
   #ifdef TYPECODES
     printf("#define VAROBJECT_HEADER  object GCself;\n");
   #else
