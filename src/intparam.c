@@ -26,7 +26,7 @@
 #define void
 #endif
 
-typedef int boolean;
+typedef int boolean_t;
 #define TRUE  1
 #define FALSE 0
 
@@ -72,10 +72,10 @@ static int random_table[256] = /* 2048 zufällige Bits, hier von pi */
 #define random_table_length  (8*256)
 static int random_position = -1;
 int next_random_bit(void)
-  { random_position++;
-    if (random_position==random_table_length) random_position = 0;
-    return (random_table[random_position/8] >> (random_position % 8)) & 1;
-  }
+{ random_position++;
+  if (random_position==random_table_length) random_position = 0;
+  return (random_table[random_position/8] >> (random_position % 8)) & 1;
+}
 
 #if defined(__STDC__) || defined(__cplusplus)
 void printf_underscored (const char* string)
@@ -83,9 +83,9 @@ void printf_underscored (const char* string)
 void printf_underscored(string)
   char* string;
 #endif
-  { char c;
-    while (!((c = *string++) == '\0')) { printf("%c",(c==' ' ? '_' : c)); }
-  }
+{ char c;
+  while ((c = *string++) != '\0') { printf("%c",(c==' ' ? '_' : c)); }
+}
 
 /* string_length(string) is the same as strlen(string).
    Better avoid depending on <string.h>. */
@@ -95,18 +95,18 @@ int string_length (char* string)
 int string_length(string)
   char* string;
 #endif
-  { int count = 0;
-    while (!(*string++ == '\0')) { count++; }
-    return count;
-  }
+{ int count = 0;
+  while (*string++ != '\0') { count++; }
+  return count;
+}
 
 static int char_bitsize, short_bitsize, int_bitsize, long_bitsize;
 static int uchar_bitsize, ushort_bitsize, uint_bitsize, ulong_bitsize;
-static boolean char_uchar_same, short_ushort_same, int_uint_same, long_ulong_same;
+static boolean_t char_uchar_same, short_ushort_same, int_uint_same, long_ulong_same;
 static int pointer_bitsize;
 #ifdef HAVE_LONGLONG
 static int longlong_bitsize, ulonglong_bitsize;
-static boolean longlong_ulonglong_same;
+static boolean_t longlong_ulonglong_same;
 #endif
 
 void main1(void) {
@@ -122,16 +122,15 @@ void main1(void) {
     where = bits;                               \
   }
 #define print_integer_bitsize(type,typestr,where)  \
-  { if (where >= 0)                                                  \
-      { printf("/* Integers of t%spe %s have %ld bits. */\n","y",typestr,(long)where); \
-        if (!(typestr[0] == 'u'))                                    \
-          { printf("#define "); printf_underscored(typestr); printf("_bitsize %ld\n",(long)where); } \
-        printf("\n");                                                \
-      }                                                              \
-      else                                                           \
-      { printf("#error \"Integers of t%spe %s have no binary representation!!\"\n","y",typestr); } \
-    if (!(where == char_bitsize * sizeof(type)))                     \
-      { printf("#error \"Formula BITSIZE(T) = SIZEOF(T) * BITSPERBYTE does not hold for t%spe %s!!\"\n","y",typestr); } \
+  { if (where >= 0) {                                                   \
+      printf("/* Integers of t%spe %s have %ld bits. */\n","y",typestr,(long)where); \
+      if (typestr[0] != 'u')                                            \
+        { printf("#define "); printf_underscored(typestr); printf("_bitsize %ld\n",(long)where); } \
+      printf("\n");                                                     \
+    } else                                                              \
+      printf("#error \"Integers of t%spe %s have no binary representation!!\"\n","y",typestr); \
+    if (where != char_bitsize * sizeof(type))                           \
+      printf("#error \"Formula BITSIZE(T) = SIZEOF(T) * BITSPERBYTE does not hold for t%spe %s!!\"\n","y",typestr); \
   }
   get_integer_bitsize(schar,char_bitsize);
   get_integer_bitsize(short,short_bitsize);
@@ -161,7 +160,7 @@ void main1(void) {
 
 void main2(void) {
 #define compare_integer_bitsizes(typestr1,typestr2,type1_bitsize,type2_bitsize)  \
-  { if (!(type1_bitsize==type2_bitsize))                                                       \
+  { if (type1_bitsize!=type2_bitsize)                                   \
       printf("#error \"Integer types %s and %s have different sizes!!\"\n",typestr1,typestr2); \
   }
   compare_integer_bitsizes("char","unsigned char",char_bitsize,uchar_bitsize);
@@ -182,41 +181,40 @@ void main2(void) {
 #define get_a_random_twice(type1,type2,bitsize,where1,where2)  \
   { type1 x1 = 0; type2 x2 = 0;                 \
     int i = bitsize;                            \
-    while (i>0)                                 \
-      { type1 b = next_random_bit();            \
-        x1 = ((x1<<1) + b); x2 = ((x2<<1) + b); \
-        i--;                                    \
-      }                                         \
+    while (i>0) {                               \
+      type1 b = next_random_bit();              \
+      x1 = ((x1<<1) + b); x2 = ((x2<<1) + b);   \
+      i--;                                      \
+    }                                           \
     where1 = x1; where2 = x2;                   \
   }
 
 void main3(void) {
 #define compare_integer_representation(type1,type2,typestr1,typestr2,type1_bitsize,type2_bitsize,where)  \
-  { if ((type1_bitsize>=0) && (type2_bitsize>=0) && (type1_bitsize==type2_bitsize))           \
-      { int i,j;                                                                              \
-        type1 sample1; type2 sample2;                                                         \
-        where = TRUE;                                                                         \
-        for (i = 0; i<100; i++)                                                               \
-          { get_a_random_twice(type1,type2,type1_bitsize,sample1,sample2);                    \
-            if (!(sample1 == (type1)(sample2))) { where = FALSE; }                            \
-            if (!(sample2 == (type2)(sample1))) { where = FALSE; }                            \
-          }                                                                                   \
-        for (i = 0; i<100; i++)                                                               \
-          { get_a_random(type1,type1_bitsize,sample1);                                        \
-            sample2 = (type2)(sample1);                                                       \
-            for (j = 0; j < type1_bitsize; j++)                                               \
-              if (!( ((sample1 & ((type1)1<<j)) == 0)                                         \
-                     == ((sample2 & ((type2)1<<j)) == 0)                                      \
-                 ) )                                                                          \
-                { where = FALSE; }                                                            \
-          }                                                                                   \
-        if (where)                                                                            \
-          { printf("/* Integer types %s and %s have the same binary representation. */\n",typestr1,typestr2); } \
-          else                                                                                \
-          { printf("#error \"Integer types %s and %s have different binary representations!!\"\n",typestr1,typestr2); } \
-      }                                                                                       \
-      else                                                                                    \
-      { where = FALSE; }                                                                      \
+  { if ((type1_bitsize>=0) && (type2_bitsize>=0)                        \
+        && (type1_bitsize==type2_bitsize)) {                            \
+      int i,j;                                                          \
+      type1 sample1; type2 sample2;                                     \
+      where = TRUE;                                                     \
+      for (i = 0; i<100; i++) {                                         \
+        get_a_random_twice(type1,type2,type1_bitsize,sample1,sample2);  \
+        if (sample1 != (type1)(sample2)) { where = FALSE; }             \
+        if (sample2 != (type2)(sample1)) { where = FALSE; }             \
+      }                                                                 \
+      for (i = 0; i<100; i++) {                                         \
+        get_a_random(type1,type1_bitsize,sample1);                      \
+        sample2 = (type2)(sample1);                                     \
+        for (j = 0; j < type1_bitsize; j++)                             \
+          if (((sample1 & ((type1)1<<j)) == 0)                          \
+              != ((sample2 & ((type2)1<<j)) == 0))                      \
+            { where = FALSE; }                                          \
+      }                                                                 \
+      if (where)                                                        \
+        printf("/* Integer types %s and %s have the same binary representation. */\n",typestr1,typestr2); \
+      else                                                              \
+        printf("#error \"Integer types %s and %s have different binary representations!!\"\n",typestr1,typestr2); \
+    } else                                                              \
+      where = FALSE;                                                    \
   }
   compare_integer_representation(schar,uchar,"char","unsigned char",char_bitsize,uchar_bitsize,char_uchar_same);
   compare_integer_representation(short,ushort,"short","unsigned short",short_bitsize,ushort_bitsize,short_ushort_same);
@@ -229,70 +227,74 @@ void main3(void) {
 }
 
 void main4(void) {
-#define test_integer_ushift(type,typestr,type_bitsize)  \
-  if (type_bitsize >= 0)                                                                        \
-    { int i,j,shc;                                                                              \
-      type sample1,sample2;                                                                     \
-      boolean left_works = TRUE, right_works = TRUE;                                            \
-      for (i = 0; i<100; i++)                                                                   \
-        { get_a_random(type,type_bitsize,sample1);                                              \
-          for (shc = 0; shc < type_bitsize; shc++)                                              \
-            { sample2 = sample1 << shc;                                                         \
-              for (j=0; j < type_bitsize; j++)                                                  \
-                { if (!( ((sample2 & ((type)1<<j)) == 0)                                        \
-                         ==                                                                     \
-                         (j < shc ? TRUE : ((sample1 & ((type)1<<(j-shc))) == 0))               \
-                     ) )                                                                        \
-                    { left_works = FALSE; }                                                     \
-        }   }   }                                                                               \
-      for (i = 0; i<100; i++)                                                                   \
-        { get_a_random(type,type_bitsize,sample1);                                              \
-          for (shc = 0; shc < type_bitsize; shc++)                                              \
-            { sample2 = sample1 >> shc;                                                         \
-              for (j=0; j < type_bitsize; j++)                                                  \
-                { if (!( ((sample2 & ((type)1<<j)) == 0)                                        \
-                         ==                                                                     \
-                         (j >= type_bitsize-shc ? TRUE : ((sample1 & ((type)1<<(j+shc))) == 0)) \
-                     ) )                                                                        \
-                    { right_works = FALSE; }                                                    \
-        }   }   }                                                                               \
-      if (!left_works)                                                                          \
-        { printf("#error \"Left shift of integers of t%spe %s does not work!!\"\n","y",typestr); } \
-      if (!right_works)                                                                         \
-        { printf("#error \"Right shift of integers of t%spe %s does not work!!\"\n","y",typestr); } \
-    }
-#define test_integer_sshift(type,typestr,type_bitsize)  \
-  if (type_bitsize >= 0)                                                                       \
-    { int i,j,shc;                                                                             \
-      type sample1,sample2;                                                                    \
-      boolean left_works = TRUE, right_works = TRUE;                                           \
-      for (i = 0; i<100; i++)                                                                  \
-        { get_a_random(type,type_bitsize,sample1);                                             \
-          for (shc = 0; shc < type_bitsize; shc++)                                             \
-            { sample2 = sample1 << shc;                                                        \
-              for (j=0; j < type_bitsize; j++)                                                 \
-                { if (!( ((sample2 & ((type)1<<j)) == 0)                                       \
-                         ==                                                                    \
-                         (j < shc ? TRUE : ((sample1 & ((type)1<<(j-shc))) == 0))              \
-                     ) )                                                                       \
-                    { left_works = FALSE; }                                                    \
-        }   }   }                                                                              \
-      for (i = 0; i<100; i++)                                                                  \
-        { get_a_random(type,type_bitsize,sample1);                                             \
-          for (shc = 0; shc < type_bitsize; shc++)                                             \
-            { sample2 = sample1 >> shc;                                                        \
-              for (j=0; j < type_bitsize; j++)                                                 \
-                { if (!( ((sample2 & ((type)1<<j)) == 0)                                       \
-                         ==                                                                    \
-                         ((sample1 & ((type)1<< (j+shc>=type_bitsize ? type_bitsize-1 : j+shc))) == 0) \
-                     ) )                                                                       \
-                    { right_works = FALSE; }                                                   \
-        }   }   }                                                                              \
-      if (!left_works)                                                                         \
-        { printf("#error \"Left shift of integers of t%spe %s does not work!!\"\n","y",typestr); } \
-      if (!right_works)                                                                        \
-        { printf("#error \"Right shift of integers of t%spe %s does not work!!\"\n","y",typestr); } \
-    }
+#define test_integer_ushift(type,typestr,type_bitsize)                  \
+  if (type_bitsize >= 0) {                                              \
+    int i,j,shc;                                                        \
+    type sample1,sample2;                                               \
+    boolean_t left_works = TRUE, right_works = TRUE;                    \
+    for (i = 0; i<100; i++) {                                           \
+      get_a_random(type,type_bitsize,sample1);                          \
+      for (shc = 0; shc < type_bitsize; shc++) {                        \
+        sample2 = sample1 << shc;                                       \
+        for (j=0; j < type_bitsize; j++) {                              \
+          if (((sample2 & ((type)1<<j)) == 0)                           \
+              !=                                                        \
+              (j < shc ? TRUE : ((sample1 & ((type)1<<(j-shc))) == 0))) \
+            { left_works = FALSE; }                                     \
+        }                                                               \
+      }                                                                 \
+    }                                                                   \
+    for (i = 0; i<100; i++) {                                           \
+      get_a_random(type,type_bitsize,sample1);                          \
+      for (shc = 0; shc < type_bitsize; shc++) {                        \
+        sample2 = sample1 >> shc;                                       \
+        for (j=0; j < type_bitsize; j++) {                              \
+          if (((sample2 & ((type)1<<j)) == 0)                           \
+              !=                                                        \
+              (j >= type_bitsize-shc ? TRUE : ((sample1 & ((type)1<<(j+shc))) == 0))) \
+            { right_works = FALSE; }                                    \
+        }                                                               \
+      }                                                                 \
+    }                                                                   \
+    if (!left_works)                                                    \
+      printf("#error \"Left shift of integers of t%spe %s does not work!!\"\n","y",typestr); \
+    if (!right_works)                                                   \
+      printf("#error \"Right shift of integers of t%spe %s does not work!!\"\n","y",typestr); \
+  }
+#define test_integer_sshift(type,typestr,type_bitsize)                  \
+  if (type_bitsize >= 0) {                                              \
+    int i,j,shc;                                                        \
+    type sample1,sample2;                                               \
+    boolean_t left_works = TRUE, right_works = TRUE;                    \
+    for (i = 0; i<100; i++) {                                           \
+      get_a_random(type,type_bitsize,sample1);                          \
+      for (shc = 0; shc < type_bitsize; shc++)  {                       \
+        sample2 = sample1 << shc;                                       \
+        for (j=0; j < type_bitsize; j++) {                              \
+          if (((sample2 & ((type)1<<j)) == 0)                           \
+              !=                                                        \
+              (j < shc ? TRUE : ((sample1 & ((type)1<<(j-shc))) == 0))) \
+            { left_works = FALSE; }                                     \
+        }                                                               \
+      }                                                                 \
+    }                                                                   \
+    for (i = 0; i<100; i++) {                                           \
+      get_a_random(type,type_bitsize,sample1);                          \
+      for (shc = 0; shc < type_bitsize; shc++) {                        \
+        sample2 = sample1 >> shc;                                       \
+        for (j=0; j < type_bitsize; j++) {                              \
+          if (((sample2 & ((type)1<<j)) == 0)                           \
+              !=                                                        \
+              ((sample1 & ((type)1<< (j+shc>=type_bitsize ? type_bitsize-1 : j+shc))) == 0)) \
+            { right_works = FALSE; }                                    \
+        }                                                               \
+      }                                                                 \
+    }                                                                   \
+    if (!left_works)                                                    \
+      printf("#error \"Left shift of integers of t%spe %s does not work!!\"\n","y",typestr); \
+    if (!right_works)                                                   \
+      printf("#error \"Right shift of integers of t%spe %s does not work!!\"\n","y",typestr); \
+  }
   test_integer_ushift(uchar,"unsigned char",uchar_bitsize);
   test_integer_ushift(ushort,"unsigned short",ushort_bitsize);
   test_integer_ushift(uint,"unsigned int",uint_bitsize);
@@ -310,45 +312,49 @@ void main4(void) {
 }
 
 void main5(void) {
-#define test_integer_casts(type1,type2,typestr1,typestr2,type1_bitsize,type2_bitsize,want)  \
-  if (type1_bitsize <= type2_bitsize)                                                                      \
-    { int i,j;                                                                                             \
-      boolean modifies = FALSE;                                                                            \
-      boolean zero_extends = TRUE;                                                                         \
-      boolean sign_extends = TRUE;                                                                         \
-      for (i = 0; i<100; i++)                                                                              \
-        { type1 sample1;                                                                                   \
-          type2 sample2;                                                                                   \
-          get_a_random(type1,type1_bitsize,sample1);                                                       \
-          sample2 = (type2)sample1;                                                                        \
-          if (!(sample1 == (type1)sample2)) { modifies = TRUE; }                                           \
-          for (j = 0; j<type1_bitsize; j++)                                                                \
-            if (!( ((sample1 & ((type1)1<<j)) == 0) == ((sample2 & ((type2)1<<j)) == 0) ))                 \
-              { zero_extends = FALSE; sign_extends = FALSE; }                                              \
-          for (j = type1_bitsize; j<type2_bitsize; j++)                                                    \
-            if (!((sample2 & ((type2)1<<j)) == 0))                                                         \
-              { zero_extends = FALSE; }                                                                    \
-          for (j = type1_bitsize; j<type2_bitsize; j++)                                                    \
-            if (!( ((sample1 & ((type1)1<<(type1_bitsize-1))) == 0) == ((sample2 & ((type2)1<<j)) == 0) )) \
-              { sign_extends = FALSE; }                                                                    \
-        }                                                                                                  \
-      if (modifies)                                                                                        \
-        printf("#error \"Casts: (%s)(%s)(x) == x does not hold for every %s x !!\"\n",typestr1,typestr2,typestr1); \
-      if (zero_extends && sign_extends)                                                                    \
-        { if (!(type1_bitsize == type2_bitsize))                                                           \
-            printf("#error \"Casts from %s to %s works by identity!!\"\n",typestr1,typestr2);              \
-        }                                                                                                  \
-      if (zero_extends && !sign_extends)                                                                   \
-        { if ((type1_bitsize == type2_bitsize) || !(typestr1[0] == 'u') || !(want==1))                     \
-            printf("#error \"Casts from %s to %s works by zero-extend!!\"\n",typestr1,typestr2);           \
-        }                                                                                                  \
-      if (sign_extends && !zero_extends)                                                                   \
-        { if ((type1_bitsize == type2_bitsize) || (typestr1[0] == 'u') || !(want==2))                      \
-            printf("#error \"Casts from %s to %s works by sign-extend!!\"\n",typestr1,typestr2);           \
-        }                                                                                                  \
-      if (!sign_extends && !zero_extends)                                                                  \
-        printf("#error \"Casts from %s to %s works in an unknown manner!!\"\n",typestr1,typestr2);         \
-    }
+#define test_integer_casts(type1,type2,typestr1,typestr2,type1_bitsize,type2_bitsize,want) \
+  if (type1_bitsize <= type2_bitsize) {                                 \
+    int i,j;                                                            \
+    boolean_t modifies = FALSE;                                         \
+    boolean_t zero_extends = TRUE;                                      \
+    boolean_t sign_extends = TRUE;                                      \
+    for (i = 0; i<100; i++) {                                           \
+      type1 sample1;                                                    \
+      type2 sample2;                                                    \
+      get_a_random(type1,type1_bitsize,sample1);                        \
+      sample2 = (type2)sample1;                                         \
+      if (sample1 != (type1)sample2) { modifies = TRUE; }               \
+      for (j = 0; j<type1_bitsize; j++)                                 \
+        if (((sample1 & ((type1)1<<j)) == 0) !=                         \
+            ((sample2 & ((type2)1<<j)) == 0))                           \
+          { zero_extends = FALSE; sign_extends = FALSE; }               \
+      for (j = type1_bitsize; j<type2_bitsize; j++)                     \
+        if ((sample2 & ((type2)1<<j)) != 0)                             \
+          { zero_extends = FALSE; }                                     \
+      for (j = type1_bitsize; j<type2_bitsize; j++)                     \
+        if (((sample1 & ((type1)1<<(type1_bitsize-1))) == 0) !=         \
+            ((sample2 & ((type2)1<<j)) == 0))                           \
+          { sign_extends = FALSE; }                                     \
+    }                                                                   \
+    if (modifies)                                                       \
+      printf("#error \"Casts: (%s)(%s)(x) == x does not hold for every %s x !!\"\n",typestr1,typestr2,typestr1); \
+    if (zero_extends && sign_extends) {                                 \
+      if (type1_bitsize != type2_bitsize)                               \
+        printf("#error \"Casts from %s to %s works by identity!!\"\n",typestr1,typestr2); \
+    }                                                                   \
+    if (zero_extends && !sign_extends) {                                \
+      if ((type1_bitsize == type2_bitsize) || (typestr1[0] != 'u')      \
+          || (want!=1))                                                 \
+        printf("#error \"Casts from %s to %s works by zero-extend!!\"\n",typestr1,typestr2); \
+    }                                                                   \
+    if (sign_extends && !zero_extends) {                                \
+      if ((type1_bitsize == type2_bitsize) || (typestr1[0] == 'u')      \
+          || (want!=2))                                                 \
+        printf("#error \"Casts from %s to %s works by sign-extend!!\"\n",typestr1,typestr2); \
+    }                                                                   \
+    if (!sign_extends && !zero_extends)                                 \
+      printf("#error \"Casts from %s to %s works in an unknown manner!!\"\n",typestr1,typestr2); \
+  }
   /* erst Casts zwischen Integers vermutlich gleicher Größe: */
   test_integer_casts(schar,uchar,"char","unsigned char",char_bitsize,uchar_bitsize,0);
   test_integer_casts(short,ushort,"short","unsigned short",short_bitsize,ushort_bitsize,0);
@@ -415,8 +421,8 @@ void main5(void) {
 }
 
 void main6(void) {
-#define check_sizeof_pointer(type,typestr)  \
-  { if (!(sizeof(type) <= sizeof(long)))                                 \
+#define check_sizeof_pointer(type,typestr)                              \
+  { if (sizeof(type) > sizeof(long))                                    \
       printf("#error \"Type %s does not fit into a long!!\"\n",typestr); \
   }
   check_sizeof_pointer(char*,"char *");
@@ -429,37 +435,37 @@ void main6(void) {
 }
 
 void main7(void) {
-#define test_pointer_casts(type1,type2,typestr1,typestr2)  \
-  if (!(sizeof(type1) == sizeof(type2)))                                                               \
-    { printf("#error \"Pointer types %s and %s have different sizes!!\"\n",typestr1,typestr2); }       \
-    else                                                                                               \
-    { int i;                                                                                           \
-      ulong differences1 = 0, differences2 = 0;                                                        \
-      for (i = 0; i<100; i++)                                                                          \
-        { ulong sample;                                                                                \
-          type1 sample1;                                                                               \
-          type2 sample2;                                                                               \
-          get_a_random(ulong,ulong_bitsize,sample);                                                    \
-          sample1 = (type1)sample;                                                                     \
-          sample2 = (type2)sample;                                                                     \
-          differences1 |= ((ulong)sample1 ^ (ulong)(type1)(sample2));                                  \
-          differences2 |= ((ulong)sample2 ^ (ulong)(type2)(sample1));                                  \
-        }                                                                                              \
-      if (differences1==0)                                                                             \
-        printf("/* Casts from %s to %s is OK (does nothing). */\n",typestr2,typestr1);                 \
-      else                                                                                             \
-      if (differences1 == ~(ulong)0)                                                                   \
-        printf("#error \"Casts from %s to %s work in an unknown way!!\"\n",typestr2,typestr1);         \
-      else                                                                                             \
+#define test_pointer_casts(type1,type2,typestr1,typestr2)               \
+  if (sizeof(type1) != sizeof(type2)) {                                 \
+    printf("#error \"Pointer types %s and %s have different sizes!!\"\n",typestr1,typestr2); \
+  } else {                                                              \
+    int i;                                                              \
+    ulong differences1 = 0, differences2 = 0;                           \
+    for (i = 0; i<100; i++) {                                           \
+      ulong sample;                                                     \
+      type1 sample1;                                                    \
+      type2 sample2;                                                    \
+      get_a_random(ulong,ulong_bitsize,sample);                         \
+      sample1 = (type1)sample;                                          \
+      sample2 = (type2)sample;                                          \
+      differences1 |= ((ulong)sample1 ^ (ulong)(type1)(sample2));       \
+      differences2 |= ((ulong)sample2 ^ (ulong)(type2)(sample1));       \
+    }                                                                   \
+    if (differences1==0)                                                \
+      printf("/* Casts from %s to %s is OK (does nothing). */\n",typestr2,typestr1); \
+    else                                                                \
+      if (differences1 == ~(ulong)0)                                    \
+        printf("#error \"Casts from %s to %s work in an unknown way!!\"\n",typestr2,typestr1); \
+      else                                                              \
         printf("#error \"Casts from %s to %s modify part 0x%8lX of pointer!!\"\n",typestr2,typestr1,differences1); \
-      if (differences2==0)                                                                             \
-        printf("/* Casts from %s to %s is OK (does nothing). */\n",typestr1,typestr2);                 \
-      else                                                                                             \
-      if (differences2 == ~(ulong)0)                                                                   \
-        printf("#error \"Casts from %s to %s work in an unknown way!!\"\n",typestr1,typestr2);         \
-      else                                                                                             \
+    if (differences2==0)                                                \
+      printf("/* Casts from %s to %s is OK (does nothing). */\n",typestr1,typestr2); \
+    else                                                                \
+      if (differences2 == ~(ulong)0)                                    \
+        printf("#error \"Casts from %s to %s work in an unknown way!!\"\n",typestr1,typestr2); \
+      else                                                              \
         printf("#error \"Casts from %s to %s modify part 0x%8lX of pointer!!\"\n",typestr1,typestr2,differences2); \
-    }
+  }
   test_pointer_casts(char*,long*,"char *","long *");
   test_pointer_casts(char*,function*,"char *","function *");
   printf("\n");
@@ -471,17 +477,19 @@ void main8(void) {
    cast. */
 #define alignmentof(type)  \
   (int)(&((struct { char dummy1; type dummy2; } *)0)->dummy2)
-#define get_alignment(type,typestr)  \
-  { struct { char dummy1; type dummy2; } dummy;                                                           \
-    long alignment = (char*)&dummy.dummy2 - (char*)&dummy;                                                \
+#define get_alignment(type,typestr)                                     \
+  { struct { char dummy1; type dummy2; } dummy;                         \
+    long alignment = (char*)&dummy.dummy2 - (char*)&dummy;              \
     printf("/* Type %s has sizeof = %ld and alignment = %ld. */\n",typestr,(long)sizeof(type),alignment); \
-    if (!(typestr[0] == 'u') && !(typestr[string_length(typestr)-1] == '*'))                              \
-      { printf("#define sizeof_"); printf_underscored(typestr); printf(" %ld\n",(long)sizeof(type));      \
-        printf("#define alignment_"); printf_underscored(typestr); printf(" %ld\n",alignment);            \
-      }                                                                                                   \
-    if (!((alignment & (alignment-1)) == 0))                                                              \
+    if (typestr[0] != 'u' && (typestr[string_length(typestr)-1] != '*')) { \
+      printf("#define sizeof_"); printf_underscored(typestr);           \
+      printf(" %ld\n",(long)sizeof(type));                              \
+      printf("#define alignment_"); printf_underscored(typestr);        \
+      printf(" %ld\n",alignment);                                       \
+    }                                                                   \
+    if ((alignment & (alignment-1)) != 0)                               \
       printf("#error \"The alignment %ld of t%spe %s is not a power of two!!\"\n",alignment,"y",typestr); \
-    printf("\n");                                                                                         \
+    printf("\n");                                                       \
   }
   get_alignment(char,"char"); get_alignment(uchar,"unsigned char");
   get_alignment(short,"short"); get_alignment(ushort,"unsigned short");
@@ -498,38 +506,41 @@ void main8(void) {
 }
 
 void main9(void) {
-#define get_endian(type,typestr,type_bitsize)  \
-  { if (type_bitsize == uchar_bitsize * sizeof(type))                                            \
-      { auto union { uchar einzeln[sizeof(type)]; type gesamt; } x;                              \
-        int i,j;                                                                                 \
-        boolean big_endian = TRUE;                                                               \
-        boolean little_endian = TRUE;                                                            \
-        for (i = 0; i<100; i++)                                                                  \
-          { type sample;                                                                         \
-            get_a_random(type,type_bitsize,sample);                                              \
-            x.gesamt = sample;                                                                   \
-            for (j = 0; j<sizeof(type); j++, sample >>= uchar_bitsize)                           \
-              { if (!( (sample & (((type)1<<uchar_bitsize)-1)) == x.einzeln[j] ))                \
-                  { little_endian = FALSE; }                                                     \
-                if (!( (sample & (((type)1<<uchar_bitsize)-1)) == x.einzeln[sizeof(type)-1-j] )) \
-                  { big_endian = FALSE; }                                                        \
-          }   }                                                                                  \
-        if (big_endian && little_endian)                                                         \
-          { if (!(sizeof(type) == 1))                                                            \
-              printf("#error \"Endianness of t%spe %s in memory doesn't matter.\"\n","y",typestr); } \
-        if (big_endian && !little_endian)                                                        \
-          { printf("/* Type %s is stored BIG-ENDIAN in memory (i.e. like mc68000 or sparc). */\n",typestr); \
-            printf("#define "); printf_underscored(&typestr[9]); printf("_big_endian\n");        \
-          }                                                                                      \
-        if (little_endian && !big_endian)                                                        \
-          { printf("/* Type %s is stored LITTLE-ENDIAN in memory (i.e. like Z80 or VAX). */\n",typestr); \
-            printf("#define "); printf_underscored(&typestr[9]); printf("_little_endian\n");     \
-          }                                                                                      \
-        if (!big_endian && !little_endian)                                                       \
-          { printf("#error \"Type %s is stored in memory in an obscure manner!!\"\n",typestr); } \
-      }                                                                                          \
-      else                                                                                       \
-      { printf("#error \"Endianness makes no sense for t%spe %s !!\"\n","y",typestr); }          \
+#define get_endian(type,typestr,type_bitsize)                           \
+  { if (type_bitsize == uchar_bitsize * sizeof(type)) {                 \
+      auto union { uchar einzeln[sizeof(type)]; type gesamt; } x;       \
+      int i,j;                                                          \
+      boolean_t big_endian = TRUE;                                      \
+      boolean_t little_endian = TRUE;                                   \
+      for (i = 0; i<100; i++) {                                         \
+        type sample;                                                    \
+        get_a_random(type,type_bitsize,sample);                         \
+        x.gesamt = sample;                                              \
+        for (j = 0; j<sizeof(type); j++, sample >>= uchar_bitsize) {    \
+          if ((sample & (((type)1<<uchar_bitsize)-1)) != x.einzeln[j])  \
+            little_endian = FALSE;                                      \
+          if ((sample & (((type)1<<uchar_bitsize)-1)) != x.einzeln[sizeof(type)-1-j]) \
+            big_endian = FALSE;                                         \
+        }                                                               \
+      }                                                                 \
+      if (big_endian && little_endian) {                                \
+        if (sizeof(type) != 1)                                          \
+          printf("#error \"Endianness of t%spe %s in memory doesn't matter.\"\n","y",typestr); \
+      }                                                                 \
+      if (big_endian && !little_endian) {                               \
+        printf("/* Type %s is stored BIG-ENDIAN in memory (i.e. like mc68000 or sparc). */\n",typestr); \
+        printf("#define "); printf_underscored(&typestr[9]);            \
+        printf("_big_endian\n");                                        \
+      }                                                                 \
+      if (little_endian && !big_endian) {                               \
+        printf("/* Type %s is stored LITTLE-ENDIAN in memory (i.e. like Z80 or VAX). */\n",typestr); \
+        printf("#define "); printf_underscored(&typestr[9]);            \
+        printf("_little_endian\n");                                     \
+      }                                                                 \
+      if (!big_endian && !little_endian)                                \
+        printf("#error \"Type %s is stored in memory in an obscure manner!!\"\n",typestr); \
+    } else                                                              \
+      printf("#error \"Endianness makes no sense for t%spe %s !!\"\n","y",typestr); \
   }
   get_endian(uchar,"unsigned char",uchar_bitsize);
   get_endian(ushort,"unsigned short",ushort_bitsize);
@@ -542,32 +553,32 @@ void main9(void) {
 }
 
 long get_stack_direction(void)
-  { auto char dummy;
-    static char* dummyaddr = (char*)0;
-    if (!(dummyaddr == (char*)0))
-      { return (&dummy) - dummyaddr; }
-    else
-      { dummyaddr = &dummy;
-        { long result = get_stack_direction();
-          /* The next assignment avoids tail recursion elimination (IRIX 6.4 CC). */
-          dummyaddr = (char*)0;
-          return result;
-      } }
+{
+  auto char dummy;
+  static char* dummyaddr = (char*)0;
+  if (dummyaddr != (char*)0) {
+    return (&dummy) - dummyaddr;
+  } else {
+    dummyaddr = &dummy;
+    { long result = get_stack_direction();
+      /* The next assignment avoids tail recursion elimination (IRIX 6.4 CC). */
+      dummyaddr = (char*)0;
+      return result;
+    }
   }
+}
 
 void main10(void)
-  { long stack_direction = get_stack_direction();
-    if (stack_direction > 0)
-      { printf("/* Stack grows up, ca. %ld bytes per function call. */\n",(long)stack_direction);
-        printf("#define stack_grows_up\n");
-      }
-    else if (stack_direction < 0)
-      { printf("/* Stack grows down, ca. %ld bytes per function call. */\n",-(long)stack_direction);
-        printf("#define stack_grows_down\n");
-      }
-    else
-      printf("#error \"Unknown stack model -- incorrect C semantics!!\"\n");
-  }
+{ long stack_direction = get_stack_direction();
+  if (stack_direction > 0) {
+    printf("/* Stack grows up, ca. %ld bytes per function call. */\n",(long)stack_direction);
+    printf("#define stack_grows_up\n");
+  } else if (stack_direction < 0) {
+    printf("/* Stack grows down, ca. %ld bytes per function call. */\n",-(long)stack_direction);
+    printf("#define stack_grows_down\n");
+  } else
+    printf("#error \"Unknown stack model -- incorrect C semantics!!\"\n");
+}
 
 int main()
 { main1();
