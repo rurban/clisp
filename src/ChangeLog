@@ -1,5 +1,10 @@
 2004-03-11  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (SHELL): On HP-UX, use bash instead of /bin/sh. Needed
+	for HP-UX 10.
+
+2004-03-11  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (cpu): Set to x86_64 if appropriate.
 	(XCFLAGS): Add -O when the CPU is x86_64.
 
