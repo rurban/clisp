@@ -126,6 +126,7 @@
         case_Rectype_Sb32vector_above;
         case Rectype_Sstring: case Rectype_Imm_Sstring: goto case_sstring;
         case_Rectype_Svector_above;
+        case_Rectype_WeakKVT_above;
         case_Rectype_mdarray_above;
         case_Rectype_obvector_above;
         case_Rectype_ob2vector_above;
@@ -164,6 +165,7 @@
           return size_sb32vector(sbvector_length((Sbvector)addr));
         case_sstring: # normal-simple-string
           return size_sstring(sstring_length((Sstring)addr));
+        case_weakkvt: # weak-key-value-table
         case_svector: # simple-vector
           return size_svector(svector_length((Svector)addr));
         case_mdarray: case_obvector: case_ob2vector: case_ob4vector: case_ob8vector: case_ob16vector: case_ob32vector: case_ostring: case_ovector:

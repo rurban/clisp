@@ -374,6 +374,7 @@
             case_ob8vector:
             case_ob16vector:
             case_ob32vector:
+            case_weakkvt:
             case_vector:
             case_mdarray:
             case_record:

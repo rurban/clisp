@@ -26,6 +26,9 @@ User visible changes
   and :PRINT-PPRINT-DISPATCH keyword arguments.
   This change requires recompilation of all .fas files.
 
+* Weak hash-tables are now supported.
+  See the impnotes <http://clisp.cons.org/impnotes.html#make-hash> for details.
+
 * Support Cygwin's "/cygdrive/drive/path" pathname symtax on Win32.
 
 * New macro EXT:FCASE which allows specifying comparison function in CASE.

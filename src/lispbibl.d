@@ -3235,6 +3235,7 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define dfloat_type     (     BTB5     |BTB3     |BTB1     ) # 0x2A  # %00101010  ; double-float
   #define complex_type    (     BTB5     |BTB3|BTB2          ) # 0x2C  # %00101100  ; complex
   #define lfloat_type     (     BTB5     |BTB3|BTB2|BTB1     ) # 0x2E  # %00101110  ; long-float
+  #define weakkvt_type    (     BTB5|BTB4|    |    |         ) # 0x30  # %00110000  ; weak-key-value-table
   #if (TB6 >= 0)
   #define cons_type       (BTB6                              ) # 0x40  # %01000000  ; cons
   #endif
@@ -3428,9 +3429,10 @@ typedef signed_int_with_n_bits(oint_addr_len)  saint;
   #define case_ob16vector case b16vector_type  # Other 16Bit-Vector
   #define case_sb32vector case sb32vector_type # Simple-32Bit-Vector
   #define case_ob32vector case b32vector_type  # Other 32Bit-Vector
-  #define case_svector    case svector_type   # Simple-(General-)Vector
+  #define case_svector    case svector_type    # Simple-(General-)Vector
   #define case_ovector    case vector_type    # Other (General-)Vector
   #define case_mdarray    case mdarray_type   # other Array
+  #define case_weakkvt    case weakkvt_type   # Weak Key-Value Table
   #define case_string     case_sstring: case_ostring # general string
   #define case_bvector    case_sbvector: case_obvector # general bit vector
   #define case_b2vector   case_sb2vector: case_ob2vector # general 2bit vector
@@ -3628,7 +3630,7 @@ typedef varobject_ *  Varobject;
 # Long-Records are recognized by their type field:
 #   rectype == Rectype_Sbvector, Rectype_Sb[2|4|8|16|32]vector,
 #              Rectype_Sstring, Rectype_Imm_Sstring, Rectype_Imm_SmallSstring,
-#              Rectype_Svector.
+#              Rectype_Svector, Rectype_WeakKVT.
 # The others are partitioned into:
 #   - Simple-Records, if rectype < rectype_limit.
 #   - Extended-Records, if rectype >= rectype_limit.
@@ -3776,6 +3778,7 @@ typedef xrecord_ *  Xrecord;
          Rectype_Complex,
          #endif
                           # Here the numbers end.
+         Rectype_WeakKVT,
          #ifndef TYPECODES
          Rectype_Symbol,
          #endif
@@ -4433,6 +4436,16 @@ typedef struct {
   (flags & bit(0) ? S(eq) :    flags & bit(1) ? S(eql) :        \
    flags & bit(2) ? S(equal) : flags & bit(3) ? S(equalp) :     \
    (NOTREACHED,nullobj))
+# check whether the hash table is weak or not
+#define ht_weak_p(ht)                                           \
+  (weakkvtp(TheHashtable(ht)->ht_kvtable) ? true :              \
+   simple_vector_p(TheHashtable(ht)->ht_kvtable) ? false :      \
+   (NOTREACHED, false))
+# get the kvtable data array
+#define kvtable_data(kvt)                                               \
+  (weakkvtp(kvt) ? TheWeakKVT(kvt)->data :                              \
+   simple_vector_p(kvt) ? TheSvector(kvt)->data : (NOTREACHED, &kvt))
+#define ht_kvt_data(ht)   kvtable_data(TheHashtable(ht)->ht_kvtable)
 
 # Readtables
 typedef struct {
@@ -4648,6 +4661,17 @@ typedef struct {
 #define weakpointer_length  0
 #define weakpointer_xlength  (sizeof(*(Weakpointer)0)-offsetofa(record_,recdata)-weakpointer_length*sizeof(object))
 #define weakpointer_broken_p(wp) eq(TheWeakpointer(wp)->wp_cdr,unbound)
+
+# weak key-value table for weak hashtables
+typedef struct {
+  LRECORD_HEADER
+  object wkvt_cdr;          # active weak-kvts form a chained list
+  object data[unspecified]; # elements
+} weakkvt_t;
+typedef weakkvt_t* WeakKVT;
+# Both wkvt_cdr and data are invisible to gc_mark routines.
+#define weakkvt_non_data ((offsetofa(weakkvt_t,data)-offsetof(weakkvt_t,wkvt_cdr))/sizeof(object))
+#define Weakkvt_length(obj)   (Sarray_length(obj)-weakkvt_non_data)
 
 # Finalizer
 typedef struct {
@@ -5216,11 +5240,12 @@ typedef struct {
   #endif
   #define TheDfloat(obj)  ((Dfloat)(types_pointable(dfloat_type|bit(sign_bit_t),obj)))
   #define TheLfloat(obj)  ((Lfloat)(types_pointable(lfloat_type|bit(sign_bit_t),obj)))
-  #define TheSarray(obj)  ((Sarray)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type,obj)))
+  #define TheSarray(obj)  ((Sarray)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type|sstring_type|svector_type|weakkvt_type,obj)))
   #define TheSbvector(obj)  ((Sbvector)(types_pointable(sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type|sb16vector_type|sb32vector_type,obj)))
   #define TheCodevec(obj)  ((Codevec)(types_pointable(sb8vector_type,obj)))
   #define TheSstring(obj)  ((Sstring)(types_pointable(sstring_type,obj)))
   #define TheSvector(obj)  ((Svector)(types_pointable(svector_type,obj)))
+  #define TheWeakKVT(obj)  ((WeakKVT)(types_pointable(weakkvt_type,obj)))
   #define TheIarray(obj)  ((Iarray)(types_pointable(mdarray_type|bvector_type|b2vector_type|b4vector_type|b8vector_type|b16vector_type|b32vector_type|string_type|vector_type,obj)))
   #define TheRecord(obj)  ((Record)(types_pointable(closure_type|structure_type|stream_type|orecord_type|instance_type,obj)))
   #define TheSrecord(obj)  ((Srecord)(types_pointable(closure_type|structure_type|orecord_type|instance_type,obj)))
@@ -5285,7 +5310,7 @@ typedef struct {
       (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type        \
          |sb16vector_type|sb32vector_type                                \
        |sstring_type|svector_type                                        \
-       |mdarray_type                                                     \
+       |mdarray_type|weakkvt_type                                        \
        |bvector_type|b2vector_type|b4vector_type|b8vector_type           \
          |b16vector_type|b32vector_type                                  \
        |string_type|vector_type                                          \
@@ -5299,7 +5324,7 @@ typedef struct {
      (sbvector_type|sb2vector_type|sb4vector_type|sb8vector_type        \
         |sb16vector_type|sb32vector_type                                \
       |sstring_type|svector_type                                        \
-      |mdarray_type                                                     \
+      |mdarray_type|weakkvt_type                                        \
       |bvector_type|b2vector_type|b4vector_type|b8vector_type           \
         |b16vector_type|b32vector_type                                  \
       |string_type|vector_type                                          \
@@ -5327,6 +5352,7 @@ typedef struct {
   #define TheSmallSstring(obj)  ((SmallSstring)(as_oint(obj)-varobject_bias))
   #endif
   #define TheSvector(obj)  ((Svector)(as_oint(obj)-varobject_bias))
+  #define TheWeakKVT(obj)  ((WeakKVT)(as_oint(obj)-varobject_bias))
   #define TheIarray(obj)  ((Iarray)(as_oint(obj)-varobject_bias))
   #define TheRecord(obj)  ((Record)(as_oint(obj)-varobject_bias))
   #define TheSrecord(obj)  ((Srecord)(as_oint(obj)-varobject_bias))
@@ -5652,7 +5678,9 @@ typedef struct {
     #define if_recordp(obj,statement1,statement2)  \
       if (orecordp(obj))                                                     \
         switch (Record_type(obj)) {                                          \
-          case Rectype_Sbvector: case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_Svector: \
+          case Rectype_Sbvector: case Rectype_Sstring:                    \
+          case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring:        \
+          case Rectype_Svector: case Rectype_WeakKVT:                     \
           case Rectype_mdarray:                                              \
           case Rectype_bvector: case Rectype_string: case Rectype_vector:    \
           case Rectype_Bignum: case Rectype_Lfloat:                          \
@@ -5838,6 +5866,15 @@ typedef struct {
 # Test for Weakpointer
 #define weakpointerp(obj)  \
   (orecordp(obj) && (Record_type(obj) == Rectype_Weakpointer))
+
+# Test for WeakKVT
+#ifdef TYPECODES
+  #define weakkvtp(obj) (typecode(obj) == weakkvt_type)
+#else
+  # cases: Rectype_WeakKVT
+  #define weakkvtp(obj)  \
+    (varobjectp(obj) && (Record_type(obj) == Rectype_WeakKVT))
+#endif
 
 # test for socket-server and for socket-stream
 #ifdef SOCKET_STREAMS
@@ -6099,6 +6136,7 @@ typedef struct {
   #define case_Rectype_Sb32vector_above
   #define case_Rectype_Sstring_above
   #define case_Rectype_Svector_above
+  #define case_Rectype_WeakKVT_above
   #define case_Rectype_mdarray_above
   #define case_Rectype_obvector_above
   #define case_Rectype_ob2vector_above
@@ -6149,6 +6187,8 @@ typedef struct {
     case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: goto case_sstring;
   #define case_Rectype_Svector_above  \
     case Rectype_Svector: goto case_svector;
+  #define case_Rectype_WeakKVT_above  \
+    case Rectype_WeakKVT: goto case_weakkvt;
   #define case_Rectype_mdarray_above  \
     case Rectype_mdarray: goto case_mdarray;
   #define case_Rectype_obvector_above  \
@@ -6198,16 +6238,17 @@ typedef struct {
     case Rectype_Sb32vector: case Rectype_b32vector: goto case_b32vector;
   #define case_Rectype_vector_above  \
     case Rectype_Svector: case Rectype_vector: goto case_vector;
-  #define case_Rectype_array_above  \
-    case Rectype_Sstring: case Rectype_Imm_Sstring: case Rectype_Imm_SmallSstring: case Rectype_string: \
-    case Rectype_Sbvector: case Rectype_bvector: \
-    case Rectype_Sb2vector: case Rectype_b2vector: \
-    case Rectype_Sb4vector: case Rectype_b4vector: \
-    case Rectype_Sb8vector: case Rectype_b8vector: \
-    case Rectype_Sb16vector: case Rectype_b16vector: \
-    case Rectype_Sb32vector: case Rectype_b32vector: \
-    case Rectype_Svector: case Rectype_vector:   \
-    case Rectype_mdarray:                        \
+  #define case_Rectype_array_above                      \
+    case Rectype_Sstring: case Rectype_Imm_Sstring:     \
+    case Rectype_Imm_SmallSstring: case Rectype_string: \
+    case Rectype_Sbvector: case Rectype_bvector:        \
+    case Rectype_Sb2vector: case Rectype_b2vector:      \
+    case Rectype_Sb4vector: case Rectype_b4vector:      \
+    case Rectype_Sb8vector: case Rectype_b8vector:      \
+    case Rectype_Sb16vector: case Rectype_b16vector:    \
+    case Rectype_Sb32vector: case Rectype_b32vector:    \
+    case Rectype_Svector: case Rectype_vector:          \
+    case Rectype_mdarray:                               \
       goto case_array;
   #define case_Rectype_number_above  /* don't forget immediate_number_p */ \
     case Rectype_Complex: case Rectype_Ratio:                      \
@@ -7805,6 +7846,14 @@ extern object allocate_iarray (uintB flags, uintC rank, tint type);
 # can trigger GC
 extern object allocate_weakpointer (object obj);
 # is used by RECORD
+
+# UP: allocates a WeakKVT of the given length
+# allocate_weakkvt(len)
+# > len:    the length of the data vector
+# < result: a fresh weak key-value table
+# can trigger GC
+extern object allocate_weakkvt (uintL len);
+# is used by hashtable.d
 
 # UP: allocates finalizer
 # allocate_finalizer()
@@ -10857,13 +10906,14 @@ extern object shifthash (object ht, object obj, object value);
     var uintL index_from_map_hashtable =                                  \
       2*posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
     pushSTACK(TheHashtable(ht_from_map_hashtable)->ht_kvtable);           \
-    loop                                                                  \
-      { if (index_from_map_hashtable==0) break;                           \
+    loop {                                                                \
+      if (index_from_map_hashtable==0) break;                             \
         index_from_map_hashtable -= 2;                                    \
-        { var object* KVptr_from_map_hashtable = &TheSvector(STACK_0)->data[index_from_map_hashtable]; \
+      {var object* KVptr_from_map_hashtable =                             \
+         kvtable_data(STACK_0)+index_from_map_hashtable;                  \
           var object key = KVptr_from_map_hashtable[0];                   \
-          if (!eq(key,unbound))                                           \
-            { var object value = KVptr_from_map_hashtable[1];             \
+       if (!eq(key,unbound)) {                                            \
+         var object value = KVptr_from_map_hashtable[1];                  \
               statement;                                                  \
       } }   }                                                             \
     skipSTACK(1);                                                         \
@@ -10873,13 +10923,13 @@ extern object shifthash (object ht, object obj, object value);
     var uintL index_from_map_hashtable =                                  \
       posfixnum_to_L(TheHashtable(ht_from_map_hashtable)->ht_maxcount);   \
     var object* KVptr_from_map_hashtable =                                \
-      &TheSvector(TheHashtable(ht_from_map_hashtable)->ht_kvtable)->data[2*index_from_map_hashtable]; \
-    loop                                                                  \
-      { if (index_from_map_hashtable==0) break;                           \
+      ht_kvt_data(ht_from_map_hashtable) + 2*index_from_map_hashtable;  \
+    loop {                                                              \
+      if (index_from_map_hashtable==0) break;                           \
         index_from_map_hashtable--; KVptr_from_map_hashtable -= 2;        \
         { var object key = KVptr_from_map_hashtable[0];                   \
-          if (!eq(key,unbound))                                           \
-            { var object value = KVptr_from_map_hashtable[1];             \
+       if (!eq(key,unbound)) {                                          \
+         var object value = KVptr_from_map_hashtable[1];                \
               statement;                                                  \
       } }   }                                                             \
   } while(0)

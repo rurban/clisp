@@ -869,11 +869,10 @@ local void rehash (object ht) {
   }
   # build up "list"-structure element-wise:
   var object Nvektor = TheHashtable(ht)->ht_ntable; # next-vector
-  var object KVvektor = TheHashtable(ht)->ht_kvtable; # key-value-vector
   var object index = TheHashtable(ht)->ht_maxcount; # MAXCOUNT
   var uintL maxcount = posfixnum_to_L(index);
   var object* Nptr = &TheSvector(Nvektor)->data[maxcount];
-  var object* KVptr = &TheSvector(KVvektor)->data[2*maxcount];
+  var object* KVptr = ht_kvt_data(ht) + 2*maxcount; # end of kvtable
   var object freelist = nix;
   var object count = Fixnum_0;
   loop {
@@ -917,7 +916,8 @@ local void rehash (object ht) {
 # < if not found: result=false,
 #     *Iptr : entry belonging to key in index-vector
 #             or an arbitrary element of the "list" starting there
-local bool hash_lookup (object ht, object obj, object** KVptr_, object** Nptr_, object** Iptr_) {
+local bool hash_lookup (object ht, object obj, object** KVptr_,
+                        object** Nptr_, object** Iptr_) {
   var uintB flags = record_flags(TheHashtable(ht));
   if (!ht_validp(TheHashtable(ht))) {
     # hash-table must still be reorganized
@@ -926,6 +926,7 @@ local bool hash_lookup (object ht, object obj, object** KVptr_, object** Nptr_, 
   var uintL hashindex = hashcode(ht,obj); # calculate hashcode
   var object* Nptr = # pointer to the current entry
     &TheSvector(TheHashtable(ht)->ht_itable)->data[hashindex];
+  var object * kvt_data = ht_kvt_data(ht);
   loop {
     # track "list" :
     if (eq(*Nptr,nix)) # "list" finished -> not found
@@ -935,8 +936,17 @@ local bool hash_lookup (object ht, object obj, object** KVptr_, object** Nptr_, 
     Nptr = # pointer to entry in next-vector
       &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];
     var object* KVptr = # pointer to entries in key-value-vector
-      &TheSvector(TheHashtable(ht)->ht_kvtable)->data[2*index];
+      kvt_data + 2*index;
     var object key = KVptr[0];
+    if (eq(key,unbound)) { # weak HT - obsolete key and value
+      set_break_sem_2(); # protect from breaks
+      TheHashtable(ht)->ht_freelist = *Iptr;
+      *Iptr = *Nptr; # shorten "list"
+      *Nptr = TheHashtable(ht)->ht_freelist; # lengthen free-list
+      # decrement COUNT :
+      TheHashtable(ht)->ht_count = fixnum_inc(TheHashtable(ht)->ht_count,-1);
+      clr_break_sem_2(); # allow breaks again
+    }
     # compare key with obj:
     if (flags & bit(0) ? eq(key,obj) : # compare with EQ
         flags & bit(1) ? eql(key,obj) : # compare with EQL
@@ -963,7 +973,7 @@ local bool hash_lookup (object ht, object obj, object** KVptr_, object** Nptr_, 
        var object* Nptr = # address of the free entry in next-vector          \
          &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];               \
        var object* KVptr = # address of the free entries in key-value-vector  \
-         &TheSvector(TheHashtable(ht)->ht_kvtable)->data[2*index];            \
+         ht_kvt_data(ht) + 2*index;                                           \
        set_break_sem_2(); # protect from breaks                               \
        # increment COUNT:                                                     \
        TheHashtable(ht)->ht_count = fixnum_inc(TheHashtable(ht)->ht_count,1); \
@@ -989,7 +999,8 @@ local bool hash_lookup (object ht, object obj, object** KVptr_, object** Nptr_, 
 #                index-vector, next-vector, key-value-vector.
 # decreases STACK by 6
 # can trigger GC
-local uintL prepare_resize (object maxcount, object mincount_threshold) {
+local uintL prepare_resize (object maxcount, object mincount_threshold,
+                            bool weak) {
   # check, if maxcount is not a too big fixnum >0 :
   if (!posfixnump(maxcount))
     goto fehler_maxcount;
@@ -1011,7 +1022,9 @@ local uintL prepare_resize (object maxcount, object mincount_threshold) {
     # allocate new vectors:
     pushSTACK(allocate_vector(sizeL)); # supply index-vector
     pushSTACK(allocate_vector(maxcountL)); # supply next-vector
-    pushSTACK(allocate_vector(2*maxcountL)); # supply key-value-vector
+    if (weak) # supply key-value-vector
+      pushSTACK(allocate_weakkvt(2*maxcountL));
+    else pushSTACK(allocate_vector(2*maxcountL));
     # finished.
     return maxcountL;
   }
@@ -1031,7 +1044,8 @@ local uintL prepare_resize (object maxcount, object mincount_threshold) {
 local object resize (object ht, object maxcount) {
   pushSTACK(ht);
   var uintL maxcountL =
-    prepare_resize(maxcount,TheHashtable(ht)->ht_mincount_threshold);
+    prepare_resize(maxcount,TheHashtable(ht)->ht_mincount_threshold,
+                   ht_weak_p(ht));
   # no GC from now on!
   var object KVvektor = popSTACK(); # new key-value-vector
   var object Nvektor = popSTACK(); # next-vector
@@ -1045,10 +1059,10 @@ local object resize (object ht, object maxcount) {
   # copy all key-value-pairs with key /= "leer" :
   # For traversing the old key-value-vector:
   var uintL oldcount = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
-  var object* oldKVptr = &TheSvector(TheHashtable(ht)->ht_kvtable)->data[0];
+  var object* oldKVptr = ht_kvt_data(ht);
   # For traversing the new key-value-vector:
   var uintL count = maxcountL;
-  var object* KVptr = &TheSvector(KVvektor)->data[0];
+  var object* KVptr = kvtable_data(KVvektor);
   # For counting:
   var object counter = Fixnum_0;
   dotimesL(oldcount,oldcount, {
@@ -1121,7 +1135,7 @@ local void clrhash (object ht) {
   {
     var uintL count = posfixnum_to_L(TheHashtable(ht)->ht_maxcount);
     if (count > 0) {
-      var object* KVptr = &TheSvector(TheHashtable(ht)->ht_kvtable)->data[0];
+      var object* KVptr = ht_kvt_data(ht);
       dotimespL(count,count, { # in each entry
         *KVptr++ = leer; *KVptr++ = leer; # deplete key and value
       });
@@ -1133,9 +1147,9 @@ local void clrhash (object ht) {
 }
 
 # (MAKE-HASH-TABLE [:test] [:size] [:rehash-size] [:rehash-threshold]
-#                  [:initial-contents]), CLTL p. 283
-LISPFUN(make_hash_table,0,0,norest,key,5,
-        (kw(initial_contents),
+#                  [:initial-contents] [:weak]), CLTL p. 283
+LISPFUN(make_hash_table,0,0,norest,key,6,
+        (kw(weak),kw(initial_contents),
          kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) ) {
   # The rehash-threshold correlates in our implementation to the
   # ratio MAXCOUNT : SIZE = ca. 1 : 2.
@@ -1145,7 +1159,8 @@ LISPFUN(make_hash_table,0,0,norest,key,5,
   # could become a bignum too fast.
   # The additional initial-contents-argument is an alist = list of
   # (key . value) - pairs, that are used to initialize the table.
-  # stack-layout: initial-contents, test, size, rehash-size, rehash-threshold.
+  # stack-layout:
+  #    weak, initial-contents, test, size, rehash-size, rehash-threshold.
   var uintB flags;
   # check test-argument:
   {
@@ -1279,9 +1294,10 @@ LISPFUN(make_hash_table,0,0,norest,key,5,
     funcall(L(durch),1); # (/ ...)
     STACK_0 = value1;
   }
-  # stack-layout: initial-contents, test, size, rehash-size, mincount-threshold
-  # provide vectors etc., with size as MAXCOUNT:
-  prepare_resize(STACK_2,STACK_0);
+  # stack-layout:
+  #   weak, initial-contents, test, size, rehash-size, mincount-threshold
+  # provide vectors etc., with size as MAXCOUNT: [STACK_5 == weak]
+  prepare_resize(STACK_2,STACK_0,!eq(STACK_5,NIL) && !eq(STACK_5,unbound));
   var object ht = allocate_hash_table(); # new hash-tabelle
   # fill:
   TheHashtable(ht)->ht_kvtable = popSTACK(); # key-value-vector
@@ -1290,14 +1306,15 @@ LISPFUN(make_hash_table,0,0,norest,key,5,
   TheHashtable(ht)->ht_mincount = popSTACK(); # MINCOUNT
   TheHashtable(ht)->ht_size = popSTACK(); # SIZE
   TheHashtable(ht)->ht_maxcount = popSTACK(); # MAXCOUNT
-  # stack-layout: initial-contents, test, size, rehash-size, mincount-threshold.
+  # stack-layout:
+  #   weak, initial-contents, test, size, rehash-size, mincount-threshold.
   TheHashtable(ht)->ht_mincount_threshold = popSTACK(); # MINCOUNT-THRESHOLD
   TheHashtable(ht)->ht_rehash_size = popSTACK(); # REHASH-SIZE
   TheHashtable(ht)->ht_freelist = nix; # dummy as free-list
   record_flags_replace(TheHashtable(ht), flags);
   clrhash(ht); # empty table, COUNT := 0
   skipSTACK(2);
-  # stack-layout: initial-contents.
+  # stack-layout: weak, initial-contents.
   {
     var object alist = popSTACK(); # initial-contents
     while (consp(alist)) { # if it was specified, so long as it was a cons:
@@ -1320,7 +1337,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,
             pushSTACK(ht); # hash-table
             pushSTACK(S(make_hash_table));
             fehler(serious_condition,
-                   GETTEXT("~: internal error while building ~") );
+                   GETTEXT("~: internal error while building ~"));
           }
           hash_store(key,Cdr(next)); # make entry
         }
@@ -1328,6 +1345,7 @@ LISPFUN(make_hash_table,0,0,norest,key,5,
       alist = Cdr(alist);
     }
   }
+  skipSTACK(1); # drop WEAK
   value1 = ht; mv_count=1; # hash-table as value
 }
 
@@ -1437,7 +1455,7 @@ LISPFUNN(remhash,2) {
     # found -> drop from the hash-table:
     var object index = *Iptr; # index in next-vector
     # with Nptr  = &TheSvector(TheHashtable(ht)->ht_ntable)->data[index]
-    # and  KVptr = &TheSvector(TheHashtable(ht)->ht_kvtable)->data[2*index]
+    # and  KVptr = ht_kvt_data(ht) + [2*index]
     set_break_sem_2(); # protect from breaks
     *Iptr = *Nptr; # shorten "list"
     *KVptr++ = leer; *KVptr = leer; # empty key and value
@@ -1482,7 +1500,7 @@ LISPFUNN(maphash,2) {
     if (index==0)
       break;
     index -= 2;
-    var object* KVptr = &TheSvector(STACK_0)->data[index];
+    var object* KVptr = kvtable_data(STACK_0) + index;
     if (!eq(KVptr[0],leer)) { # key /= "leer" ?
       pushSTACK(KVptr[0]); # key as the 1st argument
       pushSTACK(KVptr[1]); # value as the 2nd argument
@@ -1531,7 +1549,7 @@ LISPFUNN(hash_table_rehash_threshold,1) {
 LISPFUNN(hash_table_size,1) {
   var object ht = popSTACK(); # hashtable-argument
   check_hashtable(ht);
-  value1 = TheHashtable(ht)->ht_maxcount; mv_count=1; # Fixnum MAXCOUNT als Wert
+  value1 = TheHashtable(ht)->ht_maxcount; mv_count=1; # Fixnum MAXCOUNT
 }
 
 # (HASH-TABLE-TEST hashtable), CLtL2 p. 441, dpANS p. 18-9
@@ -1571,7 +1589,7 @@ LISPFUNN(hash_table_iterate,1) {
       if (index==0) # index=0 -> no more elements
         break;
       Cdr(state) = fixnum_inc(Cdr(state),-1); # decrement index
-      var object* KVptr = &TheSvector(table)->data[2*index-2];
+      var object* KVptr = kvtable_data(table) + 2*index-2;
       if (!eq(KVptr[0],leer)) { # Key /= "leer" ?
         value2 = KVptr[0]; # key as the 2nd value
         value3 = KVptr[1]; # value as the 3rd value
@@ -1580,6 +1598,38 @@ LISPFUNN(hash_table_iterate,1) {
     }
   }
   value1 = NIL; mv_count=1; return; # 1 value NIL
+}
+
+# (EXT:HASH-TABLE-WEAK-P ht)
+LISPFUNN(hash_table_weak_p,1) {
+  var object ht = popSTACK(); # hashtable-argument
+  check_hashtable(ht);
+  value1 = (ht_weak_p(ht) ? T : NIL);
+  mv_count = 1;
+}
+
+# (SYS::%SET-HASH-TABLE-WEAK-P ht val) == (SETF (HASH-TABLE-WEAK-P ht) val)
+LISPFUNN(set_hash_table_weak_p,2) {
+  var object val = popSTACK(); # weak-p
+  var object ht = STACK_0; # hashtable argument
+  check_hashtable(ht);
+  if (nullp(val) && ht_weak_p(ht)) {
+    var uintL len = Weakkvt_length(TheHashtable(ht)->ht_kvtable);
+    var object vec = allocate_vector(len);
+    memcpy(TheSvector(vec)->data,
+           TheWeakKVT(TheHashtable(STACK_0)->ht_kvtable)->data,
+           len*sizeof(object));
+    TheHashtable(STACK_0)->ht_kvtable = vec;
+  } else if (!nullp(val) && !ht_weak_p(ht)) {
+    var uintL len = Svector_length(TheHashtable(ht)->ht_kvtable);
+    var object wkvt = allocate_weakkvt(len);
+    memcpy(TheWeakKVT(wkvt)->data,
+           TheSvector(TheHashtable(STACK_0)->ht_kvtable)->data,
+           len*sizeof(object));
+    TheHashtable(STACK_0)->ht_kvtable = wkvt;
+  }
+  value1 = (ht_weak_p(STACK_0) ? T : NIL); skipSTACK(1);
+  mv_count = 1;
 }
 
 # (CLOS::CLASS-GETHASH ht object) is like (GETHASH (CLASS-OF object) ht).
@@ -1722,7 +1772,7 @@ LISPFUN(class_tuple_gethash,2,0,rest,nokey,0,NIL) {
       Nptr = # pointer to entry in next-vector
         &TheSvector(TheHashtable(ht)->ht_ntable)->data[index];
       var object* KVptr = # pointer to entries in key-value-vector
-        &TheSvector(TheHashtable(ht)->ht_kvtable)->data[2*index];
+        ht_kvt_data(ht)+2*index;
       if (equal_tuple(KVptr[0],argcount,rest_args_pointer)) { # compare key
         # found
         value1 = KVptr[1]; goto fertig; # Value as value
@@ -1791,6 +1841,8 @@ local uint32 sxhash_atom (object obj) {
     case_string: # string
       # string-content
       return hashcode_string(obj);
+    case_weakkvt: # weak key-value table - length is always even
+      return Weakkvt_length(obj)%2 + 0x4ECD0A9FUL; # const same as svector
     case_svector: # simple-vector
       # only utilize the length
       return Svector_length(obj) + 0x4ECD0A9FUL;
@@ -1826,6 +1878,7 @@ local uint32 sxhash_atom (object obj) {
         case_Rectype_b32vector_above;
         case_Rectype_string_above;
         case_Rectype_Svector_above;
+        case_Rectype_WeakKVT_above;
         case_Rectype_ovector_above;
         case_Rectype_mdarray_above;
         case_Rectype_Structure_above;

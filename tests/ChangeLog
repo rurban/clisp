@@ -1,3 +1,8 @@
+2002-02-27  Sam Steingold  <sds@gnu.org>
+
+	* hashweak.tst: test weak hash tables
+	* tests.lisp (run-all-tests): added "hashweak"
+
 2002-02-23  Sam Steingold  <sds@gnu.org>
 
 	* clos.tst: test REINITIALIZE-INSTANCE

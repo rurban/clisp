@@ -6812,6 +6812,7 @@ local pr_routine_t pr_number;
 local pr_routine_t pr_array_nil;
 local pr_routine_t pr_bvector;
 local pr_routine_t pr_vector;
+local pr_routine_t pr_weakkvt;
 local pr_routine_t pr_array;
 local pr_routine_t pr_instance;
 local pr_routine_t pr_structure;
@@ -6865,6 +6866,8 @@ local void prin_object_dispatch (const object* stream_, object obj) {
     case_b32vector:
     case_vector: # (vector t)
       pr_vector(stream_,obj); break;
+    case_weakkvt: # weak key-value table
+      pr_weakkvt(stream_,obj); break;
     case_mdarray: # generic array
       pr_array(stream_,obj); break;
     case_closure: # Closure
@@ -7791,6 +7794,70 @@ local void pr_vector (const object* stream_, object v) {
     pr_array_nil(stream_,v);
 }
 
+# print a key-value table (for a hash table) kvt (on the stack)
+# the table is printed as an alist: a sequence of (key . value)
+# can trigger GC
+local void pr_kvtable (const object* stream_, object* kvt,
+                       uintL index, uintL count) {
+  var uintL length = 0;
+  var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
+  pushSTACK(allocate_cons()); # save the cons (key . value)
+  loop {
+    length++; # increase previous length
+    # search for next to be printed Key-Value-Pair:
+    loop {
+      if (index==0) # finished kvtable?
+        goto kvt_finish;
+      index -= 2; # decrease index
+      if (!eq(kvtable_data(*kvt)[index+0],unbound)) # Key /= "empty" ?
+        break;
+    }
+    JUSTIFY_SPACE; # print Space
+    # check for attaining of *PRINT-LENGTH* :
+    CHECK_LENGTH_LIMIT(length >= length_limit,break);
+    # test for attaining of *PRINT-LINES* :
+    CHECK_LINES_LIMIT(break);
+    count--;
+    JUSTIFY_LAST(count==0);
+    # create Cons (Key . Value) and print:
+    var object* ptr = kvtable_data(*kvt)+index;
+    Car(STACK_0) = ptr[0]; # Key
+    Cdr(STACK_0) = ptr[1]; # Value
+    prin_object(stream_,STACK_0);
+  }
+ kvt_finish: skipSTACK(1); # drop the cons
+}
+
+# UP: prints weak key-value table to stream.
+# pr_weakkvt(&stream,wkvt);
+# > wkvt: weak key-value table
+# > stream: stream
+# < stream: stream
+# can trigger GC
+local void pr_weakkvt (const object* stream_, object wkvt) {
+  ASSERT(weakkvtp(wkvt));
+  var uintL len = Weakkvt_length(wkvt);
+  pushSTACK(wkvt);
+  var object* wkvt_ = &STACK_0;
+  CHECK_PRINT_READABLY(*wkvt_);
+  LEVEL_CHECK;
+  UNREADABLE_START;
+  JUSTIFY_LAST(false);
+  prin_object(stream_,S(weak_kvtable));
+  if (test_value(S(print_array))) {
+    pr_kvtable(stream_,wkvt_,len,len);
+  } else {
+    JUSTIFY_SPACE; JUSTIFY_LAST(false);
+    pr_uint(stream_,len);
+    JUSTIFY_SPACE; JUSTIFY_LAST(true);
+    pr_hex6(stream_,wkvt);
+  }
+  JUSTIFY_END_ENG;
+  UNREADABLE_END;
+  LEVEL_END;
+  skipSTACK(1);
+}
+
 #               -------- Multi-Dimensional Arrays --------
 
 # (defun %print-array (array stream)
@@ -8558,40 +8625,6 @@ local void pr_record_descr (const object* stream_, object obj,
   LEVEL_END;
 }
 
-# print a key-value table (for a hash table) kvt (on the stack)
-# the table is printed as an alist: a sequence of (key . value)
-# can trigger GC
-local void pr_kvtable (const object* stream_, object* kvt,
-                       uintL index, uintL count) {
-  var uintL length = 0;
-  var uintL length_limit = get_print_length(); # *PRINT-LENGTH*-limit
-  pushSTACK(allocate_cons()); # save the cons (key . value)
-  loop {
-    length++; # increase previous length
-    # search for next to be printed Key-Value-Pair:
-    loop {
-      if (index==0) # finished kvtable?
-        goto kvt_finish;
-      index -= 2; # decrease index
-      if (!eq(TheSvector(*kvt)->data[index+0],unbound)) # Key /= "empty" ?
-        break;
-    }
-    JUSTIFY_SPACE; # print Space
-    # check for attaining of *PRINT-LENGTH* :
-    CHECK_LENGTH_LIMIT(length >= length_limit,break);
-    # test for attaining of *PRINT-LINES* :
-    CHECK_LINES_LIMIT(break);
-    count--;
-    JUSTIFY_LAST(count==0);
-    # create Cons (Key . Value) and print:
-    var object* ptr = &TheSvector(*kvt)->data[index];
-    Car(STACK_0) = ptr[0]; # Key
-    Cdr(STACK_0) = ptr[1]; # Value
-    prin_object(stream_,STACK_0);
-  }
- kvt_finish: skipSTACK(1); # drop the cons
-}
-
 # UP: prints an OtherRecord to stream.
 # pr_orecord(&stream,obj);
 # > obj: OtherRecord
@@ -8613,6 +8646,8 @@ local void pr_orecord (const object* stream_, object obj) {
     case Rectype_b32vector: case Rectype_Sb32vector: # 32bit-vector
     case Rectype_vector: case Rectype_Svector: # (vector t)
       pr_vector(stream_,obj); break;
+    case Rectype_WeakKVT: # weak key-value table
+      pr_weakkvt(stream_,obj); break;
     case Rectype_mdarray: # generic Array
       pr_array(stream_,obj); break;
     case Rectype_Closure: # Closure
@@ -8635,12 +8670,22 @@ local void pr_orecord (const object* stream_, object obj) {
         {
           pushSTACK(obj); # save Hash-Table
           var object* obj_ = &STACK_0; # and memorize, where it is
+          if (ht_weak_p(obj)) { # weak ==> #<WEAK-HASH-TABLE ...>
+            CHECK_PRINT_READABLY(obj);
+            UNREADABLE_START;
+            JUSTIFY_LAST(false);
+          } else { # non-weak ==> #S(HASH-TABLE ...)
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
           KLAMMER_AUF;
           INDENT_START(3); # indent by 3 characters, because of '#S('
           JUSTIFY_START(1);
           JUSTIFY_LAST(false);
+          }
           prin_object(stream_,S(hash_table)); # print symbol HASH-TABLE
+          if (ht_weak_p(*obj_)) {
+            JUSTIFY_SPACE; JUSTIFY_LAST(false);
+            prin_object(stream_,S(Kweak)); # print :WEAK
+          }
           obj = *obj_;
           {
             var uintL count = posfixnum_to_L(TheHashtable(*obj_)->ht_count);
@@ -8660,8 +8705,12 @@ local void pr_orecord (const object* stream_, object obj) {
             skipSTACK(1);
           }
           JUSTIFY_END_ENG;
+          if (ht_weak_p(*obj_)) {
+            UNREADABLE_END;
+          } else {
           INDENT_END;
           KLAMMER_ZU;
+          }
           skipSTACK(1);
         }
         LEVEL_END;
@@ -8672,8 +8721,12 @@ local void pr_orecord (const object* stream_, object obj) {
         var object* obj_ = &STACK_0;
         UNREADABLE_START; JUSTIFY_LAST(false);
         prin_object(stream_,S(hash_table)); # print symbol HASH-TABLE
+        if (ht_weak_p(*obj_)) {
+          JUSTIFY_SPACE; JUSTIFY_LAST(false);
+          prin_object(stream_,S(Kweak)); # print :WEAK
+        }
         JUSTIFY_SPACE; JUSTIFY_LAST(false);
-        prin_object(stream_,hashtable_test(flags)); # print HASH-TABLE-TEST:
+        prin_object(stream_,hashtable_test(flags)); # print HASH-TABLE-TEST
         JUSTIFY_SPACE; JUSTIFY_LAST(false);
         pr_uint(stream_,count); # print HASH-TABLE-COUNT
         JUSTIFY_SPACE; JUSTIFY_LAST(true);
