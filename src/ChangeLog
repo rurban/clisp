@@ -1,5 +1,14 @@
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
+	Move long strings out of macroexpansions.
+	* pprint.lisp (pprint-logical-block-both-error,
+	pprint-logical-block-prefix-not-string-error,
+	pprint-logical-block-suffix-not-string-error): New functions,
+	extracted from pprint-logical-block.
+	(pprint-logical-block): Use them.
+
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
 	* fill-out.lisp (with-fill-stream): Simplify a no-op.
 
 2005-01-23  Bruno Haible  <bruno@clisp.org>
