@@ -9,9 +9,22 @@
 CC = @CC@
 CFLAGS = @CFLAGS@
 
-ORA_INCLUDES = -I.. -I ${ORACLE_HOME}/rdbms/demo -I ${ORACLE_HOME}/rdbms/public
+# Get Oracle OCI library headers
+#
+# Oracle likes to move their header files around ... locations by
+# release are below.  $H is the Oracle home.
+#
+#  File       8.0.5               8.1.7
+# 
+#  oci.h      $H/rdbms/demo       $H/rdbms/demo
+#  ociextp.h  $H/plsql/demo       $H/rdbms/public
+#  nzt.h      $H/network/public   $H/rdbms/public
+#
+#
+# So, we'll just supply the union of all these and that should work
+# across releases.  Until they move them again. ;)
 
-# CLISP = clisp
+ORA_INCLUDES = -I.. -I ${ORACLE_HOME}/rdbms/demo -I ${ORACLE_HOME}/rdbms/public -I ${ORACLE_HOME}/plsql/demo -I ${ORACLE_HOME}/network/public
 
 LN = ln
 
