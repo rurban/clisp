@@ -792,8 +792,11 @@ T
     (WRITE-CHAR #\x *S*) (WRITE-CHAR #\y SS)))
 "abxy"
 
-(STREAM-EXTERNAL-FORMAT (MAKE-BROADCAST-STREAM))
-:DEFAULT
+;; <http://www.lisp.org/HyperSpec/Body/syscla_broadcast-stream.html>
+(stream-external-format (make-broadcast-stream))   :default
+(file-length (make-broadcast-stream))              0
+(file-position (make-broadcast-stream))            0
+(file-string-length (make-broadcast-stream) "foo") 1
 
 (progn
 (makunbound 's)

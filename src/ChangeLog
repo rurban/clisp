@@ -1,3 +1,8 @@
+2004-02-13  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (check_open_file_stream): handle BROADCAST-STREAMs
+	(FILE-POSITION, FILE-LENGTH, FILE-STRING-LENGTH): ditto
+
 2004-02-12  Sam Steingold  <sds@gnu.org>
 
 	ensure that DEFMETHOD returns what is actually saved into GF
