@@ -314,6 +314,16 @@
 <!-- *** netica *** -->
 <!ENTITY netica-c-api "http://norsys.com/onLineAPIManual/functions/">
 
+<!-- *** oracle *** -->
+<!ENTITY oracle-link "<ulink url='http://www.oracle.com'>Oracle</ulink>">
+<!ENTITY oracle-oci "<ulink url='http://www.vivtek.com/oracle.html'>OCI</ulink>">
+
+<!-- *** fastcgi *** -->
+<!ENTITY fastcgi-link "<ulink url='http://www.fastcgi.com'>FastCGI</ulink>">
+<!ENTITY mod-fastcgi "<ulink url='http://www.fastcgi.com/mod_fastcgi/docs/mod_fastcgi.html'>mod_fastcgi</ulink>">
+<!ENTITY apache "<ulink url='http://www.apache.org/'>Apache</ulink>">
+<!ENTITY http "<ulink url='http://www.w3.org/Protocols/'>HTTP</ulink>">
+
 <!-- *** gettext *** -->
 <!ENTITY category "<link linkend='category'><replaceable>CATEGORY</replaceable></link>">
 <!ENTITY domain "<link linkend='domain'><replaceable>DOMAIN</replaceable></link>">
