@@ -50,6 +50,8 @@
 (defun merge-extension (type filename)
   (make-pathname :type type :defaults filename))
 
+(defun princ-error (c) (format t "~&[~A]: ~A~%" (type-of c) c))
+
 ;; (lisp-implementation-type) may return something quite long, e.g.,
 ;; on CMUCL it returns "CMU Common Lisp".
 (defvar lisp-implementation
