@@ -70,7 +70,6 @@
 <!ENTITY initargs-k "<constant>:INITARGS</constant>">
 <!ENTITY initform-k "<constant>:INITFORM</constant>">
 <!ENTITY initfunction-k "<constant>:INITFUNCTION</constant>">
-<!ENTITY initial-methods-k "<constant>:INITIAL-METHODS</constant>">
 <!ENTITY input-k "<constant>:INPUT</constant>">
 <!ENTITY instance-k "<constant>:INSTANCE</constant>">
 <!ENTITY io-k "<constant>:IO</constant>">
@@ -82,6 +81,7 @@
 <!ENTITY merge-k "<constant>:MERGE</constant>">
 <!ENTITY meta-k "<constant>:META</constant>">
 <!ENTITY metaclass-k "<constant>:METACLASS</constant>">
+<!ENTITY method-k "<constant>:METHOD</constant>">
 <!ENTITY method-class-k "<constant>:METHOD-CLASS</constant>">
 <!ENTITY method-combination-k "<constant>:METHOD-COMBINATION</constant>">
 <!ENTITY name-k "<constant>:NAME</constant>">
