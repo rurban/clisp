@@ -12,6 +12,7 @@
    #:hostent-addrtype #:file-owner #:physical-memory
    #+(or :win32 :cygwin) #:file-properties
    #:priority #:process-id #:openlog #:setlogmask #:syslog #:closelog
+   #:getpgid #:setpgrp #:getsid #:setsid #:kill
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:gamma #:lgamma))
 
 (setf (package-lock "EXT") nil)
