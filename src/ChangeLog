@@ -1,3 +1,13 @@
+2003-04-30  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (compile-lambda): accept one more argument -
+	error-when-failed-p - and signal an error when it is T
+	and the compilation failed
+	(compile-form): pass error-when-failed-p NIL to compile-lambda
+	* eval.d (get_closure): pass ewfp T to compile-lambda, thus
+	(:LAMBDA () (DECLARE (COMPILE)) (LET ((:Z T)) :Z))
+	now errors out instead of returning a weird function object
+
 2003-04-29  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (full): no longer require "rm -rf full"
