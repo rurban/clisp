@@ -141,6 +141,10 @@ User visible changes
 * Fixed a bug: Calling the function FINALIZE caused a crash during the next GC
   on many platforms.
 
+* Fixed a bug: Calling a generic function without any installed method
+  resulted in an inappropriate error message, not a call to
+  NO-APPLICABLE-METHOD.
+
 * Fixed a bug: Closing a SOCKET-SERVER twice, or using a closed SOCKET-SERVER
   could result in inappropriate error messages.
 
