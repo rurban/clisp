@@ -1,4 +1,4 @@
-dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -10,8 +10,7 @@ dnl From Bruno Haible, Marcus Daniels.
 AC_PREREQ(2.13)
 
 AC_DEFUN([CL_CODEEXEC],
-[AC_REQUIRE([CL_MALLOC])dnl
-AC_CACHE_CHECK([whether code in malloc'ed memory is executable], cl_cv_codeexec, [
+[AC_CACHE_CHECK([whether code in malloc'ed memory is executable], cl_cv_codeexec, [
 dnl The test below does not work on host=hppa*-hp-hpux* because on this system
 dnl function pointers are actually pointers into(!) a two-pointer struct.
 dnl The test below does not work on host=rs6000-*-* because on this system
@@ -27,17 +26,6 @@ AC_TRY_RUN([
 #include <sys/types.h>
 /* declare malloc() */
 #include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifndef malloc
-]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
-RETMALLOCTYPE malloc (MALLOC_SIZE_T size);
-#else
-RETMALLOCTYPE malloc();
-#endif
-#endif
 int fun () { return 31415926; }
 int main ()
 { long size = (char*)&main - (char*)&fun;

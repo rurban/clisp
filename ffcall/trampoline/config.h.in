@@ -74,12 +74,6 @@
 
 /* functions and declarations */
 
-/* CL_MALLOC */
-/* Define as the return type of malloc(). */
-#undef RETMALLOCTYPE
-/* Define as the type of `size' in malloc() declaration. */
-#undef MALLOC_SIZE_T
-
 /* CL_OPEN */
 /* Define as const if the declaration of open() needs const. */
 #undef OPEN_CONST
