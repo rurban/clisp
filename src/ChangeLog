@@ -1,3 +1,8 @@
+2003-07-29  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (main): when non-interactive, guard LOAD for "-i" with
+	SYS::BATCHMODE-ERRORS to avoid infinite loop on error
+
 2003-07-28  Sam Steingold  <sds@gnu.org>
 
 	pushSTACK(listof()) and STACK_1=listof() are illegal because
