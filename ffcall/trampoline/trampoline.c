@@ -136,9 +136,9 @@ extern RETGETPAGESIZETYPE getpagesize ();
 #include <sys/mman.h>
 #if !defined(__convex__)
 #ifdef __cplusplus
-extern "C" int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
+extern "C" int mprotect (MPROTECT_CONST void* addr, size_t len, int prot);
 #elif defined(__STDC__)
-extern int mprotect (MPROTECT_CONST MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);
+extern int mprotect (MPROTECT_CONST void* addr, size_t len, int prot);
 #else
 extern int mprotect ();
 #endif
@@ -153,13 +153,6 @@ extern int mprotect ();
 #include <sys/mman.h>
 #if !defined(PROT_EXEC) && defined(PROT_EXECUTE) /* Irix 4.0.5 needs this */
 #define PROT_EXEC PROT_EXECUTE
-#endif
-#ifdef __cplusplus
-extern "C" RETMMAPTYPE mmap (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot, int flags, int fd, off_t off);
-#elif defined(__STDC__)
-extern RETMMAPTYPE mmap (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot, int flags, int fd, off_t off);
-#else
-extern RETMMAPTYPE mmap ();
 #endif
 #endif
 
@@ -1158,7 +1151,7 @@ __TR_function alloc_trampoline (address, variable, data)
 #if defined(HAVE_SYS_M88KBCS_H)
     if (memctl(start_addr, len, MCT_TEXT) == -1)
 #else
-    if (mprotect((MMAP_ADDR_T)start_addr, len, PROT_READ|PROT_WRITE|PROT_EXEC) < 0)
+    if (mprotect((void*)start_addr, len, PROT_READ|PROT_WRITE|PROT_EXEC) < 0)
 #endif
 #endif
 #endif

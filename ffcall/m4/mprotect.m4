@@ -23,9 +23,9 @@ CL_PROTO_CONST([
 #endif
 #include <sys/types.h>
 #include <sys/mman.h>
-], [int mprotect (MMAP_ADDR_T addr, MMAP_SIZE_T len, int prot);],
+], [int mprotect (void* addr, size_t len, int prot);],
 [int mprotect();], cl_cv_proto_mprotect_arg1)
-], [extern int mprotect ($cl_cv_proto_mprotect_arg1 $cl_cv_proto_mmap_arg1, $cl_cv_proto_mmap_arg2, int);])
+], [extern int mprotect ($cl_cv_proto_mprotect_arg1 void*, $cl_cv_proto_mmap_arg2, int);])
 AC_DEFINE_UNQUOTED(MPROTECT_CONST,$cl_cv_proto_mprotect_arg1,[declaration of mprotect() needs const])
 AC_CACHE_CHECK(for working mprotect, cl_cv_func_mprotect_works, [
 mprotect_prog='
