@@ -9776,12 +9776,20 @@ The function make-closure is required.
             (setf (fourth kf) (function-side-effect (fnode-code fnode))))))
       (fnode-code fnode))))
 
-;; is called for (lambda (...) (declare (compile)) ...) and returns a
-;; functional object equivalent to this lambda-expression.
-(defun compile-lambda (name lambdabody %venv% %fenv% %benv% %genv% %denv%
-                       error-when-failed-p)
+;; COMPILE-LAMBDA & COMPILE-FORM are "top-level", i.e., they bind all
+;; compiler variables; they also cannot bind *COMPILING-FROM-FILE* to T
+;; because they are called on (declare (compile))
+;; this is why we need COMPILE-LAMBDA-HELPER: it will be called by
+;; COMPILE-FORM-IN-TOPLEVEL-ENVIRONMENT, which has to bind
+;; *COMPILING-FROM-FILE* to T so that the LOAD :COMPILING T would not complain
+;; about functiond defined in one form which are calling each other
+
+;; does everything compile-lambda does
+;; except that it does not bind *compiling-from-file*
+(proclaim '(inline compile-lambda-helper))
+(defun compile-lambda-helper
+    (name lambdabody %venv% %fenv% %benv% %genv% %denv% error-when-failed-p)
   (let ((*compiling* t)
-        (*compiling-from-file* nil)
         (*c-listing-output* nil)
         (*c-error-output* *error-output*)
         (*known-special-vars* '())
@@ -9802,6 +9810,14 @@ The function make-closure is required.
           (cons name lambdabody)))
       funobj)))
 
+;; is called for (lambda (...) (declare (compile)) ...) and returns a
+;; functional object equivalent to this lambda-expression.
+(defun compile-lambda (name lambdabody %venv% %fenv% %benv% %genv% %denv%
+                       error-when-failed-p)
+  (let ((*compiling-from-file* nil))
+    (compile-lambda-helper name lambdabody %venv% %fenv% %benv% %genv% %denv%
+                           error-when-failed-p)))
+
 ;; is called for (let/let*/multiple-value-bind ... (declare (compile)) ...)
 ;; and returns a functional object, that - called with 0 arguments -
 ;; executes this form.
@@ -9809,20 +9825,23 @@ The function make-closure is required.
   (defun compile-form (form %venv% %fenv% %benv% %genv% %denv%)
     (compile-lambda (symbol-suffix '#:COMPILED-FORM (incf form-count))
                     `(() ,form)
-                    %venv% %fenv% %benv% %genv% %denv% nil)))
-
-;; Evaluates a form in an environment
-(defun eval-env (form &optional (env *toplevel-environment*))
-  (evalhook form nil nil env))
-;; compiles a form in the Toplevel-Environment
+                    %venv% %fenv% %benv% %genv% %denv% nil))
+  ;; compiles a form in the Toplevel-Environment - only for LOAD :COMPILING T
 (defun compile-form-in-toplevel-environment
     (form &aux (env *toplevel-environment*))
-  (compile-form form
+    (let ((*compiling-from-file* t))
+      (compile-lambda-helper (symbol-suffix '#:COMPILED-FORM (incf form-count))
+                             `(() ,form)
                 (svref env 0)    ; %venv%
                 (svref env 1)    ; %fenv%
                 (svref env 2)    ; %benv%
                 (svref env 3)    ; %genv%
-                (svref env 4)))  ; %denv%
+                             (svref env 4)    ; %denv%
+                             nil))))
+
+;; Evaluates a form in an environment
+(defun eval-env (form &optional (env *toplevel-environment*))
+  (evalhook form nil nil env))
 
 ;; Common-Lisp-Function COMPILE
 (defun compile (name &optional (definition nil svar)

@@ -211,7 +211,8 @@
 (common-lisp:eval-when (common-lisp:compile common-lisp:load common-lisp:eval)
   (common-lisp:setq common-lisp:*package* (sys::%find-package "SYSTEM")))
 
-(proclaim '(special compiler::*compiling* compiler::*compiling-from-file*))
+(proclaim '(special compiler::*compiling* compiler::*compiling-from-file*
+            compiler::*c-error-output*)) ; for load/compiling
 (setq compiler::*compiling* nil)
 
 #-COMPILER ; only for bootstrapping
@@ -1350,6 +1351,7 @@
          #+ffi (ffi::*foreign-language* ffi::*foreign-language*)
          (*package* *package*) ; bind *PACKAGE*
          (*readtable* *readtable*) ; bind *READTABLE*
+         (compiler::*c-error-output* *error-output*) ; for compiling
          (end-of-file "EOF")) ; one-time Object
     (when *load-verbose*
       (fresh-line)
@@ -1358,6 +1360,7 @@
       (write-string (TEXT "Loading file "))
       (princ filename)
       (write-string " ..."))
+    (when *load-compiling* (compiler::c-reset-globals))
     (sys::allow-read-eval input-stream t)
     (block nil
       (unwind-protect
@@ -1377,6 +1380,7 @@
             (sys::built-in-stream-close input-stream))
         (or (eq stream filename)
             (sys::built-in-stream-close stream))))
+    (when *load-compiling* (compiler::c-report-problems))
     (when *load-verbose*
       (fresh-line)
       (write-string ";;")
