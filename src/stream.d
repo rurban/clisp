@@ -4550,10 +4550,10 @@ local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
   }
 #endif
 
-# Pop a byte from bytebuf.
-# UnbufferedStreamLow_pop_byte(stream,b);
-# declares and assigns a value to b.
-# Assumes UnbufferedStream_status(stream) > 0.
+/* Pop a byte from bytebuf.
+ UnbufferedStreamLow_pop_byte(stream,b);
+ declares and assigns a value to b.
+ Assumes UnbufferedStream_status(stream) > 0. */
 #if (max_bytes_per_chart > 1) # i.e. defined(UNICODE)
   #define UnbufferedStreamLow_pop_byte(stream,b)  \
       var uintB b = UnbufferedStream_bytebuf(stream)[0];            \
@@ -4568,6 +4568,18 @@ local void wr_by_ixs_sub (object stream, object obj, wr_by_aux_ix* finisher) {
       UnbufferedStream_status(stream) = 0;     \
       b = UnbufferedStream_bytebuf(stream)[0];
 #endif
+
+local inline uintB* UnbufferedStream_pop_all
+(object stream, uintB* byteptr, uintL *len)
+{ /* pop bytebuf into byteptr */
+  while (UnbufferedStream_status(stream) > 0) { /* have valid bytes? */
+    UnbufferedStreamLow_pop_byte(stream,b);
+    *byteptr++ = b;
+    if (--*len == 0)
+      break;
+  }
+  return byteptr;
+}
 
 local sintL low_read_unbuffered_handle (object stream) {
   if (UnbufferedStream_status(stream) < 0) { # already EOF?
@@ -4946,18 +4958,6 @@ local bool low_clear_input_unbuffered_handle (object stream) {
     #endif
   }
   return true;
-}
-
-local inline uintB* UnbufferedStream_pop_all
-(object stream, uintB* byteptr, uintL *len)
-{ /* pop bytebuf into byteptr */
-  while (UnbufferedStream_status(stream) > 0) { /* have valid bytes? */
-    UnbufferedStreamLow_pop_byte(stream,b);
-    *byteptr++ = b;
-    if (--*len == 0)
-      break;
-  }
-  return byteptr;
 }
 
 local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr,
@@ -14296,14 +14296,12 @@ local uintB* low_read_array_unbuffered_socket (object stream, uintB* byteptr,
                                                uintL len, bool no_hang) {
   if (UnbufferedStream_status(stream) < 0) # already EOF?
     return byteptr;
-  while (UnbufferedStream_status(stream) > 0) { # bytebuf contains valid bytes?
-    UnbufferedStreamLow_pop_byte(stream,b);
-    *byteptr++ = b;
-    len--;
-    if (len == 0)
-      return byteptr;
-  }
+  byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
+  if (len == 0) return byteptr;
   if (!no_hang || ls_avail_p(low_listen_unbuffered_socket(stream))) {
+    /* low_listen_unbuffered_handle could add to bytebuf */
+    byteptr = UnbufferedStream_pop_all(stream,byteptr,&len);
+    if (len == 0) return byteptr;
     var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
     var int result; SYSCALL(result,sock_read(handle,byteptr,len));
     byteptr += result;
