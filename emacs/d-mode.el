@@ -10,6 +10,19 @@
 (require 'cc-mode)
 (require 'cl)                   ; `subst'
 
+(defun d-mode-convert-function ()
+  "Convert from the old-style to ANSI function definition.
+The point should be on the prototype and the definition should follow."
+  (interactive "")
+  (let ((beg (point)))
+    (end-of-line 1)
+    (delete-region (1- (point)) (- (search-forward "{" nil nil) 2))
+    (c-indent-region beg (progn (backward-char 2) (forward-sexp) (point)))))
+
+(defun d-mode-indent-sharp (s-element)
+  "Check whether a macro or a comment and indent accordingly."
+  (save-excursion (back-to-indentation) (if (looking-at "# ") 0 [0])))
+
 (defvar d-font-lock-extra-types
   '(nconc (list "bool" "object" "chart" "[otac]int" "signean"
            "[su]?int[BCL0-9]*" "Values" "fsubr_function" "lisp_function")
@@ -82,6 +95,7 @@ Beware - this will modify the original C-mode too!"
                       (setq make "make") "makefile-gcc")
                      (t "<makefile>"))))
          (concat make " -f " makefile " " target)))
+  (setf (cdr (assq 'cpp-macro c-offsets-alist)) 'd-mode-indent-charp)
   (when (<= 21 emacs-major-version)
     (set (make-local-variable 'font-lock-defaults)
          d-mode-font-lock-defaults)))
