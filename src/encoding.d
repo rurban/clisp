@@ -2294,80 +2294,31 @@ local char *canonicalize_encoding (char *encoding) {
 local object encoding_from_name (const char* name, const char* context) {
  #ifdef UNICODE
   /* Attempt to use the character set implicitly specified by the locale. */
-  struct enc_tab { const char* name; object encoding; } encoding_table[] = {
-    { "ASCII", Symbol_value(S(ascii)) },
-    { "US-ASCII", Symbol_value(S(ascii)) },
-    { "ANSI_X3.4-1968", Symbol_value(S(ascii)) },
-    { "ISO-8859-1", Symbol_value(S(iso8859_1)) },
-    { "ISO-8859-2", Symbol_value(S(iso8859_2)) },
-    { "ISO-8859-3", Symbol_value(S(iso8859_3)) },
-    { "ISO-8859-4", Symbol_value(S(iso8859_4)) },
-    { "ISO-8859-5", Symbol_value(S(iso8859_5)) },
-    { "ISO-8859-6", Symbol_value(S(iso8859_6)) },
-    { "ISO-8859-7", Symbol_value(S(iso8859_7)) },
-    { "ISO-8859-8", Symbol_value(S(iso8859_8)) },
-    { "ISO-8859-9", Symbol_value(S(iso8859_9)) },
-    { "ISO-8859-10", Symbol_value(S(iso8859_10)) },
-    { "ISO-8859-13", Symbol_value(S(iso8859_13)) },
-    { "ISO-8859-14", Symbol_value(S(iso8859_14)) },
-    { "ISO-8859-15", Symbol_value(S(iso8859_15)) },
-    { "ISO-8859-16", Symbol_value(S(iso8859_16)) },
-    { "KOI8-R", Symbol_value(S(koi8_r)) },
-    { "KOI8-U", Symbol_value(S(koi8_u)) },
-    { "CP850", Symbol_value(S(cp850)) },
-    { "CP866", Symbol_value(S(cp866)) },
-    { "CP874", Symbol_value(S(cp874_ms)) },
-    { "CP1250", Symbol_value(S(windows_1250)) },
-    { "CP1251", Symbol_value(S(windows_1251)) },
-    { "CP1252", Symbol_value(S(windows_1252)) },
-    { "CP1253", Symbol_value(S(windows_1253)) },
-    { "CP1254", Symbol_value(S(windows_1254)) },
-    { "CP1256", Symbol_value(S(windows_1256)) },
-    { "CP1257", Symbol_value(S(windows_1257)) },
-    { "HP-ROMAN8", Symbol_value(S(hp_roman8)) },
+  name = canonicalize_encoding((char*)name); /* FIXME: dangerous cast */
+  if (asciz_equal(name,"US-ASCII") || asciz_equal(name,"ANSI_X3.4-1968"))
+    pushSTACK(Symbol_value(S(ascii)));
   #if defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
-    { "CP932", Symbol_value(S(cp932)) },
-    { "CP949", Symbol_value(S(cp949)) },
-    { "CP950", Symbol_value(S(cp950)) },
-    { "CP1255", Symbol_value(S(windows_1255)) },
-    { "GB2312", Symbol_value(S(euc_cn)) },
-    { "EUC-JP", Symbol_value(S(euc_jp)) },
-    { "EUC-KR", Symbol_value(S(euc_kr)) },
-    { "EUC-TW", Symbol_value(S(euc_tw)) },
-    { "BIG5", Symbol_value(S(big5)) },
-    { "BIG5-HKSCS", Symbol_value(S(big5_hkscs)) },
-    { "GBK", Symbol_value(S(gbk)) },
-    { "GB18030", Symbol_value(S(gb18030)) },
-    { "SJIS", Symbol_value(S(shift_jis)) },
-    { "JOHAB", Symbol_value(S(johab)) },
-    { "TIS-620", Symbol_value(S(tis_620)) },
-    { "VISCII", Symbol_value(S(viscii)) },
-   #if defined(GNU_LIBICONV) && defined(UNIX_AIX)
-    { "CP856", Symbol_value(S(cp856)) },
-    { "CP922", Symbol_value(S(cp922)) },
-    { "CP943", Symbol_value(S(cp943)) },
-    { "CP1046", Symbol_value(S(cp1046)) },
-    { "CP1124", Symbol_value(S(cp1124)) },
-    { "CP1129", Symbol_value(S(cp1129)) },
-   #endif
+  else if (asciz_equal(name,"GB2312"))
+    pushSTACK(Symbol_value(S(euc_cn)));
+  else if (asciz_equal(name,"SJIS"))
+    pushSTACK(Symbol_value(S(shift_jis)));
   #endif
-    { "UTF-8", Symbol_value(S(utf_8)) }
-  };
-  int ii;
-  name = canonicalize_encoding((char*)name);
-  for (ii=0; ii < sizeof(encoding_table)/sizeof(struct enc_tab); ii++)
-    if (asciz_equal(name,encoding_table[ii].name)) break;
-  if (ii < sizeof(encoding_table)/sizeof(struct enc_tab)) /* found! */
-    pushSTACK(encoding_table[ii].encoding);
-  else { /* Use a reasonable default. */
-    if (asciz_equal(context,"*FOREIGN-ENCODING*")) {
-      fprintf(stderr,"WARNING: %s: no encoding %s, using ASCII\n",
-              context,name);
-      pushSTACK(Symbol_value(S(ascii)));
-    } else {
-      fprintf(stderr,"WARNING: %s: no encoding %s, using UTF-8\n",
-              context,name);
-      pushSTACK(Symbol_value(S(utf_8)));
+  else {
+    pushSTACK(asciz_to_string(name,Symbol_value(S(ascii))));
+    pushSTACK(O(charset_package));
+    C_find_symbol();
+    if (!nullp(value2) && encodingp(Symbol_value(value1)))
+      pushSTACK(Symbol_value(value1));
+    else { /* Use a reasonable default. */
+      if (asciz_equal(context,"*FOREIGN-ENCODING*")) {
+        fprintf(stderr,"WARNING: %s: no encoding %s, using ASCII\n",
+                context,name);
+        pushSTACK(Symbol_value(S(ascii)));
+      } else {
+        fprintf(stderr,"WARNING: %s: no encoding %s, using UTF-8\n",
+                context,name);
+        pushSTACK(Symbol_value(S(utf_8)));
+      }
     }
   }
  #else
