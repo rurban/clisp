@@ -4,8 +4,7 @@
 /* dynamic data structures not needed for such a simple problem */
 #define nmax 100
 
-int queens (n)                /* function definition in traditional C style */
-  int n;
+int queens (int n)                /* function definition in ISO/ANSI C style */
 { /* Compute the solutions of the n-queens problem. Assume n>0, n<=nmax.
      We look for a function D:{1,...,n} -> {1,...,n} such that
      D, D+id, D-id are injective. We use backtracking on D(1),...,D(n).
@@ -28,15 +27,15 @@ int queens (n)                /* function definition in traditional C style */
     if (i > n)
       { counter++; }
       else
-      { int try;
-        for (try = 1; try <= n; try++)
-          { if (freetab1[try]==0 && freetab2[try+i]==0 && freetab3[try-i]==0)
-              { freetab1[try]=1; freetab2[try+i]=1; freetab3[try-i]=1;
-                *Dptr++ = try;
+      { int j;
+        for (j = 1; j <= n; j++)
+          { if (freetab1[j]==0 && freetab2[j+i]==0 && freetab3[j-i]==0)
+              { freetab1[j]=1; freetab2[j+i]=1; freetab3[j-i]=1;
+                *Dptr++ = j;
                 goto entry;
                 comeback:
-                try = *--Dptr;
-                freetab1[try]=0; freetab2[try+i]=0; freetab3[try-i]=0;
+                j = *--Dptr;
+                freetab1[j]=0; freetab2[j+i]=0; freetab3[j-i]=0;
       }   }   }
     i--;
     if (i>0) goto comeback;
