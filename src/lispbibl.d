@@ -194,7 +194,7 @@
       #endif
     #endif
   #endif
-  #if defined(HP8XX) || defined(hppa) || defined(__hppa)
+  #if defined(HP8XX) || defined(hppa) || defined(__hppa) || defined(__hppa__)
     #define HPPA
   #endif
   #if defined(m88000) || defined(__m88k__)
@@ -706,7 +706,7 @@
     #define STACK_register  "$9"    # one of the general registers $9..$14
   #endif
   # global register assignment doesn't work currently on s390,
-  # probably a compiler bug.
+  # probably a GCC compiler bug.
   # #if defined(S390)
   #  #define STACK_register  "9"     # one of the general registers %r8..%r9
   # #endif
