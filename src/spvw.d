@@ -2173,13 +2173,9 @@ local inline int parse_options (int argc, const char* const* argv,
           case 'a': # ANSI CL Compliance
             if (asciz_equal(arg,"-ansi"))
               p2->argv_ansi = 1; # ANSI
-            else if (arg[2] != '\0') {
+            else {
               usage();
               return 1;
-            } else {
-              fprintf(stderr,GETTEXTL("CLISP: -a is deprecated, use -ansi"));
-              fputs("\n",stderr);
-              p2->argv_ansi = 1; # ANSI
             }
             break;
           case 'x': # execute LISP-expression
