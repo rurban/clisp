@@ -1382,7 +1382,7 @@
              'compute-slots (class-name class) slots))
     (dolist (slot slots)
       (unless (slot-definition-location slot)
-        (error (TEXT "Wrong ~S result for class ~S: not slot location has been assigned to ~S")
+        (error (TEXT "Wrong ~S result for class ~S: no slot location has been assigned to ~S")
                'compute-slots (class-name class) slot)))
     slots))
 
