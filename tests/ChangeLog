@@ -1,5 +1,11 @@
 2004-11-21  Bruno Haible  <bruno@clisp.org>
 
+	* clos.tst: Add support for Lispworks 4.3. Use class name
+	'abstract-position' instead of 'position'.
+	* mop.tst: Add support for Lispworks 4.3.
+
+2004-11-21  Bruno Haible  <bruno@clisp.org>
+
 	* mop.tst: Update for CMUCL.
 
 2004-11-21  Bruno Haible  <bruno@clisp.org>

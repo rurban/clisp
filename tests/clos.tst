@@ -32,7 +32,7 @@ A
           (list slot-name operation new-value new-value-p)))
   (list (slot-boundp a 'abcd) cache
         (slot-value a 'abcd) cache))
-(#+(or CMU18 OpenMCL) (ABCD SLOT-BOUNDP NIL NIL) #-(or CMU18 OpenMCL) T
+(#+(or CMU18 OpenMCL LISPWORKS) (ABCD SLOT-BOUNDP NIL NIL) #-(or CMU18 OpenMCL LISPWORKS) T
  (ABCD SLOT-BOUNDP NIL NIL) (ABCD SLOT-VALUE NIL NIL) (ABCD SLOT-VALUE NIL NIL))
 
 (x-val a)
@@ -322,7 +322,7 @@ T
 (eq (class-of t)                (find-class 'symbol))
 T
 
-(eq (class-of 10)               (find-class #+(or ALLEGRO CMU SBCL OpenMCL) 'fixnum #-(or ALLEGRO CMU SBCL OpenMCL) 'integer))
+(eq (class-of 10)               (find-class #+(or ALLEGRO CMU SBCL OpenMCL LISPWORKS) 'fixnum #-(or ALLEGRO CMU SBCL OpenMCL LISPWORKS) 'integer))
 T
 
 (eq (class-of 10.0)             (find-class #+(or ALLEGRO CMU SBCL OpenMCL) 'single-float #-(or ALLEGRO CMU SBCL OpenMCL) 'float))
@@ -331,10 +331,10 @@ T
 (eq (class-of '(a b))           (find-class 'cons))
 T
 
-(eq (class-of "abc")            (find-class #+CMU 'simple-string #+(or SBCL OpenMCL) 'simple-base-string #-(or CMU SBCL OpenMCL) 'string))
+(eq (class-of "abc")            (find-class #+CMU 'simple-string #+(or SBCL OpenMCL LISPWORKS) 'simple-base-string #-(or CMU SBCL OpenMCL LISPWORKS) 'string))
 T
 
-(eq (class-of '#(1 2))          (find-class #+(or CMU SBCL OpenMCL) 'simple-vector #-(or CMU SBCL OpenMCL) 'vector))
+(eq (class-of '#(1 2))          (find-class #+(or CMU SBCL OpenMCL LISPWORKS) 'simple-vector #-(or CMU SBCL OpenMCL LISPWORKS) 'vector))
 T
 
 (eq (class-of #'car)            (find-class 'function))
@@ -343,7 +343,7 @@ T
 (eq (class-of #'make-instance)  (find-class 'standard-generic-function))
 T
 
-(eq (class-of '#2a((a) (b)))    (find-class #+(or CMU SBCL) 'simple-array #-(or CMU SBCL) 'array))
+(eq (class-of '#2a((a) (b)))    (find-class #+(or CMU SBCL LISPWORKS) 'simple-array #-(or CMU SBCL LISPWORKS) 'array))
 T
 
 (eq (class-of *standard-input*) (find-class 'stream))
@@ -355,7 +355,7 @@ T
 (eq (class-of (find-class 't)) (find-class 'built-in-class))
 T
 
-(eq (class-of (make-array nil)) (find-class #+(or CMU SBCL) 'simple-array #-(or CMU SBCL) 'array))  T
+(eq (class-of (make-array nil)) (find-class #+(or CMU SBCL LISPWORKS) 'simple-array #-(or CMU SBCL LISPWORKS) 'array))  T
 (eq (class-of (make-array nil :element-type nil)) (find-class #+(or CMU SBCL) 'simple-array #-(or CMU SBCL) 'array)) T
 (eq (class-of (make-array 10 :element-type nil)) (find-class #+CMU 'simple-string #+SBCL 'sb-kernel::simple-array-nil #-(or CMU SBCL) 'string)) T
 
@@ -411,11 +411,11 @@ T
   (not (null (member (car (sb-pcl:class-precedence-list class2))
                      (sb-pcl:class-precedence-list class1)
 ) )    )     )
-#+OpenMCL
+#+(or OpenMCL LISPWORKS)
 (defun subclassp (class1 class2)
   (not (null (member class2 (class-precedence-list class1))))
 )
-#+(or CLISP ALLEGRO CMU SBCL OpenMCL) SUBCLASSP
+#+(or CLISP ALLEGRO CMU SBCL OpenMCL LISPWORKS) SUBCLASSP
 
 (subclassp (find-class 'number)           (find-class 't))
 T
@@ -589,9 +589,9 @@ FOO
     (delete-file file)
     (delete-file c)
     #+clisp (delete-file (make-pathname :type "lib" :defaults file))))
-#+CLISP #S(FOO :SLOT NIL)
+#+(or CLISP LISPWORKS) #S(FOO :SLOT NIL)
 #+(or CMU SBCL) ERROR
-#-(or CLISP CMU SBCL) UNKNOWN
+#-(or CLISP CMU SBCL LISPWORKS) UNKNOWN
 
 ;; The finalized-direct-subclasses list must be weak.
 #+clisp
@@ -633,12 +633,12 @@ FOO
 ;; change-class
 ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_change-class.html>
 (progn
-  (defclass position () ())
-  (defclass x-y-position (position)
+  (defclass abstract-position () ())
+  (defclass x-y-position (abstract-position)
     ((name :initarg :name)
      (x :initform 0 :initarg :x)
      (y :initform 0 :initarg :y)))
-  (defclass rho-theta-position (position)
+  (defclass rho-theta-position (abstract-position)
     ((name :initarg :name)
      (rho :initform 0)
      (theta :initform 0)))
@@ -658,7 +658,8 @@ FOO
         (slot-value p2 'name) (slot-value p2 'rho) (slot-value p2 'theta)))
 #+CLISP (FOO 2 0 BAR 1.4142135 0.7853981)
 #+(or CMU SBCL OpenMCL) (FOO 2.0 0.0 BAR 1.4142135 0.7853982)
-#-(or CLISP CMU SBCL OpenMCL) UNKNOWN
+#+LISPWORKS (FOO 2.0 0.0 BAR 1.4142135623730951 0.7853981633974483)
+#-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (progn
   (defclass c0 () (a b c))
@@ -765,8 +766,8 @@ T
 ;; update-instance-for-redefined-class
 ;; <http://www.lisp.org/HyperSpec/Body/stagenfun_upd_efined-class.html>
 (progn
-  (defclass position () ())
-  (defclass x-y-position (position)
+  (defclass abstract-position () ())
+  (defclass x-y-position (abstract-position)
     ((x :initform 0 :accessor position-x)
      (y :initform 0 :accessor position-y)))
   (setf i (make-instance 'x-y-position)
@@ -787,7 +788,7 @@ x-y-position
           (y (getf plist 'y)))
       (setf (position-rho pos) (sqrt (+ (* x x) (* y y)))
             (position-theta pos) (atan y x))))
-  (defclass x-y-position (position)
+  (defclass x-y-position (abstract-position)
     ((rho :initform 0 :accessor position-rho)
      (theta :initform 0 :accessor position-theta)))
   ;; All instances of the old x-y-position class will be updated
@@ -828,8 +829,8 @@ x-y-position
       (setq i (make-instance 'foo70))
       (defclass foo70 () ((size :initarg :size :initform 1) (other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(1 NULL)
+  (list value (typep condition 'error)))
+(1 NIL)
 
 ;; Newly added shared slot.
 ;; 4.3.6.: "Newly added shared slots are initialized."
@@ -839,8 +840,8 @@ x-y-position
       (setq i (make-instance 'foo71))
       (defclass foo71 () ((size :initarg :size :initform 1 :allocation :class) (other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(1 NULL)
+  (list value (typep condition 'error)))
+(1 NIL)
 
 ;; Discarded local slot.
 ;; 4.3.6.1.: "Slots not specified as either local or shared by the new class
@@ -852,8 +853,8 @@ x-y-position
       (setq i (make-instance 'foo72 :size 5))
       (defclass foo72 () ((other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(NIL SIMPLE-ERROR)
+  (list value (typep condition 'error)))
+(NIL T)
 
 ;; Discarded shared slot.
 (multiple-value-bind (value condition)
@@ -862,8 +863,8 @@ x-y-position
       (setq i (make-instance 'foo73))
       (defclass foo73 () ((other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(NIL SIMPLE-ERROR)
+  (list value (typep condition 'error)))
+(NIL T)
 
 ;; Shared slot remains shared.
 ;; 4.3.6.: "The value of a slot that is specified as shared both in the old
@@ -874,8 +875,8 @@ x-y-position
       (setq i (make-instance 'foo74))
       (defclass foo74 () ((size :initarg :size :initform 2 :allocation :class) (other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(1 NULL)
+  (list value (typep condition 'error)))
+(1 NIL)
 
 ;; Shared slot becomes local.
 ;; 4.3.6.1.: "The value of a slot that is specified as shared in the old class
@@ -886,8 +887,8 @@ x-y-position
       (setq i (make-instance 'foo75))
       (defclass foo75 () ((size :initarg :size :initform 2) (other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(1 NULL)
+  (list value (typep condition 'error)))
+(1 NIL)
 
 ;; Local slot remains local.
 ;; 4.3.6.1.: "The values of local slots specified by both the new and old
@@ -898,8 +899,8 @@ x-y-position
       (setq i (make-instance 'foo76 :size 5))
       (defclass foo76 () ((size :initarg :size :initform 2) (other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(5 NULL)
+  (list value (typep condition 'error)))
+(5 NIL)
 
 ;; Local slot becomes shared.
 ;; 4.3.6.: "Slots that were local in the old class and that are shared in the
@@ -910,8 +911,8 @@ x-y-position
       (setq i (make-instance 'foo77 :size 5))
       (defclass foo77 () ((size :initarg :size :initform 2 :allocation :class) (other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(2 NULL)
+  (list value (typep condition 'error)))
+(2 NIL)
 
 
 ;; Redefining the superclass of an instance
@@ -926,8 +927,8 @@ x-y-position
       (setq i (make-instance 'foo80b))
       (defclass foo80a () ((size :initarg :size :initform 1) (other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(1 NULL)
+  (list value (typep condition 'error)))
+(1 NIL)
 
 ;; Newly added shared slot.
 ;; 4.3.6.: "Newly added shared slots are initialized."
@@ -938,8 +939,8 @@ x-y-position
       (setq i (make-instance 'foo81b))
       (defclass foo81a () ((size :initarg :size :initform 1 :allocation :class) (other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(1 NULL)
+  (list value (typep condition 'error)))
+(1 NIL)
 
 ;; Discarded local slot.
 ;; 4.3.6.1.: "Slots not specified as either local or shared by the new class
@@ -952,8 +953,8 @@ x-y-position
       (setq i (make-instance 'foo82b :size 5))
       (defclass foo82a () ((other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(NIL SIMPLE-ERROR)
+  (list value (typep condition 'error)))
+(NIL T)
 
 ;; Discarded shared slot.
 (multiple-value-bind (value condition)
@@ -963,8 +964,8 @@ x-y-position
       (setq i (make-instance 'foo83b))
       (defclass foo83a () ((other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(NIL SIMPLE-ERROR)
+  (list value (typep condition 'error)))
+(NIL T)
 
 ;; Shared slot remains shared.
 ;; 4.3.6.: "The value of a slot that is specified as shared both in the old
@@ -976,8 +977,8 @@ x-y-position
       (setq i (make-instance 'foo84b))
       (defclass foo84a () ((size :initarg :size :initform 2 :allocation :class) (other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(1 NULL)
+  (list value (typep condition 'error)))
+(1 NIL)
 
 ;; Shared slot becomes local.
 ;; 4.3.6.1.: "The value of a slot that is specified as shared in the old class
@@ -989,8 +990,8 @@ x-y-position
       (setq i (make-instance 'foo85b))
       (defclass foo85a () ((size :initarg :size :initform 2) (other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(1 NULL)
+  (list value (typep condition 'error)))
+(1 NIL)
 
 ;; Local slot remains local.
 ;; 4.3.6.1.: "The values of local slots specified by both the new and old
@@ -1002,8 +1003,8 @@ x-y-position
       (setq i (make-instance 'foo86b :size 5))
       (defclass foo86a () ((size :initarg :size :initform 2) (other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(5 NULL)
+  (list value (typep condition 'error)))
+(5 NIL)
 
 ;; Local slot becomes shared.
 ;; 4.3.6.: "Slots that were local in the old class and that are shared in the
@@ -1015,8 +1016,8 @@ x-y-position
       (setq i (make-instance 'foo87b :size 5))
       (defclass foo87a () ((size :initarg :size :initform 2 :allocation :class) (other)))
       (slot-value i 'size))
-  (list value (type-of condition)))
-(2 NULL)
+  (list value (typep condition 'error)))
+(2 NIL)
 
 
 ;; The clos::list-finalized-direct-subclasses function lists only finalized
@@ -1858,7 +1859,7 @@ ERROR
   (defmethod test-mc-standard-bad-qualifiers :beffor ((x float) (y float))
     (format t "x = ~S, y = ~S~%" x y))
   t)
-#+(or CLISP CMU) ERROR #+(or SBCL OpenMCL) T #-(or CLISP CMU SBCL OpenMCL) UNKNOWN
+#+(or CLISP CMU LISPWORKS) ERROR #+(or SBCL OpenMCL) T #-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (progn
   (defgeneric test-mc-standard-bad1 (x y))
@@ -1866,7 +1867,7 @@ ERROR
   (defmethod test-mc-standard-bad1 :after :before ((x integer) (y integer))
     (* x y))
   t)
-#+(or CLISP CMU) ERROR #+(or SBCL OpenMCL) T #-(or CLISP CMU SBCL OpenMCL) UNKNOWN
+#+(or CLISP CMU LISPWORKS) ERROR #+(or SBCL OpenMCL) T #-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 (progn
   (defgeneric test-mc-standard-bad2 (x y))
@@ -1913,7 +1914,7 @@ ERROR
     (:method ((x string)) (list (length x)))
     (:method ((x vector)) (list (array-element-type x))))
   t)
-#+(or CLISP CMU) ERROR #+(or SBCL OpenMCL) T #-(or CLISP CMU SBCL OpenMCL) UNKNOWN
+#+(or CLISP CMU LISPWORKS) ERROR #+(or SBCL OpenMCL) T #-(or CLISP CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
 ; Test ANSI CL 7.6.6.4.
 (progn
