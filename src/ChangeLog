@@ -1,3 +1,15 @@
+2003-11-07  John Tang Boyland  <boyland@users.sf.net>
+	    Sam Steingold  <sds@gnu.org>
+
+	fixed bug [ 831387 ]: ~<...~:> format directive not implemented
+	for compiled code (using FORMATTER)
+	* format.lisp (format-parse-cs): ~:> ==> FORMAT-LOGICAL-BLOCK
+	(format-logical-block): added a stub
+	(format-logical-block-parse, formatter-bind-block-1)
+	(formatter-whole-args*): new functions
+	(formatter-bind-block): new macro
+	(formatter-main-1): handle FORMAT-LOGICAL-BLOCK
+
 2003-11-05  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (FILE-STAT): compilation fix

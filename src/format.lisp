@@ -4,6 +4,7 @@
 ;; Major revision by Bruno Haible  14.02.1990-15.02.1990
 ;; Further revised and wrote FORMATTER 9.4.1995-11.4.1995
 ;; German comments translated into English: Stefan Kain 2001-09-09
+;; pprint-logical-block ~:> support: John Boyland 2003
 
 ;; FORMAT is a mechanism for producing string output conveniently by,
 ;; basically, taking a pre-determined string with placeholders and
@@ -236,10 +237,16 @@
                             *common-lisp-user-package*)))
                (push (list (intern name pack)) (csd-parm-list newcsd))
                (setq index (1+ end))))
-            (( #\( #\[ #\{ #\< )
+            (( #\( #\[ #\{)
              (multiple-value-setq (index csdl)
                (format-parse-cs control-string index csdl
-                 (case ch (#\( #\)) (#\[ #\]) (#\{ #\}) (#\< #\>) ))))
+                 (case ch (#\( #\)) (#\[ #\]) (#\{ #\}) ))))
+            (#\<
+             (multiple-value-setq (index csdl)
+               (format-parse-cs control-string index csdl #\>))
+	     ;; (assert (eq (csd-data (car csdl)) 'FORMAT-JUSTIFICATION-END))
+	     (when (csd-colon-p (car csdl))
+	       (setf (csd-data newcsd) 'FORMAT-LOGICAL-BLOCK)))
             (( #\) #\] #\} #\> )
              (unless stop-at
                (format-error control-string index
@@ -1633,6 +1640,51 @@
         (write-string (pop piecelist) stream)))
     (format-padding mincol padchar stream)))
 
+;; CLtL2 p. 762-763
+(defun format-logical-block (stream colon-modifier atsign-modifier)
+  (format-error *FORMAT-CS* nil (TEXT "~~<...~~:> not implemented yet"))
+  nil)
+
+;; parse the CSDL and return the following values
+;; prefix string (or nil)
+;; suffix string (or nil)
+;; per-line-p non-nil or nil
+;; body-csdl csdl
+;; add-fill-p t or nil
+;; last-csdl csdl
+(defun format-logical-block-parse (csdl)
+  (let (prefix suffix per-line-p body-csdl add-fill-p temp)
+    (when (csd-colon-p (car csdl))
+      (setq prefix "(")
+      (setq suffix ")"))
+    (setq temp (car (csd-clause-chain (car csdl))))
+    (unless (eq (csd-data temp) 'FORMAT-JUSTIFICATION-END)
+      (pop csdl)
+      (setq per-line-p (csd-atsign-p temp))
+      (cond ((eq (car csdl) temp)
+             (setq prefix ""))
+            ((and (eq (car (cdr csdl)) temp)
+                  (eql (csd-type (car csdl)) 1))
+             (setq prefix (subseq *FORMAT-CS* (csd-cs-index (car csdl))
+                                  (csd-data (car csdl))))
+             (pop csdl))
+            (t (format-error *FORMAT-CS* (csd-cs-index (car csdl))
+                 (TEXT "Prefix for logical block must be constant")))))
+    (setq body-csdl (cdr csdl))
+    (setq temp (csd-clause-chain (car csdl)))
+    (unless (eq (csd-data (car temp)) 'FORMAT-JUSTIFICATION-END)
+      (pop temp)
+      (cond ((eql (csd-type (car temp)) 1)
+             (setq suffix (subseq *FORMAT-CS* (csd-cs-index (car temp))
+                                  (csd-data (car temp))))
+             (pop temp))))
+    (unless (and (eql (csd-type (car temp)) 2)
+		 (eq (csd-data (car temp)) 'FORMAT-JUSTIFICATION-END))
+      (format-error *FORMAT-CS* (csd-cs-index (car temp))
+        (TEXT "Logical block suffix must be constant")))
+    (setq add-fill-p (csd-atsign-p (car temp)))
+    (values prefix suffix per-line-p body-csdl add-fill-p temp)))
+
 ;; ~^, CLTL p.406-407, CLtL2 p. 605-606
 (defun format-up-and-out (stream colon-modifier atsign-modifier
                           &optional (a nil) (b nil) (c nil))
@@ -1822,6 +1874,57 @@
     (values `(,@argsyms &REST ,*args*)
             `((DECLARE (IGNORABLE ,@argsyms ,*args*)) ,@forms))))
 
+(defmacro formatter-bind-block (&body body)
+  `(let ((*args* (gensym "ARGS")) ; not used inside the pprint-logical-block
+	 (*format-terminate* (formatter-block "TERMINATE-"))
+         (*formatter-linear-args* nil)
+         (*formatter-whole-args* nil))
+     (formatter-bind-block-1 (progn ,@body))))
+(defun formatter-bind-block-1 (forms)
+  ;; inside the pprint-logical-block, we use the "secret"
+  ;; variable for accessing the list as *args*
+  ;; rather than try to find and fix all the places
+  ;; that use *args* in various ways.
+  (setf forms
+	(subst-if-then #'(lambda (x) ; x = `(POP OBJ)
+			   (declare (ignore x))
+			   `(PPRINT-POP))
+		       #'(lambda (x) ; x = `(POP OBJ)
+			   (and (consp x) (eq (car x) 'POP)
+                                (consp (cdr x)) (eq 'OBJ (cadr x))
+				(null (cddr x))))
+		       forms))
+  (when *formatter-whole-args*
+    (setq forms
+	  (subst-if-then #'(lambda (x) ; x = `(WHOLE-ARGS ,i)
+			     `(NTHCDR ,(second x) WHOLE-ARGS))
+			 #'(lambda (x) ; x = `(WHOLE-ARGS ,i) ?
+			     (and (consp x) (eq (car x) 'WHOLE-ARGS)
+				  (consp (cdr x)) (numberp (cadr x))
+				  (null (cddr x))))
+			 forms)))
+  (setf forms
+	(subst-if-then #'(lambda (x) ; x = `(IF (ENDP OBJ)
+			             ;        (RETURN-FROM ,*format-terminate*))
+			   (declare (ignore x))
+			   `(PPRINT-EXIT-IF-LIST-EXHAUSTED))
+		       #'(lambda (x) ; x = `(IF (ENDP OBJ) (RETURN-FROM ,*format-terminate*))
+			   (and (consp x)
+				(eq (car x) 'IF)
+                                (consp (cdr x)) (consp (cadr x))
+				(eq (caadr x) 'ENDP) (consp (cdadr x))
+				(eq 'OBJ (cadadr x)) (null (cddadr x))
+				(consp (cddr x)) (consp (caddr x))
+				(eq (caaddr x) 'RETURN-FROM)
+				(eq (car (cdaddr x)) *format-terminate*)
+				(null (cdr (cdaddr x)))
+				(null (cdddr x))))
+		       forms))
+  ;; the terminate won't be used (I think....)
+  (values `(,*args* ,@(and *formatter-whole-args*
+			   `(&aux (WHOLE-ARGS ,*args*))))
+	  `((DECLARE (IGNORABLE ,*args*)) ,@forms)))
+
 ;; terminates the linear mode.
 ;; Hence the argument-list can be accessed as ARGS.
 (defun formatter-stop-linear ()
@@ -1840,12 +1943,12 @@
 ;; This form must be substituted with SUBST afterwards.
 (defun formatter-next-arg ()
   (if *formatter-linear-args*
-    (prog1
-      `(ARG ,*formatter-linear-position*)
-      (incf *formatter-linear-position*)
-      (setq *formatter-linear-argcount*
-            (max *formatter-linear-argcount* *formatter-linear-position*)))
-    `(POP ,*args*)))
+      (prog1
+          `(ARG ,*formatter-linear-position*)
+        (incf *formatter-linear-position*)
+        (setq *formatter-linear-argcount*
+              (max *formatter-linear-argcount* *formatter-linear-position*)))
+      `(POP ,*args*)))
 
 ;; Fetches a Form, that returns an nthcdr of the whole argument-list.
 ;; This form must be substituted with SUBST afterwards.
@@ -1853,6 +1956,14 @@
   (formatter-stop-linear)
   (setq *formatter-whole-args* t)
   `(WHOLE-ARGS ,n))
+
+;; Return a form to get all the rest of the remaining arguments.
+(defun formatter-whole-args* ()
+  (cond (*formatter-linear-args*
+         (formatter-stop-linear)
+         (setq *formatter-whole-args* t)
+         `(WHOLE-ARGS ,*formatter-linear-position*))
+        (t *args*)))
 
 ;; Fetches a Form-list for the skipping (forwards/backwards) of arguments.
 (defun formatter-goto-arg (absolute-p backward-p n)
@@ -2314,6 +2425,41 @@
                                              `(PROGN ,@piece-forms (GET-OUTPUT-STREAM-STRING STREAM)))
                                          pieces-forms)))))
                         forms)))
+		    (FORMAT-LOGICAL-BLOCK          ; #\< ending with ~:>
+		     (simple-arglist 0)
+		     (multiple-value-bind
+		        (prefix suffix per-line-p body-csdl add-fill
+				last-csdl)
+		        (format-logical-block-parse *FORMAT-CSDL*)
+		      (when add-fill
+			(format-error *FORMAT-CS* (csd-cs-index (car *FORMAT-CSDL*))
+				      (TEXT "Error: ~~:@> not implemented")))
+		      (setq *FORMAT-CSDL* body-csdl)
+		      (labels ((compute-inner ()
+			        `((PPRINT-LOGICAL-BLOCK
+				   ;; *args refers to things *after*
+				   ;; anything used in the body.
+				   ;; I need some way to refer to
+				   ;; all the list.
+				   (STREAM ,*args*
+				    ,@(and prefix
+					   (if per-line-p
+					       `(:per-line-prefix ,prefix)
+					     `(:prefix ,prefix)))
+				    ,@(and suffix `(:suffix ,suffix)))
+				   ,@(let ((*args* 'OBJ))
+				       (formatter-main
+					'FORMAT-JUSTIFICATION-END)))))
+			       (compute-outer ()
+				  (multiple-value-bind (lambdalist inner)
+				      (formatter-bind-block (compute-inner))
+				    `(((LAMBDA ,lambdalist ,@inner)
+				       ,(if atsign-p
+					    (formatter-whole-args*)
+					  (formatter-next-arg)))))))
+			    (let ((body (compute-outer)))
+			      (setq *format-csdl* last-csdl)
+			      (setq forms (append body forms))))))
                     (FORMAT-UP-AND-OUT             ; #\^
                      (simple-arglist 3)
                      (formatter-stop-linear)
