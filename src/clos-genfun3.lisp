@@ -478,6 +478,8 @@
          (DECLARE (SYS::IN-DEFUN ,funname))
          (COMPILER::EVAL-WHEN-COMPILE
            (COMPILER::C-DEFUN ',funname ',signature nil 'DEFGENERIC))
+         (when (get (sys::get-funname-symbol ',funname) 'sys::traced-definition)
+           (sys::untrace ',funname))
          ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
          (LET* ((,generic-function-class-var ,generic-function-class-form)
                 ,@(if user-defined-args
