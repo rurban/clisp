@@ -1037,9 +1037,19 @@ redefine functions which its symbols name result in a continuable error
 Function <literal role="sexp" >(&package-lock;
  <replaceable>package</replaceable>)</literal> returns the
 generalized boolean indicating whether the package is locked.
-A package can be locked using <literal role="sexp" >(&setf; (&package-lock;
- <replaceable>package</replaceable>) &t;)</literal>.
-&clisp; locks its system packages.</para></section>
+A package (or list thereof) can be locked using <literal role="sexp"
+>(&setf; (&package-lock; <replaceable>package-or-list</replaceable>)
+&t;)</literal>.
+&clisp; locks its system packages (specified in the variable
+&sys-pack-list;).
+If you want to evaluate some forms with certain packages unlocked, you
+can use <function>EXT:WITHOUT-PACKAGE-LOCK</function>:
+<programlisting>
+(without-package-lock ("LISP" "EXT" "CLOS")
+  (defun restart () ...))
+</programlisting>
+<literal role="sexp" >(without-package-lock () ...)</literal> unlocks
+all packages in &sys-pack-list;.</para></section>
 
 </section>
 </section>
