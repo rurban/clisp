@@ -1,5 +1,12 @@
 1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * spvw_gcstat.d: New file.
+        * spvw.d (gc_count, gc_space, gc_time, gc_timer_on, gc_timer_off):
+          Move out.
+        * makemake.in (SPVW_INCLUDES): Adjust.
+
+1998-07-26  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * spvw_genera1.d, spvw_genera2.d, spvw_genera3.d: New files.
         * spvw.d (xfree, xrealloc, prepare_old_generation, in_old_generation,
            walk_physpage, walk_area, walk_physpage_, walk_area_,

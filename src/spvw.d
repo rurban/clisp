@@ -134,26 +134,6 @@
   # break_sem_5 == break_sems.einzeln[5]
   #   gesetzt, solange (UNIX) ein Signal-Handler aufgerufen wird.
 
-# GC-Statistik:
-  global uintL  gc_count = 0;      # Zähler für GC-Aufrufe
-  global uintL2 gc_space =         # Größe des von der GC insgesamt bisher
-                                   # wiederbeschafften Platzes (64-Bit-Akku)
-    #ifdef intQsize
-      0
-    #else
-      {0,0}
-    #endif
-    ;
-# Zeit, die die GC verbraucht:
-  global internal_time gc_time =        # GC-Zeitverbrauch bisher insgesamt
-    #ifdef TIME_1
-    0
-    #endif
-    #ifdef TIME_2
-    {0,0}
-    #endif
-    ;
-
 # ------------------------------------------------------------------------------
 #                          Modulverwaltung
 
@@ -677,6 +657,11 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
                );
       reset();
     }
+
+# ------------------------------------------------------------------------------
+#                       GC-Statistik
+
+#include "spvw_gcstat.c"
 
 # ------------------------------------------------------------------------------
 #                       Speichergröße
@@ -2222,20 +2207,6 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
     }   }
 #endif
 
-# GC-Timer ein- und ausschalten: gc_timer_on(); ... gc_timer_off();
-# Die dazwischen verstrichene Zeit wird auf gc_time addiert.
-  #define gc_timer_on()  \
-    { var internal_time gcstart_time; \
-      get_running_time(gcstart_time); # aktuelle verbrauchte Zeit abfragen und retten
-  #define gc_timer_off()  \
-     {var internal_time gcend_time;                           \
-      get_running_time(gcend_time);                           \
-      # Differenz von gcend_time und gcstart_time bilden:     \
-      sub_internal_time(gcend_time,gcstart_time, gcend_time); \
-      # diese Differenz zu gc_time addieren:                  \
-      add_internal_time(gc_time,gcend_time, gc_time);         \
-    }}
-
 # GC-bedingt Signale disablen: gc_signalblock_on(); ... gc_signalblock_off();
   #if defined(HAVE_SIGNALS) && defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
     # Signal SIGWINCH blockieren, denn eine Veränderung des Wertes von
@@ -2571,7 +2542,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         vadvise(VA_NORM); # Paging-Verhalten wird ab jetzt wieder normal
         end_system_call();
       #endif
-      gc_count += 1; # GCs mitzählen
+      inc_gc_count(); # GCs mitzählen
       # belegten Speicherplatz ermitteln:
       #ifdef SPVW_PAGES
       recalc_space(FALSE);
@@ -2631,14 +2602,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
       #endif
       { var uintL freed = gcstart_space - gcend_space; # von dieser GC
                                        # wiederbeschaffter Speicherplatz
-        # dies zum 64-Bit-Akku gc_space addieren:
-        #ifdef intQsize
-        gc_space += freed;
-        #else
-        gc_space.lo += freed;
-        if (gc_space.lo < freed) # Übertrag?
-          gc_space.hi += 1;
-        #endif
+        inc_gc_space(freed); # dies zum 64-Bit-Akku gc_space addieren
       }
       #ifdef SPVW_PAGES
       free_some_unused_pages();
