@@ -470,6 +470,20 @@ if test $bash_cv_func_lstat = yes; then
 fi
 ])
 
+AC_DEFUN(BASH_FUNC_INET_ATON,
+[
+AC_CACHE_CHECK([for inet_aton], bash_cv_func_inet_aton,
+[AC_TRY_LINK([
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+struct in_addr ap;], [ inet_aton("127.0.0.1", &ap); ],
+bash_cv_func_inet_aton=yes, bash_cv_func_inet_aton=no)])
+if test $bash_cv_func_inet_aton = yes; then
+  AC_DEFINE(HAVE_INET_ATON)
+fi
+])
+
 AC_DEFUN(BASH_STRUCT_TERMIOS_LDISC,
 [AC_MSG_CHECKING([for a c_line member of struct termios])
 AC_CACHE_VAL(bash_cv_termios_ldisc,

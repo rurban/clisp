@@ -325,3 +325,15 @@ examples/Makefile.in
 support/shlib-install
 	- changes to handle FreeBSD-3.x elf or a.out shared libraries, which
 	  have different semantics and need different naming conventions
+
+				 1/24/2000
+				 ---------
+doc/Makefile.in
+	- remove *.bt and *.bts on `make clean'
+
+				    2/4
+				    ---
+
+
+configure.in
+	- changed LIBVERSION to 4.1-beta5

@@ -40,7 +40,7 @@ INSTALL_DATA = @INSTALL_DATA@
 
 TEXINPUTDIR = $(srcdir)
 
-MAKEINFO    = LANGUAGE= makeinfo
+MAKEINFO    = LANG= LANGUAGE= makeinfo
 TEXI2DVI    = $(srcdir)/texi2dvi
 TEXI2HTML   = $(srcdir)/texi2html
 QUIETPS     = #set this to -q to shut up dvips
@@ -134,7 +134,7 @@ readline.0: readline.3
 
 clean:
 	$(RM) *.aux *.cp *.fn *.ky *.log *.pg *.toc *.tp *.vr *.cps *.pgs \
-	      *.fns *.kys *.tps *.vrs *.bt *.o core
+	      *.fns *.kys *.tps *.vrs *.bt *.bts *.o core
 
 distclean: clean
 	$(RM) $(CREATED_DOCS)
