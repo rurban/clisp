@@ -237,7 +237,7 @@ local void gc_mark (object obj)
   { dies = objectplus(vorg,-(soint)offsetofa(record_,recdata)<<(oint_addr_shift-addr_shift)); /* record becomes current object */ \
     vorg = vorvorg; goto up; /* go further up */  \
   }
-#ifdef HEAPCODES
+#ifdef STANDARD_HEAPCODES
 #define down_subr()                                                     \
   if (in_old_generation(dies,typecode(dies),0))                         \
     goto up; /* do not mark older generation */                         \
@@ -314,12 +314,14 @@ local void gc_mark (object obj)
       /*NOTREACHED*/ abort();
   }
  #else
-  switch (as_oint(dies) & nonimmediate_bias_mask) {
-    case cons_bias: /* cons */
-      /* NB: (immediate_bias & nonimmediate_bias_mask) == cons_bias. */
+  switch (as_oint(dies) & nonimmediate_heapcode_mask) {
+    case cons_bias+conses_misaligned: /* cons */
+      #ifdef STANDARD_HEAPCODES
+      /* NB: (immediate_bias & nonimmediate_heapcode_mask) == cons_bias. */
       if (immediate_object_p(dies)) goto up;
+      #endif
       down_pair();
-    case varobject_bias:
+    case varobject_bias+varobjects_misaligned:
       switch (Record_type(dies)) {
         case Rectype_Sbvector:
         case Rectype_Sb2vector:
@@ -366,9 +368,14 @@ local void gc_mark (object obj)
         default: /* Srecord/Xrecord */
           down_record();
       }
+    #ifdef STANDARD_HEAPCODES
     case subr_bias: /* SUBR */
       down_subr();
+    #endif
     case machine_bias:
+    #ifdef LINUX_NOEXEC_HEAPCODES
+    case machine_bias+4:
+    #endif
       /* These are direct objects, no pointers. */
       goto up;
     default:
@@ -448,15 +455,17 @@ local void gc_mark (object obj)
         /*NOTREACHED*/ abort();
     }
    #else
-    switch (as_oint(vorg) & nonimmediate_bias_mask) {
-      case cons_bias: /* Cons */
+    switch (as_oint(vorg) & nonimmediate_heapcode_mask) {
+      case cons_bias+conses_misaligned: /* Cons */
         up_pair();
-      case varobject_bias:
+      case varobject_bias+varobjects_misaligned:
         /* This works only because all varobjects have the same
            objects_offset! */
         up_record();
+      #ifdef STANDARD_HEAPCODES
       case subr_bias: /* SUBR */
         up_subr();
+      #endif
       default: /* these are no objects. */
         /*NOTREACHED*/ abort();
     }
@@ -596,16 +605,21 @@ local void gc_markphase (void)
         /*NOTREACHED*/ abort();
     }
     #else
-    switch (as_oint(obj) & nonimmediate_bias_mask) {
-      case varobject_bias:
+    switch (as_oint(obj) & nonimmediate_heapcode_mask) {
+      case varobject_bias+varobjects_misaligned:
         if (in_old_generation(obj,,0)) return true;
         if (marked(ThePointer(obj))) return true; else return false;
-      case (cons_bias & immediate_bias):
+      case cons_bias+conses_misaligned:
+        #ifdef STANDARD_HEAPCODES
+        /* NB: (immediate_bias & nonimmediate_heapcode_mask) == cons_bias. */
         if (immediate_object_p(obj)) return true;
+        #endif
         if (in_old_generation(obj,,1)) return true;
         if (marked(ThePointer(obj))) return true; else return false;
+      #ifdef STANDARD_HEAPCODES
       case subr_bias:
         if (marked(TheSubr(obj))) return true; else return false;
+      #endif
       default:
         return true;
     }
