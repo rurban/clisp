@@ -421,6 +421,10 @@ For further for grepability I use the following tags in comments:
 #  include <time.h>
 # endif
 #endif
+##if WANT_XSHAPE
+/* must include this before DEFMODULE so that DEFCHECKER will work */
+#include <X11/extensions/shape.h>
+##endif
 
 #define DEBUG_CLX 0
 
@@ -1133,125 +1137,97 @@ static Visual *get_visual (Display *dpy, object vid)
  * Lots of enums
  * ----------------------------------------------------------------------- */
 
-/* get_enum -- convert a lisp symbol to an integer value i E [0..n).
-
-  > n: number of elements composing the enum
-  > STACK_n: the object
-  > STACK_n-1 .. STACK_0: the enum keys
-  < result: integer value of enum
-
-  If the object is not of that enum type, a type error is raised.  */
-static int get_enum (int n)
-{ /* NOTE: This function is mainly used for enums like backingstore etc.
-         I consider it safe to assume, that i.e. :WHEN-MAPPED == 1, since
-         these enums are defined in the X Protocol Specification. */
-  int i;
-
-  for (i = 0; i < n; i++)
-    if (eq (STACK_(n-i-1), STACK_(n))) {
-      skipSTACK(n+1);
-      return i;
-    }
-
-  /* Fall thru' -- raise type error */
-  pushSTACK(S(member));
-  value1 = nreverse(listof(n+1));
-  my_type_error(value1,STACK_0);
-}
-
-nonreturning_function(static, enum_error, (char *name, int value, int count))
-{ /* This function should never been called! */
-  value1 = listof(count);
-  pushSTACK(value1);
-  pushSTACK(asciz_to_string (name, GLO(misc_encoding)));
-  pushSTACK(fixnum(count));
-  pushSTACK(fixnum(value));
-  fehler (error, "Ouch! ~S is not in [0;~S], is it?\n"
-                 "Either my enum definition for ~S is wrong, or your X is strange.\n"
-                 "List of keywords: ~S");
-}
-
-#define DEF_ENUM_MAKER(name,count,kws)                          \
-  static object make_##name(int i) {                            \
-    kws;                                                        \
-    if (!(i >= 0 && i < count)) enum_error (#name, i, count);   \
-    skipSTACK(count);                                           \
-    return STACK_(-(i+1));                                      \
-  }
-
-#define DEF_ENUM_GETTER(name,count,kws)         \
-  static int get_##name(object o) {             \
-    pushSTACK(o);                               \
-    kws;                                        \
-    return get_enum(count);                     \
-  }
-
-#define DEF_ENUM(a,b,c) DEF_ENUM_MAKER(a,b,c) DEF_ENUM_GETTER(a,b,c)
-#define ee(X) pushSTACK(X)
-
-DEF_ENUM_MAKER (map_state,      3,
-                (ee(`:UNMAPPED`), ee(`:UNVIEWABLE`), ee(`:VIEWABLE`)))
-DEF_ENUM_GETTER (shape,         3,
-                 (ee(`:COMPLEX`), ee(`:CONVEX`), ee(`:NON-CONVEX`)))
-DEF_ENUM (W_class,              3,
-          (ee(`:COPY`), ee(`:INPUT-OUTPUT`), ee(`:INPUT-ONLY`)))
-DEF_ENUM (stack_mode,           5,
-          (ee(`:ABOVE`), ee(`:BELOW`), ee(`:TOP-IF`),
-           ee(`:BOTTOM-IF`), ee(`:OPPOSITE`)))
-DEF_ENUM (arc_mode,             2, (ee(`:CHORD`), ee(`:PIE-SLICE`)))
-DEF_ENUM (line_style,           3,
-          (ee(`:SOLID`), ee(`:DASH`), ee(`:DOUBLE-DASH`)))
-DEF_ENUM (cap_style,            4,
-          (ee(`:NOT-LAST`), ee(`:BUTT`), ee(`:ROUND`), ee(`:PROJECTING`)))
-DEF_ENUM (join_style,           3, (ee(`:MITER`), ee(`:ROUND`), ee(`:BEVEL`)))
-DEF_ENUM (fill_style,           4,
-          (ee(`:SOLID`),ee(`:TILED`),ee(`:STIPPLED`),ee(`:OPAQUE-STIPPLED`)))
-DEF_ENUM (fill_rule,            2, (ee(`:EVEN-ODD`), ee(`:WINDING`)))
-DEF_ENUM (subwindow_mode,       2,
-          (ee(`:CLIP-BY-CHILDREN`), ee(`:INCLUDE-INFERIORS`)))
-DEF_ENUM (gravity,             11,
-          (ee(`:FORGET`), ee(`:NORTH-WEST`), ee(`:NORTH`), ee(`:NORTH-EAST`),
-           ee(`:WEST`), ee(`:CENTER`), ee(`:EAST`),
-           ee(`:SOUTH-WEST`), ee(`:SOUTH`), ee(`:SOUTH-EAST`), ee(`:STATIC`)))
+DEFCHECKER(get_map_state,default=,UNMAPPED=IsUnmapped                   \
+           UNVIEWABLE=IsUnviewable VIEWABLE=IsViewable)
+#define make_map_state get_map_state_reverse
+DEFCHECKER(get_shape,default=,COMPLEX=Complex CONVEX=Convex \
+           NON-CONVEX=Nonconvex)
+DEFCHECKER(get_W_class,default=,COPY=CopyFromParent INPUT-OUTPUT=InputOutput \
+           INPUT-ONLY=InputOnly)
+#define make_W_class get_W_class_reverse
+DEFCHECKER(get_stack_mode,default=,ABOVE=Above BELOW=Below TOP-IF=TopIf \
+           BOTTOM-IF=BottomIf OPPOSITE=Opposite)
+#define make_stack_mode get_stack_mode_reverse
+DEFCHECKER(get_arc_mode,default=,CHORD=ArcChord PIE-SLICE=ArcPieSlice)
+#define make_arc_mode get_arc_mode_reverse
+DEFCHECKER(get_line_style,default=,SOLID=LineSolid DASH=LineOnOffDash \
+           DOUBLE-DASH=LineDoubleDash)
+#define make_line_style get_line_style_reverse
+DEFCHECKER(get_cap_style,default=,NOT-LAST=CapNotLast BUTT=CapButt    \
+           ROUND=CapRound PROJECTING=CapProjecting)
+#define make_cap_style get_cap_style_reverse
+DEFCHECKER(get_join_style,default=, \
+           MITER=JoinMiter ROUND=JoinRound BEVEL=JoinBevel)
+#define make_join_style get_join_style_reverse
+DEFCHECKER(get_fill_style,default=,SOLID=FillSolid TILED=FillTiled \
+           STIPPLED=FillStippled OPAQUE-STIPPLED=FillOpaqueStippled)
+#define make_fill_style get_fill_style_reverse
+DEFCHECKER(get_fill_rule,default=, EVEN-ODD=EvenOddRule WINDING=WindingRule)
+#define make_fill_rule get_fill_rule_reverse
+DEFCHECKER(get_subwindow_mode,default=, \
+           CLIP-BY-CHILDREN=ClipByChildren INCLUDE-INFERIORS=IncludeInferiors)
+#define make_subwindow_mode get_subwindow_mode_reverse
+DEFCHECKER(get_gravity,default=,FORGET=ForgetGravity                    \
+           NORTH-WEST=NorthWestGravity NORTH=NorthGravity               \
+           NORTH-EAST=NorthEastGravity WEST=WestGravity CENTER=CenterGravity \
+           EAST=EastGravity SOUTH-WEST=SouthWestGravity SOUTH=SouthGravity \
+           SOUTH-EAST=SouthEastGravity STATIC=StaticGravity)
+#define make_gravity get_gravity_reverse
 /* NIM: the :static gravity is not mentioned in the CLX manual. */
-DEF_ENUM (visibility_state,     3,
-          (ee(`:UNOBSCURED`),ee(`:PARTLY-OBSCURED`),ee(`:FULLY-OBSCURED`)) )
-DEF_ENUM (top_or_bottom,        2, (ee(`:TOP`),ee(`:BOTTOM`)))
-DEF_ENUM (new_value_or_deleted, 2, (ee(`:NEW-VALUE`),ee(`:DELETED`)))
-DEF_ENUM (ordering,             4,
-          (ee(`:UNSORTED`),ee(`:Y-SORTED`),ee(`:YX-SORTED`),ee(`:YX-BANDED`)))
-DEF_ENUM (mapping_request,      3,
-          (ee(`:MODIFIER`), ee(`:KEYBOARD`), ee(`:POINTER`)))
-DEF_ENUM (crossing_mode,        4,
-          (ee(`:NORMAL`), ee(`:GRAB`), ee(`:UNGRAB`), ee(`:WHILE-GRABBED`)))
+DEFCHECKER(get_visibility_state,default=, UNOBSCURED=VisibilityUnobscured \
+           PARTLY-OBSCURED=VisibilityPartiallyObscured                  \
+           FULLY-OBSCURED=VisibilityFullyObscured)
+#define make_visibility_state get_visibility_state_reverse
+DEFCHECKER(get_top_or_bottom,default=,TOP=PlaceOnTop BOTTOM=PlaceOnBottom)
+#define make_top_or_bottom get_top_or_bottom_reverse
+DEFCHECKER(get_new_value_or_deleted,default=, \
+           NEW-VALUE=PropertyNewValue DELETED=PropertyDelete)
+#define make_new_value_or_deleted get_new_value_or_deleted_reverse
+DEFCHECKER(get_ordering,default=, UNSORTED=Unsorted Y-SORTED=YSorted \
+           YX-SORTED=YXSorted YX-BANDED=YXBanded)
+DEFCHECKER(get_mapping_request,default=, MODIFIER=MappingModifier \
+           KEYBOARD=MappingKeyboard POINTER=MappingPointer)
+#define make_mapping_request get_mapping_request_reverse
+DEFCHECKER(get_crossing_mode,default=, NORMAL=NotifyNormal GRAB=NotifyGrab \
+           UNGRAB=NotifyUngrab WHILE-GRABBED=NotifyWhileGrabbed)
+#define make_crossing_mode get_crossing_mode_reverse
 /* NIM: :while-grabbed */
-DEF_ENUM (crossing_kind,        8,
-          (ee(`:ANCESTOR`), ee(`:VIRTUAL`), ee(`:INFERIOR`),
-           ee(`:NONLINEAR`), ee(`:NONLINEAR-VIRTUAL`),
-           ee(`:POINTER`), ee(`:POINTER-ROOT`), ee(`:NONE`)))
+DEFCHECKER(get_crossing_kind,default=, ANCESTOR=NotifyAncestor          \
+           VIRTUAL=NotifyVirtual INFERIOR=NotifyInferior                \
+           NONLINEAR=NotifyNonlinear NONLINEAR-VIRTUAL=NotifyNonlinearVirtual \
+           POINTER=NotifyPointer POINTER-ROOT=NotifyPointerRoot         \
+           NONE=NotifyDetailNone)
+#define make_crossing_kind get_crossing_kind_reverse
 /* NIM: :pointer, :pointer-root, :none */
-DEF_ENUM (focus_mode,           4,
-          (ee(`:NORMAL`), ee(`:GRAB`), ee(`:UNGRAB`), ee(`:WHILE-GRABBED`)))
+DEFCHECKER(get_focus_mode,default=,NORMAL=NotifyNormal GRAB=NotifyGrab \
+           UNGRAB=NotifyUngrab WHILE-GRABBED=NotifyWhileGrabbed)
+#define make_focus_mode get_focus_mode_reverse
 /* This seems to be the same as crossing_mode, but added the
    :while-grabbed in CLXM Have to justify that by looking into the
    source.  I was complaining 'Strange -- the CLX manual says also
    somthing about :while-grabbed!'  Maybe libX and CLX differ here?  */
-DEF_ENUM (focus_detail,   8,
-          (ee(`:ANCESTOR`), ee(`:VIRTUAL`), ee(`:INFERIOR`), ee(`:NONLINEAR`),
-           ee(`:NONLINEAR-VIRTUAL`),
-           ee(`:POINTER`), ee(`:POINTER-ROOT`), ee(`:NONE`)))
+DEFCHECKER(get_focus_detail,default=,ANCESTOR=NotifyAncestor            \
+           VIRTUAL=NotifyVirtual INFERIOR=NotifyInferior                \
+           NONLINEAR=NotifyNonlinear NONLINEAR-VIRTUAL=NotifyNonlinearVirtual \
+           POINTER=NotifyPointer POINTER-ROOT=NotifyPointerRoot         \
+           NONE=NotifyDetailNone)
+#define make_focus_detail get_focus_detail_reverse
 /* This seems also to be the same as crossing_kind! */
 
-DEF_ENUM_MAKER (V_class,   6, (ee(`:STATIC-GRAY`),  ee(`:GRAY-SCALE`),
-                               ee(`:STATIC-COLOR`), ee(`:PSEUDO-COLOR`),
-                               ee(`:TRUE-COLOR`),   ee(`:DIRECT-COLOR`) ))
-
-DEF_ENUM (backing_store,   3,
-          (ee(`:NOT-USEFUL`), ee(`:WHEN-MAPPED`), ee(`:ALWAYS`)))
-DEF_ENUM (switch,          2, (ee(`:OFF`), ee(`:ON`)))
-DEF_ENUM (close_down_mode, 3,
-          (ee(`:DESTROY`), ee(`:RETAIN-PERMANENT`), ee(`:RETAIN-TEMPORARY`)));
-DEF_ENUM (draw_direction,  2, (ee(`:LEFT-TO-RIGHT`), ee(`:RIGHT-TO-LEFT`)))
+DEFCHECKER(get_V_class,default=,STATIC-GRAY=StaticGray GRAY-SCALE=GrayScale \
+           STATIC-COLOR=StaticColor PSEUDO-COLOR=PseudoColor \
+           TRUE-COLOR=TrueColor DIRECT-COLOR=DirectColor)
+#define make_V_class get_V_class_reverse
+DEFCHECKER(get_backing_store,default=,\
+           NOT-USEFUL=NotUseful WHEN-MAPPED=WhenMapped ALWAYS=Always)
+#define make_backing_store get_backing_store_reverse
+DEFCHECKER(get_switch,default=, OFF=LedModeOff ON=LedModeOn)
+#define make_switch get_switch_reverse
+DEFCHECKER(get_close_down_mode,default=, DESTROY=DestroyAll \
+           RETAIN-PERMANENT=RetainPermanent RETAIN-TEMPORARY=RetainTemporary)
+DEFCHECKER(get_draw_direction,default=, \
+           LEFT-TO-RIGHT=FontLeftToRight RIGHT-TO-LEFT=FontRightToLeft)
+#define make_draw_direction get_draw_direction_reverse
 
 static Bool get_generic_switch (object o)
 { return ! (eq (o, `:NO`) || eq (o, `:OFF`) || nullp (o)); }
@@ -1280,7 +1256,7 @@ static object make_gc_function (int i)
     case GXnand:         return Symbol_value (`BOOLE-NAND`);  /* (NOT src) OR (NOT dst) */
     case GXset:          return Symbol_value (`BOOLE-SET`);   /* 1 */
     default:
-      enum_error ("gc_function", i, 0); /* give a wrong error message! */
+      my_type_error(`XLIB::GC-FUNCTION`,fixnum(i));
   }
 }
 
@@ -1310,38 +1286,33 @@ static int get_gc_function (object obj)
    return GXcopy; */
 }
 
-static unsigned long get_gcontext_key (object obj)
-{
-  if (eq(obj,`:ARC-MODE`))              return GCArcMode;
-  if (eq(obj,`:BACKGROUND`))            return GCBackground;
-  if (eq(obj,`:CAP-STYLE`))             return GCCapStyle;
-  if (eq(obj,`:CLIP-MASK`))             return GCClipMask;
-  if (eq(obj,`:CLIP-X`))                return GCClipXOrigin;
-  if (eq(obj,`:CLIP-Y`))                return GCClipYOrigin;
-  if (eq(obj,`:DASH-OFFSET`))           return GCDashOffset;
-  if (eq(obj,`:DASHES`))                return GCDashList;
-  if (eq(obj,`:EXPOSURES`))             return GCGraphicsExposures;
-  if (eq(obj,`:FILL-RULE`))             return GCFillRule;
-  if (eq(obj,`:FILL-STYLE`))            return GCFillStyle;
-  if (eq(obj,`:FONT`))                  return GCFont;
-  if (eq(obj,`:FOREGROUND`))            return GCForeground;
-  if (eq(obj,`:FUNCTION`))              return GCFunction;
-  if (eq(obj,`:JOIN-STYLE`))            return GCJoinStyle;
-  if (eq(obj,`:LINE-STYLE`))            return GCLineStyle;
-  if (eq(obj,`:LINE-WIDTH`))            return GCLineWidth;
-  if (eq(obj,`:PLANE-MASK`))            return GCPlaneMask;
-  if (eq(obj,`:STIPPLE`))               return GCStipple;
-  if (eq(obj,`:SUBWINDOW-MODE`))        return GCSubwindowMode;
-  if (eq(obj,`:TILE`))                  return GCTile;
-  if (eq(obj,`:TS-X`))                  return GCTileStipXOrigin;
-  if (eq(obj,`:TS-Y`))                  return GCTileStipXOrigin;
-  NOTIMPLEMENTED;
-}
+DEFCHECKER(get_gcontext_key,type=unsigned long,default=, ARC-MODE=GCArcMode \
+           BACKGROUND=GCBackground CAP-STYLE=GCCapStyle                 \
+           CLIP-MASK=GCClipMask                                         \
+           CLIP-X=GCClipXOrigin CLIP-Y=GCClipYOrigin                    \
+           DASH-OFFSET=GCDashOffset DASHES=GCDashList                   \
+           EXPOSURES=GCGraphicsExposures                                \
+           FILL-RULE=GCFillRule FILL-STYLE=GCFillStyle                  \
+           FONT=GCFont                                                  \
+           FOREGROUND=GCForeground                                      \
+           FUNCTION=GCFunction                                          \
+           JOIN-STYLE=GCJoinStyle LINE-STYLE=GCLineStyle                \
+           LINE-WIDTH=GCLineWidth PLANE-MASK=GCPlaneMask                \
+           STIPPLE=GCStipple                                            \
+           SUBWINDOW-MODE=GCSubwindowMode                               \
+           TILE=GCTile                                                  \
+           TS-X=GCTileStipXOrigin TS-Y=GCTileStipXOrigin)
 
 
 /* -----------------------------------------------------------------------
  *  Masks
  * ----------------------------------------------------------------------- */
+
+DEFCHECKER(check_modifier, default=, bitmasks=both, type=unsigned int,  \
+           SHIFT=ShiftMask LOCK=LockMask CONTROL=ControlMask            \
+           MOD-1=Mod1Mask MOD-2=Mod2Mask MOD-3=Mod3Mask MOD-4=Mod4Mask  \
+           MOD-5=Mod5Mask BUTTON-1=Button1Mask BUTTON-2=Button2Mask     \
+           BUTTON-3=Button3Mask BUTTON-4=Button4Mask BUTTON-5=Button5Mask)
 
 static unsigned int get_modifier_mask (object obj)
 {
@@ -1349,77 +1320,41 @@ static unsigned int get_modifier_mask (object obj)
 
   if (eq (obj, `:ANY`)) return AnyModifier;
   if (integerp (obj)) return get_uint16 (obj);
-  if (consp (obj)) {
-    pushSTACK(obj);
-    while (consp (STACK_0)) {
-      pushSTACK(Car (obj));
-      pushSTACK(`:SHIFT`);
-      pushSTACK(`:LOCK`);
-      pushSTACK(`:CONTROL`);
-      pushSTACK(`:MOD-1`);
-      pushSTACK(`:MOD-2`);
-      pushSTACK(`:MOD-3`);
-      pushSTACK(`:MOD-4`);
-      pushSTACK(`:MOD-5`);
-      /* Should we include here :BUTTON-[12345] ? (Compare to statemask) */
-      mask|= 1 << get_enum(8);
-      STACK_0 = Cdr (STACK_0);
-    }
-    skipSTACK(1);
-    return mask;
-  }
-
- error: /* fall thru' -- raise type error */
-  /* FIXME We chould be more verbose here. */
-  my_type_error(`(OR (MEMBER :ANY) LIST XLIB::MASK16)`,obj);
+  if (listp(obj)) return check_modifier_from_list(obj);
+  my_type_error(`(OR (EQL :ANY) XLIB::CARD16 LIST)`,obj);
 }
 
-
+DEFCHECKER(check_event_mask,default=, bitmasks=both, type=unsigned long, \
+           KEY-PRESS=KeyPressMask                                       \
+           KEY-RELEASE=KeyReleaseMask                                   \
+           BUTTON-PRESS=ButtonPressMask                                 \
+           BUTTON-RELEASE=ButtonReleaseMask                             \
+           ENTER-WINDOW=EnterWindowMask                                 \
+           LEAVE-WINDOW=LeaveWindowMask                                 \
+           POINTER-MOTION=PointerMotionMask                             \
+           POINTER-MOTION-HINT=PointerMotionHintMask                    \
+           BUTTON-1-MOTION=Button1MotionMask                            \
+           BUTTON-2-MOTION=Button2MotionMask                            \
+           BUTTON-3-MOTION=Button3MotionMask                            \
+           BUTTON-4-MOTION=Button4MotionMask                            \
+           BUTTON-5-MOTION=Button5MotionMask                            \
+           BUTTON-MOTION=ButtonMotionMask                               \
+           KEYMAP-STATE=KeymapStateMask                                 \
+           EXPOSURE=ExposureMask                                        \
+           VISIBILITY-CHANGE=VisibilityChangeMask                       \
+           STRUCTURE-NOTIFY=StructureNotifyMask                         \
+           RESIZE-REDIRECT=ResizeRedirectMask                           \
+           SUBSTRUCTURE-NOTIFY=SubstructureNotifyMask                   \
+           SUBSTRUCTURE-REDIRECT=SubstructureRedirectMask               \
+           FOCUS-CHANGE=FocusChangeMask PROPERTY-CHANGE=PropertyChangeMask \
+           COLORMAP-CHANGE=ColormapChangeMask                           \
+           OWNER-GRAB-BUTTON=OwnerGrabButtonMask)
 static unsigned long get_event_mask (object obj)
 { /* get_event_mask could handle a numerical and symbolic
    representation of an event mask */
-  if (uint32_p (obj)) {
-    return get_uint32 (obj);
-  } else if (listp (obj)) {
-    /* We have a list of keys */
-    unsigned long mask = 0;
-    for (; consp (obj); obj = Cdr (obj)) {
-      /* I know this is brute force, but ... */
-           if (eq(Car (obj), `:KEY-PRESS`))             mask |= (1L<<0);
-      else if (eq(Car (obj), `:KEY-RELEASE`))           mask |= (1L<<1);
-      else if (eq(Car (obj), `:BUTTON-PRESS`))          mask |= (1L<<2);
-      else if (eq(Car (obj), `:BUTTON-RELEASE`))        mask |= (1L<<3);
-      else if (eq(Car (obj), `:ENTER-WINDOW`))          mask |= (1L<<4);
-      else if (eq(Car (obj), `:LEAVE-WINDOW`))          mask |= (1L<<5);
-      else if (eq(Car (obj), `:POINTER-MOTION`))        mask |= (1L<<6);
-      else if (eq(Car (obj), `:POINTER-MOTION-HINT`))   mask |= (1L<<7);
-      else if (eq(Car (obj), `:BUTTON-1-MOTION`))       mask |= (1L<<8);
-      else if (eq(Car (obj), `:BUTTON-2-MOTION`))       mask |= (1L<<9);
-      else if (eq(Car (obj), `:BUTTON-3-MOTION`))       mask |= (1L<<10);
-      else if (eq(Car (obj), `:BUTTON-4-MOTION`))       mask |= (1L<<11);
-      else if (eq(Car (obj), `:BUTTON-5-MOTION`))       mask |= (1L<<12);
-      else if (eq(Car (obj), `:BUTTON-MOTION`))         mask |= (1L<<13);
-      else if (eq(Car (obj), `:KEYMAP-STATE`))          mask |= (1L<<14);
-      else if (eq(Car (obj), `:EXPOSURE`))              mask |= (1L<<15);
-      else if (eq(Car (obj), `:VISIBILITY-CHANGE`))     mask |= (1L<<16);
-      else if (eq(Car (obj), `:STRUCTURE-NOTIFY`))      mask |= (1L<<17);
-      else if (eq(Car (obj), `:RESIZE-REDIRECT`))       mask |= (1L<<18);
-      else if (eq(Car (obj), `:SUBSTRUCTURE-NOTIFY`))   mask |= (1L<<19);
-      else if (eq(Car (obj), `:SUBSTRUCTURE-REDIRECT`)) mask |= (1L<<20);
-      else if (eq(Car (obj), `:FOCUS-CHANGE`))          mask |= (1L<<21);
-      else if (eq(Car (obj), `:PROPERTY-CHANGE`))       mask |= (1L<<22);
-      else if (eq(Car (obj), `:COLORMAP-CHANGE`))       mask |= (1L<<23);
-      else if (eq(Car (obj), `:OWNER-GRAB-BUTTON`))     mask |= (1L<<24);
-      else goto raise_type_error;
-    }
-    if (!eq(obj, NIL))
-      fehler_proper_list_dotted(TheSubr(subr_self)->name,obj);
-    return mask;
-  }
- raise_type_error:
-  pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S: invalid event mask ~S"));
+  if (uint32_p (obj)) return get_uint32 (obj);
+  if (listp (obj)) return check_event_mask_from_list(obj);
+  my_type_error(`(OR XLIB::CARD32 LIST)`,obj);
 }
 
 static object make_event_mask (unsigned long mask)
@@ -1613,82 +1548,22 @@ STANDARD_XID_OBJECT_LOOK(CURSOR,cursor)
 STANDARD_PTR_OBJECT_LOOK(GCONTEXT,gcontext)
 
 DEFUN(XLIB:MAKE-EVENT-KEYS, event)
-{
-  unsigned long mask = get_uint32 (popSTACK());
-  int n = 0;
-  if (mask & (1L<<0))  { pushSTACK(`:KEY-PRESS`), n++; }
-  if (mask & (1L<<1))  { pushSTACK(`:KEY-RELEASE`), n++; }
-  if (mask & (1L<<2))  { pushSTACK(`:BUTTON-PRESS`), n++; }
-  if (mask & (1L<<3))  { pushSTACK(`:BUTTON-RELEASE`), n++; }
-  if (mask & (1L<<4))  { pushSTACK(`:ENTER-WINDOW`), n++; }
-  if (mask & (1L<<5))  { pushSTACK(`:LEAVE-WINDOW`), n++; }
-  if (mask & (1L<<6))  { pushSTACK(`:POINTER-MOTION`), n++; }
-  if (mask & (1L<<7))  { pushSTACK(`:POINTER-MOTION-HINT`), n++; }
-  if (mask & (1L<<8))  { pushSTACK(`:BUTTON-1-MOTION`), n++; }
-  if (mask & (1L<<9))  { pushSTACK(`:BUTTON-2-MOTION`), n++; }
-  if (mask & (1L<<10)) { pushSTACK(`:BUTTON-3-MOTION`), n++; }
-  if (mask & (1L<<11)) { pushSTACK(`:BUTTON-4-MOTION`), n++; }
-  if (mask & (1L<<12)) { pushSTACK(`:BUTTON-5-MOTION`), n++; }
-  if (mask & (1L<<13)) { pushSTACK(`:BUTTON-MOTION`), n++; }
-  if (mask & (1L<<14)) { pushSTACK(`:KEYMAP-STATE`), n++; }
-  if (mask & (1L<<15)) { pushSTACK(`:EXPOSURE`), n++; }
-  if (mask & (1L<<16)) { pushSTACK(`:VISIBILITY-CHANGE`), n++; }
-  if (mask & (1L<<17)) { pushSTACK(`:STRUCTURE-NOTIFY`), n++; }
-  if (mask & (1L<<18)) { pushSTACK(`:RESIZE-REDIRECT`), n++; }
-  if (mask & (1L<<19)) { pushSTACK(`:SUBSTRUCTURE-NOTIFY`), n++; }
-  if (mask & (1L<<20)) { pushSTACK(`:SUBSTRUCTURE-REDIRECT`), n++; }
-  if (mask & (1L<<21)) { pushSTACK(`:FOCUS-CHANGE`), n++; }
-  if (mask & (1L<<22)) { pushSTACK(`:PROPERTY-CHANGE`), n++; }
-  if (mask & (1L<<23)) { pushSTACK(`:COLORMAP-CHANGE`), n++; }
-  if (mask & (1L<<24)) { pushSTACK(`:OWNER-GRAB-BUTTON`), n++; }
-  VALUES1(listof(n));
-}
+{ VALUES1(check_event_mask_to_list(get_uint32(popSTACK()))); }
 
 DEFUN(XLIB:MAKE-EVENT-MASK,&rest keys)
-{ /* First make-up a list of the &rest arguments */
-  /* FIXME! That is silly! It introduces unnec. consing. */
-  VALUES1(make_uint32(get_event_mask(listof(argcount))));
+{
+  unsigned long mask = 0;
+  while (argcount--) mask |= check_event_mask(popSTACK());
+  VALUES1(make_uint32(mask));
 }
 
 DEFUN(XLIB:MAKE-STATE-KEYS, event)
-{
-  unsigned int mask = get_uint16 (popSTACK());
-  int n = 0;
-  if (mask & ShiftMask)       { pushSTACK(`:SHIFT`), n++; }
-  if (mask & LockMask)        { pushSTACK(`:LOCK`), n++; }
-  if (mask & ControlMask)     { pushSTACK(`:CONTROL`), n++; }
-  if (mask & Mod1Mask)        { pushSTACK(`:MOD-1`), n++; }
-  if (mask & Mod2Mask)        { pushSTACK(`:MOD-2`), n++; }
-  if (mask & Mod3Mask)        { pushSTACK(`:MOD-3`), n++; }
-  if (mask & Mod4Mask)        { pushSTACK(`:MOD-4`), n++; }
-  if (mask & Mod5Mask)        { pushSTACK(`:MOD-5`), n++; }
-  if (mask & Button1Mask)     { pushSTACK(`:BUTTON-1`), n++; }
-  if (mask & Button2Mask)     { pushSTACK(`:BUTTON-2`), n++; }
-  if (mask & Button3Mask)     { pushSTACK(`:BUTTON-3`), n++; }
-  if (mask & Button4Mask)     { pushSTACK(`:BUTTON-4`), n++; }
-  if (mask & Button5Mask)     { pushSTACK(`:BUTTON-5`), n++; }
-  VALUES1(listof(n));
-}
+{ VALUES1(check_modifier_to_list(get_uint16(popSTACK()))); }
 
 DEFUN(XLIB:MAKE-STATE-MASK, &rest args)
 {
   unsigned int mask = 0;
-  while (argcount--) {
-    pushSTACK(`:SHIFT`);
-    pushSTACK(`:LOCK`);
-    pushSTACK(`:CONTROL`);
-    pushSTACK(`:MOD-1`);
-    pushSTACK(`:MOD-2`);
-    pushSTACK(`:MOD-3`);
-    pushSTACK(`:MOD-4`);
-    pushSTACK(`:MOD-5`);
-    pushSTACK(`:BUTTON-1`);
-    pushSTACK(`:BUTTON-2`);
-    pushSTACK(`:BUTTON-3`);
-    pushSTACK(`:BUTTON-4`);
-    pushSTACK(`:BUTTON-5`);
-    mask|= (1L << get_enum(13));
-  }
+  while (argcount--) mask |= check_modifier(popSTACK());
   VALUES1(make_uint16(mask));
 }
 
@@ -3960,7 +3835,8 @@ DEFUN(XLIB:CHAR->CARD8, char) { funcall (L(char_code), 1); }
  could understand all the possible formats. */
 
 
-DEF_ENUM_GETTER (image_format, 3, (ee(`:BITMAP`), ee(`:XY-PIXMAP`), ee(`:Z-PIXMAP`)))
+DEFCHECKER(get_image_format,default=,                           \
+           BITMAP=XYBitmap XY-PIXMAP=XYPixmap Z-PIXMAP=ZPixmap)
 
 static uint16 get_image_width (void)
 {
@@ -5289,6 +5165,8 @@ DEFUN(XLIB:INTERN-ATOM, display atom) /* OK */
 }
 
 /* 11.2  Properties */
+DEFCHECKER(check_propmode,default=PropModeReplace, REPLACE=PropModeReplace \
+           PREPEND=PropModePrepend APPEND=PropModeAppend)
 /*   XLIB:CHANGE-PROPERTY window property data type format
           &key (:mode :replace) (:start 0) :end :transform */
 DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
@@ -5299,7 +5177,7 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
   Atom property = get_xatom (dpy, STACK_7);
   Atom     type = get_xatom (dpy, STACK_5);
   int    format = get_uint8 (STACK_4);
-  int      mode = PropModeReplace;
+  int      mode = check_propmode(STACK_3);
   int     start = (missingp(STACK_2) ? 0 : get_uint32 (STACK_2));
   int       end;
   int         i;
@@ -5308,14 +5186,6 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
 
   if (format != 8 && format != 16 && format != 32)
     my_type_error(`(MEMBER 8 16 32)`,STACK_4);
-
-  if (boundp(STACK_3)) {
-    pushSTACK(STACK_3);
-    pushSTACK(`:REPLACE`);
-    pushSTACK(`:PREPEND`);
-    pushSTACK(`:APPEND`);
-    mode = get_enum(3);
-  }
 
   if (missingp(STACK_1)) /* data argument */
     end = get_uint32(funcall1(L(length),STACK_6));
@@ -6322,22 +6192,17 @@ DEFUN(XLIB:WARP-POINTER-RELATIVE-IF-INSIDE, x-offset y-offset source \
 
 /* 12.7  Managing Input Focus */
 
+DEFCHECKER(check_revert_focus,default=RevertToNone, NONE=RevertToNone   \
+           POINTER-ROOT=RevertToPointerRoot PARENT=RevertToParent)
+
 /* btw. why not (SETF INPUT-FOCUS) ?
  FIXME (RTFS): focus and revert-to are actually swapped in manual. */
 DEFUN(XLIB:SET-INPUT-FOCUS , dpy focus revert-to &optional time1)
 {
-  Time time;
-  int revert_to;
-  Display *dpy;
-  Window focus;
-
-  time = get_timestamp (popSTACK());
-  pushSTACK(`:NONE`);
-  pushSTACK(`:POINTER-ROOT`);
-  pushSTACK(`:PARENT`);
-  revert_to = get_enum(3);
-  focus = get_window (popSTACK());
-  dpy = pop_display ();
+  Time time = get_timestamp (popSTACK());
+  int revert_to = check_revert_focus(popSTACK());
+  Window focus = get_window(popSTACK());
+  Display *dpy = pop_display();
 
   X_CALL(XSetInputFocus (dpy, focus, revert_to, time));
 
@@ -6366,12 +6231,7 @@ DEFUN(XLIB:INPUT-FOCUS, display)
   }
 
   /* value2 (= revert) */
-  switch (revert) {
-    case RevertToPointerRoot: pushSTACK(`:POINTER-ROOT`); break;
-    case RevertToParent:      pushSTACK(`:PARENT`); break;
-    case RevertToNone:        pushSTACK(`:NONE`); break;
-    default:                  pushSTACK(NIL);     /* safety ... */
-  }
+  pushSTACK(check_revert_focus_reverse(revert));
 
   value2 = popSTACK();
   value1 = popSTACK();
@@ -6527,22 +6387,16 @@ DEFUN(XLIB:UNGRAB-KEY, window code &key MODIFIERS)
 }
 
 /* 12.13  Releasing Queued Events */
+DEFCHECKER(check_allow_events,default=,ASYNC-POINTER=AsyncPointer       \
+           SYNC-POINTER=SyncPointer REPLAY-POINTER=ReplayPointer        \
+           ASYNC-KEYBOARD=AsyncKeyboard SYNC-KEYBOARD=SyncKeyboard      \
+           REPLAY-KEYBOARD=ReplayKeyboard                               \
+           ASYNC-BOTH=AsyncBoth SYNC-BOTH=SyncBoth)
 DEFUN(XLIB:ALLOW-EVENTS, display mode &optional time)
 {
   Time timestamp = get_timestamp (popSTACK());
-  int mode;
-  Display *dpy;
-
-  pushSTACK(`:ASYNC-POINTER`);
-  pushSTACK(`:SYNC-POINTER`);
-  pushSTACK(`:REPLAY-POINTER`);
-  pushSTACK(`:ASYNC-KEYBOARD`);
-  pushSTACK(`:SYNC-KEYBOARD`);
-  pushSTACK(`:REPLAY-KEYBOARD`);
-  pushSTACK(`:ASYNC-BOTH`);
-  pushSTACK(`:SYNC-BOTH`);
-  mode = get_enum(8);
-  dpy = pop_display ();
+  int mode = check_allow_events(popSTACK());
+  Display *dpy = pop_display ();
 
   X_CALL(XAllowEvents (dpy, mode, timestamp));
 
@@ -7067,6 +6921,10 @@ DEFUN(XLIB:RESET-SCREEN-SAVER, display)
     the natural way?!
  [Was that written by Pascal programmers?] @*~#&%§"  */
 
+/* same for DontAllowExposures ... */
+DEFCHECKER(check_yes_no,default=DefaultBlanking,\
+           NO=DontPreferBlanking YES=PreferBlanking DEFAULT=DefaultBlanking)
+
 DEFUN(XLIB:SCREEN-SAVER, display)
 {
   Display *dpy = pop_display ();
@@ -7080,36 +6938,25 @@ DEFUN(XLIB:SCREEN-SAVER, display)
 
   value1 = make_sint16 (timeout);
   value2 = make_sint16 (interval);
-  value3 = prefer_blanking ? `:YES` : `:NO`;
-  value4 = allow_exposures ? `:YES` : `:NO`;
+  value3 = check_yes_no_reverse(prefer_blanking);
+  value4 = check_yes_no_reverse(allow_exposures);
   /* Hey?! Manual says :YES/:NO but actual implementation
      does :ON/:OFF! &$#"&! */
-    mv_count = 4;
+  mv_count = 4;
 }
 
 DEFUN(XLIB:SET-SCREEN-SAVER, display timeout period blanking exposures)
 {
-  int exposures, blanking;
-  Display *dpy = (pushSTACK(STACK_4), pop_display());
-  int timeout = eq (STACK_3, `:DEFAULT`) ? -1 : get_sint32 (STACK_3);
-  int period = get_uint32 (STACK_2);
-
-  pushSTACK(STACK_1);
-  pushSTACK(`:NO`);
-  pushSTACK(`:YES`);
-  pushSTACK(`:DEFAULT`);
-  blanking = get_enum(3);
-
-  pushSTACK(STACK_0);
-  pushSTACK(`:NO`);
-  pushSTACK(`:YES`);
-  pushSTACK(`:DEFAULT`);
-  exposures = get_enum(3);
+  int exposures = check_yes_no(popSTACK());
+  int blanking = check_yes_no(popSTACK());
+  int period = get_uint32 (popSTACK());
+  int timeout = eq(STACK_0,`:DEFAULT`) ? (skipSTACK(1),-1)
+    : get_sint32(popSTACK());
+  Display *dpy = pop_display();
 
   X_CALL(XSetScreenSaver (dpy, timeout, period, blanking, exposures));
 
   VALUES1(NIL);
-  skipSTACK(5);
 }
 
 
@@ -7284,14 +7131,14 @@ int xlib_after_function (Display *display)
  ---------------------------------------------------------------------------- */
 
 ##if WANT_XSHAPE
-#include <X11/extensions/shape.h>
 
 /* NOTE: The functions in here are my own invents ... */
 
 /* First three little enums (three? I can only see two!) */
 
-DEF_ENUM (shape_kind,      2, (ee(`:BOUNDING`),ee(`:CLIP`)))
-DEF_ENUM (shape_operation, 5, (ee(`:SET`),ee(`:UNION`),ee(`:INTERSECT`),ee(`:SUBTRACT`),ee(`:INVERT`)))
+DEFCHECKER(get_shape_kind,default=, BOUNDING=ShapeBounding CLIP=ShapeClip)
+DEFCHECKER(get_shape_operation,default=, SET=ShapeSet UNION=ShapeUnion  \
+           INTERSECT=ShapeIntersect SUBTRACT=ShapeSubtract INVERT=ShapeInvert)
 
 static Bool ensure_shape_extension (Display *dpy, object dpy_obj, int error_p)
 { /* Ensures that the SHAPE extension is initialized. If it is not available

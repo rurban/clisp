@@ -1,3 +1,24 @@
+2005-03-16  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (get_enum, enum_error, DEF_ENUM_MAKER)
+	(DEF_ENUM_GETTER, DEF_ENUM): removed
+	use DEFCHECKER instead throughout the file
+	(get_gcontext_key): replaced with a DEFCHECKER
+	(check_modifier, check_event_mask): new DEFCHECKERs
+	(get_modifier_mask, get_event_mask): use them
+	(XLIB:MAKE-EVENT-KEYS): use check_event_mask_to_list()
+	(XLIB:MAKE-EVENT-MASK): avoid consing
+	(XLIB:MAKE-STATE-KEYS): use check_modifier_to_list()
+	(XLIB:MAKE-STATE-MASK): use check_modifier()
+	(check_propmode): new DEFCHECKER
+	(XLIB:CHANGE-PROPERTY): use it
+	(check_revert_focus): new DEFCHECKER
+	(XLIB:SET-INPUT-FOCUS, XLIB:INPUT-FOCUS): use it
+	(check_allow_events): new DEFCHECKER
+	(XLIB:ALLOW-EVENTS): use it
+	(check_yes_no): new DEFCHECKER
+	(XLIB:SCREEN-SAVER, XLIB:SET-SCREEN-SAVER): use it
+
 2005-03-14  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.lisp (checker): new slot bitmasks
