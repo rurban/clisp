@@ -122,11 +122,6 @@ parse_namestring: split_name_type(1), und bei make_pathname
 Klein->Großschreibung umwandeln, so dass (make-pathname :type "fas") immer geht.
 
 
-If you (TRACE generic-function) and then reload the file defining that
-function, you get an error saying that #<CLOSURE TRACED-xxx> is not a generic
-function.
-
-
 clean up and modularize spvw.d
 
 
