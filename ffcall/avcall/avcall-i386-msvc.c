@@ -1,6 +1,6 @@
 #include "asmi386.h"
 TEXT()
-	ALIGN(4)
+	ALIGN(2)
 GLOBL(C(__builtin_avcall))
 FUNBEGIN(__builtin_avcall)
 	INSN1(push,l	,R(ebp))
@@ -238,7 +238,7 @@ L40:
 	jns L40
 	INSN1(jmp,_	,L13)
 L31:
-	INSN2(test,b	,NUM(1),R(ah))
+	INSN2(test,b	,NUM(2),R(ah))
 	INSN1(je,_	,L13)
 	INSN2(mov,l	,X4 MEM_DISP(esi,16),R(eax))
 	INSN2(cmp,l	,NUM(2),R(eax))

@@ -450,7 +450,7 @@ $L52:
 	.set	reorder
 
 $L43:
-	andi	$2,$4,0x0100
+	andi	$2,$4,0x0200
 	.set	noreorder
 	.set	nomacro
 	beq	$2,$0,$L25

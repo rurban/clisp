@@ -3,7 +3,7 @@
 gcc2_compiled.:
 C(__gnu_compiled_c:)
 .text
-	.align 4
+	.align 2
 .globl C(__builtin_avcall)
 C(__builtin_avcall:)
 	pushl %ebp
@@ -135,7 +135,7 @@ L40:
 	jns L40
 	jmp L13
 L31:
-	testb $1,%ah
+	testb $2,%ah
 	je L13
 	movl 16(%esi),%eax
 	cmpl $2,%eax

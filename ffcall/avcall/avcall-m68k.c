@@ -3,7 +3,7 @@
 /**
   Copyright 1993 Bill Triggs, <Bill.Triggs@inrialpes.fr>
 
-  Copyright 1995 Bruno Haible, <haible@clisp.cons.org>
+  Copyright 1995-1999 Bruno Haible, <haible@clisp.cons.org>
 
   This is free software distributed under the GNU General Public
   Licence described in the file COPYING. Contact the author if
@@ -42,6 +42,8 @@ __builtin_avcall(av_alist* l)
   register __avword	iret2	__asm__("d1");
   register float	fret	__asm__("d0");	/* d0 */
   register double	dret	__asm__("d0");	/* d0,d1 */
+  register float	fp_fret	__asm__("fp0");
+  register double	fp_dret	__asm__("fp0");
 
   __avword* argframe = (sp -= __AV_ALIST_WORDS); /* make room for argument list */
   int arglen = l->aptr - l->args;
@@ -51,7 +53,7 @@ __builtin_avcall(av_alist* l)
     argframe[i] = l->args[i];
 
   if (l->rtype == __AVstruct)		/* push struct return address */
-    __asm__("movel %0,a1" : : "g" (l->raddr));
+    __asm__("move%.l %0,%/a1" : : "g" (l->raddr));
 
   i = (*l->func)();			/* call function */
 
@@ -74,12 +76,20 @@ __builtin_avcall(av_alist* l)
     ((__avword*)l->raddr)[1] = iret2;
     break;
   case __AVfloat:
-    if (l->flags & __AV_SUNCC_FLOAT_RETURN)
-      RETURN(float, (float)dret);
+    if (l->flags & __AV_FREG_FLOAT_RETURN)
+      RETURN(float, fp_fret);
     else
-      RETURN(float, fret);
+      if (l->flags & __AV_SUNCC_FLOAT_RETURN)
+        RETURN(float, (float)dret);
+      else
+        RETURN(float, fret);
     break;
-  case __AVdouble:	RETURN(double,		dret);	break;
+  case __AVdouble:
+    if (l->flags & __AV_FREG_FLOAT_RETURN)
+      RETURN(double, fp_dret);
+    else
+      RETURN(double, dret);
+    break;
   case __AVvoidp:	RETURN(void*,		i);	break;
   case __AVstruct:
     /* NB: On m68k, all structure sizes are divisible by 2. */

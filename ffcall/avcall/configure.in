@@ -1,5 +1,5 @@
 dnl  AUTOCONF configuration for AVCALL
-dnl  Bruno Haible 7.11.1997
+dnl  Bruno Haible 13.2.1999
 dnl
 AC_INIT(avcall.h.in)
 AC_CONFIG_HEADER(avcall.h)
@@ -14,5 +14,6 @@ CL_CANONICAL_HOST(../autoconf)
 CL_CANONICAL_HOST_CPU_FOR_FFCALL
 CL_PCC_STRUCT_RETURN
 CL_SMALL_STRUCT_RETURN
+CL_IREG_FLOAT_RETURN
 CL_LONGLONG
 AC_OUTPUT(Makefile)

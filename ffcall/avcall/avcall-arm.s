@@ -134,7 +134,7 @@ L34:
 	bge	L34
 	b	L7
 L25:
-	tst	r3, #256
+	tst	r3, #512
 	beq	L7
 	ldr	r3, [r4, #16]
 	cmp	r3, #2
