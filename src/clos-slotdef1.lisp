@@ -410,6 +410,10 @@
 
 ;;; ===========================================================================
 
+(defun print-object-<slot-definition> (slotdef stream)
+  (print-unreadable-object (slotdef stream :type t :identity t)
+    (write (slot-definition-name slotdef) :stream stream)))
+
 ;; Preliminary.
 (defun direct-slot-definition-class (class &rest initargs)
   (declare (ignore class initargs))

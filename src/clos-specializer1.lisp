@@ -165,6 +165,10 @@
 (defun eql-specializer-object (specializer)
   (eql-specializer-singleton specializer))
 
+(defun print-object-<eql-specializer> (specializer stream)
+  (print-unreadable-object (specializer stream :type t)
+      (write (eql-specializer-object specializer) :stream stream)))
+
 ;;; ===========================================================================
 
 ;; Converts a specializer to a pretty printing type.

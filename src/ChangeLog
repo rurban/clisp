@@ -1,5 +1,14 @@
 2004-10-09  Bruno Haible  <bruno@clisp.org>
 
+	* clos-slotdef1.lisp (print-object-<slot-definition>): New function,
+	taken from clos-print.lisp.
+	* clos-specializer1.lisp (print-object-<eql-specializer>): Likewise.
+	* clos-class1.lisp (print-object-<class>): Likewise.
+	* clos-print.lisp (print-object): Use print-object-<slot-definition>,
+	print-object-<eql-specializer>, print-object-<class>.
+
+2004-10-09  Bruno Haible  <bruno@clisp.org>
+
 	Move code.
 	* init.lisp (print-unreadable-object): Export it here.
 	* macros2.lisp (print-unreadable-object): Moved to here.
