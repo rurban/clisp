@@ -331,6 +331,7 @@ src-distrib : src/FILES src/VERSION potfiles force
 	$(MAKE) -f Makefile.devel src--distrib TOPDIR=clisp-$(VER)
 
 src--distrib : force
+	touch src/VERSION
 	ln -s . $(TOPDIR)
 	$(PACK) $(PACKOPT) $(SRC_DIST) $(EXCLUDE) $(SOURCES)
 	rm -f $(TOPDIR)
