@@ -1940,7 +1940,7 @@ constant-inline constant-notinline
 
 #+GETTEXT (LOAD "german") ;; Deutsche Meldungen
 #+GETTEXT (LOAD "french") ;; Französische Meldungen
-#+GETTEXT (LOAD "spanish") ;; Spanische Meldungen
+#+(and GETTEXT UNICODE) (LOAD "spanish") ;; Spanische Meldungen
 #+GETTEXT (LOAD "dutch")  ;; Holländische Meldungen
 
 #+dir-key

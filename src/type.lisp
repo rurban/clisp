@@ -1137,6 +1137,7 @@
 
 #-UNICODE
 (defun charset-subtypep (encoding1 encoding2)
+  (declare (ignore encoding1 encoding2))
   t
 )
 #+UNICODE

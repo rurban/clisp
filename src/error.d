@@ -136,7 +136,7 @@
       }
       #else
       var const uintB* bptr = start;
-      while (*bptr != end) {
+      while (bptr != end) {
         write_code_char(&STACK_0,as_chart(*bptr));
         bptr++;
       }
