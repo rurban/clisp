@@ -1,5 +1,21 @@
 2000-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * lispbibl.d: Add BeOS support.
+          Based on patch by Alexis Rivera Rios <ahrivera@yahoo.com>.
+        * unix.d: Likewise.
+
+        * autoconf/aclocal.m4 (CL_READLINK): Check the return type as well;
+          it may be 'int' or 'ssize_t'. Define RETREADLINKTYPE.
+        * unixconf.h.in (RETREADLINKTYPE): New macro.
+        * unix.d (readlink): Use it.
+
+        * autoconf/aclocal.m4 (CL_GETHOSTNAME): Try 'unsigned int' as well.
+
+        * autoconf/aclocal.m4 (RL_SELECT, CL_SELECT): Include <sys/socket.h>.
+          Try 'struct fd_set' as well.
+
+2000-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * compiler.lsp (compile-file): Don't pass a third argument to the
           "~%~D error~:P, ~D warning~:P" format string.
 

@@ -2348,6 +2348,7 @@ AC_DEFUN(CL_READLINK,
 [AC_CHECK_FUNCS(readlink)dnl
 if test $ac_cv_func_readlink = yes; then
 CL_PROTO([readlink], [
+for r in 'int' 'ssize_t'; do
 for z in 'int' 'size_t'; do
 for y in 'char*' 'void*'; do
 for x in '' 'const'; do
@@ -2359,11 +2360,12 @@ AC_TRY_COMPILE([
 #endif
 ]AC_LANG_EXTERN[
 #if defined(__STDC__) || defined(__cplusplus)
-int readlink ($x char* path, $y buf, $z bufsiz);
+$r readlink ($x char* path, $y buf, $z bufsiz);
 #else
-int readlink();
+$r readlink();
 #endif
 ], [],
+cl_cv_proto_readlink_ret="$r"
 cl_cv_proto_readlink_arg1="$x"
 cl_cv_proto_readlink_arg2="$y"
 cl_cv_proto_readlink_arg3="$z"
@@ -2372,7 +2374,9 @@ fi
 done
 done
 done
-], [extern int readlink ($cl_cv_proto_readlink_arg1 char*, $cl_cv_proto_readlink_arg2, $cl_cv_proto_readlink_arg3);])
+done
+], [extern $cl_cv_proto_readlink_ret readlink ($cl_cv_proto_readlink_arg1 char*, $cl_cv_proto_readlink_arg2, $cl_cv_proto_readlink_arg3);])
+AC_DEFINE_UNQUOTED(RETREADLINKTYPE,$cl_cv_proto_readlink_ret)
 AC_DEFINE_UNQUOTED(READLINK_CONST,$cl_cv_proto_readlink_arg1)
 AC_DEFINE_UNQUOTED(READLINK_BUF_T,$cl_cv_proto_readlink_arg2)
 AC_DEFINE_UNQUOTED(READLINK_SIZE_T,$cl_cv_proto_readlink_arg3)
@@ -2807,7 +2811,10 @@ AC_DEFUN(RL_SELECT,
 [AC_CHECK_FUNCS(select)dnl
 if test $ac_cv_func_select = yes; then
 CL_COMPILE_CHECK([sys/select.h], cl_cv_header_sys_select_h,
-[#include <sys/time.h>
+[#ifdef __BEOS__
+#include <sys/socket.h>
+#endif
+#include <sys/time.h>
 #include <sys/select.h>], ,
 AC_DEFINE(HAVE_SYS_SELECT_H))dnl
 fi
@@ -2817,12 +2824,15 @@ AC_DEFUN(CL_SELECT,
 [AC_CHECK_FUNCS(select)dnl
 if test $ac_cv_func_select = yes; then
 CL_COMPILE_CHECK([sys/select.h], cl_cv_header_sys_select_h,
-[#include <sys/time.h>
+[#ifdef __BEOS__
+#include <sys/socket.h>
+#endif
+#include <sys/time.h>
 #include <sys/select.h>], ,
 AC_DEFINE(HAVE_SYS_SELECT_H))dnl
 CL_PROTO([select], [
 for z in '' 'const'; do
-for y in 'fd_set' 'int' 'void'; do
+for y in 'fd_set' 'int' 'void' 'struct fd_set'; do
 for x in 'int' 'size_t'; do
 if test -z "$have_select"; then
 CL_PROTO_TRY([
@@ -2831,6 +2841,9 @@ CL_PROTO_TRY([
 #include <unistd.h>
 #endif
 #include <sys/types.h>
+#ifdef __BEOS__
+#include <sys/socket.h>
+#endif
 #include <sys/time.h>
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
@@ -3003,13 +3016,24 @@ AC_DEFUN(CL_GETHOSTNAME,
 [AC_CHECK_FUNCS(gethostname)dnl
 if test $ac_cv_func_gethostname = yes; then
 CL_PROTO([gethostname], [
-CL_PROTO_TRY([
+for x in 'int' 'size_t' 'unsigned int'; do
+if test -z "$have_gethostname"; then
+AC_TRY_COMPILE([
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [int gethostname (char* name, int namelen);], [int gethostname();],
-cl_cv_proto_gethostname_arg2="int", cl_cv_proto_gethostname_arg2="size_t")
+]AC_LANG_EXTERN[
+#if defined(__STDC__) || defined(__cplusplus)
+int gethostname (char* name, $x namelen);
+#else
+int gethostname();
+#endif
+], [],
+cl_cv_proto_gethostname_arg2="$x"
+have_gethostname=1)
+fi
+done
 ], [extern int gethostname (char*, $cl_cv_proto_gethostname_arg2);])
 AC_DEFINE_UNQUOTED(GETHOSTNAME_SIZE_T,$cl_cv_proto_gethostname_arg2)
 fi
