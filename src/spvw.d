@@ -2920,7 +2920,15 @@ local void print_banner ()
             }
           quit();
         }
-      if (!(argv_execute_file == NULL))
+      if (!(argv_expr == NULL))
+        # *STANDARD-INPUT* auf einen Stream setzen, der argv_expr produziert:
+        { pushSTACK(asciz_to_string(argv_expr,O(misc_encoding)));
+          funcall(L(make_string_input_stream),1);
+          Symbol_value(S(standard_input)) = value1;
+          argv_execute_file = "-";
+          # Dann den Driver aufrufen. Stringende -> EOF -> Programmende.
+        }
+      if (!(argv_execute_file == NULL) || (argv_expr != NULL))
         # (PROGN
         #   #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\# #\!
         #            #'SYS::UNIX-EXECUTABLE-READER)
@@ -2966,13 +2974,6 @@ local void print_banner ()
             eval_noenv(form); # ausführen
           }
           quit();
-        }
-      if (!(argv_expr == NULL))
-        # *STANDARD-INPUT* auf einen Stream setzen, der argv_expr produziert:
-        { pushSTACK(asciz_to_string(argv_expr,O(misc_encoding)));
-          funcall(L(make_string_input_stream),1);
-          Symbol_value(S(standard_input)) = value1;
-          # Dann den Driver aufrufen. Stringende -> EOF -> Programmende.
         }
       # Read-Eval-Print-Schleife aufrufen:
       driver();
