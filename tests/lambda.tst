@@ -244,7 +244,7 @@ ERROR
 (fmakunbound 'foo) foo
 
 ;; disassemble
-#+clisp (setf (getenv "PAGER") nil) #+clisp nil
+#+clisp (setf (getenv "PAGER") "cat") #+clisp "cat"
 #-(and clisp (or win32 cygwin)) (disassemble 'car) nil
 #-(and clisp (or win32 cygwin)) (disassemble #'cdr) nil
 (disassemble 'disassemble) nil
