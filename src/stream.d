@@ -4612,13 +4612,39 @@ local sintL low_read_unbuffered_handle (object stream) {
 }
 
 local signean listen_handle (Handle handle, bool tty_p, int *byte) {
-  # Method 1: select, see SELECT(2)
-  # Method 2: ioctl FIONREAD, see FILIO(4)
-  # Method 3: switch temporarily to non-blocking I/O and try read(),
+  # Method 1: poll, see POLL(2)
+  # Method 2: select, see SELECT(2)
+  # Method 3: ioctl FIONREAD, see FILIO(4)
+  # Method 4: switch temporarily to non-blocking I/O and try read(),
   #           see READ(2V), FILIO(4), or
   #           see READ(2V), FCNTL(2V), FCNTL(5)
   #if !defined(WIN32_NATIVE)
-  #if defined(HAVE_SELECT) && !defined(UNIX_BEOS)
+  #if defined(HAVE_POLL) && (defined(HAVE_RELIABLE_POLL) || !defined(HAVE_RELIABLE_SELECT))
+  {
+    # Use poll() with a single handle and timeout = zero interval.
+    var struct pollfd pollfd_bag[1];
+    pollfd_bag[0].fd = handle;
+    pollfd_bag[0].events = POLLIN;
+    pollfd_bag[0].revents = 0;
+    begin_system_call();
+   restart_poll:
+    var int result = poll(&pollfd_bag[0],1,0);
+    if (result<0) {
+      if (errno==EINTR)
+        goto restart_poll;
+      OS_error();
+    } else {
+      end_system_call();
+      # revents has POLLIN or some other bits set if read() would return
+      # without blocking.
+      if (pollfd_bag[0].revents == 0)
+        return ls_wait;
+      # When read() returns a result without blocking, this can also be
+      # EOF! (Example: Linux and pipes.) We therefore refrain from simply
+      # doing  { return ls_avail; }  and instead try methods 3 and 4.
+    }
+  }
+  #elif defined(HAVE_SELECT) && !defined(UNIX_BEOS)
   {
     # Use select() with readfds = singleton set {handle}
     # and timeout = zero interval.
@@ -4643,7 +4669,7 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
       # result=1
       # When read() returns a result without blocking, this can also be
       # EOF! (Example: Linux and pipes.) We therefore refrain from simply
-      # doing  { return ls_avail; }  and instead try methods 2 and 3.
+      # doing  { return ls_avail; }  and instead try methods 3 and 4.
     }
   }
   #endif
@@ -4680,7 +4706,7 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
     }
   }
   #endif
-  #if !(defined(HAVE_SELECT) && !defined(UNIX_BEOS))
+  #if !((defined(HAVE_POLL) && (defined(HAVE_RELIABLE_POLL) || !defined(HAVE_RELIABLE_SELECT))) || (defined(HAVE_SELECT) && !defined(UNIX_BEOS)))
   if (tty_p) { # Terminal
     # switch to non-blocking mode, then try read():
     var uintB b;
@@ -8270,7 +8296,34 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
     }
     goto empty_buffer;
   wait_for_another:
-  #if defined(HAVE_SELECT) && !defined(UNIX_BEOS)
+  #if defined(HAVE_POLL)
+    {
+      # Use poll() with a single handle {stdin_handle}
+      # and timeout = zero interval.
+      var struct pollfd pollfd_bag[1];
+      pollfd_bag[0].fd = stdin_handle;
+      pollfd_bag[0].events = POLLIN;
+      pollfd_bag[0].revents = 0;
+     restart_poll:
+      run_time_stop(); # hold run time clock
+      begin_system_call();
+      var int result = poll(&pollfd_bag[0],1,100); # 1/10 sec
+      end_system_call();
+      run_time_restart(); # resume run time clock
+      if (result<0) {
+        begin_system_call();
+        if (errno==EINTR) {
+          end_system_call(); goto restart_poll;
+        }
+        OS_error();
+      } else {
+        # revents has POLLIN or some other bits set if read() would return
+        # without blocking.
+        if (pollfd_bag[0].revents == 0)
+          goto empty_buffer; # no character available
+      }
+    }
+  #elif defined(HAVE_SELECT) && !defined(UNIX_BEOS)
     {
       # Use select with readfds = one-element set {stdin_handle}
       # and timeout = small time-interval.
