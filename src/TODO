@@ -1,5 +1,22 @@
 This file contains suggestions for further work.
 
+MUST-FIX BEFORE NEXT RELEASE
+============================
+
+Finish MOP. (Bruno)
+
+Defstruct accessors are defined twice, which leads to warnings. (Bruno)
+
+Contagion warnings emitted by many floating-point operations. (Bruno)
+
+Reordered MOP documentation. (Sam)
+
+fill-stream cannot print structured multiline objects reasonably: it
+flattens all whitespace. (Sam)
+
+Many pretty-printer test failures. (Sam)
+
+
 URGENT PROBLEMS
 ===============
 
