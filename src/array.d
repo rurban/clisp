@@ -2067,7 +2067,6 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       return ssstring;
     }
 
-#ifdef STRM_WR_SS
 # UP: Stellt sicher, dass ein Semi-Simple String eine bestimmte Länge hat
 # und erweitert ihn dazu eventuell.
 # ssstring_extend(ssstring,size)
@@ -2105,7 +2104,6 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
         }}
       return ssstring;
     }
-#endif
 
 
 # Stackaufbau bei MAKE-ARRAY :
