@@ -1854,7 +1854,9 @@ containing:</para>
   into an intermediate &lispinit; file, before building the &lispinit;
   belonging to a new &linkset;.
   This variable is usually used for defining Lisp packages which must be
-  present when the new &c-file; files are initialized.
+  present when the new &c-file; files are initialized.  E.g., the
+  &def-call-in; functions must reside in already defined packages;
+  see <link linkend="ex-call-in">the call-in example</link>.
  </simpara></listitem></varlistentry>
 </variablelist>
 
@@ -2783,7 +2785,7 @@ is not an alternative because this would also
 <function>free(r2-&gt;x)</function> but <varname>r2-&gt;x</varname> is a
 pointer to static data.</para></example>
 
-<example><title>call-in</title>
+<example id="ex-call-in"><title>Calling Lisp from &c-lang;</title>
 
 <para>To sort an array of double-floats using the Lisp function &sort;
  instead of the &c-lang; library function &qsort;, one can use the
@@ -2841,7 +2843,17 @@ $ clisp-link create-module-set sort sort2.c sorttest.c
 $ cc -O -c sort1.c
 $ cd sort
 $ ln -s ../sort1.o sort1.o
-Add sort1.o to NEW_LIBS and NEW_FILES in link.sh.
+</programlisting>
+
+Add <filename>sort1.o</filename> to <envar>NEW_LIBS</envar>
+and <envar>NEW_FILES</envar> in <filename>link.sh</filename>.
+Create a file <filename>package.lisp</filename> containing the
+form <literal role="sexp">(&defpackage; "FFI-TEST" (:use "LISP"
+"FFI"))</literal> and add <filename>package.lisp</filename>
+to <envar>TO_PRELOAD</envar> in <filename>link.sh</filename>.
+Proceed:
+
+<programlisting>
 $ cd ..
 $ base/lisp.run -M base/lispinit.mem -c sort2.lisp sorttest.lisp
 $ clisp-link add-module-set sort base base+sort
