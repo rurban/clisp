@@ -1,6 +1,7 @@
 # Top-Level-Schleife, Hilfsfunktionen für Debugger, Stepper von CLISP
 # Bruno Haible 1990-2000
 # ILISP friendliness: Marcus Daniels 8.4.1994
+# Sam Steingold 2001
 
 #include "lispbibl.c"
 
@@ -168,10 +169,10 @@
       #if !defined(TERMINAL_USES_KEYBOARD)
       if (!ls_avail_p(status)) dynamic_unbind(); # S(terminal_read_stream)
       #endif
-      if (!eq(obj,eof_value)) { # EOF (nach Whitespace) abfragen
+      if (!eq(obj,eof_value)) { # EOF test (after whitespace)
         pushSTACK(obj);
         pushSTACK(STACK_(4+1)); pushSTACK(STACK_(0+1+1)); funcall(L(terminal_raw),2);
-        # wartenden Input bis Zeilenende löschen
+        # delete input till EOL
         if (interactive_stream_p(STACK_(4+1))) {
           while (ls_avail_p(listen_char(STACK_(4+1)))) {
             var object ch = peek_char(&STACK_(4+1));
