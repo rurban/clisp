@@ -1,10 +1,5 @@
 2001-05-01  Sam Steingold  <sds@gnu.org>
 
-	* clos.lisp (%call-next-method): WARN instead of ERROR-OF-TYPE
-	on method mismatch
-
-2001-05-01  Sam Steingold  <sds@gnu.org>
-
 	* type.lisp (subtypep): handle types NIL and T specially
 	[bugfix: (subtypep 'EXTENDED-CHAR 'CHARACTER) returned (NO)]
 
