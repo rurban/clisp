@@ -2,6 +2,8 @@
 
 	* disassem.lisp (disassemble): do not signal an error when cannot
 	disassemble a built-in C function
+	* utils/clispload.lsp [WIN32]: do not mark DISASSEMBLE.* as
+	expected failures
 
 2004-04-21  Bruno Haible  <bruno@clisp.org>
 

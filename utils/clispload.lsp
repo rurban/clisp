@@ -115,9 +115,6 @@
 
   ;; test bug
   PRINT.SYMBOL.PREFIX.3
-
-  ;; win32 cannot disassemble subrs
-  #+win32 DISASSEMBLE.1 #+win32 DISASSEMBLE.2
 ))
 
 ;; A few tests call DISASSEMBLE. Make it work without user intervention.
