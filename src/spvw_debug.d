@@ -119,9 +119,10 @@ local void nobject_out1 (FILE* out, object obj, int level) {
                        ? O(printstring_subr) : O(printstring_addon_subr)));
       obj = TheSubr(obj)->name;
     } else if (cclosurep(obj)) {
-      string_out(out, (genericfunctionp(obj)
-                       ? O(printstring_generic_function)
-                       : O(printstring_compiled_closure)));
+      if (Closure_instancep(obj))
+        fputs("FUNCALLABLE-INSTANCE",out);
+      else
+        string_out(out, O(printstring_compiled_closure));
       obj = Closure_name(obj);
     }
     #ifdef DYNAMIC_FFI

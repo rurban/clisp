@@ -62,7 +62,7 @@
           ;; do not warn about redefinition when no method was defined
           (and (fboundp 'find-method) (fboundp funname)
                (clos::generic-function-p (fdefinition funname))
-               (eql (sig-req-num (gf-signature (fdefinition funname))) (length spec-list))
+               (eql (sig-req-num (std-gf-signature (fdefinition funname))) (length spec-list))
                (find-method (fdefinition funname) qualifiers spec-list nil)
                "method"))
         (let ((reqanz (length req-vars))

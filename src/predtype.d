@@ -1178,11 +1178,10 @@ LISPFUNNF(numberp,1)
 LISPFUNNR(compiled_function_p,1) {
   /* (COMPILED-FUNCTION-P object), CLTL p. 76 */
   var object arg = popSTACK();
-  /* check for SUBR or compiled closure (excluding generic functions) or
+  /* check for SUBR or compiled closure (excluding funcallable instances) or
      foreign function: */
   VALUES_IF(subrp(arg)
-            || (cclosurep(arg)
-                && (TheCodevec(TheClosure(arg)->clos_codevec)->ccv_flags & bit(4)) == 0)
+            || (cclosurep(arg) && !Closure_instancep(arg))
             || ffunctionp(arg));
 }
 
@@ -1564,16 +1563,13 @@ LISPFUNNR(type_of,1)
       value1 = listof(3);
       break;
     case_closure: /* Closure */
-      /* -> COMPILED-FUNCTION or STANDARD-GENERIC-FUNCTION or FUNCTION or
-            a subclass of FUNCALLABLE-STANDARD-OBJECT */
+      /* -> COMPILED-FUNCTION or FUNCTION or a subclass of
+            FUNCALLABLE-STANDARD-OBJECT */
       if (Closure_instancep(arg))
         goto instances;
       if (simple_bit_vector_p(Atype_8Bit,TheClosure(arg)->clos_codevec)) {
         # compiled Closure
-        if (TheCodevec(TheClosure(arg)->clos_codevec)->ccv_flags & bit(4))
-          value1 = S(standard_generic_function);
-        else
-          value1 = S(compiled_function);
+        value1 = S(compiled_function);
       } else {
         # interpreted Closure
         value1 = S(function);
@@ -1884,13 +1880,10 @@ LISPFUNNR(class_of,1)
       value1 = O(class_vector); break;
     case_mdarray: /* other Array -> <array> */
       value1 = O(class_array); break;
-    case_closure: /* Closure -> <function> or <standard-generic-function> or
-                     a subclass of <funcallable-standard-object> */
+    case_closure: /* Closure -> <function> or a subclass of
+                     <funcallable-standard-object> */
       if (Closure_instancep(arg))
         goto instances;
-      if (genericfunctionp(arg)) {
-        value1 = O(class_standard_generic_function); break;
-      }
     case_subr: /* SUBR -> <function> */
       value1 = O(class_function); break;
     case_stream: /* Stream -> <stream> or according to Stream-type */
@@ -2560,7 +2553,6 @@ enum { /* The values of this enumeration are 0,1,2,...
   enum_hs_vector,
   enum_hs_simple_array,
   enum_hs_array,
-  enum_hs_standard_generic_function,
   enum_hs_function,
   enum_hs_file_stream,
   enum_hs_synonym_stream,
@@ -2843,10 +2835,7 @@ local void heap_statistics_mapper (void* arg, object obj, uintL bytelen)
     case_closure: /* Closure */
       if (Closure_instancep(obj))
         goto instances;
-      if (genericfunctionp(obj))
-        pighole = &locals->builtins[(int)enum_hs_standard_generic_function];
-      else
-        pighole = &locals->builtins[(int)enum_hs_function];
+      pighole = &locals->builtins[(int)enum_hs_function];
       break;
     case_stream: /* Stream */
       switchu (TheStream(obj)->strmtype) {

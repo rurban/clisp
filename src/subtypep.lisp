@@ -1232,59 +1232,30 @@
 )
 
 (def-type-category STANDARD-OBJECT () ()
-  ;; Each part is a CLOS class of metaclass <standard-class>, or FUNCTION,
-  ;; of metaclass <built-in-class>.
-  ;; TODO: This needs an update once CLOS:GENERIC-FUNCTION really becomes
-  ;; an instance of <standard-class>.
+  ;; Each part is a CLOS class of metaclass <standard-class> or
+  ;; <funcallable-standard-class>, or <function>, of metaclass <built-in-class>.
   (lambda (parts)
     ;; Simplify `(AND ,@parts):
-    (let ((standard-classes
-            (set-difference parts '(FUNCTION CLOS:GENERIC-FUNCTION
-                                    CLOS:STANDARD-GENERIC-FUNCTION
-                                    #+FFI FFI::FOREIGN-FUNCTION)))
-          (built-in-classes
-            (intersection parts '(FUNCTION CLOS:GENERIC-FUNCTION
-                                  CLOS:STANDARD-GENERIC-FUNCTION
-                                  #+FFI FFI::FOREIGN-FUNCTION))))
-      (if built-in-classes
-        (if (or standard-classes
-                #+FFI (and (member 'FFI::FOREIGN-FUNCTION built-in-classes)
-                           (intersection '(CLOS:GENERIC-FUNCTION CLOS:STANDARD-GENERIC-FUNCTION)
-                                         built-in-classes)))
-          'NIL
-          (cond ((member 'CLOS:STANDARD-GENERIC-FUNCTION built-in-classes)
-                 'CLOS:STANDARD-GENERIC-FUNCTION)
-                ((member 'CLOS:GENERIC-FUNCTION built-in-classes)
-                 'CLOS:GENERIC-FUNCTION)
-                #+FFI
-                ((member 'FFI::FOREIGN-FUNCTION built-in-classes)
-                 'FFI::FOREIGN-FUNCTION)
-                ((member 'FUNCTION built-in-classes)
-                 'FUNCTION)))
-        (if (rest parts) `(AND ,@parts) (first parts)))))
+    (cond #+FFI
+          ((member 'FFI::FOREIGN-FUNCTION parts)
+           (if (set-difference parts
+                 (list (find-class 'FUNCTION) #+FFI 'FFI::FOREIGN-FUNCTION))
+             'NIL
+             'FFI::FOREIGN-FUNCTION))
+          (t (if (rest parts) `(AND ,@parts) (first parts)))))
   (lambda (parts)
     ;; It's not worth simplifying the intersection of parts with
-    ;; '(FUNCTION CLOS:GENERIC-FUNCTION CLOS:STANDARD-GENERIC-FUNCTION
-    ;;   #+FFI FFI::FOREIGN-FUNCTION).
+    ;; '(FUNCTION #+FFI FFI::FOREIGN-FUNCTION).
     parts)
   (lambda (type1 type2parts try-prove-no)
-    ;; In <standard-class>, any set of classes can have a common subclass
+    ;; Under <standard-object>, any set of classes can have a common subclass
     ;; (you only need to be careful about the order of the superclasses when
     ;; you define the subclass, to avoid an error when computing the CPL)
     ;; and therefore also a common instance.
-    (cond ((eq type1 'FUNCTION)
-           (when (intersection type2parts '(FUNCTION))
-             (yes)))
-          ((eq type1 'CLOS:GENERIC-FUNCTION)
-           (when (intersection type2parts '(FUNCTION CLOS:GENERIC-FUNCTION))
-             (yes)))
-          ((eq type1 'CLOS:STANDARD-GENERIC-FUNCTION)
-           (when (intersection type2parts '(FUNCTION CLOS:GENERIC-FUNCTION
-                                            CLOS:STANDARD-GENERIC-FUNCTION))
-             (yes)))
-          #+FFI
+    (cond #+FFI
           ((eq type1 'FFI::FOREIGN-FUNCTION)
-           (when (intersection type2parts '(FUNCTION FFI::FOREIGN-FUNCTION))
+           (when (intersection type2parts
+                   (list (find-class 'FUNCTION) #+FFI 'FFI::FOREIGN-FUNCTION))
              (yes)))
           (t (let ((type1parts
                      (if (consp type1)
@@ -1326,8 +1297,7 @@
       (case-list (first type)
         (t 'NIL)) ; SATISFIES types cannot be classified.
       (case-atomic type
-        ((FUNCTION GENERIC-FUNCTION STANDARD-GENERIC-FUNCTION
-          #+FFI FFI::FOREIGN-FUNCTION)
+        ((FUNCTION #+FFI FFI::FOREIGN-FUNCTION)
          ;; FUNCTION is not a category of its own, because of GENERIC-FUNCTION.
          'STANDARD-OBJECT)
         (t (cond ((clos::class-p type)
@@ -1461,8 +1431,10 @@
            (LONG-FLOAT
             ; (canonicalize-type (list type)) =>
             '(INTERVALS LONG-FLOAT * *))
-           ((STREAM FILE-STREAM SYNONYM-STREAM BROADCAST-STREAM
+           ((FUNCTION STREAM FILE-STREAM SYNONYM-STREAM BROADCAST-STREAM
              CONCATENATED-STREAM TWO-WAY-STREAM ECHO-STREAM STRING-STREAM)
+            ;; We treat FUNCTION like a CLOS class, so that
+            ;; (subtypep 'GENERIC-FUNCTION FUNCTION) can return T.
             ;; We treat STREAM and subclasses like CLOS classes, so that
             ;; (subtypep 'FUNDAMENTAL-STREAM 'STREAM) can return T.
             (or (clos-class type) type))

@@ -853,6 +853,9 @@ LISPFUNN(allocate_funcallable_instance,2) {
     TheClass(clas)->instantiated = T;
     STACK_0 = TheClass(clas)->current_version;
   }
+  /* Allocate the closure. seclass is seclass_default (= *seclass-dirty*)
+     because even simple generic functions can signal a NO-APPLICABLE-METHOD
+     error. */
   var object instance =
     allocate_srecord(closflags_instance_B|(seclass_default<<4),
                      Rectype_Closure,length,closure_type);
