@@ -1,3 +1,15 @@
+1999-03-14  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
+        * stream.d (test_socket_server): New argument check_open. When it is
+          TRUE, check that the handle is non-NIL.
+          (SOCKET-SERVER-CLOSE): After closing, set the handle to NIL. When
+          the handle is NIL, do nothing.
+          (SOCKET-SERVER-PORT, SOCKET-SERVER-HOST): Update.
+          (SOCKET-ACCEPT, SOCKET-WAIT): Call test_socket_server with
+          check_open=TRUE.
+        * io.d (pr_orecord): For closed socket-servers, print a "CLOSED "
+          prefix.
+
 1999-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         * encoding.d (init_encodings): Define some more aliases.

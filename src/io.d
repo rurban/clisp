@@ -9054,6 +9054,9 @@ LISPFUNN(print_structure,2)
               write_ascii_char(stream_,'#'); write_ascii_char(stream_,'<');
               INDENT_START(2); # um 2 Zeichen einrücken, wegen '#<'
               JUSTIFY_START;
+              # falls geschlossen, "CLOSED " ausgeben:
+              if (nullp(TheSocketServer(*obj_)->socket_handle))
+                { write_sstring_case(stream_,O(printstring_closed)); }
               write_sstring_case(stream_,O(printstring_socket_server)); # "SOCKET-SERVER"
               {var uintL length_limit = get_print_length(); # *PRINT-LENGTH*
                var uintL length = 0; # bisherige Länge := 0
