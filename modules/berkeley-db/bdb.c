@@ -122,7 +122,7 @@ static void wrap_finalize (void* pointer, gcv_object_t* maker,
 */
 
 DEFUN(BDB:ENV-CREATE,&key :PASSWORD :ENCRYPT    \
-      :HOST :CLIENT-TIMEOUT :SERVER-TIMEOUT)
+      :HOST :CLIENT_TIMEOUT :SERVER_TIMEOUT)
 { /* Create an environment handle */
   DB_ENV *dbe, *dbe_cl;
   bool remote_p = boundp(STACK_2); /* host ==> remote */
@@ -182,7 +182,7 @@ DEFUN(BDB:ENV-CLOSE, dbe)
   } else VALUES1(NIL);
 }
 
-DEFUN(BDB:ENV-DBREMOVE, dbe file database &key :TRANSACTION :AUTO-COMMIT)
+DEFUN(BDB:ENV-DBREMOVE, dbe file database &key :TRANSACTION :AUTO_COMMIT)
 { /* remove DATABASE from FILE or the whole FILE */
   u_int32_t flags = (missingp(STACK_0) ? 0 : DB_AUTO_COMMIT);
   DB_TXN *txn = object_handle(STACK_1,`BDB::TXN`,true);
@@ -200,7 +200,7 @@ DEFUN(BDB:ENV-DBREMOVE, dbe file database &key :TRANSACTION :AUTO-COMMIT)
 }
 
 DEFUN(BDB:ENV-DBRENAME, dbe file database newname       \
-      &key :TRANSACTION :AUTO-COMMIT)
+      &key :TRANSACTION :AUTO_COMMIT)
 { /* rename DATABASE to NEWNAME in FILE */
   u_int32_t flags = (missingp(STACK_0) ? 0 : DB_AUTO_COMMIT);
   DB_TXN *txn = object_handle(STACK_1,`BDB::TXN`,true);
@@ -219,9 +219,9 @@ DEFFLAGSET(env_open_flags, DB_JOINENV DB_INIT_CDB DB_INIT_LOCK DB_INIT_LOG \
            DB_INIT_MPOOL DB_INIT_TXN DB_RECOVER DB_RECOVER_FATAL        \
            DB_USE_ENVIRON DB_USE_ENVIRON_ROOT DB_CREATE DB_LOCKDOWN     \
            DB_PRIVATE DB_SYSTEM_MEM DB_THREAD)
-DEFUN(BDB:ENV-OPEN, dbe &key :HOME :JOIN :INIT-CDB :INIT-LOCK :INIT-LOG \
-      :INIT-MPOOL :INIT-TXN :RECOVER :RECOVER-FATAL :USE-ENVIRON        \
-      :USE-ENVIRON-ROOT :CREATE :LOCKDOWN :PRIVATE :SYSTEM-MEM :THREAD :MODE)
+DEFUN(BDB:ENV-OPEN, dbe &key :HOME :JOIN :INIT_CDB :INIT_LOCK :INIT_LOG \
+      :INIT_MPOOL :INIT_TXN :RECOVER :RECOVER_FATAL :USE_ENVIRON        \
+      :USE_ENVIRON_ROOT :CREATE :LOCKDOWN :PRIVATE :SYSTEM_MEM :THREAD :MODE)
 { /* open DB environment */
   int mode = posfixnum_default(popSTACK());
   u_int32_t flags = env_open_flags();
@@ -235,7 +235,7 @@ DEFUN(BDB:ENV-OPEN, dbe &key :HOME :JOIN :INIT-CDB :INIT-LOCK :INIT-LOG \
 }
 
 DEFFLAGSET(env_remove_flags, DB_FORCE DB_USE_ENVIRON DB_USE_ENVIRON_ROOT)
-DEFUN(BDB:ENV-REMOVE, dbe &key :HOME :FORCE :USE-ENVIRON :USE-ENVIRON-ROOT)
+DEFUN(BDB:ENV-REMOVE, dbe &key :HOME :FORCE :USE_ENVIRON :USE_ENVIRON_ROOT)
 { /* destroy an environment */
   u_int32_t flags = env_remove_flags();
   DB_ENV *dbe = object_handle(STACK_1,`BDB::ENV`,false);
@@ -541,7 +541,7 @@ static object dbt_to_vector (DBT *p_dbt)
 }
 
 
-DEFUN(BDB:DB-DEL, dbe key &key :TRANSACTION :AUTO-COMMIT)
+DEFUN(BDB:DB-DEL, dbe key &key :TRANSACTION :AUTO_COMMIT)
 { /* Delete items from a database */
   u_int32_t flags = (missingp(STACK_0) ? 0 : DB_AUTO_COMMIT);
   DB_TXN *txn = object_handle(STACK_1,`BDB::TXN`,true);
@@ -562,20 +562,34 @@ DEFUN(BDB:DB-FD, db)
 }
 
 DEFFLAGSET(db_get_flags,  DB_CONSUME DB_CONSUME_WAIT DB_DIRTY_READ DB_RMW)
-DEFUN(BDB:DB-GET, db key &key :CONSUME :CONSUME-WAIT :DIRTY-READ :RMW \
-      :TRANSACTION)
+DEFUN(BDB:DB-GET, db key &key :CONSUME :CONSUME_WAIT :DIRTY_READ :RMW \
+      :TRANSACTION :ERROR)
 { /* Get items from a database */
+  int no_error = nullp(popSTACK());
   DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
   u_int32_t flags = db_get_flags();
   DB *db = object_handle(STACK_1,`BDB::DB`,false);
   DBT key, val;
+  int status;
   fill_dbt(STACK_0,&key);
   init_dbt(&val,DB_DBT_MALLOC);
-  SYSCALL(db->get,(db,txn,&key,&val,flags));
-  VALUES1(dbt_to_vector(&val)); skipSTACK(2);
+  skipSTACK(2);
+  begin_system_call();
+  status = db->get(db,txn,&key,&val,flags);
+  end_system_call();
+  if (status) {
+    if (no_error) {
+      switch (status) {
+        case DB_NOTFOUND: VALUES1(`:NOTFOUND`); return;
+        case DB_KEYEMPTY: VALUES1(`:KEYEMPTY`); return;
+      }
+    }
+    error_bdb(status,"db->get");
+  }
+  VALUES1(dbt_to_vector(&val));
 }
 
-DEFUN(BDB:DB-STAT, db &key :FAST-STAT)
+DEFUN(BDB:DB-STAT, db &key :FAST_STAT)
 { /* Return database statistics */
   u_int32_t flags = missingp(STACK_0) ? 0 : DB_FAST_STAT;
   DB *db = object_handle(STACK_1,`BDB::DB`,false);
@@ -676,8 +690,8 @@ static DBTYPE check_dbtype (object type) {
 
 DEFFLAGSET(db_open_flags, DB_CREATE DB_DIRTY_READ DB_EXCL DB_NOMMAP \
            DB_RDONLY DB_THREAD DB_TRUNCATE DB_AUTO_COMMIT)
-DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :CREATE :DIRTY-READ \
-      :EXCL :NOMMAP :RDONLY :THREAD :TRUNCATE :AUTO-COMMIT :TRANSACTION)
+DEFUN(BDB:DB-OPEN, db file &key :DATABASE :TYPE :MODE :CREATE :DIRTY_READ \
+      :EXCL :NOMMAP :RDONLY :THREAD :TRUNCATE :AUTO_COMMIT :TRANSACTION)
 { /* Open a database */
   DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
   u_int32_t flags = db_open_flags();
@@ -705,7 +719,7 @@ DEFUN(BDB:DB-SYNC, db)
   VALUES0;
 }
 
-DEFUN(BDB:DB-TRUNCATE, db &key :TRANSACTION :AUTO-COMMIT)
+DEFUN(BDB:DB-TRUNCATE, db &key :TRANSACTION :AUTO_COMMIT)
 { /* Empty a database */
   u_int32_t flags = (missingp(STACK_0) ? 0 : DB_AUTO_COMMIT);
   DB_TXN *txn = object_handle(STACK_1,`BDB::TXN`,true);
@@ -750,7 +764,7 @@ DEFUN(BDB:DB-REMOVE, db file database)
 }
 
 DEFCHECKER(db_put_flag, DB_APPEND DB_NODUPDATA DB_NOOVERWRITE)
-DEFUN(BDB:DB-PUT, db key val &key :AUTO-COMMIT :FLAG :TRANSACTION)
+DEFUN(BDB:DB-PUT, db key val &key :AUTO_COMMIT :FLAG :TRANSACTION)
 { /* Store items into a database */
   DB_TXN *txn = object_handle(popSTACK(),`BDB::TXN`,true);
   u_int32_t flags = db_put_flag(popSTACK());
@@ -818,21 +832,34 @@ DEFCHECKER(cursor_get_flag, DB_CURRENT DB_FIRST DB_GET_BOTH            \
            DB_GET_BOTH_RANGE DB_GET_RECNO DB_JOIN_ITEM DB_LAST DB_NEXT \
            DB_NEXT_DUP DB_NEXT_NODUP DB_PREV DB_PREV_NODUP DB_SET      \
            DB_SET_RANGE DB_SET_RECNO DB_DIRTY_READ DB_MULTIPLE)
-DEFUN(BDB:CURSOR-GET, cursor key data flag)
+DEFUN(BDB:CURSOR-GET, cursor key data flag &key :ERROR)
 { /* retrieve key/data pairs from the database */
+  int no_error = nullp(popSTACK());
   u_int32_t flag = cursor_get_flag(popSTACK());
   DBC *cursor = object_handle(STACK_2,`BDB::CURSOR`,false);
   DBT key, val;
+  int status;
   if (!nullp(STACK_1)) fill_dbt(STACK_1,&key);
   else init_dbt(&key,DB_DBT_MALLOC);
   if (!nullp(STACK_0)) fill_dbt(STACK_0,&val);
   else init_dbt(&val,DB_DBT_MALLOC);
-  SYSCALL(cursor->c_get,(cursor,&key,&val,flag));
+  skipSTACK(3);
+  begin_system_call();
+  status = cursor->c_get(cursor,&key,&val,flag);
+  end_system_call();
+  if (status) {
+    if (no_error) {
+      switch (status) {
+        case DB_NOTFOUND: VALUES1(`:NOTFOUND`); return;
+        case DB_KEYEMPTY: VALUES1(`:KEYEMPTY`); return;
+      }
+    }
+    error_bdb(status,"cursor->c_get");
+  }
   pushSTACK(dbt_to_vector(&key));
   value2 = dbt_to_vector(&val);
   value1 = popSTACK();
   mv_count = 2;
-  skipSTACK(3);
 }
 
 DEFCHECKER(cursor_put_flag, DB_AFTER DB_BEFORE DB_CURRENT DB_KEYFIRST \
@@ -857,7 +884,7 @@ DEFUN(BDB:CURSOR-PUT, cursor key data flag)
  */
 DEFFLAGSET(txn_begin_flags, DB_DIRTY_READ DB_TXN_NOSYNC \
            DB_TXN_NOWAIT DB_TXN_SYNC)
-DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :DIRTY-READ :NOSYNC :NOWAIT :SYNC)
+DEFUN(BDB:TXN-BEGIN, dbe &key :PARENT :DIRTY_READ :NOSYNC :NOWAIT :SYNC)
 { /* create a transaction */
   u_int32_t flags = txn_begin_flags();
   DB_TXN *parent = object_handle(popSTACK(),`BDB::TXN`,true), *ret;
