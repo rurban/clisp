@@ -866,6 +866,11 @@ local object test_default_pathname (object defaults) {
  Another option is to ensure that all slots of *DEFAULT-PATHNAME-DEFAULTS*
  are non-NIL (use :UNSPECIFIC instead): then merge_defaults() becomes
  an idempotent operation -- assuming trivial directory or non-ANSI merging.
+
+ merge_defaults(pathname)
+ > pathname: a pathname
+ < result: a pathname derived from it, with *DEFAULT-PATHNAME-DEFAULTS* merged
+           in.
  can trigger GC */
 local object merge_defaults (object pathname) {
   pushSTACK(pathname); pushSTACK(defaults_pathname());
