@@ -2077,8 +2077,8 @@ if [ $HOS = acorn ] ; then
   echol "# If you have this problem, either swap $halfcompiled.mem and lispinit.mem in the next line, or use GNU make."
 fi
 needs="init allc allo lisp${LEXE} $interpreted.mem $halfcompiled.mem lispinit.mem manual"
-if [ $HOS = unix -a $CROSS = false ] ; then
-  needs=".gdbinit "$needs' modular $(MODULES) full clisp'
+if [ \( $HOS = unix -o ${HSYS} = win32gcc \) -a $CROSS = false ] ; then
+  needs=".gdbinit "$needs' modular $(MODULES) base clisp full'
 fi
 echol "all : $needs"
 echodummyrule all
