@@ -1,5 +1,10 @@
 1999-05-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Libtoolify sigsegv.
+        * autoconf/libtool.m4: New file, from libtool-1.2.
+
+1999-05-16  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         For Linux 2.0.x with glibc2.0.
         * aclocal.m4 (CL_SIGALTSTACK): Define HAVE_SIGALTSTACK only if the
           sigaction flags macro SA_ONSTACK is also defined.
