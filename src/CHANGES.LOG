@@ -3,7 +3,7 @@ Important notes
 
 * The CLISP extensions have been moved from the CLtL1 package LISP to
   separate packages.
-  If you reply on any of the CLISP extensions, you will need to make
+  If you rely on any of the CLISP extensions, you will need to make
   your packages use package EXT, which re-exports all exported symbols
   from all extension packages.
 
