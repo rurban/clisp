@@ -1,5 +1,9 @@
 2001-07-10  Sam Steingold  <sds@gnu.org>
 
+	* eval.d (invoke_handlers): do not popSTACK twice!
+
+2001-07-10  Sam Steingold  <sds@gnu.org>
+
 	replaced chartcopy with memcpy
 	compilation time of compile.lisp wend down 3.76%
 	* charstrg.d (chartcopy): commented out
