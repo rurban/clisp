@@ -314,18 +314,18 @@ local object get_seq_type (object seq) { var object name;
 # Macro: Trägt NIL als Defaultwert eines Parameters in den Stack ein:
 # default_NIL(par);
   #define default_NIL(par)  \
-    if (eq(par,unbound)) { par = NIL; }
+    if (!boundp(par)) { par = NIL; }
 
 # Macro: Trägt 0 als Defaultwert von START in den Stack ein:
 # start_default_0(start);
   #define start_default_0(start)  \
-    if (eq(start,unbound)) { start = Fixnum_0; }
+    if (!boundp(start)) { start = Fixnum_0; }
 
 # Macro: Trägt (SEQ-LENGTH sequence) als Defaultwert von END in den Stack ein:
 # end_default_len(end,seq,typdescr);
 # can trigger GC
   #define end_default_len(end,seq,typdescr)  \
-    if (eq(end,unbound) || eq(end,NIL))              \
+    if (missingp(end))                               \
       { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet! \
         var object lengthfun = seq_length(typdescr); \
         pushSTACK(seq); funcall(lengthfun,1);        \
@@ -511,7 +511,7 @@ local object get_seq_type (object seq) { var object name;
 LISPFUNN(sequencep,1)
 # (SYS::SEQUENCEP object) testet, ob object eine Sequence ist.
   { var object typdescr = get_seq_type(popSTACK()); # Typdescriptor oder NIL
-    value1 = (!(nullp(typdescr)) ? T : NIL); mv_count=1;
+    VALUES_IF(!(nullp(typdescr)));
   }
 
 LISPFUNN(defseq,1)
@@ -524,7 +524,7 @@ LISPFUNN(defseq,1)
     Cdr(new_cons) = nreverse(O(seq_types)); # (nreverse SEQ_TYPES)
     O(seq_types) = nreverse(new_cons);
     # Typ (als Symbol) zurück:
-    value1 = seq_type(popSTACK()); mv_count=1;
+    VALUES1(seq_type(popSTACK()));
   }
 
 # Check the index argument for ELT and SETF ELT.
@@ -569,7 +569,7 @@ LISPFUNN(setelt,3) # (SYSTEM::%SETELT sequence index value), vgl. CLTL S. 248
     pushSTACK(STACK_(1+1)); # index
     pushSTACK(STACK_(0+2)); # value
     funcall(seq_set_elt(typdescr),3); # (SEQ-SET-ELT sequence index value)
-    value1 = popSTACK(); mv_count=1; # value als Wert
+    VALUES1(popSTACK()); # value als Wert
     skipSTACK(2);
   }
 
@@ -586,7 +586,7 @@ LISPFUNN(setelt,3) # (SYSTEM::%SETELT sequence index value), vgl. CLTL S. 248
       pushSTACK(value1);
       # Stackaufbau: seq1, typdescr1, seq2, typdescr2, count, pointer1, pointer2.
       copy_seqpart_into(); # Teilstück von seq1 nach seq2 kopieren
-      value1 = STACK_4; mv_count=1; # seq2 als Wert
+      VALUES1(STACK_4); # seq2 als Wert
       skipSTACK(7);
     }
 
@@ -621,7 +621,7 @@ LISPFUN(subseq,2,1,norest,nokey,0,NIL)
     pushSTACK(typdescr);
     # Stackaufbau: sequence, start, end, typdescr.
     # Defaultwert für end ist (length sequence):
-    if (eq(STACK_1,unbound)
+    if (!boundp(STACK_1)
         #ifdef X3J13_149
         || nullp(STACK_1)
         #endif
@@ -672,20 +672,18 @@ LISPFUNN(length,1) # (LENGTH sequence), CLTL S. 248
   { var object arg = popSTACK();
     if (consp(arg))
       { # arg ist ein Cons
-        value1 = fixnum(llength(arg)); # Listenlänge als Fixnum
-        mv_count=1;
+        VALUES1(fixnum(llength(arg))); /* list length as fixnum */
         return;
       }
     elif (symbolp(arg))
       { # arg ist ein Symbol
         if (nullp(arg))
-          { value1 = Fixnum_0; mv_count=1; # NIL hat als Liste die Länge 0
+          { VALUES1(Fixnum_0); /* NIL is a list of length 0 */
             return;
       }   } # sonstige Symbole sind keine Sequences
     elif (vectorp(arg))
       { # arg ist ein Vektor
-        value1 = fixnum(vector_length(arg)); # Vektorlänge als Fixnum
-        mv_count=1;
+        VALUES1(fixnum(vector_length(arg))); /* vector length as fixnum */
         return;
       }
     else
@@ -708,7 +706,7 @@ LISPFUNN(reverse,1) # (REVERSE sequence), CLTL S. 248
   { var object arg = STACK_0;
     if (listp(arg))
       { # arg ist eine Liste
-        value1 = reverse(arg); mv_count=1; skipSTACK(1);
+        VALUES1(reverse(arg)); skipSTACK(1);
       }
       else
       { var object typdescr = get_valid_seq_type(arg);
@@ -753,7 +751,7 @@ LISPFUNN(reverse,1) # (REVERSE sequence), CLTL S. 248
           }
           skipSTACK(2);
         }
-        value1 = STACK_0; mv_count=1; # seq2 als Wert
+        VALUES1(STACK_0); /* return seq2 */
         skipSTACK(4);
   }   }
 
@@ -761,7 +759,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
   { var object seq = STACK_0;
     if (listp(seq))
       { # seq ist eine Liste
-        value1 = nreverse(seq); mv_count=1;
+        VALUES1(nreverse(seq));
         skipSTACK(1);
       }
     elif (vectorp(seq)) {
@@ -813,7 +811,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
           }
         skipSTACK(4);
       }
-      value1 = popSTACK(); mv_count=1; # modifizierte seq als Wert
+      VALUES1(popSTACK()); /* return modified seq */
     } else
       { var object typdescr = get_valid_seq_type(seq);
         # seq ist eine allgemeine Sequence
@@ -903,7 +901,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
             j=j+1; k=k2; # j:=j+1, k halbieren
         }  }
         skipSTACK(1); # typdescr vergessen
-        value1 = popSTACK(); mv_count=1; # modifizierte seq als Wert
+        VALUES1(popSTACK()); /* return modified seq */
       }
   }
 
@@ -928,8 +926,8 @@ LISPFUN(make_sequence,2,0,norest,key,2,
               );
       }
     # initial-element bei Strings defaultmäßig ergänzen:
-    if (eq(STACK_2,unbound)) # :initial-element nicht angegeben?
-      { if (!eq(STACK_1,unbound)) # :update ohne :initial-element -> Error
+    if (!boundp(STACK_2)) /* :initial-element not supplied? */
+      { if (boundp(STACK_1)) /* :update without :initial-element -> Error */
           { pushSTACK(S(make_sequence));
             fehler(error,
                    GETTEXT("~: :update must not be specified without :initial-element")
@@ -937,17 +935,17 @@ LISPFUN(make_sequence,2,0,norest,key,2,
           }
         if (eq(seq_type(typdescr),S(string))) # Typname = STRING ?
           { STACK_2 = ascii_char(' '); } # initial-element := ' '
-        elif (posfixnump(seq_type(typdescr))) # Typname Integer? (bedeutet Byte-Vektoren)
+        else if (posfixnump(seq_type(typdescr))) /* type name integer? (means byte-vector) */
           { STACK_2 = Fixnum_0; } # initial-element := 0
       }
-    if (!(eq(STACK_0,unbound) || eql(STACK_0,size)))
+    if (boundp(STACK_0) && !eql(STACK_0,size))
       { fehler_seqtype_length(STACK_0,size); }
     STACK_0 = size; funcall(seq_make(typdescr),1); # (SEQ-MAKE size)
     # Stackaufbau: typdescr, size, initial-element, updatefun.
    }
-    if (!(eq(STACK_1,unbound))) # :initial-element angegeben?
+    if (boundp(STACK_1)) /* :initial-element supplied? */
       if (!(eq(STACK_2,Fixnum_0))) { # size (ein Integer) = 0 -> nichts zu tun
-        if (eq(STACK_0,unbound)
+        if (!boundp(STACK_0)
             && vectorp(value1) && array_simplep(value1) && posfixnump(STACK_2)) {
           if (elt_fill(value1,0,posfixnum_to_L(STACK_2),STACK_1))
             fehler_store(value1,STACK_1);
@@ -966,7 +964,7 @@ LISPFUN(make_sequence,2,0,norest,key,2,
               decrement(STACK_4);
               if (eq(STACK_4,Fixnum_0)) break; # count (ein Integer) = 0 -> Schleifenende
               {var object updatefun = STACK_2;
-               if (!(eq(updatefun,unbound))) # falls angegeben,
+               if (boundp(updatefun)) /* if supplied, */
                  { pushSTACK(STACK_3); funcall(updatefun,1); # (FUNCALL updatefun element)
                    STACK_3 = value1; # =: element
             } }  }
@@ -993,25 +991,25 @@ global Values coerce_sequence (object sequence, object result_type,
   { # check result-type:
     var object typdescr2 = (error_p ? valid_type(result_type)
                             : valid_type1(result_type));
-    if (!error_p && eq(NIL,typdescr2)) { # result_type is not a sequence
-      value1 = nullobj; mv_count = 1; skipSTACK(1); return;
+    if (!error_p && nullp(typdescr2)) { /* result_type is not a sequence */
+      VALUES1(nullobj); skipSTACK(1); return;
     }
     pushSTACK(typdescr2);
     # Stackaufbau: seq1, result-type, typdescr2-len, typdescr2.
     { var object typdescr1 = get_valid_seq_type(STACK_3); # Typ von seq1
       if (eq(seq_type(typdescr1),seq_type(typdescr2))) {
         # beide Typen dieselben -> nichts zu tun
-        if (!eq(STACK_1,unbound)) {
+        if (boundp(STACK_1)) {
           pushSTACK(STACK_3); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
           if (!eql(value1,STACK_1))
             fehler_seqtype_length(STACK_1,value1);
         }
-        skipSTACK(3); value1 = popSTACK(); mv_count=1; # seq1 als Wert
+        skipSTACK(3); VALUES1(popSTACK()); /* return seq1 */
       } else {
         STACK_2 = typdescr1;
         # Stackaufbau: seq1, typdescr1, typdescr2-len, typdescr2.
         pushSTACK(STACK_3); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
-        if (!(eq(STACK_1,unbound) || eql(value1,STACK_1)))
+        if (boundp(STACK_1) && !eql(value1,STACK_1))
           fehler_seqtype_length(STACK_1,value1);
         pushSTACK(value1);
         # Stackaufbau: seq1, typdescr1, typdescr2-len, typdescr2, len.
@@ -1052,7 +1050,7 @@ LISPFUN(coerced_subseq,2,0,norest,key,2, (kw(start),kw(end)) )
     # Determine result sequence length.
     STACK_3 = I_I_minus_I(STACK_3,STACK_4); # count := (- end start)
     # Stack layout: sequence, result-type, start, count, typdescr, typdescr2-len, typdescr2.
-    if (!(eq(STACK_1,unbound) || eql(STACK_3,STACK_1)))
+    if (boundp(STACK_1) && !eql(STACK_3,STACK_1))
       fehler_seqtype_length(STACK_1,STACK_3);
     if (eq(seq_type(STACK_2),seq_type(STACK_0))) {
       # Same types of sequences.
@@ -1067,7 +1065,7 @@ LISPFUN(coerced_subseq,2,0,norest,key,2, (kw(start),kw(end)) )
         if (!nullp(value1)) {
           # With end = (length sequence).
           # Nothing to do.
-          skipSTACK(6); value1 = popSTACK(); mv_count=1; # return sequence
+          skipSTACK(6); VALUES1(popSTACK()); /* return sequence */
           return;
         }
       }
@@ -1133,7 +1131,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
             }});
         }
       { var object result_type_len = Before(behind_args_pointer);
-        if (!(eq(result_type_len,unbound) || eql(total_length,result_type_len)))
+        if (boundp(result_type_len) && !eql(total_length,result_type_len))
           { fehler_seqtype_length(result_type_len,total_length); }
       }
       pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL); # Dummies
@@ -1173,7 +1171,7 @@ LISPFUN(concatenate,1,0,rest,nokey,0,NIL)
         #              pointer1, pointer2, [STACK].
         copy_seqpart_into(); # ganze seq1 in die seq2 hineinkopieren
       });
-    value1 = STACK_4; mv_count=1; # seq2 als Wert
+    VALUES1(STACK_4); /* return seq2 */
     set_args_end_pointer(args_pointer); # STACK aufräumen
   }}
 
@@ -1381,7 +1379,7 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
         #         [typdescr_pointer] {typdescr, pointer, pointer},
         #         size [STACK].
         { var object result_type_len = Before(typdescr_pointer);
-          if (!(eq(result_type_len,unbound) || eql(STACK_0,result_type_len)))
+          if (boundp(result_type_len) && !eql(STACK_0,result_type_len))
             { fehler_seqtype_length(result_type_len,STACK_0); }
         }
         # Neue Sequence der Länge size allozieren:
@@ -1425,7 +1423,7 @@ LISPFUN(map,3,0,rest,nokey,0,NIL)
             # size := (1- size) :
             STACK_2 = fixnum_inc(STACK_2,-1);
           }
-        value1 = STACK_1; mv_count=1; # seq2 als Wert
+        VALUES1(STACK_1); /* return seq2 */
         set_args_end_pointer(args_pointer); # STACK aufräumen
       }}
       else
@@ -1554,45 +1552,42 @@ LISPFUN(some,2,0,rest,nokey,0,NIL)
   { return_Values seq_boolop(&boolop_some,rest_args_pointer STACKop 2,rest_args_pointer,argcount,NIL); }
 
 # Hilfsfunktion für EVERY:
-  local bool boolop_every (object pred_ergebnis);
-  local bool boolop_every(pred_ergebnis)
-    var object pred_ergebnis;
-    { if (!(nullp(pred_ergebnis))) # Funktionsergebnis abtesten
-        { return false; } # /=NIL -> weitersuchen
-        else
-        { value1 = pred_ergebnis; # =NIL -> dies (= NIL) als Wert
-          return true;
-    }   }
+local bool boolop_every (object pred_ergebnis) {
+  if (!(nullp(pred_ergebnis))) { /* chech function return value */
+    return false; /* /=NIL -> proceed with search */
+  } else {
+   value1 = pred_ergebnis; /* =NIL -> return this (= NIL) */
+   return true;
+  }
+}
 
 LISPFUN(every,2,0,rest,nokey,0,NIL)
 # (EVERY predicate sequence {sequence}), CLTL S. 250
   { return_Values seq_boolop(&boolop_every,rest_args_pointer STACKop 2,rest_args_pointer,argcount,T); }
 
 # Hilfsfunktion für NOTANY:
-  local bool boolop_notany (object pred_ergebnis);
-  local bool boolop_notany(pred_ergebnis)
-    var object pred_ergebnis;
-    { if (nullp(pred_ergebnis)) # Funktionsergebnis abtesten
-        { return false; } # =NIL -> weitersuchen
-        else
-        { value1 = NIL; # /=NIL -> NIL als Wert
-          return true;
-    }   }
+local bool boolop_notany (object pred_ergebnis) {
+  if (nullp(pred_ergebnis)) { /* chech function return value */
+    return false; /* =NIL -> proceed with search */
+  } else {
+    value1 = NIL; /* /=NIL -> return NIL */
+    return true;
+  }
+}
 
 LISPFUN(notany,2,0,rest,nokey,0,NIL)
 # (NOTANY predicate sequence {sequence}), CLTL S. 250
   { return_Values seq_boolop(&boolop_notany,rest_args_pointer STACKop 2,rest_args_pointer,argcount,T); }
 
 # Hilfsfunktion für NOTEVERY:
-  local bool boolop_notevery (object pred_ergebnis);
-  local bool boolop_notevery(pred_ergebnis)
-    var object pred_ergebnis;
-    { if (!(nullp(pred_ergebnis))) # Funktionsergebnis abtesten
-        { return false; } # /=NIL -> weitersuchen
-        else
-        { value1 = T; # =NIL -> T als Wert
-          return true;
-    }   }
+local bool boolop_notevery (object pred_ergebnis) {
+  if (!(nullp(pred_ergebnis))) { /* chech function return value */
+    return false; /* /=NIL -> proceed with search */
+  } else {
+    value1 = T; /* =NIL -> return T */
+    return true;
+  }
+}
 
 LISPFUN(notevery,2,0,rest,nokey,0,NIL)
 # (NOTEVERY predicate sequence {sequence}), CLTL S. 250
@@ -1606,7 +1601,7 @@ LISPFUN(notevery,2,0,rest,nokey,0,NIL)
   local void test_key_arg(stackptr)
     var object* stackptr;
     { var object key_arg = *(stackptr STACKop -4);
-      if (eq(key_arg,unbound) || nullp(key_arg))
+      if (missingp(key_arg))
         *(stackptr STACKop -4) = L(identity); # #'IDENTITY als Default für :KEY
     }
 
@@ -1644,13 +1639,13 @@ LISPFUN(reduce,2,0,norest,key,5,
       # count = (- end start), ein Integer >=0.
       if (eq(count,Fixnum_0)) # count = 0 ?
         # start und end sind gleich
-        { if (eq(STACK_(0+1),unbound)) # initial-value angegeben?
+        { if (!boundp(STACK_(0+1))) /* initial-value supplied? */
             { # nein -> function mit 0 Argumenten aufrufen:
               funcall(STACK_(6+1),0);
             }
             else
             { # ja -> initial-value als Wert:
-              value1 = STACK_(0+1); mv_count=1;
+              VALUES1(STACK_(0+1));
             }
           skipSTACK(7+1);
           return;
@@ -1661,7 +1656,7 @@ LISPFUN(reduce,2,0,norest,key,5,
     # Stackaufbau: function, sequence, from-end, start, end, key, initial-value,
     #              typdescr, count.
     # from-end abfragen:
-    if (!(eq(STACK_(4+2),unbound)) && !(nullp(STACK_(4+2))))
+    if (boundp(STACK_(4+2)) && !nullp(STACK_(4+2)))
       # from-end ist angegeben und /=NIL
       { # Durchlauf-Pointer bestimmen:
         pushSTACK(STACK_(5+2)); pushSTACK(STACK_(2+2+1));
@@ -1670,7 +1665,7 @@ LISPFUN(reduce,2,0,norest,key,5,
         # Stackaufbau: function, sequence, from-end, start, end, key, initial-value,
         #              typdescr, count, pointer.
         # Startwert bestimmen:
-        if (eq(STACK_(0+3),unbound))
+        if (!boundp(STACK_(0+3)))
           # initial-value ist nicht angegeben
           { pushSTACK(STACK_(5+3)); pushSTACK(STACK_(0+1));
             funcall(seq_access(STACK_(2+2)),2); # (SEQ-ACCESS seq pointer)
@@ -1697,7 +1692,7 @@ LISPFUN(reduce,2,0,norest,key,5,
              decrement(STACK_2);
            }
            until (eq(STACK_2,Fixnum_0)); # count (ein Integer) = 0 ?
-        value1 = popSTACK(); mv_count=1; # value als Wert
+        VALUES1(popSTACK()); /* return value */
         skipSTACK(7+3);
       }
       else
@@ -1709,7 +1704,7 @@ LISPFUN(reduce,2,0,norest,key,5,
         # Stackaufbau: function, sequence, from-end, start, end, key, initial-value,
         #              typdescr, count, pointer.
         # Startwert bestimmen:
-        if (eq(STACK_(0+3),unbound))
+        if (!boundp(STACK_(0+3)))
           # initial-value ist nicht angegeben
           { pushSTACK(STACK_(5+3)); pushSTACK(STACK_(0+1));
             funcall(seq_access(STACK_(2+2)),2); # (SEQ-ACCESS seq pointer)
@@ -1736,7 +1731,7 @@ LISPFUN(reduce,2,0,norest,key,5,
              decrement(STACK_2);
            }
            until (eq(STACK_2,Fixnum_0)); # count (ein Integer) = 0 ?
-        value1 = popSTACK(); mv_count=1; # value als Wert
+        VALUES1(popSTACK()); /* return value */
         skipSTACK(7+3);
       }
   }
@@ -1783,7 +1778,7 @@ LISPFUN(fill,2,0,norest,key,2, (kw(start),kw(end)) )
       }
     }
     skipSTACK(4);
-    value1 = popSTACK(); mv_count=1; # sequence als Wert
+    VALUES1(popSTACK()); /* return sequence */
   }
 
 LISPFUN(replace,2,0,norest,key,4,
@@ -1877,7 +1872,7 @@ LISPFUN(replace,2,0,norest,key,4,
     #              pointer2, pointer1.
     copy_seqpart_into(); # kopiere von sequence2 nach sequence1
     skipSTACK(5+2+5+2);
-    value1 = popSTACK(); mv_count=1; # sequence1 als Wert
+    VALUES1(popSTACK()); /* return sequence1 */
   }
 
 # Unterprogramm zum Ausführen des Tests :TEST
@@ -1953,7 +1948,7 @@ LISPFUN(replace,2,0,norest,key,4,
   local void test_count_arg (void);
   local void test_count_arg()
     { var object count = STACK_1;
-      if (eq(count,unbound))
+      if (!boundp(count))
         { STACK_1 = NIL; return; } # Defaultwert NIL
       # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
       if (nullp(count)) # NIL is OK
@@ -1961,7 +1956,7 @@ LISPFUN(replace,2,0,norest,key,4,
       if (integerp(count)) {
         if (positivep(count))
           return;
-        if (!nullp(Symbol_value(S(sequence_count_ansi)))) # if *SEQUENCE-COUNT-ANSI*
+        if (!nullpSv(sequence_count_ansi)) /* if *SEQUENCE-COUNT-ANSI* */
           { STACK_1 = Fixnum_0; return; } # treat negative integers as 0
       }
       fehler_posint(TheSubr(subr_self)->name,S(Kcount),count);
@@ -1996,10 +1991,10 @@ LISPFUN(replace,2,0,norest,key,4,
   local up_function test_test_args(stackptr)
     var object* stackptr;
     { var object test_arg = *(stackptr STACKop -5);
-      if (eq(test_arg,unbound)) { test_arg=NIL; }
+      if (!boundp(test_arg)) { test_arg=NIL; }
       # test_arg ist das :TEST-Argument
      {var object test_not_arg = *(stackptr STACKop -6);
-      if (eq(test_not_arg,unbound)) { test_not_arg=NIL; }
+      if (!boundp(test_not_arg)) { test_not_arg=NIL; }
       # test_not_arg ist das :TEST-NOT-Argument
       if (nullp(test_not_arg))
         # :TEST-NOT wurde nicht angegeben
@@ -2177,8 +2172,7 @@ LISPFUN(replace,2,0,norest,key,4,
       #              l, sequence, key, bv [STACK].
       STACK_2 = STACK_0; skipSTACK(2); # bv hochschieben
       # Stackaufbau: ... count, typdescr, l, bv [STACK].
-      value1 = (*help_fun)(stackptr,bvl,dl); # Rest durchführen
-      mv_count=1; # Ergebnis als Wert
+      VALUES1((*help_fun)(stackptr,bvl,dl));
       skipSTACK(2); # l und bv vergessen
     }}
 
@@ -2475,10 +2469,10 @@ LISPFUN(delete_if_not,2,0,norest,key,5,
   local up2_function test_test2_args(stackptr)
     var object* stackptr;
     { var object test_arg = *(stackptr STACKop -5);
-      if (eq(test_arg,unbound)) { test_arg=NIL; }
+      if (!boundp(test_arg)) { test_arg=NIL; }
       # test_arg ist das :TEST-Argument
      {var object test_not_arg = *(stackptr STACKop -6);
-      if (eq(test_not_arg,unbound)) { test_not_arg=NIL; }
+      if (!boundp(test_not_arg)) { test_not_arg=NIL; }
       # test_not_arg ist das :TEST-NOT-Argument
       if (nullp(test_not_arg))
         # :TEST-NOT wurde nicht angegeben
@@ -2795,8 +2789,7 @@ LISPFUN(delete_if_not,2,0,norest,key,5,
         # Stackaufbau:
         #   sequence [stackptr], from-end, start, end, key, test, test-not,
         #   typdescr, l, bv.
-        value1 = (*help_fun)(stackptr,bvl,dl); # Rest durchführen
-        mv_count=1; # Ergebnis als Wert
+        VALUES1((*help_fun)(stackptr,bvl,dl));
         skipSTACK(7+3); # STACK aufräumen
     }}}
 
@@ -3093,7 +3086,7 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,
                 decrement_endvar(STACK_2);
           }   }
           skipSTACK(4);
-          value1 = popSTACK(); mv_count=1; # modifizierte Sequence als Wert
+          VALUES1(popSTACK()); /* return modified sequence */
         }
     }
 
@@ -3210,9 +3203,9 @@ LISPFUN(nsubstitute_if_not,3,0,norest,key,5,
                 decrement_endvar(STACK_1);
         } }   }
       skipSTACK(3); # STACK aufräumen
-      value1 = NIL; mv_count=1; return; # NIL als Wert
+      VALUES1(NIL); return;
       found: # item gefunden, das den Test erfüllt. STACK_0 = item.
-      value1 = popSTACK(); mv_count=1; # item als Wert
+      VALUES1(popSTACK()); /* return item */
       skipSTACK(3); # STACK aufräumen
     }
 
@@ -3331,9 +3324,9 @@ LISPFUN(find_if_not,2,0,norest,key,4,
                 increment(STACK_2);
         } }   }
       skipSTACK(4); # STACK aufräumen
-      value1 = NIL; mv_count=1; return; # NIL als Wert
+      VALUES1(NIL); return;
       found: # item gefunden, das den Test erfüllt. STACK_2 = index.
-      value1 = STACK_2; mv_count=1; # index als Wert
+      VALUES1(STACK_2); /* return index */
       skipSTACK(4); # STACK aufräumen
     }
 
@@ -3448,7 +3441,7 @@ LISPFUN(position_if_not,2,0,norest,key,4,
                 # endvar eventuell decrementieren:
                 decrement_endvar(STACK_1);
         } }   }
-      value1 = STACK_2; mv_count=1; skipSTACK(4); # total als Wert
+      VALUES1(STACK_2); skipSTACK(4); /* return total */
     }
 
 LISPFUN(count,2,0,norest,key,6,
@@ -3567,9 +3560,9 @@ LISPFUN(mismatch,2,0,norest,key,8,
         # Bei len1=len2 Ergebnis NIL, sonst index:
         if (I_I_comp(STACK_2,STACK_1)==0) # len1=len2 (Integers) ?
           # Beide Sequence-Stücke sind gleich -> NIL als Wert
-          { value1 = NIL; mv_count=1; skipSTACK(7+5+6); return; }
+          { VALUES1(NIL); skipSTACK(7+5+6); return; }
         fe_found: # Es ist ein Unterschied gefunden -> index als Wert
-        { value1 = STACK_3; mv_count=1; skipSTACK(7+5+6); return; }
+        { VALUES1(STACK_3); skipSTACK(7+5+6); return; }
       }
       else
       # from-end ist nicht angegeben
@@ -3641,9 +3634,9 @@ LISPFUN(mismatch,2,0,norest,key,8,
           # Falls beide Flags gesetzt sind, Ergebnis NIL, sonst index:
           if (seq1_ended && seq2_ended)
             # Beide Sequence-Stücke sind gleich -> NIL als Wert
-            { value1 = NIL; mv_count=1; skipSTACK(7+5+5); return; }
+            { VALUES1(NIL); skipSTACK(7+5+5); return; }
           fs_found: # Es ist ein Unterschied gefunden -> index als Wert
-          { value1 = STACK_2; mv_count=1; skipSTACK(7+5+5); return; }
+          { VALUES1(STACK_2); skipSTACK(7+5+5); return; }
       } }
   }}
 
@@ -3864,9 +3857,9 @@ LISPFUN(search,2,0,norest,key,8,
       }   }
     /*NOTREACHED*/
     found: # index als Wert
-      { value1 = STACK_4; mv_count=1; skipSTACK(7+5+5+4); return; }
+      { VALUES1(STACK_4); skipSTACK(7+5+5+4); return; }
     notfound: # NIL als Wert
-      { value1 = NIL; mv_count=1; skipSTACK(7+5+5+4); return; }
+      { VALUES1(NIL); skipSTACK(7+5+5+4); return; }
   }}
 
 # UP für SORT, STABLE-SORT und MERGE:
@@ -4098,7 +4091,7 @@ LISPFUN(search,2,0,norest,key,8,
           l = STACK_(0+1); STACK_(0+1) = STACK_0; skipSTACK(1); # seq2 ersetzt l im Stack
           sort_part(value1,l,&STACK_5); # Stück der Länge l ab start sortieren
         }
-      skipSTACK(6); value1 = popSTACK(); mv_count=1; # sortierte sequence als Wert
+      skipSTACK(6); VALUES1(popSTACK()); /* return sorted sequence */
     }}
 
 LISPFUN(sort,2,0,norest,key,3, (kw(key),kw(start),kw(end)) )
@@ -4139,7 +4132,7 @@ LISPFUN(merge,4,0,norest,key,1, (kw(key)) )
     }
     # beide Längen addieren und neue Sequence der Gesamtlänge bilden:
     { pushSTACK(I_I_plus_I(STACK_1,STACK_0)); # (+ len1 len2)
-      if (!(eq(STACK_(1+3),unbound) || eql(STACK_0,STACK_(1+3))))
+      if (boundp(STACK_(1+3)) && !eql(STACK_0,STACK_(1+3)))
         { fehler_seqtype_length(STACK_(1+3),STACK_0); }
       funcall(seq_make(STACK_(0+2+1)),1); # (SEQ-MAKE (+ len1 len2))
       STACK_(1+2) = value1; # ersetzt result-type-len im Stack
@@ -4162,7 +4155,7 @@ LISPFUN(merge,4,0,norest,key,1, (kw(key)) )
     #              len1, len2, pointer1, pointer2, pointer3.
     # Merge-Operation durchführen:
     merge(&STACK_(1+6+5));
-    value1 = STACK_(1+5); mv_count=1; # sequence3 als Wert
+    VALUES1(STACK_(1+5)); /* return sequence3 */
     skipSTACK(5+6+5);
   }
 
@@ -4184,12 +4177,12 @@ LISPFUN(read_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
       {  var uintL start = posfixnum_to_L(STACK_2);
          var uintL end = posfixnum_to_L(STACK_1);
          if (end-start == 0)
-           { value1 = Fixnum_0; mv_count=1; skipSTACK(5); return; }
+           { VALUES1(Fixnum_0); skipSTACK(5); return; }
        { var uintL index = 0;
          STACK_0 = array_displace_check(STACK_4,end,&index);
          check_sstring_mutable(STACK_0);
         {var uintL result = read_char_array(&STACK_3,&STACK_0,index+start,end-start);
-         value1 = fixnum(start+result); mv_count=1;
+         VALUES1(fixnum(start+result));
          skipSTACK(5);
          return;
       }}}
@@ -4208,7 +4201,7 @@ LISPFUN(read_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
         # index := (1+ index) :
         increment(STACK_3);
       }
-    value1 = STACK_3; mv_count=1; # index als Wert
+    VALUES1(STACK_3); /* return index */
     skipSTACK(6);
   }
 
@@ -4255,7 +4248,7 @@ LISPFUN(write_char_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
       }
     done:
     skipSTACK(4);
-    value1 = popSTACK(); mv_count=1; # sequence als Wert
+    VALUES1(popSTACK()); /* return sequence */
   }
 
 LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
@@ -4278,7 +4271,7 @@ LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
         var uintL index = 0;
         STACK_0 = array_displace_check(STACK_4,end,&index);
        {var uintL result = read_byte_array(&STACK_3,&STACK_0,index+start,end-start);
-        value1 = fixnum(start+result); mv_count=1;
+        VALUES1(fixnum(start+result));
         skipSTACK(5);
         return;
       }}
@@ -4297,7 +4290,7 @@ LISPFUN(read_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
         # index := (1+ index) :
         increment(STACK_3);
       }
-    value1 = STACK_3; mv_count=1; # index als Wert
+    VALUES1(STACK_3); /* return index */
     skipSTACK(6);
   }
 
@@ -4342,6 +4335,6 @@ LISPFUN(write_byte_sequence,2,0,norest,key,2, (kw(start),kw(end)) )
       }
     done:
     skipSTACK(4);
-    value1 = popSTACK(); mv_count=1; # sequence als Wert
+    VALUES1(popSTACK()); /* return sequence */
   }
 

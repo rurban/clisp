@@ -62,14 +62,14 @@ local object* record_up (void) {
 
 # (SYS::%RECORD-REF record index) return the index'th entry in the record
 LISPFUNN(record_ref,2) {
-  value1 = *(record_up()); mv_count=1; # record element as value
+  VALUES1(*(record_up())); # record element as value
 }
 
 # (SYS::%RECORD-STORE record index value) store value as the index'th
 #   entry in the record and return value.
 LISPFUNN(record_store,3) {
   var object value = popSTACK();
-  value1 = *(record_up()) = value; mv_count=1; # set record element
+  VALUES1(*(record_up()) = value); # set record element
 }
 
 # (SYS::%RECORD-LENGTH record) return the length of the record.
@@ -78,7 +78,7 @@ LISPFUNN(record_length,1) {
   if_recordp(STACK_0, ; , { fehler_record(); } );
   var object record = popSTACK();
   var uintL length = Record_length(record);
-  value1 = fixnum(length); mv_count=1; # length as Fixnum
+  VALUES1(fixnum(length)); /* length as Fixnum */
 }
 
 # check that the length is of type (INTEGER (0) (65536))
@@ -153,15 +153,15 @@ local object* structure_up (void) {
 #   given Type type (a symbol) the entry index>=1.
 # #<UNBOUND> is possible.
 LISPFUNN(pstructure_ref,3) {
-  value1 = *(structure_up()); mv_count=1; # structure-element as value
+  VALUES1(*(structure_up())); /* structure-element as value */
   skipSTACK(3); # clean up stack
 }
 
 # (SYS::%STRUCTURE-REF type structure index) returns for a structure of
 #   given Type type (a symbol) the entry index>=1.
 LISPFUNN(structure_ref,3) {
-  value1 = *(structure_up()); # structure-element as value
-  if (eq(value1,unbound)) {
+  VALUES1(*(structure_up())); /* structure-element as value */
+  if (!boundp(value1)) {
     # could be = #<UNBOUND> , after use of SLOT-MAKUNBOUND
     # or after incomplete INITIALIZE-INSTANCE
     dynamic_bind(S(print_length),Fixnum_0); # bind *PRINT-LENGTH* to 0
@@ -179,7 +179,6 @@ LISPFUNN(structure_ref,3) {
     pushSTACK(S(structure_ref));
     fehler(unbound_slot,GETTEXT("~: Slot ~ of ~ has no value"));
   }
-  mv_count=1;
   skipSTACK(3); # clean up stack
 }
 
@@ -187,7 +186,7 @@ LISPFUNN(structure_ref,3) {
 #   entry index in a structure of given Type type and returns object.
 LISPFUNN(structure_store,4) {
   var object value = popSTACK();
-  value1 = *(structure_up()) = value; mv_count=1; # enter structure-element
+  VALUES1(*(structure_up()) = value); /* enter structure-element */
   skipSTACK(3); # clean up stack
 }
 
@@ -201,7 +200,7 @@ LISPFUNN(make_structure,2) {
   var object structure = allocate_structure(length);
   # new structure, filled with NILs
   TheStructure(structure)->structure_types = popSTACK(); # enter type-component
-  value1 = structure; mv_count=1; # structure as value
+  VALUES1(structure); /* structure as value */
 }
 
 # (COPY-STRUCTURE structure) returns a copy of the Structure structure
@@ -218,7 +217,7 @@ LISPFUNN(copy_structure,1) {
   var object new_structure = allocate_structure(length);
   copy_mem_o(&TheStructure(new_structure)->structure_types,
              &TheStructure(popSTACK())->structure_types,length);
-  value1 = new_structure; mv_count=1;
+  VALUES1(new_structure);
 }
 
 # (SYS::%STRUCTURE-TYPE-P type object) checks if object is a
@@ -236,9 +235,9 @@ LISPFUNN(structure_type_p,2) {
       goto yes;
   }
  no: # type did not occur:
-  value1 = NIL; mv_count=1; return; # 1 value NIL
+  VALUES1(NIL); return; # 1 value NIL
  yes: # type did occur:
-  value1 = T; mv_count=1; return; # 1 value T
+  VALUES1(T); return;
 }
 
 # ===========================================================================
@@ -271,7 +270,7 @@ LISPFUNN(closure_name,1) {
     fehler(error, # type_error ??
            GETTEXT("~: ~ is not a closure"));
   }
-  value1 = TheClosure(closure)->clos_name; mv_count=1;
+  VALUES1(TheClosure(closure)->clos_name);
 }
 
 # error, if argument is not a compiled closure
@@ -300,7 +299,7 @@ LISPFUNN(closure_codevec,1) {
     Car(new_cons) = fixnum((uintL)(TheSbvector(STACK_0)->data[index])); # fetch byte
     pushSTACK(new_cons);
   }
-  value1 = STACK_0; mv_count=1; skipSTACK(2); # list as value
+  VALUES1(STACK_0); skipSTACK(2); /* list as value */
 }
 
 # (SYS::CLOSURE-CONSTS closure) returns a list of all constants of a
@@ -321,7 +320,7 @@ LISPFUNN(closure_consts,1) {
     Car(new_cons) = TheCclosure(STACK_0)->clos_consts[(uintP)index]; # fetch constant
     pushSTACK(new_cons);
   }
-  value1 = STACK_0; mv_count=1; skipSTACK(2); # list as value
+  VALUES1(STACK_0); skipSTACK(2); /* list as value */
 }
 
 # (SYS::MAKE-CODE-VECTOR list) returns for a list of fixnums >=0, <256
@@ -342,7 +341,7 @@ LISPFUNN(make_code_vector,1) {
     *ptr++ = (uintB)byte;
     listr = Cdr(listr);
   }
-  value1 = bv; mv_count=1; return; # bv as value
+  VALUES1(bv); return;
  bad_byte:
   pushSTACK(Car(listr)); # TYPE-ERROR slot DATUM
   pushSTACK(O(type_uint8)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -381,7 +380,7 @@ LISPFUNN(make_closure,3) {
       *ptr++ = Car(constsr); constsr = Cdr(constsr);
     }
   }
-  value1 = closure; mv_count=1; skipSTACK(2);
+  VALUES1(closure); skipSTACK(2);
 }
 
 # (SYS::%COPY-GENERIC-FUNCTION venv closure) copies the closure, which must be
@@ -416,7 +415,7 @@ LISPFUNN(copy_generic_function,2) {
   do_cclosure_copy(newclos,oldclos);
   # Put in the copied vector with venv:
   TheCclosure(newclos)->clos_consts[0] = STACK_1;
-  value1 = newclos; mv_count=1;
+  VALUES1(newclos);
   skipSTACK(2);
 }
 
@@ -448,7 +447,7 @@ LISPFUNN(generic_function_effective_method_function,1) {
   TheCodevec(newcodevec)->ccv_flags |= bit(3);
   newclos = popSTACK();
   TheClosure(newclos)->clos_codevec = newcodevec;
-  value1 = newclos; mv_count=1;
+  VALUES1(newclos);
 }
 
 # ===========================================================================
@@ -462,7 +461,7 @@ LISPFUNN(generic_function_effective_method_function,1) {
 LISPFUNN(make_load_time_eval,1) {
   var object lte = allocate_loadtimeeval();
   TheLoadtimeeval(lte)->loadtimeeval_form = popSTACK();
-  value1 = lte; mv_count=1;
+  VALUES1(lte);
 }
 
 # ===========================================================================
@@ -485,13 +484,13 @@ LISPFUNN(make_load_time_eval,1) {
 LISPFUNN(make_symbol_macro,1) {
   var object sm = allocate_symbolmacro();
   TheSymbolmacro(sm)->symbolmacro_expansion = popSTACK();
-  value1 = sm; mv_count=1;
+  VALUES1(sm);
 }
 
 # (SYS::SYMBOL-MACRO-P object) tests for symbol-macro.
 LISPFUNN(symbol_macro_p,1) {
   var object obj = popSTACK();
-  value1 = (symbolmacrop(obj) ? T : NIL); mv_count=1;
+  VALUES_IF(symbolmacrop(obj));
 }
 
 # (SYMBOL-MACRO-EXPAND symbol) tests if a symbol represents a symbol-macro
@@ -507,9 +506,9 @@ LISPFUNN(symbol_macro_expand,1) {
     fehler_symbol(obj);
   obj = Symbol_value(obj);
   if (!symbolmacrop(obj)) {
-    value1 = NIL; mv_count=1; return;
+    VALUES1(NIL); return;
   }
-  value1 = T; value2 = TheSymbolmacro(obj)->symbolmacro_expansion; mv_count=2;
+  VALUES2(T, TheSymbolmacro(obj)->symbolmacro_expansion);
 }
 
 # ===========================================================================
@@ -528,13 +527,13 @@ LISPFUNN(make_macro,1) {
   if (!functionp(arg))
     fehler_function(arg);
   TheMacro(m)->macro_expander = arg;
-  value1 = m; mv_count=1;
+  VALUES1(m);
 }
 
 # (SYS::MACROP object) tests for a Macro.
 LISPFUNN(macrop,1) {
   var object obj = popSTACK();
-  value1 = (macrop(obj) ? T : NIL); mv_count=1;
+  VALUES_IF(macrop(obj));
 }
 
 # (SYS::MACRO-EXPANDER macro) returns the macro's expander function.
@@ -546,7 +545,7 @@ LISPFUNN(macro_expander,1) {
     fehler(error, # type_error ??
            GETTEXT("~: ~ is not a Macro"));
   }
-  value1 = TheMacro(obj)->macro_expander; mv_count=1;
+  VALUES1(TheMacro(obj)->macro_expander);
 }
 
 # ===========================================================================
@@ -574,14 +573,14 @@ LISPFUNN(make_function_macro,2) {
       fehler_function(arg);
     TheFunctionMacro(m)->functionmacro_macro_expander = arg;
   }
-  value1 = m; mv_count=1;
+  VALUES1(m);
   skipSTACK(2);
 }
 
 # (SYS::FUNCTION-MACRO-P object) tests for a FunctionMacro.
 LISPFUNN(function_macro_p,1) {
   var object obj = popSTACK();
-  value1 = (functionmacrop(obj) ? T : NIL); mv_count=1;
+  VALUES_IF(functionmacrop(obj));
 }
 
 # (SYS::FUNCTION-MACRO-FUNCTION macro) returns the functionmacro's function.
@@ -593,7 +592,7 @@ LISPFUNN(function_macro_function,1) {
     fehler(error, # type_error ??
            GETTEXT("~: ~ is not a FunctionMacro"));
   }
-  value1 = TheFunctionMacro(obj)->functionmacro_function; mv_count=1;
+  VALUES1(TheFunctionMacro(obj)->functionmacro_function);
 }
 
 # (SYS::FUNCTION-MACRO-EXPANDER macro) returns the functionmacro's expander.
@@ -605,7 +604,7 @@ LISPFUNN(function_macro_expander,1) {
     fehler(error, # type_error ??
            GETTEXT("~: ~ is not a FunctionMacro"));
   }
-  value1 = TheFunctionMacro(obj)->functionmacro_macro_expander; mv_count=1;
+  VALUES1(TheFunctionMacro(obj)->functionmacro_macro_expander);
 }
 
 # ===========================================================================
@@ -639,13 +638,13 @@ global object allocate_weakpointer (object obj) {
 
 # (MAKE-WEAK-POINTER value) returns a fresh weak pointer referring to value.
 LISPFUNN(make_weak_pointer,1) {
-  value1 = mk_weakpointer(); mv_count=1;
+  VALUES1(mk_weakpointer());
 }
 
 # (WEAK-POINTER-P object) returns true if the object is of type WEAK-POINTER.
 LISPFUNN(weak_pointer_p,1) {
   var object obj = popSTACK();
-  value1 = (weakpointerp(obj) ? T : NIL); mv_count=1;
+  VALUES_IF(weakpointerp(obj));
 }
 
 # (WEAK-POINTER-VALUE weak-pointer) returns two values: The original value
@@ -660,11 +659,10 @@ LISPFUNN(weak_pointer_value,1) {
     fehler(type_error,GETTEXT("~: ~ is not a weak pointer"));
   }
   if (weakpointer_broken_p(wp)) {
-    value1 = NIL; value2 = NIL;
+    VALUES2(NIL,NIL);
   } else {
-    value1 = TheWeakpointer(wp)->wp_value; value2 = T;
+    VALUES2(TheWeakpointer(wp)->wp_value, T);
   }
-  mv_count=2;
 }
 
 # ===========================================================================
@@ -684,7 +682,7 @@ LISPFUN(finalize,2,1,norest,nokey,0,NIL) {
     TheFinalizer(f)->fin_cdr = O(all_finalizers);
     O(all_finalizers) = f;
   }
-  skipSTACK(3); value1 = NIL; mv_count=1;
+  skipSTACK(3); VALUES1(NIL);
 }
 
 # ===========================================================================
@@ -693,13 +691,13 @@ LISPFUN(finalize,2,1,norest,nokey,0,NIL) {
 # (CLOS::STRUCTURE-OBJECT-P object) checks if object is a structure.
 LISPFUNN(structure_object_p,1) {
   var object obj = popSTACK();
-  value1 = (structurep(obj) ? T : NIL); mv_count=1;
+  VALUES_IF(structurep(obj));
 }
 
 # (CLOS::STD-INSTANCE-P object) checks if object is a CLOS-object.
 LISPFUNN(std_instance_p,1) {
   var object obj = popSTACK();
-  value1 = (instancep(obj) ? T : NIL); mv_count=1;
+  VALUES_IF(instancep(obj));
 }
 
 # returns (CLOS:CLASS-OF object). Is especially efficient for CLOS-objects.
@@ -736,7 +734,7 @@ LISPFUNN(allocate_std_instance,2) {
     var object* ptr = &TheInstance(instance)->other[0];
     dotimespL(length,length, { *ptr++ = unbound; } );
   }
-  value1 = instance; mv_count=1; # instance as value
+  VALUES1(instance); # instance as value
 }
 
 # report un-paired keywords error
@@ -832,7 +830,7 @@ LISPFUNN(slot_value,2) {
   var object* slot = slot_up();
   if (slot) {
     var object value = *slot;
-    if (!eq(value,unbound)) {
+    if (boundp(value)) {
       value1 = value;
     } else { # (SLOT-UNBOUND class instance slot-name)
       pushSTACK(value1); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
@@ -869,7 +867,7 @@ LISPFUNN(set_slot_value,3) {
 
 LISPFUNN(slot_boundp,2) {
   var object* slot = slot_up();
-  if (slot) { value1 = (eq(*slot,unbound) ? NIL : T); }
+  if (slot) { value1 = (boundp(*slot) ? T : NIL); }
   mv_count=1;
   skipSTACK(2);
 }
@@ -877,7 +875,7 @@ LISPFUNN(slot_boundp,2) {
 LISPFUNN(slot_makunbound,2) {
   var object* slot = slot_up();
   if (slot) { *slot = unbound; }
-  value1 = STACK_1; mv_count=1; # instance as value
+  VALUES1(STACK_1); /* instance as value */
   skipSTACK(2);
 }
 
@@ -888,7 +886,7 @@ LISPFUNN(slot_exists_p,2) {
   pushSTACK(STACK_1); C_class_of(); # determine (CLASS-OF instance)
   var object slotinfo = # (GETHASH slot-name (class-slot-location-table class))
     gethash(STACK_0,TheClass(value1)->slot_location_table);
-  value1 = (eq(slotinfo,nullobj) ? NIL : T); mv_count=1; skipSTACK(2);
+  VALUES_IF(! eq(slotinfo,nullobj)); skipSTACK(2);
 }
 #ifdef RISCOS_CCBUG
   #pragma -z1
@@ -1040,7 +1038,7 @@ LISPFUN(pshared_initialize,2,0,rest,nokey,0,NIL) {
      slot_done: ;
     }
   }
-  value1 = Before(rest_args_pointer STACKop 1); mv_count=1; # instance as value
+  VALUES1(Before(rest_args_pointer STACKop 1)); /* instance as value */
   set_args_end_pointer(rest_args_pointer STACKop 2); # clean up STACK
 }
 
@@ -1130,7 +1128,7 @@ LISPFUN(preinitialize_instance,1,0,rest,nokey,0,NIL) {
       }
     }
   }
-  value1 = Before(rest_args_pointer); mv_count=1; # instance as value
+  VALUES1(Before(rest_args_pointer)); /* instance as value */
   set_args_end_pointer(rest_args_pointer STACKop 1); # clean up STACK
 }
 
@@ -1208,7 +1206,7 @@ local Values do_initialize_instance (object info, object* rest_args_pointer,
      initarg_not_found:
       { # not found -> first test for (slot-boundp instance slotname):
         var object slotinfo = TheSvector(slot)->data[2]; # (slotdef-location slot)
-        if (!eq(*ptr_to_slot(Before(rest_args_pointer),slotinfo),unbound))
+        if (boundp(*ptr_to_slot(Before(rest_args_pointer),slotinfo)))
           goto slot_done;
       }
       { # Slot has no value yet. Evaluate the initform:
@@ -1230,7 +1228,7 @@ local Values do_initialize_instance (object info, object* rest_args_pointer,
      slot_done: ;
     }
   }
-  value1 = Before(rest_args_pointer); mv_count=1; # instance as value
+  VALUES1(Before(rest_args_pointer)); /* instance as value */
   set_args_end_pointer(rest_args_pointer STACKop 1); # clean up STACK
 }
 
@@ -1365,7 +1363,7 @@ LISPFUN(pmake_instance,1,0,rest,nokey,0,NIL) {
         do_initialize_instance(info,rest_args_pointer,argcount);
       else
         funcall(fun,2*argcount+1);
-      value1 = popSTACK(); mv_count = 1;
+      VALUES1(popSTACK());
     }
   }
 }

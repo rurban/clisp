@@ -61,7 +61,7 @@ LISPFUNN(copy_simple_vector,1)
     var object obj = popSTACK();
     if (!simple_vector_p(obj))
       fehler_kein_svector(S(copy_simple_vector),obj);
-    value1 = copy_svector(obj); mv_count=1;
+    VALUES1(copy_svector(obj));
   }
 
 # Function: Returns the active length of a vector (same as LENGTH).
@@ -178,7 +178,7 @@ LISPFUNN(copy_simple_vector,1)
 
 LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
   {
-    value1 = vectorof(argcount); mv_count=1;
+    VALUES1(vectorof(argcount));
   }
 
 # ============================================================================
@@ -713,7 +713,7 @@ LISPFUN(aref,1,0,rest,nokey,0,NIL) # (AREF array {subscript}), CLTL S. 290
     var uintL index;
     var object datenvektor = subscripts_to_index(array,rest_args_pointer,argcount, &index);
     # Element des Datenvektors holen:
-    value1 = storagevector_aref(datenvektor,index); mv_count=1;
+    VALUES1(storagevector_aref(datenvektor,index));
     skipSTACK(1);
   }
 
@@ -728,7 +728,7 @@ LISPFUN(store,2,0,rest,nokey,0,NIL) # (SYS::STORE array {subscript} object)
     var object datenvektor = subscripts_to_index(array,rest_args_pointer,argcount, &index);
     # Element in den Datenvektor eintragen:
     storagevector_store(datenvektor,index,element,true);
-    value1 = element; mv_count=1;
+    VALUES1(element);
     skipSTACK(1);
   }
 
@@ -747,7 +747,7 @@ LISPFUNN(svref,2) # (SVREF simple-vector index), CLTL S. 291
     # index überprüfen:
     var uintL index = test_index();
     # Element holen:
-    value1 = TheSvector(STACK_1)->data[index]; mv_count=1;
+    VALUES1(TheSvector(STACK_1)->data[index]);
     skipSTACK(2);
   }
 
@@ -762,7 +762,7 @@ LISPFUNN(svstore,3) # (SYS::SVSTORE simple-vector index element)
     var uintL index = test_index();
     # Element ablegen:
     TheSvector(STACK_1)->data[index] = element;
-    value1 = element; mv_count=1;
+    VALUES1(element);
     skipSTACK(2);
   }
 
@@ -775,7 +775,7 @@ LISPFUNN(psvstore,3) # (SYS::%SVSTORE element simple-vector index)
     # index überprüfen:
     var uintL index = test_index();
     # Element ablegen:
-    value1 = TheSvector(STACK_1)->data[index] = STACK_2; mv_count=1;
+    VALUES1(TheSvector(STACK_1)->data[index] = STACK_2);
     skipSTACK(3);
   }
 
@@ -796,7 +796,7 @@ LISPFUNN(row_major_aref,2)
     } else {
       array = iarray_displace(array,&index);
     }
-    value1 = storagevector_aref(array,index); mv_count=1;
+    VALUES1(storagevector_aref(array,index));
     skipSTACK(2);
   }
 
@@ -820,7 +820,7 @@ LISPFUNN(row_major_store,3)
       array = iarray_displace(array,&index);
     }
     storagevector_store(array,index,element,true);
-    value1 = element; mv_count=1;
+    VALUES1(element);
     skipSTACK(2);
   }
 
@@ -887,14 +887,14 @@ LISPFUNN(array_element_type,1) # (ARRAY-ELEMENT-TYPE array), CLTL S. 291
   {
     var object array = popSTACK();
     test_array(array);
-    value1 = array_element_type(array); mv_count=1;
+    VALUES1(array_element_type(array));
   }
 
 LISPFUNN(array_rank,1) # (ARRAY-RANK array), CLTL S. 292
   {
     var object array = popSTACK();
     test_array(array);
-    value1 = arrayrank(array); mv_count=1;
+    VALUES1(arrayrank(array));
   }
 
 LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
@@ -906,8 +906,7 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
       # simpler Vektor: axis-number muss =0 sein, Wert ist dann die Länge.
       if (eq(axis_number,Fixnum_0)) {
         simple_array_to_storage(array);
-        value1 = fixnum(Sarray_length(array));
-        mv_count=1; return;
+        VALUES1(fixnum(Sarray_length(array))); return;
       } else
         goto fehler_axis;
     } else {
@@ -918,8 +917,7 @@ LISPFUNN(array_dimension,2) # (ARRAY-DIMENSION array axis-number), CLTL S. 292
           var uintL* dimptr = &TheIarray(array)->dims[0]; # Zeiger auf Dimensionen
           if (Iarray_flags(array) & bit(arrayflags_dispoffset_bit))
             dimptr++; # evtl. Displaced-Offset überspringen
-          value1 = fixnum(dimptr[axis]);
-          mv_count=1; return;
+          VALUES1(fixnum(dimptr[axis])); return;
         } else
           goto fehler_axis;
       } else
@@ -983,7 +981,7 @@ LISPFUNN(array_dimensions,1) # (ARRAY-DIMENSIONS array), CLTL S. 292
   {
     var object array = popSTACK();
     test_array(array);
-    value1 = array_dimensions(array); mv_count=1;
+    VALUES1(array_dimensions(array));
   }
 
 # Function: Returns the dimensions of an array and their partial products.
@@ -1022,8 +1020,7 @@ LISPFUNN(array_total_size,1) # (ARRAY-TOTAL-SIZE array), CLTL S. 292
   {
     var object array = popSTACK();
     test_array(array);
-    value1 = fixnum(array_total_size(array));
-    mv_count=1;
+    VALUES1(fixnum(array_total_size(array)));
   }
 
 LISPFUN(array_in_bounds_p,1,0,rest,nokey,0,NIL)
@@ -1073,9 +1070,9 @@ LISPFUN(array_in_bounds_p,1,0,rest,nokey,0,NIL)
       goto yes;
     }
    yes:
-    value1 = T; mv_count=1; set_args_end_pointer(rest_args_pointer); return;
+    VALUES1(T); set_args_end_pointer(rest_args_pointer); return;
    no:
-    value1 = NIL; mv_count=1; set_args_end_pointer(rest_args_pointer); return;
+    VALUES1(NIL); set_args_end_pointer(rest_args_pointer); return;
   }
 
 LISPFUN(array_row_major_index,1,0,rest,nokey,0,NIL)
@@ -1092,14 +1089,14 @@ LISPFUN(array_row_major_index,1,0,rest,nokey,0,NIL)
       simple_array_to_storage(STACK_1);
       # Subscript selbst überprüfen:
       test_index();
-      value1 = popSTACK(); mv_count=1; # Index = Row-Major-Index = Subscript
+      VALUES1(popSTACK()); /* Index = Row-Major-Index = Subscript */
       skipSTACK(1);
     } else {
       # nicht-simpler Array
       # Subscripts überprüfen, Row-Major-Index errechnen, STACK aufräumen:
       index = test_subscripts(array,rest_args_pointer,argcount);
       # Index als Fixnum zurück:
-      value1 = fixnum(index); mv_count=1;
+      VALUES1(fixnum(index));
       skipSTACK(1);
     }
   }
@@ -1116,9 +1113,9 @@ LISPFUNN(adjustable_array_p,1) # (ADJUSTABLE-ARRAY-P array), CLTL S. 293
       else
         goto no;
    yes:
-    value1 = T; mv_count=1; return;
+    VALUES1(T); return;
    no:
-    value1 = NIL; mv_count=1; return;
+    VALUES1(NIL); return;
   }
 
 LISPFUNN(array_displacement,1) # (ARRAY-DISPLACEMENT array), CLHS
@@ -1128,13 +1125,11 @@ LISPFUNN(array_displacement,1) # (ARRAY-DISPLACEMENT array), CLHS
     if (!array_simplep(array)
         && (Iarray_flags(array) & bit(arrayflags_displaced_bit))
        ) {
-      value1 = TheIarray(array)->data; # nächster Array
-      value2 = fixnum(TheIarray(array)->dims[0]); # displaced-Offset
+      VALUES2(TheIarray(array)->data, /* next array */
+              fixnum(TheIarray(array)->dims[0])); /* displaced offset */
     } else {
-      value1 = NIL;
-      value2 = Fixnum_0;
+      VALUES2(NIL, Fixnum_0);
     }
-    mv_count=2;
   }
 
 # ============================================================================
@@ -1162,7 +1157,7 @@ LISPFUN(bit,1,0,rest,nokey,0,NIL) # (BIT bit-array {subscript}), CLTL S. 293
     if (!simple_bit_vector_p(Atype_Bit,datenvektor))
       fehler_bit_array();
     # Datenvektor ist ein Simple-Bit-Vector. Element des Datenvektors holen:
-    value1 = ( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 ); mv_count=1;
+    VALUES1(( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 ));
     skipSTACK(1);
   }
 
@@ -1175,7 +1170,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
     if (!simple_bit_vector_p(Atype_Bit,datenvektor))
       fehler_bit_array();
     # Datenvektor ist ein Simple-Bit-Vector. Element des Datenvektors holen:
-    value1 = ( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 ); mv_count=1;
+    VALUES1(( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 ));
     skipSTACK(1);
   }
 
@@ -1863,7 +1858,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
       # bit-array3 überprüfen:
       {
         var object array3 = STACK_0;
-        if (eq(array3,unbound) || eq(array3,NIL)) { # nicht angegeben oder NIL?
+        if (missingp(array3)) { /* unbound or NIL? */
           # ja -> neuen Vektor erzeugen:
           STACK_0 = allocate_bit_vector(Atype_Bit,len);
         } elif (eq(array3,T)) {
@@ -1926,7 +1921,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
       # bit-array3 überprüfen:
       {
         var object array3 = STACK_0;
-        if (eq(array3,unbound) || eq(array3,NIL)) { # nicht angegeben oder NIL?
+        if (missingp(array3)) { /* unbound or NIL? */
           # ja -> neuen Array erzeugen:
           STACK_0 = allocate_bit_vector(Atype_Bit,len); # Bitvektor erzeugen
           array3 = allocate_iarray(Atype_Bit,rank,Array_type_mdarray); # Array erzeugen
@@ -2004,7 +1999,7 @@ LISPFUN(sbit,1,0,rest,nokey,0,NIL) # (SBIT bit-array {subscript}), CLTL S. 293
         bit_op(array1,index1,array2,index2,array3,index3,op,len);
       }
       # Fertig:
-      value1 = popSTACK(); mv_count=1; # bit-array3 ist das Ergebnis
+      VALUES1(popSTACK()); /* bit-array3 is the value */
       skipSTACK(2);
       return;
      fehler2: # Fehlermeldung bei (mindestens) 2 Argumenten
@@ -4121,7 +4116,7 @@ global bool array_has_fill_pointer_p (object array) {
 LISPFUNN(array_has_fill_pointer_p,1) {
   var object array = popSTACK();
   test_array(array);
-  value1 = (array_has_fill_pointer_p(array) ? T : NIL); mv_count=1;
+  VALUES_IF(array_has_fill_pointer_p(array));
 }
 
 # Überprüft, ob ein Objekt ein Vektor mit Fill-Pointer ist, und liefert
@@ -4160,8 +4155,7 @@ LISPFUNN(array_has_fill_pointer_p,1) {
 LISPFUNN(fill_pointer,1) # (FILL-POINTER vector), CLTL S. 296
   {
     var object obj = popSTACK();
-    value1 = fixnum(* get_fill_pointer(obj)); # Fill-Pointer holen, als Fixnum
-    mv_count=1;
+    VALUES1(fixnum(* get_fill_pointer(obj))); /* get fill-pointer as Fixnum */
   }
 
 LISPFUNN(set_fill_pointer,2) # (SYS::SET-FILL-POINTER vector index)
@@ -4174,7 +4168,7 @@ LISPFUNN(set_fill_pointer,2) # (SYS::SET-FILL-POINTER vector index)
     if (!(newfillp <= fillp[-1])) # muss kleinergleich der Länge sein
       fehler_index_range(fillp[-1]+1);
     *fillp = newfillp; # neuen Fill-Pointer eintragen
-    value1 = STACK_0; mv_count=1; # neuen Fillpointer zurück
+    VALUES1(STACK_0); /* return new fill-pointer */
     skipSTACK(2);
   }
 
@@ -4183,14 +4177,14 @@ LISPFUNN(vector_push,2) # (VECTOR-PUSH new-element vector), CLTL S. 296
     var uintL* fillp = get_fill_pointer(STACK_0); # Fillpointer-Adresse
     var uintL oldfillp = *fillp; # alter Wert des Fillpointers
     if (oldfillp >= fillp[-1]) { # Fill-Pointer am Ende?
-      value1 = NIL; mv_count=1; # NIL zurück
+      VALUES1(NIL); /* return NIL */
     } else {
       var uintL index = oldfillp;
       var object datenvektor = iarray_displace(STACK_0,&index);
       storagevector_store(datenvektor,index,STACK_1,true); # new-element eintragen
       fillp = get_fill_pointer(STACK_0); # fill pointer address, again
       (*fillp)++; # Fill-Pointer erhöhen
-      value1 = fixnum(oldfillp); mv_count=1;
+      VALUES1(fixnum(oldfillp));
       # alter Fill-Pointer als Wert
     }
     skipSTACK(2);
@@ -4209,7 +4203,7 @@ LISPFUNN(vector_pop,1) # (VECTOR-POP vector), CLTL S. 296
     } else {
       var uintL index = --(*fillp); # Fill-Pointer erniedrigen
       var object datenvektor = iarray_displace(array,&index);
-      value1 = storagevector_aref(datenvektor,index); mv_count=1; # Element zurück
+      VALUES1(storagevector_aref(datenvektor,index)); /* return element */
     }
   }
 
@@ -4247,7 +4241,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       var uintB atype = Iarray_flags(array) & arrayflags_atype_mask;
       var uintL len = fillp[-1]; # bisherige Länge (Dimension 0)
       var uintL inc; # gewünschter Increment der Länge
-      if (!eq(extension,unbound)) {
+      if (boundp(extension)) {
         # extension sollte ein Fixnum >0, <arraysize_limit sein:
         if ( !posfixnump(extension)
              || ((inc = posfixnum_to_L(extension)) == 0)
@@ -4362,7 +4356,7 @@ LISPFUN(vector_push_extend,2,1,norest,nokey,0,NIL)
       TheIarray(array)->totalsize = newlen; # ist auch neue totalsize
       clr_break_sem_1(); # permit interrupts again
     }
-    value1 = fixnum(oldfillp); mv_count=1;
+    VALUES1(fixnum(oldfillp));
     # alter Fill-Pointer als Wert
     skipSTACK(2);
   }
@@ -4709,18 +4703,18 @@ global object ssbvector_push_extend (object ssbvector, uintB b) {
   local void test_otherkeys()
     {
       # fill-pointer hat Defaultwert NIL:
-      if (eq(STACK_2,unbound))
+      if (!boundp(STACK_2))
         STACK_2 = NIL;
       # displaced-to hat Defaultwert NIL:
-      if (eq(STACK_1,unbound))
+      if (!boundp(STACK_1))
         STACK_1 = NIL;
       # Testen, ob mehr als eine Initialisierung
       # (:initial-element, :initial-contents, :displaced-to) angegeben wurde:
       {
         var uintC initcount = 0; # Zähler
-        if (!(eq(STACK_4,unbound))) # initial-element angegeben?
+        if (boundp(STACK_4)) /* initial-element supplied? */
           initcount++;
-        if (!(eq(STACK_3,unbound))) # initial-contents angegeben?
+        if (boundp(STACK_3)) /* initial-contents supplied? */
           initcount++;
         if (!nullp(STACK_1)) # displaced-to angegeben?
           initcount++;
@@ -4732,9 +4726,8 @@ global object ssbvector_push_extend (object ssbvector, uintB b) {
         }
       }
       # Testen, ob :displaced-index-offset ohne :displaced-to verwendet wurde:
-      if ((!eq(STACK_0,unbound)) # displaced-index-offset angegeben?
-          && (nullp(STACK_1)) # und displaced-to nicht angegeben?
-         ) {
+      if (boundp(STACK_0) /* displaced-index-offset supplied? */
+          && (nullp(STACK_1))) { /* and displaced-to not supplied? */
         pushSTACK(S(Kdisplaced_to));
         pushSTACK(S(Kdisplaced_index_offset));
         pushSTACK(TheSubr(subr_self)->name);
@@ -4790,7 +4783,7 @@ global object ssbvector_push_extend (object ssbvector, uintB b) {
           break;
         default: NOTREACHED;
       }
-      if (!eq(STACK_4,unbound)) # initial-element angegeben?
+      if (boundp(STACK_4)) /* initial-element supplied? */
         if (!(len==0)) { # und Länge > 0 ?
           # Fill vector with initial-element:
           pushSTACK(vector);
@@ -4980,9 +4973,9 @@ local void initial_contents_aux(arg,obj)
       }
       # Displaced-Index-Offset überprüfen:
       var uintL displaced_index_offset;
-      if (eq(STACK_0,unbound))
+      if (!boundp(STACK_0))
         displaced_index_offset = 0; # Default ist 0
-      elif (posfixnump(STACK_0))
+      else if (posfixnump(STACK_0))
         displaced_index_offset = posfixnum_to_L(STACK_0);
       else {
         pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
@@ -5060,11 +5053,11 @@ LISPFUN(make_array,1,0,norest,key,7,
     var uintL totalsize;
     var uintL rank = test_dims(&totalsize);
     # adjustable hat Defaultwert NIL:
-    if (eq(STACK_6,unbound))
+    if (!boundp(STACK_6))
       STACK_6 = NIL;
     # element-type in einen Code umwandeln:
     var uintB eltype;
-    if (!(eq(STACK_5,unbound))) {
+    if (boundp(STACK_5)) {
       eltype = eltype_code(STACK_5);
     } else {
       # Defaultwert ist T.
@@ -5078,7 +5071,7 @@ LISPFUN(make_array,1,0,norest,key,7,
     if (nullp(STACK_1)) { # displaced-to nicht angegeben?
       # Datenvektor bilden:
       var object datenvektor = make_storagevector(totalsize,eltype);
-      if (!eq(STACK_3,unbound)) # und falls initial-contents angegeben:
+      if (boundp(STACK_3)) /* and if initial-contents supplied: */
         datenvektor = initial_contents(datenvektor,STACK_7,rank,STACK_3); # füllen
       # Falls displaced-to nicht angegeben ist
       # und fill-pointer nicht angegeben ist
@@ -5086,7 +5079,7 @@ LISPFUN(make_array,1,0,norest,key,7,
       # und rank=1 ist,
       # ist ein (semi-)simpler Vektor zu liefern:
       if ((rank==1) && (nullp(STACK_6)) && (nullp(STACK_2))) {
-        value1 = datenvektor; mv_count=1; # Datenvektor als Ergebnis
+        VALUES1(datenvektor); /* return datenvektor */
         skipSTACK(8); return;
       }
       # Es ist ein allgemeiner Array zu liefern.
@@ -5176,7 +5169,7 @@ LISPFUN(make_array,1,0,norest,key,7,
     # Datenvektor eintragen:
     TheIarray(array)->data = STACK_1; # displaced-to-Argument oder neuer Datenvektor
     # array als Wert:
-    value1 = array; mv_count=1; skipSTACK(8);
+    VALUES1(array); skipSTACK(8);
   }
 
 # ============================================================================
@@ -5342,7 +5335,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,
   }
   /* check element-type and convert it into code: */
   var uintB eltype;
-  if (!(eq(STACK_5,unbound))) {
+  if (boundp(STACK_5)) {
     eltype = eltype_code(STACK_5);
     /* compare with the element-type of the array argument */
     if (eltype != (Iarray_flags(STACK_6) & arrayflags_atype_mask)) {
@@ -5369,7 +5362,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,
   # Falls nicht displaced, Datenvektor bilden und evtl. füllen:
   if (nullp(STACK_1)) { # displaced-to nicht angegeben?
     var object datenvektor;
-    if (!eq(STACK_3,unbound)) { # und falls initial-contents angegeben:
+    if (boundp(STACK_3)) { /* and if initial-contents supplied: */
       # Datenvektor bilden:
       datenvektor = make_storagevector(totalsize,eltype);
       # mit dem initial-contents-Argument füllen:
@@ -5486,7 +5479,7 @@ LISPFUN(adjust_array,2,0,norest,key,6,
     TheIarray(array)->data = STACK_1; # displaced-to-Argument oder neuer Datenvektor
     clr_break_sem_1(); # permit interrupts again
     # array als Wert:
-    value1 = array; mv_count=1; skipSTACK(8);
+    VALUES1(array); skipSTACK(8);
   }
 }
 
@@ -5499,7 +5492,7 @@ LISPFUNN(vector_init,1)
 # #'(lambda (seq) 0)
   {
     skipSTACK(1);
-    value1 = Fixnum_0; mv_count=1; # 0 als Wert
+    VALUES1(Fixnum_0);
   }
 
 LISPFUNN(vector_upd,2)
@@ -5510,7 +5503,7 @@ LISPFUNN(vector_upd,2)
       if (posfixnump(newpointer)) {
         # ist ein Fixnum >=0 geblieben
         skipSTACK(2);
-        value1 = newpointer; mv_count=1; # newpointer als Wert
+        VALUES1(newpointer);
         return;
       }
     }
@@ -5526,9 +5519,9 @@ LISPFUNN(vector_endtest,2)
     if (!vectorp(seq))
       fehler_vector(seq);
     if (eq(fixnum(vector_length(seq)),STACK_0)) {
-      value1 = T; mv_count=1; skipSTACK(2); # 1 Wert T
+      VALUES1(T); skipSTACK(2);
     } else {
-      value1 = NIL; mv_count=1; skipSTACK(2); # 1 Wert NIL
+      VALUES1(NIL); skipSTACK(2);
     }
   }
 
@@ -5541,8 +5534,7 @@ LISPFUNN(vector_fe_init,1)
     var uintL len = vector_length(seq);
     # len = (vector-length seq).
     # Als Fixnum, und um 1 erniedrigen:
-    value1 = (len==0 ? Fixnum_minus1 : fixnum(len-1));
-    mv_count=1;
+    VALUES1(len==0 ? Fixnum_minus1 : fixnum(len-1));
   }
 
 LISPFUNN(vector_fe_upd,2)
@@ -5550,11 +5542,9 @@ LISPFUNN(vector_fe_upd,2)
   {
     if (posfixnump(STACK_0)) {
       var object pointer = popSTACK();
-      value1 = (eq(pointer,Fixnum_0)
-                ? Fixnum_minus1
-                : fixnum_inc(pointer,-1) # Fixnum >0 um 1 erniedrigen
-               );
-      mv_count=1;
+      VALUES1(eq(pointer,Fixnum_0)
+             ? Fixnum_minus1
+             : fixnum_inc(pointer,-1)); /* Fixnum >0 decrement by 1 */
     } else {
       # Pointer ist vor oder nach dem Erniedrigen kein Fixnum >=0
       funcall(L(einsminus),1); # (1- pointer) als Wert
@@ -5565,8 +5555,7 @@ LISPFUNN(vector_fe_upd,2)
 LISPFUNN(vector_fe_endtest,2)
 # #'(lambda (seq pointer) (minusp pointer))
   {
-    value1 = (positivep(STACK_0) ? NIL : T); # Vorzeichen von pointer abfragen
-    mv_count=1;
+    VALUES_IF(! positivep(STACK_0)); /* return the sign of pointer */
     skipSTACK(2);
   }
 
@@ -5575,7 +5564,7 @@ LISPFUNN(vector_length,1)
     var object seq = popSTACK();
     if (!vectorp(seq))
       fehler_vector(seq);
-    value1 = fixnum(vector_length(seq)); mv_count=1;
+    VALUES1(fixnum(vector_length(seq)));
   }
 
 LISPFUNN(vector_init_start,2)
@@ -5591,7 +5580,7 @@ LISPFUNN(vector_init_start,2)
     var uintL len = vector_length(seq);
     # index sollte ein Fixnum zwischen 0 und len (inclusive) sein:
     if (posfixnump(STACK_0) && (posfixnum_to_L(STACK_0)<=len)) {
-      value1 = STACK_0; mv_count=1; skipSTACK(2); # index als Wert
+      VALUES1(STACK_0); skipSTACK(2); /* return index */
     } else {
       # Stackaufbau: seq, index.
       pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
@@ -5623,11 +5612,9 @@ LISPFUNN(vector_fe_init_end,2)
     if (posfixnump(STACK_0) && (posfixnum_to_L(STACK_0)<=len)) {
       var object index = STACK_0;
       skipSTACK(2);
-      value1 = (eq(index,Fixnum_0)
-                ? Fixnum_minus1
-                : fixnum_inc(index,-1) # Fixnum >0 um 1 erniedrigen
-               );
-      mv_count=1;
+      VALUES1(eq(index,Fixnum_0)
+             ? Fixnum_minus1
+             : fixnum_inc(index,-1)); /* Fixnum >0 decrement by 1 */
     } else {
       # Stackaufbau: seq, index.
       pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
@@ -5657,7 +5644,6 @@ LISPFUNN(make_bit_vector,1)
             );
     }
     var uintL size = posfixnum_to_L(popSTACK()); # Länge
-    value1 = allocate_bit_vector(Atype_Bit,size); # euen Bit-Vektor beschaffen
-    mv_count=1;
+    VALUES1(allocate_bit_vector(Atype_Bit,size)); /* return a bit-vector */
   }
 

@@ -15,7 +15,7 @@
     var object symbol;
     {
       var object fun = Symbol_function(symbol);
-      if (eq(fun,unbound))
+      if (! boundp(fun))
         fehler_undef_function(S(symbol_function),symbol);
       if (consp(fun)) {
         pushSTACK(symbol); # Wert für Slot NAME von CELL-ERROR
@@ -95,9 +95,8 @@ LISPFUNN(putd,2)
            GETTEXT("SETF SYMBOL-FUNCTION: ~ is not a function")
           );
    ok: # fun korrekt, in die Funktionszelle stecken:
-    value1 = popSTACK(); # function-Argument als Wert
+    VALUES1(popSTACK()); /* return function-Argument */
     Symbol_function(popSTACK()) = fun;
-    mv_count=1;
   }
 
 LISPFUNN(find_subr,1)
@@ -111,7 +110,7 @@ LISPFUNN(find_subr,1)
     if (!symbolp(symbol))
       fehler_symbol(symbol);
     var object result = get(symbol,S(traced_definition));
-    if (eq(result,unbound))
+    if (! boundp(result))
       result = Symbol_function(symbol);
     if (!subrp(result)) {
       pushSTACK(symbol);
@@ -120,7 +119,7 @@ LISPFUNN(find_subr,1)
              GETTEXT("~: ~ is not a system function")
             );
     }
-    value1 = result; mv_count=1;
+    VALUES1(result);
   }
 
 LISPFUNN(proclaim_constant,2)
@@ -133,7 +132,7 @@ LISPFUNN(proclaim_constant,2)
       fehler_symbol(symbol);
     set_const_flag(TheSymbol(symbol)); # symbol zu einer Konstanten machen
     Symbol_value(symbol) = val; # ihren Wert setzen
-    value1 = symbol; mv_count=1; # symbol als Wert
+    VALUES1(symbol); /* return symbol */
   }
 
 LISPFUN(get,2,1,norest,nokey,0,NIL)
@@ -143,12 +142,12 @@ LISPFUN(get,2,1,norest,nokey,0,NIL)
     if (!symbolp(symbol))
       fehler_symbol(symbol);
     var object result = get(symbol,STACK_1); # suchen
-    if (eq(result,unbound)) { # nicht gefunden?
+    if (! boundp(result)) { /* not found? */
       result = STACK_0; # Defaultwert ist not-found
-      if (eq(result,unbound)) # Ist der nicht angegeben,
+      if (! boundp(result)) /* not supplied */
         result = NIL; # dann NIL.
     }
-    value1 = result; mv_count=1;
+    VALUES1(result);
     skipSTACK(3);
   }
 
@@ -171,7 +170,7 @@ LISPFUN(getf,2,1,norest,nokey,0,NIL)
     plistr = Cdr(plistr);
     if (atomp(plistr))
       goto odd;
-    value1 = Car(plistr); mv_count=1; skipSTACK(3); return;
+    VALUES1(Car(plistr)); skipSTACK(3); return;
    odd: # Property-Liste hat ungerade Länge
     pushSTACK(STACK_2);
     pushSTACK(S(getf));
@@ -216,7 +215,7 @@ LISPFUNN(get_properties,2)
            GETTEXT("~: the property list ~ has an odd length")
           );
    notfound: # key nicht gefunden
-    value1 = value2 = value3 = NIL; mv_count=3; return; # alle 3 Werte NIL
+    VALUES3(NIL,NIL,NIL); return; /* all 3 values */
   }
 
 LISPFUNN(putplist,2)
@@ -226,7 +225,7 @@ LISPFUNN(putplist,2)
     var object symbol = popSTACK();
     if (!symbolp(symbol))
       fehler_symbol(symbol);
-    value1 = Symbol_plist(symbol) = list; mv_count=1;
+    VALUES1(Symbol_plist(symbol) = list);
   }
 
 LISPFUNN(put,3)
@@ -252,7 +251,7 @@ LISPFUNN(put,3)
       plistr = Cdr(plistr);
       if (atomp(plistr))
         goto odd;
-      value1 = Car(plistr) = STACK_0; mv_count=1; # neues value eintragen
+      VALUES1(Car(plistr) = STACK_0); /* fill new value */
       skipSTACK(3); return;
      odd: # Property-Liste hat ungerade Länge
       fehler_plist_odd(symbol);
@@ -263,13 +262,13 @@ LISPFUNN(put,3)
       pushSTACK(allocate_cons());
       var object cons1 = allocate_cons();
       var object cons2 = popSTACK();
-      value1 = Car(cons2) = popSTACK(); # value
+      VALUES1(Car(cons2) = popSTACK()); /* value */
       Car(cons1) = popSTACK(); # key
       var object symbol = popSTACK();
       Cdr(cons2) = Symbol_plist(symbol);
       Cdr(cons1) = cons2;
       Symbol_plist(symbol) = cons1;
-      mv_count=1; return;
+      return;
     }
   }
 
@@ -298,11 +297,11 @@ LISPFUNN(remprop,2)
     if (atomp(plistr))
       goto odd;
     *plistr_ = Cdr(plistr); # Property-Liste um 2 Elemente verkürzen
-    value1 = T; mv_count=1; return; # Wert T
+    VALUES1(T); return;
    odd: # Property-Liste hat ungerade Länge
     fehler_plist_odd(symbol);
    notfound: # key nicht gefunden
-    value1 = NIL; mv_count=1; return; # Wert NIL
+    VALUES1(NIL); return;
   }
 
 LISPFUNN(symbol_package,1)
@@ -311,7 +310,7 @@ LISPFUNN(symbol_package,1)
     var object symbol = popSTACK();
     if (!symbolp(symbol))
       fehler_symbol(symbol);
-    value1 = Symbol_package(symbol); mv_count=1;
+    VALUES1(Symbol_package(symbol));
   }
 
 LISPFUNN(symbol_plist,1)
@@ -320,7 +319,7 @@ LISPFUNN(symbol_plist,1)
     var object symbol = popSTACK();
     if (!symbolp(symbol))
       fehler_symbol(symbol);
-    value1 = Symbol_plist(symbol); mv_count=1;
+    VALUES1(Symbol_plist(symbol));
   }
 
 LISPFUNN(symbol_name,1)
@@ -329,18 +328,14 @@ LISPFUNN(symbol_name,1)
     var object symbol = popSTACK();
     if (!symbolp(symbol))
       fehler_symbol(symbol);
-    value1 = Symbol_name(symbol); mv_count=1;
+    VALUES1(Symbol_name(symbol));
   }
 
 LISPFUNN(keywordp,1)
 # (KEYWORDP object), CLTL S. 170
   {
     var object obj = popSTACK();
-    if (symbolp(obj) && keywordp(obj))
-      value1 = T;
-    else
-      value1 = NIL;
-    mv_count=1;
+    VALUES_IF(symbolp(obj) && keywordp(obj));
   }
 
 LISPFUNN(special_variable_p,1)
@@ -351,10 +346,7 @@ LISPFUNN(special_variable_p,1)
     var object symbol = popSTACK();
     if (!symbolp(symbol))
       fehler_symbol(symbol);
-    value1 = (constantp(TheSymbol(symbol)) || special_var_p(TheSymbol(symbol))
-              ? T : NIL
-             );
-    mv_count=1;
+    VALUES_IF(constantp(TheSymbol(symbol)) || special_var_p(TheSymbol(symbol)));
   }
 
 LISPFUN(gensym,0,1,norest,nokey,0,NIL)
@@ -392,7 +384,7 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
     var object prefix = O(gensym_prefix); # "G"
     var object counter = Symbol_value(S(gensym_counter)); # *GENSYM-COUNTER*
     var object x = popSTACK(); # Argument
-    if (!eq(x,unbound)) {
+    if (boundp(x)) {
       # x angegeben
       if (stringp(x)) {
         prefix = x; # prefix setzen
@@ -435,7 +427,6 @@ LISPFUN(gensym,0,1,norest,nokey,0,NIL)
     }
     funcall(L(decimal_string),1); # (sys::decimal-string counter)
     pushSTACK(value1); # 2. String
-    value1 = make_symbol(coerce_imm_ss(string_concat(2))); # zusammenhängen, Symbol bilden
-    mv_count=1; # als Wert
+    VALUES1(make_symbol(coerce_imm_ss(string_concat(2))));
   }
 

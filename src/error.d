@@ -55,7 +55,7 @@
         # *ERROR-HANDER* /= NIL
         pushSTACK(NIL); pushSTACK(NIL); pushSTACK(error_handler);
         pushSTACK(make_string_output_stream()); # String-Output-Stream
-      } elif (nullp(Symbol_value(S(use_clcs)))) { # SYS::*USE-CLCS*
+      } else if (nullpSv(use_clcs)) { /* SYS::*USE-CLCS* */
         # *ERROR-HANDER* = NIL, SYS::*USE-CLCS* = NIL
         pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
         pushSTACK(var_stream(S(error_output),strmflags_wr_ch_B)); # Stream *ERROR-OUTPUT*
@@ -222,7 +222,7 @@ nonreturning_function(local, signal_and_debug, (object condition)) {
       STACK_0 = get_output_stream_string(&STACK_0);
       var object arguments = nreverse(STACK_2);
       # Stackaufbau: type, args, handler, errorstring.
-      if (!eq(STACK_1,unbound)) {
+      if (boundp(STACK_1)) {
         # *ERROR-HANDER* /= NIL
         # Stackaufbau: nil, args, handler, errorstring.
         # (apply *error-handler* nil errorstring args) ausführen:
@@ -379,7 +379,7 @@ LISPFUN(error,1,0,rest,nokey,0,NIL)
 #     )
 # ) )
   {
-    if (!nullp(Symbol_value(S(error_handler))) || nullp(Symbol_value(S(use_clcs)))) {
+    if (!nullpSv(error_handler) || nullpSv(use_clcs)) {
       begin_error(); # Fehlermeldung anfangen
       rest_args_pointer skipSTACKop 1; # Pointer über die Argumente
       {
@@ -424,7 +424,7 @@ LISPFUNN(defclcs,1)
 # setzt die für ERROR-OF-TYPE benötigten Daten.
   {
     O(error_types) = popSTACK();
-    value1 = NIL; mv_count=0;
+    VALUES0;
   }
 
 # Konvertiert einen Condition-Typ zur entsprechenden Simple-Condition.
@@ -479,7 +479,7 @@ LISPFUN(cerror_of_type,3,0,rest,nokey,0,NIL)
       rest_args_pointer skipSTACKop -2; argcount -= 2; keyword_argcount += 2;
     }
     # Nächstes Argument hoffentlich ein String.
-    if (!nullp(Symbol_value(S(error_handler))) || nullp(Symbol_value(S(use_clcs)))) {
+    if (!nullpSv(error_handler) || nullpSv(use_clcs)) {
       # Der Typ und die Keyword-Argumente werden ignoriert.
       BEFORE(rest_args_pointer) = *cfstring_;
       funcall(S(cerror),argcount+2);
@@ -554,7 +554,7 @@ LISPFUN(error_of_type,2,0,rest,nokey,0,NIL)
       rest_args_pointer skipSTACKop -2; argcount -= 2; keyword_argcount += 2;
     }
     # Nächstes Argument hoffentlich ein String.
-    if (!nullp(Symbol_value(S(error_handler))) || nullp(Symbol_value(S(use_clcs)))) {
+    if (!nullpSv(error_handler) || nullpSv(use_clcs)) {
       # Der Typ und die Keyword-Argumente werden ignoriert.
       begin_error(); # Fehlermeldung anfangen
       {
@@ -651,7 +651,7 @@ LISPFUNN(invoke_debugger,1)
       #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
         writing_to_subprocess = false;
       #endif
-      if (!nullp(Symbol_value(S(error_handler))) || nullp(Symbol_value(S(use_clcs)))) {
+      if (!nullpSv(error_handler) || nullpSv(use_clcs)) {
         # Simuliere begin_error(), 7 Elemente auf den STACK:
         pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
         pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
@@ -705,7 +705,7 @@ LISPFUN(clcs_signal,1,0,rest,nokey,0,NIL)
     }
     var object condition = popSTACK(); # condition zurück
     invoke_handlers(condition); # Handler aufrufen
-    value1 = NIL; mv_count=1; # Wert NIL
+    VALUES1(NIL);
   }
 
 # Fehlermeldung, wenn ein Objekt keine Liste ist.
@@ -938,7 +938,7 @@ nonreturning_function(global, fehler_too_many_args,
   pushSTACK(func);
   pushSTACK(fixnum(nmax));
   pushSTACK(fixnum(ngiven));
-  if (eq(caller,unbound))
+  if (!boundp(caller))
     fehler(program_error,GETTEXT("EVAL/APPLY: Too many arguments (~ instead of at most ~) given to ~"));
   else {
     pushSTACK(caller);
@@ -956,7 +956,7 @@ nonreturning_function(global, fehler_too_few_args,
   pushSTACK(func);
   pushSTACK(fixnum(nmin));
   pushSTACK(fixnum(ngiven));
-  if (eq(caller,unbound))
+  if (!boundp(caller))
     fehler(program_error,GETTEXT("EVAL/APPLY: Too few arguments (~ instead of at least ~) given to ~"));
   else {
     pushSTACK(caller);

@@ -10,7 +10,7 @@
 LISPFUNN(lisp_implementation_type,0)
 # (LISP-IMPLEMENTATION-TYPE), CLTL S. 447
   {
-    value1 = O(lisp_implementation_type_string); mv_count=1;
+    VALUES1(O(lisp_implementation_type_string));
   }
 
 LISPFUNN(lisp_implementation_version,0)
@@ -59,7 +59,7 @@ LISPFUNN(lisp_implementation_version,0)
           if (mo != 0) {
             # YYYY-MM-DD HH:MM:SS
             var char build_time[4+1+2+1+2 +1+ 2+1+2+1+2+1];
-            if (eq(unbound,Symbol_function(S(encode_universal_time)))) {
+            if (!boundp(Symbol_function(S(encode_universal_time)))) {
               sprintf(build_time,"%04u-%02u-%02u %02u:%02u:%02u",
                       (unsigned int) ye, (unsigned int) mo, (unsigned int) da,
                       (unsigned int) ho, (unsigned int) mi, (unsigned int) se);
@@ -102,11 +102,11 @@ LISPFUN(version,0,1,norest,nokey,0,NIL)
 # ob die Versionen des Runtime-Systems übereinstimmen.
   {
     var object arg = popSTACK();
-    if (eq(arg,unbound)) {
-      value1 = O(version); mv_count=1;
+    if (!boundp(arg)) {
+      VALUES1(O(version));
     } else {
       if (equal(arg,O(version)) /* || equal(arg,O(oldversion)) */) {
-        value1 = NIL; mv_count=0;
+        VALUES0;
       } else {
         fehler(error,
                GETTEXT("This file was produced by another lisp version, must be recompiled.")
@@ -173,7 +173,7 @@ LISPFUNN(machinetype,0)
       # Das Ergebnis merken wir uns für's nächste Mal:
       O(machine_type_string) = erg;
     }
-    value1 = erg; mv_count=1;
+    VALUES1(erg);
   }
 
 LISPFUNN(machine_version,0)
@@ -241,7 +241,7 @@ LISPFUNN(machine_version,0)
       # Das Ergebnis merken wir uns für's nächste Mal:
       O(machine_version_string) = erg;
     }
-    value1 = erg; mv_count=1;
+    VALUES1(erg);
   }
 
 #endif # MACHINE_KNOWN
@@ -253,7 +253,7 @@ LISPFUNN(machine_version,0)
 # if STRING is NIL, return all the environment as an alist
 LISPFUN(get_env,0,1,norest,nokey,0,NIL) {
   var object arg = popSTACK();
-  if (nullp(arg) || eq(unbound,arg)) { /* return all the environment at once */
+  if (missingp(arg)) { /* return all the environment at once */
     extern char** environ;
     var char** epp;
     var char* ep;
@@ -265,8 +265,7 @@ LISPFUN(get_env,0,1,norest,nokey,0,NIL) {
       if (*ep == '=')
         Cdr(STACK_0) = asciz_to_string(ep+1,O(misc_encoding));
     }
-    value1 = listof(count);
-    mv_count = 1;
+    VALUES1(listof(count));
     return;
   }
   if (!stringp(arg))
@@ -277,11 +276,10 @@ LISPFUN(get_env,0,1,norest,nokey,0,NIL) {
     found = getenv(envvar);
     end_system_call();
   });
-  if (found!=NULL)
-    value1 = asciz_to_string(found,O(misc_encoding));
+  if (found != NULL)
+    VALUES1(asciz_to_string(found,O(misc_encoding)));
   else
-    value1 = NIL;
-  mv_count=1;
+    VALUES1(NIL);
 }
 
 # Creates a string concatenating an environment variable and its value.
@@ -402,8 +400,7 @@ LISPFUNN(set_env,2)
     fehler(error,
            GETTEXT("~ (~ ~): out of memory"));
   }
-  value1 = value;
-  mv_count = 1;
+  VALUES1(value);
 }
 
 #endif
@@ -428,7 +425,7 @@ LISPFUNN(registry,2)
         err = RegOpenKeyEx(HKEY_LOCAL_MACHINE,pathz,0,KEY_READ, &key);
         if (!(err == ERROR_SUCCESS)) {
           if (err == ERROR_FILE_NOT_FOUND) {
-            value1 = NIL;
+            VALUES1(NIL);
             goto none;
           }
           SetLastError(err); OS_error();
@@ -437,7 +434,7 @@ LISPFUNN(registry,2)
         if (!(err == ERROR_SUCCESS)) {
           if (err == ERROR_FILE_NOT_FOUND) {
             RegCloseKey(key);
-            value1 = NIL;
+            VALUES1(NIL);
             goto none;
           }
           SetLastError(err); OS_error();
@@ -451,7 +448,7 @@ LISPFUNN(registry,2)
               err = RegCloseKey(key);
               if (!(err == ERROR_SUCCESS)) { SetLastError(err); OS_error(); }
               end_system_call();
-              value1 = asciz_to_string(buf,O(misc_encoding));
+              VALUES1(asciz_to_string(buf,O(misc_encoding)));
             }
             break;
           default:
@@ -469,14 +466,13 @@ LISPFUNN(registry,2)
       });
     none:;
     });
-    mv_count=1;
     skipSTACK(2);
   }
 
 #endif
 
 LISPFUNN(software_type,0) { # (SOFTWARE-TYPE), CLTL p. 448
-  value1 = CLSTEXT("ANSI C program"); mv_count=1;
+  VALUES1(CLSTEXT("ANSI C program"));
 }
 
 LISPFUNN(software_version,0) { # (SOFTWARE-VERSION), CLTL p. 448
@@ -487,19 +483,18 @@ LISPFUNN(software_version,0) { # (SOFTWARE-VERSION), CLTL p. 448
   pushSTACK(CLSTEXT("GNU C "));
  #endif
   pushSTACK(O(c_compiler_version));
-  value1 = string_concat(2);
+  VALUES1(string_concat(2));
 #else
  #if defined(__cplusplus)
-  value1 = CLSTEXT("C++ compiler");
+  VALUES1(CLSTEXT("C++ compiler"));
  #else
-  value1 = CLSTEXT("C compiler");
+  VALUES1(CLSTEXT("C compiler"));
  #endif
 #endif
-  mv_count=1;
 }
 
 LISPFUNN(identity,1) { # (IDENTITY object), CLTL p. 448
-  value1 = popSTACK(); mv_count=1;
+  VALUES1(popSTACK());
 }
 
 LISPFUNN(address_of,1)
@@ -507,13 +502,12 @@ LISPFUNN(address_of,1)
   {
     var object arg = popSTACK();
     #if defined(WIDE_HARD)
-      value1 = UQ_to_I(untype(arg));
+      VALUES1(UQ_to_I(untype(arg)));
     #elif defined(WIDE_SOFT)
-      value1 = UL_to_I(untype(arg));
+      VALUES1(UL_to_I(untype(arg)));
     #else
-      value1 = UL_to_I(as_oint(arg));
+      VALUES1(UL_to_I(as_oint(arg)));
     #endif
-    mv_count=1;
   }
 
 #ifdef HAVE_DISASSEMBLER
@@ -523,18 +517,17 @@ LISPFUNN(code_address_of,1)
   {
     var object obj = popSTACK();
     if (ulong_p(obj)) # Zahl im Bereich eines aint == ulong -> Zahl selbst
-      value1 = obj;
+      VALUES1(obj);
     elif (subrp(obj)) # SUBR -> seine Adresse
-      value1 = ulong_to_I((aint)(TheSubr(obj)->function));
+      VALUES1(ulong_to_I((aint)(TheSubr(obj)->function)));
     elif (fsubrp(obj)) # FSUBR -> seine Adresse
-      value1 = ulong_to_I((aint)(TheFsubr(obj)->function));
+      VALUES1(ulong_to_I((aint)(TheFsubr(obj)->function)));
     #ifdef DYNAMIC_FFI
     elif (ffunctionp(obj))
-      value1 = ulong_to_I((uintP)Faddress_value(TheFfunction(obj)->ff_address));
+      VALUES1(ulong_to_I((uintP)Faddress_value(TheFfunction(obj)->ff_address)));
     #endif
     else
-      value1 = NIL;
-    mv_count=1;
+      VALUES1(NIL);
   }
 
 LISPFUNN(program_id,0)
@@ -543,8 +536,7 @@ LISPFUNN(program_id,0)
     begin_system_call();
     var int pid = getpid();
     end_system_call();
-    value1 = L_to_I((sint32)pid);
-    mv_count=1;
+    VALUES1(L_to_I((sint32)pid));
   }
 
 #endif
@@ -552,13 +544,13 @@ LISPFUNN(program_id,0)
 LISPFUNN(ansi,0)
 # (SYS::ANSI)
   {
-    value1 = O(ansi); mv_count = 1;
+    VALUES1(O(ansi));
   }
 
 LISPFUNN(set_ansi,1)
 # (SYS::SET-ANSI ansi-p)
   {
-    var object val = (eq(popSTACK(),NIL) ? NIL : T);
+    var object val = (nullp(popSTACK()) ? NIL : T);
     # (SETQ *ANSI* val)
     O(ansi) = val;
     # (SETQ *FLOATING-POINT-CONTAGION-ANSI* val)
@@ -573,5 +565,5 @@ LISPFUNN(set_ansi,1)
     Symbol_value(S(sequence_count_ansi)) = val;
     # (SETQ *COERCE-FIXNUM-CHAR-ANSI* val)
     Symbol_value(S(coerce_fixnum_char_ansi)) = val;
-    value1 = val; mv_count = 1;
+    VALUES1(val);
   }

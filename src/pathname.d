@@ -35,7 +35,7 @@ local object debug_output (const char* label,object obj,const int pos) {
 }
 local void debug_printf (const char* label,object obj,const int pos) {
   fprintf(stdout,"[%d] %s: %s\n",pos,label,
-          (eq(obj,unbound) ? "#<UNBOUND>" : eq(obj,NIL) ? "NIL" :
+          (!boundp(obj) ? "#<UNBOUND>" : nullp(obj) ? "NIL" :
            eq(obj,T) ? "T" : stringp(obj) ? "string" :
            logpathnamep(obj) ? "logical pathname" : pathnamep(obj) ? "path" :
            eq(obj,S(Knewest)) ? ":NEWEST" : symbolp(obj) ? "a symbol" :
@@ -1204,7 +1204,7 @@ local bool legal_hostchar (chart ch) {
 # < result: valid host-component
 # can trigger GC
 local object test_optional_host (object host, bool convert) {
-  if (eq(host,unbound))
+  if (!boundp(host))
     return NIL;
   if (nullp(host))
     goto OK; # NIL is OK
@@ -1248,7 +1248,7 @@ local object test_optional_host (object host, bool convert) {
 # < result: valid host-component
 # can trigger GC
 local object test_optional_host (object host) {
-  if (eq(host,unbound))
+  if (!boundp(host))
     return NIL; # not specified -> NIL
   if (nullp(host))
     goto OK; # NIL is OK
@@ -1290,7 +1290,7 @@ local object test_optional_host (object host) {
 # > subr_self: Caller (a SUBR)
 # < result: valid host-component
 local object test_optional_host (object host) {
-  if (!eq(host,unbound)) { # not specified -> OK
+  if (boundp(host)) { # not specified -> OK
     if (!nullp(host)) { # specified -> should be =NIL
       pushSTACK(host);    # TYPE-ERROR slot DATUM
       pushSTACK(S(null)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -1395,7 +1395,7 @@ local object defaults_pathname (void); # later
 # < result: value of the defaults-argument, a pathname
 # can trigger GC
 local object test_default_pathname (object defaults) {
-  if (eq(defaults,unbound) || eq(defaults,NIL))
+  if (missingp(defaults))
     # not specified -> take value of *DEFAULT-PATHNAME-DEFAULTS* :
     return defaults_pathname();
   else
@@ -1939,17 +1939,11 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
   DOUT("parse-namestring:[junk]",STACK_0);
   { # 1. check junk-allowed:
     var object obj = popSTACK(); # junk-allowed-Argument
-    if (eq(obj,unbound))
-      junk_allowed = false;
-    else
-      if (nullp(obj))
-        junk_allowed = false;
-      else
-        junk_allowed = true;
+    junk_allowed = !missingp(obj);
   }
   # stack layout: thing, host, defaults, start, end.
   # 2. default-value for start is 0:
-  if (eq(STACK_1,unbound))
+  if (!boundp(STACK_1))
     STACK_1 = Fixnum_0;
   # 3. check host:
  #if HAS_HOST || defined(LOGICAL_PATHNAMES)
@@ -2001,7 +1995,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
   # thing should now be at least a String or a Symbol:
   var bool thing_symbol = false;
   if (!stringp(thing)) {
-    if (!symbolp(thing) || !nullp(Symbol_value(S(parse_namestring_ansi))))
+    if (!symbolp(thing) || !nullpSv(parse_namestring_ansi))
       fehler_pathname_designator(thing);
     thing = Symbol_name(thing); # Symbol -> use symbol name
     thing_symbol = true;
@@ -2032,7 +2026,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
     if (!parse_logical) {
       # Check whether *PARSE-NAMESTRING-ANSI* is true and the string
       # starts with a logical hostname.
-      if (!nullp(Symbol_value(S(parse_namestring_ansi)))) {
+      if (!nullpSv(parse_namestring_ansi)) {
         # Coerce string to be a normal-simple-string.
         #ifdef HAVE_SMALL_SSTRING
         SstringCase(string,{ Z_SUB(z,string); },{ Z_SUB(z,string); },{});
@@ -2500,7 +2494,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
      #endif /* PATHNAME_UNIX & 0 */
      #if defined(PATHNAME_UNIX) || defined(PATHNAME_OS2) || defined(PATHNAME_WIN32)
       #if defined(UNIX_CYGWIN32)
-        if (z.count > 1 && !nullp(Symbol_value(S(device_prefix)))
+        if (z.count > 1 && !nullpSv(device_prefix)
             && chareq(schar(STACK_2,z.index+1),ascii(':'))) {
           /* if string starts with 'x:', treat it as a device */
           var chart ch = down_case(schar(STACK_2,z.index));
@@ -2658,7 +2652,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
           Z_SHIFT(z,1);
           pushSTACK(string);
         }
-        if (!eq(STACK_1,unbound)) {
+        if (boundp(STACK_1)) {
           # lengthen (pathname-directory pathname) by subdir STACK_1:
           var object new_cons = allocate_cons(); # new Cons
           Car(new_cons) = STACK_1; # = (cons subdir NIL)
@@ -2667,7 +2661,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
         }
         STACK_1 = STACK_0; skipSTACK(1); # maybe-name := subdir
       }
-      if (eq(STACK_1,unbound)) {
+      if (!boundp(STACK_1)) {
         STACK_1 = STACK_0; STACK_0 = NIL;
       }
       # stack layout: ..., data-vector, pathname,
@@ -2767,7 +2761,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,
   # Check that if a :host argument (or :host component of the :defaults
   # argument) was present and the parsed pathname has a host component,
   # they agree; and set the :host component of the result otherwise
-  if (!nullp(STACK_(3+2)) && !eq(unbound,STACK_(3+2))) {
+  if (!missingp(STACK_(3+2))) {
    #ifdef LOGICAL_PATHNAMES
     if (parse_logical) {
       var object parsed_host = TheLogpathname(STACK_0)->pathname_host;
@@ -2844,9 +2838,8 @@ local object coerce_xpathname (object obj) {
   }
 }
 
-# (PATHNAME pathname), CLTL p. 413
-LISPFUNN(pathname,1) {
-  value1 = coerce_xpathname(popSTACK()); mv_count=1;
+LISPFUNN(pathname,1) { /* (PATHNAME pathname), CLTL p. 413 */
+  VALUES1(coerce_xpathname(popSTACK()));
 }
 
 # (PATHNAME-HOST pathname [:case]), CLTL p. 417, CLtL2 p. 644
@@ -2854,17 +2847,16 @@ LISPFUN(pathnamehost,1,0,norest,key,1, (kw(case))) {
   var object pathname = coerce_xpathname(STACK_1);
  #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
-    value1 = TheLogpathname(pathname)->pathname_host; mv_count=1;
+    VALUES1(TheLogpathname(pathname)->pathname_host);
   } else
  #endif
   {
    #if HAS_HOST
     var object erg = ThePathname(pathname)->pathname_host;
-    value1 = (eq(STACK_0,S(Kcommon)) ? common_case(erg) : erg); # host as value
+    VALUES1(eq(STACK_0,S(Kcommon)) ? common_case(erg) : erg); /* host as value */
    #else
-    value1 = NIL; # NIL as value
+    VALUES1(NIL);
    #endif
-    mv_count=1;
   }
   skipSTACK(2);
 }
@@ -2874,17 +2866,16 @@ LISPFUN(pathnamedevice,1,0,norest,key,1, (kw(case))) {
   var object pathname = coerce_xpathname(STACK_1);
  #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
-    value1 = NIL; mv_count=1;
+    VALUES1(NIL);
   } else
  #endif
   {
    #if HAS_DEVICE
     var object erg = ThePathname(pathname)->pathname_device; # device as value
-    value1 = (eq(STACK_0,S(Kcommon)) ? common_case(erg) : erg);
+    VALUES1(eq(STACK_0,S(Kcommon)) ? common_case(erg) : erg);
    #else
-    value1 = NIL; # NIL as value
+    VALUES1(NIL);
    #endif
-    mv_count=1;
   }
   skipSTACK(2);
 }
@@ -2894,14 +2885,13 @@ LISPFUN(pathnamedirectory,1,0,norest,key,1, (kw(case))) {
   var object pathname = coerce_xpathname(STACK_1);
  #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
-    value1 = TheLogpathname(pathname)->pathname_directory;
+    VALUES1(TheLogpathname(pathname)->pathname_directory);
   } else
  #endif
   {
     var object erg = ThePathname(pathname)->pathname_directory;
-    value1 = (eq(STACK_0,S(Kcommon)) ? subst_common_case(erg) : erg);
+    VALUES1(eq(STACK_0,S(Kcommon)) ? subst_common_case(erg) : erg);
   }
-  mv_count=1; # directory as value
   skipSTACK(2);
 }
 
@@ -2967,7 +2957,7 @@ LISPFUNN(logical_pathname,1) {
   var object thing = popSTACK();
   if (logpathnamep(thing)) {
     # nothing to do for logical pathnames.
-    value1 = thing; mv_count=1;
+    VALUES1(thing);
   } else if (pathnamep(thing)) {
     # normal pathnames cannot be converted into logical pathnames.
     pushSTACK(thing);                    # TYPE-ERROR slot DATUM
@@ -2976,8 +2966,7 @@ LISPFUNN(logical_pathname,1) {
     pushSTACK(S(logical_pathname));
     fehler(type_error,GETTEXT("~: argument ~ is not a logical pathname, string, stream or symbol"));
   } else {
-    value1 = parse_as_logical(thing);
-    mv_count=1;
+    VALUES1(parse_as_logical(thing));
   }
 }
 
@@ -3075,7 +3064,7 @@ LISPFUN(translate_logical_pathname,1,0,norest,key,0,_EMA_) {
     DOUT("translate-logical-pathname: >",pathname);
     skipSTACK(2);
   }
-  value1 = pathname; mv_count=1;
+  VALUES1(pathname);
 }
 
 # UP: Change an object into a non-logical pathname.
@@ -3391,20 +3380,19 @@ local inline object file_namestring (object pathname) {
 # (FILE-NAMESTRING pathname), CLTL p. 417
 LISPFUNN(file_namestring,1) {
   var object pathname = coerce_xpathname(popSTACK());
-  value1 = file_namestring(pathname); mv_count=1;
+  VALUES1(file_namestring(pathname));
 }
 
 # (DIRECTORY-NAMESTRING pathname), CLTL p. 417
 LISPFUNN(directory_namestring,1) {
   var object pathname = coerce_xpathname(popSTACK());
-  value1 = directory_namestring(pathname); mv_count=1;
+  VALUES1(directory_namestring(pathname));
 }
 
 # (HOST-NAMESTRING pathname), CLTL p. 417
 LISPFUNN(host_namestring,1) {
   var object pathname = coerce_xpathname(popSTACK());
-  value1 = xpathname_host(logpathnamep(pathname),pathname);
-  mv_count=1;
+  VALUES1(xpathname_host(logpathnamep(pathname),pathname));
 }
 
 #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
@@ -3416,7 +3404,7 @@ LISPFUNN(host_namestring,1) {
 # < result: valid version-component
 local object test_optional_version (object def) {
   var object version = STACK_0;
-  if (eq(version,unbound)) {
+  if (!boundp(version)) {
     STACK_0 = def; # not specified -> Default
   } else if (nullp(version)) { # NIL is OK
   } else if (eq(version,S(Kwild))) { # :WILD is OK
@@ -3447,8 +3435,7 @@ local object test_optional_version (object def) {
 #define test_optional_version(def)  test_optional_version_()
 local void test_optional_version_ (void) {
   var object version = STACK_0;
-  if (eq(version,unbound) # not specified?
-      || nullp(version)         # or NIL ?
+  if (missingp(version)
       || eq(version,S(Kwild))   # or :WILD ?
       || eq(version,S(Knewest))) # or :NEWEST ?
     return; # yes -> OK
@@ -3562,7 +3549,7 @@ local object merge_dirs (object p_directory, object d_directory, bool p_log,
   SDOUT("merge_dirs:",p_directory);
   SDOUT("merge_dirs:",d_directory);
   if (called_from_make_pathname) {
-    if (eq(p_directory,unbound)) # pathname-subdirs not given?
+    if (!boundp(p_directory)) /* pathname-subdirs not given? */
       new_subdirs = d_directory; # use defaults-subdirs
   } else if (!wildp) {
     # is pathname-subdirs trivial?
@@ -3572,7 +3559,7 @@ local object merge_dirs (object p_directory, object d_directory, bool p_log,
     } else if (eq(Car(p_directory),S(Krelative))
                # PATHNAME = :ABSOLUTE ==> merge is not needed
                && (eq(Car(d_directory),S(Kabsolute))
-                   || !nullp(Symbol_value(S(merge_pathnames_ansi))))) {
+                   || !nullpSv(merge_pathnames_ansi))) {
       # (append defaults-subdirs (cdr pathname-subdirs)) =
       # (nreconc (reverse defaults-subdirs) (cdr pathname-subdirs)) :
       pushSTACK(Cdr(p_directory));
@@ -3677,11 +3664,11 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild))) {
   # only #<unbound> components are considered unspecified.
   var bool called_from_make_pathname = eq(STACK_0,L(make_pathname));
   # :wild t causes only wild components to be considered unspecified.
-  var bool wildp = !(eq(STACK_0,unbound) || nullp(STACK_0));
+  var bool wildp = !missingp(STACK_0);
   skipSTACK(1);
 
 #define SPECIFIED(obj)                                  \
-    !(called_from_make_pathname ? eq(obj,unbound) :     \
+    !(called_from_make_pathname ? !boundp(obj) :     \
       (wildp ? eq(obj,S(Kwild)) : nullp(obj)))
 #define NAMETYPE_MATCH(acc,slot)                                        \
     { var object tmp = x##slot(p_log,p);                                \
@@ -3707,14 +3694,14 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild))) {
   { # check default-version (STACK_0):
     var object v = test_optional_version(unbound);
     var object p_version = xpathname_version(p_log,STACK_2);
-    if (eq(v,unbound)) {
+    if (!boundp(v)) {
       var object p_name    = xpathname_name   (p_log,STACK_2);
       var object d_version = xpathname_version(d_log,STACK_1);
       v = (SPECIFIED(p_version) ? p_version :
            (SPECIFIED(d_version) && !SPECIFIED(p_name) ? d_version :
             S(Knewest)));
     } else if (nullp(v)) v = p_version;
-    if (eq(v,unbound)) v = S(Knewest);
+    if (!boundp(v)) v = S(Knewest);
     STACK_0 = STACK_1; STACK_1 = STACK_2; STACK_2 = v;
     DOUT("merge-pathnames:",v);
   }
@@ -3739,7 +3726,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild))) {
       TheLogpathname(newp)->pathname_host = p_host; # initially, new-host := pathname-host
       if (equal(p_host,d_host))
         goto lmatch_directories;
-      if (wildp ? eq(p_host,unbound) : nullp(p_host)) {
+      if (wildp ? !boundp(p_host) : nullp(p_host)) {
         # pathname-host not specified, but defaults-host specified:
         TheLogpathname(newp)->pathname_host = d_host; # new-host := defaults-host
         goto lmatch_directories;
@@ -3748,7 +3735,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild))) {
     { # directories do not match: new-directory := pathname-directory
       var object dir = xpathname_directory(p_log,p);
       TheLogpathname(newp)->pathname_directory =
-        (eq(unbound,dir) ? xpathname_directory(d_log,d) : dir);
+        (!boundp(dir) ? xpathname_directory(d_log,d) : dir);
       goto ldirectories_OK;
     }
   lmatch_directories:
@@ -3766,7 +3753,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild))) {
     NAMETYPE_MATCH(TheLogpathname,pathname_type);
     TheLogpathname(newp)->pathname_version = popSTACK();
     DOUT("merge-pathnames:[ret]",newp);
-    value1 = newp; mv_count=1;
+    VALUES1(newp);
     return;
   }
   # not both are logical pathnames -> first, convert into normal pathnames:
@@ -3837,7 +3824,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild))) {
   { # directories do not match: new-directory := pathname-directory
     var object dir = xpathname_directory(p_log,p);
     ThePathname(newp)->pathname_directory =
-      (eq(unbound,dir) ? xpathname_directory(d_log,d) : dir);
+      (!boundp(dir) ? xpathname_directory(d_log,d) : dir);
   }
  directories_OK:
   # the directories are OK now
@@ -3849,7 +3836,7 @@ LISPFUN(merge_pathnames,1,2,norest,key,1, (kw(wild))) {
   skipSTACK(1);
  #endif
   DOUT("merge-pathnames:[ret]",newp);
-  value1 = newp; mv_count=1;
+  VALUES1(newp);
 }
 #undef SPECIFIED
 #undef NAMETYPE_MATCH
@@ -4033,7 +4020,7 @@ LISPFUN(enough_namestring,1,1,norest,nokey,0,NIL) {
   skipSTACK(3);
   # build (namestring new) :
   subr_self = L(namestring); # ("current" SUBR for error-message)
-  value1 = whole_namestring(newp); mv_count=1;
+  VALUES1(whole_namestring(newp));
 }
 #undef SET_NEWP
 
@@ -4198,9 +4185,9 @@ LISPFUN(make_pathname,0,0,norest,key,8,
   var bool logical = false;
   var bool convert = eq(STACK_6,S(Kcommon));
   # 0. check defaults (STACK_7):
-  if (!eq(STACK_7,unbound)) {
+  if (boundp(STACK_7)) {
    #ifdef LOGICAL_PATHNAMES
-    if (!nullp(Symbol_value(S(parse_namestring_ansi)))
+    if (!nullpSv(parse_namestring_ansi)
         && stringp(STACK_7) && looks_logical_p(STACK_7))
       STACK_7 = parse_as_logical(STACK_7);
     else
@@ -4214,9 +4201,9 @@ LISPFUN(make_pathname,0,0,norest,key,8,
     logical = true;
   }
  #endif
-  if (eq(STACK_5,unbound)) {
+  if (!boundp(STACK_5)) {
     var object d_path = defaults_pathname();
-    STACK_5 = (eq(STACK_7,unbound) ?
+    STACK_5 = (!boundp(STACK_7) ?
                xpathname_host(logpathnamep(d_path),d_path) :
                xpathname_host(logpathnamep(STACK_7),STACK_7));
   } else {
@@ -4242,9 +4229,8 @@ LISPFUN(make_pathname,0,0,norest,key,8,
  #if HAS_DEVICE
   { # 2. check device:
     var object device = STACK_4;
-    if (eq(device,unbound)) { # specified ?
-      # no
-      if (eq(STACK_7,unbound)) # no defaults?
+    if (!boundp(device)) {
+      if (!boundp(STACK_7)) /* no defaults? */
         STACK_4 = NIL; # -> use NIL
     } else {
       if (stringp(device))
@@ -4320,7 +4306,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,
  #else /* HAS_DEVICE */
   {
     var object device = STACK_4;
-    if (!eq(device,unbound)) # specified ?
+    if (boundp(device)) /* specified ? */
       if (!(nullp(device) || xpathnamep(device))) { # NIL or Pathname -> OK
         # None of the desired cases -> error:
         pushSTACK(STACK_4); pushSTACK(S(Kdevice)); goto fehler_arg;
@@ -4330,10 +4316,10 @@ LISPFUN(make_pathname,0,0,norest,key,8,
   { # 3. check directory:
     DOUT("make-pathname:[directory]",STACK_3);
     var object directory = STACK_3;
-    if (eq(directory,unbound) && !eq(STACK_7,unbound)) {
+    if (!boundp(directory) && boundp(STACK_7)) {
       # not specified but defaults is supplied
       goto directory_ok;
-    } else if (eq(directory,unbound) || nullp(directory)) {
+    } else if (missingp(directory)) {
       # not specified or NIL
      #ifdef PATHNAME_AMIGAOS
       if (!nullp(STACK_4)) # Device specified (with non-logical pathname)?
@@ -4391,8 +4377,8 @@ LISPFUN(make_pathname,0,0,norest,key,8,
       STACK_2 = name = coerce_normal_ss(name);
     if (convert)
       STACK_2 = name = common_case(name);
-    if (eq(name,unbound)) { # not specified
-        if (eq(STACK_7,unbound)) # no defaults?
+    if (!boundp(name)) { /* not specified */
+        if (!boundp(STACK_7)) /* no defaults? */
           STACK_2 = NIL; # -> use NIL
     } else if (equal(name,O(empty_string))) { # name = "" ?
       STACK_2 = NIL; # -> use NIL
@@ -4427,8 +4413,8 @@ LISPFUN(make_pathname,0,0,norest,key,8,
       STACK_1 = type = coerce_normal_ss(type);
     if (convert)
       STACK_1 = type = common_case(type);
-    if (eq(type,unbound)) { # not specified
-      if (eq(STACK_7,unbound)) # no Defaults ?
+    if (!boundp(type)) {
+      if (!boundp(STACK_7)) /* no Defaults ? */
         STACK_1 = NIL; # -> use NIL
     } else if (nullp(type)) { # NIL is OK
     }
@@ -4455,7 +4441,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,
   }
   # 6. check version:
  #if HAS_VERSION || defined(LOGICAL_PATHNAMES)
-  STACK_0 = test_optional_version(eq(STACK_7,unbound) ? NIL : unbound);
+  STACK_0 = test_optional_version(!boundp(STACK_7) ? NIL : unbound);
   DOUT("make-pathname:[ver]",STACK_0);
   DOUT("make-pathname:[ver]",STACK_7);
  #else
@@ -4501,7 +4487,7 @@ LISPFUN(make_pathname,0,0,norest,key,8,
     pathname = popSTACK();
     # 8. poss. merge in Defaults:
     var object defaults = popSTACK();
-    if (eq(defaults,unbound)) { # no defaults given -> pathname is the value
+    if (!boundp(defaults)) { /* no defaults given -> pathname is the value */
       value1 = pathname;
     } else { # (MERGE-PATHNAMES pathname defaults [nil] :wild #'make-pathname)
       pushSTACK(pathname); pushSTACK(defaults);
@@ -4530,7 +4516,7 @@ LISPFUN(make_logical_pathname,0,0,norest,key,8,
   # enforces a logical pathname as result.
   var object obj = allocate_logpathname();
   TheLogpathname(obj)->pathname_host =
-    (!eq(STACK_5,unbound) ? STACK_5 : NIL);
+    (boundp(STACK_5) ? STACK_5 : NIL);
   STACK_5 = obj;
   # continue at MAKE-PATHNAME.
   C_make_pathname();
@@ -4558,7 +4544,7 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL) {
      #if HAS_VERSION
       ThePathname(pathname)->pathname_version   = NIL;
      #endif
-      value1 = pathname;
+      VALUES1(pathname);
     }
    #elif defined(PATHNAME_WIN32)
     # This is very primitive. Does Windows have the notion of homedirs on
@@ -4575,21 +4561,20 @@ LISPFUN(user_homedir_pathname,0,1,norest,nokey,0,NIL) {
      #if HAS_VERSION
       ThePathname(pathname)->pathname_version   = NIL;
      #endif
-      value1 = pathname;
+      VALUES1(pathname);
     }
    #else
       ??; /* FIXME for HAS_HOST & not WIN32 & not RISCOS */
    #endif
   } else { # no host given
     skipSTACK(1);
-    value1 = O(user_homedir); # User-Homedir-Pathname
+    VALUES1(O(user_homedir)); /* User-Homedir-Pathname */
   }
  #else /* HAS_HOST */
   test_optional_host(popSTACK()); # check Host and ignore
-  value1 = O(user_homedir); # User-Homedir-Pathname
+  VALUES1(O(user_homedir)); /* User-Homedir-Pathname */
  #endif
   DOUT("user-homedir-pathname:[ret]",value1);
-  mv_count=1; # as value
 }
 #endif
 
@@ -4799,7 +4784,7 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL) {
   var object pathname = coerce_xpathname(STACK_1);
   var object key = STACK_0;
   var bool erg;
-  if (eq(key,unbound) || nullp(key)) {
+  if (missingp(key)) {
     erg = has_some_wildcards(pathname);
   } else if (eq(key,S(Khost))) {
     erg = has_host_wildcards(pathname);
@@ -4828,7 +4813,7 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL) {
     fehler(type_error,
            GETTEXT("~: argument ~ should be ~, ~, ~, ~, ~, ~ or ~"));
   }
-  value1 = (erg ? T : NIL); mv_count=1; # boolean value
+  VALUES_IF(erg); /* boolean value */
   skipSTACK(2);
 }
 
@@ -5026,7 +5011,7 @@ local bool directory_match (object pattern, object sample, bool logical) {
   # compare pattern with O(directory_default):
   if (eq(Car(pattern),S(Krelative)) && nullp(Cdr(pattern)))
     return true;
-  if (eq(unbound,sample)) return true;
+  if (!boundp(sample)) return true;
   # match startpoint:
   if (!eq(Car(pattern),Car(sample)))
     return false;
@@ -5035,14 +5020,13 @@ local bool directory_match (object pattern, object sample, bool logical) {
   return directory_match_ab(pattern,sample,logical);
 }
 local bool nametype_match (object pattern, object sample, bool logical) {
-  if (nullp(pattern)) return true;
-  if (eq(unbound,sample)) return true;
+  if (missingp(pattern)) return true;
   return nametype_match_aux(pattern,sample,logical);
 }
 local bool version_match (object pattern, object sample, bool logical) {
   SDOUT("version_match:",pattern);
   SDOUT("version_match:",sample);
-  if (eq(unbound,sample)) return true;
+  if (!boundp(sample)) return true;
  #ifdef LOGICAL_PATHNAMES
   if (logical) {
     if (nullp(pattern) || eq(pattern,S(Kwild))) return true;
@@ -5101,9 +5085,9 @@ LISPFUNN(pathname_match_p,2) {
                      logical))
     goto no;
  yes:
-  value1 = T; mv_count=1; return;
+  VALUES1(T); return;
  no:
-  value1 = NIL; mv_count=1; return;
+  VALUES1(NIL); return;
 }
 
 # (TRANSLATE-PATHNAME sample pattern1 pattern2) implemented as follows:
@@ -5417,7 +5401,7 @@ local void directory_diff_ab (object m_list, object b_list, bool logical,
   }
 }
 #define SAMPLE_UNBOUND_CHECK \
-  if (eq(unbound,sample)) { push_solution_with(pattern); return; }
+  if (!boundp(sample)) { push_solution_with(pattern); return; }
 local void directory_diff (object pattern, object sample, bool logical,
                            const object* previous, object* solutions) {
   DEBUG_DIFF(directory_diff);
@@ -5950,7 +5934,7 @@ LISPFUN(translate_pathname,3,0,norest,key,2, (kw(all),kw(merge))) {
   pushSTACK(S(Ktest)); pushSTACK(L(equal));
   funcall(L(delete_duplicates),3);
   # stack layout: ..., nil.
-  if (eq(STACK_(1+1),unbound) || nullp(STACK_(1+1))) { # query :ALL-Argument
+  if (missingp(STACK_(1+1))) { /* query :ALL-Argument */
     if (mconsp(Cdr(value1))) {
       pushSTACK(value1);
       pushSTACK(STACK_(2+2));
@@ -7428,7 +7412,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL) {
   var object flag = popSTACK(); # optional argument flag
   var object pathname = coerce_xpathname(popSTACK());
  #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) || defined(PATHNAME_RISCOS) || defined(PATHNAME_WIN32)
-  if (!eq(flag,unbound) && !nullp(flag)) {
+  if (!missingp(flag)) {
     # flag /= NIL -> for the operating system:
     pathname = coerce_pathname(pathname);
     check_no_wildcards(pathname); # with wildcards -> error
@@ -7438,8 +7422,7 @@ LISPFUN(namestring,1,1,norest,nokey,0,NIL) {
   }
  #endif
   subr_self = L(namestring); # ("current" SUBR for error-message)
-  value1 = whole_namestring(pathname);
-  mv_count=1;
+  VALUES1(whole_namestring(pathname));
 }
 
 # error-message because of missing file name
@@ -7542,7 +7525,7 @@ LISPFUNN(truename,1) {
     pathname = as_file_stream(pathname);
     test_file_stream_named(pathname);
     # Streamtype File-Stream
-    value1 = TheStream(pathname)->strm_file_truename;
+    VALUES1(TheStream(pathname)->strm_file_truename);
   } else {
     var object namestring = true_namestring(coerce_pathname(pathname),
                                             false,false);
@@ -7561,9 +7544,8 @@ LISPFUNN(truename,1) {
       if (!file_exists(namestring)) { fehler_file_not_exists(); }
       # file exists -> pathname as value
     }
-    value1 = popSTACK();
+    VALUES1(popSTACK());
   }
-  mv_count=1;
 }
 
 # (PROBE-FILE filename), CLTL p. 424
@@ -7578,7 +7560,7 @@ LISPFUNN(probe_file,1) {
     pathname = TheStream(pathname)->strm_file_truename;
     if (flags & strmflags_open_B) { # file opened?
       # yes -> truename instantly as result:
-      value1 = pathname; mv_count=1; return;
+      VALUES1(pathname); return;
     }
     # no -> yet to test, if the file for the truename exists.
   } else {
@@ -7588,13 +7570,13 @@ LISPFUNN(probe_file,1) {
   var object namestring = true_namestring(pathname,true,true);
   if (eq(namestring,nullobj)) {
     # path to the file does not exist -> NIL as value:
-    skipSTACK(1); value1 = NIL; mv_count=1; return;
+    skipSTACK(1); VALUES1(NIL); return;
   }
   # check, if the file exists:
   if (file_exists(namestring)) {
-    value1 = popSTACK(); mv_count=1; # file exists -> pathname as value
+    VALUES1(popSTACK()); /* file exists -> pathname as value */
   } else {
-    skipSTACK(1); value1 = NIL; mv_count=1; return; # else NIL as value
+    skipSTACK(1); VALUES1(NIL); return; /* else NIL as value */
   }
 }
 
@@ -7724,7 +7706,7 @@ LISPFUNN(probe_directory,1) {
   check_no_wildcards(pathname); # with wildcards -> error
   pathname = use_default_dir(pathname); # insert default-directory
   check_notdir(pathname); # ensure that Name=NIL and Type=NIL
-  value1 = (directory_exists(pathname) ? T : NIL); mv_count=1;
+  VALUES_IF(directory_exists(pathname));
 }
 
 # Converts a directory pathname to an OS directory specification.
@@ -7842,24 +7824,24 @@ LISPFUNN(delete_file,1) {
   var object namestring = true_namestring(pathname,true,true);
   if (eq(namestring,nullobj)) {
     # path to the file does not exist ==> return NIL
-    skipSTACK(1); value1 = NIL; mv_count=1; return;
+    skipSTACK(1); VALUES1(NIL); return;
   }
   check_delete_open(STACK_0);
   # delete file:
  #ifdef FILE_EXISTS_TRIVIAL
   if (!file_exists(namestring)) { # file does not exist -> value NIL
-    skipSTACK(1); value1 = NIL; mv_count=1; return;
+    skipSTACK(1); VALUES1(NIL); return;
   }
  #endif
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     if (!delete_file_if_exists(namestring_asciz)) {
       # file does not exist -> value NIL
       FREE_DYNAMIC_ARRAY(namestring_asciz); skipSTACK(1);
-      value1 = NIL; mv_count=1; return;
+      VALUES1(NIL); return;
     }
   });
   # file existed, was deleted -> pathname (/=NIL) as value
-  value1 = popSTACK(); mv_count=1;
+  VALUES1(popSTACK());
 }
 
 # error-message because of renaming attempt of an opened file
@@ -7939,10 +7921,10 @@ LISPFUNN(rename_file,2) {
     # rename:
     rename_file();
   }
-  value1 = STACK_4; # newpathname as 1. value
-  value2 = STACK_3; # oldtruename as 2. value
-  value3 = STACK_1; # newtruename as 3. value
-  mv_count=3; skipSTACK(8); # 3 values
+  VALUES3(STACK_4, /* newpathname as 1st value */
+          STACK_3, /* oldtruename as 2nd value */
+          STACK_1); /* newtruename as 3rd value */
+  skipSTACK(8);
 }
 
 # Create a file.
@@ -8231,7 +8213,7 @@ local inline void create_backup_file (char* pathstring,
 
 # check the :DIRECTION argument
 global direction_t check_direction (object dir) {
-  if (eq(dir,unbound) || eq(dir,S(Kinput)))
+  if (!boundp(dir) || eq(dir,S(Kinput)))
     return DIRECTION_INPUT;
   else if (eq(dir,S(Kinput_immutable)))
     return DIRECTION_INPUT_IMMUTABLE;
@@ -8252,11 +8234,11 @@ global direction_t check_direction (object dir) {
 
 # check the :IF-DOES-NOT-EXIST argument
 global if_does_not_exist_t check_if_does_not_exist (object if_not_exist) {
-  if (eq(if_not_exist,unbound))
+  if (!boundp(if_not_exist))
     return IF_DOES_NOT_EXIST_UNBOUND;
   else if (eq(if_not_exist,S(Kerror)))
     return IF_DOES_NOT_EXIST_ERROR;
-  else if (eq(if_not_exist,NIL))
+  else if (nullp(if_not_exist))
     return IF_DOES_NOT_EXIST_NIL;
   else if (eq(if_not_exist,S(Kcreate)))
     return IF_DOES_NOT_EXIST_CREATE;
@@ -8271,11 +8253,11 @@ global if_does_not_exist_t check_if_does_not_exist (object if_not_exist) {
 
 # check the :IF-EXISTS argument
 global if_exists_t check_if_exists (object if_exists) {
-  if (eq(if_exists,unbound))
+  if (!boundp(if_exists))
     return IF_EXISTS_UNBOUND;
   else if (eq(if_exists,S(Kerror)))
     return IF_EXISTS_ERROR;
-  else if (eq(if_exists,NIL))
+  else if (nullp(if_exists))
     return IF_EXISTS_NIL;
   else if (eq(if_exists,S(Krename)))
     return IF_EXISTS_RENAME;
@@ -8554,8 +8536,7 @@ LISPFUN(open,1,0,norest,key,6,
   # open file:
   STACK_4 = STACK_5; STACK_5 = STACK_2; STACK_6 = STACK_1; STACK_7 = STACK_0;
   skipSTACK(4);
-  value1 = open_file(filename,direction,if_exists,if_not_exists);
-  mv_count=1;
+  VALUES1(open_file(filename,direction,if_exists,if_not_exists));
 }
 
 # UP: Returns a list of all matching pathnames.
@@ -9639,15 +9620,15 @@ LISPFUN(directory,0,1,norest,key,2, (kw(circle),kw(full)) ) {
   # stack layout: pathname, circle, full.
  #ifdef UNIX
   # :CIRCLE-argument has default NIL:
-  if (eq(STACK_1,unbound))
+  if (!boundp(STACK_1))
     STACK_1 = NIL;
  #endif
   # :FULL-argument has default NIL:
-  if (eq(STACK_0,unbound))
+  if (!boundp(STACK_0))
     STACK_0 = NIL;
   # check pathname-argument:
   var object pathname = STACK_2;
-  if (eq(pathname,unbound)) {
+  if (!boundp(pathname)) {
    #if defined(PATHNAME_NOEXT) || defined(PATHNAME_RISCOS)
     pathname = O(wild_string); # Default is "*"
    #endif
@@ -9674,16 +9655,15 @@ LISPFUN(directory,0,1,norest,key,2, (kw(circle),kw(full)) ) {
           STACK_1 = nreconc(newpathnames,STACK_1);
         }
     }
-    value1 = nreverse(STACK_1); # reverse pathname-list again
+    VALUES1(nreverse(STACK_1)); /* reverse pathname-list again */
     skipSTACK(3+2);
   } else
     # only one device to scan
  #endif
   {
-    value1 = directory_search(pathname); # form matching pathnames
+    VALUES1(directory_search(pathname)); /* form matching pathnames */
     skipSTACK(3);
   }
-  mv_count=1;
 }
 
 # UP: make sure that the supposed directory namestring ends with a slash
@@ -9706,7 +9686,7 @@ local object ensure_last_slash (object dir_string) {
 # (CD [pathname]) sets the current drive and the current directory.
 LISPFUN(cd,0,1,norest,nokey,0,NIL) {
   var object pathname = popSTACK();
-  if (eq(pathname,unbound)) { pathname = O(empty_string); } # ""
+  if (!boundp(pathname)) { pathname = O(empty_string); } /* "" */
   else if (stringp(pathname)) # make sure it ends with a slash
     pathname = ensure_last_slash(pathname);
   pathname = coerce_pathname(pathname); # turn into a pathname
@@ -9725,7 +9705,7 @@ LISPFUN(cd,0,1,norest,nokey,0,NIL) {
   }
  #endif
   change_default(); # set default drive and default directory
-  value1 = popSTACK(); mv_count=1; # new pathname as the value
+  VALUES1(popSTACK()); /* new pathname as the value */
 }
 #undef slashp
 #undef pslashp
@@ -9794,7 +9774,7 @@ LISPFUNN(make_dir,1) {
     make_directory(pathstring_asciz);
   });
   skipSTACK(2);
-  value1 = T; mv_count=1;
+  VALUES1(T);
 }
 
 # (DELETE-DIR pathname) removes the subdirectory pathname.
@@ -9804,7 +9784,7 @@ LISPFUNN(delete_dir,1) {
     delete_directory(pathstring_asciz);
   });
   skipSTACK(2);
-  value1 = T; mv_count=1;
+  VALUES1(T);
 }
 
 # (defun ensure-directories-exist (pathspec &key verbose)
@@ -9856,7 +9836,7 @@ LISPFUN(ensure_directories_exist,1,0,norest,key,1,(kw(verbose))) {
       subdirs = STACK_0;
       Cdr(STACK_1) = subdirs; STACK_1 = subdirs; STACK_0 = Cdr(subdirs); Cdr(subdirs) = NIL;
       if (!directory_exists(STACK_2)) {
-        if (!eq(STACK_3,unbound) && !nullp(STACK_3)) { # Verbose?
+        if (!missingp(STACK_3)) { /* Verbose? */
           funcall(L(fresh_line),0); # (FRESH-LINE [*standard-output*])
           pushSTACK(CLSTEXT("Creating directory: ")); funcall(L(write_string),1); # (WRITE-STRING "..." [*standard-output*])
           pushSTACK(STACK_2); funcall(L(princ),1); # (PRINC pathname [*standard-output*])
@@ -10128,15 +10108,14 @@ LISPFUNN(file_write_date,1) {
   # date/time no is in the buffer file_datetime.
   # convert into Universal-Time-Format:
  #if defined(UNIX) || defined(EMUNIX) || defined(AMIGAOS) || defined(RISCOS)
-  value1 = convert_time_to_universal(&file_datetime);
+  VALUES1(convert_time_to_universal(&file_datetime));
  #endif
  #ifdef WIN32_NATIVE
   var FILETIME* pftimepoint = &filedata.ftLastWriteTime;
   if (pftimepoint->dwLowDateTime==0 && pftimepoint->dwHighDateTime==0)
     pftimepoint = &filedata.ftCreationTime;
-  value1 = convert_time_to_universal(pftimepoint);
+  VALUES1(convert_time_to_universal(pftimepoint));
  #endif
-  mv_count=1;
 }
 
 # (FILE-AUTHOR file), CLTL p. 424
@@ -10191,7 +10170,7 @@ LISPFUNN(file_author,1) {
     skipSTACK(1);
   }
   # file exists -> NIL as value
-  value1 = NIL; mv_count=1;
+  VALUES1(NIL);
 }
 
 #if defined(UNIX) || defined(MSDOS) || defined(RISCOS)
@@ -10253,7 +10232,7 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL) {
     # finished.
     set_args_end_pointer(args_pointer); # clean up STACK
     # utilize return value: =0 (OK) -> T, >0 (nicht OK) -> NIL :
-    value1 = (ergebnis==0 ? T : NIL); mv_count=1;
+    VALUES_IF(ergebnis==0);
     FREE_DYNAMIC_ARRAY(argvdata);
   }
  #endif
@@ -10308,11 +10287,9 @@ LISPFUN(execute,1,0,rest,nokey,0,NIL) {
       end_system_call();
       # finished.
       set_args_end_pointer(args_pointer); # clean up STACK
-      value1 = (((status & 0xFF) == 0000) # process endet normally (without signal, without core-dump) ?
-                ? # yes -> exit-status as value:
-                fixnum( (status & 0xFF00) >> 8)
-                : NIL); # no -> NIL as value
-      mv_count=1;
+      VALUES1(((status & 0xFF) == 0000) /* process ended normally (without signal, without core-dump) ? */
+             ? fixnum((status & 0xFF00) >> 8) /* yes -> exit-status as value: */
+             : NIL); /* no -> NIL as value */
     }
     FREE_DYNAMIC_ARRAY(argvdata);
     FREE_DYNAMIC_ARRAY(argv);
@@ -10347,7 +10324,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL) {
   # We choose to restore the initial signal state to avoid a double
   # interruption, even though that implies that signals sent to us
   # explicitly (Break command) in this time will be ignored.
-  if (eq(command,unbound)) {
+  if (!boundp(command)) {
     # call command interpreter:
     run_time_stop();
     begin_system_call();
@@ -10369,7 +10346,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL) {
     end_system_call();
     run_time_restart();
     # utilize return value: executed -> T, not found -> NIL :
-    value1 = (ergebnis ? T : NIL); mv_count=1;
+    VALUES_IF(ergebnis);
   } else {
     # execute single command:
     if (!stringp(command)) fehler_string(command);
@@ -10394,7 +10371,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL) {
       end_system_call();
       run_time_restart();
       # utilize return value
-      value1 = L_to_I(ergebnis); mv_count=1;
+      VALUES1(L_to_I(ergebnis));
     });
   }
 }
@@ -10403,12 +10380,12 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL) {
 
 # (SYSTEM::SHELL-NAME) returns the name of the command shell.
 LISPFUNN(shell_name,0) {
-  value1 = O(command_shell); mv_count=1;
+  VALUES1(O(command_shell));
 }
 
 LISPFUN(shell,0,1,norest,nokey,0,NIL) {
   var object command = popSTACK();
-  if (eq(command,unbound))
+  if (!boundp(command))
     command = O(command_shell);
   if (!stringp(command)) fehler_string(command);
   var HANDLE prochandle;
@@ -10440,14 +10417,14 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL) {
   if (!CloseHandle(prochandle)) { OS_error(); }
   end_system_call();
   # utilize return value: =0 (OK) -> T, >0 (not OK) -> NIL :
-  value1 = (exitcode==0 ? T : NIL); mv_count=1;
+  VALUES_IF(exitcode == 0);
 }
 
 #else # UNIX || MSDOS || ...
 
 LISPFUN(shell,0,1,norest,nokey,0,NIL) {
   var object command = popSTACK();
-  if (eq(command,unbound)) {
+  if (!boundp(command)) {
     # execute (EXECUTE shell) :
    #ifdef UNIX
     pushSTACK(O(user_shell)); # Shell-Name
@@ -10467,7 +10444,7 @@ LISPFUN(shell,0,1,norest,nokey,0,NIL) {
       var int ergebnis = system(command_asciz);
       end_system_call();
       # utilize return value: =0 (OK) -> T, >0 (not OK) -> NIL :
-      value1 = (ergebnis==0 ? T : NIL); mv_count=1;
+      VALUES_IF(ergebnis == 0);
     });
    #else
     # call (EXECUTE shell "-c" command):
@@ -10526,7 +10503,7 @@ LISPFUNN(savemem,1) {
   # (the stream has to be closed by function savemem(),
   # also in case of an error.)
   savemem(value1);
-  value1 = T; mv_count=1; # 1 value T
+  VALUES1(T);
 }
 
 #ifdef DYNAMIC_MODULES
@@ -10563,7 +10540,7 @@ LISPFUNN(dynload_modules,2) {
     FREE_DYNAMIC_ARRAY(modnames);
   }
   skipSTACK(stringcount+1);
-  value1 = popSTACK(); mv_count=1; # Library-Name as value
+  VALUES1(popSTACK()); # Library-Name as value
 }
 
 #endif
@@ -10693,7 +10670,7 @@ global int find_executable (const char * program_name) {
 
 # (SYS::PROGRAM-NAME) returns the executable's name.
 LISPFUNN(program_name,0) {
-  value1 = asciz_to_string(executable_name,O(pathname_encoding)); mv_count=1;
+  VALUES1(asciz_to_string(executable_name,O(pathname_encoding)));
 }
 
 #endif
@@ -10702,20 +10679,18 @@ LISPFUNN(program_name,0) {
 # (called $(lisplibdir) in the Makefile).
 LISPFUNN(lib_directory,0) {
   if (!nullp(O(lib_dir))) {
-    value1 = O(lib_dir);
+    VALUES1(O(lib_dir));
   } else {
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,GETTEXT("~: library directory is not known, use a command line option to specify it"));
   }
-  mv_count=1;
 }
 
 # (SYS::SET-LIB-DIRECTORY path) sets the CLISP's private library directory
 LISPFUNN(set_lib_directory,1) {
   var object path = popSTACK();
   if (stringp(path)) path = ensure_last_slash(path);
-  value1 = O(lib_dir) = coerce_xpathname(path);
-  mv_count=1;
+  VALUES1(O(lib_dir) = coerce_xpathname(path));
 }
 
 # =============================================================================
@@ -10757,7 +10732,7 @@ LISPFUNN(user_data_,1) {
     }
     endpwent();
     end_system_call();
-    value1 = listof(count); mv_count = 1;
+    VALUES1(listof(count));
     return;
   }
 
@@ -10807,7 +10782,7 @@ LISPFUN(file_stat_,1,1,norest,nokey,0,NIL) {
   } else {
     pushSTACK(coerce_pathname(file)); funcall(L(namestring),1); file = value1;
     begin_system_call();
-    if (((eq(link,unbound) || nullp(link))
+    if ((missingp(link)
          ? stat(TheAsciz(string_to_asciz(value1,O(pathname_encoding))),&buf)
          : lstat(TheAsciz(string_to_asciz(value1,O(pathname_encoding))),&buf))
         < 0)
@@ -10978,7 +10953,7 @@ typedef enum {
   COPY_METHOD_RENAME
 } copy_method_t;
 local inline copy_method_t check_copy_method (object method) {
-  if (eq(method,NIL) || eq(method,unbound) || eq(method,S(Kcopy)))
+  if (missingp(method) || eq(method,S(Kcopy)))
     return COPY_METHOD_COPY;
   else if (eq(method,S(Ksymlink)))
     return COPY_METHOD_SYMLINK;
@@ -11153,7 +11128,7 @@ LISPFUN(copy_file,2,0,norest,key,4,
 {
   var if_does_not_exist_t if_not_exists = check_if_does_not_exist(STACK_0);
   var if_exists_t if_exists = check_if_exists(STACK_1);
-  var bool preserve_p = (!nullp(STACK_2) && !eq(unbound,STACK_2));
+  var bool preserve_p = (!nullp(STACK_2) && boundp(STACK_2));
   var copy_method_t method = check_copy_method(STACK_3);
   STACK_1 = NIL; /* return value */
   /* stack: 5 - source; 4 - dest */
@@ -11186,8 +11161,7 @@ LISPFUN(copy_file,2,0,norest,key,4,
   } else /* non-wild source */
     copy_one_file(STACK_5,STACK_3,STACK_4,STACK_2,method,preserve_p,
                   if_exists,if_not_exists,&STACK_1);
-  value1 = STACK_1;
-  mv_count = 1;
+  VALUES1(STACK_1);
   skipSTACK(6);
 }
 
@@ -11196,7 +11170,7 @@ LISPFUN(duplicate_handle,1,1,norest,nokey,0,NIL) {
   var object new_fd = popSTACK();
   var object old_fd = popSTACK();
   if (!posfixnump(old_fd)) fehler_posfixnum(old_fd);
-  if (!eq(new_fd,unbound) && !nullp(new_fd) && !posfixnump(new_fd))
+  if (boundp(new_fd) && !nullp(new_fd) && !posfixnump(new_fd))
     fehler_posfixnum(new_fd);
   var Handle old_handle = (Handle)posfixnum_to_L(old_fd);
   var Handle new_handle = (posfixnump(new_fd) ? (Handle)posfixnum_to_L(new_fd)
@@ -11219,8 +11193,7 @@ LISPFUN(duplicate_handle,1,1,norest,nokey,0,NIL) {
   if (new_handle == (Handle)-1) {
     OS_error();
   } else {
-    value1 = fixnum(new_handle);
-    mv_count = 1;
+    VALUES1(fixnum(new_handle));
   }
 }
 

@@ -2619,7 +2619,7 @@ global int main (argc_t argc, char* argv[]) {
     skipSTACK(1);
   }
   # print greeting:
-  if (!nullp(Symbol_value(S(quiet)))) # SYS::*QUIET* /= NIL ?
+  if (!nullpSv(quiet)) /* SYS::*QUIET* /= NIL ? */
     { argv_quiet = true; } # prevents the greeting
   if (argv_execute_file != NULL) # batch-mode ?
     { argv_quiet = true; } # prevents the greeting
@@ -2851,7 +2851,7 @@ global int main (argc_t argc, char* argv[]) {
     Symbol_value(S(standard_input)) = value1;
     # During bootstrapping, *DRIVER* has no value and SYS::BATCHMODE-ERRORS
     # is undefined. Do not set an error handler in that case.
-    if (!nullp(Symbol_value(S(driverstern)))) {
+    if (!nullpSv(driverstern)) {
       # (PROGN
       #   (EXIT-ON-ERROR (APPEASE-CERRORS (FUNCALL *DRIVER*)))
       #   ; Normally this will exit by itself once the string has reached EOF,
@@ -2910,7 +2910,7 @@ global int final_exitcode = 0;
 local int quit_retry = 0;
 nonreturning_function(global, quit, (void)) {
   # first "unwind" the STACK downto STACK-end:
-  value1 = NIL; mv_count=0; # do not save values for UNWIND-PROTECT-frames
+  VALUES0; /* do not save values for UNWIND-PROTECT-frames */
   unwind_protect_to_save.fun = (restart)&quit;
   loop { # does STACK end here?
     if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) break;

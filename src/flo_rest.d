@@ -136,11 +136,11 @@ local void warn_floating_point_contagion (void) {
                       /* arg2 SF */ { RETURN SF_op(arg1,arg2); },                                             \
                       /* arg2 FF */ {                                                                         \
                                       pushSTACK(arg2);                                                        \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                      if (r>0 && !nullpSv(warn_on_floating_point_contagion)) {                \
                                         pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();  \
                                       }                                                                       \
                                       arg1 = SF_to_FF(arg1); arg2 = popSTACK();                               \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                      if (nullpSv(floating_point_contagion_ansi)) {                           \
                                         RETURN CONCAT(TO_F_,r) (FF_op(arg1,arg2),FF_to_SF);                   \
                                       } else {                                                                \
                                         RETURN FF_op(arg1,arg2);                                              \
@@ -148,11 +148,11 @@ local void warn_floating_point_contagion (void) {
                                     },                                                                        \
                       /* arg2 DF */ {                                                                         \
                                       pushSTACK(arg2);                                                        \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                      if (r>0 && !nullpSv(warn_on_floating_point_contagion)) {                \
                                         pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();  \
                                       }                                                                       \
                                       arg1 = SF_to_DF(arg1); arg2 = popSTACK();                               \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                      if (nullpSv(floating_point_contagion_ansi)) {                           \
                                         RETURN CONCAT(TO_F_,r) (DF_op(arg1,arg2),DF_to_SF);                   \
                                       } else {                                                                \
                                         RETURN DF_op(arg1,arg2);                                              \
@@ -160,12 +160,12 @@ local void warn_floating_point_contagion (void) {
                                     },                                                                        \
                       /* arg2 LF */ {                                                                         \
                                       pushSTACK(arg2);                                                        \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                      if (r>0 && !nullpSv(warn_on_floating_point_contagion)) {                \
                                         pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();  \
                                         if (s==0) { arg2 = STACK_0; }                                         \
                                       }                                                                       \
                                       arg1 = SF_to_LF(arg1,CONCAT(LFlen,s)(arg2)); arg2 = popSTACK();         \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                      if (nullpSv(floating_point_contagion_ansi)) {                           \
                                         RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_SF);                   \
                                       } else {                                                                \
                                         RETURN LF_op(arg1,arg2);                                              \
@@ -177,11 +177,11 @@ local void warn_floating_point_contagion (void) {
                       floatcase(arg2,                                                                         \
                       /* arg2 SF */ {                                                                         \
                                       pushSTACK(arg1);                                                        \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                      if (r>0 && !nullpSv(warn_on_floating_point_contagion)) {                \
                                         pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();  \
                                       }                                                                       \
                                       arg2 = SF_to_FF(arg2); arg1 = popSTACK();                               \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                      if (nullpSv(floating_point_contagion_ansi)) {                           \
                                         RETURN CONCAT(TO_F_,r) (FF_op(arg1,arg2),FF_to_SF);                   \
                                       } else {                                                                \
                                         RETURN FF_op(arg1,arg2);                                              \
@@ -190,11 +190,11 @@ local void warn_floating_point_contagion (void) {
                       /* arg2 FF */ { RETURN FF_op(arg1,arg2); },                                             \
                       /* arg2 DF */ {                                                                         \
                                       pushSTACK(arg2);                                                        \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                      if (r>0 && !nullpSv(warn_on_floating_point_contagion)) {                \
                                         pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();  \
                                       }                                                                       \
                                       arg1 = FF_to_DF(arg1); arg2 = popSTACK();                               \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                      if (nullpSv(floating_point_contagion_ansi)) {                           \
                                         RETURN CONCAT(TO_F_,r) (DF_op(arg1,arg2),DF_to_FF);                   \
                                       } else {                                                                \
                                         RETURN DF_op(arg1,arg2);                                              \
@@ -202,12 +202,12 @@ local void warn_floating_point_contagion (void) {
                                     },                                                                        \
                       /* arg2 LF */ {                                                                         \
                                       pushSTACK(arg2);                                                        \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                      if (r>0 && !nullpSv(warn_on_floating_point_contagion)) {                \
                                         pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();  \
                                         if (s==0) { arg2 = STACK_0; }                                         \
                                       }                                                                       \
                                       arg1 = FF_to_LF(arg1,CONCAT(LFlen,s)(arg2)); arg2 = popSTACK();         \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                      if (nullpSv(floating_point_contagion_ansi)) {                           \
                                         RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_FF);                   \
                                       } else {                                                                \
                                         RETURN LF_op(arg1,arg2);                                              \
@@ -219,11 +219,11 @@ local void warn_floating_point_contagion (void) {
                       floatcase(arg2,                                                                         \
                       /* arg2 SF */ {                                                                         \
                                       pushSTACK(arg1);                                                        \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                      if (r>0 && !nullpSv(warn_on_floating_point_contagion)) {                \
                                         pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();  \
                                       }                                                                       \
                                       arg2 = SF_to_DF(arg2); arg1 = popSTACK();                               \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                      if (nullpSv(floating_point_contagion_ansi)) {                           \
                                         RETURN CONCAT(TO_F_,r) (DF_op(arg1,arg2),DF_to_SF);                   \
                                       } else {                                                                \
                                          RETURN DF_op(arg1,arg2);                                             \
@@ -231,11 +231,11 @@ local void warn_floating_point_contagion (void) {
                                     },                                                                        \
                       /* arg2 FF */ {                                                                         \
                                       pushSTACK(arg1);                                                        \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                      if (r>0 && !nullpSv(warn_on_floating_point_contagion)) {                \
                                         pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();  \
                                       }                                                                       \
                                       arg2 = FF_to_DF(arg2); arg1 = popSTACK();                               \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                      if (nullpSv(floating_point_contagion_ansi)) {                           \
                                         RETURN CONCAT(TO_F_,r) (DF_op(arg1,arg2),DF_to_FF);                   \
                                       } else {                                                                \
                                         RETURN DF_op(arg1,arg2);                                              \
@@ -244,12 +244,12 @@ local void warn_floating_point_contagion (void) {
                       /* arg2 DF */ { RETURN DF_op(arg1,arg2); },                                             \
                       /* arg2 LF */ {                                                                         \
                                       pushSTACK(arg2);                                                        \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                      if (r>0 && !nullpSv(warn_on_floating_point_contagion)) {                \
                                         pushSTACK(arg1); warn_floating_point_contagion(); arg1 = popSTACK();  \
                                         if (s==0) { arg2 = STACK_0; }                                         \
                                       }                                                                       \
                                       arg1 = DF_to_LF(arg1,CONCAT(LFlen,s)(arg2)); arg2 = popSTACK();         \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                      if (nullpSv(floating_point_contagion_ansi)) {                           \
                                         RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_DF);                   \
                                       } else {                                                                \
                                         RETURN LF_op(arg1,arg2);                                              \
@@ -261,12 +261,12 @@ local void warn_floating_point_contagion (void) {
                       floatcase(arg2,                                                                         \
                       /* arg2 SF */ {                                                                         \
                                       pushSTACK(arg1);                                                        \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                      if (r>0 && !nullpSv(warn_on_floating_point_contagion)) {                \
                                         pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();  \
                                         if (s==0) { arg1 = STACK_0; }                                         \
                                       }                                                                       \
                                       arg2 = SF_to_LF(arg2,CONCAT(LFlen,s)(arg1)); arg1 = popSTACK();         \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                      if (nullpSv(floating_point_contagion_ansi)) {                           \
                                         RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_SF);                   \
                                       } else {                                                                \
                                         RETURN LF_op(arg1,arg2);                                              \
@@ -274,12 +274,12 @@ local void warn_floating_point_contagion (void) {
                                     },                                                                        \
                       /* arg2 FF */ {                                                                         \
                                       pushSTACK(arg1);                                                        \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                      if (r>0 && !nullpSv(warn_on_floating_point_contagion)) {                \
                                         pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();  \
                                         if (s==0) { arg1 = STACK_0; }                                         \
                                       }                                                                       \
                                       arg2 = FF_to_LF(arg2,CONCAT(LFlen,s)(arg1)); arg1 = popSTACK();         \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                      if (nullpSv(floating_point_contagion_ansi)) {                           \
                                         RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_FF);                   \
                                       } else {                                                                \
                                         RETURN LF_op(arg1,arg2);                                              \
@@ -287,19 +287,19 @@ local void warn_floating_point_contagion (void) {
                                     },                                                                        \
                       /* arg2 DF */ {                                                                         \
                                       pushSTACK(arg1);                                                        \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion)))) { \
+                                      if (r>0 && !nullpSv(warn_on_floating_point_contagion)) {                \
                                         pushSTACK(arg2); warn_floating_point_contagion(); arg2 = popSTACK();  \
                                         if (s==0) { arg1 = STACK_0; }                                         \
                                       }                                                                       \
                                       arg2 = DF_to_LF(arg2,CONCAT(LFlen,s)(arg1)); arg1 = popSTACK();         \
-                                      if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {            \
+                                      if (nullpSv(floating_point_contagion_ansi)) {                           \
                                         RETURN CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_to_DF);                   \
                                       } else {                                                                \
                                         RETURN LF_op(arg1,arg2);                                              \
                                       }                                                                       \
                                     },                                                                        \
                       /* arg2 LF */ {                                                                         \
-                                      if (r>0 && !nullp(Symbol_value(S(warn_on_floating_point_contagion))))   \
+                                      if (r>0 && !nullpSv(warn_on_floating_point_contagion))                  \
                                         if (Lfloat_length(arg1) != Lfloat_length(arg2)) {                     \
                                           pushSTACK(arg1); pushSTACK(arg2);                                   \
                                           warn_floating_point_contagion();                                    \
@@ -320,14 +320,14 @@ local void warn_floating_point_contagion (void) {
         ergebnis_zuweisung LF_op(arg1,arg2);                                     \
       } elif (len1>len2) { # -> arg2 auf die Länge von arg1 bringen              \
         pushSTACK(arg1); arg2 = LF_extend_LF(arg2,len1); arg1 = popSTACK();      \
-        if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {             \
+        if (nullpSv(floating_point_contagion_ansi)) {                            \
           ergebnis_zuweisung CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_shorten_LF_2); \
         } else {                                                                 \
           ergebnis_zuweisung LF_op(arg1,arg2);                                   \
         }                                                                        \
       } else { # (len1<len2) -> arg1 auf die Länge von arg2 bringen              \
         pushSTACK(arg2); arg1 = LF_extend_LF(arg1,len2); arg2 = popSTACK();      \
-        if (nullp(Symbol_value(S(floating_point_contagion_ansi)))) {             \
+        if (nullpSv(floating_point_contagion_ansi)) {                            \
           ergebnis_zuweisung CONCAT(TO_F_,r) (LF_op(arg1,arg2),LF_shorten_LF_1); \
         } else {                                                                 \
           ergebnis_zuweisung LF_op(arg1,arg2);                                   \

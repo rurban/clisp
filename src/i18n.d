@@ -16,8 +16,7 @@
 
 # (SYS::CURRENT-LANGUAGE) returns the current language.
 LISPFUNN(current_language,0) {
-  value1 = O(current_language);
-  mv_count=1;
+  VALUES1(O(current_language));
 }
 
 # (SYS::SET-CURRENT-LANGUAGE LANG) ==
@@ -47,19 +46,19 @@ LISPFUNN(set_current_language,1) {
     fehler(error,GETTEXT("~: cannot set language to ~"));
   }
  #endif
-  value1 = O(current_language); skipSTACK(1); mv_count = 1;
+  VALUES1(O(current_language); skipSTACK(1));
 }
 
 # (SYS::TEXT english) returns the message in the current language
 LISPFUNN(text,1) {
  #ifndef GNU_GETTEXT
-  value1 = (ENGLISH ? STACK_0 : NIL);
+  VALUES1(ENGLISH ? STACK_0 : NIL);
  #else
   if (!stringp(STACK_0)) fehler_string(STACK_0);
-  with_string_0(STACK_0,Symbol_value(S(ascii)),asciz,
-                { value1 = CLSTEXT(asciz); });
+  with_string_0(STACK_0,Symbol_value(S(ascii)),asciz, {
+    VALUES1(CLSTEXT(asciz));
+  });
  #endif
-  mv_count=1;
   skipSTACK(1);
 }
 
@@ -70,7 +69,7 @@ LISPFUNN(text,1) {
 # Returns the <locale.h> value corresponding to a LC_... constant.
 local int check_category (object category)
 {
-  if (eq(category,unbound) || nullp(category) || eq(category,S(Klc_messages)))
+  if (missingp(category) || eq(category,S(Klc_messages)))
     return LC_MESSAGES;
   if (eq(category,S(Klc_ctype)))
     return LC_CTYPE;
@@ -135,22 +134,21 @@ LISPFUN(gettext,1,2,norest,nokey,0,NIL)
   #ifdef GNU_GETTEXT
   with_string_0(msgid,Symbol_value(S(ascii)),msgid_asciz, {
     var object domain = STACK_1;
-    if (eq(domain,unbound) || nullp(domain)) {
+    if (missingp(domain)) {
       var int category = check_category(STACK_0);
-      value1 = do_gettext(msgid_asciz,NULL,category);
+      VALUES1(do_gettext(msgid_asciz,NULL,category));
     } else {
       if (!stringp(domain))
         fehler_string(domain);
       with_string_0(domain,Symbol_value(S(ascii)),domain_asciz, {
         var int category = check_category(STACK_0);
-        value1 = do_gettext(msgid_asciz,domain_asciz,category);
+        VALUES1(do_gettext(msgid_asciz,domain_asciz,category));
       });
     }
   });
   #else
-  value1 = msgid;
+  VALUES1(msgid);
   #endif
-  mv_count=1;
   skipSTACK(3);
 }
 
@@ -184,25 +182,24 @@ LISPFUN(ngettext,3,2,norest,nokey,0,NIL)
   with_string_0(msgid,Symbol_value(S(ascii)),msgid_asciz, {
     with_string_0(msgid_plural,Symbol_value(S(ascii)),msgid_plural_asciz, {
       var object domain = STACK_1;
-      if (eq(domain,unbound) || nullp(domain)) {
+      if (missingp(domain)) {
         var int category = check_category(STACK_0);
-        value1 = do_ngettext(msgid_asciz,msgid_plural_asciz,NULL,
-                             n,category);
+        VALUES1(do_ngettext(msgid_asciz,msgid_plural_asciz,NULL,
+                           n,category));
       } else {
         if (!stringp(domain))
           fehler_string(domain);
         with_string_0(domain,Symbol_value(S(ascii)),domain_asciz, {
           var int category = check_category(STACK_0);
-          value1 = do_ngettext(msgid_asciz,msgid_plural_asciz,domain_asciz,
-                               n,category);
+          VALUES1(do_ngettext(msgid_asciz,msgid_plural_asciz,domain_asciz,
+                             n,category));
         });
       }
     });
   });
   #else
-  value1 = (n == 1 ? msgid : msgid_plural);
+  VALUES1(n == 1 ? msgid : msgid_plural);
   #endif
-  mv_count=1;
   skipSTACK(5);
 }
 
@@ -214,9 +211,9 @@ LISPFUNN(textdomain,0)
   begin_system_call();
   domain = textdomain(NULL);
   end_system_call();
-  value1 = asciz_to_string(domain,Symbol_value(S(ascii))); mv_count=1;
+  VALUES1(asciz_to_string(domain,Symbol_value(S(ascii))));
   #else
-  value1 = NIL; mv_count=1;
+  VALUES1(NIL);
   #endif
 }
 
@@ -234,7 +231,7 @@ LISPFUNN(set_textdomain,1)
     end_system_call();
   });
   #endif
-  value1 = domain; mv_count=1;
+  VALUES1(domain);
 }
 
 LISPFUNN(textdomaindir,1)
@@ -251,9 +248,9 @@ LISPFUNN(textdomaindir,1)
     dir = bindtextdomain(domain_asciz,NULL);
     end_system_call();
   });
-  value1 = (dir != NULL ? OSdir_to_pathname(dir) : NIL); mv_count=1;
+  VALUES1(dir != NULL ? OSdir_to_pathname(dir) : NIL);
   #else
-  value1 = NIL; mv_count=1;
+  VALUES1(NIL);
   #endif
 }
 
@@ -275,6 +272,6 @@ LISPFUNN(set_textdomaindir,2)
     end_system_call();
   });
   #endif
-  value1 = STACK_0; mv_count=1;
+  VALUES1(STACK_0);
   skipSTACK(2);
 }
