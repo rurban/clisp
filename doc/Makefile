@@ -14,18 +14,11 @@ RM=/bin/rm -f
 # DOC=$(shell pwd)
 
 ifneq (,$(filter Windows%,$(OS)))
-XMLSOC=/usr/share/OpenSP/xml.soc
 JAVAXML=c:/java
 JAVA=/cygdrive/c/java/bin/java.exe
 SEP=;
 DTD=/usr/share/docbook-xml$(DTDVER)/docbookx.dtd
 else
-# XMLSOC is found at wildly different locations. It's tedious to write down
-# all possible pathnames found so far, but we know no better solution.
-XMLSOC := $(firstword $(wildcard /usr/share/sgml/xml.soc \
-                                 /usr/share/sgml/jade_dsl/xml.soc \
-                                 /usr/share/sgml/openjade-1.3.1/pubtext/xml.soc \
-                                 ))
 JAVAXML=/usr/local/src/xml
 JAVA=java
 SEP=:
@@ -33,6 +26,14 @@ DTD=/usr/share/sgml/docbook/xml-dtd-$(DTDVER)/docbookx.dtd
 endif
 DTD=../utils/docbook/docbookx.dtd
 NSGMLS=onsgmls
+
+# XMLSOC is found at wildly different locations. It's tedious to write down
+# all possible pathnames found so far, but we know no better solution.
+XMLSOC := $(firstword $(wildcard /usr/share/sgml/xml.soc \
+                                 /usr/share/OpenSP/xml.soc \
+                                 /usr/share/sgml/jade_dsl/xml.soc \
+                                 /usr/share/sgml/openjade-1.3.1/pubtext/xml.soc \
+                                 ))
 
 XALAN=$(JAVAXML)/xalan-j_2_0_0
 SAXON=$(JAVAXML)/saxon
