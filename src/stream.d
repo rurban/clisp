@@ -2736,7 +2736,9 @@ LISPFUN(make_buffered_output_stream,1,1,norest,nokey,0,NIL)
       pushSTACK (O(type_read_char_status)); # once again for the error message.
       pushSTACK (S(generic_stream_read_char_status));
       pushSTACK (value1);
-      fehler (type_error, "Return value, ~, of call to ~ is not of type ~.");
+      fehler(type_error,
+             GETTEXT("Return value, ~, of call to ~ is not of type ~.")
+            );
     }
 
   # (CLEAR-INPUT s) ==
