@@ -230,7 +230,6 @@ global object deleteq (object list, object obj) {
 }
 
 # UP: Liefert (car obj), mit Typprüfung
-# > subr_self: Aufrufer (ein SUBR)
 local object car (object obj) {
   if (consp(obj))
     return Car(obj);
@@ -241,7 +240,6 @@ local object car (object obj) {
 }
 
 # UP: Liefert (cdr obj), mit Typprüfung
-# > subr_self: Aufrufer (ein SUBR)
 local object cdr (object obj) {
   if (consp(obj))
     return Cdr(obj);
@@ -450,7 +448,6 @@ local bool up2_test_not (const object* stackptr, object arg1, object arg2) {
 # > stackptr: Pointer in den STACK
 # > *(stackptr+1): :TEST-Argument
 # > *(stackptr+0): :TEST-NOT-Argument
-# > subr_self: Aufrufer (ein SUBR)
 # < *(stackptr+1): verarbeitetes :TEST-Argument
 # < *(stackptr+0): verarbeitetes :TEST-NOT-Argument
 # < up2_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
@@ -528,7 +525,6 @@ LISPFUN(tree_equal,2,0,norest,key,2, (kw(test),kw(test_not)) )
 /* UP: check whether OBJ ends a proper list
  endp(obj)
  > obj: object
- > subr_self: caller (a SUBR)
  < ergebnis: true if obj is the list end NIL,
              false if obj is a Cons.
              error otherwise */
@@ -579,7 +575,6 @@ LISPFUNN(list_length,1) # (LIST-LENGTH list), CLTL S. 265
 # Fehlermeldung für NTH und NTHCDR
 # fehler_nth()
 # > STACK_0: fehlerhafter Index
-# > subr_self: Aufrufer (ein SUBR)
 nonreturning_function(local, fehler_nth, (void)) {
   pushSTACK(STACK_0); # TYPE-ERROR slot DATUM
   pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -672,7 +667,6 @@ LISPFUNN(nthcdr,2) # (NTHCDR integer list), CLTL S. 267
 # Fehlermeldung für LAST, BUTLAST und NBUTLAST
 # fehler_butlast(badindex)
 # > badindex: fehlerhaftes 2. Argument
-# > subr_self: Aufrufer (ein SUBR)
 nonreturning_function(local, fehler_butlast, (object badindex)) {
   pushSTACK(badindex); # TYPE-ERROR slot DATUM
   pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -1099,7 +1093,6 @@ LISPFUNN(ldiff,2) # (LDIFF list sublist), CLTL S. 272
 # Fehlermeldung für RPLACA und RPLACD u.ä.
 # fehler_cons(badobject)
 # > badobject: Nicht-Cons
-# > subr_self: Aufrufer (ein SUBR)
 nonreturning_function(local, fehler_cons, (object badobject)) {
   pushSTACK(badobject); # TYPE-ERROR slot DATUM
   pushSTACK(S(cons)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -1264,7 +1257,6 @@ local void test_key_arg (void) {
 # > stackptr:=&STACK_1 : Pointer in den STACK
 # > STACK_2: :TEST-Argument
 # > STACK_1: :TEST-NOT-Argument
-# > subr_self: Aufrufer (ein SUBR)
 # < STACK_2: verarbeitetes :TEST-Argument
 # < STACK_1: verarbeitetes :TEST-NOT-Argument
 # < up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
@@ -1633,7 +1625,6 @@ LISPFUNN(memq,2) {
 # genügt.
 # member(list,stackptr,up_fun)
 # > list: Liste
-# > STACK_0: Aufrufer (ein SUBR)
 # > stackptr: *(stackptr-1) = KEY
 # > up_fun: TESTFUN = Adresse der Testfunktion,
 #       wird selbem stackptr und mit (KEY x) als Argument angesprungen.
@@ -1641,10 +1632,7 @@ LISPFUNN(memq,2) {
 # < ergebnis: Listenrest
 # can trigger GC
 local object member (object list, object* stackptr, up_function_t up_fun) {
-  until ((
-          subr_self = STACK_0, # Aufrufer (für Fehlermeldung bei ENDP)
-          endp(list) # Listenende erreicht?
-          )) {
+  while (!endp(list)) {
     pushSTACK(list); # Listenrest retten
     funcall_key(*(stackptr STACKop -1),Car(list)); # (KEY x)
     {
@@ -1664,27 +1652,24 @@ LISPFUN(member,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
   {
     test_key_arg(); # :KEY-Argument in STACK_0
     var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
-    pushSTACK(L(member)); # Aufrufer
-    VALUES1(member(STACK_4,&STACK_2,up_fun)); /* do the search */
-    skipSTACK(6);
+    VALUES1(member(STACK_3,&STACK_1,up_fun)); /* do the search */
+    skipSTACK(5);
   }
 
 LISPFUN(member_if,2,0,norest,key,1, (kw(key)) )
   # (MEMBER-IF pred list :key), CLTL S. 275
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    pushSTACK(L(member_if)); # Aufrufer
-    VALUES1(member(STACK_2,&STACK_2,&up_if)); /* do the search */
-    skipSTACK(4);
+    VALUES1(member(STACK_1,&STACK_1,&up_if)); /* do the search */
+    skipSTACK(3);
   }
 
 LISPFUN(member_if_not,2,0,norest,key,1, (kw(key)) )
   # (MEMBER-IF-NOT pred list :key), CLTL S. 275
   {
     test_key_arg(); # :KEY-Argument in STACK_0
-    pushSTACK(L(member_if_not)); # Aufrufer
-    VALUES1(member(STACK_2,&STACK_2,&up_if_not)); /* do the search */
-    skipSTACK(4);
+    VALUES1(member(STACK_1,&STACK_1,&up_if_not)); /* do the search */
+    skipSTACK(3);
   }
 
 LISPFUNN(tailp,2) # (TAILP sublist list), CLTL S. 275
@@ -1740,18 +1725,17 @@ LISPFUN(adjoin,2,0,norest,key,3, (kw(test),kw(test_not),kw(key)) )
       pushSTACK(item); # item retten
       funcall_key(STACK_1,item); STACK_5 = value1; # item := (funcall key item)
     }
-    pushSTACK(L(adjoin)); # Aufrufer
-    # Stackaufbau: (key item), list, test, test-not, key, item, #'adjoin.
-    if (nullp(member(STACK_5,&STACK_3,up_fun))) { # Suche durchführen
+    # Stackaufbau: (key item), list, test, test-not, key, item
+    if (nullp(member(STACK_4,&STACK_2,up_fun))) { # Suche durchführen
       # item noch nicht in list gefunden: muss consen
       var object new_cons = allocate_cons();
-      Cdr(new_cons) = STACK_5; # = list
-      Car(new_cons) = STACK_1; # = item
+      Cdr(new_cons) = STACK_4; # = list
+      Car(new_cons) = STACK_0; # = item
       VALUES1(new_cons);
     } else {
-      VALUES1(STACK_5); # list als Wert
+      VALUES1(STACK_4); # list als Wert
     }
-    skipSTACK(7); return;
+    skipSTACK(6); return;
   }
 
 LISPFUNN(acons,3)
@@ -1976,7 +1960,7 @@ LISPFUNN(list_llength,1)
 { /* #'(lambda (seq) (do ((L seq (cdr L)) (N 0 (1+ N))) ((endp L) N))) */
   var object last;
   var uintL len = llength1(popSTACK(),&last);
-  if (!nullp(last)) fehler_proper_list(last,S(list_llength));
+  if (!nullp(last)) fehler_proper_list(S(list_llength),last);
   VALUES1(fixnum(len));
 }
 
@@ -1984,7 +1968,6 @@ LISPFUNN(list_llength,1)
 # elt_up(seq,index)
 # > seq
 # > index
-# > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: Listenendstück ab diesem Index
 local object elt_up (object seq, object index) {
   var object l = seq;

@@ -174,7 +174,7 @@ local object valid_type1 (object name) {
         if (eq(name1,S(bit_vector)) || eq(name1,S(simple_bit_vector)))
           { name = S(bit_vector); goto expanded_maybe_constrained; }
         if (false) {
-        expanded_maybe_constrained:
+         expanded_maybe_constrained:
           if (consp(name2) && integerp(Car(name2)))
             { pushSTACK(Car(name2)); goto expanded; }
           else goto expanded_unconstrained;
@@ -190,7 +190,7 @@ local object valid_type1 (object name) {
             { name3 = Car(name3); goto try_vector; }
           }
         if (false) {
-        try_vector: # Hier ist name2 = (second name), name3 = (third name), Defaults: *
+         try_vector: # Hier ist name2 = (second name), name3 = (third name), Defaults: *
           if (eq(name1,S(vector))
               || (   (eq(name1,S(array)) || eq(name1,S(simple_array)))
                   && (eq(name3,S(mal)) || eq(name3,Fixnum_1)
@@ -304,9 +304,9 @@ nonreturning_function(local, fehler_seqtype_length,
     pushSTACK(S(eql)); pushSTACK(seqtype_length);
     { var object type = listof(2); STACK_2 = type; } /* EXPECTED-TYPE */
   }
-  /* FIXME: pushSTACK(TheSubr(subr_self)->name); */
+  pushSTACK(TheSubr(subr_self)->name);
   fehler(type_error,
-         GETTEXT("sequence type forces length ~, but result has length ~"));
+         GETTEXT("~: sequence type forces length ~, but result has length ~"));
 }
 /* check whether the computed_length CL matches seqtype_length STL */
 #define SEQTYPE_LENGTH_MATCH(cl,stl)                            \
@@ -337,17 +337,14 @@ nonreturning_function(local, fehler_seqtype_length,
 # Macro: Trägt (SEQ-LENGTH sequence) als Defaultwert von END in den Stack ein:
 # end_default_len(end,seq,typdescr);
 # can trigger GC
-  #define end_default_len(end,seq,typdescr)  \
-    if (missingp(end))                               \
-      { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet! \
-        var object lengthfun = seq_length(typdescr); \
-        pushSTACK(seq); funcall(lengthfun,1);        \
-        end = value1;                                \
-        subr_self = old_subr_self;                   \
-      }
+  #define end_default_len(end,seq,typdescr)             \
+    if (missingp(end)) {                                \
+      var object lengthfun = seq_length(typdescr);      \
+      pushSTACK(seq); funcall(lengthfun,1);             \
+      end = value1;                                     \
+    }
 
 # UP: Überprüft START- und END- Argumente
-# > subr_self: Aufrufer (ein SUBR)
 # > kwptr: kwptr[0] = START-Keyword,
 #          kwptr[1] = END-Keyword
 # > argptr: *(argptr STACKop 1) = START-Argument,
@@ -377,7 +374,6 @@ nonreturning_function(local, fehler_seqtype_length,
     }}
 
 # UP: Überprüft START- und END- Argumente (END-Argument evtl. NIL)
-# > subr_self: Aufrufer (ein SUBR)
 # > kwptr: kwptr[0] = START-Keyword,
 #          kwptr[1] = END-Keyword
 # > argptr: *(argptr STACKop 1) = START-Argument,
@@ -449,7 +445,6 @@ nonreturning_function(local, fehler_seqtype_length,
 
 # Error message when trying to access past the end of a vector.
 # > vector: the vector
-# > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(local, fehler_vector_index_range, (object vector)) {
     var uintL len = vector_length(vector);
     pushSTACK(vector);
@@ -477,12 +472,12 @@ nonreturning_function(local, fehler_seqtype_length,
         if (count > 0) {
           var uintL index1 = posfixnum_to_L(STACK_1);
           var uintL index2 = posfixnum_to_L(STACK_0);
-          if (index1+count > vector_length(STACK_6)) {
-            subr_self = L(aref); fehler_vector_index_range(STACK_6);
-          }
-          if (index2+count > vector_length(STACK_4)) {
-            subr_self = L(store); fehler_vector_index_range(STACK_4);
-          }
+          if (index1+count > vector_length(STACK_6))
+            with_saved_back_trace(L(aref),-1,
+                                  fehler_vector_index_range(STACK_6));
+          if (index2+count > vector_length(STACK_4))
+            with_saved_back_trace(L(store),-1,
+                                  fehler_vector_index_range(STACK_4));
           var object dv1 = array_displace_check(STACK_6,count,&index1);
           var object dv2 = array_displace_check(STACK_4,count,&index2);
           if (eq(dv1,dv2))
@@ -638,13 +633,10 @@ LISPFUN(subseq,2,1,norest,nokey,0,NIL)
         #ifdef X3J13_149
         || nullp(STACK_1)
         #endif
-       )
-      { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
-        # end nicht angegeben -> muss end:=(length sequence) setzen:
-        pushSTACK(STACK_3); funcall(seq_length(typdescr),1); # (SEQ-LENGTH sequence)
-        STACK_1 = value1;
-        subr_self = old_subr_self;
-      }
+       ) { # end not supplied -> set end:=(length sequence):
+      pushSTACK(STACK_3); funcall(seq_length(typdescr),1); # (SEQ-LENGTH sequence)
+      STACK_1 = value1;
+    }
     # Stackaufbau: sequence, start, end, typdescr.
     # Start- und End-Argumente überprüfen:
     test_start_end(&O(kwpair_start),&STACK_1);
@@ -1063,12 +1055,10 @@ LISPFUN(coerced_subseq,2,0,norest,key,2, (kw(start),kw(end)) )
       # Same types of sequences.
       if (eq(STACK_4,Fixnum_0)) {
         # With start = 0.
-        var object old_subr_self = subr_self; # current SUBR, GC invariant!
         # Test (= count (length sequence))
         # via (SEQ-ENDTEST sequence (SEQ-INIT-START sequence count)):
         pushSTACK(STACK_6); pushSTACK(STACK_(3+1)); funcall(seq_init_start(STACK_(2+2)),2);
         pushSTACK(STACK_6); pushSTACK(value1); funcall(seq_endtest(STACK_(2+2)),2);
-        subr_self = old_subr_self;
         if (!nullp(value1)) {
           # With end = (length sequence).
           # Nothing to do.
@@ -1764,9 +1754,9 @@ LISPFUN(fill,2,0,norest,key,2, (kw(start),kw(end)) )
       var uintL count = posfixnum_to_L(STACK_1);
       if (count > 0) {
         var uintL index = posfixnum_to_L(STACK_2);
-        if (index+count > vector_length(STACK_4)) {
-          subr_self = L(store); fehler_vector_index_range(STACK_4);
-        }
+        if (index+count > vector_length(STACK_4))
+          with_saved_back_trace(L(store),-1,
+                                fehler_vector_index_range(STACK_4));
         var object dv = array_displace_check(STACK_4,count,&index);
         if (elt_fill(dv,index,count,STACK_3))
           fehler_store(STACK_4,STACK_3);
@@ -1947,7 +1937,6 @@ LISPFUN(replace,2,0,norest,key,4,
 
 # UP: Überprüft das :COUNT-Argument
 # > STACK_1: optionales Argument
-# > subr_self: Aufrufer (ein SUBR)
 # < STACK_1: korrekter COUNT-Wert: NIL oder ein Integer >=0
   local void test_count_arg (void);
   local void test_count_arg()
@@ -1968,7 +1957,6 @@ LISPFUN(replace,2,0,norest,key,4,
 
 # Fehler, wenn beide :TEST, :TEST-NOT - Argumente angegeben wurden.
 # fehler_both_tests();
-# > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(global, fehler_both_tests, (void)) {
     pushSTACK(TheSubr(subr_self)->name);
     fehler(error,
@@ -1981,7 +1969,6 @@ LISPFUN(replace,2,0,norest,key,4,
 # > stackptr: Pointer in den STACK
 # > *(stackptr-5): :TEST-Argument
 # > *(stackptr-6): :TEST-NOT-Argument
-# > subr_self: Aufrufer (ein SUBR)
 # < *(stackptr-5): verarbeitetes :TEST-Argument
 # < *(stackptr-6): verarbeitetes :TEST-NOT-Argument
 # < up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
@@ -2023,7 +2010,6 @@ LISPFUN(replace,2,0,norest,key,4,
 #     oder
 #     ... test-not sequence [stackptr] from-end start end key ... [STACK]
 # > stackptr: Pointer in den Stack
-# > subr_self: Aufrufer (ein SUBR)
 # < STACK: wird um 1 erniedrigt
 # < STACK_0: typdescr zu sequence
   local void seq_prepare_testop (object* stackptr);
@@ -2064,7 +2050,6 @@ LISPFUN(replace,2,0,norest,key,4,
 #       > bvl: Länge des Bit-Vektors (= end - start),
 #       > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 #       < ergebnis: Ergebnis
-# > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
   # help_function sei der Typ der Adresse einer solchen Hilfsfunktion:
@@ -2076,13 +2061,10 @@ LISPFUN(replace,2,0,norest,key,4,
     var help_function help_fun;
     { # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
       test_count_arg();
-     {var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
       # l = (SEQ-LENGTH sequence) bestimmen:
       pushSTACK(*(stackptr STACKop 0)); # sequence
       funcall(seq_length(STACK_(0+1)),1); # (SEQ-LENGTH sequence)
       pushSTACK(value1); # l in den Stack
-      subr_self = old_subr_self;
-     }
       # Defaultwert für END ist l:
       if (nullp(*(stackptr STACKop -3))) # end=NIL ?
         { *(stackptr STACKop -3) = STACK_0; # ja -> end:=l
@@ -2459,7 +2441,6 @@ LISPFUN(delete_if_not,2,0,norest,key,5,
 # > stackptr: Pointer in den STACK
 # > *(stackptr-5): :TEST-Argument
 # > *(stackptr-6): :TEST-NOT-Argument
-# > subr_self: Aufrufer (ein SUBR)
 # < *(stackptr-5): verarbeitetes :TEST-Argument
 # < *(stackptr-6): verarbeitetes :TEST-NOT-Argument
 # < up2_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
@@ -2509,7 +2490,6 @@ LISPFUN(delete_if_not,2,0,norest,key,5,
 #       > dl: Anzahl der im Bit-Vektor gesetzten Bits,
 #       < ergebnis: Ergebnis
 #       can trigger GC
-# > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
   local Values seq_duplicates (help_function help_fun);
@@ -2538,12 +2518,9 @@ LISPFUN(delete_if_not,2,0,norest,key,5,
       # start und end überprüfen:
       test_start_end_1(&O(kwpair_start),&*(stackptr STACKop -3));
       # Länge der Sequence bestimmen:
-      { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
-        pushSTACK(STACK_(6+1)); # sequence
-        funcall(seq_length(STACK_(0+1)),1); # (SEQ-LENGTH sequence)
-        pushSTACK(value1); # l
-        subr_self = old_subr_self;
-      }
+      pushSTACK(STACK_(6+1)); # sequence
+      funcall(seq_length(STACK_(0+1)),1); # (SEQ-LENGTH sequence)
+      pushSTACK(value1); # l
       # Stackaufbau:
       #   sequence [stackptr], from-end, start, end, key, test, test-not,
       #   typdescr, l.
@@ -3033,7 +3010,6 @@ LISPFUN(substitute_if_not,3,0,norest,key,5,
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
 #           < true, falls der Test erfüllt ist, false sonst.
-# > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
   local Values nsubstitute_op (object* stackptr, up_function up_fun);
@@ -3133,7 +3109,6 @@ LISPFUN(nsubstitute_if_not,3,0,norest,key,5,
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
 #           < true, falls der Test erfüllt ist, false sonst.
-# > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
   local Values find_op (object* stackptr, up_function up_fun);
@@ -3145,15 +3120,12 @@ LISPFUN(nsubstitute_if_not,3,0,norest,key,5,
       if (!(nullp(*(stackptr STACKop -1)))) # from-end abfragen
         # from-end ist angegeben
         { # Defaultwert für end ist die Länge der Sequence:
-          if (nullp(*(stackptr STACKop -3)))
-            { { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
-                pushSTACK(STACK_0); funcall(seq_length(STACK_(1+1)),1); # (SEQ-LENGTH sequence)
-                *(stackptr STACKop -3) = value1; # =: end
-                subr_self = old_subr_self;
-              }
-              # Dann nochmals start und end überprüfen:
-              test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
-            }
+          if (nullp(*(stackptr STACKop -3))) {
+            pushSTACK(STACK_0); funcall(seq_length(STACK_(1+1)),1); # (SEQ-LENGTH sequence)
+            *(stackptr STACKop -3) = value1; # =: end
+            # Dann nochmals start und end überprüfen:
+            test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
+          }
           {pushSTACK(STACK_0); pushSTACK(*(stackptr STACKop -3));
            funcall(seq_fe_init_end(STACK_(1+2)),2); # (SEQ-FE-INIT-END sequence end)
            pushSTACK(value1); # =: pointer
@@ -3252,7 +3224,6 @@ LISPFUN(find_if_not,2,0,norest,key,4,
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
 #           < true, falls der Test erfüllt ist, false sonst.
-# > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
   local Values position_op (object* stackptr, up_function up_fun);
@@ -3264,15 +3235,12 @@ LISPFUN(find_if_not,2,0,norest,key,4,
       if (!(nullp(*(stackptr STACKop -1)))) # from-end abfragen
         # from-end ist angegeben
         { # Defaultwert für end ist die Länge der Sequence:
-          if (nullp(*(stackptr STACKop -3)))
-            { { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
-                pushSTACK(STACK_0); funcall(seq_length(STACK_(1+1)),1); # (SEQ-LENGTH sequence)
-                *(stackptr STACKop -3) = value1; # =: end
-                subr_self = old_subr_self;
-              }
-              # Dann nochmals start und end überprüfen:
-              test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
-            }
+          if (nullp(*(stackptr STACKop -3))) {
+            pushSTACK(STACK_0); funcall(seq_length(STACK_(1+1)),1); # (SEQ-LENGTH sequence)
+            *(stackptr STACKop -3) = value1; # =: end
+            # Dann nochmals start und end überprüfen:
+            test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
+          }
           pushSTACK(*(stackptr STACKop -3)); # index := end
           {pushSTACK(STACK_(0+1)); pushSTACK(*(stackptr STACKop -3));
            funcall(seq_fe_init_end(STACK_(1+1+2)),2); # (SEQ-FE-INIT-END sequence end)
@@ -3373,7 +3341,6 @@ LISPFUN(position_if_not,2,0,norest,key,4,
 #           > stackptr: derselbe Pointer in den Stack,
 #           > x: Argument
 #           < true, falls der Test erfüllt ist, false sonst.
-# > subr_self: Aufrufer (ein SUBR)
 # < mv_space/mv_count: Werte
 # can trigger GC
   local Values count_op (object* stackptr, up_function up_fun);
@@ -3386,15 +3353,12 @@ LISPFUN(position_if_not,2,0,norest,key,4,
       if (!(nullp(*(stackptr STACKop -1)))) # from-end abfragen
         # from-end ist angegeben
         { # Defaultwert für end ist die Länge der Sequence:
-          if (nullp(*(stackptr STACKop -3)))
-            { { var object old_subr_self = subr_self; # aktuelles SUBR, nicht GC-gefährdet!
-                pushSTACK(STACK_1); funcall(seq_length(STACK_(2+1)),1); # (SEQ-LENGTH sequence)
-                *(stackptr STACKop -3) = value1; # =: end
-                subr_self = old_subr_self;
-              }
-              # Dann nochmals start und end überprüfen:
-              test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
-            }
+          if (nullp(*(stackptr STACKop -3))) {
+            pushSTACK(STACK_1); funcall(seq_length(STACK_(2+1)),1); # (SEQ-LENGTH sequence)
+            *(stackptr STACKop -3) = value1; # =: end
+            # Dann nochmals start und end überprüfen:
+            test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
+          }
           {pushSTACK(STACK_1); pushSTACK(*(stackptr STACKop -3));
            funcall(seq_fe_init_end(STACK_(2+2)),2); # (SEQ-FE-INIT-END sequence end)
            pushSTACK(value1); # =: pointer
@@ -3511,7 +3475,6 @@ LISPFUN(mismatch,2,0,norest,key,8,
         # Defaultwert von end2 ist (SEQ-LENGTH seq2):
         end_default_len(STACK_(1+5),STACK_(5+5),STACK_0);
         # start- und end-Argumente überprüfen:
-        subr_self = L(mismatch);
         test_start_end(&O(kwpair_start1),&STACK_(3+5));
         test_start_end(&O(kwpair_start2),&STACK_(1+5));
         # pointer1 und pointer2 ans Ende der Sequences setzen:
@@ -3701,7 +3664,6 @@ LISPFUN(search,2,0,norest,key,8,
         # Defaultwert von end2 ist (SEQ-LENGTH seq2):
         end_default_len(STACK_(1+5),STACK_(5+5),STACK_0);
         # start- und end-Argumente überprüfen:
-        subr_self = L(search);
         test_start_end(&O(kwpair_start1),&STACK_(3+5));
         test_start_end(&O(kwpair_start2),&STACK_(1+5));
         # pointer10 und pointer20 ans Ende der Sequences setzen:

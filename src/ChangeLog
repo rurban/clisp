@@ -1,5 +1,56 @@
 2002-11-15  Sam Steingold  <sds@gnu.org>
 
+	replaced subr_self with back_trace
+	* lispbibl.d, genclisph.d, spvw.d: (backtrace_t): new struct
+	(*back_trace_reg*): renamed from *subr_self_reg*
+	(HAVE_SAVED_back_trace): renamed from HAVE_SAVED_subr_self
+	(saved_back_trace): renamed from saved_subr_self
+	(bt_beyond_stack_p, unwind_back_trace, with_saved_back_trace):
+	new macros
+	(enter_frame_at_STACK): call unwind_back_trace()
+	* array.d (eltype_code, initial_contents): do not save subr_self
+	(initial_contents_aux): do not set subr_self
+	* charstrg.d, control.d, error.d, foreign.d, hashtabl.d:
+	* lisparit.d, package.d, record.d, rexx.d: do not mention subr_self
+	as an argument in the comments
+	* debug.d (driver, break_driver): bind back_trace
+	(print_back_trace, back_trace_out): new functions
+	(DESCRIBE-FRAME): call print_back_trace()
+	(show_stack): new function
+	(SHOW-STACK): call show_stack() and accept 3 arguments
+	* subr.d (SHOW-STACK): reflect this change
+	* reploop.lisp (debug-backtrace): use SHOW-STACK instead of a loop
+	* encoding.d (CONVERT-STRING-FROM-BYTES): do not save subr_self
+	* eval.d (unwind_upto): call unwind_back_trace() explicitly at
+	the beginning, even though it is called by enter_frame_at_STACK()
+	(eval_fsubr, apply_subr, funcall_subr, interpret_bytecode_):
+	use with_saved_back_trace() instead of setting subr_self
+	* io.d (SET-DISPATCH-MACRO-CHARACTER): no need to restore subr_self
+	* list.d (member, MEMBER-IF, MEMBER-IF-NOT, ADJOIN):
+	no need to save subr_self
+	* pathname.d (coerce_xpathname, parse_as_logical, coerce_pathname)
+	(defaults_pathname, assure_dir_exists, prepare_create)
+	(directory_search, DYNLOAD-MODULES): ditto
+	(ENOUGH-NAMESTRING, assume_dir_exists): use
+	with_saved_back_trace() instead of setting subr_self
+	(NAMESTRING, copy_one_file): no need to set subr_self
+	* predtype.d (COERCE): no need to set subr_self
+	* sequence.d (fehler_seqtype_length): use subr_self in error
+	reporting (we now know that it is correct)
+	(end_default_len, SUBSEQ, COERCED-SUBSEQ, seq_filterop)
+	(seq_duplicates, find_op, position_op, count_op):
+	no need to save and restore subr_self
+	(copy_seqpart_into, FILL): use with_saved_back_trace()
+	instead of setting subr_self
+	(MISMATCH, SEARCH): no need to set subr_self
+	* spvw_garcol.d (gar_col_normal): update callers in back_trace,
+	they are all on the stack so we do not need to mark them
+	(gar_col_simple, gar_col): no need to save and restore subr_self
+	* stream.d (test_eltype_arg, sec_usec, check_float_eltype): ditto
+	(read_line): use with_saved_back_trace() instead of setting subr_self
+
+2002-11-15  Sam Steingold  <sds@gnu.org>
+
 	* m4/libtool.m4: upgraded to libtool-1.4.3
 
 2002-11-14  Sam Steingold  <sds@gnu.org>

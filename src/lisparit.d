@@ -346,7 +346,6 @@
 
 # Fehlermeldung, wenn keine Zahl kommt.
 # > obj: Objekt, keine Zahl
-# > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(local, fehler_not_N, (object obj)) {
     pushSTACK(obj); # TYPE-ERROR slot DATUM
     pushSTACK(S(number)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -359,7 +358,6 @@
 
 # Fehlermeldung, wenn keine reelle Zahl kommt.
 # > obj: Objekt, keine reelle Zahl
-# > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(global, fehler_not_R, (object obj)) {
     pushSTACK(obj);     # TYPE-ERROR slot DATUM
     pushSTACK(S(real)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -371,7 +369,6 @@
 
 # Fehlermeldung, wenn keine Floating-Point-Zahl kommt.
 # > obj: Objekt, keine Floating-Point-Zahl
-# > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(local, fehler_not_F, (object obj)) {
     pushSTACK(obj); # TYPE-ERROR slot DATUM
     pushSTACK(S(float)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -384,7 +381,6 @@
 
 # Fehlermeldung, wenn keine rationale Zahl kommt.
 # > obj: Objekt, keine rationale Zahl
-# > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(local, fehler_not_RA, (object obj)) {
     pushSTACK(obj); # TYPE-ERROR slot DATUM
     pushSTACK(S(rational)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -397,7 +393,6 @@
 
 # Fehlermeldung, wenn keine ganze Zahl kommt.
 # > obj: Objekt, keine ganze Zahl
-# > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(local, fehler_not_I, (object obj)) {
     pushSTACK(obj); # TYPE-ERROR slot DATUM
     pushSTACK(S(integer)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -410,7 +405,6 @@
 
 # Fehlermeldung wegen illegalem Digits-Argument obj.
 # > obj: Objekt
-# > subr_self: Aufrufer (ein SUBR)
   nonreturning_function(local, fehler_digits, (object obj)) {
     pushSTACK(obj); # TYPE-ERROR slot DATUM
     pushSTACK(O(type_posfixnum1)); # TYPE-ERROR slot EXPECTED-TYPE
@@ -422,23 +416,18 @@
   }
 
 # check_number(obj) überprüft, ob obj eine Zahl ist.
-# > subr_self: Aufrufer (ein SUBR)
   #define check_number(obj)  { if (!numberp(obj)) { fehler_not_N(obj); } }
 
 # check_real(obj) überprüft, ob obj eine reelle Zahl ist.
-# > subr_self: Aufrufer (ein SUBR)
   #define check_real(obj)  if_realp(obj, ; , { fehler_not_R(obj); } );
 
 # check_float(obj) überprüft, ob obj eine Floating-Point-Zahl ist.
-# > subr_self: Aufrufer (ein SUBR)
   #define check_float(obj)  { if (!floatp(obj)) { fehler_not_F(obj); } }
 
 # check_rational(obj) überprüft, ob obj eine rationale Zahl ist.
-# > subr_self: Aufrufer (ein SUBR)
   #define check_rational(obj)  if_rationalp(obj, ; , { fehler_not_RA(obj); } );
 
 # check_integer(obj) überprüft, ob obj eine ganze Zahl ist.
-# > subr_self: Aufrufer (ein SUBR)
   #define check_integer(obj)  { if (!integerp(obj)) { fehler_not_I(obj); } }
 
 # UP: Returns the decimal string representation of an integer >= 0.
@@ -525,7 +514,6 @@ LISPFUNN(evenp,1)
 # Zahlen sind. Wenn nein, Error.
 # > argcount: Argumentezahl-1
 # > args_pointer: Pointer über die Argumente
-# > subr_self: Aufrufer (ein SUBR)
   local void test_number_args (uintC argcount, object* args_pointer);
   local void test_number_args(argcount,args_pointer)
     var uintC argcount;
@@ -541,7 +529,6 @@ LISPFUNN(evenp,1)
 # reelle Zahlen sind. Wenn nein, Error.
 # > argcount: Argumentezahl-1
 # > args_pointer: Pointer über die Argumente
-# > subr_self: Aufrufer (ein SUBR)
   local void test_real_args (uintC argcount, object* args_pointer);
   local void test_real_args(argcount,args_pointer)
     var uintC argcount;
@@ -557,7 +544,6 @@ LISPFUNN(evenp,1)
 # ganze Zahlen sind. Wenn nein, Error.
 # > argcount: Argumentezahl-1
 # > args_pointer: Pointer über die Argumente
-# > subr_self: Aufrufer (ein SUBR)
   local void test_integer_args (uintC argcount, object* args_pointer);
   local void test_integer_args(argcount,args_pointer)
     var uintC argcount;
@@ -1191,7 +1177,6 @@ LISPFUN(float,1,1,norest,nokey,0,NIL)
 # > obj: Objekt
 # > type: Eines der Symbole
 #         FLOAT, SHORT-FLOAT, SINGLE-FLOAT, DOUBLE-FLOAT, LONG-FLOAT
-# > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: (coerce obj type)
 # can trigger GC
   global object coerce_float (object obj, object type);
@@ -1815,7 +1800,6 @@ LISPFUNN(deposit_field,3)
 # Überprüft ein optionales Random-State-Argument obj.
 # check_random_state(obj)
 # > obj: optionales Random-State-Argument
-# > subr_self: Aufrufer (ein SUBR)
 # < ergebnis: das gemeinte Random-State
   local object check_random_state (object obj);
   local object check_random_state(obj)

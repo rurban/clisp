@@ -1826,7 +1826,6 @@ global object get_current_package (void) {
  a package. Else error message.
  test_package_arg(obj)
  > obj: argument
- > subr_self: caller (a SUBR)
  < result: argument turned into a package
  can trigger GC */
 local object test_package_arg (object obj) {
@@ -2084,7 +2083,6 @@ LISPFUNN(list_all_packages,0) {
  a LISP-function.
  test_optional_package_arg()
  > STACK_0: last argument
- > subr_self: caller (a SUBR)
  < STACK_0: argument transformed into a package
  can trigger GC */
 local void test_optional_package_arg (void) {
@@ -2098,7 +2096,6 @@ local void test_optional_package_arg (void) {
 
 /* UP: Check of the arguments of INTERN and FIND-SYMBOL.
  test_intern_args()
- > subr_self: caller (a SUBR)
  can trigger GC */
 local void test_intern_args (void) {
   /* test string: */
@@ -2257,7 +2254,6 @@ LISPFUN(shadow,1,1,norest,nokey,0,NIL) {
 /* UP: Preparation of the arguments of USE-PACKAGE and UNUSE-PACKAGE.
  The first argument STACK_1 is turned into a (newly created)
  list of packages, the second argument STACK_0 is checked.
- > subr_self: caller (a SUBR)
  can trigger GC */
 local void prepare_use_package (void) {
   /* check second argument (package) : */
@@ -2338,7 +2334,6 @@ local object correct_packname (object name) {
  > STACK_2: nicknames-argument
  > STACK_1: uselist-argument
  > STACK_0: case-sensitive-argument
- > subr_self: caller (a SUBR)
  increases STACK by 4
  can trigger GC */
 local void in_make_package (void) {

@@ -1356,7 +1356,6 @@ global object gethash (object obj, object ht) {
 # error, if an argument is not a hash-table
 # fehler_hashtable(obj);
 # > obj: object
-# > subr_self: caller (a SUBR)
 nonreturning_function(local, fehler_hashtable, (object obj)) {
   pushSTACK(obj); # TYPE-ERROR slot DATUM
   pushSTACK(S(hash_table)); # TYPE-ERROR slot EXPECTED-TYPE
