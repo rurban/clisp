@@ -4946,8 +4946,8 @@ typedef struct {
   #define set_ht_invalid(ptr)  mark_ht_invalid(ptr)
   #define set_ht_valid(ptr)  mark_ht_valid(ptr)
 #else
-  extern bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Nptr_, gcv_object_t** Iptr_);
-  extern bool hash_lookup_builtin_with_rehash (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Nptr_, gcv_object_t** Iptr_);
+  extern bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Iptr_);
+  extern bool hash_lookup_builtin_with_rehash (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Iptr_);
   #define set_ht_invalid(ptr)  \
     (mark_ht_invalid(ptr),                                               \
      eq((ptr)->ht_lookupfn,P(hash_lookup_builtin))                       \
