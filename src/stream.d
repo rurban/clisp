@@ -15220,7 +15220,7 @@ LISPFUNN(socket_stream_shutdown,2) {
       if (ChannelStream_buffered(STACK_0))
         buffered_flush_everything(STACK_0);
       begin_system_call();
-      if (shutdown(TheSocket(ChannelStream_ihandle(STACK_0)),shutdown_how))
+      if (shutdown((SOCKET)(ChannelStream_ihandle(STACK_0)),shutdown_how))
         { SOCK_error(); }
       end_system_call();
       break;
