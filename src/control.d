@@ -2107,6 +2107,21 @@ LISPFUNN(unwind_to_driver,0)
     reset();
   }
 
+/* (SYS::UNWIND-TO-TOP) unwinds to the top driver frame. */
+LISPFUNN(unwind_to_top,0) {
+  var object* FRAME = STACK;
+  var object* driver_frame = STACK;
+  while (!eq(FRAME_(0),nullobj)) { /* end of Stack? */
+    if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
+      if (framecode(FRAME_(0)) == DRIVER_frame_info)
+        driver_frame = FRAME;
+      FRAME = topofframe(FRAME_(0));
+    } else
+      FRAME skipSTACKop 1;
+  }
+  unwind_upto(driver_frame);
+}
+
 # Überprüft ein optionales Macroexpansions-Environment in STACK_0.
 # > STACK_0: Argument
 # < STACK_0: Macroexpansions-Environment #(venv fenv)
