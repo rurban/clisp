@@ -34,6 +34,9 @@ User visible changes
 
 * ANSI CL compliance: implemented compiler macros.
 
+* Conforming to the ANSI CL issue CONSTANTP-ENVIRONMENT:ADD-ARG,
+  CONSTANTP now takes an optional second argument.
+
 * RUN-SHELL-COMMAND and RUN-PROGRAM now accept a :WAIT argument.
 
 * The compiler now checks the signature of function calls
