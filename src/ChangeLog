@@ -1,3 +1,8 @@
+2005-02-28  Bruno Haible  <bruno@clisp.org>
+
+	* pathname.d (find_executable) [WIN32]: Fix malloc usage bug introduced
+	on 2005-02-24.
+
 2005-02-28  Sam Steingold  <sds@gnu.org>
 
 	* win32.d (STDC_HEADERS): define to 1 explicitly for compatibility
