@@ -1,3 +1,14 @@
+1999-10-18  Sam Steingold  <sds@ksp.com>
+
+	* modules/clx/new-clx/demos/clx-demos.lsp: new file.
+	define the clx-demos package and load the other demos.
+	(getenv): get the environment variable.
+	(x-host-display): parse $DISPLAY.
+	(x-open-display): open the display according to $DISPLAY.
+	* modules/clx/new-clx/demos/qix.lsp (qix): use `x-open-display'.
+	* modules/clx/new-clx/demos/sokoban.lsp (init-sokoban): use
+	`x-open-display'.
+
 1999-10-17  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
         Introduce new primitive types for simple vectors with element-type
