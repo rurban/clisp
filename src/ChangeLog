@@ -1,5 +1,10 @@
 2005-03-07  Bruno Haible  <bruno@clisp.org>
 
+	* stream.d (iconv_wcstombs): Fix 2005-03-01 patch that broke
+	compilation when CC=g++.
+
+2005-03-07  Bruno Haible  <bruno@clisp.org>
+
 	* arilev0.d (mulu32_, mulu32_unchecked, divu_3232_3232_,
 	divu_6432_3232_): Use ANSI C function declaration. Needed when CC=g++.
 
