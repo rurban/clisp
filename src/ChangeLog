@@ -1,3 +1,9 @@
+2004-03-09  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (EXCLUDE): exclude all doc/.cvsignore
+	(CLISP): set to $(CURDIR)/build/clisp
+	(src/uninames.h): use it
+
 2004-03-09  Bruno Haible  <bruno@clisp.org>
 
 	* Makefile.devel (potfiles): Set the CLISP environment variable for
