@@ -1,3 +1,9 @@
+2002-01-14  Sam Steingold  <sds@gnu.org>
+
+	add :SCREEN to *FEATURES* when the "SCREEN" package is present
+	* init.lisp: use #+SCREEN instead of (find-package "SCREEN")
+	* spvw.d (*features*): add :SCREEN #ifdef SCREEN
+
 2002-01-12  Sam Steingold  <sds@gnu.org>
 
 	* trace.lisp (trace1): made macros traceable again (broken since

@@ -1794,9 +1794,8 @@
 
 (LOAD "keyboard")               ; keyboard stream, optional
 
-(when (or #+AMIGA t (find-package "SCREEN"))
-  (LOAD "screen")               ; screen-package, optional
-)
+#+(or AMIGA SCREEN)
+(LOAD "screen")                 ; screen-package, optional
 
 
 ;; Environmental facilities:
