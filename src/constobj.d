@@ -533,6 +533,7 @@
   LISPOBJ_S(printstring_frame_pointer,"FRAME-POINTER")
   LISPOBJ_S(printstring_read_label,"READ-LABEL")
   LISPOBJ_S(printstring_unbound,"#<UNBOUND>")
+  LISPOBJ_S(printstring_unbound_readably,"#.(SYS::%UNBOUND)")
   LISPOBJ_S(printstring_special_reference,"#<SPECIAL REFERENCE>")
   LISPOBJ_S(printstring_disabled_pointer,"#<DISABLED POINTER>")
   LISPOBJ_S(printstring_dot,"#<DOT>")

@@ -115,7 +115,7 @@ Problem is the call to assure_dir_exists(TRUE,FALSE); where in fact not
 all links are resolved in the directory!
 
 
-print-readably for interpreted closures and #<specdecl> and #<unbound> ?
+print-readably for interpreted closures and #<specdecl> ?
 
 
 parse_namestring: split_name_type(1), und bei make_pathname
