@@ -1,5 +1,11 @@
 2003-08-11  Sam Steingold  <sds@gnu.org>
 
+	* wrap.lisp (*license*): new variable
+	(start-netica): license is a keyword parameter
+	(*features*): push :netica
+
+2003-08-11  Sam Steingold  <sds@gnu.org>
+
 	* calls.c (STREAM-LOCK): added begin_system_call()/end_system_call()
 
 2003-08-10  Arseny Slobodjuck  <ampy@ich.dvo.ru>
