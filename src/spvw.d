@@ -23,11 +23,8 @@
 
 #include "version.h"
 
-#include <string.h> # declares strchr() and possibly memset()
+#include <string.h> /* declares strchr() and possibly memset() */
 #ifdef MULTITHREAD
-  #ifndef memset
-    extern_C RETMEMSETTYPE memset (void* ptr, int c, size_t len); # see MEMORY(3)
-  #endif
   #define bzero(ptr,len)  memset(ptr,0,len)
   #define bcopy(source,dest,len)  memcpy(dest,source,len)
 #endif
@@ -648,13 +645,6 @@ local char* program_name;
 
 # flag, if SYS::READ-FORM should behave ILISP-compatible:
 global bool ilisp_mode = false;
-
-#ifdef UNIX
-
-# Real User ID of the running process.
-  global uid_t user_uid;
-
-#endif
 
 # conversion of the argument types of a FSUBR into a code:
 local fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz,
@@ -1710,7 +1700,6 @@ global int main (argc_t argc, char* argv[]) {
  #endif
  #ifdef UNIX
   begin_system_call();
-  user_uid = getuid();
   find_executable(argv[0]);
   end_system_call();
  #endif

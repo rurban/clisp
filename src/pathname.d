@@ -12,9 +12,6 @@
 #endif
 #ifdef HAVE_DISASSEMBLER
   #include <string.h> /* declares strlen() */
-  #ifdef RETSTRLENTYPE /* unless strlen() is a macro */
-    extern_C RETSTRLENTYPE strlen (STRLEN_CONST char* s);
-  #endif
 #endif
 
 # enable the following #define to debug pathname translations
@@ -8916,7 +8913,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
        #if defined(UNIX_CYGWIN32)
         # Neither d_reclen nor d_namlen present in DIR structure.
         direntry_len = asciz_length(dp->d_name);
-       #elif defined(DIRENT_WITHOUT_NAMLEN) || defined(__USE_GNU)
+       #elif defined(HAVE_STRUCT_DIRENT_D_NAMLEN) || defined(__USE_GNU)
         # On UNIX_LINUX direntry_len := dp->d_reclen was sufficient, but in
         # general direntry_len := min(dp->d_reclen,asciz_length(dp->d_name))
         # is necessary. The GNU libc is buggy: it does "#define d_namlen d_reclen",
@@ -9998,7 +9995,7 @@ local struct passwd * unix_user_pwd (void) {
     if (errno != 0) { OS_error(); }
   }
   # 3. attempt: getpwuid(getuid())
-  errno = 0; userpasswd = getpwuid(user_uid);
+  errno = 0; userpasswd = getpwuid(getuid());
   if (userpasswd != NULL) goto ok;
   if (errno != 0) { OS_error(); }
   # Everything fails, userpasswd == NULL.

@@ -74,7 +74,7 @@
 #undef HAVE_LONGLONG
 #endif
 
-/* CL_CHAR_UNSIGNED */
+/* AC_C_CHAR_UNSIGNED */
 #ifndef __CHAR_UNSIGNED__
 #undef __CHAR_UNSIGNED__
 #endif

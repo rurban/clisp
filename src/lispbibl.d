@@ -8558,9 +8558,6 @@ extern bool asciz_equal (const char * asciz1, const char * asciz2);
     #ifdef STDC_HEADERS
       #include <string.h> # declares strlen()
     #endif
-    #ifdef RETSTRLENTYPE # if strlen() is no Macro
-      extern_C RETSTRLENTYPE strlen (STRLEN_CONST char* s);
-    #endif
     #define asciz_length(a)  ((uintL)strlen(a))
   #endif
 #endif
