@@ -79,7 +79,7 @@
     ((symbolp y)
        (cond ((setq f (get y 'TYPE-SYMBOL)) (funcall f x))
              ((setq f (get y 'TYPE-LIST)) (funcall f x))
-             ((get y 'DEFSTRUCT-DESCRIPTION) (%STRUCTURE-TYPE-P y x))
+             ((setq f (get y 'DEFSTRUCT-DESCRIPTION)) (ds-typep x y f))
              ((setq f (clos-class y)) (clos::subclassp (clos:class-of x) f))
              (t (typespec-error 'typep y))
     )  )
