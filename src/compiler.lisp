@@ -1540,6 +1540,7 @@ for-value   NIL or T
                       seclass
                       code
                       (stackz `*stackz*))
+  #-CLISP-DEBUG (declare (ignore source sub-anodes stackz))
   `(mk-anode #+CLISP-DEBUG ,source
              ,type
              #+CLISP-DEBUG ,sub-anodes
