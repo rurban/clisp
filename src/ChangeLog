@@ -1,5 +1,9 @@
 2004-03-16  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (full-check): fixed quoting
+
+2004-03-16  Sam Steingold  <sds@gnu.org>
+
 	* m4/ldap.m4, m4/tcpconn.m4: removed extra quotes ([[]] -> [])
 
 2004-03-16  Bruno Haible  <bruno@clisp.org>
