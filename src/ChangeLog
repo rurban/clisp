@@ -1,3 +1,8 @@
+2004-04-25  Bruno Haible  <bruno@clisp.org>
+
+	* reploop.lisp (main-loop, break-loop, step-hook-fn): Install a ABORT
+	restart.
+
 2004-04-23  Bruno Haible  <bruno@clisp.org>
 
 	Make DEFPACKAGE available earlier during bootstrap.
