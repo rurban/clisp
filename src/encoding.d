@@ -1108,7 +1108,7 @@ global void java_wcstombs (object encoding, object stream, const chart* *srcp,
 /* min. bytes per character = 1
    max. bytes per character = 1 */
 
-typedef struct nls_table {
+typedef struct nls_table_t {
   const char* charset;
   const unsigned char* const* page_uni2charset;  /* UCS-2 to 8-bit table */
   const unsigned short* charset2uni;             /* 8-bit to UCS-2 table */
@@ -1119,7 +1119,7 @@ typedef struct nls_table {
    GC needs this. */
   __attribute__ ((aligned (4)))
 #endif
-       nls_table;
+       nls_table_t;
 
 static const unsigned char nopage[256] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* 0x00-0x07 */
@@ -1228,7 +1228,7 @@ static const unsigned char nopage[256] = {
 #define nls_last_sym  S(jisx0201)
 #define nls_num_encodings  (&symbol_tab_data.S_jisx0201 - &symbol_tab_data.S_ascii + 1)
 
-static const nls_table * const nls_tables[] = {
+static const nls_table_t * const nls_tables[] = {
   &nls_ascii_table,
   &nls_iso8859_1_table,
   &nls_iso8859_2_table,
@@ -1337,8 +1337,8 @@ global uintL nls_mblen (object encoding, const uintB* src,
     var uintL count = srcend-src;
     var uintL result = 0;
     if (count > 0) {
-      var const nls_table* table =
-        (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
+      var const nls_table_t* table =
+        (const nls_table_t*) TheMachine(TheEncoding(encoding)->enc_table);
       var const unsigned short* cvtable = table->charset2uni;
       dotimespL(count,count, {
         if (!(cvtable[*src++] == 0xFFFD))
@@ -1357,8 +1357,8 @@ global void nls_mbstowcs (object encoding, object stream, const uintB* *srcp,
   if (count > srcend-src)
     count = srcend-src;
   if (count > 0) {
-    var const nls_table* table =
-      (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
+    var const nls_table_t* table =
+      (const nls_table_t*) TheMachine(TheEncoding(encoding)->enc_table);
     var const unsigned short* cvtable = table->charset2uni;
     dotimespL(count,count, {
       var uintB b = *src++;
@@ -1390,8 +1390,8 @@ global uintL nls_asciiext_mblen (object encoding, const uintB* src,
     var uintL count = srcend-src;
     var uintL result = 0;
     if (count > 0) {
-      var const nls_table* table =
-        (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
+      var const nls_table_t* table =
+        (const nls_table_t*) TheMachine(TheEncoding(encoding)->enc_table);
       var const unsigned short* cvtable = table->charset2uni;
       dotimespL(count,count, {
         var uintB b = *src++;
@@ -1412,8 +1412,8 @@ global void nls_asciiext_mbstowcs (object encoding, object stream,
   if (count > srcend-src)
     count = srcend-src;
   if (count > 0) {
-    var const nls_table* table =
-      (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
+    var const nls_table_t* table =
+      (const nls_table_t*) TheMachine(TheEncoding(encoding)->enc_table);
     var const unsigned short* cvtable = table->charset2uni;
     dotimespL(count,count, {
       var uintB b = *src++;
@@ -1446,7 +1446,7 @@ global uintL nls_wcslen (object encoding, const chart* src,
   var uintL count = srcend-src;
   var uintL result = 0;
   if (count > 0) {
-    var const nls_table* table = (const nls_table*)
+    var const nls_table_t* table = (const nls_table_t*)
       TheMachine(TheEncoding(encoding)->enc_table);
     var const unsigned char* const* cvtable = table->page_uni2charset;
     dotimespL(count,count, {
@@ -1481,7 +1481,7 @@ global void nls_wcstombs (object encoding, object stream,
   var uintL scount = srcend-src;
   var uintL dcount = destend-dest;
   if (scount > 0 && dcount > 0) {
-    var const nls_table* table = (const nls_table*)
+    var const nls_table_t* table = (const nls_table_t*)
       TheMachine(TheEncoding(encoding)->enc_table);
     var const unsigned char* const* cvtable = table->page_uni2charset;
     do {
@@ -1520,7 +1520,7 @@ global uintL nls_asciiext_wcslen (object encoding, const chart* src,
   var uintL count = srcend-src;
   var uintL result = 0;
   if (count > 0) {
-    var const nls_table* table = (const nls_table*)
+    var const nls_table_t* table = (const nls_table_t*)
       TheMachine(TheEncoding(encoding)->enc_table);
     var const unsigned char* const* cvtable = table->page_uni2charset;
     dotimespL(count,count, {
@@ -1555,7 +1555,7 @@ global void nls_asciiext_wcstombs (object encoding, object stream,
   var uintL scount = srcend-src;
   var uintL dcount = destend-dest;
   if (scount > 0 && dcount > 0) {
-    var const nls_table* table = (const nls_table*)
+    var const nls_table_t* table = (const nls_table_t*)
       TheMachine(TheEncoding(encoding)->enc_table);
     var const unsigned char* const* cvtable = table->page_uni2charset;
     do {
@@ -1600,8 +1600,8 @@ global object nls_range (object encoding, uintL start, uintL end,
   if (maxintervals > 0 && start < 0x10000) {
     if (end >= 0x10000)
       end = 0xFFFF;
-    var const nls_table* table =
-      (const nls_table*) TheMachine(TheEncoding(encoding)->enc_table);
+    var const nls_table_t* table =
+      (const nls_table_t*) TheMachine(TheEncoding(encoding)->enc_table);
     var const unsigned char* const* cvtable = table->page_uni2charset;
     var uintL i1;
     var uintL i2;
@@ -2120,7 +2120,7 @@ global void init_encodings_2 (void) {
  #ifdef UNICODE
   {
     var object symbol = nls_first_sym;
-    var const nls_table * const * ptr = &nls_tables[0];
+    var const nls_table_t * const * ptr = &nls_tables[0];
     var uintC count;
     ASSERT(nls_num_encodings == sizeof(nls_tables)/sizeof(nls_tables[0]));
     dotimesC(count,sizeof(nls_tables)/sizeof(nls_tables[0]), {

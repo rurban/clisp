@@ -55,7 +55,7 @@ static const unsigned short charset2uni[256] = {
   0x03b8, 0x03b9, 0x03ba, 0x03bb, 0x03bc, 0x03bd, 0x03be, 0x03bf,
   /* 0xf0 */
   0x03c0, 0x03c1, 0x03c2, 0x03c3, 0x03c4, 0x03c5, 0x03c6, 0x03c7,
-  0x03c8, 0x03c9, 0x03ca, 0x03cb, 0x03cc, 0x03cd, 0x03ce, 0xfffd 
+  0x03c8, 0x03c9, 0x03ca, 0x03cb, 0x03cc, 0x03cd, 0x03ce, 0xfffd
 };
 
 #define uni2charset cp1253_uni2charset
@@ -241,38 +241,38 @@ static const unsigned char page21[256] = {
 };
 
 static const unsigned char * const uni2charset[256] = {
-  page00, page01, nopage, page03, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  page20, page21, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage, 
-  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage  
+  page00, page01, nopage, page03, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  page20, page21, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage,
+  nopage, nopage, nopage, nopage, nopage, nopage, nopage, nopage
 };
 
 #undef page21
@@ -281,7 +281,7 @@ static const unsigned char * const uni2charset[256] = {
 #undef page01
 #undef page00
 
-struct nls_table nls_cp1253_table = {
+struct nls_table_t nls_cp1253_table = {
   "cp1253",
   uni2charset,
   charset2uni,
