@@ -12020,7 +12020,7 @@ LISPFUNN(socket_server_close,1)
     value1 = NIL; mv_count=0;
   }}
 
-extern SOCKET create_server_socket (host_data *hd, SOCKET sock);
+extern SOCKET create_server_socket (host_data *hd, SOCKET sock, unsigned int port);
 
 LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
 # (SOCKET-SERVER [port-or-sock])
@@ -12031,12 +12031,11 @@ LISPFUN(socket_server,0,1,norest,nokey,0,NIL)
                        INVALID_SOCKET);
     var host_data myname;
 
-    if (posfixnump(STACK_0)) myname.port = posfixnum_to_L(STACK_0);
-
     if (posfixnump(STACK_0) || eq(STACK_0,unbound) ||
         socket_stream_p(STACK_0)) {
+      var unsigned int port = (posfixnump(STACK_0) ? posfixnum_to_L(STACK_0) : 0);
       begin_system_call();
-      sk = create_server_socket(&myname, sock);
+      sk = create_server_socket(&myname, sock, port);
       end_system_call();
       if (sk == INVALID_SOCKET) { SOCK_error(); }
     } else {
