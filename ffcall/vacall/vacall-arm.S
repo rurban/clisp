@@ -12,9 +12,9 @@ pc	.req	r15
 LC0:
 	.word	C(vacall_function)
 	.align	0
-	.global	C(vacall)
-	DECLARE_FUNCTION(vacall)
-C(vacall:)
+	.global	C(__vacall)
+	DECLARE_FUNCTION(__vacall)
+C(__vacall:)
 	// args = 4, pretend = 0, frame = 48
 	// frameC(needed) = 0, current_function_anonymous_args = 0
 	stmfd	sp!, {lr}

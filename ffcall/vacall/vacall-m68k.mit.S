@@ -1,9 +1,9 @@
 #include "asmm68k.h"
 .text
 	.even
-.globl C(vacall)
-	DECLARE_FUNCTION(vacall)
-C(vacall:)
+.globl C(__vacall)
+	DECLARE_FUNCTION(__vacall)
+C(__vacall:)
 	link $a6,#-32
 	moveml #0x3020,$sp@-
 	clrl $a6@(-32)

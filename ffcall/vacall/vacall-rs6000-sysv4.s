@@ -2,9 +2,9 @@
 gcc2_compiled.:
 	.section	".text"
 	.align 2
-	.globl vacall
-	.type	 vacall,@function
-vacall:
+	.globl __vacall
+	.type	 __vacall,@function
+__vacall:
 	.extern __mulh
 	.extern __mull
 	.extern __divss
@@ -152,5 +152,5 @@ vacall:
 	la 1,176(1)
 	blr
 .Lfe1:
-	.size	 vacall,.Lfe1-vacall
+	.size	 __vacall,.Lfe1-__vacall
 	.ident	"GCC: (GNU) 2.95.2 19991024 (release)"
