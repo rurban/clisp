@@ -2,6 +2,9 @@
 
 	* list.d (endp): made global
 	* lispbibl.d (endp): added the prototype
+	* control.d (ENDP): removed
+	(MAPCAR_MAPLIST_BODY, MAPC_MAPL_BODY, MAPCAN_MAPCON_BODY):
+	use endp() instead of ENDP
 
 2003-02-06  Sam Steingold  <sds@gnu.org>
 
