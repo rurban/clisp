@@ -4626,7 +4626,7 @@ effects when being loaded, this is important as well.
  <varlistentry><term>&compiling-k; &t;</term>
   <listitem><simpara>causes each form read to be compiled on the fly.
   The compiled code is executed at once and - in contrast to <link
-  linkend="compilefile"><function>compile-file</function></link> - not
+  linkend="compilefile"><function>COMPILE-FILE</function></link> - not
   written to a file.  The default is <emphasis
   role="strong"><varname>CUSTOM:*LOAD-COMPILING*</varname></emphasis>,
   which is initially &nil;.</simpara></listitem></varlistentry>
@@ -4638,6 +4638,10 @@ effects when being loaded, this is important as well.
   and <emphasis
   role="strong"><varname>CUSTOM:*COMPILED-FILE-TYPES*</varname></emphasis>
   (which is initially <literal role="sexp">("fas")</literal>).
+  </simpara><simpara>When &filename-r; does not spefify a unique file
+  (e.g., &filename-r; is &foo-f; and both &foolisp-f;
+  and <filename>#P&quot;foo.fas&quot;</filename> are found in the
+  &load-paths;), then the <emphasis>newest</emphasis> file is loaded.
  </simpara></listitem></varlistentry>
 </variablelist>
 
