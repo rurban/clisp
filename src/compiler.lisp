@@ -81,6 +81,7 @@
           sys::*venv* sys::*fenv* sys::*benv* sys::*genv* sys::*denv*
           sys::*toplevel-environment* sys::*toplevel-denv*
           COMPILER::C-PROCLAIM COMPILER::C-PROCLAIM-CONSTANT
+          COMPILER::EVAL-WHEN-COMPILE
           COMPILER::C-DEFUN COMPILER::C-PROVIDE COMPILER::C-REQUIRE))
 #-CROSS (import '(sys::version sys::subr-info))
 
@@ -2829,17 +2830,18 @@ for-value   NIL or T
 ;; caught c-error
 (defmacro c-error-c (&rest args) `(catch 'c-error (c-error ,@args)))
 
-;; (c-eval-when-compile form) executes a form at compile-time.
-(defun c-eval-when-compile (form)
+;; (c-write-lib form) write the form to the lib-file
+(defun c-write-lib (form)
   (when (and *compiling-from-file* *liboutput-stream*)
     ;; write form to the liboutput stream:
     (terpri *liboutput-stream*)
     (write form :stream *liboutput-stream* :pretty t
               ; :closure t :circle t :array t :gensym t
               ; :escape t :level nil :length nil :radix t
-                :readably t :right-margin 79))
-  ;; evaluate form:
-  (eval form))
+                :readably t :right-margin 79)))
+(defun c-eval-and-write-lib (form) (c-write-lib form) (eval form))
+(defmacro eval-when-compile (&body body)
+  `(eval-when (compile) (c-eval-and-write-lib '(progn ,@body))))
 
 ;; (l-constantp form) determines, if form may be handled in the compiler
 ;; as load-time-constant.
@@ -4008,12 +4010,12 @@ for-value   NIL or T
       (let ((h (second *form*)))
         (when (c-constantp h)
           (c-form
-            `(EVAL-WHEN (COMPILE) (c-PROCLAIM ',(c-constant-value h)))))))
+           `(eval-when-compile (c-PROCLAIM ',(c-constant-value h)))))))
     ;; take note of module requirements:
     (when (and (memq fun '(PROVIDE REQUIRE))
                (every #'c-constantp (rest *form*)))
       (c-form
-        `(EVAL-WHEN (COMPILE)
+        `(eval-when-compile
            (,(case fun
                (PROVIDE 'c-PROVIDE)  ; c-PROVIDE instead of PROVIDE
                (REQUIRE 'c-REQUIRE)) ; c-REQUIRE instead of REQUIRE
@@ -6788,26 +6790,27 @@ for-value   NIL or T
   (test-list *form* 2)
   (test-list (second *form*) 0)
   (let ((load-flag nil)
-        (compile-flag nil)
-        (compile-once-only nil))
+        (compile-flag nil))
     (dolist (situation (second *form*))
       (case situation
         ((LOAD :LOAD-TOPLEVEL) (setq load-flag t))
         ((COMPILE :COMPILE-TOPLEVEL) (setq compile-flag t))
-        ((EVAL :EXECUTE))
-        (COMPILE-ONCE-ONLY (setq compile-once-only t))
-        (T (cond ((equal situation '(NOT EVAL)) (setq load-flag t compile-flag t))
+        ((EVAL :EXECUTE))       ; see control.d
+        (T (cond ((or (equal situation '(NOT EVAL))
+                      (equal situation '(NOT :EXECUTE)))
+                  (setq load-flag t compile-flag t))
                  ((or (equal situation '(NOT COMPILE))
                       (equal situation '(NOT :COMPILE-TOPLEVEL)))
                   (setq load-flag t))
-                 (t (c-error (ENGLISH "EVAL-WHEN situation must be EVAL or LOAD or COMPILE, but not ~S")
-                             situation))))))
+                 (t
+                  (c-error
+                   (ENGLISH "~s situation must be ~s, ~s or ~s, but not ~s")
+                   'eval-when :load-toplevel :compile-toplevel :execute
+                   situation))))))
     (let ((form `(PROGN ,@(cddr *form*))))
-      (if compile-flag
-        (c-eval-when-compile form) ; execute and write into Lib-File
-        (if compile-once-only
-          (eval form))) ; execute only now, do not write into Lib-File
-      (funcall c (if load-flag form 'NIL)))))
+      (when (and compile-flag load-flag) (c-write-lib form))
+      (when compile-flag (eval form))
+      (funcall c (if load-flag form nil)))))
 
 ;; compile (COND {clause}*)
 (defun c-COND ()
@@ -11145,7 +11148,7 @@ The function make-closure is required.
                       :readably t :right-margin 79)
           (terpri *fasoutput-stream*)))
       (when (and *package-tasks-treat-specially* *package-tasks*)
-        (c-eval-when-compile `(PROGN ,@(nreverse *package-tasks*)))))))
+        (c-eval-and-write-lib `(PROGN ,@(nreverse *package-tasks*)))))))
 
 ;; open C-Output-File, if not open yet:
 (defun prepare-coutput-file ()

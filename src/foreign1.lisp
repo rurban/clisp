@@ -683,7 +683,7 @@
          |#
         )
     `(PROGN
-       (EVAL-WHEN (COMPILER::COMPILE-ONCE-ONLY) (NOTE-C-VAR ',c-name ',type ',flags))
+       (EVAL-WHEN (COMPILE) (NOTE-C-VAR ',c-name ',type ',flags))
        #|
        (LET ((FVAR (FFI::LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type))))
          (DEFUN ,getter-function-name () (FFI::FOREIGN-VALUE FVAR))
@@ -724,10 +724,10 @@
          (c-name (foreign-name name (assoc ':name alist))))
     (setq alist (remove (assoc ':name alist) alist))
     `(PROGN
-       (EVAL-WHEN (COMPILER::COMPILE-ONCE-ONLY) (NOTE-C-FUN ',c-name ',alist ',whole))
+       (EVAL-WHEN (COMPILE) (NOTE-C-FUN ',c-name ',alist ',whole))
        (LET ()
          (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
-         (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name ',signature))
+         (COMPILER::EVAL-WHEN-COMPILE (COMPILER::C-DEFUN ',name ',signature))
          (SYSTEM::%PUTD ',name
            (FFI::LOOKUP-FOREIGN-FUNCTION ',c-name
                                          (PARSE-C-FUNCTION ',alist ',whole))))
@@ -749,7 +749,7 @@
          (offset (second (assoc ':offset alist))))
     `(LET ()
        (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
-       (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',name ',signature))
+       (COMPILER::EVAL-WHEN-COMPILE (COMPILER::C-DEFUN ',name ',signature))
        (SYSTEM::%PUTD ',name
          (FFI::FOREIGN-LIBRARY-FUNCTION ',c-name
            (FFI::FOREIGN-LIBRARY ',library)
@@ -767,7 +767,7 @@
          (c-name (foreign-name name (assoc ':name alist))))
     (setq alist (remove (assoc ':name alist) alist))
     `(PROGN
-       (EVAL-WHEN (COMPILER::COMPILE-ONCE-ONLY)
+       (EVAL-WHEN (COMPILE)
          (NOTE-C-CALL-IN ',name ',c-name ',alist ',whole))
        ',name)))
 

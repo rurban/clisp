@@ -1,3 +1,25 @@
+2002-02-20  Sam Steingold  <sds@gnu.org>
+
+	fixed bug #515604: (EVAL-WHEN (COMPILE)) no longer automatically
+	writes to *.lib; you need EVAL-WHEN-COMPILE or both LOAD and COMPILE
+	* compiler.lisp (c-write-lib): new function
+	(c-eval-and-write-lib): renamed from c-eval-when-compile
+	(compile-toplevel-form): respect the renaming
+	(eval-when-compile): new macro: call C-EVAL-AND-WRITE-LIB at
+	compile time
+	(c-GLOBAL-FUNCTION-CALL): use it instead of (EVAL-WHEN (COMPILE))
+	(c-EVAL-WHEN): write to *lib only when _both_ LOAD and COMPILE
+	are specified; COMPILE-ONCE-ONLY is eliminated
+	* init.lisp (eval-when-compile): added a bootstrap definition
+	(defun): use EVAL-WHEN-COMPILE instead of (EVAL-WHEN (COMPILE))
+	* clos.lisp (defmethod, defgeneric): ditto
+	* macros1.lisp (defconstant): ditto
+	* foreign1.lisp (DEF-LIB-CALL-OUT): ditto
+	(DEF-CALL-OUT): use COMPILE situation instead of COMPILE-ONCE-ONLY
+	and EVAL-WHEN-COMPILE instead of (EVAL-WHEN (COMPILE))
+	(DEF-C-VAR, DEF-CALL-IN): use COMPILE situation
+	instead of COMPILE-ONCE-ONLY
+
 2002-02-17  Arseny Slobodjuck <ampy@ich.dvo.ru>
 
 	smooth Ctrl-C, Ctrl-Break handling not depending on whether

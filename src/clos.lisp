@@ -2984,7 +2984,8 @@
   (multiple-value-bind (method sig)
       (analyze-method-description 'defmethod funname method-description env)
     `(LET ()
-      (EVAL-WHEN (COMPILE) (COMPILER::C-DEFUN ',funname ,sig nil 'defmethod))
+      (COMPILER::EVAL-WHEN-COMPILE
+       (COMPILER::C-DEFUN ',funname ,sig nil 'defmethod))
       (DO-DEFMETHOD ',funname ,method))))
 
 (defun do-defmethod (funname method)
@@ -3247,8 +3248,8 @@
   (multiple-value-bind (signature argorder method-forms docstring)
       (analyze-defgeneric 'defgeneric funname lambda-list options env)
     `(LET ()
-       (EVAL-WHEN (COMPILE)
-         (COMPILER::C-DEFUN ',funname ',signature nil 'defgeneric))
+       (COMPILER::EVAL-WHEN-COMPILE
+        (COMPILER::C-DEFUN ',funname ',signature nil 'defgeneric))
        ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
        ,@(if docstring
            (let ((symbolform
