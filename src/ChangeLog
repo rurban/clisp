@@ -1,3 +1,28 @@
+2004-10-11  Bruno Haible  <bruno@clisp.org>
+
+	Respect user-defined methods on generic-function-methods.
+	* clos-genfun1.lisp (generic-function-methods): New preliminary
+	function.
+	(|#'generic-function-methods|): New variable.
+	(safe-gf-methods): New function.
+	* clos-genfun2.lisp (shared-initialize-<standard-generic-function>,
+	std-add-method, std-remove-method, std-find-method,
+	reinitialize-instance-<generic-function>, compute-dispatch,
+	compute-applicable-methods-<standard-generic-function>,
+	compute-applicable-methods-using-classes-<standard-generic-function>,
+	compute-applicable-methods-for-set): Call safe-gf-methods instead of
+	std-gf-methods.
+	* clos-genfun4.lisp (no-applicable-method, missing-required-method,
+	no-primary-method): Likewise.
+	(generic-function-methods): Redefine smoothly. Initialize
+	|#'generic-function-methods|.
+	* clos-class5.lisp (valid-make-instance-keywords,
+	valid-reinitialize-instance-keywords,
+	valid-update-instance-for-redefined-class-keywords,
+	valid-update-instance-for-different-class-keywords): Call
+	generic-function-methods instead of std-gf-methods.
+	* describe.lisp (describe-object@generic-function): Likewise.
+
 2004-10-19  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (eval-loaded-form-low): do not try to inline it:

@@ -86,7 +86,7 @@
 
 (defgeneric no-applicable-method (gf &rest args)
   (:method ((gf t) &rest args)
-    (let* ((methods (std-gf-methods gf))
+    (let* ((methods (safe-gf-methods gf))
            (dispatching-arg
              (if (eq (std-gf-signature gf) (sys::%unbound))
                nil
@@ -108,7 +108,7 @@
 
 (defgeneric missing-required-method (gf combination group-name group-filter &rest args)
   (:method ((gf t) (combination method-combination) (group-name symbol) (group-filter function) &rest args)
-    (let* ((methods (remove-if-not group-filter (std-gf-methods gf)))
+    (let* ((methods (remove-if-not group-filter (safe-gf-methods gf)))
            (dispatching-arg
              (if (eq (std-gf-signature gf) (sys::%unbound))
                nil
@@ -130,7 +130,7 @@
 ;; and the PRIMARY method group.
 (defgeneric no-primary-method (gf &rest args)
   (:method ((gf t) &rest args)
-    (let* ((methods (remove-if-not #'null (std-gf-methods gf)
+    (let* ((methods (remove-if-not #'null (safe-gf-methods gf)
                                    :key #'method-qualifiers))
            (dispatching-arg
              (if (eq (std-gf-signature gf) (sys::%unbound))
@@ -359,10 +359,12 @@
 (initialize-extended-method-check #'(setf generic-function-name))
 
 ;; MOP p. 80
-(defgeneric generic-function-methods (generic-function)
-  (:method ((gf standard-generic-function))
-    (check-generic-function-initialized gf)
-    (std-gf-methods gf)))
+(let ((*allow-making-generic* t))
+  (defgeneric generic-function-methods (generic-function)
+    (:method ((gf standard-generic-function))
+      (check-generic-function-initialized gf)
+      (std-gf-methods gf))))
+(setq |#'generic-function-methods| #'generic-function-methods)
 (initialize-extended-method-check #'generic-function-methods)
 
 ;; MOP p. 80
