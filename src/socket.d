@@ -401,6 +401,9 @@ global SOCKET create_server_socket (hd, sock)
     var unsigned int flag = 1;
     var int addr_len = sizeof (struct sockaddr);
 
+    # Prepare the result.
+    bzero(hd,sizeof(host_data));
+
     # Get a socket.
     if ((sk = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
       return INVALID_SOCKET;
@@ -566,6 +569,9 @@ global host_data * socket_getpeername (socket_handle, hd)
     var struct sockaddr_in addr_in;
     var int len = sizeof(addr_in);
 
+    # Prepare the result.
+    bzero(hd,sizeof(host_data));
+
     # Get host's IP address.
     if (getpeername(socket_handle, (struct sockaddr *) &addr_in, &len) < 0)
       return NULL;
@@ -594,6 +600,9 @@ global const char * socket_getlocalname(socket_handle, hd)
   {
     var struct sockaddr_in addr_in;
     var int addr_len = sizeof(addr_in);
+
+    # Prepare the result.
+    bzero(hd,sizeof(host_data));
 
     if (-1 == getsockname (socket_handle,(struct sockaddr*)&addr_in,&addr_len))
       return NULL;
