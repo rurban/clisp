@@ -2377,10 +2377,8 @@ and the international alphabetic characters from the character set:
  &array-element-type;s
  <literal role="type">(&unsigned-byte-type; 2)</literal>,
  <literal role="type">(&unsigned-byte-type; 4)</literal>,
- <literal role="type">(&unsigned-byte-type; 8)</literal>,
- <literal role="type">(&unsigned-byte-type; 16)</literal>,
- <literal role="type">(&unsigned-byte-type; 32)</literal>
- and of course &bit-type; and &character-class;.</para></formalpara>
+ &unsigned-byte-8;, &unsigned-byte-16;, &unsigned-byte-32;,
+ and, of course, &bit-type; and &character-class;.</para></formalpara>
 
 <section id="array-elts"><title>Array Elements
    <ulink url="&clhs;/Body/sec_15-1-1.html">[CLHS-15.1.1]</ulink></title>
@@ -4097,13 +4095,10 @@ non-&nil;.</para>
   can be modified, if the old and the new &stream-element-type;s are either
 <itemizedlist>
   <listitem><simpara>both equivalent to &character-class; or
-      <literal role="sexp">(&unsigned-byte-type; 8)</literal> or
-      <literal role="sexp">(&signed-byte-type; 8)</literal>, or
+      &unsigned-byte-8; or &signed-byte-8;; or
     </simpara></listitem>
-  <listitem><simpara>both equivalent to
-      <literal role="sexp">(&unsigned-byte-type; &n-r;)</literal> or
-      <literal role="sexp">(&signed-byte-type; &n-r;)</literal>,
-      with the same &n-r;.</simpara></listitem>
+  <listitem><simpara>both equivalent to &unsigned-byte-n; or
+      &signed-byte-n;, with the same &n-r;.</simpara></listitem>
 </itemizedlist></para>
 
 </section>
@@ -4115,13 +4110,11 @@ non-&nil;.</para>
 <para>The function <literal
     role="sexp">(<function>ext:read-integer</function>
     &stream-r; &eltype-r; &optional-amp; &endianness;
-    <replaceable>eof-error-p</replaceable>
-    <replaceable>eof-value</replaceable>)</literal>
+    &eof-ep; &eof-v;)</literal>
  reads a multi-byte &integer-class; from &stream-r;.
  &stream-r; should be a stream with &stream-element-type;
- <literal role="sexp">(&unsigned-byte-type; 8)</literal>.
- &eltype-r; should be a type equivalent to
- <literal role="sexp">(&unsigned-byte-type; &n-r;)</literal>, where
+ &unsigned-byte-8;.
+ &eltype-r; should be a type equivalent to &unsigned-byte-n;, where
  &n-r; is a multiple of 8.</para>
 
 <para><literal role="sexp">(<function>ext:read-integer</function>
@@ -4143,11 +4136,10 @@ non-&nil;.</para>
 
 <para>The function <literal role="sexp">(<function>ext:read-float</function>
     &stream-r; &eltype-r; &optional-amp; &endianness;
-    <replaceable>eof-error-p</replaceable>
-    <replaceable>eof-value</replaceable>)</literal>
+    &eof-ep; &eof-v;)</literal>
  reads a floating-point number in IEEE binary representation from &stream-r;.
  &stream-r; should be a &stream-class; with &stream-element-type;
- <literal role="sexp">(&unsigned-byte-type; 8)</literal>.
+ &unsigned-byte-8;.
  &eltype-r; should be a type equivalent to
  &single-float-type; or &double-float-type;.</para>
 
@@ -4162,9 +4154,8 @@ non-&nil;.</para>
     &int-r; &stream-r; &eltype-r; &optional-amp; &endianness;)</literal>
  writes a multi-byte integer to &stream-r;.
  &stream-r; should be a &stream-class; with &stream-element-type;
- <literal role="sexp">(&unsigned-byte-type; 8)</literal>.
- &eltype-r; should be a type equivalent to
- <literal role="sexp">(&unsigned-byte-type; &n-r;)</literal>, where
+ &unsigned-byte-8;.
+ &eltype-r; should be a type equivalent to &unsigned-byte-n;, where
  &n-r; is a multiple of 8.</para>
 
 <para><literal role="sexp">(<function>ext:write-integer</function>
@@ -4185,7 +4176,7 @@ non-&nil;.</para>
     &eltype-r; &optional-amp; &endianness;)</literal>
  writes a floating-point number in IEEE binary representation to &stream-r;.
  &stream-r; should be a &stream-class; with &stream-element-type;
- <literal role="sexp">(&unsigned-byte-type; 8)</literal>.
+ &unsigned-byte-8;.
  &eltype-r; should be a type equivalent to
  &single-float-type; or &double-float-type;.</para>
 
@@ -4210,10 +4201,9 @@ non-&nil;.</para>
    &end-r; or &lt; &end-r; if the &stream-r; reached its end).</simpara>
 
  <simpara>This function is especially efficient if &sequence-r; is a
-  <literal role="sexp">(&vector-class; (&unsigned-byte-type;
-  8))</literal> and &stream-r; is a &file-pipe-socket; stream with
-  &stream-element-type; <literal role="sexp">(&unsigned-byte-type;
-  8)</literal>.</simpara></listitem></varlistentry>
+  &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket;
+  &stream-class; with &stream-element-type; &unsigned-byte-8;.
+ </simpara></listitem></varlistentry>
 
  <varlistentry><term><emphasis
    role="strong"><function>ext:read-char-sequence</function></emphasis>
@@ -4255,10 +4245,9 @@ functions are provided:</para>
   &sequence-r;.</simpara>
 
  <simpara>This function is especially efficient if &sequence-r; is a
- <literal role="sexp">(&vector-class; (&unsigned-byte-type;
- 8))</literal> and &stream-k; is a &file-pipe-socket; &stream-class;
- with &stream-element-type; <literal role="sexp">(&unsigned-byte-type;
- 8)</literal>.</simpara></listitem></varlistentry>
+  &unsigned-byte-vec; and &stream-r; is a &file-pipe-socket;
+  &stream-class; with &stream-element-type; &unsigned-byte-8;.
+ </simpara></listitem></varlistentry>
 
 <varlistentry><term><emphasis
   role="strong"><function>ext:write-char-sequence</function></emphasis>
@@ -4304,8 +4293,7 @@ functions are provided:</para>
    &file-pipe-socket; functions</title>
  <varlistentry id="eltype"><term>&eltype;</term>
   <listitem><simpara>types equivalent to &character-class; or
-   <literal role="sexp">(&unsigned-byte-type; &n-r;)</literal>,
-   <literal role="sexp">(&signed-byte-type; &n-r;)</literal>; if the
+   &unsigned-byte-n;, &signed-byte-n;; if the
    stream is to be unbuffered, &n-r; must be a multiple of 8.
    </simpara></listitem></varlistentry>
  <varlistentry id="extfmt"><term>&extfmt;</term>
@@ -4686,25 +4674,21 @@ functions are provided:</para>
 <section id="listen"><title>Functions &listen;, &read-char-no-hang;</title>
 
 <variablelist>
- <varlistentry><term><literal
-  role="sexp">(<function>ext:read-char-will-hang-p</function>
-              &stream-r;)</literal></term>
-  <listitem><simpara><function>ext:read-char-will-hang-p</function>
-  queries the stream's input status. It returns &nil; if &read-char; and
-  &peek-char; with a <replaceable>peek-type</replaceable> of &nil; will return
-  immediately. Otherwise it returns true. (In the latter case the standard
+ <varlistentry id="rcwhp"><term><literal
+  role="sexp">(&rcwhp; &stream-r;)</literal></term>
+  <listitem><simpara>&rcwhp; queries the stream's input status.
+  It returns &nil; if &read-char; and &peek-char; with a
+  <replaceable>peek-type</replaceable> of &nil; will return immediately.
+  Otherwise it returns &t;.  (In the latter case the standard
   &listen; function would return &nil;.)</simpara>
   <simpara>Note the difference with <literal role="sexp">(&not;
   (&listen; &stream-r;))</literal>: When the &eos; is reached, &listen;
-  returns &nil;, whereas <function>ext:read-char-will-hang-p</function>
-  returns &nil;.</simpara>
-  <simpara>Note also that <function>ext:read-char-will-hang-p</function>
-  is not a good mean to test for &eos;: If
-  <function>ext:read-char-will-hang-p</function> returns &t;, this does
-  not mean that the &stream-r; will deliver more characters.  It only
-  means that it is not known at this moment whether the &stream-r; is
-  already at &eos;, or will deliver more characters.
-  </simpara></listitem></varlistentry>
+  returns &nil;, whereas &rcwhp; returns &nil;.</simpara>
+  <simpara>Note also that &rcwhp; is not a good mean to test for &eos;:
+  If &rcwhp; returns &t;, this does not mean that the &stream-r; will
+  deliver more characters.  It only means that it is not known at this
+  moment whether the &stream-r; is already at &eos;, or will deliver
+  more characters.</simpara></listitem></varlistentry>
 </variablelist>
 
 </section>
@@ -4715,9 +4699,8 @@ functions are provided:</para>
  <varlistentry><term><literal
     role="sexp">(<function>ext:read-byte-lookahead</function>
                  &stream-r;)</literal></term>
-  <listitem><simpara>To be called only if &stream-r;'s &stream-element-type; is
-   <literal role="sexp">(&unsigned-byte-type; 8)</literal> or
-   <literal role="sexp">(&signed-byte-type; 8)</literal>.
+  <listitem><simpara>To be called only if &stream-r;'s
+   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns &t; if &read-byte; would return immediately with an
    &integer-class; result.
    Returns &eof-k; if the &eos; is already known to be reached.
@@ -4726,19 +4709,15 @@ functions are provided:</para>
  <varlistentry><term><literal
   role="sexp">(<function>ext:read-byte-will-hang-p</function>
               &stream-r;)</literal></term>
-  <listitem><simpara>To be called only if &stream-r;'s &stream-element-type; is
-   <literal role="sexp">(&unsigned-byte-type; 8)</literal> or
-   <literal role="sexp">(&signed-byte-type; 8)</literal>.
+  <listitem><simpara>To be called only if &stream-r;'s
+   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns &nil; if &read-byte; will return immediately.
    Otherwise it returns true.</simpara></listitem></varlistentry>
  <varlistentry><term><literal
     role="sexp">(<function>ext:read-byte-no-hang</function>
-                 &stream-r; &optional-amp;
-                 <replaceable>eof-error-p</replaceable>
-                 <replaceable>eof-value</replaceable>)</literal></term>
-  <listitem><simpara>To be called only if &stream-r;'s &stream-element-type; is
-   <literal role="sexp">(&unsigned-byte-type; 8)</literal> or
-   <literal role="sexp">(&signed-byte-type; 8)</literal>.
+                 &stream-r; &optional-amp; &eof-ep; &eof-v;)</literal></term>
+  <listitem><simpara>To be called only if &stream-r;'s
+   &stream-element-type; is &unsigned-byte-8; or &signed-byte-8;.
    Returns an &integer-class; or does &eos; handling, like &read-byte;,
    if that would return immediately.
    If &read-byte;'s value is not available immediately, returns &nil;
