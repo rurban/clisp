@@ -1,3 +1,7 @@
+2003-11-04  Bruno Haible  <bruno@clisp.org>
+
+	* arilev1i.d: Use ANSI C prototypes.
+
 2003-11-04  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: uniform --with* processing (still different from
