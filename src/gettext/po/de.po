@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 1999-01-08\n"
-"POT-Creation-Date: 1999-02-17 14:23:04 EST\n"
-"PO-Revision-Date: 1999-02-17 14:22:24 EST\n"
+"POT-Creation-Date: 1999-02-18 22:09:54 EST\n"
+"PO-Revision-Date: 1999-02-18 22:09:07 EST\n"
 "Last-Translator: Automatically generated <sds@delysid.gnu.org>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -505,7 +505,7 @@ msgstr ""
 msgid "Please try: "
 msgstr "Versuchen Sie: "
 
-#: spvw.d:2974
+#: spvw.d:2973
 msgid "Not enough memory for Lisp.\n"
 msgstr "Nicht genug Speicher für LISP\n"
 
@@ -3235,11 +3235,11 @@ msgstr "~: Unpassendes Argument: ~"
 msgid "~: ~ is not a valid address"
 msgstr "~: ~ ist keine gültige Adresse."
 
-#: graph.d:445 graph.d:2762
+#: graph.d:384 graph.d:2701
 msgid "graphics not initialized"
 msgstr "Grafik nicht initialisiert."
 
-#: graph.d:3692
+#: graph.d:3631
 msgid "~: cannot switch to graphics mode"
 msgstr "~: Kann nicht in Grafik-Modus schalten."
 

@@ -97,7 +97,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
-"POT-Creation-Date: 1999-02-17 14:21:48 EST\n"
+"POT-Creation-Date: 1999-02-18 22:08:33 EST\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -909,7 +909,7 @@ msgstr ""
 msgid "Please try: "
 msgstr "Por favor, intente:"
 
-#: spvw.d:2974
+#: spvw.d:2973
 msgid "Not enough memory for Lisp.\n"
 msgstr "No hay memoria suficiente para Lisp.\n"
 
@@ -4618,11 +4618,11 @@ msgstr "~: El argumento ~ es inválido"
 msgid "~: ~ is not a valid address"
 msgstr "~: ~ no es una dirección válida"
 
-#: graph.d:445 graph.d:2762
+#: graph.d:384 graph.d:2701
 msgid "graphics not initialized"
 msgstr "los gráficos no han sido inicializados"
 
-#: graph.d:3692
+#: graph.d:3631
 msgid "~: cannot switch to graphics mode"
 msgstr "~: no es posible conmutar al modo gráfico"
 

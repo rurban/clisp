@@ -1430,7 +1430,7 @@ LPARTS=$LPARTS' disassem defs2 loop clos conditio gstream xcharin keyboard'
 LPARTS=$LPARTS' screen runprog query reploop dribble complete describe room'
 LPARTS=$LPARTS' edit macros3 foreign1 defs3 spanish config'
 
-DOC='LISP-tutorial CLOS-guide cltl2 editors'
+DOC='LISP-tutorial CLOS-guide editors'
 
 TXT_FILES='README README.de README.en README.es clisp.1 clisp.html'
 if [ $CROSS = false -a $HOS = unix ] ; then

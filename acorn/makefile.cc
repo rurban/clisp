@@ -442,7 +442,6 @@ fas.config
 TXTFILES = \
 txt.LISP-tutorial \
 txt.CLOS-guide \
-txt.cltl2 \
 txt.editors
 
 TESTLSPFILES = \
@@ -1837,9 +1836,6 @@ txt.LISP-tutorial : ^.doc.txt.LISP-tutorial
 txt.CLOS-guide : ^.doc.txt.CLOS-guide
 	-$(LN) ^.doc.txt.CLOS-guide txt.CLOS-guide
 
-txt.cltl2 : ^.doc.txt.cltl2
-	-$(LN) ^.doc.txt.cltl2 txt.cltl2
-
 txt.editors : ^.doc.txt.editors
 	-$(LN) ^.doc.txt.editors txt.editors
 
@@ -1869,7 +1865,6 @@ distrib : force all manualx
 	-cdir ^.!Clisp.txt
 	$(CP) txt.LISP-tutor ^.!Clisp.txt.LISP-tutor
 	$(CP) txt.CLOS-guide ^.!Clisp.txt.CLOS-guide
-	$(CP) txt.cltl2 ^.!Clisp.txt.cltl2
 	$(CP) txt.editors ^.!Clisp.txt.editors
 	-cdir ^.!Clisp.lsp
 	$(CP) lsp.config ^.!Clisp.lsp.config
