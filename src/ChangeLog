@@ -1,3 +1,7 @@
+2002-10-02  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (BUILT-IN-STREAM-ELEMENT-TYPE): resolve synonym streams
+
 2002-10-01  Sam Steingold  <sds@gnu.org>
 
 	fixed bug #[ 617221 ]: distmakefile on cygwin uses `run', not `exe'
