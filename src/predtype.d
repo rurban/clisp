@@ -145,12 +145,6 @@ global bool equal (object obj1, object obj2)
       /* return equal(Cdr(obj1),Cdr(obj2)); */
       obj1 = Cdr(obj1); obj2 = Cdr(obj2);
       goto start;
-    case_nilvector: case_snilvector: /* (VECTOR NIL) is a STRING */
-      if (nil_vector_p(obj2))
-        return vector_length(obj1) == vector_length(obj2);
-      if (stringp(obj2))
-        return vector_length(obj2) == 0 && vector_length(obj1) == 0;
-      return false;
     case_sbvector: case_obvector: /* compare bit vectors element-wise: */
       if (!bit_vector_p(Atype_Bit,obj2))
         return false;
@@ -170,9 +164,8 @@ global bool equal (object obj1, object obj2)
         }
       }
     case_string: /* compare strings element-wise: */
-      if (!stringp(obj2))
-        return (nil_vector_0_p(obj2) && vector_length(obj1) == 0);
-      { /* compare lengths: */
+      if (stringp(obj2)) {
+        /* compare lengths: */
         var uintL len1 = vector_length(obj1);
         if (len1 != vector_length(obj2)) goto no;
         /* compare content: */
@@ -186,14 +179,22 @@ global bool equal (object obj1, object obj2)
           return string_eqcomp(ss1,index1,ss2,index2,len1);
         }
         return true;
+      } else {
+        return (nil_vector_p(obj2) && vector_length(obj2) == 0
+                && vector_length(obj1) == 0);
       }
+    case_ovector: /* (VECTOR NIL) is a STRING */
+      if ((Iarray_flags(obj1) & arrayflags_atype_mask) == Atype_NIL)
+        return (vector_length(obj1) == 0
+                && (stringp(obj2) || nil_vector_p(obj2))
+                && vector_length(obj2) == 0);
+      return false;
     case_orecord:
       switch (Record_type(obj1)) {
         case_Rectype_obvector_above;
         case_Rectype_Sbvector_above;
         case_Rectype_string_above;
-        case_Rectype_nilvector_above;
-        case_Rectype_Snilvector_above;
+        case_Rectype_ovector_above;
         case Rectype_Pathname:
           /* compare pathnames component-wise: */
           if (!pathnamep(obj2)) goto no;
@@ -694,7 +695,10 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_sstring: /* Simple-String */
           return elt_compare_T_Char(dv1,index1,dv2,index2,count);
         case Array_type_snilvector: /* (VECTOR NIL) */
-          fehler_retrieve(dv2);
+          /* One can argue that comparing nonexistent elements should yield
+             an error, not false. */
+          /*fehler_retrieve(dv2);*/
+          return false;
         default: NOTREACHED;
       }
     case Array_type_sbvector: /* Simple-Bit-Vector */
@@ -716,7 +720,10 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_sstring: /* Simple-String */
           return false; /* because count > 0 */
         case Array_type_snilvector: /* (VECTOR NIL) */
-          fehler_retrieve(dv2);
+          /* One can argue that comparing nonexistent elements should yield
+             an error, not false. */
+          /*fehler_retrieve(dv2);*/
+          return false;
         default: NOTREACHED;
       }
     case Array_type_sb2vector:
@@ -738,7 +745,10 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_sstring: /* Simple-String */
           return false; /* because count > 0 */
         case Array_type_snilvector: /* (VECTOR NIL) */
-          fehler_retrieve(dv2);
+          /* One can argue that comparing nonexistent elements should yield
+             an error, not false. */
+          /*fehler_retrieve(dv2);*/
+          return false;
         default: NOTREACHED;
       }
     case Array_type_sb4vector:
@@ -760,7 +770,10 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_sstring: /* Simple-String */
           return false; /* because count > 0 */
         case Array_type_snilvector: /* (VECTOR NIL) */
-          fehler_retrieve(dv2);
+          /* One can argue that comparing nonexistent elements should yield
+             an error, not false. */
+          /*fehler_retrieve(dv2);*/
+          return false;
         default: NOTREACHED;
       }
     case Array_type_sb8vector:
@@ -782,7 +795,10 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_sstring: /* Simple-String */
           return false; /* because count > 0 */
         case Array_type_snilvector: /* (VECTOR NIL) */
-          fehler_retrieve(dv2);
+          /* One can argue that comparing nonexistent elements should yield
+             an error, not false. */
+          /*fehler_retrieve(dv2);*/
+          return false;
         default: NOTREACHED;
       }
     case Array_type_sb16vector:
@@ -804,7 +820,10 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_sstring: /* Simple-String */
           return false; /* because count > 0 */
         case Array_type_snilvector: /* (VECTOR NIL) */
-          fehler_retrieve(dv2);
+          /* One can argue that comparing nonexistent elements should yield
+             an error, not false. */
+          /*fehler_retrieve(dv2);*/
+          return false;
         default: NOTREACHED;
       }
     case Array_type_sb32vector:
@@ -826,7 +845,10 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_sstring: /* Simple-String */
           return false; /* because count > 0 */
         case Array_type_snilvector: /* (VECTOR NIL) */
-          fehler_retrieve(dv2);
+          /* One can argue that comparing nonexistent elements should yield
+             an error, not false. */
+          /*fehler_retrieve(dv2);*/
+          return false;
         default: NOTREACHED;
       }
     case Array_type_sstring: /* Simple-String */
@@ -843,7 +865,10 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_sstring: /* Simple-String */
           return elt_compare_Char_Char(dv1,index1,dv2,index2,count);
         case Array_type_snilvector: /* (VECTOR NIL) */
-          fehler_retrieve(dv2);
+          /* One can argue that comparing nonexistent elements should yield
+             an error, not false. */
+          /*fehler_retrieve(dv2);*/
+          return false;
         default: NOTREACHED;
       }
     case Array_type_snilvector: /* (VECTOR NIL) */
@@ -856,7 +881,10 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_sb16vector:
         case Array_type_sb32vector:
         case Array_type_sstring: /* Simple-String */
-          fehler_retrieve(dv1);
+          /* One can argue that comparing nonexistent elements should yield
+             an error, not false. */
+          /*fehler_retrieve(dv1);*/
+          return false;
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not true. But OTOH, we want (equalp (copy-seq x) x)
@@ -959,11 +987,6 @@ global bool equalp (object obj1, object obj2)
           } else
             return true;
         }
-      case_nilvector: case_snilvector: /* (VECTOR NIL) */
-        if (nil_vector_p(obj2))
-          return vector_length(obj2) == vector_length(obj1);
-        return vectorp(obj2) &&
-          vector_length(obj2) == 0 && vector_length(obj1) == 0;
       case_mdarray: /* array of rank /=1 */
         if (!mdarrayp(obj2)) return false;
         /* obj1 and obj2 are arrays of rank /=1.
@@ -1016,8 +1039,6 @@ global bool equalp (object obj1, object obj2)
             case_Rectype_b16vector_above;
             case_Rectype_b32vector_above;
             case_Rectype_string_above;
-            case_Rectype_nilvector_above;
-            case_Rectype_Snilvector_above;
             case_Rectype_vector_above;
             case_Rectype_mdarray_above;
             case_Rectype_Closure_above;
@@ -1410,14 +1431,12 @@ LISPFUNNR(type_of,1)
         }
       }
       break;
-    case_snilvector: /* (SIMPLE-ARRAY NIL (DIMS)) */
     case_sb2vector: /* simple Byte-Vector -> (SIMPLE-ARRAY (UNSIGNED-BYTE n) (dim0)) */
     case_sb4vector:
     case_sb8vector:
     case_sb16vector:
     case_sb32vector:
       pushSTACK(S(simple_array)); goto arrays;
-    case_nilvector: /* (ARRAY NIL (DIMS)) */
     case_ob2vector: /* other Byte-Vector -> ([SIMPLE-]ARRAY (UNSIGNED-BYTE n) (dim0)) */
     case_ob4vector:
     case_ob8vector:
@@ -1472,8 +1491,6 @@ LISPFUNNR(type_of,1)
         case_Rectype_Sb32vector_above;
         case_Rectype_Sstring_above;
         case_Rectype_Svector_above;
-        case_Rectype_Snilvector_above;
-        case_Rectype_nilvector_above;
         case_Rectype_WeakKVT_above;
         case_Rectype_ostring_above;
         case_Rectype_ovector_above;

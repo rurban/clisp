@@ -5852,11 +5852,19 @@ typedef enum {
 #endif
 
 /* test for (VECTOR NIL) */
-#define nil_vector_p(obj)                         \
-  (vectorp(obj)                                   \
-   && (Array_type(obj) == Array_type_nilvector || \
-       Array_type(obj) == Array_type_snilvector))
-#define nil_vector_0_p(obj)  (nil_vector_p(obj) && vector_length(obj) == 0)
+#ifdef TYPECODES
+  #define nil_vector_p(obj)  \
+    (typecode(obj) == vector_type \
+     && (Iarray_flags(obj) & arrayflags_atype_mask) == Atype_NIL \
+    )
+#else
+  # cases: Rectype_Svector, Rectype_vector
+  #define nil_vector_p(obj)  \
+    (varobjectp(obj) \
+     && (Record_type(obj) == Rectype_vector \
+         && (Iarray_flags(obj) & arrayflags_atype_mask) == Atype_NIL \
+    )   )
+#endif
 
 # Test for simple-bit[n]-vector
 #ifdef TYPECODES

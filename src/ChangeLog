@@ -1,3 +1,15 @@
+2004-02-24  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (nil_vector_p): Change to match new nil-vector handling.
+	(nil_vector_0_p): Remove macro.
+	* charstrg.d (test_stringsymchar_arg): Use nil_vector_p.
+	* predtype.d (elt_compare): Return false when comparing nil-vectors.
+	(equal): Update nil-vector handling. A string and a nil-vector of the
+	same length > 0 now compare as different.
+	(equalp): Likewise.
+	(TYPE-OF): For nil-vectors, return (VECTOR NIL n), not (ARRAY NIL (n)).
+	* error.d (check_string): Update.
+
 2004-02-24  Sam Steingold  <sds@gnu.org>
 
 	* clos.lisp (std-remove-method): reset (STD-METHOD-GF OLD-METHOD)
