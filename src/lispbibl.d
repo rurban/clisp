@@ -12261,52 +12261,35 @@ nonreturning_function(global, fehler_too_few_args,
 # check_...(obj);
 # > obj: Argument
 # obj should be a variable
-#ifdef HAVE_FFI
-  #define check_uint8(obj)  \
-    if (!uint8_p(obj)) { fehler_uint8(obj); }
-  #define check_sint8(obj)  \
-    if (!sint8_p(obj)) { fehler_sint8(obj); }
-  #define check_uint16(obj)  \
-    if (!uint16_p(obj)) { fehler_uint16(obj); }
-  #define check_sint16(obj)  \
-    if (!sint16_p(obj)) { fehler_sint16(obj); }
-  #define check_uint32(obj)  \
-    if (!uint32_p(obj)) { fehler_uint32(obj); }
-  #define check_sint32(obj)  \
-    if (!sint32_p(obj)) { fehler_sint32(obj); }
-  #define check_uint64(obj)  \
-    if (!uint64_p(obj)) { fehler_uint64(obj); }
-  #define check_sint64(obj)  \
-    if (!sint64_p(obj)) { fehler_sint64(obj); }
-  #define check_uint(obj)  \
-    if (!uint_p(obj)) { fehler_uint(obj); }
-  #define check_sint(obj)  \
-    if (!sint_p(obj)) { fehler_sint(obj); }
-  #define check_ulong(obj)  \
-    if (!ulong_p(obj)) { fehler_ulong(obj); }
-  #define check_slong(obj)  \
-    if (!slong_p(obj)) { fehler_slong(obj); }
-  #define check_ffloat(obj)  \
-    if (!single_float_p(obj)) { fehler_ffloat(obj); }
-  #define check_dfloat(obj)  \
-    if (!double_float_p(obj)) { fehler_dfloat(obj); }
-#endif
+#define check_uint8(obj)  (uint8_p(obj) ? obj : fehler_uint8(obj),nullobj)
+#define check_sint8(obj)  (sint8_p(obj) ? obj : fehler_sint8(obj),nullobj)
+#define check_uint16(obj) (uint16_p(obj) ? obj : fehler_uint16(obj),nullobj)
+#define check_sint16(obj) (sint16_p(obj) ? obj : fehler_sint16(obj),nullobj)
+#define check_uint32(obj) (uint32_p(obj) ? obj : fehler_uint32(obj),nullobj)
+#define check_sint32(obj) (sint32_p(obj) ? obj : fehler_sint32(obj),nullobj)
+#define check_uint64(obj) (uint64_p(obj) ? obj : fehler_uint64(obj),nullobj)
+#define check_sint64(obj) (sint64_p(obj) ? obj : fehler_sint64(obj),nullobj)
+#define check_uint(obj)   (uint_p(obj) ? obj : fehler_uint(obj),nullobj)
+#define check_sint(obj)   (sint_p(obj) ? obj : fehler_sint(obj),nullobj)
+#define check_ulong(obj)  (ulong_p(obj) ? obj : fehler_ulong(obj),nullobj)
+#define check_slong(obj)  (slong_p(obj) ? obj : fehler_slong(obj),nullobj)
+#define check_ffloat(obj) (single_float_p(obj)?obj:fehler_ffloat(obj),nullobj)
+#define check_dfloat(obj) (double_float_p(obj)?obj:fehler_dfloat(obj),nullobj)
+
 nonreturning_function(extern, fehler_uint8, (object obj));
-#ifdef HAVE_FFI
-  nonreturning_function(extern, fehler_sint8, (object obj));
-  nonreturning_function(extern, fehler_uint16, (object obj));
-  nonreturning_function(extern, fehler_sint16, (object obj));
-  nonreturning_function(extern, fehler_uint32, (object obj));
-  nonreturning_function(extern, fehler_sint32, (object obj));
-  nonreturning_function(extern, fehler_uint64, (object obj));
-  nonreturning_function(extern, fehler_sint64, (object obj));
-  nonreturning_function(extern, fehler_uint, (object obj));
-  nonreturning_function(extern, fehler_sint, (object obj));
-  nonreturning_function(extern, fehler_ulong, (object obj));
-  nonreturning_function(extern, fehler_slong, (object obj));
-  nonreturning_function(extern, fehler_ffloat, (object obj));
-  nonreturning_function(extern, fehler_dfloat, (object obj));
-#endif
+nonreturning_function(extern, fehler_sint8, (object obj));
+nonreturning_function(extern, fehler_uint16, (object obj));
+nonreturning_function(extern, fehler_sint16, (object obj));
+nonreturning_function(extern, fehler_uint32, (object obj));
+nonreturning_function(extern, fehler_sint32, (object obj));
+nonreturning_function(extern, fehler_uint64, (object obj));
+nonreturning_function(extern, fehler_sint64, (object obj));
+nonreturning_function(extern, fehler_uint, (object obj));
+nonreturning_function(extern, fehler_sint, (object obj));
+nonreturning_function(extern, fehler_ulong, (object obj));
+nonreturning_function(extern, fehler_slong, (object obj));
+nonreturning_function(extern, fehler_ffloat, (object obj));
+nonreturning_function(extern, fehler_dfloat, (object obj));
 # is used by STREAM, FFI
 
 # ##################### PACKBIBL for PACKAGE.D ############################# #
