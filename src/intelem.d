@@ -1054,7 +1054,7 @@ global object Q_to_I (sint64 wert)
  can trigger GC */
 global object UQ_to_I (uint64 wert)
 {
-  if ((wert & ~ (FN_value_mask >> oint_data_shift)) == 0)
+  if ((wert & ~(uint64)(FN_value_mask >> oint_data_shift)) == 0)
     /* all bits, that do not fit into the fixnum-value, =0 ? */
     return as_object(((oint)fixnum_type<<oint_type_shift) | (oint)(wert<<oint_data_shift));
   /* create bignum:
