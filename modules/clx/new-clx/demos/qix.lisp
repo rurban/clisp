@@ -94,3 +94,4 @@
   (clx-demos:qix :host :display :dpy :width :height :delay :nqixs :nlines)
 ~% Call (clx-demos:qix) or (clx-demos:qix :delay 0).~%")
 
+(provide "qix")
