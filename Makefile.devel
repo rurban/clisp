@@ -292,16 +292,22 @@ distrib : linux-distrib src-distrib
 # https://www.opensourcedirectory.org/projects/clisp/
 
 # careful here: this src/VERSION is changed by this file!
-VER=`cat src/VERSION`
+VER=$(shell cat src/VERSION)
 SRC_DIST=/tmp/clisp-$(VER)$(PACKEXT)
 SRC_DIST1=/tmp/clisp-$(VER).tar.gz
+SSHUP=gnudist:~/ftp-clisp/ cons:~/ftp-clisp/
+FTPUP=upload.sf.net:/incoming sunsite.unc.edu:/incoming/linux
 
-upload : force
+$(SRC_DIST1) : $(SRC_DIST)
 	bzcat -v $(SRC_DIST) | gzip -9 -v > $(SRC_DIST1)
-	scp $(SRC_DIST) $(SRC_DIST1) gnudist:~/ftp-clisp/latest/
-	scp $(SRC_DIST) $(SRC_DIST1) cons:~/ftp-clisp/source/latest/
-	lftp upload.sf.net -e "cd incoming; put $(SRC_DIST) $(SRC_DIST1); quit"
-	lftp sunsite.unc.edu -e "cd /incoming/Linux; put clisp.lsm $(SRC_DIST) $(SRC_DIST1); quit"
+
+upload : $(SRC_DIST1) force
+	for h in $(SSHUP) ; do \
+	  scp $(SRC_DIST) $(SRC_DIST1) $${h}/latest/; scp src/NEWS $${h}; \
+	done
+	for h in $(FTPUP) ; do \
+	  lftp $${h} -e "put clisp.lsm $(SRC_DIST) $(SRC_DIST1); quit"; \
+	done
 
 src-distrib : src/FILES src/version.h potfiles force
 	$(MAKE) -f Makefile.devel src--distrib TOPDIR=clisp-$(VER)
