@@ -42,3 +42,17 @@ GOOD
 6
 (let ((x 5)) ((lambda (x) x)  (1+ x)))
 6
+
+;; CLHS 3.3.4
+(LET ((X 5))
+  (PROGV '(X) '(20)
+    (LET* ((X (1+ X)) (Z (1+ X)))
+      (DECLARE (SPECIAL X))
+      Z)))
+7
+(LET ((X 5))
+  (PROGV '(X) '(20)
+    (LET* ((Y (1+ X)) (Z (1+ X)))
+      (DECLARE (SPECIAL X))
+      Z)))
+21
