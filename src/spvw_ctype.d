@@ -163,6 +163,9 @@
       #   fr_FR.ISO_8859-1        fr_FR.ISO8859-1
       #   FRE_FR.8859             fr_FR.ISO8859-1
       #   FRE_FR.8859.in          fr_FR.ISO8859-1
+      #   he                      he_IL.ISO8859-8
+      #   he_IL                   he_IL.ISO8859-8
+      #   he_IL.iso88598          he_IL.ISO8859-8
       #   hr                      hr_HR.ISO8859-2
       #   hr_HR                   hr_HR.ISO8859-2
       #   hr_HR.iso88592          hr_HR.ISO8859-2
@@ -597,7 +600,7 @@
                      )
                     { locale_charset = "ISO-8859-7"; }
                   else
-                  if (asciz_equal(lang,"iw") || asciz_equal(lang,"hebrew")
+                  if (asciz_equal(lang,"iw") || asciz_equal(lang,"he") || asciz_equal(lang,"hebrew")
                      )
                     { locale_charset = "ISO-8859-8"; }
                   else
