@@ -360,7 +360,8 @@
 (defclass screen      (ptr-object)            ())
 (defclass font        (xid-object)
   ((font-info :initform nil :initarg :font-info)
-   (name :initarg :name)))
+   (name :initarg :name)
+   (encoding :initform nil :initarg :encoding)))
 
 
 
