@@ -219,7 +219,7 @@
       (not (or (symbolp form)
                (consp form)))))
 
-;;; quote if the form does not evaluate to iteself
+;;; quote if the form does not evaluate to itself
 (defun maybe-quote (form)
   (if (eval-self-p form) form (list 'quote form)))
 
@@ -277,8 +277,9 @@
 ;;; to be the argument list of an LIST* call.  It tries to optimize the
 ;;; forms to generate something more efficient than the implied LIST*,
 ;;; but in the case that it does no optimizations, it just returns (cons
-;;; 'list* forms).  This has to be careful to watch for (SPLICE ...) and
-;;; (NSPLICE ...) forms in the last position of the LIST* argument list.
+;;; 'list* forms).  This has to be careful to watch for splicing unquote
+;;; forms in the last position, and also for a quoted unquote in the
+;;; last position.
 (defun bq-optimize-list* (forms)
   (if (= (length forms) 1)
     ;; ((list x)) -> (list x) [ -> '(x) ]
@@ -298,10 +299,13 @@
                   (list (list 'append last-opt)))))
 
         ;; (... '(x1 x2 ...)) -> (list ... 'x1 'x2 ...)
+	;; But CAREFUL! Must not rip apart unquote:
+	;; (... ',form) -> (list ... 'system::unquote 'form)
         ((and (consp last-opt)
               (eq (first last-opt) 'quote)
-              (listp (second last-opt)))
-         (bq-optimize-list
+              (listp (second last-opt))
+	      (not (eq (first (second last-opt)) 'UNQUOTE)))
+	 (bq-optimize-list
           (append '(list) (butlast forms)
                   (mapcar #'maybe-quote
                           (second last-opt)))))

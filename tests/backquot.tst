@@ -115,16 +115,13 @@ X
 `(2 3 . #(,(+ 2 2) ,@(list 5)))
 (2 3 . #(4 5))
 
-#+:enable-risky-tests
 (let ((o 1))
   (declare (special o))
   (eval (let ((a 2) (b 3))
           (declare (special a b))
           ``(,o ,@',(mapcar #'symbol-value '(a b))))))
-#+:enable-risky-tests
 (1 2 3)
 
-#+:enable-risky-tests
 (let ((env 1))
   (eval
    (let ((get-code '(:a 12 :b 45 :double (* %buffer 2))))
@@ -140,10 +137,8 @@ X
         (eval (get-macro 1234 5678 :a))
         (eval (get-macro 1234 5678 :double))
         env))
-#+:enable-risky-tests
 (1234 5678 12 2468 64)
 
-#+:enable-risky-tests
 (progn
   (defmacro define-setf (var &rest values)
   "define a setf function name (setf <var>) that will
@@ -155,5 +150,4 @@ X
   (define-setf *avar* 1 2 3)
   (list (setf (*avar*) 4)
         *avar*))
-#+:enable-risky-tests
 (10 10)
