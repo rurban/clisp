@@ -257,6 +257,8 @@
     }
 
 #undef OS_error
+#undef OS_file_error
+#undef OS_filestream_error
 
 #ifdef AMIGAOS
 #include "erramiga.c"
@@ -273,6 +275,19 @@
 #ifdef WIN32_NATIVE
 #include "errwin32.c"
 #endif
+
+# Just like OS_error, but takes a file stream and signals a FILE-ERROR.
+# OS_filestream_error(stream);
+# > stream: a file stream
+# > end_system_call() already called
+  nonreturning_function(global, OS_filestream_error, (object stream));
+  global void OS_filestream_error(stream)
+    var object stream;
+    { if (!nullp(TheStream(stream)->strm_file_truename))
+        { OS_file_error(TheStream(stream)->strm_file_truename); }
+        else
+        { OS_error(); }
+    }
 
 LISPFUN(error,1,0,rest,nokey,0,NIL)
 # (ERROR errorstring {expr})

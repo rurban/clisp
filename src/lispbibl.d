@@ -10995,6 +10995,28 @@ typedef struct { object var_env;   # Variablenbindungs-Environment
     (asciz_out_s("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_error)())
 #endif
 
+# Just like OS_error, but signal a FILE-ERROR.
+# OS_file_error(pathname);
+# > pathname: Pathname
+# > end_system_call() already called
+  nonreturning_function(extern, OS_file_error, (object pathname));
+#if defined(DEBUG_OS_ERROR)
+  # Show the file and line number of the caller of OS_file_error(). For debugging.
+  #define OS_file_error(pathname)  \
+    (asciz_out_s("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_file_error)(pathname))
+#endif
+
+# Just like OS_error, but takes a file stream and signals a FILE-ERROR.
+# OS_filestream_error(stream);
+# > stream: a file stream
+# > end_system_call() already called
+  nonreturning_function(extern, OS_filestream_error, (object stream));
+#if defined(DEBUG_OS_ERROR)
+  # Show the file and line number of the caller of OS_filestream_error(). For debugging.
+  #define OS_filestream_error(stream)  \
+    (asciz_out_s("\n[%s:",__FILE__), asciz_out_1("%d] ",__LINE__), (OS_filestream_error)(stream))
+#endif
+
 #if defined(UNIX) || defined(DJUNIX) || defined(EMUNIX) || defined(WATCOM) || defined(RISCOS)
   # Ausgabe eines Fehlers, direkt übers Betriebssystem
   # errno_out(errorcode);

@@ -2,15 +2,11 @@
   # OS_error();
   # > int errno: Fehlercode
     nonreturning_function(global, OS_error, (void));
-    global void OS_error ()
-      { var uintC errcode; # positive Fehlernummer
-        end_system_call(); # just in case
-        begin_system_call();
-        errcode = errno;
-        end_system_call();
-        clr_break_sem_4(); # keine DOS-Operation mehr aktiv
-        begin_error(); # Fehlermeldung anfangen
-        # Meldungbeginn ausgeben:
+    nonreturning_function(global, OS_file_error, (object pathname));
+    local void OS_error_internal (uintC errcode);
+    local void OS_error_internal(errcode)
+      var uintC errcode;
+      { # Meldungbeginn ausgeben:
         write_errorstring(DEUTSCH ? "DJDOS-Fehler " :
                           ENGLISH ? "DJDOS error " :
                           FRANCAIS ? "Erreur DJDOS " :
@@ -147,7 +143,30 @@
              { write_errorstring(": ");
                write_errorstring(errormsg);
              }
-          }
+      }   }
+    global void OS_error()
+      { var uintC errcode; # positive Fehlernummer
+        end_system_call(); # just in case
+        begin_system_call();
+        errcode = errno;
+        end_system_call();
+        clr_break_sem_4(); # keine DOS-Operation mehr aktiv
+        begin_error(); # Fehlermeldung anfangen
+        OS_error_internal(errcode);
+        end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
+      }
+    global void OS_file_error(pathname)
+      var object pathname;
+      { var uintC errcode; # positive Fehlernummer
+        begin_system_call();
+        errcode = errno;
+        end_system_call();
+        clr_break_sem_4(); # keine DOS-Operation mehr aktiv
+        pushSTACK(pathname); # Wert von PATHNAME für FILE-ERROR
+        begin_error(); # Fehlermeldung anfangen
+        if (!nullp(STACK_3)) # *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ?
+          { STACK_3 = S(simple_file_error); }
+        OS_error_internal(errcode);
         end_error(args_end_pointer STACKop 7); # Fehlermeldung beenden
       }
 
