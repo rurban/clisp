@@ -1,3 +1,11 @@
+2001-08-05  Bruno Haible  <haible@clisp.cons.org>
+
+	* autoconf/acgeneral.m4 (AC_MSG_RESULTPROTO): Remove macro.
+	(AC_LANG_EXTERN): Move to aclocal.m4.
+	* autoconf/aclocal.m4 (AC_LANG_EXTERN): Moved here from acgeneral.m4.
+	(CL_PROTO): Use AC_MSG_RESULT directly, instead of AC_MSG_RESULTPROTO.
+	(CL_SILENT): No need to pushdef AC_MSG_RESULTPROTO.
+
 2001-06-08  Bruno Haible  <haible@clisp.cons.org>
 
         * autoconf/ltmain.sh: Upgrade to libtool-1.4.
