@@ -428,9 +428,10 @@ local object N_sin_N (object x)
     /* stack layout: a, b, cosh(b), sinh(b), cos(a), sin(a). */
     STACK_0 = R_R_mal_R(STACK_0,STACK_3); /* sin(a)*cosh(b) */
     STACK_3 = R_R_contagion_R(STACK_4,STACK_5);
-    { var object erg = R_R_mal_R(STACK_1,STACK_2); /* cos(a)*sinh(b), != Fixnum_0 */
-      erg = R_R_complex_C(R_R_float_F(STACK_0,STACK_3),
-                          F_R_float_F(erg,STACK_3));
+    STACK_4 = R_R_mal_R(STACK_1,STACK_2); /* cos(a)*sinh(b), != Fixnum_0 */
+    STACK_4 = F_R_float_F(STACK_4,STACK_3);
+    STACK_5 = R_R_float_F(STACK_0,STACK_3);
+    { var object erg = R_R_complex_C(STACK_5,STACK_4);
       skipSTACK(6); return erg;
     }
   }
@@ -455,9 +456,13 @@ local object N_cos_N (object x)
     STACK_0 = R_minus_R(R_R_mal_R(STACK_0,STACK_2)); /* -sin(a)*sinh(b) */
     STACK_1 = R_R_mal_R(STACK_1,STACK_3); /* cos(a)*cosh(b) */
     STACK_2 = R_R_contagion_R(STACK_4,STACK_5);
-    { var object erg = (eq(STACK_0,Fixnum_0) ? R_R_float_F(STACK_1,STACK_2)
-                        : R_R_complex_C(R_R_float_F(STACK_1,STACK_2),
-                                        F_R_float_F(STACK_0,STACK_2)));
+    { var object erg;
+      if (eq(STACK_0,Fixnum_0)) erg = R_R_float_F(STACK_1,STACK_2);
+      else {
+        STACK_1 = R_R_float_F(STACK_1,STACK_2);
+        STACK_0 = F_R_float_F(STACK_0,STACK_2);
+        erg = R_R_complex_C(STACK_1,STACK_0);
+      }
       skipSTACK(6); return erg;
     }
   }

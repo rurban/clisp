@@ -1,5 +1,9 @@
 2003-07-10  Sam Steingold  <sds@gnu.org>
 
+	* comptran.d (N_sin_N, N_cos_N): fixed GC-safety bugs
+
+2003-07-10  Sam Steingold  <sds@gnu.org>
+
 	* error.d (check_fdefinition): handle :CONTINUE restart from
 	check_value()
 	* condition.lisp (check-value): permit :CONTINUE restart when the
