@@ -676,25 +676,36 @@ LISPFUNNF(weak_pointer_p,1) {
   VALUES_IF(weakpointerp(obj));
 }
 
-/* UP: make sure that the argument is a WEAK-POINTER and return it
+/* check_weakpointer_replacement(obj)
+ > obj: not a weak-pointer
+ < result: a weak-pointer, a replacement
  can trigger GC */
-local object check_weak_pointer (object wp) {
-  while (!weakpointerp(wp)) {
+local object check_weakpointer_replacement (object obj) {
+  do {
     pushSTACK(NIL); /* no PLACE */
-    pushSTACK(wp); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(weak_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(weak_pointer)); pushSTACK(wp);
+    pushSTACK(S(weak_pointer)); pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
     check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
-    wp = value1;
-  }
-  return wp;
+    obj = value1;
+  } while (!weakpointerp(obj));
+  return obj;
+}
+/* check_weakpointer(obj)
+ > obj: an object
+ < result: a weak-pointer, either the same as obj or a replacement
+ can trigger GC */
+local inline object check_weakpointer (object obj) {
+  if (!weakpointerp(obj)) 
+    obj = check_weakpointer_replacement(obj);
+  return obj;
 }
 
 /* (WEAK-POINTER-VALUE weak-pointer) returns two values: The original value
  and T, if the value has not yet been garbage collected, else NIL and NIL. */
 LISPFUNNR(weak_pointer_value,1) {
-  var object wp = check_weak_pointer(popSTACK());
+  var object wp = check_weakpointer(popSTACK());
   if (weakpointer_broken_p(wp))
     VALUES2(NIL,NIL);
   else
@@ -703,7 +714,7 @@ LISPFUNNR(weak_pointer_value,1) {
 
 LISPFUNN(set_weak_pointer_value,2)
 { /* (SETF (WEAK-POINTER-VALUE wp) value) */
-  var object wp = check_weak_pointer(STACK_1);
+  var object wp = check_weakpointer(STACK_1);
   var object value = STACK_0; skipSTACK(2);
   if (!gcinvariant_object_p(value)) {
     /* make sure wp is on the O(all_weakpointers) list */
