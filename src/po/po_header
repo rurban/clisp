@@ -23,22 +23,23 @@ case "$lang" in
 esac
 
 version=`cat ../VERSION`
-date_now=`date +'%Y-%m-%d %T %Z'`
+date_now=`date +'%Y-%m-%d %T%z'`
 year=`date +'%Y'`;
 if test $lang = xx; then
   date_pot="$date_now"
 else
-  date_pot=`LC_ALL=C ls -l --full-time clisp.pot | head -1 | awk '{ print $6" "$7" "$8" "$9" "$10 }'`
-  date_pot=`date +'%Y-%m-%d %T %Z' -d "$date_pot"`
+  date_pot=`LC_ALL=C ls -l --time-style=+"%Y-%m-%d %T%z" clisp.pot | head -1 | awk '{ print $6" "$7 }'`
 fi
 
 cat << EOF
 # ${language} messages for CLISP
 # Copyright (C) 1992-${year} ${authors}
+# This file is distributed under the same license as the GNU CLISP package.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp ${version}\n"
+"Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: ${date_pot}\n"
 "PO-Revision-Date: ${date_now}\n"
 "Last-Translator: Automatically generated <${LOGNAME}@`hostname`>\n"
