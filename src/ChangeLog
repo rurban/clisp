@@ -1,5 +1,16 @@
 1999-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        * encoding.d (fehler_uni32_invalid, uni32_mblen, uni32be_mbstowcs,
+           uni32le_mbstowcs, uni32_wcslen, uni32be_wcstombs, uni32le_wcstombs):
+          New functions.
+          (init_encodings): Initialize the Unicode-32 encodings.
+        * pseudofun.d: Update.
+        * type.lsp (canonicalize-type): Add charset:unicode-32-big-endian and
+          charset:unicode-32-little-endian to the list of types equivalent to
+          CHARACTER.
+
+1999-03-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         * lispbibl.d (conditiontype): Add charset_type_error.
         * conditio.lsp (charset-type-error, simple-charset-type-error): New
           condition types.
