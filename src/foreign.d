@@ -2162,6 +2162,21 @@ LISPFUNN(lookup_foreign_variable,2)
     value1 = fvar; mv_count=1;
   }
 
+# (FFI::FOREIGN-ADDRESS-VALUE foreign-address)
+# returns the value of the foreign address
+LISPFUNN(foreign_address_value,1) {
+  var object arg = popSTACK();
+  if (fvariablep(arg)) arg = TheFvariable(arg)->fv_address;
+  else if (ffunctionp(arg)) arg = TheFfunction(arg)->ff_address;
+  if (faddressp(arg)) value1 = UL_to_I((uintP)Faddress_value(arg));
+  else {
+    pushSTACK(arg);
+    pushSTACK(TheSubr(subr_self)->name);
+    fehler(error,GETTEXT("~: not a foreign object: ~"));
+  }
+  mv_count = 1;
+}
+
 # (FFI::FOREIGN-VALUE foreign-variable)
 # returns the value of the foreign variable as a Lisp data structure.
 LISPFUNN(foreign_value,1)

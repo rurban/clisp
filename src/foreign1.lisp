@@ -15,7 +15,7 @@
           c-function c-ptr c-ptr-null c-array-ptr
           def-c-enum def-c-struct element deref slot cast typeof
           sizeof bitsizeof
-          validp
+          validp foreign-address-null
           #+UNICODE *foreign-encoding*
           foreign-address foreign-variable foreign-function))
 
@@ -702,6 +702,9 @@
     (push (list c-name (parse-c-type type) flags) *variable-list*)))
 
 (defsetf ffi::foreign-value ffi::set-foreign-value)
+
+(defun foreign-address-null (fadr)
+  (zerop (foreign-address-value fadr)))
 
 ;; ============================ named C functions ============================
 
