@@ -3410,6 +3410,9 @@ local void fehler_eval_dotted(object fun) {
           OPT_ARG(1);
           if (!nullp(args)) goto fehler_zuviel;
           goto apply_subr_norest;
+        case (uintW)subr_argtype_3_2:
+          # SUBR mit 3 required-Argumenten und 2 optional-Argumenten
+          REQ_ARG();
         case (uintW)subr_argtype_2_2:
           # SUBR mit 2 required-Argumenten und 2 optional-Argumenten
           REQ_ARG();
@@ -4276,6 +4279,9 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
           OPT_ARG(1);
           if ((args_on_stack>0) || consp(args)) goto fehler_zuviel;
           goto apply_subr_norest;
+        case (uintW)subr_argtype_3_2:
+          # SUBR mit 3 required-Argumenten und 2 optional-Argumenten
+          REQ_ARG();
         case (uintW)subr_argtype_2_2:
           # SUBR mit 2 required-Argumenten und 2 optional-Argumenten
           REQ_ARG();
@@ -5189,6 +5195,17 @@ local Values funcall_closure (object fun, uintC args_on_stack);
             case 2: pushSTACK(unbound);
             case 3: pushSTACK(unbound);
             case 4: goto apply_subr_norest;
+            default: goto fehler_zuviel;
+          }
+        case (uintW)subr_argtype_3_2:
+          # SUBR mit 3 required-Argumenten und 2 optional-Argumenten
+          switch (args_on_stack) {
+            case 0: goto fehler_zuwenig;
+            case 1: goto fehler_zuwenig;
+            case 2: goto fehler_zuwenig;
+            case 3: pushSTACK(unbound);
+            case 4: pushSTACK(unbound);
+            case 5: goto apply_subr_norest;
             default: goto fehler_zuviel;
           }
         case (uintW)subr_argtype_0_3:

@@ -720,6 +720,7 @@
                           { case 0: return(subr_argtype_0_2);
                             case 1: return(subr_argtype_1_2);
                             case 2: return(subr_argtype_2_2);
+                            case 3: return(subr_argtype_3_2);
                             default: goto illegal;
                           }
                       case 3:
