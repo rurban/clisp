@@ -1165,7 +1165,7 @@
 
 (defun check-value (place condition)
   ;; 2 values: new-value, store-p (0 for check_fdefinition())
-  (let ((*active-restarts*
+  (let ((restarts
          (nconc
           (list (make-restart
                  :name 'USE-VALUE
@@ -1193,9 +1193,11 @@
                        (format stream (report-one-new-value-string) place))
                    :interactive (lambda () (prompt-for-new-value place))
                    :invoke-function
-                     (lambda (val) (return-from check-value (values val t))))))
-          *active-restarts*)))
-    (error condition)))
+                     (lambda (val)
+                       (return-from check-value (values val t)))))))))
+    (with-condition-restarts condition restarts
+      (let ((*active-restarts* (nconc restarts *active-restarts*)))
+        (error condition)))))
 
 ;;; 29.4.3. Exhaustive Case Analysis
 
