@@ -125,17 +125,18 @@
   <ulink url="&clhs;/Body/sec_2-4-8.html">[CLHS-2.4.8]</ulink></title>
 
 <para>Reader macros are also defined for the following:
-
-<table id="extra-read-macro-table" frame="all">
-  <title>Additional reader macros</title>
- <tgroup cols="2" colsep="1" rowsep="1" align="center">
- <thead><row><entry>Macro</entry><entry>Meaning</entry></row></thead><tbody>
- <row><entry>#,</entry><entry>load-time evaluation</entry></row>
- <row><entry>#Y</entry><entry>function objects and file
-  &encoding;s</entry></row>
- <row><entry>#&quot;&quot;</entry><entry>pathname</entry></row>
-</tbody></tgroup></table>
-</para>
+<variablelist id="extra-read-macro-table">
+ <title>Additional reader macros</title>
+ <varlistentry><term>#,</term>
+  <listitem><simpara>load-time evaluation, kept despite the &ansi-cl; issue
+    <ulink url="&clhs;/Issues/iss315.html">SHARP-COMMA-CONFUSION:REMOVE</ulink>
+ </simpara></listitem></varlistentry>
+ <varlistentry><term>#Y</term>
+  <listitem><simpara>function objects and file &encoding;s
+ </simpara></listitem></varlistentry>
+ <varlistentry><term>#&quot;&quot;</term>
+  <listitem><simpara>&pathname-t;</simpara></listitem></varlistentry>
+</variablelist></para>
 
 </section>
 </chapter>
