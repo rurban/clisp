@@ -1,3 +1,9 @@
+2003-08-28  Sam Steingold  <sds@gnu.org>
+
+	* time.d (get_run_time) [TIME_UNIX]: when HZ is not defined, use
+	CLK_TCK or CLOCKS_PER_SECOND.
+	Reported by Prut Flut <prutflut@m-net.arbornet.org> (NetBSD)
+
 2003-08-27  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.lisp: merged in signature emulation from e2d.c

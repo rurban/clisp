@@ -234,7 +234,16 @@ global void get_run_time (internal_time_t* runtime)
   else
     used_time = tms.tms_utime + tms.tms_stime; /* user time + system time */
   end_system_call();
-  /* Convert to seconds and microseconds: (use HZ or CLK_TCK ??) */
+  /* Convert to seconds and microseconds: */
+  #if !defined(HZ)
+   #if defined(CLK_TCK)
+    #define HZ CLK_TCK
+   #elif defined(CLOCKS_PER_SECOND)
+    #define HZ CLOCKS_PER_SECOND
+   #else
+    #error do not know clock tick length
+   #endif
+  #endif
   runtime->tv_sec = floor(used_time,HZ);
   runtime->tv_usec = (used_time % HZ) * floor(2*1000000+HZ,2*HZ);
  #endif
