@@ -675,12 +675,13 @@ LISPFUNN(slot_value,2)
   if (slot)
     { var object value = *slot;
       if (!eq(value,unbound))
-        { value1 = value; mv_count=1; }
+        { value1 = value; }
         else
         # (SLOT-UNBOUND class instance slot-name)
         { pushSTACK(value1); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
           funcall(S(slot_unbound),3);
     }   }
+  mv_count=1;
   skipSTACK(2);
 }
 
@@ -693,13 +694,15 @@ LISPFUNN(set_slot_value,3)
  {var object slotinfo = # (GETHASH slot-name (class-slot-location-table class))
     gethash(STACK_1,TheClass(value1)->slot_location_table);
   if (!eq(slotinfo,nullobj)) # gefunden?
-    { value1 = *ptr_to_slot(STACK_2,slotinfo) = STACK_0; mv_count=1; }
+    { value1 = *ptr_to_slot(STACK_2,slotinfo) = STACK_0; }
     else
     # missing slot -> (SLOT-MISSING class instance slot-name 'setf new-value)
     { pushSTACK(value1); pushSTACK(STACK_(2+1)); pushSTACK(STACK_(1+2));
       pushSTACK(S(setf)); pushSTACK(STACK_(0+4));
       funcall(S(slot_missing),5);
+      value1 = STACK_0;
     }
+  mv_count=1;
   skipSTACK(3);
 }}
 #ifdef RISCOS_CCBUG
@@ -709,16 +712,16 @@ LISPFUNN(set_slot_value,3)
 LISPFUNN(slot_boundp,2)
 { var object* slot = slot_up();
   if (slot)
-    { value1 = (eq(*slot,unbound) ? NIL : T); mv_count=1; }
+    { value1 = (eq(*slot,unbound) ? NIL : T); }
+  mv_count=1;
   skipSTACK(2);
 }
 
 LISPFUNN(slot_makunbound,2)
 { var object* slot = slot_up();
   if (slot)
-    { *slot = unbound;
-      value1 = STACK_1; mv_count=1; # instance als Wert
-    }
+    { *slot = unbound; }
+  value1 = STACK_1; mv_count=1; # instance als Wert
   skipSTACK(2);
 }
 
