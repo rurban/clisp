@@ -1848,7 +1848,7 @@ interpreter compiler
 
 (LOAD "edit")      ;; edit-file, ed, uncompile
 
-(load "clhs")                   ; HyperSpec access
+(LOAD "clhs")      ;; HyperSpec access
 
 ;; Random extensions:
 
