@@ -15376,8 +15376,7 @@ LISPFUN(make_stream,seclass_default,1,0,norest,key,4,
     fd = stderr_handle;
   else if (streamp(STACK_4)) {
     var direction_t dir = check_direction(STACK_3);
-    var int junk; /* for handle type */
-    fd = stream_lend_handle(STACK_4,READ_P(dir),&junk);
+    fd = stream_lend_handle(STACK_4,READ_P(dir),NULL);
   } else {
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(STACK_(4+1)); pushSTACK(TheSubr(subr_self)->name);
@@ -17033,14 +17032,14 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype)
     switch (TheStream(stream)->strmtype) {
       case strmtype_file:
         if (inputp && TheStream(stream)->strmflags & strmflags_rd_B) {
-          *handletype = 1;
+          if (handletype) *handletype = 1;
           if (ChannelStream_buffered(stream)) {
             sync_file_buffered(stream);
             return TheHandle(TheStream(stream)->strm_buffered_channel);
           }
           return TheHandle(TheStream(stream)->strm_ichannel);
         } else if (!inputp && TheStream(stream)->strmflags & strmflags_wr_B) {
-          *handletype = 1;
+          if (handletype) *handletype = 1;
           if (ChannelStream_buffered(stream)) {
             /* reposition index back to not yet read position */
             sync_file_buffered(stream);
@@ -17059,7 +17058,7 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype)
       case strmtype_keyboard:
        #if (defined(UNIX) && !defined(NEXTAPP)) || defined(RISCOS) || defined(WIN32_NATIVE)
         if (inputp) {
-          *handletype = 1;
+          if (handletype) *handletype = 1;
           return TheHandle(TheStream(stream)->strm_keyboard_handle);
         }
        #endif
@@ -17067,7 +17066,7 @@ global Handle stream_lend_handle (object stream, bool inputp, int * handletype)
       #endif
       case strmtype_terminal:
         /* FIXME: no actual need to flush */
-        *handletype = 1;
+        if (handletype) *handletype = 1;
         return TheHandle(inputp?TheStream(stream)->strm_terminal_ihandle:
                          TheStream(stream)->strm_terminal_ohandle);
       default:
@@ -17714,12 +17713,6 @@ LISPFUNN(defgray,1) {
 # =============================================================================
 
 #ifdef EXPORT_SYSCALLS
-#ifdef UNIX
-global object stream_fd (object stream) {
-  stream = check_open_file_stream(stream);
-  return UL_to_I(TheHandle(TheStream(stream)->strm_ochannel));
-}
-#endif # UNIX
 
 #ifdef HAVE_FLOCK
 
