@@ -74,7 +74,7 @@
    slot-missing slot-unbound
    print-object describe-object
    make-instance allocate-instance initialize-instance reinitialize-instance
-   shared-initialize
+   shared-initialize ensure-generic-function
    make-load-form make-load-form-saving-slots
    change-class update-instance-for-different-class
    update-instance-for-redefined-class make-instances-obsolete
@@ -2850,13 +2850,32 @@
                                            ',docstring))))
        (DO-DEFGENERIC ',funname ',signature ',argorder ,@method-forms))))
 
+(defun ensure-generic-function (function-name &key argument-precedence-order
+                                declare documentation environment
+                                generic-function-class lambda-list
+                                method-class method-combination)
+  (multiple-value-bind (signature argorder)
+      (analyze-defgeneric
+       'defgeneric function-name lambda-list
+       `(,@(if declare `(:declare ,declare))
+         ,@(if documentation `(:documentation ,documentation))
+         ,@(if argument-precedence-order
+               `(:argument-precedence-order ,argument-precedence-order))
+         ,@(if generic-function-class
+               `(:generic-function-class
+                 ,(if (class-p generic-function-class)
+                      (class-name generic-function-class)
+                      generic-function-class)))
+         ,@(if method-combination `(:method-combination ,method-combination))
+         ,@(if method-class `(:method-class ,method-class)))
+       environment)
+    (do-defgeneric function-name signature argorder)))
+
 (defun make-generic-function (funname signature argorder &rest methods)
   (let ((gf (make-fast-gf funname signature argorder)))
     (dolist (method methods) (std-add-method gf method))
     (finalize-fast-gf gf)
     gf))
-
-(defvar *gf-warn-on-removing-all-methods* t)
 
 (defun do-defgeneric (funname signature argorder &rest methods)
   (if (fboundp funname)
@@ -2865,14 +2884,11 @@
         ;; redefinition of a generic function
         (progn
           (warn-if-gf-already-called gf)
-          (when (and *gf-warn-on-removing-all-methods* (gf-methods gf))
-            (warn (TEXT "Removing all methods of ~S") gf)
-            (setf (gf-methods gf) nil))
-          (unless (and (equalp signature (gf-signature gf))
-                       (equal argorder (gf-argorder gf)))
-            (warn (TEXT "Modifying the parameter profile of ~S") gf)
-            (setf (gf-signature gf) signature)
-            (setf (gf-argorder gf) argorder))
+          (unless (equalp signature (gf-signature gf))
+            (dolist (method (gf-methods gf))
+              (check-signature-congruence gf method signature))
+            (setf (gf-signature gf) signature))
+          (setf (gf-argorder gf) argorder)
           (dolist (method methods) (std-add-method gf method))
           (finalize-fast-gf gf)
           gf)

@@ -358,7 +358,7 @@
    slot-missing slot-unbound
    print-object describe-object
    make-instance allocate-instance initialize-instance reinitialize-instance
-   shared-initialize
+   shared-initialize ensure-generic-function
    make-load-form make-load-form-saving-slots
    change-class update-instance-for-different-class
    update-instance-for-redefined-class make-instances-obsolete

@@ -87,7 +87,7 @@
           echo-stream-output-stream fill ed fill-pointer eighth find elt
           find-all-symbols encode-universal-time find-class end-of-file
           find-if endp find-if-not enough-namestring find-method
-          ensure-directories-exist find-package ensure-generic-function
+          ensure-directories-exist ensure-generic-function find-package
           find-restart find-symbol get-internal-run-time finish-output
           get-macro-character first get-output-stream-string fixnum
           get-properties flet get-setf-expansion float get-universal-time
@@ -241,7 +241,7 @@
        (known-missing
         #+CLISP
         '(call-method define-method-combination
-          ensure-generic-function invalid-method-error method-combination
+          invalid-method-error method-combination
           method-combination-error make-method)
         #-CLISP nil)
        (known-extra
