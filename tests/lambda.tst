@@ -242,3 +242,10 @@ ERROR
 ((lambda (x) (list x)) t foo)
 
 (fmakunbound 'foo) foo
+
+;; disassemble
+#+clisp (setf (getenv "PAGER") nil) #+clisp nil
+(disassemble 'car) nil
+(disassemble #'cdr) nil
+(disassemble 'disassemble) nil
+(disassemble #'set-difference) nil
