@@ -86,6 +86,8 @@
 
 <section id="encoding"><title>Extensions-1.4. Encodings</title>
 
+<section><title>Introduction</title>
+
 <para>An <emphasis>encoding</emphasis> describes the correspondence
  between characters and raw bytes during input/output via streams with
  element-type &character-class;.</para>
@@ -718,7 +720,7 @@ their corresponding byte vector representation according to that encoding.
 </variablelist>
 
 </section>
-
+</section>
 
 <section id="gstream">
   <title>Extensions-1.5. Defining new kinds of Streams</title>
