@@ -1,5 +1,10 @@
 2004-04-19  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (simplify_directory): signal an error on (:ABSOLUTE :UP)
+	as per <http://www.lisp.org/HyperSpec/Body/sec_19-2-2-4-3.html>
+
+2004-04-19  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (quit): do (FRESH-LINE *ERROR-OUTPUT*) before (WRITE-LINE
 	"Bye") because in batch mode *ERROR-OUTPUT* and *STANDARD-OUTPUT*
 	are separate

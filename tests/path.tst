@@ -727,6 +727,9 @@ t
 (pathname "/foo/bar/../baz///zot//.././zoo")
 #P"/foo/baz/zoo"
 
+(pathname-directory "../../../")
+(:RELATIVE :UP :UP :UP)
+
 (listp (directory (make-pathname :version :wild
                                  :defaults (logical-pathname "FOO:"))))
 T
