@@ -1,5 +1,10 @@
 2002-07-15  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (wildcard_match): handle special patterns like
+	:WILD, :WILD-INFERIORS, :UP and :BACK
+
+2002-07-15  Sam Steingold  <sds@gnu.org>
+
 	fixed bug [ 581646 ]: REQUIRE uses STRING-EQUAL
 	since CLISP in ANSI mode does not coerce symbols to pathnames,
 	this also fixes a bug introduced on 2002-07-09 which precluded

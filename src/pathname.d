@@ -4801,6 +4801,10 @@ LISPFUN(wild_pathname_p,1,1,norest,nokey,0,NIL) {
 local bool wildcard_match_ab (uintL m_count, const chart* m_ptr,
                               uintL b_count, const chart* b_ptr);
 local bool wildcard_match (object pattern, object sample) {
+  if (eq(pattern,S(Kwild)) || eq(pattern,S(Kwild_inferiors)))
+    return true;
+  if (eq(pattern,S(Kup)) || eq(pattern,S(Kback)))
+    return false;
   ASSERT(sstring_normal_p(pattern));
   ASSERT(sstring_normal_p(sample));
   return wildcard_match_ab(
