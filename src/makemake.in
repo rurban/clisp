@@ -499,6 +499,7 @@ esac
 
 RECOMPILEDIR=stage
 TESTSDIR=tests
+SACLATESTSDIR=sacla-tests
 ANSITESTSDIR=ansi-tests
 BENCHDIR=benchmarks
 
@@ -2710,7 +2711,7 @@ CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem ${localeflags}${encflags} -n
 if [ $CROSS = false ] ; then
 
   echol "# Perform self-tests."
-  echol "check : check-recompile check-tests check-ansi-tests"
+  echol "check : check-recompile check-tests check-sacla-tests check-ansi-tests"
   echodummyrule check
   echol
 
@@ -2809,6 +2810,18 @@ if [ $CROSS = false ] ; then
   # on win32, LN_S=copy and it accepts exactly 2 arguments
   for f in Makefile '*.lisp' '*.tst'; do
     echotab "cd ${TESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}tests${NEXT_}${f} ."
+  done
+  echol
+
+  SACLA_CLISP="../lisp${LEXE} -B .. -M ../lispinit.mem -N ../locale -E UTF-8 -norc -i tests.lisp"
+  echol "check-sacla-tests : ${SACLATESTSDIR} lisp${LEXE} lispinit.mem"
+  echotab "cd ${SACLATESTSDIR} && ${SACLA_CLISP} -x '(ext:exit (> (nth-value 1 (run-all-tests)) 0))'"
+  echol
+  echol "${SACLATESTSDIR} :"
+  echotab "-mkdir ${SACLATESTSDIR}"
+  # on win32, LN_S=copy and it accepts exactly 2 arguments
+  for f in '*.lisp'; do
+    echotab "cd ${SACLATESTSDIR} && \$(LN_S) ${PARENT_SRCTOPDIR_}sacla-tests${NEXT_}${f} ."
   done
   echol
 
@@ -3458,7 +3471,7 @@ clean0 : force
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
-	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ${RECOMPILEDIR}${NEXT_}* ${TESTSDIR}${NEXT_}* ${ANSITESTSDIR}${NEXT_}* ansi-tests-log
+	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ${RECOMPILEDIR}${NEXT_}* ${TESTSDIR}${NEXT_}* ${SACLATESTSDIR}${NEXT_}* ${ANSITESTSDIR}${NEXT_}* ansi-tests-log
 	-\$(RMRF) base full
 !!
 if [ ${LIB_TYPE} = "win32" ] ; then
