@@ -99,17 +99,19 @@ B
 (z-val b)
 30
 
-(progn
-(defgeneric f (x y)
-  (:method ((x t) (y t))
-    (list x y)))
-(defmethod f ((i integer) (j number))
-  (+ i j))
-(defmethod f ((s1 string) (s2 string))
-  (concatenate 'string s1 s2))
-(lambda () (defmethod f ((x list) (y list)) (append x y)))
-())
-NIL
+(let* ((fn (defgeneric f (x y)
+             (:method ((x t) (y t))
+               (list x y))))
+       (meth1 (defmethod f ((i integer) (j number))
+                (+ i j)))
+       (meth2 (defmethod f ((s1 string) (s2 string))
+                (concatenate 'string s1 s2))))
+  (lambda () (defmethod f ((x list) (y list)) (append x y)))
+  (list (eq meth1 (find-method #'f nil (list (find-class 'integer)
+                                             (find-class 'number))))
+        (eq meth2 (find-method #'f nil (list (find-class 'string)
+                                             (find-class 'string))))))
+(T T)
 
 (f t t)
 (T T)
@@ -259,15 +261,15 @@ C
 (unintern '<C1>)
 T
 
-(progn
-(defclass <C1> ()
-  ((x :initform 0 :accessor x-val :initarg :x)
-   (y :initform 1 :accessor y-val :initarg :y)))
-(defmethod initialize-instance :after ((instance <C1>) &rest initvalues)
-  (if (= (x-val instance) 0)
-    (setf (x-val instance) (y-val instance))))
-())
-NIL
+(let* ((c (defclass <C1> ()
+            ((x :initform 0 :accessor x-val :initarg :x)
+             (y :initform 1 :accessor y-val :initarg :y))))
+       (m (defmethod initialize-instance :after ((instance <C1>)
+                                                 &rest initvalues)
+            (if (= (x-val instance) 0)
+                (setf (x-val instance) (y-val instance))))))
+  (eq m (find-method #'initialize-instance '(:after) (list c))))
+T
 
 (x-val (make-instance (find-class '<C1>)))
 1
@@ -281,12 +283,11 @@ NIL
 (x-val (make-instance (find-class '<C1>) :x 10 :y 20))
 10
 
-(progn
-(defmethod initialize-instance ((inst <C1>) &rest ignore)
-  (call-next-method)
-  123)
-nil)
-nil
+(let ((m (defmethod initialize-instance ((inst <C1>) &rest ignore)
+           (call-next-method)
+           123)))
+  (eq m (find-method #'initialize-instance nil (list (find-class '<C1>)))))
+T
 
 (x-val (make-instance (find-class '<C1>) :x 101 :y 120))
 101
@@ -868,16 +869,16 @@ error
  :value-2 x y
  nil)
 
-(progn
-(defclass reinit-class-01 ()
-  ((a :initarg :a) (b :initarg :b)))
-(defmethod reinitialize-instance :after ((instance reinit-class-01)
-                                         &rest initargs
-                                         &key (x nil x-p))
-  (declare (ignore initargs))
-  (when x-p (setf (slot-value instance 'a) x))
-  instance)
-t) t
+(let* ((c (defclass reinit-class-01 ()
+            ((a :initarg :a) (b :initarg :b))))
+       (m (defmethod reinitialize-instance :after ((instance reinit-class-01)
+                                                   &rest initargs
+                                                   &key (x nil x-p))
+            (declare (ignore initargs))
+            (when x-p (setf (slot-value instance 'a) x))
+            instance)))
+  (eq m (find-method #'reinitialize-instance '(:after) (list c))))
+T
 
 (let* ((obj (make-instance 'reinit-class-01))
        (obj2 (reinitialize-instance obj :a 1 :b 3)))

@@ -1,5 +1,12 @@
 2004-02-12  Sam Steingold  <sds@gnu.org>
 
+	ensure that DEFMETHOD returns what is actually saved into GF
+	* clos.lisp (standard-method): do not create a copier
+	(std-add-method): do not copy the method
+
+2004-02-12  Sam Steingold  <sds@gnu.org>
+
+	ANSI compliance issues
 	* charstrg.d (test_stringsymchar_arg): (VECTOR NIL) is a string,
 	so #A(NIL (0)) is acceptable instead of ""
 	* error.d (check_string): ditto
