@@ -1416,32 +1416,38 @@ LISPFUN(logeqv,seclass_foldable,0,0,rest,nokey,0,NIL)
 LISPFUNNF(lognand,2)
 { /* (LOGNAND integer integer), CLTL p. 221 */
   STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
-  VALUES1(I_I_lognand_I(STACK_1,STACK_0)); skipSTACK(2);}
+  VALUES1(I_I_lognand_I(STACK_1,STACK_0)); skipSTACK(2);
+}
 
 LISPFUNNF(lognor,2)
 { /* (LOGNOR integer integer), CLTL p. 221 */
   STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
-  VALUES1(I_I_lognor_I(STACK_1,STACK_0)); skipSTACK(2);}
+  VALUES1(I_I_lognor_I(STACK_1,STACK_0)); skipSTACK(2);
+}
 
 LISPFUNNF(logandc1,2)
 { /* (LOGANDC1 integer integer), CLTL p. 221 */
   STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
-  VALUES1(I_I_logandc1_I(STACK_1,STACK_0)); skipSTACK(2);}
+  VALUES1(I_I_logandc1_I(STACK_1,STACK_0)); skipSTACK(2);
+}
 
 LISPFUNNF(logandc2,2)
 { /* (LOGANDC2 integer integer), CLTL p. 221 */
   STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
-  VALUES1(I_I_logandc2_I(STACK_1,STACK_0)); skipSTACK(2);}
+  VALUES1(I_I_logandc2_I(STACK_1,STACK_0)); skipSTACK(2);
+}
 
 LISPFUNNF(logorc1,2)
 { /* (LOGORC1 integer integer), CLTL p. 221 */
   STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
-  VALUES1(I_I_logorc1_I(STACK_1,STACK_0)); skipSTACK(2);}
+  VALUES1(I_I_logorc1_I(STACK_1,STACK_0)); skipSTACK(2);
+}
 
 LISPFUNNF(logorc2,2)
 { /* (LOGORC2 integer integer), CLTL p. 221 */
   STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
-  VALUES1(I_I_logorc2_I(STACK_1,STACK_0)); skipSTACK(2);}
+  VALUES1(I_I_logorc2_I(STACK_1,STACK_0)); skipSTACK(2);
+}
 
 LISPFUNNF(boole,3)
 { /* (BOOLE op integer integer), CLTL p. 222 */
@@ -1459,17 +1465,20 @@ LISPFUNNF(lognot,1)
 LISPFUNNF(logtest,2)
 { /* (LOGTEST integer integer), CLTL p. 223 */
   STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
-  VALUES_IF(I_I_logtest(STACK_1,STACK_0)); skipSTACK(2);}
+  VALUES_IF(I_I_logtest(STACK_1,STACK_0)); skipSTACK(2);
+}
 
 LISPFUNNF(logbitp,2)
 { /* (LOGBITP integer integer), CLTL p. 224 */
   STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
-  VALUES_IF(I_I_logbitp(STACK_1,STACK_0)); skipSTACK(2);}
+  VALUES_IF(I_I_logbitp(STACK_1,STACK_0)); skipSTACK(2);
+}
 
 LISPFUNNF(ash,2)
 { /* (ASH integer integer), CLTL p. 224 */
   STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
-  VALUES1(I_I_ash_I(STACK_1,STACK_0)); skipSTACK(2);}
+  VALUES1(I_I_ash_I(STACK_1,STACK_0)); skipSTACK(2);
+}
 
 LISPFUNNF(logcount,1)
 { /* (LOGCOUNT integer), CLTL p. 224 */
@@ -1668,7 +1677,8 @@ LISPFUNNF(exquo,2)
   asserts that x is a multiple of y.
   (EXQUO x y) == (THE INTEGER (/ (THE INTEGER x) (THE INTEGER y))) */
   STACK_0 = check_integer(STACK_0); STACK_1 = check_integer(STACK_1);
-  VALUES1(I_I_exquo_I(STACK_1,STACK_0)); skipSTACK(2);}
+  VALUES1(I_I_exquo_I(STACK_1,STACK_0)); skipSTACK(2);
+}
 
 LISPFUNN(long_float_digits,0)
 { /* (EXT:LONG-FLOAT-DIGITS) returns the default bitsize of long-floats */

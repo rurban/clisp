@@ -179,7 +179,9 @@ local DWORD WINAPI do_sleep (LPVOID arg)
   return 0;
 }
 global BOOL msleep (DWORD milliseconds)
-{ return DoInterruptible(&do_sleep,(void*)milliseconds,false); }
+{
+  return DoInterruptible(&do_sleep,(void*)milliseconds,false);
+}
 
 /* Sleep a certain time. */
 global unsigned int sleep (unsigned int seconds)

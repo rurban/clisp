@@ -241,10 +241,11 @@ global ssize_t read_helper (int fd, void* bufarea, size_t nbyte, bool no_hang)
     if (retval == 0)
       break;
     else if (retval < 0) {
-        if (no_hang && (errno == EAGAIN)) {
-          /* FIXME: signal blocking state reached -- just use errno?
-             never executes - printf("read_helper - read blocked\n"); */
-          goto end;}
+      if (no_hang && (errno == EAGAIN)) {
+        /* FIXME: signal blocking state reached -- just use errno?
+           never executes - printf("read_helper - read blocked\n"); */
+        goto end;
+      }
      #ifdef EINTR
       if (errno != EINTR)
      #endif
@@ -284,7 +285,10 @@ global ssize_t write_helper (int fd, const void* bufarea, size_t nbyte,
        /* FIXME: no way to interrupt a large write? *** */
        if (errno != EINTR)
       #endif
-         {done = retval; /* -1 */ goto end;}
+         {
+           done = retval; /* -1 */
+           goto end;
+         }
      } else {
        buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
      }
@@ -346,7 +350,10 @@ global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte,
       #ifdef EINTR
        if (errno != EINTR)
       #endif
-         {done = retval; goto end;}
+         {
+           done = retval;
+           goto end;
+         }
      } else {
        buf += retval; done += retval; nbyte -= retval;
      }
