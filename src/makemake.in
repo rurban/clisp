@@ -193,12 +193,17 @@ while test -z "$endofargs"; do
       shift
       ;;
     -without-* | --without-* | -with-no* | --with-no*)
+    ## we are different from autoconf-generated configure scripts:
+    ## if you pass --without-foo or --with-foo=no to a configure script,
+    ## $with_foo is set to "no", but if you pass it to makemake,
+    ## it is set to an empty string.  to fix this, one has to change
+    ## this file and clisp-link.in -- sds 2003-11-04
       package=`echol "$1"|sed 's/-*with\(out-\|-no-*\)//'`
       # Delete all the valid chars; see if any are left.
       if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
         echol "makemake: $package: invalid package name" >&2; exit 1
       fi
-      my_eval "with_`echol $package|sed s/-/_/g`=0"
+      my_eval "with_`echol $package|sed s/-/_/g`="
       shift
       ;;
     -with-* | --with-*)
@@ -206,9 +211,9 @@ while test -z "$endofargs"; do
       packopt=`echol "${package}" | sed -e 's/^.*=\(.*\)$/\1/'`
       if test -z "${packopt}"; then packopt=1;
       elif [ "${packopt}" = "on" ];  then packopt=1;
-      elif [ "${packopt}" = "off" ]; then packopt=0;
+      elif [ "${packopt}" = "off" ]; then packopt=;
       elif [ "${packopt}" = "yes" ]; then packopt=1;
-      elif [ "${packopt}" = "no" ];  then packopt=0;
+      elif [ "${packopt}" = "no" ];  then packopt=;
       fi
       package=`echol "${package}" | sed -e 's/=.*//'`
       # Delete all the valid chars; see if any are left.

@@ -1,3 +1,8 @@
+2003-11-04  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: uniform --with* processing (still different from
+	autoconf scripts, see the comment in the code)
+
 2003-10-28  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (CHART_STRUCT): Don't define when using g++ 3.3.x.
