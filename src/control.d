@@ -2002,7 +2002,9 @@ LISPFUNN(unwind_to_driver,0)
   local void test_env (void);
   local void test_env()
     { var object arg = STACK_0;
-      if (eq(arg,unbound))
+      if (eq(arg,unbound)
+          || nullp(arg) # required by ANSI CL sections 3.1.1.3.1, 3.1.1.4
+         )
         { STACK_0 = allocate_vector(2); } # Vektor #(nil nil) als Default
       elif (!(simple_vector_p(arg) && (Svector_length(arg) == 2)))
         { pushSTACK(arg); # Wert für Slot DATUM von TYPE-ERROR
