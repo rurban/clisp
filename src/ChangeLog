@@ -1,3 +1,8 @@
+2004-05-05  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in: Use "sed -n -e '$p'" instead of "tail -n 1".
+	Needed for Solaris.
+
 2004-04-24  Bruno Haible  <bruno@clisp.org>
 
 	Make very early CLOS available before DEFSTRUCT.
