@@ -1,5 +1,10 @@
 2002-06-03  Sam Steingold  <sds@gnu.org>
 
+	* describe.lisp (describe-object): print the length of the lists
+	before enumerating properties, packages, symbols &c
+
+2002-06-03  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (packopt): fixed the 2002-05-15 patch which broke
 	giving meaningful package options (e.g. --with-threads=POSIX_THREADS)
 
