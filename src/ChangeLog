@@ -1,5 +1,11 @@
 2000-09-12  Bruno Haible  <haible@clisp.cons.org>
 
+        Followup to Sam's 1999-04-07 patch.
+        * compiler.lisp (c-form): Accept arrays as self-evaluating forms,
+          consistently with eval.d:eva11().
+
+2000-09-12  Bruno Haible  <haible@clisp.cons.org>
+
         * lispbibl.d (listen_char): Renamed from stream_listen.
           (listen_byte): New declaration.
         * debug.d (read_form): Update.
@@ -38,6 +44,7 @@
 
 2000-09-06  Sam Steingold  <sds@gnu.org>
 
+	Followup to Sam's 1999-04-07 patch.
 	* compiler.lisp (c-form): Handle simple vectors as a constant.
 
 2000-09-02  Bruno Haible  <haible@clisp.cons.org>
@@ -2589,7 +2596,7 @@
 
 1999-05-13  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-        Finish Sam's 1999-04-07 patch.
+        Followup to Sam's 1999-04-07 patch.
         * eval.d (check_for_illegal_keywords): Remove misplaced symbolp test.
         * defmacro.lsp (analyze-key): Use symbolp instead of keywordp.
         * compiler.lsp (test-argument-syntax): Likewise.
