@@ -741,11 +741,15 @@ type-error
 (oddp 3.5)
 type-error
 
+#+UNIX
 (progn (open "/etc/passwd" :direction :input :if-exists :error) (/ 0))
-file-error
-
-(progn (open "/etc/nonexistent" :direction :input :if-exists :error) (/ 0))
+#+UNIX
 division-by-zero
+
+#+UNIX
+(progn (open "/etc/nonexistent" :direction :input :if-exists :error) (/ 0))
+#+UNIX
+file-error
 
 (open "/tmp/foo44nonexistent" :direction :input :if-does-not-exist :error)
 file-error
@@ -753,7 +757,9 @@ file-error
 (open "/tmp/*" :direction :input)
 file-error
 
+#+UNIX
 (open "/etc/mtab" :direction :input :external-format 'mtab-entries)
+#+UNIX
 error
 
 (open-stream-p (pathname "foo45"))
