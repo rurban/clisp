@@ -30,6 +30,7 @@ L8:
 	movel $a2@,$a0
 	jbsr $a0@
 	movel $d0,$a1
+	movel $d1,$a3
 	movel $a2@(12),$d2
 	moveq #1,$d1
 	cmpl $d2,$d1
@@ -44,7 +45,14 @@ L8:
 	jeq L70
 	moveq #4,$d3
 	cmpl $d2,$d3
-	jeq L70
+	jne L17
+L70:
+	movel $a2@(8),$a0
+	movew $a1,$d0
+	moveb $d0,$a0@
+	jra L10
+	.even
+L17:
 	moveq #5,$d3
 	cmpl $d2,$d3
 	jeq L71
@@ -120,19 +128,18 @@ L39:
 	movel $a2@(4),$d0
 	btst #9,$d0
 	jeq L46
-	movel $a2@(16),$d2
-	moveq #1,$d3
-	cmpl $d2,$d3
+	movel $a2@(16),$d1
+	moveq #1,$d2
+	cmpl $d1,$d2
 	jne L47
-L70:
 	movel $a2@(8),$a0
-	movew $a1,$d0
-	moveb $d0,$a0@
+	movew $a1,$d3
+	moveb $d3,$a0@
 	jra L10
 	.even
 L47:
-	moveq #2,$d3
-	cmpl $d2,$d3
+	moveq #2,$d2
+	cmpl $d1,$d2
 	jne L50
 L71:
 	movel $a2@(8),$a0
@@ -141,7 +148,7 @@ L71:
 	.even
 L50:
 	moveq #4,$d3
-	cmpl $d2,$d3
+	cmpl $d1,$d3
 	jne L52
 L69:
 	movel $a2@(8),$a0
@@ -149,46 +156,46 @@ L69:
 	jra L10
 	.even
 L52:
-	moveq #8,$d3
-	cmpl $d2,$d3
+	moveq #8,$d2
+	cmpl $d1,$d2
 	jne L46
 L72:
 	movel $a2@(8),$a0
 	movel $a1,$a0@
 	movel $a2@(8),$a0
-	movel $d1,$a0@(4)
+	movel $a3,$a0@(4)
 	jra L10
 	.even
 L46:
 	btst #0,$d0
 	jeq L10
 	movel $a2@(16),$d0
-	moveq #1,$d1
-	cmpl $d0,$d1
+	moveq #1,$d3
+	cmpl $d0,$d3
 	jne L56
 	movel $a2@(8),$a0
 	moveb $a1@,$a0@
 	jra L10
 	.even
 L56:
-	moveq #2,$d2
-	cmpl $d0,$d2
+	moveq #2,$d1
+	cmpl $d0,$d1
 	jne L58
 	movel $a2@(8),$a0
 	movew $a1@,$a0@
 	jra L10
 	.even
 L58:
-	moveq #4,$d3
-	cmpl $d0,$d3
+	moveq #4,$d2
+	cmpl $d0,$d2
 	jne L60
 	movel $a2@(8),$a0
 	movel $a1@,$a0@
 	jra L10
 	.even
 L60:
-	moveq #8,$d1
-	cmpl $d0,$d1
+	moveq #8,$d3
+	cmpl $d0,$d3
 	jne L62
 	movel $a2@(8),$a0
 	movel $a1@,$a0@
