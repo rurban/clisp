@@ -8092,7 +8092,7 @@ global direction_t check_direction (object dir) {
   else {
     pushSTACK(dir);               # TYPE-ERROR slot DATUM
     pushSTACK(O(type_direction)); # TYPE-ERROR slot EXPECTED-TYPE
-    pushSTACK(dir); pushSTACK(S(Kdirection)); 
+    pushSTACK(dir); pushSTACK(S(Kdirection));
     pushSTACK(TheSubr(subr_self)->name);
     fehler(type_error,GETTEXT("~: illegal ~ argument ~"));
   }
@@ -9329,9 +9329,10 @@ local object directory_search (object pathname) {
     if (!nullp(STACK_(1+5+1))) { # query :CIRCLE-Flag
       # maintain hash-table of all scanned directories so far (as
       # cons (dev . ino)) :
+      pushSTACK(subr_self); # save subr_self
       pushSTACK(S(Ktest)); pushSTACK(S(equal));
       funcall(L(make_hash_table),2); # (MAKE-HASH-TABLE :TEST 'EQUAL)
-      pushSTACK(value1);
+      subr_self = STACK_0; STACK_0 = value1;
     } else
    #endif
       pushSTACK(NIL);

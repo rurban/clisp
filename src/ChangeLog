@@ -1,3 +1,8 @@
+2002-05-22  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (directory_search): save subr_self before calling
+	MAKE-HASH-TABLE and restore it afterwards (for error reporting)
+
 2002-05-22  Bruno Haible  <bruno@clisp.org>
 
 	Introduce mutable small strings. Storing characters in strings can
