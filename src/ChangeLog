@@ -1,3 +1,8 @@
+2004-03-10  Bruno Haible  <bruno@clisp.org>
+
+	* modules/bindings/glibc/linux.lisp: Add a #include <signal.h>.
+	Needed for building on glibc 2.1 systems.
+
 2004-03-10  Sam Steingold  <sds@gnu.org>
 
 	* po/Makefile.devel (LISPSOURCES): removed `threads' (mentioned
@@ -8,9 +13,9 @@
 2004-03-10  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c: include "clisp.h" before system
-	includes because on BSDs the system includes may define (inline)
-	functions and then we get an error "global register variable
-	follows a function definition"
+	includes because on BSDs and on glibc 2.1 the system includes
+	may define (inline) functions and then we get an error "global
+	register variable follows a function definition"
 
 2004-03-09  Sam Steingold  <sds@gnu.org>
 
