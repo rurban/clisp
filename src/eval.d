@@ -6700,7 +6700,7 @@ global Values funcall (object fun, uintC args_on_stack)
           var uintL n;
           U_operand(n);
           var object hashvalue = # search value1 in the Hash-table
-            gethash(value1,TheCclosure(closure)->clos_consts[n]);
+            gethash(value1,TheCclosure(closure)->clos_consts[n],false);
           if (eq(hashvalue,nullobj))
             goto jmp; # not found -> jump to label
           else { /* interpret found Fixnum as label: */
@@ -6714,7 +6714,7 @@ global Values funcall (object fun, uintC args_on_stack)
           var uintL n;
           U_operand(n);
           var object hashvalue = # search value1 in the Hash-table
-            gethash(value1,TheSvector(TheCclosure(closure)->clos_consts[0])->data[n]);
+            gethash(value1,TheSvector(TheCclosure(closure)->clos_consts[0])->data[n],false);
           if (eq(hashvalue,nullobj))
             goto jmp; # not found -> jump to label
           else { /* interpret found Fixnum as label: */

@@ -6660,7 +6660,7 @@ typedef enum {
         goto obj##_classp_yes;                                        \
       /* Now a slow, but general instanceof test. */                  \
       {var object objclas = TheClassVersion(cv)->cv_newest_class;     \
-       if (eq(gethash(O(class_potential_class),TheClass(objclas)->all_superclasses),nullobj)) \
+       if (eq(gethash(O(class_potential_class),TheClass(objclas)->all_superclasses,false),nullobj)) \
          goto obj##_classp_no;                                        \
     }}}                                                               \
    obj##_classp_yes: statement1;                                      \
@@ -6687,7 +6687,7 @@ typedef enum {
         goto obj##_classp_yes;                                        \
       /* Now a slow, but general instanceof test. */                  \
       {var object objclas = TheClassVersion(cv)->cv_newest_class;     \
-       if (eq(gethash(O(class_defined_class),TheClass(objclas)->all_superclasses),nullobj)) \
+       if (eq(gethash(O(class_defined_class),TheClass(objclas)->all_superclasses,false),nullobj)) \
          goto obj##_classp_no;                                        \
     }}}                                                               \
    obj##_classp_yes: statement1;                                      \
@@ -12356,11 +12356,14 @@ extern void break_driver (bool continuable_p);
 # ##################### HASHBIBL for HASHTABL.D ########################## #
 
 # UP: Gets the hash of an object from a hash-table.
-# gethash(obj,ht)
+# gethash(obj,ht,allowgc)
 # > obj: Object, as key
 # > ht: hash-table
+# > allowgc: whether GC is allowed during hash lookup
+#            (should be true if the hash-table has a user-defined test)
 # < result: corresponding value, if found, else nullobj
-extern object gethash (object obj, object ht);
+# can trigger GC - if allowgc is true
+extern object gethash (object obj, object ht, bool allowgc);
 # is used by EVAL, RECORD, PATHNAME, FOREIGN
 
 # UP: Locates a key in a hash-table and gives the older value.
@@ -13517,7 +13520,7 @@ static inline bool instanceof (object obj, object clas) {
   /*instance_update(obj,obj_forwarded); - not needed since we don't access a slot */
   var object cv = TheInstance(obj_forwarded)->inst_class_version;
   var object objclas = TheClassVersion(cv)->cv_newest_class;
-  return !eq(gethash(clas,TheClass(objclas)->all_superclasses),nullobj);
+  return !eq(gethash(clas,TheClass(objclas)->all_superclasses,false),nullobj);
 }
 #endif
 

@@ -1384,9 +1384,10 @@ local uint32 hashcode_raw_user (object fun, object obj) {
 # Specification of the two types of Pseudo-Functions:
 
   # Specification for LOOKUP - Pseudo-Function:
-  # lookup(ht,obj,&KVptr,&Iptr)
+  # lookup(ht,obj,allowgc,&KVptr,&Iptr)
   # > ht: hash-table
   # > obj: object
+  # > allowgc: whether GC is allowed during hash lookup
   # < if found: result=true,
   #     KVptr[0], KVptr[1] : key, value in key-value-vector,
   #     KVptr[2] : index of next entry,
@@ -1394,8 +1395,8 @@ local uint32 hashcode_raw_user (object fun, object obj) {
   # < if not found: result=false,
   #     *Iptr : entry belonging to key in index-vector
   #             or an arbitrary element of the "list" starting there
-  # can trigger GC
-    typedef bool (* lookup_Pseudofun) (object ht, object obj, gcv_object_t** KVptr_, gcv_object_t** Iptr_);
+  # can trigger GC - if allowgc is true
+    typedef bool (* lookup_Pseudofun) (object ht, object obj, bool allowgc, gcv_object_t** KVptr_, gcv_object_t** Iptr_);
 
   # Specification for HASHCODE - Pseudo-Function:
   # hashcode(obj)
@@ -1551,18 +1552,20 @@ local void warn_forced_gc_rehash (object ht) {
 }
 
 /* UP: Searches a key in a hash-table.
- hash_lookup_builtin(ht,obj,&KVptr,&Iptr)
+ hash_lookup_builtin(ht,obj,allowgc,&KVptr,&Iptr)
  > ht: hash-table
  > obj: object
+ > allowgc: whether GC is allowed during hash lookup
  < if found: result=true,
      KVptr[0], KVptr[1] : key, value in key-value-vector,
      KVptr[2] : index of next entry,
      *Iptr : previous index pointing to KVptr[0..2]
  < if not found: result=false,
      *Iptr : entry belonging to key in index-vector
-             or an arbitrary element of the "list" starting there */
-global bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_,
-                                 gcv_object_t** Iptr_) {
+             or an arbitrary element of the "list" starting there
+ can trigger GC - if allowgc is true */
+global bool hash_lookup_builtin (object ht, object obj, bool allowgc,
+                                 gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
   #ifdef GENERATIONAL_GC
   if (!ht_validp(TheHashtable(ht))) { /* hash-table must be reorganized */
     # Rehash it before the warning, otherwise we risk an endless recursion.
@@ -1602,8 +1605,8 @@ global bool hash_lookup_builtin (object ht, object obj, gcv_object_t** KVptr_,
   *Iptr_ = Nptr; return false;
 }
 #ifndef GENERATIONAL_GC
-global bool hash_lookup_builtin_with_rehash (object ht, object obj, gcv_object_t** KVptr_,
-                                             gcv_object_t** Iptr_) {
+global bool hash_lookup_builtin_with_rehash (object ht, object obj, bool allowgc,
+                                             gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
   if (!ht_validp(TheHashtable(ht))) { /* hash-table must be reorganized */
     # Rehash it before the warning, otherwise we risk an endless recursion.
     ht = rehash(ht);
@@ -1616,14 +1619,15 @@ global bool hash_lookup_builtin_with_rehash (object ht, object obj, gcv_object_t
     if (!ht_validp(TheHashtable(ht))) /* must be reorganized again? */
       ht = rehash(ht);
   }
-  return hash_lookup_builtin(ht,obj,KVptr_,Iptr_);
+  return hash_lookup_builtin(ht,obj,allowgc,KVptr_,Iptr_);
 }
 #endif
 
 /* UP: Searches a key in a hash-table with user-defined test.
- hash_lookup_user(ht,obj,&KVptr,&Iptr)
+ hash_lookup_user(ht,obj,allowgc,&KVptr,&Iptr)
  > ht: hash-table
  > obj: object
+ > allowgc: whether GC is allowed during hash lookup
  < if found: result=true,
      KVptr[0], KVptr[1] : key, value in key-value-vector,
      KVptr[2] : index of next entry,
@@ -1631,9 +1635,10 @@ global bool hash_lookup_builtin_with_rehash (object ht, object obj, gcv_object_t
  < if not found: result=false,
      *Iptr : entry belonging to key in index-vector
              or an arbitrary element of the "list" starting there
- can trigger GC */
-global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
-                              gcv_object_t** Iptr_) {
+ can trigger GC - if allowgc is true */
+global bool hash_lookup_user (object ht, object obj, bool allowgc,
+                              gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
+  ASSERT(allowgc);
   pushSTACK(ht); pushSTACK(obj);
   if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
     ht = rehash(ht);
@@ -1670,9 +1675,10 @@ global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
 }
 
 /* UP: Searches a key in a hash-table.
- hash_lookup(ht,obj,&KVptr,&Iptr)
+ hash_lookup(ht,obj,allowgc,&KVptr,&Iptr)
  > ht: hash-table
  > obj: object
+ > allowgc: whether GC is allowed during hash lookup
  < if found: result=true,
      KVptr[0], KVptr[1] : key, value in key-value-vector,
      KVptr[2] : index of next entry,
@@ -1680,9 +1686,9 @@ global bool hash_lookup_user (object ht, object obj, gcv_object_t** KVptr_,
  < if not found: result=false,
      *Iptr : entry belonging to key in index-vector
              or an arbitrary element of the "list" starting there
- can trigger GC */
-#define hash_lookup(ht,obj,KVptr_,Iptr_)  \
-  lookupfn(ht)(ht,obj,KVptr_,Iptr_)
+ can trigger GC - if allowgc is true */
+#define hash_lookup(ht,obj,allowgc,KVptr_,Iptr_)  \
+  lookupfn(ht)(ht,obj,allowgc,KVptr_,Iptr_)
 
 /* UP: Tests whether the hash code of a given key in a hash table is stable
    i.e. gc-invariant, or not.
@@ -2334,7 +2340,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
            whereby the table cannot grow: */
         var gcv_object_t* KVptr;
         var gcv_object_t* Iptr;
-        if (hash_lookup(STACK_0,Car(next),&KVptr,&Iptr)) { /* search */
+        if (hash_lookup(STACK_0,Car(next),true,&KVptr,&Iptr)) { /* search */
           /* already found -> was already contained in the alist further
              on the left, and in alists the first association (left)
              shadows all other associations of the same key. */
@@ -2361,15 +2367,17 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
 }
 
 /* UP: Searches an object in a hash-table.
- gethash(obj,ht)
+ gethash(obj,ht,allowgc)
  > obj: object, as key
  > ht: hash-table
+ > allowgc: whether GC is allowed during hash lookup
+            (should be true if the hash-table has a user-defined test)
  < result: if found, belonging value, else nullobj
- can trigger GC - for user-defined ht_test */
-global object gethash (object obj, object ht) {
+ can trigger GC - if allowgc is true */
+global object gethash (object obj, object ht, bool allowgc) {
   var gcv_object_t* KVptr;
   var gcv_object_t* Iptr;
-  if (hash_lookup(ht,obj,&KVptr,&Iptr))
+  if (hash_lookup(ht,obj,allowgc,&KVptr,&Iptr))
     return KVptr[1]; /* found -> value */
   else
     return nullobj;
@@ -2399,7 +2407,7 @@ LISPFUN(gethash,seclass_default,2,1,norest,nokey,0,NIL)
   var gcv_object_t* KVptr;
   var gcv_object_t* Iptr;
   /* search key STACK_2 in the hash-table: */
-  if (hash_lookup(ht,STACK_2,&KVptr,&Iptr)) { /* -> Value as value: */
+  if (hash_lookup(ht,STACK_2,true,&KVptr,&Iptr)) { /* -> Value as value: */
     VALUES2(KVptr[1], T); /* and T as the 2nd value */
     skipSTACK(3);
   } else {                    /* not found -> default or NIL as value */
@@ -2417,7 +2425,7 @@ LISPFUNN(puthash,3)
   var gcv_object_t* KVptr;
   var gcv_object_t* Iptr;
   /* search key STACK_2 in the hash-table: */
-  if (hash_lookup(STACK_1,STACK_2,&KVptr,&Iptr)) { /* -> replace value: */
+  if (hash_lookup(STACK_1,STACK_2,true,&KVptr,&Iptr)) { /* -> replace value: */
     VALUES1(KVptr[1] = popSTACK()); skipSTACK(2);
   } else {                      /* not found -> make new entry: */
     var object ht;
@@ -2441,7 +2449,7 @@ global object shifthash (object ht, object obj, object value) {
   var gcv_object_t* Iptr;
   pushSTACK(ht); pushSTACK(obj); pushSTACK(value); /* save args */
   /* search key obj in the hash-table: */
-  if (hash_lookup(ht,obj,&KVptr,&Iptr)) { /* found -> replace value: */
+  if (hash_lookup(ht,obj,true,&KVptr,&Iptr)) { /* found -> replace value: */
     var object oldvalue = KVptr[1];
     KVptr[1] = STACK_0; skipSTACK(3);
     return oldvalue;
@@ -2461,7 +2469,7 @@ LISPFUNN(remhash,2)
   var gcv_object_t* KVptr;
   var gcv_object_t* Iptr;
   /* search key in the hash-table: */
-  if (hash_lookup(STACK_0,key,&KVptr,&Iptr)) {
+  if (hash_lookup(STACK_0,key,true,&KVptr,&Iptr)) {
     /* found -> drop from the hash-table: */
     var object ht = STACK_0; skipSTACK(2);
     var object kvtable = TheHashtable(ht)->ht_kvtable;

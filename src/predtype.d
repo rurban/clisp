@@ -901,17 +901,25 @@ local bool elt_compare (object dv1, uintL index1,
 }
 /* test for hash table equality under EQUALP:
    <http://www.lisp.org/HyperSpec/Body/fun_equalp.html>
- equalp descends hash-tables by first comparing the count of entries and
+ EQUALP descends hash-tables by first comparing the count of entries and
  the :test function; if those are the same, it compares the keys of the
  tables using the :test function and then the values of the matching
- keys using equalp recursively. */
+ keys using equalp recursively.
+ However, hash-tables with user-defined test are not compared this way;
+ they are EQUALP only if they are EQ. The reason is that a user-defined test
+ can trigger GC, thus the entry-by-entry comparison of hash-tables with user-
+ defined test can trigger GC. The consequences would be bad: 1. EQUALP could
+ trigger GC. 2. When a hash table table with EQUALP test has two keys which
+ are hash-tables with user-defined test and another key with a non-GC-invariant
+ hash code, a simple hash table lookup could trigger GC, which would
+ invalidate the hash table, which would require a rehash of the hash table,
+ which would again call EQUALP on the elements, etc. - endless recursion. */
 local bool hash_table_equalp (object ht1, object ht2)
 {
   var uintB flags1 = ht_test_code(record_flags(TheHashtable(ht1)));
   var uintB flags2 = ht_test_code(record_flags(TheHashtable(ht2)));
-  if (flags1 != flags2 /* same built-in test or same user-defined one */
-      || !eq(TheHashtable(ht1)->ht_test,TheHashtable(ht2)->ht_test)
-      || !eq(TheHashtable(ht1)->ht_hash,TheHashtable(ht2)->ht_hash))
+  /* Not same built-in test or a user-defined test? */
+  if (flags1 != flags2 || flags1==0 /* || flags2==0 */)
     return false;
   if (!eq(TheHashedAlist(TheHashtable(ht1)->ht_kvtable)->hal_count,
           TheHashedAlist(TheHashtable(ht2)->ht_kvtable)->hal_count))
@@ -924,7 +932,7 @@ local bool hash_table_equalp (object ht1, object ht2)
     var gcv_object_t* KVptr = TheHashedAlist(TheHashtable(ht1)->ht_kvtable)->hal_data;
     for (; index > 0; KVptr += 3, index--)
       if (!eq(KVptr[0],unbound)) {
-        var object value_in_ht2 = gethash(KVptr[0],ht2);
+        var object value_in_ht2 = gethash(KVptr[0],ht2,false);
         if (eq(value_in_ht2,nullobj) || !equalp(KVptr[1],value_in_ht2))
           return false;
       }
@@ -934,7 +942,7 @@ local bool hash_table_equalp (object ht1, object ht2)
     var gcv_object_t* KVptr = TheHashedAlist(TheHashtable(ht2)->ht_kvtable)->hal_data;
     for (; index > 0; KVptr += 3, index--)
       if (!eq(KVptr[0],unbound)) {
-        var object value_in_ht1 = gethash(KVptr[0],ht1);
+        var object value_in_ht1 = gethash(KVptr[0],ht1,false);
         if (eq(value_in_ht1,nullobj) || !equalp(KVptr[1],value_in_ht1))
           return false;
       }
@@ -2072,7 +2080,7 @@ global bool typep_class (object obj, object clas) {
         NOTREACHED; /* shouldn't happen because obj is already an instance */
       var object superclasses_table = TheClass(objclass)->all_superclasses;
       if (TheHashtable(superclasses_table)->ht_size > 7)
-        return !eq(gethash(clas,superclasses_table),nullobj);
+        return !eq(gethash(clas,superclasses_table,false),nullobj);
       /* Few superclasses -> not worth a hash table access. */
     } else {
       /* <structure-class>. */
@@ -2121,7 +2129,7 @@ global bool typep_classname (object obj, object classname) {
       var object superclasses_table = TheClass(objclass)->all_superclasses;
       if (TheHashtable(superclasses_table)->ht_size > 7) {
         var object clas = get(classname,S(closclass));
-        return !eq(gethash(clas,superclasses_table),nullobj);
+        return !eq(gethash(clas,superclasses_table,false),nullobj);
       }
       /* Few superclasses -> not worth a hash table access. */
     } else {
