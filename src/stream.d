@@ -418,7 +418,38 @@ local bool wr_ss_lpos (object stream, const chart* ptr, uintL len) {
 # can trigger GC
 global object read_byte (object stream) {
   if (builtin_stream_p(stream)) {
-    return rd_by(stream)(stream);
+    if (TheStream(stream)->strmflags & strmflags_unread_B) {
+      # UNREAD-CHAR was followed by a (SETF STREAM-ELEMENT-TYPE)
+      # thus we _know_ that the stream element type is ([UN]SIGNED-BYTE 8)
+     #ifdef UNICODE
+      var object enc = TheStream(stream)->strm_encoding;
+      var chart ch = char_code(TheStream(stream)->strm_rd_ch_last);
+      var uint8 buf[4]; # are there characters longer than 4 bytes?!
+      var uint8 char_len = cslen(enc,&ch,1);
+      cstombs(enc,&ch,1,buf,char_len);
+      var uint8 code = buf[0];
+      if (char_len == 1) { # the char was just one byte
+        TheStream(stream)->strmflags &= ~strmflags_unread_B;
+        TheStream(stream)->strm_rd_ch_last = NIL;
+      } else { # encode the rest
+        var uint8* cbuf = buf+1; # skip the first byte
+        var chart* cptr = &ch;
+        Encoding_mbstowcs(enc)(enc,stream,&cbuf,buf+char_len,&cptr,cptr+1);
+        TheStream(stream)->strm_rd_ch_last = code_char(*cptr);
+      }
+     #else # no UNICODE
+      var uint8 code = as_cint(char_code(TheStream(stream)->strm_rd_ch_last));
+      TheStream(stream)->strmflags &= ~strmflags_unread_B;
+      TheStream(stream)->strm_rd_ch_last = NIL;
+     #endif
+      var object eltype = TheStream(stream)->strm_eltype;
+      if (eq(eltype,S(signed_byte))
+          || (mconsp(eltype) && eq(Car(eltype),S(signed_byte))))
+        return sfixnum((sint8)code);
+      else
+        return fixnum((uint8)code);
+    } else
+      return rd_by(stream)(stream);
   } else {
     # Call the generic function (STREAM-READ-BYTE stream):
     pushSTACK(stream); funcall(S(stream_read_byte),1);
@@ -948,6 +979,16 @@ nonreturning_function(local, fehler_output_stream, (object stream)) {
 #define resolve_as_synonym(stream)                              \
   do { object symbol = TheStream(stream)->strm_synonym_symbol;  \
        stream = get_synonym_stream(symbol); } while (0)
+
+# Function: resolve the synonym stream
+local object resolve_synonym_stream (object stream) {
+  while (builtin_stream_p(stream)
+         && TheStream(stream)->strmtype == strmtype_synonym) {
+    object symbol = TheStream(stream)->strm_synonym_symbol;
+    stream = get_synonym_stream(symbol);
+  }
+  return stream;
+}
 
 # READ-BYTE - Pseudo-Function for Synonym-Streams:
 local object rd_by_synonym (object stream) {
@@ -10357,13 +10398,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL) {
   var object flag = popSTACK();
   var object stream = popSTACK();
   check_stream(stream);
-  while (builtin_stream_p(stream)
-         && TheStream(stream)->strmtype == strmtype_synonym) { # track Synonym-Stream
-    var object sym = TheStream(stream)->strm_synonym_symbol;
-    stream = Symbol_value(sym);
-    if (!streamp(stream))
-      fehler_value_stream(sym);
-  }
+  stream = resolve_synonym_stream(stream);
   value1 = NIL;
   if (builtin_stream_p(stream)
       && TheStream(stream)->strmtype == strmtype_terminal) { # Terminal-Stream
@@ -10407,13 +10442,7 @@ LISPFUN(terminal_raw,2,1,norest,nokey,0,NIL) {
   var object flag = popSTACK();
   var object stream = popSTACK();
   check_stream(stream);
-  while (builtin_stream_p(stream)
-         && TheStream(stream)->strmtype == strmtype_synonym) { # track Synonym-Stream
-    var object sym = TheStream(stream)->strm_synonym_symbol;
-    stream = Symbol_value(sym);
-    if (!streamp(stream))
-      fehler_value_stream(sym);
-  }
+  stream = resolve_synonym_stream(stream);
   if (!(builtin_stream_p(stream)
         && (TheStream(stream)->strmflags & strmflags_open_B))) # Stream closed?
     fehler_illegal_streamop(S(terminal_raw),stream);
@@ -15472,6 +15501,28 @@ LISPFUNN(built_in_stream_element_type,1) {
   value1 = eltype; mv_count=1;
 }
 
+# UP: reset the stream for the eltype and flush out the missing LF.
+# IF the stream is unbuffered, AND ignore_next_LF is true, THEN
+# this can block (we will try to read the next LF) and trigger GC
+# can trigger GC
+local object stream_reset_eltype (object stream, decoded_el_t* eltype_) {
+  if (ChannelStream_buffered(stream)) {
+    fill_pseudofuns_buffered(stream,eltype_);
+  } else {
+    if (UnbufferedStream_ignore_next_LF(stream)
+        && stream_char_p(stream)) {
+      pushSTACK(stream);
+      UnbufferedStream_ignore_next_LF(stream) = false; # do not skip LF!
+      var object ch = read_char(&STACK_0);
+      if (!eq(ch,eof_value) && !chareq(ch,ascii_char(LF)))
+        unread_char(&STACK_0,ch);
+      stream = popSTACK();
+    }
+    fill_pseudofuns_unbuffered(stream,eltype_);
+  }
+  return stream;
+}
+
 # (SYSTEM::BUILT-IN-STREAM-SET-ELEMENT-TYPE stream element-type)
 LISPFUNN(built_in_stream_set_element_type,2) {
   var object stream = STACK_1;
@@ -15578,12 +15629,7 @@ LISPFUNN(built_in_stream_set_element_type,2) {
           }
           TheStream(stream)->strmflags = flags;
         }
-        if (ChannelStream_buffered(stream)) {
-          fill_pseudofuns_buffered(stream,&eltype);
-        } else {
-          fill_pseudofuns_unbuffered(stream,&eltype);
-          UnbufferedStream_ignore_next_LF(stream) = false;
-        }
+        stream = stream_reset_eltype(stream,&eltype);
         TheStream(stream)->strm_eltype = STACK_0;
       }
       break;
@@ -15716,13 +15762,8 @@ LISPFUN(set_stream_external_format,2,1,norest,nokey,0,NIL) {
           var decoded_el_t eltype;
           test_eltype_arg(&TheStream(stream)->strm_eltype,&eltype); # no GC here!
           ChannelStream_fini(stream);
+          stream = stream_reset_eltype(stream,&eltype);
           value1 = TheStream(stream)->strm_encoding = encoding;
-          if (ChannelStream_buffered(stream)) {
-            fill_pseudofuns_buffered(stream,&eltype);
-          } else {
-            fill_pseudofuns_unbuffered(stream,&eltype);
-            UnbufferedStream_ignore_next_LF(stream) = false;
-          }
           ChannelStream_init(stream);
         }
         break;
@@ -16991,15 +17032,9 @@ LISPFUN(write_float,3,1,norest,nokey,0,NIL) {
 # > subr_self: Caller (a SUBR)
 # < result: open File-Stream
 local object check_open_file_stream (object obj) {
-  loop {
-    if (!builtin_stream_p(obj)) # Stream ?
-      goto fehler_bad_obj;
-    if (TheStream(obj)->strmtype == strmtype_synonym) { # track Synonym-Stream
-      var object sym = TheStream(obj)->strm_synonym_symbol;
-      obj = Symbol_value(sym);
-    } else
-      break;
-  }
+  obj = resolve_synonym_stream(obj);
+  if (!builtin_stream_p(obj)) # Stream ?
+    goto fehler_bad_obj;
   if (!(TheStream(obj)->strmtype == strmtype_file)) # Streamtyp File-Stream ?
     goto fehler_bad_obj;
   if ((TheStream(obj)->strmflags & strmflags_open_B) == 0) # Stream open ?
