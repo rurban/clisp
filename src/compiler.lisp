@@ -7475,10 +7475,10 @@ der Docstring (oder NIL).
 ) ) ) ) )
 
 
-;               ERSTER PASS :   M A C R O S
+;;;             FIRST PASS :   M A C R O S
 
-; compiliere (HANDLER-BIND ({(typespec handler)}*) {form}*)
-; und  (SYS::%HANDLER-BIND ({(typespec handler)}*) {form}*)
+;;; compile   (HANDLER-BIND ({(typespec handler)}*) {form}*)
+;;; and (SYS::%HANDLER-BIND ({(typespec handler)}*) {form}*)
 (defun c-HANDLER-BIND ()
   (test-list *form* 2)
   (test-list (second *form*) 0)
@@ -7490,17 +7490,7 @@ der Docstring (oder NIL).
       (test-list clause 2 2)
       (let ((type (first clause))
             (handler (second clause)))
-        (if (block try-subtypep
-              (let ((*error-handler*
-                      #'(lambda (&rest error-args)
-                          (declare (ignore error-args))
-                          (return-from try-subtypep nil)
-                   ))   )
-                (subtypep type `(OR ,@types))
-            ) )
-          ; Brauche diesen Handler nicht zu berücksichtigen
-          (let ((*no-code* t) (*for-value* 'NIL)) (c-form handler))
-          ; Der Handler ist eine Funktion mit dynamischem Extent.
+        ;; the handler is a function with dynamic extent.
           (let ((label (make-label 'ONE)))
             (push type types)
             (push label handler-labels)
@@ -7508,46 +7498,41 @@ der Docstring (oder NIL).
               (let* ((*stackz* (cons 'ANYTHING *stackz*))
                      (oldstackz *stackz*)
                      (*venv* *venv*))
-                ; Platz für die Funktion selbst:
+             ;; work place for the function:
                 (push 1 *stackz*)
                 (let* ((condition-sym (gensym))
                        (condition-anode
                          (make-anode :type 'CONDITION
                                      :sub-anodes '()
                                      :seclass '(T . NIL)
-                                     :code '() ; vorher kommt (HANDLER-BEGIN)
-                       ) )
-                       (condition-var (bind-movable-var condition-sym condition-anode)))
+                                 :code '())) ; first comes (HANDLER-BEGIN)
+                    (condition-var (bind-movable-var condition-sym
+                                                     condition-anode)))
                   (push-*venv* condition-var)
                   (let ((body-anode
-                          (c-form `(SYS::%FUNCALL ,handler ,condition-sym) 'NIL)
-                       ))
-                    ; Überprüfen der Variablen (muss nicht in die Closure):
-                    (checking-movable-var-list (list condition-var) (list condition-anode))
+                      (c-form `(SYS::%FUNCALL ,handler ,condition-sym) 'NIL)))
+                 ;; Check the variables (must not happen in the closure):
+                 (checking-movable-var-list (list condition-var)
+                                            (list condition-anode))
                     (let* ((codelist
                              `(,label
                                (HANDLER-BEGIN)
-                               ,@(c-bind-movable-var-anode condition-var condition-anode)
+                           ,@(c-bind-movable-var-anode condition-var
+                                                       condition-anode)
                                ,body-anode
-                               (UNWINDSP ,*stackz* ,*func*) ; ein (SKIPSP k1 k2)
-                               (UNWIND ,*stackz* ,oldstackz NIL) ; ein (SKIP 2)
-                               (RET)
-                              )
-                           )
+                           (UNWINDSP ,*stackz* ,*func*) ; (SKIPSP k1 k2)
+                           (UNWIND ,*stackz* ,oldstackz NIL) ; (SKIP 2)
+                           (RET)))
                            (anode
                              (make-anode
                                :type 'HANDLER
                                :sub-anodes `(,body-anode)
-                               :seclass '(T . T) ; eigentlich irrelevant
+                          :seclass '(T . T) ; actually irrelevant
                                :stackz oldstackz
-                               :code codelist
-                          )) )
+                          :code codelist)))
                       (optimize-var-list (list condition-var))
-                      anode
-              ) ) ) )
-              handler-anodes
-            )
-    ) ) ) )
+                   anode))))
+           handler-anodes))))
     (if (null types)
       (c-form `(PROGN ,@body))
       (progn
