@@ -7896,8 +7896,8 @@ typedef struct strm_i_buffered_extrafields_struct {
         bit_akku = *buffered_eofbyte(stream);
       *bitbufferptr = (uint8)(bit_akku & (uint8)(bit(count)-1));
       BufferedStream_bitindex(stream) = count;
-      BufferedStream_position(stream) += 1; # increment position:
-      return (*finisher)(stream,bitsize,bytesize); # convert to a number:
+      BufferedStream_position(stream) += 1; # increment position
+      return (*finisher)(stream,bitsize,bytesize); # convert to a number
      eof:
       position_file_i_buffered(stream,BufferedStream_position(stream));
       return eof_value;
@@ -10787,11 +10787,29 @@ LISPFUNN(make_keyboard_stream,0)
         return NULL;
     }
 
+# Strip whitespace from the end of STRING.
+# Returns STRING.
+# Borrowed from BASH 2.05
+# we do not strip the initial whitespace
+# since it is needed for indentation.
+#define whitespacep(c)   \
+  ((c)==' ' || (c)=='\n' || (c)=='\r' || (c)=='\t' || (c)=='\v' || (c)=='\f')
+local char * strip_white (char *string) {
+  char *end, *beg=string;
+  if (beg == NULL) return NULL;
+  # while (whitespacep(*beg)) beg++;
+  if (*beg == 0) return beg;
+  for (end = beg + strlen (beg) - 1; end > beg && whitespacep (*end); end--);
+  *++end = '\0';
+  return beg;
+}
+#undef whitespace
+
 # In the implementation of rd_ch_terminal3 and listen_char_terminal3, we
 # should not use the corresponding rd_ch_unbuffered and listen_char_unbuffered
 # functions, because they store intermediately read bytes in
 # UnbufferedStream_bytebuf(stream), where readline() will not see them.
-# As a workaround, we use rl_stuff_char before calling readline().
+# As a workaround, we use rl_stuff_char() before calling readline().
 #
 # However, there is a deeper problem with the rd_ch_terminal3/
 # listen_char_terminal3 implementation: readline() terminates when `rl_done'
@@ -10842,7 +10860,7 @@ LISPFUNN(make_keyboard_stream,0)
           run_time_stop(); # hold run time clock
           begin_call();
           rl_already_prompted = true;
-          var uintB* line = (uintB*)readline(prompt==NULL ? "" : prompt);
+          var uintB* line = strip_white(readline(prompt==NULL ? "" : prompt));
           end_call();
           run_time_restart(); # resume run time clock
           if (!(prompt==NULL)) {
@@ -10872,16 +10890,35 @@ LISPFUNN(make_keyboard_stream,0)
           {
             var const uintB* ptr = line;
             until (*ptr == '\0') {
-              ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,as_chart(*ptr++));
+              ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,
+                                   as_chart(*ptr++));
             }
           }
           #endif
-          ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,ascii(NL));
-          # und in die History übernehmen, falls nicht leer:
-          if (!(line[0]=='\0')) {
-            begin_system_call(); add_history((const char*)line); end_system_call();
+          ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,
+                               ascii(NL));
+          # put into the history if non-empty
+          if (line[0] != '\0') {
+            HIST_ENTRY *prev = previous_history();
+            if (true) { # how do I check for an end of form here?! (prev==NULL)
+              begin_system_call(); add_history((char*)line); end_system_call();
+            } else { # append this line to the previous history entry
+              int offset = where_history();
+              HIST_ENTRY *old;
+              char *new_line = (char*)xmalloc(3+strlen(line)+
+                                              strlen(prev->line));
+              strcpy(new_line,prev->line[0]=='\n' ? "" : "\n");
+              strcat(new_line,prev->line);
+              strcat(new_line,"\n");
+              strcat(new_line,line);
+              old = replace_history_entry(offset,new_line,prev->data);
+              if (old) {
+                free(old->line);
+                free(old);
+              }
+            }
           }
-          # Freigeben müssen wir die Zeile!
+          # must release the original line
           begin_system_call(); free(line); end_system_call();
         }
         stream = *stream_;
@@ -16616,7 +16653,7 @@ LISPFUNN(socket_stream_handle,1)
     {
       #ifdef GNU_READLINE
       begin_call();
-      rl_readline_name = "Clisp";
+      rl_readline_name = "CLisp";
       if (ilisp_mode) {
         # Simuliere folgende Anweisung im .inputrc:
         #   Control-i: self-insert
