@@ -1,3 +1,7 @@
+2001-08-27  Stefan Kain  <stefan.kain@freenet.de>
+
+	* init.lisp: translated all comments
+
 2001-08-05  Bruno Haible  <haible@clisp.cons.org>
 
 	* pathname.d (Z_SHIFT, Z_AT_SLASH, Z_SUB): Parenthesize argument
