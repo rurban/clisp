@@ -2972,8 +2972,8 @@ fi
 echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi`
 echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) impnotes.html clisp.gif${manual_readline}"
 echol
-echol "impnotes.html : ${DOCDIR}impnotes.html"
-echotab "\$(CP) ${DOCDIR}impnotes.html impnotes.html"
+echol "impnotes.html : ${DOCDIR_M}impnotes.html"
+echotab "\$(CP) ${DOCDIR_M}impnotes.html impnotes.html"
 echol
 # On Unix, clisp.dvi must be built by "make all", because "make install" needs
 # it and "make install" must not create files in the current directory, for
