@@ -10093,7 +10093,7 @@ global void init_pathnames (void) {
   }
   #endif
   #ifdef MSDOS
-  { # searhc the environment for variable COMSPEC:
+  { /* search the environment for variable COMSPEC: */
     begin_system_call();
     var const char* shell = getenv("COMSPEC");
     end_system_call();
