@@ -1,9 +1,9 @@
 #
 #	Name:             ISO/IEC 8859-10:1998 to Unicode
 #	Unicode version:  3.0
-#	Table version:    1.0
+#	Table version:    1.1
 #	Table format:     Format A
-#	Date:             1999 July 27
+#	Date:             1999 October 11
 #	Authors:          Ken Whistler <kenw@sybase.com>
 #
 #	Copyright (c) 1999 Unicode, Inc.  All Rights reserved.
@@ -36,6 +36,7 @@
 #
 #	Version history
 #	1.0 version new.
+#       1.1 corrected mistake in mapping of 0xA4
 #
 #	Updated versions of this file may be found in:
 #		<ftp://ftp.unicode.org/Public/MAPPINGS/>
