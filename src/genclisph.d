@@ -286,10 +286,8 @@ int main(int argc, char* argv[])
 #elif defined(HAVE_ALLOCA_H)
   printf("#include <alloca.h>\n");
  #ifndef alloca
-  #ifdef UNIX_OSF
-  printf("extern char* alloca (int size);\n");
-  #else
-  printf("extern void* alloca (int size);\n");
+  #if !(defined(UNIX_OSF) || defined(UNIX_DEC_ULTRIX))
+   printf("extern void* alloca (int size);\n");
   #endif
  #endif
 #elif defined(_AIX)
