@@ -486,12 +486,17 @@ Supplies some HTTP/1.0 headers and calls `with-html-output'."
        (force-output))
       (:d (describe (insp-self insp)))
       ((:p :a) (print-inspection insp *terminal-io* frontend))
-      (:e (handler-case (print (inspect-read-clean-eval insp *terminal-io*))
+      (:e (handler-case
+              (progn
+                (prin1 (inspect-read-clean-eval insp *terminal-io*))
+                (terpri))
             (error (err) (format t " *** error: ~s" err))))
       (:m (handler-case
-              (print (funcall (insp-set-slot insp)
-                              (inspect-read-clean-eval insp *terminal-io*)
-                              (inspect-read-clean-eval insp *terminal-io*)))
+              (progn
+                (prin1 (funcall (insp-set-slot insp)
+                                (inspect-read-clean-eval insp *terminal-io*)
+                                (inspect-read-clean-eval insp *terminal-io*)))
+                (terpri))
             (error (err) (format t " *** error: ~s" err))))
       (t (cond ((setq insp (get-insp id com))
                 (print-inspection insp *terminal-io* frontend)
