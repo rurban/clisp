@@ -1,3 +1,9 @@
+2004-08-24  Bruno Haible  <bruno@clisp.org>
+
+	Update ISO-8859-7 converter to version 2003.
+	* nls_iso8859_7.c (charset2uni, page03, page20): Add new mappings for
+	0xA4, 0xA5, 0xAA.
+
 2004-06-24  Bruno Haible  <bruno@clisp.org>
 
 	* clos-genfun2.lisp (finalize-fast-gf, gf-never-called-p,
