@@ -1,5 +1,11 @@
 2002-06-11  Sam Steingold  <sds@gnu.org>
 
+	* complete.lisp (completion): restored adding ")" when completing
+	a function without arguments, broken since FUNCTION-SIGNATURE was
+	modified to return the function name as the first value
+
+2002-06-11  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (main): added an undocumented, unsupported `-d'
 	developer option: not in usage(), clisp.c, clisp.html, clisp.1 &c
 	for now just unlock all packages
