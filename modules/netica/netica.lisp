@@ -22,9 +22,7 @@
 
 (in-package "NETICA")
 
-(ffi:default-foreign-language :stdc)
-
-(c-lines "#include <netica.h>~%")
+;;; types and constants
 
 (def-c-type bool_ns uchar)
 
@@ -137,6 +135,12 @@
 ;;(def-c-struct (sensv__bn :external))
 (def-c-type sensv_bn_ c-pointer) ; sensv__bn
 
+;;; foreign function definitions
+
+(ffi:default-foreign-language :stdc)
+
+(c-lines "#include <netica.h>~%")
+
 ;; use UNDEF_DBL in your software
 (def-call-out undef_dbl_func_ns (:arguments) (:return-type double-float))
 ;; use INFINITY_ns in your software
@@ -201,10 +205,10 @@
   (:return-type nil))
 
 (def-call-out NthProb_bn
-  (:arguments (probs (c-ptr prob_bn)) (state state_bn))
+  (:arguments (probs (c-array-ptr prob_bn)) (state state_bn))
   (:return-type double-float))
 (def-call-out NthLevel_bn
-  (:arguments (levels (c-ptr level_bn)) (state state_bn))
+  (:arguments (levels (c-array-ptr level_bn)) (state state_bn))
   (:return-type double-float))
 (def-call-out GetChars_ns
   (:arguments (str c-string) (index int) (dest c-string) (num int))
@@ -213,7 +217,7 @@
   (:arguments (str c-string) (index int))
   (:return-type int))
 (def-call-out SetNthState_bn
-  (:arguments (states (c-ptr state_bn)) (index int) (state state_bn))
+  (:arguments (states (c-array-ptr state_bn)) (index int) (state state_bn))
   (:return-type nil))
 
 (def-call-out NewStreamFile_ns
@@ -257,7 +261,7 @@
   (:arguments (node node_bn_) (value double-float))
   (:return-type nil))
 (def-call-out EnterNodeLikelihood_bn
-  (:arguments (node node_bn_) (likelihood (c-ptr prob_bn)))
+  (:arguments (node node_bn_) (likelihood (c-array-ptr prob_bn)))
   (:return-type nil))
 (def-call-out GetNodeFinding_bn
   (:arguments (node node_bn_))
@@ -284,8 +288,8 @@
   (:return-type double-float))
 
 (def-call-out MapStateList_bn
-  (:arguments (src_states (c-ptr state_bn)) (src_nodes nodelist_bn_)
-              (dest_states (c-ptr state_bn)) (dest_nodes nodelist_bn_))
+  (:arguments (src_states (c-array-ptr state_bn)) (src_nodes nodelist_bn_)
+              (dest_states (c-array-ptr state_bn)) (dest_nodes nodelist_bn_))
   (:return-type nil))
 
 (def-call-out CompileNet_bn
@@ -310,13 +314,13 @@
   ;; `(c-array prob_bn ,(GetNodeNumberStates_bn node))
   (:return-type c-pointer))
 (def-call-out JointProbability_bn
-  (:arguments (nodes nodelist_bn_) (states (c-ptr state_bn)))
+  (:arguments (nodes nodelist_bn_) (states (c-array-ptr state_bn)))
   (:return-type double-float))
 (def-call-out FindingsProbability_bn
   (:arguments (net net_bn_))
   (:return-type double-float))
 (def-call-out MostProbableConfig_bn
-  (:arguments (nodes nodelist_bn_) (config (c-ptr state_bn)) (nth int))
+  (:arguments (nodes nodelist_bn_) (config (c-array-ptr state_bn)) (nth int))
   (:return-type nil))
 (def-call-out SizeCompiledNet_bn
   (:arguments (net net_bn_) (method int))
@@ -486,7 +490,7 @@
   (:return-type nil))
 (def-call-out SetNodeLevels_bn
   (:arguments (node node_bn_) (num_states int)
-              (levels (c-ptr level_bn)))
+              (levels (c-array-ptr level_bn)))
   (:return-type nil))
 (def-call-out SetNodeInputName_bn
   (:arguments (node node_bn_) (link_index int) (link_name c-string))
@@ -500,15 +504,15 @@
               (probs (c-array-ptr prob_bn)))
   (:return-type nil))
 (def-call-out SetNodeFuncState_bn
-  (:arguments (node node_bn_) (parent_states (c-ptr state_bn))
+  (:arguments (node node_bn_) (parent_states (c-array-ptr state_bn))
               (st state_bn))
   (:return-type nil))
 (def-call-out SetNodeFuncReal_bn
-  (:arguments (node node_bn_) (parent_states (c-ptr state_bn))
+  (:arguments (node node_bn_) (parent_states (c-array-ptr state_bn))
               (val double-float))
   (:return-type nil))
 (def-call-out SetNodeExperience_bn
-  (:arguments (node node_bn_) (parent_states (c-ptr state_bn))
+  (:arguments (node node_bn_) (parent_states (c-array-ptr state_bn))
               (experience double-float))
   (:return-type nil))
 (def-call-out DeleteNodeTables_bn
@@ -566,13 +570,13 @@
   (:arguments (net net_bn_))
   (:return-type c-string))
 (def-call-out GetNetUserField_bn
-  (:arguments (net net_bn_) (name c-string) (length (c-ptr int))
+  (:arguments (net net_bn_) (name c-string) (length (c-ptr int) :out)
               (kind int))
   (:return-type c-string))
 (def-call-out GetNetNthUserField_bn
   (:arguments (net net_bn_) (index int)
               (name (c-ptr c-string) :out) (value (c-ptr c-string) :out)
-              (length (c-ptr int)) (kind int))
+              (length (c-ptr int) :out) (kind int))
   (:return-type nil))
 (def-call-out GetNetUserData_bn
   (:arguments (net net_bn_) (kind int))
@@ -622,7 +626,7 @@
   (:arguments (name c-string) (node node_bn_))
   (:return-type int))
 (def-call-out HasNodeTable_bn
-  (:arguments (node node_bn_) (complete (c-ptr bool_ns)))
+  (:arguments (node node_bn_) (complete (c-ptr bool_ns) :out))
   (:return-type bool_ns))
 (def-call-out IsNodeDeterministic_bn
   (:arguments (node node_bn_))
@@ -631,17 +635,17 @@
   (:arguments (node node_bn_))
   (:return-type c-string))
 (def-call-out GetNodeProbs_bn
-  (:arguments (node node_bn_) (parent_states (c-ptr state_bn)))
+  (:arguments (node node_bn_) (parent_states (c-array-ptr state_bn)))
   ;; `(c-array prob_bn ,(GetNodeNumberStates_bn node))
   (:return-type c-pointer))
 (def-call-out GetNodeFuncState_bn
-  (:arguments (node node_bn_) (parent_states (c-ptr state_bn)))
+  (:arguments (node node_bn_) (parent_states (c-array-ptr state_bn)))
   (:return-type state_bn))
 (def-call-out GetNodeFuncReal_bn
-  (:arguments (node node_bn_) (parent_states (c-ptr state_bn)))
+  (:arguments (node node_bn_) (parent_states (c-array-ptr state_bn)))
   (:return-type double-float))
 (def-call-out GetNodeExperience_bn
-  (:arguments (node node_bn_) (parent_states (c-ptr state_bn)))
+  (:arguments (node node_bn_) (parent_states (c-array-ptr state_bn)))
   (:return-type double-float))
 (def-call-out GetNodeTitle_bn
   (:arguments (node node_bn_))
@@ -654,13 +658,13 @@
               (x (c-ptr double-float)) (y (c-ptr double-float)))
   (:return-type nil))
 (def-call-out GetNodeUserField_bn
-  (:arguments (node node_bn_) (name c-string) (length (c-ptr int))
+  (:arguments (node node_bn_) (name c-string) (length (c-ptr int) :out)
               (kind int))
   (:return-type c-string))
 (def-call-out GetNodeNthUserField_bn
   (:arguments (node node_bn_) (index int)
               (name (c-ptr c-string) :out) (value (c-ptr c-string) :out)
-              (length (c-ptr int)) (kind int))
+              (length (c-ptr int) :out) (kind int))
   (:return-type nil))
 (def-call-out GetNodeUserData_bn
   (:arguments (node node_bn_) (kind int))
