@@ -10952,11 +10952,12 @@ extern void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len);
 # > uintL index: >= 0, < length of string
 # < chart result: character at the given position
 #ifdef UNICODE
-  static inline chart schar (object string, uintL index) {
-    SstringDispatch(string,X, {
-      return (cint32)(((SstringX)TheVarobject(string))->data[index]);
-    });
-  }
+static inline chart schar (object string, uintL index) {
+  SstringDispatch(string,X, {
+    return as_chart(((SstringX)TheVarobject(string))->data[index]);
+  });
+  return as_chart(0); /* not reached - just pacify the compiler */
+}
 #else
   #define schar(string,index)  as_chart(TheS32string(string)->data[index])
 #endif
