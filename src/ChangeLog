@@ -1,5 +1,17 @@
 2004-06-05  Bruno Haible  <bruno@clisp.org>
 
+	* clos-method1.lisp (standard-method): Rename slot origin to
+	from-defgeneric.
+	(std-method-from-defgeneric): Renamed from std-method-origin.
+	(initialize-instance-<standard-method>): Accept keyword
+	clos::from-defgeneric instead of :origin.
+	* clos-method2.lisp (analyze-method-description): Update.
+	* clos-genfun3.lisp (std-remove-method): Set the from-generic flag
+	of the old method to nil.
+	* clos-genfun4.lisp (do-defgeneric): Update.
+
+2004-06-05  Bruno Haible  <bruno@clisp.org>
+
 	* clos-method1.lisp (std-method-generic-function): Renamed from
 	std-method-gf.
 	(initialize-instance-<standard-method>): Accept keyword clos::gf

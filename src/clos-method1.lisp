@@ -49,9 +49,9 @@
                            ; (only for the purpose of ADD-METHOD)
        :type function
        :accessor std-method-initfunction)
-     (origin               ; flag, if this method comes from a DEFGENERIC
+     (from-defgeneric      ; flag, if this method comes from a DEFGENERIC
        :type boolean
-       :accessor std-method-origin))
+       :accessor std-method-from-defgeneric))
     (:fixed-slot-locations)
     (:generic-accessors nil)))
 
@@ -85,7 +85,7 @@
                                                    wants-next-method-p
                                                    ((signature signature) nil signature-p)
                                                    ((gf gf) nil)
-                                                   origin
+                                                   ((from-defgeneric from-defgeneric) nil)
                                               &allow-other-keys)
   (when *classes-finished*
     (apply #'%initialize-instance method args)) ; == (call-next-method)
@@ -151,7 +151,7 @@
   (setf (std-method-documentation method) documentation)
   (setf (std-method-generic-function method) gf)
   (setf (std-method-initfunction method) initfunction)
-  (setf (std-method-origin method) origin)
+  (setf (std-method-from-defgeneric method) from-defgeneric)
   method)
 
 (defun make-instance-<standard-method> (class &rest args
