@@ -397,9 +397,6 @@ been part of the program text that environment came from.
 <h3><a href="CLHSROOT/Body/sec_3-3.html">
     3.3 Declarations</a></h3>
 
-<p>The ANSI macro <a href="CLHSROOT/Body/mac_declaim.html">
-<code>declaim</code></a> is implemented.
-
 <p>The declarations <code>(<a href="CLHSROOT/Body/dec_type.html">type</a>
 <var>type</var> <var>var</var> ...)</code>, <code>(<a
 href="CLHSROOT/Body/dec_ftype.html">ftype</a> <var>type</var> <var>fun</var>
@@ -461,9 +458,7 @@ list is the value of the corresponding slot's initial form.
 <h3><a href="CLHSROOT/Body/sec_the_evalu_n_dictionary.html">
     3.8 The Evaluation and Compilation Dictionary</a></h3>
 
-<P>The ANSI CL special operator
-<a href="CLHSROOT/Body/speope_load-time-value.html">
-<code>load-time-value</code></a> is implemented. <code>(<a
+<code>(<a
 href="CLHSROOT/Body/speope_load-time-value.html">load-time-value</a>
 <var>form</var>)</code> is like <code>(<a
 href="CLHSROOT/Body/speope_quote.html">quote</a> #,<var>form</var>)</code>
@@ -616,97 +611,6 @@ original <var>typespec</var> was a user-defined type.
 packages. If you don't want them (for example, if you want to use PCL
 instead of CLOS), do <code>(unuse-package &#34;CLOS&#34;)</code>.
 
-<p>
-<dl>
- <dt>The functions
-  <dd><a href="CLHSROOT/Body/fun_slot-value.html">
-   <code>slot-value</code></a>,
-   <a href="CLHSROOT/Body/fun_slot-boundp.html">
-   <code>slot-boundp</code></a>,
-   <a href="CLHSROOT/Body/fun_slot-makunbound.html">
-   <code>slot-makunbound</code></a>,
-   <a href="CLHSROOT/Body/fun_slot-exists-p.html">
-   <code>slot-exists-p</code></a>,
-   <a href="CLHSROOT/Body/acc_find-class.html">
-   <code>find-class</code></a>,
-   <a href="CLHSROOT/Body/acc_find-class.html">
-   <code>(setf find-class)</code></a>,
-   <a href="CLHSROOT/Body/fun_class-of.html">
-   <code>class-of</code></a>,
-   <a href="CLHSROOT/Body/locfun_call-next-method.html">
-   <code>call-next-method</code></a>,
-   <a href="CLHSROOT/Body/locfun_next-method-p.html">
-   <code>next-method-p</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_class-name.html">
-   <code>class-name</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_class-name.html">
-   <code>(setf class-name)</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_no-_cable-method.html">
-   <code>no-applicable-method</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_no-next-method.html">
-   <code>no-next-method</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_find-method.html">
-   <code>find-method</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_add-method.html">
-   <code>add-method</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_remove-method.html">
-   <code>remove-method</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_com_able-methods.html">
-   <code>compute-applicable-methods</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_met_d-qualifiers.html">
-   <code>method-qualifiers</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_fun_ion-keywords.html">
-   <code>function-keywords</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_slot-missing.html">
-   <code>slot-missing</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_slot-unbound.html">
-   <code>slot-unbound</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_print-object.html">
-   <code>print-object</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_describe-object.html">
-   <code>describe-object</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_make-instance.html">
-   <code>make-instance</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_ini_ize-instance.html">
-   <code>initialize-instance</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_rei_ize-instance.html">
-   <code>reinitialize-instance</code></a>,
-   <a href="CLHSROOT/Body/stagenfun_sha_d-initialize.html">
-   <code>shared-initialize</code></a>,
- <dt>the macros
-  <dd><a href="CLHSROOT/Body/mac_with-slots.html">
-   <code>with-slots</code></a>,
-   <a href="CLHSROOT/Body/mac_with-accessors.html">
-   <code>with-accessors</code></a>,
-   <a href="CLHSROOT/Body/mac_defclass.html">
-   <code>defclass</code></a>,
-   <a href="CLHSROOT/Body/mac_defmethod.html">
-   <code>defmethod</code></a>,
-   <a href="CLHSROOT/Body/mac_defgeneric.html">
-   <code>defgeneric</code></a>,
-   <a href="CLHSROOT/Body/syscla_generic-function.html">
-   <code>generic-function</code></a>,
-   <code>clos:generic-flet</code>,
-   <code>clos:generic-labels</code>,
- <dt>the classes
-  <dd><a href="CLHSROOT/Body/syscla_standard-class.html">
-   <code>standard-class</code></a>,
-   <a href="CLHSROOT/Body/syscla_structure-class.html">
-   <code>structure-class</code></a>,
-   <a href="CLHSROOT/Body/syscla_built-in-class.html">
-   <code>built-in-class</code></a>,
-   <a href="CLHSROOT/Body/cla_standard-object.html">
-   <code>standard-object</code></a>,
-   <a href="CLHSROOT/Body/syscla_standa_ric-function.html">
-   <code>standard-generic-function</code></a>,
-   <a href="CLHSROOT/Body/syscla_standard-method.html">
-   <code>standard-method</code></a> and all predefined classes,
- <dt>and the method combination
-  <dd> <a href="CLHSROOT/Body/sec_7-6-6-2.html">
-    <code>standard</code></a>
-</dl>
-are implemented.
-
 <h4>Deviations from ANSI CL:</h4>
 
 <p><a href="CLHSROOT/Body/mac_defclass.html">
@@ -759,18 +663,6 @@ GENERIC-FLET-POORLY-DESIGNED:DELETE</a>.
 <P><a href="CLHSROOT/Body/stagenfun_add-method.html">
 <code>add-method</code></a> can put methods into other generic functions
 than the one the method came from.
-
-<P><a href="CLHSROOT/Body/stagenfun_print-object.html">
-<code>print-object</code></a> and
-<a href="CLHSROOT/Body/stagenfun_describe-object.html">
-<code>describe-object</code></a> are only
-called on objects of type <code>standard-object</code>.
-
-<P><a href="CLHSROOT/Body/stagenfun_describe-object.html">
-<code>describe-object</code></a> should not call
-<a href="CLHSROOT/Body/fun_describe.html">
-<code>describe</code></a> recursively as this would produce more
-information than is likely to be useful to a human reader.
 
 <P><a href="CLHSROOT/Body/stagenfun_doc_umentationcp.html">
 <code>documentation</code></a> still has the CLtL1 implementation.
@@ -887,8 +779,8 @@ implemented.
 and, as such, rather efficient.
 
 <p>The ANSI macro <a href="CLHSROOT/Body/mac_destructuring-bind.html">
-<code>destructuring-bind</code></a> is implemented. It
-does not perform full error checking.
+<code>destructuring-bind</code></a> does not perform full error
+checking.
 
 <p><a href="CLHSROOT/Body/fun_compiled-function-p.html">
 <code>compiled-function-p</code></a> returns <code>t</code> on built-in
@@ -898,34 +790,30 @@ handlers. Therefore <a href="CLHSROOT/Body/typ_compiled-function.html">
 <a href="CLHSROOT/Body/syscla_function.html">
 <code>function</code></a>.
 
-<h4><a href="CLHSROOT/Body/fun_eq.html">
-    eq</a></h4>
-
 <p><a href="CLHSROOT/Body/fun_eq.html">
 <code>eq</code></a> compares characters and fixnums as
-<a href="CLHSROOT/Body/typspe_eql.html fun_eql.html">
+<a href="CLHSROOT/Body/fun_eql.html">
 <code>eql</code></a>
 does. No unnecessary copies are made of characters and
 numbers. Nevertheless, one should use
-<a href="CLHSROOT/Body/typspe_eql.html fun_eql.html">
+<a href="CLHSROOT/Body/fun_eql.html">
 <code>eql</code></a>.
 
 <P><code>(let ((x y)) (eq x x))</code> always returns <code>t</code>,
 regardless of <code>y</code>.
 
-<h4><a href="CLHSROOT/Body/acc_symbol-function.html">
-    symbol-function</a></h4>
-
-<p><code>(setf (symbol-function <var>symbol</var>)
-<var>object</var>)</code> requires <var>object</var> to be either a
-function, a <code>symbol-function</code> return value or a lambda
-expression. A lambda expression is thereby immediately converted to a
-function.
+<p><code>(setf (<a
+href="CLHSROOT/Body/acc_symbol-function.html">symbol-function</a>
+<var>symbol</var>) <var>object</var>)</code> requires <var>object</var>
+to be either a function, a <a href="CLHSROOT/Body/acc_symbol-function.html">
+<code>symbol-function</code></a> return value or a <a
+href="CLHSROOT/Body/glo_l.html#lambda_expression">
+lambda expression</a>.  A <a
+href="CLHSROOT/Body/glo_l.html#lambda_expression">
+lambda expression</a> is thereby immediately converted to a function.
 
 <h4><a href="CLHSROOT/Body/mac_setfcm_psetf.html">
     setf</a></h4>
-
-<P><code>setf</code> also accepts places yielding multiple values.
 
 <P>Additional places:
 <DL>
@@ -973,7 +861,8 @@ function.
 <code>defsetf</code></a> lambda lists are supported, but the
 corresponding keywords must appear literally in the program text.
 
-<P><code>(<a href="CLHSROOT/Body/fun_get-setf-expansion.html">get-setf-expansion</a>
+<P><code>(<a
+href="CLHSROOT/Body/fun_get-setf-expansion.html">get-setf-expansion</a>
 <var>form</var> &amp;optional
 <var>env</var>)</code>, <code>(lisp:get-setf-method <var>form</var>
 &amp;optional <var>env</var>)</code>, and
@@ -1000,10 +889,6 @@ of arrays, and user-defined data types.
 definition established by <code>flet</code> or <code>labels</code>, if
 it exists, otherwise the global function definition.
 
-<P>The ANSI CL place
-<code>(<a href="CLHSROOT/Body/acc_fdefinition.html">fdefinition</a>
-<var>function-name</var>)</code> is implemented.
-
 <P><code>(<a
 href="CLHSROOT/Body/fun_special-operator-p.html">special-operator-p</a>
 <var>symbol</var>)</code> returns <code>nil</code> or <code>t</code>. If
@@ -1011,10 +896,6 @@ it returns <code>t</code>, then <code>(<a
 href="CLHSROOT/Body/acc_symbol-function.html">symbol-function</a>
 <var>symbol</var>)</code> returns the (useless) special operator
 handler.
-
-<p>The ANSI CL special operator
-<a href="CLHSROOT/Body/speope_symbol-macrolet.html">
-<code>symbol-macrolet</code></a> is implemented.
 
 <P>The macro <STRONG><a href="CLHSROOT/Body/mac_define-symbol-macro.html">
 <code>define-symbol-macro</code></a></STRONG>
@@ -1092,11 +973,10 @@ removes the symbol macro definition.
       <td>2<sup>16</sup>=65536 <td>2<sup>32</sup>=4294967296
 </table>
 
-<h4><a href="CLHSROOT/Body/mac_defun.html">
-    defun</a> &amp; <a href="CLHSROOT/Body/mac_defmacro.html">
-    defmacro</a></h4>
-
-<p><code>defun</code> and <code>defmacro</code> are allowed in
+<p><a href="CLHSROOT/Body/mac_defun.html">
+<code>defun</code></a> and
+<a href="CLHSROOT/Body/mac_defmacro.html">
+<code>defmacro</code></a> are allowed in
 non-toplevel positions. As an example, consider the old (CLtL1)
 definition of <code>gensym</code>:
 
@@ -1122,12 +1002,9 @@ definition of <code>gensym</code>:
 ) ) )
 </code></PRE>
 
-<h4><a href="CLHSROOT/Body/dec_special.html">
-    special</a></h4>
-
-<code>(proclaim '(special <var>var</var>))</code> declarations may not
-be undone. The same holds for
-<a href="CLHSROOT/Body/mac_defparametercm_defvar.html">
+<code>(proclaim '(<a href="CLHSROOT/Body/dec_special.html">special</a>
+<var>var</var>))</code> declarations may not be undone. The same holds
+for <a href="CLHSROOT/Body/mac_defparametercm_defvar.html">
 <code>defvar</code></a>,
 <a href="CLHSROOT/Body/mac_defparametercm_defvar.html">
 <code>defparameter</code></a> and
@@ -1141,25 +1018,14 @@ moment the <code>defconstant</code> is executed, but
 
 <p>Constants may not be bound dynamically or lexically.
 
-<h4><a href="CLHSROOT/Body/speope_eval-when.html">
-    eval-when</a></h4>
-
-<code>eval-when</code> also accepts the situations <code>(not
+<a href="CLHSROOT/Body/speope_eval-when.html">
+<code>eval-when</code></a> also accepts the situations <code>(not
 eval)</code> and <code>(not compile)</code>.
 
-<h4><a href="CLHSROOT/Body/fun_function-_a-expression.html">
-    function-lambda-expression</a></h4>
-
-<P>The ANSI CL function <code>function-lambda-expression</code> is
-implemented.  <code>(function-lambda-expression
+<P><code>(<a
+href="CLHSROOT/Body/fun_function-_a-expression.html">function-lambda-expression</a>
 <var>function</var>)</code> returns information about the source of an
 interpreted function: lambda-expression, lexical environment, name.
-
-<h4><a href="CLHSROOT/Body/fun_complement.html">
-    complement</a></h4>
-
-<p>The ANSI CL function <a href="CLHSROOT/Body/fun_complement.html">
-<code>complement</code></a> is implemented.
 
 <h2><a name="iteration"></a><a href="CLHSROOT/Body/chap-6.html">
     Chapter 6: Iteration</a></h2>
@@ -1178,7 +1044,7 @@ functions <a href="CLHSROOT/Body/stagenfun_change-class.html">
 <a href="CLHSROOT/Body/stagenfun_mak_ces-obsolete.html">
 <code>make-instances-obsolete</code></a> are not implemented.
 
-<P>Only <a href="CLHSROOT/Body/sec_7-6-6-2.html">
+<P>Only the <a href="CLHSROOT/Body/sec_7-6-6-2.html">
 <code>standard</code></a> method combination is implemented.
 
 <P><a href="CLHSROOT/Body/sec_7-6-6-3.html">User-defined
@@ -1197,11 +1063,14 @@ method combination</a> is not supported.  The macros
 <h2><a name="structures"></a><a href="CLHSROOT/Body/chap-8.html">
     Chapter 8: Structures</a></h2>
 
-<p>The <code>:print-function</code> option should contain a lambda
-expression <code>(lambda (structure stream depth) (declare (ignore
-depth)) ...)</code> This lambda expression names a function whose task
-is to output the external representation of structure onto the
-stream. This may be done by outputting text onto the stream using
+<p>The <code>:print-function</code> option should contain a
+<a href="CLHSROOT/Body/glo_l.html#lambda_expression">
+lambda expression</a>
+<code>(lambda (structure stream depth) (declare (ignore depth)) ...)</code>
+This <a href="CLHSROOT/Body/glo_l.html#lambda_expression">
+lambda expression</a> names a function whose task is to output the
+external representation of structure onto the stream. This may be done
+by outputting text onto the stream using
 <a href="CLHSROOT/Body/fun_write-char.html">
 <code>write-char</code></a>,
 <a href="CLHSROOT/Body/fun_write-str_m_write-line.html">
@@ -1385,23 +1254,21 @@ an object that requires newlines when pretty printing is enabled is undefined.
 <H3><a href="CLHSROOT/Body/sec_the_condi_s_dictionary.html">
     9.2. The Conditions Dictionary</a></H3>
 
-<h4><a href="CLHSROOT/Body/fun_signal.html">
-    signal</a></h4>
-
-The default condition type for conditions created by <code>signal</code>
+The default condition type for conditions created by
+<a href="CLHSROOT/Body/fun_signal.html">
+<code>signal</code></a>
 is <a href="CLHSROOT/Body/contyp_simple-condition.html">
 <code>simple-condition</code></a>, not
 <a href="CLHSROOT/Body/contyp_simple-error.html">
 <code>simple-error</code></a>.
 
-<h4><a href="CLHSROOT/Body/mac_restart-case.html">
-    restart-case</a></h4>
-
-<p>In <code>restart-case</code> clauses the argument list can also
+<p>In <a href="CLHSROOT/Body/mac_restart-case.html">
+<code>restart-case</code></a> clauses the argument list can also
 be specified after the keyword/value pairs instead of before them. The
-syntax therefore is <code>(restart-case <var>form</var>
-{<var>restart-clause</var>}*)</code> with
-
+syntax therefore is
+<code>(<a href="CLHSROOT/Body/mac_restart-case.html">restart-case</a>
+       <var>form</var> {<var>restart-clause</var>}*)</code>
+with
 <TABLE>
   <TR><TD><var>restart-clause</var> ::=
    <TD>  <code>(<var>restart-name</var></code> <var>arglist</var>
@@ -1411,20 +1278,18 @@ syntax therefore is <code>(restart-case <var>form</var>
    value</var>}* <var>arglist</var> {<var>form</var>}*<code>)</code>
 </TABLE>
 
-<h4><a href="CLHSROOT/Body/sec_the_condi_s_dictionary.html">
-    compute-restarts</a></h4>
-
-<p><code>compute-restarts</code> and <code>find-restart</code> behave as
+<p><a href="CLHSROOT/Body/fun_compute-restarts.html">
+<code>compute-restarts</code></a> and
+<a href="CLHSROOT/Body/fun_find-restart.html">
+<code>find-restart</code></a> behave as
 specified in ANSI CL: If the optional condition argument is not
 <code>nil</code>, only restarts associated with that condition and
 restarts associated to no condition at all are considered.  Therefore
 the effect of associating a restart to a condition is not to activate
 it, but to hide it from other conditions. This makes the syntax
-dependent implicit association performed by <code>restart-case</code>
-nearly obsolete.
-
-<h4><a href="CLHSROOT/Body/fun_warn.html">
-    warn</a></h4>
+dependent implicit association performed by
+<a href="CLHSROOT/Body/mac_restart-case.html">
+<code>restart-case</code></a> nearly obsolete.
 
 <p>The default condition type for conditions created by
 <a href="CLHSROOT/Body/fun_warn.html">
@@ -1483,8 +1348,9 @@ The following additional packages exist:
       screen access</a>. Not present on all platforms.
 </ul>
 All pre-existing packages except <code>USER</code> and
-<code>COMMON-LISP-USER</code> belong to the implementation, in the sense that
-doing side-effects on them or on their symbols causes undefined behaviour.
+<code>COMMON-LISP-USER</code> belong to the implementation, in the sense
+that doing side-effects on them or on their symbols causes undefined
+behaviour.
 
 <H3><a href="CLHSROOT/Body/sec_the_packa_s_dictionary.html">
     11.2. The Packages Dictionary</a></H3>
@@ -1497,9 +1363,6 @@ doing side-effects on them or on their symbols causes undefined behaviour.
 <code>:use</code> argument is <code>(&#34;COMMON-LISP&#34;)</code>.
 For <code>lisp:make-package</code>, the default value of the
 <code>:use</code> argument is <code>(&#34;LISP&#34; &#34;CLOS&#34;)</code>.
-
-<p>The ANSI CL macro <a href="CLHSROOT/Body/mac_defpackage.html">
-<code>defpackage</code></a> is implemented.
 
 <p><a href="CLHSROOT/Body/fun_make-package.html">
 <code>make-package</code></a> and
@@ -1516,23 +1379,46 @@ this package. The package names are still subject to
 <h2><a name="numbers"></a><a href="CLHSROOT/Body/chap-12.html">
     Chapter 12: Numbers</a></h2>
 
-<p>The type <code>number</code> is the disjoint union of the types
-<code>real</code> and <code>complex</code>.  (&#34;<a
+<p>The type <a href="CLHSROOT/Body/syscla_number.html">
+<code>number</code></a> is the disjoint union of the types
+<a href="CLHSROOT/Body/syscla_real.html">
+<code>real</code></a> and
+<a href="CLHSROOT/Body/syscla_complex.html">
+<code>complex</code></a>.  (&#34;<a
 href="CLHSROOT/Body/glo_e.html#exhaustive_partition">exhaustive
 partition</a>&#34;)
 
-<p>The type <code>real</code> is the disjoint union of the types
-<code>rational</code> and <code>float</code>.
+<p>The type <a href="CLHSROOT/Body/syscla_real.html">
+<code>real</code></a> is the disjoint union of the types
+<a href="CLHSROOT/Body/syscla_rational.html">
+<code>rational</code></a> and
+<a href="CLHSROOT/Body/syscla_float.html">
+<code>float</code></a>.
 
-<p>The type <code>rational</code> is the disjoint union of the types
-<code>integer</code> and <code>ratio</code>.
+<p>The type <a href="CLHSROOT/Body/syscla_rational.html">
+<code>rational</code></a> is the disjoint union of the types
+<a href="CLHSROOT/Body/syscla_integer.html">
+<code>integer</code></a> and
+<a href="CLHSROOT/Body/syscla_ratio.html">
+<code>ratio</code></a>.
 
-<p>The type <code>integer</code> is the disjoint union of the types
-<code>fixnum</code> and <code>bignum</code>.
+<p>The type <a href="CLHSROOT/Body/syscla_integer.html">
+<code>integer</code></a> is the disjoint union of the types
+<a href="CLHSROOT/Body/typ_fixnum.html">
+<code>fixnum</code></a> and
+<a href="CLHSROOT/Body/typ_bignum.html">
+<code>bignum</code></a>.
 
-<p>The type <code>float</code> is the disjoint union of the types
-<code>short-float</code>, <code>single-float</code>,
-<code>double-float</code> and <code>long-float</code>.
+<p>The type <a href="CLHSROOT/Body/syscla_float.html">
+<code>float</code></a> is the disjoint union of the types
+<a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">
+<code>short-float</code></a>,
+<a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">
+<code>single-float</code></a>,
+<a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">
+<code>double-float</code></a> and
+<a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">
+<code>long-float</code></a>.
 
 <H3><a href="CLHSROOT/Body/sec_12-1-1-3-2.html">
     12.1.1.3.2 Byte Operations on Integers</a></H3>
@@ -1548,7 +1434,8 @@ inexact (floating-point) result, it always returns the exact result.
 <H3><a href="CLHSROOT/Body/sec_12-1-4.html">
     12.1.4 Floating-point Computations</a></H3>
 
-<p>There are four floating point types: short-float, single-float,
+<p>There are <a href="CLHSROOT/Body/typ_short-flo_m_long-float.html">
+four floating point types</a>: short-float, single-float,
 double-float and long-float:
 
 <table border=1>
@@ -1621,7 +1508,7 @@ short-&gt;single-&gt;double-&gt;long.
  not be penalized for this too harshly.
 </DL>
 
-<P>When <code>*floating-point-contagion-ansi*</code> is nil, the
+<P>When <code>lisp:*floating-point-contagion-ansi*</code> is nil, the
 traditional CLISP method is used, namely:
 
 <P>The result of an arithmetic operation whose arguments are of
@@ -1661,7 +1548,7 @@ floating-point types.  <p>When rational numbers are to be converted to
 floats (due to <code>float</code>, <code>coerce</code>,
 <code>sqrt</code> or a transcendental function), the result type is
 given by the variable
-<STRONG><code>*default-float-format*</code></STRONG>.
+<STRONG><code>lisp:*default-float-format*</code></STRONG>.
 
 <h4>without-floating-point-underflow</h4>
 
@@ -1704,9 +1591,6 @@ x))</code> - instead of evaluting to <code>#C(-9.0 0.0)</code>, with
 <H3><a href="CLHSROOT/Body/sec_the_numbers_dictionary.html">
     12.2 The Numbers Dictionary</a></H3>
 
-<p><code>(lcm)</code>, called without arguments, returns <code>1</code>,
-which is the neutral element of composition with <code>lcm</code>.
-
 <P><code>(lisp:! <var>n</var>)</code> returns the factorial of
 <var>n</var>, <var>n</var> a nonnegative integer.
 
@@ -1722,64 +1606,64 @@ checks that it is an integer. (This is more efficient than
 <var>x<SUB>1</SUB></var>,...,<var>x<SUB>n</SUB></var>, and
 <var>c<SUB>1</SUB></var>,...,<var>c<SUB>n</SUB></var> are integer
 coefficients such that
-
-<br><code><var>g</var></code> = <code>(gcd <var>x<SUB>1</SUB></var>
+<br><center>
+<code><var>g</var></code> = <code>(gcd <var>x<SUB>1</SUB></var>
 ... <var>x<SUB>n</SUB></var>)</code> = <code>(+ (*
 <var>c<SUB>1</SUB></var> <var>x<SUB>1</SUB></var>) ... (*
-<var>c<SUB>n</SUB></var> <var>x<SUB>n</SUB></var>))</code>
+<var>c<SUB>n</SUB></var> <var>x<SUB>n</SUB></var>))</code></center>
 
-<h4><a href="CLHSROOT/Body/fun_expcm_expt.html">
-    expt</a></h4>
+<p><code>(<a href="CLHSROOT/Body/fun_expcm_expt.html">expt</a>
+          <var>base</var> <var>exponent</var>)</code>
+is not very precise if exponent has large absolute value.
 
-<p><code>(expt <var>base</var> <var>exponent</var>)</code> is not very
-precise if exponent has large absolute value.
+<p><code>(<a href="CLHSROOT/Body/fun_log.html">log</a>
+          <var>number</var> <var>base</var>)</code>
+signals an error if <var>base</var> = 1.
 
-<h4><a href="CLHSROOT/Body/fun_log.html">
-    log</a></h4>
-
-<P><code>(log <var>number</var> <var>base</var>)</code> signals an error
-if <var>base</var> = 1.
-
-<h4><a href="CLHSROOT/Body/convar_pi.html">pi</a></h4>
-
-<p>The value of <code>pi</code> is a long float with the precision given
+<p>The value of <a href="CLHSROOT/Body/convar_pi.html">
+<code>pi</code></a> is a long float with the precision given
 by <a href="#lfd"><code>(long-float-digits)</code></a>. When this
-precision is changed, the value of <code>pi</code> is automatically
-recomputed. Therefore <code>pi</code> is a variable, not a constant.
+precision is changed, the value of <a href="CLHSROOT/Body/convar_pi.html">
+<code>pi</code></a> is automatically
+recomputed. Therefore <a href="CLHSROOT/Body/convar_pi.html">
+<code>pi</code></a> is a variable, not a constant.
 
-<h4><a href="CLHSROOT/Body/fun_decode-fl_decode-float.html">
-    float decoding</a></h4>
+<p><a href="CLHSROOT/Body/fun_decode-fl_decode-float.html">
+<code>float-radix</code></a> always returns <code>2</code>.
 
-<p><code>float-radix</code> always returns <code>2</code>.
-
-<P><code>(float-digits <var>number</var> <var>digits</var>)</code>
+<P><code>(<a
+ href="CLHSROOT/Body/fun_decode-fl_decode-float.html">float-digits</a>
+ <var>number</var> <var>digits</var>)</code>
 coerces <var>number</var> (a real number) to a floating point number
 with at least <var>digits</var> mantissa digits. The following holds:
-<BR>
-<code>(&gt;= (float-digits (float-digits <var>number</var>
-<var>digits</var>)) <var>digits</var>)</code>
+<br><center>
+<code>(&gt;=
+(<a href="CLHSROOT/Body/fun_decode-fl_decode-float.html">float-digits</a>
+(<a href="CLHSROOT/Body/fun_decode-fl_decode-float.html">float-digits</a>
+ <var>number</var> <var>digits</var>)) <var>digits</var>)</code>
+</center>
 
 <h4><a href="CLHSROOT/Body/convar_boole-_cm_boole-xor.html">
     boolean operations</a></h4>
 
-<TABLE>
-  <TR> <TD><code>boole-clr</code>   <TD>= <TD ALIGN=RIGHT> 0
-  <TR> <TD><code>boole-set</code>   <TD>= <TD ALIGN=RIGHT>15
-  <TR> <TD><code>boole-1</code>     <TD>= <TD ALIGN=RIGHT>10
-  <TR> <TD><code>boole-2</code>     <TD>= <TD ALIGN=RIGHT>12
-  <TR> <TD><code>boole-c1</code>    <TD>= <TD ALIGN=RIGHT> 5
-  <TR> <TD><code>boole-c2</code>    <TD>= <TD ALIGN=RIGHT> 3
-  <TR> <TD><code>boole-and</code>   <TD>= <TD ALIGN=RIGHT> 8
-  <TR> <TD><code>boole-ior</code>   <TD>= <TD ALIGN=RIGHT>14
-  <TR> <TD><code>boole-xor</code>   <TD>= <TD ALIGN=RIGHT> 6
-  <TR> <TD><code>boole-eqv</code>   <TD>= <TD ALIGN=RIGHT> 9
-  <TR> <TD><code>boole-nand</code>  <TD>= <TD ALIGN=RIGHT> 7
-  <TR> <TD><code>boole-nor</code>   <TD>= <TD ALIGN=RIGHT> 1
-  <TR> <TD><code>boole-andc1</code> <TD>= <TD ALIGN=RIGHT> 4
-  <TR> <TD><code>boole-andc2</code> <TD>= <TD ALIGN=RIGHT> 2
-  <TR> <TD><code>boole-orc1</code>  <TD>= <TD ALIGN=RIGHT>13
-  <TR> <TD><code>boole-orc2</code>  <TD>= <TD ALIGN=RIGHT>11
-</TABLE>
+<table>
+  <tr> <td><code>boole-clr</code>   <td>= <td align=right> 0
+  <tr> <td><code>boole-set</code>   <td>= <td align=right>15
+  <tr> <td><code>boole-1</code>     <td>= <td align=right>10
+  <tr> <td><code>boole-2</code>     <td>= <td align=right>12
+  <tr> <td><code>boole-c1</code>    <td>= <td align=right> 5
+  <tr> <td><code>boole-c2</code>    <td>= <td align=right> 3
+  <tr> <td><code>boole-and</code>   <td>= <td align=right> 8
+  <tr> <td><code>boole-ior</code>   <td>= <td align=right>14
+  <tr> <td><code>boole-xor</code>   <td>= <td align=right> 6
+  <tr> <td><code>boole-eqv</code>   <td>= <td align=right> 9
+  <tr> <td><code>boole-nand</code>  <td>= <td align=right> 7
+  <tr> <td><code>boole-nor</code>   <td>= <td align=right> 1
+  <tr> <td><code>boole-andc1</code> <td>= <td align=right> 4
+  <tr> <td><code>boole-andc2</code> <td>= <td align=right> 2
+  <tr> <td><code>boole-orc1</code>  <td>= <td align=right>13
+  <tr> <td><code>boole-orc2</code>  <td>= <td align=right>11
+</table>
 
 <h4><a href="CLHSROOT/Body/convar_most-p_ative-fixnum.html">
     fixnum limits</a></h4>
@@ -1817,25 +1701,22 @@ with at least <var>digits</var> mantissa digits. The following holds:
 href="#lfd"><code>(lisp:long-float-digits)</code></a> is changed. They
 are variables, not constants.
 
-<h4><a href="CLHSROOT/Body/contyp_floati_id-operation.html">
-    floating-point-invalid-operation</a></h4>
-
-This condition is never signaled by the implementation.
-
-<h4><a href="CLHSROOT/Body/contyp_floati_oint-inexact.html">
-    floating-point-inexact</a></h4>
-
-This condition is never signaled by the implementation.
-
+Conditions
+<a href="CLHSROOT/Body/contyp_floati_id-operation.html">
+floating-point-invalid-operation</a>
+<a href="CLHSROOT/Body/contyp_floati_oint-inexact.html">
+floating-point-inexact</a>
+are never signaled by CLISP.
 
 <h2><a name="characters"></a><a href="CLHSROOT/Body/chap-13.html">
     Chapter 13: Characters</a></h2>
 
-<p>The characters are ordered according to a superset of the ASCII encoding.
+<p>The characters are ordered according to a superset of the ASCII
+encoding.
 
 <!-- #ifdef UNICODE -->
 <DL>
-<DT><EM>Platform dependent: Only in clisp binaries built with
+<DT><EM>Platform dependent: Only in CLISP built with the
         compile-time flag <code>UNICODE</code>.</EM>
 <DD>
 More precisely, CLISP uses the 16-bit
@@ -2056,8 +1937,8 @@ only.</EM>
 <h3><a href="CLHSROOT/Body/sec_13-1-2-1.html">
     13.1.2.1 Character Scripts</a></h3>
 
-The only defined character script is the type
-<a href="CLHSROOT/Body/syscla_character.html"><code>character</code></a>
+The only defined character script is the type <a
+href="CLHSROOT/Body/syscla_character.html"><code>character</code></a>
 itself.
 
 <h3><a href="CLHSROOT/Body/sec_13-1-3.html">
@@ -2070,7 +1951,8 @@ are simple characters.
     13.1.4.1 Graphic Characters</a></h3>
 
 The graphic characters are those Unicode characters which are defined
-by the Unicode standard, excluding the ranges U0000..U001F and U007F..U009F.
+by the Unicode standard, excluding the ranges U0000..U001F and
+U007F..U009F.
 
 <h3><a href="CLHSROOT/Body/sec_13-1-4-2.html">
     13.1.4.2 Alphabetic Characters</a></h3>
@@ -2081,16 +1963,19 @@ as letters by the Unicode standard.
 <h3><a href="CLHSROOT/Body/sec_13-1-4-3-4.html">
     13.1.4.3.4 Case of Implementation-Defined Characters</a></h3>
 
-The characters with case are those Unicode characters <var>c</var>, for which
-the upper case mapping <var>uc</var> and the lower case mapping <var>lc</var>
-have the following properties:
+The characters with case are those Unicode characters <var>c</var>, for
+which the upper case mapping <var>uc</var> and the lower case mapping
+<var>lc</var> have the following properties:
 <ul>
   <li><var>uc</var> and <var>lc</var> are different,
   <li><var>c</var> is one of <var>uc</var> and <var>lc</var>,
-  <li>the upper case mapping of <var>uc</var> and of <var>lc</var> is <var>uc</var>,
-  <li>the lower case mapping of <var>uc</var> and of <var>lc</var> is <var>lc</var>.
+  <li>the upper case mapping of <var>uc</var> and of <var>lc</var>
+  is <var>uc</var>,
+  <li>the lower case mapping of <var>uc</var> and of <var>lc</var>
+  is <var>lc</var>.
 </ul>
-The titlecase property of Unicode characters has no equivalent in Common Lisp.
+The titlecase property of Unicode characters has no equivalent in
+Common Lisp.
 
 <h3><a href="CLHSROOT/Body/sec_13-1-4-4.html">
     13.1.4.4 Numeric Characters</a></h3>
@@ -2106,10 +1991,10 @@ The characters are ordered according to their Unicode code.
 <h3><a href="CLHSROOT/Body/sec_13-1-8.html">
     13.1.8 Treatment of Newline during Input and Output</a></h3>
 
-Newlines are written according to the stream's encoding, see the function
-<a href="CLHSROOT/Body/fun_stream-external-format.html"><code>stream-external-format</code></a>
-and the description of <a href="#encoding">encodings</a>. The default
-behaviour is as follows:
+Newlines are written according to the stream's encoding, see the
+function <a href="CLHSROOT/Body/fun_stream-external-format.html">
+<code>stream-external-format</code></a> and the description of <a
+href="#encoding">encodings</a>. The default behaviour is as follows:
 
 <!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
 <DL>
@@ -2140,7 +2025,9 @@ See the description of <a href="#encoding">encodings</a>.
 <h3><a href="CLHSROOT/Body/sec_the_chara_s_dictionary.html">
     13.2. The Characters Dictionary</a></h3>
 
-<p><code>char-code-limit</code> = 256 or 65536.
+<p><a href="CLHSROOT/Body/convar_char-code-limit.html">
+<code>char-code-limit</code></a> = 256 (without UNICODE) or 65536 (with
+UNICODE).
 
 <p>The types <code>lisp:string-char</code> and
 <a href="CLHSROOT/Body/typ_base-char.html"><code>base-char</code></a>
@@ -2162,9 +2049,18 @@ and the international alphabetic characters from the character set:
              &Ccedil;&uuml;&eacute;&acirc;&auml;&agrave;&aring;&ccedil;&ecirc;&euml;&egrave;&iuml;&icirc;&igrave;&Auml;&Aring;&Eacute;&aelig;&AElig;&ocirc;&ouml;&ograve;&ucirc;&ugrave;&yuml;&Ouml;&Uuml;&szlig;&aacute;&iacute;&oacute;&uacute;&ntilde;&Ntilde;&ordf;&ordm;&atilde;&otilde;&Oslash;&oslash;&Agrave;&Atilde;&Otilde; etc.
 </pre>
 
-<p>The functions <code>char-equal</code>, <code>char-not-equal</code>,
-<code>char-lessp</code>, <code>char-greaterp</code>,
-<code>char-not-greaterp</code>, <code>char-not-lessp</code> ignore bits
+<p>The functions <a href="CLHSROOT/Body/fun_chareqcm__ar-not-lessp.html">
+<code>char-equal</code></a>,
+<a href="CLHSROOT/Body/fun_chareqcm__ar-not-lessp.html">
+<code>char-not-equal</code></a>,
+<a href="CLHSROOT/Body/fun_chareqcm__ar-not-lessp.html">
+<code>char-lessp</code></a>,
+<a href="CLHSROOT/Body/fun_chareqcm__ar-not-lessp.html">
+<code>char-greaterp</code></a>,
+<a href="CLHSROOT/Body/fun_chareqcm__ar-not-lessp.html">
+<code>char-not-greaterp</code></a>,
+<a href="CLHSROOT/Body/fun_chareqcm__ar-not-lessp.html">
+<code>char-not-lessp</code></a> ignore bits
 and font attributes of their arguments.
 
 <h3>platform-dependent characters</h3>
@@ -2380,10 +2276,11 @@ ARRAY-DIMENSION-LIMIT-IMPLICATIONS:ALL-FIXNUM</a>.
     adjust-array</a> for displaced arrays</H3>
 
 <p>An array to which another array is displaced should not be shrunk
-(using <code>adjust-array</code>) in such a way that the other array
+(using <a href="CLHSROOT/Body/fun_adjust-array.html">
+<code>adjust-array</code></a>) in such a way that the other array
 points into void space.  This is not checked at the time
-<code>adjust-array</code> is called!
-
+<a href="CLHSROOT/Body/fun_adjust-array.html">
+<code>adjust-array</code></a> is called!
 
 <h2><a name="strings"></a><a href="CLHSROOT/Body/chap-16.html">
     Chapter 16: Strings</a></h2>
@@ -2399,42 +2296,61 @@ national rules. Example: <code>&#34;o&#34;</code> &lt;
 
 <p>For iteration through a sequence, a macro
 <STRONG><code>lisp:doseq</code></STRONG>, analogous to
-<code>dolist</code>, may be used instead of <code>map</code> :
+<a href="CLHSROOT/Body/mac_dolist.html">
+<code>dolist</code></a>, may be used instead of
+<a href="CLHSROOT/Body/fun_map.html">
+<code>map</code></a> :
 
 <p><code>(doseq (<var>var</var> <var>seqform</var>
 [<var>resultform</var>]) {<var>declaration</var>}*
 {<var>tag</var>|<var>statement</var>}* )</code>
 
 <code>doseq</code> forms are
-<a href="CLHSROOT/Body/glo_i.html#iteration_form"><em>iteration forms</em></a>.
+<a href="CLHSROOT/Body/glo_i.html#iteration_form">
+<em>iteration forms</em></a>.
 
 <H3><a href="CLHSROOT/Body/sec_the_seque_s_dictionary.html">
     17.3. The Sequences Dictionary</a></H3>
 
-<p>The ANSI CL function <a href="CLHSROOT/Body/fun_map-into.html">
-<code>map-into</code></a> is implemented.
-
 <h4><a href="CLHSROOT/Body/fun_reversecm_nreverse.html">
     nreverse</a></h4>
 
-<p>The result of <code>nreverse</code> is always <code>eq</code> to the
-argument. <code>nreverse</code> on a vector swaps pairs of
-elements. <code>nreverse</code> on a list swaps the first and the last
+<p>The result of <a href="CLHSROOT/Body/fun_reversecm_nreverse.html">
+<code>nreverse</code></a> is always
+<a href="CLHSROOT/Body/fun_eq.html">
+<code>eq</code></a> to the argument.
+<a href="CLHSROOT/Body/fun_reversecm_nreverse.html">
+<code>nreverse</code></a> on a vector swaps pairs of elements.
+<a href="CLHSROOT/Body/fun_reversecm_nreverse.html">
+<code>nreverse</code></a> on a list swaps the first and the last
 element and reverses the list chaining between them.
 
 <h4><a href="CLHSROOT/Body/fun_removecm__elete-if-not.html">
     remove/delete</a></h4>
 
-<p><code>remove</code>, <code>remove-if</code>,
-<code>remove-if-not</code>, <code>remove-duplicates</code> return their
+<p><a href="CLHSROOT/Body/fun_removecm__elete-if-not.html">
+<code>remove</code></a>,
+<a href="CLHSROOT/Body/fun_removecm__elete-if-not.html">
+<code>remove-if</code></a>,
+<a href="CLHSROOT/Body/fun_removecm__elete-if-not.html">
+<code>remove-if-not</code></a>,
+<a href="CLHSROOT/Body/fun_remove-du_e-duplicates.html">
+<code>remove-duplicates</code></a> return their
 argument unchanged, if no element has to be removed.
 
-<p><code>delete</code>, <code>delete-if</code>,
-<code>delete-if-not</code>, <code>delete-duplicates</code> destructively
-modify their argument: If the argument is a list, the <code>cdr</code>
-parts are modified. If the argument is a vector with fill pointer, the
-fill pointer is lowered and the remaining elements are compacted below
-the new fill pointer.
+<p><a href="CLHSROOT/Body/fun_removecm__elete-if-not.html">
+<code>delete</code></a>,
+<a href="CLHSROOT/Body/fun_removecm__elete-if-not.html">
+<code>delete-if</code></a>,
+<a href="CLHSROOT/Body/fun_removecm__elete-if-not.html">
+<code>delete-if-not</code></a>,
+<a href="CLHSROOT/Body/fun_remove-du_e-duplicates.html">
+<code>delete-duplicates</code></a> destructively
+modify their argument: If the argument is a list, the
+<a href="CLHSROOT/Body/acc_carcm_cdr_darcm_cddddr.html">
+<code>cdr</code></a> parts are modified. If the argument is a vector
+with fill pointer, the fill pointer is lowered and the remaining
+elements are compacted below the new fill pointer.
 
 <h4><a href="CLHSROOT/Body/fun_sortcm_stable-sort.html">
     sort</a></h4>
@@ -2449,7 +2365,8 @@ keywords <code>:start</code> and <code>:end</code>:
 </code></PRE>
 
 <P><code>sort</code> and <code>stable-sort</code> are identical. They
-implement the mergesort algorithm.
+implement the mergesort algorithm (<em>n*log(n)</em> worst case
+comparisons).
 
 <h2><a name="hash"></a><a href="CLHSROOT/Body/chap-18.html">
     Chapter 18: Hash Tables</a></h2>
@@ -3109,8 +3026,10 @@ characters, <code>'#'</code> or <code>'?'</code> matches any one
 character.
 
 <P>Due to the name/type swapping rule, there are pathnames that can't
-result from <code>parse-namestring</code>. To get a pathname whose type
-is <code>nil</code>, <code>make-pathname</code> must be used.  Example:
+result from <a href="CLHSROOT/Body/fun_parse-namestring.html">
+<code>parse-namestring</code></a>. To get a pathname whose type
+is <code>nil</code>, <a href="CLHSROOT/Body/fun_make-pathname.html">
+<code>make-pathname</code></a> must be used.  Example:
 <code>(make-pathname :directory &#34;!Clisp.&#34; :name
 &#34;README&#34;)</code>.
 </DL>
@@ -3119,8 +3038,11 @@ is <code>nil</code>, <code>make-pathname</code> must be used.  Example:
 
 <h3>External notation.</H3>
 
-<p>External notation of pathnames (cf. <code>parse-namestring</code> and
-<code>namestring</code>), of course without spaces, [,],{,}:
+<p>External notation of pathnames (cf.
+<a href="CLHSROOT/Body/fun_parse-namestring.html">
+<code>parse-namestring</code></a> and
+<a href="CLHSROOT/Body/fun_namestrin_h-namestring.html">
+<code>namestring</code></a>), of course without spaces, [,],{,}:
 <DL>
 <!-- #ifdef PATHNAME_MSDOS -->
 <DT><EM>Platform dependent: DOS platforms only.</EM>
@@ -3208,27 +3130,13 @@ If you really need that function, you might define it like this:
 <!-- #endif -->
 <!-- #ifdef LOGICAL_PATHNAMES -->
 
-<p>The functions <code>logical-pathname</code>,
-<code>translate-logical-pathname</code>,
-<code>logical-pathname-translations</code>, <code>(setf
-logical-pathname-translations)</code>,
-<code>load-logical-pathname-translations</code>,
-<code>compile-file-pathname</code> are implemented.
-
 <P>When the argument of the function
-<code>translate-logical-pathname</code> is a string, it is interpreted
-as a logical pathname string.
-
+<a href="CLHSROOT/Body/fun_translate_cal-pathname.html">
+<code>translate-logical-pathname</code></a> is a string, it is
+interpreted as a logical pathname string.
 
 <h3><a href="CLHSROOT/Body/sec_the_filen_s_dictionary.html">
     19.4 The Filenames Dictionary.</a></H3>
-
-<p>The ANSI CL functions <a href="CLHSROOT/Body/fun_wild-pathname-p.html">
-<code>wild-pathname-p</code></a>,
-<a href="CLHSROOT/Body/fun_pathname-match-p.html">
-<code>pathname-match-p</code></a> and
-<a href="CLHSROOT/Body/fun_translate-pathname.html">
-<code>translate-pathname</code></a> are implemented.
 
 <p><a href="CLHSROOT/Body/fun_pathname-match-p.html">
 <code>pathname-match-p</code></a> does not interpret missing components
@@ -3248,25 +3156,22 @@ specified and <code>nil</code>, unspecified pieces of
 <var>to-pathname</var> are not replaced by corresponding pieces of
 <var>source</var>.
 
-<h4><a href="CLHSROOT/Body/fun_parse-namestring.html">
-    parse-namestring</a></h4>
+<p><code>(<a href="CLHSROOT/Body/fun_parse-namestring.html">parse-namestring</a>
+          <var>string</var> [<var>host</var> [<var>defaults</var>]])</code>
+returns a logical pathname only if host is a logical host or host is
+<code>nil</code> and defaults is a logical pathname.  To construct a
+logical pathname from a string, the function
+<a href="CLHSROOT/Body/fun_logical-pathname.html">
+<code>logical-pathname</code></a> can be used.
 
-<p><code>(parse-namestring <var>string</var> [<var>host</var>
-[<var>defaults</var>]])</code> returns a logical pathname only if host
-is a logical host or host is <code>nil</code> and defaults is a logical
-pathname.  To construct a logical pathname from a string, the function
-<code>logical-pathname</code> can be used.
-
-<h4><a href="CLHSROOT/Body/fun_merge-pathnames.html">
-    merge-pathnames</a></h4>
-
-<P><code>(merge-pathnames <var>string</var> [<var>defaults</var>])</code>
+<P><code>(<a href="CLHSROOT/Body/fun_merge-pathnames.html">merge-pathnames</a>
+          <var>string</var> [<var>defaults</var>])</code>
 returns a logical pathname only if defaults is a logical pathname. To
 construct a logical pathname from a string, the function
-<code>logical-pathname</code> can be used.
+<a href="CLHSROOT/Body/fun_logical-pathname.html">
+<code>logical-pathname</code></a> can be used.
 
 <!-- #endif -->
-
 
 <h2><a name="files"></a><a href="CLHSROOT/Body/chap-20.html">
     Chapter 20: Files</a></h2>
@@ -3285,18 +3190,21 @@ function <a href="CLHSROOT/Body/fun_directory.html">
 <code>directory</code></a> for this purpose.
 
 <P><a href="CLHSROOT/Body/fun_file-author.html">
-<code>file-author</code></a> always returns <code>nil</code>.
+<code>file-author</code></a> always returns <code>nil</code>, while many
+other CL implementations return the user name of the file owner.  The
+rationale for the CLISP behavior is that file owner is not the same as
+file author, in particular it is not preserved by copying (while,
+legally speaking, the authorship <em>is</em> preserved), and it can be
+changed by the UNIX chown(2) system call.
 
-<h4>probe-directory</h4>
-
-<p><code>(<STRONG>lisp:probe-directory</STRONG> <var>pathname</var>)</code>
-tests whether <var>pathname</var> exists and is a directory. It will,
-unlike <code>probe-file</code> or <code>truename</code>, not signal an
-error if the parent directory of <var>pathname</var> doesn't exist.
-
-<p>The ANSI CL function
-<a href="CLHSROOT/Body/fun_ensure-di_tories-exist.html">
-<code>ensure-directories-exist</code></a> is implemented.
+<p><code>(<STRONG>lisp:probe-directory</STRONG>
+<var>pathname</var>)</code> tests whether <var>pathname</var> exists and
+is a directory. It will, unlike
+<a href="CLHSROOT/Body/fun_probe-file.html">
+<code>probe-file</code></a> or
+<a href="CLHSROOT/Body/fun_truename.html">
+<code>truename</code></a>, not signal an error if the parent directory
+of <var>pathname</var> doesn't exist.
 
 <h4><a href="CLHSROOT/Body/fun_directory.html">
     directory</a></h4>
@@ -3323,31 +3231,32 @@ symbolic links.
 </DL>
 <!-- #endif -->
 
-<P><code>(<STRONG>dir</STRONG> [<var>pathname</var>])</code> is like
-<code>directory</code>, but displays the pathnames instead of returning
-them. <code>(dir)</code> shows the contents of the current directory.
+<P><code>(<STRONG>lisp:dir</STRONG> [<var>pathname</var>])</code> is
+like <code>directory</code>, but displays the pathnames instead of
+returning them. <code>(lisp:dir)</code> shows the contents of the current
+directory.
 
 <P><DL>
 <!-- #if defined(PATHNAME_UNIX) || defined(PATHNAME_AMIGAOS) -->
 <DT><EM>Platform dependent: UNIX, Amiga platforms only.</EM>
- <DD><code>(<STRONG>cd</STRONG> [<var>pathname</var>])</code> manages the
-  current directory.
+ <DD><code>(<STRONG>lisp:cd</STRONG> [<var>pathname</var>])</code>
+      manages the current directory.
 <!-- #elif defined(PATHNAME_RISCOS) -->
  <DT><EM>Platform dependent: Acorn platforms only.</EM>
-  <DD><code>(<STRONG>cd</STRONG> [<var>pathname</var>])</code> manages
-   the current host, current device and the current directory.
+  <DD><code>(<STRONG>lisp:cd</STRONG> [<var>pathname</var>])</code>
+  manages the current host, current device and the current directory.
 <!-- #else -->
  <DT><EM>Platform dependent: DOS, OS/2, Win32 platforms only.</EM>
-  <DD><code>(<STRONG>cd</STRONG> [<var>pathname</var>])</code> manages
-   the current device and the current directory.
+  <DD><code>(<STRONG>lisp:cd</STRONG> [<var>pathname</var>])</code>
+  manages the current device and the current directory.
 <!-- #endif -->
 </DL>
 
-<p><code>(cd <var>pathname</var>)</code> sets it, <code>(cd)</code>
-returns it.
+<p><code>(lisp:cd <var>pathname</var>)</code> sets it,
+<code>(lisp:cd)</code> returns it.
 
 <P><code>(<STRONG>lisp:default-directory</STRONG>)</code> is equivalent
-to <code>(cd)</code>.  <code>(setf (default-directory)
+to <code>(cd)</code>.  <code>(setf (lisp:default-directory)
 <var>pathname</var>)</code> is equivalent to <code>(cd
 <var>pathname</var>)</code>, except for the return value.
 
@@ -3359,21 +3268,6 @@ to <code>(cd)</code>.  <code>(setf (default-directory)
 
 <h2><a name="streams"></a><a href="CLHSROOT/Body/chap-21.html">
     Chapter 21: Streams</a></h2>
-
-<p>The ANSI CL types <a href="CLHSROOT/Body/syscla_broadcast-stream.html">
-<code>broadcast-stream</code></a>,
-<a href="CLHSROOT/Body/syscla_concatenated-stream.html">
-<code>concatenated-stream</code></a>,
-<a href="CLHSROOT/Body/syscla_echo-stream.html">
-<code>echo-stream</code></a>,
-<a href="CLHSROOT/Body/syscla_synonym-stream.html">
-<code>synonym-stream</code></a>,
-<a href="CLHSROOT/Body/syscla_string-stream.html">
-<code>string-stream</code></a>,
-<a href="CLHSROOT/Body/syscla_file-stream.html">
-<code>file-stream</code></a>,
-<a href="CLHSROOT/Body/syscla_two-way-stream.html">
-<code>two-way-stream</code></a> are implemented.
 
 <h3><a href="CLHSROOT/Body/sec_21-1-1-1-3.html">
     21.1.1.1.3 Interactive Streams</a></h3>
@@ -3481,8 +3375,9 @@ prompt one might output.
 <!-- #endif -->
 </DL>
 This keyboard input is not echoed on the screen.  During execution of a
-<code>(with-keyboard . <var>body</var>)</code> form, no input from
-<code>*terminal-io*</code> or any synonymous stream should be requested.
+<code>(lisp:with-keyboard . <var>body</var>)</code> form, no input from
+<a href="CLHSROOT/Body/var_stterminal-iost.html">
+<code>*terminal-io*</code></a> or any synonymous stream should be requested.
 
 <!-- #ifdef TERMINAL_USES_KEYBOARD -->
 <!-- The stream <code>*keyboard-input*</code> is used by
@@ -3673,9 +3568,6 @@ controller and some number of arguments.
 <H3><a href="CLHSROOT/Body/sec_the_streams_dictionary.html">
     21.2. The Streams Dictionary</a></H3>
 
-<p>The ANSI CL function <a href="CLHSROOT/Body/fun_open-stream-p.html">
-<code>open-stream-p</code></a> is implemented.
-
 <P><a href="CLHSROOT/Body/fun_stream-element-type.html">
 <code>stream-element-type</code></a> is <code>setf</code>able. The
 element type of streams created by the functions
@@ -3693,22 +3585,6 @@ if both the old and the new element type are either
 
 <p><a href="CLHSROOT/Body/fun_close.html">
 <code>close</code></a> ignores its <code>:abort</code> argument.
-
-<P>The ANSI CL functions
-<a href="CLHSROOT/Body/fun_broadcast_ream-streams.html">
-<code>broadcast-stream-streams</code></a>,
-<a href="CLHSROOT/Body/fun_concatena_ream-streams.html">
-<code>concatenated-stream-streams</code></a>,
-<a href="CLHSROOT/Body/fun_echo-stre_utput-stream.html">
-<code>echo-stream-input-stream</code></a>,
-<a href="CLHSROOT/Body/fun_echo-stre_utput-stream.html">
-<code>echo-stream-output-stream</code></a>,
-<a href="CLHSROOT/Body/fun_synonym-stream-symbol.html">
-<code>synonym-stream-symbol</code></a>,
-<a href="CLHSROOT/Body/fun_two-way-s_utput-stream.html">
-<code>two-way-stream-input-stream</code></a>,
-<a href="CLHSROOT/Body/fun_two-way-s_utput-stream.html">
-<code>two-way-stream-output-stream</code></a> are implemented.
 
 <!-- #if defined(MSDOS) || defined(WIN32) || (defined(UNIX) && (O_BINARY != 0)) -->
 <h4><a href="CLHSROOT/Body/fun_file-position.html">
@@ -3805,18 +3681,12 @@ is used.
 <h3><a href="CLHSROOT/Body/sec_22-2-1-3.html">
     22.2.1.3 Compiling Format Strings</a></h3>
 
-<p>The ANSI CL macro <a href="CLHSROOT/Body/mac_formatter.html">
-<code>formatter</code></a> is implemented.
-
 <p>The functions <a href="CLHSROOT/Body/fun_writecm_p_rintcm_princ.html">
 <code>write</code></a> and
 <a href="CLHSROOT/Body/fun_write-to-_nc-to-string.html">
 <code>write-to-string</code></a> have an additional keyword
 <code>:closure</code> that can be used to bind
 <code>*print-closure*</code>.
-
-<P>The ANSI CL macro <a href="CLHSROOT/Body/mac_print-unr_dable-object.html">
-<code>print-unreadable-object</code></a> is implemented.
 
 <H3><a href="CLHSROOT/Body/fun_write-sequence.html">
     write-sequence</a></H3>
@@ -3959,10 +3829,6 @@ output much faster.
 <p><a href="CLHSROOT/Body/var_stprint-arrayst.html">
 <code>*print-array*</code></a> is initially set to <code>t</code>.
 
-<P>The ANSI CL macro
-<a href="CLHSROOT/Body/mac_with-stan_rd-io-syntax.html">
-<code>with-standard-io-syntax</code></a> is implemented.
-
 <h2><a name="reader"></a><a href="CLHSROOT/Body/chap-23.html">
     Chapter 23: Reader</a></h2>
 
@@ -4070,10 +3936,9 @@ meaningfully read in:
 <H3><a href="CLHSROOT/Body/acc_readtable-case.html">
     readtable-case</a></H3>
 
-<p>The ANSI CL place <code>readtable-case</code> is implemented. When the
-value of <code>(readtable-case <var>readtable</var>)</code> is
-<code>:invert</code>, it applies to the package name and the symbol name
-of a symbol separately (not to the entire token at once).  An
+<p>When the value of <code>(readtable-case <var>readtable</var>)</code>
+is <code>:invert</code>, it applies to the package name and the symbol
+name of a symbol separately (not to the entire token at once).  An
 alternative to the use of <code>readtable-case</code> is the use of the
 <code>:case-sensitive</code> option to <code>make-package</code>,
 <code>in-package</code> and <code>defpackage</code>.
@@ -4206,12 +4071,6 @@ files are generated:
                            this file is deleted if it is empty.
 </TABLE>
 
-<P>The ANSI CL variables
-<a href="CLHSROOT/Body/var_stcompile_e-truenamest.html">
-<code>*compile-file-pathname*</code></a> and
-<a href="CLHSROOT/Body/var_stcompile_e-truenamest.html">
-<code>*compile-file-truename*</code></a> are implemented.
-
 <h4><a href="CLHSROOT/Body/fun_compile-file-pathname.html">
     compile-file-pathname</a></h4>
 
@@ -4256,12 +4115,6 @@ required module is not already in memory.
   <STRONG><code>*load-compiling*</code></STRONG>, which is initially =
   <code>nil</code>.
 </DL>
-
-<P>The ANSI CL variables
-<a href="CLHSROOT/Body/var_stload-pa_d-truenamest.html">
-<code>*load-pathname*</code></a> and
-<a href="CLHSROOT/Body/var_stload-pa_d-truenamest.html">
-<code>*load-truename*</code></a> are implemented.
 
 <P>The variable <STRONG><code>lisp:*load-paths*</code></STRONG> contains
 a list of directories where program files are searched - additionally to
