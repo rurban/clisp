@@ -1,3 +1,4 @@
+;; -*- Lisp -*-
 
 CHAR-CODE-LIMIT
 #+XCL 128 #+(or (and CLISP (not UNICODE)) AKCL ECL CMU) 256 #+ALLEGRO 65536 #+(and CLISP UNICODE) 1114112 #-(or XCL CLISP AKCL ECL ALLEGRO CMU) UNKNOWN
@@ -660,3 +661,14 @@ CHAR-HYPER-BIT
         (push code wrong-codes))))
   wrong-codes)
 NIL
+
+;; from GCL ansi-test
+(loop :for i :from 0 :below char-code-limit
+  :for x = (code-char i)
+  :unless (or (not (characterp x))
+              (if (or (digit-char-p x) (alpha-char-p x))
+                  (alphanumericp x)
+                  (not (alphanumericp x))))
+  :collect (list i x :digit (digit-char-p x) :alpha (alpha-char-p x)
+                 :alphanumericp (alphanumericp x)))
+nil
