@@ -10262,7 +10262,7 @@ extern void bindhooks (object evalhook_value, object applyhook_value);
 #   and then jumps to unwind_protect_to_save.fun.
 # modifies STACK
 # can trigger GC
-typedef /* nonreturning */ void (*restartf_t)(gcv_object_t* upto_frame);
+nonreturning_function(typedef, (*restartf_t), (gcv_object_t* upto_frame));
 typedef struct {
   restartf_t fun;
   gcv_object_t* upto_frame;
