@@ -1,3 +1,5 @@
+# -*-Makefile-*-
+
 HOST = i486-linux
 CPU = i386
 GCC = gcc
@@ -7,8 +9,8 @@ RM = rm -f
 SED = sed
 ROFF_MAN = groff -Tascii -mandoc
 
-all : vacall-i386-macro.S vacall-i386-msvc.c vacall-m68k.mit.S vacall-m68k.mot.s vacall-mips.S vacall-mipsn32.S vacall-mips64.S vacall-sparc.S vacall-sparc64.S vacall-alpha.s vacall-hppa.s vacall-arm.S vacall-rs6000-aix.old.s vacall-rs6000-aix.new.s vacall-rs6000-sysv4.s vacall-m88k.s vacall-convex.s vacall-ia64.s vacall.man \
-      vacall.h.msvc config.h.msvc
+all : vacall-i386-macro.S vacall-i386-msvc.c vacall-i386-mingw32.c vacall-m68k.mit.S vacall-m68k.mot.s vacall-mips.S vacall-mipsn32.S vacall-mips64.S vacall-sparc.S vacall-sparc64.S vacall-alpha.s vacall-hppa.s vacall-arm.S vacall-rs6000-aix.old.s vacall-rs6000-aix.new.s vacall-rs6000-sysv4.s vacall-m88k.s vacall-convex.s vacall-ia64.s vacall.man \
+      vacall.h.msvc config.h.msvc vacall.h.mingw32 config.h.mingw32
 
 vacall-i386-macro.S : vacall-i386.c vacall.h.in asmi386.sh
 	$(GCC) -V 2.7.2 -b i486-linuxaout $(GCCFLAGS) -D__i386__ -S vacall-i386.c -o vacall-i386.s
@@ -17,6 +19,9 @@ vacall-i386-macro.S : vacall-i386.c vacall.h.in asmi386.sh
 
 vacall-i386-msvc.c : vacall-i386-macro.S
 	(echo '#ifdef _MSC_VER' ; echo '#include "vacall.h"' ; echo '#endif' ; cat vacall-i386-macro.S) > vacall-i386-msvc.c
+
+vacall-i386-mingw32.c : vacall-i386-macro.S
+	(echo '#ifdef __MINGW32__' ; echo '#include "vacall.h"' ; echo '#endif' ; cat vacall-i386-macro.S) > vacall-i386-mingw32.c
 
 vacall-m68k.mit.S : vacall-m68k.c vacall.h.in asmm68k.sh
 	$(GCC) -V 2.95.2 -b m68k-sun $(GCCFLAGS) -D__m68k__ -S vacall-m68k.c -o vacall-m68k.mit.s
@@ -88,9 +93,14 @@ vacall.man : vacall.3
 vacall.h.msvc : vacall.h.in
 	sed -e 's,^#undef __i386__$$,#define __i386__ 1,' -e 's,^#undef __SMALL_STRUCT_RETURN__$$,#define __SMALL_STRUCT_RETURN__ 1,' < vacall.h.in > vacall.h.msvc
 
+vacall.h.mingw32 : vacall.h.in
+	sed -e 's,^#undef __i386__$$,#define __i386__ 1,' -e 's,^#undef __SMALL_STRUCT_RETURN__$$,#define __SMALL_STRUCT_RETURN__ 1,' < vacall.h.in > vacall.h.mingw32
+
 config.h.msvc : config.h.in
 	sed -e 's,^#undef RETABORTTYPE$$,#define RETABORTTYPE void,' < config.h.in > config.h.msvc
 
+config.h.mingw32 : config.h.in
+	sed -e 's,^#undef RETABORTTYPE$$,#define RETABORTTYPE void,' < config.h.in > config.h.mingw32
 
 tests : tests-i386.s tests-m68k.s tests-mips.s tests-sparc.s tests-alpha.s tests-hppa.s tests-arm.s tests-rs6000.s tests-m88k.s tests-convex.s tests-ia64.s
 	true
