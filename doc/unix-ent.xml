@@ -18,6 +18,7 @@
 
 <!-- functions (system calls) -->
 <!ENTITY unix-f "&unix-top;/functions">
+<!ENTITY abort-c "<ulink url='&unix-f;/abort.html'><function>abort</function></ulink>">
 <!ENTITY accept "<ulink url='&unix-f;/accept.html'><function>accept</function></ulink>">
 <!ENTITY bind "<ulink url='&unix-f;/bind.html'><function>bind</function></ulink>">
 <!ENTITY calloc "<ulink url='&unix-f;/calloc.html'><function>calloc</function></ulink>">
@@ -103,6 +104,7 @@
 <!ENTITY chmod "<ulink url='&unix-u;/chmod.html'><command>chmod</command></ulink>">
 <!ENTITY iconv-u "<ulink url='&unix-u;/iconv.html'><command>iconv</command></ulink>">
 <!ENTITY ls "<ulink url='&unix-u;/ls.html'><command>ls</command></ulink>">
+<!ENTITY make "<ulink url='&unix-u;/make.html'><command>make</command></ulink>">
 <!ENTITY sh "<ulink url='&unix-u;/sh.html'><command>/bin/sh</command></ulink>">
 <!ENTITY uname-u "<ulink url='&unix-u;/uname.html'><command>uname</command></ulink>">
 
