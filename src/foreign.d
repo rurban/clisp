@@ -4063,8 +4063,8 @@ local inline void* find_name (void *handle, char *name)
  can trigger GC */
 local /*maygc*/ void* object_handle (object library, gcv_object_t *name,
                                      bool retry_p) {
-  void * address;
-  GCTRIGGER_IF(retry_p, GCTRIGGER());
+  GCTRIGGER_IF(retry_p, GCTRIGGER1(library));
+  var void * address;
  object_handle_restart:
   with_string_0(*name,O(foreign_encoding),namez, {
     address = find_name(TheFpointer(Car(Cdr(library)))->fp_pointer, namez);
