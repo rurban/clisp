@@ -54,6 +54,11 @@
   (:method ((method standard-method))
     (std-method-specializers method)))
 
+;; MOP p. 82
+(defgeneric method-generic-function (method)
+  (:method ((method standard-method))
+    (std-method-generic-function method)))
+
 (defgeneric function-keywords (method)
   (:method ((method standard-method))
     (let ((sig (std-method-signature method)))
