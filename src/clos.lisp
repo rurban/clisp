@@ -765,14 +765,20 @@
   ;; store new documentation:
   (when documentation (sys::%set-documentation name 'TYPE documentation))
   (let ((class (find-class name nil)))
+    (when (and class (not (and (eq metaclass <standard-class>)
+                               (eq metaclass (class-of class)))))
+      (unless (eq metaclass (class-of class)) ; mixing DEFSTRUCT & DEFCLASS
+        (warn (TEXT "Cannot redefine ~S with a different metaclass ~S")
+              class metaclass))
+      ;; DEFSTRUCT -> (DEFCLASS ... (:METACLASS STRUCTURE-CLASS))
+      ;; ==> no warning, just discard the old definition, like with DEFSTRUCT
+      (setq class nil))
     (if (and class (class-precedence-list class))
       ;; trivial changes (that can occur when doubly loading the same code)
       ;; do not require updating the instances:
       ;; changed slot-options :initform, :documentation,
       ;; changed class-options :default-initargs, :documentation.
-      (if (and (eq metaclass <standard-class>)
-               (eq metaclass (class-of class))
-               (equal direct-superclasses (class-direct-superclasses class))
+      (if (and (equal direct-superclasses (class-direct-superclasses class))
                (equal-slots direct-slots (class-direct-slots class))
                (equal-default-initargs direct-default-initargs
                                        (class-direct-default-initargs class)))
