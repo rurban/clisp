@@ -12,6 +12,7 @@
 <!ENTITY mop-home "http://www.lisp.org/mop">
 <!ENTITY cl "<ulink url='http://www.lisp.org'><command>Common Lisp</command></ulink>">
 <!ENTITY clos "<ulink url='&clhs;/Body/chap-7.html'><command>CLOS</command></ulink>">
+<!ENTITY clcs "<ulink url='&clhs;/Body/chap-9.html'><command>CLCS</command></ulink>">
 <!ENTITY clx "<ulink url='http://www.cliki.net/CLX'><command>CLX</command></ulink>">
 
 <!ENTITY ansi-cl "<citation><link linkend='ansi-cl'>ANSI CL standard</link></citation>">
@@ -103,9 +104,11 @@
 <!ENTITY glibc "&gnu; <ulink url='http://www.gnu.org/software/libc/'>libc</ulink>">
 <!ENTITY libiconv "&gnu; <ulink url='http://www.gnu.org/software/libiconv/'>libiconv</ulink>">
 <!ENTITY readline "&gnu; <ulink url='http://cnswww.cns.cwru.edu/~chet/readline/rltop.html'>readline</ulink>">
+<!ENTITY autoconf "&gnu; <ulink url='http://www.gnu.org/software/autoconf/'>autoconf</ulink>">
 <!ENTITY gpl "<ulink url='http://www.gnu.org/copyleft/gpl.html'>GPL</ulink>">
 <!ENTITY lgpl "<ulink url='http://www.gnu.org/copyleft/lgpl.html'>LGPL</ulink>">
 <!ENTITY gfdl "<ulink url='http://www.gnu.org/copyleft/fdl.html'>GFDL</ulink>">
+
 
 <!-- *** implementations *** -->
 <!ENTITY abcl "<ulink url='http://armedbear-j.sourceforge.net/'><command>ABCL</command></ulink>">
