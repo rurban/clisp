@@ -1191,6 +1191,29 @@ global bool string_equal (object string1, object string2) {
 #endif
 #endif
 
+/* (SYS::STRING-INFO str) => char-len(8/16/32); immutable-p; realloc-p */
+LISPFUNN(string_info,1) {
+  var object str = popSTACK();
+  if (stringp(str)) {
+   #ifdef HAVE_SMALL_SSTRING
+    if (Record_type(str) == Rectype_reallocstring) {
+      value3 = T; simple_array_to_storage(str);
+    } else value3 = NIL;
+   #endif
+    value2 = NIL;
+    switch (Record_type(str)) {
+      case Rectype_Imm_S32string: value2 = T; /*FALLTHROUGH*/
+      case Rectype_S32string: value1 = fixnum(32); break;
+      case Rectype_Imm_S16string: value2 = T; /*FALLTHROUGH*/
+      case Rectype_S16string: value1 = fixnum(16); break;
+      case Rectype_Imm_S8string: value2 = T; /*FALLTHROUGH*/
+      case Rectype_S8string: value1 = fixnum(8); break;
+      default: NOTREACHED;
+    }
+  } else value1 = value2 = value3 = NIL;
+  mv_count = 3;
+}
+
 # UP: Konversion eines Objekts zu einem Character
 # coerce_char(obj)
 # > obj: Lisp-Objekt
