@@ -472,7 +472,7 @@ mlf-kill
   (mapcar #'foo *t-list*))
 (100 200)
 
-;; form Christophe Rhodes <csr21@cam.ac.uk>
+;; from Christophe Rhodes <csr21@cam.ac.uk>
 (defstruct foo a)
 FOO
 
@@ -1351,6 +1351,18 @@ ERROR
             (list (documentation class1 't)
                   (documentation class2 't))))))
 ("first" "first" "second")
+
+;; Check that invalid class options are rejected.
+(defclass foo116 () () (:name bar))
+ERROR
+(defclass foo117 () () (:direct-superclasses baz))
+ERROR
+(defclass foo118 () () (:direct-slots x))
+ERROR
+(defclass foo119 () () (:direct-default-initargs (:x 5)))
+ERROR
+(defclass foo120 () () (:other-option blabla))
+ERROR
 
 
 ;;; ensure-generic-function
