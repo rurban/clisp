@@ -1314,6 +1314,8 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         define_variable(S(packagestern),Car(O(all_packages))); # *PACKAGE* := '#<PACKAGE LISP>
         # zu SYMBOL:
         define_variable(S(gensym_counter),Fixnum_1);    # *GENSYM-COUNTER* := 1
+        # zu PATHNAME:
+        define_variable(S(merge_pathnames_ansi),NIL);   # *MERGE-PATHNAMES-ANSI* := NIL
         # zu LISPARIT:
         init_arith(); # definiert folgende:
         # define_variable(S(pi),);                      # PI
@@ -2819,6 +2821,8 @@ local void print_banner ()
           Symbol_value(S(ansi)) = T;
           # (SETQ *FLOATING-POINT-CONTAGION-ANSI* T)
           Symbol_value(S(floating_point_contagion_ansi)) = T;
+          # (SETQ *MERGE-PATHNAMES-ANSI* T)
+          Symbol_value(S(merge_pathnames_ansi)) = T;
           # (IN-PACKAGE "COMMON-LISP-USER")
           pushSTACK(O(ansi_user_package_name)); funcall(L(in_package),1);
           # (PUSHNEW :ANSI-CL *FEATURES*)
