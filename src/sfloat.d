@@ -619,7 +619,8 @@
                     );
   }
 
-/* I_to_SF(x) wandelt ein Integer x in ein Short-Float um und rundet dabei.
+/* I_to_SF(x,signal_overflow) converts an integer x to a short-float, and
+ rounds thereby.
  can trigger GC
  Methode:
  x=0 -> Ergebnis 0.0
@@ -634,7 +635,7 @@
    Dabei um ein Bit nach rechts schieben.
    Bei Aufrundung auf 2^17 (rounding overflow) Mantisse um 1 Bit nach rechts
      schieben und Exponent incrementieren. */
-local object I_to_SF (object x)
+local object I_to_SF (object x, bool signal_overflow)
 {
   if (eq(x,Fixnum_0))
     return SF_0;
@@ -684,14 +685,17 @@ local object I_to_SF (object x)
         mant = mant>>1; exp = exp+1;
       }
     }
+    #define fehler_overflow() \
+      if (signal_overflow) (fehler_overflow)(); else return nullobj;
     encode_SF(sign,(sintL)exp,mant, return);
+    #undef fehler_overflow
   }
 }
 
-# RA_to_SF(x) wandelt eine rationale Zahl x in ein Short-Float um
-# und rundet dabei.
+# RA_to_SF(x,signal_overflow) converts a rational number x to a short-float,
+# and rounds thereby.
 # can trigger GC
-  local object RA_to_SF (object x);
+  local object RA_to_SF (object x, bool signal_overflow);
 # Methode:
 # x ganz -> klar.
 # x = +/- a/b mit Integers a,b>0:
@@ -705,11 +709,13 @@ local object I_to_SF (object x)
 #   Der erste Wert ist >=2^17, <2^19.
 #   Falls er >=2^18 ist, runde 2 Bits weg,
 #   falls er <2^18 ist, runde 1 Bit weg.
-  local object RA_to_SF (object x)
+  local object RA_to_SF (object x, bool signal_overflow)
   {
     if (RA_integerp(x))
-      return I_to_SF(x);
+      return I_to_SF(x,signal_overflow);
     # x Ratio
+    #define fehler_overflow() \
+      if (signal_overflow) (fehler_overflow)(); else return nullobj;
     pushSTACK(TheRatio(x)->rt_den); # b
     var signean sign = RT_sign(x); # Vorzeichen
     x = TheRatio(x)->rt_num; # +/- a
@@ -719,8 +725,9 @@ local object I_to_SF (object x)
     # Stackaufbau: b, a.
     var sintL lendiff = I_integer_length(x) # (integer-length a)
                         - I_integer_length(STACK_1); # (integer-length b)
-    if (lendiff > SF_exp_high-SF_exp_mid) # Exponent >= n-m > Obergrenze ?
+    if (lendiff > SF_exp_high-SF_exp_mid) { # Exponent >= n-m > Obergrenze ?
       fehler_overflow(); # -> Overflow
+    }
     if (lendiff < SF_exp_low-SF_exp_mid-2) { # Exponent <= n-m+2 < Untergrenze ?
       if (underflow_allowed()) {
         fehler_underflow(); # -> Underflow
@@ -781,5 +788,6 @@ local object I_to_SF (object x)
     skipSTACK(2);
     # Fertig.
     encode_SF(sign,lendiff,mant, return);
+    #undef fehler_overflow
   }
 

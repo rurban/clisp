@@ -50,7 +50,7 @@
     # Ein Long-Float ist genau dann betragsmäßig <2^-n, wenn
     # sein Exponent < LF_exp_mid-n = uexp_limit ist.
     {
-      var object temp = I_to_LF(Fixnum_1,len); # 1 als Long-Float
+      var object temp = I_to_LF(Fixnum_1,len,true); # 1 als Long-Float
       pushSTACK(temp); # =: a
       temp = LF_I_scale_float_LF(temp,Fixnum_minus1); # (scale-float a -1)
       pushSTACK(LF_sqrt_LF(temp)); # daraus die Wurzel, =: b
@@ -714,7 +714,7 @@ local void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
     # gewünschte > vorhandene Länge -> muss nachberechnen:
     {
       var uintC len = lf_len_extend(f_len); # einige Digits mehr verlangen
-      var object temp = F_lnx_F(I_to_LF(fixnum(2),len)); # (ln 2.0)
+      var object temp = F_lnx_F(I_to_LF(fixnum(2),len,true)); # (ln 2.0)
       # temp = ln(2) ist fertig.
       return O(LF_ln2) = LF_shorten_LF(temp,f_len); # wieder verkürzen, als LF_ln2 abspeichern
     }
@@ -972,7 +972,7 @@ local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
         STACK_1 = RA_float_F(STACK_1); STACK_0 = RA_float_F(STACK_0);
       } else {
         # a Float
-        STACK_0 = RA_F_float_F(b,a); # b := (float b a)
+        STACK_0 = RA_F_float_F(b,a,true); # b := (float b a)
       }
     } else {
       # b Float
@@ -981,7 +981,7 @@ local object R_ln_R (object x, bool start_p, gcv_object_t* end_p)
         if (eq(a,Fixnum_1)) { # a=1 -> Ergebnis 0
           skipSTACK(2); return RA_F_exact_contagion_R(Fixnum_0,b);
         }
-        STACK_1 = RA_F_float_F(a,b); # a := (float a b)
+        STACK_1 = RA_F_float_F(a,b,true); # a := (float a b)
       }
     }
     # Nun a,b beide Floats.

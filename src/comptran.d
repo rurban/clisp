@@ -158,7 +158,7 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
           pushSTACK(angle);
           b = STACK_1;
           if (R_rationalp(b))
-            b = RA_F_float_F(b,angle);
+            b = RA_F_float_F(b,angle,true);
           b = F_ln_F(b,true,&STACK_1); STACK_0 = F_F_durch_F(STACK_0,b);
         }
         /* Stackaufbau: a, b, Imaginärteil.
@@ -193,7 +193,7 @@ local object N_log_N (object x, bool start_p, gcv_object_t *end_p)
         /* durch (log b) dividieren, liefert den Realteil: */
         b = STACK_2;
         if (R_rationalp(b))
-          b = RA_F_float_F(b,STACK_0);
+          b = RA_F_float_F(b,STACK_0,true);
         b = F_ln_F(b,true,&STACK_2); STACK_0 = F_F_durch_F(STACK_0,b);
        real_ok:
         /* stack layout: a, b, imagpart, realpart. */
@@ -748,10 +748,10 @@ local void R_R_atanh_R_R (object x, object y)
   if (R_rationalp(STACK_1)) {
     if (R_rationalp(STACK_0))
       STACK_0 = RA_float_F(STACK_0);
-    STACK_1 = RA_F_float_F(STACK_1,STACK_0);
+    STACK_1 = RA_F_float_F(STACK_1,STACK_0,true);
   } else {
     if (R_rationalp(STACK_0))
-      STACK_0 = RA_F_float_F(STACK_0,STACK_1);
+      STACK_0 = RA_F_float_F(STACK_0,STACK_1,true);
   }
   pushSTACK(R_R_contagion_R(STACK_0,STACK_1));
   STACK_1 = F_extend2_F(STACK_1); /* increase precision y */

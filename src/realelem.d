@@ -30,24 +30,24 @@ local bool R_plusp (object x)
  can trigger GC */
 local object I_F_float_F (object x, object y)
 { floatcase(y,
-            { return I_to_SF(x); },
-            { return I_to_FF(x); },
-            { return I_to_DF(x); },
-            { return I_to_LF(x,Lfloat_length(y)); });
+            { return I_to_SF(x,true); },
+            { return I_to_FF(x,true); },
+            { return I_to_DF(x,true); },
+            { return I_to_LF(x,Lfloat_length(y),true); });
 }
 
-/* RA_F_float_F(x,y) converts a rational number x into the float-format
- of the Float y and rounds if necessary.
+/* RA_F_float_F(x,y,signal_overflow) converts a rational number x to the
+ float-format of the Float y and rounds if necessary.
  > x: a rational number
  > y: a float
  < result: (float x y)
  can trigger GC */
-local object RA_F_float_F (object x, object y)
+local object RA_F_float_F (object x, object y, bool signal_overflow)
 { floatcase(y,
-            { return RA_to_SF(x); },
-            { return RA_to_FF(x); },
-            { return RA_to_DF(x); },
-            { return RA_to_LF(x,Lfloat_length(y)); });
+            { return RA_to_SF(x,signal_overflow); },
+            { return RA_to_FF(x,signal_overflow); },
+            { return RA_to_DF(x,signal_overflow); },
+            { return RA_to_LF(x,Lfloat_length(y),signal_overflow); });
 }
 
 /* R_F_float_F(x,y) converts a real number x into the float-format of the float
@@ -57,32 +57,32 @@ local object RA_F_float_F (object x, object y)
  < result: (float x y)
  can trigger GC */
 local object R_F_float_F (object x, object y)
-{ return (R_rationalp(x) ? RA_F_float_F(x,y) : F_F_float_F(x,y)); }
+{ return (R_rationalp(x) ? RA_F_float_F(x,y,true) : F_F_float_F(x,y)); }
 
 /* R_to_SF(x) converts a real number x into a short-float.
  < result: (coerce x 'short-float)
  can trigger GC */
 local object R_to_SF (object x)
-{ return (R_rationalp(x) ? RA_to_SF(x) : F_to_SF(x)); }
+{ return (R_rationalp(x) ? RA_to_SF(x,true) : F_to_SF(x)); }
 
 /* R_to_FF(x) converts a real number x into a single-float.
  < result: (coerce x 'single-float)
  can trigger GC */
 local object R_to_FF (object x)
-{ return (R_rationalp(x) ? RA_to_FF(x) : F_to_FF(x)); }
+{ return (R_rationalp(x) ? RA_to_FF(x,true) : F_to_FF(x)); }
 
 /* R_to_DF(x) converts a real number x into a double-float.
  < result: (coerce x 'double-float)
  can trigger GC */
 local object R_to_DF (object x)
-{ return (R_rationalp(x) ? RA_to_DF(x) : F_to_DF(x)); }
+{ return (R_rationalp(x) ? RA_to_DF(x,true) : F_to_DF(x)); }
 
 /* R_to_LF(x,len) converts a real number x into a long-float with len digits.
  > uintC len: desired number of digits, >=LF_minlen
  < result: (coerce x `(long-float ,len))
  can trigger GC */
 local object R_to_LF (object x, uintC len)
-{ return (R_rationalp(x) ? RA_to_LF(x,len) : F_to_LF(x,len)); }
+{ return (R_rationalp(x) ? RA_to_LF(x,len,true) : F_to_LF(x,len)); }
 
 /* R_R_contagion_R(x,y) returns a real number, that is as imprecise as the
  more imprecise one of both real numbers x and y. */
@@ -164,7 +164,7 @@ local void warn_floating_point_rational_contagion (void) {
  can trigger GC */
 local object RA_F_exact_contagion_R (object result, object float_argument) {
   if (!nullpSv(floating_point_rational_contagion_ansi))
-    result = RA_F_float_F(result,float_argument);
+    result = RA_F_float_F(result,float_argument,true);
   if (!nullpSv(warn_on_floating_point_rational_contagion)) {
     pushSTACK(result);
     warn_floating_point_rational_contagion();
@@ -213,10 +213,10 @@ local object RA_F_exact_contagion_R (object result, object float_argument) {
  can trigger GC */
 local object I_float_F (object x) {
   defaultfloatcase(S(default_float_format),Fixnum_0,
-                   return I_to_SF(x),
-                   return I_to_FF(x),
-                   return I_to_DF(x),
-                   return I_to_LF(x,I_to_UL(O(LF_digits))); ,
+                   return I_to_SF(x,true),
+                   return I_to_FF(x,true),
+                   return I_to_DF(x,true),
+                   return I_to_LF(x,I_to_UL(O(LF_digits)),true); ,
                    pushSTACK(x), x = popSTACK());
 }
 
@@ -226,10 +226,10 @@ local object I_float_F (object x) {
  can trigger GC */
 local object RA_float_F (object x) {
   defaultfloatcase(S(default_float_format),Fixnum_0,
-                   return RA_to_SF(x),
-                   return RA_to_FF(x),
-                   return RA_to_DF(x),
-                   return RA_to_LF(x,I_to_UL(O(LF_digits))); ,
+                   return RA_to_SF(x,true),
+                   return RA_to_FF(x,true),
+                   return RA_to_DF(x,true),
+                   return RA_to_LF(x,I_to_UL(O(LF_digits)),true); ,
                    pushSTACK(x), x = popSTACK());
 }
 
@@ -262,11 +262,12 @@ local object F_R_float_F (object x, object y)
 local object RA_R_float_F (object x, object y)
 {
   defaultfloatcase(S(default_float_format),y,
-                   return RA_to_SF(x),
-                   return RA_to_FF(x),
-                   return RA_to_DF(x),
+                   return RA_to_SF(x,true),
+                   return RA_to_FF(x,true),
+                   return RA_to_DF(x,true),
                    return RA_to_LF(x,(long_float_p(y) ? Lfloat_length(y)
-                                      : I_to_UL(O(LF_digits)))),
+                                      : I_to_UL(O(LF_digits))),
+                                   true),
                    pushSTACK(x), x = popSTACK());
 }
 local object R_R_float_F (object x, object y)
@@ -391,13 +392,13 @@ GEN_R_fround(round)
     if (R_rationalp(arg2)) { /* both rational numbers */                \
       return_statement CONCAT3(RA_RA_,op,_RA) (arg1,arg2);              \
     } else { /* arg1 rational, arg2 Float -> convert arg1 into Float */ \
-      pushSTACK(arg2); arg1 = RA_F_float_F(arg1,arg2); arg2 = popSTACK(); \
+      pushSTACK(arg2); arg1 = RA_F_float_F(arg1,arg2,true); arg2 = popSTACK(); \
       return_statement CONCAT3(F_F_,op,_F) (arg1,arg2);                 \
     }                                                                   \
   } else {                                                              \
     if (R_rationalp(arg2)) {                                            \
       /* arg1 Float, arg2 rational -> convert arg2 into Float */        \
-      pushSTACK(arg1); arg2 = RA_F_float_F(arg2,arg1); arg1 = popSTACK(); \
+      pushSTACK(arg1); arg2 = RA_F_float_F(arg2,arg1,true); arg1 = popSTACK(); \
       return_statement CONCAT3(F_F_,op,_F) (arg1,arg2);                 \
     } else { /* both Floats */                                          \
       return_statement CONCAT3(F_F_,op,_F) (arg1,arg2);                 \
@@ -680,21 +681,27 @@ local signean R_R_comp (object x, object y)
       return RA_RA_comp(x,y);
     else { /* x rational, y Float -> convert x into a float */
       pushSTACK(x); pushSTACK(y);
-      x = RA_F_float_F(x,y); /* convert x into a float */
-     {var signean erg = F_F_comp(x,STACK_0); /* and compare with y */
+      var object xf = RA_F_float_F(x,y,false); /* convert x into a float */
+      if (eq(xf,nullobj)) { /* overflow? */
+        skipSTACK(2); return RA_RA_comp(x,Fixnum_0);
+      }
+      var signean erg = F_F_comp(xf,STACK_0); /* and compare with y */
       if (erg!=0) { skipSTACK(2); return erg; } /* unequal -> done */
       y = F_rational_RA(popSTACK()); /* convert y into a rational number */
       return RA_RA_comp(popSTACK(),y); /* compare again */
-    }}
+    }
   } else {
     if (R_rationalp(y)) { /* x Float, y rational -> convert y into a float */
       pushSTACK(y); pushSTACK(x);
-      y = RA_F_float_F(y,x); /* convert y into a float */
-     {var signean erg = F_F_comp(STACK_0,y); /* and compare with x */
+      var object yf = RA_F_float_F(y,x,false); /* convert y into a float */
+      if (eq(yf,nullobj)) { /* overflow? */
+        skipSTACK(2); return RA_RA_comp(Fixnum_0,y);
+      }
+      var signean erg = F_F_comp(STACK_0,yf); /* and compare with x */
       if (erg!=0) { skipSTACK(2); return erg; } /* unequal -> done */
       x = F_rational_RA(popSTACK()); /* convert x into a rational number */
       return RA_RA_comp(x,popSTACK()); /* compare again */
-    }} else /* both floats */
+    } else /* both floats */
       return F_F_comp(x,y);
   }
 }
