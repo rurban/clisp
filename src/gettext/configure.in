@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for GNU gettext library for use within CLISP
-dnl Bruno Haible 16.9.1997
+dnl Bruno Haible 1.6.1998
 dnl
 dnl  configure.in ---<autoconf>--->> configure
 dnl  configure.in ---<autoheader>--->> config.h.in
@@ -38,8 +38,6 @@ dnl Checks for library functions.
 dnl These are the only lines required to internationalize the package.
 dnl (OK, not quite, the AC_OUTPUT has also some parts.)
 AM_GNU_GETTEXT
-
-AC_LINK_FILES($nls_cv_header_libgt, $nls_cv_header_intl)
 
 AC_OUTPUT([intl/Makefile intl/intlh.inst po/Makefile])
 
