@@ -118,7 +118,11 @@ DEFUNF(POSIX::LGAMMA,x) {
   value2 = (sign > 0 ? Fixnum_1 : Fixnum_minus1);
 # else
   double res = lgamma(D_S);
+# if HAVE_DECL_SIGNGAM
   value2 = (signgam > 0 ? Fixnum_1 : Fixnum_minus1);
+# else
+  value2 = NIL;
+# endif
 # endif
   N_D(res,value1); mv_count=2;
 }
