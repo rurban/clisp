@@ -1,3 +1,9 @@
+2003-08-23  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (MODULESDIR, MODULESDIR_, MODULESDIR_M): new vars
+	(exporting.fas): depend on ${MODULESDIR_M}exporting.lisp, not the link
+	(modular): depend on clisp.h
+
 2003-08-22  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (defun): reverted the 2003-08-12 patch: cannot parse

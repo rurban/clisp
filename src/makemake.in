@@ -625,6 +625,9 @@ UTILDIR_M="${SRCTOPDIR_M}utils${NEXT_M}"
 DOCDIR="${SRCTOPDIR}doc${NEXT}"
 DOCDIR_="${SRCTOPDIR_}doc${NEXT_}"
 DOCDIR_M="${SRCTOPDIR_M}doc${NEXT_M}"
+MODULESDIR="${SRCTOPDIR}modules${NEXT}"
+MODULESDIR_="${SRCTOPDIR_}modules${NEXT_}"
+MODULESDIR_M="${SRCTOPDIR_M}modules${NEXT_M}"
 
 if [ $CROSS = false ] && [ $HSYS = win32msvc -o $HSYS = win32bc ] ; then
   NEXT_CC="$NEXT_"
@@ -2745,7 +2748,7 @@ echol;
 
 for f in ${LUTILS} ; do
   echol "${f}.fas : ${UTILDIR_M}${f}.lisp lisp${LEXE} lispinit.mem"
-  echotab "\$(RUN) -M lispinit.mem -q -c ${UTILDIR_M}${f}.lisp -o ${f}.fas"
+  echotab "\$(RUN) -M lispinit.mem -q -c ${UTILDIR}${f}.lisp -o ${f}.fas"
   echol
 done
 
@@ -2983,10 +2986,10 @@ echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.d modules.d"
 echotab "cd linkkit && \$(LN_S) ${PARENT_}modules.c modules.c"
 echotab "cd linkkit && \$(LN_S) ${PARENT_}clisp.h clisp.h"
 echol
-echol "exporting.fas : exporting.lisp lisp${LEXE} lispinit.mem"
-echotab "\$(RUN) -M lispinit.mem -q -c exporting.lisp"
+echol "exporting.fas : ${MODULESDIR_M}exporting.lisp lisp${LEXE} lispinit.mem"
+echotab "\$(RUN) -M lispinit.mem -q -c ${MODULESDIR}exporting.lisp -o exporting.fas"
 echol
-echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars exporting.fas modprep.fas"
+echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars exporting.fas modprep.fas clisp.h"
 echodummyrule modular
 echol
 echol "makevars :"
