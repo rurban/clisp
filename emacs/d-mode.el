@@ -28,20 +28,22 @@
            (search-forward "(") (forward-char -1)
            (let ((beg (scan-sexps (point) -1)))
              (buffer-substring-no-properties beg (scan-sexps beg 1))))
-          ((looking-at "#define ")
-           (let ((end (scan-sexps (point) 2)))
-             (buffer-substring-no-properties (scan-sexps end -1) end)))
           ((looking-at "nonreturning_function")
            (search-forward "(") (search-forward "(") (forward-char -1)
            (let ((beg (scan-sexps (point) -1)))
-             (buffer-substring-no-properties beg (scan-sexps beg 1)))))))
+             (buffer-substring-no-properties beg (scan-sexps beg 1))))
+          (t ;; (or (looking-at "struct ") (looking-at "#define ")
+             ;;     (looking-at "typedef "))
+           (let ((add-log-current-defun-function nil))
+             (add-log-current-defun))))))
 
 (defun d-mode-beg-of-defun ()
   "A valid value for `beginning-of-defun-function' for `d-mode'."
   (re-search-backward
    (eval-when-compile
     (concat "^" (regexp-opt '("LISPFUN" "local " "global " "#define "
-                              "nonreturning_function") t)))
+                              "nonreturning_function" "typedef " "struct ")
+                            t)))
    nil 1))                      ; move to the limit
 
 (defun d-mode-convert-function ()
@@ -174,5 +176,9 @@ Beware - this will modify the original C-mode too!"
 
 ;; put D buffers along with the C buffers in the menus
 (push '("\\<D\\>" . "C") mouse-buffer-menu-mode-groups)
+
+;; treat D files like C files for add-log
+(eval-after-load "add-log"
+  '(add-to-list 'add-log-c-like-modes 'd-mode))
 
 (provide 'd-mode)
