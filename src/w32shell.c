@@ -79,6 +79,37 @@ BOOL resolve_shell_shortcut (LPCSTR filename, LPSTR resolved) {
   return result;
 }
 
+#if !defined(cpslashp)
+# define cpslashp(c) ((c) == '\\' || (c) == '/')
+#endif
+
+/* Uses the base from filename to augment pathname.
+   Return false when (pathname is relative AND filename doesn't
+   contain the base), so pathname (contained in shortcut)
+   cannot be referenced other than to current directory
+   what is wrong. */
+static BOOL augment_relative_pathname(LPCSTR filename, LPSTR pathname) {
+  /* check if pathname is absolute */
+  /* what to do with "/bar/foo" pathnames ?*/
+  if (cpslashp(pathname[0])) return FALSE; /* let's panic */
+  if (((pathname[0] >= 'a' && pathname[0] <= 'z')
+    || (pathname[0] >= 'A' && pathname[0] <= 'Z'))
+    && pathname[1] == ':' && cpslashp(pathname[2])) return TRUE;
+  if (pathname[0] == '\\' && pathname[1] == '\\') return TRUE;
+  {
+    int fl = strlen(filename);
+    int pl = strlen(pathname);
+    const char * cp = filename + fl - 1;
+    /* find the last slash */
+    for (;!cpslashp(*cp) && cp > filename;cp--);
+    if (!cpslashp(*cp)) return FALSE; /* no slash */
+    memmove(pathname + (cp - filename + 1),pathname,pl + 1);
+    memmove(pathname,filename,cp - filename + 1);
+  }
+  return TRUE;
+}
+
+
 typedef enum {
   shell_shortcut_notresolved = 0,
   shell_shortcut_notexists,
@@ -94,16 +125,28 @@ shell_shortcut_target_t
 resolve_shell_shortcut_more (LPCSTR filename, LPSTR resolved)
 {
   char pathname[_MAX_PATH];
+  char pathname1[_MAX_PATH];
   int dirp = 0;
   int exists = 0;
   int try_counter = 33;
-  int l, resolvedp = resolve_shell_shortcut(filename,pathname);
+  int l, resolvedp = resolve_shell_shortcut(filename,pathname)
+    && augment_relative_pathname(filename,pathname);
   /* handle links to links. cygwin can do such */
-  while (resolvedp
-         && try_counter--
-         && (l=strlen(pathname))>4
-         && stricmp(pathname+l-4,".lnk") == 0
-         && (resolvedp = resolve_shell_shortcut(pathname,pathname)));
+  while (resolvedp && try_counter--) {
+    l=strlen(pathname);
+    if (l >= 4 && stricmp(pathname+l-4,".lnk") == 0)
+      resolvedp = resolve_shell_shortcut(pathname,pathname1)
+              && augment_relative_pathname(pathname,pathname1)
+              && strcpy(pathname,pathname1);
+    else {
+    /* not a link to shortcut but can be the symbolic filename */
+      strcpy(pathname+l,".lnk");
+      if (!resolve_shell_shortcut(pathname,pathname1)
+        || !augment_relative_pathname(pathname,pathname1)) {
+        pathname[l] = '\0'; break; }
+      else strcpy(pathname,pathname1);
+    }
+  }
   if (resolvedp) { /* additional checks */
     DWORD fileattr = GetFileAttributes(pathname);
     exists = fileattr != 0xFFFFFFFF;
@@ -141,10 +184,6 @@ shell_shortcut_target_t resolve_shell_symlink (LPCSTR filename, LPSTR resolved)
   return resolve_shell_shortcut_more(pathname,resolved);
 }
 
-#if !defined(cpslashp)
-# define cpslashp(c) ((c) == '\\' || (c) == '/')
-#endif
-
 /* the ultimate shortcut megaresolver
    style inspired by directory_search_scandir
  > namein: filename pointing to file or directory
@@ -163,7 +202,6 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
   char saved_char;
   BOOL next_name = 0;/* if we found an lnk and need to start over */
   int try_counter = 33;
-
   strcpy(nameout,namein);
   do { /* whole file names */
     next_name = FALSE;
@@ -175,7 +213,7 @@ BOOL real_path (LPCSTR namein, LPSTR nameout) {
         && nametocheck[1] == ':' && cpslashp(nametocheck[2]))
       /* drive */
       nametocheck += 3;
-    else if (cpslashp(*nametocheck)) {
+    else if (nametocheck[0]=='\\' && nametocheck[1]=='\\') {
       int i;
       /* host */
       nametocheck+=2;

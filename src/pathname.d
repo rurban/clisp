@@ -5151,41 +5151,134 @@ local object use_default_dir (object pathname) {
 
 /* UP: translates short name to full name
  > shortname: old DOS 8.3 pathname
+     wildcards aren't allowed. "." and ".." can be used.
  < fullname: buffer should be not less than MAX_PATH
  < result: true on success */
-bool FullName (LPCSTR shortname, LPSTR fullname) {
-  var WIN32_FIND_DATA wfd;
-  var char drive[_MAX_DRIVE];
-  var char dir[_MAX_DIR];
-  var char fname[_MAX_FNAME];
-  var char ext[_MAX_EXT];
+BOOL FullName (LPCSTR shortname, LPSTR fullname) {
   var char current[_MAX_PATH];
-  var HANDLE h = NULL;
-  var *fullname = 0; /* also first loop flag */
-  var char savedslash[2];savedslash[0] = 0;savedslash[1] = 0;
+  var char * rent = current;/* current+end-device-pos, rest after X: */
+  var int state = 1;
+  /* states for automata reading 'rent' pathname backward:
+     0 - end
+     1 - beginning
+     2 - name component
+     3 - slash component
+     9,11,13... slash component after dots ("..").
+       components to be skipped = (state - 9)/2
+     10,12,14... name components after dots.
+       components to be skipped = (state - 10)/2; */
+  var enum {fn_eof, fn_name, fn_dots, fn_dot, fn_slash} symbol;
+  /* symbol at the end of 'rent':
+     1 - generic name
+     2 - ".."
+     3 - "."
+     4 - slash
+     0 - EOF i.e. beginning of 'rent' */
+  var int pos;
+  var int ops = 0;/* output position */
   strcpy(current,shortname);
-  do {
-    var int l = strlen(current);
-    if (l>0 && cpslashp(current[l-1])) {
-      if (!*fullname) *savedslash = current[l-1];
-      current[l-1] = 0; /* remove trailing slash */
+  /* determine the end of device part */
+  if (((current[0] >= 'a' && current[0] <= 'z')
+    || (current[0] >= 'A' && current[0] <= 'Z'))
+    && current[1] == ':') {
+    rent = current+2;
+  } else if (current[0]=='\\' && current[1]=='\\') {
+    int i;rent = current;
+    /* host */
+    rent+=2;
+    for (i=0;i<2;i++) {/* skip host and sharename */
+      while (*rent && !cpslashp(*rent))
+        rent++;
+      if (*rent) rent++; else
+        return FALSE;/*host and sharename don't end with slash*/
     }
-    _splitpath(current,drive,dir,fname,ext);
-    h = FindFirstFile(current,&wfd);
-    if (h != INVALID_HANDLE_VALUE) {
-      if (*fullname) strcat(fullname,"\\");
-      strrev(wfd.cFileName);
-      strcat(fullname,wfd.cFileName);
-      FindClose(h);
-    } else return false;
-    _makepath(current,drive,dir,NULL,NULL);
-  } while (strcmp(dir,"\\")!=0);
-  strrev(drive);
-  strcat(fullname,"\\");
-  strcat(fullname,drive);
+  }
+  pos = strlen(rent);
+  do {
+    rent[pos] = '\0';
+    if (pos == 0) symbol = fn_eof; else
+    if (cpslashp(rent[pos-1])) { pos--; symbol = fn_slash; } else
+    { int dotcount = 0;/* < 0 -> not only dots */
+      int wild = 0;
+      while(pos > 0 && !cpslashp(rent[pos-1])) {
+        if (rent[pos-1] == '.') dotcount++; else dotcount = -pos;
+        if (rent[pos-1] == '*' || rent[pos-1] == '?') wild = 1;
+        pos--;
+      }
+      if (wild) return FALSE;
+      if (dotcount <= 0)  symbol = fn_name; else
+      if (dotcount == 1)  symbol = fn_dot; else
+      if (dotcount == 2)  symbol = fn_dots; else
+        return FALSE; /* too many dots */
+    }
+    if (state == 1  /* beginning */
+      || state == 2 /* name component */) {
+      switch(symbol) {
+      case fn_dot:  state = 3; break;  /* slash */
+      case fn_dots: state = 11; break; /* dots-slash */
+      case fn_name: {
+        var WIN32_FIND_DATA wfd;
+        var HANDLE h = NULL;
+        h = FindFirstFile(current,&wfd);
+        if (h != INVALID_HANDLE_VALUE) {
+          strrev(wfd.cFileName);
+          if (ops > 0 || wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            fullname[ops++] = '\\';
+          strcpy(fullname+ops,wfd.cFileName);
+          ops+=strlen(wfd.cFileName);
+          FindClose(h);
+        } else return FALSE; /* file not found */
+        state = 3;
+      } break;
+      case fn_slash:
+        if (state == 1) state = 2;
+        else return FALSE; /* two slashes in a row */
+        break;
+      case fn_eof:
+        if (state == 1 && current == rent) return FALSE; /* D: */
+        else state = 0;
+        break;
+      default:
+        return FALSE;/* program error */
+      }
+    } else if (state == 3) {/* slash */
+      switch(symbol) {
+      case fn_slash: state = 2;break;
+      case fn_eof: 
+        if (current == rent) state = 0; else return FALSE; /*D:FOO*/
+        break;
+      default: return FALSE; /* program error */
+      }
+    } else if (state % 2 == 1) {/* dots - slash 9, 11, 13 ... */
+      switch(symbol) {
+      case fn_slash: 
+        state += 1;
+        if (state == 10) state = 2; /* zero depth */
+        break; /* same depth */
+      case fn_eof: 
+        return FALSE; /* too many ".." */
+        break;
+      default: return FALSE; /* program error */
+      }
+    } else {/* dots - name 10, 12, 14, ... */
+      switch(symbol) {
+      case fn_dot: state -= 1; break; /* same depth */
+      case fn_dots: state += 1; break; /* increase depth */
+      case fn_name: state -= 3; /* decrease depth */
+      if (state < 9) return FALSE; /* program error */
+      break;
+      case fn_slash: return FALSE; /* two slashes */
+      case fn_eof: return FALSE; /* too many ".."s */
+      }
+    }
+  } while (state != 0);
+  if (rent > current) fullname[ops++] = '\\';
+  /* add device */
+  while(rent > current)
+    fullname[ops++] = (rent--)[-1];
+  fullname[ops] = '\0';
   strrev(fullname);
-  if (*savedslash) strcat(fullname,savedslash);
-  return true;
+  return TRUE;
 }
 
 #endif
@@ -7009,7 +7102,7 @@ local void directory_search_scandir (bool recursively, signean next_task,
                 || (dsp->if_none != DIR_IF_NONE_DISCARD
                     && dsp->if_none != DIR_IF_NONE_IGNORE)) {
               if (READDIR_entry_ISDIR() || rresolved == shell_shortcut_directory) {
-                /* nonfound shortcuts are threated as shortcuts to files */
+                /* nonfound shortcuts are treated as shortcuts to files */
                 if (recursively) { /* all recursive subdirectories wanted? */
                   /* yes -> push truename onto
                    pathnames-to-insert (is inserted in front of
