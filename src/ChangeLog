@@ -1,3 +1,7 @@
+2001-09-09  Stefan Kain  <stefan.kain@freenet.de>
+
+	* format.lisp: translated all comments
+
 2001-09-09  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (offsetof): [MSVC] defined in <stddef.h>
