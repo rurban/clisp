@@ -134,13 +134,6 @@ This will not work with closures that use lexical variables!"
       (%local-set new-fdef (rest (tracer-name trr)))
       (setf (symbol-function (tracer-symb trr)) new-fdef)))
 
-;; Functions, that the Tracer calls at runtime and that the user could
-;; trace, must be called in their untraced form.
-;; Instead of (fun arg ...) use instead (SYS::%FUNCALL '#,#'fun arg ...)
-;; or (SYS::%FUNCALL (LOAD-TIME-VALUE #'fun) arg ...).
-;; This applies for all used functions here from #<PACKAGE LISP> except for
-;; CAR, CDR, CONS, APPLY, VALUES-LIST (which are all compiled inline).
-
 (defmacro trace (&rest funs)
   (if (null funs)
     '*traced-functions*
@@ -200,7 +193,7 @@ This will not work with closures that use lexical variables!"
           (let ((newname (concat-pnames "TRACED-" (tracer-symb trr)))
                 (body
                  `((declare (inline car cdr cons apply values-list))
-                   (let ((*trace-level* (trace-level-inc)))
+                   (let ((*trace-level* (1+ *trace-level*)))
                      (block nil
                        (unless ,(tracer-suppress-if trr) (trace-pre-output))
                        ,@(when (tracer-pre-print trr)
@@ -273,60 +266,46 @@ This will not work with closures that use lexical variables!"
     (list (tracer-name trr))))
 
 ;; auxiliary functions:
-;; return next-higher Trace-Level:
-(defun trace-level-inc ()
-  (%funcall '#,#'1+ *trace-level*))
 ;; fetch original function definition:
-(defun get-traced-definition (symbol)
-  (%funcall '#,#'get symbol 'sys::traced-definition))
+(defun get-traced-definition (symbol) (get symbol 'sys::traced-definition))
 ;; apply, but step by step:
 (defun trace-step-apply ()
-  ;; (eval `(step (apply ',*trace-function* ',*trace-args*)))
-  (%funcall '#,#'eval
-    (cons 'step
-     (cons
-       (cons 'apply
-        (cons (cons 'quote (cons *trace-function* nil))
-         (cons (cons 'quote (cons *trace-args* nil))
-          nil)))
-      nil))))
+  (eval `(step (apply ',*trace-function* ',*trace-args*))))
 ;; build Eval-Form, that corresponds to an Apply (approximately) :
 (defun make-apply-form (funname args)
   (declare (inline cons mapcar))
   (cons funname
-    (mapcar #'(lambda (arg)
-                ;; (list 'quote arg)
-                (cons 'quote (cons arg nil)))
-            args)))
+        (mapcar #'(lambda (arg)
+                    ;; (list 'quote arg)
+                    (cons 'quote (cons arg nil)))
+                args)))
 ;; Output before call, uses *trace-level* and *trace-form*
 (defun trace-pre-output ()
-  (%funcall '#,#'terpri *trace-output*)
+  (terpri *trace-output*)
   (when *trace-indent*
-    (%funcall '#,#'write-spaces *trace-level* *trace-output*))
-  (%funcall '#,#'write *trace-level* :stream *trace-output* :base 10 :radix t)
-  (%funcall '#,#'write-string " Trace: " *trace-output*)
-  (%funcall '#,#'prin1 *trace-form* *trace-output*))
+    (write-spaces *trace-level* *trace-output*))
+  (write *trace-level* :stream *trace-output* :base 10 :radix t)
+  (write-string " Trace: " *trace-output*)
+  (prin1 *trace-form* *trace-output*))
 ;; Output after call, uses *trace-level*, *trace-form* and *trace-values*
 (defun trace-post-output ()
   (declare (inline car cdr consp atom))
-  (%funcall '#,#'terpri *trace-output*)
+  (terpri *trace-output*)
   (when *trace-indent*
-    (%funcall '#,#'write-spaces *trace-level* *trace-output*))
-  (%funcall '#,#'write *trace-level* :stream *trace-output* :base 10 :radix t)
-  (%funcall '#,#'write-string " Trace: " *trace-output*)
-  (%funcall '#,#'write (car *trace-form*) :stream *trace-output*)
-  (%funcall '#,#'write-string " ==> " *trace-output*)
+    (write-spaces *trace-level* *trace-output*))
+  (write *trace-level* :stream *trace-output* :base 10 :radix t)
+  (write-string " Trace: " *trace-output*)
+  (write (car *trace-form*) :stream *trace-output*)
+  (write-string " ==> " *trace-output*)
   (trace-print *trace-values* nil))
 ;; Output of a list of values:
 (defun trace-print (vals &optional (nl-flag t))
-  (when nl-flag (%funcall '#,#'terpri *trace-output*))
+  (when nl-flag (terpri *trace-output*))
   (when (consp vals)
     (loop
-      (let ((val (car vals)))
-        (%funcall '#,#'prin1 val *trace-output*))
-      (setq vals (cdr vals))
+      (prin1 (pop vals) *trace-output*)
       (when (atom vals) (return))
-      (%funcall '#,#'write-string ", " *trace-output*))))
+      (write-string ", " *trace-output*))))
 
 (defmacro untrace (&rest funs)
   `(mapcan #'untrace1

@@ -386,11 +386,6 @@ LISPFUN(apply,2,0,rest,nokey,0,NIL)
   skipSTACK(1); /* remove function from the stack */
 }
 
-LISPFUN(pfuncall,1,0,rest,nokey,0,NIL)
-{ /* (SYS::%FUNCALL function {arg}) */
-  funcall(Before(rest_args_pointer),argcount); skipSTACK(1);
-}
-
 LISPFUN(funcall,1,0,rest,nokey,0,NIL)
 { /* (FUNCALL function {arg}), CLTL p. 108 */
   funcall(Before(rest_args_pointer),argcount); skipSTACK(1);
