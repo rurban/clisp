@@ -11,6 +11,8 @@ Important notes
 User visible changes
 --------------------
 
+* New extension: directory access (win32 registry).  See impnotes for details.
+
 * New functions CONVERT-STRING-FROM-BYTES and CONVERT-STRING-TO-BYTES.
 
 * Support for non-blocking binary I/O.
