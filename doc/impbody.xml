@@ -1010,26 +1010,21 @@ is the same as
 
 <variablelist><title>The &ansi-cl; packages present in &clisp;</title>
  <varlistentry><term>&cl-pac;</term>
-  <listitem><simpara>with the nicknames
-   <emphasis role="strong"><constant>"CL"</constant></emphasis> and
-   <emphasis role="strong"><constant>"LISP"</constant></emphasis>
-  </simpara></listitem></varlistentry>
+  <listitem><simpara>with the nicknames <quote role="package">CL</quote>
+    and <quote role="package">LISP</quote></simpara></listitem></varlistentry>
  <varlistentry><term>&clu-pac;</term>
-  <listitem><simpara>with the nicknames
-   <emphasis role="strong"><constant>"CL-USER"</constant></emphasis> and
-   <emphasis role="strong"><constant>"USER"</constant></emphasis>
-  </simpara></listitem></varlistentry>
+  <listitem><simpara>with the nicknames <quote role="package">CL-USER</quote>
+    and <quote role="package">USER</quote></simpara></listitem></varlistentry>
  <varlistentry><term>&kwd-pac;</term>
-  <listitem><simpara>with the nickname
-   <emphasis role="strong"><constant>""</constant></emphasis>
+  <listitem><simpara>with the nickname <quote role="package"></quote>
   </simpara></listitem></varlistentry>
 </variablelist>
 
 <para>The package &cl-pac; &export;s only those symbols
  from the &ansi-cl; that are actually implemented.</para>
 
-<section id="pack-lock"><title>Constraints on the COMMON-LISP Package for
- Conforming Programs - package locking
+<section id="pack-lock"><title>Constraints on the &cl-pac; Package
+  for Conforming Programs - package locking
  <ulink url="&clhs;/Body/sec_11-1-2-1-2.html">[CLHS-11.1.2.1.2]</ulink></title>
 
 <formalpara><title>Function &package-lock;</title>
@@ -1077,8 +1072,9 @@ performance considerations.
 
 </section>
 
-<section id="clupack"><title>The COMMON-LISP-USER Package
-   <ulink url="&clhs;/Body/sec_11-1-2-2.html">[CLHS-11.1.2.2]</ulink></title>
+<section id="clupack"><title>The
+  <quote role="package">COMMON-LISP-USER</quote> Package
+  <ulink url="&clhs;/Body/sec_11-1-2-2.html">[CLHS-11.1.2.2]</ulink></title>
 
 <para>The &clu-pac; package uses the &cl-pac; and &ext-pac; packages.</para>
 
@@ -1089,42 +1085,41 @@ performance considerations.
 
 <para>The following additional packages exist:</para>
 <variablelist><title>Implementation-Defined Packages</title>
-  <varlistentry><term>&clos-pac;</term><listitem>
+ <varlistentry><term>&clos-pac;</term><listitem>
    <simpara>&export;s all &clos;-specific symbols, including some
-   <link linkend="clos-diff">additional symbols</link>.
-   </simpara></listitem></varlistentry>
-  <varlistentry id="sys-pac"><term>&sys-pac;</term><listitem>
-   <simpara>has the nicknames <emphasis
-   role="strong"><quote>SYS</quote></emphasis> and <emphasis
-   role="strong"><quote>COMPILER</quote></emphasis>, and has no
-   &export;ed symbols.  It defines many system internals.
-   </simpara></listitem></varlistentry>
-  <varlistentry id="ext-pac"><term><quote>EXT</quote></term><listitem><simpara>
-   is the umbrella package for all extensions: it imports and &re-export;s
-   all the external symbols in all &clisp; extensions, so a simple
-   <literal role="sexp">(&use-package; "EXT")</literal> is enough to
-   make all the extensions available in the current package.
-   This package uses packages (in addition to &cl-pac;):
-   &ldap-pac;, &posix-pac;, &socket-pac;, &gstream-pac;, &gray-pac;,
-   &i18n-pac;, &custom-pac;.</simpara></listitem></varlistentry>
-  <varlistentry><term>&charset-pac;</term><listitem>
+    <link linkend="clos-diff">additional symbols</link>.
+ </simpara></listitem></varlistentry>
+ <varlistentry id="sys-pac"><term>&sys-pac;</term><listitem>
+   <simpara>has the nicknames <quote role="package">SYS</quote>
+    and <quote role="package">COMPILER</quote>, and has no
+    &export;ed symbols.  It defines many system internals.
+ </simpara></listitem></varlistentry>
+ <varlistentry id="ext-pac"><term>&ext-pac;</term><listitem><simpara>
+    is the umbrella package for all extensions: it imports and &re-export;s
+    all the external symbols in all &clisp; extensions, so a simple
+    <literal role="sexp">(&use-package; "EXT")</literal> is enough to
+    make all the extensions available in the current package.
+    This package uses packages (in addition to &cl-pac;):
+    &ldap-pac;, &posix-pac;, &socket-pac;, &gstream-pac;, &gray-pac;,
+    &i18n-pac;, &custom-pac;.</simpara></listitem></varlistentry>
+ <varlistentry><term>&charset-pac;</term><listitem>
    <simpara>defines and &export;s some character sets, for use with
-   &make-encoding; and as &extfmt; argument.
-   </simpara></listitem></varlistentry>
-  <varlistentry><term>&ffi-pac;</term><listitem>
+    &make-encoding; and as &extfmt; argument.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term>&ffi-pac;</term><listitem>
    <simpara>implements the <link linkend="dffi">foreign function
-   interface</link>.  Some platforms only.
-   </simpara></listitem></varlistentry>
-  <varlistentry><term>&screen-pac;</term><listitem>
+     interface</link>.  Some platforms only.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term>&screen-pac;</term><listitem>
    <simpara>defines an API for <link linkend="screen">random screen
-   access</link>.  Some platforms only.
-   </simpara></listitem></varlistentry>
+     access</link>.  Some platforms only.
+ </simpara></listitem></varlistentry>
 </variablelist>
 
 <para>All pre-existing packages except &clu-pac; belong to the
  implementation, in the sense that the programs that do not follow
- <ulink url="&clhs;/Body/sec_11-1-2-1-2.html">Section 11.1.2.1.2
- Constraints on the COMMON-LISP Package for Conforming Programs</ulink>
+ <ulink url="&clhs;/Body/sec_11-1-2-1-2.html">Section 11.1.2.1.2</ulink>
+ ("Constraints on the &cl-pac; Package for Conforming Programs")
  cause undefined behavior.</para>
 
 </section>
@@ -1146,6 +1141,7 @@ performance considerations.
  The package names are still subject to
  <literal role="sexp">(&readtable-case; &readtable-var;)</literal>,
  though.</para>
+</section>
 
 <section id="re-export"><title>Function &re-export;</title>
 
@@ -1158,7 +1154,6 @@ performance considerations.
  <replaceable>FROM-PACK</replaceable>; and &signal;s an &error-t; otherwise.
 </para></section>
 
-</section>
 </section>
 </chapter>
 
@@ -3566,18 +3561,19 @@ printed readably.</para>
  <literal role="sexp">(&merge-pathnames; #P"x/" #P"y/")</literal>
  evaluates to <filename>#P"x/"</filename></para>
 
-<para><emphasis role="strong">Rationale</emphasis>: &merge-pathnames; is
- used to specify default components for pathnames, so there is some
- analogy between <literal role="sexp">(&merge-pathnames; a b)</literal>
- and <literal role="sexp">(or a b)</literal>.  Obviously putting in the
+<formalpara><title>Rationale</title>
+<para>&merge-pathnames; is used to specify default components for
+ pathnames, so there is some analogy between
+ <literal role="sexp">(&merge-pathnames; a b)</literal> and
+ <literal role="sexp">(&or-m; a b)</literal>.  Obviously, putting in the
  same default a second time should do the same as putting it in once:
- <literal role="sexp">(or a b b)</literal> is the same as
- <literal role="sexp">(or a b)</literal>, so
+ <literal role="sexp">(&or-m; a b b)</literal> is the same as
+ <literal role="sexp">(&or-m; a b)</literal>, so
  <literal role="sexp">(&merge-pathnames; (&merge-pathnames; a b) b)</literal>
  should be the same as
- <literal role="sexp">(&merge-pathnames; a b)</literal>.</para>
+ <literal role="sexp">(&merge-pathnames; a b)</literal>.</para></formalpara>
 
-<para>(This question actually matters because in &cl; there is no
+<para>(This question actually does matter because in &cl; there is no
  distinction between <quote>pathnames with defaults merged-in</quote> and
  <quote>pathnames with defaults not yet applied</quote>.)</para>
 
@@ -3593,8 +3589,9 @@ printed readably.</para>
  <literal role="sexp">(&merge-pathnames; #P"x/" #P"y/")</literal>
  evaluates to <filename>#P"y/x/"</filename>.</para>
 
-<para><emphasis role="strong">Rationale</emphasis>: <quote>merge</quote>
-is <emphasis>merge</emphasis> and not <emphasis>or</emphasis>.</para>
+<formalpara><title>Rationale</title>
+<para><quote>merge</quote> is <emphasis>merge</emphasis> and
+ not <emphasis>or</emphasis>.</para></formalpara>
 </section>
 
 <section id="load-lpt">
@@ -4664,8 +4661,8 @@ functions are provided:
  <constant>:INVERT</constant>, it applies to the package name and the
  symbol name of a symbol separately (not to the entire token at once).
  An alternative to the use of &readtable-case; is the use of the
- &case-sensitive-k; option to &make-package;, &in-package; and
- &defpackage;.</para>
+ <link linkend="make-pack">&case-sensitive-k;</link> option of
+ &make-package; and &defpackage;.</para>
 
 </section>
 
@@ -4922,7 +4919,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 <!-- #endif -->
 <!-- #ifdef UNICODE -->
 <row><entry><constant>:UNICODE</constant></entry>
-   <entry>if Unicode (ISO 10646) characters are supported (see
+   <entry>if &unicode; (ISO 10646) characters are supported (see
      &charset-pac;)</entry></row>
 <!-- #endif -->
 <row><entry><constant>:LOOP</constant></entry><entry/></row>

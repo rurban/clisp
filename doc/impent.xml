@@ -94,23 +94,23 @@
 <!ENTITY lf-c "<keycode>LF</keycode>">
 
 <!-- *** packages *** -->
-<!ENTITY affi-pac "<link linkend='affi'><quote>AFFI</quote></link>">
-<!ENTITY charset-pac "<link linkend='encoding'><quote>CHARSET</quote></link>">
-<!ENTITY clos-pac "<link linkend='classes'><quote>CLOS</quote></link>">
-<!ENTITY custom-pac "<link linkend='customize'><quote>CUSTOM</quote></link>">
-<!ENTITY ext-pac "<link linkend='ext-pac'><quote>EXT</quote></link>">
-<!ENTITY ffi-pac "<link linkend='dffi'><quote>FFI</quote></link>">
-<!ENTITY gray-pac "<link linkend='gray'><quote>GRAY</quote></link>">
-<!ENTITY gstream-pac "<link linkend='gstream'><quote>GSTREAM</quote></link>">
-<!ENTITY i18n-pac "<link linkend='i18n'><quote>I18N</quote></link>">
-<!ENTITY ldap-pac "<link linkend='dir-key'><quote>LDAP</quote></link>">
-<!ENTITY posix-pac "<link linkend='syscalls'><quote>POSIX</quote></link>">
-<!ENTITY regexp-pac "<link linkend='regexp'><quote>REGEXP</quote></link>">
-<!ENTITY screen-pac "<link linkend='screen'><quote>SCREEN</quote></link>">
-<!ENTITY socket-pac "<link linkend='socket'><quote>SOCKET</quote></link>">
-<!ENTITY sys-pac "<link linkend='sys-pac'><quote>SYSTEM</quote></link>">
+<!ENTITY affi-pac "<link linkend='affi'><quote role='package'>AFFI</quote></link>">
+<!ENTITY charset-pac "<link linkend='encoding'><quote role='package'>CHARSET</quote></link>">
+<!ENTITY clos-pac "<link linkend='classes'><quote role='package'>CLOS</quote></link>">
+<!ENTITY custom-pac "<link linkend='customize'><quote role='package'>CUSTOM</quote></link>">
+<!ENTITY ext-pac "<link linkend='ext-pac'><quote role='package'>EXT</quote></link>">
+<!ENTITY ffi-pac "<link linkend='dffi'><quote role='package'>FFI</quote></link>">
+<!ENTITY gray-pac "<link linkend='gray'><quote role='package'>GRAY</quote></link>">
+<!ENTITY gstream-pac "<link linkend='gstream'><quote role='package'>GSTREAM</quote></link>">
+<!ENTITY i18n-pac "<link linkend='i18n'><quote role='package'>I18N</quote></link>">
+<!ENTITY ldap-pac "<link linkend='dir-key'><quote role='package'>LDAP</quote></link>">
+<!ENTITY posix-pac "<link linkend='syscalls'><quote role='package'>POSIX</quote></link>">
+<!ENTITY regexp-pac "<link linkend='regexp'><quote role='package'>REGEXP</quote></link>">
+<!ENTITY screen-pac "<link linkend='screen'><quote role='package'>SCREEN</quote></link>">
+<!ENTITY socket-pac "<link linkend='socket'><quote role='package'>SOCKET</quote></link>">
+<!ENTITY sys-pac "<link linkend='sys-pac'><quote role='package'>SYSTEM</quote></link>">
 <!-- * redefines the entity in cl-ent.xml * -->
-<!ENTITY clu-pac "<link linkend='clupack'><quote>COMMON-LISP-USER</quote></link>">
+<!ENTITY clu-pac "<link linkend='clupack'><quote role='package'>COMMON-LISP-USER</quote></link>">
 
 <!-- *** local *** -->
 <!ENTITY ansi "<link linkend='ansi'><varname>CUSTOM:*ANSI*</varname></link>">
