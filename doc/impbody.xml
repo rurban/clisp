@@ -4138,57 +4138,72 @@ effects when being loaded, this is important as well.
 <para>&load; has four additional keywords &echo-k;, &compiling-k;,
  &extra-file-types-k;, and &obsolete-action-k;.</para>
 
-<para><literal role="sexp">(&load; &filename-r; &key-amp; &verbose-k;
- &print-k; &echo-k; &if-does-not-exist; &compiling-k;
- &extra-file-types-k; &obsolete-action-k;)</literal></para>
+<para><literal role="sexp">(&load; &filename-r; &key-amp;
+  ((&verbose-k; &load-verbose-var;) &load-verbose-var;)
+  ((&print-k; &load-print-var;) &load-print-var;)
+  ((&echo-k; &load-echo;) &load-echo;) &if-does-not-exist;
+  ((&compiling-k; &load-comp;) &load-comp;) &extra-file-types-k;
+  ((&obsolete-action-k; &load-obs;) &load-obs;))</literal></para>
 
 <variablelist>
- <varlistentry><term>&verbose-k; &t;</term>
+ <varlistentry><term>&verbose-k;</term>
   <listitem><simpara>causes &load; to emit a short message that a file is
-   being loaded.  The default is &load-verbose-var;, which is initially
-   &t;, but can be changed by the &opt-v; option.
-  </simpara></listitem></varlistentry>
- <varlistentry><term>&print-k; &t;</term>
+    being loaded.  The default is &load-verbose-var;, which is initially
+    &t;, but can be changed by the &opt-v; option.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term>&print-k;</term>
   <listitem><simpara>causes &load; to print the value of each form.  The
-  default is &load-print-var;, which is initially &nil;.
-  </simpara></listitem></varlistentry>
- <varlistentry><term>&echo-k; &t;</term>
+    default is &load-print-var;, which is initially &nil;,
+    but can be changed by the &opt-v; option.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term>&echo-k;</term>
   <listitem><simpara>causes the input from the file to be echoed to
-  &standard-output-var; (normally to the screen).  Should
-  there be an error in the file, you can see at one glance where it is.
-  The default is <firstterm>&load-echo;</firstterm>, which is
-  initially &nil;.</simpara></listitem></varlistentry>
- <varlistentry><term>&compiling-k; &t;</term>
+    &standard-output-var; (normally to the screen).  Should there be an
+    error in the file, you can see at one glance where it is.  The
+    default is <firstterm>&load-echo;</firstterm>, which is initially
+    &nil;.</simpara></listitem></varlistentry>
+ <varlistentry><term>&compiling-k;</term>
   <listitem><simpara>causes each form read to be compiled on the fly.
-  The compiled code is executed at once and - in contrast to <link
-  linkend="compilefile"><function>COMPILE-FILE</function></link> - not
-  written to a file.
-  The default is <firstterm>&load-comp;</firstterm>, which is initially
-  &nil;, but can be changed by the &opt-C; option.
+    The compiled code is executed at once and - in contrast to
+    <link linkend="compilefile"><function>COMPILE-FILE</function></link>
+    - not written to a file.
+    The default is <firstterm>&load-comp;</firstterm>, which is initially
+    &nil;, but can be changed by the &opt-C; option.
  </simpara></listitem></varlistentry>
- <varlistentry><term>&extra-file-types-k; &list-t;</term>
-  <listitem><simpara>Specifies the additional file types considered for
-  loading, in addition to <firstterm>&source-types;</firstterm>
-  (which is initially <literal role="data">("lisp" "lsp" "cl")</literal>)
-  and <firstterm>&compiled-types;</firstterm>
-  (which is initially <literal role="data">("fas")</literal>).
-  </simpara><simpara>When &filename-r; does not spefify a unique file
-  (e.g., &filename-r; is &foo-f; and both &foolisp-f;
-  and <filename>#P&quot;foo.fas&quot;</filename> are found in the
-  &load-paths;), then the <emphasis>newest</emphasis> file is loaded.
+ <varlistentry><term>&extra-file-types-k;</term>
+  <listitem><simpara>Specifies the &list-t; of additional file types
+    considered for loading, in addition to <firstterm>&source-types;</firstterm>
+    (which is initially <literal role="data">("lisp" "lsp" "cl")</literal>)
+    and <firstterm>&compiled-types;</firstterm>
+    (which is initially <literal role="data">("fas")</literal>).
+   </simpara><simpara>When &filename-r; does not spefify a unique file
+    (e.g., &filename-r; is &foo-f; and both &foolisp-f;
+    and <filename>#P&quot;foo.fas&quot;</filename> are found in the
+    &load-paths;), then the <emphasis>newest</emphasis> file is loaded.
  </simpara></listitem></varlistentry>
- <varlistentry><term>&obsolete-action-k; &nil;</term>
-  <listitem><simpara>Specifies the action to take when loading a
-   &fasl-file; with a different <link linkend="bytecode">bytecode</link>
-   version from the one supported by this &clisp; version.
-   The possible actions are <constant>:DELETE</constant> to delete the
-   &fasl-file; and &error-k; to &signal; an &error-t;.
-   The default action is to &warn; and <link linkend="load-paths">look
-   for another matching file</link>.
-   If no file can be loaded and &if-does-not-exist; is non-&nil;,
-   an &error-t; is &signal;ed.
-   The default is <firstterm>&load-obs;</firstterm>,
-   which is initially &nil;.</simpara></listitem></varlistentry>
+ <varlistentry><term>&obsolete-action-k;</term>
+  <listitem><para>Specifies the action to take when loading a
+    &fasl-file; with a different <link linkend="bytecode">bytecode</link>
+    version from the one supported by this &clisp; version.
+    The possible actions are
+    <variablelist><varlistentry><term><constant>:DELETE</constant></term>
+      <listitem><simpara>delete the &fasl-file;
+     </simpara></listitem></varlistentry>
+     <varlistentry><term>&error-k;</term>
+      <listitem><simpara>&signal; an &error-t;
+     </simpara></listitem></varlistentry>
+     <varlistentry><term><constant>:COMPILE</constant></term>
+      <listitem><simpara>recompile the source file
+        (if <link linkend="load-paths">present</link>)
+     </simpara></listitem></varlistentry>
+     <varlistentry><term>&nil; (default)</term>
+      <listitem><simpara>&warn; and <link linkend="load-paths">look
+         for another matching file</link>
+    </simpara></listitem></varlistentry></variablelist>
+    If no file can be loaded and &if-does-not-exist; is non-&nil;,
+    an &error-t; is &signal;ed.
+    The default is <firstterm>&load-obs;</firstterm>,
+    which is initially &nil;.</para></listitem></varlistentry>
 </variablelist>
 
 <para>The variables &load-verbose-var;, &load-print-var;,
