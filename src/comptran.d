@@ -209,6 +209,8 @@
 # can trigger GC
   local object N_N_expt_N (object x, object y);
   # Methode:
+  # when y is a float, round it and check the remainder,
+  #   if that is zero, make y integer
   # Falls y rational:
   #   Falls y Integer:
   #     Falls y=0: Ergebnis 1,
@@ -254,6 +256,15 @@
     var object x;
     var object y;
     {
+      if (N_floatp(y)) {
+        pushSTACK(x); pushSTACK(y); /* save x & y */
+        R_round_I_R(y);
+        if (R_zerop(STACK_0)) /* y is actually an integer */
+          y = STACK_1;
+        else y = STACK_2;
+        x = STACK_3;
+        skipSTACK(4);
+      }
       if (N_realp(y) && R_rationalp(y)) {
         # y rational
         if (RA_integerp(y)) {
