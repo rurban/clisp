@@ -733,6 +733,45 @@
       (intern (subseq str 1) *keyword-package*)
       (intern str))))
 
+; Gibt object in einen String aus, der nach Möglichkeit höchstens max Spalten
+; lang sein soll.
+(defun write-to-short-string (object max)
+  ; Methode: probiere
+  ; level = 0: length = 0,1,2
+  ; level = 1: length = 1,2,3,4
+  ; level = 2: length = 2,...,6
+  ; usw. bis maximal level = 16.
+  ; Dabei level möglichst groß, und bei festem level length möglichst groß.
+  (if (or (numberp object) (symbolp object)) ; von length und level unbeeinflusst?
+    (write-to-string object)
+    (macrolet ((minlength (level) `,level)
+               (maxlength (level) `(* 2 (+ ,level 1))))
+      ; Um level möglist groß zu bekommen, dabei length = minlength wählen.
+      (let* ((level ; Binärsuche nach dem richtigen level
+               (let ((level1 0) (level2 16))
+                 (loop
+                   (when (= (- level2 level1) 1) (return))
+                   (let ((levelm (floor (+ level1 level2) 2)))
+                     (if (<= (string-width (write-to-string object :level levelm :length (minlength levelm))) max)
+                       (setq level1 levelm) ; levelm passt, probiere größere
+                       (setq level2 levelm) ; levelm passt nicht, probiere kleinere
+                 ) ) )
+                 level1
+             ) )
+             (length ; Binärsuche nach dem richtigen length
+               (let ((length1 (minlength level)) (length2 (maxlength level)))
+                 (loop
+                   (when (= (- length2 length1) 1) (return))
+                   (let ((lengthm (floor (+ length1 length2) 2)))
+                     (if (<= (string-width (write-to-string object :level level :length lengthm)) max)
+                       (setq length1 lengthm) ; lengthm passt, probiere größere
+                       (setq length2 lengthm) ; lengthm passt nicht, probiere kleinere
+                 ) ) )
+                 length1
+            )) )
+        (write-to-string object :level level :length length)
+) ) ) )
+
 ;; *ERROR-HANDLER* should be NIL or a function which accepts the following
 ;; arguments:
 ;;  - NIL (in case of ERROR) or a continue-format-string (in case of CERROR),
