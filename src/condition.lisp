@@ -251,20 +251,24 @@
 ;   |   |   |-- print-not-readable
 ;   |   |   |
 ;   |   |   |-- program-error
-;   |   |   |
-;   |   |   |-- parse-error
 ;   |   |   |   |
-;   |   |   |   +---------------------+
-;   |   |   |                         |
-;   |   |   |-- stream-error          |
-;   |   |   |   |                     |
-;   |   |   |   |-- end-of-file       |
-;   |   |   |   |                     |
-;   |   |   |   +---------------------+-- reader-error
-;   |   |   |
-;   |   |   |-- type-error
-;   |   |       |
-;   |   |       |-- simple-type-error
+;   |   |   |   +---------------------------------------+
+;   |   |   |                                           |
+;   |   |   |-- parse-error                             |
+;   |   |   |   |                                       |
+;   |   |   |   +-------------------+                   |
+;   |   |   |                       |                   |
+;   |   |   |-- stream-error        |                   |
+;   |   |   |   |                   |                   |
+;   |   |   |   |-- end-of-file     |                   |
+;   |   |   |   |                   |                   |
+;   |   |   |   +-------------------+-- reader-error    |
+;   |   |   |                                           |
+;   |   |   |-- type-error                              |
+;   |   |       |                                       |
+;   |   |       |-- simple-type-error                   |
+;   |   |       |                                       |
+;   |   |       +---------------------------------------+-- argument-list-dotted
 ;   |   |
 ;   |   |-- storage-condition
 ;   |   |
@@ -347,6 +351,13 @@
 
       ; when some character does not belong to a given character set
       (define-condition charset-type-error (type-error) ())
+      ; CLISP specific
+
+      ; when an argument list in APPLY is dotted
+      ; ANSI CL 3.5.1.2. want this to be a subclass of PROGRAM-ERROR.
+      ; For the use of APPLY in the expansion of the FORMATTER macro, this
+      ; must also be a subclass of TYPE-ERROR.
+      (define-condition argument-list-dotted (program-error type-error) ())
       ; CLISP specific
 
     ; errors during operation on packages
@@ -446,6 +457,7 @@
 (define-condition simple-unbound-slot (simple-error unbound-slot) ())
 (define-condition simple-keyword-error (simple-error keyword-error) ())
 (define-condition simple-charset-type-error (simple-error charset-type-error) ())
+(define-condition simple-argument-list-dotted (simple-error argument-list-dotted) ())
 (define-condition simple-package-error (simple-error package-error) ())
 (define-condition simple-print-not-readable (simple-error print-not-readable) ())
 (define-condition simple-parse-error (simple-error parse-error) ())
@@ -485,6 +497,7 @@
     (type-error               . simple-type-error)
     (keyword-error            . simple-keyword-error)
     (charset-type-error       . simple-charset-type-error)
+    (argument-list-dotted     . simple-argument-list-dotted)
     (package-error            . simple-package-error)
     (print-not-readable       . simple-print-not-readable)
     (parse-error              . simple-parse-error)

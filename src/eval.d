@@ -4068,11 +4068,19 @@ nonreturning_function(local, fehler_apply_zuviel, (object name)) {
 }
 
 # Error because of too few arguments
-# > name: name fo function
-nonreturning_function(local, fehler_apply_zuwenig, (object name)) {
-  pushSTACK(name);
-  /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
-  fehler(program_error,GETTEXT("APPLY: too few arguments given to ~S"));
+# > name: name of function
+# > tail: atom at the end of the argument list
+nonreturning_function(local, fehler_apply_zuwenig, (object name, object tail)) {
+  if (!nullp(tail)) {
+    pushSTACK(tail); /* ARGUMENT-LIST-DOTTED slot DATUM */
+    pushSTACK(tail); pushSTACK(name);
+    fehler(argument_list_dotted,
+           GETTEXT("APPLY: dotted argument list given to ~S : ~S"));
+  } else {
+    pushSTACK(name);
+    /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
+    fehler(program_error,GETTEXT("APPLY: too few arguments given to ~S"));
+  }
 }
 
 # Error because of too many arguments for a SUBR
@@ -4082,8 +4090,10 @@ nonreturning_function(local, fehler_subr_zuviel, (object fun));
 
 # Error because of too few arguments for a SUBR
 # > fun: function, a SUBR
-nonreturning_function(local, fehler_subr_zuwenig, (object fun));
-#define fehler_subr_zuwenig(fun)  fehler_apply_zuwenig(TheSubr(fun)->name)
+# > tail: atom at the end of the argument list
+nonreturning_function(local, fehler_subr_zuwenig, (object fun, object tail));
+#define fehler_subr_zuwenig(fun,tail)  \
+  fehler_apply_zuwenig(TheSubr(fun)->name,tail)
 
 # In APPLY: Applies a SUBR to an argument-list, cleans up STACK
 # and returns the values.
@@ -4422,7 +4432,7 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun));
     #endif
     return; # finished
     # gathered error messages:
-   fehler_zuwenig: fehler_subr_zuwenig(fun);
+   fehler_zuwenig: fehler_subr_zuwenig(fun,args);
    fehler_zuviel: fehler_subr_zuviel(fun);
    fehler_dotted: fehler_apply_dotted(TheSubr(fun)->name,args);
   }
@@ -4434,8 +4444,9 @@ nonreturning_function(local, fehler_closure_zuviel, (object closure));
 
 # Error because of too few arguments for a Closure
 # > closure: function, a Closure
-nonreturning_function(local, fehler_closure_zuwenig, (object closure));
-#define fehler_closure_zuwenig(closure)  fehler_apply_zuwenig(closure)
+# > tail: atom at the end of the argument list
+nonreturning_function(local, fehler_closure_zuwenig, (object closure, object tail));
+#define fehler_closure_zuwenig(closure,tail)  fehler_apply_zuwenig(closure,tail)
 
 # In APPLY: Applies a Closure to an argument-list, cleans up STACK
 # and returns the values.
@@ -4854,7 +4865,7 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure));
       return; # finished
     }
     # Gathered error-messages:
-   fehler_zuwenig: fehler_closure_zuwenig(closure);
+   fehler_zuwenig: fehler_closure_zuwenig(closure,args);
    fehler_zuviel: fehler_closure_zuviel(closure);
    fehler_dotted: fehler_apply_dotted(closure,args);
   }
@@ -5292,7 +5303,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       goto fehler_zuwenig; # too few Arguments
     else
       goto fehler_zuviel; # too many Arguments
-   fehler_zuwenig: fehler_subr_zuwenig(fun);
+   fehler_zuwenig: fehler_subr_zuwenig(fun,NIL);
    fehler_zuviel: fehler_subr_zuviel(fun);
   }
 
@@ -5732,7 +5743,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         goto fehler_zuwenig; # too few arguments
       else
         goto fehler_zuviel; # too many arguments
-     fehler_zuwenig: fehler_closure_zuwenig(closure);
+     fehler_zuwenig: fehler_closure_zuwenig(closure,NIL);
      fehler_zuviel: fehler_closure_zuviel(closure);
     } else {
       /* closure is an interpreted Closure */
@@ -7081,7 +7092,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           else
             fehler_apply_zuviel(S(lambda));
          unlist_unbound:
-          if (n > m) fehler_apply_zuwenig(S(lambda));
+          if (n > m) fehler_apply_zuwenig(S(lambda),l);
           do { pushSTACK(unbound); } until (--n == 0);
           goto next_byte;
         }
@@ -7099,7 +7110,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           pushSTACK(l);
           goto next_byte;
          unliststern_unbound:
-          if (n > m) fehler_apply_zuwenig(S(lambda));
+          if (n > m) fehler_apply_zuwenig(S(lambda),l);
           do { pushSTACK(unbound); } until (--n == 0);
           pushSTACK(NIL);
           goto next_byte;

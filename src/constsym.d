@@ -1419,12 +1419,13 @@ LISPSYM(simple_division_by_zero,"SIMPLE-DIVISION-BY-ZERO",system) /* type for ER
 LISPSYM(simple_floating_point_overflow,"SIMPLE-FLOATING-POINT-OVERFLOW",system) /* type for ERROR     | order is co-ordinated */
 LISPSYM(simple_floating_point_underflow,"SIMPLE-FLOATING-POINT-UNDERFLOW",system) /* type for ERROR   | with ERROR.D, */
 LISPSYM(simple_cell_error,"SIMPLE-CELL-ERROR",system) /* type for ERROR                               | LISPBIBL.D, */
-LISPSYM(simple_unbound_variable,"SIMPLE-UNBOUND-VARIABLE",system) /* type for ERROR                   | CONDITION.LSP! */
+LISPSYM(simple_unbound_variable,"SIMPLE-UNBOUND-VARIABLE",system) /* type for ERROR                   | CONDITION.LISP! */
 LISPSYM(simple_undefined_function,"SIMPLE-UNDEFINED-FUNCTION",system) /* type for ERROR               | */
 LISPSYM(simple_unbound_slot,"SIMPLE-UNBOUND-SLOT",system) /* type for ERROR                           | */
 LISPSYM(simple_type_error,"SIMPLE-TYPE-ERROR",lisp) /* type for ERROR                                 | */
 LISPSYM(simple_keyword_error,"SIMPLE-KEYWORD-ERROR",system) /* type for ERROR                         | */
-LISPSYM(simple_charset_type_error,"SIMPLE-CHARSET-TYPE-ERROR",ext) /* type for ERROR                 | */
+LISPSYM(simple_charset_type_error,"SIMPLE-CHARSET-TYPE-ERROR",ext) /* type for ERROR                  | */
+LISPSYM(simple_argument_list_dotted,"SIMPLE-ARGUMENT-LIST-DOTTED",system) /* type for ERROR           | */
 LISPSYM(simple_package_error,"SIMPLE-PACKAGE-ERROR",system) /* type for ERROR                         | */
 LISPSYM(simple_print_not_readable,"SIMPLE-PRINT-NOT-READABLE",system) /* type for ERROR               | */
 LISPSYM(simple_parse_error,"SIMPLE-PARSE-ERROR",system) /* type for ERROR                             | */

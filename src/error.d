@@ -278,6 +278,12 @@ local maygc void end_error (gcv_object_t* stackptr, bool start_driver_p) {
         pushSTACK(S(Kdatum)); pushSTACK(BEFORE(stackptr)); /* :datum ... */
         argcount += 4;
       }
+      /* argument-list-dotted --> complete :datum */
+      if (eq(type,S(simple_argument_list_dotted))) {
+        pushSTACK(S(Kexpected_type)); pushSTACK(S(list)); /* :expected-type 'LIST */
+        pushSTACK(S(Kdatum)); pushSTACK(BEFORE(stackptr)); /* :datum ... */
+        argcount += 4;
+      }
       /* package-error --> complete :package */
       if (eq(type,S(simple_package_error))) {
         pushSTACK(S(Kpackage)); pushSTACK(BEFORE(stackptr)); /* :package ... */

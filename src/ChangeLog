@@ -1,5 +1,21 @@
 2005-01-23  Bruno Haible  <bruno@clisp.org>
 
+	New condition type ARGUMENT-LIST-DOTTED.
+	* lispbibl.d (argument_list_dotted): New enum value.
+	* error.d (end_error): For type argument-list-dotted, expect the
+	:datum argument on the stack.
+	* eval.d (fehler_apply_zuwenig): Add 'tail' argument.
+	(fehler_subr_zuwenig, fehler_closure_zuwenig): Likewise.
+	(apply_subr, apply_closure): Pass the remaining args atom as tail.
+	(funcall_subr, funcall_closure): Pass NIL as tail.
+	(interpret_bytecode_): For UNLIST, UNLIST*, pass the tail.
+	* condition.lisp (argument-list-dotted, simple-argument-list-dotted):
+	New condition classes.
+	(%defclcs call): Update.
+	Found by Paul Dietz's ansi-tests test suite.
+
+2005-01-23  Bruno Haible  <bruno@clisp.org>
+
 	* format.lisp (formatter-main-1): Implement handling of ~^ inside
 	~<...~>.
 	Found by Paul Dietz's ansi-tests test suite.
