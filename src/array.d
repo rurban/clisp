@@ -615,7 +615,13 @@ LISPFUN(vector,0,0,rest,nokey,0,NIL) # (VECTOR {object}), CLTL S. 290
               elif (eq(element,Fixnum_1)) { *addr |= bit(bitnummer); return; }
               else break;
             }
+          #ifndef TYPECODES
+          case Rectype_Imm_Sstring: # immutable Simple-String
+            fehler_sstring_immutable(datenvektor);
+          case Rectype_Sstring: # mutable Simple-String
+          #else
           case Array_type_sstring: # Simple-String
+          #endif
             if (charp(element))
               { TheSstring(datenvektor)->data[index] = char_code(element);
                 return;

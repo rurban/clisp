@@ -1740,7 +1740,7 @@ LISPFUN(parse_namestring,1,2,norest,key,3,\
        {var object string; # String thing
         # Grenzen überprüfen, mit thing, start, end als Argumenten:
         pushSTACK(thing); pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
-        test_string_limits(&string,&z.index,&z.count);
+        test_string_limits_ro(&string,&z.index,&z.count);
         # z.index = Wert des start-Arguments,
         # z.count = Anzahl der Characters.
         z.FNindex = fixnum(z.index);

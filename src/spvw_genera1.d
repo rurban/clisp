@@ -232,7 +232,7 @@ local uintC generation;
                           walk_area_svector(objptr,physpage_end,walkfun);           \
                           break;                                                    \
                         case Rectype_Sbvector:                                      \
-                        case Rectype_Sstring:                                       \
+                        case Rectype_Sstring: case Rectype_Imm_Sstring:             \
                         case Rectype_Bignum:                                        \
                         case Rectype_Ffloat:                                        \
                         case Rectype_Dfloat:                                        \
@@ -644,7 +644,7 @@ local uintC generation;
                                     case_Rectype_ostring_above;
                                     case_Rectype_ovector_above;
                                     case_Rectype_Svector_above;
-                                    case Rectype_Sbvector: case Rectype_Sstring:
+                                    case Rectype_Sbvector: case Rectype_Sstring: case Rectype_Imm_Sstring:
                                     case Rectype_Bignum:
                                     case Rectype_Ffloat: case Rectype_Dfloat: case Rectype_Lfloat:
                                       goto case_nopointers;

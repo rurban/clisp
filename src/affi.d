@@ -373,7 +373,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
                     if (!(accept & ACCEPT_STRING_ARG)) goto bad_arg;
                     # Cf. with_string_0() macro in lispbibl.d
                     { var uintL length;
-                      var chart* charptr = unpack_string(arg,&length);
+                      var const chart* charptr = unpack_string_ro(arg,&length);
                       if (accept & ACCEPT_MAKE_ASCIZ)
                         { var uintL bytelength = cslen(O(foreign_encoding),charptr,length);
                           var uintB* ptr = alloca(1+bytelength); # TODO Ergebnis testen
@@ -501,7 +501,7 @@ LISPFUN(mem_read,2,1,norest,nokey,0,NIL)
       { value1 = asciz_to_string((uintB*)address,O(foreign_encoding)); }
     elif (stringp(into)) # copy memory into a LISP string
       { var uintL length;
-        var chart* charptr = unpack_string(into,&length);
+        var chart* charptr = unpack_string_rw(into,&length);
         #ifdef UNICODE
         var object encoding = O(foreign_encoding);
         var const uintB* byteptr = (uintB*)address;
@@ -579,7 +579,7 @@ LISPFUN(mem_write_vector,2,1,norest,nokey,0,NIL)
     skipSTACK(3);
     if (stringp(from)) # write a LISP string to memory
       { var uintL length;
-        var const chart* charptr = unpack_string(from,&length);
+        var const chart* charptr = unpack_string_ro(from,&length);
         var uintL bytelength = cslen(O(foreign_encoding),charptr,length);
         cstombs(O(foreign_encoding),charptr,length,(uintB*)address,bytelength);
         ((uintB*)address)[bytelength] = '\0'; # and zero-terminate memory!

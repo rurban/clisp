@@ -2735,7 +2735,15 @@ LISPFUNN(string_reader,2) # liest "
             ssstring_push_extend(STACK_1,char_code(ch));
           }
         # Buffer kopieren und dabei in Simple-String umwandeln:
-        value1 = copy_string(STACK_1);
+        { var object string;
+          #ifndef TYPECODES
+          if (TheStream(*stream_)->strmflags & bit(strmflags_immut_bit_B))
+            { string = coerce_imm_ss(STACK_1); }
+            else
+          #endif
+            { string = copy_string(STACK_1); }
+          value1 = string;
+        }
         # Buffer zur Wiederverwendung freigeben:
         O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
       }
@@ -3353,7 +3361,7 @@ LISPFUNN(uninterned_reader,3) # liest #:
     }
     if (!nullp(popSTACK())) { fehler_dispatch_zahl(); } # n/=NIL -> Error
     {# Token kopieren und dabei in Simple-String umwandeln:
-     var object string = copy_string(O(token_buff_1));
+     var object string = coerce_imm_ss(O(token_buff_1));
      # Auf Package-Marker testen:
      {var object buff_2 = O(token_buff_2); # Attributcode-Buffer
       var uintL len = TheIarray(buff_2)->dims[1]/8; # Länge = Fill-Pointer
@@ -5030,7 +5038,7 @@ LISPFUN(parse_integer,1,0,norest,key,4,\
       var object string; # String
       var uintL start; # Wert des :start-Arguments
       var uintL len; # Anzahl der angesprochenen Characters
-      var chart* charptr = test_string_limits(&string,&start,&len);
+      var const chart* charptr = test_string_limits_ro(&string,&start,&len);
       # STACK jetzt aufgeräumt.
       # Datenvektor holen:
       var uintL start_offset = 0;
@@ -8399,7 +8407,7 @@ LISPFUNN(print_structure,2)
               { pr_vector(stream_,obj); break; } # Byte-Vektor
           case Rectype_Sbvector: # Bit-Vektor
             pr_bvector(stream_,obj); break;
-          case Rectype_string: case Rectype_Sstring: # String
+          case Rectype_string: case Rectype_Sstring: case Rectype_Imm_Sstring: # String
             pr_string(stream_,obj); break;
           case Rectype_vector: case Rectype_Svector: # (vector t)
             pr_vector(stream_,obj); break;
@@ -9635,7 +9643,7 @@ LISPFUN(write_char,1,1,norest,nokey,0,NIL)
       { var object string;
         var uintL start;
         var uintL len;
-        test_string_limits(&string,&start,&len);
+        test_string_limits_ro(&string,&start,&len);
         pushSTACK(string);
         # Stackaufbau: stream, string.
        {var object sstring = array_displace_check(string,len,&start); # Datenvektor

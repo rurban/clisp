@@ -1205,7 +1205,7 @@ e.g. in a simple-bit-vector or in an Fpointer. (See allocate_fpointer().)
         var const char * const * pname_ptr = &pname_table[0]; # pname_table durchgehen
         var const uintB* index_ptr = &package_index_table[0]; # package_index_table durchgehen
         var uintC count = symbol_anz;
-        do { ptr->pname = ascii_to_string(*pname_ptr++); # Printnamen eintragen
+        do { ptr->pname = coerce_imm_ss(ascii_to_string(*pname_ptr++)); # Printnamen eintragen
             {var uintB index = *index_ptr++;
              var object* package_ = &STACK_(package_anz-1) STACKop -(uintP)index; # Pointer auf Package
              pushSTACK(symbol_tab_ptr_as_object(ptr)); # Symbol

@@ -238,7 +238,7 @@
                 case varobject_bias:
                   switch (Record_type(dies))
                     { case Rectype_Sbvector:
-                      case Rectype_Sstring:
+                      case Rectype_Sstring: case Rectype_Imm_Sstring:
                       case Rectype_Bignum:
                       case Rectype_Ffloat:
                       case Rectype_Dfloat:

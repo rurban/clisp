@@ -1,5 +1,101 @@
 1999-02-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
+        Introduce immutable strings.
+        * lispbibl.d (Rectype_Imm_Sstring): New enumeration item.
+          (Array_type_sstring): Include it.
+          (strmflags_immut_bit_B): New macro.
+          (vectorp, simplep, array_simplep, general_vector_p, simple_string_p,
+           stringp, byte_vector_p, arrayp, if_recordp): Update.
+          (case_Rectype_Sstring_above, case_Rectype_string_above): Include
+          Rectype_Imm_Sstring.
+          (allocate_imm_string): New declaration.
+          (with_string_0, with_string): Use unpack_string_ro.
+          (unpack_string_ro, unpack_string_rw): New declarations, replace
+          unpack_string.
+          (coerce_imm_ss): New declaration.
+          (test_string_limits_ro, test_string_limits_rw): New declarations,
+          replace test_string_limits.
+          (fehler_sstring_immutable): New declaration.
+          (check_sstring_mutable): New macro.
+        * spvw_update.d (update_varobject): Treat Rectype_Imm_Sstring like
+          Rectype_Sstring.
+        * spvw_garcol.d (gc_mark): Likewise.
+        * spvw_genera1.d (walk_area, build_old_generation_cache): Likewise.
+        * spvw_typealloc.d (allocate_imm_string): New function.
+        * error.d (fehler_sstring_immutable): New function.
+        * array.d (datenvektor_store): In case of Rectype_Imm_Sstring, signal
+          an error.
+        * charstrg.d (unpack_string_rw): Renamed from unpack_string. Add calls
+          to check_sstring_mutable.
+          (unpack_string_ro): New function.
+          (string_gleich, string_equal, copy_string): Use unpack_string_ro
+          instead of unpack_string.
+          (coerce_imm_ss): New function.
+          (coerce_char): Use unpack_string_ro instead of unpack_string.
+          (test_index_arg): Return the index, not the new charptr.
+          (CHAR, SCHAR): Update.
+          (SYS::STORE-CHAR): Update. Call unpack_string_rw instead of
+          unpack_string.
+          (SYS::STORE-SCHAR): Update. Add check_sstring_mutable call.
+          (test_string_limits_ro): Renamed from test_string_limits.
+          Use unpack_string_ro instead of unpack_string.
+          (test_string_limits_rw): New function.
+          (test_2_stringsym_limits): Use unpack_string_ro instead of
+          unpack_string.
+          (NSTRING-UPCASE, NSTRING-DOWNCASE, NSTRING-CAPITALIZE): Use
+          test_string_limits_rw instead of test_string_limits.
+          (SUBSTRING, string_concat): Use unpack_string_ro instead of
+          unpack_string.
+        * stream.d (strmflags_immut_bit_B, strmflags_immut_B): New macros.
+          (make_twoway_stream, make_echo_stream): Inherit the immut_B from
+          the input stream.
+          (rd_ch_str_in, rd_ch_array_str_in): Use unpack_string_ro instead of
+          unpack_string.
+          (MAKE-STRING-INPUT-STREAM): Use test_string_limits_ro instead of
+          test_string_limits.
+          (rd_ch_buff_in): Likewise. Use unpack_string_ro instead of
+          unpack_string.
+          (make_unbuffered_stream, make_buffered_stream): Put strmflags_immut_B
+          into the strmflags if asked for.
+          (FILE-STRING-LENGTH): Use unpack_string_ro instead of unpack_string.
+        * io.d (string_reader): Create an immutable string, if the stream
+          allows this.
+          (uninterned_reader): Likewise.
+          (PARSE-INTEGER): Use test_string_limits_ro instead of
+          test_string_limits.
+          (pr_orecord): Treat Rectype_Imm_Sstring like Rectype_Sstring.
+          (write_string_up): Use test_string_limits_ro instead of
+          test_string_limits.
+        * affi.d (affi_call_argsa): Use unpack_string_ro instead of
+          unpack_string.
+          (SYSTEM::MEM-READ): Use unpack_string_rw instead of unpack_string.
+          (SYSTEM::MEM-WRITE-VECTOR): Use unpack_string_ro instead of
+          unpack_string.
+        * package.d (string_hashcode): Use unpack_string_ro instead of
+          unpack_string.
+          (intern): Make the symbol-name strings immutable if possible.
+          (shadow): Likewise.
+          (MAKE-SYMBOL): Likewise.
+          (test_names_args): Make the package-name and package-nicknames
+          strings immutable if possible.
+        * spvw.d (init_symbol_tab_2): Make the symbol-name strings immutable
+          if possible.
+        * pathname.d (PARSE-NAMESTRING): Use test_string_limits_ro instead of
+          test_string_limits.
+        * encoding.d (string_to_asciz): Use unpack_string_ro instead of
+          unpack_string.
+        * foreign.d (convert_to_foreign): Use unpack_string_ro instead of
+          unpack_string.
+        * hashtabl.d (hashcode_string): Use unpack_string_ro instead of
+          unpack_string.
+          (hashcode3_atom): Treat Rectype_Imm_Sstring like Rectype_Sstring.
+        * sequence.d (READ-CHAR-SEQUENCE): Treat an empty string specially.
+          Then call unpack_string_rw instead of unpack_string.
+          (WRITE-CHAR-SEQUENCE): Treat an empty string specially.
+          Then call unpack_string_ro instead of unpack_string.
+
+1999-02-20  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
+
         Make room in the strmflags.
         * stream.d (strmflags_i_B, strmflags_ia_B, strmflags_ib_B,
            strmflags_ic_B): Remove macros.
