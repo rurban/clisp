@@ -1,17 +1,20 @@
+2003-01-04  Sam Steingold  <sds@gnu.org>
+
+	* hashtabl.d (%SET-HASH-TABLE-WEAK-P): a variable cannot have
+	type gcv_object_t
+	* makemake.in (check-sources): the target fails iff egrep succeeds
+
 2003-01-04  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	Get rid of some of scary warnings
-	* stream.d (wr_ch_array_window) [WIN32_NATIVE]: use uintB,
-	not char. 
-	* win32.d: undef SEEK_SET, SEEK_CUR, SEEK_END before
-	redefining.
+	Get rid of some scary warnings
+	* stream.d (wr_ch_array_window) [WIN32_NATIVE]: use uintB, not char
+	* win32.d: undef SEEK_SET, SEEK_CUR, SEEK_END before redefining
 
 2003-01-04  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
 	Fix mingw compilation
-	* pathname.d (resolve_shell_shortcut) [WIN32_NATIVE]:
-	use number instead of missing SLGP_RAWPATH, cast to void - avoid
-	a warning.
+	* pathname.d (resolve_shell_shortcut) [WIN32_NATIVE]: use number
+	instead of missing SLGP_RAWPATH, cast to void - avoid a warning.
 	(TrueName) [WIN32_NATIVE]: inline isalpha.
 	* win32aux.d (MyCreateProcess): fix declaration.
 	(abort): call exit to avoid a warning.
