@@ -10,12 +10,14 @@ linkingsets = base full
 prefix = /usr/local
 # Common base directory for architecture dependent files.
 exec_prefix = $(prefix)
+# Common base directory for architecture independent files
+shared = $(prefix)/share
 # Directory where executables are installed.
 bindir = $(exec_prefix)/bin
 # Directory where manual pages are installed.
-mandir = $(exec_prefix)/man
+mandir = $(shared)/man
 # Directory where documentation is installed.
-docdir = $(exec_prefix)/doc
+docdir = $(shared)/doc
 lispdocdir = $(docdir)/clisp
 # Directory where manual pages in HTML/DVI/PS format are installed.
 htmldir = $(lispdocdir)
