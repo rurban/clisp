@@ -7666,8 +7666,8 @@ typedef struct strm_i_buffered_extrafields_struct {
           # File-Handle-Streams werden für Pathname-Zwecke wie File-Streams behandelt.
           # Daher ist (vgl. file_write_date) strm_buffered_channel == strm_ochannel,
           # und wir tragen nun die Pathnames ein:
-          TheStream(stream)->strm_file_truename = STACK_2; # Truename eintragen
-          TheStream(stream)->strm_file_name = STACK_3; # Filename eintragen
+          TheStream(stream)->strm_file_truename = STACK_1; # Truename eintragen
+          TheStream(stream)->strm_file_name = STACK_2; # Filename eintragen
           if (direction & bit(0)) { UnbufferedHandleStream_input_init(stream); }
           if (direction & bit(2)) { UnbufferedHandleStream_output_init(stream); }
           ChannelStreamLow_close(stream) = &low_close_handle;
