@@ -133,6 +133,7 @@ FE-INIT-END   (lambda (seq index) ...) -> pointer
       reexpand:
       if (symbolp(name))
         { if (eq(name,S(list))) { goto expanded_unconstrained; }
+          if (eq(name,S(null)) || eq(name,S(cons))) { name = S(list); goto expanded_unconstrained; }
           if (eq(name,S(vector))) { goto expanded_unconstrained; }
           if (eq(name,S(simple_vector))) { name = S(vector); goto expanded_unconstrained; }
           if (eq(name,S(string))) { goto expanded_unconstrained; }
