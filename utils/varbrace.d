@@ -60,6 +60,12 @@ extern "C" void exit(int);
 #define inline
 #endif
 
+# g++ 3.3 doesn't accept compound expressions as initializers; as a workaround,
+# we transform "var object foo = ..." into "var object foo; foo = ...".
+#if defined(__GNUG__) && (__GNUC__ == 3) && (__GNUC_MINOR__ == 3)
+#define SPLIT_OBJECT_INITIALIZATIONS
+#endif
+
 
 # Memory utilities.
 
@@ -1155,6 +1161,41 @@ local Token next_token (void)
               line_repeat_endif();
             } else if ((line_directive = decode_line_directive(line)) >= 0)
               input_line = line_directive;
+#ifdef SPLIT_OBJECT_INITIALIZATIONS
+            else {
+              # Replace "var object foo = ..." with "var object foo; foo = ..."
+              # in macros as well.
+              if (out.buffindex < MAXHEADERLEN) {
+                out.buffer[out.buffindex] = '\0';
+                var uintB* p;
+                for (p = &out.buffer[token.startindex]; ; p++) {
+                  p = (uintB*) strstr((char*)p,"var object ");
+                  if (p == NULL)
+                    break;
+                  if (p[-1] == ' ' || p[-1] == '{') {
+                    p += strlen("var object ");
+                    var uintB* q = p;
+                    if ((*q >= 'A' && *q <= 'Z') || (*q >= 'a' && *q <= 'z') || *q == '_') {
+                      do
+                        q++;
+                      while ((*q >= 'A' && *q <= 'Z') || (*q >= 'a' && *q <= 'z') || (*q >= '0' && *q <= '9') || *q == '_');
+                      while (*q == ' ')
+                        q++;
+                      if (*q == '=') {
+                        var uintL insertlen = 2+(q-p);
+                        if (out.buffindex + insertlen < MAXHEADERLEN) {
+                          memmove(q+insertlen,q,&out.buffer[out.buffindex]-q+1);
+                          q[0] = ';'; q[1] = ' ';
+                          memcpy(q+2, p, q-p);
+                          out.buffindex += insertlen;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+#endif
           }
           xfree(line);
         }
@@ -1263,6 +1304,13 @@ void convert (FILE* infp, FILE* outfp, const char* infilename)
   if (infilename != NULL)
     fprintf(outfile,"#line 1 \"%s\"\n",infilename);
  {var boolean last_token_was_ident = FALSE;
+#ifdef SPLIT_OBJECT_INITIALIZATIONS
+  var boolean seen_var = FALSE;
+  var boolean seen_var_object = FALSE;
+  var boolean seen_var_object_ident = FALSE;
+  var uintL last_ident_len = 0;
+  var uintB last_ident_buf[256];
+#endif
   loop {
     var Token token = next_token();
     switch (token.type) {
@@ -1356,8 +1404,47 @@ void convert (FILE* infp, FILE* outfp, const char* infilename)
           default:
             break;
         }
+#ifdef SPLIT_OBJECT_INITIALIZATIONS
+        if (token.ch == '=' && seen_var_object_ident) {
+          out.buffer[token.startindex] = ';';
+          outbuffer_off();
+          fwrite(last_ident_buf,1,last_ident_len,outfile);
+          fputs(" =",outfile);
+        }
+        seen_var = FALSE;
+        seen_var_object = FALSE;
+        seen_var_object_ident = FALSE;
+#endif
         break;
       case ident:
+#ifdef SPLIT_OBJECT_INITIALIZATIONS
+        if ((token.endindex - token.startindex == 3)
+            && (out.buffer[token.startindex  ] == 'v')
+            && (out.buffer[token.startindex+1] == 'a')
+            && (out.buffer[token.startindex+2] == 'r')) {
+          seen_var = TRUE;
+          seen_var_object = FALSE;
+          seen_var_object_ident = FALSE;
+        } else if (seen_var
+                   && (token.endindex - token.startindex == 6)
+                   && (out.buffer[token.startindex  ] == 'o')
+                   && (out.buffer[token.startindex+1] == 'b')
+                   && (out.buffer[token.startindex+2] == 'j')
+                   && (out.buffer[token.startindex+3] == 'e')
+                   && (out.buffer[token.startindex+4] == 'c')
+                   && (out.buffer[token.startindex+5] == 't')) {
+          seen_var = FALSE;
+          seen_var_object = TRUE;
+          seen_var_object_ident = FALSE;
+        } else if (seen_var_object
+                   && (token.endindex - token.startindex <= sizeof(last_ident_buf))) {
+          seen_var = FALSE;
+          seen_var_object = FALSE;
+          seen_var_object_ident = TRUE;
+          last_ident_len = token.endindex - token.startindex;
+          memcpy(last_ident_buf,&out.buffer[token.startindex],last_ident_len);
+        }
+#endif
         if (!last_token_was_ident # to avoid cases like "local var x = ...;"
             && (token.endindex - token.startindex == 3)
             && (out.buffer[token.startindex  ] == 'v')
@@ -1376,6 +1463,11 @@ void convert (FILE* infp, FILE* outfp, const char* infilename)
         }
         break;
       default:
+#ifdef SPLIT_OBJECT_INITIALIZATIONS
+        seen_var = FALSE;
+        seen_var_object = FALSE;
+        seen_var_object_ident = FALSE;
+#endif
         break;
     }
     outbuffer_off();
