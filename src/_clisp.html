@@ -209,8 +209,8 @@ This may be
 <code>english</code>.
 #endif
 #ifdef GNU_GETTEXT
-<code>english</code>, <code>deutsch</code>, <code>francais</code>,
-<code>espanol</code>, <code>dutch</code>.
+<code>english</code>, <code>german</code>, <code>french</code>,
+<code>spanish</code>, <code>dutch</code>.
 Other languages may be specified through the environment variable
 <code>LANG</code>,
 provided the corresponding message catalog is installed.
@@ -526,8 +526,9 @@ EOF (Ctrl-\e)
  <dt><code>CLISP_LANGUAGE</code></dt>
   <dd>specifies the language <code>clisp</code>
    uses to communicate with the user.
-   The value may be <code>english</code>, <code>deutsch</code>,
-   <code>francais</code> and defaults to <code>english</code>.
+   The value may be <code>english</code>, <code>german</code>,
+   <code>french</code>, <code>spanish</code>, <code>dutch</code>,
+   and defaults to <code>english</code>.
    The <a href="#opt-lang"><code>-L</code></a> option can be used to
    override this environment variable.<p/></dd>
 #ifdef AMIGAOS
@@ -565,20 +566,20 @@ EOF (Ctrl-\e)
    <code>en</code>, <code>de</code>, <code>fr</code>.<p/></dd>
 
 #ifdef UNIX
- <dt><code>HOME</code> and <code>USER</code></dt>
+ <dt><code>HOME</code> and <code>USER</code> (Unix implementation only)</dt>
   <dd>are used for determining the value of the function
-   <code>user-homedir-pathname</code>. (Unix implementation only.)<p/></dd>
+   <code><a href="http://www.lisp.org/HyperSpec/Body/fun_user-homedir-pathname.html">user-homedir-pathname</a></code><p/></dd>
 #endif
 
 #ifdef UNIX
  <dt><code>SHELL</code> (Unix implementation only)</dt>
   <dd>is used to find the interactive command interpreter called by
-   <code>(shell)</code>.<p/></dd>
+   <code>(<a href="impnotes.html#shell">shell</a>)</code>.<p/></dd>
 #endif
 #ifdef MSDOS
  <dt><code>COMSPEC</code> (DOS, OS/2 implementations only)</dt>
   <dd>is used to find the command interpreter called by the function
-  <code>(shell)</code>.<p/></dd>
+  <code>(<a href="impnotes.html#shell">shell</a>)</code>.<p/></dd>
 #endif
 
 #ifdef UNIX
@@ -625,12 +626,11 @@ EOF (Ctrl-\e)
 following information:</p>
 
 <ol>
- <li>What is your platform?
-  (<code>"uname -a"</code> on a Unix system)
-  compiler version?  libc (on Linux)?</li>
+ <li>What is your platform (<code>"uname -a"</code> on a Unix system)?
+  Compiler version?  LIBC version (on Linux)?</li>
  <li>Where did you get the sources?  When?
-  (Absolute dates are preferred over the relative ones)</li>
- <li>How did you build <code>clisp</code>? (What command, options etc.)
+  (Absolute dates are preferred over the relative ones).</li>
+ <li>How did you build <code>clisp</code>? (What command, options &amp;c.)
   Please do a clean build (remove your build directory and build
   <code>clisp</code> with <code>"./configure --build build"</code> or at
   least do a <code>"make distclean"</code> before <code>"make"</code>).
